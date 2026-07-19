@@ -33,6 +33,12 @@ import {
 import { isValidColorValue } from './color-validator.js';
 import { classificationImportError } from './classification-tree.js';
 import { toDayNumber } from './time-coordinate-mapper.js';
+import {
+  DEFAULT_DEPENDENCY_FROM_ANCHOR,
+  DEFAULT_DEPENDENCY_TO_ANCHOR,
+  predecessorItemIds,
+  successorItemIds,
+} from './dependency-projection.js';
 
 /** The schema version this build writes and migrates up to (DATA-JSON-001). */
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -46,9 +52,19 @@ export const CURRENT_SCHEMA_VERSION = 1;
  * @returns The JSON text.
  */
 export function serializeScheduleDocument(document: ScheduleDocument, pretty = false): string {
-  const normalized: ScheduleDocument = {
+  // Project each item's predecessor/successor arrays from the canonical edge list
+  // (item 4) so the exported JSON carries per-item dependency arrays for AI / manual
+  // authoring, without ever storing that derived state on the in-memory item.
+  const dependencies = document.dependencies ?? [];
+  const items = document.items.map((item) => ({
+    ...item,
+    predecessorItemIds: predecessorItemIds(dependencies, item.id),
+    successorItemIds: successorItemIds(dependencies, item.id),
+  }));
+  const normalized = {
     ...document,
     schemaVersion: CURRENT_SCHEMA_VERSION,
+    items,
   };
   return JSON.stringify(normalized, null, pretty ? 2 : 0);
 }
@@ -175,6 +191,11 @@ function validateItem(value: unknown, index: number): ScheduleItem {
   requireColor(value['fillColor'], `items[${index}].fillColor`);
   requireColor(value['strokeColor'], `items[${index}].strokeColor`);
   validateFadeFields(value, itemKind, endDate, requireString(value['startDate'], `items[${index}].startDate`), index);
+  // Per-item dependency arrays (item 4): when present each must be an array of item-id
+  // strings. Their VALUES (dangling / self refs) are repaired later by
+  // reconcileItemDependencyArrays; here we only enforce the shape.
+  validateItemIdArray(value['predecessorItemIds'], `items[${index}].predecessorItemIds`);
+  validateItemIdArray(value['successorItemIds'], `items[${index}].successorItemIds`);
   // Classification integrity (SECT rework): reject a minor without a middle, and
   // any middle/minor without a major, so an imported tree is always well formed.
   const classificationError = classificationImportError(value as unknown as ScheduleItem);
@@ -226,6 +247,21 @@ function validateFadeFields(
       `fadeInDays + fadeOutDays (${resolvedIn + resolvedOut}) must not exceed the task length (${lengthDays} days)`,
     );
   }
+}
+
+/**
+ * Validate an optional per-item dependency id array (item 4): absent is fine; when
+ * present it must be an array whose every entry is a string. Referential integrity
+ * (ids naming a real item) is NOT enforced here -- dangling entries are dropped by
+ * {@link reconcileItemDependencyArrays} rather than rejected, so an AI-authored array
+ * with a stray id imports safely instead of throwing.
+ */
+function validateItemIdArray(value: unknown, path: string): void {
+  if (value === undefined) {
+    return;
+  }
+  const array = requireArray(value, path);
+  array.forEach((entry, index) => requireString(entry, `${path}[${index}]`));
 }
 
 function isAnchorIndex(value: unknown): value is AnchorIndex {
@@ -414,7 +450,75 @@ export function deserializeScheduleDocument(jsonText: string): ScheduleDocument 
     throw new ImportRejectedError('Top-level JSON value must be an object');
   }
   const migrated = migrateToCurrent(parsed);
-  return validateScheduleDocument(migrated);
+  return reconcileItemDependencyArrays(validateScheduleDocument(migrated));
+}
+
+/** A separator that cannot appear in a JSON string id, keying a directed edge pair. */
+function edgePairKey(fromItemId: string, toItemId: string): string {
+  return `${encodeURIComponent(fromItemId)}|${encodeURIComponent(toItemId)}`;
+}
+
+/** Read a validated (shape-checked) item-id array field, or [] when absent. */
+function readIdArrayField(item: RawRecord, key: string): string[] {
+  const value = item[key];
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
+}
+
+/**
+ * Reconcile the per-item dependency arrays (item 4) into the canonical edge list, then
+ * STRIP the arrays off the items so the in-memory model holds no derived/duplicate
+ * state. The canonical `dependencies` edge list is authoritative; for any array entry
+ * that names a real item and is not already covered by an edge (matched by directed
+ * pair), a synthetic edge with default anchors is appended. Entries that reference a
+ * missing item, or self, are dropped (dangling-ref repair). When no array contributes a
+ * new edge and no arrays are present, the document's `dependencies` field is preserved
+ * verbatim (including `undefined`) so a round-trip is byte-for-meaning stable.
+ */
+function reconcileItemDependencyArrays(document: ScheduleDocument): ScheduleDocument {
+  const validItemIds = new Set(document.items.map((item) => item.id));
+  const existing = document.dependencies ?? [];
+  const pairSet = new Set(existing.map((edge) => edgePairKey(edge.fromItemId, edge.toItemId)));
+  const synthetic: Dependency[] = [];
+  let serial = 0;
+  const addSynthetic = (fromItemId: string, toItemId: string): void => {
+    if (fromItemId === toItemId || !validItemIds.has(fromItemId) || !validItemIds.has(toItemId)) {
+      return;
+    }
+    const key = edgePairKey(fromItemId, toItemId);
+    if (pairSet.has(key)) {
+      return;
+    }
+    pairSet.add(key);
+    synthetic.push({
+      id: `dep-arr-${serial}`,
+      fromItemId,
+      fromAnchor: DEFAULT_DEPENDENCY_FROM_ANCHOR,
+      toItemId,
+      toAnchor: DEFAULT_DEPENDENCY_TO_ANCHOR,
+    });
+    serial += 1;
+  };
+  for (const item of document.items) {
+    const raw = item as unknown as RawRecord;
+    for (const from of readIdArrayField(raw, 'predecessorItemIds')) {
+      addSynthetic(from, item.id);
+    }
+    for (const to of readIdArrayField(raw, 'successorItemIds')) {
+      addSynthetic(item.id, to);
+    }
+  }
+  const items = document.items.map((item) => {
+    const rest = { ...(item as unknown as RawRecord) };
+    delete rest['predecessorItemIds'];
+    delete rest['successorItemIds'];
+    return rest as unknown as ScheduleItem;
+  });
+  if (synthetic.length === 0) {
+    // No array contributed a new edge: preserve `dependencies` verbatim (including an
+    // absent field) so a plain round-trip is byte-for-meaning stable.
+    return { ...document, items };
+  }
+  return { ...document, items, dependencies: [...existing, ...synthetic] };
 }
 
 // Re-export so callers importing the codec can surface a single error type.

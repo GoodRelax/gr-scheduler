@@ -61,7 +61,6 @@ import {
 import type { SectionMoveDirection } from '../../domain/usecase/section-organizer.js';
 import type { CategoryMoveDirection } from '../../domain/usecase/classification-tree.js';
 import { clampLeftPaneWidth, resolveLeftPaneWidth } from '../../domain/usecase/left-pane-layout.js';
-import { SUBCLASSIFICATION_TEXT_HEX } from '../../domain/usecase/a11y-tokens.js';
 
 /**
  * A classification node addressed by the pane: its level, path components, display
@@ -159,8 +158,9 @@ export class LeftClassificationPane {
     this.container.style.left = '0';
     this.container.style.bottom = '0';
     this.container.style.overflow = 'hidden';
-    this.container.style.background = '#eef1f5';
-    this.container.style.borderRight = '1.5px solid #c3c8d0';
+    this.container.style.background = 'var(--grsch-pane-bg)';
+    this.container.style.borderRight = '1.5px solid var(--grsch-section-line)';
+    this.container.style.color = 'var(--grsch-text)';
     this.container.style.boxSizing = 'border-box';
     // Relative sizing so the uniform font scale (TOOL-L1-002) rescales the pane.
     this.container.style.fontFamily = 'system-ui, sans-serif';
@@ -207,7 +207,7 @@ export class LeftClassificationPane {
     this.editToolbar.style.alignItems = 'center';
     this.editToolbar.style.gap = '4px';
     // Opaque so it masks any row content scrolled up under the Gantt corner.
-    this.editToolbar.style.background = '#eef1f5';
+    this.editToolbar.style.background = 'var(--grsch-pane-bg)';
     this.editToolbar.style.zIndex = '5';
     const addSectionButton = this.buildEditButton('add-section', '+', 'Add section', () => {
       this.store.dispatch(addSectionCommand());
@@ -302,7 +302,7 @@ export class LeftClassificationPane {
         header.style.alignItems = 'center';
         header.style.gap = '4px';
         header.style.fontWeight = '700';
-        header.style.color = '#333a44';
+        header.style.color = 'var(--grsch-header-label)';
         header.style.overflow = 'hidden';
         header.style.whiteSpace = 'nowrap';
 
@@ -334,7 +334,7 @@ export class LeftClassificationPane {
         midLabel.style.display = 'flex';
         midLabel.style.alignItems = 'flex-start';
         midLabel.style.gap = '4px';
-        midLabel.style.color = '#2b2b2b';
+        midLabel.style.color = 'var(--grsch-mid-label)';
         midLabel.style.overflow = 'hidden';
 
         const middleKey = JSON.stringify([trackMajor, trackMiddle]);
@@ -372,7 +372,7 @@ export class LeftClassificationPane {
         subLabel.style.display = 'flex';
         subLabel.style.alignItems = 'center';
         subLabel.style.gap = '4px';
-        subLabel.style.color = SUBCLASSIFICATION_TEXT_HEX;
+        subLabel.style.color = 'var(--grsch-sub-label)';
         subLabel.style.fontSize = '0.83em';
         subLabel.style.overflow = 'hidden';
 
@@ -568,10 +568,10 @@ export class LeftClassificationPane {
     button.style.fontSize = fontSize;
     button.style.lineHeight = '1';
     button.style.padding = '0 3px';
-    button.style.border = '1px solid #b7bdc7';
+    button.style.border = '1px solid var(--grsch-btn-face-border)';
     button.style.borderRadius = '3px';
-    button.style.background = '#fbfcfe';
-    button.style.color = '#333a44';
+    button.style.background = 'var(--grsch-btn-face)';
+    button.style.color = 'var(--grsch-header-label)';
     button.style.flex = '0 0 auto';
   }
 
@@ -620,8 +620,8 @@ export class LeftClassificationPane {
     menu.style.left = `${event.clientX || 0}px`;
     menu.style.top = `${event.clientY || 0}px`;
     menu.style.zIndex = '30';
-    menu.style.background = '#ffffff';
-    menu.style.border = '1px solid #9aa1ac';
+    menu.style.background = 'var(--grsch-surface-strong)';
+    menu.style.border = '1px solid var(--grsch-menu-border)';
     menu.style.borderRadius = '4px';
     menu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
     menu.style.padding = '2px';
@@ -674,7 +674,7 @@ export class LeftClassificationPane {
     item.style.padding = '4px 12px';
     item.style.border = 'none';
     item.style.background = 'transparent';
-    item.style.color = '#222';
+    item.style.color = 'var(--grsch-text-strong)';
     item.addEventListener('click', onClick);
     return item;
   }
@@ -709,7 +709,7 @@ export class LeftClassificationPane {
     overlay.style.position = 'fixed';
     overlay.style.inset = '0';
     overlay.style.zIndex = '40';
-    overlay.style.background = 'rgba(0,0,0,0.28)';
+    overlay.style.background = 'var(--grsch-scrim)';
     overlay.style.display = 'flex';
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
@@ -719,13 +719,13 @@ export class LeftClassificationPane {
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
     dialog.setAttribute('aria-labelledby', 'delete-dialog-title');
-    dialog.style.background = '#ffffff';
+    dialog.style.background = 'var(--grsch-surface-strong)';
     dialog.style.borderRadius = '6px';
     dialog.style.boxShadow = '0 6px 24px rgba(0,0,0,0.3)';
     dialog.style.padding = '16px 18px';
     dialog.style.minWidth = '220px';
     dialog.style.font = 'inherit';
-    dialog.style.color = '#222';
+    dialog.style.color = 'var(--grsch-text-strong)';
 
     const title = this.el('p');
     title.id = 'delete-dialog-title';
@@ -740,9 +740,9 @@ export class LeftClassificationPane {
     buttonRow.style.gap = '10px';
 
     const deleteButton = this.buildDialogButton('dialog-delete', 'D', 'elete', 'Delete');
-    deleteButton.style.background = '#c0392b';
-    deleteButton.style.color = '#ffffff';
-    deleteButton.style.border = '1px solid #a5281c';
+    deleteButton.style.background = 'var(--grsch-danger)';
+    deleteButton.style.color = 'var(--grsch-danger-text)';
+    deleteButton.style.border = '1px solid var(--grsch-danger-border)';
     const cancelButton = this.buildDialogButton('dialog-cancel', 'C', 'ancel', 'Cancel');
 
     const confirm = (): void => {
@@ -801,8 +801,9 @@ export class LeftClassificationPane {
     button.style.cursor = 'pointer';
     button.style.padding = '5px 14px';
     button.style.borderRadius = '4px';
-    button.style.border = '1px solid #b7bdc7';
-    button.style.background = '#f2f4f7';
+    button.style.border = '1px solid var(--grsch-btn-face-border)';
+    button.style.background = 'var(--grsch-btn-face-alt)';
+    button.style.color = 'var(--grsch-text-strong)';
     button.style.font = 'inherit';
     const bold = this.el('b');
     bold.textContent = boldLetter;
@@ -847,10 +848,10 @@ export class LeftClassificationPane {
       button.style.textOverflow = 'ellipsis';
       button.style.fontSize = '0.85em';
       button.style.padding = '0 6px';
-      button.style.border = '1px solid #9aa1ac';
+      button.style.border = '1px solid var(--grsch-btn-active-border)';
       button.style.borderRadius = '3px';
-      button.style.background = '#d7dce3';
-      button.style.color = '#333a44';
+      button.style.background = 'var(--grsch-btn-active-bg)';
+      button.style.color = 'var(--grsch-header-label)';
       button.addEventListener('click', () => {
         this.store.dispatch(setSectionCollapsedCommand(tab.sectionId, false));
       });

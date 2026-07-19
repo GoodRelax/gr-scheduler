@@ -77,6 +77,14 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   armed: { en: 'armed', ja: '選択中' },
   none: { en: 'none', ja: 'なし' },
   watermark: { en: 'Watermark', ja: '透かし' },
+  watermark_hide_prompt: {
+    en: 'Enter the password to hide the watermark:',
+    ja: '透かしを非表示にするパスワードを入力してください:',
+  },
+  watermark_hide_denied: {
+    en: 'Incorrect password. The watermark stays visible.',
+    ja: 'パスワードが正しくありません。透かしは表示されたままです。',
+  },
   user_name: { en: 'User name', ja: 'ユーザー名' },
   language: { en: 'Language', ja: '言語' },
   export_json: { en: 'Export JSON', ja: 'JSON 出力' },
@@ -127,6 +135,8 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   hide_section: { en: 'Hide section', ja: 'セクションを隠す' },
   show_section: { en: 'Show section', ja: 'セクションを表示' },
   autosave_status: { en: 'Autosave status', ja: '自動保存の状態' },
+  help: { en: 'Help', ja: 'ヘルプ' },
+  theme_toggle: { en: 'Toggle dark mode', ja: 'ダークモード切り替え' },
 } as const;
 
 /**

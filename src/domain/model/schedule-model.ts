@@ -94,6 +94,29 @@ export type CursorGuideMode = 'none' | 'crosshair' | 'single-vertical' | 'double
 export const DOUBLE_VERTICAL_GUIDE_OFFSET_PX = 40;
 
 /**
+ * Cursor-guide stroke color for the `crosshair` and `single-vertical` modes:
+ * shocking pink. A bright accent chosen to read clearly over both the light and the
+ * dark canvas without being confused with the (blue) today line or the (gold)
+ * dependency lines. The lines are drawn THIN (~1px, CURS-L1-003).
+ */
+export const CURSOR_GUIDE_LINE_COLOR = '#FF1493';
+
+/**
+ * Cursor-guide stroke color for the `double-vertical` mode: a shocking GREEN, the
+ * hue-complement of {@link CURSOR_GUIDE_LINE_COLOR} shocking pink. Distinguishes the
+ * two-line span guide from the single/crosshair guides at a glance while staying a
+ * bright, both-theme-legible accent.
+ */
+export const CURSOR_GUIDE_DOUBLE_LINE_COLOR = '#00EB6C';
+
+/**
+ * The "today" vertical marker stroke color: a high-brightness blue (dodger blue).
+ * Recolored from the earlier orange so the today line reads as a cool, high-contrast
+ * marker distinct from the warm dependency gold; drawn THIN and dashed (CURS-L1-001).
+ */
+export const TODAY_LINE_COLOR = '#1E90FF';
+
+/**
  * Default progress-line (イナズマ線 / lightning status line) stroke color: purple.
  * Applied when {@link ViewState.progressLineColor} is absent, so the plan-vs-actual
  * zig-zag reads as purple unless the user recolors it.
@@ -425,11 +448,30 @@ export interface I18nValue {
 }
 
 /**
+ * Default watermark label text (TOOL-L2-001). Used when no user name is entered,
+ * so a fresh document carries a visible evidence mark by default (default-ON).
+ */
+export const DEFAULT_WATERMARK_TEXT = 'GoodRelax';
+
+/**
+ * SHA-256 hex digest of the DEFAULT watermark-hide password (security-design §6).
+ * Only the HASH is ever stored in code / model / exported HTML+JSON -- never the
+ * raw password. The raw default password is documented in the StrictDoc spec
+ * (docs/spec/19-tools-watermark.sdoc) for server-side rotation and MUST be changed
+ * for any server deployment. Client-side hiding is a soft deterrent only: a
+ * determined user can still edit the DOM/HTML directly.
+ */
+export const DEFAULT_WATERMARK_HIDE_PASSWORD_HASH =
+  'a8f81cfc4f489a27c6e6fa3a31c6089878a3648e24c04ee1b934ac03b99ce46c';
+
+/**
  * The evidence watermark configuration (TOOL-L1-007, TOOL-L2-001/003,
  * DATA-JSON-010). `userName` is a locally entered, self-asserted name (NOT an
  * authenticated identity, security-design §6); `timestamp` is an ISO-8601 string.
  * When `enabled` is true the diagonal tiled watermark is drawn on the live canvas
- * AND embedded into SVG export so a shared/captured chart carries the mark.
+ * AND embedded into SVG export so a shared/captured chart carries the mark. The
+ * watermark is shown by DEFAULT (an absent {@link ViewState.watermark} resolves to
+ * an enabled default mark -- see resolveWatermark).
  */
 export interface Watermark {
   /** Visibility toggle (TOOL-L2-003); false leaves the chart unmarked. */
@@ -438,6 +480,12 @@ export interface Watermark {
   readonly userName: string;
   /** ISO-8601 generation timestamp shown in the mark (TOOL-L2-001). */
   readonly timestamp: string;
+  /**
+   * SHA-256 hex digest of the password required to HIDE the watermark
+   * (security-design §6). Absent falls back to {@link DEFAULT_WATERMARK_HIDE_PASSWORD_HASH}.
+   * Only the hash is persisted -- the raw password is never stored.
+   */
+  readonly hideHash?: string;
 }
 
 /**
@@ -515,6 +563,14 @@ export interface ViewState {
    * fontScale) so switching language is not an undoable edit.
    */
   readonly activeLocale?: Locale;
+  /**
+   * The light / dark theme preference (SHELL/THEME batch). `'system'` (or absent)
+   * follows the OS `prefers-color-scheme`; an explicit `'light'` / `'dark'` pins
+   * the theme. A display concern like fontScale, so it is not an undoable edit; it
+   * round-trips via JSON / autosave and is mirrored to localStorage for a
+   * document-independent choice.
+   */
+  readonly themePreference?: 'light' | 'dark' | 'system';
 }
 
 /** Root aggregate for the M1 skeleton. */

@@ -25,8 +25,11 @@ import type {
   ViewState,
 } from '../../domain/model/schedule-model.js';
 import {
+  CURSOR_GUIDE_DOUBLE_LINE_COLOR,
+  CURSOR_GUIDE_LINE_COLOR,
   DEFAULT_DEPENDENCY_LINE_COLOR,
   DEFAULT_PROGRESS_LINE_COLOR,
+  TODAY_LINE_COLOR,
 } from '../../domain/model/schedule-model.js';
 import {
   effectiveMilestoneShape,
@@ -103,7 +106,11 @@ import { resolveWheelMode } from '../input/wheel-mode.js';
 import { pickItemHit, type HitCandidate } from '../../domain/usecase/edge-hit.js';
 import type { CursorMode, CursorGuideMode } from '../../domain/model/schedule-model.js';
 import { DOUBLE_VERTICAL_GUIDE_OFFSET_PX } from '../../domain/model/schedule-model.js';
-import { buildWatermarkLayer } from '../../domain/usecase/watermark-builder.js';
+import { buildWatermarkLayer, resolveWatermark } from '../../domain/usecase/watermark-builder.js';
+import {
+  commentLeaderEndpoints,
+  resolveItemAnchorPoint,
+} from '../../domain/usecase/comment-layout.js';
 import { itemAccessibleName } from '../../domain/usecase/accessible-name.js';
 import {
   FOCUS_RING_DASH_ARRAY,
@@ -287,7 +294,17 @@ export class SvgRenderer {
     this.svg.setAttribute('height', '100%');
     this.svg.style.display = 'block';
     this.svg.style.touchAction = 'none';
-    this.svg.style.background = '#ffffff';
+    // Suppress native TEXT selection across the whole canvas so a marquee/normal
+    // drag never blue-highlights the watermark, item abbreviation labels, category
+    // labels or ruler text (selection-bug fix). Real editable inputs (property
+    // fields, the user-name box) live OUTSIDE this SVG in the HTML chrome, so they
+    // stay fully selectable/editable. Set on the root so it cascades to all text.
+    this.svg.style.userSelect = 'none';
+    this.svg.style.setProperty('-webkit-user-select', 'none');
+    // Themed via the shared CSS variable (light default matches the historical
+    // white). Using an inline `var()` re-resolves live on a theme switch, so no
+    // re-render is needed when the user toggles dark mode.
+    this.svg.style.background = 'var(--grsch-canvas-bg, #ffffff)';
 
     // Accessibility: make the schedule an operable, named application region
     // reachable by keyboard (WCAG 4.1.2 role/name, 2.1.1 keyboard). The concrete
@@ -891,17 +908,40 @@ export class SvgRenderer {
     );
   }
 
+  /**
+   * Screen-space anchor point of a comment (CURS-L1-005). When the comment is
+   * ITEM-anchored (`anchorItemId` set and the item is placed), the anchor is the
+   * 9-point {@link resolveItemAnchorPoint} on the item's live box, so it FOLLOWS
+   * the item as it moves. Otherwise it is the free world point (`anchorDate` /
+   * `anchorRowIndex`), which pans/zooms with the canvas.
+   */
+  private commentAnchorScreenPoint(
+    comment: CommentAnnotation,
+    epoch: IsoDate,
+  ): { x: number; y: number } {
+    if (comment.anchorItemId !== undefined) {
+      const placement = this.placementById.get(comment.anchorItemId);
+      if (placement !== undefined) {
+        const world = resolveItemAnchorPoint(placementRect(placement), comment.anchorPoint);
+        return { x: this.worldToScreenX(world.x), y: this.worldToScreenY(world.y) };
+      }
+    }
+    const anchorWorldX = dateToWorldX(comment.anchorDate, epoch, this.viewState.zoomX);
+    const rowBand = this.rowTop(comment.anchorRowIndex);
+    return {
+      x: this.worldToScreenX(anchorWorldX),
+      y: this.worldToScreenY(rowBand + this.rowHeight(comment.anchorRowIndex) / 2),
+    };
+  }
+
   /** Screen-space bounding box of a comment's text body (for hit-testing/select). */
   private commentBodyRect(
     comment: CommentAnnotation,
     epoch: IsoDate,
   ): { x: number; y: number; width: number; height: number } {
-    const anchorWorldX = dateToWorldX(comment.anchorDate, epoch, this.viewState.zoomX);
-    const rowBand = this.rowTop(comment.anchorRowIndex);
-    const anchorX = this.worldToScreenX(anchorWorldX);
-    const anchorY = this.worldToScreenY(rowBand + this.rowHeight(comment.anchorRowIndex) / 2);
-    const bodyX = anchorX + comment.bodyOffsetPx.dx;
-    const bodyY = anchorY + comment.bodyOffsetPx.dy;
+    const anchor = this.commentAnchorScreenPoint(comment, epoch);
+    const bodyX = anchor.x + comment.bodyOffsetPx.dx;
+    const bodyY = anchor.y + comment.bodyOffsetPx.dy;
     const width = Math.max(24, comment.text.length * 7 + 10);
     const height = 20;
     return { x: bodyX, y: bodyY - height / 2, width, height };
@@ -1568,8 +1608,10 @@ export class SvgRenderer {
    * `textContent`, so an XSS payload in the name becomes inert text (C-17).
    */
   private renderWatermark(): void {
-    const watermark = this.viewState.watermark;
-    if (watermark === undefined || !watermark.enabled) {
+    // Default-ON: an absent watermark resolves to the enabled default mark
+    // ("GoodRelax") so a fresh/legacy document still carries the evidence mark.
+    const watermark = resolveWatermark(this.viewState.watermark);
+    if (!watermark.enabled) {
       return;
     }
     const layer = buildWatermarkLayer(
@@ -1636,8 +1678,11 @@ export class SvgRenderer {
     line.setAttribute('x2', String(x));
     line.setAttribute('y1', '0');
     line.setAttribute('y2', String(this.canvasSize.heightPx));
-    line.setAttribute('stroke', '#d55e00');
-    line.setAttribute('stroke-width', '1.5');
+    // High-brightness blue (dodger blue), THIN and dashed so the today marker reads
+    // as a cool, high-contrast line distinct from the warm dependency gold (item 2).
+    line.setAttribute('data-role', 'today-line');
+    line.setAttribute('stroke', TODAY_LINE_COLOR);
+    line.setAttribute('stroke-width', '1');
     line.setAttribute('stroke-dasharray', '6 3');
     this.overlayGroup.appendChild(line);
   }
@@ -1725,7 +1770,11 @@ export class SvgRenderer {
     if (x < leftPaneWidth || x > rightEdge || y < 0 || y > bottomEdge) {
       return;
     }
-    const color = '#0072b2';
+    // crosshair + single-vertical draw in shocking pink; double-vertical draws in the
+    // shocking-green complement so the span (two-line) guide is distinct at a glance
+    // (item 1). Both are bright accents legible over the light and the dark canvas.
+    const color =
+      mode === 'double-vertical' ? CURSOR_GUIDE_DOUBLE_LINE_COLOR : CURSOR_GUIDE_LINE_COLOR;
     const group = document.createElementNS(SVG_NS, 'g');
     group.setAttribute('data-role', 'cursor-guide');
     group.setAttribute('data-guide-mode', mode);
@@ -1773,7 +1822,7 @@ export class SvgRenderer {
     if (this.viewState.progressLineVisible === false) {
       return;
     }
-    const fronts = this.computeRowProgressFronts();
+    const { fronts, itemCenterByRowIndex } = this.computeRowProgressFronts();
     const worldVertices = buildIlluminatedLine(
       this.today,
       fronts,
@@ -1782,6 +1831,10 @@ export class SvgRenderer {
       this.viewState.zoomY,
       (rowIndex) => this.rowTop(rowIndex),
       (rowIndex) => this.rowHeight(rowIndex),
+      // Bend at the touched item's vertical center; fall back to the band center for a
+      // row whose front-defining item has no placement (item 3).
+      (rowIndex) =>
+        itemCenterByRowIndex.get(rowIndex) ?? this.rowTop(rowIndex) + this.rowHeight(rowIndex) / 2,
     );
     if (worldVertices.length < 2) {
       return;
@@ -1809,8 +1862,16 @@ export class SvgRenderer {
    * (PLAN-L2-001). The front is `start + progressRatio * span`; the furthest
    * front on a row wins. Rows with no actual item contribute no vertex.
    */
-  private computeRowProgressFronts(): RowProgressFront[] {
+  private computeRowProgressFronts(): {
+    fronts: RowProgressFront[];
+    itemCenterByRowIndex: Map<number, number>;
+  } {
     const frontDayByRowIndex = new Map<number, number>();
+    // The world-space vertical center of the ITEM that defines each row's front, so the
+    // progress line can bend exactly at that item's mid-height (item 3). Keyed by the
+    // same row index as the front and taken from the item's own placement, which already
+    // accounts for the 90%-of-lane stacked bar height and the row band's top padding.
+    const itemCenterByRowIndex = new Map<number, number>();
     for (const item of this.scheduleDocument?.items ?? []) {
       if (item.planActualKind !== 'actual') {
         continue;
@@ -1827,13 +1888,17 @@ export class SvgRenderer {
       const current = frontDayByRowIndex.get(rowIndex);
       if (current === undefined || frontDay > current) {
         frontDayByRowIndex.set(rowIndex, frontDay);
+        const placement = this.placementById.get(item.id);
+        if (placement !== undefined) {
+          itemCenterByRowIndex.set(rowIndex, placement.worldY + placement.worldHeight / 2);
+        }
       }
     }
     const fronts: RowProgressFront[] = [];
     for (const [rowIndex, frontDay] of frontDayByRowIndex) {
       fronts.push({ rowIndex, frontDate: fromDayNumber(frontDay) });
     }
-    return fronts;
+    return { fronts, itemCenterByRowIndex };
   }
 
   /**
@@ -1959,26 +2024,33 @@ export class SvgRenderer {
       return;
     }
     const epoch = this.scheduleDocument.epochDate;
-    const anchorWorldX = dateToWorldX(comment.anchorDate, epoch, this.viewState.zoomX);
-    const rowBand = this.rowTop(comment.anchorRowIndex);
-    const anchorX = this.worldToScreenX(anchorWorldX);
-    const anchorY = this.worldToScreenY(rowBand + this.rowHeight(comment.anchorRowIndex) / 2);
+    const anchor = this.commentAnchorScreenPoint(comment, epoch);
+    const anchorX = anchor.x;
+    const anchorY = anchor.y;
     const bodyX = anchorX + comment.bodyOffsetPx.dx;
     const bodyY = anchorY + comment.bodyOffsetPx.dy;
+    const width = Math.max(24, comment.text.length * 7 + 10);
+    const height = 20;
 
     // Cull comments whose leader+body bounding box is off-viewport (M-02).
     const boundLeft = Math.min(anchorX, bodyX);
     const boundTop = Math.min(anchorY, bodyY);
-    const boundWidth = Math.abs(bodyX - anchorX) + Math.max(24, comment.text.length * 7 + 10);
-    const boundHeight = Math.abs(bodyY - anchorY) + 20;
+    const boundWidth = Math.abs(bodyX - anchorX) + width;
+    const boundHeight = Math.abs(bodyY - anchorY) + height;
     if (!this.screenRectVisible(boundLeft, boundTop, boundWidth, boundHeight)) {
       return;
     }
 
+    // The leader runs from the bubble box's nearest edge/corner to the anchor, so a
+    // dragged bubble re-routes the leader while still pointing at the same anchor
+    // (CURS-L1-006). The bubble box top-left is (bodyX, bodyY - height/2).
+    const bubbleRect = { x: bodyX, y: bodyY - height / 2, width, height };
+    const { fromBubble } = commentLeaderEndpoints(bubbleRect, { x: anchorX, y: anchorY });
+
     if (comment.annotationKind === 'callout-box') {
-      const width = Math.max(24, comment.text.length * 7 + 10);
-      const height = 20;
       const box = document.createElementNS(SVG_NS, 'rect');
+      box.setAttribute('data-role', 'comment-bubble');
+      box.setAttribute('data-annotation-id', comment.id);
       box.setAttribute('x', String(bodyX));
       box.setAttribute('y', String(bodyY - height / 2));
       box.setAttribute('width', String(width));
@@ -1988,10 +2060,12 @@ export class SvgRenderer {
       box.setAttribute('stroke', '#8a6d3b');
       box.setAttribute('stroke-width', '1');
       const leader = document.createElementNS(SVG_NS, 'line');
-      leader.setAttribute('x1', String(anchorX));
-      leader.setAttribute('y1', String(anchorY));
-      leader.setAttribute('x2', String(bodyX));
-      leader.setAttribute('y2', String(bodyY));
+      leader.setAttribute('data-role', 'comment-leader');
+      leader.setAttribute('data-annotation-id', comment.id);
+      leader.setAttribute('x1', String(fromBubble.x));
+      leader.setAttribute('y1', String(fromBubble.y));
+      leader.setAttribute('x2', String(anchorX));
+      leader.setAttribute('y2', String(anchorY));
       leader.setAttribute('stroke', '#8a6d3b');
       leader.setAttribute('stroke-width', '1');
       const text = this.buildCommentText(comment.text, bodyX + 5, bodyY);
@@ -2001,12 +2075,14 @@ export class SvgRenderer {
       return;
     }
 
-    // polyline leader: anchor -> elbow -> body, then the text at the body.
-    const elbowX = (anchorX + bodyX) / 2;
+    // polyline leader: anchor -> elbow -> bubble edge, then the text at the body.
+    const elbowX = (anchorX + fromBubble.x) / 2;
     const leader = document.createElementNS(SVG_NS, 'path');
+    leader.setAttribute('data-role', 'comment-leader');
+    leader.setAttribute('data-annotation-id', comment.id);
     leader.setAttribute(
       'd',
-      `M ${anchorX} ${anchorY} L ${elbowX} ${anchorY} L ${bodyX} ${bodyY}`,
+      `M ${anchorX} ${anchorY} L ${elbowX} ${anchorY} L ${fromBubble.x} ${fromBubble.y}`,
     );
     leader.setAttribute('fill', 'none');
     leader.setAttribute('stroke', '#555555');

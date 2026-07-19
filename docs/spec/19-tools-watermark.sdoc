@@ -213,4 +213,63 @@ RELATIONS:
 - TYPE: Parent
   VALUE: TOOL-L1-007
 
+[REQUIREMENT]
+UID: TOOL-L2-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 透かしの既定表示 (既定オン・既定文字列・薄さ)
+STATEMENT: >>>
+透かしコンポーネントは、初期状態で透かしを表示 (既定オン) とし、既定の透かし文字列を
+``GoodRelax`` とすること。透かしの不透明度は、内容が判読できる範囲で従来より薄い値
+(0.06) とすること。透かしに日時を含める場合は UTC の ISO 8601 形式 (末尾 ``Z`` 、分精度、
+例: ``2026-07-19T05:12Z`` ) で表示すること。
+<<<
+RATIONALE: >>>
+既定で証跡を残し、うっかり無透かしで共有される事故を防ぐ。既定文字列と薄さは視認性と
+非妨害の両立。日時は時差非依存の UTC で一意化する。user-order item59.1 / item59。
+<<<
+VERIFICATION: >>>
+新規文書で透かしが既定表示となり、文字列が ``GoodRelax`` 、不透明度が 0.06 であること、
+日時付き透かしが UTC ISO 8601 (分精度・末尾 Z) で描画されることを確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+
+[REQUIREMENT]
+UID: TOOL-L2-005
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 透かし非表示のパスワード保護 (ハッシュのみ保存)
+STATEMENT: >>>
+透かしコンポーネントは、透かしの非表示化にパスワードを要求すること。入力パスワードは
+SHA-256 (Web Crypto ``crypto.subtle`` ) でハッシュ化し、保存済みハッシュと一致した場合の
+み非表示にすること。文書・モデル・出力 (HTML+JSON) には生パスワードを一切保存せず、
+ハッシュのみを保持すること。
+
+既定パスワードは ``watermark-unlock`` とし、その SHA-256 (16 進) を既定ハッシュ
+``a8f81cfc4f489a27c6e6fa3a31c6089878a3648e24c04ee1b934ac03b99ce46c`` として
+コード/モデルに保持する。この既定パスワードはサーバー配備時のローテーション用の記録であり、
+サーバー配備時には必ず変更すること。
+
+なお本製品はクライアント単体の単一 HTML アプリであるため、パスワードによる非表示は
+弱い抑止 (soft deterrent) に留まる。DOM/HTML を直接編集すれば透かしは除去され得る。
+生パスワードを保存せずハッシュのみを保持し、既定値をサーバーローテーション用に記録するのは
+正しい運用だが、クライアントでは暗号的に強制できない点に留意すること。
+<<<
+RATIONALE: >>>
+証跡を安易に外せないようにしつつ、生パスワードの漏洩を避ける。ハッシュ比較で最小限の
+抑止を提供する。user-order item59.3。
+<<<
+VERIFICATION: >>>
+誤ったパスワードでは透かしが表示のまま、正しい既定パスワード ``watermark-unlock`` では
+非表示になること、出力 (JSON/HTML) に生パスワードが現れずハッシュのみが含まれることを
+確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L2-003
+
 [[/SECTION]]

@@ -497,6 +497,55 @@ export function setDependencyColorCommand(
   };
 }
 
+/**
+ * Command: apply a per-item dependency REWIRE as one undoable step (item 4). Removes
+ * the listed edge ids and appends the given edges in a single history entry, so
+ * setting an item's predecessor/successor comma-id list from the property panel is
+ * one Undo. Appended edges are guarded exactly like {@link addDependencyCommand}:
+ * self-edges and duplicates (same from/to/anchors) are skipped. A plan that changes
+ * nothing returns the SAME document reference (no history entry).
+ *
+ * @param addEdges - Edges to append (each should carry a unique id).
+ * @param removeEdgeIds - Edge ids to drop first.
+ * @returns A rewire-dependencies command.
+ */
+export function rewireItemDependenciesCommand(
+  addEdges: readonly Dependency[],
+  removeEdgeIds: readonly string[],
+): ScheduleCommand {
+  return {
+    label: 'rewire-dependencies',
+    execute: (document) => {
+      const removeSet = new Set(removeEdgeIds);
+      const kept = (document.dependencies ?? []).filter((edge) => !removeSet.has(edge.id));
+      const removedCount = (document.dependencies ?? []).length - kept.length;
+      const next = [...kept];
+      let addedCount = 0;
+      for (const edge of addEdges) {
+        if (edge.fromItemId === edge.toItemId) {
+          continue;
+        }
+        const duplicate = next.some(
+          (candidate) =>
+            candidate.fromItemId === edge.fromItemId &&
+            candidate.toItemId === edge.toItemId &&
+            candidate.fromAnchor === edge.fromAnchor &&
+            candidate.toAnchor === edge.toAnchor,
+        );
+        if (duplicate) {
+          continue;
+        }
+        next.push(edge);
+        addedCount += 1;
+      }
+      if (removedCount === 0 && addedCount === 0) {
+        return document;
+      }
+      return { ...document, dependencies: next };
+    },
+  };
+}
+
 /** Trimmed non-empty string, or undefined (mirrors the classification derivation). */
 function nonEmptyCategory(value: string | undefined): string | undefined {
   const trimmed = value?.trim();

@@ -28,12 +28,19 @@ import {
 import type { ScheduleStore } from '../../domain/command/schedule-store.js';
 import {
   editPropertyCommand,
+  rewireItemDependenciesCommand,
   setDependencyColorCommand,
   type ItemPropertyPatch,
 } from '../../domain/command/commands.js';
 import { effectiveMilestoneShape, effectiveTaskShape } from '../../domain/usecase/task-glyph.js';
+import {
+  isEmptyRewire,
+  planPredecessorRewire,
+  planSuccessorRewire,
+  predecessorItemIds,
+  successorItemIds,
+} from '../../domain/usecase/dependency-projection.js';
 import { CUD_PALETTE, TRANSPARENT_COLOR_KEY } from '../../domain/model/cud-palette.js';
-import { MUTED_TEXT_HEX } from '../../domain/usecase/a11y-tokens.js';
 
 /**
  * A tiny checkerboard CSS background used to render the "transparent" color swatch
@@ -100,6 +107,12 @@ export class PropertyPanel {
   private minorCategoryInput: HTMLInputElement | null = null;
   /** The icon_shape_kind select; its options are rebuilt per item family (item 4). */
   private iconShapeKindSelect: HTMLSelectElement | null = null;
+  /** The predecessor comma-id field (item 4); rewires edges targeting the selected item. */
+  private predecessorItemIdsInput: HTMLInputElement | null = null;
+  /** The successor comma-id field (item 4); rewires edges originating at the selected item. */
+  private successorItemIdsInput: HTMLInputElement | null = null;
+  /** Serial for the ids of edges added by a panel rewire (item 4). */
+  private nextRewireSerial = 0;
   /** The dependency-line color form, shown when a dependency line is selected (item 1). */
   private dependencyForm: HTMLElement | null = null;
   /** The native color input inside the dependency form. */
@@ -172,10 +185,23 @@ export class PropertyPanel {
     // Named landmark region so assistive tech can jump to the editor (WCAG 4.1.2).
     this.root.setAttribute('role', 'region');
     this.root.setAttribute('aria-label', 'Properties');
+    // Compact, SCOPED control sizing so the full field set (now including the two
+    // dependency-array fields, item 4) still fits the fixed-height panel WITHOUT a
+    // vertical scrollbar. Scoped by class so it touches only this panel's controls.
+    this.root.classList.add('grsch-prop-panel');
+    const compactStyle = document.createElement('style');
+    compactStyle.textContent = [
+      '.grsch-prop-panel input:not([type="color"]),',
+      '.grsch-prop-panel select { height: 17px; padding: 0 2px; box-sizing: border-box; }',
+      '.grsch-prop-panel input[type="color"] { height: 16px; padding: 0; box-sizing: border-box; }',
+      '.grsch-prop-panel textarea { padding: 0 2px; box-sizing: border-box; }',
+    ].join('\n');
+    this.root.appendChild(compactStyle);
     this.root.style.width = '260px';
     this.root.style.flex = '0 0 260px';
-    this.root.style.borderLeft = '1px solid #ddd';
-    this.root.style.background = '#fafafa';
+    this.root.style.borderLeft = '1px solid var(--grsch-panel-border)';
+    this.root.style.background = 'var(--grsch-panel-bg)';
+    this.root.style.color = 'var(--grsch-text)';
     // Kept scrollable as a safety net, but the compact sizing below is tuned so the
     // full field set fits WITHOUT a scrollbar at a normal window height (user
     // feedback: the panel was cut off / needed scrolling).
@@ -188,7 +214,7 @@ export class PropertyPanel {
     // Trimmed from 0.74em / 1.25 line-height to fit the two extra fade rows without
     // a vertical scrollbar at a normal window height (user requires no-scroll).
     this.root.style.fontSize = '0.7em';
-    this.root.style.lineHeight = '1.2';
+    this.root.style.lineHeight = '1.15';
 
     // Header row: title on the left, a × close button on the right (fix 10). The
     // button hides the panel (reclaiming the canvas width) and notifies the shell.
@@ -206,10 +232,10 @@ export class PropertyPanel {
     closeButton.setAttribute('aria-label', 'Close properties panel');
     closeButton.title = 'Close properties panel';
     closeButton.style.cursor = 'pointer';
-    closeButton.style.border = '1px solid #ccc';
+    closeButton.style.border = '1px solid var(--grsch-menu-border)';
     closeButton.style.borderRadius = '4px';
-    closeButton.style.background = '#ffffff';
-    closeButton.style.color = '#2b2b2b';
+    closeButton.style.background = 'var(--grsch-surface-strong)';
+    closeButton.style.color = 'var(--grsch-text)';
     closeButton.style.lineHeight = '1';
     closeButton.style.padding = '1px 6px';
     closeButton.addEventListener('click', () => {
@@ -222,7 +248,7 @@ export class PropertyPanel {
     const empty = document.createElement('div');
     empty.dataset.role = 'empty-state';
     empty.textContent = 'Select an item to edit its properties.';
-    empty.style.color = MUTED_TEXT_HEX;
+    empty.style.color = 'var(--grsch-text-muted)';
     this.root.appendChild(empty);
 
     const form = document.createElement('div');
@@ -304,6 +330,12 @@ export class PropertyPanel {
       (item) => item.fillColor,
       (value) => ({ fillColor: value, fillColorExplicit: true }),
     );
+    // Dependency arrays (item 4): comma-separated ItemIDs the user can author to wire
+    // predecessors / successors (1:1, 1:n, n:1, n:n). Editing rewires the canonical edge
+    // list in one undoable step and re-renders the (yamabuki) lines. Field NAMES stay
+    // English (PROP-L1-004).
+    this.predecessorItemIdsInput = this.addDependencyIdField(form, 'predecessor_item_ids', 'predecessor');
+    this.successorItemIdsInput = this.addDependencyIdField(form, 'successor_item_ids', 'successor');
     // Unified glyph shape (item 4): its options are rebuilt per item family in
     // refreshValues (milestone shapes for a milestone; bar/arrow/chevron/span for a
     // task) and it drives rendering. Placed LAST so it does not shift the earlier
@@ -324,7 +356,7 @@ export class PropertyPanel {
     const caption = document.createElement('span');
     caption.textContent = fieldKey;
     caption.style.display = 'block';
-    caption.style.color = '#333';
+    caption.style.color = 'var(--grsch-text)';
     caption.style.fontFamily = 'ui-monospace, monospace';
     caption.style.fontSize = '0.9em';
     row.appendChild(caption);
@@ -532,6 +564,60 @@ export class PropertyPanel {
   }
 
   /**
+   * Build a comma-separated ItemID field that authors the selected item's
+   * predecessors or successors (item 4). On change it parses the ids, plans the
+   * minimal edge rewire against the current document, and dispatches ONE undoable
+   * {@link rewireItemDependenciesCommand}; the dependency lines then re-render. The
+   * input is NOT part of {@link controls} (it reads from the edge list, not the item),
+   * so {@link refreshValues} sets its value from the projection directly.
+   *
+   * @returns The text input element.
+   */
+  private addDependencyIdField(
+    form: HTMLElement,
+    fieldKey: string,
+    kind: 'predecessor' | 'successor',
+  ): HTMLInputElement {
+    const row = this.addFieldRow(form, fieldKey);
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.dataset.role = `${kind}-item-ids`;
+    input.placeholder = 'e.g. SYS1, SYS2';
+    input.style.width = '100%';
+    input.style.boxSizing = 'border-box';
+    input.addEventListener('change', () => this.dispatchDependencyRewire(kind, input.value));
+    row.appendChild(input);
+    return input;
+  }
+
+  /**
+   * Parse a comma-separated ItemID list and rewire the selected item's predecessors or
+   * successors to exactly that set (item 4). Unknown / self ids are ignored (repaired);
+   * an empty field clears that side. A rewire that changes nothing dispatches no command.
+   */
+  private dispatchDependencyRewire(kind: 'predecessor' | 'successor', text: string): void {
+    const item = this.currentItem();
+    if (item === null) {
+      return;
+    }
+    const document = this.store.getDocument();
+    const desiredIds = text
+      .split(',')
+      .map((token) => token.trim())
+      .filter((token) => token.length > 0);
+    const validItemIds = new Set(document.items.map((candidate) => candidate.id));
+    const makeEdgeId = (): string => `dep-${Date.now()}-${this.nextRewireSerial++}`;
+    const rewire =
+      kind === 'predecessor'
+        ? planPredecessorRewire(document.dependencies, item.id, desiredIds, validItemIds, makeEdgeId)
+        : planSuccessorRewire(document.dependencies, item.id, desiredIds, validItemIds, makeEdgeId);
+    if (isEmptyRewire(rewire)) {
+      return;
+    }
+    this.store.dispatch(rewireItemDependenciesCommand(rewire.addEdges, rewire.removeEdgeIds));
+  }
+
+  /**
    * Build the dependency-line color form (item 1), shown only while a dependency
    * line is selected. Offers the CUD palette swatches plus a native color input;
    * each dispatches an undoable {@link setDependencyColorCommand} for the selected
@@ -603,13 +689,13 @@ export class PropertyPanel {
     section.style.display = 'flex';
     section.style.alignItems = 'center';
     section.style.gap = '6px';
-    section.style.borderBottom = '1px solid #ddd';
+    section.style.borderBottom = '1px solid var(--grsch-panel-border)';
     section.style.paddingBottom = '4px';
     section.style.marginBottom = '4px';
 
     const caption = document.createElement('span');
     caption.textContent = handlers.label;
-    caption.style.color = '#333';
+    caption.style.color = 'var(--grsch-text)';
     caption.style.fontFamily = 'ui-monospace, monospace';
     caption.style.fontSize = '0.9em';
 
@@ -740,6 +826,20 @@ export class PropertyPanel {
         continue;
       }
       control.input.value = control.readValue(item);
+    }
+    // Dependency arrays (item 4) are projected from the canonical edge list, not stored
+    // on the item, so they are refreshed here rather than through the item controls.
+    if (
+      this.predecessorItemIdsInput !== null &&
+      globalThis.document.activeElement !== this.predecessorItemIdsInput
+    ) {
+      this.predecessorItemIdsInput.value = predecessorItemIds(document.dependencies, item.id).join(', ');
+    }
+    if (
+      this.successorItemIdsInput !== null &&
+      globalThis.document.activeElement !== this.successorItemIdsInput
+    ) {
+      this.successorItemIdsInput.value = successorItemIds(document.dependencies, item.id).join(', ');
     }
     // Minor may only be set when a middle exists: disable + visually mute otherwise
     // (SECT rework rule; the change handler also guards against a stray dispatch).

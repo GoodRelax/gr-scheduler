@@ -89,7 +89,7 @@ Software structure and design decisions. Defines the technical structure to real
 | Section | Name                 | Content                                                                |
 | ------- | -------------------- | ---------------------------------------------------------------------- |
 | 3.1     | Architecture Concept | Type of architecture adopted (CA, Hexagonal, Layered, etc.) and legend definition |
-| 3.2     | Components           | Partitioning of parts and responsibilities. Component diagram (color-coded per 3.1 legend) |
+| 3.2     | Components           | Partitioning of parts and responsibilities. Component diagram (color-coded per 3.1 legend). If the project involves AI/LLM integration, also define prompt template placement (e.g., `src/prompts/`), input/output schemas, test policy, and hallucination countermeasures |
 | 3.3     | File Structure       | Directory structure. Mapping between components and folders            |
 | 3.4     | Domain Model         | Definition of structure, relationships, and state. Class diagram (color-coded per 3.1 legend), ER diagram, state transition diagram |
 | 3.5     | Behavior             | Process flows and interactions. Sequence diagrams, activity diagrams   |
@@ -230,7 +230,8 @@ Add or remove principles based on the project's nature.
 | Readability       | POLA                 | Principle of Least Astonishment       | Does the code behave as the reader expects?                                 |
 | Readability       | PIE                  | Program Intently and Expressively     | Does the code clearly convey its intent?                                    |
 | Testability       | Testability          | —                                     | Is unit testing easy? Can mocks/stubs be injected readily?                  |
-| Purity            | Pure/Impure          | —                                     | Are pure functions and side-effect-producing functions separated?            |
+| Purity            | Pure / Semi-pure / Non-pure | —                              | Is each function classifiable as pure / semi-pure / non-pure? Are side effects and external reads pushed outward (functional core / imperative shell)? |
+| Structure         | Collect-Process Separation | Gather-then-Process             | Within a function/class, is input collection (all reads) completed before processing (transformation), so results do not depend on timing? |
 | State Transitions | State Transition     | —                                     | Are transition condition retrieval and transition execution separated?       |
 | Concurrency       | Concurrency Safety   | —                                     | Are deadlocks, race conditions, and glitches prevented?                     |
 | Error Handling    | Error Propagation    | —                                     | Are errors propagated and handled properly, not silently swallowed?          |

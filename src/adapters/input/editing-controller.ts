@@ -38,9 +38,11 @@ import {
   type ScheduleCommand,
 } from '../../domain/command/commands.js';
 import {
+  moveCommentCommand,
   resizeRoundedBoxCommand,
   type RoundedBoxRectPatch,
 } from '../../domain/command/annotation-commands.js';
+import { isComment } from '../../domain/model/annotation.js';
 import {
   collectStartDateBaselinesX,
   snapToNearestBaseline,
@@ -66,7 +68,7 @@ import {
   contiguousSectionBands,
   defaultMiddleForMajor,
 } from '../../domain/usecase/classification-tree.js';
-import { anchorPoint, nearestAnchor, type Point } from '../../domain/usecase/dependency-router.js';
+import { nearestAnchor } from '../../domain/usecase/dependency-router.js';
 import { iconShapeKindForCreate } from '../../domain/usecase/task-glyph.js';
 import type { AnnotationHit, ItemHit, SvgRenderer, WorldPoint } from '../render/svg-renderer.js';
 import { createLogger } from '../../app/logger.js';
@@ -117,14 +119,6 @@ interface FadeGesture {
   moved: boolean;
 }
 
-interface LinkGesture {
-  readonly mode: 'link';
-  readonly fromItemId: string;
-  readonly fromAnchor: import('../../domain/model/schedule-model.js').AnchorIndex;
-  readonly fromWorld: Point;
-  moved: boolean;
-}
-
 interface CreateGesture {
   readonly mode: 'create';
   readonly shape: PendingCreateShape;
@@ -168,15 +162,43 @@ interface AnnotationResizeGesture {
   moved: boolean;
 }
 
+/**
+ * Dragging a comment's bubble (speech box), which updates its `bodyOffsetPx`
+ * (undoable) so the bubble moves and the leader line re-routes to the anchor
+ * (CURS-L1-005). The content group is translated (never scaled), so a world-space
+ * delta equals the screen-space bubble-offset delta.
+ */
+interface CommentMoveGesture {
+  readonly mode: 'comment-move';
+  readonly annotationId: string;
+  readonly baseline: ScheduleDocument;
+  readonly startWorldX: number;
+  readonly startWorldY: number;
+  moved: boolean;
+}
+
 type Gesture =
   | MoveGesture
   | ResizeGesture
   | FadeGesture
   | CreateGesture
   | LabelGesture
-  | LinkGesture
   | MarqueeGesture
-  | AnnotationResizeGesture;
+  | AnnotationResizeGesture
+  | CommentMoveGesture;
+
+/**
+ * The live state of the click-to-pick dependency link mode (item 4), surfaced to the
+ * shell so it can show an active-state hint. `armedSourceItemId` is the source item
+ * awaiting a target click, or null when the mode is on but no source is picked yet.
+ */
+export interface LinkModeState {
+  readonly enabled: boolean;
+  readonly armedSourceItemId: string | null;
+}
+
+/** Callback invoked when the dependency link-mode state changes (item 4). */
+export type LinkModeListener = (state: LinkModeState) => void;
 
 /** Minimum drag distance (px) before a press is treated as a drag, not a click. */
 const DRAG_THRESHOLD_PX = 3;
@@ -201,6 +223,13 @@ export class EditingController {
   private nextItemSerial = 0;
   private nextDependencySerial = 0;
   private linkMode = false;
+  /**
+   * The source item picked in click-to-pick link mode, awaiting a target click (item
+   * 4). Null when link mode is off or armed but no source chosen yet.
+   */
+  private linkSourceItemId: string | null = null;
+  /** Notified when the link-mode state (enabled / armed source) changes (item 4). */
+  private linkModeListener: LinkModeListener | null = null;
   private readonly selectionListeners = new Set<SelectionListener>();
   /** Notified when an item is double-clicked (opens the property panel, fix 10). */
   private itemActivateListener: ((itemId: string) => void) | null = null;
@@ -419,19 +448,95 @@ export class EditingController {
   }
 
   /**
-   * Enable or disable dependency-link mode (DEP-L1-002). While enabled, pressing
-   * on an item and dragging to another item creates a directed dependency between
-   * their nearest 9-point anchors instead of moving the item.
+   * Enable or disable dependency-link mode (DEP-L1-002, item 4). While enabled, a
+   * CLICK on a source item then a CLICK on a target item creates a directed dependency
+   * between their nearest 9-point anchors; repeat to build n:n. Clicking the same
+   * source again disarms it; clicking an existing source->target pair removes that edge
+   * (toggle). Turning the mode off clears any armed source.
    *
    * @param enabled - True to arm link creation.
    */
   public setLinkMode(enabled: boolean): void {
     this.linkMode = enabled;
+    this.linkSourceItemId = null;
+    this.notifyLinkState();
   }
 
   /** Whether dependency-link mode is currently armed. */
   public isLinkMode(): boolean {
     return this.linkMode;
+  }
+
+  /** The source item awaiting a target click in link mode, or null (item 4). */
+  public getLinkSourceItemId(): string | null {
+    return this.linkSourceItemId;
+  }
+
+  /**
+   * Register a listener invoked when the link-mode state changes (item 4). The shell
+   * uses it to show/update the active-state hint ("pick source -> target").
+   *
+   * @param listener - Called with the current {@link LinkModeState}.
+   */
+  public onLinkStateChange(listener: LinkModeListener): void {
+    this.linkModeListener = listener;
+  }
+
+  /** Notify the shell of the current link-mode state (item 4). */
+  private notifyLinkState(): void {
+    this.linkModeListener?.({ enabled: this.linkMode, armedSourceItemId: this.linkSourceItemId });
+  }
+
+  /**
+   * Handle a click on an item while link mode is armed (item 4, click-to-pick). The
+   * first click arms the SOURCE; a click on a DIFFERENT item creates the source->target
+   * edge (or removes it when it already exists, a toggle) while KEEPING the source armed
+   * so the user can fan out to many targets (1:n); a click on the SAME source disarms it.
+   */
+  private handleLinkPick(event: PointerEvent, itemId: string, world: WorldPoint): void {
+    this.consume(event);
+    if (this.linkSourceItemId === null) {
+      this.linkSourceItemId = itemId;
+      this.setSelection(new Set([itemId]));
+      this.notifyLinkState();
+      return;
+    }
+    if (this.linkSourceItemId === itemId) {
+      // Second click on the source disarms it (cancel).
+      this.linkSourceItemId = null;
+      this.notifyLinkState();
+      return;
+    }
+    const sourceId = this.linkSourceItemId;
+    const document = this.store.getDocument();
+    const existing = (document.dependencies ?? []).find(
+      (edge) => edge.fromItemId === sourceId && edge.toItemId === itemId,
+    );
+    if (existing !== undefined) {
+      // Toggle: a click on an already-linked pair removes that edge (undoable).
+      this.store.dispatch(removeDependencyCommand(existing.id));
+      log.debug('dependency_unlinked', { from_item_id: sourceId, to_item_id: itemId });
+      this.notifyLinkState();
+      return;
+    }
+    const fromRect = this.renderer.getItemRect(sourceId);
+    const toRect = this.renderer.getItemRect(itemId);
+    if (fromRect === null || toRect === null) {
+      return;
+    }
+    const fromAnchor = nearestAnchor(fromRect, { x: world.worldX, y: world.worldY });
+    const toAnchor = nearestAnchor(toRect, { x: world.worldX, y: world.worldY });
+    const id = `dep-${Date.now()}-${this.nextDependencySerial++}`;
+    this.store.dispatch(
+      addDependencyCommand({ id, fromItemId: sourceId, fromAnchor, toItemId: itemId, toAnchor }),
+    );
+    log.debug('dependency_created', {
+      dependency_id: id,
+      from_item_id: sourceId,
+      to_item_id: itemId,
+    });
+    // Keep the source armed so repeated target clicks build a 1:n fan (item 4).
+    this.notifyLinkState();
   }
 
   /** Replace the selection and notify listeners + the renderer. */
@@ -701,7 +806,7 @@ export class EditingController {
     const world = this.renderer.screenToWorld(event.clientX, event.clientY);
 
     if (this.linkMode && hit !== null) {
-      this.beginLink(event, hit.itemId, world);
+      this.handleLinkPick(event, hit.itemId, world);
       return;
     }
     if (this.pendingCreateShape !== null && hit === null) {
@@ -762,25 +867,25 @@ export class EditingController {
       };
       return;
     }
-    this.selectAnnotation(annotationHit.annotationId);
-  }
-
-  private beginLink(event: PointerEvent, itemId: string, world: WorldPoint): void {
-    const rect = this.renderer.getItemRect(itemId);
-    if (rect === null) {
+    // A body hit on a COMMENT begins a bubble drag: it selects the comment and,
+    // if the pointer moves, updates its bodyOffsetPx (undoable) and re-routes the
+    // leader (CURS-L1-005). A plain click that never drags just selects.
+    const annotation = this.store
+      .getDocument()
+      .annotations?.find((candidate) => candidate.id === annotationHit.annotationId);
+    if (annotationHit.region === 'body' && annotation !== undefined && isComment(annotation)) {
+      this.selectAnnotation(annotationHit.annotationId);
+      this.gesture = {
+        mode: 'comment-move',
+        annotationId: annotationHit.annotationId,
+        baseline: this.store.getDocument(),
+        startWorldX: worldX,
+        startWorldY: worldY,
+        moved: false,
+      };
       return;
     }
-    this.consume(event);
-    this.setSelection(new Set([itemId]));
-    const probe: Point = { x: world.worldX, y: world.worldY };
-    const fromAnchor = nearestAnchor(rect, probe);
-    this.gesture = {
-      mode: 'link',
-      fromItemId: itemId,
-      fromAnchor,
-      fromWorld: anchorPoint(rect, fromAnchor),
-      moved: false,
-    };
+    this.selectAnnotation(annotationHit.annotationId);
   }
 
   private beginMarquee(
@@ -917,14 +1022,14 @@ export class EditingController {
       case 'create':
         this.previewCreate(gesture, world.worldX);
         break;
-      case 'link':
-        this.previewLink(gesture, world);
-        break;
       case 'marquee':
         this.previewMarquee(gesture, world.worldX, world.worldY);
         break;
       case 'annotation-resize':
         this.previewAnnotationResize(gesture, world.worldX, world.worldY);
+        break;
+      case 'comment-move':
+        this.previewCommentMove(gesture, world.worldX, world.worldY);
         break;
       default:
         break;
@@ -961,14 +1066,14 @@ export class EditingController {
       case 'create':
         this.commitCreate(gesture, world.worldX);
         break;
-      case 'link':
-        this.commitLink(gesture, event);
-        break;
       case 'marquee':
         this.commitMarquee(gesture, world.worldX, world.worldY);
         break;
       case 'annotation-resize':
         this.commitAnnotationResize(gesture, world.worldX, world.worldY);
+        break;
+      case 'comment-move':
+        this.commitCommentMove(gesture, world.worldX, world.worldY);
         break;
       default:
         break;
@@ -1229,49 +1334,6 @@ export class EditingController {
     };
   }
 
-  // ----- dependency link ------------------------------------------------------
-
-  private previewLink(gesture: LinkGesture, world: WorldPoint): void {
-    if (
-      Math.abs(world.worldX - gesture.fromWorld.x) > DRAG_THRESHOLD_PX ||
-      Math.abs(world.worldY - gesture.fromWorld.y) > DRAG_THRESHOLD_PX
-    ) {
-      gesture.moved = true;
-    }
-    this.renderer.showDependencyPreview([
-      gesture.fromWorld,
-      { x: world.worldX, y: world.worldY },
-    ]);
-  }
-
-  private commitLink(gesture: LinkGesture, event: PointerEvent): void {
-    const hit = this.renderer.hitTest(event.clientX, event.clientY);
-    if (hit === null || hit.itemId === gesture.fromItemId) {
-      return;
-    }
-    const targetRect = this.renderer.getItemRect(hit.itemId);
-    if (targetRect === null) {
-      return;
-    }
-    const world = this.renderer.screenToWorld(event.clientX, event.clientY);
-    const toAnchor = nearestAnchor(targetRect, { x: world.worldX, y: world.worldY });
-    const id = `dep-${Date.now()}-${this.nextDependencySerial++}`;
-    this.store.dispatch(
-      addDependencyCommand({
-        id,
-        fromItemId: gesture.fromItemId,
-        fromAnchor: gesture.fromAnchor,
-        toItemId: hit.itemId,
-        toAnchor,
-      }),
-    );
-    log.debug('dependency_created', {
-      dependency_id: id,
-      from_item_id: gesture.fromItemId,
-      to_item_id: hit.itemId,
-    });
-  }
-
   // ----- marquee (rubber-band) selection --------------------------------------
 
   private previewMarquee(gesture: MarqueeGesture, worldX: number, worldY: number): void {
@@ -1338,6 +1400,43 @@ export class EditingController {
     this.renderer.updateItems(gesture.baseline);
     this.store.dispatch(command);
     log.debug('annotation_resized', { annotation_id: gesture.annotationId, corner: gesture.corner });
+  }
+
+  // ----- comment (bubble) move ------------------------------------------------
+
+  private previewCommentMove(gesture: CommentMoveGesture, worldX: number, worldY: number): void {
+    if (
+      Math.abs(worldX - gesture.startWorldX) > DRAG_THRESHOLD_PX ||
+      Math.abs(worldY - gesture.startWorldY) > DRAG_THRESHOLD_PX
+    ) {
+      gesture.moved = true;
+    }
+    const command = this.buildCommentMoveCommand(gesture, worldX, worldY);
+    this.renderer.updateItems(command.execute(gesture.baseline));
+  }
+
+  private commitCommentMove(gesture: CommentMoveGesture, worldX: number, worldY: number): void {
+    if (!gesture.moved) {
+      this.renderer.updateItems(gesture.baseline);
+      return;
+    }
+    const command = this.buildCommentMoveCommand(gesture, worldX, worldY);
+    this.renderer.updateItems(gesture.baseline);
+    this.store.dispatch(command);
+    log.debug('comment_moved', { annotation_id: gesture.annotationId });
+  }
+
+  private buildCommentMoveCommand(
+    gesture: CommentMoveGesture,
+    worldX: number,
+    worldY: number,
+  ): ScheduleCommand {
+    // World px == screen px (content group is only translated), so the world delta
+    // is the bubble-offset delta applied to the baseline document.
+    return moveCommentCommand(gesture.annotationId, {
+      dx: worldX - gesture.startWorldX,
+      dy: worldY - gesture.startWorldY,
+    });
   }
 
   private buildAnnotationResizeCommand(

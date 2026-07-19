@@ -150,9 +150,18 @@ export function attachCanvasKeyboardNavigation(context: KeyboardNavigationContex
       }
 
       case 'cancel': {
-        event.preventDefault();
+        // Only CAPTURE Escape when there is actually something to cancel -- an
+        // in-progress gesture or an armed shape (SHELL item 4). Clearing the focus
+        // ring is a courtesy that happens either way, but when the canvas is idle we
+        // leave Escape un-prevented so it propagates to the browser (e.g. to exit
+        // native F11 fullscreen) instead of being silently swallowed here.
+        const cancelled =
+          context.controller.isGestureInProgress() || context.controller.hasArmedShape();
         context.controller.cancelActiveGesture();
         context.renderer.setKeyboardFocusItem(null);
+        if (cancelled) {
+          event.preventDefault();
+        }
         return;
       }
 

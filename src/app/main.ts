@@ -16,7 +16,16 @@ import type {
   PlanActualDisplay,
   Watermark,
 } from '../domain/model/schedule-model.js';
-import { DEFAULT_PROGRESS_LINE_COLOR } from '../domain/model/schedule-model.js';
+import {
+  DEFAULT_PROGRESS_LINE_COLOR,
+  DEFAULT_WATERMARK_HIDE_PASSWORD_HASH,
+  DEFAULT_WATERMARK_TEXT,
+} from '../domain/model/schedule-model.js';
+import {
+  formatWatermarkTimestampUtc,
+  resolveWatermark,
+} from '../domain/usecase/watermark-builder.js';
+import { matchesWatermarkHidePassword } from '../adapters/security/watermark-password.js';
 import { SvgRenderer } from '../adapters/render/svg-renderer.js';
 import { applyUniformFontScale, ensureUiFontStylesheet } from './font-scale.js';
 import { uiLabel } from '../domain/usecase/i18n.js';
@@ -48,6 +57,16 @@ import { LiveRegionAnnouncer } from '../adapters/a11y/live-region.js';
 import { generateSampleDocument, generateTemplateDocument, DEFAULT_ITEM_COUNT } from './sample-data.js';
 import { formatBenchmarkReport, parseBenchParam, runBenchmark } from './benchmark.js';
 import { createLogger } from './logger.js';
+import { HelpModal } from '../adapters/ui/help-modal.js';
+import {
+  applyThemePreference,
+  installThemeStylesheet,
+  readStoredThemePreference,
+  resolveThemeMode,
+  writeStoredThemePreference,
+  type ThemeMode,
+  type ThemePreference,
+} from './theme.js';
 import type { ScheduleDocument } from '../domain/model/schedule-model.js';
 import { serializeScheduleDocument } from '../domain/usecase/json-codec.js';
 import { exportMspdi } from '../domain/usecase/mspdi-codec.js';
@@ -73,6 +92,8 @@ interface Chrome {
   panelHost: HTMLElement;
   header: HTMLElement;
   scheduleNameLabel: HTMLElement;
+  helpButton: HTMLButtonElement;
+  themeButton: HTMLButtonElement;
   commandPalette: HTMLElement;
   paletteDragHandle: HTMLElement;
   minimizeButton: HTMLButtonElement;
@@ -81,6 +102,7 @@ interface Chrome {
   fullscreenButton: HTMLButtonElement;
   benchButton: HTMLButtonElement;
   linkButton: HTMLButtonElement;
+  linkHint: HTMLElement;
   planButton: HTMLButtonElement;
   actualButton: HTMLButtonElement;
   todayButton: HTMLButtonElement;
@@ -129,32 +151,60 @@ function ensureCommandChromeStylesheet(doc: Document): void {
   style.id = styleId;
   style.textContent = `
 .${APP_HEADER_CLASS} {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 10px;
-  min-height: 26px;
-  padding: 3px 12px;
-  background: #20304a;
-  color: #ffffff;
+  min-height: 30px;
+  padding: 1px 12px;
+  background: var(--grsch-header-bg);
+  color: var(--grsch-header-fg);
   font-family: system-ui, sans-serif;
-  font-size: 0.82em;
+  font-size: 0.78em;
+}
+.${APP_HEADER_CLASS} .grsch-header-branding {
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.04;
+}
+.${APP_HEADER_CLASS} .grsch-brand-name { font-weight: 700; font-size: 0.9em; }
+.${APP_HEADER_CLASS} .grsch-brand-line {
+  font-size: 0.64em;
+  color: var(--grsch-header-muted);
 }
 .${APP_HEADER_CLASS} .grsch-schedule-name {
+  justify-self: center;
+  text-align: center;
   font-weight: 600;
-  font-size: 1em;
-}
-.${APP_HEADER_CLASS} .grsch-header-spacer { flex: 1; }
-.${APP_HEADER_CLASS} .grsch-header-hint {
-  opacity: 0.78;
-  font-size: 0.86em;
-  max-width: 46vw;
+  font-size: 1.05em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 46vw;
 }
+.${APP_HEADER_CLASS} .grsch-header-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.${APP_HEADER_CLASS} .grsch-header-btn {
+  cursor: pointer;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 7px;
+  font-size: 1em;
+  line-height: 1;
+  border: 1px solid var(--grsch-header-muted);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--grsch-header-fg);
+}
+.${APP_HEADER_CLASS} .grsch-header-btn:hover { background: rgba(127, 127, 127, 0.22); }
 .${COMMAND_PALETTE_CLASS} {
   position: absolute;
-  top: 30px;
+  top: 38px;
   right: 10px;
   z-index: 12;
   display: flex;
@@ -163,17 +213,17 @@ function ensureCommandChromeStylesheet(doc: Document): void {
   gap: 2px 5px;
   max-width: min(66vw, 560px);
   padding: 3px 5px;
-  border: 1px solid rgba(180, 185, 193, 0.35);
+  border: 1px solid var(--grsch-palette-border);
   border-radius: 7px;
-  background: rgba(255, 255, 255, 0.24);
+  background: var(--grsch-palette-surface);
   box-shadow: none;
   font-family: system-ui, sans-serif;
   transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .${COMMAND_PALETTE_CLASS}:hover,
 .${COMMAND_PALETTE_CLASS}:focus-within {
-  background: rgba(255, 255, 255, 0.97);
-  border-color: #bbbbbb;
+  background: var(--grsch-palette-surface-solid);
+  border-color: var(--grsch-palette-border-solid);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 .${COMMAND_PALETTE_CLASS} .grsch-cmd-drag-handle {
@@ -183,7 +233,7 @@ function ensureCommandChromeStylesheet(doc: Document): void {
   align-items: center;
   padding: 0 2px;
   margin-right: 1px;
-  color: #55606f;
+  color: var(--grsch-drag-handle);
   font-size: 0.9em;
   line-height: 1;
   border-radius: 3px;
@@ -199,7 +249,7 @@ function ensureCommandChromeStylesheet(doc: Document): void {
   font-size: 0.58em;
   letter-spacing: 0.2px;
   text-transform: uppercase;
-  color: #444444;
+  color: var(--grsch-group-label);
   margin-right: 1px;
 }
 .${COMMAND_PALETTE_CLASS} button {
@@ -208,32 +258,32 @@ function ensureCommandChromeStylesheet(doc: Document): void {
   padding: 1px 3px;
   font-size: 0.72em;
   line-height: 1.3;
-  border: 1px solid rgba(150, 155, 163, 0.55);
+  border: 1px solid var(--grsch-btn-border);
   border-radius: 4px;
-  background: rgba(238, 241, 245, 0.55);
-  color: #2b2b2b;
+  background: var(--grsch-btn-bg);
+  color: var(--grsch-btn-text);
 }
 .${COMMAND_PALETTE_CLASS}:hover button,
-.${COMMAND_PALETTE_CLASS}:focus-within button { background: #eef1f5; }
-.${COMMAND_PALETTE_CLASS} button:hover { background: #e2e7ef; }
+.${COMMAND_PALETTE_CLASS}:focus-within button { background: var(--grsch-btn-bg-solid); }
+.${COMMAND_PALETTE_CLASS} button:hover { background: var(--grsch-btn-hover); }
 .${COMMAND_PALETTE_CLASS} button[aria-pressed="true"],
 .${COMMAND_PALETTE_CLASS} button[role="radio"][aria-checked="true"] {
-  background: #3f7856;
-  border-color: #35664a;
-  color: #ffffff;
+  background: var(--grsch-accent);
+  border-color: var(--grsch-accent-border);
+  color: var(--grsch-accent-text);
 }
 .${COMMAND_PALETTE_CLASS} button:disabled { opacity: 0.4; cursor: default; }
 .${COMMAND_PALETTE_CLASS} input {
   font-size: 0.72em;
   padding: 1px 4px;
-  border: 1px solid rgba(150, 155, 163, 0.55);
+  border: 1px solid var(--grsch-btn-border);
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.7);
-  color: #2b2b2b;
+  background: var(--grsch-input-bg);
+  color: var(--grsch-input-text);
 }
 .${COMMAND_PALETTE_CLASS} .grsch-armed-readout {
   font-size: 0.66em;
-  color: #005a8c;
+  color: var(--grsch-armed-readout);
   white-space: nowrap;
 }
 .${COMMAND_PALETTE_CLASS} .grsch-save-status {
@@ -331,27 +381,61 @@ function buildChrome(root: HTMLElement): Chrome {
   root.style.fontFamily = 'system-ui, sans-serif';
   ensureCommandChromeStylesheet(document);
 
-  // ---- minimal header (item6.1 / item24): schedule name + a subtle hint. ----
+  // ---- header (SHELL item 1): three zones -- branding LEFT, document TITLE
+  // centered, and the help / theme actions on the RIGHT. The old usage hint is
+  // moved out of the header and into the Help modal (it is usage instruction, not
+  // chrome), keeping the header uncluttered.
   const header = document.createElement('header');
   header.dataset.role = 'app-header';
   header.className = APP_HEADER_CLASS;
 
+  // Branding block (left), English.
+  const brandingBlock = document.createElement('div');
+  brandingBlock.className = 'grsch-header-branding';
+  brandingBlock.dataset.role = 'app-branding';
+  const brandName = document.createElement('span');
+  brandName.className = 'grsch-brand-name';
+  brandName.textContent = 'GR Scheduler';
+  const brandCopyright = document.createElement('span');
+  brandCopyright.className = 'grsch-brand-line';
+  brandCopyright.textContent = '© 2026 GoodRelax.';
+  const brandLicense = document.createElement('span');
+  brandLicense.className = 'grsch-brand-line';
+  brandLicense.textContent = 'Apache License 2.0';
+  brandingBlock.append(brandName, brandCopyright, brandLicense);
+
+  // Centered document title.
   const scheduleNameLabel = document.createElement('span');
   scheduleNameLabel.className = 'grsch-schedule-name';
   scheduleNameLabel.dataset.role = 'schedule-name';
   scheduleNameLabel.textContent = 'gr-scheduler';
 
-  const headerSpacer = document.createElement('span');
-  headerSpacer.className = 'grsch-header-spacer';
+  // Right-side actions: dark-mode toggle + the [?] help button.
+  const headerActions = document.createElement('div');
+  headerActions.className = 'grsch-header-actions';
+  const themeButton = document.createElement('button');
+  themeButton.type = 'button';
+  themeButton.className = 'grsch-header-btn';
+  themeButton.dataset.role = 'toggle-theme';
+  themeButton.setAttribute('aria-pressed', 'false');
+  themeButton.textContent = '☽'; // last-quarter moon glyph
+  const helpButton = document.createElement('button');
+  helpButton.type = 'button';
+  helpButton.className = 'grsch-header-btn';
+  helpButton.dataset.role = 'open-help';
+  helpButton.textContent = '?';
+  helpButton.setAttribute('aria-label', 'Help');
+  helpButton.setAttribute('aria-haspopup', 'dialog');
+  helpButton.title = 'Help';
+  headerActions.append(themeButton, helpButton);
 
+  // Kept for the internal benchmark status path (fix 9): a detached label the
+  // benchmark harness writes progress into; no longer shown in the header.
   const statusLabel = document.createElement('span');
   statusLabel.className = 'grsch-header-hint';
-  // Inherits the header's white ink (dimmed by .grsch-header-hint) for AA contrast
-  // on the dark header bar.
   statusLabel.textContent = STATUS_HINT;
-  statusLabel.title = STATUS_HINT;
 
-  header.append(scheduleNameLabel, headerSpacer, statusLabel);
+  header.append(brandingBlock, scheduleNameLabel, headerActions);
 
   // ---- floating command palette (item6.2 / TOOL-L1-006 / STK-L0-019). ----
   const commandPalette = document.createElement('div');
@@ -399,7 +483,17 @@ function buildChrome(root: HTMLElement): Chrome {
   // in the palette any more (fix 9); it stays a detached, wired element.
   const benchButton = makeCommandButton('⏱', uiLabel('run_benchmark'));
   const linkButton = makeCommandButton('↔', uiLabel('link_mode'));
+  linkButton.dataset.role = 'toggle-link';
   linkButton.setAttribute('aria-pressed', 'false');
+  // Active-state hint for click-to-pick link mode (item 4): a polite status text shown
+  // only while the mode is on, telling the user to pick a source then a target.
+  const linkHint = document.createElement('span');
+  linkHint.dataset.role = 'link-hint';
+  linkHint.className = 'grsch-cmd-group-label';
+  linkHint.setAttribute('role', 'status');
+  linkHint.setAttribute('aria-live', 'polite');
+  linkHint.style.display = 'none';
+  linkHint.textContent = '';
   // Two INDEPENDENT plan / actual visibility toggles (fix 8), each aria-pressed.
   const planButton = makeCommandButton('P', uiLabel('plan_display'));
   planButton.dataset.role = 'toggle-plan';
@@ -503,7 +597,7 @@ function buildChrome(root: HTMLElement): Chrome {
     ]),
     makeCommandGroup('View', [fitButton, fullscreenButton, propertiesToggleButton]),
     makeCommandGroup('Show', [planButton, actualButton]),
-    makeCommandGroup('Guides', [todayButton, linkButton]),
+    makeCommandGroup('Guides', [todayButton, linkButton, linkHint]),
     cursorGuideGroup,
     makeCommandGroup('Grid', [gridDateButton, gridCategoryButton]),
     makeCommandGroup('Add', [commentButton, boxButton]),
@@ -557,6 +651,8 @@ function buildChrome(root: HTMLElement): Chrome {
     panelHost,
     header,
     scheduleNameLabel,
+    helpButton,
+    themeButton,
     commandPalette,
     paletteDragHandle,
     minimizeButton,
@@ -565,6 +661,7 @@ function buildChrome(root: HTMLElement): Chrome {
     fullscreenButton,
     benchButton,
     linkButton,
+    linkHint,
     planButton,
     actualButton,
     todayButton,
@@ -594,6 +691,12 @@ function bootstrap(): void {
   if (root === null) {
     throw new Error('Bootstrap failed: #app host element not found');
   }
+  // Install the theme (CSS variables) FIRST so the chrome + canvas resolve their
+  // themed colors as soon as they mount, and apply the persisted preference (or
+  // the OS `prefers-color-scheme` when none was chosen) before first paint.
+  installThemeStylesheet(document);
+  const initialThemePreference = readStoredThemePreference();
+  applyThemePreference(document, initialThemePreference);
   const chrome = buildChrome(root);
   // Install the uniform font-scale stylesheet so L/M/S reaches all UI text
   // including native form controls (TOOL-L1-002).
@@ -751,12 +854,51 @@ function bootstrap(): void {
   );
   attachKeyboardShortcuts({ store, controller, clipboard });
 
-  // ESC handling (item 6): a cancel-in-progress gesture (drag / marquee) takes
-  // PRIORITY; only when nothing is in progress and the properties panel is open does
-  // ESC close the panel (mirroring its × button). Registered on window so it works
+  // Help modal (SHELL item 2): the [?] button opens an accessible dialog listing
+  // all features + shortcuts; the modal owns its own focus trap and Esc handling
+  // (it stops propagation so the shell's Esc handler below does not double-fire).
+  const helpModal = new HelpModal(root);
+  chrome.helpButton.addEventListener('click', () => helpModal.open(chrome.helpButton));
+
+  // Dark-mode toggle (SHELL item 3): an explicit light / dark choice, persisted in
+  // localStorage and mirrored into the document view state so it round-trips on
+  // export. The OS `prefers-color-scheme` still drives the initial look until the
+  // user first chooses (preference 'system').
+  let themePreference: ThemePreference = initialThemePreference;
+  let themeMode: ThemeMode = resolveThemeMode(themePreference);
+  const syncThemeButton = (): void => {
+    const isDark = themeMode === 'dark';
+    chrome.themeButton.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    // Show the glyph for the action available: a sun to go light while dark, a
+    // moon to go dark while light.
+    chrome.themeButton.textContent = isDark ? '☀' : '☽';
+    const name = `${uiLabel('theme_toggle', activeLocale)}: ${isDark ? 'on' : 'off'}`;
+    chrome.themeButton.setAttribute('aria-label', name);
+    chrome.themeButton.title = name;
+  };
+  syncThemeButton();
+  chrome.themeButton.addEventListener('click', () => {
+    themePreference = themeMode === 'dark' ? 'light' : 'dark';
+    themeMode = applyThemePreference(document, themePreference);
+    writeStoredThemePreference(themePreference);
+    renderer.setViewState({ ...renderer.getViewState(), themePreference });
+    syncThemeButton();
+  });
+
+  // ESC handling (SHELL item 4): the app captures Esc ONLY when it is actually
+  // used -- (a) a gesture / drag / marquee is in progress (cancel it), (b) the Help
+  // modal is open (it handles + stops its own Esc, so it never reaches here), or
+  // (c) the properties panel is open (close it). When NONE apply (panel hidden,
+  // nothing in progress), Esc is left un-prevented so it propagates to the browser
+  // -- e.g. to exit native F11 fullscreen. Registered on window so it works
   // regardless of which element holds focus, including a properties field.
   window.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') {
+      return;
+    }
+    if (helpModal.isOpen()) {
+      // The modal's own handler already closed it and stopped propagation; guard
+      // anyway so the panel-close branch never runs while the modal is up.
       return;
     }
     if (controller.isGestureInProgress() || controller.hasArmedShape()) {
@@ -768,6 +910,8 @@ function bootstrap(): void {
       setPropertiesPanelHidden(true);
       event.preventDefault();
     }
+    // Otherwise: idle + panel hidden -> do NOT preventDefault; let the browser have
+    // the Esc (F11 fullscreen exit, etc.).
   });
 
   // Reflect the active locale on <html lang> so assistive tech uses the right
@@ -866,40 +1010,53 @@ function bootstrap(): void {
 
   // Watermark on/off toggle (TOOL-L1-007, TOOL-L2-003). Kept in view state so it
   // round-trips on export without polluting Undo/Redo.
-  const currentWatermark = (): Watermark => {
-    const existing = renderer.getViewState().watermark;
-    return (
-      existing ?? {
-        enabled: false,
-        userName: chrome.watermarkNameInput.value.trim() || 'local-user',
-        timestamp: new Date().toISOString(),
-      }
-    );
-  };
+  // The watermark is shown by DEFAULT (resolveWatermark treats an absent value as an
+  // enabled "GoodRelax" mark). The effective watermark is always resolved so the
+  // toggle, name box and hide-password gate see the default rather than undefined.
+  const currentWatermark = (): Watermark => resolveWatermark(renderer.getViewState().watermark);
+  const isWatermarkEnabled = (): boolean => currentWatermark().enabled;
   const syncWatermarkButton = (): void => {
-    const enabled = renderer.getViewState().watermark?.enabled === true;
+    const enabled = isWatermarkEnabled();
     const name = `${uiLabel('watermark', activeLocale)}: ${enabled ? 'on' : 'off'}`;
     chrome.watermarkButton.setAttribute('aria-pressed', enabled ? 'true' : 'false');
     chrome.watermarkButton.setAttribute('aria-label', name);
     chrome.watermarkButton.title = name;
   };
-  chrome.watermarkNameInput.value = renderer.getViewState().watermark?.userName ?? '';
-  chrome.watermarkButton.addEventListener('click', () => {
-    const base = currentWatermark();
-    const next: Watermark = {
-      enabled: !base.enabled,
-      userName: chrome.watermarkNameInput.value.trim() || base.userName,
-      // Refresh the timestamp each time the mark is (re)enabled (TOOL-L2-001).
-      timestamp: base.enabled ? base.timestamp : new Date().toISOString(),
-    };
+  const applyWatermark = (next: Watermark): void => {
     renderer.setViewState({ ...renderer.getViewState(), watermark: next });
     syncWatermarkButton();
+  };
+  chrome.watermarkNameInput.value = currentWatermark().userName;
+  chrome.watermarkButton.addEventListener('click', () => {
+    const base = currentWatermark();
+    if (!base.enabled) {
+      // Turning the mark ON needs no password; refresh the timestamp in UTC ISO-8601.
+      applyWatermark({
+        ...base,
+        enabled: true,
+        userName: chrome.watermarkNameInput.value.trim() || DEFAULT_WATERMARK_TEXT,
+        timestamp: formatWatermarkTimestampUtc(Date.now()),
+      });
+      return;
+    }
+    // Hiding the mark requires the password: hash the input and compare to the
+    // stored hash (only the hash is ever kept). Client-side gating is a soft
+    // deterrent only (security-design §6).
+    const entered = window.prompt(uiLabel('watermark_hide_prompt', activeLocale)) ?? '';
+    const expectedHash = base.hideHash ?? DEFAULT_WATERMARK_HIDE_PASSWORD_HASH;
+    void matchesWatermarkHidePassword(entered, expectedHash).then((ok) => {
+      if (!ok) {
+        window.alert(uiLabel('watermark_hide_denied', activeLocale));
+        return; // wrong password: the watermark stays visible.
+      }
+      applyWatermark({ ...base, enabled: false });
+    });
   });
   chrome.watermarkNameInput.addEventListener('change', () => {
     const base = currentWatermark();
-    renderer.setViewState({
-      ...renderer.getViewState(),
-      watermark: { ...base, userName: chrome.watermarkNameInput.value.trim() || 'local-user' },
+    applyWatermark({
+      ...base,
+      userName: chrome.watermarkNameInput.value.trim() || DEFAULT_WATERMARK_TEXT,
     });
   });
   syncWatermarkButton();
@@ -914,6 +1071,7 @@ function bootstrap(): void {
     // Re-localize the stateful toggles whose names carry an on/off suffix.
     syncPlanActualButtons(renderer.getViewState().planActualDisplay);
     syncFullscreenButton();
+    syncThemeButton();
     // Keep <html lang> and the canvas keyboard help in sync with the locale
     // (WCAG 3.1.1 / 2.1.1).
     document.documentElement.lang = activeLocale;
@@ -936,6 +1094,22 @@ function bootstrap(): void {
     syncLinkButton(enabled);
   });
   syncLinkButton(controller.isLinkMode());
+
+  // Active-state hint for click-to-pick link mode (item 4). While the mode is on the
+  // hint tells the user to pick a source then a target; once a source is armed it names
+  // it. Hidden when the mode is off.
+  controller.onLinkStateChange((state) => {
+    if (!state.enabled) {
+      chrome.linkHint.style.display = 'none';
+      chrome.linkHint.textContent = '';
+      return;
+    }
+    chrome.linkHint.style.display = '';
+    chrome.linkHint.textContent =
+      state.armedSourceItemId === null
+        ? 'Dependency link: pick source -> target'
+        : `Dependency link: ${state.armedSourceItemId} -> pick target`;
+  });
 
   // Two independent Plan / Actual visibility toggles (fix 8, PLAN-L1-002), held in
   // view state (not the edit history). Together they drive the single display
@@ -1019,8 +1193,10 @@ function bootstrap(): void {
       renderer.setViewState({ ...renderer.getViewState(), progressLineVisible: visible }),
     onColor: (color) =>
       renderer.setViewState({ ...renderer.getViewState(), progressLineColor: color }),
-    label: uiLabel('progress_line', activeLocale),
-    colorLabel: uiLabel('progress_line_color', activeLocale),
+    // Properties panel is English-only (SHELL item 5): property names are already
+    // fixed English, so keep this control's label English regardless of UI locale.
+    label: uiLabel('progress_line', 'en'),
+    colorLabel: uiLabel('progress_line_color', 'en'),
   });
 
   // Pointer-following cursor-guide selector (items 9-12): four EXCLUSIVE modes as a
@@ -1077,6 +1253,11 @@ function bootstrap(): void {
     return worldXToDate(centerWorldX, store.getDocument().epochDate, view.zoomX);
   };
   chrome.commentButton.addEventListener('click', () => {
+    // When exactly one item is selected, ITEM-anchor the comment to it (anchor
+    // point 4 = center) so the comment follows the item as it moves (CURS-L1-005);
+    // otherwise drop a free-world comment at the viewport center.
+    const selection = [...controller.getSelection()];
+    const anchorItemId = selection.length === 1 ? selection[0] : undefined;
     store.dispatch(
       createCommentCommand({
         id: `comment-${Date.now()}`,
@@ -1084,6 +1265,7 @@ function bootstrap(): void {
         text: 'note',
         anchorDate: viewportCenterDate(),
         anchorRowIndex: 0,
+        ...(anchorItemId !== undefined ? { anchorItemId, anchorPoint: 4 as const } : {}),
         bodyOffsetPx: { dx: 48, dy: -36 },
       }),
     );
@@ -1204,11 +1386,16 @@ function wireInputOutput(
   };
 
   // Merge the renderer's live view state (font scale / locale / watermark) into
-  // the store document so those display settings round-trip on export.
-  const documentForExport = (): ScheduleDocument => ({
-    ...store.getDocument(),
-    viewState: renderer.getViewState(),
-  });
+  // the store document so those display settings round-trip on export. The
+  // watermark is materialized via resolveWatermark so the default-ON mark (and its
+  // hide-password HASH -- never the raw password) is present in the exported JSON.
+  const documentForExport = (): ScheduleDocument => {
+    const viewState = renderer.getViewState();
+    return {
+      ...store.getDocument(),
+      viewState: { ...viewState, watermark: resolveWatermark(viewState.watermark) },
+    };
+  };
 
   chrome.exportJsonButton.addEventListener('click', () => {
     const stem = toFileStem(store.getDocument().title);
@@ -1224,10 +1411,12 @@ function wireInputOutput(
     const stem = toFileStem(store.getDocument().title);
     // Embed the evidence watermark into the exported/shared SVG when enabled
     // (TOOL-L1-007), using the shared builder so it matches the on-screen mark.
-    const watermark = renderer.getViewState().watermark;
+    // resolveWatermark applies the default-ON mark for a document that never set
+    // one, so a shared export still carries the "GoodRelax" mark.
+    const watermark = resolveWatermark(renderer.getViewState().watermark);
     const svg = exportScheduleSvg(
       documentForExport(),
-      watermark !== undefined && watermark.enabled
+      watermark.enabled
         ? { watermark: { userName: watermark.userName, timestamp: watermark.timestamp } }
         : {},
     );

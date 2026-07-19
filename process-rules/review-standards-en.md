@@ -1,4 +1,4 @@
-# Review Standards (R1–R6)
+# Review Standards (R1–R7)
 
 > **Document positioning:** The single source of truth for the review perspectives referenced by review-agent. process-rules §9.2 is a summary of this document; refer here for details.
 > **Related documents:** [Process Rules](full-auto-dev-process-rules.md) §9 Quality Management Framework, [Document Management Rules](full-auto-dev-document-rules.md)
@@ -53,6 +53,16 @@
 ---
 
 ## R2: Software Design Principles Review Perspectives (Targeting Spec Ch3-4 and Code)
+
+### Naming — the most important design property (MUST)
+
+Names are the primary interface of software. A name reveals its essence; code should scream its intent (Screaming Architecture); software is kotodama — words shape what is built. In this framework, naming is the single most important review item, and is therefore MUST, not SHOULD.
+
+- Do variable names accurately represent their roles (no generic names like `data`, `info`, `tmp`, `obj`)?
+- Are function names in verb + object form (no vague verbs like `process`, `handle`, `manage`)?
+- Do Boolean variable/function names start with `is/has/can/should`?
+- Are collection variable names pluralized?
+- Are abbreviations used consistently (no mixing of `Usr` and `User`)?
 
 ### SOLID Principles
 
@@ -127,13 +137,6 @@
 - Is the structure such that changes in the infrastructure layer (DB, external API) do not propagate to business logic?
 - **Correctness of layer classification**: Is the Entity/UseCase/Adapter/Framework classification appropriate? Are concepts that belong to the domain misclassified in the Framework layer? Conversely, are things that could remain in Framework unnecessarily elevated to Entity? Judge based on "is this essential to the project's purpose, or merely a means?"
 - **Appropriateness of the Adapter layer**: Is the Adapter layer so thin that external dependencies leak into the domain? Is it so thick that business logic has crept into the Adapter layer?
-
-**Naming**
-- Do variable names accurately represent their roles (no generic names like `data`, `info`, `tmp`, `obj`)?
-- Are function names in verb + object form (no vague verbs like `process`, `handle`, `manage`)?
-- Do Boolean variable/function names start with `is/has/can/should`?
-- Are collection variable names pluralized?
-- Are abbreviations used consistently (no mixing of `Usr` and `User`)?
 
 **Prompt Engineering (when AI/LLM integration is enabled)**
 - Are product prompt templates placed under `src/` (not mixed with the meta-layer under `.claude/`)?
@@ -300,3 +303,59 @@ When review-agent performs a re-review after corrections:
 2. Confirm that "fix" dispositions are actually resolved in the corrected artifact
 3. Record the verification result in a new review report with updated counts
 4. Any new findings discovered during re-review are added to the Finding Disposition Table
+
+---
+
+## Comprehensive Review Checklist (R1–R7, Mandatory)
+
+A single standalone check sheet aggregating all review perspectives (R1–R7). Keywords follow RFC 2119 (MUST/SHALL = mandatory, SHOULD = recommended). The reviewer MUST fill Verdict (PASS/FAIL/NA) for every row and MUST raise a finding for each FAIL. For any non-PASS Verdict (FAIL/NA) or an intentionally waived MUST item, the reviewer MUST record the reason in Remark. Each ID maps to its detailed section above; consult it for rationale and examples.
+
+**Purity annotation convention (language-agnostic, for R7):** every function/method MUST carry exactly one `@purity` tag inside the language's comment (`//`, `#`, `--`, `/* */`, `"""..."""`, etc.). Value is `pure` / `semi-pure` / `semi-pure-b` / `non-pure`. `@purity` is a text marker inside a comment, not language syntax, so it works in every language and is greppable. Pure is stated explicitly, never left unmarked.
+
+| ID | Area | Level | Check item | Verdict | Remark |
+|----|------|-------|------------|:------:|--------|
+| R1.1 | Requirements | MUST | All functional requirements have IDs (FR-xxx); non-functional requirements have measurable numeric criteria | — | — |
+| R1.2 | Requirements | MUST | Ambiguous / untestable expressions eliminated ("appropriately", "fast", "as soon as possible"); each requirement has a clear subject and action | — | — |
+| R1.3 | Requirements | MUST | No contradictory or duplicated requirements; a single authoritative source; inter-requirement dependencies stated | — | — |
+| R1.4 | Requirements | SHOULD | Abnormal / semi-normal cases covered (timeout, interruption, concurrency, insufficient permission, data inconsistency, resource exhaustion); boundaries (min/max/empty/null) stated | — | — |
+| R1.5 | Requirements | SHOULD | Requirements are MECE; no gaps across stakeholders (admin / user / external system) | — | — |
+| R1.6 | Requirements | SHOULD | Negative requirements specify an alternative action; passive voice rewritten to active (clear responsibility); no double negatives | — | — |
+| R2.1 | Design | MUST | Naming reflects essence — the single most important design property (Screaming Architecture; software is kotodama). Accurate role names (no generic `data`/`info`/`tmp`/`obj`); verb+object functions; is/has/can booleans; plural collections; consistent domain terms | — | — |
+| R2.2 | Design | MUST | SRP: one class/module has a single reason to change (no "does X and Y") | — | — |
+| R2.3 | Design | SHOULD | OCP: open for extension, closed for modification; new behavior via strategy/template, not by editing if/switch | — | — |
+| R2.4 | Design | SHOULD | LSP: subclasses do not strengthen preconditions, weaken postconditions, or change the parent contract | — | — |
+| R2.5 | Design | SHOULD | ISP: no class implements interface methods it does not use; large interfaces split by usage | — | — |
+| R2.6 | Design | SHOULD | DIP: upper modules depend on abstractions, not concrete lower modules (DB/API) | — | — |
+| R2.7 | Design | SHOULD | DRY: no duplicated logic; magic numbers/strings are constants; no redundant validation across layers | — | — |
+| R2.8 | Design | SHOULD | KISS: simplest working solution; nesting depth < 4; flatten with early returns | — | — |
+| R2.9 | Design | SHOULD | YAGNI: no speculative features or over-abstraction; no unused parameters/flags/config | — | — |
+| R2.10 | Design | MUST | SoC: UI / business / data-access not mixed; validation, transformation, persistence separated | — | — |
+| R2.11 | Design | MUST | SLAP: a function stays at a single level of abstraction (intent not mixed with low-level detail) | — | — |
+| R2.12 | Design | SHOULD | LoD: no deep `a.b.c.d` chains; use only immediate collaborators | — | — |
+| R2.13 | Design | SHOULD | CQS: a method either changes state or returns a value, not both | — | — |
+| R2.14 | Design | MUST | POLA: behavior matches the name; no hidden side effects; no double-negative booleans | — | — |
+| R2.15 | Design | MUST | PIE: names and comments express "why", not just "what"; name intermediate results | — | — |
+| R2.16 | Design | MUST | CA: dependency points inward to the domain; domain not contaminated by framework/DB; Entity/UseCase/Adapter/Framework classification and Adapter thickness correct | — | — |
+| R2.17 | Design (AI/LLM) | SHOULD | Prompt engineering: prompts under `src/` with explicit I/O schemas, no ambiguous instructions, prompt tests, versioning policy, hallucination countermeasures | — | — |
+| R3.1 | Coding | MUST | Every external I/O (network/DB/file) has error handling; errors are not silently swallowed (no empty catch) | — | — |
+| R3.2 | Coding | MUST | Error messages carry debug context internally; no internal details (stack traces, DB errors) leaked to users | — | — |
+| R3.3 | Coding | MUST | All external input validated; Null/Undefined/empty handled; no unsafe type assertions | — | — |
+| R4.1 | Concurrency | MUST | Multi-resource lock acquisition order is uniform and documented; no external calls / long processes inside DB transactions | — | — |
+| R4.2 | Concurrency | MUST | Concurrent shared-state access identified; Check-Then-Act and Read-Modify-Write made atomic (locks/atomics); no races across `await` | — | — |
+| R4.3 | State Transition | MUST | Multi-field updates are atomic (no observable intermediate glitch); implementation matches Spec Ch3 state transitions; event-notification timing (before/after) defined | — | — |
+| R5.1 | Performance | MUST | Critical algorithm complexity meets NFR (Spec Ch2); no O(n²)+ on large data | — | — |
+| R5.2 | Performance | SHOULD | No N+1 queries; no `SELECT *` overfetch; bulk ops instead of per-row loops; indexes/pagination for large fetches | — | — |
+| R5.3 | Performance | MUST | No memory leaks (listeners/timers released, no leak-causing cycles); caches bounded (TTL/size); streaming for large data | — | — |
+| R5.4 | Performance | SHOULD | Parallelizable I/O not needlessly serialized; no needless frontend re-renders; lazy loading / code splitting where applicable | — | — |
+| R6.1 | Test | MUST | Tests are independent (no order or shared-state dependency); no flaky (timing/random) tests | — | — |
+| R6.2 | Test | MUST | Boundary / abnormal / edge cases covered, not just normal; requirement coverage traces to FR-xxx | — | — |
+| R6.3 | Test | MUST | Test names express intent; mocks/stubs not so overused that real behavior goes unverified | — | — |
+| R7.1 | Purity | MUST | Every function/method is classified pure / semi-pure / non-pure (pure = no mutable state, no side effect, no external read; semi-pure = no side effect but reads external state; non-pure = mutable state or side effect) | — | — |
+| R7.2 | Purity | MUST | Non-pure effects (I/O, DB write, log, lock/mutex/semaphore, global or argument mutation, throw, HW/OS/env change) occur ONLY in outer layers (imperative shell / Adapter, Framework); the domain core stays pure | — | — |
+| R7.3 | Purity | SHOULD | semi-pure-b reads (clock, RNG, DB/file/network read) are collected at the top and injected as arguments where feasible, raising the function toward pure | — | — |
+| R7.4 | Structure | MUST | Within a function, input collection (all reads) completes before processing; collect and process are not interleaved | — | — |
+| R7.5 | Purity | MUST | Pure-side classes are immutable class / value object / stateless class and hold no mutable state; mutable state or side-effecting methods make a class stateful (non-pure) | — | — |
+| R7.6 | Purity | MUST | Every function/method carries a `@purity` tag (pure / semi-pure / semi-pure-b / non-pure) inside a comment; unmarked is not allowed (grep-checkable) | — | — |
+| R7.7 | Structure | SHOULD | Within a class/module, members are ordered pure to semi-pure to non-pure, with a section comment before the non-pure group | — | — |
+| R7.8 | Structure | SHOULD | A class does not mix mutable state with pure computation; pure logic is extracted into pure functions or value objects | — | — |
+| R7.9 | Structure | SHOULD | Files/modules are separated by purity (pure core and non-pure shell in different files) | — | — |

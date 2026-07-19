@@ -79,6 +79,11 @@ export interface ProgressLineVertex {
  *   line tracks variable-height rows (multi-lane stacking). Defaults to uniform.
  * @param rowBandHeightAt - Optional resolver for a row's world-space band height.
  *   Defaults to uniform {@link rowBandHeight}.
+ * @param rowBendCenterWorldY - Optional resolver for the world-space y a row's BEND
+ *   (per-row front vertex) sits at. It must return the vertical CENTER of the ITEM the
+ *   progress touches on that row, NOT the row-band center, so the zig-zag connects at
+ *   each item's mid-height rather than drifting below it (item 3). Defaults to the
+ *   row-band center (`top + height / 2`) for callers with no item geometry.
  * @returns Ordered polyline vertices in world space (top axis -> rows -> bottom axis).
  */
 export function buildIlluminatedLine(
@@ -89,6 +94,8 @@ export function buildIlluminatedLine(
   zoomY: number,
   rowTopWorldY: (rowIndex: number) => number = (rowIndex) => rowWorldY(rowIndex, zoomY),
   rowBandHeightAt: (rowIndex: number) => number = () => rowBandHeight(zoomY),
+  rowBendCenterWorldY: (rowIndex: number) => number = (rowIndex) =>
+    rowTopWorldY(rowIndex) + rowBandHeightAt(rowIndex) / 2,
 ): ProgressLineVertex[] {
   if (fronts.length === 0) {
     return [];
@@ -105,7 +112,8 @@ export function buildIlluminatedLine(
   for (const front of ordered) {
     vertices.push({
       worldX: dateToWorldX(front.frontDate, epochDate, zoomX),
-      worldY: rowTopWorldY(front.rowIndex) + rowBandHeightAt(front.rowIndex) / 2,
+      // Bend at the touched ITEM's vertical center (item 3), not the band center.
+      worldY: rowBendCenterWorldY(front.rowIndex),
     });
   }
   // Bottom anchor: back on the base axis, at the bottom edge of the last band.
