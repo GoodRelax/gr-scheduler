@@ -136,13 +136,17 @@ test.describe('gr-scheduler UI fixes', () => {
     // Zoom the time axis in with Shift + wheel until the finest (3-tier) ruler shows.
     const cx = box.x + box.width / 2;
     const cy = box.y + box.height / 2;
+    const ruler = page.locator('[data-role="date-ruler"]');
     await page.mouse.move(cx, cy);
     await page.keyboard.down('Shift');
-    for (let i = 0; i < 12; i += 1) {
+    // The ASPICE sample frames ~3 years, so the startup Fit is more zoomed OUT; keep
+    // taking zoom-in notches until the finest (3-tier) ruler shows (capped so a real
+    // regression still fails fast). Extra notches are harmless (the ruler caps at
+    // three tiers).
+    for (let i = 0; i < 60 && (await ruler.getAttribute('data-tier-count')) !== '3'; i += 1) {
       await page.mouse.wheel(0, -40);
     }
     await page.keyboard.up('Shift');
-    const ruler = page.locator('[data-role="date-ruler"]');
     await expect.poll(async () => ruler.getAttribute('data-tier-count')).toBe('3');
 
     // For each tier, the kept labels must not overlap horizontally.

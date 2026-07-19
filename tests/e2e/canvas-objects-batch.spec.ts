@@ -53,9 +53,12 @@ async function movePaletteLeft(page: Page): Promise<void> {
   if (box === null) {
     return;
   }
+  // Dock the palette to the BOTTOM-left so it clears both the top schedule rows
+  // (where the wide "Over All Schedule" phase bars sit in the ASPICE sample) and
+  // the right-hand creation strip.
   await page.mouse.move(box.x + 4, box.y + 4);
   await page.mouse.down();
-  await page.mouse.move(160, 120, { steps: 6 });
+  await page.mouse.move(120, 700, { steps: 6 });
   await page.mouse.up();
 }
 

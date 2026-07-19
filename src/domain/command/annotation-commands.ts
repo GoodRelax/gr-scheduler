@@ -102,6 +102,51 @@ export function moveCommentCommand(
 }
 
 /**
+ * Command: move a comment's leader ANCHOR (the pointed-at target) to a new FREE
+ * world point (CURS-L1-005 anchor drag). Sets the free-point `anchorDate` /
+ * `anchorRowIndex` and DETACHES any item binding (`anchorItemId` / `anchorPoint`
+ * are dropped) so the anchor no longer follows an item and the leader re-routes
+ * from the bubble to the new point. Undoable; round-trips via JSON. No-op for
+ * non-comment annotations.
+ *
+ * @param commentId - The comment whose anchor to move.
+ * @param anchor - The new free-world anchor (date + row index).
+ * @returns A move-comment-anchor command.
+ */
+export function moveCommentAnchorCommand(
+  commentId: string,
+  anchor: { readonly anchorDate: IsoDate; readonly anchorRowIndex: number },
+): ScheduleCommand {
+  return {
+    label: 'move-comment-anchor',
+    execute: (scheduleDocument) =>
+      mapAnnotations(scheduleDocument, (annotation) => {
+        if (annotation.id !== commentId || !isComment(annotation)) {
+          return annotation;
+        }
+        if (
+          annotation.anchorDate === anchor.anchorDate &&
+          annotation.anchorRowIndex === anchor.anchorRowIndex &&
+          annotation.anchorItemId === undefined
+        ) {
+          return annotation; // unchanged: no-op (no history entry).
+        }
+        // Detach from any item binding by rebuilding the comment WITHOUT the
+        // item-anchor fields, then re-pin it to the new free world point.
+        const detached: CommentAnnotation = {
+          id: annotation.id,
+          annotationKind: annotation.annotationKind,
+          text: annotation.text,
+          anchorDate: anchor.anchorDate,
+          anchorRowIndex: anchor.anchorRowIndex,
+          bodyOffsetPx: annotation.bodyOffsetPx,
+        };
+        return detached;
+      }),
+  };
+}
+
+/**
  * Command: recolor a rounded-box enclosure (CURS-L1-007 "color editable"). No-op
  * when the color is unchanged or the target is not a rounded box.
  *

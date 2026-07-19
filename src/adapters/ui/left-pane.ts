@@ -216,6 +216,7 @@ export class LeftClassificationPane {
     this.container.appendChild(this.editToolbar);
 
     this.host.appendChild(this.container);
+    this.ensureControlsStylesheet();
     this.enableDividerDrag();
 
     // Ctrl+C / Ctrl+V on a focused section node copy / paste its subtree (req 3).
@@ -226,6 +227,45 @@ export class LeftClassificationPane {
     this.store.subscribe(() => this.render());
     this.renderer.onViewStateChange(() => this.render());
     this.render();
+  }
+
+  /**
+   * Install (once) the stylesheet that keeps each node's `[▲ ▼ □ + − ✕]` control row
+   * HIDDEN by default and reveals it only when the node is HOVERED or SELECTED /
+   * keyboard-FOCUSED (req 3). The controls stay in the DOM and in the tab order
+   * (they are only collapsed to zero width + transparent, never `display:none`), so
+   * a keyboard user can Tab to them and the act of focusing one reveals the row via
+   * `:focus-within`. This reclaims the horizontal space a node normally wastes.
+   */
+  private ensureControlsStylesheet(): void {
+    // A real-DOM concern only; the unit-test fake document lacks getElementById /
+    // head, so guard before touching them (the pure logic is covered elsewhere).
+    const doc = window.document;
+    if (
+      typeof doc.getElementById !== 'function' ||
+      doc.head === null ||
+      doc.head === undefined ||
+      typeof doc.head.appendChild !== 'function'
+    ) {
+      return;
+    }
+    const styleId = 'grsch-pane-node-controls-style';
+    if (doc.getElementById(styleId) !== null) {
+      return;
+    }
+    const style = window.document.createElement('style');
+    style.id = styleId;
+    style.textContent = [
+      '.grsch-node-controls {',
+      '  display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto;',
+      '  max-width: 0; overflow: hidden; opacity: 0; pointer-events: none;',
+      '}',
+      '.grsch-pane-node:hover > .grsch-node-controls,',
+      '.grsch-pane-node:focus-within > .grsch-node-controls {',
+      '  max-width: 999px; overflow: visible; opacity: 1; pointer-events: auto;',
+      '}',
+    ].join('\n');
+    doc.head.appendChild(style);
   }
 
   /** Rebuild the pane from the current document + view state (cheap: ~50 rows). */
@@ -292,6 +332,7 @@ export class LeftClassificationPane {
         const sectionId = sectionIdByStart.get(index);
         const header = this.el('div');
         header.dataset.role = 'section-header';
+        header.setAttribute('class', 'grsch-pane-node');
         header.dataset.sectionId = sectionId ?? '';
         header.style.position = 'absolute';
         header.style.top = `${top}px`;
@@ -326,6 +367,7 @@ export class LeftClassificationPane {
         const trackMiddle = row.middleLabel;
         const midLabel = this.el('div');
         midLabel.dataset.role = 'track-label';
+        midLabel.setAttribute('class', 'grsch-pane-node');
         midLabel.style.position = 'absolute';
         midLabel.style.top = `${top + 15}px`;
         midLabel.style.left = '18px';
@@ -364,6 +406,7 @@ export class LeftClassificationPane {
         const detailMinor = row.minorLabel;
         const subLabel = this.el('div');
         subLabel.dataset.role = 'detail-label';
+        subLabel.setAttribute('class', 'grsch-pane-node');
         subLabel.style.position = 'absolute';
         subLabel.style.top = `${top + 28}px`;
         subLabel.style.left = '30px';
@@ -438,14 +481,21 @@ export class LeftClassificationPane {
    * that can HAVE children (major / middle); a minor leaf shows `▲ ▼ - X`.
    */
   private appendNodeControls(container: HTMLElement, node: PaneNode): void {
-    container.appendChild(this.buildMoveButton(node, 'up'));
-    container.appendChild(this.buildMoveButton(node, 'down'));
+    // The controls live in a collapsible wrapper (revealed on hover / focus /
+    // selection by the pane-node-controls stylesheet, req 3). Keeping them in the
+    // DOM (never `display:none`) preserves keyboard reachability.
+    const controls = this.el('div');
+    controls.setAttribute('class', 'grsch-node-controls');
+    controls.dataset.role = 'node-controls';
+    controls.appendChild(this.buildMoveButton(node, 'up'));
+    controls.appendChild(this.buildMoveButton(node, 'down'));
     if (node.level === 'major' || node.level === 'middle') {
-      container.appendChild(this.buildShowAllButton(node));
-      container.appendChild(this.buildAddSubButton(node));
+      controls.appendChild(this.buildShowAllButton(node));
+      controls.appendChild(this.buildAddSubButton(node));
     }
-    container.appendChild(this.buildHideButton(node));
-    container.appendChild(this.buildDeleteButton(node));
+    controls.appendChild(this.buildHideButton(node));
+    controls.appendChild(this.buildDeleteButton(node));
+    container.appendChild(controls);
   }
 
   /** Build the ▲ / ▼ move button for a node (major via section order; else category). */

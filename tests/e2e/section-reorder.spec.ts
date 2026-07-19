@@ -39,7 +39,11 @@ test.describe('section reorder: move a section down via the left pane', () => {
     expect(before[0]).toBe('section-0');
     expect(before[1]).toBe('section-1');
 
-    // The button's accessible name comes from its aria-label (WCAG 4.1.2).
+    // The per-node control row is hidden until the node is hovered / focused
+    // (reveal-on-hover). Hover the section header first so its ▲/▼/□/+/-/✕ controls
+    // become visible, then click the move button (its accessible name is its
+    // aria-label, WCAG 4.1.2).
+    await firstHeader.hover();
     await page.getByRole('button', { name: 'Move section Over All Schedule down' }).click();
 
     // The first section is now the one that was previously second.

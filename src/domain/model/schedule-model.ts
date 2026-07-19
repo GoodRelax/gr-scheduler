@@ -510,6 +510,13 @@ export interface ViewState {
    */
   readonly leftPaneWidth?: number;
   /**
+   * Width in CSS pixels of the fixed right property panel (PROP-L1-001).
+   * User-resizable via the panel's left-edge divider (mirroring the left pane);
+   * absent falls back to a default. Held in view state so it round-trips via JSON /
+   * autosave without polluting Undo/Redo.
+   */
+  readonly propertyPanelWidth?: number;
+  /**
    * Plan/actual display filter (PLAN-L1-002); absent is treated as `both`. Held
    * in view state (not the edit history) so switching the filter never pollutes
    * Undo/Redo.

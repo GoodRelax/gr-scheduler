@@ -317,9 +317,39 @@ describe('CommentLayer', () => {
       }),
     );
     const node = overlay as unknown as FakeSvgNode;
-    expect(node.querySelector('[data-role="comment-bubble"]')).not.toBeNull();
+    const bubble = node.querySelector('[data-role="comment-bubble"]');
+    expect(bubble).not.toBeNull();
     expect(node.querySelector('[data-role="comment-leader"]')).not.toBeNull();
     expect(node.querySelector('text')?.textContent).toBe('hello');
+    // A pointer (finger) cursor advertises the bubble as selectable/draggable.
+    expect(bubble?.getAttribute('cursor')).toBe('pointer');
+    // No anchor handle unless the comment is selected.
+    expect(node.querySelector('[data-role="comment-anchor-handle"]')).toBeNull();
+  });
+
+  it('draws a grabbable anchor handle when the comment is selected', () => {
+    const comment: Annotation = {
+      id: 'c1',
+      annotationKind: 'callout-box',
+      text: 'hello',
+      anchorDate: '2026-01-05',
+      anchorRowIndex: 0,
+      bodyOffsetPx: { dx: 40, dy: -30 },
+    } as unknown as Annotation;
+    const overlay = SVG_G();
+    new CommentLayer(overlay).render(
+      makeRenderContext({
+        scheduleDocument: sampleDocument({ annotations: [comment] }),
+        selectedAnnotationId: 'c1',
+        rowTop: () => 0,
+        rowHeight: () => 40,
+      }),
+    );
+    const node = overlay as unknown as FakeSvgNode;
+    const handle = node.querySelector('[data-role="comment-anchor-handle"]');
+    expect(handle).not.toBeNull();
+    expect(handle?.getAttribute('data-annotation-id')).toBe('c1');
+    expect(handle?.getAttribute('cursor')).toBe('move');
   });
 });
 
@@ -358,6 +388,47 @@ describe('HitTester', () => {
     expect(hit).toEqual({ itemId: 'a', region: 'fade-in' });
   });
 
+  it('returns an anchor-handle hit near a selected comment leader anchor', () => {
+    const comment = {
+      id: 'c1',
+      annotationKind: 'callout-box',
+      text: 'note',
+      // Anchor on the epoch date at row 0 -> world (0, 20) under the identity test
+      // transform; the bubble is offset far to the right so the two never overlap.
+      anchorDate: '2026-01-01',
+      anchorRowIndex: 0,
+      bodyOffsetPx: { dx: 200, dy: 0 },
+    } as unknown as Annotation;
+    const ctx = makeRenderContext({
+      scheduleDocument: sampleDocument({ annotations: [comment] }),
+      selectedAnnotationId: 'c1',
+      rowTop: () => 0,
+      rowHeight: () => 40,
+    });
+    // Over the anchor point -> anchor handle; over the bubble body -> body.
+    expect(tester.hitTestAnnotation(ctx, 0, 20)).toEqual({ annotationId: 'c1', region: 'anchor' });
+    expect(tester.hitTestAnnotation(ctx, 205, 20)).toEqual({ annotationId: 'c1', region: 'body' });
+  });
+
+  it('does not report an anchor handle for an UNselected comment', () => {
+    const comment = {
+      id: 'c1',
+      annotationKind: 'callout-box',
+      text: 'note',
+      anchorDate: '2026-01-01',
+      anchorRowIndex: 0,
+      bodyOffsetPx: { dx: 200, dy: 0 },
+    } as unknown as Annotation;
+    const ctx = makeRenderContext({
+      scheduleDocument: sampleDocument({ annotations: [comment] }),
+      selectedAnnotationId: null,
+      rowTop: () => 0,
+      rowHeight: () => 40,
+    });
+    // No selection -> the anchor handle is not drawn and not hit-testable.
+    expect(tester.hitTestAnnotation(ctx, 0, 20)).toBeNull();
+  });
+
   it('resolves a dependency line where no item sits', () => {
     const from = makePlacement('a', 100, 100, 80, 40);
     const to = makePlacement('b', 400, 100, 80, 40);
@@ -373,8 +444,8 @@ describe('HitTester', () => {
     });
     // No item glyph at (300,120), so item hit is null but the routed line is grabbable.
     expect(tester.hitTest(ctx, 300, 120)).toBeNull();
-    // The connector exits the source center-right (slightly low, y ~ 128) and enters the
-    // target center-left (y = 120); the grab point sits on the routed polyline.
-    expect(tester.hitTestDependency(ctx, 300, 124)).toBe('d1');
+    // The connector's final segment enters the target center-left at y=120, so a point
+    // on that horizontal run is on the routed polyline.
+    expect(tester.hitTestDependency(ctx, 300, 120)).toBe('d1');
   });
 });

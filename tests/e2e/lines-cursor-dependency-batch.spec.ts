@@ -219,4 +219,78 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
     await field.dispatchEvent('change');
     await expect.poll(() => lines.count()).toBe(before);
   });
+
+  test('1b. every cursor-guide mode draws SOLID lines (no dash)', async ({ page }) => {
+    await openApp(page);
+    await movePaletteAway(page);
+    for (const mode of ['crosshair', 'single-vertical', 'double-vertical']) {
+      await selectGuideAndHover(page, mode);
+      const dashes = await page.evaluate(() => {
+        const group = document.querySelector('svg [data-role="cursor-guide"]');
+        return Array.from(group?.querySelectorAll('line') ?? []).map(
+          (line) => line.getAttribute('stroke-dasharray'),
+        );
+      });
+      expect(dashes.length).toBeGreaterThan(0);
+      for (const dash of dashes) {
+        expect(dash === null || dash === 'none').toBe(true);
+      }
+    }
+  });
+
+  test('3. double-vertical measures a day span between a fixed reference and the pointer', async ({
+    page,
+  }) => {
+    await openApp(page);
+    await movePaletteAway(page);
+    // Enter double-vertical: line-1 pins to the first pointer position (the reference).
+    await selectGuideAndHover(page, 'double-vertical');
+    await expect(page.locator('svg [data-role="cursor-guide-reference"]')).toHaveCount(1);
+    const box = (await page.locator('svg[data-role="schedule-canvas"]').boundingBox())!;
+    // Move line-2 well to the right of the reference to measure a positive span.
+    await page.mouse.move(box.x + box.width * 0.85, box.y + box.height * 0.5, { steps: 4 });
+    const label = page.locator('svg [data-role="cursor-guide-span-label"]');
+    await expect(label).toHaveCount(1);
+    await expect(label).toHaveText(/\d+ days?/);
+    await expect(label).not.toHaveText('0 days');
+  });
+
+  test('5a. Esc disarms dependency link mode (un-presses the toggle + hides the hint)', async ({
+    page,
+  }) => {
+    await openApp(page);
+    await movePaletteAway(page);
+    await page.locator('[data-role="toggle-link"]').click();
+    await expect(page.locator('[data-role="toggle-link"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-role="link-hint"]')).toContainText('pick source');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-role="toggle-link"]')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('[data-role="link-hint"]')).toBeHidden();
+  });
+
+  test('5b. hiding the Plan side hides plan-linked dependency lines', async ({ page }) => {
+    await openApp(page);
+    await movePaletteAway(page);
+    const lines = page.locator('svg [data-role="dependency-line"]');
+
+    // Create a plan->plan edge (both endpoints are plan items).
+    await page.locator('[data-role="toggle-link"]').click();
+    const clickItem = async (id: string): Promise<void> => {
+      const box = (await page.locator(`svg [data-item-id="${id}"] > rect`).boundingBox())!;
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    };
+    await clickItem('ta-phase-plan-sys2');
+    await clickItem('ta-phase-plan-sys3');
+    await page.keyboard.press('Escape'); // leave link mode
+    const withEdge = await lines.count();
+    expect(withEdge).toBeGreaterThan(0);
+
+    // Hide the Plan side: the plan->plan edge (both endpoints hidden) disappears.
+    await page.locator('[data-role="toggle-plan"]').click();
+    await expect.poll(() => lines.count()).toBeLessThan(withEdge);
+
+    // Re-show Plan: the plan-linked lines return.
+    await page.locator('[data-role="toggle-plan"]').click();
+    await expect.poll(() => lines.count()).toBe(withEdge);
+  });
 });

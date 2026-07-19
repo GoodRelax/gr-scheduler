@@ -259,7 +259,20 @@ class FakeElement {
   }
 
   public buttonChildren(): FakeElement[] {
-    return this.children.filter((child) => child.tagName === 'BUTTON');
+    // The per-node controls now nest inside a collapsible `[data-role="node-controls"]`
+    // wrapper (hidden until hover / focus / selection), so gather descendant buttons
+    // in document order rather than only DIRECT children.
+    const buttons: FakeElement[] = [];
+    const walk = (element: FakeElement): void => {
+      for (const child of element.children) {
+        if (child.tagName === 'BUTTON') {
+          buttons.push(child);
+        }
+        walk(child);
+      }
+    };
+    walk(this);
+    return buttons;
   }
 }
 

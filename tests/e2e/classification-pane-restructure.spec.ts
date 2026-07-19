@@ -96,11 +96,16 @@ test.describe('classification-pane restructure (e2e, trusted events)', () => {
     const onboarding = page.locator('[data-role="detail-label"]', { hasText: 'Onboarding' });
     expect(await onboarding.count()).toBeGreaterThan(0);
 
+    // The control row is hidden until its node is hovered / focused; focusing the
+    // track's name reveals its controls (via :focus-within) without a mouse-position
+    // conflict with the overlapping detail label.
+    await middle.locator('[data-role="node-name"]').first().focus();
     await middle.locator('button[data-role="hide-node"]').click();
     await expect(page.locator('[data-role="detail-label"]', { hasText: 'Onboarding' })).toHaveCount(0);
 
     // Reveal all under the owning section (TeamA) via its show-all "□".
     const teamA = page.locator('[data-role="section-header"]', { hasText: 'TeamA' }).first();
+    await teamA.locator('[data-role="node-name"]').first().focus();
     await teamA.locator('button[data-role="show-all"]').click();
     await expect(page.locator('[data-role="detail-label"]', { hasText: 'Onboarding' })).toHaveCount(1);
   });
@@ -109,6 +114,8 @@ test.describe('classification-pane restructure (e2e, trusted events)', () => {
     await openApp(page);
     const middle = page.locator('[data-role="track-label"]', { hasText: 'Task-Plan' }).first();
     await middle.waitFor();
+    // Reveal the hidden-until-hover control row (via :focus-within) before its "X".
+    await middle.locator('[data-role="node-name"]').first().focus();
     await middle.locator('button[data-role="remove-track"]').click();
 
     const dialog = page.getByRole('dialog');

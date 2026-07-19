@@ -41,6 +41,10 @@ import {
   successorItemIds,
 } from '../../domain/usecase/dependency-projection.js';
 import { CUD_PALETTE, TRANSPARENT_COLOR_KEY } from '../../domain/model/cud-palette.js';
+import {
+  clampPropertyPanelWidth,
+  resolvePropertyPanelWidth,
+} from '../../domain/usecase/left-pane-layout.js';
 
 /**
  * A tiny checkerboard CSS background used to render the "transparent" color swatch
@@ -95,6 +99,12 @@ export class PropertyPanel {
   private selectedItemIds: ReadonlySet<string> = new Set();
   /** Invoked when the user closes the panel with the × button (fix 10). */
   private readonly onRequestHide: (() => void) | null;
+  /** Notified with the new width (px) whenever the panel is resized (persistence). */
+  private readonly onWidthChange: ((width: number) => void) | null;
+  /** The panel's current width in CSS pixels (resizable, persisted). */
+  private panelWidth: number;
+  /** The draggable left-edge divider that resizes the panel; null until built. */
+  private divider: HTMLElement | null = null;
   /** The end_date field row, hidden for milestones (M-03 invariant guard). */
   private endDateRow: HTMLElement | null = null;
   /** The fade_in_days field row, shown for tasks only (fade is tasks-only). */
@@ -125,13 +135,95 @@ export class PropertyPanel {
    * @param store - The store to read from and dispatch edits to.
    * @param onRequestHide - Optional callback the × close button invokes so the
    *   shell can keep the properties toggle button's state in sync (fix 10).
+   * @param options - Optional initial width (persisted) and a width-change sink so
+   *   the shell can round-trip the resized width through the view state.
    */
-  public constructor(container: HTMLElement, store: ScheduleStore, onRequestHide?: () => void) {
+  public constructor(
+    container: HTMLElement,
+    store: ScheduleStore,
+    onRequestHide?: () => void,
+    options?: {
+      readonly initialWidth?: number | undefined;
+      readonly onWidthChange?: ((width: number) => void) | undefined;
+    },
+  ) {
     this.root = container;
     this.store = store;
     this.onRequestHide = onRequestHide ?? null;
+    this.onWidthChange = options?.onWidthChange ?? null;
+    this.panelWidth = resolvePropertyPanelWidth(options?.initialWidth);
     this.buildStaticLayout();
+    this.enableDividerDrag();
     store.subscribe((document) => this.refreshValues(document));
+  }
+
+  /**
+   * Apply a panel width (px), clamping it to the allowed range and persisting it
+   * through the width-change sink. Used by the resize divider and callable by the
+   * shell to re-apply a width adopted from an imported document's view state.
+   *
+   * @param width - The proposed width in CSS pixels.
+   * @param persist - Whether to notify the width-change sink (default true).
+   */
+  public applyWidth(width: number, persist = true): void {
+    const available = this.root.parentElement?.getBoundingClientRect().width ?? 0;
+    const clamped = clampPropertyPanelWidth(width, available);
+    this.panelWidth = clamped;
+    this.root.style.flex = `0 0 ${clamped}px`;
+    this.root.style.width = `${clamped}px`;
+    if (this.divider !== null) {
+      this.divider.style.display = this.isHidden() ? 'none' : 'block';
+    }
+    if (persist) {
+      this.onWidthChange?.(clamped);
+    }
+  }
+
+  /**
+   * Build and insert the draggable left-edge divider that resizes the panel,
+   * mirroring the left classification pane's resize mechanism (CANVAS-L2-001). The
+   * divider is a flex sibling placed just before the panel in the body row, so
+   * dragging it left widens the panel (and narrows the canvas) and vice versa.
+   */
+  private enableDividerDrag(): void {
+    const parent = this.root.parentElement;
+    if (parent === null) {
+      return;
+    }
+    const divider = document.createElement('div');
+    divider.dataset.role = 'property-panel-divider';
+    divider.style.flex = '0 0 6px';
+    divider.style.cursor = 'col-resize';
+    divider.style.background = 'transparent';
+    divider.style.alignSelf = 'stretch';
+    parent.insertBefore(divider, this.root);
+    this.divider = divider;
+
+    let dragging = false;
+    divider.addEventListener('pointerdown', (event) => {
+      dragging = true;
+      divider.setPointerCapture(event.pointerId);
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    divider.addEventListener('pointermove', (event) => {
+      if (!dragging) {
+        return;
+      }
+      // The divider sits at the panel's LEFT edge, so the width is the distance from
+      // the pointer to the panel's right edge.
+      const right = this.root.getBoundingClientRect().right;
+      this.applyWidth(right - event.clientX);
+      event.stopPropagation();
+    });
+    const end = (event: PointerEvent): void => {
+      dragging = false;
+      if (divider.hasPointerCapture(event.pointerId)) {
+        divider.releasePointerCapture(event.pointerId);
+      }
+    };
+    divider.addEventListener('pointerup', end);
+    divider.addEventListener('pointercancel', end);
   }
 
   /**
@@ -173,6 +265,11 @@ export class PropertyPanel {
    */
   public setHidden(hidden: boolean): void {
     this.root.style.display = hidden ? 'none' : 'block';
+    // The resize divider only makes sense while the panel is shown; hide it too so
+    // it never leaves a stray col-resize strip against the canvas.
+    if (this.divider !== null) {
+      this.divider.style.display = hidden ? 'none' : 'block';
+    }
   }
 
   /** Whether the panel is currently hidden. */
@@ -197,8 +294,8 @@ export class PropertyPanel {
       '.grsch-prop-panel textarea { padding: 0 2px; box-sizing: border-box; }',
     ].join('\n');
     this.root.appendChild(compactStyle);
-    this.root.style.width = '260px';
-    this.root.style.flex = '0 0 260px';
+    this.root.style.width = `${this.panelWidth}px`;
+    this.root.style.flex = `0 0 ${this.panelWidth}px`;
     this.root.style.borderLeft = '1px solid var(--grsch-panel-border)';
     this.root.style.background = 'var(--grsch-panel-bg)';
     this.root.style.color = 'var(--grsch-text)';
@@ -347,21 +444,43 @@ export class PropertyPanel {
     this.buildDependencyForm();
   }
 
-  private addFieldRow(form: HTMLElement, fieldKey: string): HTMLElement {
+  /**
+   * Build one two-column property row: the field LABEL in a right-aligned left
+   * column and the INPUT(s) in a left-aligned right column, on the SAME line
+   * (PROP-L1-004, horizontal layout). Field names stay the fixed English keys.
+   *
+   * @returns The row (for per-item show/hide) and the value column callers append
+   *   their control(s) into.
+   */
+  private addFieldRow(
+    form: HTMLElement,
+    fieldKey: string,
+  ): { readonly row: HTMLElement; readonly value: HTMLElement } {
     const row = document.createElement('label');
-    row.style.display = 'block';
-    // 1px row gap keeps the full field set (now including icon_shape_kind) plus the
-    // progress-line section within the panel height without a vertical scrollbar.
-    row.style.marginBottom = '1px';
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.gap = '6px';
+    // 2px row gap keeps the full field set within the panel height without a
+    // vertical scrollbar even at the narrow default width.
+    row.style.marginBottom = '2px';
     const caption = document.createElement('span');
     caption.textContent = fieldKey;
-    caption.style.display = 'block';
+    caption.style.flex = '0 0 42%';
+    caption.style.textAlign = 'right';
     caption.style.color = 'var(--grsch-text)';
     caption.style.fontFamily = 'ui-monospace, monospace';
     caption.style.fontSize = '0.9em';
-    row.appendChild(caption);
+    caption.style.overflowWrap = 'anywhere';
+    const value = document.createElement('span');
+    value.style.display = 'flex';
+    value.style.flexDirection = 'column';
+    value.style.alignItems = 'flex-start';
+    value.style.flex = '1 1 auto';
+    value.style.minWidth = '0';
+    value.style.width = '100%';
+    row.append(caption, value);
     form.appendChild(row);
-    return row;
+    return { row, value };
   }
 
   private addTextField(
@@ -371,7 +490,7 @@ export class PropertyPanel {
     toPatch: (value: string) => ItemPropertyPatch,
     canDispatch?: () => boolean,
   ): HTMLInputElement {
-    const row = this.addFieldRow(form, fieldKey);
+    const { value } = this.addFieldRow(form, fieldKey);
     const input = document.createElement('input');
     input.type = 'text';
     input.style.width = '100%';
@@ -384,7 +503,7 @@ export class PropertyPanel {
       }
       this.dispatchPatch(toPatch(input.value));
     });
-    row.appendChild(input);
+    value.appendChild(input);
     this.controls.push({ input, readValue });
     return input;
   }
@@ -395,13 +514,13 @@ export class PropertyPanel {
     readValue: (item: ScheduleItem) => string,
     toPatch: (value: string) => ItemPropertyPatch,
   ): void {
-    const row = this.addFieldRow(form, fieldKey);
+    const { value } = this.addFieldRow(form, fieldKey);
     const input = document.createElement('textarea');
     input.rows = 2;
     input.style.width = '100%';
     input.style.boxSizing = 'border-box';
     input.addEventListener('change', () => this.dispatchPatch(toPatch(input.value)));
-    row.appendChild(input);
+    value.appendChild(input);
     this.controls.push({ input, readValue });
   }
 
@@ -411,7 +530,7 @@ export class PropertyPanel {
     readValue: (item: ScheduleItem) => string,
     toPatch: (value: string) => ItemPropertyPatch,
   ): HTMLElement {
-    const row = this.addFieldRow(form, fieldKey);
+    const { row, value } = this.addFieldRow(form, fieldKey);
     const input = document.createElement('input');
     input.type = 'date';
     input.style.width = '100%';
@@ -421,7 +540,7 @@ export class PropertyPanel {
         this.dispatchPatch(toPatch(input.value));
       }
     });
-    row.appendChild(input);
+    value.appendChild(input);
     this.controls.push({ input, readValue });
     return row;
   }
@@ -439,7 +558,7 @@ export class PropertyPanel {
     readValue: (item: ScheduleItem) => number,
     toPatch: (value: number) => ItemPropertyPatch,
   ): HTMLElement {
-    const row = this.addFieldRow(form, fieldKey);
+    const { row, value } = this.addFieldRow(form, fieldKey);
     const input = document.createElement('input');
     input.type = 'number';
     input.min = '0';
@@ -451,7 +570,7 @@ export class PropertyPanel {
       const nonNegative = Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
       this.dispatchPatch(toPatch(nonNegative));
     });
-    row.appendChild(input);
+    value.appendChild(input);
     this.controls.push({ input, readValue: (item) => String(readValue(item)) });
     return row;
   }
@@ -463,7 +582,7 @@ export class PropertyPanel {
     readValue: (item: ScheduleItem) => string,
     toPatch: (value: string) => ItemPropertyPatch,
   ): void {
-    const row = this.addFieldRow(form, fieldKey);
+    const { value } = this.addFieldRow(form, fieldKey);
     const input = document.createElement('select');
     input.style.width = '100%';
     for (const option of options) {
@@ -473,7 +592,7 @@ export class PropertyPanel {
       input.appendChild(element);
     }
     input.addEventListener('change', () => this.dispatchPatch(toPatch(input.value)));
-    row.appendChild(input);
+    value.appendChild(input);
     this.controls.push({ input, readValue });
   }
 
@@ -483,7 +602,7 @@ export class PropertyPanel {
     readValue: (item: ScheduleItem) => string,
     toPatch: (value: string) => ItemPropertyPatch,
   ): void {
-    const row = this.addFieldRow(form, fieldKey);
+    const { value } = this.addFieldRow(form, fieldKey);
     const swatches = document.createElement('div');
     swatches.style.display = 'flex';
     swatches.style.flexWrap = 'wrap';
@@ -524,12 +643,12 @@ export class PropertyPanel {
       swatch.addEventListener('click', () => this.dispatchPatch(toPatch(color.cssValue)));
       swatches.appendChild(swatch);
     }
-    row.appendChild(swatches);
+    value.appendChild(swatches);
     const input = document.createElement('input');
     input.type = 'color';
     input.style.width = '100%';
     input.addEventListener('change', () => this.dispatchPatch(toPatch(input.value)));
-    row.appendChild(input);
+    value.appendChild(input);
     this.controls.push({ input, readValue });
   }
 
@@ -543,7 +662,7 @@ export class PropertyPanel {
    * @returns The select element (repopulated per item).
    */
   private addIconShapeKindField(form: HTMLElement): HTMLSelectElement {
-    const row = this.addFieldRow(form, 'icon_shape_kind');
+    const { value } = this.addFieldRow(form, 'icon_shape_kind');
     const select = document.createElement('select');
     select.style.width = '100%';
     select.dataset.role = 'icon-shape-kind';
@@ -559,7 +678,7 @@ export class PropertyPanel {
           : { iconShapeKind: value, taskShape: value as TaskShape };
       this.dispatchPatch(patch);
     });
-    row.appendChild(select);
+    value.appendChild(select);
     return select;
   }
 
@@ -578,7 +697,7 @@ export class PropertyPanel {
     fieldKey: string,
     kind: 'predecessor' | 'successor',
   ): HTMLInputElement {
-    const row = this.addFieldRow(form, fieldKey);
+    const { value } = this.addFieldRow(form, fieldKey);
     const input = document.createElement('input');
     input.type = 'text';
     input.dataset.role = `${kind}-item-ids`;
@@ -586,7 +705,7 @@ export class PropertyPanel {
     input.style.width = '100%';
     input.style.boxSizing = 'border-box';
     input.addEventListener('change', () => this.dispatchDependencyRewire(kind, input.value));
-    row.appendChild(input);
+    value.appendChild(input);
     return input;
   }
 
@@ -633,7 +752,7 @@ export class PropertyPanel {
     heading.style.marginBottom = '4px';
     form.appendChild(heading);
 
-    const row = this.addFieldRow(form, 'line_color');
+    const { value } = this.addFieldRow(form, 'line_color');
     const swatches = document.createElement('div');
     swatches.style.display = 'flex';
     swatches.style.flexWrap = 'wrap';
@@ -655,13 +774,13 @@ export class PropertyPanel {
       swatch.addEventListener('click', () => this.dispatchDependencyColor(color.cssValue));
       swatches.appendChild(swatch);
     }
-    row.appendChild(swatches);
+    value.appendChild(swatches);
     const input = document.createElement('input');
     input.type = 'color';
     input.style.width = '100%';
     input.dataset.role = 'dependency-color';
     input.addEventListener('change', () => this.dispatchDependencyColor(input.value));
-    row.appendChild(input);
+    value.appendChild(input);
     this.dependencyColorInput = input;
     this.dependencyForm = form;
     this.root.appendChild(form);

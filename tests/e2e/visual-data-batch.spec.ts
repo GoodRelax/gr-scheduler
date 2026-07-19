@@ -48,8 +48,9 @@ test.describe('visual/data batch', () => {
     await page.goto(pathToFileURL(builtAppFile).href);
     await page.locator('svg[data-role="schedule-canvas"]').waitFor();
 
-    // Every one of the 19 seeded items has a mounted group even with rAF disabled.
-    await expect.poll(() => page.locator('svg [data-item-id]').count()).toBe(19);
+    // Every one of the 32 seeded ASPICE items has a mounted group even with rAF
+    // disabled.
+    await expect.poll(() => page.locator('svg [data-item-id]').count()).toBe(32);
     // Real glyphs and labels are present (tasks -> <rect>, milestones -> <path>).
     expect(await page.locator('svg text').count()).toBeGreaterThan(0);
     expect(await page.locator('svg rect').count()).toBeGreaterThan(0);
@@ -66,7 +67,7 @@ test.describe('visual/data batch', () => {
     page,
   }) => {
     // Neuter rAF so only the synchronous startup-Fit path runs (deterministic), then
-    // assert the ACTUAL rendered SVG bounding box of every one of the 19 items --
+    // assert the ACTUAL rendered SVG bounding box of every one of the 32 items --
     // including the widest bar's right end and the LATEST milestone's marker + label
     // -- lies within the canvas rect. Fails when Fit's extent ignores label/marker
     // overhang (right-most content clipped); passes once the extent includes it.
@@ -101,10 +102,10 @@ test.describe('visual/data batch', () => {
       return { total: groups.length, inView: groups.length - offenders.length, offenders };
     });
 
-    expect(report.total).toBe(19);
+    expect(report.total).toBe(32);
     // Every rendered item box (glyph + marker + label) must be inside the viewport.
     expect(report.offenders, report.offenders.join('\n')).toEqual([]);
-    expect(report.inView).toBe(19);
+    expect(report.inView).toBe(32);
   });
 
   test('gridlines are on by default and the palette toggles hide/re-show them', async ({ page }) => {

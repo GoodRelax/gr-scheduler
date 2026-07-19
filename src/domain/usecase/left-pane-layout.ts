@@ -37,3 +37,38 @@ export function resolveLeftPaneWidth(storedWidth: number | undefined): number {
     ? DEFAULT_LEFT_PANE_WIDTH
     : storedWidth;
 }
+
+/** Default right property-panel width in CSS pixels when none is stored. */
+export const DEFAULT_PROPERTY_PANEL_WIDTH = 260;
+
+/** Narrowest the property panel may be dragged (keeps its controls usable). */
+export const MIN_PROPERTY_PANEL_WIDTH = 180;
+
+/** Widest the property panel may be dragged (never eats more than this). */
+export const MAX_PROPERTY_PANEL_WIDTH = 560;
+
+/**
+ * Clamp a proposed property-panel width to the allowed range, mirroring
+ * {@link clampLeftPaneWidth}: never narrower than the control-legibility minimum,
+ * never wider than the fixed maximum, and never more than a fraction of the
+ * available canvas width so the schedule area is never squeezed to nothing.
+ *
+ * @param proposedWidth - The width the user dragged to.
+ * @param availableWidth - Total canvas width in pixels (0 = unknown).
+ * @returns The clamped, safe panel width.
+ */
+export function clampPropertyPanelWidth(proposedWidth: number, availableWidth = 0): number {
+  const canvasCap = availableWidth > 0 ? availableWidth * 0.6 : MAX_PROPERTY_PANEL_WIDTH;
+  const upperBound = Math.min(
+    MAX_PROPERTY_PANEL_WIDTH,
+    Math.max(MIN_PROPERTY_PANEL_WIDTH, canvasCap),
+  );
+  return Math.min(upperBound, Math.max(MIN_PROPERTY_PANEL_WIDTH, proposedWidth));
+}
+
+/** Resolve the effective property-panel width from an optional stored value. */
+export function resolvePropertyPanelWidth(storedWidth: number | undefined): number {
+  return storedWidth === undefined || Number.isNaN(storedWidth)
+    ? DEFAULT_PROPERTY_PANEL_WIDTH
+    : storedWidth;
+}

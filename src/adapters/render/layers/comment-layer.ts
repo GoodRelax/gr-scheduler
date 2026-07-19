@@ -44,8 +44,36 @@ export class CommentLayer {
         outline.setAttribute('stroke-width', '1.5');
         outline.setAttribute('stroke-dasharray', SELECTION_DASH_ARRAY);
         this.overlayGroup.appendChild(outline);
+        // A grabbable handle over the leader ANCHOR so the user can drag the
+        // pointed-at target to a new free world point (CURS-L1-005, anchor drag).
+        this.drawAnchorHandle(ctx, annotation);
       }
     }
+  }
+
+  /**
+   * Draw the small circular handle at a selected comment's leader anchor point so
+   * the user can grab and drag the anchor to a new free world point (the leader
+   * re-routes to it). Carries `data-role="comment-anchor-handle"` for hit-testing.
+   */
+  private drawAnchorHandle(ctx: RenderContext, comment: CommentAnnotation): void {
+    if (ctx.scheduleDocument === null) {
+      return;
+    }
+    const anchor = commentAnchorScreenPoint(ctx, comment, ctx.scheduleDocument.epochDate);
+    const handle = document.createElementNS(SVG_NS, 'circle');
+    handle.setAttribute('data-role', 'comment-anchor-handle');
+    handle.setAttribute('data-annotation-id', comment.id);
+    handle.setAttribute('cx', String(anchor.x));
+    handle.setAttribute('cy', String(anchor.y));
+    handle.setAttribute('r', '4');
+    handle.setAttribute('fill', COMMENT_CALLOUT_FILL_HEX);
+    handle.setAttribute('stroke', CUD_BLUE_ACCENT_HEX);
+    handle.setAttribute('stroke-width', '1.5');
+    // `cursor` as an SVG presentation attribute so the move affordance shows even
+    // over the handle (also visible to getComputedStyle in the browser).
+    handle.setAttribute('cursor', 'move');
+    this.overlayGroup.appendChild(handle);
   }
 
   private drawComment(ctx: RenderContext, comment: CommentAnnotation): void {
@@ -88,6 +116,9 @@ export class CommentLayer {
       box.setAttribute('fill', COMMENT_CALLOUT_FILL_HEX);
       box.setAttribute('stroke', COMMENT_CALLOUT_STROKE_HEX);
       box.setAttribute('stroke-width', '1');
+      // A pointer (finger) cursor advertises that the bubble is selectable/draggable
+      // (`cursor` presentation attribute so it also reads via getComputedStyle).
+      box.setAttribute('cursor', 'pointer');
       const leader = document.createElementNS(SVG_NS, 'line');
       leader.setAttribute('data-role', 'comment-leader');
       leader.setAttribute('data-annotation-id', comment.id);
@@ -129,6 +160,8 @@ export class CommentLayer {
     text.setAttribute('dominant-baseline', 'middle');
     text.setAttribute('font-size', '12');
     text.setAttribute('fill', ITEM_LABEL_HEX);
+    // Match the bubble's pointer (finger) cursor over the comment text (CURS-L1-005).
+    text.setAttribute('cursor', 'pointer');
     return text;
   }
 }

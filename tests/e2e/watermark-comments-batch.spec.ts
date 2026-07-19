@@ -37,6 +37,9 @@ async function exportJsonText(page: Page): Promise<string> {
 interface ExportedComment {
   id: string;
   anchorItemId?: string;
+  anchorPoint?: number;
+  anchorDate?: string;
+  anchorRowIndex?: number;
   bodyOffsetPx?: { dx: number; dy: number };
 }
 
@@ -142,18 +145,22 @@ test.describe('watermark / comments / selection batch', () => {
       return;
     }
     // Drag a rubber-band marquee across the schedule area (over item labels + the
-    // watermark text) starting from an empty point near the top-left of the
-    // schedule region (just right of the frozen pane).
-    const startX = box.x + 240;
-    const startY = box.y + 60;
+    // watermark text) starting from an empty point just right of the frozen pane,
+    // then sweep a LARGE box over the early-date cluster (the ASPICE sample spreads
+    // items across ~3 years, so a wide sweep is needed to frame several of them).
+    const startX = box.x + 210;
+    const startY = box.y + 40;
     await page.mouse.move(startX, startY);
     await page.mouse.down();
-    await page.mouse.move(startX + 360, startY + 220, { steps: 16 });
+    await page.mouse.move(startX + 560, startY + 320, { steps: 16 });
     await page.mouse.up();
 
     // Items were framed by the marquee (at least one selection outline present).
-    const selectedCount = await page.locator('svg [data-role="selection-outline"]').count();
-    expect(selectedCount).toBeGreaterThan(0);
+    // Poll: the selection re-render is scheduled on an animation frame, so the
+    // outlines may appear a frame after mouseup (more items = a touch later).
+    await expect
+      .poll(() => page.locator('svg [data-role="selection-outline"]').count())
+      .toBeGreaterThan(0);
     // No native TEXT was selected by the drag.
     const selectedText = await page.evaluate(() => window.getSelection()?.toString() ?? '');
     expect(selectedText).toBe('');
@@ -270,5 +277,83 @@ test.describe('watermark / comments / selection batch', () => {
       y2: Number(node.getAttribute('y2')),
     }));
     expect(anchorAfter.x2).toBeGreaterThan(anchorBefore.x2 + 40);
+  });
+
+  test('hovering a comment bubble shows a pointer (finger) cursor', async ({ page }) => {
+    await openApp(page);
+    await movePaletteAway(page);
+    // The template ships a sample callout-box comment; hover its bubble.
+    const bubble = page.locator('svg [data-role="comment-bubble"]').first();
+    await bubble.waitFor();
+    const cursor = await bubble.evaluate((node) => getComputedStyle(node).cursor);
+    expect(cursor).toBe('pointer');
+  });
+
+  test('a selected comment shows a draggable anchor handle; dragging it re-routes the leader and round-trips', async ({
+    page,
+  }) => {
+    await openApp(page);
+    await movePaletteAway(page);
+    // Create a free-world comment and select it by clicking its bubble.
+    await page.getByRole('button', { name: 'Add comment' }).dispatchEvent('click');
+    const commentId = await newestCreatedCommentId(page);
+    expect(commentId).not.toBeNull();
+    const bubble = page.locator(`svg [data-role="comment-bubble"][data-annotation-id="${commentId}"]`);
+    await bubble.waitFor();
+    const bubbleBox = await bubble.boundingBox();
+    expect(bubbleBox).not.toBeNull();
+    if (bubbleBox === null) {
+      return;
+    }
+    await page.mouse.click(bubbleBox.x + bubbleBox.width / 2, bubbleBox.y + bubbleBox.height / 2);
+
+    // Selecting the comment reveals its leader-anchor handle.
+    const handle = page.locator(
+      `svg [data-role="comment-anchor-handle"][data-annotation-id="${commentId}"]`,
+    );
+    await expect(handle).toHaveCount(1);
+    const handleBox = await handle.boundingBox();
+    expect(handleBox).not.toBeNull();
+    if (handleBox === null) {
+      return;
+    }
+
+    const leader = page.locator(
+      `svg [data-role="comment-leader"][data-annotation-id="${commentId}"]`,
+    );
+    const anchorBefore = await leader.evaluate((node) => ({
+      x2: Number(node.getAttribute('x2')),
+      y2: Number(node.getAttribute('y2')),
+    }));
+    const rowBefore =
+      (JSON.parse(await exportJsonText(page)) as { annotations?: ExportedComment[] }).annotations?.find(
+        (a) => a.id === commentId,
+      )?.anchorRowIndex ?? -1;
+
+    // Trusted drag of the anchor handle downward by ~2 rows and rightward.
+    await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(
+      handleBox.x + handleBox.width / 2 + 90,
+      handleBox.y + handleBox.height / 2 + 90,
+      { steps: 14 },
+    );
+    await page.mouse.up();
+
+    // The leader END (anchor) moved with the drag; the leader re-routed to it.
+    const anchorAfter = await leader.evaluate((node) => ({
+      x2: Number(node.getAttribute('x2')),
+      y2: Number(node.getAttribute('y2')),
+    }));
+    expect(
+      Math.abs(anchorAfter.x2 - anchorBefore.x2) + Math.abs(anchorAfter.y2 - anchorBefore.y2),
+    ).toBeGreaterThan(20);
+
+    // The moved anchor round-trips through the exported JSON (free-world point).
+    const mine = (
+      JSON.parse(await exportJsonText(page)) as { annotations?: ExportedComment[] }
+    ).annotations?.find((a) => a.id === commentId);
+    expect(mine?.anchorItemId).toBeUndefined();
+    expect(mine?.anchorRowIndex ?? -1).toBeGreaterThan(rowBefore);
   });
 });

@@ -9,10 +9,15 @@ import {
   createCommentCommand,
   createRoundedBoxCommand,
   deleteAnnotationCommand,
+  moveCommentAnchorCommand,
   moveCommentCommand,
   recolorRoundedBoxCommand,
   resizeRoundedBoxCommand,
 } from '../src/domain/command/annotation-commands.js';
+import {
+  deserializeScheduleDocument,
+  serializeScheduleDocument,
+} from '../src/domain/usecase/json-codec.js';
 
 function emptyDocument(): ScheduleDocument {
   return {
@@ -80,6 +85,52 @@ describe('annotation edits (CURS-L1-005/007)', () => {
     const store = new ScheduleStore({ ...emptyDocument(), annotations: [comment] });
     store.dispatch(moveCommentCommand('c1', { dx: 0, dy: 0 }));
     expect(store.canUndo()).toBe(false);
+  });
+
+  it('moves a comment leader anchor to a new free world point (undoable)', () => {
+    const store = new ScheduleStore({ ...emptyDocument(), annotations: [comment] });
+    store.dispatch(moveCommentAnchorCommand('c1', { anchorDate: '2026-04-15', anchorRowIndex: 3 }));
+    const moved = store.getDocument().annotations?.[0] as CommentAnnotation;
+    expect(moved.anchorDate).toBe('2026-04-15');
+    expect(moved.anchorRowIndex).toBe(3);
+    // The bubble offset is untouched; only the anchor moved.
+    expect(moved.bodyOffsetPx).toEqual({ dx: 40, dy: -30 });
+    store.undo();
+    const reverted = store.getDocument().annotations?.[0] as CommentAnnotation;
+    expect(reverted.anchorDate).toBe('2026-02-01');
+    expect(reverted.anchorRowIndex).toBe(0);
+  });
+
+  it('detaches an item-bound anchor when the anchor is dragged to a free point', () => {
+    const itemBound: CommentAnnotation = {
+      ...comment,
+      id: 'c-bound',
+      anchorItemId: 'item-x',
+      anchorPoint: 5,
+    };
+    const store = new ScheduleStore({ ...emptyDocument(), annotations: [itemBound] });
+    store.dispatch(moveCommentAnchorCommand('c-bound', { anchorDate: '2026-05-01', anchorRowIndex: 2 }));
+    const moved = store.getDocument().annotations?.[0] as CommentAnnotation;
+    expect(moved.anchorItemId).toBeUndefined();
+    expect(moved.anchorPoint).toBeUndefined();
+    expect(moved.anchorDate).toBe('2026-05-01');
+    expect(moved.anchorRowIndex).toBe(2);
+  });
+
+  it('round-trips a moved anchor through the JSON codec', () => {
+    const document: ScheduleDocument = {
+      ...emptyDocument(),
+      projectId: '00000000-0000-4000-8000-0000000000aa',
+      annotations: [comment],
+    };
+    const store = new ScheduleStore(document);
+    store.dispatch(moveCommentAnchorCommand('c1', { anchorDate: '2026-06-20', anchorRowIndex: 4 }));
+    const restored = deserializeScheduleDocument(
+      serializeScheduleDocument(store.getDocument()),
+    );
+    const restoredComment = restored.annotations?.[0] as CommentAnnotation;
+    expect(restoredComment.anchorDate).toBe('2026-06-20');
+    expect(restoredComment.anchorRowIndex).toBe(4);
   });
 
   it('recolors a rounded box and skips a no-op recolor', () => {

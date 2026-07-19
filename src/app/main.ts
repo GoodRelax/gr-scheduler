@@ -930,8 +930,18 @@ function bootstrap(): void {
     chrome.propertiesToggleButton.setAttribute('aria-pressed', hidden ? 'false' : 'true');
     renderer.requestRender();
   };
-  const propertyPanel = new PropertyPanel(chrome.panelHost, store, () =>
-    setPropertiesPanelHidden(true),
+  const propertyPanel = new PropertyPanel(
+    chrome.panelHost,
+    store,
+    () => setPropertiesPanelHidden(true),
+    {
+      initialWidth: renderer.getViewState().propertyPanelWidth,
+      // Mirror the resized width into the live view state so it round-trips via JSON /
+      // autosave (the same mechanism as the left pane width), without an undo entry.
+      onWidthChange: (width) => {
+        renderer.setViewState({ ...renderer.getViewState(), propertyPanelWidth: width });
+      },
+    },
   );
 
   // Active UI locale (PROP-L1-003), from view state, held as shared mutable state

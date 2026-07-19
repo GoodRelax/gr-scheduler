@@ -17,7 +17,7 @@ import type {
   Annotation,
   RoundedBoxAnnotation,
 } from '../../domain/model/annotation.js';
-import { isRoundedBox } from '../../domain/model/annotation.js';
+import { isComment, isRoundedBox } from '../../domain/model/annotation.js';
 import { pickItemHit, type HitCandidate } from '../../domain/usecase/edge-hit.js';
 import { roundedBoxScreenRect } from '../../domain/usecase/cursor-span.js';
 import type { Rect } from '../../domain/usecase/dependency-router.js';
@@ -28,7 +28,7 @@ import {
   pointInLabelBox,
   taskFadeHandleCenters,
 } from './item-geometry.js';
-import { commentBodyRect } from './comment-geometry.js';
+import { commentAnchorScreenPoint, commentBodyRect } from './comment-geometry.js';
 import {
   DEP_HIT_TOLERANCE_PX,
   distanceToPolyline,
@@ -46,8 +46,11 @@ export interface ItemHit {
 /** A resolved hit against a canvas annotation (rounded-box / comment). */
 export interface AnnotationHit {
   readonly annotationId: string;
-  /** Which part was hit: the body (select/move) or a specific corner handle. */
-  readonly region: 'body' | 'resize-nw' | 'resize-ne' | 'resize-sw' | 'resize-se';
+  /**
+   * Which part was hit: the body (select/move), a rounded-box corner handle, or a
+   * selected comment's leader `anchor` handle (drag the pointed-at target).
+   */
+  readonly region: 'body' | 'resize-nw' | 'resize-ne' | 'resize-sw' | 'resize-se' | 'anchor';
 }
 
 /**
@@ -192,14 +195,24 @@ export class HitTester {
     const epoch = ctx.scheduleDocument.epochDate;
     const annotations = ctx.scheduleDocument.annotations ?? [];
 
-    // First, a corner handle on the currently selected rounded box (handles are
-    // only drawn for it, so only it is corner-resizable).
+    // First, a handle on the currently SELECTED annotation (handles are only drawn
+    // for the selected one): a rounded-box corner, or a comment's leader-anchor
+    // handle. Both take precedence over a body hit so the handle stays grabbable.
     if (ctx.selectedAnnotationId !== null) {
       const selected = annotations.find((a) => a.id === ctx.selectedAnnotationId);
       if (selected !== undefined && isRoundedBox(selected)) {
         const handle = this.roundedBoxHandleAt(ctx, selected, epoch, localX, localY);
         if (handle !== null) {
           return { annotationId: selected.id, region: handle };
+        }
+      }
+      if (selected !== undefined && isComment(selected)) {
+        const anchor = commentAnchorScreenPoint(ctx, selected, epoch);
+        if (
+          Math.abs(localX - anchor.x) <= ANNOTATION_HANDLE_PX &&
+          Math.abs(localY - anchor.y) <= ANNOTATION_HANDLE_PX
+        ) {
+          return { annotationId: selected.id, region: 'anchor' };
         }
       }
     }

@@ -71,16 +71,24 @@ test.describe('left-pane section / category editing', () => {
     await openApp(page);
 
     await page.getByRole('button', { name: 'Add section' }).click();
+    // The per-node control row is hidden until the node is hovered; hover the new
+    // None1 section header to reveal its controls before using them.
+    const none1Header = page.locator('[data-role="section-header"]', { hasText: 'None1' }).first();
+    await none1Header.hover();
     await expect(page.getByRole('button', { name: 'Remove section None1' })).toBeVisible();
 
     // "Add sub-category under None1" nests a track named None1 beneath the section.
     await page.getByRole('button', { name: 'Add sub-category under None1' }).click();
+    // Hover the new None1 TRACK row to reveal its controls.
+    const none1Track = page.locator('[data-role="track-label"]', { hasText: 'None1' }).first();
+    await none1Track.hover();
     await expect(page.getByRole('button', { name: 'Remove category None1' })).toBeVisible();
 
     const withTrack = await exportDocument(page);
     expect(withTrack.declaredCategories).toContainEqual({ major: 'None1', middle: 'None1' });
 
     // Clicking "X" opens a confirm dialog first; only Delete actually removes it.
+    await none1Header.hover();
     await page.getByRole('button', { name: 'Remove section None1' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('button', { name: 'Delete' }).click();

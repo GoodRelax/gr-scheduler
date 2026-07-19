@@ -39,6 +39,7 @@ import {
   type ScheduleCommand,
 } from '../../domain/command/commands.js';
 import {
+  moveCommentAnchorCommand,
   moveCommentCommand,
   resizeRoundedBoxCommand,
   type RoundedBoxRectPatch,
@@ -183,6 +184,20 @@ interface CommentMoveGesture {
 }
 
 /**
+ * Dragging a comment's leader ANCHOR (the pointed-at target), which moves it to a
+ * new FREE world point (undoable) so the leader re-routes from the bubble to the
+ * new anchor and any item binding is detached (CURS-L1-005 anchor drag).
+ */
+interface CommentAnchorMoveGesture {
+  readonly mode: 'comment-anchor-move';
+  readonly annotationId: string;
+  readonly baseline: ScheduleDocument;
+  readonly startWorldX: number;
+  readonly startWorldY: number;
+  moved: boolean;
+}
+
+/**
  * Dragging the FIXED reference line (line-1) of the double-vertical cursor guide to
  * reposition it, so the span it measures against line-2 changes (cursor-guide span
  * rework). A screen-space gesture: it updates {@link ViewState.cursorGuideReferenceDate}
@@ -201,6 +216,7 @@ type Gesture =
   | MarqueeGesture
   | AnnotationResizeGesture
   | CommentMoveGesture
+  | CommentAnchorMoveGesture
   | CursorReferenceGesture;
 
 /** Client-px grab tolerance for picking up the cursor-guide reference line (item 3). */
@@ -351,10 +367,19 @@ export class EditingController {
       host.style.cursor = 'pointer';
       return;
     }
-    if (hit === null && this.selectedAnnotationId !== null) {
+    if (hit === null) {
       const annotationHit = this.renderer.hitTestAnnotation(event.clientX, event.clientY);
-      if (annotationHit !== null && annotationHit.region !== 'body') {
-        host.style.cursor = cornerCursor(annotationHit.region);
+      if (annotationHit !== null) {
+        if (annotationHit.region === 'anchor') {
+          // Over a selected comment's leader-anchor handle: it can be dragged.
+          host.style.cursor = 'move';
+        } else if (annotationHit.region === 'body') {
+          // Over a selectable comment / box body: a pointer (finger) cursor
+          // advertises that it can be grabbed / selected (CURS-L1-005).
+          host.style.cursor = 'pointer';
+        } else {
+          host.style.cursor = cornerCursor(annotationHit.region);
+        }
         return;
       }
     }
@@ -910,6 +935,26 @@ export class EditingController {
     worldY: number,
   ): void {
     this.consume(event);
+    // The leader-anchor handle on the already-selected COMMENT starts an anchor
+    // drag (move the pointed-at target to a new free world point, undoable).
+    if (
+      annotationHit.region === 'anchor' &&
+      annotationHit.annotationId === this.selectedAnnotationId
+    ) {
+      const host = this.renderer.getHostElement();
+      if (host !== null) {
+        host.style.cursor = 'move';
+      }
+      this.gesture = {
+        mode: 'comment-anchor-move',
+        annotationId: annotationHit.annotationId,
+        baseline: this.store.getDocument(),
+        startWorldX: worldX,
+        startWorldY: worldY,
+        moved: false,
+      };
+      return;
+    }
     // A corner handle on the already-selected box starts a resize; anything else
     // (a body hit, or a corner of a not-yet-selected box) just selects it.
     if (
@@ -1100,6 +1145,9 @@ export class EditingController {
       case 'comment-move':
         this.previewCommentMove(gesture, world.worldX, world.worldY);
         break;
+      case 'comment-anchor-move':
+        this.previewCommentAnchorMove(gesture, world.worldX, world.worldY);
+        break;
       default:
         break;
     }
@@ -1143,6 +1191,9 @@ export class EditingController {
         break;
       case 'comment-move':
         this.commitCommentMove(gesture, world.worldX, world.worldY);
+        break;
+      case 'comment-anchor-move':
+        this.commitCommentAnchorMove(gesture, world.worldX, world.worldY);
         break;
       default:
         break;
@@ -1516,6 +1567,55 @@ export class EditingController {
       dx: worldX - gesture.startWorldX,
       dy: worldY - gesture.startWorldY,
     });
+  }
+
+  // ----- comment (leader anchor) move -----------------------------------------
+
+  private previewCommentAnchorMove(
+    gesture: CommentAnchorMoveGesture,
+    worldX: number,
+    worldY: number,
+  ): void {
+    if (
+      Math.abs(worldX - gesture.startWorldX) > DRAG_THRESHOLD_PX ||
+      Math.abs(worldY - gesture.startWorldY) > DRAG_THRESHOLD_PX
+    ) {
+      gesture.moved = true;
+    }
+    const command = this.buildCommentAnchorMoveCommand(gesture, worldX, worldY);
+    this.renderer.updateItems(command.execute(gesture.baseline));
+  }
+
+  private commitCommentAnchorMove(
+    gesture: CommentAnchorMoveGesture,
+    worldX: number,
+    worldY: number,
+  ): void {
+    if (!gesture.moved) {
+      this.renderer.updateItems(gesture.baseline);
+      return;
+    }
+    const command = this.buildCommentAnchorMoveCommand(gesture, worldX, worldY);
+    this.renderer.updateItems(gesture.baseline);
+    this.store.dispatch(command);
+    log.debug('comment_anchor_moved', { annotation_id: gesture.annotationId });
+  }
+
+  /**
+   * Build the undoable command that re-pins a dragged comment anchor to the free
+   * world point under the pointer: the pointer's date on the time axis and the row
+   * index under the pointer's world y.
+   */
+  private buildCommentAnchorMoveCommand(
+    gesture: CommentAnchorMoveGesture,
+    worldX: number,
+    worldY: number,
+  ): ScheduleCommand {
+    const document = gesture.baseline;
+    const { zoomX } = this.liveViewState();
+    const anchorDate = worldXToDate(worldX, document.epochDate, zoomX);
+    const anchorRowIndex = this.rowIndexAtWorldY(worldY);
+    return moveCommentAnchorCommand(gesture.annotationId, { anchorDate, anchorRowIndex });
   }
 
   private buildAnnotationResizeCommand(
