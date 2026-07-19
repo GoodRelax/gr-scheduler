@@ -15,7 +15,7 @@
 
 import type { RoundedBoxAnnotation } from '../model/annotation.js';
 import type { IsoDate, ViewState } from '../model/schedule-model.js';
-import { dateToWorldX, toDayNumber } from './time-coordinate-mapper.js';
+import { dateToWorldX, toDayNumber, worldXToDate } from './time-coordinate-mapper.js';
 import { rowWorldY } from './layout-engine.js';
 import { resolveLeftPaneWidth } from './left-pane-layout.js';
 
@@ -49,6 +49,53 @@ export function cursorScreenX(
 ): number {
   const worldX = dateToWorldX(atDate, epochDate, viewState.zoomX);
   return worldX - viewState.scrollX + resolveLeftPaneWidth(viewState.leftPaneWidth);
+}
+
+/**
+ * The whole-day span the `double-vertical` measurement guide reports between its
+ * FIXED reference line (line-1, pinned to `referenceDate`) and its pointer-tracking
+ * measuring line (line-2, at `pointerScreenX`). Positive means the pointer lies
+ * LATER than the reference; negative earlier; zero the same day (cursor-guide span
+ * rework). Pure: inverts the same screen<->world transform the renderer draws with.
+ *
+ * @param referenceDate - The fixed reference-line date (line-1).
+ * @param pointerScreenX - The measuring line's screen-space x (line-2), CSS px.
+ * @param epochDate - Time-axis origin.
+ * @param viewState - Provides zoomX, scrollX and leftPaneWidth.
+ * @returns `pointerDay - referenceDay` in whole days.
+ */
+export function cursorGuideSpanDays(
+  referenceDate: IsoDate,
+  pointerScreenX: number,
+  epochDate: IsoDate,
+  viewState: ViewState,
+): number {
+  const worldX = pointerScreenX - resolveLeftPaneWidth(viewState.leftPaneWidth) + viewState.scrollX;
+  const pointerDate = worldXToDate(worldX, epochDate, viewState.zoomX);
+  return cursorSpanDays(referenceDate, pointerDate);
+}
+
+/** The date under a screen-space x, inverting the renderer's content transform. */
+export function dateAtCursorScreenX(
+  screenX: number,
+  epochDate: IsoDate,
+  viewState: ViewState,
+): IsoDate {
+  const worldX = screenX - resolveLeftPaneWidth(viewState.leftPaneWidth) + viewState.scrollX;
+  return worldXToDate(worldX, epochDate, viewState.zoomX);
+}
+
+/**
+ * Human-readable day-span label the double-vertical guide draws (e.g. `"5 days"`,
+ * `"1 day"`, `"0 days"`). ASCII-only and sign-free (the magnitude of the span); the
+ * caller places it near the measuring line.
+ *
+ * @param spanDays - Signed day span (only its magnitude is shown).
+ * @returns The label text.
+ */
+export function cursorGuideSpanLabel(spanDays: number): string {
+  const magnitude = Math.abs(spanDays);
+  return `${magnitude} ${magnitude === 1 ? 'day' : 'days'}`;
 }
 
 /** Alias with today-line intent (CURS-L1-001); identical math to {@link cursorScreenX}. */

@@ -9,7 +9,9 @@
 
 import type { Dependency } from '../../../domain/model/schedule-model.js';
 import { DEFAULT_DEPENDENCY_LINE_COLOR } from '../../../domain/model/schedule-model.js';
-import { routeDependency, type Rect } from '../../../domain/usecase/dependency-router.js';
+import type { Rect } from '../../../domain/usecase/dependency-router.js';
+import { routeConnector } from '../../../domain/usecase/dependency-connector.js';
+import { isDependencyRenderable } from '../../../domain/usecase/dependency-visibility.js';
 import { placementIntersectsWindow, type ViewportWindow } from '../../../domain/usecase/viewport.js';
 import { DEP_ARROW_MARKER_ID, placementRect } from '../dependency-geometry.js';
 import { SVG_NS, type RenderContext } from '../render-context.js';
@@ -60,9 +62,14 @@ export class DependencyLayer {
         rectByItemId.set(itemId, placementRect(placement));
       }
     }
-    const obstacles: readonly Rect[] = [...rectByItemId.values()];
 
     for (const dependency of dependencies) {
+      // Constraint (DEP plan/actual rework): only plan->plan / actual->actual edges are
+      // drawn, and only when BOTH endpoints are visible under the plan/actual filter.
+      // A cross-kind (legacy) edge or a hidden-side edge is skipped -- never crashes.
+      if (!isDependencyRenderable(dependency, ctx.itemById, ctx.viewState.planActualDisplay)) {
+        continue;
+      }
       const fromPlacement = ctx.placementById.get(dependency.fromItemId);
       const toPlacement = ctx.placementById.get(dependency.toItemId);
       if (fromPlacement === undefined || toPlacement === undefined) {
@@ -74,12 +81,10 @@ export class DependencyLayer {
         continue; // neither endpoint near the viewport: skip (bounded node count).
       }
       desiredIds.add(dependency.id);
-      // Reuse the shared obstacle instance for an endpoint when it is mounted;
-      // otherwise build a fresh (itemId-tagged) rect for the off-screen endpoint.
       const fromRect =
         rectByItemId.get(dependency.fromItemId) ?? placementRect(fromPlacement);
       const toRect = rectByItemId.get(dependency.toItemId) ?? placementRect(toPlacement);
-      this.drawDependency(ctx, dependency, fromRect, toRect, obstacles);
+      this.drawDependency(ctx, dependency, fromRect, toRect);
     }
 
     for (const [dependencyId, mounted] of this.depMountedById) {
@@ -97,18 +102,11 @@ export class DependencyLayer {
     dependency: Dependency,
     fromRect: Rect,
     toRect: Rect,
-    obstacles: readonly Rect[],
   ): void {
-    const route = routeDependency(
-      fromRect,
-      dependency.fromAnchor,
-      toRect,
-      dependency.toAnchor,
-      obstacles,
-    );
-    // route.points[0] is the exact source anchor and the last point the exact
-    // target anchor, so the drawn line terminates on the anchor geometry
-    // (DEP-L1-002).
+    const route = routeConnector(fromRect, toRect);
+    // route.points[0] is the source center-right exit and the last point the target
+    // center-left entry, so the drawn line leaves/enters the fixed house-style anchors
+    // (DEP-L1-003 rework).
     const pathData = route.points
       .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
       .join(' ');

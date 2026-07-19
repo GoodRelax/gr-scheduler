@@ -70,6 +70,7 @@ import {
   defaultMiddleForMajor,
 } from '../../domain/usecase/classification-tree.js';
 import { nearestAnchor } from '../../domain/usecase/dependency-router.js';
+import { sameLinkableKind } from '../../domain/usecase/dependency-visibility.js';
 import {
   defaultFadeDaysForTaskShape,
   iconShapeKindForCreate,
@@ -181,6 +182,16 @@ interface CommentMoveGesture {
   moved: boolean;
 }
 
+/**
+ * Dragging the FIXED reference line (line-1) of the double-vertical cursor guide to
+ * reposition it, so the span it measures against line-2 changes (cursor-guide span
+ * rework). A screen-space gesture: it updates {@link ViewState.cursorGuideReferenceDate}
+ * live (not undoable, a view-state concern) and has no world-space baseline.
+ */
+interface CursorReferenceGesture {
+  readonly mode: 'cursor-reference';
+}
+
 type Gesture =
   | MoveGesture
   | ResizeGesture
@@ -189,7 +200,11 @@ type Gesture =
   | LabelGesture
   | MarqueeGesture
   | AnnotationResizeGesture
-  | CommentMoveGesture;
+  | CommentMoveGesture
+  | CursorReferenceGesture;
+
+/** Client-px grab tolerance for picking up the cursor-guide reference line (item 3). */
+const CURSOR_REFERENCE_GRAB_PX = 6;
 
 /**
  * The live state of the click-to-pick dependency link mode (item 4), surfaced to the
@@ -199,6 +214,13 @@ type Gesture =
 export interface LinkModeState {
   readonly enabled: boolean;
   readonly armedSourceItemId: string | null;
+  /**
+   * Set for ONE notification when a pick was rejected (item 5): the source armed
+   * remains, but the picked target could not be linked. `plan-actual-mismatch` means
+   * the two items are on different plan/actual sides (only plan->plan / actual->actual
+   * edges are allowed). Absent on ordinary state changes.
+   */
+  readonly rejectedReason?: 'plan-actual-mismatch';
 }
 
 /** Callback invoked when the dependency link-mode state changes (item 4). */
@@ -485,9 +507,13 @@ export class EditingController {
     this.linkModeListener = listener;
   }
 
-  /** Notify the shell of the current link-mode state (item 4). */
-  private notifyLinkState(): void {
-    this.linkModeListener?.({ enabled: this.linkMode, armedSourceItemId: this.linkSourceItemId });
+  /** Notify the shell of the current link-mode state (item 4 / item 5 rejection). */
+  private notifyLinkState(rejectedReason?: 'plan-actual-mismatch'): void {
+    this.linkModeListener?.({
+      enabled: this.linkMode,
+      armedSourceItemId: this.linkSourceItemId,
+      ...(rejectedReason !== undefined ? { rejectedReason } : {}),
+    });
   }
 
   /**
@@ -512,6 +538,24 @@ export class EditingController {
     }
     const sourceId = this.linkSourceItemId;
     const document = this.store.getDocument();
+    // Constraint (item 5): only plan->plan / actual->actual edges are allowed. A pick
+    // that would cross plan<->actual is rejected -- the source stays armed and a subtle
+    // hint is surfaced -- rather than creating the edge.
+    const sourceItem = this.findItem(document, sourceId);
+    const targetItem = this.findItem(document, itemId);
+    if (
+      sourceItem !== null &&
+      targetItem !== null &&
+      !sameLinkableKind(sourceItem, targetItem)
+    ) {
+      log.debug('dependency_link_rejected', {
+        reason: 'plan_actual_mismatch',
+        from_item_id: sourceId,
+        to_item_id: itemId,
+      });
+      this.notifyLinkState('plan-actual-mismatch');
+      return;
+    }
     const existing = (document.dependencies ?? []).find(
       (edge) => edge.fromItemId === sourceId && edge.toItemId === itemId,
     );
@@ -806,6 +850,23 @@ export class EditingController {
     ) {
       return;
     }
+    // In double-vertical cursor-guide mode a press near the FIXED reference line
+    // (line-1) picks it up for repositioning, taking priority over a canvas gesture
+    // (cursor-guide span rework). A press elsewhere deselects it.
+    if ((this.liveViewState().cursorGuideMode ?? 'none') === 'double-vertical') {
+      const referenceClientX = this.renderer.cursorGuideReferenceClientX();
+      if (
+        referenceClientX !== null &&
+        Math.abs(event.clientX - referenceClientX) <= CURSOR_REFERENCE_GRAB_PX
+      ) {
+        this.consume(event);
+        this.renderer.setCursorGuideReferenceSelected(true);
+        this.gesture = { mode: 'cursor-reference' };
+        return;
+      }
+      this.renderer.setCursorGuideReferenceSelected(false);
+    }
+
     const hit = this.renderer.hitTest(event.clientX, event.clientY);
     const world = this.renderer.screenToWorld(event.clientX, event.clientY);
 
@@ -1011,6 +1072,10 @@ export class EditingController {
     this.consume(event);
     const world = this.renderer.screenToWorld(event.clientX, event.clientY);
     switch (gesture.mode) {
+      case 'cursor-reference':
+        // Drag the fixed reference line to the pointer's client x (screen-space).
+        this.renderer.setCursorGuideReferenceFromClientX(event.clientX);
+        break;
       case 'move':
         this.previewMove(gesture, world.worldX, world.worldY);
         break;

@@ -9,9 +9,13 @@ import type { CursorMode, CursorGuideMode } from '../../../domain/model/schedule
 import {
   CURSOR_GUIDE_DOUBLE_LINE_COLOR,
   CURSOR_GUIDE_LINE_COLOR,
-  DOUBLE_VERTICAL_GUIDE_OFFSET_PX,
 } from '../../../domain/model/schedule-model.js';
-import { cursorScreenX, cursorSpanDays } from '../../../domain/usecase/cursor-span.js';
+import {
+  cursorGuideSpanDays,
+  cursorGuideSpanLabel,
+  cursorScreenX,
+  cursorSpanDays,
+} from '../../../domain/usecase/cursor-span.js';
 import { CUD_BLUE_ACCENT_HEX, CUD_GREEN_ACCENT_HEX } from '../../../domain/usecase/render-tokens.js';
 import { SVG_NS, type RenderContext } from '../render-context.js';
 
@@ -79,12 +83,14 @@ export class CursorGuideLayer {
    * - `none`            -- nothing drawn.
    * - `crosshair`       -- one vertical + one horizontal line through the pointer.
    * - `single-vertical` -- one vertical line at the pointer.
-   * - `double-vertical` -- two vertical lines (pointer + a fixed screen offset).
+   * - `double-vertical` -- a FIXED reference line (line-1, pinned to a stored date)
+   *                        plus a pointer-tracking measuring line (line-2), with a
+   *                        day-span label ("N days") between them.
    *
-   * The lines are placed from the LIVE pointer client position mapped into the SVG's
-   * own coordinate box (`clientX - rect.left`), which is the same screen space the
-   * overlay group is drawn in -- fixing the earlier bug where the guide used a
-   * world/offset coordinate and never appeared. Nothing is drawn while the pointer is
+   * The lines are THIN SOLID lines (no dash, ~1px) -- the earlier dashed style read as
+   * dotted and is removed (item 1). They are placed from the LIVE pointer client
+   * position mapped into the SVG's own coordinate box (`clientX - rect.left`), the same
+   * screen space the overlay group is drawn in. Nothing is drawn while the pointer is
    * off-canvas or over the frozen left pane.
    */
   public renderGuide(ctx: RenderContext): void {
@@ -112,22 +118,70 @@ export class CursorGuideLayer {
     group.setAttribute('data-guide-mode', mode);
     group.setAttribute('pointer-events', 'none');
 
-    // A vertical line at the pointer for every mode except the (unreached) none.
-    group.appendChild(this.buildGuideLine(x, 0, x, bottomEdge, color));
-    if (mode === 'crosshair') {
-      // Plus a horizontal line spanning the schedule area at the pointer's y.
-      group.appendChild(this.buildGuideLine(leftPaneWidth, y, rightEdge, y, color));
-    } else if (mode === 'double-vertical') {
-      // Plus a second vertical line a fixed screen offset to the right.
-      const secondX = x + DOUBLE_VERTICAL_GUIDE_OFFSET_PX;
-      if (secondX <= rightEdge) {
-        group.appendChild(this.buildGuideLine(secondX, 0, secondX, bottomEdge, color));
+    if (mode === 'double-vertical') {
+      this.buildDoubleVerticalGuide(ctx, group, x, bottomEdge, color);
+    } else {
+      // A vertical line at the pointer for the crosshair / single-vertical modes.
+      group.appendChild(this.buildGuideLine(x, 0, x, bottomEdge, color));
+      if (mode === 'crosshair') {
+        // Plus a horizontal line spanning the schedule area at the pointer's y.
+        group.appendChild(this.buildGuideLine(leftPaneWidth, y, rightEdge, y, color));
       }
     }
     this.overlayGroup.appendChild(group);
   }
 
-  /** Build one thin screen-space guide line element. */
+  /**
+   * Draw the double-vertical SPAN guide: a FIXED reference line (line-1, pinned to
+   * {@link ViewState.cursorGuideReferenceDate}) that is individually selectable /
+   * draggable, plus a pointer-tracking measuring line (line-2), and a day-count label
+   * of the span between them (cursor-guide span rework). Falls back to a lone measuring
+   * line when no reference date or document is available yet.
+   */
+  private buildDoubleVerticalGuide(
+    ctx: RenderContext,
+    group: SVGGElement,
+    pointerX: number,
+    bottomEdge: number,
+    color: string,
+  ): void {
+    // The measuring line (line-2) always tracks the pointer.
+    const measuringLine = this.buildGuideLine(pointerX, 0, pointerX, bottomEdge, color);
+    measuringLine.setAttribute('data-guide-role', 'measure');
+
+    const referenceDate = ctx.viewState.cursorGuideReferenceDate;
+    const epoch = ctx.scheduleDocument?.epochDate;
+    if (referenceDate === undefined || epoch === undefined) {
+      group.appendChild(measuringLine);
+      return;
+    }
+    const referenceX = cursorScreenX(referenceDate, epoch, ctx.viewState);
+    // The FIXED reference line (line-1). Tagged so the editing controller can hit-test
+    // and drag it, and drawn with a data-selected flag when it is the active selection.
+    const referenceLine = this.buildGuideLine(referenceX, 0, referenceX, bottomEdge, color);
+    referenceLine.setAttribute('data-role', 'cursor-guide-reference');
+    referenceLine.setAttribute('data-guide-role', 'reference');
+    if (ctx.cursorGuideReferenceSelected === true) {
+      referenceLine.setAttribute('data-selected', 'true');
+      referenceLine.setAttribute('stroke-width', '2');
+    }
+    group.appendChild(referenceLine);
+    group.appendChild(measuringLine);
+
+    // Day-span label ("N days") placed just right of the measuring line, near the top.
+    const spanDays = cursorGuideSpanDays(referenceDate, pointerX, epoch, ctx.viewState);
+    const label = document.createElementNS(SVG_NS, 'text');
+    label.setAttribute('data-role', 'cursor-guide-span-label');
+    label.textContent = cursorGuideSpanLabel(spanDays);
+    label.setAttribute('x', String(pointerX + 6));
+    label.setAttribute('y', '28');
+    label.setAttribute('font-size', '12');
+    label.setAttribute('font-weight', '600');
+    label.setAttribute('fill', color);
+    group.appendChild(label);
+  }
+
+  /** Build one thin SOLID screen-space guide line element (no dash, item 1). */
   private buildGuideLine(x1: number, y1: number, x2: number, y2: number, color: string): SVGLineElement {
     const line = document.createElementNS(SVG_NS, 'line');
     line.setAttribute('x1', String(x1));
@@ -136,7 +190,9 @@ export class CursorGuideLayer {
     line.setAttribute('y2', String(y2));
     line.setAttribute('stroke', color);
     line.setAttribute('stroke-width', '1');
-    line.setAttribute('stroke-dasharray', '4 3');
+    // Explicitly no dash: the guide lines are THIN SOLID lines (item 1). The prior
+    // 'stroke-dasharray' read as dotted, which the user reported as still-dotted.
+    line.setAttribute('stroke-dasharray', 'none');
     return line;
   }
 }

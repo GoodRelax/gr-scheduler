@@ -1178,6 +1178,13 @@ function wireEscHandling(
       // anyway so the panel-close branch never runs while a modal is up.
       return;
     }
+    // Esc disarms dependency link mode FIRST (item 5), taking priority over the
+    // gesture-cancel / panel-close / browser-release rules below.
+    if (controller.isLinkMode()) {
+      controller.setLinkMode(false);
+      event.preventDefault();
+      return;
+    }
     if (controller.isGestureInProgress() || controller.hasArmedShape()) {
       controller.cancelActiveGesture();
       event.preventDefault();
@@ -1382,6 +1389,8 @@ function wireDependencyLinkMode(
   syncLinkButton(controller.isLinkMode());
 
   controller.onLinkStateChange((state) => {
+    // Keep the toggle button in sync so Esc-disarm (item 5) also un-presses it.
+    syncLinkButton(state.enabled);
     if (!state.enabled) {
       // Reserved-space hint: toggle VISIBILITY (not display) and keep it absolutely
       // positioned so the palette buttons never reflow (no-reflow requirement).
@@ -1390,6 +1399,12 @@ function wireDependencyLinkMode(
       return;
     }
     chrome.linkHint.style.visibility = 'visible';
+    if (state.rejectedReason === 'plan-actual-mismatch') {
+      // Subtle hint (item 5): a plan<->actual pick is not linkable; keep the source armed.
+      chrome.linkHint.textContent =
+        'Dependency link: plan and actual cannot be linked -- pick a matching target';
+      return;
+    }
     chrome.linkHint.textContent =
       state.armedSourceItemId === null
         ? 'Dependency link: pick source -> target'

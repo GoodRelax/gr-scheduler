@@ -37,6 +37,7 @@ export interface RenderContextInit {
   selectedDependencyId?: string | null;
   keyboardFocusItemId?: string | null;
   pointerClient?: { readonly clientX: number; readonly clientY: number } | null;
+  cursorGuideReferenceSelected?: boolean;
   leftPaneWidth?: number;
   contentTopOffsetPx?: number;
   /** The set of item ids treated as mounted/visible (default: all placements). */
@@ -97,6 +98,7 @@ export function makeRenderContext(over: RenderContextInit = {}): RenderContext {
     selectedDependencyId: over.selectedDependencyId ?? null,
     keyboardFocusItemId: over.keyboardFocusItemId ?? null,
     pointerClient: over.pointerClient ?? null,
+    cursorGuideReferenceSelected: over.cursorGuideReferenceSelected ?? false,
     leftPaneWidth,
     contentTopOffsetPx,
     hasMountedItem: (itemId) => mounted.has(itemId),

@@ -18,6 +18,12 @@ from strictdoc.core.project_config import ProjectConfig
 def create_config() -> ProjectConfig:
     return ProjectConfig(
         project_title="gr-scheduler Requirements Specification",
+        # Exclude the vendored MSPDI reference (docs/spec/vendor/mspdi/): those
+        # are third-party .md/.xsd copies, not StrictDoc documents, and would
+        # otherwise fail parsing (e.g. Learn docs whose Markdown lacks an H1).
+        # They are git-ignored, so this only matters for local exports where the
+        # copies have been fetched.
+        exclude_doc_paths=["**/vendor/**", "vendor/**"],
         project_features=[
             # Stable features (strictdoc defaults).
             "TABLE_SCREEN",

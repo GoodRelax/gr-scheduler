@@ -30,6 +30,12 @@ test-results/
 *.log
 npm-debug.log*
 
+# Backup / swap files (editors, tooling)
+*.bak
+*.orig
+*.tmp
+*~
+
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json
@@ -39,6 +45,11 @@ Thumbs.db
 
 # StrictDoc generated export view
 docs/spec/output/
+
+# Vendored MS Project (MSPDI) reference — copies git-ignored for licensing.
+# Keep only the README pointer; see docs/spec/vendor/mspdi/README.md
+docs/spec/vendor/mspdi/*
+!docs/spec/vendor/mspdi/README.md
 
 # GitHub Pages site assembled by CI (.github/workflows/pages.yml)
 _site/

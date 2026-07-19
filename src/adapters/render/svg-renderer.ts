@@ -58,6 +58,7 @@ import {
   contiguousSectionBands,
 } from '../../domain/usecase/classification-tree.js';
 import { type Point, type Rect } from '../../domain/usecase/dependency-router.js';
+import { cursorScreenX, dateAtCursorScreenX } from '../../domain/usecase/cursor-span.js';
 import { resolveLeftPaneWidth } from '../../domain/usecase/left-pane-layout.js';
 import { rulerTierCount } from '../../domain/usecase/date-ruler.js';
 import { resolveWheelMode } from '../input/wheel-mode.js';
@@ -156,6 +157,8 @@ export class SvgRenderer {
   private rowGeometry: RowGeometry = EMPTY_ROW_GEOMETRY;
   /** Last pointer position over the canvas (client px), for the cursor guide (items 9-12). */
   private pointerClient: { readonly clientX: number; readonly clientY: number } | null = null;
+  /** Whether the double-vertical cursor-guide reference line is selected (span rework). */
+  private cursorGuideReferenceSelected = false;
   /** Lazily created rubber-band marquee rectangle, present only during a marquee drag. */
   private marqueeRect: SVGRectElement | null = null;
   private sectionBands: readonly SectionBand[] = [];
@@ -283,6 +286,7 @@ export class SvgRenderer {
       selectedDependencyId: this.selectedDependencyId,
       keyboardFocusItemId: this.keyboardFocusItemId,
       pointerClient: this.pointerClient,
+      cursorGuideReferenceSelected: this.cursorGuideReferenceSelected,
       leftPaneWidth: this.getLeftPaneWidth(),
       contentTopOffsetPx: this.getContentTopOffsetPx(),
       hasMountedItem: (itemId) => this.itemLayer.hasMounted(itemId),
@@ -1103,6 +1107,46 @@ export class SvgRenderer {
     return this.hitTester.hitTestDependency(this.buildContext(), screenX, screenY);
   }
 
+  /**
+   * The CLIENT-space x of the double-vertical cursor-guide REFERENCE line (line-1), or
+   * null when the guide is not in double-vertical mode or the reference has not been
+   * placed yet. The editing controller uses it to hit-test and drag the fixed reference
+   * (cursor-guide span rework).
+   */
+  public cursorGuideReferenceClientX(): number | null {
+    if ((this.viewState.cursorGuideMode ?? 'none') !== 'double-vertical') {
+      return null;
+    }
+    const referenceDate = this.viewState.cursorGuideReferenceDate;
+    if (referenceDate === undefined || this.scheduleDocument === null) {
+      return null;
+    }
+    const screenX = cursorScreenX(referenceDate, this.scheduleDocument.epochDate, this.viewState);
+    return screenX + this.svg.getBoundingClientRect().left;
+  }
+
+  /** Select / deselect the cursor-guide reference line so it draws highlighted. */
+  public setCursorGuideReferenceSelected(selected: boolean): void {
+    if (this.cursorGuideReferenceSelected !== selected) {
+      this.cursorGuideReferenceSelected = selected;
+      this.requestRender();
+    }
+  }
+
+  /** Reposition the fixed cursor-guide reference line to a client-space x (span rework). */
+  public setCursorGuideReferenceFromClientX(clientX: number): void {
+    if (this.scheduleDocument === null) {
+      return;
+    }
+    const screenX = clientX - this.svg.getBoundingClientRect().left;
+    const referenceDate = dateAtCursorScreenX(
+      screenX,
+      this.scheduleDocument.epochDate,
+      this.viewState,
+    );
+    this.setViewState({ ...this.viewState, cursorGuideReferenceDate: referenceDate });
+  }
+
   private clearMountedNodes(): void {
     this.itemLayer.clear();
     this.dependencyLayer.clear();
@@ -1177,7 +1221,24 @@ export class SvgRenderer {
     // canvas is not repainted on every mouse move.
     host.addEventListener('pointermove', (event) => {
       this.pointerClient = { clientX: event.clientX, clientY: event.clientY };
-      if ((this.viewState.cursorGuideMode ?? 'none') !== 'none') {
+      const guideMode = this.viewState.cursorGuideMode ?? 'none';
+      // Entering double-vertical mode pins line-1 (the fixed reference) to the FIRST
+      // pointer position seen, so the guide immediately measures a span from there
+      // (cursor-guide span rework). Later moves leave the stored reference untouched.
+      if (
+        guideMode === 'double-vertical' &&
+        this.viewState.cursorGuideReferenceDate === undefined &&
+        this.scheduleDocument !== null
+      ) {
+        const screenX = event.clientX - this.svg.getBoundingClientRect().left;
+        const referenceDate = dateAtCursorScreenX(
+          screenX,
+          this.scheduleDocument.epochDate,
+          this.viewState,
+        );
+        this.setViewState({ ...this.viewState, cursorGuideReferenceDate: referenceDate });
+      }
+      if (guideMode !== 'none') {
         this.requestRender();
       }
     });

@@ -211,11 +211,15 @@ describe('DependencyLayer', () => {
     const content = SVG_G();
     const depGroup = SVG_G();
     const layer = new DependencyLayer(content, depGroup);
+    const depItemA = makeTask('a');
+    const depItemB = makeTask('b');
     const ctx = makeRenderContext({
       scheduleDocument: sampleDocument({
+        items: [depItemA, depItemB],
         dependencies: [{ id: 'd1', fromItemId: 'a', fromAnchor: 5, toItemId: 'b', toAnchor: 3 }],
       }),
       placements: [from, to],
+      itemById: new Map<string, ScheduleItem>([['a', depItemA], ['b', depItemB]]),
     });
     layer.render(ctx, WIDE_WINDOW);
     const path = (depGroup as unknown as FakeSvgNode).querySelector('[data-role="dependency-line"]');
@@ -357,14 +361,20 @@ describe('HitTester', () => {
   it('resolves a dependency line where no item sits', () => {
     const from = makePlacement('a', 100, 100, 80, 40);
     const to = makePlacement('b', 400, 100, 80, 40);
+    const depItemA = makeTask('a');
+    const depItemB = makeTask('b');
     const ctx = makeRenderContext({
       scheduleDocument: sampleDocument({
+        items: [depItemA, depItemB],
         dependencies: [{ id: 'd1', fromItemId: 'a', fromAnchor: 5, toItemId: 'b', toAnchor: 3 }],
       }),
       placements: [from, to],
+      itemById: new Map<string, ScheduleItem>([['a', depItemA], ['b', depItemB]]),
     });
     // No item glyph at (300,120), so item hit is null but the routed line is grabbable.
     expect(tester.hitTest(ctx, 300, 120)).toBeNull();
-    expect(tester.hitTestDependency(ctx, 300, 120)).toBe('d1');
+    // The connector exits the source center-right (slightly low, y ~ 128) and enters the
+    // target center-left (y = 120); the grab point sits on the routed polyline.
+    expect(tester.hitTestDependency(ctx, 300, 124)).toBe('d1');
   });
 });

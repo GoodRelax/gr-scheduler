@@ -470,6 +470,21 @@ TITLE: 2. MSPDI XML マッピング
 
 [TEXT]
 STATEMENT: >>>
+本節のマッピングは MS Project の公式 MSPDI ( Microsoft Project Data Interchange ) 仕様に
+準拠する。規範的出典 ( normative reference ) を次に示す。 MSPDI は ISO 等の標準化団体規格では
+なく Microsoft のベンダー公開スキーマだが、後継 Project デスクトップ版も同形式で入出力するため
+事実上の共通契約である。取得した参照コピーは ``docs/spec/vendor/mspdi/`` に置き ( ライセンス上
+git 管理外・ README のみ追跡、再取得手順は当該 README を参照 )、実装時のスキーマ検証・要素確認に
+用いる。
+
+- XSD schema (mspdi_pj12.xsd, Project 2007): https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd
+- Element reference (Microsoft Learn): https://learn.microsoft.com/en-us/office-project/xml-data-interchange/introduction-to-project-xml-data
+- Project elements and XML structure: https://learn.microsoft.com/en-us/office-project/xml-data-interchange/project-elements-and-xml-structure
+- Docs source repo (CC-BY-4.0): https://github.com/MicrosoftDocs/office-developer-msproject-xml-docs
+<<<
+
+[TEXT]
+STATEMENT: >>>
 MS Project の交換形式 MSPDI XML と gr-scheduler モデルの対応を定める (IO-L1-002)。
 MSPDI は「 1 タスク = 1 行 = 1 バー」を前提とし、 gr-scheduler の表現の多くに直接対応が
 無い。対応が無い概念は名前空間付き JSON サイドカーで往復保持し、それが不可能なものは

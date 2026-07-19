@@ -74,6 +74,12 @@ export interface RenderContext {
   readonly keyboardFocusItemId: string | null;
   /** Last pointer position over the canvas (client px), for the cursor guide. */
   readonly pointerClient: { readonly clientX: number; readonly clientY: number } | null;
+  /**
+   * Whether the double-vertical cursor-guide REFERENCE line (line-1) is the active
+   * selection, so it is drawn highlighted (cursor-guide span rework). Absent/false
+   * means unselected.
+   */
+  readonly cursorGuideReferenceSelected?: boolean;
 
   /** Effective left-pane width in CSS pixels (world content is offset by this). */
   readonly leftPaneWidth: number;

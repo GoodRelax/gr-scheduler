@@ -552,6 +552,17 @@ export interface ViewState {
    */
   readonly cursorGuideMode?: CursorGuideMode;
   /**
+   * The FIXED reference-line date of the `double-vertical` measurement guide
+   * (cursor-guide span rework). In double-vertical mode line-1 is a fixed reference
+   * pinned to THIS date while line-2 tracks the live pointer, so the guide measures a
+   * day span between them. Stored as a date (not a screen x) so the reference stays
+   * anchored to the same day across zoom / pan / re-render, and round-trips via JSON /
+   * autosave. Absent means the reference has not been placed yet (the renderer pins it
+   * to the first pointer position on entering the mode). Held in view state so moving
+   * it never pollutes Undo/Redo.
+   */
+  readonly cursorGuideReferenceDate?: IsoDate;
+  /**
    * The evidence watermark (TOOL-L1-007); absent means no watermark. Held in view
    * state so toggling it never pollutes Undo/Redo, yet still round-trips with the
    * document (serialized inside viewState by the JSON codec).

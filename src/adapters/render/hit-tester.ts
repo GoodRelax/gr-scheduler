@@ -20,7 +20,9 @@ import type {
 import { isRoundedBox } from '../../domain/model/annotation.js';
 import { pickItemHit, type HitCandidate } from '../../domain/usecase/edge-hit.js';
 import { roundedBoxScreenRect } from '../../domain/usecase/cursor-span.js';
-import { routeDependency, type Rect } from '../../domain/usecase/dependency-router.js';
+import type { Rect } from '../../domain/usecase/dependency-router.js';
+import { routeConnector } from '../../domain/usecase/dependency-connector.js';
+import { isDependencyRenderable } from '../../domain/usecase/dependency-visibility.js';
 import {
   FONT_SIZE_BY_SCALE,
   pointInLabelBox,
@@ -302,22 +304,20 @@ export class HitTester {
         rectByItemId.set(itemId, placementRect(placement));
       }
     }
-    const obstacles: readonly Rect[] = [...rectByItemId.values()];
     let bestId: string | null = null;
     let bestDistance = DEP_HIT_TOLERANCE_PX;
     for (const dependency of dependencies) {
+      // A line hidden by the plan/actual filter or a cross-kind (legacy) edge is not
+      // grabbable, matching what the render layer draws (DEP plan/actual rework).
+      if (!isDependencyRenderable(dependency, ctx.itemById, ctx.viewState.planActualDisplay)) {
+        continue;
+      }
       const fromRect = rectByItemId.get(dependency.fromItemId);
       const toRect = rectByItemId.get(dependency.toItemId);
       if (fromRect === undefined || toRect === undefined) {
         continue; // an endpoint is not currently laid out / visible.
       }
-      const route = routeDependency(
-        fromRect,
-        dependency.fromAnchor,
-        toRect,
-        dependency.toAnchor,
-        obstacles,
-      );
+      const route = routeConnector(fromRect, toRect);
       const distance = distanceToPolyline(point.worldX, point.worldY, route.points);
       if (distance <= bestDistance) {
         bestDistance = distance;
