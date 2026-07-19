@@ -1,0 +1,252 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - 依存関係 (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の依存関係ドメイン (プレフィクス DEP) のシステム要求 (L1) と
+コンポーネント要求 (L2) を定義する。マイルストーン/タスク間の依存を、アイコンの
+9 点アンカーから引き出し/引き入れる線で表現し、他アイコンとの重なりを避けて自動配線し、
+折れ点を 0〜3 に収める。各 L1 要求はステークホルダ要求 STK-L0-010 (依存関係の可視化) を
+Parent で詳細化する。出典は `user-order.md` item33 (= coverage 表の item34 系列) と
+`01-stakeholder-requirements.sdoc`。
+<<<
+
+[[SECTION]]
+TITLE: 1. 依存関係の表現 (Dependency Representation)
+
+[REQUIREMENT]
+UID: DEP-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: マイルストーン/タスク間の依存関係を線で表現する
+STATEMENT: >>>
+本システムは、2 つのマイルストーン/タスクを始点アイテムと終点アイテムとして選び、
+その間に有向の依存線を 1 本引いて依存関係を表現できること。
+<<<
+RATIONALE: >>>
+影響波及 (どのタスクが遅れると何が遅れるか) を一枚絵の上で可視化する中核機能。
+user-order item34。
+<<<
+VERIFICATION: >>>
+任意の 2 アイテムを指定して依存線を作成すると、始点から終点へ向きを持つ 1 本の線が
+描画され、依存関係のデータ (始点 UID・終点 UID) が内部モデルに保持されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-010
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 9 点アンカーからの引き出し/引き入れ (9-Point Anchors)
+
+[REQUIREMENT]
+UID: DEP-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 依存線を 9 点アンカーから引き出し/引き入れる
+STATEMENT: >>>
+本システムは、アイテムのアイコン/タスクバー形状上の 9 点 (四辺の中点 4 点・四隅 4 点・
+中央 1 点) をアンカーとして提供し、依存線の始点をいずれかのアンカーから引き出し、終点を
+相手アイテムのいずれかのアンカーへ引き入れられ、線の両端をそのアンカー座標へ正確に
+終端させること。
+<<<
+RATIONALE: >>>
+線端がアイテムから浮かず、アイテム形状の意味のある点に吸着することで、依存の起点/終点が
+一目で分かる (モックのフィードバック: 線端はアイテムに必ず接続すること)。9 点は
+アイコン/タスクバーのバウンディングボックス上に幾何的に定義する。user-order item34.1。
+<<<
+VERIFICATION: >>>
+下表の 9 アンカーそれぞれを始点/終点に指定して依存線を引いたとき、線端の座標が指定
+アンカーのアイテム形状上の座標と一致し (許容誤差 1px 以内)、アイテムを移動しても線端が
+アンカーに追従して接続を維持すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-010
+
+[TEXT]
+STATEMENT: >>>
+9 点アンカーは、アイテムのバウンディングボックス (幅 w・高さ h、左上原点) 上に次のとおり
+定義する。行/列の中点は 0.5、端は 0 と 1 で表す。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 8 22 20 50
+
+   * - No
+     - アンカー名
+     - 相対座標 (x, y)
+     - 位置の説明
+   * - 1
+     - top_left
+     - (0, 0)
+     - 左上角
+   * - 2
+     - top_center
+     - (0.5, 0)
+     - 上辺中点
+   * - 3
+     - top_right
+     - (1, 0)
+     - 右上角
+   * - 4
+     - middle_left
+     - (0, 0.5)
+     - 左辺中点
+   * - 5
+     - center
+     - (0.5, 0.5)
+     - 中央
+   * - 6
+     - middle_right
+     - (1, 0.5)
+     - 右辺中点
+   * - 7
+     - bottom_left
+     - (0, 1)
+     - 左下角
+   * - 8
+     - bottom_center
+     - (0.5, 1)
+     - 下辺中点
+   * - 9
+     - bottom_right
+     - (1, 1)
+     - 右下角
+
+.. raw:: html
+
+    <pre class="mermaid">
+    flowchart LR
+        subgraph ITEM["Item bounding box (w x h)"]
+            A1["1 top_left"]
+            A2["2 top_center"]
+            A3["3 top_right"]
+            A4["4 middle_left"]
+            A5["5 center"]
+            A6["6 middle_right"]
+            A7["7 bottom_left"]
+            A8["8 bottom_center"]
+            A9["9 bottom_right"]
+        end
+        A6 -->|"draw out / draw in"| A4
+    </pre>
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 重なり回避の自動配線 (Overlap-Avoiding Auto Routing)
+
+[REQUIREMENT]
+UID: DEP-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 依存線を他アイコンとの重なりを避けて自動配線する
+STATEMENT: >>>
+本システムは、依存線の始点アンカーと終点アンカーが与えられたとき、他のアイテムの
+アイコン/タスクバーとの重なりを極力避ける経路を自動で算出して線を配線し、始点/終点
+アイテムの移動時には経路を再計算すること。
+<<<
+RATIONALE: >>>
+線が他アイコンの上を横切ると依存関係も背後のアイテムも読めなくなる。自動配線で可読性を
+保つ (モックのフィードバック: 線は他アイテムと極力重ならないこと)。配線アルゴリズムの
+詳細は DEP-L2-001 で定義する。user-order item34.2。
+<<<
+VERIFICATION: >>>
+始点/終点の間に他アイテムを配置した状態で依存線を引き、配線後の経路が中間アイテムの
+バウンディングボックスと交差しないこと (交差不可避な密配置では交差数が最小化されること)。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-010
+
+[REQUIREMENT]
+UID: DEP-L2-001
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 依存線ルーティングエンジンの障害物回避直交配線
+STATEMENT: >>>
+依存線ルーティングエンジンは、他アイテムのバウンディングボックスを障害物として扱い、
+水平/垂直セグメントからなる直交経路 (orthogonal routing) の中から、障害物との重なり
+面積と交差数を最小化する経路を選択して依存線を配線すること。
+<<<
+RATIONALE: >>>
+自動配線 (DEP-L1-003) の内部アルゴリズム。障害物を膨張 (マージン付与) した格子上で
+経路探索を行い、重なりゼロを優先しつつ、達成不能な場合は重なりコストが最小の経路を返す。
+直交配線は折れ点数の制御 (DEP-L2-002) とも整合する。user-order item34.2。
+<<<
+VERIFICATION: >>>
+既知の障害物配置を入力にルーティングエンジンを実行し、出力経路の障害物重なり面積が、
+同始点/終点の直線経路のそれ以下であり、かつ重なりゼロ経路が存在する配置では重なりゼロの
+経路を返すことを単体テストで確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: DEP-L1-003
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. 折れ点数の制約 (Elbow-Count Constraint)
+
+[REQUIREMENT]
+UID: DEP-L2-002
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 依存線の折れ曲がり点を 0〜3 に制限する
+STATEMENT: >>>
+依存線ルーティングエンジンは、1 本の依存線が持つ折れ曲がり点 (elbow、経路の方向が
+変わる頂点) の数を 0 以上 3 以下に制限し、始点/終点アンカーを結ぶ経路を折れ点 3 以下で
+生成できないときは折れ点数が最小となる経路を選択すること。
+<<<
+RATIONALE: >>>
+折れ点が多い線は視覚的ノイズになり依存の追跡を妨げる。上限 3 に抑えることで L 字/Z 字
+程度の素直な経路に保つ。user-order item34.3。
+<<<
+VERIFICATION: >>>
+多様な始点/終点・障害物配置で配線した各依存線の折れ点数を数え、いずれも 3 以下で
+あること (0〜3 の範囲内) を単体テストで確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: DEP-L1-003
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 5. 矢じりの最小描画 (Minimal Arrowhead)
+
+[REQUIREMENT]
+UID: DEP-L1-004
+TYPE: Constraint
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 依存線の矢じりを認識可能な最小サイズで描画する
+STATEMENT: >>>
+本システムは、依存線の終端に描く矢じり (arrowhead) を、向きを持つ矢印として認識できる
+範囲で最小の大きさで描画し、線本体やアイテムの視認を妨げないこと。
+<<<
+RATIONALE: >>>
+矢じりは依存の向きを伝えるために必要だが、大きすぎると一枚絵の情報密度を下げアイテムを
+隠す。認識可能性を保った最小サイズにする (モックのフィードバック: 矢印は認識できるが
+最小限であること)。
+<<<
+VERIFICATION: >>>
+既定ズームで依存線を表示し、矢じりが向きを判別できる形状で描画されつつ、その外接寸法が
+規定の上限 (例: 線幅の数倍程度) を超えないことを目視および描画寸法の計測で確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-010
+
+[[/SECTION]]

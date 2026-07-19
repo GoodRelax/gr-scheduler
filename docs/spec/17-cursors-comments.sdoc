@@ -1,0 +1,227 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - カーソル・コメント・囲み (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler のカーソル/注釈ドメイン (プレフィクス CURS) のシステム要求 (L1) と
+コンポーネント要求 (L2) を定義する。本日線・2 本のデュアルカーソルによるスパン計測・
+縦線/十字線モード切替・表示/非表示切替・コメント (引出し四角/折れ線)・丸角囲みを扱う。
+各 L1 要求はステークホルダ要求 STK-L0-012 (カーソル・本日線・計測・コメント・囲み) を
+Parent で詳細化する。出典は `user-order.md` item27-33 と
+`01-stakeholder-requirements.sdoc`。
+<<<
+
+[[SECTION]]
+TITLE: 1. 本日線 (Today Line)
+
+[REQUIREMENT]
+UID: CURS-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 本日の線を表示する
+STATEMENT: >>>
+本システムは、スケジュール上の本日 (現在日) に対応する時間軸位置へ縦の本日線を描画し、
+ズーム/パンに追従して常に本日の日付位置に一致させて表示すること。
+<<<
+RATIONALE: >>>
+今どこまで来ているかの基準を一目で示す。予実の遅れ判断やイナズマ線の基準にもなる。
+user-order item27。
+<<<
+VERIFICATION: >>>
+本日線を有効にすると、ヘッダーの本日の日付位置に縦線が引かれ、ズーム/パン後もその線が
+本日の日付位置から外れないこと。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-012
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. デュアルカーソルによるスパン計測 (Dual-Cursor Span)
+
+[REQUIREMENT]
+UID: CURS-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 2 本のデュアルカーソルでスパン (日数) を計測する
+STATEMENT: >>>
+本システムは、任意の時間軸位置に 2 本のカーソルを立て、一方を基準マーカー (primary)、
+他方を差分マーカー (secondary) として、両カーソル間のスパンを日数で算出し、その日数を
+差分マーカー (secondary) の上部に表示すること。
+<<<
+RATIONALE: >>>
+「タスク A からタスク B まで何日か」をその場で測る。primary を基準、secondary を差分の
+起点/終点とし、計測値は差分側の直上に出すことで基準と差分の役割が読み取れる
+(モックのフィードバック: 一方が基準、他方が差分で、日数は secondary の上に表示)。
+user-order item28。
+<<<
+VERIFICATION: >>>
+2 本のカーソルを既知の 2 日付に合わせると、その差の日数が差分マーカー (secondary) の
+上部に表示され、いずれかのカーソルを動かすと表示日数が即時に更新されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-012
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. カーソルのモード切替 (Vertical / Crosshair)
+
+[REQUIREMENT]
+UID: CURS-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: デュアルカーソルの縦線モード/十字線モードを個別に切り替える
+STATEMENT: >>>
+本システムは、2 本のデュアルカーソルそれぞれについて、縦線モード (縦線のみ) と
+十字線モード (縦線と横線の交差) を個別に切り替えられ、一方を縦線・他方を十字線とする
+組み合わせも選べること。
+<<<
+RATIONALE: >>>
+十字線モードは横線で行 (分類) を横断的に指し示し「どの分類のタスクが何日か」を読みやすく
+する。2 本を独立に切り替えられることで計測と行指示を両立する。user-order item29。
+<<<
+VERIFICATION: >>>
+各カーソルのモードを切り替えると、縦線モードでは縦線のみ、十字線モードでは縦線と横線が
+表示され、2 本を異なるモードに設定した状態が保持されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-012
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. 本日線・カーソルの表示切替 (Visibility Toggle)
+
+[REQUIREMENT]
+UID: CURS-L1-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 本日線・デュアルカーソルの表示/非表示を切り替える
+STATEMENT: >>>
+本システムは、本日線とデュアルカーソルの表示/非表示を切り替えられ、非表示にした要素を
+キャンバスから消去し、再表示時には直前の位置/モードを復元すること。
+<<<
+RATIONALE: >>>
+計測や強調が不要な場面では消して一枚絵をすっきり見せる。位置/モードを保持することで
+再表示時の再設定を不要にする。user-order item30。
+<<<
+VERIFICATION: >>>
+本日線・各カーソルを非表示にするとキャンバスから消え、再表示すると非表示前と同じ位置/
+モードで戻ること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-012
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 5. コメント (Comments)
+
+[REQUIREMENT]
+UID: CURS-L1-005
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 任意の場所にコメントを記載する
+STATEMENT: >>>
+本システムは、キャンバス上の任意の位置にコメントを配置してテキストを記載でき、配置後に
+コメントをドラッグで移動し、テキストを編集できること。
+<<<
+RATIONALE: >>>
+レビュー時の指差し・補足をその場で残す。位置は任意で、後から動かせる。user-order item31。
+<<<
+VERIFICATION: >>>
+キャンバス上の任意位置にコメントを作成してテキストを入力でき、作成後にドラッグで移動し
+テキストを再編集できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-012
+
+[REQUIREMENT]
+UID: CURS-L1-006
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: コメントを引出し四角と折れ線の 2 種で提供する
+STATEMENT: >>>
+本システムは、コメントの引出し表現として、引出し四角 (テキスト矩形と対象点を短い
+引出し線で結ぶ形。例: ``-□`` や ``/□`` ) と折れ線 (対象点からテキストへ折れ線で
+導く形。例: ``/----`` や ``\____/`` ) の 2 種を提供し、コメントごとに種類を
+選べること。
+<<<
+RATIONALE: >>>
+指し示す対象と密集度に応じて引出し方を選ぶ。四角は囲んだテキスト、折れ線は距離のある
+対象への誘導に向く。user-order item32。
+<<<
+VERIFICATION: >>>
+コメント作成時に引出し四角と折れ線のいずれかを選択でき、選択に応じた引出し形状 (矩形+
+引出し線、または折れ線) で描画されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-012
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 6. 丸角囲み (Rounded-Rectangle Highlight)
+
+[REQUIREMENT]
+UID: CURS-L1-007
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 任意範囲を任意色の丸角矩形で囲む
+STATEMENT: >>>
+本システムは、キャンバス上の任意の矩形範囲を、任意の色 (枠色) の丸角矩形で囲んで一部を
+強調でき、囲みの範囲と色を後から変更できること。
+<<<
+RATIONALE: >>>
+注目領域を色付きの丸角枠で囲んでレビューの焦点を示す。色と範囲は編集可能。角の丸み
+(R) の見え方は CURS-L2-001 で規定する。user-order item33。
+<<<
+VERIFICATION: >>>
+任意範囲を丸角矩形で囲め、枠色を任意色に設定でき、範囲/色を後から変更できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-012
+
+[REQUIREMENT]
+UID: CURS-L2-001
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 丸角囲みの角丸みをスクリーン空間で一定に保つ
+STATEMENT: >>>
+丸角囲みレンダラは、丸角矩形の角の丸み (R) をスクリーン空間の固定ピクセル値で描画し、
+日程のズーム率に依らず画面上の見かけの丸み半径を一定に保つこと (囲み範囲はズームに追従
+して拡縮するが、角の R は拡大しても大きくならない)。
+<<<
+RATIONALE: >>>
+R をワールド空間で持つとズームインで角の丸みが肥大し、囲みの意味が崩れる。R を
+スクリーン空間で固定することで、どのズームでも角丸みが同じ見た目になる (モックの意図:
+角を拡大しても丸のサイズが大きくならない)。user-order item33.1。
+<<<
+VERIFICATION: >>>
+同一の丸角囲みを複数のズーム率で表示し、各ズームでの角丸み半径をスクリーンピクセルで
+計測して、いずれのズームでも同一 (許容 1px 以内) であることを確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: CURS-L1-007
+
+[[/SECTION]]

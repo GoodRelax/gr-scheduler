@@ -1,0 +1,498 @@
+[DOCUMENT]
+TITLE: gr-scheduler テスト結果 (Test Results)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は `50-test-spec.sdoc` の各 [TEST] に対する実行結果である。各 [TEST_RESULT] は
+`ResultOf` 関係で対応する TEST UID をトレースする。
+
+**総合結果 ( 2026-07-18 、 Phase 5 テスト連結時点 )** : Vitest ( Unit/Integration ) は
+**213/213 件 PASS** ( 30 ファイル、 `npm run test` ) 。 Playwright ( System/E2E ) は
+**4/4 件 PASS** ( `tests/e2e/a11y.spec.ts` x2 、 `tests/e2e/user-flow-smoke.spec.ts` 、
+`tests/e2e/section-reorder.spec.ts` 、 `npm run build && npm run test:e2e` 、 Chromium ) 。
+`npm run lint` ( ESLint ) はエラー/警告 0 件、 `tsc --noEmit` は型エラー 0 件。
+性能 PoC ( NFR-L1-002 ) はユーザー立会いの下 2026-07-18 に実施済みで、目標規模
+( 約 1000 アイテム / 約 50 行 ) で **初期描画 4.6ms ( 目標 <= 1500ms ) 、平均 162.3 FPS
+( 目標 ~60 ) 、 p95 フレーム 6.20ms ( 予算 ~16.7ms ) 、実 SVG ノード 93 ( 仮想化有効 )** を
+記録し、目標を大差で達成した ( `project-records/risks/risk-register.md` RISK-001 ) 。
+
+**カバレッジ ( `npx vitest run --coverage` 、 @vitest/coverage-v8 4.1.10 、 v8 provider )** :
+Vitest が実行時に到達したモジュール ( 27 ファイル ) に対する集計は **文 87.84% ( 1236/1407 ) 、
+分岐 74.19% ( 552/744 ) 、関数 95.02% ( 229/241 ) 、行 87.56% ( 1197/1367 )** 。うち
+`src/domain/**` ( ドメイン層、 25 ファイル ) に限ると **文 90.47% ( 1064/1176 ) 、
+行 90.18% ( 1029/1141 )** であり、品質目標 ( CLAUDE.md 「コードカバレッジ 80% 以上、ドメイン層は
+重点的に」 ) を満たす。 `src/` 配下の全ファイル ( Adapter/Framework 層の DOM 依存コードを含む
+未実行ファイルも算入、 `--coverage.all` ) では **文 44.46% ( 1236/2780 )** に留まるが、これは
+`adapters/input` ( ポインタジェスチャ ) ・ `adapters/io` ( File I/O/オートセーブ/インポート ) ・
+`adapters/a11y` ・ `adapters/clipboard` ・ `app/main.ts` ( ブートストラップ ) が Clean
+Architecture の意図どおり DOM 依存の Adapter/Framework 層であり、 Vitest ( Node 環境 、
+DOM 無し ) では単体テスト対象外で Playwright E2E/axe ( TEST-SYS-001/002 、 TEST-E2E-001/002 ) の
+対象であることによる、設計上の想定内の内訳である。 `adapters/ui/left-pane.ts` のみ
+`tests/left-pane-interaction.test.ts` のフェイク DOM によって部分的に Unit/Integration 到達
+( 76.01% ) している。
+<<<
+
+[[SECTION]]
+TITLE: 1. Unit テスト結果
+
+[TEST_RESULT]
+UID: TR-UNIT-001
+TITLE: 時間 - 座標マッパの往復整合: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 全ズーム倍率 (0.25/1/4/16) x 代表日付で往復可逆、時間軸粒度の単調性を確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-001
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-002
+TITLE: マルチバー・レイアウトエンジン: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 全アイテム重複なし配置・サブレーン分離を確認。カバレッジ 98.03% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-002
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-003
+TITLE: 異方性ズーム連動 LOD セレクタ: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: しきい値の単調非増加、重要度連動の表示/非表示選択を確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-003
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-004
+TITLE: 整列ソルバ: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 許容距離内スナップ/圏外非スナップ、ベースライン収集の除外条件を確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-004
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-005
+TITLE: 依存線自動ルータ: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 9点アンカー端点の厳密一致、折れ点0..3budget遵守、障害物回避、自己排除の安定性を確認。カバレッジ 97.7% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-005
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-006
+TITLE: 本日線・デュアルカーソル・丸角囲み: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: スパン計算・画面座標マッピング・ズーム非依存の角丸み半径を確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-006
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-007
+TITLE: 予実表示フィルタ・イナズマ線・変更前予定ゴースト: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 表示フィルタ解決・進捗線頂点構築・ゴースト収集を確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-007
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-008
+TITLE: セクション・行オーガナイザ: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: >>>
+並べ替え・上下移動先解決・表示切替・小タブ生成・水平線バンド計算を確認。 review finding
+F-01 対応で up/down move target のケースを追加済み。カバレッジ 94.59% stmts。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-008
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-009
+TITLE: 左ペイン幅のクランプ計算: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 最小/最大幅へのクランプを確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-009
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-010
+TITLE: 透かしレイヤの斜めタイル配置: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 斜め複数タイル配置、フック未指定時の非生成を確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-010
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-011
+TITLE: 枠色/塗り色バリデータ: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 妥当な CSS カラー構文のみ許可し、javascript: 等の実行可能スキームを拒否することを確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-011
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-012
+TITLE: WCAG 1.4.3 コントラスト計算と CUD パレット: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 相対輝度/コントラスト比計算、UI色トークンのAA適合、CUDパレット10色の判別性を確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-012
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-013
+TITLE: i18n 値リゾルバ: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 多言語値/平文字列の両対応、未対応ロケールのフォールバックを確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-013
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-014
+TITLE: アイコン専用ボタンのアクセシブルネーム生成: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: ロケール別の意味のある aria-label 生成を確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-014
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-015
+TITLE: キャンバスのキーボードコマンド解決: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 矢印/Tab/Enter/Space/Escape の各コマンド種別への変換を確認。カバレッジ 100% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-015
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-016
+TITLE: 全体フォントサイズの一律適用: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: S/M/Lの一律適用を確認。カバレッジ 40% stmts (font-scale.tsはDOM依存部分がNode環境で未到達、System/E2Eで実UIとして検証)。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-016
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-UNIT-017
+TITLE: 色以外の手掛かりによる情報符号化: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 色以外の手掛かり (形状/ラベル/パターン) での判別性を確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-UNIT-017
+  ROLE: ResultOf
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. Integration テスト結果
+
+[TEST_RESULT]
+UID: TR-INT-001
+TITLE: ScheduleStore の Undo/Redo 履歴: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 作成/削除/編集コマンドの適用とUndo/Redo往復を確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-001
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-002
+TITLE: プロパティ編集の不変条件: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: No-op無履歴化、マイルストーンのendDate不変を確認 (M-01/M-03)。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-002
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-003
+TITLE: コメント/丸角囲みのUndo可能な作成・編集: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 注釈の作成・編集がストア経由でUndo/Redo可能であることを確認。カバレッジ 96.29% stmts (annotation-commands.ts)。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-003
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-004
+TITLE: セクション並替・表示切替・依存追加/削除のUndo可能性: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 自己依存/重複依存の無視、状態変化とUndo/Redoの整合を確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-004
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-005
+TITLE: ポインタ座標 <-> 日付プロパティの双方向同期: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 座標->プロパティ、プロパティ->座標の双方向、マイルストーンのendDate不変を確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-005
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-006
+TITLE: 左ペインのセクション上下移動ボタンの結線: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: >>>
+review finding F-01 (未結線) の回帰確認: クリック -> dispatch(reorderSectionCommand) ->
+DOM再描画 -> フォーカス復帰の一連を、フェイクDOM経由で確認。カバレッジ 76.01% stmts
+(adapters/ui/left-pane.ts、DOM依存部分は残余をTEST-E2E-002が実ブラウザで補完)。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-006
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-007
+TITLE: JSON コーデックの往復整合とスキーマ移行: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: assets/previousPlan/annotations/dependencies込みの完全往復、移行、__proto__汚染防止、型/構文拒否を確認。カバレッジ 84.25% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-007
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-008
+TITLE: MSPDI XML コーデック: サイドカー往復整合とロッシー・フォールバック: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: サイドカー付き完全往復、サイドカー除去時の標準要素フォールバック、XXE拒否を確認。カバレッジ 84.73% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-008
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-009
+TITLE: SVG 出力: 全アイテム描画・自己完結・透かし埋め込み・エスケープ: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 1000件全描画、外部参照ゼロの自己完結、data URI埋め込み、XSSエスケープ、透かし層の条件付き出力を確認。カバレッジ 98.68% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-009
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-010
+TITLE: インポートサニタイザ: SVG/PNG/XML/JSON の多層検証: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: script/イベントハンドラ/外部参照除去、リソース上限、XXE拒否、プロトタイプ汚染防止、PNG検証を確認 (22ケース)。カバレッジ 77.15% stmts。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-010
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-011
+TITLE: サニタイザ不変条件の回帰ガード: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 迂回パターンの組合せでも危険要素が最終出力に残存しないことを確認 (M5a review M-1)。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-011
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-012
+TITLE: インポート由来の色プロパティ値検証: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: 実行可能スキーム混入・不正構文値を含むインポート文書の拒否/サニタイズを確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-012
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-INT-013
+TITLE: パイプライン統合: レイアウト+依存線ルーティング+SVG出力と往復整合の一貫性: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
+REMARK: >>>
+Phase 5 で新規追加。レイアウト配置と依存線ルータ端点の一致、 JSON/MSPDI 往復後の
+SVG 出力がバイト単位で往復前と同一であること、往復復元後のドキュメントを
+ScheduleStore で編集・Undo できることを確認 (5ケース)。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-INT-013
+  ROLE: ResultOf
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. System テスト結果
+
+[TEST_RESULT]
+UID: TR-SYS-001
+TITLE: axe-core による WCAG 2.1 A/AA 自動検査: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Playwright 1.49 + @axe-core/playwright (Chromium) against dist/index.html - `npm run build && npm run test:e2e`
+REMARK: serious/critical違反 0件。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-SYS-001
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-SYS-002
+TITLE: スケジュールキャンバスのキーボードフォーカス可能性: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Playwright 1.49 (Chromium) against dist/index.html - `npm run build && npm run test:e2e`
+REMARK: svg[data-role="schedule-canvas"]がフォーカス可能であることを確認。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-SYS-002
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-SYS-003
+TITLE: 中規模データでのズーム/パン性能・初期表示時間: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Chromium (対話PoCセッション、ユーザー立会い) - `?bench=1000` ハーネス (src/app/benchmark.ts)
+REMARK: >>>
+目標規模 (約1000アイテム/約50行) で初期描画 4.6ms (目標 <=1500ms) 、平均 162.3 FPS
+(目標 ~60) 、 p95 フレーム 6.20ms (予算 ~16.7ms) 、実SVGノード 93 (仮想化有効) を記録し、
+NFR-L1-002 を大差で達成 (project-records/risks/risk-register.md RISK-001) 。 10倍規模
+(10000アイテム) では平均20FPS・p95 66.7msと目標未達だが中規模スコープ外の既知上限として
+残留リスク受容済み。本 Phase 5 テスト連結では再測定していない (対話セッション専用、CI
+自動ゲートではないため) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-SYS-003
+  ROLE: ResultOf
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. E2E テスト結果
+
+[TEST_RESULT]
+UID: TR-E2E-001
+TITLE: 作成 -> エクスポートのユーザーフロー・スモーク: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Playwright 1.49 (Chromium) against dist/index.html - `npm run build && npm run test:e2e`
+REMARK: >>>
+Phase 5 で新規追加。パレット武装 (dispatchEvent('click') 、ポインタキャプチャ競合回避) ->
+キーボードactivate作成 -> Undo有効化確認 -> JSON再Exportでアイテム件数+1・kind='milestone'
+を確認。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-E2E-001
+  ROLE: ResultOf
+
+[TEST_RESULT]
+UID: TR-E2E-002
+TITLE: セクション並替のユーザーフロー: 結果
+RESULT: PASS
+EXECUTED_ON: 2026-07-18
+ENVIRONMENT: Playwright 1.49 (Chromium) against dist/index.html - `npm run build && npm run test:e2e`
+REMARK: review finding F-01対応後、実ブラウザでのセクション並替結線を確認 (TEST-INT-006のフェイクDOM検証を裏付け)。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TEST-E2E-002
+  ROLE: ResultOf
+
+[[/SECTION]]

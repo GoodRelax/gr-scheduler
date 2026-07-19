@@ -1,0 +1,711 @@
+[DOCUMENT]
+TITLE: gr-scheduler テスト仕様 (Test Specification)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の **テスト仕様** である。各 [TEST] は `Verifies` 関係で要求 UID
+( REQUIREMENT または DATAFIELD ) をトレースし、対応する実行結果は `51-test-results.sdoc` の
+[TEST_RESULT] が `ResultOf` 関係で本書の TEST UID をトレースする ( V字トレース: 要求 ->
+設計 (Implements/Satisfies) -> テスト (Verifies) -> 結果 (ResultOf) )。
+
+テストレベルは Unit ( ドメイン層の単一モジュール ) 、 Integration ( ストア/コマンド/コーデック/
+アダプタを横断する組合せ、往復整合 ) 、 System ( ビルド済み単一 HTML に対する自動アクセシビリティ
+検査・性能 PoC ) 、 E2E ( Playwright によるユーザーフロー ) の 4 種を用いる ( Acceptance は
+本フェーズでは UC 対応の代表 E2E で代替し、独立エントリは設けない ) 。
+
+ツールチェーン: **Vitest 4.1.10** ( Unit/Integration 、 `tests/**/*.test.ts` 、 Node 環境 、
+`npm run test` ) 、 **@vitest/coverage-v8 4.1.10** ( カバレッジ 、 `npm run coverage` ) 、
+**Playwright 1.49 + @axe-core/playwright** ( System/E2E 、 `tests/e2e/**/*.spec.ts` 、
+`npm run build && npm run test:e2e` 、 Chromium ) 。 Unit/Integration は Vitest 実行から
+明示的に除外し ( `vitest.config.ts` の `exclude: ['tests/e2e/**']` ) 、 Playwright は
+逆に `tests/e2e` のみを対象とする ( `playwright.config.ts` ) ため、二系統は独立に実行できる。
+
+合格基準は CLAUDE.md 品質目標表を単一の基準として用いる: 単体テスト合格率 95% 以上、結合テスト
+合格率 100% 、コードカバレッジ 80% 以上 ( ドメイン層は重点的に ) 、 E2E は主要ユーザーフロー
+PASS 、性能は NFR 数値目標達成、アクセシビリティは WCAG 2.1 AA 。実測結果は `51-test-results.sdoc`
+に記録する。
+
+本プロジェクトはサーバーレス単一 HTML でクライアント完結のため REST API を持たず、
+`docs/api/openapi.yaml` は存在しない。 test-engineer 標準手順の「 OpenAPI 仕様とエンドポイントの
+整合性検証」は本プロジェクトでは **適用対象外** である ( CLAUDE.md 「セキュリティ要求」
+「認証・サーバ通信は MVP に無し」 、 00-overview 前提 ) 。
+<<<
+
+[[SECTION]]
+TITLE: 1. Unit テスト (ドメイン層の単一モジュール)
+
+[TEXT]
+STATEMENT: >>>
+ドメインの UseCase/Entity 層は副作用を持たない純粋関数として実装され ( CLAUDE.md
+「ドメイン境界」 ) 、 Node 環境の Vitest でモジュール単体を検証できる。以下は 1 モジュール
+1 テストファイルを基本単位とする Unit テストである。
+<<<
+
+[TEST]
+UID: TEST-UNIT-001
+TITLE: 時間 - 座標マッパの往復整合 (tests/time-coordinate-mapper.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`dateToWorldX` / `worldXToDate` / `toDayNumber` / `fromDayNumber` / `pixelsPerDay` /
+`timeGranularity` を、複数のズーム倍率 ( 0.25/1/4/16 ) と日付にわたって往復させ、日付
+<-> ワールド座標変換が可逆であること、ズーム倍率に応じて 1 日あたりのピクセル数と時間軸粒度
+( 年 / 年月 / 月日曜 ) が単調に変化することを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ZOOM-L1-004
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: CANVAS-L1-005
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-002
+TITLE: マルチバー・レイアウトエンジン (tests/layout-engine.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`layoutItems` が全アイテムを重複なく 1 回ずつ配置すること、同じ行内で期間が重なる複数アイテムが
+別々のサブレーンへ振り分けられて重ならないこと ( マルチバー ) 、行インデックスと zoomY から
+行のワールド Y が一意に決まることを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: CANVAS-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: ITEM-L1-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-003
+TITLE: 異方性ズーム連動 LOD セレクタ (tests/lod-selector.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`lodThreshold` がズーム倍率の増加に対して単調非増加であること、 `isVisibleAtZoom` /
+`selectItemsByLod` が重要度 ( importance ) としきい値からズーム連動の表示/非表示アイテム集合を
+正しく選ぶことを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ZOOM-L1-005
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: ZOOM-L2-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: ZOOM-L3-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-004
+TITLE: 整列ソルバ: スナップと WYSIWYG 双方向同期の基礎計算 (tests/alignment-solver.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`snapToNearestBaseline` が近接アイテムの開始日ベースラインへスナップ ( 許容距離内 ) すること、
+許容距離外ではスナップしないこと、 `collectStartDateBaselinesX` が対象アイテムを除いた他アイテムの
+開始日 x 座標集合を収集することを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ALIGN-L1-003
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: ALIGN-L2-002
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-005
+TITLE: 依存線自動ルータ: 9 点アンカーと重なり回避 (tests/dependency-router.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`routeDependency` の経路端点が 9 点アンカーの厳密な座標に一致すること ( `anchorPoint` ) 、
+折れ点数が 0..3 の予算内に収まること、他アイテムの矩形 ( obstacle ) を避ける経路が選好される
+こと、始点/終点アイテム自身は自己のオブスタクルから安定して除外される ( itemId による同一性判定 )
+ことを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: DEP-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DEP-L1-003
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DEP-L2-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DEP-L2-002
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-006
+TITLE: 本日線・デュアルカーソル・丸角囲みのズーム非依存計算 (tests/cursor-span.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+デュアルカーソルの日数スパン計算、本日線/カーソルの画面座標マッピング、丸角囲みの角丸み半径が
+ズーム倍率に依存せず一定の画面ピクセルを保つこと ( ADR-004 ) を検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: CURS-L1-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: CURS-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: CURS-L2-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-007
+TITLE: 予実表示フィルタ・イナズマ線・変更前予定ゴースト (tests/progress-line-builder.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+予定のみ/実績のみ/両方の表示フィルタの解決、進捗率 ( progressRatio ) から各行の頂点を結ぶ
+イナズマ (進捗) 線の構築、 previousPlan を持つアイテムからグレー表示用ゴースト集合を収集する
+処理を検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: PLAN-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: PLAN-L1-003
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: PLAN-L1-004
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: PLAN-L2-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-008
+TITLE: セクション・行オーガナイザ: 順序/表示切替/小タブ (tests/section-organizer.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+セクションの並べ替え ( reorder ) と上下移動先の解決、表示/非表示切替、非表示セクションの
+小タブ生成、複数非表示時に水平線が太くならず小タブが増えること、分類の水平線バンド計算を
+検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SECT-L1-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: SECT-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: SECT-L1-003
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: SECT-L1-004
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: SECT-L1-005
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-009
+TITLE: 左ペイン幅のクランプ計算 (tests/left-pane-layout.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`resolveLeftPaneWidth` がユーザードラッグ入力を最小/最大幅の範囲内へクランプすることを
+検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: CANVAS-L2-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-010
+TITLE: 透かしレイヤの斜めタイル配置 (tests/watermark-builder.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`buildWatermarkLayer` がユーザー名+日時のタイルを斜め方向に複数配置すること、
+enabled=false 相当 ( フック未指定 ) では層を生成しないことを検証する ( SVG 出力側の検証は
+TEST-INT-009 が担う ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: TOOL-L2-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: TOOL-L2-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DATA-SVG-002
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-011
+TITLE: 枠色/塗り色バリデータ (色弱者配慮パレットの安全な値のみ許可) (tests/color-validator.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`isValidColorValue` / `isSafePaintValue` が CSS カラー構文として妥当かつ `javascript:` 等の
+実行可能スキームを含まない値のみを許可し、それ以外 ( 不正構文・スクリプトスキーム混入 ) を
+拒否することを検証する ( security-design C-02 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: PROP-L1-005
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: IO-L1-006
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-012
+TITLE: WCAG 1.4.3 コントラスト計算と CUD パレットの判別性 (tests/contrast.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`parseHexColor` / `relativeLuminance` / `contrastRatio` / `meetsContrastAA` の計算が正しいこと、
+UI の主要な色トークン組 ( `UI_COLOR_PAIRS` ) が WCAG AA のコントラスト比を満たすこと、 CUD
+パレット ( `CUD_PALETTE` ) の 10 色が色覚特性によらず判別可能な最小色差を満たすことを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-006
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-013
+TITLE: i18n 値リゾルバ (tests/i18n.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`resolveI18nValue` / `uiLabel` が `{en, ja}` 形式の多言語値と平文字列の両方を受け付け、
+未対応ロケールで既定ロケールへフォールバックし、値が render を壊さないことを検証する
+( ADR-008 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: PROP-L1-003
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-014
+TITLE: アイコン専用ボタンのアクセシブルネーム生成 (tests/accessible-name.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`itemAccessibleName` / `paletteShapeAccessibleName` が、アイコンのみで用途を伝えるボタン
+( パレットの図形選択等 ) に対し、選択ロケールに応じた意味のある aria-label を生成することを
+検証する ( WCAG 1.1.1 / 4.1.2 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-005
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: PROP-L1-003
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-015
+TITLE: キャンバスのキーボードコマンド解決 (tests/keyboard-commands.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`resolveCanvasKeyCommand` が矢印キー ( 移動/リサイズ ) 、 Tab ( フォーカス移動 ) 、
+Enter/Space ( 作成配置/編集起動 ) 、 Escape ( キャンセル ) をコマンド種別へ正しく変換することを
+検証する ( WCAG 2.1.1 キーボード操作 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-005
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: NFR-L1-004
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-016
+TITLE: 全体フォントサイズ (大/中/小) の一律適用 (tests/font-scale.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`applyUniformFontScale` が S/M/L の段階に応じたフォントサイズをネイティブフォームコントロールを
+含む UI 全体へ一律適用することを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-002
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-UNIT-017
+TITLE: 色以外の手掛かりによる情報符号化 (tests/a11y-encoding.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+予実・分類・状態等の区別が、色だけでなく形状/ラベル/パターン等の色以外の手掛かりでも判別できる
+ことを検証する ( WCAG 1.4.1 Use of Color ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-006
+  ROLE: Verifies
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. Integration テスト (ストア/コマンド/コーデック/アダプタの組合せ)
+
+[TEXT]
+STATEMENT: >>>
+Integration テストは、ストア ( Undo/Redo 履歴 ) とコマンド、コーデック ( JSON/MSPDI ) と
+インポートサニタイザ、アダプタ ( 左ペイン UI ) とドメインなど、 2 つ以上のモジュールを
+組み合わせた振る舞い、および Export/Import の往復整合を検証する。
+<<<
+
+[TEST]
+UID: TEST-INT-001
+TITLE: ScheduleStore の Undo/Redo 履歴 (tests/command-history.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`ScheduleStore` が作成/削除/編集コマンドの適用でアイテム集合を正しく変化させ、 `undo` /
+`redo` で履歴を往復できることを検証する ( TOOL-L1-004 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-004
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-002
+TITLE: プロパティ編集の不変条件 (無変更No-op / マイルストーンの endDate 不変) (tests/property-edit-invariants.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`editPropertyCommand` を通じて、現在値と同一のパッチが履歴を汚さない (No-op) こと、同一パッチの
+2 回目適用も履歴を汚さないこと、マイルストーン ( itemKind='milestone' ) には endDate パッチが
+決して適用されず null が保たれること ( 他フィールドは適用される ) を、 `ScheduleStore` 越しに
+検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: PROP-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: ITEM-L1-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-003
+TITLE: コメント/丸角囲みの作成・編集が Undo 可能であること (tests/annotation-commands.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`createCommentCommand` / `createRoundedBoxCommand` および編集コマンドを `ScheduleStore`
+経由で dispatch し、注釈がドキュメントへ反映され、 Undo/Redo で往復できることを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: CURS-L1-005
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: CURS-L1-006
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: CURS-L1-007
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-004
+TITLE: セクション並替・表示切替・依存追加/削除コマンドが Undo 可能であること (tests/section-dependency-commands.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`reorderSectionCommand` / `setSectionCollapsedCommand` / `addDependencyCommand` /
+`removeDependencyCommand` を `ScheduleStore` 経由で dispatch し、自己依存や重複依存が
+無視されること、状態変化が Undo/Redo と整合することを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SECT-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DEP-L1-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-005
+TITLE: ポインタ座標 <-> 日付プロパティの双方向同期 (tests/bidirectional-sync.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`moveItemCommand` / `resizeItemCommand` によるピクセルドラッグが時間 - 座標マッパを介して
+正しい日数の日付変更になること ( 座標 -> プロパティ ) 、 `editPropertyCommand` でプロパティを
+直接編集した結果がレンダラの座標系へ矛盾なく戻ること ( プロパティ -> 座標、逆方向同期 ) 、
+マイルストーンの移動で endDate が null のまま保たれることを検証する ( WYSIWYG 双方向同期、
+user-order item12 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ALIGN-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: ALIGN-L1-003
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-006
+TITLE: 左ペインのセクション上下移動ボタンの結線 (tests/left-pane-interaction.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`LeftClassificationPane` が生成する ▲ / ▼ ボタンにアクセシブルな名前が付き、先頭/末尾で
+適切に無効化されること、クリックが `store.dispatch(reorderSectionCommand)` へ正しく結線され
+セクション順序が変わること、 Undo で復元されること、再描画後に操作したボタンへキーボード
+フォーカスが復帰することを、最小限のフェイク DOM を介してアダプタ層とドメイン層を横断して
+検証する ( review finding F-01 の結線を担保する回帰テスト ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SECT-L1-002
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-007
+TITLE: JSON コーデックの往復整合とスキーマ移行 (tests/json-codec.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`serializeScheduleDocument` / `deserializeScheduleDocument` の往復が、 assets ( インポート
+画像実体 ) ・ previousPlan ・ annotations ・ dependencies を含むドキュメント全体を完全に保持する
+ことを検証する ( DATA-JSON-013 ) 。旧 schemaVersion からの移行、未来バージョンの拒否、
+`__proto__` 混入防止、型不一致・不正 JSON の拒否も検証する ( security-design C-05/C-06 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DATA-JSON-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DATA-JSON-013
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-008
+TITLE: MSPDI XML コーデック: サイドカー往復整合とロッシー・フォールバック (tests/mspdi-codec.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`exportMspdi` / `importMspdi` の往復が、名前空間付き JSON サイドカーを介して gr-scheduler
+固有情報を含むドキュメント全体を保持することを検証する ( DATA-MSPDI-006 ) 。サイドカーを
+除去した MSPDI 標準要素のみからも、タスク/日付/マイルストーン/依存/階層が最小構成として
+再構成できること ( ロッシー・フォールバック ) 、 XXE ( DOCTYPE/ENTITY ) を含む XML が拒否
+されることを検証する ( security-design C-07/C-08 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DATA-MSPDI-006
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-009
+TITLE: SVG 出力: 全アイテム描画・自己完結・透かし埋め込み・エスケープ (tests/svg-exporter.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`exportScheduleSvg` が、仮想化されたビューポート表示とは独立して全アイテム ( 1000 件 ) を
+出力すること、外部参照 ( `href="http..."` 等 ) を一切持たない自己完結 SVG になること、
+インポート画像アセットを data URI として埋め込むこと、略称テキストへの XSS ペイロードが
+エスケープされ無害化されること ( security-design C-02 ) 、透かしフックを渡した場合のみ透かし層
+( DATA-SVG-002 ) を含むことを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-003
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DATA-SVG-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DATA-SVG-002
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-010
+TITLE: インポートサニタイザ: SVG/PNG/XML/JSON の多層検証 (tests/import-sanitizer.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+SVG インポートで `<script>` 要素・イベントハンドラ属性・外部参照 ( href/xlink:href ) が
+除去されること ( ST-01..04 ) 、リソース量の上限超過を拒否すること ( C-11, ST-13 ) 、 XML の
+DOCTYPE/ENTITY 宣言を拒否すること ( C-07/C-08 ) 、 JSON の `__proto__` 汚染とネスト深度超過を
+防止すること ( C-06/C-11 ) 、 PNG のシグネチャ/寸法検証で不正ファイルを拒否すること
+( C-09, ST-11/ST-13 ) を検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-006
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: ITEM-L1-008
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: ITEM-L2-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-011
+TITLE: サニタイザ不変条件の回帰ガード (tests/sanitizer-invariant.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+インポートサニタイザの中核不変条件 ( 危険要素/属性が二重エンコード等の迂回を経ても最終出力に
+残存しないこと ) を、代表的な迂回パターンの組合せで回帰的に検証する ( M5a review M-1 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-006
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-012
+TITLE: インポート由来の色プロパティ値検証 (tests/color-import-validation.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+インポートした JSON/MSPDI ドキュメントの strokeColor/fillColor 値が `isValidColorValue` /
+`isSafePaintValue` によって検証され、実行可能スキームや不正構文を含む値を持つドキュメントが
+拒否またはサニタイズされることを、コーデックとバリデータを横断して検証する
+( security-design C-02, M5a review M-3 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-006
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: PROP-L1-005
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-013
+TITLE: パイプライン統合: レイアウト+依存線ルーティング+SVG 出力と往復整合の一貫性 (tests/pipeline-integration.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`layoutItems` が算出した配置に対して `routeDependency` の経路端点が正確に一致すること、
+`exportScheduleSvg` がレイアウト結果と同じ全アイテムを描画すること ( 単体テストが検証する各
+モジュールの単独動作を超えて、実際のレンダリング・パイプライン全体が 1 つのドキュメントを
+一貫して扱うことを検証する ) 。さらに、 JSON および MSPDI ( サイドカー付き ) の Export/Import
+往復後のドキュメントから生成した SVG が、往復前のものとバイト単位で同一であること ( フィールド
+等価だけでなく下流パイプライン出力の等価性を保証する ) 、 JSON 往復で復元したドキュメントを
+`ScheduleStore` で編集・Undo できることを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: DEP-L1-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: CANVAS-L1-002
+  ROLE: Verifies
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. System テスト (ビルド済み単一 HTML)
+
+[TEXT]
+STATEMENT: >>>
+System テストは `npm run build` が生成する自己完結 `dist/index.html` に対して実行する。
+自動アクセシビリティ検査 ( axe-core ) と性能 PoC ( RISK-001 / ADR-009 ゲート ) を対象とする。
+性能 PoC は自動合否判定ゲートではなく、ユーザー立会いの下で対話的に実行する測定ハーネスである
+( `src/app/benchmark.ts` の設計コメント、および test-engineer 運用上の注意 ) 。
+<<<
+
+[TEST]
+UID: TEST-SYS-001
+TITLE: axe-core による WCAG 2.1 A/AA 自動検査 (tests/e2e/a11y.spec.ts)
+LEVEL: System
+STATEMENT: >>>
+ビルド済み `dist/index.html` を読み込み、 axe-core を wcag2a/wcag2aa/wcag21a/wcag21aa
+タグで実行し、 serious または critical の違反が 0 件であることを検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-003
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: NFR-L1-006
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-SYS-002
+TITLE: スケジュールキャンバスのキーボードフォーカス可能性 (tests/e2e/a11y.spec.ts)
+LEVEL: System
+STATEMENT: >>>
+`svg[data-role="schedule-canvas"]` がキーボードフォーカスを受け取れること ( `tabindex`
+経由でのフォーカス可能性、 WCAG 2.1.1 ) を、ビルド済み `dist/index.html` に対して検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-004
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: TOOL-L1-005
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-SYS-003
+TITLE: 中規模データでのズーム/パン性能・初期表示時間 (RISK-001 / ADR-009 PoC)
+LEVEL: System
+STATEMENT: >>>
+`src/app/benchmark.ts` ( `?bench=<N>` または画面上の「 Run benchmark 」ボタン ) を用い、
+約 50 行/約 1000 アイテムの中規模データで、初期描画時間 ( ms ) 、アニメーション化した
+ズーム/パン中の平均 FPS ・ p95 フレーム時間、実際に DOM 化された ( 仮想化後の ) SVG ノード数を
+ユーザー立会いの対話的セッションで測定する。目標は NFR-L1-002 ( 初期表示 1.5 秒以内、 60fps
+目標 ) 。本測定は自動 CI ゲートではなく、対話セッションでのみ実行する ( RISK-001 軽減策 ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-002
+  ROLE: Verifies
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. E2E テスト (Playwright ユーザーフロー)
+
+[TEST]
+UID: TEST-E2E-001
+TITLE: 作成 -> エクスポートのユーザーフロー・スモーク (tests/e2e/user-flow-smoke.spec.ts)
+LEVEL: E2E
+STATEMENT: >>>
+ビルド済み `dist/index.html` を読み込み、 JSON Export でサンプル文書のアイテム件数を取得し、
+ツールパレットで「 Milestone circle 」を武装してキャンバスへフォーカス、 Enter キー
+( キーボード「 activate 」、 WCAG 2.1.1 ) でマイルストーンを配置し、 Undo ボタンが有効化される
+ことでコマンドが確定したことを確認したうえで、再度 JSON Export したアイテム件数が 1 件
+増えていること、増えたアイテムの itemKind が 'milestone' であることを検証する。仮想化/LOD
+( ZOOM-L1-005 ) によりキャンバス DOM 上のアイテム数がモデル上のアイテム数と一致しない場合が
+あるため、検証は DOM 要素数ではなく Export した JSON ( モデル全量 ) で行う。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: UC-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-E2E-002
+TITLE: セクション並替のユーザーフロー (tests/e2e/section-reorder.spec.ts)
+LEVEL: E2E
+STATEMENT: >>>
+ビルド済み `dist/index.html` を読み込み、左ペインの `[data-role="section-header"]` から
+セクション順序を読み取り、「 Move section Phase 1 down 」ボタン ( aria-label 、 WCAG 4.1.2 ) を
+クリックして、実 DOM 上でセクション順序が入れ替わる ( 1 番目と 2 番目が交換される ) ことを
+検証する ( review finding F-01 の結線が本番ビルドでも機能することを保証する回帰テスト、
+TEST-INT-006 の Node フェイク DOM 検証を実ブラウザで裏付ける ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SECT-L1-002
+  ROLE: Verifies
+
+[[/SECTION]]

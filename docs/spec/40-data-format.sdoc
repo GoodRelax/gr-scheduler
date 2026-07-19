@@ -1,0 +1,738 @@
+[DOCUMENT]
+TITLE: gr-scheduler 設計 - データ形式契約 (Data Format)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の **データ形式契約** である。 `30-architecture.sdoc` で定義した
+コアデータモデル ( **ScheduleDocument** ) を、 3 つの外部形式へ直列化する契約を定める。
+1. JSON (主データ形式・ AI 向け・ item43 / IO-L1-001)、 2. MSPDI XML (MS Project 相互運用・
+item42 / IO-L1-002)、 3. SVG (画面出力・ item44 / IO-L1-003)。各 [DATAFIELD] は
+`Satisfies` 関係で要求 UID をトレースする。外部入力の検証・サニタイズは IO-L1-006 で
+定義済みであり、本書では再定義せず参照するに留める。
+
+コアモデル語彙 ( 30-architecture と共通 ) : ScheduleDocument = schemaVersion, meta, palette,
+i18n, viewState, sections[], rows[], items[], dependencies[], annotations[], watermark, assets[]。
+<<<
+
+[[SECTION]]
+TITLE: 1. JSON スキーマ (主データ形式)
+
+[TEXT]
+STATEMENT: >>>
+JSON は内部モデルの正準表現であり、 Export した JSON を再 Import しても意味が保持される
+(往復整合、 IO-L1-001)。 property キーは英語固定、多言語値は {en, ja, ...} のロケール別
+マップで表す (ADR-008)。トップレベルフィールドを次に示す。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 18 62
+
+   * - フィールド
+     - 型
+     - 意味
+   * - schemaVersion
+     - string
+     - スキーマ版 ( semver )。 Import 時の互換判定に用いる。
+   * - meta
+     - object
+     - title, locale, createdAt(ISO), author。日程表のメタ情報。
+   * - palette
+     - string[]
+     - 色弱者配慮 (CUD) の 10 色。枠色/塗り色の選択候補。
+   * - i18n
+     - object
+     - locales(BCP 47 の配列), activeLocale。多言語表示の対象言語と選択言語。
+   * - viewState
+     - object
+     - zoomX, zoomY, scrollX, scrollY, timeGranularity, fontScale, leftPaneWidth,
+       showPlan, showActual, cursors。表示状態。
+   * - sections
+     - object[]
+     - 大分類。 id, name(i18n), order, collapsed, rowIds[]。
+   * - rows
+     - object[]
+     - 帯 (ribbon)。 id, sectionId, classification{major, middle, minor}(i18n), order。
+   * - items
+     - object[]
+     - マイルストーン/タスク。 1 帯に複数 (マルチバー)。詳細は下表。
+   * - dependencies
+     - object[]
+     - 依存。 id, fromItemId, fromAnchor(0..8), toItemId, toAnchor, bends(0..3)。
+   * - annotations
+     - object[]
+     - コメント (callout-box / polyline) または丸角囲み (roundedBox)。
+   * - watermark
+     - object
+     - enabled, userName, timestamp。透かし。
+   * - assets
+     - object[]
+     - インポート画像アセット。 id, format('svg'|'png'), sanitizedData(data URI)。
+       item.icon.importedAssetId が参照する実体。往復整合の対象。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+item ( アイテム ) の主なフィールド:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 78
+
+   * - フィールド
+     - 意味
+   * - id, rowId
+     - アイテム識別子と所属帯。
+   * - kind
+     - 'milestone' | 'task'。点イベントか期間か。
+   * - planActual
+     - 'plan' | 'actual'。予定か実績か。
+   * - start, end
+     - ISO 日付。 end はマイルストーンで null。
+   * - abbrev, fullName, description
+     - i18n 値。略称・正式名称・説明。
+   * - category
+     - {major, middle, minor} の i18n 値。大中小分類。
+   * - assignee, status, remarks
+     - 担当・ステータス・備考。
+   * - icon
+     - kind('shape'|'emoji'|'imported'), shapeKind?, emoji?, importedAssetId?
+       ( assets[].id を参照 )。
+   * - style
+     - strokeColor, fillColor, strokeWidth('thin'|'medium'|'thick')。
+   * - labelPosition, labelOffset
+     - 'auto'|'center'|'top'|'bottom'|'left'|'right' と {dx, dy}。略称の表示位置。
+   * - importance
+     - number。 LOD (ズーム連動増減) の重要度。
+   * - previousPlan
+     - {start, end} ( 任意 )。変更前予定 ( グレー表示、 item57 )。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+JSON 例 ( 1 セクション / 2 行 / マイルストーン 1 / previousPlan 付きタスク 1 /
+依存 1 / コメント 1 / 透かし / viewState ):
+
+::
+
+    {
+      "schemaVersion": "1.0.0",
+      "meta": { "title": "Vehicle A Program", "locale": "ja", "createdAt": "2026-07-18", "author": "pm-local" },
+      "palette": ["#4E79A7", "#F28E2B", "#59A14F", "#B07AA1", "#76B7B2", "#EDC948", "#FF9DA7", "#9C755F", "#BAB0AC", "#86BCB6"],
+      "i18n": { "locales": ["en", "ja"], "activeLocale": "ja" },
+      "viewState": {
+        "zoomX": 1.0, "zoomY": 1.0, "scrollX": 0, "scrollY": 0,
+        "timeGranularity": "auto", "fontScale": "M", "leftPaneWidth": 220,
+        "showPlan": true, "showActual": true,
+        "cursors": { "today": true, "dual": { "enabled": true, "mode": "vertical", "baseDate": "2026-07-01", "diffDate": "2026-09-01" } }
+      },
+      "sections": [
+        { "id": "sec-1", "name": { "en": "Body", "ja": "ボデー" }, "order": 0, "collapsed": false, "rowIds": ["row-1", "row-2"] }
+      ],
+      "rows": [
+        { "id": "row-1", "sectionId": "sec-1", "classification": { "major": { "en": "Design", "ja": "設計" }, "middle": { "en": "Styling", "ja": "スタイリング" }, "minor": { "en": "Exterior", "ja": "外装" } }, "order": 0 },
+        { "id": "row-2", "sectionId": "sec-1", "classification": { "major": { "en": "Test", "ja": "評価" }, "middle": { "en": "Durability", "ja": "耐久" }, "minor": { "en": "Bench", "ja": "ベンチ" } }, "order": 1 }
+      ],
+      "items": [
+        {
+          "id": "it-1", "rowId": "row-1", "kind": "milestone", "planActual": "plan",
+          "start": "2026-08-01", "end": null,
+          "abbrev": { "en": "DR1", "ja": "DR1" }, "fullName": { "en": "Design Review 1", "ja": "デザインレビュー1" }, "description": { "en": "", "ja": "" },
+          "category": { "major": { "en": "Design", "ja": "設計" }, "middle": { "en": "Gate", "ja": "関門" }, "minor": { "en": "", "ja": "" } },
+          "assignee": "A. Sato", "status": "planned", "remarks": "",
+          "icon": { "kind": "imported", "importedAssetId": "asset-1" },
+          "style": { "strokeColor": "#4E79A7", "fillColor": "#FFFFFF", "strokeWidth": "medium" },
+          "labelPosition": "top", "labelOffset": { "dx": 0, "dy": -6 },
+          "importance": 90
+        },
+        {
+          "id": "it-2", "rowId": "row-2", "kind": "task", "planActual": "plan",
+          "start": "2026-08-10", "end": "2026-09-20",
+          "abbrev": { "en": "DUR", "ja": "耐久" }, "fullName": { "en": "Durability Test", "ja": "耐久試験" }, "description": { "en": "", "ja": "" },
+          "category": { "major": { "en": "Test", "ja": "評価" }, "middle": { "en": "Durability", "ja": "耐久" }, "minor": { "en": "Bench", "ja": "ベンチ" } },
+          "assignee": "B. Tanaka", "status": "planned", "remarks": "",
+          "icon": { "kind": "shape", "shapeKind": "chevron" },
+          "style": { "strokeColor": "#F28E2B", "fillColor": "#F6C89A", "strokeWidth": "thick" },
+          "labelPosition": "center", "labelOffset": { "dx": 0, "dy": 0 },
+          "importance": 60,
+          "previousPlan": { "start": "2026-08-05", "end": "2026-09-05" }
+        }
+      ],
+      "dependencies": [
+        { "id": "dep-1", "fromItemId": "it-1", "fromAnchor": 4, "toItemId": "it-2", "toAnchor": 3, "bends": 2 }
+      ],
+      "annotations": [
+        { "comment": { "id": "cm-1", "kind": "callout-box", "anchor": { "date": "2026-09-01", "rowId": "row-2" }, "text": { "en": "Bottleneck", "ja": "ボトルネック" }, "path": [] } }
+      ],
+      "watermark": { "enabled": true, "userName": "pm-local", "timestamp": "2026-07-18T09:00:00Z" },
+      "assets": [
+        { "id": "asset-1", "format": "svg", "sanitizedData": "data:image/svg+xml;base64,PHN2Zy8+" }
+      ]
+    }
+<<<
+
+[DATAFIELD]
+UID: DATA-JSON-001
+FORMAT: JSON
+PATH: $.schemaVersion
+TITLE: スキーマ版
+STATEMENT: >>>
+JSON ドキュメントのスキーマ版 ( semver 文字列 )。 Import 時に互換性を判定し、現行版より
+古い場合は移行ステップ ( migration ) を段階適用して現行版へ引き上げてから読み込む。
+移行不能な非互換版は拒否する。 Import はメモリ上の現ドキュメントを置換する (置換前に
+未保存編集があればユーザーに確認する) 調停規則とし、これによりインポート途中のユーザー
+編集との競合を避ける。往復整合の基準。
+<<<
+EXAMPLE: "1.0.0"
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-002
+FORMAT: JSON
+PATH: $.meta
+TITLE: メタ情報
+STATEMENT: >>>
+title, locale, createdAt(ISO 8601), author を持つ日程表メタ。ヘッダー左上のスケジュール名は
+meta.title に対応する。
+<<<
+EXAMPLE: { "title": "Vehicle A Program", "locale": "ja", "createdAt": "2026-07-18", "author": "pm-local" }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: CANVAS-L1-004
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-003
+FORMAT: JSON
+PATH: $.sections[]
+TITLE: セクション配列
+STATEMENT: >>>
+大分類。 id, name(i18n), order, collapsed, rowIds[]。順序入替・表示/非表示 (collapsed) と
+束ねる行を表す。
+<<<
+EXAMPLE: { "id": "sec-1", "name": { "en": "Body", "ja": "ボデー" }, "order": 0, "collapsed": false, "rowIds": ["row-1", "row-2"] }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: SECT-L1-002
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-004
+FORMAT: JSON
+PATH: $.rows[]
+TITLE: 行 (帯) 配列
+STATEMENT: >>>
+帯 (ribbon)。 id, sectionId, classification{major, middle, minor}(i18n), order。 1 帯が
+複数アイテムを載せるマルチバー構造の受け皿。分類名は左ペインに固定表示される。
+<<<
+EXAMPLE: { "id": "row-1", "sectionId": "sec-1", "classification": { "major": { "en": "Design", "ja": "設計" }, "middle": { "en": "Styling", "ja": "スタイリング" }, "minor": { "en": "Exterior", "ja": "外装" } }, "order": 0 }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: CANVAS-L1-002
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: SECT-L1-006
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-005
+FORMAT: JSON
+PATH: $.items[]
+TITLE: アイテム配列
+STATEMENT: >>>
+マイルストーン/タスク。 kind, start, end(null=マイルストーン), abbrev/fullName/description/
+category(i18n), assignee, status, remarks 等を持つ。プロパティ多項目 (PROP-L1-002) を保持する。
+<<<
+EXAMPLE: { "id": "it-1", "rowId": "row-1", "kind": "milestone", "start": "2026-08-01", "end": null, "abbrev": { "en": "DR1", "ja": "DR1" } }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: ITEM-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: PROP-L1-002
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-006
+FORMAT: JSON
+PATH: $.items[].planActual
+TITLE: 予実区別と変更前予定
+STATEMENT: >>>
+planActual('plan'|'actual') で予定/実績を区別し、 previousPlan{start, end} で変更前予定を
+保持する ( グレー表示、 item57 )。イナズマ線と予実表示切替の基礎データ。
+<<<
+EXAMPLE: { "planActual": "plan", "previousPlan": { "start": "2026-08-05", "end": "2026-09-05" } }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: PLAN-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: PLAN-L1-004
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-007
+FORMAT: JSON
+PATH: $.items[].icon
+TITLE: アイコン・スタイル・略称位置
+STATEMENT: >>>
+icon{kind('shape'|'emoji'|'imported'), shapeKind?, emoji?, importedAssetId?}、
+style{strokeColor, fillColor, strokeWidth}、 labelPosition/labelOffset。図形/絵文字/
+インポート画像、枠色/塗り色/線幅、略称の表示位置を表す。 kind='imported' のとき
+importedAssetId はトップレベル assets[].id ( DATA-JSON-013 ) を参照し、画像実体は assets[]
+側に保持する ( 往復整合 )。
+<<<
+EXAMPLE: { "icon": { "kind": "imported", "importedAssetId": "asset-1" }, "style": { "strokeColor": "#4E79A7", "fillColor": "#FFFFFF", "strokeWidth": "medium" }, "labelPosition": "top" }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: ITEM-L1-006
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: ITEM-L1-009
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-008
+FORMAT: JSON
+PATH: $.dependencies[]
+TITLE: 依存配列
+STATEMENT: >>>
+依存。 fromItemId, fromAnchor(0..8 = 9 点), toItemId, toAnchor, bends(0..3, ルータ算出)。
+9 点アンカーからの引出し/引入れと折れ点数を表す。
+<<<
+EXAMPLE: { "id": "dep-1", "fromItemId": "it-1", "fromAnchor": 4, "toItemId": "it-2", "toAnchor": 3, "bends": 2 }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: DEP-L1-002
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-009
+FORMAT: JSON
+PATH: $.annotations[]
+TITLE: 注釈配列 (コメント / 丸角囲み)
+STATEMENT: >>>
+comment{kind('callout-box'|'polyline'), anchor, text(i18n), path} または
+roundedBox{rect, color, cornerRadiusPx(画面空間・ズーム非依存)}。引出し四角/折れ線コメントと
+丸角囲みを表す。
+<<<
+EXAMPLE: { "comment": { "id": "cm-1", "kind": "callout-box", "anchor": { "date": "2026-09-01", "rowId": "row-2" }, "text": { "en": "Bottleneck", "ja": "ボトルネック" }, "path": [] } }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: CURS-L1-006
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: CURS-L1-007
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-010
+FORMAT: JSON
+PATH: $.watermark
+TITLE: 透かし
+STATEMENT: >>>
+enabled, userName, timestamp。ローカル入力ユーザー名と日時の透かし。 SVG 出力にも
+有効時に含める。
+<<<
+EXAMPLE: { "enabled": true, "userName": "pm-local", "timestamp": "2026-07-18T09:00:00Z" }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-011
+FORMAT: JSON
+PATH: $.viewState
+TITLE: 表示状態
+STATEMENT: >>>
+zoomX/zoomY (異方性), scrollX/scrollY, timeGranularity, fontScale, leftPaneWidth,
+showPlan/showActual, cursors{today, dual}。ズーム・スクロール・カーソル・フォント段階を
+永続化し、再 Import で見え方を復元する。
+<<<
+EXAMPLE: { "zoomX": 1.0, "zoomY": 1.0, "fontScale": "M", "cursors": { "today": true, "dual": { "enabled": true, "mode": "vertical" } } }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: ZOOM-L1-003
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: CURS-L1-002
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-012
+FORMAT: JSON
+PATH: $.palette
+TITLE: パレットと i18n 設定
+STATEMENT: >>>
+palette は色弱者配慮 (CUD) の 10 色。 i18n{locales(BCP 47), activeLocale}。多言語値は
+{en, ja, ...} で保持し、キーは英語固定 (ADR-008)。
+<<<
+EXAMPLE: { "palette": ["#4E79A7", "#F28E2B", "#59A14F"], "i18n": { "locales": ["en", "ja"], "activeLocale": "ja" } }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: PROP-L1-005
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: PROP-L1-003
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-JSON-013
+FORMAT: JSON
+PATH: $.assets[]
+TITLE: インポート画像アセット配列
+STATEMENT: >>>
+インポートした画像アイコンの実体を保持するトップレベル配列。要素 = id, format('svg'|'png'),
+sanitizedData ( サニタイズ済み data URI / base64 )。 item.icon.importedAssetId ( DATA-JSON-007 )
+がこの id を参照する。アセットを JSON 主データ形式に内包することで、 Export -> Import の往復で
+インポート画像アイコンが失われないことを保証する (往復整合、 IO-L1-001)。実体は
+インポートサニタイザ (ARCH-C-026) が無害化した ImportedAsset をそのまま格納する。
+<<<
+EXAMPLE: { "id": "asset-1", "format": "svg", "sanitizedData": "data:image/svg+xml;base64,PHN2Zy8+" }
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: ITEM-L1-008
+  ROLE: Satisfies
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. MSPDI XML マッピング
+
+[TEXT]
+STATEMENT: >>>
+MS Project の交換形式 MSPDI XML と gr-scheduler モデルの対応を定める (IO-L1-002)。
+MSPDI は「 1 タスク = 1 行 = 1 バー」を前提とし、 gr-scheduler の表現の多くに直接対応が
+無い。対応が無い概念は名前空間付き JSON サイドカーで往復保持し、それが不可能なものは
+ロッシー (欠落) として明示する。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 30 40
+
+   * - gr-scheduler モデル
+     - MSPDI 要素
+     - 備考
+   * - meta.title
+     - Project / Title
+     - プロジェクト名。
+   * - meta.createdAt
+     - Project / CreationDate
+     - ISO 日付。
+   * - item (kind=task)
+     - Tasks / Task
+     - id -> Task / UID。
+   * - item.fullName
+     - Task / Name
+     - 正式名称を採用。多言語値は activeLocale を書出し、全ロケールはサイドカーへ。
+   * - item.start
+     - Task / Start
+     - ISO 日時。
+   * - item.end
+     - Task / Finish
+     - タスクの終了。マイルストーンは Start=Finish。
+   * - item (kind=milestone)
+     - Task / Milestone = 1
+     - end=null を Milestone フラグで表す。
+   * - dependency
+     - Task / PredecessorLink
+     - fromItemId -> PredecessorUID。 Type は FinishToStart を既定。 9 点アンカー/
+       bends は MSPDI に無くサイドカーへ。
+   * - section / row 階層
+     - Task / OutlineLevel
+     - セクション = OutlineLevel 上位のサマリタスク、行 = 下位。分類名は Name へ。
+   * - row.classification
+     - Task / OutlineNumber, Name
+     - 大中小分類は要約タスク階層 + 名前で近似。 minor まで表せない分はサイドカーへ。
+   * - assignee
+     - Assignments / Assignment ( Resource )
+     - 担当者はリソース割当で表現可能。
+   * - 拡張属性 一括
+     - Task / ExtendedAttribute, Task / Notes
+     - 下記 サイドカー参照。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**MSPDI に対応概念が無い gr-scheduler 概念** ( 往復保持の方針 ):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - 概念
+     - 往復保持の方針
+   * - マルチバー ( 1 行に複数アイテム )
+     - サイドカー JSON の rowId でグルーピングを保持。 MSPDI 単体では別タスクに分解される。
+   * - アイコン / 図形 / 絵文字 / インポート画像
+     - サイドカーへ icon をそのまま保持。 MSPDI には表現無し ( ロッシー )。
+   * - インポート画像アセット実体 ( assets[] )
+     - サイドカー JSON の assets[] に id, format, sanitizedData を保持し、 icon.importedAssetId
+       との参照を往復で維持する。 MSPDI には表現無し。
+   * - 色 / 線幅 / 略称位置 ( style, labelPosition )
+     - サイドカーへ保持。 MSPDI には表現無し。
+   * - コメント / 丸角囲み ( annotations )
+     - サイドカーへ保持。 MSPDI には表現無し。
+   * - 透かし ( watermark )
+     - サイドカーへ保持。 MSPDI には表現無し。
+   * - previousPlan ( 変更前予定 )
+     - サイドカーへ保持 ( MSPDI Baseline で近似可能だが往復整合はサイドカーを正とする )。
+   * - viewState ( ズーム / カーソル / フォント )
+     - サイドカーへ保持。 MSPDI には表現無し。
+
+サイドカーは、名前空間付き JSON を Project / Task の Notes フィールドへ格納するか、数値 FieldID
++ Alias を定義した ExtendedAttributes カスタムフィールドへ格納する ( MSPDI の FieldID は数値の
+MS カスタムフィールド ID であり、文字列名は使えない )。サイドカーには assets[] ( インポート画像
+実体 ) も含め、 icon.importedAssetId との参照を往復で維持する。 Import 時はサイドカーがあれば
+優先して gr-scheduler 固有情報を復元し、無ければ MSPDI 標準要素のみから最小構成を生成する。
+Import は IO-L1-006 に従い XXE を無効化して検証する ( 本書では再定義しない )。
+<<<
+
+[DATAFIELD]
+UID: DATA-MSPDI-001
+FORMAT: MSPDI_XML
+PATH: Project
+TITLE: プロジェクトルート
+STATEMENT: >>>
+MSPDI の Project 要素へ meta ( Title, CreationDate ) をマッピングする。 gr-scheduler 固有の
+往復情報は Notes フィールドまたは数値 FieldID の ExtendedAttributes カスタムフィールドへ
+サイドカーとして格納する ( DATA-MSPDI-006 )。
+<<<
+EXAMPLE: <Project><Title>Vehicle A Program</Title><CreationDate>2026-07-18T00:00:00</CreationDate></Project>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-MSPDI-002
+FORMAT: MSPDI_XML
+PATH: Project/Tasks/Task
+TITLE: タスク (UID / Name)
+STATEMENT: >>>
+item を Task へ写す。 item.id -> Task / UID、 item.fullName ( activeLocale ) -> Task / Name。
+全ロケール値はサイドカーへ保持する。
+<<<
+EXAMPLE: <Task><UID>2</UID><Name>Durability Test</Name></Task>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: ITEM-L1-001
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-MSPDI-003
+FORMAT: MSPDI_XML
+PATH: Project/Tasks/Task/Start
+TITLE: 開始 / 終了 / マイルストーン
+STATEMENT: >>>
+item.start -> Task / Start、 item.end -> Task / Finish。 kind=milestone ( end=null ) は
+Task / Milestone = 1 かつ Start = Finish で表す。 planActual は Baseline とサイドカーで
+区別する。
+<<<
+EXAMPLE: <Start>2026-08-10T08:00:00</Start><Finish>2026-09-20T17:00:00</Finish><Milestone>0</Milestone>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: PLAN-L1-001
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-MSPDI-004
+FORMAT: MSPDI_XML
+PATH: Project/Tasks/Task/PredecessorLink
+TITLE: 依存 (先行タスクリンク)
+STATEMENT: >>>
+dependency を PredecessorLink へ写す。 fromItemId -> PredecessorUID、 Type は既定で
+FinishToStart(1)。 9 点アンカー ( fromAnchor / toAnchor ) と bends は MSPDI に無く
+サイドカーへ保持する。
+<<<
+EXAMPLE: <PredecessorLink><PredecessorUID>1</PredecessorUID><Type>1</Type></PredecessorLink>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: DEP-L1-001
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-MSPDI-005
+FORMAT: MSPDI_XML
+PATH: Project/Tasks/Task/OutlineLevel
+TITLE: セクション / 行 階層
+STATEMENT: >>>
+section / row の階層を OutlineLevel + サマリタスクで表す。セクションは上位サマリタスク、
+行は下位。 rowId でのマルチバーグルーピングと minor 分類はサイドカーで補完する。
+<<<
+EXAMPLE: <OutlineLevel>2</OutlineLevel><OutlineNumber>1.1</OutlineNumber>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: SECT-L1-002
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-MSPDI-006
+FORMAT: MSPDI_XML
+PATH: Project/Task/Notes
+TITLE: 名前空間付き JSON サイドカー (往復保持)
+STATEMENT: >>>
+MSPDI に対応概念が無い gr-scheduler 情報 ( マルチバー / アイコン / 色 / 略称位置 / コメント /
+丸角囲み / 透かし / previousPlan / viewState / assets ) を名前空間付き JSON として保持する。
+MSPDI の FieldID は数値の MS カスタムフィールド ID であり文字列名を持てないため、サイドカーは
+Task ( または Project ) の Notes フィールドへ格納するか、数値 FieldID + Alias を定義した
+ExtendedAttributes カスタムフィールドへ格納する。インポート画像実体は assets[] として同梱し、
+icon.importedAssetId との参照を往復で維持する。存在しない場合は MSPDI 標準要素のみから最小構成を
+生成する ( ロッシー )。
+<<<
+EXAMPLE: <Notes>grsch-sidecar:{ "rowGroups": {}, "icons": {}, "watermark": {}, "assets": [] }</Notes>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Satisfies
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. SVG 出力契約
+
+[TEXT]
+STATEMENT: >>>
+画面の SVG 出力 (IO-L1-003) の契約を定める。出力は現在表示中の日程表を再現し、外部リソースに
+依存せず単体で開ける自己完結 SVG とする。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 72
+
+   * - 項目
+     - 契約
+   * - 内容
+     - レイアウト済みの帯・アイテム ( 図形/略称 )・分類水平線・依存線 ( 最小矢頭 )・
+       コメント/丸角囲み・本日線/カーソルを、画面と同一レンダラ (ARCH-C-022) で描く。
+   * - 透かし
+     - watermark.enabled が真のとき、斜めタイル配置の透かし層を含める (TOOL-L1-007)。
+   * - 自己完結
+     - 外部 CDN/画像参照を持たず、インポート画像 ( ImportedAsset ) は data URI で埋め込む。
+   * - フォント / テキスト
+     - 略称等のテキストは SVG text 要素で出力する。フォント差異による再現ずれを避けたい
+       用途では、テキストをアウトライン化 (path) するオプションを設ける。
+   * - 座標系
+     - 画面空間固定要素 ( 丸角囲みの角丸み・依存矢頭・透かし ) は CSS px サイズで、日付/行
+       空間要素は現在ズームのスケールで焼き込む (ADR-004)。
+   * - サニタイズ
+     - インポート由来の SVG は IO-L1-006 で無害化済みのものだけを埋め込む ( 本書では再定義しない )。
+<<<
+
+[DATAFIELD]
+UID: DATA-SVG-001
+FORMAT: SVG
+PATH: svg
+TITLE: 自己完結 SVG ルート
+STATEMENT: >>>
+現在表示中の日程表を再現する SVG ルート。 viewBox とサイズを持ち、外部参照なしで単体表示
+できる。埋め込み画像は data URI とする。
+<<<
+EXAMPLE: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"> ... </svg>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-003
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-SVG-002
+FORMAT: SVG
+PATH: svg/g[watermark]
+TITLE: 透かし層
+STATEMENT: >>>
+watermark.enabled が真のとき出力する透かしグループ。ユーザー名 + 日時を斜め方向へ薄く
+複数タイル配置する。無効時は出力しない。
+<<<
+EXAMPLE: <g id="watermark" opacity="0.12"> <text transform="rotate(-30)">pm-local 2026-07-18</text> </g>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-003
+  ROLE: Satisfies
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+  ROLE: Satisfies
+
+[DATAFIELD]
+UID: DATA-SVG-003
+FORMAT: SVG
+PATH: svg/text
+TITLE: テキスト / フォント処理
+STATEMENT: >>>
+略称・分類名・ヘッダー等のテキストは text 要素で出力する。再現性重視の用途では path への
+アウトライン化を選べる。フォントは同梱前提で外部フォント参照を持たない。
+<<<
+EXAMPLE: <text x="120" y="40" font-size="12">DR1</text>
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-003
+  ROLE: Satisfies
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. 入力検証・サニタイズ (参照)
+
+[TEXT]
+STATEMENT: >>>
+JSON / MSPDI XML / SVG / PNG の Import における検証・サニタイズ ( XXE 無効化・ innerHTML
+直挿し禁止・スキーマ/型不適合の拒否・ SVG ホワイトリスト無害化 ) は、要求 IO-L1-006 および
+コンポーネント ARCH-C-026 ( インポートサニタイザ ) で定義済みである。本書のデータ契約は
+検証を通過した後のモデル <-> 形式の対応を定めるものであり、検証仕様をここで再定義しない。
+Import されたデータは信頼できない入力として扱う ( 00-overview 前提 )。
+<<<
+
+[[/SECTION]]

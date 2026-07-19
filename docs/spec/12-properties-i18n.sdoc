@@ -1,0 +1,222 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - プロパティと多言語・パレット (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler のアイテム (マイルストーン/タスク) プロパティ、そのプロパティ表示の多言語
+対応、および描画に用いるパレット (色弱者対応) に関するシステム要求 (L1) を定義する。各 L1 要求は
+Parent 関係でステークホルダ要求 STK-L0-007 (プロパティ設定と多言語表示) および STK-L0-016
+(アクセシビリティ・色弱者対応) をトレースする。出典は user-order.md item16-21。
+プロパティ名 (フィールドキー) は英語固定、フィールド値・ラベルは多言語対象とする。
+<<<
+
+[[SECTION]]
+TITLE: 1. プロパティの設定 (Property Editing)
+
+[REQUIREMENT]
+UID: PROP-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: アイテムへのプロパティ設定
+STATEMENT: >>>
+gr-scheduler は、選択したマイルストーン/タスクに対してプロパティを設定・編集でき、編集結果を
+当該アイテムに保持できること。
+<<<
+RATIONALE: 構造化データの中身を与える基本操作。user-order item16。
+VERIFICATION: >>>
+アイテムを選択してプロパティ編集 UI を開き、任意のプロパティを変更して確定したとき、変更値が
+当該アイテムに保存され、再選択時にも同じ値が表示されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-007
+
+[REQUIREMENT]
+UID: PROP-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: プロパティ項目セット (24 項目)
+STATEMENT: >>>
+gr-scheduler は、各アイテムに対して次の表に定めるプロパティ項目セットを提供すること。各項目の
+フィールドキーは英語固定とし、UI 上のラベルは表示言語に追従すること。
+
+.. list-table:: アイテムプロパティ項目セット
+   :header-rows: 1
+   :widths: 30 34 36
+
+   * - フィールドキー (英語固定)
+     - ラベル (日本語)
+     - 値の説明
+   * - abbreviation
+     - 略称
+     - アイコン内部/付近に表示する短い識別名。
+   * - category
+     - 分類
+     - 所属する分類 (水平線) の識別。
+   * - icon_emoji
+     - アイコン用絵文字/記号
+     - アイコンとして用いる絵文字または記号。
+   * - start_date
+     - 開始日
+     - ISO 8601 の開始日。座標同期の対象 (ALIGN-L2-002)。
+   * - end_date
+     - 終了日
+     - ISO 8601 の終了日。タスクの期間端。
+   * - plan_actual_kind
+     - 予定 or 実績の区別
+     - plan または actual の区別。
+   * - label_position
+     - 表示位置
+     - 略称の表示位置。auto / center / top / bottom / right / left の 6 値。
+   * - stroke_color
+     - 枠色
+     - 枠の色。フルカラー指定またはパレット選択。
+   * - fill_color
+     - 塗りつぶし色
+     - 塗りの色。フルカラー指定またはパレット選択。
+   * - line_weight
+     - 線の太さ
+     - thin / medium / thick の 3 段階。
+   * - full_name
+     - 正式名称
+     - アイテムの正式名称。
+   * - description
+     - 説明
+     - アイテムの自由記述の説明。
+   * - major_category
+     - 大分類
+     - 階層分類の最上位。
+   * - middle_category
+     - 中分類
+     - 階層分類の中位。
+   * - minor_category
+     - 小分類
+     - 階層分類の下位。
+   * - assignee
+     - 担当
+     - 担当者/担当部門。
+   * - status
+     - ステータス
+     - 進捗状態。
+   * - remarks
+     - 備考
+     - その他の注記。
+<<<
+RATIONALE: >>>
+user-order item17 が列挙する 24 項目を機械可読なフィールドセットへ写像する。24 項目は
+label_position の 6 値 (auto/center/top/bottom/right/left) を個別に数えたユーザー計数であり、
+本表では label_position を 1 フィールドにまとめ 6 値を列挙する。本セットは item18 (多言語) と
+item19 (英語フィールドキー) の直接の対象である。
+<<<
+VERIFICATION: >>>
+プロパティ編集 UI に上表の全フィールドが存在し、label_position が 6 値から選択でき、各フィールド
+キーが英語で表記されていること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-007
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 多言語表示とフィールドキー (I18N & Field Keys)
+
+[REQUIREMENT]
+UID: PROP-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+I18N: Yes
+TITLE: プロパティ表示の多言語対応
+STATEMENT: >>>
+gr-scheduler は、UI 言語が切り替えられたとき、プロパティのラベルおよび列挙値の表示を、選択された
+言語の訳語で表示すること。
+<<<
+RATIONALE: >>>
+多国籍利用での可読性。値そのものはユーザー入力を保持し、ラベル/列挙値の訳を切り替える。
+user-order item18。
+<<<
+VERIFICATION: >>>
+UI 言語を既定言語から別の言語へ切り替えたとき、プロパティラベルと列挙値 (例: plan_actual_kind
+の plan/actual) の表示が対応言語の訳語に変わり、ユーザーが入力した値自体は変化しないこと。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-007
+
+[REQUIREMENT]
+UID: PROP-L1-004
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L1_System
+I18N: Yes
+TITLE: プロパティ名は英語表記固定
+STATEMENT: >>>
+gr-scheduler は、プロパティ編集時に表示するプロパティ名 (フィールドキー) を、UI 言語に依らず
+常に英語表記とすること。
+<<<
+RATIONALE: >>>
+フィールドキーを言語間で不変にし、JSON 相互運用・AI 連携・多言語 UI の整合を保つ。00-overview
+の前提 (property 名は英語固定) と一致する。ラベル (訳語) と区別する。user-order item19。
+<<<
+VERIFICATION: >>>
+UI 言語をいずれの言語に切り替えても、プロパティ編集 UI 上のフィールドキー (abbreviation 等) が
+英語のまま表示されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-007
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. パレット (Palette & CUD)
+
+[REQUIREMENT]
+UID: PROP-L1-005
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: パレット 10 色の提供
+STATEMENT: >>>
+gr-scheduler は、色選択のためのパレットとして、白・黒・濃い灰色・薄い灰色・赤・青・黄・緑・
+オレンジ・紫の 10 色を提供し、これらを枠色・塗り色の選択肢として選べること。
+<<<
+RATIONALE: 素早い配色のための固定パレット。フルカラー指定と併存する。user-order item20。
+VERIFICATION: >>>
+パレットを開いたとき、上記 10 色が選択肢として提示され、いずれかを選ぶと当該色が枠色または
+塗り色として適用されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-007
+
+[REQUIREMENT]
+UID: PROP-L1-006
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L1_System
+WCAG: AA
+TITLE: パレットの色弱者対応 (原色不使用/CUD)
+STATEMENT: >>>
+gr-scheduler は、パレットの各色を、原色をそのまま用いず、Color Universal Design (CUD) に
+配慮した彩度・明度に調整した色として定義し、色弱者が隣接色を弁別できるようにすること。
+<<<
+RATIONALE: >>>
+色だけに依存せず弁別可能にするアクセシビリティ要求。WCAG 2.1 AA と CUD に対応する。
+PROP-L1-005 が定める 10 色の色値定義に対する制約として働く。user-order item21。
+<<<
+VERIFICATION: >>>
+パレット 10 色が純粋な原色 (例: #FF0000 等) ではなく CUD 調整済みの色値で定義され、代表的な
+色覚型シミュレーションで隣接する色 (赤/緑等) が弁別可能であること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-016
+
+[[/SECTION]]

@@ -1,0 +1,243 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - ユースケース (L0)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler のユースケース (UC) を定義する。各 UC はステークホルダ要求 (01) を
+実現し、受入テスト (50-test-spec の Acceptance/E2E) が UC を Verifies で検証する。
+UC は REQUIREMENT (TYPE: UseCase) として記述し、Parent 関係で L0 要求へトレースする。
+<<<
+
+[[SECTION]]
+TITLE: 1. アクター (Actors)
+
+[TEXT]
+STATEMENT: >>>
+.. list-table::
+   :header-rows: 1
+   :widths: 24 76
+
+   * - アクター
+     - 説明
+   * - Planner (日程作成者)
+     - PM/日程担当。日程表を新規作成し、アイテム・分類・依存・予実を編集する主アクター。
+   * - Contributor (編集者)
+     - 設計者等。自分の担当行を編集する。MVP では権限区別なし (将来 item60 で権限化)。
+   * - Viewer (閲覧者)
+     - 経営層/レビュアー。俯瞰・計測・コメント確認を行う (編集は限定的)。
+   * - AI Agent / External Tool
+     - JSON を介して日程データを読み書きする外部システム。MS Project は MSPDI XML で連携。
+
+.. raw:: html
+
+    <pre class="mermaid">
+    flowchart LR
+        Planner["Planner"]
+        Viewer["Viewer"]
+        AI["AI Agent /<br/>External Tool"]
+        subgraph GR["gr-scheduler"]
+            UC1["UC-001 新規作成/テンプレート"]
+            UC2["UC-002 アイテム作成/整列"]
+            UC3["UC-003 プロパティ編集/多言語"]
+            UC4["UC-004 ズーム/パン俯瞰"]
+            UC5["UC-005 依存関係を引く"]
+            UC6["UC-006 分類/セクション整理"]
+            UC7["UC-007 予実入力/イナズマ線"]
+            UC8["UC-008 JSON/MSProject 入出力"]
+            UC9["UC-009 SVG 出力/透かし共有"]
+            UC10["UC-010 保存/クラッシュ復旧"]
+        end
+        Planner -->|creates| UC1
+        Planner -->|edits| UC2
+        Planner -->|edits| UC3
+        Planner -->|navigates| UC4
+        Planner -->|links| UC5
+        Planner -->|organizes| UC6
+        Planner -->|tracks| UC7
+        Viewer -->|reviews| UC4
+        Viewer -->|shares| UC9
+        AI -->|imports/exports| UC8
+        Planner -->|persists| UC10
+    </pre>
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. ユースケース (Use Cases)
+
+[REQUIREMENT]
+UID: UC-001
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 日程表を新規作成しテンプレートから開始する
+STATEMENT: >>>
+前提: gr-scheduler を開いた直後。
+主フロー: (1) Planner が新規作成を選ぶ。(2) システムは初期テンプレート (ヘッダー・分類の
+水平線・サンプル行) を表示する。(3) Planner はスケジュール名をヘッダー左上に入力する。
+事後条件: 編集可能な空の日程表が表示され、localStorage に初期状態が保存される。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-008
+
+[REQUIREMENT]
+UID: UC-002
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: マイルストーン/タスクを作成・配置・整列する
+STATEMENT: >>>
+主フロー: (1) Planner がパレットからアイコン (図形/絵文字) を選ぶ。(2) キャンバス上の行の
+日付位置にドラッグで配置する (タスクは端ドラッグで期間指定)。(3) 同タイミングの複数アイテムを
+同じ高さに揃える。(4) アイテム移動に連動して開始/終了日プロパティが自動更新される。
+事後条件: 1 行に複数アイテムが重ならず並び、整列制約が満たされる。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-001
+- TYPE: Parent
+  VALUE: STK-L0-003
+- TYPE: Parent
+  VALUE: STK-L0-005
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[REQUIREMENT]
+UID: UC-003
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: プロパティを編集し多言語で表示する
+STATEMENT: >>>
+主フロー: (1) Planner がアイテムを選択し、プロパティパネルを開く。(2) 略称・正式名称・
+大中小分類・担当・ステータス・色・線幅・予実区別・表示位置等を編集する。(3) UI 言語を切替
+えると値の表示が対応言語で表示される (プロパティ名は英語固定のまま)。
+事後条件: プロパティが保存され、略称がアイテム内部/付近の指定位置に表示される。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-007
+
+[REQUIREMENT]
+UID: UC-004
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: ズーム/パンで俯瞰と詳細を行き来する
+STATEMENT: >>>
+主フロー: (1) Viewer/Planner がセンターホイールでズームする。(2) ズームアウトで時間軸が
+年→年月→月日曜と粗くなり、重要アイテムのみ残る。ズームインで細部が現れる。(3) 縦のみ/横のみ
+ズームで縦横比を調整する。(4) パンしてもヘッダーと分類ペインは固定表示される。
+事後条件: 目的の粒度で日程が表示され、文脈 (ヘッダー/分類) を失わない。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-002
+- TYPE: Parent
+  VALUE: STK-L0-004
+
+[REQUIREMENT]
+UID: UC-005
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 依存関係を引く
+STATEMENT: >>>
+主フロー: (1) Planner がアイテムの 9 点アンカーの 1 つからドラッグする。(2) 別アイテムの
+アンカーへドロップする。(3) システムは他アイコンとの重なりを避け、折れ点 0〜3 で経路を
+自動配線する。
+事後条件: 依存線が引かれ、アイテム移動時に線が追従・再配線される。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-010
+
+[REQUIREMENT]
+UID: UC-006
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 分類・セクションを整理する
+STATEMENT: >>>
+主フロー: (1) Planner が分類の水平線を引き、左側に分類名を付ける。(2) 複数行を束ねて
+セクションにする。(3) セクションの順序をドラッグで入れ替える。(4) セクションを非表示にすると
+水平線左端に小タブが現れる。(5) 小タブをクリックして再表示する。非表示が増えても水平線は
+太くならず小タブが増える。
+事後条件: セクション構造・順序・表示状態が保存される。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-009
+
+[REQUIREMENT]
+UID: UC-007
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 予実を入力しイナズマ線で遅れを見る
+STATEMENT: >>>
+主フロー: (1) Planner が各アイテムに予定と実績を入力する。(2) 表示を予定のみ/実績のみ/両方に
+切り替える。(3) 実績表示でイナズマ線を引き、基準日での進捗の折れを見る。(4) 変更前の予定が
+グレーで併記される。
+事後条件: 遅れ/進みとボトルネックが視覚的に判別できる。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-011
+
+[REQUIREMENT]
+UID: UC-008
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: JSON / MSProject でインポート・エクスポートする
+STATEMENT: >>>
+主フロー(Export): (1) Planner/AI が JSON または MSProject-XML (MSPDI) 出力を選ぶ。
+(2) システムが内部モデルを対象形式へ変換しファイルをダウンロードする。
+主フロー(Import): (1) ファイルを読み込む。(2) システムが検証・サニタイズしてから内部モデルへ
+変換し、キャンバスへ反映する。異常データはエラー通知し取り込まない。
+事後条件: データが往復しても意味が保持される (往復整合)。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-014
+
+[REQUIREMENT]
+UID: UC-009
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: SVG 出力・透かしを入れて共有する
+STATEMENT: >>>
+主フロー: (1) Planner が透かし (ローカル入力ユーザー名 + 日時) の表示を有効にする。
+(2) 画面を SVG で出力する。(3) 透かしが斜めタイルで薄く全面に入った SVG が得られる。
+事後条件: 無断キャプチャに対する証跡付きの成果物が共有できる。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-013
+- TYPE: Parent
+  VALUE: STK-L0-014
+
+[REQUIREMENT]
+UID: UC-010
+TYPE: UseCase
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 保存とクラッシュ復旧
+STATEMENT: >>>
+主フロー: (1) 編集中、システムは変更を localStorage に自動保存する。(2) Planner が明示的に
+ファイル (.json) 保存する。(3) ブラウザがクラッシュ/再読込しても、次回起動時に localStorage
+から直前状態を復旧するか確認する。
+事後条件: 作業内容が失われない。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-015
+
+[[/SECTION]]

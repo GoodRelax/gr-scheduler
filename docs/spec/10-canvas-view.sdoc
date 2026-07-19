@@ -1,0 +1,272 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - キャンバスと俯瞰表示 (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler のキャンバス (日程描画面) と俯瞰表示に関するシステム要求 (L1) と、その
+詳細化 (L2/L3) を定義する。ここでのキャンバスは「行 = 帯にマルチバーを載せる二次元の配置面」
+であり、アイテム (マイルストーン/タスク) そのものの表現は 11-items-icons が担当する。
+本書は 1 画面俯瞰・画面最大化・ヘッダー/分類ペインの固定表示・スクロール・初期テンプレートを
+扱う。各要求は Parent 関係で L0 (STK-L0-001 / STK-L0-004 / STK-L0-008 / STK-L0-019 /
+STK-L0-021) を詳細化する。
+<<<
+
+[[SECTION]]
+TITLE: 1. 俯瞰とキャンバス構造 (Overview & Canvas)
+
+[REQUIREMENT]
+UID: CANVAS-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 全体日程の1画面俯瞰
+STATEMENT: >>>
+本システムは、既定ズームにおいて、プロジェクトの全体日程を縦横のスクロールなしに 1 画面へ
+収めて表示すること。
+<<<
+RATIONALE: 一枚絵での俯瞰が本ツールの中核価値。user-order item1。
+VERIFICATION: >>>
+中規模データ (約 50 行/約 1000 アイテム) を既定ズームで開き、初期表示で縦横いずれの
+スクロール操作もせずに全行・全期間が 1 画面に収まることを確認する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-001
+
+[REQUIREMENT]
+UID: CANVAS-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: マルチバーを載せる帯構造のキャンバス
+STATEMENT: >>>
+本システムは、1 つの行 (帯) の上に複数のマイルストーン/タスクを横並べして載せられる
+二次元キャンバスを、行の集合として提供すること。
+<<<
+RATIONALE: >>>
+既存ツールに無い「1 行 = 複数バー」を成立させる配置面。アイテムの図形・色・略称の具体は
+11-items-icons が担当し、本要求は帯へアイテムを載せられる配置面としての性質を規定する。
+user-order item2。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-001
+
+[REQUIREMENT]
+UID: CANVAS-L1-003
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: キャンバス最大化とヘッダー最小化
+STATEMENT: >>>
+本システムは、スケジュール描画領域を表示可能領域内で最大化し、ヘッダー領域は年・月・日・曜日が
+視認できる範囲で最小の高さに保つこと。
+<<<
+RATIONALE: >>>
+狭い画面へ最大の情報量を収める ( ★★ 情報密度)。フローティングパレット化は 19-tools が担当し、
+本書はキャンバス面の最大化とヘッダーの最小化を担う。user-order item6, item6.1。
+<<<
+VERIFICATION: >>>
+既定フォント・既定ズームにおいて、ヘッダー領域の高さが表示可能領域 (ビューポート) 高さの
+15% 以下に収まり、かつ年・月・日・曜日が 1 行で視認でき、残余の高さすべてがスケジュール描画
+領域に割り当てられること。フローティングパレットはドラッグで退避でき、キャンバスを恒久的に
+遮蔽しないこと。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-021
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. ヘッダー表示 (Header)
+
+[REQUIREMENT]
+UID: CANVAS-L1-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+I18N: Yes
+TITLE: ヘッダー左上のスケジュール名
+STATEMENT: >>>
+本システムは、ヘッダーの左上にスケジュール名を表示し、その位置で名称を編集できること。
+<<<
+RATIONALE: 日程表の同定。スケジュール名は多言語文字列を含みうるため i18n 対象。user-order item24。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-001
+
+[REQUIREMENT]
+UID: CANVAS-L1-005
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: ヘッダー時間軸の年月日曜表示
+STATEMENT: >>>
+本システムは、ヘッダーの時間軸に、年・月・日・曜日の目盛を表示すること。
+<<<
+RATIONALE: >>>
+時間軸の文脈提示。ズーム率に応じた年/年月/月日曜の表示切替は 14-zoom-lod が担当し、本要求は
+ヘッダーが各粒度の目盛を持つことを規定する。user-order item25。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-001
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 固定ペインとスクロール (Fixed Panes & Scroll)
+
+[TEXT]
+STATEMENT: >>>
+**設計メモ (mock feedback):** 左側の分類ペインは実機モックのフィードバックを受け、その幅を
+ユーザーがドラッグで可変にできる (CANVAS-L2-001)。ヘッダー領域は年月日曜が読める最小高さまで
+縮小し、描画領域を最大化する (CANVAS-L1-003)。分類の階層構造そのものと小タブの詳細は
+15-classification-sections が担当する。
+<<<
+
+[REQUIREMENT]
+UID: CANVAS-L1-006
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+I18N: Yes
+TITLE: 画面左の固定分類ペイン
+STATEMENT: >>>
+本システムは、画面の左側に、分類名を表示する固定ペイン (分類ペイン) を設けること。
+<<<
+RATIONALE: >>>
+左固定ペインの存在としての要求。分類/セクションの階層・順序・表示切替は
+15-classification-sections が担当する。分類名は多言語文字列のため i18n 対象。
+user-order item40。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-004
+
+[REQUIREMENT]
+UID: CANVAS-L1-007
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 分類ペインとスケジュール領域の個別・連動スクロール
+STATEMENT: >>>
+本システムは、分類ペインとスケジュール領域について、縦方向のスクロールは両者を連動させて
+行の高さ位置を一致させ、横方向のスクロールは分類ペインを画面左に残したままスケジュール領域のみ
+独立して行えること。
+<<<
+RATIONALE: 拡大時も分類名を左に残しつつ日程を横パンする。user-order item41。
+VERIFICATION: >>>
+スケジュール領域を縦スクロールすると分類ペインが同量スクロールして行が揃い、横スクロールでは
+分類ペインが移動せずスケジュール領域だけが動くことを確認する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-004
+
+[REQUIREMENT]
+UID: CANVAS-L1-008
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 拡大時の上下左右スクロール
+STATEMENT: >>>
+拡大により内容が表示領域を超えた場合、本システムは、上下左右へのスクロール (パン) を可能に
+すること。
+<<<
+RATIONALE: 拡大した細部へ到達できる。user-order item49。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-004
+
+[REQUIREMENT]
+UID: CANVAS-L1-009
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: スクロール中のヘッダー・分類ペイン常時表示
+STATEMENT: >>>
+スケジュール領域をスクロールしている間、本システムは、ヘッダー領域 (時間軸) と分類ペインを
+常に画面内へ固定表示し続けること。
+<<<
+RATIONALE: 拡大・スクロールしても時間軸と分類の文脈を失わない。user-order item50。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-004
+
+[REQUIREMENT]
+UID: CANVAS-L2-001
+TYPE: Functional
+PRIORITY: Should
+LAYER: L2_Component
+TITLE: 分類ペイン幅の可変化
+STATEMENT: >>>
+分類ペインは、右端の境界ハンドルをドラッグしたとき、ペイン幅を可変に変更し、変更後の幅を
+保持すること。
+<<<
+RATIONALE: >>>
+実機モックのフィードバック反映。分類名の長さや言語により必要幅が変わるため、固定幅ではなく
+ユーザーが調整できるようにする。user-order item40 (mock feedback)。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: CANVAS-L1-006
+
+[REQUIREMENT]
+UID: CANVAS-L2-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 縦スクロール同期の行整合
+STATEMENT: >>>
+スクロール同期コントローラは、分類ペインとスケジュール領域の縦スクロール量を常に同一に保ち、
+両領域における各行の高さ位置を一致させること。
+<<<
+RATIONALE: 分類名とその行のアイテムがずれないことを保証する。CANVAS-L1-007 の内部規則。
+RELATIONS:
+- TYPE: Parent
+  VALUE: CANVAS-L1-007
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. 初期テンプレートとマウス操作 (Template & Mouse)
+
+[REQUIREMENT]
+UID: CANVAS-L1-010
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 初期テンプレートの提供
+STATEMENT: >>>
+本システムは、新規作成時の出発点として、ヘッダー・分類の水平線・サンプル行を含む初期
+テンプレートを少なくとも 1 種提供すること。
+<<<
+RATIONALE: 白紙からの開始負荷を下げる。user-order item51。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-008
+
+[REQUIREMENT]
+UID: CANVAS-L1-011
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 拡大時のマウス操作だけのスクロール
+STATEMENT: >>>
+拡大表示の間、本システムは、キーボードを用いずマウス操作だけで上下左右へスクロールできる手段
+(ドラッグパン等) を提供すること。
+<<<
+RATIONALE: >>>
+拡大しながら考える操作を片手のマウスで完結させる。センターホイールによる拡大縮小は
+14-zoom-lod が担当する。user-order item52。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-019
+
+[[/SECTION]]

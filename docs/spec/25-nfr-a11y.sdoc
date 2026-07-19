@@ -1,0 +1,230 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - 非機能・アクセシビリティ (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の **非機能要求 (NFR) とアクセシビリティ** を定義する。対象は、単一 HTML
+制約 (item4)、性能 (STK-L0-017)、マニュアル不要のアフォーダンスとアイコン主導 UI
+(item6.4-6.6)、色弱者対応 (CUD) のコントラスト/色非依存 (item20/21)、命名の言霊 (item61)、
+便利機能の提案候補 (item62)、および将来拡張の設計余地 (item60, item60.1-60.6) である。
+各 L1 要求はステークホルダ要求 (STK-L0-015 / STK-L0-016 / STK-L0-017 / STK-L0-018 /
+STK-L0-020) へ Parent 関係でトレースする。
+<<<
+
+[[SECTION]]
+TITLE: 1. プラットフォームと性能 (Platform & Performance)
+
+[REQUIREMENT]
+UID: NFR-L1-001
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 単一 HTML での完全動作 (外部 CDN 依存禁止)
+STATEMENT: >>>
+本システムは、ビルド後に 1 つの .html ファイルだけでサーバー無しに完全動作すること。
+全ての JS/CSS/アセットを当該 .html にインライン化し、実行時に外部 CDN やネットワーク
+リソースへ依存しないこと。
+<<<
+RATIONALE: 配布と可搬性、完全オフライン動作。Vite + vite-plugin-singlefile で単一ファイル化。user-order item4、STK-L0-015。
+VERIFICATION: ネットワークを遮断した環境で当該 .html を開いても、全機能が外部リソース取得なしに動作すること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-015
+
+[REQUIREMENT]
+UID: NFR-L1-002
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 中規模データでの応答性能
+STATEMENT: >>>
+本システムは、中規模データ (約 50 行/約 1000 アイテム) において、ズーム・パンを目標 60fps
+で滑らかに行い、初期表示を目標 1.5 秒以内に完了すること。
+<<<
+RATIONALE: 一枚絵を操作しながら考えるツールとして応答性が定着の前提。STK-L0-017、確定事項 (規模=中規模)。
+VERIFICATION: 約 50 行/約 1000 アイテムのデータで、ズーム/パン中のフレームレートが目標 60fps を満たし、初期表示が 1.5 秒以内であること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-017
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. アフォーダンスとアクセシビリティ (Affordance & Accessibility)
+
+[REQUIREMENT]
+UID: NFR-L1-003
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L1_System
+WCAG: AA
+I18N: Yes
+TITLE: マニュアル不要で各国ユーザーが操作可能
+STATEMENT: >>>
+本システムは、初見の各国ユーザーがマニュアルを参照せずに基本操作 (アイテム作成・移動・
+ズーム・保存) を完了できるよう、操作導線と視覚的手掛かりを提供すること。
+<<<
+RATIONALE: 多国籍・多様なユーザーでの定着。WCAG 2.1 AA と i18n を両立。user-order item6.4。
+VERIFICATION: 事前説明なしの被験者が、代表タスク (アイテム作成・移動・保存) をマニュアル参照なしに完了できること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-016
+
+[REQUIREMENT]
+UID: NFR-L1-004
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L1_System
+WCAG: AA
+TITLE: アフォーダンス重視の操作表現
+STATEMENT: >>>
+本システムは、操作可能な要素が見ただけで操作方法を想起させるよう、ホバー・カーソル形状・
+ハンドル・状態変化等のアフォーダンスを一貫して提供すること。
+<<<
+RATIONALE: 直感操作でないと現場に定着しない。WCAG 2.1 AA の操作可能性に整合。user-order item6.5。
+VERIFICATION: ドラッグ可能/リサイズ可能/クリック可能な要素が、ホバー時に対応するカーソル形状・ハンドル・強調を示すこと。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-016
+
+[REQUIREMENT]
+UID: NFR-L1-005
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L1_System
+WCAG: AA
+I18N: Yes
+TITLE: メニューはアイコンで用途を伝える
+STATEMENT: >>>
+本システムは、各種メニュー/ツールの用途を、言葉ではなくアイコンで伝えることを基本とし、
+補助として多言語のツールチップを提供すること。
+<<<
+RATIONALE: 母語が異なっても用途を理解できるようにする。アイコン一貫性はアクセシビリティにも寄与。user-order item6.6。
+VERIFICATION: 主要メニュー/ツールがアイコンで表現され、フォーカス/ホバー時に選択言語のツールチップが表示されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-016
+
+[REQUIREMENT]
+UID: NFR-L1-006
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L1_System
+WCAG: AA
+TITLE: 色弱者対応 (CUD) と色非依存のコントラスト
+STATEMENT: >>>
+本システムは、配色を色覚特性の違いに配慮した設計 (CUD) とし、情報を色のみで区別させず、
+形状・ラベル・パターン等の色以外の手掛かりを併用し、文字と背景のコントラストが WCAG 2.1 AA
+の基準を満たすこと。パレットの具体色は PROP ドメイン (12-properties) の定義に従い、本書では
+再定義しない。
+<<<
+RATIONALE: >>>
+色弱者を含む全ユーザーが情報を判別できるようにする。10 色パレットの列挙は PROP の責務であり、
+本書はアクセシビリティ観点の制約 (色非依存・コントラスト) のみを規定する。user-order item20, item21。
+<<<
+VERIFICATION: 予実・分類・状態等の区別が色以外の手掛かりでも判別でき、テキストと背景のコントラスト比が WCAG 2.1 AA を満たすこと。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-016
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 命名と提案 (Naming & Proposals)
+
+[REQUIREMENT]
+UID: NFR-L1-007
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 命名は名は体を表す (言霊)
+STATEMENT: >>>
+本システムの各種命名 (UI ラベル・データフィールド・コード識別子) は、それが何かを一目で
+伝えるものとし、意味を持たない汎用語を避けること。
+<<<
+RATIONALE: 可読性・保守性・AI 連携の一貫性。CLAUDE.md コーディング規約と一致。user-order item61。
+VERIFICATION: UI ラベル・データフィールド名・コード識別子のレビューで、意味不明な汎用語 (type/data/info/value 等の裸使用) が 0 件であること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-020
+
+[REQUIREMENT]
+UID: NFR-L1-008
+TYPE: Functional
+PRIORITY: Could
+LAYER: L1_System
+TITLE: パワポ代替の便利機能の提案候補
+STATEMENT: >>>
+本システムは、パワポでの日程表作成を代替する上で有用な機能について、次の提案候補を
+トリアージ対象 (採否は architect/ユーザーが判断) として扱うこと。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 34 66
+
+   * - 提案候補
+     - 概要
+   * - スナップ整列
+     - 近接アイテムへのマグネット吸着とガイドライン表示。
+   * - 祝日・非稼働日の網掛け
+     - ロケール別カレンダーに基づく網掛け (i18n と連動)。
+   * - ミニマップ
+     - 全体俯瞰と現在ビュー枠の表示。
+   * - 印刷/PDF レイアウト
+     - A3 横等の一枚絵出力レイアウト。
+   * - クリップボード/PNG 出力
+     - SVG に加え、会議貼付用の PNG/クリップボード出力。
+<<<
+RATIONALE: MVP 必須ではないが、代替価値を高める候補。interview-record 6 の提案候補に対応。user-order item62。
+VERIFICATION: 各候補が採否判断の記録 (decision) を伴ってトリアージされ、採用分が要求へ昇格していること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-020
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. 将来拡張の設計余地 (Extension Points, MVP 外)
+
+[REQUIREMENT]
+UID: NFR-L1-009
+TYPE: Functional
+PRIORITY: Wont
+LAYER: L1_System
+TITLE: 将来拡張のための設計余地確保
+STATEMENT: >>>
+本システムは、次の将来拡張機能を MVP では実装しないが、後付けが困難な拡張点 (データ層抽象・
+権限フック・モード切替の口) を MVP の設計で確保しておくこと。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - 将来拡張
+     - 内容
+   * - 共同編集 (E2E)
+     - サーバー及びブラウザ間 E2E 暗号通信による共同編集。
+   * - 行単位の権限
+     - 行ごとの公開/編集権限 (参照専用の上位スケジュール等)。
+   * - 複数プロジェクト統合
+     - 複数プロジェクトを統合して表示・管理。
+   * - サブプロジェクト生成
+     - 1 プロジェクトからサブプロジェクトを生成。
+   * - モード切替
+     - ガントチャートモードと一覧モードの切替。
+   * - 一覧モードの列
+     - 大中小分類/タスク/担当/期限/ステータス/備考の列。
+<<<
+RATIONALE: >>>
+今回は実装しない (Wont) が、後付け困難な拡張点は設計で確保する。範囲記録のため列挙する。
+user-order item60, item60.1-item60.6、STK-L0-018。
+<<<
+VERIFICATION: MVP の設計文書 (30-architecture) に、上表の各拡張に対応する拡張点 (抽象/フック/切替口) が記載されていること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-018
+
+[[/SECTION]]

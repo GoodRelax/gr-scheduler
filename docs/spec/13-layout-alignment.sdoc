@@ -1,0 +1,138 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - 整列とレイアウト・双方向同期 (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler のアイテム整列 (上下左右揃え) 、WYSIWYG なドラッグ編集、およびアイテム
+移動と日付プロパティの双方向同期に関するシステム要求 (L1) を定義し、整列制約ソルバと座標-日付
+写像をコンポーネント要求 (L2) へ詳細化する。各 L1 要求は Parent 関係でステークホルダ要求
+STK-L0-003 (整列と揃え) および STK-L0-005 (パワポ感覚の WYSIWYG 編集) をトレースする。
+出典は user-order.md item3, item5, item12 (★アイコン移動連動プロパティ自動更新)。
+略称ラベル位置のドラッグ移動操作は 11-items-icons.sdoc (ITEM-L1-010) が主管する (重複回避)。
+<<<
+
+[[SECTION]]
+TITLE: 1. 整列と揃え (Alignment)
+
+[REQUIREMENT]
+UID: ALIGN-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: アイテムの上下左右揃え
+STATEMENT: >>>
+gr-scheduler は、複数のマイルストーン/タスクとそのアイコンを上下左右に揃えられ、同じタイミング
+で始まるタスクや同種のマイルストーンを同じ高さに表示できること。
+<<<
+RATIONALE: 一枚絵の可読性の要。整列が崩れると俯瞰性が損なわれる。user-order item3。
+VERIFICATION: >>>
+同一開始日の複数タスクを上揃えの対象に指定したとき、それらのアイコン上端が同一の垂直座標に
+揃い、同種マイルストーンを高さ揃えの対象に指定したとき同一の高さに整列すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-003
+
+[REQUIREMENT]
+UID: ALIGN-L2-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 整列制約ソルバ (共有ベースラインへのスナップ)
+STATEMENT: >>>
+アイテム移動が確定したとき、整列制約ソルバは、対象アイテムに近接する既存の共有ベースライン
+(同一開始日の垂直線・同種アイテムの水平高さ) を検出し、しきい値内にあるアイテムを当該ベース
+ラインへスナップして整列を維持すること。
+<<<
+RATIONALE: >>>
+上下左右揃え (ALIGN-L1-001) を内部アルゴリズムとして詳細化する。ドラッグのたびに共有ベース
+ラインへ吸着させることで、手作業の微調整なしに整列を保つ。
+<<<
+VERIFICATION: >>>
+既存の共有ベースラインからしきい値内にアイテムをドラッグして離したとき、当該アイテムがベース
+ラインへスナップし、しきい値外へ離したときはスナップせず自由位置に留まること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ALIGN-L1-001
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. WYSIWYG 編集 (Direct Manipulation)
+
+[REQUIREMENT]
+UID: ALIGN-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: ドラッグによる作成・移動・リサイズ
+STATEMENT: >>>
+gr-scheduler は、マイルストーン/タスクを、マウスドラッグによって作成し、キャンバス上で移動し、
+タスクの期間を端のドラッグでリサイズでき、操作結果を見たまま (WYSIWYG) に反映すること。
+<<<
+RATIONALE: パワポ/Excel の代替として直感操作が定着の前提。user-order item5。
+VERIFICATION: >>>
+パレットから図形を選びキャンバスへドラッグして作成でき、配置後のアイテムをドラッグで移動でき、
+タスクの端をドラッグすると期間の長さが変わり、いずれも操作中に結果が即時に描画されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-005
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 双方向同期 (Coordinate-Date Bidirectional Sync)
+
+[REQUIREMENT]
+UID: ALIGN-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 移動連動のプロパティ自動更新 (双方向同期)
+STATEMENT: >>>
+アイテムがドラッグで移動またはリサイズされたとき、gr-scheduler は、当該アイテムの開始日・
+終了日・表示位置プロパティを、新しいキャンバス座標に対応する値へ自動で更新すること。また、
+これらのプロパティが編集されたとき、アイテムの表示位置を対応する座標へ自動で更新すること。
+<<<
+RATIONALE: >>>
+★追加要望。座標とプロパティを常に一致させ、見た目とデータの二重管理をなくす。user-order
+item12 (アイコン移動連動でプロパティ自動更新)、STK-L0-005 の双方向同期。
+<<<
+VERIFICATION: >>>
+タスクをドラッグで右へ移動すると start_date/end_date が移動量に対応して更新され、逆に
+start_date をプロパティ編集で変更するとアイテムが対応する座標へ移動し、双方向で値と表示が
+一致すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-005
+
+[REQUIREMENT]
+UID: ALIGN-L2-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 座標-日付の双方向写像
+STATEMENT: >>>
+座標-日付マッパは、現在の横軸スケール (時間軸の原点日付と 1 日あたりのピクセル幅) に基づき、
+キャンバスの x 座標を日付へ変換する関数と、日付を x 座標へ変換する関数を、互いに逆写像となる
+ように提供し、往復変換で丸め誤差により日付がずれないこと。
+<<<
+RATIONALE: >>>
+双方向同期 (ALIGN-L1-003) の中核アルゴリズムを詳細化する。座標->日付と日付->座標を単一の
+スケール定義から導出し、整合を保証する。ズームによりスケールが変わっても同じ定義を用いる。
+<<<
+VERIFICATION: >>>
+任意の日付を x 座標へ変換し、その x 座標を日付へ逆変換したとき元の日付に一致し (日単位で
+一致) 、ズーム率を変えても往復整合が保たれること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ALIGN-L1-003
+
+[[/SECTION]]

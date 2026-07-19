@@ -1,0 +1,216 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - ツール操作と透かし (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の **ツール操作と透かし** ドメインのシステム要求 (L1) 以下を定義する。
+対象は、フローティングパレット (item6.2)、全体フォントサイズ切替 (item6.3)、アイテムの
+コピー&ペースト (item13)、Undo/Redo とショートカットキー (item53)、パレット非選択時の
+透明化 (item58)、日程表の透かし (item59, item59.1-59.3) である。各 L1 要求は
+ステークホルダ要求 (STK-L0-008 / STK-L0-013 / STK-L0-019 / STK-L0-021 / STK-L0-022) へ
+Parent 関係でトレースする。
+<<<
+
+[[SECTION]]
+TITLE: 1. パレットとフォント (Palette & Font)
+
+[REQUIREMENT]
+UID: TOOL-L1-001
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: ツールパレットのフローティング表示
+STATEMENT: >>>
+本システムは、ツール操作用パレットを画面端の固定バーとしてではなくフローティング要素として
+表示し、ユーザーがパレットをキャンバス上の任意位置へ移動できること。
+<<<
+RATIONALE: 固定バーによる描画面積の圧迫を避け、狭い画面に最大の情報量を収める。user-order item6.2 (★★)。
+VERIFICATION: パレットがキャンバスに重ねて表示され、ドラッグで位置を変更でき、固定バー領域を占有しないこと。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-021
+
+[REQUIREMENT]
+UID: TOOL-L1-002
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L1_System
+I18N: Yes
+TITLE: 全体フォントサイズの切替 (大/中/小)
+STATEMENT: >>>
+本システムは、フォントサイズ設定として離散的な 3 段階 (大 / 中 / 小) を提供し、選択された
+段階を、スケジュールラベル・プロパティパネル・ヘッダーを含むすべての UI テキストへ、同一の
+倍率で一律かつ即時に適用すること。
+<<<
+RATIONALE: >>>
+情報密度と可読性の両立。フォントサイズは各言語の文字幅・可読性に影響し、多言語 UI 全体に
+関わるため i18n 対象とする。user-order item6.3 (★★)。
+<<<
+VERIFICATION: 大/中/小のいずれかを選ぶと、ラベル・プロパティ名・ヘッダー等の全表示要素が選択サイズで一貫表示されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-022
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 編集効率化 (Copy/Paste, Undo/Redo, Shortcuts)
+
+[REQUIREMENT]
+UID: TOOL-L1-003
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: アイテムのコピー&ペースト
+STATEMENT: >>>
+本システムは、選択したマイルストーン/タスクをコピーし、指定位置へペーストして、
+プロパティ (略称・色・線幅・図形等) を引き継いだ複製を生成すること。
+<<<
+RATIONALE: 類似アイテムの入力負荷を下げる。user-order item13。
+VERIFICATION: 1 個以上のアイテムをコピー後ペーストすると、元のプロパティを保持した複製が新規 UID で生成されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-008
+
+[REQUIREMENT]
+UID: TOOL-L1-004
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 操作の取り消し/やり直し (Undo/Redo)
+STATEMENT: >>>
+本システムは、アイテムの作成・移動・リサイズ・削除・プロパティ編集等の操作を取り消し (Undo)
+でき、取り消した操作をやり直し (Redo) できること。
+<<<
+RATIONALE: 誤操作からの安全な回復。パワポ/Excel 代替として不可欠。user-order item53、STK-L0-008 (Undo/Redo)。
+VERIFICATION: 任意の編集操作の後に Undo で直前状態へ戻り、Redo で操作後状態へ復元できること。連続 Undo/Redo が履歴順に機能すること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-008
+
+[REQUIREMENT]
+UID: TOOL-L1-005
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: ショートカットキー
+STATEMENT: >>>
+本システムは、主要な編集・表示操作をキーボードショートカットで実行でき、少なくとも次の
+代表キー割当を提供すること。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 34 66
+
+   * - キー
+     - 動作
+   * - Ctrl+Z
+     - 元に戻す (Undo)
+   * - Ctrl+Y / Ctrl+Shift+Z
+     - やり直し (Redo)
+   * - Ctrl+C
+     - コピー
+   * - Ctrl+V
+     - ペースト
+   * - Ctrl+S
+     - ファイル保存 (.json)
+   * - Delete
+     - 選択アイテムの削除
+   * - 方向キー
+     - 選択アイテムの微小移動
+   * - Ctrl + ホイール
+     - ズーム
+<<<
+RATIONALE: マウス往復を減らし操作を高速化する。割当一覧はユーザーレビュー対象 (interview-record 7)。user-order item53。
+VERIFICATION: 上表の各キーが対応動作を起動し、テキスト入力中は文字入力が優先されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-008
+
+[REQUIREMENT]
+UID: TOOL-L1-006
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: パレット非選択時の透明化
+STATEMENT: >>>
+本システムは、ツール操作用パレットが選択・操作されていない間、パレットを薄く透明表示とし、
+ポインタをパレットへ重ねた際に不透明へ戻すこと。
+<<<
+RATIONALE: 非操作時にキャンバス視認を妨げず、描画面積を最大化する。user-order item58。
+VERIFICATION: 一定時間パレットを操作しないとパレットが半透明化し、ホバー/操作で不透明へ復帰すること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-019
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 透かし (Watermark)
+
+[REQUIREMENT]
+UID: TOOL-L1-007
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 日程表への透かし付与
+STATEMENT: >>>
+本システムは、日程表の表示および SVG 出力に透かしを重ねて付与できること。
+<<<
+RATIONALE: Web 会議で秘密の日程を無断キャプチャされた際の証跡を残す。user-order item59。
+VERIFICATION: 透かしを有効にすると、キャンバス表示と SVG 出力の双方に透かし層が付与されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-013
+
+[REQUIREMENT]
+UID: TOOL-L2-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 透かしの内容 (ローカル入力ユーザー名 + 日時)
+STATEMENT: >>>
+透かしコンポーネントは、透かし文字列にローカル入力ユーザー名と生成日時を含めること。
+サーバー認証を持たないため、ユーザー名はローカルで入力/保持する名称を用いること。
+<<<
+RATIONALE: 証跡には「誰が・いつ」を残す必要がある。user-order item59.1。
+VERIFICATION: 生成された透かしに、設定済みのローカルユーザー名と ISO 8601 形式の日時が含まれること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+
+[REQUIREMENT]
+UID: TOOL-L2-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 透かしの配置 (斜め方向・薄い複数タイル)
+STATEMENT: >>>
+透かしコンポーネントは、透かしを斜め方向に傾け、画面全体を覆うよう薄い複数タイルとして
+繰り返し配置すること。
+<<<
+RATIONALE: 部分キャプチャや切り抜きでも透かしが必ず含まれるようにする。user-order item59.2。
+VERIFICATION: 透かしが一定角度で傾き、低い不透明度でキャンバス全面にタイル状に反復配置されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+
+[REQUIREMENT]
+UID: TOOL-L2-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 透かしの表示/非表示切替
+STATEMENT: >>>
+透かしコンポーネントは、透かしの表示と非表示をユーザー操作で切り替えられること。
+<<<
+RATIONALE: 共有時のみ証跡を付け、編集時は視認性を優先できるようにする。user-order item59.3。
+VERIFICATION: 表示/非表示を切り替えると、キャンバスおよび SVG 出力への透かし付与が即時に反映されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+
+[[/SECTION]]

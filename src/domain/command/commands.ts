@@ -1,0 +1,611 @@
+/**
+ * UseCase layer: edit commands (ARCH-C-019, ADR-002). Every edit is expressed as
+ * a pure, side-effect-free transform `ScheduleDocument -> ScheduleDocument`, so
+ * the store can snapshot state before/after for Undo/Redo (TOOL-L1-004) and the
+ * editing controller can reuse the exact same transform for live drag previews.
+ *
+ * Commands operate in domain units (whole days, row ids, property values), never
+ * in pixels. Pixel<->day conversion belongs to the adapter that dispatches the
+ * command, keeping this layer independent of the renderer (DIP).
+ */
+
+import type {
+  AnchorIndex,
+  DeclaredCategory,
+  Dependency,
+  IsoDate,
+  LabelOffset,
+  LabelPosition,
+  LineWeight,
+  PlanActualKind,
+  ScheduleDocument,
+  ScheduleItem,
+} from '../model/schedule-model.js';
+import { fromDayNumber, toDayNumber } from '../usecase/time-coordinate-mapper.js';
+import { clampFadeDays } from '../usecase/fade-geometry.js';
+import {
+  moveSectionToIndex,
+  sectionsInOrder,
+  setSectionCollapsed,
+} from '../usecase/section-organizer.js';
+import {
+  appendDeclaredCategory,
+  declaredCategoryDepth,
+  existingMajorNames,
+  existingMiddleNames,
+  existingMinorNames,
+  nextDefaultCategoryName,
+  removeDeclaredSubtree,
+} from '../usecase/classification-tree.js';
+
+/** A named, reversible-by-snapshot edit transform over a schedule document. */
+export interface ScheduleCommand {
+  /** Stable, domain-qualified label for diagnostics/history (e.g. "move-item"). */
+  readonly label: string;
+  /**
+   * Produce the next document. Must be pure: no mutation of `document`, no I/O.
+   *
+   * @param document - The current immutable document.
+   * @returns The next immutable document (a new object graph for changed parts).
+   */
+  execute(document: ScheduleDocument): ScheduleDocument;
+}
+
+/**
+ * The subset of item fields the property panel may edit in one patch. Only
+ * defined keys are applied; omit a key to leave it unchanged (this matters under
+ * exactOptionalPropertyTypes).
+ */
+export interface ItemPropertyPatch {
+  readonly abbrev?: string;
+  readonly startDate?: IsoDate;
+  readonly endDate?: IsoDate | null;
+  /** Left-edge taper of a task bar in days (clamped; tasks only). */
+  readonly fadeInDays?: number;
+  /** Right-edge taper of a task bar in days (clamped; tasks only). */
+  readonly fadeOutDays?: number;
+  readonly fullName?: string;
+  readonly description?: string;
+  readonly majorCategory?: string;
+  readonly middleCategory?: string;
+  readonly minorCategory?: string;
+  readonly assignee?: string;
+  readonly status?: string;
+  readonly remarks?: string;
+  readonly planActualKind?: PlanActualKind;
+  readonly lineWeight?: LineWeight;
+  readonly labelPosition?: LabelPosition;
+  readonly labelOffset?: LabelOffset;
+  readonly strokeColor?: string;
+  readonly fillColor?: string;
+}
+
+/**
+ * Replace every item via `mapItem`. Returns the SAME document reference when no
+ * item changed identity, so the store can treat the command as a no-op and skip
+ * a spurious history entry.
+ */
+function mapItems(
+  document: ScheduleDocument,
+  mapItem: (item: ScheduleItem) => ScheduleItem,
+): ScheduleDocument {
+  let changed = false;
+  const items = document.items.map((item) => {
+    const mapped = mapItem(item);
+    if (mapped !== item) {
+      changed = true;
+    }
+    return mapped;
+  });
+  return changed ? { ...document, items } : document;
+}
+
+/** Shift an ISO date by a whole number of days. */
+function shiftIsoDate(isoDate: IsoDate, deltaDays: number): IsoDate {
+  return fromDayNumber(toDayNumber(isoDate) + deltaDays);
+}
+
+/**
+ * Command: append a fully formed item to the document (ALIGN-L1-002, ITEM).
+ *
+ * @param item - The new item (its `id` must be unique within the document).
+ * @returns A create command.
+ */
+export function createItemCommand(item: ScheduleItem): ScheduleCommand {
+  return {
+    label: 'create-item',
+    execute: (document) => ({ ...document, items: [...document.items, item] }),
+  };
+}
+
+/**
+ * Command: move an item by a whole-day delta, optionally onto another row
+ * (ALIGN-L1-003 bidirectional sync). Both start and (for tasks) end shift so the
+ * duration is preserved.
+ *
+ * When a `targetCategory` is supplied the item is also re-classified onto that
+ * leaf of the derived tree (the model-first way to move between rows now that
+ * rows are derived from categories); `targetRowId` remains supported for the
+ * legacy row-keyed path.
+ *
+ * @param itemId - The item to move.
+ * @param deltaDays - Signed day offset applied to start and end.
+ * @param targetRowId - Optional new owning row id (legacy row-keyed move).
+ * @param targetCategory - Optional destination classification path.
+ * @returns A move command.
+ */
+export function moveItemCommand(
+  itemId: string,
+  deltaDays: number,
+  targetRowId?: string,
+  targetCategory?: ClassificationTarget,
+): ScheduleCommand {
+  return {
+    label: 'move-item',
+    execute: (document) =>
+      mapItems(document, (item) => {
+        if (item.id !== itemId) {
+          return item;
+        }
+        const moved: ScheduleItem = {
+          ...item,
+          startDate: shiftIsoDate(item.startDate, deltaDays),
+          endDate: item.endDate === null ? null : shiftIsoDate(item.endDate, deltaDays),
+        };
+        if (targetCategory !== undefined) {
+          return applyClassificationTarget(moved, targetCategory);
+        }
+        return targetRowId === undefined ? moved : { ...moved, rowId: targetRowId };
+      }),
+  };
+}
+
+/**
+ * A target classification path for a vertical (re-classify) move. `major` is
+ * required; omitting `middle` clears both middle and minor (major-level lane),
+ * and omitting `minor` clears minor (middle-level lane). Mirrors the derived
+ * classification tree's leaf-row paths.
+ */
+export interface ClassificationTarget {
+  readonly major: string;
+  readonly middle?: string;
+  readonly minor?: string;
+}
+
+/**
+ * Apply a classification target to an item, clearing deeper unset components. An
+ * empty string clears a category (the derivation treats blank as "no category"),
+ * which keeps the assignment type-safe under exactOptionalPropertyTypes.
+ */
+function applyClassificationTarget(item: ScheduleItem, target: ClassificationTarget): ScheduleItem {
+  const middle = target.middle ?? '';
+  const minor = target.middle === undefined ? '' : target.minor ?? '';
+  return {
+    ...item,
+    majorCategory: target.major,
+    middleCategory: middle,
+    minorCategory: minor,
+  };
+}
+
+/**
+ * Command: re-classify one item onto a new leaf of the classification tree
+ * (vertical move via drag / keyboard), replacing its major/middle/minor path.
+ *
+ * @param itemId - The item to re-classify.
+ * @param target - The destination classification path.
+ * @returns A reclassify-item command.
+ */
+export function reclassifyItemCommand(itemId: string, target: ClassificationTarget): ScheduleCommand {
+  return {
+    label: 'reclassify-item',
+    execute: (document) =>
+      mapItems(document, (item) =>
+        item.id === itemId ? applyClassificationTarget(item, target) : item,
+      ),
+  };
+}
+
+/** Which edge of a task bar a resize acts on. */
+export type ResizeEdge = 'start' | 'end';
+
+/**
+ * Command: resize a task by dragging one edge (ALIGN-L1-002). The opposite edge
+ * stays fixed; the moving edge is clamped so the task keeps a non-negative
+ * duration (minimum one day). No-op for milestones (they have no end).
+ *
+ * @param itemId - The task to resize.
+ * @param edge - Which edge is being dragged.
+ * @param deltaDays - Signed day offset applied to the dragged edge.
+ * @returns A resize command.
+ */
+export function resizeItemCommand(
+  itemId: string,
+  edge: ResizeEdge,
+  deltaDays: number,
+): ScheduleCommand {
+  return {
+    label: 'resize-item',
+    execute: (document) =>
+      mapItems(document, (item) => {
+        if (item.id !== itemId || item.endDate === null) {
+          return item;
+        }
+        const startDay = toDayNumber(item.startDate);
+        const endDay = toDayNumber(item.endDate);
+        if (edge === 'start') {
+          const nextStart = Math.min(startDay + deltaDays, endDay - 1);
+          return normalizeItemFade({ ...item, startDate: fromDayNumber(nextStart) });
+        }
+        const nextEnd = Math.max(endDay + deltaDays, startDay + 1);
+        return normalizeItemFade({ ...item, endDate: fromDayNumber(nextEnd) });
+      }),
+  };
+}
+
+/**
+ * Sanitize a property patch against an item's kind so a milestone can never gain
+ * a non-null `endDate` (M-03 invariant: `itemKind === 'milestone'` implies
+ * `endDate === null`). The `endDate` key is dropped for milestones regardless of
+ * the requested value.
+ */
+function sanitizePatchForKind(item: ScheduleItem, patch: ItemPropertyPatch): ItemPropertyPatch {
+  if (item.itemKind !== 'milestone') {
+    return patch;
+  }
+  // A milestone has no span, so it can gain neither an `endDate` nor a fade taper
+  // (M-03 invariant + fade is tasks-only). Drop those keys regardless of request.
+  const { endDate: _endDate, fadeInDays: _fadeIn, fadeOutDays: _fadeOut, ...rest } = patch;
+  return rest;
+}
+
+/**
+ * Clamp a task's fade taper so `fadeInDays + fadeOutDays` never exceeds its day
+ * length and neither side is negative (the top edge can never cross the bottom).
+ * Returns the SAME reference when nothing changed. A no-op for milestones and for
+ * tasks that carry no fade at all, so untouched items keep their identity.
+ */
+function normalizeItemFade(item: ScheduleItem): ScheduleItem {
+  const fadeIn = item.fadeInDays;
+  const fadeOut = item.fadeOutDays;
+  if (fadeIn === undefined && fadeOut === undefined) {
+    return item;
+  }
+  if (item.itemKind !== 'task' || item.endDate === null) {
+    return item;
+  }
+  const lengthDays = toDayNumber(item.endDate) - toDayNumber(item.startDate);
+  const clamped = clampFadeDays(lengthDays, fadeIn ?? 0, fadeOut ?? 0);
+  const nextIn = Math.round(clamped.fadeInDays);
+  const nextOut = Math.round(clamped.fadeOutDays);
+  if (nextIn === (fadeIn ?? 0) && nextOut === (fadeOut ?? 0)) {
+    return item;
+  }
+  return { ...item, fadeInDays: nextIn, fadeOutDays: nextOut };
+}
+
+/**
+ * Apply a kind-sanitized patch to an item, returning the SAME reference when the
+ * effective change is a no-op (M-01: every patched key already equals its current
+ * value), so the store skips a spurious undo entry.
+ */
+function applyItemPatch(item: ScheduleItem, patch: ItemPropertyPatch): ScheduleItem {
+  const sanitized = sanitizePatchForKind(item, patch);
+  const currentValues = item as unknown as Record<string, unknown>;
+  let changed = false;
+  for (const key of Object.keys(sanitized)) {
+    if (currentValues[key] !== (sanitized as Record<string, unknown>)[key]) {
+      changed = true;
+      break;
+    }
+  }
+  return changed ? { ...item, ...sanitized } : item;
+}
+
+/**
+ * Command: apply a property patch to one item (PROP-L1-001, ALIGN-L1-003).
+ * Editing `startDate`/`endDate` here is the reverse direction of the bidirectional
+ * sync: the model changes and the renderer follows on the next render. A patch
+ * whose values all equal the current ones is a no-op (adds no history, M-01), and
+ * `endDate` is never applied to a milestone (M-03).
+ *
+ * @param itemId - The item to edit.
+ * @param patch - Defined-only field changes.
+ * @returns An edit-property command.
+ */
+export function editPropertyCommand(itemId: string, patch: ItemPropertyPatch): ScheduleCommand {
+  return {
+    label: 'edit-property',
+    execute: (document) =>
+      mapItems(document, (item) =>
+        item.id === itemId ? normalizeItemFade(applyItemPatch(item, patch)) : item,
+      ),
+  };
+}
+
+/**
+ * Command: delete a set of items (TOOL-L1-004 delete, TOOL-L1-005 Delete key).
+ *
+ * @param itemIds - Ids to remove.
+ * @returns A delete command.
+ */
+export function deleteItemsCommand(itemIds: ReadonlySet<string>): ScheduleCommand {
+  return {
+    label: 'delete-items',
+    execute: (document) => {
+      const items = document.items.filter((item) => !itemIds.has(item.id));
+      return items.length === document.items.length ? document : { ...document, items };
+    },
+  };
+}
+
+/**
+ * Command: paste (append) a set of already-cloned items (TOOL-L1-003). The
+ * caller is responsible for assigning fresh ids and any offset.
+ *
+ * @param items - The cloned items to append.
+ * @returns A paste command.
+ */
+export function pasteItemsCommand(items: readonly ScheduleItem[]): ScheduleCommand {
+  return {
+    label: 'paste-items',
+    execute: (document) =>
+      items.length === 0 ? document : { ...document, items: [...document.items, ...items] },
+  };
+}
+
+/**
+ * Command: reorder a section to a new position in the section order (SECT-L1-002,
+ * ARCH-C-015). No-op (same document reference) when the section does not move.
+ *
+ * @param sectionId - The section being moved.
+ * @param targetIndex - Destination index in the ordered section list.
+ * @returns A reorder-section command.
+ */
+export function reorderSectionCommand(sectionId: string, targetIndex: number): ScheduleCommand {
+  return {
+    label: 'reorder-section',
+    execute: (document) => {
+      const sections = moveSectionToIndex(document.sections, sectionId, targetIndex);
+      return sectionsEqualByOrder(sections, document.sections)
+        ? document
+        : { ...document, sections };
+    },
+  };
+}
+
+/**
+ * Command: show or hide (collapse) a section (SECT-L1-003, ARCH-C-015). Hidden
+ * sections' rows are dropped from layout by the organizer; re-showing brings them
+ * back at their original order position. No-op when already in that state.
+ *
+ * @param sectionId - The section to toggle.
+ * @param collapsed - True to hide, false to show.
+ * @returns A set-section-collapsed command.
+ */
+export function setSectionCollapsedCommand(
+  sectionId: string,
+  collapsed: boolean,
+): ScheduleCommand {
+  return {
+    label: 'set-section-collapsed',
+    execute: (document) => {
+      const sections = setSectionCollapsed(document.sections, sectionId, collapsed);
+      return sections === document.sections
+        ? document
+        : { ...document, sections };
+    },
+  };
+}
+
+/**
+ * Command: add a directed dependency between two items (DEP-L1-001). Ignored
+ * (no-op) when the endpoints are the same item or an identical dependency
+ * already exists.
+ *
+ * @param dependency - The dependency to add (its `id` should be unique).
+ * @returns An add-dependency command.
+ */
+export function addDependencyCommand(dependency: Dependency): ScheduleCommand {
+  return {
+    label: 'add-dependency',
+    execute: (document) => {
+      if (dependency.fromItemId === dependency.toItemId) {
+        return document;
+      }
+      const existing = document.dependencies ?? [];
+      const duplicate = existing.some(
+        (candidate) =>
+          candidate.fromItemId === dependency.fromItemId &&
+          candidate.toItemId === dependency.toItemId &&
+          candidate.fromAnchor === dependency.fromAnchor &&
+          candidate.toAnchor === dependency.toAnchor,
+      );
+      if (duplicate) {
+        return document;
+      }
+      return { ...document, dependencies: [...existing, dependency] };
+    },
+  };
+}
+
+/**
+ * Command: remove a dependency by id (DEP-L1-001). No-op when absent.
+ *
+ * @param dependencyId - The dependency id to remove.
+ * @returns A remove-dependency command.
+ */
+export function removeDependencyCommand(dependencyId: string): ScheduleCommand {
+  return {
+    label: 'remove-dependency',
+    execute: (document) => {
+      const existing = document.dependencies ?? [];
+      const dependencies = existing.filter((candidate) => candidate.id !== dependencyId);
+      return dependencies.length === existing.length
+        ? document
+        : { ...document, dependencies };
+    },
+  };
+}
+
+/** Trimmed non-empty string, or undefined (mirrors the classification derivation). */
+function nonEmptyCategory(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed !== undefined && trimmed.length > 0 ? trimmed : undefined;
+}
+
+/**
+ * Command: add a new SECTION (major) as a declared, initially EMPTY branch named
+ * with the next free `NoneN` in the document's section scope (SECT editing rework
+ * req 1 + 4). The tree renders it immediately (via the declared-node reconciler)
+ * so the user can create items into it; fully undoable.
+ *
+ * @returns An add-section command.
+ */
+export function addSectionCommand(): ScheduleCommand {
+  return {
+    label: 'add-section',
+    execute: (document) => {
+      const name = nextDefaultCategoryName(existingMajorNames(document));
+      const declaredCategories = appendDeclaredCategory(document.declaredCategories, {
+        major: name,
+      });
+      return declaredCategories === document.declaredCategories
+        ? document
+        : { ...document, declaredCategories };
+    },
+  };
+}
+
+/**
+ * Command: add a sub-category under an existing branch as a declared, empty node
+ * named with the next free `NoneN` in the PARENT scope (SECT editing rework req 3
+ * + 4). Passing only `{ major }` adds a TRACK (middle) under that section; passing
+ * `{ major, middle }` adds a DETAIL (minor) under that track. Fully undoable.
+ *
+ * @param parent - The parent branch: a section (`major`) or a track (`major` + `middle`).
+ * @returns An add-subcategory command.
+ */
+export function addSubcategoryCommand(parent: { major: string; middle?: string }): ScheduleCommand {
+  return {
+    label: 'add-subcategory',
+    execute: (document) => {
+      const major = nonEmptyCategory(parent.major);
+      if (major === undefined) {
+        return document;
+      }
+      const parentMiddle = nonEmptyCategory(parent.middle);
+      const node: DeclaredCategory =
+        parentMiddle === undefined
+          ? { major, middle: nextDefaultCategoryName(existingMiddleNames(document, major)) }
+          : {
+              major,
+              middle: parentMiddle,
+              minor: nextDefaultCategoryName(existingMinorNames(document, major, parentMiddle)),
+            };
+      const declaredCategories = appendDeclaredCategory(document.declaredCategories, node);
+      return declaredCategories === document.declaredCategories
+        ? document
+        : { ...document, declaredCategories };
+    },
+  };
+}
+
+/** The first section major that is NOT `excludeMajor`, in section order, or null. */
+function firstOtherMajor(document: ScheduleDocument, excludeMajor: string): string | null {
+  for (const section of sectionsInOrder(document.sections)) {
+    if (section.name !== excludeMajor) {
+      return section.name;
+    }
+  }
+  return null;
+}
+
+/**
+ * Command: remove a declared classification branch (section / track / detail) and
+ * all its declared descendants, reclassifying any items still under it UP to the
+ * parent level rather than deleting item data (SECT editing rework req 2):
+ *
+ * - remove a DETAIL (minor) -> its items lose `minor` and sit on the track;
+ * - remove a TRACK (middle) -> its items lose `middle`/`minor` and sit on the section;
+ * - remove a SECTION (major) -> its items are absorbed into a sibling section (at
+ *   that section's major level), so no item data is lost. This is REFUSED (no-op)
+ *   when the section still has items and no sibling exists, preserving the
+ *   major-required invariant (an item can never be left without a section).
+ *
+ * Fully undoable. A branch that neither is declared nor has any items is a no-op.
+ *
+ * @param node - The branch to remove; its set path components fix its depth.
+ * @returns A remove-classification-node command.
+ */
+export function removeClassificationNodeCommand(node: DeclaredCategory): ScheduleCommand {
+  return {
+    label: 'remove-classification-node',
+    execute: (document) => {
+      const major = nonEmptyCategory(node.major);
+      if (major === undefined) {
+        return document;
+      }
+      const depth = declaredCategoryDepth(node);
+      const middle = nonEmptyCategory(node.middle);
+      const minor = nonEmptyCategory(node.minor);
+
+      // Resolve where surviving items go. For a section this is a sibling major; a
+      // section with items but no sibling cannot be removed (major-required).
+      let absorbMajor: string | null = null;
+      if (depth === 0) {
+        const hasItems = document.items.some((item) => nonEmptyCategory(item.majorCategory) === major);
+        if (hasItems) {
+          absorbMajor = firstOtherMajor(document, major);
+          if (absorbMajor === null) {
+            return document; // refuse: would orphan items (no section to hold them)
+          }
+        }
+      }
+
+      const reclassified = mapItems(document, (item) => {
+        if (nonEmptyCategory(item.majorCategory) !== major) {
+          return item;
+        }
+        if (depth === 0) {
+          return absorbMajor === null
+            ? item
+            : { ...item, majorCategory: absorbMajor, middleCategory: '', minorCategory: '' };
+        }
+        if (nonEmptyCategory(item.middleCategory) !== middle) {
+          return item;
+        }
+        if (depth === 1) {
+          return { ...item, middleCategory: '', minorCategory: '' };
+        }
+        if (nonEmptyCategory(item.minorCategory) !== minor) {
+          return item;
+        }
+        return { ...item, minorCategory: '' };
+      });
+
+      const declaredCategories = removeDeclaredSubtree(reclassified.declaredCategories, node);
+      if (reclassified === document && declaredCategories === document.declaredCategories) {
+        return document;
+      }
+      return declaredCategories === reclassified.declaredCategories
+        ? reclassified
+        : { ...reclassified, declaredCategories };
+    },
+  };
+}
+
+/** True when two section arrays have identical (id -> order) pairings. */
+function sectionsEqualByOrder(
+  left: readonly { id: string; order: number }[],
+  right: readonly { id: string; order: number }[],
+): boolean {
+  if (left.length !== right.length) {
+    return false;
+  }
+  const rightOrderById = new Map(right.map((section) => [section.id, section.order]));
+  return left.every((section) => rightOrderById.get(section.id) === section.order);
+}
+
+/** Re-export the anchor index type for command callers building dependencies. */
+export type { AnchorIndex };

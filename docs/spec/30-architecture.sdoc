@@ -1,0 +1,1198 @@
+[DOCUMENT]
+TITLE: gr-scheduler 設計 - アーキテクチャ (Architecture)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の **アーキテクチャ設計** である。 `00-overview.sdoc` §3.3 の
+Clean Architecture 方針を確定し、要求 (10-25 番台の L1/L2) を実現するコンポーネント
+(ARCH-C-###) を、レイヤ (Entity / UseCase / Adapter / Framework) へ仕訳して定義する。
+各 [COMPONENT] は `Implements` 関係で要求 UID をトレースし、依存の向きは DIP に従って
+内側 (Entity) へ向ける。データ形式の契約 (JSON / MSPDI XML / SVG) は `40-data-format.sdoc`
+に分離し、本書で定義するコアデータモデル ( **ScheduleDocument** ) をそこで直列化する。
+
+本書の構成は次の通りである。 1. レイヤ仕訳、 2. コンポーネント定義、 3. 依存関係図、
+4. モジュール構成、 5. ADR (Architecture Decision Records)、 6. 可観測性 (observability-lite)、
+7. 状態遷移と失敗復旧・設計トリアージ。
+<<<
+
+[[SECTION]]
+TITLE: 1. レイヤ仕訳 (Clean Architecture Layer Allocation)
+
+[TEXT]
+STATEMENT: >>>
+コアドメイン (レイアウトエンジン / 整列ソルバ / 異方性ズーム + LOD セレクタ / 依存線
+自動ルータ / 時間 - 座標マッパ / 予実差分 + イナズマ線ビルダ / セクション・行モデル /
+データモデル変換) を **Entity** ・ **UseCase** に置き、描画・入出力・永続化・
+インポート検証・クリップボード・国際化/フォントを **Adapter** に、 DOM/SVG ・ File API ・
+Web API を **Framework** に分離する。依存は常に外側から内側へ向かい ( DIP )、コアは
+Adapter/Framework を直接参照せず、境界はポート (インタフェース) で抽象化する。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 16 40 44
+
+   * - レイヤ
+     - 責務 (方針)
+     - 主なコンポーネント
+   * - Entity
+     - ビジネス不変条件を持つ純粋なドメインモデル。フレームワーク非依存。
+     - ScheduleDocument 集約 / Section・Row モデル / Item モデル / Dependency モデル /
+       Annotation モデル / Watermark モデル / ViewState モデル / Palette・i18n 値モデル
+   * - UseCase
+     - ドメインの計算・変換 (副作用なし)。座標変換・レイアウト・整列・ズーム LOD・
+       ルーティング・予実差分・セクション整理・カーソル計測・データ変換・履歴。
+     - 時間 - 座標マッパ / レイアウトエンジン / 整列ソルバ / 異方性ズーム + LOD セレクタ /
+       依存線自動ルータ / 予実差分 + イナズマ線ビルダ / セクション・行オーガナイザ /
+       カーソル・スパン計算 / JSON 変換 / MSPDI 変換 / コマンド・履歴 / ビューポート調停 /
+       テンプレート提供 / 拡張ポート (予約)
+   * - Adapter
+     - 外界とコアの橋渡し。ポートを実装し、モデルを SVG へ描画し、入力を
+       コマンドへ翻訳し、外部データを検証してモデルへ変換する。
+     - SVG レンダラ / ポインタ・ジェスチャコントローラ / File I/O / localStorage 自動保存 /
+       インポートサニタイザ / クリップボード / i18n・フォント / プロパティ・パレット UI /
+       ツールパレット UI / 透かしオーバレイ
+   * - Framework
+     - ブラウザ実行基盤。単一 HTML の起動、 DOM/SVG ホスト、 Web API、可観測性土台。
+     - アプリシェル・単一ファイルブートストラップ / DOM・SVG・Web API ホスト /
+       開発ロガー・エラートースト
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. コンポーネント定義 (Components)
+
+[TEXT]
+STATEMENT: >>>
+以下に各コンポーネントを [COMPONENT] として定義する。 `CA_LAYER` はレイヤ、 `MODULE` は
+`src/` 配下の提案パス、 `STATEMENT` は責務、 `RELATIONS` (ROLE: Implements) は実現する
+要求 UID である。コアデータモデル ( **ScheduleDocument** = schemaVersion, meta, palette,
+i18n, viewState, sections[], rows[], items[], dependencies[], annotations[], watermark,
+assets[] ) は Entity 層で定義し、 `40-data-format.sdoc` で直列化する。
+<<<
+
+[[SECTION]]
+TITLE: 2.1 Entity 層
+
+[COMPONENT]
+UID: ARCH-C-001
+TITLE: ScheduleDocument 集約
+CA_LAYER: Entity
+STATEMENT: >>>
+日程表全体を表すルート集約。 schemaVersion, meta{title, locale, createdAt, author},
+palette, i18n{locales, activeLocale}, viewState, sections[], rows[], items[],
+dependencies[], annotations[], watermark, assets[] ( インポート画像アセット ) を保持し、
+参照整合 (行はセクションに属し、アイテムは行に属し、依存はアイテムを指し、
+item.icon.importedAssetId は assets[].id を指す) の不変条件を守る。全操作の正準表現であり、
+イミュータブルに更新される。
+<<<
+MODULE: src/domain/model/schedule-document.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: CANVAS-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-002
+TITLE: Section・Row モデル
+CA_LAYER: Entity
+STATEMENT: >>>
+Section (大分類) = id, name(i18n), order, collapsed, rowIds[]。 Row/Ribbon (帯) =
+id, sectionId, classification{major, middle, minor}(i18n), order。 1 帯が複数アイテムを
+載せるマルチバー構造と、セクションによる行の束ね・順序を表現する。
+<<<
+MODULE: src/domain/model/section.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: SECT-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: SECT-L1-006
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-002
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-003
+TITLE: Item モデル (マイルストーン / タスク)
+CA_LAYER: Entity
+STATEMENT: >>>
+アイテム基底 = id, rowId, kind('milestone'|'task'), planActual('plan'|'actual'),
+start, end(null=マイルストーン), abbrev(i18n), fullName(i18n), description(i18n),
+category{major, middle, minor}(i18n), assignee, status, remarks,
+icon{kind('shape'|'emoji'|'imported'), shapeKind?, emoji?, importedAssetId?},
+style{strokeColor, fillColor, strokeWidth('thin'|'medium'|'thick')}, labelPosition,
+labelOffset{dx, dy}, importance(LOD 用), previousPlan?{start, end} (変更前予定)。
+icon.kind='imported' のとき importedAssetId は ScheduleDocument.assets[].id を参照する。
+マイルストーン図形 = circle/triangle/invTriangle/square/star/pentagon/hexagon/diamond/
+emoji/imported、タスク図形 = line/arrow/doubleArrow/segmented/chevron(矢羽根)/bar。
+<<<
+MODULE: src/domain/model/item.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: ITEM-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-006
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-009
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PROP-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PLAN-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PLAN-L1-004
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-004
+TITLE: Dependency モデル (9 点アンカー)
+CA_LAYER: Entity
+STATEMENT: >>>
+依存 = id, fromItemId, fromAnchor(0..8 = 9 点), toItemId, toAnchor, bends(0..3, ルータが
+算出)。アイコンの 9 点 (上下左右角と中央) を起終点とする依存の論理表現を保持し、
+折れ点数の許容範囲を不変条件として持つ。
+<<<
+MODULE: src/domain/model/dependency.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: DEP-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: DEP-L1-002
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-005
+TITLE: Annotation モデル (コメント / 丸角囲み)
+CA_LAYER: Entity
+STATEMENT: >>>
+注釈 = comment{id, kind('callout-box'|'polyline'), anchor, text(i18n), path} または
+roundedBox{id, rect(日付・行空間), color, cornerRadiusPx(画面空間・ズーム非依存)}。
+引出し四角/折れ線コメントと、角丸みがズームに依らず一定の丸角囲みを表現する。
+<<<
+MODULE: src/domain/model/annotation.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: CURS-L1-005
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CURS-L1-006
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CURS-L1-007
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-006
+TITLE: Watermark モデル
+CA_LAYER: Entity
+STATEMENT: >>>
+透かし = enabled, userName, timestamp。ローカル入力ユーザー名と日時を保持し、斜めタイル
+配置の表示可否を表す証跡モデル。
+<<<
+MODULE: src/domain/model/watermark.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: TOOL-L2-001
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-007
+TITLE: ViewState モデル
+CA_LAYER: Entity
+STATEMENT: >>>
+表示状態 = zoomX, zoomY (異方性), scrollX, scrollY, timeGranularity('auto'),
+fontScale('S'|'M'|'L'), leftPaneWidth, showPlan, showActual,
+cursors{today, dual{enabled, mode('vertical'|'crosshair'), baseDate, diffDate}}。
+ズーム・スクロール・カーソル・フォント段階など、描画に影響する UI 状態を保持する。
+<<<
+MODULE: src/domain/model/view-state.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: ZOOM-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CURS-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: TOOL-L1-002
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-008
+TITLE: Palette・i18n 値モデル
+CA_LAYER: Entity
+STATEMENT: >>>
+palette = 色弱者配慮 (CUD) の 10 色定義。 i18n 値 = property キーは英語固定、値は
+ロケール別マップ ( {en, ja, ...} ) で保持する多言語値の型。表示は多言語、キーは
+英語という規約を型で強制する。
+<<<
+MODULE: src/domain/model/i18n-value.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: PROP-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PROP-L1-005
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PROP-L1-006
+  ROLE: Implements
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2.2 UseCase 層
+
+[COMPONENT]
+UID: ARCH-C-009
+TITLE: 時間 - 座標マッパ
+CA_LAYER: UseCase
+STATEMENT: >>>
+日付 <-> x を zoomX 支配の時間スケールで相互変換し、ズーム率から時間軸粒度
+(年 / 年月 / 月日曜) を導出する。行 <-> y は zoomY 支配のレイアウトへ委譲する
+(異方性の分離)。純粋関数として提供する。
+<<<
+MODULE: src/domain/geometry/time-scale.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: ZOOM-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ZOOM-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-005
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-010
+TITLE: 異方性ズーム + LOD セレクタ
+CA_LAYER: UseCase
+STATEMENT: >>>
+zoomX / zoomY を独立に扱う異方性ズームを管理し、ポインタ位置中心のズーム変換を算出する。
+各アイテムの importance (weight) と現在ズームから表示閾値を求め、閾値以上のアイテムのみを
+選択する。表示閾値は縮小するほど単調に高くなり、縮小でアイテムが増えない単調性を保証する。
+<<<
+MODULE: src/domain/zoom/lod-selector.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: ZOOM-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ZOOM-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ZOOM-L1-005
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ZOOM-L2-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ZOOM-L3-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: NFR-L1-002
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-011
+TITLE: レイアウトエンジン (マルチバー詰め)
+CA_LAYER: UseCase
+STATEMENT: >>>
+1 帯に複数アイテムを重ならないよう縦積みで詰めるマルチバーレイアウト、行・セクションの
+縦配置、分類名の左ペイン固定領域幅、キャンバス全体の論理サイズを算出する。情報密度最大化の
+ため既定ズームで全体が 1 画面に収まる初期スケールを導く。
+<<<
+MODULE: src/domain/layout/layout-engine.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: CANVAS-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: SECT-L2-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-006
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-012
+TITLE: 整列ソルバ (揃え + WYSIWYG 双方向同期)
+CA_LAYER: UseCase
+STATEMENT: >>>
+同タイミングのタスク・同種マイルストーンを上下左右に揃えるスナップ位置を算出する。
+ドラッグによる作成・移動・リサイズの位置から start/end/labelPosition を逆算し、アイコン
+移動とプロパティを双方向に同期させる (見たまま = データ)。
+<<<
+MODULE: src/domain/alignment/alignment-solver.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: ALIGN-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ALIGN-L2-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ALIGN-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ALIGN-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ALIGN-L2-002
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-013
+TITLE: 依存線自動ルータ
+CA_LAYER: UseCase
+STATEMENT: >>>
+9 点アンカー間を直交線 (orthogonal) で結び、他アイコンとの重なりを避ける障害物回避
+経路を探索し、折れ点を 0..3 の範囲で算出する。矢頭は最小サイズで描けるよう線端の
+アンカー方向ベクトルを与える。
+<<<
+MODULE: src/domain/routing/dependency-router.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: DEP-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: DEP-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: DEP-L2-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: DEP-L2-002
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-014
+TITLE: 予実差分 + イナズマ線ビルダ
+CA_LAYER: UseCase
+STATEMENT: >>>
+予定 (plan) と実績 (actual) の差分を計算し、表示切替 (予定のみ / 実績のみ / 両方) の
+可視集合を決める。基準日でのイナズマ線 (progress line) の折れ線頂点列を構築し、変更前予定
+(previousPlan) のグレー表示位置を算出する。
+<<<
+MODULE: src/domain/plan-actual/progress-line-builder.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: PLAN-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PLAN-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PLAN-L2-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PLAN-L1-004
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-015
+TITLE: セクション・行オーガナイザ
+CA_LAYER: UseCase
+STATEMENT: >>>
+セクションの順序入替、表示/非表示切替、非表示セクションを水平線左端の小タブとして列挙する
+ロジック。非表示が増えても水平線を太くせず小タブを増やす方針を実装する。
+<<<
+MODULE: src/domain/section/section-organizer.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: SECT-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: SECT-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: SECT-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: SECT-L1-005
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-016
+TITLE: カーソル・スパン計算
+CA_LAYER: UseCase
+STATEMENT: >>>
+本日線の x 位置、 2 本のデュアルカーソル (縦線 / 十字線モード) の位置、カーソル間の
+スパン (日数) を算出する。角丸みが画面空間で一定 (ズーム非依存) となる丸角囲みの角半径の
+逆スケール補正も担う。
+<<<
+MODULE: src/domain/cursor/cursor-span.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: CURS-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CURS-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CURS-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CURS-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CURS-L2-001
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-017
+TITLE: JSON 変換 (直列化 / 復元)
+CA_LAYER: UseCase
+STATEMENT: >>>
+ScheduleDocument <-> JSON の相互変換 (往復整合)。主データ形式であり内部モデルの正準表現を
+JSON へ直列化し、検証済み JSON をモデルへ復元する。 assets[] ( インポート画像アセット ) も
+往復対象に含め、 item.icon.importedAssetId と assets[].id の参照を保存/復元して
+インポート画像アイコンが往復で失われないようにする。スキーマ契約は 40-data-format に従う。
+<<<
+MODULE: src/domain/io/json-converter.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-001
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-018
+TITLE: MSPDI 変換
+CA_LAYER: UseCase
+STATEMENT: >>>
+ScheduleDocument <-> MSPDI XML の相互変換。 MS Project の Project/Task/PredecessorLink/
+OutlineLevel へマッピングし、 MSPDI に対応概念が無い属性 (マルチバー / アイコン / 色 /
+コメント / 透かし / 丸角囲み) は名前空間付き JSON サイドカーで往復保持する。マッピング
+不能はエラー/警告として返す。
+<<<
+MODULE: src/domain/io/mspdi-converter.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-002
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-019
+TITLE: コマンド・履歴マネージャ (Undo/Redo)
+CA_LAYER: UseCase
+STATEMENT: >>>
+すべての編集をコマンドとして適用し、イミュータブルな状態スナップショットの履歴を保持して
+Undo/Redo を提供する。コピー&ペースト、ショートカット操作もコマンド化して履歴へ載せる。
+軽量ストア (イミュータブル + イベント通知) の中核。
+<<<
+MODULE: src/domain/command/history-manager.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: TOOL-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: TOOL-L1-005
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-020
+TITLE: テンプレート提供
+CA_LAYER: UseCase
+STATEMENT: >>>
+初期テンプレート 1 種を ScheduleDocument として生成する。新規作成時の初期セクション・行・
+既定ビュー状態を与える。
+<<<
+MODULE: src/domain/template/template-provider.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: CANVAS-L1-010
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-021
+TITLE: ビューポート調停 (パン / 連動スクロール / 固定ペイン)
+CA_LAYER: UseCase
+STATEMENT: >>>
+scrollX/scrollY と可視範囲を管理し、上下左右のパン、ヘッダー (年月日曜) と左分類ペインの
+固定表示、分類領域とスケジュール領域の個別連動スクロールを算出する。ヘッダー左上の
+スケジュール名の固定表示位置も与える。
+<<<
+MODULE: src/domain/viewport/viewport-coordinator.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: CANVAS-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-007
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-008
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-009
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L2-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ZOOM-L1-006
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L2-001
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-035
+TITLE: 拡張ポート (予約・未実装)
+CA_LAYER: UseCase
+STATEMENT: >>>
+将来拡張 (item60 / STK-L0-018) のための接合点をインタフェースとしてのみ予約する。
+データ層抽象ポート (共同編集用の永続/同期を差し替え可能に)、行単位の公開/編集権限フック、
+ガント/一覧モード切替の口。 MVP では実装せず、後付けが困難な境界のみ確保する。
+<<<
+MODULE: src/domain/ports/extension-ports.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-009
+  ROLE: Implements
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2.3 Adapter 層
+
+[COMPONENT]
+UID: ARCH-C-022
+TITLE: SVG レンダラ
+CA_LAYER: Adapter
+STATEMENT: >>>
+ScheduleDocument とレイアウト結果を SVG DOM へ描画する。マイルストーン/タスクの各図形、
+既定図形・絵文字・インポート画像アイコン、略称ラベル、依存線 (最小矢頭)、分類水平線、
+左固定分類ペインを描く。差分描画 ( 変更差分のみ DOM パッチ ) と requestAnimationFrame
+バッチによる描画スケジューリングを担い、中規模データ (約 50 行 / 約 1000 アイテム) で
+60fps / 初期 1.5 秒 (NFR-L1-002) を狙う。画面表示と SVG エクスポートの双方に同一レンダラを
+用いる (見た目の一致)。
+<<<
+MODULE: src/adapter/render/svg-renderer.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: ITEM-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-005
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: IO-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-006
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: NFR-L1-002
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-023
+TITLE: ポインタ・ジェスチャコントローラ
+CA_LAYER: Adapter
+STATEMENT: >>>
+DOM のポインタ/ホイールイベントを WYSIWYG 操作 (作成・移動・リサイズ・略称位置ドラッグ・
+コメント配置・ホイールズーム・拡大時のマウスドラッグパン・左分類ペイン幅のドラッグ変更) へ
+翻訳し、整列ソルバ/ズームセレクタ/ビューポート調停を介してコマンドを発行する。修飾キーで
+異方性ズームを切り替える。
+<<<
+MODULE: src/adapter/input/pointer-controller.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: ALIGN-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ALIGN-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-010
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CURS-L1-005
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ZOOM-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-011
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L2-001
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-024
+TITLE: File I/O アダプタ
+CA_LAYER: Adapter
+STATEMENT: >>>
+File API を用いて日程データ (.json / .xml) と画面 (.svg) をローカルファイルへ保存し、
+ローカルファイルを読み込んで変換器へ渡す。明示的な保存/読込の入口。
+<<<
+MODULE: src/adapter/file/file-io.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-004
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-025
+TITLE: localStorage 自動保存アダプタ
+CA_LAYER: Adapter
+STATEMENT: >>>
+編集中状態を localStorage へ自動保存し、起動時に直前状態の有無を検出して復旧確認を提示、
+承諾時に復元する。自動保存状態 (保存済 / 保存中 / 失敗) を可観測性土台へ通知する。
+<<<
+MODULE: src/adapter/persistence/autosave.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-005
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-026
+TITLE: インポートサニタイザ
+CA_LAYER: Adapter
+STATEMENT: >>>
+外部入力 (JSON / MSPDI XML / SVG / PNG) を信頼できない入力として厳格に検証・サニタイズ
+してからモデルへ反映する。 XML 外部エンティティ解決を無効化 (XXE 対策)、 innerHTML への
+直接挿入を禁止、スキーマ/型不適合を拒否、 SVG は許可要素/属性のホワイトリストで無害化し、
+インポート画像を ImportedAsset{id, format('svg'|'png'), sanitizedData} として保持する。
+<<<
+MODULE: src/adapter/import/import-sanitizer.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: IO-L1-006
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-007
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-008
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L2-001
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-027
+TITLE: クリップボードアダプタ
+CA_LAYER: Adapter
+STATEMENT: >>>
+アイテムのコピー&ペーストを Web クリップボード/内部バッファで実現し、コマンド・履歴
+マネージャへ複製アイテムの追加コマンドを発行する。
+<<<
+MODULE: src/adapter/clipboard/clipboard.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-003
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-028
+TITLE: i18n・フォントアダプタ
+CA_LAYER: Adapter
+STATEMENT: >>>
+activeLocale の切替と多言語値の解決、フォントサイズ段階 (S/M/L) の全表示要素への一貫適用、
+言語別の文字幅を考慮したフォント適用を行う。 property キーは英語固定・値のみ多言語という
+規約を UI に反映する。
+<<<
+MODULE: src/adapter/i18n/i18n-font.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: PROP-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PROP-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: TOOL-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: NFR-L1-003
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-029
+TITLE: プロパティ・パレット UI
+CA_LAYER: Adapter
+STATEMENT: >>>
+アイテムのプロパティ (略称/分類/日付/予実/色/線幅/正式名称/説明/大中小分類/担当/
+ステータス/備考 等) を編集する UI と、色弱者配慮 (CUD) の 10 色パレットを提供する。
+枠色/塗り色の選択、色に依存しないコントラスト確保を担う。
+<<<
+MODULE: src/adapter/ui/property-panel.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: PROP-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PROP-L1-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PROP-L1-005
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: ITEM-L1-006
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: NFR-L1-006
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-030
+TITLE: ツールパレット UI (フローティング)
+CA_LAYER: Adapter
+STATEMENT: >>>
+固定バーではなくフローティング表示のツールパレット。非選択時は薄く透明化し描画面積を
+最大化する。メニューは言葉ではなくアイコンで用途を伝えるアフォーダンス設計で、
+マニュアル不要の初見操作を狙う。
+<<<
+MODULE: src/adapter/ui/tool-palette.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: TOOL-L1-006
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: CANVAS-L1-003
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: NFR-L1-004
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: NFR-L1-005
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-031
+TITLE: 透かしオーバレイ
+CA_LAYER: Adapter
+STATEMENT: >>>
+Watermark モデルから、画面全体へ斜め方向に薄く複数タイル配置する透かし層を描く。文字は
+画面空間固定 (ズーム非依存) で、表示/非表示を切り替える。 SVG エクスポート時も有効なら含める。
+<<<
+MODULE: src/adapter/render/watermark-overlay.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L1-007
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: TOOL-L2-002
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: TOOL-L2-003
+  ROLE: Implements
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2.4 Framework 層
+
+[COMPONENT]
+UID: ARCH-C-032
+TITLE: アプリシェル・単一ファイルブートストラップ
+CA_LAYER: Framework
+STATEMENT: >>>
+Vite + vite-plugin-singlefile で全 JS/CSS/アセットを 1 つの .html にインライン化する
+起動基盤。外部 CDN 依存を持たず単一ファイルで完全動作する。 UI ラベル・データフィールド・
+コード識別子の命名を「名は体を表す」規約で統制する土台でもある。
+<<<
+MODULE: src/main.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: NFR-L1-007
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-033
+TITLE: DOM・SVG・Web API ホスト
+CA_LAYER: Framework
+STATEMENT: >>>
+ブラウザの DOM/SVG、 File API、ポインタ/ホイール、 localStorage 等の Web API へのアクセスを
+集約する薄いホスト。 Web API のハンドル取得・イベント購読・requestAnimationFrame コールバックの
+配線のみを担い、描画スケジューリング (差分描画 / rAF バッチ) の方針決定と性能責務はレンダラ
+(ARCH-C-022) とズーム LOD セレクタ (ARCH-C-010) に委ねる。ホスト自身は薄く保つ。
+<<<
+MODULE: src/framework/host.ts
+RELATIONS:
+- TYPE: Parent
+  VALUE: NFR-L1-001
+  ROLE: Implements
+
+[COMPONENT]
+UID: ARCH-C-034
+TITLE: 開発ロガー・エラートースト (observability-lite)
+CA_LAYER: Framework
+STATEMENT: >>>
+名前空間付きの開発用ロガー (本番ビルドで除去)、自動保存状態の表示、ユーザー向けエラー
+トースト (インポート検証失敗 / マッピング不能 等の通知) を提供する。クライアント単一 HTML
+向けの軽量な可観測性土台。自動保存 (IO-L1-005) の中核実装は ARCH-C-025、インポート検証
+(IO-L1-006) の中核実装は ARCH-C-026 にあり、本コンポーネントはそれらの状態/失敗を UI へ
+通知する可観測性のみを担う ( 要求の中核 Implements は持たない )。
+<<<
+MODULE: src/framework/observability.ts
+
+[[/SECTION]]
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 依存関係図 (Component Dependencies, DIP)
+
+[TEXT]
+STATEMENT: >>>
+コンポーネント間の依存の向きを示す。依存は常に外側 (Framework) から内側 (Entity) へ
+向かい、コア (Entity / UseCase) は Adapter / Framework を直接参照しない。 Adapter は
+UseCase が公開するポートを実装し、逆方向の依存は生じない。
+
+.. raw:: html
+
+    <pre class="mermaid">
+    flowchart RL
+        subgraph Framework
+            Shell["ARCH-C-032<br/>App Shell"]
+            Host["ARCH-C-033<br/>DOM SVG Host"]
+            Obs["ARCH-C-034<br/>Dev Logger Toast"]
+        end
+        subgraph Adapter
+            Render["ARCH-C-022<br/>SVG Renderer"]
+            Pointer["ARCH-C-023<br/>Pointer Controller"]
+            FileIO["ARCH-C-024<br/>File IO"]
+            Auto["ARCH-C-025<br/>Autosave"]
+            Sanit["ARCH-C-026<br/>Import Sanitizer"]
+            Clip["ARCH-C-027<br/>Clipboard"]
+            I18n["ARCH-C-028<br/>i18n Font"]
+            PropUI["ARCH-C-029<br/>Property Palette UI"]
+            ToolUI["ARCH-C-030<br/>Tool Palette UI"]
+            WmUI["ARCH-C-031<br/>Watermark Overlay"]
+        end
+        subgraph UseCase
+            UcCore["UseCase Services<br/>ARCH-C-009..021<br/>ARCH-C-035"]
+        end
+        subgraph Entity
+            EnCore["Domain Model<br/>ARCH-C-001..008"]
+        end
+        Shell -->|bootstraps| Host
+        Host -->|hosts| Render
+        Host -->|hosts| Pointer
+        Obs -->|observes| Auto
+        Render -->|depends on port| UcCore
+        Pointer -->|dispatches command| UcCore
+        FileIO -->|depends on port| UcCore
+        Auto -->|depends on port| UcCore
+        Sanit -->|produces model for| UcCore
+        Clip -->|dispatches command| UcCore
+        I18n -->|resolves values via| UcCore
+        PropUI -->|edits via| UcCore
+        ToolUI -->|invokes| UcCore
+        WmUI -->|reads state from| UcCore
+        UcCore -->|operates on| EnCore
+    </pre>
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. モジュール構成 (Module Structure)
+
+[TEXT]
+STATEMENT: >>>
+`src/` 配下の提案ディレクトリ構成を示す。 domain がコア ( Entity / UseCase )、 adapter が
+外界との橋渡し、 framework が実行基盤である。 domain は adapter / framework を import しない。
+
+::
+
+    src/
+      domain/
+        model/            # Entity: schedule-document, section, item, dependency,
+                          #         annotation, watermark, view-state, i18n-value
+        geometry/         # UseCase: time-scale (date<->x)
+        zoom/             # UseCase: lod-selector (anisotropic zoom + LOD)
+        layout/           # UseCase: layout-engine (multi-bar packing)
+        alignment/        # UseCase: alignment-solver (snap + two-way sync)
+        routing/          # UseCase: dependency-router (orthogonal, 0..3 bends)
+        plan-actual/      # UseCase: progress-line-builder (illuminated line + diff)
+        section/          # UseCase: section-organizer (order/visibility/tabs)
+        cursor/           # UseCase: cursor-span (today line, dual cursor, span)
+        io/               # UseCase: json-converter, mspdi-converter
+        command/          # UseCase: history-manager (undo/redo, immutable store)
+        template/         # UseCase: template-provider
+        viewport/         # UseCase: viewport-coordinator (pan, linked scroll)
+        ports/            # UseCase: extension-ports (reserved, item60)
+      adapter/
+        render/           # svg-renderer, watermark-overlay
+        input/            # pointer-controller
+        file/             # file-io
+        persistence/      # autosave (localStorage)
+        import/           # import-sanitizer (XXE/SVG/PNG)
+        clipboard/        # clipboard
+        i18n/             # i18n-font
+        ui/               # property-panel, tool-palette
+      framework/
+        host.ts           # DOM/SVG/Web API host
+        observability.ts  # dev logger, autosave status, error toast
+      main.ts             # app shell, single-file bootstrap
+    index.html            # single-file build entry (vite-plugin-singlefile)
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 5. アーキテクチャ決定記録 (ADR)
+
+[TEXT]
+STATEMENT: >>>
+**ADR-001 描画方式に SVG を採用 ( vs Canvas )**
+
+- Context: マルチバー日程表は個々のアイテム/依存線/コメントを選択・ドラッグ編集し、
+  ベクタで SVG エクスポート (IO-L1-003) する必要がある。ヒットテストとアクセシビリティ
+  (WCAG 2.1 AA) も要る。
+- Decision: 描画は SVG DOM を採用する。要素ごとにノードを持ち、イベント/フォーカスを
+  素直に扱える。エクスポートは同じ SVG をシリアライズして得る。
+- Consequences: 要素選択・アクセシビリティ・ベクタ出力が容易。約 1000 アイテムでは
+  ノード数管理と差分更新 (LOD による間引き) で 60fps を狙う。極端な要素数では Canvas
+  併用を将来検討 (現規模では不要)。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**ADR-002 バニラ TS + 軽量ストア ( vs フレームワーク )**
+
+- Context: 単一 HTML・オフライン・外部 CDN 依存禁止 (NFR-L1-001)。 Undo/Redo (TOOL-L1-004)
+  のため状態管理が要る。
+- Decision: React/Vue 等を用いず、バニラ TypeScript + 自作の軽量ストア (イミュータブル
+  状態 + イベント通知 + コマンド履歴) を採用する。
+- Consequences: バンドルが小さく単一ファイル化に適合。イミュータブル + コマンドで
+  Undo/Redo が自然。 UI 記述の恩恵は失うが、 SVG 直接操作と相性が良い。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**ADR-003 単一ファイル Vite ビルド (vite-plugin-singlefile)**
+
+- Context: 成果物は 1 つの .html でサーバー無し・オフライン動作 (STK-L0-015 / NFR-L1-001)。
+- Decision: Vite + vite-plugin-singlefile で JS/CSS/アセットを 1 HTML にインライン化し、
+  外部 CDN/ネットワークを参照しない。フォント/アイコンも同梱する。
+- Consequences: 配布と可搬性が最大。ファイルサイズは増えるが中規模用途では許容。将来の
+  共同編集 (item60) 導入時はデータ層ポート (ARCH-C-035) 経由で拡張する。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**ADR-004 異方性の時間 - 空間座標モデル + 画面空間固定オーバレイ**
+
+- Context: 縦横独立ズーム (ZOOM-L1-003)、角丸みや矢頭や透かしがズームに依らず一定
+  (CURS-L1-007 / DEP-L1-004 / TOOL-L2-002) という要求がある。
+- Decision: 日付 <-> x を zoomX、行 <-> y を zoomY で独立に支配する異方性座標モデルを採る。
+  丸角囲みの cornerRadiusPx・依存矢頭・透かしは CSS px の画面空間固定要素として、ズーム
+  逆補正を掛けて描く。
+- Consequences: 俯瞰/詳細の縦横独立調整が可能。画面空間固定と日付/行空間の 2 系統を
+  レンダラで明確に分離する必要がある。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**ADR-005 重要度 (weight) による LOD**
+
+- Context: ズームに応じアイテムを自動増減し、縮小でも要点を残す (ZOOM-L1-005 /
+  ZOOM-L2-001 / ZOOM-L3-001)。
+- Decision: 各アイテムの importance と現在ズームから表示閾値を算出し、閾値以上のみ表示する。
+  表示閾値は縮小するほど単調に高く (縮小でアイテムが増えない単調性) する。
+- Consequences: 恣意的な間引きを避け一貫した LOD を得る。 importance の付与規則を
+  プロパティ/既定値で用意する必要がある。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**ADR-006 依存線の自動ルーティング (直交・障害物回避・折れ点 0..3)**
+
+- Context: 9 点アンカーから引く依存線を重なり回避で自動配線し折れ点 0..3、矢頭は最小
+  (DEP-L1-002 / DEP-L1-003 / DEP-L2-001 / DEP-L2-002 / DEP-L1-004)。
+- Decision: 直交配線 + 障害物 (他アイコン) 回避の経路探索で折れ点数を最小化 (0..3 に制限)
+  するルータを UseCase に置く。矢頭は画面空間固定の最小サイズ。
+- Consequences: 見やすい配線が自動で得られる。多数依存では探索コストが増えるため、
+  近傍のみ障害物とするなどの計算量制御を実装で行う。
+- Consequences (端点の間引き/仮想化): LOD 間引きまたはビューポート仮想化で依存線の端点
+  アイテムが非表示/ DOM 非生成になった場合の表示規則を次のとおり定める。両端点が非表示なら
+  依存線を描かない。片端のみ非表示のときは、依存線を非表示側の最寄りの可視コンテナ端
+  (所属セクション/行の縁) までクランプ (テザリング) し、端点が画面外/間引き対象である旨を
+  小インジケータで示す。ジオメトリは純粋関数 (ARCH-C-013) で算出するため性能上の破綻は無い。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**ADR-007 将来拡張の接合点のみ予約 (item60 / STK-L0-018、未実装)**
+
+- Context: 共同編集・行単位権限・ガント/一覧モード切替は MVP 外 (Wont) だが後付けが困難
+  (NFR-L1-009)。
+- Decision: データ層抽象ポート・権限フック・モード切替の口をインタフェースとしてのみ
+  ARCH-C-035 に予約し、 MVP では実装しない。コアはこれらポートに依存しない既定実装で動く。
+- Consequences: 将来の破壊的変更を避けられる。予約ポートは未使用のまま存在するため、
+  設計意図をコメントと本 ADR で明示し誤用を防ぐ。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**ADR-008 i18n アーキテクチャ (英語 property キー・多言語値)**
+
+- Context: property 名は英語、表示値は多言語 (PROP-L1-003 / PROP-L1-004 / STK-L0-007)。
+- Decision: データフィールドのキーは英語固定とし、ユーザー可視の値/ラベルのみロケール別
+  マップ ( {en, ja, ...} ) で保持する。 i18n・フォントアダプタが activeLocale で解決する。
+- Consequences: AI/外部ツール連携 (JSON) がキー安定で扱いやすく、多国籍 UI も両立。値の
+  ロケール網羅の検証を要する。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**ADR-009 性能: ビューポート仮想化 + 早期 PoC ゲート (RISK-001 対応)**
+
+- Context: 中規模 (約 50 行/約 1000 アイテム) で 60fps ズーム/パン + 初期表示 1.5 秒
+  (NFR-L1-002) を SVG DOM で満たす必要があり、素朴な全ノード描画では未達の懸念 (RISK-001,
+  スコア 9)。
+- Decision: SVG を維持しつつ、(1) ビューポート仮想化 (可視領域 + 近傍のみ DOM 生成、画面外は
+  非生成/遅延生成)、(2) 重要度 LOD 間引き (ADR-005)、(3) 差分描画 (変更差分のみ DOM パッチ、
+  requestAnimationFrame でバッチ) を必須設計とする。実装フェーズ最初の M1 ウォーキング
+  スケルトンで、約 1000 アイテム相当のダミーデータによる性能 PoC を実施し、60fps/1.5 秒の
+  達成を計測ゲートとする。未達なら Canvas 併用ハイブリッド等へ decision を記録し再確認する。
+- Consequences: 現規模で SVG の利点 (選択・a11y・ベクタ出力) を保ちつつ性能目標を狙える。
+  レンダラは可視判定・差分適用・LOD を担う複雑度を負う。本方針は 2026-07-18 にユーザー承認済み
+  (DEC-001)。
+- References: RISK-001, NFR-L1-002, ZOOM-L2-001, ARCH-C-021, ARCH-C-022, ARCH-C-010。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 6. 可観測性 (Observability-lite)
+
+[TEXT]
+STATEMENT: >>>
+サーバーを持たないクライアント単一 HTML のため、可観測性は軽量な範囲に絞る
+( CLAUDE.md 可観測性要求のクライアント適用 )。実装は ARCH-C-034 を中心に行う。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 74
+
+   * - 観点
+     - 方針
+   * - 開発ロガー
+     - 名前空間付き ( 例 grsch:layout ) の構造化ログ。 DEBUG/INFO/WARN/ERROR の 4 レベル。
+       本番ビルドで除去 (dead-code elimination) し、 console.log は使わない。
+   * - Undo/Redo 履歴
+     - コマンド・履歴マネージャ (ARCH-C-019) が編集履歴を保持し、操作の可視化と巻き戻しを
+       提供する。履歴長は上限を設けメモリを保護する。
+   * - 自動保存状態
+     - localStorage 自動保存 (ARCH-C-025) の状態 (保存済 / 保存中 / 失敗) を UI に控えめに
+       表示し、復旧確認を提示する。
+   * - エラートースト
+     - インポート検証失敗・ MSPDI マッピング不能・保存失敗をユーザー向けトーストで通知する。
+       技術詳細は開発ロガーへ、ユーザーには簡潔なメッセージを出す。
+   * - 計測 (任意)
+     - 開発時のみ、初期表示時間・フレーム時間を開発ロガーへ出力し、 NFR-L1-002 (60fps /
+       初期 1.5 秒) の達観測に用いる。本番では無効化する。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 7. 状態遷移と失敗復旧・設計トリアージ
+
+[TEXT]
+STATEMENT: >>>
+R4 (並行性・状態遷移) 観点に応え、副作用を伴う 2 つのフロー ( 自動保存 / インポート ) の
+状態遷移と失敗復旧を定義する。実行モデルは単一スレッド ( ADR-002 ) であり、状態は
+イミュータブルなスナップショット + コマンド適用 (ARCH-C-019) で原子的に差し替わる。
+
+**自動保存の状態遷移 (ARCH-C-025) :**
+
+.. raw:: html
+
+    <pre class="mermaid">
+    stateDiagram-v2
+        [*] --> idle : init
+        idle --> saving : edit_debounced
+        saving --> saved : write_ok
+        saving --> failed : write_error
+        saved --> idle : next_edit
+        failed --> saving : auto_retry
+        failed --> idle : user_dismiss
+    </pre>
+
+自動保存が失敗 ( failed ) したときは、可観測性土台 (ARCH-C-034) がユーザー向けトーストで
+通知し、自動リトライ ( failed --> saving ) を行う。リトライ上限に達した場合はユーザーが
+明示的に破棄 ( user_dismiss ) するまで failed を保持し、編集中データはメモリ上に残す
+( localStorage への書込み失敗が編集内容を失わせない )。
+
+**インポートフローの状態遷移 (ARCH-C-026) :**
+
+.. raw:: html
+
+    <pre class="mermaid">
+    stateDiagram-v2
+        [*] --> idle : ready
+        idle --> reading : file_selected
+        reading --> validating : bytes_loaded
+        validating --> applying : schema_and_sanitize_ok
+        validating --> rejected : invalid_or_unsafe
+        applying --> applied : replace_document
+        applied --> idle : done
+        rejected --> idle : keep_current_document
+    </pre>
+
+検証/サニタイズ不合格 ( rejected ) のときは、現在のメモリ上ドキュメントを一切変更しない
+( ロールバック = 適用を行わない no-op )。すなわちインポートは検証通過後の applying で初めて
+ドキュメントを置換 ( replace_document ) するため、拒否時に部分適用による不整合は生じない。
+置換前に未保存編集がある場合はユーザーに確認する ( 40-data-format DATA-JSON-001 の調停規則 )。
+インポート中のユーザー編集との競合は、置換方式 ( マージしない ) により回避する。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**設計トリアージ記録 (NFR-L1-008) :** パワポ代替の便利機能候補群 ( NFR-L1-008、 item62 提案、
+Could ) は、 MVP スコープでは実装対象とせず「後日トリアージ」の据置きとする。採否は後続の
+design decision で確定する ( RISK-017 で追跡 )。本 MVP のアーキテクチャは当該候補群に依存せず
+成立する。
+<<<
+
+[[/SECTION]]

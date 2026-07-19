@@ -1,0 +1,157 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - 分類とセクション (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の分類 (水平線) とセクション管理に関するシステム要求 (L1) と、その詳細化
+(L2) を定義する。分類する水平線、複数行を束ねる ★ セクション化と順序入替、 ★ セクションの
+表示/非表示、 ★ 非表示セクションを水平線左端の小タブから再表示する仕組み、分類名の左ペイン表示を
+扱う。各要求は Parent 関係で L0 (STK-L0-009) を詳細化する。左固定ペインの存在とスクロール連動は
+10-canvas-view が担当する。
+<<<
+
+[[SECTION]]
+TITLE: 1. 分類の水平線 (Classification Lines)
+
+[REQUIREMENT]
+UID: SECT-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 分類する水平線
+STATEMENT: >>>
+本システムは、キャンバス上に、マイルストーン/タスクを分類する水平線を任意の位置へ引けること。
+<<<
+RATIONALE: 行群を区切って整理する基本手段。user-order item35。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-009
+
+[REQUIREMENT]
+UID: SECT-L1-006
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+I18N: Yes
+TITLE: 分類名の左ペイン表示
+STATEMENT: >>>
+本システムは、各分類およびセクションの名称を、画面左側の分類ペインに表示すること。
+<<<
+RATIONALE: >>>
+どの帯が何の分類かを常時提示する。分類名は多言語文字列のため i18n 対象。分類ペインの存在と
+その幅可変・スクロール連動は 10-canvas-view が担当する。user-order item40。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-009
+
+[TEXT]
+STATEMENT: >>>
+**設計メモ (mock feedback):** 分類ペインの幅はユーザーがドラッグで可変にできる (実機モックの
+フィードバック。要求は 10-canvas-view の CANVAS-L2-001)。大分類・中分類・小分類の階層は
+インデント (字下げ) で表現し、階層ごとに独立したカラムを設けない (SECT-L2-001)。これにより
+狭い分類ペインでも階層と情報密度を両立する。
+<<<
+
+[REQUIREMENT]
+UID: SECT-L2-001
+TYPE: Functional
+PRIORITY: Should
+LAYER: L2_Component
+TITLE: 階層のインデント表現
+STATEMENT: >>>
+分類ペインは、大分類・中分類・小分類の階層をインデント (字下げ) で表現し、階層ごとに独立した
+カラムを設けないこと。
+<<<
+RATIONALE: >>>
+カラム分割は左ペインを横に広げ描画領域を圧迫する。インデント表現で狭い幅でも階層を示す。
+SECT-L1-006 の内部表現規則。user-order item40 (mock feedback)。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SECT-L1-006
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. セクション化と順序 (Sectioning & Order)
+
+[REQUIREMENT]
+UID: SECT-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 複数行のセクション化と順序入替
+STATEMENT: >>>
+本システムは、複数の分類行を束ねて 1 つのセクションとし、セクション単位で表示順序を入れ替え
+られること。
+<<<
+RATIONALE: 大規模日程を意味のまとまりで整理し、並び順を柔軟に変える。 ★ user-order item36。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-009
+
+[REQUIREMENT]
+UID: SECT-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: セクションの表示/非表示切替
+STATEMENT: >>>
+本システムは、各セクションの表示/非表示を個別に切り替えられること。
+<<<
+RATIONALE: 注目したいセクションだけを残して俯瞰性を高める。 ★ user-order item37。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-009
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 非表示セクションの再表示 (Reveal via Tabs)
+
+[REQUIREMENT]
+UID: SECT-L1-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 小タブによる非表示セクションの再表示
+STATEMENT: >>>
+セクションを非表示にしたとき、本システムは、水平線の左端に再表示用の小タブを表示し、その小タブへ
+の操作で当該セクションを再表示すること。
+<<<
+RATIONALE: 隠したセクションの存在と復帰手段を、場所を取らずに提示する。 ★ user-order item38。
+VERIFICATION: >>>
+セクションを非表示にすると水平線左端に小タブが 1 つ現れ、その小タブを操作すると当該セクションが
+元の順序位置へ再表示されることを確認する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-009
+
+[REQUIREMENT]
+UID: SECT-L1-005
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 小タブ増加による対応と水平線の非肥大
+STATEMENT: >>>
+非表示セクションが増えた場合、本システムは、水平線左端の小タブ数を増やすことで対応し、水平線
+自体の幅 (太さ) は増やさないこと。
+<<<
+RATIONALE: >>>
+非表示が増えても水平線を太らせて描画領域を圧迫しない。小タブの個数で表現を拡張する。
+★ user-order item39。
+<<<
+VERIFICATION: >>>
+非表示セクションを複数にしたとき、水平線の太さが一定のまま、小タブの個数だけが非表示数に応じて
+増えることを確認する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-009
+
+[[/SECTION]]

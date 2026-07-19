@@ -1,0 +1,149 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - 予実管理 (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の予実管理ドメイン (プレフィクス PLAN) のシステム要求 (L1) と
+コンポーネント要求 (L2) を定義する。予定と実績の区別・表示切替 (予定のみ/実績のみ/両方)・
+イナズマ線 (progress line) によるボトルネック可視化・変更前予定のグレー表示を扱う。
+各 L1 要求はステークホルダ要求 STK-L0-011 (予実管理と遅れの可視化) を Parent で
+詳細化する。出典は `user-order.md` item54-57 と `01-stakeholder-requirements.sdoc`。
+<<<
+
+[[SECTION]]
+TITLE: 1. 予定と実績の区別 (Plan vs Actual)
+
+[REQUIREMENT]
+UID: PLAN-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 予定と実績を区別して表示・管理する
+STATEMENT: >>>
+本システムは、各マイルストーン/タスクに予定 (計画) と実績 (結果) の日付を別々に保持し、
+両者を視覚的に区別できる表現 (例: 予実区別の様式) で表示・管理できること。
+<<<
+RATIONALE: >>>
+計画と結果を同じアイテムで持ち分けることが遅れ把握の前提。予実区別はプロパティ
+(STK-L0-007) と整合する。user-order item54。
+<<<
+VERIFICATION: >>>
+1 つのアイテムに予定日と実績日を別々に入力でき、キャンバス上で予定表現と実績表現が
+区別して描画されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-011
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 予実の表示切替 (Plan / Actual / Both)
+
+[REQUIREMENT]
+UID: PLAN-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 予定のみ/実績のみ/両方の表示を切り替える
+STATEMENT: >>>
+本システムは、予実の表示状態を予定のみ・実績のみ・予定と実績の両方の 3 状態から選んで
+切り替えられ、選択した状態に応じて該当する要素のみをキャンバスへ描画すること。
+<<<
+RATIONALE: >>>
+計画レビューでは予定のみ、進捗確認では実績のみ、差分確認では両方、と用途で見せ方を
+変える。user-order item55。
+<<<
+VERIFICATION: >>>
+表示状態を予定のみに切り替えると実績が非表示、実績のみで予定が非表示、両方で双方が
+表示されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-011
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. イナズマ線 (Progress Line)
+
+[REQUIREMENT]
+UID: PLAN-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 実績表示でイナズマ線を引く
+STATEMENT: >>>
+本システムは、実績を表示する場面で、基準日 (例: 本日) を起点に各行の実績進捗位置を
+順に結ぶイナズマ線 (progress line) を引け、線の折れによってどの行が遅れ/進みか
+(ボトルネック) を可視化できること。
+<<<
+RATIONALE: >>>
+基準日で各行の進捗を折れ線状に結ぶと、基準日より左へ凹む行が遅れ、右へ出る行が先行と
+一目で分かる。ボトルネックの発見に直結する。イナズマ線の頂点算出は PLAN-L2-001 で
+定義する。user-order item56。
+<<<
+VERIFICATION: >>>
+実績表示で基準日を指定するとイナズマ線が各行の実績進捗位置を結んで描画され、遅れている
+行で基準日より進捗側 (過去側) へ折れることが視認できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-011
+
+[REQUIREMENT]
+UID: PLAN-L2-001
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L2_Component
+TITLE: イナズマ線レンダラの頂点算出
+STATEMENT: >>>
+イナズマ線レンダラは、基準日と各行の実績進捗率/実績到達位置から、行ごとの折れ点
+(頂点) 座標を算出し、基準日の縦位置を軸に隣接行の頂点を順に結ぶ折れ線の頂点列を
+生成すること。
+<<<
+RATIONALE: >>>
+イナズマ線 (PLAN-L1-003) の内部描画ロジック。行の並び順に頂点を並べ、進捗が基準日に
+一致する行は軸上、遅れ行は過去側、先行行は未来側に頂点を置くことで折れの向きが遅れ/
+進みを表す。user-order item56。
+<<<
+VERIFICATION: >>>
+既知の進捗データ (遅れ行・定時行・先行行を含む) を入力に頂点列を算出し、遅れ行の頂点が
+基準日軸より過去側、先行行の頂点が未来側、定時行の頂点が軸上に置かれることを単体テストで
+確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: PLAN-L1-003
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. 変更前予定のグレー表示 (Previous Plan in Gray)
+
+[REQUIREMENT]
+UID: PLAN-L1-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 変更前の予定をグレーで表示して計画変更を可視化する
+STATEMENT: >>>
+本システムは、予定が変更されたとき、変更前の予定をグレーで併記し、変更後の予定と
+並べて表示することで、計画がどう動いたか (計画変更) を可視化できること。
+<<<
+RATIONALE: >>>
+現行の予定だけでは「いつどれだけ計画が動いたか」が見えない。変更前をグレーで残すことで
+計画変更の履歴を一枚絵の上に示す。user-order item57。
+<<<
+VERIFICATION: >>>
+アイテムの予定を変更すると、変更前の予定がグレーで、変更後の予定が通常色で並べて表示され、
+両者の差分 (計画の移動) が視認できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-011
+
+[[/SECTION]]

@@ -1,0 +1,463 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - 全体概要 (Overview / Foundation)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は日程表作成ツール **gr-scheduler** の要求仕様の **全体概要 (Foundation)** である。
+後続の要求文書 (01-stakeholder-requirements / 02-usecases / 10 番台のドメイン別要求 /
+30-architecture / 40-data-format / 50・51 テスト) が共有する前付け — 背景・課題・目標・
+適用範囲・システム構成・用語・参照規格・表記規約・前提・改訂履歴 — をここに集約する。
+
+本仕様は StrictDoc のカスタム文法と L0->L3 階層トレースを用い、「自然な仕様書」であると
+同時に要求のUID・EARS文・V字トレースを機械可読に保つ。全 .sdoc は共通の要求フィールド
+定義 `gr-scheduler-grammar.sgra` を `IMPORT_FROM_FILE` で読み込む。記法そのものは付録
+`90-appendix-notation.sdoc` を参照。
+<<<
+
+[[SECTION]]
+TITLE: 1. 概要 (Background / Issues / Goals)
+
+[TEXT]
+STATEMENT: >>>
+**1.1 背景 (Background) — なぜ gr-scheduler なのか**
+
+自動車開発をはじめとする日本のすり合わせ開発では、1つの大日程表に全部門のフェーズを
+横並べし、壁掲示や大部屋で一枚絵として俯瞰する文化がある。ところが既存の日程管理ツール
+(OpenProject / Plane / Jira 系プラグイン / Polarion / MS Project Web / iQUAVIS 等) を
+調査した結果 (`old/日程管理ツール.md`)、**「1行に複数のバー (マイルストーン/タスク) を
+横並べする」マルチバー表示を標準機能として持つ Web 型ツールは存在しない** ことが判明した。
+大半は「1タスク = 1行 = 1バー」構造であり、3車種で15行に膨れる。
+
+一方でパワポや Excel による日程表作成は、見た目は自由だが成果物が画像や散在セルであり、
+再利用・差分管理・AI 連携ができない。
+
+そこで本プロジェクトは、上記調査レポートの3択 (iQUAVIS 購入 / MS Project / 自社構築) の
+うち **自社構築案** を実行する。すなわち **パワポ感覚の WYSIWYG 操作でマルチバー日程表を
+描け、成果物を構造化データ (JSON / MSProject-XML) として持つ、1つの .html だけで動く
+ツール** を作る。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**1.2 課題 (Issues) — 誰が何に困っているか**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 76
+
+   * - ステークホルダ
+     - 困りごと
+   * - 日程作成者 (PM / 日程担当)
+     - パワポ/Excel は 1 行に複数フェーズを自由に置けるが、データではなく絵。既存ツールは
+       データだが 1 タスク 1 行で一枚絵にならない。両方を満たす道具がない。
+   * - 設計者 (現場)
+     - Excel に近い直感操作でないと使わない。マニュアルを読む前提のツールは定着しない。
+   * - 経営層 / レビュアー
+     - 全体日程を 1 画面でスクロールなしに俯瞰し、遅れ (ボトルネック) を一目で掴みたい。
+   * - AI 推進 / 自動化担当
+     - 日程データを JSON で読み書きし、AI エージェントに処理させたい。
+   * - 各国メンバー
+     - 母語が異なっても、アイコンとアフォーダンスだけで操作を理解したい。
+
+加えて、Web 会議で秘密の日程を無断キャプチャされた際の **証跡 (透かし)** を残したい、
+という運用上の要求がある。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**1.3 目標 (Goals)**
+
+gr-scheduler は次を実現する。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - 目標
+     - 内容
+   * - マルチバー一枚絵
+     - 1 行に複数のマイルストーン/タスクを横並べし、全体日程を 1 画面で俯瞰できる。
+   * - パワポ感覚の WYSIWYG
+     - ドラッグで作成・移動・リサイズし、見たままを編集できる。アイコン移動でプロパティが
+       自動更新される (双方向同期)。
+   * - 揃えと整列
+     - 同タイミングのタスク/同種マイルストーンを上下左右に揃えられる。
+   * - ズーム連動の詳細度 (LOD)
+     - 年単位から日単位まで、縦横独立にズームでき、粒度とアイテムが自動で増減する。
+   * - 依存関係の可視化
+     - 9 点アンカーから依存線を引き、重なりを避けて自動配線する。
+   * - 予実管理
+     - 予定/実績を区別し、イナズマ線・変更前予定のグレー表示で遅れを可視化する。
+   * - データ相互運用
+     - JSON (AI 向け) と MSProject-XML を双方向 Import/Export し、画面を SVG 出力できる。
+   * - 国際化とアクセシビリティ
+     - UI は多言語 (i18n) 対応、色弱者に配慮したパレット、キーボード操作 (WCAG 2.1 AA)。
+   * - 単一 .html / オフライン
+     - サーバー不要、1 ファイルで完全動作する。
+
+各ドメイン要求は L0 (ステークホルダ) -> L1 (システム) -> L2 (コンポーネント) ->
+L3 (ユニット) の 4 層で分解し、Parent/Child で連鎖させる。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 適用範囲 (Scope)
+
+[TEXT]
+STATEMENT: >>>
+**In-scope (MVP):**
+
+- マルチバー日程キャンバス (行 = 帯、1 行に複数アイテム) とその WYSIWYG 編集
+- マイルストーン/タスクのアイコン (既定図形・絵文字・SVG/PNG インポート)、色・線幅・整列・略称
+- アイテムのプロパティ (略称/分類/日付/予実/表示位置/色/大中小分類/担当/ステータス/備考 等) と多言語表示
+- 分類の水平線・分類名の左側固定表示、セクション化 (複数行を束ねる)・順序入替・表示/非表示・小タブ再表示
+- 縦横独立ズーム + LOD (時間軸粒度自動切替、重要度に応じたアイテム自動増減)、パン、固定ヘッダー/分類ペイン
+- 本日の線・デュアルカーソル (縦線/十字線モード)・スパン計測
+- コメント (引出し四角・折れ線)、丸角囲み (R はズーム非依存)、透かし
+- 依存関係線 (9 点アンカー・自動配線・折れ点 0-3)
+- 予実表示切替・イナズマ線・変更前予定のグレー表示
+- 初期テンプレート 1 種、ショートカットキー、Undo/Redo
+- 入出力: JSON / MSProject-XML (MSPDI) 双方向、SVG 画面出力
+- 保存: ファイル入出力 + localStorage 自動保存 (クラッシュ復旧)
+
+**Out-of-scope (将来拡張。設計で拡張点のみ確保、MVP では実装しない — user-order item60):**
+
+- サーバー及びブラウザ間 E2E 暗号通信による共同編集
+- 行単位の公開/編集権限 (参照専用の上位スケジュール等)
+- 複数プロジェクトの統合・サブプロジェクト生成
+- ガントチャートモードと一覧モードの切替 (一覧モードの列: 大中小分類/タスク/担当/期限/ステータス/備考)
+- .mpp バイナリ形式の読み書き (ブラウザ単体では非現実的。MSPDI XML で代替)
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. システム構成 (Architecture Overview)
+
+[TEXT]
+STATEMENT: >>>
+**3.1 実行構成**
+
+gr-scheduler はサーバーを持たない単一 HTML アプリである。TypeScript で開発し、
+Vite + vite-plugin-singlefile で全 JS/CSS/アセットを 1 つの .html にインライン化する。
+ブラウザ内で完結し、データはファイル入出力と localStorage のみで永続化する。
+
+.. raw:: html
+
+    <pre class="mermaid">
+    flowchart LR
+        User["User<br/>(browser)"]
+        App["gr-scheduler<br/>single .html (TS + SVG)"]
+        LS["localStorage<br/>(autosave)"]
+        Files["Local files<br/>(.json / .xml / .svg)"]
+        User -->|WYSIWYG edit| App
+        App -->|autosave / restore| LS
+        App -->|import / export| Files
+    </pre>
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**3.2 要求レイヤモデル (L0 -> L3)**
+
+全要求は 4 層で分解し、上位から下位へ Parent/Child で連鎖する。
+各機能ドメイン (10 番台の文書) はこの 4 層を縦に貫く。
+
+.. raw:: html
+
+    <pre class="mermaid">
+    graph TD
+        L0["L0 Stakeholder<br/>ステークホルダ要求<br/>(作成者 / 設計者 / 経営層 / AI 担当)"]
+        L1["L1 System<br/>システム要求<br/>(gr-scheduler アプリの外部振る舞い)"]
+        L2["L2 Component<br/>コンポーネント要求<br/>(レイアウトエンジン / ズーム / 依存線 等)"]
+        L3["L3 Unit<br/>ユニット要求<br/>(関数・クラス単位)"]
+        L0 -->|refine| L1
+        L1 -->|refine| L2
+        L2 -->|refine| L3
+    </pre>
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**3.3 Clean Architecture レイヤ仕訳 (方針)**
+
+コアドメイン (レイアウト/整列/ズーム LOD/依存線ルーティング/日付マッピング/予実差分/
+データ変換) を Entity・UseCase に置き、SVG レンダリング・File API・localStorage・
+絵文字/フォント描画・SVG/PNG 解析を Adapter・Framework に分離する (DIP)。詳細は
+`30-architecture.sdoc` で確定する。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**3.4 文書構成**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 50 20
+
+   * - 文書
+     - 内容
+     - 層
+   * - 00-overview (本書)
+     - 背景・課題・目標・範囲・構成・用語・参照規格・表記規約・前提・改訂履歴
+     - 前付け
+   * - 01-stakeholder-requirements
+     - ステークホルダ要求 (L0、EARS)
+     - L0 要求
+   * - 02-usecases
+     - ユースケース (アクター・UC 図・シナリオ)
+     - L0 UC
+   * - 10-canvas-view
+     - キャンバス/俯瞰/固定ペイン/スクロール/テンプレート
+     - L1-L3
+   * - 11-items-icons
+     - マイルストーン/タスク・アイコン・色・略称・コピペ・インポート
+     - L1-L3
+   * - 12-properties-i18n
+     - プロパティ・多言語表示・パレット (色弱者対応)
+     - L1-L3
+   * - 13-layout-alignment
+     - 上下左右整列・ドラッグ編集・双方向同期
+     - L1-L3
+   * - 14-zoom-lod
+     - 縦横独立ズーム・時間軸粒度・LOD 自動増減
+     - L1-L3
+   * - 15-classification-sections
+     - 分類水平線・分類名固定・セクション化/順序/表示切替/小タブ
+     - L1-L3
+   * - 16-dependencies
+     - 依存関係線 (9 点アンカー・自動配線・折れ点)
+     - L1-L3
+   * - 17-cursors-comments
+     - 本日線・デュアルカーソル・コメント・丸角囲み
+     - L1-L3
+   * - 18-plan-actual
+     - 予実表示切替・イナズマ線・変更前予定グレー表示
+     - L1-L3
+   * - 19-tools-watermark
+     - 透かし・ショートカット・パレット透明化・Undo/Redo
+     - L1-L3
+   * - 20-io-interop
+     - JSON / MSProject-XML / SVG 入出力・保存 (localStorage)
+     - L1-L3
+   * - 25-nfr-a11y
+     - 非機能要求 (性能・アクセシビリティ WCAG 2.1 AA・セキュリティ・拡張性)
+     - L1-L2
+   * - 30-architecture
+     - アーキテクチャ (レイヤ仕訳・コンポーネント・ADR)
+     - 設計
+   * - 40-data-format
+     - データ形式契約 (JSON スキーマ・MSPDI XML マッピング・SVG 出力)
+     - 契約
+   * - 50-test-spec / 51-test-results
+     - テスト仕様 / 結果
+     - テスト
+   * - 90-appendix-notation
+     - 表記・記法リファレンス
+     - 付録
+
+V 字トレース: **ステークホルダ要求 (01) / UC (02) -> 要求 (10-25) -> 設計 (30) ->
+データ契約 (40) -> テスト仕様 (50) -> 結果 (51)** を Implements / Satisfies /
+Verifies / ResultOf 関係で一気通貫にトレースする。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. 用語集 (Glossary)
+
+[TEXT]
+STATEMENT: >>>
+.. list-table::
+   :header-rows: 1
+   :widths: 24 76
+
+   * - 用語
+     - 説明
+   * - マルチバー (multi-bar)
+     - 1 行に複数のマイルストーン/タスクのバーを横並べする表示形式。本ツールの核。
+   * - 行 / 帯 (ribbon)
+     - 日程キャンバスの 1 段。複数アイテムを載せる横帯。
+   * - アイテム (item)
+     - マイルストーン (点) またはタスク (期間) の総称。
+   * - マイルストーン
+     - 特定日を表す点イベント (図形: 〇 △ ▽ □ ☆ 五角形 六角形 等)。
+   * - タスク
+     - 開始日-終了日を持つ期間 (図形: 直線 / 矢印 / 双方向矢印 / 矢羽根 等)。
+   * - セクション (section)
+     - 複数の分類行を束ねた単位。順序入替・表示/非表示ができる (user-order item35-38)。
+   * - LOD (Level of Detail)
+     - ズーム率に応じて表示する時間軸粒度とアイテムを増減する仕組み (user-order item47)。
+   * - 異方性ズーム
+     - 縦方向のみ/横方向のみを独立に拡大縮小できるズーム (user-order item46)。
+   * - デュアルカーソル
+     - 任意位置に立てる 2 本のカーソル。区間の日数 (スパン) を計測する。縦線/十字線モード。
+   * - イナズマ線 (progress line)
+     - 実績を基準日で折れ線状に結び、遅れ/進みを可視化する線。
+   * - 予実 (plan / actual)
+     - 予定 (計画) と実績 (結果) の区別。両者の表示は個別に切替できる。
+   * - 透かし (watermark)
+     - 画面全体に薄く斜めタイル配置する識別表示 (ローカル入力ユーザー名 + 日時)。
+   * - MSPDI
+     - Microsoft Project Data Interchange。MS Project の XML 交換形式。
+   * - CUD
+     - Color Universal Design。色弱者に配慮した配色設計。原色を避ける (user-order item21)。
+   * - EARS
+     - Easy Approach to Requirements Syntax。要求文の構文パターン。
+   * - WYSIWYG
+     - What You See Is What You Get。見たまま編集。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 5. 参照規格 (Referenced Standards)
+
+[TEXT]
+STATEMENT: >>>
+- **WCAG 2.1** — Web Content Accessibility Guidelines (目標: レベル AA)
+- **Color Universal Design (CUD)** — 色弱者に配慮した配色 (パレット設計)
+- **Microsoft Project Data Interchange (MSPDI)** — MS Project XML スキーマ (Import/Export)
+- **W3C SVG 1.1 / 2** — SVG 出力・アイコンインポート
+- **ECMA-404 / RFC 8259** — JSON データ交換形式
+- **RFC 2119 / RFC 8174** — 要求レベルキーワード (MUST / SHALL / SHOULD / MAY)
+- **BCP 47** — 言語タグ (i18n の言語識別)
+- **ISO 8601** — 日付・時刻表記
+- **OWASP Top 10** — クライアントアプリのセキュリティ (XSS / インジェクション対策の指針)
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 6. 表記規約 (Notation)
+
+[TEXT]
+STATEMENT: >>>
+**6.1 要求レベルキーワード (RFC 2119 / 8174)**
+
+「すること」 (= SHALL / MUST) は必須、「推奨」 (= SHOULD) は推奨、
+「してもよい」 (= MAY) は任意を表す。EARS の ``shall`` は SHALL と同義。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**6.2 EARS 構文 (要求文の書式)**
+
+全要求文は EARS に従い、主語を明示した能動態・単一要求・検証可能な形で記述する。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 33 45
+
+   * - パターン
+     - 日本語の形
+     - 用途
+   * - Ubiquitous
+     - 「<主語> は <応答> すること。」
+     - 常に成り立つ要求
+   * - Event-driven
+     - 「<トリガ> したとき、<主語> は <応答> すること。」
+     - イベント起点の要求
+   * - State-driven
+     - 「<状態> の間、<主語> は <応答> すること。」
+     - 状態依存の要求
+   * - Unwanted
+     - 「もし <トリガ> した場合、<主語> は <応答> すること。」
+     - 異常系・禁止事項
+   * - Optional
+     - 「<機能> を備える構成では、<主語> は <応答> すること。」
+     - オプション機能
+
+主語は層ごとに具体化する: L0 = 本システム、L1 = gr-scheduler (アプリ)、
+L2 = 各コンポーネント、L3 = 各ユニット。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**6.3 優先度 (PRIORITY / MoSCoW)**
+
+各要求は MoSCoW で優先度を持つ。**Must** = MVP 必須、**Should** = MVP で強く望む、
+**Could** = 余力があれば、**Wont** = 今回はやらない (将来拡張。範囲記録のため記載)。
+<<<
+
+[TEXT]
+STATEMENT: >>>
+**6.4 要求フィールド (カスタム文法)**
+
+各 [REQUIREMENT] は次のフィールドを持つ。定義は共有ファイル
+`gr-scheduler-grammar.sgra` にあり、各文書が `[GRAMMAR] / IMPORT_FROM_FILE` で読み込む。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 80
+
+   * - フィールド
+     - 意味
+   * - UID
+     - 一意識別子。 ``<ドメイン>-<層>-<連番>`` (例: ``ZOOM-L1-001``)。
+   * - TYPE
+     - Functional / Non-Functional / Constraint / Restriction / UseCase
+   * - PRIORITY
+     - Must / Should / Could / Wont (MoSCoW)
+   * - LAYER
+     - L0_Stakeholder / L1_System / L2_Component / L3_Unit
+   * - WCAG
+     - A / AA / AAA (アクセシビリティ関連要求のみ)
+   * - I18N
+     - Yes / No (多言語対応の対象か)
+   * - STATEMENT
+     - EARS 形式の要求文
+   * - RATIONALE
+     - 根拠 (なぜこの要求が必要か。任意)
+   * - VERIFICATION
+     - 受入基準 (どう検証すれば満たしたと言えるか。任意)
+   * - RELATIONS
+     - Parent / Child による上位・下位要求へのトレース
+
+設計要素は [COMPONENT] (ROLE: Implements)、データ形式は [DATAFIELD]
+(ROLE: Satisfies)、テストは [TEST] (ROLE: Verifies)、結果は [TEST_RESULT]
+(ROLE: ResultOf) で表す。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 7. 前提・制約 (Assumptions & Constraints)
+
+[TEXT]
+STATEMENT: >>>
+- 実行環境は最新のモダンブラウザ (Chromium / Firefox / Safari の現行版) を前提とする。
+- サーバーを持たず、外部ネットワーク通信を行わない (完全オフライン)。将来の共同編集は範囲外。
+- 想定規模は中規模: 約 50 行 / 約 1000 アイテム。性能 NFR はこの規模を基準に定める。
+- 成果物は単一 .html。ビルド後に 1 ファイルで完全動作すること (外部 CDN 依存禁止)。
+- 「ログインユーザー名」はサーバー認証を持たないため、ローカルで入力/保持するユーザー名を指す。
+- Import する外部データ (JSON / XML / SVG / PNG) は信頼できない入力として厳格に検証する。
+- コード・識別子・ログは英語 ASCII。製品 UI 文字列は i18n 対象、property 名は英語固定。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 8. 改訂履歴 (Revision History)
+
+[TEXT]
+STATEMENT: >>>
+.. list-table::
+   :header-rows: 1
+   :widths: 14 18 68
+
+   * - 版
+     - 日付
+     - 変更内容
+   * - v0.1
+     - 2026-07-18
+     - 初版 (Foundation)。user-order.md (★追加要望反映版・62 項目) と old/日程管理ツール.md を
+       入力に、背景ストーリー・範囲・文書構成・用語・表記規約・前提を StrictDoc で整備。
+       仕様形式を StrictDoc に決定 (grammar を gr-scheduler-grammar.sgra に共通化)。
+<<<
+
+[[/SECTION]]

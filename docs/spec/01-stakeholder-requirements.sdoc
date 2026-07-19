@@ -1,0 +1,352 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - ステークホルダ要求 (L0)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の **ステークホルダ要求 (L0)** を定義する。最上位の目的を
+EARS で記述し、後続のシステム要求 (L1、10 番台の各ドメイン文書) が Parent 関係で
+これらを詳細化する。優先度は MoSCoW (Must/Should/Could/Wont) で示す。
+出典は `user-order.md` (★追加要望反映版・62 項目) と `00-overview.sdoc`。
+<<<
+
+[[SECTION]]
+TITLE: 1. 俯瞰と表示 (Overview & Display)
+
+[REQUIREMENT]
+UID: STK-L0-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: マルチバー一枚絵の俯瞰
+STATEMENT: >>>
+本システムは、プロジェクトの全体日程を 1 画面でスクロールなしに俯瞰でき、かつ
+1 行に複数のマイルストーン/タスクを横並べ (マルチバー) して表示できること。
+<<<
+RATIONALE: >>>
+既存 Web ツールが満たせない中核要求。日本のすり合わせ開発の「1 行 = 全フェーズ」
+日程表文化 (old/日程管理ツール.md) をデジタル化する差別化点。
+user-order item1, item2。
+<<<
+VERIFICATION: >>>
+中規模データ (約 50 行/約 1000 アイテム) の初期表示で、1 行に複数アイテムが重ならず
+横並びし、既定ズームで全体が 1 画面に収まること。
+<<<
+
+[REQUIREMENT]
+UID: STK-L0-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: ズーム連動の詳細度と縦横独立ズーム
+STATEMENT: >>>
+本システムは、年単位から日単位まで拡大縮小でき、ズーム率に応じて時間軸の粒度
+(年 / 年月 / 月日曜) と表示アイテムを自動で増減し、縦方向のみ・横方向のみの独立した
+拡大縮小ができること。
+<<<
+RATIONALE: >>>
+俯瞰と詳細の両立。重要アイテムは縮小しても残し、細部は拡大で現す (LOD)。
+user-order item45-48, ★item46 (異方性ズーム)。
+<<<
+
+[REQUIREMENT]
+UID: STK-L0-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 整列と揃え
+STATEMENT: >>>
+本システムは、マイルストーン/タスクとそのアイコンを上下左右に揃えられ、同じタイミングで
+始まるタスクや同種のマイルストーンを同じ高さに表示できること。
+<<<
+RATIONALE: 一枚絵の可読性の要。user-order item3。
+
+[REQUIREMENT]
+UID: STK-L0-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 固定ヘッダー・分類ペインとスクロール
+STATEMENT: >>>
+本システムは、拡大時に上下左右へスクロールでき、スクロールしてもヘッダー領域 (年月日曜) と
+左側の分類領域を常に表示し続け、分類領域とスケジュール領域を個別に連動スクロールできること。
+<<<
+RATIONALE: 拡大時も文脈を失わない。user-order item40, item41, item49, item50。
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 編集操作 (Authoring)
+
+[REQUIREMENT]
+UID: STK-L0-005
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: パワポ感覚の WYSIWYG 編集
+STATEMENT: >>>
+本システムは、マイルストーン/タスクをドラッグで作成・移動・リサイズでき、見たままを編集でき、
+アイテムの移動に連動してプロパティ (開始日・終了日・表示位置) が自動で更新されること。
+<<<
+RATIONALE: パワポ/Excel の代替として直感操作が定着の前提。user-order item5, ★item12。
+
+[REQUIREMENT]
+UID: STK-L0-006
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: アイコンと図形・色・略称
+STATEMENT: >>>
+本システムは、マイルストーン/タスクに既定図形・絵文字・インポート画像 (SVG/PNG) の
+アイコンを与え、枠色・塗り色・線幅を選べ、略称を内部/付近に表示し、その表示位置を
+ドラッグで移動できること。
+<<<
+RATIONALE: >>>
+視認性と表現力。既定図形はマイルストーン (〇△▽□☆五角形六角形) とタスク
+(直線/矢印/双方向矢印/矢羽根 等)。user-order item8-11, item14, item15, item22, item23。
+<<<
+
+[REQUIREMENT]
+UID: STK-L0-007
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+I18N: Yes
+TITLE: プロパティ設定と多言語表示
+STATEMENT: >>>
+本システムは、マイルストーン/タスクに略称・分類・日付・予実区別・表示位置・色・線幅・
+正式名称・説明・大中小分類・担当・ステータス・備考等のプロパティを設定でき、プロパティの
+表示を多言語対応とし、編集時のプロパティ名は英語表記とすること。
+<<<
+RATIONALE: 構造化データの中身。AI 連携と多国籍利用の両立。user-order item16-19。
+
+[REQUIREMENT]
+UID: STK-L0-008
+TYPE: Functional
+PRIORITY: Should
+LAYER: L0_Stakeholder
+TITLE: 効率化 (コピペ・テンプレート・ショートカット・Undo/Redo)
+STATEMENT: >>>
+本システムは、マイルストーン/タスクをコピー&ペーストでき、初期テンプレートを 1 種提供し、
+ショートカットキーで操作でき、操作を取り消し/やり直し (Undo/Redo) できること。
+<<<
+RATIONALE: 類似作業の入力負荷を下げる。user-order item13, item51, item53。
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 構造化と依存 (Structure & Dependencies)
+
+[REQUIREMENT]
+UID: STK-L0-009
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 分類とセクション管理
+STATEMENT: >>>
+本システムは、マイルストーン/タスクを分類する水平線を引け、分類名を画面左側に表示でき、
+複数の分類行を束ねてセクションとし、セクション単位で順序を入れ替え、表示/非表示を切り替え、
+非表示セクションを水平線左端の小タブから再表示できること。
+<<<
+RATIONALE: >>>
+大規模日程の整理。非表示が増えても水平線を太くせず小タブを増やす。
+user-order item35, item40, ★item36-39。
+<<<
+
+[REQUIREMENT]
+UID: STK-L0-010
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 依存関係の可視化
+STATEMENT: >>>
+本システムは、マイルストーン/タスクの依存関係を、アイコンの 9 点 (上下左右角と中央) から
+引き出し/引き入れる線で表現でき、他アイコンとの重なりを極力避けて自動配線し、線の折れ点を
+0〜3 の範囲で持てること。
+<<<
+RATIONALE: 影響波及の可視化。user-order item34。
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. 予実と注釈 (Plan/Actual & Annotation)
+
+[REQUIREMENT]
+UID: STK-L0-011
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 予実管理と遅れの可視化
+STATEMENT: >>>
+本システムは、予定と実績を区別して管理・表示でき、予定のみ/実績のみ/両方の表示を切り替え、
+実績表示ではイナズマ線でボトルネックを可視化し、変更前の予定をグレーで表示して計画変更を
+可視化できること。
+<<<
+RATIONALE: 遅れとボトルネックの一目把握。user-order item54-57。
+
+[REQUIREMENT]
+UID: STK-L0-012
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: カーソル・本日線・計測・コメント・囲み
+STATEMENT: >>>
+本システムは、本日の線と 2 本のデュアルカーソル (縦線モード/十字線モードを個別切替) を
+表示/非表示でき、カーソル間のスパン (日数) を計測でき、任意位置にコメント (引出し四角・
+折れ線) を置け、任意範囲を任意色の丸角矩形で囲め、その角の丸み (R) はズームに依らず一定に
+見えること。
+<<<
+RATIONALE: レビュー時の指差し・強調・計測。user-order item27-33。
+
+[REQUIREMENT]
+UID: STK-L0-013
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 透かしによる証跡
+STATEMENT: >>>
+本システムは、日程表に透かし (ローカル入力ユーザー名 + 日時) を、画面全体へ斜め方向に薄く
+複数タイル配置で入れられ、その表示/非表示を切り替えられること。
+<<<
+RATIONALE: >>>
+Web 会議で秘密の日程を無断キャプチャされた際のエビデンス。
+サーバー認証を持たないため「ログインユーザー名」はローカル入力名を指す。user-order item59。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 5. 相互運用・保存・基盤 (Interop, Persistence, Platform)
+
+[REQUIREMENT]
+UID: STK-L0-014
+TYPE: Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: データ相互運用 (JSON / MSProject-XML / SVG)
+STATEMENT: >>>
+本システムは、日程データを JSON で Import/Export でき (AI 向け)、MS Project の日程データを
+MSPDI XML 形式で双方向 Import/Export でき、画面を SVG で出力できること。
+<<<
+RATIONALE: AI 連携と既存資産の相互運用、成果物の共有。user-order item42-44。
+
+[REQUIREMENT]
+UID: STK-L0-015
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 単一 HTML・オフライン・保存と復旧
+STATEMENT: >>>
+本システムは、1 つの .html ファイルだけでサーバー無しに動作し、ファイル入出力に加えて
+編集中の状態を localStorage に自動保存してクラッシュから復旧できること。
+<<<
+RATIONALE: 配布と可搬性、作業消失の防止。user-order item4、確定事項 (保存方式)。
+
+[REQUIREMENT]
+UID: STK-L0-016
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+WCAG: AA
+I18N: Yes
+TITLE: マニュアル不要のアフォーダンスとアクセシビリティ
+STATEMENT: >>>
+本システムは、初見の各国ユーザーがマニュアルを見ずに使えるよう、メニューを言葉ではなく
+アイコンで用途を伝えるアフォーダンス設計とし、色弱者に配慮した (原色を避けた) パレットを
+用い、WCAG 2.1 AA 相当のアクセシビリティ (キーボード操作・コントラスト等) を満たすこと。
+<<<
+RATIONALE: 多国籍・多様なユーザーでの定着。user-order item6.4-6.6, item20, item21。
+
+[REQUIREMENT]
+UID: STK-L0-017
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L0_Stakeholder
+TITLE: 性能 (中規模で滑らかな操作)
+STATEMENT: >>>
+本システムは、中規模データ (約 50 行/約 1000 アイテム) において、ズーム・パン・ドラッグを
+滑らか (目標 60fps) に行え、初期表示を短時間 (目標 1.5 秒以内) で完了すること。
+<<<
+RATIONALE: 一枚絵を操作しながら考えるツールとして応答性が必須。確定事項 (規模=中規模)。
+
+[REQUIREMENT]
+UID: STK-L0-018
+TYPE: Functional
+PRIORITY: Wont
+LAYER: L0_Stakeholder
+TITLE: 将来拡張性 (共同編集・権限・統合・一覧モード)
+STATEMENT: >>>
+本システムは、将来 (MVP 外) にサーバー及びブラウザ間 E2E 暗号通信による共同編集、行単位の
+公開/編集権限、複数プロジェクト統合・サブプロジェクト生成、ガントチャートモードと一覧モードの
+切替を追加できるよう、MVP の設計で拡張点を確保しておくこと。
+<<<
+RATIONALE: >>>
+今回は実装しない (Wont) が、後付けが困難な拡張点 (データ層抽象・権限フック・モード切替の口) は
+設計で確保する。user-order item60。
+<<<
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 6. 操作性の細目 (UX Details)
+
+[REQUIREMENT]
+UID: STK-L0-019
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L0_Stakeholder
+TITLE: パレットの非選択時の透明化とマウス中心操作
+STATEMENT: >>>
+本システムは、ツール操作用パレットを選択していないとき薄く透明表示とし、拡大時にはマウス操作
+だけでもスクロールできること (マウスのセンターホイールによる拡大縮小は 14-zoom-lod の
+ZOOM-L1-002 で扱う)。
+<<<
+RATIONALE: 描画面積の最大化と直感操作。user-order item52, item58。
+
+[REQUIREMENT]
+UID: STK-L0-020
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L0_Stakeholder
+TITLE: 命名は名は体を表す (言霊)
+STATEMENT: >>>
+本システムの各種命名 (UI ラベル・データフィールド・コード識別子) は、それが何かを一目で
+伝えるものとし、無意味な汎用語を避けること。
+<<<
+RATIONALE: user-order item61。CLAUDE.md コーディング規約と一致。
+
+[REQUIREMENT]
+UID: STK-L0-021
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L0_Stakeholder
+TITLE: 情報密度の最大化 (キャンバス最大化・ヘッダー最小化・フローティングパレット)
+STATEMENT: >>>
+本システムは、狭い画面にも最大の情報量を収められるよう、スケジュール描画領域を最大化し、
+ヘッダー領域を視認できる範囲で最小まで縮小し、ツール操作用パレットを固定バーではなく
+フローティング表示とできること。
+<<<
+RATIONALE: >>>
+スケジュール画面をいっぱいに使い、狭い画面に最大の情報量を収める。既存の STK-L0-019
+(パレット非選択時の透明化) を情報密度の観点で補完する。user-order item6, item6.1, item6.2。
+<<<
+
+[REQUIREMENT]
+UID: STK-L0-022
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L0_Stakeholder
+I18N: Yes
+TITLE: 全体フォントサイズの切替 (大/中/小)
+STATEMENT: >>>
+本システムは、UI 全体のフォントサイズを大・中・小の 3 段階から選んで変更でき、選択した
+サイズを全表示要素へ一貫して適用できること。
+<<<
+RATIONALE: >>>
+情報密度と可読性の両立。フォントサイズは各言語の文字幅・可読性に影響し、多言語 UI 全体に
+関わるため i18n 対象とする。user-order item6.3。
+<<<
+
+[[/SECTION]]

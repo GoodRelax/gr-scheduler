@@ -1,0 +1,277 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - アイテムとアイコン (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler のマイルストーン/タスク (アイテム) とそのアイコンに関するシステム要求
+(L1) を定義し、必要に応じてコンポーネント要求 (L2) へ詳細化する。各 L1 要求は Parent 関係で
+ステークホルダ要求 STK-L0-006 (アイコンと図形・色・略称) および STK-L0-001 (マルチバー一枚絵の
+俯瞰) をトレースする。出典は user-order.md item2, item7-11, item14, item15, item22, item23。
+アイコン枠色/塗り色のパレット定義そのものは 12-properties-i18n.sdoc に、略称位置ドラッグの
+座標同期は 13-layout-alignment.sdoc に主管を置く (重複回避)。
+<<<
+
+[[SECTION]]
+TITLE: 1. マルチバー配置 (Multi-bar Placement)
+
+[REQUIREMENT]
+UID: ITEM-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 1 行への複数アイテム配置
+STATEMENT: >>>
+gr-scheduler は、1 つの行 (帯) に複数のマイルストーン/タスクを、互いに重ならないように横並べ
+して配置できること。
+<<<
+RATIONALE: >>>
+マルチバー表示の中核をアイテム側の観点から規定する。既存ツールが持たない差別化点であり、
+キャンバス面の描画は 10-canvas-view.sdoc が担う。user-order item2。
+<<<
+VERIFICATION: >>>
+同一行に開始日の異なる 3 個以上のアイテムを配置したとき、いずれのアイコン矩形も他アイテムの
+アイコン矩形と重ならず、各アイテムが独立に選択できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-001
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 既定アイコンと図形 (Default Icons & Shapes)
+
+[REQUIREMENT]
+UID: ITEM-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 既定アイコンの提供
+STATEMENT: >>>
+gr-scheduler は、マイルストーンおよびタスクに対して、あらかじめ用意した既定のアイコン群を
+提供し、ユーザーが選んで配置できること。
+<<<
+RATIONALE: 初見ユーザーがインポートなしに即座に描き始められること。user-order item7。
+VERIFICATION: >>>
+新規テンプレート上でパレットを開いたとき、マイルストーン用とタスク用の既定アイコンが選択可能な
+状態で表示され、選んだアイコンを行へ配置できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[REQUIREMENT]
+UID: ITEM-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 既定アイコン一覧の提示
+STATEMENT: >>>
+gr-scheduler は、選択可能な既定アイコンの一覧を、マイルストーン種別とタスク種別に分けて一覧
+表示できること。
+<<<
+RATIONALE: どのアイコンが選べるかを一望させ、アフォーダンスを高める。user-order item8。
+VERIFICATION: >>>
+アイコン選択 UI を開いたとき、既定図形の全種がマイルストーン/タスクの区分とともに一覧され、
+一覧から任意の図形を選択できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[REQUIREMENT]
+UID: ITEM-L1-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 既定図形セット (マイルストーン/タスク)
+STATEMENT: >>>
+gr-scheduler は、マイルストーン図形として circle 、triangle_up 、triangle_down 、square 、
+star 、pentagon 、hexagon を提供し、タスク図形として line 、arrow 、double_arrow 、
+segmented_bar 、chevron を提供すること。
+<<<
+RATIONALE: >>>
+user-order item9 の図形要求を機械可読な図形キーへ写像する。マイルストーンは
+〇 △ ▽ □ ☆ 五角形 六角形、タスクは 直線 (ー) 、矢印 (→) 、双方向矢印 (⇔) 、区切りバー
+(segmented_bar) 、矢羽根 (chevron) に対応する。
+<<<
+VERIFICATION: >>>
+既定アイコン一覧に上記 7 種のマイルストーン図形と 5 種のタスク図形がすべて存在し、それぞれを
+配置すると対応する形状で描画されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[REQUIREMENT]
+UID: ITEM-L1-005
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 絵文字アイコンの使用
+STATEMENT: >>>
+gr-scheduler は、アイテムのアイコンとして任意の絵文字を指定して表示できること。
+<<<
+RATIONALE: >>>
+既定図形以外の直感的な表現手段。user-order item10。関連プロパティは PROP-L1-002 の
+icon_emoji 項。
+<<<
+VERIFICATION: >>>
+アイテムに絵文字を 1 文字指定したとき、その絵文字がアイコンとして行上に描画され、SVG 出力
+および再読込後も同じ絵文字が保持されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. アイコンの色 (Icon Colors)
+
+[REQUIREMENT]
+UID: ITEM-L1-006
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: アイコンの枠色・塗り色の選択
+STATEMENT: >>>
+gr-scheduler は、アイテムのアイコンについて、枠色と塗り色をそれぞれ、パレットからの選択または
+フルカラー指定のいずれかで設定できること。
+<<<
+RATIONALE: >>>
+視認性と分類表現。パレットの 10 色定義および色弱者対応 (CUD) は 12-properties-i18n.sdoc の
+PROP-L1-005 / PROP-L1-006 が主管する。本要求はアイテム側の設定操作を規定する。
+user-order item11。
+<<<
+VERIFICATION: >>>
+1 個のアイテムに対し、枠色をパレット色、塗り色をフルカラー指定に設定したとき、指定どおりの
+枠色・塗り色でアイコンが描画され、設定値が保存されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 4. アイコンのインポート (Icon Import)
+
+[REQUIREMENT]
+UID: ITEM-L1-007
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 外部アイコン画像のインポート
+STATEMENT: >>>
+gr-scheduler は、ユーザーが用意した外部画像を読み込み、アイテムのアイコンとして登録・使用
+できること。
+<<<
+RATIONALE: 既定図形・絵文字で表せない独自記号やロゴを扱う。user-order item14。
+VERIFICATION: >>>
+外部画像を 1 件インポートし、これをアイテムのアイコンに割り当てたとき、当該画像が行上に描画
+され、保存・再読込後も保持されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[REQUIREMENT]
+UID: ITEM-L1-008
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L1_System
+TITLE: インポート形式は SVG および PNG に限定
+STATEMENT: >>>
+gr-scheduler は、アイコンのインポートを受け付ける画像形式を SVG および PNG に限定し、それ以外の
+形式のファイルが指定された場合は取り込まずにエラーを通知すること。
+<<<
+RATIONALE: >>>
+対応形式を明示し、単一 HTML でブラウザネイティブに描画可能な形式へ絞る。
+user-order item15。
+<<<
+VERIFICATION: >>>
+SVG と PNG のファイルは取り込め、JPEG や GIF 等の非対応形式を指定するとエラーが通知され、
+キャンバスに取り込まれないこと。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[REQUIREMENT]
+UID: ITEM-L2-001
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: インポート画像の検証とサニタイズ
+STATEMENT: >>>
+もし SVG または PNG がインポートされた場合、アイコンインポータは当該入力を信頼できない入力と
+みなし、SVG に含まれる script 要素・イベントハンドラ属性・外部参照 (href/xlink:href) を除去
+し、PNG のシグネチャと寸法を検証したうえで、無害化した画像のみをアイコンとして登録すること。
+<<<
+RATIONALE: >>>
+インポート画像は外部由来であり XSS/インジェクションの経路となりうる。00-overview.sdoc 前提
+(信頼できない入力の厳格検証) と OWASP Top 10 対策に対応する。ITEM-L1-008 を安全性の観点から
+詳細化する。
+<<<
+VERIFICATION: >>>
+script 要素または onload 属性を含む SVG をインポートしたとき、描画結果にスクリプトが実行される
+経路が残らず (該当ノード/属性が除去され) 、寸法不正な PNG は登録が拒否されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ITEM-L1-008
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 5. 略称の表示 (Abbreviation Label)
+
+[REQUIREMENT]
+UID: ITEM-L1-009
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 略称のアイテム内部/付近への表示
+STATEMENT: >>>
+gr-scheduler は、アイテムの略称を、当該アイテムのアイコンの内部または付近に表示できること。
+<<<
+RATIONALE: >>>
+一枚絵上で各アイテムを識別させる。略称の値は PROP-L1-002 の abbreviation 項。
+user-order item22。
+<<<
+VERIFICATION: >>>
+略称を設定したアイテムを配置したとき、略称文字列がアイコンの内部または近傍に表示され、
+アイコンと視覚的に対応づけられること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[REQUIREMENT]
+UID: ITEM-L1-010
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 略称表示位置のドラッグ移動
+STATEMENT: >>>
+gr-scheduler は、アイテムの略称の表示位置を、ユーザーのマウスドラッグによって当該アイテムを
+基準とした相対位置へ移動できること。
+<<<
+RATIONALE: >>>
+アイテムが狭所に込み合っても略称を見やすく保つ。座標とプロパティ (表示位置) の同期機構は
+13-layout-alignment.sdoc が担うが、略称ラベルの移動操作自体はアイテム側の主管とする。
+user-order item23。
+<<<
+VERIFICATION: >>>
+略称ラベルをドラッグして移動したとき、略称が新しい相対位置に表示され、アイテム本体を移動しても
+略称が同じ相対位置を保って追従すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-006
+
+[[/SECTION]]

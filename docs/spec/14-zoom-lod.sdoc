@@ -1,0 +1,166 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - ズームと詳細度 (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler のズーム (拡大縮小) と詳細度 (LOD: Level of Detail) に関するシステム要求
+(L1) と、その詳細化 (L2/L3) を定義する。年単位から日単位までの連続ズーム、時間軸粒度の 3 段階
+自動切替、縦横独立 ( ★ 異方性) ズーム、ズーム率に連動したアイテムの自動増減、センターホイールと
+マウスによるパンを扱う。各要求は Parent 関係で L0 (STK-L0-002) を詳細化する。
+<<<
+
+[[SECTION]]
+TITLE: 1. ズーム操作 (Zoom Interaction)
+
+[REQUIREMENT]
+UID: ZOOM-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: ズーム連動の時間軸粒度3段階切替
+STATEMENT: >>>
+本システムは、ズーム率の変化に応じて、ヘッダー時間軸の目盛表示を「年のみ」「年 + 月」
+「月 + 日 + 曜日」の 3 段階で自動的に切り替えること。
+<<<
+RATIONALE: 俯瞰では粗く、詳細では細かく。粒度の情報密度を最適化する。user-order item26。
+VERIFICATION: >>>
+最縮小で年のみ、中間で年と月、最拡大で月と日と曜日が表示され、ズーム率の連続変化に伴って
+3 段階が自動で切り替わることを確認する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-002
+
+[REQUIREMENT]
+UID: ZOOM-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: センターホイールによる拡大縮小
+STATEMENT: >>>
+本システムは、マウスのセンターホイールを回したとき、ポインタ位置を中心として日程表を拡大縮小
+すること。
+<<<
+RATIONALE: 片手のマウスだけで俯瞰と詳細を行き来する。user-order item45。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-002
+
+[REQUIREMENT]
+UID: ZOOM-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 縦横独立の異方性ズーム
+STATEMENT: >>>
+本システムは、修飾キーまたは専用操作により、縦方向のみ、または横方向のみを独立して拡大縮小
+できること。
+<<<
+RATIONALE: >>>
+横 (時間軸) の粒度を保ったまま行を縦に広げる、あるいは逆の調整を可能にする ( ★ 異方性ズーム)。
+user-order item46。
+<<<
+VERIFICATION: >>>
+横方向のみ拡大したとき縦方向の行高さが変化せず、縦方向のみ拡大したとき横方向の時間スケールが
+変化しないことを確認する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-002
+
+[REQUIREMENT]
+UID: ZOOM-L1-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 年単位から日単位までの表示
+STATEMENT: >>>
+本システムは、年単位のスケジュールから日単位のスケジュールまでの範囲で、連続的に拡大縮小して
+表示できること。
+<<<
+RATIONALE: 長期俯瞰と短期詳細を 1 つの日程表で両立する。user-order item47。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-002
+
+[REQUIREMENT]
+UID: ZOOM-L1-006
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: ズーム時のマウスによるパン
+STATEMENT: >>>
+拡大表示の間、本システムは、マウス操作だけで表示範囲を上下左右にパンできること。
+<<<
+RATIONALE: >>>
+ズーム操作 (ホイール) とパン操作をマウスだけで連続して行える。10-canvas-view の
+CANVAS-L1-011 とスクロール手段を共有する。user-order item52。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-002
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 詳細度 (LOD)
+
+[REQUIREMENT]
+UID: ZOOM-L1-005
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: ズーム連動のアイテム自動増減
+STATEMENT: >>>
+本システムは、ズーム率の変化に応じて表示するアイテムを自動的に増減し、縮小時は重要度の高い
+アイテムを残し、拡大時に詳細なアイテムを現すこと。
+<<<
+RATIONALE: 俯瞰では要点だけ、詳細では細部まで。情報過多と情報不足の両方を避ける。user-order item48。
+VERIFICATION: >>>
+縮小するにつれ表示アイテム数が減り、重要度の高いアイテムが残存すること、拡大するにつれ詳細な
+アイテムが追加表示されることを確認する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-002
+
+[REQUIREMENT]
+UID: ZOOM-L2-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: 重要度に基づく表示アイテム選択
+STATEMENT: >>>
+LOD セレクタは、各アイテムに設定された重要度 (weight) と現在のズーム率から表示閾値を算出し、
+重要度が表示閾値以上のアイテムのみを表示対象として選択すること。
+<<<
+RATIONALE: >>>
+アイテムの増減を「どれを残すか」の明示的な基準 (重要度) で決める。恣意的な間引きを避け、
+縮小しても要点が残ることを保証する。ZOOM-L1-005 の内部アルゴリズム。user-order item48。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ZOOM-L1-005
+
+[REQUIREMENT]
+UID: ZOOM-L3-001
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L3_Unit
+TITLE: 表示閾値の単調性
+STATEMENT: >>>
+LOD セレクタの表示閾値関数は、ズーム率が下がる (縮小する) ほど表示閾値を単調に高くし、縮小に
+伴って表示アイテム数が増加しないことを保証すること。
+<<<
+RATIONALE: >>>
+縮小したのにアイテムが増える、といった直感に反する挙動を禁止する。閾値の単調性が「重要は残す/
+細部は消す」の一貫性を担保する。ZOOM-L2-001 の具体規則。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ZOOM-L2-001
+
+[[/SECTION]]

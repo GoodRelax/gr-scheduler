@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>gr-scheduler - concept mock</title>
+<style>
+  :root {
+    /* CUD-friendly palette (low-chroma, avoids pure primaries) - user-order item20/21 */
+    --c-white:#ffffff; --c-black:#2b2b2b; --c-gray-d:#6b6b6b; --c-gray-l:#c9c9c9;
+    --c-red:#c65b5b; --c-blue:#4f7cc4; --c-yellow:#d8b24a; --c-green:#5aa06e;
+    --c-orange:#d78a4a; --c-purple:#8d6fb0;
+    --bg:#f4f5f7; --pane:#ffffff; --ink:#2b2b2b; --grid:#eceef1; --grid-strong:#d3d6db;
+    --header-bg:#eef1f5; --today:#c65b5b; --cursor:#4f7cc4; --plan-old:#c4c7cd;
+    --font: "Segoe UI", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; }
+  body { font-family:var(--font); color:var(--ink); background:var(--bg); font-size:13px; display:flex; flex-direction:column; }
+
+  /* item6.1 : minimized header - a very slim app bar */
+  header.appbar { display:flex; align-items:center; gap:10px; padding:3px 12px; min-height:24px; background:#20304a; color:#fff; font-size:12px; }
+  header.appbar .title { font-weight:600; font-size:13px; }
+  header.appbar .note { opacity:.7; font-size:10.5px; }
+  header.appbar .spacer { flex:1; }
+  header.appbar .fs { opacity:.72; font-size:10.5px; }
+
+  /* item6 : maximize schedule area */
+  .stage-wrap { position:relative; flex:1; margin:0; background:var(--pane); overflow:hidden; }
+  svg#stage { display:block; width:100%; height:100%; }
+
+  /* item6.2 : FLOATING tool palette. item58 : very translucent even when active (see-through). */
+  .palette {
+    position:absolute; top:8px; right:10px; z-index:5; display:flex; flex-direction:column; gap:6px;
+    background:rgba(255,255,255,.28); border:1px solid rgba(180,185,193,.5); border-radius:9px;
+    padding:6px 7px; box-shadow:0 2px 8px rgba(0,0,0,.08);
+    opacity:.30; transition:opacity .15s ease;
+  }
+  .palette:hover { opacity:.62; background:rgba(255,255,255,.42); }  /* active = still see-through */
+  .palette .grp { display:flex; gap:4px; align-items:center; }
+  .palette .lbl { font-size:9px; color:var(--gray-d); width:40px; text-transform:uppercase; letter-spacing:.3px; }
+  .palette button { background:rgba(238,241,245,.7); border:1px solid rgba(180,185,193,.6); color:#333; border-radius:5px; padding:3px 6px; font-size:11px; cursor:pointer; min-width:24px; }
+  .palette button:hover { background:rgba(226,231,239,.9); }
+  .palette button[aria-pressed="true"] { background:rgba(90,160,110,.85); border-color:#5aa06e; color:#fff; }
+  .palette button.fsbtn[aria-pressed="true"] { background:rgba(79,124,196,.85); border-color:#4f7cc4; }
+
+  .legend {
+    position:absolute; left:10px; bottom:8px; z-index:5; max-width:64%;
+    display:flex; flex-wrap:wrap; gap:5px 12px; padding:5px 9px; align-items:center;
+    background:rgba(255,255,255,.28); border:1px solid rgba(180,185,193,.5); border-radius:9px;
+    font-size:10.5px; opacity:.3; transition:opacity .15s ease;
+  }
+  .legend:hover { opacity:.7; background:rgba(255,255,255,.42); }
+  .legend .grp { display:flex; align-items:center; gap:5px; }
+  .swatch { width:12px; height:12px; border-radius:3px; border:1px solid rgba(0,0,0,.25); display:inline-block; }
+</style>
+</head>
+<body>
+  <header class="appbar">
+    <span class="title">gr-scheduler</span>
+    <span class="note">concept mock &mdash; static illustration (not the real engine)</span>
+    <span class="spacer"></span>
+    <span class="fs">drag the pane border to resize &middot; hover palette to use</span>
+  </header>
+
+  <div class="stage-wrap">
+    <div class="palette" aria-label="floating tool palette">
+      <div class="grp"><span class="lbl">Show</span>
+        <button id="btn-plan" aria-pressed="true">Plan</button>
+        <button id="btn-actual" aria-pressed="true">Actual</button>
+      </div>
+      <div class="grp"><span class="lbl">Guides</span>
+        <button id="btn-today" aria-pressed="true">Today</button>
+        <button id="btn-cursor" aria-pressed="true">Cursor</button>
+        <button id="btn-deps" aria-pressed="true">Deps</button>
+      </div>
+      <div class="grp"><span class="lbl">Marks</span>
+        <button id="btn-wm" aria-pressed="false">Watermark</button>
+      </div>
+      <div class="grp"><span class="lbl">Font</span>
+        <button class="fsbtn" id="fs-s">A-</button>
+        <button class="fsbtn" id="fs-m" aria-pressed="true">A</button>
+        <button class="fsbtn" id="fs-l">A+</button>
+      </div>
+    </div>
+
+    <div class="legend" aria-label="legend">
+      <span class="grp"><b>MS:</b></span>
+      <span class="grp"><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="#5aa06e" stroke="#2b2b2b"/></svg>circle</span>
+      <span class="grp"><svg width="14" height="14"><polygon points="7,2 12,12 2,12" fill="#4f7cc4" stroke="#2b2b2b"/></svg>tri</span>
+      <span class="grp"><svg width="14" height="14"><rect x="2" y="2" width="10" height="10" fill="#d8b24a" stroke="#2b2b2b"/></svg>sq</span>
+      <span class="grp"><svg width="14" height="14"><polygon points="7,2 8.6,5.6 12,5.6 9.2,8 10.3,12 7,9.6 3.7,12 4.8,8 2,5.6 5.4,5.6" fill="#d78a4a" stroke="#2b2b2b"/></svg>star</span>
+      <span class="grp"><svg width="14" height="14"><polygon points="7,2 12,7 7,12 2,7" fill="#8d6fb0" stroke="#2b2b2b"/></svg>SOP</span>
+      <span class="grp" style="margin-left:8px"><b>CUD:</b></span>
+      <span class="swatch" style="background:var(--c-white)"></span><span class="swatch" style="background:var(--c-black)"></span>
+      <span class="swatch" style="background:var(--c-gray-d)"></span><span class="swatch" style="background:var(--c-gray-l)"></span>
+      <span class="swatch" style="background:var(--c-red)"></span><span class="swatch" style="background:var(--c-blue)"></span>
+      <span class="swatch" style="background:var(--c-yellow)"></span><span class="swatch" style="background:var(--c-green)"></span>
+      <span class="swatch" style="background:var(--c-orange)"></span><span class="swatch" style="background:var(--c-purple)"></span>
+    </div>
+
+    <svg id="stage" viewBox="0 0 1180 360" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="gr-scheduler concept: multi-bar schedule, minimized header, resizable indented classification pane">
+      <defs>
+        <!-- minimal but recognizable dependency arrowhead -->
+        <marker id="arrow-dep" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto">
+          <path d="M0,0 L5,2.5 L0,5 z" fill="var(--c-purple)"/>
+        </marker>
+      </defs>
+      <g id="rows-bg"></g>
+      <g id="time-grid"></g>
+      <g id="items"></g>
+      <g id="deps"></g>
+      <g id="illum"></g>
+      <g id="today"></g>
+      <g id="cursor"></g>
+      <g id="header"></g>
+      <g id="leftpane"></g>
+      <g id="resizer" style="cursor:col-resize"></g>
+      <g id="watermark"></g>
+    </svg>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  const SVGNS="http://www.w3.org/2000/svg";
+  const el=(t,a)=>{const n=document.createElementNS(SVGNS,t);for(const k in a)n.setAttribute(k,a[k]);return n;};
+  const cvar=(n)=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const stage=document.getElementById("stage");
+  const G=(id)=>document.getElementById(id);
+  const clear=(g)=>{while(g.firstChild)g.removeChild(g.firstChild);};
+
+  // ---- state ----
+  const state={plan:true,actual:true,today:true,cursor:true,deps:true,wm:false};
+  let fontMult=1;      // A- / A / A+
+  let leftWidth=196;   // resizable classification pane width
+
+  // ---- fixed geometry ----
+  const XW=1180, Y0=48, ROW_H=54;
+  const AX1=1166;
+  const monthStart=new Date(2026,0,1), totalDays=365;
+  let AX0;             // depends on leftWidth (set in build)
+  const dateToDay=(y,m,d)=>Math.round((new Date(y,m,d)-monthStart)/86400000);
+  const dayToX=(d)=>AX0+(AX1-AX0)*(d/totalDays);
+  const dx=(y,m,d)=>dayToX(dateToDay(y,m,d));
+  const fs=(s)=>+(s*fontMult).toFixed(2);
+
+  // classification tree (indentation, NOT columns) : section(大) -> ribbon(中) -> optional sub(小)
+  const rows=[
+    {sec:"A", secName:"車種 (大分類)", label:"車種 A", sub:"内装 (小分類)"},
+    {sec:"A", secName:null, label:"車種 B"},
+    {sec:"A", secName:null, label:"車種 C"},
+    {sec:"B", secName:"共通/評価 (大分類)", label:"共通部品"},
+    {sec:"B", secName:null, label:"評価 / 試験"},
+  ];
+  const rowY=(i)=>Y0+ROW_H/2+i*ROW_H;
+  const CANVAS_H=Y0+rows.length*ROW_H;
+
+  function build(){
+    AX0=leftWidth+4;
+    ["rows-bg","time-grid","items","deps","illum","today","cursor","header","leftpane","resizer","watermark"].forEach(id=>clear(G(id)));
+    const reg={};   // item registry for dependency anchoring
+
+    // rows background (near-white stripes)
+    const rb=G("rows-bg");
+    rows.forEach((r,i)=>{
+      rb.appendChild(el("rect",{x:0,y:Y0+i*ROW_H,width:XW,height:ROW_H,fill:i%2?"#ffffff":"#fcfcfd"}));
+      rb.appendChild(el("line",{x1:0,y1:Y0+i*ROW_H,x2:XW,y2:Y0+i*ROW_H,stroke:cvar("--grid"),"stroke-width":1}));
+    });
+    rb.appendChild(el("line",{x1:0,y1:Y0+3*ROW_H,x2:XW,y2:Y0+3*ROW_H,stroke:cvar("--grid-strong"),"stroke-width":1.5}));
+
+    // vertical month grid
+    const tg=G("time-grid");
+    for(let m=0;m<=12;m++){const x=dx(2026,m,1);tg.appendChild(el("line",{x1:x,y1:Y0,x2:x,y2:CANVAS_H,stroke:cvar("--grid"),"stroke-width":1}));}
+
+    // ---- items ----
+    const items=G("items");
+    function taskBar(id,row,m0,d0,m1,d1,color,label,opts){
+      opts=opts||{};const y=rowY(row),x1=dx(2026,m0,d0),x2=dx(2026,m1,d1),h=13;
+      const g=el("g",{});
+      g.appendChild(el("rect",{x:x1,y:y-h/2,width:Math.max(6,x2-x1),height:h,rx:2,fill:opts.plan_old?cvar("--plan-old"):color,stroke:cvar("--c-black"),"stroke-width":1,opacity:opts.plan_old?0.7:1}));
+      if(label){const t=el("text",{x:(x1+x2)/2,y:y-h/2-3,"text-anchor":"middle","font-size":fs(10),fill:cvar("--ink")});t.textContent=label;g.appendChild(t);}
+      items.appendChild(g);
+      if(id)reg[id]={x1,x2,yc:y,h:h/2};
+    }
+    function milestone(id,row,m,d,shape,color,label){
+      const y=rowY(row),x=dx(2026,m,d),s=6.5;let node;
+      if(shape==="circle")node=el("circle",{cx:x,cy:y,r:s,fill:color,stroke:cvar("--c-black"),"stroke-width":1});
+      else if(shape==="triangle")node=el("polygon",{points:`${x},${y-s} ${x+s},${y+s} ${x-s},${y+s}`,fill:color,stroke:cvar("--c-black"),"stroke-width":1});
+      else if(shape==="square")node=el("rect",{x:x-s,y:y-s,width:2*s,height:2*s,fill:color,stroke:cvar("--c-black"),"stroke-width":1});
+      else if(shape==="diamond")node=el("polygon",{points:`${x},${y-s} ${x+s},${y} ${x},${y+s} ${x-s},${y}`,fill:color,stroke:cvar("--c-black"),"stroke-width":1});
+      else{const p=[];for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,rr=k%2?s*0.45:s;p.push(`${(x+rr*Math.cos(a)).toFixed(1)},${(y+rr*Math.sin(a)).toFixed(1)}`);}node=el("polygon",{points:p.join(" "),fill:color,stroke:cvar("--c-black"),"stroke-width":1});}
+      items.appendChild(node);
+      if(label){const t=el("text",{x:x,y:y-s-3,"text-anchor":"middle","font-size":fs(10),fill:cvar("--ink")});t.textContent=label;items.appendChild(t);}
+      if(id)reg[id]={x1:x-s,x2:x+s,yc:y,h:s};
+    }
+    // row 0 - 車種A
+    taskBar("A.concept",0,0,10,2,15,cvar("--c-blue"),"構想");
+    taskBar("A.design",0,2,20,4,20,cvar("--c-green"),"設計");
+    taskBar("A.trial",0,4,25,6,10,cvar("--c-orange"),"試作");
+    taskBar("A.mass",0,6,15,8,25,cvar("--c-yellow"),"量試");
+    milestone("A.sop",0,9,10,"diamond",cvar("--c-purple"),"SOP");
+    // row 1 - 車種B (grayed previous plan for 設計)
+    taskBar("B.concept",1,1,10,3,15,cvar("--c-blue"),"構想");
+    taskBar(null,1,3,1,5,1,cvar("--c-green"),null,{plan_old:true});
+    taskBar("B.design",1,3,20,5,20,cvar("--c-green"),"設計");
+    taskBar("B.trial",1,5,25,7,10,cvar("--c-orange"),"試作");
+    taskBar("B.mass",1,7,15,9,25,cvar("--c-yellow"),"量試");
+    milestone("B.sop",1,10,20,"diamond",cvar("--c-purple"),"SOP");
+    // row 2 - 車種C
+    taskBar("C.concept",2,2,10,4,15,cvar("--c-blue"),"構想");
+    taskBar("C.design",2,4,20,6,20,cvar("--c-green"),"設計");
+    taskBar("C.trial",2,6,25,8,20,cvar("--c-orange"),"試作");
+    milestone("C.dr1",2,5,1,"triangle",cvar("--c-blue"),"DR1");
+    milestone("C.rev",2,8,1,"circle",cvar("--c-green"),"審査");
+    // section B
+    taskBar(null,3,1,1,4,1,cvar("--c-gray-d"),"部品仕様");
+    taskBar(null,3,4,10,8,1,cvar("--c-purple"),"共通設計");
+    milestone(null,3,8,15,"square",cvar("--c-yellow"),"固定");
+    taskBar(null,4,3,1,6,1,cvar("--c-green"),"台上試験");
+    taskBar(null,4,6,10,9,1,cvar("--c-orange"),"実車試験");
+    milestone(null,4,9,20,"star",cvar("--c-red"),"合格");
+
+    // ---- dependency line : endpoints ATTACH to item anchors (9-point). A.trial bottom-center -> B.concept top-center ----
+    const dep=G("deps");
+    (function(){
+      const s=reg["A.trial"], t=reg["B.concept"];
+      if(!s||!t)return;
+      const sx=(s.x1+s.x2)/2, sy=s.yc+s.h;           // source bottom-center anchor
+      const tx=(t.x1+t.x2)/2, ty=t.yc-t.h;           // target top-center anchor
+      const midY=Y0+ROW_H;                            // route along the row boundary (avoids overlapping bars)
+      const d=`M ${sx} ${sy} L ${sx} ${midY} L ${tx} ${midY} L ${tx} ${ty}`;  // 2 elbows (within 0..3)
+      dep.appendChild(el("path",{d:d,fill:"none",stroke:cvar("--c-purple"),"stroke-width":1.4,"marker-end":"url(#arrow-dep)"}));
+      // small anchor dots to show the 9-point attach points in use
+      dep.appendChild(el("circle",{cx:sx,cy:sy,r:1.7,fill:cvar("--c-purple")}));
+    })();
+    dep.setAttribute("visibility",state.deps?"visible":"hidden");
+
+    // ---- illuminated / progress line : plain '---' (no terminal-emphasis dots) ----
+    const illum=G("illum");
+    const tX=dayToX(dateToDay(2026,6,1));
+    const fronts=[tX+18,tX-26,tX+6,tX+30,tX-14];
+    let pts="M "+tX+" "+Y0;
+    fronts.forEach((fx,i)=>pts+=` L ${fx} ${rowY(i)}`);
+    pts+=` L ${tX} ${CANVAS_H}`;
+    illum.appendChild(el("path",{d:pts,fill:"none",stroke:cvar("--c-red"),"stroke-width":1.5,opacity:0.9}));
+    illum.setAttribute("visibility",state.actual?"visible":"hidden");
+
+    // ---- today line ----
+    const today=G("today");
+    today.appendChild(el("line",{x1:tX,y1:Y0,x2:tX,y2:CANVAS_H,stroke:cvar("--today"),"stroke-width":2}));
+    const tl=el("text",{x:tX+4,y:Y0+11,"font-size":fs(9.5),fill:cvar("--today")});tl.textContent="Today";today.appendChild(tl);
+    today.setAttribute("visibility",state.today?"visible":"hidden");
+
+    // ---- dual cursor : primary(基準) solid + secondary(差分) dashed. day-count ABOVE the secondary marker ----
+    const cursor=G("cursor");
+    const cxA=dx(2026,3,1), cxB=dx(2026,6,10);        // A = base (primary), B = diff (secondary)
+    cursor.appendChild(el("line",{x1:cxA,y1:Y0,x2:cxA,y2:CANVAS_H,stroke:cvar("--cursor"),"stroke-width":1.6}));          // primary solid
+    cursor.appendChild(el("line",{x1:cxB,y1:Y0,x2:cxB,y2:CANVAS_H,stroke:cvar("--cursor"),"stroke-width":1.3,"stroke-dasharray":"5 4"})); // secondary dashed
+    // base marker tag (small, at top of primary)
+    const baseTag=el("text",{x:cxA+3,y:Y0+11,"font-size":fs(9),fill:cvar("--cursor")});baseTag.textContent="基準";cursor.appendChild(baseTag);
+    // diff badge ABOVE the secondary marker
+    const spanDays=Math.round((cxB-cxA)/((AX1-AX0)/totalDays));
+    const badge=el("g",{});
+    badge.appendChild(el("rect",{x:cxB-30,y:Y0+3,width:60,height:15,rx:7.5,fill:cvar("--cursor"),opacity:0.92}));
+    const bt=el("text",{x:cxB,y:Y0+13.5,"text-anchor":"middle","font-size":fs(10),fill:"#fff"});bt.textContent="+"+spanDays+" days";badge.appendChild(bt);
+    cursor.appendChild(badge);
+    cursor.setAttribute("visibility",state.cursor?"visible":"hidden");
+
+    // ---- minimized fixed header (year / month / day-week) ----
+    const header=G("header");
+    header.appendChild(el("rect",{x:0,y:0,width:XW,height:Y0,fill:cvar("--header-bg")}));
+    header.appendChild(el("line",{x1:0,y1:Y0,x2:XW,y2:Y0,stroke:cvar("--grid-strong"),"stroke-width":1.5}));
+    const nm=el("text",{x:8,y:19,"font-size":fs(12.5),"font-weight":"600",fill:cvar("--ink")});nm.textContent="2026 車両開発 全体日程";header.appendChild(nm);
+    const nm2=el("text",{x:8,y:35,"font-size":fs(8.5),fill:cvar("--gray-d")});nm2.textContent="Year / Month / Day";header.appendChild(nm2);
+    const yb=el("text",{x:(AX0+AX1)/2,y:11,"text-anchor":"middle","font-size":fs(9.5),"font-weight":"600",fill:cvar("--gray-d")});yb.textContent="2026";header.appendChild(yb);
+    const monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    for(let m=0;m<12;m++){
+      const xa=dx(2026,m,1),xb=dx(2026,m+1,1);
+      header.appendChild(el("line",{x1:xa,y1:15,x2:xa,y2:Y0,stroke:cvar("--grid-strong"),"stroke-width":1}));
+      const mt=el("text",{x:(xa+xb)/2,y:27,"text-anchor":"middle","font-size":fs(10.5),fill:cvar("--ink")});mt.textContent=monthNames[m];header.appendChild(mt);
+      for(let wd=1;wd<28;wd+=7){const xd=dx(2026,m,wd);header.appendChild(el("line",{x1:xd,y1:33,x2:xd,y2:Y0,stroke:cvar("--grid"),"stroke-width":1}));const dd=el("text",{x:xd,y:44,"text-anchor":"middle","font-size":fs(8),fill:cvar("--gray-l")});dd.textContent=wd;header.appendChild(dd);}
+    }
+
+    // ---- fixed left classification pane : hierarchy by INDENTATION (section 大 -> ribbon 中 -> sub 小), width resizable ----
+    const lp=G("leftpane");
+    lp.appendChild(el("rect",{x:0,y:Y0,width:leftWidth,height:rows.length*ROW_H,fill:"#eef1f5"}));
+    lp.appendChild(el("line",{x1:leftWidth,y1:Y0,x2:leftWidth,y2:CANVAS_H,stroke:cvar("--grid-strong"),"stroke-width":1.5}));
+    const IND0=8, IND1=22, IND2=36;   // indentation levels (大/中/小)
+    rows.forEach((r,i)=>{
+      const yc=rowY(i);
+      if(r.secName){ // 大分類 header at top of its group
+        const gtop=Y0+i*ROW_H;
+        const st=el("text",{x:IND0,y:gtop+12,"font-size":fs(10.5),"font-weight":"600",fill:cvar("--ink")});st.textContent=r.secName;lp.appendChild(st);
+      }
+      // 中分類 (ribbon) indented
+      const rt=el("text",{x:IND1,y:r.secName?yc+4:yc,"font-size":fs(11),fill:cvar("--ink"),"dominant-baseline":"middle"});rt.textContent="- "+r.label;lp.appendChild(rt);
+      if(r.sub){ // 小分類 further indented (demonstrates 3-level indent, no columns)
+        const su=el("text",{x:IND2,y:yc+14,"font-size":fs(9),fill:cvar("--gray-d")});su.textContent="- "+r.sub;lp.appendChild(su);
+      }
+    });
+    // collapsed section small tab (item38/39) - do not thicken the line
+    const tab=el("g",{});
+    tab.appendChild(el("rect",{x:2,y:CANVAS_H-8,width:58,height:15,rx:3,fill:cvar("--c-gray-d")}));
+    const tt=el("text",{x:31,y:CANVAS_H,"text-anchor":"middle","dominant-baseline":"middle","font-size":fs(9.5),fill:"#fff"});tt.textContent="+ Sec C";tab.appendChild(tt);
+    lp.appendChild(tab);
+
+    // ---- resize handle on the pane border ----
+    const rz=G("resizer");
+    rz.appendChild(el("rect",{x:leftWidth-3,y:Y0,width:6,height:rows.length*ROW_H,fill:"transparent"}));
+    rz.appendChild(el("rect",{x:leftWidth-1,y:Y0+rows.length*ROW_H/2-14,width:2,height:28,rx:1,fill:"var(--c-gray-d)",opacity:0.5}));
+
+    // ---- watermark ----
+    const wm=G("watermark");
+    const label="user: t.yamada   2026-07-18 14:32";
+    for(let y=24;y<420;y+=76){for(let x=-100;x<1300;x+=330){const t=el("text",{x:x,y:y,"font-size":fs(15),fill:"#7a7a7a",opacity:0.12,transform:`rotate(-24 ${x} ${y})`});t.textContent=label;wm.appendChild(t);}}
+    wm.setAttribute("visibility",state.wm?"visible":"hidden");
+  }
+
+  build();
+
+  // ---- toggles (set state, apply visibility on current nodes; persists across rebuilds) ----
+  function bind(id,key,node){const b=document.getElementById(id);b.addEventListener("click",()=>{state[key]=!state[key];b.setAttribute("aria-pressed",state[key]?"true":"false");G(node).setAttribute("visibility",state[key]?"visible":"hidden");});}
+  bind("btn-today","today","today");
+  bind("btn-cursor","cursor","cursor");
+  bind("btn-deps","deps","deps");
+  bind("btn-wm","wm","watermark");
+  document.getElementById("btn-actual").addEventListener("click",function(){state.actual=!state.actual;this.setAttribute("aria-pressed",state.actual?"true":"false");G("illum").setAttribute("visibility",state.actual?"visible":"hidden");});
+  document.getElementById("btn-plan").addEventListener("click",function(){state.plan=!state.plan;this.setAttribute("aria-pressed",state.plan?"true":"false");G("items").setAttribute("opacity",state.plan?"1":"0.3");});
+
+  // ---- font size (rebuild so every text re-renders at the new scale, preserving hierarchy) ----
+  const fsBtns={s:document.getElementById("fs-s"),m:document.getElementById("fs-m"),l:document.getElementById("fs-l")};
+  function setFont(mult,key){fontMult=mult;build();for(const k in fsBtns)fsBtns[k].setAttribute("aria-pressed",k===key?"true":"false");}
+  fsBtns.s.addEventListener("click",()=>setFont(0.82,"s"));
+  fsBtns.m.addEventListener("click",()=>setFont(1.0,"m"));
+  fsBtns.l.addEventListener("click",()=>setFont(1.25,"l"));
+
+  // ---- resizable left pane ----
+  let dragging=false;
+  const toSvgX=(clientX,clientY)=>{const p=stage.createSVGPoint();p.x=clientX;p.y=clientY;return p.matrixTransform(stage.getScreenCTM().inverse()).x;};
+  G("resizer").addEventListener("pointerdown",(e)=>{dragging=true;stage.setPointerCapture&&stage.setPointerCapture(e.pointerId);e.preventDefault();});
+  stage.addEventListener("pointermove",(e)=>{if(!dragging)return;leftWidth=clamp(toSvgX(e.clientX,e.clientY),110,470);build();});
+  window.addEventListener("pointerup",()=>{dragging=false;});
+})();
+</script>
+</body>
+</html>

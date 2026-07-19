@@ -1,0 +1,138 @@
+[DOCUMENT]
+TITLE: gr-scheduler 要求仕様 - 相互運用と保存 (L1-L3)
+
+[GRAMMAR]
+IMPORT_FROM_FILE: gr-scheduler-grammar.sgra
+
+[TEXT]
+STATEMENT: >>>
+本書は gr-scheduler の **相互運用と保存** ドメインのシステム要求 (L1) 以下を定義する。
+対象は、JSON の双方向 Import/Export (item43, AI 向け・主データ形式)、MS Project 日程データの
+MSPDI XML 双方向 Import/Export (item42)、画面の SVG 出力 (item44)、ファイル入出力と
+localStorage 自動保存/クラッシュ復旧 (STK-L0-015 由来)、および外部入力の厳格な検証・
+サニタイズ (セキュリティ) である。各 L1 要求はステークホルダ要求 (STK-L0-014 / STK-L0-015)
+へ Parent 関係でトレースする。
+<<<
+
+[[SECTION]]
+TITLE: 1. データ入出力 (Import / Export)
+
+[REQUIREMENT]
+UID: IO-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: JSON の Import / Export (主データ形式)
+STATEMENT: >>>
+本システムは、日程データを主データ形式である JSON として Export でき、同形式の JSON を
+Import して内部モデルへ復元でき、Export した JSON を再 Import しても意味が保持される
+(往復整合) こと。
+<<<
+RATIONALE: AI エージェント/外部ツール連携の主経路。内部モデルの正準表現。user-order item43。
+VERIFICATION: 任意の日程を JSON Export し再 Import した結果が、アイテム・分類・依存・予実の全属性で元と等価であること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-014
+
+[REQUIREMENT]
+UID: IO-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: MS Project (MSPDI XML) の双方向 Import / Export
+STATEMENT: >>>
+本システムは、MS Project の日程データを MSPDI XML 形式で Import して内部モデルへ変換でき、
+内部モデルを MSPDI XML として Export できること。マッピング不能な項目はエラー/警告として
+通知し、破損データを取り込まないこと。
+<<<
+RATIONALE: 既存 MS Project 資産との相互運用。.mpp バイナリは対象外とし MSPDI XML で代替。user-order item42。
+VERIFICATION: 代表的な MSPDI XML を Import して内部モデルへ反映でき、Export した XML が MSPDI スキーマに適合すること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-014
+
+[REQUIREMENT]
+UID: IO-L1-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 画面の SVG 出力
+STATEMENT: >>>
+本システムは、現在表示中の日程表を SVG ファイルとして Export でき、出力 SVG が透かし層
+(有効時) を含み、外部リソースに依存せず単体で表示可能であること。
+<<<
+RATIONALE: 成果物の共有・貼付。ベクタのため拡大しても劣化しない。user-order item44。
+VERIFICATION: SVG Export した結果が外部参照なしで開け、キャンバスの見た目 (アイテム・線・透かし) を再現すること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-014
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 2. 保存と復旧 (Persistence & Recovery)
+
+[REQUIREMENT]
+UID: IO-L1-004
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: ファイル入出力による明示的な保存/読込
+STATEMENT: >>>
+本システムは、ユーザー操作により日程データをローカルファイル (.json / .xml) として保存でき、
+ローカルファイルを読み込んで日程表を復元できること。
+<<<
+RATIONALE: 成果物の可搬性と配布。サーバーを持たないためファイルが一次永続手段。STK-L0-015、確定事項 (保存方式)。
+VERIFICATION: 保存したファイルを別セッションで読み込むと、保存時点の日程が復元されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-015
+
+[REQUIREMENT]
+UID: IO-L1-005
+TYPE: Non-Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: localStorage 自動保存とクラッシュ復旧
+STATEMENT: >>>
+本システムは、編集中の状態を localStorage へ自動保存し、ブラウザのクラッシュや再読込の後の
+起動時に、直前状態を localStorage から復旧するか否かをユーザーに確認して復元できること。
+<<<
+RATIONALE: 作業消失の防止。オフライン単一 HTML でも編集内容を守る。STK-L0-015、確定事項 (保存方式)。
+VERIFICATION: 編集後にリロードすると復旧確認が提示され、承諾すると直前状態が復元されること。
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-015
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 3. 入力の検証とサニタイズ (Security)
+
+[REQUIREMENT]
+UID: IO-L1-006
+TYPE: Constraint
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 外部入力の厳格な検証・サニタイズ
+STATEMENT: >>>
+もし外部ファイル (JSON / MSPDI XML / SVG / PNG) を Import した場合、本システムは、それを
+信頼できない入力として厳格に検証・サニタイズしてから内部モデルへ反映すること。すなわち
+XML 外部エンティティ解決を無効化 (XXE 対策) し、取り込んだ文字列を innerHTML へ直接挿入
+することを禁止し、スキーマ/型に適合しないデータを取り込まず拒否すること。
+<<<
+RATIONALE: >>>
+Import データは攻撃面であり、XXE・XSS・インジェクションの経路となりうる。OWASP Top 10 に
+沿ってクライアント側で防御する。user-order item42-44、00-overview 前提 (Import は信頼できない入力)。
+<<<
+VERIFICATION: >>>
+外部エンティティ/DOCTYPE を含む XML、スクリプトを含む SVG、不正型を含む JSON を Import しても、
+エンティティが解決されず、スクリプトが実行されず、不正データが取り込まれずエラー通知されること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-014
+- TYPE: Parent
+  VALUE: STK-L0-015
+
+[[/SECTION]]
