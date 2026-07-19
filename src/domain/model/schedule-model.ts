@@ -20,8 +20,39 @@ export type ItemKind = 'milestone' | 'task';
 /** Milestone glyph shapes drawable by the SVG renderer in M1. */
 export type MilestoneShape = 'circle' | 'triangle' | 'square' | 'diamond' | 'star';
 
-/** Task bar shapes drawable by the SVG renderer in M1. */
-export type TaskShape = 'bar' | 'arrow' | 'chevron';
+/**
+ * Task bar shapes drawable by the SVG renderer.
+ *
+ * - `bar`     -- a plain rectangle (optionally taper-faded into a trapezoid).
+ * - `arrow`   -- a block arrow (rectangle body with a triangular head at the end).
+ * - `chevron` -- a feather/ribbon arrow (矢羽根): pointed right end, notched left end.
+ * - `span`    -- a thin `*--*` connector: a horizontal line spanning start->end with
+ *                a vertical end-marker at BOTH ends (a start-to-end span indicator).
+ */
+export type TaskShape = 'bar' | 'arrow' | 'chevron' | 'span';
+
+/**
+ * The concrete glyph shape of an item, unifying the milestone glyph shapes and the
+ * task bar shapes into ONE property (PROP `icon_shape_kind`, the project "meaningful
+ * names" example). Set at creation from the armed palette shape, it PERSISTS in the
+ * document, is editable in the property panel, and DRIVES rendering. For a milestone
+ * it is one of the {@link MilestoneShape} values; for a task it is one of the
+ * {@link TaskShape} values. Legacy documents may omit it, in which case the renderer
+ * falls back to {@link ScheduleItem.milestoneShape} / {@link ScheduleItem.taskShape}.
+ */
+export type IconShapeKind = MilestoneShape | TaskShape;
+
+/** Milestone shapes valid for an `icon_shape_kind` on a milestone item. */
+export const MILESTONE_SHAPE_KINDS: readonly MilestoneShape[] = [
+  'circle',
+  'triangle',
+  'square',
+  'diamond',
+  'star',
+];
+
+/** Task shapes valid for an `icon_shape_kind` on a task item. */
+export const TASK_SHAPE_KINDS: readonly TaskShape[] = ['bar', 'arrow', 'chevron', 'span'];
 
 /**
  * Anchor position of the abbreviation label relative to its item glyph
@@ -61,6 +92,13 @@ export type CursorGuideMode = 'none' | 'crosshair' | 'single-vertical' | 'double
 
 /** The horizontal offset (CSS px) of the second line in `double-vertical` mode. */
 export const DOUBLE_VERTICAL_GUIDE_OFFSET_PX = 40;
+
+/**
+ * Default progress-line (イナズマ線 / lightning status line) stroke color: purple.
+ * Applied when {@link ViewState.progressLineColor} is absent, so the plan-vs-actual
+ * zig-zag reads as purple unless the user recolors it.
+ */
+export const DEFAULT_PROGRESS_LINE_COLOR = '#7B2FBF';
 
 /** One measurement cursor pinned to a date on the time axis (CURS-L1-002). */
 export interface CursorState {
@@ -135,6 +173,14 @@ export interface ScheduleItem {
   readonly milestoneShape?: MilestoneShape;
   /** Task bar shape (present when itemKind === 'task'). */
   readonly taskShape?: TaskShape;
+  /**
+   * The unified glyph shape (PROP `icon_shape_kind`) set at creation from the armed
+   * palette shape and edited in the property panel; it DRIVES rendering. For a
+   * milestone it holds a {@link MilestoneShape}; for a task a {@link TaskShape}
+   * (including the `span` connector). Absent on legacy items, where the renderer
+   * falls back to {@link milestoneShape} / {@link taskShape}.
+   */
+  readonly iconShapeKind?: IconShapeKind;
   /**
    * Left-edge taper of a task bar in whole days (business hand-over cross-fade).
    * The top-left vertex is pulled right by this many days so the bar fades IN;
@@ -279,6 +325,34 @@ export interface DeclaredCategory {
   readonly minor?: string;
 }
 
+/**
+ * Persisted per-node UI state for a MIDDLE (中分類) or MINOR (小分類)
+ * classification node (CLASSIFICATION-PANE restructure). Major (大分類) uses
+ * {@link Section.order} / {@link Section.collapsed} instead; this registry
+ * generalizes ORDER-among-siblings and HIDDEN to the two deeper levels, which are
+ * otherwise DERIVED (and so have no natural home for that state).
+ *
+ * A node is identified by its classification path: `{ major, middle }` addresses a
+ * track, `{ major, middle, minor }` a detail. Both `sortIndex` and `hidden` are
+ * OPTIONAL; an absent entry means "default order (first appearance), visible".
+ *
+ * The state is UNDOABLE (mutated only through the command store, mirroring
+ * Section.order/collapsed) and ROUND-TRIPS via the JSON codec, so hide / reorder /
+ * copy survive Undo, Export -> Import and autosave. Absent means none.
+ */
+export interface ClassificationNodeState {
+  /** The owning section value (required). */
+  readonly major: string;
+  /** The track value (present for a track or a detail node). */
+  readonly middle?: string;
+  /** The detail value (present only for a detail node). */
+  readonly minor?: string;
+  /** Explicit sort key among siblings (lower is earlier); absent = appearance order. */
+  readonly sortIndex?: number;
+  /** When true this node and its descendants are hidden from pane + canvas. */
+  readonly hidden?: boolean;
+}
+
 /** A major grouping of rows (大分類). */
 export interface Section {
   readonly id: string;
@@ -302,6 +376,13 @@ export interface Section {
 export type AnchorIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 /**
+ * Default dependency-line stroke color: "yamabuki" (山吹) gold. Applied when a
+ * {@link Dependency} carries no explicit {@link Dependency.strokeColor} override, so
+ * every connector reads as the same warm gold unless the user recolors one.
+ */
+export const DEFAULT_DEPENDENCY_LINE_COLOR = '#F8B500';
+
+/**
  * A directed dependency between two items (DEP-L1-001). The line is drawn from
  * `fromItemId`'s `fromAnchor` to `toItemId`'s `toAnchor`; `bends` caches the
  * elbow count the router last produced (0..3, DEP-L2-002).
@@ -314,6 +395,12 @@ export interface Dependency {
   readonly toAnchor: AnchorIndex;
   /** Elbow count from the last route (0..3); advisory cache, recomputed on render. */
   readonly bends?: number;
+  /**
+   * Per-line stroke color override (CSS color string). Absent falls back to
+   * {@link DEFAULT_DEPENDENCY_LINE_COLOR} (yamabuki gold). Editable from the property
+   * panel when the line is selected; the change is undoable and round-trips via JSON.
+   */
+  readonly strokeColor?: string;
 }
 
 /** Font scale steps (ARCH-C-007). */
@@ -394,6 +481,20 @@ export interface ViewState {
    * boundaries) are drawn. Default ON: absent is treated as visible.
    */
   readonly gridCategoryLinesVisible?: boolean;
+  /**
+   * Whether the progress line (イナズマ線 / lightning status line) is drawn. Absent is
+   * treated as VISIBLE (legacy documents keep showing it). Setting it false DELETES /
+   * hides the line; a toolbar toggle (or undo of that toggle is not applicable since it
+   * lives in view state) can bring it back. Held in view state so toggling it never
+   * pollutes Undo/Redo, yet still round-trips with the document via JSON / autosave.
+   */
+  readonly progressLineVisible?: boolean;
+  /**
+   * Progress-line stroke color (CSS color string). Absent falls back to
+   * {@link DEFAULT_PROGRESS_LINE_COLOR} (purple). Held in view state so recoloring it
+   * round-trips via JSON / autosave without polluting Undo/Redo.
+   */
+  readonly progressLineColor?: string;
   /** The dual measurement cursor (CURS-L1-002/003/004); absent means unused. */
   readonly dualCursor?: DualCursorState;
   /**
@@ -433,6 +534,13 @@ export interface ScheduleDocument {
    * visible until the user creates items into it. Absent means none.
    */
   readonly declaredCategories?: readonly DeclaredCategory[];
+  /**
+   * Persisted per-node order + hidden state for MIDDLE / MINOR classification
+   * nodes (CLASSIFICATION-PANE restructure). Consumed by
+   * {@link rebuildClassification} to order siblings and drop hidden subtrees.
+   * Undoable and round-trips via JSON. Absent means none.
+   */
+  readonly classificationNodeStates?: readonly ClassificationNodeState[];
   /** Directed dependencies between items (DEP-L1-001); absent means none. */
   readonly dependencies?: readonly Dependency[];
   /** Free canvas annotations: comments and rounded-box enclosures (ARCH-C-005). */

@@ -65,7 +65,9 @@ test.describe('left-pane section / category editing', () => {
     expect(await sectionCount(page)).toBe(before + 2);
   });
 
-  test('"↓" on a section adds a None1 track, and "✕" removes the section', async ({ page }) => {
+  test('"+" on a section adds a None1 track, and "X" (confirm dialog) removes the section', async ({
+    page,
+  }) => {
     await openApp(page);
 
     await page.getByRole('button', { name: 'Add section' }).click();
@@ -78,8 +80,10 @@ test.describe('left-pane section / category editing', () => {
     const withTrack = await exportDocument(page);
     expect(withTrack.declaredCategories).toContainEqual({ major: 'None1', middle: 'None1' });
 
-    // Remove the whole section: its header and controls disappear.
+    // Clicking "X" opens a confirm dialog first; only Delete actually removes it.
     await page.getByRole('button', { name: 'Remove section None1' }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByRole('button', { name: 'Delete' }).click();
     await expect(page.getByRole('button', { name: 'Remove section None1' })).toHaveCount(0);
   });
 

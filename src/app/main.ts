@@ -16,6 +16,7 @@ import type {
   PlanActualDisplay,
   Watermark,
 } from '../domain/model/schedule-model.js';
+import { DEFAULT_PROGRESS_LINE_COLOR } from '../domain/model/schedule-model.js';
 import { SvgRenderer } from '../adapters/render/svg-renderer.js';
 import { applyUniformFontScale, ensureUiFontStylesheet } from './font-scale.js';
 import { uiLabel } from '../domain/usecase/i18n.js';
@@ -1007,6 +1008,21 @@ function bootstrap(): void {
   });
   syncTodayButton(renderer.getViewState().todayLineVisible === true);
 
+  // Progress line (イナズマ線) delete/show toggle + color (item 2), hosted in the
+  // property panel (a persistent, always-present control section) so the floating
+  // toolbar is untouched. Both settings live in view state so they round-trip via
+  // JSON / autosave; absent visibility is treated as shown (legacy default).
+  propertyPanel.attachProgressLineControls({
+    isVisible: () => renderer.getViewState().progressLineVisible !== false,
+    getColor: () => renderer.getViewState().progressLineColor ?? DEFAULT_PROGRESS_LINE_COLOR,
+    onToggle: (visible) =>
+      renderer.setViewState({ ...renderer.getViewState(), progressLineVisible: visible }),
+    onColor: (color) =>
+      renderer.setViewState({ ...renderer.getViewState(), progressLineColor: color }),
+    label: uiLabel('progress_line', activeLocale),
+    colorLabel: uiLabel('progress_line_color', activeLocale),
+  });
+
   // Pointer-following cursor-guide selector (items 9-12): four EXCLUSIVE modes as a
   // radio group, held in view state (cursorGuideMode) so the choice round-trips via
   // JSON / autosave. Default is `none` (off), matching the prior default.
@@ -1105,6 +1121,14 @@ function bootstrap(): void {
     // Pass the WHOLE selection so a fill-color edit applies to all selected items
     // (item 5); the panel shows the first item's field values.
     propertyPanel.setSelectedItemIds(selectedItemIds);
+  });
+  // A selected dependency line points the property panel at its color control (item
+  // 1); selecting a line reveals the panel if it was hidden, like double-click does.
+  controller.onDependencySelectionChange((dependencyId) => {
+    propertyPanel.setSelectedDependency(dependencyId);
+    if (dependencyId !== null && propertyPanel.isHidden()) {
+      setPropertiesPanelHidden(false);
+    }
   });
   toolPalette.updateHistoryState(store.canUndo(), store.canRedo());
 

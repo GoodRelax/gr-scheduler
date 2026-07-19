@@ -64,12 +64,14 @@ const MIN_ITEM_WIDTH = 8;
 export const MAX_STACK_LANES = 64;
 
 /**
- * Fraction of a lane's height a stacked bar/glyph occupies. The ~5% gap leaves a
- * visible boundary between two vertically-stacked items in the same lane band so
- * adjacent stacked rectangles never look fused (item: 95% stacked bar height).
- * Applied to every item so single-lane and multi-lane rows look consistent.
+ * Fraction of a lane's height a stacked bar/glyph occupies. The ~10% gap leaves a
+ * clearly visible boundary between two vertically-stacked items in the same lane band
+ * so adjacent stacked rectangles never look fused -- widened from 0.95 to 0.90 so a
+ * bar's own border no longer makes neighbours look cramped/overlapping (item: 90%
+ * stacked bar height). Applied to every item so single-lane and multi-lane rows look
+ * consistent.
  */
-export const STACKED_BAR_HEIGHT_RATIO = 0.95;
+export const STACKED_BAR_HEIGHT_RATIO = 0.9;
 
 /**
  * Compute the total number of distinct start-to-end intervals that overlap; used

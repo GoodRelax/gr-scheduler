@@ -13,9 +13,17 @@
  * Hidden (collapsed) sections are represented by small re-show tabs at the bottom
  * (SECT-L1-004); adding a hidden section adds one tab without thickening anything
  * (SECT-L1-005). Every section edit goes through the undoable command store.
+ *
+ * CLASSIFICATION-PANE restructure: every node (major / middle / minor) carries the
+ * same consolidated icon row `[name] ▲ ▼ □ + - X` (req 5); middle / minor nodes can
+ * be reordered (req 1) and individually hidden (req 2, revealed by a parent `□`),
+ * copied / pasted as a duplicate subtree (req 3, Ctrl+C/V + context menu), and a
+ * major / middle / minor delete goes through a confirm dialog (req 6). Middle names
+ * are top-aligned and minor names center-aligned so they never collide (req 4).
  */
 
 import type {
+  DeclaredCategory,
   ScheduleDocument,
   Section,
   ViewState,
@@ -24,8 +32,12 @@ import type { ScheduleStore } from '../../domain/command/schedule-store.js';
 import {
   addSectionCommand,
   addSubcategoryCommand,
+  duplicateCategorySubtreeCommand,
   removeClassificationNodeCommand,
+  reorderCategoryNodeCommand,
   reorderSectionCommand,
+  revealDescendantsCommand,
+  setCategoryNodeHiddenCommand,
   setSectionCollapsedCommand,
 } from '../../domain/command/commands.js';
 import type { SvgRenderer } from '../render/svg-renderer.js';
@@ -43,10 +55,45 @@ import {
   classificationCollapseLevel,
   collapseRows,
   contiguousSectionBands,
+  orderedMiddlesUnderMajor,
+  orderedMinorsUnderMiddle,
 } from '../../domain/usecase/classification-tree.js';
 import type { SectionMoveDirection } from '../../domain/usecase/section-organizer.js';
+import type { CategoryMoveDirection } from '../../domain/usecase/classification-tree.js';
 import { clampLeftPaneWidth, resolveLeftPaneWidth } from '../../domain/usecase/left-pane-layout.js';
 import { SUBCLASSIFICATION_TEXT_HEX } from '../../domain/usecase/a11y-tokens.js';
+
+/**
+ * A classification node addressed by the pane: its level, path components, display
+ * name and (for a major) its section id. Used by the per-node control row, the
+ * copy/paste clipboard, the context menu and the delete dialog.
+ */
+interface PaneNode {
+  readonly level: 'major' | 'middle' | 'minor';
+  readonly major: string;
+  readonly middle?: string;
+  readonly minor?: string;
+  readonly name: string;
+  readonly sectionId?: string;
+}
+
+/** The declared-node path form of a pane node (for command dispatch). */
+function nodePath(node: PaneNode): DeclaredCategory {
+  return {
+    major: node.major,
+    ...(node.middle !== undefined ? { middle: node.middle } : {}),
+    ...(node.minor !== undefined ? { minor: node.minor } : {}),
+  };
+}
+
+/** True when the keyboard event targets a text field (typing wins over shortcuts). */
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (typeof HTMLElement === 'undefined' || !(target instanceof HTMLElement)) {
+    return false;
+  }
+  const tag = target.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
+}
 
 /** Height in pixels of the pinned hidden-section tab strip. */
 const TAB_STRIP_HEIGHT = 22;
@@ -76,6 +123,21 @@ export class LeftClassificationPane {
    */
   private pendingMoveFocus: { readonly sectionId: string; readonly direction: SectionMoveDirection } | null =
     null;
+  /**
+   * After a MIDDLE / MINOR reorder rebuilds the pane, re-focus the same node's
+   * move button so keyboard users can nudge it repeatedly (SC 2.4.3), mirroring
+   * {@link pendingMoveFocus} for sections.
+   */
+  private pendingCategoryFocus: { readonly node: PaneNode; readonly direction: CategoryMoveDirection } | null =
+    null;
+  /** The node currently focused / selected in the pane (for Ctrl+C copy). */
+  private selectedNode: PaneNode | null = null;
+  /** The node most recently copied (Ctrl+C / context Copy), pasted by Ctrl+V. */
+  private copiedNode: PaneNode | null = null;
+  /** The open right-click context menu, if any (removed on next open / dismiss). */
+  private contextMenu: HTMLElement | null = null;
+  /** The open delete-confirmation modal overlay, if any. */
+  private deleteOverlay: HTMLElement | null = null;
 
   /**
    * @param host - The positioned stage element to overlay the pane onto.
@@ -156,6 +218,11 @@ export class LeftClassificationPane {
     this.host.appendChild(this.container);
     this.enableDividerDrag();
 
+    // Ctrl+C / Ctrl+V on a focused section node copy / paste its subtree (req 3).
+    // Handled at the pane so the global item-clipboard shortcut does not also fire
+    // (we stopPropagation once a section node is the target).
+    this.container.addEventListener('keydown', (event) => this.handlePaneKeydown(event));
+
     this.store.subscribe(() => this.render());
     this.renderer.onViewStateChange(() => this.render());
     this.render();
@@ -176,12 +243,15 @@ export class LeftClassificationPane {
     this.renderRowsAndSections(document, viewState);
     this.renderHiddenTabs(document.sections);
     this.restorePendingMoveFocus();
+    this.restorePendingCategoryFocus();
   }
 
-  private renderRowsAndSections(
-    document: ScheduleDocument,
-    viewState: ViewState,
-  ): void {
+  /** Create an element via the (possibly faked) window document. */
+  private el<K extends keyof HTMLElementTagNameMap>(tag: K): HTMLElementTagNameMap[K] {
+    return window.document.createElement(tag);
+  }
+
+  private renderRowsAndSections(document: ScheduleDocument, viewState: ViewState): void {
     const sections = document.sections;
     const rows = document.rows;
     const zoomY = viewState.zoomY;
@@ -209,18 +279,20 @@ export class LeftClassificationPane {
     });
     const rowGeometry = computeRowGeometry(laidItems, visibleRows, document.epochDate, viewState);
     // A middle (track) label repeats on every detail row beneath it; decorate only
-    // its FIRST appearance with edit buttons so a track has one add/remove control.
+    // its FIRST appearance with the icon row so a track has one control set.
     const decoratedMiddles = new Set<string>();
 
     visibleRows.forEach((row, index) => {
       const top = rowTopAt(rowGeometry, index, zoomY);
       const bandHeight = rowHeightAt(rowGeometry, index, zoomY);
-      // Section header (大分類) sits at the top of its band, indent 0.
+
+      // Section header (major) sits at the top of its band, indent 0.
       if (bandStartIndices.has(index)) {
         const sectionName = bandNameByStart.get(index) ?? '';
-        const header = window.document.createElement('div');
+        const sectionId = sectionIdByStart.get(index);
+        const header = this.el('div');
         header.dataset.role = 'section-header';
-        header.dataset.sectionId = sectionIdByStart.get(index) ?? '';
+        header.dataset.sectionId = sectionId ?? '';
         header.style.position = 'absolute';
         header.style.top = `${top}px`;
         header.style.left = '4px';
@@ -234,73 +306,25 @@ export class LeftClassificationPane {
         header.style.overflow = 'hidden';
         header.style.whiteSpace = 'nowrap';
 
-        const hideButton = window.document.createElement('button');
-        hideButton.type = 'button';
-        hideButton.textContent = '−'; // minus sign
-        // Icon-only control: give it a text name (WCAG 1.1.1 / 4.1.2).
-        hideButton.title = 'hide section';
-        hideButton.setAttribute(
-          'aria-label',
-          `hide section: ${bandNameByStart.get(index) ?? ''}`,
-        );
-        hideButton.style.cursor = 'pointer';
-        hideButton.style.fontSize = '0.85em';
-        hideButton.style.padding = '0 3px';
-        hideButton.style.border = '1px solid #b7bdc7';
-        hideButton.style.borderRadius = '3px';
-        hideButton.style.background = '#fbfcfe';
-        const sectionId = sectionIdByStart.get(index);
-        hideButton.addEventListener('click', () => {
-          if (sectionId !== undefined) {
-            this.store.dispatch(setSectionCollapsedCommand(sectionId, true));
-          }
-        });
-
-        // Keyboard-accessible reorder affordance (SECT-L1-002): move this section
-        // one step up / down through the undoable store. ▲ is disabled on the
-        // first section and ▼ on the last (sectionReorderTarget returns null).
-        const moveUpButton = this.buildSectionMoveButton(sectionId, sectionName, 'up');
-        const moveDownButton = this.buildSectionMoveButton(sectionId, sectionName, 'down');
-
-        // Add a TRACK (中分類) under this section, and REMOVE the whole section.
-        // Both act on declared classification nodes through the undoable store; the
-        // major identity is the section name (SECT editing rework req 1-3).
-        const addTrackButton = this.buildEditButton(
-          'add-subcategory',
-          '↓',
-          `Add sub-category under ${sectionName}`,
-          () => this.store.dispatch(addSubcategoryCommand({ major: sectionName })),
-        );
-        addTrackButton.dataset.major = sectionName;
-        const removeSectionButton = this.buildEditButton(
-          'remove-section',
-          '✕', // multiplication X (distinct from the hide "−" so both coexist)
-          `Remove section ${sectionName}`,
-          () => this.store.dispatch(removeClassificationNodeCommand({ major: sectionName })),
-        );
-        removeSectionButton.dataset.major = sectionName;
-
-        const nameSpan = window.document.createElement('span');
-        nameSpan.textContent = sectionName;
-        nameSpan.style.overflow = 'hidden';
-        nameSpan.style.textOverflow = 'ellipsis';
-
-        header.append(
-          hideButton,
-          moveUpButton,
-          moveDownButton,
-          addTrackButton,
-          removeSectionButton,
-          nameSpan,
-        );
+        const node: PaneNode = {
+          level: 'major',
+          major: sectionName,
+          name: sectionName,
+          ...(sectionId !== undefined ? { sectionId } : {}),
+        };
+        this.wireNodeRow(header, node);
+        header.appendChild(this.buildNameSpan(node));
+        this.appendNodeControls(header, node);
         this.scrollLayer.appendChild(header);
       }
 
-      // Row (中分類 / track), indented; optional sub (小分類 / detail) further indented.
-      // Only branches that actually carry items reach here (empty tracks/details
-      // never render), and a bare major row has no track label to show.
+      // Track (middle) label, indented. TOP-aligned within its (possibly tall) band
+      // (req 4) so a Middle name never overlaps the first Minor name beneath it. The
+      // label repeats per detail row; only its FIRST appearance carries the icon row.
       if (row.classificationLabel.length > 0) {
-        const midLabel = window.document.createElement('div');
+        const trackMajor = row.majorLabel;
+        const trackMiddle = row.middleLabel;
+        const midLabel = this.el('div');
         midLabel.dataset.role = 'track-label';
         midLabel.style.position = 'absolute';
         midLabel.style.top = `${top + 15}px`;
@@ -308,52 +332,37 @@ export class LeftClassificationPane {
         midLabel.style.right = '4px';
         midLabel.style.height = `${Math.max(12, bandHeight - 16)}px`;
         midLabel.style.display = 'flex';
-        midLabel.style.alignItems = 'center';
+        midLabel.style.alignItems = 'flex-start';
         midLabel.style.gap = '4px';
         midLabel.style.color = '#2b2b2b';
         midLabel.style.overflow = 'hidden';
 
-        const midText = window.document.createElement('span');
-        midText.textContent = row.classificationLabel;
-        midText.style.overflow = 'hidden';
-        midText.style.whiteSpace = 'nowrap';
-        midText.style.textOverflow = 'ellipsis';
-        midLabel.appendChild(midText);
-
-        // Add a DETAIL (小分類) under this track, and REMOVE the track. Only the
-        // first row of a repeated middle carries the controls (see decoratedMiddles).
-        const trackMajor = row.majorLabel;
-        const trackMiddle = row.middleLabel;
+        const middleKey = JSON.stringify([trackMajor, trackMiddle]);
+        const decorate =
+          trackMajor !== undefined && trackMiddle !== undefined && !decoratedMiddles.has(middleKey);
         if (trackMajor !== undefined && trackMiddle !== undefined) {
-          const middleKey = `${trackMajor}${trackMiddle}`;
-          if (!decoratedMiddles.has(middleKey)) {
-            decoratedMiddles.add(middleKey);
-            const addDetailButton = this.buildEditButton(
-              'add-subcategory',
-              '↓',
-              `Add sub-category under ${trackMiddle}`,
-              () =>
-                this.store.dispatch(
-                  addSubcategoryCommand({ major: trackMajor, middle: trackMiddle }),
-                ),
-            );
-            const removeTrackButton = this.buildEditButton(
-              'remove-track',
-              '✕',
-              `Remove category ${trackMiddle}`,
-              () =>
-                this.store.dispatch(
-                  removeClassificationNodeCommand({ major: trackMajor, middle: trackMiddle }),
-                ),
-            );
-            midLabel.append(addDetailButton, removeTrackButton);
-          }
+          decoratedMiddles.add(middleKey);
+        }
+        const node: PaneNode = {
+          level: 'middle',
+          major: trackMajor ?? '',
+          ...(trackMiddle !== undefined ? { middle: trackMiddle } : {}),
+          name: row.classificationLabel,
+        };
+        midLabel.appendChild(this.buildNameSpan(node));
+        if (decorate) {
+          this.wireNodeRow(midLabel, node);
+          this.appendNodeControls(midLabel, node);
         }
         this.scrollLayer.appendChild(midLabel);
       }
 
+      // Detail (minor) label, further indented. CENTER-aligned within its band (req 4).
       if (row.subClassificationLabel !== undefined && row.subClassificationLabel.length > 0) {
-        const subLabel = window.document.createElement('div');
+        const detailMajor = row.majorLabel;
+        const detailMiddle = row.middleLabel;
+        const detailMinor = row.minorLabel;
+        const subLabel = this.el('div');
         subLabel.dataset.role = 'detail-label';
         subLabel.style.position = 'absolute';
         subLabel.style.top = `${top + 28}px`;
@@ -367,37 +376,455 @@ export class LeftClassificationPane {
         subLabel.style.fontSize = '0.83em';
         subLabel.style.overflow = 'hidden';
 
-        const subText = window.document.createElement('span');
-        subText.textContent = row.subClassificationLabel;
-        subText.style.overflow = 'hidden';
-        subText.style.whiteSpace = 'nowrap';
-        subText.style.textOverflow = 'ellipsis';
-        subLabel.appendChild(subText);
-
-        // REMOVE the detail leaf (小分類 has no sub-add). Reclassifies its items up
-        // to the track level via the undoable store.
-        const detailMajor = row.majorLabel;
-        const detailMiddle = row.middleLabel;
-        const detailMinor = row.minorLabel;
+        const node: PaneNode = {
+          level: 'minor',
+          major: detailMajor ?? '',
+          ...(detailMiddle !== undefined ? { middle: detailMiddle } : {}),
+          ...(detailMinor !== undefined ? { minor: detailMinor } : {}),
+          name: row.subClassificationLabel,
+        };
+        subLabel.appendChild(this.buildNameSpan(node));
         if (detailMajor !== undefined && detailMiddle !== undefined && detailMinor !== undefined) {
-          const removeDetailButton = this.buildEditButton(
-            'remove-detail',
-            '✕',
-            `Remove category ${detailMinor}`,
-            () =>
-              this.store.dispatch(
-                removeClassificationNodeCommand({
-                  major: detailMajor,
-                  middle: detailMiddle,
-                  minor: detailMinor,
-                }),
-              ),
-          );
-          subLabel.appendChild(removeDetailButton);
+          this.wireNodeRow(subLabel, node);
+          this.appendNodeControls(subLabel, node);
         }
         this.scrollLayer.appendChild(subLabel);
       }
     });
+  }
+
+  /** The ellipsized text span carrying a node's display name (rendered FIRST, req 5). */
+  private buildNameSpan(node: PaneNode): HTMLSpanElement {
+    const span = this.el('span');
+    span.dataset.role = 'node-name';
+    span.textContent = node.name;
+    span.style.overflow = 'hidden';
+    span.style.whiteSpace = 'nowrap';
+    span.style.textOverflow = 'ellipsis';
+    span.style.flex = '1 1 auto';
+    span.style.minWidth = '0';
+    // Focusable so a keyboard user can select a node for Ctrl+C copy (req 3).
+    span.tabIndex = 0;
+    span.addEventListener('focus', () => {
+      this.selectedNode = node;
+    });
+    span.addEventListener('click', () => {
+      this.selectedNode = node;
+    });
+    return span;
+  }
+
+  /**
+   * Tag a node row with its classification path and wire the right-click context
+   * menu (Copy / Paste) on it, so the menu acts on the pointed-at node (req 3).
+   */
+  private wireNodeRow(rowElement: HTMLElement, node: PaneNode): void {
+    rowElement.dataset.nodeLevel = node.level;
+    rowElement.dataset.nodeMajor = node.major;
+    if (node.middle !== undefined) {
+      rowElement.dataset.nodeMiddle = node.middle;
+    }
+    if (node.minor !== undefined) {
+      rowElement.dataset.nodeMinor = node.minor;
+    }
+    rowElement.addEventListener('contextmenu', (event) =>
+      this.openContextMenu(node, event as MouseEvent),
+    );
+  }
+
+  /**
+   * Append the consolidated per-node icon row (req 5), name-first order:
+   * `▲ ▼ □ + - X`. `□` (show-all) and `+` (add sub-category) apply only to nodes
+   * that can HAVE children (major / middle); a minor leaf shows `▲ ▼ - X`.
+   */
+  private appendNodeControls(container: HTMLElement, node: PaneNode): void {
+    container.appendChild(this.buildMoveButton(node, 'up'));
+    container.appendChild(this.buildMoveButton(node, 'down'));
+    if (node.level === 'major' || node.level === 'middle') {
+      container.appendChild(this.buildShowAllButton(node));
+      container.appendChild(this.buildAddSubButton(node));
+    }
+    container.appendChild(this.buildHideButton(node));
+    container.appendChild(this.buildDeleteButton(node));
+  }
+
+  /** Build the ▲ / ▼ move button for a node (major via section order; else category). */
+  private buildMoveButton(node: PaneNode, direction: CategoryMoveDirection): HTMLButtonElement {
+    if (node.level === 'major') {
+      return this.buildSectionMoveButton(node.sectionId, node.name, direction);
+    }
+    return this.buildCategoryMoveButton(node, direction);
+  }
+
+  /**
+   * Build a ▲ / ▼ move button for a MIDDLE / MINOR node (req 1). Disabled at the
+   * sibling boundary so its enabled state matches the reorder command's own no-op.
+   */
+  private buildCategoryMoveButton(
+    node: PaneNode,
+    direction: CategoryMoveDirection,
+  ): HTMLButtonElement {
+    const button = this.el('button');
+    button.type = 'button';
+    button.dataset.role = direction === 'up' ? 'category-move-up' : 'category-move-down';
+    button.dataset.nodeMajor = node.major;
+    if (node.middle !== undefined) {
+      button.dataset.nodeMiddle = node.middle;
+    }
+    if (node.minor !== undefined) {
+      button.dataset.nodeMinor = node.minor;
+    }
+    button.textContent = direction === 'up' ? '▲' : '▼';
+    const label = `Move ${node.name} ${direction}`;
+    button.title = label;
+    button.setAttribute('aria-label', label);
+    this.styleControl(button, '0.7em');
+
+    const siblings = this.categorySiblings(node);
+    const currentIndex = node.level === 'middle' ? siblings.indexOf(node.middle ?? '') : siblings.indexOf(node.minor ?? '');
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const canMove = currentIndex !== -1 && targetIndex >= 0 && targetIndex < siblings.length;
+    if (!canMove) {
+      button.disabled = true;
+      button.style.opacity = '0.4';
+      button.style.cursor = 'default';
+      return button;
+    }
+    button.addEventListener('click', () => {
+      this.pendingCategoryFocus = { node, direction };
+      this.store.dispatch(reorderCategoryNodeCommand(nodePath(node), direction));
+    });
+    return button;
+  }
+
+  /** The ordered sibling names of a middle / minor node (for boundary disabling). */
+  private categorySiblings(node: PaneNode): string[] {
+    const document = this.store.getDocument();
+    if (node.level === 'middle') {
+      return orderedMiddlesUnderMajor(document, node.major);
+    }
+    if (node.level === 'minor' && node.middle !== undefined) {
+      return orderedMinorsUnderMiddle(document, node.major, node.middle);
+    }
+    return [];
+  }
+
+  /** Build the `□` show-all button that reveals every hidden descendant (req 2). */
+  private buildShowAllButton(node: PaneNode): HTMLButtonElement {
+    const button = this.buildEditButton(
+      'show-all',
+      '□', // □ white square
+      `Show all sub-sections of ${node.name}`,
+      () => this.store.dispatch(revealDescendantsCommand(nodePath(node))),
+    );
+    return button;
+  }
+
+  /** Build the `+` add-sub-category button (the renamed old `↓`, req 5). */
+  private buildAddSubButton(node: PaneNode): HTMLButtonElement {
+    const parent =
+      node.level === 'major'
+        ? { major: node.major }
+        : { major: node.major, middle: node.middle ?? '' };
+    const button = this.buildEditButton(
+      'add-subcategory',
+      '+',
+      `Add sub-category under ${node.name}`,
+      () => this.store.dispatch(addSubcategoryCommand(parent)),
+    );
+    button.dataset.nodeMajor = node.major;
+    return button;
+  }
+
+  /** Build the `-` hide button (individual hide, req 2). */
+  private buildHideButton(node: PaneNode): HTMLButtonElement {
+    const button = this.buildEditButton('hide-node', '−', `Hide ${node.name}`, () => {
+      if (node.level === 'major') {
+        if (node.sectionId !== undefined) {
+          this.store.dispatch(setSectionCollapsedCommand(node.sectionId, true));
+        }
+        return;
+      }
+      this.store.dispatch(setCategoryNodeHiddenCommand(nodePath(node), true));
+    });
+    return button;
+  }
+
+  /** Build the `X` delete button; clicking opens the confirm dialog (req 6). */
+  private buildDeleteButton(node: PaneNode): HTMLButtonElement {
+    const role =
+      node.level === 'major' ? 'remove-section' : node.level === 'middle' ? 'remove-track' : 'remove-detail';
+    const label = node.level === 'major' ? `Remove section ${node.name}` : `Remove category ${node.name}`;
+    const button = this.buildEditButton(role, '✕', label, () => undefined);
+    button.dataset.nodeMajor = node.major;
+    // Replace the no-op with the dialog opener so we can reference the trigger.
+    button.addEventListener('click', () => this.openDeleteDialog(node, button));
+    return button;
+  }
+
+  /** Shared button styling for the icon-row controls. */
+  private styleControl(button: HTMLButtonElement, fontSize: string): void {
+    button.style.cursor = 'pointer';
+    button.style.fontSize = fontSize;
+    button.style.lineHeight = '1';
+    button.style.padding = '0 3px';
+    button.style.border = '1px solid #b7bdc7';
+    button.style.borderRadius = '3px';
+    button.style.background = '#fbfcfe';
+    button.style.color = '#333a44';
+    button.style.flex = '0 0 auto';
+  }
+
+  // -------------------------------------------------------------------------
+  // Copy / paste (req 3): keyboard + right-click context menu
+  // -------------------------------------------------------------------------
+
+  /** Ctrl+C copies the selected node; Ctrl+V pastes a duplicate as its sibling. */
+  private handlePaneKeydown(event: KeyboardEvent): void {
+    if (isEditableTarget(event.target)) {
+      return; // typing in a text field wins (req 3)
+    }
+    const ctrl = event.ctrlKey || event.metaKey;
+    if (!ctrl) {
+      return;
+    }
+    const key = (event.key || '').toLowerCase();
+    if (key === 'c' && this.selectedNode !== null) {
+      this.copiedNode = this.selectedNode;
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    if (key === 'v' && this.copiedNode !== null) {
+      this.dispatchDuplicate(this.copiedNode);
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
+  /** Duplicate a node's subtree + items as a sibling copy (req 3). */
+  private dispatchDuplicate(node: PaneNode): void {
+    this.store.dispatch(duplicateCategorySubtreeCommand(nodePath(node)));
+  }
+
+  /** Open the right-click Copy / Paste menu on a section node (req 3). */
+  private openContextMenu(node: PaneNode, event: MouseEvent): void {
+    if (typeof event.preventDefault === 'function') {
+      event.preventDefault();
+    }
+    this.closeContextMenu();
+    const menu = this.el('div');
+    menu.dataset.role = 'section-context-menu';
+    menu.setAttribute('role', 'menu');
+    menu.style.position = 'fixed';
+    menu.style.left = `${event.clientX || 0}px`;
+    menu.style.top = `${event.clientY || 0}px`;
+    menu.style.zIndex = '30';
+    menu.style.background = '#ffffff';
+    menu.style.border = '1px solid #9aa1ac';
+    menu.style.borderRadius = '4px';
+    menu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+    menu.style.padding = '2px';
+    menu.style.display = 'flex';
+    menu.style.flexDirection = 'column';
+    menu.style.font = 'inherit';
+
+    const copyItem = this.buildContextMenuItem('context-copy', 'Copy', () => {
+      this.copiedNode = node;
+      this.closeContextMenu();
+    });
+    const pasteItem = this.buildContextMenuItem('context-paste', 'Paste', () => {
+      if (this.copiedNode !== null) {
+        this.dispatchDuplicate(this.copiedNode);
+      }
+      this.closeContextMenu();
+    });
+    if (this.copiedNode === null) {
+      pasteItem.disabled = true;
+      pasteItem.style.opacity = '0.4';
+    }
+    menu.append(copyItem, pasteItem);
+    this.host.appendChild(menu);
+    this.contextMenu = menu;
+    copyItem.focus();
+
+    // Dismiss on the next outside pointer press / Escape.
+    const dismiss = (dismissEvent: Event): void => {
+      if (dismissEvent instanceof KeyboardEvent && dismissEvent.key !== 'Escape') {
+        return;
+      }
+      this.closeContextMenu();
+    };
+    if (typeof window.addEventListener === 'function') {
+      window.addEventListener('pointerdown', dismiss, { once: true, capture: true });
+      window.addEventListener('keydown', dismiss, { once: true, capture: true });
+    }
+  }
+
+  /** Build one context-menu button. */
+  private buildContextMenuItem(role: string, label: string, onClick: () => void): HTMLButtonElement {
+    const item = this.el('button');
+    item.type = 'button';
+    item.dataset.role = role;
+    item.setAttribute('role', 'menuitem');
+    item.textContent = label;
+    item.setAttribute('aria-label', label);
+    item.style.cursor = 'pointer';
+    item.style.textAlign = 'left';
+    item.style.padding = '4px 12px';
+    item.style.border = 'none';
+    item.style.background = 'transparent';
+    item.style.color = '#222';
+    item.addEventListener('click', onClick);
+    return item;
+  }
+
+  /** Remove the context menu if open. */
+  private closeContextMenu(): void {
+    if (this.contextMenu !== null) {
+      const parent = this.contextMenu.parentNode;
+      if (parent) {
+        parent.removeChild(this.contextMenu);
+      } else {
+        this.host.removeChild(this.contextMenu);
+      }
+      this.contextMenu = null;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Delete confirmation dialog (req 6)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Open the modal delete-confirmation dialog for a node (req 6). Only on confirm
+   * (Delete / D / Enter) is the node actually removed (undoable); Cancel / C / Esc
+   * closes with no change. Focus starts on Cancel (safer default) and returns to
+   * the triggering `X` button on close. Focus is trapped between the two buttons.
+   */
+  private openDeleteDialog(node: PaneNode, trigger: HTMLElement): void {
+    this.closeDeleteDialog(null);
+    const overlay = this.el('div');
+    overlay.dataset.role = 'delete-dialog-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.zIndex = '40';
+    overlay.style.background = 'rgba(0,0,0,0.28)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+
+    const dialog = this.el('div');
+    dialog.dataset.role = 'delete-dialog';
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-labelledby', 'delete-dialog-title');
+    dialog.style.background = '#ffffff';
+    dialog.style.borderRadius = '6px';
+    dialog.style.boxShadow = '0 6px 24px rgba(0,0,0,0.3)';
+    dialog.style.padding = '16px 18px';
+    dialog.style.minWidth = '220px';
+    dialog.style.font = 'inherit';
+    dialog.style.color = '#222';
+
+    const title = this.el('p');
+    title.id = 'delete-dialog-title';
+    title.dataset.role = 'delete-dialog-body';
+    title.textContent = node.level === 'major' ? 'Delete this section?' : 'Delete this category?';
+    title.style.margin = '0 0 14px';
+    title.style.fontSize = '1em';
+
+    const buttonRow = this.el('div');
+    buttonRow.style.display = 'flex';
+    buttonRow.style.justifyContent = 'flex-end';
+    buttonRow.style.gap = '10px';
+
+    const deleteButton = this.buildDialogButton('dialog-delete', 'D', 'elete', 'Delete');
+    deleteButton.style.background = '#c0392b';
+    deleteButton.style.color = '#ffffff';
+    deleteButton.style.border = '1px solid #a5281c';
+    const cancelButton = this.buildDialogButton('dialog-cancel', 'C', 'ancel', 'Cancel');
+
+    const confirm = (): void => {
+      this.store.dispatch(removeClassificationNodeCommand(nodePath(node)));
+      this.closeDeleteDialog(trigger);
+    };
+    const cancel = (): void => this.closeDeleteDialog(trigger);
+    deleteButton.addEventListener('click', confirm);
+    cancelButton.addEventListener('click', cancel);
+
+    // Keyboard: D confirms, C / Esc cancel, Enter confirms (documented), Tab traps.
+    dialog.addEventListener('keydown', (event) => {
+      const key = (event.key || '').toLowerCase();
+      if (key === 'd') {
+        event.preventDefault();
+        event.stopPropagation();
+        confirm();
+      } else if (key === 'c' || event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        cancel();
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+        confirm();
+      } else if (event.key === 'Tab') {
+        event.preventDefault();
+        const active = window.document.activeElement;
+        (active === cancelButton ? deleteButton : cancelButton).focus();
+      }
+    });
+
+    buttonRow.append(deleteButton, cancelButton);
+    dialog.append(title, buttonRow);
+    overlay.appendChild(dialog);
+    this.host.appendChild(overlay);
+    this.deleteOverlay = overlay;
+    // Default focus on Cancel (safer for a destructive action).
+    cancelButton.focus();
+  }
+
+  /**
+   * Build one dialog action button with its first letter BOLD (affording the D / C
+   * keyboard shortcut, req 6).
+   */
+  private buildDialogButton(
+    role: string,
+    boldLetter: string,
+    rest: string,
+    accessibleName: string,
+  ): HTMLButtonElement {
+    const button = this.el('button');
+    button.type = 'button';
+    button.dataset.role = role;
+    button.setAttribute('aria-label', accessibleName);
+    button.style.cursor = 'pointer';
+    button.style.padding = '5px 14px';
+    button.style.borderRadius = '4px';
+    button.style.border = '1px solid #b7bdc7';
+    button.style.background = '#f2f4f7';
+    button.style.font = 'inherit';
+    const bold = this.el('b');
+    bold.textContent = boldLetter;
+    button.appendChild(bold);
+    button.appendChild(window.document.createTextNode(rest));
+    return button;
+  }
+
+  /** Close the delete dialog and return focus to the triggering button, if any. */
+  private closeDeleteDialog(returnFocusTo: HTMLElement | null): void {
+    if (this.deleteOverlay !== null) {
+      const parent = this.deleteOverlay.parentNode;
+      if (parent) {
+        parent.removeChild(this.deleteOverlay);
+      } else {
+        this.host.removeChild(this.deleteOverlay);
+      }
+      this.deleteOverlay = null;
+    }
+    if (returnFocusTo !== null && typeof returnFocusTo.focus === 'function') {
+      returnFocusTo.focus();
+    }
   }
 
   private renderHiddenTabs(sections: readonly Section[]): void {
@@ -461,9 +888,9 @@ export class LeftClassificationPane {
   }
 
   /**
-   * Build one small, icon-only classification edit button (add / remove) as a real
-   * focusable `<button>` with a descriptive accessible name (WCAG 1.1.1 / 4.1.2),
-   * wired to dispatch its command through the undoable store.
+   * Build one small, icon-only classification edit button (add / remove / hide /
+   * show-all) as a real focusable `<button>` with a descriptive accessible name
+   * (WCAG 1.1.1 / 4.1.2), wired to dispatch its command through the undoable store.
    *
    * @param role - The `data-role` used by tests / styling.
    * @param glyph - The single-glyph icon shown in the button.
@@ -483,15 +910,7 @@ export class LeftClassificationPane {
     button.textContent = glyph;
     button.title = accessibleName;
     button.setAttribute('aria-label', accessibleName);
-    button.style.cursor = 'pointer';
-    button.style.fontSize = '0.8em';
-    button.style.lineHeight = '1';
-    button.style.padding = '0 3px';
-    button.style.border = '1px solid #b7bdc7';
-    button.style.borderRadius = '3px';
-    button.style.background = '#fbfcfe';
-    button.style.color = '#333a44';
-    button.style.flex = '0 0 auto';
+    this.styleControl(button, '0.8em');
     button.addEventListener('click', onClick);
     return button;
   }
@@ -516,17 +935,11 @@ export class LeftClassificationPane {
     button.type = 'button';
     button.dataset.role = direction === 'up' ? 'section-move-up' : 'section-move-down';
     button.dataset.sectionId = sectionId ?? '';
-    button.textContent = direction === 'up' ? '▲' : '▼'; // ▲ / ▼
+    button.textContent = direction === 'up' ? '▲' : '▼';
     const label = `Move section ${sectionName} ${direction}`;
     button.title = label;
     button.setAttribute('aria-label', label);
-    button.style.cursor = 'pointer';
-    button.style.fontSize = '0.7em';
-    button.style.lineHeight = '1';
-    button.style.padding = '0 3px';
-    button.style.border = '1px solid #b7bdc7';
-    button.style.borderRadius = '3px';
-    button.style.background = '#fbfcfe';
+    this.styleControl(button, '0.7em');
 
     const target =
       sectionId === undefined
@@ -573,6 +986,41 @@ export class LeftClassificationPane {
     if (fallback !== null && !fallback.disabled) {
       fallback.focus();
     }
+  }
+
+  /** Mirror of {@link restorePendingMoveFocus} for a MIDDLE / MINOR reorder (req 1). */
+  private restorePendingCategoryFocus(): void {
+    const pending = this.pendingCategoryFocus;
+    if (pending === null) {
+      return;
+    }
+    this.pendingCategoryFocus = null;
+    const attrs = this.categoryFocusSelector(pending.node);
+    const find = (direction: CategoryMoveDirection): HTMLButtonElement | null =>
+      this.scrollLayer.querySelector<HTMLButtonElement>(
+        `button[data-role="category-move-${direction}"]${attrs}`,
+      );
+    const preferred = find(pending.direction);
+    if (preferred !== null && !preferred.disabled) {
+      preferred.focus();
+      return;
+    }
+    const fallback = find(pending.direction === 'up' ? 'down' : 'up');
+    if (fallback !== null && !fallback.disabled) {
+      fallback.focus();
+    }
+  }
+
+  /** The attribute selector fragment matching a middle / minor node's move button. */
+  private categoryFocusSelector(node: PaneNode): string {
+    let selector = `[data-node-major="${node.major}"]`;
+    if (node.middle !== undefined) {
+      selector += `[data-node-middle="${node.middle}"]`;
+    }
+    if (node.minor !== undefined) {
+      selector += `[data-node-minor="${node.minor}"]`;
+    }
+    return selector;
   }
 
   /**

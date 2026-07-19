@@ -14,6 +14,7 @@
 
 import type {
   AnchorIndex,
+  ClassificationNodeState,
   DeclaredCategory,
   Dependency,
   ImportedAsset,
@@ -244,6 +245,11 @@ function validateDependency(value: unknown, index: number): Dependency {
   if (!isAnchorIndex(value['toAnchor'])) {
     fail(`dependencies[${index}].toAnchor`, 'must be an integer 0..8');
   }
+  // The per-line color reaches exported SVG paint, so validate it against the same
+  // C-02 allowlist as item/annotation colors (external paint refs rejected).
+  if (value['strokeColor'] !== undefined) {
+    requireColor(value['strokeColor'], `dependencies[${index}].strokeColor`);
+  }
   return value as unknown as Dependency;
 }
 
@@ -288,6 +294,26 @@ function validateDeclaredCategory(value: unknown, index: number): DeclaredCatego
     requireString(value['minor'], `declaredCategories[${index}].minor`);
   }
   return value as unknown as DeclaredCategory;
+}
+
+function validateClassificationNodeState(value: unknown, index: number): ClassificationNodeState {
+  if (!isRecord(value)) {
+    fail(`classificationNodeStates[${index}]`, 'must be an object');
+  }
+  requireString(value['major'], `classificationNodeStates[${index}].major`);
+  if (value['middle'] !== undefined) {
+    requireString(value['middle'], `classificationNodeStates[${index}].middle`);
+  }
+  if (value['minor'] !== undefined) {
+    requireString(value['minor'], `classificationNodeStates[${index}].minor`);
+  }
+  if (value['sortIndex'] !== undefined) {
+    requireNumber(value['sortIndex'], `classificationNodeStates[${index}].sortIndex`);
+  }
+  if (value['hidden'] !== undefined && typeof value['hidden'] !== 'boolean') {
+    fail(`classificationNodeStates[${index}].hidden`, 'must be a boolean');
+  }
+  return value as unknown as ClassificationNodeState;
 }
 
 function validateRow(value: unknown, index: number): Row {
@@ -361,6 +387,11 @@ export function validateScheduleDocument(raw: unknown): ScheduleDocument {
   }
   if (raw['declaredCategories'] !== undefined) {
     requireArray(raw['declaredCategories'], 'declaredCategories').forEach(validateDeclaredCategory);
+  }
+  if (raw['classificationNodeStates'] !== undefined) {
+    requireArray(raw['classificationNodeStates'], 'classificationNodeStates').forEach(
+      validateClassificationNodeState,
+    );
   }
 
   return raw as unknown as ScheduleDocument;

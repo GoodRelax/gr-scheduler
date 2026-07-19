@@ -50,6 +50,7 @@ const TASK_CHOICES: ReadonlyArray<{ shape: TaskShape; glyph: string }> = [
   { shape: 'bar', glyph: '▭' },
   { shape: 'arrow', glyph: '→' },
   { shape: 'chevron', glyph: '»' },
+  { shape: 'span', glyph: '|—|' },
 ];
 
 /**

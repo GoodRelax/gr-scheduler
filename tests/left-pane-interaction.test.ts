@@ -180,6 +180,14 @@ beforeEach(() => {
   focusState.active = null;
   const fakeDocument = {
     createElement: (tagName: string): FakeElement => new FakeElement(tagName, focusState),
+    createTextNode: (text: string): FakeElement => {
+      const node = new FakeElement('#text', focusState);
+      node.textContent = text;
+      return node;
+    },
+    get activeElement(): FakeElement | null {
+      return focusState.active;
+    },
   };
   globalWithDom = globalThis as unknown as { document?: unknown; window?: unknown };
   globalWithDom.document = fakeDocument;
@@ -335,13 +343,14 @@ describe('LeftClassificationPane: section / category editing controls (SECT rewo
     expect(host.querySelector('button[aria-label="Remove section None2"]')).not.toBeNull();
   });
 
-  it('"↓" on a section adds a None1 track, and "✕" removes the section', () => {
+  it('"+" on a section adds a None1 track, and "X" (via confirm dialog) removes the section', () => {
     const store = editableStore();
     const host = new FakeElement('div', focusState);
     new LeftClassificationPane(host as unknown as HTMLElement, store, createRendererStub());
 
     fireClick(host.querySelector('button[data-role="add-section"]') as unknown as FakeElement);
-    // Add a track under None1 via its "Add sub-category under None1" button.
+    // Add a track under None1 via its "Add sub-category under None1" button (the
+    // renamed old "down" glyph is now a "+"; its aria-label is unchanged).
     fireClick(
       host.querySelector(
         'button[aria-label="Add sub-category under None1"]',
@@ -354,10 +363,22 @@ describe('LeftClassificationPane: section / category editing controls (SECT rewo
     // The track shows its own remove control.
     expect(host.querySelector('button[aria-label="Remove category None1"]')).not.toBeNull();
 
-    // Remove the whole section via its "✕" remove button.
+    // The old "+" glyph is gone from the add-subcategory control (now "+").
+    const addSub = host.querySelector('button[aria-label="Add sub-category under None1"]');
+    expect(addSub?.textContent).toBe('+');
+
+    // Clicking "X" (Remove section) opens a confirm dialog, NOT an immediate delete.
     fireClick(
       host.querySelector('button[aria-label="Remove section None1"]') as unknown as FakeElement,
     );
+    expect(store.getDocument().sections.map((section) => section.name)).toContain('None1');
+    const dialog = host.querySelector('[data-role="delete-dialog"]');
+    expect(dialog).not.toBeNull();
+
+    // Confirming (the Delete button) removes the section, undoably.
+    fireClick(host.querySelector('button[data-role="dialog-delete"]') as unknown as FakeElement);
     expect(store.getDocument().sections.map((section) => section.name)).not.toContain('None1');
+    store.undo();
+    expect(store.getDocument().sections.map((section) => section.name)).toContain('None1');
   });
 });

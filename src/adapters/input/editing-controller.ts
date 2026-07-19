@@ -30,7 +30,9 @@ import {
   createItemCommand,
   editPropertyCommand,
   moveItemCommand,
+  removeDependencyCommand,
   resizeItemCommand,
+  setDependencyColorCommand,
   type ClassificationTarget,
   type ResizeEdge,
   type ScheduleCommand,
@@ -65,6 +67,7 @@ import {
   defaultMiddleForMajor,
 } from '../../domain/usecase/classification-tree.js';
 import { anchorPoint, nearestAnchor, type Point } from '../../domain/usecase/dependency-router.js';
+import { iconShapeKindForCreate } from '../../domain/usecase/task-glyph.js';
 import type { AnnotationHit, ItemHit, SvgRenderer, WorldPoint } from '../render/svg-renderer.js';
 import { createLogger } from '../../app/logger.js';
 
@@ -188,6 +191,10 @@ export class EditingController {
   private selectedItemIds: ReadonlySet<string> = new Set();
   /** The currently selected annotation (rounded-box / comment), or null. */
   private selectedAnnotationId: string | null = null;
+  /** The currently selected dependency line, or null (item 1). */
+  private selectedDependencyId: string | null = null;
+  /** Notified when the selected dependency line changes (drives the property panel). */
+  private dependencySelectionListener: ((dependencyId: string | null) => void) | null = null;
   private pendingCreateShape: PendingCreateShape | null = null;
   private gesture: Gesture | null = null;
   private activePointerId: number | null = null;
@@ -305,7 +312,7 @@ export class EditingController {
     return this.selectedAnnotationId;
   }
 
-  /** Select an annotation (mutually exclusive with an item selection). */
+  /** Select an annotation (mutually exclusive with an item / dependency selection). */
   private selectAnnotation(annotationId: string): void {
     this.selectedAnnotationId = annotationId;
     this.renderer.setSelectedAnnotation(annotationId);
@@ -313,6 +320,7 @@ export class EditingController {
     if (this.selectedItemIds.size > 0) {
       this.setSelection(new Set());
     }
+    this.clearDependencySelection();
   }
 
   /** Clear the annotation selection, if any. */
@@ -320,6 +328,70 @@ export class EditingController {
     if (this.selectedAnnotationId !== null) {
       this.selectedAnnotationId = null;
       this.renderer.setSelectedAnnotation(null);
+    }
+  }
+
+  /** The currently selected dependency line id, or null (item 1). */
+  public getSelectedDependencyId(): string | null {
+    return this.selectedDependencyId;
+  }
+
+  /**
+   * Register a listener invoked when the selected dependency line changes (item 1).
+   * The shell uses it to point the property panel at the line's color control.
+   *
+   * @param listener - Called with the selected dependency id, or null.
+   */
+  public onDependencySelectionChange(listener: (dependencyId: string | null) => void): void {
+    this.dependencySelectionListener = listener;
+  }
+
+  /**
+   * Set (or clear with null) the color of the currently selected dependency line
+   * (item 1), dispatching an undoable command. No-op when no line is selected.
+   *
+   * @param strokeColor - The new CSS color string.
+   */
+  public setSelectedDependencyColor(strokeColor: string): void {
+    if (this.selectedDependencyId === null) {
+      return;
+    }
+    this.store.dispatch(setDependencyColorCommand(this.selectedDependencyId, strokeColor));
+    log.debug('dependency_recolored', { dependency_id: this.selectedDependencyId });
+  }
+
+  /**
+   * Delete the currently selected dependency line (item 1), dispatching an undoable
+   * remove command and clearing the selection. Returns true when a line was removed.
+   */
+  public deleteSelectedDependency(): boolean {
+    if (this.selectedDependencyId === null) {
+      return false;
+    }
+    const id = this.selectedDependencyId;
+    this.store.dispatch(removeDependencyCommand(id));
+    this.clearDependencySelection();
+    log.debug('dependency_deleted', { dependency_id: id });
+    return true;
+  }
+
+  /** Select a dependency line, clearing item + annotation selection (mutually exclusive). */
+  private selectDependency(dependencyId: string): void {
+    this.selectedDependencyId = dependencyId;
+    this.renderer.setSelectedDependency(dependencyId);
+    if (this.selectedItemIds.size > 0) {
+      this.setSelection(new Set());
+    }
+    this.clearAnnotationSelection();
+    this.dependencySelectionListener?.(dependencyId);
+  }
+
+  /** Clear the dependency-line selection, if any (item 1). */
+  public clearDependencySelection(): void {
+    if (this.selectedDependencyId !== null) {
+      this.selectedDependencyId = null;
+      this.renderer.setSelectedDependency(null);
+      this.dependencySelectionListener?.(null);
     }
   }
 
@@ -366,11 +438,12 @@ export class EditingController {
   public setSelection(itemIds: ReadonlySet<string>): void {
     this.selectedItemIds = new Set(itemIds);
     this.renderer.setSelection(this.selectedItemIds);
-    // Selecting one or more items clears any annotation selection (they are
-    // mutually exclusive). An empty set leaves the annotation selection intact so
-    // selectAnnotation() can clear items without wiping the box it just selected.
+    // Selecting one or more items clears any annotation / dependency selection (all
+    // mutually exclusive). An empty set leaves them intact so selectAnnotation() /
+    // selectDependency() can clear items without wiping what they just selected.
     if (this.selectedItemIds.size > 0) {
       this.clearAnnotationSelection();
+      this.clearDependencySelection();
     }
     for (const listener of this.selectionListeners) {
       listener(this.selectedItemIds);
@@ -529,12 +602,19 @@ export class EditingController {
     };
     const item: ScheduleItem =
       shape.itemKind === 'milestone'
-        ? { ...base, itemKind: 'milestone', endDate: null, milestoneShape: shape.milestoneShape }
+        ? {
+            ...base,
+            itemKind: 'milestone',
+            endDate: null,
+            milestoneShape: shape.milestoneShape,
+            iconShapeKind: iconShapeKindForCreate('milestone', shape.milestoneShape, undefined),
+          }
         : {
             ...base,
             itemKind: 'task',
             endDate: fromDayNumber(startDay + 7),
             taskShape: shape.taskShape,
+            iconShapeKind: iconShapeKindForCreate('task', undefined, shape.taskShape),
           };
     this.store.dispatch(createItemCommand(item));
     this.setSelection(new Set([id]));
@@ -629,7 +709,16 @@ export class EditingController {
       return;
     }
     if (hit === null) {
-      // No item under the pointer: try the annotations (rounded-box / comment).
+      // No item under the pointer: try a dependency line (item 1). A thin line is
+      // hit-tested geometrically with a pixel tolerance; selecting it is unambiguous
+      // because item bodies were already tested and won above.
+      const dependencyId = this.renderer.hitTestDependency(event.clientX, event.clientY);
+      if (dependencyId !== null) {
+        this.consume(event);
+        this.selectDependency(dependencyId);
+        return;
+      }
+      // Then the annotations (rounded-box / comment).
       const annotationHit = this.renderer.hitTestAnnotation(event.clientX, event.clientY);
       if (annotationHit !== null) {
         this.beginAnnotationGesture(event, annotationHit, world.worldX, world.worldY);
@@ -1123,6 +1212,7 @@ export class EditingController {
         itemKind: 'milestone',
         endDate: null,
         milestoneShape: gesture.shape.milestoneShape,
+        iconShapeKind: iconShapeKindForCreate('milestone', gesture.shape.milestoneShape, undefined),
       };
     }
     const startDay = toDayNumber(startDate);
@@ -1135,6 +1225,7 @@ export class EditingController {
       itemKind: 'task',
       endDate: fromDayNumber(endDay),
       taskShape: gesture.shape.taskShape,
+      iconShapeKind: iconShapeKindForCreate('task', undefined, gesture.shape.taskShape),
     };
   }
 
@@ -1199,10 +1290,11 @@ export class EditingController {
   private commitMarquee(gesture: MarqueeGesture, worldX: number, worldY: number): void {
     this.renderer.showMarquee(null);
     if (!gesture.moved) {
-      // A plain click on empty canvas: clear both selections (unless Shift-additive).
+      // A plain click on empty canvas: clear all selections (unless Shift-additive).
       if (!gesture.additive) {
         this.clearSelection();
         this.clearAnnotationSelection();
+        this.clearDependencySelection();
       }
       return;
     }

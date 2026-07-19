@@ -137,7 +137,13 @@ describe('item 7: multi-lane stacking grows the row up to 64 lanes', () => {
   });
 });
 
-describe('item 8: stacked bars are ~95% of the lane height with a visible gap', () => {
+describe('item 8: stacked bars are 90% of the lane height with a visible gap', () => {
+  it('uses a 0.90 stacked-bar height ratio (widened from 0.95)', () => {
+    // Canvas-objects batch item 3: the ratio dropped to 0.90 so a bar's own border
+    // no longer makes adjacent stacked bars look cramped.
+    expect(STACKED_BAR_HEIGHT_RATIO).toBe(0.9);
+  });
+
   it('leaves a gap between two vertically adjacent stacked bars', () => {
     const items = [
       task('a', 'row-0', '2026-01-01', '2026-01-20'),
@@ -146,7 +152,7 @@ describe('item 8: stacked bars are ~95% of the lane height with a visible gap', 
     const { placements } = layoutRows(items, ROWS, EPOCH, VIEW);
     const lane0 = placements.find((p) => p.laneIndex === 0)!;
     const lane1 = placements.find((p) => p.laneIndex === 1)!;
-    // Each bar is 95% of the lane height.
+    // Each bar is 90% of the lane height (10% gap).
     expect(lane0.worldHeight).toBeCloseTo(BASE_LANE_HEIGHT * STACKED_BAR_HEIGHT_RATIO, 6);
     // The bottom of lane 0's bar is ABOVE the top of lane 1's bar (a visible gap).
     const gap = lane1.worldY - (lane0.worldY + lane0.worldHeight);

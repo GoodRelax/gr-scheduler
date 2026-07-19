@@ -13,12 +13,25 @@
  */
 
 import type {
+  IconShapeKind,
   LabelPosition,
+  MilestoneShape,
   ScheduleDocument,
   ScheduleItem,
+  TaskShape,
+} from '../../domain/model/schedule-model.js';
+import {
+  DEFAULT_DEPENDENCY_LINE_COLOR,
+  MILESTONE_SHAPE_KINDS,
+  TASK_SHAPE_KINDS,
 } from '../../domain/model/schedule-model.js';
 import type { ScheduleStore } from '../../domain/command/schedule-store.js';
-import { editPropertyCommand, type ItemPropertyPatch } from '../../domain/command/commands.js';
+import {
+  editPropertyCommand,
+  setDependencyColorCommand,
+  type ItemPropertyPatch,
+} from '../../domain/command/commands.js';
+import { effectiveMilestoneShape, effectiveTaskShape } from '../../domain/usecase/task-glyph.js';
 import { CUD_PALETTE, TRANSPARENT_COLOR_KEY } from '../../domain/model/cud-palette.js';
 import { MUTED_TEXT_HEX } from '../../domain/usecase/a11y-tokens.js';
 
@@ -34,6 +47,27 @@ const CHECKERBOARD_BACKGROUND =
 interface FieldControl {
   readonly input: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
   readonly readValue: (item: ScheduleItem) => string;
+}
+
+/**
+ * Callbacks + labels wiring the always-present progress-line (イナズマ線) control
+ * section (item 2). The panel reads the current visibility/color through the getters
+ * and writes changes through the setters, keeping the panel free of any renderer /
+ * view-state dependency (the shell owns that state).
+ */
+export interface ProgressLineControlHandlers {
+  /** Whether the progress line is currently shown. */
+  readonly isVisible: () => boolean;
+  /** The current progress-line color. */
+  readonly getColor: () => string;
+  /** Show (true) or hide/delete (false) the progress line. */
+  readonly onToggle: (visible: boolean) => void;
+  /** Recolor the progress line. */
+  readonly onColor: (color: string) => void;
+  /** Localized section label. */
+  readonly label: string;
+  /** Localized accessible name for the color control. */
+  readonly colorLabel: string;
 }
 
 /**
@@ -64,6 +98,14 @@ export class PropertyPanel {
   private middleCategoryInput: HTMLInputElement | null = null;
   /** The minor_category input, disabled while middle is empty (SECT rework rule). */
   private minorCategoryInput: HTMLInputElement | null = null;
+  /** The icon_shape_kind select; its options are rebuilt per item family (item 4). */
+  private iconShapeKindSelect: HTMLSelectElement | null = null;
+  /** The dependency-line color form, shown when a dependency line is selected (item 1). */
+  private dependencyForm: HTMLElement | null = null;
+  /** The native color input inside the dependency form. */
+  private dependencyColorInput: HTMLInputElement | null = null;
+  /** The selected dependency line id, or null (item 1). */
+  private selectedDependencyId: string | null = null;
 
   /**
    * @param container - Host element the panel builds itself into.
@@ -87,6 +129,9 @@ export class PropertyPanel {
   public setSelectedItemId(itemId: string | null): void {
     this.selectedItemId = itemId;
     this.selectedItemIds = itemId === null ? new Set() : new Set([itemId]);
+    if (itemId !== null) {
+      this.selectedDependencyId = null;
+    }
     this.refreshValues(this.store.getDocument());
   }
 
@@ -100,6 +145,9 @@ export class PropertyPanel {
   public setSelectedItemIds(itemIds: ReadonlySet<string>): void {
     this.selectedItemIds = new Set(itemIds);
     this.selectedItemId = itemIds.size === 0 ? null : ([...itemIds][0] ?? null);
+    if (itemIds.size > 0) {
+      this.selectedDependencyId = null;
+    }
     this.refreshValues(this.store.getDocument());
   }
 
@@ -256,12 +304,23 @@ export class PropertyPanel {
       (item) => item.fillColor,
       (value) => ({ fillColor: value, fillColorExplicit: true }),
     );
+    // Unified glyph shape (item 4): its options are rebuilt per item family in
+    // refreshValues (milestone shapes for a milestone; bar/arrow/chevron/span for a
+    // task) and it drives rendering. Placed LAST so it does not shift the earlier
+    // fields' on-screen positions.
+    this.iconShapeKindSelect = this.addIconShapeKindField(form);
+
+    // The dependency-line color form (item 1) is a sibling of the item form, shown
+    // only while a dependency line is selected.
+    this.buildDependencyForm();
   }
 
   private addFieldRow(form: HTMLElement, fieldKey: string): HTMLElement {
     const row = document.createElement('label');
     row.style.display = 'block';
-    row.style.marginBottom = '2px';
+    // 1px row gap keeps the full field set (now including icon_shape_kind) plus the
+    // progress-line section within the panel height without a vertical scrollbar.
+    row.style.marginBottom = '1px';
     const caption = document.createElement('span');
     caption.textContent = fieldKey;
     caption.style.display = 'block';
@@ -442,6 +501,175 @@ export class PropertyPanel {
     this.controls.push({ input, readValue });
   }
 
+  /**
+   * Build the `icon_shape_kind` select (item 4). Its option set is rebuilt per item
+   * in {@link refreshValues} because the valid kinds depend on the item family
+   * (milestone shapes vs task shapes). Changing it dispatches a patch that sets
+   * `iconShapeKind` AND the matching legacy field (taskShape / milestoneShape) so
+   * the model stays internally consistent and re-renders.
+   *
+   * @returns The select element (repopulated per item).
+   */
+  private addIconShapeKindField(form: HTMLElement): HTMLSelectElement {
+    const row = this.addFieldRow(form, 'icon_shape_kind');
+    const select = document.createElement('select');
+    select.style.width = '100%';
+    select.dataset.role = 'icon-shape-kind';
+    select.addEventListener('change', () => {
+      const item = this.currentItem();
+      if (item === null) {
+        return;
+      }
+      const value = select.value as IconShapeKind;
+      const patch: ItemPropertyPatch =
+        item.itemKind === 'milestone'
+          ? { iconShapeKind: value, milestoneShape: value as MilestoneShape }
+          : { iconShapeKind: value, taskShape: value as TaskShape };
+      this.dispatchPatch(patch);
+    });
+    row.appendChild(select);
+    return select;
+  }
+
+  /**
+   * Build the dependency-line color form (item 1), shown only while a dependency
+   * line is selected. Offers the CUD palette swatches plus a native color input;
+   * each dispatches an undoable {@link setDependencyColorCommand} for the selected
+   * line. Hidden by default.
+   */
+  private buildDependencyForm(): void {
+    const form = document.createElement('div');
+    form.dataset.role = 'dependency-form';
+    form.style.display = 'none';
+    const heading = document.createElement('strong');
+    heading.textContent = 'Dependency line';
+    heading.style.display = 'block';
+    heading.style.marginBottom = '4px';
+    form.appendChild(heading);
+
+    const row = this.addFieldRow(form, 'line_color');
+    const swatches = document.createElement('div');
+    swatches.style.display = 'flex';
+    swatches.style.flexWrap = 'wrap';
+    swatches.style.gap = '3px';
+    swatches.style.marginBottom = '4px';
+    swatches.setAttribute('role', 'group');
+    swatches.setAttribute('aria-label', 'line_color palette');
+    for (const color of CUD_PALETTE) {
+      const swatch = document.createElement('button');
+      swatch.type = 'button';
+      swatch.title = color.colorKey;
+      swatch.setAttribute('aria-label', color.colorKey);
+      swatch.style.width = '14px';
+      swatch.style.height = '14px';
+      swatch.style.padding = '0';
+      swatch.style.border = '1px solid #999';
+      swatch.style.background = color.cssValue;
+      swatch.style.cursor = 'pointer';
+      swatch.addEventListener('click', () => this.dispatchDependencyColor(color.cssValue));
+      swatches.appendChild(swatch);
+    }
+    row.appendChild(swatches);
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.style.width = '100%';
+    input.dataset.role = 'dependency-color';
+    input.addEventListener('change', () => this.dispatchDependencyColor(input.value));
+    row.appendChild(input);
+    this.dependencyColorInput = input;
+    this.dependencyForm = form;
+    this.root.appendChild(form);
+  }
+
+  /** Dispatch an undoable color change for the currently selected dependency line. */
+  private dispatchDependencyColor(color: string): void {
+    if (this.selectedDependencyId === null) {
+      return;
+    }
+    this.store.dispatch(setDependencyColorCommand(this.selectedDependencyId, color));
+  }
+
+  /**
+   * Build and mount the always-present progress-line control section (item 2) at the
+   * top of the panel: a show/hide (delete/restore) toggle and a color input. The
+   * section is visible whenever the panel is open, independent of the item selection,
+   * so the progress line stays controllable and can be brought back after hiding.
+   *
+   * @param handlers - Getters/setters + labels supplied by the shell.
+   */
+  public attachProgressLineControls(handlers: ProgressLineControlHandlers): void {
+    const section = document.createElement('div');
+    section.dataset.role = 'progress-line-section';
+    section.style.display = 'flex';
+    section.style.alignItems = 'center';
+    section.style.gap = '6px';
+    section.style.borderBottom = '1px solid #ddd';
+    section.style.paddingBottom = '4px';
+    section.style.marginBottom = '4px';
+
+    const caption = document.createElement('span');
+    caption.textContent = handlers.label;
+    caption.style.color = '#333';
+    caption.style.fontFamily = 'ui-monospace, monospace';
+    caption.style.fontSize = '0.9em';
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.dataset.role = 'toggle-progress-line';
+    toggle.style.cursor = 'pointer';
+    const syncToggle = (): void => {
+      const visible = handlers.isVisible();
+      toggle.setAttribute('aria-pressed', visible ? 'true' : 'false');
+      toggle.textContent = visible ? 'shown' : 'hidden';
+      const name = `${handlers.label}: ${visible ? 'on' : 'off'}`;
+      toggle.setAttribute('aria-label', name);
+      toggle.title = name;
+    };
+    toggle.addEventListener('click', () => {
+      handlers.onToggle(!handlers.isVisible());
+      syncToggle();
+    });
+
+    const color = document.createElement('input');
+    color.type = 'color';
+    color.dataset.role = 'progress-line-color';
+    color.value = handlers.getColor();
+    color.setAttribute('aria-label', handlers.colorLabel);
+    color.title = handlers.colorLabel;
+    color.addEventListener('input', () => handlers.onColor(color.value));
+
+    section.append(caption, toggle, color);
+    // Append at the BOTTOM of the panel so it never shifts the item fields' on-screen
+    // positions (keeping earlier fields where prior tests expect them).
+    this.root.appendChild(section);
+    syncToggle();
+  }
+
+  /** The single item whose values the panel currently displays, or null. */
+  private currentItem(): ScheduleItem | null {
+    if (this.selectedItemId === null) {
+      return null;
+    }
+    return this.store.getDocument().items.find((item) => item.id === this.selectedItemId) ?? null;
+  }
+
+  /**
+   * Point the panel at a selected dependency line (item 1), or null to clear. When
+   * set, the panel shows the dependency color form and hides the item form; the
+   * caller ensures item + dependency selection are mutually exclusive.
+   *
+   * @param dependencyId - The selected dependency id, or null.
+   */
+  public setSelectedDependency(dependencyId: string | null): void {
+    this.selectedDependencyId = dependencyId;
+    if (dependencyId !== null) {
+      // A dependency selection supersedes any item selection in the panel display.
+      this.selectedItemId = null;
+      this.selectedItemIds = new Set();
+    }
+    this.refreshValues(this.store.getDocument());
+  }
+
   private dispatchPatch(patch: ItemPropertyPatch): void {
     // Apply to EVERY selected item (item 5 multi-select); a single selection is the
     // common one-element case. Each edit-property command is a no-op when its values
@@ -459,6 +687,27 @@ export class PropertyPanel {
   private refreshValues(document: ScheduleDocument): void {
     const empty = this.root.querySelector<HTMLElement>('[data-role="empty-state"]');
     const form = this.root.querySelector<HTMLElement>('[data-role="form"]');
+
+    // A selected dependency line takes over the panel with its color form (item 1).
+    if (this.selectedDependencyId !== null) {
+      const dependency = (document.dependencies ?? []).find(
+        (candidate) => candidate.id === this.selectedDependencyId,
+      );
+      if (dependency !== undefined) {
+        if (empty) empty.style.display = 'none';
+        if (form) form.style.display = 'none';
+        if (this.dependencyForm) this.dependencyForm.style.display = 'block';
+        if (this.dependencyColorInput) {
+          this.dependencyColorInput.value =
+            dependency.strokeColor ?? DEFAULT_DEPENDENCY_LINE_COLOR;
+        }
+        return;
+      }
+      // The selected line vanished (deleted / undone): fall through to the item view.
+      this.selectedDependencyId = null;
+    }
+    if (this.dependencyForm) this.dependencyForm.style.display = 'none';
+
     const item =
       this.selectedItemId === null
         ? undefined
@@ -470,6 +719,9 @@ export class PropertyPanel {
     }
     if (empty) empty.style.display = 'none';
     if (form) form.style.display = 'block';
+    // Rebuild the icon_shape_kind options for this item's family and select its
+    // effective shape (item 4).
+    this.refreshIconShapeKindOptions(item);
     // M-03: a milestone has no end_date; hide the field so it cannot be set.
     const isMilestone = item.itemKind === 'milestone';
     if (this.endDateRow !== null) {
@@ -498,6 +750,38 @@ export class PropertyPanel {
         ? 'set a middle_category before a minor_category'
         : '';
       this.minorCategoryInput.style.opacity = middleEmpty ? '0.5' : '1';
+    }
+  }
+
+  /**
+   * Rebuild the icon_shape_kind select's options for an item's family and select its
+   * effective shape (item 4). A milestone offers the five milestone glyph shapes; a
+   * task offers bar / arrow / chevron / span.
+   */
+  private refreshIconShapeKindOptions(item: ScheduleItem): void {
+    const select = this.iconShapeKindSelect;
+    if (select === null) {
+      return;
+    }
+    const kinds: readonly string[] =
+      item.itemKind === 'milestone' ? MILESTONE_SHAPE_KINDS : TASK_SHAPE_KINDS;
+    const current =
+      item.itemKind === 'milestone' ? effectiveMilestoneShape(item) : effectiveTaskShape(item);
+    const signature = kinds.join(',');
+    // Only rebuild the <option> set when the family changed, so an open dropdown is
+    // not torn down on every unrelated store update.
+    if (select.dataset.optionSignature !== signature) {
+      select.innerHTML = '';
+      for (const kind of kinds) {
+        const option = document.createElement('option');
+        option.value = kind;
+        option.textContent = kind;
+        select.appendChild(option);
+      }
+      select.dataset.optionSignature = signature;
+    }
+    if (globalThis.document.activeElement !== select) {
+      select.value = current;
     }
   }
 }

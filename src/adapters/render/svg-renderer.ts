@@ -25,6 +25,17 @@ import type {
   ViewState,
 } from '../../domain/model/schedule-model.js';
 import {
+  DEFAULT_DEPENDENCY_LINE_COLOR,
+  DEFAULT_PROGRESS_LINE_COLOR,
+} from '../../domain/model/schedule-model.js';
+import {
+  effectiveMilestoneShape,
+  effectiveTaskShape,
+  taskGlyphPath,
+  taskShapeIsStroked,
+  taskShapeUsesPath,
+} from '../../domain/usecase/task-glyph.js';
+import {
   layoutRows,
   rowTopAt,
   rowHeightAt,
@@ -199,6 +210,12 @@ export interface AnnotationHit {
 /** Id of the shared minimal dependency arrowhead marker (DEP-L1-004). */
 const DEP_ARROW_MARKER_ID = 'grsch-dep-arrow';
 
+/**
+ * Screen-pixel tolerance within which a click counts as landing on a dependency
+ * line (item 1). Wide enough that the thin (1.4px) line is comfortably grabbable.
+ */
+const DEP_HIT_TOLERANCE_PX = 6;
+
 /** A mounted dependency line: the path plus the id it was routed for. */
 interface MountedDependency {
   readonly path: SVGPathElement;
@@ -255,6 +272,8 @@ export class SvgRenderer {
   private selectedItemIds: ReadonlySet<string> = new Set();
   /** The currently selected annotation (rounded-box / comment), drawn highlighted. */
   private selectedAnnotationId: string | null = null;
+  /** The currently selected dependency line, drawn highlighted (item 1). */
+  private selectedDependencyId: string | null = null;
   /** The item currently focused via keyboard, drawn with a visible ring (2.4.7). */
   private keyboardFocusItemId: string | null = null;
   private createPreviewRect: SVGRectElement | null = null;
@@ -397,9 +416,10 @@ export class SvgRenderer {
     for (const item of scheduleDocument.items) {
       this.itemById.set(item.id, item);
     }
-    // A replaced document (import / restore) invalidates any prior annotation
-    // selection id.
+    // A replaced document (import / restore) invalidates any prior annotation /
+    // dependency selection id.
     this.selectedAnnotationId = null;
+    this.selectedDependencyId = null;
     this.applyCanvasAria();
     this.clearMountedNodes();
     this.layoutDirty = true;
@@ -1748,6 +1768,11 @@ export class SvgRenderer {
     if (this.scheduleDocument === null || this.viewState.planActualDisplay === 'plan-only') {
       return;
     }
+    // Deletable / hideable (item 2): a false flag removes the line from the DOM.
+    // Absent is treated as visible so legacy documents keep showing it.
+    if (this.viewState.progressLineVisible === false) {
+      return;
+    }
     const fronts = this.computeRowProgressFronts();
     const worldVertices = buildIlluminatedLine(
       this.today,
@@ -1769,9 +1794,11 @@ export class SvgRenderer {
       })
       .join(' ');
     const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('data-role', 'progress-line');
     path.setAttribute('d', data);
     path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', '#cc3311');
+    // Editable color (item 2), defaulting to purple when unset.
+    path.setAttribute('stroke', this.viewState.progressLineColor ?? DEFAULT_PROGRESS_LINE_COLOR);
     path.setAttribute('stroke-width', '1.6');
     path.setAttribute('stroke-linejoin', 'round');
     this.overlayGroup.appendChild(path);
@@ -2078,15 +2105,97 @@ export class SvgRenderer {
     let mounted = this.depMountedById.get(dependency.id);
     if (mounted === undefined) {
       const path = document.createElementNS(SVG_NS, 'path');
+      // Tagged so the geometric hit-test / tests can address a specific line.
+      path.setAttribute('data-role', 'dependency-line');
+      path.setAttribute('data-dependency-id', dependency.id);
       path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', '#8452b3');
-      path.setAttribute('stroke-width', '1.4');
       path.setAttribute('marker-end', `url(#${DEP_ARROW_MARKER_ID})`);
       this.depGroup.appendChild(path);
       mounted = { path };
       this.depMountedById.set(dependency.id, mounted);
     }
     mounted.path.setAttribute('d', pathData);
+    // Per-line color (item 1) falls back to the yamabuki-gold default; the arrowhead
+    // marker follows the stroke via `context-stroke`.
+    const strokeColor = dependency.strokeColor ?? DEFAULT_DEPENDENCY_LINE_COLOR;
+    mounted.path.setAttribute('stroke', strokeColor);
+    // A selected line is drawn thicker so the selection is visible on top of items.
+    const isSelected = dependency.id === this.selectedDependencyId;
+    mounted.path.setAttribute('stroke-width', isSelected ? '3.2' : '1.4');
+    if (isSelected) {
+      mounted.path.setAttribute('data-selected', 'true');
+    } else {
+      mounted.path.removeAttribute('data-selected');
+    }
+  }
+
+  /**
+   * Set (or clear with null) the selected dependency line and redraw its highlight
+   * (item 1). Selecting a line is mutually exclusive with item / annotation
+   * selection; the caller clears the other sides.
+   *
+   * @param dependencyId - The selected dependency id, or null.
+   */
+  public setSelectedDependency(dependencyId: string | null): void {
+    if (this.selectedDependencyId === dependencyId) {
+      return;
+    }
+    this.selectedDependencyId = dependencyId;
+    this.requestRender();
+  }
+
+  /** The currently selected dependency line id, or null. */
+  public getSelectedDependencyId(): string | null {
+    return this.selectedDependencyId;
+  }
+
+  /**
+   * Hit-test the dependency lines at a screen point (item 1). Recomputes each
+   * visible line's route in world space (same router the renderer draws with) and
+   * returns the id of the nearest line within {@link DEP_HIT_TOLERANCE_PX} of the
+   * pointer, or null. The content group is only translated (never scaled), so world
+   * px == screen px and the tolerance is a real on-screen grab zone.
+   *
+   * @param screenX - Client x.
+   * @param screenY - Client y.
+   * @returns The hit dependency id, or null.
+   */
+  public hitTestDependency(screenX: number, screenY: number): string | null {
+    const dependencies = this.scheduleDocument?.dependencies ?? [];
+    if (dependencies.length === 0) {
+      return null;
+    }
+    const point = this.screenToWorld(screenX, screenY);
+    const rectByItemId = new Map<string, Rect>();
+    for (const [itemId] of this.mountedById) {
+      const placement = this.placementById.get(itemId);
+      if (placement !== undefined) {
+        rectByItemId.set(itemId, placementRect(placement));
+      }
+    }
+    const obstacles: readonly Rect[] = [...rectByItemId.values()];
+    let bestId: string | null = null;
+    let bestDistance = DEP_HIT_TOLERANCE_PX;
+    for (const dependency of dependencies) {
+      const fromRect = rectByItemId.get(dependency.fromItemId);
+      const toRect = rectByItemId.get(dependency.toItemId);
+      if (fromRect === undefined || toRect === undefined) {
+        continue; // an endpoint is not currently laid out / visible.
+      }
+      const route = routeDependency(
+        fromRect,
+        dependency.fromAnchor,
+        toRect,
+        dependency.toAnchor,
+        obstacles,
+      );
+      const distance = distanceToPolyline(point.worldX, point.worldY, route.points);
+      if (distance <= bestDistance) {
+        bestDistance = distance;
+        bestId = dependency.id;
+      }
+    }
+    return bestId;
   }
 
   private createItemNode(item: ScheduleItem): MountedItem {
@@ -2119,19 +2228,24 @@ export class SvgRenderer {
   }
 
   /**
-   * Ensure a task's glyph element matches whether it currently tapers: a `polygon`
-   * when it has fade, a `rect` otherwise (the exact pre-fade rendering, including
-   * rounded corners). Swaps the node in place before the label so the group keeps a
-   * single glyph node per item (virtualization/perf invariant). Milestones are left
-   * untouched (always a `path`).
+   * Ensure a task's glyph element matches its current shape (item: task-type /
+   * icon-shape) and fade state: a `path` for arrow / chevron / span, a `polygon`
+   * for a faded bar, a `rect` for a plain bar (the exact pre-fade rendering,
+   * including rounded corners). Swaps the node in place before the label so the
+   * group keeps a single glyph node per item (virtualization/perf invariant).
+   * Milestones are left untouched (always a `path`).
    */
   private ensureTaskGlyphElement(mounted: MountedItem, item: ScheduleItem): void {
     if (item.itemKind !== 'task') {
       return;
     }
-    const wantPolygon = hasFade(item.fadeInDays, item.fadeOutDays);
+    const shape = effectiveTaskShape(item);
+    const wantTag = taskShapeUsesPath(shape)
+      ? 'path'
+      : hasFade(item.fadeInDays, item.fadeOutDays)
+        ? 'polygon'
+        : 'rect';
     const currentTag = mounted.shape.tagName.toLowerCase();
-    const wantTag = wantPolygon ? 'polygon' : 'rect';
     if (currentTag === wantTag) {
       return;
     }
@@ -2146,27 +2260,41 @@ export class SvgRenderer {
     placement: ItemPlacement,
     fontSize: number,
   ): void {
-    // Swap rect<->polygon FIRST so the shared paint attributes below land on the
-    // element that will actually be shown this frame (fade toggled via drag/panel).
+    // Swap the glyph element FIRST (rect / polygon / path per shape + fade) so the
+    // paint attributes below land on the element actually shown this frame.
     this.ensureTaskGlyphElement(mounted, item);
     // Property-driven fill (fix 3): plan -> green, actual -> orange, derived from
     // the plan_actual_status PROPERTY (never by parsing the category name). Items
     // without plan/actual semantics keep their own stored fill. Grey baseline /
     // changed-plan ghosts are drawn separately (renderPreviousPlanGhosts) and are
     // unaffected. Paired with the non-color stroke-dash below for WCAG 1.4.1.
-    mounted.shape.setAttribute('fill', displayFillColor(item));
-    // Item borders are SOLID and OFF by default (item 2): a transparent/absent stroke
-    // color renders `stroke="none"` (no border), and any explicitly set stroke is
-    // solid (no dash-array). Plan vs actual is conveyed by the separate labeled rows
-    // and the fill hue, not by a stroke dash. The dashed SELECTION outline is a
-    // separate node (updateSelectionOutline) and still marks the selected item.
-    const stroke = resolveStrokeAttribute(item.strokeColor);
-    mounted.shape.setAttribute('stroke', stroke);
-    mounted.shape.setAttribute(
-      'stroke-width',
-      stroke === 'none' ? '0' : String(strokeWidthPx(item.lineWeight)),
-    );
-    mounted.shape.setAttribute('stroke-dasharray', 'none');
+    const fillColor = displayFillColor(item);
+    const taskShape = item.itemKind === 'task' ? effectiveTaskShape(item) : null;
+    const stroked = taskShape !== null && taskShapeIsStroked(taskShape);
+    if (stroked) {
+      // A `span` (*--*) connector is a thin STROKED line with no fill; its own fill
+      // color paints the stroke so the fill-color control recolors the connector.
+      mounted.shape.setAttribute('fill', 'none');
+      mounted.shape.setAttribute('stroke', fillColor);
+      mounted.shape.setAttribute('stroke-width', String(strokeWidthPx(item.lineWeight)));
+      mounted.shape.setAttribute('stroke-dasharray', 'none');
+    } else {
+      mounted.shape.setAttribute('fill', fillColor);
+      // Item borders are SOLID and OFF by default (item 2): a transparent/absent
+      // stroke color renders `stroke="none"` (no border); any explicit stroke is
+      // solid (no dash-array). The dashed SELECTION outline is a separate node.
+      const stroke = resolveStrokeAttribute(item.strokeColor);
+      mounted.shape.setAttribute('stroke', stroke);
+      mounted.shape.setAttribute(
+        'stroke-width',
+        stroke === 'none' ? '0' : String(strokeWidthPx(item.lineWeight)),
+      );
+      mounted.shape.setAttribute('stroke-dasharray', 'none');
+    }
+    // Tag the glyph with its shape so tests / assistive tech can read the kind.
+    if (taskShape !== null) {
+      mounted.shape.setAttribute('data-task-shape', taskShape);
+    }
 
     // Refresh the accessible name (abbrev + kind + dates) for the active locale.
     const accessibleName = itemAccessibleName(item, this.viewState.activeLocale ?? 'en');
@@ -2178,6 +2306,18 @@ export class SvgRenderer {
       const centerX = placement.worldX;
       const centerY = placement.worldY + size / 2;
       mounted.shape.setAttribute('d', milestonePath(item, centerX, centerY, size / 2));
+    } else if (taskShape !== null && taskShapeUsesPath(taskShape)) {
+      // Arrow / chevron / span: draw the shape from its own vertices. The fade taper
+      // only applies to a plain bar, so these shapes ignore fadeIn/Out days.
+      mounted.shape.setAttribute(
+        'd',
+        taskGlyphPath(taskShape, {
+          x: placement.worldX,
+          y: placement.worldY,
+          width: placement.worldWidth,
+          height: placement.worldHeight,
+        }),
+      );
     } else if (hasFade(item.fadeInDays, item.fadeOutDays)) {
       // Faded task: draw the 4-point trapezoid/parallelogram. The polygon carries a
       // data attribute so tests/AT can read the taper without re-deriving geometry.
@@ -2562,7 +2702,9 @@ function buildDependencyMarkerDefs(): SVGDefsElement {
   marker.setAttribute('orient', 'auto');
   const head = document.createElementNS(SVG_NS, 'path');
   head.setAttribute('d', 'M 0 0 L 6 3 L 0 6 Z');
-  head.setAttribute('fill', '#8452b3');
+  // Follow each line's own stroke color (item 1) so the arrowhead matches a
+  // recolored line and the yamabuki-gold default.
+  head.setAttribute('fill', 'context-stroke');
   marker.appendChild(head);
   defs.appendChild(marker);
   return defs;
@@ -2648,9 +2790,44 @@ function pointInLabelBox(
   );
 }
 
+/** Shortest distance from a point to a polyline (sequence of connected segments). */
+function distanceToPolyline(px: number, py: number, points: readonly Point[]): number {
+  let best = Number.POSITIVE_INFINITY;
+  for (let index = 1; index < points.length; index += 1) {
+    const a = points[index - 1];
+    const b = points[index];
+    if (a === undefined || b === undefined) {
+      continue;
+    }
+    best = Math.min(best, distanceToSegment(px, py, a.x, a.y, b.x, b.y));
+  }
+  return best;
+}
+
+/** Shortest distance from point (px,py) to the segment (ax,ay)-(bx,by). */
+function distanceToSegment(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+): number {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared === 0) {
+    return Math.hypot(px - ax, py - ay);
+  }
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lengthSquared));
+  const projX = ax + t * dx;
+  const projY = ay + t * dy;
+  return Math.hypot(px - projX, py - projY);
+}
+
 /** Build the SVG path `d` for a milestone glyph centered at (cx, cy). */
 function milestonePath(item: ScheduleItem, cx: number, cy: number, radius: number): string {
-  const shape = item.milestoneShape ?? 'diamond';
+  const shape = effectiveMilestoneShape(item);
   switch (shape) {
     case 'circle': {
       // Two arcs form a full circle.

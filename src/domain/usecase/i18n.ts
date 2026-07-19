@@ -93,6 +93,9 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   fit_to_content: { en: 'Fit schedule to view', ja: '全体表示' },
   toggle_fullscreen: { en: 'Toggle fullscreen', ja: '全画面表示' },
   today_line: { en: 'Today line', ja: '本日線' },
+  // Progress line (イナズマ線 / lightning status line) toggle + color (item 2).
+  progress_line: { en: 'Progress line', ja: 'イナズマ線' },
+  progress_line_color: { en: 'Progress line color', ja: 'イナズマ線の色' },
   dual_cursor: { en: 'Dual cursor', ja: 'デュアルカーソル' },
   // Pointer-following cursor-guide modes (items 9-12), an exclusive radio group.
   cursor_guide: { en: 'Cursor guide', ja: 'ガイドカーソル' },

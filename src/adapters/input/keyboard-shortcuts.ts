@@ -111,8 +111,12 @@ function deleteSelection(context: ShortcutContext): void {
     log.debug('delete_selection', { deleted_count: selected.size });
     return;
   }
-  // No item selected: fall back to a selected annotation (rounded-box / comment),
-  // which is deletable with the same key and is likewise undoable.
+  // No item selected: a selected dependency line is deletable with the same key
+  // (item 1), and is likewise undoable.
+  if (context.controller.deleteSelectedDependency()) {
+    return;
+  }
+  // Else fall back to a selected annotation (rounded-box / comment).
   const annotationId = context.controller.getSelectedAnnotationId();
   if (annotationId !== null) {
     context.store.dispatch(deleteAnnotationCommand(annotationId));

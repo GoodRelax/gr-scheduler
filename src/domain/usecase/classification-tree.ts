@@ -26,6 +26,7 @@
  */
 
 import type {
+  ClassificationNodeState,
   DeclaredCategory,
   Row,
   ScheduleDocument,
@@ -174,15 +175,92 @@ export function classificationImportError(item: ScheduleItem): string | null {
   return null;
 }
 
-/** The leaf label shown for a row at a given depth (middle for 1, minor for 2). */
-function leafLabelFor(path: { middle?: string; minor?: string }, depth: ClassificationDepth): string {
-  if (depth >= 2) {
-    return path.minor ?? '';
+// ---------------------------------------------------------------------------
+// Per-node state (order + hidden) indexing (CLASSIFICATION-PANE restructure)
+// ---------------------------------------------------------------------------
+
+/**
+ * Sort-key base for a sibling that has NO explicit {@link ClassificationNodeState.sortIndex}
+ * yet: it sorts AFTER every reordered sibling (which carry a dense 0..n-1 index),
+ * preserving first-appearance order among the not-yet-reordered ones.
+ */
+const APPEARANCE_SORT_BASE = 1_000_000;
+
+/** Indexed per-node state: explicit sort keys and the set of hidden node keys. */
+interface IndexedNodeStates {
+  readonly sortIndexByKey: Map<string, number>;
+  readonly hiddenKeys: Set<string>;
+}
+
+/** Build fast lookups (sortIndex / hidden) keyed by classification path. */
+function indexNodeStates(
+  states: readonly ClassificationNodeState[] | undefined,
+): IndexedNodeStates {
+  const sortIndexByKey = new Map<string, number>();
+  const hiddenKeys = new Set<string>();
+  for (const state of states ?? []) {
+    const major = nonEmpty(state.major);
+    if (major === undefined) {
+      continue;
+    }
+    const middle = nonEmpty(state.middle);
+    const minor = middle === undefined ? undefined : nonEmpty(state.minor);
+    const key = classificationRowId(major, middle, minor);
+    if (state.sortIndex !== undefined && Number.isFinite(state.sortIndex)) {
+      sortIndexByKey.set(key, state.sortIndex);
+    }
+    if (state.hidden === true) {
+      hiddenKeys.add(key);
+    }
   }
-  if (depth >= 1) {
-    return path.middle ?? '';
-  }
-  return '';
+  return { sortIndexByKey, hiddenKeys };
+}
+
+/** The effective sort key of a sibling (explicit index, else appearance order). */
+function siblingSortKey(
+  sortIndexByKey: ReadonlyMap<string, number>,
+  key: string,
+  appearanceIndex: number,
+): number {
+  const explicit = sortIndexByKey.get(key);
+  return explicit !== undefined ? explicit : APPEARANCE_SORT_BASE + appearanceIndex;
+}
+
+/** Stably order sibling names by their per-node sort key. */
+function orderSiblings(
+  names: readonly string[],
+  keyOf: (name: string) => string,
+  sortIndexByKey: ReadonlyMap<string, number>,
+): string[] {
+  return names
+    .map((name, appearanceIndex) => ({
+      name,
+      sortKey: siblingSortKey(sortIndexByKey, keyOf(name), appearanceIndex),
+      appearanceIndex,
+    }))
+    .sort((left, right) =>
+      left.sortKey !== right.sortKey
+        ? left.sortKey - right.sortKey
+        : left.appearanceIndex - right.appearanceIndex,
+    )
+    .map((entry) => entry.name);
+}
+
+/** Aggregated per-middle content while building one major's subtree. */
+interface MiddleAgg {
+  hasMiddleItem: boolean;
+  /** A declared `{ major, middle }` (no minor) forces an empty track row to show. */
+  emptyDeclared: boolean;
+  readonly minors: string[];
+  readonly minorSeen: Set<string>;
+}
+
+/** Aggregated per-major content while building the tree. */
+interface MajorAgg {
+  hasMajorItem: boolean;
+  readonly middles: string[];
+  readonly middleSeen: Set<string>;
+  readonly perMiddle: Map<string, MiddleAgg>;
 }
 
 /**
@@ -200,6 +278,14 @@ function leafLabelFor(path: { middle?: string; minor?: string }, depth: Classifi
  * header is drawn and items can be created into it (the created item then produces
  * the same row id and the placeholder merges away).
  *
+ * MIDDLE / MINOR sibling ORDER and HIDDEN state come from
+ * {@link ScheduleDocument.classificationNodeStates}: siblings are emitted in their
+ * `sortIndex` order (first-appearance for those never reordered), and a hidden
+ * node (and its whole subtree) is dropped from `rows` / `rowIds` so its items get
+ * no placement on the canvas -- exactly like a collapsed section, but per node. A
+ * section whose entire content is hidden still gets a bare placeholder row so its
+ * header (carrying the show-all control) remains reachable.
+ *
  * @param document - The document whose classification to re-derive.
  * @returns A new document with a materialized classification tree.
  */
@@ -212,128 +298,164 @@ export function rebuildClassification(document: ScheduleDocument): ScheduleDocum
     }
   }
 
-  // First-appearance order of majors across items.
+  const { sortIndexByKey, hiddenKeys } = indexNodeStates(document.classificationNodeStates);
+
+  // First-appearance order of majors, and per-major aggregated subtree content.
   const majorOrder: string[] = [];
   const seenMajor = new Set<string>();
-  // Per-major: ordered distinct row ids + their row record.
-  const rowsByMajor = new Map<string, Row[]>();
-  const rowSeenByMajor = new Map<string, Set<string>>();
+  const aggByMajor = new Map<string, MajorAgg>();
   const rowIdByItemId = new Map<string, string>();
+
+  const ensureMajor = (major: string): MajorAgg => {
+    let agg = aggByMajor.get(major);
+    if (agg === undefined) {
+      seenMajor.add(major);
+      majorOrder.push(major);
+      agg = {
+        hasMajorItem: false,
+        middles: [],
+        middleSeen: new Set(),
+        perMiddle: new Map(),
+      };
+      aggByMajor.set(major, agg);
+    }
+    return agg;
+  };
+  const ensureMiddle = (agg: MajorAgg, middle: string): MiddleAgg => {
+    let mid = agg.perMiddle.get(middle);
+    if (mid === undefined) {
+      agg.middles.push(middle);
+      agg.middleSeen.add(middle);
+      mid = { hasMiddleItem: false, emptyDeclared: false, minors: [], minorSeen: new Set() };
+      agg.perMiddle.set(middle, mid);
+    }
+    return mid;
+  };
 
   for (const item of document.items) {
     const path = resolveClassificationPath(item);
     const { major, depth } = path;
-    if (!seenMajor.has(major)) {
-      seenMajor.add(major);
-      majorOrder.push(major);
-      rowsByMajor.set(major, []);
-      rowSeenByMajor.set(major, new Set());
-    }
-    const sectionId = existingByName.get(major)?.id ?? `sec:${major}`;
-    const rowId = classificationRowId(
-      major,
-      depth >= 1 ? path.middle : undefined,
-      depth >= 2 ? path.minor : undefined,
+    const agg = ensureMajor(major);
+    rowIdByItemId.set(
+      item.id,
+      classificationRowId(
+        major,
+        depth >= 1 ? path.middle : undefined,
+        depth >= 2 ? path.minor : undefined,
+      ),
     );
-    rowIdByItemId.set(item.id, rowId);
-    const seen = rowSeenByMajor.get(major);
-    const bucket = rowsByMajor.get(major);
-    if (seen !== undefined && bucket !== undefined && !seen.has(rowId)) {
-      seen.add(rowId);
-      bucket.push({
-        id: rowId,
-        sectionId,
-        classificationLabel: leafLabelFor(path, depth),
-        ...(depth >= 2 && path.minor !== undefined ? { subClassificationLabel: path.minor } : {}),
-        order: bucket.length,
-        majorLabel: major,
-        ...(depth >= 1 && path.middle !== undefined ? { middleLabel: path.middle } : {}),
-        ...(depth >= 2 && path.minor !== undefined ? { minorLabel: path.minor } : {}),
-        depth,
-      });
+    if (depth === 0) {
+      agg.hasMajorItem = true;
+      continue;
+    }
+    if (path.middle === undefined) {
+      continue;
+    }
+    const mid = ensureMiddle(agg, path.middle);
+    if (depth === 1) {
+      mid.hasMiddleItem = true;
+      continue;
+    }
+    if (path.minor !== undefined && !mid.minorSeen.has(path.minor)) {
+      mid.minorSeen.add(path.minor);
+      mid.minors.push(path.minor);
     }
   }
 
-  /** Register a major so it yields a section even with no item rows yet. */
-  const registerMajor = (major: string): void => {
-    if (!seenMajor.has(major)) {
-      seenMajor.add(major);
-      majorOrder.push(major);
-      rowsByMajor.set(major, []);
-      rowSeenByMajor.set(major, new Set());
-    }
-  };
-
-  /** Append an EMPTY declared row (no items) at its depth, if not already present. */
-  const pushDeclaredRow = (
-    major: string,
-    middle: string | undefined,
-    minor: string | undefined,
-    depth: ClassificationDepth,
-  ): void => {
-    const rowId = classificationRowId(
-      major,
-      depth >= 1 ? middle : undefined,
-      depth >= 2 ? minor : undefined,
-    );
-    const seen = rowSeenByMajor.get(major);
-    const bucket = rowsByMajor.get(major);
-    if (seen === undefined || bucket === undefined || seen.has(rowId)) {
-      return;
-    }
-    seen.add(rowId);
-    const sectionId = existingByName.get(major)?.id ?? `sec:${major}`;
-    bucket.push({
-      id: rowId,
-      sectionId,
-      classificationLabel: depth >= 2 ? minor ?? '' : depth >= 1 ? middle ?? '' : '',
-      ...(depth >= 2 && minor !== undefined ? { subClassificationLabel: minor } : {}),
-      order: bucket.length,
-      majorLabel: major,
-      ...(depth >= 1 && middle !== undefined ? { middleLabel: middle } : {}),
-      ...(depth >= 2 && minor !== undefined ? { minorLabel: minor } : {}),
-      depth,
-    });
-  };
-
-  // Fold DECLARED nodes into the tree: force their major to exist and add an empty
-  // row for each declared track/detail so an added-but-empty branch stays visible.
+  // Fold DECLARED nodes: force the major/middle to exist and mark empty declared
+  // tracks / detail leaves so an added-but-empty branch still renders a row.
   for (const declared of document.declaredCategories ?? []) {
     const major = nonEmpty(declared.major);
     if (major === undefined) {
       continue;
     }
-    registerMajor(major);
+    const agg = ensureMajor(major);
     const middle = nonEmpty(declared.middle);
-    const minor = middle === undefined ? undefined : nonEmpty(declared.minor);
-    if (middle !== undefined && minor !== undefined) {
-      pushDeclaredRow(major, middle, minor, 2);
-    } else if (middle !== undefined) {
-      pushDeclaredRow(major, middle, undefined, 1);
+    if (middle === undefined) {
+      continue;
     }
-    // A bare `{ major }` declaration just needs the section to exist; its
-    // placeholder row (below) is only added when the section has no other rows.
-  }
-
-  // Any major that still has zero rows (a freshly declared, empty section) gets one
-  // bare major-level placeholder row so its header renders and items can be created
-  // onto it (the created item reuses this row id, so the placeholder then merges).
-  for (const major of majorOrder) {
-    const bucket = rowsByMajor.get(major);
-    if (bucket !== undefined && bucket.length === 0) {
-      pushDeclaredRow(major, undefined, undefined, 0);
+    const mid = ensureMiddle(agg, middle);
+    const minor = nonEmpty(declared.minor);
+    if (minor === undefined) {
+      mid.emptyDeclared = true;
+    } else if (!mid.minorSeen.has(minor)) {
+      mid.minorSeen.add(minor);
+      mid.minors.push(minor);
     }
   }
 
-  // Order majors: existing sections first (by their order), then new majors.
   const orderedMajors = orderMajors(majorOrder, existingByName);
 
   const sections: Section[] = [];
   const rows: Row[] = [];
   orderedMajors.forEach((major, index) => {
-    const bucket = rowsByMajor.get(major) ?? [];
+    const agg = aggByMajor.get(major);
     const existing = existingByName.get(major);
     const sectionId = existing?.id ?? `sec:${major}`;
+    const bucket: Row[] = [];
+    const pushRow = (
+      middle: string | undefined,
+      minor: string | undefined,
+      depth: ClassificationDepth,
+    ): void => {
+      const rowId = classificationRowId(
+        major,
+        depth >= 1 ? middle : undefined,
+        depth >= 2 ? minor : undefined,
+      );
+      bucket.push({
+        id: rowId,
+        sectionId,
+        classificationLabel: depth >= 2 ? minor ?? '' : depth >= 1 ? middle ?? '' : '',
+        ...(depth >= 2 && minor !== undefined ? { subClassificationLabel: minor } : {}),
+        order: bucket.length,
+        majorLabel: major,
+        ...(depth >= 1 && middle !== undefined ? { middleLabel: middle } : {}),
+        ...(depth >= 2 && minor !== undefined ? { minorLabel: minor } : {}),
+        depth,
+      });
+    };
+
+    if (agg !== undefined) {
+      if (agg.hasMajorItem) {
+        pushRow(undefined, undefined, 0);
+      }
+      const orderedMiddles = orderSiblings(
+        agg.middles,
+        (middle) => classificationRowId(major, middle),
+        sortIndexByKey,
+      );
+      for (const middle of orderedMiddles) {
+        if (hiddenKeys.has(classificationRowId(major, middle))) {
+          continue; // hidden track: drop the whole subtree from layout + pane
+        }
+        const mid = agg.perMiddle.get(middle);
+        if (mid === undefined) {
+          continue;
+        }
+        if (mid.hasMiddleItem || mid.emptyDeclared) {
+          pushRow(middle, undefined, 1);
+        }
+        const orderedMinors = orderSiblings(
+          mid.minors,
+          (minor) => classificationRowId(major, middle, minor),
+          sortIndexByKey,
+        );
+        for (const minor of orderedMinors) {
+          if (hiddenKeys.has(classificationRowId(major, middle, minor))) {
+            continue; // hidden detail leaf
+          }
+          pushRow(middle, minor, 2);
+        }
+      }
+    }
+
+    // A section with no visible rows still needs a placeholder so its header (and
+    // its show-all control) stay reachable and items can be created into it.
+    if (bucket.length === 0) {
+      pushRow(undefined, undefined, 0);
+    }
+
     sections.push({
       id: sectionId,
       name: major,
@@ -733,4 +855,555 @@ export function removeDeclaredSubtree(
     return false;
   });
   return next.length === list.length ? list : next;
+}
+
+// ---------------------------------------------------------------------------
+// Per-node ORDER + HIDDEN + COPY registry (CLASSIFICATION-PANE restructure)
+// ---------------------------------------------------------------------------
+
+/** A one-step reorder direction among a node's siblings. */
+export type CategoryMoveDirection = 'up' | 'down';
+
+/** Distinct MIDDLE names under a major, in first-appearance order (items then declared). */
+function appearanceMiddles(document: ScheduleDocument, major: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const add = (value: string | undefined): void => {
+    if (value !== undefined && !seen.has(value)) {
+      seen.add(value);
+      out.push(value);
+    }
+  };
+  for (const item of document.items) {
+    if (nonEmpty(item.majorCategory) === major) {
+      add(nonEmpty(item.middleCategory));
+    }
+  }
+  for (const declared of document.declaredCategories ?? []) {
+    if (nonEmpty(declared.major) === major) {
+      add(nonEmpty(declared.middle));
+    }
+  }
+  return out;
+}
+
+/** Distinct MINOR names under a track, in first-appearance order (items then declared). */
+function appearanceMinors(document: ScheduleDocument, major: string, middle: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const add = (value: string | undefined): void => {
+    if (value !== undefined && !seen.has(value)) {
+      seen.add(value);
+      out.push(value);
+    }
+  };
+  for (const item of document.items) {
+    if (nonEmpty(item.majorCategory) === major && nonEmpty(item.middleCategory) === middle) {
+      add(nonEmpty(item.minorCategory));
+    }
+  }
+  for (const declared of document.declaredCategories ?? []) {
+    if (nonEmpty(declared.major) === major && nonEmpty(declared.middle) === middle) {
+      add(nonEmpty(declared.minor));
+    }
+  }
+  return out;
+}
+
+/**
+ * The MIDDLE (track) siblings under a major in their current display order
+ * (explicit sortIndex first, else first appearance). Includes hidden tracks so a
+ * reorder renumbers the full sibling set consistently.
+ *
+ * @param document - The document to inspect.
+ * @param major - The owning section name.
+ * @returns The ordered middle names.
+ */
+export function orderedMiddlesUnderMajor(document: ScheduleDocument, major: string): string[] {
+  const { sortIndexByKey } = indexNodeStates(document.classificationNodeStates);
+  return orderSiblings(
+    appearanceMiddles(document, major),
+    (middle) => classificationRowId(major, middle),
+    sortIndexByKey,
+  );
+}
+
+/**
+ * The MINOR (detail) siblings under a track in their current display order.
+ *
+ * @param document - The document to inspect.
+ * @param major - The owning section name.
+ * @param middle - The owning track name.
+ * @returns The ordered minor names.
+ */
+export function orderedMinorsUnderMiddle(
+  document: ScheduleDocument,
+  major: string,
+  middle: string,
+): string[] {
+  const { sortIndexByKey } = indexNodeStates(document.classificationNodeStates);
+  return orderSiblings(
+    appearanceMinors(document, major, middle),
+    (minor) => classificationRowId(major, middle, minor),
+    sortIndexByKey,
+  );
+}
+
+/** Whether two normalized paths denote the same classification node. */
+function pathEquals(
+  state: ClassificationNodeState,
+  major: string,
+  middle: string | undefined,
+  minor: string | undefined,
+): boolean {
+  return (
+    nonEmpty(state.major) === major &&
+    nonEmpty(state.middle) === middle &&
+    nonEmpty(state.minor) === minor
+  );
+}
+
+/**
+ * Build a normalized node-state entry, or `null` when it carries neither a
+ * `sortIndex` nor a `hidden` flag (an inert entry is dropped to keep the registry
+ * clean and to make round-trip equality stable).
+ */
+function makeNodeState(
+  major: string,
+  middle: string | undefined,
+  minor: string | undefined,
+  sortIndex: number | undefined,
+  hidden: boolean,
+): ClassificationNodeState | null {
+  if (sortIndex === undefined && !hidden) {
+    return null;
+  }
+  return {
+    major,
+    ...(middle !== undefined ? { middle } : {}),
+    ...(minor !== undefined ? { minor } : {}),
+    ...(sortIndex !== undefined ? { sortIndex } : {}),
+    ...(hidden ? { hidden: true } : {}),
+  };
+}
+
+/**
+ * Replace / insert / prune the state entry for one node path, returning the SAME
+ * array reference when nothing changed so a no-op is detectable by identity.
+ */
+function putNodeState(
+  states: readonly ClassificationNodeState[] | undefined,
+  major: string,
+  middle: string | undefined,
+  minor: string | undefined,
+  sortIndex: number | undefined,
+  hidden: boolean,
+): readonly ClassificationNodeState[] {
+  const list = states ?? [];
+  const replacement = makeNodeState(major, middle, minor, sortIndex, hidden);
+  let found = false;
+  let changed = false;
+  const next: ClassificationNodeState[] = [];
+  for (const state of list) {
+    if (pathEquals(state, major, middle, minor)) {
+      found = true;
+      if (replacement === null) {
+        changed = true;
+        continue;
+      }
+      if (
+        state.sortIndex !== replacement.sortIndex ||
+        (state.hidden === true) !== (replacement.hidden === true)
+      ) {
+        changed = true;
+      }
+      next.push(replacement);
+    } else {
+      next.push(state);
+    }
+  }
+  if (!found && replacement !== null) {
+    next.push(replacement);
+    changed = true;
+  }
+  return changed ? next : list;
+}
+
+/** The existing sortIndex for a node path, if any. */
+function currentSortIndex(
+  states: readonly ClassificationNodeState[] | undefined,
+  major: string,
+  middle: string | undefined,
+  minor: string | undefined,
+): number | undefined {
+  for (const state of states ?? []) {
+    if (pathEquals(state, major, middle, minor)) {
+      return state.sortIndex;
+    }
+  }
+  return undefined;
+}
+
+/** The existing hidden flag for a node path. */
+function currentHidden(
+  states: readonly ClassificationNodeState[] | undefined,
+  major: string,
+  middle: string | undefined,
+  minor: string | undefined,
+): boolean {
+  for (const state of states ?? []) {
+    if (pathEquals(state, major, middle, minor)) {
+      return state.hidden === true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Set (or clear) a MIDDLE / MINOR node's hidden flag. Returns the SAME reference
+ * when already in that state so the command layer detects a no-op.
+ *
+ * @param states - The current per-node registry (may be undefined).
+ * @param node - The node path (`{ major, middle }` or `{ major, middle, minor }`).
+ * @param hidden - True to hide, false to reveal.
+ * @returns The next registry (same reference when unchanged).
+ */
+export function setCategoryNodeHidden(
+  states: readonly ClassificationNodeState[] | undefined,
+  node: DeclaredCategory,
+  hidden: boolean,
+): readonly ClassificationNodeState[] {
+  const major = nonEmpty(node.major);
+  const middle = nonEmpty(node.middle);
+  const minor = middle === undefined ? undefined : nonEmpty(node.minor);
+  if (major === undefined || middle === undefined) {
+    return states ?? [];
+  }
+  const sortIndex = currentSortIndex(states, major, middle, minor);
+  return putNodeState(states, major, middle, minor, sortIndex, hidden);
+}
+
+/**
+ * Reveal ALL hidden descendants under a node at once (the pane's `□` show-all):
+ *
+ * - under a MAJOR (`{ major }`): clear hidden on every track / detail of that section;
+ * - under a MIDDLE (`{ major, middle }`): clear hidden on that track's details.
+ *
+ * Returns the SAME reference when nothing was hidden.
+ *
+ * @param states - The current per-node registry (may be undefined).
+ * @param node - The subtree root whose descendants to reveal.
+ * @returns The next registry (same reference when unchanged).
+ */
+export function revealDescendants(
+  states: readonly ClassificationNodeState[] | undefined,
+  node: DeclaredCategory,
+): readonly ClassificationNodeState[] {
+  const list = states ?? [];
+  const major = nonEmpty(node.major);
+  if (major === undefined) {
+    return list;
+  }
+  const depth = declaredCategoryDepth(node);
+  const middle = nonEmpty(node.middle);
+  let changed = false;
+  const next: ClassificationNodeState[] = [];
+  for (const state of list) {
+    const underMajor = nonEmpty(state.major) === major;
+    const underMiddle = depth < 1 || nonEmpty(state.middle) === middle;
+    if (underMajor && underMiddle && state.hidden === true) {
+      changed = true;
+      const kept = makeNodeState(
+        major,
+        nonEmpty(state.middle),
+        nonEmpty(state.minor),
+        state.sortIndex,
+        false,
+      );
+      if (kept !== null) {
+        next.push(kept);
+      }
+      continue;
+    }
+    next.push(state);
+  }
+  return changed ? next : list;
+}
+
+/** Move an element from `fromIndex` to `toIndex` in a copy of `values`. */
+function moveInArray<T>(values: readonly T[], fromIndex: number, toIndex: number): T[] {
+  const copy = [...values];
+  const [moved] = copy.splice(fromIndex, 1);
+  if (moved !== undefined) {
+    copy.splice(toIndex, 0, moved);
+  }
+  return copy;
+}
+
+/**
+ * Reorder a MIDDLE / MINOR node one step among its siblings (the pane's `▲` / `▼`).
+ * Writes a dense `sortIndex` to every sibling so the derived tree order follows.
+ * Returns `null` when the node cannot move that way (already at the boundary) or is
+ * not a middle / minor.
+ *
+ * @param document - The current document (source of the sibling order).
+ * @param node - The middle / minor node to nudge.
+ * @param direction - `'up'` or `'down'`.
+ * @returns The next per-node registry, or `null` when the move is impossible.
+ */
+export function reorderCategoryNodeStates(
+  document: ScheduleDocument,
+  node: DeclaredCategory,
+  direction: CategoryMoveDirection,
+): readonly ClassificationNodeState[] | null {
+  const major = nonEmpty(node.major);
+  if (major === undefined) {
+    return null;
+  }
+  const depth = declaredCategoryDepth(node);
+  const middle = nonEmpty(node.middle);
+  if (depth === 1 && middle !== undefined) {
+    const siblings = orderedMiddlesUnderMajor(document, major);
+    return reindexAfterMove(document.classificationNodeStates, siblings, middle, direction, (name) => [
+      major,
+      name,
+      undefined,
+    ]);
+  }
+  if (depth === 2 && middle !== undefined) {
+    const minor = nonEmpty(node.minor);
+    if (minor === undefined) {
+      return null;
+    }
+    const siblings = orderedMinorsUnderMiddle(document, major, middle);
+    return reindexAfterMove(document.classificationNodeStates, siblings, minor, direction, (name) => [
+      major,
+      middle,
+      name,
+    ]);
+  }
+  return null;
+}
+
+/** Move `target` one step, then write a dense sortIndex to each sibling. */
+function reindexAfterMove(
+  states: readonly ClassificationNodeState[] | undefined,
+  siblings: readonly string[],
+  target: string,
+  direction: CategoryMoveDirection,
+  pathOf: (name: string) => [string, string | undefined, string | undefined],
+): readonly ClassificationNodeState[] | null {
+  const index = siblings.indexOf(target);
+  if (index === -1) {
+    return null;
+  }
+  const toIndex = direction === 'up' ? index - 1 : index + 1;
+  if (toIndex < 0 || toIndex >= siblings.length) {
+    return null;
+  }
+  const reordered = moveInArray(siblings, index, toIndex);
+  let next = states;
+  reordered.forEach((name, sortIndex) => {
+    const [major, middle, minor] = pathOf(name);
+    next = putNodeState(next, major, middle, minor, sortIndex, currentHidden(next, major, middle, minor));
+  });
+  return next ?? [];
+}
+
+/**
+ * The next non-colliding "copy" name for a duplicated node: strips any trailing
+ * ` (n)` suffix to a stem and appends the first free ` (n)` (n >= 2), e.g.
+ * `Task-Plan` -> `Task-Plan (2)`, or `Task-Plan (2)` -> `Task-Plan (3)`.
+ *
+ * @param baseName - The source node's name.
+ * @param existingNames - Sibling names already in the parent scope.
+ * @returns The first free copy name.
+ */
+export function nextCopyName(baseName: string, existingNames: Iterable<string>): string {
+  const taken = new Set(existingNames);
+  const stem = baseName.replace(/ \(\d+\)$/, '');
+  let n = 2;
+  while (taken.has(`${stem} (${n})`)) {
+    n += 1;
+  }
+  return `${stem} (${n})`;
+}
+
+/** A factory yielding item ids not present in `existing` (mutating the set). */
+function makeItemIdFactory(existing: Set<string>): (base: string) => string {
+  return (base) => {
+    let candidate = `${base} (copy)`;
+    let n = 2;
+    while (existing.has(candidate)) {
+      candidate = `${base} (copy ${n})`;
+      n += 1;
+    }
+    existing.add(candidate);
+    return candidate;
+  };
+}
+
+/** Clone one item onto a duplicated branch, overriding the copied path components. */
+function cloneItemOnto(
+  item: ScheduleItem,
+  overrides: { major?: string; middle?: string; minor?: string },
+  nextId: (base: string) => string,
+): ScheduleItem {
+  return {
+    ...item,
+    id: nextId(item.id),
+    rowId: 'pending',
+    ...(overrides.major !== undefined ? { majorCategory: overrides.major } : {}),
+    ...(overrides.middle !== undefined ? { middleCategory: overrides.middle } : {}),
+    ...(overrides.minor !== undefined ? { minorCategory: overrides.minor } : {}),
+  };
+}
+
+/** Seed a section for a duplicated major placed right AFTER the original in order. */
+function insertSectionAfterMajor(
+  sections: readonly Section[],
+  originalMajor: string,
+  newMajor: string,
+): readonly Section[] {
+  const original = sections.find((section) => section.name === originalMajor);
+  const order = (original?.order ?? sections.length) + 0.5;
+  return [...sections, { id: `sec:${newMajor}`, name: newMajor, order, rowIds: [], collapsed: false }];
+}
+
+/** Reassign dense sortIndex so `newName` sits immediately after `afterName`. */
+function insertSiblingAfter(
+  states: readonly ClassificationNodeState[] | undefined,
+  siblings: readonly string[],
+  afterName: string,
+  newName: string,
+  pathOf: (name: string) => [string, string | undefined, string | undefined],
+): readonly ClassificationNodeState[] {
+  const order: string[] = [];
+  for (const name of siblings) {
+    order.push(name);
+    if (name === afterName) {
+      order.push(newName);
+    }
+  }
+  if (!order.includes(newName)) {
+    order.push(newName);
+  }
+  let next = states;
+  order.forEach((name, sortIndex) => {
+    const [major, middle, minor] = pathOf(name);
+    next = putNodeState(next, major, middle, minor, sortIndex, currentHidden(next, major, middle, minor));
+  });
+  return next ?? [];
+}
+
+/**
+ * Duplicate a classification node (MAJOR / MIDDLE / MINOR) INCLUDING its subtree
+ * and every item under it, pasting the copy as the NEXT sibling with a
+ * non-colliding ` (n)` name (CLASSIFICATION-PANE restructure req 3). Cloned items
+ * get fresh ids; declared descendant branches are cloned too, so an empty declared
+ * branch also duplicates. Returns the SAME document reference when there is nothing
+ * to copy (the node has neither items nor declared descendants).
+ *
+ * @param document - The document to duplicate within.
+ * @param node - The subtree root to duplicate.
+ * @returns The next document (same reference when nothing was copied).
+ */
+export function duplicateCategorySubtree(
+  document: ScheduleDocument,
+  node: DeclaredCategory,
+): ScheduleDocument {
+  const major = nonEmpty(node.major);
+  if (major === undefined) {
+    return document;
+  }
+  const depth = declaredCategoryDepth(node);
+  const middle = nonEmpty(node.middle);
+  const minor = nonEmpty(node.minor);
+  const nextId = makeItemIdFactory(new Set(document.items.map((item) => item.id)));
+  const declaredList = document.declaredCategories ?? [];
+
+  if (depth === 0) {
+    const newMajor = nextCopyName(major, existingMajorNames(document));
+    const clonedItems = document.items
+      .filter((item) => nonEmpty(item.majorCategory) === major)
+      .map((item) => cloneItemOnto(item, { major: newMajor }, nextId));
+    const clonedDeclared = declaredList
+      .filter((entry) => nonEmpty(entry.major) === major)
+      .map((entry) => ({ ...entry, major: newMajor }));
+    if (clonedItems.length === 0 && clonedDeclared.length === 0) {
+      return document;
+    }
+    return {
+      ...document,
+      items: [...document.items, ...clonedItems],
+      declaredCategories: [...declaredList, ...clonedDeclared],
+      sections: insertSectionAfterMajor(document.sections, major, newMajor),
+    };
+  }
+
+  if (depth === 1 && middle !== undefined) {
+    const newMiddle = nextCopyName(middle, existingMiddleNames(document, major));
+    const clonedItems = document.items
+      .filter(
+        (item) => nonEmpty(item.majorCategory) === major && nonEmpty(item.middleCategory) === middle,
+      )
+      .map((item) => cloneItemOnto(item, { middle: newMiddle }, nextId));
+    const clonedDeclared = declaredList
+      .filter((entry) => nonEmpty(entry.major) === major && nonEmpty(entry.middle) === middle)
+      .map((entry) => ({ ...entry, middle: newMiddle }));
+    if (clonedItems.length === 0 && clonedDeclared.length === 0) {
+      return document;
+    }
+    const classificationNodeStates = insertSiblingAfter(
+      document.classificationNodeStates,
+      orderedMiddlesUnderMajor(document, major),
+      middle,
+      newMiddle,
+      (name) => [major, name, undefined],
+    );
+    return {
+      ...document,
+      items: [...document.items, ...clonedItems],
+      declaredCategories: [...declaredList, ...clonedDeclared],
+      classificationNodeStates,
+    };
+  }
+
+  if (depth === 2 && middle !== undefined && minor !== undefined) {
+    const newMinor = nextCopyName(minor, existingMinorNames(document, major, middle));
+    const clonedItems = document.items
+      .filter(
+        (item) =>
+          nonEmpty(item.majorCategory) === major &&
+          nonEmpty(item.middleCategory) === middle &&
+          nonEmpty(item.minorCategory) === minor,
+      )
+      .map((item) => cloneItemOnto(item, { minor: newMinor }, nextId));
+    const clonedDeclared = declaredList
+      .filter(
+        (entry) =>
+          nonEmpty(entry.major) === major &&
+          nonEmpty(entry.middle) === middle &&
+          nonEmpty(entry.minor) === minor,
+      )
+      .map((entry) => ({ ...entry, minor: newMinor }));
+    if (clonedItems.length === 0 && clonedDeclared.length === 0) {
+      return document;
+    }
+    const classificationNodeStates = insertSiblingAfter(
+      document.classificationNodeStates,
+      orderedMinorsUnderMiddle(document, major, middle),
+      minor,
+      newMinor,
+      (name) => [major, middle, name],
+    );
+    return {
+      ...document,
+      items: [...document.items, ...clonedItems],
+      declaredCategories: [...declaredList, ...clonedDeclared],
+      classificationNodeStates,
+    };
+  }
+
+  return document;
 }

@@ -13,13 +13,16 @@ import type {
   AnchorIndex,
   DeclaredCategory,
   Dependency,
+  IconShapeKind,
   IsoDate,
   LabelOffset,
   LabelPosition,
   LineWeight,
+  MilestoneShape,
   PlanActualKind,
   ScheduleDocument,
   ScheduleItem,
+  TaskShape,
 } from '../model/schedule-model.js';
 import { fromDayNumber, toDayNumber } from '../usecase/time-coordinate-mapper.js';
 import { clampFadeDays } from '../usecase/fade-geometry.js';
@@ -31,11 +34,16 @@ import {
 import {
   appendDeclaredCategory,
   declaredCategoryDepth,
+  duplicateCategorySubtree,
   existingMajorNames,
   existingMiddleNames,
   existingMinorNames,
   nextDefaultCategoryName,
   removeDeclaredSubtree,
+  reorderCategoryNodeStates,
+  revealDescendants,
+  setCategoryNodeHidden,
+  type CategoryMoveDirection,
 } from '../usecase/classification-tree.js';
 
 /** A named, reversible-by-snapshot edit transform over a schedule document. */
@@ -75,6 +83,12 @@ export interface ItemPropertyPatch {
   readonly planActualKind?: PlanActualKind;
   readonly lineWeight?: LineWeight;
   readonly labelPosition?: LabelPosition;
+  /** Unified glyph shape (PROP `icon_shape_kind`); drives rendering (item 4). */
+  readonly iconShapeKind?: IconShapeKind;
+  /** Legacy task shape kept in sync with {@link iconShapeKind} on a task. */
+  readonly taskShape?: TaskShape;
+  /** Legacy milestone shape kept in sync with {@link iconShapeKind} on a milestone. */
+  readonly milestoneShape?: MilestoneShape;
   readonly labelOffset?: LabelOffset;
   readonly strokeColor?: string;
   readonly fillColor?: string;
@@ -453,6 +467,36 @@ export function removeDependencyCommand(dependencyId: string): ScheduleCommand {
   };
 }
 
+/**
+ * Command: set (override) a dependency line's stroke color (item 1). Undoable; a
+ * no-op (same document reference) when the color already matches or the id is
+ * absent. Absent lines fall back to the yamabuki-gold default at render time.
+ *
+ * @param dependencyId - The dependency to recolor.
+ * @param strokeColor - The new CSS color string.
+ * @returns A set-dependency-color command.
+ */
+export function setDependencyColorCommand(
+  dependencyId: string,
+  strokeColor: string,
+): ScheduleCommand {
+  return {
+    label: 'set-dependency-color',
+    execute: (document) => {
+      const existing = document.dependencies ?? [];
+      let changed = false;
+      const dependencies = existing.map((candidate) => {
+        if (candidate.id !== dependencyId || candidate.strokeColor === strokeColor) {
+          return candidate;
+        }
+        changed = true;
+        return { ...candidate, strokeColor };
+      });
+      return changed ? { ...document, dependencies } : document;
+    },
+  };
+}
+
 /** Trimmed non-empty string, or undefined (mirrors the classification derivation). */
 function nonEmptyCategory(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
@@ -598,6 +642,132 @@ export function removeClassificationNodeCommand(node: DeclaredCategory): Schedul
         : { ...reclassified, declaredCategories };
     },
   };
+}
+
+/**
+ * Command: reorder a MIDDLE / MINOR node one step among its siblings within the
+ * same parent (CLASSIFICATION-PANE restructure req 1). Writes a dense `sortIndex`
+ * to every sibling so the derived tree (and thus the canvas row order) follows.
+ * No-op (same document reference) when the node is already at that boundary.
+ *
+ * Major reorder keeps using {@link reorderSectionCommand}; this covers the two
+ * derived levels that have no `Section.order` of their own.
+ *
+ * @param node - The middle (`{ major, middle }`) or minor (`{ major, middle, minor }`) node.
+ * @param direction - `'up'` or `'down'`.
+ * @returns A reorder-category-node command.
+ */
+export function reorderCategoryNodeCommand(
+  node: DeclaredCategory,
+  direction: CategoryMoveDirection,
+): ScheduleCommand {
+  return {
+    label: 'reorder-category-node',
+    execute: (document) => {
+      const classificationNodeStates = reorderCategoryNodeStates(document, node, direction);
+      return classificationNodeStates === null
+        ? document
+        : { ...document, classificationNodeStates };
+    },
+  };
+}
+
+/**
+ * Command: hide or reveal a MIDDLE / MINOR node and its subtree
+ * (CLASSIFICATION-PANE restructure req 2). A hidden node's rows are dropped from
+ * the derived tree, so its items get no placement on the canvas (mirroring a
+ * collapsed section, but per node). Undoable; round-trips via JSON. No-op when the
+ * node is already in that state. Major hide keeps using
+ * {@link setSectionCollapsedCommand}.
+ *
+ * @param node - The middle / minor node path.
+ * @param hidden - True to hide, false to reveal just this node.
+ * @returns A set-category-node-hidden command.
+ */
+export function setCategoryNodeHiddenCommand(
+  node: DeclaredCategory,
+  hidden: boolean,
+): ScheduleCommand {
+  return {
+    label: 'set-category-node-hidden',
+    execute: (document) => {
+      const classificationNodeStates = setCategoryNodeHidden(
+        document.classificationNodeStates,
+        node,
+        hidden,
+      );
+      return classificationNodeStates === document.classificationNodeStates
+        ? document
+        : { ...document, classificationNodeStates };
+    },
+  };
+}
+
+/**
+ * Command: reveal ALL hidden descendants under a node at once (the pane's `□`
+ * show-all, CLASSIFICATION-PANE restructure req 2). For a MAJOR this also un-hides
+ * the section itself (clears {@link Section.collapsed}) so a fully hidden section
+ * can be brought back, then reveals its tracks / details. No-op when nothing under
+ * the node was hidden.
+ *
+ * @param node - The subtree root (`{ major }`, `{ major, middle }`, ...).
+ * @returns A reveal-descendants command.
+ */
+export function revealDescendantsCommand(node: DeclaredCategory): ScheduleCommand {
+  return {
+    label: 'reveal-descendants',
+    execute: (document) => {
+      const major = nonEmptyCategory(node.major);
+      if (major === undefined) {
+        return document;
+      }
+      const classificationNodeStates = revealDescendants(document.classificationNodeStates, node);
+      const isMajor = declaredCategoryDepth(node) === 0;
+      const sections = isMajor
+        ? setSectionCollapsedByName(document.sections, major, false)
+        : document.sections;
+      if (
+        classificationNodeStates === document.classificationNodeStates &&
+        sections === document.sections
+      ) {
+        return document;
+      }
+      return { ...document, classificationNodeStates, sections };
+    },
+  };
+}
+
+/**
+ * Command: duplicate a classification node (MAJOR / MIDDLE / MINOR) including its
+ * subtree and every item under it, pasting the copy as the next sibling with a
+ * non-colliding ` (n)` name (CLASSIFICATION-PANE restructure req 3). Fully
+ * undoable. No-op when there is nothing to copy.
+ *
+ * @param node - The subtree root to duplicate.
+ * @returns A duplicate-category-subtree command.
+ */
+export function duplicateCategorySubtreeCommand(node: DeclaredCategory): ScheduleCommand {
+  return {
+    label: 'duplicate-category-subtree',
+    execute: (document) => duplicateCategorySubtree(document, node),
+  };
+}
+
+/** Set a section's collapsed flag by its major NAME (used by major show-all). */
+function setSectionCollapsedByName(
+  sections: readonly ScheduleDocument['sections'][number][],
+  major: string,
+  collapsed: boolean,
+): readonly ScheduleDocument['sections'][number][] {
+  let changed = false;
+  const next = sections.map((section) => {
+    if (section.name !== major || (section.collapsed === true) === collapsed) {
+      return section;
+    }
+    changed = true;
+    return { ...section, collapsed };
+  });
+  return changed ? next : sections;
 }
 
 /** True when two section arrays have identical (id -> order) pairings. */
