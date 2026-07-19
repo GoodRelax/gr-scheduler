@@ -70,7 +70,10 @@ import {
   defaultMiddleForMajor,
 } from '../../domain/usecase/classification-tree.js';
 import { nearestAnchor } from '../../domain/usecase/dependency-router.js';
-import { iconShapeKindForCreate } from '../../domain/usecase/task-glyph.js';
+import {
+  defaultFadeDaysForTaskShape,
+  iconShapeKindForCreate,
+} from '../../domain/usecase/task-glyph.js';
 import type { AnnotationHit, ItemHit, SvgRenderer, WorldPoint } from '../render/svg-renderer.js';
 import { createLogger } from '../../app/logger.js';
 
@@ -720,6 +723,7 @@ export class EditingController {
             endDate: fromDayNumber(startDay + 7),
             taskShape: shape.taskShape,
             iconShapeKind: iconShapeKindForCreate('task', undefined, shape.taskShape),
+            ...taskCreateFadeFields(shape.taskShape),
           };
     this.store.dispatch(createItemCommand(item));
     this.setSelection(new Set([id]));
@@ -1340,6 +1344,7 @@ export class EditingController {
       endDate: fromDayNumber(endDay),
       taskShape: gesture.shape.taskShape,
       iconShapeKind: iconShapeKindForCreate('task', undefined, gesture.shape.taskShape),
+      ...taskCreateFadeFields(gesture.shape.taskShape),
     };
   }
 
@@ -1583,6 +1588,21 @@ function marqueeWorldRect(
     worldY: top,
     worldWidth: Math.abs(worldX - gesture.startWorldX),
     worldHeight: Math.abs(worldY - gesture.startWorldY),
+  };
+}
+
+/**
+ * The fade fields a newly created task of the given shape carries. A CHEVRON starts
+ * with a 2-week feather on each end (item 5); every other shape starts square, so no
+ * fade fields are emitted (keeping `fade*Days` absent rather than a stored 0).
+ */
+function taskCreateFadeFields(
+  taskShape: TaskShape,
+): { fadeInDays?: number; fadeOutDays?: number } {
+  const { fadeInDays, fadeOutDays } = defaultFadeDaysForTaskShape(taskShape);
+  return {
+    ...(fadeInDays > 0 ? { fadeInDays } : {}),
+    ...(fadeOutDays > 0 ? { fadeOutDays } : {}),
   };
 }
 

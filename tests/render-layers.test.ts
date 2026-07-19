@@ -341,9 +341,12 @@ describe('HitTester', () => {
     expect(tester.hitTest(ctxWith(), 140, 120)).toEqual({ itemId: 'a', region: 'body' });
   });
 
-  it('falls back to the label when the point is outside the bar but on its label', () => {
-    // Label anchors to the right of the bar (auto) at x >= 184; the bar ends at x = 180.
-    expect(tester.hitTest(ctxWith(), 200, 120)).toEqual({ itemId: 'a', region: 'label' });
+  it('centers a task auto-label INSIDE the bar, so a point past the bar end hits nothing', () => {
+    // Task auto labels now center inside the bar (item 2), so there is no side label
+    // to the right of the bar end (x = 180) to fall back onto; the point is empty.
+    expect(tester.hitTest(ctxWith(), 200, 120)).toBeNull();
+    // A point in the bar's own body still resolves to a body (move) hit.
+    expect(tester.hitTest(ctxWith(), 140, 120)).toEqual({ itemId: 'a', region: 'body' });
   });
 
   it('prioritizes a selected task fade handle over the body/edge', () => {

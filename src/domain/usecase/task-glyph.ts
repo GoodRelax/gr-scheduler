@@ -72,6 +72,74 @@ export function taskShapeIsStroked(shape: TaskShape): boolean {
   return shape === 'span';
 }
 
+/**
+ * How a task glyph paints:
+ * - `fill`           -- a filled body drawn with the item's own border (bar / chevron).
+ * - `line`           -- a stroked line + open arrowhead, no fill (arrow).
+ * - `line-with-dots` -- a stroked connector whose filled dot terminals need a fill (span).
+ */
+export type TaskGlyphPaintMode = 'fill' | 'line' | 'line-with-dots';
+
+/** The paint model for a task shape (drives fill/stroke in the renderer). */
+export function taskGlyphPaintMode(shape: TaskShape): TaskGlyphPaintMode {
+  switch (shape) {
+    case 'arrow':
+      return 'line';
+    case 'span':
+      return 'line-with-dots';
+    case 'chevron':
+    case 'bar':
+    default:
+      return 'fill';
+  }
+}
+
+/**
+ * Vertical position of the connector LINE for the line-style task glyphs
+ * (arrow / span), as a fraction of the band height. Placed in the LOWER part so a
+ * centered abbreviation sits ABOVE the line without overlapping it (items 3 / 4).
+ */
+export const TASK_CONNECTOR_LINE_Y_FRACTION = 0.72;
+
+/**
+ * Vertical position of a line-style task's ABBREVIATION, as a fraction of the band
+ * height: in the UPPER part, above {@link TASK_CONNECTOR_LINE_Y_FRACTION}, so the
+ * label fits above the arrow / span line.
+ */
+export const TASK_CONNECTOR_LABEL_Y_FRACTION = 0.34;
+
+/**
+ * Default fade-in / fade-out period (whole days) applied to a NEWLY CREATED chevron
+ * (矢羽根): a 2-week feather on each end (item 5). Other task shapes start square.
+ */
+export const CHEVRON_DEFAULT_FADE_DAYS = 14;
+
+/**
+ * The default fade-in / fade-out days for a newly created task of the given shape.
+ * A chevron gets a {@link CHEVRON_DEFAULT_FADE_DAYS}-day feather on each end so the
+ * concave (fade-in) left and pointed (fade-out) right are visible immediately;
+ * every other shape starts with square (0/0) ends.
+ *
+ * @param shape - The armed task shape being created.
+ * @returns The default fade pair for the shape.
+ */
+export function defaultFadeDaysForTaskShape(shape: TaskShape): {
+  readonly fadeInDays: number;
+  readonly fadeOutDays: number;
+} {
+  return shape === 'chevron'
+    ? { fadeInDays: CHEVRON_DEFAULT_FADE_DAYS, fadeOutDays: CHEVRON_DEFAULT_FADE_DAYS }
+    : { fadeInDays: 0, fadeOutDays: 0 };
+}
+
+/** Tuning inputs for a non-bar task glyph path (chevron fade extents, in world px). */
+export interface TaskGlyphOptions {
+  /** Left concave depth for a chevron, in world px (derived from fade-in days). */
+  readonly fadeInPx?: number;
+  /** Right point length for a chevron, in world px (derived from fade-out days). */
+  readonly fadeOutPx?: number;
+}
+
 /** The unified icon-shape kind for a newly created item of the given family. */
 export function iconShapeKindForCreate(
   itemKind: 'milestone' | 'task',
@@ -84,51 +152,98 @@ export function iconShapeKindForCreate(
 /**
  * Build the SVG path `d` for a non-bar task shape inside a world-space rectangle.
  *
- * - `arrow`   -- a block arrow: a rectangular body with a triangular head pointing
- *                right at the end edge.
- * - `chevron` -- a feather/ribbon arrow (矢羽根): pointed right end, notched (concave)
- *                left end.
- * - `span`    -- a `*--*` connector: a horizontal centre line spanning the full width
- *                with a vertical end-marker at BOTH ends (drawn stroked, fill none).
+ * - `arrow`   -- a LINE arrow: a horizontal shaft ending in an open (V) arrowhead,
+ *                drawn in the LOWER part of the band (stroked, no fill) so the
+ *                centered abbreviation fits above it (item 3).
+ * - `chevron` -- a feather/ribbon arrow (矢羽根): pointed right end (fade-out) and a
+ *                concave left end (fade-in); the extents grow with the fade options
+ *                so the glyph visualizes the fade (item 5).
+ * - `span`    -- a `*---*` connector: a horizontal line spanning start->end with a
+ *                small FILLED dot at BOTH ends, drawn in the LOWER part so the label
+ *                sits above it (item 4).
  *
  * @param shape - The task shape (arrow / chevron / span; `bar` returns an empty string).
  * @param rect - The world-space rectangle the glyph fills.
+ * @param options - Chevron fade extents in world px (ignored by arrow / span).
  * @returns The SVG path data string.
  */
-export function taskGlyphPath(shape: TaskShape, rect: GlyphRect): string {
+export function taskGlyphPath(
+  shape: TaskShape,
+  rect: GlyphRect,
+  options: TaskGlyphOptions = {},
+): string {
   const { x, y, width, height } = rect;
   const right = x + width;
-  const centerY = y + height / 2;
   switch (shape) {
-    case 'arrow': {
-      const headLen = Math.max(2, Math.min(width, Math.min(height, width * 0.4)));
-      const bodyRight = right - headLen;
-      const bodyTop = y + height * 0.2;
-      const bodyBottom = y + height * 0.8;
-      return (
-        `M ${x} ${bodyTop} L ${bodyRight} ${bodyTop} L ${bodyRight} ${y} ` +
-        `L ${right} ${centerY} L ${bodyRight} ${y + height} L ${bodyRight} ${bodyBottom} ` +
-        `L ${x} ${bodyBottom} Z`
-      );
-    }
-    case 'chevron': {
-      const notch = Math.max(2, Math.min(width * 0.5, height * 0.5));
-      return (
-        `M ${x} ${y} L ${right - notch} ${y} L ${right} ${centerY} ` +
-        `L ${right - notch} ${y + height} L ${x} ${y + height} L ${x + notch} ${centerY} Z`
-      );
-    }
-    case 'span': {
-      const capTop = centerY - height * 0.35;
-      const capBottom = centerY + height * 0.35;
-      return (
-        `M ${x} ${centerY} L ${right} ${centerY} ` +
-        `M ${x} ${capTop} L ${x} ${capBottom} ` +
-        `M ${right} ${capTop} L ${right} ${capBottom}`
-      );
-    }
+    case 'arrow':
+      return lineArrowPath(x, right, y, width, height);
+    case 'chevron':
+      return chevronPath(x, right, y, width, height, options);
+    case 'span':
+      return spanConnectorPath(x, right, y, width, height);
     case 'bar':
     default:
       return '';
   }
+}
+
+/** A line arrow: a shaft to the tip plus an open (two-stroke) arrowhead, in the lower band. */
+function lineArrowPath(x: number, right: number, y: number, width: number, height: number): string {
+  const lineY = y + height * TASK_CONNECTOR_LINE_Y_FRACTION;
+  const headLen = Math.max(2, Math.min(width, height * 0.5));
+  const headHalf = Math.min(height * 0.22, headLen);
+  const backX = right - headLen;
+  return (
+    `M ${x} ${lineY} L ${right} ${lineY} ` +
+    `M ${backX} ${lineY - headHalf} L ${right} ${lineY} L ${backX} ${lineY + headHalf}`
+  );
+}
+
+/** A `*---*` connector: a shaft plus a small filled disc subpath at each end, in the lower band. */
+function spanConnectorPath(x: number, right: number, y: number, width: number, height: number): string {
+  const lineY = y + height * TASK_CONNECTOR_LINE_Y_FRACTION;
+  const dotRadius = Math.max(1.5, Math.min(height * 0.14, width * 0.5, 5));
+  return (
+    `M ${x} ${lineY} L ${right} ${lineY} ` +
+    `${circleSubpath(x, lineY, dotRadius)} ${circleSubpath(right, lineY, dotRadius)}`
+  );
+}
+
+/** A full-circle subpath (two arcs) for a filled dot terminal. */
+function circleSubpath(cx: number, cy: number, radius: number): string {
+  return (
+    `M ${cx - radius} ${cy} a ${radius} ${radius} 0 1 0 ${radius * 2} 0 ` +
+    `a ${radius} ${radius} 0 1 0 ${-radius * 2} 0 Z`
+  );
+}
+
+/**
+ * A feather/ribbon chevron whose LEFT concave depth grows with the fade-in extent
+ * and RIGHT point length grows with the fade-out extent. With no fade a proportional
+ * default notch keeps a fade-less chevron reading as a feather; the two extents are
+ * clamped so the concave and the point never cross on a short bar.
+ */
+function chevronPath(
+  x: number,
+  right: number,
+  y: number,
+  width: number,
+  height: number,
+  options: TaskGlyphOptions,
+): string {
+  const centerY = y + height / 2;
+  const bottom = y + height;
+  const fallback = Math.max(2, Math.min(width * 0.5, height * 0.5));
+  const requestedIn = options.fadeInPx ?? 0;
+  const requestedOut = options.fadeOutPx ?? 0;
+  const leftDepth = requestedIn > 0 ? requestedIn : fallback;
+  const rightLen = requestedOut > 0 ? requestedOut : fallback;
+  const total = leftDepth + rightLen;
+  const scale = total > width && total > 0 ? width / total : 1;
+  const notch = leftDepth * scale;
+  const point = rightLen * scale;
+  return (
+    `M ${x} ${y} L ${right - point} ${y} L ${right} ${centerY} ` +
+    `L ${right - point} ${bottom} L ${x} ${bottom} L ${x + notch} ${centerY} Z`
+  );
 }

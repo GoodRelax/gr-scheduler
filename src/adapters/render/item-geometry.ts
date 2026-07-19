@@ -11,10 +11,62 @@ import {
   type FadePoint,
 } from '../../domain/usecase/fade-geometry.js';
 import { pixelsPerDay, toDayNumber } from '../../domain/usecase/time-coordinate-mapper.js';
-import { effectiveMilestoneShape } from '../../domain/usecase/task-glyph.js';
+import {
+  effectiveMilestoneShape,
+  effectiveTaskShape,
+  TASK_CONNECTOR_LABEL_Y_FRACTION,
+  type TaskGlyphOptions,
+} from '../../domain/usecase/task-glyph.js';
 
 /** Font pixel size per font-scale step. */
 export const FONT_SIZE_BY_SCALE: Record<ViewState['fontScale'], number> = { S: 10, M: 12, L: 14 };
+
+/**
+ * A task's abbreviation font-size is 90% of the RENDERED bar height (item 1) so it
+ * reads as a big in-bar label that scales with the bar, not a fixed side caption.
+ */
+export const TASK_ABBREV_FONT_HEIGHT_RATIO = 0.9;
+
+/** Floor for the task abbreviation font-size so an extremely thin bar stays legible. */
+export const TASK_ABBREV_FONT_MIN_PX = 6;
+
+/** Stroke width (px) of the line-style arrow glyph -- the thicker (thick) weight (item 3). */
+export const TASK_LINE_ARROW_STROKE_PX = 3;
+
+/**
+ * The abbreviation font-size for a task: 90% of its rendered bar height, clamped up
+ * to {@link TASK_ABBREV_FONT_MIN_PX} for a very thin bar (item 1).
+ *
+ * @param barHeightPx - The task's rendered bar (band) height in px.
+ * @returns The abbreviation font-size in px.
+ */
+export function taskAbbrevFontSize(barHeightPx: number): number {
+  return Math.max(TASK_ABBREV_FONT_MIN_PX, barHeightPx * TASK_ABBREV_FONT_HEIGHT_RATIO);
+}
+
+/**
+ * The chevron fade extents (left concave depth / right point length) in world px,
+ * derived from the item's fade-in / fade-out days and its rendered pixels-per-day.
+ * Returns empty extents for a zero-length span (the glyph then uses its default
+ * notch). Pure -- used by the renderer to draw a chevron's fade (item 5).
+ *
+ * @param item - The chevron task item.
+ * @param placement - Its laid-out rectangle (world px).
+ * @returns Fade extents in px for {@link taskGlyphPath}.
+ */
+export function chevronFadeExtentsPx(item: ScheduleItem, placement: ItemPlacement): TaskGlyphOptions {
+  const startDay = toDayNumber(item.startDate);
+  const endDay = item.endDate === null ? startDay : toDayNumber(item.endDate);
+  const lengthDays = endDay - startDay;
+  if (lengthDays <= 0) {
+    return {};
+  }
+  const perDay = placement.worldWidth / lengthDays;
+  return {
+    fadeInPx: (item.fadeInDays ?? 0) * perDay,
+    fadeOutPx: (item.fadeOutDays ?? 0) * perDay,
+  };
+}
 
 /**
  * Screen-pixel HALF-extent of the DRAWN corner handle square (side = 2x this).
@@ -71,15 +123,45 @@ export function labelAnchorPoint(
       base = { x: placement.worldX - 4, y: centerY, textAnchor: 'end' };
       break;
     case 'right':
+      base = { x: right, y: centerY, textAnchor: 'start' };
+      break;
     case 'auto':
     default:
-      base = { x: right, y: centerY, textAnchor: 'start' };
+      base = autoLabelAnchor(item, placement, centerX, centerY, right);
       break;
   }
   const offset = item.labelOffset;
   return offset === undefined
     ? base
     : { x: base.x + offset.dx, y: base.y + offset.dy, textAnchor: base.textAnchor };
+}
+
+/**
+ * The `auto` (default) label anchor. A TASK centers its abbreviation inside the bar
+ * (item 2): a plain bar / chevron centers on both axes; an arrow / span moves the
+ * connector line to the lower band and places the label in the UPPER part, so it
+ * sits ABOVE the line (items 3 / 4). A MILESTONE keeps its side (right) label.
+ */
+function autoLabelAnchor(
+  item: ScheduleItem,
+  placement: ItemPlacement,
+  centerX: number,
+  centerY: number,
+  right: number,
+): { x: number; y: number; textAnchor: string } {
+  if (item.itemKind !== 'task') {
+    // Milestones keep a side label to the right of the point glyph.
+    return { x: right, y: centerY, textAnchor: 'start' };
+  }
+  const shape = effectiveTaskShape(item);
+  if (shape === 'arrow' || shape === 'span') {
+    return {
+      x: centerX,
+      y: placement.worldY + placement.worldHeight * TASK_CONNECTOR_LABEL_Y_FRACTION,
+      textAnchor: 'middle',
+    };
+  }
+  return { x: centerX, y: centerY, textAnchor: 'middle' };
 }
 
 /** Approximate whether a world point falls on an item's abbreviation label. */

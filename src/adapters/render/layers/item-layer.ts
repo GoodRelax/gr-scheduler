@@ -15,9 +15,10 @@ import { filterByPlanActualDisplay } from '../../../domain/usecase/progress-line
 import { displayFillColor } from '../../../domain/usecase/plan-actual-colors.js';
 import {
   effectiveTaskShape,
+  taskGlyphPaintMode,
   taskGlyphPath,
-  taskShapeIsStroked,
   taskShapeUsesPath,
+  TASK_CONNECTOR_LINE_Y_FRACTION,
 } from '../../../domain/usecase/task-glyph.js';
 import {
   fadePointsToAttribute,
@@ -35,13 +36,16 @@ import {
 import { CUD_BLUE_ACCENT_HEX, HANDLE_FILL_HEX } from '../../../domain/usecase/render-tokens.js';
 import {
   ANNOTATION_HANDLE_DRAW_HALF_PX,
+  chevronFadeExtentsPx,
   FONT_SIZE_BY_SCALE,
   labelAnchorPoint,
   milestonePath,
   resolveStrokeAttribute,
   strokeWidthPx,
+  taskAbbrevFontSize,
   taskFadeHandleCenters,
   taskFadePoints,
+  TASK_LINE_ARROW_STROKE_PX,
 } from '../item-geometry.js';
 import { SVG_NS, type RenderContext } from '../render-context.js';
 
@@ -227,11 +231,18 @@ export class ItemLayer {
     // unaffected. Paired with the non-color stroke-dash below for WCAG 1.4.1.
     const fillColor = displayFillColor(item);
     const taskShape = item.itemKind === 'task' ? effectiveTaskShape(item) : null;
-    const stroked = taskShape !== null && taskShapeIsStroked(taskShape);
-    if (stroked) {
-      // A `span` (*--*) connector is a thin STROKED line with no fill; its own fill
-      // color paints the stroke so the fill-color control recolors the connector.
+    const paintMode = taskShape === null ? 'fill' : taskGlyphPaintMode(taskShape);
+    if (paintMode === 'line') {
+      // Arrow: a LINE arrow (shaft + open head), stroked with the item's own color at
+      // a thicker weight so it reads as an arrow; no fill.
       mounted.shape.setAttribute('fill', 'none');
+      mounted.shape.setAttribute('stroke', fillColor);
+      mounted.shape.setAttribute('stroke-width', String(TASK_LINE_ARROW_STROKE_PX));
+      mounted.shape.setAttribute('stroke-dasharray', 'none');
+    } else if (paintMode === 'line-with-dots') {
+      // A `span` (*---*) connector: a stroked line whose small FILLED dot terminals
+      // need a fill, so both fill and stroke take the item's own color.
+      mounted.shape.setAttribute('fill', fillColor);
       mounted.shape.setAttribute('stroke', fillColor);
       mounted.shape.setAttribute('stroke-width', String(strokeWidthPx(item.lineWeight)));
       mounted.shape.setAttribute('stroke-dasharray', 'none');
@@ -264,17 +275,47 @@ export class ItemLayer {
       const centerY = placement.worldY + size / 2;
       mounted.shape.setAttribute('d', milestonePath(item, centerX, centerY, size / 2));
     } else if (taskShape !== null && taskShapeUsesPath(taskShape)) {
-      // Arrow / chevron / span: draw the shape from its own vertices. The fade taper
-      // only applies to a plain bar, so these shapes ignore fadeIn/Out days.
+      // Arrow / chevron / span draw from their own vertices. A CHEVRON tapers its
+      // concave (fade-in) left and pointed (fade-out) right by the fade extents; the
+      // arrow / span line stays in the lower band with the label above it.
+      const glyphOptions =
+        taskShape === 'chevron' ? chevronFadeExtentsPx(item, placement) : {};
       mounted.shape.setAttribute(
         'd',
-        taskGlyphPath(taskShape, {
-          x: placement.worldX,
-          y: placement.worldY,
-          width: placement.worldWidth,
-          height: placement.worldHeight,
-        }),
+        taskGlyphPath(
+          taskShape,
+          {
+            x: placement.worldX,
+            y: placement.worldY,
+            width: placement.worldWidth,
+            height: placement.worldHeight,
+          },
+          glyphOptions,
+        ),
       );
+      if (taskShape === 'arrow' || taskShape === 'span') {
+        // Expose the connector line's y so tests / assistive tech can confirm the
+        // centered abbreviation sits ABOVE the line (items 3 / 4).
+        mounted.shape.setAttribute(
+          'data-connector-line-y',
+          String(placement.worldY + placement.worldHeight * TASK_CONNECTOR_LINE_Y_FRACTION),
+        );
+      } else {
+        mounted.shape.removeAttribute('data-connector-line-y');
+      }
+      if (taskShape === 'span') {
+        mounted.shape.setAttribute('data-span-terminals', '2');
+      } else {
+        mounted.shape.removeAttribute('data-span-terminals');
+      }
+      if (taskShape === 'chevron') {
+        // A chevron carries its fade days so tests / AT can read the taper (item 5).
+        mounted.shape.setAttribute('data-fade-in-days', String(item.fadeInDays ?? 0));
+        mounted.shape.setAttribute('data-fade-out-days', String(item.fadeOutDays ?? 0));
+      } else {
+        mounted.shape.removeAttribute('data-fade-in-days');
+        mounted.shape.removeAttribute('data-fade-out-days');
+      }
     } else if (hasFade(item.fadeInDays, item.fadeOutDays)) {
       // Faded task: draw the 4-point trapezoid/parallelogram. The polygon carries a
       // data attribute so tests/AT can read the taper without re-deriving geometry.
@@ -291,11 +332,15 @@ export class ItemLayer {
     }
 
     const labelAnchor = labelAnchorPoint(item, placement);
+    // A task's abbreviation is sized to 90% of its bar height (item 1) so it reads as
+    // a big in-bar label; a milestone keeps the font-scale caption size.
+    const labelFontSize =
+      item.itemKind === 'task' ? taskAbbrevFontSize(placement.worldHeight) : fontSize;
     mounted.label.textContent = item.abbrev;
     mounted.label.setAttribute('x', String(labelAnchor.x));
     mounted.label.setAttribute('y', String(labelAnchor.y));
     mounted.label.setAttribute('text-anchor', labelAnchor.textAnchor);
-    mounted.label.setAttribute('font-size', String(fontSize));
+    mounted.label.setAttribute('font-size', String(labelFontSize));
     mounted.label.setAttribute('fill', ITEM_LABEL_HEX);
 
     this.updateSelectionOutline(ctx, mounted, placement);
