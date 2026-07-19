@@ -94,6 +94,12 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   toggle_fullscreen: { en: 'Toggle fullscreen', ja: '全画面表示' },
   today_line: { en: 'Today line', ja: '本日線' },
   dual_cursor: { en: 'Dual cursor', ja: 'デュアルカーソル' },
+  // Pointer-following cursor-guide modes (items 9-12), an exclusive radio group.
+  cursor_guide: { en: 'Cursor guide', ja: 'ガイドカーソル' },
+  cursor_guide_none: { en: 'Guide off', ja: 'ガイドなし' },
+  cursor_guide_crosshair: { en: 'Crosshair guide', ja: '十字ガイド' },
+  cursor_guide_single_vertical: { en: 'Single vertical guide', ja: '縦1本ガイド' },
+  cursor_guide_double_vertical: { en: 'Double vertical guide', ja: '縦2本ガイド' },
   grid_date_lines: { en: 'Date gridlines', ja: '日付グリッド線' },
   grid_category_lines: { en: 'Category gridlines', ja: '分類グリッド線' },
   add_comment: { en: 'Add comment', ja: 'コメント追加' },

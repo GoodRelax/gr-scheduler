@@ -55,6 +55,15 @@ Verifies（テスト）、ResultOf（結果）。全17 `.sdoc` は `strictdoc ex
 | 操作堅牢化: 丸角枠リサイズ/注釈選択・Delete（取消可） | CURS-L1-007, TOOL-L1-004 | annotation-commands（resizeRoundedBoxCommand）, editing-controller, keyboard-shortcuts, svg-renderer, annotation-commands.test, e2e:interaction-hardening |
 | 操作堅牢化: 固定日付ルーラー（年/月/日+曜, 縦スク固定） | item25/26/50 | date-ruler（buildDateRuler）, svg-renderer, date-ruler.test, e2e:interaction-hardening |
 | 操作堅牢化: 既定カーソル=矢印/文脈カーソル | TOOL-L1-001 | svg-renderer（grab撤去）, editing-controller（col-resize/crosshair）, e2e:interaction-hardening |
+| UI/操作FB: Fitに左余白（最左マーカー/ラベルを非クリップ, scrollX>=0固定を撤去し暦2000規制内の負scroll許容） | STK-L0-021, item7 | viewport（computeFitViewForItems: scrollX=contentLeftPx-margin）, svg-renderer, ui-feedback-batch.test, e2e:ui-feedback-batch |
+| UI/操作FB: アイテム枠は実線・既定無し（選択枠は別ノードで保持） | ITEM-L1, item20 | svg-renderer（resolveStrokeAttribute=none既定・dash撤去）, cud-palette（DEFAULT_STROKE_COLOR=transparent）, sample-data, ui-feedback-batch.test, e2e:ui-feedback-batch |
+| UI/操作FB: 空領域ドラッグでラバーバンド複数選択（Shift加算, arm時は作成維持, Ctrl+dragパン維持） | ITEM-L1, TOOL-L1 | editing-controller（MarqueeGesture）, svg-renderer（showMarquee/itemsIntersectingWorldRect）, e2e:ui-feedback-batch |
+| UI/操作FB: Ctrl+A 全選択（入力欄では無効） | TOOL-L1-005 | keyboard-shortcuts（selectAll）, e2e:ui-feedback-batch |
+| UI/操作FB: プロパティで塗り色変更（予実色を明示上書き, 複数選択適用, 取消可） | PROP-L1-002 | schedule-model（fillColorExplicit）, plan-actual-colors（displayFillColor override）, property-panel（setSelectedItemIds/multi-dispatch）, commands, ui-feedback-batch.test, e2e:ui-feedback-batch |
+| UI/操作FB: ESCでプロパティパネルを閉じる（進行中ジェスチャ取消を優先） | TOOL-L1-001 | main（window ESC）, editing-controller（isGestureInProgress/cancelActiveGesture）, e2e:ui-feedback-batch |
+| UI/操作FB: 同一分類の時間重複で最大64レーン積層（行高/セクション枠/グリッド/命中/Fit追従） | ARCH-C-011, item7 | layout-engine（layoutRows/RowGeometry/rowBandUnitHeight/rowIndexAtWorldY, MAX_STACK_LANES=64）, svg-renderer（可変行geometry）, editing-controller（renderer.rowIndexAtWorldY）, left-pane, svg-exporter, cursor-span/progress-line-builder（可変resolver）, ui-feedback-batch.test, e2e:ui-feedback-batch |
+| UI/操作FB: 積層バーは95%高で境界可視化 | ITEM-L1, item7 | layout-engine（STACKED_BAR_HEIGHT_RATIO=0.95）, ui-feedback-batch.test, e2e:ui-feedback-batch |
+| UI/操作FB: ガイドカーソル4排他モード（none/十字/縦1/縦2, viewState永続, i18n en/ja, ポインタ追従） | CURS-L1-003, item9-12 | schedule-model（CursorGuideMode/cursorGuideMode）, svg-renderer（renderCursorGuide/pointerClient追従）, main（radiogroup, 旧dual-cursorトグル置換）, i18n, json-codec（往復）, ui-feedback-batch.test, e2e:ui-feedback-batch |
 
 ## 非機能・横断の検証
 

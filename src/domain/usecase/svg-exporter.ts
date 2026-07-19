@@ -17,7 +17,14 @@
  */
 
 import type { ImportedAsset, ScheduleDocument, ScheduleItem } from '../model/schedule-model.js';
-import { layoutItems, rowBandHeight, type ItemPlacement } from './layout-engine.js';
+import {
+  layoutItems,
+  rowBandHeight,
+  computeRowGeometry,
+  rowTopAt,
+  rowHeightAt,
+  type ItemPlacement,
+} from './layout-engine.js';
 import { buildWatermarkLayer, type WatermarkContent } from './watermark-builder.js';
 import { fadePointsToAttribute, fadeTrapezoidPoints, hasFade } from './fade-geometry.js';
 import { pixelsPerDay, toDayNumber } from './time-coordinate-mapper.js';
@@ -68,7 +75,17 @@ export function exportScheduleSvg(document: ScheduleDocument, options: SvgExport
   }
 
   const bandHeight = rowBandHeight(document.viewState.zoomY);
-  const chartHeight = Math.max(bandHeight, document.rows.length * bandHeight);
+  // Rows may have different heights (a row grows to stack overlapping items, item:
+  // multi-lane stacking), so use the row geometry for band tops and the total height
+  // instead of a uniform `rows.length * bandHeight`; otherwise a tall row's items
+  // would fall outside the exported viewBox.
+  const rowGeometry = computeRowGeometry(
+    document.items,
+    document.rows,
+    document.epochDate,
+    document.viewState,
+  );
+  const chartHeight = Math.max(bandHeight, rowGeometry.totalHeight);
   const contentRight = placements.reduce(
     (max, placement) => Math.max(max, placement.worldX + placement.worldWidth),
     240,
@@ -92,13 +109,14 @@ export function exportScheduleSvg(document: ScheduleDocument, options: SvgExport
   // Row bands + optional left labels.
   parts.push('<g data-layer="rows">');
   document.rows.forEach((row, rowIndex) => {
-    const bandTop = originY + rowIndex * bandHeight;
+    const bandTop = originY + rowTopAt(rowGeometry, rowIndex, document.viewState.zoomY);
+    const rowHeight = rowHeightAt(rowGeometry, rowIndex, document.viewState.zoomY);
     parts.push(
       `<line x1="${EXPORT_MARGIN}" y1="${bandTop}" x2="${Math.ceil(totalWidth) - EXPORT_MARGIN}" y2="${bandTop}" stroke="#e4e4e4" stroke-width="1"/>`,
     );
     if (includeLeftLabels) {
       parts.push(
-        `<text x="${EXPORT_MARGIN}" y="${bandTop + bandHeight / 2}" font-family="system-ui, sans-serif" font-size="12" fill="#333333" data-row-id="${escapeSvg(
+        `<text x="${EXPORT_MARGIN}" y="${bandTop + rowHeight / 2}" font-family="system-ui, sans-serif" font-size="12" fill="#333333" data-row-id="${escapeSvg(
           row.id,
         )}">${escapeSvg(row.classificationLabel)}</text>`,
       );

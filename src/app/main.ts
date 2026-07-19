@@ -10,6 +10,7 @@
  */
 
 import type {
+  CursorGuideMode,
   FontScale,
   Locale,
   PlanActualDisplay,
@@ -82,7 +83,7 @@ interface Chrome {
   planButton: HTMLButtonElement;
   actualButton: HTMLButtonElement;
   todayButton: HTMLButtonElement;
-  cursorButton: HTMLButtonElement;
+  cursorGuideButtons: HTMLButtonElement[];
   gridDateButton: HTMLButtonElement;
   gridCategoryButton: HTMLButtonElement;
   commentButton: HTMLButtonElement;
@@ -214,7 +215,8 @@ function ensureCommandChromeStylesheet(doc: Document): void {
 .${COMMAND_PALETTE_CLASS}:hover button,
 .${COMMAND_PALETTE_CLASS}:focus-within button { background: #eef1f5; }
 .${COMMAND_PALETTE_CLASS} button:hover { background: #e2e7ef; }
-.${COMMAND_PALETTE_CLASS} button[aria-pressed="true"] {
+.${COMMAND_PALETTE_CLASS} button[aria-pressed="true"],
+.${COMMAND_PALETTE_CLASS} button[role="radio"][aria-checked="true"] {
   background: #3f7856;
   border-color: #35664a;
   color: #ffffff;
@@ -406,8 +408,29 @@ function buildChrome(root: HTMLElement): Chrome {
   actualButton.setAttribute('aria-pressed', 'true');
   const todayButton = makeCommandButton('║T', uiLabel('today_line'));
   todayButton.setAttribute('aria-pressed', 'true');
-  const cursorButton = makeCommandButton('┆', uiLabel('dual_cursor'));
-  cursorButton.setAttribute('aria-pressed', 'true');
+  // Pointer-following cursor-guide selector (items 9-12): FOUR exclusive modes as a
+  // radio group (not a toggle). Only the active button carries aria-checked="true".
+  const cursorGuideGroup = document.createElement('div');
+  cursorGuideGroup.className = 'grsch-cmd-group';
+  cursorGuideGroup.dataset.role = 'cursor-guide-modes';
+  cursorGuideGroup.setAttribute('role', 'radiogroup');
+  cursorGuideGroup.setAttribute('aria-label', uiLabel('cursor_guide'));
+  const cursorGuideModes: ReadonlyArray<{ mode: CursorGuideMode; glyph: string; labelKey: string }> = [
+    { mode: 'none', glyph: '⃠', labelKey: 'cursor_guide_none' },
+    { mode: 'crosshair', glyph: '✛', labelKey: 'cursor_guide_crosshair' },
+    { mode: 'single-vertical', glyph: '│', labelKey: 'cursor_guide_single_vertical' },
+    { mode: 'double-vertical', glyph: '‖', labelKey: 'cursor_guide_double_vertical' },
+  ];
+  const cursorGuideButtons: HTMLButtonElement[] = cursorGuideModes.map(({ mode, glyph, labelKey }) => {
+    const button = makeCommandButton(glyph, uiLabel(labelKey));
+    button.dataset.role = 'cursor-guide-mode';
+    button.dataset.guideMode = mode;
+    button.dataset.labelKey = labelKey;
+    button.setAttribute('role', 'radio');
+    button.setAttribute('aria-checked', 'false');
+    cursorGuideGroup.appendChild(button);
+    return button;
+  });
   // Gridline toggles (fix 6): vertical date lines + horizontal category boundaries.
   // Both default ON; real focusable buttons carrying aria-pressed so the state is
   // conveyed to assistive tech, and the state round-trips via the view state.
@@ -479,7 +502,8 @@ function buildChrome(root: HTMLElement): Chrome {
     ]),
     makeCommandGroup('View', [fitButton, fullscreenButton, propertiesToggleButton]),
     makeCommandGroup('Show', [planButton, actualButton]),
-    makeCommandGroup('Guides', [todayButton, cursorButton, linkButton]),
+    makeCommandGroup('Guides', [todayButton, linkButton]),
+    cursorGuideGroup,
     makeCommandGroup('Grid', [gridDateButton, gridCategoryButton]),
     makeCommandGroup('Add', [commentButton, boxButton]),
     makeCommandGroup('Marks', [watermarkButton, watermarkNameInput]),
@@ -543,7 +567,7 @@ function buildChrome(root: HTMLElement): Chrome {
     planButton,
     actualButton,
     todayButton,
-    cursorButton,
+    cursorGuideButtons,
     gridDateButton,
     gridCategoryButton,
     commentButton,
@@ -726,6 +750,25 @@ function bootstrap(): void {
   );
   attachKeyboardShortcuts({ store, controller, clipboard });
 
+  // ESC handling (item 6): a cancel-in-progress gesture (drag / marquee) takes
+  // PRIORITY; only when nothing is in progress and the properties panel is open does
+  // ESC close the panel (mirroring its × button). Registered on window so it works
+  // regardless of which element holds focus, including a properties field.
+  window.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+    if (controller.isGestureInProgress() || controller.hasArmedShape()) {
+      controller.cancelActiveGesture();
+      event.preventDefault();
+      return;
+    }
+    if (!propertyPanel.isHidden()) {
+      setPropertiesPanelHidden(true);
+      event.preventDefault();
+    }
+  });
+
   // Reflect the active locale on <html lang> so assistive tech uses the right
   // pronunciation/language (WCAG 3.1.1).
   document.documentElement.lang = activeLocale;
@@ -802,6 +845,13 @@ function bootstrap(): void {
     localizeCommandName(chrome.fontButtons[0] as HTMLButtonElement, 'font_size_small', locale);
     localizeCommandName(chrome.fontButtons[1] as HTMLButtonElement, 'font_size_medium', locale);
     localizeCommandName(chrome.fontButtons[2] as HTMLButtonElement, 'font_size_large', locale);
+    // Cursor-guide radio buttons carry their own i18n key in dataset.labelKey.
+    for (const button of chrome.cursorGuideButtons) {
+      const key = button.dataset.labelKey;
+      if (key !== undefined) {
+        localizeCommandName(button, key, locale);
+      }
+    }
   };
   localizeToolbar(activeLocale);
 
@@ -957,26 +1007,22 @@ function bootstrap(): void {
   });
   syncTodayButton(renderer.getViewState().todayLineVisible === true);
 
-  // Dual-cursor visibility toggle (CURS-L1-004); position/mode are preserved.
-  const syncCursorButton = (visible: boolean): void => {
-    const name = `${uiLabel('dual_cursor', activeLocale)}: ${visible ? 'on' : 'off'}`;
-    chrome.cursorButton.setAttribute('aria-pressed', visible ? 'true' : 'false');
-    chrome.cursorButton.setAttribute('aria-label', name);
-    chrome.cursorButton.title = name;
-  };
-  chrome.cursorButton.addEventListener('click', () => {
-    const current = renderer.getViewState().dualCursor;
-    if (current === undefined) {
-      return;
+  // Pointer-following cursor-guide selector (items 9-12): four EXCLUSIVE modes as a
+  // radio group, held in view state (cursorGuideMode) so the choice round-trips via
+  // JSON / autosave. Default is `none` (off), matching the prior default.
+  const syncCursorGuideButtons = (mode: CursorGuideMode): void => {
+    for (const button of chrome.cursorGuideButtons) {
+      button.setAttribute('aria-checked', button.dataset.guideMode === mode ? 'true' : 'false');
     }
-    const visible = current.visible !== true;
-    renderer.setViewState({
-      ...renderer.getViewState(),
-      dualCursor: { ...current, visible },
+  };
+  for (const button of chrome.cursorGuideButtons) {
+    button.addEventListener('click', () => {
+      const mode = (button.dataset.guideMode ?? 'none') as CursorGuideMode;
+      renderer.setViewState({ ...renderer.getViewState(), cursorGuideMode: mode });
+      syncCursorGuideButtons(mode);
     });
-    syncCursorButton(visible);
-  });
-  syncCursorButton(renderer.getViewState().dualCursor?.visible === true);
+  }
+  syncCursorGuideButtons(renderer.getViewState().cursorGuideMode ?? 'none');
 
   // Gridline toggles (fix 6): both default ON (absent flag treated as visible). The
   // state is written to the view state so it round-trips via JSON / autosave and
@@ -1056,8 +1102,9 @@ function bootstrap(): void {
     toolPalette.updateHistoryState(store.canUndo(), store.canRedo());
   });
   controller.onSelectionChange((selectedItemIds) => {
-    const only = selectedItemIds.size === 1 ? [...selectedItemIds][0] ?? null : null;
-    propertyPanel.setSelectedItemId(only);
+    // Pass the WHOLE selection so a fill-color edit applies to all selected items
+    // (item 5); the panel shows the first item's field values.
+    propertyPanel.setSelectedItemIds(selectedItemIds);
   });
   toolPalette.updateHistoryState(store.canUndo(), store.canRedo());
 

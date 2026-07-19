@@ -44,7 +44,14 @@ export class PropertyPanel {
   private readonly root: HTMLElement;
   private readonly store: ScheduleStore;
   private readonly controls: FieldControl[] = [];
+  /** The item whose values the fields DISPLAY (the first of the selection). */
   private selectedItemId: string | null = null;
+  /**
+   * Every selected item id a dispatched patch is applied to (item 5: a fill-color
+   * edit applies to all selected items). Contains just {@link selectedItemId} for a
+   * single selection, or all ids for a multi-selection.
+   */
+  private selectedItemIds: ReadonlySet<string> = new Set();
   /** Invoked when the user closes the panel with the × button (fix 10). */
   private readonly onRequestHide: (() => void) | null;
   /** The end_date field row, hidden for milestones (M-03 invariant guard). */
@@ -79,6 +86,20 @@ export class PropertyPanel {
    */
   public setSelectedItemId(itemId: string | null): void {
     this.selectedItemId = itemId;
+    this.selectedItemIds = itemId === null ? new Set() : new Set([itemId]);
+    this.refreshValues(this.store.getDocument());
+  }
+
+  /**
+   * Point the panel at a whole selection (item 5 multi-select). The fields display
+   * the FIRST selected item's values, and a dispatched patch is applied to EVERY
+   * selected item (so e.g. a fill-color change recolors all of them).
+   *
+   * @param itemIds - The selected item ids (empty for the empty state).
+   */
+  public setSelectedItemIds(itemIds: ReadonlySet<string>): void {
+    this.selectedItemIds = new Set(itemIds);
+    this.selectedItemId = itemIds.size === 0 ? null : ([...itemIds][0] ?? null);
     this.refreshValues(this.store.getDocument());
   }
 
@@ -227,7 +248,14 @@ export class PropertyPanel {
       (value) => ({ labelPosition: labelPositionOf(value) }),
     );
     this.addColorField(form, 'stroke_color', (item) => item.strokeColor, (value) => ({ strokeColor: value }));
-    this.addColorField(form, 'fill_color', (item) => item.fillColor, (value) => ({ fillColor: value }));
+    // Editing the fill marks it EXPLICIT so it overrides the plan/actual display
+    // color (item 5): the change is otherwise masked for plan/actual items.
+    this.addColorField(
+      form,
+      'fill_color',
+      (item) => item.fillColor,
+      (value) => ({ fillColor: value, fillColorExplicit: true }),
+    );
   }
 
   private addFieldRow(form: HTMLElement, fieldKey: string): HTMLElement {
@@ -415,10 +443,17 @@ export class PropertyPanel {
   }
 
   private dispatchPatch(patch: ItemPropertyPatch): void {
-    if (this.selectedItemId === null) {
-      return;
+    // Apply to EVERY selected item (item 5 multi-select); a single selection is the
+    // common one-element case. Each edit-property command is a no-op when its values
+    // already match, so unchanged items add no spurious history.
+    const targets = this.selectedItemIds.size > 0
+      ? [...this.selectedItemIds]
+      : this.selectedItemId === null
+        ? []
+        : [this.selectedItemId];
+    for (const itemId of targets) {
+      this.store.dispatch(editPropertyCommand(itemId, patch));
     }
-    this.store.dispatch(editPropertyCommand(this.selectedItemId, patch));
   }
 
   private refreshValues(document: ScheduleDocument): void {

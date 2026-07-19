@@ -46,6 +46,22 @@ export type PlanActualDisplay = 'plan-only' | 'actual-only' | 'both' | 'none';
  */
 export type CursorMode = 'vertical-line' | 'crosshair';
 
+/**
+ * The pointer-following measurement guide mode (CURS-L1-003, cursor-guide rework).
+ * An exclusive selection (radio, not a toggle) of four modes:
+ *
+ * - `none`            -- no guide is drawn (default).
+ * - `crosshair`       -- one vertical + one horizontal line tracking the pointer.
+ * - `single-vertical` -- one vertical line at the pointer.
+ * - `double-vertical` -- two vertical lines (pointer + a second offset line).
+ *
+ * Persisted in {@link ViewState.cursorGuideMode} so it round-trips via JSON / autosave.
+ */
+export type CursorGuideMode = 'none' | 'crosshair' | 'single-vertical' | 'double-vertical';
+
+/** The horizontal offset (CSS px) of the second line in `double-vertical` mode. */
+export const DOUBLE_VERTICAL_GUIDE_OFFSET_PX = 40;
+
 /** One measurement cursor pinned to a date on the time axis (CURS-L1-002). */
 export interface CursorState {
   /** Time-axis position of the cursor. */
@@ -136,6 +152,14 @@ export interface ScheduleItem {
   readonly fadeOutDays?: number;
   /** Fill color (CSS color string). */
   readonly fillColor: string;
+  /**
+   * When true, {@link fillColor} is an EXPLICIT user choice that overrides the
+   * plan/actual display color (green/orange) for this item on the canvas. Absent
+   * or false means a plan/actual item keeps its derived plan/actual hue while a
+   * plain item shows its own {@link fillColor}. Set by the property panel's
+   * fill-color control so editing the fill takes visible effect on plan/actual items.
+   */
+  readonly fillColorExplicit?: boolean;
   /** Stroke color (CSS color string). */
   readonly strokeColor: string;
   /** Formal full name (PROP `full_name`). */
@@ -372,6 +396,12 @@ export interface ViewState {
   readonly gridCategoryLinesVisible?: boolean;
   /** The dual measurement cursor (CURS-L1-002/003/004); absent means unused. */
   readonly dualCursor?: DualCursorState;
+  /**
+   * The pointer-following measurement-guide mode (CURS-L1-003, cursor-guide
+   * rework). Absent is treated as `none` (off), matching the prior default. Held in
+   * view state so the selected mode round-trips via JSON / autosave.
+   */
+  readonly cursorGuideMode?: CursorGuideMode;
   /**
    * The evidence watermark (TOOL-L1-007); absent means no watermark. Held in view
    * state so toggling it never pollutes Undo/Redo, yet still round-trips with the

@@ -25,10 +25,14 @@ import type {
   ViewState,
 } from '../../domain/model/schedule-model.js';
 import {
-  layoutItems,
-  rowBandHeight,
-  rowWorldY,
+  layoutRows,
+  rowTopAt,
+  rowHeightAt,
+  rowBoundaryY,
+  rowIndexAtWorldY as resolveRowIndexAtWorldY,
+  EMPTY_ROW_GEOMETRY,
   type ItemPlacement,
+  type RowGeometry,
 } from '../../domain/usecase/layout-engine.js';
 import { lodThreshold } from '../../domain/usecase/lod-selector.js';
 import {
@@ -86,7 +90,8 @@ import type {
 import { buildDateRuler, rulerTierCount } from '../../domain/usecase/date-ruler.js';
 import { resolveWheelMode } from '../input/wheel-mode.js';
 import { pickItemHit, type HitCandidate } from '../../domain/usecase/edge-hit.js';
-import type { CursorMode } from '../../domain/model/schedule-model.js';
+import type { CursorMode, CursorGuideMode } from '../../domain/model/schedule-model.js';
+import { DOUBLE_VERTICAL_GUIDE_OFFSET_PX } from '../../domain/model/schedule-model.js';
 import { buildWatermarkLayer } from '../../domain/usecase/watermark-builder.js';
 import { itemAccessibleName } from '../../domain/usecase/accessible-name.js';
 import {
@@ -94,7 +99,6 @@ import {
   FOCUS_RING_HEX,
   FOCUS_RING_STROKE_WIDTH,
   SELECTION_DASH_ARRAY,
-  planActualStrokeDashArray,
 } from '../../domain/usecase/a11y-tokens.js';
 import { uiLabel } from '../../domain/usecase/i18n.js';
 import { createLogger } from '../../app/logger.js';
@@ -236,6 +240,12 @@ export class SvgRenderer {
   private canvasSize: CanvasSize = { widthPx: 0, heightPx: 0 };
   private placements: readonly ItemPlacement[] = [];
   private readonly placementById = new Map<string, ItemPlacement>();
+  /** Per-row variable-height geometry from the last layout (item: multi-lane stacking). */
+  private rowGeometry: RowGeometry = EMPTY_ROW_GEOMETRY;
+  /** Last pointer position over the canvas (client px), for the cursor guide (items 9-12). */
+  private pointerClient: { readonly clientX: number; readonly clientY: number } | null = null;
+  /** Lazily created rubber-band marquee rectangle, present only during a marquee drag. */
+  private marqueeRect: SVGRectElement | null = null;
   private sectionBands: readonly SectionBand[] = [];
   private layoutDirty = false;
   private rafHandle: number | null = null;
@@ -629,24 +639,14 @@ export class SvgRenderer {
       return fadeHit;
     }
 
-    // Labels can sit outside the glyph, so test them first (they win ties).
-    for (const placement of this.placements) {
-      if (!this.mountedById.has(placement.itemId)) {
-        continue;
-      }
-      const item = this.itemById.get(placement.itemId);
-      if (item === undefined || item.abbrev.length === 0) {
-        continue;
-      }
-      if (pointInLabelBox(item, placement, fontSize, point.worldX, point.worldY)) {
-        return { itemId: placement.itemId, region: 'label' };
-      }
-    }
-
-    // Collect every mounted item whose box contains the pointer, then resolve the
-    // grab with a shared, tested rule: task EDGE zones take precedence over a body
+    // Collect every mounted item whose BAR BODY contains the pointer, then resolve
+    // the grab with a shared, tested rule: task EDGE zones take precedence over a body
     // (move), and the SELECTED bar (then the topmost lane) wins under overlap, so
-    // stacked plan/actual bars no longer hide each other's resize edges.
+    // stacked plan/actual bars no longer hide each other's resize edges. This is
+    // checked BEFORE labels so that a point clearly inside a bar resizes/moves that
+    // bar rather than being stolen by ANOTHER item's long abbreviation label that
+    // merely overlaps the bar (regression guard: a narrow task under a milestone's
+    // wide label must still be edge-resizable).
     const candidates: HitCandidate[] = [];
     for (const placement of this.placements) {
       if (!this.mountedById.has(placement.itemId)) {
@@ -669,7 +669,26 @@ export class SvgRenderer {
         isSelected: this.selectedItemIds.has(placement.itemId),
       });
     }
-    return pickItemHit(candidates, point.worldX, RESIZE_HANDLE_PX);
+    const bodyHit = pickItemHit(candidates, point.worldX, RESIZE_HANDLE_PX);
+    if (bodyHit !== null) {
+      return bodyHit;
+    }
+
+    // Labels can sit OUTSIDE the glyph, so fall back to them only when the pointer is
+    // not inside any bar body (they win ties among themselves by document order).
+    for (const placement of this.placements) {
+      if (!this.mountedById.has(placement.itemId)) {
+        continue;
+      }
+      const item = this.itemById.get(placement.itemId);
+      if (item === undefined || item.abbrev.length === 0) {
+        continue;
+      }
+      if (pointInLabelBox(item, placement, fontSize, point.worldX, point.worldY)) {
+        return { itemId: placement.itemId, region: 'label' };
+      }
+    }
+    return null;
   }
 
   /**
@@ -688,16 +707,22 @@ export class SvgRenderer {
       if (item === undefined || item.itemKind !== 'task') {
         continue;
       }
+      // Bound the VERTICAL grab tolerance to a fraction of the bar height so a SHORT
+      // bar (e.g. at a small zoomY once tall multi-lane rows shrink the Fit zoom) does
+      // not let the bottom-right fade corner swallow the mid-height resize edge -- the
+      // fade corner then only wins genuinely near the corner, leaving the edge for
+      // resize. A normal-height bar keeps the full tolerance.
+      const verticalTolerance = Math.min(tolerance, placement.worldHeight * 0.4);
       const centers = this.taskFadeHandleCenters(item, placement);
       if (
         Math.abs(worldX - centers.fadeIn.x) <= tolerance &&
-        Math.abs(worldY - centers.fadeIn.y) <= tolerance
+        Math.abs(worldY - centers.fadeIn.y) <= verticalTolerance
       ) {
         return { itemId: placement.itemId, region: 'fade-in' };
       }
       if (
         Math.abs(worldX - centers.fadeOut.x) <= tolerance &&
-        Math.abs(worldY - centers.fadeOut.y) <= tolerance
+        Math.abs(worldY - centers.fadeOut.y) <= verticalTolerance
       ) {
         return { itemId: placement.itemId, region: 'fade-out' };
       }
@@ -788,7 +813,13 @@ export class SvgRenderer {
     localX: number,
     localY: number,
   ): AnnotationHit['region'] | null {
-    const geometry = roundedBoxScreenRect(box, epoch, this.viewState, this.getContentTopOffsetPx());
+    const geometry = roundedBoxScreenRect(
+      box,
+      epoch,
+      this.viewState,
+      this.getContentTopOffsetPx(),
+      (rowIndex) => this.rowBoundary(rowIndex),
+    );
     const half = ANNOTATION_HANDLE_PX;
     const corners: Array<{ x: number; y: number; region: AnnotationHit['region'] }> = [
       { x: geometry.x, y: geometry.y, region: 'resize-nw' },
@@ -816,7 +847,13 @@ export class SvgRenderer {
       // actually DRAWN (renderRoundedBoxes uses the same offset). Omitting it made
       // the selectable region sit one ruler-height above the visible box
       // (calibration fix, fix 1).
-      const geometry = roundedBoxScreenRect(annotation, epoch, this.viewState, this.getContentTopOffsetPx());
+      const geometry = roundedBoxScreenRect(
+        annotation,
+        epoch,
+        this.viewState,
+        this.getContentTopOffsetPx(),
+        (rowIndex) => this.rowBoundary(rowIndex),
+      );
       const tolerance = ANNOTATION_BORDER_TOLERANCE_PX;
       const insideX = localX >= geometry.x - tolerance && localX <= geometry.x + geometry.width + tolerance;
       const insideY = localY >= geometry.y - tolerance && localY <= geometry.y + geometry.height + tolerance;
@@ -840,9 +877,9 @@ export class SvgRenderer {
     epoch: IsoDate,
   ): { x: number; y: number; width: number; height: number } {
     const anchorWorldX = dateToWorldX(comment.anchorDate, epoch, this.viewState.zoomX);
-    const rowBand = rowWorldY(comment.anchorRowIndex, this.viewState.zoomY);
+    const rowBand = this.rowTop(comment.anchorRowIndex);
     const anchorX = this.worldToScreenX(anchorWorldX);
-    const anchorY = this.worldToScreenY(rowBand + rowBandHeight(this.viewState.zoomY) / 2);
+    const anchorY = this.worldToScreenY(rowBand + this.rowHeight(comment.anchorRowIndex) / 2);
     const bodyX = anchorX + comment.bodyOffsetPx.dx;
     const bodyY = anchorY + comment.bodyOffsetPx.dy;
     const width = Math.max(24, comment.text.length * 7 + 10);
@@ -883,6 +920,72 @@ export class SvgRenderer {
   public getItemRect(itemId: string): Rect | null {
     const placement = this.placementById.get(itemId);
     return placement === undefined ? null : placementRect(placement);
+  }
+
+  /**
+   * Show (or hide with null) the rubber-band marquee selection rectangle in world
+   * space during an empty-area drag (item 3). A solid thin outline with a
+   * semi-transparent fill, drawn in the scrolled content group so it tracks the
+   * schedule under pan/zoom.
+   *
+   * @param worldRect - The marquee rectangle in world space, or null to hide.
+   */
+  public showMarquee(
+    worldRect: { worldX: number; worldY: number; worldWidth: number; worldHeight: number } | null,
+  ): void {
+    if (worldRect === null) {
+      this.marqueeRect?.remove();
+      this.marqueeRect = null;
+      return;
+    }
+    if (this.marqueeRect === null) {
+      const rect = document.createElementNS(SVG_NS, 'rect');
+      rect.setAttribute('data-role', 'marquee');
+      rect.setAttribute('fill', 'rgba(0,114,178,0.12)');
+      rect.setAttribute('stroke', '#0072b2');
+      rect.setAttribute('stroke-width', '1');
+      rect.setAttribute('pointer-events', 'none');
+      this.contentGroup.appendChild(rect);
+      this.marqueeRect = rect;
+    }
+    this.marqueeRect.setAttribute('x', String(worldRect.worldX));
+    this.marqueeRect.setAttribute('y', String(worldRect.worldY));
+    this.marqueeRect.setAttribute('width', String(Math.max(0, worldRect.worldWidth)));
+    this.marqueeRect.setAttribute('height', String(Math.max(0, worldRect.worldHeight)));
+  }
+
+  /**
+   * The ids of every laid-out item whose world-space box intersects a world-space
+   * rectangle (item 3 marquee select). Uses the current placements so it matches
+   * exactly what the user framed on screen.
+   *
+   * @param worldRect - The selection rectangle in world space.
+   * @returns The intersecting item ids.
+   */
+  public itemsIntersectingWorldRect(worldRect: {
+    worldX: number;
+    worldY: number;
+    worldWidth: number;
+    worldHeight: number;
+  }): string[] {
+    const left = worldRect.worldX;
+    const right = worldRect.worldX + worldRect.worldWidth;
+    const top = worldRect.worldY;
+    const bottom = worldRect.worldY + worldRect.worldHeight;
+    const ids: string[] = [];
+    for (const placement of this.placements) {
+      const itemRight = placement.worldX + placement.worldWidth;
+      const itemBottom = placement.worldY + placement.worldHeight;
+      if (
+        itemRight >= left &&
+        placement.worldX <= right &&
+        itemBottom >= top &&
+        placement.worldY <= bottom
+      ) {
+        ids.push(placement.itemId);
+      }
+    }
+    return ids;
   }
 
   /**
@@ -1034,16 +1137,58 @@ export class SvgRenderer {
       const displayId = this.rowIdToDisplayId.get(item.rowId);
       return displayId !== undefined && displayId !== item.rowId ? { ...item, rowId: displayId } : item;
     });
-    this.placements = layoutItems(
+    const laid = layoutRows(
       laidItems,
       this.displayRows,
       this.scheduleDocument.epochDate,
       this.viewState,
     );
+    this.placements = laid.placements;
+    // Row bands may now have different heights (a row grows to stack overlapping
+    // items); keep the geometry so gridlines, section boxes, comments, rounded boxes
+    // and hit-testing all follow the taller rows (item: multi-lane stacking).
+    this.rowGeometry = laid.geometry;
     this.placementById.clear();
     for (const placement of this.placements) {
       this.placementById.set(placement.itemId, placement);
     }
+  }
+
+  /** World-space top of display row `index` under the current variable geometry. */
+  private rowTop(index: number): number {
+    return rowTopAt(this.rowGeometry, index, this.viewState.zoomY);
+  }
+
+  /** World-space band height of display row `index` under the current geometry. */
+  private rowHeight(index: number): number {
+    return rowHeightAt(this.rowGeometry, index, this.viewState.zoomY);
+  }
+
+  /** World-space y of the boundary above display row `index` (variable geometry). */
+  private rowBoundary(index: number): number {
+    return rowBoundaryY(this.rowGeometry, index, this.viewState.zoomY);
+  }
+
+  /**
+   * Display row index whose band contains a world y, following variable row heights
+   * (item: multi-lane stacking). Used by the editing controller for create / move
+   * target-row resolution so hit-testing tracks the taller rows.
+   *
+   * @param worldY - World-space y.
+   * @returns The display row index, clamped to the visible range.
+   */
+  public rowIndexAtWorldY(worldY: number): number {
+    return resolveRowIndexAtWorldY(this.rowGeometry, worldY, this.viewState.zoomY);
+  }
+
+  /** World-space band top of display row `index` (variable geometry, for callers). */
+  public rowBandTopWorldY(index: number): number {
+    return this.rowTop(index);
+  }
+
+  /** World-space band height of display row `index` (variable geometry, for callers). */
+  public rowBandHeightWorldY(index: number): number {
+    return this.rowHeight(index);
   }
 
   private diffRender(): void {
@@ -1203,7 +1348,9 @@ export class SvgRenderer {
   private renderCategoryGridlines(window: ViewportWindow): void {
     const rowCount = this.displayRows.length;
     for (let rowIndex = 0; rowIndex <= rowCount; rowIndex += 1) {
-      const worldY = rowWorldY(rowIndex, this.viewState.zoomY);
+      // Boundary y between rows follows variable row heights (multi-lane stacking):
+      // boundary(0) = top, boundary(rowCount) = bottom of the last (possibly tall) row.
+      const worldY = this.rowBoundary(rowIndex);
       if (worldY < window.worldTop || worldY > window.worldBottom) {
         continue;
       }
@@ -1221,7 +1368,7 @@ export class SvgRenderer {
       this.classificationGroup.removeChild(this.classificationGroup.firstChild);
     }
     for (const band of this.sectionBands) {
-      const worldY = rowWorldY(band.startRowIndex, this.viewState.zoomY);
+      const worldY = this.rowBoundary(band.startRowIndex);
       if (worldY < window.worldTop || worldY > window.worldBottom) {
         continue;
       }
@@ -1294,6 +1441,7 @@ export class SvgRenderer {
     this.renderIlluminatedLine();
     this.renderTodayLine();
     this.renderDualCursor();
+    this.renderCursorGuide();
     this.renderComments();
     this.renderWatermark();
     // The fixed date ruler is drawn LAST so it stays on top of the top strip; it
@@ -1528,6 +1676,70 @@ export class SvgRenderer {
   }
 
   /**
+   * Draw the pointer-following measurement GUIDE (items 9-12), one of four exclusive
+   * modes selected in {@link ViewState.cursorGuideMode}:
+   *
+   * - `none`            -- nothing drawn.
+   * - `crosshair`       -- one vertical + one horizontal line through the pointer.
+   * - `single-vertical` -- one vertical line at the pointer.
+   * - `double-vertical` -- two vertical lines (pointer + a fixed screen offset).
+   *
+   * The lines are placed from the LIVE pointer client position mapped into the SVG's
+   * own coordinate box (`clientX - rect.left`), which is the same screen space the
+   * overlay group is drawn in -- fixing the earlier bug where the guide used a
+   * world/offset coordinate and never appeared. Nothing is drawn while the pointer is
+   * off-canvas or over the frozen left pane.
+   */
+  private renderCursorGuide(): void {
+    const mode: CursorGuideMode = this.viewState.cursorGuideMode ?? 'none';
+    if (mode === 'none' || this.pointerClient === null) {
+      return;
+    }
+    const rect = this.svg.getBoundingClientRect();
+    const x = this.pointerClient.clientX - rect.left;
+    const y = this.pointerClient.clientY - rect.top;
+    const leftPaneWidth = this.getLeftPaneWidth();
+    const rightEdge = this.canvasSize.widthPx;
+    const bottomEdge = this.canvasSize.heightPx;
+    // Only over the schedule area (right of the frozen pane, inside the canvas).
+    if (x < leftPaneWidth || x > rightEdge || y < 0 || y > bottomEdge) {
+      return;
+    }
+    const color = '#0072b2';
+    const group = document.createElementNS(SVG_NS, 'g');
+    group.setAttribute('data-role', 'cursor-guide');
+    group.setAttribute('data-guide-mode', mode);
+    group.setAttribute('pointer-events', 'none');
+
+    // A vertical line at the pointer for every mode except the (unreached) none.
+    group.appendChild(this.buildGuideLine(x, 0, x, bottomEdge, color));
+    if (mode === 'crosshair') {
+      // Plus a horizontal line spanning the schedule area at the pointer's y.
+      group.appendChild(this.buildGuideLine(leftPaneWidth, y, rightEdge, y, color));
+    } else if (mode === 'double-vertical') {
+      // Plus a second vertical line a fixed screen offset to the right.
+      const secondX = x + DOUBLE_VERTICAL_GUIDE_OFFSET_PX;
+      if (secondX <= rightEdge) {
+        group.appendChild(this.buildGuideLine(secondX, 0, secondX, bottomEdge, color));
+      }
+    }
+    this.overlayGroup.appendChild(group);
+  }
+
+  /** Build one thin screen-space guide line element. */
+  private buildGuideLine(x1: number, y1: number, x2: number, y2: number, color: string): SVGLineElement {
+    const line = document.createElementNS(SVG_NS, 'line');
+    line.setAttribute('x1', String(x1));
+    line.setAttribute('y1', String(y1));
+    line.setAttribute('x2', String(x2));
+    line.setAttribute('y2', String(y2));
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', '1');
+    line.setAttribute('stroke-dasharray', '4 3');
+    return line;
+  }
+
+  /**
    * Draw the illuminated (progress) line as a PLAIN polyline (no terminal dots),
    * toggled with the actual display (PLAN-L1-003 / L2-001). Each row's actual
    * front becomes a vertex; the builder anchors the ends to today's axis.
@@ -1543,6 +1755,8 @@ export class SvgRenderer {
       this.scheduleDocument.epochDate,
       this.viewState.zoomX,
       this.viewState.zoomY,
+      (rowIndex) => this.rowTop(rowIndex),
+      (rowIndex) => this.rowHeight(rowIndex),
     );
     if (worldVertices.length < 2) {
       return;
@@ -1609,7 +1823,13 @@ export class SvgRenderer {
       if (!isRoundedBox(annotation)) {
         continue;
       }
-      const geometry = roundedBoxScreenRect(annotation, epoch, this.viewState, this.getContentTopOffsetPx());
+      const geometry = roundedBoxScreenRect(
+        annotation,
+        epoch,
+        this.viewState,
+        this.getContentTopOffsetPx(),
+        (rowIndex) => this.rowBoundary(rowIndex),
+      );
       if (!this.screenRectVisible(geometry.x, geometry.y, geometry.width, geometry.height)) {
         continue; // off-viewport: cull (parity with item virtualization, M-02).
       }
@@ -1713,9 +1933,9 @@ export class SvgRenderer {
     }
     const epoch = this.scheduleDocument.epochDate;
     const anchorWorldX = dateToWorldX(comment.anchorDate, epoch, this.viewState.zoomX);
-    const rowBand = rowWorldY(comment.anchorRowIndex, this.viewState.zoomY);
+    const rowBand = this.rowTop(comment.anchorRowIndex);
     const anchorX = this.worldToScreenX(anchorWorldX);
-    const anchorY = this.worldToScreenY(rowBand + rowBandHeight(this.viewState.zoomY) / 2);
+    const anchorY = this.worldToScreenY(rowBand + this.rowHeight(comment.anchorRowIndex) / 2);
     const bodyX = anchorX + comment.bodyOffsetPx.dx;
     const bodyY = anchorY + comment.bodyOffsetPx.dy;
 
@@ -1935,11 +2155,18 @@ export class SvgRenderer {
     // changed-plan ghosts are drawn separately (renderPreviousPlanGhosts) and are
     // unaffected. Paired with the non-color stroke-dash below for WCAG 1.4.1.
     mounted.shape.setAttribute('fill', displayFillColor(item));
-    mounted.shape.setAttribute('stroke', item.strokeColor);
-    mounted.shape.setAttribute('stroke-width', String(strokeWidthPx(item.lineWeight)));
-    // Encode plan vs actual by a non-color attribute too (WCAG 1.4.1): plan is
-    // dashed, actual/plain is solid, so the pair is distinguishable in grayscale.
-    mounted.shape.setAttribute('stroke-dasharray', planActualStrokeDashArray(item.planActualKind));
+    // Item borders are SOLID and OFF by default (item 2): a transparent/absent stroke
+    // color renders `stroke="none"` (no border), and any explicitly set stroke is
+    // solid (no dash-array). Plan vs actual is conveyed by the separate labeled rows
+    // and the fill hue, not by a stroke dash. The dashed SELECTION outline is a
+    // separate node (updateSelectionOutline) and still marks the selected item.
+    const stroke = resolveStrokeAttribute(item.strokeColor);
+    mounted.shape.setAttribute('stroke', stroke);
+    mounted.shape.setAttribute(
+      'stroke-width',
+      stroke === 'none' ? '0' : String(strokeWidthPx(item.lineWeight)),
+    );
+    mounted.shape.setAttribute('stroke-dasharray', 'none');
 
     // Refresh the accessible name (abbrev + kind + dates) for the active locale.
     const accessibleName = itemAccessibleName(item, this.viewState.activeLocale ?? 'en');
@@ -2201,6 +2428,26 @@ export class SvgRenderer {
     };
     host.addEventListener('pointerup', endPan);
     host.addEventListener('pointercancel', endPan);
+
+    // Track the live pointer position for the pointer-following cursor guide
+    // (items 9-12). Kept as raw client coordinates; renderCursorGuide maps them into
+    // the SVG's screen box. Only re-render when a guide mode is active so an idle
+    // canvas is not repainted on every mouse move.
+    host.addEventListener('pointermove', (event) => {
+      this.pointerClient = { clientX: event.clientX, clientY: event.clientY };
+      if ((this.viewState.cursorGuideMode ?? 'none') !== 'none') {
+        this.requestRender();
+      }
+    });
+    host.addEventListener('pointerleave', () => {
+      if (this.pointerClient !== null) {
+        this.pointerClient = null;
+        if ((this.viewState.cursorGuideMode ?? 'none') !== 'none') {
+          this.requestRender();
+        }
+      }
+    });
+
     // Default canvas cursor is a normal arrow; the editing controller applies
     // contextual cursors on hover (col-resize on task edges, crosshair in
     // link/create modes).
@@ -2319,6 +2566,16 @@ function buildDependencyMarkerDefs(): SVGDefsElement {
   marker.appendChild(head);
   defs.appendChild(marker);
   return defs;
+}
+
+/**
+ * Resolve an item's stroke color to an SVG `stroke` attribute value. A blank,
+ * `transparent` or `none` color yields `'none'` so the item draws NO border by
+ * default (item 2); any other color is returned verbatim (a solid border).
+ */
+function resolveStrokeAttribute(strokeColor: string): string {
+  const value = strokeColor.trim().toLowerCase();
+  return value === '' || value === 'transparent' || value === 'none' ? 'none' : strokeColor;
 }
 
 /** Map a line-weight step to a stroke width in CSS pixels. */

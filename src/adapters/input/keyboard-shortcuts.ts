@@ -39,6 +39,14 @@ export function attachKeyboardShortcuts(context: ShortcutContext): () => void {
     const ctrl = event.ctrlKey || event.metaKey;
     const key = event.key.toLowerCase();
 
+    if (ctrl && key === 'a') {
+      // Select every item (item 4). The browser's default (select all page text) is
+      // suppressed; the editable-target guard above already lets Ctrl+A behave
+      // natively inside a text input / properties field.
+      selectAll(context);
+      event.preventDefault();
+      return;
+    }
     if (ctrl && key === 'z' && !event.shiftKey) {
       context.store.undo();
       event.preventDefault();
@@ -67,6 +75,12 @@ export function attachKeyboardShortcuts(context: ShortcutContext): () => void {
 
   window.addEventListener('keydown', handler);
   return () => window.removeEventListener('keydown', handler);
+}
+
+function selectAll(context: ShortcutContext): void {
+  const allItemIds = new Set(context.store.getDocument().items.map((item) => item.id));
+  context.controller.setSelection(allItemIds);
+  log.debug('select_all', { selected_count: allItemIds.size });
 }
 
 function copySelection(context: ShortcutContext): void {

@@ -39,10 +39,18 @@ export const ACTUAL_FILL_ORANGE = '#e07c1a';
  * The fill an item is drawn with, driven by its plan/actual PROPERTY.
  *
  * @param item - The item to color.
- * @returns The green (plan) / orange (actual) display fill, or the item's own
+ * @returns The item's explicit fill when {@link ScheduleItem.fillColorExplicit} is
+ *   set; else the green (plan) / orange (actual) display fill; else the item's own
  *   stored fill when it carries no plan/actual semantics.
  */
-export function displayFillColor(item: Pick<ScheduleItem, 'planActualKind' | 'fillColor'>): string {
+export function displayFillColor(
+  item: Pick<ScheduleItem, 'planActualKind' | 'fillColor' | 'fillColorExplicit'>,
+): string {
+  // An explicit user-chosen fill (property panel) overrides the plan/actual hue so
+  // editing an item's fill takes visible effect even on a plan/actual item.
+  if (item.fillColorExplicit === true) {
+    return item.fillColor;
+  }
   if (item.planActualKind === 'plan') {
     return PLAN_FILL_GREEN;
   }

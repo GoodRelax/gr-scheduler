@@ -15,7 +15,11 @@
  * (SECT-L1-005). Every section edit goes through the undoable command store.
  */
 
-import type { Row, Section } from '../../domain/model/schedule-model.js';
+import type {
+  ScheduleDocument,
+  Section,
+  ViewState,
+} from '../../domain/model/schedule-model.js';
 import type { ScheduleStore } from '../../domain/command/schedule-store.js';
 import {
   addSectionCommand,
@@ -25,7 +29,11 @@ import {
   setSectionCollapsedCommand,
 } from '../../domain/command/commands.js';
 import type { SvgRenderer } from '../render/svg-renderer.js';
-import { rowBandHeight, rowWorldY } from '../../domain/usecase/layout-engine.js';
+import {
+  computeRowGeometry,
+  rowHeightAt,
+  rowTopAt,
+} from '../../domain/usecase/layout-engine.js';
 import {
   hiddenSectionTabs,
   orderedVisibleRows,
@@ -165,34 +173,48 @@ export class LeftClassificationPane {
     // top-left corner above row 0 is intentionally left blank, like a Gantt header).
     const topOffset = this.renderer.getContentTopOffsetPx();
     this.scrollLayer.style.transform = `translateY(${topOffset - viewState.scrollY}px)`;
-    this.renderRowsAndSections(document.sections, document.rows, viewState.zoomY);
+    this.renderRowsAndSections(document, viewState);
     this.renderHiddenTabs(document.sections);
     this.restorePendingMoveFocus();
   }
 
   private renderRowsAndSections(
-    sections: readonly Section[],
-    rows: readonly Row[],
-    zoomY: number,
+    document: ScheduleDocument,
+    viewState: ViewState,
   ): void {
+    const sections = document.sections;
+    const rows = document.rows;
+    const zoomY = viewState.zoomY;
     while (this.scrollLayer.firstChild !== null) {
       this.scrollLayer.removeChild(this.scrollLayer.firstChild);
     }
     // Vertical LOD: collapse the derived tree (minor -> middle -> major) as zoomY
     // shrinks so the pane hides sub-levels in lock-step with the canvas rows.
     const visible0 = orderedVisibleRows(sections, rows);
-    const visibleRows = collapseRows(visible0, classificationCollapseLevel(zoomY)).rows;
+    const collapse = collapseRows(visible0, classificationCollapseLevel(zoomY));
+    const visibleRows = collapse.rows;
     const bands = contiguousSectionBands(visibleRows, sections);
     const bandStartIndices = new Set(bands.map((band) => band.startRowIndex));
     const bandNameByStart = new Map(bands.map((band) => [band.startRowIndex, band.name]));
     const sectionIdByStart = new Map(bands.map((band) => [band.startRowIndex, band.sectionId]));
-    const bandHeight = rowBandHeight(zoomY);
+    // Rows may have DIFFERENT heights (a category row grows to stack overlapping
+    // items, item: multi-lane stacking): compute the same variable geometry the
+    // canvas uses so the pane's rows stay aligned. Items are remapped onto their
+    // DISPLAY row (matching the canvas) so per-row lane counts match.
+    const laidItems = document.items.map((item) => {
+      const displayId = collapse.rowIdToDisplayId.get(item.rowId);
+      return displayId !== undefined && displayId !== item.rowId
+        ? { ...item, rowId: displayId }
+        : item;
+    });
+    const rowGeometry = computeRowGeometry(laidItems, visibleRows, document.epochDate, viewState);
     // A middle (track) label repeats on every detail row beneath it; decorate only
     // its FIRST appearance with edit buttons so a track has one add/remove control.
     const decoratedMiddles = new Set<string>();
 
     visibleRows.forEach((row, index) => {
-      const top = rowWorldY(index, zoomY);
+      const top = rowTopAt(rowGeometry, index, zoomY);
+      const bandHeight = rowHeightAt(rowGeometry, index, zoomY);
       // Section header (大分類) sits at the top of its band, indent 0.
       if (bandStartIndices.has(index)) {
         const sectionName = bandNameByStart.get(index) ?? '';

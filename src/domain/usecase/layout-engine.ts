@@ -55,6 +55,23 @@ export function rowWorldY(rowIndex: number, zoomY: number): number {
 const MIN_ITEM_WIDTH = 8;
 
 /**
+ * Maximum stacked sub-lanes a single category row grows to accommodate
+ * time-overlapping items (raised from the earlier implicit 2 that the fixed
+ * {@link BASE_ROW_HEIGHT} band allowed). Rows with more overlapping items grow
+ * their band height so up to this many lanes are fully visible; overlap beyond the
+ * cap reuses the last lane rather than growing the band unbounded.
+ */
+export const MAX_STACK_LANES = 64;
+
+/**
+ * Fraction of a lane's height a stacked bar/glyph occupies. The ~5% gap leaves a
+ * visible boundary between two vertically-stacked items in the same lane band so
+ * adjacent stacked rectangles never look fused (item: 95% stacked bar height).
+ * Applied to every item so single-lane and multi-lane rows look consistent.
+ */
+export const STACKED_BAR_HEIGHT_RATIO = 0.95;
+
+/**
  * Compute the total number of distinct start-to-end intervals that overlap; used
  * internally to assign non-overlapping lanes greedily.
  */
@@ -92,26 +109,134 @@ function assignLanes(rowItems: readonly ScheduleItem[], epochDate: string, zoomX
   return laneByItemId;
 }
 
+/** Number of sub-lanes a row's assigned lanes occupy (0 for an empty row). */
+function laneCountOf(laneByItemId: ReadonlyMap<string, number>): number {
+  let maxLane = -1;
+  for (const lane of laneByItemId.values()) {
+    if (lane > maxLane) {
+      maxLane = lane;
+    }
+  }
+  return maxLane + 1;
+}
+
 /**
- * Lay out every item into world-space placements. Items sharing a row are
- * stacked into non-overlapping lanes; items on different rows use the row index
- * for their y band.
+ * Unscaled (zoomY = 1) band height in CSS pixels for a row that stacks
+ * `laneCount` overlapping sub-lanes. A row grows past {@link BASE_ROW_HEIGHT} once
+ * it needs more than the two lanes the base height fits, up to {@link MAX_STACK_LANES}.
+ *
+ * @param laneCount - Number of stacked sub-lanes the row uses (>= 0).
+ * @returns The band height at unit vertical zoom.
+ */
+export function rowBandUnitHeight(laneCount: number): number {
+  const lanes = Math.max(1, Math.min(MAX_STACK_LANES, laneCount));
+  const stackedHeight = lanes * BASE_LANE_HEIGHT + 2 * ROW_VERTICAL_PADDING;
+  return Math.max(BASE_ROW_HEIGHT, stackedHeight);
+}
+
+/**
+ * Per-row vertical geometry once rows may have DIFFERENT heights (a row grows to
+ * fit its stacked sub-lanes, item: multi-lane stacking to 64). `rowTops[i]` is the
+ * world-space top of row `i`'s band and `rowHeights[i]` its height (both scaled by
+ * zoomY); `totalHeight` is the world-space bottom of the last row.
+ */
+export interface RowGeometry {
+  readonly rowTops: readonly number[];
+  readonly rowHeights: readonly number[];
+  readonly laneCounts: readonly number[];
+  readonly totalHeight: number;
+}
+
+/** An empty geometry (no rows), used as a safe initial/fallback value. */
+export const EMPTY_ROW_GEOMETRY: RowGeometry = {
+  rowTops: [],
+  rowHeights: [],
+  laneCounts: [],
+  totalHeight: 0,
+};
+
+/**
+ * World-space top of a row's band, from variable-height geometry; falls back to
+ * the uniform {@link rowWorldY} for an out-of-range index or empty geometry.
+ */
+export function rowTopAt(geometry: RowGeometry, rowIndex: number, zoomY: number): number {
+  return geometry.rowTops[rowIndex] ?? rowWorldY(rowIndex, zoomY);
+}
+
+/**
+ * World-space band height of a row, from variable-height geometry; falls back to
+ * the uniform {@link rowBandHeight} for an out-of-range index or empty geometry.
+ */
+export function rowHeightAt(geometry: RowGeometry, rowIndex: number, zoomY: number): number {
+  return geometry.rowHeights[rowIndex] ?? rowBandHeight(zoomY);
+}
+
+/**
+ * World-space y of the BOUNDARY between row `index - 1` and row `index` under
+ * variable-height geometry: `boundary(0) = 0`, `boundary(count) = totalHeight`.
+ * Used to draw category gridlines / section-band tops / rounded-box edges so they
+ * follow the taller rows.
+ */
+export function rowBoundaryY(geometry: RowGeometry, index: number, zoomY: number): number {
+  const count = geometry.rowTops.length;
+  if (count === 0) {
+    return rowWorldY(index, zoomY);
+  }
+  if (index <= 0) {
+    return 0;
+  }
+  if (index >= count) {
+    return geometry.totalHeight + (index - count) * rowBandHeight(zoomY);
+  }
+  return geometry.rowTops[index] ?? rowWorldY(index, zoomY);
+}
+
+/**
+ * Row index whose band contains world y under variable-height geometry, clamped to
+ * `[0, count - 1]`. Replaces the uniform `floor(worldY / bandHeight)` so hit-test /
+ * create / move target-row resolution follows the taller rows.
+ */
+export function rowIndexAtWorldY(geometry: RowGeometry, worldY: number, zoomY: number): number {
+  const count = geometry.rowTops.length;
+  if (count === 0) {
+    return Math.max(0, Math.floor(worldY / rowBandHeight(zoomY)));
+  }
+  for (let index = 0; index < count; index += 1) {
+    const top = geometry.rowTops[index] ?? 0;
+    const height = geometry.rowHeights[index] ?? 0;
+    if (worldY < top + height) {
+      return Math.max(0, index);
+    }
+  }
+  return count - 1;
+}
+
+/** The full layout result: per-item placements plus the row-band geometry. */
+export interface LayoutResult {
+  readonly placements: ItemPlacement[];
+  readonly geometry: RowGeometry;
+}
+
+/**
+ * Lay out every item into world-space placements AND compute the per-row band
+ * geometry. Items sharing a row are stacked into non-overlapping lanes; a row that
+ * needs more than two lanes grows its band height (item: multi-lane stacking) so
+ * every stacked lane is visible and the following rows shift down to make room.
+ * Each bar/glyph is {@link STACKED_BAR_HEIGHT_RATIO} of its lane height so the
+ * boundary between stacked items is visible.
  *
  * @param items - All items to place.
  * @param rows - Rows in vertical order (index = stacking order).
  * @param epochDate - Time-axis origin.
  * @param viewState - Provides zoomX (horizontal) and zoomY (vertical).
- * @returns One placement per item, keyed for renderer consumption.
+ * @returns The placements and the row geometry.
  */
-export function layoutItems(
+export function layoutRows(
   items: readonly ScheduleItem[],
   rows: readonly Row[],
   epochDate: string,
   viewState: ViewState,
-): ItemPlacement[] {
-  const rowIndexById = new Map<string, number>();
-  rows.forEach((row, index) => rowIndexById.set(row.id, index));
-
+): LayoutResult {
   const itemsByRow = new Map<string, ScheduleItem[]>();
   for (const item of items) {
     const bucket = itemsByRow.get(item.rowId);
@@ -123,15 +248,41 @@ export function layoutItems(
   }
 
   const laneHeight = BASE_LANE_HEIGHT * viewState.zoomY;
-  const placements: ItemPlacement[] = [];
+  const barHeight = laneHeight * STACKED_BAR_HEIGHT_RATIO;
 
+  // First pass: assign lanes per row and accumulate variable band tops/heights so
+  // a tall (multi-lane) row pushes the rows below it down.
+  const laneByRow = new Map<string, Map<string, number>>();
+  const rowTopById = new Map<string, number>();
+  const rowTops: number[] = [];
+  const rowHeights: number[] = [];
+  const laneCounts: number[] = [];
+  let cursorY = 0;
+  for (const row of rows) {
+    const rowItems = itemsByRow.get(row.id);
+    const laneMap =
+      rowItems === undefined || rowItems.length === 0
+        ? new Map<string, number>()
+        : assignLanes(rowItems, epochDate, viewState.zoomX);
+    laneByRow.set(row.id, laneMap);
+    const laneCount = laneCountOf(laneMap);
+    const height = rowBandUnitHeight(laneCount) * viewState.zoomY;
+    rowTopById.set(row.id, cursorY);
+    rowTops.push(cursorY);
+    rowHeights.push(height);
+    laneCounts.push(laneCount);
+    cursorY += height;
+  }
+  const geometry: RowGeometry = { rowTops, rowHeights, laneCounts, totalHeight: cursorY };
+
+  const placements: ItemPlacement[] = [];
   for (const [rowId, rowItems] of itemsByRow) {
-    const rowIndex = rowIndexById.get(rowId);
-    if (rowIndex === undefined) {
+    const rowTop = rowTopById.get(rowId);
+    if (rowTop === undefined) {
       continue;
     }
-    const bandTop = rowWorldY(rowIndex, viewState.zoomY) + ROW_VERTICAL_PADDING;
-    const laneByItemId = assignLanes(rowItems, epochDate, viewState.zoomX);
+    const bandTop = rowTop + ROW_VERTICAL_PADDING * viewState.zoomY;
+    const laneByItemId = laneByRow.get(rowId) ?? assignLanes(rowItems, epochDate, viewState.zoomX);
 
     for (const item of rowItems) {
       const laneIndex = laneByItemId.get(item.id) ?? 0;
@@ -145,10 +296,48 @@ export function layoutItems(
         worldX: startX,
         worldWidth: Math.max(rawWidth, MIN_ITEM_WIDTH),
         worldY: bandTop + laneIndex * laneHeight,
-        worldHeight: laneHeight,
+        worldHeight: barHeight,
       });
     }
   }
 
-  return placements;
+  return { placements, geometry };
+}
+
+/**
+ * Lay out every item into world-space placements (see {@link layoutRows}).
+ *
+ * @param items - All items to place.
+ * @param rows - Rows in vertical order (index = stacking order).
+ * @param epochDate - Time-axis origin.
+ * @param viewState - Provides zoomX (horizontal) and zoomY (vertical).
+ * @returns One placement per item, keyed for renderer consumption.
+ */
+export function layoutItems(
+  items: readonly ScheduleItem[],
+  rows: readonly Row[],
+  epochDate: string,
+  viewState: ViewState,
+): ItemPlacement[] {
+  return layoutRows(items, rows, epochDate, viewState).placements;
+}
+
+/**
+ * Compute only the per-row band geometry (variable heights) without allocating the
+ * item placements. Used by the left classification pane so its rows align with the
+ * canvas rows even when a category row has grown to stack many overlapping items.
+ *
+ * @param items - All items (drives per-row lane counts).
+ * @param rows - Rows in vertical order.
+ * @param epochDate - Time-axis origin.
+ * @param viewState - Provides zoomX (lane assignment) and zoomY (heights).
+ * @returns The row geometry.
+ */
+export function computeRowGeometry(
+  items: readonly ScheduleItem[],
+  rows: readonly Row[],
+  epochDate: string,
+  viewState: ViewState,
+): RowGeometry {
+  return layoutRows(items, rows, epochDate, viewState).geometry;
 }

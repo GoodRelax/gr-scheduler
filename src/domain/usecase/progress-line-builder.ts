@@ -75,6 +75,10 @@ export interface ProgressLineVertex {
  * @param epochDate - Time-axis origin.
  * @param zoomX - Horizontal zoom multiplier.
  * @param zoomY - Vertical zoom multiplier.
+ * @param rowTopWorldY - Optional resolver for a row's world-space band top, so the
+ *   line tracks variable-height rows (multi-lane stacking). Defaults to uniform.
+ * @param rowBandHeightAt - Optional resolver for a row's world-space band height.
+ *   Defaults to uniform {@link rowBandHeight}.
  * @returns Ordered polyline vertices in world space (top axis -> rows -> bottom axis).
  */
 export function buildIlluminatedLine(
@@ -83,28 +87,32 @@ export function buildIlluminatedLine(
   epochDate: IsoDate,
   zoomX: number,
   zoomY: number,
+  rowTopWorldY: (rowIndex: number) => number = (rowIndex) => rowWorldY(rowIndex, zoomY),
+  rowBandHeightAt: (rowIndex: number) => number = () => rowBandHeight(zoomY),
 ): ProgressLineVertex[] {
   if (fronts.length === 0) {
     return [];
   }
   const ordered = [...fronts].sort((left, right) => left.rowIndex - right.rowIndex);
   const baseWorldX = dateToWorldX(baseDate, epochDate, zoomX);
-  const bandHeight = rowBandHeight(zoomY);
 
   const firstRowIndex = ordered[0]!.rowIndex;
   const lastRowIndex = ordered[ordered.length - 1]!.rowIndex;
 
   const vertices: ProgressLineVertex[] = [];
   // Top anchor: on the base axis, at the top edge of the first row's band.
-  vertices.push({ worldX: baseWorldX, worldY: rowWorldY(firstRowIndex, zoomY) });
+  vertices.push({ worldX: baseWorldX, worldY: rowTopWorldY(firstRowIndex) });
   for (const front of ordered) {
     vertices.push({
       worldX: dateToWorldX(front.frontDate, epochDate, zoomX),
-      worldY: rowWorldY(front.rowIndex, zoomY) + bandHeight / 2,
+      worldY: rowTopWorldY(front.rowIndex) + rowBandHeightAt(front.rowIndex) / 2,
     });
   }
   // Bottom anchor: back on the base axis, at the bottom edge of the last band.
-  vertices.push({ worldX: baseWorldX, worldY: rowWorldY(lastRowIndex, zoomY) + bandHeight });
+  vertices.push({
+    worldX: baseWorldX,
+    worldY: rowTopWorldY(lastRowIndex) + rowBandHeightAt(lastRowIndex),
+  });
   return vertices;
 }
 

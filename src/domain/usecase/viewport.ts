@@ -395,13 +395,21 @@ export function computeFitViewForItems(
   );
 
   // Phase 2: re-measure at the final zoomX for the true rendered left/right and the
-  // lane-inclusive content bottom, then anchor scroll to the rendered left edge.
-  // Clamp to >= 0 so world x = 0 (the schedule origin at the pane edge) stays the
-  // left bound: reserving the overhang already guarantees the right side is framed,
-  // and a negative scroll would (a) push content left of the pane and (b) shift the
-  // pointer->world calibration into a regime the editing controller does not expect.
+  // lane-inclusive content bottom, then anchor scroll so the leftmost RENDERED edge
+  // (including a milestone marker's half-width and any left-side label) sits one
+  // margin INSIDE the pane rather than flush at x = 0 -- so the earliest item (e.g. a
+  // day-0 "Kickoff" diamond, whose marker overhangs to negative world x) is fully
+  // visible with breathing room, symmetric with the right/top/bottom margins.
+  //
+  // The subtraction can yield a small NEGATIVE scrollX (the marker overhang lies left
+  // of the epoch); that is the VALID regime -- the renderer's clampTimelineScrollX
+  // permits panning back before the epoch (to the year 2000), and screenToWorld is the
+  // exact inverse of the content transform for any scrollX, so the pointer->world
+  // hit-box stays calibrated. This deliberately does NOT reintroduce the old
+  // `Math.max(0, ...)` clamp, which pinned the leftmost content to x = 0 and clipped
+  // the earliest item's left edge.
   const measured = measureItemsFitExtent(items, rows, epochDate, zoomX) ?? probe;
-  const scrollX = Math.max(0, measured.contentLeftPx - marginPx);
+  const scrollX = measured.contentLeftPx - marginPx;
 
   const topOffset = inputs.topOffsetForZoomX(zoomX);
   const usableHeight = Math.max(1, inputs.canvasSize.heightPx - topOffset - marginPx * 2);

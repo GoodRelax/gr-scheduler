@@ -87,6 +87,9 @@ export interface RoundedBoxScreenRect {
  * @param topOffsetPx - Extra downward screen offset applied to `y` so the box stays
  *   aligned with schedule rows that are themselves pushed below the date ruler
  *   (defaults to 0 for callers that render at the raw scroll origin).
+ * @param rowBoundaryWorldY - Optional resolver for the world-space y of the boundary
+ *   ABOVE a row index, so the box tracks variable-height rows (multi-lane stacking).
+ *   Defaults to the uniform {@link rowWorldY} for callers with equal-height rows.
  * @returns The screen-space rectangle plus its zoom-invariant corner radius.
  */
 export function roundedBoxScreenRect(
@@ -94,12 +97,14 @@ export function roundedBoxScreenRect(
   epochDate: IsoDate,
   viewState: ViewState,
   topOffsetPx = 0,
+  rowBoundaryWorldY: (rowIndex: number) => number = (rowIndex) =>
+    rowWorldY(rowIndex, viewState.zoomY),
 ): RoundedBoxScreenRect {
   const leftPaneWidth = resolveLeftPaneWidth(viewState.leftPaneWidth);
   const worldLeft = dateToWorldX(box.startDate, epochDate, viewState.zoomX);
   const worldRight = dateToWorldX(box.endDate, epochDate, viewState.zoomX);
-  const worldTop = rowWorldY(box.topRowIndex, viewState.zoomY);
-  const worldBottom = rowWorldY(box.bottomRowIndex + 1, viewState.zoomY);
+  const worldTop = rowBoundaryWorldY(box.topRowIndex);
+  const worldBottom = rowBoundaryWorldY(box.bottomRowIndex + 1);
   return {
     x: worldLeft - viewState.scrollX + leftPaneWidth,
     y: worldTop - viewState.scrollY + topOffsetPx,

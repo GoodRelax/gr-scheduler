@@ -78,6 +78,11 @@ export interface ItemPropertyPatch {
   readonly labelOffset?: LabelOffset;
   readonly strokeColor?: string;
   readonly fillColor?: string;
+  /**
+   * Marks {@link fillColor} as an explicit override of the plan/actual display
+   * color (set together with `fillColor` by the property panel's fill control).
+   */
+  readonly fillColorExplicit?: boolean;
 }
 
 /**

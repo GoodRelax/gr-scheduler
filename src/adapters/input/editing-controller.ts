@@ -132,6 +132,15 @@ interface CreateGesture {
   readonly rowIndex: number;
 }
 
+interface MarqueeGesture {
+  readonly mode: 'marquee';
+  readonly startWorldX: number;
+  readonly startWorldY: number;
+  /** Shift held at press: add the framed items to the current selection. */
+  readonly additive: boolean;
+  moved: boolean;
+}
+
 interface LabelGesture {
   readonly mode: 'label';
   readonly itemId: string;
@@ -163,6 +172,7 @@ type Gesture =
   | CreateGesture
   | LabelGesture
   | LinkGesture
+  | MarqueeGesture
   | AnnotationResizeGesture;
 
 /** Minimum drag distance (px) before a press is treated as a drag, not a click. */
@@ -379,6 +389,11 @@ export class EditingController {
     return this.pendingCreateShape !== null;
   }
 
+  /** Whether a pointer gesture (move/resize/create/marquee/...) is in progress (item 6). */
+  public isGestureInProgress(): boolean {
+    return this.gesture !== null;
+  }
+
   /**
    * The visible items in a stable keyboard-navigation order (WCAG 2.1.1): by row
    * (top to bottom), then start date, then id. Only items on a visible row are
@@ -541,6 +556,7 @@ export class EditingController {
       this.renderer.showAlignmentGuide(null);
       this.renderer.showCreatePreview(null);
       this.renderer.showDependencyPreview(null);
+      this.renderer.showMarquee(null);
       this.renderer.updateItems(baseline);
       return;
     }
@@ -619,9 +635,10 @@ export class EditingController {
         this.beginAnnotationGesture(event, annotationHit, world.worldX, world.worldY);
         return;
       }
-      // Empty canvas, no armed shape: let the renderer pan; clear both selections.
-      this.clearSelection();
-      this.clearAnnotationSelection();
+      // Empty canvas, no armed shape: begin a rubber-band marquee (item 3). A plain
+      // click that never drags falls back to clearing the selection (in commitMarquee);
+      // Shift makes the marquee additive. Ctrl+drag pan was already handled above.
+      this.beginMarquee(event, world.worldX, world.worldY, event.shiftKey);
       return;
     }
     this.beginItemGesture(event, hit, world.worldX, world.worldY);
@@ -673,6 +690,22 @@ export class EditingController {
       fromItemId: itemId,
       fromAnchor,
       fromWorld: anchorPoint(rect, fromAnchor),
+      moved: false,
+    };
+  }
+
+  private beginMarquee(
+    event: PointerEvent,
+    worldX: number,
+    worldY: number,
+    additive: boolean,
+  ): void {
+    this.consume(event);
+    this.gesture = {
+      mode: 'marquee',
+      startWorldX: worldX,
+      startWorldY: worldY,
+      additive,
       moved: false,
     };
   }
@@ -798,6 +831,9 @@ export class EditingController {
       case 'link':
         this.previewLink(gesture, world);
         break;
+      case 'marquee':
+        this.previewMarquee(gesture, world.worldX, world.worldY);
+        break;
       case 'annotation-resize':
         this.previewAnnotationResize(gesture, world.worldX, world.worldY);
         break;
@@ -817,6 +853,7 @@ export class EditingController {
     this.renderer.showAlignmentGuide(null);
     this.renderer.showCreatePreview(null);
     this.renderer.showDependencyPreview(null);
+    this.renderer.showMarquee(null);
     const world = this.renderer.screenToWorld(event.clientX, event.clientY);
 
     switch (gesture.mode) {
@@ -837,6 +874,9 @@ export class EditingController {
         break;
       case 'link':
         this.commitLink(gesture, event);
+        break;
+      case 'marquee':
+        this.commitMarquee(gesture, world.worldX, world.worldY);
         break;
       case 'annotation-resize':
         this.commitAnnotationResize(gesture, world.worldX, world.worldY);
@@ -1141,6 +1181,41 @@ export class EditingController {
     });
   }
 
+  // ----- marquee (rubber-band) selection --------------------------------------
+
+  private previewMarquee(gesture: MarqueeGesture, worldX: number, worldY: number): void {
+    if (
+      Math.abs(worldX - gesture.startWorldX) > DRAG_THRESHOLD_PX ||
+      Math.abs(worldY - gesture.startWorldY) > DRAG_THRESHOLD_PX
+    ) {
+      gesture.moved = true;
+    }
+    if (!gesture.moved) {
+      return;
+    }
+    this.renderer.showMarquee(marqueeWorldRect(gesture, worldX, worldY));
+  }
+
+  private commitMarquee(gesture: MarqueeGesture, worldX: number, worldY: number): void {
+    this.renderer.showMarquee(null);
+    if (!gesture.moved) {
+      // A plain click on empty canvas: clear both selections (unless Shift-additive).
+      if (!gesture.additive) {
+        this.clearSelection();
+        this.clearAnnotationSelection();
+      }
+      return;
+    }
+    const framedIds = this.renderer.itemsIntersectingWorldRect(
+      marqueeWorldRect(gesture, worldX, worldY),
+    );
+    const next = gesture.additive
+      ? new Set<string>([...this.selectedItemIds, ...framedIds])
+      : new Set<string>(framedIds);
+    this.setSelection(next);
+    log.debug('marquee_select', { framed_count: framedIds.length, additive: gesture.additive });
+  }
+
   // ----- annotation (rounded-box) resize --------------------------------------
 
   private previewAnnotationResize(
@@ -1180,9 +1255,8 @@ export class EditingController {
   ): ScheduleCommand {
     const document = gesture.baseline;
     const zoomX = this.renderer.getViewState().zoomX;
-    const zoomY = this.renderer.getViewState().zoomY;
     const date = worldXToDate(worldX, document.epochDate, zoomX);
-    const rawRowIndex = Math.max(0, Math.floor(worldY / rowBandHeight(zoomY)));
+    const rawRowIndex = Math.max(0, this.renderer.rowIndexAtWorldY(worldY));
     // Single-section constraint (user choice): a rounded box may not span sections.
     // The dragged edge is clamped into the band that holds the box's FIXED edge.
     const bands = this.sectionBands();
@@ -1266,14 +1340,16 @@ export class EditingController {
   }
 
   private rowIndexAtWorldY(worldY: number): number {
-    const band = rowBandHeight(this.liveViewState().zoomY);
-    const index = Math.floor(worldY / band);
+    // Resolve against the renderer's variable-height row geometry (item: multi-lane
+    // stacking) so a create/move targets the row actually drawn under the pointer,
+    // even when a tall (multi-lane) row shifted the ones below it down.
+    const index = this.renderer.rowIndexAtWorldY(worldY);
     const rowCount = this.visibleRows().length;
     return Math.min(Math.max(index, 0), Math.max(0, rowCount - 1));
   }
 
   private rowBandTop(rowIndex: number): number {
-    return rowIndex * rowBandHeight(this.liveViewState().zoomY) + 4;
+    return this.renderer.rowBandTopWorldY(rowIndex) + 4;
   }
 
   private rowAtIndex(rowIndex: number): Row | undefined {
@@ -1292,6 +1368,22 @@ export class EditingController {
       host?.setPointerCapture(event.pointerId);
     }
   }
+}
+
+/** The normalized world-space rectangle a marquee drag currently spans. */
+function marqueeWorldRect(
+  gesture: MarqueeGesture,
+  worldX: number,
+  worldY: number,
+): { worldX: number; worldY: number; worldWidth: number; worldHeight: number } {
+  const left = Math.min(gesture.startWorldX, worldX);
+  const top = Math.min(gesture.startWorldY, worldY);
+  return {
+    worldX: left,
+    worldY: top,
+    worldWidth: Math.abs(worldX - gesture.startWorldX),
+    worldHeight: Math.abs(worldY - gesture.startWorldY),
+  };
 }
 
 /** Trimmed non-empty string, or undefined. */

@@ -24,6 +24,7 @@ import type {
 import type { Annotation } from '../domain/model/annotation.js';
 import { fromDayNumber, toDayNumber } from '../domain/usecase/time-coordinate-mapper.js';
 import { rebuildClassification } from '../domain/usecase/classification-tree.js';
+import { TRANSPARENT_COLOR_KEY } from '../domain/model/cud-palette.js';
 
 /** Default row count for the mid-size fixture (NFR-L1-002 target ~50 rows). */
 export const DEFAULT_ROW_COUNT = 50;
@@ -107,7 +108,9 @@ export function generateTemplateDocument(): ScheduleDocument {
       abbrev: seed.abbrev,
       importance: 1,
       fillColor: seed.fill,
-      strokeColor: '#333333',
+      // No border by default (item: items have NO stroke unless one is set
+      // explicitly); a transparent stroke renders as `stroke="none"`.
+      strokeColor: TRANSPARENT_COLOR_KEY,
       majorCategory: seed.major,
       ...(seed.middle !== undefined ? { middleCategory: seed.middle } : {}),
       ...(seed.minor !== undefined ? { minorCategory: seed.minor } : {}),
@@ -297,7 +300,7 @@ export function generateSampleDocument(
       importance: 1,
       taskShape: 'bar',
       fillColor: '#4477aa',
-      strokeColor: '#28527a',
+      strokeColor: TRANSPARENT_COLOR_KEY,
       planActualKind: 'plan',
       planGroupId: groupId,
       ...showcasePath,
@@ -317,7 +320,7 @@ export function generateSampleDocument(
       importance: 1,
       taskShape: 'bar',
       fillColor: '#ee6677',
-      strokeColor: '#a3374a',
+      strokeColor: TRANSPARENT_COLOR_KEY,
       planActualKind: 'actual',
       planGroupId: groupId,
       progressRatio: 0.3 + (rowIndex % 4) * 0.2,
@@ -349,7 +352,7 @@ export function generateSampleDocument(
         ? { milestoneShape: MILESTONE_SHAPES[itemIndex % MILESTONE_SHAPES.length] as MilestoneShape }
         : { taskShape: TASK_SHAPES[itemIndex % TASK_SHAPES.length] as TaskShape }),
       fillColor,
-      strokeColor: '#333333',
+      strokeColor: TRANSPARENT_COLOR_KEY,
       ...path,
     });
   }
