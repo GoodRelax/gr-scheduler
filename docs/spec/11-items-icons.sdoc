@@ -275,3 +275,36 @@ RELATIONS:
   VALUE: STK-L0-006
 
 [[/SECTION]]
+
+[[SECTION]]
+TITLE: 6. 期限マーカー (Deadline / Target Date)
+
+[REQUIREMENT]
+UID: ITEM-L1-011
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 期限 (目標終了日) マーカーの表示
+STATEMENT: >>>
+gr-scheduler は、アイテムに任意の期限 (目標終了日) item.targetDate を持たせ、バー端 (startDate /
+endDate) とは独立した「ここまで」の目標マーカーとして当該日付位置に描画できること。
+targetDate は MSPDI の Deadline と往復すること。マーカーの具体的な形状・配置は実装時に確定
+する。
+<<<
+RATIONALE: >>>
+俯瞰日程表では、計画バーの端とは別に「守るべき期限」を一目で示したい需要がある。MS Project の
+Deadline は制約 (Constraint) と異なりスケジューラを動かさない目標線であり、スケジューラを持た
+ない gr-scheduler と相性が良い。CR-001 (承認 2026-07-19) Part C で採用する。予実の front 規則
+(PLAN-L2-001) や表示スタイル (PLAN-L1-005) とは独立の属性であり、データ形式は
+`40-data-format.sdoc` DATA-JSON-016 / DATA-MSPDI-009 を参照する。
+<<<
+VERIFICATION: >>>
+targetDate を設定したアイテムで、当該日付位置に期限マーカーがバー端と独立して描画され、保存・
+再読込後も保持されること。MSPDI へ Export すると Deadline に、Import で targetDate に往復する
+ことを確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-011
+
+[[/SECTION]]

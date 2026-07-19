@@ -11,6 +11,15 @@ STATEMENT: >>>
 イナズマ線 (progress line) によるボトルネック可視化・変更前予定のグレー表示を扱う。
 各 L1 要求はステークホルダ要求 STK-L0-011 (予実管理と遅れの可視化) を Parent で
 詳細化する。出典は `user-order.md` item54-57 と `01-stakeholder-requirements.sdoc`。
+
+予実の持ち方は CR-001 (承認 2026-07-19) で「案H」へ移行する。案H では実績を別アイテムでは
+なく同一アイテムの実績日フィールド (actualStart / actualEnd) として保持し、旧方式の
+planActualKind / planGroupId は廃止する。進捗率のみ (案P) では実績の時間ズレ (着手遅れ・
+期間変動) を表現できず日本の予実文化に不足するため採らない。案H は MSPDI の
+Baseline / Actual / PercentComplete とも素直に往復する。表示は同一データからの描画切替として
+Overlap (重ね塗り・既定) と Separate (分離) の 2 スタイルを提供する (viewState.planActualStyle)。
+データ形式契約は `40-data-format.sdoc`、依存の linkType / lagDays は `16-dependencies.sdoc`、
+期限マーカー targetDate は `11-items-icons.sdoc` を参照する。
 <<<
 
 [[SECTION]]
@@ -21,18 +30,24 @@ UID: PLAN-L1-001
 TYPE: Functional
 PRIORITY: Must
 LAYER: L1_System
-TITLE: 予定と実績を区別して表示・管理する
+TITLE: 予定と実績を同一アイテムの実績日フィールドで区別して管理する
 STATEMENT: >>>
-本システムは、各マイルストーン/タスクに予定 (計画) と実績 (結果) の日付を別々に保持し、
-両者を視覚的に区別できる表現 (例: 予実区別の様式) で表示・管理できること。
+本システムは、各マイルストーン/タスクについて、予定スパンを startDate / endDate として
+保持し、実績を同一アイテム上の実績日フィールド actualStart / actualEnd (任意。マイルストーンは
+actualEnd を null) として保持することで、実績を別アイテムに分けずに予定と実績を 1 つの
+アイテムで区別・管理できること。旧来の planActualKind / planGroupId 方式は廃止する。
 <<<
 RATIONALE: >>>
-計画と結果を同じアイテムで持ち分けることが遅れ把握の前提。予実区別はプロパティ
-(STK-L0-007) と整合する。user-order item54。
+実績を「別アイテム」ではなく「同一アイテムの実績日フィールド」で持つ案H (CR-001) を採る。
+進捗率のみでは着手遅れ・期間変動という実績の時間ズレを表せず日本の予実文化に不足する。
+同一アイテム上に予定スパンと実績日を並置することが遅れ把握の前提であり、予実区別は
+プロパティ (STK-L0-007) と整合する。actualStart / actualEnd は MSPDI の
+ActualStart / ActualFinish と往復する。user-order item54、CR-001 Part A。
 <<<
 VERIFICATION: >>>
-1 つのアイテムに予定日と実績日を別々に入力でき、キャンバス上で予定表現と実績表現が
-区別して描画されること。
+1 つのアイテムに予定日 (startDate / endDate) と実績日 (actualStart / actualEnd) を入力でき、
+別アイテムを作らずに同一アイテム上で予定表現と実績表現が区別して描画されること。
+planActualKind / planGroupId が廃止され、データに残らないこと。
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -50,12 +65,15 @@ PRIORITY: Must
 LAYER: L1_System
 TITLE: 予定のみ/実績のみ/両方の表示を切り替える
 STATEMENT: >>>
-本システムは、予実の表示状態を予定のみ・実績のみ・予定と実績の両方の 3 状態から選んで
-切り替えられ、選択した状態に応じて該当する要素のみをキャンバスへ描画すること。
+本システムは、予実の表示状態を予定のみ・実績のみ・予定と実績の両方・非表示の状態から選んで
+切り替えられ (viewState.planActualDisplay = 'plan-only' | 'actual-only' | 'both' | 'none')、
+選択した状態に応じて該当する要素のみをキャンバスへ描画すること。この可視フィルタは、予定/
+実績の描き方を決める表示スタイル (viewState.planActualStyle、PLAN-L1-005) とは独立とする。
 <<<
 RATIONALE: >>>
 計画レビューでは予定のみ、進捗確認では実績のみ、差分確認では両方、と用途で見せ方を
-変える。user-order item55。
+変える。planActualDisplay は「何を見せるか」の可視フィルタであり、「どう重ねて/分けて描くか」の
+planActualStyle (Overlap / Separate) とは役割が異なる。user-order item55、CR-001 Part A。
 <<<
 VERIFICATION: >>>
 表示状態を予定のみに切り替えると実績が非表示、実績のみで予定が非表示、両方で双方が
@@ -99,20 +117,28 @@ UID: PLAN-L2-001
 TYPE: Non-Functional
 PRIORITY: Should
 LAYER: L2_Component
-TITLE: イナズマ線レンダラの頂点算出
+TITLE: イナズマ線レンダラの頂点算出 (統一 front 規則)
 STATEMENT: >>>
-イナズマ線レンダラは、基準日と各行の実績進捗率/実績到達位置から、行ごとの折れ点
-(頂点) 座標を算出し、基準日の縦位置を軸に隣接行の頂点を順に結ぶ折れ線の頂点列を
+イナズマ線レンダラは、基準日と各アイテムの実績日/進捗率から行ごとの到達点 (front) を
+次の統一規則で算出し、基準日の縦位置を軸に隣接行の頂点を順に結ぶ折れ線の頂点列を
 生成すること。
+(1) 実績日あり: front = actualStart + progressRatio × (actualEnd − actualStart)。
+(2) 実績日なし (予定のみ): front = startDate + progressRatio × (endDate − startDate) (MSP の
+PercentComplete 相当)。
+(3) 実績日も進捗率も無い: 未着手とみなし頂点を出さない。
 <<<
 RATIONALE: >>>
-イナズマ線 (PLAN-L1-003) の内部描画ロジック。行の並び順に頂点を並べ、進捗が基準日に
-一致する行は軸上、遅れ行は過去側、先行行は未来側に頂点を置くことで折れの向きが遅れ/
-進みを表す。user-order item56。
+イナズマ線 (PLAN-L1-003) の内部描画ロジックを案H (CR-001 Part A) の統一 front 規則で
+規定する。実績日がある行は実績スパン上で、無い行は予定スパン上で到達位置を求めることで、
+案H の同一アイテムモデルから実績あり/なし両ケースを一貫して扱える。行の並び順に頂点を
+並べ、基準日に一致する行は軸上、遅れ行は過去側、先行行は未来側へ頂点を置くことで折れの
+向きが遅れ/進みを表す。user-order item56、CR-001 Part A。
 <<<
 VERIFICATION: >>>
-既知の進捗データ (遅れ行・定時行・先行行を含む) を入力に頂点列を算出し、遅れ行の頂点が
-基準日軸より過去側、先行行の頂点が未来側、定時行の頂点が軸上に置かれることを単体テストで
+実績日ありの行・実績日なし (予定のみ) の行・未着手 (実績日も進捗率も無い) の行を含む既知
+データを入力に頂点列を算出し、(1) 実績日ありの行が actualStart..actualEnd 上の front に、
+(2) 実績日なしの行が startDate..endDate 上の front に頂点を置き、(3) 未着手行は頂点を出さず、
+遅れ行の頂点が基準日軸より過去側・先行行が未来側・定時行が軸上に置かれることを単体テストで
 確認すること。
 <<<
 RELATIONS:
@@ -141,6 +167,40 @@ RATIONALE: >>>
 VERIFICATION: >>>
 アイテムの予定を変更すると、変更前の予定がグレーで、変更後の予定が通常色で並べて表示され、
 両者の差分 (計画の移動) が視認できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-011
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 5. 予実の表示スタイル (Overlap / Separate)
+
+[REQUIREMENT]
+UID: PLAN-L1-005
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 予実の描画スタイルを重ね塗り/分離で切り替える
+STATEMENT: >>>
+本システムは、同一アイテムの予定スパン (startDate / endDate) と実績日 (actualStart /
+actualEnd) を、viewState.planActualStyle により 2 つの描画スタイルで切り替えて表示できること。
+Overlap (重ね塗り、既定) では予定バーの上に実績/進捗を塗り重ねる。Separate (分離) では
+予定バーと実績バー (actualStart..actualEnd) を上下に分けて描く。いずれも同一データからの
+描画切替であり、データ設計とは独立とする。既定値は Overlap とする。
+<<<
+RATIONALE: >>>
+案H (CR-001 Part A) では実績を同一アイテムの実績日で持つため、同じデータから重ね塗りと
+分離の双方を描ける。用途に応じて、コンパクトな重ね塗り (既定) と、予定/実績を並置して
+ズレを強調する分離を選べるようにする。実装名は Overlap / Separate を用い、Opt1 / Opt2 の
+呼称は使わない。planActualStyle は描き方を決めるスタイルであり、可視フィルタの
+planActualDisplay (PLAN-L1-002) とは独立とする。CR-001 Part A。
+<<<
+VERIFICATION: >>>
+実績日を持つ同一アイテム集合に対し、viewState.planActualStyle を overlap にすると予定バー上へ
+実績/進捗が重ね塗りされ、separate にすると予定バーと実績バーが上下に分離して描かれること。
+既定 (未指定) では Overlap で描かれること。両描画が同一データから得られること。
 <<<
 RELATIONS:
 - TYPE: Parent

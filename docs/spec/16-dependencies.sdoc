@@ -250,3 +250,70 @@ RELATIONS:
   VALUE: STK-L0-010
 
 [[/SECTION]]
+
+[[SECTION]]
+TITLE: 6. 依存の種別とラグ/リード (Link Type & Lag/Lead)
+
+[TEXT]
+STATEMENT: >>>
+本節は CR-001 (承認 2026-07-19) Part C で採用した依存の属性を規定する。依存線には、始点/
+終点のどの端点同士を関係づけるかを表す種別 (linkType) と、端点間の時間オフセットを表す
+符号付き lagDays を持たせる。いずれも MSPDI の PredecessorLink と往復し、MS Project 等の
+他ツールでも解釈できる標準要素へ写す。データ形式の詳細は `40-data-format.sdoc` の DATA-JSON-015
+(JSON) および DATA-MSPDI-008 (MSPDI 往復) を参照する。
+<<<
+
+[REQUIREMENT]
+UID: DEP-L1-005
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 依存に種別 (FS/SS/FF/SF) を持たせる
+STATEMENT: >>>
+本システムは、各依存に種別 linkType を持たせ、Finish-to-Start (FS)、Start-to-Start (SS)、
+Finish-to-Finish (FF)、Start-to-Finish (SF) のいずれかを指定できること。既定は FS とする。
+linkType は MSPDI の PredecessorLink / Type (FF=0, FS=1, SF=2, SS=3) と双方向に往復すること。
+<<<
+RATIONALE: >>>
+依存は「先行終了後に後続開始 (FS)」だけでなく、同時開始 (SS)・同時終了 (FF)・先行開始後に
+後続終了 (SF) といった端点関係を持つ。種別を保持することで MS Project 等との相互運用で
+依存の意味が失われない。モデルへの追加は低コストで価値が高い。CR-001 Part C。
+<<<
+VERIFICATION: >>>
+FS/SS/FF/SF を設定した依存を MSPDI へ Export し、PredecessorLink / Type がそれぞれ 1/3/0/2 と
+なること、および当該 MSPDI を Import して同じ linkType が復元されることを単体テストで
+確認すること。未指定の依存は FS として扱われること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-010
+
+[REQUIREMENT]
+UID: DEP-L1-006
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: 依存に符号付きラグ/リード (lagDays) を持たせる
+STATEMENT: >>>
+本システムは、各依存に符号付きの lagDays を持たせ、正値をラグ (待ち時間・後続を遅らせる
+日数)、負値をリード (前倒し・後続を先行完了前に重ねて始める日数)、0 または未指定をオフセット
+なしとして表現できること。lagDays は MSPDI の PredecessorLink / LinkLag (+ LagFormat) と往復
+すること。ただし MSPDI のラグは稼働カレンダー基準で単位が可変であるのに対し、gr-scheduler は
+カレンダーを持たないため lagDays を暦日として近似し、往復で端数がずれ得ることを許容する。
+<<<
+RATIONALE: >>>
+依存には端点関係 (linkType) に加えて時間オフセットがある。例として FS+10d は先行終了の
+10 日後に後続開始 (部品調達待ち・養生・承認待ち)、FS-5d は先行終了の 5 日前に後続開始
+(ファストトラッキング) を表す。符号付き 1 フィールドで正=ラグ/負=リードを表し、MSPDI と
+往復する。カレンダー非保持による暦日近似は形式差として明示する。CR-001 Part C。
+<<<
+VERIFICATION: >>>
+lagDays に正値・負値・0 を設定した依存を MSPDI へ Export し、LinkLag と LagFormat (暦日近似) が
+符号込みで出力されること、当該 MSPDI を Import して同符号の lagDays が復元されること、暦日近似
+による許容誤差を単体テストで確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-010
+
+[[/SECTION]]

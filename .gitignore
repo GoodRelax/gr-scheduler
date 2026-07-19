@@ -22,6 +22,7 @@ build/
 .vite/
 
 # Test / E2E artifacts
+output/
 playwright-report/
 test-results/
 .nyc_output/

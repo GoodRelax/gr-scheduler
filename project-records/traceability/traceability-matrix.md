@@ -107,6 +107,34 @@ Verifies（テスト）、ResultOf（結果）。全17 `.sdoc` は `strictdoc ex
 | H-1（R3/R4） | `svg-renderer.ts`（god-object 2935行/60超メソッド）を feature seam で分割。`SvgRenderer` はオーケストレータ/ファサードに縮小（SVGルート・group所有・diffRenderライフサイクル・viewState・公開API・座標変換のみ保持）。**公開API / `data-role`・`data-*` 属性 / DOM構造・順序は不変（バイト等価）** | `render-context.ts`（RenderContext/SVG_NS/RULER_TIER_HEIGHT_PX）, `dependency-geometry.ts`, `item-geometry.ts`, `comment-geometry.ts`, `hit-tester.ts`（4系統: item→fade/edge/body/label, annotation, dependency, 優先順不変）, `layers/{grid,classification,ghost,ruler,watermark,progress-today,cursor-guide,rounded-box,comment,dependency,item}-layer.ts` | 既存 427 単体 + 82 Playwright 全緑, `render-layers.test.ts`（+19）で各レイヤ/hit-testerを疑似SVG-DOM単体検証, dev実機で19アイテム位置・色（依存#F8B500/今日#1E90FF/進捗#7B2FBF/透かし0.06 GoodRelax）不変を確認, CSP sha256再生成 |
 | M-4（R6） | 最大・最多変更ファイルの単体テスト0件（E2E依存のみ）＝「単体緑だが実機で壊れる」の構造要因を解消。分割レイヤ/hit-testerに jsdom相当（package.json凍結のため既存 left-pane 流の実DOMシム）単体テストを追加 | `tests/render-layers.test.ts`, `tests/helpers/fake-svg-dom.ts`, `tests/helpers/make-render-context.ts` | diffRender冪等性・ノード生成/除去カウント・hit-test優先順（item/label/dependency/empty/fade）を assert |
 
+## CR-001 (予実案H) 改訂トレース — 仕様先行・実装後追い
+
+CR-001（承認 2026-07-19、`change-request-001-20260719-230349.md`）の Part A/B/C を仕様先行で
+`.sdoc` へ反映済み。段階化方針（CR §8）に従い `docs/api/gr-scheduler.schema.json` と `src/**` /
+`tests/**` は本フェーズで未変更（案H実装は別セッションで schema.json + コードを同時変更し
+`tests/document-schema-conformance.test.ts` の緑を保つ）。実装状態は **pending（次セッション）**。
+DEC-003 参照。
+
+| 改訂要求/契約 | 文書 | 内容（案H） | 実装状態 |
+|---|---|---|---|
+| PLAN-L1-001 | 18-plan-actual | 実績を同一アイテムの actualStart/actualEnd で保持、planActualKind/planGroupId 廃止 | pending（次セッション） |
+| PLAN-L1-002 | 18-plan-actual | planActualDisplay（可視フィルタ）を planActualStyle と独立に明確化 | pending |
+| PLAN-L1-005（新規） | 18-plan-actual | 予実描画スタイル viewState.planActualStyle=overlap（既定）/separate | pending |
+| PLAN-L2-001 | 18-plan-actual | イナズマ線 front 統一規則（実績日あり/なし/未着手の3分岐） | pending |
+| DEP-L1-005（新規） | 16-dependencies | 依存 linkType（FS/SS/FF/SF、既定FS）、MSPDI Type と往復 | pending |
+| DEP-L1-006（新規） | 16-dependencies | 依存 符号付き lagDays（正=ラグ/負=リード）、MSPDI LinkLag と往復（暦日近似） | pending |
+| ITEM-L1-011（新規） | 11-items-icons | 期限マーカー item.targetDate、MSPDI Deadline と往復 | pending |
+| DATA-JSON-006 | 40-data-format | actualStart/actualEnd/progressRatio/previousPlan（案H） | pending |
+| DATA-JSON-008 | 40-data-format | dependency に linkType/lagDays 追加 | pending |
+| DATA-JSON-011 | 40-data-format | viewState に planActualStyle 追加 | pending |
+| DATA-JSON-015（新規） | 40-data-format | item.targetDate 期限マーカー | pending |
+| DATA-MSPDI-003 | 40-data-format | ActualStart/Finish・Baseline・PercentComplete 往復（B-4） | pending |
+| DATA-MSPDI-004 | 40-data-format | PredecessorLink Type / LinkLag（linkType/lagDays） | pending |
+| DATA-MSPDI-007（新規） | 40-data-format | Resource/Assignment（assignee, B-2）、PercentComplete（progressRatio, B-3） | pending |
+| DATA-MSPDI-008（新規） | 40-data-format | Splits/SplitPart→マルチバー（B-5）、description→Task/Notes（B-6） | pending |
+| DATA-MSPDI-009（新規） | 40-data-format | Deadline↔targetDate、Constraint は見送り | pending |
+| 実装差分（§5） | 40-data-format | schema.json/model/codec の具体差分を実装セッション向けに明記 | pending |
+
 ## 結論
 
 user-order 62項目 → 要求 → 設計 → データ契約 → テスト が一気通貫でトレースされ、**未被覆 0**。
