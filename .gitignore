@@ -40,6 +40,12 @@ Thumbs.db
 # StrictDoc generated export view
 docs/spec/output/
 
+# GitHub Pages site assembled by CI (.github/workflows/pages.yml)
+_site/
+
+# Python bytecode cache (StrictDoc config)
+__pycache__/
+
 # scratch
 scratch/
 tmp/

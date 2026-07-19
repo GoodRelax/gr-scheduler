@@ -157,7 +157,7 @@ function ensureHelpModalStylesheet(doc: Document): void {
   box-sizing: border-box;
 }
 .grsch-help-dialog {
-  width: min(880px, 96vw);
+  width: 85vw;
   max-height: 92vh;
   overflow: auto;
   background: var(--grsch-surface-strong);
@@ -194,11 +194,12 @@ function ensureHelpModalStylesheet(doc: Document): void {
   border-bottom: 1px solid var(--grsch-panel-border);
 }
 .grsch-help-columns {
-  column-count: 2;
+  column-count: 3;
   column-gap: 24px;
   padding: 12px 16px 16px;
 }
-@media (max-width: 640px) { .grsch-help-columns { column-count: 1; } }
+@media (max-width: 900px) { .grsch-help-columns { column-count: 2; } }
+@media (max-width: 620px) { .grsch-help-columns { column-count: 1; } }
 .grsch-help-section {
   break-inside: avoid;
   margin: 0 0 12px;

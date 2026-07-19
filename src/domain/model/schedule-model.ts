@@ -565,16 +565,26 @@ export interface ViewState {
   readonly activeLocale?: Locale;
   /**
    * The light / dark theme preference (SHELL/THEME batch). `'system'` (or absent)
-   * follows the OS `prefers-color-scheme`; an explicit `'light'` / `'dark'` pins
-   * the theme. A display concern like fontScale, so it is not an undoable edit; it
-   * round-trips via JSON / autosave and is mirrored to localStorage for a
-   * document-independent choice.
+   * follows the OS `prefers-color-scheme`; an explicit mode pins the theme. The two
+   * `mono-*` modes are grayscale palettes for black-and-white capture / printing. A
+   * display concern like fontScale, so it is not an undoable edit; it round-trips
+   * via JSON / autosave and is mirrored to localStorage for a document-independent
+   * choice.
    */
-  readonly themePreference?: 'light' | 'dark' | 'system';
+  readonly themePreference?: 'light' | 'dark' | 'mono-light' | 'mono-dark' | 'system';
 }
 
 /** Root aggregate for the M1 skeleton. */
 export interface ScheduleDocument {
+  /**
+   * Stable unique project identifier: a UUID (v4) minted once at document creation
+   * by the id-generator adapter (`crypto.randomUUID` at the app/adapter boundary,
+   * never in pure domain code). Optional on the type so pre-existing fixtures and
+   * legacy JSON stay valid; the JSON codec's id migration assigns a deterministic
+   * UUID on import when it is absent, so every LOADED document has a stable
+   * projectId. This is the top-level reference for the whole schedule.
+   */
+  readonly projectId?: string;
   readonly schemaVersion: number;
   readonly title: string;
   /** Time-axis origin: dates map to x relative to this epoch. */

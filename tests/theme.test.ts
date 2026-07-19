@@ -14,10 +14,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   applyThemePreference,
   installThemeStylesheet,
+  isDarkBaseMode,
+  isMonochromeMode,
   osPrefersDark,
   readStoredThemePreference,
   resolveThemeMode,
+  THEME_MODES,
   THEME_PREFERENCE_STORAGE_KEY,
+  toGrayscaleColor,
   writeStoredThemePreference,
 } from '../src/app/theme.js';
 import { generateTemplateDocument } from '../src/app/sample-data.js';
@@ -59,15 +63,57 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+describe('four theme modes', () => {
+  it('exposes the four selectable modes in order', () => {
+    expect([...THEME_MODES]).toEqual(['light', 'dark', 'mono-light', 'mono-dark']);
+  });
+
+  it('classifies monochrome and dark-based modes', () => {
+    expect(isMonochromeMode('mono-light')).toBe(true);
+    expect(isMonochromeMode('mono-dark')).toBe(true);
+    expect(isMonochromeMode('light')).toBe(false);
+    expect(isMonochromeMode('dark')).toBe(false);
+    expect(isDarkBaseMode('dark')).toBe(true);
+    expect(isDarkBaseMode('mono-dark')).toBe(true);
+    expect(isDarkBaseMode('light')).toBe(false);
+    expect(isDarkBaseMode('mono-light')).toBe(false);
+  });
+});
+
+describe('toGrayscaleColor', () => {
+  it('maps a hex color to an achromatic hex of equal luminance channels', () => {
+    const gray = toGrayscaleColor('#009e73');
+    expect(/^#([0-9a-f]{2})\1\1$/.test(gray)).toBe(true);
+  });
+
+  it('preserves alpha for rgba colors and makes the channels equal', () => {
+    const gray = toGrayscaleColor('rgba(238, 241, 245, 0.55)');
+    const match = /^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/.exec(gray);
+    expect(match).not.toBeNull();
+    expect(match![1]).toBe(match![2]);
+    expect(match![2]).toBe(match![3]);
+    expect(match![4]).toBe('0.55');
+  });
+
+  it('expands 3-digit hex and leaves unrecognized values unchanged', () => {
+    expect(toGrayscaleColor('#fff')).toBe('#ffffff');
+    expect(toGrayscaleColor('transparent')).toBe('transparent');
+  });
+});
+
 describe('installThemeStylesheet', () => {
-  it('installs one stylesheet declaring both palettes and the canvas rules (ASCII only)', () => {
+  it('installs one stylesheet declaring all palettes and the canvas rules (ASCII only)', () => {
     const { doc, styles } = createFakeDocument();
     installThemeStylesheet(doc);
     expect(styles).toHaveLength(1);
     const css = styles[0]!.textContent;
-    // Light defaults + a dark override block.
+    // Light defaults + dark + the two monochrome override blocks.
     expect(css).toContain(':root {');
     expect(css).toContain('[data-theme="dark"]');
+    expect(css).toContain('[data-theme="mono-light"]');
+    expect(css).toContain('[data-theme="mono-dark"]');
+    // Monochrome modes desaturate the whole schedule canvas.
+    expect(css).toContain('filter: grayscale(1)');
     expect(css).toContain('@media (prefers-color-scheme: dark)');
     // Core canvas variables + the element rules that consume them.
     expect(css).toContain('--grsch-canvas-bg: #ffffff');
@@ -97,6 +143,8 @@ describe('resolveThemeMode', () => {
   it('uses an explicit preference verbatim', () => {
     expect(resolveThemeMode('light')).toBe('light');
     expect(resolveThemeMode('dark')).toBe('dark');
+    expect(resolveThemeMode('mono-light')).toBe('mono-light');
+    expect(resolveThemeMode('mono-dark')).toBe('mono-dark');
   });
 
   it('follows the OS preference for "system"', () => {
@@ -131,6 +179,22 @@ describe('applyThemePreference', () => {
     expect('theme' in root.dataset).toBe(false);
     expect(root.style.colorScheme).toBe('light');
   });
+
+  it('pins the mono-dark attribute and a dark color-scheme', () => {
+    const { doc, root } = createFakeDocument();
+    const mode = applyThemePreference(doc, 'mono-dark');
+    expect(mode).toBe('mono-dark');
+    expect(root.dataset.theme).toBe('mono-dark');
+    expect(root.style.colorScheme).toBe('dark');
+  });
+
+  it('pins the mono-light attribute and a light color-scheme', () => {
+    const { doc, root } = createFakeDocument();
+    const mode = applyThemePreference(doc, 'mono-light');
+    expect(mode).toBe('mono-light');
+    expect(root.dataset.theme).toBe('mono-light');
+    expect(root.style.colorScheme).toBe('light');
+  });
 });
 
 describe('theme preference persistence', () => {
@@ -155,8 +219,22 @@ describe('theme preference persistence', () => {
   });
 });
 
+describe('theme preference persistence accepts the mono modes', () => {
+  it('round-trips mono-light / mono-dark through localStorage', () => {
+    const backing = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => backing.get(key) ?? null,
+      setItem: (key: string, value: string) => backing.set(key, value),
+    });
+    writeStoredThemePreference('mono-light');
+    expect(readStoredThemePreference()).toBe('mono-light');
+    writeStoredThemePreference('mono-dark');
+    expect(readStoredThemePreference()).toBe('mono-dark');
+  });
+});
+
 describe('themePreference round-trips through the JSON codec', () => {
-  for (const preference of ['light', 'dark', 'system'] as const) {
+  for (const preference of ['light', 'dark', 'mono-light', 'mono-dark', 'system'] as const) {
     it(`preserves themePreference = ${preference} on export/import`, () => {
       const base = generateTemplateDocument();
       const document = {

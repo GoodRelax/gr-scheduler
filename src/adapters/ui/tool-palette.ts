@@ -5,10 +5,11 @@
  * The app previously showed TWO floating panels -- the command palette and a
  * separate shape "Tools" palette -- which overlapped and were hard to read (user
  * feedback). They are now ONE palette: this module appends the shape-arming
- * controls (milestone / task pickers), the armed-state readout and the Undo/Redo
- * buttons as additional command groups inside the existing command toolbar, so
- * there is a single `role="toolbar"` landmark and no overlap. It owns no position,
- * translucency, role or drag behavior -- those belong to the host palette.
+ * controls (milestone / task pickers) and the armed-state readout as additional
+ * command groups inside the existing command toolbar, so there is a single
+ * `role="toolbar"` landmark and no overlap. Undo / Redo were relocated to the
+ * header (SHELL batch item 4). It owns no position, translucency, role or drag
+ * behavior -- those belong to the host palette.
  *
  * - i18n labels (PROP-L1-003): captions/buttons localize to the active UI locale;
  *   {@link ToolPaletteHandle.setLocale} re-localizes in place.
@@ -24,14 +25,10 @@ import { paletteShapeAccessibleName } from '../../domain/usecase/accessible-name
 /** Callbacks the palette invokes on user action. */
 export interface ToolPaletteHandlers {
   readonly onArmShape: (shape: PendingCreateShape) => void;
-  readonly onUndo: () => void;
-  readonly onRedo: () => void;
 }
 
 /** The control surface returned by {@link mountShapePicker}. */
 export interface ToolPaletteHandle {
-  /** Enable/disable the Undo/Redo buttons from the store's history state. */
-  readonly updateHistoryState: (canUndo: boolean, canRedo: boolean) => void;
   /** Re-localize all shape-picker text to a new active UI locale (PROP-L1-003). */
   readonly setLocale: (locale: Locale) => void;
 }
@@ -97,15 +94,6 @@ export function mountShapePicker(
     setArmed(`${uiLabel('task', locale)} ${shape}`);
   });
 
-  const historyGroup = makeGroup('');
-  const undoButton = makeButton('', handlers.onUndo);
-  const redoButton = makeButton('', handlers.onRedo);
-  localizers.push((active) => {
-    undoButton.textContent = uiLabel('undo', active);
-    redoButton.textContent = uiLabel('redo', active);
-  });
-  historyGroup.append(undoButton, redoButton);
-
   const armedGroup = makeGroup('');
   armedGroup.appendChild(armedLabel);
 
@@ -118,7 +106,7 @@ export function mountShapePicker(
   shapesRow.style.flexWrap = 'nowrap';
   shapesRow.append(milestoneGroup, taskGroup);
 
-  const groups = [shapesRow, armedGroup, historyGroup];
+  const groups = [shapesRow, armedGroup];
   for (const group of groups) {
     container.insertBefore(group, beforeNode);
   }
@@ -129,10 +117,6 @@ export function mountShapePicker(
   }
 
   return {
-    updateHistoryState: (canUndo, canRedo) => {
-      undoButton.disabled = !canUndo;
-      redoButton.disabled = !canRedo;
-    },
     setLocale: (next) => {
       locale = next;
       for (const localize of localizers) {

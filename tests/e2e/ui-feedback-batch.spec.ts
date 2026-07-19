@@ -156,9 +156,13 @@ test.describe('ui feedback batch', () => {
     const box = await bar.boundingBox();
     await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
     await expect(page.locator('svg [data-role="selection-outline"]')).toHaveCount(1);
-    const nameInput = page.getByRole('textbox', { name: /User name/ });
-    await nameInput.click();
-    await nameInput.press('Control+a');
+    // Focus a real text field in the properties panel (the watermark user-name box
+    // was removed in the SHELL batch); Ctrl+A must be swallowed by the input.
+    const textField = page
+      .locator('[role="region"][aria-label="Properties"] input[type="text"]')
+      .first();
+    await textField.click();
+    await textField.press('Control+a');
     await expect(page.locator('svg [data-role="selection-outline"]')).toHaveCount(1);
   });
 

@@ -31,6 +31,7 @@ import {
   safeJsonParse,
 } from './import-sanitizer.js';
 import { isValidColorValue } from './color-validator.js';
+import { assignMissingIds, isUuidLike } from './id-migration.js';
 import { classificationImportError } from './classification-tree.js';
 import { toDayNumber } from './time-coordinate-mapper.js';
 import {
@@ -375,6 +376,12 @@ export function validateScheduleDocument(raw: unknown): ScheduleDocument {
     fail('$', 'must be an object');
   }
   requireNumber(raw['schemaVersion'], 'schemaVersion');
+  // projectId is optional on the wire (legacy docs omit it); when present it must be
+  // a UUID-shaped string. The deserialize pipeline back-fills a deterministic UUID
+  // before validation, so a loaded document always carries a valid projectId.
+  if (raw['projectId'] !== undefined && !isUuidLike(raw['projectId'])) {
+    fail('projectId', 'must be a UUID string');
+  }
   requireString(raw['title'], 'title');
   requireString(raw['epochDate'], 'epochDate');
 
@@ -449,7 +456,10 @@ export function deserializeScheduleDocument(jsonText: string): ScheduleDocument 
   if (!isRecord(parsed)) {
     throw new ImportRejectedError('Top-level JSON value must be an object');
   }
-  const migrated = migrateToCurrent(parsed);
+  // Migrate the schemaVersion, then back-fill any missing project / element ids so a
+  // legacy or hand-authored document without ids loads with stable unique ids
+  // (DATA-JSON-001); existing ids are preserved so references keep resolving.
+  const migrated = assignMissingIds(migrateToCurrent(parsed));
   return reconcileItemDependencyArrays(validateScheduleDocument(migrated));
 }
 

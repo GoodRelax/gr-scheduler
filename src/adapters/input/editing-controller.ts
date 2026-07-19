@@ -24,6 +24,7 @@ import type {
   ViewState,
 } from '../../domain/model/schedule-model.js';
 import { DEFAULT_FILL_COLOR, DEFAULT_STROKE_COLOR } from '../../domain/model/cud-palette.js';
+import { generateUniqueShortId } from '../id/id-generator.js';
 import type { ScheduleStore } from '../../domain/command/schedule-store.js';
 import {
   addDependencyCommand,
@@ -220,7 +221,6 @@ export class EditingController {
   private pendingCreateShape: PendingCreateShape | null = null;
   private gesture: Gesture | null = null;
   private activePointerId: number | null = null;
-  private nextItemSerial = 0;
   private nextDependencySerial = 0;
   private linkMode = false;
   /**
@@ -693,7 +693,7 @@ export class EditingController {
     const startDate =
       selected?.startDate ?? worldXToDate(viewportCenterWorldX, epochDate, zoomX);
     const startDay = toDayNumber(startDate);
-    const id = `item-key-${Date.now()}-${this.nextItemSerial++}`;
+    const id = this.newItemId();
     const base = {
       id,
       rowId,
@@ -1292,6 +1292,15 @@ export class EditingController {
     log.debug('item_created', { item_id: item.id, item_kind: item.itemKind });
   }
 
+  /**
+   * Mint a short unique item id (8-char `[A-Za-z0-9]`) via the id-generator seam,
+   * guaranteed not to collide with any id already in the document.
+   */
+  private newItemId(): string {
+    const existingIds = new Set(this.store.getDocument().items.map((item) => item.id));
+    return generateUniqueShortId(existingIds);
+  }
+
   private buildNewItem(
     gesture: CreateGesture,
     startDate: string,
@@ -1299,7 +1308,7 @@ export class EditingController {
     epochDate: string,
     zoomX: number,
   ): ScheduleItem {
-    const id = `item-new-${Date.now()}-${this.nextItemSerial++}`;
+    const id = this.newItemId();
     const base = {
       id,
       rowId: gesture.rowId,

@@ -84,10 +84,11 @@ test.describe('layout mock conformance: floating palette + full-viewport canvas'
       .poll(async () => backgroundAlpha(page, '[data-role="command-palette"]'))
       .toBeGreaterThan(0.9);
 
-    // Focusing a control also makes the whole palette opaque (:focus-within),
-    // so keyboard users read it at full contrast even without a pointer.
+    // Focusing a control INSIDE the palette makes the whole palette opaque
+    // (:focus-within), so keyboard users read it at full contrast even without a
+    // pointer. (Document File I/O now lives in the header; the icon import stays.)
     await page.mouse.move(0, 0);
-    await page.getByRole('button', { name: 'Export JSON' }).focus();
+    await palette.getByRole('button', { name: 'Import icon' }).focus();
     await expect
       .poll(async () => backgroundAlpha(page, '[data-role="command-palette"]'))
       .toBeGreaterThan(0.9);

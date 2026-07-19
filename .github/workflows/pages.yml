@@ -1,0 +1,93 @@
+# Build and deploy the gr-scheduler site to GitHub Pages.
+#
+# Published layout (artifact root = https://goodrelax.github.io/gr-scheduler/):
+#   /                -> single-file app (dist/index.html)
+#   /spec/           -> StrictDoc .sdoc sources (from docs/spec)
+#   /spec-html/      -> StrictDoc HTML render of docs/spec
+#   /api /dev /mock /security  -> the rest of docs/
+#
+# No generated file is committed to the repo; this workflow assembles the site
+# from source on every push to main and deploys it as a Pages artifact.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least-privilege token required by actions/deploy-pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; do not cancel an in-flight production deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build single-file app
+        run: npm run build # -> dist/index.html
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install StrictDoc (pinned to latest stable)
+        run: pip install "strictdoc==0.27.0"
+
+      - name: Render StrictDoc spec to HTML
+        # Config (project features, grammar) is read from docs/spec itself;
+        # scoping the export to docs/spec keeps the output gr-scheduler-only.
+        run: strictdoc export docs/spec --output-dir build/strictdoc # -> build/strictdoc/html
+
+      - name: Assemble Pages site
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          # 1) Publish everything under docs/ (spec sources, api, dev, mock, security).
+          cp -r docs/. _site/
+          # 2) Drop Python bytecode caches so they are never served.
+          find _site -type d -name __pycache__ -prune -exec rm -rf {} +
+          # 3) App entry point at the site root -> https://<owner>.github.io/gr-scheduler/
+          cp dist/index.html _site/index.html
+          # 4) Rendered spec at /spec-html/ (StrictDoc writes HTML into <out>/html).
+          rm -rf _site/spec-html
+          mkdir -p _site/spec-html
+          cp -r build/strictdoc/html/. _site/spec-html/
+          # 5) Disable Jekyll so underscore dirs (_static, _assets) are served.
+          touch _site/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

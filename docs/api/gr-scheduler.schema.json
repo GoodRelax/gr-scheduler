@@ -1,0 +1,245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goodrelax.dev/gr-scheduler/gr-scheduler.schema.json",
+  "title": "gr-scheduler ScheduleDocument",
+  "description": "Single source of truth for the exported gr-scheduler document JSON. Describes EXACTLY what src/domain/usecase/json-codec.ts serializes and accepts (DATA-JSON-001..013). The serializer additionally projects each item's predecessorItemIds/successorItemIds arrays from the canonical dependency edge list; the deserializer accepts them and folds them back into that edge list.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["projectId", "schemaVersion", "title", "epochDate", "viewState", "sections", "rows", "items"],
+  "properties": {
+    "projectId": {
+      "description": "Stable unique project identifier (UUID v4). Minted at creation by the id-generator adapter; back-filled deterministically on import when absent.",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "schemaVersion": {
+      "description": "Document schema version this build writes and migrates up to.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "title": { "type": "string" },
+    "epochDate": {
+      "description": "Time-axis origin ISO-8601 calendar date.",
+      "type": "string"
+    },
+    "viewState": { "$ref": "#/$defs/viewState" },
+    "sections": { "type": "array", "items": { "$ref": "#/$defs/section" } },
+    "rows": { "type": "array", "items": { "$ref": "#/$defs/row" } },
+    "items": { "type": "array", "items": { "$ref": "#/$defs/item" } },
+    "declaredCategories": { "type": "array", "items": { "$ref": "#/$defs/declaredCategory" } },
+    "classificationNodeStates": { "type": "array", "items": { "$ref": "#/$defs/classificationNodeState" } },
+    "dependencies": { "type": "array", "items": { "$ref": "#/$defs/dependency" } },
+    "annotations": { "type": "array", "items": { "$ref": "#/$defs/annotation" } },
+    "assets": { "type": "array", "items": { "$ref": "#/$defs/asset" } }
+  },
+  "$defs": {
+    "isoDate": { "type": "string" },
+    "color": {
+      "description": "A CSS color literal (hex / rgb() / named palette color); external paint refs are rejected by the codec.",
+      "type": "string"
+    },
+    "anchorIndex": {
+      "description": "9-point bounding-box anchor (0 top-left .. 8 bottom-right).",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "viewState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["zoomX", "zoomY", "scrollX", "scrollY", "fontScale"],
+      "properties": {
+        "zoomX": { "type": "number" },
+        "zoomY": { "type": "number" },
+        "scrollX": { "type": "number" },
+        "scrollY": { "type": "number" },
+        "fontScale": { "enum": ["S", "M", "L"] },
+        "leftPaneWidth": { "type": "number" },
+        "planActualDisplay": { "enum": ["plan-only", "actual-only", "both", "none"] },
+        "todayLineVisible": { "type": "boolean" },
+        "gridDateLinesVisible": { "type": "boolean" },
+        "gridCategoryLinesVisible": { "type": "boolean" },
+        "progressLineVisible": { "type": "boolean" },
+        "progressLineColor": { "$ref": "#/$defs/color" },
+        "dualCursor": { "$ref": "#/$defs/dualCursor" },
+        "cursorGuideMode": { "enum": ["none", "crosshair", "single-vertical", "double-vertical"] },
+        "watermark": { "$ref": "#/$defs/watermark" },
+        "activeLocale": { "enum": ["en", "ja"] },
+        "themePreference": { "enum": ["light", "dark", "mono-light", "mono-dark", "system"] }
+      }
+    },
+    "cursorState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["atDate", "mode"],
+      "properties": {
+        "atDate": { "$ref": "#/$defs/isoDate" },
+        "mode": { "enum": ["vertical-line", "crosshair"] }
+      }
+    },
+    "dualCursor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "secondary"],
+      "properties": {
+        "primary": { "$ref": "#/$defs/cursorState" },
+        "secondary": { "$ref": "#/$defs/cursorState" },
+        "visible": { "type": "boolean" }
+      }
+    },
+    "watermark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "userName", "timestamp"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "userName": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "hideHash": { "type": "string" }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "order", "rowIds"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "order": { "type": "number" },
+        "rowIds": { "type": "array", "items": { "type": "string" } },
+        "collapsed": { "type": "boolean" }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sectionId", "classificationLabel", "order"],
+      "properties": {
+        "id": { "type": "string" },
+        "sectionId": { "type": "string" },
+        "classificationLabel": { "type": "string" },
+        "subClassificationLabel": { "type": "string" },
+        "order": { "type": "number" },
+        "majorLabel": { "type": "string" },
+        "middleLabel": { "type": "string" },
+        "minorLabel": { "type": "string" },
+        "depth": { "enum": [0, 1, 2] }
+      }
+    },
+    "labelOffset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dx", "dy"],
+      "properties": {
+        "dx": { "type": "number" },
+        "dy": { "type": "number" }
+      }
+    },
+    "previousPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startDate", "endDate"],
+      "properties": {
+        "startDate": { "$ref": "#/$defs/isoDate" },
+        "endDate": { "type": ["string", "null"] }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "rowId", "itemKind", "startDate", "endDate", "abbrev", "importance", "fillColor", "strokeColor"],
+      "properties": {
+        "id": { "type": "string" },
+        "rowId": { "type": "string" },
+        "itemKind": { "enum": ["milestone", "task"] },
+        "startDate": { "$ref": "#/$defs/isoDate" },
+        "endDate": { "type": ["string", "null"] },
+        "abbrev": { "type": "string" },
+        "importance": { "type": "number" },
+        "milestoneShape": { "enum": ["circle", "triangle", "square", "diamond", "star"] },
+        "taskShape": { "enum": ["bar", "arrow", "chevron", "span"] },
+        "iconShapeKind": { "enum": ["circle", "triangle", "square", "diamond", "star", "bar", "arrow", "chevron", "span"] },
+        "fadeInDays": { "type": "number", "minimum": 0 },
+        "fadeOutDays": { "type": "number", "minimum": 0 },
+        "fillColor": { "$ref": "#/$defs/color" },
+        "fillColorExplicit": { "type": "boolean" },
+        "strokeColor": { "$ref": "#/$defs/color" },
+        "fullName": { "type": "string" },
+        "description": { "type": "string" },
+        "majorCategory": { "type": "string" },
+        "middleCategory": { "type": "string" },
+        "minorCategory": { "type": "string" },
+        "assignee": { "type": "string" },
+        "status": { "type": "string" },
+        "remarks": { "type": "string" },
+        "planActualKind": { "enum": ["plan", "actual"] },
+        "planGroupId": { "type": "string" },
+        "progressRatio": { "type": "number" },
+        "previousPlan": { "$ref": "#/$defs/previousPlan" },
+        "lineWeight": { "enum": ["thin", "medium", "thick"] },
+        "labelPosition": { "enum": ["auto", "center", "top", "bottom", "right", "left"] },
+        "labelOffset": { "$ref": "#/$defs/labelOffset" },
+        "importedAssetId": { "type": "string" },
+        "predecessorItemIds": { "type": "array", "items": { "type": "string" } },
+        "successorItemIds": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fromItemId", "fromAnchor", "toItemId", "toAnchor"],
+      "properties": {
+        "id": { "type": "string" },
+        "fromItemId": { "type": "string" },
+        "fromAnchor": { "$ref": "#/$defs/anchorIndex" },
+        "toItemId": { "type": "string" },
+        "toAnchor": { "$ref": "#/$defs/anchorIndex" },
+        "bends": { "type": "number" },
+        "strokeColor": { "$ref": "#/$defs/color" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "assetFormat", "sanitizedDataUri"],
+      "properties": {
+        "id": { "type": "string" },
+        "assetFormat": { "enum": ["svg", "png"] },
+        "sanitizedDataUri": { "type": "string", "pattern": "^data:" }
+      }
+    },
+    "declaredCategory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["major"],
+      "properties": {
+        "major": { "type": "string" },
+        "middle": { "type": "string" },
+        "minor": { "type": "string" }
+      }
+    },
+    "classificationNodeState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["major"],
+      "properties": {
+        "major": { "type": "string" },
+        "middle": { "type": "string" },
+        "minor": { "type": "string" },
+        "sortIndex": { "type": "number" },
+        "hidden": { "type": "boolean" }
+      }
+    },
+    "annotation": {
+      "description": "A free canvas annotation: a callout-box / polyline comment, or a rounded-box enclosure. The variant shape is enforced by the model's discriminated union at the consumer; the codec validates only the common fields, so this schema keeps annotations open (additionalProperties true).",
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "annotationKind"],
+      "properties": {
+        "id": { "type": "string" },
+        "annotationKind": { "enum": ["callout-box", "polyline", "rounded-box"] },
+        "strokeColor": { "$ref": "#/$defs/color" }
+      }
+    }
+  }
+}

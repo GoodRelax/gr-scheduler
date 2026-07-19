@@ -30,6 +30,17 @@ import { TRANSPARENT_COLOR_KEY } from '../domain/model/cud-palette.js';
 export const DEFAULT_ROW_COUNT = 50;
 
 /**
+ * Fixed project id for the starter TEMPLATE fixture, so the deterministic template
+ * stays byte-stable across sessions and tests. The real app boundary
+ * (`loadInitialDocument`) overrides this with a freshly minted UUID for a genuinely
+ * new project.
+ */
+export const TEMPLATE_PROJECT_ID = '00000000-0000-4000-8000-000000000001';
+
+/** Fixed project id for the mid-size deterministic BENCHMARK fixture. */
+export const SAMPLE_PROJECT_ID = '00000000-0000-4000-8000-000000000002';
+
+/**
  * A small, clean starter template shown on app startup (fix 6b). Unlike the
  * mid-size benchmark fixture, this is a curated set of a dozen items spread across
  * THREE sections (大分類) with a mix of track (中分類) and detail (小分類) rows, so
@@ -38,9 +49,12 @@ export const DEFAULT_ROW_COUNT = 50;
  * also exercises a plan/actual pair, a couple of milestones, a rounded-box
  * enclosure, comments and a dependency.
  *
+ * @param projectId - The project UUID to stamp on the document; defaults to the
+ *   fixed {@link TEMPLATE_PROJECT_ID} so the fixture is deterministic. The app
+ *   boundary passes a freshly minted UUID for a genuinely new project.
  * @returns A compact, fully derived ScheduleDocument suitable as the blank canvas.
  */
-export function generateTemplateDocument(): ScheduleDocument {
+export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID): ScheduleDocument {
   const epoch = toDayNumber(EPOCH_DATE);
   const day = (offset: number): string => fromDayNumber(epoch + offset);
 
@@ -159,6 +173,7 @@ export function generateTemplateDocument(): ScheduleDocument {
   ];
 
   const rawDocument: ScheduleDocument = {
+    projectId,
     schemaVersion: 1,
     title: 'gr-scheduler template',
     epochDate: EPOCH_DATE,
@@ -179,6 +194,42 @@ export function generateTemplateDocument(): ScheduleDocument {
     items,
     dependencies,
     annotations,
+  };
+  return rebuildClassification(rawDocument);
+}
+
+/**
+ * Build a fresh, EMPTY schedule document (SHELL file-ops "All Clear"). No items,
+ * dependencies or annotations; the classification tree is re-derived from the (now
+ * empty) item set by {@link rebuildClassification}, leaving a clean editable canvas.
+ *
+ * @param projectId - The project id for the new document (mint a fresh UUID).
+ * @returns An empty, ready-to-edit ScheduleDocument.
+ */
+export function generateEmptyDocument(projectId: string = TEMPLATE_PROJECT_ID): ScheduleDocument {
+  const sections: Section[] = [];
+  const rawDocument: ScheduleDocument = {
+    projectId,
+    schemaVersion: 1,
+    title: 'gr-scheduler',
+    epochDate: EPOCH_DATE,
+    viewState: {
+      zoomX: 1,
+      zoomY: 1,
+      scrollX: 0,
+      scrollY: 0,
+      fontScale: 'M',
+      leftPaneWidth: 200,
+      planActualDisplay: 'both',
+      todayLineVisible: true,
+      gridDateLinesVisible: true,
+      gridCategoryLinesVisible: true,
+    },
+    sections,
+    rows: [],
+    items: [],
+    dependencies: [],
+    annotations: [],
   };
   return rebuildClassification(rawDocument);
 }
@@ -242,11 +293,14 @@ function pathForBucket(sectionIndex: number, positionInSection: number, bucketIn
  *
  * @param itemCount - Number of items to distribute across the leaf buckets.
  * @param rowCount - Approximate number of leaf buckets (defaults to ~50).
+ * @param projectId - The project UUID to stamp on the document; defaults to the
+ *   fixed {@link SAMPLE_PROJECT_ID} so the benchmark fixture stays deterministic.
  * @returns A fully formed ScheduleDocument fixture.
  */
 export function generateSampleDocument(
   itemCount: number = DEFAULT_ITEM_COUNT,
   rowCount: number = DEFAULT_ROW_COUNT,
+  projectId: string = SAMPLE_PROJECT_ID,
 ): ScheduleDocument {
   const random = createSeededRandom(0x9e3779b1);
   const epochDayNumber = toDayNumber(EPOCH_DATE);
@@ -408,6 +462,7 @@ export function generateSampleDocument(
   }
 
   const rawDocument: ScheduleDocument = {
+    projectId,
     schemaVersion: 1,
     title: `gr-scheduler sample (${rowCount} rows / ${itemCount} items)`,
     epochDate: EPOCH_DATE,

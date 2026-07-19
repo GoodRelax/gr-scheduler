@@ -55,9 +55,10 @@ test.describe('gr-scheduler UI fixes', () => {
     const palette = page.locator('[data-role="command-palette"]');
     // The shape picker now lives INSIDE that one palette (no separate panel).
     await expect(palette.getByRole('button', { name: 'Task bar' })).toHaveCount(1);
-    await expect(palette.getByRole('button', { name: 'Undo' })).toHaveCount(1);
-    // Command handlers stay reachable within the same palette.
-    await expect(palette.getByRole('button', { name: 'Export JSON' })).toHaveCount(1);
+    // Undo moved to the header (SHELL item 4); it is NOT in the palette anymore.
+    await expect(palette.getByRole('button', { name: 'Undo' })).toHaveCount(0);
+    await expect(page.locator('[data-role="app-header"] button[data-role="undo"]')).toHaveCount(1);
+    // The icon-asset import stays reachable within the palette.
     await expect(palette.getByRole('button', { name: 'Import icon' })).toHaveCount(1);
     // No lingering second toolbar from the old shape palette.
     await expect(page.locator('[data-role="tool-palette"]')).toHaveCount(0);
@@ -68,7 +69,7 @@ test.describe('gr-scheduler UI fixes', () => {
   }) => {
     await openApp(page);
     const palette = page.locator('[data-role="command-palette"]');
-    const fileGroupButton = palette.getByRole('button', { name: 'Export JSON' });
+    const fileGroupButton = palette.getByRole('button', { name: 'Import icon' });
     const minimize = page.getByRole('button', { name: 'Minimize toolbar' });
     await expect(fileGroupButton).toBeVisible();
     const expandedWidth = (await palette.boundingBox())?.width ?? 0;

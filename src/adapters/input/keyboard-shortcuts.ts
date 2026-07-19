@@ -97,7 +97,8 @@ function pasteClipboard(context: ShortcutContext): void {
   if (!context.clipboard.hasContent()) {
     return;
   }
-  const clones = context.clipboard.createPasteClones();
+  const existingItemIds = new Set(context.store.getDocument().items.map((item) => item.id));
+  const clones = context.clipboard.createPasteClones(existingItemIds);
   context.store.dispatch(pasteItemsCommand(clones));
   context.controller.setSelection(new Set(clones.map((clone) => clone.id)));
   log.debug('clipboard_paste', { pasted_count: clones.length });

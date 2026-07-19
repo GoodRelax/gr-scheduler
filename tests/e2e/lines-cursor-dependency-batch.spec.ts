@@ -99,7 +99,7 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
     await assertMode('double-vertical', 2, SHOCKING_GREEN);
 
     // Dark theme: the bright accents must still render with the same stroke + count.
-    await page.locator('button[data-role="toggle-theme"]').click();
+    await page.locator('button[data-role="theme-mode"][data-theme-mode="dark"]').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await assertMode('crosshair', 2, SHOCKING_PINK);
     await assertMode('single-vertical', 1, SHOCKING_PINK);

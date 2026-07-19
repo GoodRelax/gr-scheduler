@@ -6,6 +6,7 @@ import type { ScheduleDocument } from '../src/domain/model/schedule-model.js';
 
 function makeDocument(): ScheduleDocument {
   return {
+    projectId: '55555555-5555-4555-8555-555555555555',
     schemaVersion: CURRENT_SCHEMA_VERSION,
     title: 'Vehicle A Program',
     epochDate: '2026-01-01',

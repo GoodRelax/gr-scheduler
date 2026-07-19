@@ -32,6 +32,7 @@ function makeRichDocument(): ScheduleDocument {
     },
   ];
   return {
+    projectId: '11111111-1111-4111-8111-111111111111',
     schemaVersion: CURRENT_SCHEMA_VERSION,
     title: 'Vehicle A Program',
     epochDate: '2026-01-01',
@@ -107,6 +108,7 @@ describe('json-codec round-trip (IO-L1-001, DATA-JSON-013)', () => {
 /** A minimal document carrying one faded task, for fade-field coverage. */
 function makeFadedTaskDocument(fadeInDays: number, fadeOutDays: number): ScheduleDocument {
   return {
+    projectId: '22222222-2222-4222-8222-222222222222',
     schemaVersion: CURRENT_SCHEMA_VERSION,
     title: 'Fade fixture',
     epochDate: '2026-01-01',

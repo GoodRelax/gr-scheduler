@@ -37,8 +37,12 @@ test.describe('shell / branding / theme batch (e2e, trusted events)', () => {
     const help = page.locator('button[data-role="open-help"]');
 
     await expect(branding).toContainText('GR Scheduler');
-    await expect(branding).toContainText('© 2026 GoodRelax.');
-    await expect(branding).toContainText('Apache License 2.0');
+    await expect(branding).toContainText('(c) GoodRelax. Apache License 2.0');
+    // The copyright/license line links to the GitHub repository (new tab, noopener).
+    const repoLink = branding.locator('a[data-role="app-repo-link"]');
+    await expect(repoLink).toHaveAttribute('href', 'https://github.com/GoodRelax/gr-scheduler');
+    await expect(repoLink).toHaveAttribute('target', '_blank');
+    await expect(repoLink).toHaveAttribute('rel', /noopener/);
     await expect(title).toBeVisible();
     await expect(help).toHaveText('?');
     await expect(help).toHaveAttribute('aria-label', 'Help');
@@ -96,7 +100,7 @@ test.describe('shell / branding / theme batch (e2e, trusted events)', () => {
     const canvas = page.locator('svg[data-role="schedule-canvas"]');
     const lightBg = await canvas.evaluate((node) => getComputedStyle(node).backgroundColor);
 
-    await page.locator('button[data-role="toggle-theme"]').click();
+    await page.locator('button[data-role="theme-mode"][data-theme-mode="dark"]').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     const darkBg = await canvas.evaluate((node) => getComputedStyle(node).backgroundColor);
     expect(darkBg).not.toBe(lightBg);
@@ -119,7 +123,7 @@ test.describe('shell / branding / theme batch (e2e, trusted events)', () => {
 
   test('axe AA passes in dark mode', async ({ page }) => {
     await openApp(page);
-    await page.locator('button[data-role="toggle-theme"]').click();
+    await page.locator('button[data-role="theme-mode"][data-theme-mode="dark"]').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
     const results = await new AxeBuilder({ page })
@@ -167,22 +171,23 @@ test.describe('shell / branding / theme batch (e2e, trusted events)', () => {
     );
   });
 
-  test('the properties panel renders English labels even under a non-English UI locale', async ({
+  test('the properties panel renders English property names (app is English-only)', async ({
     page,
   }) => {
     await openApp(page);
-    // Switch the UI language away from English (EN -> JA).
-    await page.locator('button[data-role="toggle-plan"]').first().waitFor();
-    const languageButton = page.locator('button', { hasText: /^EN$/ }).first();
-    await languageButton.click();
+    // The LANG selector was removed (item 8); the UI is English-only. There is no
+    // language toggle in the palette anymore.
+    await expect(page.locator('[data-role="command-palette"] button', { hasText: /^EN$/ })).toHaveCount(
+      0,
+    );
 
     const panel = page.locator('[role="region"][aria-label="Properties"]');
     await expect(panel).toBeVisible();
-    // Fixed English property names are still English.
+    // Fixed English property names are English.
     await expect(panel).toContainText('start_date');
     await expect(panel).toContainText('fill_color');
     await expect(panel).toContainText('icon_shape_kind');
-    // The progress-line control label stays English (not localized to Japanese).
+    // The progress-line control label is English.
     const progress = panel.locator('[data-role="progress-line-section"]');
     await expect(progress).toContainText('Progress line');
   });

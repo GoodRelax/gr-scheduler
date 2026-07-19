@@ -43,6 +43,7 @@ function item(
 /** A minimal document wrapping a set of items (no pre-seeded sections). */
 function documentOf(items: ScheduleItem[], sections: Section[] = []): ScheduleDocument {
   return {
+    projectId: '44444444-4444-4444-8444-444444444444',
     schemaVersion: 1,
     title: 'test',
     epochDate: '2026-01-01',

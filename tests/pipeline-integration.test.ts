@@ -32,6 +32,7 @@ function makePipelineDocument(): ScheduleDocument {
     },
   ];
   return {
+    projectId: '33333333-3333-4333-8333-333333333333',
     schemaVersion: CURRENT_SCHEMA_VERSION,
     title: 'Pipeline Fixture',
     epochDate: '2026-01-01',
