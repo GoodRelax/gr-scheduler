@@ -168,15 +168,15 @@ function toIsoDate(dateTime: string): string {
  * task/dependency/hierarchy elements plus a base64 sidecar (in Project Notes)
  * that carries the full document for loss-free re-import.
  *
- * @param document - The document to export.
+ * @param scheduleDocument - The document to export.
  * @returns MSPDI XML text.
  */
-export function exportMspdi(document: ScheduleDocument): string {
+export function exportMspdi(scheduleDocument: ScheduleDocument): string {
   const uidByItemId = new Map<string, number>();
-  document.items.forEach((item, index) => uidByItemId.set(item.id, index + 1));
+  scheduleDocument.items.forEach((item, index) => uidByItemId.set(item.id, index + 1));
 
   const predecessorsByTargetId = new Map<string, Dependency[]>();
-  for (const dependency of document.dependencies ?? []) {
+  for (const dependency of scheduleDocument.dependencies ?? []) {
     const bucket = predecessorsByTargetId.get(dependency.toItemId);
     if (bucket) {
       bucket.push(dependency);
@@ -185,18 +185,18 @@ export function exportMspdi(document: ScheduleDocument): string {
     }
   }
 
-  const taskXml = document.items
+  const taskXml = scheduleDocument.items
     .map((item) => renderTaskXml(item, uidByItemId, predecessorsByTargetId))
     .join('');
 
-  const sidecarBase64 = bytesToBase64(stringToUtf8Bytes(serializeScheduleDocument(document)));
+  const sidecarBase64 = bytesToBase64(stringToUtf8Bytes(serializeScheduleDocument(scheduleDocument)));
   const notes = `${SIDECAR_PREFIX}${sidecarBase64}`;
 
   return (
     '<?xml version="1.0" encoding="UTF-8"?>' +
     '<Project xmlns="http://schemas.microsoft.com/project">' +
-    `<Title>${escapeXml(document.title)}</Title>` +
-    `<CreationDate>${toMspdiDateTime(document.epochDate)}</CreationDate>` +
+    `<Title>${escapeXml(scheduleDocument.title)}</Title>` +
+    `<CreationDate>${toMspdiDateTime(scheduleDocument.epochDate)}</CreationDate>` +
     `<Notes>${escapeXml(notes)}</Notes>` +
     `<Tasks>${taskXml}</Tasks>` +
     '</Project>'

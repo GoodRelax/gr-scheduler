@@ -27,9 +27,9 @@ import type { ScheduleCommand } from './commands.js';
 export function createCommentCommand(comment: CommentAnnotation): ScheduleCommand {
   return {
     label: 'create-comment',
-    execute: (document) => ({
-      ...document,
-      annotations: [...(document.annotations ?? []), comment],
+    execute: (scheduleDocument) => ({
+      ...scheduleDocument,
+      annotations: [...(scheduleDocument.annotations ?? []), comment],
     }),
   };
 }
@@ -43,19 +43,19 @@ export function createCommentCommand(comment: CommentAnnotation): ScheduleComman
 export function createRoundedBoxCommand(box: RoundedBoxAnnotation): ScheduleCommand {
   return {
     label: 'create-rounded-box',
-    execute: (document) => ({
-      ...document,
-      annotations: [...(document.annotations ?? []), box],
+    execute: (scheduleDocument) => ({
+      ...scheduleDocument,
+      annotations: [...(scheduleDocument.annotations ?? []), box],
     }),
   };
 }
 
 /** Map every annotation via `mapAnnotation`, returning the same doc on no-op. */
 function mapAnnotations(
-  document: ScheduleDocument,
+  scheduleDocument: ScheduleDocument,
   mapAnnotation: (annotation: Annotation) => Annotation,
 ): ScheduleDocument {
-  const existing = document.annotations ?? [];
+  const existing = scheduleDocument.annotations ?? [];
   let changed = false;
   const annotations = existing.map((annotation) => {
     const mapped = mapAnnotation(annotation);
@@ -64,7 +64,7 @@ function mapAnnotations(
     }
     return mapped;
   });
-  return changed ? { ...document, annotations } : document;
+  return changed ? { ...scheduleDocument, annotations } : scheduleDocument;
 }
 
 /**
@@ -81,11 +81,11 @@ export function moveCommentCommand(
 ): ScheduleCommand {
   return {
     label: 'move-comment',
-    execute: (document) => {
+    execute: (scheduleDocument) => {
       if (deltaPx.dx === 0 && deltaPx.dy === 0) {
-        return document;
+        return scheduleDocument;
       }
-      return mapAnnotations(document, (annotation) => {
+      return mapAnnotations(scheduleDocument, (annotation) => {
         if (annotation.id !== commentId || !isComment(annotation)) {
           return annotation;
         }
@@ -112,8 +112,8 @@ export function moveCommentCommand(
 export function recolorRoundedBoxCommand(boxId: string, strokeColor: string): ScheduleCommand {
   return {
     label: 'recolor-rounded-box',
-    execute: (document) =>
-      mapAnnotations(document, (annotation) =>
+    execute: (scheduleDocument) =>
+      mapAnnotations(scheduleDocument, (annotation) =>
         annotation.id === boxId &&
         annotation.annotationKind === 'rounded-box' &&
         annotation.strokeColor !== strokeColor
@@ -153,8 +153,8 @@ export function resizeRoundedBoxCommand(
 ): ScheduleCommand {
   return {
     label: 'resize-rounded-box',
-    execute: (document) =>
-      mapAnnotations(document, (annotation) => {
+    execute: (scheduleDocument) =>
+      mapAnnotations(scheduleDocument, (annotation) => {
         if (annotation.id !== boxId || annotation.annotationKind !== 'rounded-box') {
           return annotation;
         }
@@ -193,10 +193,10 @@ export function resizeRoundedBoxCommand(
 export function deleteAnnotationCommand(annotationId: string): ScheduleCommand {
   return {
     label: 'delete-annotation',
-    execute: (document) => {
-      const existing = document.annotations ?? [];
+    execute: (scheduleDocument) => {
+      const existing = scheduleDocument.annotations ?? [];
       const annotations = existing.filter((annotation) => annotation.id !== annotationId);
-      return annotations.length === existing.length ? document : { ...document, annotations };
+      return annotations.length === existing.length ? scheduleDocument : { ...scheduleDocument, annotations };
     },
   };
 }

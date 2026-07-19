@@ -53,10 +53,10 @@ export interface ScheduleCommand {
   /**
    * Produce the next document. Must be pure: no mutation of `document`, no I/O.
    *
-   * @param document - The current immutable document.
+   * @param scheduleDocument - The current immutable document.
    * @returns The next immutable document (a new object graph for changed parts).
    */
-  execute(document: ScheduleDocument): ScheduleDocument;
+  execute(scheduleDocument: ScheduleDocument): ScheduleDocument;
 }
 
 /**
@@ -105,18 +105,18 @@ export interface ItemPropertyPatch {
  * a spurious history entry.
  */
 function mapItems(
-  document: ScheduleDocument,
+  scheduleDocument: ScheduleDocument,
   mapItem: (item: ScheduleItem) => ScheduleItem,
 ): ScheduleDocument {
   let changed = false;
-  const items = document.items.map((item) => {
+  const items = scheduleDocument.items.map((item) => {
     const mapped = mapItem(item);
     if (mapped !== item) {
       changed = true;
     }
     return mapped;
   });
-  return changed ? { ...document, items } : document;
+  return changed ? { ...scheduleDocument, items } : scheduleDocument;
 }
 
 /** Shift an ISO date by a whole number of days. */
@@ -133,7 +133,7 @@ function shiftIsoDate(isoDate: IsoDate, deltaDays: number): IsoDate {
 export function createItemCommand(item: ScheduleItem): ScheduleCommand {
   return {
     label: 'create-item',
-    execute: (document) => ({ ...document, items: [...document.items, item] }),
+    execute: (scheduleDocument) => ({ ...scheduleDocument, items: [...scheduleDocument.items, item] }),
   };
 }
 
@@ -161,8 +161,8 @@ export function moveItemCommand(
 ): ScheduleCommand {
   return {
     label: 'move-item',
-    execute: (document) =>
-      mapItems(document, (item) => {
+    execute: (scheduleDocument) =>
+      mapItems(scheduleDocument, (item) => {
         if (item.id !== itemId) {
           return item;
         }
@@ -218,8 +218,8 @@ function applyClassificationTarget(item: ScheduleItem, target: ClassificationTar
 export function reclassifyItemCommand(itemId: string, target: ClassificationTarget): ScheduleCommand {
   return {
     label: 'reclassify-item',
-    execute: (document) =>
-      mapItems(document, (item) =>
+    execute: (scheduleDocument) =>
+      mapItems(scheduleDocument, (item) =>
         item.id === itemId ? applyClassificationTarget(item, target) : item,
       ),
   };
@@ -245,8 +245,8 @@ export function resizeItemCommand(
 ): ScheduleCommand {
   return {
     label: 'resize-item',
-    execute: (document) =>
-      mapItems(document, (item) => {
+    execute: (scheduleDocument) =>
+      mapItems(scheduleDocument, (item) => {
         if (item.id !== itemId || item.endDate === null) {
           return item;
         }
@@ -335,8 +335,8 @@ function applyItemPatch(item: ScheduleItem, patch: ItemPropertyPatch): ScheduleI
 export function editPropertyCommand(itemId: string, patch: ItemPropertyPatch): ScheduleCommand {
   return {
     label: 'edit-property',
-    execute: (document) =>
-      mapItems(document, (item) =>
+    execute: (scheduleDocument) =>
+      mapItems(scheduleDocument, (item) =>
         item.id === itemId ? normalizeItemFade(applyItemPatch(item, patch)) : item,
       ),
   };
@@ -351,9 +351,9 @@ export function editPropertyCommand(itemId: string, patch: ItemPropertyPatch): S
 export function deleteItemsCommand(itemIds: ReadonlySet<string>): ScheduleCommand {
   return {
     label: 'delete-items',
-    execute: (document) => {
-      const items = document.items.filter((item) => !itemIds.has(item.id));
-      return items.length === document.items.length ? document : { ...document, items };
+    execute: (scheduleDocument) => {
+      const items = scheduleDocument.items.filter((item) => !itemIds.has(item.id));
+      return items.length === scheduleDocument.items.length ? scheduleDocument : { ...scheduleDocument, items };
     },
   };
 }
@@ -368,8 +368,8 @@ export function deleteItemsCommand(itemIds: ReadonlySet<string>): ScheduleComman
 export function pasteItemsCommand(items: readonly ScheduleItem[]): ScheduleCommand {
   return {
     label: 'paste-items',
-    execute: (document) =>
-      items.length === 0 ? document : { ...document, items: [...document.items, ...items] },
+    execute: (scheduleDocument) =>
+      items.length === 0 ? scheduleDocument : { ...scheduleDocument, items: [...scheduleDocument.items, ...items] },
   };
 }
 
@@ -384,11 +384,11 @@ export function pasteItemsCommand(items: readonly ScheduleItem[]): ScheduleComma
 export function reorderSectionCommand(sectionId: string, targetIndex: number): ScheduleCommand {
   return {
     label: 'reorder-section',
-    execute: (document) => {
-      const sections = moveSectionToIndex(document.sections, sectionId, targetIndex);
-      return sectionsEqualByOrder(sections, document.sections)
-        ? document
-        : { ...document, sections };
+    execute: (scheduleDocument) => {
+      const sections = moveSectionToIndex(scheduleDocument.sections, sectionId, targetIndex);
+      return sectionsEqualByOrder(sections, scheduleDocument.sections)
+        ? scheduleDocument
+        : { ...scheduleDocument, sections };
     },
   };
 }
@@ -408,11 +408,11 @@ export function setSectionCollapsedCommand(
 ): ScheduleCommand {
   return {
     label: 'set-section-collapsed',
-    execute: (document) => {
-      const sections = setSectionCollapsed(document.sections, sectionId, collapsed);
-      return sections === document.sections
-        ? document
-        : { ...document, sections };
+    execute: (scheduleDocument) => {
+      const sections = setSectionCollapsed(scheduleDocument.sections, sectionId, collapsed);
+      return sections === scheduleDocument.sections
+        ? scheduleDocument
+        : { ...scheduleDocument, sections };
     },
   };
 }
@@ -428,11 +428,11 @@ export function setSectionCollapsedCommand(
 export function addDependencyCommand(dependency: Dependency): ScheduleCommand {
   return {
     label: 'add-dependency',
-    execute: (document) => {
+    execute: (scheduleDocument) => {
       if (dependency.fromItemId === dependency.toItemId) {
-        return document;
+        return scheduleDocument;
       }
-      const existing = document.dependencies ?? [];
+      const existing = scheduleDocument.dependencies ?? [];
       const duplicate = existing.some(
         (candidate) =>
           candidate.fromItemId === dependency.fromItemId &&
@@ -441,9 +441,9 @@ export function addDependencyCommand(dependency: Dependency): ScheduleCommand {
           candidate.toAnchor === dependency.toAnchor,
       );
       if (duplicate) {
-        return document;
+        return scheduleDocument;
       }
-      return { ...document, dependencies: [...existing, dependency] };
+      return { ...scheduleDocument, dependencies: [...existing, dependency] };
     },
   };
 }
@@ -457,12 +457,12 @@ export function addDependencyCommand(dependency: Dependency): ScheduleCommand {
 export function removeDependencyCommand(dependencyId: string): ScheduleCommand {
   return {
     label: 'remove-dependency',
-    execute: (document) => {
-      const existing = document.dependencies ?? [];
+    execute: (scheduleDocument) => {
+      const existing = scheduleDocument.dependencies ?? [];
       const dependencies = existing.filter((candidate) => candidate.id !== dependencyId);
       return dependencies.length === existing.length
-        ? document
-        : { ...document, dependencies };
+        ? scheduleDocument
+        : { ...scheduleDocument, dependencies };
     },
   };
 }
@@ -482,8 +482,8 @@ export function setDependencyColorCommand(
 ): ScheduleCommand {
   return {
     label: 'set-dependency-color',
-    execute: (document) => {
-      const existing = document.dependencies ?? [];
+    execute: (scheduleDocument) => {
+      const existing = scheduleDocument.dependencies ?? [];
       let changed = false;
       const dependencies = existing.map((candidate) => {
         if (candidate.id !== dependencyId || candidate.strokeColor === strokeColor) {
@@ -492,7 +492,7 @@ export function setDependencyColorCommand(
         changed = true;
         return { ...candidate, strokeColor };
       });
-      return changed ? { ...document, dependencies } : document;
+      return changed ? { ...scheduleDocument, dependencies } : scheduleDocument;
     },
   };
 }
@@ -515,10 +515,10 @@ export function rewireItemDependenciesCommand(
 ): ScheduleCommand {
   return {
     label: 'rewire-dependencies',
-    execute: (document) => {
+    execute: (scheduleDocument) => {
       const removeSet = new Set(removeEdgeIds);
-      const kept = (document.dependencies ?? []).filter((edge) => !removeSet.has(edge.id));
-      const removedCount = (document.dependencies ?? []).length - kept.length;
+      const kept = (scheduleDocument.dependencies ?? []).filter((edge) => !removeSet.has(edge.id));
+      const removedCount = (scheduleDocument.dependencies ?? []).length - kept.length;
       const next = [...kept];
       let addedCount = 0;
       for (const edge of addEdges) {
@@ -539,9 +539,9 @@ export function rewireItemDependenciesCommand(
         addedCount += 1;
       }
       if (removedCount === 0 && addedCount === 0) {
-        return document;
+        return scheduleDocument;
       }
-      return { ...document, dependencies: next };
+      return { ...scheduleDocument, dependencies: next };
     },
   };
 }
@@ -563,14 +563,14 @@ function nonEmptyCategory(value: string | undefined): string | undefined {
 export function addSectionCommand(): ScheduleCommand {
   return {
     label: 'add-section',
-    execute: (document) => {
-      const name = nextDefaultCategoryName(existingMajorNames(document));
-      const declaredCategories = appendDeclaredCategory(document.declaredCategories, {
+    execute: (scheduleDocument) => {
+      const name = nextDefaultCategoryName(existingMajorNames(scheduleDocument));
+      const declaredCategories = appendDeclaredCategory(scheduleDocument.declaredCategories, {
         major: name,
       });
-      return declaredCategories === document.declaredCategories
-        ? document
-        : { ...document, declaredCategories };
+      return declaredCategories === scheduleDocument.declaredCategories
+        ? scheduleDocument
+        : { ...scheduleDocument, declaredCategories };
     },
   };
 }
@@ -587,31 +587,31 @@ export function addSectionCommand(): ScheduleCommand {
 export function addSubcategoryCommand(parent: { major: string; middle?: string }): ScheduleCommand {
   return {
     label: 'add-subcategory',
-    execute: (document) => {
+    execute: (scheduleDocument) => {
       const major = nonEmptyCategory(parent.major);
       if (major === undefined) {
-        return document;
+        return scheduleDocument;
       }
       const parentMiddle = nonEmptyCategory(parent.middle);
       const node: DeclaredCategory =
         parentMiddle === undefined
-          ? { major, middle: nextDefaultCategoryName(existingMiddleNames(document, major)) }
+          ? { major, middle: nextDefaultCategoryName(existingMiddleNames(scheduleDocument, major)) }
           : {
               major,
               middle: parentMiddle,
-              minor: nextDefaultCategoryName(existingMinorNames(document, major, parentMiddle)),
+              minor: nextDefaultCategoryName(existingMinorNames(scheduleDocument, major, parentMiddle)),
             };
-      const declaredCategories = appendDeclaredCategory(document.declaredCategories, node);
-      return declaredCategories === document.declaredCategories
-        ? document
-        : { ...document, declaredCategories };
+      const declaredCategories = appendDeclaredCategory(scheduleDocument.declaredCategories, node);
+      return declaredCategories === scheduleDocument.declaredCategories
+        ? scheduleDocument
+        : { ...scheduleDocument, declaredCategories };
     },
   };
 }
 
 /** The first section major that is NOT `excludeMajor`, in section order, or null. */
-function firstOtherMajor(document: ScheduleDocument, excludeMajor: string): string | null {
-  for (const section of sectionsInOrder(document.sections)) {
+function firstOtherMajor(scheduleDocument: ScheduleDocument, excludeMajor: string): string | null {
+  for (const section of sectionsInOrder(scheduleDocument.sections)) {
     if (section.name !== excludeMajor) {
       return section.name;
     }
@@ -639,10 +639,10 @@ function firstOtherMajor(document: ScheduleDocument, excludeMajor: string): stri
 export function removeClassificationNodeCommand(node: DeclaredCategory): ScheduleCommand {
   return {
     label: 'remove-classification-node',
-    execute: (document) => {
+    execute: (scheduleDocument) => {
       const major = nonEmptyCategory(node.major);
       if (major === undefined) {
-        return document;
+        return scheduleDocument;
       }
       const depth = declaredCategoryDepth(node);
       const middle = nonEmptyCategory(node.middle);
@@ -652,16 +652,16 @@ export function removeClassificationNodeCommand(node: DeclaredCategory): Schedul
       // section with items but no sibling cannot be removed (major-required).
       let absorbMajor: string | null = null;
       if (depth === 0) {
-        const hasItems = document.items.some((item) => nonEmptyCategory(item.majorCategory) === major);
+        const hasItems = scheduleDocument.items.some((item) => nonEmptyCategory(item.majorCategory) === major);
         if (hasItems) {
-          absorbMajor = firstOtherMajor(document, major);
+          absorbMajor = firstOtherMajor(scheduleDocument, major);
           if (absorbMajor === null) {
-            return document; // refuse: would orphan items (no section to hold them)
+            return scheduleDocument; // refuse: would orphan items (no section to hold them)
           }
         }
       }
 
-      const reclassified = mapItems(document, (item) => {
+      const reclassified = mapItems(scheduleDocument, (item) => {
         if (nonEmptyCategory(item.majorCategory) !== major) {
           return item;
         }
@@ -683,8 +683,8 @@ export function removeClassificationNodeCommand(node: DeclaredCategory): Schedul
       });
 
       const declaredCategories = removeDeclaredSubtree(reclassified.declaredCategories, node);
-      if (reclassified === document && declaredCategories === document.declaredCategories) {
-        return document;
+      if (reclassified === scheduleDocument && declaredCategories === scheduleDocument.declaredCategories) {
+        return scheduleDocument;
       }
       return declaredCategories === reclassified.declaredCategories
         ? reclassified
@@ -712,11 +712,11 @@ export function reorderCategoryNodeCommand(
 ): ScheduleCommand {
   return {
     label: 'reorder-category-node',
-    execute: (document) => {
-      const classificationNodeStates = reorderCategoryNodeStates(document, node, direction);
+    execute: (scheduleDocument) => {
+      const classificationNodeStates = reorderCategoryNodeStates(scheduleDocument, node, direction);
       return classificationNodeStates === null
-        ? document
-        : { ...document, classificationNodeStates };
+        ? scheduleDocument
+        : { ...scheduleDocument, classificationNodeStates };
     },
   };
 }
@@ -739,15 +739,15 @@ export function setCategoryNodeHiddenCommand(
 ): ScheduleCommand {
   return {
     label: 'set-category-node-hidden',
-    execute: (document) => {
+    execute: (scheduleDocument) => {
       const classificationNodeStates = setCategoryNodeHidden(
-        document.classificationNodeStates,
+        scheduleDocument.classificationNodeStates,
         node,
         hidden,
       );
-      return classificationNodeStates === document.classificationNodeStates
-        ? document
-        : { ...document, classificationNodeStates };
+      return classificationNodeStates === scheduleDocument.classificationNodeStates
+        ? scheduleDocument
+        : { ...scheduleDocument, classificationNodeStates };
     },
   };
 }
@@ -765,23 +765,23 @@ export function setCategoryNodeHiddenCommand(
 export function revealDescendantsCommand(node: DeclaredCategory): ScheduleCommand {
   return {
     label: 'reveal-descendants',
-    execute: (document) => {
+    execute: (scheduleDocument) => {
       const major = nonEmptyCategory(node.major);
       if (major === undefined) {
-        return document;
+        return scheduleDocument;
       }
-      const classificationNodeStates = revealDescendants(document.classificationNodeStates, node);
+      const classificationNodeStates = revealDescendants(scheduleDocument.classificationNodeStates, node);
       const isMajor = declaredCategoryDepth(node) === 0;
       const sections = isMajor
-        ? setSectionCollapsedByName(document.sections, major, false)
-        : document.sections;
+        ? setSectionCollapsedByName(scheduleDocument.sections, major, false)
+        : scheduleDocument.sections;
       if (
-        classificationNodeStates === document.classificationNodeStates &&
-        sections === document.sections
+        classificationNodeStates === scheduleDocument.classificationNodeStates &&
+        sections === scheduleDocument.sections
       ) {
-        return document;
+        return scheduleDocument;
       }
-      return { ...document, classificationNodeStates, sections };
+      return { ...scheduleDocument, classificationNodeStates, sections };
     },
   };
 }
@@ -798,7 +798,7 @@ export function revealDescendantsCommand(node: DeclaredCategory): ScheduleComman
 export function duplicateCategorySubtreeCommand(node: DeclaredCategory): ScheduleCommand {
   return {
     label: 'duplicate-category-subtree',
-    execute: (document) => duplicateCategorySubtree(document, node),
+    execute: (scheduleDocument) => duplicateCategorySubtree(scheduleDocument, node),
   };
 }
 

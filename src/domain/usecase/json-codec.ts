@@ -47,22 +47,22 @@ export const CURRENT_SCHEMA_VERSION = 1;
  * Serialize a ScheduleDocument to canonical JSON text (IO-L1-001). Emits every
  * field, including `assets[]`, so imported icons survive a round-trip.
  *
- * @param document - The document to serialize.
+ * @param scheduleDocument - The document to serialize.
  * @param pretty - When true, indents for human readability (default false).
  * @returns The JSON text.
  */
-export function serializeScheduleDocument(document: ScheduleDocument, pretty = false): string {
+export function serializeScheduleDocument(scheduleDocument: ScheduleDocument, pretty = false): string {
   // Project each item's predecessor/successor arrays from the canonical edge list
   // (item 4) so the exported JSON carries per-item dependency arrays for AI / manual
   // authoring, without ever storing that derived state on the in-memory item.
-  const dependencies = document.dependencies ?? [];
-  const items = document.items.map((item) => ({
+  const dependencies = scheduleDocument.dependencies ?? [];
+  const items = scheduleDocument.items.map((item) => ({
     ...item,
     predecessorItemIds: predecessorItemIds(dependencies, item.id),
     successorItemIds: successorItemIds(dependencies, item.id),
   }));
   const normalized = {
-    ...document,
+    ...scheduleDocument,
     schemaVersion: CURRENT_SCHEMA_VERSION,
     items,
   };
@@ -474,9 +474,9 @@ function readIdArrayField(item: RawRecord, key: string): string[] {
  * new edge and no arrays are present, the document's `dependencies` field is preserved
  * verbatim (including `undefined`) so a round-trip is byte-for-meaning stable.
  */
-function reconcileItemDependencyArrays(document: ScheduleDocument): ScheduleDocument {
-  const validItemIds = new Set(document.items.map((item) => item.id));
-  const existing = document.dependencies ?? [];
+function reconcileItemDependencyArrays(scheduleDocument: ScheduleDocument): ScheduleDocument {
+  const validItemIds = new Set(scheduleDocument.items.map((item) => item.id));
+  const existing = scheduleDocument.dependencies ?? [];
   const pairSet = new Set(existing.map((edge) => edgePairKey(edge.fromItemId, edge.toItemId)));
   const synthetic: Dependency[] = [];
   let serial = 0;
@@ -498,7 +498,7 @@ function reconcileItemDependencyArrays(document: ScheduleDocument): ScheduleDocu
     });
     serial += 1;
   };
-  for (const item of document.items) {
+  for (const item of scheduleDocument.items) {
     const raw = item as unknown as RawRecord;
     for (const from of readIdArrayField(raw, 'predecessorItemIds')) {
       addSynthetic(from, item.id);
@@ -507,7 +507,7 @@ function reconcileItemDependencyArrays(document: ScheduleDocument): ScheduleDocu
       addSynthetic(item.id, to);
     }
   }
-  const items = document.items.map((item) => {
+  const items = scheduleDocument.items.map((item) => {
     const rest = { ...(item as unknown as RawRecord) };
     delete rest['predecessorItemIds'];
     delete rest['successorItemIds'];
@@ -516,9 +516,9 @@ function reconcileItemDependencyArrays(document: ScheduleDocument): ScheduleDocu
   if (synthetic.length === 0) {
     // No array contributed a new edge: preserve `dependencies` verbatim (including an
     // absent field) so a plain round-trip is byte-for-meaning stable.
-    return { ...document, items };
+    return { ...scheduleDocument, items };
   }
-  return { ...document, items, dependencies: [...existing, ...synthetic] };
+  return { ...scheduleDocument, items, dependencies: [...existing, ...synthetic] };
 }
 
 // Re-export so callers importing the codec can surface a single error type.

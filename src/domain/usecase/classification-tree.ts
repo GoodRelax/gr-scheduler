@@ -286,19 +286,19 @@ interface MajorAgg {
  * section whose entire content is hidden still gets a bare placeholder row so its
  * header (carrying the show-all control) remains reachable.
  *
- * @param document - The document whose classification to re-derive.
+ * @param scheduleDocument - The document whose classification to re-derive.
  * @returns A new document with a materialized classification tree.
  */
-export function rebuildClassification(document: ScheduleDocument): ScheduleDocument {
+export function rebuildClassification(scheduleDocument: ScheduleDocument): ScheduleDocument {
   // Preserve order + collapsed + id for any existing section, keyed by its major name.
   const existingByName = new Map<string, Section>();
-  for (const section of document.sections) {
+  for (const section of scheduleDocument.sections) {
     if (!existingByName.has(section.name)) {
       existingByName.set(section.name, section);
     }
   }
 
-  const { sortIndexByKey, hiddenKeys } = indexNodeStates(document.classificationNodeStates);
+  const { sortIndexByKey, hiddenKeys } = indexNodeStates(scheduleDocument.classificationNodeStates);
 
   // First-appearance order of majors, and per-major aggregated subtree content.
   const majorOrder: string[] = [];
@@ -332,7 +332,7 @@ export function rebuildClassification(document: ScheduleDocument): ScheduleDocum
     return mid;
   };
 
-  for (const item of document.items) {
+  for (const item of scheduleDocument.items) {
     const path = resolveClassificationPath(item);
     const { major, depth } = path;
     const agg = ensureMajor(major);
@@ -364,7 +364,7 @@ export function rebuildClassification(document: ScheduleDocument): ScheduleDocum
 
   // Fold DECLARED nodes: force the major/middle to exist and mark empty declared
   // tracks / detail leaves so an added-but-empty branch still renders a row.
-  for (const declared of document.declaredCategories ?? []) {
+  for (const declared of scheduleDocument.declaredCategories ?? []) {
     const major = nonEmpty(declared.major);
     if (major === undefined) {
       continue;
@@ -468,12 +468,12 @@ export function rebuildClassification(document: ScheduleDocument): ScheduleDocum
     }
   });
 
-  const items = document.items.map((item) => {
+  const items = scheduleDocument.items.map((item) => {
     const rowId = rowIdByItemId.get(item.id);
     return rowId !== undefined && rowId !== item.rowId ? { ...item, rowId } : item;
   });
 
-  return { ...document, sections, rows, items };
+  return { ...scheduleDocument, sections, rows, items };
 }
 
 /** Order the discovered majors: existing sections in their order first, then the rest. */
@@ -650,18 +650,18 @@ export function nextDefaultCategoryName(existingNames: Iterable<string>): string
  * Every distinct MAJOR (section) name currently in use, from items AND declared
  * nodes. The parent scope for naming a new section.
  *
- * @param document - The document to inspect.
+ * @param scheduleDocument - The document to inspect.
  * @returns The set of section names.
  */
-export function existingMajorNames(document: ScheduleDocument): Set<string> {
+export function existingMajorNames(scheduleDocument: ScheduleDocument): Set<string> {
   const names = new Set<string>();
-  for (const item of document.items) {
+  for (const item of scheduleDocument.items) {
     const major = nonEmpty(item.majorCategory);
     if (major !== undefined) {
       names.add(major);
     }
   }
-  for (const declared of document.declaredCategories ?? []) {
+  for (const declared of scheduleDocument.declaredCategories ?? []) {
     const major = nonEmpty(declared.major);
     if (major !== undefined) {
       names.add(major);
@@ -674,13 +674,13 @@ export function existingMajorNames(document: ScheduleDocument): Set<string> {
  * Every distinct MIDDLE (track) name under one major, from items AND declared
  * nodes. The parent scope for naming a new track.
  *
- * @param document - The document to inspect.
+ * @param scheduleDocument - The document to inspect.
  * @param major - The owning section name.
  * @returns The set of track names under `major`.
  */
-export function existingMiddleNames(document: ScheduleDocument, major: string): Set<string> {
+export function existingMiddleNames(scheduleDocument: ScheduleDocument, major: string): Set<string> {
   const names = new Set<string>();
-  for (const item of document.items) {
+  for (const item of scheduleDocument.items) {
     if (nonEmpty(item.majorCategory) !== major) {
       continue;
     }
@@ -689,7 +689,7 @@ export function existingMiddleNames(document: ScheduleDocument, major: string): 
       names.add(middle);
     }
   }
-  for (const declared of document.declaredCategories ?? []) {
+  for (const declared of scheduleDocument.declaredCategories ?? []) {
     if (nonEmpty(declared.major) !== major) {
       continue;
     }
@@ -705,18 +705,18 @@ export function existingMiddleNames(document: ScheduleDocument, major: string): 
  * Every distinct MINOR (detail) name under one (major, middle) track, from items
  * AND declared nodes. The parent scope for naming a new detail.
  *
- * @param document - The document to inspect.
+ * @param scheduleDocument - The document to inspect.
  * @param major - The owning section name.
  * @param middle - The owning track name.
  * @returns The set of detail names under (`major`, `middle`).
  */
 export function existingMinorNames(
-  document: ScheduleDocument,
+  scheduleDocument: ScheduleDocument,
   major: string,
   middle: string,
 ): Set<string> {
   const names = new Set<string>();
-  for (const item of document.items) {
+  for (const item of scheduleDocument.items) {
     if (nonEmpty(item.majorCategory) !== major || nonEmpty(item.middleCategory) !== middle) {
       continue;
     }
@@ -725,7 +725,7 @@ export function existingMinorNames(
       names.add(minor);
     }
   }
-  for (const declared of document.declaredCategories ?? []) {
+  for (const declared of scheduleDocument.declaredCategories ?? []) {
     if (nonEmpty(declared.major) !== major || nonEmpty(declared.middle) !== middle) {
       continue;
     }
@@ -743,13 +743,13 @@ export function existingMinorNames(
  * new item created at the SECTION (major) level a sensible default track instead of
  * leaving it floating at the bare-major level (middle auto-default).
  *
- * @param document - The document to inspect.
+ * @param scheduleDocument - The document to inspect.
  * @param major - The owning section name.
  * @returns The first track name under `major`, or undefined when the section has
  *   none yet.
  */
-export function firstMiddleNameOfMajor(document: ScheduleDocument, major: string): string | undefined {
-  for (const item of document.items) {
+export function firstMiddleNameOfMajor(scheduleDocument: ScheduleDocument, major: string): string | undefined {
+  for (const item of scheduleDocument.items) {
     if (nonEmpty(item.majorCategory) !== major) {
       continue;
     }
@@ -758,7 +758,7 @@ export function firstMiddleNameOfMajor(document: ScheduleDocument, major: string
       return middle;
     }
   }
-  for (const declared of document.declaredCategories ?? []) {
+  for (const declared of scheduleDocument.declaredCategories ?? []) {
     if (nonEmpty(declared.major) !== major) {
       continue;
     }
@@ -776,12 +776,12 @@ export function firstMiddleNameOfMajor(document: ScheduleDocument, major: string
  * freshly named `NoneN` track when the section has none. Never hard-blocks creation
  * -- it always returns a usable middle name so the new item lands under a track.
  *
- * @param document - The document to inspect.
+ * @param scheduleDocument - The document to inspect.
  * @param major - The owning section name.
  * @returns A track name to use as the new item's `middleCategory`.
  */
-export function defaultMiddleForMajor(document: ScheduleDocument, major: string): string {
-  return firstMiddleNameOfMajor(document, major) ?? nextDefaultCategoryName(existingMiddleNames(document, major));
+export function defaultMiddleForMajor(scheduleDocument: ScheduleDocument, major: string): string {
+  return firstMiddleNameOfMajor(scheduleDocument, major) ?? nextDefaultCategoryName(existingMiddleNames(scheduleDocument, major));
 }
 
 /** The depth implied by which path components a declared node sets (0/1/2). */
@@ -865,7 +865,7 @@ export function removeDeclaredSubtree(
 export type CategoryMoveDirection = 'up' | 'down';
 
 /** Distinct MIDDLE names under a major, in first-appearance order (items then declared). */
-function appearanceMiddles(document: ScheduleDocument, major: string): string[] {
+function appearanceMiddles(scheduleDocument: ScheduleDocument, major: string): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   const add = (value: string | undefined): void => {
@@ -874,12 +874,12 @@ function appearanceMiddles(document: ScheduleDocument, major: string): string[] 
       out.push(value);
     }
   };
-  for (const item of document.items) {
+  for (const item of scheduleDocument.items) {
     if (nonEmpty(item.majorCategory) === major) {
       add(nonEmpty(item.middleCategory));
     }
   }
-  for (const declared of document.declaredCategories ?? []) {
+  for (const declared of scheduleDocument.declaredCategories ?? []) {
     if (nonEmpty(declared.major) === major) {
       add(nonEmpty(declared.middle));
     }
@@ -888,7 +888,7 @@ function appearanceMiddles(document: ScheduleDocument, major: string): string[] 
 }
 
 /** Distinct MINOR names under a track, in first-appearance order (items then declared). */
-function appearanceMinors(document: ScheduleDocument, major: string, middle: string): string[] {
+function appearanceMinors(scheduleDocument: ScheduleDocument, major: string, middle: string): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   const add = (value: string | undefined): void => {
@@ -897,12 +897,12 @@ function appearanceMinors(document: ScheduleDocument, major: string, middle: str
       out.push(value);
     }
   };
-  for (const item of document.items) {
+  for (const item of scheduleDocument.items) {
     if (nonEmpty(item.majorCategory) === major && nonEmpty(item.middleCategory) === middle) {
       add(nonEmpty(item.minorCategory));
     }
   }
-  for (const declared of document.declaredCategories ?? []) {
+  for (const declared of scheduleDocument.declaredCategories ?? []) {
     if (nonEmpty(declared.major) === major && nonEmpty(declared.middle) === middle) {
       add(nonEmpty(declared.minor));
     }
@@ -915,14 +915,14 @@ function appearanceMinors(document: ScheduleDocument, major: string, middle: str
  * (explicit sortIndex first, else first appearance). Includes hidden tracks so a
  * reorder renumbers the full sibling set consistently.
  *
- * @param document - The document to inspect.
+ * @param scheduleDocument - The document to inspect.
  * @param major - The owning section name.
  * @returns The ordered middle names.
  */
-export function orderedMiddlesUnderMajor(document: ScheduleDocument, major: string): string[] {
-  const { sortIndexByKey } = indexNodeStates(document.classificationNodeStates);
+export function orderedMiddlesUnderMajor(scheduleDocument: ScheduleDocument, major: string): string[] {
+  const { sortIndexByKey } = indexNodeStates(scheduleDocument.classificationNodeStates);
   return orderSiblings(
-    appearanceMiddles(document, major),
+    appearanceMiddles(scheduleDocument, major),
     (middle) => classificationRowId(major, middle),
     sortIndexByKey,
   );
@@ -931,19 +931,19 @@ export function orderedMiddlesUnderMajor(document: ScheduleDocument, major: stri
 /**
  * The MINOR (detail) siblings under a track in their current display order.
  *
- * @param document - The document to inspect.
+ * @param scheduleDocument - The document to inspect.
  * @param major - The owning section name.
  * @param middle - The owning track name.
  * @returns The ordered minor names.
  */
 export function orderedMinorsUnderMiddle(
-  document: ScheduleDocument,
+  scheduleDocument: ScheduleDocument,
   major: string,
   middle: string,
 ): string[] {
-  const { sortIndexByKey } = indexNodeStates(document.classificationNodeStates);
+  const { sortIndexByKey } = indexNodeStates(scheduleDocument.classificationNodeStates);
   return orderSiblings(
-    appearanceMinors(document, major, middle),
+    appearanceMinors(scheduleDocument, major, middle),
     (minor) => classificationRowId(major, middle, minor),
     sortIndexByKey,
   );
@@ -1146,13 +1146,13 @@ function moveInArray<T>(values: readonly T[], fromIndex: number, toIndex: number
  * Returns `null` when the node cannot move that way (already at the boundary) or is
  * not a middle / minor.
  *
- * @param document - The current document (source of the sibling order).
+ * @param scheduleDocument - The current document (source of the sibling order).
  * @param node - The middle / minor node to nudge.
  * @param direction - `'up'` or `'down'`.
  * @returns The next per-node registry, or `null` when the move is impossible.
  */
 export function reorderCategoryNodeStates(
-  document: ScheduleDocument,
+  scheduleDocument: ScheduleDocument,
   node: DeclaredCategory,
   direction: CategoryMoveDirection,
 ): readonly ClassificationNodeState[] | null {
@@ -1163,8 +1163,8 @@ export function reorderCategoryNodeStates(
   const depth = declaredCategoryDepth(node);
   const middle = nonEmpty(node.middle);
   if (depth === 1 && middle !== undefined) {
-    const siblings = orderedMiddlesUnderMajor(document, major);
-    return reindexAfterMove(document.classificationNodeStates, siblings, middle, direction, (name) => [
+    const siblings = orderedMiddlesUnderMajor(scheduleDocument, major);
+    return reindexAfterMove(scheduleDocument.classificationNodeStates, siblings, middle, direction, (name) => [
       major,
       name,
       undefined,
@@ -1175,8 +1175,8 @@ export function reorderCategoryNodeStates(
     if (minor === undefined) {
       return null;
     }
-    const siblings = orderedMinorsUnderMiddle(document, major, middle);
-    return reindexAfterMove(document.classificationNodeStates, siblings, minor, direction, (name) => [
+    const siblings = orderedMinorsUnderMiddle(scheduleDocument, major, middle);
+    return reindexAfterMove(scheduleDocument.classificationNodeStates, siblings, minor, direction, (name) => [
       major,
       middle,
       name,
@@ -1304,46 +1304,46 @@ function insertSiblingAfter(
  * branch also duplicates. Returns the SAME document reference when there is nothing
  * to copy (the node has neither items nor declared descendants).
  *
- * @param document - The document to duplicate within.
+ * @param scheduleDocument - The document to duplicate within.
  * @param node - The subtree root to duplicate.
  * @returns The next document (same reference when nothing was copied).
  */
 export function duplicateCategorySubtree(
-  document: ScheduleDocument,
+  scheduleDocument: ScheduleDocument,
   node: DeclaredCategory,
 ): ScheduleDocument {
   const major = nonEmpty(node.major);
   if (major === undefined) {
-    return document;
+    return scheduleDocument;
   }
   const depth = declaredCategoryDepth(node);
   const middle = nonEmpty(node.middle);
   const minor = nonEmpty(node.minor);
-  const nextId = makeItemIdFactory(new Set(document.items.map((item) => item.id)));
-  const declaredList = document.declaredCategories ?? [];
+  const nextId = makeItemIdFactory(new Set(scheduleDocument.items.map((item) => item.id)));
+  const declaredList = scheduleDocument.declaredCategories ?? [];
 
   if (depth === 0) {
-    const newMajor = nextCopyName(major, existingMajorNames(document));
-    const clonedItems = document.items
+    const newMajor = nextCopyName(major, existingMajorNames(scheduleDocument));
+    const clonedItems = scheduleDocument.items
       .filter((item) => nonEmpty(item.majorCategory) === major)
       .map((item) => cloneItemOnto(item, { major: newMajor }, nextId));
     const clonedDeclared = declaredList
       .filter((entry) => nonEmpty(entry.major) === major)
       .map((entry) => ({ ...entry, major: newMajor }));
     if (clonedItems.length === 0 && clonedDeclared.length === 0) {
-      return document;
+      return scheduleDocument;
     }
     return {
-      ...document,
-      items: [...document.items, ...clonedItems],
+      ...scheduleDocument,
+      items: [...scheduleDocument.items, ...clonedItems],
       declaredCategories: [...declaredList, ...clonedDeclared],
-      sections: insertSectionAfterMajor(document.sections, major, newMajor),
+      sections: insertSectionAfterMajor(scheduleDocument.sections, major, newMajor),
     };
   }
 
   if (depth === 1 && middle !== undefined) {
-    const newMiddle = nextCopyName(middle, existingMiddleNames(document, major));
-    const clonedItems = document.items
+    const newMiddle = nextCopyName(middle, existingMiddleNames(scheduleDocument, major));
+    const clonedItems = scheduleDocument.items
       .filter(
         (item) => nonEmpty(item.majorCategory) === major && nonEmpty(item.middleCategory) === middle,
       )
@@ -1352,26 +1352,26 @@ export function duplicateCategorySubtree(
       .filter((entry) => nonEmpty(entry.major) === major && nonEmpty(entry.middle) === middle)
       .map((entry) => ({ ...entry, middle: newMiddle }));
     if (clonedItems.length === 0 && clonedDeclared.length === 0) {
-      return document;
+      return scheduleDocument;
     }
     const classificationNodeStates = insertSiblingAfter(
-      document.classificationNodeStates,
-      orderedMiddlesUnderMajor(document, major),
+      scheduleDocument.classificationNodeStates,
+      orderedMiddlesUnderMajor(scheduleDocument, major),
       middle,
       newMiddle,
       (name) => [major, name, undefined],
     );
     return {
-      ...document,
-      items: [...document.items, ...clonedItems],
+      ...scheduleDocument,
+      items: [...scheduleDocument.items, ...clonedItems],
       declaredCategories: [...declaredList, ...clonedDeclared],
       classificationNodeStates,
     };
   }
 
   if (depth === 2 && middle !== undefined && minor !== undefined) {
-    const newMinor = nextCopyName(minor, existingMinorNames(document, major, middle));
-    const clonedItems = document.items
+    const newMinor = nextCopyName(minor, existingMinorNames(scheduleDocument, major, middle));
+    const clonedItems = scheduleDocument.items
       .filter(
         (item) =>
           nonEmpty(item.majorCategory) === major &&
@@ -1388,22 +1388,22 @@ export function duplicateCategorySubtree(
       )
       .map((entry) => ({ ...entry, minor: newMinor }));
     if (clonedItems.length === 0 && clonedDeclared.length === 0) {
-      return document;
+      return scheduleDocument;
     }
     const classificationNodeStates = insertSiblingAfter(
-      document.classificationNodeStates,
-      orderedMinorsUnderMiddle(document, major, middle),
+      scheduleDocument.classificationNodeStates,
+      orderedMinorsUnderMiddle(scheduleDocument, major, middle),
       minor,
       newMinor,
       (name) => [major, middle, name],
     );
     return {
-      ...document,
-      items: [...document.items, ...clonedItems],
+      ...scheduleDocument,
+      items: [...scheduleDocument.items, ...clonedItems],
       declaredCategories: [...declaredList, ...clonedDeclared],
       classificationNodeStates,
     };
   }
 
-  return document;
+  return scheduleDocument;
 }

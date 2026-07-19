@@ -1,0 +1,428 @@
+/**
+ * Adapter layer: the item glyphs -- milestones, tasks (rect / polygon / path),
+ * their abbreviation labels, accessible titles, selection outlines, keyboard focus
+ * rings and fade handles (H-1 split). Owns the virtualized mounted-node set and
+ * runs the create / patch / remove diff against the viewport + LOD + plan/actual
+ * filter, exactly as the monolith did. The produced DOM is byte-identical.
+ */
+
+import type { ScheduleItem } from '../../../domain/model/schedule-model.js';
+import type { ItemPlacement } from '../../../domain/usecase/layout-engine.js';
+import type { ViewportWindow } from '../../../domain/usecase/viewport.js';
+import { placementIntersectsWindow } from '../../../domain/usecase/viewport.js';
+import { lodThreshold } from '../../../domain/usecase/lod-selector.js';
+import { filterByPlanActualDisplay } from '../../../domain/usecase/progress-line-builder.js';
+import { displayFillColor } from '../../../domain/usecase/plan-actual-colors.js';
+import {
+  effectiveTaskShape,
+  taskGlyphPath,
+  taskShapeIsStroked,
+  taskShapeUsesPath,
+} from '../../../domain/usecase/task-glyph.js';
+import {
+  fadePointsToAttribute,
+  hasFade,
+  type FadePoint,
+} from '../../../domain/usecase/fade-geometry.js';
+import { itemAccessibleName } from '../../../domain/usecase/accessible-name.js';
+import {
+  FOCUS_RING_DASH_ARRAY,
+  FOCUS_RING_HEX,
+  FOCUS_RING_STROKE_WIDTH,
+  ITEM_LABEL_HEX,
+  SELECTION_DASH_ARRAY,
+} from '../../../domain/usecase/a11y-tokens.js';
+import { CUD_BLUE_ACCENT_HEX, HANDLE_FILL_HEX } from '../../../domain/usecase/render-tokens.js';
+import {
+  ANNOTATION_HANDLE_DRAW_HALF_PX,
+  FONT_SIZE_BY_SCALE,
+  labelAnchorPoint,
+  milestonePath,
+  resolveStrokeAttribute,
+  strokeWidthPx,
+  taskFadeHandleCenters,
+  taskFadePoints,
+} from '../item-geometry.js';
+import { SVG_NS, type RenderContext } from '../render-context.js';
+
+interface MountedItem {
+  readonly group: SVGGElement;
+  /**
+   * The glyph element. A milestone is a `path`; a task is a `rect` when it has no
+   * fade (identical to the pre-fade rendering) and a `polygon` when it tapers. It
+   * is swapped in place by {@link ItemLayer.ensureTaskGlyphElement} when a task's
+   * fade turns on or off, so a bar keeps exactly one glyph node.
+   */
+  shape: SVGElement;
+  readonly label: SVGTextElement;
+  /** Accessible-name `<title>` child (WCAG 1.1.1 / 4.1.2). */
+  readonly title: SVGTitleElement;
+  /** Lazily created dashed selection outline, present only while selected. */
+  selectionOutline: SVGRectElement | null;
+  /** Lazily created solid keyboard-focus ring, present only while focused (2.4.7). */
+  focusRing: SVGRectElement | null;
+  /** Fade-in (top-left) corner drag handle, present only for a selected task. */
+  fadeInHandle: SVGRectElement | null;
+  /** Fade-out (bottom-right) corner drag handle, present only for a selected task. */
+  fadeOutHandle: SVGRectElement | null;
+}
+
+/** The result of one item diff pass (feeds the renderer's metrics snapshot). */
+export interface ItemDiffMetrics {
+  readonly liveNodeCount: number;
+  readonly createdCount: number;
+  readonly removedCount: number;
+}
+
+/** Builds, patches and virtualizes the item glyph nodes inside the content group. */
+export class ItemLayer {
+  private readonly mountedById = new Map<string, MountedItem>();
+
+  public constructor(private readonly contentGroup: SVGGElement) {}
+
+  /** Whether an item currently has a mounted (visible) DOM node. */
+  public hasMounted(itemId: string): boolean {
+    return this.mountedById.has(itemId);
+  }
+
+  /** The ids of every item with a mounted (visible) DOM node. */
+  public mountedIds(): IterableIterator<string> {
+    return this.mountedById.keys();
+  }
+
+  /** Remove every mounted item node (document replaced / cleared). */
+  public clear(): void {
+    for (const mounted of this.mountedById.values()) {
+      mounted.group.remove();
+    }
+    this.mountedById.clear();
+  }
+
+  /**
+   * Run the item create / patch / remove diff for the current viewport window,
+   * culling by LOD threshold, the plan/actual display filter and viewport
+   * intersection. Returns the node counts for the renderer's metrics snapshot.
+   */
+  public render(ctx: RenderContext, viewportWindow: ViewportWindow): ItemDiffMetrics {
+    const effectiveZoom = Math.min(ctx.viewState.zoomX, ctx.viewState.zoomY);
+    const threshold = lodThreshold(effectiveZoom);
+    const fontSize = FONT_SIZE_BY_SCALE[ctx.viewState.fontScale];
+
+    // Plan/actual display filter (PLAN-L1-002): drop the hidden side entirely.
+    const visibleItemIds = new Set(
+      filterByPlanActualDisplay(
+        ctx.scheduleDocument?.items ?? [],
+        ctx.viewState.planActualDisplay,
+      ).map((item) => item.id),
+    );
+
+    const desiredIds = new Set<string>();
+    let createdCount = 0;
+
+    for (const placement of ctx.placements) {
+      const item = ctx.itemById.get(placement.itemId);
+      if (item === undefined || item.importance < threshold) {
+        continue;
+      }
+      if (!visibleItemIds.has(placement.itemId)) {
+        continue;
+      }
+      if (!placementIntersectsWindow(placement, viewportWindow)) {
+        continue;
+      }
+      desiredIds.add(placement.itemId);
+
+      let mounted = this.mountedById.get(placement.itemId);
+      if (mounted === undefined) {
+        mounted = this.createItemNode(item);
+        this.mountedById.set(placement.itemId, mounted);
+        this.contentGroup.appendChild(mounted.group);
+        createdCount += 1;
+      }
+      this.patchItemNode(ctx, mounted, item, placement, fontSize);
+    }
+
+    let removedCount = 0;
+    for (const [itemId, mounted] of this.mountedById) {
+      if (!desiredIds.has(itemId)) {
+        mounted.group.remove();
+        this.mountedById.delete(itemId);
+        removedCount += 1;
+      }
+    }
+
+    return { liveNodeCount: this.mountedById.size, createdCount, removedCount };
+  }
+
+  private createItemNode(item: ScheduleItem): MountedItem {
+    const group = document.createElementNS(SVG_NS, 'g');
+    group.setAttribute('data-item-id', item.id);
+    // Expose each item as a named graphic to assistive tech (WCAG 1.1.1 / 4.1.2):
+    // role="img" + <title>; the concrete name is patched per render.
+    group.setAttribute('role', 'img');
+    const title = document.createElementNS(SVG_NS, 'title');
+    const shape =
+      item.itemKind === 'milestone'
+        ? document.createElementNS(SVG_NS, 'path')
+        : document.createElementNS(SVG_NS, 'rect');
+    const label = document.createElementNS(SVG_NS, 'text');
+    label.setAttribute('dominant-baseline', 'middle');
+    // Title first so it is the accessible name source; then the graphic + label.
+    group.appendChild(title);
+    group.appendChild(shape);
+    group.appendChild(label);
+    return {
+      group,
+      shape,
+      label,
+      title,
+      selectionOutline: null,
+      focusRing: null,
+      fadeInHandle: null,
+      fadeOutHandle: null,
+    };
+  }
+
+  /**
+   * Ensure a task's glyph element matches its current shape (item: task-type /
+   * icon-shape) and fade state: a `path` for arrow / chevron / span, a `polygon`
+   * for a faded bar, a `rect` for a plain bar (the exact pre-fade rendering,
+   * including rounded corners). Swaps the node in place before the label so the
+   * group keeps a single glyph node per item (virtualization/perf invariant).
+   * Milestones are left untouched (always a `path`).
+   */
+  private ensureTaskGlyphElement(mounted: MountedItem, item: ScheduleItem): void {
+    if (item.itemKind !== 'task') {
+      return;
+    }
+    const shape = effectiveTaskShape(item);
+    const wantTag = taskShapeUsesPath(shape)
+      ? 'path'
+      : hasFade(item.fadeInDays, item.fadeOutDays)
+        ? 'polygon'
+        : 'rect';
+    const currentTag = mounted.shape.tagName.toLowerCase();
+    if (currentTag === wantTag) {
+      return;
+    }
+    const next = document.createElementNS(SVG_NS, wantTag);
+    mounted.shape.replaceWith(next);
+    mounted.shape = next;
+  }
+
+  private patchItemNode(
+    ctx: RenderContext,
+    mounted: MountedItem,
+    item: ScheduleItem,
+    placement: ItemPlacement,
+    fontSize: number,
+  ): void {
+    // Swap the glyph element FIRST (rect / polygon / path per shape + fade) so the
+    // paint attributes below land on the element actually shown this frame.
+    this.ensureTaskGlyphElement(mounted, item);
+    // Property-driven fill (fix 3): plan -> green, actual -> orange, derived from
+    // the plan_actual_status PROPERTY (never by parsing the category name). Items
+    // without plan/actual semantics keep their own stored fill. Grey baseline /
+    // changed-plan ghosts are drawn separately (renderPreviousPlanGhosts) and are
+    // unaffected. Paired with the non-color stroke-dash below for WCAG 1.4.1.
+    const fillColor = displayFillColor(item);
+    const taskShape = item.itemKind === 'task' ? effectiveTaskShape(item) : null;
+    const stroked = taskShape !== null && taskShapeIsStroked(taskShape);
+    if (stroked) {
+      // A `span` (*--*) connector is a thin STROKED line with no fill; its own fill
+      // color paints the stroke so the fill-color control recolors the connector.
+      mounted.shape.setAttribute('fill', 'none');
+      mounted.shape.setAttribute('stroke', fillColor);
+      mounted.shape.setAttribute('stroke-width', String(strokeWidthPx(item.lineWeight)));
+      mounted.shape.setAttribute('stroke-dasharray', 'none');
+    } else {
+      mounted.shape.setAttribute('fill', fillColor);
+      // Item borders are SOLID and OFF by default (item 2): a transparent/absent
+      // stroke color renders `stroke="none"` (no border); any explicit stroke is
+      // solid (no dash-array). The dashed SELECTION outline is a separate node.
+      const stroke = resolveStrokeAttribute(item.strokeColor);
+      mounted.shape.setAttribute('stroke', stroke);
+      mounted.shape.setAttribute(
+        'stroke-width',
+        stroke === 'none' ? '0' : String(strokeWidthPx(item.lineWeight)),
+      );
+      mounted.shape.setAttribute('stroke-dasharray', 'none');
+    }
+    // Tag the glyph with its shape so tests / assistive tech can read the kind.
+    if (taskShape !== null) {
+      mounted.shape.setAttribute('data-task-shape', taskShape);
+    }
+
+    // Refresh the accessible name (abbrev + kind + dates) for the active locale.
+    const accessibleName = itemAccessibleName(item, ctx.viewState.activeLocale ?? 'en');
+    mounted.title.textContent = accessibleName;
+    mounted.group.setAttribute('aria-label', accessibleName);
+
+    if (item.itemKind === 'milestone') {
+      const size = placement.worldHeight;
+      const centerX = placement.worldX;
+      const centerY = placement.worldY + size / 2;
+      mounted.shape.setAttribute('d', milestonePath(item, centerX, centerY, size / 2));
+    } else if (taskShape !== null && taskShapeUsesPath(taskShape)) {
+      // Arrow / chevron / span: draw the shape from its own vertices. The fade taper
+      // only applies to a plain bar, so these shapes ignore fadeIn/Out days.
+      mounted.shape.setAttribute(
+        'd',
+        taskGlyphPath(taskShape, {
+          x: placement.worldX,
+          y: placement.worldY,
+          width: placement.worldWidth,
+          height: placement.worldHeight,
+        }),
+      );
+    } else if (hasFade(item.fadeInDays, item.fadeOutDays)) {
+      // Faded task: draw the 4-point trapezoid/parallelogram. The polygon carries a
+      // data attribute so tests/AT can read the taper without re-deriving geometry.
+      const points = taskFadePoints(item, placement, ctx.viewState.zoomX);
+      mounted.shape.setAttribute('points', fadePointsToAttribute(points));
+      mounted.shape.setAttribute('data-fade-in-days', String(item.fadeInDays ?? 0));
+      mounted.shape.setAttribute('data-fade-out-days', String(item.fadeOutDays ?? 0));
+    } else {
+      mounted.shape.setAttribute('x', String(placement.worldX));
+      mounted.shape.setAttribute('y', String(placement.worldY));
+      mounted.shape.setAttribute('width', String(placement.worldWidth));
+      mounted.shape.setAttribute('height', String(placement.worldHeight));
+      mounted.shape.setAttribute('rx', '2');
+    }
+
+    const labelAnchor = labelAnchorPoint(item, placement);
+    mounted.label.textContent = item.abbrev;
+    mounted.label.setAttribute('x', String(labelAnchor.x));
+    mounted.label.setAttribute('y', String(labelAnchor.y));
+    mounted.label.setAttribute('text-anchor', labelAnchor.textAnchor);
+    mounted.label.setAttribute('font-size', String(fontSize));
+    mounted.label.setAttribute('fill', ITEM_LABEL_HEX);
+
+    this.updateSelectionOutline(ctx, mounted, placement);
+    this.updateFocusRing(ctx, mounted, placement);
+    this.updateFadeHandles(ctx, mounted, item, placement);
+  }
+
+  /**
+   * Add or remove the two corner fade handles for a selected task (top-left =
+   * fade-in, bottom-right = fade-out). Reuses the small half-size white square with
+   * a blue border from the rounded-box handles. Handles are removed for milestones
+   * and unselected items.
+   */
+  private updateFadeHandles(
+    ctx: RenderContext,
+    mounted: MountedItem,
+    item: ScheduleItem,
+    placement: ItemPlacement,
+  ): void {
+    const show = item.itemKind === 'task' && ctx.selectedItemIds.has(placement.itemId);
+    if (!show) {
+      if (mounted.fadeInHandle !== null) {
+        mounted.fadeInHandle.remove();
+        mounted.fadeInHandle = null;
+      }
+      if (mounted.fadeOutHandle !== null) {
+        mounted.fadeOutHandle.remove();
+        mounted.fadeOutHandle = null;
+      }
+      return;
+    }
+    const centers = taskFadeHandleCenters(item, placement, ctx.viewState.zoomX);
+    mounted.fadeInHandle = this.placeFadeHandle(mounted, mounted.fadeInHandle, 'fade-in', centers.fadeIn);
+    mounted.fadeOutHandle = this.placeFadeHandle(mounted, mounted.fadeOutHandle, 'fade-out', centers.fadeOut);
+  }
+
+  /** Lazily create and position one fade corner handle square. */
+  private placeFadeHandle(
+    mounted: MountedItem,
+    existing: SVGRectElement | null,
+    role: 'fade-in' | 'fade-out',
+    center: FadePoint,
+  ): SVGRectElement {
+    let handle = existing;
+    if (handle === null) {
+      handle = document.createElementNS(SVG_NS, 'rect');
+      handle.setAttribute('data-role', `${role}-handle`);
+      handle.setAttribute('fill', HANDLE_FILL_HEX);
+      handle.setAttribute('stroke', CUD_BLUE_ACCENT_HEX);
+      handle.setAttribute('stroke-width', '1.5');
+      handle.setAttribute('pointer-events', 'none');
+      mounted.group.appendChild(handle);
+    }
+    const half = ANNOTATION_HANDLE_DRAW_HALF_PX;
+    handle.setAttribute('x', String(center.x - half));
+    handle.setAttribute('y', String(center.y - half));
+    handle.setAttribute('width', String(half * 2));
+    handle.setAttribute('height', String(half * 2));
+    return handle;
+  }
+
+  /** Add or remove the dashed selection outline based on current selection. */
+  private updateSelectionOutline(
+    ctx: RenderContext,
+    mounted: MountedItem,
+    placement: ItemPlacement,
+  ): void {
+    const isSelected = ctx.selectedItemIds.has(placement.itemId);
+    if (!isSelected) {
+      if (mounted.selectionOutline !== null) {
+        mounted.selectionOutline.remove();
+        mounted.selectionOutline = null;
+      }
+      return;
+    }
+    if (mounted.selectionOutline === null) {
+      const outline = document.createElementNS(SVG_NS, 'rect');
+      // Tagged so tests / assistive-tech can find the selected item's marker.
+      outline.setAttribute('data-role', 'selection-outline');
+      outline.setAttribute('fill', 'none');
+      outline.setAttribute('stroke', CUD_BLUE_ACCENT_HEX);
+      outline.setAttribute('stroke-width', '1.5');
+      // Selection is conveyed by a dashed pattern, not color alone (WCAG 1.4.1).
+      outline.setAttribute('stroke-dasharray', SELECTION_DASH_ARRAY);
+      outline.setAttribute('pointer-events', 'none');
+      mounted.group.appendChild(outline);
+      mounted.selectionOutline = outline;
+    }
+    const pad = 3;
+    mounted.selectionOutline.setAttribute('x', String(placement.worldX - pad));
+    mounted.selectionOutline.setAttribute('y', String(placement.worldY - pad));
+    mounted.selectionOutline.setAttribute('width', String(placement.worldWidth + pad * 2));
+    mounted.selectionOutline.setAttribute('height', String(placement.worldHeight + pad * 2));
+  }
+
+  /**
+   * Add or remove the solid keyboard-focus ring based on the focused item
+   * (WCAG 2.4.7). The ring is solid and offset further out than the selection
+   * dashes, so a focused-and-selected item shows a clear, distinct indicator.
+   */
+  private updateFocusRing(
+    ctx: RenderContext,
+    mounted: MountedItem,
+    placement: ItemPlacement,
+  ): void {
+    const isFocused = ctx.keyboardFocusItemId === placement.itemId;
+    if (!isFocused) {
+      if (mounted.focusRing !== null) {
+        mounted.focusRing.remove();
+        mounted.focusRing = null;
+      }
+      return;
+    }
+    if (mounted.focusRing === null) {
+      const ring = document.createElementNS(SVG_NS, 'rect');
+      ring.setAttribute('fill', 'none');
+      ring.setAttribute('stroke', FOCUS_RING_HEX);
+      ring.setAttribute('stroke-width', String(FOCUS_RING_STROKE_WIDTH));
+      ring.setAttribute('stroke-dasharray', FOCUS_RING_DASH_ARRAY);
+      ring.setAttribute('pointer-events', 'none');
+      mounted.group.appendChild(ring);
+      mounted.focusRing = ring;
+    }
+    const pad = 6;
+    mounted.focusRing.setAttribute('x', String(placement.worldX - pad));
+    mounted.focusRing.setAttribute('y', String(placement.worldY - pad));
+    mounted.focusRing.setAttribute('width', String(placement.worldWidth + pad * 2));
+    mounted.focusRing.setAttribute('height', String(placement.worldHeight + pad * 2));
+  }
+}

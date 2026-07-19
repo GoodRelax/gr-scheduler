@@ -30,6 +30,7 @@ import { SvgRenderer } from '../adapters/render/svg-renderer.js';
 import { applyUniformFontScale, ensureUiFontStylesheet } from './font-scale.js';
 import { uiLabel } from '../domain/usecase/i18n.js';
 import { AUTOSAVE_FAIL_HEX, AUTOSAVE_OK_HEX } from '../domain/usecase/a11y-tokens.js';
+import { CUD_GREEN_ACCENT_HEX } from '../domain/usecase/render-tokens.js';
 import { ScheduleStore } from '../domain/command/schedule-store.js';
 import {
   createCommentCommand,
@@ -47,7 +48,7 @@ import { orderedVisibleRows } from '../domain/usecase/section-organizer.js';
 import { EditingController } from '../adapters/input/editing-controller.js';
 import { PropertyPanel } from '../adapters/ui/property-panel.js';
 import { LeftClassificationPane } from '../adapters/ui/left-pane.js';
-import { mountShapePicker } from '../adapters/ui/tool-palette.js';
+import { mountShapePicker, type ToolPaletteHandle } from '../adapters/ui/tool-palette.js';
 import { enablePanelDrag } from '../adapters/ui/draggable.js';
 import { ItemClipboard } from '../adapters/clipboard/item-clipboard.js';
 import { attachKeyboardShortcuts } from '../adapters/input/keyboard-shortcuts.js';
@@ -685,7 +686,54 @@ function buildChrome(root: HTMLElement): Chrome {
   };
 }
 
-/** Application entry point. */
+/**
+ * Shared, mutable UI-locale state with a change registry (PROP-L1-003). The
+ * language toggle flips the locale and calls {@link LocaleController.emit}, which
+ * re-runs every locale-dependent label sync that a `wire*` helper registered via
+ * {@link LocaleController.onChange}. This replaces the god-function's direct
+ * cross-calls between sibling `sync*` closures.
+ */
+interface LocaleController {
+  /** The active UI locale. */
+  get(): Locale;
+  /** Set the active UI locale (does not emit; the caller emits when ready). */
+  set(next: Locale): void;
+  /** Register a callback to run whenever the locale changes. */
+  onChange(listener: () => void): void;
+  /** Run every registered locale-change callback. */
+  emit(): void;
+}
+
+/**
+ * Choose the starting document. A benchmark run needs the deterministic mid-size
+ * fixture; a normal startup offers crash recovery (IO-L1-005) and otherwise starts
+ * from the small, clean multi-section template (fix 6b).
+ *
+ * @param benchItemCountFromUrl - Requested benchmark item count, or null.
+ * @returns The document to seed the store with.
+ */
+function loadInitialDocument(benchItemCountFromUrl: number | null): ScheduleDocument {
+  if (benchItemCountFromUrl !== null) {
+    return generateSampleDocument(benchItemCountFromUrl);
+  }
+  const template = generateTemplateDocument();
+  if (!hasAutosavedDocument()) {
+    return template;
+  }
+  if (window.confirm('Restore your previous session?')) {
+    return loadAutosavedDocument() ?? template;
+  }
+  clearAutosavedDocument();
+  return template;
+}
+
+/**
+ * Application entry point. A short orchestrator: it builds the shell services in a
+ * fixed order (theme, chrome, store, renderer, controller), then hands each feature
+ * seam to a focused `wire*` helper IN THE SAME ORDER the god-function used, so the
+ * DOM-wiring effects (append order, initial syncs, event registration) are
+ * unchanged (review R1 / H-2).
+ */
 function bootstrap(): void {
   const root = document.getElementById('app');
   if (root === null) {
@@ -698,40 +746,23 @@ function bootstrap(): void {
   const initialThemePreference = readStoredThemePreference();
   applyThemePreference(document, initialThemePreference);
   const chrome = buildChrome(root);
-  // Install the uniform font-scale stylesheet so L/M/S reaches all UI text
-  // including native form controls (TOOL-L1-002).
+  // Install the uniform font-scale stylesheet (TOOL-L1-002) and the accessibility
+  // stylesheet (focus indicators 2.4.7, reduced-motion 2.3.3, sr-only utility M5c).
   ensureUiFontStylesheet(document);
-  // Install the accessibility stylesheet: visible focus indicators (2.4.7),
-  // reduced-motion handling (2.3.3) and the screen-reader-only utility (M5c).
   ensureA11yStylesheet(document);
   // Polite live region for autosave / import / keyboard-focus announcements.
   const announcer = new LiveRegionAnnouncer(root, 'gr-scheduler status');
 
   const benchItemCountFromUrl = parseBenchParam(window.location.search);
 
-  // A benchmark run needs the deterministic mid-size fixture; a normal startup gets
-  // the small, clean multi-section template (fix 6b) as the starting canvas.
-  let initialDocument =
-    benchItemCountFromUrl !== null
-      ? generateSampleDocument(benchItemCountFromUrl)
-      : generateTemplateDocument();
-  // Crash recovery (IO-L1-005): offer to restore a previously autosaved session
-  // unless a benchmark run was requested (which needs the deterministic fixture).
-  if (benchItemCountFromUrl === null && hasAutosavedDocument()) {
-    if (window.confirm('Restore your previous session?')) {
-      const restored = loadAutosavedDocument();
-      if (restored !== null) {
-        initialDocument = restored;
-      }
-    } else {
-      clearAutosavedDocument();
-    }
-  }
-
   // The store normalizes every dispatched/replaced document by re-deriving the
   // classification tree (sections / rows / rowId) from the items' categories, so
   // the tree always follows the items and edits stay undoable.
-  const store = new ScheduleStore(initialDocument, undefined, rebuildClassification);
+  const store = new ScheduleStore(
+    loadInitialDocument(benchItemCountFromUrl),
+    undefined,
+    rebuildClassification,
+  );
 
   const renderer = new SvgRenderer();
   renderer.mount(chrome.stage);
@@ -744,13 +775,11 @@ function bootstrap(): void {
 
   // Apply the persisted font scale uniformly across the chrome (TOOL-L1-002).
   applyUniformFontScale(root, store.getDocument().viewState.fontScale);
-  // Active UI locale for value/label resolution (PROP-L1-003), from view state.
-  let activeLocale: Locale = store.getDocument().viewState.activeLocale ?? 'en';
 
   const controller = new EditingController(renderer, store);
   controller.attach();
-
   const clipboard = new ItemClipboard();
+
   // Single source of truth for the property panel's visibility, shared by the
   // toolbar toggle, the panel's own × close button (fix 10) and double-click
   // (fix 10) so the toggle's aria-pressed never drifts from the actual state.
@@ -763,18 +792,109 @@ function bootstrap(): void {
     setPropertiesPanelHidden(true),
   );
 
-  // item: the single floating command palette is drag-movable by its grip. It is
-  // clamped within `root` (the whole app, header included) so it can be dragged up
-  // over/into the minimal header band yet never fully off-screen.
+  // Active UI locale (PROP-L1-003), from view state, held as shared mutable state
+  // so the language toggle can re-run every registered locale-dependent sync.
+  let activeLocale: Locale = store.getDocument().viewState.activeLocale ?? 'en';
+  const localeListeners: Array<() => void> = [];
+  const locale: LocaleController = {
+    get: () => activeLocale,
+    set: (next) => {
+      activeLocale = next;
+    },
+    onChange: (listener) => {
+      localeListeners.push(listener);
+    },
+    emit: () => {
+      for (const listener of localeListeners) {
+        listener();
+      }
+    },
+  };
+
+  wirePaletteChrome(root, chrome);
+  wireProperties(chrome, controller, propertyPanel, setPropertiesPanelHidden);
+
+  // The fixed, resizable left classification pane (frozen column) wires itself to
+  // store + view-state changes (CANVAS-L1-006 / L2-001, SECT-L1-006).
+  new LeftClassificationPane(chrome.stage, store, renderer);
+  // Merge the shape/milestone/task picker + Undo/Redo INTO the one command palette
+  // (item: merge the two palettes) so there is a single role="toolbar" and no
+  // overlap. Inserted before the save-status readout so it stays last.
+  const toolPalette = mountShapePicker(
+    chrome.commandPalette,
+    {
+      onArmShape: (shape) => controller.setPendingCreateShape(shape),
+      onUndo: () => store.undo(),
+      onRedo: () => store.redo(),
+    },
+    activeLocale,
+    chrome.saveStatusLabel,
+  );
+  attachKeyboardShortcuts({ store, controller, clipboard });
+
+  // Help modal (SHELL item 2): the [?] button opens an accessible dialog listing
+  // all features + shortcuts; the modal owns its own focus trap and Esc handling
+  // (it stops propagation so the shell's Esc handler does not double-fire).
+  const helpModal = new HelpModal(root);
+  wireHelp(chrome, helpModal);
+  wireTheme(chrome, renderer, locale, initialThemePreference);
+  wireEscHandling(controller, propertyPanel, helpModal, setPropertiesPanelHidden);
+
+  // Screen-reader-only keyboard help, referenced by the canvas via aria-describedby
+  // so a focused canvas announces how to operate it (WCAG 2.1.1 discoverability).
+  const canvasHelp = document.createElement('p');
+  canvasHelp.id = 'grsch-canvas-help';
+  canvasHelp.className = VISUALLY_HIDDEN_CLASS;
+  canvasHelp.textContent = uiLabel('canvas_keyboard_help', activeLocale);
+  wireCanvasAccessibility(root, chrome, renderer, controller, store, announcer, canvasHelp, locale);
+
+  syncScheduleName(chrome, store);
+  wireToolbarLocalization(chrome, locale);
+  wireFontScale(chrome, renderer, root, store);
+  wireWatermark(chrome, renderer, locale);
+  wireLanguage(chrome, renderer, toolPalette, canvasHelp, locale);
+  wireDependencyLinkMode(chrome, controller, locale);
+  wirePlanActual(chrome, renderer, locale);
+  wireFit(chrome, renderer);
+  wireFullscreen(chrome, locale);
+  wireTodayLine(chrome, renderer, locale);
+  wireProgressLine(propertyPanel, renderer);
+  wireCursorGuide(chrome, renderer);
+  wireGridToggles(chrome, renderer, locale);
+  wireAnnotationCreation(chrome, store, renderer, controller);
+  wireStoreSubscriptions(
+    store,
+    renderer,
+    controller,
+    propertyPanel,
+    toolPalette,
+    setPropertiesPanelHidden,
+  );
+
+  wireInputOutput(chrome, renderer, store, announcer);
+  wireInitialFraming(renderer, benchItemCountFromUrl);
+
+  log.info('bootstrap_complete', {
+    initial_item_count: store.getDocument().items.length,
+    bench_from_url: benchItemCountFromUrl !== null,
+  });
+
+  wireBenchmark(chrome, renderer, store, benchItemCountFromUrl);
+}
+
+/**
+ * Wire the floating command palette's chrome: drag-to-move by its grip (clamped
+ * within `root` so it can reach the header band yet never go fully off-screen) and
+ * the minimize/expand toggle (double-click or the ▁ button), which collapses the
+ * palette to just the handle + toggle to free the drawing area (fix 11).
+ */
+function wirePaletteChrome(root: HTMLElement, chrome: Chrome): void {
   enablePanelDrag({
     element: chrome.commandPalette,
     handle: chrome.paletteDragHandle,
     host: root,
   });
 
-  // item: minimizable palette. A double-click on the palette (or its handle) and a
-  // click on the ▁ toggle both flip expanded <-> minimized; minimized collapses to
-  // just the handle + toggle (see the minimized CSS), freeing the drawing area.
   // Keep the (possibly dragged) palette fully within the viewport (fix 11). Only
   // acts once the palette has an explicit left/top from a drag; while it still uses
   // its default top/right anchor it grows leftward and can never clip off-screen.
@@ -823,47 +943,46 @@ function bootstrap(): void {
     }
     togglePaletteMinimized();
   });
+}
 
-  // item: show/hide the fixed property panel; hidden -> the flex canvas widens to
-  // reclaim the space, shown -> the panel returns. aria-pressed reflects "shown".
+/**
+ * Wire the properties-panel show/hide toggle and the double-click-to-open path
+ * (fix 10): hidden -> the flex canvas widens; shown -> the panel returns. The
+ * controller has already applied the selection on activate; here we reveal it.
+ */
+function wireProperties(
+  chrome: Chrome,
+  controller: EditingController,
+  propertyPanel: PropertyPanel,
+  setPropertiesPanelHidden: (hidden: boolean) => void,
+): void {
   chrome.propertiesToggleButton.addEventListener('click', () => {
     setPropertiesPanelHidden(!propertyPanel.isHidden());
   });
-  // Double-clicking an item opens/shows the panel and selects it (fix 10). The
-  // controller has already applied the selection; here we just reveal the panel.
   controller.onItemActivate(() => {
     if (propertyPanel.isHidden()) {
       setPropertiesPanelHidden(false);
     }
   });
-  // The fixed, resizable left classification pane (frozen column) wires itself to
-  // store + view-state changes (CANVAS-L1-006 / L2-001, SECT-L1-006).
-  new LeftClassificationPane(chrome.stage, store, renderer);
-  // Merge the shape/milestone/task picker + Undo/Redo INTO the one command palette
-  // (item: merge the two palettes) so there is a single role="toolbar" and no
-  // overlap. Inserted before the save-status readout so it stays last.
-  const toolPalette = mountShapePicker(
-    chrome.commandPalette,
-    {
-      onArmShape: (shape) => controller.setPendingCreateShape(shape),
-      onUndo: () => store.undo(),
-      onRedo: () => store.redo(),
-    },
-    activeLocale,
-    chrome.saveStatusLabel,
-  );
-  attachKeyboardShortcuts({ store, controller, clipboard });
+}
 
-  // Help modal (SHELL item 2): the [?] button opens an accessible dialog listing
-  // all features + shortcuts; the modal owns its own focus trap and Esc handling
-  // (it stops propagation so the shell's Esc handler below does not double-fire).
-  const helpModal = new HelpModal(root);
+/** Wire the [?] help button to open the accessible help dialog (SHELL item 2). */
+function wireHelp(chrome: Chrome, helpModal: HelpModal): void {
   chrome.helpButton.addEventListener('click', () => helpModal.open(chrome.helpButton));
+}
 
-  // Dark-mode toggle (SHELL item 3): an explicit light / dark choice, persisted in
-  // localStorage and mirrored into the document view state so it round-trips on
-  // export. The OS `prefers-color-scheme` still drives the initial look until the
-  // user first chooses (preference 'system').
+/**
+ * Wire the dark-mode toggle (SHELL item 3): an explicit light / dark choice,
+ * persisted in localStorage and mirrored into the document view state so it
+ * round-trips on export. The OS `prefers-color-scheme` still drives the initial
+ * look until the user first chooses (preference 'system').
+ */
+function wireTheme(
+  chrome: Chrome,
+  renderer: SvgRenderer,
+  locale: LocaleController,
+  initialThemePreference: ThemePreference,
+): void {
   let themePreference: ThemePreference = initialThemePreference;
   let themeMode: ThemeMode = resolveThemeMode(themePreference);
   const syncThemeButton = (): void => {
@@ -872,7 +991,7 @@ function bootstrap(): void {
     // Show the glyph for the action available: a sun to go light while dark, a
     // moon to go dark while light.
     chrome.themeButton.textContent = isDark ? '☀' : '☽';
-    const name = `${uiLabel('theme_toggle', activeLocale)}: ${isDark ? 'on' : 'off'}`;
+    const name = `${uiLabel('theme_toggle', locale.get())}: ${isDark ? 'on' : 'off'}`;
     chrome.themeButton.setAttribute('aria-label', name);
     chrome.themeButton.title = name;
   };
@@ -884,14 +1003,22 @@ function bootstrap(): void {
     renderer.setViewState({ ...renderer.getViewState(), themePreference });
     syncThemeButton();
   });
+  locale.onChange(syncThemeButton);
+}
 
-  // ESC handling (SHELL item 4): the app captures Esc ONLY when it is actually
-  // used -- (a) a gesture / drag / marquee is in progress (cancel it), (b) the Help
-  // modal is open (it handles + stops its own Esc, so it never reaches here), or
-  // (c) the properties panel is open (close it). When NONE apply (panel hidden,
-  // nothing in progress), Esc is left un-prevented so it propagates to the browser
-  // -- e.g. to exit native F11 fullscreen. Registered on window so it works
-  // regardless of which element holds focus, including a properties field.
+/**
+ * Wire the window-level ESC handler (SHELL item 4): capture Esc ONLY when it is
+ * actually used -- (a) a gesture/drag/marquee is in progress (cancel it), (b) the
+ * Help modal is open (it handles + stops its own Esc, so it never reaches here), or
+ * (c) the properties panel is open (close it). When NONE apply, Esc is left
+ * un-prevented so it propagates to the browser (e.g. to exit native F11).
+ */
+function wireEscHandling(
+  controller: EditingController,
+  propertyPanel: PropertyPanel,
+  helpModal: HelpModal,
+  setPropertiesPanelHidden: (hidden: boolean) => void,
+): void {
   window.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') {
       return;
@@ -913,38 +1040,41 @@ function bootstrap(): void {
     // Otherwise: idle + panel hidden -> do NOT preventDefault; let the browser have
     // the Esc (F11 fullscreen exit, etc.).
   });
+}
 
-  // Reflect the active locale on <html lang> so assistive tech uses the right
-  // pronunciation/language (WCAG 3.1.1).
-  document.documentElement.lang = activeLocale;
-
-  // Screen-reader-only keyboard help, referenced by the canvas via aria-describedby
-  // so a focused canvas announces how to operate it (WCAG 2.1.1 discoverability).
-  const canvasHelp = document.createElement('p');
-  canvasHelp.id = 'grsch-canvas-help';
-  canvasHelp.className = VISUALLY_HIDDEN_CLASS;
-  canvasHelp.textContent = uiLabel('canvas_keyboard_help', activeLocale);
+/**
+ * Wire canvas accessibility: reflect the locale on `<html lang>` (WCAG 3.1.1),
+ * attach the screen-reader-only keyboard help (2.1.1), enable canvas keyboard
+ * navigation (2.1.1 / 2.1.2) and set the logical focus order (2.4.3) by moving the
+ * left pane then the canvas to the end of the stage (DOM order only, no visual
+ * move since overlays are absolutely positioned).
+ */
+function wireCanvasAccessibility(
+  root: HTMLElement,
+  chrome: Chrome,
+  renderer: SvgRenderer,
+  controller: EditingController,
+  store: ScheduleStore,
+  announcer: LiveRegionAnnouncer,
+  canvasHelp: HTMLParagraphElement,
+  locale: LocaleController,
+): void {
+  document.documentElement.lang = locale.get();
   root.appendChild(canvasHelp);
   renderer.getSvgElement().setAttribute('aria-describedby', canvasHelp.id);
 
-  // Canvas keyboard navigation (WCAG 2.1.1 / 2.1.2): Tab roves items, arrows
-  // nudge/resize, Enter places an armed shape or opens editing, Escape cancels.
   attachCanvasKeyboardNavigation({
     renderer,
     controller,
     store,
     announce: (message) => announcer.announce(message),
-    getLocale: () => activeLocale,
+    getLocale: () => locale.get(),
     onActivateItem: () => {
       const firstField = chrome.panelHost.querySelector<HTMLElement>('input, select, textarea');
       firstField?.focus();
     },
   });
 
-  // Logical focus order (WCAG 2.4.3): the merged command toolbar leads (it is the
-  // first child of root); within the stage the left pane precedes the canvas. The
-  // overlays are absolutely positioned with their own z-index, so reordering them
-  // in the DOM changes tab order without moving anything on screen.
   const leftPaneElement = chrome.stage.querySelector<HTMLElement>(
     '[data-role="left-classification-pane"]',
   );
@@ -952,72 +1082,102 @@ function bootstrap(): void {
     chrome.stage.appendChild(leftPaneElement);
   }
   chrome.stage.appendChild(renderer.getSvgElement());
+}
 
-  // The header shows only the schedule name (item6.1). Keep it in sync with the
-  // active document title, including after an import replaces the document.
-  const syncScheduleName = (): void => {
-    const title = store.getDocument().title.trim();
-    chrome.scheduleNameLabel.textContent = title.length > 0 ? title : 'gr-scheduler';
-  };
-  syncScheduleName();
+/**
+ * Reflect the active document title in the minimal header (item6.1), falling back
+ * to `gr-scheduler` when the title is blank.
+ */
+function syncScheduleName(chrome: Chrome, store: ScheduleStore): void {
+  const title = store.getDocument().title.trim();
+  chrome.scheduleNameLabel.textContent = title.length > 0 ? title : 'gr-scheduler';
+}
 
-  // Localize the command palette accessible names for the active locale
-  // (PROP-L1-003). The buttons show compact glyphs; their aria-label/title (the
-  // accessible name a screen reader announces and the E2E specs target) localize
-  // here. Buttons that carry dynamic state (toggles) are updated by their own
-  // handlers below.
-  const localizeCommandName = (button: HTMLButtonElement, labelKey: string, locale: Locale): void => {
-    const name = uiLabel(labelKey, locale);
+/**
+ * Wire the localized accessible names of the command palette (PROP-L1-003). The
+ * buttons show compact glyphs; their aria-label/title (the name a screen reader
+ * announces and the E2E specs target) localize here and re-localize on a locale
+ * change. Buttons that carry dynamic on/off state are re-synced by their own
+ * wire helpers.
+ */
+function wireToolbarLocalization(chrome: Chrome, locale: LocaleController): void {
+  const localizeCommandName = (button: HTMLButtonElement, labelKey: string, loc: Locale): void => {
+    const name = uiLabel(labelKey, loc);
     button.setAttribute('aria-label', name);
     button.title = name;
   };
-  const localizeToolbar = (locale: Locale): void => {
-    chrome.commandPalette.setAttribute('aria-label', uiLabel('toolbar', locale));
-    localizeCommandName(chrome.exportJsonButton, 'export_json', locale);
-    localizeCommandName(chrome.exportXmlButton, 'export_xml', locale);
-    localizeCommandName(chrome.exportSvgButton, 'export_svg', locale);
-    localizeCommandName(chrome.importDocButton, 'import', locale);
-    localizeCommandName(chrome.importIconButton, 'import_icon', locale);
-    localizeCommandName(chrome.benchButton, 'run_benchmark', locale);
-    localizeCommandName(chrome.fitButton, 'fit_to_content', locale);
-    localizeCommandName(chrome.commentButton, 'add_comment', locale);
-    localizeCommandName(chrome.boxButton, 'add_box', locale);
-    chrome.watermarkNameInput.setAttribute('aria-label', uiLabel('user_name', locale));
-    chrome.watermarkNameInput.placeholder = uiLabel('user_name', locale);
-    chrome.saveStatusLabel.setAttribute('aria-label', uiLabel('autosave_status', locale));
-    chrome.languageButton.setAttribute('aria-label', uiLabel('language', locale));
-    chrome.languageButton.title = uiLabel('language', locale);
-    localizeCommandName(chrome.fontButtons[0] as HTMLButtonElement, 'font_size_small', locale);
-    localizeCommandName(chrome.fontButtons[1] as HTMLButtonElement, 'font_size_medium', locale);
-    localizeCommandName(chrome.fontButtons[2] as HTMLButtonElement, 'font_size_large', locale);
+  const localizeToolbar = (loc: Locale): void => {
+    chrome.commandPalette.setAttribute('aria-label', uiLabel('toolbar', loc));
+    localizeCommandName(chrome.exportJsonButton, 'export_json', loc);
+    localizeCommandName(chrome.exportXmlButton, 'export_xml', loc);
+    localizeCommandName(chrome.exportSvgButton, 'export_svg', loc);
+    localizeCommandName(chrome.importDocButton, 'import', loc);
+    localizeCommandName(chrome.importIconButton, 'import_icon', loc);
+    localizeCommandName(chrome.benchButton, 'run_benchmark', loc);
+    localizeCommandName(chrome.fitButton, 'fit_to_content', loc);
+    localizeCommandName(chrome.commentButton, 'add_comment', loc);
+    localizeCommandName(chrome.boxButton, 'add_box', loc);
+    chrome.watermarkNameInput.setAttribute('aria-label', uiLabel('user_name', loc));
+    chrome.watermarkNameInput.placeholder = uiLabel('user_name', loc);
+    chrome.saveStatusLabel.setAttribute('aria-label', uiLabel('autosave_status', loc));
+    chrome.languageButton.setAttribute('aria-label', uiLabel('language', loc));
+    chrome.languageButton.title = uiLabel('language', loc);
+    localizeCommandName(chrome.fontButtons[0] as HTMLButtonElement, 'font_size_small', loc);
+    localizeCommandName(chrome.fontButtons[1] as HTMLButtonElement, 'font_size_medium', loc);
+    localizeCommandName(chrome.fontButtons[2] as HTMLButtonElement, 'font_size_large', loc);
     // Cursor-guide radio buttons carry their own i18n key in dataset.labelKey.
     for (const button of chrome.cursorGuideButtons) {
       const key = button.dataset.labelKey;
       if (key !== undefined) {
-        localizeCommandName(button, key, locale);
+        localizeCommandName(button, key, loc);
       }
     }
   };
-  localizeToolbar(activeLocale);
+  localizeToolbar(locale.get());
+  locale.onChange(() => localizeToolbar(locale.get()));
+}
 
-  // Reflect the active font scale on the A- / A / A+ buttons (WCAG 4.1.2 state).
+/**
+ * Wire the A- / A / A+ font-scale buttons: reflect the active scale (WCAG 4.1.2)
+ * and, on click, apply the step to the SVG schedule labels (view state) AND all
+ * HTML chrome (root font variable) so one control scales everything uniformly
+ * (TOOL-L1-002).
+ */
+function wireFontScale(
+  chrome: Chrome,
+  renderer: SvgRenderer,
+  root: HTMLElement,
+  store: ScheduleStore,
+): void {
   const syncFontButtons = (scale: FontScale): void => {
     for (const button of chrome.fontButtons) {
       button.setAttribute('aria-pressed', button.dataset.fontScale === scale ? 'true' : 'false');
     }
   };
   syncFontButtons(store.getDocument().viewState.fontScale);
+  for (const button of chrome.fontButtons) {
+    button.addEventListener('click', () => {
+      const scale = button.dataset.fontScale as FontScale;
+      renderer.setViewState({ ...renderer.getViewState(), fontScale: scale });
+      applyUniformFontScale(root, scale);
+      syncFontButtons(scale);
+    });
+  }
+}
 
-  // Watermark on/off toggle (TOOL-L1-007, TOOL-L2-003). Kept in view state so it
-  // round-trips on export without polluting Undo/Redo.
-  // The watermark is shown by DEFAULT (resolveWatermark treats an absent value as an
-  // enabled "GoodRelax" mark). The effective watermark is always resolved so the
-  // toggle, name box and hide-password gate see the default rather than undefined.
+/**
+ * Wire the watermark on/off toggle and user-name input (TOOL-L1-007, TOOL-L2-003).
+ * Kept in view state so it round-trips on export without polluting Undo/Redo. The
+ * mark is shown by DEFAULT (resolveWatermark treats an absent value as an enabled
+ * "GoodRelax" mark); hiding it requires the password (only the hash is ever kept;
+ * client-side gating is a soft deterrent only, security-design §6).
+ */
+function wireWatermark(chrome: Chrome, renderer: SvgRenderer, locale: LocaleController): void {
   const currentWatermark = (): Watermark => resolveWatermark(renderer.getViewState().watermark);
   const isWatermarkEnabled = (): boolean => currentWatermark().enabled;
   const syncWatermarkButton = (): void => {
     const enabled = isWatermarkEnabled();
-    const name = `${uiLabel('watermark', activeLocale)}: ${enabled ? 'on' : 'off'}`;
+    const name = `${uiLabel('watermark', locale.get())}: ${enabled ? 'on' : 'off'}`;
     chrome.watermarkButton.setAttribute('aria-pressed', enabled ? 'true' : 'false');
     chrome.watermarkButton.setAttribute('aria-label', name);
     chrome.watermarkButton.title = name;
@@ -1040,13 +1200,12 @@ function bootstrap(): void {
       return;
     }
     // Hiding the mark requires the password: hash the input and compare to the
-    // stored hash (only the hash is ever kept). Client-side gating is a soft
-    // deterrent only (security-design §6).
-    const entered = window.prompt(uiLabel('watermark_hide_prompt', activeLocale)) ?? '';
+    // stored hash (only the hash is ever kept).
+    const entered = window.prompt(uiLabel('watermark_hide_prompt', locale.get())) ?? '';
     const expectedHash = base.hideHash ?? DEFAULT_WATERMARK_HIDE_PASSWORD_HASH;
     void matchesWatermarkHidePassword(entered, expectedHash).then((ok) => {
       if (!ok) {
-        window.alert(uiLabel('watermark_hide_denied', activeLocale));
+        window.alert(uiLabel('watermark_hide_denied', locale.get()));
         return; // wrong password: the watermark stays visible.
       }
       applyWatermark({ ...base, enabled: false });
@@ -1060,30 +1219,47 @@ function bootstrap(): void {
     });
   });
   syncWatermarkButton();
+  locale.onChange(syncWatermarkButton);
+}
 
-  // UI language toggle (PROP-L1-003): cycle en <-> ja; property NAMES stay English.
+/**
+ * Wire the UI language toggle (PROP-L1-003): cycle en <-> ja (property NAMES stay
+ * English), mirror the locale into the view state and the shape picker, then emit
+ * the locale change so every registered label sync re-runs, and keep `<html lang>`
+ * and the canvas keyboard help in step (WCAG 3.1.1 / 2.1.1).
+ */
+function wireLanguage(
+  chrome: Chrome,
+  renderer: SvgRenderer,
+  toolPalette: ToolPaletteHandle,
+  canvasHelp: HTMLParagraphElement,
+  locale: LocaleController,
+): void {
   chrome.languageButton.addEventListener('click', () => {
-    activeLocale = activeLocale === 'en' ? 'ja' : 'en';
-    renderer.setViewState({ ...renderer.getViewState(), activeLocale });
-    toolPalette.setLocale(activeLocale);
-    localizeToolbar(activeLocale);
-    syncWatermarkButton();
-    // Re-localize the stateful toggles whose names carry an on/off suffix.
-    syncPlanActualButtons(renderer.getViewState().planActualDisplay);
-    syncFullscreenButton();
-    syncThemeButton();
-    // Keep <html lang> and the canvas keyboard help in sync with the locale
-    // (WCAG 3.1.1 / 2.1.1).
-    document.documentElement.lang = activeLocale;
-    canvasHelp.textContent = uiLabel('canvas_keyboard_help', activeLocale);
-    chrome.languageButton.textContent = activeLocale.toUpperCase();
+    locale.set(locale.get() === 'en' ? 'ja' : 'en');
+    const active = locale.get();
+    renderer.setViewState({ ...renderer.getViewState(), activeLocale: active });
+    toolPalette.setLocale(active);
+    locale.emit();
+    document.documentElement.lang = active;
+    canvasHelp.textContent = uiLabel('canvas_keyboard_help', active);
+    chrome.languageButton.textContent = active.toUpperCase();
   });
-  chrome.languageButton.textContent = activeLocale.toUpperCase();
+  chrome.languageButton.textContent = locale.get().toUpperCase();
+}
 
-  // Dependency link-mode toggle (DEP-L1). Icon button: reflect state via
-  // aria-pressed + a localized title, keeping the glyph stable (WCAG 4.1.2).
+/**
+ * Wire the dependency link-mode toggle (DEP-L1). Reflect state via aria-pressed + a
+ * localized title (glyph stays stable, WCAG 4.1.2), and show the click-to-pick hint
+ * (item 4) while the mode is on: pick a source, then a target.
+ */
+function wireDependencyLinkMode(
+  chrome: Chrome,
+  controller: EditingController,
+  locale: LocaleController,
+): void {
   const syncLinkButton = (enabled: boolean): void => {
-    const name = `${uiLabel('link_mode', activeLocale)}: ${enabled ? 'on' : 'off'}`;
+    const name = `${uiLabel('link_mode', locale.get())}: ${enabled ? 'on' : 'off'}`;
     chrome.linkButton.setAttribute('aria-pressed', enabled ? 'true' : 'false');
     chrome.linkButton.setAttribute('aria-label', name);
     chrome.linkButton.title = name;
@@ -1095,9 +1271,6 @@ function bootstrap(): void {
   });
   syncLinkButton(controller.isLinkMode());
 
-  // Active-state hint for click-to-pick link mode (item 4). While the mode is on the
-  // hint tells the user to pick a source then a target; once a source is armed it names
-  // it. Hidden when the mode is off.
   controller.onLinkStateChange((state) => {
     if (!state.enabled) {
       chrome.linkHint.style.display = 'none';
@@ -1110,18 +1283,22 @@ function bootstrap(): void {
         ? 'Dependency link: pick source -> target'
         : `Dependency link: ${state.armedSourceItemId} -> pick target`;
   });
+}
 
-  // Two independent Plan / Actual visibility toggles (fix 8, PLAN-L1-002), held in
-  // view state (not the edit history). Together they drive the single display
-  // filter: both on -> both, one on -> that side, neither -> none.
+/**
+ * Wire the two independent Plan / Actual visibility toggles (fix 8, PLAN-L1-002),
+ * held in view state (not the edit history). Together they drive the single display
+ * filter: both on -> both, one on -> that side, neither -> none.
+ */
+function wirePlanActual(chrome: Chrome, renderer: SvgRenderer, locale: LocaleController): void {
   const syncPlanActualButtons = (display: PlanActualDisplay | undefined): void => {
     const planShown = isPlanShown(display);
     const actualShown = isActualShown(display);
-    const planName = `${uiLabel('plan_display', activeLocale)}: ${planShown ? 'on' : 'off'}`;
+    const planName = `${uiLabel('plan_display', locale.get())}: ${planShown ? 'on' : 'off'}`;
     chrome.planButton.setAttribute('aria-pressed', planShown ? 'true' : 'false');
     chrome.planButton.setAttribute('aria-label', planName);
     chrome.planButton.title = planName;
-    const actualName = `${uiLabel('actual_display', activeLocale)}: ${actualShown ? 'on' : 'off'}`;
+    const actualName = `${uiLabel('actual_display', locale.get())}: ${actualShown ? 'on' : 'off'}`;
     chrome.actualButton.setAttribute('aria-pressed', actualShown ? 'true' : 'false');
     chrome.actualButton.setAttribute('aria-label', actualName);
     chrome.actualButton.title = actualName;
@@ -1139,14 +1316,19 @@ function bootstrap(): void {
     syncPlanActualButtons(next);
   });
   syncPlanActualButtons(renderer.getViewState().planActualDisplay);
+  locale.onChange(() => syncPlanActualButtons(renderer.getViewState().planActualDisplay));
+}
 
-  // Fit: frame the whole schedule in the viewport (fix 7).
+/** Wire the Fit button: frame the whole schedule in the viewport (fix 7). */
+function wireFit(chrome: Chrome, renderer: SvgRenderer): void {
   chrome.fitButton.addEventListener('click', () => renderer.fitToContent());
+}
 
-  // Fullscreen toggle (fix 12): the F11 effect via the Fullscreen API.
+/** Wire the fullscreen toggle (fix 12): the F11 effect via the Fullscreen API. */
+function wireFullscreen(chrome: Chrome, locale: LocaleController): void {
   const syncFullscreenButton = (): void => {
     const active = globalThis.document.fullscreenElement !== null;
-    const name = `${uiLabel('toggle_fullscreen', activeLocale)}: ${active ? 'on' : 'off'}`;
+    const name = `${uiLabel('toggle_fullscreen', locale.get())}: ${active ? 'on' : 'off'}`;
     chrome.fullscreenButton.setAttribute('aria-pressed', active ? 'true' : 'false');
     chrome.fullscreenButton.setAttribute('aria-label', name);
     chrome.fullscreenButton.title = name;
@@ -1167,10 +1349,13 @@ function bootstrap(): void {
   });
   globalThis.document.addEventListener('fullscreenchange', syncFullscreenButton);
   syncFullscreenButton();
+  locale.onChange(syncFullscreenButton);
+}
 
-  // Today line visibility toggle (CURS-L1-001 / L1-004).
+/** Wire the today-line visibility toggle (CURS-L1-001 / L1-004). */
+function wireTodayLine(chrome: Chrome, renderer: SvgRenderer, locale: LocaleController): void {
   const syncTodayButton = (visible: boolean): void => {
-    const name = `${uiLabel('today_line', activeLocale)}: ${visible ? 'on' : 'off'}`;
+    const name = `${uiLabel('today_line', locale.get())}: ${visible ? 'on' : 'off'}`;
     chrome.todayButton.setAttribute('aria-pressed', visible ? 'true' : 'false');
     chrome.todayButton.setAttribute('aria-label', name);
     chrome.todayButton.title = name;
@@ -1181,11 +1366,15 @@ function bootstrap(): void {
     syncTodayButton(visible);
   });
   syncTodayButton(renderer.getViewState().todayLineVisible === true);
+}
 
-  // Progress line (イナズマ線) delete/show toggle + color (item 2), hosted in the
-  // property panel (a persistent, always-present control section) so the floating
-  // toolbar is untouched. Both settings live in view state so they round-trip via
-  // JSON / autosave; absent visibility is treated as shown (legacy default).
+/**
+ * Wire the progress-line (イナズマ線) show/hide + color controls (item 2), hosted in
+ * the property panel so the floating toolbar is untouched. Both settings live in
+ * view state so they round-trip via JSON / autosave; absent visibility is treated
+ * as shown (legacy default). English-only labels (SHELL item 5).
+ */
+function wireProgressLine(propertyPanel: PropertyPanel, renderer: SvgRenderer): void {
   propertyPanel.attachProgressLineControls({
     isVisible: () => renderer.getViewState().progressLineVisible !== false,
     getColor: () => renderer.getViewState().progressLineColor ?? DEFAULT_PROGRESS_LINE_COLOR,
@@ -1193,15 +1382,17 @@ function bootstrap(): void {
       renderer.setViewState({ ...renderer.getViewState(), progressLineVisible: visible }),
     onColor: (color) =>
       renderer.setViewState({ ...renderer.getViewState(), progressLineColor: color }),
-    // Properties panel is English-only (SHELL item 5): property names are already
-    // fixed English, so keep this control's label English regardless of UI locale.
     label: uiLabel('progress_line', 'en'),
     colorLabel: uiLabel('progress_line_color', 'en'),
   });
+}
 
-  // Pointer-following cursor-guide selector (items 9-12): four EXCLUSIVE modes as a
-  // radio group, held in view state (cursorGuideMode) so the choice round-trips via
-  // JSON / autosave. Default is `none` (off), matching the prior default.
+/**
+ * Wire the pointer-following cursor-guide selector (items 9-12): four EXCLUSIVE
+ * modes as a radio group, held in view state (cursorGuideMode) so the choice
+ * round-trips via JSON / autosave. Default is `none` (off).
+ */
+function wireCursorGuide(chrome: Chrome, renderer: SvgRenderer): void {
   const syncCursorGuideButtons = (mode: CursorGuideMode): void => {
     for (const button of chrome.cursorGuideButtons) {
       button.setAttribute('aria-checked', button.dataset.guideMode === mode ? 'true' : 'false');
@@ -1215,12 +1406,16 @@ function bootstrap(): void {
     });
   }
   syncCursorGuideButtons(renderer.getViewState().cursorGuideMode ?? 'none');
+}
 
-  // Gridline toggles (fix 6): both default ON (absent flag treated as visible). The
-  // state is written to the view state so it round-trips via JSON / autosave and
-  // survives a reload. aria-pressed reflects the visible state (WCAG 4.1.2).
+/**
+ * Wire the vertical date-line and horizontal category-line gridline toggles
+ * (fix 6): both default ON (absent flag treated as visible). The state is written
+ * to the view state so it round-trips via JSON / autosave (WCAG 4.1.2).
+ */
+function wireGridToggles(chrome: Chrome, renderer: SvgRenderer, locale: LocaleController): void {
   const syncGridDateButton = (visible: boolean): void => {
-    const name = `${uiLabel('grid_date_lines', activeLocale)}: ${visible ? 'on' : 'off'}`;
+    const name = `${uiLabel('grid_date_lines', locale.get())}: ${visible ? 'on' : 'off'}`;
     chrome.gridDateButton.setAttribute('aria-pressed', visible ? 'true' : 'false');
     chrome.gridDateButton.setAttribute('aria-label', name);
     chrome.gridDateButton.title = name;
@@ -1233,7 +1428,7 @@ function bootstrap(): void {
   syncGridDateButton(renderer.getViewState().gridDateLinesVisible !== false);
 
   const syncGridCategoryButton = (visible: boolean): void => {
-    const name = `${uiLabel('grid_category_lines', activeLocale)}: ${visible ? 'on' : 'off'}`;
+    const name = `${uiLabel('grid_category_lines', locale.get())}: ${visible ? 'on' : 'off'}`;
     chrome.gridCategoryButton.setAttribute('aria-pressed', visible ? 'true' : 'false');
     chrome.gridCategoryButton.setAttribute('aria-label', name);
     chrome.gridCategoryButton.title = name;
@@ -1244,9 +1439,18 @@ function bootstrap(): void {
     syncGridCategoryButton(visible);
   });
   syncGridCategoryButton(renderer.getViewState().gridCategoryLinesVisible !== false);
+}
 
-  // Undoable annotation creation (CURS-L1-005/006/007). Placed near the current
-  // horizontal viewport center so the new annotation lands on screen.
+/**
+ * Wire the undoable annotation-creation buttons (CURS-L1-005/006/007). New
+ * annotations land near the current horizontal viewport center so they are visible.
+ */
+function wireAnnotationCreation(
+  chrome: Chrome,
+  store: ScheduleStore,
+  renderer: SvgRenderer,
+  controller: EditingController,
+): void {
   const viewportCenterDate = (): string => {
     const view = renderer.getViewState();
     const centerWorldX = view.scrollX + 200;
@@ -1273,12 +1477,12 @@ function bootstrap(): void {
   chrome.boxButton.addEventListener('click', () => {
     const startDate = viewportCenterDate();
     const view = renderer.getViewState();
-    const document = store.getDocument();
-    const endDate = worldXToDate(view.scrollX + 360, document.epochDate, view.zoomX);
+    const scheduleDocument = store.getDocument();
+    const endDate = worldXToDate(view.scrollX + 360, scheduleDocument.epochDate, view.zoomX);
     // Single-section constraint (user choice): keep the new box inside one section.
-    const visible0 = orderedVisibleRows(document.sections, document.rows);
+    const visible0 = orderedVisibleRows(scheduleDocument.sections, scheduleDocument.rows);
     const displayRows = collapseRows(visible0, classificationCollapseLevel(view.zoomY)).rows;
-    const bands = contiguousSectionBands(displayRows, document.sections);
+    const bands = contiguousSectionBands(displayRows, scheduleDocument.sections);
     const topRowIndex = 0;
     const bottomRowIndex = clampRowIndexToSection(bands, topRowIndex, 2);
     store.dispatch(
@@ -1289,14 +1493,28 @@ function bootstrap(): void {
         endDate,
         topRowIndex,
         bottomRowIndex,
-        strokeColor: '#009e73',
+        strokeColor: CUD_GREEN_ACCENT_HEX,
         cornerRadiusPx: 10,
       }),
     );
   });
+}
 
-  store.subscribe((document) => {
-    renderer.updateItems(document);
+/**
+ * Wire the store subscriptions: re-render items and refresh Undo/Redo state on every
+ * document change, and keep the property panel pointed at the current item selection
+ * (item 5) or dependency selection (item 1), revealing the panel for a selected line.
+ */
+function wireStoreSubscriptions(
+  store: ScheduleStore,
+  renderer: SvgRenderer,
+  controller: EditingController,
+  propertyPanel: PropertyPanel,
+  toolPalette: ToolPaletteHandle,
+  setPropertiesPanelHidden: (hidden: boolean) => void,
+): void {
+  store.subscribe((scheduleDocument) => {
+    renderer.updateItems(scheduleDocument);
     toolPalette.updateHistoryState(store.canUndo(), store.canRedo());
   });
   controller.onSelectionChange((selectedItemIds) => {
@@ -1304,8 +1522,6 @@ function bootstrap(): void {
     // (item 5); the panel shows the first item's field values.
     propertyPanel.setSelectedItemIds(selectedItemIds);
   });
-  // A selected dependency line points the property panel at its color control (item
-  // 1); selecting a line reveals the panel if it was hidden, like double-click does.
   controller.onDependencySelectionChange((dependencyId) => {
     propertyPanel.setSelectedDependency(dependencyId);
     if (dependencyId !== null && propertyPanel.isHidden()) {
@@ -1313,43 +1529,27 @@ function bootstrap(): void {
     }
   });
   toolPalette.updateHistoryState(store.canUndo(), store.canRedo());
+}
 
-  for (const button of chrome.fontButtons) {
-    button.addEventListener('click', () => {
-      const scale = button.dataset.fontScale as FontScale;
-      // Apply the same step to the SVG schedule labels (view state) AND to all
-      // HTML chrome (root font variable) so one control scales everything
-      // uniformly (TOOL-L1-002).
-      renderer.setViewState({ ...renderer.getViewState(), fontScale: scale });
-      applyUniformFontScale(root, scale);
-      syncFontButtons(scale);
-    });
+/**
+ * Frame the whole schedule on startup (fix 7), unless a benchmark run owns the
+ * renderer. Deferred one frame so the stage is measured and the first layout has run
+ * before Fit reads the extent, then painted SYNCHRONOUSLY so the framed view appears
+ * even if the following animation frame is throttled.
+ */
+function wireInitialFraming(renderer: SvgRenderer, benchItemCountFromUrl: number | null): void {
+  if (benchItemCountFromUrl !== null) {
+    return;
   }
-
-  wireInputOutput(chrome, renderer, store, announcer);
-
-  // Frame the whole schedule on startup (fix 7), unless a benchmark run owns the
-  // renderer. Deferred one frame so the stage has been measured and the first
-  // layout has run before Fit reads the extent, then painted SYNCHRONOUSLY so the
-  // framed view appears even if the following animation frame is throttled.
-  if (benchItemCountFromUrl === null) {
-    requestAnimationFrame(() => {
-      renderer.fitToContent();
-      renderer.renderNow();
-    });
-    // Also fit immediately: the stage is already measured at mount, so a fresh load
-    // is framed without waiting for the deferred frame (belt-and-suspenders so the
-    // canvas is never left blank on load).
+  requestAnimationFrame(() => {
     renderer.fitToContent();
     renderer.renderNow();
-  }
-
-  log.info('bootstrap_complete', {
-    initial_item_count: store.getDocument().items.length,
-    bench_from_url: benchItemCountFromUrl !== null,
   });
-
-  wireBenchmark(chrome, renderer, store, benchItemCountFromUrl);
+  // Also fit immediately: the stage is already measured at mount, so a fresh load
+  // is framed without waiting for the deferred frame (belt-and-suspenders so the
+  // canvas is never left blank on load).
+  renderer.fitToContent();
+  renderer.renderNow();
 }
 
 /** Wire Export/Import toolbar buttons and localStorage autosave (IO-L1-004/005). */
@@ -1359,16 +1559,16 @@ function wireInputOutput(
   store: ScheduleStore,
   announcer: LiveRegionAnnouncer,
 ): void {
-  const adoptDocument = (document: ScheduleDocument): void => {
+  const adoptDocument = (scheduleDocument: ScheduleDocument): void => {
     // replaceDocument normalizes (re-derives the classification tree); hand the
     // renderer the normalized result so both stay in sync.
-    store.replaceDocument(document);
+    store.replaceDocument(scheduleDocument);
     renderer.setDocument(store.getDocument());
     // Frame the freshly imported schedule so the whole thing is visible (fix 7).
     renderer.fitToContent();
     // Keep the minimal header's schedule name in sync with the adopted document
     // (item6.1): an import replaces the title shown in the header.
-    const title = document.title.trim();
+    const title = scheduleDocument.title.trim();
     chrome.scheduleNameLabel.textContent = title.length > 0 ? title : 'gr-scheduler';
   };
 

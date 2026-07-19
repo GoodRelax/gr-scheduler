@@ -18,7 +18,7 @@ import type { ScheduleDocument } from '../model/schedule-model.js';
 import type { ScheduleCommand } from './commands.js';
 
 /** Notified with the new document whenever the store's document changes. */
-export type StoreListener = (document: ScheduleDocument) => void;
+export type StoreListener = (scheduleDocument: ScheduleDocument) => void;
 
 /**
  * Post-command normalizer applied to every dispatched/replaced document before it
@@ -27,7 +27,7 @@ export type StoreListener = (document: ScheduleDocument) => void;
  * the items' categories. Must be pure and idempotent. Defaults to identity, so
  * unit tests that construct a store without one keep the raw command behavior.
  */
-export type DocumentNormalizer = (document: ScheduleDocument) => ScheduleDocument;
+export type DocumentNormalizer = (scheduleDocument: ScheduleDocument) => ScheduleDocument;
 
 /** Default cap on undo depth to bound memory for long sessions. */
 export const DEFAULT_HISTORY_LIMIT = 200;
@@ -52,7 +52,7 @@ export class ScheduleStore {
   public constructor(
     initialDocument: ScheduleDocument,
     historyLimit: number = DEFAULT_HISTORY_LIMIT,
-    normalize: DocumentNormalizer = (document) => document,
+    normalize: DocumentNormalizer = (scheduleDocument) => scheduleDocument,
   ) {
     this.normalize = normalize;
     this.currentDocument = normalize(initialDocument);
@@ -135,17 +135,17 @@ export class ScheduleStore {
    * Replace the document wholesale (e.g. loading a file or a new template) and
    * clear all history. This is not an undoable edit by design.
    *
-   * @param document - The document to adopt.
+   * @param scheduleDocument - The document to adopt.
    */
-  public replaceDocument(document: ScheduleDocument): void {
+  public replaceDocument(scheduleDocument: ScheduleDocument): void {
     this.undoStack.length = 0;
     this.redoStack.length = 0;
-    this.currentDocument = this.normalize(document);
+    this.currentDocument = this.normalize(scheduleDocument);
     this.notify();
   }
 
-  private pushUndo(document: ScheduleDocument): void {
-    this.undoStack.push(document);
+  private pushUndo(scheduleDocument: ScheduleDocument): void {
+    this.undoStack.push(scheduleDocument);
     if (this.undoStack.length > this.historyLimit) {
       this.undoStack.shift();
     }

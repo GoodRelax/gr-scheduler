@@ -56,34 +56,34 @@ function escapeSvg(text: string): string {
 /**
  * Export the full schedule as a self-contained SVG string (IO-L1-003).
  *
- * @param document - The document to render in full.
+ * @param scheduleDocument - The document to render in full.
  * @param options - Optional left-label and watermark controls.
  * @returns A standalone SVG document string.
  */
-export function exportScheduleSvg(document: ScheduleDocument, options: SvgExportOptions = {}): string {
+export function exportScheduleSvg(scheduleDocument: ScheduleDocument, options: SvgExportOptions = {}): string {
   const includeLeftLabels = options.includeLeftLabels ?? true;
-  const leftPaneWidth = includeLeftLabels ? (document.viewState.leftPaneWidth ?? 200) : 0;
+  const leftPaneWidth = includeLeftLabels ? (scheduleDocument.viewState.leftPaneWidth ?? 200) : 0;
 
-  const placements = layoutItems(document.items, document.rows, document.epochDate, document.viewState);
+  const placements = layoutItems(scheduleDocument.items, scheduleDocument.rows, scheduleDocument.epochDate, scheduleDocument.viewState);
   const placementById = new Map<string, ItemPlacement>();
   for (const placement of placements) {
     placementById.set(placement.itemId, placement);
   }
   const assetById = new Map<string, ImportedAsset>();
-  for (const asset of document.assets ?? []) {
+  for (const asset of scheduleDocument.assets ?? []) {
     assetById.set(asset.id, asset);
   }
 
-  const bandHeight = rowBandHeight(document.viewState.zoomY);
+  const bandHeight = rowBandHeight(scheduleDocument.viewState.zoomY);
   // Rows may have different heights (a row grows to stack overlapping items, item:
   // multi-lane stacking), so use the row geometry for band tops and the total height
   // instead of a uniform `rows.length * bandHeight`; otherwise a tall row's items
   // would fall outside the exported viewBox.
   const rowGeometry = computeRowGeometry(
-    document.items,
-    document.rows,
-    document.epochDate,
-    document.viewState,
+    scheduleDocument.items,
+    scheduleDocument.rows,
+    scheduleDocument.epochDate,
+    scheduleDocument.viewState,
   );
   const chartHeight = Math.max(bandHeight, rowGeometry.totalHeight);
   const contentRight = placements.reduce(
@@ -108,9 +108,9 @@ export function exportScheduleSvg(document: ScheduleDocument, options: SvgExport
 
   // Row bands + optional left labels.
   parts.push('<g data-layer="rows">');
-  document.rows.forEach((row, rowIndex) => {
-    const bandTop = originY + rowTopAt(rowGeometry, rowIndex, document.viewState.zoomY);
-    const rowHeight = rowHeightAt(rowGeometry, rowIndex, document.viewState.zoomY);
+  scheduleDocument.rows.forEach((row, rowIndex) => {
+    const bandTop = originY + rowTopAt(rowGeometry, rowIndex, scheduleDocument.viewState.zoomY);
+    const rowHeight = rowHeightAt(rowGeometry, rowIndex, scheduleDocument.viewState.zoomY);
     parts.push(
       `<line x1="${EXPORT_MARGIN}" y1="${bandTop}" x2="${Math.ceil(totalWidth) - EXPORT_MARGIN}" y2="${bandTop}" stroke="#e4e4e4" stroke-width="1"/>`,
     );
@@ -126,7 +126,7 @@ export function exportScheduleSvg(document: ScheduleDocument, options: SvgExport
 
   // Dependency lines (straight leader between item box centers; best-effort).
   parts.push('<g data-layer="dependencies">');
-  for (const dependency of document.dependencies ?? []) {
+  for (const dependency of scheduleDocument.dependencies ?? []) {
     const from = placementById.get(dependency.fromItemId);
     const to = placementById.get(dependency.toItemId);
     if (from === undefined || to === undefined) {
@@ -146,7 +146,7 @@ export function exportScheduleSvg(document: ScheduleDocument, options: SvgExport
 
   // Items: every item, in document order.
   parts.push('<g data-layer="items">');
-  for (const item of document.items) {
+  for (const item of scheduleDocument.items) {
     const placement = placementById.get(item.id);
     if (placement === undefined) {
       continue;
@@ -168,7 +168,7 @@ export function exportScheduleSvg(document: ScheduleDocument, options: SvgExport
     } else if (item.itemKind === 'milestone') {
       parts.push(renderMilestone(x, y, width, height, item.fillColor, item.strokeColor));
     } else if (hasFade(item.fadeInDays, item.fadeOutDays)) {
-      parts.push(renderFadedTask(item, x, y, height, document.viewState.zoomX));
+      parts.push(renderFadedTask(item, x, y, height, scheduleDocument.viewState.zoomX));
     } else {
       parts.push(
         `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="2" fill="${escapeSvg(
