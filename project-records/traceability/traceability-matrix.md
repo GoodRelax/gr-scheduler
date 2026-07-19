@@ -107,15 +107,15 @@ Verifies（テスト）、ResultOf（結果）。全17 `.sdoc` は `strictdoc ex
 | H-1（R3/R4） | `svg-renderer.ts`（god-object 2935行/60超メソッド）を feature seam で分割。`SvgRenderer` はオーケストレータ/ファサードに縮小（SVGルート・group所有・diffRenderライフサイクル・viewState・公開API・座標変換のみ保持）。**公開API / `data-role`・`data-*` 属性 / DOM構造・順序は不変（バイト等価）** | `render-context.ts`（RenderContext/SVG_NS/RULER_TIER_HEIGHT_PX）, `dependency-geometry.ts`, `item-geometry.ts`, `comment-geometry.ts`, `hit-tester.ts`（4系統: item→fade/edge/body/label, annotation, dependency, 優先順不変）, `layers/{grid,classification,ghost,ruler,watermark,progress-today,cursor-guide,rounded-box,comment,dependency,item}-layer.ts` | 既存 427 単体 + 82 Playwright 全緑, `render-layers.test.ts`（+19）で各レイヤ/hit-testerを疑似SVG-DOM単体検証, dev実機で19アイテム位置・色（依存#F8B500/今日#1E90FF/進捗#7B2FBF/透かし0.06 GoodRelax）不変を確認, CSP sha256再生成 |
 | M-4（R6） | 最大・最多変更ファイルの単体テスト0件（E2E依存のみ）＝「単体緑だが実機で壊れる」の構造要因を解消。分割レイヤ/hit-testerに jsdom相当（package.json凍結のため既存 left-pane 流の実DOMシム）単体テストを追加 | `tests/render-layers.test.ts`, `tests/helpers/fake-svg-dom.ts`, `tests/helpers/make-render-context.ts` | diffRender冪等性・ノード生成/除去カウント・hit-test優先順（item/label/dependency/empty/fade）を assert |
 
-## CR-001 (予実案H) 改訂トレース — 仕様先行・実装後追い
+## CR-001 (予実: 実績日フィールド方式) 改訂トレース — 仕様先行・実装後追い
 
 CR-001（承認 2026-07-19、`change-request-001-20260719-230349.md`）の Part A/B/C を仕様先行で
 `.sdoc` へ反映済み。段階化方針（CR §8）に従い `docs/api/gr-scheduler.schema.json` と `src/**` /
-`tests/**` は本フェーズで未変更（案H実装は別セッションで schema.json + コードを同時変更し
-`tests/document-schema-conformance.test.ts` の緑を保つ）。実装状態は **pending（次セッション）**。
-DEC-003 参照。
+`tests/**` は本フェーズで未変更（実績日フィールド方式の実装は別セッションで schema.json + コードを
+同時変更し `tests/document-schema-conformance.test.ts` の緑を保つ）。実装状態は **pending（次セッ
+ション）**。DEC-003 参照。
 
-| 改訂要求/契約 | 文書 | 内容（案H） | 実装状態 |
+| 改訂要求/契約 | 文書 | 内容（実績日フィールド方式） | 実装状態 |
 |---|---|---|---|
 | PLAN-L1-001 | 18-plan-actual | 実績を同一アイテムの actualStart/actualEnd で保持、planActualKind/planGroupId 廃止 | pending（次セッション） |
 | PLAN-L1-002 | 18-plan-actual | planActualDisplay（可視フィルタ）を planActualStyle と独立に明確化 | pending |
@@ -124,16 +124,52 @@ DEC-003 参照。
 | DEP-L1-005（新規） | 16-dependencies | 依存 linkType（FS/SS/FF/SF、既定FS）、MSPDI Type と往復 | pending |
 | DEP-L1-006（新規） | 16-dependencies | 依存 符号付き lagDays（正=ラグ/負=リード）、MSPDI LinkLag と往復（暦日近似） | pending |
 | ITEM-L1-011（新規） | 11-items-icons | 期限マーカー item.targetDate、MSPDI Deadline と往復 | pending |
-| DATA-JSON-006 | 40-data-format | actualStart/actualEnd/progressRatio/previousPlan（案H） | pending |
+| DATA-JSON-006 | 40-data-format | actualStart/actualEnd/progressRatio/previousPlan（実績日フィールド方式。previousPlan は CR-002 Part 3 により別ファイル参照方式へ supersede、下表参照） | pending |
 | DATA-JSON-008 | 40-data-format | dependency に linkType/lagDays 追加 | pending |
 | DATA-JSON-011 | 40-data-format | viewState に planActualStyle 追加 | pending |
 | DATA-JSON-015（新規） | 40-data-format | item.targetDate 期限マーカー | pending |
-| DATA-MSPDI-003 | 40-data-format | ActualStart/Finish・Baseline・PercentComplete 往復（B-4） | pending |
+| DATA-MSPDI-003 | 40-data-format | ActualStart/Finish・Baseline・PercentComplete 往復（B-4。Baseline 部分は CR-002 Part 3 により id 突合の best-effort 往復へ改訂） | pending |
 | DATA-MSPDI-004 | 40-data-format | PredecessorLink Type / LinkLag（linkType/lagDays） | pending |
 | DATA-MSPDI-007（新規） | 40-data-format | Resource/Assignment（assignee, B-2）、PercentComplete（progressRatio, B-3） | pending |
 | DATA-MSPDI-008（新規） | 40-data-format | Splits/SplitPart→マルチバー（B-5）、description→Task/Notes（B-6） | pending |
 | DATA-MSPDI-009（新規） | 40-data-format | Deadline↔targetDate、Constraint は見送り | pending |
 | 実装差分（§5） | 40-data-format | schema.json/model/codec の具体差分を実装セッション向けに明記 | pending |
+
+## CR-002 (予実配色・マイルストーン描画・ベースライン別ファイル参照) 改訂トレース — 仕様先行・実装後追い
+
+CR-002（承認 2026-07-20、`change-request-002-20260720-054132.md`）の Part 1〜3 を仕様先行で
+`.sdoc` へ反映済み。CR-001 Part A の previousPlan 据え置きおよび Part B-4 の MSPDI Baseline clean
+往復を supersede する。段階化方針（CR-002 §8）に従い `docs/api/gr-scheduler.schema.json` /
+`docs/api/gr-scheduler.schema.next.json` と `src/**` / `tests/**` は本フェーズで未変更。実装状態は
+**pending（実装セッション）**。DEC-003（CR-001 承認）参照。
+
+| 改訂要求/契約 | 文書 | 内容 | 実装状態 |
+|---|---|---|---|
+| PLAN-L1-004 | 18-plan-actual | 変更前予定（ベースライン）を別ファイル参照方式へ改訂（`previousPlan` フィールド廃止、id 突合、薄グレー・編集不可アンダーレイ、対象行と同高さ描画） | pending（実装セッション） |
+| PLAN-L1-005 | 18-plan-actual | Overlap 塗り分けを彩度導出（淡=予定/濃=実績）＋線幅（予定細/実績太、破線不採用）で明確化 | pending |
+| PLAN-L2-001 | 18-plan-actual | マイルストーンの front 特例を追加（区間なし=点。実績あれば actualStart、無ければ startDate。補間しない） | pending |
+| 40-data-format | 40-data-format | `previousPlan` DATAFIELD（DATA-JSON-006 の一部）廃止、ベースライン参照文書の概念を追加、DATA-MSPDI-003 の Baseline マッピングを best-effort id 突合へ改訂、配色（彩度/線幅）を presentation ノートとして追記 | pending |
+| スキーマ | `docs/api/gr-scheduler.schema.next.json` | `previousPlan` を除去（実装フェーズで現行 `gr-scheduler.schema.json` へスワップ） | pending |
+
+## CR-003 (ヘッダー再編・ラベル位置・依存線自動配線) 改訂トレース — 仕様先行・実装後追い
+
+CR-003（承認 2026-07-20、`change-request-003-20260720-063933.md`）の Part 1〜3 を仕様先行で
+`.sdoc` へ反映済み。CR-002 のベースライン可視トグル（Base V/I）のヘッダー配置を確定する。段階化
+方針（CR-003 §8）に従い `docs/api/gr-scheduler.schema.next.json` と `src/**` / `tests/**` は本
+フェーズで未変更。実装状態は **pending（実装セッション）**。
+
+| 改訂要求/契約 | 文書 | 内容 | 実装状態 |
+|---|---|---|---|
+| TOOL-L1-008（新規） | 19-tools-watermark | ヘッダーのボタン配置順序（`GR Scheduler +(c)` → タイトル → SS → Load → Save → Light → Dark → Mono L → Mono D → Base V → Base I → Undo → Redo → AI → ?）と各ボタンの意味（機能実体）を規定する新規要求 | pending（実装セッション） |
+| ITEM-L2-002（新規） | 11-items-icons | タスクラベルの既定表示位置 `labelPosition=inner-left`（バー内左揃え。バー外左の既存 `left` とは峻別） | pending |
+| ITEM-L2-003（新規） | 11-items-icons | マイルストーンラベルの表示位置（アイコン右 `icon-right`） | pending |
+| ALIGN-L2-003（新規） | 13-layout-alignment | ラベルはみ出しが同一セクション内の他タスクと視覚的に重なる場合の縦オフセット衝突回避（ALIGN-L1-001 の上下左右揃え意図を可能な範囲で維持） | pending |
+| DEP-L1-003（改訂・全面書換） | 16-dependencies | 依存線を決定的な直交経路で自動配線（右出=先行右辺middle_right/左入=後続左辺middle_left、横スタブ=矢じり先端の2倍、後続下=出直後に下折れ、後続上=後続直前で上折れ、水平重なり時は行間ギャップを通過し両バー非跨ぎ、前進依存が主対象） | pending |
+| DEP-L1-002（改訂・注記追加） | 16-dependencies | 9 点アンカー座標定義は保持しつつ、当面は手動選択を用いず DEP-L1-003 の決定的規則（始点middle_right/終点middle_left）で配線する旨を追記 | pending |
+| DEP-L2-001（改訂・specialize） | 16-dependencies | 障害物回避直交配線エンジンの始点/終点アンカーを middle_right/middle_left に固定し DEP-L1-003 の決定的規則に従って経路生成 | pending |
+| DEP-L2-002（改訂・整合明記） | 16-dependencies | 折れ点数0〜3の制約が DEP-L1-003 の決定的経路と整合する旨を明記 | pending |
+| 親 UID（参考・本文不変、子要求追加） | 19-tools-watermark, 11-items-icons, 13-layout-alignment | TOOL-L1-001/002/004/005、ITEM-L1-009/010、ALIGN-L1-001/ALIGN-L2-001 は STATEMENT 本文は改変されておらず、上記の新規/改訂子要求が追加された（親としての整合注記のみ） | pending |
+| スキーマ | `docs/api/gr-scheduler.schema.next.json` | `labelPosition` enum に `inner-left` を追加 | pending |
 
 ## 結論
 

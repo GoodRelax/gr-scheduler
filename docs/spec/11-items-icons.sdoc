@@ -9,7 +9,8 @@ STATEMENT: >>>
 本書は gr-scheduler のマイルストーン/タスク (アイテム) とそのアイコンに関するシステム要求
 (L1) を定義し、必要に応じてコンポーネント要求 (L2) へ詳細化する。各 L1 要求は Parent 関係で
 ステークホルダ要求 STK-L0-006 (アイコンと図形・色・略称) および STK-L0-001 (マルチバー一枚絵の
-俯瞰) をトレースする。出典は user-order.md item2, item7-11, item14, item15, item22, item23。
+俯瞰) をトレースする。ただし ITEM-L1-011 (期限マーカー) のみは例外で、STK-L0-011 (予実管理と
+遅れの可視化) を Parent とする。出典は user-order.md item2, item7-11, item14, item15, item22, item23。
 アイコン枠色/塗り色のパレット定義そのものは 12-properties-i18n.sdoc に、略称位置ドラッグの
 座標同期は 13-layout-alignment.sdoc に主管を置く (重複回避)。
 <<<
@@ -274,6 +275,53 @@ RELATIONS:
 - TYPE: Parent
   VALUE: STK-L0-006
 
+[REQUIREMENT]
+UID: ITEM-L2-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: タスクラベルの既定表示位置 (バー内左揃え)
+STATEMENT: >>>
+タスクのラベル表示位置 labelPosition は、バー内左揃えを表す inner-left を既定値とし、タスクバーの
+内側に左揃えで略称を描画すること。inner-left は、バー外の左を表す既存の left とは別概念として峻別
+する (left = バー外・左、inner-left = バー内・左) 。
+<<<
+RATIONALE: >>>
+パワポ日程表の慣習に合わせ、タスク略称をバー内に収めて一枚絵の密度を上げる。ITEM-L1-009 の「略称
+のアイテム内部/付近への表示」を既定表示位置の観点から詳細化する。labelPosition の enum に inner-left
+を追加する差分は次期スキーマ gr-scheduler.schema.next.json および 40-data-format.sdoc に反映する
+(実装/スキーマ差分は実装フェーズ) 。CR-003 Part 2。
+<<<
+VERIFICATION: >>>
+labelPosition を明示しないタスクを配置したとき略称がバー内・左揃えで描画され、left を明示したとき
+はバー外・左に描画され、両者が視覚的に区別できること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ITEM-L1-009
+
+[REQUIREMENT]
+UID: ITEM-L2-003
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: マイルストーンラベルの表示位置 (アイコン右)
+STATEMENT: >>>
+マイルストーンのラベルは、マイルストーンアイコンの右 (icon-right) に描画すること。
+<<<
+RATIONALE: >>>
+点状のマイルストーンアイコンは内部へ文字を収めにくいため、アイコンの右へ略称を置いて視認性を確保
+する。ITEM-L1-009 の「略称のアイテム内部/付近への表示」をマイルストーンの配置観点から詳細化する。
+CR-003 Part 2。
+<<<
+VERIFICATION: >>>
+略称を設定したマイルストーンを配置したとき、略称がアイコンの右側に描画され、アイコンと視覚的に
+対応づけられること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ITEM-L1-009
+
 [[/SECTION]]
 
 [[SECTION]]
@@ -296,7 +344,7 @@ RATIONALE: >>>
 Deadline は制約 (Constraint) と異なりスケジューラを動かさない目標線であり、スケジューラを持た
 ない gr-scheduler と相性が良い。CR-001 (承認 2026-07-19) Part C で採用する。予実の front 規則
 (PLAN-L2-001) や表示スタイル (PLAN-L1-005) とは独立の属性であり、データ形式は
-`40-data-format.sdoc` DATA-JSON-016 / DATA-MSPDI-009 を参照する。
+`40-data-format.sdoc` DATA-JSON-015 / DATA-MSPDI-009 を参照する。
 <<<
 VERIFICATION: >>>
 targetDate を設定したアイテムで、当該日付位置に期限マーカーがバー端と独立して描画され、保存・

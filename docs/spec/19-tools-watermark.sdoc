@@ -54,6 +54,91 @@ RELATIONS:
 - TYPE: Parent
   VALUE: STK-L0-022
 
+[REQUIREMENT]
+UID: TOOL-L1-008
+TYPE: Non-Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: ヘッダーのボタン配置順序と各ボタンの意味
+STATEMENT: >>>
+本システムは、画面上部ヘッダーのボタン群を、左から右へ次の順序で配置し、各ボタンに次の意味
+(機能実体) を与えること。ボタン名は意味ある実体を伴う名称とする (言霊命名、user-order item60)。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 8 22 70
+
+   * - 順
+     - ボタン
+     - 意味 (機能実体)
+   * - 1
+     - GR Scheduler +(c)
+     - 製品名ロゴと著作権表示。ヘッダー左端の識別領域。
+   * - 2
+     - タイトル
+     - 編集中のプロジェクト名 (文書タイトル) の表示・編集領域。
+   * - 3
+     - SS
+     - 表示域 (現在のビューポート) のスクリーンショットを PNG として出力する。全キャンバスではなく現在見えている範囲のみを対象とする (下記 Save の SVG/PNG とは役割が別)。
+   * - 4
+     - Load
+     - JSON および MSPDI XML の取込。JSON の Load 時にはオプションで取込内容を「ベースライン扱い」として指定できる (CR-002 のベースライン層連動)。取込データは外部入力として厳格に検証・サニタイズする (IO-L1-006)。
+   * - 5
+     - Save
+     - JSON, MSPDI XML, SVG, PNG の出力。SVG/PNG は全キャンバスを Fix した全体出力であり、SS の表示域スクリーンショットとは役割が別である。
+   * - 6
+     - Light
+     - テーマをライト (明色) に切り替える。
+   * - 7
+     - Dark
+     - テーマをダーク (暗色) に切り替える。
+   * - 8
+     - Mono L
+     - テーマをモノクロ・ライト (単色・明背景) に切り替える。単色テーマは印刷・色覚配慮向け。
+   * - 9
+     - Mono D
+     - テーマをモノクロ・ダーク (単色・暗背景) に切り替える。単色テーマは印刷・色覚配慮向け。
+   * - 10
+     - Base V
+     - ベースライン参照層を可視 (Visible) にする。CR-002 のベースライン層の表示切替であり、予実表示 (planActualDisplay) とは独立。
+   * - 11
+     - Base I
+     - ベースライン参照層を不可視 (Invisible) にする。Base V と対をなす可視トグル。
+   * - 12
+     - Undo
+     - 直前操作を取り消す (TOOL-L1-004 と同一機能)。
+   * - 13
+     - Redo
+     - 取り消した操作をやり直す (TOOL-L1-004 と同一機能)。
+   * - 14
+     - AI
+     - AI 向けプロンプトと JSON スキーマをクリップボードへコピーする (既存実装)。
+   * - 15
+     - ?
+     - ヘルプを表示する。
+
+テーマは Light / Dark / Mono L / Mono D の 4 種とし、Mono の 2 種は単色テーマ (印刷・色覚配慮)
+とする。本要求はボタンの並び順と意味を定めるものであり、フォントサイズ切替 (TOOL-L1-002) は
+ヘッダーを含む全 UI テキストへ一律適用される点、Undo/Redo (TOOL-L1-004)・保存ショートカット
+Ctrl+S (TOOL-L1-005)・フローティングパレット (TOOL-L1-001) との整合を保つこと。SS/Load/Save の
+入出力形式は IO-L1-001 (JSON)・IO-L1-002 (MSPDI XML)・IO-L1-003 (SVG) に対応する。
+<<<
+RATIONALE: >>>
+ボタン追加のたびにヘッダーが場当たり的に混雑する問題を解消し、配置順と各ボタンの意味を明文化
+してヘッダーを最小・一貫に保つ。各ボタン名は意味ある実体を伴わせる (user-order item60)。
+CR-003 Part 1、STK-L0-021 (ヘッダー最小化・情報密度最大化)。
+<<<
+VERIFICATION: >>>
+ヘッダーが GR Scheduler +(c) → タイトル → SS → Load → Save → Light → Dark → Mono L → Mono D →
+Base V → Base I → Undo → Redo → AI → ? の順に並ぶこと。SS が表示域を PNG 出力し、Load が JSON/XML
+を取り込み (JSON はベースライン扱い指定可)、Save が JSON/XML/SVG/PNG を出力し SVG/PNG が全体
+Fix 出力であること。テーマが 4 種で切り替わり、Base V/I でベースライン層の表示/非表示が切り替わ
+り、AI がプロンプト+JSON スキーマをクリップボードへコピーすることを確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-021
+
 [[/SECTION]]
 
 [[SECTION]]

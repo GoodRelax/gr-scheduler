@@ -82,3 +82,12 @@
 - 納品文書: `project-management/final-report.md`, `project-management/acceptance-test-procedure.md`, `project-records/traceability/traceability-matrix.md`
 - 残タスク（非ブロッカー, final-report §6）: 依存線キーボード作成/任意色ラベル自動コントラスト/実SR目視/CI(GitHub Actions)未整備/ViewState項目のautosave未捕捉+DATA-JSON-010パス差異/kotodama用語チェック/セクション行ドラッグ並替UI/M1パス整合
 - 次アクション: ユーザーが手動コミット（規約）。推奨コミットは会話末尾参照
+
+## 追記 (2026-07-20): CR-001/CR-002/CR-003 仕様確定セッション（実装は未着手）
+- **CR-001**（予実の実績日フィールド方式移行 + MSPDI codec 実装漏れ + linkType/lagDays/targetDate、承認 2026-07-19）: `.sdoc` 仕様改訂を敵対的レビュー3ラウンドで確定。Round 1 FAIL(High 5件: SSOT名称不一致・LinkLag自己矛盾・front規則非網羅・参照誤り)→Round 2 PASS(High全CLOSED、新規Medium/Low 2件)→Round 3 PASS(残indicated全CLOSED、スコープ内Critical/High/Medium/Low=0)。報告: `project-records/reviews/R-CR001-spec-review.md`。
+- **CR-002**（Q1彩度導出配色/Q2マイルストーン2マーカー描画/Q3ベースライン別ファイル参照、承認 2026-07-20）を起票・`.sdoc`へ反映。CR-001 Part A(previousPlan据え置き)とPart B-4(MSPDI Baseline clean往復)の一部を supersede。
+- **CR-003**（ヘッダー/ツールバー再編・ラベル位置inner-left・依存線自動配線の決定的直交ルール、承認 2026-07-20）を起票・`.sdoc`へ反映。CR-002のベースライン可視トグル(Base V/I)のヘッダー配置を確定。
+- **文書SSOT整流**（DEC-004）: UML相当図を `docs/spec/_assets/*.md` へ集約しSSOT化（`.sdoc`から参照のみ）。JSON Schemaは現行 `docs/api/gr-scheduler.schema.json` を不変SSOTとし、CR-001〜CR-003の先行フィールド変更は `docs/api/gr-scheduler.schema.next.json` に反映済み（実装フェーズでスワップ予定）。
+- **命名規則是正**（item60・DEF-003）: 検討時の作業ラベル「案H/Model H/モデルH」を全記録から廃止し「実績日フィールド方式」の記述名へ統一。`DEC-003-cr-001-approved-plan-h.md` は `DEC-003-cr-001-approved.md` へ改称（旧ファイルはユーザーが手動削除）。
+- **ドキュメントSSOTドリフト是正**（DEF-002）: `40-data-format.sdoc` のネスト`icon{}`表記・`previousPlan`旧名残置を、SSOTのフラット構造(`iconShapeKind`/`importedAssetId`/`strokeColor`/`fillColor`/`lineWeight`/`startDate`/`endDate`/`itemKind`)へ整合。
+- **実装は本セッションで未着手**（段階化方針=CR-001/002/003 §8 各準拠）。次セッションで `gr-scheduler.schema.json`（`.next.json`からのスワップ）+ `src/**`（schedule-model/json-codec/mspdi-codec/progress-today-layer/item-layer/plan-actual-colors/dependency-router/main等）+ `tests/**` を一体反映し、`tests/document-schema-conformance.test.ts` を含め緑を保つこと。合わせて `docs/spec/30-architecture.sdoc` と `docs/spec/12-properties-i18n.sdoc` の旧語彙残置（R-CR001-spec-review.md Round 3 OBS-1/OBS-2）も整流する。
