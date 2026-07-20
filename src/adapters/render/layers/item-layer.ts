@@ -10,7 +10,7 @@ import type { ScheduleItem } from '../../../domain/model/schedule-model.js';
 import type { ItemPlacement } from '../../../domain/usecase/layout-engine.js';
 import type { ViewportWindow } from '../../../domain/usecase/viewport.js';
 import { placementIntersectsWindow } from '../../../domain/usecase/viewport.js';
-import { lodThreshold } from '../../../domain/usecase/lod-selector.js';
+import { lodThreshold, shouldRenderAllItems } from '../../../domain/usecase/lod-selector.js';
 import { filterByPlanActualDisplay } from '../../../domain/usecase/progress-line-builder.js';
 import {
   actualDisplayFillColor,
@@ -139,7 +139,14 @@ export class ItemLayer {
    */
   public render(ctx: RenderContext, viewportWindow: ViewportWindow): ItemDiffMetrics {
     const effectiveZoom = Math.min(ctx.viewState.zoomX, ctx.viewState.zoomY);
-    const threshold = lodThreshold(effectiveZoom);
+    // A small schedule renders in FULL: bypass both the LOD threshold and viewport
+    // virtualization so every item is shown regardless of zoom/scroll. This is the
+    // startup-Fit under-render fix -- at the default (un-fitted) zoom = 1 the viewport
+    // window would otherwise cull every item past the first screen, and at the very
+    // small fit zoom the LOD threshold would cull all but the top-importance items.
+    // Large schedules keep the bounded, virtualized live-node set (ADR-009).
+    const renderAllItems = shouldRenderAllItems(ctx.scheduleDocument?.items.length ?? 0);
+    const threshold = renderAllItems ? 0 : lodThreshold(effectiveZoom);
     const fontSize = FONT_SIZE_BY_SCALE[ctx.viewState.fontScale];
 
     // Plan/actual display filter (PLAN-L1-002): drop the hidden side entirely.
@@ -161,7 +168,7 @@ export class ItemLayer {
       if (!visibleItemIds.has(placement.itemId)) {
         continue;
       }
-      if (!placementIntersectsWindow(placement, viewportWindow)) {
+      if (!renderAllItems && !placementIntersectsWindow(placement, viewportWindow)) {
         continue;
       }
       desiredIds.add(placement.itemId);

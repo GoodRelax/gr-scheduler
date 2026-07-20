@@ -20,6 +20,7 @@ import { CursorGuideLayer } from '../src/adapters/render/layers/cursor-guide-lay
 import { RoundedBoxLayer } from '../src/adapters/render/layers/rounded-box-layer.js';
 import { CommentLayer } from '../src/adapters/render/layers/comment-layer.js';
 import { HitTester } from '../src/adapters/render/hit-tester.js';
+import { LOD_FULL_RENDER_ITEM_CAP } from '../src/domain/usecase/lod-selector.js';
 import {
   createGroup,
   installFakeSvgDocument,
@@ -178,16 +179,39 @@ describe('ItemLayer', () => {
     expect(second.liveNodeCount).toBe(1);
   });
 
-  it('removes an item node once it leaves the viewport window', () => {
+  it('removes an item node once it leaves the viewport window (large document)', () => {
+    // Virtualization only culls off-window items for a LARGE document (> the small-doc
+    // full-render cap); pad the item set past the cap so this path is exercised. Only
+    // 'a' has a placement, so it is the sole processed item.
+    const padding = Array.from({ length: LOD_FULL_RENDER_ITEM_CAP }, (_, index) =>
+      makeTask(`pad-${index}`),
+    );
     const content = SVG_G();
     const layer = new ItemLayer(content);
-    const ctx = itemContext();
+    const ctx = makeRenderContext({
+      scheduleDocument: sampleDocument({ items: [item, ...padding] }),
+      placements: [placement],
+      itemById: new Map<string, ScheduleItem>([['a', item]]),
+    });
     layer.render(ctx, WIDE_WINDOW);
     const far: ViewportWindow = { worldLeft: 9000, worldRight: 9500, worldTop: 9000, worldBottom: 9500 };
     const metrics = layer.render(ctx, far);
     expect(metrics.removedCount).toBe(1);
     expect(metrics.liveNodeCount).toBe(0);
     expect((content as unknown as FakeSvgNode).children.length).toBe(0);
+  });
+
+  it('keeps every item of a SMALL document mounted even off the viewport window', () => {
+    // Startup-Fit under-render fix: a small schedule renders in full, so an item stays
+    // mounted regardless of scroll/zoom -- the whole overview is always shown.
+    const content = SVG_G();
+    const layer = new ItemLayer(content);
+    const ctx = itemContext();
+    layer.render(ctx, WIDE_WINDOW);
+    const far: ViewportWindow = { worldLeft: 9000, worldRight: 9500, worldTop: 9000, worldBottom: 9500 };
+    const metrics = layer.render(ctx, far);
+    expect(metrics.removedCount).toBe(0);
+    expect(metrics.liveNodeCount).toBe(1);
   });
 
   it('adds a dashed selection outline only for a selected item', () => {

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  LOD_FULL_RENDER_ITEM_CAP,
   isVisibleAtZoom,
   lodThreshold,
   selectItemsByLod,
+  shouldRenderAllItems,
 } from '../src/domain/usecase/lod-selector.js';
 import type { ScheduleItem } from '../src/domain/model/schedule-model.js';
 
@@ -60,5 +62,28 @@ describe('lod-selector', () => {
     const zoomedOut = selectItemsByLod(items, 0.1).length;
     expect(zoomedIn).toBeGreaterThanOrEqual(midZoom);
     expect(midZoom).toBeGreaterThanOrEqual(zoomedOut);
+  });
+});
+
+describe('small-document full-render policy (startup-Fit under-render fix)', () => {
+  it('renders all items for a document at or below the cap', () => {
+    expect(shouldRenderAllItems(0)).toBe(true);
+    expect(shouldRenderAllItems(26)).toBe(true);
+    expect(shouldRenderAllItems(LOD_FULL_RENDER_ITEM_CAP)).toBe(true);
+  });
+
+  it('keeps virtualization for documents above the cap', () => {
+    expect(shouldRenderAllItems(LOD_FULL_RENDER_ITEM_CAP + 1)).toBe(false);
+    expect(shouldRenderAllItems(1000)).toBe(false);
+  });
+
+  it('covers the whole ~26-item startup template regardless of zoom', () => {
+    // A small template of equal-importance items over a multi-year span must show ALL
+    // items at the very small Fit zoom (where the LOD threshold rises above ~0.88) --
+    // the policy bypasses culling entirely for the small document.
+    expect(shouldRenderAllItems(26)).toBe(true);
+    // Guard the culling regime it replaces: at the small fit zoom the raw LOD threshold
+    // would otherwise exclude every importance = 1 item's non-top peers.
+    expect(lodThreshold(0.13)).toBeGreaterThan(0.8);
   });
 });

@@ -165,10 +165,11 @@ IM4（ヘッダー Base V/I 集約）で完了（`project-management/handoff-cr-
 CR-003（承認 2026-07-20、`change-request-003-20260720-063933.md`）の Part 1〜3 を仕様先行で
 `.sdoc` へ反映済み。CR-002 のベースライン可視トグル（Base V/I）のヘッダー配置を確定する。実装は
 IM4 で完了（ヘッダー再編・ラベル `inner-left`＋衝突回避・依存線決定的直交配線。
-`project-management/handoff-cr-001-002-003-implementation.md` §3）。**recommended-spec 逸脱**:
-DEP-L2-002（折れ点0〜3）は前進依存では遵守するが、水平重なり＋上下積みの後方（左）ターゲットへの
-行間ギャップ迂回は4折れがパリティ上最小となり逸脱する（`DEF-005-dep-elbow-parity.md` 参照）。
-IM5 で新ヘッダー role・新依存幾何に合わせた E2E 改修を実施。
+`project-management/handoff-cr-001-002-003-implementation.md` §3）。**DEF-005 修正済み（検証グリーン）**:
+旧実装で DEP-L2-002（折れ点0〜3）を逸脱していた「水平重なり＋上下積みの後方ターゲット」ケースは、
+`routeConnector` を上下端入線方式（重なり/後方は後続の上端/下端から差込む L）へ再設計して解消。
+接触・同一行 FS の退化ナブも下端入線の可視「コ」の字へ修正。全経路 0〜3 折れに収まり **仕様緩和は
+不要**（`DEF-005-dep-elbow-parity.md` 参照）。IM5 で新ヘッダー role・新依存幾何に合わせた E2E 改修を実施。
 
 | 改訂要求/契約 | 文書 | 内容 | 実装状態 |
 |---|---|---|---|
@@ -176,10 +177,10 @@ IM5 で新ヘッダー role・新依存幾何に合わせた E2E 改修を実施
 | ITEM-L2-002（新規） | 11-items-icons | タスクラベルの既定表示位置 `labelPosition=inner-left`（バー内左揃え。バー外左の既存 `left` とは峻別） | done (IM4)：`item-geometry.labelAnchorPoint`（`inner-left` case＋タスク auto 既定→inner-left、arrow/span は連結線上維持）。単体：`tests/task-shape-rendering.test.ts`（inner-left と left の峻別） |
 | ITEM-L2-003（新規） | 11-items-icons | マイルストーンラベルの表示位置（アイコン右 `icon-right`） | done (IM4)：`item-geometry.autoLabelAnchor`（milestone→右 `textAnchor='start'`、既存挙動を維持・明文化） |
 | ALIGN-L2-003（新規） | 13-layout-alignment | ラベルはみ出しが同一セクション内の他タスクと視覚的に重なる場合の縦オフセット衝突回避（ALIGN-L1-001 の上下左右揃え意図を可能な範囲で維持） | done (IM4)：`layout-engine.assignLanes`（`ItemLabelExtentEstimator` で占有右端をラベルはみ出し分拡張→後続衝突アイテムを1レーン下げる決定的パス）＋`item-geometry.estimateInnerLeftLabelExtentPx`（renderer/left-pane が供給）。単体：`tests/label-collision.test.ts`。**recommended-spec**: 衝突時は後続（order昇順で後）を最小1レーン下方へ |
-| DEP-L1-003（改訂・全面書換） | 16-dependencies | 依存線を決定的な直交経路で自動配線（右出=先行右辺middle_right/左入=後続左辺middle_left、横スタブ=矢じり先端の2倍、後続下=出直後に下折れ、後続上=後続直前で上折れ、水平重なり時は行間ギャップを通過し両バー非跨ぎ、前進依存が主対象） | done (IM4)：`dependency-connector.routeConnector` 全面書換（右辺中央出/左辺中央入・`CONNECTOR_STUB_PX`=2×矢じり・後続下=出直後下折れ・後続上=後続直前上折れ・重なり=行間ギャップ）。単体：`tests/dependency-connector.test.ts`（3ケース＋スタブ長＋折れ点＋非跨ぎ） |
+| DEP-L1-003（改訂・全面書換） | 16-dependencies | 依存線を決定的な直交経路で自動配線（右出=先行右辺middle_right/左入=後続左辺middle_left、横スタブ=矢じり先端の2倍、後続下=出直後に下折れ、後続上=後続直前で上折れ、水平重なり時は行間ギャップを通過し両バー非跨ぎ、前進依存が主対象） | done (IM4→DEF-005 改修 2026-07-21)：`dependency-connector.routeConnector` を相対配置別の3経路へ再設計。前進クリア=右辺中央出/左辺中央入（`CONNECTOR_STUB_PX`=2×矢じり・整列0/下2/上2、従来維持）。接触・同一行 FS=下端入線の可視「コ」の字（2折れ・縦幅>0、退化ナブ廃止）。重なり/後方=後続の上端/下端から差込む L（1折れ・先行出口 x より左へ進まない）。単体：`tests/dependency-connector.test.ts`（13ケース：前進上下・整列・接触・重なり後方・強後方、全 green） |
 | DEP-L1-002（改訂・注記追加） | 16-dependencies | 9 点アンカー座標定義は保持しつつ、当面は手動選択を用いず DEP-L1-003 の決定的規則（始点middle_right/終点middle_left）で配線する旨を追記 | done (IM4)：`dependency-router.ts` の 9 アンカー座標は保持、`dependency-layer`/`hit-tester` は `routeConnector` を使用（手動アンカー無視） |
-| DEP-L2-001（改訂・specialize） | 16-dependencies | 障害物回避直交配線エンジンの始点/終点アンカーを middle_right/middle_left に固定し DEP-L1-003 の決定的規則に従って経路生成 | done (IM4)：`routeConnector` が右辺/左辺固定で直交経路を決定的生成 |
-| DEP-L2-002（改訂・整合明記） | 16-dependencies | 折れ点数0〜3の制約が DEP-L1-003 の決定的経路と整合する旨を明記 | done (IM4)：前進依存（整列0・上下2）は0〜3遵守。**recommended-spec 逸脱**: 上下積み＋水平重なりの行間ギャップ迂回は右辺出/左辺入のパリティ上4折れが最小（`tests/dependency-connector.test.ts` で両バー非跨ぎを検証）。将来CRで当該ケースの上限緩和 or 上下辺入を検討 |
+| DEP-L2-001（改訂・specialize） | 16-dependencies | 障害物回避直交配線エンジンの始点/終点アンカーを middle_right/middle_left に固定し DEP-L1-003 の決定的規則に従って経路生成 | done (IM4→DEF-005 改修 2026-07-21)：`routeConnector` が右辺出固定＋相対配置別の決定的直交経路を生成（前進クリアは左辺入、重なり/後方は先行を跨がぬよう後続の上端/下端入線へ specialize） |
+| DEP-L2-002（改訂・整合明記） | 16-dependencies | 折れ点数0〜3の制約が DEP-L1-003 の決定的経路と整合する旨を明記 | done (IM4→DEF-005 改修 2026-07-21)：**全ケース 0〜3 折れを遵守**。前進=整列0/上下2、接触・同一行 FS=2、重なり/後方=1（上下端入線）。旧実装の4折れ逸脱は上下端入線方式（案2）採用で解消し、仕様緩和（案1）は不採用。`tests/dependency-connector.test.ts` で折れ点≤3・非交差・先行出口より左へ進まないことを検証（`DEF-005-dep-elbow-parity.md`） |
 | 親 UID（参考・本文不変、子要求追加） | 19-tools-watermark, 11-items-icons, 13-layout-alignment | TOOL-L1-001/002/004/005、ITEM-L1-009/010、ALIGN-L1-001/ALIGN-L2-001 は STATEMENT 本文は改変されておらず、上記の新規/改訂子要求が追加された（親としての整合注記のみ） | done（注記のみ・実装対象なし。`.sdoc` に子要求追加済で充足） |
 | スキーマ | `docs/api/gr-scheduler.schema.next.json` | `labelPosition` enum に `inner-left` を追加 | done (IM1/IM4)：スワップ後の現行 `gr-scheduler.schema.json`（`labelPosition` enum に `inner-left` を含むことを確認）へ反映済み |
 

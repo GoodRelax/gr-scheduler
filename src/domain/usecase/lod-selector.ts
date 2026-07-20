@@ -52,3 +52,33 @@ export function selectItemsByLod(
   const threshold = lodThreshold(effectiveZoom);
   return items.filter((item) => item.importance >= threshold);
 }
+
+/**
+ * Item-count ceiling below which a document is "small" enough that BOTH LOD culling
+ * and viewport virtualization are bypassed: every item is rendered regardless of zoom
+ * or scroll, so a small schedule always shows a complete overview.
+ *
+ * Rationale (startup-Fit under-render fix): the whole-schedule Fit resolves a very
+ * small zoom for a multi-year span (e.g. zoomX ~= 0.13), at which the LOD threshold
+ * `1 / (1 + zoom)` rises above ~0.88. With the fit not yet applied the view sits at
+ * the default zoom = 1 and scroll = 0, where the (correct) viewport virtualization
+ * culls every item past the first screen -- so a small schedule that should be fully
+ * framed instead shows only its earliest items. Because a small document is never the
+ * performance concern (the RISK-001 / ADR-009 virtualization exists for the ~1000-item
+ * benchmark), rendering all of its items unconditionally is both safe and the robust
+ * fix: the overview is always complete, independent of when Fit lands. The cap sits
+ * well under the benchmark size, so large schedules keep the bounded live-node set.
+ */
+export const LOD_FULL_RENDER_ITEM_CAP = 200;
+
+/**
+ * Whether a document with `totalItemCount` items should render in FULL -- no LOD
+ * threshold culling and no viewport virtualization -- so a small schedule always
+ * shows every item (see {@link LOD_FULL_RENDER_ITEM_CAP}).
+ *
+ * @param totalItemCount - The document's total item count (before any culling).
+ * @returns True when every item should be rendered regardless of zoom / scroll.
+ */
+export function shouldRenderAllItems(totalItemCount: number): boolean {
+  return totalItemCount <= LOD_FULL_RENDER_ITEM_CAP;
+}

@@ -50,9 +50,11 @@ describe('default ASPICE sample (project start -> SOS, ~3-year timeline)', () =>
   });
 
   it('spans about three years of content so the default timeline frames it', () => {
+    // Content runs from Kickoff (2026-01-01) to the Ramp-Up tail (2029-03-15), a bit
+    // past SOS, so the span is a touch over three years.
     const spanYears = maxItemDayOffset(document.items) / DAYS_PER_YEAR;
     expect(spanYears).toBeGreaterThan(2.7);
-    expect(spanYears).toBeLessThan(3.1);
+    expect(spanYears).toBeLessThan(3.3);
   });
 
   it('models the full ASPICE lifecycle (SYS + SWE phases, integration/validation)', () => {
@@ -64,8 +66,9 @@ describe('default ASPICE sample (project start -> SOS, ~3-year timeline)', () =>
     // Integration & validation tracks reach toward SOS.
     expect(abbrevs.has('System Integration')).toBe(true);
     expect(abbrevs.has('Vehicle Validation')).toBe(true);
-    // Actual (as-run) dates and gate milestones are present (CR-001 actual-date model).
-    expect(document.items.some((item) => item.actualStart !== undefined)).toBe(true);
+    // As-run (actual) items live on the paired `*-Actual` tracks (KEEP-AS-IS model),
+    // and the SoP gate milestone is present.
+    expect(document.items.some((item) => (item.middleCategory ?? '').endsWith('-Actual'))).toBe(true);
     expect(document.items.some((item) => item.abbrev === 'SoP')).toBe(true);
   });
 });

@@ -13,7 +13,6 @@ import { describe, expect, it } from 'vitest';
 import { generateTemplateDocument } from '../src/app/sample-data.js';
 import {
   actualColorFrom,
-  actualDisplayFillColor,
   displayFillColor,
   parseColorToHsl,
   planColorFrom,
@@ -52,26 +51,26 @@ describe('default template sample data (fix 1)', () => {
     }
   });
 
-  it('records actual dates coherently on the same item as its plan (actual-date model)', () => {
-    // The actual-date model has no per-item plan/actual discriminator: every item with
-    // an actualStart also carries a planned span, and any actualEnd it has is a valid
-    // ISO date (never before the actual start).
-    const withActual = document.items.filter((item) => item.actualStart !== undefined);
-    expect(withActual.length).toBeGreaterThan(0);
+  it('records actual dates coherently on the paired actual rows (KEEP-AS-IS model)', () => {
+    // Plan and actual are kept as SEPARATE items on SEPARATE `*-Actual` tracks. Every
+    // actual item carries valid ISO dates and (for tasks) never ends before it starts.
+    const actualItems = document.items.filter((item) =>
+      (item.middleCategory ?? '').endsWith('-Actual'),
+    );
+    expect(actualItems.length).toBeGreaterThan(0);
     const isoDate = /^\d{4}-\d{2}-\d{2}$/;
-    for (const item of withActual) {
-      expect(item.actualStart).toMatch(isoDate);
+    for (const item of actualItems) {
       expect(item.startDate).toMatch(isoDate);
-      if (item.actualEnd != null) {
-        expect(item.actualEnd).toMatch(isoDate);
-        expect(item.actualEnd >= (item.actualStart as string)).toBe(true);
+      if (item.endDate != null) {
+        expect(item.endDate).toMatch(isoDate);
+        expect(item.endDate >= item.startDate).toBe(true);
       }
     }
   });
 
-  it('carries actual dates on the same item as its plan (actual-date model)', () => {
-    // At least one item records an actual start on top of its planned span.
-    expect(document.items.some((item) => item.actualStart !== undefined)).toBe(true);
+  it('carries actual data as separate items on the paired actual rows (KEEP-AS-IS model)', () => {
+    // At least one item lives on an `*-Actual` track as a red as-run bar/milestone.
+    expect(document.items.some((item) => (item.middleCategory ?? '').endsWith('-Actual'))).toBe(true);
   });
 
   it('places every item under one of the two named sections', () => {
@@ -94,14 +93,19 @@ describe('default template sample data (fix 1)', () => {
     expect(document.items.some((item) => item.middleCategory === 'Phase-Plan')).toBe(true);
   });
 
-  it('includes the TeamA Phase-Plan multi-bar row (SYS1..SWE1) with actual dates on SYS1', () => {
+  it('includes the TeamA Phase-Plan multi-bar row (SYS1..SWE1) with a paired actual SYS1', () => {
     const teamAPhasePlan = document.items.filter(
       (item) => item.majorCategory === 'TeamA' && item.middleCategory === 'Phase-Plan',
     );
     expect(teamAPhasePlan.map((item) => item.abbrev).sort()).toEqual(['SWE1', 'SYS1', 'SYS2', 'SYS3']);
-    // Actual (as-run) dates live on the SYS1 plan item itself (actual-date model).
-    const sys1 = teamAPhasePlan.find((item) => item.abbrev === 'SYS1');
-    expect(sys1?.actualStart).toBeDefined();
+    // The as-run SYS1 lives as a separate red item on the paired Phase-Actual track.
+    const actualSys1 = document.items.find(
+      (item) =>
+        item.majorCategory === 'TeamA' &&
+        item.middleCategory === 'Phase-Actual' &&
+        item.abbrev === 'SYS1',
+    );
+    expect(actualSys1).toBeDefined();
   });
 });
 
@@ -126,17 +130,17 @@ describe('plan/actual saturation-derived coloring (CR-002 Part 1)', () => {
     expect(actualHsl.l).toBeLessThan(planHsl.l);
   });
 
-  it('derives both sides from each item base color that records an actual', () => {
+  it('keeps each template item own stored fill (separate plan/actual rows, no derivation)', () => {
     const document = generateTemplateDocument();
-    const withActual = document.items.filter((item) => item.actualStart !== undefined);
-    // The template carries at least one item with recorded actual dates (SYS1).
-    expect(withActual.length).toBeGreaterThan(0);
-    for (const item of withActual) {
-      if (item.fillColorExplicit === true) {
-        continue;
-      }
-      expect(displayFillColor(item)).toBe(planColorFrom(item.fillColor));
-      expect(actualDisplayFillColor(item)).toBe(actualColorFrom(item.fillColor));
+    // KEEP-AS-IS: plan and actual are separate items with no per-item actualStart, so
+    // each item keeps its OWN stored fill (blue plan, red actual) with no pale/vivid
+    // derivation. Both hues are still present on the template.
+    const fills = new Set(document.items.map((item) => item.fillColor));
+    expect(fills.has('#4477aa')).toBe(true);
+    expect(fills.has('#ee6677')).toBe(true);
+    for (const item of document.items) {
+      expect(item.actualStart).toBeUndefined();
+      expect(displayFillColor(item)).toBe(item.fillColor);
     }
   });
 });

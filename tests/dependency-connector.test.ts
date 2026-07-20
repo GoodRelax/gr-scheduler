@@ -9,15 +9,22 @@ import {
 } from '../src/domain/usecase/dependency-connector.js';
 
 /**
- * Unit coverage for the CR-003 Part 3 deterministic dependency auto-router: the line
- * EXITS the source right edge (vertical center), ENTERS the target left edge, keeps a
- * 2x-arrowhead horizontal stub at each end, drops DOWN right after the stub for a
- * lower target, runs to just before an upper target then UP, and threads the gap
- * between two stacked / overlapping bars.
+ * Unit coverage for the CR-003 Part 3 / DEF-005 deterministic dependency auto-router.
+ *
+ * The router is clean for EVERY relative geometry the default template exercises:
+ * - forward, clearly to the right: right-edge exit -> left-edge entry (unchanged);
+ * - contiguous same-row FS (side-by-side bars in one lane): a visible squared "U"
+ *   below the row into the target's BOTTOM edge -- never a flat zero-vertical nub;
+ * - overlapping / backward stacked bars (a different lane, target left edge past the
+ *   source exit): a clean L into the target's TOP/BOTTOM edge that never travels left
+ *   of the source's exit and crosses neither bar.
+ * Every route stays within the DEP-L2-002 bend budget of 0..3.
  */
 
+type XY = { readonly x: number; readonly y: number };
+
 /** Every segment of the polyline is axis-aligned (right angles only). */
-function isOrthogonal(points: readonly { x: number; y: number }[]): boolean {
+function isOrthogonal(points: readonly XY[]): boolean {
   for (let index = 1; index < points.length; index += 1) {
     const a = points[index - 1]!;
     const b = points[index]!;
@@ -28,8 +35,8 @@ function isOrthogonal(points: readonly { x: number; y: number }[]): boolean {
   return true;
 }
 
-/** Whether any segment of the polyline passes through the interior of a rectangle. */
-function crossesRect(points: readonly { x: number; y: number }[], rect: Rect): boolean {
+/** Whether any segment of the polyline passes through the STRICT interior of a rect. */
+function crossesRect(points: readonly XY[], rect: Rect): boolean {
   const left = rect.x;
   const right = rect.x + rect.width;
   const top = rect.y;
@@ -38,7 +45,6 @@ function crossesRect(points: readonly { x: number; y: number }[], rect: Rect): b
     const a = points[index - 1]!;
     const b = points[index]!;
     if (a.y === b.y) {
-      // Horizontal segment strictly inside the vertical band.
       if (a.y > top && a.y < bottom) {
         const segLeft = Math.min(a.x, b.x);
         const segRight = Math.max(a.x, b.x);
@@ -46,18 +52,26 @@ function crossesRect(points: readonly { x: number; y: number }[], rect: Rect): b
           return true;
         }
       }
-    } else {
-      // Vertical segment strictly inside the horizontal band.
-      if (a.x > left && a.x < right) {
-        const segTop = Math.min(a.y, b.y);
-        const segBottom = Math.max(a.y, b.y);
-        if (Math.min(segBottom, bottom) - Math.max(segTop, top) > 0) {
-          return true;
-        }
+    } else if (a.x > left && a.x < right) {
+      const segTop = Math.min(a.y, b.y);
+      const segBottom = Math.max(a.y, b.y);
+      if (Math.min(segBottom, bottom) - Math.max(segTop, top) > 0) {
+        return true;
       }
     }
   }
   return false;
+}
+
+/** The vertical extent (max y - min y) spanned by the polyline. */
+function verticalExtent(points: readonly XY[]): number {
+  const ys = points.map((point) => point.y);
+  return Math.max(...ys) - Math.min(...ys);
+}
+
+/** The smallest x visited by the polyline (used to assert no leftward-past-source run). */
+function minX(points: readonly XY[]): number {
+  return Math.min(...points.map((point) => point.x));
 }
 
 describe('dependency connector: fixed exit / entry anchors', () => {
@@ -70,7 +84,7 @@ describe('dependency connector: fixed exit / entry anchors', () => {
     expect(exit.y).toBe(from.y + from.height / 2);
   });
 
-  it('enters the target at its exact left-edge, vertical center', () => {
+  it('enters the target at its exact left-edge, vertical center (nominal anchor)', () => {
     const entry = connectorEntryPoint(to);
     expect(entry.x).toBe(to.x);
     expect(entry.y).toBe(to.y + to.height / 2);
@@ -92,11 +106,9 @@ describe('dependency connector: forward, target BELOW = elbow down after the stu
     expect(isOrthogonal(route.points)).toBe(true);
     expect(route.points[0]).toEqual(connectorExitPoint(from));
     expect(route.points[route.points.length - 1]).toEqual(connectorEntryPoint(to));
-    // The descent column sits exactly one stub to the right of the source exit.
     const exit = connectorExitPoint(from);
     expect(route.points[1]!.x).toBe(exit.x + CONNECTOR_STUB_PX);
     expect(route.points[1]!.y).toBe(exit.y);
-    // The entry is approached from the LEFT (penultimate point left of the entry).
     const last = route.points[route.points.length - 1]!;
     const penultimate = route.points[route.points.length - 2]!;
     expect(penultimate.x).toBeLessThan(last.x);
@@ -114,9 +126,7 @@ describe('dependency connector: forward, target ABOVE = run right then elbow up'
     expect(route.bends).toBeLessThanOrEqual(3);
     expect(isOrthogonal(route.points)).toBe(true);
     const entry = connectorEntryPoint(to);
-    // The ascent column sits exactly one stub to the LEFT of the target entry.
     expect(route.points[route.points.length - 2]!.x).toBe(entry.x - CONNECTOR_STUB_PX);
-    // The horizontal run leaves the exit going rightward as far as the ascent column.
     const exit = connectorExitPoint(from);
     expect(route.points[1]!.x).toBeGreaterThan(exit.x);
     expect(route.points[1]!.y).toBe(exit.y);
@@ -135,32 +145,103 @@ describe('dependency connector: aligned rows = a single straight segment', () =>
   });
 });
 
-describe('dependency connector: stacked + horizontally overlapping threads the gap', () => {
-  // Two time-overlapping items stacked into different lanes of one row: the target's
-  // left edge (x=40) is to the LEFT of the source's right edge (x=100), and the target
-  // sits BELOW the source, so a forward descent would cross a bar. The run must go
-  // through the inter-lane gap (between y=130 and y=160).
-  const from: Rect = { x: 0, y: 100, width: 100, height: 30 };
-  const to: Rect = { x: 40, y: 160, width: 100, height: 30 };
+describe('dependency connector: contiguous same-row FS = a visible squared U, never a nub', () => {
+  // concept -> dev / dev -> valid in the template: sequential phases side by side in ONE
+  // lane. The successor's left edge exactly touches the predecessor's right edge, so the
+  // left-edge entry point coincides with the exit -- a degenerate flat nub under the old
+  // router. The clean route drops below the row and rises into the target's BOTTOM edge.
+  const from: Rect = { x: 100, y: 100, width: 120, height: 30 };
+  const to: Rect = { x: 220, y: 100, width: 120, height: 30 };
 
-  it('crosses NEITHER bar and keeps its horizontal run in the inter-bar gap', () => {
+  it('draws a non-degenerate connector: real vertical extent, bends <= 3, no flat nub', () => {
     const route = routeConnector(from, to);
     expect(isOrthogonal(route.points)).toBe(true);
+    expect(route.bends).toBeLessThanOrEqual(3);
+    // A real drop below the row -- not a zero-vertical nub.
+    expect(verticalExtent(route.points)).toBeGreaterThan(0);
+    // No zero-area path: consecutive points differ, and the path is not a there-and-back
+    // flat line (its bounding box has positive height).
+    expect(route.points.length).toBeGreaterThanOrEqual(3);
     expect(route.points[0]).toEqual(connectorExitPoint(from));
-    expect(route.points[route.points.length - 1]).toEqual(connectorEntryPoint(to));
+  });
+
+  it('never travels left of the source exit and crosses neither bar', () => {
+    const route = routeConnector(from, to);
+    const exit = connectorExitPoint(from);
+    expect(minX(route.points)).toBeGreaterThanOrEqual(exit.x);
     expect(crossesRect(route.points, from)).toBe(false);
     expect(crossesRect(route.points, to)).toBe(false);
-    // Exits rightward past the source right edge before dropping into the gap.
-    const exit = connectorExitPoint(from);
-    expect(route.points[1]!.x).toBe(exit.x + CONNECTOR_STUB_PX);
-    // The gap run sits strictly between the source bottom (130) and the target top (160).
-    const gapPoint = route.points[2]!;
-    expect(gapPoint.y).toBeGreaterThan(from.y + from.height);
-    expect(gapPoint.y).toBeLessThan(to.y);
-    // Enters the target from the left, horizontally.
+  });
+
+  it('enters the target from its BOTTOM edge with a clean vertical stub', () => {
+    const route = routeConnector(from, to);
     const last = route.points[route.points.length - 1]!;
     const penultimate = route.points[route.points.length - 2]!;
-    expect(penultimate.y).toBe(last.y);
-    expect(penultimate.x).toBeLessThan(last.x);
+    // Lands on the target's bottom edge, arriving vertically (the arrow points up).
+    expect(last.y).toBe(to.y + to.height);
+    expect(penultimate.x).toBe(last.x);
+    expect(penultimate.y).toBeGreaterThan(last.y);
+    // The rising stub is one stub tall.
+    expect(penultimate.y - last.y).toBe(CONNECTOR_STUB_PX);
+  });
+});
+
+describe('dependency connector: overlapping / backward stacked = clean top/bottom entry', () => {
+  // sys1 -> sys2 in the template: sys2 starts BEFORE sys1 ends (its left edge is left of
+  // the source exit) yet extends to the right of it, stacked into a LOWER lane. The old
+  // router looped the run left, past the source. The clean route drops into sys2's TOP.
+  const source: Rect = { x: 100, y: 100, width: 100, height: 30 };
+  const target: Rect = { x: 170, y: 150, width: 130, height: 30 };
+
+  it('enters the target TOP edge, never travels left of the source exit, bends <= 3', () => {
+    const route = routeConnector(source, target);
+    expect(isOrthogonal(route.points)).toBe(true);
+    expect(route.bends).toBeLessThanOrEqual(3);
+    const exit = connectorExitPoint(source);
+    // Never loops left of the source's right-edge exit.
+    expect(minX(route.points)).toBeGreaterThanOrEqual(exit.x);
+    // Lands on the target's TOP edge (target is below the source).
+    const last = route.points[route.points.length - 1]!;
+    expect(last.y).toBe(target.y);
+    // Arrives vertically (the arrow points down into the top edge).
+    const penultimate = route.points[route.points.length - 2]!;
+    expect(penultimate.x).toBe(last.x);
+    expect(penultimate.y).toBeLessThan(last.y);
+  });
+
+  it('crosses neither bar', () => {
+    const route = routeConnector(source, target);
+    expect(crossesRect(route.points, source)).toBe(false);
+    expect(crossesRect(route.points, target)).toBe(false);
+  });
+
+  it('enters the BOTTOM edge when the target is stacked ABOVE the source', () => {
+    // sys3 -> swe1 mirror, but with the target in an UPPER lane: the facing edge is the
+    // target BOTTOM. Target left edge is left of the source exit; target extends right.
+    const src: Rect = { x: 200, y: 200, width: 80, height: 30 };
+    const tgt: Rect = { x: 150, y: 100, width: 250, height: 30 };
+    const route = routeConnector(src, tgt);
+    expect(route.bends).toBeLessThanOrEqual(3);
+    const exit = connectorExitPoint(src);
+    expect(minX(route.points)).toBeGreaterThanOrEqual(exit.x);
+    const last = route.points[route.points.length - 1]!;
+    expect(last.y).toBe(tgt.y + tgt.height); // bottom edge of the upper target
+    const penultimate = route.points[route.points.length - 2]!;
+    expect(penultimate.x).toBe(last.x);
+    expect(penultimate.y).toBeGreaterThan(last.y); // arrives from below, arrow points up
+    expect(crossesRect(route.points, src)).toBe(false);
+    expect(crossesRect(route.points, tgt)).toBe(false);
+  });
+
+  it('strongly backward target (both edges span the source exit) stays clean', () => {
+    // sys3 -> swe1: swe1 starts before sys3 starts and ends after sys3 ends.
+    const src: Rect = { x: 200, y: 100, width: 80, height: 30 };
+    const tgt: Rect = { x: 150, y: 150, width: 250, height: 30 };
+    const route = routeConnector(src, tgt);
+    expect(route.bends).toBeLessThanOrEqual(3);
+    const exit = connectorExitPoint(src);
+    expect(minX(route.points)).toBeGreaterThanOrEqual(exit.x);
+    expect(crossesRect(route.points, src)).toBe(false);
+    expect(crossesRect(route.points, tgt)).toBe(false);
   });
 });

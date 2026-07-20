@@ -5,8 +5,12 @@
  * {@link ScheduleItem.fillColor} by adjusting SATURATION and LIGHTNESS, not from a
  * pair of fixed hues:
  *
- * - the PLAN side is a PALE (desaturated + lightened) shade -- supplementary;
+ * - the PLAN side is a PALE (lightened, chroma-retaining) tint -- supplementary;
  * - the ACTUAL / progress side is a VIVID (saturated + deepened) shade -- emphasized.
+ *
+ * "Pale" is achieved primarily by raising LIGHTNESS while keeping most of the base
+ * saturation, so the plan tint stays a clearly-colored lighter version of the base
+ * hue and never washes out to a flat grey.
  *
  * The split only applies where a plan and an actual coexist (an item that records
  * an actual start); a plan-only item keeps its own stored fill so a normal bar is
@@ -31,10 +35,21 @@ export interface Hsl {
   readonly l: number;
 }
 
-/** Fraction the PLAN shade RETAINS of the base saturation (desaturate toward gray). */
-const PLAN_SATURATION_RETAIN = 0.45;
-/** Fraction of the remaining headroom the PLAN shade LIGHTENS toward white. */
-const PLAN_LIGHTEN_FRACTION = 0.55;
+/**
+ * Fraction the PLAN shade RETAINS of the base saturation. Kept HIGH (near-full) so
+ * the pale plan stays a clearly-COLORED tint of the base hue: "pale" is carried by
+ * LIGHTNESS, not by draining chroma. An earlier low value (0.45) desaturated the
+ * base blue `#4477aa` almost to a flat grey `#b6c2ce`; retaining most of the chroma
+ * keeps it a soft, recognizable blue (~`#81a4c7`) while still reading as the lighter,
+ * supplementary "plan" side against the vivid actual.
+ */
+const PLAN_SATURATION_RETAIN = 0.9;
+/**
+ * Fraction of the remaining lightness headroom the PLAN shade LIGHTENS toward white.
+ * Moderate (not near-white) so the tint stays saturated enough to be a color rather
+ * than a wash: this LIGHTNESS lift is what makes the plan side "pale".
+ */
+const PLAN_LIGHTEN_FRACTION = 0.33;
 /** Fraction of the remaining headroom the ACTUAL shade SATURATES toward full. */
 const ACTUAL_SATURATE_FRACTION = 0.35;
 /** Fraction the ACTUAL shade RETAINS of the base lightness (deepen toward black). */
@@ -156,9 +171,10 @@ export function hslToCss(hsl: Hsl): string {
 }
 
 /**
- * Derive the PALE plan shade from a base color: desaturate toward gray and lighten
- * toward white (CR-002 Part 1). Returns the base color unchanged when it cannot be
- * parsed (named / transparent / gradient).
+ * Derive the PALE plan shade from a base color: lighten toward white while retaining
+ * most of the base saturation (CR-002 Part 1), so the result is a clearly-colored
+ * lighter tint rather than a grey wash. Returns the base color unchanged when it
+ * cannot be parsed (named / transparent / gradient).
  *
  * @param baseColor - The item's base fill color.
  * @returns The pale plan shade as `#rrggbb`, or the base color when unparseable.

@@ -83,6 +83,33 @@ describe('plan (pale) / actual (vivid) derivations', () => {
     expect(planColorFrom('transparent')).toBe('transparent');
     expect(actualColorFrom('rebeccapurple')).toBe('rebeccapurple');
   });
+
+  it('keeps the plan tint clearly COLORED (retains chroma), never a grey wash', () => {
+    // Regression guard: an earlier tuning drained the base blue #4477aa almost to a
+    // flat grey (~#b6c2ce, saturation ~0.19). The plan shade must stay a recognizable
+    // COLOR: retain a minimum saturation AND be lighter than the base, for every CUD
+    // fill in the palette. The minimum sits comfortably above the old grey value so a
+    // regression back to a wash fails here.
+    const MIN_PLAN_SATURATION = 0.3;
+    for (const fill of ['#4477aa', '#66ccee', '#228833', '#ccbb44', '#ee6677', '#aa3377']) {
+      const baseHsl = parseColorToHsl(fill)!;
+      const planHsl = parseColorToHsl(planColorFrom(fill))!;
+      expect(planHsl.s).toBeGreaterThanOrEqual(MIN_PLAN_SATURATION);
+      expect(planHsl.l).toBeGreaterThan(baseHsl.l);
+      expect(planHsl.h).toBeCloseTo(baseHsl.h, 0);
+    }
+  });
+
+  it('derives a soft BLUE (not grey) plan tint from the base blue #4477aa', () => {
+    // The concrete anchor from the fix: #4477aa should yield a soft blue tint around
+    // #81a4c7 (blue channel clearly the largest and well above the red channel), not
+    // a near-neutral grey where the channels bunch together.
+    const plan = planColorFrom('#4477aa');
+    const red = parseInt(plan.slice(1, 3), 16);
+    const blue = parseInt(plan.slice(5, 7), 16);
+    // A genuine blue keeps a wide blue-over-red gap; a grey wash would collapse it.
+    expect(blue - red).toBeGreaterThan(50);
+  });
 });
 
 describe('displayFillColor / actualDisplayFillColor item wiring', () => {

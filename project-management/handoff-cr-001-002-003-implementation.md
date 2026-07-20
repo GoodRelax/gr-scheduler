@@ -40,7 +40,13 @@
   - **要報告の推奨仕様判断**: DEP-L2-002(折れ0..3) と「重なる後方(左)ターゲットへの行間ギャップ迂回」はパリティ上4折れ不可避。前進依存は≤2で規格内。4折れ非交差ルートを正として実装し、将来CRで DEP-L2-002 緩和 or 重なり時の上下端入線を検討(=IM5でフォロー記録)。
   - **IM5宿題**: 陳腐化E2E 3本(header-shell-batch/shell-theme-batch/lines-cursor-dependency-batch)を新ヘッダーrole・新依存幾何へ改修＋dist で Playwright+axe。DEF-004 の 40-data-format flat同期(schema.json は inner-left 既含・要確認のみ)。traceability の IM2/IM3 行 pending→done。単一HTMLビルド検証。性能PoCはユーザー立会い(保留)。
 - **IM5（#16）= ✅完了・green（2026-07-20/21、未コミット）**: DEF-004 flat同期(40-data-format、strictdoc exit0)／陳腐化E2E 15本改修（3本IM5a+12本IM5e）→ Playwright **116/116**(serial)／単一HTMLビルド `dist/index.html` **271.51kB 自己完結**／axe WCAG2.1 AA 4テーマ PASS／MSPDI Baseline best-effort往復実装(IM5d)／traceability pending→done／DEF-005(依存線折れパリティ・要方針)・DEF-006(Fit縦クリップ→**修正済**)起票。**最終gate: tsc 0 / vitest 592 pass・0 skip・0 fail / eslint 0 / strictdoc exit 0**。
-  - **未了（ユーザー判断/立会い）**: (1) 性能PoC=RISK-001でユーザー立会い必須のため未実行。(2) DEF-005=依存線の重なり後方ターゲットが4折れ(DEP-L2-002は0..3)、前進依存は規格内→将来CR要否をユーザー判断。(3) 実機ライブ検証(dev DOM)は自律のため未実施＝起床後にプレビュー確認推奨(memory `live-verify-gotchas`)。
+  - **未了（ユーザー立会い）**: 性能PoC=RISK-001でユーザー立会い必須のため未実行（memory `perf-test-notify`）。
+
+- **IM6（#17）= ✅完了・green**: 予実配色の彩度調整（`#4477aa`→淡い青 `#81a4c7`、灰色化解消／実績 `#24629f` 濃）＋小規模ドキュメント（≤200件）は起動Fitに関わらず全アイテム描画（`lod-selector` `shouldRenderAllItems`＋`item-layer` 仮想化スキップ）。vitest 598。
+- **IM7（#18）= ✅完了・green**: `old/gr-scheduler-template.json`（旧モデル）を新モデルへ keep-as-is 移植し**デフォルト起動サンプルに差し替え**。plan/actual は別行のまま（青予定/赤実績）、planActualKind等除去、strokeColor→TRANSPARENT_COLOR_KEY、32アイテム/13行/依存4/注記1、schemaVersion 2。vitest 598・ビルド273kB。
+- **IM8（#19）= ✅完了・green＝DEF-005 解決**: 依存線ルータを再設計。前進別行=右出左入（現状維持）／同一行連続=下端へ可視U字／重なり・後方=上端/下端入線・逆走なし・折れ≤3。`dependency-connector.ts`＋テスト13。**実機DOM検証済**（テンプレ4依存: コブ/逆走消滅、spanY>0、goesBackward=false）。vitest 604。16-dependencies.sdoc も文言更新。
+  - **実機ライブ検証（本セッションで実施）**: dev DOM で全32件描画・青/赤分離・依存線クリーンを確認（screenshotは当環境でハングするためDOM/JSで検証）。
+  - **未了（ユーザー立会いのみ）**: 性能PoC（RISK-001, memory `perf-test-notify`）。それ以外の残件なし。
 
 ## 4. 再開手順（次セッション冒頭で実行）
 
@@ -72,3 +78,42 @@
 - 仕様: `docs/spec/*.sdoc`（18-plan-actual, 16-dependencies, 11-items-icons, 13-layout-alignment, 19-tools-watermark, 40-data-format, 30-architecture）
 - 図SSOT: `docs/spec/_assets/*.md`
 - CR/記録: `project-records/change-requests/`, `/decisions/`, `/defects/`, `/reviews/R-CR001-spec-review.md`, `R-CR002-CR003-spec-review.md`, `/traceability/traceability-matrix.md`
+
+---
+
+# 次フェーズ: CR-004〜009（改善要求バッチ）実装 — 2026-07-21 起草
+
+CR-001/002/003 の実装（IM1-IM8）＋サンプル刷新は完了。以下は**未着手**の改善CR群。**進め方**: 各CRを仕様先行（srs-writer/architect が該当 `.sdoc`＋schema を改訂 → implementer/test-engineer が実装＋テスト → review-agent）で回す。CR-001..003 と同じ gate（tsc0 / vitest green / eslint0 / strictdoc exit0 / build）を各節目で維持。**コミット/タグ/プッシュはユーザーが手動**。実機は screenshot がハングするため **DOM/JS 検証**で代替（`npm run dev` → localhost:5173 → javascript_tool でDOM確認）。
+
+## CR一覧（すべて `project-records/change-requests/change-request-00N-20260721-070348.md`）
+- **CR-004 表示・レイアウト・アイコン**: (1)下→上へ積む(サブレーン反転・最上段=マイルストーン) (2)マイルストーン高さ=タスク+15%・フォントはアイコン基準 (3)フォント大時のセクション行マージン(小分類/中分類重なり回避) (4)プロパティの end_date/fade_in_days/fade_out_days/actual_end ラベルを左・右詰め統一 (5)担当者名レイアウト(左・右詰め・依存線入口と非干渉) (6)**アイコン取込廃止**(import-sanitizer 画像経路撤去)・★→☆(輪郭)・**特殊マイルストーン7種**(ファイル/立体箱/フロッピー/円筒/上半身輪郭/笑顔/ビアタンブラー、[...]から選択、milestoneShape enum拡張)。既知ギャップ: fade_in_days/fade_out_days が PROP-L1-002 表に未列挙(同時修正推奨)。
+- **CR-005 フォントスケール**: [A-][A][A+]→**[S][M][L]**改称／対象=セクション/プロパティ/コメント、**ヘッダー・パレットは対象外**(現 `font-scale.ts` は #app全体に適用＝要スコープ縮小)／プロパティは全サイズでスクロール無し／**コメントを追従**(現 `comment-layer.ts` は font-size 12 固定＝要修正、小分類名と同サイズ)。未決: 他にスケール対象があるか(要ユーザー確認)。
+- **CR-006 パレット/ヘッダーUI**: (1)[Fit]最左 (2)[P]パレットトグル(パレット[-]と連動・最小化で色変化) (3)**[SS]→クリップボード**画像コピー(=CR-003 TOOL-L1-008 改訂) (4)[en][jp]言語トグル(右上、[AI]/[?]日英切替、**AI和訳はプロンプトのみ・スキーマ非対象**) (5)イナズマ線トグル(**既定=非表示**へ変更) (6)予実[Ao]/[As]トグル(=CR-002 PLAN-L1-005 UI化、既定[Ao]) (7)担当者名トグル (8)Add Box を左上/右下2クリック指定。未決: Part4 の「[X]」=現ヘッダー最右は[?]のため配置対象を要確認。
+- **CR-007 選択・編集・移動・コピペ**: (1)Ctrl+クリック増減(矩形と併用) (2)★2 複数移動: 左右=日付一括シフト／上下=**最深共有分類レベル**(大/中/小)で隣接siblingへ再割当・上位維持・端で停止 (3)コメント ダブルクリック編集+Enter (4)Ctrl+A にコメントを含める(現 `keyboard-shortcuts.ts selectAll` は items のみ) (5)★1 分類コピペ(選択レベルで直下複製・xxx-N suffix・新ID・跨ぎ依存は複製側で破棄)。
+- **CR-008 依存線スタブ・方向(★3)**: 出口/入口に**必ず水平スタブ**(2×矢印)／向きが正しく見える／重なり・後方・連続は**最大4折れ許容**(DEP-L2-002緩和)。**IM8の上下端入線(水平スタブ無し)を上書き＝DEF-005 再オープン**。テンプレの SYS1→SYS2 と Concept→Series Development が非破綻になること。
+- **CR-009 透かし**: 既定パスワード=**GoodRelax**、格納は SHA-256 ハッシュのみ = `380e83c38461aa049922c0d277df334b01cfa0783f312be5e486ac06dc9c8ec3`(算出済。現行 `DEFAULT_WATERMARK_HIDE_PASSWORD_HASH=a8f81cfc…` を差替え)／透かしに**ユーザー名+UTC時刻**／UTCは**JSON変更時のみ更新**(ズーム/スクロールでは不変)。未決: 「アイテム変更検知」の結線点(Undo/Redo push時 or diff)。
+- **CR-010 単一HTMLアプリ内DL(★0)**: `[?]`Help内に **[Download GR Scheduler]**。`fetch(location.href)` で素HTMLを取得しBlobで `gr-scheduler.html` をDL(現DOMは使わない=データ混入回避)。Release/タグ運用は不要。
+- **CR-011 ヘルプのワンスクリーン収まり**: 日/英ともスクロール無しで1画面／3段組み維持／**幅を利用可能域まで拡大**(現 `help-modal.ts` は width:85vw・max-height:92vh・overflow:auto・column-count:3)／不足時のみフォント微縮。現行のレスポンシブ縮退(900px→2列/620px→1列)と3列維持方針の整合は実装時に確認。
+
+## ★0（公開・単一HTML配布）— ユーザー確認待ち（CR不要・runbook）
+現状: Pages Source=GitHub Actions（`pages.yml` が dist/index.html を `/` に、spec-html を `/spec-html/` に配信）。単一HTMLはリポジトリに無い（CI産物）。**推奨=GitHub Releases 添付**: 新規 `.github/workflows/release.yml`(`on: push tags 'v*'`)で build→`gr-scheduler.html` をそのReleaseに添付。ユーザーはタグを打つだけ。DL=`releases/download/<tag>/gr-scheduler.html`。**ユーザーのOK後に runbook 作成＋(実装セッションで)workflow追加**。
+
+## CR間の依存・順序メモ
+- CR-006 は CR-003(ヘッダー/SS) と CR-002(PLAN-L1-005) を改訂 → 先に CR-003/002 の該当 .sdoc を確認して整合。
+- CR-008 は IM8/DEF-005 を上書き（依存線ルータ再設計）。CR-004 の下→上積みとも整合させる。
+- CR-004 の特殊マイルストーン7種は milestoneShape enum 拡張＝schema+model+renderer。アイコン取込廃止は import-sanitizer/ARCH-C-026 撤去（セキュリティ簡素化）。
+
+## CR外の申し送り事項（ナンバリング／実装セッションのAI向け・厳守）
+
+> これらは CR に含めない事実・手順・要確認点。番号で参照せよ。曖昧に解釈するな。
+
+- **H-1 性能PoC（未実行・ユーザー立会い必須）**: 中規模（~50行/~1000アイテム）で 60fps ズーム/パン・初期表示 1.5s 以内を実測する（RISK-001）。**AIが勝手に実行してはならない。必ずユーザーを呼んで一緒に測る**（memory `perf-test-notify`）。ベンチは `?bench=N`。
+- **H-2 実機検証の方法**: この環境では `computer{action:"screenshot"}` が30秒ハングする（再現確認済み）。**スクショに頼るな。** `npm run dev`→http://localhost:5173/→`mcp__Claude_Browser__javascript_tool` で DOM を問い合わせて検証せよ（例: `[data-item-id]` 数、rect の `fill`、`[data-dependency-id] path` の `d`）。**テスト緑＝実機OK ではない**（memory `live-verify-gotchas`）。プレビューは 0×0/534px で cold-start することがある→`resize_window` 後に `navigate` で再読込。
+- **H-3 PROP 表の既存ギャップ**: `PROP-L1-002` の項目表に `fade_in_days`/`fade_out_days` が未列挙（schema/モデルには `fadeInDays`/`fadeOutDays` が存在）。**CR-004 Part 4 の実装時に同表へ同時追加**すること。
+- **H-4 実装着手前に要ユーザー確認（3件）**: (a) CR-005＝[S][M][L]でフォントが変わる対象は「セクション/プロパティ/コメント」で確定か、他にもあるか。 (b) CR-006＝[en][jp]を置く「画面右上[X]の左」の[X]の実体（現ヘッダー最右は[?]で、[X]相当は未定義）。 (c) CR-009＝「アイテム変更検知（JSON値変化）」でUTC時刻を更新する結線点（Undo/Redo push時 or ドキュメントdiff）。**これらは推測で実装せず、ユーザーに確認**。
+- **H-5 透かし既定ハッシュ**: パスワード "GoodRelax" の SHA-256 = `380e83c38461aa049922c0d277df334b01cfa0783f312be5e486ac06dc9c8ec3`（算出済）。CR-009 実装で現行 `DEFAULT_WATERMARK_HIDE_PASSWORD_HASH=a8f81cfc4f489a27c6e6fa3a31c6089878a3648e24c04ee1b934ac03b99ce46c` を**この値へ差し替え**。生パスワードはコード/HTML/JSON に一切保存しない。
+- **H-6 CR間の上書き関係（整合を保て）**: CR-006 は CR-003（ヘッダー `TOOL-L1-008`／SS=クリップボード）と CR-002（`PLAN-L1-005` 予実トグルUI化）を改訂。**CR-008 は IM8/DEF-005 の依存線ルータを上書き＝再設計**（水平スタブ必須・向き正・折れ最大4）で、CR-004 Part1（下→上積み）とも整合させる。CR-010 は ★0 を解決（Release/タグ不要）。
+- **H-7 アイコン取込廃止の波及（CR-004 Part6）**: `import-sanitizer` の SVG/PNG 画像経路・PNG検証・`ARCH-C-026` の該当部を撤去。`ImportedAsset` 型・`assets[]`・`importedAssetId`・JSON/MSPDI の assets 往復も除去し、関連サニタイザテストを整理。未公開ゆえ互換不要。
+- **H-8 ★0 の結論**: 単一HTML配布は **CR-010 の[Download GR Scheduler]（アプリが `fetch(location.href)` で自分の素HTMLをBlob DL）** で確定。GitHub Releases/タグ運用は不要（将来の版管理が要れば任意で別途）。
+- **H-9 既存の未整備（非ブロッカー）**: CI（GitHub Actions での lint/type-check/test/build 検証）未整備。kotodama 用語チェック未実施。必要に応じ実施。
+- **H-10 進め方の厳守**: 各CRは仕様先行（srs-writer=L1要求文／architect=specialize・verification・schema・data-format）→ implementer/test-engineer 実装＋テスト → review-agent。gate（tsc0 / vitest green / eslint0 / strictdoc exit0 / build）を各節目で維持。**コミット/タグ/プッシュはユーザーが手動**。命名は item60（無意味符牒禁止、コード/コメント/ログは英語ASCII）。
