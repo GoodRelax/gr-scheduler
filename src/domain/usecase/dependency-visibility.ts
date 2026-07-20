@@ -1,63 +1,74 @@
 /**
  * UseCase layer: pure predicates for dependency-edge visibility.
  *
- * TODO(IM2): the old plan/actual link CONSTRAINT (an edge could connect only
- * plan->plan or actual->actual items, keyed by the removed `planActualKind`) no longer
- * applies -- the actual-date model carries plan AND actual on ONE item, so there is no
- * cross-kind pairing to forbid. This module is NEUTRALIZED accordingly: an edge is
- * renderable when both endpoints exist and are not hidden by the plan/actual display
- * filter. The endpoint-side visibility split (plan-only / actual-only) is likewise
- * deferred to IM2; for IM1 only `none` (hide all) suppresses edges.
+ * Under the actual-date model (CR-001 Part A) a single item carries BOTH its plan
+ * span and its actual dates, so there is no cross-kind pairing to forbid: any two
+ * items may be linked. Visibility of an edge is decided by whether both endpoints
+ * exist and whether the SIDE the edge would anchor to is drawn under the current
+ * plan/actual display filter (PLAN-L1-002):
+ *
+ * - `both` / `plan-only` draw every item's plan bar, so every existing edge renders.
+ * - `actual-only` draws only items that HAVE actual dates, so an edge renders only
+ *   when both endpoints record an actual side.
+ * - `none` hides every edge.
  *
  * Shared by the link-pick controller, the dependency render layer and the dependency
  * hit-tester. Side-effect free.
  */
 
-import type {
-  Dependency,
-  PlanActualDisplay,
-  ScheduleItem,
-} from '../model/schedule-model.js';
+import type { Dependency, PlanActualDisplay, ScheduleItem } from '../model/schedule-model.js';
+import { itemHasActualDates } from './progress-line-builder.js';
 
 /**
  * Whether two items may be linked by a dependency edge.
  *
- * TODO(IM2): restore the plan/actual same-side constraint against the actual-date
- * model. For IM1 there is no per-item plan/actual discriminator, so any two items may
- * be linked.
+ * The actual-date model imposes NO linkable-kind constraint (the old plan<->actual
+ * same-side rule keyed by the removed `planActualKind` is gone), so any two items
+ * -- task or milestone -- may be linked.
  *
- * @param _from - The source item (unused until the IM2 constraint returns).
- * @param _to - The target item (unused until the IM2 constraint returns).
- * @returns Always true (IM1 neutralization).
+ * @param _from - The source item (unconstrained under the actual-date model).
+ * @param _to - The target item (unconstrained under the actual-date model).
+ * @returns Always true.
  */
-export function sameLinkableKind(_from: unknown, _to: unknown): boolean {
+export function sameLinkableKind(_from: ScheduleItem, _to: ScheduleItem): boolean {
   return true;
 }
 
 /**
- * Whether an item is shown under a plan/actual display filter.
+ * Whether a given SIDE of an item is drawn under a plan/actual display filter.
  *
- * TODO(IM2): honor the plan-only / actual-only sides against the actual-date model.
- * For IM1 an item is visible unless the filter is `none`.
+ * An item has a plan side (always) and, when it records actual dates, an actual
+ * side. `plan-only` shows only the plan side; `actual-only` only the actual side;
+ * `both`/undefined show either; `none` shows neither. A `undefined` side is a
+ * side-agnostic query (visible unless the filter is `none`).
  *
- * @param _planActualSide - Legacy per-item side ('plan' | 'actual'); ignored for IM1.
+ * @param planActualSide - Which side is being drawn (`'plan'` | `'actual'`), or
+ *   `undefined` for a side-agnostic query.
  * @param display - The active plan/actual display filter.
- * @returns True unless the filter is `none`.
+ * @returns True when that side is visible.
  */
 export function isItemVisibleUnderDisplay(
-  _planActualSide: 'plan' | 'actual' | undefined,
+  planActualSide: 'plan' | 'actual' | undefined,
   display: PlanActualDisplay | undefined,
 ): boolean {
-  return (display ?? 'both') !== 'none';
+  const effectiveDisplay = display ?? 'both';
+  if (effectiveDisplay === 'none') {
+    return false;
+  }
+  if (effectiveDisplay === 'both' || planActualSide === undefined) {
+    return true;
+  }
+  return effectiveDisplay === 'plan-only' ? planActualSide === 'plan' : planActualSide === 'actual';
 }
 
 /**
  * Whether a dependency edge should be DRAWN (and be hit-testable) under the current
  * items and display filter. False when an endpoint is missing or the filter hides
- * everything (`none`).
+ * the side both endpoints would anchor to.
  *
- * TODO(IM2): re-add the endpoint-side visibility split once the actual-date plan/actual
- * rendering model is in place.
+ * Plan bars are drawn for every item under `both`/`plan-only`, so those edges render
+ * whenever both endpoints exist. Under `actual-only` only items with actual dates are
+ * drawn, so the edge renders only when both endpoints carry an actual side.
  *
  * @param dependency - The candidate edge.
  * @param itemById - Item lookup by id.
@@ -74,7 +85,14 @@ export function isDependencyRenderable(
   if (from === undefined || to === undefined) {
     return false;
   }
-  return (
-    isItemVisibleUnderDisplay(undefined, display) && isItemVisibleUnderDisplay(undefined, display)
-  );
+  const effectiveDisplay = display ?? 'both';
+  if (effectiveDisplay === 'none') {
+    return false;
+  }
+  if (effectiveDisplay === 'actual-only') {
+    // Only items whose actual side is drawn can anchor an edge under actual-only.
+    return itemHasActualDates(from) && itemHasActualDates(to);
+  }
+  // both / plan-only: every item's plan bar is drawn.
+  return true;
 }

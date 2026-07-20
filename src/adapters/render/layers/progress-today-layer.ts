@@ -11,6 +11,7 @@ import {
 } from '../../../domain/model/schedule-model.js';
 import {
   buildIlluminatedLine,
+  computeProgressFrontDate,
   type RowProgressFront,
 } from '../../../domain/usecase/progress-line-builder.js';
 import { cursorScreenX } from '../../../domain/usecase/cursor-span.js';
@@ -94,9 +95,12 @@ export class ProgressTodayLayer {
   }
 
   /**
-   * Derive each visible row's actual-progress front date from its actual items
-   * (PLAN-L2-001). The front is `start + progressRatio * span`; the furthest
-   * front on a row wins. Rows with no actual item contribute no vertex.
+   * Derive each visible row's actual-progress front date from its items using the
+   * unified MECE front rule (PLAN-L2-001 / CR-001 Part A) via {@link
+   * computeProgressFrontDate}: completed actual span, in-progress (Formula A),
+   * plan-side progress, or no vertex; milestones are a point special-case. The
+   * furthest front on a row wins. Rows whose items all yield no vertex contribute
+   * nothing.
    */
   private computeRowProgressFronts(ctx: RenderContext): {
     fronts: RowProgressFront[];
@@ -109,12 +113,8 @@ export class ProgressTodayLayer {
     // accounts for the 90%-of-lane stacked bar height and the row band's top padding.
     const itemCenterByRowIndex = new Map<number, number>();
     for (const item of ctx.scheduleDocument?.items ?? []) {
-      // TODO(IM2): apply the CR-001 §2 four-case progress-front rule
-      // (actualStart+actualEnd completed / actualStart+ratio in-progress / ratio-only /
-      // not-started) plus the CR-002 milestone point special-case. For IM1 a row
-      // contributes a front only when the item carries actual progress, using a
-      // simplified actualStart(+ratio*span) interpolation.
-      if (item.actualStart === undefined && item.progressRatio === undefined) {
+      const frontDate = computeProgressFrontDate(item);
+      if (frontDate === null) {
         continue;
       }
       const displayId = ctx.rowIdToDisplayId.get(item.rowId) ?? item.rowId;
@@ -122,15 +122,7 @@ export class ProgressTodayLayer {
       if (rowIndex === undefined) {
         continue;
       }
-      const startDay = toDayNumber(item.actualStart ?? item.startDate);
-      const endDay =
-        item.actualEnd != null
-          ? toDayNumber(item.actualEnd)
-          : item.endDate === null
-            ? startDay
-            : toDayNumber(item.endDate);
-      const ratio = item.progressRatio ?? 0;
-      const frontDay = startDay + Math.round(ratio * (endDay - startDay));
+      const frontDay = toDayNumber(frontDate);
       const current = frontDayByRowIndex.get(rowIndex);
       if (current === undefined || frontDay > current) {
         frontDayByRowIndex.set(rowIndex, frontDay);

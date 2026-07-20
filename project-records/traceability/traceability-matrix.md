@@ -118,21 +118,21 @@ CR-001（承認 2026-07-19、`change-request-001-20260719-230349.md`）の Part 
 | 改訂要求/契約 | 文書 | 内容（実績日フィールド方式） | 実装状態 |
 |---|---|---|---|
 | PLAN-L1-001 | 18-plan-actual | 実績を同一アイテムの actualStart/actualEnd で保持、planActualKind/planGroupId 廃止 | pending（次セッション） |
-| PLAN-L1-002 | 18-plan-actual | planActualDisplay（可視フィルタ）を planActualStyle と独立に明確化 | pending |
-| PLAN-L1-005（新規） | 18-plan-actual | 予実描画スタイル viewState.planActualStyle=overlap（既定）/separate | pending |
-| PLAN-L2-001 | 18-plan-actual | イナズマ線 front 統一規則（実績日あり/なし/未着手の3分岐） | pending |
-| DEP-L1-005（新規） | 16-dependencies | 依存 linkType（FS/SS/FF/SF、既定FS）、MSPDI Type と往復 | pending |
-| DEP-L1-006（新規） | 16-dependencies | 依存 符号付き lagDays（正=ラグ/負=リード）、MSPDI LinkLag と往復（暦日近似） | pending |
-| ITEM-L1-011（新規） | 11-items-icons | 期限マーカー item.targetDate、MSPDI Deadline と往復 | pending |
-| DATA-JSON-006 | 40-data-format | actualStart/actualEnd/progressRatio/previousPlan（実績日フィールド方式。previousPlan は CR-002 Part 3 により別ファイル参照方式へ supersede、下表参照） | pending |
-| DATA-JSON-008 | 40-data-format | dependency に linkType/lagDays 追加 | pending |
-| DATA-JSON-011 | 40-data-format | viewState に planActualStyle 追加 | pending |
-| DATA-JSON-015（新規） | 40-data-format | item.targetDate 期限マーカー | pending |
-| DATA-MSPDI-003 | 40-data-format | ActualStart/Finish・Baseline・PercentComplete 往復（B-4。Baseline 部分は CR-002 Part 3 により id 突合の best-effort 往復へ改訂） | pending |
-| DATA-MSPDI-004 | 40-data-format | PredecessorLink Type / LinkLag（linkType/lagDays） | pending |
-| DATA-MSPDI-007（新規） | 40-data-format | Resource/Assignment（assignee, B-2）、PercentComplete（progressRatio, B-3） | pending |
-| DATA-MSPDI-008（新規） | 40-data-format | Splits/SplitPart→マルチバー（B-5）、description→Task/Notes（B-6） | pending |
-| DATA-MSPDI-009（新規） | 40-data-format | Deadline↔targetDate、Constraint は見送り | pending |
+| PLAN-L1-002 | 18-plan-actual | planActualDisplay（可視フィルタ）を planActualStyle と独立に明確化 | done (IM2)：`filterByPlanActualDisplay` を actual-date モデルで復元（actual-only=actualStart 有のみ）、skip 復元 |
+| PLAN-L1-005（新規） | 18-plan-actual | 予実描画スタイル viewState.planActualStyle=overlap（既定）/separate | done (IM2)：`plan-actual-geometry.ts` 2モード幾何＋item-layer 配線（配色は IM3） |
+| PLAN-L2-001 | 18-plan-actual | イナズマ線 front 統一規則（実績日あり/なし/未着手の3分岐） | done (IM2)：`computeProgressFrontDate` 4ケース＋マイルストーン点特例、progress-today-layer 配線 |
+| DEP-L1-005（新規） | 16-dependencies | 依存 linkType（FS/SS/FF/SF、既定FS）、MSPDI Type と往復 | done (IM2)：mspdi-codec Type 往復（FF=0/FS=1/SF=2/SS=3） |
+| DEP-L1-006（新規） | 16-dependencies | 依存 符号付き lagDays（正=ラグ/負=リード）、MSPDI LinkLag と往復（暦日近似） | done (IM2)：mspdi-codec LinkLag/LagFormat=8（1日=14400） |
+| ITEM-L1-011（新規） | 11-items-icons | 期限マーカー item.targetDate、MSPDI Deadline と往復 | done (IM2)：mspdi-codec Deadline 往復＋property-panel target_date 編集 |
+| DATA-JSON-006 | 40-data-format | actualStart/actualEnd/progressRatio/previousPlan（実績日フィールド方式。previousPlan は CR-002 Part 3 により別ファイル参照方式へ supersede、下表参照） | done (IM1/IM2)：モデル＋property-panel 予実日付編集 |
+| DATA-JSON-008 | 40-data-format | dependency に linkType/lagDays 追加 | done (IM1) |
+| DATA-JSON-011 | 40-data-format | viewState に planActualStyle 追加 | done (IM1/IM2) |
+| DATA-JSON-015（新規） | 40-data-format | item.targetDate 期限マーカー | done (IM1/IM2) |
+| DATA-MSPDI-003 | 40-data-format | ActualStart/Finish・Baseline・PercentComplete 往復（B-4。Baseline 部分は CR-002 Part 3 により id 突合の best-effort 往復へ改訂） | done (IM2)：ActualStart/Finish/PercentComplete 往復（Baseline は IM3・previousPlan 不出力） |
+| DATA-MSPDI-004 | 40-data-format | PredecessorLink Type / LinkLag（linkType/lagDays） | done (IM2) |
+| DATA-MSPDI-007（新規） | 40-data-format | Resource/Assignment（assignee, B-2）、PercentComplete（progressRatio, B-3） | done (IM2) |
+| DATA-MSPDI-008（新規） | 40-data-format | Splits/SplitPart→マルチバー（B-5）、description→Task/Notes（B-6） | done (IM2) |
+| DATA-MSPDI-009（新規） | 40-data-format | Deadline↔targetDate、Constraint は見送り | done (IM2) |
 | 実装差分（§5） | 40-data-format | schema.json/model/codec の具体差分を実装セッション向けに明記 | pending |
 
 ## CR-002 (予実配色・マイルストーン描画・ベースライン別ファイル参照) 改訂トレース — 仕様先行・実装後追い
@@ -147,7 +147,7 @@ CR-002（承認 2026-07-20、`change-request-002-20260720-054132.md`）の Part 
 |---|---|---|---|
 | PLAN-L1-004 | 18-plan-actual | 変更前予定（ベースライン）を別ファイル参照方式へ改訂（`previousPlan` フィールド廃止、id 突合、薄グレー・編集不可アンダーレイ、対象行と同高さ描画） | pending（実装セッション） |
 | PLAN-L1-005 | 18-plan-actual | Overlap 塗り分けを彩度導出（淡=予定/濃=実績）＋線幅（予定細/実績太、破線不採用）で明確化 | pending |
-| PLAN-L2-001 | 18-plan-actual | マイルストーンの front 特例を追加（区間なし=点。実績あれば actualStart、無ければ startDate。補間しない） | pending |
+| PLAN-L2-001 | 18-plan-actual | マイルストーンの front 特例を追加（区間なし=点。実績あれば actualStart、無ければ startDate。補間しない） | done (IM2)：`computeProgressFrontDate` の milestone 特例で実装（2マーカー描画は IM3） |
 | 40-data-format | 40-data-format | `previousPlan` DATAFIELD（DATA-JSON-006 の一部）廃止、ベースライン参照文書の概念を追加、DATA-MSPDI-003 の Baseline マッピングを best-effort id 突合へ改訂、配色（彩度/線幅）を presentation ノートとして追記 | pending |
 | スキーマ | `docs/api/gr-scheduler.schema.next.json` | `previousPlan` を除去（実装フェーズで現行 `gr-scheduler.schema.json` へスワップ） | pending |
 

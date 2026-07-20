@@ -22,6 +22,7 @@
 
 import type {
   Dependency,
+  LinkType,
   ScheduleDocument,
   ScheduleItem,
   Section,
@@ -44,8 +45,23 @@ import {
 /** Marker prefix identifying the gr-scheduler sidecar inside Project Notes. */
 const SIDECAR_PREFIX = 'grsch-sidecar:';
 
-/** Default FinishToStart dependency type (DATA-MSPDI-004). */
-const FINISH_TO_START = 1;
+/**
+ * Dependency {@link LinkType} <-> MSPDI PredecessorLink/Type code (DATA-MSPDI-004):
+ * FF=0, FS=1, SF=2, SS=3. FS (finish-to-start) is the default.
+ */
+const LINK_TYPE_TO_CODE: Record<LinkType, number> = { FF: 0, FS: 1, SF: 2, SS: 3 };
+const CODE_TO_LINK_TYPE: Record<number, LinkType> = { 0: 'FF', 1: 'FS', 2: 'SF', 3: 'SS' };
+const DEFAULT_LINK_TYPE: LinkType = 'FS';
+
+/**
+ * MSPDI LinkLag encodes elapsed time in 1/10-minute units. gr-scheduler holds no
+ * calendar and approximates a lag as ELAPSED (calendar) days, so one day is
+ * 24h * 60min * 10 = 14400 units; e.g. lagDays 10 -> LinkLag 144000 (DATA-MSPDI-004).
+ */
+const CALENDAR_DAY_LAG_UNITS = 14400;
+
+/** MSPDI LagFormat value for elapsed (calendar) days (DATA-MSPDI-004). */
+const ELAPSED_DAYS_LAG_FORMAT = 8;
 
 // ---------------------------------------------------------------------------
 // UTF-8 <-> base64 helpers (pure, cross-env)
@@ -165,15 +181,21 @@ function toIsoDate(dateTime: string): string {
 
 /**
  * Serialize a ScheduleDocument to MSPDI XML (IO-L1-002). Emits standard MSPDI
- * task/dependency/hierarchy elements plus a base64 sidecar (in Project Notes)
- * that carries the full document for loss-free re-import.
+ * elements a real MS Project can read -- section Summary tasks + OutlineLevel
+ * hierarchy (B-1), per-item leaf Tasks with plan/actual dates (B-4), PercentComplete
+ * (B-3), Deadline (Part C), description Notes (B-6), PredecessorLink Type/LinkLag
+ * (Part C), and Resources/Assignments for assignees (B-2) -- plus a base64 sidecar
+ * (in Project Notes) that carries the full document for loss-free re-import.
  *
  * @param scheduleDocument - The document to export.
  * @returns MSPDI XML text.
  */
 export function exportMspdi(scheduleDocument: ScheduleDocument): string {
+  const items = scheduleDocument.items;
+  // Leaf-task UIDs are 1..N (stable, index-based) so dependency references stay simple;
+  // section Summary tasks take UIDs after the items (B-1).
   const uidByItemId = new Map<string, number>();
-  scheduleDocument.items.forEach((item, index) => uidByItemId.set(item.id, index + 1));
+  items.forEach((item, index) => uidByItemId.set(item.id, index + 1));
 
   const predecessorsByTargetId = new Map<string, Dependency[]>();
   for (const dependency of scheduleDocument.dependencies ?? []) {
@@ -185,9 +207,55 @@ export function exportMspdi(scheduleDocument: ScheduleDocument): string {
     }
   }
 
-  const taskXml = scheduleDocument.items
-    .map((item) => renderTaskXml(item, uidByItemId, predecessorsByTargetId))
-    .join('');
+  // Group items under their row's section for the Summary/OutlineLevel hierarchy (B-1).
+  const sectionIdByRowId = new Map<string, string>();
+  for (const row of scheduleDocument.rows) {
+    sectionIdByRowId.set(row.id, row.sectionId);
+  }
+  const itemsBySectionId = new Map<string, ScheduleItem[]>();
+  const orphanItems: ScheduleItem[] = [];
+  for (const item of items) {
+    const sectionId = sectionIdByRowId.get(item.rowId);
+    if (sectionId === undefined) {
+      orphanItems.push(item);
+      continue;
+    }
+    const bucket = itemsBySectionId.get(sectionId);
+    if (bucket) {
+      bucket.push(item);
+    } else {
+      itemsBySectionId.set(sectionId, [item]);
+    }
+  }
+
+  const renderLeaf = (item: ScheduleItem, outlineLevel: number): string => {
+    const uid = uidByItemId.get(item.id) ?? 0;
+    const predecessorLinks = (predecessorsByTargetId.get(item.id) ?? [])
+      .map((dependency) =>
+        renderPredecessorLinkXml(dependency, uidByItemId.get(dependency.fromItemId) ?? 0),
+      )
+      .join('');
+    return renderTaskXml(item, uid, outlineLevel, predecessorLinks);
+  };
+
+  const orderedSections = [...scheduleDocument.sections].sort((left, right) => left.order - right.order);
+  let summaryUid = items.length + 1;
+  const taskXmlParts: string[] = [];
+  for (const section of orderedSections) {
+    const sectionItems = itemsBySectionId.get(section.id) ?? [];
+    taskXmlParts.push(renderSummaryTaskXml(summaryUid, section.name));
+    summaryUid += 1;
+    for (const item of sectionItems) {
+      taskXmlParts.push(renderLeaf(item, 2));
+    }
+  }
+  // Items whose row belongs to no section stay at the top outline level (best-effort).
+  for (const item of orphanItems) {
+    taskXmlParts.push(renderLeaf(item, 1));
+  }
+  const taskXml = taskXmlParts.join('');
+
+  const { resourcesXml, assignmentsXml } = renderResourcesAndAssignmentsXml(items, uidByItemId);
 
   const sidecarBase64 = bytesToBase64(stringToUtf8Bytes(serializeScheduleDocument(scheduleDocument)));
   const notes = `${SIDECAR_PREFIX}${sidecarBase64}`;
@@ -199,41 +267,115 @@ export function exportMspdi(scheduleDocument: ScheduleDocument): string {
     `<CreationDate>${toMspdiDateTime(scheduleDocument.epochDate)}</CreationDate>` +
     `<Notes>${escapeXml(notes)}</Notes>` +
     `<Tasks>${taskXml}</Tasks>` +
+    resourcesXml +
+    assignmentsXml +
     '</Project>'
   );
 }
 
-function renderTaskXml(
-  item: ScheduleItem,
-  uidByItemId: Map<string, number>,
-  predecessorsByTargetId: Map<string, Dependency[]>,
-): string {
-  const uid = uidByItemId.get(item.id) ?? 0;
-  const isMilestone = item.itemKind === 'milestone' || item.endDate === null;
-  const finishDate = item.endDate ?? item.startDate;
-  const name = item.fullName ?? item.abbrev;
-  const predecessorLinks = (predecessorsByTargetId.get(item.id) ?? [])
-    .map((dependency) => {
-      const predecessorUid = uidByItemId.get(dependency.fromItemId) ?? 0;
-      return (
-        '<PredecessorLink>' +
-        `<PredecessorUID>${predecessorUid}</PredecessorUID>` +
-        `<Type>${FINISH_TO_START}</Type>` +
-        '</PredecessorLink>'
-      );
-    })
-    .join('');
+/** Render one section as a MSPDI Summary task (B-1). */
+function renderSummaryTaskXml(uid: number, sectionName: string): string {
   return (
     '<Task>' +
     `<UID>${uid}</UID>` +
-    `<Name>${escapeXml(name)}</Name>` +
-    `<Start>${toMspdiDateTime(item.startDate)}</Start>` +
-    `<Finish>${toMspdiDateTime(finishDate)}</Finish>` +
-    `<Milestone>${isMilestone ? 1 : 0}</Milestone>` +
+    `<Name>${escapeXml(sectionName)}</Name>` +
     '<OutlineLevel>1</OutlineLevel>' +
-    predecessorLinks +
+    '<Summary>1</Summary>' +
     '</Task>'
   );
+}
+
+/** Render one dependency as a PredecessorLink with Type/LinkLag (Part C, DATA-MSPDI-004). */
+function renderPredecessorLinkXml(dependency: Dependency, predecessorUid: number): string {
+  const typeCode = LINK_TYPE_TO_CODE[dependency.linkType ?? DEFAULT_LINK_TYPE];
+  const parts = [`<PredecessorUID>${predecessorUid}</PredecessorUID>`, `<Type>${typeCode}</Type>`];
+  const lagDays = dependency.lagDays;
+  if (lagDays !== undefined && lagDays !== 0) {
+    parts.push(`<LinkLag>${lagDays * CALENDAR_DAY_LAG_UNITS}</LinkLag>`);
+    parts.push(`<LagFormat>${ELAPSED_DAYS_LAG_FORMAT}</LagFormat>`);
+  }
+  return `<PredecessorLink>${parts.join('')}</PredecessorLink>`;
+}
+
+/** Render a leaf item as a MSPDI Task with plan/actual/progress/deadline fields. */
+function renderTaskXml(
+  item: ScheduleItem,
+  uid: number,
+  outlineLevel: number,
+  predecessorLinksXml: string,
+): string {
+  const isMilestone = item.itemKind === 'milestone' || item.endDate === null;
+  const finishDate = item.endDate ?? item.startDate;
+  const name = item.fullName ?? item.abbrev;
+  const parts: string[] = [
+    `<UID>${uid}</UID>`,
+    `<Name>${escapeXml(name)}</Name>`,
+    `<OutlineLevel>${outlineLevel}</OutlineLevel>`,
+    '<Summary>0</Summary>',
+    `<Start>${toMspdiDateTime(item.startDate)}</Start>`,
+    `<Finish>${toMspdiDateTime(finishDate)}</Finish>`,
+    `<Milestone>${isMilestone ? 1 : 0}</Milestone>`,
+  ];
+  // Actual span (B-4): emit only recorded actual dates (absent stays absent).
+  if (item.actualStart !== undefined) {
+    parts.push(`<ActualStart>${toMspdiDateTime(item.actualStart)}</ActualStart>`);
+  }
+  if (item.actualEnd !== undefined && item.actualEnd !== null) {
+    parts.push(`<ActualFinish>${toMspdiDateTime(item.actualEnd)}</ActualFinish>`);
+  }
+  // Progress (B-3): 0..1 ratio -> 0..100 integer percent.
+  if (item.progressRatio !== undefined) {
+    parts.push(`<PercentComplete>${Math.round(item.progressRatio * 100)}</PercentComplete>`);
+  }
+  // Deadline (Part C): the target-end marker, not a scheduler constraint.
+  if (item.targetDate !== undefined) {
+    parts.push(`<Deadline>${toMspdiDateTime(item.targetDate)}</Deadline>`);
+  }
+  // Description (B-6): the task's own Notes, distinct from the Project-level sidecar Notes.
+  if (item.description !== undefined && item.description.length > 0) {
+    parts.push(`<Notes>${escapeXml(item.description)}</Notes>`);
+  }
+  parts.push(predecessorLinksXml);
+  return `<Task>${parts.join('')}</Task>`;
+}
+
+/**
+ * Render the Resources and Assignments blocks for item assignees (B-2). Each unique
+ * assignee becomes one Resource; each item that names an assignee gets one Assignment
+ * linking its TaskUID to that ResourceUID.
+ */
+function renderResourcesAndAssignmentsXml(
+  items: readonly ScheduleItem[],
+  uidByItemId: Map<string, number>,
+): { resourcesXml: string; assignmentsXml: string } {
+  const resourceUidByName = new Map<string, number>();
+  for (const item of items) {
+    const assignee = item.assignee;
+    if (assignee !== undefined && assignee.length > 0 && !resourceUidByName.has(assignee)) {
+      resourceUidByName.set(assignee, resourceUidByName.size + 1);
+    }
+  }
+  if (resourceUidByName.size === 0) {
+    return { resourcesXml: '', assignmentsXml: '' };
+  }
+  const resourceXml = [...resourceUidByName.entries()]
+    .map(([name, uid]) => `<Resource><UID>${uid}</UID><Name>${escapeXml(name)}</Name></Resource>`)
+    .join('');
+  const assignmentXml = items
+    .map((item) => {
+      const assignee = item.assignee;
+      if (assignee === undefined || assignee.length === 0) {
+        return '';
+      }
+      const taskUid = uidByItemId.get(item.id) ?? 0;
+      const resourceUid = resourceUidByName.get(assignee) ?? 0;
+      return `<Assignment><TaskUID>${taskUid}</TaskUID><ResourceUID>${resourceUid}</ResourceUID></Assignment>`;
+    })
+    .join('');
+  return {
+    resourcesXml: `<Resources>${resourceXml}</Resources>`,
+    assignmentsXml: `<Assignments>${assignmentXml}</Assignments>`,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -285,50 +427,164 @@ export function importMspdi(xmlText: string): ScheduleDocument {
   return reconstructFromStandardMspdi(xmlText);
 }
 
-/** Minimal (lossy) reconstruction from standard MSPDI elements, no sidecar. */
+/** One imported task's parsed standard fields (before hierarchy/split expansion). */
+interface ParsedLeafTask {
+  readonly uid: string;
+  readonly name: string;
+  readonly start: string;
+  readonly endDate: string | null;
+  readonly isMilestone: boolean;
+  readonly actualStart?: string;
+  readonly actualEnd?: string;
+  readonly progressRatio?: number;
+  readonly targetDate?: string;
+  readonly description?: string;
+  readonly splitParts: readonly { readonly start: string; readonly finish: string }[];
+}
+
+/** Parse the standard plan/actual/progress/deadline fields of a leaf Task block. */
+function parseLeafTask(block: string, uid: string, epochDate: string): ParsedLeafTask {
+  const name = unescapeXml(firstTagText(block, 'Name') ?? `Task ${uid}`);
+  const start = toIsoDate((firstTagText(block, 'Start') ?? epochDate).trim());
+  const finishRaw = firstTagText(block, 'Finish');
+  const isMilestone = (firstTagText(block, 'Milestone') ?? '0').trim() === '1';
+  const endDate = isMilestone || finishRaw === null ? null : toIsoDate(finishRaw.trim());
+
+  const actualStartRaw = firstTagText(block, 'ActualStart');
+  const actualFinishRaw = firstTagText(block, 'ActualFinish');
+  const percentRaw = firstTagText(block, 'PercentComplete');
+  const deadlineRaw = firstTagText(block, 'Deadline');
+  const notesRaw = firstTagText(block, 'Notes');
+
+  const splitParts: { start: string; finish: string }[] = [];
+  const splitsBlock = firstTagText(block, 'Splits');
+  if (splitsBlock !== null) {
+    for (const partBlock of allTagBlocks(splitsBlock, 'SplitPart')) {
+      const partStart = firstTagText(partBlock, 'Start');
+      const partFinish = firstTagText(partBlock, 'Finish');
+      if (partStart !== null && partFinish !== null) {
+        splitParts.push({
+          start: toIsoDate(partStart.trim()),
+          finish: toIsoDate(partFinish.trim()),
+        });
+      }
+    }
+  }
+
+  let progressRatio: number | undefined;
+  if (percentRaw !== null) {
+    const percent = Number.parseInt(percentRaw.trim(), 10);
+    if (Number.isFinite(percent)) {
+      progressRatio = Math.min(1, Math.max(0, percent / 100));
+    }
+  }
+
+  return {
+    uid,
+    name,
+    start,
+    endDate,
+    isMilestone,
+    ...(actualStartRaw !== null ? { actualStart: toIsoDate(actualStartRaw.trim()) } : {}),
+    ...(!isMilestone && actualFinishRaw !== null
+      ? { actualEnd: toIsoDate(actualFinishRaw.trim()) }
+      : {}),
+    ...(progressRatio !== undefined ? { progressRatio } : {}),
+    ...(deadlineRaw !== null ? { targetDate: toIsoDate(deadlineRaw.trim()) } : {}),
+    ...(notesRaw !== null && notesRaw.trim().length > 0
+      ? { description: unescapeXml(notesRaw).trim() }
+      : {}),
+    splitParts,
+  };
+}
+
+/**
+ * Minimal (lossy) reconstruction from standard MSPDI elements, no sidecar. Restores
+ * the section hierarchy from Summary/OutlineLevel (B-1), assignees from
+ * Resources/Assignments (B-2), progress from PercentComplete (B-3), actual dates from
+ * ActualStart/ActualFinish (B-4), multi-bar items from SplitParts (B-5), descriptions
+ * from Notes (B-6), and dependency linkType/lagDays from PredecessorLink Type/LinkLag.
+ */
 function reconstructFromStandardMspdi(xmlText: string): ScheduleDocument {
   const title = unescapeXml(firstTagText(xmlText, 'Title') ?? 'Imported project');
   const creation = firstTagText(xmlText, 'CreationDate');
   const epochDate = creation !== null ? toIsoDate(creation.trim()) : '2026-01-01';
 
-  const taskBlocks = allTagBlocks(xmlText, 'Task');
+  const tasksBlock = firstTagText(xmlText, 'Tasks') ?? xmlText;
+  const taskBlocks = allTagBlocks(tasksBlock, 'Task');
   if (taskBlocks.length > IMPORT_LIMITS.maxItemCount) {
     throw new ImportRejectedError(
       `MSPDI has ${taskBlocks.length} tasks, exceeding the ${IMPORT_LIMITS.maxItemCount} import limit`,
     );
   }
 
-  const rowId = 'row-0';
-  const sectionId = 'section-0';
+  const assigneeByTaskUid = parseResourceAssignments(xmlText);
+
+  const sections: Section[] = [];
+  const rows: Row[] = [];
   const items: ScheduleItem[] = [];
   const dependencies: Dependency[] = [];
   const idByUid = new Map<string, string>();
 
+  let currentRowId: string | null = null;
+  let currentSectionName = title;
+
+  const startNewRow = (sectionName: string): void => {
+    const sectionId = `section-${sections.length}`;
+    const rowId = `row-${rows.length}`;
+    sections.push({ id: sectionId, name: sectionName, order: sections.length, rowIds: [rowId] });
+    rows.push({ id: rowId, sectionId, classificationLabel: sectionName, order: rows.length });
+    currentRowId = rowId;
+    currentSectionName = sectionName;
+  };
+
   taskBlocks.forEach((block, index) => {
     const uid = (firstTagText(block, 'UID') ?? String(index + 1)).trim();
-    const itemId = `item-${uid}`;
-    idByUid.set(uid, itemId);
-    const name = unescapeXml(firstTagText(block, 'Name') ?? `Task ${uid}`);
-    const start = toIsoDate((firstTagText(block, 'Start') ?? epochDate).trim());
-    const finishRaw = firstTagText(block, 'Finish');
-    const isMilestone = (firstTagText(block, 'Milestone') ?? '0').trim() === '1';
-    const endDate = isMilestone || finishRaw === null ? null : toIsoDate(finishRaw.trim());
-    items.push({
-      id: itemId,
-      rowId,
-      itemKind: isMilestone ? 'milestone' : 'task',
-      startDate: start,
-      endDate,
-      abbrev: name,
-      fullName: name,
-      // Reconstructed tasks share the project title as their major so the derived
-      // classification tree groups them under one well-formed section.
-      majorCategory: title,
-      importance: 1,
-      fillColor: '#4477aa',
-      strokeColor: '#28527a',
-      ...(isMilestone ? { milestoneShape: 'diamond' as const } : { taskShape: 'bar' as const }),
-    });
+    const isSummary = (firstTagText(block, 'Summary') ?? '0').trim() === '1';
+    if (isSummary) {
+      // A Summary task opens a new section + row (B-1).
+      startNewRow(unescapeXml(firstTagText(block, 'Name') ?? `Section ${uid}`));
+      return;
+    }
+    if (currentRowId === null) {
+      // Leaf tasks before any Summary land in a default section named after the project.
+      startNewRow(title);
+    }
+    const rowId = currentRowId as string;
+    const parsed = parseLeafTask(block, uid, epochDate);
+    const baseId = `item-${uid}`;
+    // Dependencies reference the leaf's base id (the first split part).
+    idByUid.set(uid, baseId);
+    const assignee = assigneeByTaskUid.get(uid);
+
+    if (parsed.splitParts.length >= 2) {
+      // SplitParts -> one gr-scheduler item per split on the SAME row (multi-bar, B-5).
+      parsed.splitParts.forEach((part, partIndex) => {
+        items.push(
+          buildReconstructedItem(parsed, {
+            id: partIndex === 0 ? baseId : `${baseId}-part-${partIndex}`,
+            rowId,
+            majorCategory: currentSectionName,
+            startDate: part.start,
+            endDate: part.finish,
+            forceTask: true,
+            ...(assignee !== undefined ? { assignee } : {}),
+          }),
+        );
+      });
+    } else {
+      items.push(
+        buildReconstructedItem(parsed, {
+          id: baseId,
+          rowId,
+          majorCategory: currentSectionName,
+          startDate: parsed.start,
+          endDate: parsed.endDate,
+          forceTask: false,
+          ...(assignee !== undefined ? { assignee } : {}),
+        }),
+      );
+    }
   });
 
   // Resolve predecessor links now that every UID -> id mapping exists.
@@ -344,18 +600,15 @@ function reconstructFromStandardMspdi(xmlText: string): ScheduleDocument {
       if (fromId === undefined) {
         return;
       }
-      dependencies.push({
-        id: `dep-${uid}-${linkIndex}`,
-        fromItemId: fromId,
-        fromAnchor: 5,
-        toItemId: targetId,
-        toAnchor: 3,
-      });
+      dependencies.push(parsePredecessorLink(linkBlock, `dep-${uid}-${linkIndex}`, fromId, targetId));
     });
   });
 
-  const rows: Row[] = [{ id: rowId, sectionId, classificationLabel: title, order: 0 }];
-  const sections: Section[] = [{ id: sectionId, name: title, order: 0, rowIds: [rowId] }];
+  if (sections.length === 0) {
+    // No tasks at all: keep a well-formed empty document with one placeholder section.
+    startNewRow(title);
+  }
+
   const viewState: ViewState = {
     zoomX: 1,
     zoomY: 1,
@@ -376,4 +629,95 @@ function reconstructFromStandardMspdi(xmlText: string): ScheduleDocument {
     annotations: [],
     assets: [],
   };
+}
+
+/** Build one reconstructed item, merging parsed optional fields with per-instance overrides. */
+function buildReconstructedItem(
+  parsed: ParsedLeafTask,
+  fields: {
+    readonly id: string;
+    readonly rowId: string;
+    readonly majorCategory: string;
+    readonly startDate: string;
+    readonly endDate: string | null;
+    readonly forceTask: boolean;
+    readonly assignee?: string;
+  },
+): ScheduleItem {
+  const isMilestone = !fields.forceTask && parsed.isMilestone;
+  return {
+    id: fields.id,
+    rowId: fields.rowId,
+    itemKind: isMilestone ? 'milestone' : 'task',
+    startDate: fields.startDate,
+    endDate: isMilestone ? null : fields.endDate,
+    abbrev: parsed.name,
+    fullName: parsed.name,
+    majorCategory: fields.majorCategory,
+    importance: 1,
+    fillColor: '#4477aa',
+    strokeColor: '#28527a',
+    ...(isMilestone ? { milestoneShape: 'diamond' as const } : { taskShape: 'bar' as const }),
+    ...(fields.assignee !== undefined ? { assignee: fields.assignee } : {}),
+    ...(parsed.actualStart !== undefined ? { actualStart: parsed.actualStart } : {}),
+    ...(!isMilestone && parsed.actualEnd !== undefined ? { actualEnd: parsed.actualEnd } : {}),
+    ...(parsed.progressRatio !== undefined ? { progressRatio: parsed.progressRatio } : {}),
+    ...(parsed.targetDate !== undefined ? { targetDate: parsed.targetDate } : {}),
+    ...(parsed.description !== undefined ? { description: parsed.description } : {}),
+  };
+}
+
+/** Parse Resources + Assignments into a TaskUID -> assignee-name map (B-2). */
+function parseResourceAssignments(xmlText: string): Map<string, string> {
+  const resourceNameByUid = new Map<string, string>();
+  const resourcesBlock = firstTagText(xmlText, 'Resources');
+  if (resourcesBlock !== null) {
+    for (const resourceBlock of allTagBlocks(resourcesBlock, 'Resource')) {
+      const resourceUid = (firstTagText(resourceBlock, 'UID') ?? '').trim();
+      const resourceName = unescapeXml(firstTagText(resourceBlock, 'Name') ?? '');
+      if (resourceUid.length > 0) {
+        resourceNameByUid.set(resourceUid, resourceName);
+      }
+    }
+  }
+  const assigneeByTaskUid = new Map<string, string>();
+  const assignmentsBlock = firstTagText(xmlText, 'Assignments');
+  if (assignmentsBlock !== null) {
+    for (const assignmentBlock of allTagBlocks(assignmentsBlock, 'Assignment')) {
+      const taskUid = (firstTagText(assignmentBlock, 'TaskUID') ?? '').trim();
+      const resourceUid = (firstTagText(assignmentBlock, 'ResourceUID') ?? '').trim();
+      const name = resourceNameByUid.get(resourceUid);
+      if (taskUid.length > 0 && name !== undefined && name.length > 0) {
+        assigneeByTaskUid.set(taskUid, name);
+      }
+    }
+  }
+  return assigneeByTaskUid;
+}
+
+/** Parse one PredecessorLink into a Dependency, decoding Type and LinkLag (Part C). */
+function parsePredecessorLink(
+  linkBlock: string,
+  id: string,
+  fromItemId: string,
+  toItemId: string,
+): Dependency {
+  const typeCode = Number.parseInt((firstTagText(linkBlock, 'Type') ?? '1').trim(), 10);
+  const linkType = CODE_TO_LINK_TYPE[typeCode] ?? DEFAULT_LINK_TYPE;
+  const lagRaw = firstTagText(linkBlock, 'LinkLag');
+  const base: Dependency = {
+    id,
+    fromItemId,
+    fromAnchor: 5,
+    toItemId,
+    toAnchor: 3,
+    linkType,
+  };
+  if (lagRaw !== null) {
+    const lagUnits = Number.parseInt(lagRaw.trim(), 10);
+    if (Number.isFinite(lagUnits) && lagUnits !== 0) {
+      return { ...base, lagDays: Math.round(lagUnits / CALENDAR_DAY_LAG_UNITS) };
+    }
+  }
+  return base;
 }

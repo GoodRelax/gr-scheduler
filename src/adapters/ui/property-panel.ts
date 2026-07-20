@@ -111,6 +111,8 @@ export class PropertyPanel {
   private fadeInDaysRow: HTMLElement | null = null;
   /** The fade_out_days field row, shown for tasks only. */
   private fadeOutDaysRow: HTMLElement | null = null;
+  /** The actual_end field row, hidden for milestones (a point has no actual span). */
+  private actualEndRow: HTMLElement | null = null;
   /** The middle_category input (drives the minor field's enablement). */
   private middleCategoryInput: HTMLInputElement | null = null;
   /** The minor_category input, disabled while middle is empty (SECT rework rule). */
@@ -377,6 +379,34 @@ export class PropertyPanel {
       (item) => item.fadeOutDays ?? 0,
       (value) => ({ fadeOutDays: value }),
     );
+    // Plan/actual date controls (CR-001 Part A): the actual span lives on the SAME item
+    // as its plan span (startDate/endDate above). actual_end is hidden for milestones
+    // (a point has no actual span, PLAN-L1-007). targetDate is the deadline marker
+    // (CR-001 Part C); progress_ratio drives the illuminated-line front (PLAN-L2-001).
+    this.addDateField(
+      form,
+      'actual_start',
+      (item) => item.actualStart ?? '',
+      (value) => ({ actualStart: value }),
+    );
+    this.actualEndRow = this.addDateField(
+      form,
+      'actual_end',
+      (item) => item.actualEnd ?? '',
+      (value) => ({ actualEnd: value }),
+    );
+    this.addDateField(
+      form,
+      'target_date',
+      (item) => item.targetDate ?? '',
+      (value) => ({ targetDate: value }),
+    );
+    this.addNumberField(
+      form,
+      'progress_ratio_percent',
+      (item) => Math.round((item.progressRatio ?? 0) * 100),
+      (value) => ({ progressRatio: Math.min(1, Math.max(0, value / 100)) }),
+    );
     this.addTextField(form, 'major_category', (item) => item.majorCategory ?? '', (value) => ({ majorCategory: value }));
     // A middle can be cleared: doing so also clears minor (minor requires middle).
     this.middleCategoryInput = this.addTextField(
@@ -397,10 +427,9 @@ export class PropertyPanel {
     this.addTextField(form, 'assignee', (item) => item.assignee ?? '', (value) => ({ assignee: value }));
     this.addTextField(form, 'status', (item) => item.status ?? '', (value) => ({ status: value }));
     this.addTextField(form, 'remarks', (item) => item.remarks ?? '', (value) => ({ remarks: value }));
-    // TODO(IM2): the plan_actual_kind select is removed with the discriminator field.
-    // The actual-date model edits plan/actual via startDate/endDate + actualStart/
-    // actualEnd date controls (added when the property panel gains those in a later
-    // milestone), not a plan/actual dropdown.
+    // The actual-date model (CR-001 Part A) edits plan/actual via the startDate/endDate
+    // and actualStart/actualEnd/targetDate/progress_ratio controls above -- there is no
+    // plan/actual discriminator dropdown.
     this.addSelectField(
       form,
       'line_weight',
@@ -935,6 +964,10 @@ export class PropertyPanel {
     }
     if (this.fadeOutDaysRow !== null) {
       this.fadeOutDaysRow.style.display = isMilestone ? 'none' : 'block';
+    }
+    // A milestone has no actual span, so its actual_end field is hidden (PLAN-L1-007).
+    if (this.actualEndRow !== null) {
+      this.actualEndRow.style.display = isMilestone ? 'none' : 'block';
     }
     for (const control of this.controls) {
       // Do not clobber the field the user is actively editing.

@@ -3,6 +3,7 @@ import type { ScheduleItem } from '../src/domain/model/schedule-model.js';
 import {
   buildIlluminatedLine,
   collectPreviousPlanGhosts,
+  computeProgressFrontDate,
   filterByPlanActualDisplay,
   type RowProgressFront,
 } from '../src/domain/usecase/progress-line-builder.js';
@@ -26,37 +27,141 @@ function makeItem(partial: Partial<ScheduleItem> & Pick<ScheduleItem, 'id'>): Sc
   };
 }
 
-describe('plan/actual display filter (PLAN-L1-002)', () => {
-  // TODO(IM2): the plan-only / actual-only split is deferred to IM2 (the actual-date
-  // model has no per-item plan/actual discriminator). For IM1 only `none` (hide all)
-  // vs show-all is honored, so the single-sided cases are skipped below.
-  const plan = makeItem({ id: 'p' });
-  const actual = makeItem({ id: 'a' });
+describe('plan/actual display filter (PLAN-L1-002, actual-date model)', () => {
+  // Under the actual-date model an item "has an actual side" iff actualStart is present.
+  // plan-only keeps every item (all carry a plan span); actual-only keeps only items
+  // with recorded actual dates.
+  const planOnlyItem = makeItem({ id: 'p' });
+  const withActual = makeItem({ id: 'a', actualStart: '2026-02-03' });
   const untagged = makeItem({ id: 'u' });
 
   it('both shows every item', () => {
-    const ids = filterByPlanActualDisplay([plan, actual, untagged], 'both').map((i) => i.id);
+    const ids = filterByPlanActualDisplay([planOnlyItem, withActual, untagged], 'both').map(
+      (i) => i.id,
+    );
     expect(ids).toEqual(['p', 'a', 'u']);
   });
 
   it('undefined behaves like both', () => {
-    const ids = filterByPlanActualDisplay([plan, actual, untagged], undefined).map((i) => i.id);
+    const ids = filterByPlanActualDisplay([planOnlyItem, withActual, untagged], undefined).map(
+      (i) => i.id,
+    );
     expect(ids).toEqual(['p', 'a', 'u']);
   });
 
-  it.skip('TODO(IM2): plan-only hides actual, keeps plan and untagged', () => {
-    const ids = filterByPlanActualDisplay([plan, actual, untagged], 'plan-only').map((i) => i.id);
-    expect(ids).toEqual(['p', 'u']);
+  it('plan-only shows every item (all carry a planned span)', () => {
+    const ids = filterByPlanActualDisplay([planOnlyItem, withActual, untagged], 'plan-only').map(
+      (i) => i.id,
+    );
+    expect(ids).toEqual(['p', 'a', 'u']);
   });
 
-  it.skip('TODO(IM2): actual-only keeps only actual', () => {
-    const ids = filterByPlanActualDisplay([plan, actual, untagged], 'actual-only').map((i) => i.id);
+  it('actual-only keeps only items with recorded actual dates', () => {
+    const ids = filterByPlanActualDisplay([planOnlyItem, withActual, untagged], 'actual-only').map(
+      (i) => i.id,
+    );
     expect(ids).toEqual(['a']);
   });
 
   it('none hides everything (both toggles off, fix 8)', () => {
-    const ids = filterByPlanActualDisplay([plan, actual, untagged], 'none').map((i) => i.id);
+    const ids = filterByPlanActualDisplay([planOnlyItem, withActual, untagged], 'none').map(
+      (i) => i.id,
+    );
     expect(ids).toEqual([]);
+  });
+});
+
+describe('progress front rule (PLAN-L2-001, 4-case MECE + milestone point)', () => {
+  it('case 1: completed actual span interpolates on actualStart..actualEnd', () => {
+    const front = computeProgressFrontDate(
+      makeItem({
+        id: 'c1',
+        startDate: '2026-02-01',
+        endDate: '2026-02-21',
+        actualStart: '2026-02-05',
+        actualEnd: '2026-02-15',
+        progressRatio: 0.5,
+      }),
+    );
+    // 2026-02-05 + 0.5 * (10 days) = 2026-02-10.
+    expect(front).toBe('2026-02-10');
+  });
+
+  it('case 2: in progress interpolates on actualStart..endDate (Formula A)', () => {
+    const front = computeProgressFrontDate(
+      makeItem({
+        id: 'c2',
+        startDate: '2026-02-01',
+        endDate: '2026-02-21',
+        actualStart: '2026-02-05',
+        actualEnd: null,
+        progressRatio: 0.5,
+      }),
+    );
+    // 2026-02-05 + 0.5 * (16 days to endDate) = 2026-02-13.
+    expect(front).toBe('2026-02-13');
+  });
+
+  it('case 2 edge: clamps to actualStart when endDate <= actualStart', () => {
+    const front = computeProgressFrontDate(
+      makeItem({
+        id: 'c2e',
+        startDate: '2026-02-01',
+        endDate: '2026-02-03',
+        actualStart: '2026-02-10',
+        actualEnd: null,
+        progressRatio: 0.9,
+      }),
+    );
+    expect(front).toBe('2026-02-10');
+  });
+
+  it('case 3: plan-side progress interpolates on startDate..endDate', () => {
+    const front = computeProgressFrontDate(
+      makeItem({
+        id: 'c3',
+        startDate: '2026-02-01',
+        endDate: '2026-02-11',
+        progressRatio: 0.3,
+      }),
+    );
+    // 2026-02-01 + 0.3 * (10 days) = 2026-02-04.
+    expect(front).toBe('2026-02-04');
+  });
+
+  it('case 4: no actualStart and ratio absent yields no vertex', () => {
+    const front = computeProgressFrontDate(
+      makeItem({ id: 'c4a', startDate: '2026-02-01', endDate: '2026-02-11' }),
+    );
+    expect(front).toBeNull();
+  });
+
+  it('case 4 boundary: present-but-zero ratio yields no vertex (not case 3)', () => {
+    const front = computeProgressFrontDate(
+      makeItem({ id: 'c4b', startDate: '2026-02-01', endDate: '2026-02-11', progressRatio: 0 }),
+    );
+    expect(front).toBeNull();
+  });
+
+  it('milestone with an actual is a point at actualStart (no interpolation)', () => {
+    const front = computeProgressFrontDate(
+      makeItem({
+        id: 'ms1',
+        itemKind: 'milestone',
+        endDate: null,
+        startDate: '2026-02-01',
+        actualStart: '2026-02-04',
+        progressRatio: 0.5,
+      }),
+    );
+    expect(front).toBe('2026-02-04');
+  });
+
+  it('milestone without an actual is a point at startDate', () => {
+    const front = computeProgressFrontDate(
+      makeItem({ id: 'ms2', itemKind: 'milestone', endDate: null, startDate: '2026-02-01' }),
+    );
+    expect(front).toBe('2026-02-01');
   });
 });
 

@@ -49,11 +49,21 @@ describe('default template sample data (fix 1)', () => {
     }
   });
 
-  it.skip('TODO(IM2): sets plan_actual_status consistent with each item\'s middle', () => {
-    // The actual-date model has no per-item plan/actual discriminator and no paired
-    // "-Actual" middle rows; actual dates live on the same item (actualStart/actualEnd).
-    // Restore an equivalent assertion against the actual-date model in IM2.
-    expect(document.items.length).toBeGreaterThan(0);
+  it('records actual dates coherently on the same item as its plan (actual-date model)', () => {
+    // The actual-date model has no per-item plan/actual discriminator: every item with
+    // an actualStart also carries a planned span, and any actualEnd it has is a valid
+    // ISO date (never before the actual start).
+    const withActual = document.items.filter((item) => item.actualStart !== undefined);
+    expect(withActual.length).toBeGreaterThan(0);
+    const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+    for (const item of withActual) {
+      expect(item.actualStart).toMatch(isoDate);
+      expect(item.startDate).toMatch(isoDate);
+      if (item.actualEnd != null) {
+        expect(item.actualEnd).toMatch(isoDate);
+        expect(item.actualEnd >= (item.actualStart as string)).toBe(true);
+      }
+    }
   });
 
   it('carries actual dates on the same item as its plan (actual-date model)', () => {

@@ -67,6 +67,14 @@ export interface ItemPropertyPatch {
   readonly abbrev?: string;
   readonly startDate?: IsoDate;
   readonly endDate?: IsoDate | null;
+  /** Actual (as-run) start date (CR-001 Part A); empty clears it. */
+  readonly actualStart?: IsoDate;
+  /** Actual (as-run) end date (CR-001 Part A); null for a milestone, empty clears it. */
+  readonly actualEnd?: IsoDate | null;
+  /** Deadline / target-end marker date (CR-001 Part C). */
+  readonly targetDate?: IsoDate;
+  /** Progress front fraction in [0, 1] (PLAN-L2-001 illuminated-line input). */
+  readonly progressRatio?: number;
   /** Left-edge taper of a task bar in days (clamped; tasks only). */
   readonly fadeInDays?: number;
   /** Right-edge taper of a task bar in days (clamped; tasks only). */
@@ -271,8 +279,15 @@ function sanitizePatchForKind(item: ScheduleItem, patch: ItemPropertyPatch): Ite
     return patch;
   }
   // A milestone has no span, so it can gain neither an `endDate` nor a fade taper
-  // (M-03 invariant + fade is tasks-only). Drop those keys regardless of request.
-  const { endDate: _endDate, fadeInDays: _fadeIn, fadeOutDays: _fadeOut, ...rest } = patch;
+  // (M-03 invariant + fade is tasks-only), and its actual end is always null (a point
+  // has no actual span, CR-001 Part A). Drop those keys regardless of request.
+  const {
+    endDate: _endDate,
+    actualEnd: _actualEnd,
+    fadeInDays: _fadeIn,
+    fadeOutDays: _fadeOut,
+    ...rest
+  } = patch;
   return rest;
 }
 

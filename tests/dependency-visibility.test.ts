@@ -7,13 +7,11 @@ import {
 } from '../src/domain/usecase/dependency-visibility.js';
 
 /**
- * Unit coverage for dependency-edge visibility.
- *
- * TODO(IM2): the plan/actual link CONSTRAINT (edges only plan->plan or actual->actual,
- * keyed by the removed `planActualKind`) and the endpoint-side (plan-only/actual-only)
- * visibility split are DEFERRED to IM2 against the actual-date model. The assertions
- * that pinned that old behavior are `it.skip`-ped below (restore in IM2). For IM1 an
- * edge is renderable when both endpoints exist and the filter is not `none`.
+ * Unit coverage for dependency-edge visibility under the actual-date model
+ * (CR-001 Part A). There is no cross-kind link constraint: any two items may be
+ * linked. An edge renders when both endpoints exist and the SIDE the edge anchors
+ * to is drawn under the plan/actual display filter (plan bars are always drawn;
+ * actual bars only for items that record actual dates).
  */
 
 function item(id: string, over: Partial<ScheduleItem> = {}): ScheduleItem {
@@ -39,14 +37,14 @@ const dep = (fromItemId: string, toItemId: string): Dependency => ({
   toAnchor: 3,
 });
 
-describe('linkable kind (IM1: constraint removed)', () => {
+describe('linkable kind (actual-date model: no constraint)', () => {
   it('links any two items (no plan/actual same-side constraint in the actual-date model)', () => {
     expect(sameLinkableKind(item('a'), item('b'))).toBe(true);
   });
 
-  it.skip('TODO(IM2): only same-side (plan/actual) pairs may link', () => {
-    // Restore against the actual-date model: an edge should relate compatible sides.
-    expect(sameLinkableKind(item('a'), item('b'))).toBe(true);
+  it('links a task to a milestone regardless of kind', () => {
+    const task = item('a', { itemKind: 'task', endDate: '2026-03-01' });
+    expect(sameLinkableKind(task, item('b'))).toBe(true);
   });
 });
 
@@ -58,7 +56,7 @@ describe('display visibility', () => {
     expect(isItemVisibleUnderDisplay('actual', 'none')).toBe(false);
   });
 
-  it.skip('TODO(IM2): hides the opposite side under a single-sided filter', () => {
+  it('hides the opposite side under a single-sided filter', () => {
     expect(isItemVisibleUnderDisplay('plan', 'plan-only')).toBe(true);
     expect(isItemVisibleUnderDisplay('actual', 'plan-only')).toBe(false);
     expect(isItemVisibleUnderDisplay('plan', 'actual-only')).toBe(false);
@@ -67,11 +65,12 @@ describe('display visibility', () => {
 });
 
 describe('isDependencyRenderable', () => {
+  // p1/p2 carry no actual side; a1/a2 record actual dates (drawn under actual-only).
   const items = new Map<string, ScheduleItem>([
     ['p1', item('p1')],
     ['p2', item('p2')],
-    ['a1', item('a1')],
-    ['a2', item('a2')],
+    ['a1', item('a1', { actualStart: '2026-02-03' })],
+    ['a2', item('a2', { actualStart: '2026-02-04' })],
   ]);
 
   it('renders an edge when both endpoints exist and are shown', () => {
@@ -87,12 +86,15 @@ describe('isDependencyRenderable', () => {
     expect(isDependencyRenderable(dep('p1', 'p2'), items, 'none')).toBe(false);
   });
 
-  it.skip('TODO(IM2): skips a cross-kind (plan<->actual) edge', () => {
-    expect(isDependencyRenderable(dep('p1', 'a1'), items, 'both')).toBe(false);
+  it('hides an edge under actual-only when an endpoint has no actual side', () => {
+    // p1 records no actual, so under actual-only there is no actual bar to anchor to.
+    expect(isDependencyRenderable(dep('p1', 'a1'), items, 'actual-only')).toBe(false);
   });
 
-  it.skip('TODO(IM2): hides an edge when its side is hidden by the filter', () => {
+  it('gates actual-only edges on both endpoints having an actual side', () => {
     expect(isDependencyRenderable(dep('p1', 'p2'), items, 'actual-only')).toBe(false);
-    expect(isDependencyRenderable(dep('a1', 'a2'), items, 'plan-only')).toBe(false);
+    expect(isDependencyRenderable(dep('a1', 'a2'), items, 'actual-only')).toBe(true);
+    // plan-only keeps every edge: every item has a plan bar.
+    expect(isDependencyRenderable(dep('p1', 'p2'), items, 'plan-only')).toBe(true);
   });
 });

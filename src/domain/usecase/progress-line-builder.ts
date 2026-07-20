@@ -14,15 +14,35 @@
  */
 
 import type { IsoDate, PlanActualDisplay, ScheduleItem } from '../model/schedule-model.js';
-import { dateToWorldX } from './time-coordinate-mapper.js';
+import { dateToWorldX, fromDayNumber, toDayNumber } from './time-coordinate-mapper.js';
 import { rowBandHeight, rowWorldY } from './layout-engine.js';
+
+/**
+ * Whether an item carries recorded ACTUAL dates under the actual-date model
+ * (CR-001 Part A). An item "has an actual side" as soon as its {@link
+ * ScheduleItem.actualStart} is present; `actualEnd` may still be absent (work in
+ * progress) or null (a milestone point).
+ *
+ * @param item - The item to test.
+ * @returns True when the item records an actual start.
+ */
+export function itemHasActualDates(item: Pick<ScheduleItem, 'actualStart'>): boolean {
+  return item.actualStart !== undefined;
+}
 
 /**
  * Select the items visible under a plan/actual display filter (PLAN-L1-002).
  *
- * TODO(IM2): the actual-date model has no per-item plan/actual discriminator, so the
- * `plan-only` / `actual-only` split (which side of each item to draw) is deferred to
- * IM2. For IM1 only `none` (hide all) vs show-all is honored.
+ * The actual-date model (CR-001 Part A) puts BOTH the planned span
+ * (`startDate`/`endDate`) and the actual dates (`actualStart`/`actualEnd`) on ONE
+ * item, so the filter picks which items are drawn per the requested side:
+ *
+ * - `both` / undefined - every item (plan and, where present, actual are overlaid).
+ * - `plan-only`        - every item: they all carry a planned span.
+ * - `actual-only`      - only items with recorded actual dates ({@link
+ *                        itemHasActualDates}); items without an actual side have
+ *                        nothing to draw and are dropped.
+ * - `none`             - no item.
  *
  * @param items - All items.
  * @param display - The active filter; `undefined` behaves as `both`.
@@ -32,14 +52,82 @@ export function filterByPlanActualDisplay(
   items: readonly ScheduleItem[],
   display: PlanActualDisplay | undefined,
 ): ScheduleItem[] {
-  // TODO(IM2): re-derive the plan-only / actual-only split from the actual-date model
-  // (an item is drawn plan-side from startDate/endDate and actual-side from
-  // actualStart/actualEnd). There is no longer a per-item plan/actual discriminator, so
-  // for IM1 only the `none` (hide all) and show-all cases are honored.
-  if (display === 'none') {
-    return [];
+  const effectiveDisplay = display ?? 'both';
+  switch (effectiveDisplay) {
+    case 'none':
+      return [];
+    case 'actual-only':
+      return items.filter((item) => itemHasActualDates(item));
+    case 'plan-only':
+    case 'both':
+    default:
+      return [...items];
   }
-  return [...items];
+}
+
+/**
+ * Compute a single row's progress FRONT date from an item under the unified MECE
+ * rule (PLAN-L2-001 / CR-001 Part A). The four cases are mutually exclusive and
+ * exhaustive for tasks; milestones are a point special-case.
+ *
+ * Tasks:
+ * 1. `actualStart` and `actualEnd` both present (completed): front =
+ *    `actualStart + progressRatio * (actualEnd - actualStart)`.
+ * 2. `actualStart` present, `actualEnd` null/absent (in progress): front =
+ *    `actualStart + progressRatio * (endDate - actualStart)` (Formula A); when
+ *    `endDate <= actualStart` the span degenerates and the front clamps to
+ *    `actualStart`.
+ * 3. no `actualStart`, `progressRatio > 0` (plan-only progress): front =
+ *    `startDate + progressRatio * (endDate - startDate)`.
+ * 4. no `actualStart`, `progressRatio` absent or 0 (not started): no vertex (null).
+ *
+ * Milestone special case ({@link ScheduleItem.itemKind} === `'milestone'`): the
+ * front is a POINT (no interpolation) at `actualStart` when present, else
+ * `startDate`.
+ *
+ * `progressRatio` is treated as 0 when absent; a present-but-zero ratio keeps a
+ * task in case 4 (no vertex), matching the strict `> 0` boundary.
+ *
+ * @param item - The item whose progress front to compute.
+ * @returns The front's ISO date, or null when the item contributes no vertex.
+ */
+export function computeProgressFrontDate(
+  item: Pick<
+    ScheduleItem,
+    'itemKind' | 'startDate' | 'endDate' | 'actualStart' | 'actualEnd' | 'progressRatio'
+  >,
+): IsoDate | null {
+  // Milestone: a point, never span-interpolated (PLAN-L1-007 / L2-001 special case).
+  if (item.itemKind === 'milestone') {
+    return item.actualStart ?? item.startDate;
+  }
+
+  const ratio = item.progressRatio ?? 0;
+  const startDay = toDayNumber(item.startDate);
+  const endDay = item.endDate === null ? startDay : toDayNumber(item.endDate);
+
+  if (item.actualStart !== undefined) {
+    const actualStartDay = toDayNumber(item.actualStart);
+    // Case 1: completed actual span (actualEnd present and not null).
+    if (item.actualEnd !== undefined && item.actualEnd !== null) {
+      const actualEndDay = toDayNumber(item.actualEnd);
+      return fromDayNumber(actualStartDay + Math.round(ratio * (actualEndDay - actualStartDay)));
+    }
+    // Case 2: in progress; endDate is the provisional actual end (Formula A).
+    if (endDay <= actualStartDay) {
+      // Degenerate span (delayed start past the planned end): clamp to actualStart.
+      return item.actualStart;
+    }
+    return fromDayNumber(actualStartDay + Math.round(ratio * (endDay - actualStartDay)));
+  }
+
+  // No actualStart.
+  if (ratio > 0) {
+    // Case 3: plan-side progress (MSP PercentComplete equivalent).
+    return fromDayNumber(startDay + Math.round(ratio * (endDay - startDay)));
+  }
+  // Case 4: not started -> no vertex.
+  return null;
 }
 
 /** One row's reached actual-progress date, in the current vertical order. */

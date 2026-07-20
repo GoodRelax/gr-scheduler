@@ -14,6 +14,12 @@ import { lodThreshold } from '../../../domain/usecase/lod-selector.js';
 import { filterByPlanActualDisplay } from '../../../domain/usecase/progress-line-builder.js';
 import { displayFillColor } from '../../../domain/usecase/plan-actual-colors.js';
 import {
+  computePlanActualBars,
+  type PlanActualBarRect,
+  type PlanActualBars,
+} from '../../../domain/usecase/plan-actual-geometry.js';
+import { dateToWorldX } from '../../../domain/usecase/time-coordinate-mapper.js';
+import {
   effectiveTaskShape,
   taskGlyphPaintMode,
   taskGlyphPath,
@@ -69,6 +75,13 @@ interface MountedItem {
   fadeInHandle: SVGRectElement | null;
   /** Fade-out (bottom-right) corner drag handle, present only for a selected task. */
   fadeOutHandle: SVGRectElement | null;
+  /**
+   * The ACTUAL bar (PLAN-L1-005), present only for a plain-rect task that records
+   * actual dates: overlaid on the plan bar under `overlap`, stacked below it under
+   * `separate`. Lazily created; removed when the item has no actual side or is not a
+   * plain rect.
+   */
+  actualBar: SVGRectElement | null;
 }
 
 /** The result of one item diff pass (feeds the renderer's metrics snapshot). */
@@ -184,6 +197,7 @@ export class ItemLayer {
       focusRing: null,
       fadeInHandle: null,
       fadeOutHandle: null,
+      actualBar: null,
     };
   }
 
@@ -274,6 +288,8 @@ export class ItemLayer {
       const centerX = placement.worldX;
       const centerY = placement.worldY + size / 2;
       mounted.shape.setAttribute('d', milestonePath(item, centerX, centerY, size / 2));
+      // A milestone is a point (2-marker rendering is IM3); it never carries an actual bar.
+      this.removeActualBar(mounted);
     } else if (taskShape !== null && taskShapeUsesPath(taskShape)) {
       // Arrow / chevron / span draw from their own vertices. A CHEVRON tapers its
       // concave (fade-in) left and pointed (fade-out) right by the fade extents; the
@@ -316,6 +332,8 @@ export class ItemLayer {
         mounted.shape.removeAttribute('data-fade-in-days');
         mounted.shape.removeAttribute('data-fade-out-days');
       }
+      // Path-shaped tasks (arrow / chevron / span) do not carry a separate actual bar.
+      this.removeActualBar(mounted);
     } else if (hasFade(item.fadeInDays, item.fadeOutDays)) {
       // Faded task: draw the 4-point trapezoid/parallelogram. The polygon carries a
       // data attribute so tests/AT can read the taper without re-deriving geometry.
@@ -323,12 +341,23 @@ export class ItemLayer {
       mounted.shape.setAttribute('points', fadePointsToAttribute(points));
       mounted.shape.setAttribute('data-fade-in-days', String(item.fadeInDays ?? 0));
       mounted.shape.setAttribute('data-fade-out-days', String(item.fadeOutDays ?? 0));
+      // A tapered polygon bar does not carry a separate actual bar.
+      this.removeActualBar(mounted);
     } else {
-      mounted.shape.setAttribute('x', String(placement.worldX));
-      mounted.shape.setAttribute('y', String(placement.worldY));
-      mounted.shape.setAttribute('width', String(placement.worldWidth));
-      mounted.shape.setAttribute('height', String(placement.worldHeight));
+      // Plain rectangular task bar: route through the two-mode plan/actual geometry
+      // (PLAN-L1-005). For overlap WITHOUT an actual this reproduces the exact prior
+      // placement rect; separate splits the lane and an actual bar is drawn alongside.
+      const bars = this.computeItemPlanActualBars(ctx, item, placement);
+      mounted.shape.setAttribute('x', String(bars.plan.x));
+      mounted.shape.setAttribute('y', String(bars.plan.y));
+      mounted.shape.setAttribute('width', String(bars.plan.width));
+      mounted.shape.setAttribute('height', String(bars.plan.height));
       mounted.shape.setAttribute('rx', '2');
+      if (bars.actual !== null) {
+        this.updateActualBar(mounted, bars.actual, fillColor);
+      } else {
+        this.removeActualBar(mounted);
+      }
     }
 
     const labelAnchor = labelAnchorPoint(item, placement);
@@ -346,6 +375,72 @@ export class ItemLayer {
     this.updateSelectionOutline(ctx, mounted, placement);
     this.updateFocusRing(ctx, mounted, placement);
     this.updateFadeHandles(ctx, mounted, item, placement);
+  }
+
+  /**
+   * Compute the plan bar and optional actual bar rectangles for a plain-rect task
+   * under the current plan/actual style (PLAN-L1-005). Actual-span world-x is derived
+   * from the item's actual dates on the same time axis, aligned into the placement's
+   * world-x frame; overlap without an actual reproduces the exact prior placement rect.
+   */
+  private computeItemPlanActualBars(
+    ctx: RenderContext,
+    item: ScheduleItem,
+    placement: ItemPlacement,
+  ): PlanActualBars {
+    const style = ctx.viewState.planActualStyle ?? 'overlap';
+    const planStartWorldX = placement.worldX;
+    const planEndWorldX = placement.worldX + placement.worldWidth;
+    let actualStartWorldX: number | null = null;
+    let actualEndWorldX: number | null = null;
+    const epochDate = ctx.scheduleDocument?.epochDate;
+    if (item.actualStart !== undefined && epochDate !== undefined) {
+      const zoomX = ctx.viewState.zoomX;
+      // Align dateToWorldX() output into the placement's world-x frame so the actual bar
+      // lines up with the laid-out plan bar regardless of the placement's x origin.
+      const originShift = placement.worldX - dateToWorldX(item.startDate, epochDate, zoomX);
+      actualStartWorldX = dateToWorldX(item.actualStart, epochDate, zoomX) + originShift;
+      if (item.actualEnd != null) {
+        actualEndWorldX = dateToWorldX(item.actualEnd, epochDate, zoomX) + originShift;
+      }
+    }
+    return computePlanActualBars({
+      planStartWorldX,
+      planEndWorldX,
+      actualStartWorldX,
+      actualEndWorldX,
+      laneTop: placement.worldY,
+      laneHeight: placement.worldHeight,
+      style,
+    });
+  }
+
+  /** Create or update the actual bar rect for a plain-rect task (PLAN-L1-005). */
+  private updateActualBar(mounted: MountedItem, rect: PlanActualBarRect, fill: string): void {
+    let bar = mounted.actualBar;
+    if (bar === null) {
+      bar = document.createElementNS(SVG_NS, 'rect');
+      bar.setAttribute('data-role', 'actual-bar');
+      bar.setAttribute('rx', '2');
+      bar.setAttribute('pointer-events', 'none');
+      mounted.group.appendChild(bar);
+      mounted.actualBar = bar;
+    }
+    bar.setAttribute('x', String(rect.x));
+    bar.setAttribute('y', String(rect.y));
+    bar.setAttribute('width', String(rect.width));
+    bar.setAttribute('height', String(rect.height));
+    // Colors are IM3 (CR-002 Part 1 saturation split); for now the actual bar reuses the
+    // item's own fill so the two-mode GEOMETRY is exercised without pre-empting the palette.
+    bar.setAttribute('fill', fill);
+  }
+
+  /** Remove the actual bar when the item has no actual side or is not a plain rect. */
+  private removeActualBar(mounted: MountedItem): void {
+    if (mounted.actualBar !== null) {
+      mounted.actualBar.remove();
+      mounted.actualBar = null;
+    }
   }
 
   /**
