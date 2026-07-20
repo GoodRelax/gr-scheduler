@@ -27,7 +27,7 @@ describe('default ASPICE sample (project start -> SOS, ~3-year timeline)', () =>
     return max;
   }
 
-  it('gives every item a unique id, a category and a plan_actual_kind', () => {
+  it('gives every item a unique id and a category', () => {
     const ids = new Set<string>();
     for (const item of document.items) {
       expect(item.id, `item ${item.id} id`).toBeTruthy();
@@ -35,7 +35,6 @@ describe('default ASPICE sample (project start -> SOS, ~3-year timeline)', () =>
       ids.add(item.id);
       expect((item.majorCategory ?? '').trim().length, `item ${item.id} major`).toBeGreaterThan(0);
       expect((item.middleCategory ?? '').trim().length, `item ${item.id} middle`).toBeGreaterThan(0);
-      expect(item.planActualKind, `item ${item.id} plan_actual_kind`).toBeTruthy();
     }
   });
 
@@ -65,8 +64,8 @@ describe('default ASPICE sample (project start -> SOS, ~3-year timeline)', () =>
     // Integration & validation tracks reach toward SOS.
     expect(abbrevs.has('System Integration')).toBe(true);
     expect(abbrevs.has('Vehicle Validation')).toBe(true);
-    // A plan/actual pair and gate milestones are present.
-    expect(document.items.some((item) => item.planActualKind === 'actual')).toBe(true);
+    // Actual (as-run) dates and gate milestones are present (CR-001 actual-date model).
+    expect(document.items.some((item) => item.actualStart !== undefined)).toBe(true);
     expect(document.items.some((item) => item.abbrev === 'SoP')).toBe(true);
   });
 });

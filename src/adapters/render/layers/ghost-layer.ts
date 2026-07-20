@@ -28,6 +28,10 @@ export class GhostLayer {
     }
     const epoch = ctx.scheduleDocument.epochDate;
     const zoomX = ctx.viewState.zoomX;
+    // TODO(IM3): collectPreviousPlanGhosts is neutralized to [] (CR-002 Part 3 moves the
+    // baseline to a separately-loaded reference document + gray underlay layer), so this
+    // loop draws nothing until the baseline-reference loader lands. Kept wired so the
+    // layer is ready to render the IM3 underlay.
     for (const ghost of collectPreviousPlanGhosts(ctx.scheduleDocument.items)) {
       const placement = ctx.placementById.get(ghost.itemId);
       if (placement === undefined) {

@@ -35,7 +35,8 @@ describe('buildAiPromptText', () => {
     // Mentions the key mappings the AI must perform.
     expect(prompt).toContain('milestone');
     expect(prompt).toContain('task');
-    expect(prompt).toContain('planActualKind');
+    // Actual-date model (CR-001): actual dates go on the SAME item, not a separate one.
+    expect(prompt).toContain('actualStart');
   });
 
   it('is ASCII only (no NUL / control characters; live-CSP hazard guard)', () => {

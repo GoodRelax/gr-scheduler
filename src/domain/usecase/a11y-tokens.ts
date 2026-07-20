@@ -15,7 +15,6 @@
  *    and ring widths, never "the blue one means selected".
  */
 
-import type { PlanActualKind } from '../model/schedule-model.js';
 
 /** A foreground-on-background color token pair with its intended usage. */
 export interface UiColorPair {
@@ -128,16 +127,16 @@ export const FOCUS_RING_STROKE_WIDTH = 2.5;
 export const FOCUS_RING_DASH_ARRAY = 'none';
 
 /**
- * Stroke dash pattern that encodes plan vs actual WITHOUT relying on color
- * (SC 1.4.1): a `plan` item is drawn with a dashed stroke and an `actual` item
- * with a solid stroke, so the two sides of a plan/actual pair remain
- * distinguishable in grayscale and for color-blind users. Items with no
- * plan/actual semantics (undefined) keep a solid stroke, so this never changes
- * the appearance of plain items.
+ * Non-color plan/actual redundancy code (SC 1.4.1).
  *
- * @param planActualKind - The item's plan/actual discriminator, or undefined.
- * @returns An SVG `stroke-dasharray` value ('none' for solid).
+ * TODO(IM3): CR-002 Part 1 replaces the old dashed-plan / solid-actual redundancy with
+ * a line-WIDTH code (plan thin / actual thick; no dash, which the user found too busy).
+ * Until IM3 lands that, this is NEUTRALIZED to a solid stroke ('none') for every case;
+ * the actual-date model no longer carries a plan/actual discriminator per item.
+ *
+ * @param _planActualSide - Legacy discriminator ('plan' | 'actual'); ignored for IM1.
+ * @returns An SVG `stroke-dasharray` value; always 'none' (solid) until IM3.
  */
-export function planActualStrokeDashArray(planActualKind: PlanActualKind | undefined): string {
-  return planActualKind === 'plan' ? '5 3' : 'none';
+export function planActualStrokeDashArray(_planActualSide: 'plan' | 'actual' | undefined): string {
+  return 'none';
 }

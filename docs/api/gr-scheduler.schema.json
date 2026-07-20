@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://goodrelax.dev/gr-scheduler/gr-scheduler.schema.json",
+  "$comment": "gr-scheduler SSOT schema (the live document contract inlined into the build and re-exported by src/domain/usecase/document-schema.ts). Item plan/actual is carried by actual-date fields (actualStart/actualEnd/targetDate) on the same item; dependencies carry linkType/lagDays; viewState carries planActualStyle; labelPosition includes inner-left. Baseline (the pre-change plan) is a separately-loaded reference document rather than a per-item field.",
   "title": "gr-scheduler ScheduleDocument",
   "description": "Single source of truth for the exported gr-scheduler document JSON. Describes EXACTLY what src/domain/usecase/json-codec.ts serializes and accepts (DATA-JSON-001..013). The serializer additionally projects each item's predecessorItemIds/successorItemIds arrays from the canonical dependency edge list; the deserializer accepts them and folds them back into that edge list.",
   "type": "object",
@@ -56,6 +57,7 @@
         "fontScale": { "enum": ["S", "M", "L"] },
         "leftPaneWidth": { "type": "number" },
         "planActualDisplay": { "enum": ["plan-only", "actual-only", "both", "none"] },
+        "planActualStyle": { "enum": ["overlap", "separate"] },
         "todayLineVisible": { "type": "boolean" },
         "gridDateLinesVisible": { "type": "boolean" },
         "gridCategoryLinesVisible": { "type": "boolean" },
@@ -135,15 +137,6 @@
         "dy": { "type": "number" }
       }
     },
-    "previousPlan": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["startDate", "endDate"],
-      "properties": {
-        "startDate": { "$ref": "#/$defs/isoDate" },
-        "endDate": { "type": ["string", "null"] }
-      }
-    },
     "item": {
       "type": "object",
       "additionalProperties": false,
@@ -172,12 +165,12 @@
         "assignee": { "type": "string" },
         "status": { "type": "string" },
         "remarks": { "type": "string" },
-        "planActualKind": { "enum": ["plan", "actual"] },
-        "planGroupId": { "type": "string" },
+        "actualStart": { "$ref": "#/$defs/isoDate" },
+        "actualEnd": { "type": ["string", "null"] },
+        "targetDate": { "$ref": "#/$defs/isoDate" },
         "progressRatio": { "type": "number" },
-        "previousPlan": { "$ref": "#/$defs/previousPlan" },
         "lineWeight": { "enum": ["thin", "medium", "thick"] },
-        "labelPosition": { "enum": ["auto", "center", "top", "bottom", "right", "left"] },
+        "labelPosition": { "enum": ["auto", "center", "top", "bottom", "right", "left", "inner-left"] },
         "labelOffset": { "$ref": "#/$defs/labelOffset" },
         "importedAssetId": { "type": "string" },
         "predecessorItemIds": { "type": "array", "items": { "type": "string" } },
@@ -195,7 +188,15 @@
         "toItemId": { "type": "string" },
         "toAnchor": { "$ref": "#/$defs/anchorIndex" },
         "bends": { "type": "number" },
-        "strokeColor": { "$ref": "#/$defs/color" }
+        "strokeColor": { "$ref": "#/$defs/color" },
+        "linkType": {
+          "description": "Dependency relationship kind (FS/SS/FF/SF). Optional; the codec treats an absent value as FS (finish-to-start). Round-trips with MSPDI PredecessorLink/Type (FF=0/FS=1/SF=2/SS=3).",
+          "enum": ["FS", "SS", "FF", "SF"]
+        },
+        "lagDays": {
+          "description": "Signed offset in elapsed calendar days between the linked endpoints (positive=lag, negative=lead, 0/absent=none). Round-trips with MSPDI PredecessorLink/LinkLag (+LagFormat), approximated as calendar days.",
+          "type": "integer"
+        }
       }
     },
     "asset": {

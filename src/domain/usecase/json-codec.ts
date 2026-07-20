@@ -41,8 +41,17 @@ import {
   successorItemIds,
 } from './dependency-projection.js';
 
-/** The schema version this build writes and migrates up to (DATA-JSON-001). */
-export const CURRENT_SCHEMA_VERSION = 1;
+/**
+ * The schema version this build writes and migrates up to (DATA-JSON-001).
+ *
+ * Bumped to 2 for the CR-001/002/003 actual-date model swap (actualStart/actualEnd/
+ * targetDate on the item, dependency linkType/lagDays, viewState planActualStyle;
+ * planActualKind/planGroupId/previousPlan removed). Per CR-001 §4 the product is
+ * unpublished, so there is NO migration of the removed plan/actual fields -- a
+ * version-1 document is accepted structurally and its now-unknown legacy fields are
+ * simply ignored by the new model.
+ */
+export const CURRENT_SCHEMA_VERSION = 2;
 
 /**
  * Serialize a ScheduleDocument to canonical JSON text (IO-L1-001). Emits every
@@ -95,6 +104,11 @@ const MIGRATIONS: Readonly<Record<number, Migrator>> = {
     annotations: Array.isArray(raw['annotations']) ? raw['annotations'] : [],
     assets: Array.isArray(raw['assets']) ? raw['assets'] : [],
   }),
+  // 1 -> 2 (CR-001 actual-date model swap): no field migration. The product is
+  // unpublished (CR-001 §4), so removed legacy fields (planActualKind / planGroupId /
+  // previousPlan) are intentionally NOT carried forward -- they are just dropped from
+  // the new model on read. Only the version marker advances.
+  1: (raw) => raw,
 };
 
 /**

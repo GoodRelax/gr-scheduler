@@ -3,14 +3,17 @@ import type { Dependency, ScheduleItem } from '../src/domain/model/schedule-mode
 import {
   isDependencyRenderable,
   isItemVisibleUnderDisplay,
-  linkableKindOf,
   sameLinkableKind,
 } from '../src/domain/usecase/dependency-visibility.js';
 
 /**
- * Unit coverage for the dependency plan/actual CONSTRAINTS (batch item 5): edges may
- * only connect plan->plan or actual->actual, and a drawn edge is visible only when
- * BOTH endpoints are visible under the current plan/actual display filter.
+ * Unit coverage for dependency-edge visibility.
+ *
+ * TODO(IM2): the plan/actual link CONSTRAINT (edges only plan->plan or actual->actual,
+ * keyed by the removed `planActualKind`) and the endpoint-side (plan-only/actual-only)
+ * visibility split are DEFERRED to IM2 against the actual-date model. The assertions
+ * that pinned that old behavior are `it.skip`-ped below (restore in IM2). For IM1 an
+ * edge is renderable when both endpoints exist and the filter is not `none`.
  */
 
 function item(id: string, over: Partial<ScheduleItem> = {}): ScheduleItem {
@@ -36,21 +39,14 @@ const dep = (fromItemId: string, toItemId: string): Dependency => ({
   toAnchor: 3,
 });
 
-describe('linkable kind', () => {
-  it('treats a missing planActualKind as plan', () => {
-    expect(linkableKindOf(item('a'))).toBe('plan');
-    expect(linkableKindOf(item('b', { planActualKind: 'plan' }))).toBe('plan');
-    expect(linkableKindOf(item('c', { planActualKind: 'actual' }))).toBe('actual');
+describe('linkable kind (IM1: constraint removed)', () => {
+  it('links any two items (no plan/actual same-side constraint in the actual-date model)', () => {
+    expect(sameLinkableKind(item('a'), item('b'))).toBe(true);
   });
 
-  it('matches only same-side pairs', () => {
-    expect(sameLinkableKind(item('a', { planActualKind: 'plan' }), item('b'))).toBe(true);
-    expect(
-      sameLinkableKind(item('a', { planActualKind: 'actual' }), item('b', { planActualKind: 'actual' })),
-    ).toBe(true);
-    expect(
-      sameLinkableKind(item('a', { planActualKind: 'plan' }), item('b', { planActualKind: 'actual' })),
-    ).toBe(false);
+  it.skip('TODO(IM2): only same-side (plan/actual) pairs may link', () => {
+    // Restore against the actual-date model: an edge should relate compatible sides.
+    expect(sameLinkableKind(item('a'), item('b'))).toBe(true);
   });
 });
 
@@ -62,7 +58,7 @@ describe('display visibility', () => {
     expect(isItemVisibleUnderDisplay('actual', 'none')).toBe(false);
   });
 
-  it('hides the opposite side under a single-sided filter', () => {
+  it.skip('TODO(IM2): hides the opposite side under a single-sided filter', () => {
     expect(isItemVisibleUnderDisplay('plan', 'plan-only')).toBe(true);
     expect(isItemVisibleUnderDisplay('actual', 'plan-only')).toBe(false);
     expect(isItemVisibleUnderDisplay('plan', 'actual-only')).toBe(false);
@@ -71,34 +67,32 @@ describe('display visibility', () => {
 });
 
 describe('isDependencyRenderable', () => {
-  const plans = new Map<string, ScheduleItem>([
-    ['p1', item('p1', { planActualKind: 'plan' })],
-    ['p2', item('p2', { planActualKind: 'plan' })],
+  const items = new Map<string, ScheduleItem>([
+    ['p1', item('p1')],
+    ['p2', item('p2')],
+    ['a1', item('a1')],
+    ['a2', item('a2')],
   ]);
-  const actuals = new Map<string, ScheduleItem>([
-    ['a1', item('a1', { planActualKind: 'actual' })],
-    ['a2', item('a2', { planActualKind: 'actual' })],
-  ]);
-  const mixed = new Map<string, ScheduleItem>([...plans, ...actuals]);
 
-  it('renders a plan->plan edge when both sides are shown', () => {
-    expect(isDependencyRenderable(dep('p1', 'p2'), plans, 'both')).toBe(true);
-  });
-
-  it('skips a cross-kind (plan<->actual) legacy edge without crashing', () => {
-    expect(isDependencyRenderable(dep('p1', 'a1'), mixed, 'both')).toBe(false);
-  });
-
-  it('hides a plan edge when the plan side is hidden (actual-only)', () => {
-    expect(isDependencyRenderable(dep('p1', 'p2'), plans, 'actual-only')).toBe(false);
-  });
-
-  it('hides an actual edge when the actual side is hidden (plan-only)', () => {
-    expect(isDependencyRenderable(dep('a1', 'a2'), actuals, 'plan-only')).toBe(false);
-    expect(isDependencyRenderable(dep('a1', 'a2'), actuals, 'both')).toBe(true);
+  it('renders an edge when both endpoints exist and are shown', () => {
+    expect(isDependencyRenderable(dep('p1', 'p2'), items, 'both')).toBe(true);
+    expect(isDependencyRenderable(dep('a1', 'a2'), items, 'both')).toBe(true);
   });
 
   it('returns false when an endpoint item is missing', () => {
-    expect(isDependencyRenderable(dep('p1', 'ghost'), plans, 'both')).toBe(false);
+    expect(isDependencyRenderable(dep('p1', 'ghost'), items, 'both')).toBe(false);
+  });
+
+  it('hides every edge when the filter is none', () => {
+    expect(isDependencyRenderable(dep('p1', 'p2'), items, 'none')).toBe(false);
+  });
+
+  it.skip('TODO(IM2): skips a cross-kind (plan<->actual) edge', () => {
+    expect(isDependencyRenderable(dep('p1', 'a1'), items, 'both')).toBe(false);
+  });
+
+  it.skip('TODO(IM2): hides an edge when its side is hidden by the filter', () => {
+    expect(isDependencyRenderable(dep('p1', 'p2'), items, 'actual-only')).toBe(false);
+    expect(isDependencyRenderable(dep('a1', 'a2'), items, 'plan-only')).toBe(false);
   });
 });

@@ -56,12 +56,26 @@ export const TASK_SHAPE_KINDS: readonly TaskShape[] = ['bar', 'arrow', 'chevron'
 
 /**
  * Anchor position of the abbreviation label relative to its item glyph
- * (PROP-L1-002 `label_position`). `auto` lets the renderer choose.
+ * (PROP-L1-002 `label_position`). `auto` lets the renderer choose. `inner-left`
+ * (CR-003 Part 2) pins the label INSIDE a task bar, left-aligned -- the default for
+ * tasks -- and is deliberately distinct from `left` (OUTSIDE, to the bar's left).
  */
-export type LabelPosition = 'auto' | 'center' | 'top' | 'bottom' | 'right' | 'left';
+export type LabelPosition =
+  | 'auto'
+  | 'center'
+  | 'top'
+  | 'bottom'
+  | 'right'
+  | 'left'
+  | 'inner-left';
 
-/** Whether an item represents planned or actual dates (PROP `plan_actual_kind`). */
-export type PlanActualKind = 'plan' | 'actual';
+/**
+ * Dependency relationship kind (CR-001 Part C): which endpoints the link relates.
+ * `FS` finish-to-start (default), `SS` start-to-start, `FF` finish-to-finish,
+ * `SF` start-to-finish. Round-trips with MSPDI `PredecessorLink/Type`
+ * (FF=0/FS=1/SF=2/SS=3).
+ */
+export type LinkType = 'FS' | 'SS' | 'FF' | 'SF';
 
 /**
  * Which side of the plan/actual pair is currently drawn (PLAN-L1-002). `both`
@@ -142,15 +156,6 @@ export interface DualCursorState {
   readonly secondary: CursorState;
   /** Visibility toggle (CURS-L1-004); absent is treated as hidden. */
   readonly visible?: boolean;
-}
-
-/**
- * A snapshot of an item's plan before it was last moved (PLAN-L1-004). Rendered
- * as a grayed ghost bar so a plan change is visible on the one-page chart.
- */
-export interface PreviousPlan {
-  readonly startDate: IsoDate;
-  readonly endDate: IsoDate | null;
 }
 
 /** Stroke weight step (PROP `line_weight`). */
@@ -247,22 +252,33 @@ export interface ScheduleItem {
   readonly status?: string;
   /** Additional remarks (PROP `remarks`). */
   readonly remarks?: string;
-  /** Plan vs actual discriminator (PROP `plan_actual_kind`). */
-  readonly planActualKind?: PlanActualKind;
   /**
-   * Shared id linking a plan item to its actual counterpart for one logical task
-   * (PLAN-L1-001). Both members carry the same `planGroupId`, distinguished by
-   * `planActualKind`; the actual overlays the plan.
+   * Plan/actual model (CR-001 Part A): a single item carries BOTH its planned span
+   * ({@link startDate}/{@link endDate}) AND its actual dates. `actualStart` is the
+   * real (as-run) start; absent means the actual has not been recorded. Rendering
+   * (Overlap/Separate) and the progress line derive plan-vs-actual purely from these
+   * date fields -- there is no separate plan/actual item and no discriminator flag.
    */
-  readonly planGroupId?: string;
+  readonly actualStart?: IsoDate;
+  /**
+   * Actual (as-run) end date (CR-001 Part A); `null` for a milestone (a point has no
+   * actual span). Absent on a task means the actual end has not been recorded (the
+   * work may still be in progress -- see {@link progressRatio}).
+   */
+  readonly actualEnd?: IsoDate | null;
+  /**
+   * Deadline / target end marker (CR-001 Part C `Deadline`): a "must finish by" date
+   * drawn as an independent marker, distinct from the bar's own {@link endDate}.
+   * Round-trips with MSPDI `Deadline`.
+   */
+  readonly targetDate?: IsoDate;
   /**
    * Progress front as a fraction in [0, 1] of the item's own span, used to place
-   * this row's vertex on the illuminated line (PLAN-L1-003 / L2-001). Applies to
-   * actual items; absent means "not started" (0) for line purposes.
+   * this row's vertex on the illuminated line (PLAN-L1-003 / L2-001). Combined with
+   * {@link actualStart}/{@link actualEnd} to place the progress front; absent means
+   * "not started" (0) for line purposes.
    */
   readonly progressRatio?: number;
-  /** Snapshot of the pre-change plan for gray ghost display (PLAN-L1-004). */
-  readonly previousPlan?: PreviousPlan;
   /** Stroke weight step (PROP `line_weight`). */
   readonly lineWeight?: LineWeight;
   /** Abbreviation label anchor (PROP `label_position`). */
@@ -424,6 +440,18 @@ export interface Dependency {
    * panel when the line is selected; the change is undoable and round-trips via JSON.
    */
   readonly strokeColor?: string;
+  /**
+   * Dependency relationship kind (CR-001 Part C); absent is treated as `FS`
+   * (finish-to-start). Round-trips with MSPDI `PredecessorLink/Type`.
+   */
+  readonly linkType?: LinkType;
+  /**
+   * Signed offset in elapsed calendar days between the linked endpoints (CR-001
+   * Part C): positive = lag (wait), negative = lead (overlap), 0 / absent = none.
+   * Round-trips with MSPDI `PredecessorLink/LinkLag` (+`LagFormat`), approximated as
+   * calendar days.
+   */
+  readonly lagDays?: number;
 }
 
 /** Font scale steps (ARCH-C-007). */
@@ -522,6 +550,14 @@ export interface ViewState {
    * Undo/Redo.
    */
   readonly planActualDisplay?: PlanActualDisplay;
+  /**
+   * How plan and actual are laid out for an item (CR-001 Part A); absent is treated
+   * as `overlap`. `overlap` paints actual/progress on top of the plan bar; `separate`
+   * draws the plan bar and the actual bar (`actualStart..actualEnd`) on stacked lanes.
+   * Both are pure render choices over the SAME data. Held in view state so switching
+   * the style never pollutes Undo/Redo.
+   */
+  readonly planActualStyle?: 'overlap' | 'separate';
   /** Whether the today line is drawn (CURS-L1-001 / L1-004); absent is hidden. */
   readonly todayLineVisible?: boolean;
   /**

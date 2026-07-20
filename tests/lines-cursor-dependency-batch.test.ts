@@ -74,7 +74,7 @@ describe('item 3: the progress line bends at the item vertical center, not the b
     importance: 1,
     fillColor: '#0072b2',
     strokeColor: 'transparent',
-    planActualKind: 'actual',
+    actualStart: '2026-02-01',
     progressRatio: 0.5,
   };
 

@@ -1,61 +1,36 @@
 /**
- * UseCase layer: plan/actual display coloring (property-driven).
+ * UseCase layer: plan/actual display coloring.
  *
- * The fill an item is DRAWN with on the canvas is derived from its
- * {@link ScheduleItem.planActualKind} PROPERTY -- never by parsing a category
- * name or label text:
- *
- * - `plan`   -> {@link PLAN_FILL_GREEN}
- * - `actual` -> {@link ACTUAL_FILL_ORANGE}
- * - neither  -> the item's own stored {@link ScheduleItem.fillColor}
- *
- * This is a purely presentational mapping: it does NOT mutate the stored
- * `fillColor`, so import validation, JSON round-trips and the property panel keep
- * seeing the document's own color while the canvas shows the plan/actual hue.
- * Green (plan) vs orange (actual) is paired with the non-color stroke-dash encoding
- * ({@link planActualStrokeDashArray}) so the two sides stay distinguishable for
- * color-blind users and in grayscale (WCAG 1.4.1).
+ * TODO(IM3): CR-002 Part 1 replaces the old fixed green(plan)/orange(actual) scheme
+ * with a SATURATION-derived pair from the item's own base {@link ScheduleItem.fillColor}
+ * (pale = plan, vivid = actual/progress) plus a line-WIDTH non-color redundancy code
+ * (plan thin / actual thick; no dash). Until IM3 lands that logic, this module is
+ * NEUTRALIZED: {@link displayFillColor} returns the item's own stored fill so the
+ * canvas still renders in a single consistent color. The legacy
+ * {@link PLAN_FILL_GREEN} / {@link ACTUAL_FILL_ORANGE} constants are retained only as
+ * references for the IM3 restoration and are no longer applied.
  *
  * Pure and side-effect free.
  */
 
 import type { ScheduleItem } from '../model/schedule-model.js';
 
-/**
- * Fill for a PLAN item (green). A mid-tone green whose luminance is close to the
- * existing CUD palette so the #1a1a1a item label keeps its legibility (WCAG 1.4.3),
- * and clearly separated in hue from the actual orange for the paired display.
- */
+/** TODO(IM3): legacy PLAN fill (green); retained for reference, no longer applied. */
 export const PLAN_FILL_GREEN = '#2f9e5b';
 
-/**
- * Fill for an ACTUAL item (orange). Chosen to read as distinct from the plan green
- * for the common protan/deutan color-vision deficiencies (green vs orange, not the
- * unsafe red vs green), and to keep the label legible on top of the bar.
- */
+/** TODO(IM3): legacy ACTUAL fill (orange); retained for reference, no longer applied. */
 export const ACTUAL_FILL_ORANGE = '#e07c1a';
 
 /**
- * The fill an item is drawn with, driven by its plan/actual PROPERTY.
+ * The fill an item is drawn with on the canvas.
+ *
+ * TODO(IM3): restore CR-002 saturation-derived plan/actual coloring. For IM1 this is
+ * neutralized to the item's own stored fill (the actual-date model no longer carries a
+ * plan/actual discriminator; the Overlap saturation split is deferred to IM3).
  *
  * @param item - The item to color.
- * @returns The item's explicit fill when {@link ScheduleItem.fillColorExplicit} is
- *   set; else the green (plan) / orange (actual) display fill; else the item's own
- *   stored fill when it carries no plan/actual semantics.
+ * @returns The item's own stored {@link ScheduleItem.fillColor}.
  */
-export function displayFillColor(
-  item: Pick<ScheduleItem, 'planActualKind' | 'fillColor' | 'fillColorExplicit'>,
-): string {
-  // An explicit user-chosen fill (property panel) overrides the plan/actual hue so
-  // editing an item's fill takes visible effect even on a plan/actual item.
-  if (item.fillColorExplicit === true) {
-    return item.fillColor;
-  }
-  if (item.planActualKind === 'plan') {
-    return PLAN_FILL_GREEN;
-  }
-  if (item.planActualKind === 'actual') {
-    return ACTUAL_FILL_ORANGE;
-  }
+export function displayFillColor(item: Pick<ScheduleItem, 'fillColor'>): string {
   return item.fillColor;
 }

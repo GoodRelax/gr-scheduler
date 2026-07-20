@@ -18,9 +18,11 @@ import { dateToWorldX } from './time-coordinate-mapper.js';
 import { rowBandHeight, rowWorldY } from './layout-engine.js';
 
 /**
- * Select the items visible under a plan/actual display filter (PLAN-L1-002). An
- * item with no `planActualKind` is treated as a plain plan item, so it stays
- * visible in `plan-only` and `both` and is hidden in `actual-only`.
+ * Select the items visible under a plan/actual display filter (PLAN-L1-002).
+ *
+ * TODO(IM2): the actual-date model has no per-item plan/actual discriminator, so the
+ * `plan-only` / `actual-only` split (which side of each item to draw) is deferred to
+ * IM2. For IM1 only `none` (hide all) vs show-all is honored.
  *
  * @param items - All items.
  * @param display - The active filter; `undefined` behaves as `both`.
@@ -30,17 +32,14 @@ export function filterByPlanActualDisplay(
   items: readonly ScheduleItem[],
   display: PlanActualDisplay | undefined,
 ): ScheduleItem[] {
-  if (display === undefined || display === 'both') {
-    return [...items];
-  }
+  // TODO(IM2): re-derive the plan-only / actual-only split from the actual-date model
+  // (an item is drawn plan-side from startDate/endDate and actual-side from
+  // actualStart/actualEnd). There is no longer a per-item plan/actual discriminator, so
+  // for IM1 only the `none` (hide all) and show-all cases are honored.
   if (display === 'none') {
     return [];
   }
-  if (display === 'plan-only') {
-    return items.filter((item) => item.planActualKind !== 'actual');
-  }
-  // actual-only
-  return items.filter((item) => item.planActualKind === 'actual');
+  return [...items];
 }
 
 /** One row's reached actual-progress date, in the current vertical order. */
@@ -137,25 +136,16 @@ export interface PreviousPlanGhost {
 }
 
 /**
- * Collect the previous-plan ghost spans from the items that carry one
- * (PLAN-L1-004). The renderer draws these grayed, behind the current bars.
+ * Collect the baseline (pre-change plan) ghost spans.
  *
- * @param items - All items.
- * @returns One ghost per item with a `previousPlan` (input order preserved).
+ * TODO(IM3): CR-002 Part 3 moves the baseline OUT of the item (`previousPlan` field
+ * removed) into a SEPARATELY-loaded reference document drawn as a gray, read-only
+ * underlay matched by item `id`. Until IM3 wires that loader + underlay layer, this is
+ * NEUTRALIZED to return no ghosts (nothing to draw from the item itself).
+ *
+ * @param _items - All items (unused until the baseline-reference loader lands in IM3).
+ * @returns An empty array (IM1 neutralization).
  */
-export function collectPreviousPlanGhosts(items: readonly ScheduleItem[]): PreviousPlanGhost[] {
-  const ghosts: PreviousPlanGhost[] = [];
-  for (const item of items) {
-    const previous = item.previousPlan;
-    if (previous === undefined) {
-      continue;
-    }
-    ghosts.push({
-      itemId: item.id,
-      rowId: item.rowId,
-      startDate: previous.startDate,
-      endDate: previous.endDate,
-    });
-  }
-  return ghosts;
+export function collectPreviousPlanGhosts(_items: readonly ScheduleItem[]): PreviousPlanGhost[] {
+  return [];
 }

@@ -44,7 +44,7 @@ function item(
 function documentOf(items: ScheduleItem[], sections: Section[] = []): ScheduleDocument {
   return {
     projectId: '44444444-4444-4444-8444-444444444444',
-    schemaVersion: 1,
+    schemaVersion: 2,
     title: 'test',
     epochDate: '2026-01-01',
     viewState: { zoomX: 1, zoomY: 1, scrollX: 0, scrollY: 0, fontScale: 'M' },

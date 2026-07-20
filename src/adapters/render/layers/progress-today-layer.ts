@@ -109,7 +109,12 @@ export class ProgressTodayLayer {
     // accounts for the 90%-of-lane stacked bar height and the row band's top padding.
     const itemCenterByRowIndex = new Map<number, number>();
     for (const item of ctx.scheduleDocument?.items ?? []) {
-      if (item.planActualKind !== 'actual') {
+      // TODO(IM2): apply the CR-001 §2 four-case progress-front rule
+      // (actualStart+actualEnd completed / actualStart+ratio in-progress / ratio-only /
+      // not-started) plus the CR-002 milestone point special-case. For IM1 a row
+      // contributes a front only when the item carries actual progress, using a
+      // simplified actualStart(+ratio*span) interpolation.
+      if (item.actualStart === undefined && item.progressRatio === undefined) {
         continue;
       }
       const displayId = ctx.rowIdToDisplayId.get(item.rowId) ?? item.rowId;
@@ -117,8 +122,13 @@ export class ProgressTodayLayer {
       if (rowIndex === undefined) {
         continue;
       }
-      const startDay = toDayNumber(item.startDate);
-      const endDay = item.endDate === null ? startDay : toDayNumber(item.endDate);
+      const startDay = toDayNumber(item.actualStart ?? item.startDate);
+      const endDay =
+        item.actualEnd != null
+          ? toDayNumber(item.actualEnd)
+          : item.endDate === null
+            ? startDay
+            : toDayNumber(item.endDate);
       const ratio = item.progressRatio ?? 0;
       const frontDay = startDay + Math.round(ratio * (endDay - startDay));
       const current = frontDayByRowIndex.get(rowIndex);

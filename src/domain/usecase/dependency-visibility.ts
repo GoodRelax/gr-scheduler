@@ -1,61 +1,63 @@
 /**
- * UseCase layer: pure predicates for the dependency-edge CONSTRAINTS (DEP-L1
- * plan/actual rework):
+ * UseCase layer: pure predicates for dependency-edge visibility.
  *
- * - An edge may connect ONLY plan->plan or actual->actual items (same
- *   {@link PlanActualKind}); a missing kind counts as `plan`.
- * - A drawn edge is visible only when BOTH endpoints are visible under the current
- *   plan/actual display filter (so hiding the plan side hides plan-linked edges, and
- *   hiding the actual side hides actual-linked edges).
+ * TODO(IM2): the old plan/actual link CONSTRAINT (an edge could connect only
+ * plan->plan or actual->actual items, keyed by the removed `planActualKind`) no longer
+ * applies -- the actual-date model carries plan AND actual on ONE item, so there is no
+ * cross-kind pairing to forbid. This module is NEUTRALIZED accordingly: an edge is
+ * renderable when both endpoints exist and are not hidden by the plan/actual display
+ * filter. The endpoint-side visibility split (plan-only / actual-only) is likewise
+ * deferred to IM2; for IM1 only `none` (hide all) suppresses edges.
  *
- * Shared by the link-pick controller (reject a plan<->actual pick), the dependency
- * render layer (skip non-renderable / cross-kind edges without crashing) and the
- * dependency hit-tester (a hidden line is not grabbable). Side-effect free.
+ * Shared by the link-pick controller, the dependency render layer and the dependency
+ * hit-tester. Side-effect free.
  */
 
 import type {
   Dependency,
   PlanActualDisplay,
-  PlanActualKind,
   ScheduleItem,
 } from '../model/schedule-model.js';
 
-/** The linkable kind of an item; a missing `planActualKind` counts as `plan`. */
-export function linkableKindOf(item: { readonly planActualKind?: PlanActualKind }): PlanActualKind {
-  return item.planActualKind === 'actual' ? 'actual' : 'plan';
+/**
+ * Whether two items may be linked by a dependency edge.
+ *
+ * TODO(IM2): restore the plan/actual same-side constraint against the actual-date
+ * model. For IM1 there is no per-item plan/actual discriminator, so any two items may
+ * be linked.
+ *
+ * @param _from - The source item (unused until the IM2 constraint returns).
+ * @param _to - The target item (unused until the IM2 constraint returns).
+ * @returns Always true (IM1 neutralization).
+ */
+export function sameLinkableKind(_from: unknown, _to: unknown): boolean {
+  return true;
 }
 
-/** Whether two items share a linkable kind (both plan, or both actual). */
-export function sameLinkableKind(
-  from: { readonly planActualKind?: PlanActualKind },
-  to: { readonly planActualKind?: PlanActualKind },
-): boolean {
-  return linkableKindOf(from) === linkableKindOf(to);
-}
-
-/** Whether an item of `kind` is shown under a plan/actual display filter. */
+/**
+ * Whether an item is shown under a plan/actual display filter.
+ *
+ * TODO(IM2): honor the plan-only / actual-only sides against the actual-date model.
+ * For IM1 an item is visible unless the filter is `none`.
+ *
+ * @param _planActualSide - Legacy per-item side ('plan' | 'actual'); ignored for IM1.
+ * @param display - The active plan/actual display filter.
+ * @returns True unless the filter is `none`.
+ */
 export function isItemVisibleUnderDisplay(
-  kind: PlanActualKind,
+  _planActualSide: 'plan' | 'actual' | undefined,
   display: PlanActualDisplay | undefined,
 ): boolean {
-  const effective = display ?? 'both';
-  if (effective === 'both') {
-    return true;
-  }
-  if (effective === 'none') {
-    return false;
-  }
-  if (effective === 'plan-only') {
-    return kind !== 'actual';
-  }
-  // actual-only
-  return kind === 'actual';
+  return (display ?? 'both') !== 'none';
 }
 
 /**
  * Whether a dependency edge should be DRAWN (and be hit-testable) under the current
- * items and display filter. False when an endpoint is missing, the endpoints cross
- * plan<->actual (a legacy/invalid edge), or either endpoint is hidden by the filter.
+ * items and display filter. False when an endpoint is missing or the filter hides
+ * everything (`none`).
+ *
+ * TODO(IM2): re-add the endpoint-side visibility split once the actual-date plan/actual
+ * rendering model is in place.
  *
  * @param dependency - The candidate edge.
  * @param itemById - Item lookup by id.
@@ -72,11 +74,7 @@ export function isDependencyRenderable(
   if (from === undefined || to === undefined) {
     return false;
   }
-  if (!sameLinkableKind(from, to)) {
-    return false;
-  }
   return (
-    isItemVisibleUnderDisplay(linkableKindOf(from), display) &&
-    isItemVisibleUnderDisplay(linkableKindOf(to), display)
+    isItemVisibleUnderDisplay(undefined, display) && isItemVisibleUnderDisplay(undefined, display)
   );
 }

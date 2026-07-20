@@ -81,17 +81,31 @@ function makeRichDocument(): ScheduleDocument {
         taskShape: 'bar',
         fillColor: '#f6c89a',
         strokeColor: '#f28e2b',
-        previousPlan: { startDate: '2026-08-05', endDate: '2026-09-05' },
+        actualStart: '2026-08-12',
+        actualEnd: '2026-09-25',
+        targetDate: '2026-09-20',
+        progressRatio: 0.6,
       },
     ],
-    dependencies: [{ id: 'dep-1', fromItemId: 'it-1', fromAnchor: 4, toItemId: 'it-2', toAnchor: 3, bends: 2 }],
+    dependencies: [
+      {
+        id: 'dep-1',
+        fromItemId: 'it-1',
+        fromAnchor: 4,
+        toItemId: 'it-2',
+        toAnchor: 3,
+        bends: 2,
+        linkType: 'FS',
+        lagDays: 5,
+      },
+    ],
     annotations,
     assets: [{ id: 'asset-1', assetFormat: 'svg', sanitizedDataUri: 'data:image/svg+xml;base64,PHN2Zy8+' }],
   };
 }
 
 describe('json-codec round-trip (IO-L1-001, DATA-JSON-013)', () => {
-  it('preserves the whole document including assets, previousPlan, annotations and dependencies', () => {
+  it('preserves the whole document including assets, actual dates, dependency linkType/lagDays, annotations and dependencies', () => {
     const original = makeRichDocument();
     const restored = deserializeScheduleDocument(serializeScheduleDocument(original));
     expect(restored).toStrictEqual(original);

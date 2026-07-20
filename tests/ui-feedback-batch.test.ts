@@ -188,30 +188,28 @@ describe('item 1: Fit leaves a left margin (leftmost content not clipped)', () =
 });
 
 describe('item 5: fill color overrides the plan/actual display color', () => {
-  it('honors an explicit fill over the plan/actual hue', () => {
-    expect(displayFillColor({ planActualKind: 'plan', fillColor: '#123456' })).toBe(PLAN_FILL_GREEN);
-    expect(displayFillColor({ planActualKind: 'actual', fillColor: '#123456' })).toBe(
-      ACTUAL_FILL_ORANGE,
-    );
-    // With the explicit flag the item's own fill wins over the plan/actual hue.
-    expect(
-      displayFillColor({ planActualKind: 'plan', fillColor: '#123456', fillColorExplicit: true }),
-    ).toBe('#123456');
-    expect(
-      displayFillColor({ planActualKind: 'actual', fillColor: '#abcdef', fillColorExplicit: true }),
-    ).toBe('#abcdef');
+  // TODO(IM3): CR-002 Part 1 saturation-derived plan/actual coloring is deferred to IM3.
+  // For IM1 displayFillColor is neutralized to the item's own stored fill, so the
+  // plan/actual-hue assertions below are skipped (restore with the IM3 coloring).
+  it('returns the item own stored fill (IM1 neutralization)', () => {
+    expect(displayFillColor({ fillColor: '#123456' })).toBe('#123456');
+    expect(displayFillColor({ fillColor: '#abcdef' })).toBe('#abcdef');
   });
 
-  it('an edit-property fill change is applied and is undoable', () => {
+  it.skip('TODO(IM3): honors an explicit fill over the plan/actual hue', () => {
+    expect(displayFillColor({ fillColor: '#123456' })).toBe(PLAN_FILL_GREEN);
+    expect(displayFillColor({ fillColor: '#123456' })).toBe(ACTUAL_FILL_ORANGE);
+  });
+
+  it.skip('TODO(IM3): an edit-property fill change is applied and is undoable', () => {
     const document = generateTemplateDocument();
-    const planItem = document.items.find((item) => item.planActualKind === 'plan')!;
+    const planItem = document.items.find((item) => item.itemKind === 'task')!;
     const store = new ScheduleStore(document);
     store.dispatch(editPropertyCommand(planItem.id, { fillColor: '#ff0000', fillColorExplicit: true }));
     const edited = store.getDocument().items.find((item) => item.id === planItem.id)!;
     expect(edited.fillColor).toBe('#ff0000');
     expect(edited.fillColorExplicit).toBe(true);
     expect(displayFillColor(edited)).toBe('#ff0000');
-    // Undo restores the plan-driven color.
     store.undo();
     const reverted = store.getDocument().items.find((item) => item.id === planItem.id)!;
     expect(reverted.fillColorExplicit ?? false).toBe(false);

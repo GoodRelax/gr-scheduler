@@ -4,7 +4,7 @@
  *
  * MSPDI assumes "one task = one row = one bar" and has no representation for most
  * gr-scheduler concepts (multi-bar, icons, colors, comments, watermark,
- * previousPlan, viewState, imported assets). Per 40-data-format §2 those are
+ * viewState, imported assets). Per 40-data-format §2 those are
  * preserved for round-trip in a namespaced JSON sidecar embedded in the Project
  * Notes field (DATA-MSPDI-006); the sidecar carries the entire serialized
  * document, so Export -> Import is loss-free when the sidecar is present.

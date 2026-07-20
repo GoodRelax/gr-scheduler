@@ -12,11 +12,13 @@ describe('non-color encoding (WCAG 1.4.1 Use of Color)', () => {
     expect(SELECTION_DASH_ARRAY).not.toBe('none');
   });
 
-  it('distinguishes plan from actual by a non-color stroke attribute', () => {
+  it.skip('TODO(IM3): distinguishes plan from actual by a non-color stroke attribute', () => {
+    // CR-002 Part 1 moves the non-color plan/actual redundancy from a dash pattern to a
+    // line-WIDTH code (plan thin / actual thick), deferred to IM3. Until then
+    // planActualStrokeDashArray is neutralized to 'none' for every case.
     const plan = planActualStrokeDashArray('plan');
     const actual = planActualStrokeDashArray('actual');
     expect(plan).not.toBe(actual);
-    // Plan is dashed; actual and plain items are solid.
     expect(plan).toMatch(/\d/);
     expect(actual).toBe('none');
     expect(planActualStrokeDashArray(undefined)).toBe('none');

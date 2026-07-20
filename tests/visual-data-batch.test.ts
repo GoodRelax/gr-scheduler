@@ -49,12 +49,16 @@ describe('default template sample data (fix 1)', () => {
     }
   });
 
-  it('sets plan_actual_status consistent with each item\'s middle', () => {
-    for (const item of document.items) {
-      const middle = item.middleCategory ?? '';
-      const expected = middle.includes('Actual') ? 'actual' : 'plan';
-      expect(item.planActualKind, `item ${item.id} on middle ${middle}`).toBe(expected);
-    }
+  it.skip('TODO(IM2): sets plan_actual_status consistent with each item\'s middle', () => {
+    // The actual-date model has no per-item plan/actual discriminator and no paired
+    // "-Actual" middle rows; actual dates live on the same item (actualStart/actualEnd).
+    // Restore an equivalent assertion against the actual-date model in IM2.
+    expect(document.items.length).toBeGreaterThan(0);
+  });
+
+  it('carries actual dates on the same item as its plan (actual-date model)', () => {
+    // At least one item records an actual start on top of its planned span.
+    expect(document.items.some((item) => item.actualStart !== undefined)).toBe(true);
   });
 
   it('places every item under one of the two named sections', () => {
@@ -71,43 +75,41 @@ describe('default template sample data (fix 1)', () => {
     const abbrevs = document.items.map((item) => item.abbrev);
     expect(abbrevs).toContain('Clarify Stakeholders');
     expect(abbrevs).toContain('Clarify Usecase');
-    // The actual-side middles are spelled correctly.
-    expect(document.items.some((item) => item.middleCategory === 'Milestones-Actual')).toBe(true);
-    expect(document.items.some((item) => item.middleCategory === 'Phase-Actual')).toBe(true);
+    // The programme-level tracks are spelled correctly (actual dates now live on the
+    // plan items themselves rather than on paired "-Actual" middle rows).
+    expect(document.items.some((item) => item.middleCategory === 'Milestones-Plan')).toBe(true);
+    expect(document.items.some((item) => item.middleCategory === 'Phase-Plan')).toBe(true);
   });
 
-  it('includes the TeamA Phase-Plan multi-bar row (SYS1..SWE1) and an actual SYS1', () => {
+  it('includes the TeamA Phase-Plan multi-bar row (SYS1..SWE1) with actual dates on SYS1', () => {
     const teamAPhasePlan = document.items.filter(
       (item) => item.majorCategory === 'TeamA' && item.middleCategory === 'Phase-Plan',
     );
     expect(teamAPhasePlan.map((item) => item.abbrev).sort()).toEqual(['SWE1', 'SYS1', 'SYS2', 'SYS3']);
-    const actualSys1 = document.items.find(
-      (item) => item.middleCategory === 'Phase-Actual' && item.majorCategory === 'TeamA',
-    );
-    expect(actualSys1?.abbrev).toBe('SYS1');
-    expect(actualSys1?.planActualKind).toBe('actual');
+    // Actual (as-run) dates live on the SYS1 plan item itself (actual-date model).
+    const sys1 = teamAPhasePlan.find((item) => item.abbrev === 'SYS1');
+    expect(sys1?.actualStart).toBeDefined();
   });
 });
 
 describe('plan/actual property-driven coloring (fix 3)', () => {
-  it('maps plan -> green and actual -> orange from the property, not the name', () => {
-    expect(displayFillColor({ planActualKind: 'plan', fillColor: '#123456' })).toBe(PLAN_FILL_GREEN);
-    expect(displayFillColor({ planActualKind: 'actual', fillColor: '#123456' })).toBe(
-      ACTUAL_FILL_ORANGE,
-    );
-    // No plan/actual semantics -> keep the item's own stored fill.
+  // TODO(IM3): CR-002 Part 1 saturation-derived plan/actual coloring is deferred to IM3.
+  // For IM1 displayFillColor returns the item's own stored fill, so the green/orange
+  // assertions are skipped (restore against the IM3 saturation logic).
+  it('returns the item own stored fill (IM1 neutralization)', () => {
+    expect(displayFillColor({ fillColor: '#123456' })).toBe('#123456');
     expect(displayFillColor({ fillColor: '#abcdef' })).toBe('#abcdef');
   });
 
-  it('colors the whole template by plan/actual property', () => {
+  it.skip('TODO(IM3): maps plan -> green and actual -> orange from the property', () => {
+    expect(displayFillColor({ fillColor: '#123456' })).toBe(PLAN_FILL_GREEN);
+    expect(displayFillColor({ fillColor: '#123456' })).toBe(ACTUAL_FILL_ORANGE);
+  });
+
+  it.skip('TODO(IM3): colors the whole template by plan/actual', () => {
     const document = generateTemplateDocument();
     for (const item of document.items) {
-      const fill = displayFillColor(item);
-      if (item.planActualKind === 'actual') {
-        expect(fill).toBe(ACTUAL_FILL_ORANGE);
-      } else {
-        expect(fill).toBe(PLAN_FILL_GREEN);
-      }
+      expect(displayFillColor(item)).toBe(PLAN_FILL_GREEN);
     }
   });
 });

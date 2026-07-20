@@ -19,7 +19,6 @@ import type {
   LabelPosition,
   LineWeight,
   MilestoneShape,
-  PlanActualKind,
   ScheduleDocument,
   ScheduleItem,
   TaskShape,
@@ -80,7 +79,6 @@ export interface ItemPropertyPatch {
   readonly assignee?: string;
   readonly status?: string;
   readonly remarks?: string;
-  readonly planActualKind?: PlanActualKind;
   readonly lineWeight?: LineWeight;
   readonly labelPosition?: LabelPosition;
   /** Unified glyph shape (PROP `icon_shape_kind`); drives rendering (item 4). */

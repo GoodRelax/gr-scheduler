@@ -69,18 +69,22 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
     readonly minor?: string;
     readonly fill: string;
     readonly milestoneShape?: MilestoneShape;
-    readonly planActualKind?: 'plan' | 'actual';
-    readonly planGroupId?: string;
+    /** Actual (as-run) start offset from the epoch (CR-001 actual-date model). */
+    readonly actualStartOffset?: number;
+    /** Actual (as-run) end offset from the epoch; omit while still in progress. */
+    readonly actualEndOffset?: number;
+    /** Deadline / target-end offset from the epoch (CR-001 Part C). */
+    readonly targetOffset?: number;
     readonly progressRatio?: number;
   }
   type ItemKindLocal = 'milestone' | 'task';
 
-  // A CUD-friendly plan blue / actual red is stored per item, but the CANVAS colors
-  // each item GREEN (plan) / ORANGE (actual) from its plan_actual_status property
-  // (see plan-actual-colors). Every seed carries a valid { major, middle } category
-  // AND a planActualKind CONSISTENT with its "-Plan" / "-Actual" middle.
+  // A CUD-friendly fill is stored per item. Plan vs actual is expressed by the
+  // actual-date fields (actualStart/actualEnd) ON THE SAME ITEM (CR-001 actual-date
+  // model), not by a discriminator flag or a paired "-Actual" item. Every seed carries
+  // a valid { major, middle } category; select items also carry actual dates so the
+  // fixture exercises Overlap rendering and the progress line.
   const PLAN_FILL = '#4477aa';
-  const ACTUAL_FILL = '#ee6677';
   // An Automotive SPICE (ASPICE) V-model project laid out from project start
   // (Kickoff, day 0) to SOS (Start Of Sales, ~2 years 10 months = day 1034), so
   // the ~3-year default timeline frames the whole programme. The two named
@@ -91,52 +95,47 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
   const SOS_OFFSET_DAYS = 1034; // ~2 years 10 months to Start Of Sales.
   const seeds: readonly Seed[] = [
     // ===== Major "Over All Schedule" -- programme-level view =====
-    // Middle "Milestones-Plan" -- programme gates / milestones.
-    { id: 'oa-ms-plan-kickoff', abbrev: 'Kickoff', kind: 'milestone', startOffset: 0, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'diamond', planActualKind: 'plan' },
-    { id: 'oa-ms-plan-freeze', abbrev: 'Design Freeze', kind: 'milestone', startOffset: 430, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'diamond', planActualKind: 'plan' },
-    { id: 'oa-ms-plan-sop', abbrev: 'SoP', kind: 'milestone', startOffset: 970, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'triangle', planActualKind: 'plan' },
-    { id: 'oa-ms-plan-launch', abbrev: 'SOS', kind: 'milestone', startOffset: SOS_OFFSET_DAYS, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'star', planActualKind: 'plan' },
-    // Middle "Milestones-Actual" -- actual gate dates for the completed gates.
-    { id: 'oa-ms-actual-kickoff', abbrev: 'Kickoff', kind: 'milestone', startOffset: 4, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Actual', fill: ACTUAL_FILL, milestoneShape: 'diamond', planActualKind: 'actual' },
-    { id: 'oa-ms-actual-freeze', abbrev: 'Design Freeze', kind: 'milestone', startOffset: 448, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Actual', fill: ACTUAL_FILL, milestoneShape: 'diamond', planActualKind: 'actual' },
-    // Middle "Phase-Plan" -- programme phase bars spanning the whole timeline.
-    { id: 'oa-phase-plan-concept', abbrev: 'Concept', kind: 'task', startOffset: 0, durationDays: 120, major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'oa-phase-plan-dev', abbrev: 'Series Development', kind: 'task', startOffset: 120, durationDays: 520, major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'oa-phase-plan-valid', abbrev: 'Validation', kind: 'task', startOffset: 640, durationDays: 360, major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'oa-phase-plan-rampup', abbrev: 'Ramp-Up', kind: 'task', startOffset: 1000, durationDays: 34, major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    // Middle "Phase-Actual" -- actual programme phase bars with progress fronts.
-    { id: 'oa-phase-actual-concept', abbrev: 'Concept', kind: 'task', startOffset: 4, durationDays: 121, major: 'Over All Schedule', middle: 'Phase-Actual', fill: ACTUAL_FILL, planActualKind: 'actual', progressRatio: 1 },
-    { id: 'oa-phase-actual-dev', abbrev: 'Series Development', kind: 'task', startOffset: 128, durationDays: 372, major: 'Over All Schedule', middle: 'Phase-Actual', fill: ACTUAL_FILL, planActualKind: 'actual', progressRatio: 0.55 },
+    // Middle "Milestones-Plan" -- programme gates / milestones. Completed gates carry
+    // an actualStart marker (CR-001 actual-date model); SoP carries a targetDate
+    // (deadline marker, CR-001 Part C).
+    { id: 'oa-ms-plan-kickoff', abbrev: 'Kickoff', kind: 'milestone', startOffset: 0, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'diamond', actualStartOffset: 4 },
+    { id: 'oa-ms-plan-freeze', abbrev: 'Design Freeze', kind: 'milestone', startOffset: 430, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'diamond', actualStartOffset: 448 },
+    { id: 'oa-ms-plan-sop', abbrev: 'SoP', kind: 'milestone', startOffset: 970, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'triangle', targetOffset: 960 },
+    { id: 'oa-ms-plan-launch', abbrev: 'SOS', kind: 'milestone', startOffset: SOS_OFFSET_DAYS, durationDays: 0, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'star' },
+    // Middle "Phase-Plan" -- programme phase bars spanning the whole timeline. The
+    // finished/running phases carry actual dates + a progress front.
+    { id: 'oa-phase-plan-concept', abbrev: 'Concept', kind: 'task', startOffset: 0, durationDays: 120, major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL, actualStartOffset: 4, actualEndOffset: 125, progressRatio: 1 },
+    { id: 'oa-phase-plan-dev', abbrev: 'Series Development', kind: 'task', startOffset: 120, durationDays: 520, major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL, actualStartOffset: 128, progressRatio: 0.55, targetOffset: 650 },
+    { id: 'oa-phase-plan-valid', abbrev: 'Validation', kind: 'task', startOffset: 640, durationDays: 360, major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL },
+    { id: 'oa-phase-plan-rampup', abbrev: 'Ramp-Up', kind: 'task', startOffset: 1000, durationDays: 34, major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL },
     // ===== Major "TeamA" -- ASPICE engineering tracks =====
-    // Middle "Phase-Plan" -- the SYS.1..SWE.1 multi-bar showcase row.
-    { id: 'ta-phase-plan-sys1', abbrev: 'SYS1', kind: 'task', startOffset: 0, durationDays: 40, major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-phase-plan-sys2', abbrev: 'SYS2', kind: 'task', startOffset: 30, durationDays: 50, major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-phase-plan-sys3', abbrev: 'SYS3', kind: 'task', startOffset: 70, durationDays: 50, major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-phase-plan-swe1', abbrev: 'SWE1', kind: 'task', startOffset: 50, durationDays: 110, major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    // Middle "Phase-Actual" -- actual phase bar SYS1.
-    { id: 'ta-phase-actual-sys1', abbrev: 'SYS1', kind: 'task', startOffset: 2, durationDays: 43, major: 'TeamA', middle: 'Phase-Actual', fill: ACTUAL_FILL, planActualKind: 'actual', progressRatio: 0.8 },
+    // Middle "Phase-Plan" -- the SYS.1..SWE.1 multi-bar showcase row. SYS1 carries
+    // actual dates + a progress front.
+    { id: 'ta-phase-plan-sys1', abbrev: 'SYS1', kind: 'task', startOffset: 0, durationDays: 40, major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, actualStartOffset: 2, actualEndOffset: 45, progressRatio: 0.8 },
+    { id: 'ta-phase-plan-sys2', abbrev: 'SYS2', kind: 'task', startOffset: 30, durationDays: 50, major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL },
+    { id: 'ta-phase-plan-sys3', abbrev: 'SYS3', kind: 'task', startOffset: 70, durationDays: 50, major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL },
+    { id: 'ta-phase-plan-swe1', abbrev: 'SWE1', kind: 'task', startOffset: 50, durationDays: 110, major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL },
     // Middle "SYS-Phase-Plan" -- the later system-engineering ASPICE phases
     // (SYS.4 system integration test, SYS.5 system qualification test).
-    { id: 'ta-sysphase-plan-sys4', abbrev: 'SYS.4', kind: 'task', startOffset: 120, durationDays: 200, major: 'TeamA', middle: 'SYS-Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-sysphase-plan-sys5', abbrev: 'SYS.5', kind: 'task', startOffset: 880, durationDays: 120, major: 'TeamA', middle: 'SYS-Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
+    { id: 'ta-sysphase-plan-sys4', abbrev: 'SYS.4', kind: 'task', startOffset: 120, durationDays: 200, major: 'TeamA', middle: 'SYS-Phase-Plan', fill: PLAN_FILL },
+    { id: 'ta-sysphase-plan-sys5', abbrev: 'SYS.5', kind: 'task', startOffset: 880, durationDays: 120, major: 'TeamA', middle: 'SYS-Phase-Plan', fill: PLAN_FILL },
     // Middle "SWE-Phase-Plan" -- the software-engineering ASPICE phases SWE.2..SWE.6.
-    { id: 'ta-swephase-plan-swe2', abbrev: 'SWE.2', kind: 'task', startOffset: 200, durationDays: 230, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-swephase-plan-swe3', abbrev: 'SWE.3', kind: 'task', startOffset: 320, durationDays: 240, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-swephase-plan-swe4', abbrev: 'SWE.4', kind: 'task', startOffset: 430, durationDays: 250, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-swephase-plan-swe5', abbrev: 'SWE.5', kind: 'task', startOffset: 620, durationDays: 200, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-swephase-plan-swe6', abbrev: 'SWE.6', kind: 'task', startOffset: 760, durationDays: 140, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    // Middle "SWE-Phase-Actual" -- an actual SWE.2 bar with a progress front.
-    { id: 'ta-swephase-actual-swe2', abbrev: 'SWE.2', kind: 'task', startOffset: 205, durationDays: 225, major: 'TeamA', middle: 'SWE-Phase-Actual', fill: ACTUAL_FILL, planActualKind: 'actual', progressRatio: 0.5 },
+    // SWE.2 carries actual dates + a progress front.
+    { id: 'ta-swephase-plan-swe2', abbrev: 'SWE.2', kind: 'task', startOffset: 200, durationDays: 230, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL, actualStartOffset: 205, progressRatio: 0.5 },
+    { id: 'ta-swephase-plan-swe3', abbrev: 'SWE.3', kind: 'task', startOffset: 320, durationDays: 240, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
+    { id: 'ta-swephase-plan-swe4', abbrev: 'SWE.4', kind: 'task', startOffset: 430, durationDays: 250, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
+    { id: 'ta-swephase-plan-swe5', abbrev: 'SWE.5', kind: 'task', startOffset: 620, durationDays: 200, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
+    { id: 'ta-swephase-plan-swe6', abbrev: 'SWE.6', kind: 'task', startOffset: 760, durationDays: 140, major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
     // Middle "Integration-Plan" -- SW/system integration and vehicle validation.
-    { id: 'ta-int-plan-swint', abbrev: 'SW Integration', kind: 'task', startOffset: 760, durationDays: 120, major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-int-plan-sysint', abbrev: 'System Integration', kind: 'task', startOffset: 860, durationDays: 100, major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-int-plan-vehicle', abbrev: 'Vehicle Validation', kind: 'task', startOffset: 940, durationDays: 94, major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL, planActualKind: 'plan' },
+    { id: 'ta-int-plan-swint', abbrev: 'SW Integration', kind: 'task', startOffset: 760, durationDays: 120, major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL },
+    { id: 'ta-int-plan-sysint', abbrev: 'System Integration', kind: 'task', startOffset: 860, durationDays: 100, major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL },
+    { id: 'ta-int-plan-vehicle', abbrev: 'Vehicle Validation', kind: 'task', startOffset: 940, durationDays: 94, major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL },
     // Middle "Task-Plan" -- early requirement tasks (spellings fixed: Actual /
     // Clarify). Minor (小分類) sub-levels demonstrate the full three-level tree.
-    { id: 'ta-task-plan-orient', abbrev: 'Orientation', kind: 'task', startOffset: 0, durationDays: 10, major: 'TeamA', middle: 'Task-Plan', minor: 'Onboarding', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-task-plan-clarify-stk', abbrev: 'Clarify Stakeholders', kind: 'task', startOffset: 8, durationDays: 17, major: 'TeamA', middle: 'Task-Plan', minor: 'Requirements', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-task-plan-gather', abbrev: 'Gather Request', kind: 'task', startOffset: 20, durationDays: 25, major: 'TeamA', middle: 'Task-Plan', minor: 'Requirements', fill: PLAN_FILL, planActualKind: 'plan' },
-    { id: 'ta-task-plan-clarify-uc', abbrev: 'Clarify Usecase', kind: 'task', startOffset: 40, durationDays: 30, major: 'TeamA', middle: 'Task-Plan', minor: 'Usecase', fill: PLAN_FILL, planActualKind: 'plan' },
+    { id: 'ta-task-plan-orient', abbrev: 'Orientation', kind: 'task', startOffset: 0, durationDays: 10, major: 'TeamA', middle: 'Task-Plan', minor: 'Onboarding', fill: PLAN_FILL, actualStartOffset: 0, actualEndOffset: 12, progressRatio: 1 },
+    { id: 'ta-task-plan-clarify-stk', abbrev: 'Clarify Stakeholders', kind: 'task', startOffset: 8, durationDays: 17, major: 'TeamA', middle: 'Task-Plan', minor: 'Requirements', fill: PLAN_FILL },
+    { id: 'ta-task-plan-gather', abbrev: 'Gather Request', kind: 'task', startOffset: 20, durationDays: 25, major: 'TeamA', middle: 'Task-Plan', minor: 'Requirements', fill: PLAN_FILL },
+    { id: 'ta-task-plan-clarify-uc', abbrev: 'Clarify Usecase', kind: 'task', startOffset: 40, durationDays: 30, major: 'TeamA', middle: 'Task-Plan', minor: 'Usecase', fill: PLAN_FILL },
   ];
 
   const items: ScheduleItem[] = seeds.map((seed) => {
@@ -153,8 +152,9 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
       majorCategory: seed.major,
       ...(seed.middle !== undefined ? { middleCategory: seed.middle } : {}),
       ...(seed.minor !== undefined ? { minorCategory: seed.minor } : {}),
-      ...(seed.planActualKind !== undefined ? { planActualKind: seed.planActualKind } : {}),
-      ...(seed.planGroupId !== undefined ? { planGroupId: seed.planGroupId } : {}),
+      ...(seed.actualStartOffset !== undefined ? { actualStart: day(seed.actualStartOffset) } : {}),
+      ...(seed.actualEndOffset !== undefined ? { actualEnd: day(seed.actualEndOffset) } : {}),
+      ...(seed.targetOffset !== undefined ? { targetDate: day(seed.targetOffset) } : {}),
       ...(seed.progressRatio !== undefined ? { progressRatio: seed.progressRatio } : {}),
     };
     if (seed.kind === 'milestone') {
@@ -193,15 +193,18 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
   ];
 
   const dependencies: Dependency[] = [
-    { id: 'tpl-dep-concept-dev', fromItemId: 'oa-phase-plan-concept', fromAnchor: 5, toItemId: 'oa-phase-plan-dev', toAnchor: 3 },
+    // Finish-to-start with a 10-day lag (procurement wait) between Concept and Dev
+    // (CR-001 Part C linkType / signed lagDays).
+    { id: 'tpl-dep-concept-dev', fromItemId: 'oa-phase-plan-concept', fromAnchor: 5, toItemId: 'oa-phase-plan-dev', toAnchor: 3, linkType: 'FS', lagDays: 10 },
     { id: 'tpl-dep-dev-valid', fromItemId: 'oa-phase-plan-dev', fromAnchor: 5, toItemId: 'oa-phase-plan-valid', toAnchor: 3 },
-    { id: 'tpl-dep-sys1-sys2', fromItemId: 'ta-phase-plan-sys1', fromAnchor: 5, toItemId: 'ta-phase-plan-sys2', toAnchor: 3 },
+    // Start-to-start with a 5-day lead (fast-tracking) inside the SYS multi-bar row.
+    { id: 'tpl-dep-sys1-sys2', fromItemId: 'ta-phase-plan-sys1', fromAnchor: 5, toItemId: 'ta-phase-plan-sys2', toAnchor: 3, linkType: 'SS', lagDays: -5 },
     { id: 'tpl-dep-sys3-swe1', fromItemId: 'ta-phase-plan-sys3', fromAnchor: 5, toItemId: 'ta-phase-plan-swe1', toAnchor: 3 },
   ];
 
   const rawDocument: ScheduleDocument = {
     projectId,
-    schemaVersion: 1,
+    schemaVersion: 2,
     title: 'gr-scheduler template',
     epochDate: EPOCH_DATE,
     viewState: {
@@ -212,6 +215,7 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
       fontScale: 'M',
       leftPaneWidth: 200,
       planActualDisplay: 'both',
+      planActualStyle: 'overlap',
       todayLineVisible: true,
       gridDateLinesVisible: true,
       gridCategoryLinesVisible: true,
@@ -237,7 +241,7 @@ export function generateEmptyDocument(projectId: string = TEMPLATE_PROJECT_ID): 
   const sections: Section[] = [];
   const rawDocument: ScheduleDocument = {
     projectId,
-    schemaVersion: 1,
+    schemaVersion: 2,
     title: 'gr-scheduler',
     epochDate: EPOCH_DATE,
     viewState: {
@@ -248,6 +252,7 @@ export function generateEmptyDocument(projectId: string = TEMPLATE_PROJECT_ID): 
       fontScale: 'M',
       leftPaneWidth: 200,
       planActualDisplay: 'both',
+      planActualStyle: 'overlap',
       todayLineVisible: true,
       gridDateLinesVisible: true,
       gridCategoryLinesVisible: true,
@@ -365,12 +370,16 @@ export function generateSampleDocument(
   for (let rowIndex = 0; rowIndex < showcaseRowCount; rowIndex += 1) {
     const planStart = epochDayNumber + 150 + rowIndex * 4;
     const planEnd = planStart + 30;
-    const groupId = `pa-${rowIndex}`;
     const showcasePath: CategoryPath = {
       majorCategory: 'Phase 1',
       middleCategory: 'Showcase',
       minorCategory: `Plan Row ${rowIndex + 1}`,
     };
+    // CR-001 actual-date model: ONE item carries both the planned span
+    // (startDate/endDate) and the actual dates (actualStart/actualEnd) + a progress
+    // front, so the showcase row exercises Overlap rendering and the progress line.
+    const actualStart = planStart + (rowIndex % 3);
+    const actualEnd = planEnd + (rowIndex % 3 === 0 ? 12 : -6);
     items.push({
       id: `plan-${rowIndex}`,
       rowId: 'pending',
@@ -382,28 +391,8 @@ export function generateSampleDocument(
       taskShape: 'bar',
       fillColor: '#4477aa',
       strokeColor: TRANSPARENT_COLOR_KEY,
-      planActualKind: 'plan',
-      planGroupId: groupId,
-      ...showcasePath,
-      ...(rowIndex % 2 === 0
-        ? { previousPlan: { startDate: fromDayNumber(planStart - 14), endDate: fromDayNumber(planEnd - 14) } }
-        : {}),
-    });
-    const actualStart = planStart;
-    const actualEnd = planEnd + (rowIndex % 3 === 0 ? 12 : -6);
-    items.push({
-      id: `actual-${rowIndex}`,
-      rowId: 'pending',
-      itemKind: 'task',
-      startDate: fromDayNumber(actualStart),
-      endDate: fromDayNumber(Math.max(actualStart + 1, actualEnd)),
-      abbrev: `A${rowIndex}`,
-      importance: 1,
-      taskShape: 'bar',
-      fillColor: '#ee6677',
-      strokeColor: TRANSPARENT_COLOR_KEY,
-      planActualKind: 'actual',
-      planGroupId: groupId,
+      actualStart: fromDayNumber(actualStart),
+      actualEnd: fromDayNumber(Math.max(actualStart + 1, actualEnd)),
       progressRatio: 0.3 + (rowIndex % 4) * 0.2,
       ...showcasePath,
     });
@@ -490,7 +479,7 @@ export function generateSampleDocument(
 
   const rawDocument: ScheduleDocument = {
     projectId,
-    schemaVersion: 1,
+    schemaVersion: 2,
     title: `gr-scheduler sample (${rowCount} rows / ${itemCount} items)`,
     epochDate: EPOCH_DATE,
     viewState: {
@@ -501,6 +490,7 @@ export function generateSampleDocument(
       fontScale: 'M',
       leftPaneWidth: 200,
       planActualDisplay: 'both',
+      planActualStyle: 'overlap',
       todayLineVisible: true,
       dualCursor: {
         primary: { atDate: fromDayNumber(epochDayNumber + 160), mode: 'vertical-line' },

@@ -397,13 +397,10 @@ export class PropertyPanel {
     this.addTextField(form, 'assignee', (item) => item.assignee ?? '', (value) => ({ assignee: value }));
     this.addTextField(form, 'status', (item) => item.status ?? '', (value) => ({ status: value }));
     this.addTextField(form, 'remarks', (item) => item.remarks ?? '', (value) => ({ remarks: value }));
-    this.addSelectField(
-      form,
-      'plan_actual_kind',
-      ['plan', 'actual'],
-      (item) => item.planActualKind ?? 'plan',
-      (value) => ({ planActualKind: value === 'actual' ? 'actual' : 'plan' }),
-    );
+    // TODO(IM2): the plan_actual_kind select is removed with the discriminator field.
+    // The actual-date model edits plan/actual via startDate/endDate + actualStart/
+    // actualEnd date controls (added when the property panel gains those in a later
+    // milestone), not a plan/actual dropdown.
     this.addSelectField(
       form,
       'line_weight',
@@ -414,7 +411,7 @@ export class PropertyPanel {
     this.addSelectField(
       form,
       'label_position',
-      ['auto', 'center', 'top', 'bottom', 'right', 'left'],
+      ['auto', 'center', 'top', 'bottom', 'right', 'left', 'inner-left'],
       (item) => item.labelPosition ?? 'auto',
       (value) => ({ labelPosition: labelPositionOf(value) }),
     );
@@ -1013,6 +1010,7 @@ function labelPositionOf(value: string): LabelPosition {
     case 'bottom':
     case 'right':
     case 'left':
+    case 'inner-left':
       return value;
     default:
       return 'auto';
