@@ -22,6 +22,8 @@ import { ViewTransform } from '../../src/domain/usecase/view-transform.js';
 /** Overridable inputs for {@link makeRenderContext}. */
 export interface RenderContextInit {
   scheduleDocument?: ScheduleDocument | null;
+  baselineDocument?: ScheduleDocument | null;
+  baselineVisible?: boolean;
   viewState?: ViewState;
   canvasSize?: CanvasSize;
   today?: IsoDate;
@@ -83,6 +85,8 @@ export function makeRenderContext(over: RenderContextInit = {}): RenderContext {
 
   return {
     scheduleDocument: over.scheduleDocument ?? null,
+    baselineDocument: over.baselineDocument ?? null,
+    baselineVisible: over.baselineVisible ?? false,
     viewState,
     canvasSize: over.canvasSize ?? { widthPx: 1000, heightPx: 600 },
     today: over.today ?? ('2026-07-19' as IsoDate),

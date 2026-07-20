@@ -25,9 +25,10 @@ interface ExportedView {
 }
 
 async function exportView(page: Page): Promise<ExportedView> {
+  await page.locator('button[data-role="save"]').click();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Export JSON' }).dispatchEvent('click'),
+    page.locator('[data-role="save-menu"] button[data-role="save-json"]').click(),
   ]);
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
@@ -50,9 +51,13 @@ test.describe('gr-scheduler UI fixes', () => {
     page,
   }) => {
     await openApp(page);
-    // Exactly one toolbar landmark (the merged command palette).
-    await expect(page.locator('#app [role="toolbar"]')).toHaveCount(1);
+    // Exactly two toolbar landmarks: the merged command palette (this test's focus --
+    // the shape picker lives inside it, not a separate panel) and the CR-003 header
+    // actions row (`[data-role="header-actions"]`, a distinct toolbar added later).
+    await expect(page.locator('#app [role="toolbar"]')).toHaveCount(2);
+    await expect(page.locator('[data-role="header-actions"][role="toolbar"]')).toHaveCount(1);
     const palette = page.locator('[data-role="command-palette"]');
+    await expect(palette).toHaveAttribute('role', 'toolbar');
     // The shape picker now lives INSIDE that one palette (no separate panel).
     await expect(palette.getByRole('button', { name: 'Task bar' })).toHaveCount(1);
     // Undo moved to the header (SHELL item 4); it is NOT in the palette anymore.
@@ -191,7 +196,21 @@ test.describe('gr-scheduler UI fixes', () => {
     const cy = box.y + box.height / 2;
     await page.mouse.move(cx, cy);
 
+    // The Model H fixture (26 items) fits entirely within the startup Fit's zoomY, so
+    // there is no vertical overflow to scroll into. Zoom the row axis IN first (setup,
+    // not the behavior under test) so scrollY has room to move, then scroll back to
+    // the top -- zooming anchors on the cursor and can itself push scrollY toward its
+    // new max, which would otherwise leave no headroom for the assertion below.
+    await page.keyboard.down('Alt');
+    await page.mouse.wheel(0, -300);
+    await page.keyboard.up('Alt');
+    await page.mouse.wheel(0, -100_000);
+
     const before = (await exportView(page)).viewState;
+    // exportView opens the header Save menu, which moves the real pointer off the
+    // canvas; re-center it before the next wheel gesture (the Save-menu round trip
+    // itself must never be mistaken for the wheel behavior under test).
+    await page.mouse.move(cx, cy);
 
     // Plain wheel -> vertical scroll only (zoom unchanged).
     await page.mouse.wheel(0, 240);
@@ -199,6 +218,7 @@ test.describe('gr-scheduler UI fixes', () => {
     expect(afterScroll.scrollY).toBeGreaterThan(before.scrollY);
     expect(afterScroll.zoomX).toBeCloseTo(before.zoomX, 5);
     expect(afterScroll.zoomY).toBeCloseTo(before.zoomY, 5);
+    await page.mouse.move(cx, cy);
 
     // Shift + wheel -> zoom the time (width) axis only.
     await page.keyboard.down('Shift');
@@ -207,6 +227,7 @@ test.describe('gr-scheduler UI fixes', () => {
     const afterShift = (await exportView(page)).viewState;
     expect(afterShift.zoomX).toBeGreaterThan(afterScroll.zoomX);
     expect(afterShift.zoomY).toBeCloseTo(afterScroll.zoomY, 5);
+    await page.mouse.move(cx, cy);
 
     // Alt + wheel -> zoom the row (height) axis only.
     await page.keyboard.down('Alt');

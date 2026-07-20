@@ -100,7 +100,9 @@ test.describe('shell / branding / theme batch (e2e, trusted events)', () => {
     const canvas = page.locator('svg[data-role="schedule-canvas"]');
     const lightBg = await canvas.evaluate((node) => getComputedStyle(node).backgroundColor);
 
-    await page.locator('button[data-role="theme-mode"][data-theme-mode="dark"]').click();
+    // CR-003 Part 1: each theme mode is its own header button (`data-role="theme-dark"`
+    // etc.), still carrying `data-theme-mode` for the mode value.
+    await page.locator('button[data-role="theme-dark"]').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     const darkBg = await canvas.evaluate((node) => getComputedStyle(node).backgroundColor);
     expect(darkBg).not.toBe(lightBg);
@@ -123,7 +125,7 @@ test.describe('shell / branding / theme batch (e2e, trusted events)', () => {
 
   test('axe AA passes in dark mode', async ({ page }) => {
     await openApp(page);
-    await page.locator('button[data-role="theme-mode"][data-theme-mode="dark"]').click();
+    await page.locator('button[data-role="theme-dark"]').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
     const results = await new AxeBuilder({ page })

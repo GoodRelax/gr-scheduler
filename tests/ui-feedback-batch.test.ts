@@ -30,9 +30,10 @@ import {
   rowIndexAtWorldY,
 } from '../src/domain/usecase/layout-engine.js';
 import {
-  ACTUAL_FILL_ORANGE,
-  PLAN_FILL_GREEN,
+  actualColorFrom,
+  actualDisplayFillColor,
   displayFillColor,
+  planColorFrom,
 } from '../src/domain/usecase/plan-actual-colors.js';
 import { editPropertyCommand } from '../src/domain/command/commands.js';
 import { ScheduleStore } from '../src/domain/command/schedule-store.js';
@@ -187,21 +188,35 @@ describe('item 1: Fit leaves a left margin (leftmost content not clipped)', () =
   });
 });
 
-describe('item 5: fill color overrides the plan/actual display color', () => {
-  // TODO(IM3): CR-002 Part 1 saturation-derived plan/actual coloring is deferred to IM3.
-  // For IM1 displayFillColor is neutralized to the item's own stored fill, so the
-  // plan/actual-hue assertions below are skipped (restore with the IM3 coloring).
-  it('returns the item own stored fill (IM1 neutralization)', () => {
+describe('item 5: fill color overrides the saturation-derived plan/actual color', () => {
+  // CR-002 Part 1: a plan-only item keeps its own stored fill (no actual to contrast);
+  // an item with an actual is drawn with the PALE plan shade, and its actual side with
+  // the VIVID shade; an EXPLICIT fill overrides both.
+  it('keeps a plan-only item own stored fill (nothing to contrast against)', () => {
     expect(displayFillColor({ fillColor: '#123456' })).toBe('#123456');
     expect(displayFillColor({ fillColor: '#abcdef' })).toBe('#abcdef');
   });
 
-  it.skip('TODO(IM3): honors an explicit fill over the plan/actual hue', () => {
-    expect(displayFillColor({ fillColor: '#123456' })).toBe(PLAN_FILL_GREEN);
-    expect(displayFillColor({ fillColor: '#123456' })).toBe(ACTUAL_FILL_ORANGE);
+  it('derives pale plan / vivid actual for an item that records an actual', () => {
+    const withActual = { fillColor: '#2f80ed', actualStart: '2026-02-03' } as const;
+    // Plan = pale derivation; actual = vivid derivation; the two differ.
+    expect(displayFillColor(withActual)).toBe(planColorFrom('#2f80ed'));
+    expect(actualDisplayFillColor(withActual)).toBe(actualColorFrom('#2f80ed'));
+    expect(displayFillColor(withActual)).not.toBe(actualDisplayFillColor(withActual));
   });
 
-  it.skip('TODO(IM3): an edit-property fill change is applied and is undoable', () => {
+  it('honors an explicit fill over the saturation-derived plan/actual shade', () => {
+    const explicit = {
+      fillColor: '#123456',
+      fillColorExplicit: true,
+      actualStart: '2026-02-03',
+    } as const;
+    // fillColorExplicit=true keeps the exact chosen color on BOTH sides.
+    expect(displayFillColor(explicit)).toBe('#123456');
+    expect(actualDisplayFillColor(explicit)).toBe('#123456');
+  });
+
+  it('an edit-property fill change is applied and is undoable', () => {
     const document = generateTemplateDocument();
     const planItem = document.items.find((item) => item.itemKind === 'task')!;
     const store = new ScheduleStore(document);
@@ -213,7 +228,11 @@ describe('item 5: fill color overrides the plan/actual display color', () => {
     store.undo();
     const reverted = store.getDocument().items.find((item) => item.id === planItem.id)!;
     expect(reverted.fillColorExplicit ?? false).toBe(false);
-    expect(displayFillColor(reverted)).toBe(PLAN_FILL_GREEN);
+    // With the explicit override gone, the plan side is the pale derivation for an
+    // item with an actual, else the item's own stored fill.
+    const expected =
+      reverted.actualStart !== undefined ? planColorFrom(reverted.fillColor) : reverted.fillColor;
+    expect(displayFillColor(reverted)).toBe(expected);
   });
 });
 

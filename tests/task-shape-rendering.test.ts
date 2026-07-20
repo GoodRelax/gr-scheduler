@@ -88,14 +88,23 @@ describe('item 1: task abbreviation font-size is 90% of the bar height', () => {
   });
 });
 
-describe('item 2: a task auto-label is centered; a milestone keeps its side label', () => {
+describe('item 2 / CR-003 Part 2: a task auto-label is inner-left; a milestone side-labels', () => {
   const placement = makePlacement('x', 100, 100, 120, 40);
 
-  it('centers a plain bar task auto-label on both axes', () => {
+  it('pins a plain bar task auto-label INSIDE the bar, left-aligned (inner-left default)', () => {
     const anchor = labelAnchorPoint(makeTask('x', { taskShape: 'bar' }), placement);
-    expect(anchor.textAnchor).toBe('middle');
-    expect(anchor.x).toBe(160); // worldX + width / 2
+    expect(anchor.textAnchor).toBe('start');
+    expect(anchor.x).toBe(104); // worldX + inner-left pad (4)
     expect(anchor.y).toBe(120); // worldY + height / 2 (vertical center)
+  });
+
+  it('honors an explicit inner-left label position distinct from left (outside)', () => {
+    const inner = labelAnchorPoint(makeTask('x', { taskShape: 'bar', labelPosition: 'inner-left' }), placement);
+    expect(inner.textAnchor).toBe('start');
+    expect(inner.x).toBe(104); // INSIDE the bar (worldX + pad)
+    const outside = labelAnchorPoint(makeTask('x', { taskShape: 'bar', labelPosition: 'left' }), placement);
+    expect(outside.textAnchor).toBe('end');
+    expect(outside.x).toBe(96); // OUTSIDE the bar (worldX - 4)
   });
 
   it('keeps a milestone auto-label to the RIGHT (side label unchanged)', () => {

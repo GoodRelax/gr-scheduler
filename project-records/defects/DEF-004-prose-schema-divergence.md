@@ -4,7 +4,7 @@
   レビューの N-1/N-2（DEF-002 で修正済み）とは別系統・より広範囲の既存ドリフト）
 - 重大度: Medium（文書 SSOT の広域ドリフト。CR-001/CR-002/CR-003 のスコープを超える既存事象であり、
   当該 CR 群のゲートはブロックしない）
-- 状態: **未修正（既存ドリフト）**
+- 状態: **修正済み（IM5, 2026-07-20/21）** — `40-data-format.sdoc` の §1 プローズ/表/JSON例および DATA-JSON-002/003/004/005/009/010/011/013・DATA-MSPDI-001/002 を flat SSOT（`gr-scheduler.schema.json`）へ全面同期。根本原因は (b) 記述側の陳腐化（i18n {en,ja} は `usecase/i18n.ts` の UI ラベル専用＝非永続、スキーマ拡張不要）。strictdoc export exit 0。
 - 関連要求: DATA-JSON-002, DATA-JSON-003, DATA-JSON-004, DATA-JSON-005, DATA-JSON-009,
   DATA-JSON-010, DATA-JSON-011, DATA-JSON-013
 - 関連文書: `docs/spec/40-data-format.sdoc`（§1 トップレベル表・item 表・JSON 例、38-196行付近）,

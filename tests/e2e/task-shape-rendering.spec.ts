@@ -30,9 +30,10 @@ interface ExportedView {
 }
 
 async function exportView(page: Page): Promise<ExportedView> {
+  await page.locator('button[data-role="save"]').click();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Export JSON' }).dispatchEvent('click'),
+    page.locator('[data-role="save-menu"] button[data-role="save-json"]').click(),
   ]);
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
@@ -80,7 +81,7 @@ async function createShapeOnRightStrip(page: Page, buttonName: string, fractionY
 test.describe('gr-scheduler task-shape rendering', () => {
   test.skip(!existsSync(builtAppFile), 'Run `npm run build` to produce dist/index.html first.');
 
-  test('1. a bar task shows a centered abbreviation sized to ~90% of the bar height', async ({ page }) => {
+  test('1. a bar task shows an inner-left abbreviation sized to ~90% of the bar height', async ({ page }) => {
     await openApp(page);
     const geometry = await page.evaluate(() => {
       const group = document.querySelector('svg [data-item-id="oa-phase-plan-dev"]');
@@ -104,8 +105,9 @@ test.describe('gr-scheduler task-shape rendering', () => {
     }
     // Font-size == 0.9 x the rendered bar height (world px == screen px; group is only translated).
     expect(geometry.fontSize).toBeCloseTo(geometry.rectHeight * 0.9, 3);
-    // Centered horizontally inside the bar.
-    expect(geometry.textAnchor).toBe('middle');
+    // Plain bar / chevron tasks default to an INNER-LEFT label (CR-003 Part 2): left
+    // aligned and inset from the bar's left edge, not centered.
+    expect(geometry.textAnchor).toBe('start');
     expect(geometry.textX).toBeGreaterThanOrEqual(geometry.rectX);
     expect(geometry.textX).toBeLessThanOrEqual(geometry.rectX + geometry.rectWidth);
   });

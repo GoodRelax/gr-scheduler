@@ -23,7 +23,8 @@ import { resolve } from 'node:path';
  */
 const builtAppFile = resolve(process.cwd(), 'dist', 'index.html');
 
-const PLAN_FILL_GREEN = '#2f9e5b';
+// Model H fixture default plan fill (src/app/sample-data.ts `PLAN_FILL`).
+const PLAN_FILL_HEX = '#4477aa';
 const CUD_RED = '#d55e00';
 const CUD_BLUE = '#0072b2';
 
@@ -85,16 +86,18 @@ test.describe('ui feedback batch', () => {
   }) => {
     await openApp(page);
     await movePaletteAway(page);
-    // The bar glyph is the only rect WITHOUT a data-role (selection outline / fade
-    // handles carry one), so this stays unambiguous after the item is selected.
-    const barRect = page.locator('svg [data-item-id="oa-phase-plan-dev"] > rect:not([data-role])');
+    // Use a PLAIN plan-only task (no actual dates / progress overlay): under Model H
+    // an item carrying actual dates (e.g. oa-phase-plan-dev) renders its plan side
+    // with an automatic outline stroke to distinguish it from the actual bar, so a
+    // "no stroke by default" check needs a task with no actual overlay.
+    const barRect = page.locator('svg [data-item-id="oa-phase-plan-valid"] > rect:not([data-role])');
     // Default: no border.
     expect(await barRect.getAttribute('stroke')).toBe('none');
 
     // Select the bar, then set a stroke color via the properties stroke palette.
     const box = await barRect.boundingBox();
     await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
-    await expect(page.locator('svg [data-item-id="oa-phase-plan-dev"] [data-role="selection-outline"]')).toHaveCount(1);
+    await expect(page.locator('svg [data-item-id="oa-phase-plan-valid"] [data-role="selection-outline"]')).toHaveCount(1);
     await page
       .locator('[aria-label="stroke_color palette"] button[aria-label="blue"]')
       .click();
@@ -126,12 +129,43 @@ test.describe('ui feedback batch', () => {
     await expect(page.locator('svg [data-role="marquee"]')).toHaveCount(0);
     expect(await page.locator('svg [data-role="selection-outline"]').count()).toBeGreaterThan(1);
 
-    // With a shape ARMED, an empty-area drag CREATES instead of marqueeing.
+    // With a shape ARMED, an empty-area drag CREATES instead of marqueeing. Scan for a
+    // point (rather than a fixed fraction of the canvas) that is clear of every item's
+    // rendered box/label -- the Model H fixture (26 items) packs its rows differently
+    // than the old fixture, so a hard-coded near-bottom coordinate can now land on an
+    // existing item's label.
     const before = await page.locator('svg [data-item-id]').count();
     await page.getByRole('button', { name: 'Task bar' }).click();
-    await page.mouse.move(svgBox.x + 300, svgBox.y + svgBox.height - 10);
+    const empty = await page.evaluate(() => {
+      const svgEl = document.querySelector('svg[data-role="schedule-canvas"]');
+      const rect = svgEl?.getBoundingClientRect();
+      if (rect === undefined) {
+        return null;
+      }
+      for (let y = rect.bottom - 8; y > rect.top + 40; y -= 12) {
+        for (let x = rect.right - 8; x > rect.left + 220; x -= 16) {
+          const element = document.elementFromPoint(x, y);
+          // Must land on the SVG canvas itself, clear of any item AND clear of the
+          // floating command palette (moved to the bottom, but still docked at the
+          // right and able to overlap the canvas' bottom-right corner).
+          if (
+            element !== null &&
+            element.closest('[data-item-id]') === null &&
+            element.closest('[data-role="command-palette"]') === null
+          ) {
+            return { x, y };
+          }
+        }
+      }
+      return null;
+    });
+    expect(empty).not.toBeNull();
+    if (empty === null) {
+      return;
+    }
+    await page.mouse.move(empty.x, empty.y);
     await page.mouse.down();
-    await page.mouse.move(svgBox.x + 380, svgBox.y + svgBox.height - 10, { steps: 6 });
+    await page.mouse.move(empty.x + 80, empty.y, { steps: 6 });
     await page.mouse.up();
     await expect.poll(() => page.locator('svg [data-item-id]').count()).toBeGreaterThan(before);
     // A create drag does not leave a marquee behind.
@@ -169,17 +203,18 @@ test.describe('ui feedback batch', () => {
   test('5. properties fill-color change updates the DOM fill and is undoable', async ({ page }) => {
     await openApp(page);
     await movePaletteAway(page);
-    const barRect = page.locator('svg [data-item-id="oa-phase-plan-dev"] > rect:not([data-role])');
-    // Default plan fill is green (property-driven).
-    await expect(barRect).toHaveAttribute('fill', PLAN_FILL_GREEN);
+    // A plain plan-only task (no actual overlay washing its fill -- see test 2).
+    const barRect = page.locator('svg [data-item-id="oa-phase-plan-valid"] > rect:not([data-role])');
+    // Default plan fill is the fixture's PLAN_FILL (property-driven).
+    await expect(barRect).toHaveAttribute('fill', PLAN_FILL_HEX);
     const box = await barRect.boundingBox();
     await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
     // Pick red in the fill palette -> the DOM fill changes (explicit override).
     await page.locator('[aria-label="fill_color palette"] button[aria-label="red"]').click();
     await expect(barRect).toHaveAttribute('fill', CUD_RED);
-    // Undoable: Ctrl+Z restores the plan green.
+    // Undoable: Ctrl+Z restores the plan fill.
     await page.keyboard.press('Control+z');
-    await expect(barRect).toHaveAttribute('fill', PLAN_FILL_GREEN);
+    await expect(barRect).toHaveAttribute('fill', PLAN_FILL_HEX);
   });
 
   test('6. ESC closes an open properties panel', async ({ page }) => {

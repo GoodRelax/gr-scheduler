@@ -237,6 +237,70 @@ describe('mspdi-codec standard-element mappings (B-1..B-6, Part C)', () => {
   });
 });
 
+/**
+ * A separate past-plan reference snapshot (DATA-JSON-016) for best-effort baseline
+ * export. Its only item id (`it-2`) matches a task in {@link makeDocument}; the main
+ * document's milestone `it-1` has NO baseline item, so it must emit no Baseline.
+ */
+function makeBaselineDocument(): ScheduleDocument {
+  return {
+    projectId: '77777777-7777-4777-8777-777777777777',
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    title: 'Baseline Snapshot',
+    epochDate: '2026-01-01',
+    viewState: { zoomX: 1, zoomY: 1, scrollX: 0, scrollY: 0, fontScale: 'M' },
+    sections: [{ id: 'sec-1', name: 'Body', order: 0, rowIds: ['row-2'] }],
+    rows: [{ id: 'row-2', sectionId: 'sec-1', classificationLabel: 'Test', order: 0 }],
+    items: [
+      {
+        id: 'it-2',
+        rowId: 'row-2',
+        itemKind: 'task',
+        startDate: '2026-07-15',
+        endDate: '2026-08-25',
+        abbrev: 'DUR0',
+        fullName: 'Durability Test (baseline)',
+        importance: 60,
+        taskShape: 'bar',
+        fillColor: '#cccccc',
+        strokeColor: '#999999',
+      },
+    ],
+    annotations: [],
+    assets: [],
+  };
+}
+
+describe('mspdi-codec best-effort baseline (DATA-MSPDI-003, CR-002 Part 3)', () => {
+  it('emits Baseline0 Start/Finish for id-matched tasks and omits for unmatched', () => {
+    const xml = exportMspdi(makeDocument(), makeBaselineDocument());
+    // it-2 matched -> Baseline0 from the baseline item's plan dates.
+    expect(xml).toContain('<BaselineNumber>0</BaselineNumber>');
+    expect(xml).toContain('<BaselineStart>2026-07-15T00:00:00</BaselineStart>');
+    expect(xml).toContain('<BaselineFinish>2026-08-25T00:00:00</BaselineFinish>');
+    // it-1 has no baseline match -> exactly one Baseline block overall.
+    expect(xml.match(/<BaselineStart>/g)).toHaveLength(1);
+  });
+
+  it('emits no Baseline elements when no baseline document is supplied', () => {
+    const xml = exportMspdi(makeDocument());
+    expect(xml).not.toContain('<BaselineNumber>');
+    expect(xml).not.toContain('<BaselineStart>');
+    expect(xml).not.toContain('<BaselineFinish>');
+  });
+
+  it('drops Baseline elements on import (no per-item field to receive them)', () => {
+    // With vs without baseline, differing ONLY by the Baseline0 elements.
+    const withBaseline = stripSidecar(exportMspdi(makeDocument(), makeBaselineDocument()));
+    const withoutBaseline = stripSidecar(exportMspdi(makeDocument()));
+    expect(withBaseline).toContain('<BaselineStart>'); // baseline actually present in the XML
+    expect(withoutBaseline).not.toContain('<BaselineStart>');
+    // Import ignores the Baseline elements: the reconstructed documents are identical,
+    // proving import lands the baseline into no document field (best-effort asymmetry).
+    expect(importMspdi(withBaseline)).toStrictEqual(importMspdi(withoutBaseline));
+  });
+});
+
 describe('mspdi-codec security (C-07, C-08)', () => {
   it('rejects XML containing a DOCTYPE/ENTITY declaration (XXE / billion-laughs)', () => {
     const xxe =

@@ -17,7 +17,12 @@ import type {
   ScheduleItem,
   ViewState,
 } from '../model/schedule-model.js';
-import { BASE_ROW_HEIGHT, layoutItems, type ItemPlacement } from './layout-engine.js';
+import {
+  BASE_ROW_HEIGHT,
+  layoutItems,
+  type ItemLabelExtentEstimator,
+  type ItemPlacement,
+} from './layout-engine.js';
 import { BASE_PIXELS_PER_DAY, toDayNumber } from './time-coordinate-mapper.js';
 
 /** Visible world-space rectangle plus over-scan margins already applied. */
@@ -269,13 +274,21 @@ function renderedHorizontalSpan(
  * of them: vertically including multi-bar sub-lane overflow, and horizontally
  * including each bar's END plus the milestone marker and abbreviation-label
  * overhang (which extend past an item's date). The measurement lays the items out
- * at the given `zoomX` (which fixes the sub-lane assignment and the day->x mapping)
- * and zoomY = 1, so the read-off bottom scales linearly to any final zoomY.
+ * at the given `zoomX` (which fixes the day->x mapping) and zoomY = 1. The read-off
+ * bottom scales linearly to any final zoomY ONLY while the sub-lane assignment is
+ * zoomY-independent; once a `labelExtent` estimator is supplied its occupied width
+ * grows with the (zoomY-scaled) bar height, so a taller zoomY can add sub-lanes.
+ * Callers that need the exact bottom at a specific zoomY must re-measure there (see
+ * {@link measureRenderedContentBottomPx}), which is what {@link computeFitViewForItems}
+ * does when it refines zoomY (DEF-006).
  *
  * @param items - All items to measure.
  * @param rows - The level-0 (finest) rows the items are placed on.
  * @param epochDate - Time-axis origin.
  * @param zoomX - Horizontal zoom the Fit will use (drives sub-lane assignment and x).
+ * @param labelExtent - Optional label-collision estimator the RENDERER uses so the
+ *   measured sub-lane count (and thus the content bottom) matches what is actually
+ *   drawn; omit it and the measurement lays out without label-driven lane growth.
  * @returns The measured extent, or null when there are no items.
  */
 export function measureItemsFitExtent(
@@ -283,6 +296,7 @@ export function measureItemsFitExtent(
   rows: readonly Row[],
   epochDate: IsoDate,
   zoomX: number,
+  labelExtent?: ItemLabelExtentEstimator,
 ): ItemsFitExtent | null {
   if (items.length === 0) {
     return null;
@@ -301,13 +315,19 @@ export function measureItemsFitExtent(
   }
   // Lay out at the target zoomX with unit vertical zoom so the read-off bottom
   // scales linearly to any final zoomY (sub-lane count is zoomY-independent).
-  const unitPlacements = layoutItems(items, rows, epochDate, {
-    zoomX,
-    zoomY: 1,
-    scrollX: 0,
-    scrollY: 0,
-    fontScale: 'M',
-  });
+  const unitPlacements = layoutItems(
+    items,
+    rows,
+    epochDate,
+    {
+      zoomX,
+      zoomY: 1,
+      scrollX: 0,
+      scrollY: 0,
+      fontScale: 'M',
+    },
+    labelExtent,
+  );
   const itemById = new Map(items.map((item) => [item.id, item]));
   let contentBottomUnit = 0;
   let contentLeftPx = Number.POSITIVE_INFINITY;
@@ -338,6 +358,55 @@ export function measureItemsFitExtent(
 }
 
 /**
+ * The true rendered world-space BOTTOM (largest `worldY + worldHeight`) of a
+ * document's items laid out at a SPECIFIC (`zoomX`, `zoomY`). Unlike
+ * {@link measureItemsFitExtent}'s unit-zoom `contentBottomUnit`, this evaluates the
+ * layout at the actual `zoomY`, so it captures label-collision sub-lanes that only
+ * appear once the (zoomY-scaled) bar height makes a label wide enough to bump a
+ * neighbour into a new lane (DEF-006). Used to refine the Fit zoomY to a value at
+ * which every item's box is truly within the vertical budget.
+ *
+ * @param items - All items to lay out.
+ * @param rows - The rows the items are placed on.
+ * @param epochDate - Time-axis origin.
+ * @param zoomX - Horizontal zoom (day->x mapping).
+ * @param zoomY - Vertical zoom to evaluate the layout at.
+ * @param labelExtent - Optional label-collision estimator (as the renderer uses).
+ * @returns The largest item bottom in world pixels (0 when there are no items).
+ */
+export function measureRenderedContentBottomPx(
+  items: readonly ScheduleItem[],
+  rows: readonly Row[],
+  epochDate: IsoDate,
+  zoomX: number,
+  zoomY: number,
+  labelExtent?: ItemLabelExtentEstimator,
+): number {
+  const placements = layoutItems(
+    items,
+    rows,
+    epochDate,
+    { zoomX, zoomY, scrollX: 0, scrollY: 0, fontScale: 'M' },
+    labelExtent,
+  );
+  let bottom = 0;
+  for (const placement of placements) {
+    bottom = Math.max(bottom, placement.worldY + placement.worldHeight);
+  }
+  return bottom;
+}
+
+/**
+ * Maximum corrective passes for the Fit zoomY refinement. The refinement is a
+ * monotone shrink (a smaller zoomY never grows the rendered bottom), so it converges
+ * in one step for the observed templates; a small cap bounds the worst case.
+ */
+const FIT_ZOOM_Y_REFINE_PASSES = 4;
+
+/** Sub-pixel slack when testing whether the rendered bottom fits the budget. */
+const FIT_VERTICAL_FIT_EPSILON_PX = 0.5;
+
+/**
  * Compute a Fit view (zoom + scroll) that frames EVERY item of a document -- across
  * all rows, including multi-bar sub-lanes -- within the viewport with a margin on
  * both axes (fix 7). Solves zoomX from the date span first (so the sub-lane
@@ -349,6 +418,9 @@ export function measureItemsFitExtent(
  * @param epochDate - Time-axis origin.
  * @param inputs - The viewport size and its frozen offsets.
  * @param marginPx - Inner margin in CSS pixels kept around the content.
+ * @param labelExtent - Optional label-collision estimator the RENDERER uses. Passing
+ *   the same estimator makes the measured sub-lane count -- and thus the framed
+ *   content bottom -- match what is drawn, so no bottom-row bar is clipped (DEF-006).
  * @returns The Fit view, or null when there is nothing to frame.
  */
 export function computeFitViewForItems(
@@ -357,6 +429,7 @@ export function computeFitViewForItems(
   epochDate: IsoDate,
   inputs: FitViewportInputs,
   marginPx = 24,
+  labelExtent?: ItemLabelExtentEstimator,
 ): FitView | null {
   if (items.length === 0) {
     return null;
@@ -380,7 +453,7 @@ export function computeFitViewForItems(
 
   // Phase 1: a first zoomX from the date span alone (ignores label/marker overhang).
   const zoomX0 = clampFitZoom(usableWidth / (dayCount * BASE_PIXELS_PER_DAY));
-  const probe = measureItemsFitExtent(items, rows, epochDate, zoomX0);
+  const probe = measureItemsFitExtent(items, rows, epochDate, zoomX0, labelExtent);
   if (probe === null) {
     return null;
   }
@@ -408,13 +481,36 @@ export function computeFitViewForItems(
   // hit-box stays calibrated. This deliberately does NOT reintroduce the old
   // `Math.max(0, ...)` clamp, which pinned the leftmost content to x = 0 and clipped
   // the earliest item's left edge.
-  const measured = measureItemsFitExtent(items, rows, epochDate, zoomX) ?? probe;
+  const measured = measureItemsFitExtent(items, rows, epochDate, zoomX, labelExtent) ?? probe;
   const scrollX = measured.contentLeftPx - marginPx;
 
   const topOffset = inputs.topOffsetForZoomX(zoomX);
   const usableHeight = Math.max(1, inputs.canvasSize.heightPx - topOffset - marginPx * 2);
   const contentBottomUnit = Math.max(1, measured.contentBottomUnit);
-  const zoomY = clampFitZoom(usableHeight / contentBottomUnit);
+  // First estimate from the unit-zoom bottom (linear). This is exact for a layout
+  // whose sub-lane count is zoomY-independent, but the label-collision estimator's
+  // occupied width scales with the (zoomY-scaled) bar height, so a taller zoomY can
+  // introduce extra sub-lanes and push the true rendered bottom PAST this estimate's
+  // budget (DEF-006: bottom-row bar clipped ~9.8px). Refine by re-measuring the REAL
+  // rendered bottom at the candidate zoomY and shrinking until every item's box fits
+  // the SAME vertical budget the horizontal axis reserves (usableHeight already nets
+  // out marginPx*2 on both edges). The shrink is monotone -- a smaller zoomY never
+  // grows the bottom -- so it settles in a pass or two and never over-tightens.
+  let zoomY = clampFitZoom(usableHeight / contentBottomUnit);
+  for (let pass = 0; pass < FIT_ZOOM_Y_REFINE_PASSES; pass += 1) {
+    const renderedBottomPx = measureRenderedContentBottomPx(
+      items,
+      rows,
+      epochDate,
+      zoomX,
+      zoomY,
+      labelExtent,
+    );
+    if (renderedBottomPx <= usableHeight + FIT_VERTICAL_FIT_EPSILON_PX) {
+      break;
+    }
+    zoomY = clampFitZoom((zoomY * usableHeight) / renderedBottomPx);
+  }
   const scrollY = 0;
   return { zoomX, zoomY, scrollX, scrollY };
 }

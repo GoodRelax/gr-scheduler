@@ -1,36 +1,234 @@
 /**
- * UseCase layer: plan/actual display coloring.
+ * UseCase layer: plan/actual display coloring (CR-002 Part 1).
  *
- * TODO(IM3): CR-002 Part 1 replaces the old fixed green(plan)/orange(actual) scheme
- * with a SATURATION-derived pair from the item's own base {@link ScheduleItem.fillColor}
- * (pale = plan, vivid = actual/progress) plus a line-WIDTH non-color redundancy code
- * (plan thin / actual thick; no dash). Until IM3 lands that logic, this module is
- * NEUTRALIZED: {@link displayFillColor} returns the item's own stored fill so the
- * canvas still renders in a single consistent color. The legacy
- * {@link PLAN_FILL_GREEN} / {@link ACTUAL_FILL_ORANGE} constants are retained only as
- * references for the IM3 restoration and are no longer applied.
+ * The Overlap plan/actual split is derived from the item's OWN base
+ * {@link ScheduleItem.fillColor} by adjusting SATURATION and LIGHTNESS, not from a
+ * pair of fixed hues:
  *
- * Pure and side-effect free.
+ * - the PLAN side is a PALE (desaturated + lightened) shade -- supplementary;
+ * - the ACTUAL / progress side is a VIVID (saturated + deepened) shade -- emphasized.
+ *
+ * The split only applies where a plan and an actual coexist (an item that records
+ * an actual start); a plan-only item keeps its own stored fill so a normal bar is
+ * not washed out. An EXPLICIT fill ({@link ScheduleItem.fillColorExplicit}) always
+ * overrides the derivation (the user picked that exact color).
+ *
+ * Label legibility (WCAG 1.4.3): the in-bar abbreviation label uses a dark, fixed
+ * ink ({@link a11y-tokens.ITEM_LABEL_HEX}); the pale plan shade only LIGHTENS the
+ * fill (raising label contrast), and the vivid actual shade DEEPENS it (also a dark
+ * enough field for the light-on-dark? no -- the label ink is dark, and the vivid
+ * shade stays a mid tone), so neither derivation pushes the label pair below AA.
+ *
+ * Every function here is pure and side-effect free.
  */
 
 import type { ScheduleItem } from '../model/schedule-model.js';
 
-/** TODO(IM3): legacy PLAN fill (green); retained for reference, no longer applied. */
-export const PLAN_FILL_GREEN = '#2f9e5b';
+/** A color in the HSL space; `h` in [0,360), `s`/`l` in [0,1]. */
+export interface Hsl {
+  readonly h: number;
+  readonly s: number;
+  readonly l: number;
+}
 
-/** TODO(IM3): legacy ACTUAL fill (orange); retained for reference, no longer applied. */
-export const ACTUAL_FILL_ORANGE = '#e07c1a';
+/** Fraction the PLAN shade RETAINS of the base saturation (desaturate toward gray). */
+const PLAN_SATURATION_RETAIN = 0.45;
+/** Fraction of the remaining headroom the PLAN shade LIGHTENS toward white. */
+const PLAN_LIGHTEN_FRACTION = 0.55;
+/** Fraction of the remaining headroom the ACTUAL shade SATURATES toward full. */
+const ACTUAL_SATURATE_FRACTION = 0.35;
+/** Fraction the ACTUAL shade RETAINS of the base lightness (deepen toward black). */
+const ACTUAL_LIGHTNESS_RETAIN = 0.82;
+
+/** Clamp a number into the inclusive [0, 1] range. */
+function clamp01(value: number): number {
+  return value < 0 ? 0 : value > 1 ? 1 : value;
+}
+
+/** Parse a `#rgb` / `#rrggbb` hex triplet into 0..255 channels, or null. */
+function parseHex(css: string): { r: number; g: number; b: number } | null {
+  const text = css.trim();
+  const short = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(text);
+  if (short !== null) {
+    const r = parseInt(short[1]! + short[1]!, 16);
+    const g = parseInt(short[2]! + short[2]!, 16);
+    const b = parseInt(short[3]! + short[3]!, 16);
+    return { r, g, b };
+  }
+  const long = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(text);
+  if (long !== null) {
+    return {
+      r: parseInt(long[1]!, 16),
+      g: parseInt(long[2]!, 16),
+      b: parseInt(long[3]!, 16),
+    };
+  }
+  return null;
+}
+
+/** Parse an `rgb(r, g, b)` / `rgba(r, g, b, a)` functional color into channels, or null. */
+function parseRgbFunction(css: string): { r: number; g: number; b: number } | null {
+  const match = /^rgba?\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)/i.exec(css.trim());
+  if (match === null) {
+    return null;
+  }
+  const clampByte = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value);
+  return {
+    r: clampByte(parseInt(match[1]!, 10)),
+    g: clampByte(parseInt(match[2]!, 10)),
+    b: clampByte(parseInt(match[3]!, 10)),
+  };
+}
 
 /**
- * The fill an item is drawn with on the canvas.
+ * Parse a CSS color (`#rgb`, `#rrggbb`, `rgb()`/`rgba()`) into {@link Hsl}.
  *
- * TODO(IM3): restore CR-002 saturation-derived plan/actual coloring. For IM1 this is
- * neutralized to the item's own stored fill (the actual-date model no longer carries a
- * plan/actual discriminator; the Overlap saturation split is deferred to IM3).
+ * @param css - The CSS color string.
+ * @returns The HSL representation, or null when the color is not recognized
+ *   (named colors, `transparent`, gradients: the caller keeps the base fill).
+ */
+export function parseColorToHsl(css: string): Hsl | null {
+  const rgb = parseHex(css) ?? parseRgbFunction(css);
+  if (rgb === null) {
+    return null;
+  }
+  const r = rgb.r / 255;
+  const g = rgb.g / 255;
+  const b = rgb.b / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const lightness = (max + min) / 2;
+  const delta = max - min;
+  if (delta === 0) {
+    return { h: 0, s: 0, l: lightness };
+  }
+  const saturation = delta / (1 - Math.abs(2 * lightness - 1));
+  let hue: number;
+  if (max === r) {
+    hue = ((g - b) / delta) % 6;
+  } else if (max === g) {
+    hue = (b - r) / delta + 2;
+  } else {
+    hue = (r - g) / delta + 4;
+  }
+  hue *= 60;
+  if (hue < 0) {
+    hue += 360;
+  }
+  return { h: hue, s: clamp01(saturation), l: clamp01(lightness) };
+}
+
+/**
+ * Convert an {@link Hsl} back to a `#rrggbb` CSS hex string.
+ *
+ * @param hsl - The HSL color.
+ * @returns A lowercase `#rrggbb` string.
+ */
+export function hslToCss(hsl: Hsl): string {
+  const s = clamp01(hsl.s);
+  const l = clamp01(hsl.l);
+  const chroma = (1 - Math.abs(2 * l - 1)) * s;
+  const hueSextant = (((hsl.h % 360) + 360) % 360) / 60;
+  const secondary = chroma * (1 - Math.abs((hueSextant % 2) - 1));
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  if (hueSextant < 1) {
+    [r, g, b] = [chroma, secondary, 0];
+  } else if (hueSextant < 2) {
+    [r, g, b] = [secondary, chroma, 0];
+  } else if (hueSextant < 3) {
+    [r, g, b] = [0, chroma, secondary];
+  } else if (hueSextant < 4) {
+    [r, g, b] = [0, secondary, chroma];
+  } else if (hueSextant < 5) {
+    [r, g, b] = [secondary, 0, chroma];
+  } else {
+    [r, g, b] = [chroma, 0, secondary];
+  }
+  const lightnessMatch = l - chroma / 2;
+  const toByte = (channel: number): string => {
+    const value = Math.round((channel + lightnessMatch) * 255);
+    const clamped = value < 0 ? 0 : value > 255 ? 255 : value;
+    return clamped.toString(16).padStart(2, '0');
+  };
+  return `#${toByte(r)}${toByte(g)}${toByte(b)}`;
+}
+
+/**
+ * Derive the PALE plan shade from a base color: desaturate toward gray and lighten
+ * toward white (CR-002 Part 1). Returns the base color unchanged when it cannot be
+ * parsed (named / transparent / gradient).
+ *
+ * @param baseColor - The item's base fill color.
+ * @returns The pale plan shade as `#rrggbb`, or the base color when unparseable.
+ */
+export function planColorFrom(baseColor: string): string {
+  const hsl = parseColorToHsl(baseColor);
+  if (hsl === null) {
+    return baseColor;
+  }
+  return hslToCss({
+    h: hsl.h,
+    s: clamp01(hsl.s * PLAN_SATURATION_RETAIN),
+    l: clamp01(hsl.l + (1 - hsl.l) * PLAN_LIGHTEN_FRACTION),
+  });
+}
+
+/**
+ * Derive the VIVID actual shade from a base color: saturate toward full and deepen
+ * toward black (CR-002 Part 1). Returns the base color unchanged when it cannot be
+ * parsed.
+ *
+ * @param baseColor - The item's base fill color.
+ * @returns The vivid actual shade as `#rrggbb`, or the base color when unparseable.
+ */
+export function actualColorFrom(baseColor: string): string {
+  const hsl = parseColorToHsl(baseColor);
+  if (hsl === null) {
+    return baseColor;
+  }
+  return hslToCss({
+    h: hsl.h,
+    s: clamp01(hsl.s + (1 - hsl.s) * ACTUAL_SATURATE_FRACTION),
+    l: clamp01(hsl.l * ACTUAL_LIGHTNESS_RETAIN),
+  });
+}
+
+/** The subset of an item this module reads to color its plan/actual sides. */
+type ColorableItem = Pick<ScheduleItem, 'fillColor' | 'fillColorExplicit' | 'actualStart'>;
+
+/**
+ * The fill for an item's PLAN side (and for a plain glyph that has no actual).
+ *
+ * CR-002 Part 1: an item that records an actual is drawn with the PALE plan shade so
+ * the vivid actual reads as the emphasized "as-run" side; a plan-only item keeps its
+ * own stored fill (nothing to contrast against, so no wash-out). An explicit fill
+ * always overrides.
  *
  * @param item - The item to color.
- * @returns The item's own stored {@link ScheduleItem.fillColor}.
+ * @returns The plan-side fill color.
  */
-export function displayFillColor(item: Pick<ScheduleItem, 'fillColor'>): string {
-  return item.fillColor;
+export function displayFillColor(item: ColorableItem): string {
+  if (item.fillColorExplicit === true) {
+    return item.fillColor;
+  }
+  if (item.actualStart === undefined) {
+    return item.fillColor;
+  }
+  return planColorFrom(item.fillColor);
+}
+
+/**
+ * The fill for an item's ACTUAL / progress side (CR-002 Part 1): the VIVID shade of
+ * the item's base color, unless an explicit fill overrides it.
+ *
+ * @param item - The item to color.
+ * @returns The actual-side fill color.
+ */
+export function actualDisplayFillColor(item: ColorableItem): string {
+  if (item.fillColorExplicit === true) {
+    return item.fillColor;
+  }
+  return actualColorFrom(item.fillColor);
 }

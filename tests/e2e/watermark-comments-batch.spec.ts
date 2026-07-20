@@ -22,9 +22,10 @@ import { resolve } from 'node:path';
 const builtAppFile = resolve(process.cwd(), 'dist', 'index.html');
 
 async function exportJsonText(page: Page): Promise<string> {
+  await page.locator('button[data-role="save"]').click();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Export JSON' }).dispatchEvent('click'),
+    page.locator('[data-role="save-menu"] button[data-role="save-json"]').click(),
   ]);
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];

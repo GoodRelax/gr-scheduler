@@ -101,6 +101,9 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   fit_to_content: { en: 'Fit schedule to view', ja: '全体表示' },
   toggle_fullscreen: { en: 'Toggle fullscreen', ja: '全画面表示' },
   today_line: { en: 'Today line', ja: '本日線' },
+  // Baseline reference underlay (CR-002 Part 3 / PLAN-L1-004).
+  baseline_load: { en: 'Load baseline reference (JSON)', ja: 'ベースライン参照を読込 (JSON)' },
+  baseline_visible: { en: 'Baseline visibility', ja: 'ベースライン表示' },
   // Progress line (イナズマ線 / lightning status line) toggle + color (item 2).
   progress_line: { en: 'Progress line', ja: 'イナズマ線' },
   progress_line_color: { en: 'Progress line color', ja: 'イナズマ線の色' },

@@ -91,3 +91,21 @@
 - **命名規則是正**（item60・DEF-003）: 検討時の作業ラベル「案H/Model H/モデルH」を全記録から廃止し「実績日フィールド方式」の記述名へ統一。`DEC-003-cr-001-approved-plan-h.md` は `DEC-003-cr-001-approved.md` へ改称（旧ファイルはユーザーが手動削除）。
 - **ドキュメントSSOTドリフト是正**（DEF-002）: `40-data-format.sdoc` のネスト`icon{}`表記・`previousPlan`旧名残置を、SSOTのフラット構造(`iconShapeKind`/`importedAssetId`/`strokeColor`/`fillColor`/`lineWeight`/`startDate`/`endDate`/`itemKind`)へ整合。
 - **実装は本セッションで未着手**（段階化方針=CR-001/002/003 §8 各準拠）。次セッションで `gr-scheduler.schema.json`（`.next.json`からのスワップ）+ `src/**`（schedule-model/json-codec/mspdi-codec/progress-today-layer/item-layer/plan-actual-colors/dependency-router/main等）+ `tests/**` を一体反映し、`tests/document-schema-conformance.test.ts` を含め緑を保つこと。合わせて `docs/spec/30-architecture.sdoc` と `docs/spec/12-properties-i18n.sdoc` の旧語彙残置（R-CR001-spec-review.md Round 3 OBS-1/OBS-2）も整流する。
+
+## 追記 (2026-07-20): CR-001/CR-002/CR-003 実装 IM1-IM4 完了・IM5 実施中
+
+- CR-001/CR-002/CR-003 の実装を IM1〜IM4 で完了。green を維持（vitest 588 pass / 0 skip、tsc 0、
+  ESLint 0）。詳細な各マイルストーンの実装ファイル・gate 到達状況は
+  `project-management/handoff-cr-001-002-003-implementation.md` §3 を参照。
+- IM5 で以下を実施: DEF-004（`40-data-format.sdoc` §1 flat 同期）のドキュメント同期、E2E 改修
+  （新ヘッダー role・新依存幾何への追従）、単一HTMLビルド検証。
+- 性能PoC（RISK-001 mitigated 状態の再確認）はユーザー立会いが必要なため保留（memory
+  `perf-test-notify` 準拠）。
+- DEF-005（依存線折れ点数パリティ、`project-records/defects/DEF-005-dep-elbow-parity.md`）を起票。
+  前進依存は DEP-L2-002（折れ0〜3）に適合するが、水平重なり＋上下積みの後方ターゲットへの行間
+  ギャップ迂回は4折れがパリティ上最小となり逸脱する。将来 CR での方針決定待ち（Low、品質ゲート
+  非ブロック）。
+- トレーサビリティ（`project-records/traceability/traceability-matrix.md`）の CR-002/CR-003 実装
+  状態を pending→done へ更新。ただし MSPDI `BaselineStart`/`BaselineFinish` の best-effort id
+  突合往復（DATA-MSPDI-003 の CR-002 改訂分）は `mspdi-codec.ts` に該当コードが無く未実装のまま
+  であることが本セッションで判明し、同マトリクスに記録済み（要フォローアップ）。

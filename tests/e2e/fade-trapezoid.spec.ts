@@ -28,9 +28,10 @@ interface ExportedView {
 }
 
 async function exportView(page: Page): Promise<ExportedView> {
+  await page.locator('button[data-role="save"]').click();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Export JSON' }).dispatchEvent('click'),
+    page.locator('[data-role="save-menu"] button[data-role="save-json"]').click(),
   ]);
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
@@ -68,7 +69,7 @@ test.describe('gr-scheduler fade trapezoid', () => {
   }) => {
     await openApp(page);
     // The glyph of an un-faded task is a <rect>; capture its top-left BEFORE editing.
-    const glyph = page.locator('svg [data-item-id="oa-phase-plan-dev"] > rect');
+    const glyph = page.locator('svg [data-item-id="oa-phase-plan-dev"] > rect[data-plan-actual-side="plan"]');
     const glyphBox = await glyph.boundingBox();
     expect(glyphBox).not.toBeNull();
     if (glyphBox === null) {
@@ -112,7 +113,7 @@ test.describe('gr-scheduler fade trapezoid', () => {
   test('editing fade_out_days in the property panel reshapes the bar', async ({ page }) => {
     await openApp(page);
     await movePaletteAway(page);
-    const glyphBox = await page.locator('svg [data-item-id="oa-phase-plan-dev"] > rect').boundingBox();
+    const glyphBox = await page.locator('svg [data-item-id="oa-phase-plan-dev"] > rect[data-plan-actual-side="plan"]').boundingBox();
     expect(glyphBox).not.toBeNull();
     if (glyphBox === null) {
       return;

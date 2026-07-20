@@ -13,8 +13,13 @@ import { resolve } from 'node:path';
  *     correct count (crosshair=2, single=1, double=2), in BOTH the light and dark theme.
  *  2. The today line is a thin high-brightness blue.
  *  3. The progress line bends at the touched item's vertical center (within ~1.5px).
+ *     Under CR-001 Model H the plan AND actual span live on the SAME item (no
+ *     separate "actual" item any more), so the touched item is the plan item itself.
  *  4. Dependency link mode (click source -> target) and the property-panel comma-id
- *     fields both create yamabuki lines; clearing / re-clicking removes them.
+ *     fields both create yamabuki lines; clearing / re-clicking removes them. Every
+ *     newly-routed line is CR-003 Part 3's deterministic orthogonal connector: it
+ *     exits the source at its RIGHT edge / vertical center, enters the target at its
+ *     LEFT edge / vertical center, with axis-aligned segments only.
  */
 const builtAppFile = resolve(process.cwd(), 'dist', 'index.html');
 
@@ -99,7 +104,7 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
     await assertMode('double-vertical', 2, SHOCKING_GREEN);
 
     // Dark theme: the bright accents must still render with the same stroke + count.
-    await page.locator('button[data-role="theme-mode"][data-theme-mode="dark"]').click();
+    await page.locator('button[data-role="theme-dark"]').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await assertMode('crosshair', 2, SHOCKING_PINK);
     await assertMode('single-vertical', 1, SHOCKING_PINK);
@@ -129,8 +134,14 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
 
     const result = await page.evaluate(() => {
       const path = document.querySelector<SVGPathElement>('svg [data-role="progress-line"]');
+      // CR-001 Model H: the plan AND actual span live on the SAME item
+      // (`oa-phase-plan-dev` carries `actualStartOffset`/`progressRatio` itself; there
+      // is no separate "actual" item). The first `rect` child of the item group is the
+      // plan bar, whose vertical center equals the lane center under the default
+      // `overlap` plan/actual style (PLAN-L1-005) -- the same center the progress line
+      // bent at before Model H.
       const rect = document.querySelector<SVGRectElement>(
-        'svg [data-item-id="oa-phase-actual-dev"] > rect',
+        'svg [data-item-id="oa-phase-plan-dev"] > rect',
       );
       if (path === null || rect === null) {
         return null;
@@ -194,6 +205,85 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
 
     // The newly drawn lines are yamabuki gold.
     await expect(lines.first()).toHaveAttribute('stroke', '#F8B500');
+  });
+
+  test('4c. a freshly-routed edge exits right / enters left with axis-aligned segments and a 2x-arrowhead stub (CR-003 Part 3)', async ({
+    page,
+  }) => {
+    await openApp(page);
+    await movePaletteAway(page);
+    const lines = page.locator('svg [data-role="dependency-line"]');
+
+    await page.locator('[data-role="toggle-link"]').click();
+    const clickItem = async (id: string): Promise<void> => {
+      const box = (await page.locator(`svg [data-item-id="${id}"] > rect`).boundingBox())!;
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    };
+    // sys2 -> sys3 (see sample-data.ts offsets): whichever of the router's branches
+    // handles this pair (0/2-bend forward or the 4-bend stacked/overlap detour), the
+    // fixed exit/entry anchors and axis-aligned segments below hold for ALL of them.
+    await clickItem('ta-phase-plan-sys2');
+    await clickItem('ta-phase-plan-sys3');
+    await page.keyboard.press('Escape'); // leave link mode
+
+    const newLine = lines.last();
+    await expect(newLine).toBeVisible();
+
+    const geometry = await page.evaluate(
+      ({ fromId, toId }) => {
+        const paths = Array.from(document.querySelectorAll('svg path[data-role="dependency-line"]'));
+        const path = paths[paths.length - 1] as SVGPathElement | undefined;
+        const fromRect = document.querySelector(`svg [data-item-id="${fromId}"] > rect`);
+        const toRect = document.querySelector(`svg [data-item-id="${toId}"] > rect`);
+        if (path === undefined || fromRect === null || toRect === null) {
+          return null;
+        }
+        const ctm = path.getScreenCTM();
+        if (ctm === null) {
+          return null;
+        }
+        const tokens = (path.getAttribute('d') ?? '').match(/-?\d+(?:\.\d+)?/g) ?? [];
+        const points: Array<{ x: number; y: number }> = [];
+        for (let index = 0; index + 1 < tokens.length; index += 2) {
+          const local = new DOMPoint(Number(tokens[index]), Number(tokens[index + 1]));
+          const client = local.matrixTransform(ctm);
+          points.push({ x: client.x, y: client.y });
+        }
+        const fromBox = fromRect.getBoundingClientRect();
+        const toBox = toRect.getBoundingClientRect();
+        return {
+          points,
+          sourceRightEdge: { x: fromBox.right, y: fromBox.top + fromBox.height / 2 },
+          targetLeftEdge: { x: toBox.left, y: toBox.top + toBox.height / 2 },
+        };
+      },
+      { fromId: 'ta-phase-plan-sys2', toId: 'ta-phase-plan-sys3' },
+    );
+    expect(geometry).not.toBeNull();
+    if (geometry === null) {
+      return;
+    }
+    const { points, sourceRightEdge, targetLeftEdge } = geometry;
+    expect(points.length).toBeGreaterThanOrEqual(2);
+
+    // Exit: the source's RIGHT edge, at its exact vertical center.
+    const exit = points[0]!;
+    expect(Math.abs(exit.x - sourceRightEdge.x)).toBeLessThan(1.5);
+    expect(Math.abs(exit.y - sourceRightEdge.y)).toBeLessThan(1.5);
+
+    // Entry: the target's LEFT edge, at its exact vertical center.
+    const entry = points[points.length - 1]!;
+    expect(Math.abs(entry.x - targetLeftEdge.x)).toBeLessThan(1.5);
+    expect(Math.abs(entry.y - targetLeftEdge.y)).toBeLessThan(1.5);
+
+    // Every segment is axis-aligned (right-angle polyline only).
+    for (let index = 1; index < points.length; index += 1) {
+      const a = points[index - 1]!;
+      const b = points[index]!;
+      const isHorizontal = Math.abs(a.y - b.y) < 1.5;
+      const isVertical = Math.abs(a.x - b.x) < 1.5;
+      expect(isHorizontal || isVertical).toBe(true);
+    }
   });
 
   test('4b. property-panel predecessor comma-ids wire two lines; clearing removes them', async ({

@@ -129,14 +129,39 @@ export const FOCUS_RING_DASH_ARRAY = 'none';
 /**
  * Non-color plan/actual redundancy code (SC 1.4.1).
  *
- * TODO(IM3): CR-002 Part 1 replaces the old dashed-plan / solid-actual redundancy with
- * a line-WIDTH code (plan thin / actual thick; no dash, which the user found too busy).
- * Until IM3 lands that, this is NEUTRALIZED to a solid stroke ('none') for every case;
- * the actual-date model no longer carries a plan/actual discriminator per item.
+ * CR-002 Part 1: plan vs actual is made distinguishable WITHOUT hue by the outline
+ * WEIGHT (plan thin / actual thick), NOT by a dash pattern -- the user found dashes
+ * too busy. So this dash accessor stays SOLID ('none') for every case; the line
+ * weight below carries the non-color signal (see {@link planActualStrokeWidthPx}).
  *
- * @param _planActualSide - Legacy discriminator ('plan' | 'actual'); ignored for IM1.
- * @returns An SVG `stroke-dasharray` value; always 'none' (solid) until IM3.
+ * @param _planActualSide - The plan/actual side ('plan' | 'actual'); unused (always solid).
+ * @returns An SVG `stroke-dasharray` value; always 'none' (solid).
  */
 export function planActualStrokeDashArray(_planActualSide: 'plan' | 'actual' | undefined): string {
   return 'none';
+}
+
+/**
+ * Plan bar outline weight in px (CR-002 Part 1): THIN, so the plan reads as the
+ * supplementary (補足的) side.
+ */
+export const PLAN_STROKE_WIDTH_PX = 1;
+
+/**
+ * Actual bar outline weight in px (CR-002 Part 1): THICK, so the actual (as-run)
+ * side is emphasized and stays distinguishable from the plan in grayscale / for
+ * color-blind users (SC 1.4.1 via weight, not hue).
+ */
+export const ACTUAL_STROKE_WIDTH_PX = 2.5;
+
+/**
+ * The non-color plan/actual redundancy code (SC 1.4.1): outline WEIGHT. The plan
+ * outline is thin (supplementary) and the actual outline is thick (emphasized), so
+ * the two sides remain distinguishable with hue removed.
+ *
+ * @param planActualSide - Which side's outline weight to return.
+ * @returns The stroke width in px (thin for `plan`, thick for `actual`).
+ */
+export function planActualStrokeWidthPx(planActualSide: 'plan' | 'actual'): number {
+  return planActualSide === 'actual' ? ACTUAL_STROKE_WIDTH_PX : PLAN_STROKE_WIDTH_PX;
 }

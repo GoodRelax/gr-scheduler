@@ -58,6 +58,7 @@ Verifies（テスト）、ResultOf（結果）。全17 `.sdoc` は `strictdoc ex
 | 操作堅牢化: 固定日付ルーラー（年/月/日+曜, 縦スク固定） | item25/26/50 | date-ruler（buildDateRuler）, svg-renderer, date-ruler.test, e2e:interaction-hardening |
 | 操作堅牢化: 既定カーソル=矢印/文脈カーソル | TOOL-L1-001 | svg-renderer（grab撤去）, editing-controller（col-resize/crosshair）, e2e:interaction-hardening |
 | UI/操作FB: Fitに左余白（最左マーカー/ラベルを非クリップ, scrollX>=0固定を撤去し暦2000規制内の負scroll許容） | STK-L0-021, item7 | viewport（computeFitViewForItems: scrollX=contentLeftPx-margin）, svg-renderer, ui-feedback-batch.test, e2e:ui-feedback-batch |
+| DEF-006 Fit垂直クリップ修正（最下段バー非クリップ, ラベル衝突推定器のzoomY依存レーン増をFitへ反映） | STK-L0-021, item7 | viewport（computeFitViewForItems/measureItemsFitExtent に labelExtent注入 + measureRenderedContentBottomPx で zoomY 精緻化ループ）, svg-renderer（fitToContentがestimateInnerLeftLabelExtentPxを注入）, visual-data-batch.test（estimator-aware RENDERED bottom）, e2e:visual-data-batch（RENDERED box of EVERY item） |
 | UI/操作FB: アイテム枠は実線・既定無し（選択枠は別ノードで保持） | ITEM-L1, item20 | svg-renderer（resolveStrokeAttribute=none既定・dash撤去）, cud-palette（DEFAULT_STROKE_COLOR=transparent）, sample-data, ui-feedback-batch.test, e2e:ui-feedback-batch |
 | UI/操作FB: 空領域ドラッグでラバーバンド複数選択（Shift加算, arm時は作成維持, Ctrl+dragパン維持） | ITEM-L1, TOOL-L1 | editing-controller（MarqueeGesture）, svg-renderer（showMarquee/itemsIntersectingWorldRect）, e2e:ui-feedback-batch |
 | UI/操作FB: Ctrl+A 全選択（入力欄では無効） | TOOL-L1-005 | keyboard-shortcuts（selectAll）, e2e:ui-feedback-batch |
@@ -119,7 +120,7 @@ CR-001（承認 2026-07-19、`change-request-001-20260719-230349.md`）の Part 
 |---|---|---|---|
 | PLAN-L1-001 | 18-plan-actual | 実績を同一アイテムの actualStart/actualEnd で保持、planActualKind/planGroupId 廃止 | pending（次セッション） |
 | PLAN-L1-002 | 18-plan-actual | planActualDisplay（可視フィルタ）を planActualStyle と独立に明確化 | done (IM2)：`filterByPlanActualDisplay` を actual-date モデルで復元（actual-only=actualStart 有のみ）、skip 復元 |
-| PLAN-L1-005（新規） | 18-plan-actual | 予実描画スタイル viewState.planActualStyle=overlap（既定）/separate | done (IM2)：`plan-actual-geometry.ts` 2モード幾何＋item-layer 配線（配色は IM3） |
+| PLAN-L1-005（新規） | 18-plan-actual | 予実描画スタイル viewState.planActualStyle=overlap（既定）/separate | done (IM2/IM3)：`plan-actual-geometry.ts` 2モード幾何＋item-layer 配線（IM2）、配色＝彩度導出（淡/濃）＋線幅冗長符号（IM3） |
 | PLAN-L2-001 | 18-plan-actual | イナズマ線 front 統一規則（実績日あり/なし/未着手の3分岐） | done (IM2)：`computeProgressFrontDate` 4ケース＋マイルストーン点特例、progress-today-layer 配線 |
 | DEP-L1-005（新規） | 16-dependencies | 依存 linkType（FS/SS/FF/SF、既定FS）、MSPDI Type と往復 | done (IM2)：mspdi-codec Type 往復（FF=0/FS=1/SF=2/SS=3） |
 | DEP-L1-006（新規） | 16-dependencies | 依存 符号付き lagDays（正=ラグ/負=リード）、MSPDI LinkLag と往復（暦日近似） | done (IM2)：mspdi-codec LinkLag/LagFormat=8（1日=14400） |
@@ -128,7 +129,7 @@ CR-001（承認 2026-07-19、`change-request-001-20260719-230349.md`）の Part 
 | DATA-JSON-008 | 40-data-format | dependency に linkType/lagDays 追加 | done (IM1) |
 | DATA-JSON-011 | 40-data-format | viewState に planActualStyle 追加 | done (IM1/IM2) |
 | DATA-JSON-015（新規） | 40-data-format | item.targetDate 期限マーカー | done (IM1/IM2) |
-| DATA-MSPDI-003 | 40-data-format | ActualStart/Finish・Baseline・PercentComplete 往復（B-4。Baseline 部分は CR-002 Part 3 により id 突合の best-effort 往復へ改訂） | done (IM2)：ActualStart/Finish/PercentComplete 往復（Baseline は IM3・previousPlan 不出力） |
+| DATA-MSPDI-003 | 40-data-format | ActualStart/Finish・Baseline・PercentComplete 往復（B-4。Baseline 部分は CR-002 Part 3 により id 突合の best-effort 往復へ改訂） | done (IM2+補完)：ActualStart/Finish/PercentComplete 往復。Baseline は補完セッションで `mspdi-codec.exportMspdi(scheduleDocument, baselineDocument?)` に実装（id 突合・BaselineNumber=0/BaselineStart/BaselineFinish 合成、未突合は非出力）。Import は per-item baseline フィールド不在のため best-effort で drop＋名前空間ロガー debug（`grsch:mspdi`）に記録。呼出しは `main.ts` save-xml が renderer の baselineDocument を渡す |
 | DATA-MSPDI-004 | 40-data-format | PredecessorLink Type / LinkLag（linkType/lagDays） | done (IM2) |
 | DATA-MSPDI-007（新規） | 40-data-format | Resource/Assignment（assignee, B-2）、PercentComplete（progressRatio, B-3） | done (IM2) |
 | DATA-MSPDI-008（新規） | 40-data-format | Splits/SplitPart→マルチバー（B-5）、description→Task/Notes（B-6） | done (IM2) |
@@ -139,37 +140,48 @@ CR-001（承認 2026-07-19、`change-request-001-20260719-230349.md`）の Part 
 
 CR-002（承認 2026-07-20、`change-request-002-20260720-054132.md`）の Part 1〜3 を仕様先行で
 `.sdoc` へ反映済み。CR-001 Part A の previousPlan 据え置きおよび Part B-4 の MSPDI Baseline clean
-往復を supersede する。段階化方針（CR-002 §8）に従い `docs/api/gr-scheduler.schema.json` /
-`docs/api/gr-scheduler.schema.next.json` と `src/**` / `tests/**` は本フェーズで未変更。実装状態は
-**pending（実装セッション）**。DEC-003（CR-001 承認）参照。
+往復を supersede する。実装は IM1（スキーマスワップ・`previousPlan` 除去）/IM2（front 特例）/IM3
+（配色彩度導出・マイルストーン2マーカー・ベースライン別ファイル参照ローダ＋グレーアンダーレイ）/
+IM4（ヘッダー Base V/I 集約）で完了（`project-management/handoff-cr-001-002-003-implementation.md`
+§3）。**旧ギャップ解消済み**: MSPDI `BaselineStart`/`BaselineFinish` の best-effort id 突合往復
+（DATA-MSPDI-003 の CR-002 改訂分）は補完セッションで `src/domain/usecase/mspdi-codec.ts` に
+実装完了（export=id 突合合成／import=drop＋debug ログ、tsc/vitest 591 pass/eslint 緑）。Import 側の
+非対称（ドロップ）は `importMspdi` の JSDoc とコード内コメントで DATA-MSPDI-003 "best-effort" を
+参照して明文化。`.sdoc` プローズの flat 形状同期は DEF-004（IM5 対応）の範囲。DEC-003（CR-001 承認）参照。
 
 | 改訂要求/契約 | 文書 | 内容 | 実装状態 |
 |---|---|---|---|
-| PLAN-L1-004 | 18-plan-actual | 変更前予定（ベースライン）を別ファイル参照方式へ改訂（`previousPlan` フィールド廃止、id 突合、薄グレー・編集不可アンダーレイ、対象行と同高さ描画） | pending（実装セッション） |
-| PLAN-L1-005 | 18-plan-actual | Overlap 塗り分けを彩度導出（淡=予定/濃=実績）＋線幅（予定細/実績太、破線不採用）で明確化 | pending |
-| PLAN-L2-001 | 18-plan-actual | マイルストーンの front 特例を追加（区間なし=点。実績あれば actualStart、無ければ startDate。補間しない） | done (IM2)：`computeProgressFrontDate` の milestone 特例で実装（2マーカー描画は IM3） |
-| 40-data-format | 40-data-format | `previousPlan` DATAFIELD（DATA-JSON-006 の一部）廃止、ベースライン参照文書の概念を追加、DATA-MSPDI-003 の Baseline マッピングを best-effort id 突合へ改訂、配色（彩度/線幅）を presentation ノートとして追記 | pending |
-| スキーマ | `docs/api/gr-scheduler.schema.next.json` | `previousPlan` を除去（実装フェーズで現行 `gr-scheduler.schema.json` へスワップ） | pending |
+| PLAN-L1-004 | 18-plan-actual | 変更前予定（ベースライン）を別ファイル参照方式へ改訂（`previousPlan` フィールド廃止、id 突合、薄グレー・編集不可アンダーレイ、対象行と同高さ描画） | done (IM3)：`collectBaselineGhosts`（id 突合・実績無視）＋`ghost-layer`（グレー・同高さアンダーレイ・`data-role="baseline-underlay"`）＋`import-service.importBaselineDocumentFile`（JSON限定ローダ）＋`svg-renderer` ランタイム state（`setBaselineDocument`/`setBaselineVisible`・非永続）。**IM4 完了**: ヘッダー Base V/Base I 2ボタン化（`data-role="baseline-visible"/"baseline-invisible"`）＋Load メニュー「JSON as baseline」に集約、暫定パレットボタン撤去 |
+| PLAN-L1-005 | 18-plan-actual | Overlap 塗り分けを彩度導出（淡=予定/濃=実績）＋線幅（予定細/実績太、破線不採用）で明確化 | done (IM3)：`plan-actual-colors`（HSL parse/format＋`planColorFrom`淡/`actualColorFrom`濃＋`displayFillColor`/`actualDisplayFillColor`、`fillColorExplicit` 上書き）＋`a11y-tokens.planActualStrokeWidthPx`（予定細/実績太、破線不採用）＋item-layer 配線 |
+| PLAN-L2-001 | 18-plan-actual | マイルストーンの front 特例を追加（区間なし=点。実績あれば actualStart、無ければ startDate。補間しない） | done (IM2/IM3)：`computeProgressFrontDate` の milestone 特例（IM2）＋item-layer 2マーカー描画（予定=startDate・実績=actualStart・塗り無し・細リーダー、IM3） |
+| PLAN-L1-006（新規） | 18-plan-actual | 予実の配色をベース色から彩度で導出し線幅を非色冗長符号とする（予定=淡/実績=濃、破線不使用） | done (IM3)：`plan-actual-colors.ts`（`parseColorToHsl`/`hslToCss`/`planColorFrom`＝淡・`actualColorFrom`＝濃、旧固定 緑/橙 は廃止）＋`a11y-tokens.ts`（`PLAN_STROKE_WIDTH_PX`=1/`ACTUAL_STROKE_WIDTH_PX`=2.5・`planActualStrokeWidthPx`、破線不使用）＋item-layer 配線 |
+| PLAN-L1-007（新規） | 18-plan-actual | マイルストーンの予実は2マーカー（予定=startDate/実績=actualStart）で描き区間を塗りつぶさない | done (IM3)：`item-layer.ts`（`milestoneActualMarker`／`drawMilestoneActualMarker`、`data-role="milestone-actual-marker"`、塗り無し・任意の細リーダー線） |
+| DATA-JSON-016（新規） | 40-data-format | ベースライン参照文書（`previousPlan` 廃止に伴う新概念。id 突合・過去予定スナップショット・JSON限定） | done (IM3)：`import-service.importBaselineDocumentFile`（JSON限定・`deserializeScheduleDocument` 検証、MSPDI拒否）＋`progress-line-builder.collectBaselineGhosts`（id 突合・実績無視）＋`ghost-layer`（グレー・同高さアンダーレイ） |
+| 40-data-format | 40-data-format | `previousPlan` DATAFIELD（DATA-JSON-006 の一部）廃止、ベースライン参照文書の概念を追加、DATA-MSPDI-003 の Baseline マッピングを best-effort id 突合へ改訂、配色（彩度/線幅）を presentation ノートとして追記 | partial：`previousPlan` 除去は done (IM1, `gr-scheduler.schema.json`/`schedule-model.ts`)、ベースライン参照文書の概念は上表 DATA-JSON-016 行へ分離し done (IM3)。**MSPDI Baseline best-effort id 突合は未実装**（`mspdi-codec.ts` に Baseline 関連コード無し、grep で確認。要フォローアップ、別途 CR/defect での起票を検討）。配色 presentation ノートの `.sdoc` プローズ反映は DEF-004（`40-data-format.sdoc` §1 flat 同期）の範囲として pending |
+| スキーマ | `docs/api/gr-scheduler.schema.next.json` | `previousPlan` を除去（実装フェーズで現行 `gr-scheduler.schema.json` へスワップ） | done (IM1)：スワップ実施済み（`gr-scheduler.schema.next.json` は削除済、現行 `gr-scheduler.schema.json` に `previousPlan` 不在を確認） |
 
 ## CR-003 (ヘッダー再編・ラベル位置・依存線自動配線) 改訂トレース — 仕様先行・実装後追い
 
 CR-003（承認 2026-07-20、`change-request-003-20260720-063933.md`）の Part 1〜3 を仕様先行で
-`.sdoc` へ反映済み。CR-002 のベースライン可視トグル（Base V/I）のヘッダー配置を確定する。段階化
-方針（CR-003 §8）に従い `docs/api/gr-scheduler.schema.next.json` と `src/**` / `tests/**` は本
-フェーズで未変更。実装状態は **pending（実装セッション）**。
+`.sdoc` へ反映済み。CR-002 のベースライン可視トグル（Base V/I）のヘッダー配置を確定する。実装は
+IM4 で完了（ヘッダー再編・ラベル `inner-left`＋衝突回避・依存線決定的直交配線。
+`project-management/handoff-cr-001-002-003-implementation.md` §3）。**recommended-spec 逸脱**:
+DEP-L2-002（折れ点0〜3）は前進依存では遵守するが、水平重なり＋上下積みの後方（左）ターゲットへの
+行間ギャップ迂回は4折れがパリティ上最小となり逸脱する（`DEF-005-dep-elbow-parity.md` 参照）。
+IM5 で新ヘッダー role・新依存幾何に合わせた E2E 改修を実施。
 
 | 改訂要求/契約 | 文書 | 内容 | 実装状態 |
 |---|---|---|---|
-| TOOL-L1-008（新規） | 19-tools-watermark | ヘッダーのボタン配置順序（`GR Scheduler +(c)` → タイトル → SS → Load → Save → Light → Dark → Mono L → Mono D → Base V → Base I → Undo → Redo → AI → ?）と各ボタンの意味（機能実体）を規定する新規要求 | pending（実装セッション） |
-| ITEM-L2-002（新規） | 11-items-icons | タスクラベルの既定表示位置 `labelPosition=inner-left`（バー内左揃え。バー外左の既存 `left` とは峻別） | pending |
-| ITEM-L2-003（新規） | 11-items-icons | マイルストーンラベルの表示位置（アイコン右 `icon-right`） | pending |
-| ALIGN-L2-003（新規） | 13-layout-alignment | ラベルはみ出しが同一セクション内の他タスクと視覚的に重なる場合の縦オフセット衝突回避（ALIGN-L1-001 の上下左右揃え意図を可能な範囲で維持） | pending |
-| DEP-L1-003（改訂・全面書換） | 16-dependencies | 依存線を決定的な直交経路で自動配線（右出=先行右辺middle_right/左入=後続左辺middle_left、横スタブ=矢じり先端の2倍、後続下=出直後に下折れ、後続上=後続直前で上折れ、水平重なり時は行間ギャップを通過し両バー非跨ぎ、前進依存が主対象） | pending |
-| DEP-L1-002（改訂・注記追加） | 16-dependencies | 9 点アンカー座標定義は保持しつつ、当面は手動選択を用いず DEP-L1-003 の決定的規則（始点middle_right/終点middle_left）で配線する旨を追記 | pending |
-| DEP-L2-001（改訂・specialize） | 16-dependencies | 障害物回避直交配線エンジンの始点/終点アンカーを middle_right/middle_left に固定し DEP-L1-003 の決定的規則に従って経路生成 | pending |
-| DEP-L2-002（改訂・整合明記） | 16-dependencies | 折れ点数0〜3の制約が DEP-L1-003 の決定的経路と整合する旨を明記 | pending |
-| 親 UID（参考・本文不変、子要求追加） | 19-tools-watermark, 11-items-icons, 13-layout-alignment | TOOL-L1-001/002/004/005、ITEM-L1-009/010、ALIGN-L1-001/ALIGN-L2-001 は STATEMENT 本文は改変されておらず、上記の新規/改訂子要求が追加された（親としての整合注記のみ） | pending |
-| スキーマ | `docs/api/gr-scheduler.schema.next.json` | `labelPosition` enum に `inner-left` を追加 | pending |
+| TOOL-L1-008（新規） | 19-tools-watermark | ヘッダーのボタン配置順序（`GR Scheduler +(c)` → タイトル → SS → Load → Save → Light → Dark → Mono L → Mono D → Base V → Base I → Undo → Redo → AI → ?）と各ボタンの意味（機能実体）を規定する新規要求 | done (IM4)：`src/app/header-model.ts`（`HEADER_CONTROL_ROLES` 単一SSOT・`LOAD/SAVE_MENU_ITEMS`・`THEME_BUTTON_SPECS`）＋`src/app/main.ts buildChrome`（role→element ルックアップで CR-003 順に append）＋`src/adapters/ui/header-menu.ts`（Load/Save ドロップダウン、aria-haspopup/menu）＋SS=`src/app/viewport-capture.ts`（表示域PNG）。単体：`tests/header-model.test.ts`。E2E：`tests/e2e/cr003-header-dep.spec.ts`（本セッション未実行） |
+| ITEM-L2-002（新規） | 11-items-icons | タスクラベルの既定表示位置 `labelPosition=inner-left`（バー内左揃え。バー外左の既存 `left` とは峻別） | done (IM4)：`item-geometry.labelAnchorPoint`（`inner-left` case＋タスク auto 既定→inner-left、arrow/span は連結線上維持）。単体：`tests/task-shape-rendering.test.ts`（inner-left と left の峻別） |
+| ITEM-L2-003（新規） | 11-items-icons | マイルストーンラベルの表示位置（アイコン右 `icon-right`） | done (IM4)：`item-geometry.autoLabelAnchor`（milestone→右 `textAnchor='start'`、既存挙動を維持・明文化） |
+| ALIGN-L2-003（新規） | 13-layout-alignment | ラベルはみ出しが同一セクション内の他タスクと視覚的に重なる場合の縦オフセット衝突回避（ALIGN-L1-001 の上下左右揃え意図を可能な範囲で維持） | done (IM4)：`layout-engine.assignLanes`（`ItemLabelExtentEstimator` で占有右端をラベルはみ出し分拡張→後続衝突アイテムを1レーン下げる決定的パス）＋`item-geometry.estimateInnerLeftLabelExtentPx`（renderer/left-pane が供給）。単体：`tests/label-collision.test.ts`。**recommended-spec**: 衝突時は後続（order昇順で後）を最小1レーン下方へ |
+| DEP-L1-003（改訂・全面書換） | 16-dependencies | 依存線を決定的な直交経路で自動配線（右出=先行右辺middle_right/左入=後続左辺middle_left、横スタブ=矢じり先端の2倍、後続下=出直後に下折れ、後続上=後続直前で上折れ、水平重なり時は行間ギャップを通過し両バー非跨ぎ、前進依存が主対象） | done (IM4)：`dependency-connector.routeConnector` 全面書換（右辺中央出/左辺中央入・`CONNECTOR_STUB_PX`=2×矢じり・後続下=出直後下折れ・後続上=後続直前上折れ・重なり=行間ギャップ）。単体：`tests/dependency-connector.test.ts`（3ケース＋スタブ長＋折れ点＋非跨ぎ） |
+| DEP-L1-002（改訂・注記追加） | 16-dependencies | 9 点アンカー座標定義は保持しつつ、当面は手動選択を用いず DEP-L1-003 の決定的規則（始点middle_right/終点middle_left）で配線する旨を追記 | done (IM4)：`dependency-router.ts` の 9 アンカー座標は保持、`dependency-layer`/`hit-tester` は `routeConnector` を使用（手動アンカー無視） |
+| DEP-L2-001（改訂・specialize） | 16-dependencies | 障害物回避直交配線エンジンの始点/終点アンカーを middle_right/middle_left に固定し DEP-L1-003 の決定的規則に従って経路生成 | done (IM4)：`routeConnector` が右辺/左辺固定で直交経路を決定的生成 |
+| DEP-L2-002（改訂・整合明記） | 16-dependencies | 折れ点数0〜3の制約が DEP-L1-003 の決定的経路と整合する旨を明記 | done (IM4)：前進依存（整列0・上下2）は0〜3遵守。**recommended-spec 逸脱**: 上下積み＋水平重なりの行間ギャップ迂回は右辺出/左辺入のパリティ上4折れが最小（`tests/dependency-connector.test.ts` で両バー非跨ぎを検証）。将来CRで当該ケースの上限緩和 or 上下辺入を検討 |
+| 親 UID（参考・本文不変、子要求追加） | 19-tools-watermark, 11-items-icons, 13-layout-alignment | TOOL-L1-001/002/004/005、ITEM-L1-009/010、ALIGN-L1-001/ALIGN-L2-001 は STATEMENT 本文は改変されておらず、上記の新規/改訂子要求が追加された（親としての整合注記のみ） | done（注記のみ・実装対象なし。`.sdoc` に子要求追加済で充足） |
+| スキーマ | `docs/api/gr-scheduler.schema.next.json` | `labelPosition` enum に `inner-left` を追加 | done (IM1/IM4)：スワップ後の現行 `gr-scheduler.schema.json`（`labelPosition` enum に `inner-left` を含むことを確認）へ反映済み |
 
 ## 結論
 

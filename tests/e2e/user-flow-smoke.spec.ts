@@ -32,9 +32,10 @@ const builtAppFile = resolve(process.cwd(), 'dist', 'index.html');
 
 /** Click "Export JSON", capture the download, and parse it. */
 async function exportDocument(page: Page): Promise<{ items: readonly unknown[] }> {
+  await page.locator('button[data-role="save"]').click();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Export JSON' }).click(),
+    page.locator('[data-role="save-menu"] button[data-role="save-json"]').click(),
   ]);
   const downloadStream = await download.createReadStream();
   const chunks: Buffer[] = [];

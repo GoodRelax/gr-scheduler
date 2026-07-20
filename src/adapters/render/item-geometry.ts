@@ -34,6 +34,19 @@ export const TASK_ABBREV_FONT_MIN_PX = 6;
 export const TASK_LINE_ARROW_STROKE_PX = 3;
 
 /**
+ * Horizontal inset (px) of an `inner-left` label from the task bar's left edge, so the
+ * left-aligned in-bar abbreviation is not flush against the border (CR-003 Part 2).
+ */
+export const INNER_LEFT_LABEL_PAD_PX = 4;
+
+/**
+ * Approximate per-character advance as a fraction of the font size, used to estimate
+ * an abbreviation's rendered pixel WIDTH without a live text-measuring pass. Matches
+ * the value {@link pointInLabelBox} already uses for its hit box.
+ */
+export const LABEL_CHAR_WIDTH_RATIO = 0.62;
+
+/**
  * The abbreviation font-size for a task: 90% of its rendered bar height, clamped up
  * to {@link TASK_ABBREV_FONT_MIN_PX} for a very thin bar (item 1).
  *
@@ -113,6 +126,16 @@ export function labelAnchorPoint(
     case 'center':
       base = { x: centerX, y: centerY, textAnchor: 'middle' };
       break;
+    case 'inner-left':
+      // Inside the bar, left-aligned (CR-003 Part 2): distinct from `left` (OUTSIDE
+      // the bar). Overflow past the bar's right edge is allowed; the layout engine's
+      // collision pass shifts a later colliding item down within its section band.
+      base = {
+        x: placement.worldX + INNER_LEFT_LABEL_PAD_PX,
+        y: centerY,
+        textAnchor: 'start',
+      };
+      break;
     case 'top':
       base = { x: centerX, y: placement.worldY - 4, textAnchor: 'middle' };
       break;
@@ -137,31 +160,78 @@ export function labelAnchorPoint(
 }
 
 /**
- * The `auto` (default) label anchor. A TASK centers its abbreviation inside the bar
- * (item 2): a plain bar / chevron centers on both axes; an arrow / span moves the
- * connector line to the lower band and places the label in the UPPER part, so it
- * sits ABOVE the line (items 3 / 4). A MILESTONE keeps its side (right) label.
+ * The `auto` (default) label anchor. A plain bar / chevron TASK pins its abbreviation
+ * INSIDE the bar, LEFT-aligned (`inner-left`, the CR-003 Part 2 task default); an arrow
+ * / span moves the connector line to the lower band and places the label in the UPPER
+ * part, so it sits ABOVE the line (items 3 / 4). A MILESTONE keeps its side label to
+ * the RIGHT of the point glyph (ITEM-L2-003).
  */
 function autoLabelAnchor(
   item: ScheduleItem,
   placement: ItemPlacement,
-  centerX: number,
+  _centerX: number,
   centerY: number,
   right: number,
 ): { x: number; y: number; textAnchor: string } {
   if (item.itemKind !== 'task') {
-    // Milestones keep a side label to the right of the point glyph.
+    // Milestones keep a side label to the right of the point glyph (ITEM-L2-003).
     return { x: right, y: centerY, textAnchor: 'start' };
   }
   const shape = effectiveTaskShape(item);
   if (shape === 'arrow' || shape === 'span') {
     return {
-      x: centerX,
+      x: _centerX,
       y: placement.worldY + placement.worldHeight * TASK_CONNECTOR_LABEL_Y_FRACTION,
       textAnchor: 'middle',
     };
   }
-  return { x: centerX, y: centerY, textAnchor: 'middle' };
+  // Plain bar / chevron: inside the bar, left-aligned (CR-003 Part 2 default).
+  return {
+    x: placement.worldX + INNER_LEFT_LABEL_PAD_PX,
+    y: centerY,
+    textAnchor: 'start',
+  };
+}
+
+/**
+ * Whether a task's abbreviation is drawn INSIDE the bar, left-aligned -- either an
+ * explicit `inner-left` or the plain bar / chevron default (`auto`). Arrow / span keep
+ * the centered label above the connector line and never take the inner-left path.
+ */
+export function resolvesToInnerLeftLabel(item: ScheduleItem): boolean {
+  if (item.itemKind !== 'task') {
+    return false;
+  }
+  const position = item.labelPosition ?? 'auto';
+  if (position === 'inner-left') {
+    return true;
+  }
+  if (position !== 'auto') {
+    return false;
+  }
+  const shape = effectiveTaskShape(item);
+  return shape !== 'arrow' && shape !== 'span';
+}
+
+/**
+ * Estimate the RIGHTWARD pixel extent, measured from the item's start x, occupied by a
+ * task's `inner-left` abbreviation (CR-003 Part 2). This is the pad plus the estimated
+ * label width; the label is allowed to overflow the bar's right edge, so this extent
+ * feeds the layout engine's collision-avoidance pass (a later item whose bar starts
+ * inside this extent is shifted down into a new lane). Returns 0 for any item whose
+ * label is not an inner-left in-bar label, so only the overflow case perturbs layout.
+ *
+ * @param item - The item whose label extent to estimate.
+ * @param barHeightPx - The item's rendered bar (band) height, which sizes the font.
+ * @returns The rightward label extent in px from the item's start x (0 when N/A).
+ */
+export function estimateInnerLeftLabelExtentPx(item: ScheduleItem, barHeightPx: number): number {
+  if (!resolvesToInnerLeftLabel(item)) {
+    return 0;
+  }
+  const fontSize = taskAbbrevFontSize(barHeightPx);
+  const labelWidth = item.abbrev.length * fontSize * LABEL_CHAR_WIDTH_RATIO;
+  return INNER_LEFT_LABEL_PAD_PX + labelWidth;
 }
 
 /** Approximate whether a world point falls on an item's abbreviation label. */

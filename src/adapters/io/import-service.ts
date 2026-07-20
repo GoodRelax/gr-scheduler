@@ -76,6 +76,30 @@ export async function importDocumentFile(file: File): Promise<DocumentImportResu
 }
 
 /**
+ * Import a JSON file as a BASELINE reference document (CR-002 Part 3 /
+ * PLAN-L1-004 / DATA-JSON-016). The baseline is JSON-ONLY (MSPDI XML is not a valid
+ * baseline source), so a leading `<` is rejected here rather than routed to the
+ * MSPDI codec. The returned document is a read-only past-plan snapshot; the caller
+ * holds it as runtime state and never merges it into the edited document.
+ *
+ * @param file - The chosen JSON file.
+ * @returns A document import result carrying the baseline document.
+ * @throws {ImportRejectedError} When the file is not JSON, or on any codec failure.
+ */
+export async function importBaselineDocumentFile(file: File): Promise<DocumentImportResult> {
+  const text = await readFileAsText(file);
+  if (text.trimStart().startsWith('<')) {
+    throw new ImportRejectedError('Baseline reference must be a JSON document, not MSPDI XML');
+  }
+  const document = deserializeScheduleDocument(text);
+  log.info('baseline_imported', {
+    file_name: file.name,
+    item_count: document.items.length,
+  });
+  return { resultKind: 'document', document };
+}
+
+/**
  * Import an icon file (SVG or PNG) as a sanitized ImportedAsset (ITEM-L1-008,
  * ITEM-L2-001). SVG is allowlist-sanitized; PNG is magic-byte/dimension
  * validated. Any other format is rejected (§3.5 C-10).

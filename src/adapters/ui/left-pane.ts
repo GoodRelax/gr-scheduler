@@ -41,6 +41,7 @@ import {
   setSectionCollapsedCommand,
 } from '../../domain/command/commands.js';
 import type { SvgRenderer } from '../render/svg-renderer.js';
+import { estimateInnerLeftLabelExtentPx } from '../render/item-geometry.js';
 import {
   computeRowGeometry,
   rowHeightAt,
@@ -317,7 +318,15 @@ export class LeftClassificationPane {
         ? { ...item, rowId: displayId }
         : item;
     });
-    const rowGeometry = computeRowGeometry(laidItems, visibleRows, document.epochDate, viewState);
+    const rowGeometry = computeRowGeometry(
+      laidItems,
+      visibleRows,
+      document.epochDate,
+      viewState,
+      // Match the canvas: the same label-collision extent so pane rows align with the
+      // grown lanes (CR-003 Part 2).
+      estimateInnerLeftLabelExtentPx,
+    );
     // A middle (track) label repeats on every detail row beneath it; decorate only
     // its FIRST appearance with the icon row so a track has one control set.
     const decoratedMiddles = new Set<string>();

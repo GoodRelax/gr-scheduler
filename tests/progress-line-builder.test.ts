@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ScheduleItem } from '../src/domain/model/schedule-model.js';
 import {
   buildIlluminatedLine,
+  collectBaselineGhosts,
   collectPreviousPlanGhosts,
   computeProgressFrontDate,
   filterByPlanActualDisplay,
@@ -222,25 +223,50 @@ describe('illuminated (progress) line builder (PLAN-L1-003 / L2-001)', () => {
   });
 });
 
-describe('previous-plan ghost collection (PLAN-L1-004)', () => {
-  // TODO(IM3): CR-002 Part 3 moves the baseline out of the item (`previousPlan` removed)
-  // into a separately-loaded reference document + gray underlay. collectPreviousPlanGhosts
-  // is neutralized to [] until that loader lands, so the ghost assertions are skipped.
+describe('baseline reference ghost collection (PLAN-L1-004 / CR-002 Part 3)', () => {
+  // CR-002 Part 3: the baseline lives in a separately-loaded reference document, not
+  // on the item. collectPreviousPlanGhosts (the "baseline from the item itself" seam)
+  // therefore always yields nothing; collectBaselineGhosts id-matches the reference
+  // document's items against the current ids and carries only their PLANNED span.
   it('collects no ghosts from items alone (baseline is a separate reference document)', () => {
     const changed = makeItem({ id: 'c' });
     const unchanged = makeItem({ id: 'n' });
     expect(collectPreviousPlanGhosts([changed, unchanged])).toHaveLength(0);
   });
 
-  it.skip('TODO(IM3): emits a ghost for each item with a baseline (from the reference doc)', () => {
-    const changed = makeItem({ id: 'c' });
-    const ghosts = collectPreviousPlanGhosts([changed]);
+  it('emits a ghost for each baseline item id-matched to a current item', () => {
+    const baselineItems = [
+      makeItem({ id: 'c', startDate: '2026-02-01', endDate: '2026-02-05' }),
+      makeItem({ id: 'orphan', startDate: '2026-03-01', endDate: '2026-03-05' }),
+    ];
+    const currentItemIds = new Set(['c', 'other']);
+    const ghosts = collectBaselineGhosts(baselineItems, currentItemIds);
+    // Only 'c' is present in the live document; 'orphan' has no live item to underlay.
     expect(ghosts).toHaveLength(1);
+    expect(ghosts[0]!.itemId).toBe('c');
+    expect(ghosts[0]!.startDate).toBe('2026-02-01');
+    expect(ghosts[0]!.endDate).toBe('2026-02-05');
   });
 
-  it.skip('TODO(IM3): preserves a null end date for a milestone baseline', () => {
-    const milestone = makeItem({ id: 'm', itemKind: 'milestone', endDate: null });
-    const ghosts = collectPreviousPlanGhosts([milestone]);
+  it('ignores the baseline item actuals and uses only its planned span', () => {
+    const baselineItems = [
+      makeItem({
+        id: 'c',
+        startDate: '2026-02-01',
+        endDate: '2026-02-05',
+        // These as-run dates must NOT leak into the underlay (baseline = past PLAN).
+        actualStart: '2026-02-08',
+        actualEnd: '2026-02-12',
+      }),
+    ];
+    const ghosts = collectBaselineGhosts(baselineItems, new Set(['c']));
+    expect(ghosts[0]!.startDate).toBe('2026-02-01');
+    expect(ghosts[0]!.endDate).toBe('2026-02-05');
+  });
+
+  it('preserves a null end date for a milestone baseline', () => {
+    const baselineItems = [makeItem({ id: 'm', itemKind: 'milestone', endDate: null })];
+    const ghosts = collectBaselineGhosts(baselineItems, new Set(['m']));
     expect(ghosts[0]!.endDate).toBeNull();
   });
 });

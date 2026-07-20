@@ -234,8 +234,15 @@ const MONO_LIGHT_THEME_VARIABLES: Readonly<Record<string, string>> =
 const MONO_DARK_THEME_VARIABLES: Readonly<Record<string, string>> =
   toGrayscalePalette(DARK_THEME_VARIABLES);
 
+/**
+ * Every theme CSS custom-property name (shared by all four palettes). Consumed by the
+ * viewport-capture path to inline the ACTIVE values onto a standalone SVG so a
+ * screenshot renders the themed canvas colors offline.
+ */
+export const THEME_VARIABLE_NAMES: readonly string[] = Object.keys(LIGHT_THEME_VARIABLES);
+
 /** Element rules that CONSUME the variables for the SVG canvas decorations. */
-const CANVAS_ELEMENT_RULES = `
+export const CANVAS_ELEMENT_RULES = `
 svg[data-role="schedule-canvas"] { background: var(--grsch-canvas-bg); }
 g[data-role="gridlines"] line { stroke: var(--grsch-grid-line); }
 g[data-role="classification-lines"] line { stroke: var(--grsch-section-line); }

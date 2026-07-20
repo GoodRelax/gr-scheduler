@@ -41,6 +41,10 @@ import {
   deserializeScheduleDocument,
   serializeScheduleDocument,
 } from './json-codec.js';
+import { createLogger } from '../../app/logger.js';
+
+/** Namespaced dev logger for best-effort/lossy codec notes (no console.log). */
+const log = createLogger('grsch:mspdi');
 
 /** Marker prefix identifying the gr-scheduler sidecar inside Project Notes. */
 const SIDECAR_PREFIX = 'grsch-sidecar:';
@@ -187,11 +191,34 @@ function toIsoDate(dateTime: string): string {
  * (Part C), and Resources/Assignments for assignees (B-2) -- plus a base64 sidecar
  * (in Project Notes) that carries the full document for loss-free re-import.
  *
+ * Best-effort baseline (DATA-MSPDI-003, CR-002 Part 3): when a `baselineDocument`
+ * (a SEPARATE runtime reference past-plan snapshot, DATA-JSON-016) is supplied, each
+ * exported leaf Task whose item id matches a baseline item id also emits Baseline0
+ * Start/Finish synthesized from that baseline item's plan dates. Unmatched items emit
+ * no Baseline element (lossy, per spec). Import does NOT round-trip these back (see
+ * {@link importMspdi}) because the model has no per-item baseline field.
+ *
  * @param scheduleDocument - The document to export.
+ * @param baselineDocument - Optional separate past-plan reference; when present, its
+ *   items are id-matched against exported tasks to synthesize Baseline0 Start/Finish.
  * @returns MSPDI XML text.
  */
-export function exportMspdi(scheduleDocument: ScheduleDocument): string {
+export function exportMspdi(
+  scheduleDocument: ScheduleDocument,
+  baselineDocument?: ScheduleDocument,
+): string {
   const items = scheduleDocument.items;
+
+  // Best-effort baseline (DATA-MSPDI-003): match by item id; a matched task emits
+  // Baseline0 Start/Finish, an unmatched task emits none. A milestone baseline item
+  // (endDate=null) collapses BaselineFinish to its start, mirroring plan Finish.
+  const baselineDatesByItemId = new Map<string, { readonly start: string; readonly finish: string }>();
+  for (const baselineItem of baselineDocument?.items ?? []) {
+    baselineDatesByItemId.set(baselineItem.id, {
+      start: baselineItem.startDate,
+      finish: baselineItem.endDate ?? baselineItem.startDate,
+    });
+  }
   // Leaf-task UIDs are 1..N (stable, index-based) so dependency references stay simple;
   // section Summary tasks take UIDs after the items (B-1).
   const uidByItemId = new Map<string, number>();
@@ -235,7 +262,9 @@ export function exportMspdi(scheduleDocument: ScheduleDocument): string {
         renderPredecessorLinkXml(dependency, uidByItemId.get(dependency.fromItemId) ?? 0),
       )
       .join('');
-    return renderTaskXml(item, uid, outlineLevel, predecessorLinks);
+    const baselineDates = baselineDatesByItemId.get(item.id);
+    const baselineXml = baselineDates === undefined ? '' : renderBaselineXml(baselineDates);
+    return renderTaskXml(item, uid, outlineLevel, predecessorLinks, baselineXml);
   };
 
   const orderedSections = [...scheduleDocument.sections].sort((left, right) => left.order - right.order);
@@ -297,12 +326,26 @@ function renderPredecessorLinkXml(dependency: Dependency, predecessorUid: number
   return `<PredecessorLink>${parts.join('')}</PredecessorLink>`;
 }
 
+/**
+ * Render Baseline0 Start/Finish for an item matched against a baseline document
+ * (DATA-MSPDI-003, best-effort). Uses the same MSPDI dateTime format as plan
+ * Start/Finish so a real MS Project reads a consistent baseline bar.
+ */
+function renderBaselineXml(dates: { readonly start: string; readonly finish: string }): string {
+  return (
+    '<BaselineNumber>0</BaselineNumber>' +
+    `<BaselineStart>${toMspdiDateTime(dates.start)}</BaselineStart>` +
+    `<BaselineFinish>${toMspdiDateTime(dates.finish)}</BaselineFinish>`
+  );
+}
+
 /** Render a leaf item as a MSPDI Task with plan/actual/progress/deadline fields. */
 function renderTaskXml(
   item: ScheduleItem,
   uid: number,
   outlineLevel: number,
   predecessorLinksXml: string,
+  baselineXml: string,
 ): string {
   const isMilestone = item.itemKind === 'milestone' || item.endDate === null;
   const finishDate = item.endDate ?? item.startDate;
@@ -330,6 +373,11 @@ function renderTaskXml(
   // Deadline (Part C): the target-end marker, not a scheduler constraint.
   if (item.targetDate !== undefined) {
     parts.push(`<Deadline>${toMspdiDateTime(item.targetDate)}</Deadline>`);
+  }
+  // Baseline0 (DATA-MSPDI-003): present only when a baseline document matched this
+  // item id; empty otherwise (unmatched items emit no Baseline element).
+  if (baselineXml.length > 0) {
+    parts.push(baselineXml);
   }
   // Description (B-6): the task's own Notes, distinct from the Project-level sidecar Notes.
   if (item.description !== undefined && item.description.length > 0) {
@@ -403,6 +451,13 @@ function allTagBlocks(xml: string, tag: string): string[] {
  * Deserialize MSPDI XML into a ScheduleDocument (IO-L1-002). Prefers the
  * gr-scheduler sidecar (loss-free); falls back to a minimal reconstruction from
  * standard MSPDI elements when the sidecar is absent (lossy, per spec).
+ *
+ * Best-effort baseline asymmetry (DATA-MSPDI-003, CR-002 Part 3): standard Baseline0
+ * Start/Finish are recognized but INTENTIONALLY NOT restored. The model holds the
+ * baseline (past plan) as a SEPARATE runtime reference document (DATA-JSON-016), not
+ * as a per-item field, so there is no natural home on the imported document. Export
+ * can synthesize Baseline elements from a supplied baseline document; import drops
+ * them (logged) rather than fabricate document state -- hence "best-effort" round-trip.
  *
  * @param xmlText - The untrusted MSPDI XML text.
  * @returns A validated ScheduleDocument.
@@ -603,6 +658,20 @@ function reconstructFromStandardMspdi(xmlText: string): ScheduleDocument {
       dependencies.push(parsePredecessorLink(linkBlock, `dep-${uid}-${linkIndex}`, fromId, targetId));
     });
   });
+
+  // Best-effort baseline (DATA-MSPDI-003): recognize but DROP Baseline0 Start/Finish.
+  // There is no per-item baseline field to receive them -- the baseline is a separate
+  // runtime reference document (DATA-JSON-016) -- so reconstructing one would fabricate
+  // state. Record the drop for diagnostics instead of silently discarding it. This is
+  // the export/import asymmetry documented in DATA-MSPDI-003 "best-effort".
+  const droppedBaselineCount = taskBlocks.filter(
+    (block) => firstTagText(block, 'BaselineStart') !== null,
+  ).length;
+  if (droppedBaselineCount > 0) {
+    log.debug('baseline_elements_dropped_no_document_field', {
+      dropped_baseline_count: droppedBaselineCount,
+    });
+  }
 
   if (sections.length === 0) {
     // No tasks at all: keep a well-formed empty document with one placeholder section.

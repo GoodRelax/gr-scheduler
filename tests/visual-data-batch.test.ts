@@ -12,9 +12,11 @@
 import { describe, expect, it } from 'vitest';
 import { generateTemplateDocument } from '../src/app/sample-data.js';
 import {
-  ACTUAL_FILL_ORANGE,
-  PLAN_FILL_GREEN,
+  actualColorFrom,
+  actualDisplayFillColor,
   displayFillColor,
+  parseColorToHsl,
+  planColorFrom,
 } from '../src/domain/usecase/plan-actual-colors.js';
 import {
   clampTimelineScrollX,
@@ -26,7 +28,8 @@ import {
   computeFitViewForItems,
   type FitViewportInputs,
 } from '../src/domain/usecase/viewport.js';
-import { layoutItems } from '../src/domain/usecase/layout-engine.js';
+import { layoutItems, layoutRows } from '../src/domain/usecase/layout-engine.js';
+import { estimateInnerLeftLabelExtentPx } from '../src/adapters/render/item-geometry.js';
 import { orderedVisibleRows } from '../src/domain/usecase/section-organizer.js';
 import { rulerTierCount } from '../src/domain/usecase/date-ruler.js';
 import {
@@ -102,24 +105,38 @@ describe('default template sample data (fix 1)', () => {
   });
 });
 
-describe('plan/actual property-driven coloring (fix 3)', () => {
-  // TODO(IM3): CR-002 Part 1 saturation-derived plan/actual coloring is deferred to IM3.
-  // For IM1 displayFillColor returns the item's own stored fill, so the green/orange
-  // assertions are skipped (restore against the IM3 saturation logic).
-  it('returns the item own stored fill (IM1 neutralization)', () => {
+describe('plan/actual saturation-derived coloring (CR-002 Part 1)', () => {
+  // CR-002 Part 1: plan = PALE (desaturated + lightened) shade of the base color;
+  // actual = VIVID (saturated + deepened) shade; a plan-only item keeps its own fill.
+  it('keeps a plan-only item own stored fill (nothing to contrast against)', () => {
     expect(displayFillColor({ fillColor: '#123456' })).toBe('#123456');
     expect(displayFillColor({ fillColor: '#abcdef' })).toBe('#abcdef');
   });
 
-  it.skip('TODO(IM3): maps plan -> green and actual -> orange from the property', () => {
-    expect(displayFillColor({ fillColor: '#123456' })).toBe(PLAN_FILL_GREEN);
-    expect(displayFillColor({ fillColor: '#123456' })).toBe(ACTUAL_FILL_ORANGE);
+  it('plan shade is paler (less saturated, lighter) than the vivid actual shade', () => {
+    const base = '#2f80ed';
+    const baseHsl = parseColorToHsl(base)!;
+    const planHsl = parseColorToHsl(planColorFrom(base))!;
+    const actualHsl = parseColorToHsl(actualColorFrom(base))!;
+    // Plan: desaturated + lightened relative to the base.
+    expect(planHsl.s).toBeLessThan(baseHsl.s);
+    expect(planHsl.l).toBeGreaterThan(baseHsl.l);
+    // Actual: more saturated + deeper than the plan.
+    expect(actualHsl.s).toBeGreaterThan(planHsl.s);
+    expect(actualHsl.l).toBeLessThan(planHsl.l);
   });
 
-  it.skip('TODO(IM3): colors the whole template by plan/actual', () => {
+  it('derives both sides from each item base color that records an actual', () => {
     const document = generateTemplateDocument();
-    for (const item of document.items) {
-      expect(displayFillColor(item)).toBe(PLAN_FILL_GREEN);
+    const withActual = document.items.filter((item) => item.actualStart !== undefined);
+    // The template carries at least one item with recorded actual dates (SYS1).
+    expect(withActual.length).toBeGreaterThan(0);
+    for (const item of withActual) {
+      if (item.fillColorExplicit === true) {
+        continue;
+      }
+      expect(displayFillColor(item)).toBe(planColorFrom(item.fillColor));
+      expect(actualDisplayFillColor(item)).toBe(actualColorFrom(item.fillColor));
     }
   });
 });
@@ -208,6 +225,47 @@ describe('Fit frames every sample item (fix 7)', () => {
         `${placement.itemId} bottom`,
       ).toBeLessThanOrEqual(viewportBottom + epsilon);
     }
+  });
+
+  it('frames the estimator-aware RENDERED bottom (last bar not clipped, DEF-006)', () => {
+    // The real renderer stacks label-colliding items into extra sub-lanes via
+    // `estimateInnerLeftLabelExtentPx`, and that estimator's occupied width grows with
+    // the (zoomY-scaled) bar height -- so a taller Fit zoomY can add a sub-lane that
+    // pushes the bottom rows down. When Fit measures WITHOUT the estimator it framed a
+    // shorter content than the renderer draws, clipping the last row's BAR ~9.8px past
+    // the canvas bottom. Passing the SAME estimator (and refining zoomY against the true
+    // rendered bottom) must frame every item's real box within the vertical budget.
+    const document = generateTemplateDocument();
+    const rows = orderedVisibleRows(document.sections, document.rows);
+    const fit = computeFitViewForItems(
+      document.items,
+      rows,
+      document.epochDate,
+      inputs,
+      undefined,
+      estimateInnerLeftLabelExtentPx,
+    );
+    expect(fit).not.toBeNull();
+    if (fit === null) {
+      return;
+    }
+    const viewState = { ...document.viewState, ...fit };
+    // Lay out EXACTLY as the renderer does (with the label-collision estimator).
+    const placements = layoutRows(
+      document.items,
+      rows,
+      document.epochDate,
+      viewState,
+      estimateInnerLeftLabelExtentPx,
+    ).placements;
+    const renderedBottom = Math.max(
+      ...placements.map((placement) => placement.worldY + placement.worldHeight),
+    );
+    const topOffset = topOffsetForZoomX(fit.zoomX);
+    // scrollY = 0, so this world y maps to the canvas bottom edge.
+    const canvasContentBottom = canvasSize.heightPx - topOffset;
+    // The rendered bottom is framed with the same margin the horizontal axis reserves.
+    expect(renderedBottom).toBeLessThanOrEqual(canvasContentBottom);
   });
 
   it('frames representative items from BOTH majors after Fit', () => {

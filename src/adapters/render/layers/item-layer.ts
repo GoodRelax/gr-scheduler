@@ -12,7 +12,10 @@ import type { ViewportWindow } from '../../../domain/usecase/viewport.js';
 import { placementIntersectsWindow } from '../../../domain/usecase/viewport.js';
 import { lodThreshold } from '../../../domain/usecase/lod-selector.js';
 import { filterByPlanActualDisplay } from '../../../domain/usecase/progress-line-builder.js';
-import { displayFillColor } from '../../../domain/usecase/plan-actual-colors.js';
+import {
+  actualDisplayFillColor,
+  displayFillColor,
+} from '../../../domain/usecase/plan-actual-colors.js';
 import {
   computePlanActualBars,
   type PlanActualBarRect,
@@ -37,6 +40,7 @@ import {
   FOCUS_RING_HEX,
   FOCUS_RING_STROKE_WIDTH,
   ITEM_LABEL_HEX,
+  planActualStrokeWidthPx,
   SELECTION_DASH_ARRAY,
 } from '../../../domain/usecase/a11y-tokens.js';
 import { CUD_BLUE_ACCENT_HEX, HANDLE_FILL_HEX } from '../../../domain/usecase/render-tokens.js';
@@ -82,6 +86,19 @@ interface MountedItem {
    * plain rect.
    */
   actualBar: SVGRectElement | null;
+  /**
+   * The ACTUAL milestone marker (CR-002 Part 2), a second glyph drawn at the
+   * milestone's `actualStart` when present. A milestone shows plan + actual as TWO
+   * markers with NO filled span between them. Lazily created; removed when the
+   * milestone has no actual or the item is not a milestone.
+   */
+  milestoneActualMarker: SVGPathElement | null;
+  /**
+   * The optional thin leader line joining a milestone's plan and actual markers
+   * (CR-002 Part 2), cueing the shift. Present only alongside a milestone actual
+   * marker.
+   */
+  milestoneLeader: SVGLineElement | null;
 }
 
 /** The result of one item diff pass (feeds the renderer's metrics snapshot). */
@@ -198,6 +215,8 @@ export class ItemLayer {
       fadeInHandle: null,
       fadeOutHandle: null,
       actualBar: null,
+      milestoneActualMarker: null,
+      milestoneLeader: null,
     };
   }
 
@@ -238,11 +257,12 @@ export class ItemLayer {
     // Swap the glyph element FIRST (rect / polygon / path per shape + fade) so the
     // paint attributes below land on the element actually shown this frame.
     this.ensureTaskGlyphElement(mounted, item);
-    // Property-driven fill (fix 3): plan -> green, actual -> orange, derived from
-    // the plan_actual_status PROPERTY (never by parsing the category name). Items
-    // without plan/actual semantics keep their own stored fill. Grey baseline /
-    // changed-plan ghosts are drawn separately (renderPreviousPlanGhosts) and are
-    // unaffected. Paired with the non-color stroke-dash below for WCAG 1.4.1.
+    // Plan/actual coloring (CR-002 Part 1): the PLAN side is the pale shade derived
+    // from the item's own base fill (or the base fill itself for a plan-only item /
+    // an explicit fill); the ACTUAL side is the vivid shade. The grey baseline
+    // underlay is a separate layer (GhostLayer) and is unaffected. The plan/actual
+    // outline WEIGHT below (thin plan / thick actual) is the non-color redundancy
+    // for WCAG 1.4.1.
     const fillColor = displayFillColor(item);
     const taskShape = item.itemKind === 'task' ? effectiveTaskShape(item) : null;
     const paintMode = taskShape === null ? 'fill' : taskGlyphPaintMode(taskShape);
@@ -285,10 +305,16 @@ export class ItemLayer {
 
     if (item.itemKind === 'milestone') {
       const size = placement.worldHeight;
-      const centerX = placement.worldX;
-      const centerY = placement.worldY + size / 2;
-      mounted.shape.setAttribute('d', milestonePath(item, centerX, centerY, size / 2));
-      // A milestone is a point (2-marker rendering is IM3); it never carries an actual bar.
+      const radius = size / 2;
+      const planCenterX = placement.worldX;
+      const centerY = placement.worldY + radius;
+      // The primary glyph is the PLAN marker at startDate (its laid-out worldX).
+      mounted.shape.setAttribute('d', milestonePath(item, planCenterX, centerY, radius));
+      // CR-002 Part 2: a milestone shows plan + actual as TWO markers with NO filled
+      // span between them (a point has no span to paint). Draw the actual marker at
+      // actualStart when recorded, with an optional thin leader cueing the shift.
+      this.updateMilestoneActualMarker(ctx, mounted, item, placement, planCenterX, centerY, radius);
+      // A milestone never carries a task actual BAR (Overlap/Separate is tasks-only).
       this.removeActualBar(mounted);
     } else if (taskShape !== null && taskShapeUsesPath(taskShape)) {
       // Arrow / chevron / span draw from their own vertices. A CHEVRON tapers its
@@ -354,8 +380,17 @@ export class ItemLayer {
       mounted.shape.setAttribute('height', String(bars.plan.height));
       mounted.shape.setAttribute('rx', '2');
       if (bars.actual !== null) {
-        this.updateActualBar(mounted, bars.actual, fillColor);
+        // Plan + actual coexist: the vivid actual shade doubles as the outline color
+        // so the non-color line-WEIGHT redundancy (CR-002 Part 1) reads over both the
+        // pale plan fill and the vivid actual fill. The PLAN bar takes the THIN
+        // outline (supplementary); the actual bar takes the THICK one (emphasized).
+        const actualFill = actualDisplayFillColor(item);
+        mounted.shape.setAttribute('stroke', actualFill);
+        mounted.shape.setAttribute('stroke-width', String(planActualStrokeWidthPx('plan')));
+        mounted.shape.setAttribute('data-plan-actual-side', 'plan');
+        this.updateActualBar(mounted, bars.actual, actualFill);
       } else {
+        mounted.shape.removeAttribute('data-plan-actual-side');
         this.removeActualBar(mounted);
       }
     }
@@ -421,6 +456,7 @@ export class ItemLayer {
     if (bar === null) {
       bar = document.createElementNS(SVG_NS, 'rect');
       bar.setAttribute('data-role', 'actual-bar');
+      bar.setAttribute('data-plan-actual-side', 'actual');
       bar.setAttribute('rx', '2');
       bar.setAttribute('pointer-events', 'none');
       mounted.group.appendChild(bar);
@@ -430,9 +466,11 @@ export class ItemLayer {
     bar.setAttribute('y', String(rect.y));
     bar.setAttribute('width', String(rect.width));
     bar.setAttribute('height', String(rect.height));
-    // Colors are IM3 (CR-002 Part 1 saturation split); for now the actual bar reuses the
-    // item's own fill so the two-mode GEOMETRY is exercised without pre-empting the palette.
+    // CR-002 Part 1: the actual bar is the VIVID shade, outlined with the THICK
+    // plan/actual weight so it stays distinguishable from the pale plan in grayscale.
     bar.setAttribute('fill', fill);
+    bar.setAttribute('stroke', fill);
+    bar.setAttribute('stroke-width', String(planActualStrokeWidthPx('actual')));
   }
 
   /** Remove the actual bar when the item has no actual side or is not a plain rect. */
@@ -440,6 +478,79 @@ export class ItemLayer {
     if (mounted.actualBar !== null) {
       mounted.actualBar.remove();
       mounted.actualBar = null;
+    }
+  }
+
+  /**
+   * Draw (or remove) a milestone's ACTUAL marker + optional leader line (CR-002
+   * Part 2). A milestone shows plan vs actual as TWO markers -- the plan marker at
+   * `startDate` (the primary glyph) and this actual marker at `actualStart` -- with
+   * NO filled span between them. The actual marker uses the vivid actual shade so it
+   * reads as the emphasized as-run point; a thin leader joins the two centers to cue
+   * the horizontal shift. Removed when the milestone records no actual.
+   */
+  private updateMilestoneActualMarker(
+    ctx: RenderContext,
+    mounted: MountedItem,
+    item: ScheduleItem,
+    placement: ItemPlacement,
+    planCenterX: number,
+    centerY: number,
+    radius: number,
+  ): void {
+    const epochDate = ctx.scheduleDocument?.epochDate;
+    if (item.actualStart === undefined || epochDate === undefined) {
+      this.removeMilestoneActualMarker(mounted);
+      return;
+    }
+    // Align the actual date into the placement's world-x frame (same origin shift the
+    // task actual bar uses) so the actual marker lines up with the laid-out plan point.
+    const zoomX = ctx.viewState.zoomX;
+    const originShift = placement.worldX - dateToWorldX(item.startDate, epochDate, zoomX);
+    const actualCenterX = dateToWorldX(item.actualStart, epochDate, zoomX) + originShift;
+    const actualFill = actualDisplayFillColor(item);
+
+    let leader = mounted.milestoneLeader;
+    if (leader === null) {
+      leader = document.createElementNS(SVG_NS, 'line');
+      leader.setAttribute('data-role', 'milestone-plan-actual-leader');
+      leader.setAttribute('stroke', actualFill);
+      leader.setAttribute('stroke-width', '1');
+      leader.setAttribute('stroke-dasharray', '2 2');
+      leader.setAttribute('pointer-events', 'none');
+      // Behind the two markers so the endpoints stay crisp.
+      mounted.group.insertBefore(leader, mounted.shape);
+      mounted.milestoneLeader = leader;
+    }
+    leader.setAttribute('x1', String(planCenterX));
+    leader.setAttribute('y1', String(centerY));
+    leader.setAttribute('x2', String(actualCenterX));
+    leader.setAttribute('y2', String(centerY));
+    leader.setAttribute('stroke', actualFill);
+
+    let marker = mounted.milestoneActualMarker;
+    if (marker === null) {
+      marker = document.createElementNS(SVG_NS, 'path');
+      marker.setAttribute('data-role', 'milestone-actual-marker');
+      marker.setAttribute('data-plan-actual-side', 'actual');
+      marker.setAttribute('pointer-events', 'none');
+      mounted.group.appendChild(marker);
+      mounted.milestoneActualMarker = marker;
+    }
+    marker.setAttribute('d', milestonePath(item, actualCenterX, centerY, radius));
+    marker.setAttribute('fill', actualFill);
+    marker.setAttribute('stroke', 'none');
+  }
+
+  /** Remove a milestone's actual marker + leader when it records no actual. */
+  private removeMilestoneActualMarker(mounted: MountedItem): void {
+    if (mounted.milestoneActualMarker !== null) {
+      mounted.milestoneActualMarker.remove();
+      mounted.milestoneActualMarker = null;
+    }
+    if (mounted.milestoneLeader !== null) {
+      mounted.milestoneLeader.remove();
+      mounted.milestoneLeader = null;
     }
   }
 

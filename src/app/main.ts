@@ -71,11 +71,19 @@ import { createLogger } from './logger.js';
 import { HelpModal } from '../adapters/ui/help-modal.js';
 import { AiExportModal } from '../adapters/ui/ai-export-modal.js';
 import { openAllClearDialog } from '../adapters/ui/all-clear-dialog.js';
+import { downloadPngBlob, rasterizeSvgToPng } from '../adapters/io/screen-capture.js';
+import { buildViewportCaptureSvg } from './viewport-capture.js';
 import {
-  copyPngToClipboardOrDownload,
-  downloadPngBlob,
-  rasterizeSvgToPng,
-} from '../adapters/io/screen-capture.js';
+  createHeaderMenu,
+  ensureHeaderMenuStylesheet,
+  type HeaderMenu,
+} from '../adapters/ui/header-menu.js';
+import {
+  HEADER_CONTROL_ROLES,
+  LOAD_MENU_ITEMS,
+  SAVE_MENU_ITEMS,
+  THEME_BUTTON_SPECS,
+} from './header-model.js';
 import {
   applyThemePreference,
   installThemeStylesheet,
@@ -91,7 +99,11 @@ import { exportMspdi } from '../domain/usecase/mspdi-codec.js';
 import { exportScheduleSvg } from '../domain/usecase/svg-exporter.js';
 import { ImportRejectedError } from '../domain/usecase/import-sanitizer.js';
 import { downloadTextFile, pickFile } from '../adapters/io/file-io.js';
-import { importDocumentFile, importIconFile } from '../adapters/io/import-service.js';
+import {
+  importBaselineDocumentFile,
+  importDocumentFile,
+  importIconFile,
+} from '../adapters/io/import-service.js';
 import {
   AutosaveController,
   clearAutosavedDocument,
@@ -132,14 +144,14 @@ interface Chrome {
   gridCategoryButton: HTMLButtonElement;
   commentButton: HTMLButtonElement;
   boxButton: HTMLButtonElement;
-  screenCopyButton: HTMLButtonElement;
-  exportJsonButton: HTMLButtonElement;
-  exportXmlButton: HTMLButtonElement;
-  exportSvgButton: HTMLButtonElement;
-  exportPngButton: HTMLButtonElement;
-  importDocButton: HTMLButtonElement;
+  // CR-003 Part 1 header controls: SS (viewport PNG), Load / Save dropdown menus and
+  // the Base V / Base I baseline-visibility buttons.
+  ssButton: HTMLButtonElement;
+  loadMenu: HeaderMenu;
+  saveMenu: HeaderMenu;
+  baselineShowButton: HTMLButtonElement;
+  baselineHideButton: HTMLButtonElement;
   importIconButton: HTMLButtonElement;
-  allClearButton: HTMLButtonElement;
   watermarkButton: HTMLButtonElement;
   saveStatusLabel: HTMLElement;
   benchOutput: HTMLPreElement;
@@ -451,13 +463,16 @@ function buildChrome(root: HTMLElement): Chrome {
   root.style.fontFamily = 'system-ui, sans-serif';
   ensureCommandChromeStylesheet(document);
 
-  // ---- header (SHELL item 1): three zones. LEFT holds the branding (two lines),
-  // the file-operations button group and the four-mode theme selector; the document
-  // TITLE is centered; the RIGHT holds Undo / Redo, the [AI] helper and the [?]
-  // help button. The old usage hint is moved out of the header into the Help modal.
+  // ---- header (SHELL item 1 / CR-003 Part 1 / TOOL-L1-008). Reading order:
+  // branding -> title -> SS -> Load -> Save -> Light -> Dark -> Mono L -> Mono D ->
+  // Base V -> Base I -> Undo -> Redo -> AI -> ?. The branding is pinned left, the
+  // title centered, and every action control is appended to a right-aligned toolbar in
+  // the canonical HEADER_CONTROL_ROLES order so the runtime layout can never drift
+  // from the CR-003 contract (which a unit test asserts against the same constant).
   const header = document.createElement('header');
   header.dataset.role = 'app-header';
   header.className = APP_HEADER_CLASS;
+  ensureHeaderMenuStylesheet(document);
 
   const headerLeft = document.createElement('div');
   headerLeft.className = 'grsch-header-left';
@@ -478,78 +493,88 @@ function buildChrome(root: HTMLElement): Chrome {
   brandLink.target = '_blank';
   brandLink.rel = 'noopener noreferrer';
   brandingBlock.append(brandName, brandLink);
+  headerLeft.append(brandingBlock);
 
-  // File-operations button group (item 1): Screen Copy, JSON, SVG, PNG, XML, File
-  // Import, All Clear -- each a real focusable button with an English aria-label.
-  const screenCopyButton = makeHeaderButton('grsch-file-btn', 'Copy', 'Screen Copy', 'screen-copy');
-  const exportJsonButton = makeHeaderButton('grsch-file-btn', 'JSON', uiLabel('export_json'), 'export-json');
-  const exportSvgButton = makeHeaderButton('grsch-file-btn', 'SVG', uiLabel('export_svg'), 'export-svg');
-  const exportPngButton = makeHeaderButton('grsch-file-btn', 'PNG', 'Export PNG', 'export-png');
-  const exportXmlButton = makeHeaderButton('grsch-file-btn', 'XML', uiLabel('export_xml'), 'export-xml');
-  const importDocButton = makeHeaderButton('grsch-file-btn', 'Import', uiLabel('import'), 'import');
-  const allClearButton = makeHeaderButton('grsch-file-btn', 'Clear', 'All Clear', 'all-clear');
-  const fileOpsGroup = document.createElement('div');
-  fileOpsGroup.className = 'grsch-header-group';
-  fileOpsGroup.dataset.role = 'file-ops';
-  fileOpsGroup.setAttribute('role', 'group');
-  fileOpsGroup.setAttribute('aria-label', 'File operations');
-  fileOpsGroup.append(
-    screenCopyButton,
-    exportJsonButton,
-    exportSvgButton,
-    exportPngButton,
-    exportXmlButton,
-    importDocButton,
-    allClearButton,
-  );
-
-  // Four-mode theme selector (item 3): Light / Dark / Mono-Light / Mono-Dark as an
-  // exclusive segmented control (radio semantics). aria-pressed marks the active
-  // one; the wiring localizes nothing (theme names are stable product terms).
-  const themeGroup = document.createElement('div');
-  themeGroup.className = 'grsch-header-group';
-  themeGroup.dataset.role = 'theme-modes';
-  themeGroup.setAttribute('role', 'radiogroup');
-  themeGroup.setAttribute('aria-label', 'Theme');
-  const themeModeSpecs: ReadonlyArray<{ mode: ThemeMode; label: string; name: string }> = [
-    { mode: 'light', label: 'Light', name: 'Light theme' },
-    { mode: 'dark', label: 'Dark', name: 'Dark theme' },
-    { mode: 'mono-light', label: 'Mono L', name: 'Monochrome light theme' },
-    { mode: 'mono-dark', label: 'Mono D', name: 'Monochrome dark theme' },
-  ];
-  const themeModeButtons: HTMLButtonElement[] = themeModeSpecs.map(({ mode, label, name }) => {
-    const button = makeHeaderButton('grsch-theme-btn', label, name, 'theme-mode');
-    button.dataset.themeMode = mode;
-    button.setAttribute('aria-pressed', 'false');
-    themeGroup.appendChild(button);
-    return button;
-  });
-
-  headerLeft.append(brandingBlock, fileOpsGroup, themeGroup);
-
-  // Centered document title.
+  // Centered document title (project name).
   const scheduleNameLabel = document.createElement('span');
   scheduleNameLabel.className = 'grsch-schedule-name';
   scheduleNameLabel.dataset.role = 'schedule-name';
   scheduleNameLabel.textContent = 'gr-scheduler';
 
-  // Right-side actions: Undo, Redo, [AI], [?]. Undo/Redo use PowerPoint-like
-  // circular-arrow glyphs (counter-clockwise / clockwise).
-  const headerActions = document.createElement('div');
-  headerActions.className = 'grsch-header-actions';
+  // SS: screenshot of the CURRENT viewport as a PNG download (distinct from Save PNG,
+  // which is the full-canvas fixed export).
+  const ssButton = makeHeaderButton('grsch-file-btn', 'SS', 'Screenshot viewport (PNG)', 'screenshot');
+
+  // Load / Save dropdown menus (CR-003 Part 1). Load = JSON / XML import + JSON as a
+  // baseline reference + New (clear all). Save = JSON / XML / SVG / PNG export.
+  const loadMenu = createHeaderMenu({
+    label: 'Load',
+    accessibleName: 'Load a schedule',
+    triggerRole: 'load',
+    items: LOAD_MENU_ITEMS,
+  });
+  const saveMenu = createHeaderMenu({
+    label: 'Save',
+    accessibleName: 'Save the schedule',
+    triggerRole: 'save',
+    items: SAVE_MENU_ITEMS,
+  });
+
+  // Four-mode theme selector (item 3 / CR-003 Part 1): Light / Dark / Mono L / Mono D
+  // as an exclusive segmented control (radio semantics). Each carries a unique role so
+  // it can be ordered by HEADER_CONTROL_ROLES.
+  const themeModeButtons: HTMLButtonElement[] = THEME_BUTTON_SPECS.map((spec) => {
+    // Exclusive segmented toggle (aria-pressed) rather than a radiogroup: the four
+    // buttons live directly in the header toolbar, not in a role="radiogroup" wrapper.
+    const button = makeHeaderButton('grsch-theme-btn', spec.label, spec.accessibleName, spec.role);
+    button.dataset.themeMode = spec.mode;
+    button.setAttribute('aria-pressed', 'false');
+    return button;
+  });
+
+  // Base V / Base I: baseline reference visibility (CR-002 Part 3 / PLAN-L1-004),
+  // promoted from the temporary IM3 palette controls. Base V shows the grey baseline
+  // underlay; Base I hides it -- a two-button segmented control (aria-pressed reflects
+  // the active state).
+  const baselineShowButton = makeHeaderButton('grsch-theme-btn', 'Base V', 'Show baseline reference', 'baseline-visible');
+  baselineShowButton.setAttribute('aria-pressed', 'false');
+  const baselineHideButton = makeHeaderButton('grsch-theme-btn', 'Base I', 'Hide baseline reference', 'baseline-invisible');
+  baselineHideButton.setAttribute('aria-pressed', 'false');
+
+  // Undo / Redo (SHELL item 4) with PowerPoint-like circular-arrow glyphs.
   const undoButton = makeHeaderButton('grsch-undo-redo-btn', '↶', 'Undo', 'undo');
   const redoButton = makeHeaderButton('grsch-undo-redo-btn', '↷', 'Redo', 'redo');
   const aiButton = makeHeaderButton('grsch-header-btn', 'AI', 'AI schedule import helper', 'open-ai');
   aiButton.setAttribute('aria-haspopup', 'dialog');
-  const helpButton = document.createElement('button');
-  helpButton.type = 'button';
-  helpButton.className = 'grsch-header-btn';
-  helpButton.dataset.role = 'open-help';
-  helpButton.textContent = '?';
-  helpButton.setAttribute('aria-label', 'Help');
+  const helpButton = makeHeaderButton('grsch-header-btn', '?', 'Help', 'open-help');
   helpButton.setAttribute('aria-haspopup', 'dialog');
-  helpButton.title = 'Help';
-  headerActions.append(undoButton, redoButton, aiButton, helpButton);
+
+  // Right-aligned toolbar: append every control in the canonical CR-003 order via a
+  // role -> element lookup so the DOM order equals HEADER_CONTROL_ROLES exactly.
+  const headerActions = document.createElement('div');
+  headerActions.className = 'grsch-header-actions';
+  headerActions.dataset.role = 'header-actions';
+  headerActions.setAttribute('role', 'toolbar');
+  headerActions.setAttribute('aria-label', 'Header actions');
+  const controlByRole = new Map<string, HTMLElement>([
+    ['screenshot', ssButton],
+    ['load', loadMenu.trigger],
+    ['save', saveMenu.trigger],
+    ...themeModeButtons.map((button) => [button.dataset.role ?? '', button] as [string, HTMLElement]),
+    ['baseline-visible', baselineShowButton],
+    ['baseline-invisible', baselineHideButton],
+    ['undo', undoButton],
+    ['redo', redoButton],
+    ['open-ai', aiButton],
+    ['open-help', helpButton],
+  ]);
+  for (const role of HEADER_CONTROL_ROLES) {
+    const control = controlByRole.get(role);
+    if (control === undefined) {
+      throw new Error(`Header build error: no control for role "${role}"`);
+    }
+    headerActions.appendChild(control);
+  }
 
   // Kept for the internal benchmark status path (fix 9): a detached label the
   // benchmark harness writes progress into; no longer shown in the header.
@@ -676,6 +701,10 @@ function buildChrome(root: HTMLElement): Chrome {
   const watermarkButton = makeCommandButton('©', uiLabel('watermark'));
   watermarkButton.setAttribute('aria-pressed', 'false');
 
+  // Baseline reference controls now live in the header (CR-003 Part 1): Load ->
+  // "JSON as baseline" loads the underlay, and Base V / Base I toggle its visibility.
+  // The temporary IM3 palette buttons were removed (superseded).
+
   const saveStatusLabel = document.createElement('span');
   saveStatusLabel.className = 'grsch-save-status';
   // Polite status region for autosave outcome (WCAG 4.1.3 Status Messages).
@@ -787,14 +816,12 @@ function buildChrome(root: HTMLElement): Chrome {
     gridCategoryButton,
     commentButton,
     boxButton,
-    screenCopyButton,
-    exportJsonButton,
-    exportXmlButton,
-    exportSvgButton,
-    exportPngButton,
-    importDocButton,
+    ssButton,
+    loadMenu,
+    saveMenu,
+    baselineShowButton,
+    baselineHideButton,
     importIconButton,
-    allClearButton,
     watermarkButton,
     saveStatusLabel,
     benchOutput,
@@ -1735,14 +1762,22 @@ function wireInputOutput(
     };
   };
 
-  chrome.exportJsonButton.addEventListener('click', () => {
+  chrome.saveMenu.item('save-json').addEventListener('click', () => {
     const stem = toFileStem(store.getDocument().title);
     downloadTextFile(`${stem}.json`, 'application/json', serializeScheduleDocument(documentForExport(), true));
   });
 
-  chrome.exportXmlButton.addEventListener('click', () => {
+  chrome.saveMenu.item('save-xml').addEventListener('click', () => {
     const stem = toFileStem(store.getDocument().title);
-    downloadTextFile(`${stem}.xml`, 'application/xml', exportMspdi(documentForExport()));
+    // Best-effort baseline (CR-002 Part 3 / DATA-MSPDI-003): pass the currently loaded
+    // baseline reference (runtime renderer state, never merged into the document) so
+    // matched tasks emit Baseline0 Start/Finish. Absent baseline => no Baseline output.
+    const baselineDocument = renderer.getBaselineDocument() ?? undefined;
+    downloadTextFile(
+      `${stem}.xml`,
+      'application/xml',
+      exportMspdi(documentForExport(), baselineDocument),
+    );
   });
 
   // Build the self-contained export SVG (with the evidence watermark when enabled).
@@ -1759,13 +1794,14 @@ function wireInputOutput(
     );
   };
 
-  chrome.exportSvgButton.addEventListener('click', () => {
+  // Save SVG (CR-003 Part 1): the FULL-canvas fixed export (distinct from SS).
+  chrome.saveMenu.item('save-svg').addEventListener('click', () => {
     const stem = toFileStem(store.getDocument().title);
     downloadTextFile(`${stem}.svg`, 'image/svg+xml', buildExportSvg());
   });
 
-  // PNG export (item 1): rasterize the self-contained SVG and download it.
-  chrome.exportPngButton.addEventListener('click', () => {
+  // Save PNG (CR-003 Part 1): rasterize the FULL-canvas self-contained SVG and download.
+  chrome.saveMenu.item('save-png').addEventListener('click', () => {
     const stem = toFileStem(store.getDocument().title);
     void rasterizeSvgToPng(buildExportSvg()).then(
       (blob) => downloadPngBlob(`${stem}.png`, blob),
@@ -1777,33 +1813,39 @@ function wireInputOutput(
     );
   });
 
-  // Screen Copy (item 1): rasterize the canvas to a PNG and put it on the clipboard,
-  // falling back to a download when the browser cannot write images to the clipboard.
-  chrome.screenCopyButton.addEventListener('click', () => {
+  // SS (CR-003 Part 1): screenshot the CURRENT viewport as a PNG download -- exactly
+  // what is on screen (scroll / zoom / virtualized subset), NOT the full canvas.
+  chrome.ssButton.addEventListener('click', () => {
     const stem = toFileStem(store.getDocument().title);
-    void rasterizeSvgToPng(buildExportSvg())
-      .then((blob) => copyPngToClipboardOrDownload(blob, `${stem}.png`))
-      .then(
-        (outcome) => {
-          announcer.announce(
-            outcome === 'clipboard' ? 'Screen copied to clipboard' : 'Screen saved as a PNG download',
-          );
-        },
-        (error: unknown) => {
-          const reason = error instanceof Error ? error.message : String(error);
-          log.error('screen_copy_failed', { reason });
-          announcer.announce(`Screen copy failed: ${reason}`);
-        },
-      );
+    let viewportSvg: string;
+    try {
+      viewportSvg = buildViewportCaptureSvg(renderer.getSvgElement(), document);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      log.error('screenshot_capture_failed', { reason });
+      announcer.announce(`Screenshot failed: ${reason}`);
+      return;
+    }
+    void rasterizeSvgToPng(viewportSvg).then(
+      (blob) => {
+        downloadPngBlob(`${stem}-viewport.png`, blob);
+        announcer.announce('Viewport screenshot saved as a PNG download');
+      },
+      (error: unknown) => {
+        const reason = error instanceof Error ? error.message : String(error);
+        log.error('screenshot_failed', { reason });
+        announcer.announce(`Screenshot failed: ${reason}`);
+      },
+    );
   });
 
-  // All Clear (item 2): reset the document to a fresh empty state, but only after a
-  // confirm dialog. This is a HARD reset (via replaceDocument, which clears the
+  // Load -> New (clear all): reset the document to a fresh empty state, but only after
+  // a confirm dialog. This is a HARD reset (via replaceDocument, which clears the
   // Undo/Redo history) -- the confirmation is the safeguard.
-  chrome.allClearButton.addEventListener('click', () => {
+  chrome.loadMenu.item('new-clear').addEventListener('click', () => {
     openAllClearDialog({
       host: root,
-      trigger: chrome.allClearButton,
+      trigger: chrome.loadMenu.trigger,
       onConfirm: () => {
         adoptDocument(generateEmptyDocument(generateProjectId()));
         announcer.announce('Schedule cleared');
@@ -1811,10 +1853,11 @@ function wireInputOutput(
     });
   });
 
-  chrome.importDocButton.addEventListener('click', () => {
+  // Load -> JSON / XML: import a document (IO-L1-006 sanitizes untrusted input).
+  const importWithAccept = (accept: string): void => {
     void (async (): Promise<void> => {
       try {
-        const file = await pickFile('.json,.xml,application/json,application/xml');
+        const file = await pickFile(accept);
         if (file === null) {
           return;
         }
@@ -1824,6 +1867,12 @@ function wireInputOutput(
         reportImportFailure(error);
       }
     })();
+  };
+  chrome.loadMenu.item('load-json').addEventListener('click', () => {
+    importWithAccept('.json,application/json');
+  });
+  chrome.loadMenu.item('load-xml').addEventListener('click', () => {
+    importWithAccept('.xml,application/xml');
   });
 
   chrome.importIconButton.addEventListener('click', () => {
@@ -1844,6 +1893,43 @@ function wireInputOutput(
       }
     })();
   });
+
+  // Baseline reference (CR-002 Part 3 / PLAN-L1-004, CR-003 Part 1): Load -> "JSON as
+  // baseline" imports a JSON past-plan snapshot as a grey, read-only underlay held in
+  // RUNTIME renderer state (never merged into the edited document / autosave / export).
+  // The Base V / Base I header buttons are a two-button segmented visibility control,
+  // independent of the plan/actual display filter.
+  const syncBaselineVisibleButtons = (): void => {
+    const visible = renderer.isBaselineVisible();
+    chrome.baselineShowButton.setAttribute('aria-pressed', visible ? 'true' : 'false');
+    chrome.baselineHideButton.setAttribute('aria-pressed', visible ? 'false' : 'true');
+  };
+  chrome.loadMenu.item('load-json-baseline').addEventListener('click', () => {
+    void (async (): Promise<void> => {
+      try {
+        const file = await pickFile('.json,application/json');
+        if (file === null) {
+          return;
+        }
+        const result = await importBaselineDocumentFile(file);
+        renderer.setBaselineDocument(result.document);
+        renderer.setBaselineVisible(true);
+        syncBaselineVisibleButtons();
+        announcer.announce('Baseline reference loaded');
+      } catch (error) {
+        reportImportFailure(error);
+      }
+    })();
+  });
+  chrome.baselineShowButton.addEventListener('click', () => {
+    renderer.setBaselineVisible(true);
+    syncBaselineVisibleButtons();
+  });
+  chrome.baselineHideButton.addEventListener('click', () => {
+    renderer.setBaselineVisible(false);
+    syncBaselineVisibleButtons();
+  });
+  syncBaselineVisibleButtons();
 
   const autosave = new AutosaveController(store);
   autosave.onStatus((status) => {

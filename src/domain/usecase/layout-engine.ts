@@ -74,23 +74,52 @@ export const MAX_STACK_LANES = 64;
 export const STACKED_BAR_HEIGHT_RATIO = 0.9;
 
 /**
- * Compute the total number of distinct start-to-end intervals that overlap; used
- * internally to assign non-overlapping lanes greedily.
+ * Estimate the RIGHTWARD pixel extent, measured from an item's start x, occupied by
+ * its label (CR-003 Part 2 collision avoidance). Returns 0 for an item whose label
+ * does not overflow to the right. Supplied by the adapter (which owns font metrics)
+ * so the pure engine stays free of text measurement; absent in the pure default path
+ * so existing callers keep the exact prior layout.
+ *
+ * @param item - The item whose label extent to estimate.
+ * @param barHeightPx - The item's rendered bar height (sizes the font).
+ * @returns The label's rightward extent in px from the item's start x.
  */
-function assignLanes(rowItems: readonly ScheduleItem[], epochDate: string, zoomX: number): Map<string, number> {
-  // Sort by start x so a greedy sweep can reuse freed lanes.
-  const sorted = [...rowItems].sort(
-    (left, right) =>
-      dateToWorldX(left.startDate, epochDate, zoomX) -
-      dateToWorldX(right.startDate, epochDate, zoomX),
-  );
+export type ItemLabelExtentEstimator = (item: ScheduleItem, barHeightPx: number) => number;
+
+/**
+ * Compute the total number of distinct start-to-end intervals that overlap; used
+ * internally to assign non-overlapping lanes greedily. When a label-extent estimator
+ * is provided (CR-003 Part 2), each item's OCCUPIED right edge includes its overflowing
+ * label, so a later item whose bar starts inside an earlier item's label overflow is
+ * pushed into a new (lower) lane -- the minimal deterministic vertical offset that
+ * clears the label collision within the row's section band.
+ */
+function assignLanes(
+  rowItems: readonly ScheduleItem[],
+  epochDate: string,
+  zoomX: number,
+  barHeightPx: number,
+  labelExtent?: ItemLabelExtentEstimator,
+): Map<string, number> {
+  // Sort by start x so a greedy sweep can reuse freed lanes. Ties break by id so the
+  // "later" (higher-id / later-authored) colliding item is the one shifted down,
+  // keeping the pass deterministic (CR-003 Part 2 recommended-spec choice).
+  const sorted = [...rowItems].sort((left, right) => {
+    const leftX = dateToWorldX(left.startDate, epochDate, zoomX);
+    const rightX = dateToWorldX(right.startDate, epochDate, zoomX);
+    return leftX !== rightX ? leftX - rightX : left.id.localeCompare(right.id);
+  });
   const laneEndX: number[] = [];
   const laneByItemId = new Map<string, number>();
 
   for (const item of sorted) {
     const startX = dateToWorldX(item.startDate, epochDate, zoomX);
     const endIso = item.endDate ?? item.startDate;
-    const endX = Math.max(dateToWorldX(endIso, epochDate, zoomX), startX + MIN_ITEM_WIDTH);
+    const barEndX = Math.max(dateToWorldX(endIso, epochDate, zoomX), startX + MIN_ITEM_WIDTH);
+    // Extend the occupied right edge by any overflowing label so a colliding later
+    // item is bumped to a new lane rather than drawn under the label.
+    const labelEndX = startX + (labelExtent?.(item, barHeightPx) ?? 0);
+    const endX = Math.max(barEndX, labelEndX);
 
     let assignedLane = -1;
     for (let lane = 0; lane < laneEndX.length; lane += 1) {
@@ -238,6 +267,7 @@ export function layoutRows(
   rows: readonly Row[],
   epochDate: string,
   viewState: ViewState,
+  labelExtent?: ItemLabelExtentEstimator,
 ): LayoutResult {
   const itemsByRow = new Map<string, ScheduleItem[]>();
   for (const item of items) {
@@ -265,7 +295,7 @@ export function layoutRows(
     const laneMap =
       rowItems === undefined || rowItems.length === 0
         ? new Map<string, number>()
-        : assignLanes(rowItems, epochDate, viewState.zoomX);
+        : assignLanes(rowItems, epochDate, viewState.zoomX, barHeight, labelExtent);
     laneByRow.set(row.id, laneMap);
     const laneCount = laneCountOf(laneMap);
     const height = rowBandUnitHeight(laneCount) * viewState.zoomY;
@@ -284,7 +314,9 @@ export function layoutRows(
       continue;
     }
     const bandTop = rowTop + ROW_VERTICAL_PADDING * viewState.zoomY;
-    const laneByItemId = laneByRow.get(rowId) ?? assignLanes(rowItems, epochDate, viewState.zoomX);
+    const laneByItemId =
+      laneByRow.get(rowId) ??
+      assignLanes(rowItems, epochDate, viewState.zoomX, barHeight, labelExtent);
 
     for (const item of rowItems) {
       const laneIndex = laneByItemId.get(item.id) ?? 0;
@@ -320,8 +352,9 @@ export function layoutItems(
   rows: readonly Row[],
   epochDate: string,
   viewState: ViewState,
+  labelExtent?: ItemLabelExtentEstimator,
 ): ItemPlacement[] {
-  return layoutRows(items, rows, epochDate, viewState).placements;
+  return layoutRows(items, rows, epochDate, viewState, labelExtent).placements;
 }
 
 /**
@@ -340,6 +373,7 @@ export function computeRowGeometry(
   rows: readonly Row[],
   epochDate: string,
   viewState: ViewState,
+  labelExtent?: ItemLabelExtentEstimator,
 ): RowGeometry {
-  return layoutRows(items, rows, epochDate, viewState).geometry;
+  return layoutRows(items, rows, epochDate, viewState, labelExtent).geometry;
 }

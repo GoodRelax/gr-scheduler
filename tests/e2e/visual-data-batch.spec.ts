@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { pathToFileURL } from 'node:url';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { actualColorFrom, planColorFrom } from '../../src/domain/usecase/plan-actual-colors.js';
 
 /**
  * End-to-end coverage for the visual/data batch against the built single-file app:
@@ -15,8 +16,11 @@ import { resolve } from 'node:path';
  */
 const builtAppFile = resolve(process.cwd(), 'dist', 'index.html');
 
-const PLAN_FILL_GREEN = '#2f9e5b';
-const ACTUAL_FILL_ORANGE = '#e07c1a';
+// Model H fixture (CR-001): oa-phase-plan-dev's own base fillColor (see
+// src/app/sample-data.ts `PLAN_FILL`). Under CR-002 Part 1 an item recording an
+// actual is colored by DERIVING its plan (pale) / actual (vivid) shades from this
+// ONE base color, not from a pair of fixed hues.
+const BASE_FILL_HEX = '#4477aa';
 
 async function openApp(page: Page): Promise<void> {
   await page.goto(pathToFileURL(builtAppFile).href);
@@ -48,9 +52,9 @@ test.describe('visual/data batch', () => {
     await page.goto(pathToFileURL(builtAppFile).href);
     await page.locator('svg[data-role="schedule-canvas"]').waitFor();
 
-    // Every one of the 32 seeded ASPICE items has a mounted group even with rAF
-    // disabled.
-    await expect.poll(() => page.locator('svg [data-item-id]').count()).toBe(32);
+    // Every one of the 26 seeded ASPICE items (Model H: plan + actual dates on the
+    // same item) has a mounted group even with rAF disabled.
+    await expect.poll(() => page.locator('svg [data-item-id]').count()).toBe(26);
     // Real glyphs and labels are present (tasks -> <rect>, milestones -> <path>).
     expect(await page.locator('svg text').count()).toBeGreaterThan(0);
     expect(await page.locator('svg rect').count()).toBeGreaterThan(0);
@@ -67,10 +71,21 @@ test.describe('visual/data batch', () => {
     page,
   }) => {
     // Neuter rAF so only the synchronous startup-Fit path runs (deterministic), then
-    // assert the ACTUAL rendered SVG bounding box of every one of the 32 items --
+    // assert the ACTUAL rendered SVG bounding box of every one of the 26 items --
     // including the widest bar's right end and the LATEST milestone's marker + label
     // -- lies within the canvas rect. Fails when Fit's extent ignores label/marker
     // overhang (right-most content clipped); passes once the extent includes it.
+    //
+    // DEF-006 (project-records/defects/DEF-006-fit-vertical-overhang.md) -- FIXED:
+    // under the Model H (CR-001) 26-item template, the last row's item
+    // (`ta-task-plan-clarify-uc`) used to be clipped ~9.8px past the canvas bottom after
+    // Fit -- NOT just its label, the bar rect itself. Root cause: the renderer stacks
+    // label-colliding items into extra sub-lanes via `estimateInnerLeftLabelExtentPx`,
+    // whose occupied width scales with the (zoomY-scaled) bar height, so a taller Fit
+    // zoomY adds a sub-lane that pushes the bottom rows down -- but `computeFitViewForItems`
+    // measured WITHOUT that estimator and never re-checked the bottom at the chosen zoomY.
+    // The fix threads the same estimator into the Fit measurement and refines zoomY
+    // against the true rendered bottom, so this assertion now passes on correct geometry.
     await page.addInitScript(() => {
       window.requestAnimationFrame = () => 1;
       window.cancelAnimationFrame = () => undefined;
@@ -102,10 +117,10 @@ test.describe('visual/data batch', () => {
       return { total: groups.length, inView: groups.length - offenders.length, offenders };
     });
 
-    expect(report.total).toBe(32);
+    expect(report.total).toBe(26);
     // Every rendered item box (glyph + marker + label) must be inside the viewport.
     expect(report.offenders, report.offenders.join('\n')).toEqual([]);
-    expect(report.inView).toBe(32);
+    expect(report.inView).toBe(26);
   });
 
   test('gridlines are on by default and the palette toggles hide/re-show them', async ({ page }) => {
@@ -142,16 +157,21 @@ test.describe('visual/data batch', () => {
     expect(Number(opacity)).toBeLessThanOrEqual(0.12);
   });
 
-  test('plan renders green and actual renders orange (property-driven)', async ({ page }) => {
+  test('plan renders a pale shade and actual renders a vivid shade of the same base color (property-driven)', async ({
+    page,
+  }) => {
+    // Model H (CR-001) merges plan + actual dates onto ONE item; CR-002 Part 1 then
+    // derives the plan (pale) / actual (vivid) fills from that item's OWN base
+    // fillColor, rather than a fixed pair of hues. oa-phase-plan-dev records both.
     await openApp(page);
     const planFill = await page
-      .locator('svg [data-item-id="oa-phase-plan-dev"] > rect')
+      .locator('svg [data-item-id="oa-phase-plan-dev"] > rect[data-plan-actual-side="plan"]')
       .getAttribute('fill');
     const actualFill = await page
-      .locator('svg [data-item-id="ta-phase-actual-sys1"] > rect')
+      .locator('svg [data-item-id="oa-phase-plan-dev"] > rect[data-plan-actual-side="actual"]')
       .getAttribute('fill');
-    expect(planFill).toBe(PLAN_FILL_GREEN);
-    expect(actualFill).toBe(ACTUAL_FILL_ORANGE);
+    expect(planFill).toBe(planColorFrom(BASE_FILL_HEX));
+    expect(actualFill).toBe(actualColorFrom(BASE_FILL_HEX));
   });
 
   test('Fit frames items from BOTH majors (a milestone in Over All Schedule + SYS1 in TeamA)', async ({

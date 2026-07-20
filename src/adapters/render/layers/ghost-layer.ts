@@ -1,24 +1,29 @@
 /**
- * Adapter layer: the pre-change plan of each changed item drawn as a grayed ghost
- * bar in world space, behind the live glyphs (PLAN-L1-004, H-1 split). Only ghosts
- * for items that still have a current placement and intersect the viewport are
- * drawn, so the ghost node count stays bounded by the visible edited set.
+ * Adapter layer: the BASELINE reference underlay (CR-002 Part 3 / PLAN-L1-004,
+ * H-1 split). A separately-loaded past-plan snapshot document is drawn as a grey,
+ * read-only bar behind the live glyphs, id-matched to the current items and placed
+ * at the SAME row height as the current item (no offset track). Only baseline
+ * entries whose current item has a placement and intersect the viewport are drawn,
+ * so the underlay node count stays bounded by the visible matched set.
+ *
+ * The visibility toggle ({@link RenderContext.baselineVisible}) is independent of
+ * the plan/actual display filter: an invisible or unloaded baseline draws nothing.
  */
 
 import type { ViewportWindow } from '../../../domain/usecase/viewport.js';
 import { dateToWorldX } from '../../../domain/usecase/time-coordinate-mapper.js';
-import { collectPreviousPlanGhosts } from '../../../domain/usecase/progress-line-builder.js';
+import { collectBaselineGhosts } from '../../../domain/usecase/progress-line-builder.js';
 import {
   PREVIOUS_PLAN_GHOST_FILL_HEX,
   PREVIOUS_PLAN_GHOST_STROKE_HEX,
 } from '../../../domain/usecase/render-tokens.js';
 import { SVG_NS, type RenderContext } from '../render-context.js';
 
-/** Draws the previous-plan ghost bars into its own content-space group. */
+/** Draws the baseline reference underlay bars into its own content-space group. */
 export class GhostLayer {
   public constructor(private readonly ghostGroup: SVGGElement) {}
 
-  /** Clear and redraw the ghost bars for the current viewport. */
+  /** Clear and redraw the baseline underlay for the current viewport. */
   public render(ctx: RenderContext, window: ViewportWindow): void {
     while (this.ghostGroup.firstChild !== null) {
       this.ghostGroup.removeChild(this.ghostGroup.firstChild);
@@ -26,16 +31,19 @@ export class GhostLayer {
     if (ctx.scheduleDocument === null) {
       return;
     }
+    // The underlay is only drawn when a baseline is loaded AND its toggle is on
+    // (independent of the plan/actual display filter, CR-002 Part 3).
+    if (!ctx.baselineVisible || ctx.baselineDocument === null) {
+      return;
+    }
     const epoch = ctx.scheduleDocument.epochDate;
     const zoomX = ctx.viewState.zoomX;
-    // TODO(IM3): collectPreviousPlanGhosts is neutralized to [] (CR-002 Part 3 moves the
-    // baseline to a separately-loaded reference document + gray underlay layer), so this
-    // loop draws nothing until the baseline-reference loader lands. Kept wired so the
-    // layer is ready to render the IM3 underlay.
-    for (const ghost of collectPreviousPlanGhosts(ctx.scheduleDocument.items)) {
+    // Match the baseline items to the current document by id (matchKey = item id).
+    const currentItemIds = new Set(ctx.scheduleDocument.items.map((item) => item.id));
+    for (const ghost of collectBaselineGhosts(ctx.baselineDocument.items, currentItemIds)) {
       const placement = ctx.placementById.get(ghost.itemId);
       if (placement === undefined) {
-        continue; // current item culled (collapsed/filtered): drop its ghost too.
+        continue; // current item culled (collapsed/filtered): drop its underlay too.
       }
       const startX = dateToWorldX(ghost.startDate, epoch, zoomX);
       const endX = dateToWorldX(ghost.endDate ?? ghost.startDate, epoch, zoomX);
@@ -44,6 +52,10 @@ export class GhostLayer {
         continue;
       }
       const rect = document.createElementNS(SVG_NS, 'rect');
+      // Placed at the SAME row height as the current item (no offset track), so the
+      // grey baseline reads as "where this bar USED to be" directly under it.
+      rect.setAttribute('data-role', 'baseline-underlay');
+      rect.setAttribute('data-item-id', ghost.itemId);
       rect.setAttribute('x', String(startX));
       rect.setAttribute('y', String(placement.worldY));
       rect.setAttribute('width', String(width));

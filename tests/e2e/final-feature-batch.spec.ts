@@ -25,9 +25,10 @@ async function openApp(page: Page): Promise<Page> {
 
 /** Download + read the exported JSON as text. */
 async function exportJsonText(page: Page): Promise<string> {
+  await page.locator('button[data-role="save"]').click();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Export JSON' }).dispatchEvent('click'),
+    page.locator('[data-role="save-menu"] button[data-role="save-json"]').click(),
   ]);
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
@@ -164,8 +165,9 @@ test.describe('final feature batch (DOM behavior)', () => {
 
     await openApp(page);
     await page.locator('svg [data-item-id]').first().waitFor();
-    // 32 ASPICE items (SYS/SWE phases, integration/validation, plan/actual, gates).
-    await expect.poll(() => page.locator('svg [data-item-id]').count()).toBe(32);
+    // 26 ASPICE items (SYS/SWE phases, integration/validation, plan/actual dates on
+    // the same item under Model H, gates).
+    await expect.poll(() => page.locator('svg [data-item-id]').count()).toBe(26);
     // The SOS (Start Of Sales) milestone anchors the ~3-year span and is rendered.
     await expect(page.locator('svg [data-item-id="oa-ms-plan-launch"]')).toHaveCount(1);
     const labels = await page.locator('svg text').allTextContents();

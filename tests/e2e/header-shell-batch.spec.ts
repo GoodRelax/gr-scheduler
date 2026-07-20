@@ -6,17 +6,23 @@ import { resolve } from 'node:path';
 
 /**
  * End-to-end coverage for the HEADER / SHELL batch against the built single-file app
- * (`dist/index.html`), asserting the ACTUAL rendered DOM / computed styles:
+ * (`dist/index.html`), asserting the ACTUAL rendered DOM / computed styles under the
+ * CR-003 Part 1 header contract (SS -> Load -> Save -> Light -> Dark -> Mono L ->
+ * Mono D -> Base V -> Base I -> Undo -> Redo -> AI -> ?). The header order / Load /
+ * Save menu CONTENTS are covered by `cr003-header-dep.spec.ts`; this batch covers the
+ * DOWNSTREAM behavior of those controls plus the rest of the shell:
  *
- *  1. File-ops button group (Screen Copy / JSON / SVG / PNG / XML / Import / All Clear).
- *  2. All Clear confirmation dialog (bold A/C, focus Cancel, A empties, C/Esc keep).
+ *  1. Save menu: JSON / XML / SVG / PNG each produce a real download of the right kind.
+ *  2. All Clear (now Load -> "New (clear all)") confirmation dialog (bold A/C, focus
+ *     Cancel, A empties, C/Esc keep; focus returns to the Load trigger).
  *  3. Four theme modes (Light / Dark / Mono-Light / Mono-Dark), grayscale monos,
- *     persistence across reload, axe AA in each.
- *  4. Undo / Redo relocated to the header with circular-arrow glyphs.
+ *     persistence across reload, axe AA in each mono mode.
+ *  4. Undo / Redo in the header with circular-arrow glyphs.
  *  5. [AI] modal: prompt + schema, Copy writes prompt+schema, Esc closes.
  *  6. Branding: two lines, larger product name, GitHub repo link.
  *  7. Help modal: 3 columns, width ~85% of the viewport.
- *  8. Palette cleanup: no LANG selector, no watermark-name input, no reflow on link toggle.
+ *  8. Palette cleanup: no LANG selector, no watermark-name input, no reflow on link
+ *     toggle.
  */
 const builtAppFile = resolve(process.cwd(), 'dist', 'index.html');
 
@@ -30,10 +36,12 @@ interface ExportedDoc {
   readonly items: ReadonlyArray<{ id: string }>;
 }
 
+/** Open the Save menu and click "JSON", returning the parsed export. */
 async function exportDoc(page: Page): Promise<ExportedDoc> {
+  await page.locator('button[data-role="save"]').click();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.locator('[data-role="app-header"] button[data-role="export-json"]').dispatchEvent('click'),
+    page.locator('[data-role="save-menu"] button[data-role="save-json"]').click(),
   ]);
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
@@ -43,78 +51,52 @@ async function exportDoc(page: Page): Promise<ExportedDoc> {
   return JSON.parse(Buffer.concat(chunks).toString('utf-8')) as ExportedDoc;
 }
 
+/** `data-role` of each theme-mode header button, keyed by its `data-theme-mode`. */
+const THEME_BUTTON_ROLE: Record<string, string> = {
+  light: 'theme-light',
+  dark: 'theme-dark',
+  'mono-light': 'theme-mono-light',
+  'mono-dark': 'theme-mono-dark',
+};
+
 test.describe('header / shell batch (e2e, trusted events)', () => {
   test.skip(!existsSync(builtAppFile), 'Run `npm run build` to produce dist/index.html first.');
 
-  test('1. file-ops group has all seven buttons with English aria-labels', async ({ page }) => {
+  test('1. Save menu: JSON / XML / SVG / PNG each download the right file kind', async ({ page }) => {
     await openApp(page);
-    const group = page.locator('[data-role="file-ops"]');
-    await expect(group).toHaveCount(1);
-    for (const [role, name] of [
-      ['screen-copy', 'Screen Copy'],
-      ['export-json', 'Export JSON'],
-      ['export-svg', 'Export SVG'],
-      ['export-png', 'Export PNG'],
-      ['export-xml', 'Export XML'],
-      ['import', 'Import'],
-      ['all-clear', 'All Clear'],
-    ] as const) {
-      const button = group.locator(`button[data-role="${role}"]`);
-      await expect(button).toHaveCount(1);
-      await expect(button).toHaveAttribute('aria-label', name);
-    }
+
+    const saveAndDownload = async (
+      itemRole: string,
+    ): Promise<{ filename: string }> => {
+      await page.locator('button[data-role="save"]').click();
+      const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        page.locator(`[data-role="save-menu"] button[data-role="${itemRole}"]`).click(),
+      ]);
+      return { filename: download.suggestedFilename() };
+    };
+
+    const json = await saveAndDownload('save-json');
+    expect(json.filename).toMatch(/\.json$/);
+    const xml = await saveAndDownload('save-xml');
+    expect(xml.filename).toMatch(/\.xml$/);
+    const svg = await saveAndDownload('save-svg');
+    expect(svg.filename).toMatch(/\.svg$/);
+    const png = await saveAndDownload('save-png');
+    expect(png.filename).toMatch(/\.png$/);
   });
 
-  test('1b. PNG export produces a .png download; Screen Copy writes an image to the clipboard', async ({
+  test('2. Load -> New (clear all) shows a confirm dialog; Cancel keeps the doc, A empties it', async ({
     page,
   }) => {
-    await page.addInitScript(() => {
-      const store = window as unknown as { __clipImages: string[][] };
-      store.__clipImages = [];
-      const globalRef = window as unknown as { ClipboardItem?: unknown };
-      if (typeof globalRef.ClipboardItem === 'undefined') {
-        globalRef.ClipboardItem = class {
-          public readonly types: string[];
-          public constructor(items: Record<string, Blob>) {
-            this.types = Object.keys(items);
-          }
-        };
-      }
-      Object.defineProperty(navigator, 'clipboard', {
-        configurable: true,
-        value: {
-          write: async (items: Array<{ types: string[] }>): Promise<void> => {
-            store.__clipImages.push(items.map((item) => item.types).flat());
-          },
-          writeText: async (): Promise<void> => undefined,
-        },
-      });
-    });
-    await openApp(page);
-
-    // PNG export downloads a .png file.
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      page.locator('button[data-role="export-png"]').dispatchEvent('click'),
-    ]);
-    expect(download.suggestedFilename()).toMatch(/\.png$/);
-
-    // Screen Copy writes an image/png ClipboardItem.
-    await page.locator('button[data-role="screen-copy"]').dispatchEvent('click');
-    await expect
-      .poll(async () =>
-        page.evaluate(() => (window as unknown as { __clipImages: string[][] }).__clipImages.flat()),
-      )
-      .toContain('image/png');
-  });
-
-  test('2. All Clear shows a confirm dialog; Cancel keeps the doc, A empties it', async ({ page }) => {
     await openApp(page);
     const before = await exportDoc(page);
     expect(before.items.length).toBeGreaterThan(0);
 
-    // Clicking All Clear does NOT immediately wipe the document: a dialog appears.
-    await page.locator('button[data-role="all-clear"]').click();
+    // Opening Load and clicking "New (clear all)" does NOT immediately wipe the
+    // document: a dialog appears (trigger = the Load button).
+    await page.locator('button[data-role="load"]').click();
+    await page.locator('[data-role="load-menu"] button[data-role="new-clear"]').click();
     const dialog = page.locator('[data-role="all-clear-dialog"]');
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute('role', 'dialog');
@@ -135,7 +117,8 @@ test.describe('header / shell batch (e2e, trusted events)', () => {
     expect(afterCancel.items.length).toBe(before.items.length);
 
     // Re-open and confirm with A -> the document is emptied.
-    await page.locator('button[data-role="all-clear"]').click();
+    await page.locator('button[data-role="load"]').click();
+    await page.locator('[data-role="load-menu"] button[data-role="new-clear"]').click();
     await expect(page.locator('[data-role="all-clear-dialog"]')).toBeVisible();
     await page.keyboard.press('a');
     await expect(page.locator('[data-role="all-clear-dialog"]')).toHaveCount(0);
@@ -143,17 +126,20 @@ test.describe('header / shell batch (e2e, trusted events)', () => {
     expect(afterClear.items.length).toBe(0);
   });
 
-  test('2b. Esc also cancels All Clear and returns focus to the trigger', async ({ page }) => {
+  test('2b. Esc also cancels the New (clear all) dialog and returns focus to the Load trigger', async ({
+    page,
+  }) => {
     await openApp(page);
-    const trigger = page.locator('button[data-role="all-clear"]');
-    await trigger.click();
+    const loadTrigger = page.locator('button[data-role="load"]');
+    await loadTrigger.click();
+    await page.locator('[data-role="load-menu"] button[data-role="new-clear"]').click();
     await expect(page.locator('[data-role="all-clear-dialog"]')).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.locator('[data-role="all-clear-dialog"]')).toHaveCount(0);
     const focusRole = await page.evaluate(
       () => (document.activeElement as HTMLElement | null)?.dataset.role ?? '',
     );
-    expect(focusRole).toBe('all-clear');
+    expect(focusRole).toBe('load');
   });
 
   test('3. four theme modes each set data-theme + change the canvas; monos are grayscale', async ({
@@ -163,7 +149,7 @@ test.describe('header / shell batch (e2e, trusted events)', () => {
     const canvas = page.locator('svg[data-role="schedule-canvas"]');
     const backgrounds = new Map<string, string>();
     for (const mode of ['light', 'dark', 'mono-light', 'mono-dark'] as const) {
-      await page.locator(`button[data-role="theme-mode"][data-theme-mode="${mode}"]`).click();
+      await page.locator(`button[data-role="${THEME_BUTTON_ROLE[mode]}"]`).click();
       await expect(page.locator('html')).toHaveAttribute('data-theme', mode);
       const bg = await canvas.evaluate((node) => getComputedStyle(node).backgroundColor);
       backgrounds.set(mode, bg);
@@ -182,14 +168,15 @@ test.describe('header / shell batch (e2e, trusted events)', () => {
     }
     // Light and dark differ; the active button carries aria-pressed=true.
     expect(backgrounds.get('light')).not.toBe(backgrounds.get('dark'));
-    await expect(
-      page.locator('button[data-role="theme-mode"][data-theme-mode="mono-dark"]'),
-    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator(`button[data-role="${THEME_BUTTON_ROLE['mono-dark']}"]`)).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 
   test('3b. the chosen theme persists across a reload', async ({ page }) => {
     await openApp(page);
-    await page.locator('button[data-role="theme-mode"][data-theme-mode="mono-dark"]').click();
+    await page.locator(`button[data-role="${THEME_BUTTON_ROLE['mono-dark']}"]`).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'mono-dark');
     await page.reload();
     await page.locator('svg[data-role="schedule-canvas"]').waitFor();
@@ -199,7 +186,7 @@ test.describe('header / shell batch (e2e, trusted events)', () => {
   for (const mode of ['mono-light', 'mono-dark'] as const) {
     test(`3c. axe AA passes in ${mode}`, async ({ page }) => {
       await openApp(page);
-      await page.locator(`button[data-role="theme-mode"][data-theme-mode="${mode}"]`).click();
+      await page.locator(`button[data-role="${THEME_BUTTON_ROLE[mode]}"]`).click();
       await expect(page.locator('html')).toHaveAttribute('data-theme', mode);
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

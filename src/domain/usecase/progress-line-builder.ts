@@ -224,16 +224,52 @@ export interface PreviousPlanGhost {
 }
 
 /**
- * Collect the baseline (pre-change plan) ghost spans.
+ * Collect the baseline (pre-change plan) ghost spans FROM THE ITEMS THEMSELVES.
  *
- * TODO(IM3): CR-002 Part 3 moves the baseline OUT of the item (`previousPlan` field
- * removed) into a SEPARATELY-loaded reference document drawn as a gray, read-only
- * underlay matched by item `id`. Until IM3 wires that loader + underlay layer, this is
- * NEUTRALIZED to return no ghosts (nothing to draw from the item itself).
+ * CR-002 Part 3 moved the baseline OUT of the item (the `previousPlan` field was
+ * removed) into a SEPARATELY-loaded reference document (see
+ * {@link collectBaselineGhosts}). No item carries its own pre-change plan any more,
+ * so this returns no ghosts. Kept because the ghost layer and the item-list render
+ * path still call it as the "baseline from the item" seam (always empty now).
  *
- * @param _items - All items (unused until the baseline-reference loader lands in IM3).
- * @returns An empty array (IM1 neutralization).
+ * @param _items - All items (a plan-only item carries no self-baseline).
+ * @returns An empty array.
  */
 export function collectPreviousPlanGhosts(_items: readonly ScheduleItem[]): PreviousPlanGhost[] {
   return [];
+}
+
+/**
+ * Collect the baseline ghost spans from a SEPARATELY-loaded reference document
+ * (CR-002 Part 3 / PLAN-L1-004 / DATA-JSON-016).
+ *
+ * The reference document is a past-plan snapshot loaded "as baseline". Each of its
+ * items is matched to a CURRENT item by `id` (matchKey = item id); only baseline
+ * items whose id is still present in the live document contribute a ghost, so the
+ * underlay is drawn at the current item's row/height. The reference document's
+ * ACTUAL dates are ignored -- only its planned span (`startDate`/`endDate`) is used,
+ * because the baseline expresses "what the plan USED to be", not its progress.
+ *
+ * @param baselineItems - The loaded reference document's items.
+ * @param currentItemIds - The ids present in the live (edited) document.
+ * @returns One ghost per id-matched baseline item, carrying its planned span; input
+ *   order preserved.
+ */
+export function collectBaselineGhosts(
+  baselineItems: readonly ScheduleItem[],
+  currentItemIds: ReadonlySet<string>,
+): PreviousPlanGhost[] {
+  const ghosts: PreviousPlanGhost[] = [];
+  for (const item of baselineItems) {
+    if (!currentItemIds.has(item.id)) {
+      continue; // No live item to underlay: drop this baseline entry.
+    }
+    ghosts.push({
+      itemId: item.id,
+      rowId: item.rowId,
+      startDate: item.startDate,
+      endDate: item.endDate,
+    });
+  }
+  return ghosts;
 }

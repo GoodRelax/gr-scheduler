@@ -44,6 +44,19 @@ export const RULER_TIER_HEIGHT_PX = 16;
 export interface RenderContext {
   /** The document being rendered, or null before one is set. */
   readonly scheduleDocument: ScheduleDocument | null;
+  /**
+   * The separately-loaded baseline reference document (CR-002 Part 3 / PLAN-L1-004),
+   * or null when none is loaded. A read-only past-plan snapshot drawn as a grey
+   * underlay, id-matched to the current items; its actuals are ignored. RUNTIME app
+   * state, NOT persisted into {@link scheduleDocument}.
+   */
+  readonly baselineDocument: ScheduleDocument | null;
+  /**
+   * Whether the baseline underlay is drawn (CR-002 Part 3 visibility toggle). This is
+   * INDEPENDENT of {@link ViewState.planActualDisplay}; even a loaded baseline is not
+   * drawn while this is false.
+   */
+  readonly baselineVisible: boolean;
   /** The current (mutable-copy) view state. */
   readonly viewState: ViewState;
   /** The measured drawing-surface size in CSS pixels. */

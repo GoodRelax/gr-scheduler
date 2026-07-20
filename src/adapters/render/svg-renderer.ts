@@ -77,6 +77,7 @@ import {
   type RenderContext,
 } from './render-context.js';
 import { buildDependencyMarkerDefs, placementRect } from './dependency-geometry.js';
+import { estimateInnerLeftLabelExtentPx } from './item-geometry.js';
 import { GridLayer } from './layers/grid-layer.js';
 import { ClassificationLayer } from './layers/classification-layer.js';
 import { GhostLayer } from './layers/ghost-layer.js';
@@ -149,6 +150,14 @@ export class SvgRenderer {
   );
 
   private scheduleDocument: ScheduleDocument | null = null;
+  /**
+   * The separately-loaded baseline reference document (CR-002 Part 3 / PLAN-L1-004),
+   * or null. RUNTIME app state: a read-only past-plan snapshot drawn as a grey
+   * underlay, NOT persisted into {@link scheduleDocument} / autosave / export.
+   */
+  private baselineDocument: ScheduleDocument | null = null;
+  /** Whether the baseline underlay is drawn (independent of the plan/actual filter). */
+  private baselineVisible = true;
   private viewState: ViewState;
   private canvasSize: CanvasSize = { widthPx: 0, heightPx: 0 };
   private placements: readonly ItemPlacement[] = [];
@@ -271,6 +280,8 @@ export class SvgRenderer {
   private buildContext(): RenderContext {
     return {
       scheduleDocument: this.scheduleDocument,
+      baselineDocument: this.baselineDocument,
+      baselineVisible: this.baselineVisible,
       viewState: this.viewState,
       canvasSize: this.canvasSize,
       today: this.today,
@@ -399,6 +410,43 @@ export class SvgRenderer {
   }
 
   /**
+   * Load (or clear with null) the baseline reference document drawn as a grey,
+   * read-only underlay (CR-002 Part 3 / PLAN-L1-004). This is RUNTIME state only: it
+   * is never merged into the edited document, so it is not persisted / exported. The
+   * underlay is id-matched to the current items and drawn at their row height.
+   *
+   * @param baselineDocument - The loaded past-plan snapshot, or null to clear it.
+   */
+  public setBaselineDocument(baselineDocument: ScheduleDocument | null): void {
+    this.baselineDocument = baselineDocument;
+    this.requestRender();
+  }
+
+  /** The currently loaded baseline reference document, or null. */
+  public getBaselineDocument(): ScheduleDocument | null {
+    return this.baselineDocument;
+  }
+
+  /**
+   * Show or hide the baseline underlay (CR-002 Part 3 visibility toggle). Independent
+   * of the plan/actual display filter; the loaded baseline is retained either way.
+   *
+   * @param visible - True to draw the underlay, false to hide it.
+   */
+  public setBaselineVisible(visible: boolean): void {
+    if (this.baselineVisible === visible) {
+      return;
+    }
+    this.baselineVisible = visible;
+    this.requestRender();
+  }
+
+  /** Whether the baseline underlay is currently drawn. */
+  public isBaselineVisible(): boolean {
+    return this.baselineVisible;
+  }
+
+  /**
    * Apply the localized accessible label to the canvas (WCAG 4.1.2 / 3.1.1). Kept
    * in sync with the active UI locale so a screen reader announces the region in
    * the user's language.
@@ -501,11 +549,23 @@ export class SvgRenderer {
       this.scheduleDocument.sections,
       this.scheduleDocument.rows,
     );
-    const fit = computeFitViewForItems(items, visibleRows, this.scheduleDocument.epochDate, {
-      canvasSize: this.canvasSize,
-      leftPaneWidth: this.getLeftPaneWidth(),
-      topOffsetForZoomX: (zoomX) => rulerTierCount(zoomX) * RULER_TIER_HEIGHT_PX,
-    });
+    const fit = computeFitViewForItems(
+      items,
+      visibleRows,
+      this.scheduleDocument.epochDate,
+      {
+        canvasSize: this.canvasSize,
+        leftPaneWidth: this.getLeftPaneWidth(),
+        topOffsetForZoomX: (zoomX) => rulerTierCount(zoomX) * RULER_TIER_HEIGHT_PX,
+      },
+      // Default inner margin; kept explicit so the estimator can be passed positionally.
+      undefined,
+      // CR-003 Part 2: the renderer stacks label-colliding items into extra sub-lanes,
+      // which grows a row's height at higher zoomY. Feeding Fit the SAME estimator makes
+      // the framed content bottom match what is drawn so no bottom-row bar is clipped
+      // (DEF-006).
+      estimateInnerLeftLabelExtentPx,
+    );
     if (fit === null) {
       return;
     }
@@ -935,6 +995,9 @@ export class SvgRenderer {
       this.displayRows,
       this.scheduleDocument.epochDate,
       this.viewState,
+      // CR-003 Part 2: overflowing inner-left labels extend an item's occupied width so
+      // a later colliding item is stacked into a lower lane (label collision avoidance).
+      estimateInnerLeftLabelExtentPx,
     );
     this.placements = laid.placements;
     // Row bands may now have different heights (a row grows to stack overlapping
