@@ -137,6 +137,20 @@ function assignLanes(
     }
     laneByItemId.set(item.id, assignedLane);
   }
+  // CR-004 Part 1 (ALIGN-L2-004): stack sub-lanes from the BOTTOM UP rather than the
+  // top down. The greedy pass above assigns lane 0 to the earliest-placed item; we
+  // then FLIP every index so that earliest-placed item sinks to the LOWEST (bottom)
+  // sub-lane and later/colliding items (typically milestones and label-bumped bars)
+  // rise to the TOPMOST sub-lane. This is a bijection over a row's lane indices, so
+  // non-overlap within a lane is preserved and only the assignment ORIGIN flips --
+  // the up/down/left/right alignment and the ALIGN-L2-003 label-overflow offset are
+  // otherwise unchanged. A single-lane row is untouched.
+  const laneCount = laneEndX.length;
+  if (laneCount > 1) {
+    for (const [itemId, lane] of laneByItemId) {
+      laneByItemId.set(itemId, laneCount - 1 - lane);
+    }
+  }
   return laneByItemId;
 }
 

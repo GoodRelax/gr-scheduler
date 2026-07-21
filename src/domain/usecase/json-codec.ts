@@ -2,9 +2,9 @@
  * UseCase layer: JSON codec for the ScheduleDocument aggregate (IO-L1-001,
  * ARCH-C-017, DATA-JSON-001..013). Pure serialize/deserialize with no DOM or I/O.
  *
- * Export produces the canonical JSON representation of the whole document,
- * including imported icon `assets[]` (DATA-JSON-013), so that a re-import restores
- * the document byte-for-meaning (round-trip fidelity, IO-L1-001).
+ * Export produces the canonical JSON representation of the whole document, so that
+ * a re-import restores the document byte-for-meaning (round-trip fidelity,
+ * IO-L1-001).
  *
  * Import is defence-in-depth: it runs the untrusted text through the import
  * sanitizer (prototype-pollution guard + depth/size limits), applies staged
@@ -17,7 +17,6 @@ import type {
   ClassificationNodeState,
   DeclaredCategory,
   Dependency,
-  ImportedAsset,
   ScheduleDocument,
   ScheduleItem,
   Section,
@@ -55,7 +54,7 @@ export const CURRENT_SCHEMA_VERSION = 2;
 
 /**
  * Serialize a ScheduleDocument to canonical JSON text (IO-L1-001). Emits every
- * field, including `assets[]`, so imported icons survive a round-trip.
+ * field so the document survives a round-trip.
  *
  * @param scheduleDocument - The document to serialize.
  * @param pretty - When true, indents for human readability (default false).
@@ -94,15 +93,14 @@ type Migrator = (raw: RawRecord) => RawRecord;
 
 /**
  * Staged migrations keyed by source version (DATA-JSON-001). Version 0 predates
- * the imported-asset array and optional collections, so the 0 -> 1 step
- * back-fills them to their empty defaults.
+ * the optional collections, so the 0 -> 1 step back-fills them to their empty
+ * defaults.
  */
 const MIGRATIONS: Readonly<Record<number, Migrator>> = {
   0: (raw) => ({
     ...raw,
     dependencies: Array.isArray(raw['dependencies']) ? raw['dependencies'] : [],
     annotations: Array.isArray(raw['annotations']) ? raw['annotations'] : [],
-    assets: Array.isArray(raw['assets']) ? raw['assets'] : [],
   }),
   // 1 -> 2 (CR-001 actual-date model swap): no field migration. The product is
   // unpublished (CR-001 §4), so removed legacy fields (planActualKind / planGroupId /
@@ -304,24 +302,6 @@ function validateDependency(value: unknown, index: number): Dependency {
   return value as unknown as Dependency;
 }
 
-const ASSET_FORMATS = new Set(['svg', 'png']);
-
-function validateAsset(value: unknown, index: number): ImportedAsset {
-  if (!isRecord(value)) {
-    fail(`assets[${index}]`, 'must be an object');
-  }
-  requireString(value['id'], `assets[${index}].id`);
-  const assetFormat = requireString(value['assetFormat'], `assets[${index}].assetFormat`);
-  if (!ASSET_FORMATS.has(assetFormat)) {
-    fail(`assets[${index}].assetFormat`, "must be 'svg' or 'png'");
-  }
-  const dataUri = requireString(value['sanitizedDataUri'], `assets[${index}].sanitizedDataUri`);
-  if (!dataUri.startsWith('data:')) {
-    fail(`assets[${index}].sanitizedDataUri`, 'must be a self-contained data: URI');
-  }
-  return value as unknown as ImportedAsset;
-}
-
 function validateSection(value: unknown, index: number): Section {
   if (!isRecord(value)) {
     fail(`sections[${index}]`, 'must be an object');
@@ -438,9 +418,6 @@ export function validateScheduleDocument(raw: unknown): ScheduleDocument {
         requireColor(value['strokeColor'], `annotations[${index}].strokeColor`);
       }
     });
-  }
-  if (raw['assets'] !== undefined) {
-    requireArray(raw['assets'], 'assets').forEach(validateAsset);
   }
   if (raw['declaredCategories'] !== undefined) {
     requireArray(raw['declaredCategories'], 'declaredCategories').forEach(validateDeclaredCategory);

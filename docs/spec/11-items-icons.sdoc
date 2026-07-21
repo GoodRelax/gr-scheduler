@@ -10,9 +10,11 @@ STATEMENT: >>>
 (L1) を定義し、必要に応じてコンポーネント要求 (L2) へ詳細化する。各 L1 要求は Parent 関係で
 ステークホルダ要求 STK-L0-006 (アイコンと図形・色・略称) および STK-L0-001 (マルチバー一枚絵の
 俯瞰) をトレースする。ただし ITEM-L1-011 (期限マーカー) のみは例外で、STK-L0-011 (予実管理と
-遅れの可視化) を Parent とする。出典は user-order.md item2, item7-11, item14, item15, item22, item23。
+遅れの可視化) を Parent とする。出典は user-order.md item2, item7-11, item22, item23。
 アイコン枠色/塗り色のパレット定義そのものは 12-properties-i18n.sdoc に、略称位置ドラッグの
-座標同期は 13-layout-alignment.sdoc に主管を置く (重複回避)。
+座標同期は 13-layout-alignment.sdoc に主管を置く (重複回避)。なお外部画像 (SVG/PNG) の
+アイコンインポートは CR-004 Part 6a で撤回した (旧 ITEM-L1-007 / ITEM-L1-008 / ITEM-L2-001。
+撤去理由は当該 CR および 30-architecture.sdoc ARCH-C-026 を参照)。
 <<<
 
 [[SECTION]]
@@ -92,16 +94,35 @@ TITLE: 既定図形セット (マイルストーン/タスク)
 STATEMENT: >>>
 gr-scheduler は、マイルストーン図形として circle 、triangle_up 、triangle_down 、square 、
 star 、pentagon 、hexagon を提供し、タスク図形として line 、arrow 、double_arrow 、
-segmented_bar 、chevron を提供すること。
+segmented_bar 、chevron を提供すること。既定の star 図形は輪郭 (☆) として描画し、塗りは
+ITEM-L1-006 / PROP-L1-002 の fill_color プロパティで与えること (既定描画が塗り潰しか輪郭かの
+初期状態を輪郭へ変更するものであり、色指定の仕組み自体は変更しない)。加えて、パレットの
+[...] 展開 UI から選択できる特殊マイルストーン図形として、file (右下が折れた紙 = 図面/資料
+提出)、box3d (立体の箱 = ECU 等のハードウェア成果物)、floppy (フロッピー = SW リリース)、
+cylinder (円筒 = サーバーへの SW デプロイ)、person (上半身の輪郭 = 偉い人への報告)、
+smiley (笑顔 = 楽しいイベント)、beer (ビアタンブラー = 飲み会) の 7 種を既定図形セットに
+追加すること。これら 7 種は milestoneShape を拡張する (taskShape は本要求の対象外・変更なし)。
+マイルストーンアイコンの高さは、タスクバーの高さ比で +15% 大きく描画すること。
 <<<
 RATIONALE: >>>
 user-order item9 の図形要求を機械可読な図形キーへ写像する。マイルストーンは
 〇 △ ▽ □ ☆ 五角形 六角形、タスクは 直線 (ー) 、矢印 (→) 、双方向矢印 (⇔) 、区切りバー
-(segmented_bar) 、矢羽根 (chevron) に対応する。
+(segmented_bar) 、矢羽根 (chevron) に対応する。star は塗り潰し星から輪郭 (☆) へ既定描画を
+変更し、塗りは fill_color に委ねる (CR-004 Part 6b)。特殊マイルストーン 7 種
+(file / box3d / floppy / cylinder / person / smiley / beer) は、アイコンインポート廃止
+(CR-004 Part 6a) 後も、図面提出・SW リリース・デプロイ・報告・イベント等の意味を絵文字
+(ITEM-L1-005) に頼らず既定図形として表現するため追加する (CR-004 Part 6c)。マイルストーンの
++15% 寸法は、点状のマイルストーンをタスクバーと釣り合う視認性に保つためである (CR-004 Part 2)。
+milestoneShape enum への特殊 7 種の追加は実装フェーズでスキーマ
+(docs/api/gr-scheduler.schema.json) に反映し、英語 enum キーは 40-data-format.sdoc の実装
+フェーズ橋渡し節で暫定提示する (実装セッションで確定)。CR-004。
 <<<
 VERIFICATION: >>>
 既定アイコン一覧に上記 7 種のマイルストーン図形と 5 種のタスク図形がすべて存在し、それぞれを
-配置すると対応する形状で描画されること。
+配置すると対応する形状で描画されること。既定の star が輪郭 (☆) で描画され、fill_color を与えると
+当該色で塗られること。パレットの [...] から特殊マイルストーン 7 種
+(file / box3d / floppy / cylinder / person / smiley / beer) が選択・配置でき、対応する形状で
+描画されること。マイルストーンアイコンの高さが同一条件のタスクバー高さの +15% であること。
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -155,76 +176,6 @@ VERIFICATION: >>>
 RELATIONS:
 - TYPE: Parent
   VALUE: STK-L0-006
-
-[[/SECTION]]
-
-[[SECTION]]
-TITLE: 4. アイコンのインポート (Icon Import)
-
-[REQUIREMENT]
-UID: ITEM-L1-007
-TYPE: Functional
-PRIORITY: Should
-LAYER: L1_System
-TITLE: 外部アイコン画像のインポート
-STATEMENT: >>>
-gr-scheduler は、ユーザーが用意した外部画像を読み込み、アイテムのアイコンとして登録・使用
-できること。
-<<<
-RATIONALE: 既定図形・絵文字で表せない独自記号やロゴを扱う。user-order item14。
-VERIFICATION: >>>
-外部画像を 1 件インポートし、これをアイテムのアイコンに割り当てたとき、当該画像が行上に描画
-され、保存・再読込後も保持されること。
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: STK-L0-006
-
-[REQUIREMENT]
-UID: ITEM-L1-008
-TYPE: Constraint
-PRIORITY: Must
-LAYER: L1_System
-TITLE: インポート形式は SVG および PNG に限定
-STATEMENT: >>>
-gr-scheduler は、アイコンのインポートを受け付ける画像形式を SVG および PNG に限定し、それ以外の
-形式のファイルが指定された場合は取り込まずにエラーを通知すること。
-<<<
-RATIONALE: >>>
-対応形式を明示し、単一 HTML でブラウザネイティブに描画可能な形式へ絞る。
-user-order item15。
-<<<
-VERIFICATION: >>>
-SVG と PNG のファイルは取り込め、JPEG や GIF 等の非対応形式を指定するとエラーが通知され、
-キャンバスに取り込まれないこと。
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: STK-L0-006
-
-[REQUIREMENT]
-UID: ITEM-L2-001
-TYPE: Constraint
-PRIORITY: Must
-LAYER: L2_Component
-TITLE: インポート画像の検証とサニタイズ
-STATEMENT: >>>
-もし SVG または PNG がインポートされた場合、アイコンインポータは当該入力を信頼できない入力と
-みなし、SVG に含まれる script 要素・イベントハンドラ属性・外部参照 (href/xlink:href) を除去
-し、PNG のシグネチャと寸法を検証したうえで、無害化した画像のみをアイコンとして登録すること。
-<<<
-RATIONALE: >>>
-インポート画像は外部由来であり XSS/インジェクションの経路となりうる。00-overview.sdoc 前提
-(信頼できない入力の厳格検証) と OWASP Top 10 対策に対応する。ITEM-L1-008 を安全性の観点から
-詳細化する。
-<<<
-VERIFICATION: >>>
-script 要素または onload 属性を含む SVG をインポートしたとき、描画結果にスクリプトが実行される
-経路が残らず (該当ノード/属性が除去され) 、寸法不正な PNG は登録が拒否されること。
-<<<
-RELATIONS:
-- TYPE: Parent
-  VALUE: ITEM-L1-008
 
 [[/SECTION]]
 
@@ -307,16 +258,48 @@ PRIORITY: Must
 LAYER: L2_Component
 TITLE: マイルストーンラベルの表示位置 (アイコン右)
 STATEMENT: >>>
-マイルストーンのラベルは、マイルストーンアイコンの右 (icon-right) に描画すること。
+マイルストーンのラベルは、マイルストーンアイコンの右 (icon-right) に描画すること。ラベル (略称)
+のフォントサイズは、マイルストーンアイコンの寸法 (ITEM-L1-004 の +15% を反映した高さ) を基準に
+算出すること。これはタスクがタスクバーの高さを基準にフォントサイズを決めるのと同様の考え方である。
 <<<
 RATIONALE: >>>
 点状のマイルストーンアイコンは内部へ文字を収めにくいため、アイコンの右へ略称を置いて視認性を確保
 する。ITEM-L1-009 の「略称のアイテム内部/付近への表示」をマイルストーンの配置観点から詳細化する。
-CR-003 Part 2。
+ラベルフォントをマイルストーンアイコン寸法から導出するのは、+15% で拡大したアイコンと釣り合う
+文字サイズを保つためである。CR-003 Part 2、CR-004 Part 2。
 <<<
 VERIFICATION: >>>
 略称を設定したマイルストーンを配置したとき、略称がアイコンの右側に描画され、アイコンと視覚的に
-対応づけられること。
+対応づけられること。略称のフォントサイズがマイルストーンアイコンの寸法に比例して決まり、アイコンを
+拡大するとフォントも比例して大きくなること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: ITEM-L1-009
+
+[REQUIREMENT]
+UID: ITEM-L2-004
+TYPE: Functional
+PRIORITY: Should
+LAYER: L2_Component
+TITLE: 担当者名の表示レイアウト (アイテム左・右詰め)
+STATEMENT: >>>
+担当者名 (PROP-L1-002 の assignee) を表示する場合、当該担当者名を対象タスク/マイルストーンの
+左に、右詰めで配置すること。担当者名は、依存線の入口 (後続アイテムへ入る矢印 → ) の水平部分と
+重ならないように配置すること。担当者名の表示/非表示を切り替えるトグル UI 自体は本要求の対象外で
+あり、パレットの専用トグル (viewState.assigneeVisible) として PROP-L1-002 (CR-006 Part 7) で
+規定する。本要求は表示するときのレイアウト規則のみを定める。
+<<<
+RATIONALE: >>>
+担当者名をアイテム左・右詰めで揃えると、複数行に担当者名から各アイテムが並んだとき右端 (アイテム
+側) が揃い一枚絵の可読性が上がる。依存線の左端入線 (DEP-L1-002 の middle_left アンカー、
+DEP-L1-003 の左辺入規則) の水平部分と担当者名が干渉しないよう非干渉レイアウトとする。
+ITEM-L1-009 の略称/周辺情報表示を担当者名の配置観点から詳細化する。CR-004 Part 5。
+<<<
+VERIFICATION: >>>
+担当者名を表示したアイテムを配置したとき、担当者名がアイテムの左に右詰めで描画され、依存線が
+左辺 (middle_left) から入るとき担当者名がその入口矢印の水平部分と重ならないことを描画計測で
+確認すること。
 <<<
 RELATIONS:
 - TYPE: Parent
@@ -354,5 +337,99 @@ targetDate を設定したアイテムで、当該日付位置に期限マーカ
 RELATIONS:
 - TYPE: Parent
   VALUE: STK-L0-011
+
+[[/SECTION]]
+
+[[SECTION]]
+TITLE: 7. 選択 (Selection)
+
+[REQUIREMENT]
+UID: SEL-L1-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: 矩形選択による複数選択
+STATEMENT: >>>
+gr-scheduler は、キャンバスの空き領域 (どのアイテム/コメント上でもない位置) からのドラッグで
+矩形選択を開始し、矩形に交差する複数のアイテム (およびコメント) をまとめて選択できること。
+矩形選択は選択集合を形成する操作であり、ITEM-L1-001 が規定する「各アイテムが独立に選択できる」
+ことと整合する (各アイテムの独立選択性を保ったまま複数を 1 つの選択集合へ束ねる)。
+<<<
+RATIONALE: >>>
+マルチバー一枚絵の上で複数アイテムを一括して移動・複製・削除するための前提となる操作。現行仕様は
+ITEM-L1-001 の独立選択に留まり、矩形選択自体を明文化した要求が無かったため本 CR で新設する。
+PowerPoint 的な選択操作系 (矩形選択 + 増減) の基点を成す。CR-007。
+<<<
+VERIFICATION: >>>
+空き領域からドラッグして矩形を描いたとき、矩形に交差する複数のアイテム (およびコメント) が
+一括で選択状態となり、各要素が個別にも選択可能なまま保たれること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-001
+
+[REQUIREMENT]
+UID: SEL-L1-002
+TYPE: Functional
+PRIORITY: Must
+LAYER: L1_System
+TITLE: Ctrl+クリックによる選択の増減
+STATEMENT: >>>
+gr-scheduler は、 ``Ctrl+click`` により、クリックしたアイテムの選択集合への所属をトグルできる
+こと (未選択なら選択集合へ追加し、選択済みなら選択集合から除外する)。矩形選択 (SEL-L1-001) の
+結果集合に対しても ``Ctrl+click`` で個別に追加・除外でき、矩形選択で選び過ぎた/選び足りなかった
+分を続けて補正できること (PowerPoint 式の増減)。
+<<<
+RATIONALE: >>>
+矩形選択だけでは過不足の補正ができない。 ``Ctrl+click`` の増減により、選択集合を対話的に
+整えられるようにする。選択集合の共通編集基盤 (STK-L0-008 の編集効率化) の一部として規定する。
+CR-007。
+<<<
+VERIFICATION: >>>
+未選択アイテムを ``Ctrl+click`` すると選択集合へ加わり、選択済みアイテムを ``Ctrl+click`` すると
+選択集合から外れること。矩形選択後に ``Ctrl+click`` で個別の追加・除外ができることを確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-008
+
+[REQUIREMENT]
+UID: SEL-L2-001
+TYPE: Functional
+PRIORITY: Must
+LAYER: L2_Component
+TITLE: ポインタ操作の当たり判定優先順位 (増減・矩形選択・移動の峻別)
+STATEMENT: >>>
+選択コントローラは、ポインタ操作の起点と修飾キーに応じて、次の優先順位で挙動を確定すること。
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - 起点/修飾
+     - 挙動
+   * - ``Ctrl+click`` (アイテム上)
+     - クリックしたアイテムの選択集合への所属をトグルするのみ。ドラッグ/移動は開始しない。
+   * - 空き領域からのドラッグ
+     - 矩形選択 (SEL-L1-001) を開始する。
+   * - 選択済みアイテム上での修飾なしドラッグ
+     - 選択集合の移動 (ALIGN-L1-004) を開始する。
+
+これにより ``Ctrl+click`` による選択増減が誤ってドラッグ移動を起動しないこと、矩形選択と選択集合
+移動の起点が競合しないことを保証する。
+<<<
+RATIONALE: >>>
+``Ctrl+click`` の増減 (SEL-L1-002) とアイテム上でのドラッグ移動 (ALIGN-L1-004) が同じアイテム上で
+起こり得るため、当たり判定の優先順位を明示して衝突を防ぐ。CR-007 §7 の当たり判定優先順位 (D-6) の
+決定事項を反映する。CR-007。
+<<<
+VERIFICATION: >>>
+アイテム上での ``Ctrl+click`` が選択のトグルのみを行い移動を起動しないこと、空き領域からのドラッグ
+が矩形選択を、選択済みアイテム上の修飾なしドラッグが選択集合移動を、それぞれ起動することを確認する
+こと。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: SEL-L1-002
 
 [[/SECTION]]

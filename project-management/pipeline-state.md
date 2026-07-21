@@ -109,3 +109,26 @@
   状態を pending→done へ更新。ただし MSPDI `BaselineStart`/`BaselineFinish` の best-effort id
   突合往復（DATA-MSPDI-003 の CR-002 改訂分）は `mspdi-codec.ts` に該当コードが無く未実装のまま
   であることが本セッションで判明し、同マトリクスに記録済み（要フォローアップ）。
+
+## 追記 (2026-07-21): CR-004〜011 実装セッション（自律実行・ユーザー外出中）
+
+- 進捗と自律判断の詳細は `project-management/autonomous-session-report-20260721.md` を参照（コミット提案も同書）。
+- H-4 の3点を DEC-005 で確定（CR-005対象3種 / CR-006言語トグル=モーダル内×左 / CR-009=コマンドスタック連動）。
+- **CR-004 完了・green**（仕様先行→Pass A撤去+enum→Pass B描画→review-agent PASS Critical/High0）。
+  画像インポート撤去（assets/importedAssetId・SVG/PNGサニタイザ経路）、milestoneShape 12値、積み順反転、
+  MS+15%、star輪郭、特殊MS7種、担当者名ジオメトリ（`assigneeVisible` 既定非表示・CR-006で配線）。
+  DEF-007（図形ボキャブラリ drift）起票・据置。gate: tsc0/vitest602/eslint0/strictdoc0/build271.78kB。
+- **CR-004〜011 全8本 完了・green**（各: architect仕様先行→implementer+test→実機DOM検証→review-agent
+  PASS[Critical/High 0]）。Medium指摘は据置きでなく修正済み。詳細・コミット提案・自律判断D-1〜D-8は
+  `autonomous-session-report-20260721.md`。
+  - CR-004 レイアウト/アイコン刷新(画像import撤去・milestoneShape12・積み順反転・MS+15%・star輪郭・特殊MS7)。
+  - CR-005 フォント[S][M][L](対象3種・ヘッダー/パレット除外・コメント追従)。
+  - CR-006 パレット/ヘッダUI(Fit/P・SS→クリップボード・モーダル内[en][jp]・イナズマ既定非表示・Ao/As・担当者・AddBox2click)。
+  - CR-007 選択/移動/コピペ(Ctrl+click・複数移動・コメント編集・Ctrl+A・分類複製 統一-N命名)。
+  - CR-008 依存線 水平スタブ必須・正方向(DEF-005再解決・折れ緩和)。
+  - CR-009 透かし(既定PW GoodRelax・UTC必須・コマンドスタック連動更新)。
+  - CR-010 単一HTMLアプリ内DL([?]内Download・fetch(location.href)・IO-L1-007)。
+  - CR-011 ヘルプ ワンスクリーン収まり(3列・96vw・スクロール無し, TOOL-L2-008)。
+- **最終gate**: tsc0 / eslint0 / vitest702 / strictdoc exit0 / build 295.84kB。変更106ファイル。
+- **未実施(ユーザー立会い必須)**: 性能PoC(RISK-001, memory `perf-test-notify`)。勝手に実行しない。
+- コミット/プッシュはユーザーが手動。

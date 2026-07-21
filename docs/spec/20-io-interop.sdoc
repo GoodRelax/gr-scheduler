@@ -104,6 +104,38 @@ RELATIONS:
 - TYPE: Parent
   VALUE: STK-L0-015
 
+[REQUIREMENT]
+UID: IO-L1-007
+TYPE: Functional
+PRIORITY: Should
+LAYER: L1_System
+TITLE: アプリ本体 (クリーンな単一 HTML) のダウンロード
+STATEMENT: >>>
+本システムは、ヘルプ到達動線の ``Download GR Scheduler`` ボタン (TOOL-L1-008 の ``?`` 配下) の
+押下により、配信されたアプリ本体の単一 HTML を、固定ファイル名 ``gr-scheduler.html`` として
+ローカルへダウンロードできること。ダウンロード対象は ``fetch(location.href)`` で再取得した配信元
+そのままの HTML テキストを ``Blob`` 化したものとし、ユーザーが編集中の文書状態 (アイテム・依存線・
+プロパティ等) を含まないクリーンなアプリ本体とすること。現在の DOM を書き出す
+``document.documentElement.outerHTML`` 方式は、編集中データが混入し得るため用いてはならない。
+``file://`` 等のオフラインで ``fetch`` が失敗した場合は、ユーザーが既にファイル本体を保有している
+ため実害なしとして扱い、失敗時の具体的な UI 通知方法 (無処理/エラートースト等) は実装フェーズで
+確定すること。
+<<<
+RATIONALE: >>>
+公開 Web アプリ自身からワンクリックで配布用の単一 HTML を取得できるようにし、GitHub Releases/タグ
+運用を配布手段として必須ではなくす。編集中データの混入を避けるため配信元を ``fetch`` で再取得し、
+現在の DOM ( ``outerHTML`` ) は用いない。ファイル入出力 (IO-L1-004) と同じくローカルファイルへの
+明示的な保存の一種として位置づける。user-order (配布方式)、CR-010。
+<<<
+VERIFICATION: >>>
+``Download GR Scheduler`` 押下で ``gr-scheduler.html`` がダウンロードされ、その内容が編集中データを
+含まない配信元そのままのアプリであり ( ``outerHTML`` 由来の混入がなく) 単体で正しく動作すること、
+``file://`` 等で ``fetch`` が失敗しても機能不全とみなされないことを確認すること。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: STK-L0-015
+
 [[/SECTION]]
 
 [[SECTION]]

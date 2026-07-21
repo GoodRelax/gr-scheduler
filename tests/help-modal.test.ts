@@ -10,7 +10,12 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { buildHelpModel, HELP_USAGE_HINT } from '../src/adapters/ui/help-modal.js';
+import {
+  buildHelpModel,
+  downloadAppLabel,
+  HELP_MODAL_STYLESHEET,
+  HELP_USAGE_HINT,
+} from '../src/adapters/ui/help-modal.js';
 
 const model = buildHelpModel();
 const allFeatures = model.flatMap((section) => section.entries.map((entry) => entry.feature));
@@ -91,5 +96,89 @@ describe('buildHelpModel: real keyboard shortcuts only', () => {
     expect(hint).toContain('arm a shape');
     expect(hint).toContain('zoom');
     expect(hint).toContain('pan');
+  });
+});
+
+describe('HELP_MODAL_STYLESHEET: CR-011 one-screen fit invariants', () => {
+  /** Read the value of a single-declaration CSS property inside a given selector block. */
+  const readDeclaration = (selector: string, property: string): string | undefined => {
+    const blockMatch = new RegExp(`${selector.replace('.', '\\.')}\\s*\\{([^}]*)\\}`).exec(
+      HELP_MODAL_STYLESHEET,
+    );
+    const block = blockMatch?.[1];
+    if (block === undefined) {
+      return undefined;
+    }
+    const declMatch = new RegExp(`(?:^|;)\\s*${property}\\s*:\\s*([^;]+)`).exec(block);
+    return declMatch?.[1]?.trim();
+  };
+
+  it('Part 2: keeps a 3-column layout (never collapses columns to fit)', () => {
+    expect(readDeclaration('.grsch-help-columns', 'column-count')).toBe('3');
+  });
+
+  it('Part 2 / narrow-breakpoint decision: no media query collapses the columns to 1 or 2', () => {
+    // The 900px -> 2col and 620px -> 1col collapses were removed so 3 columns hold
+    // at every desktop width; narrow fit is absorbed by the clamp() font floor instead.
+    expect(HELP_MODAL_STYLESHEET).not.toMatch(/@media[^{]*\{[^}]*column-count\s*:\s*[12]\b/);
+    expect(HELP_MODAL_STYLESHEET).not.toContain('column-count: 2');
+    expect(HELP_MODAL_STYLESHEET).not.toContain('column-count: 1');
+  });
+
+  it('Part 1: does not use overflow: auto as the fitting mechanism', () => {
+    // The scroll-to-fit design is gone; a non-triggering `hidden` clip is the only
+    // overflow the dialog carries.
+    expect(HELP_MODAL_STYLESHEET).not.toContain('overflow: auto');
+    expect(readDeclaration('.grsch-help-dialog', 'overflow')).toBe('hidden');
+  });
+
+  it('Part 1: bounds the dialog height to the viewport so it never exceeds one screen', () => {
+    const maxHeight = readDeclaration('.grsch-help-dialog', 'max-height');
+    expect(maxHeight).toBeDefined();
+    expect(maxHeight).toContain('100vh');
+    // The old scroll trigger (a fractional vh that content spilled past) is gone.
+    expect(maxHeight).not.toBe('92vh');
+  });
+
+  it('Part 3: widens the dialog toward the viewport (well beyond the old 85vw)', () => {
+    const width = readDeclaration('.grsch-help-dialog', 'width');
+    expect(width).toBeDefined();
+    const widthVw = Number.parseFloat(String(width).replace('vw', ''));
+    expect(String(width)).toContain('vw');
+    expect(widthVw).toBeGreaterThanOrEqual(94);
+    expect(widthVw).toBeGreaterThan(85);
+  });
+
+  it('Part 4: font shrink is a clamp() with a readable floor and a 13px ceiling', () => {
+    const fontSize = readDeclaration('.grsch-help-dialog', 'font-size');
+    expect(fontSize).toBeDefined();
+    expect(String(fontSize)).toMatch(/^clamp\(/);
+    const [floorRaw, , ceilingRaw] = String(fontSize)
+      .replace(/^clamp\(/, '')
+      .replace(/\)$/, '')
+      .split(',')
+      .map((part) => part.trim());
+    const floorPx = Number.parseFloat(String(floorRaw).replace('px', ''));
+    const ceilingPx = Number.parseFloat(String(ceilingRaw).replace('px', ''));
+    // Readable floor (never smaller than ~11px) and the original 13px as the ceiling.
+    expect(floorPx).toBeGreaterThanOrEqual(11);
+    expect(floorPx).toBeLessThan(ceilingPx);
+    expect(ceilingPx).toBe(13);
+  });
+});
+
+describe('downloadAppLabel: CR-010 Download button label', () => {
+  it('localizes the verb but keeps the product name GR Scheduler in both locales', () => {
+    expect(downloadAppLabel('en')).toBe('Download GR Scheduler');
+    expect(downloadAppLabel('ja')).toContain('GR Scheduler');
+    expect(downloadAppLabel('ja')).not.toBe(downloadAppLabel('en'));
+  });
+
+  it('the English label is ASCII (live-CSP / rendering hazard guard)', () => {
+    const asciiClean = [...downloadAppLabel('en')].every((character) => {
+      const code = character.charCodeAt(0);
+      return code >= 32 && code <= 126;
+    });
+    expect(asciiClean).toBe(true);
   });
 });

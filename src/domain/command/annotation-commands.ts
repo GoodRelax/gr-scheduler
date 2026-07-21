@@ -147,6 +147,60 @@ export function moveCommentAnchorCommand(
 }
 
 /**
+ * Command: replace a comment's text (CR-007 Part 3, CURS-L1-005 edit). Undoable;
+ * a no-op (same document reference) when the text is unchanged or the target is
+ * not a comment.
+ *
+ * @param commentId - The comment to edit.
+ * @param text - The new note text.
+ * @returns An edit-comment-text command.
+ */
+export function editCommentTextCommand(commentId: string, text: string): ScheduleCommand {
+  return {
+    label: 'edit-comment-text',
+    execute: (scheduleDocument) =>
+      mapAnnotations(scheduleDocument, (annotation) =>
+        annotation.id === commentId && isComment(annotation) && annotation.text !== text
+          ? { ...annotation, text }
+          : annotation,
+      ),
+  };
+}
+
+/** The two ways a comment text edit can end (CR-007 Part 3, D-7). */
+export type CommentEditAction = 'commit' | 'cancel';
+
+/** The resolved result of a comment text edit gesture: whether to keep, and the text. */
+export interface CommentEditOutcome {
+  /** True when the edited text should be committed (undoable), false to discard. */
+  readonly commit: boolean;
+  /** The text to end up with (edited on commit, prior on cancel). */
+  readonly text: string;
+}
+
+/**
+ * Resolve a comment text-edit gesture (CR-007 Part 3, D-7): Enter (`'commit'`)
+ * keeps the edited text; Escape (`'cancel'`) reverts to the prior text. A commit
+ * that did not change the text is reported as `commit: false` so the caller skips
+ * a no-op command / history entry.
+ *
+ * @param action - `'commit'` (Enter) or `'cancel'` (Escape).
+ * @param priorText - The comment's text before editing began.
+ * @param editedText - The text currently in the editor.
+ * @returns Whether to commit, and the resulting text.
+ */
+export function resolveCommentEditOutcome(
+  action: CommentEditAction,
+  priorText: string,
+  editedText: string,
+): CommentEditOutcome {
+  if (action === 'cancel') {
+    return { commit: false, text: priorText };
+  }
+  return { commit: editedText !== priorText, text: editedText };
+}
+
+/**
  * Command: recolor a rounded-box enclosure (CURS-L1-007 "color editable"). No-op
  * when the color is unchanged or the target is not a rounded box.
  *
@@ -166,6 +220,42 @@ export function recolorRoundedBoxCommand(boxId: string, strokeColor: string): Sc
           : annotation,
       ),
   };
+}
+
+/** A normalized rounded-box rectangle (date span + row span), for 2-click placement. */
+export interface RoundedBoxRect {
+  readonly startDate: IsoDate;
+  readonly endDate: IsoDate;
+  readonly topRowIndex: number;
+  readonly bottomRowIndex: number;
+}
+
+/**
+ * Normalize two clicked corners into a rounded-box rectangle (CR-006 Part 8, 2-click
+ * placement). The two clicks may land in any order (top-left then bottom-right, or the
+ * reverse / mixed), so this orders the dates ascending and the row indices ascending
+ * and clamps them non-negative -- exactly like {@link resizeRoundedBoxCommand}'s
+ * normalization -- yielding a well-formed rect regardless of click order. Pure.
+ *
+ * @param firstDate - Date under the first click.
+ * @param secondDate - Date under the second click.
+ * @param firstRowIndex - Display row index under the first click.
+ * @param secondRowIndex - Display row index under the second click.
+ * @returns The normalized rectangle.
+ */
+export function roundedBoxRectFromCorners(
+  firstDate: IsoDate,
+  secondDate: IsoDate,
+  firstRowIndex: number,
+  secondRowIndex: number,
+): RoundedBoxRect {
+  const [startDate, endDate] =
+    toDayNumber(firstDate) <= toDayNumber(secondDate)
+      ? [firstDate, secondDate]
+      : [secondDate, firstDate];
+  const topRowIndex = Math.max(0, Math.min(firstRowIndex, secondRowIndex));
+  const bottomRowIndex = Math.max(0, Math.max(firstRowIndex, secondRowIndex));
+  return { startDate, endDate, topRowIndex, bottomRowIndex };
 }
 
 /**
@@ -241,6 +331,25 @@ export function deleteAnnotationCommand(annotationId: string): ScheduleCommand {
     execute: (scheduleDocument) => {
       const existing = scheduleDocument.annotations ?? [];
       const annotations = existing.filter((annotation) => annotation.id !== annotationId);
+      return annotations.length === existing.length ? scheduleDocument : { ...scheduleDocument, annotations };
+    },
+  };
+}
+
+/**
+ * Command: delete EVERY annotation whose id is in a set (CR-007 Part 4: Delete on a
+ * multi-selection that includes comments). Undoable; a no-op (same document
+ * reference) when none of the ids match.
+ *
+ * @param annotationIds - The annotation ids to remove.
+ * @returns A delete-annotations command.
+ */
+export function deleteAnnotationsCommand(annotationIds: ReadonlySet<string>): ScheduleCommand {
+  return {
+    label: 'delete-annotations',
+    execute: (scheduleDocument) => {
+      const existing = scheduleDocument.annotations ?? [];
+      const annotations = existing.filter((annotation) => !annotationIds.has(annotation.id));
       return annotations.length === existing.length ? scheduleDocument : { ...scheduleDocument, annotations };
     },
   };

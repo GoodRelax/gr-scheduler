@@ -4,7 +4,6 @@ import {
   ImportRejectedError,
   deserializeScheduleDocument,
 } from '../src/domain/usecase/json-codec.js';
-import { sanitizeSvg } from '../src/domain/usecase/import-sanitizer.js';
 import type { ScheduleDocument } from '../src/domain/model/schedule-model.js';
 
 function docWithItemColors(fillColor: string, strokeColor: string): ScheduleDocument {
@@ -47,25 +46,5 @@ describe('color import validation (security-design C-02, M5a review M-3)', () =>
   it('REJECTS a document whose item strokeColor smuggles expression()', () => {
     const json = JSON.stringify(docWithItemColors('#0072b2', 'expression(alert(1))'));
     expect(() => deserializeScheduleDocument(json)).toThrow(ImportRejectedError);
-  });
-
-  it('strips an external url() paint ref from an imported SVG but keeps safe colors', () => {
-    const svg = sanitizeSvg(
-      '<svg xmlns="http://www.w3.org/2000/svg">' +
-        '<rect fill="url(http://evil/beacon)" stroke="#ff0000"/>' +
-        '</svg>',
-    );
-    expect(svg).not.toContain('url(http://evil');
-    expect(svg).toContain('stroke="#ff0000"');
-  });
-
-  it('keeps an INTERNAL url(#id) gradient reference in an imported SVG', () => {
-    const svg = sanitizeSvg(
-      '<svg xmlns="http://www.w3.org/2000/svg">' +
-        '<defs><linearGradient id="g"><stop stop-color="#0072b2"/></linearGradient></defs>' +
-        '<rect fill="url(#g)"/>' +
-        '</svg>',
-    );
-    expect(svg).toContain('fill="url(#g)"');
   });
 });

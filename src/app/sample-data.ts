@@ -79,6 +79,8 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
     readonly fadeOutDays?: number;
     /** Progress front fraction in [0, 1] (present on actual items). */
     readonly progressRatio?: number;
+    /** Optional owner name shown left of the glyph when the assignee column is on. */
+    readonly assignee?: string;
   }
   type ItemKindLocal = 'milestone' | 'task';
 
@@ -112,10 +114,10 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
     { id: 'oa-phase-actual-dev', abbrev: 'Series Development', kind: 'task', startDate: '2026-05-09', endDate: '2027-05-16', major: 'Over All Schedule', middle: 'Phase-Actual', fill: ACTUAL_FILL, progressRatio: 0.55 },
     // ===== Major "TeamA" =====
     // Middle "Phase-Plan" -- the SYS1..SWE1 multi-bar showcase row (blue).
-    { id: 'ta-phase-plan-sys1', abbrev: 'SYS1', kind: 'task', startDate: '2025-12-30', endDate: '2026-02-08', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, fadeOutDays: 9 },
-    { id: 'ta-phase-plan-sys2', abbrev: 'SYS2', kind: 'task', startDate: '2026-01-31', endDate: '2026-03-22', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, fadeInDays: 11 },
-    { id: 'ta-phase-plan-sys3', abbrev: 'SYS3', kind: 'task', startDate: '2026-03-12', endDate: '2026-05-01', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL },
-    { id: 'ta-phase-plan-swe1', abbrev: 'SWE1', kind: 'task', startDate: '2026-02-28', endDate: '2026-06-18', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL },
+    { id: 'ta-phase-plan-sys1', abbrev: 'SYS1', kind: 'task', startDate: '2025-12-30', endDate: '2026-02-08', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, fadeOutDays: 9, assignee: 'Suzuki' },
+    { id: 'ta-phase-plan-sys2', abbrev: 'SYS2', kind: 'task', startDate: '2026-01-31', endDate: '2026-03-22', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, fadeInDays: 11, assignee: 'Saotome' },
+    { id: 'ta-phase-plan-sys3', abbrev: 'SYS3', kind: 'task', startDate: '2026-03-12', endDate: '2026-05-01', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, assignee: 'Sato' },
+    { id: 'ta-phase-plan-swe1', abbrev: 'SWE1', kind: 'task', startDate: '2026-02-28', endDate: '2026-06-18', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, assignee: 'Tanaka' },
     // Middle "Phase-Actual" -- the as-run SYS1 bar (red) with a progress front.
     { id: 'ta-phase-actual-sys1', abbrev: 'SYS1', kind: 'task', startDate: '2026-01-03', endDate: '2026-02-15', major: 'TeamA', middle: 'Phase-Actual', fill: ACTUAL_FILL, progressRatio: 0.8 },
     // Middle "SYS-Phase-Plan" -- later system-engineering ASPICE phases (blue).
@@ -157,6 +159,7 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
       ...(seed.fadeInDays !== undefined ? { fadeInDays: seed.fadeInDays } : {}),
       ...(seed.fadeOutDays !== undefined ? { fadeOutDays: seed.fadeOutDays } : {}),
       ...(seed.progressRatio !== undefined ? { progressRatio: seed.progressRatio } : {}),
+      ...(seed.assignee !== undefined ? { assignee: seed.assignee } : {}),
     };
     if (seed.kind === 'milestone') {
       return {
@@ -215,6 +218,9 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
       planActualDisplay: 'both',
       planActualStyle: 'overlap',
       todayLineVisible: true,
+      // CR-006 Part 5: the progress line now defaults to HIDDEN, but the demo template
+      // opts in explicitly so the illuminated line still appears out of the box.
+      progressLineVisible: true,
       gridDateLinesVisible: true,
       gridCategoryLinesVisible: true,
       themePreference: 'light',
@@ -497,6 +503,9 @@ export function generateSampleDocument(
       planActualDisplay: 'both',
       planActualStyle: 'overlap',
       todayLineVisible: true,
+      // CR-006 Part 5: opt the benchmark/sample document into the (now default-hidden)
+      // progress line so its illuminated line stays visible.
+      progressLineVisible: true,
       dualCursor: {
         primary: { atDate: fromDayNumber(epochDayNumber + 160), mode: 'vertical-line' },
         secondary: { atDate: fromDayNumber(epochDayNumber + 190), mode: 'crosshair' },

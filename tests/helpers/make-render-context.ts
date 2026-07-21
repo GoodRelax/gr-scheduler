@@ -36,6 +36,7 @@ export interface RenderContextInit {
   rowIdToDisplayId?: ReadonlyMap<string, string>;
   selectedItemIds?: ReadonlySet<string>;
   selectedAnnotationId?: string | null;
+  selectedCommentIds?: ReadonlySet<string>;
   selectedDependencyId?: string | null;
   keyboardFocusItemId?: string | null;
   pointerClient?: { readonly clientX: number; readonly clientY: number } | null;
@@ -99,6 +100,7 @@ export function makeRenderContext(over: RenderContextInit = {}): RenderContext {
     rowIdToDisplayId: over.rowIdToDisplayId ?? new Map(),
     selectedItemIds: over.selectedItemIds ?? new Set(),
     selectedAnnotationId: over.selectedAnnotationId ?? null,
+    selectedCommentIds: over.selectedCommentIds ?? new Set(),
     selectedDependencyId: over.selectedDependencyId ?? null,
     keyboardFocusItemId: over.keyboardFocusItemId ?? null,
     pointerClient: over.pointerClient ?? null,

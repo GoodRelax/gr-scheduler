@@ -45,6 +45,14 @@ import {
   clampPropertyPanelWidth,
   resolvePropertyPanelWidth,
 } from '../../domain/usecase/left-pane-layout.js';
+import type { FontScale } from '../../domain/model/schedule-model.js';
+import {
+  applyScaledFontVar,
+  FONT_SCALED_CLASS,
+  PROPERTY_PANEL_CAPTION_FONT_CSS,
+  PROPERTY_PANEL_FONT_CSS,
+  PROPERTY_PANEL_ROW_INPUT_HEIGHT_PX,
+} from '../../app/font-scale.js';
 
 /**
  * A tiny checkerboard CSS background used to render the "transparent" color swatch
@@ -279,6 +287,17 @@ export class PropertyPanel {
     return this.root.style.display === 'none';
   }
 
+  /**
+   * Apply the active font scale to the panel (CR-005 Part 2). Publishes the scaled
+   * font variable on the panel root ONLY, so the panel body + its controls rescale
+   * while the header and palette (which never carry the variable) stay fixed.
+   *
+   * @param scale - The chosen font scale step (S / M / L).
+   */
+  public setFontScale(scale: FontScale): void {
+    applyScaledFontVar(this.root, scale);
+  }
+
   private buildStaticLayout(): void {
     this.root.innerHTML = '';
     // Named landmark region so assistive tech can jump to the editor (WCAG 4.1.2).
@@ -287,11 +306,16 @@ export class PropertyPanel {
     // Compact, SCOPED control sizing so the full field set (now including the two
     // dependency-array fields, item 4) still fits the fixed-height panel WITHOUT a
     // vertical scrollbar. Scoped by class so it touches only this panel's controls.
-    this.root.classList.add('grsch-prop-panel');
+    // `grsch-font-scaled` opts this subtree into the scaled font variable (CR-005
+    // Part 2); the panel is one of the three targets that DO scale. The input row
+    // height is a FIXED px value regardless of scale so the full field set stays a
+    // bounded, scroll-free height even at L (CR-005 Part 3): only the text inside a
+    // row scales, and it is sized to fit within this row height.
+    this.root.classList.add('grsch-prop-panel', FONT_SCALED_CLASS);
     const compactStyle = document.createElement('style');
     compactStyle.textContent = [
       '.grsch-prop-panel input:not([type="color"]),',
-      '.grsch-prop-panel select { height: 17px; padding: 0 2px; box-sizing: border-box; }',
+      `.grsch-prop-panel select { height: ${PROPERTY_PANEL_ROW_INPUT_HEIGHT_PX}px; padding: 0 2px; box-sizing: border-box; }`,
       '.grsch-prop-panel input[type="color"] { height: 16px; padding: 0; box-sizing: border-box; }',
       '.grsch-prop-panel textarea { padding: 0 2px; box-sizing: border-box; }',
     ].join('\n');
@@ -307,12 +331,11 @@ export class PropertyPanel {
     this.root.style.overflowY = 'auto';
     this.root.style.padding = '6px 8px';
     this.root.style.boxSizing = 'border-box';
-    // Relative sizing so the uniform font scale (TOOL-L1-002) rescales the panel.
-    // Smaller than before so all rows fit without scrolling.
+    // The panel body font tracks the scaled font variable this container carries
+    // (CR-005 Part 2), at a 0.7 ratio of the base. Because the variable is only set
+    // on this container (not on #app), the header + palette never inherit it.
     this.root.style.fontFamily = 'system-ui, sans-serif';
-    // Trimmed from 0.74em / 1.25 line-height to fit the two extra fade rows without
-    // a vertical scrollbar at a normal window height (user requires no-scroll).
-    this.root.style.fontSize = '0.7em';
+    this.root.style.fontSize = PROPERTY_PANEL_FONT_CSS;
     this.root.style.lineHeight = '1.15';
 
     // Header row: title on the left, a × close button on the right (fix 10). The
@@ -495,7 +518,7 @@ export class PropertyPanel {
     caption.style.textAlign = 'right';
     caption.style.color = 'var(--grsch-text)';
     caption.style.fontFamily = 'ui-monospace, monospace';
-    caption.style.fontSize = '0.9em';
+    caption.style.fontSize = PROPERTY_PANEL_CAPTION_FONT_CSS;
     caption.style.overflowWrap = 'anywhere';
     const value = document.createElement('span');
     value.style.display = 'flex';
@@ -828,7 +851,7 @@ export class PropertyPanel {
    *
    * @param handlers - Getters/setters + labels supplied by the shell.
    */
-  public attachProgressLineControls(handlers: ProgressLineControlHandlers): void {
+  public attachProgressLineControls(handlers: ProgressLineControlHandlers): { sync: () => void } {
     const section = document.createElement('div');
     section.dataset.role = 'progress-line-section';
     section.style.display = 'flex';
@@ -842,7 +865,7 @@ export class PropertyPanel {
     caption.textContent = handlers.label;
     caption.style.color = 'var(--grsch-text)';
     caption.style.fontFamily = 'ui-monospace, monospace';
-    caption.style.fontSize = '0.9em';
+    caption.style.fontSize = PROPERTY_PANEL_CAPTION_FONT_CSS;
 
     const toggle = document.createElement('button');
     toggle.type = 'button';
@@ -874,6 +897,15 @@ export class PropertyPanel {
     // positions (keeping earlier fields where prior tests expect them).
     this.root.appendChild(section);
     syncToggle();
+    // Return a re-sync hook so the shell can refresh this control when the SAME
+    // viewState.progressLineVisible flag is flipped elsewhere (the palette toggle),
+    // keeping the two controls in lock-step (CR-006 defect fix).
+    return {
+      sync: () => {
+        syncToggle();
+        color.value = handlers.getColor();
+      },
+    };
   }
 
   /** The single item whose values the panel currently displays, or null. */
@@ -1004,8 +1036,8 @@ export class PropertyPanel {
 
   /**
    * Rebuild the icon_shape_kind select's options for an item's family and select its
-   * effective shape (item 4). A milestone offers the five milestone glyph shapes; a
-   * task offers bar / arrow / chevron / span.
+   * effective shape (item 4). A milestone offers the milestone glyph shapes
+   * ({@link MILESTONE_SHAPE_KINDS}); a task offers bar / arrow / chevron / span.
    */
   private refreshIconShapeKindOptions(item: ScheduleItem): void {
     const select = this.iconShapeKindSelect;

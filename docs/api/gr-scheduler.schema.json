@@ -30,8 +30,7 @@
     "declaredCategories": { "type": "array", "items": { "$ref": "#/$defs/declaredCategory" } },
     "classificationNodeStates": { "type": "array", "items": { "$ref": "#/$defs/classificationNodeState" } },
     "dependencies": { "type": "array", "items": { "$ref": "#/$defs/dependency" } },
-    "annotations": { "type": "array", "items": { "$ref": "#/$defs/annotation" } },
-    "assets": { "type": "array", "items": { "$ref": "#/$defs/asset" } }
+    "annotations": { "type": "array", "items": { "$ref": "#/$defs/annotation" } }
   },
   "$defs": {
     "isoDate": { "type": "string" },
@@ -61,12 +60,13 @@
         "todayLineVisible": { "type": "boolean" },
         "gridDateLinesVisible": { "type": "boolean" },
         "gridCategoryLinesVisible": { "type": "boolean" },
-        "progressLineVisible": { "type": "boolean" },
+        "progressLineVisible": { "type": "boolean", "default": false },
         "progressLineColor": { "$ref": "#/$defs/color" },
         "dualCursor": { "$ref": "#/$defs/dualCursor" },
         "cursorGuideMode": { "enum": ["none", "crosshair", "single-vertical", "double-vertical"] },
         "watermark": { "$ref": "#/$defs/watermark" },
         "activeLocale": { "enum": ["en", "ja"] },
+        "assigneeVisible": { "type": "boolean" },
         "themePreference": { "enum": ["light", "dark", "mono-light", "mono-dark", "system"] }
       }
     },
@@ -149,9 +149,9 @@
         "endDate": { "type": ["string", "null"] },
         "abbrev": { "type": "string" },
         "importance": { "type": "number" },
-        "milestoneShape": { "enum": ["circle", "triangle", "square", "diamond", "star"] },
+        "milestoneShape": { "enum": ["circle", "triangle", "square", "diamond", "star", "file", "box3d", "floppy", "cylinder", "person", "smiley", "beer"] },
         "taskShape": { "enum": ["bar", "arrow", "chevron", "span"] },
-        "iconShapeKind": { "enum": ["circle", "triangle", "square", "diamond", "star", "bar", "arrow", "chevron", "span"] },
+        "iconShapeKind": { "enum": ["circle", "triangle", "square", "diamond", "star", "file", "box3d", "floppy", "cylinder", "person", "smiley", "beer", "bar", "arrow", "chevron", "span"] },
         "fadeInDays": { "type": "number", "minimum": 0 },
         "fadeOutDays": { "type": "number", "minimum": 0 },
         "fillColor": { "$ref": "#/$defs/color" },
@@ -172,7 +172,6 @@
         "lineWeight": { "enum": ["thin", "medium", "thick"] },
         "labelPosition": { "enum": ["auto", "center", "top", "bottom", "right", "left", "inner-left"] },
         "labelOffset": { "$ref": "#/$defs/labelOffset" },
-        "importedAssetId": { "type": "string" },
         "predecessorItemIds": { "type": "array", "items": { "type": "string" } },
         "successorItemIds": { "type": "array", "items": { "type": "string" } }
       }
@@ -197,16 +196,6 @@
           "description": "Signed offset in elapsed calendar days between the linked endpoints (positive=lag, negative=lead, 0/absent=none). Round-trips with MSPDI PredecessorLink/LinkLag (+LagFormat), approximated as calendar days.",
           "type": "integer"
         }
-      }
-    },
-    "asset": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "assetFormat", "sanitizedDataUri"],
-      "properties": {
-        "id": { "type": "string" },
-        "assetFormat": { "enum": ["svg", "png"] },
-        "sanitizedDataUri": { "type": "string", "pattern": "^data:" }
       }
     },
     "declaredCategory": {

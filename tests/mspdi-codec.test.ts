@@ -46,7 +46,6 @@ function makeDocument(): ScheduleDocument {
     ],
     dependencies: [{ id: 'dep-1', fromItemId: 'it-1', fromAnchor: 4, toItemId: 'it-2', toAnchor: 3 }],
     annotations: [],
-    assets: [{ id: 'asset-1', assetFormat: 'svg', sanitizedDataUri: 'data:image/svg+xml;base64,PHN2Zy8+' }],
   };
 }
 
@@ -151,7 +150,6 @@ function makeRichDocument(): ScheduleDocument {
       },
     ],
     annotations: [],
-    assets: [],
   };
 }
 
@@ -267,7 +265,6 @@ function makeBaselineDocument(): ScheduleDocument {
       },
     ],
     annotations: [],
-    assets: [],
   };
 }
 

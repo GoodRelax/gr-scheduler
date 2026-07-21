@@ -17,8 +17,30 @@ export type IsoDate = string;
 /** Discriminates a point-in-time milestone from a spanning task. */
 export type ItemKind = 'milestone' | 'task';
 
-/** Milestone glyph shapes drawable by the SVG renderer in M1. */
-export type MilestoneShape = 'circle' | 'triangle' | 'square' | 'diamond' | 'star';
+/**
+ * Milestone glyph shapes drawable by the SVG renderer.
+ *
+ * Base 5 (M1): `circle`, `triangle`, `square`, `diamond`, `star`.
+ * Special 7 (CR-004 Part 6c): `file` (drawing/document deadline), `box3d`
+ * (physical hardware deliverable), `floppy` (software release), `cylinder`
+ * (deploy to server), `person` (report to management), `smiley` (fun event),
+ * `beer` (drinking party). The special 7 are enum/model members here; their SVG
+ * glyphs are rendered in a later pass (Pass B) and the renderer falls back to a
+ * safe default glyph for any not-yet-drawn shape.
+ */
+export type MilestoneShape =
+  | 'circle'
+  | 'triangle'
+  | 'square'
+  | 'diamond'
+  | 'star'
+  | 'file'
+  | 'box3d'
+  | 'floppy'
+  | 'cylinder'
+  | 'person'
+  | 'smiley'
+  | 'beer';
 
 /**
  * Task bar shapes drawable by the SVG renderer.
@@ -49,6 +71,13 @@ export const MILESTONE_SHAPE_KINDS: readonly MilestoneShape[] = [
   'square',
   'diamond',
   'star',
+  'file',
+  'box3d',
+  'floppy',
+  'cylinder',
+  'person',
+  'smiley',
+  'beer',
 ];
 
 /** Task shapes valid for an `icon_shape_kind` on a task item. */
@@ -285,33 +314,6 @@ export interface ScheduleItem {
   readonly labelPosition?: LabelPosition;
   /** Screen-space offset applied to the abbreviation label (ITEM-L1-010). */
   readonly labelOffset?: LabelOffset;
-  /**
-   * References an imported image asset (DATA-JSON-007 `icon.importedAssetId`) held
-   * in {@link ScheduleDocument.assets}. Present only when the item's glyph is an
-   * imported (sanitized) SVG/PNG icon (ITEM-L1-008).
-   */
-  readonly importedAssetId?: string;
-}
-
-/** Discriminates the two importable image asset formats (ITEM-L1-008). */
-export type ImportedAssetFormat = 'svg' | 'png';
-
-/**
- * An imported image icon that has passed the import sanitizer (ARCH-C-026) and is
- * safe to embed. Held at document top level (DATA-JSON-013) so that
- * Export -> Import round-trips never lose an imported icon; items reference it by
- * id via {@link ScheduleItem.importedAssetId}.
- *
- * `sanitizedDataUri` is always a self-contained `data:` URI (base64), never an
- * external reference, so SVG export stays offline (NFR-L1-001).
- */
-export interface ImportedAsset {
-  /** Stable unique identifier referenced by ScheduleItem.importedAssetId. */
-  readonly id: string;
-  /** Source format of the sanitized asset. */
-  readonly assetFormat: ImportedAssetFormat;
-  /** Sanitized, self-contained `data:` URI (base64). */
-  readonly sanitizedDataUri: string;
 }
 
 /** A horizontal band (ribbon) that carries multiple items (multi-bar). */
@@ -482,15 +484,16 @@ export interface I18nValue {
 export const DEFAULT_WATERMARK_TEXT = 'GoodRelax';
 
 /**
- * SHA-256 hex digest of the DEFAULT watermark-hide password (security-design §6).
- * Only the HASH is ever stored in code / model / exported HTML+JSON -- never the
- * raw password. The raw default password is documented in the StrictDoc spec
- * (docs/spec/19-tools-watermark.sdoc) for server-side rotation and MUST be changed
- * for any server deployment. Client-side hiding is a soft deterrent only: a
- * determined user can still edit the DOM/HTML directly.
+ * SHA-256 hex digest of the DEFAULT watermark-hide password (security-design §6,
+ * CR-009 Part 1). Only the HASH is ever stored in code / model / exported HTML+JSON
+ * -- never the raw password. This literal is the SHA-256 of the default password
+ * documented in the StrictDoc spec (docs/spec/19-tools-watermark.sdoc); that spec is
+ * the single place recording the raw default for server-side rotation, and it MUST
+ * be changed for any server deployment. Client-side hiding is a soft deterrent only:
+ * a determined user can still edit the DOM/HTML directly.
  */
 export const DEFAULT_WATERMARK_HIDE_PASSWORD_HASH =
-  'a8f81cfc4f489a27c6e6fa3a31c6089878a3648e24c04ee1b934ac03b99ce46c';
+  '380e83c38461aa049922c0d277df334b01cfa0783f312be5e486ac06dc9c8ec3';
 
 /**
  * The evidence watermark configuration (TOOL-L1-007, TOOL-L2-001/003,
@@ -573,10 +576,10 @@ export interface ViewState {
    */
   readonly gridCategoryLinesVisible?: boolean;
   /**
-   * Whether the progress line (イナズマ線 / lightning status line) is drawn. Absent is
-   * treated as VISIBLE (legacy documents keep showing it). Setting it false DELETES /
-   * hides the line; a toolbar toggle (or undo of that toggle is not applicable since it
-   * lives in view state) can bring it back. Held in view state so toggling it never
+   * Whether the progress line (イナズマ線 / lightning status line) is drawn. The
+   * default is HIDDEN (CR-006 Part 5): absent / undefined means the line is NOT drawn,
+   * so a fresh document starts without it and the palette progress-line toggle opts
+   * into it; only an explicit `true` shows it. Held in view state so toggling it never
    * pollutes Undo/Redo, yet still round-trips with the document via JSON / autosave.
    */
   readonly progressLineVisible?: boolean;
@@ -617,6 +620,14 @@ export interface ViewState {
    * fontScale) so switching language is not an undoable edit.
    */
   readonly activeLocale?: Locale;
+  /**
+   * Whether each item's assignee name is drawn to the LEFT of its glyph (CR-004
+   * Part 5, ITEM-L2-004). Absent is treated as HIDDEN (false), so the assignee
+   * column is opt-in; CR-006 will wire a palette toggle to this flag. Held in view
+   * state (a display concern) so toggling it never pollutes Undo/Redo and it
+   * round-trips via JSON / autosave.
+   */
+  readonly assigneeVisible?: boolean;
   /**
    * The light / dark theme preference (SHELL/THEME batch). `'system'` (or absent)
    * follows the OS `prefers-color-scheme`; an explicit mode pins the theme. The two
@@ -665,12 +676,6 @@ export interface ScheduleDocument {
   readonly dependencies?: readonly Dependency[];
   /** Free canvas annotations: comments and rounded-box enclosures (ARCH-C-005). */
   readonly annotations?: readonly Annotation[];
-  /**
-   * Imported (sanitized) image icon assets (DATA-JSON-013). Referenced by
-   * ScheduleItem.importedAssetId; embedded so JSON/MSPDI round-trips preserve
-   * imported icons (IO-L1-001). Absent means none.
-   */
-  readonly assets?: readonly ImportedAsset[];
 }
 
 /** Pixel size of the drawing surface. */

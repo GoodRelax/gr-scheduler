@@ -18,6 +18,20 @@ import { dateToWorldX, fromDayNumber, toDayNumber } from './time-coordinate-mapp
 import { rowBandHeight, rowWorldY } from './layout-engine.js';
 
 /**
+ * Whether the progress (illuminated / lightning) line should be drawn given the
+ * view-state flag (PLAN-L1-003, CR-006 Part 5). The default is now HIDDEN: an
+ * absent / undefined flag means the line is NOT drawn, so a fresh document starts
+ * without the progress line and the palette toggle opts into it. Only an explicit
+ * `true` shows it. Pure so the default can be asserted without a renderer.
+ *
+ * @param progressLineVisible - The `viewState.progressLineVisible` flag (or undefined).
+ * @returns True only when the flag is explicitly `true`.
+ */
+export function isProgressLineVisible(progressLineVisible: boolean | undefined): boolean {
+  return progressLineVisible === true;
+}
+
+/**
  * Whether an item carries recorded ACTUAL dates under the actual-date model
  * (CR-001 Part A). An item "has an actual side" as soon as its {@link
  * ScheduleItem.actualStart} is present; `actualEnd` may still be absent (work in

@@ -23,7 +23,10 @@ import {
 } from '../../../domain/usecase/plan-actual-geometry.js';
 import { dateToWorldX } from '../../../domain/usecase/time-coordinate-mapper.js';
 import {
+  effectiveMilestoneShape,
   effectiveTaskShape,
+  milestoneIconHeightPx,
+  milestoneLabelFontSizePx,
   taskGlyphPaintMode,
   taskGlyphPath,
   taskShapeUsesPath,
@@ -35,6 +38,7 @@ import {
   type FadePoint,
 } from '../../../domain/usecase/fade-geometry.js';
 import { itemAccessibleName } from '../../../domain/usecase/accessible-name.js';
+import { assigneeLabelGeometry } from '../../../domain/usecase/assignee-layout.js';
 import {
   FOCUS_RING_DASH_ARRAY,
   FOCUS_RING_HEX,
@@ -47,9 +51,9 @@ import { CUD_BLUE_ACCENT_HEX, HANDLE_FILL_HEX } from '../../../domain/usecase/re
 import {
   ANNOTATION_HANDLE_DRAW_HALF_PX,
   chevronFadeExtentsPx,
-  FONT_SIZE_BY_SCALE,
   labelAnchorPoint,
   milestonePath,
+  milestoneShapeUsesEvenOdd,
   resolveStrokeAttribute,
   strokeWidthPx,
   taskAbbrevFontSize,
@@ -69,6 +73,12 @@ interface MountedItem {
    */
   shape: SVGElement;
   readonly label: SVGTextElement;
+  /**
+   * The optional assignee-name label drawn to the LEFT of the glyph (CR-004 Part 5),
+   * present only while {@link ViewState.assigneeVisible} is on and the item has an
+   * assignee. Lazily created; removed when hidden or the assignee is cleared.
+   */
+  assigneeLabel: SVGTextElement | null;
   /** Accessible-name `<title>` child (WCAG 1.1.1 / 4.1.2). */
   readonly title: SVGTitleElement;
   /** Lazily created dashed selection outline, present only while selected. */
@@ -147,7 +157,6 @@ export class ItemLayer {
     // Large schedules keep the bounded, virtualized live-node set (ADR-009).
     const renderAllItems = shouldRenderAllItems(ctx.scheduleDocument?.items.length ?? 0);
     const threshold = renderAllItems ? 0 : lodThreshold(effectiveZoom);
-    const fontSize = FONT_SIZE_BY_SCALE[ctx.viewState.fontScale];
 
     // Plan/actual display filter (PLAN-L1-002): drop the hidden side entirely.
     const visibleItemIds = new Set(
@@ -180,7 +189,7 @@ export class ItemLayer {
         this.contentGroup.appendChild(mounted.group);
         createdCount += 1;
       }
-      this.patchItemNode(ctx, mounted, item, placement, fontSize);
+      this.patchItemNode(ctx, mounted, item, placement);
     }
 
     let removedCount = 0;
@@ -216,6 +225,7 @@ export class ItemLayer {
       group,
       shape,
       label,
+      assigneeLabel: null,
       title,
       selectionOutline: null,
       focusRing: null,
@@ -259,7 +269,6 @@ export class ItemLayer {
     mounted: MountedItem,
     item: ScheduleItem,
     placement: ItemPlacement,
-    fontSize: number,
   ): void {
     // Swap the glyph element FIRST (rect / polygon / path per shape + fade) so the
     // paint attributes below land on the element actually shown this frame.
@@ -311,10 +320,24 @@ export class ItemLayer {
     mounted.group.setAttribute('aria-label', accessibleName);
 
     if (item.itemKind === 'milestone') {
-      const size = placement.worldHeight;
-      const radius = size / 2;
+      // CR-004 Part 2: the milestone icon is drawn 15% TALLER than the task-bar lane
+      // height, centered on the lane so the extra height overhangs symmetrically.
+      const iconHeight = milestoneIconHeightPx(placement.worldHeight);
+      const radius = iconHeight / 2;
       const planCenterX = placement.worldX;
-      const centerY = placement.worldY + radius;
+      const centerY = placement.worldY + placement.worldHeight / 2;
+      // CR-004 Part 6b: the default `star` renders as an OUTLINE (stroke only, no
+      // fill) unless the user set an explicit fill_color; other milestone shapes keep
+      // the general fill/stroke paint set above. CR-004 Part 6c: the composite special
+      // glyphs fill with the evenodd rule so their inner subpaths read as holes.
+      const milestoneShape = effectiveMilestoneShape(item);
+      if (milestoneShape === 'star' && item.fillColorExplicit !== true) {
+        mounted.shape.setAttribute('fill', 'none');
+        mounted.shape.setAttribute('stroke', fillColor);
+        mounted.shape.setAttribute('stroke-width', String(strokeWidthPx(item.lineWeight)));
+      }
+      mounted.shape.setAttribute('fill-rule', milestoneShapeUsesEvenOdd(item) ? 'evenodd' : 'nonzero');
+      mounted.shape.setAttribute('data-milestone-shape', milestoneShape);
       // The primary glyph is the PLAN marker at startDate (its laid-out worldX).
       mounted.shape.setAttribute('d', milestonePath(item, planCenterX, centerY, radius));
       // CR-002 Part 2: a milestone shows plan + actual as TWO markers with NO filled
@@ -404,9 +427,12 @@ export class ItemLayer {
 
     const labelAnchor = labelAnchorPoint(item, placement);
     // A task's abbreviation is sized to 90% of its bar height (item 1) so it reads as
-    // a big in-bar label; a milestone keeps the font-scale caption size.
+    // a big in-bar label; a milestone's side caption is sized from its (15%-enlarged)
+    // ICON height (CR-004 Part 2), mirroring how a task keys its font off the bar.
     const labelFontSize =
-      item.itemKind === 'task' ? taskAbbrevFontSize(placement.worldHeight) : fontSize;
+      item.itemKind === 'task'
+        ? taskAbbrevFontSize(placement.worldHeight)
+        : milestoneLabelFontSizePx(milestoneIconHeightPx(placement.worldHeight));
     mounted.label.textContent = item.abbrev;
     mounted.label.setAttribute('x', String(labelAnchor.x));
     mounted.label.setAttribute('y', String(labelAnchor.y));
@@ -414,9 +440,56 @@ export class ItemLayer {
     mounted.label.setAttribute('font-size', String(labelFontSize));
     mounted.label.setAttribute('fill', ITEM_LABEL_HEX);
 
+    this.updateAssigneeLabel(mounted, item, placement, ctx.viewState.assigneeVisible === true);
     this.updateSelectionOutline(ctx, mounted, placement);
     this.updateFocusRing(ctx, mounted, placement);
     this.updateFadeHandles(ctx, mounted, item, placement);
+  }
+
+  /**
+   * Draw (or remove) an item's assignee name to the LEFT of its glyph (CR-004 Part 5,
+   * ITEM-L2-004). Shown only when the assignee column is enabled and the item carries
+   * an assignee; right-aligned so names across rows form a right-aligned column
+   * ending just before each glyph's left edge, and vertically kept above the lane
+   * center so it never overlaps a `middle_left` inbound dependency stub (DEP-L2-003).
+   */
+  private updateAssigneeLabel(
+    mounted: MountedItem,
+    item: ScheduleItem,
+    placement: ItemPlacement,
+    assigneeVisible: boolean,
+  ): void {
+    const assignee = item.assignee?.trim() ?? '';
+    if (!assigneeVisible || assignee.length === 0) {
+      if (mounted.assigneeLabel !== null) {
+        mounted.assigneeLabel.remove();
+        mounted.assigneeLabel = null;
+      }
+      return;
+    }
+    // A milestone glyph is centered on worldX and drawn 15% taller than the lane, so
+    // its visual left edge is its center minus the icon radius; a task's left edge is
+    // its worldX.
+    const itemLeftX =
+      item.itemKind === 'milestone'
+        ? placement.worldX - milestoneIconHeightPx(placement.worldHeight) / 2
+        : placement.worldX;
+    const geometry = assigneeLabelGeometry(itemLeftX, placement.worldY, placement.worldHeight);
+    let label = mounted.assigneeLabel;
+    if (label === null) {
+      label = document.createElementNS(SVG_NS, 'text');
+      label.setAttribute('data-role', 'assignee-label');
+      label.setAttribute('dominant-baseline', 'middle');
+      label.setAttribute('pointer-events', 'none');
+      mounted.group.appendChild(label);
+      mounted.assigneeLabel = label;
+    }
+    label.textContent = assignee;
+    label.setAttribute('x', String(geometry.x));
+    label.setAttribute('y', String(geometry.y));
+    label.setAttribute('text-anchor', geometry.textAnchor);
+    label.setAttribute('font-size', String(geometry.fontSizePx));
+    label.setAttribute('fill', ITEM_LABEL_HEX);
   }
 
   /**
@@ -547,6 +620,7 @@ export class ItemLayer {
     marker.setAttribute('d', milestonePath(item, actualCenterX, centerY, radius));
     marker.setAttribute('fill', actualFill);
     marker.setAttribute('stroke', 'none');
+    marker.setAttribute('fill-rule', milestoneShapeUsesEvenOdd(item) ? 'evenodd' : 'nonzero');
   }
 
   /** Remove a milestone's actual marker + leader when it records no actual. */

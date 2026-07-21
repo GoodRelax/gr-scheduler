@@ -10,6 +10,15 @@
  *   Undo -> Redo -> AI -> ?(Help)
  */
 
+/**
+ * Stable `data-role` of the LEFT-edge header controls (CR-006 Part 1 / Part 2), in
+ * order, placed to the LEFT of the `GR Scheduler` branding block: `[Fit]` (frame the
+ * whole schedule) then `[P]` (show / minimize the floating palette). Kept as a
+ * DOM-free constant so `buildChrome` derives the runtime order from the same value a
+ * unit test asserts against, exactly like {@link HEADER_CONTROL_ROLES}.
+ */
+export const HEADER_LEFT_CONTROL_ROLES: readonly string[] = ['header-fit', 'header-palette-toggle'];
+
 /** Stable `data-role` of every top-level header control, in CR-003 Part 1 order. */
 export const HEADER_CONTROL_ROLES: readonly string[] = [
   'screenshot',

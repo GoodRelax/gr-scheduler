@@ -72,3 +72,41 @@ export function resolvePropertyPanelWidth(storedWidth: number | undefined): numb
     ? DEFAULT_PROPERTY_PANEL_WIDTH
     : storedWidth;
 }
+
+/**
+ * Approximate pane-tier text LINE HEIGHT in CSS pixels per UI font scale
+ * (CR-004 Part 3, ALIGN-L2-005). The classification pane renders its labels at
+ * ~0.8em of the S/M/L root font size (12 / 14 / 17 px) with a 1.4 line-height, so a
+ * tier's rendered line grows with the chosen scale. The section tree stacks three
+ * tiers (major / middle / minor) at fixed pixel offsets; those offsets MUST grow
+ * with this line height, otherwise at a large font the top minor (小分類) row
+ * overlaps the middle (中分類) row above it (the reported defect). Rounded up so the
+ * offsets always clear the rendered text.
+ */
+const PANE_TIER_LINE_HEIGHT_PX: Readonly<Record<'S' | 'M' | 'L', number>> = {
+  S: 14,
+  M: 16,
+  L: 19,
+};
+
+/**
+ * Vertical offsets (from a category band's top) at which the left pane draws its
+ * middle (中分類) and minor (小分類) labels, spaced by the font-scaled tier line
+ * height so no tier overlaps the next (CR-004 Part 3, ALIGN-L2-005). The minor row
+ * is placed exactly one tier line below the middle row, so the middle label's
+ * rendered bottom never crosses the minor label's top at any font scale.
+ *
+ * @param fontScale - The active UI font scale (drives the tier line height).
+ * @returns The middle / minor top offsets and the tier line height, all in CSS px.
+ */
+export function sectionRowLabelOffsets(fontScale: 'S' | 'M' | 'L'): {
+  readonly middleTopPx: number;
+  readonly minorTopPx: number;
+  readonly lineHeightPx: number;
+} {
+  const lineHeightPx = PANE_TIER_LINE_HEIGHT_PX[fontScale];
+  // Keep the middle tier clear of the (14px) section header line at small scales.
+  const middleTopPx = Math.max(15, lineHeightPx);
+  const minorTopPx = middleTopPx + lineHeightPx;
+  return { middleTopPx, minorTopPx, lineHeightPx };
+}

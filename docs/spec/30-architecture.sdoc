@@ -72,8 +72,8 @@ STATEMENT: >>>
 は実現する要求 UID である。 UseCase サービスは `src/domain/usecase/` にフラットに置かれ、
 Adapter は `src/adapters/` 配下、 Framework 層は独立ディレクトリを持たず `src/app/` に畳み
 込まれている。一部の未実装コンポーネント (テンプレート提供 / 拡張ポート) は将来のパスを示す。コアデータモデル ( **ScheduleDocument** = schemaVersion, meta, palette,
-i18n, viewState, sections[], rows[], items[], dependencies[], annotations[], watermark,
-assets[] ) は Entity 層で定義し、 `40-data-format.sdoc` で直列化する。
+i18n, viewState, sections[], rows[], items[], dependencies[], annotations[], watermark )
+は Entity 層で定義し、 `40-data-format.sdoc` で直列化する。
 <<<
 
 [[SECTION]]
@@ -86,10 +86,9 @@ CA_LAYER: Entity
 STATEMENT: >>>
 日程表全体を表すルート集約。 schemaVersion, meta{title, locale, createdAt, author},
 palette, i18n{locales, activeLocale}, viewState, sections[], rows[], items[],
-dependencies[], annotations[], watermark, assets[] ( インポート画像アセット ) を保持し、
-参照整合 (行はセクションに属し、アイテムは行に属し、依存はアイテムを指し、
-item.importedAssetId は assets[].id を指す) の不変条件を守る。全操作の正準表現であり、
-イミュータブルに更新される。
+dependencies[], annotations[], watermark を保持し、
+参照整合 (行はセクションに属し、アイテムは行に属し、依存はアイテムを指す) の不変条件を守る。
+全操作の正準表現であり、イミュータブルに更新される。
 <<<
 MODULE: src/domain/model/schedule-model.ts
 RELATIONS:
@@ -130,15 +129,15 @@ STATEMENT: >>>
 マイルストーン)( 予定スパン ), actualStart, actualEnd(null 可)( 実績スパン ),
 progressRatio(0..1), targetDate( 締切マーカー ), abbrev(i18n), fullName(i18n),
 description(i18n), category{major, middle, minor}(i18n), assignee, status, remarks,
-iconShapeKind, emoji?, importedAssetId?,
+iconShapeKind, emoji?,
 style{strokeColor, fillColor, strokeWidth('thin'|'medium'|'thick')}, labelPosition,
 labelOffset{dx, dy}, importance(LOD 用)。予定と実績は同一アイテムの実績日付フィールド
 (actualStart / actualEnd) と progressRatio で表す ( CR-001: planActualKind / planGroupId
 は廃止し、別アイテムでの実績表現を採らない )。変更前予定 (旧 previousPlan) は本アイテムに
 持たず、別ファイルのベースライン参照として扱う ( CR-002: previousPlan 廃止 )。
-importedAssetId はフラットなアイテム属性であり、非 null のとき (アイコンがインポート画像の
-とき) ScheduleDocument.assets[].id を参照する。マイルストーン図形 = circle/triangle/
-invTriangle/square/star/pentagon/hexagon/diamond/emoji/imported、タスク図形 = line/arrow/
+外部画像 (SVG/PNG) のアイコンインポートは CR-004 Part 6a で撤回し、旧 importedAssetId 属性は
+持たない。マイルストーン図形 = circle/triangle/
+invTriangle/square/star/pentagon/hexagon/diamond/emoji、タスク図形 = line/arrow/
 doubleArrow/segmented/chevron(矢羽根)/bar。
 <<<
 MODULE: src/domain/model/schedule-model.ts
@@ -485,9 +484,7 @@ TITLE: JSON 変換 (直列化 / 復元)
 CA_LAYER: UseCase
 STATEMENT: >>>
 ScheduleDocument <-> JSON の相互変換 (往復整合)。主データ形式であり内部モデルの正準表現を
-JSON へ直列化し、検証済み JSON をモデルへ復元する。 assets[] ( インポート画像アセット ) も
-往復対象に含め、フラットな item.importedAssetId と assets[].id の参照を保存/復元して
-インポート画像アイコンが往復で失われないようにする。スキーマ契約は 40-data-format に従う。
+JSON へ直列化し、検証済み JSON をモデルへ復元する。スキーマ契約は 40-data-format に従う。
 <<<
 MODULE: src/domain/usecase/json-codec.ts
 RELATIONS:
@@ -605,7 +602,7 @@ TITLE: SVG レンダラ
 CA_LAYER: Adapter
 STATEMENT: >>>
 ScheduleDocument とレイアウト結果を SVG DOM へ描画する。マイルストーン/タスクの各図形、
-既定図形・絵文字・インポート画像アイコン、略称ラベル、依存線 (最小矢頭)、分類水平線、
+既定図形・絵文字、略称ラベル、依存線 (最小矢頭)、分類水平線、
 左固定分類ペインを描く。差分描画 ( 変更差分のみ DOM パッチ ) と requestAnimationFrame
 バッチによる描画スケジューリングを担い、中規模データ (約 50 行 / 約 1000 アイテム) で
 60fps / 初期 1.5 秒 (NFR-L1-002) を狙う。画面表示と SVG エクスポートの双方に同一レンダラを
@@ -702,24 +699,16 @@ UID: ARCH-C-026
 TITLE: インポートサニタイザ
 CA_LAYER: Adapter
 STATEMENT: >>>
-外部入力 (JSON / MSPDI XML / SVG / PNG) を信頼できない入力として厳格に検証・サニタイズ
-してからモデルへ反映する。 XML 外部エンティティ解決を無効化 (XXE 対策)、 innerHTML への
-直接挿入を禁止、スキーマ/型不適合を拒否、 SVG は許可要素/属性のホワイトリストで無害化し、
-インポート画像を ImportedAsset{id, format('svg'|'png'), sanitizedData} として保持する。
+外部入力 (JSON / MSPDI XML) を信頼できない入力として厳格に検証・サニタイズしてからモデルへ
+反映する。 XML 外部エンティティ解決を無効化 (XXE 対策)、 innerHTML への直接挿入を禁止、
+スキーマ/型不適合を拒否する。 CR-004 Part 6a により外部画像 (SVG/PNG) のアイコンインポート
+経路は撤去し、本コンポーネントの責務は JSON/MSPDI の検証・サニタイズに純化する (SVG 許可要素
+ホワイトリスト・PNG シグネチャ/寸法検証の該当コード撤去は実装フェーズで反映)。
 <<<
 MODULE: src/domain/usecase/import-sanitizer.ts + src/adapters/io/import-service.ts
 RELATIONS:
 - TYPE: Parent
   VALUE: IO-L1-006
-  ROLE: Implements
-- TYPE: Parent
-  VALUE: ITEM-L1-007
-  ROLE: Implements
-- TYPE: Parent
-  VALUE: ITEM-L1-008
-  ROLE: Implements
-- TYPE: Parent
-  VALUE: ITEM-L2-001
   ROLE: Implements
 
 [COMPONENT]

@@ -5,10 +5,12 @@
  * The renderer draws a task as one of four shapes -- a plain `bar` (rect / fade
  * trapezoid, handled by the fade geometry), a block `arrow`, a feather/ribbon
  * `chevron` (矢羽根), or a `span` `*--*` connector -- and a milestone as one of the
- * five milestone glyphs. This module resolves an item's EFFECTIVE shape from its
+ * milestone glyphs. This module resolves an item's EFFECTIVE shape from its
  * unified {@link ScheduleItem.iconShapeKind}, falling back to the legacy
  * `taskShape` / `milestoneShape` fields so pre-`icon_shape_kind` documents still
- * render, and builds the SVG path `d` for the non-bar task shapes.
+ * render, and builds the SVG path `d` for the non-bar task shapes. A milestone
+ * shape the renderer does not yet draw a dedicated glyph for (the CR-004 Part 6c
+ * special shapes, Pass B) falls back to the default diamond glyph.
  */
 
 import type {
@@ -60,6 +62,48 @@ export function effectiveMilestoneShape(item: ScheduleItem): MilestoneShape {
     return kind as MilestoneShape;
   }
   return item.milestoneShape ?? 'diamond';
+}
+
+/**
+ * Milestone icon height as a fraction of the task-bar (lane) height (CR-004 Part 2,
+ * ITEM-L1-004): a milestone glyph is drawn 15% TALLER than a task bar so the
+ * point-shaped marker reads with a presence comparable to a span task in the same
+ * one-picture view. Applied by centering the enlarged glyph on the lane center, so
+ * the extra height overhangs the lane symmetrically (7.5% above / 7.5% below).
+ */
+export const MILESTONE_ICON_HEIGHT_RATIO = 1.15;
+
+/**
+ * A milestone label's abbreviation font-size as a fraction of the MILESTONE ICON
+ * height (CR-004 Part 2, ITEM-L2-003) -- mirroring how a task derives its in-bar
+ * abbreviation font from the bar height, but keyed off the (enlarged) icon size so
+ * the side caption scales with the marker rather than the bar.
+ */
+export const MILESTONE_LABEL_FONT_HEIGHT_RATIO = 0.9;
+
+/** Floor for the milestone label font-size so a tiny (zoomed-out) marker stays legible. */
+export const MILESTONE_LABEL_FONT_MIN_PX = 6;
+
+/**
+ * The rendered milestone icon height for a given task-bar (lane) height: the bar
+ * height scaled by {@link MILESTONE_ICON_HEIGHT_RATIO} (CR-004 Part 2). Pure.
+ *
+ * @param barHeightPx - The lane/bar height a milestone shares with tasks in its row.
+ * @returns The milestone glyph's drawn height in px (15% taller than the bar).
+ */
+export function milestoneIconHeightPx(barHeightPx: number): number {
+  return barHeightPx * MILESTONE_ICON_HEIGHT_RATIO;
+}
+
+/**
+ * A milestone abbreviation label's font-size derived from the milestone ICON height
+ * (CR-004 Part 2, ITEM-L2-003), clamped up to {@link MILESTONE_LABEL_FONT_MIN_PX}.
+ *
+ * @param iconHeightPx - The milestone glyph's drawn height (see {@link milestoneIconHeightPx}).
+ * @returns The label font-size in px.
+ */
+export function milestoneLabelFontSizePx(iconHeightPx: number): number {
+  return Math.max(MILESTONE_LABEL_FONT_MIN_PX, iconHeightPx * MILESTONE_LABEL_FONT_HEIGHT_RATIO);
 }
 
 /** True when a shape draws as an SVG `path` (arrow / chevron / span), not a rect. */

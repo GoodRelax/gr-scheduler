@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildWatermarkLayer,
   formatWatermarkTimestampUtc,
+  materializeWatermark,
   resolveWatermark,
 } from '../src/domain/usecase/watermark-builder.js';
 import {
@@ -58,21 +59,28 @@ describe('watermark-builder (TOOL-L1-007, TOOL-L2-001/002, DATA-SVG-002)', () =>
   });
 });
 
+/** Minute-precision UTC ISO-8601 with a trailing Z, e.g. `2026-07-19T05:12Z`. */
+const UTC_MINUTE_ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}Z$/;
+
 describe('resolveWatermark: default-ON "GoodRelax" mark (TOOL-L1-007, TOOL-L2-003)', () => {
-  it('resolves an ABSENT watermark to an enabled default "GoodRelax" mark', () => {
+  it('resolves an ABSENT watermark to an enabled default "GoodRelax" mark with a UTC time', () => {
     const resolved = resolveWatermark(undefined);
     expect(resolved.enabled).toBe(true);
     expect(resolved.userName).toBe('GoodRelax');
     expect(resolved.userName).toBe(DEFAULT_WATERMARK_TEXT);
-    // No timestamp is read from a clock in the pure default path.
-    expect(resolved.timestamp).toBe('');
-    // The default mark renders as just the text (no trailing timestamp).
+    // CR-009 Part 2: the UTC generation time is MANDATORY -- the default mark is
+    // never time-less. The resolved timestamp is a valid minute-precision UTC
+    // ISO-8601 string with a trailing Z (no empty-timestamp case).
+    expect(resolved.timestamp).not.toBe('');
+    expect(resolved.timestamp).toMatch(UTC_MINUTE_ISO);
+    // The default mark renders as the text FOLLOWED BY the mandatory UTC time.
     const layer = buildWatermarkLayer(
       { userName: resolved.userName, timestamp: resolved.timestamp },
       400,
       300,
     );
-    expect(layer.label).toBe('GoodRelax');
+    expect(layer.label).toBe(`GoodRelax ${resolved.timestamp}`);
+    expect(layer.label.startsWith('GoodRelax ')).toBe(true);
   });
 
   it('back-fills the DEFAULT hide-password hash when the mark omits one', () => {
@@ -89,6 +97,41 @@ describe('resolveWatermark: default-ON "GoodRelax" mark (TOOL-L1-007, TOOL-L2-00
     });
     expect(resolved.enabled).toBe(false);
     expect(resolved.hideHash).toBe('abc123');
+  });
+});
+
+describe('materializeWatermark: pin a stable, mandatory UTC time (CR-009 Part 2/3)', () => {
+  it('materializes an ABSENT watermark to a concrete mark with a non-empty UTC time', () => {
+    const materialized = materializeWatermark(undefined);
+    expect(materialized.enabled).toBe(true);
+    expect(materialized.userName).toBe(DEFAULT_WATERMARK_TEXT);
+    expect(materialized.timestamp).not.toBe('');
+    expect(materialized.timestamp).toMatch(UTC_MINUTE_ISO);
+  });
+
+  it('seeds a UTC time when the stored mark has an EMPTY timestamp', () => {
+    const materialized = materializeWatermark({ enabled: true, userName: 'GoodRelax', timestamp: '' });
+    expect(materialized.timestamp).toMatch(UTC_MINUTE_ISO);
+  });
+
+  it('is STABLE across later renders: resolveWatermark returns the pinned time verbatim', () => {
+    // Simulate an import with NO watermark field: materialize once, then feed the
+    // result back through resolveWatermark as many times as the renderer would on
+    // zoom / scroll. The timestamp must NOT track the clock -- it stays identical.
+    const pinned = materializeWatermark(undefined);
+    const firstRender = resolveWatermark(pinned);
+    const laterRender = resolveWatermark(resolveWatermark(pinned));
+    expect(firstRender.timestamp).toBe(pinned.timestamp);
+    expect(laterRender.timestamp).toBe(pinned.timestamp);
+  });
+
+  it('PRESERVES an existing evidence time (an imported chart keeps its own UTC)', () => {
+    const materialized = materializeWatermark({
+      enabled: true,
+      userName: 'pm-local',
+      timestamp: '2026-07-19T05:12Z',
+    });
+    expect(materialized.timestamp).toBe('2026-07-19T05:12Z');
   });
 });
 

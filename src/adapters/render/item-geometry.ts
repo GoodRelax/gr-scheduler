@@ -296,6 +296,31 @@ export function taskFadeHandleCenters(
   return { fadeOut: points[1] as FadePoint, fadeIn: points[3] as FadePoint };
 }
 
+/**
+ * The special CR-004 Part 6c milestone shapes drawn as composite (multi-subpath)
+ * SVG glyphs. Rendered with the `evenodd` fill-rule so an inner subpath (a floppy's
+ * label window, a smiley's eyes / mouth, a cylinder rim) punches a hole through the
+ * filled silhouette, keeping each glyph recognizable as a single-color path.
+ */
+const EVEN_ODD_MILESTONE_SHAPES: ReadonlySet<string> = new Set([
+  'file',
+  'box3d',
+  'floppy',
+  'cylinder',
+  'person',
+  'smiley',
+  'beer',
+]);
+
+/**
+ * Whether a milestone shape must fill with the `evenodd` rule so its inner subpaths
+ * read as holes (the CR-004 Part 6c composite glyphs). The base shapes use the
+ * default `nonzero` rule.
+ */
+export function milestoneShapeUsesEvenOdd(item: ScheduleItem): boolean {
+  return EVEN_ODD_MILESTONE_SHAPES.has(effectiveMilestoneShape(item));
+}
+
 /** Build the SVG path `d` for a milestone glyph centered at (cx, cy). */
 export function milestonePath(item: ScheduleItem, cx: number, cy: number, radius: number): string {
   const shape = effectiveMilestoneShape(item);
@@ -310,10 +335,163 @@ export function milestonePath(item: ScheduleItem, cx: number, cy: number, radius
       return `M ${cx} ${cy - radius} L ${cx + radius} ${cy + radius} L ${cx - radius} ${cy + radius} Z`;
     case 'star':
       return starPath(cx, cy, radius);
+    case 'file':
+      return fileGlyphPath(cx, cy, radius);
+    case 'box3d':
+      return box3dGlyphPath(cx, cy, radius);
+    case 'floppy':
+      return floppyGlyphPath(cx, cy, radius);
+    case 'cylinder':
+      return cylinderGlyphPath(cx, cy, radius);
+    case 'person':
+      return personGlyphPath(cx, cy, radius);
+    case 'smiley':
+      return smileyGlyphPath(cx, cy, radius);
+    case 'beer':
+      return beerGlyphPath(cx, cy, radius);
     case 'diamond':
     default:
       return `M ${cx} ${cy - radius} L ${cx + radius} ${cy} L ${cx} ${cy + radius} L ${cx - radius} ${cy} Z`;
   }
+}
+
+/** Round a glyph-path coordinate to 2 decimals so paths stay compact/ASCII. */
+function roundCoord2(value: number): string {
+  return (Math.round(value * 100) / 100).toString();
+}
+
+/**
+ * File glyph (CR-004 Part 6c): a portrait sheet of paper with a folded top-right
+ * corner -- the "drawing / document deadline" milestone. The dog-eared corner is a
+ * second subpath so the fold reads even when filled (evenodd).
+ */
+function fileGlyphPath(cx: number, cy: number, r: number): string {
+  const left = cx - r * 0.68;
+  const right = cx + r * 0.68;
+  const top = cy - r;
+  const bottom = cy + r;
+  const foldX = cx + r * 0.2;
+  const foldY = cy - r * 0.5;
+  const body =
+    `M ${roundCoord2(left)} ${roundCoord2(top)} L ${roundCoord2(foldX)} ${roundCoord2(top)} L ${roundCoord2(right)} ${roundCoord2(foldY)} ` +
+    `L ${roundCoord2(right)} ${roundCoord2(bottom)} L ${roundCoord2(left)} ${roundCoord2(bottom)} Z`;
+  const fold = `M ${roundCoord2(foldX)} ${roundCoord2(top)} L ${roundCoord2(foldX)} ${roundCoord2(foldY)} L ${roundCoord2(right)} ${roundCoord2(foldY)} Z`;
+  return `${body} ${fold}`;
+}
+
+/**
+ * 3D box glyph (CR-004 Part 6c): an isometric cube (front / top / right faces) --
+ * the "physical hardware deliverable" milestone. Three tiled face subpaths give the
+ * cube its depth when filled with evenodd.
+ */
+function box3dGlyphPath(cx: number, cy: number, r: number): string {
+  const front =
+    `M ${roundCoord2(cx - r)} ${roundCoord2(cy - r * 0.4)} L ${roundCoord2(cx + r * 0.4)} ${roundCoord2(cy - r * 0.4)} ` +
+    `L ${roundCoord2(cx + r * 0.4)} ${roundCoord2(cy + r)} L ${roundCoord2(cx - r)} ${roundCoord2(cy + r)} Z`;
+  const top =
+    `M ${roundCoord2(cx - r)} ${roundCoord2(cy - r * 0.4)} L ${roundCoord2(cx - r * 0.4)} ${roundCoord2(cy - r)} ` +
+    `L ${roundCoord2(cx + r)} ${roundCoord2(cy - r)} L ${roundCoord2(cx + r * 0.4)} ${roundCoord2(cy - r * 0.4)} Z`;
+  const side =
+    `M ${roundCoord2(cx + r * 0.4)} ${roundCoord2(cy - r * 0.4)} L ${roundCoord2(cx + r)} ${roundCoord2(cy - r)} ` +
+    `L ${roundCoord2(cx + r)} ${roundCoord2(cy + r * 0.4)} L ${roundCoord2(cx + r * 0.4)} ${roundCoord2(cy + r)} Z`;
+  return `${front} ${top} ${side}`;
+}
+
+/**
+ * Floppy-disk glyph (CR-004 Part 6c): a diskette with a clipped top-right corner, a
+ * label window (bottom) and a shutter (top) -- the "software release" milestone. The
+ * window and shutter are hole subpaths (evenodd).
+ */
+function floppyGlyphPath(cx: number, cy: number, r: number): string {
+  const left = cx - r;
+  const right = cx + r;
+  const top = cy - r;
+  const bottom = cy + r;
+  const clip = r * 0.4;
+  const outer =
+    `M ${roundCoord2(left)} ${roundCoord2(top)} L ${roundCoord2(right - clip)} ${roundCoord2(top)} L ${roundCoord2(right)} ${roundCoord2(top + clip)} ` +
+    `L ${roundCoord2(right)} ${roundCoord2(bottom)} L ${roundCoord2(left)} ${roundCoord2(bottom)} Z`;
+  const label =
+    `M ${roundCoord2(cx - r * 0.5)} ${roundCoord2(cy + r * 0.1)} L ${roundCoord2(cx + r * 0.5)} ${roundCoord2(cy + r * 0.1)} ` +
+    `L ${roundCoord2(cx + r * 0.5)} ${roundCoord2(bottom)} L ${roundCoord2(cx - r * 0.5)} ${roundCoord2(bottom)} Z`;
+  const shutter =
+    `M ${roundCoord2(cx + r * 0.1)} ${roundCoord2(top)} L ${roundCoord2(cx + r * 0.5)} ${roundCoord2(top)} ` +
+    `L ${roundCoord2(cx + r * 0.5)} ${roundCoord2(cy - r * 0.45)} L ${roundCoord2(cx + r * 0.1)} ${roundCoord2(cy - r * 0.45)} Z`;
+  return `${outer} ${label} ${shutter}`;
+}
+
+/**
+ * Cylinder / database glyph (CR-004 Part 6c): a vertical cylinder with an elliptical
+ * top rim -- the "deploy to server" milestone. The visible front rim arc is a second
+ * subpath so the top ellipse reads when filled.
+ */
+function cylinderGlyphPath(cx: number, cy: number, r: number): string {
+  const rx = r * 0.8;
+  const ry = r * 0.3;
+  const topY = cy - r * 0.6;
+  const bottomY = cy + r * 0.6;
+  const body =
+    `M ${roundCoord2(cx - rx)} ${roundCoord2(topY)} ` +
+    `A ${roundCoord2(rx)} ${roundCoord2(ry)} 0 0 1 ${roundCoord2(cx + rx)} ${roundCoord2(topY)} ` +
+    `L ${roundCoord2(cx + rx)} ${roundCoord2(bottomY)} ` +
+    `A ${roundCoord2(rx)} ${roundCoord2(ry)} 0 0 1 ${roundCoord2(cx - rx)} ${roundCoord2(bottomY)} Z`;
+  const rim =
+    `M ${roundCoord2(cx - rx)} ${roundCoord2(topY)} ` +
+    `A ${roundCoord2(rx)} ${roundCoord2(ry)} 0 0 0 ${roundCoord2(cx + rx)} ${roundCoord2(topY)} ` +
+    `A ${roundCoord2(rx)} ${roundCoord2(ry)} 0 0 0 ${roundCoord2(cx - rx)} ${roundCoord2(topY)} Z`;
+  return `${body} ${rim}`;
+}
+
+/**
+ * Person glyph (CR-004 Part 6c): a simple head-and-shoulders silhouette -- the
+ * "report to management" milestone. A head disc plus a shoulder hump (two subpaths).
+ */
+function personGlyphPath(cx: number, cy: number, r: number): string {
+  const headR = r * 0.4;
+  const headCy = cy - r * 0.45;
+  const head =
+    `M ${roundCoord2(cx - headR)} ${roundCoord2(headCy)} ` +
+    `a ${roundCoord2(headR)} ${roundCoord2(headR)} 0 1 0 ${roundCoord2(headR * 2)} 0 ` +
+    `a ${roundCoord2(headR)} ${roundCoord2(headR)} 0 1 0 ${roundCoord2(-headR * 2)} 0 Z`;
+  const shoulders =
+    `M ${roundCoord2(cx - r * 0.9)} ${roundCoord2(cy + r)} ` +
+    `C ${roundCoord2(cx - r * 0.9)} ${roundCoord2(cy + r * 0.1)} ${roundCoord2(cx + r * 0.9)} ${roundCoord2(cy + r * 0.1)} ${roundCoord2(cx + r * 0.9)} ${roundCoord2(cy + r)} Z`;
+  return `${head} ${shoulders}`;
+}
+
+/**
+ * Smiley glyph (CR-004 Part 6c): a filled face disc with two eyes and a smile cut
+ * out as holes (evenodd) -- the "fun event" milestone.
+ */
+function smileyGlyphPath(cx: number, cy: number, r: number): string {
+  const face =
+    `M ${roundCoord2(cx - r)} ${roundCoord2(cy)} a ${roundCoord2(r)} ${roundCoord2(r)} 0 1 0 ${roundCoord2(r * 2)} 0 ` +
+    `a ${roundCoord2(r)} ${roundCoord2(r)} 0 1 0 ${roundCoord2(-r * 2)} 0 Z`;
+  const eyeR = r * 0.14;
+  const eye = (ex: number): string =>
+    `M ${roundCoord2(ex - eyeR)} ${roundCoord2(cy - r * 0.3)} a ${roundCoord2(eyeR)} ${roundCoord2(eyeR)} 0 1 0 ${roundCoord2(eyeR * 2)} 0 ` +
+    `a ${roundCoord2(eyeR)} ${roundCoord2(eyeR)} 0 1 0 ${roundCoord2(-eyeR * 2)} 0 Z`;
+  const mouth =
+    `M ${roundCoord2(cx - r * 0.5)} ${roundCoord2(cy + r * 0.12)} ` +
+    `Q ${roundCoord2(cx)} ${roundCoord2(cy + r * 0.72)} ${roundCoord2(cx + r * 0.5)} ${roundCoord2(cy + r * 0.12)} ` +
+    `Q ${roundCoord2(cx)} ${roundCoord2(cy + r * 0.42)} ${roundCoord2(cx - r * 0.5)} ${roundCoord2(cy + r * 0.12)} Z`;
+  return `${face} ${eye(cx - r * 0.38)} ${eye(cx + r * 0.38)} ${mouth}`;
+}
+
+/**
+ * Beer-tumbler glyph (CR-004 Part 6c): a tapered glass topped by a scalloped foam
+ * head -- the "drinking party" milestone. Foam and glass are two filled subpaths.
+ */
+function beerGlyphPath(cx: number, cy: number, r: number): string {
+  const glass =
+    `M ${roundCoord2(cx - r * 0.6)} ${roundCoord2(cy - r * 0.35)} L ${roundCoord2(cx + r * 0.6)} ${roundCoord2(cy - r * 0.35)} ` +
+    `L ${roundCoord2(cx + r * 0.45)} ${roundCoord2(cy + r)} L ${roundCoord2(cx - r * 0.45)} ${roundCoord2(cy + r)} Z`;
+  const foam =
+    `M ${roundCoord2(cx - r * 0.65)} ${roundCoord2(cy - r * 0.3)} ` +
+    `Q ${roundCoord2(cx - r * 0.7)} ${roundCoord2(cy - r * 0.75)} ${roundCoord2(cx - r * 0.25)} ${roundCoord2(cy - r * 0.6)} ` +
+    `Q ${roundCoord2(cx)} ${roundCoord2(cy - r)} ${roundCoord2(cx + r * 0.25)} ${roundCoord2(cy - r * 0.6)} ` +
+    `Q ${roundCoord2(cx + r * 0.7)} ${roundCoord2(cy - r * 0.75)} ${roundCoord2(cx + r * 0.65)} ${roundCoord2(cy - r * 0.3)} Z`;
+  return `${glass} ${foam}`;
 }
 
 /** Build a five-point star path centered at (cx, cy). */

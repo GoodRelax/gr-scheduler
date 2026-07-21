@@ -12,6 +12,7 @@ import {
 import {
   buildIlluminatedLine,
   computeProgressFrontDate,
+  isProgressLineVisible,
   type RowProgressFront,
 } from '../../../domain/usecase/progress-line-builder.js';
 import { cursorScreenX } from '../../../domain/usecase/cursor-span.js';
@@ -31,9 +32,10 @@ export class ProgressTodayLayer {
     if (ctx.scheduleDocument === null || ctx.viewState.planActualDisplay === 'plan-only') {
       return;
     }
-    // Deletable / hideable (item 2): a false flag removes the line from the DOM.
-    // Absent is treated as visible so legacy documents keep showing it.
-    if (ctx.viewState.progressLineVisible === false) {
+    // Deletable / hideable (item 2, CR-006 Part 5): the DEFAULT is now HIDDEN, so an
+    // absent / undefined flag removes the line from the DOM; only an explicit `true`
+    // draws it. The palette progress-line toggle opts a document into showing it.
+    if (!isProgressLineVisible(ctx.viewState.progressLineVisible)) {
       return;
     }
     const { fronts, itemCenterByRowIndex } = this.computeRowProgressFronts(ctx);

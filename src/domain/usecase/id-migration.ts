@@ -31,7 +31,7 @@ export function isUuidLike(value: unknown): value is string {
 }
 
 /** The document collections whose elements each carry a stable `id`. */
-const ID_BEARING_COLLECTIONS = ['sections', 'rows', 'items', 'dependencies', 'annotations', 'assets'] as const;
+const ID_BEARING_COLLECTIONS = ['sections', 'rows', 'items', 'dependencies', 'annotations'] as const;
 
 /** The 62-symbol alphabet mirrored from the id adapter (deterministic short ids). */
 const SHORT_ID_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -139,8 +139,8 @@ function collectExistingIds(raw: RawRecord): Set<string> {
  * - `projectId`: kept when it is already a UUID; otherwise a stable UUID is derived
  *   from the document's identifying content.
  * - every element of `sections` / `rows` / `items` / `dependencies` / `annotations`
- *   / `assets` that lacks a string `id` gets a deterministic short id, unique
- *   against all ids already present.
+ *   that lacks a string `id` gets a deterministic short id, unique against all ids
+ *   already present.
  *
  * Existing ids are preserved verbatim, so dependency and classification references
  * that point at them keep resolving (no reference is ever broken).

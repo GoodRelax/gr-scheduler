@@ -16,7 +16,7 @@
  * tiled layer when one is supplied.
  */
 
-import type { ImportedAsset, ScheduleDocument, ScheduleItem } from '../model/schedule-model.js';
+import type { ScheduleDocument, ScheduleItem } from '../model/schedule-model.js';
 import {
   layoutItems,
   rowBandHeight,
@@ -69,11 +69,6 @@ export function exportScheduleSvg(scheduleDocument: ScheduleDocument, options: S
   for (const placement of placements) {
     placementById.set(placement.itemId, placement);
   }
-  const assetById = new Map<string, ImportedAsset>();
-  for (const asset of scheduleDocument.assets ?? []) {
-    assetById.set(asset.id, asset);
-  }
-
   const bandHeight = rowBandHeight(scheduleDocument.viewState.zoomY);
   // Rows may have different heights (a row grows to stack overlapping items, item:
   // multi-lane stacking), so use the row geometry for band tops and the total height
@@ -157,15 +152,7 @@ export function exportScheduleSvg(scheduleDocument: ScheduleDocument, options: S
     const height = placement.worldHeight;
     parts.push(`<g data-item-id="${escapeSvg(item.id)}">`);
 
-    const importedAsset = item.importedAssetId !== undefined ? assetById.get(item.importedAssetId) : undefined;
-    if (importedAsset !== undefined) {
-      // Embedded, sanitized data URI only -- never an external reference.
-      parts.push(
-        `<image x="${x}" y="${y}" width="${width}" height="${height}" href="${escapeSvg(
-          importedAsset.sanitizedDataUri,
-        )}" preserveAspectRatio="xMidYMid meet"/>`,
-      );
-    } else if (item.itemKind === 'milestone') {
+    if (item.itemKind === 'milestone') {
       parts.push(renderMilestone(x, y, width, height, item.fillColor, item.strokeColor));
     } else if (hasFade(item.fadeInDays, item.fadeOutDays)) {
       parts.push(renderFadedTask(item, x, y, height, scheduleDocument.viewState.zoomX));

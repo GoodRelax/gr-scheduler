@@ -107,3 +107,88 @@ describe('ScheduleStore command history', () => {
     expect(store.canRedo()).toBe(false);
   });
 });
+
+describe('ScheduleStore content-change signal (CR-009 Part 3 / DEC-005 #3)', () => {
+  it('fires once for a mutating dispatch, and undo and redo', () => {
+    const store = new ScheduleStore(baseDocument());
+    let contentChanges = 0;
+    store.onContentChange(() => {
+      contentChanges += 1;
+    });
+
+    // A content command (add item) re-stamps exactly once -- not a loop.
+    store.dispatch(createItemCommand(milestone('b')));
+    expect(contentChanges).toBe(1);
+
+    // Undo and redo are content changes too (the document content moves).
+    store.undo();
+    expect(contentChanges).toBe(2);
+    store.redo();
+    expect(contentChanges).toBe(3);
+  });
+
+  it('does NOT fire for a no-op dispatch (nothing changed)', () => {
+    const store = new ScheduleStore(baseDocument());
+    let contentChanges = 0;
+    store.onContentChange(() => {
+      contentChanges += 1;
+    });
+
+    store.dispatch(deleteItemsCommand(new Set(['does-not-exist'])));
+    expect(contentChanges).toBe(0);
+  });
+
+  it('does NOT fire for a no-op undo/redo when the stacks are empty', () => {
+    const store = new ScheduleStore(baseDocument());
+    let contentChanges = 0;
+    store.onContentChange(() => {
+      contentChanges += 1;
+    });
+
+    store.undo();
+    store.redo();
+    expect(contentChanges).toBe(0);
+  });
+
+  it('does NOT fire for replaceDocument (a file load is not an edit)', () => {
+    const store = new ScheduleStore(baseDocument());
+    let contentChanges = 0;
+    store.onContentChange(() => {
+      contentChanges += 1;
+    });
+
+    store.replaceDocument(baseDocument());
+    expect(contentChanges).toBe(0);
+  });
+
+  it('does not recurse when a listener reacts by writing outside the command flow', () => {
+    // A listener that does side-effect work (e.g. re-stamps a watermark in a
+    // renderer's view state) must not re-trigger itself. Since the listener never
+    // dispatches, exactly one content change yields exactly one notification.
+    const store = new ScheduleStore(baseDocument());
+    let contentChanges = 0;
+    let sideEffectRuns = 0;
+    store.onContentChange(() => {
+      contentChanges += 1;
+      // Simulate the re-stamp side effect: pure external write, no dispatch.
+      sideEffectRuns += 1;
+    });
+
+    store.dispatch(createItemCommand(milestone('b')));
+    expect(contentChanges).toBe(1);
+    expect(sideEffectRuns).toBe(1);
+  });
+
+  it('stops notifying after unsubscribe', () => {
+    const store = new ScheduleStore(baseDocument());
+    let contentChanges = 0;
+    const unsubscribe = store.onContentChange(() => {
+      contentChanges += 1;
+    });
+
+    store.dispatch(createItemCommand(milestone('b')));
+    unsubscribe();
+    store.dispatch(createItemCommand(milestone('c')));
+    expect(contentChanges).toBe(1);
+  });
+});

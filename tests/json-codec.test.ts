@@ -68,7 +68,6 @@ function makeRichDocument(): ScheduleDocument {
         milestoneShape: 'diamond',
         fillColor: '#ffffff',
         strokeColor: '#4e79a7',
-        importedAssetId: 'asset-1',
       },
       {
         id: 'it-2',
@@ -100,22 +99,14 @@ function makeRichDocument(): ScheduleDocument {
       },
     ],
     annotations,
-    assets: [{ id: 'asset-1', assetFormat: 'svg', sanitizedDataUri: 'data:image/svg+xml;base64,PHN2Zy8+' }],
   };
 }
 
-describe('json-codec round-trip (IO-L1-001, DATA-JSON-013)', () => {
-  it('preserves the whole document including assets, actual dates, dependency linkType/lagDays, annotations and dependencies', () => {
+describe('json-codec round-trip (IO-L1-001)', () => {
+  it('preserves the whole document including actual dates, dependency linkType/lagDays, annotations and dependencies', () => {
     const original = makeRichDocument();
     const restored = deserializeScheduleDocument(serializeScheduleDocument(original));
     expect(restored).toStrictEqual(original);
-  });
-
-  it('preserves the imported icon asset reference from item to assets[]', () => {
-    const original = makeRichDocument();
-    const restored = deserializeScheduleDocument(serializeScheduleDocument(original));
-    expect(restored.items[0]?.importedAssetId).toBe('asset-1');
-    expect(restored.assets?.[0]?.sanitizedDataUri).toBe('data:image/svg+xml;base64,PHN2Zy8+');
   });
 });
 
@@ -192,13 +183,12 @@ describe('json-codec schemaVersion migration (DATA-JSON-001)', () => {
       sections: [],
       rows: [],
       items: [],
-      // no dependencies / annotations / assets: the 0->1 migration back-fills them
+      // no dependencies / annotations: the 0->1 migration back-fills them
     };
     const restored = deserializeScheduleDocument(JSON.stringify(legacy));
     expect(restored.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(restored.dependencies).toStrictEqual([]);
     expect(restored.annotations).toStrictEqual([]);
-    expect(restored.assets).toStrictEqual([]);
   });
 
   it('rejects a document whose schemaVersion is newer than this build', () => {

@@ -81,6 +81,12 @@ export interface RenderContext {
   readonly selectedItemIds: ReadonlySet<string>;
   /** The selected annotation (rounded-box / comment) id, or null. */
   readonly selectedAnnotationId: string | null;
+  /**
+   * Every COMMENT id that should show a selection outline (CR-007 Part 4): the
+   * comments in {@link selectedItemIds} plus {@link selectedAnnotationId} when it is
+   * a comment, so a multi-selection highlights all selected comments, not just one.
+   */
+  readonly selectedCommentIds: ReadonlySet<string>;
   /** The selected dependency line id, or null. */
   readonly selectedDependencyId: string | null;
   /** The item focused via keyboard, drawn with a ring, or null. */

@@ -72,14 +72,18 @@ async function movePaletteAway(page: Page): Promise<void> {
   await page.mouse.up();
 }
 
-const DEFAULT_WATERMARK_PASSWORD = 'watermark-unlock';
+// CR-009: the default hide password is now "GoodRelax" -- which coincides with the
+// default watermark brand text -- and its SHA-256 is the verified digest below.
+const DEFAULT_WATERMARK_PASSWORD = 'GoodRelax';
 const DEFAULT_WATERMARK_HASH =
-  'a8f81cfc4f489a27c6e6fa3a31c6089878a3648e24c04ee1b934ac03b99ce46c';
+  '380e83c38461aa049922c0d277df334b01cfa0783f312be5e486ac06dc9c8ec3';
+/** The pre-CR-009 password, kept only to prove it no longer unlocks / is not stored. */
+const OLD_DEFAULT_WATERMARK_PASSWORD = 'watermark-unlock';
 
 test.describe('watermark / comments / selection batch', () => {
   test.skip(!existsSync(builtAppFile), 'Run `npm run build` to produce dist/index.html first.');
 
-  test('the watermark is shown by DEFAULT as "GoodRelax" at the fainter 0.06 opacity', async ({
+  test('the watermark is shown by DEFAULT as "GoodRelax" + UTC time at the fainter 0.06 opacity', async ({
     page,
   }) => {
     await openApp(page);
@@ -87,9 +91,10 @@ test.describe('watermark / comments / selection batch', () => {
     await expect(layer).toHaveCount(1);
     // Fainter than the previous 0.12.
     expect(await layer.getAttribute('opacity')).toBe('0.06');
-    // The default label text is exactly "GoodRelax" (no timestamp on the default mark).
+    // CR-009 Part 2: the default label is "GoodRelax" FOLLOWED BY a mandatory
+    // minute-precision UTC ISO-8601 time (trailing Z) -- never time-less.
     const firstLabel = await layer.locator('text').first().textContent();
-    expect(firstLabel).toBe('GoodRelax');
+    expect(firstLabel).toMatch(/^GoodRelax \d{4}-\d{2}-\d{2}T\d{2}:\d{2}Z$/);
     // The toggle button reflects the default-ON state.
     await expect(page.getByRole('button', { name: /^Watermark:/ })).toHaveAttribute(
       'aria-pressed',
@@ -125,13 +130,17 @@ test.describe('watermark / comments / selection batch', () => {
     await expect(button).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('exported JSON carries the hide HASH but never the raw default password', async ({
+  test('exported JSON carries the hide HASH and no raw password field', async ({
     page,
   }) => {
     await openApp(page);
     const json = await exportJsonText(page);
+    // The hide credential is persisted only as the hash.
     expect(json).toContain(DEFAULT_WATERMARK_HASH);
-    expect(json.includes(DEFAULT_WATERMARK_PASSWORD)).toBe(false);
+    // The pre-CR-009 raw password is never present. (The CR-009 default password
+    // coincides with the visible "GoodRelax" brand text, so its string legitimately
+    // appears as the watermark userName -- the credential itself is only the hash.)
+    expect(json.includes(OLD_DEFAULT_WATERMARK_PASSWORD)).toBe(false);
   });
 
   test('a marquee drag across labels/watermark selects items but makes NO text selection', async ({

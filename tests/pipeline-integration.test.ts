@@ -54,7 +54,6 @@ function makePipelineDocument(): ScheduleDocument {
         milestoneShape: 'diamond',
         fillColor: '#ffffff',
         strokeColor: '#4e79a7',
-        importedAssetId: 'asset-1',
       },
       {
         id: 'it-2',
@@ -85,7 +84,6 @@ function makePipelineDocument(): ScheduleDocument {
     ],
     dependencies: [{ id: 'dep-1', fromItemId: 'it-1', fromAnchor: 4, toItemId: 'it-3', toAnchor: 3, bends: 2 }],
     annotations,
-    assets: [{ id: 'asset-1', assetFormat: 'svg', sanitizedDataUri: 'data:image/svg+xml;base64,PHN2Zy8+' }],
   };
 }
 

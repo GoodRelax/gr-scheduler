@@ -2,8 +2,8 @@
  * Adapter layer: the Help modal (SHELL batch item 2).
  *
  * An accessible dialog (`role="dialog"`, `aria-modal="true"`) that presents ALL
- * app features on one screen in a two-column layout, each with its keyboard
- * shortcut where one exists. Opened from the header `[?]` button, it is
+ * app features on one screen in a three-column layout (CR-011), each with its
+ * keyboard shortcut where one exists. Opened from the header `[?]` button, it is
  * focus-trapped, closes on Esc / the × button / a backdrop click, and returns
  * focus to the opener (WCAG 2.1.2 / 2.4.3 / 2.4.7).
  *
@@ -15,6 +15,12 @@
  * English only (product decision for the help surface); the rest of the app's i18n
  * is untouched.
  */
+
+import type { Locale } from '../../domain/model/schedule-model.js';
+import {
+  buildModalLocaleToggle,
+  ensureModalLocaleToggleStylesheet,
+} from './modal-locale-toggle.js';
 
 /** A single documented capability, optionally with its keyboard shortcut. */
 export interface HelpEntry {
@@ -34,9 +40,20 @@ export interface HelpSection {
  * The complete, comprehensive feature catalogue shown in the Help modal. Pure
  * data (no DOM) so tests can assert coverage of features and shortcuts.
  *
+ * The prose is localized (CR-006 Part 4 / DEC-005): `en` (default) returns the English
+ * catalogue and `ja` a concise Japanese translation. Keyboard shortcut strings and
+ * property identifiers (fill_color, icon_shape_kind, JSON / XML / SVG ...) stay English
+ * in both, so the shortcuts remain ASCII.
+ *
+ * @param locale - The catalogue language ('en' default, 'ja' for Japanese).
  * @returns The ordered help sections.
  */
-export function buildHelpModel(): readonly HelpSection[] {
+export function buildHelpModel(locale: Locale = 'en'): readonly HelpSection[] {
+  return locale === 'ja' ? buildHelpModelJa() : buildHelpModelEn();
+}
+
+/** The English feature catalogue (default). */
+function buildHelpModelEn(): readonly HelpSection[] {
   return [
     {
       title: 'Create & draw',
@@ -129,22 +146,161 @@ export function buildHelpModel(): readonly HelpSection[] {
   ];
 }
 
+/**
+ * The concise Japanese feature catalogue (CR-006 Part 4). Keyboard shortcut strings
+ * and property identifiers stay English so the shortcuts remain ASCII.
+ */
+function buildHelpModelJa(): readonly HelpSection[] {
+  return [
+    {
+      title: '作成・描画',
+      entries: [
+        { feature: 'マイルストーン図形（菱形/円/三角/四角/星）を選び、行をクリックして配置' },
+        { feature: 'タスク図形（バー/矢印/シェブロン/スパン）を選び、行をクリックまたはドラッグ' },
+        { feature: 'アイテムの本体をドラッグして移動' },
+        { feature: 'タスクの開始/終了の端をドラッグしてリサイズ' },
+        { feature: '選択中の図形をキャレット位置に配置', shortcut: 'Enter' },
+      ],
+    },
+    {
+      title: '選択・編集',
+      entries: [
+        { feature: 'アイテムをクリックして選択' },
+        { feature: '空きキャンバスをドラッグして矩形選択' },
+        { feature: 'すべてのアイテムを選択', shortcut: 'Ctrl+A' },
+        { feature: '選択（アイテム/依存線/注釈）を削除', shortcut: 'Delete / Backspace' },
+        { feature: '選択をコピー', shortcut: 'Ctrl+C' },
+        { feature: 'クリップボードを貼り付け', shortcut: 'Ctrl+V' },
+        { feature: '元に戻す', shortcut: 'Ctrl+Z' },
+        { feature: 'やり直す', shortcut: 'Ctrl+Y / Ctrl+Shift+Z' },
+        { feature: '操作の取り消し、またはパネル/ダイアログを閉じる', shortcut: 'Esc' },
+      ],
+    },
+    {
+      title: 'キャンバス操作',
+      entries: [
+        { feature: 'タイムラインをスクロール', shortcut: 'Wheel' },
+        { feature: 'ズーム（時間軸/行軸）', shortcut: 'Ctrl / Shift / Alt + Wheel' },
+        { feature: 'キャンバスをパン', shortcut: 'Ctrl + Drag' },
+        { feature: 'アイテム間でフォーカスを移動', shortcut: 'Tab' },
+        { feature: 'フォーカス中のアイテムを1日/1行ずらす', shortcut: 'Arrow keys' },
+        { feature: 'フォーカス中のタスクをリサイズ', shortcut: 'Shift + Left / Right' },
+        { feature: '日程表全体を表示に収める' },
+      ],
+    },
+    {
+      title: 'プロパティ',
+      entries: [
+        { feature: '日付・分類・担当者・状態・備考を編集' },
+        { feature: 'fill_color と stroke_color を変更（CUD パレットまたはピッカー）' },
+        { feature: 'icon_shape_kind と label_position を変更' },
+        { feature: 'アイテムごとの予実切替、line_weight とフェード日数を設定' },
+        {
+          feature:
+            'predecessor_item_ids / successor_item_ids（カンマ区切りの ItemID）を編集して依存を接続',
+        },
+        { feature: 'プロパティパネルの表示/非表示' },
+      ],
+    },
+    {
+      title: '分類ペイン',
+      entries: [
+        { feature: 'セクションまたはサブ分類を追加' },
+        { feature: '同じ階層内でノードを並べ替え（上/下へ移動）' },
+        { feature: 'ノードを隠す、またはセクション配下をすべて表示' },
+        { feature: 'ノードの部分木をコピー/貼り付け', shortcut: 'Ctrl+C / Ctrl+V' },
+        { feature: 'ノードを削除（確認ダイアログ付き）', shortcut: 'D confirm / C cancel' },
+        { feature: '仕切りをドラッグしてペイン幅を変更' },
+      ],
+    },
+    {
+      title: '表示・オーバーレイ',
+      entries: [
+        { feature: '予定と実績の表示切替' },
+        { feature: '日付グリッド線と分類グリッド線の切替' },
+        { feature: 'ガイドカーソル: なし/十字/縦1本/縦2本' },
+        { feature: '本日線とイナズマ線（進捗線）の切替' },
+        {
+          feature:
+            '依存リンクモード: 起点アイテムをクリックしてから対象をクリックで接続（n:n は繰り返し）。接続済みの対を再クリックで解除',
+        },
+        { feature: 'コメントと囲み枠を追加' },
+        { feature: '証跡透かしの切替' },
+        { feature: 'ライト/ダークテーマと UI 言語の切替' },
+        { feature: '文字サイズを調整（小/中/大）' },
+        { feature: 'ブラウザの全画面表示を切替' },
+      ],
+    },
+    {
+      title: 'ファイル',
+      entries: [
+        { feature: '日程表を JSON / MSProject XML / SVG で書き出し' },
+        { feature: 'JSON / XML ドキュメントを取り込み' },
+        { feature: 'SVG / PNG アイコンを取り込み' },
+        { feature: 'ローカルストレージへ自動保存（クラッシュ復旧付き）' },
+      ],
+    },
+  ];
+}
+
 /** The usage hint moved out of the header into the Help modal (SHELL item 1). */
 export const HELP_USAGE_HINT =
   'Arm a shape then click or drag a row to create; drag items to move, edges to ' +
   'resize; wheel = scroll, Ctrl/Shift/Alt+wheel = zoom, Ctrl+drag = pan, Fit frames all.';
 
+/** The Japanese usage hint (CR-006 Part 4). */
+export const HELP_USAGE_HINT_JA =
+  '図形を選んでから行をクリックまたはドラッグして作成。アイテムをドラッグで移動、端で' +
+  'リサイズ。ホイール=スクロール、Ctrl/Shift/Alt+ホイール=ズーム、Ctrl+ドラッグ=パン、' +
+  'Fit で全体表示。';
+
+/** The localized usage hint for the Help modal (CR-006 Part 4). */
+export function helpUsageHint(locale: Locale): string {
+  return locale === 'ja' ? HELP_USAGE_HINT_JA : HELP_USAGE_HINT;
+}
+
+/** The localized Help-dialog title (CR-006 Part 4). */
+export function helpTitle(locale: Locale): string {
+  return locale === 'ja' ? 'gr-scheduler ヘルプ' : 'gr-scheduler help';
+}
+
+/**
+ * The localized label for the "Download GR Scheduler" button (CR-010 Part 1). The
+ * product name "GR Scheduler" stays as-is in both locales; only the verb is localized.
+ */
+export function downloadAppLabel(locale: Locale): string {
+  return locale === 'ja' ? 'GR Scheduler をダウンロード' : 'Download GR Scheduler';
+}
+
 /** CSS class of the modal backdrop + dialog (installed once). */
 const HELP_MODAL_STYLE_ID = 'grsch-help-modal-style';
 
-/** Install the Help-modal stylesheet once (themed via the shared CSS variables). */
-function ensureHelpModalStylesheet(doc: Document): void {
-  if (doc.getElementById(HELP_MODAL_STYLE_ID) !== null) {
-    return;
-  }
-  const style = doc.createElement('style');
-  style.id = HELP_MODAL_STYLE_ID;
-  style.textContent = `
+/**
+ * The Help-modal stylesheet (CR-011: fits on one screen without scroll, in both
+ * English and Japanese). Exported as a string so tests can assert the fitting
+ * invariants without a DOM.
+ *
+ * CR-011 fitting strategy, in priority order:
+ * - Part 2 keep `column-count: 3` -- never collapse to 1/2 columns or a tab/accordion.
+ * - Part 3 widen first: the dialog is `96vw` (was `85vw`) and the backdrop /
+ *   column gutters are trimmed, so the three columns gain horizontal room and the
+ *   content is shorter, removing the need to scroll.
+ * - Part 4 font shrink is the LAST resort: the base `font-size` is a `clamp()` that
+ *   sits at the readable `13px` ceiling on real desktop widths and only eases down
+ *   to an `11px` floor when the viewport is narrow enough that width alone cannot
+ *   fit -- it never breaks the columns nor introduces a scrollbar to fit.
+ * - Part 1 no scroll: the old `max-height: 92vh; overflow: auto` (which used a
+ *   scrollbar AS the fitting mechanism) is gone. The dialog is bounded to the
+ *   viewport (`max-height: calc(100vh - 16px)`) with `overflow: hidden` as a purely
+ *   non-triggering clip safety net -- at desktop sizes nothing overflows, so no
+ *   scrollbar appears for either language.
+ *
+ * Narrow-breakpoint decision (CR-011 §7 open item): the product is desktop-focused,
+ * so the former `@media (max-width: 900px) -> 2 cols` and `(max-width: 620px) -> 1 col`
+ * collapses are REMOVED; `column-count: 3` now holds at every width and the narrow
+ * fit is absorbed by the `clamp()` font floor instead of by dropping columns.
+ */
+export const HELP_MODAL_STYLESHEET = `
 .grsch-help-backdrop {
   position: fixed;
   inset: 0;
@@ -153,30 +309,48 @@ function ensureHelpModalStylesheet(doc: Document): void {
   align-items: center;
   justify-content: center;
   background: var(--grsch-scrim);
-  padding: 20px;
+  padding: 8px;
   box-sizing: border-box;
 }
 .grsch-help-dialog {
-  width: 85vw;
-  max-height: 92vh;
-  overflow: auto;
+  width: 96vw;
+  max-width: 96vw;
+  max-height: calc(100vh - 16px);
+  overflow: hidden;
   background: var(--grsch-surface-strong);
   color: var(--grsch-text);
   border: 1px solid var(--grsch-menu-border);
   border-radius: 10px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   font-family: system-ui, sans-serif;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: clamp(11px, 0.95vw, 13px);
+  line-height: 1.38;
+  box-sizing: border-box;
 }
 .grsch-help-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-bottom: 1px solid var(--grsch-panel-border);
 }
 .grsch-help-head h2 { margin: 0; font-size: 1.15em; color: var(--grsch-text-strong); }
+.grsch-help-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.grsch-help-download {
+  cursor: pointer;
+  border: 1px solid var(--grsch-btn-border);
+  border-radius: 5px;
+  background: var(--grsch-btn-bg-solid);
+  color: var(--grsch-text);
+  font-size: 0.95em;
+  line-height: 1;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
 .grsch-help-close {
   cursor: pointer;
   border: 1px solid var(--grsch-menu-border);
@@ -189,23 +363,21 @@ function ensureHelpModalStylesheet(doc: Document): void {
 }
 .grsch-help-hint {
   margin: 0;
-  padding: 8px 16px;
+  padding: 6px 14px;
   color: var(--grsch-text-muted);
   border-bottom: 1px solid var(--grsch-panel-border);
 }
 .grsch-help-columns {
   column-count: 3;
-  column-gap: 24px;
-  padding: 12px 16px 16px;
+  column-gap: 18px;
+  padding: 10px 14px 12px;
 }
-@media (max-width: 900px) { .grsch-help-columns { column-count: 2; } }
-@media (max-width: 620px) { .grsch-help-columns { column-count: 1; } }
 .grsch-help-section {
   break-inside: avoid;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 }
 .grsch-help-section h3 {
-  margin: 0 0 4px;
+  margin: 0 0 3px;
   font-size: 0.95em;
   color: var(--grsch-text-strong);
   border-bottom: 1px solid var(--grsch-panel-border);
@@ -229,6 +401,15 @@ function ensureHelpModalStylesheet(doc: Document): void {
   white-space: nowrap;
   align-self: start;
 }`;
+
+/** Install the Help-modal stylesheet once (themed via the shared CSS variables). */
+function ensureHelpModalStylesheet(doc: Document): void {
+  if (doc.getElementById(HELP_MODAL_STYLE_ID) !== null) {
+    return;
+  }
+  const style = doc.createElement('style');
+  style.id = HELP_MODAL_STYLE_ID;
+  style.textContent = HELP_MODAL_STYLESHEET;
   doc.head.appendChild(style);
 }
 
@@ -242,16 +423,62 @@ const FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:
  */
 export class HelpModal {
   private readonly host: HTMLElement;
+  private readonly onDownloadApp: (() => void) | null;
   private backdrop: HTMLElement | null = null;
   private dialog: HTMLElement | null = null;
   private returnFocusTo: HTMLElement | null = null;
+  /** The language the help CONTENT is displayed in (CR-006 Part 4); toggle-switched. */
+  private locale: Locale;
+  /** Live element refs updated in place when the language toggle flips. */
+  private titleEl: HTMLElement | null = null;
+  private hintEl: HTMLElement | null = null;
+  private columnsEl: HTMLElement | null = null;
+  private downloadButtonEl: HTMLButtonElement | null = null;
 
   /**
    * @param host - The element the modal is appended to when open (usually the app root).
+   * @param initialLocale - The content language the modal opens in ('en' default).
+   * @param onDownloadApp - Invoked when the "Download GR Scheduler" button is clicked
+   *   (CR-010 Part 1); omit to hide the button.
    */
-  public constructor(host: HTMLElement) {
+  public constructor(
+    host: HTMLElement,
+    initialLocale: Locale = 'en',
+    onDownloadApp: (() => void) | null = null,
+  ) {
     this.host = host;
+    this.locale = initialLocale;
+    this.onDownloadApp = onDownloadApp;
     ensureHelpModalStylesheet(document);
+    ensureModalLocaleToggleStylesheet(document);
+  }
+
+  /**
+   * Switch the displayed help language and rebuild the title, usage hint and the
+   * feature columns in place. No-op when the language is unchanged.
+   */
+  private applyLocale(next: Locale): void {
+    if (next === this.locale) {
+      return;
+    }
+    this.locale = next;
+    if (this.titleEl !== null) {
+      this.titleEl.textContent = helpTitle(this.locale);
+    }
+    if (this.hintEl !== null) {
+      this.hintEl.textContent = helpUsageHint(this.locale);
+    }
+    if (this.downloadButtonEl !== null) {
+      const label = downloadAppLabel(this.locale);
+      this.downloadButtonEl.textContent = label;
+      this.downloadButtonEl.title = label;
+      this.downloadButtonEl.setAttribute('aria-label', label);
+    }
+    if (this.columnsEl !== null) {
+      this.columnsEl.replaceChildren(
+        ...buildHelpModel(this.locale).map((section) => renderSection(section)),
+      );
+    }
   }
 
   /** Whether the modal is currently open. */
@@ -283,6 +510,10 @@ export class HelpModal {
     this.backdrop.remove();
     this.backdrop = null;
     this.dialog = null;
+    this.titleEl = null;
+    this.hintEl = null;
+    this.columnsEl = null;
+    this.downloadButtonEl = null;
     this.returnFocusTo?.focus();
     this.returnFocusTo = null;
   }
@@ -311,7 +542,11 @@ export class HelpModal {
     head.className = 'grsch-help-head';
     const title = document.createElement('h2');
     title.id = 'grsch-help-title';
-    title.textContent = 'gr-scheduler help';
+    title.textContent = helpTitle(this.locale);
+    this.titleEl = title;
+    // CR-006 Part 4 / DEC-005: the [en]/[jp] toggle sits to the LEFT of the close button
+    // and switches THIS dialog's content language.
+    const localeToggle = buildModalLocaleToggle(this.locale, (next) => this.applyLocale(next));
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
     closeButton.className = 'grsch-help-close';
@@ -320,18 +555,40 @@ export class HelpModal {
     closeButton.setAttribute('aria-label', 'Close help');
     closeButton.title = 'Close help';
     closeButton.addEventListener('click', () => this.close());
-    head.append(title, closeButton);
+
+    // CR-010 Part 1: the "Download GR Scheduler" button lives in the Help destination
+    // (NOT a new header element -- the 15-element header order is fixed). It re-fetches
+    // the clean delivered single-HTML app and saves it (see the wired onDownloadApp).
+    const actions = document.createElement('div');
+    actions.className = 'grsch-help-actions';
+    if (this.onDownloadApp !== null) {
+      const downloadButton = document.createElement('button');
+      downloadButton.type = 'button';
+      downloadButton.className = 'grsch-help-download';
+      downloadButton.dataset.role = 'download-app';
+      const downloadLabel = downloadAppLabel(this.locale);
+      downloadButton.textContent = downloadLabel;
+      downloadButton.title = downloadLabel;
+      downloadButton.setAttribute('aria-label', downloadLabel);
+      downloadButton.addEventListener('click', () => this.onDownloadApp?.());
+      this.downloadButtonEl = downloadButton;
+      actions.appendChild(downloadButton);
+    }
+    actions.append(localeToggle.element, closeButton);
+    head.append(title, actions);
 
     const hint = document.createElement('p');
     hint.className = 'grsch-help-hint';
     hint.dataset.role = 'help-hint';
-    hint.textContent = HELP_USAGE_HINT;
+    hint.textContent = helpUsageHint(this.locale);
+    this.hintEl = hint;
 
     const columns = document.createElement('div');
     columns.className = 'grsch-help-columns';
-    for (const section of buildHelpModel()) {
+    for (const section of buildHelpModel(this.locale)) {
       columns.appendChild(renderSection(section));
     }
+    this.columnsEl = columns;
 
     dialog.append(head, hint, columns);
     backdrop.appendChild(dialog);

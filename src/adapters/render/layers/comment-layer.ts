@@ -16,6 +16,7 @@ import {
 import { ITEM_LABEL_HEX, SELECTION_DASH_ARRAY } from '../../../domain/usecase/a11y-tokens.js';
 import { commentAnchorScreenPoint, commentBodyRect } from '../comment-geometry.js';
 import { SVG_NS, type RenderContext } from '../render-context.js';
+import { minorCategoryNameFontPx } from '../../../app/font-scale.js';
 
 /** Draws comment callouts / leaders and their selection outline into the overlay. */
 export class CommentLayer {
@@ -31,10 +32,15 @@ export class CommentLayer {
         continue;
       }
       this.drawComment(ctx, annotation);
-      if (annotation.id === ctx.selectedAnnotationId) {
+      // Draw a selection outline for EVERY selected comment (CR-007 Part 4), so a
+      // multi-selection (Ctrl+A / marquee / Ctrl+click) highlights all of them. The
+      // singly-selected comment is honored too (defensive against a context that only
+      // set selectedAnnotationId).
+      if (ctx.selectedCommentIds.has(annotation.id) || annotation.id === ctx.selectedAnnotationId) {
         const body = commentBodyRect(ctx, annotation, ctx.scheduleDocument.epochDate);
         const outline = document.createElementNS(SVG_NS, 'rect');
         outline.setAttribute('data-role', 'annotation-selection');
+        outline.setAttribute('data-annotation-id', annotation.id);
         outline.setAttribute('x', String(body.x - 2));
         outline.setAttribute('y', String(body.y - 2));
         outline.setAttribute('width', String(body.width + 4));
@@ -44,8 +50,10 @@ export class CommentLayer {
         outline.setAttribute('stroke-width', '1.5');
         outline.setAttribute('stroke-dasharray', SELECTION_DASH_ARRAY);
         this.overlayGroup.appendChild(outline);
-        // A grabbable handle over the leader ANCHOR so the user can drag the
-        // pointed-at target to a new free world point (CURS-L1-005, anchor drag).
+      }
+      // The grabbable leader-ANCHOR handle is a single-comment interaction, so it is
+      // only drawn for the singly-selected comment (CURS-L1-005, anchor drag).
+      if (annotation.id === ctx.selectedAnnotationId) {
         this.drawAnchorHandle(ctx, annotation);
       }
     }
@@ -128,7 +136,7 @@ export class CommentLayer {
       leader.setAttribute('y2', String(anchorY));
       leader.setAttribute('stroke', COMMENT_CALLOUT_STROKE_HEX);
       leader.setAttribute('stroke-width', '1');
-      const text = this.buildCommentText(comment.text, bodyX + 5, bodyY);
+      const text = this.buildCommentText(comment.text, bodyX + 5, bodyY, ctx.viewState.fontScale);
       this.overlayGroup.appendChild(leader);
       this.overlayGroup.appendChild(box);
       this.overlayGroup.appendChild(text);
@@ -147,18 +155,25 @@ export class CommentLayer {
     leader.setAttribute('fill', 'none');
     leader.setAttribute('stroke', COMMENT_LEADER_STROKE_HEX);
     leader.setAttribute('stroke-width', '1');
-    const text = this.buildCommentText(comment.text, bodyX + 4, bodyY - 4);
+    const text = this.buildCommentText(comment.text, bodyX + 4, bodyY - 4, ctx.viewState.fontScale);
     this.overlayGroup.appendChild(leader);
     this.overlayGroup.appendChild(text);
   }
 
-  private buildCommentText(content: string, x: number, y: number): SVGTextElement {
+  private buildCommentText(
+    content: string,
+    x: number,
+    y: number,
+    fontScale: RenderContext['viewState']['fontScale'],
+  ): SVGTextElement {
     const text = document.createElementNS(SVG_NS, 'text');
     text.textContent = content;
     text.setAttribute('x', String(x));
     text.setAttribute('y', String(y));
     text.setAttribute('dominant-baseline', 'middle');
-    text.setAttribute('font-size', '12');
+    // The comment body follows the font scale and equals the minor-category name
+    // size at that scale (CR-005 Part 4), from the SINGLE shared source.
+    text.setAttribute('font-size', String(minorCategoryNameFontPx(fontScale)));
     text.setAttribute('fill', ITEM_LABEL_HEX);
     // Match the bubble's pointer (finger) cursor over the comment text (CURS-L1-005).
     text.setAttribute('cursor', 'pointer');

@@ -23,11 +23,17 @@ import {
 } from '../domain/model/schedule-model.js';
 import {
   formatWatermarkTimestampUtc,
+  materializeWatermark,
   resolveWatermark,
 } from '../domain/usecase/watermark-builder.js';
 import { matchesWatermarkHidePassword } from '../adapters/security/watermark-password.js';
 import { SvgRenderer } from '../adapters/render/svg-renderer.js';
-import { applyUniformFontScale, ensureUiFontStylesheet } from './font-scale.js';
+import {
+  applyCanvasFontScale,
+  ensureUiFontStylesheet,
+  FONT_SCALE_GLYPHS,
+  toFontScale,
+} from './font-scale.js';
 import { uiLabel } from '../domain/usecase/i18n.js';
 import { AUTOSAVE_FAIL_HEX, AUTOSAVE_OK_HEX } from '../domain/usecase/a11y-tokens.js';
 import { CUD_GREEN_ACCENT_HEX } from '../domain/usecase/render-tokens.js';
@@ -37,14 +43,8 @@ import {
   createRoundedBoxCommand,
 } from '../domain/command/annotation-commands.js';
 import { worldXToDate } from '../domain/usecase/time-coordinate-mapper.js';
-import {
-  classificationCollapseLevel,
-  clampRowIndexToSection,
-  collapseRows,
-  contiguousSectionBands,
-  rebuildClassification,
-} from '../domain/usecase/classification-tree.js';
-import { orderedVisibleRows } from '../domain/usecase/section-organizer.js';
+import { isProgressLineVisible } from '../domain/usecase/progress-line-builder.js';
+import { rebuildClassification } from '../domain/usecase/classification-tree.js';
 import { EditingController } from '../adapters/input/editing-controller.js';
 import { PropertyPanel } from '../adapters/ui/property-panel.js';
 import { LeftClassificationPane } from '../adapters/ui/left-pane.js';
@@ -71,7 +71,11 @@ import { createLogger } from './logger.js';
 import { HelpModal } from '../adapters/ui/help-modal.js';
 import { AiExportModal } from '../adapters/ui/ai-export-modal.js';
 import { openAllClearDialog } from '../adapters/ui/all-clear-dialog.js';
-import { downloadPngBlob, rasterizeSvgToPng } from '../adapters/io/screen-capture.js';
+import {
+  copyPngToClipboardOrDownload,
+  downloadPngBlob,
+  rasterizeSvgToPng,
+} from '../adapters/io/screen-capture.js';
 import { buildViewportCaptureSvg } from './viewport-capture.js';
 import {
   createHeaderMenu,
@@ -80,10 +84,13 @@ import {
 } from '../adapters/ui/header-menu.js';
 import {
   HEADER_CONTROL_ROLES,
+  HEADER_LEFT_CONTROL_ROLES,
   LOAD_MENU_ITEMS,
   SAVE_MENU_ITEMS,
   THEME_BUTTON_SPECS,
 } from './header-model.js';
+import { resolvePlanActualStyle } from '../domain/usecase/plan-actual-geometry.js';
+import type { RoundedBoxRect } from '../domain/command/annotation-commands.js';
 import {
   applyThemePreference,
   installThemeStylesheet,
@@ -98,11 +105,10 @@ import { serializeScheduleDocument } from '../domain/usecase/json-codec.js';
 import { exportMspdi } from '../domain/usecase/mspdi-codec.js';
 import { exportScheduleSvg } from '../domain/usecase/svg-exporter.js';
 import { ImportRejectedError } from '../domain/usecase/import-sanitizer.js';
-import { downloadTextFile, pickFile } from '../adapters/io/file-io.js';
+import { downloadDeliveredApp, downloadTextFile, pickFile } from '../adapters/io/file-io.js';
 import {
   importBaselineDocumentFile,
   importDocumentFile,
-  importIconFile,
 } from '../adapters/io/import-service.js';
 import {
   AutosaveController,
@@ -122,6 +128,11 @@ interface Chrome {
   panelHost: HTMLElement;
   header: HTMLElement;
   scheduleNameLabel: HTMLElement;
+  // CR-006 Part 1 / Part 2: the two LEFT-edge header controls, placed left of the
+  // branding block. Fit frames the whole schedule; the palette toggle shows / minimizes
+  // the floating command palette, bidirectionally synced with the palette's own [-].
+  headerFitButton: HTMLButtonElement;
+  headerPaletteToggleButton: HTMLButtonElement;
   helpButton: HTMLButtonElement;
   aiButton: HTMLButtonElement;
   undoButton: HTMLButtonElement;
@@ -144,6 +155,12 @@ interface Chrome {
   gridCategoryButton: HTMLButtonElement;
   commentButton: HTMLButtonElement;
   boxButton: HTMLButtonElement;
+  // CR-006 palette toggles: progress-line (Part 5, default hidden), plan/actual style
+  // [Ao]/[As] (Part 6) and the assignee-name show/hide toggle (Part 7).
+  progressLineButton: HTMLButtonElement;
+  planActualStyleGroup: HTMLElement;
+  planActualStyleButtons: HTMLButtonElement[];
+  assigneeButton: HTMLButtonElement;
   // CR-003 Part 1 header controls: SS (viewport PNG), Load / Save dropdown menus and
   // the Base V / Base I baseline-visibility buttons.
   ssButton: HTMLButtonElement;
@@ -151,7 +168,6 @@ interface Chrome {
   saveMenu: HeaderMenu;
   baselineShowButton: HTMLButtonElement;
   baselineHideButton: HTMLButtonElement;
-  importIconButton: HTMLButtonElement;
   watermarkButton: HTMLButtonElement;
   saveStatusLabel: HTMLElement;
   benchOutput: HTMLPreElement;
@@ -477,6 +493,31 @@ function buildChrome(root: HTMLElement): Chrome {
   const headerLeft = document.createElement('div');
   headerLeft.className = 'grsch-header-left';
 
+  // CR-006 Part 1 / Part 2: the two LEFT-edge controls placed to the LEFT of the
+  // branding block, built in the canonical HEADER_LEFT_CONTROL_ROLES order via a
+  // role -> element lookup (mirroring the right toolbar) so the DOM order can never
+  // drift from the constant a unit test asserts against. [Fit] frames the whole
+  // schedule; [P] shows / minimizes the floating palette.
+  const headerFitButton = makeHeaderButton('grsch-file-btn', 'Fit', uiLabel('fit_to_content'), 'header-fit');
+  const headerPaletteToggleButton = makeHeaderButton(
+    'grsch-file-btn',
+    'P',
+    uiLabel('palette_toggle'),
+    'header-palette-toggle',
+  );
+  headerPaletteToggleButton.setAttribute('aria-pressed', 'true');
+  const headerLeftControlByRole = new Map<string, HTMLElement>([
+    ['header-fit', headerFitButton],
+    ['header-palette-toggle', headerPaletteToggleButton],
+  ]);
+  for (const role of HEADER_LEFT_CONTROL_ROLES) {
+    const control = headerLeftControlByRole.get(role);
+    if (control === undefined) {
+      throw new Error(`Header build error: no left control for role "${role}"`);
+    }
+    headerLeft.appendChild(control);
+  }
+
   // Branding block (left): TWO lines -- a larger product name, then a concise
   // copyright / license line that links to the GitHub repository (item 6).
   const brandingBlock = document.createElement('div');
@@ -501,9 +542,10 @@ function buildChrome(root: HTMLElement): Chrome {
   scheduleNameLabel.dataset.role = 'schedule-name';
   scheduleNameLabel.textContent = 'gr-scheduler';
 
-  // SS: screenshot of the CURRENT viewport as a PNG download (distinct from Save PNG,
-  // which is the full-canvas fixed export).
-  const ssButton = makeHeaderButton('grsch-file-btn', 'SS', 'Screenshot viewport (PNG)', 'screenshot');
+  // SS: copy the CURRENT viewport image to the clipboard (CR-006 Part 3; falls back to
+  // a PNG download when the clipboard is unavailable). Distinct from Save PNG, which is
+  // the full-canvas fixed export.
+  const ssButton = makeHeaderButton('grsch-file-btn', 'SS', 'Copy viewport image to clipboard', 'screenshot');
 
   // Load / Save dropdown menus (CR-003 Part 1). Load = JSON / XML import + JSON as a
   // baseline reference + New (clear all). Save = JSON / XML / SVG / PNG export.
@@ -691,10 +733,53 @@ function buildChrome(root: HTMLElement): Chrome {
   gridCategoryButton.setAttribute('aria-pressed', 'true');
   const commentButton = makeCommandButton('💬', uiLabel('add_comment'));
   const boxButton = makeCommandButton('▢', uiLabel('add_box'));
+  boxButton.setAttribute('aria-pressed', 'false');
+
+  // Progress line (イナズマ線) show/hide toggle (CR-006 Part 5), placed right of the
+  // cursor-guide buttons. The default is HIDDEN (progressLineVisible defaults false), so
+  // aria-pressed starts false; wirePaletteProgressLine seeds the true state from view state.
+  const progressLineButton = makeCommandButton('⚡', uiLabel('progress_line'));
+  // Distinct role from the property-panel progress control (`toggle-progress-line`) so
+  // the two never collide (CR-006 defect fix); both read/drive viewState.progressLineVisible.
+  progressLineButton.dataset.role = 'palette-progress-line-toggle';
+  progressLineButton.setAttribute('aria-pressed', 'false');
+
+  // Plan/actual style segmented toggle (CR-006 Part 6): [Ao] Overlap / [As] Separate,
+  // an exclusive radio group bound to viewState.planActualStyle (default 'overlap').
+  const planActualStyleGroup = document.createElement('div');
+  planActualStyleGroup.className = 'grsch-cmd-group';
+  planActualStyleGroup.dataset.role = 'palette-plan-actual-style';
+  planActualStyleGroup.setAttribute('role', 'radiogroup');
+  planActualStyleGroup.setAttribute('aria-label', uiLabel('plan_actual_style'));
+  const planActualStyleSpecs: ReadonlyArray<{
+    style: 'overlap' | 'separate';
+    glyph: string;
+    labelKey: string;
+  }> = [
+    { style: 'overlap', glyph: 'Ao', labelKey: 'plan_actual_style_overlap' },
+    { style: 'separate', glyph: 'As', labelKey: 'plan_actual_style_separate' },
+  ];
+  const planActualStyleButtons: HTMLButtonElement[] = planActualStyleSpecs.map(
+    ({ style, glyph, labelKey }) => {
+      const button = makeCommandButton(glyph, uiLabel(labelKey));
+      button.dataset.role = 'plan-actual-style-mode';
+      button.dataset.planActualStyle = style;
+      button.setAttribute('role', 'radio');
+      button.setAttribute('aria-checked', 'false');
+      planActualStyleGroup.appendChild(button);
+      return button;
+    },
+  );
+
+  // Assignee-name show/hide toggle (CR-006 Part 7): flips viewState.assigneeVisible
+  // (CR-004 Part 5 renders the label). Default hidden, so aria-pressed starts false.
+  const assigneeButton = makeCommandButton('@', uiLabel('assignee_display'));
+  assigneeButton.dataset.role = 'palette-assignee-toggle';
+  assigneeButton.setAttribute('aria-pressed', 'false');
 
   // The document export/import buttons (JSON / SVG / XML / Import) now live in the
-  // header file-ops group (item 1); the icon-asset import stays in the palette.
-  const importIconButton = makeCommandButton('🖼', uiLabel('import_icon'));
+  // header file-ops group (item 1). External icon-image import was withdrawn in
+  // CR-004 Part 6a.
 
   // Watermark visibility toggle (TOOL-L1-007, TOOL-L2-001/003). The user-name input
   // was removed from the palette (item 8): the watermark uses the default name.
@@ -719,14 +804,13 @@ function buildChrome(root: HTMLElement): Chrome {
     M: uiLabel('font_size_medium'),
     L: uiLabel('font_size_large'),
   };
-  const fontGlyphs: Record<FontScale, string> = { S: 'A-', M: 'A', L: 'A+' };
   const fontButtons: HTMLButtonElement[] = (['S', 'M', 'L'] as FontScale[]).map((scale) => {
-    const button = makeCommandButton(fontGlyphs[scale], fontScaleNames[scale]);
+    const button = makeCommandButton(FONT_SCALE_GLYPHS[scale], fontScaleNames[scale]);
     button.dataset.fontScale = scale;
     return button;
   });
 
-  // Functional grouping (fix 13): Icon | View | Show | Guides | Grid | Add | Marks |
+  // Functional grouping (fix 13): View | Show | Guides | Grid | Add | Marks |
   // Font, each a labelled group so related commands stay together when the toolbar
   // wraps. Document File I/O (JSON / SVG / XML / Import) and the theme selector now
   // live in the header; the shape picker (milestone + task, on one aligned row) is
@@ -735,11 +819,12 @@ function buildChrome(root: HTMLElement): Chrome {
   commandPalette.append(
     paletteDragHandle,
     minimizeButton,
-    makeCommandGroup('Icon', [importIconButton]),
     makeCommandGroup('View', [fitButton, fullscreenButton, propertiesToggleButton]),
-    makeCommandGroup('Show', [planButton, actualButton]),
+    makeCommandGroup('Show', [planButton, actualButton, assigneeButton]),
+    planActualStyleGroup,
     makeCommandGroup('Guides', [todayButton, linkButton]),
     cursorGuideGroup,
+    makeCommandGroup('Line', [progressLineButton]),
     makeCommandGroup('Grid', [gridDateButton, gridCategoryButton]),
     makeCommandGroup('Add', [commentButton, boxButton]),
     makeCommandGroup('Marks', [watermarkButton]),
@@ -794,6 +879,8 @@ function buildChrome(root: HTMLElement): Chrome {
     panelHost,
     header,
     scheduleNameLabel,
+    headerFitButton,
+    headerPaletteToggleButton,
     helpButton,
     aiButton,
     undoButton,
@@ -816,12 +903,15 @@ function buildChrome(root: HTMLElement): Chrome {
     gridCategoryButton,
     commentButton,
     boxButton,
+    progressLineButton,
+    planActualStyleGroup,
+    planActualStyleButtons,
+    assigneeButton,
     ssButton,
     loadMenu,
     saveMenu,
     baselineShowButton,
     baselineHideButton,
-    importIconButton,
     watermarkButton,
     saveStatusLabel,
     benchOutput,
@@ -942,8 +1032,9 @@ function bootstrap(): void {
   // can defer rAF indefinitely). The subsequent Fit reframes on the next frame.
   renderer.renderNow();
 
-  // Apply the persisted font scale uniformly across the chrome (TOOL-L1-002).
-  applyUniformFontScale(root, store.getDocument().viewState.fontScale);
+  // The persisted font scale is applied to the three scoped targets (CR-005 Part 2):
+  // the property panel below (once built), and the left pane on its first render
+  // (it reads viewState.fontScale). The header + palette are intentionally excluded.
 
   const controller = new EditingController(renderer, store);
   controller.attach();
@@ -970,6 +1061,10 @@ function bootstrap(): void {
       },
     },
   );
+  // Apply the persisted font scale to the property panel (one of the three CR-005
+  // targets); the left pane self-applies on its first render, and comments read the
+  // scale during the SVG render pass.
+  propertyPanel.setFontScale(store.getDocument().viewState.fontScale);
 
   // Active UI locale (PROP-L1-003), from view state, held as shared mutable state
   // so the language toggle can re-run every registered locale-dependent sync.
@@ -990,7 +1085,7 @@ function bootstrap(): void {
     },
   };
 
-  wirePaletteChrome(root, chrome);
+  wirePaletteChrome(root, chrome, renderer);
   wireProperties(chrome, controller, propertyPanel, setPropertiesPanelHidden);
 
   // The fixed, resizable left classification pane (frozen column) wires itself to
@@ -1021,11 +1116,25 @@ function bootstrap(): void {
   // Help modal (SHELL item 2): the [?] button opens an accessible dialog listing
   // all features + shortcuts; the modal owns its own focus trap and Esc handling
   // (it stops propagation so the shell's Esc handler does not double-fire).
-  const helpModal = new HelpModal(root);
+  // CR-010: the Help modal hosts a "Download GR Scheduler" button that re-fetches the
+  // CLEAN delivered single-HTML app (never the edited DOM) and saves gr-scheduler.html.
+  // A fetch failure (offline / file://) is harmless -- the user already holds the file --
+  // so it is reported gently via the polite live region rather than thrown.
+  const helpModal = new HelpModal(root, activeLocale, () => {
+    void downloadDeliveredApp().then((downloaded) => {
+      if (!downloaded) {
+        announcer.announce(
+          activeLocale === 'ja'
+            ? 'アプリのダウンロードはオフラインでは利用できません（このファイルは既にお手元にあります）'
+            : 'App download is unavailable offline; you already have this file',
+        );
+      }
+    });
+  });
   wireHelp(chrome, helpModal);
   // [AI] modal (SHELL item 5): copy-a-prompt+schema helper to obtain a GR Scheduler
   // JSON from an external AI. It reads the inlined SSOT schema from document-schema.
-  const aiModal = new AiExportModal(root);
+  const aiModal = new AiExportModal(root, undefined, activeLocale);
   chrome.aiButton.addEventListener('click', () => aiModal.open(chrome.aiButton));
   wireTheme(chrome, renderer, initialThemePreference);
   wireEscHandling(controller, propertyPanel, helpModal, aiModal, setPropertiesPanelHidden);
@@ -1040,14 +1149,17 @@ function bootstrap(): void {
 
   syncScheduleName(chrome, store);
   wireToolbarLocalization(chrome, locale);
-  wireFontScale(chrome, renderer, root, store);
+  wireFontScale(chrome, renderer, store, propertyPanel);
   wireWatermark(chrome, renderer, locale);
+  wireWatermarkTimestamp(store, renderer);
   wireDependencyLinkMode(chrome, controller, locale);
   wirePlanActual(chrome, renderer, locale);
   wireFit(chrome, renderer);
   wireFullscreen(chrome, locale);
   wireTodayLine(chrome, renderer, locale);
-  wireProgressLine(propertyPanel, renderer);
+  wireProgressLine(chrome, propertyPanel, renderer);
+  wirePlanActualStyle(chrome, renderer);
+  wireAssigneeToggle(chrome, renderer);
   wireCursorGuide(chrome, renderer);
   wireGridToggles(chrome, renderer, locale);
   wireAnnotationCreation(chrome, store, renderer, controller);
@@ -1077,7 +1189,7 @@ function bootstrap(): void {
  * the minimize/expand toggle (double-click or the ▁ button), which collapses the
  * palette to just the handle + toggle to free the drawing area (fix 11).
  */
-function wirePaletteChrome(root: HTMLElement, chrome: Chrome): void {
+function wirePaletteChrome(root: HTMLElement, chrome: Chrome, renderer: SvgRenderer): void {
   enablePanelDrag({
     element: chrome.commandPalette,
     handle: chrome.paletteDragHandle,
@@ -1107,6 +1219,12 @@ function wirePaletteChrome(root: HTMLElement, chrome: Chrome): void {
     const name = minimized ? 'Expand toolbar' : 'Minimize toolbar';
     chrome.minimizeButton.setAttribute('aria-label', name);
     chrome.minimizeButton.title = name;
+    // CR-006 Part 2: keep the header [P] toggle in lock-step with the palette [-] so a
+    // minimize from EITHER control updates both. aria-pressed=false (inactive / color
+    // change) when minimized advertises that the palette is hidden; aria-expanded mirrors
+    // the visibility so assistive tech reads the same state as the palette's own button.
+    chrome.headerPaletteToggleButton.setAttribute('aria-pressed', minimized ? 'false' : 'true');
+    chrome.headerPaletteToggleButton.setAttribute('aria-expanded', minimized ? 'false' : 'true');
     // Re-expanding at an edge would push the wider palette off-screen; clamp it back
     // (fix 11). Reading offsetWidth after the dataset change forces the reflow so the
     // measured width is the expanded one.
@@ -1118,6 +1236,10 @@ function wirePaletteChrome(root: HTMLElement, chrome: Chrome): void {
   };
   setPaletteMinimized(false);
   chrome.minimizeButton.addEventListener('click', togglePaletteMinimized);
+  // Header [P] toggles the SAME state, so the two controls stay bidirectionally synced.
+  chrome.headerPaletteToggleButton.addEventListener('click', togglePaletteMinimized);
+  // Header [Fit] frames the whole schedule -- the same action as the palette Fit (Part 1).
+  chrome.headerFitButton.addEventListener('click', () => renderer.fitToContent());
   chrome.commandPalette.addEventListener('dblclick', (event) => {
     // Ignore double-clicks that land on an interactive control (a fast double tap
     // of a command button should not also minimize the palette); the handle and
@@ -1222,7 +1344,11 @@ function wireEscHandling(
       event.preventDefault();
       return;
     }
-    if (controller.isGestureInProgress() || controller.hasArmedShape()) {
+    if (
+      controller.isGestureInProgress() ||
+      controller.hasArmedShape() ||
+      controller.isBoxPlacementArmed()
+    ) {
       controller.cancelActiveGesture();
       event.preventDefault();
       return;
@@ -1302,7 +1428,6 @@ function wireToolbarLocalization(chrome: Chrome, locale: LocaleController): void
   };
   const localizeToolbar = (loc: Locale): void => {
     chrome.commandPalette.setAttribute('aria-label', uiLabel('toolbar', loc));
-    localizeCommandName(chrome.importIconButton, 'import_icon', loc);
     localizeCommandName(chrome.benchButton, 'run_benchmark', loc);
     localizeCommandName(chrome.fitButton, 'fit_to_content', loc);
     localizeCommandName(chrome.commentButton, 'add_comment', loc);
@@ -1332,8 +1457,8 @@ function wireToolbarLocalization(chrome: Chrome, locale: LocaleController): void
 function wireFontScale(
   chrome: Chrome,
   renderer: SvgRenderer,
-  root: HTMLElement,
   store: ScheduleStore,
+  propertyPanel: PropertyPanel,
 ): void {
   const syncFontButtons = (scale: FontScale): void => {
     for (const button of chrome.fontButtons) {
@@ -1343,9 +1468,18 @@ function wireFontScale(
   syncFontButtons(store.getDocument().viewState.fontScale);
   for (const button of chrome.fontButtons) {
     button.addEventListener('click', () => {
-      const scale = button.dataset.fontScale as FontScale;
-      renderer.setViewState({ ...renderer.getViewState(), fontScale: scale });
-      applyUniformFontScale(root, scale);
+      // Validate the untrusted dataset value rather than an unchecked assertion (L-3).
+      const scale = toFontScale(button.dataset.fontScale);
+      // The scale reaches its three CR-005 targets. The left pane updates SYNCHRONOUSLY
+      // via the renderer's onViewStateChange listener and the property panel is updated
+      // directly here; the canvas comment bodies are drawn by the SVG overlay, whose
+      // re-render setViewState only SCHEDULES on the next animation frame. A discrete
+      // font-scale click must update all three in lock-step, so applyCanvasFontScale
+      // forces an immediate synchronous canvas re-render (renderNow) -- otherwise the
+      // comment text keeps the scale from the previous render while the left pane already
+      // shows the new size (the CR-005 Part 4 live defect). Header + palette are untouched.
+      applyCanvasFontScale(renderer, scale);
+      propertyPanel.setFontScale(scale);
       syncFontButtons(scale);
     });
   }
@@ -1358,6 +1492,10 @@ function wireFontScale(
  * with the default name (the palette user-name input was removed, item 8); hiding it
  * requires the password (only the hash is ever kept; client-side gating is a soft
  * deterrent only, security-design §6).
+ *
+ * The evidence UTC time is NOT stamped here: toggling visibility keeps the last
+ * content-change time (CR-009 Part 3). Re-stamping is owned by
+ * {@link wireWatermarkTimestamp}, driven by the store's content-change signal.
  */
 function wireWatermark(chrome: Chrome, renderer: SvgRenderer, locale: LocaleController): void {
   const currentWatermark = (): Watermark => resolveWatermark(renderer.getViewState().watermark);
@@ -1376,13 +1514,13 @@ function wireWatermark(chrome: Chrome, renderer: SvgRenderer, locale: LocaleCont
   chrome.watermarkButton.addEventListener('click', () => {
     const base = currentWatermark();
     if (!base.enabled) {
-      // Turning the mark ON needs no password; refresh the timestamp in UTC ISO-8601
-      // and keep the current (default / server-provided) user name.
+      // Turning the mark ON needs no password; keep the current user name AND the
+      // last content-change UTC time (the toggle is NOT a content change, CR-009
+      // Part 3), so showing/hiding never rewrites the evidence timestamp.
       applyWatermark({
         ...base,
         enabled: true,
         userName: base.userName || DEFAULT_WATERMARK_TEXT,
-        timestamp: formatWatermarkTimestampUtc(Date.now()),
       });
       return;
     }
@@ -1400,6 +1538,57 @@ function wireWatermark(chrome: Chrome, renderer: SvgRenderer, locale: LocaleCont
   });
   syncWatermarkButton();
   locale.onChange(syncWatermarkButton);
+}
+
+/**
+ * Wire the evidence watermark's MANDATORY UTC time (CR-009 Part 2 / Part 3,
+ * DEC-005 #3). The timestamp answers "as of when is this the chart's content?", so
+ * it is re-stamped ONLY when the document CONTENT changes -- an edit command, an
+ * undo or a redo -- surfaced by the store's {@link ScheduleStore.onContentChange}
+ * signal. It is deliberately NOT re-stamped on viewport-only changes (zoom / scroll
+ * / pan never flow through the store) nor on the show/hide toggle alone (that goes
+ * straight to the renderer's view state, not the store).
+ *
+ * Recursion safety: the re-stamp writes the time into the RENDERER's view state via
+ * {@link SvgRenderer.setViewState}, entirely outside the undoable command flow. It
+ * never dispatches a command, so it can never itself count as a content change and
+ * cannot loop -- one content mutation yields exactly one re-stamp.
+ *
+ * A one-time seed stamps the current UTC time immediately so the default-ON mark
+ * carries a time before the first edit; that seeded value is then stable across
+ * zoom / scroll until the next content change.
+ */
+function wireWatermarkTimestamp(store: ScheduleStore, renderer: SvgRenderer): void {
+  // One-time seed: pin a concrete UTC time into the initial document's mark so it is
+  // stable across zoom / scroll from the first paint (an existing time is preserved).
+  materializeWatermarkTimestamp(renderer);
+  // Re-stamp to NOW on every content change (dispatch / undo / redo). This
+  // unconditionally overwrites the time, unlike the seed above.
+  store.onContentChange(() => {
+    const viewState = renderer.getViewState();
+    const resolved = resolveWatermark(viewState.watermark);
+    renderer.setViewState({
+      ...viewState,
+      watermark: { ...resolved, timestamp: formatWatermarkTimestampUtc(Date.now()) },
+    });
+  });
+}
+
+/**
+ * Pin the renderer watermark's mandatory UTC time ONCE for a freshly adopted document
+ * (bootstrap seed OR import, CR-009 Part 2 / Part 3), writing a CONCRETE value into
+ * the renderer view state so {@link resolveWatermark} returns it verbatim on every
+ * later render -- stable across zoom / scroll. Without this, an imported document with
+ * a completely absent `watermark` field would make {@link resolveWatermark} read the
+ * clock every render and zooming would change the UTC. An imported chart that already
+ * carries a real evidence time keeps it (see {@link materializeWatermark}).
+ */
+function materializeWatermarkTimestamp(renderer: SvgRenderer): void {
+  const viewState = renderer.getViewState();
+  renderer.setViewState({
+    ...viewState,
+    watermark: materializeWatermark(viewState.watermark),
+  });
 }
 
 /**
@@ -1533,22 +1722,93 @@ function wireTodayLine(chrome: Chrome, renderer: SvgRenderer, locale: LocaleCont
 }
 
 /**
- * Wire the progress-line (イナズマ線) show/hide + color controls (item 2), hosted in
- * the property panel so the floating toolbar is untouched. Both settings live in
- * view state so they round-trip via JSON / autosave; absent visibility is treated
- * as shown (legacy default). English-only labels (SHELL item 5).
+ * Wire BOTH progress-line (イナズマ線) show/hide controls (CR-006 Part 5) against the
+ * single shared `viewState.progressLineVisible` flag: the palette `[⚡]` toggle
+ * (`palette-progress-line-toggle`) and the property-panel control (color + shown/hidden,
+ * `toggle-progress-line`). Flipping EITHER updates the flag, forces an IMMEDIATE canvas
+ * re-render (renderNow, since setViewState only schedules an rAF that a throttled tab may
+ * defer) and re-syncs BOTH controls so they never drift. The default is HIDDEN (absent =
+ * not drawn); labels are English (SHELL item 5). The color input lives in the panel only.
  */
-function wireProgressLine(propertyPanel: PropertyPanel, renderer: SvgRenderer): void {
-  propertyPanel.attachProgressLineControls({
-    isVisible: () => renderer.getViewState().progressLineVisible !== false,
+function wireProgressLine(
+  chrome: Chrome,
+  propertyPanel: PropertyPanel,
+  renderer: SvgRenderer,
+): void {
+  const currentVisible = (): boolean =>
+    isProgressLineVisible(renderer.getViewState().progressLineVisible);
+  const syncPaletteButton = (): void => {
+    chrome.progressLineButton.setAttribute('aria-pressed', currentVisible() ? 'true' : 'false');
+  };
+  // Both controls route through one applier so a click on either flips the flag, repaints
+  // the canvas synchronously and refreshes the two controls in lock-step.
+  const applyVisible = (visible: boolean): void => {
+    renderer.setViewState({ ...renderer.getViewState(), progressLineVisible: visible });
+    renderer.renderNow();
+    syncPaletteButton();
+    panelControls.sync();
+  };
+  const panelControls = propertyPanel.attachProgressLineControls({
+    isVisible: currentVisible,
     getColor: () => renderer.getViewState().progressLineColor ?? DEFAULT_PROGRESS_LINE_COLOR,
-    onToggle: (visible) =>
-      renderer.setViewState({ ...renderer.getViewState(), progressLineVisible: visible }),
-    onColor: (color) =>
-      renderer.setViewState({ ...renderer.getViewState(), progressLineColor: color }),
+    onToggle: (visible) => applyVisible(visible),
+    onColor: (color) => {
+      renderer.setViewState({ ...renderer.getViewState(), progressLineColor: color });
+      renderer.renderNow();
+    },
     label: uiLabel('progress_line', 'en'),
     colorLabel: uiLabel('progress_line_color', 'en'),
   });
+  chrome.progressLineButton.addEventListener('click', () => {
+    applyVisible(!currentVisible());
+  });
+  syncPaletteButton();
+}
+
+/**
+ * Wire the [Ao] Overlap / [As] Separate plan-actual style toggle (CR-006 Part 6), an
+ * exclusive radio group bound to viewState.planActualStyle. The default stays 'overlap'
+ * (PLAN-L1-005); switching re-renders the plan/actual geometry without an undo entry.
+ */
+function wirePlanActualStyle(chrome: Chrome, renderer: SvgRenderer): void {
+  const syncButtons = (style: 'overlap' | 'separate'): void => {
+    for (const button of chrome.planActualStyleButtons) {
+      button.setAttribute(
+        'aria-checked',
+        button.dataset.planActualStyle === style ? 'true' : 'false',
+      );
+    }
+  };
+  for (const button of chrome.planActualStyleButtons) {
+    button.addEventListener('click', () => {
+      const style = button.dataset.planActualStyle === 'separate' ? 'separate' : 'overlap';
+      renderer.setViewState({ ...renderer.getViewState(), planActualStyle: style });
+      // Repaint synchronously so the plan/actual geometry switches immediately (a
+      // throttled tab may otherwise defer the scheduled rAF).
+      renderer.renderNow();
+      syncButtons(style);
+    });
+  }
+  syncButtons(resolvePlanActualStyle(renderer.getViewState().planActualStyle));
+}
+
+/**
+ * Wire the assignee-name show/hide palette toggle (CR-006 Part 7). Bound to
+ * viewState.assigneeVisible (CR-004 Part 5 draws the label to the LEFT of each glyph);
+ * default HIDDEN, so aria-pressed reflects only an explicit `true`.
+ */
+function wireAssigneeToggle(chrome: Chrome, renderer: SvgRenderer): void {
+  const syncButton = (visible: boolean): void => {
+    chrome.assigneeButton.setAttribute('aria-pressed', visible ? 'true' : 'false');
+  };
+  chrome.assigneeButton.addEventListener('click', () => {
+    const visible = renderer.getViewState().assigneeVisible !== true;
+    renderer.setViewState({ ...renderer.getViewState(), assigneeVisible: visible });
+    // Repaint synchronously so assignee names appear/disappear immediately.
+    renderer.renderNow();
+    syncButton(visible);
+  });
+  syncButton(renderer.getViewState().assigneeVisible === true);
 }
 
 /**
@@ -1638,29 +1898,37 @@ function wireAnnotationCreation(
       }),
     );
   });
-  chrome.boxButton.addEventListener('click', () => {
-    const startDate = viewportCenterDate();
-    const view = renderer.getViewState();
-    const scheduleDocument = store.getDocument();
-    const endDate = worldXToDate(view.scrollX + 360, scheduleDocument.epochDate, view.zoomX);
-    // Single-section constraint (user choice): keep the new box inside one section.
-    const visible0 = orderedVisibleRows(scheduleDocument.sections, scheduleDocument.rows);
-    const displayRows = collapseRows(visible0, classificationCollapseLevel(view.zoomY)).rows;
-    const bands = contiguousSectionBands(displayRows, scheduleDocument.sections);
-    const topRowIndex = 0;
-    const bottomRowIndex = clampRowIndexToSection(bands, topRowIndex, 2);
+  // CR-006 Part 8: Add Box no longer drops a box at a default position; instead it ARMS
+  // 2-click rectangle placement (PowerPoint-like): the next canvas click sets the
+  // top-left corner and the following click the bottom-right, then the controller hands
+  // back the normalized rect (single-section clamped) and this callback dispatches the
+  // undoable create with the box's styling. The screen-space corner radius is unchanged
+  // (CURS-L2-001). Esc cancels (wireEscHandling -> cancelActiveGesture).
+  const placeRoundedBox = (rect: RoundedBoxRect): void => {
     store.dispatch(
       createRoundedBoxCommand({
         id: `box-${Date.now()}`,
         annotationKind: 'rounded-box',
-        startDate,
-        endDate,
-        topRowIndex,
-        bottomRowIndex,
+        startDate: rect.startDate,
+        endDate: rect.endDate,
+        topRowIndex: rect.topRowIndex,
+        bottomRowIndex: rect.bottomRowIndex,
         strokeColor: CUD_GREEN_ACCENT_HEX,
         cornerRadiusPx: 10,
       }),
     );
+  };
+  chrome.boxButton.addEventListener('click', () => {
+    if (controller.isBoxPlacementArmed()) {
+      // A second press on Add Box cancels the pending placement (toggle affordance).
+      controller.cancelBoxPlacement();
+      return;
+    }
+    controller.armBoxPlacement(placeRoundedBox);
+  });
+  // Reflect the armed state on the Add Box button so the user sees placement is active.
+  controller.onBoxPlacementChange((armed) => {
+    chrome.boxButton.setAttribute('aria-pressed', armed ? 'true' : 'false');
   });
 }
 
@@ -1729,6 +1997,12 @@ function wireInputOutput(
     // renderer the normalized result so both stay in sync.
     store.replaceDocument(scheduleDocument);
     renderer.setDocument(store.getDocument());
+    // Pin the mandatory watermark UTC time ONCE for the adopted document (CR-009):
+    // an import (or clear) is not a content-change re-stamp, but its mark must carry a
+    // concrete, stable timestamp -- otherwise an import with a completely absent
+    // watermark field would make resolveWatermark read the clock every render and zoom
+    // would change the UTC. An imported chart's own evidence time is preserved.
+    materializeWatermarkTimestamp(renderer);
     // Frame the freshly imported schedule so the whole thing is visible (fix 7).
     renderer.fitToContent();
     // Keep the minimal header's schedule name in sync with the adopted document
@@ -1813,8 +2087,11 @@ function wireInputOutput(
     );
   });
 
-  // SS (CR-003 Part 1): screenshot the CURRENT viewport as a PNG download -- exactly
-  // what is on screen (scroll / zoom / virtualized subset), NOT the full canvas.
+  // SS (CR-003 Part 1 / CR-006 Part 3): capture the CURRENT viewport -- exactly what is
+  // on screen (scroll / zoom / virtualized subset), NOT the full canvas -- and COPY it to
+  // the clipboard as a PNG image so it can be pasted straight into PowerPoint etc. When
+  // the browser cannot write images to the clipboard (unsupported / permission denied),
+  // it transparently FALLS BACK to a PNG download and announces that instead (toast).
   chrome.ssButton.addEventListener('click', () => {
     const stem = toFileStem(store.getDocument().title);
     let viewportSvg: string;
@@ -1826,17 +2103,20 @@ function wireInputOutput(
       announcer.announce(`Screenshot failed: ${reason}`);
       return;
     }
-    void rasterizeSvgToPng(viewportSvg).then(
-      (blob) => {
-        downloadPngBlob(`${stem}-viewport.png`, blob);
-        announcer.announce('Viewport screenshot saved as a PNG download');
-      },
-      (error: unknown) => {
+    void rasterizeSvgToPng(viewportSvg)
+      .then((blob) => copyPngToClipboardOrDownload(blob, `${stem}-viewport.png`))
+      .then((outcome) => {
+        announcer.announce(
+          outcome === 'clipboard'
+            ? 'Viewport image copied to the clipboard'
+            : 'Clipboard image copy is unavailable; saved the viewport as a PNG download instead',
+        );
+      })
+      .catch((error: unknown) => {
         const reason = error instanceof Error ? error.message : String(error);
         log.error('screenshot_failed', { reason });
         announcer.announce(`Screenshot failed: ${reason}`);
-      },
-    );
+      });
   });
 
   // Load -> New (clear all): reset the document to a fresh empty state, but only after
@@ -1873,25 +2153,6 @@ function wireInputOutput(
   });
   chrome.loadMenu.item('load-xml').addEventListener('click', () => {
     importWithAccept('.xml,application/xml');
-  });
-
-  chrome.importIconButton.addEventListener('click', () => {
-    void (async (): Promise<void> => {
-      try {
-        const file = await pickFile('.svg,.png,image/svg+xml,image/png');
-        if (file === null) {
-          return;
-        }
-        const result = await importIconFile(file);
-        // M5a wiring: pool the sanitized asset on the document so it is preserved
-        // by export/save; item-level icon assignment is an editing-panel concern.
-        const current = store.getDocument();
-        adoptDocument({ ...current, assets: [...(current.assets ?? []), result.asset] });
-        log.info('icon_pooled', { asset_id: result.asset.id, asset_format: result.asset.assetFormat });
-      } catch (error) {
-        reportImportFailure(error);
-      }
-    })();
   });
 
   // Baseline reference (CR-002 Part 3 / PLAN-L1-004, CR-003 Part 1): Load -> "JSON as

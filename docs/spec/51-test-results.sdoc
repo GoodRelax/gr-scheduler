@@ -364,11 +364,11 @@ RELATIONS:
 
 [TEST_RESULT]
 UID: TR-INT-010
-TITLE: インポートサニタイザ: SVG/PNG/XML/JSON の多層検証: 結果
+TITLE: インポートサニタイザ: JSON/MSPDI の多層検証: 結果
 RESULT: PASS
 EXECUTED_ON: 2026-07-18
 ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
-REMARK: script/イベントハンドラ/外部参照除去、リソース上限、XXE拒否、プロトタイプ汚染防止、PNG検証を確認 (22ケース)。カバレッジ 77.15% stmts。
+REMARK: 2026-07-18 実行時は XXE拒否・リソース上限・プロトタイプ汚染防止に加え SVG/PNG 画像検証も確認 (22ケース、カバレッジ 77.15% stmts)。CR-004 Part 6a により画像 (SVG/PNG) インポート経路は撤去され、本テストの対象は JSON/MSPDI に純化。純化後の再実行は実装フェーズで行う。
 RELATIONS:
 - TYPE: Parent
   VALUE: TEST-INT-010
@@ -380,7 +380,7 @@ TITLE: サニタイザ不変条件の回帰ガード: 結果
 RESULT: PASS
 EXECUTED_ON: 2026-07-18
 ENVIRONMENT: Vitest 4.1.10 (Node 24.12.0, win32) - `npm run test`
-REMARK: 迂回パターンの組合せでも危険要素が最終出力に残存しないことを確認 (M5a review M-1)。
+REMARK: 迂回パターンの組合せでも危険な構造が最終モデルに残存しないことを確認 (M5a review M-1)。CR-004 Part 6a の画像経路撤去後は JSON/MSPDI 経路の不変条件ガードとして維持し、再実行は実装フェーズで行う。
 RELATIONS:
 - TYPE: Parent
   VALUE: TEST-INT-011

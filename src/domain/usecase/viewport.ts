@@ -24,6 +24,26 @@ import {
   type ItemPlacement,
 } from './layout-engine.js';
 import { BASE_PIXELS_PER_DAY, toDayNumber } from './time-coordinate-mapper.js';
+import { milestoneIconHeightPx } from './task-glyph.js';
+
+/**
+ * The world-space BOTTOM edge a placement's DRAWN glyph reaches, accounting for the
+ * CR-004 Part 2 milestone icon that is rendered 15% taller than the lane and centered
+ * on it -- so its lower rim overhangs `worldY + worldHeight`. Fit measures against
+ * this so the enlarged marker is never clipped at the canvas bottom (DEF-006 guard).
+ *
+ * @param item - The item the placement belongs to (drives milestone vs task extent).
+ * @param placement - Its laid-out rectangle.
+ * @returns The world y of the glyph's drawn bottom edge.
+ */
+function renderedGlyphBottom(item: ScheduleItem, placement: ItemPlacement): number {
+  const laneBottom = placement.worldY + placement.worldHeight;
+  if (item.itemKind !== 'milestone') {
+    return laneBottom;
+  }
+  const centerY = placement.worldY + placement.worldHeight / 2;
+  return centerY + milestoneIconHeightPx(placement.worldHeight) / 2;
+}
 
 /** Visible world-space rectangle plus over-scan margins already applied. */
 export interface ViewportWindow {
@@ -333,8 +353,14 @@ export function measureItemsFitExtent(
   let contentLeftPx = Number.POSITIVE_INFINITY;
   let contentRightPx = Number.NEGATIVE_INFINITY;
   for (const placement of unitPlacements) {
-    contentBottomUnit = Math.max(contentBottomUnit, placement.worldY + placement.worldHeight);
     const item = itemById.get(placement.itemId);
+    // Include the CR-004 Part 2 milestone icon overhang so the taller marker is
+    // counted in the content bottom (Fit does not clip it).
+    const glyphBottom =
+      item === undefined
+        ? placement.worldY + placement.worldHeight
+        : renderedGlyphBottom(item, placement);
+    contentBottomUnit = Math.max(contentBottomUnit, glyphBottom);
     if (item === undefined) {
       continue;
     }
@@ -389,9 +415,15 @@ export function measureRenderedContentBottomPx(
     { zoomX, zoomY, scrollX: 0, scrollY: 0, fontScale: 'M' },
     labelExtent,
   );
+  const itemById = new Map(items.map((item) => [item.id, item]));
   let bottom = 0;
   for (const placement of placements) {
-    bottom = Math.max(bottom, placement.worldY + placement.worldHeight);
+    const item = itemById.get(placement.itemId);
+    const glyphBottom =
+      item === undefined
+        ? placement.worldY + placement.worldHeight
+        : renderedGlyphBottom(item, placement);
+    bottom = Math.max(bottom, glyphBottom);
   }
   return bottom;
 }

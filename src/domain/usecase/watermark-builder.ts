@@ -93,15 +93,24 @@ export function buildWatermarkLayer(
 
 /**
  * Resolve the EFFECTIVE watermark from a possibly-absent stored value
- * (TOOL-L1-007, TOOL-L2-003). The watermark is shown by DEFAULT: an absent value
- * (a fresh or legacy document) resolves to an enabled mark whose label is the
- * default text {@link DEFAULT_WATERMARK_TEXT} ("GoodRelax") with no timestamp, and
- * whose hide password is the default hash. A stored value is returned as-is,
- * except that an absent {@link Watermark.hideHash} falls back to the default hash
- * so hiding is always gated by a known password.
+ * (TOOL-L1-007, TOOL-L2-003, TOOL-L2-004, CR-009 Part 2). The watermark is shown by
+ * DEFAULT: an absent value (a fresh document with no stored mark) resolves to an
+ * enabled mark whose label is the default text {@link DEFAULT_WATERMARK_TEXT}
+ * ("GoodRelax") plus a UTC generation time, and whose hide password is the default
+ * hash. The generation time is MANDATORY (CR-009 Part 2): the default mark can never
+ * be time-less, so the resolved timestamp is always a valid minute-precision UTC
+ * ISO-8601 string with a trailing `Z`.
  *
- * Pure: no clock is read here, so the default render path stays deterministic and
- * testable (the timestamp, when shown, is injected at the adapter boundary).
+ * A stored value is returned as-is (its timestamp is preserved, since it is
+ * re-stamped only on content changes -- CR-009 Part 3 -- not per render), except
+ * that an absent {@link Watermark.hideHash} falls back to the default hash so hiding
+ * is always gated by a known password.
+ *
+ * The absent-default branch reads the real clock ({@link Date.now}) so the mandatory
+ * UTC time is present the first time a fresh document is resolved; callers that need
+ * a stable time seed it once into the stored watermark and re-stamp it only on
+ * content changes, so the render path (which passes a stored value) stays stable
+ * across zoom / scroll.
  *
  * @param watermark - The stored watermark, or undefined.
  * @returns The effective watermark to render / gate hiding with.
@@ -111,7 +120,7 @@ export function resolveWatermark(watermark: Watermark | undefined): Watermark {
     return {
       enabled: true,
       userName: DEFAULT_WATERMARK_TEXT,
-      timestamp: '',
+      timestamp: formatWatermarkTimestampUtc(Date.now()),
       hideHash: DEFAULT_WATERMARK_HIDE_PASSWORD_HASH,
     };
   }
@@ -119,6 +128,30 @@ export function resolveWatermark(watermark: Watermark | undefined): Watermark {
     ...watermark,
     hideHash: watermark.hideHash ?? DEFAULT_WATERMARK_HIDE_PASSWORD_HASH,
   };
+}
+
+/**
+ * Materialize a CONCRETE watermark carrying a fixed, mandatory UTC time for a freshly
+ * adopted document -- the bootstrap seed AND an import (CR-009 Part 2 / Part 3). This
+ * pins the evidence time ONCE so that {@link resolveWatermark} thereafter returns it
+ * verbatim on every render, keeping it stable across zoom / scroll (a document with a
+ * completely absent watermark would otherwise make {@link resolveWatermark} read the
+ * clock every render, so zooming would change the UTC until the next edit).
+ *
+ * A watermark that already carries a real time KEEPS it (an imported chart's evidence
+ * time is preserved); only an absent or empty time is seeded with the current UTC.
+ * Unlike the content-change re-stamp, this never overwrites an existing time. Reading
+ * the real clock here is intentional runtime behavior.
+ *
+ * @param watermark - The stored watermark, or undefined.
+ * @returns A concrete watermark whose `timestamp` is a non-empty minute-precision UTC.
+ */
+export function materializeWatermark(watermark: Watermark | undefined): Watermark {
+  const resolved = resolveWatermark(watermark);
+  if (resolved.timestamp !== '') {
+    return resolved;
+  }
+  return { ...resolved, timestamp: formatWatermarkTimestampUtc(Date.now()) };
 }
 
 /** Left-pad a non-negative integer to two ASCII digits (UTC field formatting). */

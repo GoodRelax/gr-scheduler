@@ -32,8 +32,8 @@ import {
 } from '../usecase/section-organizer.js';
 import {
   appendDeclaredCategory,
+  copyClassificationSubtree,
   declaredCategoryDepth,
-  duplicateCategorySubtree,
   existingMajorNames,
   existingMiddleNames,
   existingMinorNames,
@@ -44,6 +44,10 @@ import {
   setCategoryNodeHidden,
   type CategoryMoveDirection,
 } from '../usecase/classification-tree.js';
+import {
+  applyAdjacentSiblingMove,
+  type AdjacentSiblingMove,
+} from '../usecase/multi-item-move.js';
 
 /** A named, reversible-by-snapshot edit transform over a schedule document. */
 export interface ScheduleCommand {
@@ -231,6 +235,62 @@ export function reclassifyItemCommand(itemId: string, target: ClassificationTarg
   };
 }
 
+/**
+ * Command: shift EVERY item in a set by the same whole-day delta (CR-007 Part 2a,
+ * horizontal multi-move). Start and (for tasks) end both shift so each duration is
+ * preserved. A no-op (same document reference) for a zero delta or when no listed
+ * item exists, so it adds no spurious history entry.
+ *
+ * @param itemIds - The selected item ids to shift together.
+ * @param deltaDays - Signed whole-day offset applied to all of them.
+ * @returns A bulk-shift-items command.
+ */
+export function bulkShiftItemsCommand(
+  itemIds: ReadonlySet<string>,
+  deltaDays: number,
+): ScheduleCommand {
+  return {
+    label: 'bulk-shift-items',
+    execute: (scheduleDocument) => {
+      if (deltaDays === 0) {
+        return scheduleDocument;
+      }
+      return mapItems(scheduleDocument, (item) =>
+        itemIds.has(item.id)
+          ? {
+              ...item,
+              startDate: shiftIsoDate(item.startDate, deltaDays),
+              endDate: item.endDate === null ? null : shiftIsoDate(item.endDate, deltaDays),
+            }
+          : item,
+      );
+    },
+  };
+}
+
+/**
+ * Command: reassign EVERY item in a set onto the adjacent classification sibling
+ * resolved for a vertical multi-move (CR-007 Part 2b, D-5). Only the reassigned
+ * level's category changes on each item; the store's classification rebuild then
+ * re-derives their `rowId`. A no-op (same document reference) when nothing changed.
+ *
+ * @param itemIds - The selected item ids to reassign together.
+ * @param move - The resolved adjacent-sibling reassignment.
+ * @returns A bulk-reassign-classification command.
+ */
+export function bulkReassignClassificationCommand(
+  itemIds: ReadonlySet<string>,
+  move: AdjacentSiblingMove,
+): ScheduleCommand {
+  return {
+    label: 'bulk-reassign-classification',
+    execute: (scheduleDocument) =>
+      mapItems(scheduleDocument, (item) =>
+        itemIds.has(item.id) ? applyAdjacentSiblingMove(item, move) : item,
+      ),
+  };
+}
+
 /** Which edge of a task bar a resize acts on. */
 export type ResizeEdge = 'start' | 'end';
 
@@ -367,6 +427,37 @@ export function deleteItemsCommand(itemIds: ReadonlySet<string>): ScheduleComman
     execute: (scheduleDocument) => {
       const items = scheduleDocument.items.filter((item) => !itemIds.has(item.id));
       return items.length === scheduleDocument.items.length ? scheduleDocument : { ...scheduleDocument, items };
+    },
+  };
+}
+
+/**
+ * Command: delete a MIXED selection of items AND comment annotations in ONE
+ * undoable step (CR-007 Part 4: Ctrl+A then Delete clears both). Removes every item
+ * and every annotation whose id is in the set; a no-op (same document reference)
+ * when nothing matched. The `annotations` key is only rewritten when an annotation
+ * was actually removed, so an item-only delete keeps the annotation array identity.
+ *
+ * @param ids - The selected ids (may mix item ids and comment ids).
+ * @returns A delete-selection command.
+ */
+export function deleteSelectedTargetsCommand(ids: ReadonlySet<string>): ScheduleCommand {
+  return {
+    label: 'delete-selection',
+    execute: (scheduleDocument) => {
+      const items = scheduleDocument.items.filter((item) => !ids.has(item.id));
+      const existingAnnotations = scheduleDocument.annotations ?? [];
+      const annotations = existingAnnotations.filter((annotation) => !ids.has(annotation.id));
+      const itemsChanged = items.length !== scheduleDocument.items.length;
+      const annotationsChanged = annotations.length !== existingAnnotations.length;
+      if (!itemsChanged && !annotationsChanged) {
+        return scheduleDocument;
+      }
+      return {
+        ...scheduleDocument,
+        ...(itemsChanged ? { items } : {}),
+        ...(annotationsChanged ? { annotations } : {}),
+      };
     },
   };
 }
@@ -800,18 +891,19 @@ export function revealDescendantsCommand(node: DeclaredCategory): ScheduleComman
 }
 
 /**
- * Command: duplicate a classification node (MAJOR / MIDDLE / MINOR) including its
- * subtree and every item under it, pasting the copy as the next sibling with a
- * non-colliding ` (n)` name (CLASSIFICATION-PANE restructure req 3). Fully
- * undoable. No-op when there is nothing to copy.
+ * Command: copy-paste a MAJOR / MIDDLE classification node per CR-007 Part 5. The
+ * copy is named with a numeric suffix (`Body` -> `Body-1`), pasted as the next
+ * sibling with its child rows + items cloned (fresh ids, categories remapped), and
+ * its dependencies handled per D-4 (internal edges reproduced with remapped ids,
+ * boundary-crossing edges dropped). Fully undoable. No-op when nothing to copy.
  *
- * @param node - The subtree root to duplicate.
- * @returns A duplicate-category-subtree command.
+ * @param node - The subtree root to copy (`{ major }` or `{ major, middle }`).
+ * @returns A copy-classification command.
  */
-export function duplicateCategorySubtreeCommand(node: DeclaredCategory): ScheduleCommand {
+export function copyClassificationCommand(node: DeclaredCategory): ScheduleCommand {
   return {
-    label: 'duplicate-category-subtree',
-    execute: (scheduleDocument) => duplicateCategorySubtree(scheduleDocument, node),
+    label: 'copy-classification',
+    execute: (scheduleDocument) => copyClassificationSubtree(scheduleDocument, node),
   };
 }
 

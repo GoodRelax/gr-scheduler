@@ -112,7 +112,7 @@ STATEMENT: >>>
 **In-scope (MVP):**
 
 - マルチバー日程キャンバス (行 = 帯、1 行に複数アイテム) とその WYSIWYG 編集
-- マイルストーン/タスクのアイコン (既定図形・絵文字・SVG/PNG インポート)、色・線幅・整列・略称
+- マイルストーン/タスクのアイコン (既定図形・絵文字)、色・線幅・整列・略称
 - アイテムのプロパティ (略称/分類/日付/予実/表示位置/色/大中小分類/担当/ステータス/備考 等) と多言語表示
 - 分類の水平線・分類名の左側固定表示、セクション化 (複数行を束ねる)・順序入替・表示/非表示・小タブ再表示
 - 縦横独立ズーム + LOD (時間軸粒度自動切替、重要度に応じたアイテム自動増減)、パン、固定ヘッダー/分類ペイン
@@ -187,7 +187,7 @@ STATEMENT: >>>
 
 コアドメイン (レイアウト/整列/ズーム LOD/依存線ルーティング/日付マッピング/予実差分/
 データ変換) を Entity・UseCase に置き、SVG レンダリング・File API・localStorage・
-絵文字/フォント描画・SVG/PNG 解析を Adapter・Framework に分離する (DIP)。詳細は
+絵文字/フォント描画を Adapter・Framework に分離する (DIP)。詳細は
 `30-architecture.sdoc` で確定する。
 <<<
 
@@ -215,7 +215,7 @@ STATEMENT: >>>
      - キャンバス/俯瞰/固定ペイン/スクロール/テンプレート
      - L1-L3
    * - 11-items-icons
-     - マイルストーン/タスク・アイコン・色・略称・コピペ・インポート
+     - マイルストーン/タスク・アイコン・色・略称・コピペ
      - L1-L3
    * - 12-properties-i18n
      - プロパティ・多言語表示・パレット (色弱者対応)
@@ -322,7 +322,7 @@ STATEMENT: >>>
 - **WCAG 2.1** — Web Content Accessibility Guidelines (目標: レベル AA)
 - **Color Universal Design (CUD)** — 色弱者に配慮した配色 (パレット設計)
 - **Microsoft Project Data Interchange (MSPDI)** — MS Project XML スキーマ (Import/Export)
-- **W3C SVG 1.1 / 2** — SVG 出力・アイコンインポート
+- **W3C SVG 1.1 / 2** — SVG 出力
 - **ECMA-404 / RFC 8259** — JSON データ交換形式
 - **RFC 2119 / RFC 8174** — 要求レベルキーワード (MUST / SHALL / SHOULD / MAY)
 - **BCP 47** — 言語タグ (i18n の言語識別)

@@ -48,15 +48,17 @@ describe('label collision: an overflowing inner-left label shifts the later item
     expect(b.worldY).toBe(a.worldY);
   });
 
-  it('shifts the LATER item to a lower lane when its predecessor label overflows onto it', () => {
+  it('shifts the colliding pair into two lanes with the reversed (bottom-up) origin', () => {
     const laid = layoutRows([shortLongLabel, later], rows, EPOCH, VIEW, estimateInnerLeftLabelExtentPx);
     const a = laid.placements.find((p) => p.itemId === 'a')!;
     const b = laid.placements.find((p) => p.itemId === 'b')!;
-    // A stays on the top lane; the later B is bumped down by the minimal one-lane offset.
-    expect(a.laneIndex).toBe(0);
-    expect(b.laneIndex).toBe(1);
-    expect(b.worldY).toBeGreaterThan(a.worldY);
-    // The row grew a lane to make room (deterministic vertical offset within the band).
+    // CR-004 Part 1: the assignment ORIGIN flips (bottom-up), so the earlier-placed
+    // predecessor A sinks to the LOWER lane and the later, label-bumped B rises to the
+    // TOPMOST lane -- the same one-lane offset, only its direction is reversed.
+    expect(a.laneIndex).toBe(1);
+    expect(b.laneIndex).toBe(0);
+    expect(a.worldY).toBeGreaterThan(b.worldY);
+    // The row still grew a lane to make room (deterministic vertical offset).
     expect(laid.geometry.laneCounts[0]).toBe(2);
   });
 

@@ -39,7 +39,22 @@ const MILESTONE_CHOICES: ReadonlyArray<{ shape: MilestoneShape; glyph: string }>
   { shape: 'triangle', glyph: 'Δ' },
   { shape: 'square', glyph: '□' },
   { shape: 'diamond', glyph: '◇' },
-  { shape: 'star', glyph: '★' },
+  { shape: 'star', glyph: '☆' },
+];
+
+/**
+ * The special CR-004 Part 6c milestone shapes, revealed by the `[...]` expander so a
+ * user can place them (file / box3d / floppy / cylinder / person / smiley / beer).
+ * The glyphs are display-only mnemonics; the accessible name carries the shape key.
+ */
+const SPECIAL_MILESTONE_CHOICES: ReadonlyArray<{ shape: MilestoneShape; glyph: string }> = [
+  { shape: 'file', glyph: '📄' },
+  { shape: 'box3d', glyph: '📦' },
+  { shape: 'floppy', glyph: '💾' },
+  { shape: 'cylinder', glyph: '🛢' },
+  { shape: 'person', glyph: '👤' },
+  { shape: 'smiley', glyph: '🙂' },
+  { shape: 'beer', glyph: '🍺' },
 ];
 
 /** Task shapes offered by the palette. */
@@ -85,14 +100,33 @@ export function mountShapePicker(
     refreshArmedLabel(locale);
   };
 
-  const milestoneGroup = makeShapeGroup('milestone', MILESTONE_CHOICES, localizers, (shape) => {
+  const armMilestone = (shape: MilestoneShape): void => {
     handlers.onArmShape({ itemKind: 'milestone', milestoneShape: shape });
     setArmed(`${uiLabel('milestone', locale)} ${shape}`);
-  });
+  };
+  const milestoneGroup = makeShapeGroup('milestone', MILESTONE_CHOICES, localizers, armMilestone);
   const taskGroup = makeShapeGroup('task', TASK_CHOICES, localizers, (shape) => {
     handlers.onArmShape({ itemKind: 'task', taskShape: shape });
     setArmed(`${uiLabel('task', locale)} ${shape}`);
   });
+
+  // CR-004 Part 6c: a `[...]` expander that reveals the 7 special milestone shapes
+  // (file / box3d / floppy / cylinder / person / smiley / beer) for placement. The
+  // special group is a caption-less milestone shape group, hidden until expanded.
+  const specialGroup = makeShapeGroup('', SPECIAL_MILESTONE_CHOICES, localizers, armMilestone);
+  specialGroup.dataset.role = 'special-milestone-shapes';
+  specialGroup.style.display = 'none';
+  const expander = makeButton('[...]', () => {
+    const hidden = specialGroup.style.display === 'none';
+    specialGroup.style.display = hidden ? '' : 'none';
+    expander.setAttribute('aria-expanded', hidden ? 'true' : 'false');
+  });
+  expander.dataset.role = 'special-milestone-expander';
+  expander.setAttribute('aria-expanded', 'false');
+  const expanderName = 'more milestone shapes';
+  expander.setAttribute('aria-label', expanderName);
+  expander.title = expanderName;
+  milestoneGroup.appendChild(expander);
 
   const armedGroup = makeGroup('');
   armedGroup.appendChild(armedLabel);
@@ -106,7 +140,7 @@ export function mountShapePicker(
   shapesRow.style.flexWrap = 'nowrap';
   shapesRow.append(milestoneGroup, taskGroup);
 
-  const groups = [shapesRow, armedGroup];
+  const groups = [shapesRow, specialGroup, armedGroup];
   for (const group of groups) {
     container.insertBefore(group, beforeNode);
   }

@@ -126,7 +126,7 @@ describe('RulerLayer', () => {
 });
 
 describe('WatermarkLayer', () => {
-  it('draws the default GoodRelax watermark at opacity 0.06', () => {
+  it('draws the default GoodRelax watermark + mandatory UTC time at opacity 0.06', () => {
     const overlay = SVG_G();
     new WatermarkLayer(overlay).render(makeRenderContext({ scheduleDocument: sampleDocument() }));
     const mark = (overlay as unknown as FakeSvgNode).querySelector('[data-role="watermark"]');
@@ -134,7 +134,9 @@ describe('WatermarkLayer', () => {
     expect(mark?.getAttribute('opacity')).toBe('0.06');
     const tiles = mark?.querySelectorAll('text') ?? [];
     expect(tiles.length).toBeGreaterThan(0);
-    expect(tiles[0]?.textContent).toBe('GoodRelax');
+    // CR-009 Part 2: the default mark is "GoodRelax" followed by a mandatory
+    // minute-precision UTC ISO-8601 time (trailing Z) -- never time-less.
+    expect(tiles[0]?.textContent).toMatch(/^GoodRelax \d{4}-\d{2}-\d{2}T\d{2}:\d{2}Z$/);
   });
 });
 

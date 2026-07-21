@@ -28,12 +28,18 @@
 import type {
   ClassificationNodeState,
   DeclaredCategory,
+  Dependency,
   Row,
   ScheduleDocument,
   ScheduleItem,
   Section,
 } from '../model/schedule-model.js';
 import type { SectionBand } from './section-organizer.js';
+import {
+  makeDependencyIdFactory,
+  nextNumericSuffixName,
+  partitionDependenciesForCopy,
+} from './classification-copy.js';
 
 /** Depth of a classification row: 0 major, 1 middle, 2 minor. */
 export type ClassificationDepth = 0 | 1 | 2;
@@ -1259,6 +1265,55 @@ function cloneItemOnto(
   };
 }
 
+/**
+ * Clone a list of source items onto a duplicated branch, RECORDING the
+ * original-id -> new-id mapping into `idRemap` (used by the CR-007 dependency
+ * partition, D-4).
+ */
+function cloneItemsRecordingRemap(
+  sourceItems: readonly ScheduleItem[],
+  overrides: { major?: string; middle?: string; minor?: string },
+  nextId: (base: string) => string,
+  idRemap: Map<string, string>,
+): ScheduleItem[] {
+  return sourceItems.map((item) => {
+    const clone = cloneItemOnto(item, overrides, nextId);
+    idRemap.set(item.id, clone.id);
+    return clone;
+  });
+}
+
+/** Options controlling how a subtree is duplicated (naming + dependency handling). */
+export interface DuplicateSubtreeOptions {
+  /** How a copied node is renamed; defaults to the ` (n)` copy-name strategy. */
+  readonly nameFor?: (baseName: string, existingNames: Iterable<string>) => string;
+  /**
+   * When true, dependencies internal to the duplicated subtree are reproduced for
+   * the copy (remapped to the new item ids) and boundary-crossing dependencies are
+   * dropped (CR-007 Part 5, D-4). Defaults to false (no dependency reproduction).
+   */
+  readonly reproduceInternalDependencies?: boolean;
+}
+
+/**
+ * The `dependencies` array for a duplicated document: the originals plus, when
+ * `reproduce` is set, the reproduced internal edges (D-4). Returns the SAME
+ * reference when nothing is added so callers can detect a no-op.
+ */
+function withReproducedDependencies(
+  scheduleDocument: ScheduleDocument,
+  idRemap: ReadonlyMap<string, string>,
+  reproduce: boolean,
+): readonly Dependency[] | undefined {
+  if (!reproduce) {
+    return scheduleDocument.dependencies;
+  }
+  const existingDeps = scheduleDocument.dependencies ?? [];
+  const makeId = makeDependencyIdFactory(new Set(existingDeps.map((edge) => edge.id)));
+  const { reproduced } = partitionDependenciesForCopy(existingDeps, idRemap, makeId);
+  return reproduced.length === 0 ? scheduleDocument.dependencies : [...existingDeps, ...reproduced];
+}
+
 /** Seed a section for a duplicated major placed right AFTER the original in order. */
 function insertSectionAfterMajor(
   sections: readonly Section[],
@@ -1311,22 +1366,29 @@ function insertSiblingAfter(
 export function duplicateCategorySubtree(
   scheduleDocument: ScheduleDocument,
   node: DeclaredCategory,
+  options: DuplicateSubtreeOptions = {},
 ): ScheduleDocument {
   const major = nonEmpty(node.major);
   if (major === undefined) {
     return scheduleDocument;
   }
+  const nameFor = options.nameFor ?? nextCopyName;
+  const reproduce = options.reproduceInternalDependencies ?? false;
   const depth = declaredCategoryDepth(node);
   const middle = nonEmpty(node.middle);
   const minor = nonEmpty(node.minor);
   const nextId = makeItemIdFactory(new Set(scheduleDocument.items.map((item) => item.id)));
   const declaredList = scheduleDocument.declaredCategories ?? [];
+  const idRemap = new Map<string, string>();
 
   if (depth === 0) {
-    const newMajor = nextCopyName(major, existingMajorNames(scheduleDocument));
-    const clonedItems = scheduleDocument.items
-      .filter((item) => nonEmpty(item.majorCategory) === major)
-      .map((item) => cloneItemOnto(item, { major: newMajor }, nextId));
+    const newMajor = nameFor(major, existingMajorNames(scheduleDocument));
+    const clonedItems = cloneItemsRecordingRemap(
+      scheduleDocument.items.filter((item) => nonEmpty(item.majorCategory) === major),
+      { major: newMajor },
+      nextId,
+      idRemap,
+    );
     const clonedDeclared = declaredList
       .filter((entry) => nonEmpty(entry.major) === major)
       .map((entry) => ({ ...entry, major: newMajor }));
@@ -1338,16 +1400,20 @@ export function duplicateCategorySubtree(
       items: [...scheduleDocument.items, ...clonedItems],
       declaredCategories: [...declaredList, ...clonedDeclared],
       sections: insertSectionAfterMajor(scheduleDocument.sections, major, newMajor),
+      ...dependenciesPatch(scheduleDocument, idRemap, reproduce),
     };
   }
 
   if (depth === 1 && middle !== undefined) {
-    const newMiddle = nextCopyName(middle, existingMiddleNames(scheduleDocument, major));
-    const clonedItems = scheduleDocument.items
-      .filter(
+    const newMiddle = nameFor(middle, existingMiddleNames(scheduleDocument, major));
+    const clonedItems = cloneItemsRecordingRemap(
+      scheduleDocument.items.filter(
         (item) => nonEmpty(item.majorCategory) === major && nonEmpty(item.middleCategory) === middle,
-      )
-      .map((item) => cloneItemOnto(item, { middle: newMiddle }, nextId));
+      ),
+      { middle: newMiddle },
+      nextId,
+      idRemap,
+    );
     const clonedDeclared = declaredList
       .filter((entry) => nonEmpty(entry.major) === major && nonEmpty(entry.middle) === middle)
       .map((entry) => ({ ...entry, middle: newMiddle }));
@@ -1366,19 +1432,23 @@ export function duplicateCategorySubtree(
       items: [...scheduleDocument.items, ...clonedItems],
       declaredCategories: [...declaredList, ...clonedDeclared],
       classificationNodeStates,
+      ...dependenciesPatch(scheduleDocument, idRemap, reproduce),
     };
   }
 
   if (depth === 2 && middle !== undefined && minor !== undefined) {
-    const newMinor = nextCopyName(minor, existingMinorNames(scheduleDocument, major, middle));
-    const clonedItems = scheduleDocument.items
-      .filter(
+    const newMinor = nameFor(minor, existingMinorNames(scheduleDocument, major, middle));
+    const clonedItems = cloneItemsRecordingRemap(
+      scheduleDocument.items.filter(
         (item) =>
           nonEmpty(item.majorCategory) === major &&
           nonEmpty(item.middleCategory) === middle &&
           nonEmpty(item.minorCategory) === minor,
-      )
-      .map((item) => cloneItemOnto(item, { minor: newMinor }, nextId));
+      ),
+      { minor: newMinor },
+      nextId,
+      idRemap,
+    );
     const clonedDeclared = declaredList
       .filter(
         (entry) =>
@@ -1402,8 +1472,47 @@ export function duplicateCategorySubtree(
       items: [...scheduleDocument.items, ...clonedItems],
       declaredCategories: [...declaredList, ...clonedDeclared],
       classificationNodeStates,
+      ...dependenciesPatch(scheduleDocument, idRemap, reproduce),
     };
   }
 
   return scheduleDocument;
+}
+
+/**
+ * The spreadable `{ dependencies }` patch for a duplicated document: present only
+ * when dependency reproduction is on AND at least one internal edge was reproduced
+ * (D-4), so an unchanged dependency array keeps its identity.
+ */
+function dependenciesPatch(
+  scheduleDocument: ScheduleDocument,
+  idRemap: ReadonlyMap<string, string>,
+  reproduce: boolean,
+): { dependencies?: readonly Dependency[] } {
+  const dependencies = withReproducedDependencies(scheduleDocument, idRemap, reproduce);
+  return dependencies === scheduleDocument.dependencies || dependencies === undefined
+    ? {}
+    : { dependencies };
+}
+
+/**
+ * Duplicate a MAJOR (section) or MIDDLE (track) classification node per CR-007
+ * Part 5: the copy is named with a numeric suffix (`Body` -> `Body-1`), its child
+ * rows AND items are cloned with fresh ids (categories remapped to the copy), and
+ * dependencies are handled per D-4 -- internal edges reproduced (remapped), edges
+ * crossing the duplication boundary dropped. Pastes the copy as the next sibling.
+ * Returns the SAME document reference when there is nothing to copy.
+ *
+ * @param scheduleDocument - The document to duplicate within.
+ * @param node - The subtree root to duplicate (`{ major }` or `{ major, middle }`).
+ * @returns The next document (same reference when nothing was copied).
+ */
+export function copyClassificationSubtree(
+  scheduleDocument: ScheduleDocument,
+  node: DeclaredCategory,
+): ScheduleDocument {
+  return duplicateCategorySubtree(scheduleDocument, node, {
+    nameFor: nextNumericSuffixName,
+    reproduceInternalDependencies: true,
+  });
 }

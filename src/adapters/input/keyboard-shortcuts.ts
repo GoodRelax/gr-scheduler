@@ -10,10 +10,14 @@
  */
 
 import type { ScheduleStore } from '../../domain/command/schedule-store.js';
-import { deleteItemsCommand, pasteItemsCommand } from '../../domain/command/commands.js';
+import {
+  deleteSelectedTargetsCommand,
+  pasteItemsCommand,
+} from '../../domain/command/commands.js';
 import { deleteAnnotationCommand } from '../../domain/command/annotation-commands.js';
 import type { EditingController } from './editing-controller.js';
 import type { ItemClipboard } from '../clipboard/item-clipboard.js';
+import { collectSelectableIds } from '../../domain/usecase/selection-set.js';
 import { createLogger } from '../../app/logger.js';
 
 const log = createLogger('grsch:keys');
@@ -78,9 +82,16 @@ export function attachKeyboardShortcuts(context: ShortcutContext): () => void {
 }
 
 function selectAll(context: ShortcutContext): void {
-  const allItemIds = new Set(context.store.getDocument().items.map((item) => item.id));
-  context.controller.setSelection(allItemIds);
-  log.debug('select_all', { selected_count: allItemIds.size });
+  // CR-007 Part 4: Ctrl+A selects every item AND every comment (annotation), so the
+  // selection model covers both selectable target kinds (Part 1 Ctrl+click can then
+  // trim it). Comment ids join item ids in the same flat selection set.
+  const selectable = collectSelectableIds(context.store.getDocument());
+  context.controller.setSelection(selectable.all);
+  log.debug('select_all', {
+    selected_count: selectable.all.size,
+    item_count: selectable.itemIds.length,
+    comment_count: selectable.commentIds.length,
+  });
 }
 
 function copySelection(context: ShortcutContext): void {
@@ -107,8 +118,11 @@ function pasteClipboard(context: ShortcutContext): void {
 function deleteSelection(context: ShortcutContext): void {
   const selected = context.controller.getSelection();
   if (selected.size > 0) {
-    context.store.dispatch(deleteItemsCommand(selected));
+    // CR-007 Part 4: the selection may mix item ids and comment ids (Ctrl+A). One
+    // undoable command removes both kinds so Ctrl+A then Delete clears everything.
+    context.store.dispatch(deleteSelectedTargetsCommand(selected));
     context.controller.clearSelection();
+    context.controller.clearAnnotationSelection();
     log.debug('delete_selection', { deleted_count: selected.size });
     return;
   }

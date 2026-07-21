@@ -145,9 +145,11 @@ describe('item 2: progress line defaults to purple and its color/visibility roun
     expect(restored.viewState.progressLineVisible).toBe(false);
   });
 
-  it('treats an absent visibility flag as shown (legacy default)', () => {
+  it('opts the demo template into showing the progress line (CR-006 Part 5)', () => {
+    // The DEFAULT is now HIDDEN (an absent flag = hidden), so the template sets the
+    // flag explicitly so its illuminated line still appears out of the box.
     const document = generateTemplateDocument();
-    expect(document.viewState.progressLineVisible).toBeUndefined();
+    expect(document.viewState.progressLineVisible).toBe(true);
   });
 });
 

@@ -19,6 +19,18 @@
 /** The world-space plan/actual display style (mirrors {@link ViewState.planActualStyle}). */
 export type PlanActualStyle = 'overlap' | 'separate';
 
+/**
+ * Resolve the effective plan/actual style from the view-state value (CR-006 Part 6).
+ * Absent / undefined is treated as `overlap` (the unchanged default), so the palette
+ * `[Ao]` / `[As]` segmented toggle reflects `overlap` on a fresh document. Pure.
+ *
+ * @param style - The `viewState.planActualStyle` value (or undefined).
+ * @returns The effective style, defaulting to `overlap`.
+ */
+export function resolvePlanActualStyle(style: PlanActualStyle | undefined): PlanActualStyle {
+  return style === 'separate' ? 'separate' : 'overlap';
+}
+
 /** A world-space rectangle for one drawn bar. */
 export interface PlanActualBarRect {
   readonly x: number;

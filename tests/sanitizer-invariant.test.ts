@@ -3,11 +3,12 @@ import rendererSource from '../src/adapters/render/svg-renderer.ts?raw';
 import exporterSource from '../src/domain/usecase/svg-exporter.ts?raw';
 
 /**
- * M5a review M-1: lock the trust-boundary invariant that imported (sanitized)
- * assets are ONLY ever consumed as `data:` URIs via an `<image>` element, never
- * inlined into the live SVG DOM. These are source-level assertions so a future
- * change that inlines assets fails the test (the required M-1 fix; a full
- * DOMParser migration is optional/out of scope).
+ * M5a review M-1: lock the trust-boundary invariant that no imported (sanitized)
+ * asset bytes are inlined into the live SVG DOM or exported markup. CR-004 Part 6a
+ * withdrew the external image-import path entirely, so the STRONGER invariant now
+ * holds: neither the renderer nor the exporter references `sanitizedDataUri` at
+ * all. These are source-level assertions so a future change that reintroduces an
+ * un-vetted asset sink fails the test.
  */
 describe('sanitizer invariant (M5a review M-1)', () => {
   it('the live renderer never consumes imported asset bytes into the DOM', () => {
@@ -22,29 +23,10 @@ describe('sanitizer invariant (M5a review M-1)', () => {
     }
   });
 
-  it('the exporter consumes sanitizedDataUri ONLY inside an <image> href', () => {
-    // Every occurrence of the sanitized asset URI must be immediately preceded by
-    // an <image ... href= opening, i.e. a non-script image context.
-    const token = 'sanitizedDataUri';
-    let searchFrom = 0;
-    let occurrences = 0;
-    for (;;) {
-      const at = exporterSource.indexOf(token, searchFrom);
-      if (at === -1) {
-        break;
-      }
-      occurrences += 1;
-      // Ignore doc-comment mentions: only lines that actually build markup count.
-      const preceding = exporterSource.slice(Math.max(0, at - 240), at);
-      const isMarkupSite = preceding.includes('href="') || preceding.includes('<image');
-      const isDocMention = /\*|@param|@returns|comment|never an external/i.test(preceding);
-      expect(isMarkupSite || isDocMention).toBe(true);
-      if (isMarkupSite) {
-        expect(preceding).toContain('<image');
-      }
-      searchFrom = at + token.length;
-    }
-    expect(occurrences).toBeGreaterThan(0);
+  it('the exporter no longer consumes imported asset bytes (image import withdrawn)', () => {
+    // CR-004 Part 6a removed external image import; the exporter must not reference
+    // sanitized asset bytes any more.
+    expect(exporterSource).not.toContain('sanitizedDataUri');
   });
 
   it('the exporter never uses HTML-inlining sinks', () => {

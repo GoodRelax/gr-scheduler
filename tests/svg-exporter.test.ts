@@ -62,17 +62,6 @@ describe('svg-exporter (IO-L1-003, DATA-SVG-001)', () => {
     expect(externalUrls.every((url) => url === 'http://www.w3.org/2000/svg')).toBe(true);
   });
 
-  it('embeds imported icon assets as data URIs (self-contained)', () => {
-    const doc = makeDocument(2);
-    const withAsset: ScheduleDocument = {
-      ...doc,
-      items: [{ ...(doc.items[0] as ScheduleItem), importedAssetId: 'asset-1' }, doc.items[1] as ScheduleItem],
-      assets: [{ id: 'asset-1', assetFormat: 'png', sanitizedDataUri: 'data:image/png;base64,iVBORw0KGgo=' }],
-    };
-    const svg = exportScheduleSvg(withAsset);
-    expect(svg).toContain('href="data:image/png;base64,iVBORw0KGgo="');
-  });
-
   it('escapes abbreviation text so an XSS payload becomes inert (C-02)', () => {
     const doc = makeDocument(1);
     const withPayload: ScheduleDocument = {

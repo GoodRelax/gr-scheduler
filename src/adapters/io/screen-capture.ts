@@ -5,8 +5,8 @@
  * The DOM-dependent boundary (Image, canvas, Blob, ClipboardItem) lives here so the
  * domain never touches it (Clean Architecture / DIP). The input is always a
  * self-contained SVG string produced by the pure `svg-exporter` use case: it has
- * every color baked in (no CSS-variable dependency) and embeds sanitized icon
- * assets as `data:` URIs, so the rasterization is deterministic and offline.
+ * every color baked in (no CSS-variable dependency), so the rasterization is
+ * deterministic and offline.
  *
  * Screen Copy prefers the async Clipboard API (`navigator.clipboard.write` +
  * `ClipboardItem`); when image writes are unsupported (Firefox without the flag,

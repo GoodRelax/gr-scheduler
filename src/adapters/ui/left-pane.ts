@@ -32,7 +32,7 @@ import type { ScheduleStore } from '../../domain/command/schedule-store.js';
 import {
   addSectionCommand,
   addSubcategoryCommand,
-  duplicateCategorySubtreeCommand,
+  copyClassificationCommand,
   removeClassificationNodeCommand,
   reorderCategoryNodeCommand,
   reorderSectionCommand,
@@ -61,7 +61,17 @@ import {
 } from '../../domain/usecase/classification-tree.js';
 import type { SectionMoveDirection } from '../../domain/usecase/section-organizer.js';
 import type { CategoryMoveDirection } from '../../domain/usecase/classification-tree.js';
-import { clampLeftPaneWidth, resolveLeftPaneWidth } from '../../domain/usecase/left-pane-layout.js';
+import {
+  clampLeftPaneWidth,
+  resolveLeftPaneWidth,
+  sectionRowLabelOffsets,
+} from '../../domain/usecase/left-pane-layout.js';
+import {
+  applyScaledFontVar,
+  FONT_SCALED_CLASS,
+  LEFT_PANE_NAME_FONT_CSS,
+  minorCategoryNameFontPx,
+} from '../../app/font-scale.js';
 
 /**
  * A classification node addressed by the pane: its level, path components, display
@@ -163,9 +173,14 @@ export class LeftClassificationPane {
     this.container.style.borderRight = '1.5px solid var(--grsch-section-line)';
     this.container.style.color = 'var(--grsch-text)';
     this.container.style.boxSizing = 'border-box';
-    // Relative sizing so the uniform font scale (TOOL-L1-002) rescales the pane.
+    // The pane's section names are one of the three CR-005 targets: their font tracks
+    // the scaled font variable this container carries (applied per render), NOT the
+    // fixed #app base. The variable is only ever set on this container, so the header
+    // and palette cannot inherit it and stay fixed (CR-005 Part 2). Uses setAttribute
+    // (not classList) so it also works under the DOM-free unit-test fake element.
+    this.container.setAttribute('class', FONT_SCALED_CLASS);
     this.container.style.fontFamily = 'system-ui, sans-serif';
-    this.container.style.fontSize = '0.8em';
+    this.container.style.fontSize = LEFT_PANE_NAME_FONT_CSS;
     this.container.style.lineHeight = '1.4';
     this.container.style.zIndex = '4';
     this.container.style.userSelect = 'none';
@@ -275,6 +290,12 @@ export class LeftClassificationPane {
     const viewState = this.renderer.getViewState();
     const paneWidth = resolveLeftPaneWidth(viewState.leftPaneWidth);
     this.container.style.width = `${paneWidth}px`;
+    // Publish the scaled font variable on the pane container ONLY (CR-005 Part 2), so
+    // the section names follow [S][M][L] while the header + palette stay fixed. Guarded
+    // for the DOM-free unit-test fake element, whose style bag has no setProperty.
+    if (typeof this.container.style.setProperty === 'function') {
+      applyScaledFontVar(this.container, viewState.fontScale);
+    }
 
     // Drop the pane rows by the same content top offset the schedule uses so the
     // frozen column stays row-aligned with the canvas beneath the date ruler (the
@@ -296,6 +317,9 @@ export class LeftClassificationPane {
     const sections = document.sections;
     const rows = document.rows;
     const zoomY = viewState.zoomY;
+    // CR-004 Part 3 (ALIGN-L2-005): the middle / minor tier offsets scale with the UI
+    // font so a large font never overlaps the minor row onto the middle row above it.
+    const tierOffsets = sectionRowLabelOffsets(viewState.fontScale);
     while (this.scrollLayer.firstChild !== null) {
       this.scrollLayer.removeChild(this.scrollLayer.firstChild);
     }
@@ -378,10 +402,10 @@ export class LeftClassificationPane {
         midLabel.dataset.role = 'track-label';
         midLabel.setAttribute('class', 'grsch-pane-node');
         midLabel.style.position = 'absolute';
-        midLabel.style.top = `${top + 15}px`;
+        midLabel.style.top = `${top + tierOffsets.middleTopPx}px`;
         midLabel.style.left = '18px';
         midLabel.style.right = '4px';
-        midLabel.style.height = `${Math.max(12, bandHeight - 16)}px`;
+        midLabel.style.height = `${Math.max(tierOffsets.lineHeightPx, bandHeight - tierOffsets.minorTopPx)}px`;
         midLabel.style.display = 'flex';
         midLabel.style.alignItems = 'flex-start';
         midLabel.style.gap = '4px';
@@ -417,15 +441,18 @@ export class LeftClassificationPane {
         subLabel.dataset.role = 'detail-label';
         subLabel.setAttribute('class', 'grsch-pane-node');
         subLabel.style.position = 'absolute';
-        subLabel.style.top = `${top + 28}px`;
+        subLabel.style.top = `${top + tierOffsets.minorTopPx}px`;
         subLabel.style.left = '30px';
         subLabel.style.right = '4px';
-        subLabel.style.height = '12px';
+        subLabel.style.height = `${Math.max(12, tierOffsets.lineHeightPx)}px`;
         subLabel.style.display = 'flex';
         subLabel.style.alignItems = 'center';
         subLabel.style.gap = '4px';
         subLabel.style.color = 'var(--grsch-sub-label)';
-        subLabel.style.fontSize = '0.83em';
+        // Minor (小分類) name size from the SINGLE shared source, so the comment body
+        // font equals it at every scale (CR-005 Part 4). Explicit px (not em) so the
+        // value is exactly the one the comment layer uses.
+        subLabel.style.fontSize = `${minorCategoryNameFontPx(viewState.fontScale)}px`;
         subLabel.style.overflow = 'hidden';
 
         const node: PaneNode = {
@@ -499,6 +526,7 @@ export class LeftClassificationPane {
     controls.appendChild(this.buildMoveButton(node, 'up'));
     controls.appendChild(this.buildMoveButton(node, 'down'));
     if (node.level === 'major' || node.level === 'middle') {
+      controls.appendChild(this.buildCopyButton(node));
       controls.appendChild(this.buildShowAllButton(node));
       controls.appendChild(this.buildAddSubButton(node));
     }
@@ -566,6 +594,27 @@ export class LeftClassificationPane {
       return orderedMinorsUnderMiddle(document, node.major, node.middle);
     }
     return [];
+  }
+
+  /**
+   * Build the copy-paste (two-stacked-papers `⧉`) button placed near the ▲ ▼
+   * reorder controls (CR-007 Part 5). Clicking it duplicates this MAJOR / MIDDLE
+   * classification directly below the original with a numeric-suffix name and its
+   * child rows / items cloned (dependencies handled per D-4), through the undoable
+   * store.
+   */
+  private buildCopyButton(node: PaneNode): HTMLButtonElement {
+    const button = this.buildEditButton(
+      'copy-classification',
+      '⧉', // two overlapping squares: "duplicate this classification"
+      `Duplicate ${node.name}`,
+      () => this.store.dispatch(copyClassificationCommand(nodePath(node))),
+    );
+    button.dataset.nodeMajor = node.major;
+    if (node.middle !== undefined) {
+      button.dataset.nodeMiddle = node.middle;
+    }
+    return button;
   }
 
   /** Build the `□` show-all button that reveals every hidden descendant (req 2). */
@@ -661,9 +710,14 @@ export class LeftClassificationPane {
     }
   }
 
-  /** Duplicate a node's subtree + items as a sibling copy (req 3). */
+  /**
+   * Duplicate a node's subtree + items as a sibling copy. Routes through the single
+   * unified classification-duplication behavior (CR-007 Part 5): numeric `-N` suffix
+   * naming + D-4 dependency handling. Same behavior as the ⧉ button, so Ctrl+C/V and
+   * the context-menu Copy/Paste produce identical results (POLA).
+   */
   private dispatchDuplicate(node: PaneNode): void {
-    this.store.dispatch(duplicateCategorySubtreeCommand(nodePath(node)));
+    this.store.dispatch(copyClassificationCommand(nodePath(node)));
   }
 
   /** Open the right-click Copy / Paste menu on a section node (req 3). */

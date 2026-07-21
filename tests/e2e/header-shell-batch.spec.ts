@@ -300,7 +300,7 @@ test.describe('header / shell batch (e2e, trusted events)', () => {
     expect(nameSize).toBeGreaterThan(lineSize);
   });
 
-  test('7. the help modal is ~85% viewport wide and lays out in 3 columns', async ({ page }) => {
+  test('7. the help modal is ~96% viewport wide and lays out in 3 columns', async ({ page }) => {
     await openApp(page);
     await page.locator('button[data-role="open-help"]').click();
     const dialog = page.getByRole('dialog');
@@ -309,7 +309,8 @@ test.describe('header / shell batch (e2e, trusted events)', () => {
     const box = await dialog.boundingBox();
     expect(box).not.toBeNull();
     if (box !== null && viewport !== null) {
-      expect(Math.abs(box.width - viewport.width * 0.85)).toBeLessThan(viewport.width * 0.03);
+      // CR-011 Part 3: widened from 85vw to 96vw so the 3 columns fit on one screen.
+      expect(Math.abs(box.width - viewport.width * 0.96)).toBeLessThan(viewport.width * 0.03);
     }
     const columnCount = await page
       .locator('.grsch-help-columns')

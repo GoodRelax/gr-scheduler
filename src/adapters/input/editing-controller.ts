@@ -28,6 +28,8 @@ import { generateUniqueShortId } from '../id/id-generator.js';
 import type { ScheduleStore } from '../../domain/command/schedule-store.js';
 import {
   addDependencyCommand,
+  bulkReassignClassificationCommand,
+  bulkShiftItemsCommand,
   createItemCommand,
   editPropertyCommand,
   moveItemCommand,
@@ -39,12 +41,18 @@ import {
   type ScheduleCommand,
 } from '../../domain/command/commands.js';
 import {
+  editCommentTextCommand,
   moveCommentAnchorCommand,
   moveCommentCommand,
   resizeRoundedBoxCommand,
+  resolveCommentEditOutcome,
+  roundedBoxRectFromCorners,
+  type RoundedBoxRect,
   type RoundedBoxRectPatch,
 } from '../../domain/command/annotation-commands.js';
 import { isComment } from '../../domain/model/annotation.js';
+import { toggleSelectionMembership } from '../../domain/usecase/selection-set.js';
+import { resolveAdjacentSiblingMove } from '../../domain/usecase/multi-item-move.js';
 import {
   collectStartDateBaselinesX,
   snapToNearestBaseline,
@@ -144,6 +152,23 @@ interface MarqueeGesture {
   moved: boolean;
 }
 
+/**
+ * Dragging a MULTI-item selection (CR-007 Part 2): a plain (non-Ctrl) drag started
+ * on an item that is already part of a >1 selection moves the whole set. The
+ * dominant drag axis on release decides the mode -- HORIZONTAL shifts every
+ * selected item's dates by the same whole-day delta (Part 2a), VERTICAL reassigns
+ * them to the adjacent classification sibling at the deepest shared level (Part 2b,
+ * D-5). One undoable command is committed on release.
+ */
+interface MultiMoveGesture {
+  readonly mode: 'multi-move';
+  readonly itemIds: ReadonlySet<string>;
+  readonly baseline: ScheduleDocument;
+  readonly startWorldX: number;
+  readonly startWorldY: number;
+  moved: boolean;
+}
+
 interface LabelGesture {
   readonly mode: 'label';
   readonly itemId: string;
@@ -209,6 +234,7 @@ interface CursorReferenceGesture {
 
 type Gesture =
   | MoveGesture
+  | MultiMoveGesture
   | ResizeGesture
   | FadeGesture
   | CreateGesture
@@ -260,6 +286,18 @@ export class EditingController {
   /** Notified when the selected dependency line changes (drives the property panel). */
   private dependencySelectionListener: ((dependencyId: string | null) => void) | null = null;
   private pendingCreateShape: PendingCreateShape | null = null;
+  /**
+   * The in-progress 2-click rounded-box placement (CR-006 Part 8). When armed, the
+   * next canvas click sets the first corner and the following click sets the opposite
+   * corner, after which `onPlace` is called with the normalized rect and the mode is
+   * disarmed. Null when box placement is not armed. Esc cancels it.
+   */
+  private boxPlacement: {
+    firstCorner: { date: string; rowIndex: number } | null;
+    readonly onPlace: (rect: RoundedBoxRect) => void;
+  } | null = null;
+  /** Notified when 2-click box placement is armed / disarmed (drives the palette button). */
+  private boxPlacementListener: ((armed: boolean) => void) | null = null;
   private gesture: Gesture | null = null;
   private activePointerId: number | null = null;
   private nextDependencySerial = 0;
@@ -274,6 +312,11 @@ export class EditingController {
   private readonly selectionListeners = new Set<SelectionListener>();
   /** Notified when an item is double-clicked (opens the property panel, fix 10). */
   private itemActivateListener: ((itemId: string) => void) | null = null;
+  /**
+   * The in-place `<textarea>` editing a comment's text (CR-007 Part 3), or null when
+   * no comment is being edited. Enter commits (undoable), Escape reverts (D-7).
+   */
+  private commentEditor: HTMLTextAreaElement | null = null;
 
   /**
    * @param renderer - The mounted SVG renderer to hit-test and preview through.
@@ -328,13 +371,101 @@ export class EditingController {
   /** Select and activate (open the panel for) a double-clicked item (fix 10). */
   private handleDoubleClick(event: MouseEvent): void {
     const hit = this.renderer.hitTest(event.clientX, event.clientY);
-    if (hit === null) {
+    if (hit !== null) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.setSelection(new Set([hit.itemId]));
+      this.itemActivateListener?.(hit.itemId);
       return;
     }
-    event.preventDefault();
-    event.stopPropagation();
-    this.setSelection(new Set([hit.itemId]));
-    this.itemActivateListener?.(hit.itemId);
+    // No item under the pointer: a double-click on a COMMENT enters text-edit mode
+    // (CR-007 Part 3). Enter commits, Escape reverts (D-7).
+    const annotationHit = this.renderer.hitTestAnnotation(event.clientX, event.clientY);
+    if (annotationHit === null) {
+      return;
+    }
+    const annotation = this.store
+      .getDocument()
+      .annotations?.find((candidate) => candidate.id === annotationHit.annotationId);
+    if (annotation !== undefined && isComment(annotation)) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.selectAnnotation(annotation.id);
+      this.beginCommentEdit(annotation.id, annotation.text, event.clientX, event.clientY);
+    }
+  }
+
+  /**
+   * Open an in-place `<textarea>` to edit a comment's text (CR-007 Part 3). Enter
+   * (without Shift) commits an undoable {@link editCommentTextCommand}; Escape
+   * reverts to the prior text; blur commits any pending change (D-7). Positioned at
+   * the double-click point; a real-DOM concern, so it no-ops under the unit-test
+   * fake document (the commit/revert LOGIC is covered by `resolveCommentEditOutcome`).
+   *
+   * @param commentId - The comment being edited.
+   * @param priorText - The comment's text before editing (restored on cancel).
+   * @param clientX - Screen x of the double-click (editor position).
+   * @param clientY - Screen y of the double-click (editor position).
+   */
+  private beginCommentEdit(commentId: string, priorText: string, clientX: number, clientY: number): void {
+    const host = this.renderer.getHostElement();
+    if (host === null || typeof window.document.createElement !== 'function') {
+      return;
+    }
+    this.removeCommentEditor();
+    const editor = window.document.createElement('textarea');
+    editor.dataset.role = 'comment-text-editor';
+    editor.value = priorText;
+    editor.style.position = 'fixed';
+    editor.style.left = `${clientX}px`;
+    editor.style.top = `${clientY}px`;
+    editor.style.zIndex = '50';
+    editor.style.minWidth = '140px';
+    editor.style.minHeight = '44px';
+    editor.style.font = 'inherit';
+    this.commentEditor = editor;
+
+    let settled = false;
+    const finish = (action: 'commit' | 'cancel'): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      const outcome = resolveCommentEditOutcome(action, priorText, editor.value);
+      if (outcome.commit) {
+        this.store.dispatch(editCommentTextCommand(commentId, outcome.text));
+        log.debug('comment_text_committed', { annotation_id: commentId });
+      }
+      this.removeCommentEditor();
+    };
+    editor.addEventListener('keydown', (keyEvent) => {
+      if (keyEvent.key === 'Enter' && !keyEvent.shiftKey) {
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
+        finish('commit');
+      } else if (keyEvent.key === 'Escape') {
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
+        finish('cancel');
+      }
+    });
+    editor.addEventListener('blur', () => finish('commit'));
+
+    const parent = host.parentElement ?? host;
+    parent.appendChild(editor);
+    if (typeof editor.focus === 'function') {
+      editor.focus();
+      editor.select();
+    }
+  }
+
+  /** Remove the in-place comment editor from the DOM, if present. */
+  private removeCommentEditor(): void {
+    const editor = this.commentEditor;
+    if (editor !== null) {
+      editor.remove();
+      this.commentEditor = null;
+    }
   }
 
   /** Apply a contextual cursor on hover (interaction hardening). */
@@ -346,7 +477,7 @@ export class EditingController {
     if (host === null) {
       return;
     }
-    if (this.linkMode || this.pendingCreateShape !== null) {
+    if (this.linkMode || this.pendingCreateShape !== null || this.boxPlacement !== null) {
       host.style.cursor = 'crosshair';
       return;
     }
@@ -498,6 +629,90 @@ export class EditingController {
   }
 
   /**
+   * Arm 2-click rounded-box placement (CR-006 Part 8, CURS-L1-007). After arming, the
+   * next canvas click sets the first corner and the following click the opposite corner;
+   * the controller then normalizes the rect (clamped to a single section) and invokes
+   * `onPlace` so the shell can dispatch the undoable create command with its own styling
+   * (color / screen-space corner radius per CURS-L2-001). Re-arming or Esc cancels.
+   *
+   * @param onPlace - Called once with the normalized rect when both corners are clicked.
+   */
+  public armBoxPlacement(onPlace: (rect: RoundedBoxRect) => void): void {
+    // Arming box placement clears any armed create shape so the two modes never fight.
+    this.pendingCreateShape = null;
+    this.boxPlacement = { firstCorner: null, onPlace };
+    this.notifyBoxPlacement();
+  }
+
+  /** Whether 2-click rounded-box placement is currently armed (item 8). */
+  public isBoxPlacementArmed(): boolean {
+    return this.boxPlacement !== null;
+  }
+
+  /** Cancel an armed 2-click box placement, if any (Esc / re-arm). */
+  public cancelBoxPlacement(): void {
+    if (this.boxPlacement !== null) {
+      this.boxPlacement = null;
+      this.notifyBoxPlacement();
+    }
+  }
+
+  /**
+   * Register a listener invoked when 2-click box placement is armed / disarmed (item 8).
+   * The shell uses it to reflect the palette Add Box button's pressed state.
+   *
+   * @param listener - Called with the armed flag.
+   */
+  public onBoxPlacementChange(listener: (armed: boolean) => void): void {
+    this.boxPlacementListener = listener;
+  }
+
+  /** Notify the shell of the current box-placement armed state (item 8). */
+  private notifyBoxPlacement(): void {
+    this.boxPlacementListener?.(this.boxPlacement !== null);
+  }
+
+  /**
+   * Handle a canvas click while 2-click box placement is armed (item 8). The first
+   * click records the top-left corner; the second computes the normalized rect (with
+   * the single-section clamp), disarms the mode and hands the rect to `onPlace`.
+   */
+  private handleBoxPlacementClick(event: PointerEvent): void {
+    const placement = this.boxPlacement;
+    if (placement === null) {
+      return;
+    }
+    this.consume(event);
+    const world = this.renderer.screenToWorld(event.clientX, event.clientY);
+    const { zoomX } = this.liveViewState();
+    const date = worldXToDate(world.worldX, this.store.getDocument().epochDate, zoomX);
+    const rowIndex = this.rowIndexAtWorldY(world.worldY);
+    if (placement.firstCorner === null) {
+      placement.firstCorner = { date, rowIndex };
+      log.debug('box_placement_first_corner', { date, row_index: rowIndex });
+      return;
+    }
+    const rawRect = roundedBoxRectFromCorners(
+      placement.firstCorner.date,
+      date,
+      placement.firstCorner.rowIndex,
+      rowIndex,
+    );
+    // Single-section constraint (user choice, mirrors the default-position box and the
+    // annotation-resize clamp): keep the box inside the band that holds its top edge.
+    const bands = this.sectionBands();
+    const bottomRowIndex = clampRowIndexToSection(bands, rawRect.topRowIndex, rawRect.bottomRowIndex);
+    const rect: RoundedBoxRect = { ...rawRect, bottomRowIndex };
+    this.boxPlacement = null;
+    this.notifyBoxPlacement();
+    placement.onPlace(rect);
+    log.debug('box_placed_two_click', {
+      top_row_index: rect.topRowIndex,
+      bottom_row_index: rect.bottomRowIndex,
+    });
+  }
+
+  /**
    * Enable or disable dependency-link mode (DEP-L1-002, item 4). While enabled, a
    * CLICK on a source item then a CLICK on a target item creates a directed dependency
    * between their nearest 9-point anchors; repeat to build n:n. Clicking the same
@@ -632,6 +847,17 @@ export class EditingController {
     if (this.selectedItemIds.size > 0) {
       this.setSelection(new Set());
     }
+  }
+
+  /**
+   * Toggle one item's membership in the current selection (CR-007 Part 1, D-6): a
+   * Ctrl+click adds it if absent, removes it if present. Never starts a drag.
+   *
+   * @param itemId - The item whose selection membership to flip.
+   */
+  public toggleItemSelection(itemId: string): void {
+    this.setSelection(toggleSelectionMembership(this.selectedItemIds, itemId));
+    log.debug('selection_toggled', { item_id: itemId, selected_count: this.selectedItemIds.size });
   }
 
   /** Whether a create shape is currently armed (keyboard/pointer placement). */
@@ -818,6 +1044,10 @@ export class EditingController {
       this.renderer.updateItems(baseline);
       return;
     }
+    if (this.boxPlacement !== null) {
+      this.cancelBoxPlacement();
+      return;
+    }
     if (this.pendingCreateShape !== null) {
       this.setPendingCreateShape(null);
       return;
@@ -856,9 +1086,16 @@ export class EditingController {
     if (event.button !== 0) {
       return;
     }
-    // Ctrl/Cmd + drag is the pan gesture (fix 4): leave the event untouched so it
-    // bubbles to the renderer's pan handler instead of starting an item gesture.
+    // Ctrl/Cmd + click on an ITEM toggles its selection membership (CR-007 Part 1,
+    // D-6): PowerPoint-style add/remove that never starts a drag/move, so a marquee
+    // result can be trimmed by subsequent Ctrl+clicks. Ctrl/Cmd on EMPTY canvas is
+    // left untouched so it still bubbles to the renderer's pan handler (fix 4).
     if (event.ctrlKey || event.metaKey) {
+      const modifierHit = this.renderer.hitTest(event.clientX, event.clientY);
+      if (modifierHit !== null) {
+        this.consume(event);
+        this.toggleItemSelection(modifierHit.itemId);
+      }
       return;
     }
     // A press that originates on a floating overlay control (command palette /
@@ -868,11 +1105,18 @@ export class EditingController {
     // swallowing the control's own click (mirrors the renderer's pan guard, F-01).
     const target = event.target;
     if (
+      typeof Element !== 'undefined' &&
       target instanceof Element &&
       target.closest(
         'button, input, select, textarea, a[href], [role="toolbar"], [data-role="left-classification-pane"], [data-role="command-palette-drag-handle"]',
       ) !== null
     ) {
+      return;
+    }
+    // 2-click rounded-box placement (item 8) takes priority over every canvas gesture
+    // while armed: each press records a corner and the second one creates the box.
+    if (this.boxPlacement !== null) {
+      this.handleBoxPlacementClick(event);
       return;
     }
     // In double-vertical cursor-guide mode a press near the FIXED reference line
@@ -1044,6 +1288,27 @@ export class EditingController {
   ): void {
     this.consume(event);
     const baseline = this.store.getDocument();
+    // CR-007 Part 1/2: a plain drag started on an item already part of a >1
+    // selection moves the WHOLE set (bulk date shift / classification reassign)
+    // without collapsing the selection. Only the body-move region (not resize /
+    // fade / label edge handles) begins a multi-move; those stay single-item.
+    const isBodyMoveRegion =
+      hit.region !== 'label' &&
+      hit.region !== 'fade-in' &&
+      hit.region !== 'fade-out' &&
+      hit.region !== 'resize-start' &&
+      hit.region !== 'resize-end';
+    if (isBodyMoveRegion && this.selectedItemIds.size > 1 && this.selectedItemIds.has(hit.itemId)) {
+      this.gesture = {
+        mode: 'multi-move',
+        itemIds: new Set(this.selectedItemIds),
+        baseline,
+        startWorldX: worldX,
+        startWorldY: worldY,
+        moved: false,
+      };
+      return;
+    }
     this.setSelection(new Set([hit.itemId]));
     // M-02: collect snap baselines ONCE here; they are invariant for the drag. Use
     // the LIVE zoom so the baselines share the world space of the dragged worldX.
@@ -1124,6 +1389,9 @@ export class EditingController {
       case 'move':
         this.previewMove(gesture, world.worldX, world.worldY);
         break;
+      case 'multi-move':
+        this.previewMultiMove(gesture, world.worldX, world.worldY);
+        break;
       case 'resize':
         this.previewResize(gesture, world.worldX);
         break;
@@ -1170,6 +1438,9 @@ export class EditingController {
     switch (gesture.mode) {
       case 'move':
         this.commitMove(gesture, world.worldX, world.worldY);
+        break;
+      case 'multi-move':
+        this.commitMultiMove(gesture, world.worldX, world.worldY);
         break;
       case 'resize':
         this.commitResize(gesture, world.worldX);
@@ -1254,6 +1525,57 @@ export class EditingController {
       ),
       guideWorldX: snap.snapped ? snap.baseline : null,
     };
+  }
+
+  // ----- multi-item move (CR-007 Part 2) --------------------------------------
+
+  private previewMultiMove(gesture: MultiMoveGesture, worldX: number, worldY: number): void {
+    const dx = worldX - gesture.startWorldX;
+    const dy = worldY - gesture.startWorldY;
+    if (Math.abs(dx) > DRAG_THRESHOLD_PX || Math.abs(dy) > DRAG_THRESHOLD_PX) {
+      gesture.moved = true;
+    }
+    // Preview only the HORIZONTAL (bulk date-shift) mode, which is a pure item-date
+    // transform the renderer can show immediately. The VERTICAL (re-classify) mode
+    // depends on the store's tree rebuild, so it is applied on release, not previewed.
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      const deltaDays = Math.round(dx / pixelsPerDay(this.liveViewState().zoomX));
+      this.renderer.updateItems(bulkShiftItemsCommand(gesture.itemIds, deltaDays).execute(gesture.baseline));
+      return;
+    }
+    this.renderer.updateItems(gesture.baseline);
+  }
+
+  private commitMultiMove(gesture: MultiMoveGesture, worldX: number, worldY: number): void {
+    this.renderer.updateItems(gesture.baseline);
+    if (!gesture.moved) {
+      return;
+    }
+    const dx = worldX - gesture.startWorldX;
+    const dy = worldY - gesture.startWorldY;
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      // Horizontal (Part 2a): shift every selected item's dates by the same delta.
+      const deltaDays = Math.round(dx / pixelsPerDay(this.liveViewState().zoomX));
+      if (deltaDays !== 0) {
+        this.store.dispatch(bulkShiftItemsCommand(gesture.itemIds, deltaDays));
+        log.debug('multi_move_shift', { count: gesture.itemIds.size, delta_days: deltaDays });
+      }
+      return;
+    }
+    // Vertical (Part 2b, D-5): reassign to the adjacent sibling at the deepest shared
+    // classification level; a tree edge (no adjacent sibling) is a silent no-op.
+    const direction = dy < 0 ? 'up' : 'down';
+    const document = this.store.getDocument();
+    const selectedItems = document.items.filter((item) => gesture.itemIds.has(item.id));
+    const move = resolveAdjacentSiblingMove(document, selectedItems, direction);
+    if (move !== null) {
+      this.store.dispatch(bulkReassignClassificationCommand(gesture.itemIds, move));
+      log.debug('multi_move_reclassify', {
+        count: gesture.itemIds.size,
+        level: move.level,
+        to_value: move.toValue,
+      });
+    }
   }
 
   // ----- resize ---------------------------------------------------------------

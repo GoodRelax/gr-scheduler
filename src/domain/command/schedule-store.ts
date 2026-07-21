@@ -21,6 +21,19 @@ import type { ScheduleCommand } from './commands.js';
 export type StoreListener = (scheduleDocument: ScheduleDocument) => void;
 
 /**
+ * Notified after the store's document CONTENT changes through the command stack: a
+ * dispatched editing command that actually mutated the document, an {@link
+ * ScheduleStore.undo} or a {@link ScheduleStore.redo} (CR-009 Part 3 / DEC-005 #3).
+ *
+ * This is distinct from {@link StoreListener}: it fires ONLY on content mutations and
+ * carries no document, so callers can react to "the schedule's content changed" (e.g.
+ * re-stamp the evidence watermark's UTC time) without treating viewport-only changes
+ * (zoom / scroll / pan -- which never flow through the store) or a wholesale {@link
+ * ScheduleStore.replaceDocument} (a file load, not an edit) as a content change.
+ */
+export type ContentChangeListener = () => void;
+
+/**
  * Post-command normalizer applied to every dispatched/replaced document before it
  * becomes the source of truth. Used by the app to re-materialize the derived
  * classification tree (rows / rowId) after any edit, so the tree always follows
@@ -41,6 +54,7 @@ export class ScheduleStore {
   private readonly undoStack: ScheduleDocument[] = [];
   private readonly redoStack: ScheduleDocument[] = [];
   private readonly listeners = new Set<StoreListener>();
+  private readonly contentChangeListeners = new Set<ContentChangeListener>();
   private readonly historyLimit: number;
   private readonly normalize: DocumentNormalizer;
 
@@ -78,6 +92,24 @@ export class ScheduleStore {
   }
 
   /**
+   * Subscribe to document CONTENT changes (CR-009 Part 3 / DEC-005 #3). The listener
+   * fires only after a mutation through the command stack: a dispatched command that
+   * actually changed the document, an {@link undo} or a {@link redo}. It does NOT
+   * fire for a no-op dispatch, for {@link replaceDocument} (a file load, not an
+   * edit), or for viewport-only changes (which never reach the store). A content
+   * listener MUST NOT dispatch a further command, so it can never re-trigger itself.
+   *
+   * @param listener - Called (with no arguments) after every content mutation.
+   * @returns An unsubscribe function.
+   */
+  public onContentChange(listener: ContentChangeListener): () => void {
+    this.contentChangeListeners.add(listener);
+    return () => {
+      this.contentChangeListeners.delete(listener);
+    };
+  }
+
+  /**
    * Execute a command, recording the prior state for undo. If the command is a
    * no-op (returns the same document reference), history is left untouched.
    *
@@ -97,6 +129,7 @@ export class ScheduleStore {
     this.redoStack.length = 0;
     this.currentDocument = next;
     this.notify();
+    this.notifyContentChange();
   }
 
   /** Whether an undo is currently possible. */
@@ -118,6 +151,7 @@ export class ScheduleStore {
     this.redoStack.push(this.currentDocument);
     this.currentDocument = restored;
     this.notify();
+    this.notifyContentChange();
   }
 
   /** Redo the most recently undone command, if any. */
@@ -129,6 +163,7 @@ export class ScheduleStore {
     this.undoStack.push(this.currentDocument);
     this.currentDocument = restored;
     this.notify();
+    this.notifyContentChange();
   }
 
   /**
@@ -154,6 +189,19 @@ export class ScheduleStore {
   private notify(): void {
     for (const listener of this.listeners) {
       listener(this.currentDocument);
+    }
+  }
+
+  /**
+   * Fan out a content-change signal to {@link onContentChange} listeners. Called
+   * only from the mutating command paths (dispatch of a real change, undo, redo),
+   * never from {@link replaceDocument}, so a file load does not re-stamp the loaded
+   * evidence time (CR-009 Part 3). Listeners must not dispatch, so this can never
+   * recurse.
+   */
+  private notifyContentChange(): void {
+    for (const listener of this.contentChangeListeners) {
+      listener();
     }
   }
 }

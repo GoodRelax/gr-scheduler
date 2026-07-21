@@ -60,6 +60,7 @@ import {
 import { type Point, type Rect } from '../../domain/usecase/dependency-router.js';
 import { cursorScreenX, dateAtCursorScreenX } from '../../domain/usecase/cursor-span.js';
 import { resolveLeftPaneWidth } from '../../domain/usecase/left-pane-layout.js';
+import { selectedCommentIds } from '../../domain/usecase/selection-set.js';
 import { rulerTierCount } from '../../domain/usecase/date-ruler.js';
 import { resolveWheelMode } from '../input/wheel-mode.js';
 import {
@@ -294,6 +295,10 @@ export class SvgRenderer {
       rowIdToDisplayId: this.rowIdToDisplayId,
       selectedItemIds: this.selectedItemIds,
       selectedAnnotationId: this.selectedAnnotationId,
+      selectedCommentIds:
+        this.scheduleDocument === null
+          ? new Set<string>()
+          : selectedCommentIds(this.scheduleDocument, this.selectedItemIds, this.selectedAnnotationId),
       selectedDependencyId: this.selectedDependencyId,
       keyboardFocusItemId: this.keyboardFocusItemId,
       pointerClient: this.pointerClient,

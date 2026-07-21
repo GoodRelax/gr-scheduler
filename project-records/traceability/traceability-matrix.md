@@ -87,8 +87,8 @@ Verifies（テスト）、ResultOf（結果）。全17 `.sdoc` は `strictdoc ex
 | HEADER-G4: Undo/Redoをヘッダー右へ移設（PowerPoint風 循環矢印 ↶/↷, aria-label Undo/Redo, store.undo/redo配線, 履歴でdisabled同期, パレットからは撤去） | TOOL-L1-001, ADR-002 | main（undo/redo header button/syncHistoryButtons/wireStoreSubscriptions）, tool-palette（Undo/Redo群撤去・updateHistoryState削除）; e2e:header-shell-batch（ヘッダー↶↷/undo・redo動作）, e2e:ui-fixes（パレット非在） |
 | HEADER-G5: [AI]ボタン（[?]左）＝コピー用英語プロンプト＋JSON Schema(document-schema SSOT)モーダル（Esc閉/focus trap/role=dialog, Copyで prompt+schema をクリップボードへ, ツールにAI推論は無し, 取得JSONはFile Importで取込） | STK-L0-014, IO-L1-001 | ai-export-modal（AiExportModal/buildAiPromptText/schemaJsonText/buildAiClipboardPayload）, document-schema（SSOT再輸出, grScheduler global）, main（open-ai配線/Esc処理）; ai-export-modal.test（schema一致/ONLY JSON/ASCII/payload合成）, e2e:header-shell-batch（[?]左/schema一致/Copy書込/Esc閉） |
 | HEADER-G8: パレット整理（LANGセレクタ撤去=英語専用/透かしユーザー名入力撤去=既定名使用/依存リンクモードトグルでパレット非リフロー=link-hintをabsolute予約領域化） | TOOL-L1-001, PROP-L1-003 | main（buildChrome=Lang群/user-name input撤去, linkHint position:absolute visibility切替, wireToolbarLocalization/wireWatermark整理, wireLanguage削除）, tool-palette; e2e:header-shell-batch（LANG非在/user-name非在/link切替で座標不変）, e2e:shell-theme-batch（英語専用） |
-| WM/COMMENT/SEL1: 透かし既定オン・薄さ0.06・既定文字列"GoodRelax"・UTC ISO8601日時（分精度末尾Z） | TOOL-L1-007, TOOL-L2-001/002/004 | watermark-builder（resolveWatermark=absent→enabled default, LAYER_OPACITY=0.06, formatWatermarkTimestampUtc）, schedule-model（DEFAULT_WATERMARK_TEXT）, svg-renderer（renderWatermark=resolve使用）, main（既定オン・UTC timestamp・export materialize）; watermark-builder.test, e2e:watermark-comments-batch |
-| WM/COMMENT/SEL2: 透かし非表示にパスワード要求（SHA-256ハッシュ比較, 生パスワード非保存, 既定=watermark-unlock, StrictDoc記録） | TOOL-L2-003/005（security-design §6） | watermark-password（sha256Hex/matchesWatermarkHidePassword, crypto.subtle）, schedule-model（Watermark.hideHash/DEFAULT_WATERMARK_HIDE_PASSWORD_HASH）, main（誤→表示維持/正→非表示, ハッシュのみ）, json-codec（viewState往復）, docs/spec/19-tools-watermark.sdoc（既定パスワード記録）; watermark-password.test, e2e:watermark-comments-batch（誤/正/JSONハッシュのみ） |
+| WM/COMMENT/SEL1: 透かし既定オン・薄さ0.06・既定文字列"GoodRelax"・UTC ISO8601日時（分精度末尾Z）必須（CR-009 Part2）・UTC再採番は内容変更時のみ＝dispatch/undo/redo（CR-009 Part3/DEC-005 #3, ズーム/スクロール・トグルでは不変, 再帰防止） | TOOL-L1-007, TOOL-L2-001/002/004 | watermark-builder（resolveWatermark=absent→enabled default＋UTC必須, LAYER_OPACITY=0.06, formatWatermarkTimestampUtc）, schedule-model（DEFAULT_WATERMARK_TEXT）, schedule-store（onContentChange=dispatch/undo/redoのみ発火, replaceDocument除外）, svg-renderer（renderWatermark=resolve使用）, main（wireWatermarkTimestamp=seed＋onContentChange再採番/renderer.setViewState外, wireWatermarkはトグルで非採番, export materialize）; watermark-builder.test, command-history.test（content-change signal）, render-layers.test, e2e:watermark-comments-batch |
+| WM/COMMENT/SEL2: 透かし非表示にパスワード要求（SHA-256ハッシュ比較, 生パスワード非保存, 既定=GoodRelax=既定透かし文字列（CR-009 Part1）, 旧watermark-unlockは非解錠, StrictDoc記録） | TOOL-L2-003/005（security-design §6） | watermark-password（sha256Hex/matchesWatermarkHidePassword, crypto.subtle）, schedule-model（Watermark.hideHash/DEFAULT_WATERMARK_HIDE_PASSWORD_HASH=380e83…=SHA-256(GoodRelax)）, main（誤→表示維持/正→非表示, ハッシュのみ）, json-codec（viewState往復）, docs/spec/19-tools-watermark.sdoc（既定パスワード記録）; watermark-password.test（constant pin/plaintext hash/旧非解錠/ハッシュのみ）, e2e:watermark-comments-batch（誤/正/JSONハッシュのみ） |
 | WM/COMMENT/SEL3: コメント位置モデル（アンカー=item束縛{itemId,anchorPoint}or自由ワールド点＋bubbleOffset, 引出し線=最近縁→アンカー再配線, item移動追従, JSON往復） | CURS-L1-005/006, CURS-L2-002 | annotation（anchorItemId/anchorPoint）, comment-layout（resolveItemAnchorPoint/nearestPointOnRect/commentLeaderEndpoints）, svg-renderer（commentAnchorScreenPoint=item placement追従/drawComment最近縁leader/data-role comment-bubble・comment-leader）, editing-controller（CommentMoveGesture=bubbleドラッグ→moveCommentCommand取消可）, main（選択item1個→item束縛）, annotation-commands（moveCommentCommand）; comment-layout.test, annotation-commands.test, e2e:watermark-comments-batch |
 | WM/COMMENT/SEL4: マーキー/通常選択で透かし・ラベルTEXTを選択させない（SVGルートuser-select:none, 入力欄は編集可維持） | ITEM-L1, TOOL-L1 | svg-renderer（this.svg.style.userSelect=none/-webkit-user-select）; e2e:watermark-comments-batch（getSelection()空・item選択・input選択可） |
 
@@ -165,11 +165,13 @@ IM4（ヘッダー Base V/I 集約）で完了（`project-management/handoff-cr-
 CR-003（承認 2026-07-20、`change-request-003-20260720-063933.md`）の Part 1〜3 を仕様先行で
 `.sdoc` へ反映済み。CR-002 のベースライン可視トグル（Base V/I）のヘッダー配置を確定する。実装は
 IM4 で完了（ヘッダー再編・ラベル `inner-left`＋衝突回避・依存線決定的直交配線。
-`project-management/handoff-cr-001-002-003-implementation.md` §3）。**DEF-005 修正済み（検証グリーン）**:
-旧実装で DEP-L2-002（折れ点0〜3）を逸脱していた「水平重なり＋上下積みの後方ターゲット」ケースは、
-`routeConnector` を上下端入線方式（重なり/後方は後続の上端/下端から差込む L）へ再設計して解消。
-接触・同一行 FS の退化ナブも下端入線の可視「コ」の字へ修正。全経路 0〜3 折れに収まり **仕様緩和は
-不要**（`DEF-005-dep-elbow-parity.md` 参照）。IM5 で新ヘッダー role・新依存幾何に合わせた E2E 改修を実施。
+`project-management/handoff-cr-001-002-003-implementation.md` §3）。**DEF-005 は CR-008 で再オープン→
+再解決（2026-07-21）**: IM8 の「上下端入線（水平スタブ無し）」方式は矢印が垂直のまま突入し視認方向
+が読み取りにくい実データ不具合が判明したため、CR-008 で `routeConnector` を「入退出とも水平スタブで
+終端」する方式へ再設計した。重なり/後方は行間ギャップを通過して後続の左辺へ水平（+x）入線し、接触・
+同一行 FS は下方へ回り込んで後続下端近傍へ前進方向の水平スタブで入線する（逆向き U 字を解消）。折れ
+上限は CR-008 で「前進=0〜3／重なり・後方・同一行連続=最大4」へ緩和（`DEF-005-dep-elbow-parity.md`
+参照）。IM5 で新ヘッダー role・新依存幾何に合わせた E2E 改修を実施。
 
 | 改訂要求/契約 | 文書 | 内容 | 実装状態 |
 |---|---|---|---|
@@ -177,12 +179,115 @@ IM4 で完了（ヘッダー再編・ラベル `inner-left`＋衝突回避・依
 | ITEM-L2-002（新規） | 11-items-icons | タスクラベルの既定表示位置 `labelPosition=inner-left`（バー内左揃え。バー外左の既存 `left` とは峻別） | done (IM4)：`item-geometry.labelAnchorPoint`（`inner-left` case＋タスク auto 既定→inner-left、arrow/span は連結線上維持）。単体：`tests/task-shape-rendering.test.ts`（inner-left と left の峻別） |
 | ITEM-L2-003（新規） | 11-items-icons | マイルストーンラベルの表示位置（アイコン右 `icon-right`） | done (IM4)：`item-geometry.autoLabelAnchor`（milestone→右 `textAnchor='start'`、既存挙動を維持・明文化） |
 | ALIGN-L2-003（新規） | 13-layout-alignment | ラベルはみ出しが同一セクション内の他タスクと視覚的に重なる場合の縦オフセット衝突回避（ALIGN-L1-001 の上下左右揃え意図を可能な範囲で維持） | done (IM4)：`layout-engine.assignLanes`（`ItemLabelExtentEstimator` で占有右端をラベルはみ出し分拡張→後続衝突アイテムを1レーン下げる決定的パス）＋`item-geometry.estimateInnerLeftLabelExtentPx`（renderer/left-pane が供給）。単体：`tests/label-collision.test.ts`。**recommended-spec**: 衝突時は後続（order昇順で後）を最小1レーン下方へ |
-| DEP-L1-003（改訂・全面書換） | 16-dependencies | 依存線を決定的な直交経路で自動配線（右出=先行右辺middle_right/左入=後続左辺middle_left、横スタブ=矢じり先端の2倍、後続下=出直後に下折れ、後続上=後続直前で上折れ、水平重なり時は行間ギャップを通過し両バー非跨ぎ、前進依存が主対象） | done (IM4→DEF-005 改修 2026-07-21)：`dependency-connector.routeConnector` を相対配置別の3経路へ再設計。前進クリア=右辺中央出/左辺中央入（`CONNECTOR_STUB_PX`=2×矢じり・整列0/下2/上2、従来維持）。接触・同一行 FS=下端入線の可視「コ」の字（2折れ・縦幅>0、退化ナブ廃止）。重なり/後方=後続の上端/下端から差込む L（1折れ・先行出口 x より左へ進まない）。単体：`tests/dependency-connector.test.ts`（13ケース：前進上下・整列・接触・重なり後方・強後方、全 green） |
+| DEP-L1-003（改訂・全面書換） | 16-dependencies | 依存線を決定的な直交経路で自動配線（右出=先行右辺middle_right/左入=後続左辺middle_left、横スタブ=矢じり先端の2倍、後続下=出直後に下折れ、後続上=後続直前で上折れ、水平重なり時は行間ギャップを通過し両バー非跨ぎ、前進依存が主対象） | done (IM4→DEF-005 改修→**CR-008 再設計 2026-07-21**)：`dependency-connector.routeConnector` を相対配置別の3経路へ再設計し、CR-008 で**入退出とも水平スタブ終端**へ改修。前進クリア=右辺中央出/左辺中央入（`CONNECTOR_STUB_PX`=2×矢じり・整列0/下2/上2、従来維持で既に水平終端）。重なり/後方=行間ギャップ（`LANE_HUG_FRACTION`）を通過して後続の左辺中央へ水平（+x）入線する L 型（最大4折れ・上下端入線を上書き）。接触・同一行 FS=下方へ回り込み後続下端近傍へ前進方向の水平スタブで入線（3折れ・逆向き U 字解消）。単体：`tests/dependency-connector.test.ts`（25ケース：前進上下・整列・接触・重なり後方・強後方・4テンプレート幾何・M1 gap==stub 境界・M2 隣接レーン非交差＋折れ点=4・L4 極小幅クランプ、全 green） |
 | DEP-L1-002（改訂・注記追加） | 16-dependencies | 9 点アンカー座標定義は保持しつつ、当面は手動選択を用いず DEP-L1-003 の決定的規則（始点middle_right/終点middle_left）で配線する旨を追記 | done (IM4)：`dependency-router.ts` の 9 アンカー座標は保持、`dependency-layer`/`hit-tester` は `routeConnector` を使用（手動アンカー無視） |
-| DEP-L2-001（改訂・specialize） | 16-dependencies | 障害物回避直交配線エンジンの始点/終点アンカーを middle_right/middle_left に固定し DEP-L1-003 の決定的規則に従って経路生成 | done (IM4→DEF-005 改修 2026-07-21)：`routeConnector` が右辺出固定＋相対配置別の決定的直交経路を生成（前進クリアは左辺入、重なり/後方は先行を跨がぬよう後続の上端/下端入線へ specialize） |
-| DEP-L2-002（改訂・整合明記） | 16-dependencies | 折れ点数0〜3の制約が DEP-L1-003 の決定的経路と整合する旨を明記 | done (IM4→DEF-005 改修 2026-07-21)：**全ケース 0〜3 折れを遵守**。前進=整列0/上下2、接触・同一行 FS=2、重なり/後方=1（上下端入線）。旧実装の4折れ逸脱は上下端入線方式（案2）採用で解消し、仕様緩和（案1）は不採用。`tests/dependency-connector.test.ts` で折れ点≤3・非交差・先行出口より左へ進まないことを検証（`DEF-005-dep-elbow-parity.md`） |
+| DEP-L2-001（改訂・specialize） | 16-dependencies | 障害物回避直交配線エンジンの始点/終点アンカーを middle_right/middle_left に固定し DEP-L1-003 の決定的規則に従って経路生成 | done (IM4→DEF-005 改修→**CR-008 再設計 2026-07-21**)：`routeConnector` が右辺出固定＋相対配置別の決定的直交経路を生成し、CR-008 で全ケース**水平入線スタブ終端**へ改修（前進クリアは左辺入、重なり/後方は行間ギャップ経由で左辺へ水平入線、接触は後続下端近傍へ前進水平入線） |
+| DEP-L2-002（改訂・CR-008 折れ上限緩和） | 16-dependencies | 折れ点上限を「前進（後続が右かつ非隣接）=0〜3／重なり・後方・同一行連続=最大4」へ緩和（CR-008 Part 3。水平スタブ必須化・正方向の両立に幾何上4折れが必要なため） | done (IM4→DEF-005 改修→**CR-008 再設計 2026-07-21**)：前進=整列0/上下2（≤3）、接触・同一行 FS=3、重なり/後方=4（水平左辺入線）。旧実装の上下端入線（≤3・水平スタブ無し）を CR-008 で上書きし折れ上限を緩和。`tests/dependency-connector.test.ts` で入退出水平スタブ・接触の前進方向・折れ点上限（前進≤3/その他≤4）・非交差を検証（`DEF-005-dep-elbow-parity.md`） |
 | 親 UID（参考・本文不変、子要求追加） | 19-tools-watermark, 11-items-icons, 13-layout-alignment | TOOL-L1-001/002/004/005、ITEM-L1-009/010、ALIGN-L1-001/ALIGN-L2-001 は STATEMENT 本文は改変されておらず、上記の新規/改訂子要求が追加された（親としての整合注記のみ） | done（注記のみ・実装対象なし。`.sdoc` に子要求追加済で充足） |
 | スキーマ | `docs/api/gr-scheduler.schema.next.json` | `labelPosition` enum に `inner-left` を追加 | done (IM1/IM4)：スワップ後の現行 `gr-scheduler.schema.json`（`labelPosition` enum に `inner-left` を含むことを確認）へ反映済み |
+
+## CR-004 (アイコン体系刷新: 外部画像インポート廃止・特殊マイルストーン7種) 改訂トレース — Pass A（enum/スキーマ/モデル）
+
+CR-004（承認 2026-07-21、`change-request-004-20260721-070348.md`）の Part 6a/6c を実装。Part 6b
+（★→☆輪郭化）および特殊7図形の SVG 描画は Pass B へ繰越（本 Pass は描画なし・enum/スキーマ/モデルのみ）。
+図形ボキャブラリの最終決定は `DEF-007-shape-vocabulary-drift.md` D-1（基本5＋特殊7＝12、taskShape 不変）。
+
+| 改訂要求/契約 | 文書 | 内容 | 実装状態 |
+|---|---|---|---|
+| ITEM-L1-007/008・ITEM-L2-001（撤廃） | 11-items-icons, 30-architecture | 外部アイコン画像インポート（SVG/PNG）と ARCH-C-026 の画像サニタイズ経路を撤去。JSON/MSPDI 検証（IO-L1-006）は維持 | done (Pass A)：`import-sanitizer.ts` から SVG 許可リストサニタイザ＋PNG マジック/IHDR 検証を削除（JSON reviver/深さ・サイズ上限は保持）、`import-service.ts` の SVG/PNG 経路と `importIconFile` 削除、`main.ts` の Import icon ボタン＋配線削除、`json-codec.ts`/`mspdi-codec.ts`/`svg-exporter.ts`/`id-migration.ts` の assets/importedAssetId 除去。スキーマから `assets` 配列・`importedAssetId`・`asset` $def を削除。単体：`tests/import-sanitizer.test.ts`（JSON/XML/base64 のみ）, `tests/sanitizer-invariant.test.ts`（exporter が sanitizedDataUri 非参照へ反転） |
+| ITEM-L1-004（拡張） | 11-items-icons | `milestoneShape` に特殊マイルストーン7種（file/box3d/floppy/cylinder/person/smiley/beer）を追加、基本5・taskShape は不変 | done (Pass A・描画なし)：`schedule-model.ts` の `MilestoneShape` union＋`MILESTONE_SHAPE_KINDS`（12値）拡張、`IconShapeKind = MilestoneShape ∪ TaskShape` が追従。スキーマ `milestoneShape`/`iconShapeKind` enum 拡張。レンダラは未描画図形を `milestonePath` の default（diamond）へ安全フォールバック（クラッシュせず）。単体：`tests/milestone-shape-enum.test.ts`（12値順序・スキーマ enum・floppy 往復） |
+| スキーマ/契約 | `docs/api/gr-scheduler.schema.json` | `assets`/`importedAssetId`/`asset` $def 削除、`milestoneShape`/`iconShapeKind` enum に7種追加 | done (Pass A)：`document-schema.ts` は同 JSON を直接 import（SSOT 単一）。`tests/document-schema-conformance.test.ts` 緑（コード出力＝スキーマ） |
+
+**Pass A ゲート**: tsc 0 err / vitest 588 pass・0 fail / eslint 0 err（`src tests`）。
+
+### CR-004 Pass B（描画・レイアウト実装）
+
+| 改訂要求/契約 | 文書 | 内容 | 実装状態 |
+|---|---|---|---|
+| ALIGN-L2-004（新規） | 13-layout-alignment | サブレーン積み順を下→上へ反転（最上段＝マイルストーン／後発重なり、下段＝先着タスク） | done (Pass B)：`layout-engine.assignLanes` が貪欲割当後にレーン index を `laneCount-1-lane` で反転（単一レーン行は不変・非重なり保持・ALIGN-L2-003 のオフセット方向のみ反転）。単体：`tests/layout-engine.test.ts`（reversed stacking／milestone→top）, 更新 `tests/label-collision.test.ts` |
+| ITEM-L1-004 / ITEM-L2-003（寸法・フォント） | 11-items-icons | マイルストーンアイコン高さ＝タスクバー×1.15、ラベルフォントはアイコン寸法基準 | done (Pass B)：`task-glyph.milestoneIconHeightPx`／`milestoneLabelFontSizePx`、`item-layer` がレーン中心に拡大グリフを描画・ラベルをアイコン基準サイズ化。Fit は `viewport.renderedGlyphBottom` で +15% オーバーハングを content-bottom に算入（DEF-006 非回帰）。単体：`tests/cr004-render-geometry.test.ts` |
+| ITEM-L1-004 Part 6b（★→☆） | 11-items-icons | 既定 `star` を輪郭表示（fill_color 明示時のみ塗り） | done (Pass B)：`item-layer` の milestone 分岐で `star`＋`fillColorExplicit!==true` を `fill=none, stroke=fillColor` 化。パレット glyph も ☆ 化。単体：`tests/cr004-render-geometry.test.ts` |
+| ITEM-L1-004 Part 6c（特殊7描画） | 11-items-icons | file/box3d/floppy/cylinder/person/smiley/beer の SVG グリフ＋パレット `[...]` 展開 | done (Pass B)：`item-geometry` に7グリフビルダー＋`milestoneShapeUsesEvenOdd`（合成サブパスを evenodd で穴抜き）、`tool-palette` の `[...]` expander が7種を配置可能に。単体：`tests/cr004-render-geometry.test.ts`（7種が diamond と異なる非空・相互相違パス） |
+| ALIGN-L2-005（新規） | 13-layout-alignment | フォント大時のセクション行マージン（小分類が中分類に被らない） | done (Pass B)：`left-pane-layout.sectionRowLabelOffsets(fontScale)` が中/小 tier オフセットをフォント連動化、`left-pane` が採用。単体：`tests/cr004-render-geometry.test.ts`（L で minor-middle >= line-height・単調増加） |
+| ITEM-L2-004 / DEP-L2-003（担当者名） | 11-items-icons, 16-dependencies | 担当者名をアイテム左・右詰めで表示、`middle_left` 入線水平部と非干渉。表示は `viewState.assigneeVisible`（既定 hidden、トグルは CR-006） | done (Pass B)：純関数 `assignee-layout.assigneeLabelGeometry`（右詰め・ボックスをレーン中心より上に配置しスタブと非干渉）、`item-layer.updateAssigneeLabel` が `assigneeVisible` gate で描画。`schedule-model.ViewState.assigneeVisible` 追加＋スキーマ viewState に `assigneeVisible: boolean` 追加。単体：`tests/cr004-render-geometry.test.ts` |
+| PROP-L2-001（ラベル配置統一） | 12-properties-i18n | end_date/fade_in_days/fade_out_days/actual_end のラベルを他項目と統一（左・右詰め） | done (既実装で充足)：全フィールドが `property-panel.addFieldRow`（caption 右詰め＋value 左）を共有。fade_in_days/fade_out_days は既存（`addNumberField`）。Pass B での改修不要 |
+
+**Pass B ゲート**: tsc 0 err / vitest 602 pass・0 fail / eslint 0 err（`src tests`）。
+
+## CR-005 (フォントスケール: 表記 [S][M][L]・対象限定・パネル収まり・コメント追従) 実装トレース
+
+CR-005（承認 2026-07-21、`change-request-005-20260721-070348.md`／方針確定 `DEC-005` 決定1）の
+Part 1〜4 を実装。スキーマ不変（`fontScale` enum は `'S'|'M'|'L'` のまま）。
+
+| 改訂要求/契約 | 内容 | 実装状態 |
+|---|---|---|
+| TOOL-L1-002 Part 1（表記） | フォント切替ボタンを `[A-][A][A+]` → `[S][M][L]` に改称（値は不変） | done：`src/app/font-scale.ts` `FONT_SCALE_GLYPHS = {S:'S',M:'M',L:'L'}` を SSOT 化、`src/app/main.ts buildChrome` が採用。単体：`tests/font-scale.test.ts`（Part 1: glyphs S/M/L・A 不含・px 単調増加） |
+| TOOL-L1-002 Part 2（対象限定） | スケール対象を 3 種（セクション名／プロパティパネル／コメント）に限定、ヘッダー・パレットは対象外（現状維持） | done：`font-scale.ts` を「`#app` 一律 var」から「`#app` 固定 `CHROME_BASE_FONT_PX`＋対象コンテナのみ `--grsch-ui-font` var 付与（`applyScaledFontVar`）＋`FONT_SCALED_CLASS` opt-in」へ再設計。左ペイン=`left-pane.ts`（container に var／`LEFT_PANE_NAME_FONT_CSS`）、プロパティパネル=`property-panel.ts`（root に var／`PROPERTY_PANEL_FONT_CSS`／`setFontScale`）。`main.ts` は `applyUniformFontScale`(#app) を撤去。単体：`tests/font-scale.test.ts`（Part 2: #app 固定・header/palette に var 非結線・3対象は var 参照） |
+| PROP-L1-001/002 Part 3（収まり） | S/M/L いずれでも 27 項目がスクロールなしで収まる | done：`property-panel.ts` の入力行高を固定 px（`PROPERTY_PANEL_ROW_INPUT_HEIGHT_PX=17`、スケール非依存）に固定しパネル高を有界化。キャプションは L でも行高以内。`overflowY:auto` は安全策として存置。単体：`tests/font-scale.test.ts`（Part 3: 行高固定・`propertyPanelCaptionFontPx(L) <= 行高`） |
+| CURS-L1-005/006, CURS-L2-002 Part 4（コメント追従） | コメント本文フォントを固定 `12` 廃止、小分類セクション名サイズに追従 | done：`font-scale.minorCategoryNameFontPx(scale)` を単一ソース化し、`left-pane.ts` の小分類ラベルと `comment-layer.ts buildCommentText` の SVG `font-size` が共通利用（構成上一致）。単体：`tests/font-scale.test.ts`（Part 4: 単調増加・小分類=コメント同値） |
+| CURS-L2-002 Part 4（ライブ不具合修正） | ランタイムの `[S][M][L]` トグルでコメントが追従しない（初回描画時のスケールで固定）。左ペインは `onViewStateChange` で同期再描画されるが、キャンバスのコメントは `setViewState` が rAF に描画を予約するだけ（遅延）で、トグル直後は前スケールのまま | done：`main.ts wireFontScale` で `setViewState` 直後に `renderer.renderNow()` を呼び、離散操作であるフォント切替時にキャンバス（コメント本文・アイテムラベル）を左ペイン/プロパティパネルと同期で即時再描画。回帰テスト：`tests/comment-font-scale.test.ts`（`renderOverlay` のクリア→再構築をリプレイし、スケール変更後にコメント `<text>` の `font-size` が新しい小分類サイズ＝8/9/11 に更新されることを検証。純 `buildCommentText` ではなく再描画パスを行使） |
+
+**CR-005 レビュー指摘対応（Medium/Low）**:
+- M-1（キャプションサイズ単一ソース化）: 二重ハードコードの `'0.9em'`（field-row / progress-line）と未使用の `propertyPanelCaptionFontPx` を廃し、`PROPERTY_PANEL_CAPTION_EM=0.9` を唯一のソースとして `PROPERTY_PANEL_CAPTION_FONT_CSS='0.9em'` を導出、両キャプション描画箇所が共通利用。収まりテストは実描画値（`PROPERTY_PANEL_CAPTION_FONT_CSS` × パネル本文比 `PROPERTY_PANEL_EM`）から L でのキャプション px を算出し行高以内を検証（`tests/font-scale.test.ts` Part 3 改訂）。
+- L-1（renderNow 回帰ガード）: `applyCanvasFontScale(renderer, scale)` を新設（`setViewState`→`renderNow` を同期実行）し `wireFontScale` から利用。`tests/font-scale.test.ts` L-1 でトグル時に `setViewState`→`renderNow` の順で同期描画され、描画時に新スケールが観測されることを検証。
+- L-2（docstring 修正）: `applyScaledFontVar` の "three targets" 記述を「CSS var を持つのは左ペイン/プロパティパネルの 2 コンテナのみ、コメントはレイヤ内で `minorCategoryNameFontPx` から算出」に訂正。
+- L-3（入力検証）: `dataset.fontScale as FontScale` の無検査アサーションを廃し `toFontScale(value)`（不正時 'M' フォールバック）を導入。`tests/font-scale.test.ts` L-3 で検証。
+
+**CR-005 ゲート**: tsc 0 err / vitest 617 pass・0 fail（66 files）/ eslint 0 err（`src tests`）。
+ライブ確認（親セッションが dev DOM で実施）: ヘッダー `[S][M][L]` 表記、S/M/L 切替でセクション名・
+プロパティパネル・コメントのみサイズ変化、ヘッダー/パレットは不変、パネルは L でも非スクロール。
+
+## CR-006 (パレット・ヘッダー UI: Fit/P トグル・SS→クリップボード・言語トグル・イナズマ既定・予実スタイル UI・担当者表示・Add Box 2クリック) 実装トレース
+
+CR-006（承認 2026-07-21、`change-request-006-20260721-070348.md`／`DEC-005` 決定2 で Part 4 の配置を確定）
+の Part 1〜8 を実装。ヘッダー左端・パレット・モーダル内 UI の追加が中心。
+
+| 改訂要求/契約 | Part | 内容 | 実装状態 |
+|---|---|---|---|
+| TOOL-L1-008 | Part 1 | ヘッダー左端（ブランディングの左）に `[Fit]` を新設（機能＝`renderer.fitToContent()` 既存流用） | done：`header-model.HEADER_LEFT_CONTROL_ROLES=['header-fit','header-palette-toggle']` を SSOT 化、`main.buildChrome` が headerLeft へ順序生成、`wirePaletteChrome` が click→fitToContent 配線。単体：`tests/cr006-palette-header.test.ts`（左群順序・右群と非重複・ASCII） |
+| TOOL-L1-001/008 | Part 2 | ヘッダー左から2番目に `[P]`（`data-role=header-palette-toggle`）、パレット `[-]`（`togglePaletteMinimized`）と双方向連動・最小化時 aria-pressed=false（不活性/色変化） | done：`main.wirePaletteChrome` の `setPaletteMinimized` が `[P]` の aria-pressed/aria-expanded を同期、`[P]` click と `[-]` click が同一 `togglePaletteMinimized` を共有＝双方向。単体：`tests/cr006-palette-header.test.ts`（左群順序）、挙動同期は e2e |
+| TOOL-L1-008（改訂） | Part 3 | SS を PNG ダウンロード→**クリップボード画像コピー**（`navigator.clipboard.write`＋`ClipboardItem`）、不可時は PNG ダウンロード fallback＋トースト通知 | done：`main.wireInputOutput` の SS 配線を `copyPngToClipboardOrDownload`（既存 screen-capture）へ変更、outcome に応じ announcer トースト。単体：`tests/cr006-screen-copy.test.ts`（clipboard 成功→'clipboard'／write 拒否→'download' fallback／非対応→'download'、いずれもモック） |
+| PROP-L1-003（改訂, DEC-005 決定2） | Part 4 | `[en]/[jp]` を**モーダル内**（AI/Help のヘッダー、`×` の左）に設置しモーダル表示言語を切替。AI はプロンプトのみ和訳・**JSON スキーマは英語のまま** | done：`modal-locale-toggle.ts`（共有トグル `data-role=modal-locale-toggle`）、`ai-export-modal`（`buildAiPromptText(locale)`／`buildAiClipboardPayload(locale)`＝スキーマ常時英語、ja プロンプト＋タイトル/イントロ/コピー文言）、`help-modal`（`buildHelpModel(locale)`＋ja 7セクション全訳／`helpTitle`/`helpUsageHint`）。`main` が `activeLocale` を各モーダルに注入。単体：`tests/cr006-modal-locale.test.ts`（ja≠en・識別子英語・スキーマ英語不変・ショートカット ASCII） |
+| PLAN-L1-003（改訂） | Part 5 | パレットにイナズマ線トグル（カーソル群の右）を追加、**既定を非表示へ変更**（`progressLineVisible` 未指定＝hidden） | done：`progress-line-builder.isProgressLineVisible`（`=== true` のみ表示）を新設、`progress-today-layer`／`main.wireProgressLine`／新設 `wirePaletteProgressLine`（`data-role=toggle-progress-line`）が採用。`schedule-model` docstring と `gr-scheduler.schema.json`（`progressLineVisible.default=false`）を更新、デモは `sample-data` の template/sample が明示 `true` で継続表示。単体：`tests/cr006-palette-header.test.ts`（既定 hidden）、更新 `tests/canvas-objects-batch.test.ts`（template opt-in） |
+| PLAN-L1-005（UI 新設） | Part 6 | パレットに `[Ao]`(Overlap)/`[As]`(Separate) 切替（`data-role=palette-plan-actual-style`）、既定 Overlap 据置 | done：`plan-actual-geometry.resolvePlanActualStyle`（既定 overlap）新設、`main.wirePlanActualStyle` が radiogroup を `viewState.planActualStyle` に配線。単体：`tests/cr006-palette-header.test.ts`（既定 overlap／separate 解決） |
+| PROP-L1-002（UI 追加） | Part 7 | パレットに担当者名 表示/非表示トグル（`data-role=palette-assignee-toggle`）、`viewState.assigneeVisible`（CR-004 Part 5 描画）に配線・既定 hidden | done：`main.wireAssigneeToggle`（`assigneeVisible !== true` トグル）。描画は既存 `item-layer.updateAssigneeLabel`（`assigneeVisible===true` gate）。挙動は e2e |
+| CURS-L1-007（操作変更） | Part 8 | Add Box を既定位置生成→**2クリック矩形指定**（左上→右下）、Esc キャンセル、角丸みスクリーン空間固定（CURS-L2-001）不変 | done：`annotation-commands.roundedBoxRectFromCorners`（順不同正規化・行 index 非負クランプ）新設、`editing-controller` に `armBoxPlacement/isBoxPlacementArmed/cancelBoxPlacement/onBoxPlacementChange`＋`handleBoxPlacementClick`（単一セクションクランプ）を追加、`main.wireAnnotationCreation` の boxButton が arm 化＋`wireEscHandling` に box 分岐。単体：`tests/cr006-palette-header.test.ts`（矩形正規化）、2クリック実操作は e2e（node に DOM/`Element` 無く controller 実行不可のため） |
+
+**CR-006 ライブ確認指摘の修正（親セッション live-verify 起点）**:
+- D1/D2（Part 5 パレット進捗トグル非機能・data-role 重複）: パレット `[⚡]` の role を
+  `palette-progress-line-toggle`（プロパティパネル側 `toggle-progress-line` と分離）へ変更。
+  両コントロールを単一 `applyVisible`（`viewState.progressLineVisible` 反転→`renderer.renderNow()`
+  即時再描画→パレット aria-pressed とパネル `sync()` を双方向更新）へ集約し、どちらを押しても
+  同期。`attachProgressLineControls` は `{sync}` ハンドルを返却。
+- D3（Part 4 モーダル言語トグルの選択表示）: `modal-locale-toggle` を radio/aria-checked から
+  **aria-pressed**（本コードベースのテーマ選択と同じ排他セグメント方式）へ変更し選択言語を明示。
+- Part 6/7/8 の状態変更確認: Ao/As・担当者トグルに `renderer.renderNow()` を追加し rAF スロットル下でも
+  即時反映。Add Box 2クリックは `editing-controller` の `instanceof Element` を `typeof Element` ガード化して
+  node で駆動可能にし、モック renderer + 疑似 host で 2クリック→`RoundedBoxAnnotation` 生成を検証
+  （`tests/cr006-box-placement.test.ts`：矩形正規化・単一セクションクランプ・生成/キャンセル）。
+
+**CR-006 ゲート**: tsc 0 err / vitest 640 pass・0 fail（70 files）/ eslint 0 err（`src tests`）。
+DOM 配線（buildChrome・パレット各トグル・2クリックジェスチャ）は `bootstrap()` を import 時実行し
+node 環境で不可のため、抽出した純関数シーム（`isProgressLineVisible`/`resolvePlanActualStyle`/
+`roundedBoxRectFromCorners`/`buildAiPromptText`/`buildHelpModel`/`copyPngToClipboardOrDownload`）で単体被覆、
+実 DOM 挙動は e2e とライブ確認（親セッション）に委譲。
+
+## CR-010 (単一HTMLアプリ内蔵ダウンロード: Help から到達する [Download GR Scheduler]) 実装トレース
+
+CR-010（承認 2026-07-21、`change-request-010-20260721-071425.md`）の Part 1〜3 を実装。スキーマ変更なし。
+ヘッダー15要素の並び順（CR-003 確定）は不変で、`[?]`（Help）到達先の Help モーダル内へボタンを追加。
+
+| 改訂要求/契約 | Part | 内容 | 実装状態 |
+|---|---|---|---|
+| TOOL-L1-008（Help 到達動線） | Part 1 | Help モーダル内に「Download GR Scheduler」ボタン（`data-role=download-app`）を新設。ラベルは CR-006 の `[en]/[jp]` モーダル言語トグルに連動（`downloadAppLabel(locale)`：en=`Download GR Scheduler`／ja=`GR Scheduler をダウンロード`、製品名は不変）。トップレベルヘッダー要素は追加せず | done：`help-modal.ts` の `HelpModal` に第3引数 `onDownloadApp` を追加、`render()` がヘッダー右群 `.grsch-help-actions`（download＋locale-toggle＋close）を構成、`applyLocale()` がラベルを追随更新。単体：`tests/help-modal.test.ts`（`downloadAppLabel` の ja≠en・製品名保持・英語 ASCII） |
+| IO-L1-004（出力種別追加） | Part 2 | クリック時に `fetch(location.href)`（`cache:'no-store'`）で配信済み HTML を再取得し `text/html` Blob 化、固定名 `gr-scheduler.html` で保存。既存 Blob ダウンロード基盤（`downloadBlobFile`）を再利用。`document.documentElement.outerHTML`（編集中 DOM）は使用しない | done：`file-io.ts` に `downloadDeliveredApp(deps)`（`sourceUrl`/`fetchImpl`/`downloadBlob` 注入可能）と `DELIVERED_APP_FILE_NAME='gr-scheduler.html'`、`downloadTextFile` を `downloadBlobFile` 経由へリファクタ。単体：`tests/file-io-delivered-app.test.ts`（成功＝取得テキストから Blob 生成・ファイル名・`text/html`／outerHTML 未読トラップ／not-ok=false／reject 捕捉で非throw） |
+| IO-L1-004（オフライン扱い） | Part 3 | `file://`/CORS 等で `fetch` 失敗時は実害なし（利用者は既にファイル保有）として `false` を返し throw しない。`main` が失敗時に polite live region で穏当に通知（en/ja） | done：`downloadDeliveredApp` は catch で WARN ログ＋`false` 返却、`main.ts` の Help モーダル配線が `announcer.announce(...)` で通知。単体：`tests/file-io-delivered-app.test.ts`（reject が resolve(false) になり非throw） |
+
+**CR-010 ゲート**: tsc 0 err / vitest 696 pass・0 fail（72 files）/ eslint 0 err（`src tests`）。
+`document-schema-conformance.test.ts` は緑維持（スキーマ変更なし）。Help モーダルの実 DOM 配線
+（ボタン表示・`fetch(location.href)` 実行）は jsdom 不在（package.json 凍結）のため純関数シーム
+（`downloadAppLabel`／`downloadDeliveredApp` の注入シーム）で単体被覆し、実 DOM 挙動は親セッションの
+ライブ確認に委譲。
 
 ## 結論
 

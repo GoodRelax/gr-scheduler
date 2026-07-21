@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ScheduleStore } from '../src/domain/command/schedule-store.js';
 import type { ScheduleDocument, ScheduleItem } from '../src/domain/model/schedule-model.js';
 import {
-  duplicateCategorySubtreeCommand,
+  copyClassificationCommand,
   reorderCategoryNodeCommand,
   revealDescendantsCommand,
   setCategoryNodeHiddenCommand,
@@ -155,34 +155,34 @@ describe('req 2: hide MIDDLE / MINOR + parent show-all + round-trip', () => {
   });
 });
 
-describe('req 3: duplicate a MAJOR / MIDDLE / MINOR subtree as a sibling copy', () => {
-  it('duplicates a MIDDLE + its items with a non-colliding name, as the next sibling', () => {
+describe('req 3: duplicate a MAJOR / MIDDLE / MINOR subtree as a sibling copy (unified CR-007 -N naming)', () => {
+  it('duplicates a MIDDLE + its items with a numeric-suffix name, as the next sibling', () => {
     const store = storeOf([item('a', 'Dev', 'Frontend', 'UI'), item('b', 'Dev', 'Backend')]);
-    store.dispatch(duplicateCategorySubtreeCommand({ major: 'Dev', middle: 'Frontend' }));
+    store.dispatch(copyClassificationCommand({ major: 'Dev', middle: 'Frontend' }));
 
     const document = store.getDocument();
-    expect(document.items.some((it) => it.middleCategory === 'Frontend (2)' && it.minorCategory === 'UI')).toBe(
+    expect(document.items.some((it) => it.middleCategory === 'Frontend-1' && it.minorCategory === 'UI')).toBe(
       true,
     );
     // Original survives and the copy sits immediately AFTER it among the siblings.
-    expect(middleOrder(document, 'Dev')).toEqual(['Frontend', 'Frontend (2)', 'Backend']);
+    expect(middleOrder(document, 'Dev')).toEqual(['Frontend', 'Frontend-1', 'Backend']);
 
     store.undo();
-    expect(store.getDocument().items.some((it) => it.middleCategory === 'Frontend (2)')).toBe(false);
+    expect(store.getDocument().items.some((it) => it.middleCategory === 'Frontend-1')).toBe(false);
   });
 
   it('duplicates a whole MAJOR section placed right after the original', () => {
     const store = storeOf([item('a', 'A', 'm1'), item('b', 'B')]);
-    store.dispatch(duplicateCategorySubtreeCommand({ major: 'A' }));
+    store.dispatch(copyClassificationCommand({ major: 'A' }));
     const names = store.getDocument().sections.map((section) => section.name);
-    expect(names).toEqual(['A', 'A (2)', 'B']);
-    expect(store.getDocument().items.some((it) => it.majorCategory === 'A (2)')).toBe(true);
+    expect(names).toEqual(['A', 'A-1', 'B']);
+    expect(store.getDocument().items.some((it) => it.majorCategory === 'A-1')).toBe(true);
   });
 
   it('duplicates a MINOR leaf under the same track', () => {
     const store = storeOf([item('a', 'Dev', 'Frontend', 'UI')]);
-    store.dispatch(duplicateCategorySubtreeCommand({ major: 'Dev', middle: 'Frontend', minor: 'UI' }));
-    expect(minorOrder(store.getDocument(), 'Dev', 'Frontend')).toEqual(['UI', 'UI (2)']);
+    store.dispatch(copyClassificationCommand({ major: 'Dev', middle: 'Frontend', minor: 'UI' }));
+    expect(minorOrder(store.getDocument(), 'Dev', 'Frontend')).toEqual(['UI', 'UI-1']);
   });
 });
 
@@ -385,9 +385,11 @@ describe('req 5: consolidated icon row [name] ▲ ▼ □ + - X', () => {
     // Name is the FIRST child.
     expect(track?.children[0]?.dataset['role']).toBe('node-name');
     const buttons = track?.buttonChildren() ?? [];
+    // CR-007 Part 5 inserts a copy-classification control after the ▲ ▼ reorder pair.
     expect(buttons.map((button) => button.dataset['role'])).toEqual([
       'category-move-up',
       'category-move-down',
+      'copy-classification',
       'show-all',
       'add-subcategory',
       'hide-node',
@@ -395,16 +397,18 @@ describe('req 5: consolidated icon row [name] ▲ ▼ □ + - X', () => {
     ]);
     expect(buttons[0]?.textContent).toBe('▲');
     expect(buttons[1]?.textContent).toBe('▼');
-    expect(buttons[2]?.textContent).toBe('□');
+    expect(buttons[2]?.textContent).toBe('⧉');
+    expect(buttons[3]?.textContent).toBe('□');
     // The renamed add-subcategory glyph is now "+", never the old "↓".
-    expect(buttons[3]?.textContent).toBe('+');
+    expect(buttons[4]?.textContent).toBe('+');
     expect(buttons.map((button) => button.textContent)).not.toContain('↓');
     // Accessible names on each control (WCAG 4.1.2).
     expect(buttons[0]?.attributes['aria-label']).toBe('Move Frontend up');
-    expect(buttons[2]?.attributes['aria-label']).toBe('Show all sub-sections of Frontend');
-    expect(buttons[3]?.attributes['aria-label']).toBe('Add sub-category under Frontend');
-    expect(buttons[4]?.attributes['aria-label']).toBe('Hide Frontend');
-    expect(buttons[5]?.attributes['aria-label']).toBe('Remove category Frontend');
+    expect(buttons[2]?.attributes['aria-label']).toBe('Duplicate Frontend');
+    expect(buttons[3]?.attributes['aria-label']).toBe('Show all sub-sections of Frontend');
+    expect(buttons[4]?.attributes['aria-label']).toBe('Add sub-category under Frontend');
+    expect(buttons[5]?.attributes['aria-label']).toBe('Hide Frontend');
+    expect(buttons[6]?.attributes['aria-label']).toBe('Remove category Frontend');
   });
 
   it('a MINOR leaf shows ▲ ▼ - X only (no show-all / add-sub)', () => {
@@ -452,7 +456,7 @@ describe('req 3 (UI): Ctrl+C / Ctrl+V and context-menu copy / paste', () => {
     const pane = host.querySelector('[data-role="left-classification-pane"]');
     fireEvent(pane, 'keydown', { ctrlKey: true, key: 'c' });
     fireEvent(pane, 'keydown', { ctrlKey: true, key: 'v' });
-    expect(store.getDocument().items.some((it) => it.middleCategory === 'Frontend (2)')).toBe(true);
+    expect(store.getDocument().items.some((it) => it.middleCategory === 'Frontend-1')).toBe(true);
   });
 
   it('the right-click context menu Copy then Paste duplicates the node', () => {
@@ -463,7 +467,7 @@ describe('req 3 (UI): Ctrl+C / Ctrl+V and context-menu copy / paste', () => {
     // Re-open the menu and Paste.
     fireEvent(track, 'contextmenu', { clientX: 10, clientY: 10 });
     fireClick(host.querySelector('button[data-role="context-paste"]'));
-    expect(store.getDocument().items.some((it) => it.middleCategory === 'Frontend (2)')).toBe(true);
+    expect(store.getDocument().items.some((it) => it.middleCategory === 'Frontend-1')).toBe(true);
   });
 });
 

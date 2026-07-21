@@ -137,11 +137,11 @@ test.describe('classification-pane restructure (e2e, trusted events)', () => {
     await middle.locator('[data-role="node-name"]').click();
     await page.keyboard.press('Control+c');
     await page.keyboard.press('Control+v');
-    // The duplicated track "Task-Plan (2)" appears; its label repeats once per
-    // detail row it carries (the copy keeps the three minors), so >= 1 is expected.
+    // The duplicated track "Task-Plan-1" appears (unified CR-007 -N naming); its label
+    // repeats once per detail row it carries (the copy keeps the three minors), so >= 1.
     await expect
       .poll(async () =>
-        page.locator('[data-role="track-label"]', { hasText: 'Task-Plan (2)' }).count(),
+        page.locator('[data-role="track-label"]', { hasText: 'Task-Plan-1' }).count(),
       )
       .toBeGreaterThan(0);
   });

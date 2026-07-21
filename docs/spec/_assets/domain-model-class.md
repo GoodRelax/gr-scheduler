@@ -38,7 +38,6 @@ classDiagram
         +ScheduleItem[] items
         +Dependency[] dependencies
         +Annotation[] annotations
-        +ImportedAsset[] assets
         +DeclaredCategory[] declaredCategories
     }
 
@@ -76,7 +75,6 @@ classDiagram
         +string strokeColor
         +string assignee
         +string status
-        +string importedAssetId
     }
 
     class BaselineReferenceDocument {
@@ -142,12 +140,6 @@ classDiagram
         +number cornerRadiusPx
     }
 
-    class ImportedAsset {
-        +string id
-        +ImportedAssetFormat assetFormat  «svg|png»
-        +string sanitizedDataUri  «self-contained data: URI»
-    }
-
     class LinkType {
         <<enumeration>>
         FS
@@ -167,12 +159,10 @@ classDiagram
     ScheduleDocument "1" *-- "0..*" ScheduleItem : items
     ScheduleDocument "1" *-- "0..*" Dependency : dependencies
     ScheduleDocument "1" *-- "0..*" Annotation : annotations
-    ScheduleDocument "1" *-- "0..*" ImportedAsset : assets
     ViewState "1" *-- "0..1" Watermark : watermark
     Section "1" o-- "0..*" Row : rowIds
     Row "1" o-- "0..*" ScheduleItem : rowId
     BaselineReferenceDocument ..> ScheduleItem : id-matched underlay (read-only)
-    ScheduleItem "0..*" ..> "0..1" ImportedAsset : importedAssetId
     Dependency "0..*" ..> "1" ScheduleItem : fromItemId
     Dependency "0..*" ..> "1" ScheduleItem : toItemId
     Dependency ..> LinkType : linkType
@@ -191,7 +181,6 @@ classDiagram
     style Annotation fill:#FF8C00,stroke:#8a4b00,color:#1a1a1a
     style CommentAnnotation fill:#FF8C00,stroke:#8a4b00,color:#1a1a1a
     style RoundedBoxAnnotation fill:#FF8C00,stroke:#8a4b00,color:#1a1a1a
-    style ImportedAsset fill:#FF8C00,stroke:#8a4b00,color:#1a1a1a
     style LinkType fill:#FFE0A3,stroke:#8a4b00,color:#1a1a1a
     style PlanActualStyle fill:#FFE0A3,stroke:#8a4b00,color:#1a1a1a
 ```
@@ -211,6 +200,9 @@ Notes and flagged ambiguities:
   id-matched to the current items, rendered as a read-only grey underlay at the same
   row height (plan dates only; its actuals are ignored). This supersedes the CR-001
   `previousPlan` field.
+- Per CR-004 Part 6a the external image (SVG/PNG) icon import is withdrawn: the
+  `ImportedAsset` class, `ScheduleDocument.assets[]`, and `ScheduleItem.importedAssetId`
+  are removed from this model. `fadeInDays` / `fadeOutDays` are unaffected and retained.
 - `AnnotationKind` = `callout-box | polyline | rounded-box`; `CommentAnnotation.annotationKind`
   is one of the two comment-leader kinds, `RoundedBoxAnnotation.annotationKind` is `rounded-box`.
 - CR-001 does NOT specify where `planActualStyle` sits other than "viewState"; it is

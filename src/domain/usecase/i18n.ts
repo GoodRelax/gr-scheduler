@@ -91,7 +91,6 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   export_xml: { en: 'Export XML', ja: 'XML 出力' },
   export_svg: { en: 'Export SVG', ja: 'SVG 出力' },
   import: { en: 'Import', ja: '取り込み' },
-  import_icon: { en: 'Import icon', ja: 'アイコン取り込み' },
   // Command-palette action accessible names (floating toolbar, TOOL-L1-006).
   run_benchmark: { en: 'Run benchmark', ja: 'ベンチマーク実行' },
   link_mode: { en: 'Dependency link mode', ja: '依存リンクモード' },
@@ -118,6 +117,15 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   grid_category_lines: { en: 'Category gridlines', ja: '分類グリッド線' },
   add_comment: { en: 'Add comment', ja: 'コメント追加' },
   add_box: { en: 'Add box', ja: '枠追加' },
+  // CR-006: floating-palette / header controls added by the palette-header batch.
+  // Header [P] toolbar show/hide, plan-actual style (Overlap/Separate), assignee names.
+  palette_toggle: { en: 'Show or hide the toolbar', ja: 'ツールバー表示切替' },
+  plan_actual_style: { en: 'Plan/actual style', ja: '予実スタイル' },
+  plan_actual_style_overlap: { en: 'Overlap plan and actual', ja: '予実を重ねる' },
+  plan_actual_style_separate: { en: 'Separate plan and actual', ja: '予実を分ける' },
+  assignee_display: { en: 'Assignee names', ja: '担当者名' },
+  language_en: { en: 'English', ja: '英語' },
+  language_jp: { en: 'Japanese', ja: '日本語' },
   font_size_small: { en: 'Font size small', ja: '文字サイズ 小' },
   font_size_medium: { en: 'Font size medium', ja: '文字サイズ 中' },
   font_size_large: { en: 'Font size large', ja: '文字サイズ 大' },
