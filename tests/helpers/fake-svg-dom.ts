@@ -51,6 +51,23 @@ export class FakeSvgNode {
     return child;
   }
 
+  /**
+   * Insert a child BEFORE a reference child (appending when the reference is null or
+   * is not a child here), matching `Node.insertBefore`. Used by the item layer to put
+   * the milestone plan/actual leader line behind the markers.
+   */
+  public insertBefore(child: FakeSvgNode, reference: FakeSvgNode | null): FakeSvgNode {
+    child.remove();
+    const index = reference === null ? -1 : this.childList.indexOf(reference);
+    if (index < 0) {
+      this.childList.push(child);
+    } else {
+      this.childList.splice(index, 0, child);
+    }
+    child.parentNode = this;
+    return child;
+  }
+
   public removeChild(child: FakeSvgNode): FakeSvgNode {
     const index = this.childList.indexOf(child);
     if (index >= 0) {

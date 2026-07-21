@@ -47,10 +47,12 @@ export const SAMPLE_PROJECT_ID = '00000000-0000-4000-8000-000000000002';
  * an Automotive SPICE (ASPICE) programme that runs from project start (Kickoff,
  * 2026-01-01) to SOS (Start Of Sales, 2028-10-31), framed across a ~3-year timeline.
  *
- * Plan and actual are kept as SEPARATE items on SEPARATE rows (KEEP-AS-IS): the blue
- * plan items live on the `*-Plan` tracks and the red actual items on the paired
- * `*-Actual` tracks, so the chart renders exactly like the original template. The
- * left classification tree (2 sections / 13 rows) is DERIVED from each item's
+ * Plan and actual live on ONE item (CR-012, the CR-001 unified model): each item
+ * carries its planned span (`startDate`/`endDate`) AND, where an as-run record
+ * exists, its actual span (`actualStart`/`actualEnd`) plus a `progressRatio`. The
+ * pale plan shade and the vivid actual shade are DERIVED from the item's single base
+ * fill (see `plan-actual-colors`), so no separate red "actual" row or color exists.
+ * The left classification tree (2 sections / 9 rows) is DERIVED from each item's
  * major / middle / minor category via {@link rebuildClassification}; item dates are
  * the user's curated absolute values, preserved verbatim.
  *
@@ -68,6 +70,10 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
     readonly startDate: string;
     /** Curated absolute end date; null for a milestone. */
     readonly endDate: string | null;
+    /** Curated as-run start date (CR-012); absent means no actual was recorded. */
+    readonly actualStart?: string;
+    /** Curated as-run end date; absent for a milestone or for work still running. */
+    readonly actualEnd?: string;
     readonly major: string;
     readonly middle: string;
     readonly minor?: string;
@@ -77,70 +83,64 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
     readonly fadeInDays?: number;
     /** Right-edge day taper. */
     readonly fadeOutDays?: number;
-    /** Progress front fraction in [0, 1] (present on actual items). */
+    /** Progress front fraction in [0, 1] (present where an actual was recorded). */
     readonly progressRatio?: number;
     /** Optional owner name shown left of the glyph when the assignee column is on. */
     readonly assignee?: string;
   }
   type ItemKindLocal = 'milestone' | 'task';
 
-  // Blue = plan, red = actual: the two hues the original template used to distinguish
-  // the plan rows from the paired actual rows (KEEP-AS-IS -- no plan/actual merge).
+  // ONE base fill for every item: the pale plan tint and the vivid actual shade are
+  // DERIVED from it by `displayFillColor` / `actualDisplayFillColor` (CR-002 Part 1),
+  // so the template never hand-sets a separate "actual" color.
   const PLAN_FILL = '#4477aa';
-  const ACTUAL_FILL = '#ee6677';
 
-  // Items in DOCUMENT ORDER so each track's first appearance materializes the 13-row
+  // Items in DOCUMENT ORDER so each track's first appearance materializes the 9-row
   // tree in the intended order:
-  //   Over All Schedule -> Milestones-Plan, Milestones-Actual, Phase-Plan, Phase-Actual
-  //   TeamA -> Phase-Plan, Phase-Actual, SYS-Phase-Plan, SWE-Phase-Plan,
-  //            SWE-Phase-Actual, Integration-Plan, Task-Plan{Onboarding,Requirements,Usecase}
+  //   Over All Schedule -> Milestones, Phase
+  //   TeamA -> Phase, SYS-Phase, SWE-Phase, Integration,
+  //            Task{Onboarding, Requirements, Usecase}
   const seeds: readonly Seed[] = [
     // ===== Major "Over All Schedule" =====
-    // Middle "Milestones-Plan" -- programme gates (blue).
-    { id: 'oa-ms-plan-kickoff', abbrev: 'Kickoff', kind: 'milestone', startDate: '2026-01-01', endDate: null, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'diamond' },
-    { id: 'oa-ms-plan-freeze', abbrev: 'Design Freeze', kind: 'milestone', startDate: '2027-03-07', endDate: null, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'diamond' },
-    { id: 'oa-ms-plan-sop', abbrev: 'SoP', kind: 'milestone', startDate: '2028-08-28', endDate: null, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'triangle' },
-    { id: 'oa-ms-plan-launch', abbrev: 'SOS', kind: 'milestone', startDate: '2028-10-31', endDate: null, major: 'Over All Schedule', middle: 'Milestones-Plan', fill: PLAN_FILL, milestoneShape: 'star' },
-    // Middle "Milestones-Actual" -- the as-run gates (red).
-    { id: 'oa-ms-actual-kickoff', abbrev: 'Kickoff', kind: 'milestone', startDate: '2026-01-05', endDate: null, major: 'Over All Schedule', middle: 'Milestones-Actual', fill: ACTUAL_FILL, milestoneShape: 'diamond' },
-    { id: 'oa-ms-actual-freeze', abbrev: 'Design Freeze', kind: 'milestone', startDate: '2027-03-25', endDate: null, major: 'Over All Schedule', middle: 'Milestones-Actual', fill: ACTUAL_FILL, milestoneShape: 'diamond' },
-    // Middle "Phase-Plan" -- programme phase bars (blue).
-    { id: 'oa-phase-plan-concept', abbrev: 'Concept', kind: 'task', startDate: '2026-01-01', endDate: '2026-05-01', major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL },
-    { id: 'oa-phase-plan-dev', abbrev: 'Series Development', kind: 'task', startDate: '2026-05-01', endDate: '2027-10-03', major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL },
-    { id: 'oa-phase-plan-valid', abbrev: 'Validation', kind: 'task', startDate: '2027-10-03', endDate: '2028-09-27', major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL },
-    { id: 'oa-phase-plan-rampup', abbrev: 'Ramp-Up', kind: 'task', startDate: '2028-09-27', endDate: '2029-03-15', major: 'Over All Schedule', middle: 'Phase-Plan', fill: PLAN_FILL, fadeInDays: 27, fadeOutDays: 0 },
-    // Middle "Phase-Actual" -- the as-run phase bars (red) with a progress front.
-    { id: 'oa-phase-actual-concept', abbrev: 'Concept', kind: 'task', startDate: '2026-01-05', endDate: '2026-05-06', major: 'Over All Schedule', middle: 'Phase-Actual', fill: ACTUAL_FILL, progressRatio: 1 },
-    { id: 'oa-phase-actual-dev', abbrev: 'Series Development', kind: 'task', startDate: '2026-05-09', endDate: '2027-05-16', major: 'Over All Schedule', middle: 'Phase-Actual', fill: ACTUAL_FILL, progressRatio: 0.55 },
+    // Middle "Milestones" -- programme gates; Kickoff and Design Freeze also record
+    // an as-run date, SoP and SOS are still plan-only (future gates).
+    { id: 'oa-ms-plan-kickoff', abbrev: 'Kickoff', kind: 'milestone', startDate: '2026-01-01', endDate: null, actualStart: '2026-01-05', major: 'Over All Schedule', middle: 'Milestones', fill: PLAN_FILL, milestoneShape: 'diamond' },
+    { id: 'oa-ms-plan-freeze', abbrev: 'Design Freeze', kind: 'milestone', startDate: '2027-03-07', endDate: null, actualStart: '2027-03-25', major: 'Over All Schedule', middle: 'Milestones', fill: PLAN_FILL, milestoneShape: 'diamond' },
+    { id: 'oa-ms-plan-sop', abbrev: 'SoP', kind: 'milestone', startDate: '2028-08-28', endDate: null, major: 'Over All Schedule', middle: 'Milestones', fill: PLAN_FILL, milestoneShape: 'triangle' },
+    { id: 'oa-ms-plan-launch', abbrev: 'SOS', kind: 'milestone', startDate: '2028-10-31', endDate: null, major: 'Over All Schedule', middle: 'Milestones', fill: PLAN_FILL, milestoneShape: 'star' },
+    // Middle "Phase" -- programme phase bars; Concept is complete and Series Development
+    // is running (both carry their as-run span and a progress front).
+    { id: 'oa-phase-plan-concept', abbrev: 'Concept', kind: 'task', startDate: '2026-01-01', endDate: '2026-05-01', actualStart: '2026-01-05', actualEnd: '2026-05-06', progressRatio: 1, major: 'Over All Schedule', middle: 'Phase', fill: PLAN_FILL },
+    { id: 'oa-phase-plan-dev', abbrev: 'Series Development', kind: 'task', startDate: '2026-05-01', endDate: '2027-10-03', actualStart: '2026-05-09', actualEnd: '2027-05-16', progressRatio: 0.55, major: 'Over All Schedule', middle: 'Phase', fill: PLAN_FILL },
+    { id: 'oa-phase-plan-valid', abbrev: 'Validation', kind: 'task', startDate: '2027-10-03', endDate: '2028-09-27', major: 'Over All Schedule', middle: 'Phase', fill: PLAN_FILL },
+    { id: 'oa-phase-plan-rampup', abbrev: 'Ramp-Up', kind: 'task', startDate: '2028-09-27', endDate: '2029-03-15', major: 'Over All Schedule', middle: 'Phase', fill: PLAN_FILL, fadeInDays: 27, fadeOutDays: 0 },
     // ===== Major "TeamA" =====
-    // Middle "Phase-Plan" -- the SYS1..SWE1 multi-bar showcase row (blue).
-    { id: 'ta-phase-plan-sys1', abbrev: 'SYS1', kind: 'task', startDate: '2025-12-30', endDate: '2026-02-08', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, fadeOutDays: 9, assignee: 'Suzuki' },
-    { id: 'ta-phase-plan-sys2', abbrev: 'SYS2', kind: 'task', startDate: '2026-01-31', endDate: '2026-03-22', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, fadeInDays: 11, assignee: 'Saotome' },
-    { id: 'ta-phase-plan-sys3', abbrev: 'SYS3', kind: 'task', startDate: '2026-03-12', endDate: '2026-05-01', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, assignee: 'Sato' },
-    { id: 'ta-phase-plan-swe1', abbrev: 'SWE1', kind: 'task', startDate: '2026-02-28', endDate: '2026-06-18', major: 'TeamA', middle: 'Phase-Plan', fill: PLAN_FILL, assignee: 'Tanaka' },
-    // Middle "Phase-Actual" -- the as-run SYS1 bar (red) with a progress front.
-    { id: 'ta-phase-actual-sys1', abbrev: 'SYS1', kind: 'task', startDate: '2026-01-03', endDate: '2026-02-15', major: 'TeamA', middle: 'Phase-Actual', fill: ACTUAL_FILL, progressRatio: 0.8 },
-    // Middle "SYS-Phase-Plan" -- later system-engineering ASPICE phases (blue).
-    { id: 'ta-sysphase-plan-sys4', abbrev: 'SYS.4', kind: 'task', startDate: '2026-05-01', endDate: '2026-11-17', major: 'TeamA', middle: 'SYS-Phase-Plan', fill: PLAN_FILL },
-    { id: 'ta-sysphase-plan-sys5', abbrev: 'SYS.5', kind: 'task', startDate: '2028-05-30', endDate: '2028-09-27', major: 'TeamA', middle: 'SYS-Phase-Plan', fill: PLAN_FILL },
-    // Middle "SWE-Phase-Plan" -- software-engineering ASPICE phases SWE.2..SWE.6 (blue).
-    { id: 'ta-swephase-plan-swe2', abbrev: 'SWE.2', kind: 'task', startDate: '2026-07-20', endDate: '2027-03-07', major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
-    { id: 'ta-swephase-plan-swe3', abbrev: 'SWE.3', kind: 'task', startDate: '2026-11-17', endDate: '2027-07-15', major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
-    { id: 'ta-swephase-plan-swe4', abbrev: 'SWE.4', kind: 'task', startDate: '2027-03-07', endDate: '2027-11-12', major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
-    { id: 'ta-swephase-plan-swe5', abbrev: 'SWE.5', kind: 'task', startDate: '2027-09-13', endDate: '2028-03-31', major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
-    { id: 'ta-swephase-plan-swe6', abbrev: 'SWE.6', kind: 'task', startDate: '2028-01-31', endDate: '2028-06-19', major: 'TeamA', middle: 'SWE-Phase-Plan', fill: PLAN_FILL },
-    // Middle "SWE-Phase-Actual" -- the as-run SWE.2 bar (red) with a progress front.
-    { id: 'ta-swephase-actual-swe2', abbrev: 'SWE.2', kind: 'task', startDate: '2026-07-25', endDate: '2027-03-07', major: 'TeamA', middle: 'SWE-Phase-Actual', fill: ACTUAL_FILL, progressRatio: 0.5 },
-    // Middle "Integration-Plan" -- SW/system integration and vehicle validation (blue).
-    { id: 'ta-int-plan-swint', abbrev: 'SW Integration', kind: 'task', startDate: '2028-01-31', endDate: '2028-05-30', major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL },
-    { id: 'ta-int-plan-sysint', abbrev: 'System Integration', kind: 'task', startDate: '2028-05-10', endDate: '2028-08-18', major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL },
-    { id: 'ta-int-plan-vehicle', abbrev: 'Vehicle Validation', kind: 'task', startDate: '2028-07-29', endDate: '2028-10-31', major: 'TeamA', middle: 'Integration-Plan', fill: PLAN_FILL },
-    // Middle "Task-Plan" -- early requirement tasks under minor (小分類) sub-levels,
+    // Middle "Phase" -- the SYS1..SWE1 multi-bar showcase row; SYS1 also records its
+    // as-run span and a progress front.
+    { id: 'ta-phase-plan-sys1', abbrev: 'SYS1', kind: 'task', startDate: '2025-12-30', endDate: '2026-02-08', actualStart: '2026-01-03', actualEnd: '2026-02-15', progressRatio: 0.8, major: 'TeamA', middle: 'Phase', fill: PLAN_FILL, fadeOutDays: 9, assignee: 'Suzuki' },
+    { id: 'ta-phase-plan-sys2', abbrev: 'SYS2', kind: 'task', startDate: '2026-01-31', endDate: '2026-03-22', major: 'TeamA', middle: 'Phase', fill: PLAN_FILL, fadeInDays: 11, assignee: 'Saotome' },
+    { id: 'ta-phase-plan-sys3', abbrev: 'SYS3', kind: 'task', startDate: '2026-03-12', endDate: '2026-05-01', major: 'TeamA', middle: 'Phase', fill: PLAN_FILL, assignee: 'Sato' },
+    { id: 'ta-phase-plan-swe1', abbrev: 'SWE1', kind: 'task', startDate: '2026-02-28', endDate: '2026-06-18', major: 'TeamA', middle: 'Phase', fill: PLAN_FILL, assignee: 'Tanaka' },
+    // Middle "SYS-Phase" -- later system-engineering ASPICE phases.
+    { id: 'ta-sysphase-plan-sys4', abbrev: 'SYS.4', kind: 'task', startDate: '2026-05-01', endDate: '2026-11-17', major: 'TeamA', middle: 'SYS-Phase', fill: PLAN_FILL },
+    { id: 'ta-sysphase-plan-sys5', abbrev: 'SYS.5', kind: 'task', startDate: '2028-05-30', endDate: '2028-09-27', major: 'TeamA', middle: 'SYS-Phase', fill: PLAN_FILL },
+    // Middle "SWE-Phase" -- software-engineering ASPICE phases SWE.2..SWE.6; SWE.2
+    // records its as-run span and a progress front.
+    { id: 'ta-swephase-plan-swe2', abbrev: 'SWE.2', kind: 'task', startDate: '2026-07-20', endDate: '2027-03-07', actualStart: '2026-07-25', actualEnd: '2027-03-07', progressRatio: 0.5, major: 'TeamA', middle: 'SWE-Phase', fill: PLAN_FILL },
+    { id: 'ta-swephase-plan-swe3', abbrev: 'SWE.3', kind: 'task', startDate: '2026-11-17', endDate: '2027-07-15', major: 'TeamA', middle: 'SWE-Phase', fill: PLAN_FILL },
+    { id: 'ta-swephase-plan-swe4', abbrev: 'SWE.4', kind: 'task', startDate: '2027-03-07', endDate: '2027-11-12', major: 'TeamA', middle: 'SWE-Phase', fill: PLAN_FILL },
+    { id: 'ta-swephase-plan-swe5', abbrev: 'SWE.5', kind: 'task', startDate: '2027-09-13', endDate: '2028-03-31', major: 'TeamA', middle: 'SWE-Phase', fill: PLAN_FILL },
+    { id: 'ta-swephase-plan-swe6', abbrev: 'SWE.6', kind: 'task', startDate: '2028-01-31', endDate: '2028-06-19', major: 'TeamA', middle: 'SWE-Phase', fill: PLAN_FILL },
+    // Middle "Integration" -- SW/system integration and vehicle validation.
+    { id: 'ta-int-plan-swint', abbrev: 'SW Integration', kind: 'task', startDate: '2028-01-31', endDate: '2028-05-30', major: 'TeamA', middle: 'Integration', fill: PLAN_FILL },
+    { id: 'ta-int-plan-sysint', abbrev: 'System Integration', kind: 'task', startDate: '2028-05-10', endDate: '2028-08-18', major: 'TeamA', middle: 'Integration', fill: PLAN_FILL },
+    { id: 'ta-int-plan-vehicle', abbrev: 'Vehicle Validation', kind: 'task', startDate: '2028-07-29', endDate: '2028-10-31', major: 'TeamA', middle: 'Integration', fill: PLAN_FILL },
+    // Middle "Task" -- early requirement tasks under minor (小分類) sub-levels,
     // demonstrating the full three-level tree.
-    { id: 'ta-task-plan-orient', abbrev: 'Orientation', kind: 'task', startDate: '2026-01-01', endDate: '2026-01-11', major: 'TeamA', middle: 'Task-Plan', minor: 'Onboarding', fill: PLAN_FILL },
-    { id: 'ta-task-plan-clarify-stk', abbrev: 'Clarify Stakeholders', kind: 'task', startDate: '2026-01-09', endDate: '2026-01-26', major: 'TeamA', middle: 'Task-Plan', minor: 'Requirements', fill: PLAN_FILL },
-    { id: 'ta-task-plan-gather', abbrev: 'Gather Request', kind: 'task', startDate: '2026-01-21', endDate: '2026-02-15', major: 'TeamA', middle: 'Task-Plan', minor: 'Requirements', fill: PLAN_FILL },
-    { id: 'ta-task-plan-clarify-uc', abbrev: 'Clarify Usecase', kind: 'task', startDate: '2026-02-10', endDate: '2026-03-12', major: 'TeamA', middle: 'Task-Plan', minor: 'Usecase', fill: PLAN_FILL },
+    { id: 'ta-task-plan-orient', abbrev: 'Orientation', kind: 'task', startDate: '2026-01-01', endDate: '2026-01-11', major: 'TeamA', middle: 'Task', minor: 'Onboarding', fill: PLAN_FILL },
+    { id: 'ta-task-plan-clarify-stk', abbrev: 'Clarify Stakeholders', kind: 'task', startDate: '2026-01-09', endDate: '2026-01-26', major: 'TeamA', middle: 'Task', minor: 'Requirements', fill: PLAN_FILL },
+    { id: 'ta-task-plan-gather', abbrev: 'Gather Request', kind: 'task', startDate: '2026-01-21', endDate: '2026-02-15', major: 'TeamA', middle: 'Task', minor: 'Requirements', fill: PLAN_FILL },
+    { id: 'ta-task-plan-clarify-uc', abbrev: 'Clarify Usecase', kind: 'task', startDate: '2026-02-10', endDate: '2026-03-12', major: 'TeamA', middle: 'Task', minor: 'Usecase', fill: PLAN_FILL },
   ];
 
   const items: ScheduleItem[] = seeds.map((seed) => {
@@ -158,6 +158,8 @@ export function generateTemplateDocument(projectId: string = TEMPLATE_PROJECT_ID
       ...(seed.minor !== undefined ? { minorCategory: seed.minor } : {}),
       ...(seed.fadeInDays !== undefined ? { fadeInDays: seed.fadeInDays } : {}),
       ...(seed.fadeOutDays !== undefined ? { fadeOutDays: seed.fadeOutDays } : {}),
+      ...(seed.actualStart !== undefined ? { actualStart: seed.actualStart } : {}),
+      ...(seed.actualEnd !== undefined ? { actualEnd: seed.actualEnd } : {}),
       ...(seed.progressRatio !== undefined ? { progressRatio: seed.progressRatio } : {}),
       ...(seed.assignee !== undefined ? { assignee: seed.assignee } : {}),
     };

@@ -289,6 +289,43 @@ CR-010（承認 2026-07-21、`change-request-010-20260721-071425.md`）の Part 
 （`downloadAppLabel`／`downloadDeliveredApp` の注入シーム）で単体被覆し、実 DOM 挙動は親セッションの
 ライブ確認に委譲。
 
+## CR-012 (既定起動テンプレートを予実統一モデルへ移行) 実装トレース
+
+CR-012（承認 2026-07-21、`change-request-012-20260721-073825.md`）の Part 1〜4 を実装。IM7 決定
+（予定/実績を別行・別アイテムで保持する keep-as-is 方式）を supersede。スキーマ変更なし、
+コアドメインロジック変更なし。対象は `src/app/sample-data.ts` の `generateTemplateDocument` のみ
+（`generateSampleDocument`＝ベンチマーク用フィクスチャは既に統一モデルのため対象外）。
+
+| 改訂要求/契約 | Part | 内容 | 実装状態 |
+|---|---|---|---|
+| PLAN-L1-001/002（予実統一モデル） | Part 1 | 6 件の `*-Actual` アイテムを対応する `*-Plan` アイテムへ統合（`actualStart`/`actualEnd`/`progressRatio` を転記）し、統合元は削除。SoP/SOS 等は予定のみのまま残し疎密を保つ | done：`sample-data.generateTemplateDocument` の `Seed` に `actualStart`/`actualEnd` を追加し `assignee`/`fadeInDays` と同様に mapper で条件付き付与。統合対象＝kickoff/freeze（マイルストーン、`actualEnd` 無し）、concept/dev/sys1/swe2（タスク、実績スパン＋進捗率）。32→**26 アイテム** |
+| SECT（分類ツリーの導出） | Part 2 | 空になった `Milestones-Actual`／`Phase-Actual`（Over All・TeamA）／`SWE-Phase-Actual` の 4 中分類が `rebuildClassification` の再導出で自然消滅 | done：導出行数 13→**9 行**（Over All: Milestones, Phase／TeamA: Phase, SYS-Phase, SWE-Phase, Integration, Task{Onboarding, Requirements, Usecase}）。実装コード変更なし |
+| PLAN-L1-005 / CR-002 Part 1（配色） | Part 3 | テンプレート専用の赤 `ACTUAL_FILL='#ee6677'` を廃止。ベース色 1 色（`#4477aa`）から `displayFillColor`（淡色＝予定）/`actualDisplayFillColor`（濃色＝実績）が導出 | done：`ACTUAL_FILL` 定数と全参照を削除。全 26 アイテムの `fillColor` は単一のベース色 |
+| ITEM-L1-006（分類名） | Part 4 | 実態と乖離する `-Plan` サフィックスを除去（`Milestones-Plan`→`Milestones`, `Phase-Plan`→`Phase`, `SYS-Phase-Plan`→`SYS-Phase`, `SWE-Phase-Plan`→`SWE-Phase`, `Integration-Plan`→`Integration`, `Task-Plan`→`Task`）。小分類（Onboarding/Requirements/Usecase）は不変 | done：アイテム ID（`oa-ms-plan-kickoff` 等）は内部 ID のため**現状維持**（§7 未決事項の判断）。依存 4 本・注記 1 件・担当者・fade・`schemaVersion 2`・`TEMPLATE_PROJECT_ID` を保持 |
+| 受入基準 §6（パレット挙動） | 回帰 | `[A]`off=actual-only が真部分集合／`[P]`off=plan-only が全 26 件（空白化しない）／`[Ao]` が実績バーを予定バー上に生成／`[As]` が両サブレーンを生成／実績アイテムがイナズマ線頂点を持つ | done：新設 `tests/cr012-template-plan-actual.test.ts`（12 ケース）。更新：`tests/visual-data-batch.test.ts`（統一モデル・単一ベース色・中分類改称）、`tests/aspice-sample.test.ts`（`actualStart` 判定へ）、`tests/dependency-connector.test.ts`・`tests/e2e/ui-feedback-batch.spec.ts`（コメント）、`tests/e2e/classification-pane-restructure.spec.ts`（`Task-Plan`→`Task`, `Task-Plan-1`→`Task-1`） |
+
+**CR-012 ゲート**: tsc 0 err / vitest 715 pass・0 fail（73 files）/ eslint 0 err（`src tests`）。
+`document-schema-conformance.test.ts` は緑維持（スキーマ変更なし）。実 DOM 上の
+`[A]`/`[P]`/`[As]`/`[Ao]` 挙動は親セッションのライブ確認に委譲。
+
+## DEF-008 (予実表示フィルタがバー描画をゲートしていない) 修正トレース
+
+DEF-008（`project-records/defects/DEF-008-plan-actual-display-not-gating-bars.md`）の修正。
+`planActualDisplay` は「どのアイテムを描くか」だけでなく「どのバーを描くか」も決めるという
+PLAN-L1-002 の要求を描画層に反映。`computePlanActualBars` は純ジオメトリのまま据え置き。
+
+| 要求 | 内容 | 実装状態 |
+|---|---|---|
+| PLAN-L1-002 | 4モード（both / plan-only / actual-only / none）が予定バー・実績バーを個別にゲートする | done (DEF-008)：新設 `src/domain/usecase/plan-actual-display.ts`（`isPlanSideShown`/`isActualSideShown`/`planActualDisplayFromSides`/`computeDisplayedPlanActualBars`）。`item-layer` が `computeDisplayedPlanActualBars` 経由でバーを取得し、抑止側を描かない。`main.ts` のローカル述語と `dependency-visibility.isItemVisibleUnderDisplay` は同述語へ集約（モード判定の重複排除） |
+| PLAN-L1-002 / L1-005 | 片側抑止時は抑止側のサブレーンも描かず、残る側が1本のバーとして読めること（Overlap/Separate 共通） | done：`computeDisplayedPlanActualBars` が片側のみのとき overlap フレームで計算 → 残る側がレーン全高。`actual-only` ではプライマリグリフ自体が実績（実績スパンへ移動・濃色・`data-plan-actual-side="actual"`・太線幅）となり、別ノードは生成しない |
+| PLAN-L1-007 | マイルストーンの2マーカーも同ゲートに従う | done：`plan-only` で実績マーカー＋リーダー線を除去、`actual-only` で単一マーカーを `actualStart` に描画（`both` のときの実績マーカー位置と一致） |
+| PLAN-L1-003 | イナズマ線は実績側の可視性に従う | done：`progress-today-layer` の `=== 'plan-only'` 判定を `!isActualSideShown(...)` へ（`none` でも非表示） |
+
+**DEF-008 ゲート**: tsc 0 err / vitest 746 pass・0 fail（74 files）/ eslint 0 err（`src tests`）。
+新設 `tests/plan-actual-display-gating.test.ts`（31 ケース：純ゲート 4モード×2スタイル、
+ItemLayer 実描画＝実績あり/なしタスク・マイルストーン、トグル反復でノードが残留しないこと）。
+`tests/helpers/fake-svg-dom.ts` に `insertBefore` を追加（マイルストーンのリーダー線が使用）。
+
 ## 結論
 
 user-order 62項目 → 要求 → 設計 → データ契約 → テスト が一気通貫でトレースされ、**未被覆 0**。

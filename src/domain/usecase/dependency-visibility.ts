@@ -17,6 +17,7 @@
  */
 
 import type { Dependency, PlanActualDisplay, ScheduleItem } from '../model/schedule-model.js';
+import { isActualSideShown, isPlanSideShown } from './plan-actual-display.js';
 import { itemHasActualDates } from './progress-line-builder.js';
 
 /**
@@ -51,14 +52,11 @@ export function isItemVisibleUnderDisplay(
   planActualSide: 'plan' | 'actual' | undefined,
   display: PlanActualDisplay | undefined,
 ): boolean {
-  const effectiveDisplay = display ?? 'both';
-  if (effectiveDisplay === 'none') {
-    return false;
+  // Single source of the four display modes: the shared side predicates (DEF-008).
+  if (planActualSide === undefined) {
+    return isPlanSideShown(display) || isActualSideShown(display);
   }
-  if (effectiveDisplay === 'both' || planActualSide === undefined) {
-    return true;
-  }
-  return effectiveDisplay === 'plan-only' ? planActualSide === 'plan' : planActualSide === 'actual';
+  return planActualSide === 'plan' ? isPlanSideShown(display) : isActualSideShown(display);
 }
 
 /**

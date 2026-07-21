@@ -432,3 +432,45 @@ npm run build = dist/index.html 295.84kB 自己完結**。変更ファイル計1
 `project-management/autonomous-session-report-20260721.md`(本書)はプロセス文書で公開対象、機微情報なし。
 
 **次アクション(ユーザー帰宅後)**: (1)本書レビュー→D-1〜D-8可否 (2)手動コミット/プッシュ (3)性能PoC立会い。
+
+---
+
+## 追補 (2026-07-22): CR-012 + DEF-008 — 予実トグルが機能しない問題の解決
+
+**発端**: ユーザーが「P A @ Ao As の動作」を確認要求 → 実機実測で以下が判明。
+
+| 操作 | 修正前 | 原因 |
+|---|---|---|
+| [A] off (plan-only) | 26件のまま実績バーも残る | 描画層が `planActualDisplay` を見ていない |
+| [P] off (actual-only) | **0件＝真っ白** | サンプルに実績日を持つアイテムが皆無 |
+| [As] | バーが半分になり**下段が空** | 実績日が無く実績バーが null |
+| [Ao] | 実績バーが描かれない | 同上 |
+| [@] | 正常 | — |
+
+**根本原因は2つ**:
+1. **データ**: CR-001 で「1アイテムが予定+実績日を持つ」統一モデルにしたが、既定テンプレートは IM7 の
+   keep-as-is 移植で**予実が別行**（青Plan行/赤Actual行）のまま。赤行はアプリから見れば「塗りが赤い普通の
+   タスク」で実績と認識されない。→ **CR-012**（ユーザー承認済）でサンプルを統一モデルへ移行。
+2. **描画**: `item-layer` が `planActualDisplay` を**アイテムの取捨にしか使わず**、残ったアイテムの
+   予定/実績バーの描き分けに使っていなかった。→ **DEF-008**（High）を起票し修正。
+
+**CR-012 実装**: 6組の `*-Actual` を対応する `*-Plan` に統合（`actualStart`/`actualEnd`/`progressRatio`）、
+空になった4つの `*-Actual` 中分類を除去、赤 `ACTUAL_FILL` を廃止（淡=予定/濃=実績は単一 base 色から派生）、
+`-Plan` サフィックスを除去（Milestones/Phase/SYS-Phase/SWE-Phase/Integration/Task）。**32件13行 → 26件9行**。
+
+**DEF-008 修正**: 新設 `src/domain/usecase/plan-actual-display.ts` に4モードのゲートを集約
+（`isPlanSideShown`/`isActualSideShown`/`planActualDisplayFromSides`/`computeDisplayedPlanActualBars`）。
+`computePlanActualBars` は純ジオメトリのまま（ドメイン純度維持）。`main.ts` のローカル述語を移設し、
+`dependency-visibility`・`progress-today-layer` も同述語へ集約。単体テスト31件追加。
+
+**実機ライブ再検証（すべて期待どおり）**:
+- both: 26件 / 実績バー3 / planSide3 / actualSide5
+- **[A]off: 実績側 0**（実績バー完全抑止）・26件
+- **[P]off: 6件・予定側 0・実績側 6**（真っ白解消）
+- **[Ao]**: 予定(y97,h24,w71)に実績(y97,h24,w72,x2)を重ね描き
+- **[As]**: 予定(y97,h10) / 実績(y110,h10) と**上下サブレーン両方が埋まる**
+
+**gate: tsc0 / eslint0 / vitest746 / strictdoc exit0 / build 295.98kB**。
+
+**未決（フォローアップ候補）**: `[P]`off で対象0件の文書を開いた場合の空表示ガード（CR-012 §7 で明示的に
+スコープ外とした）。今のテンプレートでは6件あるため顕在化しない。

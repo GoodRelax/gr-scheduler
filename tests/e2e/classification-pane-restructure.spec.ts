@@ -66,12 +66,12 @@ test.describe('classification-pane restructure (e2e, trusted events)', () => {
 
   test('a Middle label and its first Minor label render at different y (no overlap)', async ({ page }) => {
     await openApp(page);
-    // The startup template has middle "Task-Plan" with a first minor "Onboarding".
+    // The startup template has middle "Task" with a first minor "Onboarding".
     // Measure the NAME text spans (the container div spans the whole band): the
     // middle name is top-aligned and the minor name center-aligned, so the middle
     // text sits clearly above the minor text with no vertical collision.
     const middleName = page
-      .locator('[data-role="track-label"]', { hasText: 'Task-Plan' })
+      .locator('[data-role="track-label"]', { hasText: 'Task' })
       .first()
       .locator('[data-role="node-name"]');
     const minorName = page
@@ -91,7 +91,7 @@ test.describe('classification-pane restructure (e2e, trusted events)', () => {
 
   test('hiding a track via "-" removes its rows; the section "□" restores them', async ({ page }) => {
     await openApp(page);
-    const middle = page.locator('[data-role="track-label"]', { hasText: 'Task-Plan' }).first();
+    const middle = page.locator('[data-role="track-label"]', { hasText: 'Task' }).first();
     await middle.waitFor();
     const onboarding = page.locator('[data-role="detail-label"]', { hasText: 'Onboarding' });
     expect(await onboarding.count()).toBeGreaterThan(0);
@@ -112,7 +112,7 @@ test.describe('classification-pane restructure (e2e, trusted events)', () => {
 
   test('clicking "X" opens a confirm dialog with bold D / C; pressing D deletes', async ({ page }) => {
     await openApp(page);
-    const middle = page.locator('[data-role="track-label"]', { hasText: 'Task-Plan' }).first();
+    const middle = page.locator('[data-role="track-label"]', { hasText: 'Task' }).first();
     await middle.waitFor();
     // Reveal the hidden-until-hover control row (via :focus-within) before its "X".
     await middle.locator('[data-role="node-name"]').first().focus();
@@ -126,22 +126,22 @@ test.describe('classification-pane restructure (e2e, trusted events)', () => {
 
     await page.keyboard.press('d');
     await expect(page.getByRole('dialog')).toHaveCount(0);
-    await expect(page.locator('[data-role="track-label"]', { hasText: 'Task-Plan' })).toHaveCount(0);
+    await expect(page.locator('[data-role="track-label"]', { hasText: 'Task' })).toHaveCount(0);
   });
 
   test('Ctrl+C then Ctrl+V on a focused node duplicates its subtree as a sibling', async ({ page }) => {
     await openApp(page);
-    const middle = page.locator('[data-role="track-label"]', { hasText: 'Task-Plan' }).first();
+    const middle = page.locator('[data-role="track-label"]', { hasText: 'Task' }).first();
     await middle.waitFor();
     // Focus the node by clicking its name span, then copy + paste with the keyboard.
     await middle.locator('[data-role="node-name"]').click();
     await page.keyboard.press('Control+c');
     await page.keyboard.press('Control+v');
-    // The duplicated track "Task-Plan-1" appears (unified CR-007 -N naming); its label
+    // The duplicated track "Task-1" appears (unified CR-007 -N naming); its label
     // repeats once per detail row it carries (the copy keeps the three minors), so >= 1.
     await expect
       .poll(async () =>
-        page.locator('[data-role="track-label"]', { hasText: 'Task-Plan-1' }).count(),
+        page.locator('[data-role="track-label"]', { hasText: 'Task-1' }).count(),
       )
       .toBeGreaterThan(0);
   });

@@ -1,8 +1,8 @@
 /**
  * Unit coverage for the visual/data batch:
- *  1. the default template has a valid { major, middle } category and a
- *     plan_actual_status CONSISTENT with its "-Plan" / "-Actual" middle on EVERY
- *     item, with the user's misspellings corrected (Actual / Clarify);
+ *  1. the default template has a valid { major, middle } category on EVERY item and
+ *     carries plan AND actual on the SAME item (CR-012 unified model), with the
+ *     user's misspellings corrected (Actual / Clarify);
  *  3. plan -> green / actual -> orange is driven by the plan_actual PROPERTY;
  *  4. the timeline range accepts panning back to 2000-01-01;
  *  6. the gridline toggle state round-trips through JSON / view state;
@@ -51,26 +51,49 @@ describe('default template sample data (fix 1)', () => {
     }
   });
 
-  it('records actual dates coherently on the paired actual rows (KEEP-AS-IS model)', () => {
-    // Plan and actual are kept as SEPARATE items on SEPARATE `*-Actual` tracks. Every
-    // actual item carries valid ISO dates and (for tasks) never ends before it starts.
-    const actualItems = document.items.filter((item) =>
-      (item.middleCategory ?? '').endsWith('-Actual'),
-    );
-    expect(actualItems.length).toBeGreaterThan(0);
+  it('records actual dates coherently on the SAME item as the plan (CR-012)', () => {
+    // Every item that records an actual carries valid ISO dates and (for tasks) an
+    // actual end that never precedes the actual start.
+    const withActual = document.items.filter((item) => item.actualStart !== undefined);
+    expect(withActual.length).toBeGreaterThan(0);
     const isoDate = /^\d{4}-\d{2}-\d{2}$/;
-    for (const item of actualItems) {
+    for (const item of withActual) {
       expect(item.startDate).toMatch(isoDate);
-      if (item.endDate != null) {
-        expect(item.endDate).toMatch(isoDate);
-        expect(item.endDate >= item.startDate).toBe(true);
+      expect(item.actualStart!).toMatch(isoDate);
+      if (item.actualEnd != null) {
+        expect(item.actualEnd).toMatch(isoDate);
+        expect(item.actualEnd >= item.actualStart!).toBe(true);
+      }
+      if (item.progressRatio !== undefined) {
+        expect(item.progressRatio).toBeGreaterThanOrEqual(0);
+        expect(item.progressRatio).toBeLessThanOrEqual(1);
       }
     }
   });
 
-  it('carries actual data as separate items on the paired actual rows (KEEP-AS-IS model)', () => {
-    // At least one item lives on an `*-Actual` track as a red as-run bar/milestone.
-    expect(document.items.some((item) => (item.middleCategory ?? '').endsWith('-Actual'))).toBe(true);
+  it('has no leftover "-Actual" track (plan and actual share one row, CR-012)', () => {
+    expect(document.items.some((item) => (item.middleCategory ?? '').endsWith('-Actual'))).toBe(
+      false,
+    );
+    expect(document.items.some((item) => (item.middleCategory ?? '').endsWith('-Plan'))).toBe(false);
+  });
+
+  it('exercises the unified plan/actual model (task span + milestone actual)', () => {
+    // At least one TASK carries a full actual span with a progress front ...
+    const taskWithActualSpan = document.items.find(
+      (item) =>
+        item.itemKind === 'task' &&
+        item.actualStart !== undefined &&
+        item.actualEnd != null &&
+        item.progressRatio !== undefined,
+    );
+    expect(taskWithActualSpan).toBeDefined();
+    // ... and at least one MILESTONE carries an actual date (a shifted as-run gate).
+    const milestoneWithActual = document.items.find(
+      (item) => item.itemKind === 'milestone' && item.actualStart !== undefined,
+    );
+    expect(milestoneWithActual).toBeDefined();
+    expect(milestoneWithActual?.actualStart).not.toBe(milestoneWithActual?.startDate);
   });
 
   it('places every item under one of the two named sections', () => {
@@ -87,25 +110,22 @@ describe('default template sample data (fix 1)', () => {
     const abbrevs = document.items.map((item) => item.abbrev);
     expect(abbrevs).toContain('Clarify Stakeholders');
     expect(abbrevs).toContain('Clarify Usecase');
-    // The programme-level tracks are spelled correctly (actual dates now live on the
-    // plan items themselves rather than on paired "-Actual" middle rows).
-    expect(document.items.some((item) => item.middleCategory === 'Milestones-Plan')).toBe(true);
-    expect(document.items.some((item) => item.middleCategory === 'Phase-Plan')).toBe(true);
+    // The programme-level tracks are spelled correctly and no longer carry the
+    // misleading "-Plan" suffix (actual dates live on the same item, CR-012).
+    expect(document.items.some((item) => item.middleCategory === 'Milestones')).toBe(true);
+    expect(document.items.some((item) => item.middleCategory === 'Phase')).toBe(true);
   });
 
-  it('includes the TeamA Phase-Plan multi-bar row (SYS1..SWE1) with a paired actual SYS1', () => {
-    const teamAPhasePlan = document.items.filter(
-      (item) => item.majorCategory === 'TeamA' && item.middleCategory === 'Phase-Plan',
+  it('includes the TeamA Phase multi-bar row (SYS1..SWE1) with SYS1 carrying its actual', () => {
+    const teamAPhase = document.items.filter(
+      (item) => item.majorCategory === 'TeamA' && item.middleCategory === 'Phase',
     );
-    expect(teamAPhasePlan.map((item) => item.abbrev).sort()).toEqual(['SWE1', 'SYS1', 'SYS2', 'SYS3']);
-    // The as-run SYS1 lives as a separate red item on the paired Phase-Actual track.
-    const actualSys1 = document.items.find(
-      (item) =>
-        item.majorCategory === 'TeamA' &&
-        item.middleCategory === 'Phase-Actual' &&
-        item.abbrev === 'SYS1',
-    );
-    expect(actualSys1).toBeDefined();
+    expect(teamAPhase.map((item) => item.abbrev).sort()).toEqual(['SWE1', 'SYS1', 'SYS2', 'SYS3']);
+    // The as-run SYS1 is the SAME item as the plan SYS1 (CR-012 unified model).
+    const sys1 = teamAPhase.find((item) => item.abbrev === 'SYS1');
+    expect(sys1?.actualStart).toBe('2026-01-03');
+    expect(sys1?.actualEnd).toBe('2026-02-15');
+    expect(sys1?.progressRatio).toBe(0.8);
   });
 });
 
@@ -130,18 +150,20 @@ describe('plan/actual saturation-derived coloring (CR-002 Part 1)', () => {
     expect(actualHsl.l).toBeLessThan(planHsl.l);
   });
 
-  it('keeps each template item own stored fill (separate plan/actual rows, no derivation)', () => {
+  it('derives both template shades from ONE base fill (CR-012: no red actual color)', () => {
     const document = generateTemplateDocument();
-    // KEEP-AS-IS: plan and actual are separate items with no per-item actualStart, so
-    // each item keeps its OWN stored fill (blue plan, red actual) with no pale/vivid
-    // derivation. Both hues are still present on the template.
+    // CR-012: every item stores the SAME single base fill; the pale plan tint and the
+    // vivid actual shade are derived from it, so no separate red actual color exists.
     const fills = new Set(document.items.map((item) => item.fillColor));
-    expect(fills.has('#4477aa')).toBe(true);
-    expect(fills.has('#ee6677')).toBe(true);
+    expect([...fills]).toEqual(['#4477aa']);
     for (const item of document.items) {
-      expect(item.actualStart).toBeUndefined();
-      expect(displayFillColor(item)).toBe(item.fillColor);
+      const expected =
+        item.actualStart !== undefined ? planColorFrom(item.fillColor) : item.fillColor;
+      expect(displayFillColor(item)).toBe(expected);
     }
+    // Items on BOTH sides of the derivation are present (plan-only and with-actual).
+    expect(document.items.some((item) => item.actualStart !== undefined)).toBe(true);
+    expect(document.items.some((item) => item.actualStart === undefined)).toBe(true);
   });
 });
 

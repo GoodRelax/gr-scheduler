@@ -227,7 +227,7 @@ test.describe('ui feedback batch', () => {
 
   test('7 + 8. overlapping items stack into >2 lanes with a visible gap', async ({ page }) => {
     await openApp(page);
-    // The TeamA Phase-Plan row (SYS1..SWE1) has three mutually-overlapping bars, so it
+    // The TeamA Phase row (SYS1..SWE1) has three mutually-overlapping bars, so it
     // stacks into three sub-lanes (the old cap allowed only two visible).
     const lanes = await page.evaluate(() => {
       const ids = ['ta-phase-plan-sys1', 'ta-phase-plan-sys2', 'ta-phase-plan-sys3'];

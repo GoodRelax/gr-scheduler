@@ -90,6 +90,11 @@ import {
   THEME_BUTTON_SPECS,
 } from './header-model.js';
 import { resolvePlanActualStyle } from '../domain/usecase/plan-actual-geometry.js';
+import {
+  isActualSideShown,
+  isPlanSideShown,
+  planActualDisplayFromSides,
+} from '../domain/usecase/plan-actual-display.js';
 import type { RoundedBoxRect } from '../domain/command/annotation-commands.js';
 import {
   applyThemePreference,
@@ -430,35 +435,6 @@ function makeCommandGroup(label: string, controls: readonly HTMLElement[]): HTML
 function toFileStem(title: string): string {
   const stem = title.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
   return stem.length > 0 ? stem : 'schedule';
-}
-
-/** Whether the PLAN side is shown under a display filter (fix 8). */
-function isPlanShown(display: PlanActualDisplay | undefined): boolean {
-  const value = display ?? 'both';
-  return value === 'both' || value === 'plan-only';
-}
-
-/** Whether the ACTUAL side is shown under a display filter (fix 8). */
-function isActualShown(display: PlanActualDisplay | undefined): boolean {
-  const value = display ?? 'both';
-  return value === 'both' || value === 'actual-only';
-}
-
-/**
- * Combine two independent Plan / Actual toggles into a single display filter
- * (fix 8): both on -> both, only one on -> that side, neither -> none.
- */
-function planActualDisplayFrom(planShown: boolean, actualShown: boolean): PlanActualDisplay {
-  if (planShown && actualShown) {
-    return 'both';
-  }
-  if (planShown) {
-    return 'plan-only';
-  }
-  if (actualShown) {
-    return 'actual-only';
-  }
-  return 'none';
 }
 
 /**
@@ -1645,8 +1621,8 @@ function wireDependencyLinkMode(
  */
 function wirePlanActual(chrome: Chrome, renderer: SvgRenderer, locale: LocaleController): void {
   const syncPlanActualButtons = (display: PlanActualDisplay | undefined): void => {
-    const planShown = isPlanShown(display);
-    const actualShown = isActualShown(display);
+    const planShown = isPlanSideShown(display);
+    const actualShown = isActualSideShown(display);
     const planName = `${uiLabel('plan_display', locale.get())}: ${planShown ? 'on' : 'off'}`;
     chrome.planButton.setAttribute('aria-pressed', planShown ? 'true' : 'false');
     chrome.planButton.setAttribute('aria-label', planName);
@@ -1658,13 +1634,13 @@ function wirePlanActual(chrome: Chrome, renderer: SvgRenderer, locale: LocaleCon
   };
   chrome.planButton.addEventListener('click', () => {
     const current = renderer.getViewState().planActualDisplay;
-    const next = planActualDisplayFrom(!isPlanShown(current), isActualShown(current));
+    const next = planActualDisplayFromSides(!isPlanSideShown(current), isActualSideShown(current));
     renderer.setViewState({ ...renderer.getViewState(), planActualDisplay: next });
     syncPlanActualButtons(next);
   });
   chrome.actualButton.addEventListener('click', () => {
     const current = renderer.getViewState().planActualDisplay;
-    const next = planActualDisplayFrom(isPlanShown(current), !isActualShown(current));
+    const next = planActualDisplayFromSides(isPlanSideShown(current), !isActualSideShown(current));
     renderer.setViewState({ ...renderer.getViewState(), planActualDisplay: next });
     syncPlanActualButtons(next);
   });

@@ -15,6 +15,7 @@ import {
   isProgressLineVisible,
   type RowProgressFront,
 } from '../../../domain/usecase/progress-line-builder.js';
+import { isActualSideShown } from '../../../domain/usecase/plan-actual-display.js';
 import { cursorScreenX } from '../../../domain/usecase/cursor-span.js';
 import { fromDayNumber, toDayNumber } from '../../../domain/usecase/time-coordinate-mapper.js';
 import { SVG_NS, type RenderContext } from '../render-context.js';
@@ -29,7 +30,9 @@ export class ProgressTodayLayer {
    * front becomes a vertex; the builder anchors the ends to today's axis.
    */
   public renderProgressLine(ctx: RenderContext): void {
-    if (ctx.scheduleDocument === null || ctx.viewState.planActualDisplay === 'plan-only') {
+    // The progress line IS the actual front, so it follows the actual side of the
+    // display filter (PLAN-L1-002): hidden under `plan-only` and under `none`.
+    if (ctx.scheduleDocument === null || !isActualSideShown(ctx.viewState.planActualDisplay)) {
       return;
     }
     // Deletable / hideable (item 2, CR-006 Part 5): the DEFAULT is now HIDDEN, so an

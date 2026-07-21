@@ -368,12 +368,12 @@ describe('dependency connector: CR-008 template dependency geometries are non-br
   const bandTop = 0;
   const laneY = (laneIndex: number): number => bandTop + laneIndex * laneHeight;
 
-  // Over All Schedule > Phase-Plan: a single lane of sequential, flush phases.
+  // Over All Schedule > Phase: a single lane of sequential, flush phases.
   const concept: Rect = { x: 0, y: laneY(0), width: 120, height: barHeight };
   const dev: Rect = { x: 120, y: laneY(0), width: 180, height: barHeight };
   const valid: Rect = { x: 300, y: laneY(0), width: 150, height: barHeight };
 
-  // TeamA > Phase-Plan: sys3 top (lane 0), sys2 middle (lane 1), sys1 & swe1 bottom
+  // TeamA > Phase: sys3 top (lane 0), sys2 middle (lane 1), sys1 & swe1 bottom
   // (lane 2), matching the bottom-up sub-lane stacking (CR-004 Part 1).
   const sys1: Rect = { x: 0, y: laneY(2), width: 100, height: barHeight };
   const sys2: Rect = { x: 70, y: laneY(1), width: 120, height: barHeight };

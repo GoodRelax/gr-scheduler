@@ -2,8 +2,9 @@
  * Coverage for the default starter sample being an Automotive SPICE (ASPICE)
  * project that runs from project start to SOS (Start Of Sales) at ~2 years 10
  * months, framed by a ~3-year default timeline. Verifies every item is
- * well-formed (id + category + plan_actual_kind) so the derived tree, plan/actual
- * coloring and Fit all behave, and that the SOS milestone anchors the span.
+ * well-formed (id + category, with actual dates on the SAME item per CR-012) so the
+ * derived tree, plan/actual coloring and Fit all behave, and that the SOS milestone
+ * anchors the span.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -66,9 +67,9 @@ describe('default ASPICE sample (project start -> SOS, ~3-year timeline)', () =>
     // Integration & validation tracks reach toward SOS.
     expect(abbrevs.has('System Integration')).toBe(true);
     expect(abbrevs.has('Vehicle Validation')).toBe(true);
-    // As-run (actual) items live on the paired `*-Actual` tracks (KEEP-AS-IS model),
+    // As-run (actual) dates live on the SAME item as the plan (CR-012 unified model),
     // and the SoP gate milestone is present.
-    expect(document.items.some((item) => (item.middleCategory ?? '').endsWith('-Actual'))).toBe(true);
+    expect(document.items.some((item) => item.actualStart !== undefined)).toBe(true);
     expect(document.items.some((item) => item.abbrev === 'SoP')).toBe(true);
   });
 });
