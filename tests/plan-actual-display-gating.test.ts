@@ -191,9 +191,11 @@ describe('DEF-008 gate: the display filter decides which BARS exist (pure)', () 
       expect(bars.plan).not.toBeNull();
       expect(bars.actual).not.toBeNull();
       if (style === 'separate') {
-        // The two sub-lanes stay stacked and each is shorter than the lane.
+        // CR-013 Part 1: the actual stays stacked below the plan and BOTH bars keep
+        // the normal (full) bar height -- the row grows instead of the bars shrinking.
         expect(bars.actual!.y).toBeGreaterThan(bars.plan!.y + bars.plan!.height);
-        expect(bars.plan!.height).toBeLessThan(LANE_HEIGHT);
+        expect(bars.plan!.height).toBe(LANE_HEIGHT);
+        expect(bars.actual!.height).toBe(LANE_HEIGHT);
       } else {
         expect(bars.actual!.y).toBe(bars.plan!.y);
         expect(bars.plan!.height).toBe(LANE_HEIGHT);

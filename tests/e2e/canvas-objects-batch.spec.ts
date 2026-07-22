@@ -174,9 +174,20 @@ test.describe('canvas objects batch', () => {
   test('3. stacked bars leave a ~10% (90% bar) gap', async ({ page }) => {
     await openApp(page);
     const report = await page.evaluate(() => {
-      const ids = ['ta-phase-plan-sys1', 'ta-phase-plan-sys2', 'ta-phase-plan-sys3'];
+      // sys1 and sys3 (CR-003 Part 2 inner-left label-collision avoidance: sys1's own
+      // abbreviation overflows far enough right to bump swe1 into a fresh lane, but not
+      // far enough to block sys3 reusing sys1's freed lane) end up sharing ONE lane --
+      // swe1 sits in the genuinely distinct third lane, so sys1/sys2/swe1 are the trio
+      // that actually renders across three separate stacked lanes (CR-012 template
+      // restructuring shifted the fitted zoom enough to change this pairing from the
+      // original sys1/sys2/sys3 selection).
+      const ids = ['ta-phase-plan-sys1', 'ta-phase-plan-sys2', 'ta-phase-plan-swe1'];
+      // sys1/sys2 carry a demo fadeIn/fadeOutDays (CR-004 fade-taper enrichment of the
+      // sample data): a faded task bar renders as a `<polygon>`, not a `<rect>` (only
+      // the x-coordinates taper -- the y-extent, and so the lane-gap ratio this test
+      // checks, is identical to a plain rect). Match either glyph.
       const rects = ids
-        .map((id) => document.querySelector(`svg [data-item-id="${id}"] > rect`))
+        .map((id) => document.querySelector(`svg [data-item-id="${id}"] > :is(rect, polygon)`))
         .filter((node): node is Element => node !== null)
         .map((node) => node.getBoundingClientRect())
         .sort((a, b) => a.top - b.top);

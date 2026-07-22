@@ -272,7 +272,10 @@ test.describe('gr-scheduler interaction batch', () => {
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.wheel(0, 2000);
 
-    await page.getByRole('button', { name: 'Fit schedule to view' }).click();
+    // Target the header's [Fit] specifically: DEF-013 -- a leftover floating-palette
+    // Fit button shares the identical accessible name "Fit schedule to view" (strict
+    // mode violation on a name-based lookup); see the DEF-013 defect record.
+    await page.locator('button[data-role="header-fit"]').click();
     // Wait a frame for the fitted re-render.
     await page.locator('svg [data-item-id="oa-ms-plan-kickoff"]').waitFor();
     await page.locator('svg [data-item-id="oa-ms-plan-launch"]').waitFor();

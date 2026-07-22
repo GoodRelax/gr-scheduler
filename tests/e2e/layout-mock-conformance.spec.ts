@@ -86,9 +86,10 @@ test.describe('layout mock conformance: floating palette + full-viewport canvas'
 
     // Focusing a control INSIDE the palette makes the whole palette opaque
     // (:focus-within), so keyboard users read it at full contrast even without a
-    // pointer. (Document File I/O now lives in the header; the icon import stays.)
+    // pointer. (Document File I/O now lives in the header; CR-004 later removed the
+    // icon-asset import feature entirely, so a shape-picker button stands in here.)
     await page.mouse.move(0, 0);
-    await palette.getByRole('button', { name: 'Import icon' }).focus();
+    await palette.getByRole('button', { name: 'Task bar' }).focus();
     await expect
       .poll(async () => backgroundAlpha(page, '[data-role="command-palette"]'))
       .toBeGreaterThan(0.9);

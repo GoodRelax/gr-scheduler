@@ -172,7 +172,7 @@ test.describe('interaction hardening', () => {
   });
 
   test('a rounded box can be selected by click and deleted, and Undo restores it', async ({ page }) => {
-    await openApp(page);
+    const canvas = await openApp(page);
     // Clear the viewport center so the created box is on open, clickable canvas.
     await movePaletteAway(page);
 
@@ -181,7 +181,18 @@ test.describe('interaction hardening', () => {
     const idsBefore = new Set((before.annotations ?? []).map((a) => a.id));
 
     // Add a fresh rounded box at the viewport center (deterministic on-screen).
+    // CR-006 Part 7: "Add box" only ARMS 2-click placement now (CURS-L1-007); the
+    // box itself is created by two subsequent real canvas clicks (opposite corners).
     await page.getByRole('button', { name: 'Add box' }).dispatchEvent('click');
+    const canvasBox = await canvas.boundingBox();
+    expect(canvasBox).not.toBeNull();
+    if (canvasBox === null) {
+      return;
+    }
+    const cx = canvasBox.x + canvasBox.width / 2;
+    const cy = canvasBox.y + canvasBox.height / 2;
+    await page.mouse.click(cx - 60, cy - 30);
+    await page.mouse.click(cx + 60, cy + 30);
     const afterCreate = await exportDocument(page);
     const created = (afterCreate.annotations ?? []).find((a) => !idsBefore.has(a.id));
     expect(created).toBeDefined();
@@ -260,6 +271,11 @@ test.describe('interaction hardening', () => {
     await page.mouse.move(panX, panY - 140, { steps: 8 });
     await page.mouse.up();
 
+    // The drag can transiently resize the canvas container (e.g. a marquee selection
+    // opening/growing the properties panel), and the ruler is omitted from a render
+    // pass whose measured width is momentarily 0 (`RulerLayer.render`, ResizeObserver
+    // settle lag) -- wait for it to re-appear before reading its geometry.
+    await expect(ruler).toBeVisible();
     const rulerAfter = await ruler.boundingBox();
     expect(rulerAfter).not.toBeNull();
     if (rulerAfter === null) {

@@ -35,6 +35,7 @@ describe('pickItemHit: overlap resolution (edge precedence, selected/top wins)',
     worldWidth: 100,
     isTask: true,
     isSelected: false,
+    side: 'plan',
   };
   const selected: HitCandidate = {
     itemId: 'sel',
@@ -43,6 +44,7 @@ describe('pickItemHit: overlap resolution (edge precedence, selected/top wins)',
     worldWidth: 20,
     isTask: true,
     isSelected: true,
+    side: 'plan',
   };
 
   it('returns null when there are no candidates', () => {
@@ -52,18 +54,18 @@ describe('pickItemHit: overlap resolution (edge precedence, selected/top wins)',
   it('grabs the SELECTED bar edge even when an upper lane overlaps it', () => {
     // x = 152 is the selected bar's start edge, but also inside the top bar's body.
     const hit = pickItemHit([top, selected], 152, HANDLE);
-    expect(hit).toEqual({ itemId: 'sel', region: 'resize-start' });
+    expect(hit).toEqual({ itemId: 'sel', region: 'resize-start', side: 'plan' });
   });
 
   it('prefers an edge (resize) over a body (move) at the same point', () => {
     // x = 168 is the selected bar's end edge; top bar body also contains it.
     const hit = pickItemHit([top, selected], 168, HANDLE);
-    expect(hit).toEqual({ itemId: 'sel', region: 'resize-end' });
+    expect(hit).toEqual({ itemId: 'sel', region: 'resize-end', side: 'plan' });
   });
 
   it('falls back to the topmost lane body when no edge is under the pointer', () => {
     // Only the top bar contains x = 150 (mid of 100..200), and it is not near an edge.
     const hit = pickItemHit([top], 150, HANDLE);
-    expect(hit).toEqual({ itemId: 'top', region: 'body' });
+    expect(hit).toEqual({ itemId: 'top', region: 'body', side: 'plan' });
   });
 });

@@ -5,7 +5,7 @@
  */
 
 import type { ItemPlacement } from '../../domain/usecase/layout-engine.js';
-import type { ScheduleItem, ViewState } from '../../domain/model/schedule-model.js';
+import type { MilestoneShape, ScheduleItem, ViewState } from '../../domain/model/schedule-model.js';
 import {
   fadeTrapezoidPoints,
   type FadePoint,
@@ -313,17 +313,45 @@ const EVEN_ODD_MILESTONE_SHAPES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Whether a milestone shape must fill with the `evenodd` rule so its inner subpaths
+ * Whether a milestone SHAPE must fill with the `evenodd` rule so its inner subpaths
  * read as holes (the CR-004 Part 6c composite glyphs). The base shapes use the
- * default `nonzero` rule.
+ * default `nonzero` rule. Shape-keyed so non-item callers (the CR-014 tool-palette
+ * icons) share the canvas's paint decision.
+ *
+ * @param shape - The milestone shape.
+ * @returns True when the glyph needs the `evenodd` fill rule.
  */
-export function milestoneShapeUsesEvenOdd(item: ScheduleItem): boolean {
-  return EVEN_ODD_MILESTONE_SHAPES.has(effectiveMilestoneShape(item));
+export function milestoneShapeKindUsesEvenOdd(shape: MilestoneShape): boolean {
+  return EVEN_ODD_MILESTONE_SHAPES.has(shape);
 }
 
-/** Build the SVG path `d` for a milestone glyph centered at (cx, cy). */
-export function milestonePath(item: ScheduleItem, cx: number, cy: number, radius: number): string {
-  const shape = effectiveMilestoneShape(item);
+/**
+ * Whether a milestone ITEM's effective shape must fill with the `evenodd` rule
+ * (see {@link milestoneShapeKindUsesEvenOdd}).
+ */
+export function milestoneShapeUsesEvenOdd(item: ScheduleItem): boolean {
+  return milestoneShapeKindUsesEvenOdd(effectiveMilestoneShape(item));
+}
+
+/**
+ * Build the SVG path `d` for a milestone glyph of the given SHAPE, centered at (cx, cy).
+ * This is the single milestone-geometry definition: the canvas reaches it through
+ * {@link milestonePath} (which resolves an item's effective shape first) and the CR-014
+ * tool-palette icons call it directly, so palette and canvas can never draw different
+ * shapes.
+ *
+ * @param shape - The milestone shape to draw.
+ * @param cx - Glyph center x.
+ * @param cy - Glyph center y.
+ * @param radius - Glyph circumradius.
+ * @returns The SVG path data string.
+ */
+export function milestoneShapePath(
+  shape: MilestoneShape,
+  cx: number,
+  cy: number,
+  radius: number,
+): string {
   switch (shape) {
     case 'circle': {
       // Two arcs form a full circle.
@@ -353,6 +381,14 @@ export function milestonePath(item: ScheduleItem, cx: number, cy: number, radius
     default:
       return `M ${cx} ${cy - radius} L ${cx + radius} ${cy} L ${cx} ${cy + radius} L ${cx - radius} ${cy} Z`;
   }
+}
+
+/**
+ * Build the SVG path `d` for an ITEM's milestone glyph centered at (cx, cy), resolving
+ * its effective shape first. Thin wrapper over {@link milestoneShapePath}.
+ */
+export function milestonePath(item: ScheduleItem, cx: number, cy: number, radius: number): string {
+  return milestoneShapePath(effectiveMilestoneShape(item), cx, cy, radius);
 }
 
 /** Round a glyph-path coordinate to 2 decimals so paths stay compact/ASCII. */

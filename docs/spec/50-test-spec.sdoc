@@ -349,6 +349,28 @@ RELATIONS:
   VALUE: NFR-L1-006
   ROLE: Verifies
 
+[TEST]
+UID: TEST-UNIT-018
+TITLE: 予実バー幾何: Separate の積み上げ・実績バーの最小描画幅・超過クランプ (tests/plan-actual-geometry.test.ts)
+LEVEL: Unit
+STATEMENT: >>>
+`computePlanActualBars` が overlap では予定バーがレーンを満たし実績が同じ高さで重なること、
+separate では両バーが通常のバー高を保ったまま `separateActualBarOffsetPx` の分だけ実績が下へ
+積まれることを検証する。あわせて実績バーの最小描画幅として、 `actualBarRenderWidthPx` が
+actualEnd を持たない ( 継続期間ゼロの ) 実績を掴める最小幅まで底上げし、最小幅より広い実績には
+手を加えないこと、 `actualBarDrawnWidthPx` が予定バーを並べて描く場合にのみ最小幅の張り出しを
+予定終了でクランプすること、記録された実績終了が予定終了を越える真の超過ではクランプせず全長を
+保つこと、クランプが実績の記録済み右端より手前へ引き戻さないことを検証する ( 退化した実績が
+予定超過として読めてしまうことの防止 、 PLAN-L2-002 規則 (2) ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: PLAN-L2-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: PLAN-L1-005
+  ROLE: Verifies
+
 [[/SECTION]]
 
 [[SECTION]]
@@ -597,6 +619,51 @@ RELATIONS:
   VALUE: CANVAS-L1-002
   ROLE: Verifies
 
+[TEST]
+UID: TEST-INT-014
+TITLE: 実績側ドラッグ: 実績日のみを書き換える辺/本体の掴みと Undo (tests/actual-side-drag.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+`HitTester` ・ `EditingController` ・ `ScheduleStore` を横断し、実績バーを起点とする掴みが
+実績日にのみ作用することを検証する。右辺のドラッグが actualEnd を書き込み、 actualEnd を
+持たない実績では最初の右辺ドラッグが actualStart を基準に実日付を確定させ actualStart より
+前へは下がらないこと、左辺のドラッグが actualStart のみを書き換え記録済みの actualEnd を
+越えないこと、本体のドラッグが実績スパン全体を期間を保ったまま平行移動することを検証する。
+あわせて、これら 3 操作の前後で予定日 ( startDate / endDate ) がバイト単位で不変であること
+( 表示スタイル overlap/separate 、可視フィルタ both/actual-only 、複数のズーム倍率の組合せで
+確認する ) 、 3 操作が Undo/Redo で往復できること、マイルストーンの実績が点として扱われ辺の
+リサイズ対象にならないこと、実績のみ表示では唯一描かれる字形が実績側の掴み対象として解決
+されることを検証する ( PLAN-L2-002 規則 (4) と規則 (5) ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: PLAN-L2-002
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: TOOL-L1-004
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-INT-015
+TITLE: プロジェクトタイトルのインライン編集・表示追従・プレースホルダの多言語化 (tests/cr016-project-title.test.ts)
+LEVEL: Integration
+STATEMENT: >>>
+ヘッダーのタイトル表示アダプタと `ScheduleStore` を横断し、タイトルの編集確定が Undo 可能な
+コマンドとして発行されること、 Escape 相当の取消では何も dispatch されず `title` が変化しない
+こと、空文字や無変更の編集が履歴を汚さないこと、確定・Undo・Redo・文書全体の差し替えの
+いずれでもヘッダー表示が現在の `title` へ追従すること、購読解除後は再描画されないことを
+検証する。あわせて `title` が空のときプレースホルダが表示され、それが製品名リテラルではない
+こと、プレースホルダが `activeLocale` に追従して切り替わること ( DEF-012 事象 2 、単一定義を
+保ったままの多言語化 ) を検証する。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L2-010
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: CANVAS-L1-004
+  ROLE: Verifies
+
 [[/SECTION]]
 
 [[SECTION]]
@@ -656,6 +723,27 @@ STATEMENT: >>>
 RELATIONS:
 - TYPE: Parent
   VALUE: NFR-L1-002
+  ROLE: Verifies
+
+[TEST]
+UID: TEST-SYS-004
+TITLE: ヘッダーのプロジェクトタイトルが役割とアクセシブル名を提示すること (tests/e2e/a11y.spec.ts)
+LEVEL: System
+STATEMENT: >>>
+ビルド済み `dist/index.html` に対し、編集していない状態のタイトル表示要素が操作要素としての
+役割 ( role ) を提示すること、その要素が空でないアクセシブル名を持ち、名前が可視テキストで
+始まりつつ ( WCAG 2.5.3 ) 名称変更という操作を述べる分だけ可視テキストより長いことを検証する。
+さらにインライン編集を起動したとき、編集用の入力要素が自身のアクセシブル名を持つこと、
+編集中は表示要素側が操作要素の役割を手放すこと ( 操作可能な要素の入れ子を作らないこと ) 、
+編集を取り消すと役割が復帰することを検証する ( DEF-012 事象 1 、 WCAG 2.1 AA 4.1.2 Name,
+Role, Value ) 。
+<<<
+RELATIONS:
+- TYPE: Parent
+  VALUE: TOOL-L2-010
+  ROLE: Verifies
+- TYPE: Parent
+  VALUE: NFR-L1-004
   ROLE: Verifies
 
 [[/SECTION]]

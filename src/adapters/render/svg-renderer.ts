@@ -570,6 +570,11 @@ export class SvgRenderer {
       // the framed content bottom match what is drawn so no bottom-row bar is clipped
       // (DEF-006).
       estimateInnerLeftLabelExtentPx,
+      // CR-013 Part 1: under the `separate` plan/actual style an actual-bearing row is
+      // TALLER (the actual bar stacks below the plan lane). Feeding Fit the LIVE style +
+      // display filter makes it measure the grown rows instead of the `overlap` heights,
+      // so [As] no longer under-shrinks and clips the bottom rows.
+      this.viewState,
     );
     if (fit === null) {
       return;
@@ -905,7 +910,10 @@ export class SvgRenderer {
 
   /**
    * Replace the view state and schedule a diff render. Recomputes layout only
-   * when a zoom axis changed (scroll-only changes reuse the cached layout).
+   * when a zoom axis changed (scroll-only changes reuse the cached layout) or when
+   * the plan/actual style or filter changed -- under `separate` with both sides shown
+   * the ROW BANDS of actual-bearing rows are taller (CR-013 Part 1), so toggling
+   * `[Ao]`/`[As]` or `[P]`/`[A]` must re-run the layout, not just the diff.
    *
    * @param nextViewState - The new view state.
    */
@@ -913,6 +921,9 @@ export class SvgRenderer {
     const zoomChanged =
       nextViewState.zoomX !== this.viewState.zoomX ||
       nextViewState.zoomY !== this.viewState.zoomY;
+    const planActualLayoutChanged =
+      nextViewState.planActualStyle !== this.viewState.planActualStyle ||
+      nextViewState.planActualDisplay !== this.viewState.planActualDisplay;
     // Clamp the horizontal scroll into the permitted timeline range so the user can
     // pan/scroll back to the year 2000 (and no further) regardless of the epoch,
     // and never off into unbounded blank space to the right (fix: date range).
@@ -928,7 +939,7 @@ export class SvgRenderer {
       clampedScrollX === nextViewState.scrollX
         ? nextViewState
         : { ...nextViewState, scrollX: clampedScrollX };
-    if (zoomChanged) {
+    if (zoomChanged || planActualLayoutChanged) {
       this.layoutDirty = true;
     }
     this.applyCanvasAria();

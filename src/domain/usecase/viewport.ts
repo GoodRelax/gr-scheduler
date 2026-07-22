@@ -25,6 +25,19 @@ import {
 } from './layout-engine.js';
 import { BASE_PIXELS_PER_DAY, toDayNumber } from './time-coordinate-mapper.js';
 import { milestoneIconHeightPx } from './task-glyph.js';
+import { stacksActualBarBelowPlan } from './plan-actual-display.js';
+import {
+  resolvePlanActualStyle,
+  separateActualBarOffsetPx,
+} from './plan-actual-geometry.js';
+
+/**
+ * The plan/actual style + display filter a Fit measurement must honour: under
+ * `separate` with both sides shown, actual-bearing rows are TALLER (CR-013 Part 1),
+ * so measuring without them would under-estimate the content height and clip the
+ * bottom rows. Omitting it measures the unchanged `overlap` layout.
+ */
+export type PlanActualLayoutState = Pick<ViewState, 'planActualStyle' | 'planActualDisplay'>;
 
 /**
  * The world-space BOTTOM edge a placement's DRAWN glyph reaches, accounting for the
@@ -32,14 +45,29 @@ import { milestoneIconHeightPx } from './task-glyph.js';
  * on it -- so its lower rim overhangs `worldY + worldHeight`. Fit measures against
  * this so the enlarged marker is never clipped at the canvas bottom (DEF-006 guard).
  *
+ * Under the `separate` plan/actual style an actual-bearing task also stacks its actual
+ * bar below the lane (CR-013 Part 1), which extends the drawn bottom by one
+ * {@link separateActualBarOffsetPx}; the caller passes the active style/filter so Fit
+ * frames the taller rows.
+ *
  * @param item - The item the placement belongs to (drives milestone vs task extent).
  * @param placement - Its laid-out rectangle.
+ * @param planActual - The active plan/actual style + display filter.
  * @returns The world y of the glyph's drawn bottom edge.
  */
-function renderedGlyphBottom(item: ScheduleItem, placement: ItemPlacement): number {
+function renderedGlyphBottom(
+  item: ScheduleItem,
+  placement: ItemPlacement,
+  planActual: PlanActualLayoutState | undefined,
+): number {
   const laneBottom = placement.worldY + placement.worldHeight;
   if (item.itemKind !== 'milestone') {
-    return laneBottom;
+    const stacksActual = stacksActualBarBelowPlan(
+      item,
+      resolvePlanActualStyle(planActual?.planActualStyle),
+      planActual?.planActualDisplay,
+    );
+    return stacksActual ? laneBottom + separateActualBarOffsetPx(placement.worldHeight) : laneBottom;
   }
   const centerY = placement.worldY + placement.worldHeight / 2;
   return centerY + milestoneIconHeightPx(placement.worldHeight) / 2;
@@ -317,6 +345,7 @@ export function measureItemsFitExtent(
   epochDate: IsoDate,
   zoomX: number,
   labelExtent?: ItemLabelExtentEstimator,
+  planActual?: PlanActualLayoutState,
 ): ItemsFitExtent | null {
   if (items.length === 0) {
     return null;
@@ -345,6 +374,7 @@ export function measureItemsFitExtent(
       scrollX: 0,
       scrollY: 0,
       fontScale: 'M',
+      ...planActual,
     },
     labelExtent,
   );
@@ -359,7 +389,7 @@ export function measureItemsFitExtent(
     const glyphBottom =
       item === undefined
         ? placement.worldY + placement.worldHeight
-        : renderedGlyphBottom(item, placement);
+        : renderedGlyphBottom(item, placement, planActual);
     contentBottomUnit = Math.max(contentBottomUnit, glyphBottom);
     if (item === undefined) {
       continue;
@@ -398,6 +428,7 @@ export function measureItemsFitExtent(
  * @param zoomX - Horizontal zoom (day->x mapping).
  * @param zoomY - Vertical zoom to evaluate the layout at.
  * @param labelExtent - Optional label-collision estimator (as the renderer uses).
+ * @param planActual - Optional plan/actual style + filter (taller `separate` rows).
  * @returns The largest item bottom in world pixels (0 when there are no items).
  */
 export function measureRenderedContentBottomPx(
@@ -407,12 +438,13 @@ export function measureRenderedContentBottomPx(
   zoomX: number,
   zoomY: number,
   labelExtent?: ItemLabelExtentEstimator,
+  planActual?: PlanActualLayoutState,
 ): number {
   const placements = layoutItems(
     items,
     rows,
     epochDate,
-    { zoomX, zoomY, scrollX: 0, scrollY: 0, fontScale: 'M' },
+    { zoomX, zoomY, scrollX: 0, scrollY: 0, fontScale: 'M', ...planActual },
     labelExtent,
   );
   const itemById = new Map(items.map((item) => [item.id, item]));
@@ -422,7 +454,7 @@ export function measureRenderedContentBottomPx(
     const glyphBottom =
       item === undefined
         ? placement.worldY + placement.worldHeight
-        : renderedGlyphBottom(item, placement);
+        : renderedGlyphBottom(item, placement, planActual);
     bottom = Math.max(bottom, glyphBottom);
   }
   return bottom;
@@ -462,6 +494,7 @@ export function computeFitViewForItems(
   inputs: FitViewportInputs,
   marginPx = 24,
   labelExtent?: ItemLabelExtentEstimator,
+  planActual?: PlanActualLayoutState,
 ): FitView | null {
   if (items.length === 0) {
     return null;
@@ -485,7 +518,7 @@ export function computeFitViewForItems(
 
   // Phase 1: a first zoomX from the date span alone (ignores label/marker overhang).
   const zoomX0 = clampFitZoom(usableWidth / (dayCount * BASE_PIXELS_PER_DAY));
-  const probe = measureItemsFitExtent(items, rows, epochDate, zoomX0, labelExtent);
+  const probe = measureItemsFitExtent(items, rows, epochDate, zoomX0, labelExtent, planActual);
   if (probe === null) {
     return null;
   }
@@ -513,7 +546,8 @@ export function computeFitViewForItems(
   // hit-box stays calibrated. This deliberately does NOT reintroduce the old
   // `Math.max(0, ...)` clamp, which pinned the leftmost content to x = 0 and clipped
   // the earliest item's left edge.
-  const measured = measureItemsFitExtent(items, rows, epochDate, zoomX, labelExtent) ?? probe;
+  const measured =
+    measureItemsFitExtent(items, rows, epochDate, zoomX, labelExtent, planActual) ?? probe;
   const scrollX = measured.contentLeftPx - marginPx;
 
   const topOffset = inputs.topOffsetForZoomX(zoomX);
@@ -537,6 +571,7 @@ export function computeFitViewForItems(
       zoomX,
       zoomY,
       labelExtent,
+      planActual,
     );
     if (renderedBottomPx <= usableHeight + FIT_VERTICAL_FIT_EPSILON_PX) {
       break;

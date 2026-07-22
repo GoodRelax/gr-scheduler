@@ -135,6 +135,64 @@ function shiftIsoDate(isoDate: IsoDate, deltaDays: number): IsoDate {
 }
 
 /**
+ * Command: rename the project (CR-016 / DEF-010). The document title is real
+ * content -- it round-trips through JSON (`title`) and MSPDI (`<Name>` / `<Title>`) --
+ * so renaming is an UNDOABLE command rather than a view-state tweak, and it legitimately
+ * re-stamps the CR-009 evidence watermark like any other content change. Returns the
+ * SAME document reference when the title is unchanged, so the store records no history
+ * entry for a no-op rename.
+ *
+ * @param title - The new project title (already trimmed by the caller).
+ * @returns A set-schedule-title command.
+ */
+export function setScheduleTitleCommand(title: string): ScheduleCommand {
+  return {
+    label: 'set-schedule-title',
+    execute: (scheduleDocument) =>
+      scheduleDocument.title === title ? scheduleDocument : { ...scheduleDocument, title },
+  };
+}
+
+/** The two ways the inline project-title edit can end (CR-016; mirrors CR-007 D-7). */
+export type TitleEditAction = 'commit' | 'cancel';
+
+/** The resolved result of an inline title edit: whether to keep it, and the title. */
+export interface TitleEditOutcome {
+  /** True when the edited title should be committed as an undoable command. */
+  readonly commit: boolean;
+  /** The title to end up with (edited on commit, prior on cancel / rejection). */
+  readonly title: string;
+}
+
+/**
+ * Resolve an inline project-title edit gesture (CR-016), with the same semantics as
+ * the CR-007 comment editor: Enter (`'commit'`) keeps the edited text, Escape
+ * (`'cancel'`) reverts to the prior title. Two edits are additionally reported as
+ * `commit: false` so the caller dispatches no no-op command: an unchanged title, and a
+ * blank one (a document with no name is expressed by the header placeholder, never by
+ * deleting a name the user already gave the project).
+ *
+ * @param action - `'commit'` (Enter / blur) or `'cancel'` (Escape).
+ * @param priorTitle - The document title before editing began.
+ * @param editedTitle - The raw text currently in the editor.
+ * @returns Whether to commit, and the resulting title.
+ */
+export function resolveTitleEditOutcome(
+  action: TitleEditAction,
+  priorTitle: string,
+  editedTitle: string,
+): TitleEditOutcome {
+  if (action === 'cancel') {
+    return { commit: false, title: priorTitle };
+  }
+  const trimmed = editedTitle.trim();
+  if (trimmed.length === 0 || trimmed === priorTitle) {
+    return { commit: false, title: priorTitle };
+  }
+  return { commit: true, title: trimmed };
+}
+
+/**
  * Command: append a fully formed item to the document (ALIGN-L1-002, ITEM).
  *
  * @param item - The new item (its `id` must be unique within the document).
@@ -324,6 +382,95 @@ export function resizeItemCommand(
         }
         const nextEnd = Math.max(endDay + deltaDays, startDay + 1);
         return normalizeItemFade({ ...item, endDate: fromDayNumber(nextEnd) });
+      }),
+  };
+}
+
+/**
+ * Command: shift an item's ACTUAL (as-run) span by a whole-day delta, leaving the
+ * PLANNED span untouched (review H-1 / M-1). This is what a body drag on the actual
+ * bar commits: `actualStart` (and `actualEnd`, when one is recorded) both move, so the
+ * recorded duration is preserved, while `startDate` / `endDate` keep their exact
+ * values. A milestone keeps its point semantics -- only its `actualStart` moves, and
+ * its `actualEnd` stays null.
+ *
+ * A no-op (same document reference, hence no history entry) for a zero delta or for an
+ * item that records no actual start at all.
+ *
+ * @param itemId - The item whose actual span to shift.
+ * @param deltaDays - Signed whole-day offset applied to the actual dates.
+ * @returns A move-actual-span command.
+ */
+export function moveActualSpanCommand(itemId: string, deltaDays: number): ScheduleCommand {
+  return {
+    label: 'move-actual-span',
+    execute: (scheduleDocument) => {
+      if (deltaDays === 0) {
+        return scheduleDocument;
+      }
+      return mapItems(scheduleDocument, (item) => {
+        if (item.id !== itemId || item.actualStart === undefined) {
+          return item;
+        }
+        const actualStart = shiftIsoDate(item.actualStart, deltaDays);
+        return item.actualEnd == null
+          ? { ...item, actualStart }
+          : { ...item, actualStart, actualEnd: shiftIsoDate(item.actualEnd, deltaDays) };
+      });
+    },
+  };
+}
+
+/**
+ * Command: drag ONE edge of an item's ACTUAL (as-run) span, leaving the PLANNED span
+ * untouched (review H-1 / M-1, CR-013 Part 2 acceptance criteria):
+ *
+ * - `end` writes {@link ScheduleItem.actualEnd}. This is the gesture that RECORDS a
+ *   real end date: an actual with no `actualEnd` yet ("started, not finished") is drawn
+ *   at the screen-space minimum-width floor, and the first drag of its right edge turns
+ *   the absent end into a concrete date. The end is clamped so it never falls before the
+ *   actual start (a same-day actual is legitimate).
+ * - `start` writes {@link ScheduleItem.actualStart}, clamped so it never passes a
+ *   recorded actual end.
+ *
+ * A milestone has no actual SPAN (a point cannot be resized), so it is a no-op, as is
+ * an item that records no actual start. Returns the SAME item reference when the
+ * resulting date already equals the recorded one, so no spurious history entry is
+ * added.
+ *
+ * @param itemId - The item whose actual span to resize.
+ * @param edge - Which end of the ACTUAL span is being dragged.
+ * @param deltaDays - Signed whole-day offset applied to that end.
+ * @returns A resize-actual-span command.
+ */
+export function resizeActualSpanCommand(
+  itemId: string,
+  edge: ResizeEdge,
+  deltaDays: number,
+): ScheduleCommand {
+  return {
+    label: 'resize-actual-span',
+    execute: (scheduleDocument) =>
+      mapItems(scheduleDocument, (item) => {
+        if (item.id !== itemId || item.actualStart === undefined || item.itemKind !== 'task') {
+          return item;
+        }
+        const actualStartDay = toDayNumber(item.actualStart);
+        const recordedEnd = item.actualEnd ?? null;
+        if (edge === 'start') {
+          const proposedStartDay = actualStartDay + deltaDays;
+          const nextStartDay =
+            recordedEnd === null
+              ? proposedStartDay
+              : Math.min(proposedStartDay, toDayNumber(recordedEnd));
+          const actualStart = fromDayNumber(nextStartDay);
+          return actualStart === item.actualStart ? item : { ...item, actualStart };
+        }
+        // An absent actual end degenerates to the start, so the FIRST right-edge drag
+        // turns "started, not finished" into a recorded end date.
+        const baseEndDay = recordedEnd === null ? actualStartDay : toDayNumber(recordedEnd);
+        const actualEnd = fromDayNumber(Math.max(baseEndDay + deltaDays, actualStartDay));
+        return actualEnd === recordedEnd ? item : { ...item, actualEnd };
       }),
   };
 }

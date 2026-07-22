@@ -98,6 +98,11 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   plan_display: { en: 'Plan', ja: '予定' },
   actual_display: { en: 'Actual', ja: '実績' },
   fit_to_content: { en: 'Fit schedule to view', ja: '全体表示' },
+  // The palette keeps its own Fit control (CR-006 Part 1 added the header one WITHOUT
+  // removing this one). Two controls firing the same action must not share an
+  // accessible name, or assistive tech announces two indistinguishable buttons and
+  // name-based lookups become ambiguous (DEF-013).
+  fit_to_content_palette: { en: 'Fit schedule to view (palette)', ja: '全体表示 (パレット)' },
   toggle_fullscreen: { en: 'Toggle fullscreen', ja: '全画面表示' },
   today_line: { en: 'Today line', ja: '本日線' },
   // Baseline reference underlay (CR-002 Part 3 / PLAN-L1-004).
@@ -146,6 +151,15 @@ export const UI_LABELS: Readonly<Record<string, I18nValue>> = {
   hide_section: { en: 'Hide section', ja: 'セクションを隠す' },
   show_section: { en: 'Show section', ja: 'セクションを表示' },
   autosave_status: { en: 'Autosave status', ja: '自動保存の状態' },
+  // Header project title (CR-016 / DEF-012): the ONE blank-title placeholder and the
+  // rename affordance announced as the title control's accessible name (WCAG 4.1.2).
+  // A parenthesized literal, deliberately unlike a real project name, so an untitled
+  // document reads as untitled instead of borrowing the product name.
+  untitled_schedule: { en: '(untitled schedule)', ja: '(無題の日程表)' },
+  schedule_title_edit_hint: {
+    en: 'Project title - double-click (or press Enter) to rename; Enter commits, Escape cancels',
+    ja: 'プロジェクト名 - ダブルクリック (または Enter) で名称変更、Enter で確定、Escape で取消',
+  },
   help: { en: 'Help', ja: 'ヘルプ' },
   theme_toggle: { en: 'Toggle dark mode', ja: 'ダークモード切り替え' },
 } as const;

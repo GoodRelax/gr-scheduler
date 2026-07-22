@@ -12,13 +12,30 @@
  * Pure read-only queries: no DOM mutation, no side effects.
  */
 
-import type { IsoDate } from '../../domain/model/schedule-model.js';
+import type { IsoDate, ScheduleItem } from '../../domain/model/schedule-model.js';
 import type {
   Annotation,
   RoundedBoxAnnotation,
 } from '../../domain/model/annotation.js';
 import { isComment, isRoundedBox } from '../../domain/model/annotation.js';
-import { pickItemHit, type HitCandidate } from '../../domain/usecase/edge-hit.js';
+import {
+  pickItemHit,
+  type EdgeRegion,
+  type HitCandidate,
+} from '../../domain/usecase/edge-hit.js';
+import type { ItemPlacement } from '../../domain/usecase/layout-engine.js';
+import {
+  actualSideLaneRect,
+  computeItemDisplayedBars,
+  drawsActualBar,
+  isActualSideShown,
+  isPlanSideShown,
+  type ItemLaneRect,
+} from '../../domain/usecase/plan-actual-display.js';
+import {
+  resolvePlanActualStyle,
+  separateActualBarOffsetPx,
+} from '../../domain/usecase/plan-actual-geometry.js';
 import { roundedBoxScreenRect } from '../../domain/usecase/cursor-span.js';
 import type { Rect } from '../../domain/usecase/dependency-router.js';
 import { routeConnector } from '../../domain/usecase/dependency-connector.js';
@@ -36,12 +53,33 @@ import {
 } from './dependency-geometry.js';
 import type { RenderContext } from './render-context.js';
 
-/** A hit against a rendered item, with the sub-region under the pointer. */
-export interface ItemHit {
+/**
+ * A hit on the PLAN side of an item: its laid-out bar, its label, or a fade corner
+ * handle. A gesture started here edits the PLANNED dates (`startDate`/`endDate`) and
+ * behaves exactly as it always has.
+ */
+export interface PlanSideItemHit {
+  readonly side: 'plan';
   readonly itemId: string;
   /** Which part of the item was hit (drives move vs resize vs label drag vs fade). */
-  readonly region: 'body' | 'resize-start' | 'resize-end' | 'label' | 'fade-in' | 'fade-out';
+  readonly region: EdgeRegion | 'label' | 'fade-in' | 'fade-out';
 }
+
+/**
+ * A hit on the ACTUAL (as-run) bar of an item (review H-1 / M-1). A gesture started
+ * here edits `actualStart` / `actualEnd` ONLY -- the planned dates are never touched.
+ * Labels and fade handles belong to the plan glyph, so they cannot occur here; the
+ * union makes that unrepresentable rather than merely documented.
+ */
+export interface ActualSideItemHit {
+  readonly side: 'actual';
+  readonly itemId: string;
+  /** Which part of the ACTUAL bar was hit (body move vs actual-edge resize). */
+  readonly region: EdgeRegion;
+}
+
+/** A hit against a rendered item: which item, which sub-region, and on which side. */
+export type ItemHit = PlanSideItemHit | ActualSideItemHit;
 
 /** A resolved hit against a canvas annotation (rounded-box / comment). */
 export interface AnnotationHit {
@@ -67,6 +105,55 @@ const ANNOTATION_HANDLE_PX = 9;
 
 /** Screen-pixel tolerance for grabbing a rounded-box border to select it. */
 const ANNOTATION_BORDER_TOLERANCE_PX = 7;
+
+/**
+ * Whether a world point lies inside a world-space lane rectangle (inclusive on all
+ * four borders, matching the long-standing hit semantics).
+ *
+ * @param rect - The rectangle to test against.
+ * @param worldX - Pointer world x.
+ * @param worldY - Pointer world y.
+ * @returns True when the point is inside (or exactly on) the rectangle.
+ */
+function rectContainsPoint(rect: ItemLaneRect, worldX: number, worldY: number): boolean {
+  return (
+    worldX >= rect.worldX &&
+    worldX <= rect.worldX + rect.worldWidth &&
+    worldY >= rect.worldY &&
+    worldY <= rect.worldY + rect.worldHeight
+  );
+}
+
+/**
+ * Whether an item contributes an ACTUAL-side grab rectangle, i.e. whether
+ * {@link HitTester.itemGrabRects} would return anything other than the plain plan
+ * rectangle. Deliberately a chain of FIELD tests (no date parsing, no allocation) so
+ * the hit-test hot path can skip rectangle construction for every item that has no
+ * actual to grab (M-2). It mirrors `itemGrabRects` case for case; the two must stay
+ * in lock-step, which the hit-tester tests pin.
+ *
+ * @param item - The placed item, or undefined when it is not in the document.
+ * @param epochDate - The document time-axis origin, or undefined before one is set.
+ * @param planShown - Whether the plan side passes the display filter.
+ * @param actualShown - Whether the actual side passes the display filter.
+ * @returns True when the item owns a second (or relocated) actual rectangle.
+ */
+function ownsActualGrabRect(
+  item: ScheduleItem | undefined,
+  epochDate: IsoDate | undefined,
+  planShown: boolean,
+  actualShown: boolean,
+): boolean {
+  if (item === undefined || epochDate === undefined) {
+    return false;
+  }
+  if (!actualShown || item.actualStart === undefined) {
+    return false;
+  }
+  // With the plan hidden, the lone drawn glyph IS the actual, wherever it sits; with
+  // both sides shown, only an item that really draws a second actual bar has one.
+  return planShown ? drawsActualBar(item) : true;
+}
 
 /** Resolves pointer hits against items, annotations and dependency lines. */
 export class HitTester {
@@ -95,31 +182,76 @@ export class HitTester {
     // bar rather than being stolen by ANOTHER item's long abbreviation label that
     // merely overlaps the bar (regression guard: a narrow task under a milestone's
     // wide label must still be edge-resizable).
+    //
+    // M-2 (hot path): `hitTest` runs on EVERY pointer move, so the cheap rejections
+    // come first. An item is dropped by its lane band (a scalar compare on the
+    // placement) and then by the plan rectangle itself; only an item that both
+    // survives the band AND really owns a second/relocated ACTUAL rectangle -- a
+    // field test, no date parsing -- pays for {@link itemGrabRects}, which is what
+    // turns dates into world x.
+    const epochDate = ctx.scheduleDocument?.epochDate;
+    const display = ctx.viewState.planActualDisplay;
+    const planShown = isPlanSideShown(display);
+    const actualShown = isActualSideShown(display);
+    // The ONLY rectangle that can sit outside a placement's own lane band is the
+    // `separate` actual bar stacked below it, so the band is widened by exactly that
+    // offset (and only when the active style/filter can stack one).
+    const stacksActualBelowPlan =
+      planShown && actualShown && resolvePlanActualStyle(ctx.viewState.planActualStyle) === 'separate';
     const candidates: HitCandidate[] = [];
     for (const placement of ctx.placements) {
       if (!ctx.hasMountedItem(placement.itemId)) {
         continue;
       }
-      const withinX =
-        point.worldX >= placement.worldX && point.worldX <= placement.worldX + placement.worldWidth;
-      const withinY =
-        point.worldY >= placement.worldY && point.worldY <= placement.worldY + placement.worldHeight;
-      if (!withinX || !withinY) {
+      const bandBottom =
+        placement.worldY +
+        placement.worldHeight +
+        (stacksActualBelowPlan ? separateActualBarOffsetPx(placement.worldHeight) : 0);
+      if (point.worldY < placement.worldY || point.worldY > bandBottom) {
         continue;
       }
       const item = ctx.itemById.get(placement.itemId);
-      candidates.push({
-        itemId: placement.itemId,
-        laneIndex: placement.laneIndex,
-        worldLeft: placement.worldX,
-        worldWidth: placement.worldWidth,
-        isTask: item?.itemKind === 'task',
-        isSelected: ctx.selectedItemIds.has(placement.itemId),
-      });
+      const isTask = item?.itemKind === 'task';
+      const isSelected = ctx.selectedItemIds.has(placement.itemId);
+      if (!ownsActualGrabRect(item, epochDate, planShown, actualShown)) {
+        // Plan rectangle only (the overwhelming majority): test the placement in
+        // place, allocating nothing and parsing no dates.
+        if (rectContainsPoint(placement, point.worldX, point.worldY)) {
+          candidates.push({
+            itemId: placement.itemId,
+            laneIndex: placement.laneIndex,
+            worldLeft: placement.worldX,
+            worldWidth: placement.worldWidth,
+            isTask,
+            isSelected,
+            side: 'plan',
+          });
+        }
+        continue;
+      }
+      for (const grab of this.itemGrabRects(ctx, placement)) {
+        if (!rectContainsPoint(grab, point.worldX, point.worldY)) {
+          continue;
+        }
+        candidates.push({
+          itemId: placement.itemId,
+          laneIndex: placement.laneIndex,
+          worldLeft: grab.worldX,
+          worldWidth: grab.worldWidth,
+          // BOTH sides carry resize edges on a task: a plan edge writes the plan
+          // dates, an actual edge writes `actualStart` / `actualEnd` (M-1). A
+          // milestone stays point-like on either side (no resizable edge).
+          isTask,
+          isSelected,
+          side: grab.isPlanSide ? 'plan' : 'actual',
+        });
+      }
     }
     const bodyHit = pickItemHit(candidates, point.worldX, RESIZE_HANDLE_PX);
     if (bodyHit !== null) {
-      return bodyHit;
+      return bodyHit.side === 'actual'
+        ? { side: 'actual', itemId: bodyHit.itemId, region: bodyHit.region }
+        : { side: 'plan', itemId: bodyHit.itemId, region: bodyHit.region };
     }
 
     // Labels can sit OUTSIDE the glyph, so fall back to them only when the pointer is
@@ -133,10 +265,71 @@ export class HitTester {
         continue;
       }
       if (pointInLabelBox(item, placement, fontSize, point.worldX, point.worldY)) {
-        return { itemId: placement.itemId, region: 'label' };
+        return { side: 'plan', itemId: placement.itemId, region: 'label' };
       }
     }
     return null;
+  }
+
+  /**
+   * The world-space rectangles of an item that are grabbable, in the SAME frame the
+   * item layer draws them (CR-013 Part 2):
+   *
+   * - Normally the laid-out plan lane rectangle, exactly as before.
+   * - Under `actual-only` the lone drawn glyph sits on the ACTUAL extent, so the grab
+   *   rectangle moves with it instead of staying on the hidden plan span.
+   * - When a stacked actual BAR is drawn (`separate` with both sides shown), its own
+   *   rectangle is grabbable too -- it lives below the plan bar, outside the plan
+   *   rectangle, and would otherwise be un-clickable.
+   *
+   * Every actual rectangle carries the {@link actualBarRenderWidthPx} screen-space
+   * minimum width, so a "started, not finished" actual (a zero-length span) has a real
+   * grab target at any zoom.
+   *
+   * Only called for items {@link ownsActualGrabRect} accepted: the plan-rectangle-only
+   * cases are answered by the caller without building anything (M-2).
+   */
+  private itemGrabRects(
+    ctx: RenderContext,
+    placement: ItemPlacement,
+  ): readonly (ItemLaneRect & { readonly isPlanSide: boolean })[] {
+    const planRect = { ...placement, isPlanSide: true };
+    const item = ctx.itemById.get(placement.itemId);
+    const epochDate = ctx.scheduleDocument?.epochDate;
+    if (item === undefined || epochDate === undefined) {
+      return [planRect];
+    }
+    const display = ctx.viewState.planActualDisplay;
+    const planShown = isPlanSideShown(display);
+    const actualShown = isActualSideShown(display);
+    if (!planShown && actualShown) {
+      const loneActual = actualSideLaneRect(item, placement, epochDate, ctx.viewState.zoomX);
+      return loneActual === null ? [planRect] : [{ ...loneActual, isPlanSide: false }];
+    }
+    if (!planShown || !actualShown || !drawsActualBar(item)) {
+      return [planRect];
+    }
+    const bars = computeItemDisplayedBars(
+      item,
+      placement,
+      epochDate,
+      ctx.viewState.zoomX,
+      resolvePlanActualStyle(ctx.viewState.planActualStyle),
+      display,
+    );
+    if (bars.actual === null) {
+      return [planRect];
+    }
+    return [
+      planRect,
+      {
+        worldX: bars.actual.x,
+        worldY: bars.actual.y,
+        worldWidth: bars.actual.width,
+        worldHeight: bars.actual.height,
+        isPlanSide: false,
+      },
+    ];
   }
 
   /**
@@ -166,13 +359,13 @@ export class HitTester {
         Math.abs(worldX - centers.fadeIn.x) <= tolerance &&
         Math.abs(worldY - centers.fadeIn.y) <= verticalTolerance
       ) {
-        return { itemId: placement.itemId, region: 'fade-in' };
+        return { side: 'plan', itemId: placement.itemId, region: 'fade-in' };
       }
       if (
         Math.abs(worldX - centers.fadeOut.x) <= tolerance &&
         Math.abs(worldY - centers.fadeOut.y) <= verticalTolerance
       ) {
-        return { itemId: placement.itemId, region: 'fade-out' };
+        return { side: 'plan', itemId: placement.itemId, region: 'fade-out' };
       }
     }
     return null;

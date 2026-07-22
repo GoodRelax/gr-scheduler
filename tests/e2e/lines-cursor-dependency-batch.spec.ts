@@ -114,7 +114,11 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
   test('2. the today line is a thin high-brightness blue', async ({ page }) => {
     await openApp(page);
     // Frame the whole schedule so the today marker (mid-year) lands inside the viewport.
-    await page.getByRole('button', { name: 'Fit' }).click();
+    // Target the header's [Fit] specifically: DEF-013 -- a leftover floating-palette
+    // Fit button (data-role="fit-to-content") shares the identical accessible name
+    // "Fit schedule to view", so a name-based lookup is ambiguous (strict-mode
+    // violation); see the DEF-013 defect record.
+    await page.locator('button[data-role="header-fit"]').click();
     const today = page.locator('svg [data-role="today-line"]');
     // The line is only drawn when "today" is within the visible date range; when the
     // run-machine date is outside the sample year the marker is legitimately off-canvas.
@@ -129,7 +133,8 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
 
   test('3. the progress line bends at the touched item vertical center', async ({ page }) => {
     await openApp(page);
-    await page.getByRole('button', { name: 'Fit' }).click();
+    // DEF-013: target the header's [Fit] specifically (see test 2's note).
+    await page.locator('button[data-role="header-fit"]').click();
     await expect(page.locator('svg [data-role="progress-line"]')).toHaveCount(1);
 
     const result = await page.evaluate(() => {
@@ -184,8 +189,10 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
     await page.locator('[data-role="toggle-link"]').click();
     await expect(page.locator('[data-role="link-hint"]')).toContainText('pick source');
 
+    // sys2 carries a demo fadeInDays (CR-004 sample enrichment), so it renders as a
+    // `<polygon>` rather than a `<rect>` (only its x-coordinates taper); match either.
     const clickItem = async (id: string): Promise<void> => {
-      const box = (await page.locator(`svg [data-item-id="${id}"] > rect`).boundingBox())!;
+      const box = (await page.locator(`svg [data-item-id="${id}"] > :is(rect, polygon)`).boundingBox())!;
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
     };
 
@@ -215,8 +222,10 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
     const lines = page.locator('svg [data-role="dependency-line"]');
 
     await page.locator('[data-role="toggle-link"]').click();
+    // sys2 carries a demo fadeInDays (CR-004 sample enrichment), so it renders as a
+    // `<polygon>` rather than a `<rect>` (only its x-coordinates taper); match either.
     const clickItem = async (id: string): Promise<void> => {
-      const box = (await page.locator(`svg [data-item-id="${id}"] > rect`).boundingBox())!;
+      const box = (await page.locator(`svg [data-item-id="${id}"] > :is(rect, polygon)`).boundingBox())!;
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
     };
     // sys2 -> sys3 (see sample-data.ts offsets): whichever of the router's branches
@@ -233,8 +242,9 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
       ({ fromId, toId }) => {
         const paths = Array.from(document.querySelectorAll('svg path[data-role="dependency-line"]'));
         const path = paths[paths.length - 1] as SVGPathElement | undefined;
-        const fromRect = document.querySelector(`svg [data-item-id="${fromId}"] > rect`);
-        const toRect = document.querySelector(`svg [data-item-id="${toId}"] > rect`);
+        // sys2 (fromId) carries a demo fadeInDays and renders as a `<polygon>`.
+        const fromRect = document.querySelector(`svg [data-item-id="${fromId}"] > :is(rect, polygon)`);
+        const toRect = document.querySelector(`svg [data-item-id="${toId}"] > :is(rect, polygon)`);
         if (path === undefined || fromRect === null || toRect === null) {
           return null;
         }
@@ -365,8 +375,10 @@ test.describe('lines / cursor / dependency batch (e2e, trusted events)', () => {
 
     // Create a plan->plan edge (both endpoints are plan items).
     await page.locator('[data-role="toggle-link"]').click();
+    // sys2 carries a demo fadeInDays (CR-004 sample enrichment), so it renders as a
+    // `<polygon>` rather than a `<rect>` (only its x-coordinates taper); match either.
     const clickItem = async (id: string): Promise<void> => {
-      const box = (await page.locator(`svg [data-item-id="${id}"] > rect`).boundingBox())!;
+      const box = (await page.locator(`svg [data-item-id="${id}"] > :is(rect, polygon)`).boundingBox())!;
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
     };
     await clickItem('ta-phase-plan-sys2');

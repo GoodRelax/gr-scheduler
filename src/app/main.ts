@@ -42,6 +42,10 @@ import {
   createCommentCommand,
   createRoundedBoxCommand,
 } from '../domain/command/annotation-commands.js';
+import {
+  resolveTitleEditOutcome,
+  setScheduleTitleCommand,
+} from '../domain/command/commands.js';
 import { worldXToDate } from '../domain/usecase/time-coordinate-mapper.js';
 import { isProgressLineVisible } from '../domain/usecase/progress-line-builder.js';
 import { rebuildClassification } from '../domain/usecase/classification-tree.js';
@@ -49,6 +53,12 @@ import { EditingController } from '../adapters/input/editing-controller.js';
 import { PropertyPanel } from '../adapters/ui/property-panel.js';
 import { LeftClassificationPane } from '../adapters/ui/left-pane.js';
 import { mountShapePicker } from '../adapters/ui/tool-palette.js';
+import {
+  createCommandIcon,
+  paletteProportionCss,
+  setPaletteButtonIcon,
+  type PaletteCommandIconName,
+} from '../adapters/ui/palette-icon.js';
 import { enablePanelDrag } from '../adapters/ui/draggable.js';
 import { ItemClipboard } from '../adapters/clipboard/item-clipboard.js';
 import { attachKeyboardShortcuts } from '../adapters/input/keyboard-shortcuts.js';
@@ -84,10 +94,16 @@ import {
 } from '../adapters/ui/header-menu.js';
 import {
   HEADER_CONTROL_ROLES,
-  HEADER_LEFT_CONTROL_ROLES,
+  HEADER_TITLE_ARIA_ROLE,
+  HEADER_TITLE_ROLE,
   LOAD_MENU_ITEMS,
   SAVE_MENU_ITEMS,
   THEME_BUTTON_SPECS,
+  bindHeaderTitleText,
+  headerTitlePlaceholder,
+  resolveHeaderTitleText,
+  scheduleTitleAccessibleName,
+  scheduleTitleEditHint,
 } from './header-model.js';
 import { resolvePlanActualStyle } from '../domain/usecase/plan-actual-geometry.js';
 import {
@@ -251,6 +267,21 @@ function ensureCommandChromeStylesheet(doc: Document): void {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 34vw;
+  cursor: text;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.${APP_HEADER_CLASS} .grsch-schedule-name:hover { background: rgba(127, 127, 127, 0.18); }
+.${APP_HEADER_CLASS} .grsch-schedule-name-editor {
+  width: 100%;
+  min-width: 12ch;
+  font: inherit;
+  color: var(--grsch-header-fg);
+  text-align: center;
+  background: var(--grsch-header-bg);
+  border: 1px solid var(--grsch-accent-border);
+  border-radius: 4px;
+  padding: 0 4px;
 }
 .${APP_HEADER_CLASS} .grsch-header-actions {
   justify-self: end;
@@ -293,7 +324,6 @@ function ensureCommandChromeStylesheet(doc: Document): void {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 2px 5px;
   max-width: min(66vw, 560px);
   padding: 3px 5px;
   border: 1px solid var(--grsch-palette-border);
@@ -326,7 +356,6 @@ function ensureCommandChromeStylesheet(doc: Document): void {
 .${COMMAND_PALETTE_CLASS} .grsch-cmd-group {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
 }
 .${COMMAND_PALETTE_CLASS} .grsch-cmd-group-label {
   font-size: 0.58em;
@@ -337,8 +366,6 @@ function ensureCommandChromeStylesheet(doc: Document): void {
 }
 .${COMMAND_PALETTE_CLASS} button {
   cursor: pointer;
-  min-width: 16px;
-  padding: 1px 3px;
   font-size: 0.72em;
   line-height: 1.3;
   border: 1px solid var(--grsch-btn-border);
@@ -382,7 +409,8 @@ function ensureCommandChromeStylesheet(doc: Document): void {
 .${COMMAND_PALETTE_CLASS}[data-minimized="true"] > .grsch-cmd-group,
 .${COMMAND_PALETTE_CLASS}[data-minimized="true"] > .grsch-save-status {
   display: none;
-}`;
+}
+${paletteProportionCss(COMMAND_PALETTE_CLASS)}`;
   doc.head.appendChild(style);
 }
 
@@ -413,6 +441,26 @@ function makeCommandButton(glyph: string, accessibleName: string): HTMLButtonEle
   button.textContent = glyph;
   button.setAttribute('aria-label', accessibleName);
   button.title = accessibleName;
+  return button;
+}
+
+/**
+ * Create a compact command button whose label is a miniature LINE-ART SVG icon
+ * (CR-014 Part 1) instead of an emoji / text glyph. The accessible name, tooltip and
+ * `data-role` are unchanged from {@link makeCommandButton}, so this is a purely visual
+ * swap; `data-icon` records which icon was drawn for test/debug introspection.
+ *
+ * @param iconName - The bespoke palette icon to draw (see palette-icon.ts).
+ * @param accessibleName - The localized name announced by assistive tech.
+ * @returns The icon button.
+ */
+function makeCommandIconButton(
+  iconName: PaletteCommandIconName,
+  accessibleName: string,
+): HTMLButtonElement {
+  const button = makeCommandButton('', accessibleName);
+  button.dataset.icon = iconName;
+  setPaletteButtonIcon(button, createCommandIcon(iconName));
   return button;
 }
 
@@ -455,12 +503,12 @@ function buildChrome(root: HTMLElement): Chrome {
   root.style.fontFamily = 'system-ui, sans-serif';
   ensureCommandChromeStylesheet(document);
 
-  // ---- header (SHELL item 1 / CR-003 Part 1 / TOOL-L1-008). Reading order:
-  // branding -> title -> SS -> Load -> Save -> Light -> Dark -> Mono L -> Mono D ->
-  // Base V -> Base I -> Undo -> Redo -> AI -> ?. The branding is pinned left, the
-  // title centered, and every action control is appended to a right-aligned toolbar in
-  // the canonical HEADER_CONTROL_ROLES order so the runtime layout can never drift
-  // from the CR-003 contract (which a unit test asserts against the same constant).
+  // ---- header (SHELL item 1 / CR-003 Part 1 / CR-015 / TOOL-L1-008). Reading order:
+  // branding -> title -> Fit -> P -> SS -> Load -> Save -> Light -> Dark -> Mono L ->
+  // Mono D -> Base V -> Base I -> Undo -> Redo -> AI -> ?. The branding is pinned left,
+  // the title centered, and every action control is appended to a right-aligned toolbar
+  // in the canonical HEADER_CONTROL_ROLES order so the runtime layout can never drift
+  // from the CR-015 contract (which a unit test asserts against the same constant).
   const header = document.createElement('header');
   header.dataset.role = 'app-header';
   header.className = APP_HEADER_CLASS;
@@ -469,11 +517,12 @@ function buildChrome(root: HTMLElement): Chrome {
   const headerLeft = document.createElement('div');
   headerLeft.className = 'grsch-header-left';
 
-  // CR-006 Part 1 / Part 2: the two LEFT-edge controls placed to the LEFT of the
-  // branding block, built in the canonical HEADER_LEFT_CONTROL_ROLES order via a
-  // role -> element lookup (mirroring the right toolbar) so the DOM order can never
-  // drift from the constant a unit test asserts against. [Fit] frames the whole
-  // schedule; [P] shows / minimizes the floating palette.
+  // CR-006 Part 1 / Part 2, repositioned by CR-015: [Fit] frames the whole schedule and
+  // [P] shows / minimizes the floating palette. They now open the ACTION TOOLBAR (they
+  // used to sit left of the branding), so the product and document identity read first;
+  // their behaviour -- including the bidirectional [P] <-> palette [-] sync -- is
+  // unchanged, and their position comes from HEADER_CONTROL_ROLES like every other
+  // control.
   const headerFitButton = makeHeaderButton('grsch-file-btn', 'Fit', uiLabel('fit_to_content'), 'header-fit');
   const headerPaletteToggleButton = makeHeaderButton(
     'grsch-file-btn',
@@ -482,17 +531,6 @@ function buildChrome(root: HTMLElement): Chrome {
     'header-palette-toggle',
   );
   headerPaletteToggleButton.setAttribute('aria-pressed', 'true');
-  const headerLeftControlByRole = new Map<string, HTMLElement>([
-    ['header-fit', headerFitButton],
-    ['header-palette-toggle', headerPaletteToggleButton],
-  ]);
-  for (const role of HEADER_LEFT_CONTROL_ROLES) {
-    const control = headerLeftControlByRole.get(role);
-    if (control === undefined) {
-      throw new Error(`Header build error: no left control for role "${role}"`);
-    }
-    headerLeft.appendChild(control);
-  }
 
   // Branding block (left): TWO lines -- a larger product name, then a concise
   // copyright / license line that links to the GitHub repository (item 6).
@@ -512,11 +550,26 @@ function buildChrome(root: HTMLElement): Chrome {
   brandingBlock.append(brandName, brandLink);
   headerLeft.append(brandingBlock);
 
-  // Centered document title (project name).
+  // Centered document title (project name). Its text comes from `ScheduleDocument.title`
+  // via `wireScheduleTitle`, which is subscribed to the store so the header follows every
+  // change path (DEF-010); the shared placeholder below is the blank-title fallback and
+  // the value shown until the first sync. Double-click (or Enter / F2 when focused)
+  // opens the inline editor (CR-016).
+  //
+  // DEF-012 (WCAG 4.1.2): the span is ACTIVATABLE -- it opens the rename editor -- so it
+  // is exposed as `role="button"` with an accessible name that states both the current
+  // project name and the rename affordance. A real `<button>` was rejected: the inline
+  // editor is appended INSIDE this element, and a focusable `<input>` nested in a button
+  // is invalid (axe `nested-interactive`); the span also keeps the centered flex layout
+  // without fighting the UA button styling. The locale-dependent strings below are the
+  // English defaults shown until `wireScheduleTitle` paints the active locale.
   const scheduleNameLabel = document.createElement('span');
   scheduleNameLabel.className = 'grsch-schedule-name';
-  scheduleNameLabel.dataset.role = 'schedule-name';
-  scheduleNameLabel.textContent = 'gr-scheduler';
+  scheduleNameLabel.dataset.role = HEADER_TITLE_ROLE;
+  scheduleNameLabel.setAttribute('role', HEADER_TITLE_ARIA_ROLE);
+  scheduleNameLabel.textContent = headerTitlePlaceholder();
+  scheduleNameLabel.tabIndex = 0;
+  scheduleNameLabel.title = scheduleTitleEditHint();
 
   // SS: copy the CURRENT viewport image to the clipboard (CR-006 Part 3; falls back to
   // a PNG download when the clipboard is unavailable). Distinct from Save PNG, which is
@@ -575,6 +628,8 @@ function buildChrome(root: HTMLElement): Chrome {
   headerActions.setAttribute('role', 'toolbar');
   headerActions.setAttribute('aria-label', 'Header actions');
   const controlByRole = new Map<string, HTMLElement>([
+    ['header-fit', headerFitButton],
+    ['header-palette-toggle', headerPaletteToggleButton],
     ['screenshot', ssButton],
     ['load', loadMenu.trigger],
     ['save', saveMenu.trigger],
@@ -637,7 +692,7 @@ function buildChrome(root: HTMLElement): Chrome {
   propertiesToggleButton.setAttribute('aria-pressed', 'true');
 
   // Fit: frame the whole schedule in the viewport (fix 7).
-  const fitButton = makeCommandButton('⤢', uiLabel('fit_to_content'));
+  const fitButton = makeCommandButton('⤢', uiLabel('fit_to_content_palette'));
   fitButton.dataset.role = 'fit-to-content';
   // Fullscreen toggle: the F11 effect via the Fullscreen API (fix 12).
   const fullscreenButton = makeCommandButton('⛶', uiLabel('toggle_fullscreen'));
@@ -682,14 +737,26 @@ function buildChrome(root: HTMLElement): Chrome {
   cursorGuideGroup.dataset.role = 'cursor-guide-modes';
   cursorGuideGroup.setAttribute('role', 'radiogroup');
   cursorGuideGroup.setAttribute('aria-label', uiLabel('cursor_guide'));
-  const cursorGuideModes: ReadonlyArray<{ mode: CursorGuideMode; glyph: string; labelKey: string }> = [
-    { mode: 'none', glyph: '⃠', labelKey: 'cursor_guide_none' },
-    { mode: 'crosshair', glyph: '✛', labelKey: 'cursor_guide_crosshair' },
-    { mode: 'single-vertical', glyph: '│', labelKey: 'cursor_guide_single_vertical' },
-    { mode: 'double-vertical', glyph: '‖', labelKey: 'cursor_guide_double_vertical' },
+  const cursorGuideModes: ReadonlyArray<{
+    mode: CursorGuideMode;
+    icon: PaletteCommandIconName;
+    labelKey: string;
+  }> = [
+    { mode: 'none', icon: 'cursor-guide-none', labelKey: 'cursor_guide_none' },
+    { mode: 'crosshair', icon: 'cursor-guide-crosshair', labelKey: 'cursor_guide_crosshair' },
+    {
+      mode: 'single-vertical',
+      icon: 'cursor-guide-single-vertical',
+      labelKey: 'cursor_guide_single_vertical',
+    },
+    {
+      mode: 'double-vertical',
+      icon: 'cursor-guide-double-vertical',
+      labelKey: 'cursor_guide_double_vertical',
+    },
   ];
-  const cursorGuideButtons: HTMLButtonElement[] = cursorGuideModes.map(({ mode, glyph, labelKey }) => {
-    const button = makeCommandButton(glyph, uiLabel(labelKey));
+  const cursorGuideButtons: HTMLButtonElement[] = cursorGuideModes.map(({ mode, icon, labelKey }) => {
+    const button = makeCommandIconButton(icon, uiLabel(labelKey));
     button.dataset.role = 'cursor-guide-mode';
     button.dataset.guideMode = mode;
     button.dataset.labelKey = labelKey;
@@ -701,20 +768,20 @@ function buildChrome(root: HTMLElement): Chrome {
   // Gridline toggles (fix 6): vertical date lines + horizontal category boundaries.
   // Both default ON; real focusable buttons carrying aria-pressed so the state is
   // conveyed to assistive tech, and the state round-trips via the view state.
-  const gridDateButton = makeCommandButton('☰|', uiLabel('grid_date_lines'));
+  const gridDateButton = makeCommandIconButton('grid-date', uiLabel('grid_date_lines'));
   gridDateButton.dataset.role = 'toggle-grid-date';
   gridDateButton.setAttribute('aria-pressed', 'true');
-  const gridCategoryButton = makeCommandButton('≡', uiLabel('grid_category_lines'));
+  const gridCategoryButton = makeCommandIconButton('grid-category', uiLabel('grid_category_lines'));
   gridCategoryButton.dataset.role = 'toggle-grid-category';
   gridCategoryButton.setAttribute('aria-pressed', 'true');
-  const commentButton = makeCommandButton('💬', uiLabel('add_comment'));
-  const boxButton = makeCommandButton('▢', uiLabel('add_box'));
+  const commentButton = makeCommandIconButton('comment', uiLabel('add_comment'));
+  const boxButton = makeCommandIconButton('add-box', uiLabel('add_box'));
   boxButton.setAttribute('aria-pressed', 'false');
 
   // Progress line (イナズマ線) show/hide toggle (CR-006 Part 5), placed right of the
   // cursor-guide buttons. The default is HIDDEN (progressLineVisible defaults false), so
   // aria-pressed starts false; wirePaletteProgressLine seeds the true state from view state.
-  const progressLineButton = makeCommandButton('⚡', uiLabel('progress_line'));
+  const progressLineButton = makeCommandIconButton('progress-line', uiLabel('progress_line'));
   // Distinct role from the property-panel progress control (`toggle-progress-line`) so
   // the two never collide (CR-006 defect fix); both read/drive viewState.progressLineVisible.
   progressLineButton.dataset.role = 'palette-progress-line-toggle';
@@ -759,7 +826,7 @@ function buildChrome(root: HTMLElement): Chrome {
 
   // Watermark visibility toggle (TOOL-L1-007, TOOL-L2-001/003). The user-name input
   // was removed from the palette (item 8): the watermark uses the default name.
-  const watermarkButton = makeCommandButton('©', uiLabel('watermark'));
+  const watermarkButton = makeCommandIconButton('watermark', uiLabel('watermark'));
   watermarkButton.setAttribute('aria-pressed', 'false');
 
   // Baseline reference controls now live in the header (CR-003 Part 1): Load ->
@@ -800,7 +867,10 @@ function buildChrome(root: HTMLElement): Chrome {
     planActualStyleGroup,
     makeCommandGroup('Guides', [todayButton, linkButton]),
     cursorGuideGroup,
-    makeCommandGroup('Line', [progressLineButton]),
+    // CR-014 Part 2: the `LINE` caption was redundant next to the (now line-art)
+    // progress-line icon, so the group keeps its DOM slot but shows NO label. The
+    // button's accessible name still says what it does.
+    makeCommandGroup('', [progressLineButton]),
     makeCommandGroup('Grid', [gridDateButton, gridCategoryButton]),
     makeCommandGroup('Add', [commentButton, boxButton]),
     makeCommandGroup('Marks', [watermarkButton]),
@@ -1123,7 +1193,9 @@ function bootstrap(): void {
   canvasHelp.textContent = uiLabel('canvas_keyboard_help', activeLocale);
   wireCanvasAccessibility(root, chrome, renderer, controller, store, announcer, canvasHelp, locale);
 
-  syncScheduleName(chrome, store);
+  // Header project title: bind the display to the store (DEF-010) and wire the inline
+  // rename gesture (CR-016).
+  wireScheduleTitle(chrome, store, locale);
   wireToolbarLocalization(chrome, locale);
   wireFontScale(chrome, renderer, store, propertyPanel);
   wireWatermark(chrome, renderer, locale);
@@ -1381,12 +1453,122 @@ function wireCanvasAccessibility(
 }
 
 /**
- * Reflect the active document title in the minimal header (item6.1), falling back
- * to `gr-scheduler` when the title is blank.
+ * Wire the header project title: its DISPLAY to the document (item6.1 / DEF-010) and
+ * its inline EDITOR (CR-016).
+ *
+ * Display -- {@link bindHeaderTitleText} paints the title once and then on every store
+ * change, so a load, a New, a rename, an undo and a redo all refresh the header without
+ * any point-in-time call sites (DEF-010: the sync used to run only at bootstrap and on
+ * import, leaving a stale header after a later title change). The paint is suppressed
+ * while the inline editor owns the element, so a store notification can never wipe the
+ * text the user is typing.
+ *
+ * Editor -- mirroring the CR-007 comment editor: a double-click (or Enter / F2 on the
+ * focused title, so the rename is reachable by keyboard, WCAG 2.1.1) swaps the label
+ * for a text input; Enter and blur commit, Escape reverts. A commit dispatches the
+ * undoable {@link setScheduleTitleCommand}, so the rename joins the Undo/Redo history
+ * and re-stamps the CR-009 evidence watermark like any other content change.
+ * {@link resolveTitleEditOutcome} owns the commit/revert decision (unit-tested); this
+ * function is DOM wiring only.
+ *
+ * Role + i18n (DEF-012) -- the static title carries `role="button"`, so assistive tech
+ * announces it as an activatable control rather than plain text (WCAG 4.1.2); the role
+ * is dropped while the inline editor is mounted inside it, because a focusable input
+ * nested in a button is invalid. The blank-title placeholder and the affordance hint
+ * come from the i18n layer and are repainted on every locale change.
  */
-function syncScheduleName(chrome: Chrome, store: ScheduleStore): void {
-  const title = store.getDocument().title.trim();
-  chrome.scheduleNameLabel.textContent = title.length > 0 ? title : 'gr-scheduler';
+function wireScheduleTitle(chrome: Chrome, store: ScheduleStore, locale: LocaleController): void {
+  const label = chrome.scheduleNameLabel;
+  const paintTitle = (titleText: string): void => {
+    if (label.dataset.editing === 'true') {
+      return;
+    }
+    label.textContent = titleText;
+    label.title = scheduleTitleEditHint(locale.get());
+    // Announce the CURRENT title plus the rename affordance: the accessible name keeps
+    // the visible text (never replaces it with a bare hint) so a screen-reader user
+    // hears which project is open (WCAG 2.5.3 label-in-name).
+    label.setAttribute('aria-label', scheduleTitleAccessibleName(titleText, locale.get()));
+  };
+  const repaintFromStore = (): void => {
+    paintTitle(resolveHeaderTitleText(store.getDocument().title, locale.get()));
+  };
+  bindHeaderTitleText(store, paintTitle, () => locale.get());
+  // A language switch changes the placeholder and the affordance hint, not the stored
+  // title, so the header is repainted from the store on every locale change.
+  locale.onChange(repaintFromStore);
+
+  const beginEdit = (): void => {
+    if (label.dataset.editing === 'true') {
+      return;
+    }
+    const priorTitle = store.getDocument().title;
+    const editor = document.createElement('input');
+    editor.type = 'text';
+    editor.dataset.role = 'schedule-name-editor';
+    editor.className = 'grsch-schedule-name-editor';
+    editor.value = priorTitle;
+    // The editor carries its own accessible name (WCAG 4.1.2): while it is mounted the
+    // host span is a plain container, so its button role and name step aside.
+    editor.setAttribute('aria-label', scheduleTitleEditHint(locale.get()));
+    label.removeAttribute('role');
+    label.removeAttribute('aria-label');
+    label.dataset.editing = 'true';
+    label.textContent = '';
+    label.appendChild(editor);
+
+    let settled = false;
+    const finish = (action: 'commit' | 'cancel'): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      const outcome = resolveTitleEditOutcome(action, priorTitle, editor.value);
+      editor.remove();
+      delete label.dataset.editing;
+      // The element is an activatable control again (DEF-012).
+      label.setAttribute('role', HEADER_TITLE_ARIA_ROLE);
+      if (outcome.commit) {
+        store.dispatch(setScheduleTitleCommand(outcome.title));
+        log.info('schedule_title_committed', { title_length: outcome.title.length });
+      }
+      // Repaint from the store: on a commit the dispatch has already notified the
+      // binding (which was suppressed while `editing` was set), and on a revert /
+      // rejected blank this restores the prior title.
+      repaintFromStore();
+      label.focus();
+    };
+    editor.addEventListener('keydown', (keyEvent) => {
+      if (keyEvent.key === 'Enter') {
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
+        finish('commit');
+      } else if (keyEvent.key === 'Escape') {
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
+        finish('cancel');
+      }
+    });
+    editor.addEventListener('blur', () => finish('commit'));
+    editor.focus();
+    editor.select();
+  };
+
+  label.addEventListener('dblclick', (event) => {
+    event.preventDefault();
+    beginEdit();
+  });
+  label.addEventListener('keydown', (event) => {
+    if (event.target !== label) {
+      return;
+    }
+    if (event.key === 'Enter' || event.key === 'F2') {
+      event.preventDefault();
+      // Keep the shell's window-level shortcuts from also acting on this keystroke.
+      event.stopPropagation();
+      beginEdit();
+    }
+  });
 }
 
 /**
@@ -1405,7 +1587,7 @@ function wireToolbarLocalization(chrome: Chrome, locale: LocaleController): void
   const localizeToolbar = (loc: Locale): void => {
     chrome.commandPalette.setAttribute('aria-label', uiLabel('toolbar', loc));
     localizeCommandName(chrome.benchButton, 'run_benchmark', loc);
-    localizeCommandName(chrome.fitButton, 'fit_to_content', loc);
+    localizeCommandName(chrome.fitButton, 'fit_to_content_palette', loc);
     localizeCommandName(chrome.commentButton, 'add_comment', loc);
     localizeCommandName(chrome.boxButton, 'add_box', loc);
     chrome.saveStatusLabel.setAttribute('aria-label', uiLabel('autosave_status', loc));
@@ -1699,7 +1881,7 @@ function wireTodayLine(chrome: Chrome, renderer: SvgRenderer, locale: LocaleCont
 
 /**
  * Wire BOTH progress-line (イナズマ線) show/hide controls (CR-006 Part 5) against the
- * single shared `viewState.progressLineVisible` flag: the palette `[⚡]` toggle
+ * single shared `viewState.progressLineVisible` flag: the palette zigzag-icon toggle
  * (`palette-progress-line-toggle`) and the property-panel control (color + shown/hidden,
  * `toggle-progress-line`). Flipping EITHER updates the flag, forces an IMMEDIATE canvas
  * re-render (renderNow, since setViewState only schedules an rAF that a throttled tab may
@@ -1909,9 +2091,16 @@ function wireAnnotationCreation(
 }
 
 /**
- * Wire the store subscriptions: re-render items and refresh Undo/Redo state on every
- * document change, and keep the property panel pointed at the current item selection
- * (item 5) or dependency selection (item 1), revealing the panel for a selected line.
+ * Wire the store subscriptions: re-render items, refresh Undo/Redo state and repaint
+ * the header project title on every document change, and keep the property panel
+ * pointed at the current item selection (item 5) or dependency selection (item 1),
+ * revealing the panel for a selected line.
+ *
+ * The header project title follows the same `store.subscribe` signal, but registers its
+ * own listener in {@link wireScheduleTitle}; `subscribe` fires for every dispatched
+ * command, every undo, every redo AND every `replaceDocument` (load / New), i.e. a
+ * strict superset of the CR-009 `onContentChange` signal, so the title stays current on
+ * all of them (DEF-010).
  */
 function wireStoreSubscriptions(
   store: ScheduleStore,
@@ -1981,10 +2170,8 @@ function wireInputOutput(
     materializeWatermarkTimestamp(renderer);
     // Frame the freshly imported schedule so the whole thing is visible (fix 7).
     renderer.fitToContent();
-    // Keep the minimal header's schedule name in sync with the adopted document
-    // (item6.1): an import replaces the title shown in the header.
-    const title = scheduleDocument.title.trim();
-    chrome.scheduleNameLabel.textContent = title.length > 0 ? title : 'gr-scheduler';
+    // The header title needs no explicit refresh here: replaceDocument notifies the
+    // store subscribers, and the header title is one of them (DEF-010).
   };
 
   const reportImportFailure = (error: unknown): void => {

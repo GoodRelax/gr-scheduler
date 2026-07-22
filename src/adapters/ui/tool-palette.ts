@@ -15,12 +15,20 @@
  *   {@link ToolPaletteHandle.setLocale} re-localizes in place.
  * - Icon-only shape buttons carry a localized accessible name + tooltip so their
  *   purpose is conveyed without text (WCAG 1.1.1 / 4.1.2, NFR-L1-005).
+ * - CR-014: the shape buttons draw MINIATURE SVG of the very geometry the canvas
+ *   renders (see adapters/ui/palette-icon.ts). Text glyphs and emoji are gone, so a
+ *   chevron button shows the real feather banner rather than a `>>`.
  */
 
 import type { Locale, MilestoneShape, TaskShape } from '../../domain/model/schedule-model.js';
 import type { PendingCreateShape } from '../input/editing-controller.js';
 import { uiLabel } from '../../domain/usecase/i18n.js';
 import { paletteShapeAccessibleName } from '../../domain/usecase/accessible-name.js';
+import {
+  createMilestoneShapeIcon,
+  createTaskShapeIcon,
+  setPaletteButtonIcon,
+} from './palette-icon.js';
 
 /** Callbacks the palette invokes on user action. */
 export interface ToolPaletteHandlers {
@@ -34,36 +42,32 @@ export interface ToolPaletteHandle {
 }
 
 /** Milestone shapes offered by the palette (subset the renderer can draw). */
-const MILESTONE_CHOICES: ReadonlyArray<{ shape: MilestoneShape; glyph: string }> = [
-  { shape: 'circle', glyph: 'O' },
-  { shape: 'triangle', glyph: 'Δ' },
-  { shape: 'square', glyph: '□' },
-  { shape: 'diamond', glyph: '◇' },
-  { shape: 'star', glyph: '☆' },
+export const MILESTONE_CHOICES: readonly MilestoneShape[] = [
+  'circle',
+  'triangle',
+  'square',
+  'diamond',
+  'star',
 ];
 
 /**
  * The special CR-004 Part 6c milestone shapes, revealed by the `[...]` expander so a
  * user can place them (file / box3d / floppy / cylinder / person / smiley / beer).
- * The glyphs are display-only mnemonics; the accessible name carries the shape key.
+ * CR-014 replaced their emoji mnemonics with the canvas line art; the accessible name
+ * still carries the shape key.
  */
-const SPECIAL_MILESTONE_CHOICES: ReadonlyArray<{ shape: MilestoneShape; glyph: string }> = [
-  { shape: 'file', glyph: '📄' },
-  { shape: 'box3d', glyph: '📦' },
-  { shape: 'floppy', glyph: '💾' },
-  { shape: 'cylinder', glyph: '🛢' },
-  { shape: 'person', glyph: '👤' },
-  { shape: 'smiley', glyph: '🙂' },
-  { shape: 'beer', glyph: '🍺' },
+export const SPECIAL_MILESTONE_CHOICES: readonly MilestoneShape[] = [
+  'file',
+  'box3d',
+  'floppy',
+  'cylinder',
+  'person',
+  'smiley',
+  'beer',
 ];
 
 /** Task shapes offered by the palette. */
-const TASK_CHOICES: ReadonlyArray<{ shape: TaskShape; glyph: string }> = [
-  { shape: 'bar', glyph: '▭' },
-  { shape: 'arrow', glyph: '→' },
-  { shape: 'chevron', glyph: '»' },
-  { shape: 'span', glyph: '|—|' },
-];
+export const TASK_CHOICES: readonly TaskShape[] = ['bar', 'arrow', 'chevron', 'span'];
 
 /**
  * Append the shape-picker command groups into an existing command palette.
@@ -104,16 +108,38 @@ export function mountShapePicker(
     handlers.onArmShape({ itemKind: 'milestone', milestoneShape: shape });
     setArmed(`${uiLabel('milestone', locale)} ${shape}`);
   };
-  const milestoneGroup = makeShapeGroup('milestone', MILESTONE_CHOICES, localizers, armMilestone);
-  const taskGroup = makeShapeGroup('task', TASK_CHOICES, localizers, (shape) => {
-    handlers.onArmShape({ itemKind: 'task', taskShape: shape });
-    setArmed(`${uiLabel('task', locale)} ${shape}`);
-  });
+  const milestoneGroup = makeShapeGroup(
+    'milestone',
+    MILESTONE_CHOICES,
+    createMilestoneShapeIcon,
+    localizers,
+    armMilestone,
+  );
+  const taskGroup = makeShapeGroup(
+    'task',
+    TASK_CHOICES,
+    createTaskShapeIcon,
+    localizers,
+    (shape) => {
+      handlers.onArmShape({ itemKind: 'task', taskShape: shape });
+      setArmed(`${uiLabel('task', locale)} ${shape}`);
+    },
+  );
+  // Stable roles (NEW in CR-014, nothing renamed) so the left-to-right group order is
+  // assertable without depending on the localized captions.
+  milestoneGroup.dataset.role = 'milestone-shapes';
+  taskGroup.dataset.role = 'task-shapes';
 
   // CR-004 Part 6c: a `[...]` expander that reveals the 7 special milestone shapes
   // (file / box3d / floppy / cylinder / person / smiley / beer) for placement. The
   // special group is a caption-less milestone shape group, hidden until expanded.
-  const specialGroup = makeShapeGroup('', SPECIAL_MILESTONE_CHOICES, localizers, armMilestone);
+  const specialGroup = makeShapeGroup(
+    '',
+    SPECIAL_MILESTONE_CHOICES,
+    createMilestoneShapeIcon,
+    localizers,
+    armMilestone,
+  );
   specialGroup.dataset.role = 'special-milestone-shapes';
   specialGroup.style.display = 'none';
   const expander = makeButton('[...]', () => {
@@ -138,7 +164,10 @@ export function mountShapePicker(
   shapesRow.className = 'grsch-cmd-group';
   shapesRow.dataset.role = 'shape-groups';
   shapesRow.style.flexWrap = 'nowrap';
-  shapesRow.append(milestoneGroup, taskGroup);
+  // CR-014 Part 3: TASK first (LEFT), MILESTONE second (RIGHT). The milestone set keeps
+  // growing (the CR-004 special seven, and more to come), so the small, stable task set
+  // is pinned to the left edge where it stays easy to find.
+  shapesRow.append(taskGroup, milestoneGroup);
 
   const groups = [shapesRow, specialGroup, armedGroup];
   for (const group of groups) {
@@ -176,18 +205,33 @@ function makeGroup(labelKey: string, localizers?: Array<(active: Locale) => void
   return group;
 }
 
-function makeShapeGroup<S>(
+/**
+ * Build a group of shape-arming buttons. Each button shows the miniature SVG the
+ * `createIcon` factory derives from the CANVAS geometry (CR-014), carries a stable
+ * `data-shape` and a localized accessible name.
+ *
+ * @param titleKey - i18n key of the group caption ('' for a caption-less group).
+ * @param shapes - The shapes offered, in display order.
+ * @param createIcon - Builds a shape's icon from the shared canvas path builders.
+ * @param localizers - Registry of re-localizers to append to.
+ * @param onPick - Invoked with the picked shape on click.
+ * @returns The group element.
+ */
+function makeShapeGroup<S extends string>(
   titleKey: string,
-  choices: ReadonlyArray<{ shape: S; glyph: string }>,
+  shapes: readonly S[],
+  createIcon: (shape: S) => SVGSVGElement,
   localizers: Array<(active: Locale) => void>,
   onPick: (shape: S) => void,
 ): HTMLElement {
   const group = makeGroup(titleKey, localizers);
   const itemKind: 'milestone' | 'task' = titleKey === 'task' ? 'task' : 'milestone';
-  for (const choice of choices) {
-    const button = makeButton(choice.glyph, () => onPick(choice.shape));
+  for (const shape of shapes) {
+    const button = makeButton('', () => onPick(shape));
+    button.dataset.shape = shape;
+    setPaletteButtonIcon(button, createIcon(shape));
     localizers.push((active) => {
-      const name = paletteShapeAccessibleName(itemKind, String(choice.shape), active);
+      const name = paletteShapeAccessibleName(itemKind, shape, active);
       button.setAttribute('aria-label', name);
       button.title = name;
     });

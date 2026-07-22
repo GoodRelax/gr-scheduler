@@ -17,7 +17,15 @@
 /** Which sub-region of a task a pointer is over (drives move vs resize). */
 export type EdgeRegion = 'resize-start' | 'resize-end' | 'body';
 
-/** A hit-testable item under the pointer, in world (== screen, unscaled) pixels. */
+/**
+ * Which plan/actual SIDE of an item a rectangle belongs to (review H-1). An item
+ * draws up to TWO grabbable rectangles -- its planned span and its recorded actual
+ * span -- and a gesture must act on the dates of the side it actually STARTED on:
+ * a grab on the actual bar may never rewrite `startDate` / `endDate`.
+ */
+export type PlanActualSide = 'plan' | 'actual';
+
+/** A hit-testable item rectangle under the pointer, in world (== screen, unscaled) pixels. */
 export interface HitCandidate {
   readonly itemId: string;
   /** Sub-lane index within the row band (higher draws on top). */
@@ -30,12 +38,16 @@ export interface HitCandidate {
   readonly isTask: boolean;
   /** Whether the item is currently selected (its edges win ties). */
   readonly isSelected: boolean;
+  /** Which side's dates a gesture on this rectangle edits (H-1). */
+  readonly side: PlanActualSide;
 }
 
-/** A resolved hit: which item and which of its sub-regions. */
+/** A resolved hit: which item, which of its sub-regions, and on which side. */
 export interface ResolvedItemHit {
   readonly itemId: string;
   readonly region: EdgeRegion;
+  /** The side of the winning rectangle: the gesture edits THESE dates (H-1). */
+  readonly side: PlanActualSide;
 }
 
 /**
@@ -95,7 +107,10 @@ export function pickItemHit(
     return null;
   }
   // Selected first, then topmost lane. A stable, explicit ordering makes the
-  // "selected/top bar wins" rule deterministic under overlap.
+  // "selected/top bar wins" rule deterministic under overlap. The sort is STABLE
+  // (ES2019+), so equally ranked candidates keep their input order -- which is how an
+  // item's PLAN rectangle keeps winning body ties over its own actual rectangle
+  // stacked at the same lane index (the caller pushes plan first, H-1).
   const ordered = [...candidates].sort((left, right) => {
     if (left.isSelected !== right.isSelected) {
       return left.isSelected ? -1 : 1;
@@ -111,9 +126,9 @@ export function pickItemHit(
       handlePx,
     );
     if (region !== 'body') {
-      return { itemId: candidate.itemId, region };
+      return { itemId: candidate.itemId, region, side: candidate.side };
     }
   }
   const top = ordered[0];
-  return top === undefined ? null : { itemId: top.itemId, region: 'body' };
+  return top === undefined ? null : { itemId: top.itemId, region: 'body', side: top.side };
 }

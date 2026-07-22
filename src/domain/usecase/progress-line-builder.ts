@@ -45,6 +45,24 @@ export function itemHasActualDates(item: Pick<ScheduleItem, 'actualStart'>): boo
 }
 
 /**
+ * The date an item's ACTUAL starts at when one is first recorded (CR-013 Part 2):
+ * its already-recorded {@link ScheduleItem.actualStart}, else its PLANNED
+ * {@link ScheduleItem.startDate}. Adding an actual therefore means "started on plan,
+ * not finished" -- `actualStart` only, with `actualEnd` left absent, which is a
+ * first-class case of the PLAN-L2-001 four-case progress-front rule. The date comes
+ * from the model, never from pixels, so it does not depend on the current zoom and
+ * stays reproducible.
+ *
+ * @param item - The item an actual is being recorded for.
+ * @returns The actual start date to record.
+ */
+export function defaultActualStartDate(
+  item: Pick<ScheduleItem, 'actualStart' | 'startDate'>,
+): IsoDate {
+  return item.actualStart ?? item.startDate;
+}
+
+/**
  * Select the items visible under a plan/actual display filter (PLAN-L1-002).
  *
  * The actual-date model (CR-001 Part A) puts BOTH the planned span

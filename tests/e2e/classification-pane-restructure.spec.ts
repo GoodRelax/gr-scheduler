@@ -7,8 +7,9 @@ import { resolve } from 'node:path';
  * End-to-end coverage for the CLASSIFICATION-PANE restructure against the built
  * single-file app (`dist/index.html`), using TRUSTED pointer / keyboard events:
  *
- * - the consolidated per-node icon row renders `▲ ▼ □ + - X` (name first), the old
- *   `↓` glyph is gone (now `+`);
+ * - the consolidated per-node icon row renders `▲ ▼ ⧉ □ + - X` (name first), the old
+ *   `↓` glyph is gone (now `+`); `⧉` (CR-007 Part 5 subtree copy) sits between move-down
+ *   and show-all;
  * - a Middle label is top-aligned and its first Minor label center-aligned, so
  *   their rendered y-positions differ (no overlap);
  * - the per-node `-` hide removes a track's rows and the section `□` restores them;
@@ -45,13 +46,17 @@ async function firstDecoratedTrackControls(
 test.describe('classification-pane restructure (e2e, trusted events)', () => {
   test.skip(!existsSync(builtAppFile), 'Run `npm run build` to produce dist/index.html first.');
 
-  test('the per-node icon row renders name-first then ▲ ▼ □ + - X (old ↓ gone)', async ({ page }) => {
+  test('the per-node icon row renders name-first then ▲ ▼ ⧉ □ + - X (old ↓ gone)', async ({ page }) => {
     await openApp(page);
     const controls = await firstDecoratedTrackControls(page);
     expect(controls.names[0]).toBe('node-name');
+    // CR-007 Part 5 added a "copy-classification" (⧉) button between move-down and
+    // show-all (subtree duplicate, unified -N naming); every other control keeps its
+    // CR-004-restructure position.
     expect(controls.roles).toEqual([
       'category-move-up',
       'category-move-down',
+      'copy-classification',
       'show-all',
       'add-subcategory',
       'hide-node',
@@ -59,8 +64,9 @@ test.describe('classification-pane restructure (e2e, trusted events)', () => {
     ]);
     expect(controls.glyphs[0]).toBe('▲');
     expect(controls.glyphs[1]).toBe('▼');
-    expect(controls.glyphs[2]).toBe('□');
-    expect(controls.glyphs[3]).toBe('+');
+    expect(controls.glyphs[2]).toBe('⧉');
+    expect(controls.glyphs[3]).toBe('□');
+    expect(controls.glyphs[4]).toBe('+');
     expect(controls.glyphs).not.toContain('↓');
   });
 

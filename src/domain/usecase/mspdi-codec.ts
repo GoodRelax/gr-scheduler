@@ -9,7 +9,7 @@
  * Notes field (DATA-MSPDI-006); the sidecar carries the entire serialized
  * document, so Export -> Import is loss-free when the sidecar is present.
  *
- * The standard MSPDI elements (Project/Title, Tasks/Task with UID/Name/Start/
+ * The standard MSPDI elements (Project/Name, Project/Title, Tasks/Task with UID/Name/Start/
  * Finish/Milestone/OutlineLevel, PredecessorLink) are ALSO emitted so a real MS
  * Project can read tasks/dates/dependencies/hierarchy. On import the sidecar is
  * preferred; without it a minimal document is reconstructed from those standard
@@ -292,6 +292,12 @@ export function exportMspdi(
   return (
     '<?xml version="1.0" encoding="UTF-8"?>' +
     '<Project xmlns="http://schemas.microsoft.com/project">' +
+    // CR-016: emit the project name into BOTH Project/Name and Project/Title, in the
+    // xsd:sequence order the vendored mspdi_pj12.xsd declares (UID?, Name?, Title?),
+    // because MS Project shows the *Name* as the project's name while gr-scheduler has
+    // historically round-tripped only the Title. Import keeps Title authoritative and
+    // falls back to Name (see projectTitleFromMspdi).
+    `<Name>${escapeXml(scheduleDocument.title)}</Name>` +
     `<Title>${escapeXml(scheduleDocument.title)}</Title>` +
     `<CreationDate>${toMspdiDateTime(scheduleDocument.epochDate)}</CreationDate>` +
     `<Notes>${escapeXml(notes)}</Notes>` +
@@ -436,6 +442,40 @@ function firstTagText(xml: string, tag: string): string | null {
   return match === null ? null : (match[1] ?? '');
 }
 
+/**
+ * The project-level scalar prefix of an MSPDI document: everything before the first
+ * `<Tasks>` element. Project scalars (Name / Title / CreationDate) live there, so
+ * scoping a name lookup to this prefix keeps a TASK's own `<Name>` from being mistaken
+ * for the project name (CR-016 fallback).
+ */
+function projectScalarScope(xmlText: string): string {
+  const tasksIndex = xmlText.search(/<Tasks\b/i);
+  return tasksIndex < 0 ? xmlText : xmlText.slice(0, tasksIndex);
+}
+
+/**
+ * Resolve the project title on import (CR-016): `<Title>` is authoritative; when it is
+ * absent or blank the MS Project-facing `<Name>` is used; when neither carries text a
+ * neutral placeholder keeps the required `title` field populated.
+ *
+ * @param xmlText - The whole MSPDI document.
+ * @returns The project title to adopt.
+ */
+function projectTitleFromMspdi(xmlText: string): string {
+  const scope = projectScalarScope(xmlText);
+  for (const tag of ['Title', 'Name']) {
+    const raw = firstTagText(scope, tag);
+    if (raw === null) {
+      continue;
+    }
+    const text = unescapeXml(raw).trim();
+    if (text.length > 0) {
+      return text;
+    }
+  }
+  return 'Imported project';
+}
+
 /** Return the inner content of every `<tag>...</tag>` block in `xml`. */
 function allTagBlocks(xml: string, tag: string): string[] {
   const blocks: string[] = [];
@@ -561,7 +601,7 @@ function parseLeafTask(block: string, uid: string, epochDate: string): ParsedLea
  * from Notes (B-6), and dependency linkType/lagDays from PredecessorLink Type/LinkLag.
  */
 function reconstructFromStandardMspdi(xmlText: string): ScheduleDocument {
-  const title = unescapeXml(firstTagText(xmlText, 'Title') ?? 'Imported project');
+  const title = projectTitleFromMspdi(xmlText);
   const creation = firstTagText(xmlText, 'CreationDate');
   const epochDate = creation !== null ? toIsoDate(creation.trim()) : '2026-01-01';
 

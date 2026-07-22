@@ -32,8 +32,10 @@ import {
   bulkShiftItemsCommand,
   createItemCommand,
   editPropertyCommand,
+  moveActualSpanCommand,
   moveItemCommand,
   removeDependencyCommand,
+  resizeActualSpanCommand,
   resizeItemCommand,
   setDependencyColorCommand,
   type ClassificationTarget,
@@ -121,6 +123,36 @@ interface ResizeGesture {
   moved: boolean;
 }
 
+/**
+ * Dragging the BODY of an item's ACTUAL (as-run) bar (review H-1 / M-1). It shifts
+ * `actualStart` / `actualEnd` together and can NEVER reach the plan dates: the gesture
+ * commits {@link moveActualSpanCommand}, which does not know how to write
+ * `startDate` / `endDate` at all.
+ */
+interface ActualSpanMoveGesture {
+  readonly mode: 'actual-move';
+  readonly itemId: string;
+  readonly baseline: ScheduleDocument;
+  readonly startWorldX: number;
+  moved: boolean;
+}
+
+/**
+ * Dragging one EDGE of an item's ACTUAL (as-run) bar (review H-1 / M-1). The right
+ * edge writes `actualEnd` -- which is how a "started, not finished" actual first gets
+ * a real end date (CR-013 Part 2) -- and the left edge writes `actualStart`. The
+ * planned span is untouched.
+ */
+interface ActualSpanResizeGesture {
+  readonly mode: 'actual-resize';
+  readonly itemId: string;
+  /** Which end of the ACTUAL span is being dragged. */
+  readonly edge: ResizeEdge;
+  readonly baseline: ScheduleDocument;
+  readonly startWorldX: number;
+  moved: boolean;
+}
+
 /** Which fade corner of a task is being dragged. */
 type FadeEdge = 'fade-in' | 'fade-out';
 
@@ -163,6 +195,11 @@ interface MarqueeGesture {
 interface MultiMoveGesture {
   readonly mode: 'multi-move';
   readonly itemIds: ReadonlySet<string>;
+  /** The item whose body was actually pressed (H-defect fix): a plain click that
+   *  never drags collapses the selection down to just this one item, matching the
+   *  single-item click path (`setSelection(new Set([hit.itemId]))`) it bypasses to
+   *  allow a whole-selection drag. */
+  readonly clickedItemId: string;
   readonly baseline: ScheduleDocument;
   readonly startWorldX: number;
   readonly startWorldY: number;
@@ -236,6 +273,8 @@ type Gesture =
   | MoveGesture
   | MultiMoveGesture
   | ResizeGesture
+  | ActualSpanMoveGesture
+  | ActualSpanResizeGesture
   | FadeGesture
   | CreateGesture
   | LabelGesture
@@ -1288,6 +1327,33 @@ export class EditingController {
   ): void {
     this.consume(event);
     const baseline = this.store.getDocument();
+    // Review H-1: a grab that STARTS on the ACTUAL bar acts on the actual span only.
+    // It is routed here, before every plan-side gesture (including the multi-item
+    // move), so no amount of pointer travel can reach moveItemCommand /
+    // resizeItemCommand and rewrite `startDate` / `endDate`. Which end of the actual
+    // bar was grabbed decides between recording dates (edges) and shifting the whole
+    // recorded span (body), mirroring the plan-side resize/move split (M-1).
+    if (hit.side === 'actual') {
+      this.setSelection(new Set([hit.itemId]));
+      this.gesture =
+        hit.region === 'body'
+          ? {
+              mode: 'actual-move',
+              itemId: hit.itemId,
+              baseline,
+              startWorldX: worldX,
+              moved: false,
+            }
+          : {
+              mode: 'actual-resize',
+              itemId: hit.itemId,
+              edge: hit.region === 'resize-start' ? 'start' : 'end',
+              baseline,
+              startWorldX: worldX,
+              moved: false,
+            };
+      return;
+    }
     // CR-007 Part 1/2: a plain drag started on an item already part of a >1
     // selection moves the WHOLE set (bulk date shift / classification reassign)
     // without collapsing the selection. Only the body-move region (not resize /
@@ -1302,6 +1368,7 @@ export class EditingController {
       this.gesture = {
         mode: 'multi-move',
         itemIds: new Set(this.selectedItemIds),
+        clickedItemId: hit.itemId,
         baseline,
         startWorldX: worldX,
         startWorldY: worldY,
@@ -1395,6 +1462,12 @@ export class EditingController {
       case 'resize':
         this.previewResize(gesture, world.worldX);
         break;
+      case 'actual-move':
+        this.previewActualSpanMove(gesture, world.worldX);
+        break;
+      case 'actual-resize':
+        this.previewActualSpanResize(gesture, world.worldX);
+        break;
       case 'fade':
         this.previewFade(gesture, world.worldX);
         break;
@@ -1444,6 +1517,12 @@ export class EditingController {
         break;
       case 'resize':
         this.commitResize(gesture, world.worldX);
+        break;
+      case 'actual-move':
+        this.commitActualSpanMove(gesture, world.worldX);
+        break;
+      case 'actual-resize':
+        this.commitActualSpanResize(gesture, world.worldX);
         break;
       case 'fade':
         this.commitFade(gesture, world.worldX);
@@ -1549,6 +1628,11 @@ export class EditingController {
   private commitMultiMove(gesture: MultiMoveGesture, worldX: number, worldY: number): void {
     this.renderer.updateItems(gesture.baseline);
     if (!gesture.moved) {
+      // A plain click (no drag) on one member of a multi-selection collapses the
+      // selection down to just that item -- the same outcome a fresh single-item
+      // click produces, so a non-dragged click is never a no-op (H-defect fix,
+      // caught by ui-feedback-batch "Ctrl+A selects all ... " e2e).
+      this.setSelection(new Set([gesture.clickedItemId]));
       return;
     }
     const dx = worldX - gesture.startWorldX;
@@ -1612,6 +1696,79 @@ export class EditingController {
       command: resizeItemCommand(gesture.itemId, gesture.edge, deltaDays),
       guideWorldX: snap.snapped ? snap.baseline : null,
     };
+  }
+
+  // ----- actual-side drag (review H-1 / M-1) ----------------------------------
+
+  /**
+   * Whole-day offset between where an actual-side gesture was grabbed and where the
+   * pointer is now, in the LIVE zoom so the day mapping matches the drawn bar. Actual
+   * dates are whole days, so the rounding IS the snap -- no alignment baselines are
+   * consulted, keeping the actual span free of the plan-side start-date magnetism.
+   */
+  private actualSpanDeltaDays(startWorldX: number, worldX: number): number {
+    return Math.round((worldX - startWorldX) / pixelsPerDay(this.liveViewState().zoomX));
+  }
+
+  private previewActualSpanMove(gesture: ActualSpanMoveGesture, worldX: number): void {
+    if (Math.abs(worldX - gesture.startWorldX) > DRAG_THRESHOLD_PX) {
+      gesture.moved = true;
+    }
+    this.renderer.updateItems(
+      this.buildActualSpanMoveCommand(gesture, worldX).execute(gesture.baseline),
+    );
+  }
+
+  private commitActualSpanMove(gesture: ActualSpanMoveGesture, worldX: number): void {
+    if (!gesture.moved) {
+      this.renderer.updateItems(gesture.baseline);
+      return;
+    }
+    const command = this.buildActualSpanMoveCommand(gesture, worldX);
+    this.renderer.updateItems(gesture.baseline);
+    this.store.dispatch(command);
+    log.debug('actual_span_moved', { item_id: gesture.itemId });
+  }
+
+  private buildActualSpanMoveCommand(
+    gesture: ActualSpanMoveGesture,
+    worldX: number,
+  ): ScheduleCommand {
+    return moveActualSpanCommand(
+      gesture.itemId,
+      this.actualSpanDeltaDays(gesture.startWorldX, worldX),
+    );
+  }
+
+  private previewActualSpanResize(gesture: ActualSpanResizeGesture, worldX: number): void {
+    if (Math.abs(worldX - gesture.startWorldX) > DRAG_THRESHOLD_PX) {
+      gesture.moved = true;
+    }
+    this.renderer.updateItems(
+      this.buildActualSpanResizeCommand(gesture, worldX).execute(gesture.baseline),
+    );
+  }
+
+  private commitActualSpanResize(gesture: ActualSpanResizeGesture, worldX: number): void {
+    if (!gesture.moved) {
+      this.renderer.updateItems(gesture.baseline);
+      return;
+    }
+    const command = this.buildActualSpanResizeCommand(gesture, worldX);
+    this.renderer.updateItems(gesture.baseline);
+    this.store.dispatch(command);
+    log.debug('actual_span_resized', { item_id: gesture.itemId, edge: gesture.edge });
+  }
+
+  private buildActualSpanResizeCommand(
+    gesture: ActualSpanResizeGesture,
+    worldX: number,
+  ): ScheduleCommand {
+    return resizeActualSpanCommand(
+      gesture.itemId,
+      gesture.edge,
+      this.actualSpanDeltaDays(gesture.startWorldX, worldX),
+    );
   }
 
   // ----- fade (corner taper) --------------------------------------------------

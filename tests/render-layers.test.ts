@@ -398,7 +398,7 @@ describe('HitTester', () => {
   });
 
   it('returns a body hit for a point inside the bar', () => {
-    expect(tester.hitTest(ctxWith(), 140, 120)).toEqual({ itemId: 'a', region: 'body' });
+    expect(tester.hitTest(ctxWith(), 140, 120)).toEqual({ itemId: 'a', region: 'body', side: 'plan' });
   });
 
   it('centers a task auto-label INSIDE the bar, so a point past the bar end hits nothing', () => {
@@ -406,12 +406,12 @@ describe('HitTester', () => {
     // to the right of the bar end (x = 180) to fall back onto; the point is empty.
     expect(tester.hitTest(ctxWith(), 200, 120)).toBeNull();
     // A point in the bar's own body still resolves to a body (move) hit.
-    expect(tester.hitTest(ctxWith(), 140, 120)).toEqual({ itemId: 'a', region: 'body' });
+    expect(tester.hitTest(ctxWith(), 140, 120)).toEqual({ itemId: 'a', region: 'body', side: 'plan' });
   });
 
   it('prioritizes a selected task fade handle over the body/edge', () => {
     const hit = tester.hitTest(ctxWith({ selectedItemIds: new Set(['a']) }), 101, 101);
-    expect(hit).toEqual({ itemId: 'a', region: 'fade-in' });
+    expect(hit).toEqual({ itemId: 'a', region: 'fade-in', side: 'plan' });
   });
 
   it('returns an anchor-handle hit near a selected comment leader anchor', () => {

@@ -227,25 +227,34 @@ test.describe('ui feedback batch', () => {
 
   test('7 + 8. overlapping items stack into >2 lanes with a visible gap', async ({ page }) => {
     await openApp(page);
-    // The TeamA Phase row (SYS1..SWE1) has three mutually-overlapping bars, so it
-    // stacks into three sub-lanes (the old cap allowed only two visible).
-    const lanes = await page.evaluate(() => {
-      const ids = ['ta-phase-plan-sys1', 'ta-phase-plan-sys2', 'ta-phase-plan-sys3'];
-      const tops = ids.map((id) => {
-        const node = document.querySelector(`svg [data-item-id="${id}"] > rect`);
+    // The TeamA Phase row (SYS1..SWE1) stacks into three sub-lanes (the old cap
+    // allowed only two visible). CR-003 Part 2's inner-left label-collision avoidance
+    // means sys1's own abbreviation overflows far enough right to bump swe1 into a
+    // fresh lane, but not far enough to stop sys3 reusing sys1's now-freed lane -- so
+    // sys1 and sys3 end up SHARING one lane, and sys1/sys2/swe1 are the trio that
+    // actually renders across three separate stacked lanes (CR-012's template
+    // restructuring shifted the fitted zoom enough to change this pairing from the
+    // original sys1/sys2/sys3 selection). sys1/sys2 also carry a demo fadeIn/fadeOutDays
+    // (CR-004 sample enrichment) and so render as a `<polygon>` rather than a `<rect>`;
+    // only the x-coordinates taper, so the lane top/gap this test reads is identical
+    // either way -- match both glyphs.
+    const ids = ['ta-phase-plan-sys1', 'ta-phase-plan-sys2', 'ta-phase-plan-swe1'];
+    const lanes = await page.evaluate((idList) => {
+      const tops = idList.map((id) => {
+        const node = document.querySelector(`svg [data-item-id="${id}"] > :is(rect, polygon)`);
         return node === null ? null : Math.round(node.getBoundingClientRect().top);
       });
       return tops;
-    });
+    }, ids);
     expect(lanes.every((top) => top !== null)).toBe(true);
     const distinct = new Set(lanes as number[]);
     // Three DISTINCT vertical lanes -> the row grew to stack >2 items.
     expect(distinct.size).toBe(3);
 
     // Adjacent stacked bars leave a visible gap (~5% of the lane height).
-    const gap = await page.evaluate(() => {
-      const rects = ['ta-phase-plan-sys1', 'ta-phase-plan-sys2', 'ta-phase-plan-sys3']
-        .map((id) => document.querySelector(`svg [data-item-id="${id}"] > rect`))
+    const gap = await page.evaluate((idList) => {
+      const rects = idList
+        .map((id) => document.querySelector(`svg [data-item-id="${id}"] > :is(rect, polygon)`))
         .filter((n): n is Element => n !== null)
         .map((n) => n.getBoundingClientRect())
         .sort((a, b) => a.top - b.top);
@@ -254,7 +263,7 @@ test.describe('ui feedback batch', () => {
         minGap = Math.min(minGap, rects[i].top - rects[i - 1].bottom);
       }
       return minGap;
-    });
+    }, ids);
     expect(gap).toBeGreaterThan(0);
   });
 

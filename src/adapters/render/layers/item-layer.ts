@@ -4,6 +4,12 @@
  * rings and fade handles (H-1 split). Owns the virtualized mounted-node set and
  * runs the create / patch / remove diff against the viewport + LOD + plan/actual
  * filter, exactly as the monolith did. The produced DOM is byte-identical.
+ *
+ * Paint order inside one item group (DEF-009): `<title>`, the primary glyph (plan
+ * bar / milestone plan marker), then every other bar or marker, and LAST the
+ * `item-label-layer` group holding the abbreviation and the assignee name. Bars are
+ * mounted through {@link ItemLayer.mountBeneathLabels}, so text always paints above
+ * them -- including the vivid ACTUAL bar that overlays the plan bar under `overlap`.
  */
 
 import type { PlanActualDisplay, ScheduleItem } from '../../../domain/model/schedule-model.js';
@@ -17,16 +23,13 @@ import {
   displayFillColor,
 } from '../../../domain/usecase/plan-actual-colors.js';
 import {
+  resolvePlanActualStyle,
   type PlanActualBarRect,
-  type PlanActualBarsInput,
 } from '../../../domain/usecase/plan-actual-geometry.js';
 import {
-  computeDisplayedPlanActualBars,
-  isActualSideShown,
-  isPlanSideShown,
-  type DisplayedPlanActualBars,
-} from '../../../domain/usecase/plan-actual-display.js';
-import { dateToWorldX } from '../../../domain/usecase/time-coordinate-mapper.js';
+  computeItemPlanActualPaint,
+  type ItemPlanActualPaint,
+} from '../../../domain/usecase/plan-actual-paint.js';
 import {
   effectiveMilestoneShape,
   effectiveTaskShape,
@@ -77,6 +80,14 @@ interface MountedItem {
    * fade turns on or off, so a bar keeps exactly one glyph node.
    */
   shape: SVGElement;
+  /**
+   * The item's TEXT layer (DEF-009): a group created with the item node and kept as
+   * the paint anchor every bar/marker is inserted BEFORE, so the abbreviation and the
+   * assignee name always paint ABOVE the plan bar and the vivid actual bar under both
+   * the `overlap` and `separate` styles. Never removed, so the invariant survives the
+   * lazy creation / removal cycles of the actual bar and the milestone actual marker.
+   */
+  readonly labelLayer: SVGGElement;
   readonly label: SVGTextElement;
   /**
    * The optional assignee-name label drawn to the LEFT of the glyph (CR-004 Part 5),
@@ -222,13 +233,19 @@ export class ItemLayer {
         : document.createElementNS(SVG_NS, 'rect');
     const label = document.createElementNS(SVG_NS, 'text');
     label.setAttribute('dominant-baseline', 'middle');
-    // Title first so it is the accessible name source; then the graphic + label.
+    // DEF-009: every text node lives in a dedicated layer group kept LAST among the
+    // painted children, so an actual bar created later can never bury the label.
+    const labelLayer = document.createElementNS(SVG_NS, 'g');
+    labelLayer.setAttribute('data-role', 'item-label-layer');
+    labelLayer.appendChild(label);
+    // Title first so it is the accessible name source; then the graphic + text layer.
     group.appendChild(title);
     group.appendChild(shape);
-    group.appendChild(label);
+    group.appendChild(labelLayer);
     return {
       group,
       shape,
+      labelLayer,
       label,
       assigneeLabel: null,
       title,
@@ -283,15 +300,20 @@ export class ItemLayer {
     // stands in for the actual side -- placed over the actual extent, painted in the
     // vivid shade -- so no plan bar survives and no second (actual) node is mounted;
     // under `plan-only` every actual node is removed and the plan bar fills the lane.
+    // Every one of those decisions comes from the SHARED paint helper the SVG exporter
+    // also calls (DEF-011), so screen and export cannot drift apart (ARCH-C-022).
     const display = ctx.viewState.planActualDisplay;
-    const planShown = isPlanSideShown(display);
-    const actualShown = isActualSideShown(display);
-    const actualSidePlacement =
-      !planShown && actualShown ? this.actualSidePlacement(ctx, item, placement) : null;
+    const paint = this.computeItemPaint(ctx, item, placement, display);
     /** True while the primary glyph stands in for the ACTUAL side (actual-only). */
-    const glyphIsLoneActual = actualSidePlacement !== null;
+    const glyphIsLoneActual = paint.primaryGlyphSide === 'actual';
     /** The rectangle the primary glyph is drawn from (the actual extent when lone). */
-    const glyphPlacement = actualSidePlacement ?? placement;
+    const glyphPlacement: ItemPlacement = {
+      ...placement,
+      worldX: paint.primaryGlyphRect.x,
+      worldY: paint.primaryGlyphRect.y,
+      worldWidth: paint.primaryGlyphRect.width,
+      worldHeight: paint.primaryGlyphRect.height,
+    };
     // Plan/actual coloring (CR-002 Part 1): the PLAN side is the pale shade derived
     // from the item's own base fill (or the base fill itself for a plan-only item /
     // an explicit fill); the ACTUAL side is the vivid shade. The grey baseline
@@ -365,15 +387,14 @@ export class ItemLayer {
       // or, under `actual-only`, the lone ACTUAL marker at actualStart.
       mounted.shape.setAttribute('d', milestonePath(item, glyphCenterX, centerY, radius));
       // CR-002 Part 2: a milestone shows plan + actual as TWO markers with NO filled
-      // span between them (a point has no span to paint). Draw the actual marker at
-      // actualStart when recorded, with an optional thin leader cueing the shift --
-      // but only while BOTH sides are shown: a lone side is a single marker.
-      if (planShown && actualShown) {
+      // span between them (a point has no span to paint). The shared paint decision
+      // yields the actual marker's world-x only while BOTH sides are shown and an
+      // actual is recorded; a lone side is a single marker.
+      if (paint.milestoneActualCenterX !== null) {
         this.updateMilestoneActualMarker(
-          ctx,
           mounted,
           item,
-          placement,
+          paint.milestoneActualCenterX,
           glyphCenterX,
           centerY,
           radius,
@@ -439,23 +460,17 @@ export class ItemLayer {
       // A tapered polygon bar does not carry a separate actual bar.
       this.removeActualBar(mounted);
     } else {
-      // Plain rectangular task bar: route through the two-mode plan/actual geometry
-      // (PLAN-L1-005) gated by the display filter (PLAN-L1-002). For overlap WITHOUT
-      // an actual this reproduces the exact prior placement rect; separate splits the
-      // lane and an actual bar is drawn alongside; a filtered-out side is null and its
-      // sub-lane is not reserved, so the survivor fills the lane.
-      const bars = this.computeItemDisplayedBars(ctx, item, placement, display);
-      // The primary glyph carries the PLAN bar, or the ACTUAL bar when the plan side
-      // is filtered out (a lone bar, never a second node). A fully filtered item is
-      // not mounted at all, so the zero rect below is only a defensive fallback.
-      const glyphRect: PlanActualBarRect = bars.plan ??
-        bars.actual ?? { x: placement.worldX, y: placement.worldY, width: 0, height: 0 };
+      // Plain rectangular task bar: the shared paint decision already routed the
+      // two-mode plan/actual geometry (PLAN-L1-005) through the display filter
+      // (PLAN-L1-002). The primary glyph carries the PLAN bar, or the ACTUAL bar when
+      // the plan side is filtered out (a lone bar, never a second node).
+      const glyphRect = paint.primaryGlyphRect;
       mounted.shape.setAttribute('x', String(glyphRect.x));
       mounted.shape.setAttribute('y', String(glyphRect.y));
       mounted.shape.setAttribute('width', String(glyphRect.width));
       mounted.shape.setAttribute('height', String(glyphRect.height));
       mounted.shape.setAttribute('rx', '2');
-      if (bars.plan !== null && bars.actual !== null) {
+      if (paint.actualBarRect !== null) {
         // Plan + actual coexist: the vivid actual shade doubles as the outline color
         // so the non-color line-WEIGHT redundancy (CR-002 Part 1) reads over both the
         // pale plan fill and the vivid actual fill. The PLAN bar takes the THIN
@@ -464,7 +479,7 @@ export class ItemLayer {
         mounted.shape.setAttribute('stroke', actualFill);
         mounted.shape.setAttribute('stroke-width', String(planActualStrokeWidthPx('plan')));
         mounted.shape.setAttribute('data-plan-actual-side', 'plan');
-        this.updateActualBar(mounted, bars.actual, actualFill);
+        this.updateActualBar(mounted, paint.actualBarRect, actualFill);
       } else {
         // One side only (or none): no second bar node. A surviving ACTUAL side is
         // marked and weighted below, with the other lone-actual glyph kinds.
@@ -546,7 +561,8 @@ export class ItemLayer {
       label.setAttribute('data-role', 'assignee-label');
       label.setAttribute('dominant-baseline', 'middle');
       label.setAttribute('pointer-events', 'none');
-      mounted.group.appendChild(label);
+      // DEF-009: joins the text layer, so it paints above every bar like the abbrev.
+      mounted.labelLayer.appendChild(label);
       mounted.assigneeLabel = label;
     }
     label.textContent = assignee;
@@ -558,88 +574,50 @@ export class ItemLayer {
   }
 
   /**
-   * The item's recorded ACTUAL span, mapped onto the same time axis as the plan and
-   * aligned into the placement's world-x frame, so an actual bar / marker lines up
-   * with the laid-out plan bar regardless of the placement's x origin. The single
-   * source of the actual-side world-x used by the task bars, the milestone actual
-   * marker and the actual-only glyph placement.
+   * Every rectangle this item paints under the active plan/actual style
+   * (PLAN-L1-005) and display filter (PLAN-L1-002, DEF-008), taken from the SHARED
+   * decision {@link computeItemPlanActualPaint} -- the very function the SVG exporter
+   * calls, so the canvas and the exported picture keep ONE definition (DEF-011,
+   * ARCH-C-022).
    *
-   * @returns The actual span's world-x extents (`endWorldX` null when the item is
-   *   still in progress / is a point), or null when no actual is recorded.
+   * Without a document there is no time axis to map an actual onto, so the item is
+   * painted from its lane rectangle alone (plan side only).
+   *
+   * @param ctx - The render context (document, view state, zoom).
+   * @param item - The item to paint.
+   * @param placement - Its laid-out lane rectangle.
+   * @param display - The active display filter; `undefined` behaves as `both`.
+   * @returns The primary glyph rectangle, the optional actual bar and the optional
+   *   milestone actual marker position.
    */
-  private actualSpanWorldX(
-    ctx: RenderContext,
-    item: ScheduleItem,
-    placement: ItemPlacement,
-  ): { readonly startWorldX: number; readonly endWorldX: number | null } | null {
-    const epochDate = ctx.scheduleDocument?.epochDate;
-    if (item.actualStart === undefined || epochDate === undefined) {
-      return null;
-    }
-    const zoomX = ctx.viewState.zoomX;
-    const originShift = placement.worldX - dateToWorldX(item.startDate, epochDate, zoomX);
-    return {
-      startWorldX: dateToWorldX(item.actualStart, epochDate, zoomX) + originShift,
-      endWorldX:
-        item.actualEnd != null
-          ? dateToWorldX(item.actualEnd, epochDate, zoomX) + originShift
-          : null,
-    };
-  }
-
-  /**
-   * Compute the plan bar and optional actual bar rectangles for a plain-rect task
-   * under the current plan/actual style (PLAN-L1-005) AND display filter
-   * (PLAN-L1-002, DEF-008). Overlap without an actual reproduces the exact prior
-   * placement rect; a side hidden by the filter comes back null and reserves no
-   * sub-lane, so the surviving side fills the lane under both styles.
-   */
-  private computeItemDisplayedBars(
+  private computeItemPaint(
     ctx: RenderContext,
     item: ScheduleItem,
     placement: ItemPlacement,
     display: PlanActualDisplay | undefined,
-  ): DisplayedPlanActualBars {
-    const actualSpan = this.actualSpanWorldX(ctx, item, placement);
-    const input: PlanActualBarsInput = {
-      planStartWorldX: placement.worldX,
-      planEndWorldX: placement.worldX + placement.worldWidth,
-      actualStartWorldX: actualSpan?.startWorldX ?? null,
-      actualEndWorldX: actualSpan?.endWorldX ?? null,
-      laneTop: placement.worldY,
-      laneHeight: placement.worldHeight,
-      style: ctx.viewState.planActualStyle ?? 'overlap',
-    };
-    return computeDisplayedPlanActualBars(input, display);
+  ): ItemPlanActualPaint {
+    const epochDate = ctx.scheduleDocument?.epochDate;
+    const { actualStart: _droppedActualStart, ...planOnlyItem } = item;
+    return computeItemPlanActualPaint(
+      epochDate === undefined ? planOnlyItem : item,
+      placement,
+      epochDate ?? item.startDate,
+      ctx.viewState.zoomX,
+      resolvePlanActualStyle(ctx.viewState.planActualStyle),
+      display,
+    );
   }
 
   /**
-   * The rectangle a lone ACTUAL glyph is drawn from under `actual-only`: the item's
-   * lane band moved onto the actual span (a milestone keeps its width and moves its
-   * center to `actualStart`; a task spans `actualStart`..`actualEnd`). Null when the
-   * item records no actual, in which case the display filter has already dropped it.
+   * Mount a bar / marker node so it always paints BENEATH the item's text layer
+   * (DEF-009). SVG paints later siblings on top, so inserting before the (always
+   * last, never removed) label layer keeps the abbreviation and the assignee name
+   * readable over both the pale plan bar and the vivid actual bar, no matter in which
+   * order the lazily created nodes appear or how often the plan/actual display and
+   * style are toggled.
    */
-  private actualSidePlacement(
-    ctx: RenderContext,
-    item: ScheduleItem,
-    placement: ItemPlacement,
-  ): ItemPlacement | null {
-    const actualSpan = this.actualSpanWorldX(ctx, item, placement);
-    if (actualSpan === null) {
-      return null;
-    }
-    if (item.itemKind === 'milestone') {
-      // A milestone is a POINT centered on worldX: only the center moves.
-      return { ...placement, worldX: actualSpan.startWorldX };
-    }
-    return {
-      ...placement,
-      worldX: actualSpan.startWorldX,
-      worldWidth: Math.max(
-        0,
-        (actualSpan.endWorldX ?? actualSpan.startWorldX) - actualSpan.startWorldX,
-      ),
-    };
+  private mountBeneathLabels(mounted: MountedItem, node: SVGElement): void {
+    mounted.group.insertBefore(node, mounted.labelLayer);
   }
 
   /** Create or update the actual bar rect for a plain-rect task (PLAN-L1-005). */
@@ -651,7 +629,9 @@ export class ItemLayer {
       bar.setAttribute('data-plan-actual-side', 'actual');
       bar.setAttribute('rx', '2');
       bar.setAttribute('pointer-events', 'none');
-      mounted.group.appendChild(bar);
+      // DEF-009: under the default `overlap` style this vivid bar sits exactly on the
+      // plan bar, so it must land BELOW the label layer or it paints over the abbrev.
+      this.mountBeneathLabels(mounted, bar);
       mounted.actualBar = bar;
     }
     bar.setAttribute('x', String(rect.x));
@@ -679,25 +659,24 @@ export class ItemLayer {
    * `startDate` (the primary glyph) and this actual marker at `actualStart` -- with
    * NO filled span between them. The actual marker uses the vivid actual shade so it
    * reads as the emphasized as-run point; a thin leader joins the two centers to cue
-   * the horizontal shift. Removed when the milestone records no actual.
+   * the horizontal shift.
+   *
+   * @param mounted - The item's mounted node set.
+   * @param item - The milestone being drawn.
+   * @param actualCenterX - World x of the actual point, from the shared paint decision
+   *   (already aligned into the placement's world-x frame).
+   * @param planCenterX - World x of the plan marker, the leader's other end.
+   * @param centerY - World y both markers are centered on.
+   * @param radius - Half the milestone icon height.
    */
   private updateMilestoneActualMarker(
-    ctx: RenderContext,
     mounted: MountedItem,
     item: ScheduleItem,
-    placement: ItemPlacement,
+    actualCenterX: number,
     planCenterX: number,
     centerY: number,
     radius: number,
   ): void {
-    // The actual date aligned into the placement's world-x frame (the same origin
-    // shift the task actual bar uses), so the marker lines up with the plan point.
-    const actualSpan = this.actualSpanWorldX(ctx, item, placement);
-    if (actualSpan === null) {
-      this.removeMilestoneActualMarker(mounted);
-      return;
-    }
-    const actualCenterX = actualSpan.startWorldX;
     const actualFill = actualDisplayFillColor(item);
 
     let leader = mounted.milestoneLeader;
@@ -724,7 +703,8 @@ export class ItemLayer {
       marker.setAttribute('data-role', 'milestone-actual-marker');
       marker.setAttribute('data-plan-actual-side', 'actual');
       marker.setAttribute('pointer-events', 'none');
-      mounted.group.appendChild(marker);
+      // DEF-009: the milestone caption stays readable over the actual marker too.
+      this.mountBeneathLabels(mounted, marker);
       mounted.milestoneActualMarker = marker;
     }
     marker.setAttribute('d', milestonePath(item, actualCenterX, centerY, radius));

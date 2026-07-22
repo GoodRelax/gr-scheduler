@@ -33,6 +33,7 @@ import {
   type ItemPropertyPatch,
 } from '../../domain/command/commands.js';
 import { effectiveMilestoneShape, effectiveTaskShape } from '../../domain/usecase/task-glyph.js';
+import { defaultActualStartDate } from '../../domain/usecase/progress-line-builder.js';
 import {
   isEmptyRewire,
   planPredecessorRewire,
@@ -412,11 +413,20 @@ export class PropertyPanel {
       (item) => item.actualStart ?? '',
       (value) => ({ actualStart: value }),
     );
+    // CR-013 Part 2: recording an actual END on an item that never recorded an actual
+    // START seeds the start from the item's PLANNED start date -- an actual end alone
+    // has no span to draw, and "started (on plan), not finished" is the first-class
+    // case of the actual-date model. The seeded date comes from the model, so it is
+    // reproducible and independent of the current zoom.
     this.actualEndRow = this.addDateField(
       form,
       'actual_end',
       (item) => item.actualEnd ?? '',
       (value) => ({ actualEnd: value }),
+      (item, patch) =>
+        item.actualStart === undefined
+          ? { ...patch, actualStart: defaultActualStartDate(item) }
+          : patch,
     );
     this.addDateField(
       form,
@@ -578,6 +588,7 @@ export class PropertyPanel {
     fieldKey: string,
     readValue: (item: ScheduleItem) => string,
     toPatch: (value: string) => ItemPropertyPatch,
+    completePatch?: (item: ScheduleItem, patch: ItemPropertyPatch) => ItemPropertyPatch,
   ): HTMLElement {
     const { row, value } = this.addFieldRow(form, fieldKey);
     const input = document.createElement('input');
@@ -586,7 +597,7 @@ export class PropertyPanel {
     input.style.boxSizing = 'border-box';
     input.addEventListener('change', () => {
       if (input.value.length > 0) {
-        this.dispatchPatch(toPatch(input.value));
+        this.dispatchPatch(toPatch(input.value), completePatch);
       }
     });
     value.appendChild(input);
@@ -933,7 +944,18 @@ export class PropertyPanel {
     this.refreshValues(this.store.getDocument());
   }
 
-  private dispatchPatch(patch: ItemPropertyPatch): void {
+  /**
+   * Dispatch an edited property to every selected item.
+   *
+   * @param patch - The edited fields.
+   * @param completePatch - Optional per-item completion applied before dispatch, for a
+   *   field whose full patch depends on the item's own current values (CR-013 Part 2:
+   *   recording an actual END also seeds the missing actual START).
+   */
+  private dispatchPatch(
+    patch: ItemPropertyPatch,
+    completePatch?: (item: ScheduleItem, patch: ItemPropertyPatch) => ItemPropertyPatch,
+  ): void {
     // Apply to EVERY selected item (item 5 multi-select); a single selection is the
     // common one-element case. Each edit-property command is a no-op when its values
     // already match, so unchanged items add no spurious history.
@@ -942,8 +964,12 @@ export class PropertyPanel {
       : this.selectedItemId === null
         ? []
         : [this.selectedItemId];
+    const itemsById = new Map(this.store.getDocument().items.map((item) => [item.id, item]));
     for (const itemId of targets) {
-      this.store.dispatch(editPropertyCommand(itemId, patch));
+      const item = itemsById.get(itemId);
+      const itemPatch =
+        completePatch === undefined || item === undefined ? patch : completePatch(item, patch);
+      this.store.dispatch(editPropertyCommand(itemId, itemPatch));
     }
   }
 

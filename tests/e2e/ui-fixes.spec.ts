@@ -63,8 +63,6 @@ test.describe('gr-scheduler UI fixes', () => {
     // Undo moved to the header (SHELL item 4); it is NOT in the palette anymore.
     await expect(palette.getByRole('button', { name: 'Undo' })).toHaveCount(0);
     await expect(page.locator('[data-role="app-header"] button[data-role="undo"]')).toHaveCount(1);
-    // The icon-asset import stays reachable within the palette.
-    await expect(palette.getByRole('button', { name: 'Import icon' })).toHaveCount(1);
     // No lingering second toolbar from the old shape palette.
     await expect(page.locator('[data-role="tool-palette"]')).toHaveCount(0);
   });
@@ -74,7 +72,10 @@ test.describe('gr-scheduler UI fixes', () => {
   }) => {
     await openApp(page);
     const palette = page.locator('[data-role="command-palette"]');
-    const fileGroupButton = palette.getByRole('button', { name: 'Import icon' });
+    // CR-004 removed the icon-asset import button this used to probe; a shape-picker
+    // button now stands in as "any command group button" (present when expanded,
+    // hidden when minimized).
+    const fileGroupButton = palette.getByRole('button', { name: 'Task bar' });
     const minimize = page.getByRole('button', { name: 'Minimize toolbar' });
     await expect(fileGroupButton).toBeVisible();
     const expandedWidth = (await palette.boundingBox())?.width ?? 0;

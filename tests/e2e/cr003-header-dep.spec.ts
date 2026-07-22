@@ -3,8 +3,9 @@ import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
 /**
- * End-to-end coverage for CR-003 Part 1 (header reorganization) and Part 3 (deterministic
- * dependency auto-router) against the built single-file app (`dist/index.html`).
+ * End-to-end coverage for CR-003 Part 1 (header reorganization, since revised by
+ * CR-015) and Part 3 (deterministic dependency auto-router) against the built
+ * single-file app (`dist/index.html`).
  *
  * NOTE: this spec was authored alongside the CR-003 implementation but was NOT executed
  * in the implementation session (no built dist / browser run available there). It is
@@ -14,8 +15,15 @@ import { resolve } from 'node:path';
  */
 const builtAppFile = resolve(process.cwd(), 'dist', 'index.html');
 
-/** The CR-003 Part 1 header action-control order (mirrors HEADER_CONTROL_ROLES). */
+/**
+ * The header action-control order, CR-015 (supersedes CR-003 Part 1 / CR-006):
+ * `[Fit]`/`[P]` (palette toggle) moved from left of the branding to the FIRST two
+ * toolbar slots, ahead of SS/Load/Save; every control after them is unchanged.
+ * Mirrors `HEADER_CONTROL_ROLES` (src/app/header-model.ts).
+ */
 const HEADER_ORDER = [
+  'header-fit',
+  'header-palette-toggle',
   'screenshot',
   'load',
   'save',

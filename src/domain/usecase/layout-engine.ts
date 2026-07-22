@@ -8,6 +8,11 @@
  */
 
 import type { Row, ScheduleItem, ViewState } from '../model/schedule-model.js';
+import { stacksActualBarBelowPlan } from './plan-actual-display.js';
+import {
+  resolvePlanActualStyle,
+  separateActualBarOffsetPx,
+} from './plan-actual-geometry.js';
 import { dateToWorldX } from './time-coordinate-mapper.js';
 
 /** Base row band height in CSS pixels at zoomY = 1. */
@@ -72,6 +77,19 @@ export const MAX_STACK_LANES = 64;
  * consistent.
  */
 export const STACKED_BAR_HEIGHT_RATIO = 0.9;
+
+/**
+ * Extra unscaled (zoomY = 1) height ONE lane needs when its item stacks an actual bar
+ * below its plan bar (`separate` style, CR-013 Part 1). It is the plan-to-actual
+ * offset of the pure geometry evaluated at the unit bar height, so the row band the
+ * layout reserves and the rectangles the geometry emits can never drift apart: the
+ * BAR keeps its normal height and the ROW grows by exactly this much per lane.
+ *
+ * @returns The extra lane height at unit vertical zoom, in CSS pixels.
+ */
+export function separateActualLaneExtraUnitHeight(): number {
+  return separateActualBarOffsetPx(BASE_LANE_HEIGHT * STACKED_BAR_HEIGHT_RATIO);
+}
 
 /**
  * Estimate the RIGHTWARD pixel extent, measured from an item's start x, occupied by
@@ -170,13 +188,23 @@ function laneCountOf(laneByItemId: ReadonlyMap<string, number>): number {
  * `laneCount` overlapping sub-lanes. A row grows past {@link BASE_ROW_HEIGHT} once
  * it needs more than the two lanes the base height fits, up to {@link MAX_STACK_LANES}.
  *
+ * `stackedActualLaneCount` is how many of those sub-lanes carry an actual bar stacked
+ * below their plan bar (`separate` style with both sides shown, CR-013 Part 1). EACH
+ * such lane -- and only such a lane -- reserves one extra
+ * {@link separateActualLaneExtraUnitHeight}, so a row grows exactly as much as its
+ * actual-bearing content needs and a row with no actual keeps its previous height.
+ * The bars keep their normal height; the ROW is what grows.
+ *
  * @param laneCount - Number of stacked sub-lanes the row uses (>= 0).
+ * @param stackedActualLaneCount - How many of them stack an actual bar (>= 0).
  * @returns The band height at unit vertical zoom.
  */
-export function rowBandUnitHeight(laneCount: number): number {
+export function rowBandUnitHeight(laneCount: number, stackedActualLaneCount = 0): number {
   const lanes = Math.max(1, Math.min(MAX_STACK_LANES, laneCount));
   const stackedHeight = lanes * BASE_LANE_HEIGHT + 2 * ROW_VERTICAL_PADDING;
-  return Math.max(BASE_ROW_HEIGHT, stackedHeight);
+  const bandHeight = Math.max(BASE_ROW_HEIGHT, stackedHeight);
+  const stackedLanes = Math.max(0, Math.min(lanes, stackedActualLaneCount));
+  return bandHeight + stackedLanes * separateActualLaneExtraUnitHeight();
 }
 
 /**
@@ -189,6 +217,12 @@ export interface RowGeometry {
   readonly rowTops: readonly number[];
   readonly rowHeights: readonly number[];
   readonly laneCounts: readonly number[];
+  /**
+   * Per row, whether its lanes stack an actual bar below the plan bar and the band was
+   * therefore grown (CR-013 Part 1). Exposed so the left pane, the exporter and the
+   * tests can read the decision instead of re-deriving it.
+   */
+  readonly stacksActualBars: readonly boolean[];
   readonly totalHeight: number;
 }
 
@@ -197,6 +231,7 @@ export const EMPTY_ROW_GEOMETRY: RowGeometry = {
   rowTops: [],
   rowHeights: [],
   laneCounts: [],
+  stacksActualBars: [],
   totalHeight: 0,
 };
 
@@ -270,10 +305,17 @@ export interface LayoutResult {
  * Each bar/glyph is {@link STACKED_BAR_HEIGHT_RATIO} of its lane height so the
  * boundary between stacked items is visible.
  *
+ * CR-013 Part 1 -- the ROW-HEIGHT DECISION for the `separate` plan/actual style lives
+ * HERE, not in the renderer: a row whose items really draw a stacked actual bar
+ * (`separate` + both sides shown + at least one actual-bearing plain task bar) grows
+ * its band, and its lane pitch, by {@link separateActualLaneExtraUnitHeight} per lane.
+ * The bars keep their normal height. A row without an actual-bearing item, and every
+ * row under `overlap` / `plan-only` / `actual-only`, is completely unchanged.
+ *
  * @param items - All items to place.
  * @param rows - Rows in vertical order (index = stacking order).
  * @param epochDate - Time-axis origin.
- * @param viewState - Provides zoomX (horizontal) and zoomY (vertical).
+ * @param viewState - Provides zoomX / zoomY plus the plan/actual style and filter.
  * @returns The placements and the row geometry.
  */
 export function layoutRows(
@@ -295,14 +337,34 @@ export function layoutRows(
 
   const laneHeight = BASE_LANE_HEIGHT * viewState.zoomY;
   const barHeight = laneHeight * STACKED_BAR_HEIGHT_RATIO;
+  // The plan/actual style + display filter decide whether a lane must reserve room for
+  // a SECOND (actual) bar under its plan bar. The answer is computed PER LANE so a row
+  // grows only by what its actual-bearing lanes need.
+  const planActualStyle = resolvePlanActualStyle(viewState.planActualStyle);
+  const planActualDisplay = viewState.planActualDisplay;
+  const stackedLaneExtra = separateActualLaneExtraUnitHeight() * viewState.zoomY;
+  const stackedLanesOf = (
+    rowItems: readonly ScheduleItem[] | undefined,
+    laneMap: ReadonlyMap<string, number>,
+  ): ReadonlySet<number> => {
+    const lanes = new Set<number>();
+    for (const item of rowItems ?? []) {
+      if (stacksActualBarBelowPlan(item, planActualStyle, planActualDisplay)) {
+        lanes.add(laneMap.get(item.id) ?? 0);
+      }
+    }
+    return lanes;
+  };
 
   // First pass: assign lanes per row and accumulate variable band tops/heights so
   // a tall (multi-lane) row pushes the rows below it down.
   const laneByRow = new Map<string, Map<string, number>>();
   const rowTopById = new Map<string, number>();
+  const stackedLanesById = new Map<string, ReadonlySet<number>>();
   const rowTops: number[] = [];
   const rowHeights: number[] = [];
   const laneCounts: number[] = [];
+  const stacksActualBars: boolean[] = [];
   let cursorY = 0;
   for (const row of rows) {
     const rowItems = itemsByRow.get(row.id);
@@ -312,14 +374,23 @@ export function layoutRows(
         : assignLanes(rowItems, epochDate, viewState.zoomX, barHeight, labelExtent);
     laneByRow.set(row.id, laneMap);
     const laneCount = laneCountOf(laneMap);
-    const height = rowBandUnitHeight(laneCount) * viewState.zoomY;
+    const stackedLanes = stackedLanesOf(rowItems, laneMap);
+    stackedLanesById.set(row.id, stackedLanes);
+    const height = rowBandUnitHeight(laneCount, stackedLanes.size) * viewState.zoomY;
     rowTopById.set(row.id, cursorY);
     rowTops.push(cursorY);
     rowHeights.push(height);
     laneCounts.push(laneCount);
+    stacksActualBars.push(stackedLanes.size > 0);
     cursorY += height;
   }
-  const geometry: RowGeometry = { rowTops, rowHeights, laneCounts, totalHeight: cursorY };
+  const geometry: RowGeometry = {
+    rowTops,
+    rowHeights,
+    laneCounts,
+    stacksActualBars,
+    totalHeight: cursorY,
+  };
 
   const placements: ItemPlacement[] = [];
   for (const [rowId, rowItems] of itemsByRow) {
@@ -331,6 +402,19 @@ export function layoutRows(
     const laneByItemId =
       laneByRow.get(rowId) ??
       assignLanes(rowItems, epochDate, viewState.zoomX, barHeight, labelExtent);
+    // A lane that stacks an actual bar pushes every lane BELOW it further down by one
+    // stacked-lane allowance, so an actual bar never lands on the next lane; a lane
+    // without an actual keeps its previous spacing and every bar keeps its height.
+    const stackedLanes = stackedLanesById.get(rowId) ?? new Set<number>();
+    const laneTopOf = (laneIndex: number): number => {
+      let stackedAbove = 0;
+      for (const stackedLane of stackedLanes) {
+        if (stackedLane < laneIndex) {
+          stackedAbove += 1;
+        }
+      }
+      return bandTop + laneIndex * laneHeight + stackedAbove * stackedLaneExtra;
+    };
 
     for (const item of rowItems) {
       const laneIndex = laneByItemId.get(item.id) ?? 0;
@@ -343,7 +427,7 @@ export function layoutRows(
         laneIndex,
         worldX: startX,
         worldWidth: Math.max(rawWidth, MIN_ITEM_WIDTH),
-        worldY: bandTop + laneIndex * laneHeight,
+        worldY: laneTopOf(laneIndex),
         worldHeight: barHeight,
       });
     }

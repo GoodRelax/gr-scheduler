@@ -328,11 +328,18 @@ STATEMENT: >>>
 1 帯に複数アイテムを重ならないよう縦積みで詰めるマルチバーレイアウト、行・セクションの
 縦配置、分類名の左ペイン固定領域幅、キャンバス全体の論理サイズを算出する。情報密度最大化の
 ため既定ズームで全体が 1 画面に収まる初期スケールを導く。
+行の高さの決定はレンダラではなく本コンポーネント (ドメイン) の責務とし、時間重複によるレーン
+積み上げに加えて、Separate 表示で実績バーを積むレーンの追加高 (PLAN-L1-005) も本コンポーネントが
+合成する。追加高は予実ジオメトリの定義を呼び出して求め、行が確保する高さと描画位置が二重定義に
+ならないようにする。CR-013 Part 1。
 <<<
 MODULE: src/domain/usecase/layout-engine.ts
 RELATIONS:
 - TYPE: Parent
   VALUE: CANVAS-L1-001
+  ROLE: Implements
+- TYPE: Parent
+  VALUE: PLAN-L1-005
   ROLE: Implements
 - TYPE: Parent
   VALUE: CANVAS-L1-002

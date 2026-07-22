@@ -94,7 +94,7 @@ TITLE: ヘッダー左上のスケジュール名
 STATEMENT: >>>
 本システムは、ヘッダーの左上にスケジュール名を表示し、その位置で名称を編集できること。
 <<<
-RATIONALE: 日程表の同定。スケジュール名は多言語文字列を含みうるため i18n 対象。user-order item24。
+RATIONALE: 日程表の同定。スケジュール名は多言語文字列を含みうるため i18n 対象。user-order item24。編集の操作系 (ダブルクリック起動・Enter 確定・Escape 取消・Undo 可能・表示の継続追従) は TOOL-L2-010 で詳細化する。CR-016。
 RELATIONS:
 - TYPE: Parent
   VALUE: STK-L0-001

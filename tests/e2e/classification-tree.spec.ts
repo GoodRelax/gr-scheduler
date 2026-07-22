@@ -72,6 +72,34 @@ const trackCount = (page: Page): Promise<number> => page.locator('[data-role="tr
 const detailCount = (page: Page): Promise<number> => page.locator('[data-role="detail-label"]').count();
 
 /**
+ * Arm + place a rounded box via the CR-006 Part 7 2-click gesture (CURS-L1-007):
+ * pressing "Add box" only ARMS placement now (it used to create a box on a single
+ * dispatched click); the box itself is created by two subsequent real canvas
+ * clicks that set its opposite corners. Box-placement clicks are hit-tested
+ * BEFORE items (`handlePointerDown`), so the two points may freely land on top of
+ * existing item glyphs -- this deliberately clicks ON the two "Over All Schedule"
+ * rows (Milestones + Phase, the template's FIRST section) so the created box stays
+ * inside that section regardless of exactly how tall the header/ruler band is.
+ */
+async function place2ClickBox(page: Page, canvas: Locator): Promise<void> {
+  await page.getByRole('button', { name: 'Add box' }).dispatchEvent('click');
+  const firstRowItem = await page
+    .locator('svg [data-item-id="oa-ms-plan-kickoff"] > path:not([data-role])')
+    .boundingBox();
+  const secondRowItem = await page
+    .locator('svg [data-item-id="oa-phase-plan-concept"] > :is(rect, polygon):not([data-role])')
+    .boundingBox();
+  if (firstRowItem === null || secondRowItem === null) {
+    return;
+  }
+  await page.mouse.click(firstRowItem.x + firstRowItem.width / 2, firstRowItem.y + firstRowItem.height / 2);
+  await page.mouse.click(
+    secondRowItem.x + secondRowItem.width / 2,
+    secondRowItem.y + secondRowItem.height / 2,
+  );
+}
+
+/**
  * Zoom the row axis OUT (Alt + wheel) one notch at a time until `read` reaches
  * `target` or `maxSteps` is exhausted. The startup Fit picks the initial zoomY, so
  * the collapse thresholds are crossed after a zoom-relative number of steps rather
@@ -160,7 +188,8 @@ test.describe('classification tree (derived from item categories)', () => {
       ((await exportDocument(page)).annotations ?? []).map((annotation) => annotation.id),
     );
     // Add a fresh box (created inside Phase 1 by the single-section create clamp).
-    await page.getByRole('button', { name: 'Add box' }).dispatchEvent('click');
+    // CR-006 Part 7: "Add box" only arms 2-click placement (CURS-L1-007).
+    await place2ClickBox(page, canvas);
     const created = ((await exportDocument(page)).annotations ?? []).find(
       (annotation) => annotation.annotationKind === 'rounded-box' && !beforeIds.has(annotation.id),
     );
