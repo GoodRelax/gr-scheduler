@@ -14,6 +14,8 @@
 「採否」列（最右）: **○=採用 / △=採用（畳込・条件付） / ×=不採用**。採用は **8**（中核6 ＋ Calendar_WeekDay ＋ Calendar_Exception）。
 ※ WorkingTime（勤務時刻）と Task_Baseline は不採用に確定（日粒度描画で時刻不要 / 変更前予定グレーは**別ファイル baseline** で代替 = P6 式・既存 `40-data-format.sdoc` と一致）。
 
+> ⚠️ **命名の注意（敵対的レビュー 2026-07-24 で確認）**: 「テーブル」列のうち **16 件は本書内の別名**（`親_子` 形式）であり **MSPDI の実名ではない**。XSD の葉要素名（`Baseline` / `Value` / `Mask` / `WeekDay` / `Exception` / `OutlineCode` / `ExtendedAttribute`）は親を跨いで重複するため、区別用に接頭辞を付けている。**MSPDI の正式名は下の A-2 対応表を正**とする（MSPDI 出力/パーサ実装時はこちらを使うこと。`Task_Baseline` 等のタグは MSPDI に存在しない）。フィールド名（B 節・ERD 属性）は XSD 実名と大小一致で検証済み。
+
 | # | テーブル | 種 | 責務（一言） | カード | 断捨離 | 採否 |
 |---|---|:--:|---|---|:--:|:--:|
 | 1 | **Project** | ◎ | ルート。1ファイル=1PJ。全体設定＋全コレクション保持 | 1 | 残（軽量化） | ○ |
@@ -46,6 +48,31 @@
 | 28 | AvailabilityPeriod | △ | 資源の期間別稼働可能率 | 0..* | **削** | × |
 | 29 | Rate | △ | 資源の期間別単価表（最大25） | 0..* | **削** | × |
 
+### A-2. 本書別名 → MSPDI 実名（合成した 16 件・正はこちら）
+
+`親_子` 別名は本書内の便宜。MSPDI 出力/パーサでは必ず「XSD 実名」を使う。葉要素名は親を跨いで重複するため親パスで区別する。
+
+| 本書別名 | **XSD 実名** | 親パス（Project/…） | 行 |
+|---|---|---|---|
+| Calendar_WeekDay | `WeekDay` | Calendars/Calendar/WeekDays/WeekDay | 1241 |
+| Calendar_Exception | `Exception` | Calendars/Calendar/Exceptions/Exception | 1331 |
+| Calendar_WorkWeek | `WorkWeek` | Calendars/Calendar/WorkWeeks/WorkWeek | 1514 |
+| WorkWeek_WeekDay | `WeekDay` | …/WorkWeek/WeekDay（WeekDays 無し） | 1553 |
+| Task_Baseline | `Baseline` | Tasks/Task/Baseline | 2307 |
+| Resource_Baseline | `Baseline` | Resources/Resource/Baseline | 2971 |
+| Assignment_Baseline | `Baseline` | Assignments/Assignment/Baseline | 3640 |
+| OutlineCodeValue | `Value` | OutlineCodes/OutlineCode/Values/Value | 775 |
+| OutlineCodeMask | `Mask` | OutlineCodes/OutlineCode/Masks/Mask | 866 |
+| Task_OutlineCode | `OutlineCode` | Tasks/Task/OutlineCode | 2413 |
+| Resource_OutlineCode | `OutlineCode` | Resources/Resource/OutlineCode | 3005 |
+| ExtAttr_Def | `ExtendedAttribute` | Project/ExtendedAttributes/ExtendedAttribute | 986 |
+| ExtAttr_ValueItem | `Value` | …/ExtendedAttribute/ValueList/Value | 1157 |
+| Task_ExtendedAttribute | `ExtendedAttribute` | Tasks/Task/ExtendedAttribute | 2248 |
+| Resource_ExtendedAttribute | `ExtendedAttribute` | Resources/Resource/ExtendedAttribute | 2912 |
+| Assignment_ExtendedAttribute | `ExtendedAttribute` | Assignments/Assignment/ExtendedAttribute | 3581 |
+
+残り 13 件（Project / Task / PredecessorLink / Calendar / Resource / Assignment / TimephasedData / WorkingTime / OutlineCode / WBSMasks / WBSMask / AvailabilityPeriod / Rate）は XSD 実名そのもの（大小一致・検証済み）。
+
 ### 構成の要点
 
 中核はわずか **6**（Project / Task / PredecessorLink / Calendar / Resource / Assignment）。
@@ -60,38 +87,40 @@
 | 時系列 | TimephasedData | 削 |
 | 単価/稼働 | Rate, AvailabilityPeriod | 全削 |
 
-**採用 8 テーブル**: Project / Task / PredecessorLink / Calendar / Calendar_WeekDay / Calendar_Exception / Resource / Assignment（＋ GRS 追加の TASK_GROUP）
+**採用 8 テーブル**: Project / Task / PredecessorLink / Calendar / Calendar_WeekDay / Calendar_Exception / Resource / Assignment（＋ GRS 追加の `TaskGroup`）
 
 ---
 
 ## 残ったテーブルの ERD（断捨離後 8 ＋ マルチバー）
 
-採用 8 テーブルに、マルチバー用 `TASK_GROUP` を 1 枚追加した最終形。
+採用 8 テーブルに、マルチバー用 `TaskGroup`（GRS 追加）を 1 枚足した最終形。
 WorkingTime 削除により WeekDay は「稼働日か否か」のみ。Baseline は持たず別ファイルで代替。
 階層（OutlineLevel）とマルチバー行（group_id）は独立 2 軸。
 
 **残存テーブル ERD:**
 
+エンティティ名は **XSD 実名（大小一致）**。GRS 追加は `TaskGroup` テーブルと Task の `group_id` 列のみ（"ADDED" 明示）。`WeekDay`/`Exception` は Calendar 下の要素（A-2 参照）。
+
 ```mermaid
 erDiagram
-    PROJECT ||--o{ CALENDAR : "Calendars"
-    PROJECT ||--o{ ITEM : "Tasks"
-    PROJECT ||--o{ RESOURCE : "Resources"
-    PROJECT ||--o{ ASSIGNMENT : "Assignments"
-    PROJECT ||--o{ TASK_GROUP : "TaskGroups_ADDED"
-    PROJECT }o--o| CALENDAR : "CalendarUID_default"
-    ITEM ||--o{ PREDECESSORLINK : "PredecessorLink"
-    PREDECESSORLINK }o--|| ITEM : "PredecessorUID_any"
-    ITEM ||--o{ ITEM : "OutlineLevel_hierarchy"
-    ITEM }o--o| TASK_GROUP : "group_id_multibar_ADDED"
-    ITEM }o--o| CALENDAR : "CalendarUID"
-    CALENDAR ||--o| CALENDAR : "BaseCalendarUID"
-    CALENDAR ||--o{ CAL_WEEKDAY : "WeekDays"
-    CALENDAR ||--o{ CAL_EXCEPTION : "Exceptions"
-    ASSIGNMENT }o--|| ITEM : "TaskUID"
-    ASSIGNMENT }o--o| RESOURCE : "ResourceUID"
+    Project ||--o{ Calendar : "Calendars"
+    Project ||--o{ Task : "Tasks"
+    Project ||--o{ Resource : "Resources"
+    Project ||--o{ Assignment : "Assignments"
+    Project ||--o{ TaskGroup : "TaskGroups_ADDED"
+    Project }o--o| Calendar : "CalendarUID_default"
+    Task ||--o{ PredecessorLink : "PredecessorLink"
+    PredecessorLink }o--|| Task : "PredecessorUID_any"
+    Task ||--o{ Task : "OutlineLevel_hierarchy"
+    Task }o--o| TaskGroup : "group_id_multibar_ADDED"
+    Task }o--o| Calendar : "CalendarUID"
+    Calendar ||--o| Calendar : "BaseCalendarUID"
+    Calendar ||--o{ WeekDay : "WeekDays"
+    Calendar ||--o{ Exception : "Exceptions"
+    Assignment }o--|| Task : "TaskUID"
+    Assignment }o--o| Resource : "ResourceUID"
 
-    PROJECT {
+    Project {
         string UID PK "projectId"
         string Name
         string Title
@@ -106,13 +135,13 @@ erDiagram
         int MinutesPerDay "duration conv"
         string other_meta "see B-1 approx 26 kept (+server-future)"
     }
-    ITEM {
+    Task {
         int UID PK
         int ID
         string Name
         int OutlineLevel "hierarchy"
         string OutlineNumber
-        string group_id FK "multibar ADDED"
+        string group_id FK "GRS ADDED (multibar)"
         int Type "enum"
         date Start
         date Finish
@@ -134,34 +163,34 @@ erDiagram
         string Notes
         int CalendarUID FK
     }
-    PREDECESSORLINK {
+    PredecessorLink {
         int PredecessorUID FK
         int Type "enum FF FS SF SS"
         int LinkLag
         int LagFormat "enum"
     }
-    TASK_GROUP {
-        string group_id PK "ADDED table"
+    TaskGroup {
+        string group_id PK "GRS ADDED table"
         string label
         int row_order
     }
-    CALENDAR {
+    Calendar {
         int UID PK
         string Name
         bool IsBaseCalendar
         int BaseCalendarUID FK
     }
-    CAL_WEEKDAY {
+    WeekDay {
         int DayType "enum 0-7"
         bool DayWorking
     }
-    CAL_EXCEPTION {
+    Exception {
         string Name
         date FromDate
         date ToDate
         bool DayWorking
     }
-    RESOURCE {
+    Resource {
         int UID PK
         int ID
         string Name
@@ -169,7 +198,7 @@ erDiagram
         string Initials
         string Group
     }
-    ASSIGNMENT {
+    Assignment {
         int UID PK
         int TaskUID FK
         int ResourceUID FK
@@ -293,7 +322,7 @@ erDiagram
 
 | 要素 | 要否 | 理由 |
 |---|:--:|---|
-| MicrosoftProjectServerURL | ○ | 将来サーバ連携で使用予定 |
+| MicrosoftProjectServerURL | ○ | **boolean**（名前に反し URL ではない）: Project Server ユーザ作成か否かのフラグ。将来サーバ連携の参考 |
 | ProjectExternallyEdited | ○ | 将来サーバ連携（外部編集フラグ） |
 | ActualsInSync | ○ | 将来サーバ連携（実績同期フラグ） |
 | AdminProject | ○ | 将来サーバ連携（管理プロジェクト） |
@@ -346,4 +375,4 @@ XML:    <Exception><Name>…</Name>
 
 - MSPDI 全 **29 テーブル**。ただし中核は **6** のみで、残り 23 は分類コード/カスタムフィールド/Baseline/カレンダー詳細/時系列/単価の従属テーブル。
 - ERD 非表示要素は「Project スカラー 63（**○26 / ×37**）」「コンテナ 15（吸収6 / 削9）」「value-object 2（TimePeriod ○ / WorkingTime ×）」。文書メタ・期間換算・**サーバ管理4（将来連携）**は残す。
-- GRS は **採用 8 テーブル**（中核 6 ＋ Calendar_WeekDay ＋ Calendar_Exception）＋ マルチバー用 `TASK_GROUP` の計 **9**。Baseline はテーブルに持たず**別ファイル baseline**（P6 式）で代替。WorkingTime（勤務時刻）不採用。詳細は `mspdi-declutter-erd-ja.md`。
+- GRS は **採用 8 テーブル**（中核 6 ＋ Calendar_WeekDay ＋ Calendar_Exception）＋ マルチバー用 `TaskGroup` の計 **9**。Baseline はテーブルに持たず**別ファイル baseline**（P6 式）で代替。WorkingTime（勤務時刻）不採用。詳細は `mspdi-declutter-erd-ja.md`。

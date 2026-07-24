@@ -6,6 +6,10 @@
 - 手順: Step1 全項目精査 → Step2 MSPDI 正確 ERD → Step3 不要要素の削除＋根拠 → Step4 断捨離後 ERD → Step5 マルチバー追加 ERD → Step6 比較
 - 抽出方法: XSD の全 `<xsd:element name=>`（約500件）を機械抽出し、インデント深度でネストを復元。named complexType は `TimephasedDataType` のみ、他は全て inline 型。
 
+> ⚠️ **命名の正典**: テーブル/フィールドの**正式名は `mspdi-tables.md`（特に A-2「別名→XSD実名」対応表）を正**とする。本書は経緯記録。
+> **Step2 の ERD は表示用の別名**（例 `CALENDAR_WEEKDAY`, `OUTLINECODEVALUE`）を使う — MSPDI は葉要素名（`Value`/`Baseline`/`WeekDay`/`Exception`/`OutlineCode`/`ExtendedAttribute`）が親を跨いで重複し、Mermaid は同名エンティティを許さないため。**MSPDI 出力/パーサでは XSD 実名を使うこと**（`CALENDAR_WEEKDAY` タグ等は存在しない）。Step4/5 の確定 ERD は XSD 実名（大小一致）に統一済み。
+> 同期状況（2026-07-24, 敵対的レビュー反映）: Task_Baseline と WorkingTime は不採用に確定（変更前予定グレーは別ファイル baseline で代替）。断捨離後は **8 テーブル**（＋GRS 追加 `TaskGroup`）。
+
 ---
 
 ## Step 1: 全項目インベントリ（抜け漏れ無き精査）
@@ -93,7 +97,9 @@ Project 直下のコレクション: `OutlineCodes`, `WBSMasks`, `ExtendedAttrib
 
 ## Step 2: MSPDI 正確 ERD（完全版）
 
-全27エンティティ。可読性のため 5 クラスタに分割して描くが、**5枚の合計が MSPDI 全体**であり要素の欠落は無い（Step1 の全項目に一致）。巨大な列挙型・201予約枠は型注記に集約。
+全29エンティティ（中核6＋衛星等23。詳細は `mspdi-tables.md` A 表）。可読性のため 5 クラスタに分割して描くが、**5枚の合計が MSPDI 全体**であり要素の欠落は無い（Step1 の全項目に一致）。巨大な列挙型・201予約枠は型注記に集約。
+
+> **注（命名）**: 本 Step2 のエンティティ ID は**表示用の別名**（大文字・`親_子` 合成）。MSPDI は葉要素名（`Value`/`Baseline`/`WeekDay`/`Exception`/`OutlineCode`/`ExtendedAttribute`）が親を跨いで重複し、1 つの Mermaid 図に同名エンティティを置けないため。**XSD 実名は `mspdi-tables.md` A-2 対応表を正**とする（例: `CALENDAR_WEEKDAY`=`WeekDay`, `OUTLINECODEVALUE`=`Value`, `TASK_EXTATTR`=`ExtendedAttribute`）。Step4/5 の確定 ERD は XSD 実名（大小一致）。
 
 **Step2-1 ERD: ルート・定義系:**
 
@@ -455,7 +461,8 @@ GRS は「マルチバー日程表」であり、**予定・実績・依存・�
 | `Rate`（最大25期の単価表） | コスト計算非対象。単価テーブル不要。 |
 | `AvailabilityPeriod` | 資源キャパ計画非対象。 |
 | `TimephasedData`（全 4 箇所） | 作業/コストの時系列分解（S字・ヒストグラム）。MVP のイナズマ線は item の予実日付で描けるため不要。将来 CR。 |
-| `TaskBaseline`/`ResourceBaseline`/`AssignmentBaseline` の **番号 1〜10** | 追加ベースライン枠。GRS は「変更前予定（グレー）」に基準 0 のみ使用。1-10 は過剰。 |
+| `Baseline`（Task/Resource/Assignment 下・**全番号 0〜10**） | **全削（確定）**。実績遅延は item の Actual＋進捗で描ける。「変更前予定（グレー）」は**別ファイル baseline**（ScheduleDocument のスナップショット・P6 式）で代替。インライン Baseline は複雑化のため不採用。 |
+| `WorkingTime`（勤務時刻 FromTime/ToTime） | **全削（確定）**。GRS は日粒度描画（時刻をレンダリングしない）。WeekDay は「稼働日か否か」のみ残す。 |
 | `f404000`〜`f4040c8`（201 枠） | enterprise カスタムフィールド予約。空・意味なし・サーバ連携非対象。 |
 
 ### フィールド群の削除（残すエンティティ内）
@@ -466,54 +473,60 @@ GRS は「マルチバー日程表」であり、**予定・実績・依存・�
 | コスト: `Cost`,`FixedCost`,`FixedCostAccrual`,`OvertimeCost`,`ActualCost`,`RemainingCost`,`*Rate*`,`CostPerUse`,`BudgetCost`,`BudgetWork`,通貨系(`Currency*`) | Task/Resource/Assignment/Project | コスト管理非対象。金額列を持たない。 |
 | 平準化: `LevelAssignments`,`LevelingCanSplit`,`LevelingDelay`,`LevelingDelayFormat`,`PreLeveledStart/Finish`,`CanLevel` | Task/Assignment/Resource | 資源平準化エンジン非搭載。 |
 | CPM 派生値: `FreeSlack`,`TotalSlack`,`EarlyStart/Finish`,`LateStart/Finish`,`StartVariance`,`FinishVariance`,`Critical` | Task | スケジューラ算出の派生量。必要なら実行時に計算。永続不要。 |
-| エンタープライズ/サーバ: `IsEnterprise`,`IsPublished`,`StatusManager`,`ActiveDirectoryGUID`,`AssnOwner*`,`Enterprise*`,`AdminProject`,`MicrosoftProjectServerURL`,`ProjectExternallyEdited`,`ActualsInSync` | 各所 | サーバ/AD 連携非対象。 |
+| エンタープライズ（項目レベル）: `IsEnterprise`,`IsPublished`,`StatusManager`,`ActiveDirectoryGUID`,`AssnOwner*`,`Enterprise*` | Task/Resource/Assignment | サーバ/AD 連携非対象。**※ Project 直下のサーバ管理4項目（`AdminProject`,`MicrosoftProjectServerURL`,`ProjectExternallyEdited`,`ActualsInSync`）は将来サーバ連携のため残す**（`mspdi-tables.md` B-1 と一致）。 |
 | サブプロジェクト: `IsSubproject`,`IsSubprojectReadOnly`,`SubprojectName`,`ExternalTask`,`ExternalTaskProject`,`CrossProject`,`CrossProjectName` | Task/PredecessorLink | 単一プロジェクト前提（MVP）。 |
 | 稼働換算既定・move/spread 系ほか Project スカラー約55項目 | Project | ソルバ挙動の既定値。GRS の計算モデルに無関係。残すのは識別/期間/基準日/既定暦のみ。 |
 | 補助: `Hyperlink*`,`Contact`,`WorkGroup`,`Recurring`,`BookingType`,`CommitmentType`,`WorkContour`,`Confirmed`,`ResponsePending`,`UpdateNeeded`,`LinkedFields`,`HasFixedRateUnits`,`FixedMaterial`,`Delay`,`OverAllocated`,`IgnoreResourceCalendar`,`Rollup`,`HideBar` | Task/Resource/Assignment | 描画・配信・ソルバ補助で GRS 非使用。 |
 
 ### 残す要素（要旨）
 
-- **Item（=Task 断捨離版）**: `UID, ID, Name, OutlineLevel, OutlineNumber, Type, Start, Finish, Duration, DurationFormat, Work, Stop, Resume, Milestone, Summary, ActualStart, ActualFinish, ActualDuration, PercentComplete, RemainingDuration, ConstraintType, ConstraintDate, Deadline, Notes, CalendarUID`
+- **Task（断捨離版・XSD 実名は `Task`）**: `UID, ID, Name, OutlineLevel, OutlineNumber, Type, Start, Finish, Duration, DurationFormat, Work, Stop, Resume, Milestone, Summary, ActualStart, ActualFinish, ActualDuration, PercentComplete, RemainingDuration, ConstraintType, ConstraintDate, Deadline, Notes, CalendarUID`
 - **PredecessorLink**: `PredecessorUID, Type, LinkLag, LagFormat`（依存線。任意タスク間）
-- **Baseline0 のみ**: `Number(=0), Start, Finish, Duration, Work`（変更前予定=グレー表示・イナズマ線）
-- **Calendar**: `UID, Name, IsBaseCalendar, BaseCalendarUID` + `WeekDay{DayType, DayWorking, WorkingTime(FromTime,ToTime)}` + `Exception{Name, TimePeriod(FromDate,ToDate), DayWorking}`（稼働日・祝日のみ。繰り返し詳細と WorkWeeks は削除）
+- **Baseline**: インラインは持たない（**別ファイル baseline** で代替 = 変更前予定グレー）
+- **Calendar**: `UID, Name, IsBaseCalendar, BaseCalendarUID` + `WeekDay{DayType, DayWorking}` + `Exception{Name, FromDate, ToDate, DayWorking}`（稼働日・祝日のみ。WorkingTime[時刻]・繰り返し詳細・WorkWeeks は削除）
 - **Resource（軽量）**: `UID, ID, Name, Type, Initials, Group`
 - **Assignment（軽量）**: `UID, TaskUID, ResourceUID, Units, Work, ActualWork, PercentWorkComplete`
+- **Project（メタ）**: `mspdi-tables.md` B-1 の ○26 項目（識別/文書・期間・換算・サーバ管理）
 
 ---
 
 ## Step 4: 断捨離後 MSPDI の ERD
 
-27 → 9 エンティティ。MSPDI の構造・命名はそのまま（＝写像自明）、不要列を落としただけ。階層は MSPDI ネイティブの `OutlineLevel` を維持。
+29 → **8** エンティティ。**XSD 実名（大小一致）**で統一。不要列を落としただけ。階層は MSPDI ネイティブの `OutlineLevel` を維持。Baseline はインラインに持たず別ファイル、WorkingTime（時刻）削除。
 
-**Step4 ERD: 断捨離後 MSPDI:**
+**Step4 ERD: 断捨離後 MSPDI（8テーブル）:**
 
 ```mermaid
 erDiagram
-    PROJECT ||--o{ CALENDAR : "Calendars"
-    PROJECT ||--o{ ITEM : "Tasks"
-    PROJECT ||--o{ RESOURCE : "Resources"
-    PROJECT ||--o{ ASSIGNMENT : "Assignments"
-    PROJECT }o--o| CALENDAR : "CalendarUID_default"
-    ITEM ||--o{ PREDECESSORLINK : "PredecessorLink"
-    PREDECESSORLINK }o--|| ITEM : "PredecessorUID_any"
-    ITEM ||--o| ITEM_BASELINE : "Baseline0"
-    ITEM ||--o{ ITEM : "OutlineLevel_hierarchy"
-    ITEM }o--o| CALENDAR : "CalendarUID"
-    CALENDAR ||--o| CALENDAR : "BaseCalendarUID"
-    CALENDAR ||--o{ CAL_WEEKDAY : "WeekDays"
-    CALENDAR ||--o{ CAL_EXCEPTION : "Exceptions"
-    ASSIGNMENT }o--|| ITEM : "TaskUID"
-    ASSIGNMENT }o--o| RESOURCE : "ResourceUID"
+    Project ||--o{ Calendar : "Calendars"
+    Project ||--o{ Task : "Tasks"
+    Project ||--o{ Resource : "Resources"
+    Project ||--o{ Assignment : "Assignments"
+    Project }o--o| Calendar : "CalendarUID_default"
+    Task ||--o{ PredecessorLink : "PredecessorLink"
+    PredecessorLink }o--|| Task : "PredecessorUID_any"
+    Task ||--o{ Task : "OutlineLevel_hierarchy"
+    Task }o--o| Calendar : "CalendarUID"
+    Calendar ||--o| Calendar : "BaseCalendarUID"
+    Calendar ||--o{ WeekDay : "WeekDays"
+    Calendar ||--o{ Exception : "Exceptions"
+    Assignment }o--|| Task : "TaskUID"
+    Assignment }o--o| Resource : "ResourceUID"
 
-    PROJECT {
+    Project {
+        string UID PK "projectId"
         string Name
+        string Title
+        string Author
+        int Revision
         date StartDate
         date FinishDate
         date StatusDate
         int CalendarUID FK
+        int MinutesPerDay "duration conv"
+        string other_meta "see mspdi-tables B-1 (26 kept)"
     }
-    ITEM {
+    Task {
         int UID PK
         int ID
         string Name
@@ -540,38 +553,29 @@ erDiagram
         string Notes
         int CalendarUID FK
     }
-    PREDECESSORLINK {
+    PredecessorLink {
         int PredecessorUID FK
         int Type "enum FF FS SF SS"
         int LinkLag
         int LagFormat "enum"
     }
-    ITEM_BASELINE {
-        int Number "0 only"
-        date Start
-        date Finish
-        duration Duration
-        duration Work
-    }
-    CALENDAR {
+    Calendar {
         int UID PK
         string Name
         bool IsBaseCalendar
         int BaseCalendarUID FK
     }
-    CAL_WEEKDAY {
+    WeekDay {
         int DayType "enum 0-7"
         bool DayWorking
-        time WorkingTime_FromTime
-        time WorkingTime_ToTime
     }
-    CAL_EXCEPTION {
+    Exception {
         string Name
         date FromDate
         date ToDate
         bool DayWorking
     }
-    RESOURCE {
+    Resource {
         int UID PK
         int ID
         string Name
@@ -579,7 +583,7 @@ erDiagram
         string Initials
         string Group
     }
-    ASSIGNMENT {
+    Assignment {
         int UID PK
         int TaskUID FK
         int ResourceUID FK
@@ -594,37 +598,36 @@ erDiagram
 
 ## Step 5: マルチバー用テーブルを追加した ERD
 
-Step4 に **`TASK_GROUP` テーブル 1 枚**と **`ITEM.group_id` FK** を足すだけ（変化点②）。
+Step4 に **`TaskGroup` テーブル 1 枚**（GRS 追加）と **`Task.group_id` FK** を足すだけ（変化点②）。
 MSPDI に対応概念が無い唯一の追加。`group_id` は単一 FK で「1 アイテム=1 行」を構造強制。
 **階層（`OutlineLevel`）とマルチバー行（`group_id`）は独立した 2 軸**。
 
-**Step5 ERD: 断捨離 MSPDI + マルチバー:**
+**Step5 ERD: 断捨離 MSPDI（8）+ マルチバー（TaskGroup）= 9:**
 
 ```mermaid
 erDiagram
-    PROJECT ||--o{ CALENDAR : "Calendars"
-    PROJECT ||--o{ ITEM : "Tasks"
-    PROJECT ||--o{ RESOURCE : "Resources"
-    PROJECT ||--o{ ASSIGNMENT : "Assignments"
-    PROJECT ||--o{ TASK_GROUP : "TaskGroups_ADDED"
-    PROJECT }o--o| CALENDAR : "CalendarUID_default"
-    ITEM ||--o{ PREDECESSORLINK : "PredecessorLink"
-    PREDECESSORLINK }o--|| ITEM : "PredecessorUID_any"
-    ITEM ||--o| ITEM_BASELINE : "Baseline0"
-    ITEM ||--o{ ITEM : "OutlineLevel_hierarchy"
-    ITEM }o--o| TASK_GROUP : "group_id_multibar_ADDED"
-    ITEM }o--o| CALENDAR : "CalendarUID"
-    CALENDAR ||--o| CALENDAR : "BaseCalendarUID"
-    CALENDAR ||--o{ CAL_WEEKDAY : "WeekDays"
-    CALENDAR ||--o{ CAL_EXCEPTION : "Exceptions"
-    ASSIGNMENT }o--|| ITEM : "TaskUID"
-    ASSIGNMENT }o--o| RESOURCE : "ResourceUID"
+    Project ||--o{ Calendar : "Calendars"
+    Project ||--o{ Task : "Tasks"
+    Project ||--o{ Resource : "Resources"
+    Project ||--o{ Assignment : "Assignments"
+    Project ||--o{ TaskGroup : "TaskGroups_ADDED"
+    Project }o--o| Calendar : "CalendarUID_default"
+    Task ||--o{ PredecessorLink : "PredecessorLink"
+    PredecessorLink }o--|| Task : "PredecessorUID_any"
+    Task ||--o{ Task : "OutlineLevel_hierarchy"
+    Task }o--o| TaskGroup : "group_id_multibar_ADDED"
+    Task }o--o| Calendar : "CalendarUID"
+    Calendar ||--o| Calendar : "BaseCalendarUID"
+    Calendar ||--o{ WeekDay : "WeekDays"
+    Calendar ||--o{ Exception : "Exceptions"
+    Assignment }o--|| Task : "TaskUID"
+    Assignment }o--o| Resource : "ResourceUID"
 
-    ITEM {
+    Task {
         int UID PK
         string Name
         int OutlineLevel "hierarchy axis"
-        string group_id FK "multibar row axis ADDED"
+        string group_id FK "GRS ADDED (multibar row)"
         date Start
         date Finish
         duration Duration
@@ -632,52 +635,47 @@ erDiagram
         date ActualStart
         date ActualFinish
         int PercentComplete
-        string other_kept_fields "see Step4 ITEM"
+        string other_kept_fields "see Step4 Task"
     }
-    TASK_GROUP {
-        string group_id PK "ADDED table"
+    TaskGroup {
+        string group_id PK "GRS ADDED table"
         string label
         int row_order "vertical order"
     }
-    PREDECESSORLINK {
+    PredecessorLink {
         int PredecessorUID FK
         int Type "enum FF FS SF SS"
         int LinkLag
         int LagFormat "enum"
     }
-    ITEM_BASELINE {
-        int Number "0 only"
-        date Start
-        date Finish
-        duration Work
-    }
-    CALENDAR {
+    Calendar {
         int UID PK
         string Name
         int BaseCalendarUID FK
     }
-    CAL_WEEKDAY {
+    WeekDay {
         int DayType "enum 0-7"
         bool DayWorking
     }
-    CAL_EXCEPTION {
+    Exception {
         string Name
         date FromDate
         date ToDate
         bool DayWorking
     }
-    RESOURCE {
+    Resource {
         int UID PK
         string Name
         int Type "enum"
     }
-    ASSIGNMENT {
+    Assignment {
         int UID PK
         int TaskUID FK
         int ResourceUID FK
         float Units
     }
-    PROJECT {
+    Project {
+        string UID PK
         string Name
         date StatusDate
         int CalendarUID FK
@@ -690,36 +688,38 @@ erDiagram
 
 | 観点 | Step2 完全 MSPDI | Step4 断捨離後 | Step5 +マルチバー |
 |---|---|---|---|
-| エンティティ数 | 27 | 9 | **10**（+TASK_GROUP） |
-| 要素（フィールド）概数 | 約500（+201予約枠） | 約60 | 約61（+group_id） |
-| 削除エンティティ | — | OutlineCode系/WBSMask/ExtAttr/Rate/AvailabilityPeriod/TimephasedData/Baseline1-10/f404枠 | 同左 |
-| 追加 | — | — | **TASK_GROUP テーブル + ITEM.group_id** |
+| エンティティ数 | 29 | **8** | **9**（+TaskGroup） |
+| 要素（フィールド）概数 | 約500（+201予約枠） | 約55 | 約56（+group_id） |
+| 削除エンティティ | — | OutlineCode系/WBSMask/ExtAttr/Rate/AvailabilityPeriod/TimephasedData/Baseline全部/WorkingTime/f404枠 | 同左 |
+| 追加 | — | — | **TaskGroup テーブル + Task.group_id** |
 | コスト/EVM 列 | 有（多数） | 無 | 無 |
 | 平準化/CPM派生/enterprise | 有 | 無 | 無 |
 | 依存（PredecessorLink） | 有（+CrossProject） | 有（CrossProject 削除） | 有 |
+| Baseline（変更前予定） | インライン 0-10 | 無（別ファイルで代替） | 無（別ファイル） |
 | 階層 | OutlineLevel | OutlineLevel（維持） | OutlineLevel（維持） |
 | マルチバー（1行複数バー） | **不可**（概念なし） | 不可 | **可**（group_id で行束ね） |
-| MSPDI 写像 | 原本そのもの | 部分集合＝写像自明・無損失 export | 部分集合 + 1テーブル（export 時 TASK_GROUP を落とせば妥当 MSPDI） |
+| MSPDI 写像 | 原本そのもの | 部分集合＝写像自明・無損失 export | 部分集合 + 1テーブル（export 時 TaskGroup を落とせば妥当 MSPDI） |
 
 ### 差分の要約
 
 ```mermaid
 flowchart LR
-    A["Step2: 完全MSPDI<br/>27テーブル 約500要素"] -->|"不要要素を削除<br/>(コスト/EVM/平準化/enterprise/<br/>OutlineCode/TimephasedData/Baseline1-10)"| B["Step4: 断捨離後<br/>9テーブル 約60要素"]
-    B -->|"TASK_GROUP を1枚追加<br/>ITEM に group_id を1本追加"| C["Step5: +マルチバー<br/>10テーブル"]
-    C -->|"export: TASK_GROUP を落とす"| D["妥当な MSPDI サブセット<br/>(iQUAVIS 連携可)"]
+    A["Step2: 完全MSPDI<br/>29テーブル 約500要素"] -->|"不要要素を削除<br/>(コスト/EVM/平準化/enterprise/OutlineCode/<br/>TimephasedData/Baseline/WorkingTime)"| B["Step4: 断捨離後<br/>8テーブル 約55要素"]
+    B -->|"TaskGroup を1枚追加<br/>Task に group_id を1本追加"| C["Step5: +マルチバー<br/>9テーブル"]
+    C -->|"export: TaskGroup を落とす"| D["妥当な MSPDI サブセット<br/>(iQUAVIS 連携可)"]
 ```
 
-- **変化点は宣言どおり 2 つだけ**: ①断捨離（27→9、約500→約60）、②マルチバーテーブル追加（+TASK_GROUP、+group_id）。
-- Step4 は MSPDI の純粋な部分集合なので、export は無損失で妥当。Step5 は追加分（TASK_GROUP/group_id）を落とせば妥当 MSPDI に戻る（iQUAVIS 連携を壊さない）。
+- **変化点は宣言どおり 2 つだけ**: ①断捨離（29→8、約500→約55）、②マルチバーテーブル追加（+TaskGroup、+group_id）。
+- Step4 は MSPDI の純粋な部分集合なので、export は無損失で妥当。Step5 は追加分（TaskGroup/group_id）を落とせば妥当 MSPDI に戻る（iQUAVIS 連携を壊さない）。
 - 階層は MSPDI ネイティブの `OutlineLevel` を維持（再発明しない）。マルチバー行 `group_id` と独立の 2 軸。
+- Baseline はインラインに持たず**別ファイル baseline**（P6 式）で「変更前予定グレー」を代替。
 
 ---
 
 ## 前セッション成果物の棚卸し（破棄対象）
 
-本 Step1-6 が正式版。以下は MSPDI 正本を突き合わせずに再発明した誤成果物で、破棄または格下げ対象:
+命名の正典は `mspdi-tables.md`（A-2 実名対応表）。本書 Step1-6 は経緯記録として整合済み。以下は MSPDI 正本を突き合わせずに再発明した誤成果物で、破棄または格下げ対象:
 
-- `docs/analysis/grs-table-erd-comparison-ja.md` — 独自 ITEM/TASK_GROUP を正本無視で設計。本書 Step5 に置換。
-- `project-records/decisions/DEC-006-mspdi-multibar-grouping.md` — ExtendedAttribute 前提の議論。本書の「TASK_GROUP 追加・export 時に落とす」方針に合わせ、change-manager 経由で再評価。
+- `docs/analysis/grs-table-erd-comparison-ja.md` — 独自 ITEM/TASK_GROUP を正本無視で設計。本書 Step5 / `mspdi-tables.md` に置換。
+- `project-records/decisions/DEC-006-mspdi-multibar-grouping.md` — ExtendedAttribute 前提の議論。本書の「TaskGroup 追加・export 時に落とす」方針に合わせ、change-manager 経由で再評価。
 
