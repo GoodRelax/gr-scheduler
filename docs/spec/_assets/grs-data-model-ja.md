@@ -316,7 +316,7 @@ iQUAVIS: 車種A > 設計(L2) > 部品X(L3)
 
 ### 7.7 台帳完成と Drop=0
 
-- `grs-mspdi-field-ledger-ja.md` を XSD 実名で完成（Resource 75 列・Assignment 65 列＋201 予約枠を全分類）。§7.2/§7.5 の確定を反映。
+- `grs-mspdi-field-ledger-ja.md` を XSD 実名で完成（Resource 約66 列・Assignment 約63 列＋201 予約枠を全分類）。§7.2/§7.5 の確定を反映。
 - **Drop=0 を XSD 突合で検証**（未分類ゼロ・敵対的レビュー）。結果は台帳末尾に記録。
 
 ---
