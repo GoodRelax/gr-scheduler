@@ -3,18 +3,17 @@
 - 日付: 2026-07-24
 - 対象: `mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema）
 - 目的: MSPDI の全エンティティ（テーブル）の責務を一覧化し、ERD に「行」として現れない要素（スカラー/コンテナ/value-object）も棚卸しして、断捨離の判断材料にする。
-- 関連: `mspdi-core-tree.md`（MSPDI 解説）, `mspdi-declutter-erd-ja.md`（Step1-6 断捨離・ERD）
+- 関連: `mspdi-core-tree.md`（MSPDI 解説）, `mspdi-declutter-erd-ja.md`（Step1-6 断捨離・ERD）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け）は `../_assets/grs-mspdi-field-ledger-ja.md`。
+- 位置づけ: **純 MSPDI のリファレンス**（GRS 固有情報は持たない）。正本は `mspdi/mspdi_pj12.xsd`。本書は参考。
 
 ---
 
 ## A. テーブル（エンティティ）責務一覧 — 全 29
 
 種別: **◎=中核 / ○=定義系 / △=衛星（小・従属） / □=コンテナ寄り**。
-「断捨離」列は GRS（マルチバー日程表）での要否（`mspdi-declutter-erd-ja.md` Step3 の判断）。
+「断捨離」列は日程表用途でのスリム化における要否（`mspdi-declutter-erd-ja.md` Step3 の判断）。
 「採否」列（最右）: **○=採用 / △=採用（畳込・条件付） / ×=不採用**。採用は **8**（中核6 ＋ Calendar_WeekDay ＋ Calendar_Exception）。
-※ WorkingTime（勤務時刻）と Task_Baseline は不採用に確定（日粒度描画で時刻不要 / 変更前予定グレーは**別ファイル baseline** で代替 = P6 式・既存 `40-data-format.sdoc` と一致）。
-
-> ⚠️ **命名の注意（敵対的レビュー 2026-07-24 で確認）**: 「テーブル」列のうち **16 件は本書内の別名**（`親_子` 形式）であり **MSPDI の実名ではない**。XSD の葉要素名（`Baseline` / `Value` / `Mask` / `WeekDay` / `Exception` / `OutlineCode` / `ExtendedAttribute`）は親を跨いで重複するため、区別用に接頭辞を付けている。**MSPDI の正式名は下の A-2 対応表を正**とする（MSPDI 出力/パーサ実装時はこちらを使うこと。`Task_Baseline` 等のタグは MSPDI に存在しない）。フィールド名（B 節・ERD 属性）は XSD 実名と大小一致で検証済み。
+※ WorkingTime（勤務時刻）と Task_Baseline は不採用に確定（日粒度描画で時刻不要 / インラインの計画スナップショットは日程表コア外）。
 
 | # | テーブル | 種 | 責務（一言） | カード | 断捨離 | 採否 |
 |---|---|:--:|---|---|:--:|:--:|
@@ -30,7 +29,7 @@
 | 10 | Calendar_WorkWeek | △ | 期間限定の週稼働パターン上書き | 0..* | **削** | × |
 | 11 | WorkWeek_WeekDay | △ | WorkWeek 内の曜日定義 | 0..* | **削** | × |
 | 12 | WorkingTime | △ | 勤務時刻（09:00-18:00 等、最大5） | 0..5 | **削**（日粒度描画で時刻不要） | × |
-| 13 | Task_Baseline | △ | タスクの計画スナップショット（基準0〜10） | 0..* | **削**（→ 別ファイル baseline で代替） | × |
+| 13 | Task_Baseline | △ | タスクの計画スナップショット（基準0〜10） | 0..* | **削**（インライン計画は日程表コア外） | × |
 | 14 | Resource_Baseline | △ | 資源の計画スナップショット | 0..* | **削** | × |
 | 15 | Assignment_Baseline | △ | 割当の計画スナップショット | 0..* | **削** | × |
 | 16 | OutlineCode | ○ | 独自コード体系の定義（分類マスク） | 0..* | **削** | × |
@@ -82,24 +81,19 @@
 |---|---|---|
 | 分類コード系 | OutlineCode, OutlineCodeValue, OutlineCodeMask, Task_OutlineCode, Resource_OutlineCode, WBSMasks, WBSMask | 全削 |
 | カスタムフィールド系 | ExtAttr_Def, ExtAttr_ValueItem, Task/Resource/Assignment_ExtendedAttribute | 全削 |
-| Baseline 系 | Task_Baseline, Resource_Baseline, Assignment_Baseline | **全削**（→ 別ファイル baseline で代替） |
+| Baseline 系 | Task_Baseline, Resource_Baseline, Assignment_Baseline | **全削**（インライン計画スナップショットは不要） |
 | カレンダー詳細 | Calendar_WeekDay（残）, Calendar_Exception（残） / WorkingTime, Calendar_WorkWeek, WorkWeek_WeekDay（削） | 一部 |
 | 時系列 | TimephasedData | 削 |
 | 単価/稼働 | Rate, AvailabilityPeriod | 全削 |
 
-**採用 8 テーブル**: Project / Task / PredecessorLink / Calendar / Calendar_WeekDay / Calendar_Exception / Resource / Assignment（＋ GRS 追加の `TaskGroup`）
+**断捨離後 8 テーブル**: Project / Task / PredecessorLink / Calendar / Calendar_WeekDay / Calendar_Exception / Resource / Assignment
 
 ---
 
-## 残ったテーブルの ERD（断捨離後 8 ＋ マルチバー）
+## 断捨離後 MSPDI サブセット ERD（8 テーブル）
 
-採用 8 テーブルに、マルチバー用 `TaskGroup`（GRS 追加）を 1 枚足した最終形。
-WorkingTime 削除により WeekDay は「稼働日か否か」のみ。Baseline は持たず別ファイルで代替。
-階層（OutlineLevel）とマルチバー行（group_id）は独立 2 軸。
-
-**残存テーブル ERD:**
-
-エンティティ名は **XSD 実名（大小一致）**。GRS 追加は `TaskGroup` テーブルと Task の `group_id` 列のみ（"ADDED" 明示）。`WeekDay`/`Exception` は Calendar 下の要素（A-2 参照）。
+MSPDI から不要要素を落とした残り 8 テーブル。**すべて XSD 実名（大小一致）の MSPDI 要素**であり、GRS 独自の追加は含めない（マルチバー行等の GRS 拡張は `../_assets` の GRS 仕様で扱う）。
+WorkingTime 削除により WeekDay は「稼働日か否か」のみ。Baseline はインラインに持たない。`WeekDay`/`Exception` は Calendar 下の要素（A-2 参照）。
 
 ```mermaid
 erDiagram
@@ -107,12 +101,10 @@ erDiagram
     Project ||--o{ Task : "Tasks"
     Project ||--o{ Resource : "Resources"
     Project ||--o{ Assignment : "Assignments"
-    Project ||--o{ TaskGroup : "TaskGroups_ADDED"
     Project }o--o| Calendar : "CalendarUID_default"
     Task ||--o{ PredecessorLink : "PredecessorLink"
     PredecessorLink }o--|| Task : "PredecessorUID_any"
     Task ||--o{ Task : "OutlineLevel_hierarchy"
-    Task }o--o| TaskGroup : "group_id_multibar_ADDED"
     Task }o--o| Calendar : "CalendarUID"
     Calendar ||--o| Calendar : "BaseCalendarUID"
     Calendar ||--o{ WeekDay : "WeekDays"
@@ -141,7 +133,6 @@ erDiagram
         string Name
         int OutlineLevel "hierarchy"
         string OutlineNumber
-        string group_id FK "GRS ADDED (multibar)"
         int Type "enum"
         date Start
         date Finish
@@ -168,11 +159,6 @@ erDiagram
         int Type "enum FF FS SF SS"
         int LinkLag
         int LagFormat "enum"
-    }
-    TaskGroup {
-        string group_id PK "GRS ADDED table"
-        string label
-        int row_order
     }
     Calendar {
         int UID PK
@@ -209,13 +195,13 @@ erDiagram
     }
 ```
 
+> **注（キーの無いテーブル）**: `WeekDay` / `Exception` に PK 列が無いのは正しい。両者は **弱エンティティ**（weak entity）— どこからも UID 参照されず、親 `Calendar` に順序付きで内包されるだけ。識別は「**親 Calendar ＋ 位置（配列 index）**」で成立する（WeekDay は `DayType` が弁別子）。実装では `calendar.weekDays[]` / `calendar.exceptions[]` の配列要素になり、独立 PK は不要（MSPDI も UID を付けていない）。UID を持つのは**他から参照される中核** `Project` / `Task` / `Calendar` / `Resource` / `Assignment` のみ。
+
 ---
 
 ## B. テーブルに無い要素 — 全項目 要否判定（1行1項目）
 
-凡例: **○=残す / ×=削除**（△は解消し全項目を確定）。
-集計（B-1）: **○26 / ×37**（63項目）。カテゴリ単位の確定方針:
-識別/文書・期間/基準日・既定暦は「×以外採用」、通貨・タスク書式・計算・Move・EV は「全削」、**サーバ/管理は将来のサーバ連携予定のため全採用**。
+凡例: **○=残す / ×=削除**（△は解消し全項目を確定）。集計（B-1）: **○26 / ×37**（63項目）。
 
 ### B-1. Project 直下スカラー（63）
 
@@ -264,105 +250,30 @@ erDiagram
 | WeekStartDay | ○ | 週の開始曜日（カレンダー表示） |
 | NewTaskStartDate | × | 新規タスク既定開始（編集プリファレンス） |
 
-**通貨（4）→ 全 ×**（コスト非対象）
+**通貨（4）→ 全 ×**（コスト非対象）: CurrencyDigits, CurrencySymbol, CurrencyCode, CurrencySymbolPosition
 
-| 要素 | 要否 | 理由 |
-|---|:--:|---|
-| CurrencyDigits | × | コスト非対象 |
-| CurrencySymbol | × | コスト非対象 |
-| CurrencyCode | × | コスト非対象 |
-| CurrencySymbolPosition | × | コスト非対象 |
+**既定タスク/レート/書式（9）→ 全 ×**: DefaultTaskType, DefaultFixedCostAccrual, DefaultStandardRate, DefaultOvertimeRate, NewTasksEffortDriven, NewTasksEstimated, DefaultTaskEVMethod, DurationFormat, WorkFormat
 
-**既定タスク/レート/書式（9）→ 全 ×**
+**計算オプション（10）→ 全 ×**: EditableActualCosts, HonorConstraints, InsertedProjectsLikeSummary, MultipleCriticalPaths, SplitsInProgressTasks, SpreadActualCost, SpreadPercentComplete, TaskUpdatesResource, Autolink, AutoAddNewResourcesAndTasks
 
-| 要素 | 要否 | 理由 |
-|---|:--:|---|
-| DefaultTaskType | × | 新規タスク既定タイプ（編集既定・不要） |
-| DefaultFixedCostAccrual | × | コスト計上（非対象） |
-| DefaultStandardRate | × | 単価（非対象） |
-| DefaultOvertimeRate | × | 単価（非対象） |
-| NewTasksEffortDriven | × | ソルバ既定（非対象） |
-| NewTasksEstimated | × | 見積フラグ既定（非対象） |
-| DefaultTaskEVMethod | × | EV（非対象） |
-| DurationFormat | × | 既定期間表示単位（不要） |
-| WorkFormat | × | 作業表示単位（作業非重視） |
+**Move 系（4）→ 全 ×**: MoveCompletedEndsBack, MoveRemainingStartsBack, MoveRemainingStartsForward, MoveCompletedEndsForward
 
-**計算オプション（10）→ 全 ×**
+**EV（2）→ 全 ×**: EarnedValueMethod, BaselineForEarnedValue
 
-| 要素 | 要否 | 理由 |
-|---|:--:|---|
-| EditableActualCosts | × | コスト（非対象） |
-| HonorConstraints | × | 制約遵守挙動（既定で足りる） |
-| InsertedProjectsLikeSummary | × | サブプロジェクト（非対象） |
-| MultipleCriticalPaths | × | CPM（非対象） |
-| SplitsInProgressTasks | × | 分割許可挙動フラグ（不要） |
-| SpreadActualCost | × | コスト（非対象） |
-| SpreadPercentComplete | × | ソルバ（非対象） |
-| TaskUpdatesResource | × | 資源計算（非対象） |
-| Autolink | × | 自動リンク挙動（編集） |
-| AutoAddNewResourcesAndTasks | × | 編集挙動 |
-
-**Move 系（4）→ 全 ×** — 実績の再スケジュール挙動
-
-| 要素 | 要否 | 理由 |
-|---|:--:|---|
-| MoveCompletedEndsBack | × | ソルバ再配置挙動（非対象） |
-| MoveRemainingStartsBack | × | 同上 |
-| MoveRemainingStartsForward | × | 同上 |
-| MoveCompletedEndsForward | × | 同上 |
-
-**EV（2）→ 全 ×**
-
-| 要素 | 要否 | 理由 |
-|---|:--:|---|
-| EarnedValueMethod | × | アーンドバリュー（非対象） |
-| BaselineForEarnedValue | × | EV 用基準選択（非対象） |
-
-**サーバ/管理（4）→ 全 ○**（将来サーバ連携予定）
-
-| 要素 | 要否 | 理由 |
-|---|:--:|---|
-| MicrosoftProjectServerURL | ○ | **boolean**（名前に反し URL ではない）: Project Server ユーザ作成か否かのフラグ。将来サーバ連携の参考 |
-| ProjectExternallyEdited | ○ | 将来サーバ連携（外部編集フラグ） |
-| ActualsInSync | ○ | 将来サーバ連携（実績同期フラグ） |
-| AdminProject | ○ | 将来サーバ連携（管理プロジェクト） |
+**サーバ/管理（4）→ 全 ○**（将来サーバ連携予定）: MicrosoftProjectServerURL（boolean・URL ではない）, ProjectExternallyEdited, ActualsInSync, AdminProject
 
 ### B-2. コンテナ（wrapper）— データを持たない入れ物（15）
 
-**「吸収」とは**: `<Tasks>` のように **中身を囲むだけでデータを持たない要素**は、JSON では配列 `items: [ … ]` の**角括弧 `[ ]` になるだけ**でテーブルにしない。これを吸収と呼ぶ（情報損失ゼロ）。
-
-```
-XML:   <Tasks><Task>…</Task><Task>…</Task></Tasks>
-JSON:  "items": [ {…}, {…} ]      ← <Tasks> は [ ] に化けた = 吸収
-```
+「吸収」: `<Tasks>` のように中身を囲むだけでデータを持たない要素は、JSON では配列 `items: [ … ]` の角括弧 `[ ]` になるだけでテーブルにしない（情報損失ゼロ）。
 
 | 要素 | 要否 | 理由 |
 |---|:--:|---|
-| Tasks | 吸収 | items[] の配列構造に吸収 |
-| Resources | 吸収 | resources[] に吸収 |
-| Assignments | 吸収 | assignments[] に吸収 |
-| Calendars | 吸収 | calendars[] に吸収 |
-| WeekDays | 吸収 | Calendar の weekDays[] に吸収 |
-| Exceptions | 吸収 | Calendar の exceptions[] に吸収 |
-| OutlineCodes | × | 分類コード系ごと削除 |
-| ExtendedAttributes | × | カスタムフィールド系ごと削除 |
-| WorkWeeks | × | WorkWeek 系ごと削除 |
-| WorkingTimes | × | 勤務時刻ごと削除 |
-| Values | × | OutlineCode 値ごと削除 |
-| Masks | × | OutlineCode マスクごと削除 |
-| ValueList | × | ExtAttr 値リストごと削除 |
-| Rates | × | 単価表ごと削除 |
-| AvailabilityPeriods | × | 稼働可能率ごと削除 |
+| Tasks / Resources / Assignments / Calendars / WeekDays / Exceptions | 吸収 | それぞれ配列構造に吸収 |
+| OutlineCodes / ExtendedAttributes / WorkWeeks / WorkingTimes / Values / Masks / ValueList / Rates / AvailabilityPeriods | × | 系統ごと削除 |
 
 ### B-3. value-object 小要素（親に 0..1 で畳込、2）
 
-**「畳み込み（fold）」とは**: 親に1個だけ入る小さな塊を、別構造にせず**フィールドを親に直接平らに展開**すること。TimePeriod は採用だが独立させず、Exception の列にする。
-
-```
-XML:    <Exception><Name>…</Name>
-          <TimePeriod><FromDate>…</FromDate><ToDate>…</ToDate></TimePeriod></Exception>
-畳込む:  Exception { name, from_date, to_date }        ← 情報は完全に残る（ネストを1段減らすだけ）
-```
+「畳み込み」: 親に1個だけ入る小さな塊を、別構造にせずフィールドを親に直接展開すること。
 
 | 要素 | 要否 | 理由 |
 |---|:--:|---|
@@ -374,5 +285,5 @@ XML:    <Exception><Name>…</Name>
 ## まとめ
 
 - MSPDI 全 **29 テーブル**。ただし中核は **6** のみで、残り 23 は分類コード/カスタムフィールド/Baseline/カレンダー詳細/時系列/単価の従属テーブル。
-- ERD 非表示要素は「Project スカラー 63（**○26 / ×37**）」「コンテナ 15（吸収6 / 削9）」「value-object 2（TimePeriod ○ / WorkingTime ×）」。文書メタ・期間換算・**サーバ管理4（将来連携）**は残す。
-- GRS は **採用 8 テーブル**（中核 6 ＋ Calendar_WeekDay ＋ Calendar_Exception）＋ マルチバー用 `TaskGroup` の計 **9**。Baseline はテーブルに持たず**別ファイル baseline**（P6 式）で代替。WorkingTime（勤務時刻）不採用。詳細は `mspdi-declutter-erd-ja.md`。
+- ERD 非表示要素は「Project スカラー 63（**○26 / ×37**）」「コンテナ 15（吸収6 / 削9）」「value-object 2（TimePeriod ○ / WorkingTime ×）」。
+- 断捨離後は **8 テーブル**（中核 6 ＋ Calendar_WeekDay ＋ Calendar_Exception）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け・マルチバー拡張）は `../_assets/grs-mspdi-field-ledger-ja.md` / `grs-data-model-ja.md`。
