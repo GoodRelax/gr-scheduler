@@ -27,11 +27,13 @@ iQUAVIS（構造マスタ） → MSPDI export → GRS で編集 → MSPDI import
 - **GRS（gr-scheduler）**: 単一 `.html` でブラウザだけで動く WYSIWYG 日程表ツール。パワポで日程表を書く操作感で、成果物は画像でなく構造化データ（JSON / MSPDI XML / SVG）。
 - **コア価値**: **マルチバー**（1 行に複数タスク/マイルストーンを横並べ）＋上下左右整列＋ズーム連動 LOD＋依存線自動配線。
 - **ネイティブモデルは 2 軸**（`grs-data-model-ja.md` §2）:
-  - **軸A: WBS 構造ツリー** = `Task.wbs_parent_id`（MSPDI `OutlineLevel` 対応・**export する**）。
+  - **軸A: WBS 構造ツリー** = `Task.wbs_parent_uid`（MSPDI `OutlineLevel` 対応・**export する**）。
   - **軸B: マルチバー視覚層** = `TaskGroup`（行の器・入れ子 ≤Lv5）＋ `TaskGroupMember`（**GRS 専用・非 export**）。
-- **対象外ドメイン**（＝ MSPDI の該当フィールドは GRS が解釈しない → Carry）: コスト管理・EVM（出来高）・資源平準化・資源/割当の一級管理・エンタープライズ/サーバ連携・カスタムフィールド・独自コード体系。
+- **対象外ドメイン**（＝ MSPDI の該当フィールドは GRS が解釈しない → Carry）: コスト管理・EVM（出来高）・資源平準化・**資源/割当の管理**（工数・割当率・単価）・エンタープライズ/サーバ連携・カスタムフィールド・独自コード体系。
 
-→ **GRS がドメインとして持つのは「予定・実績・中断の日付／マイルストーン／階層／依存／稼働カレンダー」だけ**。これが Own/Consume の範囲を規定し、それ以外は Carry になる（§4）。
+→ **GRS がドメインとして持つのは「予定・実績・中断の日付／マイルストーン／階層／依存／稼働カレンダー／担当者名」だけ**。これが Own/Consume の範囲を規定し、それ以外は Carry になる（§4）。
+
+> **担当者名の例外**: 資源管理は非対象だが、**担当者名をバーに表示する**ため `Resource`（`UID`/`Name`/`Type`/`CalendarUID`）と `Assignment`（`UID`/`TaskUID`/`ResourceUID`）の**計 7 列だけ**を軽量ネイティブ化する（§7.5/§7.6・`grs-native-erd-ja.md` §5.5）。この格上げにより **MSPDI の UID 参照 7 つが全て Consume** となり、**Carry に UID 参照が残らない**（＝マージ時の UID 振り直しに構造的に追従する）。
 
 ---
 
@@ -363,7 +365,7 @@ erDiagram
 | テーブル | 採否 | GRS扱い | 根拠 |
 |---|:--:|---|---|
 | `Project` `Task` `PredecessorLink` `Calendar` `WeekDay` `Exception` | **残** | Own/Consume/Reconstruct 混在 | 日程表の本体・階層・依存・稼働日描画に必須 |
-| `Resource` `Assignment` | 残※ | **丸ごと Carry** | 往復のため温存するが一級モデル化しない（§7.5/§7.6） |
+| `Resource` `Assignment` | **残** | **軽量ネイティブ（計7列）＋残り Carry** | **担当者名をバーに表示**するため 7 列のみ Own/Consume 化。工数・コスト・割当率は非対象で Carry（§7.5/§7.6） |
 | `TimephasedData` `WorkingTime` `WorkWeek` 系 | **削** | Carry | S字/多重split/勤務時刻/週上書きは非対象・温存 |
 | `Baseline`(Task/Res/Assn) | **削** | Carry | 変更前予定グレーは別ファイルで代替・温存 |
 | `OutlineCode` 系 `WBSMask` 系 | **削** | Carry | 独自コード/採番非対象・温存 |
@@ -482,18 +484,20 @@ erDiagram
 
 文書メタ・期間・換算は Own、既定暦は Consume、`FinishDate` は Reconstruct、残り 37 は Carry。
 
-**残（26）**
+**残（22: Own 20 / Consume 1 / ほか）**
 
 | フィールド | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
 | `SaveVersion` `UID` `Name` `Title` `Subject` `Category` `Company` `Manager` `Author` `CreationDate` `Revision` `LastSaved` | 文書メタ（識別/名称/会社/来歴） | 残 | ヘッダ表示・透かし・版管理 | **Own** |
-| `ScheduleFromStart` `StartDate` `StatusDate` `CurrentDate` | 計算向き・開始・基準日・現在日 | 残 | イナズマ線/今日線/全体期間 | **Own** |
+| `StartDate` `StatusDate` | 全体開始・予実基準日 | 残 | 全体期間／イナズマ線の基準 | **Own** |
+| `ScheduleFromStart` | 前方/後方計算の向き | 削 | **GRS はスケジューラを持たない**＝意味を使わない（§5.6 監査で Own→Carry 降格） | Carry |
+| `CurrentDate` | 「現在日」参照 | 削 | **今日線は実行時のシステム日付で描く**。保存すると保存時点で凍結（§5.6 監査で降格） | Carry |
 | `MinutesPerDay` `MinutesPerWeek` `DaysPerMonth` `WeekStartDay` | 期間換算・週開始 | 残 | Duration 解釈・暦表示に必須 | **Own** |
-| `MicrosoftProjectServerURL` `ProjectExternallyEdited` `ActualsInSync` `AdminProject` | サーバ/管理 | 残 | 将来サーバ連携で使用 | **Own**(暫定) |
+| `MicrosoftProjectServerURL` `ProjectExternallyEdited` `ActualsInSync` `AdminProject` | サーバ/管理 | 削 | **MVP にサーバ連携が無く GRS は解釈しない**。往復のため温存（§5.6 監査で Own(暫定)→Carry 降格。将来必要時に格上げ） | Carry |
 | `CalendarUID` | 既定カレンダー参照 | 残→参照 | ネイティブ暦参照 | **Consume** |
 | `FinishDate` | プロジェクト完了 | 削 | 全Task最遅からロールアップ | Reconstruct |
 
-**削（37・全 Carry）**
+**削（41・全 Carry）** ※ §5.6 監査で `ScheduleFromStart`/`CurrentDate`/サーバ管理4 を Own から降格（37→41）
 
 | フィールド群 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
@@ -524,31 +528,35 @@ erDiagram
 | `WorkingTime`(FromTime/ToTime) | time | 勤務時刻(最大5) | 削 | 日粒度で不使用・温存 | Carry |
 | `Exception` 繰返し詳細（全8: `EnteredByOccurrences` `Occurrences` `Type` `Period` `DaysOfWeek` `MonthItem` `MonthPosition` `Month` `MonthDay`）＋ `WorkWeek` 系（`WorkWeek.Name`/`TimePeriod`, WorkWeek下 `WeekDay.DayType`/`DayWorking`） | enum/int | 期間限定パターン・繰返しルール | 削 | 常用せず・温存 | Carry |
 
-### 7.5 Resource（約 65 スカラー＋子要素）＝ 丸ごと Carry
+### 7.5 Resource（約 65 スカラー＋子要素）＝ 軽量ネイティブ（4列）＋ 残り Carry
 
-**資源管理は非対象 → ネイティブ化せず丸ごと Carry**。`UID` のみ Own、`ID` は Reconstruct。
+**資源管理（工数/コスト/平準化）は非対象。ただし「担当者名をバーに表示する」ため 4 列だけ軽量ネイティブ化**（`grs-native-erd-ja.md` §5.5）。残りは全て Carry。
 
 | フィールド | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
 | `UID` | 資源識別 | 残 | 往復識別・割当の参照先 | **Own** |
+| `Name` | 資源名 | **残** | **担当者名としてバーに表示**（§5.5） | **Own** |
+| `Type` | 0=材料/1=作業 | **残** | 担当者表示は作業資源のみ（材料を除外） | **Own** |
+| `CalendarUID` | 個人暦参照 | **残→参照** | **Carry に UID 参照を残さない**ため構造化（§5.5 不変条件） | **Consume** |
 | `ID` | 表示行番号 | 削 | 順序から導出 | Reconstruct |
-| 識別/属性: `Name` `Type` `IsNull` `Initials` `Phonetics` `NTAccount` `MaterialLabel` `Code` `Group` `WorkGroup` `EmailAddress` `Hyperlink*` | 人/設備/材料の属性 | 削 | 一級化せず（`Name`/`Initials`/`Group` は読取専用の担当ラベルに流用可） | Carry |
+| 識別/属性: `IsNull` `Initials` `Phonetics` `NTAccount` `MaterialLabel` `Code` `Group` `WorkGroup` `EmailAddress` `Hyperlink*` | 人/設備/材料の付随属性 | 削 | 表示に不要（担当者名は `Name` で足りる） | Carry |
 | 稼働: `MaxUnits` `PeakUnits` `OverAllocated` `AvailableFrom` `AvailableTo` `Start` `Finish` `CanLevel` `AccrueAt` | 稼働率・可用期間 | 削 | キャパ計画非対象 | Carry |
 | 工数: `Work` `RegularWork` `OvertimeWork` `ActualWork` `RemainingWork` `ActualOvertimeWork` `RemainingOvertimeWork` `PercentWorkComplete` | 工数各種 | 削 | 工数管理非対象 | Carry |
 | コスト/レート: `StandardRate*` `Cost` `OvertimeRate*` `OvertimeCost` `CostPerUse` `ActualCost` `ActualOvertimeCost` `RemainingCost` `RemainingOvertimeCost` | 単価・コスト | 削 | コスト非対象 | Carry |
 | EVM/差異: `WorkVariance` `CostVariance` `SV` `CV` `ACWP` `BCWS` `BCWP` | 出来高指標 | 削 | EVM 非対象 | Carry |
-| 暦/メモ: `CalendarUID` `Notes` | 個人暦・メモ | 削 | 資源非一級化 | Carry |
+| メモ: `Notes` | 資源メモ | 削 | GRS 非使用 | Carry |
 | enterprise/管理: `IsGeneric` `IsInactive` `IsEnterprise` `BookingType` `ActualWorkProtected` `ActualOvertimeWorkProtected` `ActiveDirectoryGUID` `CreationDate` `IsCostResource` `AssnOwner` `AssnOwnerGuid` `IsBudget` | サーバ/AD/予算 | 削 | サーバ連携非対象 | Carry |
 | 子要素: `ExtendedAttribute` `Baseline` `OutlineCode` `AvailabilityPeriod` `Rate` `TimephasedData` | カスタム/基準/単価表/時系列 | 削 | いずれも非対象 | Carry |
 
-### 7.6 Assignment（約 61 スカラー＋201 予約枠＋子要素）＝ 丸ごと Carry
+### 7.6 Assignment（約 61 スカラー＋201 予約枠＋子要素）＝ 軽量ネイティブ（3列）＋ 残り Carry
 
-**割当も非対象 → 丸ごと Carry**。`UID` のみ Own。
+**割当管理（工数/コスト/割当率）は非対象。ただし「どのバーに誰が付くか」を示す 3 列だけ軽量ネイティブ化**（`grs-native-erd-ja.md` §5.5）。残りは全て Carry。
 
 | フィールド | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
 | `UID` | 割当識別 | 残 | 往復識別 | **Own** |
-| 関係キー: `TaskUID` `ResourceUID` | どのタスクに/どの資源を | 削 | 不透明温存（UID 不変で有効・Task 削除時は孤立割当を export で落とす） | Carry |
+| `TaskUID` | どのタスクへの割当か | **残→参照** | **担当者表示の経路**（Task→Assignment→Resource）＋Carry に UID 参照を残さない（§5.5） | **Consume** |
+| `ResourceUID` | 誰の割当か（-1=未割当） | **残→参照** | 同上 | **Consume** |
 | 工数/日程: `Units` `Work` `ActualWork` `RegularWork` `OvertimeWork` `RemainingWork` `RemainingOvertimeWork` `ActualOvertimeWork` `PercentWorkComplete` `Start` `Finish` `ActualStart` `ActualFinish` `Stop` `Resume` `Delay` `PeakUnits` | 割当工数・日程 | 削 | 一級化しない | Carry |
 | コスト/EVM: `Cost` `ActualCost` `RemainingCost` `OvertimeCost` `ActualOvertimeCost` `RemainingOvertimeCost` `CostRateTable` `CostVariance` `CV` `SV` `ACWP` `BCWS` `BCWP` `VAC` `BudgetCost` `BudgetWork` `WorkVariance` `StartVariance` `FinishVariance` | コスト・出来高 | 削 | コスト/EVM 非対象 | Carry |
 | フラグ/補助: `Confirmed` `HasFixedRateUnits` `FixedMaterial` `LevelingDelay` `LevelingDelayFormat` `LinkedFields` `Milestone` `Summary` `Notes` `Overallocated` `ResponsePending` `UpdateNeeded` `WorkContour` `BookingType` `ActualWorkProtected` `ActualOvertimeWorkProtected` `CreationDate` `AssnOwner` `AssnOwnerGuid` `Hyperlink*` | 各種フラグ/属性 | 削 | GRS 非使用 | Carry |
@@ -590,10 +598,10 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 |---|---|---|---|---|:--:|
 | Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ActualStart/ActualFinish/Notes | OutlineLevel/CalendarUID/PredecessorLink | ID/OutlineNumber/Summary/Duration/PercentComplete | ActualDuration/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
 | PredecessorLink | — | PredecessorUID/Type/LinkLag/LagFormat | — | CrossProject/CrossProjectName | **0** |
-| Project | 識別/文書/期間/換算/サーバ管理(26) | CalendarUID | FinishDate | 通貨/既定/計算/Move/EV/会計/時刻(37) | **0** |
+| Project | 識別/文書/期間/換算(21) | CalendarUID | FinishDate | 通貨/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(41) | **0** |
 | Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType/DayWorking/例外日/名称 | BaseCalendarUID/(Task・Project).CalendarUID | — | WorkingTime/WorkWeek/繰返し詳細 | **0** |
-| Resource | UID | — | ID | 他スカラー全て＋子要素 | **0** |
-| Assignment | UID | — | — | TaskUID/ResourceUID＋他全スカラー＋201枠＋子要素 | **0** |
+| Resource | UID/Name/Type | CalendarUID | ID | 他スカラー全て＋子要素 | **0** |
+| Assignment | UID | TaskUID/ResourceUID | — | 他全スカラー＋201枠＋子要素 | **0** |
 
 → **8 ネイティブテーブルで Drop=0**（未分類ゼロ・全スカラーを XSD 突合で確認済み）。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough（案b）の実装が Drop=0 の前提**。
 > ⚠️ **H-2（要注意）**: `ActualDuration`/`RemainingDuration` は当初 Reconstruct としたが、**進行中タスク（`ActualFinish` 空）では単純再計算が破綻**するため Carry へ格下げ済み。§8D の round-trip 同一性テストに**進行中タスクのケースを必須追加**する（完了タスクだけの検証では欠落を見逃す）。
