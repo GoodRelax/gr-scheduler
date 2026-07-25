@@ -35,8 +35,9 @@
 | `ActualFinish` | Own | task.actualFinish |
 | `Deadline` | Own | task.deadline（目標マーカー） |
 | `Notes` | Own | task.notes |
-| `Stop` / `Resume` | Own?（split 採用時） | 中断バー。未採用なら Carry |
-| `ConstraintType` / `ConstraintDate` | Own?（制約を扱う時） | 制約。MVP 非対象なら Carry |
+| `Stop` / `Resume` | **Own（確定）** | 中断バー（単一区間）。多重 split の厳密形（`TimephasedData` ゼロ区間）は Carry（grs-data-model §7.2） |
+
+（`ConstraintType` / `ConstraintDate` は **Carry 確定**。GRS は明示日付で位置決めし制約はソルバ用ヒント＝非使用。下記 Carry 群「制約」に記載。）
 
 ### Consume（読んで構造化）
 
@@ -62,6 +63,7 @@
 
 GRS が日程表用途で使わない列。**すべて温存し export で書き戻す**（未編集往復は無損失）。系統でまとめる:
 
+- 制約: `ConstraintType`, `ConstraintDate`（GRS 非使用・§7.2 で Carry 確定）
 - 期間/工数書式: `Type`, `DurationFormat`, `Work`, `RegularWork`, `OvertimeWork`, `PercentWorkComplete`, `EffortDriven`, `Estimated`, `Recurring`
 - コスト: `Cost`, `FixedCost`, `FixedCostAccrual`, `OvertimeCost`, `ActualCost`, `ActualOvertimeCost`, `RemainingCost`, `RemainingOvertimeCost`
 - 実績工数: `ActualWork`, `ActualOvertimeWork`, `RemainingWork`, `RemainingOvertimeWork`, `ActualWorkProtected`, `ActualOvertimeWorkProtected`
@@ -117,39 +119,64 @@ Consume（→ 依存エッジ）。個別列:
 | `Exception.Name` | Own | 祝日名 |
 | `Exception.TimePeriod`(FromDate/ToDate) | Own | 例外日（親に畳込） |
 | `Exception.DayWorking` | Own | 稼働か |
-| `WorkingTime`(FromTime/ToTime) | Carry/Drop | 勤務時刻（日粒度で不要・温存 or 破棄） |
+| `WorkingTime`(FromTime/ToTime) | **Carry（確定）** | 勤務時刻。日粒度描画で不使用だが **Drop=0 のため passthrough 温存**（破棄しない） |
 | `WorkWeek` 系, `Exception` 繰り返し詳細(`Type`/`Period`/`DaysOfWeek`/`MonthItem`/…) | Carry | 温存 |
 
-（Calendar/Resource/Assignment を GRS ネイティブで持つかは `grs-data-model` §7 未確定。持たない場合はクラスタごと Carry。）
+**確定（grs-data-model §7.5）: Calendar は GRS ネイティブ軽量**（稼働日粒度の描画・期間換算に必須）。`Calendar`/`WeekDay`/`Exception` の稼働日・祝日は Own、勤務時刻・繰返し詳細・`WorkWeek` は Carry。`Task.CalendarUID`/`Project.CalendarUID` は **Consume**（ネイティブ暦参照）。
 
 ---
 
-## 5. Resource（XSD L2492-）※暫定
+## 5. Resource（XSD L2492-2491…3190・全 66 スカラー＋子要素）
 
-GRS が資源を一級で持つか未確定（§7）。**持たなければ Resource 全体を Carry**（passthrough）。持つ場合の暫定:
+**確定（grs-data-model §7.5）: 資源管理は非対象 → Resource 全体を Carry**（`UID` のみ Own、`ID` は Reconstruct）。以下 XSD 実名で全列を分類（Drop=0）。
 
-- Own: `UID`(→id), `Name`, `Type`, `Initials`, `Group`
-- Reconstruct: `ID`（順序）
-- Carry: 上記以外（コスト/レート/EVM/工数/enterprise/AD 等ほぼ全て）
+| 分類 | 列 |
+|---|---|
+| **Own** | `UID`（→resource.id・往復識別・不変） |
+| **Reconstruct** | `ID`（順序） |
+| **Carry（passthrough）** | 上記以外の**全 64 スカラー**＋全子要素。系統別: 識別/属性(`Name`,`Type`,`IsNull`,`Initials`,`Phonetics`,`NTAccount`,`MaterialLabel`,`Code`,`Group`,`WorkGroup`,`EmailAddress`,`Hyperlink`,`HyperlinkAddress`,`HyperlinkSubAddress`) / 稼働(`MaxUnits`,`PeakUnits`,`OverAllocated`,`AvailableFrom`,`AvailableTo`,`Start`,`Finish`,`CanLevel`,`AccrueAt`) / 工数(`Work`,`RegularWork`,`OvertimeWork`,`ActualWork`,`RemainingWork`,`ActualOvertimeWork`,`RemainingOvertimeWork`,`PercentWorkComplete`) / コスト・レート(`StandardRate`,`StandardRateFormat`,`Cost`,`OvertimeRate`,`OvertimeRateFormat`,`OvertimeCost`,`CostPerUse`,`ActualCost`,`ActualOvertimeCost`,`RemainingCost`,`RemainingOvertimeCost`) / EVM・差異(`WorkVariance`,`CostVariance`,`SV`,`CV`,`ACWP`,`BCWS`,`BCWP`) / 暦・メモ(`CalendarUID`,`Notes`) / enterprise・管理(`IsGeneric`,`IsInactive`,`IsEnterprise`,`BookingType`,`ActualWorkProtected`,`ActualOvertimeWorkProtected`,`ActiveDirectoryGUID`,`CreationDate`,`IsCostResource`,`AssnOwner`,`AssnOwnerGuid`,`IsBudget`) / 子要素(`ExtendedAttribute`,`Baseline`,`OutlineCode`,`AvailabilityPeriod`,`Rate`,`TimephasedData`) |
+| **Drop** | なし |
 
----
-
-## 6. Assignment（XSD L3191-）※暫定
-
-割当を一級で持つか未確定（§7）。**持たなければ Assignment 全体を Carry**。持つ場合の暫定:
-
-- Own: `UID`, `Units`
-- Consume: `TaskUID`, `ResourceUID`（Task×Resource 関係）
-- Carry: 上記以外（コスト/EVM/工数/`WorkContour`/`f404xxx`〔201予約枠〕/子 ExtAttr・Baseline・TimephasedData）
+- 任意: `Name`/`Initials`/`Group` を**読取専用の担当ラベル**として表示に流用可（真実は Carry 側・編集しない）。
 
 ---
 
-## 未確定・次アクション
+## 6. Assignment（XSD L3191-3690・全 63 スカラー＋201 予約枠＋子要素）
 
-- **中核以外の粒度確定**: Resource/Assignment/Calendar をネイティブ化するか（`grs-data-model` §7）で Consume/Carry が変わる。
-- **split(Stop/Resume)・制約(ConstraintType/Date)** の Own/Carry を確定。
-- **Carry の passthrough 実装**（案b）と **round-trip 同一性テスト**を CI に。
-- 全項目を XSD と突き合わせ、**Drop=0 を検証**（未分類ゼロ）。
+**確定（grs-data-model §7.5）: 割当も非対象 → Assignment 全体を Carry**（`UID` のみ Own）。以下 XSD 実名で全列を分類（Drop=0）。
+
+| 分類 | 列 |
+|---|---|
+| **Own** | `UID`（往復識別・不変） |
+| **Carry（passthrough）** | **関係キー** `TaskUID` / `ResourceUID`（UID 不変につき参照は有効なまま温存。GRS で Task 削除時は孤立割当を export で落とす＝実装注記） ＋ **他全スカラー**: `PercentWorkComplete`,`ActualCost`,`ActualFinish`,`ActualOvertimeCost`,`ActualOvertimeWork`,`ActualStart`,`ActualWork`,`ACWP`,`Confirmed`,`Cost`,`CostRateTable`,`CostVariance`,`CV`,`Delay`,`Finish`,`FinishVariance`,`Hyperlink`,`HyperlinkAddress`,`HyperlinkSubAddress`,`WorkVariance`,`HasFixedRateUnits`,`FixedMaterial`,`LevelingDelay`,`LevelingDelayFormat`,`LinkedFields`,`Milestone`,`Notes`,`Overallocated`,`OvertimeCost`,`OvertimeWork`,`PeakUnits`,`RegularWork`,`RemainingCost`,`RemainingOvertimeCost`,`RemainingOvertimeWork`,`RemainingWork`,`ResponsePending`,`Start`,`Stop`,`Resume`,`StartVariance`,`Summary`,`SV`,`Units`,`UpdateNeeded`,`VAC`,`Work`,`WorkContour`,`BCWS`,`BCWP`,`BookingType`,`ActualWorkProtected`,`ActualOvertimeWorkProtected`,`CreationDate`,`AssnOwner`,`AssnOwnerGuid`,`BudgetCost`,`BudgetWork` ＋ **`f404000`〜`f4040c8`（201 enterprise 予約枠・空）** ＋ 子要素(`ExtendedAttribute`,`Baseline`,`TimephasedData`) |
+| **Drop** | なし |
+
+---
+
+## 確定サマリと Drop=0 検証
+
+**確定（grs-data-model §7）**:
+- 粒度: **Calendar = ネイティブ軽量 / Resource・Assignment = 丸ごと Carry**（§7.5）。
+- **split `Stop`/`Resume` = Own**（単一区間）、多重 split の厳密形（`TimephasedData`）= Carry（§7.2）。
+- **制約 `ConstraintType`/`ConstraintDate` = Carry**（§7.2）。
+
+**Drop=0 検証（XSD 実名突合・8 テーブル全項目）**:
+
+| テーブル | Own | Consume | Reconstruct | Carry | **Drop** |
+|---|---|---|---|---|:--:|
+| Task | Name/Start/Finish/Milestone/Actual*/progressRatio/Deadline/Notes/UID/Stop/Resume | OutlineLevel/PredecessorLink/CalendarUID | ID/OutlineNumber/Summary/Duration/ActualDuration/RemainingDuration/PercentComplete | 制約・工数書式・コスト・EVM・CPM派生・平準化・サブPJ・enterprise・補助・子要素 | **0** |
+| PredecessorLink | — | PredecessorUID/Type/LinkLag/LagFormat | — | CrossProject/CrossProjectName | **0** |
+| Project | 識別/文書/期間/換算メタ | CalendarUID | FinishDate | 通貨/既定/計算/Move/EV/サーバ管理 | **0** |
+| Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType/DayWorking/例外日 | BaseCalendarUID/(Task・Project).CalendarUID | — | WorkingTime/WorkWeek/繰返し詳細 | **0** |
+| Resource | UID | — | ID | 他全 64 スカラー＋子要素 | **0** |
+| Assignment | UID | — | — | TaskUID/ResourceUID＋他全スカラー＋201枠＋子要素 | **0** |
+
+→ **全 8 テーブルで Drop=0**（未分類ゼロ）。損失は「Carry を実装しない」場合のみ発生するため、**Carry passthrough（案b）の実装が Drop=0 の前提**。
+
+## 残アクション
+
+- **Carry passthrough の実装**（案b）と **round-trip 同一性テスト**を CI に（未編集 import→export の差分ゼロを機械検証）。
+- 敵対的レビュー（本台帳 × XSD）で分類漏れ・命名ズレの最終確認。
 
 ## 参照
 
