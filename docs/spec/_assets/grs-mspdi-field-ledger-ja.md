@@ -369,7 +369,7 @@ erDiagram
 | `TimephasedData` `WorkingTime` `WorkWeek` 系 | **削** | Carry | S字/多重split/勤務時刻/週上書きは非対象・温存 |
 | `Baseline`(Task/Res/Assn) | **削** | Carry | 変更前予定グレーは別ファイルで代替・温存 |
 | `OutlineCode` 系 `WBSMask` 系 | **削** | Carry | 独自コード/採番非対象・温存 |
-| `ExtendedAttribute` 系 | **削** | Carry | カスタムフィールド非対象・温存 |
+| `ExtendedAttribute` 系 | **一部残** | **GRS 枠のみ Consume / 他は Carry** | **GRS がフェード（`fadeInDays`/`fadeOutDays`）の往復に拡張領域を使う**。GRS が予約した `FieldID` だけ Consume し、他ツール由来は従来どおり Carry（`grs-native-erd-ja.md` §5.5f） |
 | `AvailabilityPeriod` `Rate` | **削** | Carry | 資源キャパ/単価非対象・温存 |
 
 ### 7.1 Task（約 91 スカラー＋5 子要素）
@@ -463,7 +463,7 @@ erDiagram
 | 子要素 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
 | `PredecessorLink` | 依存（後続→先行） | 残→構造化 | 依存エッジへ（§7.2） | **Consume** |
-| `ExtendedAttribute` | カスタム値 | 削 | カスタムF非対象 | Carry |
+| `ExtendedAttribute` | カスタム値 | **一部残** | **GRS が予約した `FieldID`（フェード用）のみ Consume** → `Task.fadeInDays` / `fadeOutDays`。**他ツール由来の `FieldID` は Carry**。取込時に枠の衝突を検出して空き枠へ退避（`grs-native-erd-ja.md` §5.5f） | **Consume（GRS 枠）/ Carry（他）** |
 | `Baseline` | 計画スナップショット(0-10) | 削 | 別ファイルで代替 | Carry |
 | `OutlineCode` | 分類コード割当値 | 削 | 独自コード非対象 | Carry |
 | `TimephasedData` | 時系列値（多重split/S字） | 削 | 非対象 | Carry |
@@ -600,7 +600,7 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 | テーブル | Own | Consume | Reconstruct | Carry | **Drop** |
 |---|---|---|---|---|:--:|
-| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ActualStart/ActualFinish/Notes/**PercentComplete→progressRatio** | OutlineLevel/CalendarUID/PredecessorLink | ID/OutlineNumber/Summary/Duration | ActualDuration/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
+| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ActualStart/ActualFinish/Notes/**PercentComplete→progressRatio** | OutlineLevel/CalendarUID/PredecessorLink/**ExtendedAttribute(GRS枠=fade)** | ID/OutlineNumber/Summary/Duration | ActualDuration/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
 | PredecessorLink | — | PredecessorUID/Type/LinkLag/LagFormat | — | CrossProject/CrossProjectName | **0** |
 | Project | 識別/文書/期間/換算(**18**) | CalendarUID(1) | FinishDate(1) | 通貨/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(**43**) | **0** |
 | Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType(1-7)/DayWorking/例外日/名称 | BaseCalendarUID/(Task・Project).CalendarUID/**Exception.Type** | — | WorkingTime/WorkWeek/繰返し詳細/**WeekDay.DayType=0＋TimePeriod(2003形式)** | **0** |
