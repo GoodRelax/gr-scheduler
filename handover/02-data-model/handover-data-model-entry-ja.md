@@ -31,7 +31,9 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 ├─ Calendar / WeekDay / Exception   ├─ TaskOrigin         出自（マージ判定用）
 └─ Resource / Assignment（軽量）    ├─ Comment            引出し四角/折れ線の注記（§5.8）
                                     └─ HighlightBox       角丸の囲み枠（§5.8）
-                                    documentSettings      積み方向・ズーム・取込連番 ※中身は未確定
+                                    documentSettings      文書の表示設定（§5.7-1 で確定）
+                                                          ※ズーム/スクロール/テーマ/言語/透かしは
+                                                            読む人の環境なので保存しない
 
 ★ ＋ TaskGroup / TaskGroupMember = コア 4（これが無いとモデルが成立しない）
 ```
@@ -64,7 +66,17 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
     "carry": { "CurrencyCode": "JPY", "SaveVersion": "12" }
   },
 
-  "documentSettings": { "stackDirection": "up", "zoom": { "x": 1.0, "y": 1.0 }, "importSeq": 1 },
+  "documentSettings": {
+    "stackDirection": "up", "importSeq": 1,
+    "planActualDisplay": "both", "planActualStyle": "overlap",
+    "assigneeVisible": true, "progressVisible": true,
+    "todayLineVisible": true, "dualCursor": null, "cursorGuideMode": "none",
+    "gridDateLinesVisible": true, "gridGroupLinesVisible": true,
+    "progressLineVisible": false, "progressLineColor": "#b03030",
+    "baselineVisible": false,
+    "fontScale": "M",
+    "exportCanvas": { "width": 1600, "height": 900 }
+  },
 
   "tasks": [
     {
