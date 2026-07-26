@@ -125,7 +125,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
   ],
 
   "taskGroups": [
-    { "id": "grp-a", "parentId": null, "label": "製品A", "order": 0,
+    { "id": "grp-a", "parentId": null, "label": null, "derivedFromTaskUid": 1, "order": 0,
       "collapsed": false, "color": "#e8eef7", "height": null }
   ],
   "taskGroupMembers": [
@@ -187,6 +187,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 | `"wbsParentUid": 1` が 3 件 | **軸A**（WBS）。企画・設計・検証は「製品A」の子 |
 | `taskGroupMembers` が 3 件で同じ `groupId` | **軸B**（マルチバー）。**1 行に 3 つのタスク**が載る＝製品の核 |
 | `"stackOrder": null` | **自動**（milestone 優先 → start 昇順 → finish 降順 → uid 昇順）。人が指定した時だけ値が入る |
+| `"label": null` ＋ `"derivedFromTaskUid": 1` | **器の名前は uid=1 のタスク名（「製品A」）から導出**。人が改名すると `label` に値が入り導出が止まる（`grs-data-model-ja.md` §7.1-1） |
 | `"fadeOutDays": 5` | 終了日の曖昧さ。**MSPDI へは拡張領域で往復**（§5.5f） |
 | `"carry": { "Cost": "0", … }` | GRS が解釈しない MSPDI 列。**そのまま書き戻す**（§5.5d） |
 | `"exceptions"[].type: 9` | **`Type` を必ず読む**。9=繰返しなし → `fromDate`/`toDate` が実日付（§5.5b） |
@@ -202,9 +203,14 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 | | GRS JSON | MSPDI export |
 |---|---|---|
 | 値が無い列 | **`null` を明示** | **要素を書かない** |
-| `Reconstruct` 列（`ID`/`OutlineLevel`/`OutlineNumber`/`Summary`/`Duration`/`PercentComplete`） | **持たない** | **その場で算出して書く** |
+| `Reconstruct` 列（`ID`/`OutlineLevel`/`OutlineNumber`/`Summary`） | **持たない** | **その場で算出して書く** |
+| `progressRatio` | 0〜1 で持つ | `PercentComplete` に **×100 して書く**（import では **読む＝Own**。読まないと進捗を失う） |
+| `Duration` | **未編集は受け取った値を保持 / 編集済は持たない** | **未編集はそのまま書き戻す / 編集済は `finish − start` で算出**（§3-4 #3/#4） |
+| `ActualDuration` / `RemainingDuration` | 不透明に保持 | **未編集はそのまま / 編集済は再計算して上書き**（同上） |
+| `Work` 系（工数） | 不透明に保持 | **常にそのまま書き戻す**（GRS は工数を直せない。編集時はユーザーへ通知） |
 | `TaskGroup` / `TaskGroupMember` / `TaskVisual` / `TaskOrigin` / `documentSettings` | 持つ | **書かない**（GRS 専用） |
-| `fadeInDays` / `fadeOutDays` | Task の列 | **`ExtendedAttribute`**（定義＋値の 2 層）で書く |
+| `fadeInDays` / `fadeOutDays` / `stop` / `resume` / `importance` / `progressStatus` | Task の列 | **`ExtendedAttribute`**（定義＋値の 2 層）で書く。<br>※ `stop`/`resume` は **MSPDI の同名要素へ写さない**（意味がずれる。§3-4 #8） |
+| 見た目（色 / 字形 / 線幅 / `nameAnchor` / `nameAlign`） | 持つ | **書かない**（相手は解釈できない。§4-1） |
 | `carry` / `carryElements` | 不透明に保持 | **原順序で書き戻す** |
 
 ---

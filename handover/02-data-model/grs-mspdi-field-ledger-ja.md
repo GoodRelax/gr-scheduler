@@ -46,7 +46,7 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
 - 中核概念のデータ表現:
   - **階層**: Task 上の `OutlineLevel`＋document order で暗黙表現（親ポインタは無い）。`Summary` は子を持つ印。
   - **依存**: 線オブジェクトではなく、後続 Task 内に先行 UID 参照 `PredecessorLink`（`Type` 0=FF/1=FS/2=SF/3=SS、`LinkLag` 1/10分）。
-  - **予定/実績/中断**: `Start`/`Finish`（予定）、`ActualStart`/`ActualFinish`/`PercentComplete`（実績）、`Stop`/`Resume`（中断）。
+  - **予定/実績**: `Start`/`Finish`（予定）、`ActualStart`/`ActualFinish`/`PercentComplete`（実績）。※**中断は `Stop`/`Resume` へ写さない**（意味がずれる。拡張領域で往復）。
   - **マイルストーン**: 専用要素なし。`Milestone=1` フラグ（慣習で `Duration=0`）。
   - **時系列**: `TimephasedData`（作業/コストの時間軸分解・S字/ヒストグラム/多重split の素）。
 - **MSPDI にできないこと**: **1 行に複数の独立タスクを横並べ**（マルチバー）。ビュー描画書式（Bar Styles・色）はファイル外。→ マルチバーは GRS が新規に定義する（§2 軸B）。
@@ -405,7 +405,7 @@ erDiagram
 |---|---|---|:--:|---|---|
 | `Start` | dateTime | 予定開始 | 残 | バー左端 | **Own** |
 | `Finish` | dateTime | 予定完了 | 残 | バー右端 | **Own** |
-| `Duration` | duration | 期間(ISO8601) | 削 | Finish−Start＋暦で算出 | Reconstruct |
+| `Duration` | duration | 期間(ISO8601) | **残** | **未編集タスクは受け取った値をそのまま返す**（暦の解釈差で往復差分が出るのを防ぐ）。**編集済タスクだけ** `Finish−Start` で算出 | **Carry（未編集）/ Reconstruct（編集済）** |
 | `DurationFormat` | enum | 期間の表示単位 | 削 | 書式・非保持 | Carry |
 | `Work` | duration | 総工数 | 削 | 工数管理非対象 | Carry |
 | `Type` | enum | FixedUnits/Duration/Work | 削 | ソルバ挙動・非対象 | Carry |

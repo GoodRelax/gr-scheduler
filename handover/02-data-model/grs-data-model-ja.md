@@ -357,7 +357,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 
 | MSPDI | 確定 | 理由 |
 |---|---|---|
-| `Stop` / `Resume` | **Own（単一中断区間）** | 中断バー（1 本が割れる）は日程表の実描画要素。1 組で「1 回の中断」を素朴に保持。多重 split の厳密形（`TimephasedData` の作業ゼロ区間）は **Carry**（MVP は多重 split を描かず温存）。 |
+| `stop` / `resume` | **Own（単一中断区間）。ただし MSPDI の `Stop`/`Resume` へは写さず拡張領域で往復**（確定 2026-07-26） | 中断バー（1 本が割れる）は日程表の実描画要素。1 組で「1 回の中断」を素朴に保持。<br>⚠️ **MSPDI の `Stop`/`Resume` の意味は「実績がここまで入っている境界／残作業の再開日」**であって「中断/再開」ではない。同名要素に写すと**相手の画面で別物に見える**（静かな破壊）。`ExtendedAttribute`（Date 枠 2 本）で往復する。→ `handover-property-mspdi-mapping-ja.md` §3-4 #8<br>多重 split の厳密形（`TimephasedData` の作業ゼロ区間）は **Carry**（MVP は多重 split を描かず温存）。 |
 | `ConstraintType` / `ConstraintDate` | **Carry** | GRS は明示日付（`start`/`finish` = Own）で位置決めし、制約はソルバ用ヒント＝GRS 非使用。往復のため不透明温存（Drop にしない）。 |
 
 ### 7.3 Task の中身（Own 列）と GRS 視覚（TaskVisual）
@@ -365,7 +365,8 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 **Task（Own・MSPDI Task 無汚染継承）**:
 `id`, `uid`(←UID), `name`, `start`, `finish`, `milestone`, `actualStart`, `actualFinish`, `progressRatio`(←PercentComplete/100), `deadline`, `notes`, `stop`, `resume`(§7.2), `calendar_id`(←CalendarUID), `wbs_parent_uid`/`wbs_order`(軸A), `carry`(不透明 passthrough)。
 
-**Task が持たない列（Reconstruct・export でその場算出）**: `ID`, `OutlineLevel`, `OutlineNumber`, `Summary`, `Duration`（§5）。
+**Task が持たない列（Reconstruct・export でその場算出）**: `ID`, `OutlineLevel`, `OutlineNumber`, `Summary`（§5）。
+※ **`Duration` は条件付き**（確定 2026-07-26）: **未編集タスクは受け取った値をそのまま返す（Carry）／編集済タスクだけ `finish − start` で算出（Reconstruct）**。無条件に算出すると暦の解釈差で未編集タスクにも往復差分が出る。→ `handover-property-mspdi-mapping-ja.md` §3-4 #3/#4
 ※ `PercentComplete` は **Own**（÷100 して `progressRatio`・進捗の唯一の入力源）、`ActualDuration`/`RemainingDuration` は **Carry**（進行中は復元不能）。当初 Reconstruct としていたのを是正済み。
 
 **GRS 視覚は別テーブル `TaskVisual` に分離（確定）**— Task 汚染を避け、export 対象外を明確化:
