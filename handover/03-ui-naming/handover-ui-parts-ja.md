@@ -125,14 +125,15 @@ App Shell                      アプリ全体の器
 | 現行 | 確定 | 理由 |
 |---|---|---|
 | `item` / `ScheduleItem` / `itemKind`（`'task'`/`'milestone'`） | **`Task` / `Task.milestone`(bool)** | MSPDI と同じ表現。`itemKind` という判別値をやめ**真偽値**にする |
-| `abbreviation` `abbreviationPosition` `abbreviationOffset` | **`abbrev` `abbrevAnchor` `abbrevAlign`** | 今回の設計で**位置の表し方が変わった**（9 点アンカー＋左/中央/右詰め、`null`=自動）。旧 `offset(dx,dy)` は**ズームでずれる**ため不採用 |
+| `abbreviation` `abbreviationPosition` `abbreviationOffset` | **廃止 ＋ `nameAnchor` `nameAlign`** | **略称そのものを廃止**（ユーザー確定 2026-07-26）。アイコンに描くラベルは **`Task.name`**。MSPDI に `Name` / `Notes` しかないのに合わせ、テキスト列を増やさない。位置指定の 2 列は**語幹を `name` に合わせて改名**（9 点アンカー＋左/中央/右詰め、`null`=自動）。旧 `offset(dx,dy)` は**ズームでずれる**ため不採用 |
 | `actualEnd` | **`actualFinish`** | 語幹を `finish` に統一（§5-1） |
 | `planStart` / `planEnd`（改名予定だった） | **`start` / `finish`** | §5-1 |
 | `progressStatus`（現 `status`） | **`progressStatus`** のまま | 用語集の改名を採用（`status` は汎用語すぎる・D-8） |
 
 ### (b) モデルに**無い**が UI に必要なもの（次期で追加が要る）
 
-今回の `TaskVisual` は `abbrev` / `iconShapeKind` / `color` / `abbrevAnchor` / `abbrevAlign` / `importance` の 6 列しか持たない。**以下が不足**している。
+今回の `TaskVisual` は `iconShapeKind` / `color` / `nameAnchor` / `nameAlign` / `importance` の 5 列しか持たない
+（`abbrev` は**廃止**。上記 (a) 参照）。**以下が不足**している。
 
 | 不足 | 用途 | 備考 |
 |---|---|---|

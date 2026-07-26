@@ -59,8 +59,10 @@
 | 6 | `02-data-model/handover-data-model-entry-ja.md` | データ構造の**入口**。読む順と JSON 実例 | 入口 |
 | 7 | `02-data-model/grs-mspdi-field-ledger-ja.md` | 全要素の取捨選択（Own / Consume / Reconstruct / Carry / Drop） | 仕分けの実例。枠組み自体が再利用できる |
 | **8** | **`02-data-model/grs-native-erd-ja.md`** | **データ構造の確定版**。ERD・識別子・マージ・Carry ストア・往復規約 | **データ構造の正** |
+| 8b | `02-data-model/handover-property-mspdi-mapping-ja.md` | プロパティ全項目の MSPDI 対応（XSD 実測）・**進捗と実績の関係**・無い項目の格納方式 3 案比較 | 項目を増やす前に読む |
 | **9** | **`03-ui-naming/handover-ui-parts-ja.md`** | **UI パーツ名と責務**（確定名）。語彙 6 系統 → 3 語 | **命名の正** |
-| 10 | `03-ui-naming/glossary.md` | 製品用語の SSOT（387 行 / 揺れ 22 件の確定記録） | 保守する価値がある。次期も SSOT として引き継ぐ |
+| 9b | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**。4 部構成の内訳・上部ボタン・パレット構成・**予実の編集モデル**・操作割当・自動レイアウト規則 | 実装前に読む |
+| 10 | `03-ui-naming/glossary.md` | 製品用語の網羅的な参考（387 行 / 揺れ 22 件の記録） | ⚠️ **旧名の列を含む**。9 と食い違ったら 9 が勝つ |
 | 11 | `05-security-a11y/security-design.md` | 脅威モデル・SVG/JSON/XML/PNG import のサニタイズ・単一 HTML の CSP | 要求として生きている（`user-order.md` 62） |
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
 | 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
@@ -110,11 +112,13 @@ handover/
 │   ├── handover-data-model-entry-ja.md   入口・読む順・JSON 実例
 │   ├── grs-native-erd-ja.md              ★データ構造の正（12 エンティティ・2 軸）
 │   ├── grs-mspdi-field-ledger-ja.md      MSPDI 全要素の取捨選択台帳
+│   ├── handover-property-mspdi-mapping-ja.md  プロパティ×MSPDI 対応・進捗と実績・格納方式3案
 │   └── grs-data-model-ja.md              §8 に設計判断の変遷（却下案とその理由）
 │
 ├── 03-ui-naming/                    命名（1 概念 1 語）
 │   ├── handover-ui-parts-ja.md      ★UI パーツ名と責務の確定版
-│   └── glossary.md                  製品用語 SSOT
+│   ├── handover-ui-detail-spec-ja.md  UI 詳細仕様（画面構成・操作割当・予実の編集モデル）
+│   └── glossary.md                  製品用語の参考（旧名を含む）
 │
 ├── 04-performance/                  ぬるサク
 │   └── handover-performance-notes-ja.md  ★効いた手 / 罠 / 実測基準線 / 参考実装
@@ -134,9 +138,9 @@ handover/
 
 ## 3. 次期の着手順（推奨）
 
-1. `user-order.md` を読む。**「やらないこと」節と「次期の開始前に決めること」3 件**を先に確認する。
+1. `user-order.md` を読む。**冒頭「用語」節を先に読んで言葉を揃える**（揃えないまま細部を読むと誤解して手戻りになる）。次に**「やらないこと」節と「次期の開始前に決めること」**。
 2. `04-performance/` を読む。**方式を決める前に骨格で性能を測る**（§0-2）。
-3. `03-ui-naming/handover-ui-parts-ja.md` の確定名で**語彙を固定する**。ここを曖昧にすると再発する。
+3. `03-ui-naming/handover-ui-parts-ja.md` の確定名で**語彙を固定する**。ここを曖昧にすると再発する。振る舞いは `handover-ui-detail-spec-ja.md`。
 4. `02-data-model/grs-native-erd-ja.md` でデータ構造を確定する。**画面とデータを分離**する（`user-order.md` 67）。
 5. `01-mspdi/mspdi-pitfalls-ja.md` を読んでから MSPDI に着手する。往復無損失は**後付けできない**。
 6. `05-security-a11y/` を実装方針に織り込む。**`innerHTML` 直挿し禁止・XXE 無効化**は設計時点の判断。

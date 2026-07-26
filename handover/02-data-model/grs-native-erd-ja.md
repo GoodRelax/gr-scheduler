@@ -300,9 +300,8 @@ erDiagram
     }
     TaskVisual {
         int task_uid PK "‼️ → Task.uid"
-        string abbrev "‼️ 略称"
-        int abbrevAnchor "‼️ null=自動 / 0-8(9点アンカー)"
-        string abbrevAlign "‼️ null=自動 / left|center|right"
+        int nameAnchor "‼️ null=自動 / 0-8(9点アンカー)"
+        string nameAlign "‼️ null=自動 / left|center|right"
         string iconShapeKind "‼️ 字形（bar/chevron/arrow/span/菱形…）"
         string fillColor "‼️ 塗り色"
         string strokeColor "‼️ 線色"
@@ -413,7 +412,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | 層 | 上書き時 | 理由 |
 |---|---|---|
 | `Task` の Own / Consume 列、`carry`、`Dependency` | **置換** | マスタの更新を取り込むのが目的 |
-| **`TaskVisual`**（略称/色/アイコン/ラベル位置） | **保持** | MSPDI に出ない情報。置換すると**再取込のたびに見た目が壊れる** |
+| **`TaskVisual`**（色/アイコン/名称ラベル位置） | **保持** | MSPDI に出ない情報。置換すると**再取込のたびに見た目が壊れる** |
 | **`TaskGroupMember`**（どの行に載るか） | **保持** | 同上。**マルチバー配置が毎回リセットされるのは致命的**（製品最大の差別化機能が運用に耐えなくなる） |
 | `TaskOrigin` | 更新（`source_uid` は維持、`last_seen_import_seq` を今回値に） | 突合と未着検出のため |
 
@@ -753,7 +752,7 @@ MSPDI 由来のデータは `OutlineLevel`＋順序から組むので**構造上
 
 **GRS 固有だが往復させたい値は、MSPDI の拡張領域に載せる。** 第 1 号が **`fadeInDays` / `fadeOutDays`**（バー端のテーパ＝日付の曖昧さ）。
 
-> **なぜ `Task` に置くか**: 拡張領域は **MSPDI の一部**なので、そこで往復する値は「MSPDI に存在するデータ」である。したがって「`Task` は MSPDI 由来の列のみ」という原則（§4-1）に反しない。**`TaskVisual` に置くべきは「MSPDI に写す先が無いもの」**（色・字形・略称位置）であり、fade は写し先を持つので区別される。`Task` と別管理にすると実装が複雑になる、という判断でもある。
+> **なぜ `Task` に置くか**: 拡張領域は **MSPDI の一部**なので、そこで往復する値は「MSPDI に存在するデータ」である。したがって「`Task` は MSPDI 由来の列のみ」という原則（§4-1）に反しない。**`TaskVisual` に置くべきは「MSPDI に写す先が無いもの」**（色・字形・名称ラベル位置）であり、fade は写し先を持つので区別される。`Task` と別管理にすると実装が複雑になる、という判断でもある。
 
 #### MSPDI 側の構造 — 定義と値の 2 層
 
@@ -836,15 +835,15 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 | `Task.calendar_id` / `Resource.calendar_id` | 構造上必要 | 保持。GRS は既定暦で描画し**個別暦は現状未使用**だが、**Carry に UID 参照を残さない**不変条件（§5.5）のため Consume で保持 |
 | `Dependency.lag_format` | 構造上必要 | 保持。ラグの表示単位は GRS 非表示だが、忠実な書き戻しのため Consume で保持 |
 | `TaskGroupMember.stack_order` | **保持（疎）・復活** | 当初「全自動だから削除」としたが、**ALIGN-L2-004/L1-001/L2-001（承認済み Must）が縦位置の意図を要求**するため復活。`null`=自動 / 値=人の指定 |
-| `TaskVisual.abbrevAnchor` / `abbrevAlign` | 保持（疎） | **原則自動配置。人が動かした時だけ値を持つ**（`null`=自動）。9点アンカー＋左/中央/右詰め |
+| `TaskVisual.nameAnchor` / `nameAlign` | 保持（疎） | **原則自動配置。人が動かした時だけ値を持つ**（`null`=自動）。9点アンカー＋左/中央/右詰め |
 | `TaskGroup.height` | 保持（疎） | **原則自動。所定フォーマットに合わせて人が指定した時だけ値を持つ**（`null`=自動）。→ 疎な上書きパターン |
-| `TaskVisual` の視覚列（略称・色・字形・線の太さ・重要度） | 妥当 | いずれもユーザーの意思（略称・色・形・重要度）で算出不能。保持 |
+| `TaskVisual` の視覚列（色・字形・線の太さ・重要度・名称ラベル位置） | 妥当 | いずれもユーザーの意思（色・形・重要度・ラベル位置）で算出不能。保持 |
 | `stack_direction`（文書設定） | 妥当 | ユーザーの選択（上/下）。**文書に 1 個**で行ごとに持たない＝冗長なし |
 | `TaskGroup.collapsed` / `color` | 妥当 | ユーザー操作・書式の意思。**見た目の一部なので保存し共有で再現**（§5.7）。保持 |
 | `TaskGroup.order` / `Task.wbs_order` | 妥当 | 並び順はユーザーの意思。算出不能。保持 |
 | `GroupViewState` 全体 | **無駄** | **削除**。`TaskGroup` は元から GRS 独自で「MSPDI 核を汚さないための分離」が不要 → 書式 3 列を `TaskGroup` に畳み込み（§5.7） |
 
-**疎な上書きパターン（確定）**: 「原則自動・人が触る場合あり」の列は、**全件保存せず `null`=自動 / 値あり=人の上書き**とする。既定は常にエンジンが算出し、上書きは例外として少数だけ保存される。該当: `TaskVisual.abbrevAnchor`/`abbrevAlign`、`TaskGroup.height`、`TaskGroupMember.stack_order`。
+**疎な上書きパターン（確定）**: 「原則自動・人が触る場合あり」の列は、**全件保存せず `null`=自動 / 値あり=人の上書き**とする。既定は常にエンジンが算出し、上書きは例外として少数だけ保存される。該当: `TaskVisual.nameAnchor`/`nameAlign`、`TaskGroup.height`、`TaskGroupMember.stack_order`。
 
 > **注**: `DependencyRoute` はこのパターンにも該当しない（**人が一切触らない**ため、上書きの余地がなく全削除）。
 
@@ -901,8 +900,8 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 
 | 列 | 値 | 意味 |
 |---|---|---|
-| `TaskVisual.abbrevAnchor` | `null` / `0-8` | ラベルの**9 点アンカー**（バー上の 3×3）。`null`=自動配置 |
-| `TaskVisual.abbrevAlign` | `null` / `left`・`center`・`right` | ラベルの**左詰め/中央ぞろえ/右詰め**。`null`=自動 |
+| `TaskVisual.nameAnchor` | `null` / `0-8` | ラベルの**9 点アンカー**（バー上の 3×3）。`null`=自動配置 |
+| `TaskVisual.nameAlign` | `null` / `left`・`center`・`right` | ラベルの**左詰め/中央ぞろえ/右詰め**。`null`=自動 |
 | `TaskGroup.height` | `null` / 論理高さ | `null`=自動。値は**ズーム=1 基準の論理高さ**で保存し、**ズームに比例**して伸縮する（相対関係が保たれる） |
 
 > **ピクセル座標で保存しない理由**: GRS は**縦横独立ズーム**のため、絶対座標だとズームで位置がずれる。ラベルは離散アンカー＋整列、行高は論理値（ズーム比例）とすることでズームに追従する。
@@ -927,7 +926,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 
 | 種別 | 例 | 保存 | 共有で再現 |
 |---|---|:--:|:--:|
-| **文書データ（見た目を決める）** | `TaskVisual`（略称/色/アイコン/ラベル位置/重要度）、`TaskGroup`（**折畳/色/行高**含む）、`TaskGroupMember` | ○ | ○ |
+| **文書データ（見た目を決める）** | `TaskVisual`（色/アイコン/名称ラベル位置/重要度）、`TaskGroup`（**折畳/色/行高**含む）、`TaskGroupMember` | ○ | ○ |
 | **文書設定（全体書式）** | `stack_direction`、`zoom`（縦/横） | ○ | ○ |
 | **一時 UI 状態（見た目ではない）** | 選択・ホバー・Undo/Redo 履歴 | ✗ | — |
 
@@ -955,7 +954,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 | **Exception**          |     暦     | MSPDI-Own                        | 祝日・特別日（祝日グレー表示の元）。弱エンティティ。                                                                       |
 | **Resource**           | 資源(軽量) | MSPDI-Own（5列のみ）             | 人/設備等。**担当者名の表示元**（`name`）。工数・コスト・平準化は持たない（Carry）。→ §5.5                                 |
 | **Assignment**         | 資源(軽量) | MSPDI-Consume（3列のみ）         | Task×Resource の割当リンク。**どのバーに誰が付くか**だけを表す。割当率・工数・コストは持たない（Carry）。→ §5.5            |
-| **TaskVisual** ‼️      |    視覚    | GRS 新設                         | GRS 固有の視覚属性（略称/アイコン形/色/ラベル位置/重要度）。Task 汚染を避けて分離。非 export。                             |
+| **TaskVisual** ‼️      |    視覚    | GRS 新設                         | GRS 固有の視覚属性（アイコン形/色/名称ラベル位置/重要度）。Task 汚染を避けて分離。非 export。                             |
 | **TaskOrigin** ‼️      |    出自    | GRS 新設                         | そのタスクがどのマスタ由来かを保持（マージの既定判定・§5.4）。**同じく Task 汚染を避けて分離**。非 export。                |
 
 > **層**: コア（4）＝これが無いとモデルが成立しない（§5.0）。ルートメタ／暦／資源／視覚／出自（8）＝外しても構造は壊れない付随層。
@@ -1057,7 +1056,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 | 列                                                                         | エンティティ    | 責務                                                  |
 | -------------------------------------------------------------------------- | --------------- | ----------------------------------------------------- |
 | `group_id` `task_uid` `stack_order`                                        | TaskGroupMember | 行への所属（1タスク1行）＋縦積み順（`null`=自動 / 値=人の指定・§5.6） |
-| `task_uid` `abbrev` `abbrevAnchor` `abbrevAlign` `iconShapeKind` `fillColor` `strokeColor` `lineWeight` `importance` `progressStatus` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。略称位置は `null`=自動の疎な上書き。`lineWeight` は色以外の冗長符号（a11y）。 |
+| `task_uid` `nameAnchor` `nameAlign` `iconShapeKind` `fillColor` `strokeColor` `lineWeight` `importance` `progressStatus` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置は `null`=自動の疎な上書き。`lineWeight` は色以外の冗長符号（a11y）。 |
 | `task_uid` `source_project_uid` `source_uid` `last_seen_import_seq` `import_session_id` | TaskOrigin | 出自（マージの照合・§5.3/§5.4）。**行が無い＝GRS 生まれ**。`source_uid` は再取込の突合専用、`last_seen_import_seq` は「マスタから消えた候補」の導出用（§5.4C）。 |
 | `id` `parent_id` `label` `order` `collapsed` `color` `height`               | TaskGroup       | 行の器・階層・並び＋**行の書式**（`height` は `null`=自動の疎な上書き・論理高さ）。 |
 

@@ -27,7 +27,7 @@
 MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 ├─ Project                          ├─ TaskGroup          行の器（入れ子 ≤Lv5）
 ├─ Task ★                           ├─ TaskGroupMember    どの行に載るか＋段
-├─ Dependency ★                     ├─ TaskVisual         略称・色・字形・線幅
+├─ Dependency ★                     ├─ TaskVisual         名称ラベル位置・色・字形・線幅
 ├─ Calendar / WeekDay / Exception   └─ TaskOrigin         出自（マージ判定用）
 └─ Resource / Assignment（軽量）
                                     documentSettings      積み方向・ズーム・取込連番
@@ -135,10 +135,10 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
   ],
 
   "taskVisuals": [
-    { "taskUid": 2, "abbrev": "企画", "abbrevAnchor": null, "abbrevAlign": null,
+    { "taskUid": 2, "nameAnchor": null, "nameAlign": null,
       "iconShapeKind": "diamond", "fillColor": "#4a76c8", "strokeColor": "#2b4a80",
       "lineWeight": "medium", "importance": 0.9, "progressStatus": null },
-    { "taskUid": 3, "abbrev": "設計", "abbrevAnchor": null, "abbrevAlign": null,
+    { "taskUid": 3, "nameAnchor": null, "nameAlign": null,
       "iconShapeKind": "bar", "fillColor": "#6aa84f", "strokeColor": "#38601f",
       "lineWeight": "medium", "importance": 0.7, "progressStatus": "遅延気味" }
   ],
@@ -212,5 +212,5 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 ## 5. 次期への申し送り
 
 1. **`TaskVisual` の列はまだ確定していない可能性がある**。今回は MSPDI 交換に集中したため、GRS 固有の視覚属性は Step 2 の再点検で後から足した（`fillColor`/`strokeColor` 分離・`lineWeight`・`progressStatus`）。**UI 設計と突き合わせて再点検すること**。
-2. **`fullName` / `description` / `remarks` の 3 つは整理が必要**。現行仕様はテキスト列を 5 つ持つ（略称・正式名称・説明・備考・メモ）が、MSPDI 側は `Name` と `Notes` の 2 つしかない。**`name` ＋ `notes` に寄せ、残りは拡張領域か廃止**を検討する。
+2. **【決着】テキスト列は `name` ＋ `notes` の 2 つだけ**（ユーザー確定 2026-07-26）。現行仕様はテキスト列を 5 つ持っていた（略称・正式名称・説明・備考・メモ）が、MSPDI 側は `Name` と `Notes` の 2 つしかない。**`abbrev`（略称）は廃止し、アイコンに描くラベルは `Task.name` を使う**。`fullName` / `description` / `remarks` も廃止。詳細は `handover-property-mspdi-mapping-ja.md`。
 3. **Carry ストアの実装が Drop=0 の前提**。「入口で自己検証・出口で往復同一性」を CI に入れること（§5.5d）。

@@ -76,9 +76,8 @@ erDiagram
     }
     TaskVisual {
         int task_uid PK "→ Task.uid（GRS 視覚・非export・§7.3）"
-        string abbrev
-        int abbrevAnchor "null=自動/0-8"
-        string abbrevAlign "null=自動/left|center|right"
+        int nameAnchor "null=自動/0-8"
+        string nameAlign "null=自動/left|center|right"
         string iconShapeKind
         string fillColor
         string strokeColor
@@ -104,7 +103,7 @@ Task            { uid PK(=MSPDI UID), wbs_parent_uid FK→Task(null=root), wbs_o
 TaskGroup       { id(UUID), parent_id FK→TaskGroup(null=root), label, order,       // 軸B: 行の器（GRS 専用・非export・≤Lv5）
                   collapsed, color, height? }                                     //      ＋行の書式（保存・共有で再現・§4.3）
 TaskGroupMember { group_id FK→TaskGroup, task_uid FK→Task(UNIQUE), stack_order? } // 軸B: 所属＋縦積み(null=自動/値=人の指定)
-TaskVisual      { task_uid FK→Task, abbrev, abbrevAnchor, abbrevAlign, iconShapeKind, // GRS 視覚列（Task 汚染回避・非export・§7.3）
+TaskVisual      { task_uid FK→Task, nameAnchor, nameAlign, iconShapeKind, // GRS 視覚列（Task 汚染回避・非export・§7.3）
                   fillColor, strokeColor, lineWeight, importance, progressStatus }
 TaskOrigin      { task_uid FK→Task, source_project_uid, import_session_id }        // 出自（同上・マージ判定用・行なし=GRS生まれ）
 Dependency      { successor_uid+predecessor_uid PK(複合), link_type, lag, … }      // 依存エッジ（§7.4）
@@ -127,7 +126,7 @@ documentSettings{ stack_direction:up|down, zoom:{x,y} }                         
 | `TaskGroup` | **行の器**（タスクを入れる。入れ子 ≤Lv5）。**export しない** | **GRS 新設** | 軸B |
 | `TaskGroupMember` | どの Task がどの行に入るか（1 タスク 1 行）＋縦積み順 `stack_order`（null=自動） | **GRS 新設**（所属） | 軸B |
 | マルチバー | 1 行に複数 Task を横並べする**機能名**（視覚のみ・非 export） | 製品コンセプト | 軸B |
-| `TaskVisual` | GRS 固有の視覚列（略称/アイコン/色…）。Task と分離 | GRS 新設（§7.3） | — |
+| `TaskVisual` | GRS 固有の視覚列（名称ラベル位置/アイコン/色…）。Task と分離 | GRS 新設（§7.3） | — |
 | `Dependency` | 依存エッジ（task↔task）。`PredecessorLink` を Consume | MSPDI 由来（§7.4） | — |
 | `documentSettings` | 文書全体の書式（積み方向・ズーム）。保存され共有で再現 | GRS 新設 | — |
 
@@ -151,7 +150,7 @@ documentSettings{ stack_direction:up|down, zoom:{x,y} }                         
 
 **確定**: **GRS の JSON を渡せば GRS 同士で完全に同じ見た目が再現される**ことを要件とする。よって見た目に影響するものは全て文書データとして保存・共有する。
 - 行の書式 `collapsed` / `color` / `height` は **`TaskGroup` が直接持つ**（`GroupViewState` は廃止）。`TaskGroup` は元から GRS 独自で、`TaskVisual` のような「MSPDI 核を汚さないための分離」が不要なため。
-- **`height` は疎**（`null`=自動算出／値あり=所定フォーマット等で人が指定した場合のみ・**論理高さ**でズームに比例）。同様に `TaskVisual.abbrevAnchor`/`abbrevAlign` も `null`=自動配置。→ 同 §5.6
+- **`height` は疎**（`null`=自動算出／値あり=所定フォーマット等で人が指定した場合のみ・**論理高さ**でズームに比例）。同様に `TaskVisual.nameAnchor`/`nameAlign` も `null`=自動配置。→ 同 §5.6
 - 保存しないのは**見た目を構成しない一時状態**のみ（選択・ホバー・Undo 履歴）。
 - **マージ時**: 既存文書の書式・設定を維持（取込側の見た目設定は無視）。
 
@@ -307,7 +306,7 @@ documentSettings{ stack_direction:up|down, zoom:{x,y} }                         
 ※ `PercentComplete` は **Own**（÷100 して `progressRatio`・進捗の唯一の入力源）、`ActualDuration`/`RemainingDuration` は **Carry**（進行中は復元不能）。当初 Reconstruct としていたのを是正済み。
 
 **GRS 視覚は別テーブル `TaskVisual` に分離（確定）**— Task 汚染を避け、export 対象外を明確化:
-`TaskVisual { task_uid FK→Task, abbrev, iconShapeKind, color, abbrevAnchor, abbrevAlign, importance }`（`label_*` は `null`=自動の疎な上書き）。MSPDI に対応が無いため **GRS JSON にのみ存在・非 export**。命名は言霊（`kind`→`iconShapeKind` 等・item60）。
+`TaskVisual { task_uid FK→Task, iconShapeKind, color, nameAnchor, nameAlign, importance }`（`label_*` は `null`=自動の疎な上書き）。MSPDI に対応が無いため **GRS JSON にのみ存在・非 export**。命名は言霊（`kind`→`iconShapeKind` 等・item60）。
 
 ### 7.4 依存（Dependency）＝ コアドメイン自動配線
 
