@@ -10,9 +10,21 @@
 
 > ⚠️ **Carry / Drop は本 ERD に出さない**（意図的除外）。ただし Carry は「捨てた」のではなく、往復のため**別途 passthrough ストアで温存**する（詳細は `grs-mspdi-field-ledger-ja.md` §7・§8B）。Drop=0。
 
+## 引継ぎ: 4 文書の役割と読む順
+
+> **本プロジェクトは反省・引継モード**（コード/仕様書はフリーズ）。以下は次のプロジェクトへ渡す資産。
+
+| 読む順 | 文書 | 何が書いてあるか | 次プロジェクトでの使い道 |
+|:--:|---|---|---|
+| **1** | **`../vendor/mspdi-pitfalls-ja.md`** | **MSPDI 実装の落とし穴**（XSD 実測ベース） | **どんなツールを作っても効く**。設計方針に依存しない。**最優先で読む** |
+| 2 | `../vendor/mspdi-core-tree.md` / `mspdi-tables.md` | MSPDI の構造・全 29 テーブルの責務 | MSPDI 自体の理解 |
+| 3 | `grs-mspdi-field-ledger-ja.md` | **全要素の取捨選択**（Own/Consume/Reconstruct/Carry/Drop） | 「ある製品ではこう仕分けた」という実例。分類の枠組み自体が再利用できる |
+| 4 | **本書** | **GRS の構成**（ERD・責務・識別子・マージ規約） | 採用した構造。**§8F に未決事項** |
+| 5 | `grs-data-model-ja.md` §8 | **設計判断の変遷**（何を試し、なぜ変えたか） | **却下案とその理由**。同じ検討を繰り返さないため |
+
 ## 構成
 
-§1 本書の説明 → §2 GRS 概要 → §3 MSPDI から受け継ぐ範囲 → §4 GRS 構成の原則 → §5 GRS ネイティブ ERD（**5.0 何が本質か / 5.1 コア ERD〈4〉/ 5.2 全体 ERD〈11〉/ 5.3 識別子 / 5.4 マージ規約 / 5.5 資源の軽量ネイティブ化**）→ §6 ERD 要素の責務 → §7 要素別フィールド詳細 → §8 Appendix
+§1 本書の説明 → §2 GRS 概要 → §3 MSPDI から受け継ぐ範囲 → §4 GRS 構成の原則 → §5 GRS ネイティブ ERD（**5.0 何が本質か / 5.1 コア ERD〈4〉/ 5.2 全体 ERD〈12〉/ 5.3 識別子 / 5.4 マージ規約 / 5.5 資源の軽量ネイティブ化**）→ §6 ERD 要素の責務 → §7 要素別フィールド詳細 → §8 Appendix
 
 ---
 
@@ -54,10 +66,10 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 
 | MSPDI 由来                 | 受け継ぐ要素（Own/Consume/Reconstruct）                                                                                                                                                                           | 除外（Carry・別ストア）                                                                             |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Task                       | UID/Name/Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes/Stop/Resume（Own）、OutlineLevel/CalendarUID/PredecessorLink（Consume）、ID/OutlineNumber/Summary/Duration/PercentComplete（Reconstruct） | 制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素、ActualDuration/RemainingDuration |
+| Task                       | UID/Name/Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes/Stop/Resume/**PercentComplete→progressRatio**（Own）、OutlineLevel/CalendarUID/PredecessorLink（Consume）、ID/OutlineNumber/Summary/Duration（Reconstruct） | 制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素、ActualDuration/RemainingDuration |
 | PredecessorLink            | PredecessorUID/Type/LinkLag/LagFormat（Consume）                                                                                                                                                                  | CrossProject/CrossProjectName                                                                       |
 | Project                    | 識別/文書/期間/換算（Own）、CalendarUID（Consume）、FinishDate（Reconstruct）                                                                                                                                     | 通貨/既定/計算/Move/EV/会計/時刻（37）＋**ScheduleFromStart/CurrentDate/サーバ管理4**（§5.6 で降格） |
-| Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/BaseCalendarUID/DayType/DayWorking/例外日（Own/Consume）                                                                                                                                  | WorkingTime/WorkWeek/繰返し詳細                                                                     |
+| Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/BaseCalendarUID/DayType(1-7)/DayWorking/例外日（Own/Consume）                                                                                                                                  | WorkingTime/WorkWeek/繰返し詳細/**DayType=0＋TimePeriod(2003形式)**                                  |
 | Resource                   | `UID`/`Name`/`Type`（Own）、`CalendarUID`（Consume）                                                                                                                                                              | 他全列（工数/コスト/EVM/enterprise/子要素）                                                         |
 | Assignment                 | `UID`（Own）、`TaskUID`/`ResourceUID`（Consume）                                                                                                                                                                  | 他全列（`Units`/工数/コスト/EVM/201予約枠/子要素）                                                  |
 
@@ -77,13 +89,13 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 5. **Carry は本 ERD 外**: passthrough ストアで温存（往復専用・GRS は解釈しない）。
 6. **依存の向き**: GRS 追加（TaskGroup/TaskVisual）→ Task。逆流させない（Task 無汚染）。
 7. **自動算出できるものは保存しない**（§5.6）: 自動配線の経路・LOD の見え方など、エンジンが毎回決めるものはデータに持たない。
-8. **見た目に影響するものは全て保存・共有する**（§5.7）: GRS の JSON を渡せば GRS 同士で**完全に同じ見た目**が再現される。
+8. **見た目に影響するものは全て保存・共有する**（§5.7）: GRS の JSON を渡せば GRS 同士で同じ見た目が再現されることを**目標**とする（**Step2/3 で達成**。本書 Step1 の範囲では未達）。
 
 ---
 
 ## 5. GRS ネイティブ ERD
 
-全 11 エンティティを一度に見ると読み取りづらいため、**§5.1 コア（4）**と**§5.2 全体（11）**の 2 段で示す。§5.1 がモデルの本質、§5.2 が実装の全体像。
+全 12 エンティティを一度に見ると読み取りづらいため、**§5.1 コア（4）**と**§5.2 全体（12）**の 2 段で示す。§5.1 がモデルの本質、§5.2 が実装の全体像。
 
 ### 5.0 何が本質か（レイヤ分け）
 
@@ -98,8 +110,9 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 | 暦クラスタ     | `Calendar` / `WeekDay` / `Exception`                |   ○   | 稼働日・祝日のグレー表示と期間換算。**外しても日程の構造は成立**（描画が退化するだけ）。                        |
 | 資源（軽量）   | `Resource` / `Assignment`                           |   ○   | **担当者名の表示**のみを担う軽量層（§5.5）。外すと担当者が出ないだけで日程の構造は成立。                        |
 | 視覚           | `TaskVisual`                                        |   △   | MSPDI 由来の `Task` を汚さないために分離した**非 export の視覚列**。Task に 0..1 でぶら下がるだけ。              |
+| 出自（マージ用） | `TaskOrigin`                                      |   △   | **同じ理由で Task から分離**した非 export の出自メモ。マージの既定判定にのみ使う（§5.4）。                       |
 
-→ **コア 4 つ（Task / TaskGroup / TaskGroupMember / Dependency）が本質**。残り 7 は「器・暦・資源・見た目」で、**外してもモデルは壊れない**。
+→ **コア 4 つ（Task / TaskGroup / TaskGroupMember / Dependency）が本質**。残り 8 は「器・暦・資源・見た目」で、**外してもモデルは壊れない**。
 
 ### 5.1 コア ERD（本質 4 エンティティ）
 
@@ -138,11 +151,12 @@ erDiagram
     TaskGroupMember {
         string group_id FK "‼️ → TaskGroup"
         int task_uid FK "‼️ → Task.uid（UNIQUE）"
+        int stack_order "‼️ null=自動 / 値=人の指定（疎な上書き）"
     }
     Dependency {
         int successor_uid PK "← 親Task（複合PK・後続）"
         int predecessor_uid PK "← PredecessorUID（複合PK・先行）"
-        int link_type "0FF/1FS/2SF/3SS"
+        int link_type PK "← Type（複合PK・0FF/1FS/2SF/3SS）"
         int lag "1/10分"
     }
 ```
@@ -160,7 +174,7 @@ erDiagram
 MSPDI 由来（Own/Consume）に GRS 追加（マルチバー・視覚・依存線経路）を重ねた **GRS の実構造**。各列に MSPDI 由来を注記（`← 元要素`）。GRS 追加は「GRS新設」。
 
 > **凡例**: **‼️ = MSPDI に対応が無い GRS 新設**（テーブル/カラム）。`← 元要素` = MSPDI 由来（Own/Consume）。
-> **‼️ テーブル（3）**: `TaskGroup` / `TaskGroupMember` / `TaskVisual`（Mermaid の制約上、**全カラムとリレーション線ラベルに ‼️**）。
+> **‼️ テーブル（4）**: `TaskGroup` / `TaskGroupMember` / `TaskVisual` / `TaskOrigin`（Mermaid の制約上、**全カラムとリレーション線ラベルに ‼️**）。
 
 ```mermaid
 erDiagram
@@ -171,8 +185,8 @@ erDiagram
     Project ||--o{ TaskGroup : "‼️ taskGroups"
     Project }o--o| Calendar : "calendar_id(既定暦)"
 
-    Assignment }o--|| Task : "task_uid"
-    Assignment }o--o| Resource : "resource_uid(-1=未割当)"
+    Assignment }o--o| Task : "task_uid(minOccurs=0)"
+    Assignment }o--o| Resource : "resource_uid(未割当あり)"
     Resource }o--o| Calendar : "calendar_id"
 
     Task ||--o{ Task : "wbs_parent_uid(軸A ≤Lv5)"
@@ -180,6 +194,7 @@ erDiagram
     Task ||--o{ Dependency : "successor_uid"
     Task ||--o{ Dependency : "predecessor_uid"
     Task ||--o| TaskVisual : "‼️ task_uid"
+    Task ||--o| TaskOrigin : "‼️ task_uid(出自)"
     Task ||--o| TaskGroupMember : "‼️ task_uid(0..1)"
 
     TaskGroup ||--o{ TaskGroup : "‼️ parent_id(軸B ≤Lv5)"
@@ -190,7 +205,9 @@ erDiagram
     Calendar ||--o{ Exception : "exceptions"
 
     Project {
-        string id PK "← Project.UID(Own)"
+        string id PK "← Project.UID(Own・≤16文字・省略可)"
+        string schema_version "‼️ GRS スキーマ版（移行判別）"
+        int uid_high_water_mark "‼️ 削除済み含む最大UID（単調増加採番）"
         string name "← Name(Own)"
         string title "← Title(Own)"
         int revision "← Revision(Own)"
@@ -221,7 +238,7 @@ erDiagram
     Dependency {
         int successor_uid PK "← 親Task(複合PK・後続)"
         int predecessor_uid PK "← PredecessorUID(複合PK・先行)"
-        int link_type "← Type(0FF/1FS/2SF/3SS)"
+        int link_type PK "← Type(複合PK・0FF/1FS/2SF/3SS)"
         int lag "← LinkLag(1/10分)"
         int lag_format "← LagFormat"
     }
@@ -240,10 +257,10 @@ erDiagram
     Assignment {
         int uid PK "← Assignment.UID(Own)"
         int task_uid FK "← TaskUID(Consume)"
-        int resource_uid FK "← ResourceUID(Consume・-1=未割当)"
+        int resource_uid FK "← ResourceUID(Consume・null=未割当)"
     }
     WeekDay {
-        int day_type "← DayType(Own・0例外,1日..7土)"
+        int day_type "← DayType(Own・1日..7土。0=例外は不採用)"
         bool day_working "← DayWorking(Own)"
     }
     Exception {
@@ -264,6 +281,12 @@ erDiagram
     TaskGroupMember {
         string group_id FK "‼️ → TaskGroup"
         int task_uid FK "‼️ → Task.uid(UNIQUE=1タスク1行)"
+        int stack_order "‼️ null=自動 / 値=人の指定(疎な上書き)"
+    }
+    TaskOrigin {
+        int task_uid PK "‼️ → Task.uid"
+        string source_project_uid "‼️ 取込元マスタのProject.UID"
+        string import_session_id "‼️ Project.UID 省略時の代替出自"
     }
     TaskVisual {
         int task_uid PK "‼️ → Task.uid"
@@ -284,18 +307,29 @@ erDiagram
 
 | エンティティ | PK | 代理キー |
 |---|---|:--:|
-| `Task` | `uid`（= MSPDI `Task.UID`） | 無し |
+| `Task` | `uid`（= MSPDI `Task.UID`・**高水位で単調増加採番**） | 無し（**出自は `TaskOrigin` に分離**・§5.3） |
+| `TaskOrigin` ‼️ | `task_uid`（→ Task.uid） | — GRS 新設（出自メモ） |
 | `Project` | `id`（= `Project.UID`） | 無し |
 | `Calendar` | `id`（= `Calendar.UID`） | 無し |
 | `Resource` | `uid`（= `Resource.UID`） | 無し |
 | `Assignment` | `uid`（= `Assignment.UID`） | 無し |
-| `Dependency` | **複合** (`successor_uid`, `predecessor_uid`) | 無し（MSPDI に UID が無い＝自然キー） |
+| `Dependency` | **複合** (`successor_uid`, `predecessor_uid`, **`link_type`**) | 無し（**MSPDI は依存線に ID を振らない**＝自然キー。XSD 実測: `PredecessorLink` の子は `PredecessorUID`/`Type`/`CrossProject`/`CrossProjectName`/`LinkLag`/`LagFormat` のみ） |
 | `WeekDay` / `Exception` | 親＋位置（弱エンティティ） | 無し |
 | `TaskGroup` ‼️ | `id`（UUID） | — GRS 新設テーブルのため独自 ID が必要 |
 
 **なぜ代理キーが不要か**: マージ時の UID 衝突は**取込時の 3 択（§5.4）で解消**されるため、文書内で UID は常に一意。したがって複合キー（`source_id`+`uid`）も UUID も要らない。
 
-**新規作成タスクの UID**: GRS で新規作成した Task には `max(uid)+1` を採番（MSPDI と同じ整数空間）。
+**新規作成タスクの UID（確定・案A）**: **`uid_high_water_mark + 1`** を採番する。**`max(uid)+1` は使わない**。
+
+> ⚠️ **なぜ `max+1` が危険か**: 削除で最大値が下がると **UID が再利用**される。「uid=100 を削除 → 新規作成で 100 が再採番 → 同一マスタを再取込（既定=上書き）」で、**マスタの task 100 が GRS 生まれの無関係タスクを上書き**する。逆に export すれば **iQUAVIS 側の task 100 を別物で潰す**。よって文書に **`uid_high_water_mark`（削除済みを含む最大値）** を持ち、**単調増加**で採番する。Undo でも高水位は巻き戻さない（§5.4）。
+
+**出自の保持（確定・案A ＋ B-1）**: **`TaskOrigin{ task_uid, source_project_uid, import_session_id }`** に保持する（**`Task` には置かない**）。
+
+> **なぜ別テーブルか（B-1）**: §4 原則 6「GRS 由来を Task に逆流させない（Task 無汚染）」に従う。`TaskVisual` を分離したのと同じ基準。これにより **`Task` = MSPDI Own のみ**という不変条件が保たれ、export は「Task の全列をそのまま書く」で済む（除外リストが不要＝除外漏れバグが構造的に起きない）。
+>
+> **3 状態を表す**: ①**マスタ由来**＝該当行あり・`source_project_uid` に値 ②**GRS 生まれ**＝**行なし** ③**出自不明**（MSPDI が `Project.UID` を省略した場合。XSD 上 `minOccurs=0`）＝行あり・`source_project_uid` は null で `import_session_id` に取込セッション ID。③は**既定を「別 UID」（安全側）にフォールバック**する。
+
+> ⚠️ **なぜ必要か**: マージの既定判定（§5.4 C-1）は「取込側 `Project.UID` と**既存の出自**の比較」で決まるが、`Project` は文書に 1 個しか無いため、**2 つ目以降のマスタの出自が失われる**。出自が無いと「マスタB を再取込」した時に毎回「別マスタ」と誤判定し、**取り込むたびにタスクが無限に複製**される。また「別マスタ×上書き」の警告も計算できない。**この列は代理キーではなく出自メモ**（PK は `uid` のまま）。
 
 ### 5.4 マージ規約（複数 MSPDI の取込）
 
@@ -317,7 +351,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | 選択 | 動作 | UID | 元ソースへの往復 |
 |---|---|---|---|
 | 1. 上書き | 既存タスクを取込側の内容で置換 | 既存 UID を維持 | ○ 保たれる |
-| 2. 別 UID でインポート | 別タスクとして追加 | **新規採番**（`max+1`） | **✗ 諦める（C-3 確定）** |
+| 2. 別 UID でインポート | 別タスクとして追加 | **新規採番**（`uid_high_water_mark + 1`） | **✗ 諦める（C-3 確定）** |
 | 3. キャンセル | MSPDI 読込を中止（何も変更しない） | — | — |
 
 > **C-3 確定**: 選択 2 で UID を振り直したタスクは、**元ソース（iQUAVIS 等）への往復を諦める**。元 UID は保全しない（`source_uid` 列を持たない）。振り直し後の export は「新しいタスク」として出る。UI で**この旨を明示して選択させる**こと。
@@ -330,12 +364,24 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | 2. 既存を保持 | 既存 Project メタを維持（タスクのみ取込） |
 | 3. キャンセル | MSPDI 読込を中止 |
 
-**暦・資源の重複（C-5 確定）**: ダイアログは上記 2 つのみ（増やさない）。取込側の重複は自動処理する。
+**暦・資源・割当の重複（C-5 確定＋衝突規則）**: ダイアログは上記 2 つのみ（増やさない）。取込側の重複・衝突は自動処理する。
 
-| 対象 | 重複時の扱い |
+| 対象 | 重複・衝突時の扱い |
 |---|---|
-| `Calendar` | **内容一致（名前＋稼働曜日＋祝日が同じ）なら自動統合**。不一致なら再採番＋名前に接尾辞。 |
-| `Resource` | **同名なら自動統合**（担当者が二重に出ないため）。 |
+| `Calendar` | **内容一致（名前＋稼働曜日＋祝日が同じ）なら自動統合**。不一致で UID 衝突なら**再採番**＋名前に接尾辞。 |
+| `Resource` | **`Name` が非空かつ完全一致（NFKC 正規化＋trim 後）なら自動統合**。名前なし・不一致で UID 衝突なら**再採番**。 |
+| `Assignment` | 自然キー (`task_uid`, `resource_uid`) が一致すれば同一とみなし統合。UID 衝突は**再採番**。 |
+| `Task` 以外の全 UID | **衝突したら必ず再採番**（`uid_high_water_mark` 方式で単調増加）。無規則の衝突を残さない。 |
+
+> ⚠️ **なぜ必要か**: ダイアログは Task と Project メタしか扱わない。`Assignment` の UID は MSPDI が 1 から採番するのが普通なので**2 ファイル目で必ず衝突**する。`Resource` も「同名でない」ケース（A の 1=佐藤 / B の 1=田中）は統合ルールに該当せず未定義だった。規則が無いと **PK 重複**が起き、代理キー廃止の前提が崩れる。
+
+**取込のアトミック性（確定）**: **取込は全か無かのトランザクション**とする。衝突検出・自動統合の判定は**全てドライラン**で行い、ユーザーが決定した後に一括適用する。
+
+> ⚠️ **なぜ必要か**: 素直に「Calendar 統合 → Resource 統合 → Task 衝突検出 → ダイアログ」の順で実装すると、**キャンセル時点で暦と資源は既に統合・再採番済み**になり「3. キャンセル＝何も変更しない」が嘘になる。Undo の 1 単位も**取込全体**とする。`uid_high_water_mark` は Undo でも巻き戻さない（巻き戻すと **Undo 後に新規作成した Task の UID が、Redo で戻る UID と衝突する**ため）。localStorage 自動保存は**取込トランザクション完了後にのみ**発火させる。
+
+**マージ時の Carry 欠落（明示許容）**: Project メタ「既存を保持」や Calendar/Resource の自動統合を選ぶと、**取込側の Carry（通貨・計算オプション・単価表・勤務時刻等）は破棄される**。
+
+> ⚠️ **Drop=0 の適用範囲**: 「Drop=0・往復無損失」は **単一 MSPDI の未編集往復に限る**。**マージを行った時点で取込側 Carry の欠落が発生しうる**（明示的に許容する）。→ §8D にも記載。
 
 **UID 参照は自動追従（C-4 確定）**: §5.5 の不変条件により、UID を振り直しても全参照が構造的に追従する。**UID 再マップ表は不要**（当初案を廃止）。
 
@@ -364,6 +410,49 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 → **Carry の中に UID 参照は 1 つも残らない**（Carry ＝ 参照を持たない不透明な値の塊）。
 → **UID を振り直しても全参照が自動追従**するため、C-4/C-5 で検討した「UID 再マップ表」は**不要**。passthrough の実装も単純化する。
 
+### 5.5b 例外日（祝日）の表現を `Exception` に一本化（確定）
+
+MSPDI は非稼働日を **2 系統**で表現できる。GRS は**新形式に一本化**する。
+
+| 系統 | 内容 | GRS の扱い |
+|---|---|---|
+| `WeekDay.DayType` **1-7**（日〜土）＋`DayWorking` | **曜日の繰り返し**（土日は非稼働 等） | **採用（Own）** |
+| `WeekDay.DayType` **0**（例外日）＋`TimePeriod` | **旧形式（Project 2003）の例外日レンジ** | **不採用**。解釈しない → **Carry で温存**（往復は壊さない） |
+| `Exceptions/Exception`（`Name`/`TimePeriod`/`DayWorking`） | **新形式（2007）の例外日**（祝日名つき） | **採用（Own）** |
+| **`Exception.Type`**（1-9） | **繰返し種別**。`TimePeriod` の意味を決める | **Consume（必須）**。下記の判定に使う |
+| `Exception` の繰返し詳細（`Period`/`DaysOfWeek`/`MonthItem`/`MonthPosition`/`Month`/`MonthDay`/`Occurrences`/`EnteredByOccurrences`） | 繰返しの詳細パラメータ | **不採用（Carry）** |
+
+- **MSPDI に祝日マスタは無い**。祝日は `Calendar` ごとに `Exception` を並べて表現する（日本の祝日なら「元日」「成人の日」…が 1 件ずつ）。
+- **export**: GRS が理解する非稼働日は **`Exception` 形式で書く**。旧形式で入ってきたものは Carry から原形を書き戻す。
+**⚠️ `Type` を必ず読む理由（重大）**: `Exception/TimePeriod` は **`Type` と組で読む前提**の要素で、繰返しがある場合は「1 日」ではなく**繰返しの適用範囲**を表す。
+
+```
+XSD: TimePeriod = "Defines a contiguous set of exception days"
+     Occurrences = "The number of occurrences for which the calendar exception is valid"
+
+元日を Type=2(毎年・日付指定), From=2020-01-01, To=2030-12-31, Occurrences=11 と書いたファイル
+  Type を読まない場合 → 「2020〜2030 の 11 年間が非稼働」と誤解釈 → 全期間グレー ✗
+```
+
+| `Type` | 判定 | GRS の扱い |
+|---|---|---|
+| 欠落 または `9`（No exception type） | 繰返しなし | **`TimePeriod` を実日付の非稼働レンジとして採用**（Own） |
+| `1`〜`8`（Daily/Yearly/Monthly/Weekly/…） | 繰返しあり | **`TimePeriod` を非稼働レンジとして採用しない**。要素まるごと Carry ＋「繰返し祝日は未対応」の警告を出す |
+
+- ⚠️ **既知の割り切り**: 繰返し祝日（`Type` 1-8）は MVP で**グレー表示されない**（警告で明示）。展開器（`Type=2/4/6` の 3 種）の実装は Step2/3 で再評価。
+
+### 5.5c 削除時の連鎖（cascade・確定）
+
+`Task` を削除したとき、それを参照する行を残すと**存在しないタスクを指す MSPDI** を出力してしまう。
+
+| 削除対象 | 連鎖して削除するもの | 通知 |
+|---|---|---|
+| `Task` | `TaskVisual` / `TaskGroupMember` / 当該 Task を端点とする `Dependency` / `task_uid` が一致する `Assignment` | 削除件数をトーストで通知 |
+| `TaskGroup` | 配下の `TaskGroupMember`（Task 自体は削除しない＝器から出るだけ） | — |
+| `Resource` | `resource_uid` が一致する `Assignment` | 同上 |
+
+> ⚠️ **Carry との関係**: `Assignment` を連鎖削除すると、その Carry（`Units`・工数・コスト・201 予約枠）も消える。これは**ユーザーがタスクを削除した結果**なので「未編集往復は無損失」の前提は破らないが、**消えたことを通知する**こと。
+
 ### 5.6 「自動算出できるものは保存しない」原則と無駄の監査
 
 **原則**: エンジンが毎回決められるもの（自動配線の経路・派生値）は**データとして持たない**。保存すると「保存値 vs 再計算結果」のドリフトが生まれ、実装もマージも複雑になる。§4 の `Reconstruct は非保存` を視覚層にも適用する。
@@ -380,7 +469,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | サーバ管理4（`MicrosoftProjectServerURL` `ProjectExternallyEdited` `ActualsInSync` `AdminProject`） | **無駄** | **Own(暫定) → Carry**。MVP にサーバ連携が無く GRS は解釈しない。将来必要になった時に格上げ |
 | `Task.calendar_id` / `Resource.calendar_id` | 構造上必要 | 保持。GRS は既定暦で描画し**個別暦は現状未使用**だが、**Carry に UID 参照を残さない**不変条件（§5.5）のため Consume で保持 |
 | `Dependency.lag_format` | 構造上必要 | 保持。ラグの表示単位は GRS 非表示だが、忠実な書き戻しのため Consume で保持 |
-| `TaskGroupMember.stack_order` | **無駄** | **削除**。縦積みは**全自動**（開始日順＋全体オプションの向き）。人は個別に入れ替えない → 毎回算出 |
+| `TaskGroupMember.stack_order` | **保持（疎）・復活** | 当初「全自動だから削除」としたが、**ALIGN-L2-004/L1-001/L2-001（承認済み Must）が縦位置の意図を要求**するため復活。`null`=自動 / 値=人の指定 |
 | `TaskVisual.label_anchor` / `label_align` | 保持（疎） | **原則自動配置。人が動かした時だけ値を持つ**（`null`=自動）。9点アンカー＋左/中央/右詰め |
 | `TaskGroup.height` | 保持（疎） | **原則自動。所定フォーマットに合わせて人が指定した時だけ値を持つ**（`null`=自動）。→ 疎な上書きパターン |
 | `TaskVisual.abbrev` / `color` / `icon_shape_kind` / `importance` | 妥当 | いずれもユーザーの意思（略称・色・形・重要度）で算出不能。保持 |
@@ -389,7 +478,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | `TaskGroup.order` / `Task.wbs_order` | 妥当 | 並び順はユーザーの意思。算出不能。保持 |
 | `GroupViewState` 全体 | **無駄** | **削除**。`TaskGroup` は元から GRS 独自で「MSPDI 核を汚さないための分離」が不要 → 書式 3 列を `TaskGroup` に畳み込み（§5.7） |
 
-**疎な上書きパターン（確定）**: 「原則自動・人が触る場合あり」の列は、**全件保存せず `null`=自動 / 値あり=人の上書き**とする。既定は常にエンジンが算出し、上書きは例外として少数だけ保存される。該当: `TaskVisual.label_anchor`/`label_align`、`TaskGroup.height`。
+**疎な上書きパターン（確定）**: 「原則自動・人が触る場合あり」の列は、**全件保存せず `null`=自動 / 値あり=人の上書き**とする。既定は常にエンジンが算出し、上書きは例外として少数だけ保存される。該当: `TaskVisual.label_anchor`/`label_align`、`TaskGroup.height`、`TaskGroupMember.stack_order`。
 
 > **注**: `DependencyRoute` はこのパターンにも該当しない（**人が一切触らない**ため、上書きの余地がなく全削除）。
 
@@ -401,14 +490,30 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 
 > **文書設定に置く理由**: JSON を共有した相手にも**同じ見た目が再現される**必要があるため（§5.7）。ズーム（縦/横）も同じ理由で文書設定に置く。
 
+**WBS 深さクランプと export（C-06 是正・確定）**
+
+import で 6 段以上の WBS を **Lv5 にクランプ**する（`grs-data-model-ja.md` §4.6）が、**クランプ後の木から `OutlineLevel` を再生成して export すると、ユーザーが WBS を一切編集していなくても iQUAVIS のマスタ構造が破壊される**（6-7 段目が 5 段目にフラット化される）。§6 の原則「視覚操作では WBS を変えない」に反する。
+
+| 対策 | 内容 |
+|---|---|
+| **原 `OutlineLevel` を Carry に退避** | クランプしたタスクは元の値を温存し、**WBS 未編集なら export で復元**する（クランプは**表示だけ**の措置にする） |
+| **明示編集した枝のみ再生成** | ユーザーが indent/outdent/親変更した枝だけ、クランプ後の木から `OutlineLevel` を再生成する |
+| **6 段以上を含む文書は export 時に警告** | 「深さクランプが適用されている」ことを明示し、続行の確認を取る |
+
 **縦積み順の算出規則（決定的・確定）**
 
 ```
-1. start 昇順（開始が早いバーが先）
-2. 同着なら finish 降順（長いバーが先）
-3. なお同着なら uid 昇順（uid は必ず一意 → 完全に決定的）
-→ 得られた順序を stack_direction（up/down）の向きに積む
+0. stack_order（人の指定）がある member は、その値の位置に固定する ← 疎な上書き
+1. milestone を最上段側へ優先（ALIGN-L2-004: 最上段=マイルストーン・下から上）
+2. start 昇順（開始が早いバーが先）
+3. 同着なら finish 降順（長いバーが先）
+4. なお同着なら uid 昇順（uid は必ず一意 → 完全に決定的）
 ```
+
+> ⚠️ **ALIGN-L2-004（承認済み Must）との整合**: 同要求は「サブレーン割当順を**下から上**・**最上段にマイルストーン**」と規定する。したがって:
+> - 規則 1（milestone 優先）は**必須**。start/finish だけの規則では要求を満たせない。
+> - **`stack_direction` は ALIGN-L2-004 と矛盾する**（同要求は「下から上」に固定）。→ **要 change-manager**（要求改訂か本設定の撤回かの判断）。それまで既定 `up` は ALIGN-L2-004 と一致する側なので実害はない。
+> - **`stack_order`（疎な上書き）が必要な理由**: ALIGN-L1-001（同種マイルストーンを同じ高さに）/ ALIGN-L2-001（共有ベースラインへスナップ）は**ユーザーが指定した縦位置の意図**を前提とする。自動規則だけでは保存先が無く再現できない。また `uid` タイブレークはマージの再採番で**見た目が変わる**ため、人の指定を残す必要がある。
 
 > **決定的であることが必須**: 順序が実行ごとに変われば描画が揺れ、SVG 出力の再現性も失われる。`uid` 昇順の最終タイブレークで**必ず一意に定まる**。
 
@@ -422,9 +527,21 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 
 > **ピクセル座標で保存しない理由**: GRS は**縦横独立ズーム**のため、絶対座標だとズームで位置がずれる。ラベルは離散アンカー＋整列、行高は論理値（ズーム比例）とすることでズームに追従する。
 
-### 5.7 JSON = 見た目の完全再現（確定）
+### 5.7 JSON = 見た目の再現（Step2/3 の目標）
 
-**原則: GRS の JSON を渡せば、GRS 同士なら完全に同じ見た目が再現されること。**
+**目標: GRS の JSON を渡せば、GRS 同士なら完全に同じ見た目が再現されること。**
+
+> ⚠️ **これは Step2/Step3 で達成する目標であり、本書（Step1）の現状ではまだ達成していない。**
+>
+> | Step | 内容 | 本書の関与 |
+> |---|---|:--:|
+> | **Step1** | **MSPDI の import/export 仕様を決める**（＝本書の範囲） | **本書** |
+> | Step2 | GRS のコア仕様を決める | 次段 |
+> | Step3 | 細かい仕様を決める（`viewState` 全項目・`sections[]`・`annotations[]` 等の取り込み） | 次段 |
+>
+> **本書の適用範囲は「MSPDI 交換に関わる中核モデル」に限る**。承認済み `40-data-format.sdoc` が持つ `viewState` 15 項目（`planActualDisplay`/`planActualStyle`/`fontScale`/`watermark`/`activeLocale`/`themePreference`/`scrollX,Y`/`leftPaneWidth` 等）、`sections[]`、`annotations[]`、`classificationNodeStates[]`、item 側の `strokeColor`/`fillColor`/`lineWeight`/`labelOffset`/`milestoneShape`/`taskShape` は **Step2/3 で取り込む**（現時点では未取込＝本書は見た目の正準ではない）。
+>
+> **原理的な限界も併記する**: 今日線は実行時のシステム日付、LOD はビューポート寸法、ラベル衝突回避はフォント計測に依存する。したがって最終的な主張は「**同一ビューポート・同一フォント環境・同一基準日において、描画は JSON のみから決定的に定まる**」に留める。
 
 したがって「**見た目に影響するものは全て文書データとして保存・共有する**」。一時的な UI 状態として切り離してよいのは、見た目を構成しない操作中の状態（選択・ホバー・Undo 履歴）だけ。
 
@@ -450,7 +567,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | ---------------------- | :--------: | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | **Task**               |  **コア**  | MSPDI-Own 継承                   | 日程要素（スパン/◆マイルストーン）の本体。予定・実績・中断の日付、WBS 親（軸A）、暦参照を持つ。MSPDI Task を無汚染で継承。 |
 | **TaskGroup** ‼️       |  **コア**  | GRS 新設                         | **マルチバー行の器**＋見出し階層（≤Lv5）＋**行の書式**（折畳/色/行高）。GRS 専用・**非 export**・保存され共有で再現。       |
-| **TaskGroupMember** ‼️ |  **コア**  | GRS 新設                         | どの Task がどの行に載るか。**1 タスクは高々 1 行**（task_uid UNIQUE）。**縦積み順は持たない**（自動算出・§5.6）。         |
+| **TaskGroupMember** ‼️ |  **コア**  | GRS 新設                         | どの Task がどの行に載るか＋**縦積み順 `stack_order`（null=自動 / 値=人の指定）**。**1 タスクは高々 1 行**（task_uid UNIQUE）。 |
 | **Dependency**         |  **コア**  | MSPDI-Consume（PredecessorLink） | タスク間依存エッジ（先行/後続/種別 FF-SS/ラグ）。**線の幾何は保存しない**（毎回自動配線で算出・§5.6）。          |
 | **Project**            | ルートメタ | MSPDI-Own                        | ルート。文書メタ＋期間/換算＋全コレクション＋既定暦参照を保持する 1 個の器。                                               |
 | **Calendar**           |     暦     | MSPDI-Own                        | 稼働/非稼働暦。稼働日粒度の描画・期間換算の基盤。派生暦を自己参照。                                                        |
@@ -459,9 +576,10 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | **Resource**           | 資源(軽量) | MSPDI-Own（4列のみ）             | 人/設備等。**担当者名の表示元**（`name`）。工数・コスト・平準化は持たない（Carry）。→ §5.5                                 |
 | **Assignment**         | 資源(軽量) | MSPDI-Consume（3列のみ）         | Task×Resource の割当リンク。**どのバーに誰が付くか**だけを表す。割当率・工数・コストは持たない（Carry）。→ §5.5            |
 | **TaskVisual** ‼️      |    視覚    | GRS 新設                         | GRS 固有の視覚属性（略称/アイコン形/色/ラベル位置/重要度）。Task 汚染を避けて分離。非 export。                             |
+| **TaskOrigin** ‼️      |    出自    | GRS 新設                         | そのタスクがどのマスタ由来かを保持（マージの既定判定・§5.4）。**同じく Task 汚染を避けて分離**。非 export。                |
 
-> **層**: コア（4）＝これが無いとモデルが成立しない（§5.0）。ルートメタ／暦／資源／視覚（7）＝外しても構造は壊れない付随層。
-> **‼️**（5 テーブル）= MSPDI に対応が無い GRS 新設。**すべて非 export**（export 時に落とす）。MSPDI 由来テーブルには **GRS 独自の代理キーを一切追加しない**（UID をそのまま PK に使う・§5.3）。
+> **層**: コア（4）＝これが無いとモデルが成立しない（§5.0）。ルートメタ／暦／資源／視覚／出自（8）＝外しても構造は壊れない付随層。
+> **‼️**（4 テーブル）= MSPDI に対応が無い GRS 新設。**すべて非 export**（export 時に落とす）。MSPDI 由来テーブルには **GRS 独自の代理キーを一切追加しない**（UID をそのまま PK に使う・§5.3）。
 
 ---
 
@@ -473,7 +591,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 
 | 列                             | 由来                           | 責務                                                               |
 | ------------------------------ | ------------------------------ | ------------------------------------------------------------------ |
-| `uid` **PK**                   | Own(←UID)                      | **識別子**。代理キーを持たない（§5.3）。往復キーとして不変保持し iQUAVIS の UID 照合に使う。文書内一意（衝突は取込時に解消・§5.4）。新規作成時は `max(uid)+1`。 |
+| `uid` **PK**                   | Own(←UID)                      | **識別子**。代理キーを持たない（§5.3）。往復キーとして不変保持し iQUAVIS の UID 照合に使う。文書内一意（衝突は取込時に解消・§5.4）。新規作成時は **`uid_high_water_mark + 1`**（`max(uid)+1` は UID 再利用が起きるため使わない・§5.3）。 |
 | `wbs_parent_uid`               | Consume(←OutlineLevel＋順序)   | WBS 親（軸A・null=root・≤Lv5）。明示的 WBS 編集で伝播。            |
 | `wbs_order`                    | Consume                        | 兄弟内の順序（OutlineNumber の順序成分）。                         |
 | `name`                         | Own(←Name)                     | タスク名（バーのラベル）。                                         |
@@ -492,20 +610,33 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | --------------------- | ------------------------ | ------------------------------------------------------ |
 | `successor_uid` **PK** | Consume(←親 Task)       | 後続タスク端点（MSPDI では後続 Task が Link を内包）。**複合 PK の一部**（代理キーなし・§5.3）。 |
 | `predecessor_uid` **PK** | Consume(←PredecessorUID) | 先行タスク端点。**複合 PK の一部**。                 |
-| `link_type`           | Consume(←Type)           | 依存種別 0=FF/1=FS/2=SF/3=SS。                         |
+| `link_type` **PK**    | Consume(←Type)           | 依存種別 0=FF/1=FS/2=SF/3=SS。**複合 PK の一部**（同一ペアに種別違いの依存を 2 本張れるため。同一ペア・同一種別の重複は意味を持たないので序数は不要）。 |
 | `lag`                 | Consume(←LinkLag)        | リード/ラグ（1/10 分・負=リード）。                    |
 | `lag_format`          | Consume(←LagFormat)      | ラグの表示単位。                                       |
+
+**依存の異常系（確定・Drop を出さないための規約）**
+
+| ケース | XSD 上の妥当性 | GRS の扱い |
+|---|---|---|
+| **同一ペア・同一 `Type` の重複リンク** | **妥当**（`xsd:unique`/`key`/`keyref` は XSD 全体で **0 件**、`PredecessorLink` は `maxOccurs="unbounded"`） | 1 本目を `Dependency` 化し、**2 本目以降は要素まるごと Carry へ退避**（警告）。複合 PK を保ったまま損失ゼロにする |
+| **`Type` 欠落**（`minOccurs=0`） | 妥当 | **FS(=1) に正規化**して PK を成立させ、**「欠落」だった事実は Carry に原形保持**（export で復元） |
+| **`PredecessorUID` 欠落**（`minOccurs=0`） | 妥当 | `Dependency` 化せず**要素まるごと Carry** |
+| **`CrossProject=1` / 文書内に存在しない `PredecessorUID`** | 妥当 | `Dependency` 化せず**要素まるごと Carry**。ネイティブに入れると、マージの再採番で**無関係な Task へ張り替わる**（外部 UID がローカル UID と偶然一致する） |
+
+> **不変条件（追加）**: **ネイティブの `Dependency` が持つ UID は、必ず文書内の `Task.uid` で解決できる**こと。import バリデータで強制する。
 
 ### 7.3 Project
 
 | 列                                                                                 | 由来                  | 責務                                          |
 | ---------------------------------------------------------------------------------- | --------------------- | --------------------------------------------- |
-| `id`                                                                               | Own(←UID)             | プロジェクト識別（GUID）。                    |
+| `id`                                                                               | Own(←UID)             | プロジェクト識別。**GUID ではない**（XSD: `xsd:string` maxLength=**16**・`minOccurs=0`＝**省略可**）。省略時は GRS が取込セッション ID を発番して出自に充てる（外部 UID ではないので export しない）。 |
 | `name` `title` `subject` `category` `company` `manager` `author`                   | Own                   | 文書メタ（ヘッダ表示・透かし）。              |
 | `revision` `created` `last_saved`                                                  | Own                   | 版・来歴。                                    |
 | `start_date` `status_date`                                                         | Own                   | 全体開始 / 予実基準日（イナズマ線）。         |
 | `minutes_per_day` `minutes_per_week` `days_per_month` `week_start_day`             | Own                   | 期間換算・週開始（Duration 解釈に必須）。     |
 | `calendar_id`                                                                      | Consume(←CalendarUID) | 既定カレンダー参照。                          |
+| `schema_version` ‼️                                                                | GRS 新設              | GRS スキーマの版。**新旧 JSON の判別と移行に必須**（無いと localStorage の既存データを読めない）。 |
+| `uid_high_water_mark` ‼️                                                           | GRS 新設              | **削除済みを含む最大 UID**。採番は常に `+1`（§5.3）。ロード時に `max(HWM, 実在 UID の最大)` へ引き上げる。 |
 
 > `finish_date` は保存しない（全 Task 最遅から Reconstruct・§8A）。
 > **§5.6 で Carry へ降格**: `ScheduleFromStart`（GRS はスケジューラを持たない）、`CurrentDate`（今日線は実行時のシステム日付で描く）、サーバ管理4（MVP に連携なし）。
@@ -536,7 +667,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | `Resource.calendar_id` | Consume(←CalendarUID) | 個人暦参照（Carry に参照を残さないため構造化・§5.5）。 |
 | `Assignment.uid` **PK** | Own(←UID) | 割当識別。 |
 | `Assignment.task_uid` | Consume(←TaskUID) | どのタスクへの割当か。 |
-| `Assignment.resource_uid` | Consume(←ResourceUID) | 誰の割当か（-1=未割当）。 |
+| `Assignment.resource_uid` | Consume(←ResourceUID) | 誰の割当か。**未割当は `null` に正規化**（MSPDI 慣行の `-1` は Adapter 境界に閉じ込める。`-1` は XSD 非規定）。 |
 
 > MVP は**読取専用表示**（GRS 側での割当の追加・変更は将来）。割当率 `Units` は Carry のため表示しない。
 
@@ -544,8 +675,9 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 
 | 列                                                                         | エンティティ    | 責務                                                  |
 | -------------------------------------------------------------------------- | --------------- | ----------------------------------------------------- |
-| `group_id` `task_uid`                                                      | TaskGroupMember | 行への所属（1タスク1行）。**縦積み順は持たない**（自動算出・§5.6） |
+| `group_id` `task_uid` `stack_order`                                        | TaskGroupMember | 行への所属（1タスク1行）＋縦積み順（`null`=自動 / 値=人の指定・§5.6） |
 | `task_uid` `abbrev` `icon_shape_kind` `color` `label_anchor` `label_align` `importance` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離）。ラベル位置は `null`=自動の疎な上書き。 |
+| `task_uid` `source_project_uid` `import_session_id`                        | TaskOrigin      | 出自（マージの既定判定・§5.3/§5.4）。**行が無い＝GRS 生まれ**。 |
 | `id` `parent_id` `label` `order` `collapsed` `color` `height`               | TaskGroup       | 行の器・階層・並び＋**行の書式**（`height` は `null`=自動の疎な上書き・論理高さ）。 |
 
 ---
@@ -563,9 +695,13 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | `Task.OutlineNumber`   | `wbs_parent` 木のパス      | export     |
 | `Task.Summary`         | 子の有無                   | export     |
 | `Task.Duration`        | `finish − start`＋暦       | export     |
-| `Task.PercentComplete` | `progressRatio × 100`      | export     |
 | `Project.FinishDate`   | 全 Task 最遅のロールアップ | export     |
+| `Resource.ID`          | resources 配列の 0 起点連番 | export     |
+| `Project.SaveVersion`  | **固定値 12**（XSD 必須・`minOccurs=1`）。Carry があれば優先 | export |
+| `Project.CurrencyCode` | **既定 `"JPY"`**（XSD 必須・`minOccurs=1`）。Carry があれば優先 | export |
 
+> **必須要素の既定値**: `SaveVersion` と `CurrencyCode` は XSD で `minOccurs=1`（Project 直下で必須なのはこの 2 つだけ）。**MSPDI import を経ていない GRS 生まれの文書**は Carry を持たないため、上表の既定値を焼き込まないと **XSD 非妥当な XML** を出力してしまう。
+> `Task.PercentComplete` も **Reconstruct にしない**（進捗の唯一の入力源。読まないと `progressRatio` を復元できず iQUAVIS の進捗を消す）。**Own（÷100 して `progressRatio`）** とし、export で ×100 する。
 > `ActualDuration` / `RemainingDuration` は **Reconstruct にしない**（進行中タスクで `ActualFinish` 空のため単純再計算が破綻）。ledger H-2 により **Carry**（本 ERD 外）。
 
 ### B. MSPDI → GRS 写像（要約）
@@ -584,7 +720,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | `Resource.CalendarUID`                                                            | `Resource.calendar_id`                                                                | Consume                      |
 | `Assignment.UID`                                                                  | `Assignment.uid`                                                                      | Own                          |
 | `Assignment.TaskUID/ResourceUID`                                                  | `Assignment.task_uid/resource_uid`                                                    | Consume                      |
-| （MSPDI に無し）                                                                  | `TaskGroup`（行の書式含む）/ `TaskGroupMember` / `TaskVisual` / `documentSettings`     | GRS 新設・非 export          |
+| （MSPDI に無し）                                                                  | `TaskGroup`（行の書式含む）/ `TaskGroupMember` / `TaskVisual` / `TaskOrigin` / `documentSettings` | GRS 新設・非 export          |
 
 ### C. マージの詳細判断（§5.4 の根拠）
 
@@ -607,14 +743,36 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 ### D. 本 ERD から除外したもの（Carry / Drop）
 
 - **Carry**: GRS が解釈しない MSPDI 要素（Task の制約/工数/コスト/EVM/CPM派生/平準化/enterprise/子要素、**Resource/Assignment の §5.5 の 7 列を除く全て**、Calendar の勤務時刻/繰返し詳細、Project の 37 メタ、`ActualDuration`/`RemainingDuration` 等）。**別 passthrough ストアで温存**し export で書き戻す（往復無損失）。本 ERD には構造として出さない。詳細は `grs-mspdi-field-ledger-ja.md` §7。
-- **Carry の不変条件**: **UID 参照を含まない**（全 7 参照は Consume・§5.5）。したがって UID 振り直し時も Carry を書き換える必要がない。
+- **Carry の不変条件（限定版）**: **8 ネイティブテーブルの整数 UID 空間（Task/Resource/Calendar/Assignment）を指す参照は Carry に含まれない**（全 7 参照は Consume・§5.5）。したがって UID 振り直し時も Carry を書き換える必要がない。
+  > ⚠️ **一般化しないこと**: 「Carry に参照が一切無い」とは言えない。`TimephasedData/UID`（必須 int・Carry 内に 5 経路）、`ExtendedAttribute.FieldID`/`OutlineCode.ValueID`/`ValueGUID`/`Ltuid` 等の**定義への参照**は Carry 内に残る。これらは**参照元・参照先とも Carry** なので一緒に運ばれる限り整合するが、**マージで片側だけ破棄すると dangling になる**（→ 上記「マージ時の Carry 欠落」の明示許容に含む）。`TimephasedData/UID` は **XSD documentation で「The unique identifier of the timephased data record」＝自己識別と確定**（親 UID の写しではない）。したがって UID 振り直しで壊れることはない。ただし **2 文書の Carry を併合すると番号が衝突**しうるため、Carry ストアは**所有エンティティの下にぶら下げて保持**する（グローバル索引を持たない）こと。
+- **Drop=0 の現状（正直な記述）**: **「未分類ゼロ」は達成**（8 テーブルの全スカラー名を XSD 突合済み）。しかし**未分類ゼロ＝情報無損失ではない**。**Drop=0 は Carry ストア設計（キー・粒度・順序・absent と既定値の区別）が確定するまで未証明**である。適用範囲も **単一 MSPDI の未編集往復に限る**（マージ時は取込側 Carry の欠落を明示許容・§5.4）。
 - **Drop**: なし（Drop=0）。
 
 ### E. ベースライン（変更前予定グレー）
 
 インラインに持たない。**別ファイル baseline**（ScheduleDocument スナップショット・読取専用・id 突合でグレー下敷き・P6 式）。本 ERD の一級エンティティにしない（`grs-data-model-ja.md` §4.8）。
 
-### F. 参照
+### F. 未決事項（引継ぎ用）
+
+> **本プロジェクトは反省・引継モードに移行した**（コード/仕様書はフリーズ、CR は起こさない）。以下は**「ここまでで決まらなかったこと」の記録**であり、次のプロジェクトで同じ検討を繰り返さないために残す。
+
+| # | 未決事項 | なぜ未決か / 次にやるなら |
+|---|---|---|
+| 1 | **Carry ストアの設計** | 「不透明に温存する」と宣言したが、**キー・粒度・順序・`null` と既定値の区別**を設計していない。→ **これが決まるまで Drop=0 は未証明**。決めるべき 4 点は下記 |
+| 2 | `stack_direction` / `stack_order` と **ALIGN-L2-004（Must）の矛盾** | 要求は「下から上に固定・最上段＝マイルストーン」だが、設計は上下選択可＋人の任意指定を許す。**要求改訂か設計撤回かの判断が必要**（本プロジェクトでは CR 不要と判断し保留） |
+| 3 | import の異常系 | `OutlineLevel` の欠落・レベル飛び（前行 +2 以上）・先頭が 1 でない場合の復元規則が未定義。**軸A の唯一の真実を作る処理なので本来は必須** |
+| 4 | 担当者名の表示規則 | 1 タスクに複数割当は常態。**人数上限・並び順・省略記法・`Resource.Type` 欠落時の既定**が未定義。決めないと描画が非決定的になる |
+| 5 | `IsNull`（欠番行）の扱い | 「行を持たない」（＝Drop）と「Carry」で記述が矛盾したまま |
+| 6 | enum の全数化 | `DurationFormat`（約 30 種）・`ConstraintType`・`LagFormat`（24 値）等が未列挙。Adapter 実装前に XSD から全数を取る必要がある |
+
+**#1 で決めるべき 4 点**（材料は揃っている。→ `../vendor/mspdi-pitfalls-ja.md` E-2）
+
+1. **キー**: 中核（Task/Resource/Calendar/Assignment）は UID。**弱エンティティ（WeekDay/Exception/WorkingTime/PredecessorLink）は識別子を持たない**ので `(親UID, 出現序数)` を自前で付ける
+2. **粒度**: 原則スカラー単位。ただし**ネイティブ行を作らない要素**（`DayType=0` の WeekDay、重複 PredecessorLink、CrossProject リンク、`TaskUID` 欠落 Assignment）は要素まるごと
+3. **順序**: 各コレクション内で「再生成分」と「保持分」を出現序数で復元する
+4. **`null` と既定値の区別**: Own 列を nullable にし `null`＝「元ファイルに要素が無かった」とする。**これが無いと往復の差分ゼロは原理的に達成できない**（MSPDI はほぼ全フィールドが `minOccurs=0`）
+
+### G. 参照
 
 - 取捨選択（MSPDI 全要素の仕分け）: `grs-mspdi-field-ledger-ja.md`
 - 設計判断・2軸・往復規約: `grs-data-model-ja.md` §2/§6/§7

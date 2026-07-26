@@ -25,24 +25,23 @@ flowchart LR
 
 GRS は階層を **2 つの独立した軸**で持つ（§6 の帰結。§7.1 で確定。旧 §4.5「TaskGroup に階層一元化」は**これで置換**）。
 
-- **軸A: WBS 構造ツリー** — MSPDI `OutlineLevel` に対応。**`Task.wbs_parent_id`（隣接リスト）**で保持し、iQUAVIS へ **export する**。**明示的 WBS 編集のみ伝播**（§6）。深さ ≤ **Lv5**。
+- **軸A: WBS 構造ツリー** — MSPDI `OutlineLevel` に対応。**`Task.wbs_parent_uid`（隣接リスト）**で保持し、iQUAVIS へ **export する**。**明示的 WBS 編集のみ伝播**（§6）。深さ ≤ **Lv5**。
 - **軸B: マルチバー視覚層** — 「1 行に複数タスク」を実現する**器**。**`TaskGroup`（入れ子 ≤Lv5）＋ `TaskGroupMember`**。**GRS 専用・export に出さない**。
 
 両軸は**独立**。行に入れ直しても（軸B）WBS（軸A）は動かない。**`OutlineLevel` を `TaskGroup` から算出しない**（軸A の `Task.wbs_parent` が唯一の真実）ため、2 木があってもドリフトしない。行の器（TaskGroup）は MSPDI に対応概念が無い唯一の GRS 追加。
 
 ```mermaid
 erDiagram
-    Task ||--o{ Task : "wbs_parent_id (軸A WBS ≤Lv5)"
+    Task ||--o{ Task : "wbs_parent_uid (軸A WBS ≤Lv5)"
     TaskGroup ||--o{ TaskGroup : "parent_id (軸B 視覚 ≤Lv5)"
     TaskGroup ||--o{ TaskGroupMember : "所属"
-    TaskGroupMember }o--|| Task : "task_id (UNIQUE=1タスク1行)"
-    Task ||--o| TaskVisual : "task_id"
+    TaskGroupMember }o--|| Task : "task_uid (UNIQUE=1タスク1行)"
+    Task ||--o| TaskVisual : "task_uid"
     Task ||--o{ Dependency : "successor/predecessor"
 
     Task {
-        string id PK "= MSPDI Task（無汚染 Own）"
-        int mspdi_uid "往復キー（元 Task.UID・不変）"
-        string wbs_parent_id FK "軸A: null=root（← OutlineLevel＋順序）"
+        int uid PK "= MSPDI Task.UID（往復キー・不変）"
+        string wbs_parent_uid FK "軸A: null=root（← OutlineLevel＋順序）"
         int wbs_order "軸A: 兄弟内の順序"
         string name
         date start
@@ -69,10 +68,10 @@ erDiagram
     }
     TaskGroupMember {
         string group_id FK "→ TaskGroup.id"
-        string task_id FK "→ Task.id（UNIQUE: 1 タスクは 1 行）"
+        int task_uid FK "→ Task.uid（UNIQUE: 1 タスクは 1 行）"
     }
     TaskVisual {
-        string task_id PK "→ Task.id（GRS 視覚・§7.3）"
+        int task_uid PK "→ Task.uid（GRS 視覚・§7.3）"
         string abbrev
         string icon_shape_kind
         string color
@@ -81,16 +80,15 @@ erDiagram
         int importance
     }
     Dependency {
-        string id PK "← PredecessorLink（§7.4）"
-        string predecessor_task_id FK
-        string successor_task_id FK
-        int link_type "0=FF/1=FS/2=SF/3=SS"
+        int successor_uid PK "複合PK（← 親Task）"
+        int predecessor_uid PK "複合PK（← PredecessorUID）"
+        int link_type PK "複合PK（0=FF/1=FS/2=SF/3=SS）"
         int lag "1/10 分"
         int lag_format
     }
 ```
 
-> ⚠️ **識別子は後続で置換済み**: 本節の `Task.id`＋`mspdi_uid` の 2 本立て（および `Dependency.id`）は、**`grs-native-erd-ja.md` §5.3 で廃止**され、**MSPDI の UID をそのまま PK に使う**形（`Task.uid` 一本、`Dependency` は複合 PK）に確定した。GRS 独自の代理キーは新設テーブル（`TaskGroup`）のみが持つ。**確定版の ERD は `grs-native-erd-ja.md` §5**。
+> ⚠️ **識別子は置換済み**（変遷 §8-3, §8-4）。確定版の ERD は **`grs-native-erd-ja.md` §5**。
 
 ```
 Task            { uid PK(=MSPDI UID), wbs_parent_uid FK→Task(null=root), wbs_order,  // 軸A: WBS は Task 上（往復の真実）
@@ -98,8 +96,9 @@ Task            { uid PK(=MSPDI UID), wbs_parent_uid FK→Task(null=root), wbs_o
                   progressRatio, deadline, notes, stop, resume, calendar_id, carry }
 TaskGroup       { id(UUID), parent_id FK→TaskGroup(null=root), label, order,       // 軸B: 行の器（GRS 専用・非export・≤Lv5）
                   collapsed, color, height? }                                     //      ＋行の書式（保存・共有で再現・§4.3）
-TaskGroupMember { group_id FK→TaskGroup, task_uid FK→Task(UNIQUE) }               // 軸B: 所属（縦積み順は非保存＝自動）
+TaskGroupMember { group_id FK→TaskGroup, task_uid FK→Task(UNIQUE), stack_order? } // 軸B: 所属＋縦積み(null=自動/値=人の指定)
 TaskVisual      { task_uid FK→Task, abbrev, icon_shape_kind, color, … }            // GRS 視覚列（Task 汚染回避・§7.3）
+TaskOrigin      { task_uid FK→Task, source_project_uid, import_session_id }        // 出自（同上・マージ判定用・行なし=GRS生まれ）
 Dependency      { successor_uid+predecessor_uid PK(複合), link_type, lag, … }      // 依存エッジ（§7.4）
 documentSettings{ stack_direction:up|down, zoom:{x,y} }                            // 文書設定（保存・共有で見た目再現・§4.3/§4.4）
 // ※ 一時 UI 状態（選択・ホバー・Undo履歴）は保存しない＝見た目を構成しないため
@@ -107,7 +106,7 @@ documentSettings{ stack_direction:up|down, zoom:{x,y} }                         
 
 - **依存の向き**: `TaskGroup / TaskGroupMember / TaskVisual / Dependency → Task`（GRS 拡張が MSPDI 核を参照）。逆は無い。`Task` は MSPDI Own のまま → **export は WBS 木を辿って MSPDI Task を再生成**（TaskGroup 等の GRS 層は落とす）。
 - **マルチバー（1 行に複数タスク）** = 1 つの `TaskGroup`（＝行の器）に複数 Task を `TaskGroupMember` で入れる。**視覚のみ・非 export・WBS 不変**（§6 を自動で満たす）。
-- **縦積み** = 自動算出（開始日順＋文書レベルの `stack_direction`・§4.4）。順序列は持たない。**1 タスクは 1 行**（`task_uid` UNIQUE）。どの行にも入っていない Task は自分の既定行に描画。
+- **縦積み** = 原則自動算出（milestone 優先＋開始日順＋文書設定の `stack_direction`・§4.4）＋ `stack_order`（null=自動 / 値=人の指定）。**1 タスクは 1 行**（`task_uid` UNIQUE）。どの行にも入っていない Task は自分の既定行に描画。
 
 ---
 
@@ -115,10 +114,10 @@ documentSettings{ stack_direction:up|down, zoom:{x,y} }                         
 
 | GRS 用語 | 意味 | 出自 | 軸 |
 |---|---|---|---|
-| `Task` | 日程要素（スパン or ◆マイルストーン）。**WBS 親 `wbs_parent_id` を持つ** | MSPDI `Task` 継承（無汚染 Own） | 軸A |
-| `Task.wbs_parent_id` | WBS 構造ツリーの親（`OutlineLevel` 対応・**export する**） | MSPDI `OutlineLevel` を Consume | 軸A |
+| `Task` | 日程要素（スパン or ◆マイルストーン）。**WBS 親 `wbs_parent_uid` を持つ** | MSPDI `Task` 継承（無汚染 Own） | 軸A |
+| `Task.wbs_parent_uid` | WBS 構造ツリーの親（`OutlineLevel` 対応・**export する**） | MSPDI `OutlineLevel` を Consume | 軸A |
 | `TaskGroup` | **行の器**（タスクを入れる。入れ子 ≤Lv5）。**export しない** | **GRS 新設** | 軸B |
-| `TaskGroupMember` | どの Task がどの行に入るか（1 タスク 1 行）。縦積み順は持たない | **GRS 新設**（所属） | 軸B |
+| `TaskGroupMember` | どの Task がどの行に入るか（1 タスク 1 行）＋縦積み順 `stack_order`（null=自動） | **GRS 新設**（所属） | 軸B |
 | マルチバー | 1 行に複数 Task を横並べする**機能名**（視覚のみ・非 export） | 製品コンセプト | 軸B |
 | `TaskVisual` | GRS 固有の視覚列（略称/アイコン/色…）。Task と分離 | GRS 新設（§7.3） | — |
 | `Dependency` | 依存エッジ（task↔task）。`PredecessorLink` を Consume | MSPDI 由来（§7.4） | — |
@@ -140,7 +139,7 @@ documentSettings{ stack_direction:up|down, zoom:{x,y} }                         
 
 ### 4.3 【置換】行の書式は `TaskGroup` が持つ（JSON=見た目の完全再現）
 
-> ⚠️ **旧判断「表示状態は `viewState` に分離」は置換された**（`grs-native-erd-ja.md` §5.7）。
+> ⚠️ **置換済み**（変遷 §8-5）。確定版は `grs-native-erd-ja.md` §5.7。
 
 **確定**: **GRS の JSON を渡せば GRS 同士で完全に同じ見た目が再現される**ことを要件とする。よって見た目に影響するものは全て文書データとして保存・共有する。
 - 行の書式 `collapsed` / `color` / `height` は **`TaskGroup` が直接持つ**（`GroupViewState` は廃止）。`TaskGroup` は元から GRS 独自で、`TaskVisual` のような「MSPDI 核を汚さないための分離」が不要なため。
@@ -148,47 +147,33 @@ documentSettings{ stack_direction:up|down, zoom:{x,y} }                         
 - 保存しないのは**見た目を構成しない一時状態**のみ（選択・ホバー・Undo 履歴）。
 - **マージ時**: 既存文書の書式・設定を維持（取込側の見た目設定は無視）。
 
-**旧判断（経緯）**: マージで UI 状態を引きずらないよう `viewState.groupStates[group_id]` に分離していた。見た目の完全再現が要件化されたため、書式は文書データへ移した。
-
-### 4.4 所属は中間テーブル `TaskGroupMember`（縦積み順は非保存）
+### 4.4 所属は中間テーブル `TaskGroupMember`（縦積み順は疎な上書き）
 
 - `Task` に `row_id`/`group_id` を**足さない**（MSPDI 核の汚染＋依存逆流を避ける）。所属は `TaskGroupMember{group_id, task_uid}` で表す。**`task_uid` は UNIQUE＝1 タスクは高々 1 行**（器に入っていなければ自分の既定行に描画）。
-- **縦積み順は保存しない（確定・当初の `stack_order` 列は廃止）**: 行内で時間が重なった Task の縦位置は **100% 自動算出**（開始日昇順＋タイブレーク）。ユーザーは個別に入れ替えない。
+- **縦積みは原則自動・疎な上書き**: 既定は自動算出（**milestone 優先 → start 昇順 → finish 降順 → uid 昇順**）。ただし ALIGN-L2-004/L1-001/L2-001（承認済み Must）が縦位置の意図を要求するため、**`stack_order`（null=自動 / 値=人の指定）を持つ**。
 - **向きだけ全体オプション**: `stack_direction`（`up`/`down`、既定 **`up`＝上に積む**）を**文書設定に 1 つ**持つ（`viewState` ではなく**文書設定**＝JSON 共有時に同じ見た目が再現される）。行ごと・バーごとには持たない。
-- **算出規則（決定的）**: `start` 昇順 → 同着なら `finish` 降順（長い順）→ なお同着なら `uid` 昇順。最終タイブレークが `uid` なので**必ず一意**（描画が揺れない）。→ `grs-native-erd-ja.md` §5.6
+- **算出規則（決定的）**: `stack_order` 指定 → **milestone 優先（ALIGN-L2-004）** → `start` 昇順 → `finish` 降順 → `uid` 昇順。→ `grs-native-erd-ja.md` §5.6
+- ⚠️ **`stack_direction` は ALIGN-L2-004（「下から上」固定）と矛盾**するため要 change-manager。
 
 ### 4.5 【§7.1 で置換】WBS 階層は Task、視覚グルーピングは TaskGroup（2 軸）
 
-> ⚠️ **本節の旧判断「階層は TaskGroup に一元化・Task は階層を持たない」は §7.1（§2 の 2 軸化）で置換された。** 以下は経緯として残す。確定版は §2 / §7.1 を見よ。
+> ⚠️ **置換済み**（変遷 §8-2）。確定版は §2 / §7.1 / `grs-native-erd-ja.md` §5。
 
-**確定版（§2）**: WBS 構造ツリー（`OutlineLevel` 対応・**export する**）は **`Task.wbs_parent_id`** に持つ＝**軸A・唯一の真実**。`TaskGroup` は**行の器＝視覚グルーピング専用（非 export）＝軸B**。両者は独立で、`OutlineLevel` を `TaskGroup` から算出しないためドリフトしない。
+**確定版（§2）**: WBS 構造ツリー（`OutlineLevel` 対応・**export する**）は **`Task.wbs_parent_uid`** に持つ＝**軸A・唯一の真実**。`TaskGroup` は**行の器＝視覚グルーピング専用（非 export）＝軸B**。両者は独立で、`OutlineLevel` を `TaskGroup` から算出しないためドリフトしない。
 
-**旧判断（置換前・経緯）**: MSPDI は階層を **Task 上**（`OutlineLevel`＋document order から親を復元）で持つ＝**MSPDI の仕様**。旧案は GRS 階層を **TaskGroup 上**（`parent_id` の木）に一元化しようとしたが、§6 の UI カタログ（左カラム indent＝WBS 編集＝伝播 / バー移動＝視覚のみ＝非伝播）と突き合わせた結果、**WBS は Task 側に持ち、TaskGroup は純視覚**とするのが整合的と確定した（§7.1）。
-
-```mermaid
-flowchart LR
-    M["MSPDI 側（境界）<br/>Task が階層を持つ<br/>OutlineLevel + 順序→親"] -->|"Import: 消費して木を組む"| G["GRS ネイティブ<br/>TaskGroup が階層を持つ<br/>Task は階層を持たない"]
-    G -->|"Export: 群の深さから OutlineLevel を再生成"| M
-```
-
-- **Import**: MSPDI サマリタスク → `TaskGroup`、その葉の子タスク → その群の member Task（共通サマリ配下の葉が自動でマルチバーに）。`OutlineLevel` は群の深さに消費。
-- **Export**: `TaskGroup` の木を深さ優先で並べ、`OutlineLevel`(=深さ)・`OutlineNumber`(=計算パス) を**再生成**。
-- **GRS ネイティブの `Task` は `OutlineLevel` を保存しない**（保存すると TaskGroup の木＝真実 と二重管理になりドリフト＋マルチバーで別出自を1群に寄せた瞬間に食い違う）。必要なら read-only の「出自メモ」に留める（生きた階層ではない）。
-
-| | 階層をどこに持つか | 誰の仕様 |
-|---|---|---|
-| 境界（b/c） | Task（`OutlineLevel`＋順序） | **MSPDI 仕様**。Adapter の入出力でのみ扱う |
-| ネイティブ（d） | TaskGroup（`parent_id` 木） | **GRS の真実**。保存はこれ一本 |
+> **削除した旧記述について**: 本節にあった Mermaid 図と表（「Export は群の深さから `OutlineLevel` を再生成」「Task は階層を持たない」「保存は TaskGroup 一本」）は**確定版と正反対**のため削除した。誤って実装すると軸独立性が全否定され iQUAVIS の WBS を破壊する。
 
 ### 4.6 階層の最大深さ
 
 - **推奨 3 段（大・中・車種）、ハードキャップ 5 段**。UI/LOD は最大 5 段前提で設計（有界）。
 - MSPDI import で 6 段以上: **5 段にクランプ＋警告トースト**（無警告クランプはしない）。
 
-### 4.7 マージ（複数日程の合流）
+### 4.7 【更新】マージ（複数日程の合流）
+
+> ⚠️ **確定版は `grs-native-erd-ja.md` §5.4**（3 択ダイアログ・出自判定・衝突再採番・アトミック性）。本節が「§5 で確定」と予告した出自保持は、**`Task.source_project_uid`（案A）として実現**した（同 §5.3）。
 
 - `TaskGroup` は UUID で安定識別。合流は label パスで突合 or 手動。
-- `Task` は出自を保持できる想定（`source_id` 等、§5 で確定）。**Task は出自を持ち、TaskGroup は持たない**（群は合流先の器）。
+- 出自は **`TaskOrigin{task_uid, source_project_uid, import_session_id}`** に持つ（**`Task` には置かない**＝Task 無汚染の原則に従う・`grs-native-erd-ja.md` §5.3）。**行が無い＝GRS 生まれ**。**TaskGroup は出自を持たない**（群は合流先の器）。
 
 ### 4.8 ベースライン（変更前予定）
 
@@ -214,9 +199,10 @@ flowchart LR
 
 ### 各種の例
 
-- **Own**: `Name`, `Start`, `Finish`, `Milestone`, `ActualStart`, `ActualFinish`, `progressRatio`(←PercentComplete), `Deadline`, `Notes`, `mspdi_uid`(←UID), 稼働日(Calendar), `StatusDate`
-- **Consume**: `OutlineLevel`(→TaskGroup 木), `PredecessorLink`(→依存エッジ) — 読まないと階層/依存が失われる=必読
-- **Reconstruct**: `OutlineNumber`, `ID`, `Summary`, `Duration`, `ActualDuration`, `RemainingDuration`, `PercentComplete` — 冗長。他 Own から復元可
+- **Own**: `Name`, `Start`, `Finish`, `Milestone`, `ActualStart`, `ActualFinish`, `progressRatio`(←**PercentComplete÷100**), `Deadline`, `Notes`, `uid`(←UID), 稼働日(Calendar), `StatusDate`
+- **Consume**: `OutlineLevel`(→**`Task.wbs_parent_uid`**＝軸A), `PredecessorLink`(→依存エッジ) — 読まないと階層/依存が失われる=必読
+- **Reconstruct**: `OutlineNumber`, `ID`, `Summary`, `Duration` — 冗長。他 Own から復元可
+  （※ `ActualDuration`/`RemainingDuration` は進行中で復元不能のため **Carry**、`PercentComplete` は進捗の唯一の入力源のため **Own**（÷100 して `progressRatio`）に是正済み）
 - **Carry**: `Type`, `Work`, `DurationFormat`, `ConstraintType/Date`(未使用時), コスト/EVM 列, 未モデル化の Resource/Assignment 詳細
 - **Drop**: 原則ゼロ。明示的に「捨てる」と宣言した項目のみ
 
@@ -240,7 +226,7 @@ flowchart LR
 
 ### 往復処理の3原則
 
-1. **突合は `UID`**: iQUAVIS は再インポートを **UID で照合**する。GRS は UID（`mspdi_uid`=Own）を**不変で保持**し、そのまま書き戻す。**OutlineNumber を突合キーにしない**（UID を振り直すと別タスク扱い＝DB 崩壊）。
+1. **突合は `UID`**: iQUAVIS は再インポートを **UID で照合**する。GRS は UID（`uid`=Own）を**不変で保持**し、そのまま書き戻す。**OutlineNumber を突合キーにしない**（UID を振り直すと別タスク扱い＝DB 崩壊）。
 2. **`OutlineNumber` は iQUAVIS が再計算**: `OutlineLevel`＋順序から導かれる**派生コード**。iQUAVIS は構造から計算し直すべきで、GRS の出力値を権威としない（GRS 側は Reconstruct）。「OutlineNumber の変更」は独立データではなく構造変更の結果。
 3. **`OutlineLevel` は既定で保全**: GRS が**明示的に WBS を編集した節のみ**再生成して伝播。マルチバー等の**視覚操作では変えない**。
 
@@ -286,9 +272,9 @@ iQUAVIS: 車種A > 設計(L2) > 部品X(L3)
 
 §2 に反映済み。要点:
 
-- **軸A: WBS 構造ツリー = `Task.wbs_parent_id`（隣接リスト）**。`OutlineLevel`＋document order を Consume して構築。**export で `OutlineLevel`/`OutlineNumber`/`Summary`/`ID` を再生成**。明示的 WBS 編集（indent/outdent/親変更/兄弟並べ替え）でのみ伝播（§6）。深さ ≤ **Lv5**、import で 6 段以上は 5 段クランプ＋警告（§4.6）。
+- **軸A: WBS 構造ツリー = `Task.wbs_parent_uid`（隣接リスト）**。`OutlineLevel`＋document order を Consume して構築。**export で `OutlineLevel`/`OutlineNumber`/`Summary`/`ID` を再生成**。明示的 WBS 編集（indent/outdent/親変更/兄弟並べ替え）でのみ伝播（§6）。深さ ≤ **Lv5**、import で 6 段以上は 5 段クランプ＋警告（§4.6）。
 - **軸B: マルチバー視覚層 = `TaskGroup`（parent_id で入れ子 ≤Lv5）＋ `TaskGroupMember`**。行の器。**GRS 専用・非 export**。「1 行に複数タスク」＝ 1 器に複数 member。行に入れ直しても WBS 不変（視覚のみ・非伝播）。
-- **保持形の確定**: 軸A は**隣接リスト**（`wbs_parent_id` + `wbs_order`）を採用（`OutlineLevel` の数値を保存すると木と二重管理になるため保存しない＝Reconstruct）。軸B は `TaskGroup` の木（`parent_id` + `order`）。両軸は独立、`OutlineLevel` を `TaskGroup` から導出しない（ドリフト構造的にゼロ）。
+- **保持形の確定**: 軸A は**隣接リスト**（`wbs_parent_uid` + `wbs_order`）を採用（`OutlineLevel` の数値を保存すると木と二重管理になるため保存しない＝Reconstruct）。軸B は `TaskGroup` の木（`parent_id` + `order`）。両軸は独立、`OutlineLevel` を `TaskGroup` から導出しない（ドリフト構造的にゼロ）。
 - **import 時の器の初期化（既定ポリシー）**: WBS サマリ配下の葉タスク群を、そのサマリに対応する `TaskGroup` の member として自動投入（＝「共通サマリ配下がそのまま 1 行のマルチバー」の初期姿）。以降ユーザーが器を自由に再編。器の再編は WBS を変えない。
 
 ### 7.2 split（Stop/Resume）・制約（ConstraintType/Date）の確定
@@ -301,17 +287,18 @@ iQUAVIS: 車種A > 設計(L2) > 部品X(L3)
 ### 7.3 Task の中身（Own 列）と GRS 視覚（TaskVisual）
 
 **Task（Own・MSPDI Task 無汚染継承）**:
-`id`, `mspdi_uid`(←UID), `name`, `start`, `finish`, `milestone`, `actualStart`, `actualFinish`, `progressRatio`(←PercentComplete/100), `deadline`, `notes`, `stop`, `resume`(§7.2), `calendar_id`(←CalendarUID), `wbs_parent_id`/`wbs_order`(軸A), `carry`(不透明 passthrough)。
+`id`, `uid`(←UID), `name`, `start`, `finish`, `milestone`, `actualStart`, `actualFinish`, `progressRatio`(←PercentComplete/100), `deadline`, `notes`, `stop`, `resume`(§7.2), `calendar_id`(←CalendarUID), `wbs_parent_uid`/`wbs_order`(軸A), `carry`(不透明 passthrough)。
 
-**Task が持たない列（Reconstruct・export でその場算出）**: `ID`, `OutlineLevel`, `OutlineNumber`, `Summary`, `Duration`, `ActualDuration`, `RemainingDuration`, `PercentComplete`（§5）。
+**Task が持たない列（Reconstruct・export でその場算出）**: `ID`, `OutlineLevel`, `OutlineNumber`, `Summary`, `Duration`（§5）。
+※ `PercentComplete` は **Own**（÷100 して `progressRatio`・進捗の唯一の入力源）、`ActualDuration`/`RemainingDuration` は **Carry**（進行中は復元不能）。当初 Reconstruct としていたのを是正済み。
 
 **GRS 視覚は別テーブル `TaskVisual` に分離（確定）**— Task 汚染を避け、export 対象外を明確化:
 `TaskVisual { task_uid FK→Task, abbrev, icon_shape_kind, color, label_anchor, label_align, importance }`（`label_*` は `null`=自動の疎な上書き）。MSPDI に対応が無いため **GRS JSON にのみ存在・非 export**。命名は言霊（`kind`→`icon_shape_kind` 等・item60）。
 
 ### 7.4 依存（Dependency）＝ コアドメイン自動配線
 
-- **データ**: `Dependency { id, predecessor_task_id, successor_task_id, link_type(0=FF/1=FS/2=SF/3=SS), lag(1/10分), lag_format }`。MSPDI `PredecessorLink`（後続 Task 下・`PredecessorUID` で先行を指す）を **Consume** して task↔task の一級エッジへ。**TaskGroup / 軸B とは独立**（依存は WBS でも器でもなく Task 間の関係）。
-- **export**: 各後続 Task 直下に `PredecessorLink` を再生成（`mspdi_uid` で id↔UID 解決）。`CrossProject`/`CrossProjectName` は Carry（MVP 単一 PJ）。
+- **データ**: `Dependency { successor_uid+predecessor_uid+link_type PK(複合), lag(1/10分), lag_format }`。**MSPDI は依存線に ID を振らない**（`PredecessorLink` の子は `PredecessorUID`/`Type`/`CrossProject`/`CrossProjectName`/`LinkLag`/`LagFormat` のみ・XSD 実測）ため代理キーを置かず自然キーとする。**`link_type` を複合 PK に含める**のは、同一ペアに種別違いの依存を 2 本張れるため（同一ペア・同一種別の重複は意味を持たないので序数は不要）。MSPDI `PredecessorLink`（後続 Task 下・`PredecessorUID` で先行を指す）を **Consume** して task↔task の一級エッジへ。**TaskGroup / 軸B とは独立**（依存は WBS でも器でもなく Task 間の関係）。
+- **export**: 各後続 Task 直下に `PredecessorLink` を再生成（`uid` をそのまま使用）。`PredecessorUID` 省略のリンク（`minOccurs=0`）は依存エッジにせず **Carry で温存**する。`CrossProject`/`CrossProjectName` は Carry（MVP 単一 PJ）。
 - **経路（描画・GRS 専用・非 export・非保存）**: 9 点アンカー（バー上の 3×3 グリッド 0-8）から引出し、他アイコンとの重なり最小の折れ点 0〜3 の経路を**自動配線**（コアドメイン）。**依存線は全て自動配線でユーザーは手操作しない**ため、**経路はデータとして保存しない**（描画のたびにエンジンが算出）。当初案の `DependencyRoute` / `viewState.routes` は**廃止**（保存すると自動算出結果との二重管理＝ドリフトになる）。MSPDI は線の幾何を持たないので、依存の論理のみ `PredecessorLink` で往復する。→ `grs-native-erd-ja.md` §5.6
 
 ### 7.5 Calendar / Resource / Assignment のネイティブ vs Carry（確定）
@@ -324,7 +311,7 @@ iQUAVIS: 車種A > 設計(L2) > 部品X(L3)
 
 → 台帳（field-ledger）の「条件付き Consume/Carry」は本節で確定: **Calendar=ネイティブ / Resource・Assignment=軽量ネイティブ（計7列）＋残り Carry**。
 
-> ⚠️ **本節は後続で更新**（当初の「Resource/Assignment 丸ごと Carry」を置換）。**担当者名表示**の要求により 7 列を格上げした結果、**MSPDI の UID 参照 7 つが全て Consume** となり、**Carry に UID 参照が残らない**。これによりマージ時の UID 振り直しに全参照が構造的に追従し、当初検討した「UID 再マップ表」は**不要**になった。詳細は `grs-native-erd-ja.md` §5.5、マージ規約は同 §5.4。
+> ⚠️ **更新済み**（変遷 §8-8, §8-9）。当初の「丸ごと Carry」を担当者名表示のため 7 列だけ格上げした。詳細は `grs-native-erd-ja.md` §5.5、マージ規約は同 §5.4。
 
 ### 7.6 round-trip 忠実度（異 WBS タスクを同一行に入れた場合）
 
@@ -333,16 +320,45 @@ iQUAVIS: 車種A > 設計(L2) > 部品X(L3)
 
 ### 7.7 台帳完成と Drop=0
 
-- `grs-mspdi-field-ledger-ja.md` を XSD 実名で完成（Resource 約66 列・Assignment 約63 列＋201 予約枠を全分類）。§7.2/§7.5 の確定を反映。
+- `grs-mspdi-field-ledger-ja.md` を XSD 実名で完成（Resource 約65 列・Assignment 約61 列＋201 予約枠を全分類）。§7.2/§7.5 の確定を反映。
 - **Drop=0 を XSD 突合で検証**（未分類ゼロ・敵対的レビュー）。結果は台帳末尾に記録。
 
 ---
 
-## 8. 残課題（周辺・後続）
+## 8. 設計判断の変遷（何を試し、なぜ変えたか）
+
+> **引継ぎ用の要約**。本書の各節に散在していた「旧判断」「置換注記」をここに集約する。**確定版の構造は `grs-native-erd-ja.md` §5** を見ること。本表は「なぜその形に落ち着いたか」を残すためのもので、**却下案には却下案なりの理由がある**（同じ検討を繰り返さないために残す）。
+
+| # | 論点 | 当初案 | 最終案 | 変えた理由 |
+|---|---|---|---|---|
+| 1 | マルチバーの表現 | **Rehost 案**（行＝あるタスク自身。他タスクのバーをそこへ間借りさせる） | **TaskGroup（器）案** | 「1 行に複数タスクを入れたい」という要求に対し、器モデルが直接対応する。Rehost は器を作らず遠回りで、実装が軽い以外の利点が無かった |
+| 2 | 階層をどこに持つか | `TaskGroup` に**一元化**（Task は階層を持たない） | **2 軸**（WBS=`Task.wbs_parent_uid` / マルチバー=`TaskGroup`） | §6 の UI カタログ（左カラム indent＝WBS 編集＝伝播 / バー移動＝視覚のみ＝非伝播）と突き合わせると、**WBS は Task 側に無いと矛盾**する。`OutlineLevel` を TaskGroup から算出しないので 2 木でもドリフトしない |
+| 3 | Task の識別子 | `id`(UUID) ＋ `mspdi_uid` の**2 本立て** | **`uid` 一本**（= MSPDI UID） | MSPDI の UID で足り、二重識別は不要。マージの UID 衝突は取込時の 3 択で解消される。**ただし** `max+1` 採番では UID が再利用されるため**高水位採番**が、出自判定のため **`TaskOrigin`** が別途必要と判明 |
+| 4 | 依存の識別子 | 代理キー `Dependency.id` → (successor, predecessor) | **(successor, predecessor, `link_type`)** | **MSPDI は依存線に ID を振らない**（`PredecessorLink` に識別子なし）ので自然キーが素直。ただし **XSD に一意制約が 0 件**で種別違いの重複が妥当なため `link_type` が必要。同一ペア・同一種別の重複は意味を持たないので序数は不採用 |
+| 5 | 行の表示状態 | `viewState` に**分離**（マージで UI 状態を引きずらないため） | **`TaskGroup` に畳み込み**（`GroupViewState` 廃止） | 「JSON＝見た目の再現」を要件化したので、書式は**共有される文書データ**になった。かつ `TaskGroup` は元から GRS 独自で、`TaskVisual` のような「MSPDI 核を汚さないための分離」が**不要** |
+| 6 | 依存線の経路 | `DependencyRoute` に保存（自動＋手動上書き） | **廃止（保存しない）** | 依存線は**全自動配線で人が触らない**ため、毎回算出すれば足りる。保存すると再計算結果との二重管理＝ドリフト |
+| 7 | 行内の縦積み順 | `stack_order` 列 → **一旦廃止**（全自動と判断） | **疎な上書きで復活**（`null`=自動 / 値=人の指定） | 承認済み Must（ALIGN-L2-004 の「最上段＝マイルストーン」、ALIGN-L1-001 の「同種を同じ高さに」）が**縦位置の意図**を前提としており、自動規則だけでは保存先が無い。積み順規則にも `milestone` 優先項を追加 |
+| 8 | Resource / Assignment | **丸ごと Carry**（資源管理は非対象） | **軽量ネイティブ 7 列**＋残り Carry | 「**担当者名をバーに表示**」の要求。副産物として **MSPDI の UID 参照 7 つが全て Consume** になった |
+| 9 | UID 再マップ表 | 導入を検討（Carry 内の UID 参照が振り直しで壊れるため） | **不要**（ただし主張を限定） | #8 の格上げで整数 UID 参照が全て Consume になり、機構が 1 つ減った。**ただし**「Carry に参照が一切無い」への一般化は誤り（`TimephasedData/UID`・`FieldID`/`ValueID` 等は残る）ため、主張は「8 テーブルの整数 UID 空間を指す参照」に限定した |
+| 10 | タスクの出自 | `source_id` 構想（§4.7）→ **一旦廃止**（代理キーゼロを優先） | **`TaskOrigin` として復活**（別テーブル） | 出自が無いとマージの既定判定が計算できず、**再取込のたびにタスクが無限複製**する。`Task` に置くと「Task 無汚染」原則に反するため、`TaskVisual` と同じ基準で分離 |
+| 11 | 例外日（祝日） | `Exception`(2007) に一本化・`Type` は Carry | **`Type` を Consume に格上げ** | `TimePeriod` は `Type` と組で読む要素で、繰返し時は「適用範囲」を表す。`Type` を読まないと**祝日 1 日が数年間の非稼働に化ける** |
+| 12 | `PercentComplete` | **Reconstruct**（progressRatio×100 で算出できると判断） | **Own**（÷100 して保持） | 逆だった。`progressRatio` の**唯一の入力源**であり、読まなければ進捗が復元不能＝**export で iQUAVIS の進捗を全消去**する |
+| 13 | `ActualDuration` / `RemainingDuration` | Reconstruct | **Carry** | **進行中タスクは `ActualFinish` が空**なので単純な引き算で復元できない |
+| 14 | 「JSON＝見た目の完全再現」 | **確定要件** | **Step2/3 の目標**に格下げ | 現状は承認済み `viewState` 15 項目のうち 2 項目しか取り込んでいない。加えて今日線（実行時日付）・LOD（ビューポート依存）・ラベル衝突回避（フォント計測依存）は**原理的に再現不能**。主張は「同一ビューポート・同一フォント・同一基準日で決定的」に留める |
+
+### 教訓（プロセス面）
+
+- **正本（XSD）を機械パースして初めて分かる事実が多かった**。要約文書の記述を前提に設計すると、後段の敵対的レビューで覆る。→ `../vendor/mspdi-pitfalls-ja.md`
+- **「無駄を削る」監査は、承認済み要求と突き合わせないと削りすぎる**（#7 の `stack_order` は削ってから要求違反と判明して復活した）。
+- **修正の当て方**: 新しい記述を追加しても、**要約表・対文書の古い記述を消さないと矛盾が残る**。レビューで「文言だけ足して実質が変わっていない」と複数指摘された。禁止フレーズの grep による機械検査が有効だった。
+
+---
+
+## 9. 残課題（周辺・後続）
 
 - **Section / annotation / 透かし / i18n** 等の描画・製品層（本データモデルの外周。別途 40-data-format と i18n 仕様で扱う）。
 - **Carry passthrough の実装**（案b）と **round-trip 同一性テスト**の CI 組込み（§5）。
-- 本 2 軸確定を **change-manager 経由で正式仕様（40-data-format.sdoc / schema.json）へ反映**（旧 DEC-006・grs-table-erd-comparison は破棄・§4.5 は §7.1 で置換）。凍結中の既存 GRS 資産は本設計を承認後に更新。
+- ~~change-manager 経由で正式仕様へ反映~~ → **不要**（プロジェクトは反省・引継モードに移行。コード/仕様書はフリーズし CR は起こさない）。旧 DEC-006・`grs-table-erd-comparison` は破棄済み。
 
 ---
 

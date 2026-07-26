@@ -48,7 +48,7 @@ iQUAVIS（構造マスタ） → MSPDI export → GRS で編集 → MSPDI import
   - **マイルストーン**: 専用要素なし。`Milestone=1` フラグ（慣習で `Duration=0`）。
   - **時系列**: `TimephasedData`（作業/コストの時間軸分解・S字/ヒストグラム/多重split の素）。
 - **MSPDI にできないこと**: **1 行に複数の独立タスクを横並べ**（マルチバー）。ビュー描画書式（Bar Styles・色）はファイル外。→ マルチバーは GRS が新規に定義する（§2 軸B）。
-- 規模: 全 **29 テーブル**（中核 6＋衛星 23）、Task 約 91 列・Resource 約 65 列・Assignment 約 61 列＋201 予約枠（XSD 実測・命名衝突する `Type`/`DurationFormat` 等を含むため計数はレビュー時に再確認）。date/time は ISO8601、enum は整数コード、多くが `minOccurs=0`（省略可）。
+- 規模: 全 **29 テーブル**（中核 6＋衛星 23）、Task 約 91 列・Resource 約 65 列・Assignment 約 61 列＋201 予約枠（XSD 機械実測で確定: Task 91＋子5 / Resource 65＋子6 / Assignment 61＋201枠＋子3）。date/time は ISO8601、enum は整数コード、多くが `minOccurs=0`（省略可）。
 
 ---
 
@@ -123,15 +123,15 @@ erDiagram
     Resource ||--o{ TimephasedData : "TimephasedData"
     Res_ExtAttr }o--|| ExtAttr_Def : "FieldID→定義"
 
-    Assignment }o--|| Task : "TaskUID"
-    Assignment }o--o| Resource : "ResourceUID(-1=未割当)"
+    Assignment }o--o| Task : "TaskUID(minOccurs=0)"
+    Assignment }o--o| Resource : "ResourceUID(minOccurs=0)"
     Assignment ||--o{ Assn_ExtAttr : "ExtendedAttribute(値)"
     Assignment ||--o{ Assn_Baseline : "Baseline"
     Assignment ||--o{ TimephasedData : "TimephasedData"
     Assn_Baseline ||--o{ TimephasedData : "TimephasedData"
 
     Project {
-        string UID PK "projectId(GUID)"
+        string UID PK "projectId(string≤16・省略可)"
         int SaveVersion "必須"
         int CalendarUID FK "既定暦"
         string scalars "63個: SaveVersion..AdminProject(§6.2)"
@@ -427,7 +427,7 @@ erDiagram
 |---|---|---|:--:|---|---|
 | `ActualStart` | dateTime | 実績開始 | 残 | 実績バー左端 | **Own** |
 | `ActualFinish` | dateTime | 実績完了 | 残 | 実績バー右端 | **Own** |
-| `PercentComplete` | int | 進捗率(%)・塗り | 削 | progressRatio×100 で算出 | Reconstruct |
+| `PercentComplete` | int | 進捗率(%)・塗り | **残** | **進捗の唯一の入力源**。読まないと復元不能（`ActualStart/Finish` からは進行中の到達率を導けない）→ `progressRatio`(0..1) へ **÷100 して保持**。export は ×100 | **Own**（単位変換） |
 | `ActualDuration` | duration | 実績期間 | 削 | **進行中は `ActualFinish` が空**で `ActualFinish−ActualStart` から復元不能（StatusДまでの実経過は独立情報）。単純再計算だと進行中タスクで欠落 → 温存 | **Carry**（編集時は ActualStart/ActualFinish/StatusDate/progressRatio から再計算） |
 | `RemainingDuration` | duration | 残期間 | 削 | 同上（進行中は `Duration−進捗` が破綻）。温存 | **Carry**（同上） |
 | `PercentWorkComplete` | int | 作業進捗率 | 削 | 工数管理非対象 | Carry |
@@ -484,7 +484,7 @@ erDiagram
 
 文書メタ・期間・換算は Own、既定暦は Consume、`FinishDate` は Reconstruct、残り 37 は Carry。
 
-**残（22: Own 20 / Consume 1 / ほか）**
+**残（20: Own 18 / Consume 1 / Reconstruct 1）**
 
 | フィールド | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
@@ -497,7 +497,7 @@ erDiagram
 | `CalendarUID` | 既定カレンダー参照 | 残→参照 | ネイティブ暦参照 | **Consume** |
 | `FinishDate` | プロジェクト完了 | 削 | 全Task最遅からロールアップ | Reconstruct |
 
-**削（41・全 Carry）** ※ §5.6 監査で `ScheduleFromStart`/`CurrentDate`/サーバ管理4 を Own から降格（37→41）
+**削（43・全 Carry）** ※ §5.6 監査で `ScheduleFromStart`/`CurrentDate`/サーバ管理4 を Own から降格（37+6=43）
 
 | フィールド群 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
@@ -522,11 +522,13 @@ erDiagram
 | `Calendar.BaseCalendarUID` | int | 派生元カレンダー | 残→参照 | 派生関係 | **Consume** |
 | `WeekDay.DayType` | enum | 曜日(0例外,1日..7土) | 残 | 曜日識別 | **Own** |
 | `WeekDay.DayWorking` | bool | その曜日が稼働か | 残 | 週末グレー表示 | **Own** |
+| `WeekDay.TimePeriod`(FromDate/ToDate) | dateTime | **旧形式(Project 2003)の例外日レンジ**。`DayType=0`(例外日)と対で使う | **削** | **不採用（確定）**: 例外日は新形式 `Exception`（§下記②）に一本化する。2003 形式は解釈しない。ただし**往復のため Carry で温存**（Drop にしない） | **Carry** |
 | `Exception.Name` | str | 祝日名 | 残 | 祝日ラベル | **Own** |
 | `Exception.TimePeriod`(FromDate/ToDate) | dateTime | 例外日の期間 | 残 | 親に畳込 | **Own** |
 | `Exception.DayWorking` | bool | 例外日が稼働か | 残 | 祝日グレー表示 | **Own** |
 | `WorkingTime`(FromTime/ToTime) | time | 勤務時刻(最大5) | 削 | 日粒度で不使用・温存 | Carry |
-| `Exception` 繰返し詳細（全8: `EnteredByOccurrences` `Occurrences` `Type` `Period` `DaysOfWeek` `MonthItem` `MonthPosition` `Month` `MonthDay`）＋ `WorkWeek` 系（`WorkWeek.Name`/`TimePeriod`, WorkWeek下 `WeekDay.DayType`/`DayWorking`） | enum/int | 期間限定パターン・繰返しルール | 削 | 常用せず・温存 | Carry |
+| `Exception.Type` | enum(1-9) | **繰返し種別**。`TimePeriod` の意味を決める（欠落/9=実日付、1-8=繰返し範囲） | **残→参照** | **読まないと祝日1日を数年の非稼働と誤解釈する**（`grs-native-erd-ja.md` §5.5b） | **Consume** |
+| `Exception` 繰返し詳細（全8: `EnteredByOccurrences` `Occurrences` `Period` `DaysOfWeek` `MonthItem` `MonthPosition` `Month` `MonthDay`。※`Type` は Consume に格上げ済みのため本群から除外）＋ `WorkWeek` 系（`WorkWeek.Name`/`TimePeriod`, WorkWeek下 `WeekDay.DayType`/`DayWorking`） | enum/int | 期間限定パターン・繰返しルール | 削 | 常用せず・温存 | Carry |
 
 ### 7.5 Resource（約 65 スカラー＋子要素）＝ 軽量ネイティブ（4列）＋ 残り Carry
 
@@ -555,8 +557,8 @@ erDiagram
 | フィールド | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
 | `UID` | 割当識別 | 残 | 往復識別 | **Own** |
-| `TaskUID` | どのタスクへの割当か | **残→参照** | **担当者表示の経路**（Task→Assignment→Resource）＋Carry に UID 参照を残さない（§5.5） | **Consume** |
-| `ResourceUID` | 誰の割当か（-1=未割当） | **残→参照** | 同上 | **Consume** |
+| `TaskUID` | どのタスクへの割当か（**`minOccurs=0`＝省略可**。欠落時は Assignment を要素まるごと Carry へ） | **残→参照** | **担当者表示の経路**（Task→Assignment→Resource）＋Carry に UID 参照を残さない（§5.5） | **Consume** |
+| `ResourceUID` | 誰の割当か（省略可） | **残→参照** | 同上。**未割当は `null` に正規化**（MS Project 慣行の `-1` は XSD 非規定のため Adapter 境界に閉じ込める） | **Consume** |
 | 工数/日程: `Units` `Work` `ActualWork` `RegularWork` `OvertimeWork` `RemainingWork` `RemainingOvertimeWork` `ActualOvertimeWork` `PercentWorkComplete` `Start` `Finish` `ActualStart` `ActualFinish` `Stop` `Resume` `Delay` `PeakUnits` | 割当工数・日程 | 削 | 一級化しない | Carry |
 | コスト/EVM: `Cost` `ActualCost` `RemainingCost` `OvertimeCost` `ActualOvertimeCost` `RemainingOvertimeCost` `CostRateTable` `CostVariance` `CV` `SV` `ACWP` `BCWS` `BCWP` `VAC` `BudgetCost` `BudgetWork` `WorkVariance` `StartVariance` `FinishVariance` | コスト・出来高 | 削 | コスト/EVM 非対象 | Carry |
 | フラグ/補助: `Confirmed` `HasFixedRateUnits` `FixedMaterial` `LevelingDelay` `LevelingDelayFormat` `LinkedFields` `Milestone` `Summary` `Notes` `Overallocated` `ResponsePending` `UpdateNeeded` `WorkContour` `BookingType` `ActualWorkProtected` `ActualOvertimeWorkProtected` `CreationDate` `AssnOwner` `AssnOwnerGuid` `Hyperlink*` | 各種フラグ/属性 | 削 | GRS 非使用 | Carry |
@@ -596,14 +598,16 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 | テーブル | Own | Consume | Reconstruct | Carry | **Drop** |
 |---|---|---|---|---|:--:|
-| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ActualStart/ActualFinish/Notes | OutlineLevel/CalendarUID/PredecessorLink | ID/OutlineNumber/Summary/Duration/PercentComplete | ActualDuration/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
+| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ActualStart/ActualFinish/Notes/**PercentComplete→progressRatio** | OutlineLevel/CalendarUID/PredecessorLink | ID/OutlineNumber/Summary/Duration | ActualDuration/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
 | PredecessorLink | — | PredecessorUID/Type/LinkLag/LagFormat | — | CrossProject/CrossProjectName | **0** |
-| Project | 識別/文書/期間/換算(21) | CalendarUID | FinishDate | 通貨/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(41) | **0** |
-| Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType/DayWorking/例外日/名称 | BaseCalendarUID/(Task・Project).CalendarUID | — | WorkingTime/WorkWeek/繰返し詳細 | **0** |
+| Project | 識別/文書/期間/換算(**18**) | CalendarUID(1) | FinishDate(1) | 通貨/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(**43**) | **0** |
+| Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType(1-7)/DayWorking/例外日/名称 | BaseCalendarUID/(Task・Project).CalendarUID/**Exception.Type** | — | WorkingTime/WorkWeek/繰返し詳細/**WeekDay.DayType=0＋TimePeriod(2003形式)** | **0** |
 | Resource | UID/Name/Type | CalendarUID | ID | 他スカラー全て＋子要素 | **0** |
 | Assignment | UID | TaskUID/ResourceUID | — | 他全スカラー＋201枠＋子要素 | **0** |
 
-→ **8 ネイティブテーブルで Drop=0**（未分類ゼロ・全スカラーを XSD 突合で確認済み）。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough（案b）の実装が Drop=0 の前提**。
+> **検算**: Own 18 ＋ Consume 1 ＋ Reconstruct 1 ＋ Carry 43 = **63**（XSD 実測の Project 直下スカラー数と一致）。
+
+→ **8 ネイティブテーブルで「未分類ゼロ」**（全スカラー名を XSD 突合で確認済み）。ただし**未分類ゼロと情報無損失は別物**であり、**Drop=0 は Carry ストア設計（キー・粒度・順序・存在フラグ）が確定するまで未証明**である（下記）。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough（案b）の実装が Drop=0 の前提**。
 > ⚠️ **H-2（要注意）**: `ActualDuration`/`RemainingDuration` は当初 Reconstruct としたが、**進行中タスク（`ActualFinish` 空）では単純再計算が破綻**するため Carry へ格下げ済み。§8D の round-trip 同一性テストに**進行中タスクのケースを必須追加**する（完了タスクだけの検証では欠落を見逃す）。
 
 ### C. 主要 enum（Adapter 実装用・XSD 由来）
