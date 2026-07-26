@@ -383,7 +383,7 @@ erDiagram
 | `UID` | int | 不変の一意ID（参照先） | 残 | 往復識別キー | **Own** |
 | `ID` | int | 表示行番号（可変） | 削 | 並び順から導出 | Reconstruct |
 | `Name` | str | タスク名 | 残 | バーのラベル | **Own** |
-| `IsNull` | bool | 欠番行プレースホルダ | 削 | 空行は持たない | Carry |
+| `IsNull` | bool | **欠番行（MS Project のタスク一覧に挿入された空行）** | 削 | **`IsNull=1` の Task は要素まるごと Carry へ退避**（ネイティブ行を作らない）。空行は「行」ではあっても「タスク」ではなく、日付も階層も持たないため WBS 木に入れると木の意味が壊れる。原位置・原形のまま往復する（`grs-native-erd-ja.md` §5.5d） | **Carry**（要素まるごと） |
 | `CreateDate` | dateTime | 作成日時 | 削 | 来歴・非使用 | Carry |
 | `Contact` | str | 担当連絡先 | 削 | 資源管理非対象 | Carry |
 
@@ -391,7 +391,7 @@ erDiagram
 
 | フィールド | 型 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|---|:--:|---|---|
-| `OutlineLevel` | int | 階層の深さ（親子） | 残→構造化 | `Task.wbs_parent` へ消費（軸A） | **Consume** |
+| `OutlineLevel` | int | 階層の深さ（親子） | 残→構造化 | `Task.wbs_parent_uid` へ消費（軸A）。**欠落・レベル飛び・先頭≠1 は正規化**、**6 段以上は 5 段にクランプし復元しない**＝深さ情報の**明示許容の損失**（`grs-native-erd-ja.md` §5.5e） | **Consume**（＋深さ 6 以上は Drop） |
 | `OutlineNumber` | str | "1.2.3" 形式コード | 削 | 階層＋順序から算出 | Reconstruct |
 | `Summary` | bool | サマリタスクか | 削 | 子の有無から算出 | Reconstruct |
 | `WBS` `WBSLevel` | str | WBSコード/レベル | 削 | 独自採番・非使用 | Carry |
@@ -530,7 +530,7 @@ erDiagram
 | `Exception.Type` | enum(1-9) | **繰返し種別**。`TimePeriod` の意味を決める（欠落/9=実日付、1-8=繰返し範囲） | **残→参照** | **読まないと祝日1日を数年の非稼働と誤解釈する**（`grs-native-erd-ja.md` §5.5b） | **Consume** |
 | `Exception` 繰返し詳細（全8: `EnteredByOccurrences` `Occurrences` `Period` `DaysOfWeek` `MonthItem` `MonthPosition` `Month` `MonthDay`。※`Type` は Consume に格上げ済みのため本群から除外）＋ `WorkWeek` 系（`WorkWeek.Name`/`TimePeriod`, WorkWeek下 `WeekDay.DayType`/`DayWorking`） | enum/int | 期間限定パターン・繰返しルール | 削 | 常用せず・温存 | Carry |
 
-### 7.5 Resource（約 65 スカラー＋子要素）＝ 軽量ネイティブ（4列）＋ 残り Carry
+### 7.5 Resource（約 65 スカラー＋子要素）＝ 軽量ネイティブ（5列）＋ 残り Carry
 
 **資源管理（工数/コスト/平準化）は非対象。ただし「担当者名をバーに表示する」ため 4 列だけ軽量ネイティブ化**（`grs-native-erd-ja.md` §5.5）。残りは全て Carry。
 
@@ -538,16 +538,18 @@ erDiagram
 |---|---|:--:|---|---|
 | `UID` | 資源識別 | 残 | 往復識別・割当の参照先 | **Own** |
 | `Name` | 資源名 | **残** | **担当者名としてバーに表示**（§5.5） | **Own** |
-| `Type` | 0=材料/1=作業 | **残** | 担当者表示は作業資源のみ（材料を除外） | **Own** |
+| `Type` | 0=材料/1=作業 | **残** | 担当者表示は作業資源のみ（材料を除外）。**欠落時は 1 とみなす** | **Own** |
+| `IsCostResource` | 費用項目か | **残** | **費用（旅費・予備費）を担当者表示から除外**。`Type` は 2 値しかなく費用を判別できないため必要（`grs-native-erd-ja.md` §5.5a） | **Own** |
 | `CalendarUID` | 個人暦参照 | **残→参照** | **Carry に UID 参照を残さない**ため構造化（§5.5 不変条件） | **Consume** |
 | `ID` | 表示行番号 | 削 | 順序から導出 | Reconstruct |
-| 識別/属性: `IsNull` `Initials` `Phonetics` `NTAccount` `MaterialLabel` `Code` `Group` `WorkGroup` `EmailAddress` `Hyperlink*` | 人/設備/材料の付随属性 | 削 | 表示に不要（担当者名は `Name` で足りる） | Carry |
+| `IsNull` | 欠番行 | 削 | **`IsNull=1` の Resource は要素まるごと Carry へ退避**（Task と同じ扱い） | **Carry**（要素まるごと） |
+| 識別/属性: `Initials` `Phonetics` `NTAccount` `MaterialLabel` `Code` `Group` `WorkGroup` `EmailAddress` `Hyperlink*` | 人/設備/材料の付随属性 | 削 | 表示に不要（担当者名は `Name` で足りる） | Carry |
 | 稼働: `MaxUnits` `PeakUnits` `OverAllocated` `AvailableFrom` `AvailableTo` `Start` `Finish` `CanLevel` `AccrueAt` | 稼働率・可用期間 | 削 | キャパ計画非対象 | Carry |
 | 工数: `Work` `RegularWork` `OvertimeWork` `ActualWork` `RemainingWork` `ActualOvertimeWork` `RemainingOvertimeWork` `PercentWorkComplete` | 工数各種 | 削 | 工数管理非対象 | Carry |
 | コスト/レート: `StandardRate*` `Cost` `OvertimeRate*` `OvertimeCost` `CostPerUse` `ActualCost` `ActualOvertimeCost` `RemainingCost` `RemainingOvertimeCost` | 単価・コスト | 削 | コスト非対象 | Carry |
 | EVM/差異: `WorkVariance` `CostVariance` `SV` `CV` `ACWP` `BCWS` `BCWP` | 出来高指標 | 削 | EVM 非対象 | Carry |
 | メモ: `Notes` | 資源メモ | 削 | GRS 非使用 | Carry |
-| enterprise/管理: `IsGeneric` `IsInactive` `IsEnterprise` `BookingType` `ActualWorkProtected` `ActualOvertimeWorkProtected` `ActiveDirectoryGUID` `CreationDate` `IsCostResource` `AssnOwner` `AssnOwnerGuid` `IsBudget` | サーバ/AD/予算 | 削 | サーバ連携非対象 | Carry |
+| enterprise/管理: `IsGeneric` `IsInactive` `IsEnterprise` `BookingType` `ActualWorkProtected` `ActualOvertimeWorkProtected` `ActiveDirectoryGUID` `CreationDate` `AssnOwner` `AssnOwnerGuid` `IsBudget` | サーバ/AD/予算 | 削 | サーバ連携非対象 | Carry |
 | 子要素: `ExtendedAttribute` `Baseline` `OutlineCode` `AvailabilityPeriod` `Rate` `TimephasedData` | カスタム/基準/単価表/時系列 | 削 | いずれも非対象 | Carry |
 
 ### 7.6 Assignment（約 61 スカラー＋201 予約枠＋子要素）＝ 軽量ネイティブ（3列）＋ 残り Carry
@@ -602,12 +604,13 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 | PredecessorLink | — | PredecessorUID/Type/LinkLag/LagFormat | — | CrossProject/CrossProjectName | **0** |
 | Project | 識別/文書/期間/換算(**18**) | CalendarUID(1) | FinishDate(1) | 通貨/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(**43**) | **0** |
 | Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType(1-7)/DayWorking/例外日/名称 | BaseCalendarUID/(Task・Project).CalendarUID/**Exception.Type** | — | WorkingTime/WorkWeek/繰返し詳細/**WeekDay.DayType=0＋TimePeriod(2003形式)** | **0** |
-| Resource | UID/Name/Type | CalendarUID | ID | 他スカラー全て＋子要素 | **0** |
+| Resource | UID/Name/Type/IsCostResource | CalendarUID | ID | 他スカラー全て＋子要素 | **0** |
 | Assignment | UID | TaskUID/ResourceUID | — | 他全スカラー＋201枠＋子要素 | **0** |
 
 > **検算**: Own 18 ＋ Consume 1 ＋ Reconstruct 1 ＋ Carry 43 = **63**（XSD 実測の Project 直下スカラー数と一致）。
 
 → **8 ネイティブテーブルで「未分類ゼロ」**（全スカラー名を XSD 突合で確認済み）。
+→ **明示許容の Drop は 2 件のみ**: ①**WBS 深さ 6 段以上のフラット化**（クランプして復元しない・`grs-native-erd-ja.md` §5.5e）②マージ時の取込側 Carry の欠落（同 §5.4）。
 → さらに **Carry ストア設計が確定した**（`grs-native-erd-ja.md` §5.5d）ことで、**Drop=0 は機械検証の結果**になった: **入口**で「ネイティブ列＋carry」の再合成が元要素と一致するか検証し（不一致なら要素まるごと退避＝**漏れても失われない**）、**出口**で未編集往復の差分ゼロを CI 検証する。前提は **Own/Consume 列が nullable**（`null`＝元ファイルに要素なし）であること。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough（案b）の実装が Drop=0 の前提**。
 > ⚠️ **H-2（要注意）**: `ActualDuration`/`RemainingDuration` は当初 Reconstruct としたが、**進行中タスク（`ActualFinish` 空）では単純再計算が破綻**するため Carry へ格下げ済み。§8D の round-trip 同一性テストに**進行中タスクのケースを必須追加**する（完了タスクだけの検証では欠落を見逃す）。
 
