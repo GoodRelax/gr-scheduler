@@ -614,18 +614,20 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 → さらに **Carry ストア設計が確定した**（`grs-native-erd-ja.md` §5.5d）ことで、**Drop=0 は機械検証の結果**になった: **入口**で「ネイティブ列＋carry」の再合成が元要素と一致するか検証し（不一致なら要素まるごと退避＝**漏れても失われない**）、**出口**で未編集往復の差分ゼロを CI 検証する。前提は **Own/Consume 列が nullable**（`null`＝元ファイルに要素なし）であること。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough（案b）の実装が Drop=0 の前提**。
 > ⚠️ **H-2（要注意）**: `ActualDuration`/`RemainingDuration` は当初 Reconstruct としたが、**進行中タスク（`ActualFinish` 空）では単純再計算が破綻**するため Carry へ格下げ済み。§8D の round-trip 同一性テストに**進行中タスクのケースを必須追加**する（完了タスクだけの検証では欠落を見逃す）。
 
-### C. 主要 enum（Adapter 実装用・XSD 由来）
+### C. enum（Adapter 実装用）
+
+**全数リファレンスは `../vendor/mspdi-enums-ja.md`**（XSD 機械抽出・**enum を持つ要素 53 個 / 値 535 個**を全数列挙）。ここでは GRS が Consume する中核だけ再掲する。
 
 | フィールド | 値 |
 |---|---|
 | `PredecessorLink.Type` | 0=FF, 1=FS, 2=SF, 3=SS |
 | `WeekDay.DayType` | 0=例外日, 1=日, 2=月, 3=火, 4=水, 5=木, 6=金, 7=土 |
-| `Exception.Type` | 1=毎日,2=毎年(日付),3=毎年(位置),4=毎月(日付),5=毎月(位置),6=毎週,7=日数,8=曜日数,9=なし |
+| `Exception.Type` | 1=毎日, 2=毎年(日付), 3=毎年(位置), 4=毎月(日付), 5=毎月(位置), 6=毎週, 7=日数, 8=曜日数, **9=なし** |
 | `Task.Type` | 0=FixedUnits, 1=FixedDuration, 2=FixedWork |
-| `Resource.Type` | 0=Material, 1=Work |
-| `TimephasedData.Type` | 1-11・16-76（72個・12-15欠番）。詳細は `../vendor/mspdi-core-tree.md` |
+| `Resource.Type` | 0=Material, 1=Work（**コスト資源は `IsCostResource` で別表現**） |
+| `TimephasedData.Type` | 1-11・16-76（72個・12-15 欠番） |
 
-> ⚠️ enum の網羅は未完（`DurationFormat`≈30種, `ConstraintType`, `CurrencySymbolPosition` 等）。Adapter 実装前に XSD で全数化すること。
+> ⚠️ **同名 enum でも場所によって値集合が違う**: `LagFormat`(25) は `DurationFormat`(26) から `21=null` を除いたもの。`Resource/StandardRateFormat`(7) だけが `8=material rate` を持ち、`Rate/StandardRateFormat`(6) は持たない。**流用しないこと**。
 
 ### D. 残アクション
 
