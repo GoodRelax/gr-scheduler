@@ -21,16 +21,17 @@
 
 ---
 
-## 2. 全体像（12 エンティティ）
+## 2. 全体像（14 エンティティ）
 
 ```
 MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 ├─ Project                          ├─ TaskGroup          行の器（入れ子 ≤Lv5）
 ├─ Task ★                           ├─ TaskGroupMember    どの行に載るか＋段
 ├─ Dependency ★                     ├─ TaskVisual         名称ラベル位置・色・字形・線幅
-├─ Calendar / WeekDay / Exception   └─ TaskOrigin         出自（マージ判定用）
-└─ Resource / Assignment（軽量）
-                                    documentSettings      積み方向・ズーム・取込連番
+├─ Calendar / WeekDay / Exception   ├─ TaskOrigin         出自（マージ判定用）
+└─ Resource / Assignment（軽量）    ├─ Comment            引出し四角/折れ線の注記（§5.8）
+                                    └─ HighlightBox       角丸の囲み枠（§5.8）
+                                    documentSettings      積み方向・ズーム・取込連番 ※中身は未確定
 
 ★ ＋ TaskGroup / TaskGroupMember = コア 4（これが無いとモデルが成立しない）
 ```

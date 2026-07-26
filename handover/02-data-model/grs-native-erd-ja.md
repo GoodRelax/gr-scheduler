@@ -919,7 +919,15 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 > | Step2 | GRS のコア仕様を決める | 次段 |
 > | Step3 | 細かい仕様を決める（`viewState` 全項目・`sections[]`・`annotations[]` 等の取り込み） | 次段 |
 >
-> **本書の適用範囲は「MSPDI 交換に関わる中核モデル」に限る**。承認済み `40-data-format.sdoc` が持つ `viewState` 15 項目（`planActualDisplay`/`planActualStyle`/`fontScale`/`watermark`/`activeLocale`/`themePreference`/`scrollX,Y`/`leftPaneWidth` 等）、`sections[]`、`annotations[]`、`classificationNodeStates[]`、item 側の `strokeColor`/`fillColor`/`lineWeight`/`labelOffset`/`milestoneShape`/`taskShape` は **Step2/3 で取り込む**（現時点では未取込＝本書は見た目の正準ではない）。
+> **取り込み状況（2026-07-26 更新）**
+>
+> | 対象 | 状況 |
+> |---|---|
+> | item 側の視覚列（`strokeColor`/`fillColor`/`lineWeight`/`iconShapeKind`/`nameAnchor`/`nameAlign`/`importance`/`progressStatus`） | **取込済み** → `TaskVisual`（§5.2）。※`labelOffset` は px なので**不採用**、`milestoneShape`/`taskShape` は `iconShapeKind` に統合 |
+> | `annotations[]`（コメント・角丸枠） | **取込済み** → **§5.8**（`Comment` / `HighlightBox`） |
+> | `sections[]` | **不要**（セクション概念は廃止。`TaskGroup` の階層が兼ねる） |
+> | `classificationNodeStates[]` | **不要**（`TaskGroup.collapsed` に吸収済み） |
+> | `viewState` の残り（`planActualDisplay`/`planActualStyle`/`fontScale`/`watermark`/`activeLocale`/`themePreference`/`zoom`/`scrollX,Y`/`leftPaneWidth`/カーソル/グリッド表示） | **未確定**。**`documentSettings` に何を入れるかを決める必要がある**（下記 §5.7 の議論。「文書の見た目」と「その人の環境・作業状態」の境界をどこに引くか） |
 >
 > **原理的な限界も併記する**: 今日線は実行時のシステム日付、LOD はビューポート寸法、ラベル衝突回避はフォント計測に依存する。したがって最終的な主張は「**同一ビューポート・同一フォント環境・同一基準日において、描画は JSON のみから決定的に定まる**」に留める。
 
@@ -938,6 +946,76 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 当初は「表示状態をデータから分離」（旧 §4.3）していたが、本原則により行の書式（折畳/色/行高）は**共有される文書データ**になった。かつ `TaskGroup` は**元から GRS 独自**で、`TaskVisual` のような「MSPDI 核を汚さないための分離」が**不要**。よって別テーブルにする理由が消え、**3 列を `TaskGroup` に畳み込んだ**（12 → 11 エンティティ）。
 
 **マージ時の扱い**: 取り込む側（既存文書）の書式・設定を**維持**する（取込ファイルの見た目設定は無視）。→ §5.4 の「プロジェクト基本情報＝既存を保持」と同じ考え方。
+
+---
+
+### 5.8 注記（`Comment` / `HighlightBox`）— **確定 2026-07-26**
+
+`user-order.md` 項 44 / 45 の要求。**見た目を構成するので文書データとして保存する**（項 57）。**MSPDI へは書かない**（対応概念が無い）。
+
+#### 2 つに分ける（1 つの型に統合しない）
+
+**必要な幾何が違う。** コメントは「**点を指す**」、囲み枠は「**範囲を囲む**」。
+
+```
+Comment        引出し四角 / 折れ線つきの注記
+  id                    PK・UUID（TaskGroup と揃える）
+  leaderShapeKind       'callout-box' | 'polyline'（引出し線の形。項 44 の 2 種）
+  text                  本文
+  anchorDate            指す位置の日付          ← world（ズーム・スクロールに追従）
+  anchorGroupId    FK   指す位置の行 = TaskGroup.id
+  anchorTaskUid?   FK   指す Task（任意）。指定時は 9 点アンカーから引き出す
+  anchorPoint?          9 点アンカー（任意・0-8）
+  bodyOffsetPx          吹き出しの位置 { dx, dy }  ← screen（見た目の距離が一定）
+
+HighlightBox   角丸の囲み枠
+  id                    PK・UUID
+  startDate / endDate   日付の範囲              ← world
+  topGroupId    FK      範囲の上端 = TaskGroup.id
+  bottomGroupId FK      範囲の下端 = TaskGroup.id
+  strokeColor           枠線の色
+  cornerRadiusPx        角丸の R                ← screen（項 45「ズームで同じ大きさに見える」）
+```
+
+#### 行は**インデックスではなく `TaskGroup.id`** で参照する
+
+前プロジェクトは `anchorRowIndex` / `topRowIndex` / `bottomRowIndex`（**行の順番**）で持っていた。
+**行を並べ替えると別の行を指す。** 畳み・非表示でも同じ事故が起きる。
+
+**`TaskGroup.id` 参照にする。** 器は WBS を動かしても作り直さない（§7.1-2）ので、
+**id で紐づけば行が動いても関係が壊れない**。
+
+#### world と screen の使い分け（ここを間違えない）
+
+| 値 | 空間 | 理由 |
+|---|---|---|
+| `anchorDate` / `startDate` / `endDate` | **world** | 日付に紐づくのでズーム・スクロールに追従しなければならない |
+| `anchorGroupId` / `topGroupId` / `bottomGroupId` | **id 参照** | 行の順序に依存させない |
+| `bodyOffsetPx` | **screen（px）** | 吹き出しは文字を含む独立した装飾で、**文字サイズがズーム不変**。px なら**アンカーからの見た目の距離が一定**になる |
+| `cornerRadiusPx` | **screen（px）** | 項 45 の要求そのもの |
+
+> ⚠️ **略称の位置で「ピクセル座標は却下」と決めたのと矛盾しない。** 理由が違う。
+> 略称は**バーの内部/近傍に収まる**必要があり、バーの大きさがズームで変わるので px だと崩れた。
+> コメントの吹き出しは**バーに収まる必要のない独立した装飾**なので、px が望ましい。
+
+#### 畳み・非表示のときの振る舞い（確定）
+
+```
+Comment       指している行が畳まれた / 非表示になった → コメントも一緒に隠す
+              （指す先が見えないのに引出し線だけ浮くのは意味不明。行を戻せば戻るので情報は失わない）
+
+HighlightBox  範囲内の行が非表示になった → 見えている行だけを囲う（枠が縮む）
+              上端・下端が非表示なら、表示中の最も外側の行に寄せる
+```
+
+#### マージ・往復
+
+| 項目 | 扱い |
+|---|---|
+| MSPDI export | **書かない**（対応概念が無い） |
+| MSPDI import | 取込側に注記は存在しない。**既存の注記はそのまま保つ**（消さない・項 61） |
+| 識別子の衝突 | `id` は UUID なので**衝突しない**（UID 再採番の影響を受けない） |
+| 参照先が消えたとき | 指していた `TaskGroup` / `Task` が削除されたら、注記も**連鎖削除**する（§5.5c と同じ規則） |
 
 ---
 
