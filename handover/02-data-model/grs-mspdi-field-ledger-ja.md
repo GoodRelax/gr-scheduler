@@ -13,8 +13,10 @@
 GRS は日程表を **JSON**（主データ）で保持し、外部との交換に **MSPDI XML** を双方向で用いる。主要往復は次の一本道:
 
 ```
-iQUAVIS（構造マスタ） → MSPDI export → GRS で編集 → MSPDI import → iQUAVIS
+外部 WBS マスタ（構造マスタ） → MSPDI export → GRS で編集 → MSPDI import → 外部マスタ
 ```
+
+> **用語**: **外部 WBS マスタ**（以後「外部マスタ」）= **GRS の外側で WBS 構造を保持し、MSPDI を生成・再取込する対向ツール**。特定の製品を指す語ではない。
 
 この往復で情報を落とさないため、**MSPDI の全要素を「GRS がどう扱うか」で仕分ける**のが本書の目的。判定は 5 分類（**Own / Consume / Reconstruct / Carry / Drop**・§4）で行い、**未分類ゼロ・Drop ゼロ**を厳格チェックする。
 

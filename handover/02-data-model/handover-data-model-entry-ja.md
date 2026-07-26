@@ -46,14 +46,14 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
 ## 3. GRS JSON の実例
 
-「車種A」行に、企画◆・設計バー・試作◆を横並べした最小例。
+「製品A」行に、企画◆・設計バー・検証◆を横並べした最小例。
 
 ```json
 {
   "schemaVersion": "grs-1",
   "project": {
     "id": "PRJ-0001",
-    "name": "2026年度 車両開発日程",
+    "name": "2026年度 開発日程",
     "startDate": "2026-04-01T00:00:00",
     "statusDate": "2026-07-26T00:00:00",
     "minutesPerDay": 480,
@@ -69,7 +69,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
     {
       "uid": 1,
       "wbsParentUid": null, "wbsOrder": 0,
-      "name": "車種A",
+      "name": "製品A",
       "start": "2026-04-01T09:00:00", "finish": "2027-03-31T17:00:00",
       "milestone": false,
       "actualStart": null, "actualFinish": null, "progressRatio": 0.15,
@@ -108,7 +108,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
     {
       "uid": 4,
       "wbsParentUid": 1, "wbsOrder": 2,
-      "name": "試作完了",
+      "name": "検証完了",
       "start": "2026-12-20T17:00:00", "finish": "2026-12-20T17:00:00",
       "milestone": true,
       "actualStart": null, "actualFinish": null, "progressRatio": 0,
@@ -125,7 +125,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
   ],
 
   "taskGroups": [
-    { "id": "grp-a", "parentId": null, "label": "車種A", "order": 0,
+    { "id": "grp-a", "parentId": null, "label": "製品A", "order": 0,
       "collapsed": false, "color": "#e8eef7", "height": null }
   ],
   "taskGroupMembers": [
@@ -184,7 +184,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 |---|---|
 | `"actualFinish": null` | **キーを省略せず `null` を明示**。「元ファイルに要素が無かった」を意図として残す（§5.5d） |
 | `"uid": 4` が **`taskOrigins` に無い** | **GRS 生まれ**（`TaskOrigin` の行が無い＝出自なし）。マージで**照合対象にならない**（§5.4） |
-| `"wbsParentUid": 1` が 3 件 | **軸A**（WBS）。企画・設計・試作は「車種A」の子 |
+| `"wbsParentUid": 1` が 3 件 | **軸A**（WBS）。企画・設計・検証は「製品A」の子 |
 | `taskGroupMembers` が 3 件で同じ `groupId` | **軸B**（マルチバー）。**1 行に 3 つのタスク**が載る＝製品の核 |
 | `"stackOrder": null` | **自動**（milestone 優先 → start 昇順 → finish 降順 → uid 昇順）。人が指定した時だけ値が入る |
 | `"fadeOutDays": 5` | 終了日の曖昧さ。**MSPDI へは拡張領域で往復**（§5.5f） |

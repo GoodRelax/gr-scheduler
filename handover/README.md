@@ -7,7 +7,7 @@
 
 ---
 
-## 0. 3 つの原則（最初に読む）
+## 0. 4 つの原則（最初に読む）
 
 ### 0-1. コードは引き継がない。**コピペ禁止**
 
@@ -34,6 +34,17 @@
 `01-mspdi/mspdi/mspdi_pj12.xsd` が正本。日本語の要約文書（`mspdi-*-ja.md`）は**参考であって正ではない**。
 「XSD にこう書いてあった」を根拠にすること。
 
+### 0-4. **特定の業種・特定の製品に依存しない**
+
+本ツールは**業種を問わない汎用の日程表ツール**である。前プロジェクトの文書には特定業種の例示と
+特定製品名が混ざっていたため、**本フォルダでは中立な語に置き換えた**（記録は `NEUTRALIZED-TERMS-ja.md`）。
+
+- 例示は**業種に依存しない語**で書く（「対象」「製品A」「企画/設計/検証/展開」）。
+- 対向ツールは**役割名**で呼ぶ（「外部 WBS マスタ」）。製品名を仕様に埋め込まない。
+- **例外は `MS Project` / `MSPDI`** のみ。これは交換フォーマットの相手先＝機能要求そのもの
+  （`user-order.md` 56）であり、業種の限定ではない。
+- 次期でも**この中立性を維持する**こと。特定業種向けに読める記述を足さない。
+
 ---
 
 ## 1. 読む順
@@ -53,14 +64,14 @@
 | 11 | `05-security-a11y/security-design.md` | 脅威モデル・SVG/JSON/XML/PNG import のサニタイズ・単一 HTML の CSP | 要求として生きている（`user-order.md` 62） |
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
 | 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
+| — | `NEUTRALIZED-TERMS-ja.md` | **ドメイン語・製品名を中立化した記録**（凍結リポジトリの原本との差分） | 原本を併読するとき必要 |
 
 > **迷ったら 8（データ）と 9（命名）を見る。** 2〜4 は前提知識、6 は入口、13 は経緯。
 
 ### 1-1. 文書内のパス表記の読み替え
 
-`handover/` 内の文書は**凍結リポジトリからコピーしたもので、中身は書き換えていない**
-（正が 2 つに分かれるのを避けるため）。したがって文書中のパスは**元リポジトリのパス**で書かれている。
-下表で読み替える。
+`handover/` 内の文書は**凍結リポジトリからのコピー**である。**ドメイン語・製品名の中立化**（`NEUTRALIZED-TERMS-ja.md`）
+以外は書き換えていないため、文書中のパスは**元リポジトリのパス**で書かれている。下表で読み替える。
 
 | 文書中の表記 | `handover/` 内の位置 |
 |---|---|
@@ -70,7 +81,8 @@
 | `docs/spec/_assets/handover-ui-parts-ja.md` / `docs/spec/glossary.md` | `03-ui-naming/` |
 | `docs/spec/_assets/handover-performance-notes-ja.md` | `04-performance/` |
 | `docs/security/security-design.md` / `docs/dev/a11y-wcag21-aa-checklist.md` | `05-security-a11y/` |
-| `docs/spec/_assets/handover-stale-spec-audit-ja.md` / `handover-user-order-diff-ja.md` / `docs/analysis/refactor-gui-data-separation-ja.md` / `plan-actual-visibility-operability-model-ja.md` / `old/日程管理ツール.md` | `06-background/` |
+| `docs/spec/_assets/handover-stale-spec-audit-ja.md` / `handover-user-order-diff-ja.md` / `docs/analysis/refactor-gui-data-separation-ja.md` / `plan-actual-visibility-operability-model-ja.md` | `06-background/` |
+| `old/日程管理ツール.md`（既存ツール比較の調査記録） | **`handover/` には無い**。特定製品の評価を含むため外した（`DISCARDED-ja.md` §3） |
 | 上表に無いパス（`src/` / `tests/` / `.sdoc` / `project-records/` 等） | **`handover/` には無い**。凍結リポジトリを見る。理由は `DISCARDED-ja.md` |
 
 ---
@@ -81,6 +93,7 @@
 handover/
 ├── README.md                        この文書
 ├── DISCARDED-ja.md                  破棄した資産とその理由（同じものを作り直さないため）
+├── NEUTRALIZED-TERMS-ja.md          ドメイン語・製品名の中立化記録（原本との差分）
 ├── user-order.md                    次期開発の入力
 │
 ├── 01-mspdi/                        MSPDI の事実（製品に依存しない・そのまま再利用可）
@@ -114,8 +127,7 @@ handover/
     ├── handover-stale-spec-audit-ja.md              旧仕様の陳腐化監査
     ├── handover-user-order-diff-ja.md               user-order 改訂の差分と理由
     ├── refactor-gui-data-separation-ja.md           **バグ根因の分析**（画面とデータの語彙混在）
-    ├── plan-actual-visibility-operability-model-ja.md  予実の可視性/操作性モデル（未決論点の材料）
-    └── 日程管理ツール.md                             既存ツール調査（本ツールを作る理由）
+    └── plan-actual-visibility-operability-model-ja.md  予実の可視性/操作性モデル（未決論点の材料）
 ```
 
 ---
@@ -142,4 +154,5 @@ handover/
 | `.sdoc` 19 本（293 要求） | 陳腐化を含み `user-order.md` に吸収済み。凍結リポジトリに**参考として残す** |
 | `40-data-format.sdoc` / `gr-scheduler.schema.json` | 旧 flat 形状。`grs-native-erd-ja.md` が正（ユーザー明示で判断材料から除外） |
 | `old/gr-scheduler-template.json` | **廃止済みの予実別行モデル**で書かれ、行 id に制御文字を含む |
+| `old/日程管理ツール.md`（既存ツール比較の調査記録） | **特定製品の評価×特定業種**が前提の文書（§0-4）。結論は `user-order.md`「それはどうして？」に吸収済み |
 | `process-rules/` / `essays/` | gr-sw-maker フレームワーク側の資産。次期でもフレームワークから供給される |
