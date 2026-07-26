@@ -88,7 +88,7 @@
 
 > 「MSP は `Start`/`Finish` + `ActualStart`/`ActualFinish`。これは非対称で、まさに直前 (D-9) で却下した形。**MSP 準拠は D-9 を覆す**。→ 推奨は『MSP の意味と被覆に準拠しつつ、**内部の命名は対称に保ち**…』」
 
-→ **Step 2 で決着させる**（下記 §7 に推奨あり）。
+→ **決着済み**: `../03-ui-naming/handover-ui-parts-ja.md` §5-1（予定 = `start`/`finish`、実績 = `actualStart`/`actualFinish`）。
 
 ### 3-2. ID 生成規則が二重定義
 
