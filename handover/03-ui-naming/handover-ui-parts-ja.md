@@ -2,7 +2,7 @@
 
 - 日付: 2026-07-26
 - 目的: 次期開発が**最初から確定名で始められる**ようにする。現行コードは旧名のままなので、本書の名前で作り直す。
-- 素材: `docs/spec/glossary.md`（製品用語 SSOT・387行・第3版）/ `docs/spec/gur-components.md`（GUI 木）/ `docs/analysis/refactor-gui-data-separation-ja.md`（木の抜けの指摘）/ 今回の GRS データモデル（`grs-native-erd-ja.md`）
+- 素材: 前プロジェクトの用語集・GUI 木（**どちらも旧名のため `handover/` には無い**。`DISCARDED-ja.md` §3）/ `../06-background/refactor-gui-data-separation-ja.md`（木の抜けの指摘）/ `../02-data-model/grs-native-erd-ja.md`（データモデル）
 - 位置づけ: **UI パーツ名の確定版**。データ構造は `grs-native-erd-ja.md` が正。
 
 ---
@@ -15,7 +15,7 @@
 
 現行は同じものに **UI 側と データ側で別の語**を当てており、それが「画面とデータが同じ語彙で混在している」（`refactor-gui-data-separation-ja.md` が指摘した**バグの根因**）状態を生んでいた。次期は**モデルの語彙に一本化**する。
 
-### 1-2. 面ごとの記法（`glossary.md` §2 を継承）
+### 1-2. 面ごとの記法（**本書が正**）
 
 | 面 | 記法 | 例 |
 |---|---|---|
@@ -54,7 +54,7 @@
 
 ## 3. UI パーツ木（確定名・責務つき）
 
-`gur-components.md` の木に、`refactor-gui-data-separation-ja.md` が指摘した**抜け 4 件**（依存線・グリッド線・透かし・モーダル）と `glossary.md` §3.1 の領域を統合した完全版。
+前プロジェクトの GUI 木に、**抜けていた 4 件**（依存線・グリッド線・透かし・モーダル）と画面領域の定義を統合した完全版。**これが正。**
 
 ```
 App Shell                      アプリ全体の器
@@ -97,7 +97,7 @@ App Shell                      アプリ全体の器
     └─ Hidden Group Tab        隠した TaskGroup を戻す小タブ
 ```
 
-> **`‼️`** = `gur-components.md` の初版に無く、`refactor-gui-data-separation-ja.md` が指摘した抜け。
+> **`‼️`** = 前プロジェクトの GUI 木に**無かった**もの。核機能（依存線）まで抜けていたので、**木は必ず全数で持つ**こと。
 
 ---
 
@@ -120,7 +120,7 @@ App Shell                      アプリ全体の器
 
 ## 4-2. UI 再点検の結果 — モデルと突き合わせて判明した差分
 
-`glossary.md` §4〜§9（アイテム字形・予実・掴み領域・時間軸・カーソル・注記）を今回のモデルと全数突合した。
+前プロジェクトの用語集（アイテム字形・予実・掴み領域・時間軸・カーソル・注記）を今回のモデルと**全数突合**した結果。
 
 ### (a) モデルに合わせて改名するもの
 
@@ -132,29 +132,26 @@ App Shell                      アプリ全体の器
 | `planStart` / `planEnd`（改名予定だった） | **`start` / `finish`** | §5-1 |
 | `progressStatus`（現 `status`） | **`progressStatus`** のまま | 用語集の改名を採用（`status` は汎用語すぎる・D-8） |
 
-### (b) モデルに**無い**が UI に必要なもの（次期で追加が要る）
+### (b) 【解決済み】UI に必要で当初モデルに無かった列
 
-今回の `TaskVisual` は `iconShapeKind` / `color` / `nameAnchor` / `nameAlign` / `importance` の 5 列しか持たない
-（`abbrev` は**廃止**。上記 (a) 参照）。**以下が不足**している。
+**すべて取り込み済み**（`../02-data-model/grs-native-erd-ja.md` §5.2 / §5.7）。次期は下表を**確定として**扱う。
 
-| 不足 | 用途 | 備考 |
+| 列 | 用途 | 決着 |
 |---|---|---|
-| `strokeColor` / `fillColor` の分離 | 塗りと輪郭を別に指定 | 現行は `color` 1 列。**2 列に分ける** |
-| **`lineWeight`** | 線の太さ（thin/medium/thick） | **色以外の冗長符号＝WCAG 2.1 AA の要件**。落とせない |
-| `fadeInDays` / `fadeOutDays` | バー端のテーパ（日付の曖昧さ） | 製品固有の表現 |
-| `fullName` / `description` / `remarks` | 正式名称・説明・備考 | `Task.name` とは別 |
-| `progressStatus` | 進捗の自由文字列 | 数値の `progressRatio` とは別 |
-| `taskShape` / `milestoneShape` | 字形（bar/chevron/arrow/span、菱形ほか） | `iconShapeKind` に統合済みか要確認 |
-
-> **これは Step 3（データ構造設計）で `TaskVisual` に追加すべき列**。今回の設計は MSPDI 交換に集中したため、GRS 固有の視覚属性を洗い切れていない。
+| `strokeColor` / `fillColor` | 塗りと輪郭を別に指定 | **2 列に分けた**（`color` 1 列をやめた） |
+| **`lineWeight`** | 線の太さ（thin/medium/thick） | **採用**。色以外の冗長符号は WCAG 2.1 AA の要件で落とせない |
+| `fadeInDays` / `fadeOutDays` | バー端のテーパ（日付の曖昧さ） | **`Task` の列**として採用（`TaskVisual` ではない。MSPDI 拡張領域で往復するため） |
+| `progressStatus` | 進捗の自由文字列 | **採用**。数値の `progressRatio` とは別物 |
+| `taskShape` / `milestoneShape` | 字形 | **`iconShapeKind` の 1 列に統合**（2 列に分けない） |
+| `fullName` / `description` / `remarks` | 正式名称・説明・備考 | **不採用**。テキスト列は `name` ＋ `notes` の 2 つだけ（MSPDI に合わせた） |
 
 ### (c) 用語の区別として**維持すべき**もの
 
 | 区別 | 内容 |
 |---|---|
-| **日付 vs 掴み点** | 「開始日/終了日」＝データ、「開始点/終了点」＝画面で掴む場所。**混用禁止**（`glossary.md` §5 の明示規則） |
+| **日付 vs 掴み点** | 「開始日/終了日」＝データ、「開始点/終了点」＝画面で掴む場所。**混用禁止**。掴み領域の全数は `handover-ui-detail-spec-ja.md` §4-1 |
 | **デュアルカーソル vs ガイドカーソル** | 前者は 2 本で日数を測る機能、後者はポインタ追従の補助線。**別物** |
-| **`measuredSpanDays` vs `span`（字形）** | 「計測スパン」と「スパン字形」は別語義（D-16） |
+| **`measuredSpanDays` vs `span`（字形）** | 「計測スパン」（デュアルカーソルが測る日数）と「スパン字形」（細線の字形）は**別語義**。同じ語を使わない |
 
 ---
 
@@ -163,7 +160,7 @@ App Shell                      アプリ全体の器
 | # | 論点 | 状況 |
 |---|---|---|
 | ~~5-1~~ | ~~予定日付のフィールド名~~ | **確定**（B 案。下記） |
-| 5-2 | `Command Palette` の UI 表示名（`glossary.md` D-7 協議中） | ヘッダーの `Cmd` ボタンとの対応は確定済み。表示文字列のみ未決 |
+| 5-2 | `Command Palette` の UI 表示名 | ヘッダーの `Cmd` ボタンとの対応は確定済み。**画面に出す文字列だけ未決**（構造に影響しない） |
 | 5-3 | `CursorMode` と `CursorGuideMode` の重複（同 D-21） | 未調査。**型が 2 つ残っている**。次期で 1 つに統合する |
 | ~~5-4~~ | ~~予実の編集モデルと遮蔽時の運用~~ | **確定**（2026-07-26 ユーザー確定。下記） |
 | ~~5-5~~ | ~~ユーザー未回答の穴 2 件~~ | **確定**（同上） |
@@ -184,7 +181,7 @@ App Shell                      アプリ全体の器
 
 **確定**: 予定 = **`start` / `finish`**、実績 = **`actualStart` / `actualFinish`**。
 
-**これは `glossary.md` D-9（`planStart`/`planEnd` に改名する）を覆す**。覆す理由を記録する:
+**これは前プロジェクトの用語集が定めた目標（`planStart`/`planEnd` に改名する）を覆す**。覆す理由を記録する:
 
 1. **`plan` 接頭辞は部分的にしか適用できない** — 予定側には `deadline`（期限）・`stop`/`resume`（中断）もある。`planStart` にするなら `planDeadline` になってしまい、**かえって不統一**になる。
 2. **日程ドメインの標準語彙** — MSPDI も P6 も `Start`/`Finish` を予定の意味で使う。この分野の読み手には `start` = 予定開始が自然。
@@ -198,6 +195,9 @@ App Shell                      アプリ全体の器
 
 ## 6. 次期への申し送り
 
-1. **現行コードは全て旧名**（`glossary.md` の「改名予定」列が示すとおり）。次期は本書の確定名で**最初から**書く。
-2. **`glossary.md` は保守する価値がある**。387 行・221 表行で、用語の揺れ 22 件を確定/協議中の別に記録している。次期でも**製品用語の SSOT** として引き継ぐ。
+1. **現行コードは全て旧名**。次期は本書の確定名で**最初から**書く。
+2. **用語集は次期が自分で作る。前プロジェクトの用語集は引き継がない**（`DISCARDED-ja.md` §3）。
+   199 表行の大半が旧名か本書との重複で、**残すと「どちらが勝つか」を読む側が毎回判断させられる**。
+   **用語の正は 2 つだけにする**: 本書（命名）と `../02-data-model/grs-native-erd-ja.md`（データ構造）。
+   新しい用語を足すときの規則は **§1-2（面ごとの記法・語幹一致）** と **1 概念 1 語**（`user-order.md` 項 66）。
 3. **語彙の重複がバグの源だった**という分析（`refactor-gui-data-separation-ja.md`）は次期でも有効。**1 概念 1 語**を維持する。

@@ -71,9 +71,8 @@
 | 7 | `02-data-model/grs-mspdi-field-ledger-ja.md` | 全要素の取捨選択（Own / Consume / Reconstruct / Carry / Drop） | 仕分けの実例。枠組み自体が再利用できる |
 | **8** | **`02-data-model/grs-native-erd-ja.md`** | **データ構造の確定版**。ERD・識別子・マージ・Carry ストア・往復規約 | **データ構造の正** |
 | 8b | `02-data-model/handover-property-mspdi-mapping-ja.md` | プロパティ全項目の MSPDI 対応（XSD 実測）・**進捗と実績の関係**・無い項目の格納方式 3 案比較 | 項目を増やす前に読む |
-| **9** | **`03-ui-naming/handover-ui-parts-ja.md`** | **UI パーツ名と責務**（確定名）。語彙 6 系統 → 3 語 | **命名の正** |
-| 9b | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**。4 部構成の内訳・上部ボタン・パレット構成・**予実の編集モデル**・操作割当・自動レイアウト規則 | 実装前に読む |
-| 10 | `03-ui-naming/glossary.md` | 製品用語の網羅的な参考（387 行 / 揺れ 22 件の記録） | ⚠️ **旧名の列を含む**。9 と食い違ったら 9 が勝つ |
+| **9** | **`03-ui-naming/handover-ui-parts-ja.md`** | **UI パーツ名と責務**（確定名）。語彙 6 系統 → 3 語。**面ごとの記法と語幹一致の規則**もここ | **命名の正** |
+| 9b | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**。4 部構成の内訳・上部ボタン・パレット構成・**掴み領域**・**予実の編集モデル**・操作割当・自動レイアウト規則 | 実装前に読む |
 | 11 | `05-security-a11y/security-design.md` | 脅威モデル・**JSON / MSPDI XML** の検証・単一 HTML の CSP | 要求として生きている（`user-order.md` 62）。⚠️ **冒頭の注記を先に読む** — SVG/PNG 取込の節は**対象機能が取り下げ済み** |
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
 | 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
@@ -92,7 +91,8 @@
 | `docs/spec/vendor/mspdi-*.md` | `01-mspdi/mspdi-*.md` |
 | `docs/spec/vendor/mspdi/mspdi_pj12.xsd` | `01-mspdi/mspdi/mspdi_pj12.xsd` |
 | `docs/spec/_assets/grs-*.md` / `handover-data-model-entry-ja.md` | `02-data-model/` |
-| `docs/spec/_assets/handover-ui-parts-ja.md` / `docs/spec/glossary.md` | `03-ui-naming/` |
+| `docs/spec/_assets/handover-ui-parts-ja.md` | `03-ui-naming/` |
+| `docs/spec/glossary.md`（前プロジェクトの用語集） | **`handover/` には無い**。旧名で書かれているため外した（`DISCARDED-ja.md` §3） |
 | `docs/spec/_assets/handover-performance-notes-ja.md` | `04-performance/` |
 | `docs/security/security-design.md` / `docs/dev/a11y-wcag21-aa-checklist.md` | `05-security-a11y/` |
 | `docs/spec/_assets/handover-stale-spec-audit-ja.md` / `handover-user-order-diff-ja.md` / `docs/analysis/refactor-gui-data-separation-ja.md` / `plan-actual-visibility-operability-model-ja.md` | `06-background/` |
@@ -129,8 +129,7 @@ handover/
 │
 ├── 03-ui-naming/                    命名（1 概念 1 語）
 │   ├── handover-ui-parts-ja.md      ★UI パーツ名と責務の確定版
-│   ├── handover-ui-detail-spec-ja.md  UI 詳細仕様（画面構成・操作割当・予実の編集モデル）
-│   └── glossary.md                  製品用語の参考（旧名を含む）
+│   └── handover-ui-detail-spec-ja.md  UI 詳細仕様（画面構成・掴み領域・操作割当・予実の編集モデル）
 │
 ├── 04-performance/                  ぬるサク
 │   └── handover-performance-notes-ja.md  ★効いた手 / 罠 / 実測基準線 / 参考実装
