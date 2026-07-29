@@ -73,7 +73,7 @@
 | 8b | `02-data-model/handover-property-mspdi-mapping-ja.md` | プロパティ全項目の MSPDI 対応（XSD 実測）・**進捗と実績の関係**・無い項目の格納方式 3 案比較 | 項目を増やす前に読む |
 | **9** | **`03-ui-naming/handover-ui-parts-ja.md`** | **UI パーツ名と責務**（確定名）。語彙 6 系統 → 3 語。**面ごとの記法と語幹一致の規則**もここ | **命名の正** |
 | 9b | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**。4 部構成の内訳・上部ボタン・パレット構成・**掴み領域**・操作割当・自動レイアウト規則 | 実装前に読む |
-| **10** | **`07-plan-actual/handover-plan-actual-decisions-ja.md`** | **予実・進捗の確定設計**。MSPDI の `Stop`/`Resume`/`ResumeValid` をそのまま使うモデル・4 状態・字形・Progress Marker・イナズマ線の頂点規則・Undo・命名 | **この領域はここが正**。⚠️ 8b と 9b の予実まわりを**上書きする**（同書 §9 に差分の全数） |
+| **10** | **`07-plan-actual/handover-plan-actual-decisions-ja.md`** | **予実・進捗の確定設計**。MSPDI の `Stop`/`Resume`/`ResumeValid` をそのまま使うモデル・4 状態・形状・Progress Marker・イナズマ線の頂点規則・Undo・命名 | **この領域はここが正**。⚠️ 8b と 9b の予実まわりを**上書きする**（同書 §9 に差分の全数） |
 | 11 | `05-security-a11y/security-design.md` | 脅威モデル・**JSON / MSPDI XML** の検証・単一 HTML の CSP | 要求として生きている（`user-order.md` 62）。⚠️ **冒頭の注記を先に読む** — SVG/PNG 取込の節は**対象機能が取り下げ済み** |
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
 | 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
@@ -150,7 +150,7 @@ handover/
 │
 └── 07-plan-actual/                  予実・進捗の確定設計（この領域の正）
     └── handover-plan-actual-decisions-ja.md
-                                     MSPDI 準拠モデル・4 状態・字形・Progress Marker
+                                     MSPDI 準拠モデル・4 状態・形状・Progress Marker
                                      イナズマ線の頂点規則・Undo・命名
                                      ⚠️ §9 に「既存文書のどこを上書きするか」の全数
 ```

@@ -12,7 +12,7 @@
 > | 本書の記述 | 確定 |
 > |---|---|
 > | 実績は `actualStart` / `actualFinish` / `progressRatio` の 3 項目 | **`actualStart` / `actualDuration` / `actualFinish` / `resume` / `resumeValid` / `percentComplete`** |
-> | 進捗率は 0〜1 の入力値 | **`percentComplete` は整数 0〜100。`actualDuration` から算出して格納する導出値** |
+> | 進捗率は 0〜1 の入力値 | **`percentComplete` は整数・0 以上。`actualDuration` から算出して格納する導出値** |
 > | 3 状態（未着手 / 進行中 / 完了） | **4 状態**（中断・再開予定あり / 中断・再開日未定 を追加） |
 > | GRS は `ActualDuration` を持たない | **持つ**。実績バーの長さそのもの（稼働日数） |
 > | §3-4 #8 `Stop`/`Resume` は拡張領域へ | **撤回。`Stop`/`Resume`/`ResumeValid` は Own（ネイティブ）** |
@@ -53,7 +53,7 @@
 | `finish` | date-time | `Task/Finish` | `xsd:dateTime` | **Own** | 予定終了 |
 | `actualStart` | date-time | `Task/ActualStart` | `xsd:dateTime` | **Own** | |
 | `actualFinish` | date-time | `Task/ActualFinish` | `xsd:dateTime` | **Own** | |
-| `percentComplete` | 整数 0〜100 | `Task/PercentComplete` | `xsd:integer` | **Own** | そのまま保持。`actualDuration` から算出（§3） |
+| `percentComplete` | 整数・0 以上 | `Task/PercentComplete` | `xsd:integer` | **Own** | そのまま保持。`actualDuration` から算出（§3） |
 | `actualDuration` | 稼働日数 | `Task/ActualDuration` | `xsd:duration` | **Own** | 実績バーの長さそのもの（§3-2） |
 | `resume` / `resumeValid` | 日付 / 真偽 | `Task/Resume` `Task/ResumeValid` | — | **Own** | 中断のときだけ。§3-4 #8 を撤回 |
 | `deadline` | date-time | `Task/Deadline` | `xsd:dateTime` | **Own** | 終了日とは別の独立マーカー |
@@ -69,7 +69,7 @@
 | GRS プロパティ | 何のためか | なぜ MSPDI に無いか |
 |---|---|---|
 | `nameAnchor` / `nameAlign` | 名称ラベルの位置（9 点アンカー＋整列） | MSPDI は**描画設定を持たない**（ビュー定義はファイル外） |
-| `shapeKind` | 形状種（矩形/矢羽根/矢印/端点スパン、マイルストーン字形） | 同上 |
+| `shapeKind` | タスク形状（矩形/矢羽根/矢印/端点スパン/マイルストーン。マイルストーンの形は `milestoneGlyph`） | 同上 |
 | `strokeColor` / `fillColor` / `lineWeight` | 枠色 / 塗り色 / 線の太さ | 同上（Bar Styles は MSPDI に入らない） |
 | ~~`importance`~~ | （廃止）LOD は **WBS の階層の深さ**（`OutlineLevel`）で判定する | — |
 | ~~`progressStatus`~~ | （廃止）状態が `actualFinish`/`resume`/`resumeValid` で構造化された | — |
@@ -148,7 +148,7 @@ Duration, ActualDuration, RemainingDuration, Work, ActualWork, RemainingWork
 | 日付 | `resume` | 残りが再開する予定日（中断時のみ） |
 | 真偽 | `resumeValid` | 再開可否。`false` = 再開日未定の中断（＝中止） |
 | 日付 | `deadline` | 期限 |
-| 割合 | **`percentComplete`** | **完了率（整数 0〜100）。`actualDuration ÷ 予定期間` から算出して格納** |
+| 割合 | **`percentComplete`** | **完了率（整数・0 以上）。`actualDuration ÷ 予定期間` から算出して格納** |
 | 基準 | `Project.statusDate` | 予実の基準日。イナズマ線の縦線位置 |
 | 表示 | 担当者名 | `Assignment` → `Resource.Name` から導出。**編集しない** |
 
@@ -307,12 +307,23 @@ DurationFormat             → 元の値の書式を踏襲する（7=d は稼働
 ```
 1. 未編集で往復 → ExtendedAttribute の原順序まで完全一致
 2. 進捗を編集して往復 → 出力ファイル内で
-     ActualDuration / Duration = PercentComplete       が成立
      Duration = ActualDuration + RemainingDuration     が成立
 3. 進行中タスク（ActualFinish 空）を必須ケースに含める
 4. 工数を持つファイルを編集 → 工数が変わっていない ＋ 通知が出る
 5. マイルストーン（Duration = 0）で 0 除算しない
 ```
+
+> ⚠️ **`PercentComplete` を検査から外した — 確定 2026-07-30**
+>
+> 旧 2 の 1 本目 `ActualDuration / Duration = PercentComplete` は**成立しない**。理由は 2 つ:
+>
+> 1. `percentComplete` の分母は **`finish − start`** であって `Duration` ではない。`Duration` は
+>    **未編集なら受け取った値をそのまま書き戻す**ので、両者は一致しないことがある。
+> 2. **100 を超える値を丸めない**方針なので、割合としての等式が破れる。
+>
+> さらに**完了タスクでは `PercentComplete` を書かない**（要素を出さない）と決めたため、
+> 検査対象として安定しない。**検査すべきは「往復同一性」と「Drop = 0」の 2 本**であり、
+> GRS が意図的に維持しない算術等式を検査してはならない。
 
 > **未検証**: 「MS Project が量と率のどちらを信じるか」は XSD に書かれておらず、実機で確認していない。
 > **本仕様はその答えに依存しない**（GRS 側で整合させるので、相手がどちらを信じても同じ結果になる）。

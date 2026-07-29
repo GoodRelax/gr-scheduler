@@ -11,7 +11,7 @@
 >
 > | 旧 | 確定 |
 > |---|---|
-> | `progressRatio`（0〜1） | **`percentComplete`**（整数 0〜100。`actualDuration` から算出して格納） |
+> | `progressRatio`（0〜1） | **`percentComplete`**（整数・0 以上。`actualDuration` から算出して格納） |
 > | `actualFinish` が実績バーの右端 | **右端 = `actualStart + actualDuration`**。`actualFinish` は**完了時だけ** |
 > | （無し） | **`actualDuration`** / **`resume`** / **`resumeValid`** を追加 |
 > | `importance` / `progressStatus` | **どちらも廃止** |
@@ -19,6 +19,8 @@
 > | `planActualStyle`（`'overlap'` \| `'separate'`） | **廃止**。上下分離表示そのものを廃止した（項 52 は欠番） |
 > | `cursorGuideMode` | **`guideCursorMode`** へ改名（`Cursor Guide` → `Guide Cursor`） |
 > | （無し） | **`progressMarkerVisible`** を追加（進捗マーカーの全体非表示トグル） |
+> | `shapeKind: "diamond"` | **`shapeKind: "milestone"` ＋ `milestoneGlyph: "diamond"`**。`shapeKind` は 5 値、マイルストーンの形は別列（同書 §2-2-2） |
+> | `percentComplete` は 0〜100 | **整数・0 以上**（通常 0〜100。予定期間を超えると 100 を超える） |
 
 
 ## 1. 読む順（6 文書）
@@ -42,7 +44,7 @@
 MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 ├─ Project                          ├─ TaskGroup          行の器（入れ子 ≤Lv5）
 ├─ Task ★                           ├─ TaskGroupMember    どの行に載るか＋段
-├─ Dependency ★                     ├─ TaskVisual         名称ラベル位置・色・字形・線幅
+├─ Dependency ★                     ├─ TaskVisual         名称ラベル位置・色・形状・線幅
 ├─ Calendar / WeekDay / Exception   ├─ TaskOrigin         出自（マージ判定用）
 └─ Resource / Assignment（軽量）    ├─ Comment            引出し四角/折れ線の注記（§5.8）
                                     └─ HighlightBox       角丸の囲み枠（§5.8）
@@ -164,10 +166,12 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
   "taskVisuals": [
     { "taskUid": 2, "nameAnchor": null, "nameAlign": null,
-      "shapeKind": "diamond", "fillColor": "#4a76c8", "strokeColor": "#2b4a80",
+      "shapeKind": "milestone", "milestoneGlyph": "diamond",
+      "fillColor": "#4a76c8", "strokeColor": "#2b4a80",
       "lineWeight": "medium" },
     { "taskUid": 3, "nameAnchor": null, "nameAlign": null,
-      "shapeKind": "bar", "fillColor": "#6aa84f", "strokeColor": "#38601f",
+      "shapeKind": "bar", "milestoneGlyph": null,
+      "fillColor": "#6aa84f", "strokeColor": "#38601f",
       "lineWeight": "medium" }
   ],
 
@@ -242,7 +246,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 |---|---|---|
 | 値が無い列 | **`null` を明示** | **要素を書かない** |
 | `Reconstruct` 列（`ID`/`OutlineLevel`/`OutlineNumber`/`Summary`） | **持たない** | **その場で算出して書く** |
-| `percentComplete` | **整数 0〜100** で持つ | `PercentComplete` に**そのまま書く**（import でも **読む＝Own**。読まないと進捗を失う） |
+| `percentComplete` | **整数・0 以上**（通常 0〜100）で持つ | `PercentComplete` に**そのまま書く**（import でも **読む＝Own**。読まないと進捗を失う） |
 | `actualDuration` | 稼働日数 | `ActualDuration` に書く。**実績バーの長さそのもの** |
 | `Duration` | **未編集は受け取った値を保持 / 編集済は持たない** | **未編集はそのまま書き戻す / 編集済は `finish − start` で算出**（§3-4 #3/#4） |
 | `RemainingDuration` | 不透明に保持（**Carry**） | **未編集はそのまま / 編集済は再計算して上書き**（同上） |
@@ -250,7 +254,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 | `TaskGroup` / `TaskGroupMember` / `TaskVisual` / `TaskOrigin` / `documentSettings` | 持つ | **書かない**（GRS 専用） |
 | `fadeInDays` / `fadeOutDays` | Task の列 | **`ExtendedAttribute`**（定義＋値の 2 層）で書く。**拡張領域を使うのはこの 2 つだけ**（`Number1` / `Number2`） |
 | `resume` / `resumeValid` | Task の列 | **MSPDI ネイティブ**（`Resume` / `ResumeValid`）。§3-4 #8 を撤回した |
-| 見た目（色 / 字形 / 線幅 / `nameAnchor` / `nameAlign`） | 持つ | **書かない**（相手は解釈できない。§4-1） |
+| 見た目（色 / 形状 / 線幅 / `nameAnchor` / `nameAlign`） | 持つ | **書かない**（相手は解釈できない。§4-1） |
 | `carry` / `carryElements` | 不透明に保持 | **原順序で書き戻す** |
 
 ---

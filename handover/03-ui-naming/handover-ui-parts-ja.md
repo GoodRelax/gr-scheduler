@@ -80,7 +80,8 @@
 | `resumeValid` | **再開可否** |
 | `percentComplete` | **完了率** |
 | `deadline` | 期限 |
-| `shapeKind` | **形状種** |
+| `shapeKind` | **タスク形状**（5 値。`'milestone'` のときだけ `milestoneGlyph` を見る） |
+| `milestoneGlyph` | **マイルストーン形状**（〇 △ ▽ □ ☆ 五角形 六角形） |
 | `strokeColor` / `fillColor` / `lineWeight` | **線色** / 塗り色 / 線の太さ |
 | `nameAnchor` / `nameAlign` | **名称アンカー** / **名称の揃え** |
 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 |
@@ -235,7 +236,7 @@ App Shell                      アプリ全体の器
 
 ## 4-2. UI 再点検の結果 — モデルと突き合わせて判明した差分
 
-前プロジェクトの用語集（アイテム字形・予実・掴み領域・時間軸・カーソル・注記）を今回のモデルと**全数突合**した結果。
+前プロジェクトの用語集（アイテム形状・予実・掴み領域・時間軸・カーソル・注記）を今回のモデルと**全数突合**した結果。
 
 ### (a) モデルに合わせて改名するもの
 
@@ -247,10 +248,10 @@ App Shell                      アプリ全体の器
 | `planStart` / `planEnd`（改名予定だった） | **`start` / `finish`** | §5-1 |
 | ~~`progressStatus`~~ | **廃止** | 状態が構造化されて不要になった（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §9-5） |
 | `iconShapeKind` | **`shapeKind`** | 「アイコン」の 3 つ目の用法を作らない（同 §9-1） |
-| `progressRatio`（0〜1） | **`percentComplete`**（整数 0〜100） | MSPDI 同名・同型（`xsd:integer`） |
+| `progressRatio`（0〜1） | **`percentComplete`**（整数・0 以上） | MSPDI 同名・同型（`xsd:integer`） |
 | ~~`importance`~~ | **廃止** | LOD は WBS の階層の深さで判定する（同 §5） |
 | `Cursor Guides`（親） / `Cursor Guide`（子） | **`Cursors`** / **`Guide Cursor`** | 親子が単複違いの同名だった。子だけ語順が逆だった（§2-1-3） |
-| `span`（形状種名） | **`endpointSpan`** | `measuredSpanDays` と語義が衝突する（§4-2(c)） |
+| `span`（タスク形状名） | **`endpointSpan`** | `measuredSpanDays` と語義が衝突する（§4-2(c)） |
 
 ### (b) 【解決済み】UI に必要で当初モデルに無かった列
 
@@ -262,7 +263,8 @@ App Shell                      アプリ全体の器
 | **`lineWeight`** | 線の太さ（thin/medium/thick） | **採用**。色以外の冗長符号は WCAG 2.1 AA の要件で落とせない |
 | `fadeInDays` / `fadeOutDays` | バー端のテーパ（日付の曖昧さ） | **`Task` の列**として採用（`TaskVisual` ではない。MSPDI 拡張領域で往復するため） |
 | ~~`progressStatus`~~ | 進捗の自由文字列 | **廃止**（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §9-5） |
-| `taskShape` / `milestoneShape` | 形状種 | **`shapeKind` の 1 列に統合**（2 列に分けない） |
+| `taskShape` / `milestoneShape` | タスク形状 | **`shapeKind` の 1 列に統合**（2 列に分けない）。※マイルストーンの**形の詳細**だけは `milestoneGlyph` に分ける（2026-07-30・`../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-2-2） |
+| 「**字形**」（日本語） | **形状** | 「字形」は書体の話に読めるので使わない（2026-07-30）。`shapeKind` = **タスク形状**、`milestoneGlyph` = **マイルストーン形状**。※「フォントの字形に依存しない」のように**書体そのもの**を指す場合だけ「字形」を使ってよい |
 | `fullName` / `description` / `remarks` | 正式名称・説明・備考 | **不採用**。テキスト列は `name` ＋ `notes` の 2 つだけ（MSPDI に合わせた） |
 
 ### (c) 用語の区別として**維持すべき**もの
@@ -271,7 +273,7 @@ App Shell                      アプリ全体の器
 |---|---|
 | **日付 vs 掴み点** | 「開始日/終了日」＝データ、「開始点/終了点」＝画面で掴む場所。**混用禁止**。掴み領域の全数は `handover-ui-detail-spec-ja.md` §4-1 |
 | **デュアルカーソル vs ガイドカーソル** | 前者は 2 本で日数を測る機能、後者はポインタ追従の補助線。**別物** |
-| **`measuredSpanDays` vs `endpointSpan`（形状種）** | 「計測スパン」（デュアルカーソルが測る日数）と「端点スパン」（細線の形状種）は**別語義**。`span` を単独で使わない |
+| **`measuredSpanDays` vs `endpointSpan`（タスク形状）** | 「計測スパン」（デュアルカーソルが測る日数）と「端点スパン」（細線のタスク形状）は**別語義**。`span` を単独で使わない |
 
 ---
 
@@ -299,10 +301,11 @@ App Shell                      アプリ全体の器
 予定バーの高さ > 実績バーの高さ    上下に露出した帯で予定を掴む
 ```
 
-- **上下に幅がある形状種**（`bar` / `chevron`）は、**実績を予定の内側に重ねる**。露出した帯が予定の掴み代になる。
-- **幅がない形状種**（`arrow` / `endpointSpan` / `milestone`）は内側に収められないので、
-  **その形状種だけ実績を下にずらす**。文書全体のモードではなく、**形状種ごとの描き方**である。
-- 幅がない形状種でも**実績ぶんの高さを常に確保する**（表示を切り替えても行の高さが動かない）。
+- **実績は予定と同じ形状で描く**（2026-07-30 追加）。予定が矢羽根なら実績も矢羽根。**実績だけ四角にしない。**
+- **上下に幅があるタスク形状**（`bar` / `chevron`）は、**実績を予定の内側に重ねる**。露出した帯が予定の掴み代になる。
+- **幅がないタスク形状**（`arrow` / `endpointSpan` / `milestone`）は内側に収められないので、
+  **そのタスク形状だけ実績を下にずらす**。文書全体のモードではなく、**タスク形状ごとの描き方**である。
+- 幅がないタスク形状でも**実績ぶんの高さを常に確保する**（表示を切り替えても行の高さが動かない）。
 
 `[予定]` `[実績]` の 2 トグル（表示の絞り込み）は残す。**両方 OFF は作らせない。**
 根拠と却下案は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-2 / §2-3 が正。

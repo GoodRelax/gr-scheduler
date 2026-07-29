@@ -15,7 +15,7 @@
 >
 > | 本書の記述 | 確定 |
 > |---|---|
-> | `progressRatio`（0..1） | **`percentComplete`**（整数 0〜100）。**`actualDuration` から算出して格納** |
+> | `progressRatio`（0..1） | **`percentComplete`**（整数・0 以上）。**`actualDuration` から算出して格納** |
 > | `actualFinish` を実績バーの右端とする | **右端は `actualStart + actualDuration`**。`actualFinish` は**完了時だけ**入る |
 > | （無し） | **`actualDuration`** を追加（稼働日数。実績バーの長さそのもの） |
 > | （無し） | **`resumeValid`** を追加（`false` = 再開日未定の中断＝中止） |
@@ -23,7 +23,7 @@
 > | `stop` を保存する | **保存しない**。中断時の右端と同じ値なので export で算出する |
 > | `importance`（LOD の選別） | **廃止**。LOD は **WBS の階層の深さ**（`wbs_parent_uid` から導出）で判定 |
 > | `progressStatus`（自由文字列） | **廃止**。状態が `actualFinish`/`resume`/`resumeValid` で構造化された |
-> | `iconShapeKind` | **`shapeKind`** へ改名（形状種） |
+> | `iconShapeKind` | **`shapeKind`** へ改名（タスク形状） |
 >
 > **拡張領域を使うのは `fadeInDays` / `fadeOutDays` の 2 つだけ**になった（旧 6 枠 → 2 枠）。
 
@@ -322,7 +322,8 @@ erDiagram
         int task_uid PK "‼️ → Task.uid"
         int nameAnchor "‼️ null=自動 / 0-8(9点アンカー)"
         string nameAlign "‼️ null=自動 / left|center|right"
-        string shapeKind "‼️ 形状種（bar/chevron/arrow/endpointSpan/マイルストーン字形）"
+        string shapeKind "‼️ タスク形状（bar/chevron/arrow/endpointSpan/milestone の 5 値）"
+        string milestoneGlyph "‼️ マイルストーン形状（shapeKind='milestone' のときだけ見る）"
         string fillColor "‼️ 塗り色"
         string strokeColor "‼️ 線色"
         string lineWeight "‼️ 線の太さ（thin/medium/thick・a11y の非色符号）"
@@ -770,7 +771,7 @@ MSPDI 由来のデータは `OutlineLevel`＋順序から組むので**構造上
 
 **GRS 固有だが往復させたい値は、MSPDI の拡張領域に載せる。** 第 1 号が **`fadeInDays` / `fadeOutDays`**（バー端のテーパ＝日付の曖昧さ）。
 
-> **なぜ `Task` に置くか**: 拡張領域は **MSPDI の一部**なので、そこで往復する値は「MSPDI に存在するデータ」である。したがって「`Task` は MSPDI 由来の列のみ」という原則（§4-1）に反しない。**`TaskVisual` に置くべきは「MSPDI に写す先が無いもの」**（色・字形・名称ラベル位置）であり、fade は写し先を持つので区別される。`Task` と別管理にすると実装が複雑になる、という判断でもある。
+> **なぜ `Task` に置くか**: 拡張領域は **MSPDI の一部**なので、そこで往復する値は「MSPDI に存在するデータ」である。したがって「`Task` は MSPDI 由来の列のみ」という原則（§4-1）に反しない。**`TaskVisual` に置くべきは「MSPDI に写す先が無いもの」**（色・形状・名称ラベル位置）であり、fade は写し先を持つので区別される。`Task` と別管理にすると実装が複雑になる、という判断でもある。
 
 #### MSPDI 側の構造 — 定義と値の 2 層
 
@@ -855,7 +856,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 | `TaskGroupMember.stack_order` | **保持（疎）・復活** | 当初「全自動だから削除」としたが、**ALIGN-L2-004/L1-001/L2-001（承認済み Must）が縦位置の意図を要求**するため復活。`null`=自動 / 値=人の指定 |
 | `TaskVisual.nameAnchor` / `nameAlign` | 保持（疎） | **原則自動配置。人が動かした時だけ値を持つ**（`null`=自動）。9点アンカー＋左/中央/右詰め |
 | `TaskGroup.height` | 保持（疎） | **原則自動。所定フォーマットに合わせて人が指定した時だけ値を持つ**（`null`=自動）。→ 疎な上書きパターン |
-| `TaskVisual` の視覚列（色・字形・線の太さ・名称ラベル位置） | 妥当 | いずれもユーザーの意思（色・形・ラベル位置）で算出不能。保持。※`importance`（重要度）は**廃止した**ので列に無い（冒頭の上書き表・LOD は WBS の階層の深さで判定） |
+| `TaskVisual` の視覚列（色・形状・線の太さ・名称ラベル位置） | 妥当 | いずれもユーザーの意思（色・形・ラベル位置）で算出不能。保持。※`importance`（重要度）は**廃止した**ので列に無い（冒頭の上書き表・LOD は WBS の階層の深さで判定） |
 | `stack_direction`（文書設定） | 妥当 | ユーザーの選択（上/下）。**文書に 1 個**で行ごとに持たない＝冗長なし |
 | `TaskGroup.collapsed` / `color` | 妥当 | ユーザー操作・書式の意思。**見た目の一部なので保存し共有で再現**（§5.7）。保持 |
 | `TaskGroup.order` / `Task.wbs_order` | 妥当 | 並び順はユーザーの意思。算出不能。保持 |
@@ -946,7 +947,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 
 | 種別 | 例 | 保存 | 共有で再現 |
 |---|---|:--:|:--:|
-| **文書データ（見た目を決める）** | `TaskVisual`（色/形状種/名称ラベル位置）、`TaskGroup`（**折畳/色/行高**含む）、`TaskGroupMember` | ○ | ○ |
+| **文書データ（見た目を決める）** | `TaskVisual`（色/タスク形状/名称ラベル位置）、`TaskGroup`（**折畳/色/行高**含む）、`TaskGroupMember` | ○ | ○ |
 | **文書設定（全体書式）** | `stack_direction`、`zoom`（縦/横） | ○ | ○ |
 | **一時 UI 状態（見た目ではない）** | 選択・ホバー・Undo/Redo 履歴 | ✗ | — |
 
@@ -1058,7 +1059,7 @@ Progress Marker（進捗マーカー）は**全体を非表示にするトグル
 プリセット  A3 横 2480 × 1754 ／ A4 横 1754 × 1240（150dpi）／ 現在の画面
 PNG のみ    倍率 1x / 2x
 
-収まらない場合は縮小して収める。文字が下限 10px を割るときは警告する（§4-2）
+収まらない場合は縮小して収める。文字が下限 12px を割るときは警告する（§4-2）
 ```
 
 > ⚠️ **16:9 は、スライドにタイトルを残して貼ると左右に余白が出る**（本文領域は約 2.3:1）。
@@ -1076,7 +1077,7 @@ PNG のみ    倍率 1x / 2x
 
 | 廃止した項目 | 理由 |
 |---|---|
-| `planActualStyle`（`'overlap'` \| `'separate'`） | **上下分離表示そのものを廃止した**（`user-order.md` 項 52 は欠番）。予定バーの高さ > 実績バーの高さ で幾何的に解き、**幅がない形状種だけ実績を下にずらす**。切替の設定は要らない。詳細は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-3 |
+| `planActualStyle`（`'overlap'` \| `'separate'`） | **上下分離表示そのものを廃止した**（`user-order.md` 項 52 は欠番）。予定バーの高さ > 実績バーの高さ で幾何的に解き、**幅がないタスク形状だけ実績を下にずらす**。切替の設定は要らない。詳細は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-3 |
 
 ---
 
@@ -1164,7 +1165,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | **Exception**          |     暦     | MSPDI-Own                        | 祝日・特別日（祝日グレー表示の元）。弱エンティティ。                                                                       |
 | **Resource**           | 資源(軽量) | MSPDI-Own（5列のみ）             | 人/設備等。**担当者名の表示元**（`name`）。工数・コスト・平準化は持たない（Carry）。→ §5.5                                 |
 | **Assignment**         | 資源(軽量) | MSPDI-Consume（3列のみ）         | Task×Resource の割当リンク。**どのバーに誰が付くか**だけを表す。割当率・工数・コストは持たない（Carry）。→ §5.5            |
-| **TaskVisual** ‼️      |    視覚    | GRS 新設                         | GRS 固有の視覚属性（形状種/色/線幅/名称ラベル位置）。Task 汚染を避けて分離。非 export。※`importance` は廃止。          |
+| **TaskVisual** ‼️      |    視覚    | GRS 新設                         | GRS 固有の視覚属性（タスク形状/色/線幅/名称ラベル位置）。Task 汚染を避けて分離。非 export。※`importance` は廃止。          |
 | **TaskOrigin** ‼️      |    出自    | GRS 新設                         | そのタスクがどのマスタ由来かを保持（マージの既定判定・§5.4）。**同じく Task 汚染を避けて分離**。非 export。                |
 
 > **層**: コア（4）＝これが無いとモデルが成立しない（§5.0）。ルートメタ／暦／資源／視覚／出自（8）＝外しても構造は壊れない付随層。
@@ -1189,7 +1190,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | `actualStart`                  | Own(←ActualStart)              | 実績開始（実績バーの左端）。                                        |
 | `actualDuration`               | Own(←ActualDuration)           | **実績の期間（稼働日数）。実績バーの右端は `actualStart` ＋ これ。** |
 | `actualFinish`                 | Own(←ActualFinish)             | **完了したときだけ**入る。完了時は右端の日付がそのまま入る。        |
-| `percentComplete`              | Own(←PercentComplete)          | **完了率（整数 0〜100）。`actualDuration ÷ 予定期間` から算出して格納。** |
+| `percentComplete`              | Own(←PercentComplete)          | **完了率（整数・0 以上。通常 0〜100）。`actualDuration ÷ 予定期間` から算出して格納。** |
 | `deadline`                     | Own(←Deadline)                 | 期限マーカー。                                                     |
 | `resume` / `resumeValid`       | Own(←Resume/ResumeValid)       | **再開予定日 / 再開可否**（中断時のみ）。`resumeValid = false` は「再開日未定の中断」＝中止。⚠️ **`Stop`/`Resume` を拡張領域へ回す旧判断（§3-4 #8）は撤回した** — 解説書で `Stop` = "the end of the actual portion of a task" と確定し、GRS の実績部分の終わりと意味が一致したため。**MSPDI ネイティブで往復する**。 |
 | （`stop` は保存しない）         | export で算出                  | 中断時の実績バーの右端（`actualStart + actualDuration`）と同じ値。**中断のときだけ** `Task/Stop` へ書く。中断していないタスクに書くと相手が「分割されている」と誤解する恐れがあるため。 |
@@ -1269,7 +1270,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | 列                                                                         | エンティティ    | 責務                                                  |
 | -------------------------------------------------------------------------- | --------------- | ----------------------------------------------------- |
 | `group_id` `task_uid` `stack_order`                                        | TaskGroupMember | 行への所属（1タスク1行）＋縦積み順（`null`=自動 / 値=人の指定・§5.6） |
-| `task_uid` `nameAnchor` `nameAlign` `shapeKind` `fillColor` `strokeColor` `lineWeight` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置は `null`=自動の疎な上書き。`lineWeight` は色以外の冗長符号（a11y）。 |
+| `task_uid` `nameAnchor` `nameAlign` `shapeKind` `milestoneGlyph` `fillColor` `strokeColor` `lineWeight` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置は `null`=自動の疎な上書き。`lineWeight` は色以外の冗長符号（a11y）。`shapeKind` は 5 値で、`'milestone'` のときだけ `milestoneGlyph`（〇 △ ▽ □ ☆ 五角形 六角形）を見る。**`shapeKind='milestone'` ⇔ `Task.milestone=true`**（権威は `Task.milestone`）。 |
 | `task_uid` `source_project_uid` `source_uid` `last_seen_import_seq` `import_session_id` | TaskOrigin | 出自（マージの照合・§5.3/§5.4）。**行が無い＝GRS 生まれ**。`source_uid` は再取込の突合専用、`last_seen_import_seq` は「マスタから消えた候補」の導出用（§5.4C）。 |
 | `id` `parent_id` `label` `derived_from_task_uid` `order` `collapsed` `color` `height` | TaskGroup       | 行の器・階層・並び＋**行の書式**（`height` は `null`=自動の疎な上書き・論理高さ）。`label`=`null` のとき `derived_from_task_uid` のタスク名を表示（`grs-data-model-ja.md` §7.1-1）。**両方 `null` は禁止**。 |
 
@@ -1308,7 +1309,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | `Task.UID`                                                                        | `Task.uid`（**PK・代理キーなし**）                                                    | Own                          |
 | `Task.Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes` | 同名 GRS 列 | Own |
 | `Task.Stop` / `Task.Resume` / `Task.ResumeValid` | **中断のときだけ書く**（`Stop` は算出値） | **Own（ネイティブ）**。§3-4 #8 を撤回 |
-| `Task.PercentComplete`                                                            | `Task.percentComplete`（整数 0〜100・そのまま）                                       | Own |
+| `Task.PercentComplete`                                                            | `Task.percentComplete`（整数・0 以上・そのまま）                                       | Own |
 | `Task.OutlineLevel`＋順序                                                         | `Task.wbs_parent_uid` / `wbs_order`                                                   | Consume（軸A）               |
 | `Task.CalendarUID`                                                                | `Task.calendar_id`                                                                    | Consume                      |
 | `PredecessorLink`                                                                 | `Dependency`                                                                          | Consume                      |
