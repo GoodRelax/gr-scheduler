@@ -1,10 +1,10 @@
 # GRS × MSPDI フィールド仕分け台帳
 
 - 日付: 2026-07-25
-- 正本: `../vendor/mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema・全 3906 行・ユニーク要素 499・named type は `TimephasedDataType` のみ他は inline）
+- 正本: `../01-mspdi/mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema・全 3906 行・ユニーク要素 499・named type は `TimephasedDataType` のみ他は inline）
 - 構成: §1 本書の説明 → §2 GRS 概要 → §3 MSPDI 概要 → §4 分類の意図と基準 → §5 完全準拠 ERD → §6 全要素の説明 → §7 取捨選択・理由の表 → §8 Appendix
 
-> ⚠️ **要素名・型・カードは必ず XSD で検証**すること。`../vendor/mspdi-*.md` の要約は参考であって正ではない（過去に命名ズレ発生）。表示用別名の実名対応は §8 Appendix A。
+> ⚠️ **要素名・型・カードは必ず XSD で検証**すること。`../01-mspdi/mspdi-*.md` の要約は参考であって正ではない（過去に命名ズレ発生）。表示用別名の実名対応は §8 Appendix A。
 
 ---
 
@@ -616,7 +616,7 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 | テーブル | Own | Consume | Reconstruct | Carry | **Drop** |
 |---|---|---|---|---|:--:|
-| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ResumeValid/ActualStart/ActualDuration/ActualFinish/Notes/**PercentComplete** | OutlineLevel/CalendarUID/PredecessorLink/**ExtendedAttribute(GRS枠=fade)** | ID/OutlineNumber/Summary/Duration | ActualDuration/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
+| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ResumeValid/ActualStart/**ActualDuration**/ActualFinish/Notes/**PercentComplete** | OutlineLevel/CalendarUID/PredecessorLink/**ExtendedAttribute(GRS枠=fade)** | ID/OutlineNumber/Summary/Duration | RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
 | PredecessorLink | — | PredecessorUID/Type/LinkLag/LagFormat | — | CrossProject/CrossProjectName | **0** |
 | Project | 識別/文書/期間/換算(**18**) | CalendarUID(1) | FinishDate(1) | 通貨/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(**43**) | **0** |
 | Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType(1-7)/DayWorking/例外日/名称 | BaseCalendarUID/(Task・Project).CalendarUID/**Exception.Type** | — | WorkingTime/WorkWeek/繰返し詳細/**WeekDay.DayType=0＋TimePeriod(2003形式)** | **0** |
@@ -632,7 +632,7 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 ### C. enum（Adapter 実装用）
 
-**全数リファレンスは `../vendor/mspdi-enums-ja.md`**（XSD 機械抽出・**enum を持つ要素 53 個 / 値 535 個**を全数列挙）。ここでは GRS が Consume する中核だけ再掲する。
+**全数リファレンスは `../01-mspdi/mspdi-enums-ja.md`**（XSD 機械抽出・**enum を持つ要素 53 個 / 値 535 個**を全数列挙）。ここでは GRS が Consume する中核だけ再掲する。
 
 | フィールド | 値 |
 |---|---|
@@ -654,5 +654,5 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 ### E. 参照
 
 - 分類定義・往復規約・2軸モデル: `grs-data-model-ja.md` §4/§6/§7
-- MSPDI 事実（責務・全要素・経緯 ERD）: `../vendor/mspdi-tables.md`, `../vendor/mspdi-declutter-erd-ja.md`, `../vendor/mspdi-core-tree.md`
-- 正本: `../vendor/mspdi/mspdi_pj12.xsd`
+- MSPDI 事実（責務・全要素・経緯 ERD）: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-declutter-erd-ja.md`, `../01-mspdi/mspdi-core-tree.md`
+- 正本: `../01-mspdi/mspdi/mspdi_pj12.xsd`

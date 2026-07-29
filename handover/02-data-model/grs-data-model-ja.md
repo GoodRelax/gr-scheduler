@@ -15,7 +15,7 @@
 # GRS データモデル（MSPDI 断捨離からの再構築）
 
 - 日付: 2026-07-25
-- 位置づけ: **GRS ネイティブ・データモデルの設計中ドキュメント**。断捨離後の MSPDI サブセット（`../vendor/mspdi-tables.md`）を出発点に、GRS 固有の拡張を加えて組み直す。
+- 位置づけ: **GRS ネイティブ・データモデルの設計中ドキュメント**。断捨離後の MSPDI サブセット（`../01-mspdi/mspdi-tables.md`）を出発点に、GRS 固有の拡張を加えて組み直す。
 - 方針: ゼロベース再構築（既存 PoC は参考に留め、**既存ファイルは変更しない**）。本書は設計ターゲットで、既存 `domain-model-class.md` / `schema.json` / `src/**` を上書きしない。
 - 主言語 ja。識別子・コード・列名は英語 ASCII。
 
@@ -40,7 +40,7 @@ flowchart LR
 ```
 
 - **ネイティブモデル**（本書）: アプリが編集・描画する本体。マルチバー・整列・視覚情報を一級で持つ。
-- **MSPDI 交換境界**: `../vendor/mspdi-tables.md` の断捨離後 8 テーブル。Import/Export の契約。
+- **MSPDI 交換境界**: `../01-mspdi/mspdi-tables.md` の断捨離後 8 テーブル。Import/Export の契約。
 - 両者は **Adapter** で写像。MSPDI 準拠は境界に閉じ込め、内部は軽量に保つ。
 
 > **用語**: 本書でいう **外部 WBS マスタ**（以後「外部マスタ」）とは、**GRS の外側で WBS 構造を保持し、MSPDI を生成・再取込する対向ツール**を指す。GRS はその WBS を**壊さずに返す**責任を負う（§6）。特定の製品を指す語ではない。
@@ -453,7 +453,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 
 ### 教訓（プロセス面）
 
-- **正本（XSD）を機械パースして初めて分かる事実が多かった**。要約文書の記述を前提に設計すると、後段の敵対的レビューで覆る。→ `../vendor/mspdi-pitfalls-ja.md`
+- **正本（XSD）を機械パースして初めて分かる事実が多かった**。要約文書の記述を前提に設計すると、後段の敵対的レビューで覆る。→ `../01-mspdi/mspdi-pitfalls-ja.md`
 - **「無駄を削る」監査は、承認済み要求と突き合わせないと削りすぎる**（#7 の `stack_order` は削ってから要求違反と判明して復活した）。
 - **修正の当て方**: 新しい記述を追加しても、**要約表・対文書の古い記述を消さないと矛盾が残る**。レビューで「文言だけ足して実質が変わっていない」と複数指摘された。禁止フレーズの grep による機械検査が有効だった。
 
@@ -469,6 +469,6 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 
 ## 参照
 
-- 断捨離後 MSPDI サブセット・全項目要否: `../vendor/mspdi-tables.md`
-- MSPDI 断捨離の経緯・ERD: `../vendor/mspdi-declutter-erd-ja.md`
-- MSPDI 解説（ツリー・依存・マイルストーン・マルチバーの正体）: `../vendor/mspdi-core-tree.md`
+- 断捨離後 MSPDI サブセット・全項目要否: `../01-mspdi/mspdi-tables.md`
+- MSPDI 断捨離の経緯・ERD: `../01-mspdi/mspdi-declutter-erd-ja.md`
+- MSPDI 解説（ツリー・依存・マイルストーン・マルチバーの正体）: `../01-mspdi/mspdi-core-tree.md`

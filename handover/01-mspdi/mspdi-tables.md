@@ -3,7 +3,7 @@
 - 日付: 2026-07-24
 - 対象: `mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema）
 - 目的: MSPDI の全エンティティ（テーブル）の責務を一覧化し、ERD に「行」として現れない要素（スカラー/コンテナ/value-object）も棚卸しして、断捨離の判断材料にする。
-- 関連: `mspdi-core-tree.md`（MSPDI 解説）, `mspdi-declutter-erd-ja.md`（Step1-6 断捨離・ERD）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け）は `../_assets/grs-mspdi-field-ledger-ja.md`。
+- 関連: `mspdi-core-tree.md`（MSPDI 解説）, `mspdi-declutter-erd-ja.md`（Step1-6 断捨離・ERD）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け）は `../02-data-model/grs-mspdi-field-ledger-ja.md`。
 - 位置づけ: **純 MSPDI のリファレンス**（GRS 固有情報は持たない）。正本は `mspdi/mspdi_pj12.xsd`。本書は参考。
 
 ---
@@ -286,4 +286,4 @@ erDiagram
 
 - MSPDI 全 **29 テーブル**。ただし中核は **6** のみで、残り 23 は分類コード/カスタムフィールド/Baseline/カレンダー詳細/時系列/単価の従属テーブル。
 - ERD 非表示要素は「Project スカラー 63（**○26 / ×37**）」「コンテナ 15（吸収6 / 削9）」「value-object 2（TimePeriod ○ / WorkingTime ×）」。
-- 断捨離後は **8 テーブル**（中核 6 ＋ Calendar_WeekDay ＋ Calendar_Exception）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け・マルチバー拡張）は `../_assets/grs-mspdi-field-ledger-ja.md` / `grs-data-model-ja.md`。
+- 断捨離後は **8 テーブル**（中核 6 ＋ Calendar_WeekDay ＋ Calendar_Exception）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け・マルチバー拡張）は `../02-data-model/grs-mspdi-field-ledger-ja.md` / `grs-data-model-ja.md`。

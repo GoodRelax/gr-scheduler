@@ -34,7 +34,7 @@
 | 5 | 進捗率は 3 種類あるが、**`PercentComplete`（期間ベース）だけを使う**（§3-1） |
 | 6 | **`Duration`（期間）と `Work`（工数＝人日）は別フィールド**。`Duration` は人日ではない（`Work = Duration × Units`）。**最も多い誤読**（§3-1） |
 | 7 | **派生量は編集したタスクだけ再計算**し、未編集タスクは受け取った値をそのまま返す。**工数側は常に温存＋通知**（§3-3 / §3-4） |
-| 8 | **`Stop` / `Resume` は MSPDI へ写さず拡張領域に置く**（意味がずれるため。§3-4 #8） |
+| 8 | ~~`Stop` / `Resume` は MSPDI へ写さず拡張領域に置く~~ → **撤回**。**`Stop` / `Resume` / `ResumeValid` は MSPDI ネイティブで往復する**（Own）。拡張領域を使うのは `fadeInDays` / `fadeOutDays` の **2 つだけ**。`stop` は保存せず export 時に算出する（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-1 / §10-1 / §10-2） |
 
 ---
 
@@ -57,8 +57,7 @@
 | `actualDuration` | 稼働日数 | `Task/ActualDuration` | `xsd:duration` | **Own** | 実績バーの長さそのもの（§3-2） |
 | `resume` / `resumeValid` | 日付 / 真偽 | `Task/Resume` `Task/ResumeValid` | — | **Own** | 中断のときだけ。§3-4 #8 を撤回 |
 | `deadline` | date-time | `Task/Deadline` | `xsd:dateTime` | **Own** | 終了日とは別の独立マーカー |
-| `stop` | date-time | — （**拡張領域へ**） | — | **Own** | `Task/Stop` とは**意味がずれる**ので写さない（§3-4 #8） |
-| `resume` | date-time | — （**拡張領域へ**） | — | **Own** | 同上 |
+| `stop` | — | `Task/Stop` | `xsd:dateTime` | **保存しない** | 中断時の実績バー右端と同じ値。**export 時に算出して書く**（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-1 / §10-1）。**中断しているときだけ書く**（中断していないタスクに書くと相手が分割と誤解する） |
 | `milestone` | bool | `Task/Milestone` | `xsd:boolean` | **Own** | マイルストーン判定 |
 | 担当者（表示のみ） | — | `Resource/Name` ← `Assignment` 経由 | `xsd:string` | **Consume** | GRS に自由入力欄は持たない |
 | WBS 階層 | — | `Task/OutlineLevel` | `xsd:integer` | **Reconstruct** | `wbs_parent_uid` から算出して書く |
@@ -496,7 +495,8 @@ import 時にその枠が他ツールに使われているかを検出する
 2. **テキスト列を増やさない**。`name` ＋ `notes` の 2 つで止める（**確定**）。前プロジェクトは 5 つ持って溢れた。
    - **副作用に注意**: 略称を廃止したので、**アイコンには `name` がそのまま描かれる**。`name` は長くなりがちなので、
      **長い名称の表示規則**（省略・はみ出し許容・折返しのいずれか）を決めないとラベルが破綻する。→ `user-order.md` 項 17
-3. **`Stop`/`Resume` は拡張領域に置く**（確定。§3-4 #8）。
+3. **`Stop` / `Resume` / `ResumeValid` は MSPDI ネイティブで往復する**（Own）。**拡張領域には置かない**（§3-4 #8 は撤回した）。
+   `stop` は**保存せず** export 時に算出する。`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-1 / §10-1 が正。
 4. **往復無損失の検査を CI に入れる**（入口で自己検証・出口で往復同一性・Drop=0）。後付けできない。
 5. 本書の「MSPDI 側」列は XSD 実測だが、**MS Project の計算規則（§3-3）は製品挙動であって XSD には書かれていない**。
    実機で確かめてから依存すること。

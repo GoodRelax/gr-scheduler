@@ -7,6 +7,18 @@
 
 ---
 
+> 🔴 **本書は【歴史文書】である。2026-07-23 時点の分析をそのまま残してある。**
+> **本書の価値は「バグの根因分析」（画面とデータが同じ語彙で混ざっていたこと）にある。**
+> 命名の提案部分は**その後 覆った**。**命名の正は `../03-ui-naming/handover-ui-parts-ja.md`**。
+>
+> | 本書の提案 | 確定 |
+> |---|---|
+> | 内部は対称名 `planStart` / `planEnd` / `actualStart` / `actualEnd` にする（D-9 維持） | **却下**。予定は **`start` / `finish`**、実績は **`actualStart` / `actualFinish`**。MSPDI と同名・同義にすると決めた（`../03-ui-naming/handover-ui-parts-ja.md` §5-1） |
+> | `progressRatio` | **`percentComplete`**（整数 0〜100） |
+> | `cursorGuideMode` | **`guideCursorMode`** |
+
+---
+
 ## 0. 結論 (先に要点)
 
 1. **画面とデータの分離に全面賛成。** これは CLAUDE.md が既に要求する Clean Architecture そのもので、

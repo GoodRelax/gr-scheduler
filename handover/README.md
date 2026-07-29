@@ -62,7 +62,7 @@
 
 | 順 | ファイル | 何が書いてあるか | 性質 |
 |:--:|---|---|---|
-| **1** | **`user-order.md`** | **次期開発の入力そのもの**（項 1〜68。うち 11 と 14 は取り下げ済みの欠番なので実質 66 項目。＋「やらないこと」＋「決着した仕様」） | **これが正** |
+| **1** | **`user-order.md`** | **次期開発の入力そのもの**（項 1〜68。うち **11 / 14 / 52 が欠番**なので実質 **65 項目**。＋「やらないこと」＋「決着した仕様」） | **これが正** |
 | **2** | **`01-mspdi/mspdi-pitfalls-ja.md`** | **MSPDI 実装の落とし穴**。素直に実装すると必ず踏む罠 | **製品に依存しない**。最優先 |
 | 3 | `01-mspdi/mspdi-enums-ja.md` | enum 全数（53 要素 / 535 値） | 同上。実装時に必携 |
 | 4 | `01-mspdi/mspdi-core-tree.md` / `mspdi-tables.md` | MSPDI の構造・全 29 テーブルの責務 | MSPDI 自体の理解 |
@@ -99,6 +99,7 @@
 | `docs/security/security-design.md` / `docs/dev/a11y-wcag21-aa-checklist.md` | `05-security-a11y/` |
 | `docs/spec/_assets/handover-stale-spec-audit-ja.md` / `handover-user-order-diff-ja.md` / `docs/analysis/refactor-gui-data-separation-ja.md` / `plan-actual-visibility-operability-model-ja.md` | `06-background/` |
 | `old/日程管理ツール.md`（既存ツール比較の調査記録） | **`handover/` には無い**。特定製品の評価を含むため外した（`DISCARDED-ja.md` §3） |
+| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`handover/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 26 文書にファイル名の重複は無い**ので名前で一意に定まる（`README.md` だけは本書と `01-mspdi/mspdi/README.md`（XSD の入手元）の 2 つある） |
 | 上表に無いパス（`src/` / `tests/` / `.sdoc` / `project-records/` 等） | **`handover/` には無い**。凍結リポジトリを見る。理由は `DISCARDED-ja.md` |
 
 ---
@@ -178,5 +179,5 @@ handover/
 | `.sdoc` 19 本（293 要求） | 陳腐化を含み `user-order.md` に吸収済み。凍結リポジトリに**参考として残す** |
 | `40-data-format.sdoc` / `gr-scheduler.schema.json` | 旧 flat 形状。`grs-native-erd-ja.md` が正（ユーザー明示で判断材料から除外） |
 | `old/gr-scheduler-template.json` | **廃止済みの予実別行モデル**で書かれ、行 id に制御文字を含む |
-| `old/日程管理ツール.md`（既存ツール比較の調査記録） | **特定製品の評価×特定業種**が前提の文書（§0-4）。結論は `user-order.md`「それはどうして？」に吸収済み |
+| `old/日程管理ツール.md`（既存ツール比較の調査記録） | **特定製品の評価×特定業種**が前提の文書（§0-5）。結論は `user-order.md`「それはどうして？」に吸収済み |
 | `process-rules/` / `essays/` | gr-sw-maker フレームワーク側の資産。次期でもフレームワークから供給される |

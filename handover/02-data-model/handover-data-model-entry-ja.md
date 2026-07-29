@@ -16,15 +16,18 @@
 > | （無し） | **`actualDuration`** / **`resume`** / **`resumeValid`** を追加 |
 > | `importance` / `progressStatus` | **どちらも廃止** |
 > | `iconShapeKind` | **`shapeKind`** へ改名 |
+> | `planActualStyle`（`'overlap'` \| `'separate'`） | **廃止**。上下分離表示そのものを廃止した（項 52 は欠番） |
+> | `cursorGuideMode` | **`guideCursorMode`** へ改名（`Cursor Guide` → `Guide Cursor`） |
+> | （無し） | **`progressMarkerVisible`** を追加（進捗マーカーの全体非表示トグル） |
 
 
 ## 1. 読む順（6 文書）
 
 | 順 | 文書 | 何が書いてあるか | 性質 |
 |:--:|---|---|---|
-| **1** | `../vendor/mspdi-pitfalls-ja.md` | **MSPDI 実装の落とし穴**（XSD 実測） | **製品に依存しない**。最優先 |
-| 2 | `../vendor/mspdi-enums-ja.md` | enum 全数（53 要素 / 535 値） | 同上。実装時に必携 |
-| 3 | `../vendor/mspdi-core-tree.md` / `mspdi-tables.md` | MSPDI の構造・全 29 テーブルの責務 | MSPDI 自体の理解 |
+| **1** | `../01-mspdi/mspdi-pitfalls-ja.md` | **MSPDI 実装の落とし穴**（XSD 実測） | **製品に依存しない**。最優先 |
+| 2 | `../01-mspdi/mspdi-enums-ja.md` | enum 全数（53 要素 / 535 値） | 同上。実装時に必携 |
+| 3 | `../01-mspdi/mspdi-core-tree.md` / `mspdi-tables.md` | MSPDI の構造・全 29 テーブルの責務 | MSPDI 自体の理解 |
 | 4 | `grs-mspdi-field-ledger-ja.md` | **全要素の取捨選択**（Own/Consume/Reconstruct/Carry/Drop） | 仕分けの実例。枠組み自体が再利用できる |
 | **5** | **`grs-native-erd-ja.md`** | **GRS の構成（確定版）**。ERD・識別子・マージ・Carry ストア | **データ構造の正** |
 | 6 | `grs-data-model-ja.md` §8 | **設計判断の変遷**（何を試し、なぜ変えたか） | 却下案とその理由 |
@@ -80,9 +83,9 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
   "documentSettings": {
     "stackDirection": "up", "importSeq": 1,
-    "planActualDisplay": "both", "planActualStyle": "overlap",
-    "assigneeVisible": true, "progressVisible": true,
-    "todayLineVisible": true, "dualCursor": null, "cursorGuideMode": "none",
+    "planActualDisplay": "both",
+    "assigneeVisible": true, "progressVisible": true, "progressMarkerVisible": true,
+    "todayLineVisible": true, "dualCursor": null, "guideCursorMode": "none",
     "gridDateLinesVisible": true, "gridGroupLinesVisible": true,
     "progressLineVisible": false, "progressLineColor": "#b03030",
     "baselineVisible": false,
@@ -98,7 +101,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "start": "2026-04-01T09:00:00", "finish": "2027-03-31T17:00:00",
       "milestone": false,
       "actualStart": null, "actualDuration": null, "actualFinish": null, "percentComplete": 0,
-      "deadline": null, "stop": null, "resume": null, "notes": null,
+      "deadline": null, "resume": null, "resumeValid": false, "notes": null,
       "fadeInDays": null, "fadeOutDays": null,
       "calendarId": 1,
       "carry": {}
@@ -110,8 +113,8 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "start": "2026-05-15T17:00:00", "finish": "2026-05-15T17:00:00",
       "milestone": true,
       "actualStart": "2026-05-15T17:00:00", "actualFinish": "2026-05-15T17:00:00",
-      "actualDuration": 12, "percentComplete": 100,
-      "deadline": null, "stop": null, "resume": null, "notes": null,
+      "actualDuration": 0, "percentComplete": 100,
+      "deadline": null, "resume": null, "resumeValid": false, "notes": null,
       "fadeInDays": null, "fadeOutDays": null,
       "calendarId": null,
       "carry": { "Type": "1", "DurationFormat": "7" }
@@ -123,8 +126,8 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "start": "2026-05-16T09:00:00", "finish": "2026-09-30T17:00:00",
       "milestone": false,
       "actualStart": "2026-05-20T09:00:00", "actualFinish": null,
-      "actualDuration": 8, "percentComplete": 40,
-      "deadline": "2026-10-15T17:00:00", "stop": null, "resume": null,
+      "actualDuration": 39, "percentComplete": 40,
+      "deadline": "2026-10-15T17:00:00", "resume": null, "resumeValid": false,
       "notes": "外注分を含む",
       "fadeInDays": null, "fadeOutDays": 5,
       "calendarId": null,
@@ -137,7 +140,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "start": "2026-12-20T17:00:00", "finish": "2026-12-20T17:00:00",
       "milestone": true,
       "actualStart": null, "actualDuration": null, "actualFinish": null, "percentComplete": 0,
-      "deadline": null, "stop": null, "resume": null, "notes": null,
+      "deadline": null, "resume": null, "resumeValid": false, "notes": null,
       "fadeInDays": null, "fadeOutDays": null,
       "calendarId": null,
       "carry": {}
@@ -169,11 +172,11 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
   ],
 
   "taskOrigins": [
-    { "taskUid": 1, "sourceProjectUid": "IQV-2026", "sourceUid": 1,
+    { "taskUid": 1, "sourceProjectUid": "EXT-WBS-2026", "sourceUid": 1,
       "lastSeenImportSeq": 1, "importSessionId": null },
-    { "taskUid": 2, "sourceProjectUid": "IQV-2026", "sourceUid": 2,
+    { "taskUid": 2, "sourceProjectUid": "EXT-WBS-2026", "sourceUid": 2,
       "lastSeenImportSeq": 1, "importSessionId": null },
-    { "taskUid": 3, "sourceProjectUid": "IQV-2026", "sourceUid": 3,
+    { "taskUid": 3, "sourceProjectUid": "EXT-WBS-2026", "sourceUid": 3,
       "lastSeenImportSeq": 1, "importSessionId": null }
   ],
 
@@ -219,6 +222,16 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 | `"ordinal"` | 弱エンティティ（`weekDays`/`exceptions`）の**原順序と Carry の付着キー** |
 | `"uidHighWaterMark": 4` | 削除済みを含む最大 UID。**採番は常に +1**（`max` ではない・§5.3） |
 
+**実績と進捗の数値が合っていることの確認**（2026-07-30 に是正した箇所）:
+
+| uid | 予定 | 稼働日 | `actualDuration` | `percentComplete` | 検算 |
+|:--:|---|--:|--:|--:|---|
+| 2（マイルストーン） | 5/15 の 1 点 | **0** | **0** | **100** | 予定の期間が 0 のマイルストーンは `actualDuration` も 0。率は **0 か 100 のみ**（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-5） |
+| 3（タスク） | 5/16 – 9/30 | **98** | **39** | **40** | 39 ÷ 98 = 39.8% → 四捨五入で **40**。`percentComplete` は入力ではなく**この式の結果**（同 §1-4） |
+
+> ⚠️ **`stop` は JSON に持たない。** 中断したときの実績バー右端と同じ値なので、**export 時に算出する**（同 §1-1 / §10-1）。
+> 中断の判別に要るのは **`resume` と `resumeValid`** の 2 つである。
+
 ---
 
 ## 4. MSPDI へ書き出すときの差
@@ -232,7 +245,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 | `percentComplete` | **整数 0〜100** で持つ | `PercentComplete` に**そのまま書く**（import でも **読む＝Own**。読まないと進捗を失う） |
 | `actualDuration` | 稼働日数 | `ActualDuration` に書く。**実績バーの長さそのもの** |
 | `Duration` | **未編集は受け取った値を保持 / 編集済は持たない** | **未編集はそのまま書き戻す / 編集済は `finish − start` で算出**（§3-4 #3/#4） |
-| `ActualDuration` / `RemainingDuration` | 不透明に保持 | **未編集はそのまま / 編集済は再計算して上書き**（同上） |
+| `RemainingDuration` | 不透明に保持（**Carry**） | **未編集はそのまま / 編集済は再計算して上書き**（同上） |
 | `Work` 系（工数） | 不透明に保持 | **常にそのまま書き戻す**（GRS は工数を直せない。編集時はユーザーへ通知） |
 | `TaskGroup` / `TaskGroupMember` / `TaskVisual` / `TaskOrigin` / `documentSettings` | 持つ | **書かない**（GRS 専用） |
 | `fadeInDays` / `fadeOutDays` | Task の列 | **`ExtendedAttribute`**（定義＋値の 2 層）で書く。**拡張領域を使うのはこの 2 つだけ**（`Number1` / `Number2`） |

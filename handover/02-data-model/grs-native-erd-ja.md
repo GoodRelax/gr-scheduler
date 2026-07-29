@@ -33,9 +33,9 @@
 
 | 読む順 | 文書 | 何が書いてあるか | 次プロジェクトでの使い道 |
 |:--:|---|---|---|
-| **1** | **`../vendor/mspdi-pitfalls-ja.md`** | **MSPDI 実装の落とし穴**（XSD 実測ベース） | **どんなツールを作っても効く**。設計方針に依存しない。**最優先で読む** |
-| **1b** | **`../vendor/mspdi-enums-ja.md`** | **enum 全数リファレンス**（53 要素 / 535 値） | Adapter 実装時に必携。要約からの推測を防ぐ |
-| 2 | `../vendor/mspdi-core-tree.md` / `mspdi-tables.md` | MSPDI の構造・全 29 テーブルの責務 | MSPDI 自体の理解 |
+| **1** | **`../01-mspdi/mspdi-pitfalls-ja.md`** | **MSPDI 実装の落とし穴**（XSD 実測ベース） | **どんなツールを作っても効く**。設計方針に依存しない。**最優先で読む** |
+| **1b** | **`../01-mspdi/mspdi-enums-ja.md`** | **enum 全数リファレンス**（53 要素 / 535 値） | Adapter 実装時に必携。要約からの推測を防ぐ |
+| 2 | `../01-mspdi/mspdi-core-tree.md` / `mspdi-tables.md` | MSPDI の構造・全 29 テーブルの責務 | MSPDI 自体の理解 |
 | 3 | `grs-mspdi-field-ledger-ja.md` | **全要素の取捨選択**（Own/Consume/Reconstruct/Carry/Drop） | 「ある製品ではこう仕分けた」という実例。分類の枠組み自体が再利用できる |
 | 4 | **本書** | **GRS の構成**（ERD・責務・識別子・マージ規約） | 採用した構造。**§8F に検討の履歴**（#1〜#7 はすべて解決済み） |
 | 5 | `grs-data-model-ja.md` §8 | **設計判断の変遷**（何を試し、なぜ変えたか） | **却下案とその理由**。同じ検討を繰り返さないため |
@@ -542,7 +542,7 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 
 #### どの資源を担当者とみなすか
 
-MS Project の資源は概念的に 3 種類あるが、**MSPDI の `Type` は {0=Material, 1=Work} の 2 値しかなく**、費用は `IsCostResource`（bool）という**別フィールド**で表現される（`../vendor/mspdi-pitfalls-ja.md` C-6）。
+MS Project の資源は概念的に 3 種類あるが、**MSPDI の `Type` は {0=Material, 1=Work} の 2 値しかなく**、費用は `IsCostResource`（bool）という**別フィールド**で表現される（`../01-mspdi/mspdi-pitfalls-ja.md` C-6）。
 
 | 種類 | 例 | 扱い | 判定 |
 |---|---|:--:|---|
@@ -669,7 +669,7 @@ export MSPDI   <Task><UID>7</UID><Start>7/1</Start></Task>         ← 再び省
 - **Reconstruct 列は常に書く**（MSPDI は自己完結スナップショットの思想・§4）
 - GRS で新規作成した行は全列 `null` 始まり → ユーザーが値を入れた列だけ書かれる
 
-> ⚠️ **これが無いと往復の差分ゼロは原理的に不可能**。MSPDI はほぼ全フィールドが `minOccurs=0` なので、`0` と「無い」を潰すと必ず差分が出る（→ `../vendor/mspdi-pitfalls-ja.md` B-1）。
+> ⚠️ **これが無いと往復の差分ゼロは原理的に不可能**。MSPDI はほぼ全フィールドが `minOccurs=0` なので、`0` と「無い」を潰すと必ず差分が出る（→ `../01-mspdi/mspdi-pitfalls-ja.md` B-1）。
 
 #### 5. 入口の検査（import 時の自己検証）
 
@@ -855,7 +855,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 | `TaskGroupMember.stack_order` | **保持（疎）・復活** | 当初「全自動だから削除」としたが、**ALIGN-L2-004/L1-001/L2-001（承認済み Must）が縦位置の意図を要求**するため復活。`null`=自動 / 値=人の指定 |
 | `TaskVisual.nameAnchor` / `nameAlign` | 保持（疎） | **原則自動配置。人が動かした時だけ値を持つ**（`null`=自動）。9点アンカー＋左/中央/右詰め |
 | `TaskGroup.height` | 保持（疎） | **原則自動。所定フォーマットに合わせて人が指定した時だけ値を持つ**（`null`=自動）。→ 疎な上書きパターン |
-| `TaskVisual` の視覚列（色・字形・線の太さ・重要度・名称ラベル位置） | 妥当 | いずれもユーザーの意思（色・形・重要度・ラベル位置）で算出不能。保持 |
+| `TaskVisual` の視覚列（色・字形・線の太さ・名称ラベル位置） | 妥当 | いずれもユーザーの意思（色・形・ラベル位置）で算出不能。保持。※`importance`（重要度）は**廃止した**ので列に無い（冒頭の上書き表・LOD は WBS の階層の深さで判定） |
 | `stack_direction`（文書設定） | 妥当 | ユーザーの選択（上/下）。**文書に 1 個**で行ごとに持たない＝冗長なし |
 | `TaskGroup.collapsed` / `color` | 妥当 | ユーザー操作・書式の意思。**見た目の一部なので保存し共有で再現**（§5.7）。保持 |
 | `TaskGroup.order` / `Task.wbs_order` | 妥当 | 並び順はユーザーの意思。算出不能。保持 |
@@ -946,7 +946,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 
 | 種別 | 例 | 保存 | 共有で再現 |
 |---|---|:--:|:--:|
-| **文書データ（見た目を決める）** | `TaskVisual`（色/アイコン/名称ラベル位置/重要度）、`TaskGroup`（**折畳/色/行高**含む）、`TaskGroupMember` | ○ | ○ |
+| **文書データ（見た目を決める）** | `TaskVisual`（色/形状種/名称ラベル位置）、`TaskGroup`（**折畳/色/行高**含む）、`TaskGroupMember` | ○ | ○ |
 | **文書設定（全体書式）** | `stack_direction`、`zoom`（縦/横） | ○ | ○ |
 | **一時 UI 状態（見た目ではない）** | 選択・ホバー・Undo/Redo 履歴 | ✗ | — |
 
@@ -973,12 +973,12 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 stackDirection        'up' | 'down'                       積み方向（既定 up）
 importSeq             整数                                 取込のたびに +1
 planActualDisplay     'both' | 'plan-only' | 'actual-only'  予実の表示（下記の注意）
-planActualStyle       'overlap' | 'separate'               重ね / 上下分離
 assigneeVisible       真偽                                 担当ラベルを出すか
 progressVisible       真偽                                 進捗ラベルを出すか
+progressMarkerVisible 真偽                                 進捗マーカーを出すか（下記の注意）
 todayLineVisible      真偽                                 本日線
 dualCursor            { date1, date2 } | null              デュアルカーソル（計測）
-cursorGuideMode       'none'|'crosshair'|'single-vertical'|'double-vertical'
+guideCursorMode       'none'|'crosshair'|'single-vertical'|'double-vertical'
 gridDateLinesVisible  真偽                                 日付の縦罫線
 gridGroupLinesVisible 真偽                                 TaskGroup 境界の横罫線（旧 gridCategoryLines）
 progressLineVisible   真偽                                 イナズマ線
@@ -1038,6 +1038,19 @@ UI は **`[予定]` `[実績]` の 2 トグル**だが、データは **3 値の
 > これは「UI 名とデータ名の食い違い」（項 66）ではない。**名前は同じで、表現の粒度が違うだけ**である。
 > UI は操作面、データは状態。**不正状態を表現できない形を選ぶ**のが正しい。
 
+#### `progressMarkerVisible` は文書に保存する — **確定 2026-07-30**
+
+Progress Marker（進捗マーカー）は**全体を非表示にするトグル**を持つ
+（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-4。記号が増えて見にくいときのため）。
+その状態を**どこに置くか**が定義されていなかったので、ここで `documentSettings` と定める。
+
+**理由**: 同書 §5-4 が「ユーザーが明示的に切り替える表示 / 非表示は **GRS の JSON だけで持ち、MSPDI へ渡さない**」
+と定めている。`assigneeVisible` / `progressVisible` / `progressLineVisible` と**同じ扱い**であり、
+本節の原則「文書に保存するのは作者がこの文書について決めたこと」にも合う。**MSPDI へは書かない。**
+
+> 既定は**表示**（`true`）。マーカーは**完了・中断・期限超過を形で示す唯一の手段**であり
+> （色に依存しない・WCAG 1.4.11）、既定で隠すと状態が読めなくなる。
+
 #### 出力サイズ（`exportCanvas`）
 
 ```
@@ -1057,6 +1070,13 @@ PNG のみ    倍率 1x / 2x
 |---|---|---|
 | `activeLocale` | **`language`** | 「ロケール」は位置を連想させる。値は `ja`/`en` の**言語**（項 66 言霊）。※曜日名（`Mon`/`月`）と日付の並びもこれに従う。将来「英語 UI で日本式の日付表記」の分離が必要になったら、そのとき別項目を足す |
 | `gridCategoryLinesVisible` | **`gridGroupLinesVisible`** | `category` は廃止語。示す対象は `TaskGroup` の境界（UI パーツ名 `Group Grid Lines`） |
+| `cursorGuideMode` | **`guideCursorMode`** | UI パーツ名の改名（`Cursor Guide` → **`Guide Cursor`**）を**データ項目にも及ぼす**。UI 名とデータ名を食い違わせない（項 66）。改名の理由は `../03-ui-naming/handover-ui-parts-ja.md` §2-1-3 |
+
+#### 廃止した項目 — **確定 2026-07-30**
+
+| 廃止した項目 | 理由 |
+|---|---|
+| `planActualStyle`（`'overlap'` \| `'separate'`） | **上下分離表示そのものを廃止した**（`user-order.md` 項 52 は欠番）。予定バーの高さ > 実績バーの高さ で幾何的に解き、**幅がない形状種だけ実績を下にずらす**。切替の設定は要らない。詳細は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-3 |
 
 ---
 
@@ -1144,7 +1164,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | **Exception**          |     暦     | MSPDI-Own                        | 祝日・特別日（祝日グレー表示の元）。弱エンティティ。                                                                       |
 | **Resource**           | 資源(軽量) | MSPDI-Own（5列のみ）             | 人/設備等。**担当者名の表示元**（`name`）。工数・コスト・平準化は持たない（Carry）。→ §5.5                                 |
 | **Assignment**         | 資源(軽量) | MSPDI-Consume（3列のみ）         | Task×Resource の割当リンク。**どのバーに誰が付くか**だけを表す。割当率・工数・コストは持たない（Carry）。→ §5.5            |
-| **TaskVisual** ‼️      |    視覚    | GRS 新設                         | GRS 固有の視覚属性（アイコン形/色/名称ラベル位置/重要度）。Task 汚染を避けて分離。非 export。                             |
+| **TaskVisual** ‼️      |    視覚    | GRS 新設                         | GRS 固有の視覚属性（形状種/色/線幅/名称ラベル位置）。Task 汚染を避けて分離。非 export。※`importance` は廃止。          |
 | **TaskOrigin** ‼️      |    出自    | GRS 新設                         | そのタスクがどのマスタ由来かを保持（マージの既定判定・§5.4）。**同じく Task 汚染を避けて分離**。非 export。                |
 
 > **層**: コア（4）＝これが無いとモデルが成立しない（§5.0）。ルートメタ／暦／資源／視覚／出自（8）＝外しても構造は壊れない付随層。
@@ -1275,7 +1295,11 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 
 > **必須要素の既定値**: `SaveVersion` と `CurrencyCode` は XSD で `minOccurs=1`（Project 直下で必須なのはこの 2 つだけ）。**MSPDI import を経ていない GRS 生まれの文書**は Carry を持たないため、上表の既定値を焼き込まないと **XSD 非妥当な XML** を出力してしまう。
 > `Task.PercentComplete` も **Reconstruct にしない**（読まないと外部マスタの進捗を消す）。**Own（整数のまま `percentComplete`）** とする。編集したタスクだけ `actualDuration` から再算出し、未編集は受け取った値をそのまま返す。
-> `ActualDuration` / `RemainingDuration` は **Reconstruct にしない**（進行中タスクで `ActualFinish` 空のため単純再計算が破綻）。ledger H-2 により **Carry**（本 ERD 外）。
+> `RemainingDuration` は **Reconstruct にしない**（進行中タスクで `ActualFinish` 空のため単純再計算が破綻）。ledger H-2 により **Carry**（本 ERD 外）。
+>
+> ⚠️ **`ActualDuration` は Carry ではない。Own である**（2026-07-30 是正）。**実績バーの長さそのもの**であり
+> GRS の一級の列（§5.2 の `Task.actualDuration`・§7）。ここを Carry にすると**実績バーの右端の出所が 2 つになる**。
+> 根拠は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-1。
 
 ### B. MSPDI → GRS 写像（要約）
 
@@ -1327,7 +1351,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 
 ### D. 本 ERD から除外したもの（Carry / Drop）
 
-- **Carry**: GRS が解釈しない MSPDI 要素（Task の制約/工数/コスト/EVM/CPM派生/平準化/enterprise/子要素、**Resource/Assignment の §5.5 の 7 列を除く全て**、Calendar の勤務時刻/繰返し詳細、Project の 37 メタ、`ActualDuration`/`RemainingDuration` 等）。**別 passthrough ストアで温存**し export で書き戻す（往復無損失）。本 ERD には構造として出さない。詳細は `grs-mspdi-field-ledger-ja.md` §7。
+- **Carry**: GRS が解釈しない MSPDI 要素（Task の制約/工数/コスト/EVM/CPM派生/平準化/enterprise/子要素、**Resource/Assignment の §5.5 の 7 列を除く全て**、Calendar の勤務時刻/繰返し詳細、Project の 37 メタ、`RemainingDuration` 等。**`ActualDuration` は含まない — Own である**）。**別 passthrough ストアで温存**し export で書き戻す（往復無損失）。本 ERD には構造として出さない。詳細は `grs-mspdi-field-ledger-ja.md` §7。
 - **Carry の不変条件（限定版）**: **8 ネイティブテーブルの整数 UID 空間（Task/Resource/Calendar/Assignment）を指す参照は Carry に含まれない**（全 7 参照は Consume・§5.5）。したがって UID 振り直し時も Carry を書き換える必要がない。
   > ⚠️ **一般化しないこと**: 「Carry に参照が一切無い」とは言えない。`TimephasedData/UID`（必須 int・Carry 内に 5 経路）、`ExtendedAttribute.FieldID`/`OutlineCode.ValueID`/`ValueGUID`/`Ltuid` 等の**定義への参照**は Carry 内に残る。これらは**参照元・参照先とも Carry** なので一緒に運ばれる限り整合するが、**マージで片側だけ破棄すると dangling になる**（→ 上記「マージ時の Carry 欠落」の明示許容に含む）。`TimephasedData/UID` は **XSD documentation で「The unique identifier of the timephased data record」＝自己識別と確定**（親 UID の写しではない）。したがって UID 振り直しで壊れることはない。ただし **2 文書の Carry を併合すると番号が衝突**しうるため、Carry ストアは**所有エンティティの下にぶら下げて保持**する（グローバル索引を持たない）こと。
 - **Drop=0 の位置づけ（更新）**: **「未分類ゼロ」は達成済み**（8 テーブルの全スカラー名を XSD 突合）。加えて **Carry ストア設計が確定した**（§5.5d）ことで、Drop=0 は**主張ではなく機械検証の結果**になった:
@@ -1356,7 +1380,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | ~~3~~ | ~~import の異常系~~ | **解決済み**（§5.5e・1 本の正規化式で欠落/飛び/先頭≠1/0以下/Lv5 超えを処理） |
 | ~~4~~ | ~~担当者名の表示規則~~ | **解決済み**（§5.5a・`Assignment.uid` 昇順／先頭1名＋他m名／Work のみ・費用と材料は除外／欠落時の既定） |
 | ~~5~~ | ~~`IsNull`（欠番行）の扱い~~ | **解決済み**（§5.5d・要素まるごと Carry へ退避。併せて「Carry 内の UID も使用済みとする」規約を追加） |
-| ~~6~~ | ~~enum の全数化~~ | **完了**（`../vendor/mspdi-enums-ja.md`・53 要素 / 535 値を XSD から機械抽出） |
+| ~~6~~ | ~~enum の全数化~~ | **完了**（`../01-mspdi/mspdi-enums-ja.md`・53 要素 / 535 値を XSD から機械抽出） |
 
 | ~~7~~ | ~~**既定行** — どの `TaskGroup` にも属さない `Task` をどこに描くか~~ | **解決済み**（2026-07-26 ユーザー確定）。生成規則・既定名・寿命・二軸の片方向追随を `grs-data-model-ja.md` **§7.1-1 / §7.1-2** に確定。**ルート器は作らない**（Lv1 の葉は自分の器を持つ） |
 
@@ -1369,5 +1393,5 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 
 - 取捨選択（MSPDI 全要素の仕分け）: `grs-mspdi-field-ledger-ja.md`
 - 設計判断・2軸・往復規約: `grs-data-model-ja.md` §2/§6/§7
-- MSPDI 事実・ERD: `../vendor/mspdi-tables.md`, `../vendor/mspdi-declutter-erd-ja.md`, `../vendor/mspdi-core-tree.md`
-- 正本: `../vendor/mspdi/mspdi_pj12.xsd`
+- MSPDI 事実・ERD: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-declutter-erd-ja.md`, `../01-mspdi/mspdi-core-tree.md`
+- 正本: `../01-mspdi/mspdi/mspdi_pj12.xsd`

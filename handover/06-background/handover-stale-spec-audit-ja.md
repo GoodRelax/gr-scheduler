@@ -7,6 +7,20 @@
 
 ---
 
+> 🔴 **本書は【歴史文書】である。2026-07-26 時点の監査結果をそのまま残してある。**
+> 本文に**旧名と、その後 撤回された呼び方**が出てくる。**設計の正は下表の右列**。
+> 本文を書き換えないのは、**監査という作業の記録としての価値が失われる**ためである
+> （`../02-data-model/grs-data-model-ja.md` と同じ扱い）。
+>
+> | 本書に出てくる語 | 確定 |
+> |---|---|
+> | `actualEnd` | **`actualFinish`**（語幹を `finish` に統一） |
+> | `progressRatio`（0〜1） | **`percentComplete`**（整数 0〜100。`actualDuration` から算出して格納） |
+> | 「Model H」（予実モデルの呼び名） | **使わない**。予実の正は `../07-plan-actual/handover-plan-actual-decisions-ja.md` |
+> | `planStart` / `planEnd`（D-9 の改名目標） | **却下**。予定は **`start` / `finish`**（`../03-ui-naming/handover-ui-parts-ja.md` §5-1） |
+
+---
+
 ## 0. 監査の方法と規模
 
 | 対象 | 規模 |

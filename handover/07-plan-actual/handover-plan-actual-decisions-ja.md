@@ -227,6 +227,8 @@ XSD は `type="xsd:integer"` で**制約ファセットを持たない**。解�
 - **クリックで 3 状態を巡る**: 未完了 → 完了 → 中断 → 未完了。
 - **記号は SVG で描く**（フォントの字形に依存しない）。
 - **全体を非表示にするトグル**を用意する（記号が増えて見にくいときのため）。
+  状態は **`documentSettings.progressMarkerVisible`**（既定 `true`）に保存する。MSPDI へは書かない（§5-4）。
+  格納先の根拠は `../02-data-model/grs-native-erd-ja.md` §5.7。
 - **不透明な下地を持つ**。予定バーに重なっても読める。色に依存せず形が意味を担う（WCAG 1.4.11 / 項 25）。
 - 実績バーの右端から**固定 4px** 離す。端点の掴み代と重ならない最小距離であり、それ以上離さない。
 - **占有幅に含める。** 含めないとマルチバー行で右隣のタスクと重なる。
@@ -773,7 +775,7 @@ C-6 で「割当は MSPDI の `FieldName` に書く（これが正）＋ JSON �
 | 同 | §4-1 / §4-2 | 往復対象を 6 属性 → **2 属性**に更新。C-1 の条件分岐を削除。**C-2 を反転** |
 | `grs-mspdi-field-ledger-ja.md` | 該当行 | `Stop` / `Resume` / `ResumeValid` / `OutlineLevel` / `ActualDuration` の仕訳を Own へ |
 | `06-background/plan-actual-visibility-operability-model-ja.md` | 冒頭 | 「**旧案。本書が上書きする**」の注記を追加 |
-| **`OPEN-ITEMS-ja.md`（新規）** | — | 実機確認 2 件 |
+| **`OPEN-ITEMS-ja.md`（新規）** | — | 実機確認 **3 件**（§12） |
 
 ---
 
