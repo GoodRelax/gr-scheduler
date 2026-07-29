@@ -1,9 +1,10 @@
 # 予定と実績の設計 — 決定事項
 
-- 日付: 2026-07-28
-- 目的: 本セッションで決まったことを全数記録し、**`handover/` へ反映する前にユーザーが点検できる**ようにする。
-- 位置づけ: **レビュー用の一時文書**。承認後に `handover/` の各ファイルへ溶かし込み、本書は破棄する。
-- 出所の区別: 「**XSD**」= `handover/01-mspdi/mspdi/mspdi_pj12.xsd` で確認。「**解説書**」= 上流の要素別リファレンスで確認。
+- 日付: 2026-07-29
+- 目的: 予実・進捗まわりの確定設計を 1 か所に置く。**この領域はここが正**。
+- 位置づけ: 既存文書の予実まわりを**上書きする**。差分の全数は §11。
+- 出所の区別: 「**XSD**」= `../01-mspdi/mspdi/mspdi_pj12.xsd` で確認。
+  「**解説書**」= 上流の要素別リファレンス（`docs/spec/vendor/mspdi/learn-docs/`）で確認。
   「**調査**」= 他ツールの横断調査。**製品名は中立化してある**（例外は MS Project / MSPDI）。
 
 ---
@@ -49,7 +50,7 @@ MSPDI 準拠モデル   実績の期間を ActualDuration で持つ。新しい�
 | `percentComplete` | `PercentComplete` | 整数 | 完了率。日付から算出して格納する |
 | `deadline` | `Deadline` | 日付 | 期限 |
 | `milestone` | `Milestone` | 真偽 | マイルストーンか |
-| `outlineLevel` | `OutlineLevel` | 整数 | WBS の階層の深さ。**LOD の判定に使う** |
+| `wbs_parent_uid` | （`OutlineLevel` へ導出） | UID | WBS の親。**軸A。階層はこれが持つ**（既存の確定） |
 
 **実績バーの右端は保存しない。** 描画時に導出する。
 
@@ -91,13 +92,16 @@ OutlineLevel    The number that indicates the level of a task in the project out
 
 ### 1-3. 4 状態の判別（拡張領域を 1 枠も使わない）
 
-| 状態 | `actualStart` | `actualDuration` | `actualFinish` | `resume` | `resumeValid` |
-|---|---|---|---|---|---|
-| 未着手 | 空 | 空 | 空 | 空 | — |
-| 進行中 | あり | あり | 空 | 空 | true |
-| **中断・再開予定あり** | あり | あり | 空 | **日付** | true |
-| **中断・再開日未定** | あり | あり | 空 | 空 | **false** |
-| 完了 | あり | あり | **あり** | 空 | false |
+| 状態 | `actualStart` | `actualDuration` | `actualFinish` | `resume` | `resumeValid` | `Stop`（export） |
+|---|---|---|---|---|---|---|
+| 未着手 | 空 | 空 | 空 | 空 | — | 書かない |
+| 進行中 | あり | あり | 空 | 空 | true | 書かない |
+| **中断・再開予定あり** | あり | あり | 空 | **日付** | true | **書く** |
+| **中断・再開日未定** | あり | あり | 空 | 空 | **false** | **書く** |
+| 完了 | あり | あり | **あり** | 空 | false | 書かない |
+
+`Stop` は保存項目ではなく export 時に算出する値だが、状態との対応を見失わないようここにも並べる。
+書き出しの規則は §10-1 が正で、本表と同じ内容である。
 
 - 完了と「中断・再開日未定」は **`actualFinish` の有無**で一意に分かれる。
 - 「中止」（もう再開しない）は**中断・再開日未定と同じもの**。専用の概念を作らない。
@@ -115,20 +119,24 @@ percentComplete = round( actualDuration ÷ (finish − start) x 100 )      い�
 - 単位は `DurationFormat` に従う。XSD の列挙に **`7=d`（日）/ `8=ed`（経過日）** があり、
   既存の確定規則「元の値の書式を踏襲する」がそのまま効く。
 
-**100 を超える場合の扱い（確定）**
+**100 を超える場合の扱い（暫定。実機確認 §12-3 で見直す）**
 
 XSD は `type="xsd:integer"` で**制約ファセットを持たない**。解説書にも範囲の記述がない。
-つまり `<PercentComplete>150</PercentComplete>` は妥当な XML になる。しかし意味論は「期間のうち完了した割合」なので、
-100 超は MS Project の考え方と食い違う。
+つまり `<PercentComplete>150</PercentComplete>` は**妥当な XML になる**。
 
 ```
-内部と JSON    100 超を許す。actualDuration と予定期間から素直に計算した値をそのまま持つ
-MSPDI export   100 で頭打ちにする
-拡張領域       使わない
+内部・JSON・MSPDI export とも、算出した値をそのまま出す。頭打ちにしない
+拡張領域は使わない
 ```
 
-超過分を拡張領域に載せる必要はない。**日付から常に再計算できる**冗長情報であり、
-相手ツール側でも実績が予定終了日を過ぎていることで超過は伝わる。
+**頭打ちにしない理由**: 「予定 10 日の仕事に 15 日かかった」は**業務上の事実**であり、
+100 に丸めるとその事実が消える。スキーマが禁じていない以上、まず素直に出して相手の反応を見る。
+
+**残るリスク**: MS Project が 100 超をどう扱うかは**未確認**（取込時に 100 へ丸める / 拒否する / そのまま受け入れる）。
+意味論としては「期間のうち完了した割合」なので 100 超は MS Project の考え方と食い違う。
+**§12-3 の実機確認で決着させる。** 丸められると分かったら、そのときに頭打ちへ変える。
+
+超過分を拡張領域に載せる必要はない。**日付から常に再計算できる**冗長情報だからである。
 
 > **`Duration` についての訂正**: 「実績が長引けば `Duration` 自体が伸びる」という説明は不正確だった。
 > **時間が経つだけでは何も動かない。** 人が実績の期間を増やして入力したときにだけ、
@@ -368,26 +376,37 @@ MSPDI export   100 で頭打ちにする
 
 ## 5. LOD（拡大縮小による表示の増減）
 
-### 5-1. 判定は `OutlineLevel`
+### 5-1. 判定は WBS の階層の深さ
 
-**`importance`（重要度）を廃止する。** 代わりに **`OutlineLevel`（WBS の階層の深さ）**で判定する。
+**`importance`（重要度）を廃止する。** 代わりに **WBS の階層の深さ**で判定する。
 
 ```
-縮小すると、深い OutlineLevel のタスクから順に消える
+縮小すると、深い階層のタスクから順に消える
 ```
 
-`OutlineLevel` は MSPDI ネイティブの要素なので、**拡張領域を 1 枠も消費しない**。
+深さは MSPDI の `OutlineLevel` に対応するので、**拡張領域を 1 枠も消費しない**。
 `user-order.md` 項 36 の「判定は `importance`」を差し替える。
 
-### 5-2. クランプの範囲（重要）
+### 5-2. `OutlineLevel` は導出する。クランプの議論も起きない
+
+**階層を持つのは `wbs_parent_uid`（軸A）である**（既存の確定。`grs-native-erd-ja.md`）。
+`OutlineLevel` はそこから**導出する値**なので、GRS は保存しない。
 
 ```
-LOD の判定用    min(outlineLevel, 5) を使ってよい
-保存・書き戻し  outlineLevel は受け取った値のまま。クランプ禁止
+import   OutlineLevel ＋ タスクの並び順  →  wbs_parent_uid を組み立てる
+export   wbs_parent_uid の深さ           →  OutlineLevel を算出して書く
+LOD      wbs_parent_uid の深さに min( , 5) をかけて判定する
 ```
 
-外部 WBS マスタが 7 段の階層を持っていた場合、値を 5 に丸めて書き戻すと**相手の階層が壊れる**。
-往復無損失（項 56）と `Drop = 0` に反する。
+**これでクランプするかどうかの議論自体が消える。**
+
+- **LOD の判定でだけ 5 で頭打ちにする。** 6 段以上のプロジェクトは実務でほぼ無いので、判定は 5 段で足りる。
+- **書き戻す値は階層そのものから算出する**ので、7 段の階層が来れば 7 段で戻る。丸める処理が存在しない。
+- 判定式に `min( , 5)` が 1 つ入るだけで、**モデルは複雑にならない**。
+
+> 保存値を丸める案は採らない。`OutlineLevel` はタスクの並び順と組み合わせて**階層そのものを表す**要素なので、
+> 5 に丸めると 6 段目以下が 5 段目に潰れ、親子関係が変わる。`UID` が保たれてもタスクの所属先が変わってしまう。
+> 導出方式ならこの問題が発生しない。
 
 ### 5-3. 軸A と 軸B は別物
 
@@ -546,95 +565,29 @@ LOD の判定用    min(outlineLevel, 5) を使ってよい
 
 ```
 日本語ラベルは英語の確定名の直訳とする。
-意訳・別語・語順の反転を禁止する。例外は §9-4 のリストに載せたものだけ。
+意訳・別語・語順の反転を禁止する。例外は `handover-ui-parts-ja.md` §2-1-4 のリストに載せたものだけ。
 画面に出ない構造名（App Shell / Canvas Overlays / Palette Groups 等）には日本語を当てない。
 ```
 
-### 9-3. 日英対応表（修正するもの）
+### 9-3. 日英対応表は `handover-ui-parts-ja.md` §2-1 が正
 
-**データの語**
+**日英対応の全数・例外リスト・曖昧な日本語の禁止は、**
+`../03-ui-naming/handover-ui-parts-ja.md` §2-1 に置いた。**本書に同じ表を作らない。**
 
-| 英語 | 旧 | **確定** |
-|---|---|---|
-| `TaskGroup` | 行 / グループ / 見出し | **タスクグループ** |
-| `TaskGroupMember` | （説明文のみ） | **タスクグループメンバー** |
-| `stackOrder` | 段 | **積み順** |
-| `Task` | タスク | タスク |
-| `Task.milestone` | マイルストーン | マイルストーン |
+同じ表が 2 か所にあると、どちらが正かを読む側が毎回判断させられる
+（`DISCARDED-ja.md` §3 が前プロジェクトの用語集を降格させた理由そのもの）。
 
-**プロパティ**
-
-| 英語 | 旧 | **確定** |
-|---|---|---|
-| `name` | 正式名称 | **名称**（「正式」は廃止した `fullName` の名残） |
-| `notes` | 説明・備考 | **備考**（「説明」は廃止した `description` の名残） |
-| `percentComplete` | 進捗率 | **完了率** |
-| `nameAnchor` / `nameAlign` | 名称ラベルの位置（2 語に 1 つの日本語） | **名称アンカー** / **名称の揃え** |
-| `shapeKind` | アイコン字形 | **形状種** |
-| `strokeColor` | 枠色 | **線色** |
-| `actualDuration` | — | **実績期間** |
-| `resume` | 再開 | **再開予定日** |
-| `resumeValid` | — | **再開可否** |
-| `outlineLevel` | — | **階層の深さ** |
-| `start` / `finish` | 開始日 / 終了日 | 変更なし |
-| `actualStart` / `actualFinish` | 実績開始日 / 実績終了日 | 変更なし |
-| `deadline` / `fillColor` / `lineWeight` | 期限 / 塗り色 / 線の太さ | 変更なし |
-| `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 | 変更なし |
-
-**UI パーツ**
-
-| 英語 | 旧 | **確定** |
-|---|---|---|
-| **`Cursor Guides`**（親） | カーソルガイド | **`Cursors`** / カーソル |
-| **`Cursor Guide`**（子） | ガイドカーソル | **`Guide Cursor`** / ガイドカーソル |
-| `Highlight Boxes` | 角丸四角 / 囲み枠 | **ハイライトボックス** |
-| `Hidden Group Tab` | 小タブ | **非表示グループタブ** |
-| `Group Grid Lines` | 水平線 | **グループ罫線** |
-| `Date Grid Lines` | 日付の縦罫線 | **日付罫線** |
-| `Time Ruler` | 時間軸の目盛り | **タイムルーラー** |
-| `Row Title Panel` / `Row Title Tree` | （説明のみ） | **行見出しパネル** / **行見出しツリー** |
-| `Progress Marker` | — | **進捗マーカー** |
-| `Task Bars` / `Dependency Lines` / `Watermark` / `Today Line` / `Dual Cursor` | タスクバー / 依存線 / 透かし / 本日線 / デュアルカーソル | 変更なし |
-
-**`Cursors` への改名の理由**: 親の `Cursor Guides` と子の `Cursor Guide` がほぼ同名で、
-単複の違いしかなかった（項 66 違反）。また子だけ `Cursor ◯◯` の語順で、
-兄弟の `Dual Cursor` と揃っていなかった。親を総称にし、子を `Guide Cursor` にすると両方解ける。
-
-**`TaskGroup` = タスクグループ の副次効果**: これまで `Rows`（UI）と `TaskGroup`（データ）が
-**どちらも「行」**と訳されていた。`TaskGroup` が「タスクグループ」になることで、
-**「行」が `Rows` 専用に空く**。1 概念 1 語が回復する。
-
-### 9-4. 例外リスト（直訳しないもの）
-
-| 英語 | 日本語 | 例外にする理由 |
-|---|---|---|
-| `Progress Line` | **イナズマ線** | 日本の日程管理で定着した語。「進捗線」に変えると日本のユーザーに通じなくなり、項 6-4（マニュアルを見ないで使える）に反する |
-
-**例外はこの 1 件だけ。** 増やすときは必ずこの表に追記する。「なんとなく違う」を許すと規則が崩れる。
-
-### 9-5. 曖昧な日本語を単独で使わない
-
-同じ日本語が複数の概念を指す語がある。**単独で書いたら誤り**とする。
-
-| 曖昧な日本語 | 書き方 |
+| 探すもの | 場所 |
 |---|---|
-| 段 | **「積み順（`stackOrder`）」** / **「階層の深さ（`OutlineLevel`）」** と必ず併記 |
-| 行 | **`Rows`**（UI パーツ）/ **「タスクグループ（`TaskGroup`）」**（データ） |
-| レベル | `OutlineLevel` / `TaskGroup` の深さ / LOD のどれかを明示 |
-| 幅 | 「日付の幅」/ **「占有幅」**（ラベル込み）を区別 |
-| 期間 | 「予定の期間」/ **`actualDuration`（実績期間）** / 表示期間 を明示 |
+| データの語の日英対応 | `handover-ui-parts-ja.md` §2-1-1 |
+| プロパティの日英対応 | 同 §2-1-2 |
+| UI パーツの日英対応 | 同 §2-1-3 |
+| 例外リスト（イナズマ線） | 同 §2-1-4 |
+| 曖昧な日本語の禁止（段 / 行 / レベル / 幅 / 期間） | 同 §2-1-5 |
 
-**文中で属性に触れるときは所属を付ける**（`stackOrder` ではなく `Task.stackOrder`）。
-記法が面ごとに違うので、形で見分けられる。
+**本節は入口であって正ではない。** 語を足すときは §2-1 に追記する。
 
-```
-UI パーツ        PascalCase の複合語（空白あり）    Row Title Panel / Progress Marker
-データの実体      PascalCase 1 語                   Task / TaskGroup
-データの属性      Entity.field 形式                 Task.stackOrder / Task.actualDuration
-プロパティ項目名  snake_case                        stack_order
-```
-
-### 9-6. 改名・廃止の一覧
+### 9-4. 改名・廃止の一覧
 
 | 旧 | 新 | 理由 |
 |---|---|---|
@@ -643,11 +596,11 @@ UI パーツ        PascalCase の複合語（空白あり）    Row Title Panel
 | `span`（形状種名） | **`endpointSpan`** | `measuredSpanDays`（デュアルカーソルの計測スパン）と語義が衝突する |
 | `Cursor Guide` | **`Guide Cursor`** | 親子の同名と語順の不揃いを解消 |
 | `Cursor Guides`（親） | **`Cursors`** | 同上 |
-| `progressStatus` | **廃止** | 状態が構造化されて不要（§9-7） |
+| `progressStatus` | **廃止** | 状態が構造化されて不要（§9-5） |
 | `importance` | **廃止** | LOD は `OutlineLevel` で判定する（§5） |
 | `actualThrough` / 「到達点」 | **作らない** | `actualDuration` で足りる |
 
-### 9-7. `progressStatus` を廃止する理由
+### 9-5. `progressStatus` を廃止する理由
 
 1. **GRS 独自の語**であり、MSPDI に受け皿が無い（項 20 の表で「拡張領域」行き）。
    `PercentComplete` とは別物（自由文字列 対 整数）。
@@ -657,7 +610,7 @@ UI パーツ        PascalCase の複合語（空白あり）    Row Title Panel
 4. **拡張領域の枠を 1 本節約**できる。
 5. 自由文の説明は `notes` で書ける（テキスト列を増やさない方針とも合う）。
 
-### 9-8. UI パーツ木への追加
+### 9-6. UI パーツ木への追加
 
 ```
 Schedule Canvas
@@ -665,7 +618,7 @@ Schedule Canvas
 │   └─ Task Bars                   タスクバー
 │       └─ Progress Marker         進捗マーカー
 └─ Canvas Overlays
-    ├─ Progress Line               イナズマ線（例外。§9-4）
+    ├─ Progress Line               イナズマ線（例外。§2-1-4）
     └─ Cursors                     カーソル
         ├─ Today Line              本日線
         ├─ Dual Cursor             デュアルカーソル
@@ -684,8 +637,8 @@ Schedule Canvas
 ```
 常に書く        ActualStart
                 ActualDuration = 実績バーの右端 − actualStart（稼働日）
-                PercentComplete = ActualDuration ÷ (Finish − Start) x 100  ※100 で頭打ち
-                OutlineLevel（受け取った値のまま）
+                PercentComplete = ActualDuration ÷ (Finish − Start) x 100  ※頭打ちにしない
+                OutlineLevel = wbs_parent_uid の深さから算出（§5-2）
 完了のときだけ  ActualFinish
 中断のときだけ  Stop = actualStart + actualDuration
                 Resume / ResumeValid
@@ -796,17 +749,17 @@ C-6 で「割当は MSPDI の `FieldName` に書く（これが正）＋ JSON �
 |---|---|---|
 | `user-order.md` | 用語表 | `stackOrder` = 積み順 / `TaskGroup` = タスクグループ に修正 |
 | `user-order.md` | 項 10 | 形状種の一覧を差し替え。「アイコン字形」→「形状種」 |
-| `user-order.md` | 項 20 | プロパティ表を全面更新（§9-3 / §9-6 のとおり） |
+| `user-order.md` | 項 20 | プロパティ表を全面更新（§9-4 と `handover-ui-parts-ja.md` §2-1-2 のとおり） |
 | `user-order.md` | 項 30-7 | **書き換え**。積み順の上限を安全弁に（§6-3） |
 | `user-order.md` | 項 36 | **判定を `importance` から `OutlineLevel` へ**（§5） |
 | `user-order.md` | 項 42 | `Cursor Guide` → `Guide Cursor` |
 | `user-order.md` | 項 50 | 実績の入力規則を全面差し替え（3 状態 → 4 状態） |
 | `user-order.md` | **項 52** | **削除**（欠番にする。上下分離表示の廃止） |
 | `user-order.md` | 項 53 | イナズマ線の頂点規則を差し替え。**「最も進んだ」→「最も遅れた」** |
-| `handover-ui-parts-ja.md` | §2-1 | **日英対応表を全数化**（§9-3 / §9-4 / §9-5 を移す） |
+| `handover-ui-parts-ja.md` | §2-1 | **日英対応表を全数化**（済。本書 §9-3 から参照する） |
 | 同 | §3 | UI パーツ木に `Progress Marker` を追加。`Cursors` / `Guide Cursor` へ改名 |
 | 同 | §4-2(a)(b) | `iconShapeKind` → `shapeKind` / `progressStatus` 廃止 / `progressRatio` → `percentComplete` / `importance` 廃止 |
-| `handover-ui-detail-spec-ja.md` | §1 | 木を §9-8 に合わせる |
+| `handover-ui-detail-spec-ja.md` | §1 | 木を §9-6 に合わせる |
 | 同 | §3 | パレットの図形一覧を形状種 5 種に更新。`[分離]` を削除 |
 | 同 | §4-0 | 入力規則を差し替え |
 | 同 | §4-1 | 掴み点に Resume を追加。掴み代の大きさを規定 |
@@ -824,12 +777,13 @@ C-6 で「割当は MSPDI の `FieldName` に書く（これが正）＋ JSON �
 
 ---
 
-## 12. 実機確認の残件（2 件）
+## 12. 実機確認の残件（3 件）
 
 | # | 確認すること | 影響 |
 |:--:|---|---|
 | 1 | MS Project で `Number` 枠が**何番まで使えるか** | 拡張領域の割当表。ただし消費が **2 枠**に減ったので、先頭から使えばまず足りる |
 | 2 | 完了時に `Stop` / `Resume` を**どう書き出すか** | 優先度 低。GRS は完了時に書かないので、相手がどう書いても結果は同じ |
+| **3** | **`PercentComplete` に 100 超（例 150）を書いたら MS Project がどう扱うか** | **§1-4 の暫定判断の決着。** 100 へ丸められる / 拒否される / そのまま受け入れる のどれか。丸められると分かったら頭打ちへ変える |
 
 **解決済みとして落とした項目**:
 
