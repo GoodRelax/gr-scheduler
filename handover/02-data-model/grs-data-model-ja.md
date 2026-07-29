@@ -1,3 +1,17 @@
+> 🔴 **実績・進捗まわりは `../07-plan-actual/handover-plan-actual-decisions-ja.md` が上書きする。**
+> 本書に出てくる `progressRatio` / `importance` / `progressStatus` / `iconShapeKind` は**旧名または廃止**である。
+>
+> | 本書の語 | 確定 |
+> |---|---|
+> | `progressRatio`（0〜1） | **`percentComplete`**（整数 0〜100。`actualDuration` から算出して格納） |
+> | `iconShapeKind` | **`shapeKind`**（形状種） |
+> | `importance` | **廃止**。LOD は WBS の階層の深さで判定 |
+> | `progressStatus` | **廃止**。状態が構造化された |
+> | （無し） | **`actualDuration`** / **`resume`** / **`resumeValid`** を追加 |
+>
+> **本書のうち生きているのは §7.1（器の既定名・生成規則）と §7.1-2（移動時の追随規則）、
+> および §8（設計判断の変遷）である。** これらは予実とは独立している。
+
 # GRS データモデル（MSPDI 断捨離からの再構築）
 
 - 日付: 2026-07-25

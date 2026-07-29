@@ -10,6 +10,23 @@
 
 > ⚠️ **Carry / Drop は本 ERD に出さない**（意図的除外）。ただし Carry は「捨てた」のではなく、往復のため**別途 passthrough ストアで温存**する（詳細は `grs-mspdi-field-ledger-ja.md` §7・§8B）。Drop=0。
 
+> 🔴 **予実・進捗まわりは `../07-plan-actual/handover-plan-actual-decisions-ja.md` が上書きする。**
+> 本書の該当箇所（`Task` の実績属性・`TaskVisual` の一部）は**旧版**である。差分は次のとおり。
+>
+> | 本書の記述 | 確定 |
+> |---|---|
+> | `progressRatio`（0..1） | **`percentComplete`**（整数 0〜100）。**`actualDuration` から算出して格納** |
+> | `actualFinish` を実績バーの右端とする | **右端は `actualStart + actualDuration`**。`actualFinish` は**完了時だけ**入る |
+> | （無し） | **`actualDuration`** を追加（稼働日数。実績バーの長さそのもの） |
+> | （無し） | **`resumeValid`** を追加（`false` = 再開日未定の中断＝中止） |
+> | `stop` / `resume` は**拡張領域** | **`Stop`/`Resume`/`ResumeValid` は Own（MSPDI ネイティブ）**。§3-4 #8 の判断を撤回 |
+> | `stop` を保存する | **保存しない**。中断時の右端と同じ値なので export で算出する |
+> | `importance`（LOD の選別） | **廃止**。LOD は **WBS の階層の深さ**（`wbs_parent_uid` から導出）で判定 |
+> | `progressStatus`（自由文字列） | **廃止**。状態が `actualFinish`/`resume`/`resumeValid` で構造化された |
+> | `iconShapeKind` | **`shapeKind`** へ改名（形状種） |
+>
+> **拡張領域を使うのは `fadeInDays` / `fadeOutDays` の 2 つだけ**になった（旧 6 枠 → 2 枠）。
+
 ## 引継ぎ: 4 文書の役割と読む順
 
 > **本プロジェクトは反省・引継モード**（コード/仕様書はフリーズ）。以下は次のプロジェクトへ渡す資産。
@@ -67,7 +84,7 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 
 | MSPDI 由来                 | 受け継ぐ要素（Own/Consume/Reconstruct）                                                                                                                                                                           | 除外（Carry・別ストア）                                                                             |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Task                       | UID/Name/Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes/**PercentComplete→progressRatio**（Own）、`stop`/`resume` は**拡張領域**（§3-4 #8）、OutlineLevel/CalendarUID/PredecessorLink（Consume）、ID/OutlineNumber/Summary（Reconstruct）、**Duration は未編集=Carry / 編集済=Reconstruct** | 制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素、ActualDuration/RemainingDuration（**編集済タスクのみ再計算**） |
+| Task                       | UID/Name/Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes/**PercentComplete**/**ActualDuration**/**Stop**/**Resume**/**ResumeValid**（すべて Own・§3-4 #8 は撤回）、OutlineLevel/CalendarUID/PredecessorLink（Consume）、ID/OutlineNumber/Summary（Reconstruct）、**Duration は未編集=Carry / 編集済=Reconstruct** | 制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素、ActualDuration/RemainingDuration（**編集済タスクのみ再計算**） |
 | PredecessorLink            | PredecessorUID/Type/LinkLag/LagFormat（Consume）                                                                                                                                                                  | CrossProject/CrossProjectName                                                                       |
 | Project                    | 識別/文書/期間/換算（Own）、CalendarUID（Consume）、FinishDate（Reconstruct）                                                                                                                                     | 通貨/既定/計算/Move/EV/会計/時刻（37）＋**ScheduleFromStart/CurrentDate/サーバ管理4**（§5.6 で降格） |
 | Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/BaseCalendarUID/DayType(1-7)/DayWorking/例外日（Own/Consume）                                                                                                                                  | WorkingTime/WorkWeek/繰返し詳細/**DayType=0＋TimePeriod(2003形式)**                                  |
@@ -140,8 +157,9 @@ erDiagram
         date finish "予定"
         bool milestone "◆"
         date actualStart "実績"
-        date actualFinish "実績"
-        float progressRatio "進捗0..1"
+        int actualDuration "実績の長さ(稼働日数)"
+        date actualFinish "実績完了(完了時のみ)"
+        int percentComplete "完了率0-100"
     }
     TaskGroup {
         string id PK "‼️ 行の器（非export・UUID）"
@@ -231,11 +249,12 @@ erDiagram
         date finish "← Finish(Own・バー右)"
         bool milestone "← Milestone(Own・◆)"
         date actualStart "← ActualStart(Own・実績左)"
-        date actualFinish "← ActualFinish(Own・実績右)"
-        float progressRatio "GRS正準(→ PercentComplete は Reconstruct)"
+        int actualDuration "← ActualDuration(Own・実績の長さ=稼働日数)"
+        date actualFinish "← ActualFinish(Own・完了時のみ)"
+        int percentComplete "← PercentComplete(Own・0-100・actualDurationから算出して格納)"
         date deadline "← Deadline(Own・目標)"
-        date stop "← Stop(Own・中断)"
-        date resume "← Resume(Own・再開)"
+        date resume "← Resume(Own・再開予定日・中断時のみ)"
+        bool resumeValid "← ResumeValid(Own・false=再開日未定の中断)"
         string notes "← Notes(Own)"
         int fadeInDays "← ExtendedAttribute(Consume・拡張領域・§5.5f)"
         int fadeOutDays "← ExtendedAttribute(Consume・拡張領域・§5.5f)"
@@ -303,12 +322,10 @@ erDiagram
         int task_uid PK "‼️ → Task.uid"
         int nameAnchor "‼️ null=自動 / 0-8(9点アンカー)"
         string nameAlign "‼️ null=自動 / left|center|right"
-        string iconShapeKind "‼️ 字形（bar/chevron/arrow/span/菱形…）"
+        string shapeKind "‼️ 形状種（bar/chevron/arrow/endpointSpan/マイルストーン字形）"
         string fillColor "‼️ 塗り色"
         string strokeColor "‼️ 線色"
         string lineWeight "‼️ 線の太さ（thin/medium/thick・a11y の非色符号）"
-        int importance "‼️ 重要度（LOD の選別に使う）"
-        string progressStatus "‼️ 進捗の自由文字列（数値の progressRatio とは別）"
     }
 ```
 
@@ -917,7 +934,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 >
 > | 対象 | 状況 |
 > |---|---|
-> | item 側の視覚列（`strokeColor`/`fillColor`/`lineWeight`/`iconShapeKind`/`nameAnchor`/`nameAlign`/`importance`/`progressStatus`） | **取込済み** → `TaskVisual`（§5.2）。※`labelOffset` は px なので**不採用**、`milestoneShape`/`taskShape` は `iconShapeKind` に統合 |
+> | item 側の視覚列（`strokeColor`/`fillColor`/`lineWeight`/`shapeKind`/`nameAnchor`/`nameAlign`） | **取込済み** → `TaskVisual`（§5.2）。※`labelOffset` は px なので**不採用**、`milestoneShape`/`taskShape` は `shapeKind` に統合。※`importance`/`progressStatus` は**廃止**（冒頭の上書き表） |
 > | `annotations[]`（コメント・角丸枠） | **取込済み** → **§5.8**（`Comment` / `HighlightBox`） |
 > | `sections[]` | **不要**（セクション概念は廃止。`TaskGroup` の階層が兼ねる） |
 > | `classificationNodeStates[]` | **不要**（`TaskGroup.collapsed` に吸収済み） |
@@ -1149,10 +1166,13 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | `name`                         | Own(←Name)                     | タスク名（バーのラベル）。                                         |
 | `start` / `finish`             | Own(←Start/Finish)             | 予定開始/完了（バーの左右端）。                                    |
 | `milestone`                    | Own(←Milestone)                | ◆マイルストーン表示フラグ。                                        |
-| `actualStart` / `actualFinish` | Own(←ActualStart/ActualFinish) | 実績開始/完了（実績バー・イナズマ線の元）。                        |
-| `progressRatio`                | GRS 正準                       | 進捗率（0..1）。export で `PercentComplete`(×100) を Reconstruct。 |
+| `actualStart`                  | Own(←ActualStart)              | 実績開始（実績バーの左端）。                                        |
+| `actualDuration`               | Own(←ActualDuration)           | **実績の期間（稼働日数）。実績バーの右端は `actualStart` ＋ これ。** |
+| `actualFinish`                 | Own(←ActualFinish)             | **完了したときだけ**入る。完了時は右端の日付がそのまま入る。        |
+| `percentComplete`              | Own(←PercentComplete)          | **完了率（整数 0〜100）。`actualDuration ÷ 予定期間` から算出して格納。** |
 | `deadline`                     | Own(←Deadline)                 | 期限マーカー。                                                     |
-| `stop` / `resume`              | Own(**拡張領域へ**)            | 中断/再開（中断バーの割れ目・単一区間）。⚠️ **MSPDI の `Stop`/`Resume` へは写さない** — あちらの意味は「実績が入っている境界」で GRS の中断とずれる（`handover-property-mspdi-mapping-ja.md` §3-4 #8）。往復は `ExtendedAttribute`（Date 枠 2 本）。 |
+| `resume` / `resumeValid`       | Own(←Resume/ResumeValid)       | **再開予定日 / 再開可否**（中断時のみ）。`resumeValid = false` は「再開日未定の中断」＝中止。⚠️ **`Stop`/`Resume` を拡張領域へ回す旧判断（§3-4 #8）は撤回した** — 解説書で `Stop` = "the end of the actual portion of a task" と確定し、GRS の実績部分の終わりと意味が一致したため。**MSPDI ネイティブで往復する**。 |
+| （`stop` は保存しない）         | export で算出                  | 中断時の実績バーの右端（`actualStart + actualDuration`）と同じ値。**中断のときだけ** `Task/Stop` へ書く。中断していないタスクに書くと相手が「分割されている」と誤解する恐れがあるため。 |
 | `notes`                        | Own(←Notes)                    | 注記。                                                             |
 | `calendar_id`                  | Consume(←CalendarUID)          | タスク暦参照（稼働日粒度描画）。                                   |
 
@@ -1229,7 +1249,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | 列                                                                         | エンティティ    | 責務                                                  |
 | -------------------------------------------------------------------------- | --------------- | ----------------------------------------------------- |
 | `group_id` `task_uid` `stack_order`                                        | TaskGroupMember | 行への所属（1タスク1行）＋縦積み順（`null`=自動 / 値=人の指定・§5.6） |
-| `task_uid` `nameAnchor` `nameAlign` `iconShapeKind` `fillColor` `strokeColor` `lineWeight` `importance` `progressStatus` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置は `null`=自動の疎な上書き。`lineWeight` は色以外の冗長符号（a11y）。 |
+| `task_uid` `nameAnchor` `nameAlign` `shapeKind` `fillColor` `strokeColor` `lineWeight` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置は `null`=自動の疎な上書き。`lineWeight` は色以外の冗長符号（a11y）。 |
 | `task_uid` `source_project_uid` `source_uid` `last_seen_import_seq` `import_session_id` | TaskOrigin | 出自（マージの照合・§5.3/§5.4）。**行が無い＝GRS 生まれ**。`source_uid` は再取込の突合専用、`last_seen_import_seq` は「マスタから消えた候補」の導出用（§5.4C）。 |
 | `id` `parent_id` `label` `derived_from_task_uid` `order` `collapsed` `color` `height` | TaskGroup       | 行の器・階層・並び＋**行の書式**（`height` は `null`=自動の疎な上書き・論理高さ）。`label`=`null` のとき `derived_from_task_uid` のタスク名を表示（`grs-data-model-ja.md` §7.1-1）。**両方 `null` は禁止**。 |
 
@@ -1254,7 +1274,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | `Project.CurrencyCode` | **既定 `"JPY"`**（XSD 必須・`minOccurs=1`）。Carry があれば優先 | export |
 
 > **必須要素の既定値**: `SaveVersion` と `CurrencyCode` は XSD で `minOccurs=1`（Project 直下で必須なのはこの 2 つだけ）。**MSPDI import を経ていない GRS 生まれの文書**は Carry を持たないため、上表の既定値を焼き込まないと **XSD 非妥当な XML** を出力してしまう。
-> `Task.PercentComplete` も **Reconstruct にしない**（進捗の唯一の入力源。読まないと `progressRatio` を復元できず外部マスタの進捗を消す）。**Own（÷100 して `progressRatio`）** とし、export で ×100 する。
+> `Task.PercentComplete` も **Reconstruct にしない**（読まないと外部マスタの進捗を消す）。**Own（整数のまま `percentComplete`）** とする。編集したタスクだけ `actualDuration` から再算出し、未編集は受け取った値をそのまま返す。
 > `ActualDuration` / `RemainingDuration` は **Reconstruct にしない**（進行中タスクで `ActualFinish` 空のため単純再計算が破綻）。ledger H-2 により **Carry**（本 ERD 外）。
 
 ### B. MSPDI → GRS 写像（要約）
@@ -1263,8 +1283,8 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------- |
 | `Task.UID`                                                                        | `Task.uid`（**PK・代理キーなし**）                                                    | Own                          |
 | `Task.Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes` | 同名 GRS 列 | Own |
-| （`Task.Stop`/`Resume` は**使わない**） | `stop`/`resume` は **`ExtendedAttribute`** で往復 | Own（拡張領域・§3-4 #8） |
-| `Task.PercentComplete`                                                            | `Task.progressRatio`（÷100）                                                          | Own(逆に Reconstruct で戻す) |
+| `Task.Stop` / `Task.Resume` / `Task.ResumeValid` | **中断のときだけ書く**（`Stop` は算出値） | **Own（ネイティブ）**。§3-4 #8 を撤回 |
+| `Task.PercentComplete`                                                            | `Task.percentComplete`（整数 0〜100・そのまま）                                       | Own |
 | `Task.OutlineLevel`＋順序                                                         | `Task.wbs_parent_uid` / `wbs_order`                                                   | Consume（軸A）               |
 | `Task.CalendarUID`                                                                | `Task.calendar_id`                                                                    | Consume                      |
 | `PredecessorLink`                                                                 | `Dependency`                                                                          | Consume                      |

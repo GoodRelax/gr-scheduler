@@ -6,6 +6,18 @@
 
 ---
 
+> 🔴 **実績・進捗の部分は `../07-plan-actual/handover-plan-actual-decisions-ja.md` が上書きする。**
+> 下の JSON 実例も**新しい項目名に直してある**が、意味の正は向こう。
+>
+> | 旧 | 確定 |
+> |---|---|
+> | `progressRatio`（0〜1） | **`percentComplete`**（整数 0〜100。`actualDuration` から算出して格納） |
+> | `actualFinish` が実績バーの右端 | **右端 = `actualStart + actualDuration`**。`actualFinish` は**完了時だけ** |
+> | （無し） | **`actualDuration`** / **`resume`** / **`resumeValid`** を追加 |
+> | `importance` / `progressStatus` | **どちらも廃止** |
+> | `iconShapeKind` | **`shapeKind`** へ改名 |
+
+
 ## 1. 読む順（6 文書）
 
 | 順 | 文書 | 何が書いてあるか | 性質 |
@@ -85,7 +97,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "name": "製品A",
       "start": "2026-04-01T09:00:00", "finish": "2027-03-31T17:00:00",
       "milestone": false,
-      "actualStart": null, "actualFinish": null, "progressRatio": 0.15,
+      "actualStart": null, "actualDuration": null, "actualFinish": null, "percentComplete": 0,
       "deadline": null, "stop": null, "resume": null, "notes": null,
       "fadeInDays": null, "fadeOutDays": null,
       "calendarId": 1,
@@ -98,7 +110,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "start": "2026-05-15T17:00:00", "finish": "2026-05-15T17:00:00",
       "milestone": true,
       "actualStart": "2026-05-15T17:00:00", "actualFinish": "2026-05-15T17:00:00",
-      "progressRatio": 1.0,
+      "actualDuration": 12, "percentComplete": 100,
       "deadline": null, "stop": null, "resume": null, "notes": null,
       "fadeInDays": null, "fadeOutDays": null,
       "calendarId": null,
@@ -111,7 +123,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "start": "2026-05-16T09:00:00", "finish": "2026-09-30T17:00:00",
       "milestone": false,
       "actualStart": "2026-05-20T09:00:00", "actualFinish": null,
-      "progressRatio": 0.4,
+      "actualDuration": 8, "percentComplete": 40,
       "deadline": "2026-10-15T17:00:00", "stop": null, "resume": null,
       "notes": "外注分を含む",
       "fadeInDays": null, "fadeOutDays": 5,
@@ -124,7 +136,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "name": "検証完了",
       "start": "2026-12-20T17:00:00", "finish": "2026-12-20T17:00:00",
       "milestone": true,
-      "actualStart": null, "actualFinish": null, "progressRatio": 0,
+      "actualStart": null, "actualDuration": null, "actualFinish": null, "percentComplete": 0,
       "deadline": null, "stop": null, "resume": null, "notes": null,
       "fadeInDays": null, "fadeOutDays": null,
       "calendarId": null,
@@ -149,11 +161,11 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
   "taskVisuals": [
     { "taskUid": 2, "nameAnchor": null, "nameAlign": null,
-      "iconShapeKind": "diamond", "fillColor": "#4a76c8", "strokeColor": "#2b4a80",
-      "lineWeight": "medium", "importance": 0.9, "progressStatus": null },
+      "shapeKind": "diamond", "fillColor": "#4a76c8", "strokeColor": "#2b4a80",
+      "lineWeight": "medium" },
     { "taskUid": 3, "nameAnchor": null, "nameAlign": null,
-      "iconShapeKind": "bar", "fillColor": "#6aa84f", "strokeColor": "#38601f",
-      "lineWeight": "medium", "importance": 0.7, "progressStatus": "遅延気味" }
+      "shapeKind": "bar", "fillColor": "#6aa84f", "strokeColor": "#38601f",
+      "lineWeight": "medium" }
   ],
 
   "taskOrigins": [
@@ -217,12 +229,14 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 |---|---|---|
 | 値が無い列 | **`null` を明示** | **要素を書かない** |
 | `Reconstruct` 列（`ID`/`OutlineLevel`/`OutlineNumber`/`Summary`） | **持たない** | **その場で算出して書く** |
-| `progressRatio` | 0〜1 で持つ | `PercentComplete` に **×100 して書く**（import では **読む＝Own**。読まないと進捗を失う） |
+| `percentComplete` | **整数 0〜100** で持つ | `PercentComplete` に**そのまま書く**（import でも **読む＝Own**。読まないと進捗を失う） |
+| `actualDuration` | 稼働日数 | `ActualDuration` に書く。**実績バーの長さそのもの** |
 | `Duration` | **未編集は受け取った値を保持 / 編集済は持たない** | **未編集はそのまま書き戻す / 編集済は `finish − start` で算出**（§3-4 #3/#4） |
 | `ActualDuration` / `RemainingDuration` | 不透明に保持 | **未編集はそのまま / 編集済は再計算して上書き**（同上） |
 | `Work` 系（工数） | 不透明に保持 | **常にそのまま書き戻す**（GRS は工数を直せない。編集時はユーザーへ通知） |
 | `TaskGroup` / `TaskGroupMember` / `TaskVisual` / `TaskOrigin` / `documentSettings` | 持つ | **書かない**（GRS 専用） |
-| `fadeInDays` / `fadeOutDays` / `stop` / `resume` / `importance` / `progressStatus` | Task の列 | **`ExtendedAttribute`**（定義＋値の 2 層）で書く。<br>※ `stop`/`resume` は **MSPDI の同名要素へ写さない**（意味がずれる。§3-4 #8） |
+| `fadeInDays` / `fadeOutDays` | Task の列 | **`ExtendedAttribute`**（定義＋値の 2 層）で書く。**拡張領域を使うのはこの 2 つだけ**（`Number1` / `Number2`） |
+| `resume` / `resumeValid` | Task の列 | **MSPDI ネイティブ**（`Resume` / `ResumeValid`）。§3-4 #8 を撤回した |
 | 見た目（色 / 字形 / 線幅 / `nameAnchor` / `nameAlign`） | 持つ | **書かない**（相手は解釈できない。§4-1） |
 | `carry` / `carryElements` | 不透明に保持 | **原順序で書き戻す** |
 
@@ -230,6 +244,6 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
 ## 5. 次期への申し送り
 
-1. **`TaskVisual` の列はまだ確定していない可能性がある**。今回は MSPDI 交換に集中したため、GRS 固有の視覚属性は Step 2 の再点検で後から足した（`fillColor`/`strokeColor` 分離・`lineWeight`・`progressStatus`）。**UI 設計と突き合わせて再点検すること**。
+1. **`TaskVisual` の列はまだ確定していない可能性がある**。今回は MSPDI 交換に集中したため、GRS 固有の視覚属性は Step 2 の再点検で後から足した（`fillColor`/`strokeColor` 分離・`lineWeight`）。**UI 設計と突き合わせて再点検すること**。
 2. **【決着】テキスト列は `name` ＋ `notes` の 2 つだけ**（ユーザー確定 2026-07-26）。現行仕様はテキスト列を 5 つ持っていた（略称・正式名称・説明・備考・メモ）が、MSPDI 側は `Name` と `Notes` の 2 つしかない。**`abbrev`（略称）は廃止し、アイコンに描くラベルは `Task.name` を使う**。`fullName` / `description` / `remarks` も廃止。詳細は `handover-property-mspdi-mapping-ja.md`。
 3. **Carry ストアの実装が Drop=0 の前提**。「入口で自己検証・出口で往復同一性」を CI に入れること（§5.5d）。

@@ -8,6 +8,20 @@
 
 ---
 
+> 🔴 **実績・進捗の仕分けは `../07-plan-actual/handover-plan-actual-decisions-ja.md` が上書きする。**
+>
+> | 要素 | 本書の仕分け | 確定 |
+> |---|---|---|
+> | `ActualDuration` | Carry | **Own**。実績バーの長さそのものとして GRS が持つ |
+> | `Stop` / `Resume` | Own（拡張領域へ回す） | **Own（ネイティブ）**。`Stop` は**中断のときだけ**書く（算出値） |
+> | `ResumeValid` | Carry | **Own**。`false` = 再開日未定の中断（＝中止） |
+> | `PercentComplete` → `progressRatio`（÷100） | Own（単位変換） | **`percentComplete`（整数のまま）**。`actualDuration` から算出して格納 |
+> | `OutlineLevel` は 6 段以上を 5 段へクランプし Drop | — | **クランプしない。** 階層は `wbs_parent_uid` が持ち、export で深さから算出する。**LOD の判定でだけ 5 で頭打ち**にする |
+> | 拡張領域（GRS 枠） | fade ほか 6 属性 | **`fadeInDays` / `fadeOutDays` の 2 つだけ**（`Number1` / `Number2`） |
+>
+> **Drop = 0 は維持される（`OutlineLevel` の Drop が消えるのでむしろ改善する）。**
+
+
 ## 1. 本書の説明 — MSPDI を GRS のインポート材料とする
 
 GRS は日程表を **JSON**（主データ）で保持し、外部との交換に **MSPDI XML** を双方向で用いる。主要往復は次の一本道:
@@ -46,7 +60,7 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
 - 中核概念のデータ表現:
   - **階層**: Task 上の `OutlineLevel`＋document order で暗黙表現（親ポインタは無い）。`Summary` は子を持つ印。
   - **依存**: 線オブジェクトではなく、後続 Task 内に先行 UID 参照 `PredecessorLink`（`Type` 0=FF/1=FS/2=SF/3=SS、`LinkLag` 1/10分）。
-  - **予定/実績**: `Start`/`Finish`（予定）、`ActualStart`/`ActualFinish`/`PercentComplete`（実績）。※**中断は `Stop`/`Resume` へ写さない**（意味がずれる。拡張領域で往復）。
+  - **予定/実績**: `Start`/`Finish`（予定）、`ActualStart`/`ActualFinish`/`PercentComplete`（実績）。※**中断は `Stop`/`Resume`/`ResumeValid` へ写す**（意味が一致することを解説書で確認した）。
   - **マイルストーン**: 専用要素なし。`Milestone=1` フラグ（慣習で `Duration=0`）。
   - **時系列**: `TimephasedData`（作業/コストの時間軸分解・S字/ヒストグラム/多重split の素）。
 - **MSPDI にできないこと**: **1 行に複数の独立タスクを横並べ**（マルチバー）。ビュー描画書式（Bar Styles・色）はファイル外。→ マルチバーは GRS が新規に定義する（§2 軸B）。
@@ -393,7 +407,7 @@ erDiagram
 
 | フィールド | 型 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|---|:--:|---|---|
-| `OutlineLevel` | int | 階層の深さ（親子） | 残→構造化 | `Task.wbs_parent_uid` へ消費（軸A）。**欠落・レベル飛び・先頭≠1 は正規化**、**6 段以上は 5 段にクランプし復元しない**＝深さ情報の**明示許容の損失**（`grs-native-erd-ja.md` §5.5e） | **Consume**（＋深さ 6 以上は Drop） |
+| `OutlineLevel` | int | 階層の深さ（親子） | 残→構造化 | `Task.wbs_parent_uid` へ消費（軸A）。**欠落・レベル飛び・先頭≠1 は正規化**、**クランプしない**。深さは `wbs_parent_uid` が持ち、export で算出して書き戻す。**LOD の判定でだけ 5 で頭打ち**にする | **Consume** |
 | `OutlineNumber` | str | "1.2.3" 形式コード | 削 | 階層＋順序から算出 | Reconstruct |
 | `Summary` | bool | サマリタスクか | 削 | 子の有無から算出 | Reconstruct |
 | `WBS` `WBSLevel` | str | WBSコード/レベル | 削 | 独自採番・非使用 | Carry |
@@ -419,9 +433,9 @@ erDiagram
 
 | フィールド | 型 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|---|:--:|---|---|
-| `Stop` | dateTime | 中断日時 | 残 | 中断バー左端 | **Own** |
-| `Resume` | dateTime | 再開日時 | 残 | 中断バー右端 | **Own** |
-| `ResumeValid` | bool | 再開有効フラグ | 削 | Stop/Resume に従属 | Carry |
+| `Stop` | dateTime | 実績部分の終わり | 残 | **中断のときだけ書く**（`actualStart + actualDuration` から算出） | **Own** |
+| `Resume` | dateTime | 残りが再開する予定日 | 残 | 中断のときだけ | **Own** |
+| `ResumeValid` | bool | 再開できるか | 残 | **`false` = 再開日未定の中断（＝中止）** | **Own** |
 
 **実績（予実）**
 
@@ -429,8 +443,8 @@ erDiagram
 |---|---|---|:--:|---|---|
 | `ActualStart` | dateTime | 実績開始 | 残 | 実績バー左端 | **Own** |
 | `ActualFinish` | dateTime | 実績完了 | 残 | 実績バー右端 | **Own** |
-| `PercentComplete` | int | 進捗率(%)・塗り | **残** | **進捗の唯一の入力源**。読まないと復元不能（`ActualStart/Finish` からは進行中の到達率を導けない）→ `progressRatio`(0..1) へ **÷100 して保持**。export は ×100 | **Own**（単位変換） |
-| `ActualDuration` | duration | 実績期間 | 削 | **進行中は `ActualFinish` が空**で `ActualFinish−ActualStart` から復元不能（StatusДまでの実経過は独立情報）。単純再計算だと進行中タスクで欠落 → 温存 | **Carry**（編集時は ActualStart/ActualFinish/StatusDate/progressRatio から再計算） |
+| `PercentComplete` | int | 進捗率(%)・塗り | **残** | **進捗の唯一の入力源**。読まないと復元不能（`ActualStart/Finish` からは進行中の到達率を導けない）→ `percentComplete`（**整数のまま**）。`actualDuration` から算出して格納する | **Own** |
+| `ActualDuration` | duration | 実績期間 | **残** | **進行中は `ActualFinish` が空**で `ActualFinish−ActualStart` から復元不能（StatusДまでの実経過は独立情報）。**GRS が実績バーの長さとして一級で持つ**ようになったため Carry から昇格 | **Own** |
 | `RemainingDuration` | duration | 残期間 | 削 | 同上（進行中は `Duration−進捗` が破綻）。温存 | **Carry**（同上） |
 | `PercentWorkComplete` | int | 作業進捗率 | 削 | 工数管理非対象 | Carry |
 | `ActualWork` `ActualOvertimeWork` `RegularWork` `OvertimeWork` `RemainingWork` `RemainingOvertimeWork` `ActualWorkProtected` `ActualOvertimeWorkProtected` | duration | 実績・残・残業の工数各種 | 削 | 工数管理非対象 | Carry |
@@ -602,7 +616,7 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 | テーブル | Own | Consume | Reconstruct | Carry | **Drop** |
 |---|---|---|---|---|:--:|
-| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ActualStart/ActualFinish/Notes/**PercentComplete→progressRatio** | OutlineLevel/CalendarUID/PredecessorLink/**ExtendedAttribute(GRS枠=fade)** | ID/OutlineNumber/Summary/Duration | ActualDuration/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
+| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ResumeValid/ActualStart/ActualDuration/ActualFinish/Notes/**PercentComplete** | OutlineLevel/CalendarUID/PredecessorLink/**ExtendedAttribute(GRS枠=fade)** | ID/OutlineNumber/Summary/Duration | ActualDuration/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
 | PredecessorLink | — | PredecessorUID/Type/LinkLag/LagFormat | — | CrossProject/CrossProjectName | **0** |
 | Project | 識別/文書/期間/換算(**18**) | CalendarUID(1) | FinishDate(1) | 通貨/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(**43**) | **0** |
 | Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType(1-7)/DayWorking/例外日/名称 | BaseCalendarUID/(Task・Project).CalendarUID/**Exception.Type** | — | WorkingTime/WorkWeek/繰返し詳細/**WeekDay.DayType=0＋TimePeriod(2003形式)** | **0** |

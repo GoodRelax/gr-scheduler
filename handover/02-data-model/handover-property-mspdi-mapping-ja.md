@@ -6,6 +6,21 @@
 - 正本: `../01-mspdi/mspdi/mspdi_pj12.xsd`（本書の「MSPDI 側」列はすべてこの XSD で実在を確認した）
 - 位置づけ: `grs-native-erd-ja.md`（データ構造の正）と `grs-mspdi-field-ledger-ja.md`（全要素の棚卸し）の**プロパティ視点の要約 ＋ 未決だった格納方式の結論**。
 
+> 🔴 **本書の §2-2 / §3 / §4 は `../07-plan-actual/handover-plan-actual-decisions-ja.md` が上書きする。**
+> 変更の全数は次のとおり。
+>
+> | 本書の記述 | 確定 |
+> |---|---|
+> | 実績は `actualStart` / `actualFinish` / `progressRatio` の 3 項目 | **`actualStart` / `actualDuration` / `actualFinish` / `resume` / `resumeValid` / `percentComplete`** |
+> | 進捗率は 0〜1 の入力値 | **`percentComplete` は整数 0〜100。`actualDuration` から算出して格納する導出値** |
+> | 3 状態（未着手 / 進行中 / 完了） | **4 状態**（中断・再開予定あり / 中断・再開日未定 を追加） |
+> | GRS は `ActualDuration` を持たない | **持つ**。実績バーの長さそのもの（稼働日数） |
+> | §3-4 #8 `Stop`/`Resume` は拡張領域へ | **撤回。`Stop`/`Resume`/`ResumeValid` は Own（ネイティブ）** |
+> | 往復対象は 6 属性（拡張領域 6 枠） | **2 属性（`fadeInDays` / `fadeOutDays` だけ。`Number` 枠 2 本）** |
+> | C-2 は大きい番号から取る | **反転。先頭から使う**（上限を知らないと大きい番号から取れない） |
+> | `importance` / `progressStatus` を拡張領域へ | **どちらも廃止** |
+> | `iconShapeKind` | **`shapeKind`** へ改名 |
+
 ---
 
 ## 1. 先に結論
@@ -38,7 +53,9 @@
 | `finish` | date-time | `Task/Finish` | `xsd:dateTime` | **Own** | 予定終了 |
 | `actualStart` | date-time | `Task/ActualStart` | `xsd:dateTime` | **Own** | |
 | `actualFinish` | date-time | `Task/ActualFinish` | `xsd:dateTime` | **Own** | |
-| `progressRatio` | 0〜1 | `Task/PercentComplete` | `xsd:integer` | **Own** | ÷100 で保持・×100 で書く（§3） |
+| `percentComplete` | 整数 0〜100 | `Task/PercentComplete` | `xsd:integer` | **Own** | そのまま保持。`actualDuration` から算出（§3） |
+| `actualDuration` | 稼働日数 | `Task/ActualDuration` | `xsd:duration` | **Own** | 実績バーの長さそのもの（§3-2） |
+| `resume` / `resumeValid` | 日付 / 真偽 | `Task/Resume` `Task/ResumeValid` | — | **Own** | 中断のときだけ。§3-4 #8 を撤回 |
 | `deadline` | date-time | `Task/Deadline` | `xsd:dateTime` | **Own** | 終了日とは別の独立マーカー |
 | `stop` | date-time | — （**拡張領域へ**） | — | **Own** | `Task/Stop` とは**意味がずれる**ので写さない（§3-4 #8） |
 | `resume` | date-time | — （**拡張領域へ**） | — | **Own** | 同上 |
@@ -53,10 +70,10 @@
 | GRS プロパティ | 何のためか | なぜ MSPDI に無いか |
 |---|---|---|
 | `nameAnchor` / `nameAlign` | 名称ラベルの位置（9 点アンカー＋整列） | MSPDI は**描画設定を持たない**（ビュー定義はファイル外） |
-| `iconShapeKind` | 字形（矩形/矢羽根/矢印/細線スパン、菱形ほか） | 同上 |
+| `shapeKind` | 形状種（矩形/矢羽根/矢印/端点スパン、マイルストーン字形） | 同上 |
 | `strokeColor` / `fillColor` / `lineWeight` | 枠色 / 塗り色 / 線の太さ | 同上（Bar Styles は MSPDI に入らない） |
-| `importance` | 縮小時に何を残すか（LOD） | GRS 固有の表示制御 |
-| `progressStatus` | 進捗の自由文字列 | `PercentComplete` は数値のみ |
+| ~~`importance`~~ | （廃止）LOD は **WBS の階層の深さ**（`OutlineLevel`）で判定する | — |
+| ~~`progressStatus`~~ | （廃止）状態が `actualFinish`/`resume`/`resumeValid` で構造化された | — |
 | `fadeInDays` / `fadeOutDays` | バー端のぼかし（日付の曖昧さ） | GRS 固有の表現 |
 | `TaskGroup` / `TaskGroupMember` / `stackOrder` | **マルチバー（軸B）** | MSPDI は「1 行 = 1 タスク = 1 バー」。**概念が無い**（`mspdi-core-tree.md` の対比図） |
 
@@ -126,59 +143,65 @@ Duration, ActualDuration, RemainingDuration, Work, ActualWork, RemainingWork
 | 分類 | 項目 | 意味 |
 |---|---|---|
 | 日付 | `start` / `finish` | 予定の開始 / 終了 |
-| 日付 | `actualStart` / `actualFinish` | 実績の開始 / 終了 |
-| 日付 | `stop` / `resume` | 中断 / 再開 |
+| 日付 | `actualStart` | 実績の開始（実績バーの左端） |
+| 期間 | **`actualDuration`** | **実績の期間（稼働日数）。実績バーの右端 = `actualStart` ＋ これ** |
+| 日付 | `actualFinish` | 実際に終わった日。**完了したときだけ**入る |
+| 日付 | `resume` | 残りが再開する予定日（中断時のみ） |
+| 真偽 | `resumeValid` | 再開可否。`false` = 再開日未定の中断（＝中止） |
 | 日付 | `deadline` | 期限 |
-| 割合 | `progressRatio` | 進捗率（0〜1。画面では 0〜100 %） |
+| 割合 | **`percentComplete`** | **完了率（整数 0〜100）。`actualDuration ÷ 予定期間` から算出して格納** |
 | 基準 | `Project.statusDate` | 予実の基準日。イナズマ線の縦線位置 |
 | 表示 | 担当者名 | `Assignment` → `Resource.Name` から導出。**編集しない** |
 
 **持たない項目**
 
 ```
-Duration, ActualDuration, RemainingDuration,
+Duration, RemainingDuration,
 Work, ActualWork, RemainingWork, Units, Type, EffortDriven
 ```
+
+※ **`ActualDuration` は持つように変えた**（実績バーの長さそのものだから）。工数の概念ではない。
 
 → **GRS に工数の概念は存在しない。** 資源管理をしないため（`user-order.md`「やらないこと」）。
 
 **不変条件（GRS が保証する）**
 
 ```
-0 ≦ progressRatio ≦ 1
-progressRatio = 0    ⇒  actualStart なし / actualFinish なし
-progressRatio > 0    ⇒  actualStart あり
-progressRatio = 1    ⇔  actualFinish あり
-actualFinish あり     ⇒  progressRatio = 1
-actualStart ≦ actualFinish
+actualDuration ≧ 0
+actualDuration > 0    ⇒  actualStart あり
+actualFinish あり     ⇒  actualStart あり
+actualFinish あり     ⇒  resume なし（残りが無いので再開しない）
+resume あり           ⇒  actualFinish なし かつ resumeValid = true
+percentComplete       =  round( actualDuration ÷ (finish − start) x 100 )   ※算出して格納する
 ```
 
-**入力規則（3 状態）**
+**入力規則（4 状態）**
 
-| 状態 | `actualStart` | `actualFinish` | `progressRatio` | ユーザーが入力するもの |
-|---|---|---|---|---|
-| 未着手 | 空 | 空 | 0 | 何も入れない |
-| **進行中** | **着手日（必須）** | 空 | 0 < r < 1 | **着手日 ＋ 進捗率** |
-| 完了 | 着手日 | **完了日（必須）** | 1 | **完了日**（率は自動で 1） |
+| 状態 | `actualStart` | `actualDuration` | `actualFinish` | `resume` | `resumeValid` |
+|---|---|---|---|---|---|
+| 未着手 | 空 | 空 | 空 | 空 | — |
+| 進行中 | あり | あり | 空 | 空 | true |
+| **中断・再開予定あり** | あり | あり | 空 | **日付** | true |
+| **中断・再開日未定** | あり | あり | 空 | 空 | **false** |
+| 完了 | あり | あり | **あり** | 空 | false |
 
-- **`actualFinish` は完了したときにだけ入れる。** 途中では入れない。
-- `actualFinish` を入れたら `progressRatio` を **1 に自動設定**する。
-- `progressRatio` を 1 にしたら `actualFinish` の入力を促す（初期値 `statusDate`。自動確定しない）。
-- `progressRatio` を 0 より大きくしたら `actualStart` の入力を促す（初期値 `start`）。
-- **運用**: 着手時に `actualStart`、以後は `progressRatio` だけ更新、完了時に `actualFinish`。
-  **日常的に触るのは進捗率 1 つだけ。**
+- **実績バーの両端は人が置いた日付**。左端 = `actualStart`、右端 = `actualStart + actualDuration`（稼働日）。
+- **完了にしても右端は動かない。** `actualFinish` に右端の日付がそのまま入る。
+- **`percentComplete` は人が直接入力しない。** 日付から算出して格納する導出値である。
+- 状態を変える入口は **Progress Marker**（進捗マーカー）。クリックで 未完了 → 完了 → 中断 → 未完了 と巡る。
+- 「中止」（もう再開しない）は**中断・再開日未定と同じもの**。専用の概念を作らない。
 
 **イナズマ線の頂点**
 
 ```
-マイルストーン                              → actualStart があれば actualStart、なければ start
-actualFinish あり                           → actualFinish
-actualStart あり / actualFinish なし        → actualStart + progressRatio × (finish − actualStart)
-actualStart なし / progressRatio > 0        → start + progressRatio × (finish − start)
-progressRatio = 0 かつ実績日なし            → 頂点を作らない
+完了                        → 打たない
+中断・再開日未定            → 打たない
+中断・再開予定あり          → resume < 基準日 なら resume。まだ来ていなければ打たない
+未着手                      → start  < 基準日 なら start。 まだ来ていなければ打たない
+進行中                      → 実績バーの右端（actualStart + actualDuration）
 
-同じ行に複数の Task があるときは、最も進んだ頂点が勝つ
-縦線は statusDate（無ければ今日）に引く
+1 行に複数の Task があるときは、最も遅れた頂点（最も左）が勝つ
+縦線は statusDate（無ければ今日）に引く。ただし常時表示にはしない
 ```
 
 ---
@@ -193,23 +216,29 @@ PercentComplete     = ActualDuration / Duration × 100
 
 Work                = ActualWork + RemainingWork
 PercentWorkComplete = ActualWork / Work × 100
-
-Work                = Duration          × Units
-ActualWork          = ActualDuration    × Units
-RemainingWork       = RemainingDuration × Units
 ```
+
+> ⚠️ 上の恒等式は**前プロジェクトの記述**であり、**上流の解説書では確認できていない**。
+> なお **時間が経つだけで `Duration` が伸びることはない。** 人が実績の期間を増やして入力したときにだけ改訂される。
+> MS Project がプロジェクト管理として成立するのは **`Baseline` を別に凍結して持つから**である
+> （`Baseline` 要素は MSPDI に実在する）。比較対象は `Baseline` であって現在の `Duration` ではない。
+> GRS は日程を人が決める（スケジューラを作らない）ので **`finish` を自動で動かさない**。
+> **実績が予定終了日を越える状態が普通に起きる。これは設計として正しい。**
 
 **Import（MSPDI → GRS）**
 
 ```
-start          = Start
-finish         = Finish
-actualStart    = ActualStart
-actualFinish   = ActualFinish
-progressRatio  = PercentComplete ÷ 100
+start           = Start
+finish          = Finish
+actualStart     = ActualStart
+actualDuration  = ActualDuration
+actualFinish    = ActualFinish
+resume          = Resume
+resumeValid     = ResumeValid
+percentComplete = PercentComplete        整数のまま
 
 Carry（解釈せず保管する）
-  Duration, ActualDuration, RemainingDuration,
+  Duration, RemainingDuration,
   Work, ActualWork, RemainingWork, PercentWorkComplete,
   PhysicalPercentComplete, Units, Type, EffortDriven
 ```
@@ -217,46 +246,46 @@ Carry（解釈せず保管する）
 **Export（GRS → MSPDI）— 未編集タスク**
 
 ```
-Start           = start
-Finish          = finish
-ActualStart     = actualStart
-ActualFinish    = actualFinish
-PercentComplete = round(progressRatio × 100)
-
-Duration, ActualDuration, RemainingDuration, Work, ActualWork, RemainingWork, …
-                = Carry の値をそのまま書き戻す
+受け取った値をそのまま書き戻す（Carry を含む）
 ```
 
-**Export（GRS → MSPDI）— 編集タスク。この順序で計算する**
+**Export（GRS → MSPDI）— 編集タスク**
 
 ```
-1.  PercentComplete   = round(progressRatio × 100)
-2.  Duration          = finish − start                          （稼働日・暦で算出）
-3.  ActualDuration    = Duration × (PercentComplete ÷ 100)
-4.  RemainingDuration = Duration − ActualDuration
+常に書く        ActualStart
+                ActualDuration = actualDuration（稼働日）
+                PercentComplete = round( ActualDuration ÷ (Finish − Start) x 100 )
+                                  ※頭打ちにしない（暫定。実機確認で見直す）
+                OutlineLevel    = wbs_parent_uid の深さから算出
+完了のときだけ  ActualFinish
+中断のときだけ  Stop = actualStart + actualDuration
+                Resume / ResumeValid
+完了時          Stop 空 / Resume 空 / ActualFinish あり
 
-Work, ActualWork, RemainingWork, PercentWorkComplete
-                      = Carry の値をそのまま書き戻す（触らない）
+Duration, RemainingDuration, Work 系
+                = Carry の値をそのまま書き戻す（触らない）
 ```
 
-**順序の理由**: `progressRatio` から直接 `ActualDuration` を出すと、書き出す整数 `PercentComplete` と
-食い違う。**書き出す値そのものから算出**すれば、出力ファイル内で
-`ActualDuration / Duration = PercentComplete` が厳密に成立する。
+**`Stop` を中断のときだけ書く理由**: `Stop` / `Resume` は MS Project では**分割（中断）されたタスクの文脈**で
+使われる要素である。中断していないタスクに `Stop` を書くと、**相手ツールが「このタスクは分割されている」と
+解釈して隙間を描く恐れ**がある。解説書にその挙動の記述はなく、確かめる術がない。
+`ActualDuration` の定義は "The span of actual working time for a task so far" で**一意**なので、
+実績の長さはそちらで伝える。
 
 **「編集タスク」の定義**
 
 ```
-start / finish / actualStart / actualFinish / progressRatio
+start / finish / actualStart / actualDuration / actualFinish / resume
 のいずれかが変わったタスク
 ```
 
 **端点**
 
 ```
-progressRatio = 0   → ActualDuration = 0、RemainingDuration = Duration、ActualStart を書かない
-progressRatio = 1   → ActualDuration = Duration、RemainingDuration = 0、ActualFinish は必須
-マイルストーン       → Duration = 0。PercentComplete は 0 か 100 のみ（0 除算に注意）
-DurationFormat       → 元の値の書式を踏襲する
+actualDuration = 0        → PercentComplete = 0、ActualStart は書くが ActualFinish は書かない
+完了                       → ActualFinish 必須。PercentComplete は 100
+マイルストーン             → 予定の期間 = 0。PercentComplete は 0 か 100 のみ（0 除算に注意）
+DurationFormat             → 元の値の書式を踏襲する（7=d は稼働日 / 8=ed は暦日）
 ```
 
 ---
@@ -272,7 +301,7 @@ DurationFormat       → 元の値の書式を踏襲する
 | 5 | **工数側（`Work` 系）は再計算しない** | 正しく直すには `Type`（Fixed Units / Duration / Work）と `EffortDriven` の解釈が必要＝**スケジューラの仕事**で、「やらないこと」で除外済み。Fixed Work タスクに `Work = Duration × Units` を当てると**誤った値**になる |
 | 6 | **工数側は削除もしない**。温存して**通知**する | 手入力された工数を失うおそれがある。**直せないものを黙って消すのは項 61「勝手に消さない・知らせる」に反する**。通知文: 「進捗を変更したタスクがあります。工数は更新していないため、相手側で更新が必要です」 |
 | 7 | GRS 側で MSPDI と**同じ不変条件**を守る（§3-2 の入力規則） | 入力段階で矛盾を作らせなければ、export の計算式が常に成立する |
-| 8 | `Stop` / `Resume` は **MSPDI へ写さず拡張領域に置く** | MSPDI の意味は「実績が入っている境界」で、GRS の「中断/再開」とずれる。写すと**相手の画面で違うものに見える**。拡張領域なら誤解が生じず、進捗編集時に `Stop` が古くなる問題も同時に消える |
+| 8 | ~~`Stop` / `Resume` は MSPDI へ写さず拡張領域に置く~~ → **撤回。Own（ネイティブ）とする** | **撤回理由**: 上流解説書で `Stop` = "the end of the actual portion of a task" と確定し、GRS の実績部分の終わりと**意味が一致**した。ずれていたのは旧モデルの「中断/再開」である。ただし **`Stop` を書くのは中断のときだけ**とする（中断していないタスクに書くと相手が「分割されている」と誤解する恐れがある）。実績の長さは `ActualDuration` で伝える |
 
 **検査（CI に入れる）**
 
@@ -318,7 +347,7 @@ XSD の注記に明示がある: 「子要素の数に上限はないが、**Pro
 **案C の要点**
 
 ```
-各属性に固定の枠を割り当てる（例: Text20 = progressStatus, Number18 = fadeInDays）
+各属性に固定の枠を割り当てる（例: Number1 = fadeInDays, Number2 = fadeOutDays）
 FieldName に GRS 由来を示す名前を書く
 import 時にその枠が他ツールに使われているかを検出する
 使われていたら未使用枠へ退避し、対応表を文書内に持つ
@@ -327,13 +356,14 @@ import 時にその枠が他ツールに使われているかを検出する
 **衝突検出が必須な理由**: 主要な入力元は**外部マスタ等の第三者生成 MSPDI** であり、
 **同じカスタムフィールド枠を既に使っている可能性が現実にある**。固定枠のみだと**他ツールのデータを黙って壊す**。
 
-### 4-1. 案C の適用範囲（次期で確定させること）
+### 4-1. 案C の適用範囲（**確定**）
 
 | 属性 | 往復させるか | 理由 |
 |---|---|---|
-| `fadeInDays` / `fadeOutDays` | **させる**（前プロジェクトで実装済み） | 日付の曖昧さは業務上の情報 |
-| `importance` / `progressStatus` | **させる** | GRS 同士の往復で失うと運用が崩れる |
-| `iconShapeKind` / 色 / `lineWeight` / `nameAnchor` / `nameAlign` | **させない**（確定 2026-07-26） | **相手ツールは Bar Styles として解釈できない**ので載せても誰も読まない。MSPDI の思想は「ビュー定義はファイル外」。**JSON だけで持つ** |
+| `fadeInDays` / `fadeOutDays` | **させる** | 日付の曖昧さは業務上の情報。**拡張領域を使うのはこの 2 つだけ** |
+| ~~`importance`~~ / ~~`progressStatus`~~ | **廃止したので対象外** | LOD は WBS の階層の深さで判定。状態は `actualFinish`/`resume`/`resumeValid` で構造化された |
+| `stop` / `resume` / `resumeValid` | **MSPDI ネイティブで往復**（拡張領域を使わない） | §3-4 #8 を撤回した。`Stop`/`Resume`/`ResumeValid` がそのまま使える |
+| `shapeKind` / 色 / `lineWeight` / `nameAnchor` / `nameAlign` | **させない**（確定 2026-07-26） | **相手ツールは Bar Styles として解釈できない**ので載せても誰も読まない。MSPDI の思想は「ビュー定義はファイル外」。**JSON だけで持つ** |
 | `TaskGroup` / `TaskGroupMember` / `stackOrder` | **させない** | 軸B は GRS 専用（`grs-native-erd-ja.md`） |
 
 > **確定した原則**: **業務情報は往復させ、純粋な見た目は JSON だけで持つ。**
@@ -342,77 +372,73 @@ import 時にその枠が他ツールに使われているかを検出する
 
 ---
 
-## 4-2. 案C の詳細設計（確定。C-1/C-2 のみ実機確認待ち）
+## 4-2. 案C の詳細設計（確定）
 
 案C を基本とする方針は決まった。以下は**その中で決めるべき 8 点**である。
 各項に選択肢と推奨を置いた。**推奨は根拠つきの提案であって、確定ではない。**
 
 > ⚠️ **C-1 と C-2 は先に実機確認が必要**（下記 D）。**確認せずに決めてはならない。**
 >
-> **D. 最初にやること — MS Project 実機で枠の上限本数を確認する**
+> **D. 拡張領域を使うのは 2 属性だけになった**
 >
-> `Text` / `Number` / `Date` / `Flag` が**それぞれ何番まで使えるか**を実機で確認する。XSD には書かれていない。
-> **確認できたら C-1 は「型に合った個別枠 4 本」、できなければ「ハイブリッド 2 本」**とする（C-1 参照）。
-> C-2（番号の向き）も上限が分からないと決められない。
+> `stop` / `resume` が MSPDI ネイティブへ移り（§3-4 #8 の撤回）、`importance` と `progressStatus` が廃止された結果、
+> **拡張領域に載せるのは `fadeInDays` / `fadeOutDays` の 2 つだけ**になった。どちらも整数なので **`Number` 枠 2 本**で足りる。
 >
-> ついでに **「MS Project が量と率のどちらを信じるか」**（§3-4 の未検証）も確かめておく。
-> ただし**確定仕様はこの答えに依存しない**ので優先度は低い。
+> `Text` / `Date` / `Flag` は**使わない**。枠の上限本数は依然として XSD に書かれていないが、
+> **先頭から使えばまず足りる**（C-2）。実機確認は残すが、条件は大きく緩んだ。
 
-### C-1. 何を何本の枠に載せるか
+### C-1. 何を何本の枠に載せるか（**確定**）
 
-往復対象（§4-1 ＋ §3-4 #8）は **6 属性**:
+往復対象は **2 属性**。
 
-```
-progressStatus              文字列  → Text 枠
-importance                  実数    → Number 枠
-fadeInDays / fadeOutDays     整数    → Number 枠 × 2
-stop / resume                日付    → Date 枠 × 2   （§3-4 #8 で MSPDI の同名要素をやめた結果）
-```
+| 属性 | 型 | 割当先 |
+|---|---|---|
+| `fadeInDays` | 整数 | **`Number1`** |
+| `fadeOutDays` | 整数 | **`Number2`** |
 
-| 案 | やり方 | 枠消費 | 評価 |
-|---|---|:--:|---|
-| a | 属性ごとに**型に合った枠**（上記のとおり） | **6**（Text 1 / Number 3 / Date 2） | 相手ツールでも数値・日付として並べ替え・絞り込みができる。枠を最も食う |
-| b | 全部 Text 枠に文字列化 | 6 | a と同じ本数で型の利点が無い。**選ぶ理由がない** |
-| c | **1 つの Text 枠に JSON でまとめる** | **1** | 枠消費と衝突確率が最小。ただし相手の画面では**意味不明な文字列**に見え、人が編集できない |
-| d | **ハイブリッド**: 業務情報（`progressStatus` / `stop` / `resume`）は個別枠、GRS の表示制御（`importance` / fade 2 つ）は 1 枠に JSON | **4**（Text 1 / Date 2 / Text 1） | 枠が少ないと判明した場合の代替 |
+**型に合った個別枠に載せる。** 理由:
 
-**条件付き確定**:
-
-```
-Text / Number / Date がそれぞれ 10 本以上あると実機で確認できた  → 案 a（型に合った個別枠 6 本）
-枠が少ないと判明した                                            → 案 d（ハイブリッド 4 本）
-```
-
-> ⚠️ **`stop` / `resume` を拡張領域へ回した（§3-4 #8）結果、枠の消費が 4 → 6 に増えた。**
-> `Date` 枠を 2 本使うので、**`Date` の本数も実機で数える**こと（D）。
-
-**なぜ確認できたら a が優るか**:
-
-1. 相手ツールの画面で**意味が読める**（`FieldName` = `GRS:progressStatus` 等）— 往復させる価値そのもの
-2. **型が合う**（`importance`・fade は Number → 相手で並べ替え・絞り込みができる）
-3. JSON を 1 枠に詰めると、**その枠が衝突したとき全属性がまとめて退避**する（all-or-nothing）。個別なら影響が 1 属性で済む
+1. 相手ツールの画面で**意味が読める**（`FieldName` = `GRS:fadeInDays` 等）— 往復させる価値そのもの
+2. **型が合う**（Number なので相手で並べ替え・絞り込みができる）
+3. 1 枠に JSON で詰めると、**その枠が衝突したとき全属性がまとめて退避**する（all-or-nothing）
 4. XML を目で見て**デバッグできる**
-5. 前プロジェクトは `fadeInDays`/`fadeOutDays` を**個別枠**に載せていた。a なら方式変更が不要
+5. 前プロジェクトも `fadeInDays`/`fadeOutDays` を**個別枠**に載せていた。方式変更が不要
 
-> **枠を惜しむ根拠は「本数が有限」だが、本数を知らないまま惜しむのは根拠にならない。** だから D を先にやる。
+> **旧版では 6 属性・6 枠を前提に 4 案（a〜d）を比較し、実機で枠数を数えてから決める条件付き確定にしていた。**
+> 属性が 2 つに減ったので**比較そのものが不要**になり、ハイブリッド案（d）も要らなくなった。
 
-### C-2. 固定枠の番号をどちら側から取るか
+### C-2. 固定枠の番号をどちら側から取るか（**反転して確定**）
 
 | 案 | やり方 | 評価 |
 |---|---|---|
-| a | 小さい番号から（`Text1`, `Number1` …） | ❌ **人は `Text1` から使う**。衝突確率が最も高い |
-| **b** | **大きい番号から**（`Text30`, `Number20` … 上限側） | ✅ **推奨**。実務上の衝突確率が最も低い |
+| **a** | **小さい番号から**（`Number1`, `Number2`） | ✅ **採用** |
+| b | 大きい番号から（上限側） | ❌ **上限を知らないと取れない**。`Number1` は必ず存在するが `Number30` が存在するかは不明 |
 | c | 中央付近から | 根拠が弱い |
 
-> ⚠️ **前提の未検証**: 枠の実際の上限本数は XSD に書かれていない（§4 前提の警告）。
-> **b を採るには実機で上限を確認する必要がある**。確認前は「上限が分かっている型だけ使う」で始めるのが安全。
+**旧版は b（大きい番号から。衝突確率が低い）を推奨していたが、反転する。**
+
+**反転の理由**: **本数を知らないまま大きい番号から取ることはできない。**
+これは C-1 の但し書き「**本数を知らないまま惜しむのは根拠にならない**」と同じ論理である。
+`Number1` の存在は確実なので、そこから使う。
+
+衝突の危険は既存の仕組みで吸収される。
+
+| 仕組み | 内容 |
+|---|---|
+| C-4 | 定義側と値側の**両方を見て**使用中か判定する |
+| C-5 | 衝突したら未使用枠へ**退避**する。全枠満杯なら JSON のみ ＋ 通知 |
+
+> **将来、入力するデータによって拡張領域の使用有無が変わる可能性がある。**
+> 実装はしないが、**枠の割当表を定数として埋め込まず、データとして持つ**こと（設計上の拡張点）。
+> C-6 で「割当は `FieldName` に書く（正）＋ `documentSettings` にも写す」と決めているので、そこが受け皿になる。
+> **外部設定ファイルは単一 HTML・完全オフライン（最優先事項 4）に反するので作らない。**
 
 ### C-3. `FieldName` の命名規則
 
 | 案 | 例 | 評価 |
 |---|---|---|
-| **a** | **`GRS:progressStatus`** | ✅ **推奨**。接頭辞で由来が一目で分かり、**機械照合のキーにもできる**。ASCII |
-| b | `grs_progress_status` | 由来は分かるが、区切りが属性名と混ざる |
+| **a** | **`GRS:fadeInDays`** | ✅ **推奨**。接頭辞で由来が一目で分かり、**機械照合のキーにもできる**。ASCII |
+| b | `grs_fade_in_days` | 由来は分かるが、区切りが属性名と混ざる |
 | c | 日本語の人間向け名 | 相手の画面で読みやすいが**機械照合に使えない**（i18n で揺れる） |
 
 ### C-4. 「その枠は使われている」の判定
