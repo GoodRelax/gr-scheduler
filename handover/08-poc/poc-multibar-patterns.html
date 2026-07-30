@@ -5,11 +5,11 @@
 <title>PoC: マルチバー行のパターン集（2026-07-30）</title>
 <style>
   /* Font scale measured against ja.wikipedia.org (body 16px / lh 26px) and
-     google.com (body 14px). Nothing goes below 12px, matching the product's own
+     google.com (body 14px). Nothing below 12px, matching the product's own
      Japanese-readability floor. */
   :root { --bg:#fff; --ink:#1a1a1a; --sub:#555; --rule:#dcdcdc; --panel:#f6f7f9;
           --accent:#2b5ea8; --good:#1f7a3d; --warn:#a8600f; --bad:#a02b2b;
-          --plan:#8fb0d9; --plan-line:#4d79ad; --act:#1d4f8c; --act-line:#123a68;
+          --plan:#8fb0d9; --plan-line:#4d79ad; --act:#1d4f8c;
           --dep:#d2691e; --mark:#333; }
   * { box-sizing:border-box; }
   body { margin:0; padding:0 0 90px 0; background:var(--bg); color:var(--ink);
@@ -19,7 +19,7 @@
   header { background:var(--panel); border-bottom:1px solid var(--rule); padding:22px 0 0 0; }
   h1 { margin:0 0 6px 0; font-size:24px; line-height:1.35; }
   .lede { margin:0 0 14px 0; color:var(--sub); font-size:16px; }
-  .ctl { display:flex; flex-wrap:wrap; gap:16px 20px; align-items:center; padding:14px 0;
+  .ctl { display:flex; flex-wrap:wrap; gap:14px 20px; align-items:center; padding:14px 0;
          border-top:1px solid var(--rule); font-size:14px; }
   .ctl label { display:flex; align-items:center; gap:7px; white-space:nowrap; }
   .ctl input[type=range] { width:180px; }
@@ -29,7 +29,6 @@
   .pill { display:inline-block; padding:3px 13px; border-radius:13px; font-weight:700; font-size:14px; }
   .p-good { background:#e3f2e8; color:var(--good); }
   .p-bad  { background:#fbe6e6; color:var(--bad); }
-  .p-warn { background:#fdf1e0; color:var(--warn); }
   h2 { font-size:20px; margin:34px 0 8px 0; padding-top:12px; border-top:1px solid var(--rule); }
   .hint { margin:0 0 14px 0; color:var(--sub); font-size:14px; }
   table.sum { border-collapse:collapse; width:100%; font-size:14px; margin:12px 0 4px 0; }
@@ -50,13 +49,16 @@
   .pat svg { display:block; }
   .flag { display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; }
   .f-bad { background:#fbe6e6; color:var(--bad); }
-  .f-warn { background:#fdf1e0; color:var(--warn); }
   .f-good { background:#e3f2e8; color:var(--good); }
   .note { background:var(--panel); border-left:3px solid var(--accent); padding:12px 16px;
           font-size:14px; margin:16px 0; }
   .note.warn { border-left-color:var(--warn); }
   .note ol, .note ul { margin:6px 0 0 0; padding-left:22px; }
   code { background:var(--panel); padding:1px 5px; border-radius:3px; font-size:14px; }
+  pre.consts { background:#1e2632; color:#dfe6ef; padding:14px 16px; border-radius:6px;
+               font-size:13px; line-height:1.6; overflow-x:auto;
+               font-family:Consolas,"Courier New",monospace; }
+  pre.consts b { color:#ffd479; font-weight:700; }
   .legend { display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--sub); margin:8px 0 0 0; }
   .legend span::before { content:""; display:inline-block; width:14px; height:10px; margin-right:5px;
                          vertical-align:-1px; border-radius:2px; }
@@ -71,8 +73,7 @@
 <header><div class="wrap">
   <h1>PoC: マルチバー行のパターン集 — 1 行に複数のタスクが入るとき、段はどう積まれるか</h1>
   <p class="lede">20 パターン。<strong>overlap が 1 つでもあれば不合格</strong>。
-     担当・完了率・タスク名・進捗マーカー・Resume・依存線を<strong>すべて描いたうえで</strong>段を割り当てる。
-     ズームを動かすと同じデータで段数が変わる — それが確認したいことである。</p>
+     担当・完了率・タスク名・進捗マーカー・Resume・依存線を<strong>すべて描いたうえで</strong>段を割り当てる。</p>
   <div class="ctl">
     <label>横ズーム <input type="range" id="zx" min="0.05" max="6" step="0.01" value="1">
       <span class="val" id="zxv"></span></label>
@@ -81,8 +82,8 @@
     <label><input type="checkbox" id="asg" checked> 担当</label>
     <label><input type="checkbox" id="pct" checked> 完了率</label>
     <label><input type="checkbox" id="dep" checked> 依存線</label>
-    <label><input type="checkbox" id="hfloor"> 高さ下限 16px</label>
-    <label><input type="checkbox" id="showocc"> 占有幅を表示</label>
+    <label><input type="checkbox" id="hfloor"> 高さ下限</label>
+    <label><input type="checkbox" id="showocc"> 占有幅</label>
     <button id="reset">既定に戻す</button>
   </div>
   <div class="verdictbar" id="verdict"></div>
@@ -90,39 +91,42 @@
 
 <div class="wrap">
 
+<h2>1. 寸法の定数 — マジックナンバーはここにしか無い</h2>
+<p class="hint">寸法の数値はすべて 1 か所の <code>SIZE</code> オブジェクトから来る。
+  描画コードに寸法の数値リテラルは書いていない。値を変えれば絵が追随する。</p>
+<pre class="consts" id="constdump"></pre>
+
+<div class="note warn">
+  <strong>形状ごとの縦幅（2026-07-30 の指示）</strong>
+  <ul>
+    <li><code>arrow</code> <code>---&gt;</code> と <code>endpointSpan</code> <code>*----*</code> は
+        <strong><code>bar</code> の 1/2</strong>。<strong>縦に薄いことがこの形状の取り柄</strong>で、
+        同じ縦幅により多くの情報を詰め込める。フォントも少し小さくする。</li>
+    <li><code>milestone</code> は <strong><code>bar</code> の 1.5 倍</strong>。目立たせるため。</li>
+    <li>縦幅の大小関係は <strong>フォント &lt; 実績 &lt; 予定</strong>。崩れたら誤り。</li>
+  </ul>
+  ⚠️ これにより<strong>「5 形状の占有高さは全て同一」という従来の記述は成り立たない</strong>。
+  段の高さはその段に入った形状の<strong>最大値</strong>で決まるので、
+  <strong>細線だけの段は低くなる</strong>（P14 で確認できる）。
+</div>
+
 <div class="note">
   <strong>この PoC で確かめること</strong>
   <ol>
-    <li><strong>overlap = 0</strong> — 段割当が全パターンで重なりを出さないこと（最終段の再利用を廃止した以上、絶対条件）。</li>
-    <li><strong>決定的であること</strong> — 入力の並び順を変えても段割当が同じになること。ならないと再描画のたびに段が入れ替わる。</li>
-    <li><strong>手動指定が自動に勝つこと</strong> — <code>stackOrder</code> を人が指定した段は自動配置に奪われない。</li>
+    <li><strong>overlap = 0</strong> — 段割当が全パターンで重なりを出さないこと。</li>
+    <li><strong>決定的であること</strong> — 入力の並び順を変えても段割当が同じになること。</li>
+    <li><strong>手動指定が自動に勝つこと</strong> — <code>stackOrder</code> を人が指定した段は奪われない。</li>
     <li><strong>左右どちらの張り出しも占有幅に入っていること</strong> —
-        担当＋完了率は<strong>バーの外側左</strong>、タスク名と進捗マーカーと Resume は<strong>外側右</strong>に出る
-        （<code>handover-ui-detail-spec-ja.md</code> §4-2 の ⚠️）。片側だけ数えると隣と重なる。</li>
-    <li><strong>低ズームで段数がどれだけ増えるか</strong> — フォント下限 12px によりラベルが相対的に大きくなる。
-        §6-4 の ⚠️ が「PoC で実測すること」と言っている当の項目。</li>
+        担当＋完了率は<strong>外側左</strong>、タスク名とマーカーと Resume は<strong>外側右</strong>。</li>
+    <li><strong>依存線がタスクを横切らないこと</strong> — 後続が先行の下に潜り込む向きでも、
+        <strong>先行の下端から抜けて降り、右へ曲がって入る</strong>（P03）。</li>
   </ol>
 </div>
 
-<div class="note warn">
-  <strong>形状の描き分け（<code>handover-plan-actual-decisions-ja.md</code> §2-2）</strong>
-  <ul>
-    <li><strong>上下に幅がある形状</strong>（<code>bar</code> <code>===</code> / <code>chevron</code> <code>&gt;===&gt;</code>）
-        → 実績を<strong>予定の内側に重ねる</strong>。</li>
-    <li><strong>上下に幅がない形状</strong>（<code>arrow</code> <code>---&gt;</code> /
-        <code>endpointSpan</code> <code>*----*</code> / <code>milestone</code>）
-        → 細線で描き、実績を<strong>予定の下にずらす</strong>。</li>
-    <li><strong>両端が縦棒の細線 <code>|----|</code> は廃止</strong>（<code>handover-ui-detail-spec-ja.md</code> §表）。
-        端点は<strong>点</strong>で描く。</li>
-    <li>実績は<strong>予定と同じ形状</strong>で、少し小さく描く。</li>
-  </ul>
-</div>
-
-<h2>1. 全パターンの一覧</h2>
-<p class="hint">ズームを動かすとこの表がそのまま追随する。<strong>段数の列が動くパターン</strong>が、ズームに敏感なパターンである。</p>
+<h2>2. 全パターンの一覧</h2>
 <table class="sum" id="sumtable"></table>
 
-<h2>2. パターンごとの絵</h2>
+<h2>3. パターンごとの絵</h2>
 <div class="legend">
   <span class="l-plan">予定</span><span class="l-act">実績</span>
   <span class="l-dep">依存線（橙で固定）</span><span class="l-occ">占有幅（左右の張り出しを含む）</span>
@@ -131,12 +135,10 @@
   担当と完了率は<strong>予定タスクの左端を基準に外側左へ右揃え</strong>で連結する。</p>
 <div id="pats"></div>
 
-<h2>3. ズーム掃引 — 段数はズームに対して単調か</h2>
-<p class="hint">横ズームを 0.05 から 6 まで 240 段階で掃引し、全パターンの合計段数を記録する。
-  <strong>拡大したのに段が増える</strong>逆転があれば、そこが設計の穴である。</p>
+<h2>4. ズーム掃引 — 段数はズームに対して単調か</h2>
 <div id="sweep"></div>
 
-<h2>4. 左右どちらの張り出しがどれだけ効いているか</h2>
+<h2>5. 左右どちらの張り出しがどれだけ効いているか</h2>
 <p class="hint">占有幅の構成要素を 1 つずつ外して、合計段数がどう変わるかを測る。</p>
 <div id="contrib"></div>
 
@@ -145,19 +147,113 @@
 <script>
 "use strict";
 
-// ---------------------------------------------------------------- constants
-var BASE_PX_PER_DAY = 6;
-var BASE_TASK_H     = 28;     // total occupied band height at zoomY = 1 (same for all shapes)
-var LANE_GAP        = 12;     // vertical gap between stack lanes (one dependency line fits)
-var FONT_MIN        = 12;     // font floor (handover 2-4-1)
-var TASK_H_MIN      = 16;     // actual-bar + alpha floor
-var MARK_MIN        = 16;     // progress marker floor
-var LABEL_COEF      = 0.5;    // width = (fw*2 + hw*1) * fontSize * coef
-var LABEL_PAD       = 6;
-var LABEL_GAP       = 4;
-var MARK_GAP        = 4;      // handover 2-4-1: overhang is 4px + mark width
-var TRUNC_UNITS     = 24;     // 24 half-width units == 12 full-width chars
-var SVG_PAD         = 10;
+// ===========================================================================
+// SIZE -- the single source for every dimension on this page.
+// No size literal appears in the drawing code below. Change a value here and
+// the whole picture follows.
+// ===========================================================================
+var SIZE = {
+  // --- time axis
+  pxPerDayAt1x:   6,      // px per day at zoomX = 1
+
+  // --- vertical reference: the plan bar of bar / chevron
+  basePlanH:      28,     // plan bar height at zoomY = 1
+  basePlanHMin:   16,     // optional floor for that height
+
+  // --- per-shape plan height, as a multiple of the reference.
+  //     Thin shapes are deliberately half as tall: being thin IS their merit,
+  //     they let more information sit in the same vertical space.
+  shapeH: { bar: 1.0, chevron: 1.0, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
+
+  // --- the height ordering must hold:  font < actual < plan
+  actualOfPlan:   0.55,   // actual height / plan height  (value taken from the shape reference)
+  fontOfActual:   0.80,   // font size     / actual height
+  thinFontScale:  0.85,   // extra shrink for arrow / endpointSpan
+  fontMin:        12,     // Japanese readability floor
+
+  // --- vertical spacing
+  actualGap:      2,      // plan -> actual, when the actual sits below
+  laneGap:        12,     // between stack lanes (one dependency line fits)
+
+  // --- progress marker
+  markTextOfFont: 0.75,   // the number inside the marker / the shape's font size
+  markOfText:     2.0,    // marker diameter / that number's size
+  markMin:        16,
+  markGap:        4,      // handover 2-4-1: the overhang is 4px + mark width
+  markTextBaseline: 0.36, // baseline offset / marker text size
+  markStroke:     1.4,
+  resumeScaleInvalid: 0.7,
+  resumeArmOfMark:    0.62,
+  resumeHeadOfMark:   0.22,
+  resumeDash:     "3 2",
+
+  // --- labels
+  labelCoef:      0.5,    // width = (fullwidth*2 + halfwidth) * fontSize * coef
+  labelPad:       6,      // inside the shape
+  labelGap:       4,      // shape -> label placed outside
+  labelBaseline:  0.35,   // baseline offset / font size
+  truncUnits:     24,     // 24 half-width units == 12 full-width chars
+
+  // --- strokes and shape details
+  thinStrokeOfPlan: 0.20, // thin-shape line width / that shape's plan height
+  thinStrokeMin:  1.5,
+  thinStrokeMax:  4,
+  planStroke:     1,
+  chevronNotchOfH: 0.45,
+  chevronNotchOfW: 0.35,
+  arrowHeadOfStroke: 3.2,
+  arrowHeadOfSpan:   0.4,
+  spanDotOfStroke:   1.15,
+  starInnerOfOuter:  0.45,
+
+  // --- dependency lines
+  depWidth:       1.6,
+  depArrowLen:    10,     // drawn length of the arrowhead
+  depRunOfArrow:  2,      // run / arrowhead. 2 means one arrowhead plus one of
+                          // visible line, and the entry and exit runs are equal.
+                          // Below 1 the triangle would sit straight on top of
+                          // the vertical with no line in front of it.
+
+  // --- canvas
+  svgPad:         10,
+  minShapeW:      2       // a zero-duration task still stays visible
+};
+
+// Both dependency-line runs are the SAME length and are derived from the
+// arrowhead, so they cannot drift apart:
+//   arrowhead = 1, run = 2 = one arrowhead + one of visible line.
+SIZE.depRun = SIZE.depArrowLen * SIZE.depRunOfArrow;
+
+function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
+
+/** Every vertical dimension of one shape kind, derived from SIZE alone. */
+function shapeMetrics(kind, zoomY, heightFloor) {
+  var base = SIZE.basePlanH * zoomY;
+  if (heightFloor) base = Math.max(SIZE.basePlanHMin, base);
+  var planH = base * SIZE.shapeH[kind];
+  var actualH = planH * SIZE.actualOfPlan;
+  var thin = !hasThickness(kind) && kind !== "milestone";
+  var rawFont = actualH * SIZE.fontOfActual * (thin ? SIZE.thinFontScale : 1);
+  var fontSize = Math.max(SIZE.fontMin, rawFont);
+  return {
+    kind: kind,
+    planH: planH,
+    actualH: actualH,
+    fontSize: fontSize,
+    fontFloored: rawFont < SIZE.fontMin,
+    markTextSize: Math.max(SIZE.fontMin, fontSize * SIZE.markTextOfFont),
+    markSize: Math.max(SIZE.markMin,
+              Math.max(SIZE.fontMin, fontSize * SIZE.markTextOfFont) * SIZE.markOfText),
+    // Vertical room this shape needs: a thick shape carries the actual inside,
+    // the others push it below.
+    reserved: hasThickness(kind) ? planH : planH + SIZE.actualGap + actualH,
+    insideActualTop: (planH - actualH) / 2,
+    belowActualTop: planH + SIZE.actualGap,
+    thinStroke: Math.max(SIZE.thinStrokeMin,
+                Math.min(SIZE.thinStrokeMax, planH * SIZE.thinStrokeOfPlan)),
+    glyphSize: planH
+  };
+}
 
 // ---------------------------------------------------------------- text metrics
 function isFullWidth(ch) {
@@ -173,7 +269,7 @@ function widthUnits(s) {
   return n;
 }
 /** Analytic estimate. No browser text measurement (handover 6-2). */
-function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * LABEL_COEF; }
+function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * SIZE.labelCoef; }
 function truncate(s, units) {
   var n = 0, out = "";
   for (var i = 0; i < s.length; i++) {
@@ -187,6 +283,7 @@ function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 function r1(x) { return Math.round(x * 10) / 10; }
+function pad(s, n) { s = String(s); while (s.length < n) s += " "; return s; }
 
 // ---------------------------------------------------------------- task ctors
 var UIDSEQ = 1000;
@@ -205,11 +302,25 @@ function M(name, day, glyph, opt) {
   if (opt) for (var k in opt) if (opt.hasOwnProperty(k)) o[k] = opt[k];
   return T(name, day, day, o);
 }
-
-// ---------------------------------------------------------------- patterns
 function seq(n, f) { var a = [], i; for (i = 0; i < n; i++) a.push(f(i)); return a; }
 
+/** The five dependency-line patterns, one pair each, lanes pinned so the shape
+ *  of every route is visible at a glance. */
+function L(name, start, finish, lane) {
+  return T(name, start, finish, { stackOrder: lane });
+}
+
+// ---------------------------------------------------------------- patterns
 var PATTERNS = [
+  { id: "P00", name: "依存線の 5 パターン", desc: "① 直線 / ② 下・間隔あり / ③ 上・間隔あり / ④ 下・重なる / ⑤ 上・重なる",
+    expect: "①②③ は 2 折れ以下、④⑤ は右へ出て段間を左へ戻る 4 折れ。横切り 0",
+    bare: true, deps: "pairs", pairs: [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9]],
+    tasks: [L("①前", 0, 20, 0),    L("①後", 30, 50, 0),
+            L("②前", 60, 80, 0),   L("②後", 95, 115, 1),
+            L("③前", 130, 150, 1), L("③後", 165, 185, 0),
+            L("④前", 200, 225, 0), L("④後", 218, 243, 1),
+            L("⑤前", 258, 283, 1), L("⑤後", 276, 301, 0)] },
+
   { id: "P01", name: "完全分離", desc: "時間がまったく重ならない 4 本",
     expect: "1 段。ラベルが出るまでは 1 段のまま", deps: "chain",
     tasks: [T("要件定義", 0, 20, { percentComplete: 100, hasActual: true, actualStart: 0, actualDuration: 20 }),
@@ -221,7 +332,7 @@ var PATTERNS = [
     tasks: [T("A 系", 10, 40), T("B 系", 10, 40), T("C 系", 10, 40)] },
 
   { id: "P03", name: "階段状の部分重なり", desc: "順に少しずつずれて重なる 5 本",
-    expect: "2 段。隣どうしだけが重なる", deps: "chain",
+    expect: "2 段。依存線は先行の下端から抜けて降り、右へ曲がって入る", deps: "chain",
     tasks: [T("第1", 0, 30), T("第2", 20, 50), T("第3", 40, 70), T("第4", 60, 90), T("第5", 80, 110)] },
 
   { id: "P04", name: "入れ子", desc: "長い 1 本の中に短い 3 本",
@@ -241,21 +352,21 @@ var PATTERNS = [
     tasks: [T("工程1", 0, 30), T("工程2", 30, 60), T("工程3", 60, 90)] },
 
   { id: "P08", name: "1 日だけ重なる", desc: "重複はわずか 1 日",
-    expect: "2 段。1 日でも重なれば段を分ける",
+    expect: "2 段。1 日でも重なれば段を分ける", deps: "chain",
     tasks: [T("前半", 0, 30), T("後半", 29, 60)] },
 
   { id: "P09", name: "マイルストーンのみ", desc: "幅 0 のマイルストーン 6 個",
-    expect: "低ズームでグリフとラベルが接触して段が増える",
+    expect: "bar の 1.5 倍の縦幅で目立つ。低ズームで接触して段が増える",
     tasks: [M("計画確定", 5, "circle"), M("設計完了", 12, "triangle"), M("実装完了", 20, "square"),
             M("検証完了", 45, "diamond"), M("受入", 80, "star"), M("移行", 110, "hexagon")] },
 
   { id: "P10", name: "マイルストーン＋バー混在", desc: "バーの上にマイルストーンが乗る",
-    expect: "マイルストーンが先に置かれる（決定的順序の第 1 キー）", deps: "toMilestone",
+    expect: "マイルストーンが先に置かれ、その段だけ高くなる", deps: "toMilestone",
     tasks: [T("長期作業", 0, 100), M("中間判定", 30, "diamond"), M("最終判定", 75, "star"),
             T("並行作業", 40, 65)] },
 
   { id: "P11", name: "長い名称で右出し", desc: "名称が幅に収まらず右へ出る",
-    expect: "右出しが隣に当たり段が落ちる。ズームを下げるほど顕著", deps: "chain",
+    expect: "右出しが隣に当たり段が落ちる", deps: "chain",
     tasks: [T("要件定義および外部仕様の確定", 0, 12), T("基本設計", 15, 27),
             T("詳細設計と実装方式の検討", 30, 42), T("結合検証", 45, 57)] },
 
@@ -264,21 +375,23 @@ var PATTERNS = [
     tasks: seq(20, function (i) { return T("T" + (i + 1), i * 6, i * 6 + 4); }) },
 
   { id: "P13", name: "5 つのタスク形状すべて", desc: "bar / chevron / arrow / endpointSpan / milestone",
-    expect: "占有高さは 5 形状とも同一。矢印と端点スパンは細線で、実績は下にずれる",
+    expect: "細線は bar の 1/2、マイルストーンは 1.5 倍。段の高さは最大値で決まる",
     tasks: [T("bar", 0, 20, { shapeKind: "bar", hasActual: true, actualStart: 0, actualDuration: 13, percentComplete: 65 }),
             T("chevron", 24, 44, { shapeKind: "chevron", hasActual: true, actualStart: 24, actualDuration: 12, percentComplete: 60 }),
             T("arrow", 48, 68, { shapeKind: "arrow", hasActual: true, actualStart: 48, actualDuration: 10, percentComplete: 50 }),
             T("span", 72, 92, { shapeKind: "endpointSpan", hasActual: true, actualStart: 72, actualDuration: 15, percentComplete: 75 }),
             M("mstone", 105, "pentagon", { hasActual: true, actualStart: 105, actualDuration: 0, percentComplete: 100 })] },
 
-  { id: "P14", name: "実績つき（マーカー張り出しあり）", desc: "進捗マーカーが右へ 4px ＋ マーク幅ぶん張り出す",
-    expect: "左は担当＋完了率、右はマーカー。両側とも占有幅に入る", deps: "chain",
-    tasks: [T("進行中1", 0, 30, { hasActual: true, actualStart: 0, actualDuration: 18, percentComplete: 60 }),
-            T("進行中2", 32, 62, { hasActual: true, actualStart: 32, actualDuration: 12, percentComplete: 40 }),
-            T("進行中3", 64, 94, { hasActual: true, actualStart: 64, actualDuration: 25, percentComplete: 83 })] },
+  { id: "P14", name: "細線だけの行", desc: "arrow と endpointSpan を 6 本",
+    expect: "段が低くなる。同じ縦幅により多く詰め込めるのが細線の取り柄",
+    tasks: seq(6, function (i) {
+      return T("細線" + (i + 1), i * 20, i * 20 + 16,
+               { shapeKind: i % 2 ? "arrow" : "endpointSpan",
+                 hasActual: true, actualStart: i * 20, actualDuration: 9, percentComplete: 55 });
+    }) },
 
   { id: "P15", name: "中断・再開", desc: "実績が途中で止まり、再開日が先にある",
-    expect: "Resume ぶんの張り出しが増える。再開日未定は薄い〇で小さい",
+    expect: "Resume ぶんの張り出しが増える。再開日未定は薄く小さい",
     tasks: [T("中断中（再開日あり）", 0, 60, { hasActual: true, actualStart: 0, actualDuration: 20,
               suspended: true, resume: 45, resumeValid: true, percentComplete: 33 }),
             T("中断中（再開日未定）", 65, 110, { hasActual: true, actualStart: 65, actualDuration: 10,
@@ -307,39 +420,19 @@ var PATTERNS = [
             T("超過2", 50, 80, { hasActual: true, actualStart: 50, actualDuration: 42, percentComplete: 140 })] }
 ];
 
-// ---------------------------------------------------------------- shape model
-/** Shapes with vertical extent hold the actual inside; the thin ones push it below. */
-function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
-
-/**
- * Vertical slots inside one band. The band height is identical for every shape,
- * so a row's height never depends on which shapes happen to sit in it.
- */
-function bands(taskH) {
-  var actualH = Math.max(3, taskH * 0.30);
-  var planH = Math.max(4, taskH - actualH - 2);
-  return {
-    bandH: taskH,
-    planTop: 0, planH: planH,
-    insideActualTop: (planH - actualH * 0.72) / 2, insideActualH: actualH * 0.72,
-    belowActualTop: planH + 2, belowActualH: actualH
-  };
-}
-
 // ---------------------------------------------------------------- context
 function makeCtx(zoomX, zoomY, opt) {
   opt = opt || {};
-  var rawH = BASE_TASK_H * zoomY;
-  var taskH = opt.heightFloor ? Math.max(TASK_H_MIN, rawH) : rawH;
-  var rawFont = taskH * 0.8;
-  var fontSize = Math.max(FONT_MIN, rawFont);
+  var cache = {};
   return {
-    pxPerDay: BASE_PX_PER_DAY * zoomX,
-    taskH: taskH, rawH: rawH, b: bands(taskH),
-    fontSize: fontSize, fontFloored: rawFont < FONT_MIN,
-    markSize: Math.max(MARK_MIN, fontSize * 4 / 3),
-    glyphSize: taskH * 0.62,
-    laneGap: LANE_GAP,
+    zoomY: zoomY,
+    opt: opt,
+    zoomX: zoomX,
+    pxPerDay: SIZE.pxPerDayAt1x * zoomX,
+    m: function (kind) {
+      if (!cache[kind]) cache[kind] = shapeMetrics(kind, zoomY, !!opt.heightFloor);
+      return cache[kind];
+    },
     showOwner: opt.showOwner !== false,
     showPct: opt.showPct !== false,
     noLeft: !!opt.noLeft, noRight: !!opt.noRight, noMark: !!opt.noMark
@@ -348,62 +441,51 @@ function makeCtx(zoomX, zoomY, opt) {
 
 /** Everything that consumes horizontal room, on both sides of the shape. */
 function geom(t, ctx) {
-  var x0 = t.start * ctx.pxPerDay;
-  var x1 = t.finish * ctx.pxPerDay;
-  var shapeX0, shapeX1;
+  var m = ctx.m(t.shapeKind);
+  var x0 = t.start * ctx.pxPerDay, x1 = t.finish * ctx.pxPerDay, sx0, sx1;
 
-  if (t.milestone) {
-    var g = ctx.glyphSize;
-    shapeX0 = x0 - g / 2; shapeX1 = x0 + g / 2;
-  } else {
-    shapeX0 = x0;
-    shapeX1 = Math.max(x1, x0 + 2);          // zero-duration tasks keep a minimum visible width
-  }
+  if (t.milestone) { sx0 = x0 - m.glyphSize / 2; sx1 = x0 + m.glyphSize / 2; }
+  else { sx0 = x0; sx1 = Math.max(x1, x0 + SIZE.minShapeW); }
 
-  // The actual may run past the planned finish (percentComplete > 100).
-  var actX0 = null, actX1 = null;
+  var aX0 = null, aX1 = null;
   if (t.hasActual) {
-    actX0 = t.actualStart * ctx.pxPerDay;
-    actX1 = (t.actualStart + t.actualDuration) * ctx.pxPerDay;
-    if (t.milestone) { actX0 = shapeX0; actX1 = shapeX1; }
+    aX0 = t.milestone ? sx0 : t.actualStart * ctx.pxPerDay;
+    aX1 = t.milestone ? sx1 : (t.actualStart + t.actualDuration) * ctx.pxPerDay;
   }
-  var bodyX1 = Math.max(shapeX1, actX1 == null ? -Infinity : actX1);
+  var bodyX1 = Math.max(sx1, aX1 == null ? -Infinity : aX1);
 
-  // ---- LEFT: "{owner} : {pct}%", right-aligned to the plan bar's left edge.
+  // LEFT: "{owner} : {pct}%", right-aligned to the plan bar's left edge.
   var leftText = "";
   if (ctx.showOwner) leftText += t.owner;
   if (ctx.showPct) leftText += (leftText ? " : " : "") + t.percentComplete + "%";
-  var leftExtent = (leftText && !ctx.noLeft) ? labelWidth(leftText, ctx.fontSize) + LABEL_GAP : 0;
+  var leftExtent = (leftText && !ctx.noLeft) ? labelWidth(leftText, m.fontSize) + SIZE.labelGap : 0;
 
-  // ---- Name label: inside -> truncated inside -> pushed right.
-  var shapeW = shapeX1 - shapeX0;
-  var cut = truncate(t.name, TRUNC_UNITS);
-  var wFull = labelWidth(t.name, ctx.fontSize);
-  var wCut = labelWidth(cut, ctx.fontSize);
+  // NAME: inside -> truncated inside -> pushed right.
+  var cut = truncate(t.name, SIZE.truncUnits);
+  var wFull = labelWidth(t.name, m.fontSize), wCut = labelWidth(cut, m.fontSize);
+  var insideRoom = hasThickness(t.shapeKind) ? (sx1 - sx0) - SIZE.labelPad * 2 : -1;
   var labelMode, labelText, nameExtent;
-  var insideRoom = hasThickness(t.shapeKind) ? shapeW - LABEL_PAD * 2 : -1;  // thin shapes have no inside
   if (wFull <= insideRoom) { labelMode = "inside"; labelText = t.name; nameExtent = 0; }
-  else if (wCut <= insideRoom) { labelMode = "inside-cut"; labelText = cut; nameExtent = 0; }
-  else { labelMode = "right"; labelText = cut; nameExtent = LABEL_GAP + wCut; }
+  else if (wCut <= insideRoom) { labelMode = "inside"; labelText = cut; nameExtent = 0; }
+  else { labelMode = "right"; labelText = cut; nameExtent = SIZE.labelGap + wCut; }
   if (ctx.noRight) nameExtent = 0;
 
-  // ---- RIGHT: progress marker, then Resume (handover 2-4-1: 4px + mark width).
+  // RIGHT: progress marker, then Resume.
   var markExtent = 0;
   if (t.hasActual && !ctx.noMark) {
-    markExtent = MARK_GAP + ctx.markSize;
-    if (t.suspended) markExtent += MARK_GAP + (t.resumeValid ? ctx.markSize : ctx.markSize * 0.7);
+    markExtent = SIZE.markGap + m.markSize;
+    if (t.suspended) {
+      markExtent += SIZE.markGap + m.markSize * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
+    }
   }
   var resumeX1 = (t.suspended && t.resumeValid && t.resume != null)
-    ? t.resume * ctx.pxPerDay + ctx.markSize / 2 : -Infinity;
+    ? t.resume * ctx.pxPerDay + m.markSize / 2 : -Infinity;
 
-  return {
-    shapeX0: shapeX0, shapeX1: shapeX1, actX0: actX0, actX1: actX1, bodyX1: bodyX1,
-    occX0: shapeX0 - leftExtent,
-    occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
-    leftText: leftText, leftExtent: leftExtent,
-    labelMode: labelMode, labelText: labelText, nameExtent: nameExtent,
-    markExtent: markExtent, markX: bodyX1 + MARK_GAP
-  };
+  return { m: m, sx0: sx0, sx1: sx1, aX0: aX0, aX1: aX1, bodyX1: bodyX1,
+           occX0: sx0 - leftExtent,
+           occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
+           leftText: leftText, labelMode: labelMode, labelText: labelText,
+           markExtent: markExtent, markX: bodyX1 + SIZE.markGap };
 }
 
 // ---------------------------------------------------------------- lane packing
@@ -418,12 +500,12 @@ function orderTasks(tasks) {
 
 function packLanes(tasks, ctx) {
   var ordered = orderTasks(tasks);
-  var lanes = [], placements = [], i, j;
+  var lanes = [], placements = [], i, j, k;
 
   function laneOf(n) { while (lanes.length <= n) lanes.push([]); return lanes[n]; }
   function fits(lane, g) {
-    for (var k = 0; k < lane.length; k++) {
-      var o = lane[k];
+    for (var q = 0; q < lane.length; q++) {
+      var o = lane[q];
       if (g.occX0 < o.occX1 && o.occX0 < g.occX1) return false;   // touching is NOT overlapping
     }
     return true;
@@ -444,11 +526,20 @@ function packLanes(tasks, ctx) {
     placements.push({ t: ordered[i], g: g, lane: target, forced: false });
   }
 
+  // A lane is as tall as the tallest shape in it, so a lane of thin shapes stays low.
+  var laneH = [], laneTop = [], acc = 0;
+  for (i = 0; i < lanes.length; i++) {
+    var h = 0;
+    for (j = 0; j < lanes[i].length; j++) h = Math.max(h, lanes[i][j].m.reserved);
+    laneH.push(h || ctx.m("bar").reserved);
+  }
+  for (i = 0; i < laneH.length; i++) { laneTop.push(acc); acc += laneH[i] + SIZE.laneGap; }
+
   var overlaps = 0;
   for (i = 0; i < lanes.length; i++) {
     for (j = 0; j < lanes[i].length; j++) {
-      for (var k2 = j + 1; k2 < lanes[i].length; k2++) {
-        var a = lanes[i][j], b = lanes[i][k2];
+      for (k = j + 1; k < lanes[i].length; k++) {
+        var a = lanes[i][j], b = lanes[i][k];
         if (a.occX0 < b.occX1 && b.occX0 < a.occX1) overlaps++;
       }
     }
@@ -461,8 +552,8 @@ function packLanes(tasks, ctx) {
   }
   return { lanes: Math.max(1, lanes.length), placements: placements, overlaps: overlaps,
            rightOut: rightOut, minX: minX, maxX: maxX,
-           rowHeight: Math.max(1, lanes.length) * ctx.taskH +
-                      Math.max(0, lanes.length - 1) * ctx.laneGap };
+           laneH: laneH, laneTop: laneTop,
+           rowHeight: Math.max(0, acc - SIZE.laneGap) };
 }
 
 function determinismCheck(tasks, ctx) {
@@ -478,48 +569,90 @@ function determinismCheck(tasks, ctx) {
 
 // ---------------------------------------------------------------- dependency links
 /**
- * Orthogonal route from the predecessor's right anchor to the successor's left anchor.
- * Forward links take 2 bends; a backward link has to go around, which needs 4 --
- * the asymmetry the handover already flags as "0-3 bends will always be broken".
+ * Dependency route. Five shapes, one rule.
+ *
+ *   x1 = predecessor right edge + clearance
+ *   x2 = successor    left edge - clearance
+ *
+ *   x2 >= x1  ->  one bend pair at the midpoint          (2 bends; straight when
+ *                                                         the two share a lane)
+ *   x2 <  x1  ->  out to the right, back along the
+ *                 corridor between the lanes, in from
+ *                 the left                               (4 bends)
+ *
+ * The exit anchor is ALWAYS the predecessor's right edge and the entry anchor is
+ * ALWAYS the successor's left edge. The corridor sits at the middle of the empty
+ * band between the two bars.
  */
-function buildLinks(pattern, placements, ctx, laneY) {
+function corridorY(a, b, res) {
+  var topA = res.laneTop[a.lane], topB = res.laneTop[b.lane];
+  if (a.lane === b.lane) return topA + a.g.m.planH + SIZE.laneGap / 2;
+  if (topB > topA) return (topA + a.g.m.planH + topB) / 2;      // successor below
+  return (topB + b.g.m.planH + topA) / 2;                       // successor above
+}
+
+function routeLink(a, b, res) {
+  var ga = a.g, gb = b.g;
+  var topA = res.laneTop[a.lane], topB = res.laneTop[b.lane];
+  var ay = topA + ga.m.planH / 2, by = topB + gb.m.planH / 2;
+  var x1 = ga.sx1 + SIZE.depRun;        // leaving the predecessor
+  var x2 = gb.sx0 - SIZE.depRun;        // entering the successor -- same length
+  var sameY = Math.abs(ay - by) < 0.5;
+
+  if (sameY) {                                                   // (1) in line
+    if (gb.sx0 - ga.sx1 >= SIZE.depRun) return [[ga.sx1, ay], [gb.sx0, by]];
+  } else if (x2 >= x1) {                                         // (2)(3) with a gap
+    var mx = Math.max(x1, Math.min((ga.sx1 + gb.sx0) / 2, x2));
+    return [[ga.sx1, ay], [mx, ay], [mx, by], [gb.sx0, by]];
+  }
+  var cy = corridorY(a, b, res);                                 // (4)(5) overlapping
+  return [[ga.sx1, ay], [x1, ay], [x1, cy], [x2, cy], [x2, by], [gb.sx0, by]];
+}
+
+function buildLinks(pattern, res) {
   if (!pattern.deps) return [];
-  var byUid = {}, i;
-  placements.forEach(function (p) { byUid[p.t.uid] = p; });
-  var ordered = pattern.tasks.slice();
-  var pairs = [];
-  if (pattern.deps === "chain") {
+  var byUid = {};
+  res.placements.forEach(function (p) { byUid[p.t.uid] = p; });
+  var ordered = pattern.tasks.slice(), pairs = [], i;
+  if (pattern.deps === "pairs") {
+    pattern.pairs.forEach(function (ix) { pairs.push([ordered[ix[0]], ordered[ix[1]]]); });
+  } else if (pattern.deps === "chain") {
     for (i = 0; i + 1 < ordered.length; i++) pairs.push([ordered[i], ordered[i + 1]]);
   } else if (pattern.deps === "toMilestone") {
     var ms = ordered.filter(function (t) { return t.milestone; });
     var bars = ordered.filter(function (t) { return !t.milestone; });
-    bars.forEach(function (b, k) { if (ms[k]) pairs.push([b, ms[k]]); });
+    bars.forEach(function (bb, k) { if (ms[k]) pairs.push([bb, ms[k]]); });
   }
   var links = [];
   pairs.forEach(function (pr) {
     var a = byUid[pr[0].uid], b = byUid[pr[1].uid];
     if (!a || !b) return;
-    var ay = laneY(a.lane) + ctx.b.planH / 2;
-    var by = laneY(b.lane) + ctx.b.planH / 2;
-    var ax = a.g.shapeX1, bx = b.g.shapeX0;
-    var pts;
-    if (bx - ax >= 12) {
-      var mx = (ax + bx) / 2;
-      pts = ay === by ? [[ax, ay], [bx, by]] : [[ax, ay], [mx, ay], [mx, by], [bx, by]];
-    } else {
-      var below = Math.max(ay, by) + ctx.b.planH / 2 + ctx.laneGap * 0.45;
-      pts = [[ax, ay], [ax + 8, ay], [ax + 8, below], [bx - 8, below], [bx - 8, by], [bx, by]];
-    }
-    links.push({ pts: pts, bends: pts.length - 2 });
+    var pts = routeLink(a, b, res);
+    links.push({ pts: pts, bends: Math.max(0, pts.length - 2) });
   });
   return links;
 }
 
+/** Shortest run at each end, over every link. Entry and exit must agree. */
+function runLengths(links) {
+  var inMin = Infinity, outMin = Infinity;
+  links.forEach(function (L) {
+    var n = L.pts.length;
+    if (n < 2) return;
+    var p = L.pts[n - 2], q = L.pts[n - 1];
+    if (Math.abs(p[1] - q[1]) <= 0.5) inMin = Math.min(inMin, Math.abs(q[0] - p[0]));
+    var a = L.pts[0], b = L.pts[1];
+    if (Math.abs(a[1] - b[1]) <= 0.5) outMin = Math.min(outMin, Math.abs(b[0] - a[0]));
+  });
+  return { entry: inMin === Infinity ? null : inMin,
+           exit: outMin === Infinity ? null : outMin };
+}
+
 /** Count how many times a route passes through a plan shape's box. */
-function countLineCrossings(links, placements, ctx, laneY) {
-  var boxes = placements.map(function (p) {
-    var y = laneY(p.lane);
-    return { x0: p.g.shapeX0, x1: p.g.shapeX1, y0: y, y1: y + ctx.b.planH };
+function countLineCrossings(links, res) {
+  var boxes = res.placements.map(function (p) {
+    var top = res.laneTop[p.lane];
+    return { x0: p.g.sx0, x1: p.g.sx1, y0: top, y1: top + p.g.m.planH };
   });
   var n = 0;
   links.forEach(function (L) {
@@ -527,9 +660,9 @@ function countLineCrossings(links, placements, ctx, laneY) {
       var p = L.pts[i], q = L.pts[i + 1];
       var sx0 = Math.min(p[0], q[0]), sx1 = Math.max(p[0], q[0]);
       var sy0 = Math.min(p[1], q[1]), sy1 = Math.max(p[1], q[1]);
-      boxes.forEach(function (b) {
-        var ox = Math.min(sx1, b.x1) - Math.max(sx0, b.x0);
-        var oy = Math.min(sy1, b.y1) - Math.max(sy0, b.y0);
+      boxes.forEach(function (bx) {
+        var ox = Math.min(sx1, bx.x1) - Math.max(sx0, bx.x0);
+        var oy = Math.min(sy1, bx.y1) - Math.max(sy0, bx.y0);
         if (ox > 0.5 && oy > 0.5) n++;
       });
     }
@@ -538,11 +671,10 @@ function countLineCrossings(links, placements, ctx, laneY) {
 }
 
 // ---------------------------------------------------------------- SVG shapes
-/** Shapes WITH vertical extent. */
 function thickPath(kind, x0, x1, y, h) {
-  var w = Math.max(x1 - x0, 2);
+  var w = Math.max(x1 - x0, SIZE.minShapeW);
   if (kind === "chevron") {
-    var n = Math.min(h * 0.45, w * 0.35);
+    var n = Math.min(h * SIZE.chevronNotchOfH, w * SIZE.chevronNotchOfW);
     return "M" + r1(x0) + "," + r1(y) + " L" + r1(x1 - n) + "," + r1(y) +
            " L" + r1(x1) + "," + r1(y + h / 2) + " L" + r1(x1 - n) + "," + r1(y + h) +
            " L" + r1(x0) + "," + r1(y + h) + " L" + r1(x0 + n) + "," + r1(y + h / 2) + " Z";
@@ -551,21 +683,19 @@ function thickPath(kind, x0, x1, y, h) {
 }
 
 /**
- * Shapes WITHOUT vertical extent: drawn as a thin line on the slot's centre line.
- * The stroke stays thin regardless of the slot height -- that is what "no vertical
- * extent" means. `|----|` (vertical end bars) is abolished; endpoints are dots.
+ * Thin shapes: a line on the slot's centre line, no vertical extent.
+ * `|----|` (vertical end bars) is abolished; endpoints are dots.
  */
-function thinShapeSvg(kind, x0, x1, y, h, colour, lw) {
+function thinSvg(kind, x0, x1, y, h, colour, lw) {
   var mid = y + h / 2, s = [];
-  lw = Math.max(1.5, Math.min(lw, 4));
   if (kind === "arrow") {
-    var head = Math.min(Math.max(x1 - x0, 1) * 0.4, Math.max(6, lw * 3.2));
+    var head = Math.min(Math.max(x1 - x0, 1) * SIZE.arrowHeadOfSpan, lw * SIZE.arrowHeadOfStroke);
     s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(Math.max(x0, x1 - head)) +
            '" y2="' + r1(mid) + '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
-    s.push('<path d="M' + r1(x1 - head) + ',' + r1(mid - head * 0.5) + ' L' + r1(x1) + ',' + r1(mid) +
-           ' L' + r1(x1 - head) + ',' + r1(mid + head * 0.5) + ' Z" fill="' + colour + '"/>');
-  } else {   // endpointSpan  *----*
-    var r = Math.max(2, lw * 1.15);
+    s.push('<path d="M' + r1(x1 - head) + ',' + r1(mid - head / 2) + ' L' + r1(x1) + ',' + r1(mid) +
+           ' L' + r1(x1 - head) + ',' + r1(mid + head / 2) + ' Z" fill="' + colour + '"/>');
+  } else {
+    var r = lw * SIZE.spanDotOfStroke;
     s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(x1) + '" y2="' + r1(mid) +
            '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
     s.push('<circle cx="' + r1(x0) + '" cy="' + r1(mid) + '" r="' + r1(r) + '" fill="' + colour + '"/>');
@@ -582,7 +712,7 @@ function glyphPath(kind, cx, cy, s) {
                             " L" + r1(cx - r) + "," + r1(cy + r) + " Z";
     case "star":
       for (i = 0; i < 10; i++) { a = -Math.PI / 2 + i * Math.PI / 5;
-        var rr = (i % 2 === 0) ? r : r * 0.45;
+        var rr = (i % 2 === 0) ? r : r * SIZE.starInnerOfOuter;
         pts.push(r1(cx + rr * Math.cos(a)) + "," + r1(cy + rr * Math.sin(a))); }
       return "M" + pts.join(" L") + " Z";
     case "pentagon":
@@ -598,32 +728,29 @@ function glyphPath(kind, cx, cy, s) {
   }
 }
 
-/** Draw plan + actual for one task, honouring the per-shape actual placement rule. */
-function drawTask(t, g, y, ctx) {
-  var b = ctx.b, s = [], thick = hasThickness(t.shapeKind);
-  var lw = Math.max(1.5, Math.min(4, ctx.taskH * 0.11));
-
+/** Plan and actual share the shape; only the placement and colour differ. */
+function drawTask(t, g, y) {
+  var m = g.m, s = [];
   if (t.milestone) {
-    var gs = ctx.glyphSize, cx = (g.shapeX0 + g.shapeX1) / 2;
-    s.push('<path d="' + glyphPath(t.milestoneGlyph, cx, y + b.planH / 2, gs) +
-           '" fill="var(--plan)" stroke="var(--plan-line)"/>');
+    var cx = (g.sx0 + g.sx1) / 2;
+    s.push('<path d="' + glyphPath(t.milestoneGlyph, cx, y + m.planH / 2, m.glyphSize) +
+           '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="' + SIZE.planStroke + '"/>');
     if (t.hasActual) {
-      s.push('<path d="' + glyphPath(t.milestoneGlyph, cx, y + b.belowActualTop + b.belowActualH / 2,
-             Math.max(4, gs * 0.55)) + '" fill="var(--act)"/>');
+      s.push('<path d="' + glyphPath(t.milestoneGlyph, cx,
+             y + m.belowActualTop + m.actualH / 2, m.actualH) + '" fill="var(--act)"/>');
     }
-  } else if (thick) {
-    s.push('<path d="' + thickPath(t.shapeKind, g.shapeX0, g.shapeX1, y + b.planTop, b.planH) +
-           '" fill="var(--plan)" stroke="var(--plan-line)"/>');
+  } else if (hasThickness(t.shapeKind)) {
+    s.push('<path d="' + thickPath(t.shapeKind, g.sx0, g.sx1, y, m.planH) +
+           '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="' + SIZE.planStroke + '"/>');
     if (t.hasActual) {
-      s.push('<path d="' + thickPath(t.shapeKind, g.actX0, g.actX1,
-             y + b.insideActualTop, b.insideActualH) + '" fill="var(--act)"/>');
+      s.push('<path d="' + thickPath(t.shapeKind, g.aX0, g.aX1,
+             y + m.insideActualTop, m.actualH) + '" fill="var(--act)"/>');
     }
   } else {
-    s.push(thinShapeSvg(t.shapeKind, g.shapeX0, g.shapeX1, y + b.planTop, b.planH,
-                        "var(--plan-line)", lw));
+    s.push(thinSvg(t.shapeKind, g.sx0, g.sx1, y, m.planH, "var(--plan-line)", m.thinStroke));
     if (t.hasActual) {
-      s.push(thinShapeSvg(t.shapeKind, g.actX0, g.actX1,
-             y + b.belowActualTop, b.belowActualH, "var(--act)", lw * 0.85));
+      s.push(thinSvg(t.shapeKind, g.aX0, g.aX1, y + m.belowActualTop, m.actualH,
+             "var(--act)", m.thinStroke));
     }
   }
   return s.join("");
@@ -631,84 +758,84 @@ function drawTask(t, g, y, ctx) {
 
 // ---------------------------------------------------------------- render one pattern
 function renderPattern(p, ctx, showOcc, showDeps) {
+  if (p.bare) {
+    var bareOpt = {}, kk;
+    for (kk in ctx.opt) if (ctx.opt.hasOwnProperty(kk)) bareOpt[kk] = ctx.opt[kk];
+    bareOpt.showOwner = false; bareOpt.showPct = false;
+    ctx = makeCtx(ctx.zoomX, ctx.zoomY, bareOpt);
+  }
   var res = packLanes(p.tasks, ctx);
   var det = determinismCheck(p.tasks, ctx);
-  var b = ctx.b;
-  function laneY(i) { return SVG_PAD + i * (ctx.taskH + ctx.laneGap); }
+  var links = showDeps ? buildLinks(p, res) : [];
+  var crossings = countLineCrossings(links, res);
 
-  var links = showDeps ? buildLinks(p, res.placements, ctx, laneY) : [];
-  var crossings = countLineCrossings(links, res.placements, ctx, laneY);
-
-  var shiftX = SVG_PAD - Math.min(0, res.minX);
-  var w = res.maxX + shiftX + SVG_PAD;
-  var h = res.rowHeight + SVG_PAD * 2;
+  var shiftX = SIZE.svgPad - Math.min(0, res.minX);
+  var w = res.maxX + shiftX + SIZE.svgPad;
+  var h = res.rowHeight + SIZE.svgPad * 2;
   var s = ['<svg width="' + r1(w) + '" height="' + r1(h) + '" viewBox="0 0 ' + r1(w) + ' ' + r1(h) +
-           '" role="img" style="min-width:' + r1(Math.min(w, 1300)) + 'px">',
-           '<g transform="translate(' + r1(shiftX) + ',0)">'];
+           '" role="img">',
+           '<g transform="translate(' + r1(shiftX) + ',' + SIZE.svgPad + ')">'];
 
   var li;
   for (li = 0; li < res.lanes; li++) {
-    s.push('<rect x="' + r1(-shiftX) + '" y="' + r1(laneY(li)) + '" width="' + r1(w) +
-           '" height="' + r1(ctx.taskH) + '" fill="' + (li % 2 ? "#fafbfc" : "#fff") + '"/>');
+    s.push('<rect x="' + r1(-shiftX) + '" y="' + r1(res.laneTop[li]) + '" width="' + r1(w) +
+           '" height="' + r1(res.laneH[li]) + '" fill="' + (li % 2 ? "#fafbfc" : "#fff") + '"/>');
   }
 
-  // dependency lines first, so shapes sit on top
   links.forEach(function (L) {
     var d = L.pts.map(function (pt, i) { return (i ? "L" : "M") + r1(pt[0]) + "," + r1(pt[1]); }).join(" ");
-    s.push('<path d="' + d + '" fill="none" stroke="var(--dep)" stroke-width="1.6" ' +
-           'stroke-linejoin="round" marker-end="url(#dep-arrow)"/>');
+    s.push('<path d="' + d + '" fill="none" stroke="var(--dep)" stroke-width="' + SIZE.depWidth +
+           '" stroke-linejoin="round" marker-end="url(#dep-arrow)"/>');
   });
 
   res.placements.forEach(function (pl) {
-    var t = pl.t, g = pl.g, y = laneY(pl.lane), fs = ctx.fontSize;
+    var t = pl.t, g = pl.g, m = g.m, y = res.laneTop[pl.lane], fs = m.fontSize;
+    var midY = y + m.planH / 2, textY = midY + fs * SIZE.labelBaseline;
 
     if (showOcc) {
-      s.push('<rect x="' + r1(g.occX0) + '" y="' + r1(y - 2) + '" width="' +
-             r1(Math.max(1, g.occX1 - g.occX0)) + '" height="' + r1(ctx.taskH + 4) +
+      s.push('<rect x="' + r1(g.occX0) + '" y="' + r1(y) + '" width="' +
+             r1(Math.max(1, g.occX1 - g.occX0)) + '" height="' + r1(m.reserved) +
              '" fill="none" stroke="#999" stroke-dasharray="2 2"/>');
     }
 
-    s.push(drawTask(t, g, y, ctx));
+    s.push(drawTask(t, g, y));
 
-    // LEFT: "{owner} : {pct}%" right-aligned to the plan bar's left edge
     if (g.leftText) {
-      s.push('<text x="' + r1(g.shapeX0 - LABEL_GAP) + '" y="' + r1(y + b.planH / 2 + fs * 0.35) +
-             '" font-size="' + r1(fs) + '" text-anchor="end" fill="var(--sub)">' +
-             esc(g.leftText) + '</text>');
+      s.push('<text x="' + r1(g.sx0 - SIZE.labelGap) + '" y="' + r1(textY) + '" font-size="' +
+             r1(fs) + '" text-anchor="end" fill="var(--sub)">' + esc(g.leftText) + '</text>');
     }
 
-    // RIGHT: progress marker, then Resume
     if (t.hasActual && g.markExtent > 0) {
-      var ms = ctx.markSize, mx = g.markX, my = y + b.planH / 2;
-      s.push('<circle cx="' + r1(mx + ms / 2) + '" cy="' + r1(my) + '" r="' + r1(ms / 2) +
-             '" fill="#fff" stroke="var(--mark)" stroke-width="1.4"/>');
-      s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(my + ms * 0.19) + '" font-size="' +
-             r1(ms * 0.52) + '" text-anchor="middle" fill="var(--mark)">' + t.percentComplete + '</text>');
+      var ms = m.markSize, mx = g.markX, mtxt = m.markTextSize;
+      s.push('<circle cx="' + r1(mx + ms / 2) + '" cy="' + r1(midY) + '" r="' + r1(ms / 2) +
+             '" fill="#fff" stroke="var(--mark)" stroke-width="' + SIZE.markStroke + '"/>');
+      s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(midY + mtxt * SIZE.markTextBaseline) +
+             '" font-size="' + r1(mtxt) + '" text-anchor="middle" fill="var(--mark)">' +
+             t.percentComplete + '</text>');
       if (t.suspended) {
-        // L-shaped elbow arrow: tip height == actual bar centre == marker centre.
-        var rx = mx + ms + MARK_GAP, rw = ms * (t.resumeValid ? 1 : 0.7);
-        s.push('<path d="M' + r1(rx) + ',' + r1(my + ms / 2) + ' V' + r1(my) + ' h' + r1(rw * 0.62) +
-               '" fill="none" stroke="var(--mark)" stroke-width="1.5" stroke-linecap="round"' +
-               (t.resumeValid ? '' : ' opacity="0.45"') + '/>');
-        s.push('<path d="M' + r1(rx + rw * 0.62) + ',' + r1(my - rw * 0.22) + ' L' + r1(rx + rw * 0.92) +
-               ',' + r1(my) + ' L' + r1(rx + rw * 0.62) + ',' + r1(my + rw * 0.22) +
-               ' Z" fill="var(--mark)"' + (t.resumeValid ? '' : ' opacity="0.45"') + '/>');
+        var rx = mx + ms + SIZE.markGap;
+        var rw = ms * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
+        var dim = t.resumeValid ? '' : ' opacity="0.45"';
+        s.push('<path d="M' + r1(rx) + ',' + r1(midY + ms / 2) + ' V' + r1(midY) + ' h' +
+               r1(rw * SIZE.resumeArmOfMark) + '" fill="none" stroke="var(--mark)" stroke-width="' +
+               SIZE.markStroke + '" stroke-linecap="round"' + dim + '/>');
+        s.push('<path d="M' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' + r1(midY - rw * SIZE.resumeHeadOfMark) +
+               ' L' + r1(rx + rw) + ',' + r1(midY) + ' L' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
+               r1(midY + rw * SIZE.resumeHeadOfMark) + ' Z" fill="var(--mark)"' + dim + '/>');
         if (t.resumeValid && t.resume != null) {
-          s.push('<line x1="' + r1(rx + rw) + '" y1="' + r1(my) + '" x2="' +
-                 r1(t.resume * ctx.pxPerDay) + '" y2="' + r1(my) +
-                 '" stroke="var(--mark)" stroke-dasharray="3 2" opacity="0.55"/>');
+          s.push('<line x1="' + r1(rx + rw) + '" y1="' + r1(midY) + '" x2="' +
+                 r1(t.resume * ctx.pxPerDay) + '" y2="' + r1(midY) +
+                 '" stroke="var(--mark)" stroke-dasharray="' + SIZE.resumeDash + '" opacity="0.55"/>');
         }
       }
     }
 
-    // NAME
     if (g.labelMode === "right") {
-      s.push('<text x="' + r1(g.bodyX1 + g.markExtent + LABEL_GAP) + '" y="' +
-             r1(y + b.planH / 2 + fs * 0.35) + '" font-size="' + r1(fs) +
-             '" fill="var(--ink)">' + esc(g.labelText) + '</text>');
+      s.push('<text x="' + r1(g.bodyX1 + g.markExtent + SIZE.labelGap) + '" y="' + r1(textY) +
+             '" font-size="' + r1(fs) + '" fill="var(--ink)">' + esc(g.labelText) + '</text>');
     } else {
-      s.push('<text x="' + r1(g.shapeX0 + LABEL_PAD) + '" y="' + r1(y + b.planH / 2 + fs * 0.35) +
-             '" font-size="' + r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
+      s.push('<text x="' + r1(g.sx0 + SIZE.labelPad) + '" y="' + r1(textY) + '" font-size="' +
+             r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
     }
   });
 
@@ -719,11 +846,17 @@ function renderPattern(p, ctx, showOcc, showDeps) {
     ? '<span class="flag f-bad">overlap ' + res.overlaps + '</span>'
     : '<span class="flag f-good">overlap 0</span>');
   if (!det.ok) flags.push('<span class="flag f-bad">順序依存</span>');
-  if (ctx.fontFloored) flags.push('<span class="flag f-warn">フォント下限に到達</span>');
-  if (crossings > 0) flags.push('<span class="flag f-warn">線がタスクを横切る ' + crossings + '</span>');
+  if (crossings > 0) flags.push('<span class="flag f-bad">線がタスクを横切る ' + crossings + '</span>');
+  var run = runLengths(links);
+  if (run.entry != null && run.entry < SIZE.depRun - 0.5) {
+    flags.push('<span class="flag f-bad">入口の走りが ' + r1(run.entry) + 'px</span>');
+  }
+  if (run.entry != null && run.exit != null && Math.abs(run.entry - run.exit) > 0.5) {
+    flags.push('<span class="flag f-bad">出口と入口の走りが不揃い</span>');
+  }
 
   return { svg: s.join(""), res: res, det: det, flags: flags.join(" "),
-           links: links, crossings: crossings };
+           links: links, crossings: crossings, run: runLengths(links) };
 }
 
 // ---------------------------------------------------------------- sweep
@@ -775,8 +908,8 @@ function renderSweep(sw) {
   return s.join("");
 }
 
-// ---------------------------------------------------------------- contribution table
-function buildContrib(zoomY) {
+// ---------------------------------------------------------------- contribution
+function buildContrib(zoomY, base) {
   var variants = [
     { label: "すべて含める（既定）", opt: {} },
     { label: "担当＋完了率（左）を外す", opt: { noLeft: true } },
@@ -789,21 +922,62 @@ function buildContrib(zoomY) {
     zooms.map(function (z) { return '<th class="num">zoomX ' + z + '</th>'; }).join("") + '</tr>';
   var rows = variants.map(function (v) {
     var cells = zooms.map(function (z) {
-      var ctx = makeCtx(z, zoomY, v.opt), total = 0;
+      var o = {}, kk;
+      for (kk in base) if (base.hasOwnProperty(kk)) o[kk] = base[kk];
+      for (kk in v.opt) if (v.opt.hasOwnProperty(kk)) o[kk] = v.opt[kk];
+      var ctx = makeCtx(z, zoomY, o), total = 0;
       PATTERNS.forEach(function (p) { total += packLanes(p.tasks, ctx).lanes; });
       return '<td class="num">' + total + '</td>';
     }).join("");
     return '<tr><td>' + v.label + '</td>' + cells + '</tr>';
   }).join("");
-  return '<table class="sum">' + head + rows + '</table>' +
-    '<p class="hint">「形状だけ」の行が、ラベルを一切考えない場合の下限である。' +
-    '既定の行との差が<strong>ラベルと注釈のために払っている段数</strong>。</p>';
+  return '<table class="sum">' + head + rows + '</table>';
+}
+
+// ---------------------------------------------------------------- constant dump
+function dumpConstants(ctx) {
+  var kinds = ["bar", "chevron", "arrow", "endpointSpan", "milestone"];
+  var out = [];
+  out.push('<b>SIZE.basePlanH</b>=' + SIZE.basePlanH +
+           '  <b>SIZE.actualOfPlan</b>=' + SIZE.actualOfPlan +
+           '  <b>SIZE.fontOfActual</b>=' + SIZE.fontOfActual +
+           '  <b>SIZE.thinFontScale</b>=' + SIZE.thinFontScale +
+           '  <b>SIZE.fontMin</b>=' + SIZE.fontMin +
+           '  <b>SIZE.laneGap</b>=' + SIZE.laneGap);
+  out.push('<b>SIZE.shapeH</b> = { ' + kinds.map(function (k) {
+    return k + ': ' + SIZE.shapeH[k];
+  }).join(', ') + ' }');
+  out.push('');
+  out.push('縦ズーム ' + ctx.zoomY.toFixed(2) + 'x での実寸 (px)');
+  out.push(pad('  形状', 17) + pad('予定', 9) + pad('実績', 9) + pad('フォント', 11) +
+           pad('占有', 9) + '大小関係');
+  kinds.forEach(function (k) {
+    var m = ctx.m(k);
+    // The ordering is required for the shapes that host their label INSIDE.
+    // Thin shapes have no inside, so their label sits outside and the rule
+    // does not apply to them.
+    var verdict;
+    if (!hasThickness(k)) {
+      verdict = '対象外（ラベルは外側）';
+    } else if (m.fontSize < m.actualH && m.actualH < m.planH) {
+      verdict = 'フォント &lt; 実績 &lt; 予定';
+    } else {
+      verdict = '<b>崩れている — フォントが下限 ' + SIZE.fontMin +
+                'px に当たった。ここでレベルを 1 つ減らす</b>';
+    }
+    out.push(pad('  ' + k, 17) + pad(r1(m.planH), 9) + pad(r1(m.actualH), 9) +
+             pad(r1(m.fontSize), 11) + pad(r1(m.reserved), 9) + verdict);
+  });
+  out.push('');
+  out.push('大小関係 フォント &lt; 実績 &lt; 予定 は === と &gt;===&gt; に対する要件。');
+  out.push('---&gt; と *----* はラベルを内側に持てないので対象外。');
+  return out.join("\n");
 }
 
 // ---------------------------------------------------------------- wire-up
 var el = {};
 ["zx", "zy", "zxv", "zyv", "asg", "pct", "dep", "hfloor", "showocc",
- "reset", "verdict", "sumtable", "pats", "sweep", "contrib"].forEach(function (k) {
+ "reset", "verdict", "sumtable", "pats", "sweep", "contrib", "constdump"].forEach(function (k) {
   el[k] = document.getElementById(k);
 });
 
@@ -819,12 +993,12 @@ function redraw() {
 
   el.zxv.textContent = zx.toFixed(2) + "x";
   el.zyv.textContent = zy.toFixed(2) + "x";
+  el.constdump.innerHTML = dumpConstants(ctx);
 
   var rows = [], cards = [], totalLanes = 0, totalOv = 0, detFail = 0, totalCross = 0;
   var head = '<tr><th>ID</th><th>パターン</th><th class="num">タスク</th><th class="num">段数</th>' +
     '<th class="num">overlap</th><th class="num">右出し</th><th class="num">依存線</th>' +
-    '<th class="num">線がタスクを横切る</th><th class="num">行高 px</th>' +
-    '<th>決定性</th><th>手動段</th></tr>';
+    '<th class="num">横切り</th><th class="num">行高 px</th><th>決定性</th><th>手動段</th></tr>';
 
   PATTERNS.forEach(function (p) {
     var r = renderPattern(p, ctx, showOcc, showDeps);
@@ -844,7 +1018,7 @@ function redraw() {
       '<td class="num" style="color:' + (r.res.overlaps ? "var(--bad)" : "var(--good)") + '">' + r.res.overlaps + '</td>' +
       '<td class="num">' + r.res.rightOut + '</td>' +
       '<td class="num">' + r.links.length + '</td>' +
-      '<td class="num">' + r.crossings + '</td>' +
+      '<td class="num" style="color:' + (r.crossings ? "var(--bad)" : "var(--good)") + '">' + r.crossings + '</td>' +
       '<td class="num">' + Math.round(r.res.rowHeight) + '</td>' +
       '<td>' + (r.det.ok ? '<span class="flag f-good">一致</span>' : '<span class="flag f-bad">不一致</span>') + '</td>' +
       '<td>' + forcedCell + '</td></tr>');
@@ -857,10 +1031,12 @@ function redraw() {
       '<div class="metrics"><span>段数 <b>' + r.res.lanes + '</b></span>' +
       '<span>overlap <b>' + r.res.overlaps + '</b></span>' +
       '<span>右出し <b>' + r.res.rightOut + '</b>/' + p.tasks.length + '</span>' +
-      '<span>依存線 <b>' + r.links.length + '</b></span>' +
+      '<span>依存線 <b>' + r.links.length + '</b>（横切り <b>' + r.crossings +
+      '</b>／走り 出口 <b>' + (r.run.exit == null ? '—' : r1(r.run.exit)) +
+      '</b> 入口 <b>' + (r.run.entry == null ? '—' : r1(r.run.entry)) + '</b>px）</span>' +
       '<span>行高 <b>' + Math.round(r.res.rowHeight) + '</b>px</span>' +
-      '<span>フォント <b>' + r1(ctx.fontSize) + '</b>px</span>' +
-      '<span>マーク <b>' + r1(ctx.markSize) + '</b>px</span>' + r.flags + '</div></div></div>');
+      '<span>各段の高さ <b>' + r.res.laneH.map(function (x) { return Math.round(x); }).join(" / ") +
+      '</b></span>' + r.flags + '</div></div></div>');
   });
 
   el.sumtable.innerHTML = head + rows.join("");
@@ -875,22 +1051,18 @@ function redraw() {
     Math.min.apply(null, sw.series.map(function (x) { return x.total; })) + ' 〜 最大 ' +
     Math.max.apply(null, sw.series.map(function (x) { return x.total; })) +
     '。単調性の逆転 <b style="color:' + (sw.violations.length ? "var(--bad)" : "var(--good)") + '">' +
-    sw.violations.length + '</b> 件' +
-    (sw.violations.length ? '（赤い点の位置）' : '（拡大すれば段は減る一方）') +
-    '。掃引中の overlap 合計 <b>' + sw.series.reduce(function (a, b) { return a + b.ov; }, 0) + '</b>。</p>';
+    sw.violations.length + '</b> 件。掃引中の overlap 合計 <b>' +
+    sw.series.reduce(function (a, b) { return a + b.ov; }, 0) + '</b>。</p>';
 
-  el.contrib.innerHTML = buildContrib(zy);
+  el.contrib.innerHTML = buildContrib(zy, opt);
 
-  var bad = totalOv > 0 || detFail > 0 || sw.violations.length > 0;
+  var bad = totalOv > 0 || detFail > 0 || sw.violations.length > 0 || totalCross > 0;
   el.verdict.innerHTML =
     '<span class="pill ' + (bad ? "p-bad" : "p-good") + '">' + (bad ? "不合格" : "合格") + '</span> ' +
     '20 パターン / タスク ' + PATTERNS.reduce(function (a, p) { return a + p.tasks.length; }, 0) + ' 本 ・ ' +
     '合計段数 <b>' + totalLanes + '</b> ・ overlap <b>' + totalOv + '</b> ・ ' +
     '順序依存 <b>' + detFail + '</b> ・ 単調性の逆転 <b>' + sw.violations.length + '</b> ・ ' +
-    '線がタスクを横切る <b>' + totalCross + '</b>' +
-    (ctx.fontFloored
-      ? ' <span class="flag f-warn">フォントが下限 12px に張り付いている（実機ではレベルを 1 つ減らす）</span>'
-      : '');
+    '線がタスクを横切る <b>' + totalCross + '</b>';
 }
 
 ["input", "change"].forEach(function (ev) {
@@ -907,8 +1079,9 @@ el.reset.addEventListener("click", function () {
 
 redraw();
 
-// Expose for DOM-side verification.
-window.__poc = { PATTERNS: PATTERNS, packLanes: packLanes, makeCtx: makeCtx, geom: geom,
+window.__poc = { SIZE: SIZE, PATTERNS: PATTERNS, packLanes: packLanes, makeCtx: makeCtx,
+                 geom: geom, shapeMetrics: shapeMetrics, routeLink: routeLink,
+                 buildLinks: buildLinks, countLineCrossings: countLineCrossings,
                  sweepLanes: sweepLanes, determinismCheck: determinismCheck,
                  orderTasks: orderTasks, hasThickness: hasThickness, renderPattern: renderPattern };
 </script>

@@ -43,13 +43,31 @@
           font-size:14px; margin:16px 0; }
   .note.warn { border-left-color:var(--warn); }
   code { background:var(--panel); padding:1px 5px; border-radius:3px; font-size:14px; }
-  .live { display:grid; grid-template-columns: 1fr 330px; gap:14px; align-items:start; }
-  .live .canvas { border:1px solid var(--rule); border-radius:6px; overflow:hidden; background:#fff; }
+  .live { display:grid; grid-template-columns: minmax(0,1fr) 330px; gap:14px; align-items:start; }
+  .live > * { min-width:0; }
+  /* The canvas is a scrolling viewport and the SVG inside keeps its natural
+     size. Fitting a 1900px drawing to the page width shrank every label below
+     the point of being readable. */
+  .live .canvas { border:1px solid var(--rule); border-radius:6px; background:#fff;
+                  overflow:auto; max-height:640px; min-height:320px; resize:vertical;
+                  max-width:100%; }
+  .live .canvas svg { display:block; }
+  .canvasbar { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center;
+               padding:10px 12px; background:var(--panel); border:1px solid var(--rule);
+               border-bottom:none; border-radius:6px 6px 0 0; font-size:14px;
+               position:sticky; top:0; z-index:2; }
+  .canvasbar label { display:flex; align-items:center; gap:7px; white-space:nowrap; }
+  .canvasbar input[type=range] { width:190px; }
+  .canvasbar .val { font-variant-numeric:tabular-nums; min-width:64px;
+                    color:var(--accent); font-weight:700; }
+  .canvasbar button { font:inherit; font-size:14px; padding:3px 12px; }
+  .canvasbar .tip { color:var(--sub); font-size:13px; }
+  .live .canvaswrap { border-radius:6px; min-width:0; }
+  .live .canvaswrap .canvas { border-radius:0 0 6px 6px; }
   .live .read { border:1px solid var(--rule); border-radius:6px; padding:12px 14px; font-size:14px;
                 background:var(--panel); font-variant-numeric:tabular-nums; }
   .live .read dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:2px 10px; }
   .live .read dt { color:var(--sub); } .live .read dd { margin:0; font-weight:700; }
-  .live svg { display:block; width:100%; height:auto; }
   .strip { border:1px solid var(--rule); border-radius:6px; background:#fff; }
   .strip svg { display:block; width:100%; height:auto; }
   @media (max-width:900px) { .live { grid-template-columns:1fr; } }
@@ -62,15 +80,8 @@
   <p class="lede">3 系統の LOD（<strong>時間軸</strong>・<strong>アイテム（軸A・WBS 深さ）</strong>・<strong>行階層（軸B）</strong>）について、
      <strong>狙った閾値</strong>と<strong>実測した遷移点</strong>を突き合わせる。単調性は 9,600 点の 2 次元掃引で検査する。</p>
   <div class="ctl">
-    <label>横ズーム <input type="range" id="zx" min="-1.5" max="0.9" step="0.005" value="0">
-      <span class="val" id="zxv"></span></label>
-    <label>縦ズーム <input type="range" id="zy" min="-1.1" max="0.7" step="0.005" value="0">
-      <span class="val" id="zyv"></span></label>
-    <label><input type="checkbox" id="drop" checked> フォント下限によるレベル減</label>
     <label><input type="checkbox" id="lbl" checked> 担当・完了率・名称・マーク・Resume</label>
     <label><input type="checkbox" id="dep" checked> 依存線</label>
-    <button id="fit">Fit（全体表示）</button>
-    <button id="reset">既定（1.0x）に戻す</button>
   </div>
   <div class="verdictbar" id="verdict"></div>
 </div></header>
@@ -92,7 +103,19 @@
 <p class="hint">363 タスク（WBS 5 階層）／ 21 行（行ツリー 3 階層）／ 720 日。
   <strong>行が畳まれるとその行のタスクは親の行に合流する</strong>ので、親の段数が増える。それも含めて描いている。</p>
 <div class="live">
-  <div class="canvas" id="canvas"></div>
+  <div class="canvaswrap">
+    <div class="canvasbar">
+      <label>横ズーム <input type="range" id="zx2" min="-1.5" max="0.9" step="0.005" value="0">
+        <span class="val" id="zxv"></span></label>
+      <label>縦ズーム <input type="range" id="zy2" min="-1.1" max="0.7" step="0.005" value="0">
+        <span class="val" id="zyv"></span></label>
+      <label><input type="checkbox" id="drop" checked> レベル減</label>
+      <button id="fit">Fit</button>
+      <button id="reset">1.0x</button>
+      <span class="tip">キャンバス上で Ctrl=両軸 / Shift=横 / Alt=縦（ホイール）</span>
+    </div>
+    <div class="canvas" id="canvas"></div>
+  </div>
   <div class="read" id="read"></div>
 </div>
 
@@ -131,10 +154,63 @@
 "use strict";
 
 // ---------------------------------------------------------------- constants
-var BASE_PX_PER_DAY = 6;
-var BASE_TASK_H     = 28;
-var LANE_GAP        = 12;
-var FONT_MIN        = 12;
+// ===========================================================================
+// SIZE -- the single source for every dimension drawn on this page.
+// No size literal appears in the drawing code below.
+// ===========================================================================
+var SIZE = {
+  pxPerDayAt1x:   6,
+  basePlanH:      28,     // plan bar height of bar/chevron at zoomY = 1
+  // Thin shapes are deliberately half as tall: being thin IS their merit.
+  // A milestone is 1.5x so that it stands out.
+  shapeH: { bar: 1.0, chevron: 1.0, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
+  actualOfPlan:   0.55,   // actual / plan   -> font < actual < plan for bar & chevron
+  fontOfActual:   0.80,   // font   / actual
+  thinFontScale:  0.85,   // extra shrink for arrow / endpointSpan
+  fontMin:        12,
+  actualGap:      2,
+  laneGap:        12,
+  rowGap:         6,
+  markOfFont:     4 / 3,
+  markMin:        16,
+  markGap:        4,
+  markTextOfFont: 0.75,   // the number inside the marker / the shape's font size
+  markOfText:     2.0,    // marker diameter / that number's size
+  markTextBaseline: 0.36,
+  markStroke:     1.2,
+  resumeScaleInvalid: 0.7,
+  resumeArmOfMark:    0.62,
+  resumeHeadOfMark:   0.22,
+  labelCoef:      0.5,
+  labelPad:       6,
+  labelGap:       4,
+  labelBaseline:  0.35,
+  truncUnits:     24,
+  thinStrokeOfPlan: 0.20,
+  thinStrokeMin:  1.2,
+  thinStrokeMax:  4,
+  planStroke:     0.5,
+  chevronNotchOfH: 0.45,
+  chevronNotchOfW: 0.35,
+  arrowHeadOfStroke: 3.2,
+  arrowHeadOfSpan:   0.4,
+  spanDotOfStroke:   1.15,
+  depWidth:       1.2,
+  depArrowLen:    10,     // drawn length of the arrowhead
+  depRunOfArrow:  2,      // run / arrowhead: one arrowhead plus one of visible
+                          // line, entry and exit runs equal
+  rowLabelW:      160,
+  rulerH:         28,
+  rulerFont:      12,
+  rowLabelFont:   13,
+  rowIndent:      12,
+  minShapeW:      2
+};
+
+var BASE_PX_PER_DAY = SIZE.pxPerDayAt1x;
+var BASE_TASK_H     = SIZE.basePlanH;
+var LANE_GAP        = SIZE.laneGap;
+var FONT_MIN        = SIZE.fontMin;
 var MIN_READABLE_PX = 24;      // a task narrower than this is not worth drawing
 var HORIZON_DAYS    = 720;
 var VIEW_W          = 1920;    // reference environment (handover 2-4-1)
@@ -142,12 +218,41 @@ var VIEW_H          = 1080;
 var HEADER_H        = 50;
 var CANVAS_H        = VIEW_H - HEADER_H;
 var ROW_BRANCH      = 3;       // row tree branching factor, used by the level-drop formula
-var LABEL_COEF      = 0.5;     // label width = (fw*2 + hw*1) * fontSize * coef
-var LABEL_PAD       = 6;
-var LABEL_GAP       = 4;
-var MARK_GAP        = 4;       // handover 2-4-1: overhang is 4px + mark width
-var MARK_MIN        = 16;
-var TRUNC_UNITS     = 24;      // 24 half-width units == 12 full-width chars
+var LABEL_COEF      = SIZE.labelCoef;
+var LABEL_PAD       = SIZE.labelPad;
+var LABEL_GAP       = SIZE.labelGap;
+var MARK_GAP        = SIZE.markGap;
+var MARK_MIN        = SIZE.markMin;
+var TRUNC_UNITS     = SIZE.truncUnits;
+
+// Both dependency-line runs are the SAME length and are derived from the
+// arrowhead, so they cannot drift apart:
+//   arrowhead = 1, run = 2 = one arrowhead + one of visible line.
+SIZE.depRun = SIZE.depArrowLen * SIZE.depRunOfArrow;
+
+function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
+
+/** Every vertical dimension of one shape kind, derived from SIZE alone. */
+function shapeMetrics(kind, zoomY) {
+  var planH = SIZE.basePlanH * zoomY * SIZE.shapeH[kind];
+  var actualH = planH * SIZE.actualOfPlan;
+  var thin = !hasThickness(kind) && kind !== "milestone";
+  var rawFont = actualH * SIZE.fontOfActual * (thin ? SIZE.thinFontScale : 1);
+  var fontSize = Math.max(SIZE.fontMin, rawFont);
+  return {
+    kind: kind, planH: planH, actualH: actualH,
+    fontSize: fontSize, fontFloored: rawFont < SIZE.fontMin,
+    markTextSize: Math.max(SIZE.fontMin, fontSize * SIZE.markTextOfFont),
+    markSize: Math.max(SIZE.markMin,
+              Math.max(SIZE.fontMin, fontSize * SIZE.markTextOfFont) * SIZE.markOfText),
+    reserved: hasThickness(kind) ? planH : planH + SIZE.actualGap + actualH,
+    insideActualTop: (planH - actualH) / 2,
+    belowActualTop: planH + SIZE.actualGap,
+    thinStroke: Math.max(SIZE.thinStrokeMin,
+                Math.min(SIZE.thinStrokeMax, planH * SIZE.thinStrokeOfPlan)),
+    glyphSize: planH
+  };
+}
 
 function r1(x) { return Math.round(x * 10) / 10; }
 function r3(x) { return Math.round(x * 1000) / 1000; }
@@ -209,9 +314,10 @@ function lod(zoomX, zoomY, dropEnabled) {
     penalty: pen,
     itemDepth: Math.max(1, Math.min(5, rawItem - pen)),
     rowDepth: Math.max(1, Math.min(5, rawRow - pen)),
-    taskH: BASE_TASK_H * zoomY,
-    fontSize: Math.max(FONT_MIN, BASE_TASK_H * zoomY * 0.8),
-    fontFloored: BASE_TASK_H * zoomY * 0.8 < FONT_MIN
+    effZoomY: zoomY,
+    taskH: SIZE.basePlanH * zoomY,
+    fontSize: shapeMetrics("bar", zoomY).fontSize,
+    fontFloored: shapeMetrics("bar", zoomY).fontFloored
   };
 }
 
@@ -308,7 +414,7 @@ function widthUnits(s) {
   return n;
 }
 /** Analytic estimate. No browser text measurement (handover 6-2). */
-function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * LABEL_COEF; }
+function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * SIZE.labelCoef; }
 function truncate(s, units) {
   var n = 0, out = "";
   for (var i = 0; i < s.length; i++) {
@@ -319,27 +425,17 @@ function truncate(s, units) {
   return s;
 }
 
-// ---------------------------------------------------------------- shape model
-/** Shapes with vertical extent hold the actual inside; the thin ones push it below. */
-function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
-
-function bands(taskH) {
-  var actualH = Math.max(3, taskH * 0.30);
-  var planH = Math.max(4, taskH - actualH - 2);
-  return { bandH: taskH, planTop: 0, planH: planH,
-           insideActualTop: (planH - actualH * 0.72) / 2, insideActualH: actualH * 0.72,
-           belowActualTop: planH + 2, belowActualH: actualH };
-}
-
+// ---------------------------------------------------------------- geometry
 /**
  * Everything that consumes horizontal room, on BOTH sides of the shape.
  * The left side matters: "{owner} : {pct}%" is right-aligned to the plan bar's
  * left edge and collides with whatever sits to its left (ui-detail-spec 4-2).
  */
 function taskGeom(t, ctx) {
+  var m = ctx.m(t.shapeKind);
   var x0 = t.start * ctx.ppd, x1 = t.finish * ctx.ppd, sx0, sx1;
-  if (t.milestone) { var g = ctx.glyphSize; sx0 = x0 - g / 2; sx1 = x0 + g / 2; }
-  else { sx0 = x0; sx1 = Math.max(x1, x0 + 2); }
+  if (t.milestone) { sx0 = x0 - m.glyphSize / 2; sx1 = x0 + m.glyphSize / 2; }
+  else { sx0 = x0; sx1 = Math.max(x1, x0 + SIZE.minShapeW); }
 
   var aX0 = null, aX1 = null;
   if (t.hasActual) {
@@ -349,31 +445,33 @@ function taskGeom(t, ctx) {
   var bodyX1 = Math.max(sx1, aX1 == null ? -Infinity : aX1);
 
   var leftText = ctx.showLabels ? (t.owner + " : " + t.percentComplete + "%") : "";
-  var leftExtent = leftText ? labelWidth(leftText, ctx.fontSize) + LABEL_GAP : 0;
+  var leftExtent = leftText ? labelWidth(leftText, m.fontSize) + SIZE.labelGap : 0;
 
   var nameExtent = 0, labelMode = "none", labelText = "";
   if (ctx.showLabels) {
-    var cut = truncate(t.name, TRUNC_UNITS);
-    var wFull = labelWidth(t.name, ctx.fontSize), wCut = labelWidth(cut, ctx.fontSize);
-    var inside = hasThickness(t.shapeKind) ? (sx1 - sx0) - LABEL_PAD * 2 : -1;
+    var cut = truncate(t.name, SIZE.truncUnits);
+    var wFull = labelWidth(t.name, m.fontSize), wCut = labelWidth(cut, m.fontSize);
+    var inside = hasThickness(t.shapeKind) ? (sx1 - sx0) - SIZE.labelPad * 2 : -1;
     if (wFull <= inside) { labelMode = "inside"; labelText = t.name; }
     else if (wCut <= inside) { labelMode = "inside"; labelText = cut; }
-    else { labelMode = "right"; labelText = cut; nameExtent = LABEL_GAP + wCut; }
+    else { labelMode = "right"; labelText = cut; nameExtent = SIZE.labelGap + wCut; }
   }
 
   var markExtent = 0;
   if (t.hasActual && ctx.showLabels) {
-    markExtent = MARK_GAP + ctx.markSize;
-    if (t.suspended) markExtent += MARK_GAP + (t.resumeValid ? ctx.markSize : ctx.markSize * 0.7);
+    markExtent = SIZE.markGap + m.markSize;
+    if (t.suspended) {
+      markExtent += SIZE.markGap + m.markSize * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
+    }
   }
   var resumeX1 = (t.suspended && t.resumeValid && t.resume != null)
-    ? t.resume * ctx.ppd + ctx.markSize / 2 : -Infinity;
+    ? t.resume * ctx.ppd + m.markSize / 2 : -Infinity;
 
-  return { sx0: sx0, sx1: sx1, aX0: aX0, aX1: aX1, bodyX1: bodyX1,
+  return { m: m, sx0: sx0, sx1: sx1, aX0: aX0, aX1: aX1, bodyX1: bodyX1,
            occX0: sx0 - leftExtent,
            occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
            leftText: leftText, labelMode: labelMode, labelText: labelText,
-           markExtent: markExtent, markX: bodyX1 + MARK_GAP };
+           markExtent: markExtent, markX: bodyX1 + SIZE.markGap };
 }
 
 // ---------------------------------------------------------------- lane packing
@@ -399,20 +497,32 @@ function packRow(list, ctx) {
     lanes[target].push(g);
     out.push({ t: ordered[i], g: g, lane: target });
   }
+  // A lane is as tall as the tallest shape in it, so a lane of thin shapes stays low.
+  var laneH = [], laneTop = [], acc = 0;
+  for (i = 0; i < lanes.length; i++) {
+    var h = 0;
+    for (j = 0; j < lanes[i].length; j++) h = Math.max(h, lanes[i][j].m.reserved);
+    laneH.push(h || ctx.m("bar").reserved);
+  }
+  if (!laneH.length) laneH.push(ctx.m("bar").reserved);
+  for (i = 0; i < laneH.length; i++) { laneTop.push(acc); acc += laneH[i] + SIZE.laneGap; }
+
   for (i = 0; i < lanes.length; i++)
     for (j = 0; j < lanes[i].length; j++)
       for (var k2 = j + 1; k2 < lanes[i].length; k2++) {
         var a = lanes[i][j], b = lanes[i][k2];
         if (a.occX0 < b.occX1 && b.occX0 < a.occX1) overlaps++;
       }
-  return { lanes: Math.max(1, lanes.length), items: out, overlaps: overlaps };
+  return { lanes: laneH.length, items: out, overlaps: overlaps,
+           laneH: laneH, laneTop: laneTop,
+           height: Math.max(0, acc - SIZE.laneGap) };
 }
 
 // ---------------------------------------------------------------- SVG shapes
 function thickPath(kind, x0, x1, y, h) {
-  var w = Math.max(x1 - x0, 1);
+  var w = Math.max(x1 - x0, SIZE.minShapeW);
   if (kind === "chevron") {
-    var n = Math.min(h * 0.45, w * 0.35);
+    var n = Math.min(h * SIZE.chevronNotchOfH, w * SIZE.chevronNotchOfW);
     return "M" + r1(x0) + "," + r1(y) + " L" + r1(x1 - n) + "," + r1(y) +
            " L" + r1(x1) + "," + r1(y + h / 2) + " L" + r1(x1 - n) + "," + r1(y + h) +
            " L" + r1(x0) + "," + r1(y + h) + " L" + r1(x0 + n) + "," + r1(y + h / 2) + " Z";
@@ -421,20 +531,19 @@ function thickPath(kind, x0, x1, y, h) {
 }
 
 /**
- * Thin shapes: a line on the slot centre line, no vertical extent.
+ * Thin shapes: a line on the slot's centre line, no vertical extent.
  * `|----|` (vertical end bars) is abolished; endpoints are dots.
  */
 function thinSvg(kind, x0, x1, y, h, colour, lw) {
   var mid = y + h / 2, s = [];
-  lw = Math.max(1.2, Math.min(lw, 4));
   if (kind === "arrow") {
-    var head = Math.min(Math.max(x1 - x0, 1) * 0.4, Math.max(5, lw * 3.2));
+    var head = Math.min(Math.max(x1 - x0, 1) * SIZE.arrowHeadOfSpan, lw * SIZE.arrowHeadOfStroke);
     s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(Math.max(x0, x1 - head)) +
            '" y2="' + r1(mid) + '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
-    s.push('<path d="M' + r1(x1 - head) + ',' + r1(mid - head * 0.5) + ' L' + r1(x1) + ',' + r1(mid) +
-           ' L' + r1(x1 - head) + ',' + r1(mid + head * 0.5) + ' Z" fill="' + colour + '"/>');
+    s.push('<path d="M' + r1(x1 - head) + ',' + r1(mid - head / 2) + ' L' + r1(x1) + ',' + r1(mid) +
+           ' L' + r1(x1 - head) + ',' + r1(mid + head / 2) + ' Z" fill="' + colour + '"/>');
   } else {
-    var r = Math.max(1.5, lw * 1.15);
+    var r = lw * SIZE.spanDotOfStroke;
     s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(x1) + '" y2="' + r1(mid) +
            '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
     s.push('<circle cx="' + r1(x0) + '" cy="' + r1(mid) + '" r="' + r1(r) + '" fill="' + colour + '"/>');
@@ -449,24 +558,68 @@ function diamond(cx, cy, s) {
          " L" + r1(cx) + "," + r1(cy + r) + " L" + r1(cx - r) + "," + r1(cy) + " Z";
 }
 
+/**
+ * Dependency route. Five shapes, one rule.
+ *
+ *   x1 = predecessor right edge + clearance
+ *   x2 = successor    left edge - clearance
+ *
+ *   x2 >= x1  ->  one bend pair at the midpoint          (2 bends; straight when
+ *                                                         the two share a lane)
+ *   x2 <  x1  ->  out to the right, back along the
+ *                 corridor between the lanes, in from
+ *                 the left                               (4 bends)
+ *
+ * The exit anchor is ALWAYS the predecessor's right edge and the entry anchor is
+ * ALWAYS the successor's left edge. The corridor sits at the middle of the empty
+ * band between the two bars.
+ */
+function corridorY(a, b, pk) {
+  var topA = pk.laneTop[a.lane], topB = pk.laneTop[b.lane];
+  if (a.lane === b.lane) return topA + a.g.m.planH + SIZE.laneGap / 2;
+  if (topB > topA) return (topA + a.g.m.planH + topB) / 2;
+  return (topB + b.g.m.planH + topA) / 2;
+}
+
+function routeLink(a, b, pk) {
+  var ga = a.g, gb = b.g;
+  var topA = pk.laneTop[a.lane], topB = pk.laneTop[b.lane];
+  var ay = topA + ga.m.planH / 2, by = topB + gb.m.planH / 2;
+  var x1 = ga.sx1 + SIZE.depRun;        // leaving the predecessor
+  var x2 = gb.sx0 - SIZE.depRun;        // entering the successor -- same length
+  var sameY = Math.abs(ay - by) < 0.5;
+
+  if (sameY) {                                                   // (1) in line
+    if (gb.sx0 - ga.sx1 >= SIZE.depRun) return [[ga.sx1, ay], [gb.sx0, by]];
+  } else if (x2 >= x1) {                                         // (2)(3) with a gap
+    var mx = Math.max(x1, Math.min((ga.sx1 + gb.sx0) / 2, x2));
+    return [[ga.sx1, ay], [mx, ay], [mx, by], [gb.sx0, by]];
+  }
+  var cy = corridorY(a, b, pk);                                 // (4)(5) overlapping
+  return [[ga.sx1, ay], [x1, ay], [x1, cy], [x2, cy], [x2, by], [gb.sx0, by]];
+}
+
 // ---------------------------------------------------------------- live render
 function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
   var V = visibleSet(zoomX, zoomY, dropEnabled);
   var L = V.lod;
-  var taskH = Math.max(2, L.taskH);
+  var cache = {};
   var ctx = {
-    ppd: L.ppd, taskH: taskH, b: bands(taskH), fontSize: L.fontSize,
-    markSize: Math.max(MARK_MIN, L.fontSize * 4 / 3), glyphSize: taskH * 0.62,
+    ppd: L.ppd,
+    zoomY: L.effZoomY,
+    m: function (kind) {
+      if (!cache[kind]) cache[kind] = shapeMetrics(kind, L.effZoomY);
+      return cache[kind];
+    },
     showLabels: showLabels !== false
   };
-  var b = ctx.b;
-  var labelW = 160, padT = 28;
-  var y = padT, packs = [], totalLanes = 0, totalOverlap = 0, i, minX = 0, maxX = 0;
 
+  var y = SIZE.rulerH, packs = [], totalLanes = 0, totalOverlap = 0, i;
+  var minX = 0, maxX = 0;
   for (i = 0; i < V.rows.length; i++) {
     var pk = packRow(V.buckets[i], ctx);
-    pk.y = y; pk.h = pk.lanes * taskH + (pk.lanes - 1) * LANE_GAP;
-    y += pk.h + 6;
+    pk.y = y;
+    y += pk.height + SIZE.rowGap;
     totalLanes += pk.lanes; totalOverlap += pk.overlaps;
     pk.items.forEach(function (it) {
       if (it.g.occX0 < minX) minX = it.g.occX0;
@@ -474,16 +627,17 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
     });
     packs.push(pk);
   }
-  var contentH = y + 8;
-  var originX = labelW - minX;
-  var W = Math.max(originX + maxX + 20, 700);
+  var contentH = y + SIZE.rowGap;
+  var originX = SIZE.rowLabelW - minX;
+  var W = Math.max(originX + maxX + SIZE.rowLabelW / 8, SIZE.rowLabelW * 4);
 
-  var s = ['<svg viewBox="0 0 ' + r1(W) + ' ' + r1(Math.max(contentH, 120)) +
-           '" preserveAspectRatio="xMinYMin meet" style="max-height:660px">',
+  var s = ['<svg width="' + r1(W) + '" height="' + r1(Math.max(contentH, SIZE.rulerH * 3)) +
+           '" viewBox="0 0 ' + r1(W) + ' ' + r1(Math.max(contentH, SIZE.rulerH * 3)) + '">',
            '<defs><marker id="dep-a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
            'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
 
-  s.push('<rect x="0" y="0" width="' + r1(W) + '" height="' + padT + '" fill="#f6f7f9"/>');
+  // time ruler
+  s.push('<rect x="0" y="0" width="' + r1(W) + '" height="' + SIZE.rulerH + '" fill="#f6f7f9"/>');
   var d, step;
   if (L.ruler === 1) step = 365; else if (L.ruler === 2) step = 30; else step = 7;
   for (d = 0; d <= HORIZON_DAYS; d += step) {
@@ -491,106 +645,109 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
     if (x > W) break;
     s.push('<line x1="' + r1(x) + '" y1="0" x2="' + r1(x) + '" y2="' + r1(contentH) + '" stroke="#eef0f2"/>');
     if (L.ruler === 1) {
-      s.push('<text x="' + r1(x + 3) + '" y="18" font-size="12" fill="#666">Y' + (1 + (d / 365 | 0)) + '</text>');
+      s.push('<text x="' + r1(x + 3) + '" y="' + (SIZE.rulerH * 0.65) + '" font-size="' +
+             SIZE.rulerFont + '" fill="#666">Y' + (1 + (d / 365 | 0)) + '</text>');
     } else if (L.ruler === 2) {
       if ((d / 30) % 3 === 0) {
-        s.push('<text x="' + r1(x + 3) + '" y="18" font-size="12" fill="#666">' +
-               (1 + (d / 30 | 0) % 12) + '月</text>');
+        s.push('<text x="' + r1(x + 3) + '" y="' + (SIZE.rulerH * 0.65) + '" font-size="' +
+               SIZE.rulerFont + '" fill="#666">' + (1 + (d / 30 | 0) % 12) + '月</text>');
       }
     } else {
-      s.push('<text x="' + r1(x + 2) + '" y="18" font-size="11" fill="#888">' + (d % 30 + 1) + '</text>');
+      s.push('<text x="' + r1(x + 2) + '" y="' + (SIZE.rulerH * 0.65) + '" font-size="' +
+             SIZE.rulerFont + '" fill="#888">' + (d % 30 + 1) + '</text>');
     }
   }
 
   for (i = 0; i < V.rows.length; i++) {
     var row = V.rows[i], pk2 = packs[i];
-    s.push('<rect x="0" y="' + r1(pk2.y - 3) + '" width="' + r1(W) + '" height="' + r1(pk2.h + 6) +
-           '" fill="' + (row.depth === 1 ? "#f2f6fb" : (i % 2 ? "#fafbfc" : "#fff")) + '"/>');
-    s.push('<text x="' + (6 + (row.depth - 1) * 12) + '" y="' + r1(pk2.y + 13) +
-           '" font-size="13" fill="' + (row.depth === 1 ? "var(--accent)" : "#555") + '"' +
+    s.push('<rect x="0" y="' + r1(pk2.y - SIZE.rowGap / 2) + '" width="' + r1(W) + '" height="' +
+           r1(pk2.height + SIZE.rowGap) + '" fill="' +
+           (row.depth === 1 ? "#f2f6fb" : (i % 2 ? "#fafbfc" : "#fff")) + '"/>');
+    s.push('<text x="' + (SIZE.labelPad + (row.depth - 1) * SIZE.rowIndent) + '" y="' +
+           r1(pk2.y + SIZE.rowLabelFont) + '" font-size="' + SIZE.rowLabelFont + '" fill="' +
+           (row.depth === 1 ? "var(--accent)" : "#555") + '"' +
            (row.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(row.name) + '</text>');
 
-    // Dependency lines inside the row, finish-to-start between consecutive tasks.
     if (showDeps !== false) {
       var seq = pk2.items.slice().sort(function (p, q) { return p.t.start - q.t.start; });
       for (var k = 0; k + 1 < seq.length && k < 40; k++) {
         var a = seq[k], c = seq[k + 1];
-        if (c.t.start < a.t.finish) continue;
-        var ay = pk2.y + a.lane * (taskH + LANE_GAP) + b.planH / 2;
-        var cy = pk2.y + c.lane * (taskH + LANE_GAP) + b.planH / 2;
-        var ax = originX + a.g.sx1, cx = originX + c.g.sx0;
-        if (cx - ax < 2) continue;
-        var mx = (ax + cx) / 2;
-        var dd = (ay === cy)
-          ? "M" + r1(ax) + "," + r1(ay) + " L" + r1(cx) + "," + r1(cy)
-          : "M" + r1(ax) + "," + r1(ay) + " L" + r1(mx) + "," + r1(ay) +
-            " L" + r1(mx) + "," + r1(cy) + " L" + r1(cx) + "," + r1(cy);
-        s.push('<path d="' + dd + '" fill="none" stroke="var(--dep)" stroke-width="1.2" ' +
-               'stroke-linejoin="round" marker-end="url(#dep-a)" opacity="0.85"/>');
+        var pts = routeLink(a, c, pk2);
+        var dd = pts.map(function (pt, n) {
+          return (n ? "L" : "M") + r1(originX + pt[0]) + "," + r1(pk2.y + pt[1]);
+        }).join(" ");
+        s.push('<path d="' + dd + '" fill="none" stroke="var(--dep)" stroke-width="' + SIZE.depWidth +
+               '" stroke-linejoin="round" marker-end="url(#dep-a)" opacity="0.85"/>');
       }
     }
 
     pk2.items.forEach(function (it) {
-      var t = it.t, g = it.g, ty = pk2.y + it.lane * (taskH + LANE_GAP);
+      var t = it.t, g = it.g, m = g.m;
+      var ty = pk2.y + pk2.laneTop[it.lane];
       var sx0 = originX + g.sx0, sx1 = originX + g.sx1;
-      var lw = Math.max(1.2, Math.min(4, taskH * 0.11));
       var op = 0.45 + 0.11 * (6 - t.depth);
+      var midY = ty + m.planH / 2;
 
       if (t.milestone) {
-        s.push('<path d="' + diamond((sx0 + sx1) / 2, ty + b.planH / 2, ctx.glyphSize) +
+        s.push('<path d="' + diamond((sx0 + sx1) / 2, midY, m.glyphSize) +
                '" fill="var(--plan)" stroke="var(--plan-line)" opacity="' + r1(op) + '"/>');
         if (t.hasActual) {
-          s.push('<path d="' + diamond((sx0 + sx1) / 2, ty + b.belowActualTop + b.belowActualH / 2,
-                 Math.max(3, ctx.glyphSize * 0.55)) + '" fill="var(--act)"/>');
+          s.push('<path d="' + diamond((sx0 + sx1) / 2,
+                 ty + m.belowActualTop + m.actualH / 2, m.actualH) + '" fill="var(--act)"/>');
         }
       } else if (hasThickness(t.shapeKind)) {
-        s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty + b.planTop, b.planH) +
-               '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="0.5" opacity="' + r1(op) + '"/>');
+        s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty, m.planH) +
+               '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="' + SIZE.planStroke +
+               '" opacity="' + r1(op) + '"/>');
         if (t.hasActual) {
           s.push('<path d="' + thickPath(t.shapeKind, originX + g.aX0, originX + g.aX1,
-                 ty + b.insideActualTop, b.insideActualH) + '" fill="var(--act)"/>');
+                 ty + m.insideActualTop, m.actualH) + '" fill="var(--act)"/>');
         }
       } else {
-        s.push(thinSvg(t.shapeKind, sx0, sx1, ty + b.planTop, b.planH, "var(--plan-line)", lw));
+        s.push(thinSvg(t.shapeKind, sx0, sx1, ty, m.planH, "var(--plan-line)", m.thinStroke));
         if (t.hasActual) {
           s.push(thinSvg(t.shapeKind, originX + g.aX0, originX + g.aX1,
-                 ty + b.belowActualTop, b.belowActualH, "var(--act)", lw * 0.85));
+                 ty + m.belowActualTop, m.actualH, "var(--act)", m.thinStroke));
         }
       }
 
       if (!ctx.showLabels) return;
-      var fs = ctx.fontSize;
-      s.push('<text x="' + r1(sx0 - LABEL_GAP) + '" y="' + r1(ty + b.planH / 2 + fs * 0.35) +
-             '" font-size="' + r1(fs) + '" text-anchor="end" fill="#666">' + esc(g.leftText) + '</text>');
+      var fs = m.fontSize, textY = midY + fs * SIZE.labelBaseline;
+      s.push('<text x="' + r1(sx0 - SIZE.labelGap) + '" y="' + r1(textY) + '" font-size="' +
+             r1(fs) + '" text-anchor="end" fill="#666">' + esc(g.leftText) + '</text>');
       if (t.hasActual) {
-        var ms = ctx.markSize, mx2 = originX + g.markX, my = ty + b.planH / 2;
-        s.push('<circle cx="' + r1(mx2 + ms / 2) + '" cy="' + r1(my) + '" r="' + r1(ms / 2) +
-               '" fill="#fff" stroke="var(--mark)" stroke-width="1.2"/>');
-        s.push('<text x="' + r1(mx2 + ms / 2) + '" y="' + r1(my + ms * 0.19) + '" font-size="' +
-               r1(ms * 0.5) + '" text-anchor="middle" fill="var(--mark)">' + t.percentComplete + '</text>');
+        var ms = m.markSize, mx2 = originX + g.markX, mtxt = m.markTextSize;
+        s.push('<circle cx="' + r1(mx2 + ms / 2) + '" cy="' + r1(midY) + '" r="' + r1(ms / 2) +
+               '" fill="#fff" stroke="var(--mark)" stroke-width="' + SIZE.markStroke + '"/>');
+        s.push('<text x="' + r1(mx2 + ms / 2) + '" y="' + r1(midY + mtxt * SIZE.markTextBaseline) +
+               '" font-size="' + r1(mtxt) + '" text-anchor="middle" fill="var(--mark)">' +
+               t.percentComplete + '</text>');
         if (t.suspended) {
-          var rx = mx2 + ms + MARK_GAP, rw = ms * (t.resumeValid ? 1 : 0.7);
-          s.push('<path d="M' + r1(rx) + ',' + r1(my + ms / 2) + ' V' + r1(my) + ' h' + r1(rw * 0.62) +
-                 '" fill="none" stroke="var(--mark)" stroke-width="1.3" stroke-linecap="round"' +
-                 (t.resumeValid ? '' : ' opacity="0.45"') + '/>');
-          s.push('<path d="M' + r1(rx + rw * 0.62) + ',' + r1(my - rw * 0.22) + ' L' + r1(rx + rw * 0.92) +
-                 ',' + r1(my) + ' L' + r1(rx + rw * 0.62) + ',' + r1(my + rw * 0.22) +
-                 ' Z" fill="var(--mark)"' + (t.resumeValid ? '' : ' opacity="0.45"') + '/>');
+          var rx = mx2 + ms + SIZE.markGap;
+          var rw = ms * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
+          var dim = t.resumeValid ? '' : ' opacity="0.45"';
+          s.push('<path d="M' + r1(rx) + ',' + r1(midY + ms / 2) + ' V' + r1(midY) + ' h' +
+                 r1(rw * SIZE.resumeArmOfMark) + '" fill="none" stroke="var(--mark)" stroke-width="' +
+                 SIZE.markStroke + '" stroke-linecap="round"' + dim + '/>');
+          s.push('<path d="M' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
+                 r1(midY - rw * SIZE.resumeHeadOfMark) + ' L' + r1(rx + rw) + ',' + r1(midY) +
+                 ' L' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
+                 r1(midY + rw * SIZE.resumeHeadOfMark) + ' Z" fill="var(--mark)"' + dim + '/>');
         }
       }
       if (g.labelMode === "right") {
-        s.push('<text x="' + r1(originX + g.bodyX1 + g.markExtent + LABEL_GAP) + '" y="' +
-               r1(ty + b.planH / 2 + fs * 0.35) + '" font-size="' + r1(fs) + '" fill="var(--ink)">' +
+        s.push('<text x="' + r1(originX + g.bodyX1 + g.markExtent + SIZE.labelGap) + '" y="' +
+               r1(textY) + '" font-size="' + r1(fs) + '" fill="var(--ink)">' +
                esc(g.labelText) + '</text>');
       } else if (g.labelMode === "inside") {
-        s.push('<text x="' + r1(sx0 + LABEL_PAD) + '" y="' + r1(ty + b.planH / 2 + fs * 0.35) +
-               '" font-size="' + r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
+        s.push('<text x="' + r1(sx0 + SIZE.labelPad) + '" y="' + r1(textY) + '" font-size="' +
+               r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
       }
     });
   }
   s.push('</svg>');
   return { svg: s.join(""), V: V, contentH: contentH, totalLanes: totalLanes,
-           overlaps: totalOverlap, packs: packs };
+           overlaps: totalOverlap, packs: packs, width: W };
 }
 
 // ---------------------------------------------------------------- transition scan
@@ -806,7 +963,7 @@ function buildSweep(dropEnabled) {
 
 // ---------------------------------------------------------------- wire-up
 var el = {
-  zx: document.getElementById("zx"), zy: document.getElementById("zy"),
+  zx: document.getElementById("zx2"), zy: document.getElementById("zy2"),
   zxv: document.getElementById("zxv"), zyv: document.getElementById("zyv"),
   drop: document.getElementById("drop"), fit: document.getElementById("fit"),
   lbl: document.getElementById("lbl"), dep: document.getElementById("dep"),
@@ -841,6 +998,7 @@ function redrawLive() {
     '<dt>表示行</dt><dd>' + R.V.rows.length + ' / ' + DATA.rows.length + '</dd>' +
     '<dt>表示タスク</dt><dd>' + R.V.shownTasks + ' / ' + DATA.tasks.length + '</dd>' +
     '<dt>合計段数</dt><dd>' + R.totalLanes + '</dd>' +
+    '<dt>描画幅</dt><dd>' + Math.round(R.width) + 'px</dd>' +
     '<dt>overlap</dt><dd style="color:' + (R.overlaps ? "var(--bad)" : "var(--good)") + '">' +
       R.overlaps + '</dd>' +
     '<dt>必要な縦</dt><dd>' + Math.round(R.contentH) + 'px / ' + CANVAS_H + 'px</dd>' +
@@ -897,6 +1055,26 @@ function doFit() {
 ["input", "change"].forEach(function (ev) {
   [el.zx, el.zy, el.drop, el.lbl, el.dep].forEach(function (n) { n.addEventListener(ev, redrawLive); });
 });
+
+// Zoom from the canvas itself, so you can zoom where you are looking.
+// Modifier meanings follow ../03-ui-naming/handover-ui-detail-spec-ja.md 5-2:
+// Ctrl = both axes, Shift = time axis, Alt = row axis. Plain wheel scrolls.
+var WHEEL_STEP = Math.log(1.1) / Math.LN10;   // slider units (log10) for one x1.1 notch
+function nudge(slider, dir) {
+  var next = parseFloat(slider.value) + dir * WHEEL_STEP;
+  slider.value = Math.min(parseFloat(slider.max),
+                 Math.max(parseFloat(slider.min), next)).toFixed(3);
+}
+el.canvas.addEventListener("wheel", function (ev) {
+  if (!ev.ctrlKey && !ev.shiftKey && !ev.altKey) return;   // plain wheel still scrolls
+  if (ev.ctrlKey && ev.shiftKey) return;                   // reserved for horizontal scroll
+  ev.preventDefault();
+  var dir = ev.deltaY > 0 ? -1 : 1;
+  if (ev.ctrlKey) { nudge(el.zx, dir); nudge(el.zy, dir); }
+  else if (ev.shiftKey) { nudge(el.zx, dir); }
+  else { nudge(el.zy, dir); }
+  redrawLive();
+}, { passive: false });
 el.drop.addEventListener("change", rebuildStatic);
 el.fit.addEventListener("click", doFit);
 el.reset.addEventListener("click", function () { el.zx.value = 0; el.zy.value = 0; redrawLive(); });

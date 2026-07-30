@@ -135,7 +135,12 @@
 
 どちらの場合も 実績の形状 = 予定の形状</div>
   <svg id="svgShapes"></svg>
-  <p class="note">薄い帯が 1 段の占有高さ。<strong>どの形状でも占有高さが同じ</strong>ことを確かめる欄である。</p>
+  <p class="note">薄い帯が 1 段の占有高さ。<strong>形状ごとに縦幅が違う</strong>ことを確かめる欄である
+  （2026-07-30 の指示）。<code>---&gt;</code> と <code>*----*</code> は <code>===</code> の
+  <strong>1/2</strong> — <strong>縦に薄く詰め込めることがこの形状の取り柄</strong>だから。
+  <code>◇</code> は <strong>1.5 倍</strong> — 目立たせるため。
+  縦幅の大小関係は <strong>フォント &lt; 実績 &lt; 予定</strong>（<code>===</code> と
+  <code>&gt;===&gt;</code> に対する要件。細線はラベルを内側に持てないので対象外）。</p>
 </section>
 
 <section>
@@ -220,6 +225,24 @@
 var NS = 'http://www.w3.org/2000/svg';
 
 // Baseline: 1920x1080, full screen, 100% zoom, 50px header.
+// =========================================================================
+// SIZE -- the single source for every dimension. No size literal appears in
+// the drawing code; change a value here and the whole reference follows.
+// =========================================================================
+var SIZE = {
+  // Per-shape plan height, as a multiple of bar/chevron.
+  // Thin shapes are half as tall on purpose: being thin IS their merit, they
+  // let more information sit in the same vertical space. A milestone is 1.5x
+  // so that it stands out.
+  shapeH: { bar: 1.0, chevron: 1.0, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
+  planOfLevel:    0.62,   // plan bar height / level height
+  actualOfPlan:   0.55,   // actual / plan   -> font < actual < plan for bar & chevron
+  fontOfActual:   0.80,   // font   / actual
+  thinFontScale:  0.85,   // extra shrink for arrow / endpointSpan
+  markTextOfFont: 0.75,
+  markOfText:     2.0
+};
+
 var MIN_FONT = 12;        // smallest font we ever draw
 var MIN_ACTUAL_H = 16;    // actual bar + alpha, lower bound
 var MIN_MARKER = 16;      // marker lower bound, follows the actual bar
@@ -266,11 +289,15 @@ function hasThickness(shapeKind) {
   return shapeKind === 'bar' || shapeKind === 'chevron';
 }
 
-function metrics(levelHeight) {
-  var planH = Math.max(MIN_ACTUAL_H + 6, Math.round(levelHeight * 0.62));
-  var actualH = Math.max(MIN_ACTUAL_H, Math.round(planH * 0.55));
-  var fontSize = Math.max(MIN_FONT, Math.round(planH * 0.8));
-  var markerSize = Math.max(MIN_MARKER, actualH);
+function metrics(levelHeight, shapeKind) {
+  var ratio = SIZE.shapeH[shapeKind || 'bar'];
+  var planH = Math.max(MIN_ACTUAL_H + 6, Math.round(levelHeight * SIZE.planOfLevel)) * ratio;
+  var actualH = Math.max(MIN_ACTUAL_H * ratio, planH * SIZE.actualOfPlan);
+  var thin = !hasThickness(shapeKind || 'bar') && (shapeKind || 'bar') !== 'milestone';
+  var fontSize = Math.max(MIN_FONT,
+                 actualH * SIZE.fontOfActual * (thin ? SIZE.thinFontScale : 1));
+  var markerSize = Math.max(MIN_MARKER,
+                   Math.max(MIN_FONT, fontSize * SIZE.markTextOfFont) * SIZE.markOfText);
   return {
     levelHeight: levelHeight,
     planHeight: planH,
@@ -428,17 +455,16 @@ function drawResumeIcon(g, x, tipY, footY, size) {
 // ---------------------------------------------------------------------------
 
 var SHAPE_ROWS = [
-  { kind: 'bar',          label: '===    bar（棒）',                  note: '実績を内側に重ねる' },
-  { kind: 'chevron',      label: '>===>  chevron（矢羽根）',          note: '実績を内側に重ねる' },
-  { kind: 'arrow',        label: '--->   arrow（矢印）',              note: '実績を下にずらす' },
-  { kind: 'endpointSpan', label: '*----* endpointSpan（端点スパン）', note: '実績を下にずらす' },
-  { kind: 'milestone',    label: '◇      milestone（マイルストーン）', note: '実績を下にずらす' }
+  { kind: 'bar',          label: '===    bar（棒）',                  note: '実績を内側に重ねる ・ 縦幅 x1' },
+  { kind: 'chevron',      label: '>===>  chevron（矢羽根）',          note: '実績を内側に重ねる ・ 縦幅 x1' },
+  { kind: 'arrow',        label: '--->   arrow（矢印）',              note: '実績を下にずらす ・ 縦幅 x0.5' },
+  { kind: 'endpointSpan', label: '*----* endpointSpan（端点スパン）', note: '実績を下にずらす ・ 縦幅 x0.5' },
+  { kind: 'milestone',    label: '◇      milestone（マイルストーン）', note: '実績を下にずらす ・ 縦幅 x1.5' }
 ];
 
 function renderShapes() {
   var svg = document.getElementById('svgShapes');
   clear(svg);
-  var m = metrics(state.levelHeight);
   var pad = 10, labelW = 250, barX = labelW + 30;
   var planDays = 30, actualDays = 18;
   var w = state.pxPerDay * planDays;
@@ -446,6 +472,9 @@ function renderShapes() {
 
   for (var i = 0; i < SHAPE_ROWS.length; i++) {
     var row = SHAPE_ROWS[i];
+    // Each shape carries its own vertical extent, so the reference shows the
+    // difference rather than forcing every row into one height.
+    var m = metrics(state.levelHeight, row.kind);
     var b = bands(y, m);
     var g = el('g', null, svg);
 
@@ -463,7 +492,7 @@ function renderShapes() {
     var mk = drawProgressMarker(g, 'incomplete', isMs ? ax1 + m.actualHeight * 0.6 : a.right,
       a.centreY, m.markerSize, true);
 
-    text(g, barX + w + 200, y + b.reserved / 2, row.note, { size: 11, fill: 'var(--sub)' });
+    text(g, barX + w + 200, y + b.reserved / 2, row.note, { size: 12, fill: 'var(--sub)' });
     y += b.reserved + m.levelGap;
   }
   svg.setAttribute('width', barX + w + 380);
@@ -530,7 +559,7 @@ function renderColors() {
   }, g);
   el('path', { d: 'M' + (toX - 9) + ' ' + (toY - 4.5) + ' L' + toX + ' ' + toY +
     ' L' + (toX - 9) + ' ' + (toY + 4.5) + ' Z', fill: 'var(--dep)' }, g);
-  text(g, midX + 6, (fromY + toY) / 2, '依存線（橙で固定）', { size: 11, fill: 'var(--dep)' });
+  text(g, midX + 6, (fromY + toY) / 2, '依存線（橙で固定）', { size: 12, fill: 'var(--dep)' });
 
   svg.setAttribute('width', x2 + w + 60);
   svg.setAttribute('height', y2 + b2.reserved + pad);
@@ -553,6 +582,11 @@ function renderSizeRule() {
   box.textContent =
     '基準  1920 x 1080 / 全画面 / 拡大率 100% / ヘッダー縦 50px\n' +
     '\n' +
+    '形状ごとの縦幅        ' + ['bar', 'chevron', 'arrow', 'endpointSpan', 'milestone']
+       .map(function (k) { return k + ' x' + SIZE.shapeH[k]; }).join(' / ') + '\n' +
+    '  細線が半分なのは「縦に薄く詰め込める」ことがこの形状の取り柄だから\n' +
+    '  マイルストーンが 1.5 倍なのは目立たせるため\n' +
+    '縦幅の大小関係        フォント < 実績 < 予定  （=== と >===> に対する要件）\n' +
     '最小フォント          ' + MIN_FONT + 'px      これを割るなら Outline のレベルを減らす\n' +
     '実績バー+αの下限     ' + MIN_ACTUAL_H + 'px\n' +
     'マークの下限          ' + MIN_MARKER + 'px      実績バーに追随する\n' +
@@ -587,7 +621,7 @@ function renderMarkers() {
 
     if (row.kind === 'incomplete' && !state.selected) {
       text(g, ax1 + m.markerSize + 12, y + b.planHeight / 2, '（選択していないので出ない）',
-        { size: 11, fill: 'var(--sub)' });
+        { size: 12, fill: 'var(--sub)' });
     }
     y += b.reserved + m.levelGap;
   }
@@ -624,12 +658,12 @@ function renderResume() {
   el('line', { x1: barX - 12, y1: a.centreY, x2: resumeX + m.markerSize * 1.6, y2: a.centreY,
     stroke: 'var(--dep)', 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: 0.9 }, g);
   text(g, resumeX + m.markerSize * 1.7, a.centreY, '矢先の高さ = 実績バーの中心 = マークの中心',
-    { size: 11, fill: 'var(--dep)' });
+    { size: 12, fill: 'var(--dep)' });
 
   el('line', { x1: barX - 12, y1: mk.bottom, x2: resumeX + m.markerSize * 1.6, y2: mk.bottom,
     stroke: 'var(--dep)', 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: 0.9 }, g);
   text(g, resumeX + m.markerSize * 1.7, mk.bottom, '矢印の下端 = マークの下端',
-    { size: 11, fill: 'var(--dep)' });
+    { size: 12, fill: 'var(--dep)' });
 
   svg.setAttribute('width', barX + w + 420);
   svg.setAttribute('height', mk.bottom + 40);
@@ -671,7 +705,7 @@ function renderStates() {
         drawResumeIcon(g, rx, a.centreY, mk.bottom, m.markerSize);
       }
     } else {
-      text(g, barX + 8, y + b.planHeight / 2, '実績なし', { size: 11, fill: 'var(--sub)' });
+      text(g, barX + 8, y + b.planHeight / 2, '実績なし', { size: 12, fill: 'var(--sub)' });
     }
     y += b.reserved + m.levelGap + 6;
   }
@@ -772,7 +806,7 @@ function renderLightning() {
   // status date
   el('line', { x1: statusX, y1: pad - 12, x2: statusX, y2: y - 8,
     stroke: 'var(--status)', 'stroke-width': 1, 'stroke-dasharray': '4 4' }, g);
-  text(g, statusX + 5, pad - 14, '基準日', { size: 11, fill: 'var(--sub)' });
+  text(g, statusX + 5, pad - 14, '基準日', { size: 12, fill: 'var(--sub)' });
 
   // lightning polyline: one vertex per stack level
   var pts = [[statusX, pad - 12]];
@@ -789,7 +823,7 @@ function renderLightning() {
   for (var s2 = 0; s2 < segments.length; s2++) {
     if (segments[s2].day === null) {
       text(g, statusX + 8, segments[s2].yMid, '頂点を打たない',
-        { size: 11, fill: 'var(--lightning)' });
+        { size: 12, fill: 'var(--lightning)' });
     }
   }
 

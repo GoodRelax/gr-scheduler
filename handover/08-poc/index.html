@@ -60,7 +60,7 @@
   <div class="card">
     <h3><a href="poc-glyphs-reference.html">形状の基準</a><span class="tag">検証済</span></h3>
     <p>5 つのタスク形状と<strong>実績を同じ形状で描く</strong>規則 / Progress Marker 4 状態と<strong>文字サイズから導く大きさ</strong> / Resume アイコンの高さ合わせ / タスクの 4 状態 / <strong>段ごとに分けた</strong>イナズマ線の頂点 / <strong>予実は同一色相・依存線は橙</strong>（ダーク切替あり）。</p>
-    <div class="look">DOM で検証済み。5 形状の占有高さは全て同一／実績は予定と同じ形状で描かれている（矢羽根は矢羽根、矢印は矢印）／Resume 矢先の高さ = 実績バー中心 = マーク中心、矢印の下端 = マーク下端／イナズマ線は行 5（1 段 3 タスク）で最も遅れた頂点が勝ち、行 6（3 段）で頂点が 3 つに分かれる／実績÷予定のコントラストはライト 4.81:1・ダーク 3.74:1（要求 3:1）。</div>
+    <div class="look">DOM で検証済み。<strong>形状ごとに縦幅が違う</strong>（予定バー実測 bar 22px / 細線 11px = <strong>1/2</strong> / マイルストーン 33px = <strong>1.5 倍</strong>）／実績は予定と同じ形状で描かれている（矢羽根は矢羽根、矢印は矢印）／Resume 矢先の高さ = 実績バー中心 = マーク中心、矢印の下端 = マーク下端／イナズマ線は行 5（1 段 3 タスク）で最も遅れた頂点が勝ち、行 6（3 段）で頂点が 3 つに分かれる／実績÷予定のコントラストはライト 4.81:1・ダーク 3.74:1（要求 3:1）。<strong>寸法はすべて 1 か所の <code>SIZE</code> 定数から導く。</strong></div>
   </div>
 </div>
 
@@ -98,9 +98,23 @@
       <span class="v-good">順序を変えても段割当は不変</span>、<span class="v-good">手動 stackOrder は全ズームで保持</span>、
       240 段階の掃引で<span class="v-good">単調性の逆転 0</span>、<span class="v-good">依存線がタスクを横切る 0</span>。
       完全結合 8 本は 8 段まで伸びる（上限なし方針どおり）。
-      <strong>ズームアウトで合計段数 49 → 102、総行高 1720 → 3840px。</strong>
+      <strong>依存線は後続が先行の下に潜る向きでも横切らない</strong>（先行の下端から降りて右へ入る）。
+      <strong>細線だけの段は低くなる</strong>（P14: 段高 24px vs 通常 28px）。
       <span class="v-warn">主因は「担当＋完了率」のラベル</span>で、形状だけなら 44 → 52 にしかならない。
       <strong>進捗マーカーの寄与はほぼ 0</strong> — §2-4-1 の見立てとは逆だった。</div>
+  </div>
+  <div class="card">
+    <h3><a href="poc-schedule-zoom.html">日程表のズーム（ホイールとキーだけ）</a><span class="tag">検証済</span></h3>
+    <p>タスク名・担当・進捗・進捗線（イナズマ線）を入れた日程表を、<strong>スライダーを置かずに</strong>
+       ホイールとキーで拡縮する。割当は <code>handover-ui-detail-spec-ja.md</code> §5-2 のとおり。</p>
+    <div class="look">確認済み — 修飾なし=縦スクロール／<span class="v-good">Ctrl=両軸・Shift=横・Alt=縦</span>／
+      Ctrl+Shift=横スクロール／中ボタン・Ctrl+左=パン／キーは同じ修飾体系で <code>+</code> <code>-</code>、
+      <code>Ctrl+0</code>=等倍、<code>F</code>=Fit。1 ノッチ ×1.1、0.02〜64 倍でクランプ。
+      <strong>依存線の太さ 1.5px と走り 20px は、ズームを 40 倍振っても動かない</strong>
+      （担当/進捗と独立なので固定定数にできる。§4-9 / §4-10）。
+      <strong>依存線・担当・進捗・進捗線は個別に切り替えられる。</strong>
+      <strong>「設定…」で寸法の定数 53 個すべてを個別に変えられる</strong> — 範囲は他の設定に追随して引き直され、
+      範囲外は赤で示す（依存関係は <code>handover-ui-detail-spec-ja.md</code> §4-10 に Mermaid で図示）。</div>
   </div>
   <div class="card">
     <h3><a href="poc-zoom-lod-transitions.html">ズームと表示レベルの遷移</a><span class="tag">検証済</span></h3>

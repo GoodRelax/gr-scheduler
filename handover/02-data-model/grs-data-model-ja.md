@@ -400,7 +400,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 
 - **データ**: `Dependency { successor_uid+predecessor_uid+link_type PK(複合), lag(1/10分), lag_format }`。**MSPDI は依存線に ID を振らない**（`PredecessorLink` の子は `PredecessorUID`/`Type`/`CrossProject`/`CrossProjectName`/`LinkLag`/`LagFormat` のみ・XSD 実測）ため代理キーを置かず自然キーとする。**`link_type` を複合 PK に含める**のは、同一ペアに種別違いの依存を 2 本張れるため（同一ペア・同一種別の重複は意味を持たないので序数は不要）。MSPDI `PredecessorLink`（後続 Task 下・`PredecessorUID` で先行を指す）を **Consume** して task↔task の一級エッジへ。**TaskGroup / 軸B とは独立**（依存は WBS でも器でもなく Task 間の関係）。
 - **export**: 各後続 Task 直下に `PredecessorLink` を再生成（`uid` をそのまま使用）。`PredecessorUID` 省略のリンク（`minOccurs=0`）は依存エッジにせず **Carry で温存**する。`CrossProject`/`CrossProjectName` は Carry（MVP 単一 PJ）。
-- **経路（描画・GRS 専用・非 export・非保存）**: 9 点アンカー（バー上の 3×3 グリッド 0-8）から引出し、他アイコンとの重なり最小の折れ点 0〜3 の経路を**自動配線**（コアドメイン）。**依存線は全て自動配線でユーザーは手操作しない**ため、**経路はデータとして保存しない**（描画のたびにエンジンが算出）。当初案の `DependencyRoute` / `viewState.routes` は**廃止**（保存すると自動算出結果との二重管理＝ドリフトになる）。MSPDI は線の幾何を持たないので、依存の論理のみ `PredecessorLink` で往復する。→ `grs-native-erd-ja.md` §5.6
+- **経路（描画・GRS 専用・非 export・非保存）**: **経路の規則は `../03-ui-naming/handover-ui-detail-spec-ja.md` §4-9 が正**（2026-07-30 確定）。**ここには幾何を書かない**（2 か所に書くと必ずドリフトする）。~~9 点アンカーから引出し、重なり最小の折れ点 0〜3~~ という旧記述は**誤り**（前プロジェクトの DEF-005 / CR-008 で既に破れている）。**依存線は全て自動配線でユーザーは手操作しない**ため、**経路はデータとして保存しない**（描画のたびにエンジンが算出）。当初案の `DependencyRoute` / `viewState.routes` は**廃止**（保存すると自動算出結果との二重管理＝ドリフトになる）。MSPDI は線の幾何を持たないので、依存の論理のみ `PredecessorLink` で往復する。→ `grs-native-erd-ja.md` §5.6
 
 ### 7.5 Calendar / Resource / Assignment のネイティブ vs Carry（確定）
 
@@ -437,7 +437,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 | 3 | Task の識別子 | `id`(UUID) ＋ `mspdi_uid` の**2 本立て** | **`uid` 一本**（= MSPDI UID） | MSPDI の UID で足り、二重識別は不要。マージの UID 衝突は取込時の 3 択で解消される。**ただし** `max+1` 採番では UID が再利用されるため**高水位採番**が、出自判定のため **`TaskOrigin`** が別途必要と判明 |
 | 4 | 依存の識別子 | 代理キー `Dependency.id` → (successor, predecessor) | **(successor, predecessor, `link_type`)** | **MSPDI は依存線に ID を振らない**（`PredecessorLink` に識別子なし）ので自然キーが素直。ただし **XSD に一意制約が 0 件**で種別違いの重複が妥当なため `link_type` が必要。同一ペア・同一種別の重複は意味を持たないので序数は不採用 |
 | 5 | 行の表示状態 | `viewState` に**分離**（マージで UI 状態を引きずらないため） | **`TaskGroup` に畳み込み**（`GroupViewState` 廃止） | 「JSON＝見た目の再現」を要件化したので、書式は**共有される文書データ**になった。かつ `TaskGroup` は元から GRS 独自で、`TaskVisual` のような「MSPDI 核を汚さないための分離」が**不要** |
-| 6 | 依存線の経路 | `DependencyRoute` に保存（自動＋手動上書き） | **廃止（保存しない）** | 依存線は**全自動配線で人が触らない**ため、毎回算出すれば足りる。保存すると再計算結果との二重管理＝ドリフト |
+| 6 | 依存線の経路 | `DependencyRoute` に保存（自動＋手動上書き） | **廃止（保存しない）** | 依存線は**全自動配線で人が触らない**ため、毎回算出すれば足りる。保存すると再計算結果との二重管理＝ドリフト。経路の規則は `../03-ui-naming/handover-ui-detail-spec-ja.md` §4-9 |
 | 7 | 行内の縦積み順 | `stack_order` 列 → **一旦廃止**（全自動と判断） | **疎な上書きで復活**（`null`=自動 / 値=人の指定） | 承認済み Must（ALIGN-L2-004 の「最上段＝マイルストーン」、ALIGN-L1-001 の「同種を同じ高さに」）が**縦位置の意図**を前提としており、自動規則だけでは保存先が無い。積み順規則にも `milestone` 優先項を追加 |
 | 8 | Resource / Assignment | **丸ごと Carry**（資源管理は非対象） | **軽量ネイティブ 7 列**＋残り Carry | 「**担当者名をバーに表示**」の要求。副産物として **MSPDI の UID 参照 7 つが全て Consume** になった |
 | 9 | UID 再マップ表 | 導入を検討（Carry 内の UID 参照が振り直しで壊れるため） | **不要**（ただし主張を限定） | #8 の格上げで整数 UID 参照が全て Consume になり、機構が 1 つ減った。**ただし**「Carry に参照が一切無い」への一般化は誤り（`TimephasedData/UID`・`FieldID`/`ValueID` 等は残る）ため、主張は「8 テーブルの整数 UID 空間を指す参照」に限定した |

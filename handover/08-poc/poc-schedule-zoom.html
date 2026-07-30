@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>PoC: 日程表のズーム（ホイールとキーだけ）</title>
+<style>
+  /* Body scale matched to ja.wikipedia (16px / 1.7). Nothing below 12px. */
+  :root { --bg:#fff; --ink:#1a1a1a; --sub:#555; --rule:#dcdcdc; --panel:#f6f7f9;
+          --accent:#2b5ea8; --good:#1f7a3d; --warn:#a8600f; --bad:#a02b2b;
+          --plan:#8fb0d9; --plan-line:#4d79ad; --act:#1d4f8c;
+          --dep:#d2691e; --mark:#333; --prog:#c0392b; --row1:#f2f6fb; }
+  * { box-sizing:border-box; }
+  html, body { height:100%; }
+  body { margin:0; background:var(--bg); color:var(--ink); overflow:hidden;
+         font-family:"Yu Gothic UI","Meiryo",system-ui,sans-serif;
+         font-size:16px; line-height:1.7; display:flex; flex-direction:column; }
+  header { background:var(--panel); border-bottom:1px solid var(--rule);
+           padding:12px 18px 0 18px; flex:0 0 auto; }
+  h1 { margin:0 0 8px 0; font-size:20px; line-height:1.3; }
+  .keys { font-size:13px; color:var(--sub); padding-bottom:10px; }
+  .keys b { color:var(--ink); }
+  kbd { font-family:Consolas,"Courier New",monospace; font-size:12px;
+        background:#fff; border:1px solid var(--rule); border-radius:3px; padding:0 5px; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center;
+         padding:9px 18px; background:#fff; border-bottom:1px solid var(--rule);
+         font-size:14px; flex:0 0 auto; position:relative; }
+  .bar label { display:flex; align-items:center; gap:6px; white-space:nowrap; cursor:pointer; }
+  .bar button { font:inherit; font-size:14px; padding:3px 12px; }
+  .bar .zoom { font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700;
+               white-space:nowrap; }
+  .bar .sep { width:1px; height:20px; background:var(--rule); }
+  #btnCfg[aria-expanded="true"] { background:var(--accent); color:#fff; }
+  #stage { flex:1 1 auto; overflow:auto; position:relative; background:#fff; outline:none; }
+  #stage.panning { cursor:grabbing; }
+  #stage svg { display:block; }
+  .flag { display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px;
+          background:#e3f2e8; color:var(--good); }
+  .flag.warn { background:#fdf1e0; color:var(--warn); }
+  .flag.bad  { background:#fbe6e6; color:var(--bad); }
+
+  /* --- settings popover --- */
+  #cfg { position:absolute; top:100%; right:14px; z-index:50; width:min(860px, calc(100vw - 28px));
+         max-height:min(70vh, 620px); overflow:auto; background:#fff;
+         border:1px solid var(--rule); border-radius:8px;
+         box-shadow:0 10px 34px rgba(0,0,0,.18); padding:0; display:none; }
+  #cfg.open { display:block; }
+  #cfg .head { position:sticky; top:0; background:var(--panel); border-bottom:1px solid var(--rule);
+               padding:11px 16px; display:flex; align-items:center; gap:12px; }
+  #cfg .head strong { font-size:16px; }
+  #cfg .head .spacer { flex:1; }
+  #cfg .head button { font:inherit; font-size:14px; padding:3px 14px; }
+  #cfg .body { padding:6px 16px 16px 16px; }
+  #cfg h3 { font-size:14px; margin:16px 0 6px 0; color:var(--accent);
+            border-bottom:1px solid var(--rule); padding-bottom:3px; }
+  #cfg table { width:100%; border-collapse:collapse; font-size:13px; }
+  #cfg td { padding:3px 6px; vertical-align:middle; border-bottom:1px solid #f0f1f3; }
+  #cfg td.lab { width:38%; }
+  #cfg td.lab code { font-size:12px; color:var(--sub); display:block; }
+  #cfg td.inp { width:110px; }
+  #cfg input[type=number] { width:100%; font:inherit; font-size:13px; padding:2px 5px;
+                            border:1px solid var(--rule); border-radius:3px;
+                            font-variant-numeric:tabular-nums; }
+  #cfg input.bad { border-color:var(--bad); background:#fff5f5; }
+  #cfg td.rng { font-size:12px; color:var(--sub); font-variant-numeric:tabular-nums; }
+  #cfg td.rng .why { color:var(--warn); }
+  #cfg td.rng .err { color:var(--bad); font-weight:700; }
+  #cfg .note { background:var(--panel); border-left:3px solid var(--accent);
+               padding:9px 13px; font-size:13px; margin:10px 0 0 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PoC: 日程表のズーム — ホイールとキーだけで拡縮する</h1>
+  <div class="keys">
+    <b>ホイール</b>
+    修飾なし=<kbd>縦スクロール</kbd>
+    <kbd>Ctrl</kbd>=両軸ズーム（ポインタ中心）
+    <kbd>Shift</kbd>=横ズーム
+    <kbd>Alt</kbd>=縦ズーム
+    <kbd>Ctrl+Shift</kbd>=横スクロール
+    ／ <b>ドラッグ</b> <kbd>中ボタン</kbd> または <kbd>Ctrl</kbd>+左 = パン
+    ／ <b>キー</b> <kbd>Ctrl</kbd>/<kbd>Shift</kbd>/<kbd>Alt</kbd> + <kbd>+</kbd><kbd>-</kbd>、
+    <kbd>Ctrl+0</kbd>=等倍、<kbd>F</kbd>=Fit
+  </div>
+</header>
+
+<div class="bar">
+  <span class="zoom" id="zoomOut">横 1.00x ／ 縦 1.00x</span>
+  <span class="sep"></span>
+  <label><input type="checkbox" id="tgDep" checked> 依存線</label>
+  <label><input type="checkbox" id="tgOwner" checked> 担当</label>
+  <label><input type="checkbox" id="tgPct" checked> 進捗</label>
+  <label><input type="checkbox" id="tgProgLine" checked> 進捗線</label>
+  <span class="sep"></span>
+  <button id="btnFit">Fit (F)</button>
+  <button id="btnReset">等倍 (Ctrl+0)</button>
+  <button id="btnCfg" aria-expanded="false">設定…</button>
+  <span class="sep"></span>
+  <span id="stat"></span>
+
+  <div id="cfg" role="dialog" aria-label="寸法の設定">
+    <div class="head">
+      <strong>寸法の設定</strong>
+      <span id="cfgWarn"></span>
+      <span class="spacer"></span>
+      <button id="cfgDefault">既定に戻す</button>
+      <button id="cfgDone">設定完了</button>
+    </div>
+    <div class="body" id="cfgBody"></div>
+  </div>
+</div>
+
+<div id="stage" tabindex="0"></div>
+
+<script>
+"use strict";
+
+// ===========================================================================
+// SPEC -- every constant this page draws with, together with the range each
+// one is allowed to take. A range may depend on other settings, so it is a
+// function of the whole set rather than a fixed pair of numbers.
+// ===========================================================================
+var EPS = 1e-6;
+
+var SPEC = [
+  // ---- time axis
+  { g: "時間軸", k: "pxPerDayAt1x", n: "1 日の幅（zoomX = 1）", u: "px", step: 0.5,
+    d: 6, rng: function () { return { lo: 0.5, hi: 60 }; } },
+  { g: "時間軸", k: "rulerH", n: "目盛の帯の高さ", u: "px", step: 1, d: 34,
+    rng: function (S) { return { lo: S.rulerFont + 6, hi: 120,
+      why: "目盛の文字が入る高さ" }; } },
+  { g: "時間軸", k: "rulerFont", n: "目盛の文字", u: "px", step: 1, d: 12,
+    rng: function (S) { return { lo: S.fontMin, hi: 40, why: "和文の可読下限を割らない" }; } },
+
+  // ---- vertical
+  { g: "縦の寸法", k: "basePlanH", n: "予定の縦幅（zoomY = 1）", u: "px", step: 1, d: 28,
+    rng: function (S) { return { lo: S.fontMin / (S.actualOfPlan * S.fontOfActual), hi: 200,
+      why: "下限 = fontMin ÷ (actualOfPlan × fontOfActual)。これを割るとフォントが下限に張り付く" }; } },
+  { g: "縦の寸法", k: "actualOfPlan", n: "実績 ÷ 予定", u: "", step: 0.05, d: 0.55,
+    rng: function () { return { lo: 0.05, hi: 1 - EPS, why: "実績 < 予定" }; } },
+  { g: "縦の寸法", k: "fontOfActual", n: "フォント ÷ 実績", u: "", step: 0.05, d: 0.80,
+    rng: function () { return { lo: 0.05, hi: 1 - EPS, why: "フォント < 実績" }; } },
+  { g: "縦の寸法", k: "fontMin", n: "最小フォント", u: "px", step: 1, d: 12,
+    rng: function () { return { lo: 12, hi: 40, why: "和文がこれを割ると読めない（07 §2-4-1）" }; } },
+  { g: "縦の寸法", k: "thinFontScale", n: "細線のフォント倍率", u: "", step: 0.05, d: 0.85,
+    rng: function () { return { lo: 0.3, hi: 1, why: "細線は少し小さく" }; } },
+  { g: "縦の寸法", k: "actualGap", n: "予定 → 実績の間隔（下に置くとき）", u: "px", step: 1, d: 2,
+    rng: function () { return { lo: 0, hi: 20 }; } },
+  { g: "縦の寸法", k: "laneGap", n: "段の間隔", u: "px", step: 1, d: 12,
+    rng: function (S) { return { lo: S.depWidth * 2, hi: 60,
+      why: "依存線が 1 本通る幅（下限 = 依存線の太さ × 2）" }; } },
+  { g: "縦の寸法", k: "rowGap", n: "行の間隔", u: "px", step: 1, d: 8,
+    rng: function () { return { lo: 0, hi: 60 }; } },
+
+  // ---- shape heights
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.bar", n: "=== 矩形", u: "x", step: 0.1, d: 1.0,
+    rng: function () { return { lo: 1, hi: 1, why: "基準なので 1 固定" }; } },
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.chevron", n: ">===> 矢羽根", u: "x", step: 0.1, d: 1.0,
+    rng: function () { return { lo: 0.2, hi: 3 }; } },
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.arrow", n: "---> 矢印", u: "x", step: 0.05, d: 0.5,
+    rng: function () { return { lo: 0.1, hi: 1 - EPS, why: "細線は矩形より薄い（それが取り柄）" }; } },
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.endpointSpan", n: "*----* 端点スパン", u: "x", step: 0.05, d: 0.5,
+    rng: function () { return { lo: 0.1, hi: 1 - EPS, why: "細線は矩形より薄い" }; } },
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.milestone", n: "◇ マイルストーン", u: "x", step: 0.1, d: 1.5,
+    rng: function () { return { lo: 1 + EPS, hi: 4, why: "目立たせるので矩形より大きい" }; } },
+
+  // ---- dependency lines (fixed; never follow zoom or font)
+  { g: "依存線（固定・ズームに追随しない）", k: "depWidth", n: "太さ", u: "px", step: 0.1, d: 1.5,
+    rng: function (S) { return { lo: 0.5, hi: S.laneGap / 2,
+      why: "段の間隔の半分を超えない" }; } },
+  { g: "依存線（固定・ズームに追随しない）", k: "depArrowLen", n: "矢印の三角形の長さ", u: "px", step: 1, d: 10,
+    rng: function (S) { return { lo: S.depWidth * 2, hi: 40,
+      why: "線より太くならない長さ" }; } },
+  { g: "依存線（固定・ズームに追随しない）", k: "depRunOfArrow", n: "走り ÷ 三角形", u: "x", step: 0.1, d: 2,
+    rng: function () { return { lo: 1 + EPS, hi: 6,
+      why: "1 以下だと三角形が走りを食い尽くし、線が見えない" }; } },
+
+  // ---- progress marker
+  { g: "進捗マーカー", k: "markTextOfFont", n: "中の数字 ÷ フォント", u: "", step: 0.05, d: 0.75,
+    rng: function () { return { lo: 0.3, hi: 1.5 }; } },
+  { g: "進捗マーカー", k: "markOfText", n: "マーカー径 ÷ 中の数字", u: "x", step: 0.1, d: 2.0,
+    rng: function () { return { lo: 1.6, hi: 4, why: "3 桁が円に収まる比" }; } },
+  { g: "進捗マーカー", k: "markMin", n: "マーカー径の下限", u: "px", step: 1, d: 16,
+    rng: function (S) { return { lo: S.fontMin, hi: 80 }; } },
+  { g: "進捗マーカー", k: "markGap", n: "実績の右端からの隙間", u: "px", step: 1, d: 4,
+    rng: function () { return { lo: 0, hi: 30 }; } },
+  { g: "進捗マーカー", k: "markStroke", n: "円の線の太さ", u: "px", step: 0.1, d: 1.3,
+    rng: function () { return { lo: 0.5, hi: 4 }; } },
+  { g: "進捗マーカー", k: "markTextBaseline", n: "数字のベースライン補正", u: "", step: 0.02, d: 0.36,
+    rng: function () { return { lo: 0, hi: 0.8 }; } },
+  { g: "進捗マーカー", k: "resumeScaleInvalid", n: "再開日未定のときの縮小率", u: "x", step: 0.05, d: 0.7,
+    rng: function () { return { lo: 0.3, hi: 1, why: "未定は小さく薄く" }; } },
+  { g: "進捗マーカー", k: "resumeArmOfMark", n: "Resume の腕の長さ ÷ マーカー", u: "", step: 0.02, d: 0.62,
+    rng: function (S) { return { lo: 0.2, hi: 1 - S.resumeHeadOfMark,
+      why: "矢じりぶんを残す" }; } },
+  { g: "進捗マーカー", k: "resumeHeadOfMark", n: "Resume の矢じり ÷ マーカー", u: "", step: 0.02, d: 0.22,
+    rng: function () { return { lo: 0.05, hi: 0.5 }; } },
+
+  // ---- labels
+  { g: "ラベル", k: "labelCoef", n: "幅の概算係数", u: "", step: 0.05, d: 0.5,
+    rng: function () { return { lo: 0.3, hi: 1, why: "全角 1 文字 = フォント × 2 × 係数" }; } },
+  { g: "ラベル", k: "labelPad", n: "形状の内側の余白", u: "px", step: 1, d: 6,
+    rng: function () { return { lo: 0, hi: 30 }; } },
+  { g: "ラベル", k: "labelGap", n: "形状の外へ出すときの隙間", u: "px", step: 1, d: 4,
+    rng: function () { return { lo: 0, hi: 30 }; } },
+  { g: "ラベル", k: "labelBaseline", n: "ベースライン補正", u: "", step: 0.02, d: 0.35,
+    rng: function () { return { lo: 0, hi: 0.8 }; } },
+  { g: "ラベル", k: "truncUnits", n: "打ち切り幅（半角換算）", u: "", step: 2, d: 24,
+    rng: function () { return { lo: 4, hi: 120, why: "全角 12 文字 = 半角 24" }; } },
+  { g: "ラベル", k: "rowLabelW", n: "行名の欄の幅", u: "px", step: 5, d: 170,
+    rng: function () { return { lo: 40, hi: 500 }; } },
+  { g: "ラベル", k: "rowLabelFont", n: "行名の文字", u: "px", step: 1, d: 13,
+    rng: function (S) { return { lo: S.fontMin, hi: 40, why: "和文の可読下限を割らない" }; } },
+  { g: "ラベル", k: "rowIndent", n: "行名の 1 段のインデント", u: "px", step: 1, d: 12,
+    rng: function () { return { lo: 0, hi: 60 }; } },
+
+  // ---- shape detail
+  { g: "形状の細部", k: "planStroke", n: "予定の輪郭線", u: "px", step: 0.1, d: 1,
+    rng: function () { return { lo: 0, hi: 4 }; } },
+  { g: "形状の細部", k: "thinStrokeOfPlan", n: "細線の太さ ÷ その形状の予定の縦幅", u: "", step: 0.02, d: 0.20,
+    rng: function () { return { lo: 0.05, hi: 0.6 }; } },
+  { g: "形状の細部", k: "thinStrokeMin", n: "細線の太さの下限", u: "px", step: 0.1, d: 1.2,
+    rng: function (S) { return { lo: 0.5, hi: S.thinStrokeMax, why: "上限を超えない" }; } },
+  { g: "形状の細部", k: "thinStrokeMax", n: "細線の太さの上限", u: "px", step: 0.5, d: 4,
+    rng: function (S) { return { lo: S.thinStrokeMin, hi: 20, why: "下限を下回らない" }; } },
+  { g: "形状の細部", k: "chevronNotchOfH", n: "矢羽根の切り欠き ÷ 高さ", u: "", step: 0.05, d: 0.45,
+    rng: function () { return { lo: 0.05, hi: 1 }; } },
+  { g: "形状の細部", k: "chevronNotchOfW", n: "矢羽根の切り欠き ÷ 幅", u: "", step: 0.05, d: 0.35,
+    rng: function () { return { lo: 0.05, hi: 0.5, why: "0.5 を超えると先端が反転する" }; } },
+  { g: "形状の細部", k: "arrowHeadOfStroke", n: "矢印の矢じり ÷ 線の太さ", u: "x", step: 0.2, d: 3.2,
+    rng: function () { return { lo: 1.5, hi: 8 }; } },
+  { g: "形状の細部", k: "arrowHeadOfSpan", n: "矢印の矢じり ÷ 全長（上限）", u: "", step: 0.05, d: 0.4,
+    rng: function () { return { lo: 0.1, hi: 1 }; } },
+  { g: "形状の細部", k: "spanDotOfStroke", n: "端点の点の半径 ÷ 線の太さ", u: "x", step: 0.05, d: 1.15,
+    rng: function () { return { lo: 0.5, hi: 4 }; } },
+  { g: "形状の細部", k: "minShapeW", n: "ゼロ期間でも残す最小幅", u: "px", step: 1, d: 2,
+    rng: function () { return { lo: 1, hi: 20 }; } },
+
+  // ---- progress line
+  { g: "進捗線（イナズマ線）", k: "progWidth", n: "太さ", u: "px", step: 0.5, d: 2,
+    rng: function () { return { lo: 0.5, hi: 8 }; } },
+  { g: "進捗線（イナズマ線）", k: "progOverhang", n: "上下へのはみ出し", u: "px", step: 1, d: 6,
+    rng: function () { return { lo: 0, hi: 40 }; } },
+  { g: "進捗線（イナズマ線）", k: "todayDay", n: "基準日（第 n 日）", u: "日", step: 1, d: 132,
+    rng: function () { return { lo: 0, hi: 300 }; } },
+
+  // ---- zoom
+  { g: "ズーム", k: "zoomStep", n: "1 ノッチの倍率", u: "x", step: 0.01, d: 1.1,
+    rng: function () { return { lo: 1.01, hi: 2 }; } },
+  { g: "ズーム", k: "zoomMin", n: "下限", u: "x", step: 0.01, d: 0.02,
+    rng: function (S) { return { lo: 0.001, hi: S.zoomMax, why: "上限を超えない" }; } },
+  { g: "ズーム", k: "zoomMax", n: "上限", u: "x", step: 1, d: 64,
+    rng: function (S) { return { lo: S.zoomMin, hi: 512, why: "下限を下回らない" }; } },
+  { g: "ズーム", k: "canvasPad", n: "キャンバスの余白", u: "px", step: 1, d: 10,
+    rng: function () { return { lo: 0, hi: 60 }; } }
+];
+
+// --- flat settings store, built from SPEC defaults
+var S = {};
+SPEC.forEach(function (sp) { S[sp.k] = sp.d; });
+
+function get(k) { return S[k]; }
+function shapeRatio(kind) { return S["shapeH." + kind]; }
+
+/** Ranges depend on other settings, so evaluate the whole set at once. */
+function ranges() {
+  var out = {};
+  SPEC.forEach(function (sp) { out[sp.k] = sp.rng(S); });
+  return out;
+}
+function violations() {
+  var r = ranges(), bad = [];
+  SPEC.forEach(function (sp) {
+    var v = S[sp.k], q = r[sp.k];
+    if (v < q.lo - 1e-9 || v > q.hi + 1e-9) bad.push({ sp: sp, v: v, q: q });
+  });
+  return bad;
+}
+
+// ---------------------------------------------------------------- derived
+function hasThickness(k) { return k === "bar" || k === "chevron"; }
+function r1(x) { return Math.round(x * 10) / 10; }
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+function shapeMetrics(kind, zoomY) {
+  var planH = S.basePlanH * zoomY * shapeRatio(kind);
+  var actualH = planH * S.actualOfPlan;
+  var thin = !hasThickness(kind) && kind !== "milestone";
+  var rawFont = actualH * S.fontOfActual * (thin ? S.thinFontScale : 1);
+  var fontSize = Math.max(S.fontMin, rawFont);
+  var markText = Math.max(S.fontMin, fontSize * S.markTextOfFont);
+  return {
+    kind: kind, planH: planH, actualH: actualH, fontSize: fontSize,
+    fontFloored: rawFont < S.fontMin,
+    markTextSize: markText,
+    markSize: Math.max(S.markMin, markText * S.markOfText),
+    reserved: hasThickness(kind) ? planH : planH + S.actualGap + actualH,
+    insideActualTop: (planH - actualH) / 2,
+    belowActualTop: planH + S.actualGap,
+    thinStroke: Math.max(S.thinStrokeMin, Math.min(S.thinStrokeMax, planH * S.thinStrokeOfPlan)),
+    glyphSize: planH
+  };
+}
+function depRun() { return S.depArrowLen * S.depRunOfArrow; }
+
+// ---------------------------------------------------------------- text metrics
+function isFullWidth(ch) {
+  var c = ch.charCodeAt(0);
+  return (c >= 0x1100 && c <= 0x115F) || (c >= 0x2E80 && c <= 0xA4CF) ||
+         (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0xF900 && c <= 0xFAFF) ||
+         (c >= 0xFE30 && c <= 0xFE6F) || (c >= 0xFF00 && c <= 0xFF60) ||
+         (c >= 0xFFE0 && c <= 0xFFE6);
+}
+function widthUnits(s) {
+  var n = 0;
+  for (var i = 0; i < s.length; i++) n += isFullWidth(s.charAt(i)) ? 2 : 1;
+  return n;
+}
+function labelWidth(s, f) { return widthUnits(s) * f * S.labelCoef; }
+function truncate(s, units) {
+  var n = 0, out = "";
+  for (var i = 0; i < s.length; i++) {
+    var w = isFullWidth(s.charAt(i)) ? 2 : 1;
+    if (n + w > units) return out + "…";
+    n += w; out += s.charAt(i);
+  }
+  return s;
+}
+
+// ---------------------------------------------------------------- data
+var HORIZON = 300;
+var OWNERS = ["田中", "佐藤", "鈴木", "高橋", "伊藤", "渡辺", "山本", "中村"];
+var UID = 0;
+function mk(row, name, start, finish, opt) {
+  var t = { uid: ++UID, row: row, name: name, start: start, finish: finish,
+            shapeKind: "bar", milestone: false, owner: OWNERS[UID % OWNERS.length],
+            percentComplete: 0, hasActual: false, actualStart: start, actualDuration: 0,
+            suspended: false, resume: null, resumeValid: false, dep: null };
+  if (opt) for (var k in opt) if (opt.hasOwnProperty(k)) t[k] = opt[k];
+  if (t.milestone) { t.shapeKind = "milestone"; t.finish = t.start; }
+  return t;
+}
+var ROWS = [
+  { id: 0, depth: 1, name: "計画" },
+  { id: 1, depth: 2, name: "要件・仕様" },
+  { id: 2, depth: 2, name: "設計" },
+  { id: 3, depth: 1, name: "製作" },
+  { id: 4, depth: 2, name: "実装 前半" },
+  { id: 5, depth: 2, name: "実装 後半" },
+  { id: 6, depth: 1, name: "確認" },
+  { id: 7, depth: 2, name: "検証" },
+  { id: 8, depth: 2, name: "移行" }
+];
+var TASKS = [
+  mk(1, "調査", 0, 24, { percentComplete: 100, hasActual: true, actualDuration: 24 }),
+  mk(1, "要件定義", 26, 58, { percentComplete: 100, hasActual: true, actualStart: 26, actualDuration: 34 }),
+  mk(1, "外部仕様の確定", 52, 86, { percentComplete: 100, hasActual: true, actualStart: 54, actualDuration: 36 }),
+  mk(1, "仕様確定", 90, 90, { milestone: true, percentComplete: 100, hasActual: true }),
+  mk(2, "基本設計", 60, 100, { percentComplete: 100, hasActual: true, actualStart: 62, actualDuration: 40 }),
+  mk(2, "詳細設計および実装方式の検討", 96, 140, { percentComplete: 80, hasActual: true, actualStart: 100, actualDuration: 30 }),
+  mk(2, "設計レビュー", 138, 152, { percentComplete: 40, hasActual: true, actualStart: 138, actualDuration: 6 }),
+  mk(4, "基盤", 104, 146, { percentComplete: 95, hasActual: true, actualStart: 104, actualDuration: 40 }),
+  mk(4, "入出力", 140, 182, { percentComplete: 30, hasActual: true, actualStart: 142, actualDuration: 12 }),
+  mk(4, "内部処理", 150, 196, { percentComplete: 0, shapeKind: "chevron" }),
+  mk(5, "画面", 120, 168, { percentComplete: 60, hasActual: true, actualStart: 122, actualDuration: 28,
+      suspended: true, resume: 175, resumeValid: true }),
+  mk(5, "連携", 160, 205, { percentComplete: 0, shapeKind: "arrow" }),
+  mk(5, "結合", 200, 240, { percentComplete: 0, shapeKind: "endpointSpan" }),
+  mk(7, "単体検証", 150, 190, { percentComplete: 45, hasActual: true, actualStart: 152, actualDuration: 18 }),
+  mk(7, "結合検証", 188, 232, { percentComplete: 0 }),
+  mk(7, "受入判定", 236, 236, { milestone: true }),
+  mk(8, "移行準備", 210, 248, { percentComplete: 0, shapeKind: "chevron" }),
+  mk(8, "切替", 250, 268, { percentComplete: 0 }),
+  mk(8, "稼働開始", 272, 272, { milestone: true })
+];
+(function wire() {
+  var byRow = {};
+  TASKS.forEach(function (t) { (byRow[t.row] = byRow[t.row] || []).push(t); });
+  Object.keys(byRow).forEach(function (r) {
+    var list = byRow[r];
+    for (var i = 1; i < list.length; i++) list[i].dep = list[i - 1].uid;
+  });
+  TASKS[4].dep = TASKS[2].uid;
+  TASKS[7].dep = TASKS[5].uid;
+  TASKS[13].dep = TASKS[8].uid;
+  TASKS[16].dep = TASKS[14].uid;
+})();
+
+// ---------------------------------------------------------------- geometry
+function taskGeom(t, ctx) {
+  var m = ctx.m(t.shapeKind);
+  var x0 = t.start * ctx.ppd, x1 = t.finish * ctx.ppd, sx0, sx1;
+  if (t.milestone) { sx0 = x0 - m.glyphSize / 2; sx1 = x0 + m.glyphSize / 2; }
+  else { sx0 = x0; sx1 = Math.max(x1, x0 + S.minShapeW); }
+
+  var aX0 = null, aX1 = null;
+  if (t.hasActual) {
+    aX0 = t.milestone ? sx0 : t.actualStart * ctx.ppd;
+    aX1 = t.milestone ? sx1 : (t.actualStart + t.actualDuration) * ctx.ppd;
+  }
+  var bodyX1 = Math.max(sx1, aX1 == null ? -Infinity : aX1);
+
+  var left = "";
+  if (ctx.showOwner) left += t.owner;
+  if (ctx.showPct) left += (left ? " : " : "") + t.percentComplete + "%";
+  var leftExtent = left ? labelWidth(left, m.fontSize) + S.labelGap : 0;
+
+  var cut = truncate(t.name, S.truncUnits);
+  var wFull = labelWidth(t.name, m.fontSize), wCut = labelWidth(cut, m.fontSize);
+  var inside = hasThickness(t.shapeKind) ? (sx1 - sx0) - S.labelPad * 2 : -1;
+  var mode, text, nameExtent = 0;
+  if (wFull <= inside) { mode = "inside"; text = t.name; }
+  else if (wCut <= inside) { mode = "inside"; text = cut; }
+  else { mode = "right"; text = cut; nameExtent = S.labelGap + wCut; }
+
+  var markExtent = 0;
+  if (t.hasActual && ctx.showPct) {
+    markExtent = S.markGap + m.markSize;
+    if (t.suspended) {
+      markExtent += S.markGap + m.markSize * (t.resumeValid ? 1 : S.resumeScaleInvalid);
+    }
+  }
+  var resumeX1 = (t.suspended && t.resumeValid && t.resume != null)
+    ? t.resume * ctx.ppd + m.markSize / 2 : -Infinity;
+
+  return { m: m, sx0: sx0, sx1: sx1, aX0: aX0, aX1: aX1, bodyX1: bodyX1,
+           occX0: sx0 - leftExtent,
+           occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
+           leftText: left, labelMode: mode, labelText: text,
+           markExtent: markExtent, markX: bodyX1 + S.markGap };
+}
+
+function packRow(list, ctx) {
+  var ordered = list.slice().sort(function (a, b) {
+    if (a.milestone !== b.milestone) return a.milestone ? -1 : 1;
+    if (a.start !== b.start) return a.start - b.start;
+    if (a.finish !== b.finish) return b.finish - a.finish;
+    return a.uid - b.uid;
+  });
+  var lanes = [], items = [], i, j;
+  for (i = 0; i < ordered.length; i++) {
+    var g = taskGeom(ordered[i], ctx), target = -1;
+    for (j = 0; j < lanes.length; j++) {
+      var ok = true;
+      for (var k = 0; k < lanes[j].length; k++) {
+        var o = lanes[j][k];
+        if (g.occX0 < o.occX1 && o.occX0 < g.occX1) { ok = false; break; }
+      }
+      if (ok) { target = j; break; }
+    }
+    if (target < 0) { target = lanes.length; lanes.push([]); }
+    lanes[target].push(g);
+    items.push({ t: ordered[i], g: g, lane: target });
+  }
+  var laneH = [], laneTop = [], acc = 0;
+  for (i = 0; i < lanes.length; i++) {
+    var h = 0;
+    for (j = 0; j < lanes[i].length; j++) h = Math.max(h, lanes[i][j].m.reserved);
+    laneH.push(h);
+  }
+  if (!laneH.length) laneH.push(ctx.m("bar").reserved);
+  for (i = 0; i < laneH.length; i++) { laneTop.push(acc); acc += laneH[i] + S.laneGap; }
+  return { lanes: laneH.length, items: items, laneH: laneH, laneTop: laneTop,
+           height: Math.max(0, acc - S.laneGap) };
+}
+
+// ---------------------------------------------------------------- shapes
+function thickPath(kind, x0, x1, y, h) {
+  var w = Math.max(x1 - x0, S.minShapeW);
+  if (kind === "chevron") {
+    var n = Math.min(h * S.chevronNotchOfH, w * S.chevronNotchOfW);
+    return "M" + r1(x0) + "," + r1(y) + " L" + r1(x1 - n) + "," + r1(y) +
+           " L" + r1(x1) + "," + r1(y + h / 2) + " L" + r1(x1 - n) + "," + r1(y + h) +
+           " L" + r1(x0) + "," + r1(y + h) + " L" + r1(x0 + n) + "," + r1(y + h / 2) + " Z";
+  }
+  return "M" + r1(x0) + "," + r1(y) + " h" + r1(w) + " v" + r1(h) + " h" + r1(-w) + " Z";
+}
+function thinSvg(kind, x0, x1, y, h, colour, lw) {
+  var mid = y + h / 2, s = [];
+  if (kind === "arrow") {
+    var head = Math.min(Math.max(x1 - x0, 1) * S.arrowHeadOfSpan, lw * S.arrowHeadOfStroke);
+    s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(Math.max(x0, x1 - head)) +
+           '" y2="' + r1(mid) + '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
+    s.push('<path d="M' + r1(x1 - head) + ',' + r1(mid - head / 2) + ' L' + r1(x1) + ',' + r1(mid) +
+           ' L' + r1(x1 - head) + ',' + r1(mid + head / 2) + ' Z" fill="' + colour + '"/>');
+  } else {
+    var r = lw * S.spanDotOfStroke;
+    s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(x1) + '" y2="' + r1(mid) +
+           '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
+    s.push('<circle cx="' + r1(x0) + '" cy="' + r1(mid) + '" r="' + r1(r) + '" fill="' + colour + '"/>');
+    s.push('<circle cx="' + r1(x1) + '" cy="' + r1(mid) + '" r="' + r1(r) + '" fill="' + colour + '"/>');
+  }
+  return s.join("");
+}
+function diamond(cx, cy, s) {
+  var r = s / 2;
+  return "M" + r1(cx) + "," + r1(cy - r) + " L" + r1(cx + r) + "," + r1(cy) +
+         " L" + r1(cx) + "," + r1(cy + r) + " L" + r1(cx - r) + "," + r1(cy) + " Z";
+}
+
+// dependency routing -- handover-ui-detail-spec-ja.md 4-9
+function corridorY(aTop, aH, bTop, bH) {
+  if (Math.abs(aTop - bTop) < 0.5) return aTop + aH + S.laneGap / 2;
+  if (bTop > aTop) return (aTop + aH + bTop) / 2;
+  return (bTop + bH + aTop) / 2;
+}
+function routeLink(ax1, aTop, aH, bx0, bTop, bH) {
+  var ay = aTop + aH / 2, by = bTop + bH / 2, run = depRun();
+  var x1 = ax1 + run, x2 = bx0 - run;
+  if (Math.abs(ay - by) < 0.5) {
+    if (bx0 - ax1 >= run) return [[ax1, ay], [bx0, by]];
+  } else if (x2 >= x1) {
+    var mx = Math.max(x1, Math.min((ax1 + bx0) / 2, x2));
+    return [[ax1, ay], [mx, ay], [mx, by], [bx0, by]];
+  }
+  var cy = corridorY(aTop, aH, bTop, bH);
+  return [[ax1, ay], [x1, ay], [x1, cy], [x2, cy], [x2, by], [bx0, by]];
+}
+
+/** One vertex per lane; only what should already have moved gets one. */
+function progressVertex(t, ppd) {
+  if (t.percentComplete >= 100) return null;
+  if (t.suspended && !t.resumeValid) return null;
+  if (t.suspended && t.resumeValid) return t.resume < S.todayDay ? t.resume * ppd : null;
+  if (t.hasActual && t.actualDuration > 0) return (t.actualStart + t.actualDuration) * ppd;
+  return t.start < S.todayDay ? t.start * ppd : null;
+}
+
+// ---------------------------------------------------------------- render
+var view = { zx: 1, zy: 1 };
+
+function build() {
+  var cache = {};
+  var ctx = {
+    ppd: S.pxPerDayAt1x * view.zx,
+    m: function (k) { if (!cache[k]) cache[k] = shapeMetrics(k, view.zy); return cache[k]; },
+    showOwner: el.tgOwner.checked,
+    showPct: el.tgPct.checked
+  };
+
+  var byRow = {};
+  TASKS.forEach(function (t) { (byRow[t.row] = byRow[t.row] || []).push(t); });
+
+  var y = S.rulerH, packs = [], minX = 0, maxX = 0;
+  ROWS.forEach(function (row) {
+    var pk = packRow(byRow[row.id] || [], ctx);
+    pk.row = row; pk.y = y;
+    y += pk.height + S.rowGap;
+    pk.items.forEach(function (it) {
+      if (it.g.occX0 < minX) minX = it.g.occX0;
+      if (it.g.occX1 > maxX) maxX = it.g.occX1;
+    });
+    packs.push(pk);
+  });
+  var contentH = y + S.canvasPad;
+  var originX = S.rowLabelW - minX;
+  var W = originX + maxX + S.canvasPad * 4;
+
+  var place = {};
+  packs.forEach(function (pk) {
+    pk.items.forEach(function (it) {
+      place[it.t.uid] = { g: it.g, top: pk.y + pk.laneTop[it.lane], h: it.g.m.planH };
+    });
+  });
+
+  var s = ['<svg width="' + r1(W) + '" height="' + r1(contentH) + '" viewBox="0 0 ' +
+           r1(W) + ' ' + r1(contentH) + '">',
+           '<defs><marker id="dep-a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" ' +
+           'markerHeight="6" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
+
+  var ppd = ctx.ppd, tier = ppd < 1 ? 1 : (ppd < 8 ? 2 : 3);
+  var step = tier === 1 ? 365 : (tier === 2 ? 30 : 7), d;
+  s.push('<rect x="0" y="0" width="' + r1(W) + '" height="' + r1(S.rulerH) + '" fill="var(--panel)"/>');
+  for (d = 0; d <= HORIZON; d += step) {
+    var x = originX + d * ppd;
+    s.push('<line x1="' + r1(x) + '" y1="0" x2="' + r1(x) + '" y2="' + r1(contentH) + '" stroke="#eef0f2"/>');
+    var lab = tier === 1 ? ("Y" + (1 + (d / 365 | 0)))
+            : tier === 2 ? ((1 + (d / 30 | 0) % 12) + "月") : ((d % 30) + 1);
+    s.push('<text x="' + r1(x + 3) + '" y="' + r1(S.rulerH * 0.62) + '" font-size="' +
+           r1(S.rulerFont) + '" fill="#666">' + lab + '</text>');
+  }
+
+  packs.forEach(function (pk, ri) {
+    s.push('<rect x="0" y="' + r1(pk.y - S.rowGap / 2) + '" width="' + r1(W) + '" height="' +
+           r1(pk.height + S.rowGap) + '" fill="' +
+           (pk.row.depth === 1 ? "var(--row1)" : (ri % 2 ? "#fafbfc" : "#fff")) + '"/>');
+    s.push('<text x="' + r1(S.labelPad + (pk.row.depth - 1) * S.rowIndent) + '" y="' +
+           r1(pk.y + S.rowLabelFont) + '" font-size="' + r1(S.rowLabelFont) + '" fill="' +
+           (pk.row.depth === 1 ? "var(--accent)" : "#555") + '"' +
+           (pk.row.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(pk.row.name) + '</text>');
+  });
+
+  if (el.tgDep.checked) {
+    TASKS.forEach(function (t) {
+      if (t.dep == null) return;
+      var a = place[t.dep], b = place[t.uid];
+      if (!a || !b) return;
+      var pts = routeLink(originX + a.g.sx1, a.top, a.h, originX + b.g.sx0, b.top, b.h);
+      s.push('<path d="' + pts.map(function (p, i2) {
+        return (i2 ? "L" : "M") + r1(p[0]) + "," + r1(p[1]); }).join(" ") +
+        '" fill="none" stroke="var(--dep)" stroke-width="' + r1(S.depWidth) +
+        '" stroke-linejoin="round" marker-end="url(#dep-a)"/>');
+    });
+  }
+
+  packs.forEach(function (pk) {
+    pk.items.forEach(function (it) {
+      var t = it.t, g = it.g, m = g.m, ty = pk.y + pk.laneTop[it.lane];
+      var sx0 = originX + g.sx0, sx1 = originX + g.sx1;
+      var midY = ty + m.planH / 2, fs = m.fontSize;
+
+      if (t.milestone) {
+        s.push('<path d="' + diamond((sx0 + sx1) / 2, midY, m.glyphSize) +
+               '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="' + r1(S.planStroke) + '"/>');
+        if (t.hasActual) {
+          s.push('<path d="' + diamond((sx0 + sx1) / 2, ty + m.belowActualTop + m.actualH / 2,
+                 m.actualH) + '" fill="var(--act)"/>');
+        }
+      } else if (hasThickness(t.shapeKind)) {
+        s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty, m.planH) +
+               '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="' + r1(S.planStroke) + '"/>');
+        if (t.hasActual) {
+          s.push('<path d="' + thickPath(t.shapeKind, originX + g.aX0, originX + g.aX1,
+                 ty + m.insideActualTop, m.actualH) + '" fill="var(--act)"/>');
+        }
+      } else {
+        s.push(thinSvg(t.shapeKind, sx0, sx1, ty, m.planH, "var(--plan-line)", m.thinStroke));
+        if (t.hasActual) {
+          s.push(thinSvg(t.shapeKind, originX + g.aX0, originX + g.aX1,
+                 ty + m.belowActualTop, m.actualH, "var(--act)", m.thinStroke));
+        }
+      }
+
+      if (g.leftText) {
+        s.push('<text x="' + r1(sx0 - S.labelGap) + '" y="' + r1(midY + fs * S.labelBaseline) +
+               '" font-size="' + r1(fs) + '" text-anchor="end" fill="var(--sub)">' +
+               esc(g.leftText) + '</text>');
+      }
+      if (t.hasActual && g.markExtent > 0) {
+        var ms = m.markSize, mx = originX + g.markX, mt = m.markTextSize;
+        s.push('<circle cx="' + r1(mx + ms / 2) + '" cy="' + r1(midY) + '" r="' + r1(ms / 2) +
+               '" fill="#fff" stroke="var(--mark)" stroke-width="' + r1(S.markStroke) + '"/>');
+        s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(midY + mt * S.markTextBaseline) +
+               '" font-size="' + r1(mt) + '" text-anchor="middle" fill="var(--mark)">' +
+               t.percentComplete + '</text>');
+        if (t.suspended) {
+          var rx = mx + ms + S.markGap;
+          var rw = ms * (t.resumeValid ? 1 : S.resumeScaleInvalid);
+          var dim = t.resumeValid ? '' : ' opacity="0.45"';
+          s.push('<path d="M' + r1(rx) + ',' + r1(midY + ms / 2) + ' V' + r1(midY) + ' h' +
+                 r1(rw * S.resumeArmOfMark) + '" fill="none" stroke="var(--mark)" stroke-width="' +
+                 r1(S.markStroke) + '" stroke-linecap="round"' + dim + '/>');
+          s.push('<path d="M' + r1(rx + rw * S.resumeArmOfMark) + ',' +
+                 r1(midY - rw * S.resumeHeadOfMark) + ' L' + r1(rx + rw) + ',' + r1(midY) +
+                 ' L' + r1(rx + rw * S.resumeArmOfMark) + ',' +
+                 r1(midY + rw * S.resumeHeadOfMark) + ' Z" fill="var(--mark)"' + dim + '/>');
+        }
+      }
+      if (g.labelMode === "right") {
+        s.push('<text x="' + r1(originX + g.bodyX1 + g.markExtent + S.labelGap) + '" y="' +
+               r1(midY + fs * S.labelBaseline) + '" font-size="' + r1(fs) +
+               '" fill="var(--ink)">' + esc(g.labelText) + '</text>');
+      } else {
+        s.push('<text x="' + r1(sx0 + S.labelPad) + '" y="' + r1(midY + fs * S.labelBaseline) +
+               '" font-size="' + r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
+      }
+    });
+  });
+
+  var vertexCount = 0;
+  if (el.tgProgLine.checked) {
+    var pts = [], todayX = originX + S.todayDay * ppd;
+    pts.push([todayX, S.rulerH - S.progOverhang]);
+    packs.forEach(function (pk) {
+      for (var li = 0; li < pk.lanes; li++) {
+        var top = pk.y + pk.laneTop[li], hh = 0, vx = null;
+        pk.items.forEach(function (it) {
+          if (it.lane !== li) return;
+          hh = Math.max(hh, it.g.m.planH);
+          var v = progressVertex(it.t, ppd);
+          if (v == null) return;
+          v += originX;
+          if (vx == null || v < vx) vx = v;
+        });
+        if (!hh) hh = ctx.m("bar").planH;
+        pts.push([vx == null ? todayX : vx, top + hh / 2]);
+        if (vx != null) vertexCount++;
+      }
+    });
+    pts.push([todayX, contentH - S.canvasPad + S.progOverhang]);
+    s.push('<path d="' + pts.map(function (p, i2) {
+      return (i2 ? "L" : "M") + r1(p[0]) + "," + r1(p[1]); }).join(" ") +
+      '" fill="none" stroke="var(--prog)" stroke-width="' + r1(S.progWidth) +
+      '" stroke-linejoin="round"/>');
+    s.push('<text x="' + r1(todayX + 4) + '" y="' + r1(S.rulerH - S.progOverhang - 3) +
+           '" font-size="' + r1(S.rulerFont) + '" fill="var(--prog)" font-weight="700">基準日</text>');
+  }
+
+  s.push('</svg>');
+  var bm = ctx.m("bar");
+  return { svg: s.join(""), width: W, height: contentH,
+           lanes: packs.reduce(function (a, p) { return a + p.lanes; }, 0),
+           vertices: vertexCount, fontFloored: bm.fontFloored,
+           fontSize: bm.fontSize, ppd: ppd, tier: tier };
+}
+
+// ---------------------------------------------------------------- view control
+var el = {};
+["stage", "zoomOut", "stat", "tgDep", "tgOwner", "tgPct", "tgProgLine",
+ "btnFit", "btnReset", "btnCfg", "cfg", "cfgBody", "cfgDone", "cfgDefault",
+ "cfgWarn"].forEach(function (k) { el[k] = document.getElementById(k); });
+
+var RULER = { 1: "年", 2: "年＋月", 3: "年月＋日" };
+
+function draw() {
+  var r = build();
+  el.stage.innerHTML = r.svg;
+  el.zoomOut.textContent = "横 " + view.zx.toFixed(2) + "x ／ 縦 " + view.zy.toFixed(2) + "x";
+  var bad = violations();
+  el.stat.innerHTML = "px/日 " + r.ppd.toFixed(2) + " ・ 目盛 " + RULER[r.tier] +
+    " ・ 段 " + r.lanes + " ・ 進捗線の頂点 " + r.vertices + " ・ " +
+    Math.round(r.width) + "×" + Math.round(r.height) + "px " +
+    (r.fontFloored
+      ? '<span class="flag warn">フォント下限 ' + S.fontMin + 'px</span>'
+      : '<span class="flag">フォント ' + r1(r.fontSize) + 'px</span>') +
+    (bad.length ? ' <span class="flag bad">範囲外 ' + bad.length + ' 件</span>' : "");
+  el.cfgWarn.innerHTML = bad.length
+    ? '<span class="flag bad">範囲外 ' + bad.length + ' 件</span>' : "";
+  return r;
+}
+
+function zoomAt(fx, fy, clientX, clientY) {
+  var box = el.stage.getBoundingClientRect();
+  var px = (clientX == null ? box.width / 2 : clientX - box.left) + el.stage.scrollLeft;
+  var py = (clientY == null ? box.height / 2 : clientY - box.top) + el.stage.scrollTop;
+  var oldX = view.zx, oldY = view.zy;
+  view.zx = clamp(view.zx * fx, S.zoomMin, S.zoomMax);
+  view.zy = clamp(view.zy * fy, S.zoomMin, S.zoomMax);
+  draw();
+  el.stage.scrollLeft += px * (view.zx / oldX - 1);
+  el.stage.scrollTop += py * (view.zy / oldY - 1);
+}
+
+el.stage.addEventListener("wheel", function (ev) {
+  var f = ev.deltaY > 0 ? 1 / S.zoomStep : S.zoomStep;
+  if (ev.ctrlKey && ev.shiftKey) { ev.preventDefault(); el.stage.scrollLeft += ev.deltaY; }
+  else if (ev.ctrlKey) { ev.preventDefault(); zoomAt(f, f, ev.clientX, ev.clientY); }
+  else if (ev.shiftKey) { ev.preventDefault(); zoomAt(f, 1, ev.clientX, ev.clientY); }
+  else if (ev.altKey) { ev.preventDefault(); zoomAt(1, f, ev.clientX, ev.clientY); }
+}, { passive: false });
+
+var pan = null;
+el.stage.addEventListener("pointerdown", function (ev) {
+  if (ev.button !== 1 && !(ev.button === 0 && ev.ctrlKey)) return;
+  ev.preventDefault();
+  pan = { x: ev.clientX, y: ev.clientY, l: el.stage.scrollLeft, t: el.stage.scrollTop };
+  el.stage.setPointerCapture(ev.pointerId);
+  el.stage.classList.add("panning");
+});
+el.stage.addEventListener("pointermove", function (ev) {
+  if (!pan) return;
+  el.stage.scrollLeft = pan.l - (ev.clientX - pan.x);
+  el.stage.scrollTop = pan.t - (ev.clientY - pan.y);
+});
+["pointerup", "pointercancel"].forEach(function (e) {
+  el.stage.addEventListener(e, function () { pan = null; el.stage.classList.remove("panning"); });
+});
+el.stage.addEventListener("auxclick", function (ev) { if (ev.button === 1) ev.preventDefault(); });
+
+function fit() {
+  var box = el.stage.getBoundingClientRect();
+  view.zx = 1; view.zy = 1;
+  var r = build();
+  view.zx = clamp((box.width - 24) / r.width, S.zoomMin, S.zoomMax);
+  view.zy = clamp((box.height - 24) / r.height, S.zoomMin, S.zoomMax);
+  var r2 = build();
+  view.zy = clamp(view.zy * (box.height - 24) / r2.height, S.zoomMin, S.zoomMax);
+  draw();
+  el.stage.scrollLeft = 0; el.stage.scrollTop = 0;
+}
+
+window.addEventListener("keydown", function (ev) {
+  if ((ev.target.tagName || "").toLowerCase() === "input" && ev.target.type === "number") {
+    if (ev.key === "Escape") closeCfg();
+    return;
+  }
+  if (ev.key === "Escape") { closeCfg(); return; }
+  var plus = ev.key === "+" || ev.key === ";" || ev.key === "=";
+  var minus = ev.key === "-" || ev.key === "_";
+  if (ev.key === "0" && ev.ctrlKey) { ev.preventDefault(); view.zx = 1; view.zy = 1; draw(); return; }
+  if (ev.key === "f" || ev.key === "F") { ev.preventDefault(); fit(); return; }
+  if (!plus && !minus) return;
+  var f = plus ? S.zoomStep : 1 / S.zoomStep;
+  if (ev.ctrlKey) { ev.preventDefault(); zoomAt(f, f); }
+  else if (ev.shiftKey) { ev.preventDefault(); zoomAt(f, 1); }
+  else if (ev.altKey) { ev.preventDefault(); zoomAt(1, f); }
+});
+
+["tgDep", "tgOwner", "tgPct", "tgProgLine"].forEach(function (k) {
+  el[k].addEventListener("change", draw);
+});
+el.btnFit.addEventListener("click", fit);
+el.btnReset.addEventListener("click", function () { view.zx = 1; view.zy = 1; draw(); });
+
+// ---------------------------------------------------------------- settings popover
+function buildCfg() {
+  var groups = [], seen = {};
+  SPEC.forEach(function (sp) {
+    if (!seen[sp.g]) { seen[sp.g] = []; groups.push(sp.g); }
+    seen[sp.g].push(sp);
+  });
+  var h = [];
+  groups.forEach(function (g) {
+    h.push('<h3>' + esc(g) + '</h3><table>');
+    seen[g].forEach(function (sp) {
+      h.push('<tr><td class="lab">' + esc(sp.n) + '<code>' + esc(sp.k) + '</code></td>' +
+        '<td class="inp"><input type="number" data-k="' + esc(sp.k) + '" step="' + sp.step + '"></td>' +
+        '<td class="rng" data-r="' + esc(sp.k) + '"></td></tr>');
+    });
+    h.push('</table>');
+  });
+  h.push('<div class="note"><strong>範囲は他の設定に依存する。</strong>' +
+    'たとえば「予定の縦幅」の下限は <code>fontMin ÷ (actualOfPlan × fontOfActual)</code> なので、' +
+    '比率を変えると下限が動く。範囲を外れた値も<strong>入力はできる</strong> — ' +
+    '何が壊れるかを見るためである。外れている項目は赤で示す。</div>');
+  el.cfgBody.innerHTML = h.join("");
+  el.cfgBody.querySelectorAll("input[data-k]").forEach(function (inp) {
+    inp.addEventListener("input", function () {
+      var v = parseFloat(inp.value);
+      if (!isFinite(v)) return;
+      S[inp.dataset.k] = v;
+      syncCfg(); draw();
+    });
+  });
+  syncCfg();
+}
+
+function syncCfg() {
+  var r = ranges();
+  el.cfgBody.querySelectorAll("input[data-k]").forEach(function (inp) {
+    var k = inp.dataset.k, q = r[k];
+    if (document.activeElement !== inp) inp.value = Math.round(S[k] * 1000) / 1000;
+    inp.min = Math.round(q.lo * 1000) / 1000;
+    inp.max = Math.round(q.hi * 1000) / 1000;
+    var out = S[k] < q.lo - 1e-9 || S[k] > q.hi + 1e-9;
+    inp.classList.toggle("bad", out);
+    var cell = el.cfgBody.querySelector('[data-r="' + k + '"]');
+    cell.innerHTML = (out ? '<span class="err">範囲外 </span>' : "") +
+      Math.round(q.lo * 1000) / 1000 + " 〜 " + Math.round(q.hi * 1000) / 1000 +
+      (q.why ? ' <span class="why">' + esc(q.why) + "</span>" : "");
+  });
+}
+
+function openCfg() { el.cfg.classList.add("open"); el.btnCfg.setAttribute("aria-expanded", "true"); syncCfg(); }
+function closeCfg() { el.cfg.classList.remove("open"); el.btnCfg.setAttribute("aria-expanded", "false"); }
+
+el.btnCfg.addEventListener("click", function (ev) {
+  ev.stopPropagation();
+  if (el.cfg.classList.contains("open")) closeCfg(); else openCfg();
+});
+el.cfgDone.addEventListener("click", closeCfg);
+el.cfgDefault.addEventListener("click", function () {
+  SPEC.forEach(function (sp) { S[sp.k] = sp.d; });
+  syncCfg(); draw();
+});
+el.cfg.addEventListener("click", function (ev) { ev.stopPropagation(); });
+document.addEventListener("click", function () {
+  if (el.cfg.classList.contains("open")) closeCfg();
+});
+
+buildCfg();
+draw();
+el.stage.focus();
+
+window.__poc = { S: S, SPEC: SPEC, ranges: ranges, violations: violations, view: view,
+                 build: build, draw: draw, zoomAt: zoomAt, fit: fit, routeLink: routeLink,
+                 shapeMetrics: shapeMetrics, depRun: depRun,
+                 openCfg: openCfg, closeCfg: closeCfg, TASKS: TASKS, ROWS: ROWS };
+</script>
+</body>
+</html>
