@@ -1,0 +1,1555 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gr-scheduler PoC Layout B - 9-anchor candidate search</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: #f7f7f5; color: #14181c;
+    font-family: "Segoe UI", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    font-size: 12px;
+  }
+  #stage { display: block; width: calc(100vw - var(--side-w)); height: 100vh; cursor: grab; }
+  #stage.dragging { cursor: grabbing; }
+  .panel {
+    position: fixed; background: rgba(255,255,255,0.96);
+    border: 1px solid #b9bec4; border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.14); padding: 7px 9px;
+  }
+  #metrics { top: 8px; right: 8px; width: 232px; }
+  #metrics h2, .panel h2 {
+    margin: 0 0 5px 0; font-size: 12px; letter-spacing: .04em;
+    text-transform: uppercase; color: #47505a; font-weight: 700;
+  }
+  #metrics table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  #metrics td { padding: 1px 0; }
+  #metrics td.k { color: #47505a; }
+  #metrics td.v { text-align: right; font-variant-numeric: tabular-nums;
+                  font-family: Consolas, "Courier New", monospace; font-weight: 600; }
+  #metrics tr.bad td.v { color: #8a0f0f; }
+  #metrics tr.ok td.v  { color: #14561f; }
+  #why { top: 296px; right: 8px; width: 232px; max-height: 42vh; overflow: auto; }
+  #why .row { border-top: 1px dotted #c8ccd0; padding: 3px 0; font-size: 12px; }
+  #why .row:first-of-type { border-top: 0; }
+  #why code { font-family: Consolas, "Courier New", monospace; font-size: 12px; }
+  #controls { left: 8px; bottom: 8px; width: 268px; }
+  #controls .ctl { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
+  #controls .ctl label { width: 118px; color: #303840; }
+  #controls .ctl input[type=range] { flex: 1; min-width: 0; }
+  #controls .ctl output {
+    width: 40px; text-align: right; font-variant-numeric: tabular-nums;
+    font-family: Consolas, "Courier New", monospace; font-weight: 600;
+  }
+  #controls hr { border: 0; border-top: 1px solid #d5d9dd; margin: 6px 0 4px; }
+  #controls .btns { display: flex; gap: 6px; margin-top: 6px; }
+  button {
+    font: inherit; padding: 3px 10px; border: 1px solid #8d949b;
+    background: #fff; border-radius: 4px; cursor: pointer;
+  }
+  button:hover { background: #eceef0; }
+  #legend { right: 8px; bottom: 8px; width: 268px; }
+  #legend .lg { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
+  #legend .lg span { color: #303840; }
+  #legend svg { flex: none; }
+  #hint { left: 8px; top: 8px; max-width: 430px; color: #303840; cursor: pointer; }
+  #hint b { color: #14181c; }
+  #hint .body { display: block; }
+  #hint.mini .body { display: none; }
+  #hint .tag { font-size: 12px; color: #6b747d; }
+  #warn {
+    left: 8px; top: 64px; display: none; border-color: #8a0f0f;
+    color: #8a0f0f; font-weight: 700;
+  }
+
+  /* --------------------------------------------------------------------
+     Review overlay column (presentation only; no algorithm is touched).
+     Every floating panel is stacked in ONE fixed right-hand column, so no
+     panel can overlap another one or cover the drawing area.
+     -------------------------------------------------------------------- */
+  html { --side-w: 300px; }
+  html.side-collapsed { --side-w: 0px; }
+  #sidebar {
+    box-sizing: border-box;
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: 300px; max-height: 100vh;
+    overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+    padding: 8px; z-index: 60;
+  }
+  #sidebar > *:not(#sideToggleWrap) {
+    position: static; top: auto; right: auto; bottom: auto; left: auto;
+    width: 100%; max-width: 100%; min-width: 0; margin: 0;
+    flex: 0 0 auto; transform: none;
+  }
+  #sidebar #controls .ctl label { width: 106px; }
+  #sideToggleWrap { flex: 0 0 auto; align-self: flex-end; }
+  #sideToggle {
+    font: inherit; font-size: 12px; line-height: 1.4; padding: 2px 8px;
+    border: 1px solid #8d949b; border-radius: 4px;
+    background: #fff; color: #14181c; cursor: pointer;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.20);
+  }
+  #sideToggle:hover { background: #eceef0; }
+  html.side-collapsed #sidebar {
+    width: auto; bottom: auto; overflow: visible; padding: 6px;
+  }
+  html.side-collapsed #sidebar > *:not(#sideToggleWrap) { display: none !important; }
+</style>
+</head>
+<body>
+<svg id="stage" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<div id="sidebar">
+  <div id="sideToggleWrap"><button id="sideToggle" type="button" aria-expanded="true">パネル</button></div>
+
+<div id="hint" class="panel">
+  <b>案 B: 9 点アンカーの候補探索 + コスト関数</b> <span class="tag">(クリックで開閉)</span>
+  <div class="body">
+  各依存線について「出口アンカー x 入口アンカー x 折れ点 0-3」を全列挙し、重み付きコストが
+  最小の経路を選ぶ。探索空間は 12x12 の (アンカー,方向) 対 x 折れ形状。重みは左下のスライダーで
+  調整でき、枝刈りは厳密なので重みが同じなら結果は必ず同じになる。<br>
+  タスクを<b>クリック</b>すると 9 点アンカーと採用アンカー、選定理由が右に出る。<br>
+  横ズーム = Ctrl+ホイール / 縦ズーム = Shift+ホイール / パン = ドラッグ・ホイール / Fit = F
+  </div>
+</div>
+<div id="warn" class="panel">安全弁に到達: 段数が上限を超えた</div>
+
+<div id="metrics" class="panel">
+  <h2>metrics</h2>
+  <table id="mtable"></table>
+</div>
+
+<div id="why" class="panel" style="display:none">
+  <h2>why this route</h2>
+  <div id="whybody"></div>
+</div>
+
+<div id="controls" class="panel">
+  <h2>zoom / cost weights</h2>
+  <div class="ctl"><label>横ズーム px/day</label><input id="s-ppd" type="range" min="1" max="40" step="0.5"><output id="o-ppd"></output></div>
+  <div class="ctl"><label>縦ズーム</label><input id="s-vz" type="range" min="0.5" max="3" step="0.05"><output id="o-vz"></output></div>
+  <hr>
+  <div class="ctl"><label>w1 タスク横断</label><input id="s-w1" type="range" min="0" max="60" step="0.5"><output id="o-w1"></output></div>
+  <div class="ctl"><label>w2 線の交差</label><input id="s-w2" type="range" min="0" max="60" step="0.5"><output id="o-w2"></output></div>
+  <div class="ctl"><label>w3 折れ点</label><input id="s-w3" type="range" min="0" max="60" step="0.5"><output id="o-w3"></output></div>
+  <div class="ctl"><label>w4 長さ(正規化)</label><input id="s-w4" type="range" min="0" max="60" step="0.5"><output id="o-w4"></output></div>
+  <div class="ctl"><label>w5 意味の不一致</label><input id="s-w5" type="range" min="0" max="60" step="0.5"><output id="o-w5"></output></div>
+  <div class="btns">
+    <button id="b-fit">Fit (F)</button>
+    <button id="b-reset">重みを既定へ</button>
+  </div>
+</div>
+
+<div id="legend" class="panel">
+  <h2>legend</h2>
+  <div id="legendbody"></div>
+</div>
+</div>
+
+<script>
+'use strict';
+
+// ---------------------------------------------------------------------------
+// Shared PoC data. Copy verbatim. Do not modify.
+// ---------------------------------------------------------------------------
+
+/** Deterministic LCG so every PoC renders byte-identical input. */
+function makeRng(seed) {
+  var s = seed >>> 0;
+  return function () {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+var SHAPE_KINDS = ['bar', 'chevron', 'arrow', 'endpointSpan'];
+
+/**
+ * Layout stress cases. Each case becomes ONE TaskGroup (= one row).
+ * t: [name, startDay, finishDay, shapeKind, milestone]
+ * d: [fromIndex, toIndex, linkType]  (indices are local to the case)
+ */
+var LAYOUT_CASES = [
+  { title: '1. 直列 FS 3 本',
+    t: [['A', 0, 20, 'bar', false], ['B', 24, 44, 'bar', false], ['C', 48, 68, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS']] },
+
+  { title: '2. 逆行依存（右から左へ）',
+    t: [['A', 60, 80, 'bar', false], ['B', 10, 30, 'bar', false], ['C', 100, 120, 'bar', false]],
+    d: [[0, 1, 'FS'], [2, 0, 'FS']] },
+
+  { title: '3. 同一行内で交差する 2 本',
+    t: [['A', 0, 24, 'bar', false], ['B', 30, 54, 'bar', false],
+        ['C', 60, 84, 'bar', false], ['D', 90, 114, 'bar', false]],
+    d: [[0, 2, 'FS'], [1, 3, 'FS']] },
+
+  { title: '4. 1 対 4 の扇形（出）',
+    t: [['SRC', 0, 20, 'chevron', false], ['A', 30, 46, 'bar', false], ['B', 50, 66, 'bar', false],
+        ['C', 70, 86, 'bar', false], ['D', 90, 106, 'bar', false]],
+    d: [[0, 1, 'FS'], [0, 2, 'FS'], [0, 3, 'FS'], [0, 4, 'FS']] },
+
+  { title: '5. 4 対 1 の扇形（入）',
+    t: [['A', 0, 16, 'bar', false], ['B', 20, 36, 'bar', false], ['C', 40, 56, 'bar', false],
+        ['D', 60, 76, 'bar', false], ['DST', 90, 110, 'chevron', false]],
+    d: [[0, 4, 'FS'], [1, 4, 'FS'], [2, 4, 'FS'], [3, 4, 'FS']] },
+
+  { title: '6. 完全結合（4 タスク 6 本）',
+    t: [['A', 0, 20, 'bar', false], ['B', 26, 46, 'bar', false],
+        ['C', 52, 72, 'bar', false], ['D', 78, 98, 'bar', false]],
+    d: [[0, 1, 'FS'], [0, 2, 'FS'], [0, 3, 'FS'], [1, 2, 'FS'], [1, 3, 'FS'], [2, 3, 'FS']] },
+
+  { title: '7. 3 段に積まれた行を跨ぐ依存',
+    t: [['A', 0, 60, 'bar', false], ['B', 10, 70, 'bar', false], ['C', 20, 80, 'bar', false],
+        ['D', 90, 110, 'bar', false]],
+    d: [[0, 3, 'FS'], [1, 3, 'FS'], [2, 3, 'FS'], [0, 1, 'SS'], [1, 2, 'SS']] },
+
+  { title: '8. マイルストーンへ集約',
+    t: [['A', 0, 24, 'bar', false], ['B', 12, 40, 'bar', false], ['C', 28, 56, 'bar', false],
+        ['M', 62, 62, 'milestone', true]],
+    d: [[0, 3, 'FS'], [1, 3, 'FS'], [2, 3, 'FS']] },
+
+  { title: '9. 同一開始日の 5 タスク',
+    t: [['A', 20, 44, 'bar', false], ['B', 20, 40, 'bar', false], ['C', 20, 36, 'bar', false],
+        ['D', 20, 32, 'bar', false], ['E', 20, 28, 'bar', false]],
+    d: [[4, 0, 'SS'], [3, 0, 'SS'], [2, 0, 'SS'], [1, 0, 'SS']] },
+
+  { title: '10. 隣接（finish == start）',
+    t: [['A', 0, 30, 'bar', false], ['B', 30, 60, 'bar', false],
+        ['C', 60, 90, 'bar', false], ['D', 90, 120, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS'], [2, 3, 'FS']] },
+
+  { title: '11. 長い名称がはみ出す',
+    t: [['要件定義と外部仕様の確定', 0, 12, 'bar', false],
+        ['詳細設計レビューの反映', 18, 30, 'bar', false],
+        ['結合検証と是正', 36, 48, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS']] },
+
+  { title: '12. 幅がない形状種の混在',
+    t: [['A', 0, 26, 'arrow', false], ['B', 32, 58, 'endpointSpan', false],
+        ['C', 64, 90, 'chevron', false], ['M', 96, 96, 'milestone', true]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS'], [2, 3, 'FS'], [0, 2, 'FS']] },
+
+  { title: '13. 予実＋進捗マーカー付きで配線',
+    t: [['A', 0, 30, 'bar', false], ['B', 36, 66, 'bar', false],
+        ['C', 72, 102, 'chevron', false], ['D', 40, 100, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS'], [0, 3, 'SS'], [3, 2, 'FF']] },
+
+  { title: '14. 密集（12 タスク・交差多数）',
+    t: [['a', 0, 10, 'bar', false], ['b', 8, 20, 'bar', false], ['c', 16, 28, 'bar', false],
+        ['d', 24, 36, 'bar', false], ['e', 32, 44, 'bar', false], ['f', 40, 52, 'bar', false],
+        ['g', 48, 60, 'bar', false], ['h', 56, 68, 'bar', false], ['i', 64, 76, 'bar', false],
+        ['j', 72, 84, 'bar', false], ['k', 80, 92, 'bar', false], ['l', 88, 100, 'bar', false]],
+    d: [[0, 3, 'FS'], [1, 5, 'FS'], [2, 7, 'FS'], [3, 9, 'FS'], [4, 11, 'FS'],
+        [0, 11, 'FS'], [6, 8, 'FS'], [8, 10, 'FS'], [5, 9, 'FS'], [7, 11, 'FS']] },
+
+  { title: '15. 行を跨ぐ依存の受け口',
+    t: [['X', 0, 24, 'bar', false], ['Y', 40, 64, 'bar', false], ['Z', 80, 104, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS']] }
+];
+
+/** Cross-row links, given as [caseIndex, taskIndex] pairs. Exercise vertical routing. */
+var CROSS_ROW_LINKS = [
+  [[0, 2], [2, 0], 'FS'], [[3, 4], [5, 0], 'FS'], [[7, 3], [9, 0], 'FS'],
+  [[5, 3], [13, 0], 'FS'], [[9, 3], [14, 0], 'FS'], [[11, 3], [14, 1], 'FS'],
+  [[13, 2], [14, 2], 'FS'], [[1, 2], [6, 0], 'FS'], [[6, 3], [12, 0], 'FS']
+];
+
+/** Build the layout-stress dataset: one TaskGroup per case. */
+function buildLayoutDataset() {
+  var tasks = [], groups = [], links = [], uid = 1, idx = [];
+  for (var c = 0; c < LAYOUT_CASES.length; c++) {
+    var kase = LAYOUT_CASES[c], memberUids = [], local = [];
+    for (var i = 0; i < kase.t.length; i++) {
+      var row = kase.t[i];
+      var dur = row[2] - row[1];
+      var actualDur = Math.max(0, Math.round(dur * (0.3 + 0.5 * ((c + i) % 5) / 4)));
+      tasks.push({
+        uid: uid, name: row[0], groupId: 'G' + c,
+        startDay: row[1], finishDay: row[2],
+        milestone: row[4], shapeKind: row[3],
+        wbsParentUid: null, wbsDepth: 1 + (i % 3),
+        actualStartDay: row[1], actualDurationDays: actualDur,
+        actualFinishDay: null,
+        percentComplete: dur === 0 ? 0 : Math.min(100, Math.round((actualDur / dur) * 100)),
+        stackOrder: null
+      });
+      memberUids.push(uid); local.push(uid); uid++;
+    }
+    idx.push(local);
+    groups.push({ id: 'G' + c, title: kase.title, memberUids: memberUids });
+    for (var k = 0; k < kase.d.length; k++) {
+      links.push({ fromUid: local[kase.d[k][0]], toUid: local[kase.d[k][1]], linkType: kase.d[k][2] });
+    }
+  }
+  for (var x = 0; x < CROSS_ROW_LINKS.length; x++) {
+    var a = CROSS_ROW_LINKS[x][0], b = CROSS_ROW_LINKS[x][1];
+    links.push({ fromUid: idx[a[0]][a[1]], toUid: idx[b[0]][b[1]], linkType: CROSS_ROW_LINKS[x][2] });
+  }
+  return { tasks: tasks, groups: groups, links: links };
+}
+
+/**
+ * Build the zoom dataset: a large project with a 5-level WBS.
+ * Level fan-out 5 / 4 / 3 / 2 / 2 -> 5 + 20 + 60 + 120 + 240 = 445 tasks.
+ * Rows (TaskGroup) are the level-2 nodes, so 20 rows carry every leaf.
+ */
+function buildZoomDataset() {
+  var rng = makeRng(20260730);
+  var tasks = [], groups = [], links = [], uid = 1;
+  var HORIZON = 720;                       // project spans 720 days
+  var FANOUT = [5, 4, 3, 2, 2];
+  var byDepth = [[], [], [], [], [], []];
+
+  function make(depth, parentUid, s, f, label) {
+    var t = {
+      uid: uid++, name: label, groupId: null,
+      startDay: s, finishDay: f, milestone: false, shapeKind: 'bar',
+      wbsParentUid: parentUid, wbsDepth: depth,
+      actualStartDay: s, actualDurationDays: Math.round((f - s) * (0.2 + rng() * 0.7)),
+      actualFinishDay: null, percentComplete: 0, stackOrder: null
+    };
+    var dur = f - s;
+    t.percentComplete = dur === 0 ? 0 : Math.min(100, Math.round(t.actualDurationDays / dur * 100));
+    tasks.push(t); byDepth[depth].push(t);
+    return t;
+  }
+
+  function split(node, depth) {
+    if (depth > 5) return;
+    var n = FANOUT[depth - 1];
+    var span = node.finishDay - node.startDay;
+    var seg = span / n;
+    for (var i = 0; i < n; i++) {
+      var s = Math.round(node.startDay + seg * i + seg * 0.05 * rng());
+      var f = Math.round(node.startDay + seg * (i + 1) - seg * 0.10 * rng());
+      if (f <= s) f = s + 1;
+      var child = make(depth, node.uid, s, f, 'L' + depth + '-' + uid);
+      split(child, depth + 1);
+    }
+  }
+
+  for (var p = 0; p < FANOUT[0]; p++) {
+    var s0 = Math.round(HORIZON / FANOUT[0] * p);
+    var f0 = Math.round(HORIZON / FANOUT[0] * (p + 1)) - 4;
+    var root = make(1, null, s0, f0, 'L1-' + (p + 1));
+    split(root, 2);
+  }
+
+  // Rows: every depth-2 node becomes a TaskGroup holding its whole subtree.
+  var byUid = {};
+  for (var q = 0; q < tasks.length; q++) byUid[tasks[q].uid] = tasks[q];
+  function rootGroupOf(t) {
+    var cur = t;
+    while (cur.wbsDepth > 2 && cur.wbsParentUid != null) cur = byUid[cur.wbsParentUid];
+    return cur.wbsDepth === 2 ? cur.uid : null;
+  }
+  var groupMap = {};
+  for (var r = 0; r < tasks.length; r++) {
+    var g = rootGroupOf(tasks[r]);
+    if (g == null) { tasks[r].groupId = 'ROOT'; continue; }
+    tasks[r].groupId = 'G' + g;
+    if (!groupMap['G' + g]) groupMap['G' + g] = { id: 'G' + g, title: byUid[g].name, memberUids: [] };
+    groupMap['G' + g].memberUids.push(tasks[r].uid);
+  }
+  var rootGroup = { id: 'ROOT', title: 'L1', memberUids: [] };
+  for (var r2 = 0; r2 < tasks.length; r2++) {
+    if (tasks[r2].groupId === 'ROOT') rootGroup.memberUids.push(tasks[r2].uid);
+  }
+  groups.push(rootGroup);
+  for (var key in groupMap) if (groupMap.hasOwnProperty(key)) groups.push(groupMap[key]);
+
+  // Links: chain siblings at every depth (FS), plus a few long-range ones.
+  for (var d = 1; d <= 5; d++) {
+    var lvl = byDepth[d];
+    for (var i2 = 1; i2 < lvl.length; i2++) {
+      if (lvl[i2].wbsParentUid === lvl[i2 - 1].wbsParentUid) {
+        links.push({ fromUid: lvl[i2 - 1].uid, toUid: lvl[i2].uid, linkType: 'FS' });
+      }
+    }
+  }
+  for (var j = 0; j < 40; j++) {
+    var a2 = tasks[Math.floor(rng() * tasks.length)], b2 = tasks[Math.floor(rng() * tasks.length)];
+    if (a2.uid !== b2.uid && a2.finishDay <= b2.startDay) {
+      links.push({ fromUid: a2.uid, toUid: b2.uid, linkType: 'FS' });
+    }
+  }
+  return { tasks: tasks, groups: groups, links: links };
+}
+
+// ===========================================================================
+// Variant B: 9-anchor candidate enumeration scored by a weighted cost function
+// ===========================================================================
+
+// --- geometry constants at vertical zoom 1.0 -------------------------------
+var B = {
+  PLAN_H: 18,        // plan bar height (taller than the actual bar)
+  ACT_H: 8,          // actual bar height
+  BELOW_GAP: 2,      // gap between plan shape and the reserved actual band
+  LANE_H: 13,        // gap between stack levels == exactly one routing lane
+  ROW_GAP: 11,       // gap between TaskGroup rows
+  GUTTER: 148,       // fixed left column holding row titles
+  PAD_LEFT: 14,      // padding between gutter and day 0
+  PAD_RIGHT: 60,
+  RULER_H: 26,
+  MARKER_PX: 12,     // progress marker: fixed pixel size, never zoomed
+  MARKER_GAP: 4,     // fixed 4px from the actual bar right edge
+  MIN_GAP_PX: 12,    // geometric minimum gap demanded by a dependency
+  TASK_GAP_PX: 6,    // breathing space between two tasks on the same level
+  STUB: 9,           // stub length used when generating candidate routes
+  SAFETY_CAP: 24,    // safety valve only; the last level is NEVER reused
+  LABEL_UNITS: 24,   // truncation budget: 12 fullwidth == 24 halfwidth
+  FONT_MIN: 10,
+  TODAY: 60          // status date used to derive the progress marker glyph
+};
+
+var DEFAULT_W = { w1: 30, w2: 8, w3: 2.5, w4: 6, w5: 4 };
+var W = { w1: DEFAULT_W.w1, w2: DEFAULT_W.w2, w3: DEFAULT_W.w3, w4: DEFAULT_W.w4, w5: DEFAULT_W.w5 };
+
+var view = { ppd: 11, vz: 1, scrollX: 0, scrollY: 0 };
+
+var DATA = buildLayoutDataset();
+var G = { tasks: DATA.tasks, groups: DATA.groups, links: DATA.links, byUid: {}, minDay: 0, maxDay: 1 };
+(function initIndex() {
+  var i;
+  for (i = 0; i < G.tasks.length; i++) G.byUid[G.tasks[i].uid] = G.tasks[i];
+  var lo = Infinity, hi = -Infinity;
+  for (i = 0; i < G.tasks.length; i++) {
+    var t = G.tasks[i];
+    lo = Math.min(lo, t.startDay, t.actualStartDay);
+    hi = Math.max(hi, t.finishDay, t.actualStartDay + t.actualDurationDays);
+  }
+  G.minDay = lo; G.maxDay = hi;
+}());
+
+var L = { geom: {}, rows: [], rects: [], totalH: 0, worldW: 0, capHit: false, fontSize: 12,
+          planH: 18, actH: 8, slotH: 28, laneH: 13 };
+var ROUTES = [];
+var M = {};
+var selectedUid = null;
+
+// --- small helpers ---------------------------------------------------------
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function sgn(v) { return v > 0 ? 1 : (v < 0 ? -1 : 0); }
+function r1(v) { return Math.round(v * 10) / 10; }
+
+/** Rough character width class: no measurement, no cache (spec 3-3). */
+function isFullWidth(code) {
+  if (code >= 0xFF61 && code <= 0xFF9F) return false;   // halfwidth kana
+  return code >= 0x1100;
+}
+function textUnits(s) {
+  var u = 0;
+  for (var i = 0; i < s.length; i++) u += isFullWidth(s.charCodeAt(i)) ? 2 : 1;
+  return u;
+}
+/** Approximate label width: (fullwidth*2 + halfwidth*1) * fontSize / 2. */
+function labelWidth(s, fontSize) { return textUnits(s) * fontSize / 2; }
+function truncateUnits(s, maxUnits) {
+  var u = 0, out = '';
+  for (var i = 0; i < s.length; i++) {
+    var w = isFullWidth(s.charCodeAt(i)) ? 2 : 1;
+    if (u + w > maxUnits) return out + '…';
+    u += w; out += s.charAt(i);
+  }
+  return out;
+}
+
+function dayX(day) { return B.GUTTER + B.PAD_LEFT + (day - G.minDay) * view.ppd; }
+function isWidthless(t) {
+  return t.shapeKind === 'arrow' || t.shapeKind === 'endpointSpan' || t.shapeKind === 'milestone' || t.milestone;
+}
+function actualEndDay(t) { return t.actualStartDay + t.actualDurationDays; }
+
+/** Progress marker glyph kind, derived deterministically from the task data. */
+function markerKind(t) {
+  if (t.percentComplete >= 100) return 'done';
+  var ae = actualEndDay(t);
+  if (ae < B.TODAY && t.startDay < B.TODAY) return 'overdue';
+  if (t.uid % 9 === 0) return 'suspended';
+  return 'incomplete';
+}
+
+// ===========================================================================
+// Spec 3-2 step 1..3 : constraints -> label widths -> stack assignment
+// ===========================================================================
+
+function computeLayout() {
+  var vz = view.vz;
+  var planH = B.PLAN_H * vz;
+  var actH = B.ACT_H * vz;
+  var belowGap = B.BELOW_GAP * vz;
+  var laneH = B.LANE_H * vz;
+  var slotH = planH + belowGap + actH;
+  var pitch = slotH + laneH;
+  var rowPad = 0.22 * pitch;                 // <= 25% of one stack level (spec 5)
+  var fontSize = Math.max(B.FONT_MIN, planH * 0.8);
+  var geom = {}, i, t;
+
+  // --- step 0: raw horizontal geometry (world px, scroll independent) ------
+  for (i = 0; i < G.tasks.length; i++) {
+    t = G.tasks[i];
+    var g = {};
+    g.below = isWidthless(t);
+    if (t.milestone || t.shapeKind === 'milestone') {
+      var cx = dayX(t.startDay);
+      g.x1 = cx - planH / 2; g.x2 = cx + planH / 2;
+    } else {
+      g.x1 = dayX(t.startDay); g.x2 = dayX(t.finishDay);
+      if (g.x2 - g.x1 < 3) g.x2 = g.x1 + 3;
+    }
+    g.aX1 = dayX(t.actualStartDay);
+    g.aX2 = dayX(actualEndDay(t));
+    g.markerX = g.aX2 + B.MARKER_GAP;               // fixed 4px from actual right edge
+    g.markerRight = g.markerX + B.MARKER_PX;        // fixed pixel size, part of the width
+    g.geomL = Math.min(g.x1, g.aX1);
+    g.geomR = Math.max(g.x2, g.aX2, g.markerRight); // progress marker counts as occupied
+    geom[t.uid] = g;
+  }
+
+  // --- step 1: minimum-gap constraints from the dependencies (NO routing) --
+  // A dependency needs geometric room for the line to leave and enter. When two
+  // linked tasks in the same row are closer than MIN_GAP_PX they are forbidden
+  // from sharing a stack level. finish == start (case 10) always lands here.
+  var conflict = {};
+  function addConflict(a, b) {
+    (conflict[a] || (conflict[a] = {}))[b] = 1;
+    (conflict[b] || (conflict[b] = {}))[a] = 1;
+  }
+  var constraints = 0;
+  for (i = 0; i < G.links.length; i++) {
+    var lk = G.links[i];
+    var ta = G.byUid[lk.fromUid], tb = G.byUid[lk.toUid];
+    if (!ta || !tb || ta.groupId !== tb.groupId) continue;
+    var ga = geom[ta.uid], gb = geom[tb.uid];
+    var gap = (gb.geomL >= ga.geomR) ? (gb.geomL - ga.geomR)
+            : (ga.geomL >= gb.geomR) ? (ga.geomL - gb.geomR) : -1;
+    if (gap < B.MIN_GAP_PX) { addConflict(ta.uid, tb.uid); constraints++; }
+  }
+
+  // --- step 2: label widths (approximation only, spec 3-3) ----------------
+  for (i = 0; i < G.tasks.length; i++) {
+    t = G.tasks[i];
+    var gg = geom[t.uid];
+    var inner = (gg.x2 - gg.x1) - 6;
+    var full = labelWidth(t.name, fontSize);
+    if (full <= inner) {
+      gg.labelText = t.name; gg.labelOut = false; gg.labelW = full;
+    } else {
+      var cut = truncateUnits(t.name, B.LABEL_UNITS);
+      var cw = labelWidth(cut, fontSize);
+      if (cw <= inner) { gg.labelText = cut; gg.labelOut = false; gg.labelW = cw; }
+      else { gg.labelText = cut; gg.labelOut = true; gg.labelW = cw; }
+    }
+    gg.occL = gg.geomL;
+    gg.occR = gg.geomR + (gg.labelOut ? 4 + gg.labelW : 0);
+  }
+
+  // --- step 3: stack assignment (greedy, deterministic, never reuse last) --
+  var rows = [], y = B.RULER_H + 8, maxStack = 0, capHit = false;
+  for (i = 0; i < G.groups.length; i++) {
+    var grp = G.groups[i];
+    var members = grp.memberUids.slice();
+    members.sort(function (a, bb) {
+      var x = G.byUid[a], yy = G.byUid[bb];
+      var mx = x.milestone ? 0 : 1, my = yy.milestone ? 0 : 1;
+      if (mx !== my) return mx - my;                    // milestones to the top level
+      if (x.startDay !== yy.startDay) return x.startDay - yy.startDay;
+      if (x.finishDay !== yy.finishDay) return yy.finishDay - x.finishDay;
+      return x.uid - yy.uid;
+    });
+    var levels = [];
+    for (var m = 0; m < members.length; m++) {
+      var uid = members[m], gu = geom[uid], lv = 0;
+      for (;;) {
+        if (lv >= levels.length) { levels.push([]); break; }
+        var ok = true, bucket = levels[lv];
+        for (var k = 0; k < bucket.length; k++) {
+          var go = geom[bucket[k]];
+          if (gu.occL < go.occR + B.TASK_GAP_PX && go.occL < gu.occR + B.TASK_GAP_PX) { ok = false; break; }
+          if (conflict[uid] && conflict[uid][bucket[k]]) { ok = false; break; }
+        }
+        if (ok) break;
+        lv++;
+      }
+      levels[lv].push(uid);
+      G.byUid[uid].stackOrder = lv;
+      gu.level = lv;
+      if (lv + 1 > B.SAFETY_CAP) capHit = true;
+    }
+    var rowH = rowPad * 2 + levels.length * slotH + Math.max(0, levels.length - 1) * laneH;
+    var row = { id: grp.id, title: grp.title, top: y, height: rowH, levels: levels.length, members: members };
+    rows.push(row);
+    for (var m2 = 0; m2 < members.length; m2++) {
+      var gm = geom[members[m2]];
+      gm.top = y + rowPad + gm.level * (slotH + laneH);
+      gm.planTop = gm.top;
+      gm.planBot = gm.top + planH;
+      gm.slotBot = gm.top + slotH;
+      gm.row = rows.length - 1;
+    }
+    maxStack = Math.max(maxStack, levels.length);
+    y += rowH + B.ROW_GAP;
+  }
+
+  // --- collect plan-shape rectangles used by the router --------------------
+  var rects = [];
+  for (i = 0; i < G.tasks.length; i++) {
+    t = G.tasks[i]; var gr = geom[t.uid];
+    rects.push({ uid: t.uid, x: gr.x1, y: gr.planTop, w: gr.x2 - gr.x1, h: planH,
+                 x2: gr.x2, y2: gr.planTop + planH });
+  }
+
+  L.geom = geom; L.rows = rows; L.rects = rects;
+  L.totalH = y; L.planH = planH; L.actH = actH; L.slotH = slotH; L.laneH = laneH;
+  L.belowGap = belowGap; L.rowPad = rowPad; L.pitch = pitch;
+  L.fontSize = fontSize; L.maxStack = maxStack; L.capHit = capHit; L.constraints = constraints;
+  L.worldW = dayX(G.maxDay) + B.PAD_RIGHT;
+}
+
+// ===========================================================================
+// Spec 3-2 step 4 : routing -- 9-anchor candidate search with a cost function
+// ===========================================================================
+
+var ANCHOR_NAMES = ['TL', 'TC', 'TR', 'ML', 'MC', 'MR', 'BL', 'BC', 'BR'];
+
+/** The 9 anchor points of a rectangle: corners, edge midpoints, centre. */
+function anchorsOf(r) {
+  var xs = [r.x, r.x + r.w / 2, r.x + r.w];
+  var ys = [r.y, r.y + r.h / 2, r.y + r.h];
+  var out = [];
+  for (var row = 0; row < 3; row++) {
+    for (var col = 0; col < 3; col++) {
+      out.push({ x: xs[col], y: ys[row], col: col, row: row, i: row * 3 + col });
+    }
+  }
+  return out;
+}
+
+/**
+ * Legal outward directions of an anchor. The centre anchor (MC) is part of the
+ * 9-point set but is not a legal route endpoint: any route from it would start
+ * inside its own rectangle. Edges give 1 direction, corners give 2 -> 12 legal
+ * (anchor, direction) options per rectangle.
+ */
+var DIRS = (function () {
+  var tbl = [];
+  for (var i = 0; i < 9; i++) {
+    var col = i % 3, row = (i / 3) | 0, d = [];
+    if (!(col === 1 && row === 1)) {
+      if (col === 0) d.push({ x: -1, y: 0 });
+      if (col === 2) d.push({ x: 1, y: 0 });
+      if (row === 0) d.push({ x: 0, y: -1 });
+      if (row === 2) d.push({ x: 0, y: 1 });
+    }
+    tbl.push(d);
+  }
+  return tbl;
+}());
+function dirsOf(a) { return DIRS[a.i]; }
+
+/** Drop duplicate and collinear points so the bend count is honest. */
+function cleanPts(p) {
+  var o = [p[0]], i;
+  for (i = 1; i < p.length; i++) {
+    var q = p[i], last = o[o.length - 1];
+    if (Math.abs(q.x - last.x) < 0.02 && Math.abs(q.y - last.y) < 0.02) continue;
+    o.push(q);
+  }
+  if (o.length < 2) return null;
+  var r = [o[0]];
+  for (i = 1; i < o.length - 1; i++) {
+    var a = r[r.length - 1], b = o[i], c = o[i + 1];
+    var col = (Math.abs(a.x - b.x) < 0.02 && Math.abs(b.x - c.x) < 0.02) ||
+              (Math.abs(a.y - b.y) < 0.02 && Math.abs(b.y - c.y) < 0.02);
+    if (!col) r.push(b);
+  }
+  r.push(o[o.length - 1]);
+  return r;
+}
+
+/**
+ * Enumerate orthogonal polylines from E (leaving along u) to A (arriving along v).
+ * An alternating orthogonal path has an odd segment count when both ends share
+ * an axis (bends 0 / 2) and an even count when they do not (bends 1 / 3), so the
+ * four requested bend classes are covered exactly:
+ *   0 = straight, 1 = single elbow, 2 = Z / U shape, 3 = staircase.
+ */
+function buildRoutes(E, u, A, v, out) {
+  var s = B.STUB, i, j;
+  var uH = u.x !== 0, vH = v.x !== 0;
+
+  if (uH === vH) {
+    if (uH) {
+      // ---- 0 bends: straight horizontal run --------------------------------
+      if (Math.abs(E.y - A.y) < 0.6 && u.x === v.x &&
+          sgn(A.x - E.x) === u.x && Math.abs(A.x - E.x) > 1) {
+        out.push([{ x: E.x, y: E.y }, { x: A.x, y: A.y }]);
+      }
+      // ---- 2 bends: H, V, H (Z when directions agree, U when opposed) ------
+      var mxs = [];
+      if (u.x === v.x) {
+        if ((A.x - E.x) * u.x > 2 * s) {
+          mxs.push((E.x + A.x) / 2, E.x + u.x * s, A.x - v.x * s);
+        }
+      } else if (u.x > 0) {
+        var mr = Math.max(E.x, A.x); mxs.push(mr + s, mr + 2.4 * s);
+      } else {
+        var ml = Math.min(E.x, A.x); mxs.push(ml - s, ml - 2.4 * s);
+      }
+      for (i = 0; i < mxs.length; i++) {
+        var mx = mxs[i];
+        if (sgn(mx - E.x) !== u.x) continue;
+        if (sgn(A.x - mx) !== v.x) continue;
+        if (Math.abs(E.y - A.y) < 0.6) continue;   // would collapse to the 0-bend case
+        out.push([{ x: E.x, y: E.y }, { x: mx, y: E.y }, { x: mx, y: A.y }, { x: A.x, y: A.y }]);
+      }
+    } else {
+      // ---- vertical twin of the block above --------------------------------
+      if (Math.abs(E.x - A.x) < 0.6 && u.y === v.y &&
+          sgn(A.y - E.y) === u.y && Math.abs(A.y - E.y) > 1) {
+        out.push([{ x: E.x, y: E.y }, { x: A.x, y: A.y }]);
+      }
+      var mys = [];
+      if (u.y === v.y) {
+        if ((A.y - E.y) * u.y > 2 * s) {
+          mys.push((E.y + A.y) / 2, E.y + u.y * s, A.y - v.y * s);
+        }
+      } else if (u.y > 0) {
+        var mb = Math.max(E.y, A.y); mys.push(mb + s, mb + 2.4 * s);
+      } else {
+        var mt = Math.min(E.y, A.y); mys.push(mt - s, mt - 2.4 * s);
+      }
+      for (i = 0; i < mys.length; i++) {
+        var my = mys[i];
+        if (sgn(my - E.y) !== u.y) continue;
+        if (sgn(A.y - my) !== v.y) continue;
+        if (Math.abs(E.x - A.x) < 0.6) continue;
+        out.push([{ x: E.x, y: E.y }, { x: E.x, y: my }, { x: A.x, y: my }, { x: A.x, y: A.y }]);
+      }
+    }
+    return;
+  }
+
+  // ---- 1 bend: single elbow ------------------------------------------------
+  if (uH) {
+    if (sgn(A.x - E.x) === u.x && sgn(A.y - E.y) === v.y) {
+      out.push([{ x: E.x, y: E.y }, { x: A.x, y: E.y }, { x: A.x, y: A.y }]);
+    }
+    // ---- 3 bends: staircase H, V, H, V ------------------------------------
+    var xs = [E.x + u.x * s, E.x + u.x * s * 3];
+    var ys = [A.y - v.y * s, (E.y + A.y) / 2];
+    for (i = 0; i < xs.length; i++) {
+      for (j = 0; j < ys.length; j++) {
+        var x1 = xs[i], y1 = ys[j];
+        if (Math.abs(y1 - E.y) < 0.6) continue;
+        if (Math.abs(A.x - x1) < 0.6) continue;
+        if (sgn(A.y - y1) !== v.y) continue;
+        out.push([{ x: E.x, y: E.y }, { x: x1, y: E.y }, { x: x1, y: y1 },
+                  { x: A.x, y: y1 }, { x: A.x, y: A.y }]);
+      }
+    }
+  } else {
+    if (sgn(A.y - E.y) === u.y && sgn(A.x - E.x) === v.x) {
+      out.push([{ x: E.x, y: E.y }, { x: E.x, y: A.y }, { x: A.x, y: A.y }]);
+    }
+    var ys2 = [E.y + u.y * s, E.y + u.y * s * 3];
+    var xs2 = [A.x - v.x * s, (E.x + A.x) / 2];
+    for (i = 0; i < ys2.length; i++) {
+      for (j = 0; j < xs2.length; j++) {
+        var yy1 = ys2[i], xx1 = xs2[j];
+        if (Math.abs(xx1 - E.x) < 0.6) continue;
+        if (Math.abs(A.y - yy1) < 0.6) continue;
+        if (sgn(A.x - xx1) !== v.x) continue;
+        out.push([{ x: E.x, y: E.y }, { x: E.x, y: yy1 }, { x: xx1, y: yy1 },
+                  { x: xx1, y: A.y }, { x: A.x, y: A.y }]);
+      }
+    }
+  }
+}
+
+function segsOf(pts) {
+  var s = [];
+  for (var i = 1; i < pts.length; i++) {
+    var a = pts[i - 1], b = pts[i];
+    s.push({ x1: Math.min(a.x, b.x), x2: Math.max(a.x, b.x),
+             y1: Math.min(a.y, b.y), y2: Math.max(a.y, b.y),
+             h: Math.abs(a.y - b.y) < 0.02 });
+  }
+  return s;
+}
+function bboxOf(segs) {
+  var bb = { x1: Infinity, y1: Infinity, x2: -Infinity, y2: -Infinity };
+  for (var i = 0; i < segs.length; i++) {
+    var s = segs[i];
+    if (s.x1 < bb.x1) bb.x1 = s.x1;
+    if (s.y1 < bb.y1) bb.y1 = s.y1;
+    if (s.x2 > bb.x2) bb.x2 = s.x2;
+    if (s.y2 > bb.y2) bb.y2 = s.y2;
+  }
+  return bb;
+}
+var EPS = 0.6;
+
+/** Number of DISTINCT task rectangles the polyline cuts through. */
+function countRectHits(segs, bb, skipA, skipB) {
+  var n = 0, rects = L.rects;
+  for (var r = 0; r < rects.length; r++) {
+    var rc = rects[r];
+    if (rc.uid === skipA || rc.uid === skipB) continue;
+    if (rc.x2 < bb.x1 || rc.x > bb.x2 || rc.y2 < bb.y1 || rc.y > bb.y2) continue;
+    for (var i = 0; i < segs.length; i++) {
+      var s = segs[i], hit;
+      if (s.h) {
+        hit = (s.y1 > rc.y + EPS && s.y1 < rc.y2 - EPS &&
+               s.x1 < rc.x2 - EPS && s.x2 > rc.x + EPS);
+      } else {
+        hit = (s.x1 > rc.x + EPS && s.x1 < rc.x2 - EPS &&
+               s.y1 < rc.y2 - EPS && s.y2 > rc.y + EPS);
+      }
+      if (hit) { n++; break; }
+    }
+  }
+  return n;
+}
+
+/** Crossings against the routes that were already placed (order matters). */
+function countLineHits(segs, bb, placed) {
+  var n = 0;
+  for (var p = 0; p < placed.length; p++) {
+    var pl = placed[p];
+    if (pl.bb.x2 < bb.x1 || pl.bb.x1 > bb.x2 || pl.bb.y2 < bb.y1 || pl.bb.y1 > bb.y2) continue;
+    for (var i = 0; i < segs.length; i++) {
+      var a = segs[i];
+      for (var j = 0; j < pl.segs.length; j++) {
+        var b = pl.segs[j];
+        if (a.h !== b.h) {
+          var hh = a.h ? a : b, vv = a.h ? b : a;
+          if (vv.x1 > hh.x1 + EPS && vv.x1 < hh.x2 - EPS &&
+              hh.y1 > vv.y1 + EPS && hh.y1 < vv.y2 - EPS) n++;
+        } else if (a.h) {
+          if (Math.abs(a.y1 - b.y1) < 1 && a.x1 < b.x2 - EPS && a.x2 > b.x1 + EPS) n++;
+        } else {
+          if (Math.abs(a.x1 - b.x1) < 1 && a.y1 < b.y2 - EPS && a.y2 > b.y1 + EPS) n++;
+        }
+      }
+    }
+  }
+  return n;
+}
+
+/**
+ * Semantic penalty: FS should leave the finish side and enter the start side,
+ * SS start/start, FF finish/finish, SF start/finish. The centre column counts
+ * as a half mismatch.
+ */
+var SEM = { FS: [2, 0], SS: [0, 0], FF: [2, 2], SF: [0, 2] };
+function semPenalty(linkType, exitCol, entryCol) {
+  var want = SEM[linkType] || SEM.FS;
+  function p(col, wantCol) { return col === wantCol ? 0 : (col === 1 ? 0.5 : 1); }
+  return p(exitCol, want[0]) + p(entryCol, want[1]);
+}
+
+function polyLen(pts) {
+  var n = 0;
+  for (var i = 1; i < pts.length; i++) {
+    n += Math.abs(pts[i].x - pts[i - 1].x) + Math.abs(pts[i].y - pts[i - 1].y);
+  }
+  return n;
+}
+
+function routeAll() {
+  var links = G.links.slice();
+  // Deterministic routing order so the result is reproducible.
+  links.sort(function (a, b) {
+    if (a.fromUid !== b.fromUid) return a.fromUid - b.fromUid;
+    if (a.toUid !== b.toUid) return a.toUid - b.toUid;
+    return a.linkType < b.linkType ? -1 : 1;
+  });
+
+  var placed = [], out = [], candTotal = 0, evalTotal = 0;
+  var rectByUid = {};
+  for (var r = 0; r < L.rects.length; r++) rectByUid[L.rects[r].uid] = L.rects[r];
+
+  for (var i = 0; i < links.length; i++) {
+    var lk = links[i];
+    var ra = rectByUid[lk.fromUid], rb = rectByUid[lk.toUid];
+    if (!ra || !rb) continue;
+    var ancA = anchorsOf(ra), ancB = anchorsOf(rb);
+    var cxA = ra.x + ra.w / 2, cyA = ra.y + ra.h / 2;
+    var cxB = rb.x + rb.w / 2, cyB = rb.y + rb.h / 2;
+    var norm = Math.max(30, Math.abs(cxB - cxA) + Math.abs(cyB - cyA));
+
+    var best = null, count = 0, evals = 0;
+    // Anchor visit order: the semantically expected column first, so a good
+    // incumbent appears early and the bound below prunes hard. Still fully
+    // deterministic, so the result is reproducible.
+    var wantA = (SEM[lk.linkType] || SEM.FS)[0], wantB = (SEM[lk.linkType] || SEM.FS)[1];
+    var ordA = anchorOrder(wantA), ordB = anchorOrder(wantB);
+    for (var ai = 0; ai < 9; ai++) {
+      var a = ordA[ai];
+      var A0 = ancA[a], da = dirsOf(A0);
+      if (!da.length) continue;
+      for (var bi = 0; bi < 9; bi++) {
+        var b = ordB[bi];
+        var B0 = ancB[b], db = dirsOf(B0);
+        if (!db.length) continue;
+        var sem = semPenalty(lk.linkType, A0.col, B0.col);
+        // Pair-level bound: no orthogonal path is shorter than the Manhattan
+        // distance between the two anchors, so this pair can be dropped whole.
+        if (best) {
+          var floorPair = W.w5 * sem +
+            W.w4 * (Math.abs(B0.x - A0.x) + Math.abs(B0.y - A0.y)) / norm;
+          if (floorPair >= best.cost - 1e-9) continue;
+        }
+        for (var p = 0; p < da.length; p++) {
+          for (var q = 0; q < db.length; q++) {
+            var u = da[p];
+            var v = { x: -db[q].x, y: -db[q].y };     // arrival direction
+            var raw = [];
+            buildRoutes(A0, u, B0, v, raw);
+            for (var k = 0; k < raw.length; k++) {
+              var len = polyLen(raw[k]);               // cleaning never changes length
+              if (len > 8 * norm + 400) continue;      // hopeless detour, skip early
+              count++;
+              var lenNorm = len / norm;
+              // Exact branch and bound: w1, w2 and w3 are non negative, so the
+              // cheap part of the cost is a valid lower bound. A candidate that
+              // cannot beat the incumbent never pays for cleaning or geometry.
+              var pre = W.w4 * lenNorm + W.w5 * sem;
+              if (best && pre >= best.cost - 1e-9) continue;
+              var pts = cleanPts(raw[k]);
+              if (!pts || pts.length < 2) continue;
+              var bends = pts.length - 2;
+              if (bends < 0 || bends > 3) continue;
+              var lower = pre + W.w3 * bends;
+              if (best && lower >= best.cost - 1e-9) continue;
+              evals++;
+              var segs = segsOf(pts), bb = bboxOf(segs);
+              var rectHits = countRectHits(segs, bb, lk.fromUid, lk.toUid);
+              var lineHits = countLineHits(segs, bb, placed);
+              var cost = W.w1 * rectHits + W.w2 * lineHits + lower;
+              if (!best || cost < best.cost - 1e-9) {
+                best = { cost: cost, pts: pts, segs: segs, bb: bb, bends: bends,
+                         rectHits: rectHits, lineHits: lineHits, lenNorm: lenNorm,
+                         sem: sem, len: len, exit: A0.i, entry: B0.i };
+              }
+            }
+          }
+        }
+      }
+    }
+    candTotal += count; evalTotal += evals;
+    if (!best) {                                     // defensive fallback
+      var pts0 = [{ x: ra.x2, y: cyA }, { x: rb.x, y: cyB }];
+      var sg0 = segsOf(pts0);
+      best = { cost: 0, pts: pts0, segs: sg0, bb: bboxOf(sg0), bends: 0, rectHits: 0,
+               lineHits: 0, lenNorm: 1, sem: 0, len: polyLen(pts0), exit: 5, entry: 3 };
+    }
+    best.fromUid = lk.fromUid; best.toUid = lk.toUid; best.linkType = lk.linkType;
+    best.candidates = count; best.evals = evals;
+    placed.push({ segs: best.segs, bb: best.bb });
+    out.push(best);
+  }
+  ROUTES = out;
+  M.candPerLink = links.length ? candTotal / links.length : 0;
+  M.evalPerLink = links.length ? evalTotal / links.length : 0;
+}
+
+/** Visit the 9 anchors starting from the column the link semantics prefer. */
+function anchorOrder(wantCol) {
+  var order = [], i;
+  for (i = 0; i < 9; i++) if (i % 3 === wantCol) order.push(i);
+  for (i = 0; i < 9; i++) if (i % 3 === 1 && wantCol !== 1) order.push(i);
+  for (i = 0; i < 9; i++) if (order.indexOf(i) < 0) order.push(i);
+  return order;
+}
+
+// ===========================================================================
+// Metrics (spec 4)
+// ===========================================================================
+
+function computeMetrics() {
+  var i, j;
+  // overlap: task rectangles colliding inside the same row (must stay 0)
+  var overlap = 0;
+  for (i = 0; i < L.rows.length; i++) {
+    var mem = L.rows[i].members;
+    for (j = 0; j < mem.length; j++) {
+      for (var k = j + 1; k < mem.length; k++) {
+        var ga = L.geom[mem[j]], gb = L.geom[mem[k]];
+        if (ga.level !== gb.level) continue;
+        if (ga.geomL < gb.geomR - EPS && gb.geomL < ga.geomR - EPS) overlap++;
+      }
+    }
+  }
+  // line x icon / line x line / bends on the FINAL routes
+  var lineIcon = 0, bends = 0, lineLine = 0;
+  var acc = [];
+  for (i = 0; i < ROUTES.length; i++) {
+    var rt = ROUTES[i];
+    lineIcon += countRectHits(rt.segs, rt.bb, rt.fromUid, rt.toUid);
+    bends += rt.bends;
+    lineLine += countLineHits(rt.segs, rt.bb, acc);
+    acc.push({ segs: rt.segs, bb: rt.bb });
+  }
+  // density: occupied task area / total band area
+  var taskArea = 0, bandArea = 0;
+  var contentW = L.worldW - (B.GUTTER + B.PAD_LEFT);
+  for (i = 0; i < G.tasks.length; i++) {
+    var g = L.geom[G.tasks[i].uid];
+    taskArea += Math.max(0, g.occR - g.occL) * L.slotH;
+  }
+  for (i = 0; i < L.rows.length; i++) bandArea += contentW * L.rows[i].height;
+
+  M.tasks = G.tasks.length;
+  M.links = G.links.length;
+  M.rows = L.rows.length;
+  M.drawn = G.tasks.length;
+  M.overlap = overlap;
+  M.lineIcon = lineIcon;
+  M.lineLine = lineLine;
+  M.bends = bends;
+  M.density = bandArea > 0 ? taskArea / bandArea : 0;
+  M.maxStack = L.maxStack;
+  M.constraints = L.constraints;
+}
+
+// ===========================================================================
+// Rendering (SVG, spec 3-3 / 3-4 / 3-5)
+// ===========================================================================
+
+var stage = document.getElementById('stage');
+var VW = 0, VH = 0;
+
+function shapePath(t, g) {
+  var h = L.planH, x1 = g.x1, x2 = g.x2, y = g.planTop, w = x2 - x1;
+  var cy = y + h / 2;
+  var s = '';
+  if (t.milestone || t.shapeKind === 'milestone') {
+    var cx = (x1 + x2) / 2;
+    s += '<polygon class="shape" points="' + r1(cx) + ',' + r1(y) + ' ' + r1(x2) + ',' + r1(cy) +
+         ' ' + r1(cx) + ',' + r1(y + h) + ' ' + r1(x1) + ',' + r1(cy) + '"/>';
+  } else if (t.shapeKind === 'bar') {
+    s += '<rect class="shape" x="' + r1(x1) + '" y="' + r1(y) + '" width="' + r1(w) +
+         '" height="' + r1(h) + '" rx="2"/>';
+  } else if (t.shapeKind === 'chevron') {
+    var n = Math.min(h / 2, w / 2);
+    s += '<polygon class="shape" points="' +
+         r1(x1) + ',' + r1(y) + ' ' + r1(x2 - n) + ',' + r1(y) + ' ' + r1(x2) + ',' + r1(cy) + ' ' +
+         r1(x2 - n) + ',' + r1(y + h) + ' ' + r1(x1) + ',' + r1(y + h) + ' ' +
+         r1(x1 + n) + ',' + r1(cy) + '"/>';
+  } else if (t.shapeKind === 'arrow') {
+    var head = Math.min(9, w);
+    s += '<line class="thin" x1="' + r1(x1) + '" y1="' + r1(cy) + '" x2="' + r1(x2 - head) +
+         '" y2="' + r1(cy) + '"/>';
+    s += '<polygon class="shape" points="' + r1(x2 - head) + ',' + r1(cy - h * 0.34) + ' ' +
+         r1(x2) + ',' + r1(cy) + ' ' + r1(x2 - head) + ',' + r1(cy + h * 0.34) + '"/>';
+  } else if (t.shapeKind === 'endpointSpan') {
+    var cap = h * 0.36;
+    s += '<line class="thin" x1="' + r1(x1) + '" y1="' + r1(cy) + '" x2="' + r1(x2) + '" y2="' + r1(cy) + '"/>';
+    s += '<line class="thin" x1="' + r1(x1) + '" y1="' + r1(cy - cap) + '" x2="' + r1(x1) + '" y2="' + r1(cy + cap) + '"/>';
+    s += '<line class="thin" x1="' + r1(x2) + '" y1="' + r1(cy - cap) + '" x2="' + r1(x2) + '" y2="' + r1(cy + cap) + '"/>';
+  }
+  return s;
+}
+
+/** Progress marker: drawn as SVG so it never depends on a font glyph. */
+function markerSvg(kind, x, cy, size) {
+  var s = size, h = s / 2, cx = x + h;
+  var out = '<g class="mk mk-' + kind + '">';
+  out += '<circle cx="' + r1(cx) + '" cy="' + r1(cy) + '" r="' + r1(h - 0.6) + '"/>';
+  if (kind === 'done') {
+    out += '<polyline class="gl" points="' + r1(cx - h * 0.48) + ',' + r1(cy + h * 0.04) + ' ' +
+           r1(cx - h * 0.10) + ',' + r1(cy + h * 0.42) + ' ' + r1(cx + h * 0.52) + ',' + r1(cy - h * 0.44) + '"/>';
+  } else if (kind === 'suspended') {
+    out += '<line class="gl" x1="' + r1(cx - h * 0.45) + '" y1="' + r1(cy - h * 0.45) +
+           '" x2="' + r1(cx + h * 0.45) + '" y2="' + r1(cy + h * 0.45) + '"/>';
+  } else if (kind === 'overdue') {
+    out += '<line class="gl" x1="' + r1(cx) + '" y1="' + r1(cy - h * 0.52) + '" x2="' + r1(cx) + '" y2="' + r1(cy + h * 0.08) + '"/>';
+    out += '<circle class="dot" cx="' + r1(cx) + '" cy="' + r1(cy + h * 0.44) + '" r="' + r1(Math.max(0.7, h * 0.14)) + '"/>';
+  }
+  out += '</g>';
+  return out;
+}
+
+function rulerStep() {
+  var ppd = view.ppd;
+  var cands = [1, 2, 5, 7, 14, 30, 60, 90, 180, 365];
+  for (var i = 0; i < cands.length; i++) if (cands[i] * ppd >= 46) return cands[i];
+  return 365;
+}
+
+function buildSvg() {
+  var parts = [];
+  var i, t, g;
+  var tx = -view.scrollX, ty = -view.scrollY;
+
+  parts.push('<defs>');
+  parts.push('<marker id="ah" viewBox="0 0 9 8" refX="8.4" refY="4" markerWidth="9" markerHeight="8"' +
+             ' markerUnits="userSpaceOnUse" orient="auto"><path d="M0.5 0.6 L8.6 4 L0.5 7.4 Z" fill="#0f1418"/></marker>');
+  parts.push('<clipPath id="clipMain"><rect x="' + B.GUTTER + '" y="' + B.RULER_H + '" width="' +
+             Math.max(0, VW - B.GUTTER) + '" height="' + Math.max(0, VH - B.RULER_H) + '"/></clipPath>');
+  parts.push('<clipPath id="clipRuler"><rect x="' + B.GUTTER + '" y="0" width="' +
+             Math.max(0, VW - B.GUTTER) + '" height="' + B.RULER_H + '"/></clipPath>');
+  parts.push('<clipPath id="clipGutter"><rect x="0" y="' + B.RULER_H + '" width="' + B.GUTTER +
+             '" height="' + Math.max(0, VH - B.RULER_H) + '"/></clipPath>');
+  parts.push('</defs>');
+
+  // ---------- scrolling content ----------
+  parts.push('<g clip-path="url(#clipMain)"><g id="world" transform="translate(' + r1(tx) + ',' + r1(ty) + ')">');
+
+  // row bands
+  for (i = 0; i < L.rows.length; i++) {
+    var rw = L.rows[i];
+    parts.push('<rect class="band' + (i % 2 ? ' band-b' : '') + '" x="' + r1(B.GUTTER) + '" y="' + r1(rw.top) +
+               '" width="' + r1(L.worldW - B.GUTTER) + '" height="' + r1(rw.height) + '"/>');
+  }
+  // day grid
+  var step = rulerStep();
+  for (var d = Math.ceil(G.minDay / step) * step; d <= G.maxDay; d += step) {
+    var gx = dayX(d);
+    parts.push('<line class="grid" x1="' + r1(gx) + '" y1="' + r1(B.RULER_H) + '" x2="' + r1(gx) +
+               '" y2="' + r1(L.totalH) + '"/>');
+  }
+
+  // ---------- tasks ----------
+  for (i = 0; i < G.tasks.length; i++) {
+    t = G.tasks[i]; g = L.geom[t.uid];
+    var sel = (t.uid === selectedUid);
+    parts.push('<g class="task' + (sel ? ' sel' : '') + '" data-uid="' + t.uid + '">');
+    parts.push(shapePath(t, g));
+
+    // actual bar: inside for shapes with vertical extent, below for width-less ones
+    var aW = Math.max(0, g.aX2 - g.aX1);
+    var aTop = g.below ? (g.planTop + L.planH + L.belowGap) : (g.planTop + (L.planH - L.actH) / 2);
+    if (aW >= 0.8) {
+      parts.push('<rect class="actual" x="' + r1(g.aX1) + '" y="' + r1(aTop) + '" width="' + r1(aW) +
+                 '" height="' + r1(L.actH) + '"/>');
+    }
+    // progress marker: fixed size, fixed 4px offset, counted in the occupied width
+    var mk = markerKind(t);
+    if (mk !== 'incomplete' || sel) {
+      parts.push(markerSvg(mk, g.markerX, aTop + L.actH / 2, B.MARKER_PX));
+    }
+    // label
+    var fs = L.fontSize, ty2 = g.planTop + L.planH / 2 + fs * 0.35;
+    if (g.labelOut) {
+      parts.push('<text class="lbl out" x="' + r1(g.geomR + 4) + '" y="' + r1(ty2) +
+                 '" font-size="' + r1(fs) + '">' + esc(g.labelText) + '</text>');
+    } else {
+      parts.push('<text class="lbl in" x="' + r1((g.x1 + g.x2) / 2) + '" y="' + r1(ty2) +
+                 '" font-size="' + r1(fs) + '" text-anchor="middle">' + esc(g.labelText) + '</text>');
+    }
+    parts.push('</g>');
+  }
+
+  // ---------- dependency lines ----------
+  var DASH = { FS: '', SS: '5 3', FF: '1.6 3', SF: '7 3 1.6 3' };
+  for (i = 0; i < ROUTES.length; i++) {
+    var rt = ROUTES[i];
+    var dstr = 'M' + rt.pts.map(function (p) { return r1(p.x) + ' ' + r1(p.y); }).join(' L');
+    var hot = (selectedUid !== null && (rt.fromUid === selectedUid || rt.toUid === selectedUid));
+    var dash = DASH[rt.linkType] ? ' stroke-dasharray="' + DASH[rt.linkType] + '"' : '';
+    parts.push('<path class="halo" d="' + dstr + '"/>');
+    parts.push('<path class="link' + (hot ? ' hot' : '') + '" d="' + dstr + '"' + dash +
+               ' marker-end="url(#ah)"/>');
+  }
+
+  // ---------- selection: show the 9 anchors and the chosen ones ----------
+  if (selectedUid !== null && L.geom[selectedUid]) {
+    var gs = L.geom[selectedUid];
+    var rsel = { x: gs.x1, y: gs.planTop, w: gs.x2 - gs.x1, h: L.planH };
+    var anc = anchorsOf(rsel);
+    var used = {};
+    for (i = 0; i < ROUTES.length; i++) {
+      if (ROUTES[i].fromUid === selectedUid) used[ROUTES[i].exit] = 1;
+      if (ROUTES[i].toUid === selectedUid) used[ROUTES[i].entry] = 1;
+    }
+    for (i = 0; i < anc.length; i++) {
+      parts.push('<circle class="anc' + (used[anc[i].i] ? ' anc-on' : '') + '" cx="' + r1(anc[i].x) +
+                 '" cy="' + r1(anc[i].y) + '" r="' + (used[anc[i].i] ? 3.4 : 2.2) + '"/>');
+    }
+  }
+  parts.push('</g></g>');
+
+  // ---------- fixed gutter with the row titles ----------
+  parts.push('<g clip-path="url(#clipGutter)">');
+  parts.push('<rect class="gutter" x="0" y="' + B.RULER_H + '" width="' + B.GUTTER + '" height="' +
+             Math.max(0, VH - B.RULER_H) + '"/>');
+  parts.push('<g transform="translate(0,' + r1(ty) + ')">');
+  for (i = 0; i < L.rows.length; i++) {
+    var rr = L.rows[i];
+    parts.push('<line class="rowsep" x1="0" y1="' + r1(rr.top - B.ROW_GAP / 2) + '" x2="' + B.GUTTER +
+               '" y2="' + r1(rr.top - B.ROW_GAP / 2) + '"/>');
+    parts.push('<text class="rowtitle" x="8" y="' + r1(rr.top + 12) + '">' +
+               esc(truncateUnits(rr.title, 22)) + '</text>');
+    parts.push('<text class="rowsub" x="8" y="' + r1(rr.top + 25) + '">' + rr.levels +
+               ' 段 / ' + rr.members.length + ' タスク</text>');
+  }
+  parts.push('</g><line class="gutteredge" x1="' + B.GUTTER + '" y1="' + B.RULER_H + '" x2="' +
+             B.GUTTER + '" y2="' + VH + '"/></g>');
+
+  // ---------- fixed time ruler ----------
+  parts.push('<rect class="ruler" x="0" y="0" width="' + VW + '" height="' + B.RULER_H + '"/>');
+  parts.push('<g clip-path="url(#clipRuler)"><g transform="translate(' + r1(tx) + ',0)">');
+  for (var d2 = Math.ceil(G.minDay / step) * step; d2 <= G.maxDay; d2 += step) {
+    var rx = dayX(d2);
+    parts.push('<line class="rtick" x1="' + r1(rx) + '" y1="' + (B.RULER_H - 6) + '" x2="' + r1(rx) +
+               '" y2="' + B.RULER_H + '"/>');
+    parts.push('<text class="rlbl" x="' + r1(rx + 3) + '" y="' + (B.RULER_H - 9) + '">' + d2 + ' 日</text>');
+  }
+  parts.push('</g></g>');
+  parts.push('<line class="gutteredge" x1="0" y1="' + B.RULER_H + '" x2="' + VW + '" y2="' + B.RULER_H + '"/>');
+
+  return parts.join('');
+}
+
+var SVG_CSS =
+  '.band{fill:#ffffff}.band-b{fill:#f1f2ef}' +
+  '.grid{stroke:#dfe2e5;stroke-width:1}' +
+  '.shape{fill:#dfe3e7;stroke:#2a3138;stroke-width:1.2}' +
+  '.thin{stroke:#2a3138;stroke-width:2.2;stroke-linecap:butt}' +
+  '.actual{fill:#2a3138;stroke:none}' +
+  '.task.sel .shape{fill:#ffe9a8;stroke-width:2}' +
+  '.task.sel .actual{fill:#111}' +
+  '.lbl{fill:#12171c;pointer-events:none;paint-order:stroke;stroke:#ffffff;' +
+  'stroke-width:2.8px;stroke-linejoin:round}' +
+  '.mk circle{fill:#ffffff;stroke:#12171c;stroke-width:1.2}' +
+  '.mk .gl{stroke:#12171c;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}' +
+  '.mk .dot{fill:#12171c;stroke:none}' +
+  '.halo{fill:none;stroke:#ffffff;stroke-width:4.6;stroke-linejoin:round;stroke-linecap:round;opacity:.95}' +
+  '.link{fill:none;stroke:#0f1418;stroke-width:1.5;stroke-linejoin:round}' +
+  '.link.hot{stroke-width:2.6}' +
+  '.anc{fill:#ffffff;stroke:#8a0f0f;stroke-width:1.2}' +
+  '.anc-on{fill:#8a0f0f;stroke:#8a0f0f}' +
+  '.gutter{fill:#fbfbfa}.gutteredge{stroke:#b9bec4;stroke-width:1}' +
+  '.rowsep{stroke:#dfe2e5;stroke-width:1}' +
+  '.rowtitle{font-size:11px;fill:#12171c;font-weight:600}' +
+  '.rowsub{font-size:10px;fill:#5a636c}' +
+  '.ruler{fill:#fbfbfa}.rtick{stroke:#78818a;stroke-width:1}' +
+  '.rlbl{font-size:10px;fill:#47505a}';
+
+// ===========================================================================
+// Metrics panel / why panel / legend
+// ===========================================================================
+
+function renderMetrics() {
+  var rows = [
+    ['tasks', M.tasks, ''], ['links', M.links, ''], ['rows', M.rows, ''],
+    ['drawn', M.drawn, ''], ['svg nodes', M.svgNodes, ''],
+    ['layout ms', r1(M.layoutMs), ''], ['route ms', r1(M.routeMs), ''],
+    ['paint ms', r1(M.paintMs), ''], ['fps', Math.round(M.fps), ''],
+    ['overlap', M.overlap, M.overlap === 0 ? 'ok' : 'bad'],
+    ['line×icon', M.lineIcon, ''], ['line×line', M.lineLine, ''],
+    ['bends', M.bends, ''], ['density', (M.density * 100).toFixed(1) + ' %', ''],
+    ['maxStack', M.maxStack, ''],
+    ['candidates/link', Math.round(M.candPerLink), ''],
+    ['cost eval/link', Math.round(M.evalPerLink), ''],
+    ['min-gap 制約', M.constraints, '']
+  ];
+  var h = '';
+  for (var i = 0; i < rows.length; i++) {
+    h += '<tr class="' + rows[i][2] + '"><td class="k">' + rows[i][0] + '</td><td class="v">' +
+         rows[i][1] + '</td></tr>';
+  }
+  document.getElementById('mtable').innerHTML = h;
+  document.getElementById('warn').style.display = L.capHit ? 'block' : 'none';
+}
+
+function renderWhy() {
+  var box = document.getElementById('why'), body = document.getElementById('whybody');
+  if (selectedUid === null) { box.style.display = 'none'; return; }
+  var t = G.byUid[selectedUid];
+  var h = '<div class="row"><b>' + esc(t.name) + '</b> (uid ' + t.uid + ', stackOrder ' + t.stackOrder +
+          ', ' + esc(t.shapeKind) + ')<br>percentComplete ' + t.percentComplete +
+          ' / marker <code>' + markerKind(t) + '</code></div>';
+  var n = 0;
+  for (var i = 0; i < ROUTES.length; i++) {
+    var r = ROUTES[i];
+    if (r.fromUid !== selectedUid && r.toUid !== selectedUid) continue;
+    n++;
+    h += '<div class="row"><b>' + r.fromUid + ' -> ' + r.toUid + '</b> ' + r.linkType +
+         '<br><code>exit ' + ANCHOR_NAMES[r.exit] + ' / entry ' + ANCHOR_NAMES[r.entry] +
+         ' / bends ' + r.bends + '</code>' +
+         '<br><code>cost ' + r1(r.cost) + ' = ' + W.w1 + 'x' + r.rectHits + ' + ' + W.w2 + 'x' + r.lineHits +
+         ' + ' + W.w3 + 'x' + r.bends + ' + ' + W.w4 + 'x' + r1(r.lenNorm) + ' + ' + W.w5 + 'x' + r.sem +
+         '</code><br><code>' + r.candidates + ' 候補列挙 / ' + r.evals + ' 件をコスト評価</code></div>';
+  }
+  if (!n) h += '<div class="row">依存線なし</div>';
+  body.innerHTML = h;
+  box.style.display = 'block';
+}
+
+function renderLegend() {
+  function box(inner, w) {
+    return '<svg width="' + (w || 74) + '" height="20" viewBox="0 0 ' + (w || 74) + ' 20">' +
+           '<style>' + SVG_CSS + '</style>' + inner + '</svg>';
+  }
+  var rows = [];
+  rows.push(['<rect class="shape" x="2" y="4" width="52" height="12" rx="2"/>' +
+             '<rect class="actual" x="2" y="7" width="30" height="6"/>', 'bar — 予定は外枠 / 実績は内側の黒帯']);
+  rows.push(['<polygon class="shape" points="2,4 48,4 54,10 48,16 2,16 8,10"/>' +
+             '<rect class="actual" x="4" y="7" width="26" height="6"/>', 'chevron — 幅あり → 実績は内側']);
+  rows.push(['<line class="thin" x1="2" y1="6" x2="44" y2="6"/>' +
+             '<polygon class="shape" points="44,2 53,6 44,10"/>' +
+             '<rect class="actual" x="2" y="13" width="26" height="5"/>', 'arrow — 幅なし → 実績は下へ']);
+  rows.push(['<line class="thin" x1="3" y1="6" x2="52" y2="6"/><line class="thin" x1="3" y1="2" x2="3" y2="10"/>' +
+             '<line class="thin" x1="52" y1="2" x2="52" y2="10"/>' +
+             '<rect class="actual" x="3" y="13" width="24" height="5"/>', 'endpointSpan — 幅なし → 実績は下へ']);
+  rows.push(['<polygon class="shape" points="12,2 20,8 12,14 4,8"/>' +
+             '<rect class="actual" x="4" y="16" width="2" height="3"/>', 'milestone — 幅なし・最上段']);
+  rows.push([markerSvg('done', 4, 10, 12) + markerSvg('suspended', 22, 10, 12) +
+             markerSvg('overdue', 40, 10, 12) + markerSvg('incomplete', 58, 10, 12),
+             '✓完了 / \\中断 / !期限超過 / ○未完了(選択時)']);
+  rows.push(['<path class="link" d="M2 10 L70 10" marker-end="url(#lah)"/>' +
+             '<defs><marker id="lah" viewBox="0 0 9 8" refX="8.4" refY="4" markerWidth="9" markerHeight="8"' +
+             ' markerUnits="userSpaceOnUse" orient="auto"><path d="M0.5 0.6 L8.6 4 L0.5 7.4 Z" fill="#0f1418"/></marker></defs>',
+             'FS 実線 / SS 破線 / FF 点線 / SF 一点鎖線']);
+  rows.push(['<path class="halo" d="M2 10 L70 10"/><path class="link" d="M2 10 L70 10"/>' +
+             '<path class="halo" d="M36 2 L36 18"/><path class="link" d="M36 2 L36 18"/>',
+             '白フチが付いている方が手前']);
+  var h = '';
+  for (var i = 0; i < rows.length; i++) {
+    h += '<div class="lg">' + box(rows[i][0]) + '<span>' + rows[i][1] + '</span></div>';
+  }
+  h += '<div class="lg"><span>中心アンカー MC は経路の端点としては不採用（自分の矩形を横切るため）。' +
+       '9 点は選択時に赤丸で表示し、採用点は塗りつぶす。</span></div>';
+  document.getElementById('legendbody').innerHTML = h;
+}
+
+// ===========================================================================
+// Frame loop / interaction
+// ===========================================================================
+
+var pending = false, interactive = false, lastTs = 0, fpsSamples = [];
+M.fps = 60; M.layoutMs = 0; M.routeMs = 0; M.paintMs = 0; M.svgNodes = 0;
+
+function schedule(inter) {
+  if (inter) interactive = true;
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(function (ts) { pending = false; frame(ts); });
+}
+
+function frame(ts) {
+  var t0 = performance.now();
+  computeLayout();
+  var t1 = performance.now();
+  routeAll();
+  var t2 = performance.now();
+  computeMetrics();
+  var t3 = performance.now();
+  stage.innerHTML = '<style>' + SVG_CSS + '</style>' + buildSvg();
+  var t4 = performance.now();
+
+  M.layoutMs = t1 - t0;
+  M.routeMs = t2 - t1;
+  M.paintMs = t4 - t3;
+  M.metricsMs = t3 - t2;
+  M.svgNodes = stage.getElementsByTagName('*').length;
+
+  if (interactive && lastTs) {
+    var dt = ts - lastTs;
+    if (dt > 0 && dt < 1000) {
+      fpsSamples.push(dt);
+      if (fpsSamples.length > 20) fpsSamples.shift();
+      var sum = 0;
+      for (var i = 0; i < fpsSamples.length; i++) sum += fpsSamples[i];
+      M.fps = Math.min(60, 1000 / (sum / fpsSamples.length));
+    }
+  }
+  lastTs = interactive ? ts : 0;
+  interactive = false;
+
+  renderMetrics();
+  renderWhy();
+}
+
+/** Pan only: move the three translated groups without rebuilding the SVG. */
+function applyPan() {
+  var world = document.getElementById('world');
+  if (!world) { schedule(false); return; }
+  var tx = -view.scrollX, ty = -view.scrollY;
+  world.setAttribute('transform', 'translate(' + r1(tx) + ',' + r1(ty) + ')');
+  var g = stage.querySelectorAll('g[clip-path="url(#clipGutter)"] > g');
+  if (g[0]) g[0].setAttribute('transform', 'translate(0,' + r1(ty) + ')');
+  var rl = stage.querySelectorAll('g[clip-path="url(#clipRuler)"] > g');
+  if (rl[0]) rl[0].setAttribute('transform', 'translate(' + r1(tx) + ',0)');
+}
+
+function clampScroll() {
+  var maxX = Math.max(0, L.worldW - VW + 20);
+  var maxY = Math.max(0, L.totalH - VH + B.RULER_H + 20);
+  view.scrollX = Math.max(0, Math.min(maxX, view.scrollX));
+  view.scrollY = Math.max(0, Math.min(maxY, view.scrollY));
+}
+
+var userZoomed = false;
+
+function resize() {
+  // measure the element, not the window: the review panel column takes the
+  // right-hand strip and the drawing must never extend underneath it
+  var box = stage.getBoundingClientRect();
+  VW = Math.max(320, Math.round(box.width)) || window.innerWidth;
+  VH = Math.max(240, Math.round(box.height)) || window.innerHeight;
+  stage.setAttribute('width', VW);
+  stage.setAttribute('height', VH);
+  stage.setAttribute('viewBox', '0 0 ' + VW + ' ' + VH);
+  // Until the reviewer touches a zoom control, keep the view fitted: the pane
+  // can report a stale size on the very first frame.
+  if (userZoomed) schedule(false); else fit();
+}
+
+function fit() {
+  var avail = Math.max(200, VW - B.GUTTER - B.PAD_LEFT - B.PAD_RIGHT - 260);
+  var span = Math.max(1, G.maxDay - G.minDay);
+  view.ppd = Math.max(1, Math.min(40, avail / span));
+  view.vz = 1;
+  computeLayout();
+  var need = L.totalH + 16;
+  var target = VH - B.RULER_H - 20;
+  view.vz = Math.max(0.75, Math.min(2.5, view.vz * (target / Math.max(1, need))));
+  view.scrollX = 0; view.scrollY = 0;
+  syncControls();
+  schedule(false);
+}
+
+// --- controls --------------------------------------------------------------
+var ids = ['ppd', 'vz', 'w1', 'w2', 'w3', 'w4', 'w5'];
+function syncControls() {
+  document.getElementById('s-ppd').value = view.ppd;
+  document.getElementById('o-ppd').textContent = r1(view.ppd);
+  document.getElementById('s-vz').value = view.vz;
+  document.getElementById('o-vz').textContent = r1(view.vz);
+  for (var i = 2; i < ids.length; i++) {
+    document.getElementById('s-' + ids[i]).value = W[ids[i]];
+    document.getElementById('o-' + ids[i]).textContent = W[ids[i]];
+  }
+}
+(function bindControls() {
+  document.getElementById('s-ppd').addEventListener('input', function () {
+    userZoomed = true;
+    view.ppd = parseFloat(this.value);
+    document.getElementById('o-ppd').textContent = r1(view.ppd);
+    clampScroll(); schedule(true);
+  });
+  document.getElementById('s-vz').addEventListener('input', function () {
+    userZoomed = true;
+    view.vz = parseFloat(this.value);
+    document.getElementById('o-vz').textContent = r1(view.vz);
+    clampScroll(); schedule(true);
+  });
+  for (var i = 2; i < ids.length; i++) {
+    (function (key) {
+      document.getElementById('s-' + key).addEventListener('input', function () {
+        W[key] = parseFloat(this.value);
+        document.getElementById('o-' + key).textContent = W[key];
+        schedule(true);
+      });
+    }(ids[i]));
+  }
+  document.getElementById('b-fit').addEventListener('click', function () { userZoomed = false; fit(); });
+  document.getElementById('hint').addEventListener('click', function () {
+    this.classList.toggle('mini');
+  });
+  document.getElementById('b-reset').addEventListener('click', function () {
+    W.w1 = DEFAULT_W.w1; W.w2 = DEFAULT_W.w2; W.w3 = DEFAULT_W.w3;
+    W.w4 = DEFAULT_W.w4; W.w5 = DEFAULT_W.w5;
+    syncControls(); schedule(false);
+  });
+}());
+
+// --- wheel: pan / Ctrl = horizontal zoom / Shift = vertical zoom ------------
+stage.addEventListener('wheel', function (e) {
+  e.preventDefault();
+  if (e.ctrlKey) {
+    userZoomed = true;
+    var anchorDay = (view.scrollX + e.clientX - B.GUTTER - B.PAD_LEFT) / view.ppd + G.minDay;
+    var f = Math.exp(-e.deltaY * 0.0016);
+    view.ppd = Math.max(1, Math.min(40, view.ppd * f));
+    view.scrollX = (anchorDay - G.minDay) * view.ppd + B.PAD_LEFT + B.GUTTER - e.clientX;
+    clampScroll(); syncControls(); schedule(true);
+  } else if (e.shiftKey) {
+    userZoomed = true;
+    var f2 = Math.exp(-e.deltaY * 0.0016);
+    view.vz = Math.max(0.5, Math.min(3, view.vz * f2));
+    clampScroll(); syncControls(); schedule(true);
+  } else {
+    view.scrollY += e.deltaY;
+    view.scrollX += e.deltaX;
+    clampScroll(); applyPan();
+  }
+}, { passive: false });
+
+// --- drag to pan -----------------------------------------------------------
+var drag = null;
+stage.addEventListener('pointerdown', function (e) {
+  document.getElementById('hint').classList.add('mini');   // free row 1 on first touch
+  drag ={ x: e.clientX, y: e.clientY, sx: view.scrollX, sy: view.scrollY, moved: false };
+  stage.classList.add('dragging');
+  stage.setPointerCapture(e.pointerId);
+});
+stage.addEventListener('pointermove', function (e) {
+  if (!drag) return;
+  var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+  view.scrollX = drag.sx - dx; view.scrollY = drag.sy - dy;
+  clampScroll(); applyPan();
+});
+stage.addEventListener('pointerup', function (e) {
+  var wasDrag = drag && drag.moved;
+  drag = null;
+  stage.classList.remove('dragging');
+  if (wasDrag) return;
+  var node = e.target, uid = null;
+  while (node && node !== stage) {
+    if (node.getAttribute && node.getAttribute('data-uid')) { uid = parseInt(node.getAttribute('data-uid'), 10); break; }
+    node = node.parentNode;
+  }
+  selectedUid = (uid !== null && uid === selectedUid) ? null : uid;
+  schedule(false);
+});
+
+// --- keyboard --------------------------------------------------------------
+window.addEventListener('keydown', function (e) {
+  if (e.key === 'f' || e.key === 'F') { userZoomed = false; fit(); }
+  else if (e.key === 'Escape') { selectedUid = null; schedule(false); }
+});
+window.addEventListener('resize', resize);
+
+// --- review overlay column: collapse / expand (presentation only) ----------
+(function initSideToggle() {
+  var btn = document.getElementById('sideToggle');
+  if (!btn) return;
+  function apply(collapsed, notify) {
+    var root = document.documentElement;
+    if (collapsed) root.classList.add('side-collapsed');
+    else root.classList.remove('side-collapsed');
+    btn.textContent = collapsed ? 'パネル ▸' : 'パネル ▾';
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    if (notify) window.dispatchEvent(new Event('resize'));
+  }
+  btn.addEventListener('click', function () {
+    apply(!document.documentElement.classList.contains('side-collapsed'), true);
+  });
+  apply(false, false);
+}());
+
+// --- boot ------------------------------------------------------------------
+renderLegend();
+syncControls();
+resize();
+fit();
+// The first paint must not depend on requestAnimationFrame: a page opened in a
+// background tab gets no rAF callback, which would leave the metrics panel
+// empty until the reviewer focuses the tab. Paint the first frame synchronously.
+pending = false;
+frame(performance.now());
+</script>
+</body>
+</html>

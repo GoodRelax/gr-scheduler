@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PoC Layout C - reserved lane</title>
+<style>
+  :root {
+    --ink: #1d2430;
+    --ink-soft: #55606f;
+    --paper: #fbfbfa;
+    --panel: #ffffff;
+    --rule: #ccd2da;
+    --band-a: #f4f5f7;
+    --band-b: #ecEef1;
+    --plan-fill: #e3e8ee;
+    --plan-line: #4a5666;
+    --act-fill: #2f3a49;
+    --lane-band: rgba(70, 120, 190, 0.13);
+    --lane-edge: rgba(70, 120, 190, 0.42);
+    --link: #33404f;
+    --link-cross: #7a4a12;
+    --halo: #fbfbfa;
+    --warn: #8a2b12;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: var(--paper); color: var(--ink);
+    font-family: "Yu Gothic UI", "Meiryo", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+    font-size: 12px;
+  }
+  #toolbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 40px; z-index: 30;
+    display: flex; align-items: center; gap: 14px; padding: 0 12px;
+    background: var(--panel); border-bottom: 1px solid var(--rule);
+  }
+  #toolbar .name { font-weight: 700; letter-spacing: .02em; }
+  #toolbar .name span { font-weight: 400; color: var(--ink-soft); margin-left: 6px; }
+  .ctl { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+  .ctl label { color: var(--ink-soft); }
+  .ctl output { font-variant-numeric: tabular-nums; min-width: 46px; text-align: right; }
+  input[type=range] { width: 130px; }
+  button {
+    font: inherit; padding: 3px 10px; border: 1px solid var(--rule);
+    background: #fff; border-radius: 4px; cursor: pointer; color: var(--ink);
+  }
+  button:hover { background: #eef1f5; }
+  button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .hint { color: var(--ink-soft); margin-left: auto; }
+
+  #stage { position: fixed; top: 40px; left: 0; width: calc(100% - var(--side-w)); height: calc(100% - 40px); display: block; cursor: grab; }
+  #stage.dragging { cursor: grabbing; }
+
+  #metrics {
+    position: fixed; top: 48px; right: 10px; z-index: 25; width: 214px;
+    background: rgba(255,255,255,.96); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 7px 9px; box-shadow: 0 2px 10px rgba(0,0,0,.10);
+  }
+  #metrics h2 { margin: 0 0 5px; font-size: 12px; letter-spacing: .06em; color: var(--ink-soft); text-transform: uppercase; }
+  #metrics table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  #metrics td { padding: 1px 0; }
+  #metrics td.k { color: var(--ink-soft); }
+  #metrics td.v { text-align: right; font-weight: 600; }
+  #metrics tr.bad td.v { color: var(--warn); }
+  #metrics tr.key td.k, #metrics tr.key td.v { font-weight: 700; }
+  #metrics .note { margin-top: 6px; padding-top: 5px; border-top: 1px dashed var(--rule); color: var(--ink-soft); line-height: 1.45; }
+
+  #legend {
+    position: fixed; bottom: 10px; right: 10px; z-index: 25; width: 214px;
+    background: rgba(255,255,255,.96); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 7px 9px; box-shadow: 0 2px 10px rgba(0,0,0,.10);
+  }
+  #legend h2 { margin: 0 0 5px; font-size: 12px; letter-spacing: .06em; color: var(--ink-soft); text-transform: uppercase; }
+  #legend .row { display: flex; align-items: center; gap: 7px; padding: 1px 0; }
+  #legend .row span { color: var(--ink-soft); }
+  #legend svg { flex: none; }
+  #alert {
+    position: fixed; left: 12px; bottom: 12px; z-index: 26; max-width: 460px;
+    background: #fff3ef; border: 1px solid var(--warn); color: var(--warn);
+    padding: 5px 9px; border-radius: 5px; display: none;
+  }
+
+  /* --------------------------------------------------------------------
+     Review overlay column (presentation only; no algorithm is touched).
+     Every floating panel is stacked in ONE fixed right-hand column, so no
+     panel can overlap another one or cover the drawing area.
+     -------------------------------------------------------------------- */
+  html { --side-w: 300px; }
+  html.side-collapsed { --side-w: 0px; }
+  #sidebar {
+    box-sizing: border-box;
+    position: fixed; top: 44px; right: 0; bottom: 0;
+    width: 300px; max-height: 100vh;
+    overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+    padding: 8px; z-index: 60;
+  }
+  #sidebar > *:not(#sideToggleWrap) {
+    position: static; top: auto; right: auto; bottom: auto; left: auto;
+    width: 100%; max-width: 100%; min-width: 0; margin: 0;
+    flex: 0 0 auto; transform: none;
+  }
+  #sideToggleWrap { flex: 0 0 auto; align-self: flex-end; }
+  #sideToggle {
+    font: inherit; font-size: 12px; line-height: 1.4; padding: 2px 8px;
+    border: 1px solid var(--rule); border-radius: 4px;
+    background: #fff; color: var(--ink); cursor: pointer;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.20);
+  }
+  #sideToggle:hover { background: #eef1f5; }
+  html.side-collapsed #sidebar {
+    width: auto; bottom: auto; overflow: visible; padding: 6px;
+  }
+  html.side-collapsed #sidebar > *:not(#sideToggleWrap) { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <div class="name">PoC Layout C<span>予約レーン方式（min-gap 予約が積み順を決める）</span></div>
+  <div class="ctl"><label for="zx">横ズーム</label><input id="zx" type="range" min="1" max="240" value="60"><output id="zxo">6.0</output></div>
+  <div class="ctl"><label for="zy">縦ズーム</label><input id="zy" type="range" min="30" max="260" value="100"><output id="zyo">1.00</output></div>
+  <button id="btnFit" title="F キー">Fit</button>
+  <button id="btnLanes" aria-pressed="false" title="予約レーンを薄い帯で表示">予約レーン</button>
+  <button id="btnActual" aria-pressed="true" title="実績バーの表示切替（行高は変わらない）">実績</button>
+  <div class="hint">Ctrl+ホイール=横ズーム / Shift+ホイール=縦ズーム / ドラッグ・ホイール=パン / F=Fit</div>
+</div>
+
+<svg id="stage" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<div id="sidebar">
+  <div id="sideToggleWrap"><button id="sideToggle" type="button" aria-expanded="true">パネル</button></div>
+
+<div id="metrics">
+  <h2>metrics</h2>
+  <table id="mtable"></table>
+  <div class="note" id="mnote"></div>
+</div>
+
+<div id="legend">
+  <h2>legend</h2>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><rect x="1" y="2" width="52" height="9" rx="2" fill="#e3e8ee" stroke="#4a5666"></rect><rect x="1" y="5.5" width="30" height="4" fill="#2f3a49"></rect></svg><span>bar（実績は内側）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><polygon points="1,2 48,2 53,6.5 48,11 1,11 5,6.5" fill="#e3e8ee" stroke="#4a5666"></polygon><rect x="5" y="5" width="26" height="4" fill="#2f3a49"></rect></svg><span>chevron（実績は内側）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><line x1="1" y1="4" x2="46" y2="4" stroke="#4a5666" stroke-width="2.5"></line><polygon points="46,1 53,4 46,7" fill="#4a5666"></polygon><rect x="1" y="9" width="26" height="4" fill="#2f3a49"></rect></svg><span>arrow（実績は下）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><line x1="2" y1="4" x2="52" y2="4" stroke="#4a5666" stroke-width="2.5"></line><line x1="2" y1="1" x2="2" y2="7" stroke="#4a5666" stroke-width="2.5"></line><line x1="52" y1="1" x2="52" y2="7" stroke="#4a5666" stroke-width="2.5"></line><rect x="2" y="9" width="26" height="4" fill="#2f3a49"></rect></svg><span>endpointSpan（実績は下）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><polygon points="10,1 17,6 10,11 3,6" fill="#e3e8ee" stroke="#4a5666"></polygon><rect x="3" y="9.5" width="14" height="3.5" fill="#2f3a49"></rect></svg><span>milestone（実績は下）</span></div>
+  <div class="row" style="margin-top:4px">
+    <svg width="54" height="14" viewBox="0 0 54 14">
+      <g transform="translate(1,1)"><circle cx="6" cy="6" r="5.5" fill="#fff" stroke="#2f3a49"></circle><path d="M3.2 6.2 L5.2 8.4 L8.9 3.6" fill="none" stroke="#2f3a49" stroke-width="1.6"></path></g>
+      <g transform="translate(15,1)"><circle cx="6" cy="6" r="5.5" fill="#fff" stroke="#2f3a49"></circle><line x1="3" y1="3" x2="9" y2="9" stroke="#2f3a49" stroke-width="1.6"></line></g>
+      <g transform="translate(29,1)"><circle cx="6" cy="6" r="5.5" fill="#fff" stroke="#8a2b12"></circle><line x1="6" y1="2.8" x2="6" y2="6.9" stroke="#8a2b12" stroke-width="1.6"></line><circle cx="6" cy="9.1" r="0.9" fill="#8a2b12"></circle></g>
+      <g transform="translate(43,1)"><circle cx="6" cy="6" r="5.5" fill="#fff" stroke="#96a0ad" stroke-dasharray="2 2"></circle></g>
+    </svg>
+    <span>完了 / 中断 / 期限超過 / 未完了</span>
+  </div>
+  <div class="row"><span style="font-size:11px">未完了は選択時のみ（タスクをクリック）</span></div>
+</div>
+
+<div id="alert"></div>
+</div>
+
+<script>
+'use strict';
+
+// ---------------------------------------------------------------------------
+// Shared PoC data. Copy verbatim. Do not modify.
+// ---------------------------------------------------------------------------
+
+/** Deterministic LCG so every PoC renders byte-identical input. */
+function makeRng(seed) {
+  var s = seed >>> 0;
+  return function () {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+var SHAPE_KINDS = ['bar', 'chevron', 'arrow', 'endpointSpan'];
+
+/**
+ * Layout stress cases. Each case becomes ONE TaskGroup (= one row).
+ * t: [name, startDay, finishDay, shapeKind, milestone]
+ * d: [fromIndex, toIndex, linkType]  (indices are local to the case)
+ */
+var LAYOUT_CASES = [
+  { title: '1. 直列 FS 3 本',
+    t: [['A', 0, 20, 'bar', false], ['B', 24, 44, 'bar', false], ['C', 48, 68, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS']] },
+
+  { title: '2. 逆行依存（右から左へ）',
+    t: [['A', 60, 80, 'bar', false], ['B', 10, 30, 'bar', false], ['C', 100, 120, 'bar', false]],
+    d: [[0, 1, 'FS'], [2, 0, 'FS']] },
+
+  { title: '3. 同一行内で交差する 2 本',
+    t: [['A', 0, 24, 'bar', false], ['B', 30, 54, 'bar', false],
+        ['C', 60, 84, 'bar', false], ['D', 90, 114, 'bar', false]],
+    d: [[0, 2, 'FS'], [1, 3, 'FS']] },
+
+  { title: '4. 1 対 4 の扇形（出）',
+    t: [['SRC', 0, 20, 'chevron', false], ['A', 30, 46, 'bar', false], ['B', 50, 66, 'bar', false],
+        ['C', 70, 86, 'bar', false], ['D', 90, 106, 'bar', false]],
+    d: [[0, 1, 'FS'], [0, 2, 'FS'], [0, 3, 'FS'], [0, 4, 'FS']] },
+
+  { title: '5. 4 対 1 の扇形（入）',
+    t: [['A', 0, 16, 'bar', false], ['B', 20, 36, 'bar', false], ['C', 40, 56, 'bar', false],
+        ['D', 60, 76, 'bar', false], ['DST', 90, 110, 'chevron', false]],
+    d: [[0, 4, 'FS'], [1, 4, 'FS'], [2, 4, 'FS'], [3, 4, 'FS']] },
+
+  { title: '6. 完全結合（4 タスク 6 本）',
+    t: [['A', 0, 20, 'bar', false], ['B', 26, 46, 'bar', false],
+        ['C', 52, 72, 'bar', false], ['D', 78, 98, 'bar', false]],
+    d: [[0, 1, 'FS'], [0, 2, 'FS'], [0, 3, 'FS'], [1, 2, 'FS'], [1, 3, 'FS'], [2, 3, 'FS']] },
+
+  { title: '7. 3 段に積まれた行を跨ぐ依存',
+    t: [['A', 0, 60, 'bar', false], ['B', 10, 70, 'bar', false], ['C', 20, 80, 'bar', false],
+        ['D', 90, 110, 'bar', false]],
+    d: [[0, 3, 'FS'], [1, 3, 'FS'], [2, 3, 'FS'], [0, 1, 'SS'], [1, 2, 'SS']] },
+
+  { title: '8. マイルストーンへ集約',
+    t: [['A', 0, 24, 'bar', false], ['B', 12, 40, 'bar', false], ['C', 28, 56, 'bar', false],
+        ['M', 62, 62, 'milestone', true]],
+    d: [[0, 3, 'FS'], [1, 3, 'FS'], [2, 3, 'FS']] },
+
+  { title: '9. 同一開始日の 5 タスク',
+    t: [['A', 20, 44, 'bar', false], ['B', 20, 40, 'bar', false], ['C', 20, 36, 'bar', false],
+        ['D', 20, 32, 'bar', false], ['E', 20, 28, 'bar', false]],
+    d: [[4, 0, 'SS'], [3, 0, 'SS'], [2, 0, 'SS'], [1, 0, 'SS']] },
+
+  { title: '10. 隣接（finish == start）',
+    t: [['A', 0, 30, 'bar', false], ['B', 30, 60, 'bar', false],
+        ['C', 60, 90, 'bar', false], ['D', 90, 120, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS'], [2, 3, 'FS']] },
+
+  { title: '11. 長い名称がはみ出す',
+    t: [['要件定義と外部仕様の確定', 0, 12, 'bar', false],
+        ['詳細設計レビューの反映', 18, 30, 'bar', false],
+        ['結合検証と是正', 36, 48, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS']] },
+
+  { title: '12. 幅がない形状種の混在',
+    t: [['A', 0, 26, 'arrow', false], ['B', 32, 58, 'endpointSpan', false],
+        ['C', 64, 90, 'chevron', false], ['M', 96, 96, 'milestone', true]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS'], [2, 3, 'FS'], [0, 2, 'FS']] },
+
+  { title: '13. 予実＋進捗マーカー付きで配線',
+    t: [['A', 0, 30, 'bar', false], ['B', 36, 66, 'bar', false],
+        ['C', 72, 102, 'chevron', false], ['D', 40, 100, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS'], [0, 3, 'SS'], [3, 2, 'FF']] },
+
+  { title: '14. 密集（12 タスク・交差多数）',
+    t: [['a', 0, 10, 'bar', false], ['b', 8, 20, 'bar', false], ['c', 16, 28, 'bar', false],
+        ['d', 24, 36, 'bar', false], ['e', 32, 44, 'bar', false], ['f', 40, 52, 'bar', false],
+        ['g', 48, 60, 'bar', false], ['h', 56, 68, 'bar', false], ['i', 64, 76, 'bar', false],
+        ['j', 72, 84, 'bar', false], ['k', 80, 92, 'bar', false], ['l', 88, 100, 'bar', false]],
+    d: [[0, 3, 'FS'], [1, 5, 'FS'], [2, 7, 'FS'], [3, 9, 'FS'], [4, 11, 'FS'],
+        [0, 11, 'FS'], [6, 8, 'FS'], [8, 10, 'FS'], [5, 9, 'FS'], [7, 11, 'FS']] },
+
+  { title: '15. 行を跨ぐ依存の受け口',
+    t: [['X', 0, 24, 'bar', false], ['Y', 40, 64, 'bar', false], ['Z', 80, 104, 'bar', false]],
+    d: [[0, 1, 'FS'], [1, 2, 'FS']] }
+];
+
+/** Cross-row links, given as [caseIndex, taskIndex] pairs. Exercise vertical routing. */
+var CROSS_ROW_LINKS = [
+  [[0, 2], [2, 0], 'FS'], [[3, 4], [5, 0], 'FS'], [[7, 3], [9, 0], 'FS'],
+  [[5, 3], [13, 0], 'FS'], [[9, 3], [14, 0], 'FS'], [[11, 3], [14, 1], 'FS'],
+  [[13, 2], [14, 2], 'FS'], [[1, 2], [6, 0], 'FS'], [[6, 3], [12, 0], 'FS']
+];
+
+/** Build the layout-stress dataset: one TaskGroup per case. */
+function buildLayoutDataset() {
+  var tasks = [], groups = [], links = [], uid = 1, idx = [];
+  for (var c = 0; c < LAYOUT_CASES.length; c++) {
+    var kase = LAYOUT_CASES[c], memberUids = [], local = [];
+    for (var i = 0; i < kase.t.length; i++) {
+      var row = kase.t[i];
+      var dur = row[2] - row[1];
+      var actualDur = Math.max(0, Math.round(dur * (0.3 + 0.5 * ((c + i) % 5) / 4)));
+      tasks.push({
+        uid: uid, name: row[0], groupId: 'G' + c,
+        startDay: row[1], finishDay: row[2],
+        milestone: row[4], shapeKind: row[3],
+        wbsParentUid: null, wbsDepth: 1 + (i % 3),
+        actualStartDay: row[1], actualDurationDays: actualDur,
+        actualFinishDay: null,
+        percentComplete: dur === 0 ? 0 : Math.min(100, Math.round((actualDur / dur) * 100)),
+        stackOrder: null
+      });
+      memberUids.push(uid); local.push(uid); uid++;
+    }
+    idx.push(local);
+    groups.push({ id: 'G' + c, title: kase.title, memberUids: memberUids });
+    for (var k = 0; k < kase.d.length; k++) {
+      links.push({ fromUid: local[kase.d[k][0]], toUid: local[kase.d[k][1]], linkType: kase.d[k][2] });
+    }
+  }
+  for (var x = 0; x < CROSS_ROW_LINKS.length; x++) {
+    var a = CROSS_ROW_LINKS[x][0], b = CROSS_ROW_LINKS[x][1];
+    links.push({ fromUid: idx[a[0]][a[1]], toUid: idx[b[0]][b[1]], linkType: CROSS_ROW_LINKS[x][2] });
+  }
+  return { tasks: tasks, groups: groups, links: links };
+}
+
+/**
+ * Build the zoom dataset: a large project with a 5-level WBS.
+ * Level fan-out 5 / 4 / 3 / 2 / 2 -> 5 + 20 + 60 + 120 + 240 = 445 tasks.
+ * Rows (TaskGroup) are the level-2 nodes, so 20 rows carry every leaf.
+ */
+function buildZoomDataset() {
+  var rng = makeRng(20260730);
+  var tasks = [], groups = [], links = [], uid = 1;
+  var HORIZON = 720;                       // project spans 720 days
+  var FANOUT = [5, 4, 3, 2, 2];
+  var byDepth = [[], [], [], [], [], []];
+
+  function make(depth, parentUid, s, f, label) {
+    var t = {
+      uid: uid++, name: label, groupId: null,
+      startDay: s, finishDay: f, milestone: false, shapeKind: 'bar',
+      wbsParentUid: parentUid, wbsDepth: depth,
+      actualStartDay: s, actualDurationDays: Math.round((f - s) * (0.2 + rng() * 0.7)),
+      actualFinishDay: null, percentComplete: 0, stackOrder: null
+    };
+    var dur = f - s;
+    t.percentComplete = dur === 0 ? 0 : Math.min(100, Math.round(t.actualDurationDays / dur * 100));
+    tasks.push(t); byDepth[depth].push(t);
+    return t;
+  }
+
+  function split(node, depth) {
+    if (depth > 5) return;
+    var n = FANOUT[depth - 1];
+    var span = node.finishDay - node.startDay;
+    var seg = span / n;
+    for (var i = 0; i < n; i++) {
+      var s = Math.round(node.startDay + seg * i + seg * 0.05 * rng());
+      var f = Math.round(node.startDay + seg * (i + 1) - seg * 0.10 * rng());
+      if (f <= s) f = s + 1;
+      var child = make(depth, node.uid, s, f, 'L' + depth + '-' + uid);
+      split(child, depth + 1);
+    }
+  }
+
+  for (var p = 0; p < FANOUT[0]; p++) {
+    var s0 = Math.round(HORIZON / FANOUT[0] * p);
+    var f0 = Math.round(HORIZON / FANOUT[0] * (p + 1)) - 4;
+    var root = make(1, null, s0, f0, 'L1-' + (p + 1));
+    split(root, 2);
+  }
+
+  // Rows: every depth-2 node becomes a TaskGroup holding its whole subtree.
+  var byUid = {};
+  for (var q = 0; q < tasks.length; q++) byUid[tasks[q].uid] = tasks[q];
+  function rootGroupOf(t) {
+    var cur = t;
+    while (cur.wbsDepth > 2 && cur.wbsParentUid != null) cur = byUid[cur.wbsParentUid];
+    return cur.wbsDepth === 2 ? cur.uid : null;
+  }
+  var groupMap = {};
+  for (var r = 0; r < tasks.length; r++) {
+    var g = rootGroupOf(tasks[r]);
+    if (g == null) { tasks[r].groupId = 'ROOT'; continue; }
+    tasks[r].groupId = 'G' + g;
+    if (!groupMap['G' + g]) groupMap['G' + g] = { id: 'G' + g, title: byUid[g].name, memberUids: [] };
+    groupMap['G' + g].memberUids.push(tasks[r].uid);
+  }
+  var rootGroup = { id: 'ROOT', title: 'L1', memberUids: [] };
+  for (var r2 = 0; r2 < tasks.length; r2++) {
+    if (tasks[r2].groupId === 'ROOT') rootGroup.memberUids.push(tasks[r2].uid);
+  }
+  groups.push(rootGroup);
+  for (var key in groupMap) if (groupMap.hasOwnProperty(key)) groups.push(groupMap[key]);
+
+  // Links: chain siblings at every depth (FS), plus a few long-range ones.
+  for (var d = 1; d <= 5; d++) {
+    var lvl = byDepth[d];
+    for (var i2 = 1; i2 < lvl.length; i2++) {
+      if (lvl[i2].wbsParentUid === lvl[i2 - 1].wbsParentUid) {
+        links.push({ fromUid: lvl[i2 - 1].uid, toUid: lvl[i2].uid, linkType: 'FS' });
+      }
+    }
+  }
+  for (var j = 0; j < 40; j++) {
+    var a2 = tasks[Math.floor(rng() * tasks.length)], b2 = tasks[Math.floor(rng() * tasks.length)];
+    if (a2.uid !== b2.uid && a2.finishDay <= b2.startDay) {
+      links.push({ fromUid: a2.uid, toUid: b2.uid, linkType: 'FS' });
+    }
+  }
+  return { tasks: tasks, groups: groups, links: links };
+}
+
+// ---------------------------------------------------------------------------
+// Variant C: "the room a line NEEDS" is reserved BEFORE any route is drawn.
+//
+//   STEP 1  min-gap constraints   (px pads + must-be-on-different-level flags)
+//   STEP 2  label occupancy       (approximated, never measured, never cached)
+//   STEP 3  stackOrder assignment (consumes step 1 + step 2; clear-lane tie-break)
+//   STEP 3b lane reservation      (which lane each link will use; lane widths)
+//   STEP 4  one-pass routing      (pure geometry, no search, no backtracking)
+// ---------------------------------------------------------------------------
+
+var CFG = {
+  gutterWidth: 196,          // left column that carries the row (TaskGroup) title
+  headerHeight: 30,          // time axis band
+  padLeft: 26,               // x(day 0) inside the content area
+  planHeight: 16,            // plan bar height at vertical zoom 1
+  actualHeight: 7,           // actual bar height at vertical zoom 1
+  actualGap: 2,              // gap between plan shape and actual bar (width-less kinds)
+  levelPad: 3,               // padding inside one stack level
+  stubOut: 12,               // horizontal exit stub of a dependency line
+  stubIn: 10,                // clearance kept in front of the entry edge
+  arrowLength: 7,            // arrow head length
+  lanePitch: 5,              // vertical distance between two lines sharing a lane
+  laneMargin: 3,             // lane padding on both sides
+  laneStroke: 1,             // the drawn width of one routed line
+  rowGutter: 6,              // vertical gap between two rows (shared, so 3px each)
+  markerSize: 12,            // progress marker diameter (fixed px, not zoomed)
+  markerGap: 4,              // fixed 4px from the actual bar right edge
+  maxStack: 24,              // safety valve only - never "reuse the last level"
+  depthWeight: 2             // how much one avoided crossing is worth in stack depth
+};
+
+/** Total horizontal clearance a dependency line needs at its seam. */
+var MIN_GAP_PX = CFG.stubOut + CFG.stubIn + CFG.arrowLength;
+
+var VIEW = {
+  pxPerDay: 6,
+  verticalZoom: 1,
+  scrollX: 0,
+  scrollY: 0,
+  showLanes: false,
+  showActual: true,
+  selectedUid: null
+};
+
+var DATASET = buildLayoutDataset();
+var TASK_BY_UID = {};
+for (var ti = 0; ti < DATASET.tasks.length; ti++) TASK_BY_UID[DATASET.tasks[ti].uid] = DATASET.tasks[ti];
+var ROW_INDEX_BY_GROUP = {};
+for (var gi = 0; gi < DATASET.groups.length; gi++) ROW_INDEX_BY_GROUP[DATASET.groups[gi].id] = gi;
+
+var stage = document.getElementById('stage');
+var alertBox = document.getElementById('alert');
+
+// --------------------------------------------------------------------------
+// Text helpers. Width is APPROXIMATED per spec 3-3: no measurement, no cache.
+// --------------------------------------------------------------------------
+
+/** True for characters that occupy two half-widths (CJK, kana, full-width forms). */
+function isFullWidthChar(code) {
+  return (code >= 0x1100 && code <= 0x115f) ||
+         (code >= 0x2e80 && code <= 0x303e) ||
+         (code >= 0x3041 && code <= 0x33ff) ||
+         (code >= 0x3400 && code <= 0x4dbf) ||
+         (code >= 0x4e00 && code <= 0x9fff) ||
+         (code >= 0xa000 && code <= 0xa4cf) ||
+         (code >= 0xac00 && code <= 0xd7a3) ||
+         (code >= 0xf900 && code <= 0xfaff) ||
+         (code >= 0xfe30 && code <= 0xfe6f) ||
+         (code >= 0xff00 && code <= 0xff60) ||
+         (code >= 0xffe0 && code <= 0xffe6);
+}
+
+/** (fullWidthCount * 2 + halfWidthCount) * fontSize / 2 */
+function approximateTextWidth(text, fontSize) {
+  var halfUnits = 0;
+  for (var i = 0; i < text.length; i++) halfUnits += isFullWidthChar(text.charCodeAt(i)) ? 2 : 1;
+  return halfUnits * fontSize / 2;
+}
+
+/** Cut at 12 full-width / 24 half-width units. */
+function truncateLabel(text) {
+  var halfUnits = 0, cut = 0;
+  for (var i = 0; i < text.length; i++) {
+    var w = isFullWidthChar(text.charCodeAt(i)) ? 2 : 1;
+    if (halfUnits + w > 24) { cut = i; break; }
+    halfUnits += w; cut = i + 1;
+  }
+  return cut >= text.length ? text : text.slice(0, cut) + '…';
+}
+
+function escapeXml(text) {
+  return String(text).replace(/[&<>"']/g, function (ch) {
+    return ch === '&' ? '&amp;' : ch === '<' ? '&lt;' : ch === '>' ? '&gt;' :
+           ch === '"' ? '&quot;' : '&#39;';
+  });
+}
+
+function fmt(n, digits) { return n.toFixed(digits === undefined ? 0 : digits); }
+
+// --------------------------------------------------------------------------
+// The layout engine.
+// --------------------------------------------------------------------------
+
+/**
+ * Recompute the whole scene for the current zoom.
+ * @returns {object} scene with views, rows, routes and metrics
+ */
+function computeScene() {
+  var layoutStart = performance.now();
+
+  var pxPerDay = VIEW.pxPerDay;
+  var vz = VIEW.verticalZoom;
+  var planHeight = CFG.planHeight * vz;
+  var actualHeight = CFG.actualHeight * vz;
+  var actualGap = CFG.actualGap * vz;
+  var levelPad = CFG.levelPad * vz;
+  var levelHeight = levelPad * 2 + planHeight + actualGap + actualHeight;
+  var fontSize = Math.max(10, planHeight * 0.8);
+  // spec 5: row padding at most 25% of a level height. Half of rowGutter belongs
+  // to this row too, so keep the sum below the budget.
+  var rowPad = Math.max(2, Math.min(4, levelHeight * 0.25 - CFG.rowGutter / 2));
+
+  function dayToX(day) { return day * pxPerDay + CFG.padLeft; }
+
+  // ---- base geometry ------------------------------------------------------
+  var views = [];
+  var viewByUid = {};
+  for (var i = 0; i < DATASET.tasks.length; i++) {
+    var task = DATASET.tasks[i];
+    var startX = dayToX(task.startDay);
+    var finishX = dayToX(task.finishDay);
+    var shapeLeft, shapeRight;
+    if (task.milestone || task.finishDay === task.startDay) {
+      var half = Math.max(6, planHeight * 0.55);
+      shapeLeft = startX - half; shapeRight = startX + half;
+    } else {
+      shapeLeft = startX;
+      shapeRight = Math.max(finishX, startX + 2);
+    }
+    var actualLeft = dayToX(task.actualStartDay);
+    var actualRight = dayToX(task.actualStartDay + task.actualDurationDays);
+    var markerState = progressMarkerState(task);
+    var markerRight = actualRight + CFG.markerGap + CFG.markerSize;
+    var view = {
+      task: task, uid: task.uid,
+      rowIndex: ROW_INDEX_BY_GROUP[task.groupId],
+      shapeLeft: shapeLeft, shapeRight: shapeRight,
+      actualLeft: actualLeft, actualRight: actualRight,
+      markerState: markerState, markerRight: markerRight,
+      padLeftPx: 0, padRightPx: 0,
+      mustDiffer: [],
+      partners: [], placed: false,
+      labelText: '', labelOutside: false, labelWidth: 0,
+      occLeft: 0, occRight: 0,
+      level: 0, topY: 0
+    };
+    views.push(view);
+    viewByUid[task.uid] = view;
+  }
+
+  // ---- STEP 1 : minimum-gap constraints (no route is drawn here) ----------
+  // For every link, work out purely geometrically how much horizontal room the
+  // exit / entry stubs need at the seam. The deficit becomes (a) px padding
+  // folded into the occupied interval of both endpoints and (b) a hard
+  // "must sit on different stack levels" constraint - because a line can only
+  // pass between two tasks that do not share a level once the seam is too tight.
+  var linkModels = [];
+  for (var li = 0; li < DATASET.links.length; li++) {
+    var link = DATASET.links[li];
+    var fromView = viewByUid[link.fromUid], toView = viewByUid[link.toUid];
+    var exitSide = (link.linkType === 'FS' || link.linkType === 'FF') ? 1 : -1;   // +1 right edge
+    var entrySide = (link.linkType === 'FS' || link.linkType === 'SS') ? -1 : 1;  // -1 left edge
+    var exitEdgeX = exitSide > 0 ? fromView.shapeRight : fromView.shapeLeft;
+    var entryEdgeX = entrySide < 0 ? toView.shapeLeft : toView.shapeRight;
+    var seamGap = (entryEdgeX - exitEdgeX) * exitSide;   // signed room in the exit direction
+    var deficit = MIN_GAP_PX - seamGap;
+    var model = {
+      index: li, link: link, from: fromView, to: toView, linkType: link.linkType,
+      exitSide: exitSide, entrySide: entrySide,
+      crossRow: fromView.rowIndex !== toView.rowIndex,
+      needDifferentLevel: false, deficit: deficit
+    };
+    if (deficit > 0) {
+      var pad = Math.min(deficit / 2, MIN_GAP_PX / 2);
+      if (exitSide > 0) fromView.padRightPx = Math.max(fromView.padRightPx, pad);
+      else fromView.padLeftPx = Math.max(fromView.padLeftPx, pad);
+      if (entrySide < 0) toView.padLeftPx = Math.max(toView.padLeftPx, pad);
+      else toView.padRightPx = Math.max(toView.padRightPx, pad);
+      if (!model.crossRow) {
+        model.needDifferentLevel = true;
+        fromView.mustDiffer.push(toView.uid);
+        toView.mustDiffer.push(fromView.uid);
+      }
+    }
+    if (!model.crossRow) {
+      fromView.partners.push({ other: toView, model: model, selfIsSource: true });
+      toView.partners.push({ other: fromView, model: model, selfIsSource: false });
+    }
+    linkModels.push(model);
+  }
+
+  // ---- STEP 2 : label occupancy ------------------------------------------
+  for (var vi = 0; vi < views.length; vi++) {
+    var v = views[vi];
+    var innerWidth = v.shapeRight - v.shapeLeft - 8;
+    var full = v.task.name;
+    var fullWidth = approximateTextWidth(full, fontSize);
+    if (fullWidth <= innerWidth) {
+      v.labelText = full; v.labelOutside = false; v.labelWidth = fullWidth;
+    } else {
+      var cutText = truncateLabel(full);
+      var cutWidth = approximateTextWidth(cutText, fontSize);
+      if (cutWidth <= innerWidth) {
+        v.labelText = cutText; v.labelOutside = false; v.labelWidth = cutWidth;
+      } else {
+        v.labelText = cutText; v.labelOutside = true; v.labelWidth = cutWidth;
+      }
+    }
+    // the progress marker is ALWAYS part of the occupied width, so toggling the
+    // actual bar can never move the layout
+    var right = Math.max(v.shapeRight, v.markerState ? v.markerRight : v.actualRight);
+    if (v.labelOutside) right += 4 + v.labelWidth;
+    v.occLeft = v.shapeLeft - v.padLeftPx;
+    v.occRight = right + v.padRightPx;
+    v.drawnRight = v.labelOutside ? right : Math.max(v.shapeRight, v.markerState ? v.markerRight : v.shapeRight);
+    v.drawnLeft = v.shapeLeft;
+  }
+
+  // ---- STEP 3 : stackOrder assignment ------------------------------------
+  var rows = [];
+  var safetyValveHit = false;
+  for (var ri = 0; ri < DATASET.groups.length; ri++) {
+    var group = DATASET.groups[ri];
+    var members = [];
+    for (var mi = 0; mi < group.memberUids.length; mi++) members.push(viewByUid[group.memberUids[mi]]);
+
+    // deterministic order: milestone first -> startDay asc -> finishDay desc -> uid asc
+    members.sort(function (a, b) {
+      if (a.task.milestone !== b.task.milestone) return a.task.milestone ? -1 : 1;
+      if (a.task.startDay !== b.task.startDay) return a.task.startDay - b.task.startDay;
+      if (a.task.finishDay !== b.task.finishDay) return b.task.finishDay - a.task.finishDay;
+      return a.uid - b.uid;
+    });
+
+    var levels = [];   // levels[k] = array of views already placed on level k
+    for (var mj = 0; mj < members.length; mj++) {
+      var cand = members[mj];
+      var bestLevel = -1, bestScore = Infinity;
+      var limit = Math.min(levels.length, CFG.maxStack - 1);
+      for (var lv = 0; lv <= limit; lv++) {
+        if (!levelAccepts(levels[lv], cand)) continue;
+        // tie-break: prefer the level that leaves a clear lane for this task's links
+        var score = clearLaneCost(cand, lv, levels) * CFG.depthWeight + lv;
+        if (score < bestScore - 1e-9) { bestScore = score; bestLevel = lv; }
+      }
+      if (bestLevel < 0) {
+        // never reuse the last level - always open a fresh one
+        bestLevel = levels.length;
+        if (bestLevel >= CFG.maxStack) { safetyValveHit = true; bestLevel = CFG.maxStack - 1; }
+      }
+      while (levels.length <= bestLevel) levels.push([]);
+      levels[bestLevel].push(cand);
+      cand.level = bestLevel;
+      cand.placed = true;
+      cand.task.stackOrder = bestLevel;
+    }
+    if (levels.length === 0) levels.push([]);
+    rows.push({ group: group, members: members, levels: levels, laneCounts: [], laneWidths: [], laneY: [] });
+  }
+
+  /** A level accepts a task when no occupied interval overlaps and no must-differ partner sits there. */
+  function levelAccepts(occupants, cand) {
+    if (!occupants) return true;
+    for (var k = 0; k < occupants.length; k++) {
+      var o = occupants[k];
+      if (cand.occLeft < o.occRight && o.occLeft < cand.occRight) return false;
+      for (var m = 0; m < cand.mustDiffer.length; m++) if (cand.mustDiffer[m] === o.uid) return false;
+    }
+    return true;
+  }
+
+  /** Corridor x of the vertical run that leaves the source of a link. */
+  function exitCorridorX(model) {
+    return model.exitSide > 0 ? model.from.shapeRight + CFG.stubOut : model.from.shapeLeft - CFG.stubOut;
+  }
+  /** Corridor x of the vertical run that lands on the target of a link. */
+  function entryCorridorX(model) {
+    return model.entrySide < 0 ? model.to.shapeLeft : model.to.shapeRight;
+  }
+
+  /**
+   * How many task rectangles a link would have to cross if this task sat on
+   * candidate level `lv`. Only already-placed partners can be judged - that is
+   * the price of a single greedy pass, and it is enough to steer the choice.
+   */
+  function clearLaneCost(cand, lv, levels) {
+    var cost = 0;
+    for (var p = 0; p < cand.partners.length; p++) {
+      var other = cand.partners[p].other;
+      if (!other.placed) continue;          // greedy: only already-placed partners can be judged
+      var lp = other.level;
+      var model = cand.partners[p].model;
+      if (lp === lv) {
+        if (levelBlocked(levels[lv], cand, other)) cost += 1;
+      } else {
+        var lo = Math.min(lv, lp) + 1, hi = Math.max(lv, lp) - 1;
+        var cx1 = exitCorridorX(model), cx2 = entryCorridorX(model);
+        var c1 = 0, c2 = 0;
+        for (var m = lo; m <= hi; m++) {
+          c1 += countAtX(levels[m], cx1, cand.uid, other.uid);
+          c2 += countAtX(levels[m], cx2, cand.uid, other.uid);
+        }
+        cost += Math.min(c1, c2);
+        cost += 0.25 * Math.max(0, Math.abs(lv - lp) - 1);
+      }
+    }
+    return cost;
+  }
+
+  function levelBlocked(occupants, a, b) {
+    if (!occupants) return false;
+    var lo = Math.min(a.shapeRight, b.shapeRight), hi = Math.max(a.shapeLeft, b.shapeLeft);
+    if (hi <= lo) return true;   // they overlap in x on the same level - never clear
+    for (var k = 0; k < occupants.length; k++) {
+      var o = occupants[k];
+      if (o.uid === a.uid || o.uid === b.uid) continue;
+      if (o.shapeLeft < hi && lo < o.shapeRight) return true;
+    }
+    return false;
+  }
+
+  function countAtX(occupants, x, skipA, skipB) {
+    if (!occupants) return 0;
+    var n = 0;
+    for (var k = 0; k < occupants.length; k++) {
+      var o = occupants[k];
+      if (o.uid === skipA || o.uid === skipB) continue;
+      if (o.shapeLeft <= x && x <= o.drawnRight) n++;
+    }
+    return n;
+  }
+
+  // ---- band index bookkeeping (row, level) -> global visual order --------
+  var bandCells = [];        // flat list of {rowIndex, level, occupants}
+  var bandIndexOf = [];      // bandIndexOf[rowIndex][level]
+  for (var rb = 0; rb < rows.length; rb++) {
+    bandIndexOf.push([]);
+    for (var lb = 0; lb < rows[rb].levels.length; lb++) {
+      bandIndexOf[rb][lb] = bandCells.length;
+      bandCells.push({ rowIndex: rb, level: lb, occupants: rows[rb].levels[lb] });
+    }
+  }
+  /** Lane (row, laneIdx) sits immediately above band (row, laneIdx); laneIdx == levelCount means "below the row". */
+  function lanePosition(rowIndex, laneIdx) {
+    var levelCount = rows[rowIndex].levels.length;
+    if (laneIdx < levelCount) return bandIndexOf[rowIndex][laneIdx];
+    return bandIndexOf[rowIndex][levelCount - 1] + 1;
+  }
+
+  var layoutMs = performance.now() - layoutStart;
+
+  // ---- STEP 3b : lane reservation ----------------------------------------
+  // Every link now knows both endpoints' bands, so the lane it will travel in
+  // is decided here - still without drawing anything. Reserving the lane is
+  // what makes step 4 a single pass.
+  var reserveStart = performance.now();
+  for (var rc = 0; rc < rows.length; rc++) {
+    var laneSlots = [];
+    for (var lc = 0; lc <= rows[rc].levels.length; lc++) laneSlots.push(0);
+    rows[rc].laneCounts = laneSlots;
+  }
+
+  for (var lm = 0; lm < linkModels.length; lm++) {
+    var mdl = linkModels[lm];
+    var fb = bandIndexOf[mdl.from.rowIndex][mdl.from.level];
+    var tb = bandIndexOf[mdl.to.rowIndex][mdl.to.level];
+    mdl.fromBand = fb; mdl.toBand = tb;
+    mdl.exitX = exitCorridorX(mdl);
+    mdl.entryX = entryCorridorX(mdl);
+
+    if (fb === tb) {
+      // same band: a straight line is possible when nothing sits between them
+      var straightOk = mdl.linkType === 'FS' &&
+        mdl.from.shapeRight + MIN_GAP_PX <= mdl.to.shapeLeft &&
+        !levelBlocked(rows[mdl.from.rowIndex].levels[mdl.from.level], mdl.from, mdl.to);
+      if (straightOk) { mdl.straight = true; continue; }
+      var above = { rowIndex: mdl.from.rowIndex, laneIdx: mdl.from.level };
+      var below = { rowIndex: mdl.from.rowIndex, laneIdx: mdl.from.level + 1 };
+      mdl.lane = pickCheaperLane(mdl, [above, below]);
+    } else {
+      var goingDown = tb > fb;
+      var laneNearTarget = { rowIndex: mdl.to.rowIndex, laneIdx: goingDown ? mdl.to.level : mdl.to.level + 1 };
+      var laneNearSource = { rowIndex: mdl.from.rowIndex, laneIdx: goingDown ? mdl.from.level + 1 : mdl.from.level };
+      mdl.lane = pickCheaperLane(mdl, [laneNearTarget, laneNearSource]);
+    }
+    var laneRow = rows[mdl.lane.rowIndex];
+    mdl.laneSlot = laneRow.laneCounts[mdl.lane.laneIdx];
+    laneRow.laneCounts[mdl.lane.laneIdx]++;
+  }
+
+  /** Estimate crossings for each candidate lane and take the cheapest. Two fixed candidates, O(1). */
+  function pickCheaperLane(model, candidates) {
+    var best = candidates[0], bestCost = Infinity;
+    for (var c = 0; c < candidates.length; c++) {
+      var cost = estimateLaneCrossings(model, candidates[c]);
+      if (cost < bestCost) { bestCost = cost; best = candidates[c]; }
+    }
+    model.reservedCrossEstimate = bestCost;
+    return best;
+  }
+
+  /** Count task rectangles the two vertical runs would meet for a given lane. */
+  function estimateLaneCrossings(model, lane) {
+    var pos = lanePosition(lane.rowIndex, lane.laneIdx);
+    var total = 0;
+    // vertical run from the source band up/down to the lane, at exitX
+    var a0, a1;
+    if (pos > model.fromBand) { a0 = model.fromBand; a1 = pos - 1; }
+    else { a0 = pos; a1 = model.fromBand; }
+    for (var b = a0; b <= a1; b++) total += countAtX(bandCells[b].occupants, model.exitX, model.from.uid, model.to.uid);
+    // vertical run from the lane onto the target edge, at entryX (stops at the edge)
+    var c0, c1;
+    if (model.toBand >= pos) { c0 = pos; c1 = model.toBand - 1; }
+    else { c0 = model.toBand + 1; c1 = pos - 1; }
+    for (var d = c0; d <= c1; d++) total += countAtX(bandCells[d].occupants, model.entryX, model.from.uid, model.to.uid);
+    return total;
+  }
+
+  /**
+   * A reserved lane is exactly as wide as the lines it actually carries.
+   * A lane that carries no line reserves nothing; a lane that carries n lines
+   * reserves (n-1) pitches + one stroke + one margin on each side. No fixed
+   * worst-case block is ever reserved.
+   * @param {number} count lines routed through this lane
+   * @returns {number} reserved width in px
+   */
+  function laneWidthFor(count) {
+    if (!count) return 0;
+    return (count - 1) * CFG.lanePitch + CFG.laneStroke + CFG.laneMargin * 2;
+  }
+
+  // ---- vertical geometry (lane widths are now known) ---------------------
+  var y = 0;
+  for (var rg = 0; rg < rows.length; rg++) {
+    var row = rows[rg];
+    y += CFG.rowGutter;
+    row.topY = y;
+    y += rowPad;
+    row.laneWidths = []; row.laneY = []; row.levelTopY = [];
+    for (var lg = 0; lg < row.levels.length; lg++) {
+      row.laneWidths[lg] = laneWidthFor(row.laneCounts[lg]); row.laneY[lg] = y;
+      y += row.laneWidths[lg];
+      row.levelTopY[lg] = y;
+      y += levelHeight;
+    }
+    var lastIdx = row.levels.length;
+    row.laneWidths[lastIdx] = laneWidthFor(row.laneCounts[lastIdx]); row.laneY[lastIdx] = y;
+    var lastWidth = row.laneWidths[lastIdx];
+    y += lastWidth;
+    y += rowPad;
+    row.bottomY = y;
+  }
+  var contentHeight = y + CFG.rowGutter;
+
+  function laneLineY(lane, slot) {
+    var row = rows[lane.rowIndex];
+    return row.laneY[lane.laneIdx] + CFG.laneMargin + slot * CFG.lanePitch + 0.5;
+  }
+  function bandTopY(rowIndex, level) { return rows[rowIndex].levelTopY[level]; }
+  function planTopY(rowIndex, level) { return bandTopY(rowIndex, level) + levelPad; }
+
+  // ---- STEP 4 : one-pass routing -----------------------------------------
+  var routeStart = performance.now();
+  var routes = [];
+  for (var rm = 0; rm < linkModels.length; rm++) {
+    var mo = linkModels[rm];
+    var fv = mo.from, tv = mo.to;
+    var fPlanTop = planTopY(fv.rowIndex, fv.level);
+    var tPlanTop = planTopY(tv.rowIndex, tv.level);
+    var fMidY = fPlanTop + planHeight / 2;
+    var tMidY = tPlanTop + planHeight / 2;
+    var exitAnchorX = mo.exitSide > 0 ? fv.shapeRight : fv.shapeLeft;
+    var points;
+    var headDir;
+    if (mo.straight) {
+      points = [[exitAnchorX, fMidY], [tv.shapeLeft - CFG.arrowLength, tMidY]];
+      headDir = 'right';
+    } else {
+      var laneY = laneLineY(mo.lane, mo.laneSlot);
+      var entryFromAbove = laneY < tPlanTop;
+      var landY = entryFromAbove ? tPlanTop : tPlanTop + planHeight;
+      var stopY = entryFromAbove ? landY - CFG.arrowLength : landY + CFG.arrowLength;
+      points = [
+        [exitAnchorX, fMidY],
+        [mo.exitX, fMidY],
+        [mo.exitX, laneY],
+        [mo.entryX, laneY],
+        [mo.entryX, stopY]
+      ];
+      headDir = entryFromAbove ? 'down' : 'up';
+    }
+    // drop degenerate points
+    var clean = [points[0]];
+    for (var pi = 1; pi < points.length; pi++) {
+      var prev = clean[clean.length - 1], cur = points[pi];
+      if (Math.abs(prev[0] - cur[0]) < 0.01 && Math.abs(prev[1] - cur[1]) < 0.01) continue;
+      clean.push(cur);
+    }
+    mo.points = clean;
+    mo.headDir = headDir;
+    mo.bends = Math.max(0, clean.length - 2);
+    routes.push(mo);
+  }
+  var routeMs = performance.now() - routeStart;
+  var reserveMs = performance.now() - reserveStart - routeMs;
+
+  // ---- metrics ------------------------------------------------------------
+  var overlapCount = 0;
+  for (var ro = 0; ro < rows.length; ro++) {
+    for (var lo2 = 0; lo2 < rows[ro].levels.length; lo2++) {
+      var occ = rows[ro].levels[lo2];
+      for (var a1i = 0; a1i < occ.length; a1i++) {
+        for (var b1i = a1i + 1; b1i < occ.length; b1i++) {
+          if (occ[a1i].drawnLeft < occ[b1i].drawnRight && occ[b1i].drawnLeft < occ[a1i].drawnRight) overlapCount++;
+        }
+      }
+    }
+  }
+
+  var rectList = [];
+  for (var rv = 0; rv < views.length; rv++) {
+    var vv = views[rv];
+    var top = planTopY(vv.rowIndex, vv.level);
+    vv.planTop = top;
+    vv.planBottom = top + planHeight;
+    vv.bandTop = bandTopY(vv.rowIndex, vv.level);
+    rectList.push({ uid: vv.uid, x0: vv.shapeLeft, x1: vv.shapeRight, y0: top, y1: top + planHeight });
+  }
+
+  var lineIconCount = 0, lineIconCrossRow = 0, totalBends = 0;
+  var allSegments = [];
+  for (var rq = 0; rq < routes.length; rq++) {
+    var rt = routes[rq];
+    totalBends += rt.bends;
+    for (var sp = 0; sp + 1 < rt.points.length; sp++) {
+      var seg = { x0: rt.points[sp][0], y0: rt.points[sp][1], x1: rt.points[sp + 1][0], y1: rt.points[sp + 1][1], owner: rq };
+      allSegments.push(seg);
+      for (var rk = 0; rk < rectList.length; rk++) {
+        var rect = rectList[rk];
+        if (rect.uid === rt.from.uid || rect.uid === rt.to.uid) continue;
+        if (segmentHitsRect(seg, rect)) {
+          lineIconCount++; rt.crossed = true;
+          if (rt.crossRow) lineIconCrossRow++;
+        }
+      }
+    }
+  }
+
+  var lineLineCount = 0;
+  for (var s1 = 0; s1 < allSegments.length; s1++) {
+    for (var s2 = s1 + 1; s2 < allSegments.length; s2++) {
+      if (allSegments[s1].owner === allSegments[s2].owner) continue;
+      if (segmentsCross(allSegments[s1], allSegments[s2])) lineLineCount++;
+    }
+  }
+
+  var minX = Infinity, maxX = -Infinity, taskArea = 0, bandArea = 0;
+  for (var rd = 0; rd < views.length; rd++) {
+    minX = Math.min(minX, views[rd].drawnLeft);
+    maxX = Math.max(maxX, views[rd].drawnRight);
+    taskArea += (views[rd].drawnRight - views[rd].drawnLeft) * planHeight;
+  }
+  var contentWidth = maxX - minX;
+  // density denominator: the FULL row band (levels + reserved lanes + padding),
+  // so the space this variant spends on lanes is charged to it honestly.
+  var maxStack = 0;
+  for (var re = 0; re < rows.length; re++) {
+    maxStack = Math.max(maxStack, rows[re].levels.length);
+    bandArea += (rows[re].bottomY - rows[re].topY) * contentWidth;
+  }
+
+  var reservedCrossEstimate = 0;
+  for (var rf = 0; rf < linkModels.length; rf++) reservedCrossEstimate += (linkModels[rf].reservedCrossEstimate || 0);
+
+  return {
+    views: views, rows: rows, routes: routes, viewByUid: viewByUid,
+    levelHeight: levelHeight, planHeight: planHeight, actualHeight: actualHeight,
+    actualGap: actualGap, levelPad: levelPad, fontSize: fontSize,
+    contentHeight: contentHeight, contentWidth: maxX + 80,
+    metrics: {
+      tasks: DATASET.tasks.length, links: DATASET.links.length, rows: DATASET.groups.length,
+      layoutMs: layoutMs + reserveMs, routeMs: routeMs,
+      overlap: overlapCount, lineIcon: lineIconCount, lineIconCrossRow: lineIconCrossRow, lineLine: lineLineCount,
+      bends: totalBends, maxStack: maxStack,
+      density: bandArea > 0 ? taskArea / bandArea : 0,
+      reserveEstimate: reservedCrossEstimate,
+      safetyValve: safetyValveHit
+    }
+  };
+}
+
+/** Axis-aligned segment vs rectangle test (all our segments are axis aligned). */
+function segmentHitsRect(seg, rect) {
+  var sx0 = Math.min(seg.x0, seg.x1), sx1 = Math.max(seg.x0, seg.x1);
+  var sy0 = Math.min(seg.y0, seg.y1), sy1 = Math.max(seg.y0, seg.y1);
+  return sx0 < rect.x1 - 0.01 && rect.x0 + 0.01 < sx1 && sy0 < rect.y1 - 0.01 && rect.y0 + 0.01 < sy1;
+}
+
+/** Proper crossing of two axis-aligned segments (touching / collinear does not count). */
+function segmentsCross(a, b) {
+  var aHorizontal = Math.abs(a.y0 - a.y1) < 0.01;
+  var bHorizontal = Math.abs(b.y0 - b.y1) < 0.01;
+  if (aHorizontal === bHorizontal) return false;
+  var h = aHorizontal ? a : b, v = aHorizontal ? b : a;
+  var hx0 = Math.min(h.x0, h.x1), hx1 = Math.max(h.x0, h.x1);
+  var vy0 = Math.min(v.y0, v.y1), vy1 = Math.max(v.y0, v.y1);
+  return v.x0 > hx0 + 0.01 && v.x0 < hx1 - 0.01 && h.y0 > vy0 + 0.01 && h.y0 < vy1 - 0.01;
+}
+
+/**
+ * Progress marker state. The PoC data model carries no explicit state field, so
+ * the state is derived deterministically from the plan / actual figures alone.
+ */
+function progressMarkerState(task) {
+  var actualEnd = task.actualStartDay + task.actualDurationDays;
+  if (task.percentComplete >= 100) return 'complete';
+  if (actualEnd > task.finishDay) return 'overdue';
+  if (task.percentComplete > 0 && task.percentComplete < 35) return 'suspended';
+  return null;   // incomplete: drawn only while selected
+}
+
+// --------------------------------------------------------------------------
+// Rendering
+// --------------------------------------------------------------------------
+
+var scene = null;
+var frameCounter = 0, fpsValue = 0, lastFpsStamp = performance.now(), fpsActiveUntil = 0;
+var lastDrawn = 0, lastPaintMs = 0;
+
+/** getBoundingClientRect, because clientWidth is not reliable on SVG elements. */
+function stageSize() {
+  var box = stage.getBoundingClientRect();
+  return { width: Math.max(320, Math.round(box.width)), height: Math.max(240, Math.round(box.height)) };
+}
+
+function render() {
+  var t0 = performance.now();
+  var size = stageSize();
+  var stageWidth = size.width, stageHeight = size.height;
+  var tx = CFG.gutterWidth - VIEW.scrollX;
+  var ty = CFG.headerHeight - VIEW.scrollY;
+  // world coordinates currently visible inside the content area
+  var viewTop = VIEW.scrollY;
+  var viewBottom = viewTop + (stageHeight - CFG.headerHeight);
+  var viewLeft = VIEW.scrollX;
+  var viewRight = viewLeft + (stageWidth - CFG.gutterWidth);
+  // background rectangles must also cover the strip hidden behind the left gutter
+  var bgLeft = VIEW.scrollX - CFG.gutterWidth;
+
+  var out = [];
+  out.push('<defs>');
+  out.push('<clipPath id="clipContent"><rect x="' + CFG.gutterWidth + '" y="' + CFG.headerHeight +
+           '" width="' + Math.max(0, stageWidth - CFG.gutterWidth) + '" height="' + Math.max(0, stageHeight - CFG.headerHeight) + '"/></clipPath>');
+  out.push('<clipPath id="clipHeader"><rect x="' + CFG.gutterWidth + '" y="0" width="' +
+           Math.max(0, stageWidth - CFG.gutterWidth) + '" height="' + CFG.headerHeight + '"/></clipPath>');
+  out.push('<clipPath id="clipGutter"><rect x="0" y="' + CFG.headerHeight + '" width="' + CFG.gutterWidth +
+           '" height="' + Math.max(0, stageHeight - CFG.headerHeight) + '"/></clipPath>');
+  out.push('</defs>');
+  out.push('<rect x="0" y="0" width="' + stageWidth + '" height="' + stageHeight + '" fill="var(--paper)"/>');
+
+  // ---- world ------------------------------------------------------------
+  out.push('<g clip-path="url(#clipContent)"><g transform="translate(' + fmt(tx, 2) + ',' + fmt(ty, 2) + ')">');
+
+  var drawn = 0;
+  var rows = scene.rows;
+  for (var ri = 0; ri < rows.length; ri++) {
+    var row = rows[ri];
+    if (row.bottomY < viewTop || row.topY > viewBottom) continue;
+    out.push('<rect x="' + fmt(bgLeft, 1) + '" y="' + fmt(row.topY, 2) + '" width="' + stageWidth +
+             '" height="' + fmt(row.bottomY - row.topY, 2) + '" fill="' + (ri % 2 ? 'var(--band-b)' : 'var(--band-a)') + '"/>');
+    if (VIEW.showLanes) {
+      for (var lz = 0; lz < row.laneY.length; lz++) {
+        var count = row.laneCounts[lz] || 0;
+        out.push('<rect x="' + fmt(bgLeft, 1) + '" y="' + fmt(row.laneY[lz], 2) + '" width="' + stageWidth +
+                 '" height="' + fmt(row.laneWidths[lz], 2) + '" fill="var(--lane-band)" stroke="var(--lane-edge)" stroke-width="0.5" stroke-dasharray="3 3"/>');
+        if (count > 0) {
+          out.push('<text x="' + fmt(viewLeft + 4, 1) + '" y="' + fmt(row.laneY[lz] + row.laneWidths[lz] - 1, 2) +
+                   '" font-size="8" fill="var(--lane-edge)">' + count + '</text>');
+        }
+      }
+    }
+  }
+
+  // time grid
+  var step = niceDayStep(VIEW.pxPerDay);
+  for (var day = 0; day * VIEW.pxPerDay + CFG.padLeft < viewRight + step * VIEW.pxPerDay; day += step) {
+    var gx = day * VIEW.pxPerDay + CFG.padLeft;
+    if (gx < viewLeft - 2) continue;
+    out.push('<line x1="' + fmt(gx, 2) + '" y1="0" x2="' + fmt(gx, 2) + '" y2="' + fmt(scene.contentHeight, 1) +
+             '" stroke="var(--rule)" stroke-width="0.5" opacity="0.55"/>');
+  }
+
+  // dependency lines (halo first, then the line itself: the top line stays readable)
+  var routes = scene.routes;
+  for (var rq = 0; rq < routes.length; rq++) {
+    var rt = routes[rq];
+    var bbox = routeBBox(rt);
+    if (bbox.y1 < viewTop || bbox.y0 > viewBottom || bbox.x1 < viewLeft || bbox.x0 > viewRight) continue;
+    var d = pathOf(rt.points);
+    out.push('<path d="' + d + '" fill="none" stroke="var(--halo)" stroke-width="3.4" stroke-linejoin="round" opacity="0.95"/>');
+    var cls = rt.crossRow ? 'var(--link-cross)' : 'var(--link)';
+    var dash = rt.crossRow ? ' stroke-dasharray="6 3"' : '';
+    out.push('<path d="' + d + '" fill="none" stroke="' + cls + '" stroke-width="1.2" stroke-linejoin="round"' + dash + '/>');
+    out.push(arrowHead(rt));
+  }
+
+  // tasks
+  var views = scene.views;
+  for (var vi = 0; vi < views.length; vi++) {
+    var v = views[vi];
+    if (v.planBottom < viewTop || v.planTop > viewBottom) continue;
+    if (v.drawnRight < viewLeft || v.drawnLeft > viewRight) continue;
+    out.push(taskMarkup(v));
+    drawn++;
+  }
+  out.push('</g></g>');
+
+  // ---- header (time axis) ------------------------------------------------
+  out.push('<rect x="0" y="0" width="' + stageWidth + '" height="' + CFG.headerHeight + '" fill="var(--panel)"/>');
+  out.push('<g clip-path="url(#clipHeader)"><g transform="translate(' + fmt(tx, 2) + ',0)">');
+  for (var day2 = 0; day2 * VIEW.pxPerDay + CFG.padLeft < viewRight + step * VIEW.pxPerDay; day2 += step) {
+    var hx = day2 * VIEW.pxPerDay + CFG.padLeft;
+    if (hx < viewLeft - 40) continue;
+    out.push('<line x1="' + fmt(hx, 2) + '" y1="' + (CFG.headerHeight - 6) + '" x2="' + fmt(hx, 2) + '" y2="' + CFG.headerHeight + '" stroke="var(--rule)"/>');
+    out.push('<text x="' + fmt(hx + 3, 2) + '" y="' + (CFG.headerHeight - 9) + '" font-size="10" fill="var(--ink-soft)">D' + day2 + '</text>');
+  }
+  out.push('</g></g>');
+  out.push('<line x1="0" y1="' + CFG.headerHeight + '" x2="' + stageWidth + '" y2="' + CFG.headerHeight + '" stroke="var(--rule)"/>');
+
+  // ---- left gutter (row titles) -----------------------------------------
+  out.push('<rect x="0" y="' + CFG.headerHeight + '" width="' + CFG.gutterWidth + '" height="' + stageHeight + '" fill="var(--panel)"/>');
+  out.push('<g clip-path="url(#clipGutter)"><g transform="translate(0,' + fmt(ty, 2) + ')">');
+  for (var rt2 = 0; rt2 < rows.length; rt2++) {
+    var rw = rows[rt2];
+    if (rw.bottomY < viewTop || rw.topY > viewBottom) continue;
+    out.push('<rect x="0" y="' + fmt(rw.topY, 2) + '" width="' + CFG.gutterWidth + '" height="' + fmt(rw.bottomY - rw.topY, 2) +
+             '" fill="' + (rt2 % 2 ? 'var(--band-b)' : 'var(--band-a)') + '"/>');
+    out.push('<text x="8" y="' + fmt(rw.topY + 13, 2) + '" font-size="11" fill="var(--ink)">' + escapeXml(rw.group.title) + '</text>');
+    out.push('<text x="8" y="' + fmt(rw.topY + 26, 2) + '" font-size="10" fill="var(--ink-soft)">stack ' + rw.levels.length + ' 段</text>');
+    out.push('<line x1="0" y1="' + fmt(rw.topY, 2) + '" x2="' + CFG.gutterWidth + '" y2="' + fmt(rw.topY, 2) + '" stroke="var(--rule)" stroke-width="0.5"/>');
+  }
+  out.push('</g></g>');
+  out.push('<line x1="' + CFG.gutterWidth + '" y1="0" x2="' + CFG.gutterWidth + '" y2="' + stageHeight + '" stroke="var(--rule)"/>');
+
+  stage.setAttribute('width', stageWidth);
+  stage.setAttribute('height', stageHeight);
+  stage.setAttribute('viewBox', '0 0 ' + stageWidth + ' ' + stageHeight);
+  stage.innerHTML = out.join('');
+  var paintMs = performance.now() - t0;
+
+  updateMetrics(drawn, paintMs);
+}
+
+function niceDayStep(pxPerDay) {
+  var candidates = [1, 2, 5, 10, 20, 50, 100, 200];
+  for (var i = 0; i < candidates.length; i++) if (candidates[i] * pxPerDay >= 56) return candidates[i];
+  return 500;
+}
+
+function routeBBox(rt) {
+  var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (var i = 0; i < rt.points.length; i++) {
+    x0 = Math.min(x0, rt.points[i][0]); x1 = Math.max(x1, rt.points[i][0]);
+    y0 = Math.min(y0, rt.points[i][1]); y1 = Math.max(y1, rt.points[i][1]);
+  }
+  return { x0: x0, x1: x1, y0: y0, y1: y1 };
+}
+
+function pathOf(points) {
+  var parts = [];
+  for (var i = 0; i < points.length; i++) parts.push((i ? 'L' : 'M') + fmt(points[i][0], 2) + ' ' + fmt(points[i][1], 2));
+  return parts.join(' ');
+}
+
+function arrowHead(rt) {
+  var last = rt.points[rt.points.length - 1];
+  var x = last[0], y = last[1], a = CFG.arrowLength, w = 3.2;
+  var pts;
+  if (rt.headDir === 'down') pts = [[x, y + a], [x - w, y], [x + w, y]];
+  else if (rt.headDir === 'up') pts = [[x, y - a], [x - w, y], [x + w, y]];
+  else pts = [[x + a, y], [x, y - w], [x, y + w]];
+  var s = pts.map(function (p) { return fmt(p[0], 2) + ',' + fmt(p[1], 2); }).join(' ');
+  return '<polygon points="' + s + '" fill="' + (rt.crossRow ? 'var(--link-cross)' : 'var(--link)') + '"/>';
+}
+
+function taskMarkup(v) {
+  var out = [];
+  var planTop = v.planTop, planH = scene.planHeight;
+  var actualH = scene.actualHeight, actualGap = scene.actualGap;
+  var left = v.shapeLeft, right = v.shapeRight, width = Math.max(1, right - left);
+  var kind = v.task.shapeKind;
+  var widthless = (kind === 'arrow' || kind === 'endpointSpan' || kind === 'milestone' || v.task.milestone);
+  var selected = VIEW.selectedUid === v.uid;
+  var strokeW = selected ? 2 : 1;
+
+  if (v.task.milestone || kind === 'milestone') {
+    var cx = (left + right) / 2, cy = planTop + planH / 2, hw = (right - left) / 2, hh = planH / 2;
+    out.push('<polygon points="' + fmt(cx, 2) + ',' + fmt(planTop, 2) + ' ' + fmt(cx + hw, 2) + ',' + fmt(cy, 2) +
+             ' ' + fmt(cx, 2) + ',' + fmt(planTop + planH, 2) + ' ' + fmt(cx - hw, 2) + ',' + fmt(cy, 2) +
+             '" fill="var(--plan-fill)" stroke="var(--plan-line)" stroke-width="' + strokeW + '"/>');
+  } else if (kind === 'chevron') {
+    var k = Math.min(planH * 0.45, width * 0.3);
+    out.push('<polygon points="' + fmt(left, 2) + ',' + fmt(planTop, 2) + ' ' + fmt(right - k, 2) + ',' + fmt(planTop, 2) +
+             ' ' + fmt(right, 2) + ',' + fmt(planTop + planH / 2, 2) + ' ' + fmt(right - k, 2) + ',' + fmt(planTop + planH, 2) +
+             ' ' + fmt(left, 2) + ',' + fmt(planTop + planH, 2) + ' ' + fmt(left + k, 2) + ',' + fmt(planTop + planH / 2, 2) +
+             '" fill="var(--plan-fill)" stroke="var(--plan-line)" stroke-width="' + strokeW + '"/>');
+  } else if (kind === 'arrow') {
+    var midY = planTop + planH / 2;
+    var head = Math.min(8, width * 0.25);
+    out.push('<line x1="' + fmt(left, 2) + '" y1="' + fmt(midY, 2) + '" x2="' + fmt(right - head, 2) + '" y2="' + fmt(midY, 2) +
+             '" stroke="var(--plan-line)" stroke-width="' + (2 + strokeW) + '"/>');
+    out.push('<polygon points="' + fmt(right, 2) + ',' + fmt(midY, 2) + ' ' + fmt(right - head, 2) + ',' + fmt(midY - planH * 0.3, 2) +
+             ' ' + fmt(right - head, 2) + ',' + fmt(midY + planH * 0.3, 2) + '" fill="var(--plan-line)"/>');
+  } else if (kind === 'endpointSpan') {
+    var my = planTop + planH / 2;
+    out.push('<line x1="' + fmt(left, 2) + '" y1="' + fmt(my, 2) + '" x2="' + fmt(right, 2) + '" y2="' + fmt(my, 2) +
+             '" stroke="var(--plan-line)" stroke-width="' + (2 + strokeW) + '"/>');
+    out.push('<line x1="' + fmt(left, 2) + '" y1="' + fmt(planTop, 2) + '" x2="' + fmt(left, 2) + '" y2="' + fmt(planTop + planH, 2) +
+             '" stroke="var(--plan-line)" stroke-width="' + (2 + strokeW) + '"/>');
+    out.push('<line x1="' + fmt(right, 2) + '" y1="' + fmt(planTop, 2) + '" x2="' + fmt(right, 2) + '" y2="' + fmt(planTop + planH, 2) +
+             '" stroke="var(--plan-line)" stroke-width="' + (2 + strokeW) + '"/>');
+  } else {
+    out.push('<rect x="' + fmt(left, 2) + '" y="' + fmt(planTop, 2) + '" width="' + fmt(width, 2) + '" height="' + fmt(planH, 2) +
+             '" rx="2" fill="var(--plan-fill)" stroke="var(--plan-line)" stroke-width="' + strokeW + '"/>');
+  }
+
+  // actual bar: inside for width-carrying kinds, below for width-less kinds.
+  if (VIEW.showActual) {
+    var aLeft = v.actualLeft, aRight = Math.max(v.actualRight, v.actualLeft + 1);
+    if (widthless) {
+      var belowY = planTop + planH + actualGap;
+      out.push('<rect x="' + fmt(aLeft, 2) + '" y="' + fmt(belowY, 2) + '" width="' + fmt(aRight - aLeft, 2) +
+               '" height="' + fmt(actualH, 2) + '" fill="var(--act-fill)"/>');
+    } else {
+      var insideY = planTop + (planH - actualH) / 2;
+      var insideLeft = Math.max(aLeft, left + 1), insideRight = Math.min(aRight, right - 1);
+      if (insideRight > insideLeft) {
+        out.push('<rect x="' + fmt(insideLeft, 2) + '" y="' + fmt(insideY, 2) + '" width="' + fmt(insideRight - insideLeft, 2) +
+                 '" height="' + fmt(actualH, 2) + '" fill="var(--act-fill)"/>');
+      }
+    }
+    out.push(progressMarkerMarkup(v, widthless, planTop));
+  }
+
+  // label
+  // paint-order stroke gives the label a light casing so it stays readable on
+  // top of the dark actual bar - no colour dependency (WCAG 1.4.1)
+  var fs = scene.fontSize;
+  var textCasing = ' stroke="var(--halo)" stroke-width="2.6" paint-order="stroke" stroke-linejoin="round"';
+  if (v.labelOutside) {
+    out.push('<text x="' + fmt(Math.max(v.shapeRight, v.markerState ? v.markerRight : v.shapeRight) + 4, 2) + '" y="' +
+             fmt(planTop + planH * 0.78, 2) + '" font-size="' + fmt(fs, 1) + '" fill="var(--ink)"' + textCasing + '>' +
+             escapeXml(v.labelText) + '</text>');
+  } else {
+    out.push('<text x="' + fmt((left + right) / 2, 2) + '" y="' + fmt(planTop + planH * 0.76, 2) +
+             '" font-size="' + fmt(fs, 1) + '" text-anchor="middle" fill="var(--ink)"' + textCasing + '>' +
+             escapeXml(v.labelText) + '</text>');
+  }
+  out.push('<rect class="hit" data-uid="' + v.uid + '" x="' + fmt(left, 2) + '" y="' + fmt(planTop, 2) +
+           '" width="' + fmt(width, 2) + '" height="' + fmt(planH, 2) + '" fill="transparent" style="cursor:pointer"/>');
+  return out.join('');
+}
+
+/** Progress marker, drawn as SVG, fixed 12px, fixed 4px from the actual bar right edge. */
+function progressMarkerMarkup(v, widthless, planTop) {
+  var state = v.markerState;
+  if (!state && VIEW.selectedUid !== v.uid) return '';
+  var size = CFG.markerSize, r = size / 2 - 0.6;
+  var cx = v.actualRight + CFG.markerGap + size / 2;
+  var cy = widthless ? planTop + scene.planHeight + scene.actualGap + scene.actualHeight / 2
+                     : planTop + scene.planHeight / 2;
+  var stroke = state === 'overdue' ? 'var(--warn)' : (state ? 'var(--act-fill)' : '#96a0ad');
+  var out = ['<g transform="translate(' + fmt(cx, 2) + ',' + fmt(cy, 2) + ')">'];
+  out.push('<circle cx="0" cy="0" r="' + fmt(r, 2) + '" fill="#fff" stroke="' + stroke + '" stroke-width="1"' +
+           (state ? '' : ' stroke-dasharray="2 2"') + '/>');
+  if (state === 'complete') {
+    out.push('<path d="M-2.9 0.2 L-0.9 2.4 L2.9 -2.4" fill="none" stroke="' + stroke + '" stroke-width="1.6" stroke-linecap="round"/>');
+  } else if (state === 'suspended') {
+    out.push('<line x1="-2.8" y1="-2.8" x2="2.8" y2="2.8" stroke="' + stroke + '" stroke-width="1.6" stroke-linecap="round"/>');
+  } else if (state === 'overdue') {
+    out.push('<line x1="0" y1="-3.2" x2="0" y2="0.9" stroke="' + stroke + '" stroke-width="1.6" stroke-linecap="round"/>');
+    out.push('<circle cx="0" cy="3" r="0.9" fill="' + stroke + '"/>');
+  }
+  out.push('</g>');
+  return out.join('');
+}
+
+// --------------------------------------------------------------------------
+// Metrics panel
+// --------------------------------------------------------------------------
+
+var metricRows = [
+  ['tasks / links / rows', function (m, d, p) { return m.tasks + ' / ' + m.links + ' / ' + m.rows; }, false, false],
+  ['drawn', function (m, d) { return String(d); }, false, false],
+  ['svg nodes', function (m, d, p, n) { return String(n); }, false, false],
+  ['layout ms', function (m) { return fmt(m.layoutMs, 2); }, false, false],
+  ['route ms', function (m) { return fmt(m.routeMs, 2); }, false, false],
+  ['paint ms', function (m, d, p) { return fmt(p, 2); }, false, false],
+  ['fps', function () { return fpsValue ? String(fpsValue) : '-'; }, false, false],
+  ['overlap', function (m) { return String(m.overlap); }, true, true],
+  ['line×icon', function (m) { return String(m.lineIcon); }, false, true],
+  ['line×line', function (m) { return String(m.lineLine); }, false, false],
+  ['bends', function (m) { return String(m.bends); }, false, false],
+  ['density', function (m) { return fmt(m.density * 100, 1) + '%'; }, false, true],
+  ['maxStack', function (m) { return String(m.maxStack); }, false, false]
+];
+
+function updateMetrics(drawn, paintMs) {
+  lastDrawn = drawn; lastPaintMs = paintMs;
+  var m = scene.metrics;
+  var nodeCount = stage.getElementsByTagName('*').length;
+  var html = [];
+  for (var i = 0; i < metricRows.length; i++) {
+    var row = metricRows[i];
+    var text = row[1](m, drawn, paintMs, nodeCount);
+    var bad = (row[0] === 'overlap' && m.overlap > 0);
+    html.push('<tr class="' + (bad ? 'bad ' : '') + (row[3] ? 'key' : '') + '"><td class="k">' + row[0] + '</td><td class="v">' + text + '</td></tr>');
+  }
+  document.getElementById('mtable').innerHTML = html.join('');
+  document.getElementById('mnote').innerHTML =
+    'C 案: 予約が先・配線は 1 パス（再探索 0 回）。<br>予約時の想定横切り ' + fmt(m.reserveEstimate, 0) +
+    ' → 実測 ' + m.lineIcon + '（うち行跨ぎ ' + m.lineIconCrossRow + '）<br>' +
+    'density = タスク面積 ÷ 行帯面積（レーン・余白込み）';
+  alertBox.style.display = m.safetyValve ? 'block' : 'none';
+  if (m.safetyValve) alertBox.textContent = '安全弁: 段数が上限 ' + CFG.maxStack + ' に達しました。';
+}
+
+// --------------------------------------------------------------------------
+// Interaction
+// --------------------------------------------------------------------------
+
+function relayoutAndRender() {
+  scene = computeScene();
+  clampScroll();
+  render();
+}
+
+function clampScroll() {
+  var size = stageSize();
+  var maxScrollY = Math.max(0, scene.contentHeight - (size.height - CFG.headerHeight) + 20);
+  var maxScrollX = Math.max(0, scene.contentWidth - (size.width - CFG.gutterWidth) + 20);
+  VIEW.scrollY = Math.max(0, Math.min(VIEW.scrollY, maxScrollY));
+  VIEW.scrollX = Math.max(0, Math.min(VIEW.scrollX, maxScrollX));
+}
+
+var zx = document.getElementById('zx'), zy = document.getElementById('zy');
+var zxo = document.getElementById('zxo'), zyo = document.getElementById('zyo');
+
+function syncControls() {
+  zx.value = String(Math.round(VIEW.pxPerDay * 10));
+  zy.value = String(Math.round(VIEW.verticalZoom * 100));
+  zxo.textContent = VIEW.pxPerDay.toFixed(1);
+  zyo.textContent = VIEW.verticalZoom.toFixed(2);
+}
+
+zx.addEventListener('input', function () {
+  VIEW.pxPerDay = Math.max(0.1, Number(zx.value) / 10);
+  zxo.textContent = VIEW.pxPerDay.toFixed(1);
+  markInteraction(); relayoutAndRender();
+});
+zy.addEventListener('input', function () {
+  VIEW.verticalZoom = Math.max(0.3, Number(zy.value) / 100);
+  zyo.textContent = VIEW.verticalZoom.toFixed(2);
+  markInteraction(); relayoutAndRender();
+});
+
+document.getElementById('btnFit').addEventListener('click', fitToView);
+document.getElementById('btnLanes').addEventListener('click', function () {
+  VIEW.showLanes = !VIEW.showLanes;
+  this.setAttribute('aria-pressed', VIEW.showLanes ? 'true' : 'false');
+  render();
+});
+document.getElementById('btnActual').addEventListener('click', function () {
+  VIEW.showActual = !VIEW.showActual;
+  this.setAttribute('aria-pressed', VIEW.showActual ? 'true' : 'false');
+  render();   // row height must NOT move: the actual band is always reserved
+});
+
+stage.addEventListener('wheel', function (ev) {
+  markInteraction();
+  if (ev.ctrlKey) {
+    ev.preventDefault();
+    var anchorDay = (VIEW.scrollX + ev.clientX - CFG.gutterWidth - CFG.padLeft) / VIEW.pxPerDay;
+    VIEW.pxPerDay = Math.max(0.1, Math.min(24, VIEW.pxPerDay * (ev.deltaY < 0 ? 1.12 : 1 / 1.12)));
+    VIEW.scrollX = anchorDay * VIEW.pxPerDay + CFG.padLeft - (ev.clientX - CFG.gutterWidth);
+    syncControls(); relayoutAndRender();
+  } else if (ev.shiftKey) {
+    ev.preventDefault();
+    VIEW.verticalZoom = Math.max(0.3, Math.min(2.6, VIEW.verticalZoom * (ev.deltaY < 0 ? 1.1 : 1 / 1.1)));
+    syncControls(); relayoutAndRender();
+  } else {
+    ev.preventDefault();
+    VIEW.scrollY += ev.deltaY;
+    VIEW.scrollX += ev.deltaX;
+    clampScroll(); render();
+  }
+}, { passive: false });
+
+var dragging = false, dragX = 0, dragY = 0, dragMoved = false;
+stage.addEventListener('mousedown', function (ev) {
+  dragging = true; dragMoved = false; dragX = ev.clientX; dragY = ev.clientY;
+  stage.classList.add('dragging');
+});
+window.addEventListener('mousemove', function (ev) {
+  if (!dragging) return;
+  var dx = ev.clientX - dragX, dy = ev.clientY - dragY;
+  if (Math.abs(dx) + Math.abs(dy) > 2) dragMoved = true;
+  dragX = ev.clientX; dragY = ev.clientY;
+  VIEW.scrollX -= dx; VIEW.scrollY -= dy;
+  markInteraction(); clampScroll(); render();
+});
+window.addEventListener('mouseup', function () { dragging = false; stage.classList.remove('dragging'); });
+
+stage.addEventListener('click', function (ev) {
+  if (dragMoved) return;
+  var target = ev.target;
+  if (target && target.getAttribute && target.getAttribute('data-uid')) {
+    var uid = Number(target.getAttribute('data-uid'));
+    VIEW.selectedUid = (VIEW.selectedUid === uid) ? null : uid;
+    render();
+  } else if (VIEW.selectedUid !== null) {
+    VIEW.selectedUid = null; render();
+  }
+});
+
+window.addEventListener('keydown', function (ev) {
+  if (ev.key === 'f' || ev.key === 'F') { fitToView(); }
+});
+
+function fitToView() {
+  var size = stageSize();
+  var availableWidth = size.width - CFG.gutterWidth - 40;
+  var availableHeight = size.height - CFG.headerHeight - 16;
+  var maxDay = 0;
+  for (var i = 0; i < DATASET.tasks.length; i++) maxDay = Math.max(maxDay, DATASET.tasks[i].finishDay);
+  VIEW.pxPerDay = Math.max(0.4, Math.min(24, availableWidth / (maxDay + 26)));
+  // vertical: iterate, because lane widths and row padding do not scale with the
+  // zoom - the relation between verticalZoom and total height is not linear
+  for (var k = 0; k < 5; k++) {
+    scene = computeScene();
+    var ratio = availableHeight / Math.max(1, scene.contentHeight);
+    if (ratio > 0.995 && ratio < 1.02) break;
+    VIEW.verticalZoom = Math.max(0.3, Math.min(2.6, VIEW.verticalZoom * Math.min(ratio, 1.6)));
+  }
+  VIEW.scrollX = 0; VIEW.scrollY = 0;
+  syncControls();
+  markInteraction();
+  relayoutAndRender();
+}
+
+window.addEventListener('resize', function () { relayoutAndRender(); });
+
+// fps sampling while the user is interacting
+function markInteraction() { fpsActiveUntil = performance.now() + 700; }
+function fpsLoop(now) {
+  if (now < fpsActiveUntil) {
+    frameCounter++;
+    if (now - lastFpsStamp >= 400) {
+      fpsValue = Math.round(frameCounter * 1000 / (now - lastFpsStamp));
+      frameCounter = 0; lastFpsStamp = now;
+      if (scene) updateMetrics(lastDrawn, lastPaintMs);
+    }
+  } else {
+    frameCounter = 0; lastFpsStamp = now;
+  }
+  requestAnimationFrame(fpsLoop);
+}
+// --- review overlay column: collapse / expand (presentation only) ----------
+(function initSideToggle() {
+  var btn = document.getElementById('sideToggle');
+  if (!btn) return;
+  function apply(collapsed, notify) {
+    var root = document.documentElement;
+    if (collapsed) root.classList.add('side-collapsed');
+    else root.classList.remove('side-collapsed');
+    btn.textContent = collapsed ? 'パネル ▸' : 'パネル ▾';
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    if (notify) window.dispatchEvent(new Event('resize'));
+  }
+  btn.addEventListener('click', function () {
+    apply(!document.documentElement.classList.contains('side-collapsed'), true);
+  });
+  apply(false, false);
+}());
+
+syncControls();
+relayoutAndRender();
+requestAnimationFrame(fpsLoop);
+</script>
+</body>
+</html>

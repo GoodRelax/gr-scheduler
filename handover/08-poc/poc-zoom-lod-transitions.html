@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>PoC: ズームと表示レベルの遷移（2026-07-30）</title>
+<style>
+  :root { --bg:#fff; --ink:#1a1a1a; --sub:#5c5c5c; --rule:#dcdcdc; --panel:#f6f7f9;
+          --accent:#2b5ea8; --good:#1f7a3d; --warn:#a8600f; --bad:#a02b2b;
+          --plan:#8fb0d9; --plan-line:#4d79ad; --act:#1d4f8c; }
+  * { box-sizing:border-box; }
+  /* Font scale measured against ja.wikipedia.org (body 16px / lh 26px) and
+     google.com (body 14px). Nothing goes below 12px, matching the product's own
+     Japanese-readability floor. */
+  body { margin:0; padding:0 0 90px 0; background:var(--bg); color:var(--ink);
+         font-family:"Yu Gothic UI","Meiryo",system-ui,sans-serif; font-size:16px; line-height:1.7; }
+  .wrap { max-width:1320px; margin:0 auto; padding:0 20px; }
+  header { background:var(--panel); border-bottom:1px solid var(--rule); padding:20px 0 0 0; }
+  h1 { margin:0 0 6px 0; font-size:24px; line-height:1.35; }
+  .lede { margin:0 0 14px 0; color:var(--sub); font-size:16px; }
+  .ctl { display:flex; flex-wrap:wrap; gap:18px; align-items:center; padding:12px 0;
+         border-top:1px solid var(--rule); font-size:14px; }
+  .ctl label { display:flex; align-items:center; gap:7px; white-space:nowrap; }
+  .ctl input[type=range] { width:200px; }
+  .ctl button { font:inherit; font-size:14px; padding:3px 12px; }
+  .ctl .val { font-variant-numeric:tabular-nums; min-width:64px; color:var(--accent); font-weight:700; }
+  .verdictbar { padding:10px 0 14px 0; font-size:14px; }
+  .pill { display:inline-block; padding:3px 13px; border-radius:13px; font-weight:700; font-size:14px; }
+  .p-good { background:#e3f2e8; color:var(--good); }
+  .p-bad  { background:#fbe6e6; color:var(--bad); }
+  .p-warn { background:#fdf1e0; color:var(--warn); }
+  h2 { font-size:20px; margin:34px 0 8px 0; padding-top:12px; border-top:1px solid var(--rule); }
+  h3 { font-size:17px; margin:22px 0 5px 0; }
+  .hint { margin:0 0 14px 0; color:var(--sub); font-size:14px; }
+  table { border-collapse:collapse; width:100%; font-size:14px; margin:12px 0; }
+  th, td { border:1px solid var(--rule); padding:5px 9px; text-align:left; }
+  th { background:var(--panel); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .flag { display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; }
+  .f-bad { background:#fbe6e6; color:var(--bad); }
+  .f-warn { background:#fdf1e0; color:var(--warn); }
+  .f-good { background:#e3f2e8; color:var(--good); }
+  .note { background:var(--panel); border-left:3px solid var(--accent); padding:10px 14px;
+          font-size:14px; margin:16px 0; }
+  .note.warn { border-left-color:var(--warn); }
+  code { background:var(--panel); padding:1px 5px; border-radius:3px; font-size:14px; }
+  .live { display:grid; grid-template-columns: 1fr 330px; gap:14px; align-items:start; }
+  .live .canvas { border:1px solid var(--rule); border-radius:6px; overflow:hidden; background:#fff; }
+  .live .read { border:1px solid var(--rule); border-radius:6px; padding:12px 14px; font-size:14px;
+                background:var(--panel); font-variant-numeric:tabular-nums; }
+  .live .read dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:2px 10px; }
+  .live .read dt { color:var(--sub); } .live .read dd { margin:0; font-weight:700; }
+  .live svg { display:block; width:100%; height:auto; }
+  .strip { border:1px solid var(--rule); border-radius:6px; background:#fff; }
+  .strip svg { display:block; width:100%; height:auto; }
+  @media (max-width:900px) { .live { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <h1>PoC: ズームと表示レベルの遷移 — 拡大縮小で表示するレベルが狙い通りに変わるか</h1>
+  <p class="lede">3 系統の LOD（<strong>時間軸</strong>・<strong>アイテム（軸A・WBS 深さ）</strong>・<strong>行階層（軸B）</strong>）について、
+     <strong>狙った閾値</strong>と<strong>実測した遷移点</strong>を突き合わせる。単調性は 9,600 点の 2 次元掃引で検査する。</p>
+  <div class="ctl">
+    <label>横ズーム <input type="range" id="zx" min="-1.5" max="0.9" step="0.005" value="0">
+      <span class="val" id="zxv"></span></label>
+    <label>縦ズーム <input type="range" id="zy" min="-1.1" max="0.7" step="0.005" value="0">
+      <span class="val" id="zyv"></span></label>
+    <label><input type="checkbox" id="drop" checked> フォント下限によるレベル減</label>
+    <label><input type="checkbox" id="lbl" checked> 担当・完了率・名称・マーク・Resume</label>
+    <label><input type="checkbox" id="dep" checked> 依存線</label>
+    <button id="fit">Fit（全体表示）</button>
+    <button id="reset">既定（1.0x）に戻す</button>
+  </div>
+  <div class="verdictbar" id="verdict"></div>
+</div></header>
+
+<div class="wrap">
+
+<div class="note">
+  <strong>確かめること</strong>
+  <ol style="margin:6px 0 0 0; padding-left:22px;">
+    <li><strong>狙った閾値で切り替わるか</strong> — 3 系統それぞれ、意図した閾値と実測の遷移点を並べて差を出す。</li>
+    <li><strong>厳密に単調か</strong> — 「縮小したのに表示が増える」逆転が 1 点も無いこと。2 次元（zoomX × zoomY）で掃引する。</li>
+    <li><strong>行階層の一般式が既存の 2 点を通るか</strong> — <code>threshold(d)=0.32×1.875^(d−2)</code> が現行値 0.32 / 0.60 を再現するか。</li>
+    <li><strong>フォント下限に当たったらレベルが減るか</strong> — さらに縮めるのではなくレベルを 1 つ落とす（§2-4-1）。</li>
+    <li><strong>Fit で L1 が 1 画面に収まるか</strong> — ズーム PoC A/B の受入条件を、レベル遷移つきで再確認する。</li>
+  </ol>
+</div>
+
+<h2>1. ライブ確認 — スライダーを動かして遷移を見る</h2>
+<p class="hint">363 タスク（WBS 5 階層）／ 21 行（行ツリー 3 階層）／ 720 日。
+  <strong>行が畳まれるとその行のタスクは親の行に合流する</strong>ので、親の段数が増える。それも含めて描いている。</p>
+<div class="live">
+  <div class="canvas" id="canvas"></div>
+  <div class="read" id="read"></div>
+</div>
+
+<h2>2. 時間軸 LOD — 目盛の粒度</h2>
+<p class="hint"><code>px/day = 6 × zoomX</code>。狙い: 1 未満で「年」、1 以上 8 未満で「年＋月」、8 以上で「年月＋日＋曜日」。</p>
+<div id="t-ruler"></div>
+
+<h2>3. アイテム LOD（軸A・WBS の深さ・横ズーム）</h2>
+<p class="hint">深さ d の代表的な期間が<strong>可読下限 24px を割ったら、その深さ以下を描かない</strong>。
+  期間は深いほど短いので、この判定は<strong>構造的に単調</strong>になる（経験則の羅列にしないための要）。</p>
+<div id="t-itemlod"></div>
+
+<h2>4. 行階層 LOD（軸B・縦ズーム）</h2>
+<p class="hint">狙い: <code>threshold(d) = 0.32 × 1.875^(d−2)</code>。現行の 2 点（0.32 / 0.60）を通る等比数列。</p>
+<div id="t-rowlod"></div>
+
+<h2>5. フォント下限によるレベル減</h2>
+<p class="hint">タスク高 = 28 × zoomY、フォント = 高さの 80%、下限 12px。
+  下限を割るならレベルを 1 つ減らす（§2-4-1）。<strong>減らす量の式は本 PoC の提案</strong>であり、確定事項ではない。</p>
+<div id="t-drop"></div>
+
+<h2>6. 単調性の 2 次元掃引</h2>
+<p class="hint">zoomX 120 段階 × zoomY 80 段階 = 9,600 点。各点で「表示タスク数」「表示行数」を求め、
+  <strong>どちらの軸でも縮小方向へ進むと減る一方</strong>であることを検査する。</p>
+<div id="t-sweep"></div>
+
+<h2>7. 遷移点の突き合わせ — 狙い vs 実測</h2>
+<div id="t-match"></div>
+
+<h2>8. Fit と LOD 閾値がぶつかる — 実測で見つけた不具合</h2>
+<div id="t-cliff"></div>
+
+</div>
+
+<script>
+"use strict";
+
+// ---------------------------------------------------------------- constants
+var BASE_PX_PER_DAY = 6;
+var BASE_TASK_H     = 28;
+var LANE_GAP        = 12;
+var FONT_MIN        = 12;
+var MIN_READABLE_PX = 24;      // a task narrower than this is not worth drawing
+var HORIZON_DAYS    = 720;
+var VIEW_W          = 1920;    // reference environment (handover 2-4-1)
+var VIEW_H          = 1080;
+var HEADER_H        = 50;
+var CANVAS_H        = VIEW_H - HEADER_H;
+var ROW_BRANCH      = 3;       // row tree branching factor, used by the level-drop formula
+var LABEL_COEF      = 0.5;     // label width = (fw*2 + hw*1) * fontSize * coef
+var LABEL_PAD       = 6;
+var LABEL_GAP       = 4;
+var MARK_GAP        = 4;       // handover 2-4-1: overhang is 4px + mark width
+var MARK_MIN        = 16;
+var TRUNC_UNITS     = 24;      // 24 half-width units == 12 full-width chars
+
+function r1(x) { return Math.round(x * 10) / 10; }
+function r3(x) { return Math.round(x * 1000) / 1000; }
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+// ---------------------------------------------------------------- rules
+/** Time ruler tier. Monotone by construction. */
+function rulerTier(zoomX) {
+  var ppd = BASE_PX_PER_DAY * zoomX;
+  if (ppd < 1) return 1;
+  if (ppd < 8) return 2;
+  return 3;
+}
+var RULER_NAME = { 1: "年のみ", 2: "年 ＋ 月", 3: "年月 ＋ 日 ＋ 曜日" };
+
+/**
+ * Representative duration per WBS depth. Strictly decreasing, which is what makes
+ * the item LOD monotone without any hand-written threshold list.
+ */
+var MED_DUR = { 1: 240, 2: 80, 3: 27, 4: 13, 5: 6 };
+
+/** Item LOD: deepest WBS depth still worth drawing at this horizontal zoom. */
+function itemDepth(zoomX) {
+  var ppd = BASE_PX_PER_DAY * zoomX, d, best = 1;
+  for (d = 1; d <= 5; d++) if (MED_DUR[d] * ppd >= MIN_READABLE_PX) best = d;
+  if (MED_DUR[1] * ppd < MIN_READABLE_PX) best = 1;   // never hide everything
+  return best;
+}
+
+/** Row LOD: threshold(d) = 0.32 * 1.875^(d-2), depth 1 always shown. */
+function rowThreshold(d) { return d <= 1 ? 0 : 0.32 * Math.pow(1.875, d - 2); }
+function rowDepth(zoomY) {
+  var d, best = 1;
+  for (d = 2; d <= 5; d++) if (zoomY >= rowThreshold(d)) best = d;
+  return best;
+}
+
+/**
+ * Font-floor level drop (handover 2-4-1: drop a level rather than shrink further).
+ * PROPOSAL, not settled: dropping one row level divides the row count by the tree
+ * branching factor, so each remaining row gets that many times more height.
+ */
+function levelPenalty(zoomY) {
+  var h = BASE_TASK_H * zoomY;
+  var need = FONT_MIN / 0.8;                       // 15px
+  if (h >= need) return 0;
+  return Math.ceil(Math.log(need / h) / Math.log(ROW_BRANCH));
+}
+
+function lod(zoomX, zoomY, dropEnabled) {
+  var pen = dropEnabled ? levelPenalty(zoomY) : 0;
+  var rawItem = itemDepth(zoomX);
+  var rawRow = rowDepth(zoomY);
+  return {
+    ppd: BASE_PX_PER_DAY * zoomX,
+    ruler: rulerTier(zoomX),
+    itemDepthRaw: rawItem,
+    rowDepthRaw: rawRow,
+    penalty: pen,
+    itemDepth: Math.max(1, Math.min(5, rawItem - pen)),
+    rowDepth: Math.max(1, Math.min(5, rawRow - pen)),
+    taskH: BASE_TASK_H * zoomY,
+    fontSize: Math.max(FONT_MIN, BASE_TASK_H * zoomY * 0.8),
+    fontFloored: BASE_TASK_H * zoomY * 0.8 < FONT_MIN
+  };
+}
+
+// ---------------------------------------------------------------- dataset
+/** 21 rows in a 3-level row tree; 363 tasks in a 5-level WBS. Deterministic, no RNG. */
+var OWNERS = ["田中", "佐藤", "鈴木", "高橋", "伊藤", "渡辺"];
+function buildData() {
+  var rows = [], tasks = [], rid = 0, uid = 0, i, j, k;
+  function addRow(depth, parent, name) {
+    var r = { id: rid++, depth: depth, parent: parent, name: name };
+    rows.push(r); return r;
+  }
+  for (i = 0; i < 3; i++) {
+    var l1 = addRow(1, null, "系統 " + (i + 1));
+    for (j = 0; j < 2; j++) {
+      var l2 = addRow(2, l1.id, "系統 " + (i + 1) + "-" + (j + 1));
+      for (k = 0; k < 2; k++) addRow(3, l2.id, "系統 " + (i + 1) + "-" + (j + 1) + "-" + (k + 1));
+    }
+  }
+  // 3 + 6 + 12 = 21 rows
+
+  // WBS: 3 at depth 1, x3 each level down.
+  function emit(depth, start, span, rowIdx, path) {
+    var SHAPES = ["bar", "bar", "chevron", "arrow", "endpointSpan"];
+    var t = {
+      uid: ++uid, depth: depth, start: start, finish: start + span,
+      row: rowIdx, name: path,
+      milestone: (depth === 5 && (uid % 7 === 0)),
+      shapeKind: SHAPES[uid % SHAPES.length],
+      owner: OWNERS[uid % OWNERS.length],
+      percentComplete: (uid * 13) % 130,
+      hasActual: (uid % 3 !== 0),
+      actualStart: start,
+      actualDuration: Math.max(0, Math.round(span * (((uid * 13) % 130) / 100))),
+      suspended: (uid % 17 === 0),
+      resume: null, resumeValid: false
+    };
+    if (t.suspended && uid % 34 === 0) { t.resume = start + span; t.resumeValid = true; }
+    if (t.milestone) { t.finish = t.start; t.shapeKind = "milestone"; t.actualDuration = 0; }
+    tasks.push(t);
+    if (depth === 5) return;
+    var childSpan = Math.max(1, Math.round(span / 3.05));
+    for (var c = 0; c < 3; c++) {
+      var cs = start + Math.round(c * span / 3);
+      emit(depth + 1, cs, childSpan, (rowIdx + c) % rows.length, path + "." + (c + 1));
+    }
+  }
+  for (i = 0; i < 3; i++) {
+    emit(1, i * Math.round(HORIZON_DAYS / 3), Math.round(HORIZON_DAYS / 3) - 6, i * 7, "W" + (i + 1));
+  }
+  return { rows: rows, tasks: tasks };
+}
+var DATA = buildData();
+
+/** Nearest ancestor row that is still visible at this row depth. */
+function foldRow(rowId, maxDepth, rows) {
+  var r = rows[rowId];
+  while (r && r.depth > maxDepth) r = r.parent == null ? null : rows[r.parent];
+  return r ? r.id : rowId;
+}
+
+function visibleSet(zoomX, zoomY, dropEnabled) {
+  var L = lod(zoomX, zoomY, dropEnabled);
+  var rows = DATA.rows, tasks = DATA.tasks, i;
+  var visRows = [], rowMap = {};
+  for (i = 0; i < rows.length; i++) {
+    if (rows[i].depth <= L.rowDepth) { rowMap[rows[i].id] = visRows.length; visRows.push(rows[i]); }
+  }
+  var buckets = [];
+  for (i = 0; i < visRows.length; i++) buckets.push([]);
+  var shown = 0;
+  for (i = 0; i < tasks.length; i++) {
+    if (tasks[i].depth > L.itemDepth) continue;
+    var host = foldRow(tasks[i].row, L.rowDepth, rows);
+    var bi = rowMap[host];
+    if (bi == null) bi = 0;
+    buckets[bi].push(tasks[i]);
+    shown++;
+  }
+  return { lod: L, rows: visRows, buckets: buckets, shownTasks: shown };
+}
+
+// ---------------------------------------------------------------- text metrics
+function isFullWidth(ch) {
+  var c = ch.charCodeAt(0);
+  return (c >= 0x1100 && c <= 0x115F) || (c >= 0x2E80 && c <= 0xA4CF) ||
+         (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0xF900 && c <= 0xFAFF) ||
+         (c >= 0xFE30 && c <= 0xFE6F) || (c >= 0xFF00 && c <= 0xFF60) ||
+         (c >= 0xFFE0 && c <= 0xFFE6);
+}
+function widthUnits(s) {
+  var n = 0;
+  for (var i = 0; i < s.length; i++) n += isFullWidth(s.charAt(i)) ? 2 : 1;
+  return n;
+}
+/** Analytic estimate. No browser text measurement (handover 6-2). */
+function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * LABEL_COEF; }
+function truncate(s, units) {
+  var n = 0, out = "";
+  for (var i = 0; i < s.length; i++) {
+    var w = isFullWidth(s.charAt(i)) ? 2 : 1;
+    if (n + w > units) return out + "…";
+    n += w; out += s.charAt(i);
+  }
+  return s;
+}
+
+// ---------------------------------------------------------------- shape model
+/** Shapes with vertical extent hold the actual inside; the thin ones push it below. */
+function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
+
+function bands(taskH) {
+  var actualH = Math.max(3, taskH * 0.30);
+  var planH = Math.max(4, taskH - actualH - 2);
+  return { bandH: taskH, planTop: 0, planH: planH,
+           insideActualTop: (planH - actualH * 0.72) / 2, insideActualH: actualH * 0.72,
+           belowActualTop: planH + 2, belowActualH: actualH };
+}
+
+/**
+ * Everything that consumes horizontal room, on BOTH sides of the shape.
+ * The left side matters: "{owner} : {pct}%" is right-aligned to the plan bar's
+ * left edge and collides with whatever sits to its left (ui-detail-spec 4-2).
+ */
+function taskGeom(t, ctx) {
+  var x0 = t.start * ctx.ppd, x1 = t.finish * ctx.ppd, sx0, sx1;
+  if (t.milestone) { var g = ctx.glyphSize; sx0 = x0 - g / 2; sx1 = x0 + g / 2; }
+  else { sx0 = x0; sx1 = Math.max(x1, x0 + 2); }
+
+  var aX0 = null, aX1 = null;
+  if (t.hasActual) {
+    aX0 = t.milestone ? sx0 : t.actualStart * ctx.ppd;
+    aX1 = t.milestone ? sx1 : (t.actualStart + t.actualDuration) * ctx.ppd;
+  }
+  var bodyX1 = Math.max(sx1, aX1 == null ? -Infinity : aX1);
+
+  var leftText = ctx.showLabels ? (t.owner + " : " + t.percentComplete + "%") : "";
+  var leftExtent = leftText ? labelWidth(leftText, ctx.fontSize) + LABEL_GAP : 0;
+
+  var nameExtent = 0, labelMode = "none", labelText = "";
+  if (ctx.showLabels) {
+    var cut = truncate(t.name, TRUNC_UNITS);
+    var wFull = labelWidth(t.name, ctx.fontSize), wCut = labelWidth(cut, ctx.fontSize);
+    var inside = hasThickness(t.shapeKind) ? (sx1 - sx0) - LABEL_PAD * 2 : -1;
+    if (wFull <= inside) { labelMode = "inside"; labelText = t.name; }
+    else if (wCut <= inside) { labelMode = "inside"; labelText = cut; }
+    else { labelMode = "right"; labelText = cut; nameExtent = LABEL_GAP + wCut; }
+  }
+
+  var markExtent = 0;
+  if (t.hasActual && ctx.showLabels) {
+    markExtent = MARK_GAP + ctx.markSize;
+    if (t.suspended) markExtent += MARK_GAP + (t.resumeValid ? ctx.markSize : ctx.markSize * 0.7);
+  }
+  var resumeX1 = (t.suspended && t.resumeValid && t.resume != null)
+    ? t.resume * ctx.ppd + ctx.markSize / 2 : -Infinity;
+
+  return { sx0: sx0, sx1: sx1, aX0: aX0, aX1: aX1, bodyX1: bodyX1,
+           occX0: sx0 - leftExtent,
+           occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
+           leftText: leftText, labelMode: labelMode, labelText: labelText,
+           markExtent: markExtent, markX: bodyX1 + MARK_GAP };
+}
+
+// ---------------------------------------------------------------- lane packing
+function packRow(list, ctx) {
+  var ordered = list.slice().sort(function (a, b) {
+    if (a.milestone !== b.milestone) return a.milestone ? -1 : 1;
+    if (a.start !== b.start) return a.start - b.start;
+    if (a.finish !== b.finish) return b.finish - a.finish;
+    return a.uid - b.uid;
+  });
+  var lanes = [], out = [], i, j, overlaps = 0;
+  for (i = 0; i < ordered.length; i++) {
+    var g = taskGeom(ordered[i], ctx), target = -1;
+    for (j = 0; j < lanes.length; j++) {
+      var ok = true;
+      for (var k = 0; k < lanes[j].length; k++) {
+        var o = lanes[j][k];
+        if (g.occX0 < o.occX1 && o.occX0 < g.occX1) { ok = false; break; }
+      }
+      if (ok) { target = j; break; }
+    }
+    if (target < 0) { target = lanes.length; lanes.push([]); }
+    lanes[target].push(g);
+    out.push({ t: ordered[i], g: g, lane: target });
+  }
+  for (i = 0; i < lanes.length; i++)
+    for (j = 0; j < lanes[i].length; j++)
+      for (var k2 = j + 1; k2 < lanes[i].length; k2++) {
+        var a = lanes[i][j], b = lanes[i][k2];
+        if (a.occX0 < b.occX1 && b.occX0 < a.occX1) overlaps++;
+      }
+  return { lanes: Math.max(1, lanes.length), items: out, overlaps: overlaps };
+}
+
+// ---------------------------------------------------------------- SVG shapes
+function thickPath(kind, x0, x1, y, h) {
+  var w = Math.max(x1 - x0, 1);
+  if (kind === "chevron") {
+    var n = Math.min(h * 0.45, w * 0.35);
+    return "M" + r1(x0) + "," + r1(y) + " L" + r1(x1 - n) + "," + r1(y) +
+           " L" + r1(x1) + "," + r1(y + h / 2) + " L" + r1(x1 - n) + "," + r1(y + h) +
+           " L" + r1(x0) + "," + r1(y + h) + " L" + r1(x0 + n) + "," + r1(y + h / 2) + " Z";
+  }
+  return "M" + r1(x0) + "," + r1(y) + " h" + r1(w) + " v" + r1(h) + " h" + r1(-w) + " Z";
+}
+
+/**
+ * Thin shapes: a line on the slot centre line, no vertical extent.
+ * `|----|` (vertical end bars) is abolished; endpoints are dots.
+ */
+function thinSvg(kind, x0, x1, y, h, colour, lw) {
+  var mid = y + h / 2, s = [];
+  lw = Math.max(1.2, Math.min(lw, 4));
+  if (kind === "arrow") {
+    var head = Math.min(Math.max(x1 - x0, 1) * 0.4, Math.max(5, lw * 3.2));
+    s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(Math.max(x0, x1 - head)) +
+           '" y2="' + r1(mid) + '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
+    s.push('<path d="M' + r1(x1 - head) + ',' + r1(mid - head * 0.5) + ' L' + r1(x1) + ',' + r1(mid) +
+           ' L' + r1(x1 - head) + ',' + r1(mid + head * 0.5) + ' Z" fill="' + colour + '"/>');
+  } else {
+    var r = Math.max(1.5, lw * 1.15);
+    s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(x1) + '" y2="' + r1(mid) +
+           '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
+    s.push('<circle cx="' + r1(x0) + '" cy="' + r1(mid) + '" r="' + r1(r) + '" fill="' + colour + '"/>');
+    s.push('<circle cx="' + r1(x1) + '" cy="' + r1(mid) + '" r="' + r1(r) + '" fill="' + colour + '"/>');
+  }
+  return s.join("");
+}
+
+function diamond(cx, cy, s) {
+  var r = s / 2;
+  return "M" + r1(cx) + "," + r1(cy - r) + " L" + r1(cx + r) + "," + r1(cy) +
+         " L" + r1(cx) + "," + r1(cy + r) + " L" + r1(cx - r) + "," + r1(cy) + " Z";
+}
+
+// ---------------------------------------------------------------- live render
+function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
+  var V = visibleSet(zoomX, zoomY, dropEnabled);
+  var L = V.lod;
+  var taskH = Math.max(2, L.taskH);
+  var ctx = {
+    ppd: L.ppd, taskH: taskH, b: bands(taskH), fontSize: L.fontSize,
+    markSize: Math.max(MARK_MIN, L.fontSize * 4 / 3), glyphSize: taskH * 0.62,
+    showLabels: showLabels !== false
+  };
+  var b = ctx.b;
+  var labelW = 160, padT = 28;
+  var y = padT, packs = [], totalLanes = 0, totalOverlap = 0, i, minX = 0, maxX = 0;
+
+  for (i = 0; i < V.rows.length; i++) {
+    var pk = packRow(V.buckets[i], ctx);
+    pk.y = y; pk.h = pk.lanes * taskH + (pk.lanes - 1) * LANE_GAP;
+    y += pk.h + 6;
+    totalLanes += pk.lanes; totalOverlap += pk.overlaps;
+    pk.items.forEach(function (it) {
+      if (it.g.occX0 < minX) minX = it.g.occX0;
+      if (it.g.occX1 > maxX) maxX = it.g.occX1;
+    });
+    packs.push(pk);
+  }
+  var contentH = y + 8;
+  var originX = labelW - minX;
+  var W = Math.max(originX + maxX + 20, 700);
+
+  var s = ['<svg viewBox="0 0 ' + r1(W) + ' ' + r1(Math.max(contentH, 120)) +
+           '" preserveAspectRatio="xMinYMin meet" style="max-height:660px">',
+           '<defs><marker id="dep-a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
+           'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
+
+  s.push('<rect x="0" y="0" width="' + r1(W) + '" height="' + padT + '" fill="#f6f7f9"/>');
+  var d, step;
+  if (L.ruler === 1) step = 365; else if (L.ruler === 2) step = 30; else step = 7;
+  for (d = 0; d <= HORIZON_DAYS; d += step) {
+    var x = originX + d * L.ppd;
+    if (x > W) break;
+    s.push('<line x1="' + r1(x) + '" y1="0" x2="' + r1(x) + '" y2="' + r1(contentH) + '" stroke="#eef0f2"/>');
+    if (L.ruler === 1) {
+      s.push('<text x="' + r1(x + 3) + '" y="18" font-size="12" fill="#666">Y' + (1 + (d / 365 | 0)) + '</text>');
+    } else if (L.ruler === 2) {
+      if ((d / 30) % 3 === 0) {
+        s.push('<text x="' + r1(x + 3) + '" y="18" font-size="12" fill="#666">' +
+               (1 + (d / 30 | 0) % 12) + '月</text>');
+      }
+    } else {
+      s.push('<text x="' + r1(x + 2) + '" y="18" font-size="11" fill="#888">' + (d % 30 + 1) + '</text>');
+    }
+  }
+
+  for (i = 0; i < V.rows.length; i++) {
+    var row = V.rows[i], pk2 = packs[i];
+    s.push('<rect x="0" y="' + r1(pk2.y - 3) + '" width="' + r1(W) + '" height="' + r1(pk2.h + 6) +
+           '" fill="' + (row.depth === 1 ? "#f2f6fb" : (i % 2 ? "#fafbfc" : "#fff")) + '"/>');
+    s.push('<text x="' + (6 + (row.depth - 1) * 12) + '" y="' + r1(pk2.y + 13) +
+           '" font-size="13" fill="' + (row.depth === 1 ? "var(--accent)" : "#555") + '"' +
+           (row.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(row.name) + '</text>');
+
+    // Dependency lines inside the row, finish-to-start between consecutive tasks.
+    if (showDeps !== false) {
+      var seq = pk2.items.slice().sort(function (p, q) { return p.t.start - q.t.start; });
+      for (var k = 0; k + 1 < seq.length && k < 40; k++) {
+        var a = seq[k], c = seq[k + 1];
+        if (c.t.start < a.t.finish) continue;
+        var ay = pk2.y + a.lane * (taskH + LANE_GAP) + b.planH / 2;
+        var cy = pk2.y + c.lane * (taskH + LANE_GAP) + b.planH / 2;
+        var ax = originX + a.g.sx1, cx = originX + c.g.sx0;
+        if (cx - ax < 2) continue;
+        var mx = (ax + cx) / 2;
+        var dd = (ay === cy)
+          ? "M" + r1(ax) + "," + r1(ay) + " L" + r1(cx) + "," + r1(cy)
+          : "M" + r1(ax) + "," + r1(ay) + " L" + r1(mx) + "," + r1(ay) +
+            " L" + r1(mx) + "," + r1(cy) + " L" + r1(cx) + "," + r1(cy);
+        s.push('<path d="' + dd + '" fill="none" stroke="var(--dep)" stroke-width="1.2" ' +
+               'stroke-linejoin="round" marker-end="url(#dep-a)" opacity="0.85"/>');
+      }
+    }
+
+    pk2.items.forEach(function (it) {
+      var t = it.t, g = it.g, ty = pk2.y + it.lane * (taskH + LANE_GAP);
+      var sx0 = originX + g.sx0, sx1 = originX + g.sx1;
+      var lw = Math.max(1.2, Math.min(4, taskH * 0.11));
+      var op = 0.45 + 0.11 * (6 - t.depth);
+
+      if (t.milestone) {
+        s.push('<path d="' + diamond((sx0 + sx1) / 2, ty + b.planH / 2, ctx.glyphSize) +
+               '" fill="var(--plan)" stroke="var(--plan-line)" opacity="' + r1(op) + '"/>');
+        if (t.hasActual) {
+          s.push('<path d="' + diamond((sx0 + sx1) / 2, ty + b.belowActualTop + b.belowActualH / 2,
+                 Math.max(3, ctx.glyphSize * 0.55)) + '" fill="var(--act)"/>');
+        }
+      } else if (hasThickness(t.shapeKind)) {
+        s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty + b.planTop, b.planH) +
+               '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="0.5" opacity="' + r1(op) + '"/>');
+        if (t.hasActual) {
+          s.push('<path d="' + thickPath(t.shapeKind, originX + g.aX0, originX + g.aX1,
+                 ty + b.insideActualTop, b.insideActualH) + '" fill="var(--act)"/>');
+        }
+      } else {
+        s.push(thinSvg(t.shapeKind, sx0, sx1, ty + b.planTop, b.planH, "var(--plan-line)", lw));
+        if (t.hasActual) {
+          s.push(thinSvg(t.shapeKind, originX + g.aX0, originX + g.aX1,
+                 ty + b.belowActualTop, b.belowActualH, "var(--act)", lw * 0.85));
+        }
+      }
+
+      if (!ctx.showLabels) return;
+      var fs = ctx.fontSize;
+      s.push('<text x="' + r1(sx0 - LABEL_GAP) + '" y="' + r1(ty + b.planH / 2 + fs * 0.35) +
+             '" font-size="' + r1(fs) + '" text-anchor="end" fill="#666">' + esc(g.leftText) + '</text>');
+      if (t.hasActual) {
+        var ms = ctx.markSize, mx2 = originX + g.markX, my = ty + b.planH / 2;
+        s.push('<circle cx="' + r1(mx2 + ms / 2) + '" cy="' + r1(my) + '" r="' + r1(ms / 2) +
+               '" fill="#fff" stroke="var(--mark)" stroke-width="1.2"/>');
+        s.push('<text x="' + r1(mx2 + ms / 2) + '" y="' + r1(my + ms * 0.19) + '" font-size="' +
+               r1(ms * 0.5) + '" text-anchor="middle" fill="var(--mark)">' + t.percentComplete + '</text>');
+        if (t.suspended) {
+          var rx = mx2 + ms + MARK_GAP, rw = ms * (t.resumeValid ? 1 : 0.7);
+          s.push('<path d="M' + r1(rx) + ',' + r1(my + ms / 2) + ' V' + r1(my) + ' h' + r1(rw * 0.62) +
+                 '" fill="none" stroke="var(--mark)" stroke-width="1.3" stroke-linecap="round"' +
+                 (t.resumeValid ? '' : ' opacity="0.45"') + '/>');
+          s.push('<path d="M' + r1(rx + rw * 0.62) + ',' + r1(my - rw * 0.22) + ' L' + r1(rx + rw * 0.92) +
+                 ',' + r1(my) + ' L' + r1(rx + rw * 0.62) + ',' + r1(my + rw * 0.22) +
+                 ' Z" fill="var(--mark)"' + (t.resumeValid ? '' : ' opacity="0.45"') + '/>');
+        }
+      }
+      if (g.labelMode === "right") {
+        s.push('<text x="' + r1(originX + g.bodyX1 + g.markExtent + LABEL_GAP) + '" y="' +
+               r1(ty + b.planH / 2 + fs * 0.35) + '" font-size="' + r1(fs) + '" fill="var(--ink)">' +
+               esc(g.labelText) + '</text>');
+      } else if (g.labelMode === "inside") {
+        s.push('<text x="' + r1(sx0 + LABEL_PAD) + '" y="' + r1(ty + b.planH / 2 + fs * 0.35) +
+               '" font-size="' + r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
+      }
+    });
+  }
+  s.push('</svg>');
+  return { svg: s.join(""), V: V, contentH: contentH, totalLanes: totalLanes,
+           overlaps: totalOverlap, packs: packs };
+}
+
+// ---------------------------------------------------------------- transition scan
+/** Find every zoom value where fn() changes, by bisection on a fine log grid. */
+function scanTransitions(fn, lo, hi, steps) {
+  var out = [], i, prev = fn(lo), llo = Math.log(lo), lhi = Math.log(hi);
+  for (i = 1; i <= steps; i++) {
+    var z = Math.exp(llo + (lhi - llo) * i / steps);
+    var v = fn(z);
+    if (v !== prev) {
+      // bisect for the exact boundary
+      var a = Math.exp(llo + (lhi - llo) * (i - 1) / steps), b = z;
+      for (var k = 0; k < 60; k++) {
+        var m = Math.sqrt(a * b);
+        if (fn(m) === prev) a = m; else b = m;
+      }
+      out.push({ at: b, from: prev, to: v });
+      prev = v;
+    }
+  }
+  return out;
+}
+
+function monotoneCheck(fn, lo, hi, steps) {
+  var i, prev = fn(lo), bad = [];
+  var llo = Math.log(lo), lhi = Math.log(hi);
+  for (i = 1; i <= steps; i++) {
+    var z = Math.exp(llo + (lhi - llo) * i / steps);
+    var v = fn(z);
+    if (v < prev) bad.push({ at: z, from: prev, to: v });
+    prev = v;
+  }
+  return bad;
+}
+
+// ---------------------------------------------------------------- tables
+function matchRow(label, intended, measured, unit) {
+  var diff = (intended == null || measured == null) ? null : measured - intended;
+  var ok = diff == null ? false : Math.abs(diff) <= Math.max(1e-4, Math.abs(intended) * 0.005);
+  return '<tr><td>' + label + '</td>' +
+    '<td class="num">' + (intended == null ? "—" : r3(intended) + (unit || "")) + '</td>' +
+    '<td class="num">' + (measured == null ? "検出せず" : r3(measured) + (unit || "")) + '</td>' +
+    '<td class="num">' + (diff == null ? "—" : (diff >= 0 ? "+" : "") + r3(diff)) + '</td>' +
+    '<td>' + (ok ? '<span class="flag f-good">一致</span>'
+                 : '<span class="flag f-bad">不一致</span>') + '</td></tr>';
+}
+
+function buildRulerTable() {
+  var tr = scanTransitions(function (z) { return rulerTier(z); }, 0.02, 8, 4000);
+  var rows = [
+    '<tr><th>px/day</th><th>粒度</th><th class="num">段数</th><th class="num">対応する zoomX</th></tr>',
+    '<tr><td>1 未満</td><td>年のみ</td><td class="num">1</td><td class="num">&lt; 0.167</td></tr>',
+    '<tr><td>1 以上 8 未満</td><td>年 ＋ 月</td><td class="num">2</td><td class="num">0.167 〜 1.333</td></tr>',
+    '<tr><td>8 以上</td><td>年月 ＋ 日 ＋ 曜日</td><td class="num">3</td><td class="num">≧ 1.333</td></tr>'
+  ].join("");
+  var m1 = tr[0] ? tr[0].at : null, m2 = tr[1] ? tr[1].at : null;
+  var match = '<table><tr><th>遷移</th><th class="num">狙い（zoomX）</th><th class="num">実測</th>' +
+    '<th class="num">差</th><th>判定</th></tr>' +
+    matchRow("年 → 年＋月（px/day = 1）", 1 / 6, m1) +
+    matchRow("年＋月 → 年月＋日（px/day = 8）", 8 / 6, m2) + '</table>';
+  var mono = monotoneCheck(rulerTier, 0.02, 8, 4000);
+  return '<table>' + rows + '</table>' + match +
+    '<p class="hint">単調性の逆転 <b style="color:' + (mono.length ? "var(--bad)" : "var(--good)") + '">' +
+    mono.length + '</b> 件（4,000 段階の掃引）。</p>';
+}
+
+function buildItemTable() {
+  var rows = ['<tr><th class="num">深さ d</th><th class="num">代表期間（日）</th>' +
+    '<th class="num">24px を満たす px/day</th><th class="num">対応する zoomX</th></tr>'];
+  var d;
+  for (d = 1; d <= 5; d++) {
+    var need = MIN_READABLE_PX / MED_DUR[d];
+    rows.push('<tr><td class="num">' + d + '</td><td class="num">' + MED_DUR[d] + '</td>' +
+      '<td class="num">' + r3(need) + '</td><td class="num">' + r3(need / BASE_PX_PER_DAY) + '</td></tr>');
+  }
+  var tr = scanTransitions(itemDepth, 0.005, 8, 6000);
+  var match = ['<table><tr><th>遷移</th><th class="num">狙い（zoomX）</th><th class="num">実測</th>' +
+    '<th class="num">差</th><th>判定</th></tr>'];
+  for (d = 2; d <= 5; d++) {
+    var intended = (MIN_READABLE_PX / MED_DUR[d]) / BASE_PX_PER_DAY;
+    var found = null;
+    for (var i = 0; i < tr.length; i++) if (tr[i].to === d && tr[i].from === d - 1) found = tr[i].at;
+    match.push(matchRow("深さ " + (d - 1) + " → " + d, intended, found));
+  }
+  match.push('</table>');
+  var mono = monotoneCheck(itemDepth, 0.005, 8, 6000);
+  return '<table>' + rows.join("") + '</table>' + match.join("") +
+    '<p class="hint">単調性の逆転 <b style="color:' + (mono.length ? "var(--bad)" : "var(--good)") + '">' +
+    mono.length + '</b> 件（6,000 段階）。式が「代表期間 × px/day ≧ 24」の 1 本なので、' +
+    '逆転は原理的に起きない。<strong>経験則の羅列にしないことがそのまま単調性の保証になっている。</strong></p>';
+}
+
+function buildRowTable() {
+  var rows = ['<tr><th class="num">深さ d</th><th class="num">threshold(d) = 0.32×1.875^(d−2)</th>' +
+    '<th class="num">現行の実装値</th><th>判定</th></tr>'];
+  var current = { 2: 0.32, 3: 0.6, 4: null, 5: null };
+  var d;
+  for (d = 2; d <= 5; d++) {
+    var th = rowThreshold(d), cur = current[d];
+    rows.push('<tr><td class="num">' + d + '</td><td class="num">' + r3(th) + '</td>' +
+      '<td class="num">' + (cur == null ? "（新規）" : cur) + '</td><td>' +
+      (cur == null ? '<span class="flag f-good">外挿</span>'
+        : (Math.abs(th - cur) < 0.005 ? '<span class="flag f-good">現行値を通る</span>'
+                                      : '<span class="flag f-bad">現行値とずれる</span>')) + '</td></tr>');
+  }
+  var tr = scanTransitions(rowDepth, 0.05, 6, 6000);
+  var match = ['<table><tr><th>遷移</th><th class="num">狙い（zoomY）</th><th class="num">実測</th>' +
+    '<th class="num">差</th><th>判定</th></tr>'];
+  for (d = 2; d <= 5; d++) {
+    var found = null;
+    for (var i = 0; i < tr.length; i++) if (tr[i].to === d && tr[i].from === d - 1) found = tr[i].at;
+    match.push(matchRow("深さ " + (d - 1) + " → " + d, rowThreshold(d), found));
+  }
+  match.push('</table>');
+  var mono = monotoneCheck(rowDepth, 0.05, 6, 6000);
+  return '<table>' + rows.join("") + '</table>' + match.join("") +
+    '<p class="hint">単調性の逆転 <b style="color:' + (mono.length ? "var(--bad)" : "var(--good)") + '">' +
+    mono.length + '</b> 件（6,000 段階）。</p>';
+}
+
+function buildDropTable() {
+  var rows = ['<tr><th class="num">zoomY</th><th class="num">タスク高 px</th>' +
+    '<th class="num">80% の文字 px</th><th>下限 12px</th><th class="num">減らすレベル数</th>' +
+    '<th class="num">行深さ（素）</th><th class="num">行深さ（減らした後）</th></tr>'];
+  [1.5, 1.0, 0.7, 0.536, 0.45, 0.3, 0.18, 0.1].forEach(function (zy) {
+    var h = BASE_TASK_H * zy, f = h * 0.8, pen = levelPenalty(zy);
+    var raw = rowDepth(zy), eff = Math.max(1, raw - pen);
+    rows.push('<tr><td class="num">' + zy + '</td><td class="num">' + r1(h) + '</td>' +
+      '<td class="num">' + r1(f) + '</td>' +
+      '<td>' + (f < FONT_MIN ? '<span class="flag f-warn">割る</span>' : '<span class="flag f-good">満たす</span>') +
+      '</td><td class="num">' + pen + '</td><td class="num">' + raw + '</td>' +
+      '<td class="num"><b>' + eff + '</b></td></tr>');
+  });
+  var mono = monotoneCheck(function (zy) { return Math.max(1, rowDepth(zy) - levelPenalty(zy)); }, 0.03, 6, 6000);
+  var firstFloor = (FONT_MIN / 0.8) / BASE_TASK_H;
+  return '<table>' + rows.join("") + '</table>' +
+    '<p class="hint">下限に最初に当たるのは <b>zoomY = ' + r3(firstFloor) + '</b>（タスク高 15px）。' +
+    'レベル減を入れた後も単調性の逆転 <b style="color:' + (mono.length ? "var(--bad)" : "var(--good)") + '">' +
+    mono.length + '</b> 件。</p>' +
+    '<div class="note warn"><strong>この式は本 PoC の提案であって確定ではない。</strong>' +
+    ' <code>減らすレベル数 = ceil( log_3( 15 / タスク高 ) )</code>。行ツリーの分岐数を 3 と見て、' +
+    'レベルを 1 つ落とすと行数が 1/3 になり、残った行の高さが 3 倍になる、という見立てである。' +
+    '<strong>分岐数は文書によって違う</strong>ので、実装では実際の行数から求めるべきである。' +
+    '確定しているのは「さらに縮めるのではなくレベルを減らす」という方針だけ（§2-4-1）。</div>';
+}
+
+function buildSweep(dropEnabled) {
+  var NX = 120, NY = 80;
+  var xlo = Math.log(0.03), xhi = Math.log(6);
+  var ylo = Math.log(0.05), yhi = Math.log(4);
+  var grid = [], ix, iy;
+  for (ix = 0; ix < NX; ix++) {
+    var zx = Math.exp(xlo + (xhi - xlo) * ix / (NX - 1));
+    var col = [];
+    for (iy = 0; iy < NY; iy++) {
+      var zy = Math.exp(ylo + (yhi - ylo) * iy / (NY - 1));
+      var L = lod(zx, zy, dropEnabled);
+      // Counting only; no packing, so the sweep stays cheap.
+      var nt = 0, nr = 0, i;
+      for (i = 0; i < DATA.tasks.length; i++) if (DATA.tasks[i].depth <= L.itemDepth) nt++;
+      for (i = 0; i < DATA.rows.length; i++) if (DATA.rows[i].depth <= L.rowDepth) nr++;
+      col.push({ zx: zx, zy: zy, nt: nt, nr: nr, id: L.itemDepth, rd: L.rowDepth });
+    }
+    grid.push(col);
+  }
+  // Monotone in each axis: moving toward zoom-out must not increase counts.
+  var badX = 0, badY = 0, firstBad = null;
+  for (ix = 1; ix < NX; ix++) for (iy = 0; iy < NY; iy++) {
+    if (grid[ix][iy].nt < grid[ix - 1][iy].nt) { badX++; if (!firstBad) firstBad = grid[ix][iy]; }
+  }
+  for (ix = 0; ix < NX; ix++) for (iy = 1; iy < NY; iy++) {
+    if (grid[ix][iy].nr < grid[ix][iy - 1].nr) { badY++; if (!firstBad) firstBad = grid[ix][iy]; }
+  }
+
+  // heat map of shown tasks
+  var W = 1240, H = 300, padL = 46, padR = 90, padT = 10, padB = 30;
+  var cw = (W - padL - padR) / NX, ch = (H - padT - padB) / NY;
+  var maxNT = DATA.tasks.length;
+  var s = ['<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto">'];
+  for (ix = 0; ix < NX; ix++) for (iy = 0; iy < NY; iy++) {
+    var c = grid[ix][iy], v = c.nt / maxNT;
+    var g = Math.round(255 - v * 175);
+    s.push('<rect x="' + r1(padL + ix * cw) + '" y="' + r1(padT + (NY - 1 - iy) * ch) +
+           '" width="' + r1(cw + 0.6) + '" height="' + r1(ch + 0.6) +
+           '" fill="rgb(' + g + ',' + Math.round(g * 0.94 + 12) + ',' + Math.round(255 - v * 45) + ')"/>');
+  }
+  [0.03, 0.1, 0.3, 1, 3, 6].forEach(function (t) {
+    var x = padL + (Math.log(t) - xlo) / (xhi - xlo) * (W - padL - padR);
+    s.push('<text x="' + r1(x) + '" y="' + (H - padB + 15) + '" font-size="10" text-anchor="middle" fill="#777">' + t + '</text>');
+  });
+  [0.05, 0.2, 0.5, 1, 2, 4].forEach(function (t) {
+    var y = padT + (1 - (Math.log(t) - ylo) / (yhi - ylo)) * (H - padT - padB);
+    s.push('<text x="' + (padL - 6) + '" y="' + r1(y + 3) + '" font-size="10" text-anchor="end" fill="#777">' + t + '</text>');
+  });
+  s.push('<text x="' + (W - padR) + '" y="' + (H - 4) + '" font-size="10" text-anchor="end" fill="#777">横ズーム →</text>');
+  s.push('<text x="6" y="' + (padT + 10) + '" font-size="10" fill="#777">縦ズーム ↑</text>');
+  // legend
+  for (var q = 0; q <= 20; q++) {
+    var vv = q / 20, gg = Math.round(255 - vv * 175);
+    s.push('<rect x="' + (W - padR + 14) + '" y="' + r1(padT + (20 - q) * 9) + '" width="16" height="9" fill="rgb(' +
+           gg + ',' + Math.round(gg * 0.94 + 12) + ',' + Math.round(255 - vv * 45) + ')"/>');
+  }
+  s.push('<text x="' + (W - padR + 34) + '" y="' + (padT + 8) + '" font-size="10" fill="#777">' + maxNT + '</text>');
+  s.push('<text x="' + (W - padR + 34) + '" y="' + (padT + 20 * 9 + 8) + '" font-size="10" fill="#777">0</text>');
+  s.push('<text x="' + (W - padR + 14) + '" y="' + (padT + 20 * 9 + 26) + '" font-size="10" fill="#777">表示タスク</text>');
+  s.push('</svg>');
+
+  return '<div class="strip">' + s.join("") + '</div>' +
+    '<p class="hint">9,600 点。横方向の逆転 <b style="color:' + (badX ? "var(--bad)" : "var(--good)") + '">' + badX +
+    '</b> 件、縦方向の逆転 <b style="color:' + (badY ? "var(--bad)" : "var(--good)") + '">' + badY + '</b> 件。' +
+    '色が濃いほど表示タスクが多い。<strong>左下（縮小）から右上（拡大）へ向かって単調に濃くなっていれば正しい。</strong></p>';
+}
+
+// ---------------------------------------------------------------- wire-up
+var el = {
+  zx: document.getElementById("zx"), zy: document.getElementById("zy"),
+  zxv: document.getElementById("zxv"), zyv: document.getElementById("zyv"),
+  drop: document.getElementById("drop"), fit: document.getElementById("fit"),
+  lbl: document.getElementById("lbl"), dep: document.getElementById("dep"),
+  reset: document.getElementById("reset"), verdict: document.getElementById("verdict"),
+  canvas: document.getElementById("canvas"), read: document.getElementById("read")
+};
+function zxVal() { return Math.pow(10, parseFloat(el.zx.value)); }
+function zyVal() { return Math.pow(10, parseFloat(el.zy.value)); }
+
+function redrawLive() {
+  var zx = zxVal(), zy = zyVal(), dp = el.drop.checked;
+  el.zxv.textContent = zx.toFixed(3) + "x";
+  el.zyv.textContent = zy.toFixed(3) + "x";
+
+  var R = renderLive(zx, zy, dp, el.lbl.checked, el.dep.checked);
+  var L = R.V.lod;
+  el.canvas.innerHTML = R.svg;
+
+  var fits = R.contentH <= CANVAS_H;
+  var l1Rows = R.V.rows.filter(function (r) { return r.depth === 1; }).length;
+  var l1Fits = l1Rows === 3;
+
+  el.read.innerHTML = '<dl>' +
+    '<dt>px/day</dt><dd>' + r3(L.ppd) + '</dd>' +
+    '<dt>目盛</dt><dd>' + RULER_NAME[L.ruler] + '</dd>' +
+    '<dt>タスク高</dt><dd>' + r1(L.taskH) + 'px</dd>' +
+    '<dt>フォント</dt><dd>' + r1(L.fontSize) + 'px' +
+      (L.fontFloored ? ' <span class="flag f-warn">下限</span>' : '') + '</dd>' +
+    '<dt>レベル減</dt><dd>' + L.penalty + '</dd>' +
+    '<dt>WBS 深さ</dt><dd>' + L.itemDepthRaw + ' → <b>' + L.itemDepth + '</b></dd>' +
+    '<dt>行深さ</dt><dd>' + L.rowDepthRaw + ' → <b>' + L.rowDepth + '</b></dd>' +
+    '<dt>表示行</dt><dd>' + R.V.rows.length + ' / ' + DATA.rows.length + '</dd>' +
+    '<dt>表示タスク</dt><dd>' + R.V.shownTasks + ' / ' + DATA.tasks.length + '</dd>' +
+    '<dt>合計段数</dt><dd>' + R.totalLanes + '</dd>' +
+    '<dt>overlap</dt><dd style="color:' + (R.overlaps ? "var(--bad)" : "var(--good)") + '">' +
+      R.overlaps + '</dd>' +
+    '<dt>必要な縦</dt><dd>' + Math.round(R.contentH) + 'px / ' + CANVAS_H + 'px</dd>' +
+    '</dl><div style="margin-top:8px">' +
+    '<span class="pill ' + (fits ? "p-good" : "p-warn") + '">' +
+      (fits ? "1 画面に収まる" : "縦スクロールが要る") + '</span> ' +
+    '<span class="pill ' + (l1Fits ? "p-good" : "p-bad") + '">' +
+      (l1Fits ? "L1 は全部見える" : "L1 が欠けている") + '</span></div>';
+
+  el.verdict.innerHTML = '<span class="pill ' + (l1Fits ? "p-good" : "p-bad") + '">' +
+    (l1Fits ? "L1 表示 OK" : "L1 欠落") + '</span> ' +
+    'zoomX <b>' + zx.toFixed(3) + '</b> / zoomY <b>' + zy.toFixed(3) + '</b> ・ ' +
+    '目盛 <b>' + RULER_NAME[L.ruler] + '</b> ・ WBS 深さ <b>' + L.itemDepth + '</b> ・ ' +
+    '行深さ <b>' + L.rowDepth + '</b> ・ 表示 <b>' + R.V.shownTasks + '</b>/' + DATA.tasks.length + ' タスク';
+}
+
+var SLIDER_STEP = 0.005;
+/** Round a zoom down onto the slider's step grid. Rounding UP can cross a LOD threshold. */
+function snapDown(z) {
+  return Math.floor((Math.log(z) / Math.LN10) / SLIDER_STEP) * SLIDER_STEP;
+}
+
+function doFit() {
+  // Fit: horizontal zoom so the whole horizon fits the reference width.
+  var usable = VIEW_W - 150 - 20;
+  var zx = usable / (HORIZON_DAYS * BASE_PX_PER_DAY);
+  el.zx.value = snapDown(zx).toFixed(3);
+  var zxSnapped = Math.pow(10, parseFloat(el.zx.value));
+
+  // Vertical: largest zoomY whose content still fits the canvas height.
+  var lo = 0.05, hi = 4, k;
+  if (renderLive(zxSnapped, lo, el.drop.checked, el.lbl.checked, el.dep.checked).contentH > CANVAS_H) {
+    el.zy.value = snapDown(lo).toFixed(3);   // nothing fits; park at the floor
+    redrawLive();
+    return;
+  }
+  for (k = 0; k < 40; k++) {
+    var mid = Math.sqrt(lo * hi);
+    var R = renderLive(zxSnapped, mid, el.drop.checked, el.lbl.checked, el.dep.checked);
+    if (R.contentH <= CANVAS_H) lo = mid; else hi = mid;
+  }
+  // Snap DOWN onto the step grid, then walk down until it really fits.
+  // Fit lands exactly on a LOD threshold, so rounding up flips a whole level.
+  var v = snapDown(lo);
+  for (k = 0; k < 40; k++) {
+    if (renderLive(zxSnapped, Math.pow(10, v), el.drop.checked,
+                   el.lbl.checked, el.dep.checked).contentH <= CANVAS_H) break;
+    v -= SLIDER_STEP;
+  }
+  el.zy.value = v.toFixed(3);
+  redrawLive();
+}
+
+["input", "change"].forEach(function (ev) {
+  [el.zx, el.zy, el.drop, el.lbl, el.dep].forEach(function (n) { n.addEventListener(ev, redrawLive); });
+});
+el.drop.addEventListener("change", rebuildStatic);
+el.fit.addEventListener("click", doFit);
+el.reset.addEventListener("click", function () { el.zx.value = 0; el.zy.value = 0; redrawLive(); });
+
+/**
+ * Fit computes a zoom that lands on a LOD threshold. Sample around the boundary
+ * so the size of the discontinuity is visible rather than merely asserted.
+ */
+function buildCliffTable() {
+  var usable = VIEW_W - 150 - 20;
+  var zx = Math.pow(10, snapDown(usable / (HORIZON_DAYS * BASE_PX_PER_DAY)));
+  var probes = [0.62, 0.61, 0.605, 0.6026, 0.6005, 0.6, 0.5995, 0.59, 0.58];
+  var rows = ['<tr><th class="num">zoomY</th><th class="num">行深さ</th><th class="num">表示行</th>' +
+    '<th class="num">合計段数</th><th class="num">必要な縦 px</th><th>1030px に収まるか</th></tr>'];
+  probes.forEach(function (zy) {
+    var R = renderLive(zx, zy, el.drop.checked, el.lbl.checked, el.dep.checked);
+    var fit = R.contentH <= CANVAS_H;
+    rows.push('<tr><td class="num">' + zy + '</td><td class="num">' + R.V.lod.rowDepth + '</td>' +
+      '<td class="num">' + R.V.rows.length + '</td><td class="num">' + R.totalLanes + '</td>' +
+      '<td class="num">' + Math.round(R.contentH) + '</td><td>' +
+      (fit ? '<span class="flag f-good">収まる</span>' : '<span class="flag f-bad">はみ出す</span>') +
+      '</td></tr>');
+  });
+  var a = renderLive(zx, 0.5995, el.drop.checked, el.lbl.checked, el.dep.checked),
+      b = renderLive(zx, 0.6005, el.drop.checked, el.lbl.checked, el.dep.checked);
+  return '<div class="note warn"><strong>実測で見つけた不具合（本 PoC で修正済み）。</strong>' +
+    ' Fit が返す縦ズームは <b>行階層 LOD の閾値 0.60 のすぐ下</b>に着地する。' +
+    'ところがスライダーの刻みが 0.005（対数）なので、素直に丸めると<strong>値が閾値を跨いで上へ飛ぶ</strong>。' +
+    'たった 0.4% のずれで<strong>行が ' + a.V.rows.length + ' → ' + b.V.rows.length + ' に増え、' +
+    '必要な縦が ' + Math.round(a.contentH) + 'px → ' + Math.round(b.contentH) + 'px になり、Fit が収まらなくなる。</strong>' +
+    ' 対策は「Fit の結果は刻みに対して<strong>切り下げる</strong>、切り下げた後で実際に収まるまで 1 刻みずつ下げる」。' +
+    '<strong>次期でも同じ形の事故が起きる</strong> — ズーム値を量子化する場所（スライダー・ホイールの刻み・保存値の丸め）が' +
+    'LOD 閾値と独立に決まっているかぎり、必ず跨ぐ。</div>' +
+    '<table>' + rows.join("") + '</table>' +
+    '<p class="hint">閾値 0.60 を挟んだ 1 刻みで、段数が ' + a.totalLanes + ' → ' + b.totalLanes +
+    ' に跳ぶ。<strong>LOD は本質的に不連続</strong>なので、Fit のような「収まる最大値を求める」操作は' +
+    '閾値のすぐ下に吸い寄せられる。ズーム PoC B の「画面予算から深さを決める」向きなら、' +
+    'この衝突は起きない（先に深さを決めてから高さを配るため）。</p>';
+}
+
+function rebuildStatic() {
+  document.getElementById("t-ruler").innerHTML = buildRulerTable();
+  document.getElementById("t-itemlod").innerHTML = buildItemTable();
+  document.getElementById("t-rowlod").innerHTML = buildRowTable();
+  document.getElementById("t-drop").innerHTML = buildDropTable();
+  document.getElementById("t-sweep").innerHTML = buildSweep(el.drop.checked);
+  document.getElementById("t-match").innerHTML = buildMatchSummary();
+  document.getElementById("t-cliff").innerHTML = buildCliffTable();
+}
+
+function buildMatchSummary() {
+  var trR = scanTransitions(rulerTier, 0.02, 8, 4000);
+  var trI = scanTransitions(itemDepth, 0.005, 8, 6000);
+  var trW = scanTransitions(rowDepth, 0.05, 6, 6000);
+  function pick(arr, to) { for (var i = 0; i < arr.length; i++) if (arr[i].to === to) return arr[i].at; return null; }
+  var out = ['<table><tr><th>系統</th><th>遷移</th><th class="num">狙い</th><th class="num">実測</th>' +
+    '<th class="num">差</th><th>判定</th></tr>'];
+  out.push('<tr><td rowspan="2">時間軸</td><td>年 → 年＋月</td>' +
+    matchRow("", 1 / 6, pick(trR, 2)).replace(/^<tr><td><\/td>/, "").replace(/<\/tr>$/, "</tr>"));
+  out.push('<tr><td>年＋月 → 年月＋日</td>' +
+    matchRow("", 8 / 6, pick(trR, 3)).replace(/^<tr><td><\/td>/, "").replace(/<\/tr>$/, "</tr>"));
+  var d;
+  for (d = 2; d <= 5; d++) {
+    out.push('<tr><td>' + (d === 2 ? "アイテム（軸A）" : "") + '</td><td>深さ ' + (d - 1) + ' → ' + d + '</td>' +
+      matchRow("", (MIN_READABLE_PX / MED_DUR[d]) / BASE_PX_PER_DAY, pick(trI, d))
+        .replace(/^<tr><td><\/td>/, "").replace(/<\/tr>$/, "</tr>"));
+  }
+  for (d = 2; d <= 5; d++) {
+    out.push('<tr><td>' + (d === 2 ? "行階層（軸B）" : "") + '</td><td>深さ ' + (d - 1) + ' → ' + d + '</td>' +
+      matchRow("", rowThreshold(d), pick(trW, d))
+        .replace(/^<tr><td><\/td>/, "").replace(/<\/tr>$/, "</tr>"));
+  }
+  out.push('</table>');
+  var all = [];
+  [[trR, [2, 3], [1 / 6, 8 / 6]],
+   [trI, [2, 3, 4, 5], [2, 3, 4, 5].map(function (x) { return (MIN_READABLE_PX / MED_DUR[x]) / BASE_PX_PER_DAY; })],
+   [trW, [2, 3, 4, 5], [2, 3, 4, 5].map(rowThreshold)]].forEach(function (grp) {
+    grp[1].forEach(function (to, i) {
+      var m = pick(grp[0], to), want = grp[2][i];
+      all.push(m != null && Math.abs(m - want) <= Math.max(1e-4, want * 0.005));
+    });
+  });
+  var nOk = all.filter(Boolean).length;
+  return out.join("") + '<p class="hint">遷移点 <b>' + nOk + ' / ' + all.length +
+    '</b> が狙いどおり（許容 0.5%）。' +
+    (nOk === all.length
+      ? '<span class="flag f-good">全 10 点が一致</span>'
+      : '<span class="flag f-bad">ずれている遷移がある</span>') + '</p>';
+}
+
+rebuildStatic();
+redrawLive();
+
+// Expose for DOM-side verification.
+window.__poc = {
+  DATA: DATA, lod: lod, rulerTier: rulerTier, itemDepth: itemDepth, rowDepth: rowDepth,
+  rowThreshold: rowThreshold, levelPenalty: levelPenalty, visibleSet: visibleSet,
+  scanTransitions: scanTransitions, monotoneCheck: monotoneCheck, renderLive: renderLive,
+  MED_DUR: MED_DUR, MIN_READABLE_PX: MIN_READABLE_PX
+};
+</script>
+</body>
+</html>

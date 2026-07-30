@@ -1,0 +1,1610 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>gr-scheduler PoC / Layout A - Orthogonal Channel Routing</title>
+<style>
+  :root {
+    --ink: #1b2331;
+    --ink-soft: #59657a;
+    --paper: #f6f7f9;
+    --panel: #ffffff;
+    --line: #c3cad6;
+    --accent: #2f3d52;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 12px/1.45 "Segoe UI", "Yu Gothic UI", Meiryo, "Hiragino Kaku Gothic ProN", sans-serif;
+  }
+  #stage { position: absolute; top: 40px; left: 0; right: var(--side-w); bottom: 0; }
+  #canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+  #canvas.dragging { cursor: grabbing; }
+
+  .panel {
+    position: absolute;
+    background: rgba(255,255,255,0.96);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(20,28,40,0.10);
+  }
+
+  #metrics { top: 48px; right: 8px; width: 226px; padding: 8px 10px; }
+  #metrics h2 { margin: 0 0 6px; font-size: 12px; letter-spacing: .04em; color: var(--ink-soft); text-transform: uppercase; }
+  #metrics table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  #metrics td { padding: 1px 0; font-size: 12px; }
+  #metrics td.k { color: var(--ink-soft); }
+  #metrics td.v { text-align: right; font-weight: 600; }
+  #metrics tr.hi td { background: #eef2f7; }
+  #metrics tr.bad td.v { color: #8b1a1a; }
+  #metrics tr.ok td.v { color: #17603a; }
+  #metrics .note { margin-top: 6px; font-size: 12px; color: var(--ink-soft); line-height: 1.35; }
+
+  #toolbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 40px;
+    display: flex; gap: 14px; align-items: center; padding: 0 10px;
+    background: #ffffff; border-bottom: 1px solid var(--line); z-index: 5;
+    overflow: hidden;
+  }
+  #toolbar .grp { display: flex; align-items: center; gap: 6px; }
+  #toolbar label { color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+  #toolbar input[type=range] { width: 112px; }
+  #toolbar output { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 38px; display: inline-block; text-align: right; }
+  #toolbar button {
+    font: inherit; padding: 3px 10px; border: 1px solid var(--line);
+    background: #fff; border-radius: 4px; cursor: pointer; color: var(--ink);
+  }
+  #toolbar button:hover { background: #eef2f7; }
+  #toolbar .title { font-weight: 600; white-space: nowrap; }
+  #toolbar .hint { color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+
+  #legend { left: 8px; bottom: 8px; padding: 6px 9px; max-width: calc(100% - 268px); }
+  #legend h2 {
+    margin: 0; font-size: 12px; letter-spacing: .04em; color: var(--ink-soft);
+    text-transform: uppercase; cursor: pointer; user-select: none;
+  }
+  #legend h2:hover { color: var(--ink); }
+  #legend .body { margin-top: 5px; }
+  #legend.folded .body { display: none; }
+  #legend .rowset { display: flex; gap: 13px; flex-wrap: wrap; align-items: center; }
+  #legend .item { display: flex; align-items: center; gap: 5px; font-size: 12px; white-space: nowrap; }
+  #legend svg { display: block; }
+
+  #warn {
+    position: absolute; left: 50%; transform: translateX(-50%); top: 48px;
+    background: #7d1f1f; color: #fff; padding: 4px 12px; border-radius: 4px;
+    font-size: 12px; display: none;
+  }
+
+  /* --------------------------------------------------------------------
+     Review overlay column (presentation only; no algorithm is touched).
+     Every floating panel is stacked in ONE fixed right-hand column, so no
+     panel can overlap another one or cover the drawing area.
+     -------------------------------------------------------------------- */
+  html { --side-w: 300px; }
+  html.side-collapsed { --side-w: 0px; }
+  #sidebar {
+    box-sizing: border-box;
+    position: fixed; top: 44px; right: 0; bottom: 0;
+    width: 300px; max-height: 100vh;
+    overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+    padding: 8px; z-index: 60;
+  }
+  #sidebar > *:not(#sideToggleWrap) {
+    position: static; top: auto; right: auto; bottom: auto; left: auto;
+    width: 100%; max-width: 100%; min-width: 0; margin: 0;
+    flex: 0 0 auto; transform: none;
+  }
+  #sideToggleWrap { flex: 0 0 auto; align-self: flex-end; }
+  #sideToggle {
+    font: inherit; font-size: 12px; line-height: 1.4; padding: 2px 8px;
+    border: 1px solid #9aa3b0; border-radius: 4px;
+    background: #fff; color: var(--ink); cursor: pointer;
+    box-shadow: 0 1px 5px rgba(20, 28, 40, 0.20);
+  }
+  #sideToggle:hover { background: #eef2f7; }
+  html.side-collapsed #sidebar {
+    width: auto; bottom: auto; overflow: visible; padding: 6px;
+  }
+  html.side-collapsed #sidebar > *:not(#sideToggleWrap) { display: none !important; }
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <span class="title">案A 直交チャネル配線</span>
+  <div class="grp">
+    <label for="zx">横ズーム</label>
+    <input id="zx" type="range" min="0.6" max="26" step="0.1" value="6.5">
+    <output id="zxv">6.5</output>
+  </div>
+  <div class="grp">
+    <label for="zy">縦ズーム</label>
+    <input id="zy" type="range" min="0.35" max="3" step="0.05" value="1">
+    <output id="zyv">1.00</output>
+  </div>
+  <div class="grp">
+    <button id="fit" type="button">Fit (F)</button>
+    <button id="reset" type="button">Reset</button>
+  </div>
+  <div class="hint">Ctrl+ホイール=横 / Shift+ホイール=縦 / ホイール・ドラッグ=パン</div>
+</div>
+
+<div id="stage"><svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg></div>
+
+<div id="sidebar">
+  <div id="sideToggleWrap"><button id="sideToggle" type="button" aria-expanded="true">パネル</button></div>
+
+  <div id="metrics" class="panel">
+    <h2>metrics</h2>
+    <table id="mtable"></table>
+    <div class="note">案A: 直交チャネル配線（縦チャネル/横チャネルを区間スケジューリングで排他割当）</div>
+  </div>
+
+  <div id="legend" class="panel"></div>
+  <div id="warn"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------------------------------------------------------------------------
+  // Shared PoC data. Copy verbatim. Do not modify.
+  // ---------------------------------------------------------------------------
+
+  /** Deterministic LCG so every PoC renders byte-identical input. */
+  function makeRng(seed) {
+    var s = seed >>> 0;
+    return function () {
+      s = (s * 1664525 + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+
+  var SHAPE_KINDS = ['bar', 'chevron', 'arrow', 'endpointSpan'];
+
+  /**
+   * Layout stress cases. Each case becomes ONE TaskGroup (= one row).
+   * t: [name, startDay, finishDay, shapeKind, milestone]
+   * d: [fromIndex, toIndex, linkType]  (indices are local to the case)
+   */
+  var LAYOUT_CASES = [
+    { title: '1. 直列 FS 3 本',
+      t: [['A', 0, 20, 'bar', false], ['B', 24, 44, 'bar', false], ['C', 48, 68, 'bar', false]],
+      d: [[0, 1, 'FS'], [1, 2, 'FS']] },
+
+    { title: '2. 逆行依存（右から左へ）',
+      t: [['A', 60, 80, 'bar', false], ['B', 10, 30, 'bar', false], ['C', 100, 120, 'bar', false]],
+      d: [[0, 1, 'FS'], [2, 0, 'FS']] },
+
+    { title: '3. 同一行内で交差する 2 本',
+      t: [['A', 0, 24, 'bar', false], ['B', 30, 54, 'bar', false],
+          ['C', 60, 84, 'bar', false], ['D', 90, 114, 'bar', false]],
+      d: [[0, 2, 'FS'], [1, 3, 'FS']] },
+
+    { title: '4. 1 対 4 の扇形（出）',
+      t: [['SRC', 0, 20, 'chevron', false], ['A', 30, 46, 'bar', false], ['B', 50, 66, 'bar', false],
+          ['C', 70, 86, 'bar', false], ['D', 90, 106, 'bar', false]],
+      d: [[0, 1, 'FS'], [0, 2, 'FS'], [0, 3, 'FS'], [0, 4, 'FS']] },
+
+    { title: '5. 4 対 1 の扇形（入）',
+      t: [['A', 0, 16, 'bar', false], ['B', 20, 36, 'bar', false], ['C', 40, 56, 'bar', false],
+          ['D', 60, 76, 'bar', false], ['DST', 90, 110, 'chevron', false]],
+      d: [[0, 4, 'FS'], [1, 4, 'FS'], [2, 4, 'FS'], [3, 4, 'FS']] },
+
+    { title: '6. 完全結合（4 タスク 6 本）',
+      t: [['A', 0, 20, 'bar', false], ['B', 26, 46, 'bar', false],
+          ['C', 52, 72, 'bar', false], ['D', 78, 98, 'bar', false]],
+      d: [[0, 1, 'FS'], [0, 2, 'FS'], [0, 3, 'FS'], [1, 2, 'FS'], [1, 3, 'FS'], [2, 3, 'FS']] },
+
+    { title: '7. 3 段に積まれた行を跨ぐ依存',
+      t: [['A', 0, 60, 'bar', false], ['B', 10, 70, 'bar', false], ['C', 20, 80, 'bar', false],
+          ['D', 90, 110, 'bar', false]],
+      d: [[0, 3, 'FS'], [1, 3, 'FS'], [2, 3, 'FS'], [0, 1, 'SS'], [1, 2, 'SS']] },
+
+    { title: '8. マイルストーンへ集約',
+      t: [['A', 0, 24, 'bar', false], ['B', 12, 40, 'bar', false], ['C', 28, 56, 'bar', false],
+          ['M', 62, 62, 'milestone', true]],
+      d: [[0, 3, 'FS'], [1, 3, 'FS'], [2, 3, 'FS']] },
+
+    { title: '9. 同一開始日の 5 タスク',
+      t: [['A', 20, 44, 'bar', false], ['B', 20, 40, 'bar', false], ['C', 20, 36, 'bar', false],
+          ['D', 20, 32, 'bar', false], ['E', 20, 28, 'bar', false]],
+      d: [[4, 0, 'SS'], [3, 0, 'SS'], [2, 0, 'SS'], [1, 0, 'SS']] },
+
+    { title: '10. 隣接（finish == start）',
+      t: [['A', 0, 30, 'bar', false], ['B', 30, 60, 'bar', false],
+          ['C', 60, 90, 'bar', false], ['D', 90, 120, 'bar', false]],
+      d: [[0, 1, 'FS'], [1, 2, 'FS'], [2, 3, 'FS']] },
+
+    { title: '11. 長い名称がはみ出す',
+      t: [['要件定義と外部仕様の確定', 0, 12, 'bar', false],
+          ['詳細設計レビューの反映', 18, 30, 'bar', false],
+          ['結合検証と是正', 36, 48, 'bar', false]],
+      d: [[0, 1, 'FS'], [1, 2, 'FS']] },
+
+    { title: '12. 幅がない形状種の混在',
+      t: [['A', 0, 26, 'arrow', false], ['B', 32, 58, 'endpointSpan', false],
+          ['C', 64, 90, 'chevron', false], ['M', 96, 96, 'milestone', true]],
+      d: [[0, 1, 'FS'], [1, 2, 'FS'], [2, 3, 'FS'], [0, 2, 'FS']] },
+
+    { title: '13. 予実＋進捗マーカー付きで配線',
+      t: [['A', 0, 30, 'bar', false], ['B', 36, 66, 'bar', false],
+          ['C', 72, 102, 'chevron', false], ['D', 40, 100, 'bar', false]],
+      d: [[0, 1, 'FS'], [1, 2, 'FS'], [0, 3, 'SS'], [3, 2, 'FF']] },
+
+    { title: '14. 密集（12 タスク・交差多数）',
+      t: [['a', 0, 10, 'bar', false], ['b', 8, 20, 'bar', false], ['c', 16, 28, 'bar', false],
+          ['d', 24, 36, 'bar', false], ['e', 32, 44, 'bar', false], ['f', 40, 52, 'bar', false],
+          ['g', 48, 60, 'bar', false], ['h', 56, 68, 'bar', false], ['i', 64, 76, 'bar', false],
+          ['j', 72, 84, 'bar', false], ['k', 80, 92, 'bar', false], ['l', 88, 100, 'bar', false]],
+      d: [[0, 3, 'FS'], [1, 5, 'FS'], [2, 7, 'FS'], [3, 9, 'FS'], [4, 11, 'FS'],
+          [0, 11, 'FS'], [6, 8, 'FS'], [8, 10, 'FS'], [5, 9, 'FS'], [7, 11, 'FS']] },
+
+    { title: '15. 行を跨ぐ依存の受け口',
+      t: [['X', 0, 24, 'bar', false], ['Y', 40, 64, 'bar', false], ['Z', 80, 104, 'bar', false]],
+      d: [[0, 1, 'FS'], [1, 2, 'FS']] }
+  ];
+
+  /** Cross-row links, given as [caseIndex, taskIndex] pairs. Exercise vertical routing. */
+  var CROSS_ROW_LINKS = [
+    [[0, 2], [2, 0], 'FS'], [[3, 4], [5, 0], 'FS'], [[7, 3], [9, 0], 'FS'],
+    [[5, 3], [13, 0], 'FS'], [[9, 3], [14, 0], 'FS'], [[11, 3], [14, 1], 'FS'],
+    [[13, 2], [14, 2], 'FS'], [[1, 2], [6, 0], 'FS'], [[6, 3], [12, 0], 'FS']
+  ];
+
+  /** Build the layout-stress dataset: one TaskGroup per case. */
+  function buildLayoutDataset() {
+    var tasks = [], groups = [], links = [], uid = 1, idx = [];
+    for (var c = 0; c < LAYOUT_CASES.length; c++) {
+      var kase = LAYOUT_CASES[c], memberUids = [], local = [];
+      for (var i = 0; i < kase.t.length; i++) {
+        var row = kase.t[i];
+        var dur = row[2] - row[1];
+        var actualDur = Math.max(0, Math.round(dur * (0.3 + 0.5 * ((c + i) % 5) / 4)));
+        tasks.push({
+          uid: uid, name: row[0], groupId: 'G' + c,
+          startDay: row[1], finishDay: row[2],
+          milestone: row[4], shapeKind: row[3],
+          wbsParentUid: null, wbsDepth: 1 + (i % 3),
+          actualStartDay: row[1], actualDurationDays: actualDur,
+          actualFinishDay: null,
+          percentComplete: dur === 0 ? 0 : Math.min(100, Math.round((actualDur / dur) * 100)),
+          stackOrder: null
+        });
+        memberUids.push(uid); local.push(uid); uid++;
+      }
+      idx.push(local);
+      groups.push({ id: 'G' + c, title: kase.title, memberUids: memberUids });
+      for (var k = 0; k < kase.d.length; k++) {
+        links.push({ fromUid: local[kase.d[k][0]], toUid: local[kase.d[k][1]], linkType: kase.d[k][2] });
+      }
+    }
+    for (var x = 0; x < CROSS_ROW_LINKS.length; x++) {
+      var a = CROSS_ROW_LINKS[x][0], b = CROSS_ROW_LINKS[x][1];
+      links.push({ fromUid: idx[a[0]][a[1]], toUid: idx[b[0]][b[1]], linkType: CROSS_ROW_LINKS[x][2] });
+    }
+    return { tasks: tasks, groups: groups, links: links };
+  }
+
+  /**
+   * Build the zoom dataset: a large project with a 5-level WBS.
+   * Level fan-out 5 / 4 / 3 / 2 / 2 -> 5 + 20 + 60 + 120 + 240 = 445 tasks.
+   * Rows (TaskGroup) are the level-2 nodes, so 20 rows carry every leaf.
+   */
+  function buildZoomDataset() {
+    var rng = makeRng(20260730);
+    var tasks = [], groups = [], links = [], uid = 1;
+    var HORIZON = 720;                       // project spans 720 days
+    var FANOUT = [5, 4, 3, 2, 2];
+    var byDepth = [[], [], [], [], [], []];
+
+    function make(depth, parentUid, s, f, label) {
+      var t = {
+        uid: uid++, name: label, groupId: null,
+        startDay: s, finishDay: f, milestone: false, shapeKind: 'bar',
+        wbsParentUid: parentUid, wbsDepth: depth,
+        actualStartDay: s, actualDurationDays: Math.round((f - s) * (0.2 + rng() * 0.7)),
+        actualFinishDay: null, percentComplete: 0, stackOrder: null
+      };
+      var dur = f - s;
+      t.percentComplete = dur === 0 ? 0 : Math.min(100, Math.round(t.actualDurationDays / dur * 100));
+      tasks.push(t); byDepth[depth].push(t);
+      return t;
+    }
+
+    function split(node, depth) {
+      if (depth > 5) return;
+      var n = FANOUT[depth - 1];
+      var span = node.finishDay - node.startDay;
+      var seg = span / n;
+      for (var i = 0; i < n; i++) {
+        var s = Math.round(node.startDay + seg * i + seg * 0.05 * rng());
+        var f = Math.round(node.startDay + seg * (i + 1) - seg * 0.10 * rng());
+        if (f <= s) f = s + 1;
+        var child = make(depth, node.uid, s, f, 'L' + depth + '-' + uid);
+        split(child, depth + 1);
+      }
+    }
+
+    for (var p = 0; p < FANOUT[0]; p++) {
+      var s0 = Math.round(HORIZON / FANOUT[0] * p);
+      var f0 = Math.round(HORIZON / FANOUT[0] * (p + 1)) - 4;
+      var root = make(1, null, s0, f0, 'L1-' + (p + 1));
+      split(root, 2);
+    }
+
+    // Rows: every depth-2 node becomes a TaskGroup holding its whole subtree.
+    var byUid = {};
+    for (var q = 0; q < tasks.length; q++) byUid[tasks[q].uid] = tasks[q];
+    function rootGroupOf(t) {
+      var cur = t;
+      while (cur.wbsDepth > 2 && cur.wbsParentUid != null) cur = byUid[cur.wbsParentUid];
+      return cur.wbsDepth === 2 ? cur.uid : null;
+    }
+    var groupMap = {};
+    for (var r = 0; r < tasks.length; r++) {
+      var g = rootGroupOf(tasks[r]);
+      if (g == null) { tasks[r].groupId = 'ROOT'; continue; }
+      tasks[r].groupId = 'G' + g;
+      if (!groupMap['G' + g]) groupMap['G' + g] = { id: 'G' + g, title: byUid[g].name, memberUids: [] };
+      groupMap['G' + g].memberUids.push(tasks[r].uid);
+    }
+    var rootGroup = { id: 'ROOT', title: 'L1', memberUids: [] };
+    for (var r2 = 0; r2 < tasks.length; r2++) {
+      if (tasks[r2].groupId === 'ROOT') rootGroup.memberUids.push(tasks[r2].uid);
+    }
+    groups.push(rootGroup);
+    for (var key in groupMap) if (groupMap.hasOwnProperty(key)) groups.push(groupMap[key]);
+
+    // Links: chain siblings at every depth (FS), plus a few long-range ones.
+    for (var d = 1; d <= 5; d++) {
+      var lvl = byDepth[d];
+      for (var i2 = 1; i2 < lvl.length; i2++) {
+        if (lvl[i2].wbsParentUid === lvl[i2 - 1].wbsParentUid) {
+          links.push({ fromUid: lvl[i2 - 1].uid, toUid: lvl[i2].uid, linkType: 'FS' });
+        }
+      }
+    }
+    for (var j = 0; j < 40; j++) {
+      var a2 = tasks[Math.floor(rng() * tasks.length)], b2 = tasks[Math.floor(rng() * tasks.length)];
+      if (a2.uid !== b2.uid && a2.finishDay <= b2.startDay) {
+        links.push({ fromUid: a2.uid, toUid: b2.uid, linkType: 'FS' });
+      }
+    }
+    return { tasks: tasks, groups: groups, links: links };
+  }
+
+  // ---------------------------------------------------------------------------
+  // End of shared PoC data.
+  // ---------------------------------------------------------------------------
+
+  // Keep the unused shared symbols referenced so bundlers/linters see them used.
+  var SHARED_UNUSED = [makeRng, SHAPE_KINDS, buildZoomDataset];
+
+  // ===========================================================================
+  // Variant A configuration: orthogonal routing on reserved channels.
+  // ===========================================================================
+
+  var CFG = {
+    GUTTER: 198,          // left row-title gutter (world x of day 0)
+    HEADER_H: 42,         // time axis header height
+    TOP_MARGIN: 10,
+    PLAN_H: 18,           // plan bar height at yZoom 1
+    ACTUAL_H: 7,          // actual bar height at yZoom 1 (must be < PLAN_H)
+    BELOW_GAP: 2,         // gap between plan shape and the below-placed actual bar
+    LEVEL_GAP: 12,        // vertical gap between stackOrder n and n+1 = ONE routing lane
+    ROW_GAP: 22,          // vertical gap between rows = one cross-row routing lane band
+    ROW_PAD_RATIO: 0.22,  // row padding, capped at 25% of a stack level height (spec 5)
+    MARKER_SIZE: 12,      // Progress Marker, fixed pixel size
+    MARKER_GAP: 4,        // fixed 4px from the actual bar right edge (spec 3-5)
+    LABEL_MIN_FONT: 10,   // font size clamp floor (spec 3-3)
+    LABEL_FONT_RATIO: 0.8,
+    LABEL_TRUNC_UNITS: 24,// 24 half-width units == 12 full-width chars (spec 3-3)
+    V_PITCH: 7,           // vertical channel pitch (px, world x)
+    H_PITCH: 3.5,         // horizontal sub-lane pitch inside a gap band
+    MIN_LINK_GAP: 10,     // geometric minimum gap demanded by a link (spec 3-2 step 1)
+    STUB: 9,              // preferred stub length out of an anchor
+    STACK_LIMIT: 16,      // safety valve only; the last level is NEVER reused
+    V_SEARCH: 220,        // max candidate channels inspected per vertical run
+    FALLBACK_V_WINDOW: 90 // how far a fallback route may slide its first vertical run
+  };
+
+  var PROJECT_START_MS = Date.UTC(2026, 3, 1);
+  var WEEKDAY_JA = ['日', '月', '火', '水', '木', '金', '土'];
+  var SIDE_OF_TYPE = { FS: ['R', 'L'], SS: ['L', 'L'], FF: ['R', 'R'], SF: ['L', 'R'] };
+
+  var DATA = buildLayoutDataset();
+  var BY_UID = {};
+  for (var bi = 0; bi < DATA.tasks.length; bi++) BY_UID[DATA.tasks[bi].uid] = DATA.tasks[bi];
+
+  var DAY_MIN = 0, DAY_MAX = 0;
+  for (var di = 0; di < DATA.tasks.length; di++) {
+    if (DATA.tasks[di].finishDay > DAY_MAX) DAY_MAX = DATA.tasks[di].finishDay;
+  }
+  DAY_MAX += 6;
+
+  var view = { pxPerDay: 6.5, yZoom: 1, scrollX: 0, scrollY: 0 };
+  var selectedUid = null;
+
+  var svgEl = document.getElementById('canvas');
+  var warnEl = document.getElementById('warn');
+  var mtableEl = document.getElementById('mtable');
+
+  // ---------------------------------------------------------------------------
+  // Small utilities
+  // ---------------------------------------------------------------------------
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function r1(n) { return Math.round(n * 10) / 10; }
+  function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+
+  /** True for characters that occupy two half-width cells. */
+  function isFullWidth(code) {
+    return (code >= 0x1100 && code <= 0x115f) ||
+           (code >= 0x2e80 && code <= 0x303e) ||
+           (code >= 0x3041 && code <= 0x33ff) ||
+           (code >= 0x3400 && code <= 0x4dbf) ||
+           (code >= 0x4e00 && code <= 0x9fff) ||
+           (code >= 0xa000 && code <= 0xa4cf) ||
+           (code >= 0xac00 && code <= 0xd7a3) ||
+           (code >= 0xf900 && code <= 0xfaff) ||
+           (code >= 0xfe30 && code <= 0xfe6f) ||
+           (code >= 0xff00 && code <= 0xff60) ||
+           (code >= 0xffe0 && code <= 0xffe6);
+  }
+
+  /** Half-width unit count of a string (full width counts as 2). */
+  function widthUnits(s) {
+    var u = 0;
+    for (var i = 0; i < s.length; i++) u += isFullWidth(s.charCodeAt(i)) ? 2 : 1;
+    return u;
+  }
+
+  /** Approximate text width. Spec 3-3: never measured, never cached. */
+  function approxWidth(s, fontSize) { return widthUnits(s) * fontSize / 2; }
+
+  /** Truncate to LABEL_TRUNC_UNITS half-width units (== 12 full-width chars). */
+  function truncateUnits(s, maxUnits) {
+    var u = 0, out = '';
+    for (var i = 0; i < s.length; i++) {
+      var w = isFullWidth(s.charCodeAt(i)) ? 2 : 1;
+      if (u + w > maxUnits) return out + '…';
+      u += w; out += s.charAt(i);
+    }
+    return out;
+  }
+
+  function dayLabelDate(day) { return new Date(PROJECT_START_MS + day * 86400000); }
+
+  // ---------------------------------------------------------------------------
+  // Channel allocators (the heart of variant A)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Discrete vertical channels over world x. A channel holds disjoint y-intervals,
+   * so two lines never share the same channel over the same y-range.
+   */
+  function VerticalChannels(pitch, origin) {
+    this.pitch = pitch; this.origin = origin; this.slots = {};
+  }
+  VerticalChannels.prototype.xOf = function (i) { return this.origin + i * this.pitch; };
+  VerticalChannels.prototype.busy = function (i, a, b) {
+    var l = this.slots[i];
+    if (!l) return 0;
+    var n = 0;
+    for (var k = 0; k < l.length; k++) if (a < l[k][1] - 0.5 && l[k][0] < b - 0.5) n++;
+    return n;
+  };
+  VerticalChannels.prototype.take = function (i, a, b) {
+    if (!this.slots[i]) this.slots[i] = [];
+    this.slots[i].push([a, b]);
+  };
+
+  /**
+   * Horizontal channels: each gap band (between stack levels, or between rows)
+   * is split into fixed-pitch lanes; a lane holds disjoint x-intervals.
+   */
+  function makeBand(y0, y1, pitch) {
+    var h = y1 - y0;
+    var n = Math.max(1, Math.min(6, Math.floor(h / pitch) - 1));
+    var lanes = [], laneY = [];
+    for (var k = 0; k < n; k++) { lanes.push([]); laneY.push(y0 + h * (k + 1) / (n + 1)); }
+    return { y0: y0, y1: y1, lanes: lanes, laneY: laneY };
+  }
+  /** Greedy interval scheduling over the lanes of one band. dry = probe only. */
+  function allocHorizontal(band, x0, x1, dry) {
+    var lo = Math.min(x0, x1), hi = Math.max(x0, x1);
+    var bestK = 0, bestN = Infinity;
+    for (var k = 0; k < band.lanes.length; k++) {
+      var l = band.lanes[k], n = 0;
+      for (var j = 0; j < l.length; j++) if (lo < l[j][1] - 0.5 && l[j][0] < hi - 0.5) n++;
+      if (n === 0) { if (!dry) band.lanes[k].push([lo, hi]); return band.laneY[k]; }
+      if (n < bestN) { bestN = n; bestK = k; }
+    }
+    if (!dry) band.lanes[bestK].push([lo, hi]);
+    return band.laneY[bestK];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Layout (spec 3-2 order: constraints -> label widths -> stacking -> routing)
+  // ---------------------------------------------------------------------------
+
+  var L = null;   // the current layout result
+
+  function X(day) { return CFG.GUTTER + day * view.pxPerDay; }
+
+  function shapeVisualHeight(kind, planH) {
+    if (kind === 'bar' || kind === 'chevron') return planH;
+    if (kind === 'milestone') return Math.min(planH, 16);
+    if (kind === 'endpointSpan') return Math.min(planH, 13);
+    return Math.min(planH, 11);   // arrow
+  }
+  function isWideKind(kind) { return kind === 'bar' || kind === 'chevron'; }
+
+  /** Progress Marker state. Drawn as SVG, never as a font glyph (spec 3-5). */
+  function markerState(t) {
+    var actEnd = t.actualStartDay + t.actualDurationDays;
+    if (actEnd > t.finishDay) return 'overdue';
+    if (t.percentComplete >= 100) return 'done';
+    if (t.actualDurationDays === 0) return 'suspended';
+    return 'incomplete';
+  }
+
+  function computeLayout() {
+    var t0 = (performance && performance.now) ? performance.now() : Date.now();
+
+    var planH = Math.max(4, Math.round(CFG.PLAN_H * view.yZoom));
+    var actualH = Math.max(2, Math.min(planH - 2, Math.round(CFG.ACTUAL_H * view.yZoom)));
+    var belowGap = Math.max(1, Math.round(CFG.BELOW_GAP * view.yZoom));
+    // The actual bar height is ALWAYS reserved so toggling it never moves a row.
+    var levelH = planH + belowGap + actualH;
+    var levelGap = Math.max(7, Math.round(CFG.LEVEL_GAP * view.yZoom));
+    var rowGap = Math.max(12, Math.round(CFG.ROW_GAP * view.yZoom));
+    var rowPad = Math.round(Math.min(levelH * CFG.ROW_PAD_RATIO, 9));
+    var fontSize = Math.max(CFG.LABEL_MIN_FONT, planH * CFG.LABEL_FONT_RATIO);
+    var showLabels = levelH >= 13;
+
+    var tasks = DATA.tasks, i, t;
+
+    // --- step 2 of spec 3-2: label widths + occupied intervals -----------------
+    for (i = 0; i < tasks.length; i++) {
+      t = tasks[i];
+      var px0 = X(t.startDay), px1 = X(t.finishDay);
+      var vh = shapeVisualHeight(t.shapeKind, planH);
+      if (t.milestone) {
+        var half = vh / 2;
+        t._vx0 = px0 - half; t._vx1 = px0 + half;
+      } else {
+        t._vx0 = px0; t._vx1 = Math.max(px1, px0 + 2);
+      }
+      t._vh = vh;
+      t._vtop = Math.round((planH - vh) / 2);
+      t._wide = isWideKind(t.shapeKind);
+      t._ax0 = X(t.actualStartDay);
+      t._ax1 = X(t.actualStartDay + t.actualDurationDays);
+      t._marker = markerState(t);
+      t._markerX = Math.max(t._ax1, t._vx0) + CFG.MARKER_GAP;
+
+      var occRight = Math.max(t._vx1, t._markerX + CFG.MARKER_SIZE);
+      var barW = t._vx1 - t._vx0;
+
+      // spec 3-3: 1 fits inside, 2 truncate, 3 still not fitting -> put it right
+      t._labelText = ''; t._labelOut = false; t._labelX = 0; t._labelW = 0;
+      if (showLabels) {
+        var full = t.name;
+        var wFull = approxWidth(full, fontSize);
+        if (!t.milestone && wFull <= barW - 6) {
+          t._labelText = full; t._labelOut = false;
+        } else {
+          var cut = truncateUnits(full, CFG.LABEL_TRUNC_UNITS);
+          var wCut = approxWidth(cut, fontSize);
+          if (!t.milestone && wCut <= barW - 6) {
+            t._labelText = cut; t._labelOut = false;
+          } else {
+            t._labelText = cut; t._labelOut = true;
+            t._labelW = wCut;
+            t._labelX = occRight + 4;
+            occRight = t._labelX + wCut;
+          }
+        }
+      }
+      t._ox0 = t._vx0 - 2;
+      t._ox1 = occRight + 2;
+      t.stackOrder = null;
+    }
+
+    // --- step 1 of spec 3-2: geometric minimum-gap constraints ------------------
+    // A link whose two endpoints are closer than MIN_LINK_GAP has no room for an
+    // orthogonal run, so the two tasks are forced onto different stack levels.
+    var mustSeparate = {};
+    function sepKey(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
+    var minGapCount = 0;
+    for (i = 0; i < DATA.links.length; i++) {
+      var lk = DATA.links[i];
+      var fa = BY_UID[lk.fromUid], fb = BY_UID[lk.toUid];
+      if (!fa || !fb || fa.groupId !== fb.groupId) continue;
+      var gap;
+      if (lk.linkType === 'FS') gap = fb._vx0 - fa._vx1;
+      else if (lk.linkType === 'SF') gap = fa._vx0 - fb._vx1;
+      else if (lk.linkType === 'SS') gap = Math.abs(fa._vx0 - fb._vx0);
+      else gap = Math.abs(fa._vx1 - fb._vx1);
+      if (gap < CFG.MIN_LINK_GAP) {
+        mustSeparate[sepKey(lk.fromUid, lk.toUid)] = true;
+        minGapCount++;
+      }
+    }
+
+    // --- step 3 of spec 3-2: stackOrder assignment (greedy, deterministic) ------
+    var rows = [], maxStack = 1, limitHit = false;
+    for (var g = 0; g < DATA.groups.length; g++) {
+      var grp = DATA.groups[g];
+      var members = [];
+      for (i = 0; i < grp.memberUids.length; i++) members.push(BY_UID[grp.memberUids[i]]);
+      // spec 3-1 step 2: milestone first, startDay asc, finishDay desc, uid asc
+      members.sort(function (p, q) {
+        if (p.milestone !== q.milestone) return p.milestone ? -1 : 1;
+        if (p.startDay !== q.startDay) return p.startDay - q.startDay;
+        if (p.finishDay !== q.finishDay) return q.finishDay - p.finishDay;
+        return p.uid - q.uid;
+      });
+      var levels = [];   // levels[k] = array of tasks on that stack level
+      for (i = 0; i < members.length; i++) {
+        t = members[i];
+        var placed = -1;
+        for (var k = 0; k < levels.length; k++) {
+          var ok = true, lv = levels[k];
+          for (var m = 0; m < lv.length; m++) {
+            var u = lv[m];
+            if (t._ox0 < u._ox1 && u._ox0 < t._ox1) { ok = false; break; }
+            if (mustSeparate[sepKey(t.uid, u.uid)]) { ok = false; break; }
+          }
+          if (ok) { placed = k; break; }
+        }
+        if (placed < 0) {
+          // spec 3-1 step 5: NEVER reuse the last level; open a new one instead.
+          if (levels.length >= CFG.STACK_LIMIT) { limitHit = true; }
+          levels.push([]);
+          placed = levels.length - 1;
+        }
+        levels[placed].push(t);
+        t.stackOrder = placed;
+      }
+      if (levels.length > maxStack) maxStack = levels.length;
+      rows.push({ id: grp.id, title: grp.title, members: members, levelCount: levels.length });
+    }
+
+    // --- vertical walk: row bands, level y, gap bands ---------------------------
+    var bands = [];
+    var y = CFG.TOP_MARGIN;
+    for (var rIdx = 0; rIdx < rows.length; rIdx++) {
+      var row = rows[rIdx];
+      bands.push(makeBand(y, y + rowGap, CFG.H_PITCH));   // inter-row band
+      y += rowGap;
+      row.top = y;
+      y += rowPad;
+      row.levelY = [];
+      for (var lv2 = 0; lv2 < row.levelCount; lv2++) {
+        row.levelY.push(y);
+        y += levelH;
+        if (lv2 < row.levelCount - 1) { bands.push(makeBand(y, y + levelGap, CFG.H_PITCH)); y += levelGap; }
+      }
+      y += rowPad;
+      row.bottom = y;
+      row.height = row.bottom - row.top;
+    }
+    bands.push(makeBand(y, y + rowGap, CFG.H_PITCH));
+    y += rowGap;
+    var contentH = y;
+
+    for (rIdx = 0; rIdx < rows.length; rIdx++) {
+      var rw = rows[rIdx];
+      for (i = 0; i < rw.members.length; i++) {
+        t = rw.members[i];
+        t._row = rIdx;
+        t._slotTop = rw.levelY[t.stackOrder];
+        t._planTop = t._slotTop;
+        t._vy0 = t._slotTop + t._vtop;
+        t._vy1 = t._vy0 + t._vh;
+        t._actTop = t._wide
+          ? (t._slotTop + Math.round((planH - actualH) / 2))
+          : (t._slotTop + planH + belowGap);
+      }
+    }
+
+    var t1 = (performance && performance.now) ? performance.now() : Date.now();
+
+    L = {
+      planH: planH, actualH: actualH, belowGap: belowGap, levelH: levelH,
+      levelGap: levelGap, rowGap: rowGap, rowPad: rowPad, fontSize: fontSize,
+      showLabels: showLabels, rows: rows, bands: bands, contentH: contentH,
+      contentW: X(DAY_MAX) + 24, maxStack: maxStack, limitHit: limitHit,
+      minGapCount: minGapCount, layoutMs: t1 - t0
+    };
+    return L;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Routing (spec 3-2 step 4): strictly orthogonal, channel-allocated
+  // ---------------------------------------------------------------------------
+
+  /** Drop duplicate and collinear points so the bend count is honest. */
+  function simplify(pts) {
+    var out = [];
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i];
+      if (out.length && Math.abs(out[out.length - 1][0] - p[0]) < 0.01 &&
+          Math.abs(out[out.length - 1][1] - p[1]) < 0.01) continue;
+      out.push([p[0], p[1]]);
+    }
+    var res = [out[0]];
+    for (var j = 1; j < out.length - 1; j++) {
+      var a = res[res.length - 1], b = out[j], c = out[j + 1];
+      var abH = Math.abs(a[1] - b[1]) < 0.01, bcH = Math.abs(b[1] - c[1]) < 0.01;
+      var abV = Math.abs(a[0] - b[0]) < 0.01, bcV = Math.abs(b[0] - c[0]) < 0.01;
+      if ((abH && bcH) || (abV && bcV)) continue;   // collinear -> not a bend
+      res.push(b);
+    }
+    if (out.length > 1) res.push(out[out.length - 1]);
+    return res;
+  }
+
+  function routeAll() {
+    var t0 = (performance && performance.now) ? performance.now() : Date.now();
+    var vch = new VerticalChannels(CFG.V_PITCH, CFG.GUTTER);
+    var boxes = [];
+    for (var i = 0; i < DATA.tasks.length; i++) {
+      var tt = DATA.tasks[i];
+      boxes.push({ uid: tt.uid, x0: tt._vx0, x1: tt._vx1, y0: tt._vy0, y1: tt._vy1 });
+    }
+
+    /** How many task rectangles a vertical run at x would cut through. */
+    function rectCross(x, y0, y1, skipA, skipB) {
+      var n = 0;
+      for (var b = 0; b < boxes.length; b++) {
+        var bx = boxes[b];
+        if (bx.uid === skipA || bx.uid === skipB) continue;
+        if (x > bx.x0 + 0.5 && x < bx.x1 - 0.5 && y0 < bx.y1 - 0.5 && bx.y0 < y1 - 0.5) n++;
+      }
+      return n;
+    }
+
+    /** How many task rectangles a whole polyline passes through. */
+    function polyCross(pts, skipA, skipB) {
+      var n = 0;
+      for (var i = 0; i < pts.length - 1; i++) {
+        var x0 = Math.min(pts[i][0], pts[i + 1][0]), x1 = Math.max(pts[i][0], pts[i + 1][0]);
+        var y0 = Math.min(pts[i][1], pts[i + 1][1]), y1 = Math.max(pts[i][1], pts[i + 1][1]);
+        for (var b = 0; b < boxes.length; b++) {
+          var bx = boxes[b];
+          if (bx.uid === skipA || bx.uid === skipB) continue;
+          if (x0 < bx.x1 - 0.6 && bx.x0 < x1 - 0.6 && y0 < bx.y1 - 0.6 && bx.y0 < y1 - 0.6) n++;
+        }
+      }
+      return n;
+    }
+
+    /** Reserve a vertical channel inside [loX,hiX] as close to prefX as possible. */
+    function allocVertical(prefX, loX, hiX, y0, y1, skipA, skipB, dry) {
+      if (hiX < loX) { var s = loX; loX = hiX; hiX = s; }
+      var iLo = Math.ceil((loX - vch.origin) / vch.pitch);
+      var iHi = Math.floor((hiX - vch.origin) / vch.pitch);
+      if (iHi < iLo) {
+        // Window narrower than one channel pitch (e.g. finish == start adjacency):
+        // use the exact clamped x; no grid channel exists to reserve.
+        return clamp(prefX, loX, hiX);
+      }
+      var iPref = clamp(Math.round((prefX - vch.origin) / vch.pitch), iLo, iHi);
+      var bestI = iPref, bestC = Infinity, tried = 0;
+      for (var d = 0; d <= (iHi - iLo) && tried < CFG.V_SEARCH; d++) {
+        for (var sgn = 0; sgn < 2; sgn++) {
+          var idx2 = iPref + (sgn === 0 ? d : -d);
+          if (idx2 < iLo || idx2 > iHi) continue;
+          tried++;
+          var x = vch.xOf(idx2);
+          var c = Math.abs(x - prefX) * 0.5
+                + vch.busy(idx2, y0, y1) * 55
+                + rectCross(x, y0, y1, skipA, skipB) * 60;
+          if (c < bestC) { bestC = c; bestI = idx2; }
+          if (bestC === 0) break;
+          if (d === 0) break;
+        }
+        if (bestC === 0) break;
+      }
+      if (!dry) vch.take(bestI, y0, y1);
+      return vch.xOf(bestI);
+    }
+
+    /** Pick the gap band a fallback route should travel along. */
+    function pickBand(ay, by) {
+      var bands = L.bands, lo = Math.min(ay, by), hi = Math.max(ay, by);
+      var best = null, bd = Infinity, k, c;
+      for (k = 0; k < bands.length; k++) {
+        c = (bands[k].y0 + bands[k].y1) / 2;
+        if (c > lo + 1 && c < hi - 1) {
+          var d = Math.abs(c - by);
+          if (d < bd) { bd = d; best = bands[k]; }
+        }
+      }
+      if (best) return best;
+      for (k = 0; k < bands.length; k++) {
+        c = (bands[k].y0 + bands[k].y1) / 2;
+        var d2 = Math.abs(c - by);
+        if (d2 < bd) { bd = d2; best = bands[k]; }
+      }
+      return best;
+    }
+
+    var routes = [], overBend = 0, bendTotal = 0, detourCount = 0;
+
+    /** Route one link. Returns the polyline plus bookkeeping. */
+    function routeOne(lk) {
+      var a = BY_UID[lk.fromUid], b = BY_UID[lk.toUid];
+      if (!a || !b) return null;
+      var sides = SIDE_OF_TYPE[lk.linkType] || SIDE_OF_TYPE.FS;
+      var sa = sides[0], sb = sides[1];
+      var ax = sa === 'R' ? a._vx1 : a._vx0;
+      var bx = sb === 'R' ? b._vx1 : b._vx0;
+      var dirA = sa === 'R' ? 1 : -1;
+      var dirB = sb === 'R' ? 1 : -1;
+
+      // 9-point anchors: pick the y pair minimising total route length.
+      // The x part is fixed by the link type, so this reduces to min |ay - by|.
+      var aYs = [a._vy0, (a._vy0 + a._vy1) / 2, a._vy1];
+      var bYs = [b._vy0, (b._vy0 + b._vy1) / 2, b._vy1];
+      var best = null, p, q;
+      for (p = 0; p < 3; p++) {
+        for (q = 0; q < 3; q++) {
+          var dy = Math.abs(aYs[p] - bYs[q]);
+          if (sa === sb && dy < 0.5) continue;   // degenerate same-side, same-y
+          var cost = dy + (p === 1 ? 0 : 0.6) + (q === 1 ? 0 : 0.6);
+          if (!best || cost < best.cost) best = { cost: cost, ay: aYs[p], by: bYs[q] };
+        }
+      }
+      if (!best) best = { ay: aYs[1], by: bYs[1] };
+      var ay = best.ay, by = best.by;
+
+      // Legal window for the vertical run of the 2-bend H-V-H route.
+      var loX, hiX;
+      if (dirA > 0 && dirB < 0) { loX = ax; hiX = bx; }
+      else if (dirA < 0 && dirB > 0) { loX = bx; hiX = ax; }
+      else if (dirA > 0 && dirB > 0) { loX = Math.max(ax, bx); hiX = loX + CFG.STUB * 6; }
+      else { hiX = Math.min(ax, bx); loX = hiX - CFG.STUB * 6; }
+
+      /** Direct route: 0 bends when the anchors share a y, else 2 bends. */
+      function buildDirect(dry) {
+        if (Math.abs(ay - by) < 0.5) return [[ax, ay], [bx, by]];
+        var pref;
+        if (dirA > 0 && dirB > 0) pref = loX + CFG.STUB;
+        else if (dirA < 0 && dirB < 0) pref = hiX - CFG.STUB;
+        else pref = (loX + hiX) / 2;
+        var cx = allocVertical(pref, loX, hiX, Math.min(ay, by), Math.max(ay, by),
+                               a.uid, b.uid, dry);
+        return [[ax, ay], [cx, ay], [cx, by], [bx, by]];
+      }
+
+      /**
+       * Channel detour: exit A, drop into a reserved horizontal channel that runs
+       * through an empty gap band, then enter B through its top/bottom centre
+       * anchor. Exactly 3 bends. Used when the direct route is illegal (backward
+       * link, which would need 4 bends) or when it would cross task rectangles.
+       */
+      function buildDetour(dry) {
+        var band = pickBand(ay, by);
+        var hy = band ? (band.y0 + band.y1) / 2 : (ay + by) / 2;
+        var wLo = dirA > 0 ? ax + 3 : ax - CFG.FALLBACK_V_WINDOW;
+        var wHi = dirA > 0 ? ax + CFG.FALLBACK_V_WINDOW : ax - 3;
+        var vx = allocVertical(ax + dirA * CFG.STUB, wLo, wHi,
+                               Math.min(ay, hy), Math.max(ay, hy), a.uid, b.uid, dry);
+        var bcx = (b._vx0 + b._vx1) / 2;
+        if (band) hy = allocHorizontal(band, vx, bcx, dry);
+        var byEdge = (hy < b._vy0) ? b._vy0 : b._vy1;
+        allocVertical(bcx, bcx, bcx, Math.min(hy, byEdge), Math.max(hy, byEdge),
+                      a.uid, b.uid, dry);
+        return [[ax, ay], [vx, ay], [vx, hy], [bcx, hy], [bcx, byEdge]];
+      }
+
+      var pts, fellBack = false, tookDetour = false;
+      if (hiX - loX >= -0.01) {
+        var probe = buildDirect(true);
+        var crossDirect = polyCross(probe, a.uid, b.uid);
+        if (crossDirect > 0) {
+          var crossDetour = polyCross(buildDetour(true), a.uid, b.uid);
+          if (crossDetour < crossDirect) { pts = buildDetour(false); tookDetour = true; }
+          else { pts = buildDirect(false); }
+        } else {
+          pts = buildDirect(false);
+        }
+      } else {
+        // Backward link: a proper edge-to-edge orthogonal route needs 4 bends.
+        // Spec allows 0..3, so this is the shortest legal 3-bend compromise.
+        pts = buildDetour(false);
+        fellBack = true; tookDetour = true;
+      }
+      return { pts: pts, fallback: fellBack, detour: tookDetour, fromUid: a.uid, toUid: b.uid };
+    }
+
+    for (var li = 0; li < DATA.links.length; li++) {
+      var res = routeOne(DATA.links[li]);
+      if (!res) continue;
+      if (res.fallback) overBend++;
+      if (res.detour) detourCount++;
+
+      var sp = simplify(res.pts);
+      var bends = Math.max(0, sp.length - 2);
+      if (bends > 3) {   // safety: never exceed the spec, count the compromise
+        sp = simplify([sp[0], [sp[1][0], sp[0][1]], [sp[1][0], sp[sp.length - 1][1]],
+                       sp[sp.length - 1]]);
+        bends = Math.max(0, sp.length - 2);
+        overBend++;
+      }
+      bendTotal += bends;
+      routes.push({ link: DATA.links[li], pts: sp, bends: bends, fallback: res.fallback,
+                    detour: res.detour, fromUid: res.fromUid, toUid: res.toUid });
+    }
+
+    var t1 = (performance && performance.now) ? performance.now() : Date.now();
+    return { routes: routes, overBend: overBend, bends: bendTotal, detours: detourCount,
+             routeMs: t1 - t0, boxes: boxes };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Metrics
+  // ---------------------------------------------------------------------------
+
+  function segmentsOf(pts) {
+    var s = [];
+    for (var i = 0; i < pts.length - 1; i++) {
+      s.push({ x0: pts[i][0], y0: pts[i][1], x1: pts[i + 1][0], y1: pts[i + 1][1] });
+    }
+    return s;
+  }
+
+  function computeMetrics(R) {
+    var i, j, k;
+
+    // overlap: two task rectangles sharing a row AND a stack level must not overlap
+    var overlap = 0;
+    for (i = 0; i < L.rows.length; i++) {
+      var mem = L.rows[i].members;
+      for (j = 0; j < mem.length; j++) {
+        for (k = j + 1; k < mem.length; k++) {
+          if (mem[j].stackOrder !== mem[k].stackOrder) continue;
+          if (mem[j]._vx0 < mem[k]._vx1 - 0.5 && mem[k]._vx0 < mem[j]._vx1 - 0.5) overlap++;
+        }
+      }
+    }
+
+    // line x icon and line x line
+    var all = [];
+    for (i = 0; i < R.routes.length; i++) {
+      var segs = segmentsOf(R.routes[i].pts);
+      all.push({ segs: segs, from: R.routes[i].fromUid, to: R.routes[i].toUid });
+    }
+    var lineIcon = 0;
+    for (i = 0; i < all.length; i++) {
+      for (j = 0; j < all[i].segs.length; j++) {
+        var s = all[i].segs[j];
+        var sx0 = Math.min(s.x0, s.x1), sx1 = Math.max(s.x0, s.x1);
+        var sy0 = Math.min(s.y0, s.y1), sy1 = Math.max(s.y0, s.y1);
+        for (k = 0; k < R.boxes.length; k++) {
+          var b = R.boxes[k];
+          if (b.uid === all[i].from || b.uid === all[i].to) continue;
+          if (sx0 < b.x1 - 0.6 && b.x0 < sx1 - 0.6 && sy0 < b.y1 - 0.6 && b.y0 < sy1 - 0.6) lineIcon++;
+        }
+      }
+    }
+    var lineLine = 0;
+    for (i = 0; i < all.length; i++) {
+      for (j = i + 1; j < all.length; j++) {
+        var A = all[i].segs, B = all[j].segs;
+        for (var m = 0; m < A.length; m++) {
+          for (var n = 0; n < B.length; n++) {
+            var a = A[m], c = B[n];
+            var aH = Math.abs(a.y0 - a.y1) < 0.01, cH = Math.abs(c.y0 - c.y1) < 0.01;
+            if (aH === cH) continue;                       // parallel: not a crossing
+            var h = aH ? a : c, v = aH ? c : a;
+            var hx0 = Math.min(h.x0, h.x1), hx1 = Math.max(h.x0, h.x1);
+            var vy0 = Math.min(v.y0, v.y1), vy1 = Math.max(v.y0, v.y1);
+            if (v.x0 > hx0 + 0.6 && v.x0 < hx1 - 0.6 &&
+                h.y0 > vy0 + 0.6 && h.y0 < vy1 - 0.6) lineLine++;
+          }
+        }
+      }
+    }
+
+    // density: task area / total band area
+    var taskArea = 0;
+    for (i = 0; i < DATA.tasks.length; i++) {
+      var t = DATA.tasks[i];
+      taskArea += Math.max(0, t._vx1 - t._vx0) * Math.max(0, t._vy1 - t._vy0);
+    }
+    var bandArea = 0, wContent = Math.max(1, X(DAY_MAX) - X(0));
+    for (i = 0; i < L.rows.length; i++) bandArea += wContent * L.rows[i].height;
+
+    return {
+      overlap: overlap, lineIcon: lineIcon, lineLine: lineLine,
+      density: bandArea > 0 ? taskArea / bandArea : 0
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // SVG rendering
+  // ---------------------------------------------------------------------------
+
+  function shapePath(t) {
+    var x0 = t._vx0, x1 = t._vx1, y0 = t._vy0, y1 = t._vy1, mid = (y0 + y1) / 2;
+    var kind = t.shapeKind, out = '';
+    if (kind === 'bar') {
+      out = '<rect class="plan" x="' + r1(x0) + '" y="' + r1(y0) + '" width="' + r1(x1 - x0) +
+            '" height="' + r1(y1 - y0) + '" rx="2"/>';
+    } else if (kind === 'chevron') {
+      var n = Math.min(9, Math.max(3, (x1 - x0) / 3));
+      out = '<polygon class="plan" points="' +
+        r1(x0) + ',' + r1(y0) + ' ' + r1(x1 - n) + ',' + r1(y0) + ' ' + r1(x1) + ',' + r1(mid) + ' ' +
+        r1(x1 - n) + ',' + r1(y1) + ' ' + r1(x0) + ',' + r1(y1) + ' ' + r1(x0 + n) + ',' + r1(mid) + '"/>';
+    } else if (kind === 'arrow') {
+      var head = Math.min(9, Math.max(4, (y1 - y0)));
+      out = '<line class="plan-line" x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' +
+            r1(Math.max(x0, x1 - head)) + '" y2="' + r1(mid) + '"/>' +
+            '<polygon class="plan" points="' + r1(x1) + ',' + r1(mid) + ' ' +
+            r1(x1 - head) + ',' + r1(y0) + ' ' + r1(x1 - head) + ',' + r1(y1) + '"/>';
+    } else if (kind === 'endpointSpan') {
+      out = '<line class="plan-line" x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(x1) +
+            '" y2="' + r1(mid) + '"/>' +
+            '<line class="plan-cap" x1="' + r1(x0) + '" y1="' + r1(y0) + '" x2="' + r1(x0) +
+            '" y2="' + r1(y1) + '"/>' +
+            '<line class="plan-cap" x1="' + r1(x1) + '" y1="' + r1(y0) + '" x2="' + r1(x1) +
+            '" y2="' + r1(y1) + '"/>';
+    } else {  // milestone
+      var cx = (x0 + x1) / 2, h = (y1 - y0) / 2, w = (x1 - x0) / 2;
+      out = '<polygon class="plan ms" points="' + r1(cx) + ',' + r1(y0) + ' ' + r1(cx + w) + ',' +
+            r1(mid) + ' ' + r1(cx) + ',' + r1(y1) + ' ' + r1(cx - w) + ',' + r1(mid) + '"/>';
+    }
+    return out;
+  }
+
+  function markerSvg(x, y, size, state) {
+    var r = size / 2, cx = x + r, cy = y + r, o = '';
+    o += '<circle class="mk-bg" cx="' + r1(cx) + '" cy="' + r1(cy) + '" r="' + r1(r) + '"/>';
+    if (state === 'done') {
+      o += '<polyline class="mk-fg" points="' + r1(cx - r * 0.48) + ',' + r1(cy + r * 0.02) + ' ' +
+           r1(cx - r * 0.10) + ',' + r1(cy + r * 0.42) + ' ' + r1(cx + r * 0.52) + ',' + r1(cy - r * 0.45) + '"/>';
+    } else if (state === 'suspended') {
+      o += '<line class="mk-fg" x1="' + r1(cx - r * 0.5) + '" y1="' + r1(cy - r * 0.5) + '" x2="' +
+           r1(cx + r * 0.5) + '" y2="' + r1(cy + r * 0.5) + '"/>';
+    } else if (state === 'overdue') {
+      o += '<line class="mk-fg" x1="' + r1(cx) + '" y1="' + r1(cy - r * 0.55) + '" x2="' + r1(cx) +
+           '" y2="' + r1(cy + r * 0.12) + '"/>' +
+           '<circle class="mk-dot" cx="' + r1(cx) + '" cy="' + r1(cy + r * 0.45) + '" r="' + r1(r * 0.15) + '"/>';
+    }
+    return o;
+  }
+
+  function axisSvg() {
+    var pd = view.pxPerDay, o = '', d, x;
+    var coarseY = 14, fineY = 32;
+    var fineStep, coarseMode;
+    if (pd >= 12) { fineStep = 1; coarseMode = 'month'; }
+    else if (pd >= 3.5) { fineStep = 7; coarseMode = 'month'; }
+    else if (pd >= 1.4) { fineStep = 0; coarseMode = 'year'; }
+    else { fineStep = -1; coarseMode = 'none'; }
+
+    // coarse tier
+    if (coarseMode === 'month' || coarseMode === 'year') {
+      var prevKey = null, segStart = 0;
+      for (d = 0; d <= DAY_MAX; d++) {
+        var dt = dayLabelDate(d);
+        var key = coarseMode === 'month'
+          ? (dt.getUTCFullYear() + '-' + (dt.getUTCMonth() + 1))
+          : String(dt.getUTCFullYear());
+        if (prevKey === null) { prevKey = key; segStart = d; continue; }
+        if (key !== prevKey || d === DAY_MAX) {
+          var sdt = dayLabelDate(segStart);
+          var lbl = coarseMode === 'month'
+            ? (sdt.getUTCFullYear() + '年' + (sdt.getUTCMonth() + 1) + '月')
+            : (sdt.getUTCFullYear() + '年');
+          o += '<line class="ax-sep" x1="' + r1(X(segStart)) + '" y1="2" x2="' + r1(X(segStart)) + '" y2="40"/>';
+          if ((X(d) - X(segStart)) > 34) {
+            o += '<text class="ax-coarse" x="' + r1(X(segStart) + 5) + '" y="' + coarseY + '">' + esc(lbl) + '</text>';
+          }
+          prevKey = key; segStart = d;
+        }
+      }
+    }
+    // fine tier
+    if (fineStep > 0) {
+      for (d = 0; d <= DAY_MAX; d += fineStep) {
+        x = X(d);
+        var fd = dayLabelDate(d);
+        o += '<line class="ax-tick" x1="' + r1(x) + '" y1="20" x2="' + r1(x) + '" y2="40"/>';
+        var txt = fineStep === 1
+          ? (fd.getUTCDate() + '(' + WEEKDAY_JA[fd.getUTCDay()] + ')')
+          : ((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate());
+        if (pd * fineStep > 26) {
+          o += '<text class="ax-fine" x="' + r1(x + 3) + '" y="' + fineY + '">' + esc(txt) + '</text>';
+        }
+      }
+    } else if (fineStep === 0) {
+      for (d = 0; d <= DAY_MAX; d++) {
+        var md = dayLabelDate(d);
+        if (md.getUTCDate() !== 1) continue;
+        x = X(d);
+        o += '<line class="ax-tick" x1="' + r1(x) + '" y1="20" x2="' + r1(x) + '" y2="40"/>';
+        if (pd * 28 > 24) {
+          o += '<text class="ax-fine" x="' + r1(x + 3) + '" y="' + fineY + '">' +
+               (md.getUTCMonth() + 1) + '月</text>';
+        }
+      }
+    }
+    return o;
+  }
+
+  function gridSvg() {
+    var pd = view.pxPerDay, o = '', step;
+    if (pd >= 12) step = 7; else if (pd >= 3.5) step = 14; else step = 28;
+    for (var d = 0; d <= DAY_MAX; d += step) {
+      o += '<line class="grid" x1="' + r1(X(d)) + '" y1="0" x2="' + r1(X(d)) + '" y2="' + r1(L.contentH) + '"/>';
+    }
+    return o;
+  }
+
+  var lastMetrics = { fps: 0 };
+
+  function render() {
+    computeLayout();
+    var R = routeAll();
+    var M = computeMetrics(R);
+
+    var vw = svgEl.clientWidth || window.innerWidth;
+    var vh = svgEl.clientHeight || window.innerHeight;
+    view.scrollX = clamp(view.scrollX, 0, Math.max(0, L.contentW - vw + 40));
+    view.scrollY = clamp(view.scrollY, 0, Math.max(0, L.contentH - (vh - CFG.HEADER_H) + 40));
+
+    var tx = -view.scrollX, ty = CFG.HEADER_H - view.scrollY;
+    var s = [];
+
+    s.push('<defs>');
+    s.push('<pattern id="act" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">');
+    s.push('<rect width="5" height="5" fill="#7b8798"/><rect width="2.2" height="5" fill="#333f4f"/></pattern>');
+    s.push('<marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6.5" markerHeight="6.5" orient="auto">');
+    s.push('<path d="M0,0.6 L8,4 L0,7.4 z" fill="#232c3a"/></marker>');
+    s.push('</defs>');
+
+    // ---- scene -------------------------------------------------------------
+    s.push('<g id="gScene" transform="translate(' + r1(tx) + ',' + r1(ty) + ')">');
+    s.push(gridSvg());
+
+    var drawn = 0, ri, i;
+    // row bands
+    for (ri = 0; ri < L.rows.length; ri++) {
+      var row = L.rows[ri];
+      s.push('<rect class="rowbg' + (ri % 2 ? ' alt' : '') + '" x="0" y="' + r1(row.top) +
+             '" width="' + r1(L.contentW) + '" height="' + r1(row.height) + '"/>');
+      s.push('<line class="rowline" x1="0" y1="' + r1(row.top) + '" x2="' + r1(L.contentW) +
+             '" y2="' + r1(row.top) + '"/>');
+    }
+
+    // tasks
+    for (ri = 0; ri < L.rows.length; ri++) {
+      var mem = L.rows[ri].members;
+      for (i = 0; i < mem.length; i++) {
+        var t = mem[i];
+        if (!t.milestone && (t._vx1 - t._vx0) < 1.5) continue;   // LOD: sub-pixel task
+        drawn++;
+        var sel = (t.uid === selectedUid) ? ' sel' : '';
+        s.push('<g class="task' + sel + '" data-uid="' + t.uid + '">');
+        s.push(shapePath(t));
+        // actual bar: inside for width-bearing kinds, below otherwise
+        var aw = Math.max(0, t._ax1 - t._ax0);
+        if (aw > 0.4) {
+          s.push('<rect class="actual" x="' + r1(t._ax0) + '" y="' + r1(t._actTop) +
+                 '" width="' + r1(aw) + '" height="' + r1(L.actualH) + '" rx="1"/>');
+        }
+        // progress marker, fixed size, 4px from the actual bar right edge
+        var mkY = t._actTop + L.actualH / 2 - CFG.MARKER_SIZE / 2;
+        if (t._marker !== 'incomplete' || t.uid === selectedUid) {
+          s.push(markerSvg(t._markerX, mkY, CFG.MARKER_SIZE, t._marker));
+        }
+        // label
+        if (L.showLabels && t._labelText) {
+          if (t._labelOut) {
+            s.push('<text class="lb out" x="' + r1(t._labelX) + '" y="' +
+                   r1(t._vy0 + (t._vy1 - t._vy0) / 2 + L.fontSize * 0.35) + '" font-size="' +
+                   r1(L.fontSize) + '">' + esc(t._labelText) + '</text>');
+          } else {
+            s.push('<text class="lb in" x="' + r1(t._vx0 + 4) + '" y="' +
+                   r1(t._vy0 + (t._vy1 - t._vy0) / 2 + L.fontSize * 0.35) + '" font-size="' +
+                   r1(L.fontSize) + '">' + esc(t._labelText) + '</text>');
+          }
+        }
+        s.push('</g>');
+      }
+    }
+
+    // links: halo first per link, so a later line visibly passes OVER an earlier one
+    for (i = 0; i < R.routes.length; i++) {
+      var rt = R.routes[i];
+      var pd = '';
+      for (var k = 0; k < rt.pts.length; k++) {
+        pd += (k ? ' L' : 'M') + r1(rt.pts[k][0]) + ' ' + r1(rt.pts[k][1]);
+      }
+      var cls = 'lk t' + rt.link.linkType + (rt.fallback ? ' fb' : '');
+      s.push('<path class="halo" d="' + pd + '"/>');
+      s.push('<path class="' + cls + '" d="' + pd + '" marker-end="url(#arw)"/>');
+    }
+    s.push('</g>');
+
+    // ---- gutter (opaque, y-scrolls only) -----------------------------------
+    s.push('<rect class="gutterbg" x="0" y="0" width="' + CFG.GUTTER + '" height="' + vh + '"/>');
+    s.push('<g id="gGutter" transform="translate(0,' + r1(ty) + ')">');
+    for (ri = 0; ri < L.rows.length; ri++) {
+      var rw = L.rows[ri];
+      s.push('<line class="rowline" x1="0" y1="' + r1(rw.top) + '" x2="' + CFG.GUTTER +
+             '" y2="' + r1(rw.top) + '"/>');
+      s.push('<text class="gt" x="10" y="' + r1(rw.top + Math.min(rw.height, L.rowPad + L.planH * 0.75) + 1) +
+             '">' + esc(rw.title) + '</text>');
+      s.push('<text class="gt sub" x="10" y="' + r1(rw.top + Math.min(rw.height, L.rowPad + L.planH * 0.75) + 13) +
+             '">' + rw.levelCount + ' 段 / ' + rw.members.length + ' タスク</text>');
+    }
+    s.push('</g>');
+    s.push('<line class="gutteredge" x1="' + CFG.GUTTER + '" y1="0" x2="' + CFG.GUTTER +
+           '" y2="' + vh + '"/>');
+
+    // ---- header ------------------------------------------------------------
+    s.push('<rect class="headerbg" x="0" y="0" width="' + vw + '" height="' + CFG.HEADER_H + '"/>');
+    s.push('<g id="gAxis" transform="translate(' + r1(tx) + ',0)">' + axisSvg() + '</g>');
+    s.push('<rect class="headerbg" x="0" y="0" width="' + CFG.GUTTER + '" height="' + CFG.HEADER_H + '"/>');
+    s.push('<text class="hdr" x="10" y="17">TaskGroup（' + DATA.groups.length + ' 行）</text>');
+    s.push('<text class="hdr sub" x="10" y="32">day 0 - ' + DAY_MAX + ' / ' + r1(view.pxPerDay) + ' px per day</text>');
+    s.push('<line class="headerline" x1="0" y1="' + CFG.HEADER_H + '" x2="' + vw + '" y2="' + CFG.HEADER_H + '"/>');
+
+    var tp0 = (performance && performance.now) ? performance.now() : Date.now();
+    svgEl.setAttribute('viewBox', '0 0 ' + vw + ' ' + vh);
+    svgEl.innerHTML = s.join('');
+    var nodeCount = svgEl.getElementsByTagName('*').length;
+    var tp1 = (performance && performance.now) ? performance.now() : Date.now();
+
+    warnEl.style.display = L.limitHit ? 'block' : 'none';
+    if (L.limitHit) warnEl.textContent = '段数の安全弁 (' + CFG.STACK_LIMIT + ' 段) に到達しました';
+
+    lastPayload = {
+      tasks: DATA.tasks.length, links: DATA.links.length, rows: DATA.groups.length,
+      drawn: drawn, nodes: nodeCount,
+      layoutMs: L.layoutMs, routeMs: R.routeMs, paintMs: tp1 - tp0,
+      overlap: M.overlap, lineIcon: M.lineIcon, lineLine: M.lineLine,
+      bends: R.bends, overBend: R.overBend, detours: R.detours,
+      density: M.density, maxStack: L.maxStack, minGap: L.minGapCount
+    };
+    updateMetrics(lastPayload);
+  }
+
+  /**
+   * Pan only: nothing about the layout changes, so just move the three
+   * translate groups. Keeps continuous panning off the recompute path.
+   */
+  function applyPan() {
+    if (!L) { render(); return; }
+    var vw = svgEl.clientWidth || window.innerWidth;
+    var vh = svgEl.clientHeight || window.innerHeight;
+    view.scrollX = clamp(view.scrollX, 0, Math.max(0, L.contentW - vw + 40));
+    view.scrollY = clamp(view.scrollY, 0, Math.max(0, L.contentH - (vh - CFG.HEADER_H) + 40));
+    var tx = -view.scrollX, ty = CFG.HEADER_H - view.scrollY, g;
+    if ((g = document.getElementById('gScene'))) {
+      g.setAttribute('transform', 'translate(' + r1(tx) + ',' + r1(ty) + ')');
+    }
+    if ((g = document.getElementById('gGutter'))) {
+      g.setAttribute('transform', 'translate(0,' + r1(ty) + ')');
+    }
+    if ((g = document.getElementById('gAxis'))) {
+      g.setAttribute('transform', 'translate(' + r1(tx) + ',0)');
+    }
+    if (lastPayload) updateMetrics(lastPayload);
+  }
+
+  var lastPayload = null;
+
+  function updateMetrics(m) {
+    function row(k, v, cls) {
+      return '<tr class="' + (cls || '') + '"><td class="k">' + k + '</td><td class="v">' + v + '</td></tr>';
+    }
+    var h = '';
+    h += row('tasks / links / rows', m.tasks + ' / ' + m.links + ' / ' + m.rows);
+    h += row('drawn', m.drawn);
+    h += row('svg nodes', m.nodes);
+    h += row('layout ms', r1(m.layoutMs));
+    h += row('route ms', r1(m.routeMs));
+    h += row('paint ms', r1(m.paintMs));
+    h += row('fps', lastMetrics.fps ? r1(lastMetrics.fps) : '-');
+    h += row('overlap', m.overlap, 'hi ' + (m.overlap === 0 ? 'ok' : 'bad'));
+    h += row('line&times;icon', m.lineIcon);
+    h += row('line&times;line', m.lineLine);
+    h += row('bends', m.bends);
+    h += row('overBend (3超→3で妥協)', m.overBend);
+    h += row('channel detour', m.detours);
+    h += row('density', (m.density * 100).toFixed(1) + ' %', 'hi');
+    h += row('maxStack', m.maxStack);
+    h += row('min-gap 制約', m.minGap);
+    mtableEl.innerHTML = h;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Legend
+  // ---------------------------------------------------------------------------
+
+  function buildLegend() {
+    function box(inner, w, hgt) {
+      return '<svg width="' + w + '" height="' + (hgt || 18) + '" viewBox="0 0 ' + w + ' ' +
+             (hgt || 18) + '">' + inner + '</svg>';
+    }
+    var pl = 'fill="#ccd5e0" stroke="#3d4a5c" stroke-width="1"';
+    var ln = 'stroke="#3d4a5c" stroke-width="2.4" fill="none"';
+    function dash(d) {
+      return '<svg width="34" height="12" viewBox="0 0 34 12"><path d="M1 6 L33 6" ' +
+             'stroke="#232c3a" stroke-width="1.5" fill="none"' +
+             (d ? ' stroke-dasharray="' + d + '"' : '') + '/></svg>';
+    }
+    var items = [
+      ['bar 実績は内側',
+        box('<rect x="1" y="3" width="36" height="12" rx="2" ' + pl + '/>' +
+            '<rect x="1" y="6.5" width="21" height="5" fill="url(#lgact)"/>', 39)],
+      ['chevron 実績は内側',
+        box('<polygon points="1,3 31,3 37,9 31,15 1,15 5,9" ' + pl + '/>' +
+            '<rect x="3" y="6.5" width="19" height="5" fill="url(#lgact)"/>', 39)],
+      ['arrow 実績は下',
+        box('<line x1="1" y1="6" x2="29" y2="6" ' + ln + '/>' +
+            '<polygon points="37,6 29,2.5 29,9.5" fill="#3d4a5c"/>' +
+            '<rect x="1" y="11.5" width="19" height="4" fill="url(#lgact)"/>', 39)],
+      ['endpointSpan 実績は下',
+        box('<line x1="2" y1="6" x2="36" y2="6" ' + ln + '/>' +
+            '<line x1="2" y1="2.5" x2="2" y2="9.5" ' + ln + '/>' +
+            '<line x1="36" y1="2.5" x2="36" y2="9.5" ' + ln + '/>' +
+            '<rect x="2" y="11.5" width="18" height="4" fill="url(#lgact)"/>', 39)],
+      ['milestone 最上段',
+        box('<polygon points="11,2 19,9 11,16 3,9" ' + pl + '/>', 22)]
+    ];
+    var mk = [['完了', 'done'], ['中断', 'suspended'], ['期限超過', 'overdue'],
+              ['未完了(選択時)', 'incomplete']];
+    var h = '<h2 id="lgtoggle">legend &#9662;</h2><div class="body">';
+    h += '<svg width="0" height="0"><defs><pattern id="lgact" width="5" height="5" ' +
+         'patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+         '<rect width="5" height="5" fill="#7b8798"/><rect width="2.2" height="5" fill="#333f4f"/>' +
+         '</pattern></defs></svg>';
+    h += '<div class="rowset">';
+    for (var i = 0; i < items.length; i++) {
+      h += '<div class="item">' + items[i][1] + '<span>' + items[i][0] + '</span></div>';
+    }
+    for (var j = 0; j < mk.length; j++) {
+      h += '<div class="item"><svg width="16" height="16" viewBox="0 0 16 16" class="mkleg">' +
+           markerSvg(2, 2, 12, mk[j][1]) + '</svg><span>' + mk[j][0] + '</span></div>';
+    }
+    h += '<div class="item">' + dash('') + '<span>FS</span></div>';
+    h += '<div class="item">' + dash('5 3') + '<span>SS</span></div>';
+    h += '<div class="item">' + dash('1.5 3') + '<span>FF</span></div>';
+    h += '<div class="item">' + dash('7 3 1.5 3') + '<span>SF</span></div>';
+    h += '</div></div>';
+    var el = document.getElementById('legend');
+    el.innerHTML = h;
+    document.getElementById('lgtoggle').addEventListener('click', function () {
+      el.classList.toggle('folded');
+      document.getElementById('lgtoggle').innerHTML =
+        'legend ' + (el.classList.contains('folded') ? '&#9656;' : '&#9662;');
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // SVG element styling (inline <style> inside the document head handles HTML;
+  // SVG classes are styled here through a generated stylesheet)
+  // ---------------------------------------------------------------------------
+
+  var svgCss = document.createElement('style');
+  svgCss.textContent = [
+    '#canvas text { font-family: "Segoe UI","Yu Gothic UI",Meiryo,sans-serif; }',
+    '#canvas .grid { stroke:#e3e7ee; stroke-width:1; }',
+    '#canvas .rowbg { fill:#ffffff; }',
+    '#canvas .rowbg.alt { fill:#f1f3f7; }',
+    '#canvas .rowline { stroke:#d6dbe4; stroke-width:1; }',
+    '#canvas .plan { fill:#ccd5e0; stroke:#3d4a5c; stroke-width:1; }',
+    '#canvas .plan.ms { fill:#3d4a5c; }',
+    '#canvas .plan-line { stroke:#3d4a5c; stroke-width:2.6; }',
+    '#canvas .plan-cap { stroke:#3d4a5c; stroke-width:2.2; }',
+    '#canvas .actual { fill:url(#act); stroke:#2b3746; stroke-width:0.6; }',
+    '#canvas .mk-bg { fill:#ffffff; stroke:#2b3746; stroke-width:1.2; }',
+    '#canvas .mk-fg { stroke:#2b3746; stroke-width:1.7; fill:none; stroke-linecap:round; }',
+    '#canvas .mk-dot { fill:#2b3746; }',
+    '#canvas .lb { fill:#1b2331; dominant-baseline:auto; }',
+    '#canvas .lb.in { fill:#16202e; }',
+    '#canvas .lb.out { fill:#3a4557; }',
+    '#canvas .halo { stroke:#ffffff; stroke-width:3.6; fill:none; stroke-linejoin:miter; opacity:0.95; }',
+    '#canvas .lk { stroke:#232c3a; stroke-width:1.4; fill:none; stroke-linejoin:miter; }',
+    '#canvas .lk.tSS { stroke-dasharray:5 3; }',
+    '#canvas .lk.tFF { stroke-dasharray:1.5 3; }',
+    '#canvas .lk.tSF { stroke-dasharray:7 3 1.5 3; }',
+    '#canvas .lk.fb { stroke:#4a5566; }',
+    '#canvas .task.sel .plan { fill:#9fb2c8; stroke-width:1.8; }',
+    '#canvas .gutterbg { fill:#fbfcfd; }',
+    '#canvas .gutteredge { stroke:#c3cad6; stroke-width:1; }',
+    '#canvas .gt { font-size:11.5px; fill:#1b2331; }',
+    '#canvas .gt.sub { font-size:10px; fill:#7b8798; }',
+    '#canvas .headerbg { fill:#eef1f6; }',
+    '#canvas .headerline { stroke:#c3cad6; stroke-width:1; }',
+    '#canvas .hdr { font-size:12px; font-weight:600; fill:#1b2331; }',
+    '#canvas .hdr.sub { font-size:10px; font-weight:400; fill:#7b8798; }',
+    '#canvas .ax-sep { stroke:#c9d0da; stroke-width:1; }',
+    '#canvas .ax-tick { stroke:#d5dbe4; stroke-width:1; }',
+    '#canvas .ax-coarse { font-size:11px; fill:#41506a; font-weight:600; }',
+    '#canvas .ax-fine { font-size:10px; fill:#6b7789; }',
+    '#legend .mkleg .mk-bg { fill:#ffffff; stroke:#2b3746; stroke-width:1.2; }',
+    '#legend .mkleg .mk-fg { stroke:#2b3746; stroke-width:1.7; fill:none; stroke-linecap:round; }',
+    '#legend .mkleg .mk-dot { fill:#2b3746; }'
+  ].join('\n');
+  document.head.appendChild(svgCss);
+
+  // ---------------------------------------------------------------------------
+  // Interaction
+  // ---------------------------------------------------------------------------
+
+  var zx = document.getElementById('zx'), zy = document.getElementById('zy');
+  var zxv = document.getElementById('zxv'), zyv = document.getElementById('zyv');
+
+  var fpsSamples = [], lastInteract = 0;
+  function noteInteraction() {
+    var now = (performance && performance.now) ? performance.now() : Date.now();
+    if (lastInteract && now - lastInteract < 400) {
+      fpsSamples.push(now - lastInteract);
+      if (fpsSamples.length > 24) fpsSamples.shift();
+      var sum = 0;
+      for (var i = 0; i < fpsSamples.length; i++) sum += fpsSamples[i];
+      lastMetrics.fps = 1000 / (sum / fpsSamples.length);
+    } else {
+      fpsSamples = [];
+    }
+    lastInteract = now;
+  }
+
+  function syncControls() {
+    zx.value = String(view.pxPerDay);
+    zy.value = String(view.yZoom);
+    zxv.textContent = view.pxPerDay.toFixed(1);
+    zyv.textContent = view.yZoom.toFixed(2);
+  }
+
+  function setZoomX(v, anchorX) {
+    var old = view.pxPerDay;
+    var nv = clamp(v, 0.6, 26);
+    if (Math.abs(nv - old) < 1e-6) return;
+    var worldDay = (anchorX + view.scrollX - CFG.GUTTER) / old;
+    view.pxPerDay = nv;
+    view.scrollX = worldDay * nv + CFG.GUTTER - anchorX;
+    if (view.scrollX < 0) view.scrollX = 0;
+    syncControls(); noteInteraction(); render();
+  }
+  function setZoomY(v, anchorY) {
+    var old = view.yZoom;
+    var nv = clamp(v, 0.35, 3);
+    if (Math.abs(nv - old) < 1e-6) return;
+    var frac = (anchorY - CFG.HEADER_H + view.scrollY);
+    view.yZoom = nv;
+    view.scrollY = frac * (nv / old) - (anchorY - CFG.HEADER_H);
+    if (view.scrollY < 0) view.scrollY = 0;
+    syncControls(); noteInteraction(); render();
+  }
+
+  zx.addEventListener('input', function () {
+    setZoomX(parseFloat(zx.value), (svgEl.clientWidth + CFG.GUTTER) / 2);
+  });
+  zy.addEventListener('input', function () {
+    setZoomY(parseFloat(zy.value), svgEl.clientHeight / 2);
+  });
+
+  function fit() {
+    var vw = svgEl.clientWidth || window.innerWidth;
+    var vh = svgEl.clientHeight || window.innerHeight;
+    var lg = document.getElementById('legend');
+    var reserved = (lg ? lg.offsetHeight : 0) + 16;   // keep the legend from hiding rows
+    var avail = Math.max(120, vw - CFG.GUTTER - 250);
+    view.pxPerDay = clamp(avail / Math.max(1, DAY_MAX), 0.6, 26);
+    // binary search the vertical zoom that makes the content fit
+    var lo = 0.35, hi = 3, best = 0.35;
+    var budget = vh - CFG.HEADER_H - reserved;
+    for (var it = 0; it < 18; it++) {
+      var mid = (lo + hi) / 2;
+      view.yZoom = mid;
+      computeLayout();
+      if (L.contentH <= budget) { best = mid; lo = mid; } else { hi = mid; }
+    }
+    view.yZoom = best;
+    view.scrollX = 0; view.scrollY = 0;
+    syncControls(); render();
+  }
+
+  document.getElementById('fit').addEventListener('click', fit);
+  document.getElementById('reset').addEventListener('click', function () {
+    view.pxPerDay = 6.5; view.yZoom = 1; view.scrollX = 0; view.scrollY = 0;
+    syncControls(); render();
+  });
+
+  svgEl.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (e.ctrlKey) {
+      setZoomX(view.pxPerDay * (e.deltaY < 0 ? 1.12 : 1 / 1.12), e.clientX);
+    } else if (e.shiftKey) {
+      var dv = (e.deltaY !== 0 ? e.deltaY : e.deltaX);
+      setZoomY(view.yZoom * (dv < 0 ? 1.10 : 1 / 1.10), e.clientY);
+    } else {
+      view.scrollY += e.deltaY;
+      view.scrollX += e.deltaX;
+      noteInteraction(); applyPan();
+    }
+  }, { passive: false });
+
+  var drag = null;
+  svgEl.addEventListener('mousedown', function (e) {
+    drag = { x: e.clientX, y: e.clientY, sx: view.scrollX, sy: view.scrollY, moved: false };
+    svgEl.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+    view.scrollX = drag.sx - dx;
+    view.scrollY = drag.sy - dy;
+    noteInteraction(); applyPan();
+  });
+  window.addEventListener('mouseup', function (e) {
+    if (drag && !drag.moved) {
+      var el = e.target;
+      while (el && el !== svgEl && !(el.getAttribute && el.getAttribute('data-uid'))) el = el.parentNode;
+      var uid = (el && el.getAttribute) ? el.getAttribute('data-uid') : null;
+      selectedUid = uid ? parseInt(uid, 10) : null;
+      render();
+    }
+    drag = null;
+    svgEl.classList.remove('dragging');
+  });
+
+  window.addEventListener('keydown', function (e) {
+    if (e.target && /input|textarea/i.test(e.target.tagName)) return;
+    if (e.key === 'f' || e.key === 'F') { e.preventDefault(); fit(); }
+  });
+
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(render, 60);
+  });
+
+  // --- review overlay column: collapse / expand (presentation only) -------
+  (function initSideToggle() {
+    var btn = document.getElementById('sideToggle');
+    if (!btn) return;
+    function apply(collapsed, notify) {
+      var root = document.documentElement;
+      if (collapsed) root.classList.add('side-collapsed');
+      else root.classList.remove('side-collapsed');
+      btn.textContent = collapsed ? 'パネル ▸' : 'パネル ▾';
+      btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      if (notify) window.dispatchEvent(new Event('resize'));
+    }
+    btn.addEventListener('click', function () {
+      apply(!document.documentElement.classList.contains('side-collapsed'), true);
+    });
+    apply(false, false);
+  }());
+
+  buildLegend();
+  syncControls();
+  render();
+  // Keep the reference alive so the verbatim shared block is never tree-shaken.
+  if (!SHARED_UNUSED) render();
+})();
+</script>
+</body>
+</html>

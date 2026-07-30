@@ -10,7 +10,7 @@
     {
       "name": "poc-static",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8899", "--directory", "dist/poc"],
+      "runtimeArgs": ["-m", "http.server", "8899", "--directory", "handover/08-poc"],
       "port": 8899
     }
   ]

@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>PoC: マルチバー行のパターン集（2026-07-30）</title>
+<style>
+  /* Font scale measured against ja.wikipedia.org (body 16px / lh 26px) and
+     google.com (body 14px). Nothing goes below 12px, matching the product's own
+     Japanese-readability floor. */
+  :root { --bg:#fff; --ink:#1a1a1a; --sub:#555; --rule:#dcdcdc; --panel:#f6f7f9;
+          --accent:#2b5ea8; --good:#1f7a3d; --warn:#a8600f; --bad:#a02b2b;
+          --plan:#8fb0d9; --plan-line:#4d79ad; --act:#1d4f8c; --act-line:#123a68;
+          --dep:#d2691e; --mark:#333; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:0 0 90px 0; background:var(--bg); color:var(--ink);
+         font-family:"Yu Gothic UI","Meiryo",system-ui,sans-serif;
+         font-size:16px; line-height:1.7; }
+  .wrap { max-width:1360px; margin:0 auto; padding:0 20px; }
+  header { background:var(--panel); border-bottom:1px solid var(--rule); padding:22px 0 0 0; }
+  h1 { margin:0 0 6px 0; font-size:24px; line-height:1.35; }
+  .lede { margin:0 0 14px 0; color:var(--sub); font-size:16px; }
+  .ctl { display:flex; flex-wrap:wrap; gap:16px 20px; align-items:center; padding:14px 0;
+         border-top:1px solid var(--rule); font-size:14px; }
+  .ctl label { display:flex; align-items:center; gap:7px; white-space:nowrap; }
+  .ctl input[type=range] { width:180px; }
+  .ctl .val { font-variant-numeric:tabular-nums; min-width:62px; color:var(--accent); font-weight:700; }
+  .ctl button { font:inherit; font-size:14px; padding:3px 12px; }
+  .verdictbar { padding:10px 0 16px 0; font-size:16px; }
+  .pill { display:inline-block; padding:3px 13px; border-radius:13px; font-weight:700; font-size:14px; }
+  .p-good { background:#e3f2e8; color:var(--good); }
+  .p-bad  { background:#fbe6e6; color:var(--bad); }
+  .p-warn { background:#fdf1e0; color:var(--warn); }
+  h2 { font-size:20px; margin:34px 0 8px 0; padding-top:12px; border-top:1px solid var(--rule); }
+  .hint { margin:0 0 14px 0; color:var(--sub); font-size:14px; }
+  table.sum { border-collapse:collapse; width:100%; font-size:14px; margin:12px 0 4px 0; }
+  table.sum th, table.sum td { border:1px solid var(--rule); padding:5px 9px; text-align:left; }
+  table.sum th { background:var(--panel); }
+  table.sum td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .pat { border:1px solid var(--rule); border-radius:6px; margin:16px 0; background:#fff; overflow:hidden; }
+  .pat > .head { background:var(--panel); border-bottom:1px solid var(--rule); padding:9px 13px;
+                 display:flex; flex-wrap:wrap; gap:10px 12px; align-items:baseline; }
+  .pat .pid { font-weight:700; font-size:14px; color:var(--accent); font-variant-numeric:tabular-nums; }
+  .pat .pname { font-weight:700; font-size:16px; }
+  .pat .pdesc { color:var(--sub); font-size:14px; }
+  .pat .pexp { margin-left:auto; font-size:13px; color:var(--sub); }
+  .pat .body { padding:8px 13px 13px 13px; overflow-x:auto; }
+  .pat .metrics { font-size:13px; color:var(--sub); margin-top:8px; display:flex; flex-wrap:wrap;
+                  gap:8px 16px; font-variant-numeric:tabular-nums; }
+  .pat .metrics b { color:var(--ink); }
+  .pat svg { display:block; }
+  .flag { display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; }
+  .f-bad { background:#fbe6e6; color:var(--bad); }
+  .f-warn { background:#fdf1e0; color:var(--warn); }
+  .f-good { background:#e3f2e8; color:var(--good); }
+  .note { background:var(--panel); border-left:3px solid var(--accent); padding:12px 16px;
+          font-size:14px; margin:16px 0; }
+  .note.warn { border-left-color:var(--warn); }
+  .note ol, .note ul { margin:6px 0 0 0; padding-left:22px; }
+  code { background:var(--panel); padding:1px 5px; border-radius:3px; font-size:14px; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--sub); margin:8px 0 0 0; }
+  .legend span::before { content:""; display:inline-block; width:14px; height:10px; margin-right:5px;
+                         vertical-align:-1px; border-radius:2px; }
+  .legend .l-plan::before { background:var(--plan); border:1px solid var(--plan-line); }
+  .legend .l-act::before  { background:var(--act); }
+  .legend .l-dep::before  { background:var(--dep); height:3px; vertical-align:2px; }
+  .legend .l-occ::before  { background:transparent; border:1px dashed #999; }
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <h1>PoC: マルチバー行のパターン集 — 1 行に複数のタスクが入るとき、段はどう積まれるか</h1>
+  <p class="lede">20 パターン。<strong>overlap が 1 つでもあれば不合格</strong>。
+     担当・完了率・タスク名・進捗マーカー・Resume・依存線を<strong>すべて描いたうえで</strong>段を割り当てる。
+     ズームを動かすと同じデータで段数が変わる — それが確認したいことである。</p>
+  <div class="ctl">
+    <label>横ズーム <input type="range" id="zx" min="0.05" max="6" step="0.01" value="1">
+      <span class="val" id="zxv"></span></label>
+    <label>縦ズーム <input type="range" id="zy" min="0.15" max="3" step="0.01" value="1">
+      <span class="val" id="zyv"></span></label>
+    <label><input type="checkbox" id="asg" checked> 担当</label>
+    <label><input type="checkbox" id="pct" checked> 完了率</label>
+    <label><input type="checkbox" id="dep" checked> 依存線</label>
+    <label><input type="checkbox" id="hfloor"> 高さ下限 16px</label>
+    <label><input type="checkbox" id="showocc"> 占有幅を表示</label>
+    <button id="reset">既定に戻す</button>
+  </div>
+  <div class="verdictbar" id="verdict"></div>
+</div></header>
+
+<div class="wrap">
+
+<div class="note">
+  <strong>この PoC で確かめること</strong>
+  <ol>
+    <li><strong>overlap = 0</strong> — 段割当が全パターンで重なりを出さないこと（最終段の再利用を廃止した以上、絶対条件）。</li>
+    <li><strong>決定的であること</strong> — 入力の並び順を変えても段割当が同じになること。ならないと再描画のたびに段が入れ替わる。</li>
+    <li><strong>手動指定が自動に勝つこと</strong> — <code>stackOrder</code> を人が指定した段は自動配置に奪われない。</li>
+    <li><strong>左右どちらの張り出しも占有幅に入っていること</strong> —
+        担当＋完了率は<strong>バーの外側左</strong>、タスク名と進捗マーカーと Resume は<strong>外側右</strong>に出る
+        （<code>handover-ui-detail-spec-ja.md</code> §4-2 の ⚠️）。片側だけ数えると隣と重なる。</li>
+    <li><strong>低ズームで段数がどれだけ増えるか</strong> — フォント下限 12px によりラベルが相対的に大きくなる。
+        §6-4 の ⚠️ が「PoC で実測すること」と言っている当の項目。</li>
+  </ol>
+</div>
+
+<div class="note warn">
+  <strong>形状の描き分け（<code>handover-plan-actual-decisions-ja.md</code> §2-2）</strong>
+  <ul>
+    <li><strong>上下に幅がある形状</strong>（<code>bar</code> <code>===</code> / <code>chevron</code> <code>&gt;===&gt;</code>）
+        → 実績を<strong>予定の内側に重ねる</strong>。</li>
+    <li><strong>上下に幅がない形状</strong>（<code>arrow</code> <code>---&gt;</code> /
+        <code>endpointSpan</code> <code>*----*</code> / <code>milestone</code>）
+        → 細線で描き、実績を<strong>予定の下にずらす</strong>。</li>
+    <li><strong>両端が縦棒の細線 <code>|----|</code> は廃止</strong>（<code>handover-ui-detail-spec-ja.md</code> §表）。
+        端点は<strong>点</strong>で描く。</li>
+    <li>実績は<strong>予定と同じ形状</strong>で、少し小さく描く。</li>
+  </ul>
+</div>
+
+<h2>1. 全パターンの一覧</h2>
+<p class="hint">ズームを動かすとこの表がそのまま追随する。<strong>段数の列が動くパターン</strong>が、ズームに敏感なパターンである。</p>
+<table class="sum" id="sumtable"></table>
+
+<h2>2. パターンごとの絵</h2>
+<div class="legend">
+  <span class="l-plan">予定</span><span class="l-act">実績</span>
+  <span class="l-dep">依存線（橙で固定）</span><span class="l-occ">占有幅（左右の張り出しを含む）</span>
+</div>
+<p class="hint" style="margin-top:8px">書式は <code>{担当} : {完了率 %} [タスク名]</code>。
+  担当と完了率は<strong>予定タスクの左端を基準に外側左へ右揃え</strong>で連結する。</p>
+<div id="pats"></div>
+
+<h2>3. ズーム掃引 — 段数はズームに対して単調か</h2>
+<p class="hint">横ズームを 0.05 から 6 まで 240 段階で掃引し、全パターンの合計段数を記録する。
+  <strong>拡大したのに段が増える</strong>逆転があれば、そこが設計の穴である。</p>
+<div id="sweep"></div>
+
+<h2>4. 左右どちらの張り出しがどれだけ効いているか</h2>
+<p class="hint">占有幅の構成要素を 1 つずつ外して、合計段数がどう変わるかを測る。</p>
+<div id="contrib"></div>
+
+</div>
+
+<script>
+"use strict";
+
+// ---------------------------------------------------------------- constants
+var BASE_PX_PER_DAY = 6;
+var BASE_TASK_H     = 28;     // total occupied band height at zoomY = 1 (same for all shapes)
+var LANE_GAP        = 12;     // vertical gap between stack lanes (one dependency line fits)
+var FONT_MIN        = 12;     // font floor (handover 2-4-1)
+var TASK_H_MIN      = 16;     // actual-bar + alpha floor
+var MARK_MIN        = 16;     // progress marker floor
+var LABEL_COEF      = 0.5;    // width = (fw*2 + hw*1) * fontSize * coef
+var LABEL_PAD       = 6;
+var LABEL_GAP       = 4;
+var MARK_GAP        = 4;      // handover 2-4-1: overhang is 4px + mark width
+var TRUNC_UNITS     = 24;     // 24 half-width units == 12 full-width chars
+var SVG_PAD         = 10;
+
+// ---------------------------------------------------------------- text metrics
+function isFullWidth(ch) {
+  var c = ch.charCodeAt(0);
+  return (c >= 0x1100 && c <= 0x115F) || (c >= 0x2E80 && c <= 0xA4CF) ||
+         (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0xF900 && c <= 0xFAFF) ||
+         (c >= 0xFE30 && c <= 0xFE6F) || (c >= 0xFF00 && c <= 0xFF60) ||
+         (c >= 0xFFE0 && c <= 0xFFE6);
+}
+function widthUnits(s) {
+  var n = 0;
+  for (var i = 0; i < s.length; i++) n += isFullWidth(s.charAt(i)) ? 2 : 1;
+  return n;
+}
+/** Analytic estimate. No browser text measurement (handover 6-2). */
+function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * LABEL_COEF; }
+function truncate(s, units) {
+  var n = 0, out = "";
+  for (var i = 0; i < s.length; i++) {
+    var w = isFullWidth(s.charAt(i)) ? 2 : 1;
+    if (n + w > units) return out + "…";
+    n += w; out += s.charAt(i);
+  }
+  return s;
+}
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function r1(x) { return Math.round(x * 10) / 10; }
+
+// ---------------------------------------------------------------- task ctors
+var UIDSEQ = 1000;
+var OWNERS = ["田中", "佐藤", "鈴木", "高橋", "伊藤", "渡辺"];
+function T(name, start, finish, opt) {
+  var t = { uid: ++UIDSEQ, name: name, start: start, finish: finish,
+            milestone: false, shapeKind: "bar", milestoneGlyph: null,
+            stackOrder: null, owner: OWNERS[UIDSEQ % OWNERS.length],
+            hasActual: false, actualStart: null, actualDuration: null,
+            suspended: false, resume: null, resumeValid: false, percentComplete: 0 };
+  if (opt) for (var k in opt) if (opt.hasOwnProperty(k)) t[k] = opt[k];
+  return t;
+}
+function M(name, day, glyph, opt) {
+  var o = { milestone: true, shapeKind: "milestone", milestoneGlyph: glyph || "diamond" };
+  if (opt) for (var k in opt) if (opt.hasOwnProperty(k)) o[k] = opt[k];
+  return T(name, day, day, o);
+}
+
+// ---------------------------------------------------------------- patterns
+function seq(n, f) { var a = [], i; for (i = 0; i < n; i++) a.push(f(i)); return a; }
+
+var PATTERNS = [
+  { id: "P01", name: "完全分離", desc: "時間がまったく重ならない 4 本",
+    expect: "1 段。ラベルが出るまでは 1 段のまま", deps: "chain",
+    tasks: [T("要件定義", 0, 20, { percentComplete: 100, hasActual: true, actualStart: 0, actualDuration: 20 }),
+            T("設計", 25, 45, { percentComplete: 70, hasActual: true, actualStart: 25, actualDuration: 14 }),
+            T("実装", 50, 70), T("検証", 75, 100)] },
+
+  { id: "P02", name: "完全一致", desc: "開始も終了も同じ 3 本",
+    expect: "常に 3 段。ズームに依存しない",
+    tasks: [T("A 系", 10, 40), T("B 系", 10, 40), T("C 系", 10, 40)] },
+
+  { id: "P03", name: "階段状の部分重なり", desc: "順に少しずつずれて重なる 5 本",
+    expect: "2 段。隣どうしだけが重なる", deps: "chain",
+    tasks: [T("第1", 0, 30), T("第2", 20, 50), T("第3", 40, 70), T("第4", 60, 90), T("第5", 80, 110)] },
+
+  { id: "P04", name: "入れ子", desc: "長い 1 本の中に短い 3 本",
+    expect: "2 段。内側の 3 本は互いに重ならない",
+    tasks: [T("全体工程", 0, 100), T("準備", 5, 25), T("本作業", 35, 55), T("片付け", 70, 95)] },
+
+  { id: "P05", name: "同一開始日", desc: "開始が同じで終了だけ違う 4 本",
+    expect: "4 段。開始点で必ず全部が重なる",
+    tasks: [T("短", 10, 25), T("中", 10, 45), T("長", 10, 70), T("最長", 10, 100)] },
+
+  { id: "P06", name: "同一終了日", desc: "終了が同じで開始だけ違う 4 本",
+    expect: "4 段。終了点で必ず全部が重なる",
+    tasks: [T("最長", 10, 100), T("長", 35, 100), T("中", 60, 100), T("短", 85, 100)] },
+
+  { id: "P07", name: "端が接する（境界条件）", desc: "前の終了日 = 次の開始日",
+    expect: "担当ラベルの張り出しで段が落ちる。張り出しを外せば 1 段", deps: "chain",
+    tasks: [T("工程1", 0, 30), T("工程2", 30, 60), T("工程3", 60, 90)] },
+
+  { id: "P08", name: "1 日だけ重なる", desc: "重複はわずか 1 日",
+    expect: "2 段。1 日でも重なれば段を分ける",
+    tasks: [T("前半", 0, 30), T("後半", 29, 60)] },
+
+  { id: "P09", name: "マイルストーンのみ", desc: "幅 0 のマイルストーン 6 個",
+    expect: "低ズームでグリフとラベルが接触して段が増える",
+    tasks: [M("計画確定", 5, "circle"), M("設計完了", 12, "triangle"), M("実装完了", 20, "square"),
+            M("検証完了", 45, "diamond"), M("受入", 80, "star"), M("移行", 110, "hexagon")] },
+
+  { id: "P10", name: "マイルストーン＋バー混在", desc: "バーの上にマイルストーンが乗る",
+    expect: "マイルストーンが先に置かれる（決定的順序の第 1 キー）", deps: "toMilestone",
+    tasks: [T("長期作業", 0, 100), M("中間判定", 30, "diamond"), M("最終判定", 75, "star"),
+            T("並行作業", 40, 65)] },
+
+  { id: "P11", name: "長い名称で右出し", desc: "名称が幅に収まらず右へ出る",
+    expect: "右出しが隣に当たり段が落ちる。ズームを下げるほど顕著", deps: "chain",
+    tasks: [T("要件定義および外部仕様の確定", 0, 12), T("基本設計", 15, 27),
+            T("詳細設計と実装方式の検討", 30, 42), T("結合検証", 45, 57)] },
+
+  { id: "P12", name: "密集（短いタスク 20 本）", desc: "6 日刻みで 20 本",
+    expect: "高ズームで 1 段、低ズームで一気に増える",
+    tasks: seq(20, function (i) { return T("T" + (i + 1), i * 6, i * 6 + 4); }) },
+
+  { id: "P13", name: "5 つのタスク形状すべて", desc: "bar / chevron / arrow / endpointSpan / milestone",
+    expect: "占有高さは 5 形状とも同一。矢印と端点スパンは細線で、実績は下にずれる",
+    tasks: [T("bar", 0, 20, { shapeKind: "bar", hasActual: true, actualStart: 0, actualDuration: 13, percentComplete: 65 }),
+            T("chevron", 24, 44, { shapeKind: "chevron", hasActual: true, actualStart: 24, actualDuration: 12, percentComplete: 60 }),
+            T("arrow", 48, 68, { shapeKind: "arrow", hasActual: true, actualStart: 48, actualDuration: 10, percentComplete: 50 }),
+            T("span", 72, 92, { shapeKind: "endpointSpan", hasActual: true, actualStart: 72, actualDuration: 15, percentComplete: 75 }),
+            M("mstone", 105, "pentagon", { hasActual: true, actualStart: 105, actualDuration: 0, percentComplete: 100 })] },
+
+  { id: "P14", name: "実績つき（マーカー張り出しあり）", desc: "進捗マーカーが右へ 4px ＋ マーク幅ぶん張り出す",
+    expect: "左は担当＋完了率、右はマーカー。両側とも占有幅に入る", deps: "chain",
+    tasks: [T("進行中1", 0, 30, { hasActual: true, actualStart: 0, actualDuration: 18, percentComplete: 60 }),
+            T("進行中2", 32, 62, { hasActual: true, actualStart: 32, actualDuration: 12, percentComplete: 40 }),
+            T("進行中3", 64, 94, { hasActual: true, actualStart: 64, actualDuration: 25, percentComplete: 83 })] },
+
+  { id: "P15", name: "中断・再開", desc: "実績が途中で止まり、再開日が先にある",
+    expect: "Resume ぶんの張り出しが増える。再開日未定は薄い〇で小さい",
+    tasks: [T("中断中（再開日あり）", 0, 60, { hasActual: true, actualStart: 0, actualDuration: 20,
+              suspended: true, resume: 45, resumeValid: true, percentComplete: 33 }),
+            T("中断中（再開日未定）", 65, 110, { hasActual: true, actualStart: 65, actualDuration: 10,
+              suspended: true, resume: null, resumeValid: false, percentComplete: 22 })] },
+
+  { id: "P16", name: "手動 stackOrder 指定", desc: "3 本目だけ段 0 を人が指定",
+    expect: "指定した段が自動配置に奪われない",
+    tasks: [T("自動1", 0, 40), T("自動2", 10, 50), T("手動:段0", 20, 60, { stackOrder: 0 })] },
+
+  { id: "P17", name: "1 本だけ超長い ＋ 短いの 12 本", desc: "背景に 1 本、その上に細かいのが並ぶ",
+    expect: "超長い 1 本が 1 段を占有し、残りが上に積まれる",
+    tasks: [T("通期の管理タスク", 0, 118)].concat(
+      seq(12, function (i) { return T("m" + (i + 1), i * 10, i * 10 + 7); })) },
+
+  { id: "P18", name: "ゼロ期間だが milestone ではない", desc: "start = finish かつ milestone = false",
+    expect: "幅 0 でも消えず、段割当も破綻しない",
+    tasks: [T("即日作業A", 20, 20), T("即日作業B", 20, 20), T("通常作業", 0, 40)] },
+
+  { id: "P19", name: "完全結合（8 本が互いに全部重なる）", desc: "全ペアが重なる最悪ケース",
+    expect: "8 段。段数に上限を設けない方針どおり伸びること",
+    tasks: seq(8, function (i) { return T("F" + (i + 1), 10 + i, 100 - i); }) },
+
+  { id: "P20", name: "予定超過（percentComplete > 100）", desc: "実績が予定の終了を越える",
+    expect: "実績が予定からはみ出し、その分も占有幅に入る",
+    tasks: [T("超過1", 0, 30, { hasActual: true, actualStart: 0, actualDuration: 45, percentComplete: 150 }),
+            T("超過2", 50, 80, { hasActual: true, actualStart: 50, actualDuration: 42, percentComplete: 140 })] }
+];
+
+// ---------------------------------------------------------------- shape model
+/** Shapes with vertical extent hold the actual inside; the thin ones push it below. */
+function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
+
+/**
+ * Vertical slots inside one band. The band height is identical for every shape,
+ * so a row's height never depends on which shapes happen to sit in it.
+ */
+function bands(taskH) {
+  var actualH = Math.max(3, taskH * 0.30);
+  var planH = Math.max(4, taskH - actualH - 2);
+  return {
+    bandH: taskH,
+    planTop: 0, planH: planH,
+    insideActualTop: (planH - actualH * 0.72) / 2, insideActualH: actualH * 0.72,
+    belowActualTop: planH + 2, belowActualH: actualH
+  };
+}
+
+// ---------------------------------------------------------------- context
+function makeCtx(zoomX, zoomY, opt) {
+  opt = opt || {};
+  var rawH = BASE_TASK_H * zoomY;
+  var taskH = opt.heightFloor ? Math.max(TASK_H_MIN, rawH) : rawH;
+  var rawFont = taskH * 0.8;
+  var fontSize = Math.max(FONT_MIN, rawFont);
+  return {
+    pxPerDay: BASE_PX_PER_DAY * zoomX,
+    taskH: taskH, rawH: rawH, b: bands(taskH),
+    fontSize: fontSize, fontFloored: rawFont < FONT_MIN,
+    markSize: Math.max(MARK_MIN, fontSize * 4 / 3),
+    glyphSize: taskH * 0.62,
+    laneGap: LANE_GAP,
+    showOwner: opt.showOwner !== false,
+    showPct: opt.showPct !== false,
+    noLeft: !!opt.noLeft, noRight: !!opt.noRight, noMark: !!opt.noMark
+  };
+}
+
+/** Everything that consumes horizontal room, on both sides of the shape. */
+function geom(t, ctx) {
+  var x0 = t.start * ctx.pxPerDay;
+  var x1 = t.finish * ctx.pxPerDay;
+  var shapeX0, shapeX1;
+
+  if (t.milestone) {
+    var g = ctx.glyphSize;
+    shapeX0 = x0 - g / 2; shapeX1 = x0 + g / 2;
+  } else {
+    shapeX0 = x0;
+    shapeX1 = Math.max(x1, x0 + 2);          // zero-duration tasks keep a minimum visible width
+  }
+
+  // The actual may run past the planned finish (percentComplete > 100).
+  var actX0 = null, actX1 = null;
+  if (t.hasActual) {
+    actX0 = t.actualStart * ctx.pxPerDay;
+    actX1 = (t.actualStart + t.actualDuration) * ctx.pxPerDay;
+    if (t.milestone) { actX0 = shapeX0; actX1 = shapeX1; }
+  }
+  var bodyX1 = Math.max(shapeX1, actX1 == null ? -Infinity : actX1);
+
+  // ---- LEFT: "{owner} : {pct}%", right-aligned to the plan bar's left edge.
+  var leftText = "";
+  if (ctx.showOwner) leftText += t.owner;
+  if (ctx.showPct) leftText += (leftText ? " : " : "") + t.percentComplete + "%";
+  var leftExtent = (leftText && !ctx.noLeft) ? labelWidth(leftText, ctx.fontSize) + LABEL_GAP : 0;
+
+  // ---- Name label: inside -> truncated inside -> pushed right.
+  var shapeW = shapeX1 - shapeX0;
+  var cut = truncate(t.name, TRUNC_UNITS);
+  var wFull = labelWidth(t.name, ctx.fontSize);
+  var wCut = labelWidth(cut, ctx.fontSize);
+  var labelMode, labelText, nameExtent;
+  var insideRoom = hasThickness(t.shapeKind) ? shapeW - LABEL_PAD * 2 : -1;  // thin shapes have no inside
+  if (wFull <= insideRoom) { labelMode = "inside"; labelText = t.name; nameExtent = 0; }
+  else if (wCut <= insideRoom) { labelMode = "inside-cut"; labelText = cut; nameExtent = 0; }
+  else { labelMode = "right"; labelText = cut; nameExtent = LABEL_GAP + wCut; }
+  if (ctx.noRight) nameExtent = 0;
+
+  // ---- RIGHT: progress marker, then Resume (handover 2-4-1: 4px + mark width).
+  var markExtent = 0;
+  if (t.hasActual && !ctx.noMark) {
+    markExtent = MARK_GAP + ctx.markSize;
+    if (t.suspended) markExtent += MARK_GAP + (t.resumeValid ? ctx.markSize : ctx.markSize * 0.7);
+  }
+  var resumeX1 = (t.suspended && t.resumeValid && t.resume != null)
+    ? t.resume * ctx.pxPerDay + ctx.markSize / 2 : -Infinity;
+
+  return {
+    shapeX0: shapeX0, shapeX1: shapeX1, actX0: actX0, actX1: actX1, bodyX1: bodyX1,
+    occX0: shapeX0 - leftExtent,
+    occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
+    leftText: leftText, leftExtent: leftExtent,
+    labelMode: labelMode, labelText: labelText, nameExtent: nameExtent,
+    markExtent: markExtent, markX: bodyX1 + MARK_GAP
+  };
+}
+
+// ---------------------------------------------------------------- lane packing
+function orderTasks(tasks) {
+  return tasks.slice().sort(function (a, b) {
+    if (a.milestone !== b.milestone) return a.milestone ? -1 : 1;
+    if (a.start !== b.start) return a.start - b.start;
+    if (a.finish !== b.finish) return b.finish - a.finish;
+    return a.uid - b.uid;
+  });
+}
+
+function packLanes(tasks, ctx) {
+  var ordered = orderTasks(tasks);
+  var lanes = [], placements = [], i, j;
+
+  function laneOf(n) { while (lanes.length <= n) lanes.push([]); return lanes[n]; }
+  function fits(lane, g) {
+    for (var k = 0; k < lane.length; k++) {
+      var o = lane[k];
+      if (g.occX0 < o.occX1 && o.occX0 < g.occX1) return false;   // touching is NOT overlapping
+    }
+    return true;
+  }
+
+  for (i = 0; i < ordered.length; i++) {
+    if (ordered[i].stackOrder == null) continue;
+    var gE = geom(ordered[i], ctx);
+    laneOf(ordered[i].stackOrder).push(gE);
+    placements.push({ t: ordered[i], g: gE, lane: ordered[i].stackOrder, forced: true });
+  }
+  for (i = 0; i < ordered.length; i++) {
+    if (ordered[i].stackOrder != null) continue;
+    var g = geom(ordered[i], ctx), target = -1;
+    for (j = 0; j < lanes.length; j++) { if (fits(lanes[j], g)) { target = j; break; } }
+    if (target < 0) { target = lanes.length; laneOf(target); }
+    lanes[target].push(g);
+    placements.push({ t: ordered[i], g: g, lane: target, forced: false });
+  }
+
+  var overlaps = 0;
+  for (i = 0; i < lanes.length; i++) {
+    for (j = 0; j < lanes[i].length; j++) {
+      for (var k2 = j + 1; k2 < lanes[i].length; k2++) {
+        var a = lanes[i][j], b = lanes[i][k2];
+        if (a.occX0 < b.occX1 && b.occX0 < a.occX1) overlaps++;
+      }
+    }
+  }
+  var rightOut = 0, minX = Infinity, maxX = -Infinity;
+  for (i = 0; i < placements.length; i++) {
+    if (placements[i].g.labelMode === "right") rightOut++;
+    minX = Math.min(minX, placements[i].g.occX0);
+    maxX = Math.max(maxX, placements[i].g.occX1);
+  }
+  return { lanes: Math.max(1, lanes.length), placements: placements, overlaps: overlaps,
+           rightOut: rightOut, minX: minX, maxX: maxX,
+           rowHeight: Math.max(1, lanes.length) * ctx.taskH +
+                      Math.max(0, lanes.length - 1) * ctx.laneGap };
+}
+
+function determinismCheck(tasks, ctx) {
+  function sig(list) {
+    return packLanes(list, ctx).placements.slice()
+      .sort(function (a, b) { return a.t.uid - b.t.uid; })
+      .map(function (p) { return p.t.uid + ":" + p.lane; }).join(",");
+  }
+  var sa = sig(tasks.slice());
+  return { ok: sa === sig(tasks.slice().reverse()) &&
+                sa === sig(tasks.slice(3).concat(tasks.slice(0, 3))) };
+}
+
+// ---------------------------------------------------------------- dependency links
+/**
+ * Orthogonal route from the predecessor's right anchor to the successor's left anchor.
+ * Forward links take 2 bends; a backward link has to go around, which needs 4 --
+ * the asymmetry the handover already flags as "0-3 bends will always be broken".
+ */
+function buildLinks(pattern, placements, ctx, laneY) {
+  if (!pattern.deps) return [];
+  var byUid = {}, i;
+  placements.forEach(function (p) { byUid[p.t.uid] = p; });
+  var ordered = pattern.tasks.slice();
+  var pairs = [];
+  if (pattern.deps === "chain") {
+    for (i = 0; i + 1 < ordered.length; i++) pairs.push([ordered[i], ordered[i + 1]]);
+  } else if (pattern.deps === "toMilestone") {
+    var ms = ordered.filter(function (t) { return t.milestone; });
+    var bars = ordered.filter(function (t) { return !t.milestone; });
+    bars.forEach(function (b, k) { if (ms[k]) pairs.push([b, ms[k]]); });
+  }
+  var links = [];
+  pairs.forEach(function (pr) {
+    var a = byUid[pr[0].uid], b = byUid[pr[1].uid];
+    if (!a || !b) return;
+    var ay = laneY(a.lane) + ctx.b.planH / 2;
+    var by = laneY(b.lane) + ctx.b.planH / 2;
+    var ax = a.g.shapeX1, bx = b.g.shapeX0;
+    var pts;
+    if (bx - ax >= 12) {
+      var mx = (ax + bx) / 2;
+      pts = ay === by ? [[ax, ay], [bx, by]] : [[ax, ay], [mx, ay], [mx, by], [bx, by]];
+    } else {
+      var below = Math.max(ay, by) + ctx.b.planH / 2 + ctx.laneGap * 0.45;
+      pts = [[ax, ay], [ax + 8, ay], [ax + 8, below], [bx - 8, below], [bx - 8, by], [bx, by]];
+    }
+    links.push({ pts: pts, bends: pts.length - 2 });
+  });
+  return links;
+}
+
+/** Count how many times a route passes through a plan shape's box. */
+function countLineCrossings(links, placements, ctx, laneY) {
+  var boxes = placements.map(function (p) {
+    var y = laneY(p.lane);
+    return { x0: p.g.shapeX0, x1: p.g.shapeX1, y0: y, y1: y + ctx.b.planH };
+  });
+  var n = 0;
+  links.forEach(function (L) {
+    for (var i = 0; i + 1 < L.pts.length; i++) {
+      var p = L.pts[i], q = L.pts[i + 1];
+      var sx0 = Math.min(p[0], q[0]), sx1 = Math.max(p[0], q[0]);
+      var sy0 = Math.min(p[1], q[1]), sy1 = Math.max(p[1], q[1]);
+      boxes.forEach(function (b) {
+        var ox = Math.min(sx1, b.x1) - Math.max(sx0, b.x0);
+        var oy = Math.min(sy1, b.y1) - Math.max(sy0, b.y0);
+        if (ox > 0.5 && oy > 0.5) n++;
+      });
+    }
+  });
+  return n;
+}
+
+// ---------------------------------------------------------------- SVG shapes
+/** Shapes WITH vertical extent. */
+function thickPath(kind, x0, x1, y, h) {
+  var w = Math.max(x1 - x0, 2);
+  if (kind === "chevron") {
+    var n = Math.min(h * 0.45, w * 0.35);
+    return "M" + r1(x0) + "," + r1(y) + " L" + r1(x1 - n) + "," + r1(y) +
+           " L" + r1(x1) + "," + r1(y + h / 2) + " L" + r1(x1 - n) + "," + r1(y + h) +
+           " L" + r1(x0) + "," + r1(y + h) + " L" + r1(x0 + n) + "," + r1(y + h / 2) + " Z";
+  }
+  return "M" + r1(x0) + "," + r1(y) + " h" + r1(w) + " v" + r1(h) + " h" + r1(-w) + " Z";
+}
+
+/**
+ * Shapes WITHOUT vertical extent: drawn as a thin line on the slot's centre line.
+ * The stroke stays thin regardless of the slot height -- that is what "no vertical
+ * extent" means. `|----|` (vertical end bars) is abolished; endpoints are dots.
+ */
+function thinShapeSvg(kind, x0, x1, y, h, colour, lw) {
+  var mid = y + h / 2, s = [];
+  lw = Math.max(1.5, Math.min(lw, 4));
+  if (kind === "arrow") {
+    var head = Math.min(Math.max(x1 - x0, 1) * 0.4, Math.max(6, lw * 3.2));
+    s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(Math.max(x0, x1 - head)) +
+           '" y2="' + r1(mid) + '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
+    s.push('<path d="M' + r1(x1 - head) + ',' + r1(mid - head * 0.5) + ' L' + r1(x1) + ',' + r1(mid) +
+           ' L' + r1(x1 - head) + ',' + r1(mid + head * 0.5) + ' Z" fill="' + colour + '"/>');
+  } else {   // endpointSpan  *----*
+    var r = Math.max(2, lw * 1.15);
+    s.push('<line x1="' + r1(x0) + '" y1="' + r1(mid) + '" x2="' + r1(x1) + '" y2="' + r1(mid) +
+           '" stroke="' + colour + '" stroke-width="' + r1(lw) + '"/>');
+    s.push('<circle cx="' + r1(x0) + '" cy="' + r1(mid) + '" r="' + r1(r) + '" fill="' + colour + '"/>');
+    s.push('<circle cx="' + r1(x1) + '" cy="' + r1(mid) + '" r="' + r1(r) + '" fill="' + colour + '"/>');
+  }
+  return s.join("");
+}
+
+function glyphPath(kind, cx, cy, s) {
+  var r = s / 2, i, pts = [], a;
+  switch (kind) {
+    case "square": return "M" + r1(cx - r) + "," + r1(cy - r) + " h" + r1(s) + " v" + r1(s) + " h" + r1(-s) + " Z";
+    case "triangle": return "M" + r1(cx) + "," + r1(cy - r) + " L" + r1(cx + r) + "," + r1(cy + r) +
+                            " L" + r1(cx - r) + "," + r1(cy + r) + " Z";
+    case "star":
+      for (i = 0; i < 10; i++) { a = -Math.PI / 2 + i * Math.PI / 5;
+        var rr = (i % 2 === 0) ? r : r * 0.45;
+        pts.push(r1(cx + rr * Math.cos(a)) + "," + r1(cy + rr * Math.sin(a))); }
+      return "M" + pts.join(" L") + " Z";
+    case "pentagon":
+      for (i = 0; i < 5; i++) { a = -Math.PI / 2 + i * 2 * Math.PI / 5;
+        pts.push(r1(cx + r * Math.cos(a)) + "," + r1(cy + r * Math.sin(a))); }
+      return "M" + pts.join(" L") + " Z";
+    case "hexagon":
+      for (i = 0; i < 6; i++) { a = i * Math.PI / 3;
+        pts.push(r1(cx + r * Math.cos(a)) + "," + r1(cy + r * Math.sin(a))); }
+      return "M" + pts.join(" L") + " Z";
+    default: return "M" + r1(cx) + "," + r1(cy - r) + " L" + r1(cx + r) + "," + r1(cy) +
+                    " L" + r1(cx) + "," + r1(cy + r) + " L" + r1(cx - r) + "," + r1(cy) + " Z";
+  }
+}
+
+/** Draw plan + actual for one task, honouring the per-shape actual placement rule. */
+function drawTask(t, g, y, ctx) {
+  var b = ctx.b, s = [], thick = hasThickness(t.shapeKind);
+  var lw = Math.max(1.5, Math.min(4, ctx.taskH * 0.11));
+
+  if (t.milestone) {
+    var gs = ctx.glyphSize, cx = (g.shapeX0 + g.shapeX1) / 2;
+    s.push('<path d="' + glyphPath(t.milestoneGlyph, cx, y + b.planH / 2, gs) +
+           '" fill="var(--plan)" stroke="var(--plan-line)"/>');
+    if (t.hasActual) {
+      s.push('<path d="' + glyphPath(t.milestoneGlyph, cx, y + b.belowActualTop + b.belowActualH / 2,
+             Math.max(4, gs * 0.55)) + '" fill="var(--act)"/>');
+    }
+  } else if (thick) {
+    s.push('<path d="' + thickPath(t.shapeKind, g.shapeX0, g.shapeX1, y + b.planTop, b.planH) +
+           '" fill="var(--plan)" stroke="var(--plan-line)"/>');
+    if (t.hasActual) {
+      s.push('<path d="' + thickPath(t.shapeKind, g.actX0, g.actX1,
+             y + b.insideActualTop, b.insideActualH) + '" fill="var(--act)"/>');
+    }
+  } else {
+    s.push(thinShapeSvg(t.shapeKind, g.shapeX0, g.shapeX1, y + b.planTop, b.planH,
+                        "var(--plan-line)", lw));
+    if (t.hasActual) {
+      s.push(thinShapeSvg(t.shapeKind, g.actX0, g.actX1,
+             y + b.belowActualTop, b.belowActualH, "var(--act)", lw * 0.85));
+    }
+  }
+  return s.join("");
+}
+
+// ---------------------------------------------------------------- render one pattern
+function renderPattern(p, ctx, showOcc, showDeps) {
+  var res = packLanes(p.tasks, ctx);
+  var det = determinismCheck(p.tasks, ctx);
+  var b = ctx.b;
+  function laneY(i) { return SVG_PAD + i * (ctx.taskH + ctx.laneGap); }
+
+  var links = showDeps ? buildLinks(p, res.placements, ctx, laneY) : [];
+  var crossings = countLineCrossings(links, res.placements, ctx, laneY);
+
+  var shiftX = SVG_PAD - Math.min(0, res.minX);
+  var w = res.maxX + shiftX + SVG_PAD;
+  var h = res.rowHeight + SVG_PAD * 2;
+  var s = ['<svg width="' + r1(w) + '" height="' + r1(h) + '" viewBox="0 0 ' + r1(w) + ' ' + r1(h) +
+           '" role="img" style="min-width:' + r1(Math.min(w, 1300)) + 'px">',
+           '<g transform="translate(' + r1(shiftX) + ',0)">'];
+
+  var li;
+  for (li = 0; li < res.lanes; li++) {
+    s.push('<rect x="' + r1(-shiftX) + '" y="' + r1(laneY(li)) + '" width="' + r1(w) +
+           '" height="' + r1(ctx.taskH) + '" fill="' + (li % 2 ? "#fafbfc" : "#fff") + '"/>');
+  }
+
+  // dependency lines first, so shapes sit on top
+  links.forEach(function (L) {
+    var d = L.pts.map(function (pt, i) { return (i ? "L" : "M") + r1(pt[0]) + "," + r1(pt[1]); }).join(" ");
+    s.push('<path d="' + d + '" fill="none" stroke="var(--dep)" stroke-width="1.6" ' +
+           'stroke-linejoin="round" marker-end="url(#dep-arrow)"/>');
+  });
+
+  res.placements.forEach(function (pl) {
+    var t = pl.t, g = pl.g, y = laneY(pl.lane), fs = ctx.fontSize;
+
+    if (showOcc) {
+      s.push('<rect x="' + r1(g.occX0) + '" y="' + r1(y - 2) + '" width="' +
+             r1(Math.max(1, g.occX1 - g.occX0)) + '" height="' + r1(ctx.taskH + 4) +
+             '" fill="none" stroke="#999" stroke-dasharray="2 2"/>');
+    }
+
+    s.push(drawTask(t, g, y, ctx));
+
+    // LEFT: "{owner} : {pct}%" right-aligned to the plan bar's left edge
+    if (g.leftText) {
+      s.push('<text x="' + r1(g.shapeX0 - LABEL_GAP) + '" y="' + r1(y + b.planH / 2 + fs * 0.35) +
+             '" font-size="' + r1(fs) + '" text-anchor="end" fill="var(--sub)">' +
+             esc(g.leftText) + '</text>');
+    }
+
+    // RIGHT: progress marker, then Resume
+    if (t.hasActual && g.markExtent > 0) {
+      var ms = ctx.markSize, mx = g.markX, my = y + b.planH / 2;
+      s.push('<circle cx="' + r1(mx + ms / 2) + '" cy="' + r1(my) + '" r="' + r1(ms / 2) +
+             '" fill="#fff" stroke="var(--mark)" stroke-width="1.4"/>');
+      s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(my + ms * 0.19) + '" font-size="' +
+             r1(ms * 0.52) + '" text-anchor="middle" fill="var(--mark)">' + t.percentComplete + '</text>');
+      if (t.suspended) {
+        // L-shaped elbow arrow: tip height == actual bar centre == marker centre.
+        var rx = mx + ms + MARK_GAP, rw = ms * (t.resumeValid ? 1 : 0.7);
+        s.push('<path d="M' + r1(rx) + ',' + r1(my + ms / 2) + ' V' + r1(my) + ' h' + r1(rw * 0.62) +
+               '" fill="none" stroke="var(--mark)" stroke-width="1.5" stroke-linecap="round"' +
+               (t.resumeValid ? '' : ' opacity="0.45"') + '/>');
+        s.push('<path d="M' + r1(rx + rw * 0.62) + ',' + r1(my - rw * 0.22) + ' L' + r1(rx + rw * 0.92) +
+               ',' + r1(my) + ' L' + r1(rx + rw * 0.62) + ',' + r1(my + rw * 0.22) +
+               ' Z" fill="var(--mark)"' + (t.resumeValid ? '' : ' opacity="0.45"') + '/>');
+        if (t.resumeValid && t.resume != null) {
+          s.push('<line x1="' + r1(rx + rw) + '" y1="' + r1(my) + '" x2="' +
+                 r1(t.resume * ctx.pxPerDay) + '" y2="' + r1(my) +
+                 '" stroke="var(--mark)" stroke-dasharray="3 2" opacity="0.55"/>');
+        }
+      }
+    }
+
+    // NAME
+    if (g.labelMode === "right") {
+      s.push('<text x="' + r1(g.bodyX1 + g.markExtent + LABEL_GAP) + '" y="' +
+             r1(y + b.planH / 2 + fs * 0.35) + '" font-size="' + r1(fs) +
+             '" fill="var(--ink)">' + esc(g.labelText) + '</text>');
+    } else {
+      s.push('<text x="' + r1(g.shapeX0 + LABEL_PAD) + '" y="' + r1(y + b.planH / 2 + fs * 0.35) +
+             '" font-size="' + r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
+    }
+  });
+
+  s.push('</g></svg>');
+
+  var flags = [];
+  flags.push(res.overlaps > 0
+    ? '<span class="flag f-bad">overlap ' + res.overlaps + '</span>'
+    : '<span class="flag f-good">overlap 0</span>');
+  if (!det.ok) flags.push('<span class="flag f-bad">順序依存</span>');
+  if (ctx.fontFloored) flags.push('<span class="flag f-warn">フォント下限に到達</span>');
+  if (crossings > 0) flags.push('<span class="flag f-warn">線がタスクを横切る ' + crossings + '</span>');
+
+  return { svg: s.join(""), res: res, det: det, flags: flags.join(" "),
+           links: links, crossings: crossings };
+}
+
+// ---------------------------------------------------------------- sweep
+function sweepLanes(optBase, zoomY) {
+  var steps = 240, out = [], i;
+  var lo = Math.log(0.05), hi = Math.log(6);
+  for (i = 0; i < steps; i++) {
+    var zx = Math.exp(lo + (hi - lo) * i / (steps - 1));
+    var ctx = makeCtx(zx, zoomY, optBase);
+    var total = 0, ov = 0;
+    for (var p = 0; p < PATTERNS.length; p++) {
+      var r = packLanes(PATTERNS[p].tasks, ctx);
+      total += r.lanes; ov += r.overlaps;
+    }
+    out.push({ zx: zx, total: total, ov: ov });
+  }
+  var violations = [];
+  for (i = 1; i < out.length; i++) if (out[i].total > out[i - 1].total) violations.push(out[i]);
+  return { series: out, violations: violations };
+}
+
+function renderSweep(sw) {
+  var W = 1300, H = 240, padL = 54, padR = 16, padT = 14, padB = 38;
+  var maxT = 0, i;
+  for (i = 0; i < sw.series.length; i++) maxT = Math.max(maxT, sw.series[i].total);
+  maxT = Math.ceil(maxT / 10) * 10;
+  var lo = Math.log(0.05), hi = Math.log(6);
+  function X(zx) { return padL + (Math.log(zx) - lo) / (hi - lo) * (W - padL - padR); }
+  function Y(v) { return H - padB - v / maxT * (H - padT - padB); }
+  var s = ['<svg viewBox="0 0 ' + W + ' ' + H +
+           '" style="width:100%;height:auto;border:1px solid var(--rule);border-radius:6px;background:#fff">'];
+  [0.05, 0.1, 0.25, 0.5, 1, 2, 4, 6].forEach(function (t) {
+    s.push('<line x1="' + r1(X(t)) + '" y1="' + padT + '" x2="' + r1(X(t)) + '" y2="' + (H - padB) + '" stroke="#eee"/>');
+    s.push('<text x="' + r1(X(t)) + '" y="' + (H - padB + 17) + '" font-size="12" text-anchor="middle" fill="#666">' + t + '</text>');
+  });
+  [0, maxT / 2, maxT].forEach(function (v) {
+    s.push('<line x1="' + padL + '" y1="' + r1(Y(v)) + '" x2="' + (W - padR) + '" y2="' + r1(Y(v)) + '" stroke="#eee"/>');
+    s.push('<text x="' + (padL - 7) + '" y="' + r1(Y(v) + 4) + '" font-size="12" text-anchor="end" fill="#666">' + v + '</text>');
+  });
+  var d = [];
+  for (i = 0; i < sw.series.length; i++) d.push((i ? "L" : "M") + r1(X(sw.series[i].zx)) + "," + r1(Y(sw.series[i].total)));
+  s.push('<path d="' + d.join(" ") + '" fill="none" stroke="var(--accent)" stroke-width="2"/>');
+  sw.violations.forEach(function (v) {
+    s.push('<circle cx="' + r1(X(v.zx)) + '" cy="' + r1(Y(v.total)) + '" r="4" fill="var(--bad)"/>');
+  });
+  s.push('<text x="' + (padL + 6) + '" y="' + (padT + 13) + '" font-size="12" fill="#666">合計段数（20 パターン）</text>');
+  s.push('<text x="' + (W - padR) + '" y="' + (H - 6) + '" font-size="12" text-anchor="end" fill="#666">横ズーム（対数）</text>');
+  s.push('</svg>');
+  return s.join("");
+}
+
+// ---------------------------------------------------------------- contribution table
+function buildContrib(zoomY) {
+  var variants = [
+    { label: "すべて含める（既定）", opt: {} },
+    { label: "担当＋完了率（左）を外す", opt: { noLeft: true } },
+    { label: "タスク名の右出しを外す", opt: { noRight: true } },
+    { label: "進捗マーカー・Resume を外す", opt: { noMark: true } },
+    { label: "左右の張り出しをすべて外す（形状だけ）", opt: { noLeft: true, noRight: true, noMark: true } }
+  ];
+  var zooms = [6, 1, 0.25, 0.05];
+  var head = '<tr><th>占有幅の構成</th>' +
+    zooms.map(function (z) { return '<th class="num">zoomX ' + z + '</th>'; }).join("") + '</tr>';
+  var rows = variants.map(function (v) {
+    var cells = zooms.map(function (z) {
+      var ctx = makeCtx(z, zoomY, v.opt), total = 0;
+      PATTERNS.forEach(function (p) { total += packLanes(p.tasks, ctx).lanes; });
+      return '<td class="num">' + total + '</td>';
+    }).join("");
+    return '<tr><td>' + v.label + '</td>' + cells + '</tr>';
+  }).join("");
+  return '<table class="sum">' + head + rows + '</table>' +
+    '<p class="hint">「形状だけ」の行が、ラベルを一切考えない場合の下限である。' +
+    '既定の行との差が<strong>ラベルと注釈のために払っている段数</strong>。</p>';
+}
+
+// ---------------------------------------------------------------- wire-up
+var el = {};
+["zx", "zy", "zxv", "zyv", "asg", "pct", "dep", "hfloor", "showocc",
+ "reset", "verdict", "sumtable", "pats", "sweep", "contrib"].forEach(function (k) {
+  el[k] = document.getElementById(k);
+});
+
+function currentOpt() {
+  return { heightFloor: el.hfloor.checked, showOwner: el.asg.checked, showPct: el.pct.checked };
+}
+
+function redraw() {
+  var zx = parseFloat(el.zx.value), zy = parseFloat(el.zy.value);
+  var opt = currentOpt();
+  var ctx = makeCtx(zx, zy, opt);
+  var showOcc = el.showocc.checked, showDeps = el.dep.checked;
+
+  el.zxv.textContent = zx.toFixed(2) + "x";
+  el.zyv.textContent = zy.toFixed(2) + "x";
+
+  var rows = [], cards = [], totalLanes = 0, totalOv = 0, detFail = 0, totalCross = 0;
+  var head = '<tr><th>ID</th><th>パターン</th><th class="num">タスク</th><th class="num">段数</th>' +
+    '<th class="num">overlap</th><th class="num">右出し</th><th class="num">依存線</th>' +
+    '<th class="num">線がタスクを横切る</th><th class="num">行高 px</th>' +
+    '<th>決定性</th><th>手動段</th></tr>';
+
+  PATTERNS.forEach(function (p) {
+    var r = renderPattern(p, ctx, showOcc, showDeps);
+    totalLanes += r.res.lanes; totalOv += r.res.overlaps; totalCross += r.crossings;
+    if (!r.det.ok) detFail++;
+
+    var forced = r.res.placements.filter(function (x) { return x.forced; });
+    var forcedCell = "—";
+    if (forced.length) {
+      forcedCell = forced.every(function (x) { return x.lane === x.t.stackOrder; })
+        ? '<span class="flag f-good">保持</span>' : '<span class="flag f-bad">奪われた</span>';
+    }
+
+    rows.push('<tr><td>' + p.id + '</td><td>' + esc(p.name) + '</td>' +
+      '<td class="num">' + p.tasks.length + '</td>' +
+      '<td class="num"><b>' + r.res.lanes + '</b></td>' +
+      '<td class="num" style="color:' + (r.res.overlaps ? "var(--bad)" : "var(--good)") + '">' + r.res.overlaps + '</td>' +
+      '<td class="num">' + r.res.rightOut + '</td>' +
+      '<td class="num">' + r.links.length + '</td>' +
+      '<td class="num">' + r.crossings + '</td>' +
+      '<td class="num">' + Math.round(r.res.rowHeight) + '</td>' +
+      '<td>' + (r.det.ok ? '<span class="flag f-good">一致</span>' : '<span class="flag f-bad">不一致</span>') + '</td>' +
+      '<td>' + forcedCell + '</td></tr>');
+
+    cards.push('<div class="pat"><div class="head">' +
+      '<span class="pid">' + p.id + '</span><span class="pname">' + esc(p.name) + '</span>' +
+      '<span class="pdesc">' + esc(p.desc) + '</span>' +
+      '<span class="pexp">狙い: ' + esc(p.expect) + '</span></div>' +
+      '<div class="body">' + r.svg +
+      '<div class="metrics"><span>段数 <b>' + r.res.lanes + '</b></span>' +
+      '<span>overlap <b>' + r.res.overlaps + '</b></span>' +
+      '<span>右出し <b>' + r.res.rightOut + '</b>/' + p.tasks.length + '</span>' +
+      '<span>依存線 <b>' + r.links.length + '</b></span>' +
+      '<span>行高 <b>' + Math.round(r.res.rowHeight) + '</b>px</span>' +
+      '<span>フォント <b>' + r1(ctx.fontSize) + '</b>px</span>' +
+      '<span>マーク <b>' + r1(ctx.markSize) + '</b>px</span>' + r.flags + '</div></div></div>');
+  });
+
+  el.sumtable.innerHTML = head + rows.join("");
+  el.pats.innerHTML =
+    '<svg width="0" height="0" style="position:absolute"><defs>' +
+    '<marker id="dep-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">' +
+    '<path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs></svg>' + cards.join("");
+
+  var sw = sweepLanes(opt, zy);
+  el.sweep.innerHTML = renderSweep(sw) +
+    '<p class="hint" style="margin-top:10px">合計段数の最小 ' +
+    Math.min.apply(null, sw.series.map(function (x) { return x.total; })) + ' 〜 最大 ' +
+    Math.max.apply(null, sw.series.map(function (x) { return x.total; })) +
+    '。単調性の逆転 <b style="color:' + (sw.violations.length ? "var(--bad)" : "var(--good)") + '">' +
+    sw.violations.length + '</b> 件' +
+    (sw.violations.length ? '（赤い点の位置）' : '（拡大すれば段は減る一方）') +
+    '。掃引中の overlap 合計 <b>' + sw.series.reduce(function (a, b) { return a + b.ov; }, 0) + '</b>。</p>';
+
+  el.contrib.innerHTML = buildContrib(zy);
+
+  var bad = totalOv > 0 || detFail > 0 || sw.violations.length > 0;
+  el.verdict.innerHTML =
+    '<span class="pill ' + (bad ? "p-bad" : "p-good") + '">' + (bad ? "不合格" : "合格") + '</span> ' +
+    '20 パターン / タスク ' + PATTERNS.reduce(function (a, p) { return a + p.tasks.length; }, 0) + ' 本 ・ ' +
+    '合計段数 <b>' + totalLanes + '</b> ・ overlap <b>' + totalOv + '</b> ・ ' +
+    '順序依存 <b>' + detFail + '</b> ・ 単調性の逆転 <b>' + sw.violations.length + '</b> ・ ' +
+    '線がタスクを横切る <b>' + totalCross + '</b>' +
+    (ctx.fontFloored
+      ? ' <span class="flag f-warn">フォントが下限 12px に張り付いている（実機ではレベルを 1 つ減らす）</span>'
+      : '');
+}
+
+["input", "change"].forEach(function (ev) {
+  ["zx", "zy", "asg", "pct", "dep", "hfloor", "showocc"].forEach(function (k) {
+    el[k].addEventListener(ev, redraw);
+  });
+});
+el.reset.addEventListener("click", function () {
+  el.zx.value = 1; el.zy.value = 1;
+  el.asg.checked = true; el.pct.checked = true; el.dep.checked = true;
+  el.hfloor.checked = false; el.showocc.checked = false;
+  redraw();
+});
+
+redraw();
+
+// Expose for DOM-side verification.
+window.__poc = { PATTERNS: PATTERNS, packLanes: packLanes, makeCtx: makeCtx, geom: geom,
+                 sweepLanes: sweepLanes, determinismCheck: determinismCheck,
+                 orderTasks: orderTasks, hasThickness: hasThickness, renderPattern: renderPattern };
+</script>
+</body>
+</html>
