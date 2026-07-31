@@ -9,6 +9,12 @@
 > | `progressStatus` | **廃止**。状態が構造化された |
 > | （無し） | **`actualDuration`** / **`resume`** / **`resumeValid`** を追加 |
 >
+> 🔴 **設定値まわりは `grs-document-settings-ja.md` が上書きする（2026-07-31）。**
+> §8 の #14「JSON＝見た目の完全再現は同一ビューポート条件下の主張に限定」は**古い**。
+> 挙げられていた 3 つの限界のうち **2 つは解消した**（LOD のビューポート依存はズームの保存で、
+> ラベル計測依存は §6-2「実測しない」で）。**本日線は `documentSettings` から外した**ので例外にならない。
+> 現在の主張は「**同一ビューポート寸法において、描画は JSON のみから決定的に定まる**」である。
+>
 > **本書のうち生きているのは §7.1（器の既定名・生成規則）と §7.1-2（移動時の追随規則）、
 > および §8（設計判断の変遷）である。** これらは予実とは独立している。
 
@@ -131,7 +137,7 @@ TaskVisual      { task_uid FK→Task, nameAnchor, nameAlign, iconShapeKind, // G
                   fillColor, strokeColor, lineWeight, importance, progressStatus }
 TaskOrigin      { task_uid FK→Task, source_project_uid, import_session_id }        // 出自（同上・マージ判定用・行なし=GRS生まれ）
 Dependency      { successor_uid+predecessor_uid PK(複合), link_type, lag, … }      // 依存エッジ（§7.4）
-documentSettings{ … }                            // 文書設定。全項目は grs-native-erd-ja.md §5.7-1 が正（ズームは保存しない）
+documentSettings{ … }                            // 文書設定。全項目は grs-document-settings-ja.md が正
 // ※ 一時 UI 状態（選択・ホバー・Undo履歴）は保存しない＝見た目を構成しないため
 ```
 
@@ -152,7 +158,7 @@ documentSettings{ … }                            // 文書設定。全項目�
 | マルチバー | 1 行に複数 Task を横並べする**機能名**（視覚のみ・非 export） | 製品コンセプト | 軸B |
 | `TaskVisual` | GRS 固有の視覚列（名称ラベル位置/アイコン/色…）。Task と分離 | GRS 新設（§7.3） | — |
 | `Dependency` | 依存エッジ（task↔task）。`PredecessorLink` を Consume | MSPDI 由来（§7.4） | — |
-| `documentSettings` | 文書全体の表示設定。**全項目は `grs-native-erd-ja.md` §5.7-1 が正**（ズーム・スクロール・テーマ・言語・透かしは保存しない） | GRS 新設 | — |
+| `documentSettings` | 文書全体の表示設定。**全項目は `grs-document-settings-ja.md` が正**（2026-07-31: ズーム・スクロール・テーマ・ペイン幅は**保存する**側へ移った。保存しないのは言語・透かしと、画面にも出力にも出ない 8 項目） | GRS 新設 | — |
 
 ---
 

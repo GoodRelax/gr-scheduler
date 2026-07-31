@@ -60,7 +60,7 @@
 <section>
   <h2>1. 形状 5 種 — <strong>実績は予定と同じ形状で描く</strong></h2>
   <p class="why">実績だけ四角にすると強い違和感が出る。予定が矢羽根なら実績も矢羽根、予定が矢印なら実績も矢印、予定がマイルストーンなら実績もマイルストーンで描く。</p>
-  <div class="rule">上下に幅がある形状（bar / chevron）              -&gt; 実績を内側に重ねる ＋ フェードあり
+  <div class="rule">上下に幅がある形状（rectangle / chevron）              -&gt; 実績を内側に重ねる ＋ フェードあり
 幅がない形状（arrow / endpointSpan / milestone） -&gt; 実績を下にずらす   ＋ フェードなし
 
 どちらの場合も 実績の形状 = 予定の形状</div>
@@ -161,9 +161,9 @@ var SIZE = POC_UI.S;
 
 var MIN_FONT     = SIZE.fontMin;    // smallest font we ever draw
 var MIN_ACTUAL_H = SIZE.actualMin;  // actual bar + alpha, lower bound
-var MIN_MARKER   = SIZE.markMin;    // marker lower bound, follows the actual bar
-var MARKER_GAP   = SIZE.markGap;    // fixed gap between actual bar right edge and marker
-var MIN_LEVEL_GAP = SIZE.laneGap;   // minimum vertical gap between plan bars of two levels
+var MIN_MARKER   = SIZE.markerMin;    // marker lower bound, follows the actual bar
+var MARKER_GAP   = SIZE.markerGap;    // fixed gap between actual bar right edge and marker
+var MIN_LEVEL_GAP = SIZE.stackGap;   // minimum vertical gap between plan bars of two levels
 
 var state = { zoomY: 1, pxPerDay: SIZE.pxPerDayAt1x, selected: false };
 
@@ -211,17 +211,17 @@ function text(parent, x, y, str, opts) {
 // ---------------------------------------------------------------------------
 
 function hasThickness(shapeKind) {
-  return shapeKind === 'bar' || shapeKind === 'chevron';
+  return shapeKind === 'rectangle' || shapeKind === 'chevron';
 }
 
 function metrics(zoomY, shapeKind) {
-  var m = POC_UI.shapeMetrics(shapeKind || 'bar', zoomY);
+  var m = POC_UI.shapeMetrics(shapeKind || 'rectangle', zoomY);
   return {
     zoomY: zoomY,
     planHeight: m.planH,
     actualHeight: m.actualH,
     fontSize: m.fontSize,
-    markerSize: m.markSize,
+    markerSize: m.markerSize,
     levelGap: MIN_LEVEL_GAP,
     // total vertical space one level occupies, marker included
     pitch: m.planH + MIN_LEVEL_GAP
@@ -255,7 +255,7 @@ function drawShape(g, shapeKind, x0, x1, top, h, fill, stroke, strokeWidth) {
   var mid = top + h / 2;
   var sw = strokeWidth || 1;
 
-  if (shapeKind === 'bar') {
+  if (shapeKind === 'rectangle') {
     el('rect', { x: x0, y: top, width: w, height: h, rx: 2,
       fill: fill, stroke: stroke, 'stroke-width': sw }, g);
 
@@ -373,7 +373,7 @@ function drawResumeIcon(g, x, tipY, footY, size) {
 // ---------------------------------------------------------------------------
 
 var SHAPE_ROWS = [
-  { kind: 'bar',          label: '===    bar（棒）',                  note: '実績を内側に重ねる ・ 縦幅 x1' },
+  { kind: 'rectangle',          label: '===    bar（棒）',                  note: '実績を内側に重ねる ・ 縦幅 x1' },
   { kind: 'chevron',      label: '>===>  chevron（矢羽根）',          note: '実績を内側に重ねる ・ 縦幅 x1' },
   { kind: 'arrow',        label: '--->   arrow（矢印）',              note: '実績を下にずらす ・ 縦幅 x0.5' },
   { kind: 'endpointSpan', label: '*----* endpointSpan（端点スパン）', note: '実績を下にずらす ・ 縦幅 x0.5' },
@@ -455,8 +455,8 @@ function renderColors() {
   var b1 = bands(pad, m);
   var g = el('g', null, svg);
 
-  drawPlan(g, 'bar', barX, barX + w, b1);
-  var a1 = drawActual(g, 'bar', barX, barX + w * 0.6, b1);
+  drawPlan(g, 'rectangle', barX, barX + w, b1);
+  var a1 = drawActual(g, 'rectangle', barX, barX + w * 0.6, b1);
   drawProgressMarker(g, 'overdue', a1.right, a1.centreY, m.markerSize, true);
 
   var y2 = pad + b1.reserved + 34;
@@ -500,7 +500,7 @@ function renderSizeRule() {
   box.textContent =
     '基準  1920 x 1080 / 全画面 / 拡大率 100% / ヘッダー縦 50px\n' +
     '\n' +
-    '形状ごとの縦幅        ' + ['bar', 'chevron', 'arrow', 'endpointSpan', 'milestone']
+    '形状ごとの縦幅        ' + ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone']
        .map(function (k) { return k + ' x' + POC_UI.shapeRatio(k); }).join(' / ') + '\n' +
     '  細線が半分なのは「縦に薄く詰め込める」ことがこの形状の取り柄だから\n' +
     '  マイルストーンが 1.5 倍なのは目立たせるため\n' +
@@ -531,9 +531,9 @@ function renderMarkers() {
     var g = el('g', null, svg);
     text(g, pad, y + b.planHeight / 2, row.label, { size: 12, weight: '600' });
 
-    drawPlan(g, 'bar', barX, barX + w, b);
+    drawPlan(g, 'rectangle', barX, barX + w, b);
     var ax1 = barX + w * row.pct;
-    var a = drawActual(g, 'bar', barX, ax1, b);
+    var a = drawActual(g, 'rectangle', barX, ax1, b);
     if (row.cap) drawFinishCap(g, ax1, a.top, a.height);
     drawProgressMarker(g, row.kind, a.right, a.centreY, m.markerSize, state.selected);
 
@@ -561,9 +561,9 @@ function renderResume() {
   var w = state.pxPerDay * 42;
 
   text(g, 10, pad + b.planHeight / 2, '中断・再開予定あり', { size: 12, weight: '600' });
-  drawPlan(g, 'bar', barX, barX + w, b);
+  drawPlan(g, 'rectangle', barX, barX + w, b);
   var stopX = barX + w * 0.42;
-  var a = drawActual(g, 'bar', barX, stopX, b);
+  var a = drawActual(g, 'rectangle', barX, stopX, b);
   var mk = drawProgressMarker(g, 'suspended', a.right, a.centreY, m.markerSize, true);
 
   var resumeX = barX + w * 0.70;
@@ -611,10 +611,10 @@ function renderStates() {
     var b = bands(y, m);
     var g = el('g', null, svg);
     text(g, pad, y + b.planHeight / 2, row.label, { size: 12, weight: '600' });
-    drawPlan(g, 'bar', barX, barX + w, b);
+    drawPlan(g, 'rectangle', barX, barX + w, b);
 
     if (row.actual > 0) {
-      var a = drawActual(g, 'bar', barX, barX + w * row.actual, b);
+      var a = drawActual(g, 'rectangle', barX, barX + w * row.actual, b);
       var mk = drawProgressMarker(g, row.marker, a.right, a.centreY, m.markerSize, true);
       if (row.resume) {
         var rx = barX + w * (row.actual + 0.22);
@@ -696,9 +696,9 @@ function renderLightning() {
 
       for (var q = 0; q < group.length; q++) {
         var t = group[q];
-        drawPlan(g, 'bar', barX + t.s * ppd, barX + t.f * ppd, b);
+        drawPlan(g, 'rectangle', barX + t.s * ppd, barX + t.f * ppd, b);
         if (t.actual > 0) {
-          var a = drawActual(g, 'bar', barX + t.s * ppd, barX + (t.s + t.actual) * ppd, b);
+          var a = drawActual(g, 'rectangle', barX + t.s * ppd, barX + (t.s + t.actual) * ppd, b);
           if (t.done) drawFinishCap(g, barX + (t.s + t.actual) * ppd, a.top, a.height);
           var mkKind = t.done ? 'done' : (t.stop !== undefined ? 'suspended' : 'incomplete');
           drawProgressMarker(g, mkKind, a.right, a.centreY, m.markerSize, true);

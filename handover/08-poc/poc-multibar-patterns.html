@@ -154,7 +154,7 @@ var UIDSEQ = 1000;
 var OWNERS = ["田中", "佐藤", "鈴木", "高橋", "伊藤", "渡辺"];
 function T(name, start, finish, opt) {
   var t = { uid: ++UIDSEQ, name: name, start: start, finish: finish,
-            milestone: false, shapeKind: "bar", milestoneGlyph: null,
+            milestone: false, shapeKind: "rectangle", milestoneGlyph: null,
             stackOrder: null, owner: OWNERS[UIDSEQ % OWNERS.length],
             hasActual: false, actualStart: null, actualDuration: null,
             suspended: false, resume: null, resumeValid: false, percentComplete: 0 };
@@ -168,10 +168,10 @@ function M(name, day, glyph, opt) {
 }
 function seq(n, f) { var a = [], i; for (i = 0; i < n; i++) a.push(f(i)); return a; }
 
-/** The five dependency-line patterns, one pair each, lanes pinned so the shape
+/** The five dependency-line patterns, one pair each, stackCount pinned so the shape
  *  of every route is visible at a glance. */
-function L(name, start, finish, lane) {
-  return T(name, start, finish, { stackOrder: lane });
+function L(name, start, finish, stackIndex) {
+  return T(name, start, finish, { stackOrder: stackIndex });
 }
 
 // ---------------------------------------------------------------- patterns
@@ -239,9 +239,9 @@ var PATTERNS = [
     expect: "高ズームで 1 段、低ズームで一気に増える",
     tasks: seq(20, function (i) { return T("T" + (i + 1), i * 6, i * 6 + 4); }) },
 
-  { id: "P13", name: "5 つのタスク形状すべて", desc: "bar / chevron / arrow / endpointSpan / milestone",
+  { id: "P13", name: "5 つのタスク形状すべて", desc: "rectangle / chevron / arrow / endpointSpan / milestone",
     expect: "細線は bar の 1/2、マイルストーンは 1.5 倍。段の高さは最大値で決まる",
-    tasks: [T("bar", 0, 20, { shapeKind: "bar", hasActual: true, actualStart: 0, actualDuration: 13, percentComplete: 65 }),
+    tasks: [T("rectangle", 0, 20, { shapeKind: "rectangle", hasActual: true, actualStart: 0, actualDuration: 13, percentComplete: 65 }),
             T("chevron", 24, 44, { shapeKind: "chevron", hasActual: true, actualStart: 24, actualDuration: 12, percentComplete: 60 }),
             T("arrow", 48, 68, { shapeKind: "arrow", hasActual: true, actualStart: 48, actualDuration: 10, percentComplete: 50 }),
             T("span", 72, 92, { shapeKind: "endpointSpan", hasActual: true, actualStart: 72, actualDuration: 15, percentComplete: 75 }),
@@ -310,7 +310,7 @@ function geom(t, ctx) {
   var x0 = t.start * ctx.pxPerDay, x1 = t.finish * ctx.pxPerDay, sx0, sx1;
 
   if (t.milestone) { sx0 = x0 - m.glyphSize / 2; sx1 = x0 + m.glyphSize / 2; }
-  else { sx0 = x0; sx1 = Math.max(x1, x0 + SIZE.minShapeW); }
+  else { sx0 = x0; sx1 = Math.max(x1, x0 + SIZE.minShapeWidth); }
 
   var aX0 = null, aX1 = null;
   if (t.hasActual) {
@@ -326,7 +326,7 @@ function geom(t, ctx) {
   var leftExtent = (leftText && !ctx.noLeft) ? labelWidth(leftText, m.fontSize) + SIZE.labelGap : 0;
 
   // NAME: inside -> truncated inside -> pushed right.
-  var cut = truncate(t.name, SIZE.truncUnits);
+  var cut = truncate(t.name, SIZE.truncateUnits);
   var wFull = labelWidth(t.name, m.fontSize), wCut = labelWidth(cut, m.fontSize);
   var insideRoom = hasThickness(t.shapeKind) ? (sx1 - sx0) - SIZE.labelPad * 2 : -1;
   var labelMode, labelText, nameExtent;
@@ -336,24 +336,24 @@ function geom(t, ctx) {
   if (ctx.noRight) nameExtent = 0;
 
   // RIGHT: progress marker, then Resume.
-  var markExtent = 0;
+  var markerExtent = 0;
   if (t.hasActual && !ctx.noMark) {
-    markExtent = SIZE.markGap + m.markSize;
+    markerExtent = SIZE.markerGap + m.markerSize;
     if (t.suspended) {
-      markExtent += SIZE.markGap + m.markSize * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
+      markerExtent += SIZE.markerGap + m.markerSize * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
     }
   }
   var resumeX1 = (t.suspended && t.resumeValid && t.resume != null)
-    ? t.resume * ctx.pxPerDay + m.markSize / 2 : -Infinity;
+    ? t.resume * ctx.pxPerDay + m.markerSize / 2 : -Infinity;
 
   return { m: m, sx0: sx0, sx1: sx1, aX0: aX0, aX1: aX1, bodyX1: bodyX1,
            occX0: sx0 - leftExtent,
-           occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
+           occX1: Math.max(bodyX1 + markerExtent + nameExtent, resumeX1),
            leftText: leftText, labelMode: labelMode, labelText: labelText,
-           markExtent: markExtent, markX: bodyX1 + SIZE.markGap };
+           markerExtent: markerExtent, markerX: bodyX1 + SIZE.markerGap };
 }
 
-// ---------------------------------------------------------------- lane packing
+// ---------------------------------------------------------------- stackIndex packing
 function orderTasks(tasks) {
   return tasks.slice().sort(function (a, b) {
     if (a.milestone !== b.milestone) return a.milestone ? -1 : 1;
@@ -363,14 +363,14 @@ function orderTasks(tasks) {
   });
 }
 
-function packLanes(tasks, ctx) {
+function packStacks(tasks, ctx) {
   var ordered = orderTasks(tasks);
-  var lanes = [], placements = [], i, j, k;
+  var stackCount = [], placements = [], i, j, k;
 
-  function laneOf(n) { while (lanes.length <= n) lanes.push([]); return lanes[n]; }
-  function fits(lane, g) {
-    for (var q = 0; q < lane.length; q++) {
-      var o = lane[q];
+  function stackOf(n) { while (stackCount.length <= n) stackCount.push([]); return stackCount[n]; }
+  function fits(stackIndex, g) {
+    for (var q = 0; q < stackIndex.length; q++) {
+      var o = stackIndex[q];
       if (g.occX0 < o.occX1 && o.occX0 < g.occX1) return false;   // touching is NOT overlapping
     }
     return true;
@@ -379,32 +379,32 @@ function packLanes(tasks, ctx) {
   for (i = 0; i < ordered.length; i++) {
     if (ordered[i].stackOrder == null) continue;
     var gE = geom(ordered[i], ctx);
-    laneOf(ordered[i].stackOrder).push(gE);
-    placements.push({ t: ordered[i], g: gE, lane: ordered[i].stackOrder, forced: true });
+    stackOf(ordered[i].stackOrder).push(gE);
+    placements.push({ t: ordered[i], g: gE, stackIndex: ordered[i].stackOrder, forced: true });
   }
   for (i = 0; i < ordered.length; i++) {
     if (ordered[i].stackOrder != null) continue;
     var g = geom(ordered[i], ctx), target = -1;
-    for (j = 0; j < lanes.length; j++) { if (fits(lanes[j], g)) { target = j; break; } }
-    if (target < 0) { target = lanes.length; laneOf(target); }
-    lanes[target].push(g);
-    placements.push({ t: ordered[i], g: g, lane: target, forced: false });
+    for (j = 0; j < stackCount.length; j++) { if (fits(stackCount[j], g)) { target = j; break; } }
+    if (target < 0) { target = stackCount.length; stackOf(target); }
+    stackCount[target].push(g);
+    placements.push({ t: ordered[i], g: g, stackIndex: target, forced: false });
   }
 
-  // A lane is as tall as the tallest shape in it, so a lane of thin shapes stays low.
-  var laneH = [], laneTop = [], acc = 0;
-  for (i = 0; i < lanes.length; i++) {
+  // A stackIndex is as tall as the tallest shape in it, so a stackIndex of thin shapes stays low.
+  var stackHeight = [], stackTop = [], acc = 0;
+  for (i = 0; i < stackCount.length; i++) {
     var h = 0;
-    for (j = 0; j < lanes[i].length; j++) h = Math.max(h, lanes[i][j].m.reserved);
-    laneH.push(h || ctx.m("bar").reserved);
+    for (j = 0; j < stackCount[i].length; j++) h = Math.max(h, stackCount[i][j].m.reserved);
+    stackHeight.push(h || ctx.m("rectangle").reserved);
   }
-  for (i = 0; i < laneH.length; i++) { laneTop.push(acc); acc += laneH[i] + SIZE.laneGap; }
+  for (i = 0; i < stackHeight.length; i++) { stackTop.push(acc); acc += stackHeight[i] + SIZE.stackGap; }
 
   var overlaps = 0;
-  for (i = 0; i < lanes.length; i++) {
-    for (j = 0; j < lanes[i].length; j++) {
-      for (k = j + 1; k < lanes[i].length; k++) {
-        var a = lanes[i][j], b = lanes[i][k];
+  for (i = 0; i < stackCount.length; i++) {
+    for (j = 0; j < stackCount[i].length; j++) {
+      for (k = j + 1; k < stackCount[i].length; k++) {
+        var a = stackCount[i][j], b = stackCount[i][k];
         if (a.occX0 < b.occX1 && b.occX0 < a.occX1) overlaps++;
       }
     }
@@ -415,17 +415,17 @@ function packLanes(tasks, ctx) {
     minX = Math.min(minX, placements[i].g.occX0);
     maxX = Math.max(maxX, placements[i].g.occX1);
   }
-  return { lanes: Math.max(1, lanes.length), placements: placements, overlaps: overlaps,
+  return { stackCount: Math.max(1, stackCount.length), placements: placements, overlaps: overlaps,
            rightOut: rightOut, minX: minX, maxX: maxX,
-           laneH: laneH, laneTop: laneTop,
-           rowHeight: Math.max(0, acc - SIZE.laneGap) };
+           stackHeight: stackHeight, stackTop: stackTop,
+           rowHeight: Math.max(0, acc - SIZE.stackGap) };
 }
 
 function determinismCheck(tasks, ctx) {
   function sig(list) {
-    return packLanes(list, ctx).placements.slice()
+    return packStacks(list, ctx).placements.slice()
       .sort(function (a, b) { return a.t.uid - b.t.uid; })
-      .map(function (p) { return p.t.uid + ":" + p.lane; }).join(",");
+      .map(function (p) { return p.t.uid + ":" + p.stackIndex; }).join(",");
   }
   var sa = sig(tasks.slice());
   return { ok: sa === sig(tasks.slice().reverse()) &&
@@ -440,9 +440,9 @@ function determinismCheck(tasks, ctx) {
  *   x2 = successor    left edge - clearance
  *
  *   x2 >= x1  ->  one bend pair at the midpoint          (2 bends; straight when
- *                                                         the two share a lane)
+ *                                                         the two share a stackIndex)
  *   x2 <  x1  ->  out to the right, back along the
- *                 corridor between the lanes, in from
+ *                 corridor between the stackCount, in from
  *                 the left                               (4 bends)
  *
  * The exit anchor is ALWAYS the predecessor's right edge and the entry anchor is
@@ -450,22 +450,22 @@ function determinismCheck(tasks, ctx) {
  * band between the two bars.
  */
 function corridorY(a, b, res) {
-  var topA = res.laneTop[a.lane], topB = res.laneTop[b.lane];
-  if (a.lane === b.lane) return topA + a.g.m.planH + SIZE.laneGap / 2;
+  var topA = res.stackTop[a.stackIndex], topB = res.stackTop[b.stackIndex];
+  if (a.stackIndex === b.stackIndex) return topA + a.g.m.planH + SIZE.stackGap / 2;
   if (topB > topA) return (topA + a.g.m.planH + topB) / 2;      // successor below
   return (topB + b.g.m.planH + topA) / 2;                       // successor above
 }
 
 function routeLink(a, b, res) {
   var ga = a.g, gb = b.g;
-  var topA = res.laneTop[a.lane], topB = res.laneTop[b.lane];
+  var topA = res.stackTop[a.stackIndex], topB = res.stackTop[b.stackIndex];
   var ay = topA + ga.m.planH / 2, by = topB + gb.m.planH / 2;
-  var x1 = ga.sx1 + POC_UI.depRunExit();    // leaving the predecessor: no arrowhead
-  var x2 = gb.sx0 - POC_UI.depRunEntry();   // entering the successor: arrowhead + line
+  var x1 = ga.sx1 + POC_UI.dependencyRunExit();    // leaving the predecessor: no arrowhead
+  var x2 = gb.sx0 - POC_UI.dependencyRunEntry();   // entering the successor: arrowhead + line
   var sameY = Math.abs(ay - by) < 0.5;
 
   if (sameY) {                                                   // (1) in line
-    if (gb.sx0 - ga.sx1 >= POC_UI.depRunEntry()) return [[ga.sx1, ay], [gb.sx0, by]];
+    if (gb.sx0 - ga.sx1 >= POC_UI.dependencyRunEntry()) return [[ga.sx1, ay], [gb.sx0, by]];
   } else if (x2 >= x1) {                                         // (2)(3) with a gap
     var mx = Math.max(x1, Math.min((ga.sx1 + gb.sx0) / 2, x2));
     return [[ga.sx1, ay], [mx, ay], [mx, by], [gb.sx0, by]];
@@ -520,7 +520,7 @@ function runLengths(links) {
 /** Count how many times a route passes through a plan shape's box. */
 function countLineCrossings(links, res) {
   var boxes = res.placements.map(function (p) {
-    var top = res.laneTop[p.lane];
+    var top = res.stackTop[p.stackIndex];
     return { x0: p.g.sx0, x1: p.g.sx1, y0: top, y1: top + p.g.m.planH };
   });
   var n = 0;
@@ -541,7 +541,7 @@ function countLineCrossings(links, res) {
 
 // ---------------------------------------------------------------- SVG shapes
 function thickPath(kind, x0, x1, y, h) {
-  var w = Math.max(x1 - x0, SIZE.minShapeW);
+  var w = Math.max(x1 - x0, SIZE.minShapeWidth);
   if (kind === "chevron") {
     var n = Math.min(h * SIZE.chevronNotchOfH, w * SIZE.chevronNotchOfW);
     return "M" + r1(x0) + "," + r1(y) + " L" + r1(x1 - n) + "," + r1(y) +
@@ -633,32 +633,32 @@ function renderPattern(p, ctx, showOcc, showDeps) {
     bareOpt.showOwner = false; bareOpt.showPct = false;
     ctx = makeCtx(ctx.zoomX, ctx.zoomY, bareOpt);
   }
-  var res = packLanes(p.tasks, ctx);
+  var res = packStacks(p.tasks, ctx);
   var det = determinismCheck(p.tasks, ctx);
   var links = showDeps ? buildLinks(p, res) : [];
   var crossings = countLineCrossings(links, res);
 
-  var shiftX = SIZE.svgPad - Math.min(0, res.minX);
-  var w = res.maxX + shiftX + SIZE.svgPad;
-  var h = res.rowHeight + SIZE.svgPad * 2;
+  var shiftX = SIZE.svgPadding - Math.min(0, res.minX);
+  var w = res.maxX + shiftX + SIZE.svgPadding;
+  var h = res.rowHeight + SIZE.svgPadding * 2;
   var s = ['<svg width="' + r1(w) + '" height="' + r1(h) + '" viewBox="0 0 ' + r1(w) + ' ' + r1(h) +
            '" role="img">',
-           '<g transform="translate(' + r1(shiftX) + ',' + SIZE.svgPad + ')">'];
+           '<g transform="translate(' + r1(shiftX) + ',' + SIZE.svgPadding + ')">'];
 
   var li;
-  for (li = 0; li < res.lanes; li++) {
-    s.push('<rect x="' + r1(-shiftX) + '" y="' + r1(res.laneTop[li]) + '" width="' + r1(w) +
-           '" height="' + r1(res.laneH[li]) + '" fill="' + (li % 2 ? "var(--row-alt)" : "var(--bg)") + '"/>');
+  for (li = 0; li < res.stackCount; li++) {
+    s.push('<rect x="' + r1(-shiftX) + '" y="' + r1(res.stackTop[li]) + '" width="' + r1(w) +
+           '" height="' + r1(res.stackHeight[li]) + '" fill="' + (li % 2 ? "var(--row-alt)" : "var(--bg)") + '"/>');
   }
 
   links.forEach(function (L) {
     var d = L.pts.map(function (pt, i) { return (i ? "L" : "M") + r1(pt[0]) + "," + r1(pt[1]); }).join(" ");
-    s.push('<path d="' + d + '" fill="none" stroke="var(--dep)" stroke-width="' + SIZE.depWidth +
+    s.push('<path d="' + d + '" fill="none" stroke="var(--dep)" stroke-width="' + SIZE.dependencyWidth +
            '" stroke-linejoin="round" marker-end="url(#dep-arrow)"/>');
   });
 
   res.placements.forEach(function (pl) {
-    var t = pl.t, g = pl.g, m = g.m, y = res.laneTop[pl.lane], fs = m.fontSize;
+    var t = pl.t, g = pl.g, m = g.m, y = res.stackTop[pl.stackIndex], fs = m.fontSize;
     var midY = y + m.planH / 2, textY = midY + fs * SIZE.labelBaseline;
 
     if (showOcc) {
@@ -674,20 +674,20 @@ function renderPattern(p, ctx, showOcc, showDeps) {
              r1(fs) + '" text-anchor="end" fill="var(--label-ink)">' + esc(g.leftText) + '</text>');
     }
 
-    if (t.hasActual && g.markExtent > 0) {
-      var ms = m.markSize, mx = g.markX, mtxt = m.markTextSize;
+    if (t.hasActual && g.markerExtent > 0) {
+      var ms = m.markerSize, mx = g.markerX, mtxt = m.markerTextSize;
       s.push('<circle cx="' + r1(mx + ms / 2) + '" cy="' + r1(midY) + '" r="' + r1(ms / 2) +
-             '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + SIZE.markStroke + '"/>');
-      s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(midY + mtxt * SIZE.markTextBaseline) +
+             '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + SIZE.markerStroke + '"/>');
+      s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(midY + mtxt * SIZE.markerTextBaseline) +
              '" font-size="' + r1(mtxt) + '" text-anchor="middle" fill="var(--marker-ink)">' +
              t.percentComplete + '</text>');
       if (t.suspended) {
-        var rx = mx + ms + SIZE.markGap;
+        var rx = mx + ms + SIZE.markerGap;
         var rw = ms * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
         var dim = t.resumeValid ? '' : ' opacity="0.45"';
         s.push('<path d="M' + r1(rx) + ',' + r1(midY + ms / 2) + ' V' + r1(midY) + ' h' +
                r1(rw * SIZE.resumeArmOfMark) + '" fill="none" stroke="var(--marker-ink)" stroke-width="' +
-               SIZE.markStroke + '" stroke-linecap="round"' + dim + '/>');
+               SIZE.markerStroke + '" stroke-linecap="round"' + dim + '/>');
         s.push('<path d="M' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' + r1(midY - rw * SIZE.resumeHeadOfMark) +
                ' L' + r1(rx + rw) + ',' + r1(midY) + ' L' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
                r1(midY + rw * SIZE.resumeHeadOfMark) + ' Z" fill="var(--marker-ink)"' + dim + '/>');
@@ -700,7 +700,7 @@ function renderPattern(p, ctx, showOcc, showDeps) {
     }
 
     if (g.labelMode === "right") {
-      s.push('<text x="' + r1(g.bodyX1 + g.markExtent + SIZE.labelGap) + '" y="' + r1(textY) +
+      s.push('<text x="' + r1(g.bodyX1 + g.markerExtent + SIZE.labelGap) + '" y="' + r1(textY) +
              '" font-size="' + r1(fs) + '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
     } else {
       s.push('<text x="' + r1(g.sx0 + SIZE.labelPad) + '" y="' + r1(textY) + '" font-size="' +
@@ -718,18 +718,18 @@ function renderPattern(p, ctx, showOcc, showDeps) {
   if (!det.ok) flags.push('<span class="flag f-bad">順序依存</span>');
   if (crossings > 0) flags.push('<span class="flag f-bad">線がタスクを横切る ' + crossings + '</span>');
   var run = runLengths(links);
-  if (run.entry != null && run.entry < POC_UI.depRunEntry() - 0.5) {
+  if (run.entry != null && run.entry < POC_UI.dependencyRunEntry() - 0.5) {
     flags.push('<span class="flag f-bad">入口の走りが ' + r1(run.entry) + 'px</span>');
   }
-  if (run.exit != null && run.exit < POC_UI.depRunExit() - 0.5) {
+  if (run.exit != null && run.exit < POC_UI.dependencyRunExit() - 0.5) {
     flags.push('<span class="flag f-bad">出口の走りが ' + r1(run.exit) + 'px</span>');
   }
   // Bent routes (4 bends) are the ones where both runs sit exactly on their
   // constants; straight and mid-point routes are longer, so only check the
   // difference when both are at the minimum.
   if (run.entry != null && run.exit != null &&
-      Math.abs(run.entry - POC_UI.depRunEntry()) <= 0.5 &&
-      Math.abs(run.entry - run.exit - SIZE.depArrowLen) > 0.5) {
+      Math.abs(run.entry - POC_UI.dependencyRunEntry()) <= 0.5 &&
+      Math.abs(run.entry - run.exit - SIZE.dependencyArrowLength) > 0.5) {
     flags.push('<span class="flag f-bad">出口と入口の差が三角形 1 つぶんでない</span>');
   }
 
@@ -738,7 +738,7 @@ function renderPattern(p, ctx, showOcc, showDeps) {
 }
 
 // ---------------------------------------------------------------- sweep
-function sweepLanes(optBase, zoomY) {
+function sweepStacks(optBase, zoomY) {
   var steps = 240, out = [], i;
   var lo = Math.log(0.05), hi = Math.log(6);
   for (i = 0; i < steps; i++) {
@@ -746,8 +746,8 @@ function sweepLanes(optBase, zoomY) {
     var ctx = makeCtx(zx, zoomY, optBase);
     var total = 0, ov = 0;
     for (var p = 0; p < PATTERNS.length; p++) {
-      var r = packLanes(PATTERNS[p].tasks, ctx);
-      total += r.lanes; ov += r.overlaps;
+      var r = packStacks(PATTERNS[p].tasks, ctx);
+      total += r.stackCount; ov += r.overlaps;
     }
     out.push({ zx: zx, total: total, ov: ov });
   }
@@ -804,7 +804,7 @@ function buildContrib(zoomY, base) {
       for (kk in base) if (base.hasOwnProperty(kk)) o[kk] = base[kk];
       for (kk in v.opt) if (v.opt.hasOwnProperty(kk)) o[kk] = v.opt[kk];
       var ctx = makeCtx(z, zoomY, o), total = 0;
-      PATTERNS.forEach(function (p) { total += packLanes(p.tasks, ctx).lanes; });
+      PATTERNS.forEach(function (p) { total += packStacks(p.tasks, ctx).stackCount; });
       return '<td class="num">' + total + '</td>';
     }).join("");
     return '<tr><td>' + v.label + '</td>' + cells + '</tr>';
@@ -814,15 +814,15 @@ function buildContrib(zoomY, base) {
 
 // ---------------------------------------------------------------- constant dump
 function dumpConstants(ctx) {
-  var kinds = ["bar", "chevron", "arrow", "endpointSpan", "milestone"];
+  var kinds = ["rectangle", "chevron", "arrow", "endpointSpan", "milestone"];
   var out = [];
   out.push('<b>SIZE.basePlanH</b>=' + SIZE.basePlanH +
            '  <b>SIZE.actualOfPlan</b>=' + SIZE.actualOfPlan +
            '  <b>SIZE.fontOfActual</b>=' + SIZE.fontOfActual +
            '  <b>SIZE.thinFontScale</b>=' + SIZE.thinFontScale +
            '  <b>SIZE.fontMin</b>=' + SIZE.fontMin +
-           '  <b>SIZE.laneGap</b>=' + SIZE.laneGap);
-  out.push('<b>shapeH</b> = { ' + kinds.map(function (k) {
+           '  <b>SIZE.stackGap</b>=' + SIZE.stackGap);
+  out.push('<b>shapeHeightOf</b> = { ' + kinds.map(function (k) {
     return k + ': ' + POC_UI.shapeRatio(k);
   }).join(', ') + ' }');
   out.push('');
@@ -873,26 +873,26 @@ function redraw() {
   el.zyv.textContent = zy.toFixed(2) + "x";
   el.constdump.innerHTML = dumpConstants(ctx);
 
-  var rows = [], cards = [], totalLanes = 0, totalOv = 0, detFail = 0, totalCross = 0;
+  var rows = [], cards = [], totalStacks = 0, totalOv = 0, detFail = 0, totalCross = 0;
   var head = '<tr><th>ID</th><th>パターン</th><th class="num">タスク</th><th class="num">段数</th>' +
     '<th class="num">overlap</th><th class="num">右出し</th><th class="num">依存線</th>' +
     '<th class="num">横切り</th><th class="num">行高 px</th><th>決定性</th><th>手動段</th></tr>';
 
   PATTERNS.forEach(function (p) {
     var r = renderPattern(p, ctx, showOcc, showDeps);
-    totalLanes += r.res.lanes; totalOv += r.res.overlaps; totalCross += r.crossings;
+    totalStacks += r.res.stackCount; totalOv += r.res.overlaps; totalCross += r.crossings;
     if (!r.det.ok) detFail++;
 
     var forced = r.res.placements.filter(function (x) { return x.forced; });
     var forcedCell = "—";
     if (forced.length) {
-      forcedCell = forced.every(function (x) { return x.lane === x.t.stackOrder; })
+      forcedCell = forced.every(function (x) { return x.stackIndex === x.t.stackOrder; })
         ? '<span class="flag f-good">保持</span>' : '<span class="flag f-bad">奪われた</span>';
     }
 
     rows.push('<tr><td>' + p.id + '</td><td>' + esc(p.name) + '</td>' +
       '<td class="num">' + p.tasks.length + '</td>' +
-      '<td class="num"><b>' + r.res.lanes + '</b></td>' +
+      '<td class="num"><b>' + r.res.stackCount + '</b></td>' +
       '<td class="num" style="color:' + (r.res.overlaps ? "var(--bad)" : "var(--good)") + '">' + r.res.overlaps + '</td>' +
       '<td class="num">' + r.res.rightOut + '</td>' +
       '<td class="num">' + r.links.length + '</td>' +
@@ -906,14 +906,14 @@ function redraw() {
       '<span class="pdesc">' + esc(p.desc) + '</span>' +
       '<span class="pexp">狙い: ' + esc(p.expect) + '</span></div>' +
       '<div class="body">' + r.svg +
-      '<div class="metrics"><span>段数 <b>' + r.res.lanes + '</b></span>' +
+      '<div class="metrics"><span>段数 <b>' + r.res.stackCount + '</b></span>' +
       '<span>overlap <b>' + r.res.overlaps + '</b></span>' +
       '<span>右出し <b>' + r.res.rightOut + '</b>/' + p.tasks.length + '</span>' +
       '<span>依存線 <b>' + r.links.length + '</b>（横切り <b>' + r.crossings +
       '</b>／走り 出口 <b>' + (r.run.exit == null ? '—' : r1(r.run.exit)) +
       '</b> 入口 <b>' + (r.run.entry == null ? '—' : r1(r.run.entry)) + '</b>px）</span>' +
       '<span>行高 <b>' + Math.round(r.res.rowHeight) + '</b>px</span>' +
-      '<span>各段の高さ <b>' + r.res.laneH.map(function (x) { return Math.round(x); }).join(" / ") +
+      '<span>各段の高さ <b>' + r.res.stackHeight.map(function (x) { return Math.round(x); }).join(" / ") +
       '</b></span>' + r.flags + '</div></div></div>');
   });
 
@@ -923,7 +923,7 @@ function redraw() {
     '<marker id="dep-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">' +
     '<path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs></svg>' + cards.join("");
 
-  var sw = sweepLanes(opt, zy);
+  var sw = sweepStacks(opt, zy);
   el.sweep.innerHTML = renderSweep(sw) +
     '<p class="hint" style="margin-top:10px">合計段数の最小 ' +
     Math.min.apply(null, sw.series.map(function (x) { return x.total; })) + ' 〜 最大 ' +
@@ -938,7 +938,7 @@ function redraw() {
   el.verdict.innerHTML =
     '<span class="pill ' + (bad ? "p-bad" : "p-good") + '">' + (bad ? "不合格" : "合格") + '</span> ' +
     '20 パターン / タスク ' + PATTERNS.reduce(function (a, p) { return a + p.tasks.length; }, 0) + ' 本 ・ ' +
-    '合計段数 <b>' + totalLanes + '</b> ・ overlap <b>' + totalOv + '</b> ・ ' +
+    '合計段数 <b>' + totalStacks + '</b> ・ overlap <b>' + totalOv + '</b> ・ ' +
     '順序依存 <b>' + detFail + '</b> ・ 単調性の逆転 <b>' + sw.violations.length + '</b> ・ ' +
     '線がタスクを横切る <b>' + totalCross + '</b>';
 }
@@ -957,10 +957,10 @@ el.reset.addEventListener("click", function () {
 
 redraw();
 
-window.__poc = { SIZE: SIZE, PATTERNS: PATTERNS, packLanes: packLanes, makeCtx: makeCtx,
+window.__poc = { SIZE: SIZE, PATTERNS: PATTERNS, packStacks: packStacks, makeCtx: makeCtx,
                  geom: geom, shapeMetrics: shapeMetrics, routeLink: routeLink,
                  buildLinks: buildLinks, countLineCrossings: countLineCrossings,
-                 sweepLanes: sweepLanes, determinismCheck: determinismCheck,
+                 sweepStacks: sweepStacks, determinismCheck: determinismCheck,
                  orderTasks: orderTasks, hasThickness: hasThickness, renderPattern: renderPattern };
 </script>
 </body>

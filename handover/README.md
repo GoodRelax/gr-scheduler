@@ -70,6 +70,7 @@
 | 6 | `02-data-model/handover-data-model-entry-ja.md` | データ構造の**入口**。読む順と JSON 実例 | 入口 |
 | 7 | `02-data-model/grs-mspdi-field-ledger-ja.md` | 全要素の取捨選択（Own / Consume / Reconstruct / Carry / Drop） | 仕分けの実例。枠組み自体が再利用できる |
 | **8** | **`02-data-model/grs-native-erd-ja.md`** | **データ構造の確定版**。ERD・識別子・マージ・Carry ストア・往復規約 | **データ構造の正** |
+| 8a | **`02-data-model/grs-document-settings-ja.md`** | **文書に保存する設定値の全数**（描画 59 項目 ＋ 表示状態 ＋ 出力 ＋ LOD）。保存しないもの 8 項目とその理由。自動保存と往復検査の規約 | **設定値の正** |
 | 8b | `02-data-model/handover-property-mspdi-mapping-ja.md` | プロパティ全項目の MSPDI 対応（XSD 実測）・**進捗と実績の関係**・無い項目の格納方式 3 案比較 | 項目を増やす前に読む |
 | **9** | **`03-ui-naming/handover-ui-parts-ja.md`** | **UI パーツ名と責務**（確定名）。語彙 6 系統 → 3 語。**面ごとの記法と語幹一致の規則**もここ | **命名の正** |
 | 9b | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**。4 部構成の内訳・上部ボタン・パレット構成・**掴み領域**・操作割当・自動レイアウト規則 | 実装前に読む |
@@ -82,6 +83,7 @@
 | — | `NEUTRALIZED-TERMS-ja.md` | **ドメイン語・製品名を中立化した記録**（凍結リポジトリの原本との差分） | 原本を併読するとき必要 |
 
 > **迷ったら 8（データ）と 9（命名）を見る。** 2〜4 は前提知識、6 は入口、13 は経緯。
+> **数値（寸法・既定値・範囲）は 8a が正。** 他の文書に出てくる数値は説明のための再掲である。
 
 ### 1-1. 文書内のパス表記の読み替え
 
@@ -128,6 +130,7 @@ handover/
 ├── 02-data-model/                   GRS のデータ構造（確定版）
 │   ├── handover-data-model-entry-ja.md   入口・読む順・JSON 実例
 │   ├── grs-native-erd-ja.md              ★データ構造の正（14 エンティティ・2 軸）
+│   ├── grs-document-settings-ja.md        ★設定値の正（保存する全項目・保存しないもの・自動保存）
 │   ├── grs-mspdi-field-ledger-ja.md      MSPDI 全要素の取捨選択台帳
 │   ├── handover-property-mspdi-mapping-ja.md  プロパティ×MSPDI 対応・進捗と実績・格納方式3案
 │   └── grs-data-model-ja.md              §8 に設計判断の変遷（却下案とその理由）

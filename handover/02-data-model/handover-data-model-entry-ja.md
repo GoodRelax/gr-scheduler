@@ -170,7 +170,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "fillColor": "#4a76c8", "strokeColor": "#2b4a80",
       "lineWeight": "medium" },
     { "taskUid": 3, "nameAnchor": null, "nameAlign": null,
-      "shapeKind": "bar", "milestoneGlyph": null,
+      "shapeKind": "rectangle", "milestoneGlyph": null,
       "fillColor": "#6aa84f", "strokeColor": "#38601f",
       "lineWeight": "medium" }
   ],

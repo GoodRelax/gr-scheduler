@@ -161,7 +161,7 @@ function makeRng(seed) {
   };
 }
 
-var SHAPE_KINDS = ['bar', 'chevron', 'arrow', 'endpointSpan'];
+var SHAPE_KINDS = ['rectangle', 'chevron', 'arrow', 'endpointSpan'];
 
 /**
  * Layout stress cases. Each case becomes ONE TaskGroup (= one row).
@@ -170,57 +170,57 @@ var SHAPE_KINDS = ['bar', 'chevron', 'arrow', 'endpointSpan'];
  */
 var LAYOUT_CASES = [
   { title: '1. 直列 FS 3 本',
-    t: [['A', 0, 20, 'bar', false], ['B', 24, 44, 'bar', false], ['C', 48, 68, 'bar', false]],
+    t: [['A', 0, 20, 'rectangle', false], ['B', 24, 44, 'rectangle', false], ['C', 48, 68, 'rectangle', false]],
     d: [[0, 1, 'FS'], [1, 2, 'FS']] },
 
   { title: '2. 逆行依存（右から左へ）',
-    t: [['A', 60, 80, 'bar', false], ['B', 10, 30, 'bar', false], ['C', 100, 120, 'bar', false]],
+    t: [['A', 60, 80, 'rectangle', false], ['B', 10, 30, 'rectangle', false], ['C', 100, 120, 'rectangle', false]],
     d: [[0, 1, 'FS'], [2, 0, 'FS']] },
 
   { title: '3. 同一行内で交差する 2 本',
-    t: [['A', 0, 24, 'bar', false], ['B', 30, 54, 'bar', false],
-        ['C', 60, 84, 'bar', false], ['D', 90, 114, 'bar', false]],
+    t: [['A', 0, 24, 'rectangle', false], ['B', 30, 54, 'rectangle', false],
+        ['C', 60, 84, 'rectangle', false], ['D', 90, 114, 'rectangle', false]],
     d: [[0, 2, 'FS'], [1, 3, 'FS']] },
 
   { title: '4. 1 対 4 の扇形（出）',
-    t: [['SRC', 0, 20, 'chevron', false], ['A', 30, 46, 'bar', false], ['B', 50, 66, 'bar', false],
-        ['C', 70, 86, 'bar', false], ['D', 90, 106, 'bar', false]],
+    t: [['SRC', 0, 20, 'chevron', false], ['A', 30, 46, 'rectangle', false], ['B', 50, 66, 'rectangle', false],
+        ['C', 70, 86, 'rectangle', false], ['D', 90, 106, 'rectangle', false]],
     d: [[0, 1, 'FS'], [0, 2, 'FS'], [0, 3, 'FS'], [0, 4, 'FS']] },
 
   { title: '5. 4 対 1 の扇形（入）',
-    t: [['A', 0, 16, 'bar', false], ['B', 20, 36, 'bar', false], ['C', 40, 56, 'bar', false],
-        ['D', 60, 76, 'bar', false], ['DST', 90, 110, 'chevron', false]],
+    t: [['A', 0, 16, 'rectangle', false], ['B', 20, 36, 'rectangle', false], ['C', 40, 56, 'rectangle', false],
+        ['D', 60, 76, 'rectangle', false], ['DST', 90, 110, 'chevron', false]],
     d: [[0, 4, 'FS'], [1, 4, 'FS'], [2, 4, 'FS'], [3, 4, 'FS']] },
 
   { title: '6. 完全結合（4 タスク 6 本）',
-    t: [['A', 0, 20, 'bar', false], ['B', 26, 46, 'bar', false],
-        ['C', 52, 72, 'bar', false], ['D', 78, 98, 'bar', false]],
+    t: [['A', 0, 20, 'rectangle', false], ['B', 26, 46, 'rectangle', false],
+        ['C', 52, 72, 'rectangle', false], ['D', 78, 98, 'rectangle', false]],
     d: [[0, 1, 'FS'], [0, 2, 'FS'], [0, 3, 'FS'], [1, 2, 'FS'], [1, 3, 'FS'], [2, 3, 'FS']] },
 
   { title: '7. 3 段に積まれた行を跨ぐ依存',
-    t: [['A', 0, 60, 'bar', false], ['B', 10, 70, 'bar', false], ['C', 20, 80, 'bar', false],
-        ['D', 90, 110, 'bar', false]],
+    t: [['A', 0, 60, 'rectangle', false], ['B', 10, 70, 'rectangle', false], ['C', 20, 80, 'rectangle', false],
+        ['D', 90, 110, 'rectangle', false]],
     d: [[0, 3, 'FS'], [1, 3, 'FS'], [2, 3, 'FS'], [0, 1, 'SS'], [1, 2, 'SS']] },
 
   { title: '8. マイルストーンへ集約',
-    t: [['A', 0, 24, 'bar', false], ['B', 12, 40, 'bar', false], ['C', 28, 56, 'bar', false],
+    t: [['A', 0, 24, 'rectangle', false], ['B', 12, 40, 'rectangle', false], ['C', 28, 56, 'rectangle', false],
         ['M', 62, 62, 'milestone', true]],
     d: [[0, 3, 'FS'], [1, 3, 'FS'], [2, 3, 'FS']] },
 
   { title: '9. 同一開始日の 5 タスク',
-    t: [['A', 20, 44, 'bar', false], ['B', 20, 40, 'bar', false], ['C', 20, 36, 'bar', false],
-        ['D', 20, 32, 'bar', false], ['E', 20, 28, 'bar', false]],
+    t: [['A', 20, 44, 'rectangle', false], ['B', 20, 40, 'rectangle', false], ['C', 20, 36, 'rectangle', false],
+        ['D', 20, 32, 'rectangle', false], ['E', 20, 28, 'rectangle', false]],
     d: [[4, 0, 'SS'], [3, 0, 'SS'], [2, 0, 'SS'], [1, 0, 'SS']] },
 
   { title: '10. 隣接（finish == start）',
-    t: [['A', 0, 30, 'bar', false], ['B', 30, 60, 'bar', false],
-        ['C', 60, 90, 'bar', false], ['D', 90, 120, 'bar', false]],
+    t: [['A', 0, 30, 'rectangle', false], ['B', 30, 60, 'rectangle', false],
+        ['C', 60, 90, 'rectangle', false], ['D', 90, 120, 'rectangle', false]],
     d: [[0, 1, 'FS'], [1, 2, 'FS'], [2, 3, 'FS']] },
 
   { title: '11. 長い名称がはみ出す',
-    t: [['要件定義と外部仕様の確定', 0, 12, 'bar', false],
-        ['詳細設計レビューの反映', 18, 30, 'bar', false],
-        ['結合検証と是正', 36, 48, 'bar', false]],
+    t: [['要件定義と外部仕様の確定', 0, 12, 'rectangle', false],
+        ['詳細設計レビューの反映', 18, 30, 'rectangle', false],
+        ['結合検証と是正', 36, 48, 'rectangle', false]],
     d: [[0, 1, 'FS'], [1, 2, 'FS']] },
 
   { title: '12. 幅がない形状種の混在',
@@ -229,20 +229,20 @@ var LAYOUT_CASES = [
     d: [[0, 1, 'FS'], [1, 2, 'FS'], [2, 3, 'FS'], [0, 2, 'FS']] },
 
   { title: '13. 予実＋進捗マーカー付きで配線',
-    t: [['A', 0, 30, 'bar', false], ['B', 36, 66, 'bar', false],
-        ['C', 72, 102, 'chevron', false], ['D', 40, 100, 'bar', false]],
+    t: [['A', 0, 30, 'rectangle', false], ['B', 36, 66, 'rectangle', false],
+        ['C', 72, 102, 'chevron', false], ['D', 40, 100, 'rectangle', false]],
     d: [[0, 1, 'FS'], [1, 2, 'FS'], [0, 3, 'SS'], [3, 2, 'FF']] },
 
   { title: '14. 密集（12 タスク・交差多数）',
-    t: [['a', 0, 10, 'bar', false], ['b', 8, 20, 'bar', false], ['c', 16, 28, 'bar', false],
-        ['d', 24, 36, 'bar', false], ['e', 32, 44, 'bar', false], ['f', 40, 52, 'bar', false],
-        ['g', 48, 60, 'bar', false], ['h', 56, 68, 'bar', false], ['i', 64, 76, 'bar', false],
-        ['j', 72, 84, 'bar', false], ['k', 80, 92, 'bar', false], ['l', 88, 100, 'bar', false]],
+    t: [['a', 0, 10, 'rectangle', false], ['b', 8, 20, 'rectangle', false], ['c', 16, 28, 'rectangle', false],
+        ['d', 24, 36, 'rectangle', false], ['e', 32, 44, 'rectangle', false], ['f', 40, 52, 'rectangle', false],
+        ['g', 48, 60, 'rectangle', false], ['h', 56, 68, 'rectangle', false], ['i', 64, 76, 'rectangle', false],
+        ['j', 72, 84, 'rectangle', false], ['k', 80, 92, 'rectangle', false], ['l', 88, 100, 'rectangle', false]],
     d: [[0, 3, 'FS'], [1, 5, 'FS'], [2, 7, 'FS'], [3, 9, 'FS'], [4, 11, 'FS'],
         [0, 11, 'FS'], [6, 8, 'FS'], [8, 10, 'FS'], [5, 9, 'FS'], [7, 11, 'FS']] },
 
   { title: '15. 行を跨ぐ依存の受け口',
-    t: [['X', 0, 24, 'bar', false], ['Y', 40, 64, 'bar', false], ['Z', 80, 104, 'bar', false]],
+    t: [['X', 0, 24, 'rectangle', false], ['Y', 40, 64, 'rectangle', false], ['Z', 80, 104, 'rectangle', false]],
     d: [[0, 1, 'FS'], [1, 2, 'FS']] }
 ];
 
@@ -302,7 +302,7 @@ function buildZoomDataset() {
   function make(depth, parentUid, s, f, label) {
     var t = {
       uid: uid++, name: label, groupId: null,
-      startDay: s, finishDay: f, milestone: false, shapeKind: 'bar',
+      startDay: s, finishDay: f, milestone: false, shapeKind: 'rectangle',
       wbsParentUid: parentUid, wbsDepth: depth,
       actualStartDay: s, actualDurationDays: Math.round((f - s) * (0.2 + rng() * 0.7)),
       actualFinishDay: null, percentComplete: 0, stackOrder: null
@@ -388,11 +388,11 @@ function buildZoomDataset() {
 // Shared dimensions come from poc-ui.js; the reserved-lane constants that
 // DEFINE this approach (stubOut / stubIn / lanePitch / depthWeight) stay here.
 var CFG = {
-  gutterWidth: POC_UI.S.rowLabelW,
+  gutterWidth: POC_UI.S.rowTitleWidth,
   headerHeight: POC_UI.S.rulerH,
   padLeft: 26,               // x(day 0) inside the content area
-  planHeight: POC_UI.shapeMetrics("bar", 1).planH,
-  actualHeight: POC_UI.shapeMetrics("bar", 1).actualH,
+  planHeight: POC_UI.shapeMetrics("rectangle", 1).planH,
+  actualHeight: POC_UI.shapeMetrics("rectangle", 1).actualH,
   actualGap: POC_UI.S.actualGap,
   levelPad: 3,               // padding inside one stack level
   stubOut: 12,               // horizontal exit stub of a dependency line
@@ -402,8 +402,8 @@ var CFG = {
   laneMargin: 3,             // lane padding on both sides
   laneStroke: 1,             // the drawn width of one routed line
   rowGutter: POC_UI.S.rowGap,
-  markerSize: POC_UI.shapeMetrics("bar", 1).markSize,
-  markerGap: POC_UI.S.markGap,
+  markerSize: POC_UI.shapeMetrics("rectangle", 1).markerSize,
+  markerGap: POC_UI.S.markerGap,
   maxStack: 24,              // safety valve only - never "reuse the last level"
   depthWeight: 2             // how much one avoided crossing is worth in stack depth
 };

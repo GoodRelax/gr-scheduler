@@ -305,7 +305,7 @@ PoC で分かった、**次期の設計に効く事実**。
 | `poc-glyphs-reference.html` | 0 | 0 | ○ |
 | `poc-layout-A-orthogonal-channel.html` | 0 | 0 | ○ |
 | `poc-layout-B-anchor-search.html` | 0 | 0 | ○ |
-| `poc-layout-C-reserved-lane.html` | 0 | 0 | ○ |
+| `poc-layout-C-reserved-stackIndex.html` | 0 | 0 | ○ |
 | `poc-zoom-A-depth-threshold.html` | 0 | 0 | ○ |
 | `poc-zoom-B-fit-first.html` | 0 | 0 | ○ |
 
@@ -345,7 +345,7 @@ PoC で分かった、**次期の設計に効く事実**。
 
 | 形状 | 描き方 | 実績 | DOM で確認した値 |
 |---|---|---|---|
-| `bar` `===` | 塗り（縦幅あり） | **内側** | 予定 y=10 h=17.6 / 実績 y=15.8 h=6 |
+| `rectangle` `===` | 塗り（縦幅あり） | **内側** | 予定 y=10 h=17.6 / 実績 y=15.8 h=6 |
 | `chevron` `>===>` | 塗り（縦幅あり） | **内側** | 予定 y=50 h=17.6 / 実績 y=55.8 h=6 |
 | `arrow` `--->` | **細線 ＋ 矢じり（縦幅ゼロ）** | **下** | 予定 line h=**0** / 実績 line h=**0**、下へ 15px |
 | `endpointSpan` `*----*` | **細線 ＋ 両端の点（縦幅ゼロ）** | **下** | 予定 line h=**0** ＋ 点 r=3.5 / 実績も同形 |
@@ -431,11 +431,11 @@ PoC で分かった、**次期の設計に効く事実**。
 #### 定数（共有ストア `poc-ui.js`）
 
 ```
-depArrowLen    10    矢印の三角形の長さ
-depRunOfArrow  2     入口の走り ÷ 三角形。2 = 三角形 1 + 直線 1
+dependencyArrowLength    10    矢印の三角形の長さ
+dependencyRunOfArrow  2     入口の走り ÷ 三角形。2 = 三角形 1 + 直線 1
 
-入口の走り = depArrowLen x depRunOfArrow         = 20px
-出口の走り = depArrowLen x (depRunOfArrow − 1)   = 10px
+入口の走り = dependencyArrowLength x dependencyRunOfArrow         = 20px
+出口の走り = dependencyArrowLength x (dependencyRunOfArrow − 1)   = 10px
 ```
 
 **出口用と入口用を別々の定数にしない。** 別々だと必ず食い違うので、**倍率 1 つから両方を導く**。

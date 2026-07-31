@@ -80,7 +80,7 @@
   </div>
 </header>
 
-<div class="bar">
+<div class="rectangle">
   <span class="zoom" id="zoomOut">横 1.00x ／ 縦 1.00x</span>
   <span class="sep"></span>
   <label><input type="checkbox" id="tgDep" checked> 依存線</label>
@@ -138,7 +138,7 @@ var OWNERS = ["田中", "佐藤", "鈴木", "高橋", "伊藤", "渡辺", "山�
 var UID = 0;
 function mk(row, name, start, finish, opt) {
   var t = { uid: ++UID, row: row, name: name, start: start, finish: finish,
-            shapeKind: "bar", milestone: false, owner: OWNERS[UID % OWNERS.length],
+            shapeKind: "rectangle", milestone: false, owner: OWNERS[UID % OWNERS.length],
             percentComplete: 0, hasActual: false, actualStart: start, actualDuration: 0,
             suspended: false, resume: null, resumeValid: false, dep: null };
   if (opt) for (var k in opt) if (opt.hasOwnProperty(k)) t[k] = opt[k];
@@ -196,7 +196,7 @@ function taskGeom(t, ctx) {
   var m = ctx.m(t.shapeKind);
   var x0 = t.start * ctx.ppd, x1 = t.finish * ctx.ppd, sx0, sx1;
   if (t.milestone) { sx0 = x0 - m.glyphSize / 2; sx1 = x0 + m.glyphSize / 2; }
-  else { sx0 = x0; sx1 = Math.max(x1, x0 + S.minShapeW); }
+  else { sx0 = x0; sx1 = Math.max(x1, x0 + S.minShapeWidth); }
 
   var aX0 = null, aX1 = null;
   if (t.hasActual) {
@@ -210,7 +210,7 @@ function taskGeom(t, ctx) {
   if (ctx.showPct) left += (left ? " : " : "") + t.percentComplete + "%";
   var leftExtent = left ? labelWidth(left, m.fontSize) + S.labelGap : 0;
 
-  var cut = truncate(t.name, S.truncUnits);
+  var cut = truncate(t.name, S.truncateUnits);
   var wFull = labelWidth(t.name, m.fontSize), wCut = labelWidth(cut, m.fontSize);
   var inside = hasThickness(t.shapeKind) ? (sx1 - sx0) - S.labelPad * 2 : -1;
   var mode, text, nameExtent = 0;
@@ -218,21 +218,21 @@ function taskGeom(t, ctx) {
   else if (wCut <= inside) { mode = "inside"; text = cut; }
   else { mode = "right"; text = cut; nameExtent = S.labelGap + wCut; }
 
-  var markExtent = 0;
+  var markerExtent = 0;
   if (t.hasActual && ctx.showPct) {
-    markExtent = S.markGap + m.markSize;
+    markerExtent = S.markerGap + m.markerSize;
     if (t.suspended) {
-      markExtent += S.markGap + m.markSize * (t.resumeValid ? 1 : S.resumeScaleInvalid);
+      markerExtent += S.markerGap + m.markerSize * (t.resumeValid ? 1 : S.resumeScaleInvalid);
     }
   }
   var resumeX1 = (t.suspended && t.resumeValid && t.resume != null)
-    ? t.resume * ctx.ppd + m.markSize / 2 : -Infinity;
+    ? t.resume * ctx.ppd + m.markerSize / 2 : -Infinity;
 
   return { m: m, sx0: sx0, sx1: sx1, aX0: aX0, aX1: aX1, bodyX1: bodyX1,
            occX0: sx0 - leftExtent,
-           occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
+           occX1: Math.max(bodyX1 + markerExtent + nameExtent, resumeX1),
            leftText: left, labelMode: mode, labelText: text,
-           markExtent: markExtent, markX: bodyX1 + S.markGap };
+           markerExtent: markerExtent, markerX: bodyX1 + S.markerGap };
 }
 
 function packRow(list, ctx) {
@@ -242,36 +242,36 @@ function packRow(list, ctx) {
     if (a.finish !== b.finish) return b.finish - a.finish;
     return a.uid - b.uid;
   });
-  var lanes = [], items = [], i, j;
+  var stackCount = [], items = [], i, j;
   for (i = 0; i < ordered.length; i++) {
     var g = taskGeom(ordered[i], ctx), target = -1;
-    for (j = 0; j < lanes.length; j++) {
+    for (j = 0; j < stackCount.length; j++) {
       var ok = true;
-      for (var k = 0; k < lanes[j].length; k++) {
-        var o = lanes[j][k];
+      for (var k = 0; k < stackCount[j].length; k++) {
+        var o = stackCount[j][k];
         if (g.occX0 < o.occX1 && o.occX0 < g.occX1) { ok = false; break; }
       }
       if (ok) { target = j; break; }
     }
-    if (target < 0) { target = lanes.length; lanes.push([]); }
-    lanes[target].push(g);
-    items.push({ t: ordered[i], g: g, lane: target });
+    if (target < 0) { target = stackCount.length; stackCount.push([]); }
+    stackCount[target].push(g);
+    items.push({ t: ordered[i], g: g, stackIndex: target });
   }
-  var laneH = [], laneTop = [], acc = 0;
-  for (i = 0; i < lanes.length; i++) {
+  var stackHeight = [], stackTop = [], acc = 0;
+  for (i = 0; i < stackCount.length; i++) {
     var h = 0;
-    for (j = 0; j < lanes[i].length; j++) h = Math.max(h, lanes[i][j].m.reserved);
-    laneH.push(h);
+    for (j = 0; j < stackCount[i].length; j++) h = Math.max(h, stackCount[i][j].m.reserved);
+    stackHeight.push(h);
   }
-  if (!laneH.length) laneH.push(ctx.m("bar").reserved);
-  for (i = 0; i < laneH.length; i++) { laneTop.push(acc); acc += laneH[i] + S.laneGap; }
-  return { lanes: laneH.length, items: items, laneH: laneH, laneTop: laneTop,
-           height: Math.max(0, acc - S.laneGap) };
+  if (!stackHeight.length) stackHeight.push(ctx.m("rectangle").reserved);
+  for (i = 0; i < stackHeight.length; i++) { stackTop.push(acc); acc += stackHeight[i] + S.stackGap; }
+  return { stackCount: stackHeight.length, items: items, stackHeight: stackHeight, stackTop: stackTop,
+           height: Math.max(0, acc - S.stackGap) };
 }
 
 // ---------------------------------------------------------------- shapes
 function thickPath(kind, x0, x1, y, h) {
-  var w = Math.max(x1 - x0, S.minShapeW);
+  var w = Math.max(x1 - x0, S.minShapeWidth);
   if (kind === "chevron") {
     var n = Math.min(h * S.chevronNotchOfH, w * S.chevronNotchOfW);
     return "M" + r1(x0) + "," + r1(y) + " L" + r1(x1 - n) + "," + r1(y) +
@@ -305,7 +305,7 @@ function diamond(cx, cy, s) {
 
 // dependency routing -- handover-ui-detail-spec-ja.md 4-9
 function corridorY(aTop, aH, bTop, bH) {
-  if (Math.abs(aTop - bTop) < 0.5) return aTop + aH + S.laneGap / 2;
+  if (Math.abs(aTop - bTop) < 0.5) return aTop + aH + S.stackGap / 2;
   if (bTop > aTop) return (aTop + aH + bTop) / 2;
   return (bTop + bH + aTop) / 2;
 }
@@ -313,7 +313,7 @@ function routeLink(ax1, aTop, aH, bx0, bTop, bH) {
   var ay = aTop + aH / 2, by = bTop + bH / 2;
   // The exit carries no arrowhead, so it is one arrowhead shorter than the
   // entry. Both derive from one ratio (handover-ui-detail-spec-ja.md 4-9).
-  var exitRun = POC_UI.depRunExit(), entryRun = POC_UI.depRunEntry();
+  var exitRun = POC_UI.dependencyRunExit(), entryRun = POC_UI.dependencyRunEntry();
   var x1 = ax1 + exitRun, x2 = bx0 - entryRun;
   if (Math.abs(ay - by) < 0.5) {
     if (bx0 - ax1 >= entryRun) return [[ax1, ay], [bx0, by]];
@@ -325,13 +325,13 @@ function routeLink(ax1, aTop, aH, bx0, bTop, bH) {
   return [[ax1, ay], [x1, ay], [x1, cy], [x2, cy], [x2, by], [bx0, by]];
 }
 
-/** One vertex per lane; only what should already have moved gets one. */
+/** One vertex per stackIndex; only what should already have moved gets one. */
 function progressVertex(t, ppd) {
   if (t.percentComplete >= 100) return null;
   if (t.suspended && !t.resumeValid) return null;
-  if (t.suspended && t.resumeValid) return t.resume < S.todayDay ? t.resume * ppd : null;
+  if (t.suspended && t.resumeValid) return t.resume < S.statusDate ? t.resume * ppd : null;
   if (t.hasActual && t.actualDuration > 0) return (t.actualStart + t.actualDuration) * ppd;
-  return t.start < S.todayDay ? t.start * ppd : null;
+  return t.start < S.statusDate ? t.start * ppd : null;
 }
 
 // ---------------------------------------------------------------- render
@@ -360,14 +360,14 @@ function build() {
     });
     packs.push(pk);
   });
-  var contentH = y + S.canvasPad;
-  var originX = S.rowLabelW - minX;
-  var W = originX + maxX + S.canvasPad * 4;
+  var contentH = y + S.canvasPadding;
+  var originX = S.rowTitleWidth - minX;
+  var W = originX + maxX + S.canvasPadding * 4;
 
   var place = {};
   packs.forEach(function (pk) {
     pk.items.forEach(function (it) {
-      place[it.t.uid] = { g: it.g, top: pk.y + pk.laneTop[it.lane], h: it.g.m.planH };
+      place[it.t.uid] = { g: it.g, top: pk.y + pk.stackTop[it.stackIndex], h: it.g.m.planH };
     });
   });
 
@@ -392,8 +392,8 @@ function build() {
     s.push('<rect x="0" y="' + r1(pk.y - S.rowGap / 2) + '" width="' + r1(W) + '" height="' +
            r1(pk.height + S.rowGap) + '" fill="' +
            (pk.row.depth === 1 ? "var(--row-top)" : (ri % 2 ? "var(--row-alt)" : "var(--bg)")) + '"/>');
-    s.push('<text x="' + r1(S.labelPad + (pk.row.depth - 1) * S.rowIndent) + '" y="' +
-           r1(pk.y + S.rowLabelFont) + '" font-size="' + r1(S.rowLabelFont) + '" fill="' +
+    s.push('<text x="' + r1(S.labelPad + (pk.row.depth - 1) * S.rowTitleIndent) + '" y="' +
+           r1(pk.y + S.rowTitleFont) + '" font-size="' + r1(S.rowTitleFont) + '" fill="' +
            (pk.row.depth === 1 ? "var(--accent)" : "var(--sub)") + '"' +
            (pk.row.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(pk.row.name) + '</text>');
   });
@@ -406,14 +406,14 @@ function build() {
       var pts = routeLink(originX + a.g.sx1, a.top, a.h, originX + b.g.sx0, b.top, b.h);
       s.push('<path d="' + pts.map(function (p, i2) {
         return (i2 ? "L" : "M") + r1(p[0]) + "," + r1(p[1]); }).join(" ") +
-        '" fill="none" stroke="var(--dep)" stroke-width="' + r1(S.depWidth) +
+        '" fill="none" stroke="var(--dep)" stroke-width="' + r1(S.dependencyWidth) +
         '" stroke-linejoin="round" marker-end="url(#dep-a)"/>');
     });
   }
 
   packs.forEach(function (pk) {
     pk.items.forEach(function (it) {
-      var t = it.t, g = it.g, m = g.m, ty = pk.y + pk.laneTop[it.lane];
+      var t = it.t, g = it.g, m = g.m, ty = pk.y + pk.stackTop[it.stackIndex];
       var sx0 = originX + g.sx0, sx1 = originX + g.sx1;
       var midY = ty + m.planH / 2, fs = m.fontSize;
 
@@ -444,20 +444,20 @@ function build() {
                '" font-size="' + r1(fs) + '" text-anchor="end" fill="var(--label-ink)">' +
                esc(g.leftText) + '</text>');
       }
-      if (t.hasActual && g.markExtent > 0) {
-        var ms = m.markSize, mx = originX + g.markX, mt = m.markTextSize;
+      if (t.hasActual && g.markerExtent > 0) {
+        var ms = m.markerSize, mx = originX + g.markerX, mt = m.markerTextSize;
         s.push('<circle cx="' + r1(mx + ms / 2) + '" cy="' + r1(midY) + '" r="' + r1(ms / 2) +
-               '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + r1(S.markStroke) + '"/>');
-        s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(midY + mt * S.markTextBaseline) +
+               '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + r1(S.markerStroke) + '"/>');
+        s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(midY + mt * S.markerTextBaseline) +
                '" font-size="' + r1(mt) + '" text-anchor="middle" fill="var(--marker-ink)">' +
                t.percentComplete + '</text>');
         if (t.suspended) {
-          var rx = mx + ms + S.markGap;
+          var rx = mx + ms + S.markerGap;
           var rw = ms * (t.resumeValid ? 1 : S.resumeScaleInvalid);
           var dim = t.resumeValid ? '' : ' opacity="0.45"';
           s.push('<path d="M' + r1(rx) + ',' + r1(midY + ms / 2) + ' V' + r1(midY) + ' h' +
                  r1(rw * S.resumeArmOfMark) + '" fill="none" stroke="var(--marker-ink)" stroke-width="' +
-                 r1(S.markStroke) + '" stroke-linecap="round"' + dim + '/>');
+                 r1(S.markerStroke) + '" stroke-linecap="round"' + dim + '/>');
           s.push('<path d="M' + r1(rx + rw * S.resumeArmOfMark) + ',' +
                  r1(midY - rw * S.resumeHeadOfMark) + ' L' + r1(rx + rw) + ',' + r1(midY) +
                  ' L' + r1(rx + rw * S.resumeArmOfMark) + ',' +
@@ -465,7 +465,7 @@ function build() {
         }
       }
       if (g.labelMode === "right") {
-        s.push('<text x="' + r1(originX + g.bodyX1 + g.markExtent + S.labelGap) + '" y="' +
+        s.push('<text x="' + r1(originX + g.bodyX1 + g.markerExtent + S.labelGap) + '" y="' +
                r1(midY + fs * S.labelBaseline) + '" font-size="' + r1(fs) +
                '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
       } else {
@@ -478,37 +478,37 @@ function build() {
 
   var vertexCount = 0;
   if (el.tgProgLine.checked) {
-    var pts = [], todayX = originX + S.todayDay * ppd;
-    pts.push([todayX, S.rulerH - S.progOverhang]);
+    var pts = [], todayX = originX + S.statusDate * ppd;
+    pts.push([todayX, S.rulerH - S.progressLineOverhang]);
     packs.forEach(function (pk) {
-      for (var li = 0; li < pk.lanes; li++) {
-        var top = pk.y + pk.laneTop[li], hh = 0, vx = null;
+      for (var li = 0; li < pk.stackCount; li++) {
+        var top = pk.y + pk.stackTop[li], hh = 0, vx = null;
         pk.items.forEach(function (it) {
-          if (it.lane !== li) return;
+          if (it.stackIndex !== li) return;
           hh = Math.max(hh, it.g.m.planH);
           var v = progressVertex(it.t, ppd);
           if (v == null) return;
           v += originX;
           if (vx == null || v < vx) vx = v;
         });
-        if (!hh) hh = ctx.m("bar").planH;
+        if (!hh) hh = ctx.m("rectangle").planH;
         pts.push([vx == null ? todayX : vx, top + hh / 2]);
         if (vx != null) vertexCount++;
       }
     });
-    pts.push([todayX, contentH - S.canvasPad + S.progOverhang]);
+    pts.push([todayX, contentH - S.canvasPadding + S.progressLineOverhang]);
     s.push('<path d="' + pts.map(function (p, i2) {
       return (i2 ? "L" : "M") + r1(p[0]) + "," + r1(p[1]); }).join(" ") +
-      '" fill="none" stroke="var(--lightning)" stroke-width="' + r1(S.progWidth) +
+      '" fill="none" stroke="var(--lightning)" stroke-width="' + r1(S.progressLineWidth) +
       '" stroke-linejoin="round"/>');
-    s.push('<text x="' + r1(todayX + 4) + '" y="' + r1(S.rulerH - S.progOverhang - 3) +
+    s.push('<text x="' + r1(todayX + 4) + '" y="' + r1(S.rulerH - S.progressLineOverhang - 3) +
            '" font-size="' + r1(S.rulerFont) + '" fill="var(--lightning)" font-weight="700">基準日</text>');
   }
 
   s.push('</svg>');
-  var bm = ctx.m("bar");
+  var bm = ctx.m("rectangle");
   return { svg: s.join(""), width: W, height: contentH,
-           lanes: packs.reduce(function (a, p) { return a + p.lanes; }, 0),
+           stackCount: packs.reduce(function (a, p) { return a + p.stackCount; }, 0),
            vertices: vertexCount, fontFloored: bm.fontFloored,
            fontSize: bm.fontSize, ppd: ppd, tier: tier };
 }
@@ -527,7 +527,7 @@ function draw() {
   el.zoomOut.textContent = "横 " + view.zx.toFixed(2) + "x ／ 縦 " + view.zy.toFixed(2) + "x";
   var bad = violations();
   el.stat.innerHTML = "px/日 " + r.ppd.toFixed(2) + " ・ 目盛 " + RULER[r.tier] +
-    " ・ 段 " + r.lanes + " ・ 進捗線の頂点 " + r.vertices + " ・ " +
+    " ・ 段 " + r.stackCount + " ・ 進捗線の頂点 " + r.vertices + " ・ " +
     Math.round(r.width) + "×" + Math.round(r.height) + "px " +
     (r.fontFloored
       ? '<span class="flag warn">フォント下限 ' + S.fontMin + 'px</span>'
@@ -683,7 +683,7 @@ el.stage.focus();
 
 window.__poc = { S: S, SPEC: SPEC, ranges: ranges, violations: violations, view: view,
                  build: build, draw: draw, zoomAt: zoomAt, fit: fit, routeLink: routeLink,
-                 shapeMetrics: shapeMetrics, depRun: depRun,
+                 shapeMetrics: shapeMetrics, dependencyRun: dependencyRun,
                  openCfg: openCfg, closeCfg: closeCfg, TASKS: TASKS, ROWS: ROWS };
 </script>
 </body>

@@ -322,7 +322,7 @@ erDiagram
         int task_uid PK "‼️ → Task.uid"
         int nameAnchor "‼️ null=自動 / 0-8(9点アンカー)"
         string nameAlign "‼️ null=自動 / left|center|right"
-        string shapeKind "‼️ タスク形状（bar/chevron/arrow/endpointSpan/milestone の 5 値）"
+        string shapeKind "‼️ タスク形状（rectangle/chevron/arrow/endpointSpan/milestone の 5 値）"
         string milestoneGlyph "‼️ マイルストーン形状（shapeKind='milestone' のときだけ見る）"
         string fillColor "‼️ 塗り色"
         string strokeColor "‼️ 線色"
@@ -939,9 +939,24 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 > | `annotations[]`（コメント・角丸枠） | **取込済み** → **§5.8**（`Comment` / `HighlightBox`） |
 > | `sections[]` | **不要**（セクション概念は廃止。`TaskGroup` の階層が兼ねる） |
 > | `classificationNodeStates[]` | **不要**（`TaskGroup.collapsed` に吸収済み） |
-> | `viewState` の残り（予実表示 / カーソル / グリッド / イナズマ線 / `fontScale` / 出力サイズ ほか） | **取込済み** → **§5.7-1**（`documentSettings`）。テーマ / 言語 / ペイン幅 / ズーム / スクロール / 透かしは**読む人の環境**として保存しない |
+> | `viewState` の残り（予実表示 / カーソル / グリッド / イナズマ線 / `fontScale` / 出力サイズ ほか） | **取込済み** → **§5.7-1**（`documentSettings`）。**全項目の台帳は `grs-document-settings-ja.md`** |
 >
-> **原理的な限界も併記する**: 今日線は実行時のシステム日付、LOD はビューポート寸法、ラベル衝突回避はフォント計測に依存する。したがって最終的な主張は「**同一ビューポート・同一フォント環境・同一基準日において、描画は JSON のみから決定的に定まる**」に留める。
+> **⚠️ 2026-07-31 に「保存しない」の範囲を狭めた。** テーマ / ペイン幅 / ズーム / スクロールは
+> **`documentSettings` へ移した**（「人に見せたい場所」を文書が持てないと WYSIWYG が成立しないため）。
+> 保存しないのは **言語 / 透かし** と、画面にも出力にも出ない 8 項目だけになった。
+> → `grs-document-settings-ja.md` §4-2 / §5
+>
+> **残る限界は 1 つだけになった**: **フォントが入っていない環境では字形が変わる**。
+> ただし**レイアウトは概算式で決まる**（§6-2「テキストの実測をしない」）ので、
+> バーの位置も段数も変わらない。変わるのは字の見た目だけである。
+>
+> | かつて挙げていた限界 | 現状 |
+> |---|---|
+> | 今日線が実行時のシステム日付 | **解消**。本日線を `documentSettings` から外した（`grs-document-settings-ja.md` §7）。日付に線を引きたいときはカーソルを使う |
+> | LOD がビューポート寸法に依存 | **解消**。ズームを保存するので `px/day` が JSON から決まる |
+> | ラベル衝突回避がフォント計測に依存 | **解消済みだった**。§6-2 が「実測しない・概算する」と確定しており、概算式は環境に依存しない |
+>
+> したがって主張は「**同一ビューポート寸法において、描画は JSON のみから決定的に定まる**」となる。
 
 したがって「**見た目に影響するものは全て文書データとして保存・共有する**」。一時的な UI 状態として切り離してよいのは、見た目を構成しない操作中の状態（選択・ホバー・Undo 履歴）だけ。
 
@@ -975,10 +990,10 @@ stackDirection        'up' | 'down'                       積み方向（既定 
 importSeq             整数                                 取込のたびに +1
 planActualDisplay     'both' | 'plan-only' | 'actual-only'  予実の表示（下記の注意）
 assigneeVisible       真偽                                 担当ラベルを出すか
-progressVisible       真偽                                 進捗ラベルを出すか
+progressVisible       真偽                                 完了率ラベルを出すか
+dependencyVisible     真偽                                 依存線（担当/完了率とは独立・§4-2）
 progressMarkerVisible 真偽                                 進捗マーカーを出すか（下記の注意）
-todayLineVisible      真偽                                 本日線
-dualCursor            { date1, date2 } | null              デュアルカーソル（計測）
+dualCursor            { date1, date2 } | null              デュアルカーソル（2 本の日付を持つ）
 guideCursorMode       'none'|'crosshair'|'single-vertical'|'double-vertical'
 gridDateLinesVisible  真偽                                 日付の縦罫線
 gridGroupLinesVisible 真偽                                 TaskGroup 境界の横罫線（旧 gridCategoryLines）
@@ -987,7 +1002,26 @@ progressLineColor     色                                   同上
 baselineVisible       真偽                                 変更前の予定（別ファイル）を重ねるか
 fontScale             'S' | 'M' | 'L'                      文字サイズ
 exportCanvas          { width, height }                    SVG/PNG の出力サイズ（既定 1600 × 900）
+exportPngScale        1 | 2                                PNG の倍率（項 58）
+
+--- 2026-07-31 に「保存しない」から移した ---
+themePreference       'light' | 'dark'                     明暗テーマ
+zoomX / zoomY         数値                                 ズーム倍率
+scrollDate            日付                                 表示の左端が指す日付
+scrollRowUid          行の識別子                           表示の上端が指す行
+leftPaneWidth         px                                   Row Title Panel の幅
+propertyPanelWidth    px                                   Properties Panel の幅
+
+--- 描画の設定 59 項目（寸法・比率・色の使い方）は台帳を見る ---
+→ grs-document-settings-ja.md §3
 ```
+
+> **`todayLineVisible` は廃止した（2026-07-31）。** 本日線の位置は実行時のシステム日付なので、
+> 保存すると「同じ JSON → 同じ表示」が明日には破れる。**日付に線を引きたいときはカーソルを使う。**
+> → `grs-document-settings-ja.md` §7
+
+> **全項目の台帳は `grs-document-settings-ja.md`。** 本節は原則と代表例を示すもので、
+> **全数はそちらが正**。項目を足すときはそちらに追記する。
 
 **保存しない（読む人の環境。`localStorage` に置く）**
 
@@ -995,19 +1029,33 @@ exportCanvas          { width, height }                    SVG/PNG の出力サ�
 |---|---|
 | `themePreference`（明 / 暗） | 読む人の好み。**コントラスト要件（a11y）に関わる**ので強制すべきでない |
 | **`language`**（`ja` / `en`。旧 `activeLocale`） | 読む人の言語。日本語を強制されるのは「同じ見た目」より悪い |
-| `leftPaneWidth` / `propertyPanelWidth` | 読む人の**画面幅**に依存する |
-| `zoomX` / `zoomY` / `scrollX` / `scrollY` | **開いたら Fit**（下記） |
 | `watermark`（有効 / ユーザー名 / 日時） | **開いた人の名前と日時で描く**（下記） |
 
-#### なぜズーム / スクロールを保存しないか
+> ⚠️ **`themePreference` / `leftPaneWidth` / `propertyPanelWidth` / ズーム / スクロールは
+> 2026-07-31 に `documentSettings` へ移した。** 上の表から外れている。
+> 画面にも出力にも出ない 8 項目（掴み代 4 / Undo 2 / ズームの刻みと範囲 2）が
+> 新しい「保存しない」の全数である。→ `grs-document-settings-ja.md` §5
 
-1. **項 3「全体日程を 1 画面でスクロールなしに見られること」**が最優先事項にある。**開いたら Fit** が要求に忠実。
-2. 本節の主張は既に「**同一ビューポート**において…」と限定してある。ビューポート依存のものは**環境側**と認めている。
-3. 「ここを見てほしい」は **`HighlightBox`（囲み枠・§5.8）で表現する**。ズームを強制するより意図が伝わる。
+#### なぜズーム / スクロールを**保存する**か — 2026-07-31 に判断を覆した
 
-> **反論の検討**: ズームは LOD を変えるので「何が見えるか」が変わる、という反論がある。
-> しかし **Fit のズームは内容から決まる**ので、**同一ビューポートなら双方が同じ LOD になる**。
-> 逆にビューポートが違えば、ズームを保存しても再現しない。**保存しても解決しない問題**である。
+**旧: 保存しない（開いたら Fit）。新: 保存する。**
+
+**理由: 「人に重要なところを見せたい」場面があるから**（ユーザー判断）。
+文書が「どこを見せたいか」を持てないと、渡した相手に同じ絵が出ない。
+**全体を見たい人は `Fit` ボタンを押せばよい** — 押せば済むことのために、
+見せたい場所を捨てる理由がない。
+
+**旧の理由をどう処理したか**
+
+| 旧の理由 | 今どう見るか |
+|---|---|
+| 項 3「1 画面でスクロールなしに見られる」が最優先 | **`Fit` ボタンで満たす**。既定の見え方ではなく、押せば得られる状態でよい |
+| ビューポート依存のものは環境側と認めている | ビューポート寸法の依存は残る。しかし**保存しなければ「見せたい場所」は原理的に伝わらない**。伝わらないより、寸法差で多少ずれるほうがよい |
+| 「ここを見てほしい」は `HighlightBox` で表現する | **併用する。** 囲み枠は「何が重要か」、ズーム / スクロールは「最初にどこが見えるか」。**別の役割**である |
+
+> **スクロール位置は px で持たない。** ズームや画面幅が変わった瞬間に別の場所を指すため、
+> **日付 ＋ 行の識別子**で持つ（`scrollDate` / `scrollRowUid`）。
+> `Comment` の位置が同じ規則を採っている（`user-order.md` 項 44）。
 
 #### なぜ透かしを保存しないか
 

@@ -204,7 +204,7 @@ XSD は `type="xsd:integer"` で**制約ファセットを持たない**。解�
 
 | 表記 | 英語 | 上下の幅 | 実績の置き方 | フェード掴み点 |
 |---|---|:--:|---|:--:|
-| `===` | `bar` | **あり** | 予定の内側に重ねる | あり |
+| `===` | `rectangle` | **あり** | 予定の内側に重ねる | あり |
 | `>===>` | `chevron` | **あり** | 予定の内側に重ねる | あり |
 | `--->` | `arrow` | なし | **予定の下にずらす** | なし |
 | `*----*` | `endpointSpan` | なし | **予定の下にずらす** | なし |
@@ -215,7 +215,7 @@ XSD は `type="xsd:integer"` で**制約ファセットを持たない**。解�
 ```
 1. 実績の形状 = 予定の形状                        ← 2026-07-30 追加
 
-2. 上下に幅がある形状（bar / chevron）              → 実績を内側に重ねる ＋ フェードあり
+2. 上下に幅がある形状（rectangle / chevron）              → 実績を内側に重ねる ＋ フェードあり
    幅がない形状（arrow / endpointSpan / milestone） → 実績を下にずらす ＋ フェードなし
 ```
 
@@ -234,7 +234,7 @@ XSD は `type="xsd:integer"` で**制約ファセットを持たない**。解�
 `shapeKind` に**マイルストーンという値がある。その詳細（〇 △ ▽ □ ☆ 五角形 六角形）はグリフを見る**、という 2 段構えにする。
 
 ```
-TaskVisual.shapeKind        'bar' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone'   5 値
+TaskVisual.shapeKind        'rectangle' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone'   5 値
 TaskVisual.milestoneGlyph   'diamond' | 'circle' | 'triangleUp' | ...                    shapeKind = 'milestone' のときだけ見る
 ```
 
@@ -452,8 +452,8 @@ TaskVisual.milestoneGlyph   'diamond' | 'circle' | 'triangleUp' | ...           
 |---|---|---|
 | 予定 | 左端 | `start` |
 | 予定 | 右端 | `finish` |
-| 予定 | **左上の角** | フェードイン（`bar` / `chevron` のみ） |
-| 予定 | **右下の角** | フェードアウト（`bar` / `chevron` のみ） |
+| 予定 | **左上の角** | フェードイン（`rectangle` / `chevron` のみ） |
+| 予定 | **右下の角** | フェードアウト（`rectangle` / `chevron` のみ） |
 | 予定 | 本体 | 平行移動（長さを保つ） |
 | 実績 | 左端 | `actualStart` |
 | 実績 | 右端 | **`actualDuration`**（置いた日付から稼働日数を算出する） |

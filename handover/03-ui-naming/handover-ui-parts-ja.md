@@ -44,6 +44,35 @@
 > **`Task` に一本化する理由**: MSPDI の `Task` を無汚染継承しており、マイルストーンも `Task.milestone` フラグで表す（MSPDI と同じ）。UI で「アイテム」「アクティビティ」と呼び分ける必要がない。
 > **表示上の呼称**は残す: `milestone=true` のものを画面で「マイルストーン」と呼ぶのは自然（**データ上は Task**）。
 
+### 2-0. `Bar` の定義 — **確定 2026-07-31**
+
+**「バー」は 3 つの階層で使われて意味が定まっていなかった。** 総称 / 予実の 2 面 / 形状の 1 値である。
+**形状の 1 値を `rectangle`（矩形）へ改名し、`bar` を総称専用にした。**
+
+```
+Bar   1 つの Task が占める横帯 1 本と、そこに描かれるもの全体を指す総称。
+      形状を問わない。マイルストーン（◇）も Bar である。
+      「棒の見た目」ではなく「1 タスクが占める 1 本」を指す。
+
+      根拠 1  MSPDI の HideBar は Task 全般（マイルストーンを含む）に掛かる。
+              "Whether the GANTT bar of the task is hidden when displayed in Microsoft Project."
+              正本 XSD `../01-mspdi/mspdi/mspdi_pj12.xsd`。XSD 内の "bar" はこの 1 要素だけ。
+      根拠 2  幅がないタスク形状でも実績ぶんの高さを常に確保する
+              （`../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-2）。
+              マイルストーンも他の形状と同じ縦幅を占有する。
+
+Task Bars    Rows の子。その行に載る Task 全部の Bar をまとめた描画層。
+Plan Bar     その Task の予定側の描画。shapeKind の形で描く。
+Actual Bar   その Task の実績側の描画。予定と同じ形で描く（07 §2-2-1）。
+rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
+             2026-07-31 に `'bar'` から改名した。総称と衝突していたため。
+```
+
+> **なぜ総称を別語（Task Line 等）にしなかったか**: MSPDI 自身が「Gantt bar」と呼んでおり、
+> 相手ツールと語彙を揃える利益が大きい（往復無損失は機能要求・項 56）。
+> また `Baseline`（ベースライン＝変更前の予定）と語尾が衝突する。
+> 「マルチバー」は**機能名**（§2 の表）であり、部品名と役割が違うので併存してよい。
+
 ### 2-1. 日英対応表（**全数。ここが正**）
 
 #### 2-1-0. 規則
@@ -81,7 +110,13 @@
 | `percentComplete` | **完了率** |
 | `deadline` | 期限 |
 | `shapeKind` | **タスク形状**（5 値。`'milestone'` のときだけ `milestoneGlyph` を見る） |
+| `'rectangle'` | **矩形**（`===`）。※2026-07-31 に `'bar'` から改名。理由は §2-2 |
+| `'chevron'` | **矢羽根**（`>===>`）。※直訳ではない。例外リスト §2-1-4 |
+| `'arrow'` | **矢印**（`--->`） |
+| `'endpointSpan'` | **端点スパン**（`*----*`）。※「端点」と略さない。§2-1-5 |
+| `'milestone'` | **マイルストーン**（◇ ほか） |
 | `milestoneGlyph` | **マイルストーン形状**（〇 △ ▽ □ ☆ 五角形 六角形） |
+| **`actualPlacement`** | **実績の置き方**（`'inside'` = 内側 / `'below'` = 下）。`shapeKind` から導出する |
 | `strokeColor` / `fillColor` / `lineWeight` | **線色** / 塗り色 / 線の太さ |
 | `nameAnchor` / `nameAlign` | **名称アンカー** / **名称の揃え** |
 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 |
@@ -97,7 +132,12 @@
 |---|---|
 | `Rows` | 行 |
 | `Task Bars` | タスクバー |
+| **`Plan Bar`** | **予定バー** |
+| **`Actual Bar`** | **実績バー** |
 | **`Progress Marker`** | **進捗マーカー** |
+| **`Resume Icon`** | **再開アイコン** |
+| **`Name Label`** | **名称ラベル** |
+| **`Assignee Label`** | **担当ラベル** |
 | `Progress Line` | **イナズマ線**（例外。§2-1-4） |
 | **`Cursors`** | **カーソル** |
 | `Today Line` | 本日線 |
@@ -136,8 +176,12 @@
 | 英語 | 日本語 | 例外にする理由 |
 |---|---|---|
 | `Progress Line` | **イナズマ線** | 日本の日程管理で定着した語。「進捗線」に変えると日本のユーザーに通じなくなり、`user-order.md` 項 6-4（マニュアルを見ないで使える）に反する |
+| `chevron` | **矢羽根** | 図形名としての直訳は「山形」だが、`user-order.md`（ユーザーの入力）が「矢羽根」を使っており、日程表の文脈で意味が通る。英語側は世界共通の図形名 `chevron` を使う（コードは英語で世界公開する前提） |
 
-**例外はこの 1 件だけ。** 増やすときは必ずこの表に追記する。「なんとなく違う」を許すと規則が崩れる。
+**例外はこの 2 件だけ。** 増やすときは必ずこの表に追記する。「なんとなく違う」を許すと規則が崩れる。
+
+> **確認できる事実**: 「矢羽根」は `handover/` 内に 32 箇所あり `user-order.md` を含む。「山形」は 0 箇所。
+> 「日本の工程表で通用する語である」というのは**推定**であって、リポジトリ内では裏付けられない。
 
 #### 2-1-5. 曖昧な日本語を単独で使わない
 
@@ -150,6 +194,8 @@
 | レベル | `OutlineLevel` / `TaskGroup` の深さ / LOD のどれかを明示 |
 | 幅 | 「日付の幅」/ **「占有幅」**（ラベル込み）を区別 |
 | 期間 | 「予定の期間」/ **`actualDuration`（実績期間）** / 表示期間 を明示 |
+| 端点 | 単独で書いたら**掴み点**（全形状が持つバーの端）。形状名は必ず「**端点スパン**」と 4 文字で書く |
+| バー | **`Task Bars`（総称）/ `Plan Bar` / `Actual Bar`** のどれかを明示。**形状の 1 値は `rectangle`（矩形）**であって「バー」ではない |
 
 **文中で属性に触れるときは所属を付ける**（`stackOrder` ではなく `Task.stackOrder`）。
 §1-2 の記法により、**形で面が見分けられる**。
@@ -160,6 +206,130 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 データの属性       Entity.field 形式                Task.stackOrder / Task.actualDuration
 プロパティ項目名   snake_case                       stack_order
 ```
+
+#### 2-1-6. 設定値のキー（**全数。ここが正**）
+
+`documentSettings` が持つ設定値の**名前の正はここ**である。
+**値**（既定値・範囲・範囲の理由・保存するかどうか）は
+`../02-data-model/grs-document-settings-ja.md` が持つ。**名前と値を 2 か所で管理しない。**
+
+> ⛔ は**文書に保存しない**もの（読む人の環境）。名前としては本表に載せる。
+
+**時間軸**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `pxPerDayAt1x` | 1 日の幅（zoomX = 1） |
+| `rulerH` | 目盛の帯の高さ |
+| `rulerFont` | 目盛の文字 |
+
+**縦の寸法**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `basePlanH` | 予定の縦幅（zoomY = 1） |
+| `actualOfPlan` | 実績 ÷ 予定 |
+| `actualMin` | 実績の縦幅の下限 |
+| `fontOfActual` | フォント ÷ 実績 |
+| `fontMin` | 最小フォント |
+| `thinFontScale` | 細線のフォント倍率 |
+| `actualGap` | 予定 → 実績の間隔（下に置くとき） |
+| `stackGap` | 段の間隔 |
+| `rowGap` | 行の間隔 |
+
+**形状ごとの縦幅（予定の縦幅の倍率）**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `shapeHeightOf.rectangle` | === 矩形 |
+| `shapeHeightOf.chevron` | >===> 矢羽根 |
+| `shapeHeightOf.arrow` | ---> 矢印 |
+| `shapeHeightOf.endpointSpan` | *----* 端点スパン |
+| `shapeHeightOf.milestone` | ◇ マイルストーン |
+
+**依存線（固定・ズームに追随しない）**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `dependencyWidth` | 太さ |
+| `dependencyArrowLength` | 矢印の三角形の長さ |
+| `dependencyRunOfArrow` | 入口の走り ÷ 三角形 |
+
+**進捗マーカー**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `markerTextOfFont` | 中の数字 ÷ フォント |
+| `markerOfText` | マーカー径 ÷ 中の数字 |
+| `markerMin` | マーカー径の下限 |
+| `markerGap` | 実績の右端からの隙間 |
+| `markerStroke` | 円の線の太さ |
+| `markerTextBaseline` | 数字のベースライン補正 |
+| `resumeScaleInvalid` | 再開日未定のときの縮小率 |
+| `resumeArmOfMark` | Resume の腕の長さ ÷ マーカー |
+| `resumeHeadOfMark` | Resume の矢じり ÷ マーカー |
+| `resumeDashOn` | Resume へ繋ぐ破線の実部 |
+| `resumeDashOff` | Resume へ繋ぐ破線の空部 |
+
+**ラベル**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `labelCoef` | 幅の概算係数 |
+| `labelPad` | 形状の内側の余白 |
+| `labelGap` | 形状の外へ出すときの隙間 |
+| `labelBaseline` | ベースライン補正 |
+| `labelHaloOfFont` | 縁取りの太さ ÷ フォント |
+| `truncateUnits` | 打ち切り幅（半角換算） |
+| `rowTitleWidth` | 行名の欄の幅 |
+| `rowTitleFont` | 行名の文字 |
+| `rowTitleIndent` | 行名の 1 段のインデント |
+
+**形状の細部**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `planStroke` | 予定の輪郭線 |
+| `thinStrokeOfPlan` | 細線の太さ ÷ その形状の予定の縦幅 |
+| `thinStrokeMin` | 細線の太さの下限 |
+| `thinStrokeMax` | 細線の太さの上限 |
+| `chevronNotchOfH` | 矢羽根の切り欠き ÷ 高さ |
+| `chevronNotchOfW` | 矢羽根の切り欠き ÷ 幅 |
+| `arrowHeadOfStroke` | 矢印の矢じり ÷ 線の太さ |
+| `arrowHeadOfSpan` | 矢印の矢じり ÷ 全長（上限） |
+| `spanDotOfStroke` | 端点の点の半径 ÷ 線の太さ |
+| `starInnerOfOuter` | ☆ の内接半径 ÷ 外接半径 |
+| `minShapeWidth` | ゼロ期間でも残す最小幅 |
+
+**進捗線（イナズマ線）**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `progressLineWidth` | 太さ |
+| `progressLineOverhang` | 上下へのはみ出し |
+| `statusDate` | 基準日（第 n 日） |
+
+**ズーム**
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `zoomStep` ⛔ | 1 ノッチの倍率 |
+| `zoomMin` ⛔ | 下限 |
+| `zoomMax` ⛔ | 上限 |
+| `canvasPadding` | キャンバスの余白 |
+| `svgPadding` | SVG の縁の余白 |
+
+> **2026-07-31 の改名**: 略語が確定名と語幹一致していなかったものを展開した。
+>
+> | 旧 | 新 | 語幹を合わせた先 |
+> |---|---|---|
+> | `depWidth` / `depArrowLen` / `depRunOfArrow` | `dependencyWidth` / `dependencyArrowLength` / `dependencyRunOfArrow` | `Dependency Lines` |
+> | `markGap` / `markMin` / `markStroke` / `markOfText` / `markTextOfFont` / `markTextBaseline` | `marker...` | `Progress Marker` |
+> | `progWidth` / `progOverhang` | `progressLineWidth` / `progressLineOverhang` | `Progress Line` |
+> | `rowLabelW` / `rowLabelFont` / `rowIndent` | `rowTitleWidth` / `rowTitleFont` / `rowTitleIndent` | `Row Title Panel` |
+> | `laneGap` | `stackGap` | `stackOrder`（`lane` は廃止語） |
+> | `shapeH` / `truncUnits` / `minShapeW` / `svgPad` / `canvasPad` | `shapeHeightOf` / `truncateUnits` / `minShapeWidth` / `svgPadding` / `canvasPadding` | 略語をやめた |
+> | `todayDay` | `statusDate` | 中身は**基準日**であって本日ではなかった |
 
 ---
 
@@ -187,9 +357,14 @@ App Shell                      アプリ全体の器
 │   │   ├─ Date Grid Lines     日付の縦罫線（表示切替あり）
 │   │   └─ Group Grid Lines    TaskGroup 境界の横罫線（表示切替あり）
 │   ├─ Rows                    TaskGroup 1 つ分の横帯。旧「ribbon」
-│   │   └─ Task Bars           Task の描画。milestone は ◆、それ以外はスパン
-│   │       └─ Progress Marker タスクの状態を示す印（完了 / 中断 / 期限超過 / 未完了）
-│   │                          07-plan-actual/handover-plan-actual-decisions-ja.md §2-4
+│   │   └─ Task Bars           その行に載る Task 全部の Bar（§2-0）。milestone も含む
+│   │       ├─ Plan Bar        予定側の描画。shapeKind の形で描く
+│   │       ├─ Actual Bar      実績側の描画。予定と同じ形で描く（07 §2-2-1）
+│   │       ├─ Progress Marker タスクの状態を示す印（完了 / 中断 / 期限超過 / 未完了）
+│   │       │                  07-plan-actual/handover-plan-actual-decisions-ja.md §2-4
+│   │       ├─ Resume Icon     中断のときだけ出る L 字の折れ矢印（同 §2-5）
+│   │       ├─ Name Label      Task.name。バー内に収まらなければ右へ出す（同 §6-1）
+│   │       └─ Assignee Label  担当と完了率。バーの外側左へ右揃えで連結（同 §6-1）
 │   ├─ Dependency Lines        ‼️ 抜けていた（核機能）。全自動配線・経路は保存しない
 │   └─ Canvas Overlays         ‼️ Items から分離（重ね描き層）
 │       ├─ Progress Line       イナズマ線（実績の進み遅れ）
@@ -302,7 +477,7 @@ App Shell                      アプリ全体の器
 ```
 
 - **実績は予定と同じ形状で描く**（2026-07-30 追加）。予定が矢羽根なら実績も矢羽根。**実績だけ四角にしない。**
-- **上下に幅があるタスク形状**（`bar` / `chevron`）は、**実績を予定の内側に重ねる**。露出した帯が予定の掴み代になる。
+- **上下に幅があるタスク形状**（`rectangle` / `chevron`）は、**実績を予定の内側に重ねる**。露出した帯が予定の掴み代になる。
 - **幅がないタスク形状**（`arrow` / `endpointSpan` / `milestone`）は内側に収められないので、
   **そのタスク形状だけ実績を下にずらす**。文書全体のモードではなく、**タスク形状ごとの描き方**である。
 - 幅がないタスク形状でも**実績ぶんの高さを常に確保する**（表示を切り替えても行の高さが動かない）。

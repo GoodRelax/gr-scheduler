@@ -54,48 +54,48 @@ var SPEC = [
     rng: function () { return { lo: 0.3, hi: 1, why: "細線は少し小さく" }; } },
   { g: "縦の寸法", k: "actualGap", n: "予定 → 実績の間隔（下に置くとき）", u: "px", step: 1, d: 2,
     rng: function () { return { lo: 0, hi: 20 }; } },
-  { g: "縦の寸法", k: "laneGap", n: "段の間隔", u: "px", step: 1, d: 12,
-    rng: function (S) { return { lo: S.depWidth * 2, hi: 60,
+  { g: "縦の寸法", k: "stackGap", n: "段の間隔", u: "px", step: 1, d: 12,
+    rng: function (S) { return { lo: S.dependencyWidth * 2, hi: 60,
       why: "依存線が 1 本通る幅（下限 = 依存線の太さ × 2）" }; } },
   { g: "縦の寸法", k: "rowGap", n: "行の間隔", u: "px", step: 1, d: 8,
     rng: function () { return { lo: 0, hi: 60 }; } },
 
   /* ---- shape heights ------------------------------------------------- */
-  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.bar", n: "=== 矩形", u: "x", step: 0.1, d: 1.0,
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeHeightOf.rectangle", n: "=== 矩形", u: "x", step: 0.1, d: 1.0,
     rng: function () { return { lo: 1, hi: 1, why: "基準なので 1 固定" }; } },
-  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.chevron", n: ">===> 矢羽根", u: "x", step: 0.1, d: 1.0,
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeHeightOf.chevron", n: ">===> 矢羽根", u: "x", step: 0.1, d: 1.0,
     rng: function () { return { lo: 0.2, hi: 3 }; } },
-  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.arrow", n: "---> 矢印", u: "x", step: 0.05, d: 0.5,
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeHeightOf.arrow", n: "---> 矢印", u: "x", step: 0.05, d: 0.5,
     rng: function () { return { lo: 0.1, hi: 1 - EPS, why: "細線は矩形より薄い（それが取り柄）" }; } },
-  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.endpointSpan", n: "*----* 端点スパン", u: "x", step: 0.05, d: 0.5,
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeHeightOf.endpointSpan", n: "*----* 端点スパン", u: "x", step: 0.05, d: 0.5,
     rng: function () { return { lo: 0.1, hi: 1 - EPS, why: "細線は矩形より薄い" }; } },
-  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeH.milestone", n: "◇ マイルストーン", u: "x", step: 0.1, d: 1.5,
+  { g: "形状ごとの縦幅（予定の縦幅の倍率）", k: "shapeHeightOf.milestone", n: "◇ マイルストーン", u: "x", step: 0.1, d: 1.5,
     rng: function () { return { lo: 1 + EPS, hi: 4, why: "目立たせるので矩形より大きい" }; } },
 
   /* ---- dependency lines. Fixed: they follow neither zoom nor font. ---- */
-  { g: "依存線（固定・ズームに追随しない）", k: "depWidth", n: "太さ", u: "px", step: 0.1, d: 1.5,
-    rng: function (S) { return { lo: 0.5, hi: S.laneGap / 2,
+  { g: "依存線（固定・ズームに追随しない）", k: "dependencyWidth", n: "太さ", u: "px", step: 0.1, d: 1.5,
+    rng: function (S) { return { lo: 0.5, hi: S.stackGap / 2,
       why: "段の間隔の半分を超えない" }; } },
-  { g: "依存線（固定・ズームに追随しない）", k: "depArrowLen", n: "矢印の三角形の長さ", u: "px", step: 1, d: 10,
-    rng: function (S) { return { lo: S.depWidth * 2, hi: 40,
+  { g: "依存線（固定・ズームに追随しない）", k: "dependencyArrowLength", n: "矢印の三角形の長さ", u: "px", step: 1, d: 10,
+    rng: function (S) { return { lo: S.dependencyWidth * 2, hi: 40,
       why: "線より太くならない長さ" }; } },
-  { g: "依存線（固定・ズームに追随しない）", k: "depRunOfArrow", n: "入口の走り ÷ 三角形", u: "x", step: 0.1, d: 2,
+  { g: "依存線（固定・ズームに追随しない）", k: "dependencyRunOfArrow", n: "入口の走り ÷ 三角形", u: "x", step: 0.1, d: 2,
     rng: function () { return { lo: 1 + EPS, hi: 6,
       why: "1 以下だと三角形が入口の走りを食い尽くし、同時に出口の走りが 0 以下になる" }; } },
 
   /* ---- progress marker ----------------------------------------------- */
-  { g: "進捗マーカー", k: "markTextOfFont", n: "中の数字 ÷ フォント", u: "", step: 0.05, d: 0.75,
+  { g: "進捗マーカー", k: "markerTextOfFont", n: "中の数字 ÷ フォント", u: "", step: 0.05, d: 0.75,
     rng: function () { return { lo: 0.3, hi: 1.5 }; } },
-  { g: "進捗マーカー", k: "markOfText", n: "マーカー径 ÷ 中の数字", u: "x", step: 0.1, d: 2.0,
+  { g: "進捗マーカー", k: "markerOfText", n: "マーカー径 ÷ 中の数字", u: "x", step: 0.1, d: 2.0,
     rng: function () { return { lo: 1.6, hi: 4, why: "3 桁が円に収まる比" }; } },
-  { g: "進捗マーカー", k: "markMin", n: "マーカー径の下限", u: "px", step: 1, d: 16,
+  { g: "進捗マーカー", k: "markerMin", n: "マーカー径の下限", u: "px", step: 1, d: 16,
     rng: function (S) { return { lo: S.fontMin, hi: 80 }; } },
-  { g: "進捗マーカー", k: "markGap", n: "実績の右端からの隙間", u: "px", step: 1, d: 4,
+  { g: "進捗マーカー", k: "markerGap", n: "実績の右端からの隙間", u: "px", step: 1, d: 4,
     rng: function () { return { lo: 4, hi: 4,
       why: "確定仕様で 4px 固定。端点の掴み代と重ならない最小距離であり、それ以上離さない（07 2-4）" }; } },
-  { g: "進捗マーカー", k: "markStroke", n: "円の線の太さ", u: "px", step: 0.1, d: 1.3,
+  { g: "進捗マーカー", k: "markerStroke", n: "円の線の太さ", u: "px", step: 0.1, d: 1.3,
     rng: function () { return { lo: 0.5, hi: 4 }; } },
-  { g: "進捗マーカー", k: "markTextBaseline", n: "数字のベースライン補正", u: "", step: 0.02, d: 0.36,
+  { g: "進捗マーカー", k: "markerTextBaseline", n: "数字のベースライン補正", u: "", step: 0.02, d: 0.36,
     rng: function () { return { lo: 0, hi: 0.8 }; } },
   { g: "進捗マーカー", k: "resumeScaleInvalid", n: "再開日未定のときの縮小率", u: "x", step: 0.05, d: 0.7,
     rng: function () { return { lo: 0.3, hi: 1, why: "未定は小さく薄く" }; } },
@@ -120,13 +120,13 @@ var SPEC = [
   { g: "ラベル", k: "labelHaloOfFont", n: "縁取りの太さ ÷ フォント", u: "", step: 0.01, d: 0.17,
     rng: function () { return { lo: 0, hi: 0.3,
       why: "0 = 縁取りなし。12px の文字で約 2px。バーの上の文字が色に依存せず読める（07 2-7）" }; } },
-  { g: "ラベル", k: "truncUnits", n: "打ち切り幅（半角換算）", u: "", step: 2, d: 24,
+  { g: "ラベル", k: "truncateUnits", n: "打ち切り幅（半角換算）", u: "", step: 2, d: 24,
     rng: function () { return { lo: 4, hi: 120, why: "全角 12 文字 = 半角 24" }; } },
-  { g: "ラベル", k: "rowLabelW", n: "行名の欄の幅", u: "px", step: 5, d: 170,
+  { g: "ラベル", k: "rowTitleWidth", n: "行名の欄の幅", u: "px", step: 5, d: 170,
     rng: function () { return { lo: 40, hi: 500 }; } },
-  { g: "ラベル", k: "rowLabelFont", n: "行名の文字", u: "px", step: 1, d: 13,
+  { g: "ラベル", k: "rowTitleFont", n: "行名の文字", u: "px", step: 1, d: 13,
     rng: function (S) { return { lo: S.fontMin, hi: 40, why: "和文の可読下限を割らない" }; } },
-  { g: "ラベル", k: "rowIndent", n: "行名の 1 段のインデント", u: "px", step: 1, d: 12,
+  { g: "ラベル", k: "rowTitleIndent", n: "行名の 1 段のインデント", u: "px", step: 1, d: 12,
     rng: function () { return { lo: 0, hi: 60 }; } },
 
   /* ---- shape detail ---------------------------------------------------- */
@@ -150,15 +150,15 @@ var SPEC = [
     rng: function () { return { lo: 0.5, hi: 4 }; } },
   { g: "形状の細部", k: "starInnerOfOuter", n: "☆ の内接半径 ÷ 外接半径", u: "", step: 0.05, d: 0.45,
     rng: function () { return { lo: 0.2, hi: 0.8 }; } },
-  { g: "形状の細部", k: "minShapeW", n: "ゼロ期間でも残す最小幅", u: "px", step: 1, d: 2,
+  { g: "形状の細部", k: "minShapeWidth", n: "ゼロ期間でも残す最小幅", u: "px", step: 1, d: 2,
     rng: function () { return { lo: 1, hi: 20 }; } },
 
   /* ---- progress line ---------------------------------------------------- */
-  { g: "進捗線（イナズマ線）", k: "progWidth", n: "太さ", u: "px", step: 0.5, d: 2,
+  { g: "進捗線（イナズマ線）", k: "progressLineWidth", n: "太さ", u: "px", step: 0.5, d: 2,
     rng: function () { return { lo: 0.5, hi: 8 }; } },
-  { g: "進捗線（イナズマ線）", k: "progOverhang", n: "上下へのはみ出し", u: "px", step: 1, d: 6,
+  { g: "進捗線（イナズマ線）", k: "progressLineOverhang", n: "上下へのはみ出し", u: "px", step: 1, d: 6,
     rng: function () { return { lo: 0, hi: 40 }; } },
-  { g: "進捗線（イナズマ線）", k: "todayDay", n: "基準日（第 n 日）", u: "日", step: 1, d: 132,
+  { g: "進捗線（イナズマ線）", k: "statusDate", n: "基準日（第 n 日）", u: "日", step: 1, d: 132,
     rng: function () { return { lo: 0, hi: 300 }; } },
 
   /* ---- zoom -------------------------------------------------------------- */
@@ -168,9 +168,9 @@ var SPEC = [
     rng: function (S) { return { lo: 0.001, hi: S.zoomMax, why: "上限を超えない" }; } },
   { g: "ズーム", k: "zoomMax", n: "上限", u: "x", step: 1, d: 64,
     rng: function (S) { return { lo: S.zoomMin, hi: 512, why: "下限を下回らない" }; } },
-  { g: "ズーム", k: "canvasPad", n: "キャンバスの余白", u: "px", step: 1, d: 10,
+  { g: "ズーム", k: "canvasPadding", n: "キャンバスの余白", u: "px", step: 1, d: 10,
     rng: function () { return { lo: 0, hi: 60 }; } },
-  { g: "ズーム", k: "svgPad", n: "SVG の縁の余白", u: "px", step: 1, d: 10,
+  { g: "ズーム", k: "svgPadding", n: "SVG の縁の余白", u: "px", step: 1, d: 10,
     rng: function () { return { lo: 0, hi: 60 }; } }
 ];
 
@@ -179,7 +179,7 @@ var S = {};
 SPEC.forEach(function (sp) { S[sp.k] = sp.d; });
 
 function resetAll() { SPEC.forEach(function (sp) { S[sp.k] = sp.d; }); }
-function shapeRatio(kind) { return S["shapeH." + kind]; }
+function shapeRatio(kind) { return S["shapeHeightOf." + kind]; }
 
 /** Ranges depend on other settings, so evaluate the whole set at once. */
 function ranges() {
@@ -199,7 +199,7 @@ function violations() {
 
 /* ---- derived geometry --------------------------------------------------- */
 
-function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
+function hasThickness(kind) { return kind === "rectangle" || kind === "chevron"; }
 
 /**
  * Dependency-line runs. ONE ratio drives both so they cannot drift apart.
@@ -207,8 +207,8 @@ function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
  * no arrowhead, so it is shorter by exactly one arrowhead.
  *   handover-ui-detail-spec-ja.md 4-9
  */
-function depRunEntry() { return S.depArrowLen * S.depRunOfArrow; }
-function depRunExit() { return S.depArrowLen * (S.depRunOfArrow - 1); }
+function dependencyRunEntry() { return S.dependencyArrowLength * S.dependencyRunOfArrow; }
+function dependencyRunExit() { return S.dependencyArrowLength * (S.dependencyRunOfArrow - 1); }
 
 /**
  * The plan height at which the actual bar exactly reaches its 16px floor.
@@ -231,15 +231,15 @@ function shapeMetrics(kind, zoomY) {
   var thin = !hasThickness(kind) && kind !== "milestone";
   var rawFont = actualH * S.fontOfActual * (thin ? S.thinFontScale : 1);
   var fontSize = Math.max(S.fontMin, rawFont);
-  var markText = Math.max(S.fontMin, fontSize * S.markTextOfFont);
+  var markText = Math.max(S.fontMin, fontSize * S.markerTextOfFont);
   return {
     kind: kind,
     planH: planH,
     actualH: actualH,
     fontSize: fontSize,
     fontFloored: rawFont < S.fontMin,
-    markTextSize: markText,
-    markSize: Math.max(S.markMin, markText * S.markOfText),
+    markerTextSize: markText,
+    markerSize: Math.max(S.markerMin, markText * S.markerOfText),
     reserved: hasThickness(kind) ? planH : planH + S.actualGap + actualH,
     insideActualTop: (planH - actualH) / 2,
     belowActualTop: planH + S.actualGap,
@@ -279,7 +279,7 @@ function haloAttrs(fontSize) {
     '" paint-order="stroke fill" stroke-linejoin="round"';
 }
 
-/** Cut to truncUnits half-width units, appending a half-width ellipsis. */
+/** Cut to truncateUnits half-width units, appending a half-width ellipsis. */
 function truncateUnits(s, units) {
   if (widthUnits(s) <= units) return s;
   var out = "", n = 0, i, w;
@@ -448,8 +448,8 @@ global.POC_UI = {
   planFloor: planFloor,
   atFloor: atFloor,
   shapeMetrics: shapeMetrics,
-  depRunEntry: depRunEntry,
-  depRunExit: depRunExit,
+  dependencyRunEntry: dependencyRunEntry,
+  dependencyRunExit: dependencyRunExit,
   isFullWidth: isFullWidth,
   widthUnits: widthUnits,
   labelWidth: labelWidth,

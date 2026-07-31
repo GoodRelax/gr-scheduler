@@ -206,10 +206,10 @@ function lod(zoomX, zoomY, dropEnabled) {
     itemDepth: Math.max(1, Math.min(5, rawItem - pen)),
     rowDepth: Math.max(1, Math.min(5, rawRow - pen)),
     effZoomY: zoomY,
-    taskH: shapeMetrics("bar", zoomY).planH,
-    actualH: shapeMetrics("bar", zoomY).actualH,
-    fontSize: shapeMetrics("bar", zoomY).fontSize,
-    fontFloored: shapeMetrics("bar", zoomY).fontFloored
+    taskH: shapeMetrics("rectangle", zoomY).planH,
+    actualH: shapeMetrics("rectangle", zoomY).actualH,
+    fontSize: shapeMetrics("rectangle", zoomY).fontSize,
+    fontFloored: shapeMetrics("rectangle", zoomY).fontFloored
   };
 }
 
@@ -233,7 +233,7 @@ function buildData() {
 
   // WBS: 3 at depth 1, x3 each level down.
   function emit(depth, start, span, rowIdx, path) {
-    var SHAPES = ["bar", "bar", "chevron", "arrow", "endpointSpan"];
+    var SHAPES = ["rectangle", "rectangle", "chevron", "arrow", "endpointSpan"];
     var t = {
       uid: ++uid, depth: depth, start: start, finish: start + span,
       row: rowIdx, name: path,
@@ -302,7 +302,7 @@ function taskGeom(t, ctx) {
   var m = ctx.m(t.shapeKind);
   var x0 = t.start * ctx.ppd, x1 = t.finish * ctx.ppd, sx0, sx1;
   if (t.milestone) { sx0 = x0 - m.glyphSize / 2; sx1 = x0 + m.glyphSize / 2; }
-  else { sx0 = x0; sx1 = Math.max(x1, x0 + SIZE.minShapeW); }
+  else { sx0 = x0; sx1 = Math.max(x1, x0 + SIZE.minShapeWidth); }
 
   var aX0 = null, aX1 = null;
   if (t.hasActual) {
@@ -316,7 +316,7 @@ function taskGeom(t, ctx) {
 
   var nameExtent = 0, labelMode = "none", labelText = "";
   if (ctx.showLabels) {
-    var cut = truncate(t.name, SIZE.truncUnits);
+    var cut = truncate(t.name, SIZE.truncateUnits);
     var wFull = labelWidth(t.name, m.fontSize), wCut = labelWidth(cut, m.fontSize);
     var inside = hasThickness(t.shapeKind) ? (sx1 - sx0) - SIZE.labelPad * 2 : -1;
     if (wFull <= inside) { labelMode = "inside"; labelText = t.name; }
@@ -324,24 +324,24 @@ function taskGeom(t, ctx) {
     else { labelMode = "right"; labelText = cut; nameExtent = SIZE.labelGap + wCut; }
   }
 
-  var markExtent = 0;
+  var markerExtent = 0;
   if (t.hasActual && ctx.showLabels) {
-    markExtent = SIZE.markGap + m.markSize;
+    markerExtent = SIZE.markerGap + m.markerSize;
     if (t.suspended) {
-      markExtent += SIZE.markGap + m.markSize * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
+      markerExtent += SIZE.markerGap + m.markerSize * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
     }
   }
   var resumeX1 = (t.suspended && t.resumeValid && t.resume != null)
-    ? t.resume * ctx.ppd + m.markSize / 2 : -Infinity;
+    ? t.resume * ctx.ppd + m.markerSize / 2 : -Infinity;
 
   return { m: m, sx0: sx0, sx1: sx1, aX0: aX0, aX1: aX1, bodyX1: bodyX1,
            occX0: sx0 - leftExtent,
-           occX1: Math.max(bodyX1 + markExtent + nameExtent, resumeX1),
+           occX1: Math.max(bodyX1 + markerExtent + nameExtent, resumeX1),
            leftText: leftText, labelMode: labelMode, labelText: labelText,
-           markExtent: markExtent, markX: bodyX1 + SIZE.markGap };
+           markerExtent: markerExtent, markerX: bodyX1 + SIZE.markerGap };
 }
 
-// ---------------------------------------------------------------- lane packing
+// ---------------------------------------------------------------- stackIndex packing
 function packRow(list, ctx) {
   var ordered = list.slice().sort(function (a, b) {
     if (a.milestone !== b.milestone) return a.milestone ? -1 : 1;
@@ -349,45 +349,45 @@ function packRow(list, ctx) {
     if (a.finish !== b.finish) return b.finish - a.finish;
     return a.uid - b.uid;
   });
-  var lanes = [], out = [], i, j, overlaps = 0;
+  var stackCount = [], out = [], i, j, overlaps = 0;
   for (i = 0; i < ordered.length; i++) {
     var g = taskGeom(ordered[i], ctx), target = -1;
-    for (j = 0; j < lanes.length; j++) {
+    for (j = 0; j < stackCount.length; j++) {
       var ok = true;
-      for (var k = 0; k < lanes[j].length; k++) {
-        var o = lanes[j][k];
+      for (var k = 0; k < stackCount[j].length; k++) {
+        var o = stackCount[j][k];
         if (g.occX0 < o.occX1 && o.occX0 < g.occX1) { ok = false; break; }
       }
       if (ok) { target = j; break; }
     }
-    if (target < 0) { target = lanes.length; lanes.push([]); }
-    lanes[target].push(g);
-    out.push({ t: ordered[i], g: g, lane: target });
+    if (target < 0) { target = stackCount.length; stackCount.push([]); }
+    stackCount[target].push(g);
+    out.push({ t: ordered[i], g: g, stackIndex: target });
   }
-  // A lane is as tall as the tallest shape in it, so a lane of thin shapes stays low.
-  var laneH = [], laneTop = [], acc = 0;
-  for (i = 0; i < lanes.length; i++) {
+  // A stackIndex is as tall as the tallest shape in it, so a stackIndex of thin shapes stays low.
+  var stackHeight = [], stackTop = [], acc = 0;
+  for (i = 0; i < stackCount.length; i++) {
     var h = 0;
-    for (j = 0; j < lanes[i].length; j++) h = Math.max(h, lanes[i][j].m.reserved);
-    laneH.push(h || ctx.m("bar").reserved);
+    for (j = 0; j < stackCount[i].length; j++) h = Math.max(h, stackCount[i][j].m.reserved);
+    stackHeight.push(h || ctx.m("rectangle").reserved);
   }
-  if (!laneH.length) laneH.push(ctx.m("bar").reserved);
-  for (i = 0; i < laneH.length; i++) { laneTop.push(acc); acc += laneH[i] + SIZE.laneGap; }
+  if (!stackHeight.length) stackHeight.push(ctx.m("rectangle").reserved);
+  for (i = 0; i < stackHeight.length; i++) { stackTop.push(acc); acc += stackHeight[i] + SIZE.stackGap; }
 
-  for (i = 0; i < lanes.length; i++)
-    for (j = 0; j < lanes[i].length; j++)
-      for (var k2 = j + 1; k2 < lanes[i].length; k2++) {
-        var a = lanes[i][j], b = lanes[i][k2];
+  for (i = 0; i < stackCount.length; i++)
+    for (j = 0; j < stackCount[i].length; j++)
+      for (var k2 = j + 1; k2 < stackCount[i].length; k2++) {
+        var a = stackCount[i][j], b = stackCount[i][k2];
         if (a.occX0 < b.occX1 && b.occX0 < a.occX1) overlaps++;
       }
-  return { lanes: laneH.length, items: out, overlaps: overlaps,
-           laneH: laneH, laneTop: laneTop,
-           height: Math.max(0, acc - SIZE.laneGap) };
+  return { stackCount: stackHeight.length, items: out, overlaps: overlaps,
+           stackHeight: stackHeight, stackTop: stackTop,
+           height: Math.max(0, acc - SIZE.stackGap) };
 }
 
 // ---------------------------------------------------------------- SVG shapes
 function thickPath(kind, x0, x1, y, h) {
-  var w = Math.max(x1 - x0, SIZE.minShapeW);
+  var w = Math.max(x1 - x0, SIZE.minShapeWidth);
   if (kind === "chevron") {
     var n = Math.min(h * SIZE.chevronNotchOfH, w * SIZE.chevronNotchOfW);
     return "M" + r1(x0) + "," + r1(y) + " L" + r1(x1 - n) + "," + r1(y) +
@@ -436,9 +436,9 @@ function diamond(cx, cy, s) {
  * one ratio (handover-ui-detail-spec-ja.md 4-9) so they cannot drift apart.
  *
  *   x2 >= x1  ->  one bend pair at the midpoint          (2 bends; straight when
- *                                                         the two share a lane)
+ *                                                         the two share a stackIndex)
  *   x2 <  x1  ->  out to the right, back along the
- *                 corridor between the lanes, in from
+ *                 corridor between the stackCount, in from
  *                 the left                               (4 bends)
  *
  * The exit anchor is ALWAYS the predecessor's right edge and the entry anchor is
@@ -446,22 +446,22 @@ function diamond(cx, cy, s) {
  * band between the two bars.
  */
 function corridorY(a, b, pk) {
-  var topA = pk.laneTop[a.lane], topB = pk.laneTop[b.lane];
-  if (a.lane === b.lane) return topA + a.g.m.planH + SIZE.laneGap / 2;
+  var topA = pk.stackTop[a.stackIndex], topB = pk.stackTop[b.stackIndex];
+  if (a.stackIndex === b.stackIndex) return topA + a.g.m.planH + SIZE.stackGap / 2;
   if (topB > topA) return (topA + a.g.m.planH + topB) / 2;
   return (topB + b.g.m.planH + topA) / 2;
 }
 
 function routeLink(a, b, pk) {
   var ga = a.g, gb = b.g;
-  var topA = pk.laneTop[a.lane], topB = pk.laneTop[b.lane];
+  var topA = pk.stackTop[a.stackIndex], topB = pk.stackTop[b.stackIndex];
   var ay = topA + ga.m.planH / 2, by = topB + gb.m.planH / 2;
-  var x1 = ga.sx1 + POC_UI.depRunExit();    // leaving the predecessor: no arrowhead
-  var x2 = gb.sx0 - POC_UI.depRunEntry();   // entering the successor: arrowhead + line
+  var x1 = ga.sx1 + POC_UI.dependencyRunExit();    // leaving the predecessor: no arrowhead
+  var x2 = gb.sx0 - POC_UI.dependencyRunEntry();   // entering the successor: arrowhead + line
   var sameY = Math.abs(ay - by) < 0.5;
 
   if (sameY) {                                                   // (1) in line
-    if (gb.sx0 - ga.sx1 >= POC_UI.depRunEntry()) return [[ga.sx1, ay], [gb.sx0, by]];
+    if (gb.sx0 - ga.sx1 >= POC_UI.dependencyRunEntry()) return [[ga.sx1, ay], [gb.sx0, by]];
   } else if (x2 >= x1) {                                         // (2)(3) with a gap
     var mx = Math.max(x1, Math.min((ga.sx1 + gb.sx0) / 2, x2));
     return [[ga.sx1, ay], [mx, ay], [mx, by], [gb.sx0, by]];
@@ -485,13 +485,13 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
     showLabels: showLabels !== false
   };
 
-  var y = SIZE.rulerH, packs = [], totalLanes = 0, totalOverlap = 0, depCount = 0, i;
+  var y = SIZE.rulerH, packs = [], totalStacks = 0, totalOverlap = 0, dependencyCount = 0, i;
   var minX = 0, maxX = 0;
   for (i = 0; i < V.rows.length; i++) {
     var pk = packRow(V.buckets[i], ctx);
     pk.y = y;
     y += pk.height + SIZE.rowGap;
-    totalLanes += pk.lanes; totalOverlap += pk.overlaps;
+    totalStacks += pk.stackCount; totalOverlap += pk.overlaps;
     pk.items.forEach(function (it) {
       if (it.g.occX0 < minX) minX = it.g.occX0;
       if (it.g.occX1 > maxX) maxX = it.g.occX1;
@@ -499,8 +499,8 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
     packs.push(pk);
   }
   var contentH = y + SIZE.rowGap;
-  var originX = SIZE.rowLabelW - minX;
-  var W = Math.max(originX + maxX + SIZE.rowLabelW / 8, SIZE.rowLabelW * 4);
+  var originX = SIZE.rowTitleWidth - minX;
+  var W = Math.max(originX + maxX + SIZE.rowTitleWidth / 8, SIZE.rowTitleWidth * 4);
 
   var s = ['<svg width="' + r1(W) + '" height="' + r1(Math.max(contentH, SIZE.rulerH * 3)) +
            '" viewBox="0 0 ' + r1(W) + ' ' + r1(Math.max(contentH, SIZE.rulerH * 3)) + '">',
@@ -534,8 +534,8 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
     s.push('<rect x="0" y="' + r1(pk2.y - SIZE.rowGap / 2) + '" width="' + r1(W) + '" height="' +
            r1(pk2.height + SIZE.rowGap) + '" fill="' +
            (row.depth === 1 ? "var(--row-top)" : (i % 2 ? "var(--row-alt)" : "var(--bg)")) + '"/>');
-    s.push('<text x="' + (SIZE.labelPad + (row.depth - 1) * SIZE.rowIndent) + '" y="' +
-           r1(pk2.y + SIZE.rowLabelFont) + '" font-size="' + SIZE.rowLabelFont + '" fill="' +
+    s.push('<text x="' + (SIZE.labelPad + (row.depth - 1) * SIZE.rowTitleIndent) + '" y="' +
+           r1(pk2.y + SIZE.rowTitleFont) + '" font-size="' + SIZE.rowTitleFont + '" fill="' +
            (row.depth === 1 ? "var(--accent)" : "var(--sub)") + '"' +
            (row.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(row.name) + '</text>');
 
@@ -547,15 +547,15 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
         var dd = pts.map(function (pt, n) {
           return (n ? "L" : "M") + r1(originX + pt[0]) + "," + r1(pk2.y + pt[1]);
         }).join(" ");
-        s.push('<path d="' + dd + '" fill="none" stroke="var(--dep)" stroke-width="' + SIZE.depWidth +
+        s.push('<path d="' + dd + '" fill="none" stroke="var(--dep)" stroke-width="' + SIZE.dependencyWidth +
                '" stroke-linejoin="round" marker-end="url(#dep-a)"/>');
-        depCount++;
+        dependencyCount++;
       }
     }
 
     pk2.items.forEach(function (it) {
       var t = it.t, g = it.g, m = g.m;
-      var ty = pk2.y + pk2.laneTop[it.lane];
+      var ty = pk2.y + pk2.stackTop[it.stackIndex];
       var sx0 = originX + g.sx0, sx1 = originX + g.sx1;
       var op = 0.45 + 0.11 * (6 - t.depth);
       var midY = ty + m.planH / 2;
@@ -588,19 +588,19 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
       s.push('<text x="' + r1(sx0 - SIZE.labelGap) + '" y="' + r1(textY) + '" font-size="' +
              r1(fs) + '" text-anchor="end" fill="var(--label-ink)">' + esc(g.leftText) + '</text>');
       if (t.hasActual) {
-        var ms = m.markSize, mx2 = originX + g.markX, mtxt = m.markTextSize;
+        var ms = m.markerSize, mx2 = originX + g.markerX, mtxt = m.markerTextSize;
         s.push('<circle cx="' + r1(mx2 + ms / 2) + '" cy="' + r1(midY) + '" r="' + r1(ms / 2) +
-               '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + SIZE.markStroke + '"/>');
-        s.push('<text x="' + r1(mx2 + ms / 2) + '" y="' + r1(midY + mtxt * SIZE.markTextBaseline) +
+               '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + SIZE.markerStroke + '"/>');
+        s.push('<text x="' + r1(mx2 + ms / 2) + '" y="' + r1(midY + mtxt * SIZE.markerTextBaseline) +
                '" font-size="' + r1(mtxt) + '" text-anchor="middle" fill="var(--marker-ink)">' +
                t.percentComplete + '</text>');
         if (t.suspended) {
-          var rx = mx2 + ms + SIZE.markGap;
+          var rx = mx2 + ms + SIZE.markerGap;
           var rw = ms * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
           var dim = t.resumeValid ? '' : ' opacity="0.45"';
           s.push('<path d="M' + r1(rx) + ',' + r1(midY + ms / 2) + ' V' + r1(midY) + ' h' +
                  r1(rw * SIZE.resumeArmOfMark) + '" fill="none" stroke="var(--marker-ink)" stroke-width="' +
-                 SIZE.markStroke + '" stroke-linecap="round"' + dim + '/>');
+                 SIZE.markerStroke + '" stroke-linecap="round"' + dim + '/>');
           s.push('<path d="M' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
                  r1(midY - rw * SIZE.resumeHeadOfMark) + ' L' + r1(rx + rw) + ',' + r1(midY) +
                  ' L' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
@@ -608,7 +608,7 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
         }
       }
       if (g.labelMode === "right") {
-        s.push('<text x="' + r1(originX + g.bodyX1 + g.markExtent + SIZE.labelGap) + '" y="' +
+        s.push('<text x="' + r1(originX + g.bodyX1 + g.markerExtent + SIZE.labelGap) + '" y="' +
                r1(textY) + '" font-size="' + r1(fs) + '" fill="var(--label-ink)">' +
                esc(g.labelText) + '</text>');
       } else if (g.labelMode === "inside") {
@@ -619,8 +619,8 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
     });
   }
   s.push('</svg>');
-  return { svg: s.join(""), V: V, contentH: contentH, totalLanes: totalLanes,
-           overlaps: totalOverlap, packs: packs, width: W, depCount: depCount };
+  return { svg: s.join(""), V: V, contentH: contentH, totalStacks: totalStacks,
+           overlaps: totalOverlap, packs: packs, width: W, dependencyCount: dependencyCount };
 }
 
 // ---------------------------------------------------------------- transition scan
@@ -873,8 +873,8 @@ function redrawLive() {
     item("行深さ", L.rowDepthRaw + " → " + L.rowDepth) +
     item("表示行", R.V.rows.length + " / " + DATA.rows.length) +
     item("表示タスク", R.V.shownTasks + " / " + DATA.tasks.length) +
-    item("合計段数", R.totalLanes) +
-    item("依存線", R.depCount) +
+    item("合計段数", R.totalStacks) +
+    item("依存線", R.dependencyCount) +
     item("描画幅", Math.round(R.width) + "px") +
     item("overlap", '<span style="color:' + (R.overlaps ? "var(--bad)" : "var(--good)") + '">' +
       R.overlaps + "</span>") +
@@ -1005,7 +1005,7 @@ function buildCliffTable() {
     var R = renderLive(zx, zy, el.drop.checked, el.lbl.checked, el.dep.checked);
     var fit = R.contentH <= CANVAS_H;
     rows.push('<tr><td class="num">' + zy + '</td><td class="num">' + R.V.lod.rowDepth + '</td>' +
-      '<td class="num">' + R.V.rows.length + '</td><td class="num">' + R.totalLanes + '</td>' +
+      '<td class="num">' + R.V.rows.length + '</td><td class="num">' + R.totalStacks + '</td>' +
       '<td class="num">' + Math.round(R.contentH) + '</td><td>' +
       (fit ? '<span class="flag f-good">収まる</span>' : '<span class="flag f-bad">はみ出す</span>') +
       '</td></tr>');
@@ -1021,7 +1021,7 @@ function buildCliffTable() {
     '<strong>次期でも同じ形の事故が起きる</strong> — ズーム値を量子化する場所（スライダー・ホイールの刻み・保存値の丸め）が' +
     'LOD 閾値と独立に決まっているかぎり、必ず跨ぐ。</div>' +
     '<table>' + rows.join("") + '</table>' +
-    '<p class="hint">閾値 0.60 を挟んだ 1 刻みで、段数が ' + a.totalLanes + ' → ' + b.totalLanes +
+    '<p class="hint">閾値 0.60 を挟んだ 1 刻みで、段数が ' + a.totalStacks + ' → ' + b.totalStacks +
     ' に跳ぶ。<strong>LOD は本質的に不連続</strong>なので、Fit のような「収まる最大値を求める」操作は' +
     '閾値のすぐ下に吸い寄せられる。ズーム PoC B の「画面予算から深さを決める」向きなら、' +
     'この衝突は起きない（先に深さを決めてから高さを配るため）。</p>';

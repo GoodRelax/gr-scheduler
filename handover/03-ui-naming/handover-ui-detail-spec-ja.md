@@ -439,14 +439,14 @@ FS の自動配線が実際に使うのは上の 2 点である。
 出口と入口を**別々の定数にしてはならない**。別々だと必ず食い違う。**倍率 1 つから両方を導く**。
 
 ```
-depArrowLen      矢印の三角形の長さ                    既定 10px
-depRunOfArrow    入口の走り ÷ 三角形                   既定 2
+dependencyArrowLength      矢印の三角形の長さ                    既定 10px
+dependencyRunOfArrow    入口の走り ÷ 三角形                   既定 2
 
-入口の走り = depArrowLen x depRunOfArrow           = 20px
-出口の走り = depArrowLen x (depRunOfArrow − 1)     = 10px
+入口の走り = dependencyArrowLength x dependencyRunOfArrow           = 20px
+出口の走り = dependencyArrowLength x (dependencyRunOfArrow − 1)     = 10px
 ```
 
-制約 `depRunOfArrow > 1`（§4-10-2）が**両方を同時に担保する**。
+制約 `dependencyRunOfArrow > 1`（§4-10-2）が**両方を同時に担保する**。
 1 を超えていれば入口に直線が残り、同時に出口の走りが正になる。
 
 #### 5 パターン
@@ -580,35 +580,35 @@ x2 <  x1 → 右へ出て段間の通路を左へ戻る        ④ ⑤
 ```mermaid
 graph LR
     basePlanH["予定の縦幅<br/>basePlanH"]
-    shapeH["形状の倍率<br/>shapeH.*<br/>細線 0.5 / 矩形 1 / ◇ 1.5"]
+    shapeHeightOf["形状の倍率<br/>shapeHeightOf.*<br/>細線 0.5 / 矩形 1 / ◇ 1.5"]
     planH["その形状の予定の縦幅<br/>planH"]
     actualH["実績の縦幅<br/>actualH"]
     fontRaw["素のフォント"]
     fontMin["最小フォント<br/>fontMin = 12px"]
     fontSize["フォントサイズ"]
     markText["マーカーの数字"]
-    markSize["マーカー径"]
+    markerSize["マーカー径"]
     labelW["ラベルの幅"]
     occW["占有幅"]
-    lanes["積み段の割当"]
+    stackCount["積み段の割当"]
     rowH["行の高さ"]
 
     planFloor["予定の下限<br/>actualMin ÷ actualOfPlan"]
     planFloor -- "max()" --> planH
-    basePlanH -- "x zoomY x shapeH" --> planH
-    shapeH --> planH
+    basePlanH -- "x zoomY x shapeHeightOf" --> planH
+    shapeHeightOf --> planH
     planH -- "x actualOfPlan" --> actualH
     actualH -- "x fontOfActual<br/>細線はさらに x thinFontScale" --> fontRaw
     fontRaw -- "max()" --> fontSize
     fontMin -- "max()" --> fontSize
-    fontSize -- "x markTextOfFont" --> markText
-    markText -- "x markOfText" --> markSize
+    fontSize -- "x markerTextOfFont" --> markText
+    markText -- "x markerOfText" --> markerSize
     fontSize -- "x labelCoef x 文字数" --> labelW
     labelW -- "左: 担当+進捗 / 右: 名称" --> occW
-    markSize -- "右: markGap + 径" --> occW
-    occW --> lanes
+    markerSize -- "右: markerGap + 径" --> occW
+    occW --> stackCount
     planH -- "段の高さ = 最大の reserved" --> rowH
-    lanes --> rowH
+    stackCount --> rowH
 ```
 
 **依存線はこの図に入らない。** 担当/進捗と同時に出さないので、
@@ -616,25 +616,25 @@ graph LR
 
 ```mermaid
 graph LR
-    depArrowLen["矢印の三角形<br/>depArrowLen"]
-    depRunOfArrow["入口の走り倍率<br/>depRunOfArrow = 2"]
-    depRunEntry["入口の走り<br/>depRunEntry"]
-    depRunExit["出口の走り<br/>depRunExit"]
+    dependencyArrowLength["矢印の三角形<br/>dependencyArrowLength"]
+    dependencyRunOfArrow["入口の走り倍率<br/>dependencyRunOfArrow = 2"]
+    dependencyRunEntry["入口の走り<br/>dependencyRunEntry"]
+    dependencyRunExit["出口の走り<br/>dependencyRunExit"]
     branch["②③ と ④⑤ の<br/>切替しきい値"]
-    depWidth["太さ<br/>depWidth"]
-    laneGap["段の間隔<br/>laneGap"]
+    dependencyWidth["太さ<br/>dependencyWidth"]
+    stackGap["段の間隔<br/>stackGap"]
     zoom["ズーム"]
 
-    depArrowLen -- "x 倍率" --> depRunEntry
-    depRunOfArrow --> depRunEntry
-    depArrowLen -- "x (倍率 − 1)" --> depRunExit
-    depRunOfArrow --> depRunExit
-    depRunEntry -- "+" --> branch
-    depRunExit -- "+" --> branch
-    zoom -. "追随しない" .-> depRunEntry
-    zoom -. "追随しない" .-> depRunExit
-    zoom -. "追随しない" .-> depWidth
-    depWidth -- "1 本通る幅を要求" --> laneGap
+    dependencyArrowLength -- "x 倍率" --> dependencyRunEntry
+    dependencyRunOfArrow --> dependencyRunEntry
+    dependencyArrowLength -- "x (倍率 − 1)" --> dependencyRunExit
+    dependencyRunOfArrow --> dependencyRunExit
+    dependencyRunEntry -- "+" --> branch
+    dependencyRunExit -- "+" --> branch
+    zoom -. "追随しない" .-> dependencyRunEntry
+    zoom -. "追随しない" .-> dependencyRunExit
+    zoom -. "追随しない" .-> dependencyWidth
+    dependencyWidth -- "1 本通る幅を要求" --> stackGap
 ```
 
 #### 4-10-2. 範囲の依存関係 — ある値の上下限が別の値で動く
@@ -647,10 +647,10 @@ graph TD
     actualOfPlan["actualOfPlan<br/>0 &lt; x &lt; 1"]
     fontOfActual["fontOfActual<br/>0 &lt; x &lt; 1"]
     basePlanH["basePlanH<br/>下限が動く"]
-    depWidth["depWidth<br/>上限が動く"]
-    laneGap["laneGap<br/>下限が動く"]
-    depArrowLen["depArrowLen<br/>下限が動く"]
-    depRunOfArrow["depRunOfArrow<br/>&gt; 1"]
+    dependencyWidth["dependencyWidth<br/>上限が動く"]
+    stackGap["stackGap<br/>下限が動く"]
+    dependencyArrowLength["dependencyArrowLength<br/>下限が動く"]
+    dependencyRunOfArrow["dependencyRunOfArrow<br/>&gt; 1"]
     thinMin["thinStrokeMin"]
     thinMax["thinStrokeMax"]
     resumeArm["resumeArmOfMark<br/>上限が動く"]
@@ -667,9 +667,9 @@ graph TD
     actualOfPlan --> basePlanH
     fontMin -- "和文の可読下限" --> rulerFont
     rulerFont -- "文字が入る高さ" --> rulerH
-    depWidth -- "下限 = depWidth x 2" --> laneGap
-    laneGap -- "上限 = laneGap ÷ 2" --> depWidth
-    depWidth -- "下限 = depWidth x 2" --> depArrowLen
+    dependencyWidth -- "下限 = dependencyWidth x 2" --> stackGap
+    stackGap -- "上限 = stackGap ÷ 2" --> dependencyWidth
+    dependencyWidth -- "下限 = dependencyWidth x 2" --> dependencyArrowLength
     thinMax -- "上限" --> thinMin
     thinMin -- "下限" --> thinMax
     resumeHead -- "上限 = 1 − resumeHeadOfMark" --> resumeArm
@@ -677,7 +677,7 @@ graph TD
     zoomMin -- "下限" --> zoomMax
 ```
 
-**相互に縛り合う対が 3 組ある**（`depWidth` ↔ `laneGap` / `thinStrokeMin` ↔ `thinStrokeMax` /
+**相互に縛り合う対が 3 組ある**（`dependencyWidth` ↔ `stackGap` / `thinStrokeMin` ↔ `thinStrokeMax` /
 `zoomMin` ↔ `zoomMax`）。片方を動かすともう片方の範囲が動くので、
 **UI では両方の範囲を毎回引き直すこと**。片方だけ検証する実装は必ず矛盾した組を通す。
 
@@ -706,12 +706,12 @@ graph TD
 
 **下限に当たったらどうするかは §2-4-1 のとおり** — さらに縮めるのではなく、
 描画する Outline のレベルを 1 つ減らす。下限は**引き金**であって、そこで固まる値ではない。
-| 入口の走りが三角形より長い | `depRunOfArrow > 1` | **1 以下**: 垂直線の先端に三角形が直接乗り、矢印に見えない。同時に**出口の走りが 0 以下**になり、先行の右辺から線が出ない |
-| 依存線が段の間を通る | `laneGap ≧ depWidth × 2` | 線が上下のバーに接する |
-| 細線が矩形より薄い | `shapeH.arrow < 1` | 「縦に薄い」という取り柄が消える |
-| ◇ が矩形より大きい | `shapeH.milestone > 1` | 目立たなくなる |
+| 入口の走りが三角形より長い | `dependencyRunOfArrow > 1` | **1 以下**: 垂直線の先端に三角形が直接乗り、矢印に見えない。同時に**出口の走りが 0 以下**になり、先行の右辺から線が出ない |
+| 依存線が段の間を通る | `stackGap ≧ dependencyWidth × 2` | 線が上下のバーに接する |
+| 細線が矩形より薄い | `shapeHeightOf.arrow < 1` | 「縦に薄い」という取り柄が消える |
+| ◇ が矩形より大きい | `shapeHeightOf.milestone > 1` | 目立たなくなる |
 | 矢羽根の先端が反転しない | `chevronNotchOfW ≦ 0.5` | 切り欠きが交差して形が壊れる |
-| 3 桁がマーカーに収まる | `markOfText ≧ 1.6` | 数字が円からはみ出す |
+| 3 桁がマーカーに収まる | `markerOfText ≧ 1.6` | 数字が円からはみ出す |
 
 **実際に触れる**: `../08-poc/poc-schedule-zoom.html` の「設定…」ボタン。
 **59 個すべて**を個別に変えられ、**範囲は他の設定に追随して引き直される**。
