@@ -3,39 +3,20 @@
 <head>
 <meta charset="utf-8">
 <title>PoC: マルチバー行のパターン集（2026-07-30）</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
-  /* Font scale measured against ja.wikipedia.org (body 16px / lh 26px) and
-     google.com (body 14px). Nothing below 12px, matching the product's own
-     Japanese-readability floor. */
-  :root { --bg:#fff; --ink:#1a1a1a; --sub:#555; --rule:#dcdcdc; --panel:#f6f7f9;
-          --accent:#2b5ea8; --good:#1f7a3d; --warn:#a8600f; --bad:#a02b2b;
-          --plan:#8fb0d9; --plan-line:#4d79ad; --act:#1d4f8c;
-          --dep:#d2691e; --mark:#333; }
-  * { box-sizing:border-box; }
-  body { margin:0; padding:0 0 90px 0; background:var(--bg); color:var(--ink);
-         font-family:"Yu Gothic UI","Meiryo",system-ui,sans-serif;
-         font-size:16px; line-height:1.7; }
-  .wrap { max-width:1360px; margin:0 auto; padding:0 20px; }
-  header { background:var(--panel); border-bottom:1px solid var(--rule); padding:22px 0 0 0; }
-  h1 { margin:0 0 6px 0; font-size:24px; line-height:1.35; }
-  .lede { margin:0 0 14px 0; color:var(--sub); font-size:16px; }
+  /* Colours and shared page furniture come from poc-ui.css; every dimension
+     comes from poc-ui.js. Only this page's own layout lives here. */
+  .wrap { max-width:1360px; }
   .ctl { display:flex; flex-wrap:wrap; gap:14px 20px; align-items:center; padding:14px 0;
          border-top:1px solid var(--rule); font-size:14px; }
   .ctl label { display:flex; align-items:center; gap:7px; white-space:nowrap; }
   .ctl input[type=range] { width:180px; }
-  .ctl .val { font-variant-numeric:tabular-nums; min-width:62px; color:var(--accent); font-weight:700; }
-  .ctl button { font:inherit; font-size:14px; padding:3px 12px; }
   .verdictbar { padding:10px 0 16px 0; font-size:16px; }
-  .pill { display:inline-block; padding:3px 13px; border-radius:13px; font-weight:700; font-size:14px; }
-  .p-good { background:#e3f2e8; color:var(--good); }
-  .p-bad  { background:#fbe6e6; color:var(--bad); }
-  h2 { font-size:20px; margin:34px 0 8px 0; padding-top:12px; border-top:1px solid var(--rule); }
-  .hint { margin:0 0 14px 0; color:var(--sub); font-size:14px; }
   table.sum { border-collapse:collapse; width:100%; font-size:14px; margin:12px 0 4px 0; }
-  table.sum th, table.sum td { border:1px solid var(--rule); padding:5px 9px; text-align:left; }
-  table.sum th { background:var(--panel); }
   table.sum td.num { text-align:right; font-variant-numeric:tabular-nums; }
-  .pat { border:1px solid var(--rule); border-radius:6px; margin:16px 0; background:#fff; overflow:hidden; }
+  .pat { border:1px solid var(--rule); border-radius:6px; margin:16px 0; background:var(--bg); overflow:hidden; }
   .pat > .head { background:var(--panel); border-bottom:1px solid var(--rule); padding:9px 13px;
                  display:flex; flex-wrap:wrap; gap:10px 12px; align-items:baseline; }
   .pat .pid { font-weight:700; font-size:14px; color:var(--accent); font-variant-numeric:tabular-nums; }
@@ -47,28 +28,23 @@
                   gap:8px 16px; font-variant-numeric:tabular-nums; }
   .pat .metrics b { color:var(--ink); }
   .pat svg { display:block; }
-  .flag { display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; }
-  .f-bad { background:#fbe6e6; color:var(--bad); }
-  .f-good { background:#e3f2e8; color:var(--good); }
-  .note { background:var(--panel); border-left:3px solid var(--accent); padding:12px 16px;
-          font-size:14px; margin:16px 0; }
   .note.warn { border-left-color:var(--warn); }
   .note ol, .note ul { margin:6px 0 0 0; padding-left:22px; }
   code { background:var(--panel); padding:1px 5px; border-radius:3px; font-size:14px; }
-  pre.consts { background:#1e2632; color:#dfe6ef; padding:14px 16px; border-radius:6px;
-               font-size:13px; line-height:1.6; overflow-x:auto;
+  pre.consts { background:var(--panel); color:var(--ink); padding:14px 16px; border-radius:6px;
+               border:1px solid var(--rule); font-size:13px; line-height:1.6; overflow-x:auto;
                font-family:Consolas,"Courier New",monospace; }
-  pre.consts b { color:#ffd479; font-weight:700; }
+  pre.consts b { color:var(--accent); font-weight:700; }
   .legend { display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--sub); margin:8px 0 0 0; }
   .legend span::before { content:""; display:inline-block; width:14px; height:10px; margin-right:5px;
                          vertical-align:-1px; border-radius:2px; }
-  .legend .l-plan::before { background:var(--plan); border:1px solid var(--plan-line); }
-  .legend .l-act::before  { background:var(--act); }
+  .legend .l-plan::before { background:var(--plan-fill); border:1px solid var(--plan-stroke); }
+  .legend .l-act::before  { background:var(--actual-fill); }
   .legend .l-dep::before  { background:var(--dep); height:3px; vertical-align:2px; }
-  .legend .l-occ::before  { background:transparent; border:1px dashed #999; }
+  .legend .l-occ::before  { background:transparent; border:1px dashed var(--sub); }
 </style>
 </head>
-<body>
+<body class="reading">
 
 <header><div class="wrap">
   <h1>PoC: マルチバー行のパターン集 — 1 行に複数のタスクが入るとき、段はどう積まれるか</h1>
@@ -82,7 +58,6 @@
     <label><input type="checkbox" id="asg" checked> 担当</label>
     <label><input type="checkbox" id="pct" checked> 完了率</label>
     <label><input type="checkbox" id="dep" checked> 依存線</label>
-    <label><input type="checkbox" id="hfloor"> 高さ下限</label>
     <label><input type="checkbox" id="showocc"> 占有幅</label>
     <button id="reset">既定に戻す</button>
   </div>
@@ -152,133 +127,22 @@
 // No size literal appears in the drawing code below. Change a value here and
 // the whole picture follows.
 // ===========================================================================
-var SIZE = {
-  // --- time axis
-  pxPerDayAt1x:   6,      // px per day at zoomX = 1
+// Every dimension comes from the shared poc-ui.js and every colour from
+// poc-ui.css. This page declares neither, so it cannot drift out of step
+// with the other PoC pages.
+var SIZE = POC_UI.S;
 
-  // --- vertical reference: the plan bar of bar / chevron
-  basePlanH:      28,     // plan bar height at zoomY = 1
-  basePlanHMin:   16,     // optional floor for that height
+var hasThickness = POC_UI.hasThickness;
+var labelWidth   = POC_UI.labelWidth;
+var truncate     = POC_UI.truncateUnits;
 
-  // --- per-shape plan height, as a multiple of the reference.
-  //     Thin shapes are deliberately half as tall: being thin IS their merit,
-  //     they let more information sit in the same vertical space.
-  shapeH: { bar: 1.0, chevron: 1.0, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
+/**
+ * The height floor is no longer optional: dropping below it is what triggers
+ * reducing an outline level (07 2-4-1), so it always applies. The second
+ * argument is kept only so existing call sites need no edit.
+ */
+function shapeMetrics(kind, zoomY) { return POC_UI.shapeMetrics(kind, zoomY); }
 
-  // --- the height ordering must hold:  font < actual < plan
-  actualOfPlan:   0.55,   // actual height / plan height  (value taken from the shape reference)
-  fontOfActual:   0.80,   // font size     / actual height
-  thinFontScale:  0.85,   // extra shrink for arrow / endpointSpan
-  fontMin:        12,     // Japanese readability floor
-
-  // --- vertical spacing
-  actualGap:      2,      // plan -> actual, when the actual sits below
-  laneGap:        12,     // between stack lanes (one dependency line fits)
-
-  // --- progress marker
-  markTextOfFont: 0.75,   // the number inside the marker / the shape's font size
-  markOfText:     2.0,    // marker diameter / that number's size
-  markMin:        16,
-  markGap:        4,      // handover 2-4-1: the overhang is 4px + mark width
-  markTextBaseline: 0.36, // baseline offset / marker text size
-  markStroke:     1.4,
-  resumeScaleInvalid: 0.7,
-  resumeArmOfMark:    0.62,
-  resumeHeadOfMark:   0.22,
-  resumeDash:     "3 2",
-
-  // --- labels
-  labelCoef:      0.5,    // width = (fullwidth*2 + halfwidth) * fontSize * coef
-  labelPad:       6,      // inside the shape
-  labelGap:       4,      // shape -> label placed outside
-  labelBaseline:  0.35,   // baseline offset / font size
-  truncUnits:     24,     // 24 half-width units == 12 full-width chars
-
-  // --- strokes and shape details
-  thinStrokeOfPlan: 0.20, // thin-shape line width / that shape's plan height
-  thinStrokeMin:  1.5,
-  thinStrokeMax:  4,
-  planStroke:     1,
-  chevronNotchOfH: 0.45,
-  chevronNotchOfW: 0.35,
-  arrowHeadOfStroke: 3.2,
-  arrowHeadOfSpan:   0.4,
-  spanDotOfStroke:   1.15,
-  starInnerOfOuter:  0.45,
-
-  // --- dependency lines
-  depWidth:       1.6,
-  depArrowLen:    10,     // drawn length of the arrowhead
-  depRunOfArrow:  2,      // run / arrowhead. 2 means one arrowhead plus one of
-                          // visible line, and the entry and exit runs are equal.
-                          // Below 1 the triangle would sit straight on top of
-                          // the vertical with no line in front of it.
-
-  // --- canvas
-  svgPad:         10,
-  minShapeW:      2       // a zero-duration task still stays visible
-};
-
-// Both dependency-line runs are the SAME length and are derived from the
-// arrowhead, so they cannot drift apart:
-//   arrowhead = 1, run = 2 = one arrowhead + one of visible line.
-SIZE.depRun = SIZE.depArrowLen * SIZE.depRunOfArrow;
-
-function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
-
-/** Every vertical dimension of one shape kind, derived from SIZE alone. */
-function shapeMetrics(kind, zoomY, heightFloor) {
-  var base = SIZE.basePlanH * zoomY;
-  if (heightFloor) base = Math.max(SIZE.basePlanHMin, base);
-  var planH = base * SIZE.shapeH[kind];
-  var actualH = planH * SIZE.actualOfPlan;
-  var thin = !hasThickness(kind) && kind !== "milestone";
-  var rawFont = actualH * SIZE.fontOfActual * (thin ? SIZE.thinFontScale : 1);
-  var fontSize = Math.max(SIZE.fontMin, rawFont);
-  return {
-    kind: kind,
-    planH: planH,
-    actualH: actualH,
-    fontSize: fontSize,
-    fontFloored: rawFont < SIZE.fontMin,
-    markTextSize: Math.max(SIZE.fontMin, fontSize * SIZE.markTextOfFont),
-    markSize: Math.max(SIZE.markMin,
-              Math.max(SIZE.fontMin, fontSize * SIZE.markTextOfFont) * SIZE.markOfText),
-    // Vertical room this shape needs: a thick shape carries the actual inside,
-    // the others push it below.
-    reserved: hasThickness(kind) ? planH : planH + SIZE.actualGap + actualH,
-    insideActualTop: (planH - actualH) / 2,
-    belowActualTop: planH + SIZE.actualGap,
-    thinStroke: Math.max(SIZE.thinStrokeMin,
-                Math.min(SIZE.thinStrokeMax, planH * SIZE.thinStrokeOfPlan)),
-    glyphSize: planH
-  };
-}
-
-// ---------------------------------------------------------------- text metrics
-function isFullWidth(ch) {
-  var c = ch.charCodeAt(0);
-  return (c >= 0x1100 && c <= 0x115F) || (c >= 0x2E80 && c <= 0xA4CF) ||
-         (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0xF900 && c <= 0xFAFF) ||
-         (c >= 0xFE30 && c <= 0xFE6F) || (c >= 0xFF00 && c <= 0xFF60) ||
-         (c >= 0xFFE0 && c <= 0xFFE6);
-}
-function widthUnits(s) {
-  var n = 0;
-  for (var i = 0; i < s.length; i++) n += isFullWidth(s.charAt(i)) ? 2 : 1;
-  return n;
-}
-/** Analytic estimate. No browser text measurement (handover 6-2). */
-function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * SIZE.labelCoef; }
-function truncate(s, units) {
-  var n = 0, out = "";
-  for (var i = 0; i < s.length; i++) {
-    var w = isFullWidth(s.charAt(i)) ? 2 : 1;
-    if (n + w > units) return out + "…";
-    n += w; out += s.charAt(i);
-  }
-  return s;
-}
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
@@ -312,14 +176,15 @@ function L(name, start, finish, lane) {
 
 // ---------------------------------------------------------------- patterns
 var PATTERNS = [
-  { id: "P00", name: "依存線の 5 パターン", desc: "① 直線 / ② 下・間隔あり / ③ 上・間隔あり / ④ 下・重なる / ⑤ 上・重なる",
-    expect: "①②③ は 2 折れ以下、④⑤ は右へ出て段間を左へ戻る 4 折れ。横切り 0",
+  { id: "P00", name: "依存線の 5 パターン",
+    desc: "FS-1 直線 / FS-2 下・間隔あり / FS-3 上・間隔あり / FS-4 下・重なる / FS-5 上・重なる",
+    expect: "FS-1〜FS-3 は 2 折れ以下、FS-4 と FS-5 は右へ出て段間を左へ戻る 4 折れ。横切り 0",
     bare: true, deps: "pairs", pairs: [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9]],
-    tasks: [L("①前", 0, 20, 0),    L("①後", 30, 50, 0),
-            L("②前", 60, 80, 0),   L("②後", 95, 115, 1),
-            L("③前", 130, 150, 1), L("③後", 165, 185, 0),
-            L("④前", 200, 225, 0), L("④後", 218, 243, 1),
-            L("⑤前", 258, 283, 1), L("⑤後", 276, 301, 0)] },
+    tasks: [L("FS-1 前", 0, 20, 0),    L("FS-1 後", 30, 50, 0),
+            L("FS-2 前", 60, 80, 0),   L("FS-2 後", 95, 115, 1),
+            L("FS-3 前", 130, 150, 1), L("FS-3 後", 165, 185, 0),
+            L("FS-4 前", 200, 225, 0), L("FS-4 後", 218, 243, 1),
+            L("FS-5 前", 258, 283, 1), L("FS-5 後", 276, 301, 0)] },
 
   { id: "P01", name: "完全分離", desc: "時間がまったく重ならない 4 本",
     expect: "1 段。ラベルが出るまでは 1 段のまま", deps: "chain",
@@ -430,7 +295,7 @@ function makeCtx(zoomX, zoomY, opt) {
     zoomX: zoomX,
     pxPerDay: SIZE.pxPerDayAt1x * zoomX,
     m: function (kind) {
-      if (!cache[kind]) cache[kind] = shapeMetrics(kind, zoomY, !!opt.heightFloor);
+      if (!cache[kind]) cache[kind] = shapeMetrics(kind, zoomY);
       return cache[kind];
     },
     showOwner: opt.showOwner !== false,
@@ -595,12 +460,12 @@ function routeLink(a, b, res) {
   var ga = a.g, gb = b.g;
   var topA = res.laneTop[a.lane], topB = res.laneTop[b.lane];
   var ay = topA + ga.m.planH / 2, by = topB + gb.m.planH / 2;
-  var x1 = ga.sx1 + SIZE.depRun;        // leaving the predecessor
-  var x2 = gb.sx0 - SIZE.depRun;        // entering the successor -- same length
+  var x1 = ga.sx1 + POC_UI.depRunExit();    // leaving the predecessor: no arrowhead
+  var x2 = gb.sx0 - POC_UI.depRunEntry();   // entering the successor: arrowhead + line
   var sameY = Math.abs(ay - by) < 0.5;
 
   if (sameY) {                                                   // (1) in line
-    if (gb.sx0 - ga.sx1 >= SIZE.depRun) return [[ga.sx1, ay], [gb.sx0, by]];
+    if (gb.sx0 - ga.sx1 >= POC_UI.depRunEntry()) return [[ga.sx1, ay], [gb.sx0, by]];
   } else if (x2 >= x1) {                                         // (2)(3) with a gap
     var mx = Math.max(x1, Math.min((ga.sx1 + gb.sx0) / 2, x2));
     return [[ga.sx1, ay], [mx, ay], [mx, by], [gb.sx0, by]];
@@ -633,7 +498,11 @@ function buildLinks(pattern, res) {
   return links;
 }
 
-/** Shortest run at each end, over every link. Entry and exit must agree. */
+/**
+ * Shortest run at each end, over every link. The exit must come out exactly
+ * one arrowhead SHORTER than the entry -- the exit carries no arrowhead, so it
+ * does not need that length (handover-ui-detail-spec-ja.md 4-9).
+ */
 function runLengths(links) {
   var inMin = Infinity, outMin = Infinity;
   links.forEach(function (L) {
@@ -734,23 +603,23 @@ function drawTask(t, g, y) {
   if (t.milestone) {
     var cx = (g.sx0 + g.sx1) / 2;
     s.push('<path d="' + glyphPath(t.milestoneGlyph, cx, y + m.planH / 2, m.glyphSize) +
-           '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="' + SIZE.planStroke + '"/>');
+           '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + SIZE.planStroke + '"/>');
     if (t.hasActual) {
       s.push('<path d="' + glyphPath(t.milestoneGlyph, cx,
-             y + m.belowActualTop + m.actualH / 2, m.actualH) + '" fill="var(--act)"/>');
+             y + m.belowActualTop + m.actualH / 2, m.actualH) + '" fill="var(--actual-fill)"/>');
     }
   } else if (hasThickness(t.shapeKind)) {
     s.push('<path d="' + thickPath(t.shapeKind, g.sx0, g.sx1, y, m.planH) +
-           '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="' + SIZE.planStroke + '"/>');
+           '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + SIZE.planStroke + '"/>');
     if (t.hasActual) {
       s.push('<path d="' + thickPath(t.shapeKind, g.aX0, g.aX1,
-             y + m.insideActualTop, m.actualH) + '" fill="var(--act)"/>');
+             y + m.insideActualTop, m.actualH) + '" fill="var(--actual-fill)"/>');
     }
   } else {
-    s.push(thinSvg(t.shapeKind, g.sx0, g.sx1, y, m.planH, "var(--plan-line)", m.thinStroke));
+    s.push(thinSvg(t.shapeKind, g.sx0, g.sx1, y, m.planH, "var(--plan-stroke)", m.thinStroke));
     if (t.hasActual) {
       s.push(thinSvg(t.shapeKind, g.aX0, g.aX1, y + m.belowActualTop, m.actualH,
-             "var(--act)", m.thinStroke));
+             "var(--actual-fill)", m.thinStroke));
     }
   }
   return s.join("");
@@ -779,7 +648,7 @@ function renderPattern(p, ctx, showOcc, showDeps) {
   var li;
   for (li = 0; li < res.lanes; li++) {
     s.push('<rect x="' + r1(-shiftX) + '" y="' + r1(res.laneTop[li]) + '" width="' + r1(w) +
-           '" height="' + r1(res.laneH[li]) + '" fill="' + (li % 2 ? "#fafbfc" : "#fff") + '"/>');
+           '" height="' + r1(res.laneH[li]) + '" fill="' + (li % 2 ? "var(--row-alt)" : "var(--bg)") + '"/>');
   }
 
   links.forEach(function (L) {
@@ -795,47 +664,47 @@ function renderPattern(p, ctx, showOcc, showDeps) {
     if (showOcc) {
       s.push('<rect x="' + r1(g.occX0) + '" y="' + r1(y) + '" width="' +
              r1(Math.max(1, g.occX1 - g.occX0)) + '" height="' + r1(m.reserved) +
-             '" fill="none" stroke="#999" stroke-dasharray="2 2"/>');
+             '" fill="none" stroke="var(--sub)" stroke-dasharray="2 2"/>');
     }
 
     s.push(drawTask(t, g, y));
 
     if (g.leftText) {
       s.push('<text x="' + r1(g.sx0 - SIZE.labelGap) + '" y="' + r1(textY) + '" font-size="' +
-             r1(fs) + '" text-anchor="end" fill="var(--sub)">' + esc(g.leftText) + '</text>');
+             r1(fs) + '" text-anchor="end" fill="var(--label-ink)">' + esc(g.leftText) + '</text>');
     }
 
     if (t.hasActual && g.markExtent > 0) {
       var ms = m.markSize, mx = g.markX, mtxt = m.markTextSize;
       s.push('<circle cx="' + r1(mx + ms / 2) + '" cy="' + r1(midY) + '" r="' + r1(ms / 2) +
-             '" fill="#fff" stroke="var(--mark)" stroke-width="' + SIZE.markStroke + '"/>');
+             '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + SIZE.markStroke + '"/>');
       s.push('<text x="' + r1(mx + ms / 2) + '" y="' + r1(midY + mtxt * SIZE.markTextBaseline) +
-             '" font-size="' + r1(mtxt) + '" text-anchor="middle" fill="var(--mark)">' +
+             '" font-size="' + r1(mtxt) + '" text-anchor="middle" fill="var(--marker-ink)">' +
              t.percentComplete + '</text>');
       if (t.suspended) {
         var rx = mx + ms + SIZE.markGap;
         var rw = ms * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
         var dim = t.resumeValid ? '' : ' opacity="0.45"';
         s.push('<path d="M' + r1(rx) + ',' + r1(midY + ms / 2) + ' V' + r1(midY) + ' h' +
-               r1(rw * SIZE.resumeArmOfMark) + '" fill="none" stroke="var(--mark)" stroke-width="' +
+               r1(rw * SIZE.resumeArmOfMark) + '" fill="none" stroke="var(--marker-ink)" stroke-width="' +
                SIZE.markStroke + '" stroke-linecap="round"' + dim + '/>');
         s.push('<path d="M' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' + r1(midY - rw * SIZE.resumeHeadOfMark) +
                ' L' + r1(rx + rw) + ',' + r1(midY) + ' L' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
-               r1(midY + rw * SIZE.resumeHeadOfMark) + ' Z" fill="var(--mark)"' + dim + '/>');
+               r1(midY + rw * SIZE.resumeHeadOfMark) + ' Z" fill="var(--marker-ink)"' + dim + '/>');
         if (t.resumeValid && t.resume != null) {
           s.push('<line x1="' + r1(rx + rw) + '" y1="' + r1(midY) + '" x2="' +
                  r1(t.resume * ctx.pxPerDay) + '" y2="' + r1(midY) +
-                 '" stroke="var(--mark)" stroke-dasharray="' + SIZE.resumeDash + '" opacity="0.55"/>');
+                 '" stroke="var(--marker-ink)" stroke-dasharray="' + SIZE.resumeDashOn + ' ' + SIZE.resumeDashOff + '" opacity="0.55"/>');
         }
       }
     }
 
     if (g.labelMode === "right") {
       s.push('<text x="' + r1(g.bodyX1 + g.markExtent + SIZE.labelGap) + '" y="' + r1(textY) +
-             '" font-size="' + r1(fs) + '" fill="var(--ink)">' + esc(g.labelText) + '</text>');
+             '" font-size="' + r1(fs) + '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
     } else {
       s.push('<text x="' + r1(g.sx0 + SIZE.labelPad) + '" y="' + r1(textY) + '" font-size="' +
-             r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
+             r1(fs) + '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
     }
   });
 
@@ -848,11 +717,19 @@ function renderPattern(p, ctx, showOcc, showDeps) {
   if (!det.ok) flags.push('<span class="flag f-bad">順序依存</span>');
   if (crossings > 0) flags.push('<span class="flag f-bad">線がタスクを横切る ' + crossings + '</span>');
   var run = runLengths(links);
-  if (run.entry != null && run.entry < SIZE.depRun - 0.5) {
+  if (run.entry != null && run.entry < POC_UI.depRunEntry() - 0.5) {
     flags.push('<span class="flag f-bad">入口の走りが ' + r1(run.entry) + 'px</span>');
   }
-  if (run.entry != null && run.exit != null && Math.abs(run.entry - run.exit) > 0.5) {
-    flags.push('<span class="flag f-bad">出口と入口の走りが不揃い</span>');
+  if (run.exit != null && run.exit < POC_UI.depRunExit() - 0.5) {
+    flags.push('<span class="flag f-bad">出口の走りが ' + r1(run.exit) + 'px</span>');
+  }
+  // Bent routes (4 bends) are the ones where both runs sit exactly on their
+  // constants; straight and mid-point routes are longer, so only check the
+  // difference when both are at the minimum.
+  if (run.entry != null && run.exit != null &&
+      Math.abs(run.entry - POC_UI.depRunEntry()) <= 0.5 &&
+      Math.abs(run.entry - run.exit - SIZE.depArrowLen) > 0.5) {
+    flags.push('<span class="flag f-bad">出口と入口の差が三角形 1 つぶんでない</span>');
   }
 
   return { svg: s.join(""), res: res, det: det, flags: flags.join(" "),
@@ -887,14 +764,14 @@ function renderSweep(sw) {
   function X(zx) { return padL + (Math.log(zx) - lo) / (hi - lo) * (W - padL - padR); }
   function Y(v) { return H - padB - v / maxT * (H - padT - padB); }
   var s = ['<svg viewBox="0 0 ' + W + ' ' + H +
-           '" style="width:100%;height:auto;border:1px solid var(--rule);border-radius:6px;background:#fff">'];
+           '" style="width:100%;height:auto;border:1px solid var(--rule);border-radius:6px;background:var(--bg)">'];
   [0.05, 0.1, 0.25, 0.5, 1, 2, 4, 6].forEach(function (t) {
-    s.push('<line x1="' + r1(X(t)) + '" y1="' + padT + '" x2="' + r1(X(t)) + '" y2="' + (H - padB) + '" stroke="#eee"/>');
-    s.push('<text x="' + r1(X(t)) + '" y="' + (H - padB + 17) + '" font-size="12" text-anchor="middle" fill="#666">' + t + '</text>');
+    s.push('<line x1="' + r1(X(t)) + '" y1="' + padT + '" x2="' + r1(X(t)) + '" y2="' + (H - padB) + '" stroke="var(--rule)" stroke-opacity="0.55"/>');
+    s.push('<text x="' + r1(X(t)) + '" y="' + (H - padB + 17) + '" font-size="12" text-anchor="middle" fill="var(--sub)">' + t + '</text>');
   });
   [0, maxT / 2, maxT].forEach(function (v) {
-    s.push('<line x1="' + padL + '" y1="' + r1(Y(v)) + '" x2="' + (W - padR) + '" y2="' + r1(Y(v)) + '" stroke="#eee"/>');
-    s.push('<text x="' + (padL - 7) + '" y="' + r1(Y(v) + 4) + '" font-size="12" text-anchor="end" fill="#666">' + v + '</text>');
+    s.push('<line x1="' + padL + '" y1="' + r1(Y(v)) + '" x2="' + (W - padR) + '" y2="' + r1(Y(v)) + '" stroke="var(--rule)" stroke-opacity="0.55"/>');
+    s.push('<text x="' + (padL - 7) + '" y="' + r1(Y(v) + 4) + '" font-size="12" text-anchor="end" fill="var(--sub)">' + v + '</text>');
   });
   var d = [];
   for (i = 0; i < sw.series.length; i++) d.push((i ? "L" : "M") + r1(X(sw.series[i].zx)) + "," + r1(Y(sw.series[i].total)));
@@ -902,8 +779,8 @@ function renderSweep(sw) {
   sw.violations.forEach(function (v) {
     s.push('<circle cx="' + r1(X(v.zx)) + '" cy="' + r1(Y(v.total)) + '" r="4" fill="var(--bad)"/>');
   });
-  s.push('<text x="' + (padL + 6) + '" y="' + (padT + 13) + '" font-size="12" fill="#666">合計段数（20 パターン）</text>');
-  s.push('<text x="' + (W - padR) + '" y="' + (H - 6) + '" font-size="12" text-anchor="end" fill="#666">横ズーム（対数）</text>');
+  s.push('<text x="' + (padL + 6) + '" y="' + (padT + 13) + '" font-size="12" fill="var(--sub)">合計段数（20 パターン）</text>');
+  s.push('<text x="' + (W - padR) + '" y="' + (H - 6) + '" font-size="12" text-anchor="end" fill="var(--sub)">横ズーム（対数）</text>');
   s.push('</svg>');
   return s.join("");
 }
@@ -944,8 +821,8 @@ function dumpConstants(ctx) {
            '  <b>SIZE.thinFontScale</b>=' + SIZE.thinFontScale +
            '  <b>SIZE.fontMin</b>=' + SIZE.fontMin +
            '  <b>SIZE.laneGap</b>=' + SIZE.laneGap);
-  out.push('<b>SIZE.shapeH</b> = { ' + kinds.map(function (k) {
-    return k + ': ' + SIZE.shapeH[k];
+  out.push('<b>shapeH</b> = { ' + kinds.map(function (k) {
+    return k + ': ' + POC_UI.shapeRatio(k);
   }).join(', ') + ' }');
   out.push('');
   out.push('縦ズーム ' + ctx.zoomY.toFixed(2) + 'x での実寸 (px)');
@@ -976,13 +853,13 @@ function dumpConstants(ctx) {
 
 // ---------------------------------------------------------------- wire-up
 var el = {};
-["zx", "zy", "zxv", "zyv", "asg", "pct", "dep", "hfloor", "showocc",
+["zx", "zy", "zxv", "zyv", "asg", "pct", "dep", "showocc",
  "reset", "verdict", "sumtable", "pats", "sweep", "contrib", "constdump"].forEach(function (k) {
   el[k] = document.getElementById(k);
 });
 
 function currentOpt() {
-  return { heightFloor: el.hfloor.checked, showOwner: el.asg.checked, showPct: el.pct.checked };
+  return { showOwner: el.asg.checked, showPct: el.pct.checked };
 }
 
 function redraw() {
@@ -1066,14 +943,14 @@ function redraw() {
 }
 
 ["input", "change"].forEach(function (ev) {
-  ["zx", "zy", "asg", "pct", "dep", "hfloor", "showocc"].forEach(function (k) {
+  ["zx", "zy", "asg", "pct", "dep", "showocc"].forEach(function (k) {
     el[k].addEventListener(ev, redraw);
   });
 });
 el.reset.addEventListener("click", function () {
   el.zx.value = 1; el.zy.value = 1;
   el.asg.checked = true; el.pct.checked = true; el.dep.checked = true;
-  el.hfloor.checked = false; el.showocc.checked = false;
+  el.showocc.checked = false;
   redraw();
 });
 

@@ -3,77 +3,46 @@
 <head>
 <meta charset="utf-8">
 <title>PoC: ズームと表示レベルの遷移（2026-07-30）</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
-  :root { --bg:#fff; --ink:#1a1a1a; --sub:#5c5c5c; --rule:#dcdcdc; --panel:#f6f7f9;
-          --accent:#2b5ea8; --good:#1f7a3d; --warn:#a8600f; --bad:#a02b2b;
-          --plan:#8fb0d9; --plan-line:#4d79ad; --act:#1d4f8c; }
-  * { box-sizing:border-box; }
-  /* Font scale measured against ja.wikipedia.org (body 16px / lh 26px) and
-     google.com (body 14px). Nothing goes below 12px, matching the product's own
-     Japanese-readability floor. */
-  body { margin:0; padding:0 0 90px 0; background:var(--bg); color:var(--ink);
-         font-family:"Yu Gothic UI","Meiryo",system-ui,sans-serif; font-size:16px; line-height:1.7; }
-  .wrap { max-width:1320px; margin:0 auto; padding:0 20px; }
-  header { background:var(--panel); border-bottom:1px solid var(--rule); padding:20px 0 0 0; }
-  h1 { margin:0 0 6px 0; font-size:24px; line-height:1.35; }
-  .lede { margin:0 0 14px 0; color:var(--sub); font-size:16px; }
+  /* Colours and shared page furniture come from poc-ui.css. Nothing here
+     redefines a colour: that is what let this page drift out of step with
+     the reference page (and left --dep undefined, so no dependency line was
+     ever painted). Only the layout this page alone needs lives here. */
   .ctl { display:flex; flex-wrap:wrap; gap:18px; align-items:center; padding:12px 0;
          border-top:1px solid var(--rule); font-size:14px; }
   .ctl label { display:flex; align-items:center; gap:7px; white-space:nowrap; }
-  .ctl input[type=range] { width:200px; }
-  .ctl button { font:inherit; font-size:14px; padding:3px 12px; }
-  .ctl .val { font-variant-numeric:tabular-nums; min-width:64px; color:var(--accent); font-weight:700; }
   .verdictbar { padding:10px 0 14px 0; font-size:14px; }
-  .pill { display:inline-block; padding:3px 13px; border-radius:13px; font-weight:700; font-size:14px; }
-  .p-good { background:#e3f2e8; color:var(--good); }
-  .p-bad  { background:#fbe6e6; color:var(--bad); }
-  .p-warn { background:#fdf1e0; color:var(--warn); }
-  h2 { font-size:20px; margin:34px 0 8px 0; padding-top:12px; border-top:1px solid var(--rule); }
-  h3 { font-size:17px; margin:22px 0 5px 0; }
-  .hint { margin:0 0 14px 0; color:var(--sub); font-size:14px; }
-  table { border-collapse:collapse; width:100%; font-size:14px; margin:12px 0; }
-  th, td { border:1px solid var(--rule); padding:5px 9px; text-align:left; }
-  th { background:var(--panel); }
-  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
-  .flag { display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; }
-  .f-bad { background:#fbe6e6; color:var(--bad); }
-  .f-warn { background:#fdf1e0; color:var(--warn); }
-  .f-good { background:#e3f2e8; color:var(--good); }
-  .note { background:var(--panel); border-left:3px solid var(--accent); padding:10px 14px;
-          font-size:14px; margin:16px 0; }
-  .note.warn { border-left-color:var(--warn); }
   code { background:var(--panel); padding:1px 5px; border-radius:3px; font-size:14px; }
-  .live { display:grid; grid-template-columns: minmax(0,1fr) 330px; gap:14px; align-items:start; }
-  .live > * { min-width:0; }
+  .note.warn { border-left-color:var(--warn); }
+
   /* The canvas is a scrolling viewport and the SVG inside keeps its natural
      size. Fitting a 1900px drawing to the page width shrank every label below
      the point of being readable. */
-  .live .canvas { border:1px solid var(--rule); border-radius:6px; background:#fff;
-                  overflow:auto; max-height:640px; min-height:320px; resize:vertical;
-                  max-width:100%; }
-  .live .canvas svg { display:block; }
+  .live { display:block; }
+  .canvas { border:1px solid var(--rule); border-top:none; border-radius:0 0 6px 6px;
+            background:var(--bg); overflow:auto; max-height:640px; min-height:320px;
+            resize:vertical; max-width:100%; }
   .canvasbar { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center;
                padding:10px 12px; background:var(--panel); border:1px solid var(--rule);
-               border-bottom:none; border-radius:6px 6px 0 0; font-size:14px;
-               position:sticky; top:0; z-index:2; }
+               border-bottom:none; border-radius:6px 6px 0 0; font-size:14px; }
   .canvasbar label { display:flex; align-items:center; gap:7px; white-space:nowrap; }
   .canvasbar input[type=range] { width:190px; }
-  .canvasbar .val { font-variant-numeric:tabular-nums; min-width:64px;
-                    color:var(--accent); font-weight:700; }
-  .canvasbar button { font:inherit; font-size:14px; padding:3px 12px; }
   .canvasbar .tip { color:var(--sub); font-size:13px; }
-  .live .canvaswrap { border-radius:6px; min-width:0; }
-  .live .canvaswrap .canvas { border-radius:0 0 6px 6px; }
-  .live .read { border:1px solid var(--rule); border-radius:6px; padding:12px 14px; font-size:14px;
-                background:var(--panel); font-variant-numeric:tabular-nums; }
-  .live .read dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:2px 10px; }
-  .live .read dt { color:var(--sub); } .live .read dd { margin:0; font-weight:700; }
-  .strip { border:1px solid var(--rule); border-radius:6px; background:#fff; }
+  /* Readouts sit on the bar above the drawing, not in a column beside it:
+     a side panel steals width from the very thing being measured. */
+  .readbar { display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline;
+             padding:8px 12px; background:var(--panel); border:1px solid var(--rule);
+             border-bottom:none; font-size:13px; font-variant-numeric:tabular-nums; }
+  .readbar .item { white-space:nowrap; }
+  .readbar .k { color:var(--sub); margin-right:4px; }
+  .readbar .v { font-weight:700; }
+  .strip { border:1px solid var(--rule); border-radius:6px; background:var(--bg); }
   .strip svg { display:block; width:100%; height:auto; }
-  @media (max-width:900px) { .live { grid-template-columns:1fr; } }
 </style>
 </head>
-<body>
+<body class="reading">
 
 <header><div class="wrap">
   <h1>PoC: ズームと表示レベルの遷移 — 拡大縮小で表示するレベルが狙い通りに変わるか</h1>
@@ -103,20 +72,20 @@
 <p class="hint">363 タスク（WBS 5 階層）／ 21 行（行ツリー 3 階層）／ 720 日。
   <strong>行が畳まれるとその行のタスクは親の行に合流する</strong>ので、親の段数が増える。それも含めて描いている。</p>
 <div class="live">
-  <div class="canvaswrap">
-    <div class="canvasbar">
-      <label>横ズーム <input type="range" id="zx2" min="-1.5" max="0.9" step="0.005" value="0">
-        <span class="val" id="zxv"></span></label>
-      <label>縦ズーム <input type="range" id="zy2" min="-1.1" max="0.7" step="0.005" value="0">
-        <span class="val" id="zyv"></span></label>
-      <label><input type="checkbox" id="drop" checked> レベル減</label>
-      <button id="fit">Fit</button>
-      <button id="reset">1.0x</button>
-      <span class="tip">キャンバス上で Ctrl=両軸 / Shift=横 / Alt=縦（ホイール）</span>
-    </div>
-    <div class="canvas" id="canvas"></div>
+  <div class="canvasbar">
+    <label>横ズーム <input type="range" id="zx2" min="-1.5" max="0.9" step="0.005" value="0">
+      <span class="val" id="zxv"></span></label>
+    <label>縦ズーム <input type="range" id="zy2" min="-1.1" max="0.7" step="0.005" value="0">
+      <span class="val" id="zyv"></span></label>
+    <label><input type="checkbox" id="drop" checked> レベル減</label>
+    <button id="fit">Fit</button>
+    <button id="reset">1.0x</button>
+    <button id="theme">テーマ</button>
+    <span class="tip">ホイール Ctrl=両軸 / Shift=横 / Alt=縦 ・
+      キー Ctrl/Shift/Alt ＋ <code>+</code> <code>-</code> ・ <code>Ctrl+0</code> 等倍 ・ <code>F</code> Fit</span>
   </div>
-  <div class="read" id="read"></div>
+  <div class="readbar" id="read"></div>
+  <div class="canvas" id="canvas" tabindex="0"></div>
 </div>
 
 <h2>2. 時間軸 LOD — 目盛の粒度</h2>
@@ -133,7 +102,7 @@
 <div id="t-rowlod"></div>
 
 <h2>5. フォント下限によるレベル減</h2>
-<p class="hint">タスク高 = 28 × zoomY、フォント = 高さの 80%、下限 12px。
+<p class="hint">予定バー = 28 × zoomY、実績バー = その 73%、フォント = 実績の 80%、下限 12px。
   下限を割るならレベルを 1 つ減らす（§2-4-1）。<strong>減らす量の式は本 PoC の提案</strong>であり、確定事項ではない。</p>
 <div id="t-drop"></div>
 
@@ -154,105 +123,27 @@
 "use strict";
 
 // ---------------------------------------------------------------- constants
-// ===========================================================================
-// SIZE -- the single source for every dimension drawn on this page.
-// No size literal appears in the drawing code below.
-// ===========================================================================
-var SIZE = {
-  pxPerDayAt1x:   6,
-  basePlanH:      28,     // plan bar height of bar/chevron at zoomY = 1
-  // Thin shapes are deliberately half as tall: being thin IS their merit.
-  // A milestone is 1.5x so that it stands out.
-  shapeH: { bar: 1.0, chevron: 1.0, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
-  actualOfPlan:   0.55,   // actual / plan   -> font < actual < plan for bar & chevron
-  fontOfActual:   0.80,   // font   / actual
-  thinFontScale:  0.85,   // extra shrink for arrow / endpointSpan
-  fontMin:        12,
-  actualGap:      2,
-  laneGap:        12,
-  rowGap:         6,
-  markOfFont:     4 / 3,
-  markMin:        16,
-  markGap:        4,
-  markTextOfFont: 0.75,   // the number inside the marker / the shape's font size
-  markOfText:     2.0,    // marker diameter / that number's size
-  markTextBaseline: 0.36,
-  markStroke:     1.2,
-  resumeScaleInvalid: 0.7,
-  resumeArmOfMark:    0.62,
-  resumeHeadOfMark:   0.22,
-  labelCoef:      0.5,
-  labelPad:       6,
-  labelGap:       4,
-  labelBaseline:  0.35,
-  truncUnits:     24,
-  thinStrokeOfPlan: 0.20,
-  thinStrokeMin:  1.2,
-  thinStrokeMax:  4,
-  planStroke:     0.5,
-  chevronNotchOfH: 0.45,
-  chevronNotchOfW: 0.35,
-  arrowHeadOfStroke: 3.2,
-  arrowHeadOfSpan:   0.4,
-  spanDotOfStroke:   1.15,
-  depWidth:       1.2,
-  depArrowLen:    10,     // drawn length of the arrowhead
-  depRunOfArrow:  2,      // run / arrowhead: one arrowhead plus one of visible
-                          // line, entry and exit runs equal
-  rowLabelW:      160,
-  rulerH:         28,
-  rulerFont:      12,
-  rowLabelFont:   13,
-  rowIndent:      12,
-  minShapeW:      2
-};
+// Every dimension and every colour comes from the shared poc-ui.js / poc-ui.css.
+// This page declares neither, so it cannot drift out of step with the others.
+var SIZE = POC_UI.S;
+
 
 var BASE_PX_PER_DAY = SIZE.pxPerDayAt1x;
 var BASE_TASK_H     = SIZE.basePlanH;
-var LANE_GAP        = SIZE.laneGap;
 var FONT_MIN        = SIZE.fontMin;
+var CANVAS_H        = POC_UI.ENV.canvasH;
+var VIEW_W          = POC_UI.ENV.viewW;
+
+// Page-local: these describe the sample dataset, not the UI, so they are not
+// settings and do not belong in poc-ui.js.
 var MIN_READABLE_PX = 24;      // a task narrower than this is not worth drawing
 var HORIZON_DAYS    = 720;
-var VIEW_W          = 1920;    // reference environment (handover 2-4-1)
-var VIEW_H          = 1080;
-var HEADER_H        = 50;
-var CANVAS_H        = VIEW_H - HEADER_H;
 var ROW_BRANCH      = 3;       // row tree branching factor, used by the level-drop formula
-var LABEL_COEF      = SIZE.labelCoef;
-var LABEL_PAD       = SIZE.labelPad;
-var LABEL_GAP       = SIZE.labelGap;
-var MARK_GAP        = SIZE.markGap;
-var MARK_MIN        = SIZE.markMin;
-var TRUNC_UNITS     = SIZE.truncUnits;
 
-// Both dependency-line runs are the SAME length and are derived from the
-// arrowhead, so they cannot drift apart:
-//   arrowhead = 1, run = 2 = one arrowhead + one of visible line.
-SIZE.depRun = SIZE.depArrowLen * SIZE.depRunOfArrow;
-
-function hasThickness(kind) { return kind === "bar" || kind === "chevron"; }
-
-/** Every vertical dimension of one shape kind, derived from SIZE alone. */
-function shapeMetrics(kind, zoomY) {
-  var planH = SIZE.basePlanH * zoomY * SIZE.shapeH[kind];
-  var actualH = planH * SIZE.actualOfPlan;
-  var thin = !hasThickness(kind) && kind !== "milestone";
-  var rawFont = actualH * SIZE.fontOfActual * (thin ? SIZE.thinFontScale : 1);
-  var fontSize = Math.max(SIZE.fontMin, rawFont);
-  return {
-    kind: kind, planH: planH, actualH: actualH,
-    fontSize: fontSize, fontFloored: rawFont < SIZE.fontMin,
-    markTextSize: Math.max(SIZE.fontMin, fontSize * SIZE.markTextOfFont),
-    markSize: Math.max(SIZE.markMin,
-              Math.max(SIZE.fontMin, fontSize * SIZE.markTextOfFont) * SIZE.markOfText),
-    reserved: hasThickness(kind) ? planH : planH + SIZE.actualGap + actualH,
-    insideActualTop: (planH - actualH) / 2,
-    belowActualTop: planH + SIZE.actualGap,
-    thinStroke: Math.max(SIZE.thinStrokeMin,
-                Math.min(SIZE.thinStrokeMax, planH * SIZE.thinStrokeOfPlan)),
-    glyphSize: planH
-  };
-}
+var hasThickness = POC_UI.hasThickness;
+var shapeMetrics = POC_UI.shapeMetrics;
+var labelWidth   = POC_UI.labelWidth;
+var truncate     = POC_UI.truncateUnits;
 
 function r1(x) { return Math.round(x * 10) / 10; }
 function r3(x) { return Math.round(x * 1000) / 1000; }
@@ -315,7 +206,8 @@ function lod(zoomX, zoomY, dropEnabled) {
     itemDepth: Math.max(1, Math.min(5, rawItem - pen)),
     rowDepth: Math.max(1, Math.min(5, rawRow - pen)),
     effZoomY: zoomY,
-    taskH: SIZE.basePlanH * zoomY,
+    taskH: shapeMetrics("bar", zoomY).planH,
+    actualH: shapeMetrics("bar", zoomY).actualH,
     fontSize: shapeMetrics("bar", zoomY).fontSize,
     fontFloored: shapeMetrics("bar", zoomY).fontFloored
   };
@@ -398,31 +290,6 @@ function visibleSet(zoomX, zoomY, dropEnabled) {
     shown++;
   }
   return { lod: L, rows: visRows, buckets: buckets, shownTasks: shown };
-}
-
-// ---------------------------------------------------------------- text metrics
-function isFullWidth(ch) {
-  var c = ch.charCodeAt(0);
-  return (c >= 0x1100 && c <= 0x115F) || (c >= 0x2E80 && c <= 0xA4CF) ||
-         (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0xF900 && c <= 0xFAFF) ||
-         (c >= 0xFE30 && c <= 0xFE6F) || (c >= 0xFF00 && c <= 0xFF60) ||
-         (c >= 0xFFE0 && c <= 0xFFE6);
-}
-function widthUnits(s) {
-  var n = 0;
-  for (var i = 0; i < s.length; i++) n += isFullWidth(s.charAt(i)) ? 2 : 1;
-  return n;
-}
-/** Analytic estimate. No browser text measurement (handover 6-2). */
-function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * SIZE.labelCoef; }
-function truncate(s, units) {
-  var n = 0, out = "";
-  for (var i = 0; i < s.length; i++) {
-    var w = isFullWidth(s.charAt(i)) ? 2 : 1;
-    if (n + w > units) return out + "…";
-    n += w; out += s.charAt(i);
-  }
-  return s;
 }
 
 // ---------------------------------------------------------------- geometry
@@ -561,8 +428,12 @@ function diamond(cx, cy, s) {
 /**
  * Dependency route. Five shapes, one rule.
  *
- *   x1 = predecessor right edge + clearance
- *   x2 = successor    left edge - clearance
+ *   x1 = predecessor right edge + EXIT run
+ *   x2 = successor    left edge - ENTRY run
+ *
+ * The entry run carries the arrowhead plus a visible straight piece; the exit
+ * has no arrowhead, so it is shorter by exactly one arrowhead. Both come from
+ * one ratio (handover-ui-detail-spec-ja.md 4-9) so they cannot drift apart.
  *
  *   x2 >= x1  ->  one bend pair at the midpoint          (2 bends; straight when
  *                                                         the two share a lane)
@@ -585,12 +456,12 @@ function routeLink(a, b, pk) {
   var ga = a.g, gb = b.g;
   var topA = pk.laneTop[a.lane], topB = pk.laneTop[b.lane];
   var ay = topA + ga.m.planH / 2, by = topB + gb.m.planH / 2;
-  var x1 = ga.sx1 + SIZE.depRun;        // leaving the predecessor
-  var x2 = gb.sx0 - SIZE.depRun;        // entering the successor -- same length
+  var x1 = ga.sx1 + POC_UI.depRunExit();    // leaving the predecessor: no arrowhead
+  var x2 = gb.sx0 - POC_UI.depRunEntry();   // entering the successor: arrowhead + line
   var sameY = Math.abs(ay - by) < 0.5;
 
   if (sameY) {                                                   // (1) in line
-    if (gb.sx0 - ga.sx1 >= SIZE.depRun) return [[ga.sx1, ay], [gb.sx0, by]];
+    if (gb.sx0 - ga.sx1 >= POC_UI.depRunEntry()) return [[ga.sx1, ay], [gb.sx0, by]];
   } else if (x2 >= x1) {                                         // (2)(3) with a gap
     var mx = Math.max(x1, Math.min((ga.sx1 + gb.sx0) / 2, x2));
     return [[ga.sx1, ay], [mx, ay], [mx, by], [gb.sx0, by]];
@@ -614,7 +485,7 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
     showLabels: showLabels !== false
   };
 
-  var y = SIZE.rulerH, packs = [], totalLanes = 0, totalOverlap = 0, i;
+  var y = SIZE.rulerH, packs = [], totalLanes = 0, totalOverlap = 0, depCount = 0, i;
   var minX = 0, maxX = 0;
   for (i = 0; i < V.rows.length; i++) {
     var pk = packRow(V.buckets[i], ctx);
@@ -637,24 +508,24 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
            'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
 
   // time ruler
-  s.push('<rect x="0" y="0" width="' + r1(W) + '" height="' + SIZE.rulerH + '" fill="#f6f7f9"/>');
+  s.push('<rect x="0" y="0" width="' + r1(W) + '" height="' + SIZE.rulerH + '" fill="var(--panel)"/>');
   var d, step;
   if (L.ruler === 1) step = 365; else if (L.ruler === 2) step = 30; else step = 7;
   for (d = 0; d <= HORIZON_DAYS; d += step) {
     var x = originX + d * L.ppd;
     if (x > W) break;
-    s.push('<line x1="' + r1(x) + '" y1="0" x2="' + r1(x) + '" y2="' + r1(contentH) + '" stroke="#eef0f2"/>');
+    s.push('<line x1="' + r1(x) + '" y1="0" x2="' + r1(x) + '" y2="' + r1(contentH) + '" stroke="var(--rule)" stroke-opacity="0.55"/>');
     if (L.ruler === 1) {
       s.push('<text x="' + r1(x + 3) + '" y="' + (SIZE.rulerH * 0.65) + '" font-size="' +
-             SIZE.rulerFont + '" fill="#666">Y' + (1 + (d / 365 | 0)) + '</text>');
+             SIZE.rulerFont + '" fill="var(--sub)">Y' + (1 + (d / 365 | 0)) + '</text>');
     } else if (L.ruler === 2) {
       if ((d / 30) % 3 === 0) {
         s.push('<text x="' + r1(x + 3) + '" y="' + (SIZE.rulerH * 0.65) + '" font-size="' +
-               SIZE.rulerFont + '" fill="#666">' + (1 + (d / 30 | 0) % 12) + '月</text>');
+               SIZE.rulerFont + '" fill="var(--sub)">' + (1 + (d / 30 | 0) % 12) + '月</text>');
       }
     } else {
       s.push('<text x="' + r1(x + 2) + '" y="' + (SIZE.rulerH * 0.65) + '" font-size="' +
-             SIZE.rulerFont + '" fill="#888">' + (d % 30 + 1) + '</text>');
+             SIZE.rulerFont + '" fill="var(--sub)">' + (d % 30 + 1) + '</text>');
     }
   }
 
@@ -662,10 +533,10 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
     var row = V.rows[i], pk2 = packs[i];
     s.push('<rect x="0" y="' + r1(pk2.y - SIZE.rowGap / 2) + '" width="' + r1(W) + '" height="' +
            r1(pk2.height + SIZE.rowGap) + '" fill="' +
-           (row.depth === 1 ? "#f2f6fb" : (i % 2 ? "#fafbfc" : "#fff")) + '"/>');
+           (row.depth === 1 ? "var(--row-top)" : (i % 2 ? "var(--row-alt)" : "var(--bg)")) + '"/>');
     s.push('<text x="' + (SIZE.labelPad + (row.depth - 1) * SIZE.rowIndent) + '" y="' +
            r1(pk2.y + SIZE.rowLabelFont) + '" font-size="' + SIZE.rowLabelFont + '" fill="' +
-           (row.depth === 1 ? "var(--accent)" : "#555") + '"' +
+           (row.depth === 1 ? "var(--accent)" : "var(--sub)") + '"' +
            (row.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(row.name) + '</text>');
 
     if (showDeps !== false) {
@@ -677,7 +548,8 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
           return (n ? "L" : "M") + r1(originX + pt[0]) + "," + r1(pk2.y + pt[1]);
         }).join(" ");
         s.push('<path d="' + dd + '" fill="none" stroke="var(--dep)" stroke-width="' + SIZE.depWidth +
-               '" stroke-linejoin="round" marker-end="url(#dep-a)" opacity="0.85"/>');
+               '" stroke-linejoin="round" marker-end="url(#dep-a)"/>');
+        depCount++;
       }
     }
 
@@ -690,64 +562,64 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
 
       if (t.milestone) {
         s.push('<path d="' + diamond((sx0 + sx1) / 2, midY, m.glyphSize) +
-               '" fill="var(--plan)" stroke="var(--plan-line)" opacity="' + r1(op) + '"/>');
+               '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" opacity="' + r1(op) + '"/>');
         if (t.hasActual) {
           s.push('<path d="' + diamond((sx0 + sx1) / 2,
-                 ty + m.belowActualTop + m.actualH / 2, m.actualH) + '" fill="var(--act)"/>');
+                 ty + m.belowActualTop + m.actualH / 2, m.actualH) + '" fill="var(--actual-fill)"/>');
         }
       } else if (hasThickness(t.shapeKind)) {
         s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty, m.planH) +
-               '" fill="var(--plan)" stroke="var(--plan-line)" stroke-width="' + SIZE.planStroke +
+               '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + SIZE.planStroke +
                '" opacity="' + r1(op) + '"/>');
         if (t.hasActual) {
           s.push('<path d="' + thickPath(t.shapeKind, originX + g.aX0, originX + g.aX1,
-                 ty + m.insideActualTop, m.actualH) + '" fill="var(--act)"/>');
+                 ty + m.insideActualTop, m.actualH) + '" fill="var(--actual-fill)"/>');
         }
       } else {
-        s.push(thinSvg(t.shapeKind, sx0, sx1, ty, m.planH, "var(--plan-line)", m.thinStroke));
+        s.push(thinSvg(t.shapeKind, sx0, sx1, ty, m.planH, "var(--plan-stroke)", m.thinStroke));
         if (t.hasActual) {
           s.push(thinSvg(t.shapeKind, originX + g.aX0, originX + g.aX1,
-                 ty + m.belowActualTop, m.actualH, "var(--act)", m.thinStroke));
+                 ty + m.belowActualTop, m.actualH, "var(--actual-fill)", m.thinStroke));
         }
       }
 
       if (!ctx.showLabels) return;
       var fs = m.fontSize, textY = midY + fs * SIZE.labelBaseline;
       s.push('<text x="' + r1(sx0 - SIZE.labelGap) + '" y="' + r1(textY) + '" font-size="' +
-             r1(fs) + '" text-anchor="end" fill="#666">' + esc(g.leftText) + '</text>');
+             r1(fs) + '" text-anchor="end" fill="var(--label-ink)">' + esc(g.leftText) + '</text>');
       if (t.hasActual) {
         var ms = m.markSize, mx2 = originX + g.markX, mtxt = m.markTextSize;
         s.push('<circle cx="' + r1(mx2 + ms / 2) + '" cy="' + r1(midY) + '" r="' + r1(ms / 2) +
-               '" fill="#fff" stroke="var(--mark)" stroke-width="' + SIZE.markStroke + '"/>');
+               '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + SIZE.markStroke + '"/>');
         s.push('<text x="' + r1(mx2 + ms / 2) + '" y="' + r1(midY + mtxt * SIZE.markTextBaseline) +
-               '" font-size="' + r1(mtxt) + '" text-anchor="middle" fill="var(--mark)">' +
+               '" font-size="' + r1(mtxt) + '" text-anchor="middle" fill="var(--marker-ink)">' +
                t.percentComplete + '</text>');
         if (t.suspended) {
           var rx = mx2 + ms + SIZE.markGap;
           var rw = ms * (t.resumeValid ? 1 : SIZE.resumeScaleInvalid);
           var dim = t.resumeValid ? '' : ' opacity="0.45"';
           s.push('<path d="M' + r1(rx) + ',' + r1(midY + ms / 2) + ' V' + r1(midY) + ' h' +
-                 r1(rw * SIZE.resumeArmOfMark) + '" fill="none" stroke="var(--mark)" stroke-width="' +
+                 r1(rw * SIZE.resumeArmOfMark) + '" fill="none" stroke="var(--marker-ink)" stroke-width="' +
                  SIZE.markStroke + '" stroke-linecap="round"' + dim + '/>');
           s.push('<path d="M' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
                  r1(midY - rw * SIZE.resumeHeadOfMark) + ' L' + r1(rx + rw) + ',' + r1(midY) +
                  ' L' + r1(rx + rw * SIZE.resumeArmOfMark) + ',' +
-                 r1(midY + rw * SIZE.resumeHeadOfMark) + ' Z" fill="var(--mark)"' + dim + '/>');
+                 r1(midY + rw * SIZE.resumeHeadOfMark) + ' Z" fill="var(--marker-ink)"' + dim + '/>');
         }
       }
       if (g.labelMode === "right") {
         s.push('<text x="' + r1(originX + g.bodyX1 + g.markExtent + SIZE.labelGap) + '" y="' +
-               r1(textY) + '" font-size="' + r1(fs) + '" fill="var(--ink)">' +
+               r1(textY) + '" font-size="' + r1(fs) + '" fill="var(--label-ink)">' +
                esc(g.labelText) + '</text>');
       } else if (g.labelMode === "inside") {
         s.push('<text x="' + r1(sx0 + SIZE.labelPad) + '" y="' + r1(textY) + '" font-size="' +
-               r1(fs) + '" fill="#fff">' + esc(g.labelText) + '</text>');
+               r1(fs) + '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
       }
     });
   }
   s.push('</svg>');
   return { svg: s.join(""), V: V, contentH: contentH, totalLanes: totalLanes,
-           overlaps: totalOverlap, packs: packs, width: W };
+           overlaps: totalOverlap, packs: packs, width: W, depCount: depCount };
 }
 
 // ---------------------------------------------------------------- transition scan
@@ -936,23 +808,23 @@ function buildSweep(dropEnabled) {
   }
   [0.03, 0.1, 0.3, 1, 3, 6].forEach(function (t) {
     var x = padL + (Math.log(t) - xlo) / (xhi - xlo) * (W - padL - padR);
-    s.push('<text x="' + r1(x) + '" y="' + (H - padB + 15) + '" font-size="10" text-anchor="middle" fill="#777">' + t + '</text>');
+    s.push('<text x="' + r1(x) + '" y="' + (H - padB + 15) + '" font-size="10" text-anchor="middle" fill="var(--sub)">' + t + '</text>');
   });
   [0.05, 0.2, 0.5, 1, 2, 4].forEach(function (t) {
     var y = padT + (1 - (Math.log(t) - ylo) / (yhi - ylo)) * (H - padT - padB);
-    s.push('<text x="' + (padL - 6) + '" y="' + r1(y + 3) + '" font-size="10" text-anchor="end" fill="#777">' + t + '</text>');
+    s.push('<text x="' + (padL - 6) + '" y="' + r1(y + 3) + '" font-size="10" text-anchor="end" fill="var(--sub)">' + t + '</text>');
   });
-  s.push('<text x="' + (W - padR) + '" y="' + (H - 4) + '" font-size="10" text-anchor="end" fill="#777">横ズーム →</text>');
-  s.push('<text x="6" y="' + (padT + 10) + '" font-size="10" fill="#777">縦ズーム ↑</text>');
+  s.push('<text x="' + (W - padR) + '" y="' + (H - 4) + '" font-size="10" text-anchor="end" fill="var(--sub)">横ズーム →</text>');
+  s.push('<text x="6" y="' + (padT + 10) + '" font-size="10" fill="var(--sub)">縦ズーム ↑</text>');
   // legend
   for (var q = 0; q <= 20; q++) {
     var vv = q / 20, gg = Math.round(255 - vv * 175);
     s.push('<rect x="' + (W - padR + 14) + '" y="' + r1(padT + (20 - q) * 9) + '" width="16" height="9" fill="rgb(' +
            gg + ',' + Math.round(gg * 0.94 + 12) + ',' + Math.round(255 - vv * 45) + ')"/>');
   }
-  s.push('<text x="' + (W - padR + 34) + '" y="' + (padT + 8) + '" font-size="10" fill="#777">' + maxNT + '</text>');
-  s.push('<text x="' + (W - padR + 34) + '" y="' + (padT + 20 * 9 + 8) + '" font-size="10" fill="#777">0</text>');
-  s.push('<text x="' + (W - padR + 14) + '" y="' + (padT + 20 * 9 + 26) + '" font-size="10" fill="#777">表示タスク</text>');
+  s.push('<text x="' + (W - padR + 34) + '" y="' + (padT + 8) + '" font-size="10" fill="var(--sub)">' + maxNT + '</text>');
+  s.push('<text x="' + (W - padR + 34) + '" y="' + (padT + 20 * 9 + 8) + '" font-size="10" fill="var(--sub)">0</text>');
+  s.push('<text x="' + (W - padR + 14) + '" y="' + (padT + 20 * 9 + 26) + '" font-size="10" fill="var(--sub)">表示タスク</text>');
   s.push('</svg>');
 
   return '<div class="strip">' + s.join("") + '</div>' +
@@ -968,6 +840,7 @@ var el = {
   drop: document.getElementById("drop"), fit: document.getElementById("fit"),
   lbl: document.getElementById("lbl"), dep: document.getElementById("dep"),
   reset: document.getElementById("reset"), verdict: document.getElementById("verdict"),
+  theme: document.getElementById("theme"),
   canvas: document.getElementById("canvas"), read: document.getElementById("read")
 };
 function zxVal() { return Math.pow(10, parseFloat(el.zx.value)); }
@@ -986,27 +859,29 @@ function redrawLive() {
   var l1Rows = R.V.rows.filter(function (r) { return r.depth === 1; }).length;
   var l1Fits = l1Rows === 3;
 
-  el.read.innerHTML = '<dl>' +
-    '<dt>px/day</dt><dd>' + r3(L.ppd) + '</dd>' +
-    '<dt>目盛</dt><dd>' + RULER_NAME[L.ruler] + '</dd>' +
-    '<dt>タスク高</dt><dd>' + r1(L.taskH) + 'px</dd>' +
-    '<dt>フォント</dt><dd>' + r1(L.fontSize) + 'px' +
-      (L.fontFloored ? ' <span class="flag f-warn">下限</span>' : '') + '</dd>' +
-    '<dt>レベル減</dt><dd>' + L.penalty + '</dd>' +
-    '<dt>WBS 深さ</dt><dd>' + L.itemDepthRaw + ' → <b>' + L.itemDepth + '</b></dd>' +
-    '<dt>行深さ</dt><dd>' + L.rowDepthRaw + ' → <b>' + L.rowDepth + '</b></dd>' +
-    '<dt>表示行</dt><dd>' + R.V.rows.length + ' / ' + DATA.rows.length + '</dd>' +
-    '<dt>表示タスク</dt><dd>' + R.V.shownTasks + ' / ' + DATA.tasks.length + '</dd>' +
-    '<dt>合計段数</dt><dd>' + R.totalLanes + '</dd>' +
-    '<dt>描画幅</dt><dd>' + Math.round(R.width) + 'px</dd>' +
-    '<dt>overlap</dt><dd style="color:' + (R.overlaps ? "var(--bad)" : "var(--good)") + '">' +
-      R.overlaps + '</dd>' +
-    '<dt>必要な縦</dt><dd>' + Math.round(R.contentH) + 'px / ' + CANVAS_H + 'px</dd>' +
-    '</dl><div style="margin-top:8px">' +
+  function item(k, v) { return '<span class="item"><span class="k">' + k + '</span><span class="v">' + v + '</span></span>'; }
+  el.read.innerHTML =
+    item("px/day", r3(L.ppd)) +
+    item("目盛", RULER_NAME[L.ruler]) +
+    item("予定バー", r1(L.taskH) + "px") +
+    item("実績バー", r1(L.actualH) + "px") +
+    item("フォント", r1(L.fontSize) + "px" +
+      (L.fontFloored ? ' <span class="flag f-warn">下限</span>' : '')) +
+    item("レベル減", L.penalty) +
+    item("WBS 深さ", L.itemDepthRaw + " → " + L.itemDepth) +
+    item("行深さ", L.rowDepthRaw + " → " + L.rowDepth) +
+    item("表示行", R.V.rows.length + " / " + DATA.rows.length) +
+    item("表示タスク", R.V.shownTasks + " / " + DATA.tasks.length) +
+    item("合計段数", R.totalLanes) +
+    item("依存線", R.depCount) +
+    item("描画幅", Math.round(R.width) + "px") +
+    item("overlap", '<span style="color:' + (R.overlaps ? "var(--bad)" : "var(--good)") + '">' +
+      R.overlaps + "</span>") +
+    item("必要な縦", Math.round(R.contentH) + "px / " + CANVAS_H + "px") +
     '<span class="pill ' + (fits ? "p-good" : "p-warn") + '">' +
-      (fits ? "1 画面に収まる" : "縦スクロールが要る") + '</span> ' +
+      (fits ? "1 画面に収まる" : "縦スクロールが要る") + '</span>' +
     '<span class="pill ' + (l1Fits ? "p-good" : "p-bad") + '">' +
-      (l1Fits ? "L1 は全部見える" : "L1 が欠けている") + '</span></div>';
+      (l1Fits ? "L1 は全部見える" : "L1 が欠けている") + '</span>';
 
   el.verdict.innerHTML = '<span class="pill ' + (l1Fits ? "p-good" : "p-bad") + '">' +
     (l1Fits ? "L1 表示 OK" : "L1 欠落") + '</span> ' +
@@ -1075,9 +950,45 @@ el.canvas.addEventListener("wheel", function (ev) {
   else { nudge(el.zy, dir); }
   redrawLive();
 }, { passive: false });
+/**
+ * Keyboard zoom, 5-2 (settled 2026-07-30). The modifier means the same thing
+ * as it does on the wheel -- Ctrl both axes, Shift time axis, Alt row axis --
+ * because a second, different system is one nobody remembers.
+ *   Ctrl/Shift/Alt + "+" / "-"   zoom one notch
+ *   Ctrl+0                       back to 1.0x
+ *   F                            Fit
+ */
+function keyZoom(ev) {
+  var k = ev.key;
+  var isPlus = (k === "+" || k === ";" || k === "=");
+  var isMinus = (k === "-" || k === "_");
+
+  if (ev.ctrlKey && k === "0") { ev.preventDefault(); el.zx.value = 0; el.zy.value = 0; redrawLive(); return; }
+  if (!ev.ctrlKey && !ev.shiftKey && !ev.altKey && (k === "f" || k === "F")) { ev.preventDefault(); doFit(); return; }
+  if (!isPlus && !isMinus) return;
+  if (!ev.ctrlKey && !ev.shiftKey && !ev.altKey) return;
+
+  ev.preventDefault();
+  var dir = isPlus ? 1 : -1;
+  if (ev.ctrlKey) { nudge(el.zx, dir); nudge(el.zy, dir); }
+  else if (ev.shiftKey) { nudge(el.zx, dir); }
+  else { nudge(el.zy, dir); }
+  redrawLive();
+}
+el.canvas.addEventListener("keydown", keyZoom);
+document.addEventListener("keydown", function (ev) {
+  var tag = (ev.target.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "textarea" || tag === "select") return;
+  if (ev.target === el.canvas) return;   // already handled above
+  keyZoom(ev);
+});
+
 el.drop.addEventListener("change", rebuildStatic);
 el.fit.addEventListener("click", doFit);
 el.reset.addEventListener("click", function () { el.zx.value = 0; el.zy.value = 0; redrawLive(); });
+el.theme.addEventListener("click", function () {
+  POC_UI.setTheme(POC_UI.currentTheme() === "dark" ? "light" : "dark");
+});
 
 /**
  * Fit computes a zoom that lands on a LOD threshold. Sample around the boundary

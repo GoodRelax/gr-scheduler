@@ -30,10 +30,10 @@ python -m http.server 8899 --directory handover/08-poc
 
 | ファイル | 案 | 結論 |
 |---|---|---|
-| `poc-layout-A-orthogonal-channel.html` | 直交チャネル配線 | 横切り 1 だが線どうしの交差 57。トレードオフ |
-| `poc-layout-B-anchor-search.html` | 9 点アンカーの候補探索 | **推奨**。横切り 0 / 交差 8。連続ズームが 30fps なのが弱点 |
-| `poc-layout-C-reserved-lane.html` | 予約が先・配線 1 パス | 行内は 57/57 無交差。**縦の通り道も予約が要る**と判明 |
-| `poc-zoom-A-depth-threshold.html` | 深さしきい値 LOD | **推奨**。Fit で 21 行 PASS / 59.9fps |
+| `poc-layout-A-orthogonal-channel.html` | 直交チャネル配線 | 横切り 1 だが線どうしの交差 50。トレードオフ |
+| `poc-layout-B-anchor-search.html` | 9 点アンカーの候補探索 | **推奨**。横切り 0 / 交差 9。1 回の再レイアウトが 13.3ms（60fps の予算 16.7ms にほぼ余裕が無い）のが弱点 |
+| `poc-layout-C-reserved-lane.html` | 予約が先・配線 1 パス | 最速（再レイアウト 2.1ms）だが横切り 8（うち行跨ぎ 7）。**縦の通り道も予約が要る**と判明 |
+| `poc-zoom-A-depth-threshold.html` | 深さしきい値 LOD | **推奨**。Fit で 21 行 PASS / 再レイアウト 0.5ms / 横切り 0 |
 | `poc-zoom-B-fit-first.html` | 画面予算が深さを決める | L1 が入ることが構造上保証される。縦スクロールが原理的に無いので基本には採らない |
 
 ### (b) 確定した規則を検算する PoC — 形状の基準 / マルチバー / レベル遷移
@@ -47,6 +47,30 @@ python -m http.server 8899 --directory handover/08-poc
 | `poc-multibar-patterns.html` | 段割当 20 パターン。overlap 0・決定性・手動 `stackOrder` の保持・左右の張り出し・**依存線の 5 パターン**（`P00`） |
 | `poc-zoom-lod-transitions.html` | 3 系統の LOD 遷移点・単調性（9,600 点）・Fit |
 | `poc-schedule-zoom.html` | **操作の検算**。タスク名・担当・進捗・進捗線を入れた日程表を、ホイールとキーだけで拡縮する（`../03-ui-naming/handover-ui-detail-spec-ja.md` §5-2）。依存線の寸法がズームで動かないことの確認も兼ねる |
+
+---
+
+## 全ページが共有する 1 か所（2026-07-31 新設）
+
+```
+poc-ui.css   色の正。ライト／ダーク両方。ページは色を 1 つも定義しない
+poc-ui.js    寸法の正。59 項目（名前・単位・既定値・範囲・範囲の理由）＋ 派生関数
+```
+
+**全 9 ページがこの 2 本だけを見る。** 統合前は 9 ページが別々の定数を持っており、
+予定バーが 16〜28px、実績バーが 7〜15.4px、フォント下限が 10px と 12px に割れていた。
+`poc-zoom-lod-transitions.html` に至っては **`--dep` が未定義で依存線が 1 本も描かれていなかった**。
+
+- 値を変えたいときは **`poc-ui.js` の `SPEC`** を直す。全ページが追随する。
+- `poc-schedule-zoom.html` の「設定…」ボタンは**この共有ストアを直接編集する**。
+  そこで動かした値は、他のページを開き直せばそのまま反映される。
+- 各案固有のアルゴリズム定数（レイアウト A の `V_PITCH` / `STUB`、B の `STUB` / `SAFETY_CAP`、
+  C の `stubOut` / `stubIn` / `lanePitch` / `depthWeight`）は**各ページに残してある**。
+  そこを揃えると 3 案が同じものになり、比較の意味が消えるためである。
+- **ダークモードは 9 ページすべてで動く。** `poc-glyphs-reference.html` と
+  `poc-zoom-lod-transitions.html` にテーマ切替ボタンがある。
+
+> ⚠️ **`file://` では共有ファイルを読めない場合がある。** 必ずローカルサーバー経由で開くこと（上記）。
 
 ---
 

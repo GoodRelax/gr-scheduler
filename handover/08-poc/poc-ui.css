@@ -1,0 +1,192 @@
+/* ==========================================================================
+   poc-ui.css -- the single source of every colour used by the PoC pages.
+   Every PoC page links this file and defines NO colour of its own.
+
+   Authority for the values:
+     handover/07-plan-actual/handover-plan-actual-decisions-ja.md  2-6
+     handover/03-ui-naming/handover-ui-detail-spec-ja.md           6-1-2
+
+   Rules carried over from those documents:
+     - plan and actual share ONE hue; plan is medium saturation and light,
+       actual is high saturation and dark. No pure primaries.
+     - dependency lines are orange in both themes and are never user-settable.
+     - text is the theme foreground: black on light, white on dark.
+     - contrast of actual over plan must stay at or above 3:1 (WCAG 1.4.11).
+
+   The dark values live in ONE block that both the OS preference and the
+   explicit toggle point at. Keeping two copies is what let them drift apart.
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---- page chrome */
+  --bg: #ffffff;
+  --ink: #16181d;
+  --sub: #5b6068;
+  --rule: #d9dce1;
+  --panel: #f5f6f8;
+  --accent: #2b5ea8;
+  --good: #1f7a3d;
+  --warn: #a8600f;
+  --bad: #a02b2b;
+
+  /* ---- schedule: one hue drives plan and actual together */
+  --hue: 214;
+  --plan-fill: hsl(var(--hue) 46% 80%);
+  --plan-stroke: hsl(var(--hue) 44% 46%);
+  --actual-fill: hsl(var(--hue) 62% 34%);
+  --actual-stroke: hsl(var(--hue) 66% 22%);
+
+  /* ---- fixed-role colours */
+  --dep: hsl(26 88% 44%);
+  --lightning: hsl(354 62% 42%);
+  --marker-ink: #16181d;
+  --marker-bg: #ffffff;
+  --status: #8b9099;
+
+  /* ---- row banding */
+  --band: hsl(var(--hue) 42% 96%);
+  --band-edge: hsl(var(--hue) 34% 88%);
+  --row-top: hsl(var(--hue) 40% 97%);
+  --row-alt: #fafbfc;
+
+  /* ---- label ink. Black on light, white on dark. */
+  --label-ink: #000000;
+  --label-halo: var(--bg);
+}
+
+/* One dark definition, two ways to reach it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #14161a;
+    --ink: #e8eaee;
+    --sub: #9aa1ab;
+    --rule: #333840;
+    --panel: #1c1f25;
+    --accent: #7aa6e0;
+    --good: #6fc98d;
+    --warn: #e0a353;
+    --bad: #e07a7a;
+    --plan-fill: hsl(var(--hue) 32% 26%);
+    --plan-stroke: hsl(var(--hue) 46% 66%);
+    --actual-fill: hsl(var(--hue) 62% 64%);
+    --actual-stroke: hsl(var(--hue) 70% 80%);
+    --dep: hsl(30 92% 60%);
+    --lightning: hsl(354 70% 64%);
+    --marker-ink: #e8eaee;
+    --marker-bg: #14161a;
+    --status: #767c86;
+    --band: hsl(var(--hue) 18% 20%);
+    --band-edge: hsl(var(--hue) 16% 28%);
+    --row-top: hsl(var(--hue) 20% 17%);
+    --row-alt: #191c21;
+    --label-ink: #ffffff;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #14161a;
+  --ink: #e8eaee;
+  --sub: #9aa1ab;
+  --rule: #333840;
+  --panel: #1c1f25;
+  --accent: #7aa6e0;
+  --good: #6fc98d;
+  --warn: #e0a353;
+  --bad: #e07a7a;
+  --plan-fill: hsl(var(--hue) 32% 26%);
+  --plan-stroke: hsl(var(--hue) 46% 66%);
+  --actual-fill: hsl(var(--hue) 62% 64%);
+  --actual-stroke: hsl(var(--hue) 70% 80%);
+  --dep: hsl(30 92% 60%);
+  --lightning: hsl(354 70% 64%);
+  --marker-ink: #e8eaee;
+  --marker-bg: #14161a;
+  --status: #767c86;
+  --band: hsl(var(--hue) 18% 20%);
+  --band-edge: hsl(var(--hue) 16% 28%);
+  --row-top: hsl(var(--hue) 20% 17%);
+  --row-alt: #191c21;
+  --label-ink: #ffffff;
+}
+
+/* ==========================================================================
+   Shared page furniture.
+
+   Two page kinds, matching 08-poc/README.md:
+     body.reading     prose pages -- body 16px / line-height 1.7
+     body.instrument  dense control surfaces -- 13px, never below the 12px
+                      Japanese-readability floor
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+}
+
+body.reading { font-size: 16px; line-height: 1.7; padding: 0 0 80px 0; }
+body.instrument { font-size: 13px; line-height: 1.55; padding: 0 0 40px 0; }
+
+.wrap { max-width: 1320px; margin: 0 auto; padding: 0 20px; }
+
+header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0 0 0;
+}
+header .wrap { padding-bottom: 4px; }
+h1 { margin: 0 0 6px 0; font-size: 24px; line-height: 1.35; }
+h2 { font-size: 20px; margin: 32px 0 8px 0; padding-top: 12px; border-top: 1px solid var(--rule); }
+h3 { font-size: 17px; margin: 20px 0 5px 0; }
+
+.lede { margin: 0 0 12px 0; color: var(--sub); font-size: 16px; }
+.hint { margin: 0 0 12px 0; color: var(--sub); font-size: 14px; }
+.note {
+  background: var(--panel);
+  border-left: 3px solid var(--plan-stroke);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+.rule {
+  background: var(--panel);
+  border-left: 3px solid var(--plan-stroke);
+  padding: 9px 13px;
+  margin: 0 0 14px 0;
+  font-size: 14px;
+  white-space: pre-wrap;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 12px 0; }
+th, td { border: 1px solid var(--rule); padding: 5px 9px; text-align: left; }
+th { background: var(--panel); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+button {
+  font: inherit;
+  font-size: 14px;
+  padding: 3px 12px;
+  cursor: pointer;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+
+.pill { display: inline-block; padding: 3px 13px; border-radius: 13px; font-weight: 700; font-size: 14px; }
+.flag { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 10px; }
+.p-good, .f-good { background: color-mix(in srgb, var(--good) 16%, var(--bg)); color: var(--good); }
+.p-bad, .f-bad { background: color-mix(in srgb, var(--bad) 16%, var(--bg)); color: var(--bad); }
+.p-warn, .f-warn { background: color-mix(in srgb, var(--warn) 16%, var(--bg)); color: var(--warn); }
+
+.val { font-variant-numeric: tabular-nums; min-width: 64px; color: var(--accent); font-weight: 700; }
+
+svg { display: block; }

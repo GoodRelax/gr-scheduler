@@ -3,81 +3,11 @@
 <head>
 <meta charset="utf-8">
 <title>gr-scheduler 形状の基準（予実・進捗マーカー・Resume・イナズマ線）</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
-  :root {
-    --bg: #ffffff;
-    --ink: #16181d;
-    --sub: #5b6068;
-    --rule: #d9dce1;
-    --panel: #f5f6f8;
-
-    /* Plan and actual share ONE hue. Plan = medium saturation, light.
-       Actual = high saturation, dark. No pure primaries. */
-    --hue: 214;
-    --plan-fill:   hsl(var(--hue) 46% 80%);
-    --plan-stroke: hsl(var(--hue) 44% 46%);
-    --actual-fill:   hsl(var(--hue) 62% 34%);
-    --actual-stroke: hsl(var(--hue) 66% 22%);
-
-    /* Dependency lines are fixed orange in both themes. */
-    --dep: hsl(26 88% 44%);
-
-    --marker-ink: #16181d;
-    --marker-bg: #ffffff;
-    --lightning: hsl(354 62% 42%);
-    --band: hsl(var(--hue) 42% 96%);
-    --band-edge: hsl(var(--hue) 34% 88%);
-    --status: #8b9099;
-  }
-  :root { color-scheme: light dark; }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-      --bg: #14161a;
-      --ink: #e8eaee;
-      --sub: #9aa1ab;
-      --rule: #333840;
-      --panel: #1c1f25;
-      --plan-fill:   hsl(var(--hue) 32% 26%);
-      --plan-stroke: hsl(var(--hue) 46% 66%);
-      --actual-fill:   hsl(var(--hue) 62% 64%);
-      --actual-stroke: hsl(var(--hue) 70% 80%);
-      --dep: hsl(30 92% 60%);
-      --marker-ink: #e8eaee;
-      --marker-bg: #14161a;
-      --lightning: hsl(354 70% 64%);
-      --band: hsl(var(--hue) 18% 20%);
-      --band-edge: hsl(var(--hue) 16% 28%);
-      --status: #767c86;
-    }
-  }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-    --bg: #14161a;
-    --ink: #e8eaee;
-    --sub: #9aa1ab;
-    --rule: #333840;
-    --panel: #1c1f25;
-    --plan-fill:   hsl(var(--hue) 30% 34%);
-    --plan-stroke: hsl(var(--hue) 44% 64%);
-    --actual-fill:   hsl(var(--hue) 62% 62%);
-    --actual-stroke: hsl(var(--hue) 70% 78%);
-    --dep: hsl(30 92% 60%);
-    --marker-ink: #e8eaee;
-    --marker-bg: #14161a;
-    --lightning: hsl(354 70% 64%);
-    --band: hsl(var(--hue) 18% 20%);
-    --band-edge: hsl(var(--hue) 16% 28%);
-    --status: #767c86;
-  }
-
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; padding: 0 0 72px 0;
-    background: var(--bg); color: var(--ink);
-    font-family: "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
-    font-size: 16px; line-height: 1.7;
-  }
+  /* The palette that used to live here is now poc-ui.css, which every PoC
+     page links. It kept two dark blocks that had drifted apart. */
   header {
     position: sticky; top: 0; z-index: 10;
     background: var(--panel); border-bottom: 1px solid var(--rule);
@@ -114,13 +44,13 @@
   .sw i { display: block; height: 18px; border-radius: 2px; margin-bottom: 5px; border: 1px solid var(--rule); }
 </style>
 </head>
-<body>
+<body class="reading">
 
 <header>
   <h1>gr-scheduler 形状の基準 — 予実の重ね方 / 進捗マーカー / Resume / イナズマ線</h1>
   <p>確定内容をそのまま描いて目で確かめるための頁。実装案ではなく<strong>正解の見た目</strong>を示す。2026-07-30 の決定を反映。</p>
   <div class="controls">
-    <label>1 段の高さ <input id="rowH" type="range" min="16" max="56" value="30"> <output id="rowHOut">30</output> px</label>
+    <label>縦ズーム <input id="rowH" type="range" min="0.5" max="2" step="0.05" value="1"> <output id="rowHOut">1.00</output> x</label>
     <label>横ズーム <input id="pxDay" type="range" min="1" max="14" step="0.5" value="6"> <output id="pxDayOut">6.0</output> px/日</label>
     <label><input id="selected" type="checkbox"> 選択状態で描く（未完了マーカーが出る）</label>
     <button id="themeBtn" type="button">ダーク / ライト切替</button>
@@ -225,31 +155,17 @@
 var NS = 'http://www.w3.org/2000/svg';
 
 // Baseline: 1920x1080, full screen, 100% zoom, 50px header.
-// =========================================================================
-// SIZE -- the single source for every dimension. No size literal appears in
-// the drawing code; change a value here and the whole reference follows.
-// =========================================================================
-var SIZE = {
-  // Per-shape plan height, as a multiple of bar/chevron.
-  // Thin shapes are half as tall on purpose: being thin IS their merit, they
-  // let more information sit in the same vertical space. A milestone is 1.5x
-  // so that it stands out.
-  shapeH: { bar: 1.0, chevron: 1.0, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
-  planOfLevel:    0.62,   // plan bar height / level height
-  actualOfPlan:   0.55,   // actual / plan   -> font < actual < plan for bar & chevron
-  fontOfActual:   0.80,   // font   / actual
-  thinFontScale:  0.85,   // extra shrink for arrow / endpointSpan
-  markTextOfFont: 0.75,
-  markOfText:     2.0
-};
+// Every dimension comes from the shared poc-ui.js, so this reference page and
+// the measuring pages can no longer disagree about what the settled sizes are.
+var SIZE = POC_UI.S;
 
-var MIN_FONT = 12;        // smallest font we ever draw
-var MIN_ACTUAL_H = 16;    // actual bar + alpha, lower bound
-var MIN_MARKER = 16;      // marker lower bound, follows the actual bar
-var MARKER_GAP = 4;       // fixed gap between actual bar right edge and marker
-var MIN_LEVEL_GAP = 12;   // minimum vertical gap between plan bars of two levels
+var MIN_FONT     = SIZE.fontMin;    // smallest font we ever draw
+var MIN_ACTUAL_H = SIZE.actualMin;  // actual bar + alpha, lower bound
+var MIN_MARKER   = SIZE.markMin;    // marker lower bound, follows the actual bar
+var MARKER_GAP   = SIZE.markGap;    // fixed gap between actual bar right edge and marker
+var MIN_LEVEL_GAP = SIZE.laneGap;   // minimum vertical gap between plan bars of two levels
 
-var state = { levelHeight: 30, pxPerDay: 6, selected: false };
+var state = { zoomY: 1, pxPerDay: SIZE.pxPerDayAt1x, selected: false };
 
 function el(name, attrs, parent) {
   var node = document.createElementNS(NS, name);
@@ -289,24 +205,17 @@ function hasThickness(shapeKind) {
   return shapeKind === 'bar' || shapeKind === 'chevron';
 }
 
-function metrics(levelHeight, shapeKind) {
-  var ratio = SIZE.shapeH[shapeKind || 'bar'];
-  var planH = Math.max(MIN_ACTUAL_H + 6, Math.round(levelHeight * SIZE.planOfLevel)) * ratio;
-  var actualH = Math.max(MIN_ACTUAL_H * ratio, planH * SIZE.actualOfPlan);
-  var thin = !hasThickness(shapeKind || 'bar') && (shapeKind || 'bar') !== 'milestone';
-  var fontSize = Math.max(MIN_FONT,
-                 actualH * SIZE.fontOfActual * (thin ? SIZE.thinFontScale : 1));
-  var markerSize = Math.max(MIN_MARKER,
-                   Math.max(MIN_FONT, fontSize * SIZE.markTextOfFont) * SIZE.markOfText);
+function metrics(zoomY, shapeKind) {
+  var m = POC_UI.shapeMetrics(shapeKind || 'bar', zoomY);
   return {
-    levelHeight: levelHeight,
-    planHeight: planH,
-    actualHeight: actualH,
-    fontSize: fontSize,
-    markerSize: markerSize,
+    zoomY: zoomY,
+    planHeight: m.planH,
+    actualHeight: m.actualH,
+    fontSize: m.fontSize,
+    markerSize: m.markSize,
     levelGap: MIN_LEVEL_GAP,
     // total vertical space one level occupies, marker included
-    pitch: planH + MIN_LEVEL_GAP
+    pitch: m.planH + MIN_LEVEL_GAP
   };
 }
 
@@ -474,7 +383,7 @@ function renderShapes() {
     var row = SHAPE_ROWS[i];
     // Each shape carries its own vertical extent, so the reference shows the
     // difference rather than forcing every row into one height.
-    var m = metrics(state.levelHeight, row.kind);
+    var m = metrics(state.zoomY, row.kind);
     var b = bands(y, m);
     var g = el('g', null, svg);
 
@@ -531,7 +440,7 @@ function renderColors() {
 
   var svg = document.getElementById('svgColors');
   clear(svg);
-  var m = metrics(state.levelHeight);
+  var m = metrics(state.zoomY);
   var pad = 14, barX = 40;
   var w = state.pxPerDay * 22;
   var b1 = bands(pad, m);
@@ -577,13 +486,13 @@ var MARKER_ROWS = [
 ];
 
 function renderSizeRule() {
-  var m = metrics(state.levelHeight);
+  var m = metrics(state.zoomY);
   var box = document.getElementById('sizeRule');
   box.textContent =
     '基準  1920 x 1080 / 全画面 / 拡大率 100% / ヘッダー縦 50px\n' +
     '\n' +
     '形状ごとの縦幅        ' + ['bar', 'chevron', 'arrow', 'endpointSpan', 'milestone']
-       .map(function (k) { return k + ' x' + SIZE.shapeH[k]; }).join(' / ') + '\n' +
+       .map(function (k) { return k + ' x' + POC_UI.shapeRatio(k); }).join(' / ') + '\n' +
     '  細線が半分なのは「縦に薄く詰め込める」ことがこの形状の取り柄だから\n' +
     '  マイルストーンが 1.5 倍なのは目立たせるため\n' +
     '縦幅の大小関係        フォント < 実績 < 予定  （=== と >===> に対する要件）\n' +
@@ -602,7 +511,7 @@ function renderSizeRule() {
 function renderMarkers() {
   var svg = document.getElementById('svgMarkers');
   clear(svg);
-  var m = metrics(state.levelHeight);
+  var m = metrics(state.zoomY);
   var pad = 10, labelW = 150, barX = labelW + 20;
   var w = state.pxPerDay * 34;
   var y = pad;
@@ -636,7 +545,7 @@ function renderMarkers() {
 function renderResume() {
   var svg = document.getElementById('svgResume');
   clear(svg);
-  var m = metrics(Math.max(30, state.levelHeight));
+  var m = metrics(Math.max(1, state.zoomY));
   var pad = 14, barX = 210;
   var b = bands(pad, m);
   var g = el('g', null, svg);
@@ -683,7 +592,7 @@ var STATE_ROWS = [
 function renderStates() {
   var svg = document.getElementById('svgStates');
   clear(svg);
-  var m = metrics(state.levelHeight);
+  var m = metrics(state.zoomY);
   var pad = 10, labelW = 190, barX = labelW + 20;
   var w = state.pxPerDay * 40;
   var y = pad;
@@ -751,7 +660,7 @@ function vertexDayOf(t) {
 function renderLightning() {
   var svg = document.getElementById('svgLightning');
   clear(svg);
-  var m = metrics(state.levelHeight);
+  var m = metrics(state.zoomY);
   var pad = 20, labelW = 300, barX = labelW + 20;
   var ppd = state.pxPerDay;
   var g = el('g', null, svg);
@@ -852,8 +761,8 @@ function bindControls() {
   var themeBtn = document.getElementById('themeBtn');
 
   rowH.addEventListener('input', function () {
-    state.levelHeight = parseInt(rowH.value, 10);
-    rowHOut.textContent = rowH.value;
+    state.zoomY = parseFloat(rowH.value);
+    rowHOut.textContent = state.zoomY.toFixed(2);
     renderAll();
   });
   pxDay.addEventListener('input', function () {
@@ -874,7 +783,7 @@ function bindControls() {
     root.setAttribute('data-theme', now === 'dark' ? 'light' : 'dark');
   });
 
-  rowHOut.textContent = rowH.value;
+  rowHOut.textContent = parseFloat(rowH.value).toFixed(2);
   pxDayOut.textContent = parseFloat(pxDay.value).toFixed(1);
 }
 

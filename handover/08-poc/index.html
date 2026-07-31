@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>gr-scheduler PoC 一覧（2026-07-30）</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
-  :root { --bg:#fff; --ink:#1a1a1a; --sub:#5c5c5c; --rule:#dcdcdc; --panel:#f6f7f9;
-          --accent:#2b5ea8; --good:#1f7a3d; --warn:#a8600f; --bad:#a02b2b; }
+  /* Palette moved to poc-ui.css, which every PoC page links. */
   * { box-sizing: border-box; }
   body { margin:0; padding:0 0 80px 0; background:var(--bg); color:var(--ink);
          font-family:"Yu Gothic UI","Meiryo",system-ui,sans-serif; font-size:16px; line-height:1.7; }
@@ -17,7 +18,7 @@
   h2:first-of-type { border-top:none; }
   .hint { margin:0 0 16px 0; color:var(--sub); font-size:14px; }
   .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:14px; }
-  .card { border:1px solid var(--rule); border-radius:6px; padding:14px 16px; background:#fff; }
+  .card { border:1px solid var(--rule); border-radius:6px; padding:14px 16px; background:var(--bg); }
   .card h3 { margin:0 0 3px 0; font-size:17px; }
   .card h3 a { color:var(--accent); text-decoration:none; }
   .card h3 a:hover { text-decoration:underline; }
@@ -38,7 +39,7 @@
   ol.steps li { margin-bottom:6px; }
 </style>
 </head>
-<body>
+<body class="reading">
 
 <header><div class="wrap">
   <h1>gr-scheduler PoC 一覧 — レイアウト 3 案 / ズーム 2 案 ＋ 形状の基準</h1>
@@ -49,9 +50,14 @@
 <div class="wrap">
 
 <div class="note">
-  <strong>朝に見る順</strong>：①この頁 → ②<a href="poc-glyphs-reference.html">形状の基準</a>（正解の見た目）
-  → ③レイアウト 3 案を見比べる → ④<a href="poc-multibar-patterns.html">マルチバーのパターン集</a>と<a href="poc-zoom-lod-transitions.html">レベル遷移</a>で規則を検算 → ⑤ズーム 2 案を見比べる → ⑤<a href="POC-RESULTS-ja.md">POC-RESULTS-ja.md</a>（計測と推奨）
-  → ⑥<a href="OPEN-QUESTIONS-ja.md">OPEN-QUESTIONS-ja.md</a>（判断が要った 7 件 — <strong>全件 決着済み</strong>）
+  <strong>見る順</strong>：
+  1. この頁
+  2. <a href="poc-glyphs-reference.html">形状の基準</a>（正解の見た目）
+  3. レイアウト 3 案を見比べる
+  4. <a href="poc-multibar-patterns.html">マルチバーのパターン集</a>と<a href="poc-zoom-lod-transitions.html">レベル遷移</a>で規則を検算
+  5. ズーム 2 案を見比べる
+  6. <a href="POC-RESULTS-ja.md">POC-RESULTS-ja.md</a>（計測と推奨）
+  7. <a href="OPEN-QUESTIONS-ja.md">OPEN-QUESTIONS-ja.md</a>（判断が要った 7 件 — <strong>全件 決着済み</strong>）
 </div>
 
 <h2>0. 基準（実装案ではない）</h2>
@@ -75,7 +81,7 @@
   <div class="card">
     <h3><a href="poc-layout-B-anchor-search.html">案 B — 9 点アンカーの候補探索</a><span class="tag">推奨</span></h3>
     <p>出口 × 入口 × 折れ点 0-3 を全列挙し、重み付きコスト最小を選ぶ。重みは画面のスライダーで動かせる。</p>
-    <div class="look">見るところ：<span class="v-good">横切り 0 と交差 8 が同時に低い唯一の案</span>。density も 27.0% で最も詰まっている。タスクをクリックすると 9 点アンカーと採用理由が出る。<strong>重みを動かして絵がどう変わるかを見てほしい</strong>。<span class="v-warn">弱点は連続ズームが約 30fps</span>（1 リンクあたり 110 候補を毎回 再探索するため）。</div>
+    <div class="look">見るところ：<span class="v-good">横切り 0 と交差 9 が同時に低い唯一の案</span>。density も 28.2% で最も詰まっている。タスクをクリックすると 9 点アンカーと採用理由が出る。<strong>重みを動かして絵がどう変わるかを見てほしい</strong>。<span class="v-warn">弱点は 1 回の再レイアウトが 13.3ms</span>（60fps の予算 16.7ms にほぼ余裕が無い。1 リンクあたり 113 候補を毎回 再探索するため）。</div>
   </div>
   <div class="card">
     <h3><a href="poc-layout-C-reserved-lane.html">案 C — 予約が先・配線は 1 パス</a><span class="tag">考え方の検証</span></h3>
@@ -110,10 +116,10 @@
     <div class="look">確認済み — 修飾なし=縦スクロール／<span class="v-good">Ctrl=両軸・Shift=横・Alt=縦</span>／
       Ctrl+Shift=横スクロール／中ボタン・Ctrl+左=パン／キーは同じ修飾体系で <code>+</code> <code>-</code>、
       <code>Ctrl+0</code>=等倍、<code>F</code>=Fit。1 ノッチ ×1.1、0.02〜64 倍でクランプ。
-      <strong>依存線の太さ 1.5px と走り 20px は、ズームを 40 倍振っても動かない</strong>
+      <strong>依存線の太さ 1.5px と走り（入口 20px / 出口 10px）は、ズームを 40 倍振っても動かない</strong>
       （担当/進捗と独立なので固定定数にできる。§4-9 / §4-10）。
       <strong>依存線・担当・進捗・進捗線は個別に切り替えられる。</strong>
-      <strong>「設定…」で寸法の定数 53 個すべてを個別に変えられる</strong> — 範囲は他の設定に追随して引き直され、
+      <strong>「設定…」で寸法の定数 59 個すべてを個別に変えられる</strong> — 範囲は他の設定に追随して引き直され、
       範囲外は赤で示す（依存関係は <code>handover-ui-detail-spec-ja.md</code> §4-10 に Mermaid で図示）。</div>
   </div>
   <div class="card">
@@ -135,7 +141,7 @@
   <div class="card">
     <h3><a href="poc-zoom-A-depth-threshold.html">案 A — 深さしきい値 LOD</a><span class="tag">推奨</span></h3>
     <p>ズーム（px/日）から「描いてよい最大の WBS 深さ」を単調関数で決める。しきい値は可読下限 N px から導出する（表で根拠が見える）。</p>
-    <div class="look">見るところ：判定 <span class="v-good">PASS</span>。Fit で<span class="v-good">全 21 行が画面に入り density 31.1%</span>、<span class="v-good">rAF 実測で平均 59.9fps</span>（297 フレーム中 292 が 55〜62fps）。深さごとの中央値幅の表が、なぜその深さで切ったかを説明している。<strong>Fit 時に L1 の行が 2〜3 段になるのは、進捗マーカーの張り出しが原因</strong>（OPEN-QUESTIONS Q7）。<strong>2 案は同じ絵に着地した</strong>（どちらも L1〜L2 の 25 本）ので、差は挙動に出る。</div>
+    <div class="look">見るところ：判定 <span class="v-good">PASS</span>。Fit で<span class="v-good">全 21 行が画面に入り density 24.1%</span>、<span class="v-good">1 回の再レイアウトが 0.5ms</span>（60fps の予算に対し 33 倍の余裕）。深さごとの中央値幅の表が、なぜその深さで切ったかを説明している。<strong>Fit 時に L1 の行が 2〜3 段になるのは、進捗マーカーの張り出しが原因</strong>（OPEN-QUESTIONS Q7）。<strong>2 案は同じ絵に着地した</strong>（どちらも L1〜L2 の 25 本）ので、差は挙動に出る。</div>
   </div>
   <div class="card">
     <h3><a href="poc-zoom-B-fit-first.html">案 B — 画面予算が深さを決める</a><span class="tag">保証の作り方が良い</span></h3>

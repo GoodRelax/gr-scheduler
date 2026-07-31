@@ -4,29 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PoC Layout C - reserved lane</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
-  :root {
-    --ink: #1d2430;
-    --ink-soft: #55606f;
-    --paper: #fbfbfa;
-    --panel: #ffffff;
-    --rule: #ccd2da;
-    --band-a: #f4f5f7;
-    --band-b: #ecEef1;
-    --plan-fill: #e3e8ee;
-    --plan-line: #4a5666;
-    --act-fill: #2f3a49;
-    --lane-band: rgba(70, 120, 190, 0.13);
-    --lane-edge: rgba(70, 120, 190, 0.42);
-    --link: #33404f;
-    --link-cross: #7a4a12;
-    --halo: #fbfbfa;
-    --warn: #8a2b12;
-  }
+  /* Palette moved to poc-ui.css, which every PoC page links. */
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; height: 100%; overflow: hidden;
-    background: var(--paper); color: var(--ink);
+    background: var(--panel); color: var(--ink);
     font-family: "Yu Gothic UI", "Meiryo", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
     font-size: 12px;
   }
@@ -36,18 +21,18 @@
     background: var(--panel); border-bottom: 1px solid var(--rule);
   }
   #toolbar .name { font-weight: 700; letter-spacing: .02em; }
-  #toolbar .name span { font-weight: 400; color: var(--ink-soft); margin-left: 6px; }
+  #toolbar .name span { font-weight: 400; color: var(--sub); margin-left: 6px; }
   .ctl { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-  .ctl label { color: var(--ink-soft); }
+  .ctl label { color: var(--sub); }
   .ctl output { font-variant-numeric: tabular-nums; min-width: 46px; text-align: right; }
   input[type=range] { width: 130px; }
   button {
     font: inherit; padding: 3px 10px; border: 1px solid var(--rule);
-    background: #fff; border-radius: 4px; cursor: pointer; color: var(--ink);
+    background: var(--bg); border-radius: 4px; cursor: pointer; color: var(--ink);
   }
-  button:hover { background: #eef1f5; }
-  button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
-  .hint { color: var(--ink-soft); margin-left: auto; }
+  button:hover { background: var(--panel); }
+  button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .hint { color: var(--sub); margin-left: auto; }
 
   #stage { position: fixed; top: 40px; left: 0; width: calc(100% - var(--side-w)); height: calc(100% - 40px); display: block; cursor: grab; }
   #stage.dragging { cursor: grabbing; }
@@ -57,27 +42,27 @@
     background: rgba(255,255,255,.96); border: 1px solid var(--rule); border-radius: 6px;
     padding: 7px 9px; box-shadow: 0 2px 10px rgba(0,0,0,.10);
   }
-  #metrics h2 { margin: 0 0 5px; font-size: 12px; letter-spacing: .06em; color: var(--ink-soft); text-transform: uppercase; }
+  #metrics h2 { margin: 0 0 5px; font-size: 12px; letter-spacing: .06em; color: var(--sub); text-transform: uppercase; }
   #metrics table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   #metrics td { padding: 1px 0; }
-  #metrics td.k { color: var(--ink-soft); }
+  #metrics td.k { color: var(--sub); }
   #metrics td.v { text-align: right; font-weight: 600; }
   #metrics tr.bad td.v { color: var(--warn); }
   #metrics tr.key td.k, #metrics tr.key td.v { font-weight: 700; }
-  #metrics .note { margin-top: 6px; padding-top: 5px; border-top: 1px dashed var(--rule); color: var(--ink-soft); line-height: 1.45; }
+  #metrics .note { margin-top: 6px; padding-top: 5px; border-top: 1px dashed var(--rule); color: var(--sub); line-height: 1.45; }
 
   #legend {
     position: fixed; bottom: 10px; right: 10px; z-index: 25; width: 214px;
     background: rgba(255,255,255,.96); border: 1px solid var(--rule); border-radius: 6px;
     padding: 7px 9px; box-shadow: 0 2px 10px rgba(0,0,0,.10);
   }
-  #legend h2 { margin: 0 0 5px; font-size: 12px; letter-spacing: .06em; color: var(--ink-soft); text-transform: uppercase; }
+  #legend h2 { margin: 0 0 5px; font-size: 12px; letter-spacing: .06em; color: var(--sub); text-transform: uppercase; }
   #legend .row { display: flex; align-items: center; gap: 7px; padding: 1px 0; }
-  #legend .row span { color: var(--ink-soft); }
+  #legend .row span { color: var(--sub); }
   #legend svg { flex: none; }
   #alert {
     position: fixed; left: 12px; bottom: 12px; z-index: 26; max-width: 460px;
-    background: #fff3ef; border: 1px solid var(--warn); color: var(--warn);
+    background: color-mix(in srgb, var(--warn) 14%, var(--bg)); border: 1px solid var(--warn); color: var(--warn);
     padding: 5px 9px; border-radius: 5px; display: none;
   }
 
@@ -105,10 +90,10 @@
   #sideToggle {
     font: inherit; font-size: 12px; line-height: 1.4; padding: 2px 8px;
     border: 1px solid var(--rule); border-radius: 4px;
-    background: #fff; color: var(--ink); cursor: pointer;
+    background: var(--bg); color: var(--ink); cursor: pointer;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.20);
   }
-  #sideToggle:hover { background: #eef1f5; }
+  #sideToggle:hover { background: var(--panel); }
   html.side-collapsed #sidebar {
     width: auto; bottom: auto; overflow: visible; padding: 6px;
   }
@@ -140,17 +125,17 @@
 
 <div id="legend">
   <h2>legend</h2>
-  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><rect x="1" y="2" width="52" height="9" rx="2" fill="#e3e8ee" stroke="#4a5666"></rect><rect x="1" y="5.5" width="30" height="4" fill="#2f3a49"></rect></svg><span>bar（実績は内側）</span></div>
-  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><polygon points="1,2 48,2 53,6.5 48,11 1,11 5,6.5" fill="#e3e8ee" stroke="#4a5666"></polygon><rect x="5" y="5" width="26" height="4" fill="#2f3a49"></rect></svg><span>chevron（実績は内側）</span></div>
-  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><line x1="1" y1="4" x2="46" y2="4" stroke="#4a5666" stroke-width="2.5"></line><polygon points="46,1 53,4 46,7" fill="#4a5666"></polygon><rect x="1" y="9" width="26" height="4" fill="#2f3a49"></rect></svg><span>arrow（実績は下）</span></div>
-  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><line x1="2" y1="4" x2="52" y2="4" stroke="#4a5666" stroke-width="2.5"></line><line x1="2" y1="1" x2="2" y2="7" stroke="#4a5666" stroke-width="2.5"></line><line x1="52" y1="1" x2="52" y2="7" stroke="#4a5666" stroke-width="2.5"></line><rect x="2" y="9" width="26" height="4" fill="#2f3a49"></rect></svg><span>endpointSpan（実績は下）</span></div>
-  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><polygon points="10,1 17,6 10,11 3,6" fill="#e3e8ee" stroke="#4a5666"></polygon><rect x="3" y="9.5" width="14" height="3.5" fill="#2f3a49"></rect></svg><span>milestone（実績は下）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><rect x="1" y="2" width="52" height="9" rx="2" fill="var(--plan-fill)" stroke="var(--plan-stroke)"></rect><rect x="1" y="5.5" width="30" height="4" fill="var(--actual-fill)"></rect></svg><span>bar（実績は内側）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><polygon points="1,2 48,2 53,6.5 48,11 1,11 5,6.5" fill="var(--plan-fill)" stroke="var(--plan-stroke)"></polygon><rect x="5" y="5" width="26" height="4" fill="var(--actual-fill)"></rect></svg><span>chevron（実績は内側）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><line x1="1" y1="4" x2="46" y2="4" stroke="var(--plan-stroke)" stroke-width="2.5"></line><polygon points="46,1 53,4 46,7" fill="var(--plan-stroke)"></polygon><rect x="1" y="9" width="26" height="4" fill="var(--actual-fill)"></rect></svg><span>arrow（実績は下）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><line x1="2" y1="4" x2="52" y2="4" stroke="var(--plan-stroke)" stroke-width="2.5"></line><line x1="2" y1="1" x2="2" y2="7" stroke="var(--plan-stroke)" stroke-width="2.5"></line><line x1="52" y1="1" x2="52" y2="7" stroke="var(--plan-stroke)" stroke-width="2.5"></line><rect x="2" y="9" width="26" height="4" fill="var(--actual-fill)"></rect></svg><span>endpointSpan（実績は下）</span></div>
+  <div class="row"><svg width="54" height="14" viewBox="0 0 54 14"><polygon points="10,1 17,6 10,11 3,6" fill="var(--plan-fill)" stroke="var(--plan-stroke)"></polygon><rect x="3" y="9.5" width="14" height="3.5" fill="var(--actual-fill)"></rect></svg><span>milestone（実績は下）</span></div>
   <div class="row" style="margin-top:4px">
     <svg width="54" height="14" viewBox="0 0 54 14">
-      <g transform="translate(1,1)"><circle cx="6" cy="6" r="5.5" fill="#fff" stroke="#2f3a49"></circle><path d="M3.2 6.2 L5.2 8.4 L8.9 3.6" fill="none" stroke="#2f3a49" stroke-width="1.6"></path></g>
-      <g transform="translate(15,1)"><circle cx="6" cy="6" r="5.5" fill="#fff" stroke="#2f3a49"></circle><line x1="3" y1="3" x2="9" y2="9" stroke="#2f3a49" stroke-width="1.6"></line></g>
-      <g transform="translate(29,1)"><circle cx="6" cy="6" r="5.5" fill="#fff" stroke="#8a2b12"></circle><line x1="6" y1="2.8" x2="6" y2="6.9" stroke="#8a2b12" stroke-width="1.6"></line><circle cx="6" cy="9.1" r="0.9" fill="#8a2b12"></circle></g>
-      <g transform="translate(43,1)"><circle cx="6" cy="6" r="5.5" fill="#fff" stroke="#96a0ad" stroke-dasharray="2 2"></circle></g>
+      <g transform="translate(1,1)"><circle cx="6" cy="6" r="5.5" fill="var(--bg)" stroke="var(--actual-fill)"></circle><path d="M3.2 6.2 L5.2 8.4 L8.9 3.6" fill="none" stroke="var(--actual-fill)" stroke-width="1.6"></path></g>
+      <g transform="translate(15,1)"><circle cx="6" cy="6" r="5.5" fill="var(--bg)" stroke="var(--actual-fill)"></circle><line x1="3" y1="3" x2="9" y2="9" stroke="var(--actual-fill)" stroke-width="1.6"></line></g>
+      <g transform="translate(29,1)"><circle cx="6" cy="6" r="5.5" fill="var(--bg)" stroke="var(--warn)"></circle><line x1="6" y1="2.8" x2="6" y2="6.9" stroke="var(--warn)" stroke-width="1.6"></line><circle cx="6" cy="9.1" r="0.9" fill="var(--warn)"></circle></g>
+      <g transform="translate(43,1)"><circle cx="6" cy="6" r="5.5" fill="var(--bg)" stroke="var(--sub)" stroke-dasharray="2 2"></circle></g>
     </svg>
     <span>完了 / 中断 / 期限超過 / 未完了</span>
   </div>
@@ -400,13 +385,15 @@ function buildZoomDataset() {
 //   STEP 4  one-pass routing      (pure geometry, no search, no backtracking)
 // ---------------------------------------------------------------------------
 
+// Shared dimensions come from poc-ui.js; the reserved-lane constants that
+// DEFINE this approach (stubOut / stubIn / lanePitch / depthWeight) stay here.
 var CFG = {
-  gutterWidth: 196,          // left column that carries the row (TaskGroup) title
-  headerHeight: 30,          // time axis band
+  gutterWidth: POC_UI.S.rowLabelW,
+  headerHeight: POC_UI.S.rulerH,
   padLeft: 26,               // x(day 0) inside the content area
-  planHeight: 16,            // plan bar height at vertical zoom 1
-  actualHeight: 7,           // actual bar height at vertical zoom 1
-  actualGap: 2,              // gap between plan shape and actual bar (width-less kinds)
+  planHeight: POC_UI.shapeMetrics("bar", 1).planH,
+  actualHeight: POC_UI.shapeMetrics("bar", 1).actualH,
+  actualGap: POC_UI.S.actualGap,
   levelPad: 3,               // padding inside one stack level
   stubOut: 12,               // horizontal exit stub of a dependency line
   stubIn: 10,                // clearance kept in front of the entry edge
@@ -414,9 +401,9 @@ var CFG = {
   lanePitch: 5,              // vertical distance between two lines sharing a lane
   laneMargin: 3,             // lane padding on both sides
   laneStroke: 1,             // the drawn width of one routed line
-  rowGutter: 6,              // vertical gap between two rows (shared, so 3px each)
-  markerSize: 12,            // progress marker diameter (fixed px, not zoomed)
-  markerGap: 4,              // fixed 4px from the actual bar right edge
+  rowGutter: POC_UI.S.rowGap,
+  markerSize: POC_UI.shapeMetrics("bar", 1).markSize,
+  markerGap: POC_UI.S.markGap,
   maxStack: 24,              // safety valve only - never "reuse the last level"
   depthWeight: 2             // how much one avoided crossing is worth in stack depth
 };
@@ -1058,7 +1045,7 @@ function render() {
   out.push('<clipPath id="clipGutter"><rect x="0" y="' + CFG.headerHeight + '" width="' + CFG.gutterWidth +
            '" height="' + Math.max(0, stageHeight - CFG.headerHeight) + '"/></clipPath>');
   out.push('</defs>');
-  out.push('<rect x="0" y="0" width="' + stageWidth + '" height="' + stageHeight + '" fill="var(--paper)"/>');
+  out.push('<rect x="0" y="0" width="' + stageWidth + '" height="' + stageHeight + '" fill="var(--panel)"/>');
 
   // ---- world ------------------------------------------------------------
   out.push('<g clip-path="url(#clipContent)"><g transform="translate(' + fmt(tx, 2) + ',' + fmt(ty, 2) + ')">');
@@ -1069,7 +1056,7 @@ function render() {
     var row = rows[ri];
     if (row.bottomY < viewTop || row.topY > viewBottom) continue;
     out.push('<rect x="' + fmt(bgLeft, 1) + '" y="' + fmt(row.topY, 2) + '" width="' + stageWidth +
-             '" height="' + fmt(row.bottomY - row.topY, 2) + '" fill="' + (ri % 2 ? 'var(--band-b)' : 'var(--band-a)') + '"/>');
+             '" height="' + fmt(row.bottomY - row.topY, 2) + '" fill="' + (ri % 2 ? 'var(--row-alt)' : 'var(--bg)') + '"/>');
     if (VIEW.showLanes) {
       for (var lz = 0; lz < row.laneY.length; lz++) {
         var count = row.laneCounts[lz] || 0;
@@ -1099,8 +1086,8 @@ function render() {
     var bbox = routeBBox(rt);
     if (bbox.y1 < viewTop || bbox.y0 > viewBottom || bbox.x1 < viewLeft || bbox.x0 > viewRight) continue;
     var d = pathOf(rt.points);
-    out.push('<path d="' + d + '" fill="none" stroke="var(--halo)" stroke-width="3.4" stroke-linejoin="round" opacity="0.95"/>');
-    var cls = rt.crossRow ? 'var(--link-cross)' : 'var(--link)';
+    out.push('<path d="' + d + '" fill="none" stroke="var(--bg)" stroke-width="3.4" stroke-linejoin="round" opacity="0.95"/>');
+    var cls = rt.crossRow ? 'var(--bad)' : 'var(--dep)';
     var dash = rt.crossRow ? ' stroke-dasharray="6 3"' : '';
     out.push('<path d="' + d + '" fill="none" stroke="' + cls + '" stroke-width="1.2" stroke-linejoin="round"' + dash + '/>');
     out.push(arrowHead(rt));
@@ -1124,7 +1111,7 @@ function render() {
     var hx = day2 * VIEW.pxPerDay + CFG.padLeft;
     if (hx < viewLeft - 40) continue;
     out.push('<line x1="' + fmt(hx, 2) + '" y1="' + (CFG.headerHeight - 6) + '" x2="' + fmt(hx, 2) + '" y2="' + CFG.headerHeight + '" stroke="var(--rule)"/>');
-    out.push('<text x="' + fmt(hx + 3, 2) + '" y="' + (CFG.headerHeight - 9) + '" font-size="10" fill="var(--ink-soft)">D' + day2 + '</text>');
+    out.push('<text x="' + fmt(hx + 3, 2) + '" y="' + (CFG.headerHeight - 9) + '" font-size="10" fill="var(--sub)">D' + day2 + '</text>');
   }
   out.push('</g></g>');
   out.push('<line x1="0" y1="' + CFG.headerHeight + '" x2="' + stageWidth + '" y2="' + CFG.headerHeight + '" stroke="var(--rule)"/>');
@@ -1136,9 +1123,9 @@ function render() {
     var rw = rows[rt2];
     if (rw.bottomY < viewTop || rw.topY > viewBottom) continue;
     out.push('<rect x="0" y="' + fmt(rw.topY, 2) + '" width="' + CFG.gutterWidth + '" height="' + fmt(rw.bottomY - rw.topY, 2) +
-             '" fill="' + (rt2 % 2 ? 'var(--band-b)' : 'var(--band-a)') + '"/>');
+             '" fill="' + (rt2 % 2 ? 'var(--row-alt)' : 'var(--bg)') + '"/>');
     out.push('<text x="8" y="' + fmt(rw.topY + 13, 2) + '" font-size="11" fill="var(--ink)">' + escapeXml(rw.group.title) + '</text>');
-    out.push('<text x="8" y="' + fmt(rw.topY + 26, 2) + '" font-size="10" fill="var(--ink-soft)">stack ' + rw.levels.length + ' 段</text>');
+    out.push('<text x="8" y="' + fmt(rw.topY + 26, 2) + '" font-size="10" fill="var(--sub)">stack ' + rw.levels.length + ' 段</text>');
     out.push('<line x1="0" y1="' + fmt(rw.topY, 2) + '" x2="' + CFG.gutterWidth + '" y2="' + fmt(rw.topY, 2) + '" stroke="var(--rule)" stroke-width="0.5"/>');
   }
   out.push('</g></g>');
@@ -1182,7 +1169,7 @@ function arrowHead(rt) {
   else if (rt.headDir === 'up') pts = [[x, y - a], [x - w, y], [x + w, y]];
   else pts = [[x + a, y], [x, y - w], [x, y + w]];
   var s = pts.map(function (p) { return fmt(p[0], 2) + ',' + fmt(p[1], 2); }).join(' ');
-  return '<polygon points="' + s + '" fill="' + (rt.crossRow ? 'var(--link-cross)' : 'var(--link)') + '"/>';
+  return '<polygon points="' + s + '" fill="' + (rt.crossRow ? 'var(--bad)' : 'var(--dep)') + '"/>';
 }
 
 function taskMarkup(v) {
@@ -1199,31 +1186,31 @@ function taskMarkup(v) {
     var cx = (left + right) / 2, cy = planTop + planH / 2, hw = (right - left) / 2, hh = planH / 2;
     out.push('<polygon points="' + fmt(cx, 2) + ',' + fmt(planTop, 2) + ' ' + fmt(cx + hw, 2) + ',' + fmt(cy, 2) +
              ' ' + fmt(cx, 2) + ',' + fmt(planTop + planH, 2) + ' ' + fmt(cx - hw, 2) + ',' + fmt(cy, 2) +
-             '" fill="var(--plan-fill)" stroke="var(--plan-line)" stroke-width="' + strokeW + '"/>');
+             '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + strokeW + '"/>');
   } else if (kind === 'chevron') {
     var k = Math.min(planH * 0.45, width * 0.3);
     out.push('<polygon points="' + fmt(left, 2) + ',' + fmt(planTop, 2) + ' ' + fmt(right - k, 2) + ',' + fmt(planTop, 2) +
              ' ' + fmt(right, 2) + ',' + fmt(planTop + planH / 2, 2) + ' ' + fmt(right - k, 2) + ',' + fmt(planTop + planH, 2) +
              ' ' + fmt(left, 2) + ',' + fmt(planTop + planH, 2) + ' ' + fmt(left + k, 2) + ',' + fmt(planTop + planH / 2, 2) +
-             '" fill="var(--plan-fill)" stroke="var(--plan-line)" stroke-width="' + strokeW + '"/>');
+             '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + strokeW + '"/>');
   } else if (kind === 'arrow') {
     var midY = planTop + planH / 2;
     var head = Math.min(8, width * 0.25);
     out.push('<line x1="' + fmt(left, 2) + '" y1="' + fmt(midY, 2) + '" x2="' + fmt(right - head, 2) + '" y2="' + fmt(midY, 2) +
-             '" stroke="var(--plan-line)" stroke-width="' + (2 + strokeW) + '"/>');
+             '" stroke="var(--plan-stroke)" stroke-width="' + (2 + strokeW) + '"/>');
     out.push('<polygon points="' + fmt(right, 2) + ',' + fmt(midY, 2) + ' ' + fmt(right - head, 2) + ',' + fmt(midY - planH * 0.3, 2) +
-             ' ' + fmt(right - head, 2) + ',' + fmt(midY + planH * 0.3, 2) + '" fill="var(--plan-line)"/>');
+             ' ' + fmt(right - head, 2) + ',' + fmt(midY + planH * 0.3, 2) + '" fill="var(--plan-stroke)"/>');
   } else if (kind === 'endpointSpan') {
     var my = planTop + planH / 2;
     out.push('<line x1="' + fmt(left, 2) + '" y1="' + fmt(my, 2) + '" x2="' + fmt(right, 2) + '" y2="' + fmt(my, 2) +
-             '" stroke="var(--plan-line)" stroke-width="' + (2 + strokeW) + '"/>');
+             '" stroke="var(--plan-stroke)" stroke-width="' + (2 + strokeW) + '"/>');
     out.push('<line x1="' + fmt(left, 2) + '" y1="' + fmt(planTop, 2) + '" x2="' + fmt(left, 2) + '" y2="' + fmt(planTop + planH, 2) +
-             '" stroke="var(--plan-line)" stroke-width="' + (2 + strokeW) + '"/>');
+             '" stroke="var(--plan-stroke)" stroke-width="' + (2 + strokeW) + '"/>');
     out.push('<line x1="' + fmt(right, 2) + '" y1="' + fmt(planTop, 2) + '" x2="' + fmt(right, 2) + '" y2="' + fmt(planTop + planH, 2) +
-             '" stroke="var(--plan-line)" stroke-width="' + (2 + strokeW) + '"/>');
+             '" stroke="var(--plan-stroke)" stroke-width="' + (2 + strokeW) + '"/>');
   } else {
     out.push('<rect x="' + fmt(left, 2) + '" y="' + fmt(planTop, 2) + '" width="' + fmt(width, 2) + '" height="' + fmt(planH, 2) +
-             '" rx="2" fill="var(--plan-fill)" stroke="var(--plan-line)" stroke-width="' + strokeW + '"/>');
+             '" rx="2" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + strokeW + '"/>');
   }
 
   // actual bar: inside for width-carrying kinds, below for width-less kinds.
@@ -1232,13 +1219,13 @@ function taskMarkup(v) {
     if (widthless) {
       var belowY = planTop + planH + actualGap;
       out.push('<rect x="' + fmt(aLeft, 2) + '" y="' + fmt(belowY, 2) + '" width="' + fmt(aRight - aLeft, 2) +
-               '" height="' + fmt(actualH, 2) + '" fill="var(--act-fill)"/>');
+               '" height="' + fmt(actualH, 2) + '" fill="var(--actual-fill)"/>');
     } else {
       var insideY = planTop + (planH - actualH) / 2;
       var insideLeft = Math.max(aLeft, left + 1), insideRight = Math.min(aRight, right - 1);
       if (insideRight > insideLeft) {
         out.push('<rect x="' + fmt(insideLeft, 2) + '" y="' + fmt(insideY, 2) + '" width="' + fmt(insideRight - insideLeft, 2) +
-                 '" height="' + fmt(actualH, 2) + '" fill="var(--act-fill)"/>');
+                 '" height="' + fmt(actualH, 2) + '" fill="var(--actual-fill)"/>');
       }
     }
     out.push(progressMarkerMarkup(v, widthless, planTop));
@@ -1248,7 +1235,7 @@ function taskMarkup(v) {
   // paint-order stroke gives the label a light casing so it stays readable on
   // top of the dark actual bar - no colour dependency (WCAG 1.4.1)
   var fs = scene.fontSize;
-  var textCasing = ' stroke="var(--halo)" stroke-width="2.6" paint-order="stroke" stroke-linejoin="round"';
+  var textCasing = ' stroke="var(--bg)" stroke-width="2.6" paint-order="stroke" stroke-linejoin="round"';
   if (v.labelOutside) {
     out.push('<text x="' + fmt(Math.max(v.shapeRight, v.markerState ? v.markerRight : v.shapeRight) + 4, 2) + '" y="' +
              fmt(planTop + planH * 0.78, 2) + '" font-size="' + fmt(fs, 1) + '" fill="var(--ink)"' + textCasing + '>' +
@@ -1271,9 +1258,9 @@ function progressMarkerMarkup(v, widthless, planTop) {
   var cx = v.actualRight + CFG.markerGap + size / 2;
   var cy = widthless ? planTop + scene.planHeight + scene.actualGap + scene.actualHeight / 2
                      : planTop + scene.planHeight / 2;
-  var stroke = state === 'overdue' ? 'var(--warn)' : (state ? 'var(--act-fill)' : '#96a0ad');
+  var stroke = state === 'overdue' ? 'var(--warn)' : (state ? 'var(--actual-fill)' : 'var(--sub)');
   var out = ['<g transform="translate(' + fmt(cx, 2) + ',' + fmt(cy, 2) + ')">'];
-  out.push('<circle cx="0" cy="0" r="' + fmt(r, 2) + '" fill="#fff" stroke="' + stroke + '" stroke-width="1"' +
+  out.push('<circle cx="0" cy="0" r="' + fmt(r, 2) + '" fill="var(--bg)" stroke="' + stroke + '" stroke-width="1"' +
            (state ? '' : ' stroke-dasharray="2 2"') + '/>');
   if (state === 'complete') {
     out.push('<path d="M-2.9 0.2 L-0.9 2.4 L2.9 -2.4" fill="none" stroke="' + stroke + '" stroke-width="1.6" stroke-linecap="round"/>');

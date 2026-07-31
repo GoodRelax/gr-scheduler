@@ -4,19 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>gr-scheduler PoC / Layout A - Orthogonal Channel Routing</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
-  :root {
-    --ink: #1b2331;
-    --ink-soft: #59657a;
-    --paper: #f6f7f9;
-    --panel: #ffffff;
-    --line: #c3cad6;
-    --accent: #2f3d52;
-  }
+  /* Palette moved to poc-ui.css, which every PoC page links. */
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
   body {
-    background: var(--paper);
+    background: var(--panel);
     color: var(--ink);
     font: 12px/1.45 "Segoe UI", "Yu Gothic UI", Meiryo, "Hiragino Kaku Gothic ProN", sans-serif;
   }
@@ -27,43 +22,43 @@
   .panel {
     position: absolute;
     background: rgba(255,255,255,0.96);
-    border: 1px solid var(--line);
+    border: 1px solid var(--rule);
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(20,28,40,0.10);
   }
 
   #metrics { top: 48px; right: 8px; width: 226px; padding: 8px 10px; }
-  #metrics h2 { margin: 0 0 6px; font-size: 12px; letter-spacing: .04em; color: var(--ink-soft); text-transform: uppercase; }
+  #metrics h2 { margin: 0 0 6px; font-size: 12px; letter-spacing: .04em; color: var(--sub); text-transform: uppercase; }
   #metrics table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   #metrics td { padding: 1px 0; font-size: 12px; }
-  #metrics td.k { color: var(--ink-soft); }
+  #metrics td.k { color: var(--sub); }
   #metrics td.v { text-align: right; font-weight: 600; }
-  #metrics tr.hi td { background: #eef2f7; }
-  #metrics tr.bad td.v { color: #8b1a1a; }
-  #metrics tr.ok td.v { color: #17603a; }
-  #metrics .note { margin-top: 6px; font-size: 12px; color: var(--ink-soft); line-height: 1.35; }
+  #metrics tr.hi td { background: var(--panel); }
+  #metrics tr.bad td.v { color: var(--bad); }
+  #metrics tr.ok td.v { color: var(--good); }
+  #metrics .note { margin-top: 6px; font-size: 12px; color: var(--sub); line-height: 1.35; }
 
   #toolbar {
     position: absolute; top: 0; left: 0; right: 0; height: 40px;
     display: flex; gap: 14px; align-items: center; padding: 0 10px;
-    background: #ffffff; border-bottom: 1px solid var(--line); z-index: 5;
+    background: var(--bg); border-bottom: 1px solid var(--rule); z-index: 5;
     overflow: hidden;
   }
   #toolbar .grp { display: flex; align-items: center; gap: 6px; }
-  #toolbar label { color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+  #toolbar label { color: var(--sub); font-size: 12px; white-space: nowrap; }
   #toolbar input[type=range] { width: 112px; }
   #toolbar output { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 38px; display: inline-block; text-align: right; }
   #toolbar button {
-    font: inherit; padding: 3px 10px; border: 1px solid var(--line);
-    background: #fff; border-radius: 4px; cursor: pointer; color: var(--ink);
+    font: inherit; padding: 3px 10px; border: 1px solid var(--rule);
+    background: var(--bg); border-radius: 4px; cursor: pointer; color: var(--ink);
   }
-  #toolbar button:hover { background: #eef2f7; }
+  #toolbar button:hover { background: var(--panel); }
   #toolbar .title { font-weight: 600; white-space: nowrap; }
-  #toolbar .hint { color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+  #toolbar .hint { color: var(--sub); font-size: 12px; white-space: nowrap; }
 
   #legend { left: 8px; bottom: 8px; padding: 6px 9px; max-width: calc(100% - 268px); }
   #legend h2 {
-    margin: 0; font-size: 12px; letter-spacing: .04em; color: var(--ink-soft);
+    margin: 0; font-size: 12px; letter-spacing: .04em; color: var(--sub);
     text-transform: uppercase; cursor: pointer; user-select: none;
   }
   #legend h2:hover { color: var(--ink); }
@@ -75,7 +70,7 @@
 
   #warn {
     position: absolute; left: 50%; transform: translateX(-50%); top: 48px;
-    background: #7d1f1f; color: #fff; padding: 4px 12px; border-radius: 4px;
+    background: var(--bad); color: var(--bg); padding: 4px 12px; border-radius: 4px;
     font-size: 12px; display: none;
   }
 
@@ -102,11 +97,11 @@
   #sideToggleWrap { flex: 0 0 auto; align-self: flex-end; }
   #sideToggle {
     font: inherit; font-size: 12px; line-height: 1.4; padding: 2px 8px;
-    border: 1px solid #9aa3b0; border-radius: 4px;
-    background: #fff; color: var(--ink); cursor: pointer;
+    border: 1px solid var(--rule); border-radius: 4px;
+    background: var(--bg); color: var(--ink); cursor: pointer;
     box-shadow: 0 1px 5px rgba(20, 28, 40, 0.20);
   }
-  #sideToggle:hover { background: #eef2f7; }
+  #sideToggle:hover { background: var(--panel); }
   html.side-collapsed #sidebar {
     width: auto; bottom: auto; overflow: visible; padding: 6px;
   }
@@ -390,21 +385,26 @@
   // Variant A configuration: orthogonal routing on reserved channels.
   // ===========================================================================
 
+  // Dimensions shared with every other PoC page come from poc-ui.js; only the
+  // constants that DEFINE orthogonal-channel routing stay here.
+  var S = POC_UI.S;
+  var M1 = POC_UI.shapeMetrics("bar", 1);
+
   var CFG = {
-    GUTTER: 198,          // left row-title gutter (world x of day 0)
-    HEADER_H: 42,         // time axis header height
+    GUTTER: S.rowLabelW,
+    HEADER_H: S.rulerH,
     TOP_MARGIN: 10,
-    PLAN_H: 18,           // plan bar height at yZoom 1
-    ACTUAL_H: 7,          // actual bar height at yZoom 1 (must be < PLAN_H)
-    BELOW_GAP: 2,         // gap between plan shape and the below-placed actual bar
-    LEVEL_GAP: 12,        // vertical gap between stackOrder n and n+1 = ONE routing lane
-    ROW_GAP: 22,          // vertical gap between rows = one cross-row routing lane band
+    PLAN_H: M1.planH,
+    ACTUAL_H: M1.actualH,
+    BELOW_GAP: S.actualGap,
+    LEVEL_GAP: S.laneGap,
+    ROW_GAP: S.rowGap,
     ROW_PAD_RATIO: 0.22,  // row padding, capped at 25% of a stack level height (spec 5)
-    MARKER_SIZE: 12,      // Progress Marker, fixed pixel size
-    MARKER_GAP: 4,        // fixed 4px from the actual bar right edge (spec 3-5)
-    LABEL_MIN_FONT: 10,   // font size clamp floor (spec 3-3)
-    LABEL_FONT_RATIO: 0.8,
-    LABEL_TRUNC_UNITS: 24,// 24 half-width units == 12 full-width chars (spec 3-3)
+    MARKER_SIZE: M1.markSize,
+    MARKER_GAP: S.markGap,
+    LABEL_MIN_FONT: S.fontMin,
+    LABEL_FONT_RATIO: S.fontOfActual,
+    LABEL_TRUNC_UNITS: S.truncUnits,
     V_PITCH: 7,           // vertical channel pitch (px, world x)
     H_PITCH: 3.5,         // horizontal sub-lane pitch inside a gap band
     MIN_LINK_GAP: 10,     // geometric minimum gap demanded by a link (spec 3-2 step 1)
@@ -1173,9 +1173,9 @@
 
     s.push('<defs>');
     s.push('<pattern id="act" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">');
-    s.push('<rect width="5" height="5" fill="#7b8798"/><rect width="2.2" height="5" fill="#333f4f"/></pattern>');
+    s.push('<rect width="5" height="5" fill="var(--sub)"/><rect width="2.2" height="5" fill="var(--sub)"/></pattern>');
     s.push('<marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6.5" markerHeight="6.5" orient="auto">');
-    s.push('<path d="M0,0.6 L8,4 L0,7.4 z" fill="#232c3a"/></marker>');
+    s.push('<path d="M0,0.6 L8,4 L0,7.4 z" fill="var(--dep)"/></marker>');
     s.push('</defs>');
 
     // ---- scene -------------------------------------------------------------
@@ -1344,11 +1344,11 @@
       return '<svg width="' + w + '" height="' + (hgt || 18) + '" viewBox="0 0 ' + w + ' ' +
              (hgt || 18) + '">' + inner + '</svg>';
     }
-    var pl = 'fill="#ccd5e0" stroke="#3d4a5c" stroke-width="1"';
-    var ln = 'stroke="#3d4a5c" stroke-width="2.4" fill="none"';
+    var pl = 'fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="1"';
+    var ln = 'stroke="var(--plan-stroke)" stroke-width="2.4" fill="none"';
     function dash(d) {
       return '<svg width="34" height="12" viewBox="0 0 34 12"><path d="M1 6 L33 6" ' +
-             'stroke="#232c3a" stroke-width="1.5" fill="none"' +
+             'stroke="var(--dep)" stroke-width="1.5" fill="none"' +
              (d ? ' stroke-dasharray="' + d + '"' : '') + '/></svg>';
     }
     var items = [
@@ -1360,7 +1360,7 @@
             '<rect x="3" y="6.5" width="19" height="5" fill="url(#lgact)"/>', 39)],
       ['arrow 実績は下',
         box('<line x1="1" y1="6" x2="29" y2="6" ' + ln + '/>' +
-            '<polygon points="37,6 29,2.5 29,9.5" fill="#3d4a5c"/>' +
+            '<polygon points="37,6 29,2.5 29,9.5" fill="var(--plan-stroke)"/>' +
             '<rect x="1" y="11.5" width="19" height="4" fill="url(#lgact)"/>', 39)],
       ['endpointSpan 実績は下',
         box('<line x1="2" y1="6" x2="36" y2="6" ' + ln + '/>' +
@@ -1375,7 +1375,7 @@
     var h = '<h2 id="lgtoggle">legend &#9662;</h2><div class="body">';
     h += '<svg width="0" height="0"><defs><pattern id="lgact" width="5" height="5" ' +
          'patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
-         '<rect width="5" height="5" fill="#7b8798"/><rect width="2.2" height="5" fill="#333f4f"/>' +
+         '<rect width="5" height="5" fill="var(--sub)"/><rect width="2.2" height="5" fill="var(--sub)"/>' +
          '</pattern></defs></svg>';
     h += '<div class="rowset">';
     for (var i = 0; i < items.length; i++) {
@@ -1407,43 +1407,43 @@
   var svgCss = document.createElement('style');
   svgCss.textContent = [
     '#canvas text { font-family: "Segoe UI","Yu Gothic UI",Meiryo,sans-serif; }',
-    '#canvas .grid { stroke:#e3e7ee; stroke-width:1; }',
-    '#canvas .rowbg { fill:#ffffff; }',
-    '#canvas .rowbg.alt { fill:#f1f3f7; }',
-    '#canvas .rowline { stroke:#d6dbe4; stroke-width:1; }',
-    '#canvas .plan { fill:#ccd5e0; stroke:#3d4a5c; stroke-width:1; }',
-    '#canvas .plan.ms { fill:#3d4a5c; }',
-    '#canvas .plan-line { stroke:#3d4a5c; stroke-width:2.6; }',
-    '#canvas .plan-cap { stroke:#3d4a5c; stroke-width:2.2; }',
-    '#canvas .actual { fill:url(#act); stroke:#2b3746; stroke-width:0.6; }',
-    '#canvas .mk-bg { fill:#ffffff; stroke:#2b3746; stroke-width:1.2; }',
-    '#canvas .mk-fg { stroke:#2b3746; stroke-width:1.7; fill:none; stroke-linecap:round; }',
-    '#canvas .mk-dot { fill:#2b3746; }',
-    '#canvas .lb { fill:#1b2331; dominant-baseline:auto; }',
-    '#canvas .lb.in { fill:#16202e; }',
-    '#canvas .lb.out { fill:#3a4557; }',
-    '#canvas .halo { stroke:#ffffff; stroke-width:3.6; fill:none; stroke-linejoin:miter; opacity:0.95; }',
-    '#canvas .lk { stroke:#232c3a; stroke-width:1.4; fill:none; stroke-linejoin:miter; }',
+    '#canvas .grid { stroke:var(--rule); stroke-width:1; }',
+    '#canvas .rowbg { fill:var(--bg); }',
+    '#canvas .rowbg.alt { fill:var(--row-alt); }',
+    '#canvas .rowline { stroke:var(--rule); stroke-width:1; }',
+    '#canvas .plan { fill:var(--plan-fill); stroke:var(--plan-stroke); stroke-width:1; }',
+    '#canvas .plan.ms { fill:var(--plan-stroke); }',
+    '#canvas .plan-line { stroke:var(--plan-stroke); stroke-width:2.6; }',
+    '#canvas .plan-cap { stroke:var(--plan-stroke); stroke-width:2.2; }',
+    '#canvas .actual { fill:url(#act); stroke:var(--actual-fill); stroke-width:0.6; }',
+    '#canvas .mk-bg { fill:var(--bg); stroke:var(--actual-fill); stroke-width:1.2; }',
+    '#canvas .mk-fg { stroke:var(--actual-fill); stroke-width:1.7; fill:none; stroke-linecap:round; }',
+    '#canvas .mk-dot { fill:var(--actual-fill); }',
+    '#canvas .lb { fill:var(--ink); dominant-baseline:auto; }',
+    '#canvas .lb.in { fill:var(--label-ink); }',
+    '#canvas .lb.out { fill:var(--label-ink); }',
+    '#canvas .halo { stroke:var(--bg); stroke-width:3.6; fill:none; stroke-linejoin:miter; opacity:0.95; }',
+    '#canvas .lk { stroke:var(--dep); stroke-width:1.4; fill:none; stroke-linejoin:miter; }',
     '#canvas .lk.tSS { stroke-dasharray:5 3; }',
     '#canvas .lk.tFF { stroke-dasharray:1.5 3; }',
     '#canvas .lk.tSF { stroke-dasharray:7 3 1.5 3; }',
-    '#canvas .lk.fb { stroke:#4a5566; }',
-    '#canvas .task.sel .plan { fill:#9fb2c8; stroke-width:1.8; }',
-    '#canvas .gutterbg { fill:#fbfcfd; }',
-    '#canvas .gutteredge { stroke:#c3cad6; stroke-width:1; }',
-    '#canvas .gt { font-size:11.5px; fill:#1b2331; }',
-    '#canvas .gt.sub { font-size:10px; fill:#7b8798; }',
-    '#canvas .headerbg { fill:#eef1f6; }',
-    '#canvas .headerline { stroke:#c3cad6; stroke-width:1; }',
-    '#canvas .hdr { font-size:12px; font-weight:600; fill:#1b2331; }',
-    '#canvas .hdr.sub { font-size:10px; font-weight:400; fill:#7b8798; }',
-    '#canvas .ax-sep { stroke:#c9d0da; stroke-width:1; }',
-    '#canvas .ax-tick { stroke:#d5dbe4; stroke-width:1; }',
-    '#canvas .ax-coarse { font-size:11px; fill:#41506a; font-weight:600; }',
-    '#canvas .ax-fine { font-size:10px; fill:#6b7789; }',
-    '#legend .mkleg .mk-bg { fill:#ffffff; stroke:#2b3746; stroke-width:1.2; }',
-    '#legend .mkleg .mk-fg { stroke:#2b3746; stroke-width:1.7; fill:none; stroke-linecap:round; }',
-    '#legend .mkleg .mk-dot { fill:#2b3746; }'
+    '#canvas .lk.fb { stroke:var(--dep); }',
+    '#canvas .task.sel .plan { fill:color-mix(in srgb, var(--warn) 32%, var(--bg)); stroke-width:1.8; }',
+    '#canvas .gutterbg { fill:var(--panel); }',
+    '#canvas .gutteredge { stroke:var(--rule); stroke-width:1; }',
+    '#canvas .gt { font-size:11.5px; fill:var(--ink); }',
+    '#canvas .gt.sub { font-size:10px; fill:var(--sub); }',
+    '#canvas .headerbg { fill:var(--panel); }',
+    '#canvas .headerline { stroke:var(--rule); stroke-width:1; }',
+    '#canvas .hdr { font-size:12px; font-weight:600; fill:var(--ink); }',
+    '#canvas .hdr.sub { font-size:10px; font-weight:400; fill:var(--sub); }',
+    '#canvas .ax-sep { stroke:var(--rule); stroke-width:1; }',
+    '#canvas .ax-tick { stroke:var(--rule); stroke-width:1; }',
+    '#canvas .ax-coarse { font-size:11px; fill:var(--ink); font-weight:600; }',
+    '#canvas .ax-fine { font-size:10px; fill:var(--sub); }',
+    '#legend .mkleg .mk-bg { fill:var(--bg); stroke:var(--actual-fill); stroke-width:1.2; }',
+    '#legend .mkleg .mk-fg { stroke:var(--actual-fill); stroke-width:1.7; fill:none; stroke-linecap:round; }',
+    '#legend .mkleg .mk-dot { fill:var(--actual-fill); }'
   ].join('\n');
   document.head.appendChild(svgCss);
 

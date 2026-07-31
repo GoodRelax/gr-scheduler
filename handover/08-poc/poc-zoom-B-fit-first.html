@@ -3,23 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>gr-scheduler PoC / Zoom B: fit-first</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
-  :root {
-    --ink: #23282e;
-    --ink-soft: #5c6672;
-    --line: #b9c0c8;
-    --bg: #f6f7f8;
-    --panel: #ffffff;
-    --band-a: #ffffff;
-    --band-b: #f0f2f4;
-    --plan: #cdd6de;
-    --plan-edge: #556170;
-    --actual: #6d7b8a;
-    --accent: #3f5d75;
-    --warn: #8a5a2b;
-    --ok: #2f6b4f;
-    --ng: #8c2f2f;
-  }
+  /* Palette moved to poc-ui.css, which every PoC page links. */
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; height: 100%;
@@ -31,20 +18,20 @@
   #app { display: flex; flex-direction: column; height: 100%; margin-right: var(--side-w); }
   #bar {
     flex: 0 0 auto; padding: 6px 10px; background: var(--panel);
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--rule);
     display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
   }
   #bar h1 { font-size: 13px; margin: 0 8px 0 0; font-weight: 700; letter-spacing: .02em; }
-  #bar h1 span { font-weight: 400; color: var(--ink-soft); }
+  #bar h1 span { font-weight: 400; color: var(--sub); }
   .ctl { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .ctl label { color: var(--ink-soft); }
+  .ctl label { color: var(--sub); }
   .ctl input[type=range] { width: 150px; }
   .val { font-variant-numeric: tabular-nums; min-width: 52px; display: inline-block; }
   button {
-    font: inherit; padding: 3px 10px; border: 1px solid var(--line);
-    background: #fff; border-radius: 3px; cursor: pointer; color: var(--ink);
+    font: inherit; padding: 3px 10px; border: 1px solid var(--rule);
+    background: var(--bg); border-radius: 3px; cursor: pointer; color: var(--ink);
   }
-  button:hover { background: #eef1f4; }
+  button:hover { background: var(--panel); }
   button:disabled { opacity: .5; cursor: default; }
   #stage { position: relative; flex: 1 1 auto; overflow: hidden; }
   #canvas { display: block; width: 100%; height: 100%; cursor: grab; }
@@ -52,50 +39,50 @@
 
   .float {
     position: absolute; background: rgba(255,255,255,.95);
-    border: 1px solid var(--line); border-radius: 4px;
+    border: 1px solid var(--rule); border-radius: 4px;
     box-shadow: 0 1px 4px rgba(0,0,0,.12);
   }
   #metrics { top: 8px; right: 8px; width: 232px; padding: 6px 8px; }
   #metrics h2, #budget h2, #fpsbox h2 {
-    font-size: 12px; margin: 0 0 4px; color: var(--ink-soft);
+    font-size: 12px; margin: 0 0 4px; color: var(--sub);
     text-transform: uppercase; letter-spacing: .06em;
   }
   #metrics table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   #metrics td { padding: 1px 0; font-size: 12px; }
-  #metrics td.k { color: var(--ink-soft); }
+  #metrics td.k { color: var(--sub); }
   #metrics td.v { text-align: right; font-weight: 600; }
-  #metrics tr.hi td { background: #eef3f7; }
-  .bad { color: var(--ng); }
-  .good { color: var(--ok); }
+  #metrics tr.hi td { background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+  .bad { color: var(--bad); }
+  .good { color: var(--good); }
 
   #budget { left: 8px; bottom: 8px; width: 470px; padding: 6px 8px; }
   #bbar {
     position: relative; height: 26px; width: 100%;
-    border: 1px solid var(--line); background: #fafbfc; overflow: hidden;
+    border: 1px solid var(--rule); background: var(--panel); overflow: hidden;
   }
   .bseg {
     position: absolute; top: 0; bottom: 0;
-    border-right: 1px solid #fff; font-size: 12px; line-height: 26px;
-    text-align: center; color: #fff; overflow: hidden; white-space: nowrap;
+    border-right: 1px solid var(--bg); font-size: 12px; line-height: 26px;
+    text-align: center; color: var(--bg); overflow: hidden; white-space: nowrap;
   }
-  .bseg.out { color: var(--ink-soft); }
-  #blimit { position: absolute; top: -2px; bottom: -2px; width: 0; border-left: 2px dashed var(--ng); }
+  .bseg.out { color: var(--sub); }
+  #blimit { position: absolute; top: -2px; bottom: -2px; width: 0; border-left: 2px dashed var(--bad); }
   #bcut { position: absolute; top: -2px; bottom: -2px; width: 0; border-left: 2px solid var(--accent); }
-  #bnote { font-size: 12px; color: var(--ink-soft); margin-top: 4px; line-height: 1.45; }
+  #bnote { font-size: 12px; color: var(--sub); margin-top: 4px; line-height: 1.45; }
   #bnums { font-size: 12px; font-variant-numeric: tabular-nums; margin-top: 3px; }
 
   #verdict {
     right: 8px; bottom: 8px; padding: 8px 10px; width: 300px;
   }
   #verdict .flag { font-size: 26px; font-weight: 800; letter-spacing: .06em; line-height: 1.1; }
-  #verdict .sub { font-size: 12px; color: var(--ink-soft); margin-top: 3px; line-height: 1.5; }
+  #verdict .sub { font-size: 12px; color: var(--sub); margin-top: 3px; line-height: 1.5; }
   #verdict .num { font-variant-numeric: tabular-nums; font-size: 12px; margin-top: 4px; }
 
   #fpsbox { left: 8px; top: 8px; width: 250px; padding: 6px 8px; display: none; }
   #fpshist { display: flex; align-items: flex-end; gap: 2px; height: 42px; margin: 4px 0; }
   #fpshist div { flex: 1 1 0; background: var(--accent); min-height: 1px; }
   #fpstext { font-size: 12px; font-variant-numeric: tabular-nums; line-height: 1.5; }
-  .legend { font-size: 12px; color: var(--ink-soft); }
+  .legend { font-size: 12px; color: var(--sub); }
 
   /* --------------------------------------------------------------------
      Review overlay column (presentation only; no algorithm is touched).
@@ -120,11 +107,11 @@
   #sideToggleWrap { flex: 0 0 auto; align-self: flex-end; }
   #sideToggle {
     font: inherit; font-size: 12px; line-height: 1.4; padding: 2px 8px;
-    border: 1px solid var(--line); border-radius: 4px;
-    background: #fff; color: var(--ink); cursor: pointer;
+    border: 1px solid var(--rule); border-radius: 4px;
+    background: var(--bg); color: var(--ink); cursor: pointer;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.20);
   }
-  #sideToggle:hover { background: #eef1f4; }
+  #sideToggle:hover { background: var(--panel); }
   html.side-collapsed #sidebar {
     width: auto; bottom: auto; overflow: visible; padding: 6px;
   }
@@ -433,17 +420,19 @@ var NS = 'http://www.w3.org/2000/svg';
 
 var HORIZON_DAYS = 720;
 var MAX_JUDGE_DEPTH = 5;      // spec 3-6: clamp depth FOR JUDGEMENT ONLY
-var GUTTER_W = 128;           // left column with row titles
+var S = POC_UI.S;
+var M1 = POC_UI.shapeMetrics("bar", 1);
+var GUTTER_W = S.rowLabelW;   // left column with row titles
 var PAD_LEFT = 8;
 var PAD_RIGHT = 18;
-var AXIS_H = 44;
+var AXIS_H = S.rulerH;
 var MIN_LEVEL_H = 14;         // minimum legible height of ONE stack level (px)
 var ROW_PAD_RATIO = 0.12;     // per side -> 24% total, spec 5 allows <= 25%
 var EMPTY_ROW_H = 12;         // a row with nothing visible at this depth
 var BAR_RATIO = 0.66;         // bar band inside one stack level; rest is routing gap
 var MIN_GAP_PX = 6;           // horizontal clearance between two task occupancies
-var MARK_SIZE = 10;           // progress marker: FIXED pixel size (spec 3-5)
-var MARK_GAP = 4;             // FIXED 4px from the actual bar right edge
+var MARK_SIZE = M1.markSize; // progress marker: FIXED pixel size (spec 3-5)
+var MARK_GAP = S.markGap;    // FIXED 4px from the actual bar right edge
 var STACK_GUARD = 40;         // safety valve only (spec 3-1 item 5)
 var STRETCH_MAX = 3;          // cap on giving leftover budget back as row height
 var ZX_MIN = 0.5, ZX_MAX = 40, ZY_MIN = 1, ZY_MAX = 6;
@@ -855,23 +844,23 @@ function markerNode(kind, cx, cy) {
   var h = MARK_SIZE / 2;
   g.appendChild(el('rect', {
     x: cx - h, y: cy - h, width: MARK_SIZE, height: MARK_SIZE, rx: 1.5,
-    fill: '#ffffff', stroke: '#3a4450', 'stroke-width': 1
+    fill: 'var(--bg)', stroke: 'var(--marker-ink)', 'stroke-width': 1
   }));
   if (kind === 'done') {
     g.appendChild(el('path', {
       d: 'M' + (cx - h + 2) + ',' + cy + ' L' + (cx - 0.5) + ',' + (cy + h - 2.5) + ' L' + (cx + h - 1.5) + ',' + (cy - h + 2),
-      fill: 'none', stroke: '#2f6b4f', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+      fill: 'none', stroke: 'var(--good)', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
     }));
   } else if (kind === 'over') {
     g.appendChild(el('path', {
       d: 'M' + cx + ',' + (cy - h + 2) + ' L' + cx + ',' + (cy + 1),
-      stroke: '#8c2f2f', 'stroke-width': 1.8, 'stroke-linecap': 'round'
+      stroke: 'var(--bad)', 'stroke-width': 1.8, 'stroke-linecap': 'round'
     }));
-    g.appendChild(el('rect', { x: cx - 0.9, y: cy + 2.2, width: 1.8, height: 1.8, fill: '#8c2f2f' }));
+    g.appendChild(el('rect', { x: cx - 0.9, y: cy + 2.2, width: 1.8, height: 1.8, fill: 'var(--bad)' }));
   } else if (kind === 'susp') {
     g.appendChild(el('path', {
       d: 'M' + (cx - h + 2) + ',' + (cy - h + 2) + ' L' + (cx + h - 2) + ',' + (cy + h - 2),
-      stroke: '#8a5a2b', 'stroke-width': 1.8, 'stroke-linecap': 'round'
+      stroke: 'var(--warn)', 'stroke-width': 1.8, 'stroke-linecap': 'round'
     }));
   }
   return g;
@@ -893,11 +882,11 @@ function render(model, routing, axis, scrollX) {
     id: 'ah', viewBox: '0 0 6 6', refX: '5.4', refY: '3',
     markerWidth: '5', markerHeight: '5', orient: 'auto-start-reverse'
   });
-  mk.appendChild(el('path', { d: 'M0,0 L6,3 L0,6 z', fill: '#4a5766' }));
+  mk.appendChild(el('path', { d: 'M0,0 L6,3 L0,6 z', fill: 'var(--dep)' }));
   defs.appendChild(mk);
   var pat = el('pattern', { id: 'hatch', width: '5', height: '5', patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' });
-  pat.appendChild(el('rect', { width: '5', height: '5', fill: '#6d7b8a' }));
-  pat.appendChild(el('path', { d: 'M0,0 L0,5', stroke: '#41505f', 'stroke-width': '2' }));
+  pat.appendChild(el('rect', { width: '5', height: '5', fill: 'var(--actual-fill)' }));
+  pat.appendChild(el('path', { d: 'M0,0 L0,5', stroke: 'var(--sub)', 'stroke-width': '2' }));
   defs.appendChild(pat);
   var clip = el('clipPath', { id: 'plotclip' });
   clip.appendChild(el('rect', { x: GUTTER_W, y: AXIS_H, width: Math.max(0, VIEW.plotW + PAD_LEFT), height: Math.max(0, VIEW.plotH) }));
@@ -912,11 +901,11 @@ function render(model, routing, axis, scrollX) {
     var rr = model.rows[r];
     gBands.appendChild(el('rect', {
       x: 0, y: rr.y, width: '100%', height: Math.max(0, rr.height - 0.5),
-      fill: (r % 2 === 0) ? '#ffffff' : '#f0f2f4'
+      fill: (r % 2 === 0) ? 'var(--bg)' : 'var(--row-alt)'
     }));
     gBands.appendChild(el('line', {
       x1: 0, y1: rr.y + rr.height, x2: '100%', y2: rr.y + rr.height,
-      stroke: '#dfe3e8', 'stroke-width': 1
+      stroke: 'var(--rule)', 'stroke-width': 1
     }));
   }
   frag.appendChild(gBands);
@@ -929,12 +918,12 @@ function render(model, routing, axis, scrollX) {
   for (var gi = 0; gi < axis.grid.length; gi++) {
     var gx = axis.grid[gi] * model.pxPerDay;
     gInner.appendChild(el('line', {
-      x1: gx, y1: 0, x2: gx, y2: model.total, stroke: '#e2e6ea', 'stroke-width': 1
+      x1: gx, y1: 0, x2: gx, y2: model.total, stroke: 'var(--rule)', 'stroke-width': 1
     }));
   }
 
   // dependency lines first, so task shapes stay readable on top
-  var gLinks = el('g', { fill: 'none', stroke: '#5a6775', 'stroke-width': 1.1, 'stroke-linejoin': 'round' });
+  var gLinks = el('g', { fill: 'none', stroke: 'var(--dep)', 'stroke-width': 1.1, 'stroke-linejoin': 'round' });
   for (var li = 0; li < routing.routes.length; li++) {
     var pts = routing.routes[li].pts, dstr = 'M' + pts[0][0].toFixed(1) + ',' + pts[0][1].toFixed(1);
     for (var pi = 1; pi < pts.length; pi++) dstr += ' L' + pts[pi][0].toFixed(1) + ',' + pts[pi][1].toFixed(1);
@@ -966,7 +955,7 @@ function render(model, routing, axis, scrollX) {
         var cx0 = (it.x0 + it.x1) / 2, cy0 = it.y + band / 2, hh = band / 2;
         g1.appendChild(el('path', {
           d: 'M' + cx0 + ',' + (cy0 - hh) + ' L' + (cx0 + hh) + ',' + cy0 + ' L' + cx0 + ',' + (cy0 + hh) + ' L' + (cx0 - hh) + ',' + cy0 + ' z',
-          fill: '#cdd6de', stroke: sel ? '#1d2b3a' : '#556170', 'stroke-width': sel ? 2 : 1
+          fill: 'var(--plan-fill)', stroke: sel ? 'var(--plan-stroke)' : 'var(--plan-stroke)', 'stroke-width': sel ? 2 : 1
         }));
       } else if (t.shapeKind === 'chevron') {
         var nose = Math.min(w * 0.25, planH * 0.6);
@@ -974,24 +963,24 @@ function render(model, routing, axis, scrollX) {
           d: 'M' + it.x0 + ',' + planY + ' L' + (it.x1 - nose) + ',' + planY +
              ' L' + it.x1 + ',' + (planY + planH / 2) + ' L' + (it.x1 - nose) + ',' + (planY + planH) +
              ' L' + it.x0 + ',' + (planY + planH) + ' z',
-          fill: '#cdd6de', stroke: sel ? '#1d2b3a' : '#556170', 'stroke-width': sel ? 2 : 1
+          fill: 'var(--plan-fill)', stroke: sel ? 'var(--plan-stroke)' : 'var(--plan-stroke)', 'stroke-width': sel ? 2 : 1
         }));
       } else if (t.shapeKind === 'arrow') {
         g1.appendChild(el('path', {
           d: 'M' + it.x0 + ',' + (planY + planH / 2) + ' L' + it.x1 + ',' + (planY + planH / 2),
-          stroke: sel ? '#1d2b3a' : '#556170', 'stroke-width': 2, 'marker-end': 'url(#ah)'
+          stroke: sel ? 'var(--plan-stroke)' : 'var(--plan-stroke)', 'stroke-width': 2, 'marker-end': 'url(#ah)'
         }));
       } else if (t.shapeKind === 'endpointSpan') {
         g1.appendChild(el('path', {
           d: 'M' + it.x0 + ',' + planY + ' L' + it.x0 + ',' + (planY + planH) +
              ' M' + it.x0 + ',' + (planY + planH / 2) + ' L' + it.x1 + ',' + (planY + planH / 2) +
              ' M' + it.x1 + ',' + planY + ' L' + it.x1 + ',' + (planY + planH),
-          stroke: sel ? '#1d2b3a' : '#556170', 'stroke-width': 1.6, fill: 'none'
+          stroke: sel ? 'var(--plan-stroke)' : 'var(--plan-stroke)', 'stroke-width': 1.6, fill: 'none'
         }));
       } else {
         g1.appendChild(el('rect', {
           x: it.x0, y: planY, width: w, height: planH, rx: 1.5,
-          fill: '#cdd6de', stroke: sel ? '#1d2b3a' : '#556170', 'stroke-width': sel ? 2 : 1
+          fill: 'var(--plan-fill)', stroke: sel ? 'var(--plan-stroke)' : 'var(--plan-stroke)', 'stroke-width': sel ? 2 : 1
         }));
       }
 
@@ -1000,7 +989,7 @@ function render(model, routing, axis, scrollX) {
       if (t.actualDurationDays > 0) {
         g1.appendChild(el('rect', {
           x: it.ax0, y: actY, width: aw, height: Math.max(1.5, actH), rx: 1,
-          fill: 'url(#hatch)', stroke: '#3c4855', 'stroke-width': 0.6
+          fill: 'url(#hatch)', stroke: 'var(--actual-fill)', 'stroke-width': 0.6
         }));
       }
 
@@ -1014,9 +1003,9 @@ function render(model, routing, axis, scrollX) {
       var fs = it.fontSize;
       var ty = it.y + band / 2 + fs * 0.35;
       if (it.labelInside) {
-        g1.appendChild(txt(it.label, it.x0 + 3, ty, fs, '#23282e'));
+        g1.appendChild(txt(it.label, it.x0 + 3, ty, fs, 'var(--ink)'));
       } else {
-        g1.appendChild(txt(it.label, it.x1 + 4 + (t.actualDurationDays > 0 ? MARK_GAP + MARK_SIZE : 0), ty, fs, '#3d454f'));
+        g1.appendChild(txt(it.label, it.x1 + 4 + (t.actualDurationDays > 0 ? MARK_GAP + MARK_SIZE : 0), ty, fs, 'var(--label-ink)'));
       }
       gTasks.appendChild(g1);
     }
@@ -1027,25 +1016,25 @@ function render(model, routing, axis, scrollX) {
 
   // 3. left gutter with row titles (opaque, drawn on top)
   var gGut = el('g', { transform: 'translate(0,' + AXIS_H + ')' });
-  gGut.appendChild(el('rect', { x: 0, y: 0, width: GUTTER_W, height: Math.max(0, model.total + 2), fill: '#fbfcfd' }));
+  gGut.appendChild(el('rect', { x: 0, y: 0, width: GUTTER_W, height: Math.max(0, model.total + 2), fill: 'var(--panel)' }));
   for (var r3 = 0; r3 < model.rows.length; r3++) {
     var rw = model.rows[r3];
     var fsz = Math.min(12, Math.max(9, rw.height - 4));
     if (rw.items.length === 0) {
-      gGut.appendChild(txt(rw.row.title + '（この深さでは非表示）', 6, rw.y + rw.height - 3, 9, '#93a0ad'));
+      gGut.appendChild(txt(rw.row.title + '（この深さでは非表示）', 6, rw.y + rw.height - 3, 9, 'var(--sub)'));
     } else {
-      gGut.appendChild(txt(rw.row.title, 6, rw.y + Math.min(rw.height - 3, rw.pad + Math.min(12, model.levelH) * 0.85), fsz, '#3d454f'));
+      gGut.appendChild(txt(rw.row.title, 6, rw.y + Math.min(rw.height - 3, rw.pad + Math.min(12, model.levelH) * 0.85), fsz, 'var(--label-ink)'));
       if (rw.height >= 30) {
-        gGut.appendChild(txt('×' + rw.stackCount + '段 / ' + rw.items.length + '件', 6, rw.y + rw.height - 4, 9, '#93a0ad'));
+        gGut.appendChild(txt('×' + rw.stackCount + '段 / ' + rw.items.length + '件', 6, rw.y + rw.height - 4, 9, 'var(--sub)'));
       }
     }
   }
-  gGut.appendChild(el('line', { x1: GUTTER_W, y1: 0, x2: GUTTER_W, y2: Math.max(0, model.total + 2), stroke: '#b9c0c8', 'stroke-width': 1 }));
+  gGut.appendChild(el('line', { x1: GUTTER_W, y1: 0, x2: GUTTER_W, y2: Math.max(0, model.total + 2), stroke: 'var(--rule)', 'stroke-width': 1 }));
   frag.appendChild(gGut);
 
   // 4. time axis header
   var gAxis = el('g', {});
-  gAxis.appendChild(el('rect', { x: 0, y: 0, width: '100%', height: AXIS_H, fill: '#fbfcfd' }));
+  gAxis.appendChild(el('rect', { x: 0, y: 0, width: '100%', height: AXIS_H, fill: 'var(--panel)' }));
   var gAx = el('g', { transform: 'translate(' + originX + ',0)', 'clip-path': 'url(#axisclip)' });
   var clip2 = el('clipPath', { id: 'axisclip' });
   clip2.appendChild(el('rect', { x: GUTTER_W - originX, y: 0, width: Math.max(0, VIEW.plotW + PAD_LEFT), height: AXIS_H }));
@@ -1053,20 +1042,20 @@ function render(model, routing, axis, scrollX) {
   for (var mj = 0; mj < axis.majors.length; mj++) {
     var M = axis.majors[mj];
     var mx0 = M.a * model.pxPerDay, mx1 = M.b * model.pxPerDay;
-    gAx.appendChild(el('line', { x1: mx0, y1: 2, x2: mx0, y2: AXIS_H, stroke: '#b9c0c8', 'stroke-width': 1 }));
-    gAx.appendChild(txt(M.text, mx0 + 4, 14, 11, '#3d454f'));
+    gAx.appendChild(el('line', { x1: mx0, y1: 2, x2: mx0, y2: AXIS_H, stroke: 'var(--rule)', 'stroke-width': 1 }));
+    gAx.appendChild(txt(M.text, mx0 + 4, 14, 11, 'var(--label-ink)'));
   }
   for (var mn = 0; mn < axis.minors.length; mn++) {
     var N = axis.minors[mn];
     var nx0 = N.a * model.pxPerDay;
-    gAx.appendChild(el('line', { x1: nx0, y1: 20, x2: nx0, y2: AXIS_H, stroke: '#d7dbe0', 'stroke-width': 1 }));
-    gAx.appendChild(txt(N.text, nx0 + 3, 33, 10, '#5c6672'));
+    gAx.appendChild(el('line', { x1: nx0, y1: 20, x2: nx0, y2: AXIS_H, stroke: 'var(--rule)', 'stroke-width': 1 }));
+    gAx.appendChild(txt(N.text, nx0 + 3, 33, 10, 'var(--sub)'));
   }
   gAxis.appendChild(gAx);
-  gAxis.appendChild(el('rect', { x: 0, y: 0, width: GUTTER_W, height: AXIS_H, fill: '#fbfcfd' }));
-  gAxis.appendChild(txt('粒度: ' + ({ y: '年', ym: '年+月', md: '月+日曜' }[axis.gran]), 6, 18, 10, '#5c6672'));
-  gAxis.appendChild(txt('1px = ' + (1 / model.pxPerDay).toFixed(2) + '日', 6, 33, 10, '#93a0ad'));
-  gAxis.appendChild(el('line', { x1: 0, y1: AXIS_H, x2: '100%', y2: AXIS_H, stroke: '#b9c0c8', 'stroke-width': 1 }));
+  gAxis.appendChild(el('rect', { x: 0, y: 0, width: GUTTER_W, height: AXIS_H, fill: 'var(--panel)' }));
+  gAxis.appendChild(txt('粒度: ' + ({ y: '年', ym: '年+月', md: '月+日曜' }[axis.gran]), 6, 18, 10, 'var(--sub)'));
+  gAxis.appendChild(txt('1px = ' + (1 / model.pxPerDay).toFixed(2) + '日', 6, 33, 10, 'var(--sub)'));
+  gAxis.appendChild(el('line', { x1: 0, y1: AXIS_H, x2: '100%', y2: AXIS_H, stroke: 'var(--rule)', 'stroke-width': 1 }));
   frag.appendChild(gAxis);
 
   while (svg.firstChild) svg.removeChild(svg.firstChild);
@@ -1225,7 +1214,8 @@ function updatePanels(heavy) {
   var old = bar.querySelectorAll('.bseg');
   for (var o = 0; o < old.length; o++) bar.removeChild(old[o]);
   var prev = 0, nums = '';
-  var shades = ['#40566b', '#4f6b83', '#61809a', '#7897b0', '#8fadc4'];
+  // One ramp on the shared hue, so the depth shading follows the theme.
+  var shades = ['hsl(var(--hue) 46% 34%)', 'hsl(var(--hue) 42% 44%)', 'hsl(var(--hue) 38% 54%)', 'hsl(var(--hue) 34% 64%)', 'hsl(var(--hue) 30% 74%)'];
   for (var d3 = 0; d3 < m.trials.length; d3++) {
     var tr = m.trials[d3];
     var seg = document.createElement('div');
@@ -1233,7 +1223,7 @@ function updatePanels(heavy) {
     seg.className = 'bseg' + (inCut ? '' : ' out');
     seg.style.left = (prev * scale) + 'px';
     seg.style.width = Math.max(0, (tr.total - prev) * scale) + 'px';
-    seg.style.background = inCut ? shades[d3] : 'repeating-linear-gradient(45deg,#e6e9ec 0 4px,#f4f6f7 4px 8px)';
+    seg.style.background = inCut ? shades[d3] : 'repeating-linear-gradient(45deg,var(--rule) 0 4px,var(--panel) 4px 8px)';
     seg.textContent = 'L' + tr.depth;
     seg.title = 'L' + tr.depth + ' までの合計 ' + Math.round(tr.total) + 'px';
     bar.appendChild(seg);

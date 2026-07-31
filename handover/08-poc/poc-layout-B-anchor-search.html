@@ -4,63 +4,65 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>gr-scheduler PoC Layout B - 9-anchor candidate search</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%; overflow: hidden;
-    background: #f7f7f5; color: #14181c;
+    background: var(--panel); color: var(--ink);
     font-family: "Segoe UI", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
     font-size: 12px;
   }
   #stage { display: block; width: calc(100vw - var(--side-w)); height: 100vh; cursor: grab; }
   #stage.dragging { cursor: grabbing; }
   .panel {
-    position: fixed; background: rgba(255,255,255,0.96);
-    border: 1px solid #b9bec4; border-radius: 5px;
+    position: fixed; background: var(--bg);
+    border: 1px solid var(--rule); border-radius: 5px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.14); padding: 7px 9px;
   }
   #metrics { top: 8px; right: 8px; width: 232px; }
   #metrics h2, .panel h2 {
     margin: 0 0 5px 0; font-size: 12px; letter-spacing: .04em;
-    text-transform: uppercase; color: #47505a; font-weight: 700;
+    text-transform: uppercase; color: var(--sub); font-weight: 700;
   }
   #metrics table { border-collapse: collapse; width: 100%; font-size: 12px; }
   #metrics td { padding: 1px 0; }
-  #metrics td.k { color: #47505a; }
+  #metrics td.k { color: var(--sub); }
   #metrics td.v { text-align: right; font-variant-numeric: tabular-nums;
                   font-family: Consolas, "Courier New", monospace; font-weight: 600; }
-  #metrics tr.bad td.v { color: #8a0f0f; }
-  #metrics tr.ok td.v  { color: #14561f; }
+  #metrics tr.bad td.v { color: var(--bad); }
+  #metrics tr.ok td.v  { color: var(--good); }
   #why { top: 296px; right: 8px; width: 232px; max-height: 42vh; overflow: auto; }
-  #why .row { border-top: 1px dotted #c8ccd0; padding: 3px 0; font-size: 12px; }
+  #why .row { border-top: 1px dotted var(--rule); padding: 3px 0; font-size: 12px; }
   #why .row:first-of-type { border-top: 0; }
   #why code { font-family: Consolas, "Courier New", monospace; font-size: 12px; }
   #controls { left: 8px; bottom: 8px; width: 268px; }
   #controls .ctl { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
-  #controls .ctl label { width: 118px; color: #303840; }
+  #controls .ctl label { width: 118px; color: var(--sub); }
   #controls .ctl input[type=range] { flex: 1; min-width: 0; }
   #controls .ctl output {
     width: 40px; text-align: right; font-variant-numeric: tabular-nums;
     font-family: Consolas, "Courier New", monospace; font-weight: 600;
   }
-  #controls hr { border: 0; border-top: 1px solid #d5d9dd; margin: 6px 0 4px; }
+  #controls hr { border: 0; border-top: 1px solid var(--rule); margin: 6px 0 4px; }
   #controls .btns { display: flex; gap: 6px; margin-top: 6px; }
   button {
-    font: inherit; padding: 3px 10px; border: 1px solid #8d949b;
-    background: #fff; border-radius: 4px; cursor: pointer;
+    font: inherit; padding: 3px 10px; border: 1px solid var(--rule);
+    background: var(--bg); color: var(--ink); border-radius: 4px; cursor: pointer;
   }
-  button:hover { background: #eceef0; }
+  button:hover { background: var(--panel); }
   #legend { right: 8px; bottom: 8px; width: 268px; }
   #legend .lg { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
-  #legend .lg span { color: #303840; }
+  #legend .lg span { color: var(--sub); }
   #legend svg { flex: none; }
-  #hint { left: 8px; top: 8px; max-width: 430px; color: #303840; cursor: pointer; }
-  #hint b { color: #14181c; }
+  #hint { left: 8px; top: 8px; max-width: 430px; color: var(--sub); cursor: pointer; }
+  #hint b { color: var(--ink); }
   #hint .body { display: block; }
   #hint.mini .body { display: none; }
-  #hint .tag { font-size: 12px; color: #6b747d; }
+  #hint .tag { font-size: 12px; color: var(--sub); }
   #warn {
-    left: 8px; top: 64px; display: none; border-color: #8a0f0f;
-    color: #8a0f0f; font-weight: 700;
+    left: 8px; top: 64px; display: none; border-color: var(--bad);
+    color: var(--bad); font-weight: 700;
   }
 
   /* --------------------------------------------------------------------
@@ -87,11 +89,11 @@
   #sideToggleWrap { flex: 0 0 auto; align-self: flex-end; }
   #sideToggle {
     font: inherit; font-size: 12px; line-height: 1.4; padding: 2px 8px;
-    border: 1px solid #8d949b; border-radius: 4px;
-    background: #fff; color: #14181c; cursor: pointer;
+    border: 1px solid var(--rule); border-radius: 4px;
+    background: var(--bg); color: var(--ink); cursor: pointer;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.20);
   }
-  #sideToggle:hover { background: #eceef0; }
+  #sideToggle:hover { background: var(--panel); }
   html.side-collapsed #sidebar {
     width: auto; bottom: auto; overflow: visible; padding: 6px;
   }
@@ -383,27 +385,34 @@ function buildZoomDataset() {
 // ===========================================================================
 
 // --- geometry constants at vertical zoom 1.0 -------------------------------
+// Dimensions shared with every other PoC page come from poc-ui.js. Only the
+// constants that DEFINE this candidate-search approach stay here -- unifying
+// those would make the three layout options the same option.
+var S = POC_UI.S;
+var M1 = POC_UI.shapeMetrics("bar", 1);
+
 var B = {
-  PLAN_H: 18,        // plan bar height (taller than the actual bar)
-  ACT_H: 8,          // actual bar height
-  BELOW_GAP: 2,      // gap between plan shape and the reserved actual band
-  LANE_H: 13,        // gap between stack levels == exactly one routing lane
-  ROW_GAP: 11,       // gap between TaskGroup rows
-  GUTTER: 148,       // fixed left column holding row titles
+  PLAN_H: M1.planH,
+  ACT_H: M1.actualH,
+  BELOW_GAP: S.actualGap,
+  LANE_H: S.laneGap,
+  ROW_GAP: S.rowGap,
+  GUTTER: S.rowLabelW,
+  RULER_H: S.rulerH,
+  MARKER_PX: M1.markSize,
+  MARKER_GAP: S.markGap,
+  LABEL_UNITS: S.truncUnits,
+  FONT_MIN: S.fontMin,
+
+  // --- this approach's own constants ---
   PAD_LEFT: 14,      // padding between gutter and day 0
   PAD_RIGHT: 60,
-  RULER_H: 26,
-  MARKER_PX: 12,     // progress marker: fixed pixel size, never zoomed
-  MARKER_GAP: 4,     // fixed 4px from the actual bar right edge
   MIN_GAP_PX: 12,    // geometric minimum gap demanded by a dependency
   TASK_GAP_PX: 6,    // breathing space between two tasks on the same level
   STUB: 9,           // stub length used when generating candidate routes
   SAFETY_CAP: 24,    // safety valve only; the last level is NEVER reused
-  LABEL_UNITS: 24,   // truncation budget: 12 fullwidth == 24 halfwidth
-  FONT_MIN: 10,
   TODAY: 60          // status date used to derive the progress marker glyph
 };
-
 var DEFAULT_W = { w1: 30, w2: 8, w3: 2.5, w4: 6, w5: 4 };
 var W = { w1: DEFAULT_W.w1, w2: DEFAULT_W.w2, w3: DEFAULT_W.w3, w4: DEFAULT_W.w4, w5: DEFAULT_W.w5 };
 
@@ -1091,7 +1100,7 @@ function buildSvg() {
 
   parts.push('<defs>');
   parts.push('<marker id="ah" viewBox="0 0 9 8" refX="8.4" refY="4" markerWidth="9" markerHeight="8"' +
-             ' markerUnits="userSpaceOnUse" orient="auto"><path d="M0.5 0.6 L8.6 4 L0.5 7.4 Z" fill="#0f1418"/></marker>');
+             ' markerUnits="userSpaceOnUse" orient="auto"><path d="M0.5 0.6 L8.6 4 L0.5 7.4 Z" fill="var(--dep)"/></marker>');
   parts.push('<clipPath id="clipMain"><rect x="' + B.GUTTER + '" y="' + B.RULER_H + '" width="' +
              Math.max(0, VW - B.GUTTER) + '" height="' + Math.max(0, VH - B.RULER_H) + '"/></clipPath>');
   parts.push('<clipPath id="clipRuler"><rect x="' + B.GUTTER + '" y="0" width="' +
@@ -1210,29 +1219,29 @@ function buildSvg() {
 }
 
 var SVG_CSS =
-  '.band{fill:#ffffff}.band-b{fill:#f1f2ef}' +
-  '.grid{stroke:#dfe2e5;stroke-width:1}' +
-  '.shape{fill:#dfe3e7;stroke:#2a3138;stroke-width:1.2}' +
-  '.thin{stroke:#2a3138;stroke-width:2.2;stroke-linecap:butt}' +
-  '.actual{fill:#2a3138;stroke:none}' +
-  '.task.sel .shape{fill:#ffe9a8;stroke-width:2}' +
-  '.task.sel .actual{fill:#111}' +
-  '.lbl{fill:#12171c;pointer-events:none;paint-order:stroke;stroke:#ffffff;' +
+  '.band{fill:var(--bg)}.band-b{fill:var(--row-alt)}' +
+  '.grid{stroke:var(--rule);stroke-width:1}' +
+  '.shape{fill:var(--plan-fill);stroke:var(--plan-stroke);stroke-width:1.2}' +
+  '.thin{stroke:var(--plan-stroke);stroke-width:2.2;stroke-linecap:butt}' +
+  '.actual{fill:var(--actual-fill);stroke:none}' +
+  '.task.sel .shape{fill:color-mix(in srgb, var(--warn) 32%, var(--bg));stroke-width:2}' +
+  '.task.sel .actual{fill:var(--actual-stroke)}' +
+  '.lbl{fill:var(--label-ink);pointer-events:none;paint-order:stroke;stroke:var(--label-halo);' +
   'stroke-width:2.8px;stroke-linejoin:round}' +
-  '.mk circle{fill:#ffffff;stroke:#12171c;stroke-width:1.2}' +
-  '.mk .gl{stroke:#12171c;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}' +
-  '.mk .dot{fill:#12171c;stroke:none}' +
-  '.halo{fill:none;stroke:#ffffff;stroke-width:4.6;stroke-linejoin:round;stroke-linecap:round;opacity:.95}' +
-  '.link{fill:none;stroke:#0f1418;stroke-width:1.5;stroke-linejoin:round}' +
+  '.mk circle{fill:var(--marker-bg);stroke:var(--marker-ink);stroke-width:1.2}' +
+  '.mk .gl{stroke:var(--marker-ink);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}' +
+  '.mk .dot{fill:var(--marker-ink);stroke:none}' +
+  '.halo{fill:none;stroke:var(--bg);stroke-width:4.6;stroke-linejoin:round;stroke-linecap:round;opacity:.95}' +
+  '.link{fill:none;stroke:var(--dep);stroke-width:1.5;stroke-linejoin:round}' +
   '.link.hot{stroke-width:2.6}' +
-  '.anc{fill:#ffffff;stroke:#8a0f0f;stroke-width:1.2}' +
-  '.anc-on{fill:#8a0f0f;stroke:#8a0f0f}' +
-  '.gutter{fill:#fbfbfa}.gutteredge{stroke:#b9bec4;stroke-width:1}' +
-  '.rowsep{stroke:#dfe2e5;stroke-width:1}' +
-  '.rowtitle{font-size:11px;fill:#12171c;font-weight:600}' +
-  '.rowsub{font-size:10px;fill:#5a636c}' +
-  '.ruler{fill:#fbfbfa}.rtick{stroke:#78818a;stroke-width:1}' +
-  '.rlbl{font-size:10px;fill:#47505a}';
+  '.anc{fill:var(--bg);stroke:var(--bad);stroke-width:1.2}' +
+  '.anc-on{fill:var(--bad);stroke:var(--bad)}' +
+  '.gutter{fill:var(--panel)}.gutteredge{stroke:var(--rule);stroke-width:1}' +
+  '.rowsep{stroke:var(--rule);stroke-width:1}' +
+  '.rowtitle{font-size:11px;fill:var(--ink);font-weight:600}' +
+  '.rowsub{font-size:10px;fill:var(--sub)}' +
+  '.ruler{fill:var(--panel)}.rtick{stroke:var(--sub);stroke-width:1}' +
+  '.rlbl{font-size:10px;fill:var(--sub)}';
 
 // ===========================================================================
 // Metrics panel / why panel / legend
@@ -1308,7 +1317,7 @@ function renderLegend() {
              '✓完了 / \\中断 / !期限超過 / ○未完了(選択時)']);
   rows.push(['<path class="link" d="M2 10 L70 10" marker-end="url(#lah)"/>' +
              '<defs><marker id="lah" viewBox="0 0 9 8" refX="8.4" refY="4" markerWidth="9" markerHeight="8"' +
-             ' markerUnits="userSpaceOnUse" orient="auto"><path d="M0.5 0.6 L8.6 4 L0.5 7.4 Z" fill="#0f1418"/></marker></defs>',
+             ' markerUnits="userSpaceOnUse" orient="auto"><path d="M0.5 0.6 L8.6 4 L0.5 7.4 Z" fill="var(--dep)"/></marker></defs>',
              'FS 実線 / SS 破線 / FF 点線 / SF 一点鎖線']);
   rows.push(['<path class="halo" d="M2 10 L70 10"/><path class="link" d="M2 10 L70 10"/>' +
              '<path class="halo" d="M36 2 L36 18"/><path class="link" d="M36 2 L36 18"/>',

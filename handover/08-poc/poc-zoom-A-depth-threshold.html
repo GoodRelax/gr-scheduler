@@ -3,20 +3,14 @@
 <head>
 <meta charset="utf-8">
 <title>PoC zoom A - depth-threshold LOD</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
 <style>
-  :root {
-    --ink: #1d2430;
-    --ink-soft: #55606f;
-    --line: #b9c2cf;
-    --line-soft: #dde3ea;
-    --paper: #f7f9fb;
-    --panel: #ffffff;
-    --accent: #2f3b4c;
-  }
+  /* Palette moved to poc-ui.css, which every PoC page links. */
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; height: 100%;
-    background: var(--paper); color: var(--ink);
+    background: var(--panel); color: var(--ink);
     font-family: "Yu Gothic UI", "Meiryo", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
     font-size: 12px;
     overflow: hidden;
@@ -28,20 +22,20 @@
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px;
     padding: 6px 10px;
     background: var(--panel);
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--rule);
   }
   .ctl { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-  .ctl label { color: var(--ink-soft); }
+  .ctl label { color: var(--sub); }
   .ctl output { font-variant-numeric: tabular-nums; min-width: 54px; display: inline-block; }
   input[type=range] { width: 150px; }
   button {
     font: inherit; padding: 3px 9px; cursor: pointer;
-    background: #eef2f7; color: var(--ink);
-    border: 1px solid var(--line); border-radius: 3px;
+    background: var(--panel); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 3px;
   }
-  button:hover { background: #e2e9f2; }
-  button:active { background: #d4dde9; }
-  .sep { width: 1px; align-self: stretch; background: var(--line-soft); }
+  button:hover { background: var(--panel); }
+  button:active { background: var(--rule); }
+  .sep { width: 1px; align-self: stretch; background: var(--rule); }
 
   #stage { position: relative; flex: 1 1 auto; overflow: hidden; background: var(--panel); }
   #canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
@@ -50,21 +44,21 @@
   .float {
     position: absolute; z-index: 5;
     background: rgba(255,255,255,0.94);
-    border: 1px solid var(--line);
+    border: 1px solid var(--rule);
     border-radius: 4px;
     box-shadow: 0 1px 6px rgba(30,40,55,0.12);
   }
   #metrics { top: 8px; right: 8px; width: 262px; padding: 6px 8px; }
   #metrics h4, #lod h4, #verdict h4 {
     margin: 0 0 4px; font-size: 12px; letter-spacing: .06em;
-    color: var(--ink-soft); font-weight: 700;
+    color: var(--sub); font-weight: 700;
   }
   #metrics table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   #metrics td { padding: 0 0 1px; }
-  #metrics td.k { color: var(--ink-soft); }
+  #metrics td.k { color: var(--sub); }
   #metrics td.v { text-align: right; font-weight: 600; }
-  #metrics tr.bad td.v { color: #8c1d1d; }
-  #metrics tr.hi td { border-top: 1px solid var(--line-soft); padding-top: 2px; }
+  #metrics tr.bad td.v { color: var(--bad); }
+  #metrics tr.hi td { border-top: 1px solid var(--rule); padding-top: 2px; }
 
   #verdict { bottom: 8px; left: 8px; width: 332px; padding: 6px 8px; }
   #verdictFlag {
@@ -72,26 +66,26 @@
     padding: 2px 6px; border: 2px solid var(--ink); border-radius: 3px;
     display: inline-block;
   }
-  #verdictFlag.pass { background: #e8f1e8; border-color: #24512b; color: #24512b; }
-  #verdictFlag.fail { background: #fbeaea; border-color: #7e1c1c; color: #7e1c1c; }
+  #verdictFlag.pass { background: color-mix(in srgb, var(--good) 16%, var(--bg)); border-color: var(--good); color: var(--good); }
+  #verdictFlag.fail { background: color-mix(in srgb, var(--bad) 16%, var(--bg)); border-color: var(--bad); color: var(--bad); }
   #verdictBody { margin-top: 4px; font-variant-numeric: tabular-nums; line-height: 1.5; }
 
   #lod { bottom: 8px; left: 348px; width: 428px; padding: 6px 8px; }
   #lod table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  #lod th, #lod td { padding: 1px 4px; text-align: right; border-bottom: 1px solid var(--line-soft); }
+  #lod th, #lod td { padding: 1px 4px; text-align: right; border-bottom: 1px solid var(--rule); }
   #lod th:first-child, #lod td:first-child { text-align: left; }
-  #lod tr.on { background: #eef3ee; }
-  #lod tr.off { color: #98a3b1; }
+  #lod tr.on { background: color-mix(in srgb, var(--good) 10%, var(--bg)); }
+  #lod tr.off { color: var(--sub); }
   #lod .formula {
     font-family: Consolas, "Courier New", monospace; font-size: 12px;
-    background: #f2f5f9; padding: 3px 5px; border-radius: 3px; margin-bottom: 4px;
+    background: var(--panel); padding: 3px 5px; border-radius: 3px; margin-bottom: 4px;
   }
   #fps { bottom: 8px; right: 8px; width: 262px; padding: 6px 8px; display: none; }
   #fps .bar { height: 8px; background: var(--accent); display: inline-block; vertical-align: middle; }
   #fps table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   #fps td { padding: 0 2px; }
-  .warn { color: #8c1d1d; font-weight: 700; }
-  .note { color: var(--ink-soft); }
+  .warn { color: var(--bad); font-weight: 700; }
+  .note { color: var(--sub); }
 
   /* --------------------------------------------------------------------
      Review overlay column (presentation only; no algorithm is touched).
@@ -118,11 +112,11 @@
   #sideToggleWrap { flex: 0 0 auto; align-self: flex-end; }
   #sideToggle {
     font: inherit; font-size: 12px; line-height: 1.4; padding: 2px 8px;
-    border: 1px solid var(--line); border-radius: 4px;
-    background: #fff; color: var(--ink); cursor: pointer;
+    border: 1px solid var(--rule); border-radius: 4px;
+    background: var(--bg); color: var(--ink); cursor: pointer;
     box-shadow: 0 1px 5px rgba(30, 40, 55, 0.20);
   }
-  #sideToggle:hover { background: #e2e9f2; }
+  #sideToggle:hover { background: var(--panel); }
   html.side-collapsed #sidebar {
     width: auto; bottom: auto; overflow: visible; padding: 6px;
   }
@@ -425,7 +419,7 @@ function buildZoomDataset() {
 
 var SVG_NS = 'http://www.w3.org/2000/svg';
 
-var PAD_LEFT = 186;        // fixed left gutter that carries the row titles
+var PAD_LEFT = POC_UI.S.rowLabelW;   // fixed left gutter that carries the row titles
 var PAD_RIGHT = 18;
 // The floating panels are excluded from the plot viewport, so "fits on one
 // screen" means fits in the area the user can actually see.
@@ -434,13 +428,18 @@ var RESERVE_BOTTOM = 218;  // verdict + LOD panels band
 var panelsShown = true;
 function plotX1() { return viewW - (panelsShown ? RESERVE_RIGHT : PAD_RIGHT); }
 function plotY1() { return viewH - (panelsShown ? RESERVE_BOTTOM : 8); }
-var HEADER_H = 46;         // two-tier time axis
-var BASE_LEVEL_H = 26;     // one stack level at yScale = 1
-var LEVEL_FILL = 0.62;     // plan bar height as a fraction of the level height
+// Dimensions shared with every other PoC page come from poc-ui.js; only the
+// constants that DEFINE the depth-threshold approach stay here.
+var S = POC_UI.S;
+var M1 = POC_UI.shapeMetrics("bar", 1);
+
+var HEADER_H = S.rulerH;
+var BASE_LEVEL_H = M1.planH + S.laneGap;   // one stack level at yScale = 1
+var LEVEL_FILL = M1.planH / BASE_LEVEL_H;  // plan bar height as a fraction of the level height
 var ROW_PAD_FRAC = 0.15;   // row padding, each side (spec cap: 25 % of a level)
-var MARKER_SIZE = 11;      // progress marker: FIXED pixel size, never scaled
-var MARKER_GAP = 4;        // fixed 4 px from the actual bar right edge
-var FONT_FLOOR = 10;       // label font floor
+var MARKER_SIZE = M1.markSize;
+var MARKER_GAP = S.markGap;
+var FONT_FLOOR = S.fontMin;
 var STACK_GAP_PX = 2;      // minimum horizontal separation between two stacked tasks
 var STACK_SAFETY = 24;     // safety valve only; no "reuse the last level" fallback
 var COLLAPSE_LEVEL_H = 9;  // below this level height a row collapses to its shallowest depth
@@ -1096,7 +1095,7 @@ function render() {
     Math.max(0, PX1 - PAD_LEFT) + '" height="' + Math.max(0, PY1 - HEADER_H) + '"/></clipPath>';
   body += '<clipPath id="cpHeader"><rect x="0" y="0" width="' + PX1 + '" height="' + HEADER_H + '"/></clipPath>';
   body += '<pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
-    '<rect width="5" height="5" fill="#8c99a9"/><line x1="0" y1="0" x2="0" y2="5" stroke="#5d6b7d" stroke-width="2"/></pattern>';
+    '<rect width="5" height="5" fill="var(--sub)"/><line x1="0" y1="0" x2="0" y2="5" stroke="var(--sub)" stroke-width="2"/></pattern>';
   body += '</defs>';
   body += '<rect x="0" y="0" width="' + viewW + '" height="' + viewH + '" class="plotBg"/>';
   body += '<g clip-path="url(#cpContent)">' + content + '</g>';
@@ -1280,7 +1279,7 @@ function paintMetrics() {
   s += row2('rows drawn / total', m.rowsDrawn + ' / ' + GROUPS.length);
   s += row2('rows collapsed / empty', m.rowsCollapsed + ' / ' + m.rowsEmpty);
   s += row2('labels outside / dropped', m.labelsOutside + ' / ' + m.labelsDropped);
-  s += row2('font floor 10px', m.fontFloorHit ? '<span class="warn">到達</span>' : '未到達');
+  s += row2('font floor ' + FONT_FLOOR + 'px', m.fontFloorHit ? '<span class="warn">到達</span>' : '未到達');
   document.getElementById('metricsTable').innerHTML = s;
 }
 
@@ -1640,49 +1639,49 @@ setTimeout(onViewportChanged, 400);
 
 <style>
   /* SVG classes (kept out of the first block for readability) */
-  .plotBg { fill: #ffffff; }
-  .plotFrame { fill: none; stroke: #8f9bab; stroke-width: 1; }
-  .band { fill: #ffffff; }
-  .band.bandAlt { fill: #f4f7fa; }
-  .rowRule { stroke: #e3e8ef; stroke-width: 1; }
-  .gutBg { fill: #fbfcfe; }
-  .gutBg.bandAlt { fill: #f2f5f9; }
-  .gutTitle { fill: #2b3440; dominant-baseline: alphabetic; }
-  .gutRoll { fill: #7b8695; text-anchor: end; }
+  .plotBg { fill: var(--bg); }
+  .plotFrame { fill: none; stroke: var(--rule); stroke-width: 1; }
+  .band { fill: var(--bg); }
+  .band.bandAlt { fill: var(--row-alt); }
+  .rowRule { stroke: var(--rule); stroke-width: 1; }
+  .gutBg { fill: var(--panel); }
+  .gutBg.bandAlt { fill: var(--panel); }
+  .gutTitle { fill: var(--ink); dominant-baseline: alphabetic; }
+  .gutRoll { fill: var(--sub); text-anchor: end; }
   .gutter { }
 
-  .plan { fill: #ccd4e0; stroke: #46536a; stroke-width: 1; }
-  .plan.d1 { fill: #b9c4d4; stroke-width: 1.6; }
-  .plan.d2 { fill: #c6cfdc; stroke-width: 1.3; }
-  .plan.d3 { fill: #d2dae5; }
-  .plan.d4 { fill: #dde3eb; }
-  .plan.d5 { fill: #e6eaf0; }
-  .plan.sel { stroke: #1b2430; stroke-width: 2.2; }
-  .planLine { stroke: #46536a; stroke-width: 1.6; fill: none; }
-  .ms { fill: #3b475c; stroke: #1b2430; stroke-width: 1; }
-  .actual { fill: url(#hatch); stroke: #46536a; stroke-width: 0.5; }
+  .plan { fill: var(--plan-fill); stroke: var(--plan-stroke); stroke-width: 1; }
+  .plan.d1 { fill: var(--plan-fill); stroke-width: 1.6; }
+  .plan.d2 { fill: var(--plan-fill); stroke-width: 1.3; }
+  .plan.d3 { fill: var(--plan-fill); }
+  .plan.d4 { fill: var(--plan-fill); }
+  .plan.d5 { fill: var(--plan-fill); }
+  .plan.sel { stroke: var(--label-ink); stroke-width: 2.2; }
+  .planLine { stroke: var(--plan-stroke); stroke-width: 1.6; fill: none; }
+  .ms { fill: var(--actual-fill); stroke: var(--label-ink); stroke-width: 1; }
+  .actual { fill: url(#hatch); stroke: var(--plan-stroke); stroke-width: 0.5; }
 
-  .mkRing { fill: #ffffff; stroke: #2b3440; stroke-width: 1.2; }
-  .mkInk { stroke: #1b2430; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .mkDot { fill: #1b2430; }
-  .mk-overdue .mkRing { stroke: #7e1c1c; stroke-width: 1.6; }
+  .mkRing { fill: var(--bg); stroke: var(--ink); stroke-width: 1.2; }
+  .mkInk { stroke: var(--label-ink); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .mkDot { fill: var(--label-ink); }
+  .mk-overdue .mkRing { stroke: var(--bad); stroke-width: 1.6; }
   .mk-suspended .mkRing { stroke-dasharray: 2 2; }
 
-  .lblIn { fill: #1b2430; dominant-baseline: alphabetic; }
-  .lblOut { fill: #45505f; dominant-baseline: alphabetic; }
+  .lblIn { fill: var(--label-ink); dominant-baseline: alphabetic; }
+  .lblOut { fill: var(--label-ink); dominant-baseline: alphabetic; }
 
-  .link { stroke: #55606f; stroke-width: 1.1; fill: none; }
-  .linkHalo { stroke: #ffffff; stroke-width: 3.4; fill: none; stroke-linejoin: round; }
+  .link { stroke: var(--sub); stroke-width: 1.1; fill: none; }
+  .linkHalo { stroke: var(--bg); stroke-width: 3.4; fill: none; stroke-linejoin: round; }
 
-  .today { stroke: #1b2430; stroke-width: 1.2; stroke-dasharray: 5 3; }
-  .todayLbl { fill: #1b2430; font-size: 10px; }
+  .today { stroke: var(--label-ink); stroke-width: 1.2; stroke-dasharray: 5 3; }
+  .todayLbl { fill: var(--label-ink); font-size: 10px; }
 
-  .hdrBg { fill: #eef2f7; }
-  .hdrTick { stroke: #c3ccd8; stroke-width: 1; }
-  .hdrRule { stroke: #8f9bab; stroke-width: 1; }
-  .hdrTop { fill: #2b3440; font-size: 11px; text-anchor: middle; font-weight: 700; }
-  .hdrBot { fill: #45505f; font-size: 10px; text-anchor: middle; }
-  .wkEnd { fill: #dfe5ed; }
+  .hdrBg { fill: var(--panel); }
+  .hdrTick { stroke: var(--rule); stroke-width: 1; }
+  .hdrRule { stroke: var(--rule); stroke-width: 1; }
+  .hdrTop { fill: var(--ink); font-size: 11px; text-anchor: middle; font-weight: 700; }
+  .hdrBot { fill: var(--label-ink); font-size: 10px; text-anchor: middle; }
+  .wkEnd { fill: var(--panel); }
 </style>
 </body>
 </html>
