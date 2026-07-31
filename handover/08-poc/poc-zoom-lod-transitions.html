@@ -613,7 +613,8 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
                esc(g.labelText) + '</text>');
       } else if (g.labelMode === "inside") {
         s.push('<text x="' + r1(sx0 + SIZE.labelPad) + '" y="' + r1(textY) + '" font-size="' +
-               r1(fs) + '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
+               r1(fs) + '" fill="var(--label-ink)"' + POC_UI.haloAttrs(fs) + '>' +
+               esc(g.labelText) + '</text>');
       }
     });
   }

@@ -66,7 +66,22 @@
   <div class="card">
     <h3><a href="poc-glyphs-reference.html">形状の基準</a><span class="tag">検証済</span></h3>
     <p>5 つのタスク形状と<strong>実績を同じ形状で描く</strong>規則 / Progress Marker 4 状態と<strong>文字サイズから導く大きさ</strong> / Resume アイコンの高さ合わせ / タスクの 4 状態 / <strong>段ごとに分けた</strong>イナズマ線の頂点 / <strong>予実は同一色相・依存線は橙</strong>（ダーク切替あり）。</p>
-    <div class="look">DOM で検証済み。<strong>形状ごとに縦幅が違う</strong>（予定バー実測 bar 22px / 細線 11px = <strong>1/2</strong> / マイルストーン 33px = <strong>1.5 倍</strong>）／実績は予定と同じ形状で描かれている（矢羽根は矢羽根、矢印は矢印）／Resume 矢先の高さ = 実績バー中心 = マーク中心、矢印の下端 = マーク下端／イナズマ線は行 5（1 段 3 タスク）で最も遅れた頂点が勝ち、行 6（3 段）で頂点が 3 つに分かれる／実績÷予定のコントラストはライト 4.81:1・ダーク 3.74:1（要求 3:1）。<strong>寸法はすべて 1 か所の <code>SIZE</code> 定数から導く。</strong></div>
+    <div class="look">DOM で検証済み。<strong>形状ごとに縦幅が違う</strong>（予定バー実測 bar 28px / 細線 14px = <strong>1/2</strong> / マイルストーン 42px = <strong>1.5 倍</strong>）／実績は予定と同じ形状で描かれている（矢羽根は矢羽根、矢印は矢印）／Resume 矢先の高さ = 実績バー中心 = マーク中心、矢印の下端 = マーク下端／イナズマ線は行 5（1 段 3 タスク）で最も遅れた頂点が勝ち、行 6（3 段）で頂点が 3 つに分かれる／実績÷予定のコントラストはライト 4.81:1・ダーク 3.74:1（要求 3:1）。<strong>色も寸法もすべて共有ファイル（<code>poc-ui.css</code> / <code>poc-ui.js</code>）から来る。</strong></div>
+  </div>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <h3><a href="poc-color-and-halo.html">文字を黒/白に固定したときの色と、縁取りの性能</a><span class="tag">要 実機</span></h3>
+    <p>文字色を<strong>ライト = 黒 / ダーク = 白</strong>に固定すると、色の選び方がどこまで縛られるかを 10 色相について数字で出す。
+       あわせて<strong>文字に背景色の縁を付ける</strong>と縛りが外れることを示し、その<strong>描画コストを測る</strong>。</p>
+    <div class="look">見るところ：<span class="v-warn">10 色相すべてに解はあるが、どれも「角」に張り付く</span>
+      （実績÷予定 = 3.0:1、文字÷実績 = 4.5:1 と<strong>いずれも下限そのもの</strong>）。
+      実績の明度を確定値から<strong>最大 35 ポイント</strong>動かす必要があり、
+      <span class="v-warn">「実績は高彩度・濃い」という §2-6 の記述と両立しない</span>。
+      <strong>縁取りを付けると条件がバーの色から外れ、確定色をそのまま使える。</strong>
+      <span class="v-warn">性能の判定はブラウザを前面にして「計測する」を押すこと</span> —
+      隠れたタブでは <code>requestAnimationFrame</code> が止まり、フレームが測れない。</div>
   </div>
 </div>
 

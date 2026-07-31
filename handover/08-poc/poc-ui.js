@@ -117,9 +117,9 @@ var SPEC = [
     rng: function () { return { lo: 0, hi: 30 }; } },
   { g: "ラベル", k: "labelBaseline", n: "ベースライン補正", u: "", step: 0.02, d: 0.35,
     rng: function () { return { lo: 0, hi: 0.8 }; } },
-  { g: "ラベル", k: "labelHaloOfFont", n: "縁取りの太さ ÷ フォント", u: "", step: 0.02, d: 0,
+  { g: "ラベル", k: "labelHaloOfFont", n: "縁取りの太さ ÷ フォント", u: "", step: 0.01, d: 0.17,
     rng: function () { return { lo: 0, hi: 0.3,
-      why: "0 = 縁取りなし。バーの上の文字を読ませる手段（採否は性能 PoC で決める）" }; } },
+      why: "0 = 縁取りなし。12px の文字で約 2px。バーの上の文字が色に依存せず読める（07 2-7）" }; } },
   { g: "ラベル", k: "truncUnits", n: "打ち切り幅（半角換算）", u: "", step: 2, d: 24,
     rng: function () { return { lo: 4, hi: 120, why: "全角 12 文字 = 半角 24" }; } },
   { g: "ラベル", k: "rowLabelW", n: "行名の欄の幅", u: "px", step: 5, d: 170,
@@ -267,6 +267,18 @@ function widthUnits(s) {
 
 function labelWidth(s, fontSize) { return widthUnits(s) * fontSize * S.labelCoef; }
 
+/**
+ * SVG attributes that put a background-coloured edge around a label, so the
+ * text is legible over any bar colour without changing the text colour
+ * (07 2-7). Returns "" when the halo is switched off.
+ */
+function haloAttrs(fontSize) {
+  if (!S.labelHaloOfFont) return "";
+  return ' stroke="var(--label-halo)" stroke-width="' +
+    (Math.round(fontSize * S.labelHaloOfFont * 100) / 100) +
+    '" paint-order="stroke fill" stroke-linejoin="round"';
+}
+
 /** Cut to truncUnits half-width units, appending a half-width ellipsis. */
 function truncateUnits(s, units) {
   if (widthUnits(s) <= units) return s;
@@ -279,6 +291,135 @@ function truncateUnits(s, units) {
   }
   return out + "...";
 }
+
+/* ---- colour maths -------------------------------------------------------
+ * Everything here answers one question: with the label ink fixed to black on
+ * light and white on dark, which plan/actual colours can still be used?
+ *   WCAG 1.4.3  text over its background          >= 4.5:1
+ *   WCAG 1.4.11 actual over plan (non-text)       >= 3:1
+ * ------------------------------------------------------------------------- */
+
+/** HSL (h in degrees, s and l in 0..1) to sRGB 0..1. */
+function hslToRgb(h, s, l) {
+  var c = (1 - Math.abs(2 * l - 1)) * s;
+  var hp = ((h % 360) + 360) % 360 / 60;
+  var x = c * (1 - Math.abs((hp % 2) - 1));
+  var r = 0, g = 0, b = 0;
+  if (hp < 1) { r = c; g = x; }
+  else if (hp < 2) { r = x; g = c; }
+  else if (hp < 3) { g = c; b = x; }
+  else if (hp < 4) { g = x; b = c; }
+  else if (hp < 5) { r = x; b = c; }
+  else { r = c; b = x; }
+  var m = l - c / 2;
+  return [r + m, g + m, b + m];
+}
+
+/** WCAG relative luminance of an sRGB 0..1 triple. */
+function luminance(rgb) {
+  var f = function (v) {
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+}
+
+function lumOfHsl(h, s, l) { return luminance(hslToRgb(h, s, l)); }
+
+/** WCAG contrast ratio between two relative luminances. */
+function contrast(y1, y2) {
+  var hi = Math.max(y1, y2), lo = Math.min(y1, y2);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+var BLACK_Y = 0, WHITE_Y = 1;
+
+/**
+ * Score one candidate pair for one theme.
+ * `ink` is the label colour that theme forces: black on light, white on dark.
+ */
+function scorePair(hue, planS, planL, actS, actL, strokeS, strokeL, bgY, inkY) {
+  var yPlan = lumOfHsl(hue, planS, planL);
+  var yAct = lumOfHsl(hue, actS, actL);
+  var yStroke = lumOfHsl(hue, strokeS, strokeL);
+  var r = {
+    inkOnPlan: contrast(inkY, yPlan),      // WCAG 1.4.3, needs 4.5
+    inkOnActual: contrast(inkY, yAct),     // WCAG 1.4.3, needs 4.5
+    inkOnBg: contrast(inkY, bgY),          // labels outside the bar
+    actualOverPlan: contrast(yAct, yPlan), // WCAG 1.4.11, needs 3
+    strokeOverBg: contrast(yStroke, bgY),  // the outline that carries the shape
+    planOverBg: contrast(yPlan, bgY)       // the fill must still read as a band
+  };
+  r.pass = r.inkOnPlan >= 4.5 && r.inkOnActual >= 4.5 &&
+           r.inkOnBg >= 4.5 && r.actualOverPlan >= 3 &&
+           r.strokeOverBg >= 3 && r.planOverBg >= PLAN_OVER_BG_MIN;
+  return r;
+}
+
+/**
+ * The plan fill sits deliberately close to the background -- its outline is
+ * what carries the shape (2-6). But it must not vanish into it, or the bar
+ * becomes an empty outline and the plan/actual pair stops reading as one
+ * object. The settled palette sits at 1.7:1, so 1.3:1 is a floor, not a goal.
+ */
+var PLAN_OVER_BG_MIN = 1.3;
+
+/**
+ * Search the lightness of plan and actual for one hue so that black-on-light
+ * and white-on-dark both hold. Returns null when the hue admits no solution.
+ * Saturation is swept too, because a very saturated colour cannot reach the
+ * luminance the text contrast demands.
+ */
+function solveHue(hue, theme) {
+  var dark = theme === "dark";
+  var bgY = dark ? luminance([0.078, 0.086, 0.102]) : 1;   // #14161a / #ffffff
+  var inkY = dark ? WHITE_Y : BLACK_Y;
+  // The settled palette (2-6). We look for the SMALLEST move away from it
+  // that makes a fixed black / white label legal -- not for the largest
+  // margin, which just drives the plan bar to pure white or pure black.
+  var ref = dark ? { pl: 0.26, ps: 0.32, al: 0.64, as: 0.62 }
+                 : { pl: 0.80, ps: 0.46, al: 0.34, as: 0.62 };
+  var best = null;
+  var planSs = [0.20, 0.28, 0.32, 0.36, 0.46, 0.56];
+  var actSs = [0.40, 0.50, 0.62, 0.74, 0.86];
+  var i, planLs = [];
+  for (i = 0; i <= 100; i++) planLs.push(i / 100);
+
+  planSs.forEach(function (ps) {
+    planLs.forEach(function (pl) {
+      actSs.forEach(function (as) {
+        planLs.forEach(function (al) {
+          // plan stays the paler of the two on light, the darker on dark
+          if (!dark && al >= pl) return;
+          if (dark && al <= pl) return;
+          var strokeL = dark ? Math.min(0.95, al + 0.16) : Math.max(0.05, pl - 0.34);
+          var r = scorePair(hue, ps, pl, as, al, ps + 0.1, strokeL, bgY, inkY);
+          if (!r.pass) return;
+          var move = Math.abs(pl - ref.pl) + Math.abs(al - ref.al) +
+                     0.5 * Math.abs(ps - ref.ps) + 0.5 * Math.abs(as - ref.as);
+          if (!best || move < best.move) {
+            best = { hue: hue, planS: ps, planL: pl, actS: as, actL: al,
+                     strokeS: ps + 0.1, strokeL: strokeL, move: move, score: r };
+          }
+        });
+      });
+    });
+  });
+  return best;
+}
+
+/** Candidate hues to try. Names are neutral, not product or industry terms. */
+var HUES = [
+  { name: "青", hue: 214 },
+  { name: "青緑", hue: 190 },
+  { name: "緑", hue: 140 },
+  { name: "黄緑", hue: 95 },
+  { name: "黄", hue: 50 },
+  { name: "橙", hue: 28 },
+  { name: "赤", hue: 6 },
+  { name: "赤紫", hue: 330 },
+  { name: "紫", hue: 285 },
+  { name: "藍", hue: 250 }
+];
 
 /* ---- theme -------------------------------------------------------------- */
 
@@ -312,9 +453,17 @@ global.POC_UI = {
   isFullWidth: isFullWidth,
   widthUnits: widthUnits,
   labelWidth: labelWidth,
+  haloAttrs: haloAttrs,
   truncateUnits: truncateUnits,
   setTheme: setTheme,
-  currentTheme: currentTheme
+  currentTheme: currentTheme,
+  hslToRgb: hslToRgb,
+  luminance: luminance,
+  lumOfHsl: lumOfHsl,
+  contrast: contrast,
+  scorePair: scorePair,
+  solveHue: solveHue,
+  HUES: HUES
 };
 
 })(window);

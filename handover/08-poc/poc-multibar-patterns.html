@@ -704,7 +704,8 @@ function renderPattern(p, ctx, showOcc, showDeps) {
              '" font-size="' + r1(fs) + '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
     } else {
       s.push('<text x="' + r1(g.sx0 + SIZE.labelPad) + '" y="' + r1(textY) + '" font-size="' +
-             r1(fs) + '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
+             r1(fs) + '" fill="var(--label-ink)"' + POC_UI.haloAttrs(fs) + '>' +
+             esc(g.labelText) + '</text>');
     }
   });
 

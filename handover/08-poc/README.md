@@ -46,6 +46,7 @@ python -m http.server 8899 --directory handover/08-poc
 | `poc-glyphs-reference.html` | 5 形状の描き分け / 実績の置き方 / 進捗マーカー 4 状態 / Resume の幾何 / イナズマ線の頂点 / 色の既定 |
 | `poc-multibar-patterns.html` | 段割当 20 パターン。overlap 0・決定性・手動 `stackOrder` の保持・左右の張り出し・**依存線の 5 パターン**（`P00`） |
 | `poc-zoom-lod-transitions.html` | 3 系統の LOD 遷移点・単調性（9,600 点）・Fit |
+| `poc-color-and-halo.html` | **文字を黒/白に固定したときに使える色**（10 色相 × ライト/ダーク、WCAG 5 条件の合否）と、**文字の縁取りの描画コスト** |
 | `poc-schedule-zoom.html` | **操作の検算**。タスク名・担当・進捗・進捗線を入れた日程表を、ホイールとキーだけで拡縮する（`../03-ui-naming/handover-ui-detail-spec-ja.md` §5-2）。依存線の寸法がズームで動かないことの確認も兼ねる |
 
 ---

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>PoC: 文字を黒/白に固定したときの色と、縁取りの性能</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
+<style>
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); gap:12px; }
+  .hue { border:1px solid var(--rule); border-radius:6px; overflow:hidden; }
+  .hue > .head { background:var(--panel); border-bottom:1px solid var(--rule);
+                 padding:7px 11px; display:flex; gap:10px; align-items:baseline; }
+  .hue .nm { font-weight:700; font-size:15px; }
+  .hue .hv { color:var(--sub); font-size:13px; font-variant-numeric:tabular-nums; }
+  .hue .verdict { margin-left:auto; }
+  .hue .body { padding:9px 11px 11px 11px; }
+  .hue svg { border:1px solid var(--rule); border-radius:4px; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:1px 9px; font-size:12px;
+        font-variant-numeric:tabular-nums; margin-top:7px; }
+  .kv .k { color:var(--sub); white-space:nowrap; }
+  .kv .v { font-weight:700; }
+  .kv .v.ng { color:var(--bad); }
+  .kv .v.ok { color:var(--good); }
+  .bench { border:1px solid var(--rule); border-radius:6px; padding:12px 14px; margin:12px 0; }
+  .bench .ctl { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  #benchStage { border:1px solid var(--rule); border-radius:4px; overflow:hidden;
+                height:420px; background:var(--bg); }
+  #measStage { border:2px solid var(--bad); border-radius:4px; overflow:hidden;
+               background:var(--bg); margin-bottom:10px; }
+  .measLabel { background:var(--bad); color:var(--bg); font-weight:700;
+               padding:5px 10px; font-size:14px; }
+  #benchStage svg { display:block; }
+  .swatchRow { display:flex; gap:0; margin-top:6px; border-radius:4px; overflow:hidden;
+               border:1px solid var(--rule); }
+  .swatchRow div { flex:1; padding:5px 4px; font-size:11px; text-align:center;
+                   font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body class="reading">
+
+<header><div class="wrap">
+  <h1>PoC: 文字を黒/白に固定したときの色と、縁取りの性能</h1>
+  <p class="lede">確定した文字色は <strong>ライト = 黒 / ダーク = 白</strong>。
+    この 1 つの決定が色の選び方をどこまで縛るかを数字で出し、
+    <strong>縁取り（文字の周りに背景色の縁を付ける）で縛りを外せるか</strong>を性能とあわせて測る。</p>
+  <div class="ctl" style="padding:10px 0 12px 0">
+    <button id="btnTheme">テーマ切替</button>
+    <span class="val" id="themeNow"></span>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<div class="note">
+  <strong>満たすべき条件</strong>
+  <ol style="margin:6px 0 0 0; padding-left:22px;">
+    <li><strong>文字 ÷ 予定バー ≧ 4.5:1</strong>（WCAG 1.4.3。ラベルは 12px＝通常の文字）</li>
+    <li><strong>文字 ÷ 実績バー ≧ 4.5:1</strong>（同上。ラベルは予定と実績の<strong>両方にまたがって載る</strong>）</li>
+    <li><strong>実績 ÷ 予定 ≧ 3:1</strong>（WCAG 1.4.11。<code>07-plan-actual §2-6</code> の確定）</li>
+    <li><strong>予定の輪郭線 ÷ 背景 ≧ 3:1</strong>（形を担保するのは線。同 §2-6）</li>
+    <li><strong>予定の塗り ÷ 背景 ≧ 1.3:1</strong>（塗りが背景に溶けると帯として読めない）</li>
+  </ol>
+</div>
+
+<h2>1. 色相ごとの解 — 確定色からの「最小の移動」</h2>
+<p class="hint">各色相について、<strong>上記 5 条件をすべて満たす組のうち、§2-6 の確定値から最も動かさずに済む点</strong>を探す。
+  上段が確定値そのまま、下段が解。<strong>赤い数字が落ちている条件</strong>。</p>
+<div class="grid" id="hues"></div>
+
+<div class="note warn" id="tightness"></div>
+
+<h2>2. 縁取りを付けると縛りはどうなるか</h2>
+<p class="hint">文字の周りに<strong>背景色の縁</strong>（SVG の <code>paint-order="stroke fill"</code>）を付けると、
+  文字が接する色はバーではなく縁になる。条件 1 と 2 がバーの色から外れるので、
+  <strong>確定色（§2-6）をそのまま使える</strong>。ただし描画が重くなるなら採れない。</p>
+<div id="haloEffect"></div>
+
+<h2>3. 縁取りの性能</h2>
+<p class="hint">大きい日程表を実際に描いて、<strong>縁取りの有無だけを変えて</strong>比べる。
+  文字数・要素数・その他の描画はすべて同一。</p>
+<div class="bench">
+  <div class="ctl">
+    <label>タスク数 <select id="bTasks">
+      <option>500</option><option selected>2000</option><option>5000</option><option>10000</option>
+    </select></label>
+    <label>表示 <select id="bMode">
+      <option value="both" selected>上下で並べる（無し / 有り）</option>
+      <option value="off">縁取り 無しだけ</option>
+      <option value="on">縁取り 有りだけ</option>
+    </select></label>
+    <button id="bRun">計測する</button>
+    <span class="val" id="bStat"></span>
+  </div>
+  <div id="stageCheck" class="hint" style="margin:0 0 8px 0"></div>
+  <div id="measStage" style="display:none"></div>
+  <div id="benchStage"></div>
+  <div id="bResult"></div>
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+var U = POC_UI;
+var NS = "http://www.w3.org/2000/svg";
+var r2 = function (x) { return Math.round(x * 100) / 100; };
+var pc = function (x) { return Math.round(x * 100); };
+
+// ---------------------------------------------------------------- section 1
+/** The settled palette of 2-6, expressed the same way the solver returns. */
+function settled(hue, dark) {
+  return dark
+    ? { hue: hue, planS: 0.32, planL: 0.26, actS: 0.62, actL: 0.64, strokeS: 0.46, strokeL: 0.66 }
+    : { hue: hue, planS: 0.46, planL: 0.80, actS: 0.62, actL: 0.34, strokeS: 0.44, strokeL: 0.46 };
+}
+
+function bgLum(dark) {
+  return dark ? U.luminance([0.078, 0.086, 0.102]) : 1;
+}
+
+function scoreOf(p, dark) {
+  return U.scorePair(p.hue, p.planS, p.planL, p.actS, p.actL, p.strokeS, p.strokeL,
+                     bgLum(dark), dark ? 1 : 0);
+}
+
+function hsl(p, which) {
+  if (which === "plan") return "hsl(" + p.hue + " " + pc(p.planS) + "% " + pc(p.planL) + "%)";
+  if (which === "act") return "hsl(" + p.hue + " " + pc(p.actS) + "% " + pc(p.actL) + "%)";
+  return "hsl(" + p.hue + " " + pc(p.strokeS) + "% " + pc(p.strokeL) + "%)";
+}
+
+/** A miniature bar so the numbers can be checked by eye. */
+function sample(p, dark, label) {
+  var ink = dark ? "#ffffff" : "#000000";
+  var w = 300, h = 34, planH = 22, actW = 150;
+  return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="' + h + '">' +
+    '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="' + (dark ? "#14161a" : "#ffffff") + '"/>' +
+    '<rect x="8" y="6" width="' + (w - 16) + '" height="' + planH + '" rx="2" fill="' + hsl(p, "plan") +
+      '" stroke="' + hsl(p, "stroke") + '"/>' +
+    '<rect x="8" y="9" width="' + actW + '" height="16" fill="' + hsl(p, "act") + '"/>' +
+    '<text x="14" y="' + (6 + planH / 2 + 4) + '" font-size="12" fill="' + ink +
+      '" font-family="Yu Gothic UI, Meiryo, sans-serif">' + label + '</text>' +
+    '</svg>';
+}
+
+function kvRow(name, val, need) {
+  var ok = val >= need;
+  return '<div class="k">' + name + '</div><div class="v ' + (ok ? "ok" : "ng") + '">' +
+    r2(val) + ' : 1' + (ok ? '' : '（要 ' + need + '）') + '</div>';
+}
+
+function scoreBlock(s) {
+  return '<div class="kv">' +
+    kvRow("文字 ÷ 予定", s.inkOnPlan, 4.5) +
+    kvRow("文字 ÷ 実績", s.inkOnActual, 4.5) +
+    kvRow("実績 ÷ 予定", s.actualOverPlan, 3) +
+    kvRow("輪郭線 ÷ 背景", s.strokeOverBg, 3) +
+    kvRow("予定の塗り ÷ 背景", s.planOverBg, 1.3) +
+    '</div>';
+}
+
+function renderHues() {
+  var dark = U.currentTheme() === "dark";
+  var host = document.getElementById("hues");
+  var parts = [], tight = [];
+  U.HUES.forEach(function (h) {
+    var cur = settled(h.hue, dark), sc = scoreOf(cur, dark);
+    var sol = U.solveHue(h.hue, dark ? "dark" : "light");
+    var ss = sol ? scoreOf(sol, dark) : null;
+    if (ss) {
+      tight.push({ name: h.name,
+                   act: ss.actualOverPlan, ink: ss.inkOnActual,
+                   moveAct: Math.abs(sol.actL - cur.actL), movePlan: Math.abs(sol.planL - cur.planL) });
+    }
+    parts.push(
+      '<div class="hue"><div class="head">' +
+        '<span class="nm">' + h.name + '</span><span class="hv">hue ' + h.hue + '</span>' +
+        '<span class="verdict"><span class="pill ' + (sol ? "p-good" : "p-bad") + '">' +
+          (sol ? "解あり" : "解なし") + '</span></span>' +
+      '</div><div class="body">' +
+        '<div class="hint" style="margin:0 0 3px 0">確定値（§2-6）のまま</div>' +
+        sample(cur, dark, "田中 : 40% 詳細設計") + scoreBlock(sc) +
+        (sol
+          ? '<div class="hint" style="margin:10px 0 3px 0">解 — ' +
+              hsl(sol, "plan") + ' / ' + hsl(sol, "act") + '</div>' +
+            sample(sol, dark, "田中 : 40% 詳細設計") + scoreBlock(ss)
+          : '') +
+      '</div></div>');
+  });
+  host.innerHTML = parts.join("");
+
+  var worstAct = Math.min.apply(null, tight.map(function (t) { return t.act; }));
+  var worstInk = Math.min.apply(null, tight.map(function (t) { return t.ink; }));
+  var maxMove = Math.max.apply(null, tight.map(function (t) { return t.moveAct; }));
+  document.getElementById("tightness").innerHTML =
+    '<strong>解はどの色相にもあるが、すべて「角」に張り付く。</strong><br>' +
+    '10 色相の解のうち、<strong>実績 ÷ 予定</strong> の最小は <b>' + r2(worstAct) +
+    ' : 1</b>（下限 3）、<strong>文字 ÷ 実績</strong> の最小は <b>' + r2(worstInk) +
+    ' : 1</b>（下限 4.5）。<strong>どちらも下限そのもの</strong>である。' +
+    'つまり<strong>余裕がない</strong> — あとから 1 つでも明度をいじると、必ずどれかが落ちる。<br>' +
+    'また実績の明度を確定値から最大 <b>' + pc(maxMove) + ' ポイント</b>動かす必要がある。' +
+    '<strong>「実績は高彩度・濃い」という §2-6 の記述はこの解と両立しない</strong>（実績は中間の明るさになる）。';
+}
+
+// ---------------------------------------------------------------- section 2
+/** One bar, drawn twice: without the halo and with it. Same colours, same text. */
+function haloPair(p, dark, halo) {
+  var ink = dark ? "#ffffff" : "#000000";
+  var haloCol = dark ? "#14161a" : "#ffffff";
+  var stroke = halo
+    ? ' stroke="' + haloCol + '" stroke-width="2" paint-order="stroke fill" stroke-linejoin="round"'
+    : '';
+  return '<svg viewBox="0 0 300 34" width="100%" height="34">' +
+    '<rect width="300" height="34" fill="' + (dark ? "#14161a" : "#ffffff") + '"/>' +
+    '<rect x="8" y="6" width="284" height="22" rx="2" fill="' + hsl(p, "plan") +
+      '" stroke="' + hsl(p, "stroke") + '"/>' +
+    '<rect x="8" y="9" width="150" height="16" fill="' + hsl(p, "act") + '"/>' +
+    '<text x="14" y="21" font-size="12" fill="' + ink + '"' + stroke +
+      ' font-family="Yu Gothic UI, Meiryo, sans-serif">田中 : 40% 詳細設計</text>' +
+    '</svg>';
+}
+
+function renderHaloEffect() {
+  var dark = U.currentTheme() === "dark";
+  var rows = [];
+  U.HUES.slice(0, 4).forEach(function (h) {
+    var cur = settled(h.hue, dark);
+    var sc = scoreOf(cur, dark);
+    rows.push(
+      '<div class="hue"><div class="head"><span class="nm">' + h.name + '</span>' +
+      '<span class="hv">§2-6 の確定色のまま</span></div><div class="body">' +
+      '<div class="hint" style="margin:0 0 3px 0">縁取り <b>無し</b> — 文字の左半分が実績バーに載る</div>' +
+      haloPair(cur, dark, false) +
+      '<div class="kv"><div class="k">文字 ÷ 実績</div><div class="v ' +
+        (sc.inkOnActual >= 4.5 ? "ok" : "ng") + '">' + r2(sc.inkOnActual) + ' : 1（要 4.5）</div></div>' +
+      '<div class="hint" style="margin:10px 0 3px 0">縁取り <b>有り</b> — 同じ色・同じ文字</div>' +
+      haloPair(cur, dark, true) +
+      '<div class="kv"><div class="k">文字が接する色</div><div class="v ok">縁（背景色）</div>' +
+      '<div class="k">文字 ÷ 縁</div><div class="v ok">21 : 1</div>' +
+      '<div class="k">実績 ÷ 予定</div><div class="v ok">' + r2(sc.actualOverPlan) + ' : 1</div></div>' +
+      '</div></div>');
+  });
+  document.getElementById("haloEffect").innerHTML =
+    '<div class="grid">' + rows.join("") + '</div>' +
+    '<div class="note"><strong>上下 2 本は色も文字もまったく同じで、縁取りの有無だけが違う。</strong>' +
+    '上（無し）は文字の左半分が実績バーに載って読めない — これが §1 で色を動かさざるを得なかった理由である。' +
+    '下（有り）は文字が接するのが縁＝背景色になるので比が <b>21:1</b> で固定になり、' +
+    '<strong>§2-6 の確定色をそのまま使える</strong>。' +
+    'ユーザーが任意の塗り色を選んでも（項 12 / 項 23）比が変わらないのも同じ理由である。</div>';
+}
+
+// ---------------------------------------------------------------- section 3
+/**
+ * Build one big schedule twice -- identical in every way except the halo --
+ * and measure. The interesting number is not the build time (a few string
+ * concatenations) but the time the browser needs to lay out and paint it.
+ */
+var HALO_ATTR = ' stroke="var(--label-halo)" stroke-width="' + r2(12 * 0.17) +
+                '" paint-order="stroke fill" stroke-linejoin="round"';
+
+/**
+ * The bars themselves. Returns the inner markup plus the content size, so the
+ * same content can be wrapped either at natural size (for looking at) or in a
+ * viewport-sized svg with a viewBox (for scrolling and zooming while measuring).
+ *
+ * mode is "off", "on", or "both". "both" draws the top half without the halo
+ * and the bottom half with it, so the difference is visible in one screen.
+ */
+function benchContent(n, mode) {
+  var S = U.S, m = U.shapeMetrics("bar", 1);
+  var perRow = 40, rowH = m.planH + S.rowGap, w = 2400;
+  var rows = Math.ceil(n / perRow);
+  var splitRow = mode === "both" ? Math.ceil(rows / 2) : -1;
+  var h = rows * rowH + 40;
+  var s = [], i;
+  for (i = 0; i < n; i++) {
+    var col = i % perRow, row = (i / perRow) | 0;
+    var haloAttr = mode === "on" ? HALO_ATTR
+                 : (mode === "both" && row >= splitRow ? HALO_ATTR : "");
+    var x = 10 + col * ((w - 20) / perRow);
+    var y = 10 + row * rowH + (mode === "both" && row >= splitRow ? 20 : 0);
+    var bw = (w - 20) / perRow - 6;
+    s.push('<rect x="' + r2(x) + '" y="' + r2(y) + '" width="' + r2(bw) + '" height="' + r2(m.planH) +
+           '" fill="var(--plan-fill)" stroke="var(--plan-stroke)"/>');
+    s.push('<rect x="' + r2(x) + '" y="' + r2(y + m.insideActualTop) + '" width="' + r2(bw * 0.6) +
+           '" height="' + r2(m.actualH) + '" fill="var(--actual-fill)"/>');
+    s.push('<text x="' + r2(x + 4) + '" y="' + r2(y + m.planH / 2 + 4) + '" font-size="12" ' +
+           'fill="var(--label-ink)"' + haloAttr + '>詳細設計 ' + i + '</text>');
+  }
+  if (mode !== "both") {
+    s.push('<text x="10" y="' + r2(h - 8) + '" font-size="13" font-weight="700" fill="var(--bad)">' +
+           (mode === "on" ? "この絵は 縁取り 有り" : "この絵は 縁取り 無し") + '</text>');
+  } else {
+    var yd = 10 + splitRow * rowH + 8;
+    s.push('<line x1="0" y1="' + r2(yd) + '" x2="' + w + '" y2="' + r2(yd) +
+           '" stroke="var(--bad)" stroke-width="1.5" stroke-dasharray="6 4"/>');
+    s.push('<text x="10" y="' + r2(yd - 5) + '" font-size="13" font-weight="700" ' +
+           'fill="var(--bad)">▲ ここから上 = 縁取り 無し</text>');
+    s.push('<text x="10" y="' + r2(yd + 15) + '" font-size="13" font-weight="700" ' +
+           'fill="var(--bad)">▼ ここから下 = 縁取り 有り</text>');
+  }
+  return { inner: s.join(""), w: w, h: h };
+}
+
+/** Natural size, for the picture the reader looks at. */
+function buildBench(n, mode) {
+  var c = benchContent(n, mode);
+  return '<svg width="' + c.w + '" height="' + c.h + '" viewBox="0 0 ' + c.w + ' ' + c.h + '">' +
+         c.inner + '</svg>';
+}
+
+// ==========================================================================
+// Measurement.
+//
+// The method matters more than the numbers. What is measured is what a person
+// actually does: draw a big schedule ONCE, then scroll it, then zoom it.
+// Rebuilding the markup over and over measures the HTML parser, not the halo.
+//
+// It runs in its OWN stage, shown only while measuring and labelled with the
+// variant it is drawing. The picture above is never touched, so the 表示
+// control can never disagree with what is on screen.
+// ==========================================================================
+var VW = 900, VH = 380;      // measurement viewport
+
+function measStage() { return document.getElementById("measStage"); }
+function median(a) { a.sort(function (x, y) { return x - y; }); return a[(a.length / 2) | 0]; }
+function nextTick() { return new Promise(function (r) { setTimeout(r, 0); }); }
+
+/** Step 1 and 2: clear everything, then draw one variant and nothing else. */
+function drawForMeasure(n, halo) {
+  var label = halo ? "縁取り 有り" : "縁取り 無し";
+  measStage().innerHTML = "";                       // clear every task first
+  measStage().getBoundingClientRect();
+  var c = benchContent(n, halo ? "on" : "off");
+  var t0 = performance.now();
+  measStage().innerHTML =
+    '<div class="measLabel">計測中 — ' + label + '<span id="measPhase"></span></div>' +
+    '<svg id="mSvg" width="' + VW + '" height="' + VH + '" viewBox="0 0 ' + VW + ' ' + VH + '">' +
+    c.inner + '</svg>';
+  document.getElementById("mSvg").getBoundingClientRect();
+  return { buildMs: performance.now() - t0, w: c.w, h: c.h };
+}
+
+/**
+ * Step 3 and 4. kind is "scroll" (pan the viewBox sideways) or "zoom" (shrink
+ * and grow the viewBox). Both force the browser to rasterise the text again,
+ * which is where a stroke costs something. A CSS transform would not: it reuses
+ * the already-rasterised layer and would hide the very cost we want.
+ * Resolves null when rAF never fires (hidden tab or pane) instead of hanging.
+ */
+function framePhase(kind, frames, content) {
+  var svg = document.getElementById("mSvg");
+  var ph = document.getElementById("measPhase");
+  if (ph) ph.textContent = kind === "scroll" ? " / 横スクロール" : " / ズーム";
+  var maxX = Math.max(1, content.w - VW);
+  return new Promise(function (resolve) {
+    var samples = [], last = performance.now(), k = 0, fired = false;
+    setTimeout(function () { if (!fired) resolve(null); }, 2000);
+    function step() {
+      fired = true;
+      var now = performance.now();
+      if (k > 0) samples.push(now - last);      // drop the first, it includes setup
+      last = now;
+      if (kind === "scroll") {
+        var x = (k * 13) % maxX;
+        svg.setAttribute("viewBox", r2(x) + " 0 " + VW + " " + VH);
+      } else {
+        var z = 1 + 0.55 * Math.sin(k / 7);
+        var w2 = VW / z, h2 = VH / z;
+        svg.setAttribute("viewBox", r2((VW - w2) / 2) + " " + r2((VH - h2) / 2) + " " +
+                         r2(w2) + " " + r2(h2));
+      }
+      if (++k < frames) requestAnimationFrame(step);
+      else {
+        samples.sort(function (a, b) { return a - b; });
+        resolve({ p50: samples[(samples.length * 0.5) | 0],
+                  p95: samples[(samples.length * 0.95) | 0] });
+      }
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+function runVariant(n, halo, frames) {
+  return nextTick().then(function () {
+    var built = drawForMeasure(n, halo);
+    return framePhase("scroll", frames, built).then(function (sc) {
+      if (!sc) return null;
+      return framePhase("zoom", frames, built).then(function (zm) {
+        return { build: built.buildMs, scroll: sc, zoom: zm };
+      });
+    });
+  });
+}
+
+function verdictOf(d, budget) {
+  if (d < budget * 0.02) return '<span class="pill p-good">差は予算の 2% 未満 — 体感できない</span>';
+  if (d < budget * 0.10) return '<span class="pill p-warn">差 ' + r2(d) + 'ms（予算の 10% 未満）</span>';
+  return '<span class="pill p-bad">差 ' + r2(d) + 'ms — 効く</span>';
+}
+
+/**
+ * Results are kept per variant, so 縁取り 無しだけ can be measured on its own,
+ * then 縁取り 有りだけ on its own, and the difference still gets reported once
+ * both exist. The mode chosen above decides WHAT IS MEASURED -- a run never
+ * draws the variant you did not ask for.
+ */
+var LAST = { off: null, on: null, n: null, frames: null };
+
+function cell(v) { return v == null ? '<td class="num">—</td>' : '<td class="num">' + r2(v) + ' ms</td>'; }
+
+function diffCell(off, on) {
+  if (off == null || on == null) return '<td class="num">—</td>';
+  var d = on - off;
+  return '<td class="num"><b>' + (d >= 0 ? "+" : "") + r2(d) + ' ms</b></td>';
+}
+
+function renderResults() {
+  var off = LAST.off, on = LAST.on;
+  var res = document.getElementById("bResult");
+  var both = off && on;
+  var head = '<h3>1 フレームの時間（中央値）— タスク ' + LAST.n + ' 本、文字 ' + LAST.n + ' 個</h3>';
+  var rows =
+    '<tr><td>横スクロール</td>' + cell(off && off.scroll.p50) + cell(on && on.scroll.p50) +
+      diffCell(off && off.scroll.p50, on && on.scroll.p50) + '</tr>' +
+    '<tr><td>ズーム</td>' + cell(off && off.zoom.p50) + cell(on && on.zoom.p50) +
+      diffCell(off && off.zoom.p50, on && on.zoom.p50) + '</tr>' +
+    '<tr><td>最初に 1 回描く</td>' + cell(off && off.build) + cell(on && on.build) +
+      diffCell(off && off.build, on && on.build) + '</tr>';
+  var tail = '';
+  if (both) {
+    var dS = on.scroll.p50 - off.scroll.p50, dZ = on.zoom.p50 - off.zoom.p50;
+    tail =
+      '<p class="hint">p95: スクロール ' + r2(off.scroll.p95) + ' → ' + r2(on.scroll.p95) +
+      ' ms ／ ズーム ' + r2(off.zoom.p95) + ' → ' + r2(on.zoom.p95) + ' ms。' +
+      '各 ' + LAST.frames + ' フレーム。60fps の予算は 16.7ms。</p>' +
+      '<p class="hint"><b>スクロール</b> ' + verdictOf(dS, 16.7) +
+      ' 　<b>ズーム</b> ' + verdictOf(dZ, 16.7) + '</p>';
+  } else {
+    tail = '<div class="note"><strong>もう片方はまだ測っていない。</strong>' +
+      '上の「表示」を' + (off ? '<b>縁取り 有りだけ</b>' : '<b>縁取り 無しだけ</b>') +
+      'に変えてもう一度押すと、差が出る。</div>';
+  }
+  res.innerHTML = head +
+    '<table><tr><th>操作</th><th class="num">縁取り 無し</th><th class="num">縁取り 有り</th>' +
+    '<th class="num">差</th></tr>' + rows + '</table>' + tail +
+    '<p class="hint">手順: <strong>全部消す → 選んだ方だけ描く → 横スクロール ' + LAST.frames +
+    ' フレーム → ズーム ' + LAST.frames + ' フレーム</strong>。' +
+    '描き直しは 1 回だけで、あとは同じ絵を動かしている。' +
+    'ズームは viewBox を変えているので文字は毎フレーム描き直される' +
+    '（CSS の transform だと既に描いた絵を使い回すため、測りたいコストが消える）。</p>';
+}
+
+function runBench() {
+  var n = parseInt(document.getElementById("bTasks").value, 10);
+  var mode = document.getElementById("bMode").value;
+  var frames = 90;
+  var stat = document.getElementById("bStat");
+  var res = document.getElementById("bResult");
+  var btn = document.getElementById("bRun");
+
+  // A run only ever draws what the mode asks for.
+  var plan = mode === "off" ? [false] : (mode === "on" ? [true] : [false, true]);
+  if (LAST.n !== n) { LAST.off = null; LAST.on = null; }   // different size, old numbers do not apply
+  LAST.n = n; LAST.frames = frames;
+
+  btn.disabled = true;
+  measStage().style.display = "block";
+
+  function one(i) {
+    if (i >= plan.length) return Promise.resolve(true);
+    var halo = plan[i];
+    stat.textContent = "計測中 — 縁取り " + (halo ? "有り" : "無し");
+    return runVariant(n, halo, frames).then(function (r) {
+      if (!r) return false;
+      if (halo) LAST.on = r; else LAST.off = r;
+      return one(i + 1);
+    });
+  }
+
+  one(0).then(function (ok) {
+    if (!ok) {
+      res.innerHTML =
+        '<div class="note warn"><strong>このウィンドウでは測れなかった。</strong>' +
+        'ブラウザは<strong>隠れているタブ・ペインで requestAnimationFrame を止める</strong>ため、' +
+        'フレームが 1 枚も進まなかった。<strong>通常のウィンドウを前面にしてもう一度押すこと。</strong></div>';
+    } else {
+      renderResults();
+    }
+    stat.textContent = "";
+    btn.disabled = false;
+    measStage().innerHTML = "";
+    measStage().style.display = "none";
+  });
+}
+
+/** The button says which variant a run will draw, so it cannot surprise anyone. */
+function syncRunLabel() {
+  var mode = document.getElementById("bMode").value;
+  document.getElementById("bRun").textContent =
+    mode === "off" ? "計測する（縁取り 無し だけ）"
+  : mode === "on" ? "計測する（縁取り 有り だけ）"
+  : "計測する（無し → 有り の順に両方）";
+}
+
+// ---------------------------------------------------------------- wire-up
+function redrawAll() {
+  document.getElementById("themeNow").textContent = U.currentTheme() === "dark" ? "ダーク" : "ライト";
+  renderHues();
+  renderHaloEffect();
+}
+document.getElementById("btnTheme").addEventListener("click", function () {
+  U.setTheme(U.currentTheme() === "dark" ? "light" : "dark");
+  redrawAll();
+});
+/**
+ * Draw, then COUNT what was actually drawn and say so. A picture of text with
+ * and without an outline is easy to misread, so the page does not ask anyone
+ * to judge by eye: it reports the live DOM.
+ */
+function showStage() {
+  var mode = document.getElementById("bMode").value;
+  var n = parseInt(document.getElementById("bTasks").value, 10);
+  document.getElementById("benchStage").innerHTML = buildBench(n, mode);
+
+  var texts = document.querySelectorAll("#benchStage text");
+  var withHalo = 0, without = 0, i, t;
+  for (i = 0; i < texts.length; i++) {
+    t = texts[i];
+    if (t.textContent.indexOf("詳細設計") !== 0) continue;   // skip the divider captions
+    if (getComputedStyle(t).stroke !== "none") withHalo++; else without++;
+  }
+  var expect = mode === "on" ? "全部に縁取りが付いているはず"
+             : mode === "off" ? "1 つも縁取りが付いていないはず"
+             : "ちょうど半分に縁取りが付いているはず";
+  var ok = (mode === "on" && without === 0 && withHalo > 0) ||
+           (mode === "off" && withHalo === 0 && without > 0) ||
+           (mode === "both" && withHalo > 0 && without > 0);
+  document.getElementById("stageCheck").innerHTML =
+    '<span class="pill ' + (ok ? "p-good" : "p-bad") + '">' + (ok ? "一致" : "食い違い") + '</span> ' +
+    'いま描かれている文字 <b>' + (withHalo + without) + '</b> 個のうち、' +
+    '<b>縁取り 有り ' + withHalo + '</b> 個 / <b>無し ' + without + '</b> 個。' +
+    '（' + expect + '）<span class="hint">※ 見た目ではなく、描画後の DOM を数えた値</span>';
+}
+document.getElementById("bRun").addEventListener("click", runBench);
+document.getElementById("bMode").addEventListener("change", function () {
+  showStage();
+  syncRunLabel();
+});
+document.getElementById("bTasks").addEventListener("change", showStage);
+redrawAll();
+showStage();
+syncRunLabel();
+</script>
+</body>
+</html>

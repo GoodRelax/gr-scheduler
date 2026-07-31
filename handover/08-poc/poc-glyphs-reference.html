@@ -184,15 +184,24 @@ function clear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
 
 function text(parent, x, y, str, opts) {
   opts = opts || {};
+  var size = opts.size || 12;
+  // Labels drawn ON a bar carry a background-coloured edge so they stay legible
+  // whatever the bar colour is (07 2-7). Pass halo: true at those call sites.
+  var halo = opts.halo && SIZE.labelHaloOfFont
+    ? { stroke: 'var(--label-halo)',
+        'stroke-width': Math.round(size * SIZE.labelHaloOfFont * 100) / 100,
+        'paint-order': 'stroke fill', 'stroke-linejoin': 'round' }
+    : null;
   var t = el('text', {
     x: x, y: y,
-    'font-size': opts.size || 12,
+    'font-size': size,
     'font-family': '"Yu Gothic UI","Meiryo",system-ui,sans-serif',
     fill: opts.fill || 'var(--ink)',
     'text-anchor': opts.anchor || 'start',
     'dominant-baseline': opts.baseline || 'middle',
     'font-weight': opts.weight || 'normal'
   }, parent);
+  if (halo) for (var hk in halo) if (halo.hasOwnProperty(hk)) t.setAttribute(hk, halo[hk]);
   t.textContent = str;
   return t;
 }

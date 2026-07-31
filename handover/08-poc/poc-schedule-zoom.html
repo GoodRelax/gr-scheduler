@@ -470,7 +470,8 @@ function build() {
                '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
       } else {
         s.push('<text x="' + r1(sx0 + S.labelPad) + '" y="' + r1(midY + fs * S.labelBaseline) +
-               '" font-size="' + r1(fs) + '" fill="var(--label-ink)">' + esc(g.labelText) + '</text>');
+               '" font-size="' + r1(fs) + '" fill="var(--label-ink)"' + POC_UI.haloAttrs(fs) + '>' +
+               esc(g.labelText) + '</text>');
       }
     });
   });
