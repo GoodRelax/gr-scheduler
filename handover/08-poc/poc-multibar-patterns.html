@@ -451,15 +451,15 @@ function determinismCheck(tasks, ctx) {
  */
 function corridorY(a, b, res) {
   var topA = res.stackTop[a.stackIndex], topB = res.stackTop[b.stackIndex];
-  if (a.stackIndex === b.stackIndex) return topA + a.g.m.planH + SIZE.stackGap / 2;
-  if (topB > topA) return (topA + a.g.m.planH + topB) / 2;      // successor below
-  return (topB + b.g.m.planH + topA) / 2;                       // successor above
+  if (a.stackIndex === b.stackIndex) return topA + a.g.m.planHeight + SIZE.stackGap / 2;
+  if (topB > topA) return (topA + a.g.m.planHeight + topB) / 2;      // successor below
+  return (topB + b.g.m.planHeight + topA) / 2;                       // successor above
 }
 
 function routeLink(a, b, res) {
   var ga = a.g, gb = b.g;
   var topA = res.stackTop[a.stackIndex], topB = res.stackTop[b.stackIndex];
-  var ay = topA + ga.m.planH / 2, by = topB + gb.m.planH / 2;
+  var ay = topA + ga.m.planHeight / 2, by = topB + gb.m.planHeight / 2;
   var x1 = ga.sx1 + POC_UI.dependencyRunExit();    // leaving the predecessor: no arrowhead
   var x2 = gb.sx0 - POC_UI.dependencyRunEntry();   // entering the successor: arrowhead + line
   var sameY = Math.abs(ay - by) < 0.5;
@@ -521,7 +521,7 @@ function runLengths(links) {
 function countLineCrossings(links, res) {
   var boxes = res.placements.map(function (p) {
     var top = res.stackTop[p.stackIndex];
-    return { x0: p.g.sx0, x1: p.g.sx1, y0: top, y1: top + p.g.m.planH };
+    return { x0: p.g.sx0, x1: p.g.sx1, y0: top, y1: top + p.g.m.planHeight };
   });
   var n = 0;
   links.forEach(function (L) {
@@ -602,23 +602,23 @@ function drawTask(t, g, y) {
   var m = g.m, s = [];
   if (t.milestone) {
     var cx = (g.sx0 + g.sx1) / 2;
-    s.push('<path d="' + glyphPath(t.milestoneGlyph, cx, y + m.planH / 2, m.glyphSize) +
+    s.push('<path d="' + glyphPath(t.milestoneGlyph, cx, y + m.planHeight / 2, m.glyphSize) +
            '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + SIZE.planStroke + '"/>');
     if (t.hasActual) {
       s.push('<path d="' + glyphPath(t.milestoneGlyph, cx,
-             y + m.belowActualTop + m.actualH / 2, m.actualH) + '" fill="var(--actual-fill)"/>');
+             y + m.belowActualTop + m.actualHeight / 2, m.actualHeight) + '" fill="var(--actual-fill)"/>');
     }
   } else if (hasThickness(t.shapeKind)) {
-    s.push('<path d="' + thickPath(t.shapeKind, g.sx0, g.sx1, y, m.planH) +
+    s.push('<path d="' + thickPath(t.shapeKind, g.sx0, g.sx1, y, m.planHeight) +
            '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + SIZE.planStroke + '"/>');
     if (t.hasActual) {
       s.push('<path d="' + thickPath(t.shapeKind, g.aX0, g.aX1,
-             y + m.insideActualTop, m.actualH) + '" fill="var(--actual-fill)"/>');
+             y + m.insideActualTop, m.actualHeight) + '" fill="var(--actual-fill)"/>');
     }
   } else {
-    s.push(thinSvg(t.shapeKind, g.sx0, g.sx1, y, m.planH, "var(--plan-stroke)", m.thinStroke));
+    s.push(thinSvg(t.shapeKind, g.sx0, g.sx1, y, m.planHeight, "var(--plan-stroke)", m.thinStroke));
     if (t.hasActual) {
-      s.push(thinSvg(t.shapeKind, g.aX0, g.aX1, y + m.belowActualTop, m.actualH,
+      s.push(thinSvg(t.shapeKind, g.aX0, g.aX1, y + m.belowActualTop, m.actualHeight,
              "var(--actual-fill)", m.thinStroke));
     }
   }
@@ -659,7 +659,7 @@ function renderPattern(p, ctx, showOcc, showDeps) {
 
   res.placements.forEach(function (pl) {
     var t = pl.t, g = pl.g, m = g.m, y = res.stackTop[pl.stackIndex], fs = m.fontSize;
-    var midY = y + m.planH / 2, textY = midY + fs * SIZE.labelBaseline;
+    var midY = y + m.planHeight / 2, textY = midY + fs * SIZE.labelBaseline;
 
     if (showOcc) {
       s.push('<rect x="' + r1(g.occX0) + '" y="' + r1(y) + '" width="' +
@@ -837,13 +837,13 @@ function dumpConstants(ctx) {
     var verdict;
     if (!hasThickness(k)) {
       verdict = '対象外（ラベルは外側）';
-    } else if (m.fontSize < m.actualH && m.actualH < m.planH) {
+    } else if (m.fontSize < m.actualHeight && m.actualHeight < m.planHeight) {
       verdict = 'フォント &lt; 実績 &lt; 予定';
     } else {
       verdict = '<b>崩れている — フォントが下限 ' + SIZE.fontMin +
                 'px に当たった。ここでレベルを 1 つ減らす</b>';
     }
-    out.push(pad('  ' + k, 17) + pad(r1(m.planH), 9) + pad(r1(m.actualH), 9) +
+    out.push(pad('  ' + k, 17) + pad(r1(m.planHeight), 9) + pad(r1(m.actualHeight), 9) +
              pad(r1(m.fontSize), 11) + pad(r1(m.reserved), 9) + verdict);
   });
   out.push('');

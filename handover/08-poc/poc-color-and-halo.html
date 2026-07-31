@@ -269,7 +269,7 @@ var HALO_ATTR = ' stroke="var(--label-halo)" stroke-width="' + r2(12 * 0.17) +
  */
 function benchContent(n, mode) {
   var S = U.S, m = U.shapeMetrics("rectangle", 1);
-  var perRow = 40, rowH = m.planH + S.rowGap, w = 2400;
+  var perRow = 40, rowH = m.planHeight + S.rowGap, w = 2400;
   var rows = Math.ceil(n / perRow);
   var splitRow = mode === "both" ? Math.ceil(rows / 2) : -1;
   var h = rows * rowH + 40;
@@ -281,11 +281,11 @@ function benchContent(n, mode) {
     var x = 10 + col * ((w - 20) / perRow);
     var y = 10 + row * rowH + (mode === "both" && row >= splitRow ? 20 : 0);
     var bw = (w - 20) / perRow - 6;
-    s.push('<rect x="' + r2(x) + '" y="' + r2(y) + '" width="' + r2(bw) + '" height="' + r2(m.planH) +
+    s.push('<rect x="' + r2(x) + '" y="' + r2(y) + '" width="' + r2(bw) + '" height="' + r2(m.planHeight) +
            '" fill="var(--plan-fill)" stroke="var(--plan-stroke)"/>');
     s.push('<rect x="' + r2(x) + '" y="' + r2(y + m.insideActualTop) + '" width="' + r2(bw * 0.6) +
-           '" height="' + r2(m.actualH) + '" fill="var(--actual-fill)"/>');
-    s.push('<text x="' + r2(x + 4) + '" y="' + r2(y + m.planH / 2 + 4) + '" font-size="12" ' +
+           '" height="' + r2(m.actualHeight) + '" fill="var(--actual-fill)"/>');
+    s.push('<text x="' + r2(x + 4) + '" y="' + r2(y + m.planHeight / 2 + 4) + '" font-size="12" ' +
            'fill="var(--label-ink)"' + haloAttr + '>詳細設計 ' + i + '</text>');
   }
   if (mode !== "both") {

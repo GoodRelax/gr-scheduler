@@ -394,8 +394,8 @@
     GUTTER: S.rowTitleWidth,
     HEADER_H: S.rulerH,
     TOP_MARGIN: 10,
-    PLAN_H: M1.planH,
-    ACTUAL_H: M1.actualH,
+    PLAN_H: M1.planHeight,
+    ACTUAL_H: M1.actualHeight,
     BELOW_GAP: S.actualGap,
     LEVEL_GAP: S.stackGap,
     ROW_GAP: S.rowGap,
@@ -1206,10 +1206,10 @@
         var aw = Math.max(0, t._ax1 - t._ax0);
         if (aw > 0.4) {
           s.push('<rect class="actual" x="' + r1(t._ax0) + '" y="' + r1(t._actTop) +
-                 '" width="' + r1(aw) + '" height="' + r1(L.actualH) + '" rx="1"/>');
+                 '" width="' + r1(aw) + '" height="' + r1(L.actualHeight) + '" rx="1"/>');
         }
         // progress marker, fixed size, 4px from the actual bar right edge
-        var mkY = t._actTop + L.actualH / 2 - CFG.MARKER_SIZE / 2;
+        var mkY = t._actTop + L.actualHeight / 2 - CFG.MARKER_SIZE / 2;
         if (t._marker !== 'incomplete' || t.uid === selectedUid) {
           s.push(markerSvg(t._markerX, mkY, CFG.MARKER_SIZE, t._marker));
         }
@@ -1249,9 +1249,9 @@
       var rw = L.rows[ri];
       s.push('<line class="rowline" x1="0" y1="' + r1(rw.top) + '" x2="' + CFG.GUTTER +
              '" y2="' + r1(rw.top) + '"/>');
-      s.push('<text class="gt" x="10" y="' + r1(rw.top + Math.min(rw.height, L.rowPad + L.planH * 0.75) + 1) +
+      s.push('<text class="gt" x="10" y="' + r1(rw.top + Math.min(rw.height, L.rowPad + L.planHeight * 0.75) + 1) +
              '">' + esc(rw.title) + '</text>');
-      s.push('<text class="gt sub" x="10" y="' + r1(rw.top + Math.min(rw.height, L.rowPad + L.planH * 0.75) + 13) +
+      s.push('<text class="gt sub" x="10" y="' + r1(rw.top + Math.min(rw.height, L.rowPad + L.planHeight * 0.75) + 13) +
              '">' + rw.levelCount + ' 段 / ' + rw.members.length + ' タスク</text>');
     }
     s.push('</g>');

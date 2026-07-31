@@ -218,13 +218,13 @@ function metrics(zoomY, shapeKind) {
   var m = POC_UI.shapeMetrics(shapeKind || 'rectangle', zoomY);
   return {
     zoomY: zoomY,
-    planHeight: m.planH,
-    actualHeight: m.actualH,
+    planHeight: m.planHeight,
+    actualHeight: m.actualHeight,
     fontSize: m.fontSize,
     markerSize: m.markerSize,
     levelGap: MIN_LEVEL_GAP,
     // total vertical space one level occupies, marker included
-    pitch: m.planH + MIN_LEVEL_GAP
+    pitch: m.planHeight + MIN_LEVEL_GAP
   };
 }
 

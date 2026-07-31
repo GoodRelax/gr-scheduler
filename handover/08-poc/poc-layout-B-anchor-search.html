@@ -392,8 +392,8 @@ var S = POC_UI.S;
 var M1 = POC_UI.shapeMetrics("rectangle", 1);
 
 var B = {
-  PLAN_H: M1.planH,
-  ACT_H: M1.actualH,
+  PLAN_H: M1.planHeight,
+  ACT_H: M1.actualHeight,
   BELOW_GAP: S.actualGap,
   LANE_H: S.stackGap,
   ROW_GAP: S.rowGap,
@@ -614,7 +614,7 @@ function computeLayout() {
   }
 
   L.geom = geom; L.rows = rows; L.rects = rects;
-  L.totalH = y; L.planH = planH; L.actH = actH; L.slotH = slotH; L.laneH = laneH;
+  L.totalH = y; L.planHeight = planH; L.actH = actH; L.slotH = slotH; L.laneH = laneH;
   L.belowGap = belowGap; L.rowPad = rowPad; L.pitch = pitch;
   L.fontSize = fontSize; L.maxStack = maxStack; L.capHit = capHit; L.constraints = constraints;
   L.worldW = dayX(G.maxDay) + B.PAD_RIGHT;
@@ -1036,7 +1036,7 @@ var stage = document.getElementById('stage');
 var VW = 0, VH = 0;
 
 function shapePath(t, g) {
-  var h = L.planH, x1 = g.x1, x2 = g.x2, y = g.planTop, w = x2 - x1;
+  var h = L.planHeight, x1 = g.x1, x2 = g.x2, y = g.planTop, w = x2 - x1;
   var cy = y + h / 2;
   var s = '';
   if (t.milestone || t.shapeKind === 'milestone') {
@@ -1135,7 +1135,7 @@ function buildSvg() {
 
     // actual bar: inside for shapes with vertical extent, below for width-less ones
     var aW = Math.max(0, g.aX2 - g.aX1);
-    var aTop = g.below ? (g.planTop + L.planH + L.belowGap) : (g.planTop + (L.planH - L.actH) / 2);
+    var aTop = g.below ? (g.planTop + L.planHeight + L.belowGap) : (g.planTop + (L.planHeight - L.actH) / 2);
     if (aW >= 0.8) {
       parts.push('<rect class="actual" x="' + r1(g.aX1) + '" y="' + r1(aTop) + '" width="' + r1(aW) +
                  '" height="' + r1(L.actH) + '"/>');
@@ -1146,7 +1146,7 @@ function buildSvg() {
       parts.push(markerSvg(mk, g.markerX, aTop + L.actH / 2, B.MARKER_PX));
     }
     // label
-    var fs = L.fontSize, ty2 = g.planTop + L.planH / 2 + fs * 0.35;
+    var fs = L.fontSize, ty2 = g.planTop + L.planHeight / 2 + fs * 0.35;
     if (g.labelOut) {
       parts.push('<text class="lbl out" x="' + r1(g.geomR + 4) + '" y="' + r1(ty2) +
                  '" font-size="' + r1(fs) + '">' + esc(g.labelText) + '</text>');
@@ -1172,7 +1172,7 @@ function buildSvg() {
   // ---------- selection: show the 9 anchors and the chosen ones ----------
   if (selectedUid !== null && L.geom[selectedUid]) {
     var gs = L.geom[selectedUid];
-    var rsel = { x: gs.x1, y: gs.planTop, w: gs.x2 - gs.x1, h: L.planH };
+    var rsel = { x: gs.x1, y: gs.planTop, w: gs.x2 - gs.x1, h: L.planHeight };
     var anc = anchorsOf(rsel);
     var used = {};
     for (i = 0; i < ROUTES.length; i++) {

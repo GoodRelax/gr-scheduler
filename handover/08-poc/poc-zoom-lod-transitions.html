@@ -206,8 +206,8 @@ function lod(zoomX, zoomY, dropEnabled) {
     itemDepth: Math.max(1, Math.min(5, rawItem - pen)),
     rowDepth: Math.max(1, Math.min(5, rawRow - pen)),
     effZoomY: zoomY,
-    taskH: shapeMetrics("rectangle", zoomY).planH,
-    actualH: shapeMetrics("rectangle", zoomY).actualH,
+    taskH: shapeMetrics("rectangle", zoomY).planHeight,
+    actualH: shapeMetrics("rectangle", zoomY).actualHeight,
     fontSize: shapeMetrics("rectangle", zoomY).fontSize,
     fontFloored: shapeMetrics("rectangle", zoomY).fontFloored
   };
@@ -447,15 +447,15 @@ function diamond(cx, cy, s) {
  */
 function corridorY(a, b, pk) {
   var topA = pk.stackTop[a.stackIndex], topB = pk.stackTop[b.stackIndex];
-  if (a.stackIndex === b.stackIndex) return topA + a.g.m.planH + SIZE.stackGap / 2;
-  if (topB > topA) return (topA + a.g.m.planH + topB) / 2;
-  return (topB + b.g.m.planH + topA) / 2;
+  if (a.stackIndex === b.stackIndex) return topA + a.g.m.planHeight + SIZE.stackGap / 2;
+  if (topB > topA) return (topA + a.g.m.planHeight + topB) / 2;
+  return (topB + b.g.m.planHeight + topA) / 2;
 }
 
 function routeLink(a, b, pk) {
   var ga = a.g, gb = b.g;
   var topA = pk.stackTop[a.stackIndex], topB = pk.stackTop[b.stackIndex];
-  var ay = topA + ga.m.planH / 2, by = topB + gb.m.planH / 2;
+  var ay = topA + ga.m.planHeight / 2, by = topB + gb.m.planHeight / 2;
   var x1 = ga.sx1 + POC_UI.dependencyRunExit();    // leaving the predecessor: no arrowhead
   var x2 = gb.sx0 - POC_UI.dependencyRunEntry();   // entering the successor: arrowhead + line
   var sameY = Math.abs(ay - by) < 0.5;
@@ -558,28 +558,28 @@ function renderLive(zoomX, zoomY, dropEnabled, showLabels, showDeps) {
       var ty = pk2.y + pk2.stackTop[it.stackIndex];
       var sx0 = originX + g.sx0, sx1 = originX + g.sx1;
       var op = 0.45 + 0.11 * (6 - t.depth);
-      var midY = ty + m.planH / 2;
+      var midY = ty + m.planHeight / 2;
 
       if (t.milestone) {
         s.push('<path d="' + diamond((sx0 + sx1) / 2, midY, m.glyphSize) +
                '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" opacity="' + r1(op) + '"/>');
         if (t.hasActual) {
           s.push('<path d="' + diamond((sx0 + sx1) / 2,
-                 ty + m.belowActualTop + m.actualH / 2, m.actualH) + '" fill="var(--actual-fill)"/>');
+                 ty + m.belowActualTop + m.actualHeight / 2, m.actualHeight) + '" fill="var(--actual-fill)"/>');
         }
       } else if (hasThickness(t.shapeKind)) {
-        s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty, m.planH) +
+        s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty, m.planHeight) +
                '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + SIZE.planStroke +
                '" opacity="' + r1(op) + '"/>');
         if (t.hasActual) {
           s.push('<path d="' + thickPath(t.shapeKind, originX + g.aX0, originX + g.aX1,
-                 ty + m.insideActualTop, m.actualH) + '" fill="var(--actual-fill)"/>');
+                 ty + m.insideActualTop, m.actualHeight) + '" fill="var(--actual-fill)"/>');
         }
       } else {
-        s.push(thinSvg(t.shapeKind, sx0, sx1, ty, m.planH, "var(--plan-stroke)", m.thinStroke));
+        s.push(thinSvg(t.shapeKind, sx0, sx1, ty, m.planHeight, "var(--plan-stroke)", m.thinStroke));
         if (t.hasActual) {
           s.push(thinSvg(t.shapeKind, originX + g.aX0, originX + g.aX1,
-                 ty + m.belowActualTop, m.actualH, "var(--actual-fill)", m.thinStroke));
+                 ty + m.belowActualTop, m.actualHeight, "var(--actual-fill)", m.thinStroke));
         }
       }
 
@@ -865,7 +865,7 @@ function redrawLive() {
     item("px/day", r3(L.ppd)) +
     item("目盛", RULER_NAME[L.ruler]) +
     item("予定バー", r1(L.taskH) + "px") +
-    item("実績バー", r1(L.actualH) + "px") +
+    item("実績バー", r1(L.actualHeight) + "px") +
     item("フォント", r1(L.fontSize) + "px" +
       (L.fontFloored ? ' <span class="flag f-warn">下限</span>' : '')) +
     item("レベル減", L.penalty) +

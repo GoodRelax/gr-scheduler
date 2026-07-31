@@ -161,6 +161,19 @@ var SPEC = [
   { g: "進捗線（イナズマ線）", k: "statusDate", n: "基準日（第 n 日）", u: "日", step: 1, d: 132,
     rng: function () { return { lo: 0, hi: 300 }; } },
 
+  /* ---- LOD thresholds. They change WHICH tasks are drawn, so they are
+     part of the document (grs-document-settings-ja.md 4-4). ---------------- */
+  { g: "LOD のしきい値", k: "rulerTierPxPerDayLow", n: "目盛が 年 → 年＋月 に変わる px/day", u: "px", step: 0.5, d: 1,
+    rng: function (S) { return { lo: 0.1, hi: S.rulerTierPxPerDayHigh, why: "上のしきい値を超えない" }; } },
+  { g: "LOD のしきい値", k: "rulerTierPxPerDayHigh", n: "目盛が 年＋月 → 年月＋日 に変わる px/day", u: "px", step: 0.5, d: 8,
+    rng: function (S) { return { lo: S.rulerTierPxPerDayLow, hi: 60, why: "下のしきい値を下回らない" }; } },
+  { g: "LOD のしきい値", k: "itemLodReadablePx", n: "この幅を割った深さは描かない", u: "px", step: 1, d: 24,
+    rng: function (S) { return { lo: S.fontMin, hi: 200, why: "文字が 1 つも入らない幅にしない" }; } },
+  { g: "LOD のしきい値", k: "rowLodBase", n: "行階層 LOD の初項", u: "x", step: 0.01, d: 0.32,
+    rng: function () { return { lo: 0.01, hi: 2 }; } },
+  { g: "LOD のしきい値", k: "rowLodRatio", n: "行階層 LOD の公比", u: "x", step: 0.005, d: 1.875,
+    rng: function () { return { lo: 1 + EPS, hi: 4, why: "1 以下だと深いほど出やすくなり単調性が壊れる" }; } },
+
   /* ---- zoom -------------------------------------------------------------- */
   { g: "ズーム", k: "zoomStep", n: "1 ノッチの倍率", u: "x", step: 0.01, d: 1.1,
     rng: function () { return { lo: 1.01, hi: 2 }; } },
@@ -226,25 +239,25 @@ function shapeMetrics(kind, zoomY) {
   // One clamp, on the plan height. The actual then follows by ratio alone and
   // is guaranteed to clear its own 16px floor, so it needs no second clamp --
   // two independent clamps are what let the ratio drift away from the spec.
-  var planH = Math.max(planFloor(), S.basePlanH * zoomY) * ratio;
-  var actualH = planH * S.actualOfPlan;
+  var planHeight = Math.max(planFloor(), S.basePlanH * zoomY) * ratio;
+  var actualHeight = planHeight * S.actualOfPlan;
   var thin = !hasThickness(kind) && kind !== "milestone";
-  var rawFont = actualH * S.fontOfActual * (thin ? S.thinFontScale : 1);
+  var rawFont = actualHeight * S.fontOfActual * (thin ? S.thinFontScale : 1);
   var fontSize = Math.max(S.fontMin, rawFont);
   var markText = Math.max(S.fontMin, fontSize * S.markerTextOfFont);
   return {
     kind: kind,
-    planH: planH,
-    actualH: actualH,
+    planHeight: planHeight,
+    actualHeight: actualHeight,
     fontSize: fontSize,
     fontFloored: rawFont < S.fontMin,
     markerTextSize: markText,
     markerSize: Math.max(S.markerMin, markText * S.markerOfText),
-    reserved: hasThickness(kind) ? planH : planH + S.actualGap + actualH,
-    insideActualTop: (planH - actualH) / 2,
-    belowActualTop: planH + S.actualGap,
-    thinStroke: Math.max(S.thinStrokeMin, Math.min(S.thinStrokeMax, planH * S.thinStrokeOfPlan)),
-    glyphSize: planH
+    reserved: hasThickness(kind) ? planHeight : planHeight + S.actualGap + actualHeight,
+    insideActualTop: (planHeight - actualHeight) / 2,
+    belowActualTop: planHeight + S.actualGap,
+    thinStroke: Math.max(S.thinStrokeMin, Math.min(S.thinStrokeMax, planHeight * S.thinStrokeOfPlan)),
+    glyphSize: planHeight
   };
 }
 

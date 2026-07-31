@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>PoC: 統合 — 確定した規則を 1 枚で確かめる</title>
+<link rel="stylesheet" href="poc-ui.css">
+<script src="poc-ui.js"></script>
+<style>
+  /* Colours come from poc-ui.css, dimensions from poc-ui.js.
+     Identifiers below follow handover/03-ui-naming/handover-ui-parts-ja.md. */
+  html, body { height:100%; }
+  body { display:flex; flex-direction:column; padding:0; overflow:hidden; }
+
+  /* ---- fixed header: tabs and command buttons never scroll away ---- */
+  .appHeader { flex:0 0 auto; background:var(--panel); border-bottom:1px solid var(--rule); }
+  .appHeader .row1 { display:flex; align-items:center; gap:14px; padding:8px 16px 0 16px; }
+  .appHeader h1 { margin:0; font-size:17px; line-height:1.3; white-space:nowrap; }
+  .appHeader .spacer { flex:1; }
+  .tabs { display:flex; gap:2px; padding:8px 16px 0 16px; }
+  .tabs button { border:1px solid var(--rule); border-bottom:none; background:var(--bg);
+                 border-radius:5px 5px 0 0; padding:6px 16px; font-size:14px; color:var(--sub); }
+  .tabs button[aria-selected="true"] { background:var(--panel); color:var(--ink); font-weight:700;
+                                       box-shadow:inset 0 3px 0 var(--accent); }
+  .cmds { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .cmds .zoomOut { font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700;
+                   white-space:nowrap; font-size:13px; }
+
+  /* ---- body scrolls; the prose may scroll away, that is fine ---- */
+  .main { flex:1 1 auto; display:flex; min-height:0; }
+  .panelHost { flex:1 1 auto; overflow:auto; min-width:0; padding:0 16px 60px 16px; }
+  .panelHost > section { display:none; }
+  .panelHost > section.on { display:block; }
+
+  /* ---- collapsible right panel ---- */
+  /* The width is set through flex-basis, not width: inside a flex row the
+     container resolves the main size from the basis, so a plain width is
+     ignored and the panel stays at its 1px border. */
+  /* The width is set through flex-basis, not width: inside a flex row the
+     container resolves the main size from the basis, so a plain width is
+     ignored and the panel stays at its 1px border.
+     No transition: a browser stops animations in a hidden tab or pane, which
+     leaves the panel pinned at its start value and looks like a broken toggle. */
+  .sidePanel { flex:0 0 0px; overflow:hidden; border-left:1px solid var(--rule);
+               background:var(--panel); }
+  .sidePanel.open { flex:0 0 380px; overflow:auto; }
+  .sidePanel .inner { padding:12px 14px 40px 14px; }
+  .sidePanel h3 { font-size:14px; margin:16px 0 6px 0; color:var(--accent);
+                  border-bottom:1px solid var(--rule); padding-bottom:3px; }
+  .sidePanel table { width:100%; border-collapse:collapse; font-size:12px; }
+  .sidePanel td { padding:2px 4px; border:none; border-bottom:1px solid var(--rule); }
+  .sidePanel td.lab { width:52%; }
+  .sidePanel td.lab code { display:block; font-size:11px; color:var(--sub); }
+  .sidePanel input[type=number] { width:100%; font:inherit; font-size:12px; padding:1px 4px;
+                                  border:1px solid var(--rule); border-radius:3px;
+                                  background:var(--bg); color:var(--ink);
+                                  font-variant-numeric:tabular-nums; }
+  .sidePanel input.outOfRange { border-color:var(--bad);
+                                background:color-mix(in srgb, var(--bad) 12%, var(--bg)); }
+  .sidePanel .rng { font-size:11px; color:var(--sub); font-variant-numeric:tabular-nums; }
+  .sidePanel .why { color:var(--warn); }
+
+  /* ---- schedule canvas ---- */
+  .scheduleCanvas { border:1px solid var(--rule); border-radius:6px; overflow:auto;
+                    background:var(--bg); height:min(62vh, 620px); outline:none; }
+  .scheduleCanvas svg { display:block; }
+  .readbar { display:flex; flex-wrap:wrap; gap:3px 16px; align-items:baseline; padding:7px 11px;
+             background:var(--panel); border:1px solid var(--rule); border-bottom:none;
+             border-radius:6px 6px 0 0; font-size:13px; font-variant-numeric:tabular-nums; }
+  .readbar .k { color:var(--sub); margin-right:4px; }
+  .readbar .v { font-weight:700; }
+  .toggles { display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center;
+             padding:7px 11px; background:var(--panel); border:1px solid var(--rule);
+             border-bottom:none; font-size:13px; }
+  .toggles label { display:flex; align-items:center; gap:5px; white-space:nowrap; }
+
+  .patternCard { border:1px solid var(--rule); border-radius:6px; margin:14px 0; overflow:hidden; }
+  .patternCard > .head { background:var(--panel); border-bottom:1px solid var(--rule);
+                         padding:7px 12px; display:flex; flex-wrap:wrap; gap:8px 12px; align-items:baseline; }
+  .patternCard .pid { font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+  .patternCard .pname { font-weight:700; }
+  .patternCard .pdesc { color:var(--sub); font-size:13px; }
+  .patternCard .body { padding:8px 12px 12px 12px; overflow-x:auto; }
+  .patternCard .metrics { font-size:12px; color:var(--sub); margin-top:6px;
+                          display:flex; flex-wrap:wrap; gap:6px 14px; font-variant-numeric:tabular-nums; }
+  .patternCard .metrics b { color:var(--ink); }
+  .ruleBlock { background:var(--panel); border-left:3px solid var(--plan-stroke);
+               padding:9px 13px; margin:0 0 14px 0; font-size:13px; white-space:pre-wrap;
+               font-family:Consolas,"Courier New",monospace; }
+  .glyphRow { border:1px solid var(--rule); border-radius:6px; margin:10px 0; padding:8px 12px; }
+  .glyphRow h4 { margin:0 0 4px 0; font-size:14px; }
+</style>
+</head>
+<body class="reading">
+
+<header class="appHeader">
+  <div class="row1">
+    <h1>PoC: 統合 — 確定した規則を 1 枚で確かめる</h1>
+    <span class="spacer"></span>
+    <div class="cmds">
+      <span class="zoomOut" id="zoomOut"></span>
+      <button id="btnFit">Fit (F)</button>
+      <button id="btnReset">等倍 (Ctrl+0)</button>
+      <button id="btnTheme">テーマ</button>
+      <button id="btnSide" aria-expanded="false">設定・プロパティ ▸</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button data-tab="schedule" aria-selected="true">日程表</button>
+    <button data-tab="glyphs" aria-selected="false">形状の基準</button>
+    <button data-tab="multibar" aria-selected="false">マルチバー</button>
+    <button data-tab="lod" aria-selected="false">レベル遷移</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="panelHost" id="panelHost">
+
+    <!-- ============================================================ 日程表 -->
+    <section id="tab-schedule" class="on">
+      <h2>1. 日程表 — 操作と描画の検算</h2>
+      <p class="hint">確定した描画規則をすべて載せた日程表。ホイールとキーだけで拡縮する
+        （<code>../03-ui-naming/handover-ui-detail-spec-ja.md</code> §5-2）。
+        <strong>依存線の太さと走りはズームに追随しない</strong>ことも同時に確かめられる（同 §4-9）。</p>
+      <div class="toggles">
+        <label><input type="checkbox" id="tgDependency" checked> 依存線</label>
+        <label><input type="checkbox" id="tgAssignee" checked> 担当</label>
+        <label><input type="checkbox" id="tgProgress" checked> 完了率</label>
+        <label><input type="checkbox" id="tgProgressLine" checked> イナズマ線</label>
+        <label><input type="checkbox" id="tgMarker" checked> 進捗マーカー</label>
+        <label><input type="checkbox" id="tgHalo" checked> 文字の縁取り</label>
+      </div>
+      <div class="readbar" id="scheduleRead"></div>
+      <div class="scheduleCanvas" id="scheduleCanvas" tabindex="0"></div>
+      <div class="ruleBlock">ホイール  修飾なし=縦スクロール / Ctrl=両軸ズーム / Shift=横ズーム / Alt=縦ズーム / Ctrl+Shift=横スクロール
+キー      Ctrl・Shift・Alt ＋ + -  ／  Ctrl+0 = 等倍  ／  F = Fit
+ドラッグ  中ボタン または Ctrl+左 = パン</div>
+      <p class="hint">タスクをクリックすると右パネルにプロパティが出る。</p>
+    </section>
+
+    <!-- ======================================================== 形状の基準 -->
+    <section id="tab-glyphs">
+      <h2>2. 形状の基準 — 確定内容をそのまま描いた物差し</h2>
+      <p class="hint">この頁は<strong>案ではない</strong>。確定した規則を素直に描いたもので、
+        他の描画が正しいかを判定するために使う。</p>
+
+      <h3>2-1. タスク形状 5 種と実績の置き方</h3>
+      <div class="ruleBlock">1. 実績の形状 = 予定の形状（07 §2-2-1）
+2. actualPlacement = 'inside'  rectangle / chevron          実績を予定の内側に重ねる ＋ フェード掴み点あり
+   actualPlacement = 'below'   arrow / endpointSpan / milestone  実績を予定の下にずらす ＋ フェードなし
+3. 幅がないタスク形状でも実績ぶんの高さを常に確保する（表示を切り替えても行の高さが動かない）</div>
+      <div id="glyphShapes"></div>
+
+      <h3>2-2. 進捗マーカーの 4 状態</h3>
+      <div class="ruleBlock">完了 (✓) / 中断 ( \ ) / 期限超過 (!) / 未完了 ( ) ※未完了は選択したときだけ薄く出る
+実績バーの右端から固定 4px。記号は SVG で描く。不透明な下地を持つ（07 §2-4）
+大きさは文字サイズから導く。マーカーは実績バーに追随する（同 §2-4-1）</div>
+      <div id="glyphMarkers"></div>
+
+      <h3>2-3. 再開アイコン（Resume Icon）</h3>
+      <div class="ruleBlock">中断のときだけ、進捗マーカーの右に出る
+矢先の高さ = 実績バーの高さの中心 = マーカーの高さの中心
+矢印の下端 = マーカーの下端
+resume が空なら薄い〇。日付が入ったら resume の位置へ移り、実績バーの右端から破線で繋がる（07 §2-5）</div>
+      <div id="glyphResume"></div>
+
+      <h3>2-4. 色の既定</h3>
+      <div class="ruleBlock">予定と実績は同一の色相。予定=中彩度・やや薄い / 実績=高彩度・濃い（原色は使わない）
+依存線は橙で固定。文字はライト=黒 / ダーク=白、バーの上では背景色の縁取りを付ける（07 §2-6 / §2-7）
+実績 ÷ 予定 ≧ 3:1（WCAG 1.4.11）／ 文字 ÷ 縁 = 21:1</div>
+      <div id="glyphColors"></div>
+    </section>
+
+    <!-- ========================================================= マルチバー -->
+    <section id="tab-multibar">
+      <h2>3. マルチバー — 1 行に複数の Task が入るときの積み順</h2>
+      <p class="hint"><strong>overlap が 1 つでもあれば不合格。</strong>
+        担当・完了率・名称・進捗マーカー・依存線を<strong>すべて描いたうえで</strong>段を割り当てる。</p>
+      <div class="ruleBlock">1. 占有区間を求める（はみ出すラベルの幅を左右に加算する）
+2. 並べる順序は決定的      milestone を優先 → start 昇順 → finish 降順 → uid 昇順
+3. 重ならない最も浅い段へ置く（貪欲割当）
+4. stackOrder が指定されていればそれを優先（null = 自動）
+5. 積み順に機能上の上限は設けない。安全弁に到達したら人に知らせる（§6-1）</div>
+      <div class="readbar" id="multibarRead"></div>
+      <div id="multibarHost"></div>
+    </section>
+
+    <!-- ======================================================= レベル遷移 -->
+    <section id="tab-lod">
+      <h2>4. レベル遷移 — 拡大縮小で表示が狙いどおり増減するか</h2>
+      <p class="hint">3 系統（時間軸 / アイテム（軸A・WBS 深さ）/ 行階層（軸B））について、
+        <strong>狙った閾値</strong>と<strong>実測した遷移点</strong>を突き合わせる。
+        <strong>単調であること</strong>（縮小したのに表示が増える逆転が無いこと）が要件。</p>
+      <div id="lodHost"></div>
+    </section>
+
+  </div>
+
+  <!-- ================================================ 折りたたみ右パネル -->
+  <aside class="sidePanel" id="sidePanel">
+    <div class="inner">
+      <h3>プロパティ（選択した Task）</h3>
+      <div id="propHost" class="hint">日程表のタスクをクリックすると出る。</div>
+      <h3>寸法の設定 <span id="settingsWarn" class="rng"></span></h3>
+      <p class="rng">値の正は <code>../02-data-model/grs-document-settings-ja.md</code>、
+        名前の正は <code>../03-ui-naming/handover-ui-parts-ja.md</code> §2-1-6。</p>
+      <div id="settingsHost"></div>
+      <button id="btnSettingsReset" style="margin-top:12px">既定に戻す</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+"use strict";
+
+// ===========================================================================
+// Shared store. Every dimension and colour comes from poc-ui.js / poc-ui.css.
+// Identifiers below follow the glossary (handover-ui-parts-ja.md 2-1).
+// ===========================================================================
+var settings     = POC_UI.S;
+var shapeMetrics = POC_UI.shapeMetrics;
+var hasThickness = POC_UI.hasThickness;
+var labelWidth   = POC_UI.labelWidth;
+var truncate     = POC_UI.truncateUnits;
+var haloAttrs    = POC_UI.haloAttrs;
+
+var NS = "http://www.w3.org/2000/svg";
+function r1(x) { return Math.round(x * 10) / 10; }
+function r3(x) { return Math.round(x * 1000) / 1000; }
+function esc(t) {
+  return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** 'inside' for shapes that can carry the actual bar within them, 'below' otherwise. */
+function actualPlacementOf(shapeKind) { return hasThickness(shapeKind) ? "inside" : "below"; }
+
+// ===========================================================================
+// Dataset. TaskGroup = 行の器、Task = 日程要素、TaskGroupMember = どの行に載るか。
+// ===========================================================================
+var ASSIGNEES = ["田中", "佐藤", "鈴木", "高橋", "伊藤", "渡辺", "山本", "中村"];
+var HORIZON_DAYS = 300;
+var uidSeq = 0;
+
+function makeTask(groupId, name, start, finish, opt) {
+  var t = {
+    uid: ++uidSeq, groupId: groupId, name: name, start: start, finish: finish,
+    milestone: false, shapeKind: "rectangle", stackOrder: null,
+    assignee: ASSIGNEES[uidSeq % ASSIGNEES.length],
+    actualStart: start, actualDuration: 0, hasActual: false, actualFinish: null,
+    resume: null, resumeValid: false, percentComplete: 0,
+    wbsDepth: 2, predecessorUid: null
+  };
+  if (opt) for (var k in opt) if (opt.hasOwnProperty(k)) t[k] = opt[k];
+  if (t.milestone) { t.shapeKind = "milestone"; t.finish = t.start; }
+  return t;
+}
+
+var TASK_GROUPS = [
+  { id: 0, depth: 1, name: "計画" },
+  { id: 1, depth: 2, name: "要件・仕様" },
+  { id: 2, depth: 2, name: "設計" },
+  { id: 3, depth: 1, name: "製作" },
+  { id: 4, depth: 2, name: "実装 前半" },
+  { id: 5, depth: 2, name: "実装 後半" },
+  { id: 6, depth: 1, name: "確認" },
+  { id: 7, depth: 2, name: "検証" },
+  { id: 8, depth: 2, name: "移行" }
+];
+
+var TASKS = [
+  makeTask(1, "調査", 0, 24, { hasActual: true, actualDuration: 24, actualFinish: 24, percentComplete: 100, wbsDepth: 2 }),
+  makeTask(1, "要件定義", 26, 58, { hasActual: true, actualStart: 26, actualDuration: 34, actualFinish: 60, percentComplete: 100, wbsDepth: 2 }),
+  makeTask(1, "外部仕様の確定", 52, 86, { shapeKind: "chevron", hasActual: true, actualStart: 54, actualDuration: 36, percentComplete: 100, wbsDepth: 3 }),
+  makeTask(1, "仕様確定", 90, 90, { milestone: true, hasActual: true, percentComplete: 100, wbsDepth: 2 }),
+  makeTask(2, "基本設計", 60, 100, { hasActual: true, actualStart: 62, actualDuration: 40, percentComplete: 100, wbsDepth: 2 }),
+  makeTask(2, "詳細設計および実装方式の検討", 96, 140, { hasActual: true, actualStart: 100, actualDuration: 30, percentComplete: 68, wbsDepth: 3 }),
+  makeTask(2, "設計レビュー", 138, 146, { shapeKind: "arrow", hasActual: true, actualStart: 138, actualDuration: 6, percentComplete: 75, wbsDepth: 4 }),
+  makeTask(2, "設計完了", 150, 150, { milestone: true, wbsDepth: 2 }),
+  makeTask(4, "基盤実装", 120, 170, { hasActual: true, actualStart: 122, actualDuration: 44, percentComplete: 88, wbsDepth: 2 }),
+  makeTask(4, "描画エンジン", 150, 205, { shapeKind: "chevron", hasActual: true, actualStart: 152, actualDuration: 40, percentComplete: 73, wbsDepth: 3 }),
+  makeTask(4, "入出力", 160, 200, { hasActual: true, actualStart: 166, actualDuration: 20, percentComplete: 50, resume: 210, resumeValid: true, wbsDepth: 3 }),
+  makeTask(5, "編集操作", 190, 240, { hasActual: true, actualStart: 192, actualDuration: 26, percentComplete: 52, wbsDepth: 2 }),
+  makeTask(5, "整列と自動配線", 205, 255, { hasActual: true, actualStart: 208, actualDuration: 18, percentComplete: 36, resume: null, resumeValid: false, wbsDepth: 3 }),
+  makeTask(5, "実装完了", 260, 260, { milestone: true, wbsDepth: 2 }),
+  makeTask(7, "結合検証", 235, 275, { hasActual: true, actualStart: 238, actualDuration: 10, percentComplete: 25, wbsDepth: 2 }),
+  makeTask(7, "性能検証", 250, 285, { shapeKind: "endpointSpan", wbsDepth: 3 }),
+  makeTask(7, "受入", 280, 296, { wbsDepth: 3 }),
+  makeTask(8, "移行準備", 270, 292, { shapeKind: "arrow", wbsDepth: 2 }),
+  makeTask(8, "リリース", 298, 298, { milestone: true, wbsDepth: 2 })
+];
+// dependency chains inside a row so the five routing patterns all appear
+TASKS[1].predecessorUid = TASKS[0].uid;
+TASKS[2].predecessorUid = TASKS[1].uid;
+TASKS[3].predecessorUid = TASKS[2].uid;
+TASKS[5].predecessorUid = TASKS[4].uid;
+TASKS[6].predecessorUid = TASKS[5].uid;
+TASKS[7].predecessorUid = TASKS[6].uid;
+TASKS[9].predecessorUid = TASKS[8].uid;
+TASKS[10].predecessorUid = TASKS[8].uid;
+TASKS[12].predecessorUid = TASKS[11].uid;
+TASKS[13].predecessorUid = TASKS[12].uid;
+TASKS[16].predecessorUid = TASKS[14].uid;
+
+var TASK_BY_UID = {};
+TASKS.forEach(function (t) { TASK_BY_UID[t.uid] = t; });
+
+/** percentComplete is derived from the dates and stored (07 §1-4). */
+function recomputePercentComplete(t) {
+  if (t.milestone) { t.percentComplete = t.actualFinish != null ? 100 : 0; return; }
+  var planned = t.finish - t.start;
+  if (planned <= 0) { t.percentComplete = t.actualFinish != null ? 100 : 0; return; }
+  t.percentComplete = Math.round(t.actualDuration / planned * 100);
+}
+TASKS.forEach(recomputePercentComplete);
+
+/** The four settled states (07 §1-3). */
+function taskState(t, statusDate) {
+  if (!t.hasActual) return "notStarted";
+  if (t.actualFinish != null) return "done";
+  if (t.resume != null) return "suspendedWithResume";
+  if (!t.resumeValid && t.actualDuration > 0 && t.resumeValid === false && t.suspended) return "suspendedNoResume";
+  return "inProgress";
+}
+function isOverdue(t, statusDate) {
+  return t.actualFinish == null && statusDate > t.finish;
+}
+
+// ===========================================================================
+// Geometry of one Task Bar. Names follow the glossary:
+//   Plan Bar / Actual Bar / Progress Marker / Resume Icon / Name Label / Assignee Label
+// ===========================================================================
+function taskBarGeometry(t, ctx) {
+  var m = ctx.metricsOf(t.shapeKind);
+  var x0 = t.start * ctx.pxPerDay;
+  var x1 = t.finish * ctx.pxPerDay;
+  var planX0, planX1;
+  if (t.milestone) { planX0 = x0 - m.glyphSize / 2; planX1 = x0 + m.glyphSize / 2; }
+  else { planX0 = x0; planX1 = Math.max(x1, x0 + settings.minShapeWidth); }
+
+  var actualX0 = null, actualX1 = null;
+  if (t.hasActual) {
+    actualX0 = t.milestone ? planX0 : t.actualStart * ctx.pxPerDay;
+    actualX1 = t.milestone ? planX1 : (t.actualStart + t.actualDuration) * ctx.pxPerDay;
+  }
+  var bodyX1 = Math.max(planX1, actualX1 == null ? -Infinity : actualX1);
+
+  // Assignee Label sits outside the LEFT edge of the Plan Bar (§4-2)
+  var assigneeText = "";
+  if (ctx.showAssignee) assigneeText += t.assignee;
+  if (ctx.showProgress) assigneeText += (assigneeText ? " : " : "") + t.percentComplete + "%";
+  var leftExtent = assigneeText ? labelWidth(assigneeText, m.fontSize) + settings.labelGap : 0;
+
+  // Progress Marker sits outside the RIGHT edge of the Actual Bar (§2-4)
+  var markerExtent = (ctx.showMarker && t.hasActual) ? settings.markerGap + m.markerSize : 0;
+  var markerX = bodyX1 + settings.markerGap;
+
+  // Name Label: inside when it fits, else truncated, else pushed right (§6-1)
+  var nameExtent = 0, nameLabelMode = "none", nameLabelText = "";
+  var cut = truncate(t.name, settings.truncateUnits);
+  var widthFull = labelWidth(t.name, m.fontSize), widthCut = labelWidth(cut, m.fontSize);
+  var inside = hasThickness(t.shapeKind) ? (planX1 - planX0) - settings.labelPad * 2 : -1;
+  if (widthFull <= inside) { nameLabelMode = "inside"; nameLabelText = t.name; }
+  else if (widthCut <= inside) { nameLabelMode = "inside"; nameLabelText = cut; }
+  else { nameLabelMode = "right"; nameLabelText = cut; nameExtent = settings.labelGap + widthCut; }
+
+  return {
+    metrics: m, planX0: planX0, planX1: planX1, actualX0: actualX0, actualX1: actualX1,
+    bodyX1: bodyX1, assigneeText: assigneeText, markerX: markerX, markerExtent: markerExtent,
+    nameLabelMode: nameLabelMode, nameLabelText: nameLabelText,
+    occupiedX0: planX0 - leftExtent,
+    occupiedX1: bodyX1 + markerExtent + nameExtent
+  };
+}
+
+// ===========================================================================
+// Stack assignment (§6-1). Deterministic order, greedy placement, no cap.
+// ===========================================================================
+function assignStacks(tasks, ctx) {
+  var placements = tasks.map(function (t) { return { task: t, geom: taskBarGeometry(t, ctx) }; });
+  placements.sort(function (a, b) {
+    if (a.task.milestone !== b.task.milestone) return a.task.milestone ? -1 : 1;
+    if (a.task.start !== b.task.start) return a.task.start - b.task.start;
+    if (a.task.finish !== b.task.finish) return b.task.finish - a.task.finish;
+    return a.task.uid - b.task.uid;
+  });
+  var stacks = [], overlaps = 0;
+  placements.forEach(function (p) {
+    var target = -1;
+    if (p.task.stackOrder != null) {
+      target = p.task.stackOrder;
+      while (stacks.length <= target) stacks.push([]);
+    } else {
+      for (var i = 0; i < stacks.length; i++) {
+        var clash = stacks[i].some(function (q) {
+          return !(p.geom.occupiedX1 <= q.geom.occupiedX0 || p.geom.occupiedX0 >= q.geom.occupiedX1);
+        });
+        if (!clash) { target = i; break; }
+      }
+      if (target < 0) { target = stacks.length; stacks.push([]); }
+    }
+    stacks[target].forEach(function (q) {
+      if (!(p.geom.occupiedX1 <= q.geom.occupiedX0 || p.geom.occupiedX0 >= q.geom.occupiedX1)) overlaps++;
+    });
+    p.stackIndex = target;
+    stacks[target].push(p);
+  });
+
+  var stackTop = [], y = 0;
+  for (var s = 0; s < stacks.length; s++) {
+    var tallest = 0;
+    stacks[s].forEach(function (p) { tallest = Math.max(tallest, p.geom.metrics.reserved); });
+    if (!stacks[s].length) tallest = ctx.metricsOf("rectangle").reserved;
+    stackTop.push(y);
+    y += tallest + settings.stackGap;
+  }
+  return {
+    placements: placements, stackTop: stackTop, stackCount: stacks.length,
+    height: Math.max(0, y - settings.stackGap), overlaps: overlaps
+  };
+}
+
+// ===========================================================================
+// Dependency Line routing — five patterns, one rule (§4-9).
+//   x1 = predecessor right edge + EXIT run   (no arrowhead there)
+//   x2 = successor  left  edge - ENTRY run   (arrowhead + a visible straight)
+// ===========================================================================
+function corridorY(aTop, aHeight, bTop, bHeight) {
+  if (Math.abs(aTop - bTop) < 0.5) return aTop + aHeight + settings.stackGap / 2;
+  if (bTop > aTop) return (aTop + aHeight + bTop) / 2;
+  return (bTop + bHeight + aTop) / 2;
+}
+function routeDependencyLine(ax1, aTop, aHeight, bx0, bTop, bHeight) {
+  var ay = aTop + aHeight / 2, by = bTop + bHeight / 2;
+  var exitRun = POC_UI.dependencyRunExit(), entryRun = POC_UI.dependencyRunEntry();
+  var x1 = ax1 + exitRun, x2 = bx0 - entryRun;
+  if (Math.abs(ay - by) < 0.5) {
+    if (bx0 - ax1 >= entryRun) return [[ax1, ay], [bx0, by]];        // FS-1
+  } else if (x2 >= x1) {                                              // FS-2 / FS-3
+    var mid = Math.max(x1, Math.min((ax1 + bx0) / 2, x2));
+    return [[ax1, ay], [mid, ay], [mid, by], [bx0, by]];
+  }
+  var cy = corridorY(aTop, aHeight, bTop, bHeight);                   // FS-4 / FS-5
+  return [[ax1, ay], [x1, ay], [x1, cy], [x2, cy], [x2, by], [bx0, by]];
+}
+
+// ===========================================================================
+// Shape drawing. One shapeKind decides both the Plan Bar and the Actual Bar
+// (07 §2-2-1: the actual is drawn in the SAME shape as the plan).
+// ===========================================================================
+function rectanglePath(x0, x1, y, h) {
+  return "M" + r1(x0) + "," + r1(y) + " H" + r1(x1) + " V" + r1(y + h) + " H" + r1(x0) + " Z";
+}
+function chevronPath(x0, x1, y, h) {
+  var notch = Math.min((x1 - x0) * settings.chevronNotchOfW, h * settings.chevronNotchOfH);
+  return "M" + r1(x0) + "," + r1(y) +
+         " H" + r1(x1 - notch) + " L" + r1(x1) + "," + r1(y + h / 2) +
+         " L" + r1(x1 - notch) + "," + r1(y + h) + " H" + r1(x0) +
+         " L" + r1(x0 + notch) + "," + r1(y + h / 2) + " Z";
+}
+function diamondPath(cx, cy, size) {
+  var h = size / 2;
+  return "M" + r1(cx) + "," + r1(cy - h) + " L" + r1(cx + h) + "," + r1(cy) +
+         " L" + r1(cx) + "," + r1(cy + h) + " L" + r1(cx - h) + "," + r1(cy) + " Z";
+}
+/** arrow and endpointSpan carry no thickness: they are drawn as a stroked line. */
+function flatShapeSvg(shapeKind, x0, x1, y, boxHeight, colour, stroke) {
+  var cy = y + boxHeight / 2, out = [];
+  if (shapeKind === "arrow") {
+    var head = Math.min(stroke * settings.arrowHeadOfStroke, (x1 - x0) * settings.arrowHeadOfSpan);
+    out.push('<line x1="' + r1(x0) + '" y1="' + r1(cy) + '" x2="' + r1(x1 - head) + '" y2="' + r1(cy) +
+             '" stroke="' + colour + '" stroke-width="' + r1(stroke) + '"/>');
+    out.push('<path d="M' + r1(x1) + ',' + r1(cy) + ' L' + r1(x1 - head) + ',' + r1(cy - head * 0.5) +
+             ' L' + r1(x1 - head) + ',' + r1(cy + head * 0.5) + ' Z" fill="' + colour + '"/>');
+  } else {
+    var dot = stroke * settings.spanDotOfStroke;
+    out.push('<line x1="' + r1(x0) + '" y1="' + r1(cy) + '" x2="' + r1(x1) + '" y2="' + r1(cy) +
+             '" stroke="' + colour + '" stroke-width="' + r1(stroke) + '"/>');
+    out.push('<circle cx="' + r1(x0) + '" cy="' + r1(cy) + '" r="' + r1(dot) + '" fill="' + colour + '"/>');
+    out.push('<circle cx="' + r1(x1) + '" cy="' + r1(cy) + '" r="' + r1(dot) + '" fill="' + colour + '"/>');
+  }
+  return out.join("");
+}
+
+/** Draws Plan Bar + Actual Bar + Progress Marker + Resume Icon + labels. */
+function drawTaskBar(out, p, originX, top, ctx) {
+  var t = p.task, g = p.geom, m = g.metrics;
+  var planX0 = originX + g.planX0, planX1 = originX + g.planX1;
+  var midY = top + m.planHeight / 2;
+  var placement = actualPlacementOf(t.shapeKind);
+
+  if (t.milestone) {
+    out.push('<path d="' + diamondPath((planX0 + planX1) / 2, midY, m.glyphSize) +
+             '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + r1(settings.planStroke) + '"/>');
+    if (t.hasActual) {
+      out.push('<path d="' + diamondPath((planX0 + planX1) / 2, top + m.belowActualTop + m.actualHeight / 2,
+               m.actualHeight) + '" fill="var(--actual-fill)"/>');
+    }
+  } else if (placement === "inside") {
+    var planPath = t.shapeKind === "chevron" ? chevronPath : rectanglePath;
+    out.push('<path d="' + planPath(planX0, planX1, top, m.planHeight) +
+             '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + r1(settings.planStroke) + '"/>');
+    if (t.hasActual) {
+      out.push('<path d="' + planPath(originX + g.actualX0, originX + g.actualX1,
+               top + m.insideActualTop, m.actualHeight) + '" fill="var(--actual-fill)"/>');
+    }
+  } else {
+    out.push(flatShapeSvg(t.shapeKind, planX0, planX1, top, m.planHeight, "var(--plan-stroke)", m.thinStroke));
+    if (t.hasActual) {
+      out.push(flatShapeSvg(t.shapeKind, originX + g.actualX0, originX + g.actualX1,
+               top + m.belowActualTop, m.actualHeight, "var(--actual-fill)", m.thinStroke));
+    }
+  }
+
+  var fontSize = m.fontSize, textY = midY + fontSize * settings.labelBaseline;
+  var halo = ctx.showHalo ? haloAttrs(fontSize) : "";
+
+  if (g.assigneeText) {
+    out.push('<text x="' + r1(planX0 - settings.labelGap) + '" y="' + r1(textY) + '" font-size="' +
+             r1(fontSize) + '" text-anchor="end" fill="var(--label-ink)">' + esc(g.assigneeText) + '</text>');
+  }
+  if (ctx.showMarker && t.hasActual) {
+    drawProgressMarker(out, t, originX + g.markerX, midY, m, ctx);
+  }
+  if (g.nameLabelMode === "inside") {
+    out.push('<text x="' + r1(planX0 + settings.labelPad) + '" y="' + r1(textY) + '" font-size="' +
+             r1(fontSize) + '" fill="var(--label-ink)"' + halo + '>' + esc(g.nameLabelText) + '</text>');
+  } else if (g.nameLabelMode === "right") {
+    out.push('<text x="' + r1(originX + g.bodyX1 + g.markerExtent + settings.labelGap) + '" y="' + r1(textY) +
+             '" font-size="' + r1(fontSize) + '" fill="var(--label-ink)">' + esc(g.nameLabelText) + '</text>');
+  }
+}
+
+/** Progress Marker: shape carries the meaning, never colour alone (WCAG 1.4.1). */
+function drawProgressMarker(out, t, x, cy, m, ctx) {
+  var size = m.markerSize, r = size / 2, cx = x + r;
+  var state = t.actualFinish != null ? "done"
+            : (t.resume != null ? "suspendedWithResume"
+            : (t.hasActual && t.resumeValid === false && t.actualDuration > 0 && t.suspended
+               ? "suspendedNoResume" : "inProgress"));
+  var overdue = isOverdue(t, settings.statusDate);
+  out.push('<circle cx="' + r1(cx) + '" cy="' + r1(cy) + '" r="' + r1(r) +
+           '" fill="var(--marker-bg)" stroke="var(--marker-ink)" stroke-width="' + r1(settings.markerStroke) + '"/>');
+  var ink = 'stroke="var(--marker-ink)" stroke-width="' + r1(settings.markerStroke) +
+            '" fill="none" stroke-linecap="round"';
+  if (state === "done") {
+    out.push('<path d="M' + r1(cx - r * 0.42) + ',' + r1(cy) + ' L' + r1(cx - r * 0.1) + ',' + r1(cy + r * 0.36) +
+             ' L' + r1(cx + r * 0.45) + ',' + r1(cy - r * 0.4) + '" ' + ink + '/>');
+  } else if (state === "suspendedWithResume" || state === "suspendedNoResume") {
+    out.push('<line x1="' + r1(cx - r * 0.4) + '" y1="' + r1(cy - r * 0.4) + '" x2="' + r1(cx + r * 0.4) +
+             '" y2="' + r1(cy + r * 0.4) + '" ' + ink + '/>');
+  } else if (overdue) {
+    out.push('<line x1="' + r1(cx) + '" y1="' + r1(cy - r * 0.45) + '" x2="' + r1(cx) + '" y2="' + r1(cy + r * 0.1) + '" ' + ink + '/>');
+    out.push('<circle cx="' + r1(cx) + '" cy="' + r1(cy + r * 0.42) + '" r="' + r1(settings.markerStroke * 0.8) +
+             '" fill="var(--marker-ink)"/>');
+  } else {
+    var pct = String(t.percentComplete);
+    out.push('<text x="' + r1(cx) + '" y="' + r1(cy + m.markerTextSize * settings.markerTextBaseline) +
+             '" font-size="' + r1(m.markerTextSize) + '" text-anchor="middle" fill="var(--marker-ink)">' + pct + '</text>');
+  }
+  if (state === "suspendedWithResume" || state === "suspendedNoResume") {
+    drawResumeIcon(out, t, cx + r + settings.markerGap, cy, size);
+  }
+}
+
+/** Resume Icon: an L-shaped bent arrow, right of the Progress Marker (07 §2-5). */
+function drawResumeIcon(out, t, x, cy, markerSize) {
+  var scale = t.resumeValid ? 1 : settings.resumeScaleInvalid;
+  var w = markerSize * scale;
+  var arm = w * settings.resumeArmOfMark, head = w * settings.resumeHeadOfMark;
+  var dim = t.resumeValid ? "" : ' opacity="0.45"';
+  out.push('<path d="M' + r1(x) + ',' + r1(cy + markerSize / 2) + ' V' + r1(cy) + ' h' + r1(arm) +
+           '" fill="none" stroke="var(--marker-ink)" stroke-width="' + r1(settings.markerStroke) +
+           '" stroke-linecap="round" stroke-linejoin="round"' + dim + '/>');
+  out.push('<path d="M' + r1(x + arm) + ',' + r1(cy - head) + ' L' + r1(x + arm + head) + ',' + r1(cy) +
+           ' L' + r1(x + arm) + ',' + r1(cy + head) + ' Z" fill="var(--marker-ink)"' + dim + '/>');
+}
+
+// ===========================================================================
+// LOD (§6-3 / §6-4 / §6-5). Monotone by construction.
+// ===========================================================================
+function timeRulerTier(zoomX) {
+  var pxPerDay = settings.pxPerDayAt1x * zoomX;
+  if (pxPerDay < settings.rulerTierPxPerDayLow) return 1;
+  if (pxPerDay < settings.rulerTierPxPerDayHigh) return 2;
+  return 3;
+}
+var TIER_NAME = { 1: "年のみ", 2: "年 ＋ 月", 3: "年月 ＋ 日 ＋ 曜日" };
+var MEDIAN_DURATION = { 1: 240, 2: 80, 3: 27, 4: 13, 5: 6 };
+function itemDepthLimit(zoomX) {
+  var pxPerDay = settings.pxPerDayAt1x * zoomX, best = 1;
+  for (var d = 1; d <= 5; d++) {
+    if (MEDIAN_DURATION[d] * pxPerDay >= settings.itemLodReadablePx) best = d;
+  }
+  return best;
+}
+function rowDepthThreshold(d) {
+  return d <= 1 ? 0 : settings.rowLodBase * Math.pow(settings.rowLodRatio, d - 2);
+}
+function rowDepthLimit(zoomY) {
+  var best = 1;
+  for (var d = 2; d <= 5; d++) if (zoomY >= rowDepthThreshold(d)) best = d;
+  return best;
+}
+
+// ===========================================================================
+// Tab 1: schedule
+// ===========================================================================
+var view = { zoomX: 1, zoomY: 1, scrollDay: 0 };
+
+function scheduleContext() {
+  var cache = {};
+  return {
+    pxPerDay: settings.pxPerDayAt1x * view.zoomX,
+    metricsOf: function (shapeKind) {
+      if (!cache[shapeKind]) cache[shapeKind] = shapeMetrics(shapeKind, view.zoomY);
+      return cache[shapeKind];
+    },
+    showAssignee: el("tgAssignee").checked,
+    showProgress: el("tgProgress").checked,
+    showMarker: el("tgMarker").checked,
+    showHalo: el("tgHalo").checked
+  };
+}
+
+function el(id) { return document.getElementById(id); }
+
+function renderSchedule() {
+  var ctx = scheduleContext();
+  var depthLimit = itemDepthLimit(view.zoomX);
+  var rowLimit = rowDepthLimit(view.zoomY);
+  var visibleGroups = TASK_GROUPS.filter(function (g) { return g.depth <= rowLimit; });
+  var originX = settings.rowTitleWidth;
+
+  var out = ['<defs><marker id="depArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
+             'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
+  var y = settings.rulerH, packs = [], shownTasks = 0, overlaps = 0, dependencyCount = 0, stackTotal = 0;
+  var maxX = 0;
+
+  visibleGroups.forEach(function (group) {
+    var members = TASKS.filter(function (t) {
+      return t.groupId === group.id && t.wbsDepth <= depthLimit + 1;
+    });
+    shownTasks += members.length;
+    var pack = assignStacks(members, ctx);
+    pack.y = y;
+    pack.group = group;
+    packs.push(pack);
+    overlaps += pack.overlaps;
+    stackTotal += pack.stackCount;
+    pack.placements.forEach(function (p) { maxX = Math.max(maxX, p.geom.occupiedX1); });
+    y += Math.max(pack.height, ctx.metricsOf("rectangle").reserved) + settings.rowGap;
+  });
+
+  var contentHeight = y + settings.rowGap;
+  var width = originX + maxX + settings.canvasPadding * 2;
+
+  // Time Ruler
+  var tier = timeRulerTier(view.zoomX);
+  out.push('<rect x="0" y="0" width="' + r1(width) + '" height="' + settings.rulerH + '" fill="var(--panel)"/>');
+  var step = tier === 1 ? 365 : (tier === 2 ? 30 : 7);
+  for (var d = 0; d <= HORIZON_DAYS; d += step) {
+    var x = originX + d * ctx.pxPerDay;
+    out.push('<line x1="' + r1(x) + '" y1="0" x2="' + r1(x) + '" y2="' + r1(contentHeight) +
+             '" stroke="var(--rule)" stroke-opacity="0.5"/>');
+    out.push('<text x="' + r1(x + 3) + '" y="' + r1(settings.rulerH * 0.64) + '" font-size="' +
+             r1(settings.rulerFont) + '" fill="var(--sub)">' +
+             (tier === 1 ? "Y" + (1 + (d / 365 | 0)) : (tier === 2 ? (1 + (d / 30 | 0) % 12) + "月" : d)) + '</text>');
+  }
+
+  packs.forEach(function (pack, i) {
+    var group = pack.group;
+    out.push('<rect x="0" y="' + r1(pack.y - settings.rowGap / 2) + '" width="' + r1(width) +
+             '" height="' + r1(Math.max(pack.height, 1) + settings.rowGap) + '" fill="' +
+             (group.depth === 1 ? "var(--row-top)" : (i % 2 ? "var(--row-alt)" : "var(--bg)")) + '"/>');
+    out.push('<text x="' + r1(settings.labelPad + (group.depth - 1) * settings.rowTitleIndent) + '" y="' +
+             r1(pack.y + settings.rowTitleFont) + '" font-size="' + r1(settings.rowTitleFont) + '" fill="' +
+             (group.depth === 1 ? "var(--accent)" : "var(--sub)") + '"' +
+             (group.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(group.name) + '</text>');
+
+    var byUid = {};
+    pack.placements.forEach(function (p) { byUid[p.task.uid] = p; });
+
+    if (el("tgDependency").checked) {
+      pack.placements.forEach(function (p) {
+        var pre = p.task.predecessorUid != null ? byUid[p.task.predecessorUid] : null;
+        if (!pre) return;
+        var aTop = pack.y + pack.stackTop[pre.stackIndex];
+        var bTop = pack.y + pack.stackTop[p.stackIndex];
+        var pts = routeDependencyLine(pre.geom.bodyX1, aTop, pre.geom.metrics.planHeight,
+                                      p.geom.planX0, bTop, p.geom.metrics.planHeight);
+        var dAttr = pts.map(function (pt, n) {
+          return (n ? "L" : "M") + r1(originX + pt[0]) + "," + r1(pt[1]);
+        }).join(" ");
+        out.push('<path d="' + dAttr + '" fill="none" stroke="var(--dep)" stroke-width="' +
+                 r1(settings.dependencyWidth) + '" stroke-linejoin="round" marker-end="url(#depArrow)"/>');
+        dependencyCount++;
+      });
+    }
+
+    pack.placements.forEach(function (p) {
+      drawTaskBar(out, p, originX, pack.y + pack.stackTop[p.stackIndex], ctx);
+    });
+  });
+
+  // Progress Line: one vertex per stack, the most delayed wins (§6-6)
+  if (el("tgProgressLine").checked) {
+    packs.forEach(function (pack) {
+      var perStack = {};
+      pack.placements.forEach(function (p) {
+        var v = progressLineVertex(p.task, ctx.pxPerDay);
+        if (v == null) return;
+        if (perStack[p.stackIndex] == null || v < perStack[p.stackIndex]) perStack[p.stackIndex] = v;
+      });
+      var pts = [];
+      for (var s = 0; s < pack.stackCount; s++) {
+        if (perStack[s] == null) continue;
+        var top = pack.y + pack.stackTop[s];
+        var h = ctx.metricsOf("rectangle").planHeight;
+        pts.push([originX + perStack[s], top - settings.progressLineOverhang]);
+        pts.push([originX + perStack[s], top + h + settings.progressLineOverhang]);
+      }
+      if (pts.length > 1) {
+        out.push('<path d="' + pts.map(function (pt, n) {
+          return (n ? "L" : "M") + r1(pt[0]) + "," + r1(pt[1]);
+        }).join(" ") + '" fill="none" stroke="var(--lightning)" stroke-width="' +
+        r1(settings.progressLineWidth) + '" stroke-linejoin="round"/>');
+      }
+    });
+    var sx = originX + settings.statusDate * ctx.pxPerDay;
+    out.push('<line x1="' + r1(sx) + '" y1="0" x2="' + r1(sx) + '" y2="' + r1(contentHeight) +
+             '" stroke="var(--lightning)" stroke-dasharray="4 3" stroke-opacity="0.55"/>');
+  }
+
+  el("scheduleCanvas").innerHTML =
+    '<svg width="' + r1(width) + '" height="' + r1(contentHeight) + '" viewBox="0 0 ' +
+    r1(width) + ' ' + r1(contentHeight) + '">' + out.join("") + '</svg>';
+
+  var m1 = ctx.metricsOf("rectangle");
+  el("zoomOut").textContent = "横 " + view.zoomX.toFixed(2) + "x ／ 縦 " + view.zoomY.toFixed(2) + "x";
+  el("scheduleRead").innerHTML = [
+    item("px/日", r3(ctx.pxPerDay)), item("目盛", TIER_NAME[tier]),
+    item("予定バー", r1(m1.planHeight) + "px"), item("実績バー", r1(m1.actualHeight) + "px"),
+    item("フォント", r1(m1.fontSize) + "px" + (m1.fontFloored ? "（下限）" : "")),
+    item("WBS 深さ", depthLimit), item("行深さ", rowLimit),
+    item("表示タスク", shownTasks + " / " + TASKS.length),
+    item("合計段数", stackTotal), item("依存線", dependencyCount),
+    item("overlap", '<span style="color:' + (overlaps ? "var(--bad)" : "var(--good)") + '">' + overlaps + "</span>"),
+    item("入口/出口の走り", POC_UI.dependencyRunEntry() + " / " + POC_UI.dependencyRunExit() + "px")
+  ].join("");
+}
+
+function item(k, v) {
+  return '<span><span class="k">' + k + '</span><span class="v">' + v + '</span></span>';
+}
+
+/** Progress Line vertex rule (§6-6): only what should already have moved gets one. */
+function progressLineVertex(t, pxPerDay) {
+  if (t.actualFinish != null) return null;                       // 完了は打たない
+  if (t.hasActual && t.resume == null && t.resumeValid === false && t.suspended) return null;
+  if (t.resume != null) return t.resume < settings.statusDate ? t.resume * pxPerDay : null;
+  if (t.hasActual && t.actualDuration > 0) return (t.actualStart + t.actualDuration) * pxPerDay;
+  return t.start < settings.statusDate ? t.start * pxPerDay : null;
+}
+
+// ===========================================================================
+// Tab 2: the shape reference
+// ===========================================================================
+function renderGlyphs() {
+  var kinds = [
+    { kind: "rectangle", label: "=== 矩形（rectangle）" },
+    { kind: "chevron", label: ">===> 矢羽根（chevron）" },
+    { kind: "arrow", label: "---> 矢印（arrow）" },
+    { kind: "endpointSpan", label: "*----* 端点スパン（endpointSpan）" },
+    { kind: "milestone", label: "◇ マイルストーン（milestone）" }
+  ];
+  var host = [];
+  kinds.forEach(function (k) {
+    var m = shapeMetrics(k.kind, 1);
+    var placement = actualPlacementOf(k.kind);
+    var task = makeTask(0, "詳細設計", 2, 22, {
+      shapeKind: k.kind, milestone: k.kind === "milestone",
+      hasActual: true, actualStart: 2, actualDuration: 12, percentComplete: 60
+    });
+    var ctx = {
+      pxPerDay: 9, metricsOf: function () { return m; },
+      showAssignee: true, showProgress: true, showMarker: true, showHalo: true
+    };
+    var geom = taskBarGeometry(task, ctx);
+    var out = [];
+    drawTaskBar(out, { task: task, geom: geom }, 120, 8, ctx);
+    host.push('<div class="glyphRow"><h4>' + esc(k.label) + '</h4>' +
+      '<div class="hint" style="margin:0 0 4px 0">actualPlacement = <b>' + placement +
+      '</b>（' + (placement === "inside" ? "内側に重ねる" : "下にずらす") + '） ／ 予定 ' +
+      r1(m.planHeight) + 'px ／ 実績 ' + r1(m.actualHeight) + 'px ／ フォント ' + r1(m.fontSize) +
+      'px ／ 占有高 ' + r1(m.reserved) + 'px</div>' +
+      '<svg width="100%" height="' + r1(m.reserved + 20) + '" viewBox="0 0 620 ' + r1(m.reserved + 20) + '">' +
+      out.join("") + '</svg></div>');
+  });
+  el("glyphShapes").innerHTML = host.join("");
+
+  // markers
+  var states = [
+    { label: "完了 (✓)", opt: { hasActual: true, actualStart: 2, actualDuration: 14, actualFinish: 16 } },
+    { label: "中断・再開予定あり ( \\ ) ＋ 再開アイコン", opt: { hasActual: true, actualStart: 2, actualDuration: 8, resume: 18, resumeValid: true, suspended: true } },
+    { label: "中断・再開日未定 ( \\ ) ＋ 薄い再開アイコン", opt: { hasActual: true, actualStart: 2, actualDuration: 8, resumeValid: false, suspended: true } },
+    { label: "進行中（完了率を表示）", opt: { hasActual: true, actualStart: 2, actualDuration: 9 } }
+  ];
+  var mk = [];
+  states.forEach(function (st) {
+    var m = shapeMetrics("rectangle", 1);
+    var task = makeTask(0, "実装", 2, 20, st.opt);
+    recomputePercentComplete(task);
+    var ctx = { pxPerDay: 9, metricsOf: function () { return m; },
+                showAssignee: false, showProgress: false, showMarker: true, showHalo: true };
+    var geom = taskBarGeometry(task, ctx);
+    var out = [];
+    drawTaskBar(out, { task: task, geom: geom }, 20, 6, ctx);
+    mk.push('<div class="glyphRow"><h4>' + esc(st.label) + '</h4>' +
+      '<svg width="100%" height="' + r1(m.reserved + 16) + '" viewBox="0 0 560 ' + r1(m.reserved + 16) + '">' +
+      out.join("") + '</svg></div>');
+  });
+  el("glyphMarkers").innerHTML = mk.join("");
+  el("glyphResume").innerHTML =
+    '<p class="hint">上の「中断」2 例に再開アイコンが出ている。再開日未定は ' +
+    settings.resumeScaleInvalid + ' 倍に縮み、薄く描かれる。</p>';
+
+  // colours
+  var hue = 214;
+  var rows = [["予定 塗り", "--plan-fill"], ["予定 線", "--plan-stroke"],
+              ["実績 塗り", "--actual-fill"], ["依存線", "--dep"], ["イナズマ線", "--lightning"]];
+  var sw = ['<table><tr><th>役割</th><th>トークン</th><th>見本</th></tr>'];
+  rows.forEach(function (r) {
+    sw.push('<tr><td>' + r[0] + '</td><td><code>' + r[1] + '</code></td>' +
+            '<td><span style="display:inline-block;width:120px;height:16px;border:1px solid var(--rule);' +
+            'background:var(' + r[1] + ')"></span></td></tr>');
+  });
+  sw.push('</table>');
+  var yPlan = POC_UI.lumOfHsl(hue, 0.46, 0.80), yActual = POC_UI.lumOfHsl(hue, 0.62, 0.34);
+  sw.push('<p class="hint">ライトの実測: 実績 ÷ 予定 = <b>' +
+    (Math.round(POC_UI.contrast(yActual, yPlan) * 100) / 100) + ' : 1</b>（要 3:1）。' +
+    '文字は縁取りにより背景色と接するので比は 21:1 で固定（07 §2-7）。' +
+    '色相を変えても成立するかは <a href="poc-color-and-halo.html">色と縁取りの PoC</a> で確かめる。</p>');
+  el("glyphColors").innerHTML = sw.join("");
+}
+
+// ===========================================================================
+// Tab 3: multibar patterns
+// ===========================================================================
+var PATTERNS = [
+  { id: "P00", name: "依存線の 5 パターン", desc: "FS-1 直線 / FS-2 下・間隔あり / FS-3 上・間隔あり / FS-4 下・重なる / FS-5 上・重なる",
+    tasks: [["FS-1 前", 0, 20], ["FS-1 後", 30, 50], ["FS-2 前", 60, 80], ["FS-2 後", 95, 115],
+            ["FS-3 前", 130, 150], ["FS-3 後", 165, 185], ["FS-4 前", 200, 225], ["FS-4 後", 218, 243],
+            ["FS-5 前", 258, 283], ["FS-5 後", 276, 301]], chain: true },
+  { id: "P01", name: "完全分離 4 本", desc: "重ならないので 1 段のはず",
+    tasks: [["A", 0, 20], ["B", 30, 50], ["C", 60, 80], ["D", 90, 110]] },
+  { id: "P02", name: "完全一致 3 本", desc: "同じ期間 → 3 段",
+    tasks: [["A", 0, 40], ["B", 0, 40], ["C", 0, 40]] },
+  { id: "P03", name: "階段状 5 本", desc: "少しずつずれる",
+    tasks: [["A", 0, 40], ["B", 20, 60], ["C", 40, 80], ["D", 60, 100], ["E", 80, 120]] },
+  { id: "P05", name: "同一開始日 4 本", desc: "開始が同じで長さが違う → 4 段",
+    tasks: [["A", 0, 20], ["B", 0, 40], ["C", 0, 60], ["D", 0, 80]] },
+  { id: "P07", name: "端が接する 3 本", desc: "前の終了日 = 次の開始日。接触は重なりではない",
+    tasks: [["A", 0, 30], ["B", 30, 60], ["C", 60, 90]] },
+  { id: "P13", name: "5 つのタスク形状すべて", desc: "rectangle / chevron / arrow / endpointSpan / milestone",
+    tasks: [["矩形", 0, 20], ["矢羽根", 26, 46], ["矢印", 52, 72], ["端点スパン", 78, 98], ["◇", 110, 110]],
+    kinds: ["rectangle", "chevron", "arrow", "endpointSpan", "milestone"] },
+  { id: "P19", name: "完全結合 8 本", desc: "全部が重なる → 8 段（上限なし）",
+    tasks: [["1", 0, 60], ["2", 2, 62], ["3", 4, 64], ["4", 6, 66], ["5", 8, 68], ["6", 10, 70], ["7", 12, 72], ["8", 14, 74]] }
+];
+
+function renderMultibar() {
+  var host = [], totalOverlap = 0, totalStacks = 0, totalTasks = 0, totalDependency = 0;
+  var pxPerDay = settings.pxPerDayAt1x;
+  PATTERNS.forEach(function (pat) {
+    var localUid = 0;
+    var tasks = pat.tasks.map(function (spec, i) {
+      var kind = pat.kinds ? pat.kinds[i] : "rectangle";
+      var t = makeTask(0, spec[0], spec[1], spec[2], {
+        shapeKind: kind, milestone: kind === "milestone",
+        hasActual: i % 3 !== 2, actualStart: spec[1],
+        actualDuration: Math.round((spec[2] - spec[1]) * 0.55)
+      });
+      recomputePercentComplete(t);
+      return t;
+    });
+    if (pat.chain) {
+      for (var i = 1; i < tasks.length; i += 2) tasks[i].predecessorUid = tasks[i - 1].uid;
+    }
+    var cache = {};
+    var ctx = {
+      pxPerDay: pxPerDay,
+      metricsOf: function (k) { if (!cache[k]) cache[k] = shapeMetrics(k, 1); return cache[k]; },
+      showAssignee: true, showProgress: true, showMarker: true, showHalo: true
+    };
+    var pack = assignStacks(tasks, ctx);
+    var byUid = {};
+    pack.placements.forEach(function (p) { byUid[p.task.uid] = p; });
+
+    var minX = 0, maxX = 0;
+    pack.placements.forEach(function (p) {
+      minX = Math.min(minX, p.geom.occupiedX0);
+      maxX = Math.max(maxX, p.geom.occupiedX1);
+    });
+    var originX = 10 - minX, width = originX + maxX + 20;
+
+    var out = ['<defs><marker id="dpa' + pat.id + '" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
+               'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
+    var dependencyCount = 0;
+    pack.placements.forEach(function (p) {
+      var pre = p.task.predecessorUid != null ? byUid[p.task.predecessorUid] : null;
+      if (!pre) return;
+      var aTop = pack.stackTop[pre.stackIndex], bTop = pack.stackTop[p.stackIndex];
+      var pts = routeDependencyLine(pre.geom.bodyX1, aTop, pre.geom.metrics.planHeight,
+                                    p.geom.planX0, bTop, p.geom.metrics.planHeight);
+      out.push('<path d="' + pts.map(function (pt, n) {
+        return (n ? "L" : "M") + r1(originX + pt[0]) + "," + r1(pt[1]);
+      }).join(" ") + '" fill="none" stroke="var(--dep)" stroke-width="' + r1(settings.dependencyWidth) +
+      '" stroke-linejoin="round" marker-end="url(#dpa' + pat.id + ')"/>');
+      dependencyCount++;
+    });
+    pack.placements.forEach(function (p) {
+      drawTaskBar(out, p, originX, pack.stackTop[p.stackIndex], ctx);
+    });
+
+    totalOverlap += pack.overlaps;
+    totalStacks += pack.stackCount;
+    totalTasks += tasks.length;
+    totalDependency += dependencyCount;
+
+    host.push('<div class="patternCard"><div class="head">' +
+      '<span class="pid">' + pat.id + '</span><span class="pname">' + esc(pat.name) + '</span>' +
+      '<span class="pdesc">' + esc(pat.desc) + '</span></div><div class="body">' +
+      '<svg width="' + r1(width) + '" height="' + r1(pack.height + 16) + '" viewBox="0 0 ' +
+      r1(width) + ' ' + r1(pack.height + 16) + '">' + out.join("") + '</svg>' +
+      '<div class="metrics"><span>段数 <b>' + pack.stackCount + '</b></span>' +
+      '<span>overlap <b style="color:' + (pack.overlaps ? "var(--bad)" : "var(--good)") + '">' +
+      pack.overlaps + '</b></span>' +
+      (dependencyCount ? '<span>依存線 <b>' + dependencyCount + '</b>（走り 出口 ' +
+        POC_UI.dependencyRunExit() + ' / 入口 ' + POC_UI.dependencyRunEntry() + 'px）</span>' : '') +
+      '<span>行高 <b>' + r1(pack.height) + 'px</b></span></div>' +
+      '</div></div>');
+  });
+  el("multibarHost").innerHTML = host.join("");
+  el("multibarRead").innerHTML = [
+    item("パターン", PATTERNS.length), item("タスク", totalTasks),
+    item("合計段数", totalStacks), item("依存線", totalDependency),
+    item("overlap", '<span style="color:' + (totalOverlap ? "var(--bad)" : "var(--good)") + '">' +
+      totalOverlap + "</span>")
+  ].join("");
+}
+
+// ===========================================================================
+// Tab 4: LOD transitions
+// ===========================================================================
+function findTransitions(fn, lo, hi, steps) {
+  var out = [], prev = fn(lo), lLo = Math.log(lo), lHi = Math.log(hi);
+  for (var i = 1; i <= steps; i++) {
+    var z = Math.exp(lLo + (lHi - lLo) * i / steps);
+    var v = fn(z);
+    if (v !== prev) {
+      var a = Math.exp(lLo + (lHi - lLo) * (i - 1) / steps), b = z;
+      for (var k = 0; k < 50; k++) {
+        var mid = Math.sqrt(a * b);
+        if (fn(mid) === prev) a = mid; else b = mid;
+      }
+      out.push({ from: prev, to: v, at: b });
+      prev = v;
+    }
+  }
+  return out;
+}
+
+function renderLod() {
+  var html = [];
+
+  html.push('<h3>4-1. 時間軸 — 目盛の粒度</h3>');
+  html.push('<p class="hint">px/day = ' + settings.pxPerDayAt1x + ' × zoomX。狙い: ' +
+    settings.rulerTierPxPerDayLow + ' 未満で「年」、' + settings.rulerTierPxPerDayHigh +
+    ' 未満で「年＋月」、以上で「年月＋日＋曜日」。</p>');
+  var t1 = findTransitions(timeRulerTier, 0.02, 20, 4000);
+  html.push(transitionTable(t1, [
+    { label: "年 → 年＋月", want: settings.rulerTierPxPerDayLow / settings.pxPerDayAt1x },
+    { label: "年＋月 → 年月＋日", want: settings.rulerTierPxPerDayHigh / settings.pxPerDayAt1x }
+  ], TIER_NAME));
+
+  html.push('<h3>4-2. アイテム LOD（軸A・WBS の深さ・横ズーム）</h3>');
+  html.push('<p class="hint">深さ d の代表的な期間が可読下限 <b>' + settings.itemLodReadablePx +
+    'px</b> を割ったら、その深さ以下を描かない。期間は深いほど短いので<strong>構造的に単調</strong>になる。</p>');
+  var t2 = findTransitions(itemDepthLimit, 0.005, 20, 4000);
+  var want2 = [];
+  for (var d = 2; d <= 5; d++) {
+    want2.push({ label: "深さ " + (d - 1) + " → " + d,
+                 want: settings.itemLodReadablePx / (MEDIAN_DURATION[d] * settings.pxPerDayAt1x) });
+  }
+  html.push(transitionTable(t2, want2, null));
+
+  html.push('<h3>4-3. 行階層 LOD（軸B・縦ズーム）</h3>');
+  html.push('<p class="hint">threshold(d) = ' + settings.rowLodBase + ' × ' + settings.rowLodRatio +
+    '^(d−2)。深さ 1 は常に表示。</p>');
+  var t3 = findTransitions(rowDepthLimit, 0.02, 8, 4000);
+  var want3 = [];
+  for (var d3 = 2; d3 <= 5; d3++) want3.push({ label: "深さ " + (d3 - 1) + " → " + d3, want: rowDepthThreshold(d3) });
+  html.push(transitionTable(t3, want3, null));
+
+  html.push('<h3>4-4. 単調性の掃引</h3>');
+  var bad = 0, samples = 600, prevItem = null, prevRow = null;
+  for (var i = 0; i <= samples; i++) {
+    var z = 0.01 * Math.pow(2000, i / samples);
+    var vi = itemDepthLimit(z), vr = rowDepthLimit(z);
+    if (prevItem != null && vi < prevItem) bad++;
+    if (prevRow != null && vr < prevRow) bad++;
+    prevItem = vi; prevRow = vr;
+  }
+  html.push('<p class="hint">' + (samples + 1) + ' 点を対数一様に取り、拡大方向へ進むと表示が減る逆転が無いことを検査する。' +
+    '逆転 <b style="color:' + (bad ? "var(--bad)" : "var(--good)") + '">' + bad + '</b> 件。</p>');
+
+  el("lodHost").innerHTML = html.join("");
+}
+
+function transitionTable(found, wanted, nameMap) {
+  var rows = ['<table><tr><th>遷移</th><th class="num">狙い</th><th class="num">実測</th>' +
+              '<th class="num">差</th><th>判定</th></tr>'];
+  wanted.forEach(function (w, i) {
+    var f = found[i];
+    var got = f ? f.at : null;
+    var diff = got == null ? null : got - w.want;
+    var ok = diff != null && Math.abs(diff) < w.want * 0.005;
+    rows.push('<tr><td>' + w.label + '</td><td class="num">' + r3(w.want) + '</td>' +
+      '<td class="num">' + (got == null ? "—" : r3(got)) + '</td>' +
+      '<td class="num">' + (diff == null ? "—" : (diff >= 0 ? "+" : "") + r3(diff)) + '</td>' +
+      '<td><span class="flag ' + (ok ? "f-good" : "f-bad") + '">' + (ok ? "一致" : "差あり") + '</span></td></tr>');
+  });
+  rows.push('</table>');
+  return rows.join("");
+}
+
+// ===========================================================================
+// Right panel: settings (59) and the selected Task's properties
+// ===========================================================================
+function renderSettings() {
+  var ranges = POC_UI.ranges(), group = null, html = [];
+  POC_UI.SPEC.forEach(function (sp) {
+    if (sp.g !== group) {
+      if (group !== null) html.push('</table>');
+      group = sp.g;
+      html.push('<h3>' + esc(group) + '</h3><table>');
+    }
+    var q = ranges[sp.k], v = POC_UI.S[sp.k];
+    var out = v < q.lo - 1e-9 || v > q.hi + 1e-9;
+    html.push('<tr><td class="lab">' + esc(sp.n) + '<code>' + esc(sp.k) + '</code></td>' +
+      '<td><input type="number" data-key="' + esc(sp.k) + '" step="' + sp.step + '" value="' + v +
+      '"' + (out ? ' class="outOfRange"' : '') + '></td>' +
+      '<td class="rng">' + r3(q.lo) + ' 〜 ' + r3(q.hi) +
+      (q.why ? '<br><span class="why">' + esc(q.why) + '</span>' : '') + '</td></tr>');
+  });
+  html.push('</table>');
+  el("settingsHost").innerHTML = html.join("");
+  var bad = POC_UI.violations();
+  el("settingsWarn").innerHTML = bad.length
+    ? '<span class="flag f-bad">範囲外 ' + bad.length + '</span>' : '';
+}
+
+var selectedTask = null;
+function renderProperties() {
+  if (!selectedTask) {
+    el("propHost").innerHTML = '<span class="hint">日程表のタスクをクリックすると出る。</span>';
+    return;
+  }
+  var t = selectedTask;
+  var rows = [
+    ["name", t.name], ["start / finish", t.start + " / " + t.finish],
+    ["shapeKind", t.shapeKind], ["actualPlacement", actualPlacementOf(t.shapeKind)],
+    ["milestone", String(t.milestone)],
+    ["actualStart", t.hasActual ? t.actualStart : "—"],
+    ["actualDuration", t.hasActual ? t.actualDuration : "—"],
+    ["actualFinish", t.actualFinish == null ? "—" : t.actualFinish],
+    ["resume / resumeValid", (t.resume == null ? "—" : t.resume) + " / " + t.resumeValid],
+    ["percentComplete", t.percentComplete],
+    ["stackOrder", t.stackOrder == null ? "null（自動）" : t.stackOrder],
+    ["assignee", t.assignee]
+  ];
+  el("propHost").innerHTML = '<table>' + rows.map(function (r) {
+    return '<tr><td class="lab"><code>' + esc(r[0]) + '</code></td><td colspan="2">' + esc(r[1]) + '</td></tr>';
+  }).join("") + '</table>';
+}
+
+// ===========================================================================
+// Wire-up
+// ===========================================================================
+var activeTab = "schedule";
+function showTab(name) {
+  activeTab = name;
+  [].forEach.call(el("tabs").children, function (b) {
+    b.setAttribute("aria-selected", String(b.dataset.tab === name));
+  });
+  ["schedule", "glyphs", "multibar", "lod"].forEach(function (n) {
+    el("tab-" + n).classList.toggle("on", n === name);
+  });
+  redrawActive();
+}
+function redrawActive() {
+  if (activeTab === "schedule") renderSchedule();
+  else if (activeTab === "glyphs") renderGlyphs();
+  else if (activeTab === "multibar") renderMultibar();
+  else renderLod();
+}
+function redrawAll() { renderSettings(); renderProperties(); redrawActive(); }
+
+el("tabs").addEventListener("click", function (ev) {
+  if (ev.target.dataset && ev.target.dataset.tab) showTab(ev.target.dataset.tab);
+});
+el("btnSide").addEventListener("click", function () {
+  var open = el("sidePanel").classList.toggle("open");
+  this.setAttribute("aria-expanded", String(open));
+  this.textContent = open ? "設定・プロパティ ◂" : "設定・プロパティ ▸";
+});
+el("btnTheme").addEventListener("click", function () {
+  POC_UI.setTheme(POC_UI.currentTheme() === "dark" ? "light" : "dark");
+  redrawActive();
+});
+el("btnReset").addEventListener("click", function () {
+  view.zoomX = 1; view.zoomY = 1; redrawActive();
+});
+el("btnFit").addEventListener("click", doFit);
+el("btnSettingsReset").addEventListener("click", function () {
+  POC_UI.resetAll(); redrawAll();
+});
+el("settingsHost").addEventListener("input", function (ev) {
+  var k = ev.target.dataset && ev.target.dataset.key;
+  if (!k) return;
+  var v = parseFloat(ev.target.value);
+  if (!isNaN(v)) { POC_UI.S[k] = v; renderSettings(); redrawActive(); }
+});
+["tgDependency", "tgAssignee", "tgProgress", "tgProgressLine", "tgMarker", "tgHalo"].forEach(function (id) {
+  el(id).addEventListener("change", renderSchedule);
+});
+
+function doFit() {
+  var usable = el("scheduleCanvas").clientWidth - settings.rowTitleWidth - 20;
+  view.zoomX = Math.max(settings.zoomMin, Math.min(settings.zoomMax,
+                usable / (HORIZON_DAYS * settings.pxPerDayAt1x)));
+  view.zoomY = 1;
+  redrawActive();
+}
+
+function zoomBy(dir, axis) {
+  var f = Math.pow(settings.zoomStep, dir);
+  if (axis !== "y") view.zoomX = Math.max(settings.zoomMin, Math.min(settings.zoomMax, view.zoomX * f));
+  if (axis !== "x") view.zoomY = Math.max(settings.zoomMin, Math.min(settings.zoomMax, view.zoomY * f));
+  redrawActive();
+}
+
+el("scheduleCanvas").addEventListener("wheel", function (ev) {
+  if (!ev.ctrlKey && !ev.shiftKey && !ev.altKey) return;   // plain wheel scrolls
+  if (ev.ctrlKey && ev.shiftKey) return;                   // reserved for horizontal scroll
+  ev.preventDefault();
+  var dir = ev.deltaY > 0 ? -1 : 1;
+  zoomBy(dir, ev.ctrlKey ? "both" : (ev.shiftKey ? "x" : "y"));
+}, { passive: false });
+
+document.addEventListener("keydown", function (ev) {
+  var tag = (ev.target.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "select" || tag === "textarea") return;
+  var plus = ev.key === "+" || ev.key === ";" || ev.key === "=";
+  var minus = ev.key === "-" || ev.key === "_";
+  if (ev.ctrlKey && ev.key === "0") { ev.preventDefault(); view.zoomX = 1; view.zoomY = 1; redrawActive(); return; }
+  if (!ev.ctrlKey && !ev.shiftKey && !ev.altKey && (ev.key === "f" || ev.key === "F")) { ev.preventDefault(); doFit(); return; }
+  if (!plus && !minus) return;
+  if (!ev.ctrlKey && !ev.shiftKey && !ev.altKey) return;
+  ev.preventDefault();
+  zoomBy(plus ? 1 : -1, ev.ctrlKey ? "both" : (ev.shiftKey ? "x" : "y"));
+});
+
+el("scheduleCanvas").addEventListener("click", function (ev) {
+  var pt = ev.target.closest ? ev.target.closest("path, rect, text, circle, line") : null;
+  if (!pt) return;
+  // pick the task whose occupied span contains the click, in the clicked row
+  var box = el("scheduleCanvas").getBoundingClientRect();
+  var x = ev.clientX - box.left + el("scheduleCanvas").scrollLeft - settings.rowTitleWidth;
+  var day = x / (settings.pxPerDayAt1x * view.zoomX);
+  var best = null, bestGap = Infinity;
+  TASKS.forEach(function (t) {
+    var gap = day < t.start ? t.start - day : (day > t.finish ? day - t.finish : 0);
+    if (gap < bestGap) { bestGap = gap; best = t; }
+  });
+  if (best && bestGap < 6) {
+    selectedTask = best;
+    renderProperties();
+    if (!el("sidePanel").classList.contains("open")) el("btnSide").click();
+  }
+});
+
+showTab("schedule");
+renderSettings();
+</script>
+</body>
+</html>

@@ -367,7 +367,7 @@ function build() {
   var place = {};
   packs.forEach(function (pk) {
     pk.items.forEach(function (it) {
-      place[it.t.uid] = { g: it.g, top: pk.y + pk.stackTop[it.stackIndex], h: it.g.m.planH };
+      place[it.t.uid] = { g: it.g, top: pk.y + pk.stackTop[it.stackIndex], h: it.g.m.planHeight };
     });
   });
 
@@ -415,27 +415,27 @@ function build() {
     pk.items.forEach(function (it) {
       var t = it.t, g = it.g, m = g.m, ty = pk.y + pk.stackTop[it.stackIndex];
       var sx0 = originX + g.sx0, sx1 = originX + g.sx1;
-      var midY = ty + m.planH / 2, fs = m.fontSize;
+      var midY = ty + m.planHeight / 2, fs = m.fontSize;
 
       if (t.milestone) {
         s.push('<path d="' + diamond((sx0 + sx1) / 2, midY, m.glyphSize) +
                '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + r1(S.planStroke) + '"/>');
         if (t.hasActual) {
-          s.push('<path d="' + diamond((sx0 + sx1) / 2, ty + m.belowActualTop + m.actualH / 2,
-                 m.actualH) + '" fill="var(--actual-fill)"/>');
+          s.push('<path d="' + diamond((sx0 + sx1) / 2, ty + m.belowActualTop + m.actualHeight / 2,
+                 m.actualHeight) + '" fill="var(--actual-fill)"/>');
         }
       } else if (hasThickness(t.shapeKind)) {
-        s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty, m.planH) +
+        s.push('<path d="' + thickPath(t.shapeKind, sx0, sx1, ty, m.planHeight) +
                '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + r1(S.planStroke) + '"/>');
         if (t.hasActual) {
           s.push('<path d="' + thickPath(t.shapeKind, originX + g.aX0, originX + g.aX1,
-                 ty + m.insideActualTop, m.actualH) + '" fill="var(--actual-fill)"/>');
+                 ty + m.insideActualTop, m.actualHeight) + '" fill="var(--actual-fill)"/>');
         }
       } else {
-        s.push(thinSvg(t.shapeKind, sx0, sx1, ty, m.planH, "var(--plan-stroke)", m.thinStroke));
+        s.push(thinSvg(t.shapeKind, sx0, sx1, ty, m.planHeight, "var(--plan-stroke)", m.thinStroke));
         if (t.hasActual) {
           s.push(thinSvg(t.shapeKind, originX + g.aX0, originX + g.aX1,
-                 ty + m.belowActualTop, m.actualH, "var(--actual-fill)", m.thinStroke));
+                 ty + m.belowActualTop, m.actualHeight, "var(--actual-fill)", m.thinStroke));
         }
       }
 
@@ -485,13 +485,13 @@ function build() {
         var top = pk.y + pk.stackTop[li], hh = 0, vx = null;
         pk.items.forEach(function (it) {
           if (it.stackIndex !== li) return;
-          hh = Math.max(hh, it.g.m.planH);
+          hh = Math.max(hh, it.g.m.planHeight);
           var v = progressVertex(it.t, ppd);
           if (v == null) return;
           v += originX;
           if (vx == null || v < vx) vx = v;
         });
-        if (!hh) hh = ctx.m("rectangle").planH;
+        if (!hh) hh = ctx.m("rectangle").planHeight;
         pts.push([vx == null ? todayX : vx, top + hh / 2]);
         if (vx != null) vertexCount++;
       }
