@@ -44,22 +44,22 @@
 
   /* ---- schedule: one hue drives plan and actual together */
   --hue: 214;
-  --plan-fill: hsl(var(--hue) 46% 80%);
-  --plan-stroke: hsl(var(--hue) 44% 46%);
-  --actual-fill: hsl(var(--hue) 62% 34%);
-  --actual-stroke: hsl(var(--hue) 66% 22%);
+  --plan-fill: hsl(var(--hue) calc(46% * var(--sat-scale, 1)) var(--plan-l, 80%));
+  --plan-stroke: hsl(var(--hue) calc(44% * var(--sat-scale, 1)) var(--stroke-l, 46%));
+  --actual-fill: hsl(var(--hue) calc(62% * var(--sat-scale, 1)) var(--actual-l, 34%));
+  --actual-stroke: hsl(var(--hue) calc(66% * var(--sat-scale, 1)) 22%);
 
   /* ---- fixed-role colours */
-  --dep: hsl(26 88% 44%);
-  --lightning: hsl(354 62% 42%);
+  --dep: hsl(26 calc(88% * var(--sat-scale, 1)) 44%);
+  --lightning: hsl(354 calc(62% * var(--sat-scale, 1)) 42%);
   --marker-ink: #16181d;
   --marker-bg: #ffffff;
   --status: #8b9099;
 
   /* ---- row banding */
-  --band: hsl(var(--hue) 42% 96%);
-  --band-edge: hsl(var(--hue) 34% 88%);
-  --row-top: hsl(var(--hue) 40% 97%);
+  --band: hsl(var(--hue) calc(42% * var(--sat-scale, 1)) 96%);
+  --band-edge: hsl(var(--hue) calc(34% * var(--sat-scale, 1)) 88%);
+  --row-top: hsl(var(--hue) calc(40% * var(--sat-scale, 1)) 97%);
   --row-alt: #fafbfc;
 
   /* ---- label ink. Black on light, white on dark. */
@@ -84,18 +84,18 @@
     --good: #6fc98d;
     --warn: #e0a353;
     --bad: #e07a7a;
-    --plan-fill: hsl(var(--hue) 32% 26%);
-    --plan-stroke: hsl(var(--hue) 46% 66%);
-    --actual-fill: hsl(var(--hue) 62% 64%);
-    --actual-stroke: hsl(var(--hue) 70% 80%);
-    --dep: hsl(30 92% 60%);
-    --lightning: hsl(354 70% 64%);
+    --plan-fill: hsl(var(--hue) calc(32% * var(--sat-scale, 1)) var(--plan-l, 26%));
+    --plan-stroke: hsl(var(--hue) calc(46% * var(--sat-scale, 1)) var(--stroke-l, 66%));
+    --actual-fill: hsl(var(--hue) calc(62% * var(--sat-scale, 1)) var(--actual-l, 64%));
+    --actual-stroke: hsl(var(--hue) calc(70% * var(--sat-scale, 1)) 80%);
+    --dep: hsl(30 calc(92% * var(--sat-scale, 1)) 60%);
+    --lightning: hsl(354 calc(70% * var(--sat-scale, 1)) 64%);
     --marker-ink: #e8eaee;
     --marker-bg: #14161a;
     --status: #767c86;
-    --band: hsl(var(--hue) 18% 20%);
-    --band-edge: hsl(var(--hue) 16% 28%);
-    --row-top: hsl(var(--hue) 20% 17%);
+    --band: hsl(var(--hue) calc(18% * var(--sat-scale, 1)) 20%);
+    --band-edge: hsl(var(--hue) calc(16% * var(--sat-scale, 1)) 28%);
+    --row-top: hsl(var(--hue) calc(20% * var(--sat-scale, 1)) 17%);
     --row-alt: #191c21;
     --label-ink: #ffffff;
     --shadow: rgba(0, 0, 0, 0.6);
@@ -113,18 +113,18 @@
   --good: #6fc98d;
   --warn: #e0a353;
   --bad: #e07a7a;
-  --plan-fill: hsl(var(--hue) 32% 26%);
-  --plan-stroke: hsl(var(--hue) 46% 66%);
-  --actual-fill: hsl(var(--hue) 62% 64%);
-  --actual-stroke: hsl(var(--hue) 70% 80%);
-  --dep: hsl(30 92% 60%);
-  --lightning: hsl(354 70% 64%);
+  --plan-fill: hsl(var(--hue) calc(32% * var(--sat-scale, 1)) var(--plan-l, 26%));
+  --plan-stroke: hsl(var(--hue) calc(46% * var(--sat-scale, 1)) var(--stroke-l, 66%));
+  --actual-fill: hsl(var(--hue) calc(62% * var(--sat-scale, 1)) var(--actual-l, 64%));
+  --actual-stroke: hsl(var(--hue) calc(70% * var(--sat-scale, 1)) 80%);
+  --dep: hsl(30 calc(92% * var(--sat-scale, 1)) 60%);
+  --lightning: hsl(354 calc(70% * var(--sat-scale, 1)) 64%);
   --marker-ink: #e8eaee;
   --marker-bg: #14161a;
   --status: #767c86;
-  --band: hsl(var(--hue) 18% 20%);
-  --band-edge: hsl(var(--hue) 16% 28%);
-  --row-top: hsl(var(--hue) 20% 17%);
+  --band: hsl(var(--hue) calc(18% * var(--sat-scale, 1)) 20%);
+  --band-edge: hsl(var(--hue) calc(16% * var(--sat-scale, 1)) 28%);
+  --row-top: hsl(var(--hue) calc(20% * var(--sat-scale, 1)) 17%);
   --row-alt: #191c21;
   --label-ink: #ffffff;
   --shadow: rgba(0, 0, 0, 0.6);
@@ -366,6 +366,8 @@ var SPEC = [
     rng: function () { return { lo: 40, hi: 500 }; } },
   { g: "ラベル", k: "rowTitleFont", n: "行名の文字", u: "px", step: 1, d: 13,
     rng: function (S) { return { lo: S.fontMin, hi: 40, why: "和文の可読下限を割らない" }; } },
+  { g: "ラベル", k: "rowTitleTopScale", n: "深さ 1 の行名の倍率", u: "x", step: 0.05, d: 1.3,
+    rng: function () { return { lo: 1, hi: 2, why: "深さ 1 は他より小さくしない" }; } },
   { g: "ラベル", k: "rowTitleIndent", n: "行名の 1 段のインデント", u: "px", step: 1, d: 12,
     rng: function () { return { lo: 0, hi: 60 }; } },
 
@@ -781,7 +783,9 @@ global.POC_UI = {
   .tabs button[aria-selected="true"] { background:var(--bg); color:var(--ink);
                                        font-weight:700; border-bottom-color:var(--accent); }
   .cmds { display:flex; gap:6px; align-items:center; }
-  .cmds button { font-size:12px; padding:1px 8px; line-height:1.25; }
+  .cmds button, .cmds select { font-size:12px; padding:1px 8px; line-height:1.25;
+                               background:var(--bg); color:var(--ink);
+                               border:1px solid var(--rule); border-radius:4px; font-family:inherit; }
   .cmds .zoomOut { font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700;
                    white-space:nowrap; font-size:12px; }
 
@@ -832,6 +836,9 @@ global.POC_UI = {
      block comes later in the file and would win. */
   /* No fixed height: it takes whatever the window leaves (min-height:0 so the
      flex item is allowed to be shorter than its content and scroll instead). */
+  /* Panel Divider: the grab strip over the Row Title Panel's right border. */
+  #panelDivider { cursor: col-resize; }
+
   /* No rounding: the instrument row carries the top corners and the canvas runs
      out to the bottom edge of the window. */
   .scheduleCanvas { border:1px solid var(--rule); border-radius:0;
@@ -925,6 +932,8 @@ global.POC_UI = {
     <button id="btnFit">Fit (F)</button>
     <button id="btnReset">等倍 (Ctrl+0)</button>
     <button id="btnTheme">テーマ</button>
+    <button id="btnMono">カラー</button>
+    <select id="selHue" title="色相"></select>
     <button id="btnSide" aria-expanded="false">設定 ▸</button>
   </div>
 </header>
@@ -1872,11 +1881,14 @@ function progressLinePoints(layout) {
       // same stack: the most delayed vertex wins (07 §4-2)
       if (perStack[p.stackIndex] == null || v < perStack[p.stackIndex]) perStack[p.stackIndex] = v;
     });
+    // ONE point per stack, at the middle of the bar. The line slants in and
+    // out of it, so a late stack reads as a spike -- that is the shape the
+    // name refers to. Two points at the same x drew a vertical bar per stack
+    // instead, and a row of parallel bars has no direction to read.
     for (var s = 0; s < Math.max(1, pack.stackCount); s++) {
       var x = perStack[s] == null ? baseX : originX + perStack[s];
       var top = pack.y + (pack.stackTop[s] || 0);
-      pts.push([x, top - settings.progressLineOverhang]);
-      pts.push([x, top + planHeight + settings.progressLineOverhang]);
+      pts.push([x, top + planHeight / 2]);
     }
   });
   pts.push([baseX, layout.contentHeight]);
@@ -1943,8 +1955,11 @@ function renderSchedule() {
                '" stroke="var(--rule)" stroke-opacity="0.7"/>');
     }
     // Row titles go into their own frozen layer, not into the scrolling body.
+    // Depth 1 is the phase heading; it carries the structure, so it is set
+    // larger than the rows nested under it.
+    var titleFont = settings.rowTitleFont * (group.depth === 1 ? settings.rowTitleTopScale : 1);
     titles.push('<text x="' + r1(settings.labelPad + (group.depth - 1) * settings.rowTitleIndent) + '" y="' +
-             r1(pack.y + settings.rowTitleFont) + '" font-size="' + r1(settings.rowTitleFont) + '" fill="' +
+             r1(pack.y + titleFont) + '" font-size="' + r1(titleFont) + '" fill="' +
              (group.depth === 1 ? "var(--accent)" : "var(--sub)") + '"' +
              (group.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(group.name) + '</text>');
 
@@ -2007,10 +2022,14 @@ function renderSchedule() {
   // Row Title Panel does not scroll sideways, Time Ruler does not scroll down
   // (§1). Both live in their own <g>, translated back by the scroll offset,
   // which is why nothing has to be redrawn while scrolling.
+  // The Panel Divider is a wider invisible strip over the border: 1px is not
+  // something anyone can hit, so the grab area is 8px and the border stays 1px.
   var titleLayer =
     '<g id="gTitles"><rect x="0" y="0" width="' + r1(originX) + '" height="' + r1(contentHeight) +
     '" fill="var(--panel)"/><line x1="' + r1(originX) + '" y1="0" x2="' + r1(originX) +
-    '" y2="' + r1(contentHeight) + '" stroke="var(--rule)"/>' + titles.join("") + '</g>';
+    '" y2="' + r1(contentHeight) + '" stroke="var(--rule)"/>' + titles.join("") +
+    '<rect id="panelDivider" x="' + r1(originX - 4) + '" y="0" width="8" height="' +
+    r1(contentHeight) + '" fill="transparent"/></g>';
   var rulerLayer = '<g id="gRuler">' + ruler.join("") + '</g>';
   var cornerLayer =
     '<g id="gCorner"><rect x="0" y="0" width="' + r1(originX) + '" height="' + r1(bandH) +
@@ -2286,7 +2305,16 @@ function renderGlyphs() {
       '</td></tr>');
   });
   sw.push('</table>');
-  sw.push('<p class="hint">テーマ: <b>' + POC_UI.currentTheme() + '</b>。' +
+  sw.push('<div class="ruleBlock">文書に保存する（テーマカラーはプロジェクトの決めごと・§4-2）\n' +
+    '  themePreference   ' + POC_UI.currentTheme() + '\n' +
+    '  themeHue          ' + theme.themeHue + '\n' +
+    '  themeMonochrome   ' + theme.themeMonochrome + '\n' +
+    '\n保存しない（毎回 contrast 規則から解く。解を保存すると規則と絵が食い違う）\n' +
+    '  地の彩度          ' + paletteSaturation.toFixed(1) + '%\n' +
+    '  明度の寄せ幅      ' + paletteShift + '</div>');
+  sw.push('<p class="hint">' +
+    (theme.themeMonochrome ? "モノクロなので地に色は乗らない。"
+      : "地の彩度は<b>この値を上げるとどれかの比が落ちる</b>ぎりぎりの値。") +
     '地の相対輝度 ' + (Math.round(bgY * 1000) / 1000) + '。' +
     '比は「実測値」の列どうしを WCAG の式で計算したもので、書き写した値ではない。' +
     '色相を変えても成立するかは<b>「色と縁取り」タブ</b>で確かめる（10 色相 × ライト/ダーク）。</p>');
@@ -2611,8 +2639,92 @@ el("btnSide").addEventListener("click", function () {
   this.setAttribute("aria-expanded", String(open));
   this.textContent = open ? "設定 ◂" : "設定 ▸";
 });
+// ---- background palette ---------------------------------------------------
+// Light / dark, colour / monochrome, and which hue. In colour the background
+// carries that hue as strongly as it can WITHOUT breaking any contrast
+// requirement -- "as pale as it has to be" is measured, not guessed: each
+// candidate tint is applied and then checked against the same table the
+// 色と縁取り tab reports (§2-5).
+/**
+ * Document settings, not viewer preferences: the colour theme is the project's
+ * theme colour, so it travels with the file (grs-document-settings-ja.md §4-2).
+ * `themePreference` lives in the DOM's data-theme attribute in this PoC.
+ *
+ * NOTHING derived from these is stored. The background saturation and the
+ * per-hue lightness shift are solved from the contrast rules on every apply,
+ * so changing a rule can never leave a stale colour behind.
+ */
+var theme = { themeHue: 214, themeMonochrome: false };
+
+function paletteFails() {
+  for (var i = 0; i < COLOUR_ROLES.length; i++) {
+    var c = COLOUR_ROLES[i];
+    if (!c.need || !c.against) continue;
+    var got = POC_UI.contrast(POC_UI.luminance(resolvedColour(c.token)),
+                              POC_UI.luminance(resolvedColour(c.against)));
+    if (got < c.need) return c.token;
+  }
+  return null;
+}
+
+function applyPalette() {
+  var root = document.documentElement;
+  var dark = POC_UI.currentTheme() === "dark";
+  root.style.setProperty("--hue", theme.themeHue);
+  root.style.setProperty("--sat-scale", theme.themeMonochrome ? 0 : 1);
+  // Solve against the background the page will actually end up with. Solving
+  // against pure white and then tinting to 97% moved the goalposts after the
+  // answer was found, and two hues failed on exactly that gap.
+  var light = dark ? 10 : 97;
+  root.style.setProperty("--bg", theme.themeMonochrome ? (dark ? "#14161a" : "#ffffff")
+                                             : "hsl(" + theme.themeHue + " 0% " + light + "%)");
+
+  // Step 1 -- shift the palette lightness until every requirement passes.
+  // Hues do not share an intrinsic brightness: yellow at 46% lightness is far
+  // lighter to the eye than blue at 46%, so one fixed set of lightnesses
+  // cannot serve ten hues. The shift is the SMALLEST that works, so the
+  // settled blue palette (07 §2-6) comes out untouched at 0.
+  var base = dark ? { plan: 26, stroke: 66, actual: 64 }
+                  : { plan: 80, stroke: 46, actual: 34 };
+  var dir = dark ? 1 : -1;
+  function setShift(k) {
+    root.style.setProperty("--plan-l", clampPct(base.plan + dir * k * 0.4) + "%");
+    root.style.setProperty("--stroke-l", clampPct(base.stroke + dir * k) + "%");
+    root.style.setProperty("--actual-l", clampPct(base.actual + dir * k * 0.6) + "%");
+  }
+  paletteShift = 0;
+  for (var k = 0; k <= 44; k += 2) { setShift(k); paletteShift = k; if (!paletteFails()) break; }
+
+  if (theme.themeMonochrome) { paletteSaturation = 0; return; }
+
+  // Step 2 -- the strongest background tint that still passes everything.
+  var lo = 0, hi = 70;
+  for (var i = 0; i < 9; i++) {
+    var mid = (lo + hi) / 2;
+    root.style.setProperty("--bg", "hsl(" + theme.themeHue + " " + mid + "% " + light + "%)");
+    if (paletteFails()) hi = mid; else lo = mid;
+  }
+  root.style.setProperty("--bg", "hsl(" + theme.themeHue + " " + lo.toFixed(1) + "% " + light + "%)");
+  paletteSaturation = lo;
+}
+function clampPct(v) { return Math.max(0, Math.min(100, Math.round(v * 10) / 10)); }
+var paletteSaturation = 0, paletteShift = 0;
+
+el("selHue").innerHTML = POC_UI.HUES.map(function (h) {
+  return '<option value="' + h.hue + '">' + esc(h.name) + '</option>';
+}).join("");
+el("selHue").value = String(theme.themeHue);
+el("selHue").addEventListener("change", function () {
+  theme.themeHue = Number(this.value); applyPalette(); redrawActive();
+});
+el("btnMono").addEventListener("click", function () {
+  theme.themeMonochrome = !theme.themeMonochrome;
+  this.textContent = theme.themeMonochrome ? "モノクロ" : "カラー";
+  applyPalette(); redrawActive();
+});
 el("btnTheme").addEventListener("click", function () {
   POC_UI.setTheme(POC_UI.currentTheme() === "dark" ? "light" : "dark");
+  applyPalette();
   redrawActive();
 });
 el("btnReset").addEventListener("click", function () {
@@ -2732,9 +2844,17 @@ canvas.addEventListener("wheel", function (ev) {
 // Pan is 1:1 with the pointer -- no factor. Dragging the BACKGROUND pans;
 // dragging a Task selects it (§5-2). data-uid on the task group is what tells
 // the two apart, so nothing has to be guessed from coordinates.
-var pan = null;
+var pan = null, dividerDrag = null;
 canvas.addEventListener("pointerdown", function (ev) {
   hideHint();
+  // The Panel Divider is checked first: it sits over the canvas, and a drag
+  // that starts on it resizes the Row Title Panel rather than panning (§1).
+  if (ev.target && ev.target.id === "panelDivider") {
+    ev.preventDefault();
+    dividerDrag = { x: ev.clientX, width: settings.rowTitleWidth };
+    canvas.setPointerCapture(ev.pointerId);
+    return;
+  }
   var onTask = ev.target.closest ? ev.target.closest("[data-uid]") : null;
   if (ev.button === 0 && onTask && !ev.ctrlKey) {
     selectedUid = Number(onTask.getAttribute("data-uid"));
@@ -2750,11 +2870,22 @@ canvas.addEventListener("pointerdown", function (ev) {
   canvas.classList.add("panning");
 });
 canvas.addEventListener("pointermove", function (ev) {
+  if (dividerDrag) {
+    var q = POC_UI.ranges().rowTitleWidth;
+    settings.rowTitleWidth = Math.max(q.lo, Math.min(q.hi,
+      dividerDrag.width + (ev.clientX - dividerDrag.x)));
+    renderSchedule();
+    return;
+  }
   if (!pan) return;
   canvas.scrollLeft = pan.left - (ev.clientX - pan.x);
   canvas.scrollTop = pan.top - (ev.clientY - pan.y);
 });
-function endPan() { if (pan) { pan = null; canvas.classList.remove("panning"); } }
+function endPan() {
+  if (pan) { pan = null; canvas.classList.remove("panning"); }
+  // the settings panel is rebuilt once at the end, not on every pointermove
+  if (dividerDrag) { dividerDrag = null; renderSettings(); }
+}
 canvas.addEventListener("pointerup", endPan);
 canvas.addEventListener("pointercancel", endPan);
 canvas.addEventListener("scroll", syncFrozenPanes);
@@ -2892,7 +3023,9 @@ function sample(p, dark, label) {
       '" stroke="' + hsl(p, "stroke") + '"/>' +
     '<rect x="8" y="9" width="' + actW + '" height="16" fill="' + hsl(p, "act") + '"/>' +
     '<text x="14" y="' + (6 + planH / 2 + 4) + '" font-size="12" fill="' + ink +
-      '" font-family="Yu Gothic UI, Meiryo, sans-serif">' + label + '</text>' +
+      '" stroke="' + (dark ? "#14161a" : "#ffffff") + '" stroke-width="2"' +
+      ' paint-order="stroke fill" stroke-linejoin="round"' +
+      ' font-family="Yu Gothic UI, Meiryo, sans-serif">' + label + '</text>' +
     '</svg>';
 }
 
@@ -2982,12 +3115,10 @@ function renderHaloEffect() {
     rows.push(
       '<div class="hue"><div class="head"><span class="nm">' + h.name + '</span>' +
       '<span class="hv">§2-6 の確定色のまま</span></div><div class="body">' +
-      '<div class="hint" style="margin:0 0 3px 0">縁取り <b>無し</b> — 文字の左半分が実績バーに載る</div>' +
-      haloPair(cur, dark, false) +
-      '<div class="kv"><div class="k">文字 ÷ 実績</div><div class="v ' +
-        (sc.inkOnActual >= 4.5 ? "ok" : "ng") + '">' + r2(sc.inkOnActual) + ' : 1（要 4.5）</div></div>' +
-      '<div class="hint" style="margin:10px 0 3px 0">縁取り <b>有り</b> — 同じ色・同じ文字</div>' +
+      '<div class="hint" style="margin:0 0 3px 0">縁取り <b>有り</b>（確定。この頁の文字はすべて縁取り）</div>' +
       haloPair(cur, dark, true) +
+      '<div class="kv"><div class="k">縁が無ければ 文字 ÷ 実績</div><div class="v ' +
+        (sc.inkOnActual >= 4.5 ? "ok" : "ng") + '">' + r2(sc.inkOnActual) + ' : 1（要 4.5）</div></div>' +
       '<div class="kv"><div class="k">文字が接する色</div><div class="v ok">縁（背景色）</div>' +
       '<div class="k">文字 ÷ 縁</div><div class="v ok">21 : 1</div>' +
       '<div class="k">実績 ÷ 予定</div><div class="v ok">' + r2(sc.actualOverPlan) + ' : 1</div></div>' +
@@ -2995,11 +3126,14 @@ function renderHaloEffect() {
   });
   document.getElementById("haloEffect").innerHTML =
     '<div class="grid">' + rows.join("") + '</div>' +
-    '<div class="note"><strong>上下 2 本は色も文字もまったく同じで、縁取りの有無だけが違う。</strong>' +
-    '上（無し）は文字の左半分が実績バーに載って読めない — これが §1 で色を動かさざるを得なかった理由である。' +
-    '下（有り）は文字が接するのが縁＝背景色になるので比が <b>21:1</b> で固定になり、' +
+    '<div class="note"><strong>この頁の文字はすべて縁取りありで描いてある</strong>（確定・07 §2-7）。' +
+    '文字が接するのが縁＝背景色になるので比は <b>21:1</b> で固定になり、' +
     '<strong>§2-6 の確定色をそのまま使える</strong>。' +
-    'ユーザーが任意の塗り色を選んでも（項 12 / 項 23）比が変わらないのも同じ理由である。</div>';
+    'ユーザーが任意の塗り色を選んでも（項 12 / 項 23）比が変わらないのも同じ理由である。' +
+    '各カードの「縁が無ければ 文字 ÷ 実績」は、<strong>縁取りが無い場合に落ちていた比</strong>で、' +
+    '§1 で色を動かさざるを得なかった理由にあたる。' +
+    '縁取りの<strong>描画コスト</strong>は §5-3 で有無を比べて測る — ' +
+    'そこだけは比較しないと差が出せないので、無しの絵を残してある。</div>';
 }
 
 // ---------------------------------------------------------------- section 3
@@ -3311,6 +3445,7 @@ window.renderColour = function () {
 };
 })();
 
+applyPalette();
 showTab("schedule");
 renderSettings();
 </script>

@@ -1006,6 +1006,8 @@ exportPngScale        1 | 2                                PNG の倍率（項 5
 
 --- 2026-07-31 に「保存しない」から移した ---
 themePreference       'light' | 'dark'                     明暗テーマ
+themeHue              0..359                               テーマの色相（プロジェクトのテーマカラー）
+themeMonochrome       真偽                                 モノクロにするか
 zoomX / zoomY         数値                                 ズーム倍率
 scrollDate            日付                                 表示の左端が指す日付
 scrollRowUid          行の識別子                           表示の上端が指す行

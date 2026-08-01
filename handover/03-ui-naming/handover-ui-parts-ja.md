@@ -330,6 +330,20 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 > **どの要素にどの範囲が掛かるかを書く場所が無くなる**。
 > 目盛は 4 段階なので、しきい値は**その境目の数だけ 3 本**になる（`handover-ui-detail-spec-ja.md` §6-3）。
 
+**テーマ**
+
+**色のテーマはプロジェクトのテーマカラー**なので文書に保存する
+（`../02-data-model/grs-document-settings-ja.md` §4-2）。
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `themePreference` | 明暗テーマ |
+| `themeHue` | テーマの色相 |
+| `themeMonochrome` | モノクロにするか |
+
+> **`palette` を名前に使わない。** `Command Palette` / `Palette Groups` / `Palette Commands`
+> が既にあり、**同じ語が別のものを指す**ことになる（§2-1-5）。
+
 **ズーム**
 
 | 確定名（英） | 日本語 |
