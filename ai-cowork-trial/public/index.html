@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI co-work trial - shared tic-tac-toe</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f7f7f8;
+        --surface: #ffffff;
+        --border: #c9ccd2;
+        --text: #1c1e21;
+        --muted: #5c626b;
+        --human: #1f6feb;
+        --ai: #b5580a;
+        --accent: #2b6a3f;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #16181c;
+          --surface: #202329;
+          --border: #3a3f47;
+          --text: #e7e9ec;
+          --muted: #a2a8b2;
+          --human: #6ba5ff;
+          --ai: #f0a35e;
+          --accent: #6fbf87;
+        }
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        display: grid;
+        gap: 20px;
+      }
+      h1 {
+        font-size: 1.35em;
+        margin: 0;
+      }
+      .sub {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9em;
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+      }
+      .board {
+        display: grid;
+        grid-template-columns: repeat(3, 96px);
+        gap: 8px;
+        justify-content: center;
+      }
+      .cell {
+        width: 96px;
+        height: 96px;
+        font-size: 44px;
+        font-weight: 600;
+        font-family: system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .cell:disabled {
+        cursor: default;
+      }
+      .cell[data-mark='O'] {
+        color: var(--human);
+      }
+      .cell[data-mark='X'] {
+        color: var(--ai);
+      }
+      .cell:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .cell[data-pending='true'] {
+        color: var(--human);
+        opacity: 0.45;
+        border: 2px dashed var(--human);
+      }
+      .confirm-bar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        margin-top: 14px;
+        min-height: 2.2em;
+      }
+      .confirm-bar span {
+        color: var(--muted);
+        font-size: 0.9em;
+      }
+      button.primary {
+        font: inherit;
+        font-weight: 600;
+        padding: 6px 22px;
+        border-radius: 6px;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: #ffffff;
+        cursor: pointer;
+      }
+      button.primary:disabled,
+      button.action:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      .status {
+        text-align: center;
+        font-size: 1.1em;
+        font-weight: 600;
+        margin: 0 0 12px;
+        min-height: 1.7em;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        justify-content: center;
+        color: var(--muted);
+        font-size: 0.85em;
+        margin-top: 12px;
+      }
+      .meta b {
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+      }
+      .legend-human {
+        color: var(--human);
+        font-weight: 600;
+      }
+      .legend-ai {
+        color: var(--ai);
+        font-weight: 600;
+      }
+      button.action {
+        font: inherit;
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        cursor: pointer;
+      }
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        font-family: ui-monospace, monospace;
+        font-size: 0.8em;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+      details summary {
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 0.9em;
+      }
+      .live-dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #999;
+        vertical-align: baseline;
+      }
+      .live-dot[data-connected='true'] {
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>AI co-work trial &mdash; shared tic-tac-toe</h1>
+        <p class="sub">
+          One document, two editors. You are
+          <span class="legend-human">O (human)</span>, the AI is
+          <span class="legend-ai">X</span>. Both write through the same
+          <code>/api/apply</code> endpoint; this page is pushed every change over SSE.
+        </p>
+      </header>
+
+      <section class="panel">
+        <p class="status" id="status" role="status" aria-live="polite">Connecting...</p>
+        <div class="board" id="board" role="group" aria-label="Tic-tac-toe board"></div>
+        <div class="confirm-bar">
+          <span id="pending-label">Pick a cell.</span>
+          <button class="primary" type="button" id="ok" disabled>OK</button>
+          <button class="action" type="button" id="cancel" disabled>Cancel</button>
+        </div>
+        <div class="meta">
+          <span><span class="live-dot" id="live" data-connected="false"></span> live</span>
+          <span>revision <b id="revision">-</b></span>
+          <span>turn <b id="turn">-</b></span>
+          <span>last actor <b id="last-actor">-</b></span>
+          <span><button class="action" type="button" id="reset">Clear board</button></span>
+        </div>
+      </section>
+
+      <details class="panel">
+        <summary>Live document (what the AI reads from <code>GET /api/state</code>)</summary>
+        <pre id="dump">-</pre>
+      </details>
+    </main>
+
+    <script type="module">
+      const boardEl = document.getElementById('board');
+      const statusEl = document.getElementById('status');
+      const revisionEl = document.getElementById('revision');
+      const turnEl = document.getElementById('turn');
+      const lastActorEl = document.getElementById('last-actor');
+      const dumpEl = document.getElementById('dump');
+      const liveEl = document.getElementById('live');
+      const resetEl = document.getElementById('reset');
+
+      const okEl = document.getElementById('ok');
+      const cancelEl = document.getElementById('cancel');
+      const pendingLabelEl = document.getElementById('pending-label');
+
+      /** Last document received from the server. */
+      let state = null;
+      /** The cell the human has picked but not yet confirmed with OK, or null. */
+      let pendingCell = null;
+
+      const cells = [];
+      for (let index = 0; index < 9; index += 1) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'cell';
+        button.dataset.cell = String(index);
+        button.setAttribute('aria-label', `Cell ${index + 1}, empty`);
+        button.addEventListener('click', () => select(index));
+        boardEl.appendChild(button);
+        cells.push(button);
+      }
+
+      /**
+       * Pick a cell without committing it. Clicking the pending cell again clears it.
+       * Nothing is sent to the server until OK is pressed, so the human's turn ends at
+       * one explicit moment - which is what hands the turn to the AI.
+       *
+       * @param {number} cell - Board index 0..8.
+       */
+      function select(cell) {
+        pendingCell = pendingCell === cell ? null : cell;
+        if (state !== null) {
+          render(state);
+        }
+      }
+
+      /** Drop the pending pick. */
+      function cancel() {
+        pendingCell = null;
+        if (state !== null) {
+          render(state);
+        }
+      }
+
+      /**
+       * Commit the pending pick, quoting the revision this page currently shows so
+       * the server can reject a write that raced with the AI.
+       */
+      async function confirm() {
+        if (state === null || pendingCell === null) {
+          return;
+        }
+        const cell = pendingCell;
+        pendingCell = null;
+        const response = await fetch('/api/apply', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            actor: 'human',
+            baseRevision: state.revision,
+            commands: [{ type: 'place', cell, mark: 'O' }],
+          }),
+        });
+        const body = await response.json();
+        if (!response.ok) {
+          statusEl.textContent = `Rejected: ${body.error}`;
+          if (body.state !== undefined) {
+            render(body.state);
+          }
+          return;
+        }
+        render(body);
+      }
+
+      okEl.addEventListener('click', () => void confirm());
+      cancelEl.addEventListener('click', cancel);
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          cancel();
+        }
+      });
+
+      resetEl.addEventListener('click', async () => {
+        pendingCell = null;
+        const response = await fetch('/api/apply', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ actor: 'human', commands: [{ type: 'clear' }] }),
+        });
+        render(await response.json());
+      });
+
+      /**
+       * Paint the document. Called both for local writes and for pushed changes, so
+       * the human sees the AI's move without touching anything.
+       *
+       * @param {object} next - The document.
+       */
+      function render(next) {
+        state = next;
+        const finished = next.winner !== null || next.isDraw;
+        const myTurn = next.turn === 'human' && !finished;
+        if (!myTurn || (pendingCell !== null && next.board[pendingCell] !== null)) {
+          pendingCell = null;
+        }
+        for (let index = 0; index < 9; index += 1) {
+          const mark = next.board[index];
+          const button = cells[index];
+          const isPending = index === pendingCell;
+          button.textContent = mark ?? (isPending ? 'O' : '');
+          if (mark === null) {
+            delete button.dataset.mark;
+          } else {
+            button.dataset.mark = mark;
+          }
+          if (isPending) {
+            button.dataset.pending = 'true';
+          } else {
+            delete button.dataset.pending;
+          }
+          const taken = mark !== null;
+          button.disabled = taken || !myTurn;
+          button.setAttribute(
+            'aria-label',
+            `Cell ${index + 1}, ${taken ? mark : isPending ? 'selected, press OK to confirm' : 'empty'}`,
+          );
+        }
+        okEl.disabled = pendingCell === null;
+        cancelEl.disabled = pendingCell === null;
+        pendingLabelEl.textContent =
+          pendingCell !== null
+            ? `Cell ${pendingCell + 1} selected.`
+            : myTurn
+              ? 'Pick a cell.'
+              : '';
+        revisionEl.textContent = String(next.revision);
+        turnEl.textContent = next.turn ?? 'game over';
+        lastActorEl.textContent = next.lastActor ?? '-';
+        dumpEl.textContent = JSON.stringify(next, null, 2);
+        if (next.winner !== null) {
+          statusEl.textContent =
+            next.winner === 'O' ? 'You win.' : 'The AI wins.';
+        } else if (next.isDraw) {
+          statusEl.textContent = 'Draw.';
+        } else if (next.turn === 'human') {
+          statusEl.textContent = 'Your move (O).';
+        } else {
+          statusEl.textContent = 'Waiting for the AI (X)...';
+        }
+      }
+
+      const events = new EventSource('/api/events');
+      events.addEventListener('open', () => {
+        liveEl.dataset.connected = 'true';
+      });
+      events.addEventListener('error', () => {
+        liveEl.dataset.connected = 'false';
+      });
+      events.addEventListener('change', (event) => {
+        render(JSON.parse(event.data));
+      });
+    </script>
+  </body>
+</html>
