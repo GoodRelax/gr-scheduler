@@ -22,7 +22,7 @@ status: stable
 > |---|---|
 > | 実績は `actualStart` / `actualFinish` / `progressRatio` の 3 項目 | **`actualStart` / `actualDuration` / `actualFinish` / `resume` / `resumeValid` / `percentComplete`** |
 > | 進捗率は 0〜1 の入力値 | **`percentComplete` は整数・0 以上。`actualDuration` から算出して格納する導出値** |
-> | 3 状態（未着手 / 進行中 / 完了） | **4 状態**（中断・再開予定あり / 中断・再開日未定 を追加） |
+> | 3 状態（未着手 / 進行中 / 完了） | **5 状態**（中断・再開予定あり / 中断・再開日未定 を追加） |
 > | GRS は `ActualDuration` を持たない | **持つ**。実績バーの長さそのもの（稼働日数） |
 > | §3-4 #8 `Stop`/`Resume` は拡張領域へ | **撤回。`Stop`/`Resume`/`ResumeValid` は Own（ネイティブ）** |
 > | 往復対象は 6 属性（拡張領域 6 枠） | **2 属性（`fadeInDays` / `fadeOutDays` だけ。`Number` 枠 2 本）** |
@@ -186,7 +186,7 @@ percentComplete       =  round( actualDuration ÷ (finish − start) x 100 )   �
 > **上の「管理する項目」と「不変条件」は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-1 / §1-2 に従う。**
 > 本節が独自に持つのは**「持たない項目」（GRS が受け取らない MSPDI 要素）**だけである。
 
-**入力規則（4 状態）**
+**入力規則（5 状態）**
 
 **`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-3 の表に従う。ここには複製しない。**
 （同じ表を 2 か所に置くと、片方だけ直されて食い違う。実際にそうなった。）

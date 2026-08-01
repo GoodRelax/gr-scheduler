@@ -99,7 +99,7 @@ OutlineLevel    The number that indicates the level of a task in the project out
 
 > **GRS も同じ制約に倣う。** 分割区間のリストを持たない。持てば往復で必ず落ちる。
 
-### 1-3. 4 状態の判別（拡張領域を 1 枠も使わない）
+### 1-3. 5 状態の判別（拡張領域を 1 枠も使わない）
 
 | 状態 | `actualStart` | `actualDuration` | `actualFinish` | `resume` | `resumeValid` | `Stop`（export） |
 |---|---|---|---|---|---|---|
@@ -111,6 +111,11 @@ OutlineLevel    The number that indicates the level of a task in the project out
 
 `Stop` は保存項目ではなく export 時に算出する値だが、状態との対応を見失わないようここにも並べる。
 書き出しの規則は §10-1 が正で、本表と同じ内容である。
+
+> **状態は 5 つ、Progress Marker の記号は 4 つ。混同しないこと。**
+> マーカーは 未着手＋進行中 → `( )`、中断 2 種 → `( \ )` に畳むので、
+> **5 状態 → 3 記号 ＋ 導出の `(!)`（遅れ）** になる（§2-4）。
+> かつて本節の見出しが「4 状態」だったのは、この記号の数と取り違えたためである。
 
 - 完了と「中断・再開日未定」は **`actualFinish` の有無**で一意に分かれる。
 - 「中止」（もう再開しない）は**中断・再開日未定と同じもの**。専用の概念を作らない。
@@ -317,12 +322,32 @@ XSD は `type="xsd:integer"` で**制約ファセットを持たない**。解�
 
 #### 2-2-2. マイルストーンの形状は `milestoneGlyph` で持つ — **確定 2026-07-30**
 
-`shapeKind` に**マイルストーンという値がある。その詳細（〇 △ ▽ □ ☆ 五角形 六角形）はグリフを見る**、という 2 段構えにする。
+`shapeKind` に**マイルストーンという値がある。その詳細（〇 六角形 五角形 ◇ □ ☆ △ ▽）はグリフを見る**、という 2 段構えにする。
 
 ```
 TaskVisual.shapeKind        'rectangle' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone'   5 値
-TaskVisual.milestoneGlyph   'diamond' | 'circle' | 'triangleUp' | ...                    shapeKind = 'milestone' のときだけ見る
+TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
+                          | 'square' | 'star' | 'triangleUp' | 'triangleDown'   8 値
+                          既定は 'diamond'。shapeKind = 'milestone' のときだけ見る
 ```
+
+**値の並びは面積の大きい順である** — 確定。同じ外接円に内接させたときの面積で並べる。
+
+| 順 | 形状 | 英名 | 面積（R = 1） |
+|:--:|:--:|---|--:|
+| 1 | 〇 | `circle` | 3.142 |
+| 2 | 六角形 | `hexagon` | 2.598 |
+| 3 | 五角形 | `pentagon` | 2.378 |
+| 4 | ◇ | `diamond` | 2.000 |
+| 5 | □ | `square` | 2.000 |
+| 6 | ☆ | `star` | 1.323 |
+| 7 | △ | `triangleUp` | 1.299 |
+| 8 | ▽ | `triangleDown` | 1.299 |
+
+- **◇ と □ は同面積**（◇ は □ を 45° 回したもの）。既定の ◇ を先に置く。**△ と ▽ も同面積**で、上向きを先に置く。
+- **☆ と △ の差は 1.8% しかなく、`starInnerOfOuter` に依存する**（既定 0.45。範囲 0.2〜0.8 で、0.2 なら ☆ が最小になる）。
+  **既定値での順で固定する**。設定を変えても並びは変えない。
+- 面積順にする理由: パレットで**大きいものから小さいものへ**並び、選ぶときに視覚的な大小と一致する。
 
 **不変条件**: `shapeKind = 'milestone'` ⇔ **`Task.milestone = true`**。**権威は `Task.milestone` 側**であり、
 `shapeKind` は読み込み時にそれに従属して決まる。人が別々に設定できるようにしない。
@@ -346,7 +371,6 @@ TaskVisual.milestoneGlyph   'diamond' | 'circle' | 'triangleUp' | ...           
 
 - **縦棒で端を示す細線は廃止**。`*----*`（端に点を打つ）に置き換える。
 - 予定バーの高さ > 実績バーの高さ とし、**上下に露出した帯で予定を掴む**。
-- マイルストーンの形状（〇 △ ▽ □ ☆ 五角形 六角形）も `shapeKind` の同じ列に入る（既存の確定）。
 - **実績を下にずらす 2 タスク形状（`arrow` / `endpointSpan`）は、実績ぶんの高さを常に確保する**
   （表示を切り替えても行の高さが動かない。既存の確定 Q-C と同じ考え方）。行が高くなるので **PoC で実測する**（§13）。
   **マイルストーンは実績を横にずらすので確保は要らない**（占有する縦幅は ◇ 1 つぶん。§2-2。確定 2026-08-01）。
@@ -1103,7 +1127,7 @@ C-6 で「割当は MSPDI の `FieldName` に書く（これが正）＋ JSON �
 | `user-order.md` | 項 30-7 | **書き換え**。積み順の上限を安全弁に（§6-3） |
 | `user-order.md` | 項 36 | **判定を `importance` から `OutlineLevel` へ**（§5） |
 | `user-order.md` | 項 42 | `Cursor Guide` → `Guide Cursor` |
-| `user-order.md` | 項 50 | 実績の入力規則を全面差し替え（3 状態 → 4 状態） |
+| `user-order.md` | 項 50 | 実績の入力規則を全面差し替え（3 状態 → 5 状態） |
 | `user-order.md` | **項 52** | **削除**（欠番にする。上下分離表示の廃止） |
 | `user-order.md` | 項 53 | イナズマ線の頂点規則を差し替え。**「最も進んだ」→「最も遅れた」** |
 | `handover-ui-parts-ja.md` | §2-1 | **日英対応表を全数化**（済。本書 §9-3 から参照する） |

@@ -133,7 +133,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
     "canvasPadding": 10, "svgPadding": 10,
 
     "stackDirection": "up", "planActualDisplay": "both",
-    "assigneeVisible": true, "progressVisible": true, "dependencyVisible": true,
+    "assigneeVisible": false, "progressVisible": false, "dependencyVisible": true,
     "progressMarkerVisible": true, "progressLineVisible": false,
     "progressLineColor": "#b03030",
     "dualCursor": null, "guideCursorMode": "none",

@@ -937,7 +937,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 
 > ⚠️ **ALIGN-L2-004（承認済み Must）との整合**: 同要求は「サブレーン割当順を**下から上**・**最上段にマイルストーン**」と規定する。したがって:
 > - 規則 1（milestone 優先）は**必須**。start/finish だけの規則では要求を満たせない。
-> - **`stack_direction` は ALIGN-L2-004 と矛盾する**（同要求は「下から上」に固定）。→ **要 change-manager**（要求改訂か本設定の撤回かの判断）。それまで既定 `up` は ALIGN-L2-004 と一致する側なので実害はない。
+> - **`stack_direction` は ALIGN-L2-004 と矛盾する**（同要求は「下から上」に固定）。結論は下の「承認済み要求 ALIGN-L2-004 との差分」にある — **要求を「既定は下から上。人の明示指定が優先」と読み替える**。既定 `up` は要求と一致する側なので実害はない。
 > - **`stack_order`（疎な上書き）が必要な理由**: ALIGN-L1-001（同種マイルストーンを同じ高さに）/ ALIGN-L2-001（共有ベースラインへスナップ）は**ユーザーが指定した縦位置の意図**を前提とする。自動規則だけでは保存先が無く再現できない。また `uid` タイブレークはマージの再採番で**見た目が変わる**ため、人の指定を残す必要がある。
 
 > **決定的であることが必須**: 順序が実行ごとに変われば描画が揺れ、SVG 出力の再現性も失われる。`uid` 昇順の最終タイブレークで**必ず一意に定まる**。
@@ -1340,7 +1340,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | 列                                                                         | エンティティ    | 責務                                                  |
 | -------------------------------------------------------------------------- | --------------- | ----------------------------------------------------- |
 | `group_id` `task_uid` `stack_order`                                        | TaskGroupMember | 行への所属（1タスク1行）＋縦積み順（`null`=自動 / 値=人の指定・§5.6） |
-| `task_uid` `nameAnchor` `nameAlign` `shapeKind` `milestoneGlyph` `fillColor` `strokeColor` `lineWeight` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置は `null`=自動の疎な上書き。`lineWeight` は色以外の冗長符号（a11y）。`shapeKind` は 5 値で、`'milestone'` のときだけ `milestoneGlyph`（〇 △ ▽ □ ☆ 五角形 六角形）を見る。**`shapeKind='milestone'` ⇔ `Task.milestone=true`**（権威は `Task.milestone`）。 |
+| `task_uid` `nameAnchor` `nameAlign` `shapeKind` `milestoneGlyph` `fillColor` `strokeColor` `lineWeight` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置は `null`=自動の疎な上書き。`lineWeight` は色以外の冗長符号（a11y）。`shapeKind` は 5 値で、`'milestone'` のときだけ `milestoneGlyph`（〇 六角形 五角形 ◇ □ ☆ △ ▽）を見る。**`shapeKind='milestone'` ⇔ `Task.milestone=true`**（権威は `Task.milestone`）。 |
 | `task_uid` `source_project_uid` `source_uid` `last_seen_import_seq` `import_session_id` | TaskOrigin | 出自（マージの照合・§5.3/§5.4）。**行が無い＝GRS 生まれ**。`source_uid` は再取込の突合専用、`last_seen_import_seq` は「マスタから消えた候補」の導出用（§5.4C）。 |
 | `id` `parent_id` `label` `derived_from_task_uid` `order` `collapsed` `color` `height` | TaskGroup       | 行の器・階層・並び＋**行の書式**（`height` は `null`=自動の疎な上書き・論理高さ）。`label`=`null` のとき `derived_from_task_uid` のタスク名を表示（`grs-data-model-ja.md` §7.1-1）。**両方 `null` は禁止**。 |
 

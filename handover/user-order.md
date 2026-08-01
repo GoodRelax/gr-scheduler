@@ -127,7 +127,7 @@ status: stable
     | `>===>` | 矢羽根（`chevron`） | **あり** |
     | `--->` | 矢印（`arrow`） | なし |
     | `*----*` | 端点スパン（`endpointSpan`） | なし |
-    | 〇 △ ▽ □ ☆ 五角形 六角形 | マイルストーン（`milestone = true`） | なし |
+    | 〇 六角形 五角形 ◇ □ ☆ △ ▽ | マイルストーン（`milestone = true`） | なし |
 
     - **実績は予定と同じ形状で描く。** 予定が矢羽根なら実績も矢羽根。実績だけ四角にしない。
     - **上下に幅があるタスク形状は実績を内側に重ね、幅がない矢印 / 端点スパンは実績を下にずらす。
@@ -357,7 +357,7 @@ status: stable
       percentComplete = round( actualDuration ÷ (finish − start) x 100 )
       ```
 
-    - 状態は **4 つ**。これから外れる入力はできないようにする。
+    - 状態は **5 つ**。これから外れる入力はできないようにする。
       **各状態の判別（どの列に何が入るか）は `07-plan-actual/handover-plan-actual-decisions-ja.md` §1-3 の表に従う。**
 
     - **完了にしても実績バーの右端は 1 日も動かない**（`actualFinish` に右端の日付がそのまま入る）。
@@ -505,7 +505,7 @@ status: stable
 | `02-data-model/grs-data-model-ja.md` §8 | **設計判断の変遷**（何を試し、なぜ変えたか） |
 | `03-ui-naming/handover-ui-parts-ja.md` | **UI パーツ名と責務**（確定名）。**用語の正**。§2-1 が**日英対応表の正** |
 | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**（4 部構成の内訳・上部ボタン・パレット構成・ショートカット一覧） |
-| **`07-plan-actual/handover-plan-actual-decisions-ja.md`** | **予実・進捗の確定設計**。MSPDI 準拠モデル・4 状態・タスク形状・Progress Marker・イナズマ線の頂点規則・Undo・レイアウトの計算順序。**この領域はここが正**。§11 に「既存文書のどこを上書きするか」の全数 |
+| **`07-plan-actual/handover-plan-actual-decisions-ja.md`** | **予実・進捗の確定設計**。MSPDI 準拠モデル・5 状態・タスク形状・Progress Marker・イナズマ線の頂点規則・Undo・レイアウトの計算順序。**この領域はここが正**。§11 に「既存文書のどこを上書きするか」の全数 |
 | `04-performance/handover-performance-notes-ja.md` | **ぬるサクの引継ぎ**。効いた手 / 効かなかった手 / 踏んだ罠・実測基準線。最優先事項 1 の根拠。**既存コードは参考のみ・コピペ禁止** |
 | `05-security-a11y/security-design.md` | 脅威モデルと入力検証の設計 |
 | `06-background/handover-stale-spec-audit-ja.md` | 旧仕様のどこが陳腐化しているかの監査 |

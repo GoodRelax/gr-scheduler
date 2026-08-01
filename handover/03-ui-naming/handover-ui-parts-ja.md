@@ -124,7 +124,7 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 | `'arrow'` | **矢印**（`--->`） |
 | `'endpointSpan'` | **端点スパン**（`*----*`）。※「端点」と略さない。§2-1-5 |
 | `'milestone'` | **マイルストーン**（◇ ほか） |
-| `milestoneGlyph` | **マイルストーン形状**（〇 △ ▽ □ ☆ 五角形 六角形） |
+| `milestoneGlyph` | **マイルストーン形状**（〇 六角形 五角形 ◇ □ ☆ △ ▽） |
 | **`actualPlacement`** | **実績の置き方**（`'inside'` = 内側 / `'below'` = 下 / `'atActualDate'` = 実績日）。`shapeKind` から導出する |
 | `strokeColor` / `fillColor` / `lineWeight` | **線色** / 塗り色 / 線の太さ |
 | `nameAnchor` / `nameAlign` | **名称アンカー** / **名称の揃え** |
@@ -319,7 +319,7 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 |---|---|
 | `progressLineWidth` | 太さ |
 | `progressLineOverhang` | 上下へのはみ出し |
-| `statusDate` | 基準日（第 n 日） |
+| `statusDate` 🅿 | 基準日。**PoC 専用のキー** — 製品では `Project.status_date`（`StatusDate` へ書き出す Own）であり、`documentSettings` ではなく**文書のデータ**である（`../02-data-model/grs-document-settings-ja.md` §3） |
 
 **LOD のしきい値**
 
@@ -587,7 +587,7 @@ App Shell                      アプリ全体の器
 `[予定]` `[実績]` の 2 トグル（表示の絞り込み）は残す。**両方 OFF は作らせない。**
 根拠と却下案は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-2 / §2-3 が正。
 掴み点・ラベル書式の詳細は **`handover-ui-detail-spec-ja.md` §4**、
-実績の入力規則（4 状態）は **`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-3 が正**
+実績の入力規則（5 状態）は **`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-3 が正**
 （`handover-ui-detail-spec-ja.md` §4-0 と `../02-data-model/handover-property-mspdi-mapping-ja.md` §3-2 はそこを参照する）。
 
 `planSideVisibility` / `actualSideVisibility`（3 状態＝非表示/表示のみ/操作可能）という**新設列は採らない**。
