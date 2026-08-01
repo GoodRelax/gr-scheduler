@@ -821,18 +821,24 @@ global.POC_UI = {
      block comes later in the file and would win. */
   /* No fixed height: it takes whatever the window leaves (min-height:0 so the
      flex item is allowed to be shorter than its content and scroll instead). */
-  .scheduleCanvas { border:1px solid var(--rule); border-radius:6px 6px 0 0;
+  /* No rounding: the instrument row carries the top corners and the canvas runs
+     out to the bottom edge of the window. */
+  .scheduleCanvas { border:1px solid var(--rule); border-radius:0;
                     background:var(--bg); flex:1 1 auto; min-height:0; outline:none; }
   .scheduleCanvas svg { display:block; }
-  .readbar { display:flex; flex-wrap:wrap; gap:3px 16px; align-items:baseline; padding:7px 11px;
-             background:var(--panel); border:1px solid var(--rule); border-bottom:none;
-             border-radius:6px 6px 0 0; font-size:13px; font-variant-numeric:tabular-nums; }
-  .readbar .k { color:var(--sub); margin-right:4px; }
+  /* One instrument row: the toggles and the readout share a single line, so the
+     canvas keeps the height they used to cost. Everything here is a PoC memo,
+     so it sits at 12px -- the Japanese readability floor (07 §2-4-1), not
+     below it. Measured: 519 + 1170 = 1689px of content in 1865px of row. */
+  .toggles { display:flex; flex-wrap:wrap; gap:3px 13px; align-items:center;
+             padding:4px 10px; background:var(--panel); border:1px solid var(--rule);
+             border-bottom:none; border-radius:6px 6px 0 0; font-size:12px; }
+  .toggles label { display:flex; align-items:center; gap:4px; white-space:nowrap; }
+  .toggles input { margin:0; }
+  .readbar { display:flex; flex-wrap:wrap; gap:3px 12px; align-items:center;
+             font-size:12px; font-variant-numeric:tabular-nums; }
+  .readbar .k { color:var(--sub); margin-right:3px; }
   .readbar .v { font-weight:700; }
-  .toggles { display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center;
-             padding:7px 11px; background:var(--panel); border:1px solid var(--rule);
-             border-bottom:none; font-size:13px; }
-  .toggles label { display:flex; align-items:center; gap:5px; white-space:nowrap; }
 
   .patternCard { border:1px solid var(--rule); border-radius:6px; margin:14px 0; overflow:hidden; }
   .patternCard > .head { background:var(--panel); border-bottom:1px solid var(--rule);
@@ -927,8 +933,8 @@ global.POC_UI = {
         <label><input type="checkbox" id="tgProgressLine" checked> イナズマ線</label>
         <label><input type="checkbox" id="tgMarker" checked> 進捗マーカー</label>
         <label><input type="checkbox" id="tgHalo" checked> 文字の縁取り</label>
+        <span class="readbar" id="scheduleRead"></span>
       </div>
-      <div class="readbar" id="scheduleRead"></div>
       <div class="scheduleCanvas alwaysScroll panReady" id="scheduleCanvas" tabindex="0"></div>
     </section>
 
@@ -1874,10 +1880,16 @@ function renderSchedule() {
       " ／ ( )" + tally.open),
     item("overlap", '<span style="color:' + (layout.overlaps ? "var(--bad)" : "var(--good)") + '">' +
       layout.overlaps + "</span>"),
-    (fitShortfall && (fitShortfall.width || fitShortfall.height)
-      ? item("Fit", '<span style="color:var(--warn)">収まらず 横 ' + r1(fitShortfall.width) +
-          'px ／ 縦 ' + r1(fitShortfall.height) + 'px はみ出す（縦幅の下限に到達）</span>')
-      : "")
+    // Only the axis that actually overflows is named: the row has to stay on
+    // one line, and "横 0px" is not news.
+    (function () {
+      if (!fitShortfall || (!fitShortfall.width && !fitShortfall.height)) return "";
+      var over = [];
+      if (fitShortfall.width) over.push("横 " + r1(fitShortfall.width) + "px");
+      if (fitShortfall.height) over.push("縦 " + r1(fitShortfall.height) + "px");
+      return item("Fit", '<span style="color:var(--warn)">はみ出し ' +
+                  over.join(" ／ ") + '（下限）</span>');
+    })()
   ].join("");
 }
 
@@ -2538,9 +2550,27 @@ canvas.addEventListener("auxclick", function (ev) { ev.preventDefault(); });
 
 // ---- keys ----------------------------------------------------------------
 document.addEventListener("keydown", function (ev) {
+  var hintWasOpen = !!hintBox;
   hideHint();
   var tag = (ev.target.tagName || "").toLowerCase();
   if (tag === "input" || tag === "select" || tag === "textarea") return;
+
+  // Esc closes the innermost open thing, ONE per press, and swallows the key
+  // only when it actually closed something. With nothing open it goes to the
+  // browser untouched -- Esc is how someone leaves F11 fullscreen, and an app
+  // that eats it has simply broken a key (§5-1).
+  if (ev.key === "Escape") {
+    if (hintWasOpen) { ev.preventDefault(); return; }
+    if (selectedUid != null) {
+      selectedUid = null; renderProperties(); renderSchedule();
+      ev.preventDefault(); return;
+    }
+    if (el("sidePanel").classList.contains("open")) {
+      el("btnSide").click(); ev.preventDefault(); return;
+    }
+    return;                       // nothing to cancel -- leave it to the browser
+  }
+
   var plus = ev.key === "+" || ev.key === ";" || ev.key === "=";
   var minus = ev.key === "-" || ev.key === "_";
   if (ev.ctrlKey && ev.key === "0") { ev.preventDefault(); view.zoomX = 1; view.zoomY = 1; redrawActive(); return; }
