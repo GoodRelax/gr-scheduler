@@ -150,6 +150,7 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 | **`Group Grid Lines`** | **グループ罫線** |
 | **`Time Ruler`** | **タイムルーラー** |
 | `Watermark` | 透かし |
+| **`Scrollbars`** | **スクロールバー** |
 | **`Row Title Panel`** | **行見出しパネル** |
 | **`Row Title Tree`** | **行見出しツリー** |
 | `Panel Divider` | パネル境界 |
@@ -196,6 +197,7 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 | 期間 | 「予定の期間」/ **`actualDuration`（実績期間）** / 表示期間 を明示 |
 | 端点 | 単独で書いたら**掴み点**（全形状が持つバーの端）。形状名は必ず「**端点スパン**」と 4 文字で書く |
 | バー | **`Task Bars`（総称）/ `Plan Bar` / `Actual Bar`** のどれかを明示。**形状の 1 値は `rectangle`（矩形）**であって「バー」ではない |
+| カーソル | **`Cursors`**（`Today Line` / `Dual Cursor` / `Guide Cursor` の総称。**日付を指す線**）と、**「ポインタ」**（マウスが指す点。掴めるかどうかで形が変わる）を区別する。**「カーソル」単独で書いたら `Cursors` の意味**とし、マウス側は必ず「ポインタ」と書く |
 
 **文中で属性に触れるときは所属を付ける**（`stackOrder` ではなく `Task.stackOrder`）。
 §1-2 の記法により、**形で面が見分けられる**。
@@ -309,6 +311,23 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `progressLineOverhang` | 上下へのはみ出し |
 | `statusDate` | 基準日（第 n 日） |
 
+**LOD のしきい値**
+
+**描く Task と行が変わる**＝出力の中身が変わるので、これも `documentSettings` である
+（`../02-data-model/grs-document-settings-ja.md` §4-4）。
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `rulerTierPxPerDayLow` | 目盛が 年 → 年＋月 に変わる px/day |
+| `rulerTierPxPerDayHigh` | 目盛が 年＋月 → 年月＋日 に変わる px/day |
+| `itemLodReadablePx` | この幅を割った深さは描かない |
+| `rowLodBase` | 行階層 LOD の初項 |
+| `rowLodRatio` | 行階層 LOD の公比 |
+
+> **時間軸のしきい値を 2 キーに分ける理由**（確定 2026-08-01）: 上下が互いを縛るためである
+> （下 ≦ 上）。`rulerTierPxPerDay = [1, 8]` のような 1 つの配列にすると、
+> **どちらの要素にどの範囲が掛かるかを書く場所が無くなる**。
+
 **ズーム**
 
 | 確定名（英） | 日本語 |
@@ -360,21 +379,23 @@ App Shell                      アプリ全体の器
 │   │   └─ Task Bars           その行に載る Task 全部の Bar（§2-0）。milestone も含む
 │   │       ├─ Plan Bar        予定側の描画。shapeKind の形で描く
 │   │       ├─ Actual Bar      実績側の描画。予定と同じ形で描く（07 §2-2-1）
-│   │       ├─ Progress Marker タスクの状態を示す印（完了 / 中断 / 期限超過 / 未完了）
+│   │       ├─ Progress Marker タスクの状態を示す印（完了 / 遅れ / 中断 / 未完了）
 │   │       │                  07-plan-actual/handover-plan-actual-decisions-ja.md §2-4
 │   │       ├─ Resume Icon     中断のときだけ出る L 字の折れ矢印（同 §2-5）
 │   │       ├─ Name Label      Task.name。バー内に収まらなければ右へ出す（同 §6-1）
 │   │       └─ Assignee Label  担当と完了率。バーの外側左へ右揃えで連結（同 §6-1）
 │   ├─ Dependency Lines        ‼️ 抜けていた（核機能）。全自動配線・経路は保存しない
-│   └─ Canvas Overlays         ‼️ Items から分離（重ね描き層）
-│       ├─ Progress Line       イナズマ線（実績の進み遅れ）
-│       ├─ Comment Boxes       引き出し線付きコメント
-│       ├─ Highlight Boxes     丸角の囲み枠
-│       ├─ Cursors             カーソル 3 種の総称
-│       │   ├─ Today Line      本日線（固定）
-│       │   ├─ Dual Cursor     縦線 2 本で日数を測る
-│       │   └─ Guide Cursor    ポインタに追従する補助線（4 モード排他）
-│       └─ Watermark           ‼️ 抜けていた。斜めタイルの識別表示
+│   ├─ Canvas Overlays         ‼️ Items から分離（重ね描き層）
+│   │   ├─ Progress Line       イナズマ線（実績の進み遅れ）
+│   │   ├─ Comment Boxes       引き出し線付きコメント
+│   │   ├─ Highlight Boxes     丸角の囲み枠
+│   │   ├─ Cursors             日付を指す線 3 種の総称。マウスの「ポインタ」とは別物（§2-1-5）
+│   │   │   ├─ Today Line      本日線（固定）
+│   │   │   ├─ Dual Cursor     縦線 2 本で日数を測る
+│   │   │   └─ Guide Cursor    ポインタに追従する補助線（4 モード排他）
+│   │   └─ Watermark           ‼️ 抜けていた。斜めタイルの識別表示
+│   └─ Scrollbars              横・縦とも常時表示。幅は環境の既定の半分
+│                              handover-ui-detail-spec-ja.md §5-2
 │
 ├─ Properties Panel            右の属性編集パネル
 │

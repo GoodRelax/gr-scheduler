@@ -78,7 +78,7 @@
 | 11 | `05-security-a11y/security-design.md` | 脅威モデル・**JSON / MSPDI XML** の検証・単一 HTML の CSP | 要求として生きている（`user-order.md` 62）。⚠️ **冒頭の注記を先に読む** — SVG/PNG 取込の節は**対象機能が取り下げ済み** |
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
 | 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
-| **14** | **`08-poc/`** | **動く PoC 一式**（レイアウト 3 案 / ズーム 2 案 / 形状の基準 / マルチバー 20 パターン / LOD 遷移）。入口は `08-poc/index.html`、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。⚠️ 追試で分かった **7 件が未反映**（同書末尾の表）。うち 2 件は 10 の記述と食い違う |
+| **14** | **`08-poc/`** | **動く PoC 一式**（レイアウト 3 案 / ズーム 2 案 / 形状の基準 / マルチバー 20 パターン / LOD 遷移）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。⚠️ 追試で分かった **7 件が未反映**（同書末尾の表）。うち 2 件は 10 の記述と食い違う |
 | — | **`OPEN-ITEMS-ja.md`** | **実機確認の残件 3 件**（MS Project を触らないと分からないこと）。**15 分で終わるチェックリスト** | 未解決はこれだけ。**開発を止める理由にはならない** |
 | — | `NEUTRALIZED-TERMS-ja.md` | **ドメイン語・製品名を中立化した記録**（凍結リポジトリの原本との差分） | 原本を併読するとき必要 |
 
@@ -158,20 +158,17 @@ handover/
 │                                    イナズマ線の頂点規則・Undo・命名
 │                                    ⚠️ §9 に「既存文書のどこを上書きするか」の全数
 │
-└── 08-poc/                          **動く PoC 一式**（開いて触る）
+└── 08-poc/                          **動く PoC 一式**（開いて触る。サーバー不要）
     ├── README.md                    開き方と読むときの注意。**最初にこれ**
-    ├── index.html                   全ページの入口と「見る順」
     ├── POC-SPEC-ja.md               共通仕様と入力データ（§8 に既知の弱点）
     ├── POC-RESULTS-ja.md            **計測結果・推奨・書き戻し候補 7 件**
     ├── OPEN-QUESTIONS-ja.md         判断が要った 7 件（全件 決着済みの記録）
-    ├── poc-glyphs-reference.html    5 形状・予実・マーカー・Resume・イナズマ線・色の基準
-    ├── poc-multibar-patterns.html   段割当 20 パターン（overlap / 決定性 / 左右の張り出し）
-    ├── poc-zoom-lod-transitions.html  LOD 遷移点・単調性 9,600 点・Fit
-    ├── poc-layout-A-orthogonal-channel.html
-    ├── poc-layout-B-anchor-search.html      ← レイアウトの推奨案
-    ├── poc-layout-C-reserved-lane.html
-    ├── poc-zoom-A-depth-threshold.html      ← ズームの推奨案
-    └── poc-zoom-B-fit-first.html
+    ├── poc-integrated.html          **入口。現役はこの 1 本だけ**。6 タブ
+    ├── poc-layout-A-orthogonal-channel.html   ┐
+    ├── poc-layout-B-anchor-search.html        │ 凍結した計測記録
+    ├── poc-layout-C-reserved-lane.html        │ 値を焼き込んであるので動かない
+    ├── poc-zoom-A-depth-threshold.html        │ B と zoom-A が推奨案
+    └── poc-zoom-B-fit-first.html              ┘
 ```
 
 ---

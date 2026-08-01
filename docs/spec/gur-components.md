@@ -33,12 +33,12 @@ GUI Components
   
 
 Schedule Canvas
-  „¥ Date Axis
-  „¥ Grid Lines (date / category)   © ’Ç‰ÁiÀİj
-  „¥ Activity Rows
-  „    „¤ Canvas Items
-  „        „¥ Milestones
-  „        „¥ Activity Spans (task bars)
-  „        „¤ Dependency Lines        © ’Ç‰ÁiŠj‹@”\‚È‚Ì‚É”²‚¯‚Ä‚¢‚½j
-  „¤ Canvas Overlays                 © Comment/Highlight/Progress ‚ğ Items ‚©‚ç•ª—£
-      „¥ Comment Boxes / Highlight Boxes / Progress Line / Watermark
+  â”œ Date Axis
+  â”œ Grid Lines (date / category)   â† è¿½åŠ ï¼ˆå®Ÿåœ¨ï¼‰
+  â”œ Activity Rows
+  â”‚   â”” Canvas Items
+  â”‚       â”œ Milestones
+  â”‚       â”œ Activity Spans (task bars)
+  â”‚       â”” Dependency Lines        â† è¿½åŠ ï¼ˆæ ¸æ©Ÿèƒ½ãªã®ã«æŠœã‘ã¦ã„ãŸï¼‰
+  â”” Canvas Overlays                 â† Comment/Highlight/Progress ã‚’ Items ã‹ã‚‰åˆ†é›¢
+      â”œ Comment Boxes / Highlight Boxes / Progress Line / Watermark
