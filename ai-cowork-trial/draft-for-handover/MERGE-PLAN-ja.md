@@ -73,10 +73,10 @@ handover に入ると二重の入口になる）。
 |---|---|
 | `handover/README.md` §1 読む順 | 行 1 本（順位は 15 の次、`NEXT-STEPS-ja.md` の前） |
 | `handover/README.md` §2 フォルダ構成 | ツリーに `10-agent-interface/` を 1 ブロック |
-| `handover/NEXT-STEPS-ja.md` | **ステップ 3 の表に 1 行**（機械向けの口を出すか＝ `OPEN-ITEMS` O-8 / ライブラリ・CLI ＝ O-9）。**件数 18 → 20 に更新** |
-| `handover/NEXT-STEPS-ja.md` 5-1（JSON Schema） | `revisionStamp` / `conversation` をスキーマに含めるかの一文（O-5） |
+| `handover/NEXT-STEPS-ja.md` | **ステップ 3 の表に 1 行**（GRS Agent API を公開するか＝ `OPEN-ITEMS` O-8 / **描画の純粋性＝決定-1 をレビュー観点として登録**）。**件数 18 → 20 に更新** |
+| `handover/NEXT-STEPS-ja.md` 5-1（JSON Schema） | **`revisionStamp` と `changeLog` を含める**（決定-2 / 決定-3）。`agentApiVersion` は含めない |
 | `handover/09-architecture/handover-architecture-entry-ja.md` §4 | 「**意図的な空白**」の表に、ライブラリ／CLI 出力の判断が乗ることを 1 行 |
-| `handover/05-security-a11y/security-design.md` | 脅威モデルに「機械向けの口」を 1 行（`A-7` / O-8） |
+| `handover/05-security-a11y/security-design.md` | 脅威モデルに「GRS Agent API」を 1 行（`A-7` / O-8） |
 | `handover/02-data-model/handover-data-model-entry-ja.md` | JSON 実例の**すぐ下**に、`revisionStamp` を足す提案の所在を 1 行（**実例そのものは変えない**） |
 
 > ⚠️ **`grs-native-erd-ja.md`（データ構造の正）と `grs-document-settings-ja.md`（設定値の正）は触らない。**

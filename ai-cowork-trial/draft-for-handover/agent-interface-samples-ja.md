@@ -19,14 +19,14 @@ status: draft
 
 | ファイル | 中身 |
 |---|---|
-| `samples/grs-document-with-revision-stamp.json` | **文書の実例。** 既存の JSON 実例に `revisionStamp` と `conversation` を足しただけの形 |
+| `samples/grs-document-with-revision-stamp.json` | **文書の実例。** 既存の JSON 実例に `revisionStamp` と `changeLog` を足しただけの形 |
 | `samples/agent-apply-request-and-outcomes.json` | **書き込みの実例 4 本**（受理 / 版ずれ拒否 / 原子的な巻き戻し / 監視ループ） |
 
 どちらも `node -e "JSON.parse(...)"` で構文検査済みである。
 
 > ⚠️ 文書の実例は **`documentSettings` を省略している。**
 > 本物は**常に全項目を書き出す**（`handover/02-data-model/grs-document-settings-ja.md` §2）。
-> 実例の目的は「`revisionStamp` と `conversation` が**どこに座るか**」を示すことなので、
+> 実例の目的は「`revisionStamp` と `changeLog` が**どこに座るか**」を示すことなので、
 > 既存の完全な実例（`handover/02-data-model/handover-data-model-entry-ja.md` §3）を**複製していない**。
 > **正はあちらである。**
 
@@ -40,12 +40,12 @@ status: draft
 人間: 画面のチャットに書く                      -> revision 10 -> 11
 AI  : 起きる（sinceRevision 10 で待っていた）
 AI  : readDocument() で 11 を読む
-AI  : applyCommands({ baseRevision: 11, commands: [...], conversationEntry: {...} })
+AI  : applyCommands({ baseRevision: 11, commands: [...], changeExplanation: "..." })
                                                  -> revision 12
 AI  : watchChanges({ sinceRevision: 12 }) で また待つ
 ```
 
-**呼び出しは 3 回である**（起床 → 読む → 書く＋喋る）。
+**呼び出しは 3 回である**（起床 → 読む → 書く＋理由を残す）。
 `applyCommands` が新しい `revision` を返すので、**待機を張り直すために読み直す必要がない**（`A-18`）。
 
 実際のやり取りは `samples/agent-apply-request-and-outcomes.json` の
@@ -148,13 +148,13 @@ function readBootDocument(hostDocument) {
 
 ## 6. トライアルとの対応
 
-**トライアルの口を GRS の名前に置き換えたもの。** コードは写さない（`handover/README.md` §0-1）。
+**トライアルの API を GRS の名前に置き換えたもの。** コードは写さない（`handover/README.md` §0-1）。
 
 | トライアル | 本ドラフトの名前 | 変えた点 |
 |---|---|---|
 | `GET /api/state` | `readDocument()` / `readRevision()` | 読みを 2 つに分けた（版だけ欲しい場合が多い） |
 | `POST /api/apply` | `applyCommands(request)` | **発言を同じ往復に載せられるようにした**（`A-18`） |
-| `POST /api/chat` | `applyCommands` の `conversationEntry` | **別の口をやめた。** 会話だけで `revision` が進むのを避ける |
+| `POST /api/chat` | `applyCommands` の `changeExplanation` | **専用の窓口をやめ、保存対象も「変更の理由」だけに絞った。** 会話だけで `revision` が進むのも避ける |
 | `GET /api/events`（SSE） | `watchChanges(request)` | 起こす条件を「相手が何かした」に一般化 |
 | `wait.mjs --since N` | `watchChanges({ sinceRevision })` | **`sinceRevision` を必須にした**（省略でビジーループ） |
 | `{"type": "place"}` | `{"commandName": "update-task"}` | **`type` をやめた**（無意味な汎用語の禁止） |

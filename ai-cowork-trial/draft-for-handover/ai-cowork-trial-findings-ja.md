@@ -164,7 +164,7 @@ ASCII だけのコマンドは引数で渡してよい。
 | 項目 | 状態 |
 |---|---|
 | **Undo（待った）** | **実装済み・未検証。** 両者の手を 1 本の履歴スタックに載せ、画面にボタンも出したが、**このセッションでは一度も押されなかった** |
-| `file://` 直開きでの動作 | **3 件のうち 2 件は実測で決着**（§7）。残る 1 件（外からの操作可否）は拡張が未接続で測れず |
+| `file://` 直開きでの動作 | **決着済み**（§7）。残るのは「**人間が開いている画面**に外から入れるか」だけで、これは拡張が未接続のため測れず |
 | 多人数 | **未実施。** 2 者・認証なし・localhost 限定でしか動かしていない |
 | 競合の自動マージ | **未実装。** 「後勝ちを禁止し、読み直して再試行」しかしていない |
 | 長時間・大文書 | **未計測。** 文書は小さく、セッションは 1 時間程度 |
@@ -193,17 +193,18 @@ ASCII だけのコマンドは引数で渡してよい。
 
 ## 7. `file://` の実測（2026-08-02 追測）
 
-**測定環境**: Microsoft Edge 151（Chromium）/ Windows 11 / **`file://` で直接開いた本物のページ**。
-再現は `ai-cowork-trial/file-protocol-probe.html` をダブルクリックするだけ。
-**Chrome では未測定。**
+**測定環境は 2 系統ある。** §7 と §7-1 は **Microsoft Edge 151（Chromium）/ Windows 11** で
+`ai-cowork-trial/file-protocol-probe.html` を `file://` で直接開いて人が操作した。
+§7-2 は **Playwright の Chromium 1228** で外部から自動操作した
+（`node ai-cowork-trial/file-protocol-automation-probe.mjs`）。**素の Chrome では未測定。**
 
 | 測ったこと | 実測値 | 何が決まったか |
 |---|---|---|
 | `window.isSecureContext` | **`true`** | `file://` は secure context である |
-| `showSaveFilePicker` / `showOpenFilePicker` / `showDirectoryPicker` | **すべて `function`** | ファイル保存の口が存在する |
+| `showSaveFilePicker` / `showOpenFilePicker` / `showDirectoryPicker` | **すべて `function`** | ファイル保存の仕組みが存在する |
 | `showSaveFilePicker()` を呼ぶ | **`AbortError`（利用者がキャンセル）** | **ダイアログは開く。** オリジンで拒否されるなら `SecurityError` になるはずで、ならなかった |
 | 兄弟ファイルへの `fetch` | **`TypeError: Failed to fetch`** | **URL パラメータで文書を読ませる方式は `file://` では不可** |
-| 同じファイルへの `XMLHttpRequest` | **network error** | 同上（別の口でも同じ） |
+| 同じファイルへの `XMLHttpRequest` | **network error** | 同上（別の方法でも同じ） |
 | `location.search` | **読める** | パラメータは受け取れる。**中身を取りに行けないだけ** |
 | 同名で 2 回ダウンロード | 1 回目 `grs-file-probe.json` / 2 回目 **`grs-file-probe (1).json`** | **保存先は聞かれず既定フォルダ。名前は尊重されるが上書きされない** |
 
@@ -227,7 +228,7 @@ ASCII だけのコマンドは引数で渡してよい。
 1. **往復は 1 本のパスで閉じる。** 「AI が書く → 人間が開いて編集 → **同じファイルへ上書き** → AI が読み直す」が
    **実測で成立した**。測る前は「使えないかもしれない」側に賭けていた部分である。
 2. **同じ「ファイルを書き出す」でも、経路が違えば挙動が正反対だった。**
-   ダウンロードは上書きされず ` (1)` が増える。保存の口は同じ場所を上書きする。
+   ダウンロードは上書きされず ` (1)` が増える。保存の仕組みは同じ場所を上書きする。
    **「編集中のファイル」を持つなら後者しかない。**
 3. **代償は起動ごとの 1 クリック。** リロードで権限が `prompt` に戻り、
    `file://` の復帰ダイアログには「常に許可」が無いので、**この 1 クリックは省けない。**

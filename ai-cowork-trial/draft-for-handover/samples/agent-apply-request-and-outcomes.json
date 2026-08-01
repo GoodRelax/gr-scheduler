@@ -2,7 +2,7 @@
   "_comment": "Three worked examples of the write contract. Not a schema -- a readable sample. See agent-interface-spec-ja.md section 3.",
 
   "example1_acceptedBatch": {
-    "_what": "One atomic batch: push the design finish, move the milestone, and say why. One Undo step.",
+    "_what": "One atomic batch: push the design finish, move the milestone, and record why. One Undo step, one changeLog entry.",
     "request": {
       "baseRevision": 10,
       "editedBy": "agent",
@@ -11,9 +11,7 @@
         { "commandName": "update-task", "taskUid": 4,
           "start": "2027-01-15T17:00:00", "finish": "2027-01-15T17:00:00" }
       ],
-      "conversationEntry": {
-        "messageText": "verification cannot start before detailed design ends. moved it to 2027-01-15 and left the deadline at 2026-12-20 so the gap stays visible."
-      }
+      "changeExplanation": "verification cannot start before detailed design ends. moved it to 2027-01-15 and left the deadline at 2026-12-20 so the gap stays visible."
     },
     "outcome": {
       "accepted": true,
@@ -68,10 +66,10 @@
         "blocksUntil": "revision > 12 AND lastEditedBy !== 'agent'",
         "note": "sinceRevision is REQUIRED. Omitting it caused a busy loop in the trial." },
       { "wakes": { "revision": 13, "lastEditedBy": "human" },
-        "note": "the human dragged a bar, or wrote a conversation entry, or both" },
-      { "call": "applyCommands({ baseRevision: 13, commands: [...], conversationEntry: {...} })",
+        "note": "the human dragged a bar, or typed an instruction in the chat panel, or both" },
+      { "call": "applyCommands({ baseRevision: 13, commands: [...], changeExplanation: '...' })",
         "returns": { "accepted": true, "revision": 14 },
-        "note": "read + write + say in ONE round trip; the returned revision re-arms the watch" },
+        "note": "read + write + record the reason in ONE round trip; the returned revision re-arms the watch" },
       { "call": "watchChanges({ sinceRevision: 14, self: 'agent', onChange })",
         "note": "re-arm with the revision that applyCommands just returned -- no extra read" }
     ]

@@ -4,24 +4,16 @@
   "revisionStamp": {
     "revision": 12,
     "lastEditedBy": "agent",
-    "updatedAt": "2026-08-02T13:24:51.117Z",
-    "agentApiVersion": "1.0.0"
+    "updatedAt": "2026-08-02T13:24:51.117Z"
   },
 
-  "conversation": [
+  "_changeLogComment": "Only the REASON for a change is kept. The chat that led to it is runtime-only and is not stored -- see agent-interface-spec-ja.md section 2-2.",
+  "changeLog": [
     {
-      "entrySeq": 1,
-      "writtenBy": "human",
-      "messageText": "detailed design is slipping. can verification still finish in december?",
-      "atRevision": 10,
-      "writtenAt": "2026-08-02T13:22:04.900Z"
-    },
-    {
-      "entrySeq": 2,
-      "writtenBy": "agent",
-      "messageText": "no. detailed design now finishes 2026-10-15, and verification needs 8 working weeks after it, so the earliest is 2027-01-15. I moved the verification milestone and left the deadline where it was so the gap stays visible.",
-      "atRevision": 11,
-      "writtenAt": "2026-08-02T13:24:51.117Z"
+      "revision": 12,
+      "editedBy": "agent",
+      "explanation": "verification cannot start before detailed design ends, which is now 2026-10-15. moved the verification milestone to 2027-01-15 and deliberately left the deadline at 2026-12-20 so the gap stays visible.",
+      "changedAt": "2026-08-02T13:24:51.117Z"
     }
   ],
 
@@ -38,7 +30,7 @@
   },
 
   "documentSettings": {
-    "_comment": "elided in this sample. the real document always writes every key -- see handover/02-data-model/grs-document-settings-ja.md section 2. this sample only shows where revisionStamp and conversation sit relative to it."
+    "_comment": "elided in this sample. the real document always writes every key -- see handover/02-data-model/grs-document-settings-ja.md section 2. this sample only shows where revisionStamp and changeLog sit relative to it."
   },
 
   "tasks": [
