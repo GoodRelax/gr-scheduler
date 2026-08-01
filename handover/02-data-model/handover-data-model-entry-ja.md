@@ -302,7 +302,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 | | GRS JSON | MSPDI export |
 |---|---|---|
 | 値が無い列 | **`null` を明示** | **要素を書かない** |
-| `Reconstruct` 列（`ID`/`OutlineLevel`/`OutlineNumber`/`Summary`） | **持たない** | **その場で算出して書く** |
+| `Reconstruct` 列（`ID`/`OutlineNumber`/`Summary`）＋ `OutlineLevel`（**Consume**） | **持たない** | **その場で算出して書く**（`OutlineLevel` は import で必ず読むので分類は Consume） |
 | `percentComplete` | **整数・0 以上**（通常 0〜100）で持つ | `PercentComplete` に**そのまま書く**（import でも **読む＝Own**。読まないと進捗を失う） |
 | `actualDuration` | 稼働日数 | `ActualDuration` に書く。**実績バーの長さそのもの** |
 | `Duration` | **未編集は受け取った値を保持 / 編集済は持たない** | **未編集はそのまま書き戻す / 編集済は `finish − start` で算出**（§3-4 #3/#4） |

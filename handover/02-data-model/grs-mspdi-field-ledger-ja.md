@@ -454,7 +454,7 @@ erDiagram
 | `ActualFinish` | dateTime | 実績完了 | 残 | 実績バー右端 | **Own** |
 | `PercentComplete` | int | 進捗率(%)・塗り | **残** | **進捗の唯一の入力源**。読まないと復元不能（`ActualStart/Finish` からは進行中の到達率を導けない）→ `percentComplete`（**整数のまま**）。`actualDuration` から算出して格納する | **Own** |
 | `ActualDuration` | duration | 実績期間 | **残** | **進行中は `ActualFinish` が空**で `ActualFinish−ActualStart` から復元不能（StatusДまでの実経過は独立情報）。**GRS が実績バーの長さとして一級で持つ**ようになったため Carry から昇格 | **Own** |
-| `RemainingDuration` | duration | 残期間 | 削 | 同上（進行中は `Duration−進捗` が破綻）。温存 | **Carry**（同上） |
+| `RemainingDuration` | duration | 残期間 | 削 | 同上（進行中は `Duration−進捗` が破綻）。温存。**ただし完了時だけ GRS が `0` を書く**（Own 扱い・唯一の例外。`../07-plan-actual/handover-plan-actual-decisions-ja.md` §10-1） | **Carry**（完了時のみ Own） |
 | `PercentWorkComplete` | int | 作業進捗率 | 削 | 工数管理非対象 | Carry |
 | `ActualWork` `ActualOvertimeWork` `RegularWork` `OvertimeWork` `RemainingWork` `RemainingOvertimeWork` `ActualWorkProtected` `ActualOvertimeWorkProtected` | duration | 実績・残・残業の工数各種 | 削 | 工数管理非対象 | Carry |
 
@@ -600,6 +600,10 @@ erDiagram
 
 MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き別名を使う。MSPDI 出力/パーサでは**必ず XSD 実名**を使うこと。
 
+> **この対応表の正は `../01-mspdi/mspdi-tables.md` §A-2 である**（同じ別名体系・同じ 16 件）。
+> 別名は MSPDI 側の事実なので、純 MSPDI のリファレンスが持つ。以下は読みやすさのための再掲であり、
+> **食い違ったら `mspdi-tables.md` §A-2 が正**。
+
 | §5 表示別名 | **XSD 実名** | 親パス | XSD行 |
 |---|---|---|---|
 | `Calendar_WeekDay` | `WeekDay` | Calendars/Calendar/WeekDays/WeekDay | 1241 |
@@ -637,7 +641,8 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 → **8 ネイティブテーブルで「未分類ゼロ」**（全スカラー名を XSD 突合で確認済み）。
 → **明示許容の Drop は 1 件のみ**: マージ時の取込側 Carry の欠落（`grs-native-erd-ja.md` §5.4）。**WBS の深さによる Drop は無い**（同 §5.5e・クランプしない）。
 → さらに **Carry ストア設計が確定した**（`grs-native-erd-ja.md` §5.5d）ことで、**Drop=0 は機械検証の結果**になった: **入口**で「ネイティブ列＋carry」の再合成が元要素と一致するか検証し（不一致なら要素まるごと退避＝**漏れても失われない**）、**出口**で未編集往復の差分ゼロを CI 検証する。前提は **Own/Consume 列が nullable**（`null`＝元ファイルに要素なし）であること。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough（案b）の実装が Drop=0 の前提**。
-> ⚠️ **H-2（要注意）**: `ActualDuration`/`RemainingDuration` は当初 Reconstruct としたが、**進行中タスク（`ActualFinish` 空）では単純再計算が破綻**するため Carry へ格下げ済み。§8D の round-trip 同一性テストに**進行中タスクのケースを必須追加**する（完了タスクだけの検証では欠落を見逃す）。
+> ⚠️ **H-2（要注意）**: `ActualDuration`/`RemainingDuration` は当初 Reconstruct としたが、**進行中タスク（`ActualFinish` 空）では単純再計算が破綻**するため Carry へ格下げ済み。
+> なお `ActualDuration` はその後 **Own** に上がり（実績の長さを GRS が決める）、`RemainingDuration` は **完了時だけ `0` を書く**例外を持つ（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §10-1）。§8D の round-trip 同一性テストに**進行中タスクのケースを必須追加**する（完了タスクだけの検証では欠落を見逃す）。
 
 ### C. enum（Adapter 実装用）
 
@@ -663,5 +668,5 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 ### E. 参照
 
 - 分類定義・往復規約・2軸モデル: `grs-data-model-ja.md` §4/§6/§7
-- MSPDI 事実（責務・全要素・経緯 ERD）: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-declutter-erd-ja.md`, `../01-mspdi/mspdi-core-tree.md`
+- MSPDI 事実（責務・全要素）: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-core-tree.md`（断捨離の経緯 ERD は **`handover/` に無い**。`../DISCARDED-ja.md`）
 - 正: 公式 XSD <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>（ローカル複製 `../01-mspdi/mspdi/mspdi_pj12.xsd` は同梱していない）

@@ -68,8 +68,8 @@ status: stable
 | `deadline` | date-time | `Task/Deadline` | `xsd:dateTime` | **Own** | 終了日とは別の独立マーカー |
 | `stop` | — | `Task/Stop` | `xsd:dateTime` | **保存しない** | 中断時の実績バー右端と同じ値。**export 時に算出して書く**（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-1 / §10-1）。**中断しているときだけ書く**（中断していないタスクに書くと相手が分割と誤解する） |
 | `milestone` | bool | `Task/Milestone` | `xsd:boolean` | **Own** | マイルストーン判定 |
-| 担当者（表示のみ） | — | `Resource/Name` ← `Assignment` 経由 | `xsd:string` | **Consume** | GRS に自由入力欄は持たない |
-| WBS 階層 | — | `Task/OutlineLevel` | `xsd:integer` | **Reconstruct** | `wbs_parent_uid` から算出して書く |
+| 担当者（表示のみ） | — | `Resource/Name` ← `Assignment` 経由 | `xsd:string` | **Own**（`Resource.Name`） | GRS に自由入力欄は持たない。**経路の `Assignment.TaskUID` / `ResourceUID` は Consume**。両者を混ぜないこと |
+| WBS 階層 | — | `Task/OutlineLevel` | `xsd:integer` | **Consume** | import で**必ず読む**（階層の唯一の入力源）→ `wbs_parent_uid` を組む。export では木の深さから算出して書く。**`Reconstruct` ではない** — 分類語彙の `Reconstruct` は「**読まない**」を条件に含む |
 
 ### 2-2. MSPDI に対応が**無い**項目（GRS 固有）
 
@@ -183,34 +183,17 @@ resume あり           ⇒  actualFinish なし かつ resumeValid = true
 percentComplete       =  round( actualDuration ÷ (finish − start) x 100 )   ※算出して格納する
 ```
 
+> **上の「管理する項目」と「不変条件」は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-1 / §1-2 に従う。**
+> 本節が独自に持つのは**「持たない項目」（GRS が受け取らない MSPDI 要素）**だけである。
+
 **入力規則（4 状態）**
 
-| 状態 | `actualStart` | `actualDuration` | `actualFinish` | `resume` | `resumeValid` |
-|---|---|---|---|---|---|
-| 未着手 | 空 | 空 | 空 | 空 | — |
-| 進行中 | あり | あり | 空 | 空 | true |
-| **中断・再開予定あり** | あり | あり | 空 | **日付** | true |
-| **中断・再開日未定** | あり | あり | 空 | 空 | **false** |
-| 完了 | あり | あり | **あり** | 空 | false |
-
-- **実績バーの両端は人が置いた日付**。左端 = `actualStart`、右端 = `actualStart + actualDuration`（稼働日）。
-- **完了にしても右端は動かない。** `actualFinish` に右端の日付がそのまま入る。
-- **`percentComplete` は人が直接入力しない。** 日付から算出して格納する導出値である。
-- 状態を変える入口は **Progress Marker**（進捗マーカー）。クリックで 未完了 → 完了 → 中断 → 未完了 と巡る。
-- 「中止」（もう再開しない）は**中断・再開日未定と同じもの**。専用の概念を作らない。
+**`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-3 の表に従う。ここには複製しない。**
+（同じ表を 2 か所に置くと、片方だけ直されて食い違う。実際にそうなった。）
 
 **イナズマ線の頂点**
 
-```
-完了                        → 打たない
-中断・再開日未定            → 打たない
-中断・再開予定あり          → resume < 基準日 なら resume。まだ来ていなければ打たない
-未着手                      → start  < 基準日 なら start。 まだ来ていなければ打たない
-進行中                      → 実績バーの右端（actualStart + actualDuration）
-
-同じ段に複数の Task があるときは、最も遅れた頂点（最も左）が勝つ（段ごとに計算する。正は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §4-2）
-縦線は statusDate（無ければ今日）に引く。ただし常時表示にはしない
-```
+**同書 §4-1 の表と §4-2 の規則に従う。ここには複製しない。**
 
 ---
 
@@ -291,7 +274,9 @@ start / finish / actualStart / actualDuration / actualFinish / resume
 
 ```
 actualDuration = 0        → PercentComplete = 0、ActualStart は書くが ActualFinish は書かない
-完了                       → ActualFinish 必須。PercentComplete は 100
+完了                       → ActualFinish 必須。RemainingDuration は 0。
+                             PercentComplete は要素そのものを書かない
+                             （正は ../07-plan-actual/handover-plan-actual-decisions-ja.md §1-4 / §10-1）
 マイルストーン             → 予定の期間 = 0。PercentComplete は 0 か 100 のみ（0 除算に注意）
 DurationFormat             → 元の値の書式を踏襲する（7=d は稼働日 / 8=ed は暦日）
 ```
@@ -515,16 +500,10 @@ import 時にその枠が他ツールに使われているかを検出する
 決めが要るのは **JSON 往復のテストの書き方**である。JSON には `documentSettings` が入るので、
 「開く → 書き出す → バイト一致」と書くと**スクロールしただけで落ちる**。
 
-| # | 検査 | なぜ |
-|:--:|---|---|
-| 6 | **データ部**（Task / TaskGroup / TaskGroupMember / 依存 / 注記 / Carry）を**完全一致**で比較する | ここが壊れたら文書が壊れている |
-| 7 | `documentSettings` は**比較対象から外す**。代わりに **SVG 出力の一致**で再現性を見る | 表示状態は変わってよい。**再現するかどうか**が要件（項 57） |
-| 8 | `documentSettings` に**全項目が書かれている**ことを検査する | 「常に全項目を書き出す」方針。欠けたら同じ出力を保証できない |
-| 9 | 各項目が**定められた範囲内**にあることを検査する | 範囲は他の設定に追随する。範囲外の組は描画を壊す |
-| 10 | **⛔ の 3 キー（`zoomStep` / `zoomMin` / `zoomMax`）が JSON に現れない**ことを検査する | 分類が守られていることの機械的な確認。保存しない 9 項目のうちキー名を持つのはこの 3 つだけ（`grs-document-settings-ja.md` §8-2 が正） |
-| 11 | **保存しないと分類した値を変えて、SVG 出力が変わらない**ことを検査する | 分類の基準そのものの検証。**誤りを人のレビューに頼らない** |
+**JSON 往復の検査 6 件の正は `grs-document-settings-ja.md` §8-2 である。ここには複製しない。**
+（複製すると、片方だけ直されて食い違う。実際に一度そうなった。）
 
-**全項目と分類の正は `grs-document-settings-ja.md`。**
+要点だけ:「**データ部は完全一致で比較し、`documentSettings` は比較対象から外して SVG 出力の一致で見る**」。
 
 ---
 

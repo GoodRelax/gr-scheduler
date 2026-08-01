@@ -12,7 +12,7 @@ status: stable
 - 日付: 2026-07-24
 - 対象: `mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema）
 - 目的: MSPDI の全エンティティ（テーブル）の責務を一覧化し、ERD に「行」として現れない要素（スカラー/コンテナ/value-object）も棚卸しして、断捨離の判断材料にする。
-- 関連: `mspdi-core-tree.md`（MSPDI 解説）, `mspdi-declutter-erd-ja.md`（Step1-6 断捨離・ERD）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け）は `../02-data-model/grs-mspdi-field-ledger-ja.md`。
+- 関連: `mspdi-core-tree.md`（MSPDI 解説）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け）は `../02-data-model/grs-mspdi-field-ledger-ja.md`。
 - 位置づけ: **純 MSPDI のリファレンス**（GRS 固有情報は持たない）。本書は参考。
   正は **公式 XSD** <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>
   （ローカル複製は `mspdi/mspdi_pj12.xsd`。**同梱していない** — 取得は `mspdi/README.md`）。
@@ -22,7 +22,11 @@ status: stable
 ## A. テーブル（エンティティ）責務一覧 — 全 29
 
 種別: **◎=中核 / ○=定義系 / △=衛星（小・従属） / □=コンテナ寄り**。
-「断捨離」列は日程表用途でのスリム化における要否（`mspdi-declutter-erd-ja.md` Step3 の判断）。
+「断捨離」列は日程表用途でのスリム化における要否。
+
+> ⚠️ **この列の判断根拠は `handover/` に無い。** 出所は前プロジェクトの中間分析 `mspdi-declutter-erd-ja.md`（725 行）で、
+> **結論だけが `../02-data-model/grs-mspdi-field-ledger-ja.md` に落ちている**ため「参考」に分類して外した
+> （`../DISCARDED-ja.md`）。**この列を根拠に使わないこと。** 要否の正は仕分け台帳の Own/Consume/Reconstruct/Carry/Drop である。
 「採否」列（最右）: **○=採用 / △=採用（畳込・条件付） / ×=不採用**。採用は **8**（中核6 ＋ Calendar_WeekDay ＋ Calendar_Exception）。
 ※ WorkingTime（勤務時刻）と Task_Baseline は不採用に確定（日粒度描画で時刻不要 / インラインの計画スナップショットは日程表コア外）。
 
@@ -103,7 +107,7 @@ status: stable
 
 ## 断捨離後 MSPDI サブセット ERD（8 テーブル）
 
-MSPDI から不要要素を落とした残り 8 テーブル。**すべて XSD 実名（大小一致）の MSPDI 要素**であり、GRS 独自の追加は含めない（マルチバー行等の GRS 拡張は `../_assets` の GRS 仕様で扱う）。
+MSPDI から不要要素を落とした残り 8 テーブル。**すべて XSD 実名（大小一致）の MSPDI 要素**であり、GRS 独自の追加は含めない（マルチバー行等の GRS 拡張は `../02-data-model/grs-native-erd-ja.md` が扱う）。
 WorkingTime 削除により WeekDay は「稼働日か否か」のみ。Baseline はインラインに持たない。`WeekDay`/`Exception` は Calendar 下の要素（A-2 参照）。
 
 ```mermaid

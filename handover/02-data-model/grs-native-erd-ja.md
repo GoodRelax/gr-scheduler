@@ -93,7 +93,7 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 
 | MSPDI 由来                 | 受け継ぐ要素（Own/Consume/Reconstruct）                                                                                                                                                                           | 除外（Carry・別ストア）                                                                             |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Task                       | UID/Name/Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes/**PercentComplete**/**ActualDuration**/**Stop**/**Resume**/**ResumeValid**（すべて Own・§3-4 #8 は撤回）、OutlineLevel/CalendarUID/PredecessorLink（Consume）、ID/OutlineNumber/Summary（Reconstruct）、**Duration は未編集=Carry / 編集済=Reconstruct** | 制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素、ActualDuration/RemainingDuration（**編集済タスクのみ再計算**） |
+| Task                       | UID/Name/Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes/**PercentComplete**/**ActualDuration**/**Stop**/**Resume**/**ResumeValid**（すべて Own・§3-4 #8 は撤回）、OutlineLevel/CalendarUID/PredecessorLink（Consume）、ID/OutlineNumber/Summary（Reconstruct）、**Duration は未編集=Carry / 編集済=Reconstruct** | 制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素、RemainingDuration（**完了時だけ GRS が 0 を書く** — §10-1・唯一の Carry 例外） |
 | PredecessorLink            | PredecessorUID/Type/LinkLag/LagFormat（Consume）                                                                                                                                                                  | CrossProject/CrossProjectName                                                                       |
 | Project                    | 識別/文書/期間/換算（Own）、CalendarUID（Consume）、FinishDate（Reconstruct）                                                                                                                                     | 通貨/既定/計算/Move/EV/会計/時刻（37）＋**ScheduleFromStart/CurrentDate/サーバ管理4**（§5.6 で降格） |
 | Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/BaseCalendarUID/DayType(1-7)/DayWorking/例外日（Own/Consume）                                                                                                                                  | WorkingTime/WorkWeek/繰返し詳細/**DayType=0＋TimePeriod(2003形式)**                                  |
@@ -1030,57 +1030,33 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 **保存する（`documentSettings`）**
 
 ```
-stackDirection        'up' | 'down'                       積み方向（既定 up）
-importSeq             整数                                 取込のたびに +1
-planActualDisplay     'both' | 'plan-only' | 'actual-only'  予実の表示（下記の注意）
-assigneeVisible       真偽                                 担当ラベルを出すか
-progressVisible       真偽                                 完了率ラベルを出すか
-dependencyVisible     真偽                                 依存線（担当/完了率とは独立・§4-2）
-progressMarkerVisible 真偽                                 進捗マーカーを出すか（下記の注意）
-dualCursor            { date1, date2 } | null              デュアルカーソル（2 本の日付を持つ）
-guideCursorMode       'none'|'crosshair'|'single-vertical'|'double-vertical'
-gridDateLinesVisible  真偽                                 日付の縦罫線
-gridGroupLinesVisible 真偽                                 TaskGroup 境界の横罫線（旧 gridCategoryLines）
-progressLineVisible   真偽                                 イナズマ線
-progressLineColor     色                                   同上
-baselineVisible       真偽                                 変更前の予定（別ファイル）を重ねるか
-fontScale             'S' | 'M' | 'L'                      文字サイズ
-exportCanvas          { width, height }                    SVG/PNG の出力サイズ（既定 1600 × 900）
-exportPngScale        1 | 2                                PNG の倍率（項 58）
-
---- 2026-07-31 に「保存しない」から移した ---
-themePreference       'light' | 'dark'                     明暗テーマ
-themeHue              0..359                               テーマの色相（プロジェクトのテーマカラー）
-themeMonochrome       真偽                                 モノクロにするか
-zoomX / zoomY         数値                                 ズーム倍率
-scrollDate            日付                                 表示の左端が指す日付
-scrollRowUid          行の識別子                           表示の上端が指す行
-leftPaneWidth         px                                   Row Title Panel の幅
-propertyPanelWidth    px                                   Properties Panel の幅
-
---- 描画の設定 60 項目（寸法・比率・色の使い方）は台帳を見る ---
-→ grs-document-settings-ja.md §3
+描画の設定        60 項目（寸法・比率）        → grs-document-settings-ja.md §3
+表示の切り替え     15 項目                      → 同 §4-1
+画面の状態         9 項目（テーマ/ズーム/スクロール/ペイン幅）  → 同 §4-2
+出力               2 項目                       → 同 §4-3
+LOD のしきい値      7 項目                       → 同 §4-4
 ```
+
+> **全項目の台帳は `grs-document-settings-ja.md` §4 が持つ。本節は原則だけを定める。**
+> **キーを 2 か所に並べない** — 並べた側は必ず古くなる（実際にこの節がそうなっていた）。
+> 項目を足すときは台帳に追記する。**名前の正は `../03-ui-naming/handover-ui-parts-ja.md` §2-1-6。**
 
 > **`todayLineVisible` は廃止した（2026-07-31）。** 本日線の位置は実行時のシステム日付なので、
 > 保存すると「同じ JSON → 同じ表示」が明日には破れる。**日付に線を引きたいときはカーソルを使う。**
 > → `grs-document-settings-ja.md` §7
 
-> **全項目の台帳は `grs-document-settings-ja.md`。** 本節は原則と代表例を示すもので、
-> **全数はそちらが正**。項目を足すときはそちらに追記する。
+**保存しない**
 
-**保存しない（読む人の環境。`localStorage` に置く）**
+| 項目 | 置き場所 | 保存しない理由 |
+|---|---|---|
+| **`language`**（`ja` / `en`。旧 `activeLocale`） | `localStorage` | 読む人の言語。日本語を強制されるのは「同じ見た目」より悪い |
+| `watermark`（有効 / ユーザー名 / 日時） | どこにも保存しない | **開いた人の名前と日時で描く**（下記） |
+| 画面にも出力にも出ない **9 項目**（掴み代 4 / Undo 2 / ズームの刻みと範囲 3） | 製品の定数 | → `grs-document-settings-ja.md` §5 |
 
-| 項目 | 保存しない理由 |
-|---|---|
-| `themePreference`（明 / 暗） | 読む人の好み。**コントラスト要件（a11y）に関わる**ので強制すべきでない |
-| **`language`**（`ja` / `en`。旧 `activeLocale`） | 読む人の言語。日本語を強制されるのは「同じ見た目」より悪い |
-| `watermark`（有効 / ユーザー名 / 日時） | **開いた人の名前と日時で描く**（下記） |
-
-> ⚠️ **`themePreference` / `leftPaneWidth` / `propertyPanelWidth` / ズーム / スクロールは
-> 2026-07-31 に `documentSettings` へ移した。** 上の表から外れている。
-> 画面にも出力にも出ない 9 項目（掴み代 4 / Undo 2 / ズームの刻みと範囲 3）が
-> 新しい「保存しない」の全数である。→ `grs-document-settings-ja.md` §5
+> ⚠️ **`themePreference` はここに載っていた（読む人の好み、という理由で）が、2026-07-31 に
+> `documentSettings` へ移した。** `leftPaneWidth` / `propertyPanelWidth` / ズーム / スクロールも同様。
+> **理由**: 文書が「人に見せたい場所・色」を持てないと WYSIWYG が成立しない。
+> ただし**保存値は初期値であって読む人は変更できる**（WCAG 1.4.3 / 1.4.4）。→ 同 §4-2
 
 #### なぜズーム / スクロールを**保存する**か — 2026-07-31 に判断を覆した
 
@@ -1488,5 +1464,5 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 
 - 取捨選択（MSPDI 全要素の仕分け）: `grs-mspdi-field-ledger-ja.md`
 - 設計判断・2軸・往復規約: `grs-data-model-ja.md` §2/§6/§7
-- MSPDI 事実・ERD: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-declutter-erd-ja.md`, `../01-mspdi/mspdi-core-tree.md`
+- MSPDI 事実・ERD: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-core-tree.md`（断捨離の経緯 ERD は **`handover/` に無い**。`../DISCARDED-ja.md`）
 - 正: 公式 XSD <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>（ローカル複製 `../01-mspdi/mspdi/mspdi_pj12.xsd` は同梱していない）

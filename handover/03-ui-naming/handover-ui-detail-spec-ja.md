@@ -21,41 +21,11 @@ status: stable
 
 ## 1. 画面構成の内訳（4 部 ＋ 浮遊 2）
 
-```
-App Shell
-├─ App Header                   上部。文書名と全体操作
-│   ├─ Branding                 製品名と著作権表示
-│   ├─ Schedule Title           文書の名前。クリック / F2 で編集
-│   ├─ Header Commands          下記 §2
-│   └─ Autosave Status          localStorage 保存の成否表示
-│
-├─ Row Title Panel              左。TaskGroup の見出しを階層表示
-│   ├─ Row Title Tree           TaskGroup 木。畳み・並べ替え・表示切替の操作点
-│   └─ Panel Divider            幅を変えるドラッグ境界
-│
-├─ Schedule Canvas              中央。描画領域
-│   ├─ Time Ruler               上端の年・月・日・曜の目盛り（縦スクロールで動かない）
-│   ├─ Grid Lines
-│   │   ├─ Date Grid Lines      日付の縦罫線（表示切替あり）
-│   │   └─ Group Grid Lines     TaskGroup 境界の横罫線（表示切替あり）
-│   ├─ Rows                     TaskGroup 1 つ分の横帯
-│   │   └─ Task Bars            Task の描画（milestone は ◆、それ以外はスパン）
-│   ├─ Dependency Lines         全自動配線・経路は保存しない
-│   ├─ Canvas Overlays          重ね描き層（スクリーン空間固定）
-│   │   ├─ Progress Line        イナズマ線
-│   │   ├─ Comment Boxes        引き出し線付きコメント
-│   │   ├─ Highlight Boxes      角丸の囲み枠
-│   │   ├─ Cursors              Today Line / Dual Cursor / Guide Cursor
-│   │   └─ Watermark            斜めタイルの識別表示
-│   └─ Scrollbars               横・縦とも常時表示（スクリーン空間固定）。§5-2
-│
-├─ Properties Panel             右。属性編集
-│
-├─ Command Palette              浮遊。ドラッグで移動
-│   └─ Palette Groups → Palette Commands
-│
-└─ Modals                       Help / AI Export / Hidden Group Tab
-```
+**UI パーツ木の正は `handover-ui-parts-ja.md` §3 である。ここには複製しない。**
+（同書の木は本節・`../07-plan-actual/handover-plan-actual-decisions-ja.md` §9-6 の両方を含む上位集合であることを確認済み。
+本節の木は `Progress Marker` / `Resume Icon` を欠き、`Task Bars` の説明が `shapeKind` 確定前のままだった。）
+
+**本節が持つのは、4 部構成の意味と「何がスクロールするか」だけである**（下記）。
 
 **なぜ Canvas Overlays を分けるか**: 角丸の R・透かし・ルーラー・カーソルは**ズームで大きさが変わってはいけない**。
 world 空間ではなく**スクリーン空間の別レイヤ**に置くことで、倍率を打ち消す計算が不要になる
@@ -168,15 +138,8 @@ App Header にも現在の状態が見えるとよいが、**同じ機能を 2 �
 
 ### 4-0. 実績の入力規則（4 状態）
 
-**データ側の正は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §1。** ここは UI としての要件。
-
-| 状態 | `actualStart` | `actualDuration` | `actualFinish` | `resume` | `resumeValid` |
-|---|---|---|---|---|---|
-| 未着手 | 空 | 空 | 空 | 空 | — |
-| 進行中 | あり | あり | 空 | 空 | true |
-| **中断・再開予定あり** | あり | あり | 空 | **日付** | true |
-| **中断・再開日未定** | あり | あり | 空 | 空 | **false** |
-| 完了 | あり | あり | **あり** | 空 | false |
+**状態と各列の値は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-3 の表に従う。ここには複製しない。**
+（同じ表を 2 か所に置くと、片方だけ直されて食い違う。）ここは **UI としての要件**だけを書く。
 
 **UI が守ること**
 
@@ -273,12 +236,8 @@ App Header にも現在の状態が見えるとよいが、**同じ機能を 2 �
 
 #### 掴み代は見た目より大きくとる
 
-```
-予定の端点      予定バーの上下に 6px ずつはみ出させる
-実績の端点      実績バーの帯だけ（予定より狭い）
-フェード        15 x 15px の角
-ダミーの実績線  見た目 11px に対し 30 x 20px の当たり判定
-```
+**寸法は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §3-2 に従う。ここには複製しない。**
+（**文書に保存しない**理由と分類は `../02-data-model/grs-document-settings-ja.md` §5-1。）
 
 **予定バーの高さ > 実績バーの高さ**なので、**上下の縁を狙えば予定、真ん中を狙えば実績**が掴める。
 モードで切り替える必要がない。
@@ -288,11 +247,8 @@ App Header にも現在の状態が見えるとよいが、**同じ機能を 2 �
 
 #### 掴みの優先順位（重なったときの解決）
 
-```
-端点 > 名称ラベル > バー本体
-```
-
-**理由**: 端点は範囲が小さいので、大きい領域に負けると永久に掴めない。**小さいものを優先する**のが原則。
+**`../07-plan-actual/handover-plan-actual-decisions-ja.md` §3-3 に従う。ここには複製しない。**
+要点だけ: **端点 > 名称ラベル > バー本体**。端点は範囲が小さいので、大きい領域に負けると永久に掴めない。
 
 ### 4-2. 担当・完了率・タスク名のラベル
 
@@ -1146,13 +1102,7 @@ threshold(d) = 0.32 × 1.875^(d−2)
 
 **規則は 1 文**: **動いているべき日を過ぎているものだけ、その日に頂点を打つ。**
 
-| 状態 | 頂点 |
-|---|---|
-| 完了 | **打たない** |
-| 中断・再開日未定 | **打たない**（止めると決めたものを遅れとして数えない） |
-| 中断・再開予定あり | `resume` < 基準日 なら **`resume`**。まだ来ていなければ打たない |
-| 未着手 | `start` < 基準日 なら **`start`**。まだ来ていなければ打たない |
-| 進行中 | **実績バーの右端**（`actualStart + actualDuration`） |
+**状態ごとの頂点は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §4-1 の表に従う。ここには複製しない。**
 
 **頂点は【段ごと】に計算する — 確定 2026-07-30**
 

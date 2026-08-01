@@ -212,25 +212,9 @@ documentSettings{ … }                            // 文書設定。全項目�
 ### 4.6 階層の最大深さ
 
 **軸A（WBS）に深さの上限は無い。上限があるのは軸B（行の器）と表示側だけである。**
-確定は `grs-native-erd-ja.md` §5.5e。
 
-**深さが変わるのは、人が階層を動かしたときだけ。**
-
-| 出来事 | `wbs_parent_uid` | export の `OutlineLevel` |
-|---|:--:|:--:|
-| MSPDI から **6 段**のタスクを取り込む | 取り込んだ親 | **6** |
-| 画面の行が 5 段までしか出ない（器の上限） | **動かない** | **6** |
-| LOD で深い階層を描かない | **動かない** | **6** |
-| バーを別の行へドラッグする（マルチバー化） | **動かない** | **6** |
-| **`Row Title Tree` で Lv4 の下へ移動する** | **新しい親に変わる** | **4** |
-
-**「5」が出てくる場所は 3 つ。どれもデータに触らない。**
-
-| 場所 | 何を 5 で止めるか | `wbs_parent_uid` への影響 |
-|---|---|:--:|
-| 人がインデントで作れる深さ | 編集操作（6 段目を作らせない） | 無し |
-| 行の器（`TaskGroup`）の入れ子 | 画面の行（6 段目以降は 5 段目の行に載る） | 無し |
-| LOD の判定 | 描画するかどうか（`min(深さ, 5)`） | 無し |
+**確定と 2 つの表（深さが変わる条件 / 「5」が出てくる 3 か所）は `grs-native-erd-ja.md` §5.5e に従う。
+ここには複製しない。**
 
 - 推奨は 3 段（大・中・対象）。**推奨であって上限ではない。**
 - **軸B（行の器 `TaskGroup`）の ≤Lv5 が、レイアウトの有界性を担保する。**
@@ -344,7 +328,7 @@ documentSettings{ … }                            // 文書設定。全項目�
 
 - **軸A: WBS 構造ツリー = `Task.wbs_parent_uid`（隣接リスト）**。`OutlineLevel`＋document order を Consume して構築。**export で `OutlineLevel`/`OutlineNumber`/`Summary`/`ID` を再生成**。明示的 WBS 編集（indent/outdent/親変更/兄弟並べ替え）でのみ伝播（§6）。**深さに上限は無い。クランプしない**（§4.6）。
 - **軸B: マルチバー視覚層 = `TaskGroup`（parent_id で入れ子 ≤Lv5）＋ `TaskGroupMember`**。行の器。**GRS 専用・非 export**。「1 行に複数タスク」＝ 1 器に複数 member。行に入れ直しても WBS 不変（視覚のみ・非伝播）。
-- **保持形の確定**: 軸A は**隣接リスト**（`wbs_parent_uid` + `wbs_order`）を採用（`OutlineLevel` の数値を保存すると木と二重管理になるため保存しない＝Reconstruct）。軸B は `TaskGroup` の木（`parent_id` + `order`）。両軸は独立、`OutlineLevel` を `TaskGroup` から導出しない（ドリフト構造的にゼロ）。
+- **保持形の確定**: 軸A は**隣接リスト**（`wbs_parent_uid` + `wbs_order`）を採用（`OutlineLevel` の数値を保存すると木と二重管理になるため**保存しない**。ただし分類は **Consume** — import で必ず読むため）。軸B は `TaskGroup` の木（`parent_id` + `order`）。両軸は独立、`OutlineLevel` を `TaskGroup` から導出しない（ドリフト構造的にゼロ）。
 - **import 時の器の初期化（既定ポリシー）**: WBS サマリ配下の葉タスク群を、そのサマリに対応する `TaskGroup` の member として自動投入（＝「共通サマリ配下がそのまま 1 行のマルチバー」の初期姿）。以降ユーザーが器を自由に再編。器の再編は WBS を変えない。
 
 #### 7.1-1 既定行（器）の生成と寿命 — **確定（2026-07-26 ユーザー確定）**
@@ -422,7 +406,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 **Task（Own・MSPDI Task 無汚染継承）**:
 `id`, `uid`(←UID), `name`, `start`, `finish`, `milestone`, `actualStart`, `actualFinish`, `progressRatio`(←PercentComplete/100), `deadline`, `notes`, `stop`, `resume`(§7.2), `calendar_id`(←CalendarUID), `wbs_parent_uid`/`wbs_order`(軸A), `carry`(不透明 passthrough)。
 
-**Task が持たない列（Reconstruct・export でその場算出）**: `ID`, `OutlineLevel`, `OutlineNumber`, `Summary`（§5）。
+**Task が持たない列（export でその場算出）**: `ID`, `OutlineNumber`, `Summary`（Reconstruct）＋ **`OutlineLevel`（Consume — import で必ず読むので Reconstruct ではない）**（§5）。
 ※ **`Duration` は条件付き**（確定 2026-07-26）: **未編集タスクは受け取った値をそのまま返す（Carry）／編集済タスクだけ `finish − start` で算出（Reconstruct）**。無条件に算出すると暦の解釈差で未編集タスクにも往復差分が出る。→ `handover-property-mspdi-mapping-ja.md` §3-4 #3/#4
 ※ `PercentComplete` は **Own**（÷100 して `progressRatio`・進捗の唯一の入力源）、`ActualDuration`/`RemainingDuration` は **Carry**（進行中は復元不能）。当初 Reconstruct としていたのを是正済み。
 
@@ -478,7 +462,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 | 11 | 例外日（祝日） | `Exception`(2007) に一本化・`Type` は Carry | **`Type` を Consume に格上げ** | `TimePeriod` は `Type` と組で読む要素で、繰返し時は「適用範囲」を表す。`Type` を読まないと**祝日 1 日が数年間の非稼働に化ける** |
 | 12 | `PercentComplete` | **Reconstruct**（progressRatio×100 で算出できると判断） | **Own**（÷100 して保持） | 逆だった。`progressRatio` の**唯一の入力源**であり、読まなければ進捗が復元不能＝**export で外部マスタの進捗を全消去**する |
 | 13 | `ActualDuration` / `RemainingDuration` | Reconstruct | **Carry** | **進行中タスクは `ActualFinish` が空**なので単純な引き算で復元できない |
-| 18 | **深い WBS（6 段以上）の扱い** | ①5 段にクランプ＋警告 → ②原レベルを退避して export で復元 → ③クランプしたまま export する | **クランプしない**（取り込んだ深さをそのまま保持し、そのまま書き戻す） | ② の副問題は 3 つ（復元は文書順に依存するため兄弟並べ替えで親が変わる／レベル飛びが生じる／「未編集」の判定単位が定義できない）。③ はこの 3 つを消すが**代わりにデータを捨てる**。**クランプしなければ 3 つとも発生せず、データも失われない**。深さは `wbs_parent_uid` の木から数えるだけなので、退避も復元も判定も要らない。5 段の根拠だった「推奨 3 段に対するマージン」は `user-order.md` 項 27 ＝ **軸B（`TaskGroup`）の要求**であり、軸A へ流用していた（`07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3「軸A と軸B は別物」）。項 36 は「**書き戻す値は頭打ちにしない**」と明記している |
+| 18 | **深い WBS（6 段以上）の扱い** | ①5 段にクランプ＋警告 → ②原レベルを退避して export で復元 → ③クランプしたまま export する | **クランプしない**（取り込んだ深さをそのまま保持し、そのまま書き戻す） | ② の副問題は 3 つ（復元は文書順に依存するため兄弟並べ替えで親が変わる／レベル飛びが生じる／「未編集」の判定単位が定義できない）。③ はこの 3 つを消すが**代わりにデータを捨てる**。**クランプしなければ 3 つとも発生せず、データも失われない**。深さは `wbs_parent_uid` の木から数えるだけなので、退避も復元も判定も要らない。5 段の根拠だった「推奨 3 段に対するマージン」は `user-order.md` 項 27 ＝ **軸B（`TaskGroup`）の要求**であり、軸A へ流用していた（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3「軸A と軸B は別物」）。項 36 は「**書き戻す値は頭打ちにしない**」と明記している |
 | 17 | **「上書き」で取込側に無いタスクをどうするか** | 未定義（「置換」としか書いていなかった） | **削除しない。最終目撃記録から「消えた候補」を導出して通知** | **MSPDI からは「全体か部分か」を判別できない**（そのフラグが XSD に無い）ため「来なかった＝削除された」と推論できない。部分エクスポートを取り込むと大量削除が走る。被害も非対称（消す＝復元不能／残す＝気づけば消せる）。印は**フラグを立てず `last_seen_import_seq` から導出**＝消し忘れバグが構造的に起きない。取込ログ表は**出力を絞る方針**で不採用 |
 | 16 | **UID の一意性をどう担保するか** | 高水位採番＋（検討）**番号空間の分割**（GRS 生まれを予約帯に隔離） | **UID は不透明な整数**として扱い、**GRS 生まれは照合対象にしない**。責任範囲は**受け取った文書の中**に限る | 予約帯は **UID の値に意味を持たせる**ため脆く（ランダム ID で壊れる）、しかも**同じ規則を使う別 GRS 文書とは結局ぶつかる**。「GRS 生まれ＝`TaskOrigin` 行なし＝照合対象外」という規則にすると、**予約帯なしで UID 再利用・同一マスタ由来 2 文書の両方が解ける**。文書外（外部マスタ側の並行採番）との衝突は**別ツールで検査**する前提とし、GRS は担保しない |
 | 15 | **Carry の格納方法** | 「不透明に温存する」とだけ宣言（**格納設計なし**） | **案D＝エンティティ別バッグ ＋ 入口/出口の検査** | 影文書案（原 XML 丸ごと保持）は往復に最強だが**マージで破綻**し JSON が不透明になる。バッグ案は**入れ忘れで漏れる**（実際 `WeekDay.TimePeriod` で発生）。→ バッグに**自己検証と要素まるごと退避**を足して漏れを構造的に潰した。「**臭いものに蓋。ただし受ける時と出る時に検査する**」 |
@@ -503,5 +487,5 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 ## 参照
 
 - 断捨離後 MSPDI サブセット・全項目要否: `../01-mspdi/mspdi-tables.md`
-- MSPDI 断捨離の経緯・ERD: `../01-mspdi/mspdi-declutter-erd-ja.md`
+- MSPDI 断捨離の経緯・ERD: **`handover/` に無い**（中間分析。結論は `grs-mspdi-field-ledger-ja.md` に落ちている。`../DISCARDED-ja.md`）
 - MSPDI 解説（ツリー・依存・マイルストーン・マルチバーの正体）: `../01-mspdi/mspdi-core-tree.md`

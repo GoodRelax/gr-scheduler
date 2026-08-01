@@ -251,7 +251,7 @@ PoC で分かった、**次期の設計に効く事実**。
 
 **自分の計算はどれも安い。高いのは「ブラウザに寸法を訊く」ことだった。**
 
-> **書き戻し先**: `04-performance/handover-performance-notes-ja.md` の罠の表（T-13 として）。
+> **書き戻し先**: `../04-performance/handover-performance-notes-ja.md` の罠の表（T-13 として）。
 > 既存の T-1〜T-12 と同じ性質の、**テストでは絶対に出ない**罠である。
 
 ### 6-2. 【設計・強】「余地の予約」は縦方向にも要る
@@ -260,7 +260,7 @@ PoC で分かった、**次期の設計に効く事実**。
 確定した計算順序（最小間隔 → ラベル幅 → 積み順 → 経路）は正しいが、
 **最小間隔の制約が横方向しか作られていない。**
 
-> **書き戻し先**: `07-plan-actual/handover-plan-actual-decisions-ja.md` §6-4（計算順序）に
+> **書き戻し先**: `../07-plan-actual/handover-plan-actual-decisions-ja.md` §6-4（計算順序）に
 > 「1 の最小間隔には**行を跨ぐ縦の通り道**も含める」を追記。
 
 ### 6-3. 【設計・中】固定ピクセルのマーカーが、低ズームで段数を決めてしまう
@@ -287,7 +287,7 @@ PoC で分かった、**次期の設計に効く事実**。
 
 ### 6-4b. 【確認・強】既に書いてあった懸念が、そのとおり起きた
 
-`03-ui-naming/handover-ui-detail-spec-ja.md` §6-4 の末尾に、次の懸念が**予め書かれていた**:
+`../03-ui-naming/handover-ui-detail-spec-ja.md` §6-4 の末尾に、次の懸念が**予め書かれていた**:
 
 > ⚠️ 低ズームではラベルが相対的に大きくなる（フォントに下限 10px のクランプがあるため）。
 > §4-2 の配置規則と組み合わせると、右出しと上下ずらしが増えて行が高くなる。
@@ -339,7 +339,7 @@ PoC で分かった、**次期の設計に効く事実**。
 | `poc-glyphs-reference.html` | 0 | 0 | ○ |
 | `poc-layout-A-orthogonal-channel.html` | 0 | 0 | ○ |
 | `poc-layout-B-anchor-search.html` | 0 | 0 | ○ |
-| `poc-layout-C-reserved-stackIndex.html` | 0 | 0 | ○ |
+| `poc-layout-C-reserved-lane.html` | 0 | 0 | ○ |
 | `poc-zoom-A-depth-threshold.html` | 0 | 0 | ○ |
 | `poc-zoom-B-fit-first.html` | 0 | 0 | ○ |
 
@@ -699,11 +699,11 @@ PoC 文書のチップが割っていた。
 
 | # | 内容 | 反映先の案 |
 |--:|---|---|
-| 1 | 低ズームの段数膨張の主因は**担当＋完了率のラベル（外側左）**。マーカーの寄与はほぼ 0。§2-4-1 の「マーカーを文字サイズに従わせれば消える」は要因の取り違え | `07-plan-actual/handover-plan-actual-decisions-ja.md` §2-4-1 と `03-ui-naming/handover-ui-detail-spec-ja.md` §6-4 |
-| 2 | **担当・完了率の既定値を決める必要がある**。既定で出すと直列チェーンが常時 2 段になる | `03-ui-naming/handover-ui-detail-spec-ja.md` §4-2 |
-| 3 | **接触は重なりではない**（前の終了日 = 次の開始日は同じ段）。境界条件として明文化する | `03-ui-naming/handover-ui-detail-spec-ja.md` §4-4 付近 |
-| — | ~~依存線の経路（5 パターン）~~ | **反映済み** → `03-ui-naming/handover-ui-detail-spec-ja.md` **§4-9**。旧「折れ点 0〜3」の記述 2 か所も訂正済み |
-| 4 | 段割当の**決定的順序**は 20 パターンで順序非依存を確認 | `02-data-model/handover-data-model-entry-ja.md` §3 に「検証済」を追記 |
-| 5 | **Fit と LOD 閾値の衝突**。ズーム値を量子化する箇所は LOD 閾値に対して必ず切り下げる | `04-performance/handover-performance-notes-ja.md` に新規の落とし穴として追加 |
-| 6 | アイテム LOD は**「代表期間 × px/day ≧ 可読下限」の 1 本の式**にすれば単調性が構造的に保証される | `03-ui-naming/handover-ui-detail-spec-ja.md` §6-4 |
-| 7 | フォント下限によるレベル減の**量の式が未定**。実際の行数から求めるべき | `07-plan-actual/handover-plan-actual-decisions-ja.md` §2-4-1 に未決事項として明記 |
+| 1 | 低ズームの段数膨張の主因は**担当＋完了率のラベル（外側左）**。マーカーの寄与はほぼ 0。§2-4-1 の「マーカーを文字サイズに従わせれば消える」は要因の取り違え | `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-4-1 と `../03-ui-naming/handover-ui-detail-spec-ja.md` §6-4 |
+| 2 | **担当・完了率の既定値を決める必要がある**。既定で出すと直列チェーンが常時 2 段になる | `../03-ui-naming/handover-ui-detail-spec-ja.md` §4-2 |
+| 3 | **接触は重なりではない**（前の終了日 = 次の開始日は同じ段）。境界条件として明文化する | `../03-ui-naming/handover-ui-detail-spec-ja.md` §4-4 付近 |
+| — | ~~依存線の経路（5 パターン）~~ | **反映済み** → `../03-ui-naming/handover-ui-detail-spec-ja.md` **§4-9**。旧「折れ点 0〜3」の記述 2 か所も訂正済み |
+| 4 | 段割当の**決定的順序**は 20 パターンで順序非依存を確認 | `../02-data-model/handover-data-model-entry-ja.md` §3 に「検証済」を追記 |
+| 5 | **Fit と LOD 閾値の衝突**。ズーム値を量子化する箇所は LOD 閾値に対して必ず切り下げる | `../04-performance/handover-performance-notes-ja.md` に新規の落とし穴として追加 |
+| 6 | アイテム LOD は**「代表期間 × px/day ≧ 可読下限」の 1 本の式**にすれば単調性が構造的に保証される | `../03-ui-naming/handover-ui-detail-spec-ja.md` §6-4 |
+| 7 | フォント下限によるレベル減の**量の式が未定**。実際の行数から求めるべき | `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-4-1 に未決事項として明記 |

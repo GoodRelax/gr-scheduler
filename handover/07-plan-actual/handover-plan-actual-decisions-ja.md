@@ -151,7 +151,7 @@ percentComplete : 整数、0 以上。上限を型に持たせない
 **「0〜100」と書いてはならない。** そう読んだ実装者は必ずバリデーションかクランプを書き、
 「予定 10 日の仕事に 15 日かかった」という業務上の事実を消してしまう。
 
-**100 を超える場合の扱い（暫定。実機確認 §12-3 で見直す）**
+**100 を超える場合の扱い（暫定。実機確認 §12-2 で見直す）**
 
 XSD は `type="xsd:integer"` で**制約ファセットを持たない**。解説書にも範囲の記述がない。
 つまり `<PercentComplete>150</PercentComplete>` は**妥当な XML になる**。
@@ -166,7 +166,7 @@ XSD は `type="xsd:integer"` で**制約ファセットを持たない**。解�
 
 **残るリスク**: MS Project が 100 超をどう扱うかは**未確認**（取込時に 100 へ丸める / 拒否する / そのまま受け入れる）。
 意味論としては「期間のうち完了した割合」なので 100 超は MS Project の考え方と食い違う。
-**§12-3 の実機確認で決着させる。** 丸められると分かったら、そのときに頭打ちへ変える。
+**§12-2 の実機確認で決着させる。** 丸められると分かったら、そのときに頭打ちへ変える。
 
 超過分を拡張領域に載せる必要はない。**日付から常に再計算できる**冗長情報だからである。
 
@@ -945,18 +945,8 @@ LOD      wbs_parent_uid の深さに min( , 5) をかけて判定する
 
 ### 9-6. UI パーツ木への追加
 
-```
-Schedule Canvas
-├─ Rows                            行
-│   └─ Task Bars                   タスクバー
-│       └─ Progress Marker         進捗マーカー
-└─ Canvas Overlays
-    ├─ Progress Line               イナズマ線（例外。§2-1-4）
-    └─ Cursors                     カーソル
-        ├─ Today Line              本日線
-        ├─ Dual Cursor             デュアルカーソル
-        └─ Guide Cursor            ガイドカーソル
-```
+本設計が足したパーツは **`Progress Marker`**（`Task Bars` の子）と **`Progress Line`**（`Canvas Overlays` の子）である。
+**木の正は `../03-ui-naming/handover-ui-parts-ja.md` §3。ここには複製しない**（反映済み）。
 
 `Progress Marker` と `Progress Line` は**別のパーツ**。語幹が揃うのは「どちらも進み具合を示す」ため。
 片方は行を横断する線、片方はタスクに付く印、と役割で読み分ける。
@@ -970,13 +960,27 @@ Schedule Canvas
 ```
 常に書く        ActualStart
                 ActualDuration = 実績バーの右端 − actualStart（稼働日）
-                PercentComplete = ActualDuration ÷ (Finish − Start) x 100  ※頭打ちにしない
-                OutlineLevel = wbs_parent_uid の深さから算出（§5-2）
-完了のときだけ  ActualFinish
+                OutlineLevel   = wbs_parent_uid の深さから算出（§5-2）
+
+未完了のとき    PercentComplete = ActualDuration ÷ (Finish − Start) x 100  ※頭打ちにしない
+
+完了のとき      ActualFinish       実際に終わった日
+                RemainingDuration  0 を書く
+                PercentComplete    要素そのものを書かない
+                Stop 空 / Resume 空
+
 中断のときだけ  Stop = actualStart + actualDuration
                 Resume / ResumeValid
-完了時          Stop 空 / Resume 空 / ActualFinish あり
 ```
+
+**完了時の 3 行は §1-4 の確定（2026-07-30）である。** `ActualFinish` があり `RemainingDuration` が 0 なら
+完了はその 2 つで一意に決まるので、`PercentComplete` を併記しない。
+併記すると、100 超を丸めない方針と MS Project の意味論が衝突する場面をわざわざ作ることになる。
+
+> **`RemainingDuration` は原則 `Carry`**（進行中タスクでは `Duration − 進捗` が破綻するため再計算できない。
+> `../02-data-model/grs-mspdi-field-ledger-ja.md`）。**完了時だけ GRS が 0 を書く**（Own 扱い）— **確定**。
+> 完了時は `ActualFinish` が入っているので残りが 0 であることが確定しており、破綻しない。
+> **この 1 点だけが Carry の例外である。**
 
 **`Stop` を中断のときだけ書く理由（重要）**
 
@@ -1118,7 +1122,7 @@ C-6 で「割当は MSPDI の `FieldName` に書く（これが正）＋ JSON �
 | 同 | §3-4 #8 | **判断を撤回**（拡張領域 → Own）。撤回理由を記録 |
 | 同 | §4-1 / §4-2 | 往復対象を 6 属性 → **2 属性**に更新。C-1 の条件分岐を削除。**C-2 を反転** |
 | `grs-mspdi-field-ledger-ja.md` | 該当行 | `Stop` / `Resume` / `ResumeValid` / `ActualDuration` の仕訳を **Own** へ。※`OutlineLevel` は **Consume のまま**（§10-2 の注記） |
-| `06-background/plan-actual-visibility-operability-model-ja.md` | 冒頭 | 「**旧案。本書が上書きする**」の注記を追加 |
+| `../06-background/plan-actual-visibility-operability-model-ja.md` | 冒頭 | 「**旧案。本書が上書きする**」の注記を追加 |
 | **`OPEN-ITEMS-ja.md`（新規）** | — | 実機確認 **3 件**（§12） |
 
 ---
@@ -1128,8 +1132,11 @@ C-6 で「割当は MSPDI の `FieldName` に書く（これが正）＋ JSON �
 | # | 確認すること | 影響 |
 |:--:|---|---|
 | 1 | MS Project で `Number` 枠が**何番まで使えるか** | 拡張領域の割当表。ただし消費が **2 枠**に減ったので、先頭から使えばまず足りる |
-| 2 | 完了時に `Stop` / `Resume` を**どう書き出すか** | 優先度 低。GRS は完了時に書かないので、相手がどう書いても結果は同じ |
-| **3** | **`PercentComplete` に 100 超（例 150）を書いたら MS Project がどう扱うか** | **§1-4 の暫定判断の決着。** 100 へ丸められる / 拒否される / そのまま受け入れる のどれか。丸められると分かったら頭打ちへ変える |
+| **2** | **`PercentComplete` に 100 超（例 150）を書いたら MS Project がどう扱うか** | **§1-4 の暫定判断の決着。** 100 へ丸められる / 拒否される / そのまま受け入れる のどれか。丸められると分かったら頭打ちへ変える |
+| 3 | 完了時に `Stop` / `Resume` を**どう書き出すか** | 優先度 低。GRS は完了時に書かないので、相手がどう書いても結果は同じ |
+
+> **番号は `../OPEN-ITEMS-ja.md` と一致させてある**（同じ 3 件を、あちらは手順つきのチェックリストとして持つ）。
+> **番号を動かすときは両方を直すこと。**
 
 **解決済みとして落とした項目**:
 

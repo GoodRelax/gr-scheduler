@@ -587,7 +587,8 @@ App Shell                      アプリ全体の器
 `[予定]` `[実績]` の 2 トグル（表示の絞り込み）は残す。**両方 OFF は作らせない。**
 根拠と却下案は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-2 / §2-3 が正。
 掴み点・ラベル書式の詳細は **`handover-ui-detail-spec-ja.md` §4**、
-実績の入力規則（4 状態）は同 **§4-0** と `../02-data-model/handover-property-mspdi-mapping-ja.md` §3-2 が正。
+実績の入力規則（4 状態）は **`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-3 が正**
+（`handover-ui-detail-spec-ja.md` §4-0 と `../02-data-model/handover-property-mspdi-mapping-ja.md` §3-2 はそこを参照する）。
 
 `planSideVisibility` / `actualSideVisibility`（3 状態＝非表示/表示のみ/操作可能）という**新設列は採らない**。
 表示状態は `documentSettings.planActualDisplay`（`both` / `plan-only` / `actual-only` の 3 値）**1 つ**で表す
