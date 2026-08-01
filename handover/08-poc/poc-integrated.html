@@ -403,10 +403,16 @@ var SPEC = [
 
   /* ---- LOD thresholds. They change WHICH tasks are drawn, so they are
      part of the document (grs-document-settings-ja.md 4-4). ---------------- */
-  { g: "LOD のしきい値", k: "rulerTierPxPerDayLow", n: "目盛が 年 → 年＋月 に変わる px/day", u: "px", step: 0.5, d: 1,
-    rng: function (S) { return { lo: 0.1, hi: S.rulerTierPxPerDayHigh, why: "上のしきい値を超えない" }; } },
-  { g: "LOD のしきい値", k: "rulerTierPxPerDayHigh", n: "目盛が 年＋月 → 年月＋日 に変わる px/day", u: "px", step: 0.5, d: 8,
-    rng: function (S) { return { lo: S.rulerTierPxPerDayLow, hi: 60, why: "下のしきい値を下回らない" }; } },
+  /* Four ruler tiers, so three thresholds -- one per boundary. Each is the
+     px/day at which one more unit of time has room for its own label without
+     the type dropping below the 12px floor (§6-3). */
+  { g: "LOD のしきい値", k: "rulerTierPxPerDayMonth", n: "目盛が 年 → 年＋月 に変わる px/day", u: "px", step: 0.5, d: 1,
+    rng: function (S) { return { lo: 0.1, hi: S.rulerTierPxPerDayWeek, why: "次のしきい値を超えない" }; } },
+  { g: "LOD のしきい値", k: "rulerTierPxPerDayWeek", n: "目盛が 年＋月 → 年＋月＋週 に変わる px/day", u: "px", step: 0.5, d: 4,
+    rng: function (S) { return { lo: S.rulerTierPxPerDayMonth, hi: S.rulerTierPxPerDayDay,
+      why: "前後のしきい値の間" }; } },
+  { g: "LOD のしきい値", k: "rulerTierPxPerDayDay", n: "目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day", u: "px", step: 0.5, d: 14,
+    rng: function (S) { return { lo: S.rulerTierPxPerDayWeek, hi: 60, why: "前のしきい値を下回らない" }; } },
   { g: "LOD のしきい値", k: "itemLodReadablePx", n: "この幅を割った深さは描かない", u: "px", step: 1, d: 24,
     rng: function (S) { return { lo: S.fontMin, hi: 200, why: "文字が 1 つも入らない幅にしない" }; } },
   { g: "LOD のしきい値", k: "rowLodBase", n: "行階層 LOD の初項", u: "x", step: 0.01, d: 0.32,
@@ -512,7 +518,12 @@ function shapeMetrics(kind, zoomY) {
     fontFloored: rawFont < S.fontMin,
     markerTextSize: markText,
     markerSize: Math.max(S.markerMin, markText * S.markerOfText),
-    reserved: hasThickness(kind) ? planHeight : planHeight + S.actualGap + actualHeight,
+    // A milestone reserves ONE glyph: its actual sits at the actual date, on
+    // the same centre line, not stacked underneath (07 §2-2). Stacking cost
+    // 59px a stack against 22px for everything else and was what stopped Fit
+    // from fitting.
+    reserved: (hasThickness(kind) || kind === "milestone")
+      ? planHeight : planHeight + S.actualGap + actualHeight,
     insideActualTop: (planHeight - actualHeight) / 2,
     belowActualTop: planHeight + S.actualGap,
     thinStroke: Math.max(S.thinStrokeMin, Math.min(S.thinStrokeMax, planHeight * S.thinStrokeOfPlan)),
@@ -932,7 +943,8 @@ global.POC_UI = {
         <label><input type="checkbox" id="tgProgress" checked> 完了率</label>
         <label><input type="checkbox" id="tgProgressLine" checked> イナズマ線</label>
         <label><input type="checkbox" id="tgMarker" checked> 進捗マーカー</label>
-        <label><input type="checkbox" id="tgHalo" checked> 文字の縁取り</label>
+        <label><input type="checkbox" id="tgGridDate" checked> 日付方向の罫線</label>
+        <label><input type="checkbox" id="tgGridGroup" checked> タスク方向の罫線</label>
         <span class="readbar" id="scheduleRead"></span>
       </div>
       <div class="scheduleCanvas alwaysScroll panReady" id="scheduleCanvas" tabindex="0"></div>
@@ -952,7 +964,7 @@ global.POC_UI = {
       <div id="glyphShapes"></div>
 
       <h3>2-2. 進捗マーカー — 出うるパターンの全数</h3>
-      <div class="ruleBlock">記号は 4 つだけ。完了 (✓) / 遅れ (!) / 中断 ( \ ) / 未完了 ( )
+      <div class="ruleBlock">記号は 4 つだけ。完了 (✓) / 遅れ (!) / 中断 ( ＼ ) / 未完了 ( )
 (!) を出す条件は 3 つ  1. finish を過ぎた  2. 未着手で start を過ぎた  3. 中断で resume を過ぎた
 規則は 1 文「動いているべき日を過ぎたのに動いていなければ (!)」（07 §2-4）
 ( ) は選択したときだけ薄く出る。完了率の数字は描かない（仕様に無い）
@@ -1140,8 +1152,16 @@ function esc(t) {
   return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/** 'inside' for shapes that can carry the actual bar within them, 'below' otherwise. */
-function actualPlacementOf(shapeKind) { return hasThickness(shapeKind) ? "inside" : "below"; }
+/**
+ * Where the Actual Bar goes (07 §2-2).
+ *   inside        rectangle / chevron   -- within the Plan Bar
+ *   below         arrow / endpointSpan  -- shifted down, no room inside
+ *   atActualDate  milestone             -- same centre line, at its own date
+ */
+function actualPlacementOf(shapeKind) {
+  if (shapeKind === "milestone") return "atActualDate";
+  return hasThickness(shapeKind) ? "inside" : "below";
+}
 
 // ===========================================================================
 // Dataset. TaskGroup = 行の器、Task = 日程要素。
@@ -1369,7 +1389,13 @@ var TASKS = [];
   PHASE_WINDOW.forEach(function (w, n) {
     var at = w[1] - 6;
     var opt = { milestone: true, wbsDepth: 2 };
-    if (at < statusDate) { opt.actualStart = at; opt.actualFinish = at; opt.resumeValid = false; }
+    // finished ones slip by a few days, so the horizontal offset between the
+    // plan ◇ and the actual ◇ is something to look at rather than a claim
+    if (at < statusDate) {
+      opt.actualStart = at;
+      opt.actualFinish = at + [4, -3, 11, 0][n];
+      opt.resumeValid = false;
+    }
     var t = makeTask(TASK_GROUPS.filter(function (g) { return g.depth === 1; })[n].id,
                      "区切り " + (n + 1), at, at, opt);
     recomputePercentComplete(t);
@@ -1397,9 +1423,18 @@ function taskBarGeometry(t, ctx) {
   else { planX0 = x0; planX1 = Math.max(x1, x0 + settings.minShapeWidth); }
 
   var actualX0 = null, actualX1 = null;
-  if (hasActual(t)) {
-    actualX0 = t.milestone ? planX0 : t.actualStart * ctx.pxPerDay;
-    actualX1 = t.milestone ? planX1 : (t.actualStart + t.actualDuration) * ctx.pxPerDay;
+  if (t.milestone) {
+    // A milestone's actual is WHEN it happened, so it is drawn at that date,
+    // a size smaller, on the same centre line (07 §2-2). Unfinished means no
+    // actual glyph at all -- percentComplete is 0 or 100 and nothing between.
+    if (t.actualFinish != null) {
+      var ax = t.actualFinish * ctx.pxPerDay;
+      var as = m.glyphSize * settings.actualOfPlan;
+      actualX0 = ax - as / 2; actualX1 = ax + as / 2;
+    }
+  } else if (hasActual(t)) {
+    actualX0 = t.actualStart * ctx.pxPerDay;
+    actualX1 = (t.actualStart + t.actualDuration) * ctx.pxPerDay;
   }
   var bodyX1 = Math.max(planX1, actualX1 == null ? -Infinity : actualX1);
 
@@ -1564,13 +1599,14 @@ function drawTaskBar(out, p, originX, top, ctx) {
   out.push('<g data-uid="' + t.uid + '">');
 
   if (t.milestone) {
-    // Plan ◇ and actual ◇ share the one height ratio, like every other shape
-    // (07 §2-2-1). 42px and 30.7px at the defaults.
+    // Plan ◇ outlined at its own date, actual ◇ filled at ITS date, a size
+    // smaller, on the SAME centre line (07 §2-2). The slip is read sideways,
+    // in days, which is the only thing a milestone can be late by.
     out.push('<path d="' + diamondPath((planX0 + planX1) / 2, midY, m.glyphSize) +
              '" fill="var(--plan-fill)" stroke="var(--plan-stroke)" stroke-width="' + r1(settings.planStroke) + '"/>');
-    if (hasActual(t)) {
-      out.push('<path d="' + diamondPath((planX0 + planX1) / 2, top + m.belowActualTop + m.actualHeight / 2,
-               m.actualHeight) + '" fill="var(--actual-fill)"/>');
+    if (g.actualX0 != null) {
+      out.push('<path d="' + diamondPath(originX + (g.actualX0 + g.actualX1) / 2, midY,
+               g.actualX1 - g.actualX0) + '" fill="var(--actual-fill)"/>');
     }
   } else if (placement === "inside") {
     var isChevron = t.shapeKind === "chevron";
@@ -1668,11 +1704,71 @@ function drawResumeIcon(out, t, x, cy, markerSize) {
 // ===========================================================================
 function timeRulerTier(zoomX) {
   var pxPerDay = settings.pxPerDayAt1x * zoomX;
-  if (pxPerDay < settings.rulerTierPxPerDayLow) return 1;
-  if (pxPerDay < settings.rulerTierPxPerDayHigh) return 2;
-  return 3;
+  if (pxPerDay < settings.rulerTierPxPerDayMonth) return 1;
+  if (pxPerDay < settings.rulerTierPxPerDayWeek) return 2;
+  if (pxPerDay < settings.rulerTierPxPerDayDay) return 3;
+  return 4;
 }
-var TIER_NAME = { 1: "年のみ", 2: "年 ＋ 月", 3: "年月 ＋ 日 ＋ 曜日" };
+var TIER_NAME = { 1: "年", 2: "年 ＋ 月", 3: "年 ＋ 月 ＋ 週", 4: "年 ＋ 月 ＋ 日 ＋ 曜日" };
+/* Rows of the ruler at each tier, coarse first. The band grows with the tier,
+   because the type never shrinks -- a tier that cannot fit its label is not
+   entered at all (§6-3). */
+var TIER_ROWS = { 1: ["year"], 2: ["year", "month"], 3: ["year", "month", "week"],
+                  4: ["year", "month", "day", "weekday"] };
+
+/* ---- calendar. Day 0 is 2026-01-01. ------------------------------------
+   The ruler needs real months and real Mondays, so a day index has to map to
+   a calendar. "Every 30 days" drifts and can never name a weekday. */
+var EPOCH = new Date(2026, 0, 1);
+function dateOfDay(d) { return new Date(2026, 0, 1 + d); }
+function dayOfDate(dt) { return Math.round((dt - EPOCH) / 86400000); }
+var WEEKDAY = ["日", "月", "火", "水", "木", "金", "土"];
+
+/** Ticks of one ruler row, as [{day, label}]. */
+function rulerTicks(kind, toDay) {
+  var out = [], dt, d;
+  if (kind === "day" || kind === "weekday") {
+    for (d = 0; d <= toDay; d++) {
+      dt = dateOfDay(d);
+      out.push({ day: d, label: kind === "day" ? String(dt.getDate()) : WEEKDAY[dt.getDay()],
+                 weekend: dt.getDay() === 0 || dt.getDay() === 6 });
+    }
+    return out;
+  }
+  if (kind === "week") {                       // Mondays, labelled by their date
+    for (d = 0; d <= toDay; d++) {
+      dt = dateOfDay(d);
+      if (dt.getDay() !== 1) continue;
+      out.push({ day: d, label: (dt.getMonth() + 1) + "/" + dt.getDate() });
+    }
+    return out;
+  }
+  dt = new Date(2026, 0, 1);
+  while (dayOfDate(dt) <= toDay) {
+    d = dayOfDate(dt);
+    if (d >= 0) out.push({ day: d, label: kind === "month" ? (dt.getMonth() + 1) + "月"
+                                                           : dt.getFullYear() + "年" });
+    dt = kind === "month" ? new Date(dt.getFullYear(), dt.getMonth() + 1, 1)
+                          : new Date(dt.getFullYear() + 1, 0, 1);
+  }
+  return out;
+}
+
+/**
+ * Height of the Time Ruler band. It grows with the tier because the type never
+ * shrinks: a tier whose labels do not fit is simply not entered (§6-3).
+ */
+function rulerRowHeight() { return settings.rulerFont + 5; }
+function rulerBandHeight(zoomX) {
+  return Math.max(settings.rulerH, TIER_ROWS[timeRulerTier(zoomX)].length * rulerRowHeight());
+}
+
+/** Keep every Nth tick so labels never collide -- thinning, never shrinking. */
+function thinTicks(ticks, pxPerDay, labelPx) {
+  var every = Math.max(1, Math.ceil(labelPx / Math.max(0.001, pxPerDay)));
+  if (every === 1) return ticks;
+  return ticks.filter(function (t) { return t.day % every === 0; });
+}
 /* MEDIAN_DURATION is declared with the dataset: the generated spans follow it. */
 function itemDepthLimit(zoomX) {
   var pxPerDay = settings.pxPerDayAt1x * zoomX, best = 1;
@@ -1709,7 +1805,7 @@ function scheduleContext(zoomX, zoomY) {
     showAssignee: el("tgAssignee").checked,
     showProgress: el("tgProgress").checked,
     showMarker: el("tgMarker").checked,
-    showHalo: el("tgHalo").checked,
+    showHalo: true,          // settled (07 §2-7). Not offered as a choice.
     selectedUid: selectedUid
   };
 }
@@ -1728,7 +1824,8 @@ function layoutSchedule(zoomX, zoomY) {
   var depthLimit = itemDepthLimit(zoomX);
   var rowLimit = rowDepthLimit(zoomY);
   var originX = settings.rowTitleWidth;
-  var y = settings.rulerH + settings.progressLineOverhang;
+  var bandH = rulerBandHeight(zoomX);
+  var y = bandH + settings.progressLineOverhang;
   var packs = [], shownTasks = 0, overlaps = 0, stackTotal = 0, maxX = 0;
 
   TASK_GROUPS.forEach(function (group) {
@@ -1748,7 +1845,7 @@ function layoutSchedule(zoomX, zoomY) {
   });
 
   return {
-    ctx: ctx, packs: packs, originX: originX,
+    ctx: ctx, packs: packs, originX: originX, bandH: bandH,
     depthLimit: depthLimit, rowLimit: rowLimit,
     shownTasks: shownTasks, overlaps: overlaps, stackTotal: stackTotal,
     contentWidth: originX + maxX + settings.canvasPadding * 2,
@@ -1766,7 +1863,7 @@ function progressLinePoints(layout) {
   var ctx = layout.ctx, originX = layout.originX;
   var baseX = originX + settings.statusDate * ctx.pxPerDay;
   var planHeight = ctx.metricsOf("rectangle").planHeight;
-  var pts = [[baseX, settings.rulerH]];
+  var pts = [[baseX, layout.bandH]];
   layout.packs.forEach(function (pack) {
     var perStack = {};
     pack.placements.forEach(function (p) {
@@ -1792,6 +1889,22 @@ function polylinePath(pts) {
   }).join(" ");
 }
 
+/**
+ * Hold the frozen layers in place. Translating a layer by the scroll offset
+ * cancels the scroll for that layer alone, so the Row Title Panel keeps the
+ * left edge and the Time Ruler keeps the top -- with no redraw, which is why
+ * this can run on every scroll event.
+ */
+function syncFrozenPanes() {
+  var box = el("scheduleCanvas");
+  var titles = el("gTitles"), ruler = el("gRuler"), corner = el("gCorner");
+  if (!titles) return;
+  var sx = box.scrollLeft, sy = box.scrollTop;
+  titles.setAttribute("transform", "translate(" + r1(sx) + ",0)");
+  ruler.setAttribute("transform", "translate(0," + r1(sy) + ")");
+  corner.setAttribute("transform", "translate(" + r1(sx) + "," + r1(sy) + ")");
+}
+
 function renderSchedule() {
   var layout = layoutSchedule(view.zoomX, view.zoomY);
   var ctx = layout.ctx, originX = layout.originX;
@@ -1801,25 +1914,36 @@ function renderSchedule() {
   var out = ['<defs><marker id="depArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
              'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
 
-  // Time Ruler
   var tier = timeRulerTier(view.zoomX);
-  out.push('<rect x="0" y="0" width="' + r1(width) + '" height="' + settings.rulerH + '" fill="var(--panel)"/>');
-  var step = tier === 1 ? 365 : (tier === 2 ? 30 : 7);
-  for (var d = 0; d <= HORIZON_DAYS; d += step) {
-    var x = originX + d * ctx.pxPerDay;
-    out.push('<line x1="' + r1(x) + '" y1="0" x2="' + r1(x) + '" y2="' + r1(contentHeight) +
-             '" stroke="var(--rule)" stroke-opacity="0.5"/>');
-    out.push('<text x="' + r1(x + 3) + '" y="' + r1(settings.rulerH * 0.64) + '" font-size="' +
-             r1(settings.rulerFont) + '" fill="var(--sub)">' +
-             (tier === 1 ? "Y" + (1 + (d / 365 | 0)) : (tier === 2 ? (1 + (d / 30 | 0) % 12) + "月" : d)) + '</text>');
+  var bandH = layout.bandH, rowH = rulerRowHeight();
+  var rows = TIER_ROWS[tier];
+  var titles = [], ruler = [];
+
+  // ---- Date Grid Lines: verticals from the finest row of the ruler ----------
+  var gridKind = rows[rows.length - 1];
+  if (gridKind === "weekday") gridKind = "day";
+  if (el("tgGridDate").checked) {
+    thinTicks(rulerTicks(gridKind, HORIZON_DAYS), ctx.pxPerDay, 3).forEach(function (t) {
+      var x = originX + t.day * ctx.pxPerDay;
+      out.push('<line x1="' + r1(x) + '" y1="' + r1(bandH) + '" x2="' + r1(x) + '" y2="' +
+               r1(contentHeight) + '" stroke="var(--rule)" stroke-opacity="0.45"/>');
+    });
   }
 
   layout.packs.forEach(function (pack, i) {
     var group = pack.group;
-    out.push('<rect x="0" y="' + r1(pack.y - settings.rowGap / 2) + '" width="' + r1(width) +
-             '" height="' + r1(Math.max(pack.height, 1) + settings.rowGap) + '" fill="' +
+    var bandTop = pack.y - settings.rowGap / 2;
+    var bandHeight = Math.max(pack.height, 1) + settings.rowGap;
+    out.push('<rect x="0" y="' + r1(bandTop) + '" width="' + r1(width) +
+             '" height="' + r1(bandHeight) + '" fill="' +
              (group.depth === 1 ? "var(--row-top)" : (i % 2 ? "var(--row-alt)" : "var(--bg)")) + '"/>');
-    out.push('<text x="' + r1(settings.labelPad + (group.depth - 1) * settings.rowTitleIndent) + '" y="' +
+    // ---- Group Grid Lines: one horizontal per TaskGroup boundary ----
+    if (el("tgGridGroup").checked) {
+      out.push('<line x1="0" y1="' + r1(bandTop) + '" x2="' + r1(width) + '" y2="' + r1(bandTop) +
+               '" stroke="var(--rule)" stroke-opacity="0.7"/>');
+    }
+    // Row titles go into their own frozen layer, not into the scrolling body.
+    titles.push('<text x="' + r1(settings.labelPad + (group.depth - 1) * settings.rowTitleIndent) + '" y="' +
              r1(pack.y + settings.rowTitleFont) + '" font-size="' + r1(settings.rowTitleFont) + '" fill="' +
              (group.depth === 1 ? "var(--accent)" : "var(--sub)") + '"' +
              (group.depth === 1 ? ' font-weight="700"' : '') + '>' + esc(group.name) + '</text>');
@@ -1856,9 +1980,51 @@ function renderSchedule() {
              '" stroke="var(--lightning)" stroke-dasharray="4 3" stroke-opacity="0.55"/>');
   }
 
+  // ---- Time Ruler: one band per tier row, coarse at the top ---------------
+  // The type never shrinks; a row that cannot fit its labels thins them out,
+  // and a tier that cannot fit them at all is not entered (§6-3).
+  ruler.push('<rect x="0" y="0" width="' + r1(width) + '" height="' + r1(bandH) +
+             '" fill="var(--panel)"/>');
+  rows.forEach(function (kind, n) {
+    var yTop = n * rowH, baseline = yTop + settings.rulerFont;
+    var need = kind === "year" ? 40 : (kind === "month" ? 30 : (kind === "week" ? 34 : 16));
+    var ticks = thinTicks(rulerTicks(kind, HORIZON_DAYS), ctx.pxPerDay, need);
+    if (n) ruler.push('<line x1="0" y1="' + r1(yTop) + '" x2="' + r1(width) + '" y2="' + r1(yTop) +
+                      '" stroke="var(--rule)" stroke-opacity="0.6"/>');
+    ticks.forEach(function (t) {
+      var x = originX + t.day * ctx.pxPerDay;
+      ruler.push('<line x1="' + r1(x) + '" y1="' + r1(yTop) + '" x2="' + r1(x) + '" y2="' +
+                 r1(yTop + rowH) + '" stroke="var(--rule)" stroke-opacity="0.6"/>');
+      ruler.push('<text x="' + r1(x + 3) + '" y="' + r1(baseline) + '" font-size="' +
+                 r1(settings.rulerFont) + '" fill="' +
+                 (t.weekend ? "var(--bad)" : "var(--sub)") + '">' + esc(t.label) + '</text>');
+    });
+  });
+  ruler.push('<line x1="0" y1="' + r1(bandH) + '" x2="' + r1(width) + '" y2="' + r1(bandH) +
+             '" stroke="var(--rule)"/>');
+
+  // ---- frozen panes -------------------------------------------------------
+  // Row Title Panel does not scroll sideways, Time Ruler does not scroll down
+  // (§1). Both live in their own <g>, translated back by the scroll offset,
+  // which is why nothing has to be redrawn while scrolling.
+  var titleLayer =
+    '<g id="gTitles"><rect x="0" y="0" width="' + r1(originX) + '" height="' + r1(contentHeight) +
+    '" fill="var(--panel)"/><line x1="' + r1(originX) + '" y1="0" x2="' + r1(originX) +
+    '" y2="' + r1(contentHeight) + '" stroke="var(--rule)"/>' + titles.join("") + '</g>';
+  var rulerLayer = '<g id="gRuler">' + ruler.join("") + '</g>';
+  var cornerLayer =
+    '<g id="gCorner"><rect x="0" y="0" width="' + r1(originX) + '" height="' + r1(bandH) +
+    '" fill="var(--panel)"/><line x1="' + r1(originX) + '" y1="0" x2="' + r1(originX) +
+    '" y2="' + r1(bandH) + '" stroke="var(--rule)"/><line x1="0" y1="' + r1(bandH) +
+    '" x2="' + r1(originX) + '" y2="' + r1(bandH) + '" stroke="var(--rule)"/>' +
+    '<text x="' + r1(settings.labelPad) + '" y="' + r1(bandH - 6) + '" font-size="' +
+    r1(settings.rulerFont) + '" fill="var(--sub)">' + esc(TIER_NAME[tier]) + '</text></g>';
+
   el("scheduleCanvas").innerHTML =
     '<svg width="' + r1(width) + '" height="' + r1(contentHeight) + '" viewBox="0 0 ' +
-    r1(width) + ' ' + r1(contentHeight) + '">' + out.join("") + '</svg>';
+    r1(width) + ' ' + r1(contentHeight) + '"><g id="gBody">' + out.join("") + '</g>' +
+    titleLayer + rulerLayer + cornerLayer + '</svg>';
+  syncFrozenPanes();
 
   // marker tally, so the four symbols can be counted rather than eyeballed
   var tally = { done: 0, late: 0, suspended: 0, open: 0 };
@@ -1876,7 +2042,7 @@ function renderSchedule() {
     item("表示タスク", layout.shownTasks + " / " + TASKS.length),
     item("表示行", layout.packs.length + " / " + TASK_GROUPS.length),
     item("合計段数", layout.stackTotal), item("依存線", dependencyCount),
-    item("マーカー", "✓" + tally.done + " ／ !" + tally.late + " ／ \\" + tally.suspended +
+    item("マーカー", "✓" + tally.done + " ／ !" + tally.late + " ／ ＼" + tally.suspended +
       " ／ ( )" + tally.open),
     item("overlap", '<span style="color:' + (layout.overlaps ? "var(--bad)" : "var(--good)") + '">' +
       layout.overlaps + "</span>"),
@@ -1931,7 +2097,10 @@ function sampleBarSvg(task, opt) {
          out.join("") + '</svg>';
 }
 
-var SYMBOL_LABEL = { done: "(✓) 完了", late: "(!) 遅れ", suspended: "( \\ ) 中断", open: "( ) 未完了" };
+// U+FF3C FULLWIDTH REVERSE SOLIDUS, not U+005C. Japanese fonts draw U+005C as
+// a yen sign -- a leftover from JIS X 0201, where that code point WAS the yen.
+// The marker itself is an SVG line, so only these labels were affected.
+var SYMBOL_LABEL = { done: "(✓) 完了", late: "(!) 遅れ", suspended: "( ＼ ) 中断", open: "( ) 未完了" };
 var STATE_LABEL = {
   notStarted: "未着手", inProgress: "進行中", done: "完了",
   suspendedWithResume: "中断・再開予定あり", suspendedNoResume: "中断・再開日未定"
@@ -2085,11 +2254,12 @@ function renderGlyphs() {
            '" viewBox="0 0 660 ' + r1(m.planHeight + 16) + '">' + o.join("") + '</svg>';
   }
   el("glyphLabelInk").innerHTML =
-    '<div class="glyphRow"><h4>縁取りあり（確定）</h4>' + labelInkSvg(true) + '</div>' +
-    '<div class="glyphRow"><h4>縁取りなし（比較用。採らない）</h4>' + labelInkSvg(false) + '</div>' +
+    '<div class="glyphRow"><h4>縁取りあり（確定。キャンバスの文字は常にこれ）</h4>' + labelInkSvg(true) + '</div>' +
     '<p class="hint">3 番目が<b>予定と実績にまたがる</b>例。文字の途中で背の色が変わる。' +
     '縁取りがあると背が何であれ文字は背景色に接するので、<b>またぐ位置に関係なく比は 21:1</b> になる。' +
-    '縁取りなしの行では、同じ文字が予定の上と実績の上で別の比になる。</p>';
+    '縁取り無しだと同じ文字が予定の上と実績の上で別の比になるが、' +
+    '<b>縁取りは確定済み（07 §2-7）なのでキャンバスでは選べない</b>。' +
+    '無しとの対比は「色と縁取り」タブに計測記録として残してある。</p>';
 
   // ---- 2-5. every colour token -------------------------------------------
   var bgY = POC_UI.luminance(resolvedColour("--bg"));
@@ -2145,7 +2315,39 @@ var PATTERNS = [
     tasks: [["矩形", 0, 20], ["矢羽根", 26, 46], ["矢印", 52, 72], ["端点スパン", 78, 98], ["◇", 110, 110]],
     kinds: ["rectangle", "chevron", "arrow", "endpointSpan", "milestone"] },
   { id: "P19", name: "完全結合 8 本", desc: "全部が重なる → 8 段（上限なし）",
-    tasks: [["1", 0, 60], ["2", 2, 62], ["3", 4, 64], ["4", 6, 66], ["5", 8, 68], ["6", 10, 70], ["7", 12, 72], ["8", 14, 74]] }
+    tasks: [["1", 0, 60], ["2", 2, 62], ["3", 4, 64], ["4", 6, 66], ["5", 8, 68], ["6", 10, 70], ["7", 12, 72], ["8", 14, 74]] },
+
+  /* ---- ここから複雑な例。単純な重なりでは出ない条件を突く ---------------- */
+
+  { id: "P21", name: "包含 — 長い 1 本の中に短い 4 本", desc: "日付は入れ子。親は 1 段目、子は全部 2 段目に入るか",
+    tasks: [["全体", 0, 130], ["区間 A", 6, 26], ["区間 B", 34, 54], ["区間 C", 62, 82], ["区間 D", 90, 110]] },
+
+  { id: "P22", name: "ラベルが占有幅を決める", desc: "日付は重ならないのに、名称ラベルのはみ出しだけで段が増える",
+    tasks: [["詳細設計および実装方式の検討と関係先との調整", 0, 3],
+            ["詳細設計および実装方式の検討と関係先との調整", 14, 17],
+            ["詳細設計および実装方式の検討と関係先との調整", 28, 31]] },
+
+  { id: "P23", name: "同日マイルストーン 5 本", desc: "幅ゼロが同じ日に重なる。◇ の占有幅は高さから来る",
+    tasks: [["M1", 40, 40], ["M2", 40, 40], ["M3", 40, 40], ["M4", 40, 40], ["M5", 40, 40]],
+    kinds: ["milestone", "milestone", "milestone", "milestone", "milestone"] },
+
+  { id: "P24", name: "手動 stackOrder と自動の混在", desc: "指定した 3 本は必ずその段。残りは空いた段へ自動で落ちる。段 3 は自動では作られない",
+    tasks: [["自動", 0, 40], ["手動→3", 5, 45], ["自動", 10, 50], ["手動→3", 150, 190], ["自動", 15, 55], ["手動→0", 70, 110]],
+    stacks: [null, 3, null, 3, null, 0] },
+
+  { id: "P25", name: "極端な長短", desc: "200 日と 1 日が同居。短いほうは最小幅で残る",
+    tasks: [["長期", 0, 200], ["点 1", 20, 21], ["点 2", 60, 61], ["点 3", 100, 101], ["点 4", 140, 141], ["点 5", 180, 181]] },
+
+  { id: "P26", name: "予実の状態が 5 通り混在", desc: "マーカーの記号ごとに右への張り出しが違う。段割当はそれを含めて決まる",
+    tasks: [["完了", 0, 30, { actualStart: 0, actualDuration: 30, actualFinish: 30, resumeValid: false }],
+            ["進行中", 36, 76, { actualStart: 36, actualDuration: 18 }],
+            ["中断・再開あり", 82, 122, { actualStart: 82, actualDuration: 14, resume: 300 }],
+            ["中断・再開未定", 128, 168, { actualStart: 128, actualDuration: 14, resumeValid: false }],
+            ["未着手", 174, 214, { actualStart: null }]] },
+
+  { id: "P27", name: "段をまたぐ依存の長い鎖", desc: "8 本を直列に繋ぐ。経路が段を上下に跨ぐケースを一度に出す",
+    tasks: [["1", 0, 24], ["2", 18, 42], ["3", 36, 60], ["4", 54, 78],
+            ["5", 72, 96], ["6", 90, 114], ["7", 108, 132], ["8", 126, 150]], chainAll: true }
 ];
 
 function renderMultibar() {
@@ -2162,12 +2364,18 @@ function renderMultibar() {
         opt.actualStart = spec[1];
         opt.actualDuration = Math.round((spec[2] - spec[1]) * 0.55);
       }
+      // a 4th element overrides anything above, so a pattern can pin a state
+      if (spec[3]) for (var k in spec[3]) if (spec[3].hasOwnProperty(k)) opt[k] = spec[3][k];
+      if (pat.stacks && pat.stacks[i] != null) opt.stackOrder = pat.stacks[i];
       var t = makeTask(0, spec[0], spec[1], spec[2], opt);
       recomputePercentComplete(t);
       return t;
     });
     if (pat.chain) {
       for (var i = 1; i < tasks.length; i += 2) tasks[i].predecessorUid = tasks[i - 1].uid;
+    }
+    if (pat.chainAll) {
+      for (var j = 1; j < tasks.length; j++) tasks[j].predecessorUid = tasks[j - 1].uid;
     }
     var cache = {};
     var ctx = {
@@ -2257,13 +2465,16 @@ function renderLod() {
   var html = [];
 
   html.push('<h3>4-1. 時間軸 — 目盛の粒度</h3>');
-  html.push('<p class="hint">px/day = ' + settings.pxPerDayAt1x + ' × zoomX。狙い: ' +
-    settings.rulerTierPxPerDayLow + ' 未満で「年」、' + settings.rulerTierPxPerDayHigh +
-    ' 未満で「年＋月」、以上で「年月＋日＋曜日」。</p>');
+  html.push('<p class="hint">px/day = ' + settings.pxPerDayAt1x + ' × zoomX。<b>4 段階</b>で、' +
+    '狙いは ' + settings.rulerTierPxPerDayMonth + ' 未満で「年」、' +
+    settings.rulerTierPxPerDayWeek + ' 未満で「年＋月」、' +
+    settings.rulerTierPxPerDayDay + ' 未満で「年＋月＋週」、以上で「年＋月＋日＋曜日」。' +
+    '<b>フォントは縮めない</b> — 入らなければ 1 段階粗くする（§6-3）。</p>');
   var t1 = findTransitions(timeRulerTier, 0.02, 20, 4000);
   html.push(transitionTable(t1, [
-    { label: "年 → 年＋月", want: settings.rulerTierPxPerDayLow / settings.pxPerDayAt1x },
-    { label: "年＋月 → 年月＋日", want: settings.rulerTierPxPerDayHigh / settings.pxPerDayAt1x }
+    { label: "年 → 年＋月", want: settings.rulerTierPxPerDayMonth / settings.pxPerDayAt1x },
+    { label: "年＋月 → 年＋月＋週", want: settings.rulerTierPxPerDayWeek / settings.pxPerDayAt1x },
+    { label: "年＋月＋週 → 年＋月＋日＋曜日", want: settings.rulerTierPxPerDayDay / settings.pxPerDayAt1x }
   ], TIER_NAME));
 
   html.push('<h3>4-2. アイテム LOD（軸A・WBS の深さ・横ズーム）</h3>');
@@ -2417,7 +2628,8 @@ el("settingsHost").addEventListener("input", function (ev) {
   var v = parseFloat(ev.target.value);
   if (!isNaN(v)) { POC_UI.S[k] = v; renderSettings(); redrawActive(); }
 });
-["tgDependency", "tgAssignee", "tgProgress", "tgProgressLine", "tgMarker", "tgHalo"].forEach(function (id) {
+["tgDependency", "tgAssignee", "tgProgress", "tgProgressLine", "tgMarker",
+ "tgGridDate", "tgGridGroup"].forEach(function (id) {
   el(id).addEventListener("change", renderSchedule);
 });
 
@@ -2545,6 +2757,7 @@ canvas.addEventListener("pointermove", function (ev) {
 function endPan() { if (pan) { pan = null; canvas.classList.remove("panning"); } }
 canvas.addEventListener("pointerup", endPan);
 canvas.addEventListener("pointercancel", endPan);
+canvas.addEventListener("scroll", syncFrozenPanes);
 // middle-button autoscroll would fight the pan
 canvas.addEventListener("auxclick", function (ev) { ev.preventDefault(); });
 

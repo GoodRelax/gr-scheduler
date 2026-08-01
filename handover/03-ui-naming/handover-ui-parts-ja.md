@@ -116,7 +116,7 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 | `'endpointSpan'` | **端点スパン**（`*----*`）。※「端点」と略さない。§2-1-5 |
 | `'milestone'` | **マイルストーン**（◇ ほか） |
 | `milestoneGlyph` | **マイルストーン形状**（〇 △ ▽ □ ☆ 五角形 六角形） |
-| **`actualPlacement`** | **実績の置き方**（`'inside'` = 内側 / `'below'` = 下）。`shapeKind` から導出する |
+| **`actualPlacement`** | **実績の置き方**（`'inside'` = 内側 / `'below'` = 下 / `'atActualDate'` = 実績日）。`shapeKind` から導出する |
 | `strokeColor` / `fillColor` / `lineWeight` | **線色** / 塗り色 / 線の太さ |
 | `nameAnchor` / `nameAlign` | **名称アンカー** / **名称の揃え** |
 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 |
@@ -318,15 +318,17 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 
 | 確定名（英） | 日本語 |
 |---|---|
-| `rulerTierPxPerDayLow` | 目盛が 年 → 年＋月 に変わる px/day |
-| `rulerTierPxPerDayHigh` | 目盛が 年＋月 → 年月＋日 に変わる px/day |
+| `rulerTierPxPerDayMonth` | 目盛が 年 → 年＋月 に変わる px/day |
+| `rulerTierPxPerDayWeek` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day |
+| `rulerTierPxPerDayDay` | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day |
 | `itemLodReadablePx` | この幅を割った深さは描かない |
 | `rowLodBase` | 行階層 LOD の初項 |
 | `rowLodRatio` | 行階層 LOD の公比 |
 
-> **時間軸のしきい値を 2 キーに分ける理由**（確定 2026-08-01）: 上下が互いを縛るためである
-> （下 ≦ 上）。`rulerTierPxPerDay = [1, 8]` のような 1 つの配列にすると、
-> **どちらの要素にどの範囲が掛かるかを書く場所が無くなる**。
+> **時間軸のしきい値をキーに分ける理由**（確定 2026-08-01）: 隣どうしが互いを縛るためである
+> （Month ≦ Week ≦ Day）。`rulerTierPxPerDay = [1, 8]` のような 1 つの配列にすると、
+> **どの要素にどの範囲が掛かるかを書く場所が無くなる**。
+> 目盛は 4 段階なので、しきい値は**その境目の数だけ 3 本**になる（`handover-ui-detail-spec-ja.md` §6-3）。
 
 **ズーム**
 
@@ -371,7 +373,7 @@ App Shell                      アプリ全体の器
 │   └─ Panel Divider           左パネルの幅を変えるドラッグ境界
 │
 ├─ Schedule Canvas             中央の描画領域
-│   ├─ Time Ruler              上端の年・月・日・曜の目盛り
+│   ├─ Time Ruler              上端の目盛り。年 / 年月 / 年月週 / 年月日曜 の 4 段階
 │   ├─ Grid Lines              ‼️ 抜けていた
 │   │   ├─ Date Grid Lines     日付の縦罫線（表示切替あり）
 │   │   └─ Group Grid Lines    TaskGroup 境界の横罫線（表示切替あり）

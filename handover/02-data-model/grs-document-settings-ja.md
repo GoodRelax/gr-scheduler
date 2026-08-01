@@ -227,17 +227,20 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 
 | キー | 既定 | 下限 | 上限 | 意味・範囲の理由 |
 |---|--:|--:|--:|---|
-| `rulerTierPxPerDayLow` | `1` | 0.1 | `rulerTierPxPerDayHigh` | 目盛が 年 → 年＋月 に変わる px/day。**上のしきい値を超えない** |
-| `rulerTierPxPerDayHigh` | `8` | `rulerTierPxPerDayLow` | 60 | 目盛が 年＋月 → 年月＋日 に変わる px/day。**下のしきい値を下回らない** |
+| `rulerTierPxPerDayMonth` | `1` | 0.1 | `rulerTierPxPerDayWeek` | 目盛が 年 → 年＋月 に変わる px/day。**次のしきい値を超えない** |
+| `rulerTierPxPerDayWeek` | `4` | `rulerTierPxPerDayMonth` | `rulerTierPxPerDayDay` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day。**前後のしきい値の間** |
+| `rulerTierPxPerDayDay` | `14` | `rulerTierPxPerDayWeek` | 60 | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day。**前のしきい値を下回らない** |
 | `itemLodReadablePx` | `24` | `fontMin` | 200 | この幅を割った深さのタスクを描かない（軸A・WBS の深さ）。文字が 1 つも入らない幅にしない |
 | `rowLodBase` | `0.32` | 0.01 | 2 | 行階層 LOD の初項。`threshold(d) = rowLodBase x rowLodRatio^(d−2)` |
 | `rowLodRatio` | `1.875` | 1 + ε | 4 | 同上の公比。**1 以下だと深いほど出やすくなり単調性が壊れる** |
 | `stackSafetyCap` | 十分に大きい値 | — | — | 積み順の安全弁。到達したら**人に知らせる**（項 30-7） |
 
-> **時間軸のしきい値は 2 キーに分ける** — **確定 2026-08-01**。
+> **時間軸のしきい値は境目の数だけキーを置く** — **確定 2026-08-01**。
 > 旧版は `rulerTierPxPerDay = [1, 8]` という 1 キーだった。
-> **上下が互いを縛る**（下 ≦ 上）のに、配列だとどちらの要素にどの範囲が掛かるかを書く場所が無い。
-> 名前の正は `../03-ui-naming/handover-ui-parts-ja.md` §2-1-6。
+> **隣どうしが互いを縛る**（Month ≦ Week ≦ Day）のに、配列だとどの要素にどの範囲が掛かるかを書く場所が無い。
+> 目盛は **4 段階**（年 / 年月 / 年月週 / 年月日曜）なので、しきい値は **3 本**である。
+> 名前の正は `../03-ui-naming/handover-ui-parts-ja.md` §2-1-6、
+> 段階の定義は `../03-ui-naming/handover-ui-detail-spec-ja.md` §6-3。
 
 > **「200 アイテム以下なら全部描く」は設定にしない。** 前プロジェクトの閾値ハックであり、
 > **次期は起動シーケンスで根治する**と決まっている
