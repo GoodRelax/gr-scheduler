@@ -197,12 +197,15 @@ status: stable
 
 | | |
 |---|---|
-| **決まっていること** | 名前空間 URI ＝ `http://schemas.microsoft.com/project/2007`（`01-mspdi/mspdi-core-tree.md`）。**`Project` 直下の必須要素は `SaveVersion` と `CurrencyCode` の 2 つだけ**（`01-mspdi/mspdi-tables.md` / `01-mspdi/mspdi-pitfalls-ja.md`）。文字コードは UTF-8・BOM なし（`user-order.md`）。落とし穴は `01-mspdi/mspdi-pitfalls-ja.md`、enum 全数は `01-mspdi/mspdi-enums-ja.md` |
-| **決めること** | **ルート `<Project>` を持つ文書の実例が 0 件**（最大の断片は `01-mspdi/mspdi-core-tree.md` の `<Task>` 18 行）。`xmlns` 宣言の書き方・**要素順（`xsd:sequence`）**・`elementFormDefault` が未記載。**最小妥当文書と、往復に使う代表文書の 2 本**を作ること |
+| **決まっていること** | **スキーマ側の事実は全数そろった（2026-08-02 に XSD から機械抽出）** ＝ `01-mspdi/mspdi-core-tree.md`「XSD の要素順と最小妥当文書」節。名前空間 URI ／ **`elementFormDefault="qualified"`** ／ トップレベル要素は `Project` 1 つ ／ **4 つの容れ物の宣言順の全数**（`Project` 70 / `Task` 96 / `Resource` 71 / `Assignment` 265）／ 必須は全体で 3 つだけ（`SaveVersion`・`CurrencyCode`・各 `UID`）／ **最小妥当文書の実例**。順序と空容れ物の罠は `01-mspdi/mspdi-pitfalls-ja.md` **B-5 / B-6**。文字コードは UTF-8・BOM なし（`user-order.md`） |
+| **決めること** | **往復に使う代表文書 1 本だけが残る。** GRS の取捨選択（Own / Consume / Reconstruct / Carry / Drop ＝ `02-data-model/grs-mspdi-field-ledger-ja.md`）を一通り踏む MSPDI 文書を作り、import → export で失われないことを検査する |
 
+> **これはテストの実データである。** 実装の隣に置いて往復検査から参照するものなので、
+> **次期のリポジトリで作る**（handover に置くとコードと乖離する）。
+>
 > ⚠️ **正本 XSD はリポジトリに入っていない**（ライセンスのため）。入手方法とハッシュは
-> `01-mspdi/mspdi/README.md`。**要素順と `elementFormDefault` は XSD を取得してから確かめる。**
-> XSD が手元に無いときは「未検証」と書くこと（`README.md` §0-3）。
+> `01-mspdi/mspdi/README.md`。**上の事実は入手済みの複製から抽出したもの**なので、
+> 次期は XSD を取得しなくてもこの順序表を使える。**新たに事実を足すときだけ取得が要る。**
 
 ---
 

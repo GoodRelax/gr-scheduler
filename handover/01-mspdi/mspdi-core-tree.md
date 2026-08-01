@@ -65,6 +65,13 @@ Project（プロジェクト＝ファイル1個）
 
 ## コアツリー
 
+> ⚠️ **このツリーは意味で分類してある。XSD の文書順ではない。**
+> 【メタ情報】【スケジュール方針】【通貨・表示】という括りは**読んで理解するための並べ替え**であり、
+> 実際の並びとは違う（例: `StatusDate` は実際には **53 番目**、`CurrencyCode` は **20 番目**で
+> `CalendarUID`（22 番目）より**前**にある）。
+> **このツリーの順に書き出すと XSD 非妥当な XML になる。**
+> **書き出す順は「XSD の要素順と最小妥当文書」節が正**（本書の下の方）。
+
 凡例:
 ```text
 ?          省略可（minOccurs=0）
@@ -468,8 +475,154 @@ erDiagram
 
 ---
 
+## XSD の要素順と最小妥当文書（**XSD 実測 2026-08-02**）
+
+**本節が書き出し順の正である。** 上の「コアツリー」は意味で分類した並びなので、そちらに従ってはならない。
+
+出典: `https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd`（ローカル複製の入手手順は `mspdi/README.md`）。
+**下の一覧はすべて XSD から機械抽出した**（目視で書き写していない）。
+
+### スキーマ見出しの事実
+
+| 事項 | 値 |
+|---|---|
+| `targetNamespace` | `http://schemas.microsoft.com/project/2007` |
+| **`elementFormDefault`** | **`qualified`** |
+| `attributeFormDefault` | **属性が無い**（既定の `unqualified`） |
+| トップレベル要素 | **`Project` の 1 つだけ** |
+
+`elementFormDefault="qualified"` なので、**ルートに既定の名前空間を 1 つ宣言すれば全子孫がそれで満たされる**。
+接頭辞を付けて回る必要はない。
+
+### 順序の規則 — **1 文で足りる**
+
+> **持っている要素だけを、下の一覧の順に出す。**
+
+- 4 つの容れ物（`Project` / `Task` / `Resource` / `Assignment`）は**すべて `xsd:sequence`** である。
+  **省略はできるが、並べ替えはできない。**
+- **必須は全体で 3 つだけ** — `Project/SaveVersion`・`Project/CurrencyCode`・各要素の `UID`。
+  それ以外は全部 `minOccurs=0` なので、**全数を出す必要はない。**
+- したがって「全項目を埋める」実装は要らない。**部分集合を順序どおりに並べれば妥当になる。**
+
+### Project — 70 要素 ／ 必須: `SaveVersion`(1) `CurrencyCode`(20)
+
+```text
+1 SaveVersion / 2 UID / 3 Name / 4 Title / 5 Subject / 6 Category / 7 Company / 8 Manager /
+9 Author / 10 CreationDate / 11 Revision / 12 LastSaved / 13 ScheduleFromStart / 14 StartDate /
+15 FinishDate / 16 FYStartDate / 17 CriticalSlackLimit / 18 CurrencyDigits / 19 CurrencySymbol /
+20 CurrencyCode / 21 CurrencySymbolPosition / 22 CalendarUID / 23 DefaultStartTime /
+24 DefaultFinishTime / 25 MinutesPerDay / 26 MinutesPerWeek / 27 DaysPerMonth /
+28 DefaultTaskType / 29 DefaultFixedCostAccrual / 30 DefaultStandardRate /
+31 DefaultOvertimeRate / 32 DurationFormat / 33 WorkFormat / 34 EditableActualCosts /
+35 HonorConstraints / 36 EarnedValueMethod / 37 InsertedProjectsLikeSummary /
+38 MultipleCriticalPaths / 39 NewTasksEffortDriven / 40 NewTasksEstimated /
+41 SplitsInProgressTasks / 42 SpreadActualCost / 43 SpreadPercentComplete /
+44 TaskUpdatesResource / 45 FiscalYearStart / 46 WeekStartDay / 47 MoveCompletedEndsBack /
+48 MoveRemainingStartsBack / 49 MoveRemainingStartsForward / 50 MoveCompletedEndsForward /
+51 BaselineForEarnedValue / 52 AutoAddNewResourcesAndTasks / 53 StatusDate / 54 CurrentDate /
+55 MicrosoftProjectServerURL / 56 Autolink / 57 NewTaskStartDate / 58 DefaultTaskEVMethod /
+59 ProjectExternallyEdited / 60 ExtendedCreationDate / 61 ActualsInSync /
+62 RemoveFileProperties / 63 AdminProject / 64 OutlineCodes / 65 WBSMasks /
+66 ExtendedAttributes / 67 Calendars / 68 Tasks / 69 Resources / 70 Assignments
+```
+
+> **容れ物は全部いちばん後ろにある**（64〜70）。スカラーを 1 つでも容れ物の後に置くと非妥当になる。
+> **`Calendars` を出すなら `Calendar` を 1 つ以上入れること**（`Calendar` は `minOccurs=1`）。
+> 空の `<Calendars/>` は不正である（`mspdi-pitfalls-ja.md` B-6）。
+
+### Task — 96 要素 ／ 必須: `UID`(1)
+
+```text
+1 UID / 2 ID / 3 Name / 4 Type / 5 IsNull / 6 CreateDate / 7 Contact / 8 WBS / 9 WBSLevel /
+10 OutlineNumber / 11 OutlineLevel / 12 Priority / 13 Start / 14 Finish / 15 Duration /
+16 DurationFormat / 17 Work / 18 Stop / 19 Resume / 20 ResumeValid / 21 EffortDriven /
+22 Recurring / 23 OverAllocated / 24 Estimated / 25 Milestone / 26 Summary / 27 Critical /
+28 IsSubproject / 29 IsSubprojectReadOnly / 30 SubprojectName / 31 ExternalTask /
+32 ExternalTaskProject / 33 EarlyStart / 34 EarlyFinish / 35 LateStart / 36 LateFinish /
+37 StartVariance / 38 FinishVariance / 39 WorkVariance / 40 FreeSlack / 41 TotalSlack /
+42 FixedCost / 43 FixedCostAccrual / 44 PercentComplete / 45 PercentWorkComplete / 46 Cost /
+47 OvertimeCost / 48 OvertimeWork / 49 ActualStart / 50 ActualFinish / 51 ActualDuration /
+52 ActualCost / 53 ActualOvertimeCost / 54 ActualWork / 55 ActualOvertimeWork / 56 RegularWork /
+57 RemainingDuration / 58 RemainingCost / 59 RemainingWork / 60 RemainingOvertimeCost /
+61 RemainingOvertimeWork / 62 ACWP / 63 CV / 64 ConstraintType / 65 CalendarUID /
+66 ConstraintDate / 67 Deadline / 68 LevelAssignments / 69 LevelingCanSplit / 70 LevelingDelay /
+71 LevelingDelayFormat / 72 PreLeveledStart / 73 PreLeveledFinish / 74 Hyperlink /
+75 HyperlinkAddress / 76 HyperlinkSubAddress / 77 IgnoreResourceCalendar / 78 Notes / 79 HideBar /
+80 Rollup / 81 BCWS / 82 BCWP / 83 PhysicalPercentComplete / 84 EarnedValueMethod /
+85 PredecessorLink / 86 ActualWorkProtected / 87 ActualOvertimeWorkProtected /
+88 ExtendedAttribute / 89 Baseline / 90 OutlineCode / 91 IsPublished / 92 StatusManager /
+93 CommitmentStart / 94 CommitmentFinish / 95 CommitmentType / 96 TimephasedData
+```
+
+> **`PredecessorLink` は 85 番目**である。依存を持つ `Task` を書くとき、`Baseline`(89) や
+> `TimephasedData`(96) より**前**に置かなければならない。
+> **`Stop`(18) / `Resume`(19) / `ResumeValid`(20)** は予実モデルが使う 3 つ
+> （`../07-plan-actual/handover-plan-actual-decisions-ja.md`）。**`Start`/`Finish` の直後**にある。
+
+### Resource — 71 要素 ／ 必須: `UID`(1)
+
+```text
+1 UID / 2 ID / 3 Name / 4 Type / 5 IsNull / 6 Initials / 7 Phonetics / 8 NTAccount /
+9 MaterialLabel / 10 Code / 11 Group / 12 WorkGroup / 13 EmailAddress / 14 Hyperlink /
+15 HyperlinkAddress / 16 HyperlinkSubAddress / 17 MaxUnits / 18 PeakUnits / 19 OverAllocated /
+20 AvailableFrom / 21 AvailableTo / 22 Start / 23 Finish / 24 CanLevel / 25 AccrueAt / 26 Work /
+27 RegularWork / 28 OvertimeWork / 29 ActualWork / 30 RemainingWork / 31 ActualOvertimeWork /
+32 RemainingOvertimeWork / 33 PercentWorkComplete / 34 StandardRate / 35 StandardRateFormat /
+36 Cost / 37 OvertimeRate / 38 OvertimeRateFormat / 39 OvertimeCost / 40 CostPerUse /
+41 ActualCost / 42 ActualOvertimeCost / 43 RemainingCost / 44 RemainingOvertimeCost /
+45 WorkVariance / 46 CostVariance / 47 SV / 48 CV / 49 ACWP / 50 CalendarUID / 51 Notes /
+52 BCWS / 53 BCWP / 54 IsGeneric / 55 IsInactive / 56 IsEnterprise / 57 BookingType /
+58 ActualWorkProtected / 59 ActualOvertimeWorkProtected / 60 ActiveDirectoryGUID /
+61 CreationDate / 62 ExtendedAttribute / 63 Baseline / 64 OutlineCode / 65 IsCostResource /
+66 AssnOwner / 67 AssnOwnerGuid / 68 IsBudget / 69 AvailabilityPeriods / 70 Rates /
+71 TimephasedData
+```
+
+### Assignment — 265 要素 ／ 必須: `UID`(1)
+
+```text
+1 UID / 2 TaskUID / 3 ResourceUID / 4 PercentWorkComplete / 5 ActualCost / 6 ActualFinish /
+7 ActualOvertimeCost / 8 ActualOvertimeWork / 9 ActualStart / 10 ActualWork / 11 ACWP /
+12 Confirmed / 13 Cost / 14 CostRateTable / 15 CostVariance / 16 CV / 17 Delay / 18 Finish /
+19 FinishVariance / 20 Hyperlink / 21 HyperlinkAddress / 22 HyperlinkSubAddress /
+23 WorkVariance / 24 HasFixedRateUnits / 25 FixedMaterial / 26 LevelingDelay /
+27 LevelingDelayFormat / 28 LinkedFields / 29 Milestone / 30 Notes / 31 Overallocated /
+32 OvertimeCost / 33 OvertimeWork / 34 PeakUnits / 35 RegularWork / 36 RemainingCost /
+37 RemainingOvertimeCost / 38 RemainingOvertimeWork / 39 RemainingWork / 40 ResponsePending /
+41 Start / 42 Stop / 43 Resume / 44 StartVariance / 45 Summary / 46 SV / 47 Units /
+48 UpdateNeeded / 49 VAC / 50 Work / 51 WorkContour / 52 BCWS / 53 BCWP / 54 BookingType /
+55 ActualWorkProtected / 56 ActualOvertimeWorkProtected / 57 CreationDate / 58 AssnOwner /
+59 AssnOwnerGuid / 60 BudgetCost / 61 BudgetWork / 62 ExtendedAttribute / 63 Baseline
+64-264  f404000 ... f4040c8   <- 不透明な 201 要素・連番
+265 TimephasedData
+```
+
+> ⚠️ **64〜264 の 201 要素の説明は `mspdi-pitfalls-ja.md` D-6 が正。ここには複製しない。**
+> 本節が持つのは**位置**だけである — **`TimephasedData`(265) はこの 201 個より後ろに置く。**
+
+### 最小妥当文書
+
+必須の 2 要素だけを順序どおりに並べたもの。**これが XSD を満たす最小の `Project` 文書である。**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Project xmlns="http://schemas.microsoft.com/project/2007">
+  <SaveVersion>12</SaveVersion>
+  <CurrencyCode>JPY</CurrencyCode>
+</Project>
+```
+
+- **BOM は付けない**（`../user-order.md`）。
+- `SaveVersion` は `xsd:integer`。**12 = Project 2007**（XSD の説明文）。
+- `CurrencyCode` は `xsd:string` の **`maxLength=3`**。**GRS は通貨の値を使わない**が
+  必須要素なので出す（`mspdi-tables.md`）。⚠️ **XSD は ISO 4217 かどうかを検査しない。**
+  MS Project 実機が任意の 3 文字を受けるかは**未検証**。
+- **順序が逆（`CurrencyCode` を先）だと非妥当になる。** `SaveVersion` は 1 番目、`CurrencyCode` は 20 番目である。
+
 ## 読む/書くときの最小知識
 
+- **要素の順序は `xsd:sequence` で強制される。** 省略はできるが並べ替えはできない
+  （順序の全数は「XSD の要素順と最小妥当文書」節）。
 - **date/time は ISO8601**。`dateTime`=`2026-07-24T09:00:00`、`duration`=`PT8H0M0S`（8時間）。
 - **多くのフィールドが `minOccurs=0`（省略可）**。実ファイルは大半が省略され、必要な列だけ出力される。
   → パーサは「無い＝既定値」を前提に堅牢に書く。
