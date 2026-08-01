@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>file:// probe run 2 - write-back round trip</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: system-ui, sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        color: #1c1e21;
+        background: #f7f7f8;
+      }
+      main { max-width: 940px; margin: 0 auto; }
+      h1 { font-size: 1.3em; margin: 0 0 4px; }
+      p.sub { margin: 0 0 20px; color: #5c626b; font-size: 0.9em; }
+      section {
+        background: #fff;
+        border: 1px solid #c9ccd2;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      section.main { border-color: #2b6a3f; border-width: 2px; }
+      h2 { font-size: 1.05em; margin: 0 0 8px; }
+      button {
+        font: inherit;
+        font-weight: 600;
+        padding: 8px 16px;
+        margin: 0 8px 8px 0;
+        border-radius: 6px;
+        border: 1px solid #2b6a3f;
+        background: #2b6a3f;
+        color: #fff;
+        cursor: pointer;
+      }
+      button.secondary { background: #f7f7f8; color: #1c1e21; border-color: #c9ccd2; }
+      button:disabled { opacity: 0.4; cursor: default; }
+      pre {
+        margin: 8px 0 0;
+        padding: 12px;
+        background: #16181c;
+        color: #e7e9ec;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: ui-monospace, monospace;
+        font-size: 0.82em;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .step { color: #5c626b; font-size: 0.9em; margin: 0 0 10px; }
+      .done { color: #2b6a3f; font-weight: 600; }
+      ol { margin: 0 0 10px; padding-left: 1.4em; }
+      li { margin-bottom: 2px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>file:// probe &mdash; run 2</h1>
+      <p class="sub">
+        Run 1 showed the save dialog opens on <code>file://</code>. This run measures whether the
+        <strong>write-back round trip actually closes</strong>: write, write again with no dialog,
+        survive a reload, and open-then-save-back. Nothing leaves this machine.
+      </p>
+
+      <section class="main">
+        <h2>Step A &mdash; write-back (the main test)</h2>
+        <ol>
+          <li><strong>Press 1.</strong> A save dialog opens. <strong>Do NOT cancel this time.</strong>
+              Suggested name is <code>grs-probe-writeback.json</code> &mdash; Downloads is fine.</li>
+          <li><strong>Press 2.</strong> Watch closely: <strong>does a dialog appear again, or does it
+              just save?</strong> That is the whole question.</li>
+          <li><strong>Press 3.</strong> Reports the permission state.</li>
+        </ol>
+        <button type="button" id="pick-and-write">1. Create file &amp; write</button>
+        <button type="button" id="write-again" disabled>2. Write again</button>
+        <button type="button" id="check-permission" disabled>3. Check permission</button>
+        <pre id="write-report">not run yet</pre>
+      </section>
+
+      <section>
+        <h2>Step B &mdash; survive a reload</h2>
+        <p class="step">
+          Press 4, then reload the page (F5), then come back and press 5.
+          This decides whether GRS can remember "the file you are editing" across restarts.
+        </p>
+        <button type="button" id="remember" disabled>4. Remember this file</button>
+        <button type="button" id="resume">5. After reload: resume &amp; write</button>
+        <pre id="resume-report">not run yet</pre>
+      </section>
+
+      <section>
+        <h2>Step C &mdash; open, then save back (the real round trip)</h2>
+        <p class="step">
+          Press 6 and pick the file you just made. It reads it, changes one field, and writes back
+          to the same file. This is exactly "AI writes it, human edits it, saves to the same path".
+        </p>
+        <button type="button" id="open-and-write">6. Open &amp; write back</button>
+        <pre id="roundtrip-report">not run yet</pre>
+      </section>
+
+      <section>
+        <h2>Step D &mdash; environment (automatic)</h2>
+        <pre id="auto-report">running...</pre>
+      </section>
+
+      <section>
+        <h2>Step E &mdash; copy the report back</h2>
+        <button type="button" class="secondary" id="copy-report">Copy full report</button>
+        <span id="copy-status"></span>
+      </section>
+    </main>
+
+    <script>
+      const lines = [];
+      let fileHandle = null;
+      let writeCount = 0;
+
+      /**
+       * Append one labelled measurement to the report.
+       *
+       * @param {string} label - What was measured.
+       * @param {unknown} outcome - The measured result.
+       */
+      function record(label, outcome) {
+        lines.push(label.padEnd(30, ' ') + ' = ' + String(outcome));
+      }
+
+      /**
+       * Describe a thrown error the same way every time.
+       *
+       * @param {unknown} error - The caught error.
+       * @returns {string} name and message.
+       */
+      function describe(error) {
+        return (error && error.name ? error.name : 'Error') + ' -> ' +
+          (error && error.message ? error.message : String(error));
+      }
+
+      /**
+       * Write text through a handle, reporting each stage separately so a failure
+       * points at the stage that failed.
+       *
+       * @param {FileSystemFileHandle} handle - Target file.
+       * @param {string} text - Payload.
+       * @param {string} label - Report label.
+       * @returns {Promise<boolean>} True on success.
+       */
+      async function writeThroughHandle(handle, text, label) {
+        try {
+          const writable = await handle.createWritable();
+          await writable.write(text);
+          await writable.close();
+          record(label, 'WROTE OK (' + text.length + ' bytes)');
+          return true;
+        } catch (error) {
+          record(label, 'FAILED -> ' + describe(error));
+          return false;
+        }
+      }
+
+      /**
+       * Build a payload that is identifiable from the filesystem side.
+       *
+       * @param {number} runNumber - Which write this is.
+       * @param {string} note - Free note.
+       * @returns {string} JSON text.
+       */
+      function payload(runNumber, note) {
+        return JSON.stringify(
+          { marker: 'grs-file-protocol-probe', writeNumber: runNumber, note, at: new Date().toISOString() },
+          null,
+          2,
+        );
+      }
+
+      const writeReport = document.getElementById('write-report');
+      const resumeReport = document.getElementById('resume-report');
+      const roundtripReport = document.getElementById('roundtrip-report');
+
+      document.getElementById('pick-and-write').addEventListener('click', async () => {
+        const from = lines.length;
+        try {
+          fileHandle = await window.showSaveFilePicker({
+            suggestedName: 'grs-probe-writeback.json',
+            types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+          });
+          record('showSaveFilePicker()', 'RETURNED a handle, name = ' + fileHandle.name);
+          record('typeof createWritable', typeof fileHandle.createWritable);
+          writeCount += 1;
+          await writeThroughHandle(fileHandle, payload(writeCount, 'first write'), 'write #1');
+          document.getElementById('write-again').disabled = false;
+          document.getElementById('check-permission').disabled = false;
+          document.getElementById('remember').disabled = false;
+        } catch (error) {
+          record('showSaveFilePicker()', describe(error));
+        }
+        writeReport.textContent = lines.slice(from).join('\n');
+      });
+
+      document.getElementById('write-again').addEventListener('click', async () => {
+        const from = lines.length;
+        writeCount += 1;
+        record('2nd write: dialog shown?', 'ANSWER BELOW - watch the screen');
+        await writeThroughHandle(fileHandle, payload(writeCount, 'second write, same handle'), 'write #2 (same handle)');
+        writeReport.textContent += '\n' + lines.slice(from).join('\n');
+      });
+
+      document.getElementById('check-permission').addEventListener('click', async () => {
+        const from = lines.length;
+        try {
+          record('queryPermission(readwrite)', await fileHandle.queryPermission({ mode: 'readwrite' }));
+        } catch (error) {
+          record('queryPermission(readwrite)', describe(error));
+        }
+        writeReport.textContent += '\n' + lines.slice(from).join('\n');
+      });
+
+      /**
+       * Open the small handle store used by Step B.
+       *
+       * @returns {Promise<IDBDatabase>} The database.
+       */
+      function openHandleStore() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open('grs-probe-handles', 1);
+          request.onupgradeneeded = () => request.result.createObjectStore('handles');
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      document.getElementById('remember').addEventListener('click', async () => {
+        const from = lines.length;
+        try {
+          const database = await openHandleStore();
+          await new Promise((resolve, reject) => {
+            const transaction = database.transaction('handles', 'readwrite');
+            transaction.objectStore('handles').put(fileHandle, 'current');
+            transaction.oncomplete = resolve;
+            transaction.onerror = () => reject(transaction.error);
+          });
+          record('store handle in IndexedDB', 'STORED - now reload (F5) and press 5');
+        } catch (error) {
+          record('store handle in IndexedDB', describe(error));
+        }
+        resumeReport.textContent = lines.slice(from).join('\n');
+      });
+
+      document.getElementById('resume').addEventListener('click', async () => {
+        const from = lines.length;
+        try {
+          const database = await openHandleStore();
+          const stored = await new Promise((resolve, reject) => {
+            const transaction = database.transaction('handles', 'readonly');
+            const getRequest = transaction.objectStore('handles').get('current');
+            getRequest.onsuccess = () => resolve(getRequest.result);
+            getRequest.onerror = () => reject(getRequest.error);
+          });
+          if (!stored) {
+            record('handle after reload', 'NOT FOUND - press 4 first, then reload');
+          } else {
+            record('handle after reload', 'FOUND, name = ' + stored.name);
+            record('permission before asking', await stored.queryPermission({ mode: 'readwrite' }));
+            const granted = await stored.requestPermission({ mode: 'readwrite' });
+            record('permission after asking', granted);
+            if (granted === 'granted') {
+              fileHandle = stored;
+              writeCount += 1;
+              await writeThroughHandle(stored, payload(writeCount, 'write after reload'), 'write #3 (after reload)');
+            }
+          }
+        } catch (error) {
+          record('resume after reload', describe(error));
+        }
+        resumeReport.textContent = lines.slice(from).join('\n');
+      });
+
+      document.getElementById('open-and-write').addEventListener('click', async () => {
+        const from = lines.length;
+        try {
+          const [opened] = await window.showOpenFilePicker({
+            types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+          });
+          record('showOpenFilePicker()', 'RETURNED a handle, name = ' + opened.name);
+          const text = await (await opened.getFile()).text();
+          record('read back', text.length + ' bytes, starts ' + text.slice(0, 40).replace(/\s+/g, ' '));
+          let parsed;
+          try {
+            parsed = JSON.parse(text);
+          } catch {
+            parsed = { note: 'not the probe file' };
+          }
+          parsed.editedByStepC = true;
+          parsed.editedAt = new Date().toISOString();
+          record('permission for writing', await opened.queryPermission({ mode: 'readwrite' }));
+          const granted = await opened.requestPermission({ mode: 'readwrite' });
+          record('permission after asking', granted);
+          if (granted === 'granted') {
+            await writeThroughHandle(opened, JSON.stringify(parsed, null, 2), 'write back to opened file');
+          }
+        } catch (error) {
+          record('open-and-write-back', describe(error));
+        }
+        roundtripReport.textContent = lines.slice(from).join('\n');
+      });
+
+      const autoLines = [];
+      autoLines.push('location.protocol             = ' + location.protocol);
+      autoLines.push('location.origin               = ' + location.origin);
+      autoLines.push('window.isSecureContext        = ' + window.isSecureContext);
+      autoLines.push('typeof showSaveFilePicker     = ' + typeof window.showSaveFilePicker);
+      autoLines.push('typeof showOpenFilePicker     = ' + typeof window.showOpenFilePicker);
+      autoLines.push('typeof indexedDB              = ' + typeof indexedDB);
+      autoLines.push('navigator.userAgent           = ' + navigator.userAgent);
+      document.getElementById('auto-report').textContent = autoLines.join('\n');
+
+      document.getElementById('copy-report').addEventListener('click', async () => {
+        const status = document.getElementById('copy-status');
+        const full = ['=== file:// probe run 2 ===', ...autoLines, '---', ...lines].join('\n');
+        try {
+          await navigator.clipboard.writeText(full);
+          status.textContent = ' copied.';
+          status.className = 'done';
+        } catch {
+          status.textContent = ' copy failed - select the text above and copy manually.';
+        }
+      });
+    </script>
+  </body>
+</html>

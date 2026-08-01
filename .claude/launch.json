@@ -14,6 +14,12 @@
       "port": 8788
     },
     {
+      "name": "ai-cowork-shogi",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["ai-cowork-trial/shogi/server.mjs"],
+      "port": 8789
+    },
+    {
       "name": "poc-static",
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8899", "--directory", "handover/08-poc"],
