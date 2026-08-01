@@ -90,7 +90,7 @@ status: stable
 
 | 問題 | 2026-08-01 の解き方 |
 |---|---|
-| **「凍結」と書いた計測記録が凍結されていなかった。** 案比較の 5 本は `rowTitleWidth` / `rulerH` / `planHeight` / `actualHeight` / `actualGap` / `rowGap` / `markerSize` / `markerGap` を**実行時に**共有ストアから読んでいた。共有ファイルを直すと過去の計測結果が黙って変わる | 当時の値を各ページへ**焼き込んだ**。絵は 1px も変わらず、以後どこを直しても動かない |
+| **「凍結」と書いた計測記録が凍結されていなかった。** 案比較の 5 本は `rowTitleWidth` / `rulerHeight` / `planHeight` / `actualHeight` / `actualGap` / `rowGap` / `markerSize` / `markerGap` を**実行時に**共有ストアから読んでいた。共有ファイルを直すと過去の計測結果が黙って変わる | 当時の値を各ページへ**焼き込んだ**。絵は 1px も変わらず、以後どこを直しても動かない |
 | `POC-SPEC-ja.md` §0-1「**単一 `.html`。外部 CSS / JS を参照しない**」に全ページが違反していた | 焼き込みで解消。ローカルサーバーも不要になった |
 
 **値が散る問題は再発しない。** 編集対象のページが 1 本しかないためである。
@@ -114,6 +114,33 @@ status: stable
 
 ## 読むときの注意
 
+### PoC の識別子は**旧名のまま**である — 対応表（2026-08-02）
+
+**PoC は凍結記録なので、確定名が変わっても追随させない。** 動かして検証できない改名で
+「開いて触れる」という PoC 唯一の価値を壊さないため。**食い違ったら文書側が正。**
+
+**下の 9 キーは PoC の `.html` に計 99 箇所、旧名で残っている。** コードを読むときはここで読み替える。
+
+| PoC の識別子（旧） | 確定名（正） | 直した理由 |
+|---|---|---|
+| `itemLodReadablePx` | **`taskLevelOfDetailReadablePx`** | `item` は廃止語。`Lod` は camelCase で意味が消える |
+| `rowLodBase` | **`groupLevelOfDetailBase`** | 同上 ＋ 実体は `TaskGroup`（軸B） |
+| `rowLodRatio` | **`groupLevelOfDetailRatio`** | 同上 |
+| `rulerH` | **`rulerHeight`** | 裸の `H` は読めない |
+| `basePlanH` | **`basePlanHeight`** | 同上（**「根 4 つ」の 1 つ**なので特に注意） |
+| `chevronNotchOfH` | **`chevronNotchOfHeight`** | `OfX` は「÷ X」なので X が読めないと式が読めない |
+| `chevronNotchOfW` | **`chevronNotchOfWidth`** | 同上 |
+| `resumeArmOfMark` | **`resumeArmOfMarker`** | 2026-07-31 の `mark*` → `marker*` の取りこぼし |
+| `resumeHeadOfMark` | **`resumeHeadOfMarker`** | 同上 |
+
+**改名の全数と理由は `../03-ui-naming/handover-ui-parts-ja.md` の改名表（2026-08-02）が正。**
+残る 5 キー（`rowTitlePanelWidth` / `scrollGroupId` / `percentCompleteVisible` / `dateGridLinesVisible` /
+`groupGridLinesVisible`）は **PoC に 1 箇所も無い**ので読み替えは要らない。
+
+> **`SPEC` の値そのものにも食い違いがある** — `markerTextOfFont` / `markerOfText` /
+> `markerTextBaseline` の 3 キーは文書側で `markerOfFont` 1 つに畳んだが、PoC は 3 つ持ったままである
+> （`../02-data-model/grs-document-settings-ja.md` §3）。
+
 ### PoC は実装ではない
 
 **コピペ禁止**（`../README.md` 0-1）はここにも適用される。PoC のコードは測るために書いてあり、
@@ -136,25 +163,11 @@ Clean Architecture の層分けも型もテストも無い。**残したのは�
 
 ### handover への書き戻し状況
 
-追試で分かったことは `POC-RESULTS-ja.md` の末尾に表でまとめてある。
+**`POC-RESULTS-ja.md` の §6（6 件）と末尾の表（7 件）に従う。ここには複製しない。**
+全 13 件は **2026-08-02 に全数を棚卸し済み**で、各行に反映先か「未反映の理由」が入っている。
 
-**未反映のうち、次の 2 件は既存の記述と食い違う。**
-
-1. 低ズームで段数が膨らむ主因は**担当＋完了率のラベル（外側左）**であり、進捗マーカーではない。
-   `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-4-1 は
-   「マーカーを文字サイズに従わせれば原理的に消える」と書いているが、**要因の取り違えである**。
-2. **担当・完了率を既定で表示するかどうか**を決める必要がある。既定で出すと、
-   前の終了日 = 次の開始日で繋がる直列チェーンが常に 2 段になる。
-
-**反映済み**（2026-07-30）:
-
-- 依存線の経路 5 パターン → `../03-ui-naming/handover-ui-detail-spec-ja.md` **§4-9**
-- 依存線の太さと走りを固定定数にする根拠 → 同 **§4-9**
-- 寸法と判定の依存関係（何が何から決まるか） → 同 **§4-10**
-- 依存線 / 担当 / 完了率 を個別に表示切替 → 同 **§4-2**
-- ポインタを使わないズームのキー割当 → 同 **§5-2**
-
-**未反映**: 形状ごとの縦幅（細線 1/2・マイルストーン 1.5 倍・フォント &lt; 実績 &lt; 予定）。
+**未反映は 3 件だけ**（§6-2 縦の通り道 / 末尾 #5 Fit と LOD 閾値 / #7 レベル減の量の式）。
+**いずれも「確定していない提案」**なので、`../NEXT-STEPS-ja.md` のステップ 6 に残作業として登録してある。
 
 ---
 

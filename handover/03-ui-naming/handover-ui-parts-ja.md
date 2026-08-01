@@ -38,6 +38,26 @@ status: stable
 
 > **同じ概念でも面が違えば記法が違う**のは規則どおり（矛盾ではない）。ただし**語幹は必ず一致させる**（`stackOrder` ↔ `stack_order`。`laneIndex` ↔ `stack_order` のような**語幹の不一致は禁止**）。
 
+#### 略語は識別子に入れない — **確定 2026-08-02**
+
+**大文字の略語は camelCase に落ちた瞬間に意味が消える。** 識別子では**全部書く**。
+
+| 散文 | 識別子 | 理由 |
+|---|---|---|
+| `LOD` | **`LevelOfDetail`** | `LOD` は略語として読めるが **`Lod` は無意味な語になる**（ユーザー判断。実際に「`Lod` ってなに？」と読めなくなった） |
+| 高さ / 幅 | **`Height` / `Width`** | 裸の `H` / `W` も同じ。`chevronNotchOfHeight` は「÷ 何」が読めないので**式として読めない** |
+
+**`LOD` = Level of Detail（詳細度）。** ズームに応じて描く要素を増減させる仕組みで、**3 つある**:
+
+| 名前 | 何を増減するか | 駆動 |
+|---|---|---|
+| 時間軸 LOD | `Time Ruler` の粒度（年 → 年＋月 → 年＋月＋週 → 年＋月＋日＋曜日） | 横（`zoomX`） |
+| アイテム LOD | 深い WBS（**軸A**）の `Task` を描かない | 横（`zoomX`）＝ **幅** |
+| 行階層 LOD | 深い `TaskGroup`（**軸B**）を親へ畳む | 縦（`zoomY`）＝ **高さ** |
+
+**散文では `LOD` と書いてよい**（大文字なら読める）。**軸A と軸B は別物なので必ず併記する**
+（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3）。
+
 ---
 
 ## 2. 語彙の統合（現行 → 確定）
@@ -190,7 +210,8 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 
 **例外はこの 2 件だけ。** 増やすときは必ずこの表に追記する。「なんとなく違う」を許すと規則が崩れる。
 
-> **確認できる事実**: 「矢羽根」は `handover/` 内に 32 箇所あり `user-order.md` を含む。「山形」は 0 箇所。
+> **確認できる事実**: 「矢羽根」は `handover/` 内に 32 箇所あり `user-order.md` を含む。
+> 「山形」は**本表の中の 2 箇所（この行と直訳の説明）以外に 0 箇所**。
 > 「日本の工程表で通用する語である」というのは**推定**であって、リポジトリ内では裏付けられない。
 
 #### 2-1-5. 曖昧な日本語を単独で使わない
@@ -231,14 +252,14 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | 確定名（英） | 日本語 |
 |---|---|
 | `pxPerDayAt1x` | 1 日の幅（zoomX = 1） |
-| `rulerH` | 目盛の帯の高さ |
+| `rulerHeight` | 目盛の帯の高さ |
 | `rulerFont` | 目盛の文字 |
 
 **縦の寸法**
 
 | 確定名（英） | 日本語 |
 |---|---|
-| `basePlanH` | 予定の縦幅（zoomY = 1） |
+| `basePlanHeight` | 予定の縦幅（zoomY = 1） |
 | `actualOfPlan` | 実績 ÷ 予定 |
 | `actualMin` | 実績の縦幅の下限 |
 | `fontOfActual` | フォント ÷ 実績 |
@@ -275,8 +296,8 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `markerGap` | 実績の右端からの隙間 |
 | `markerStroke` | 円の線の太さ |
 | `resumeScaleInvalid` | 再開日未定のときの縮小率 |
-| `resumeArmOfMark` | Resume の腕の長さ ÷ マーカー |
-| `resumeHeadOfMark` | Resume の矢じり ÷ マーカー |
+| `resumeArmOfMarker` | Resume の腕の長さ ÷ マーカー |
+| `resumeHeadOfMarker` | Resume の矢じり ÷ マーカー |
 | `resumeDashOn` | Resume へ繋ぐ破線の実部 |
 | `resumeDashOff` | Resume へ繋ぐ破線の空部 |
 
@@ -303,8 +324,8 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `thinStrokeOfPlan` | 細線の太さ ÷ その形状の予定の縦幅 |
 | `thinStrokeMin` | 細線の太さの下限 |
 | `thinStrokeMax` | 細線の太さの上限 |
-| `chevronNotchOfH` | 矢羽根の切り欠き ÷ 高さ |
-| `chevronNotchOfW` | 矢羽根の切り欠き ÷ 幅 |
+| `chevronNotchOfHeight` | 矢羽根の切り欠き ÷ 高さ |
+| `chevronNotchOfWidth` | 矢羽根の切り欠き ÷ 幅 |
 | `arrowHeadOfStroke` | 矢印の矢じり ÷ 線の太さ |
 | `arrowHeadOfSpan` | 矢印の矢じり ÷ 全長（上限） |
 | `spanDotOfStroke` | 端点の点の半径 ÷ 線の太さ |
@@ -329,9 +350,9 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `rulerTierPxPerDayMonth` | 目盛が 年 → 年＋月 に変わる px/day |
 | `rulerTierPxPerDayWeek` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day |
 | `rulerTierPxPerDayDay` | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day |
-| `itemLodReadablePx` | この幅を割った深さは描かない |
-| `rowLodBase` | 行階層 LOD の初項 |
-| `rowLodRatio` | 行階層 LOD の公比 |
+| `taskLevelOfDetailReadablePx` | この幅を割った深さは描かない |
+| `groupLevelOfDetailBase` | 行階層 LOD の初項 |
+| `groupLevelOfDetailRatio` | 行階層 LOD の公比 |
 | `stackSafetyCap` | 積み順の安全弁 |
 
 > **時間軸のしきい値をキーに分ける理由**（確定 2026-08-01）: 隣どうしが互いを縛るためである
@@ -373,8 +394,8 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `zoomX` | 横のズーム倍率 |
 | `zoomY` | 縦のズーム倍率 |
 | `scrollDate` | 表示の左端が指す日付 |
-| `scrollRowUid` | 表示の上端が指す行 |
-| `leftPaneWidth` | `Row Title Panel` の幅 |
+| `scrollGroupId` | 表示の上端が指す行 |
+| `rowTitlePanelWidth` | `Row Title Panel` の幅 |
 | `propertyPanelWidth` | `Properties Panel` の幅 |
 
 > **スクロール位置は px で持たない**（ズームや画面幅が変わると別の場所を指すため）。
@@ -389,15 +410,15 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `stackDirection` | 積む向き |
 | `planActualDisplay` | 予実の表示 |
 | `assigneeVisible` | 担当ラベル |
-| `progressVisible` | 完了率ラベル |
+| `percentCompleteVisible` | 完了率ラベル |
 | `dependencyVisible` | 依存線 |
 | `progressMarkerVisible` | 進捗マーカー |
 | `progressLineVisible` | イナズマ線 |
 | `progressLineColor` | イナズマ線の色 |
 | `dualCursor` | デュアルカーソル |
 | `guideCursorMode` | ガイドカーソル |
-| `gridDateLinesVisible` | 日付の縦罫線 |
-| `gridGroupLinesVisible` | `TaskGroup` 境界の横罫線 |
+| `dateGridLinesVisible` | 日付の縦罫線 |
+| `groupGridLinesVisible` | `TaskGroup` 境界の横罫線 |
 | `baselineVisible` | 変更前の予定を重ねるか |
 | `fontScale` | 文字サイズ |
 | `importSeq` | 取込の連番 |
@@ -425,6 +446,24 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 > | `laneGap` | `stackGap` | `stackOrder`（`lane` は廃止語） |
 > | `shapeH` / `truncUnits` / `minShapeW` / `svgPad` / `canvasPad` | `shapeHeightOf` / `truncateUnits` / `minShapeWidth` / `svgPadding` / `canvasPadding` | 略語をやめた |
 > | `todayDay` | `statusDate` | 中身は**基準日**であって本日ではなかった |
+
+> **2026-08-02 の改名（14 キー）**: 07-31 の掃き出しの取りこぼしと、**camelCase に落とすと意味が消える略語**を潰した。
+>
+> | 旧 | 新 | 直した理由 |
+> |---|---|---|
+> | `itemLodReadablePx` | **`taskLevelOfDetailReadablePx`** | ① `item` は廃止語（正は `Task`） ② **`LOD` は略語として読めるが `Lod` になると意味が消える**（ユーザー判断 2026-08-02） |
+> | `rowLodBase` / `rowLodRatio` | **`groupLevelOfDetailBase` / `groupLevelOfDetailRatio`** | 同上 ＋ 実体は `TaskGroup` の深さ（軸B）であって UI 語の `Rows` ではない |
+> | `rulerH` / `basePlanH` | **`rulerHeight` / `basePlanHeight`** | **裸の `H` は `Lod` と同じ**。07-31 に `shapeH` → `shapeHeightOf` を直したのに残っていた |
+> | `chevronNotchOfH` / `chevronNotchOfW` | **`chevronNotchOfHeight` / `chevronNotchOfWidth`** | 同上（`OfX` は「÷ X」の意味なので X が読めないと式が読めない） |
+> | `leftPaneWidth` | **`rowTitlePanelWidth`** | 07-31 に `rowLabelW` → `rowTitleWidth` で語幹を `Row Title Panel` に合わせたのに、この 1 キーだけ漏れた。`Pane` / `Panel` の綴りも不一致だった |
+> | `scrollRowUid` | **`scrollGroupId`** | 語幹（`Row` ↔ `TaskGroup`）も列名（`Uid` ↔ `id`）も**型**（整数 ↔ UUID 文字列）も食い違い、JSON 実例の参照が実際に壊れていた |
+> | `progressVisible` | **`percentCompleteVisible`** | **`Progress` が 3 概念を指していた**（`Progress Marker` / `Progress Line` / 完了率ラベル）。表示する値の正式名は `percentComplete` |
+> | `gridDateLinesVisible` / `gridGroupLinesVisible` | **`dateGridLinesVisible` / `groupGridLinesVisible`** | UI パーツ名 `Date Grid Lines` / `Group Grid Lines` に対し**語順が反転**していた（`Cursor Guide` → `Guide Cursor` で潰したのと同型） |
+> | `resumeArmOfMark` / `resumeHeadOfMark` | **`resumeArmOfMarker` / `resumeHeadOfMarker`** | 07-31 に `mark*` → `marker*` と決めたのに 2 キーだけ漏れた（日本語欄は既に「マーカー」だった） |
+>
+> ⚠️ **PoC（`../08-poc/*.html`）は凍結記録なので旧キーのままである。**
+> 上記 14 キーのうち **9 キーが PoC に 99 箇所**残る。**食い違ったら本書が正。**
+> 対応表は `../08-poc/README.md`。
 
 ---
 

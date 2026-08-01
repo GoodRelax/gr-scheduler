@@ -66,7 +66,7 @@ status: stable
 | **決めること** | ① **図形そのものが 0 件。** `03-ui-naming/handover-ui-detail-spec-ja.md` §3 は「前プロジェクトのアイコン定義が参考になる」と書くが、**それは handover に入っていない**（形状の意図だけを引き継ぐ、という但し書きの側だけが残った） ② **必要数が確定しない。** 同 §2 の確定（2026-07-26）は App Header を**文書に対する操作 8 個**（`Fit` / `Load` / `Save` / `Base` / `Undo` / `Redo` / `AI` / `?`）と定義しており、**現行 11 個のうち `Cmd` / `SS` / `Theme` の行き先が書かれていない**。モックで確定させる |
 
 > タスク形状（4 種）は**アイコンではなく描画対象**であり、作図の幾何まで確定している
-> （`chevronNotchOfH` / `arrowHeadOfStroke` / `spanDotOfStroke` ほか ＝ `02-data-model/grs-document-settings-ja.md` §3）。
+> （`chevronNotchOfHeight` / `arrowHeadOfStroke` / `spanDotOfStroke` ほか ＝ `02-data-model/grs-document-settings-ja.md` §3）。
 > **マイルストーン（8 種）は形状の集合と並び順だけが確定**（面積の大きい順 ＝
 > `07-plan-actual/handover-plan-actual-decisions-ja.md` §2-2-2）。
 > **六角形の向き・五角形の回転といった作図の幾何は未定**なので、ここはモックで決める。
@@ -150,7 +150,7 @@ status: stable
 | | |
 |---|---|
 | **決まっていること** | `documentSettings` は**常に全項目を書き出す**（`02-data-model/grs-document-settings-ja.md` §2）。設定値の全数・型・範囲は同 §3〜§4（**設定値の正**） |
-| **決めること** | 既定値が空欄のまま残っている **16 キー** — §4-1 の **7 キー**（`dependencyVisible` / `progressLineVisible` / `progressLineColor` / `gridDateLinesVisible` / `gridGroupLinesVisible` / `baselineVisible` / `importSeq`）、§4-2 の **8 キー**（同節は**既定値の列そのものが無い**。全 9 キーのうち `themeMonochrome` だけ意味欄に `false` と書いてあるので残り 8。`zoomX` / `zoomY` は 1 行に同居しているが **2 キー**である）、§4-4 の `stackSafetyCap`（「十分に大きい値」のまま） |
+| **決めること** | 既定値が空欄のまま残っている **16 キー** — §4-1 の **7 キー**（`dependencyVisible` / `progressLineVisible` / `progressLineColor` / `dateGridLinesVisible` / `groupGridLinesVisible` / `baselineVisible` / `importSeq`）、§4-2 の **8 キー**（同節は**既定値の列そのものが無い**。全 9 キーのうち `themeMonochrome` だけ意味欄に `false` と書いてあるので残り 8。`zoomX` / `zoomY` は 1 行に同居しているが **2 キー**である）、§4-4 の `stackSafetyCap`（「十分に大きい値」のまま） |
 
 > ⚠️ **§3 の 🔎 印 41 個と混同しないこと。** あちらは「**既定値の由来が記録されていない**」＝ 値はある。
 > 本項は「**値そのものが無い**」である。🔎 の付いた値は**次期が選び直してよい**

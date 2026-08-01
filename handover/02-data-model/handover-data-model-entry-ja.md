@@ -79,7 +79,9 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
 > **`documentSettings` は既定値のままの項目も含めて全項目を書く**
 > （`grs-document-settings-ja.md` §2。同じ JSON からいつでも同じ出力を得るため）。
-> 下の実例は **87 キー**で、これが「全項目」の実際の姿である。
+> 下の実例の `documentSettings` は **トップレベル 83 キー**で、これが「全項目」の実際の姿である。
+> **数え方**: `shapeHeightOf`（5 個の入れ子）と `exportCanvas`（`width` / `height`）を**展開して数えると葉は 88**。
+> **件数を照合するときは必ずどちらで数えたかを書くこと**（`grs-document-settings-ja.md` §8-2 の検査 3 がこの数を根拠にする）。
 >
 > 書かないものが 4 つある。
 >
@@ -104,9 +106,9 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
   },
 
   "documentSettings": {
-    "pxPerDayAt1x": 6, "rulerH": 34, "rulerFont": 12,
+    "pxPerDayAt1x": 6, "rulerHeight": 34, "rulerFont": 12,
 
-    "basePlanH": 28, "actualOfPlan": 0.73, "actualMin": 16, "fontOfActual": 0.80,
+    "basePlanHeight": 28, "actualOfPlan": 0.73, "actualMin": 16, "fontOfActual": 0.80,
     "fontMin": 12, "thinFontScale": 0.85, "actualGap": 2, "stackGap": 12, "rowGap": 8,
 
     "shapeHeightOf": {
@@ -116,7 +118,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
     "dependencyWidth": 1.5, "dependencyArrowLength": 10, "dependencyRunOfArrow": 2,
 
     "markerOfFont": 1.5, "markerMin": 16, "markerGap": 4, "markerStroke": 1.3,
-    "resumeScaleInvalid": 0.7, "resumeArmOfMark": 0.62, "resumeHeadOfMark": 0.22,
+    "resumeScaleInvalid": 0.7, "resumeArmOfMarker": 0.62, "resumeHeadOfMarker": 0.22,
     "resumeDashOn": 3, "resumeDashOff": 2,
 
     "labelCoef": 0.5, "labelPad": 6, "labelGap": 8, "labelBaseline": 0.35,
@@ -124,7 +126,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
     "rowTitleWidth": 170, "rowTitleFont": 13, "rowTitleIndent": 12, "rowTitleTopScale": 1.3,
 
     "planStroke": 1, "thinStrokeOfPlan": 0.20, "thinStrokeMin": 1.2, "thinStrokeMax": 4,
-    "chevronNotchOfH": 0.45, "chevronNotchOfW": 0.35,
+    "chevronNotchOfHeight": 0.45, "chevronNotchOfWidth": 0.35,
     "arrowHeadOfStroke": 3.2, "arrowHeadOfSpan": 0.4, "spanDotOfStroke": 1.15,
     "starInnerOfOuter": 0.45, "minShapeWidth": 2,
 
@@ -132,22 +134,22 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
     "canvasPadding": 10, "svgPadding": 10,
 
     "stackDirection": "up", "planActualDisplay": "both",
-    "assigneeVisible": false, "progressVisible": false, "dependencyVisible": true,
+    "assigneeVisible": false, "percentCompleteVisible": false, "dependencyVisible": true,
     "progressMarkerVisible": true, "progressLineVisible": false,
     "progressLineColor": "#b03030",
     "dualCursor": null, "guideCursorMode": "none",
-    "gridDateLinesVisible": true, "gridGroupLinesVisible": true,
+    "dateGridLinesVisible": true, "groupGridLinesVisible": true,
     "baselineVisible": false, "fontScale": "M", "importSeq": 1,
 
     "themePreference": "light", "themeHue": 210, "themeMonochrome": false,
     "zoomX": 1, "zoomY": 1,
-    "scrollDate": "2026-04-01T00:00:00", "scrollRowUid": 101,
-    "leftPaneWidth": 170, "propertyPanelWidth": 280,
+    "scrollDate": "2026-04-01T00:00:00", "scrollGroupId": "grp-a",
+    "rowTitlePanelWidth": 170, "propertyPanelWidth": 280,
 
     "exportCanvas": { "width": 1600, "height": 900 }, "exportPngScale": 1,
 
     "rulerTierPxPerDayMonth": 1, "rulerTierPxPerDayWeek": 4, "rulerTierPxPerDayDay": 14,
-    "itemLodReadablePx": 24, "rowLodBase": 0.32, "rowLodRatio": 1.875,
+    "taskLevelOfDetailReadablePx": 24, "groupLevelOfDetailBase": 0.32, "groupLevelOfDetailRatio": 1.875,
     "stackSafetyCap": 4096
   },
 

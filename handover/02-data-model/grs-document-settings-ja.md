@@ -64,7 +64,7 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 **🅿 を付けた 1 項目は PoC 専用**で、製品の `documentSettings` には入らない（下記の `statusDate`）。
 それ以外はすべて `documentSettings` に入る。
 
-**根は 4 つ**（`basePlanH` / `actualMin` / `fontMin` / `pxPerDayAt1x`）。
+**根は 4 つ**（`basePlanHeight` / `actualMin` / `fontMin` / `pxPerDayAt1x`）。
 残りは全部そこから落ちてくる。依存の図は
 `../03-ui-naming/handover-ui-detail-spec-ja.md` §4-10 にある。
 
@@ -90,14 +90,14 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 | キー | 意味 | 単位 | 既定値 | 下限 | 上限 | 範囲の理由 |
 |---|---|:--:|--:|--:|--:|---|
 | `pxPerDayAt1x` | 1 日の幅（zoomX = 1） | px | 6 | 0.5 | 60 | 🔎 基準の環境で 1 年がおよそ 2200px になる値だが、そう選んだ記録は無い |
-| `rulerH` | 目盛の帯の高さ | px | 34 | rulerFont + 6 | 120 | 目盛の文字が入る高さ |
+| `rulerHeight` | 目盛の帯の高さ | px | 34 | rulerFont + 6 | 120 | 目盛の文字が入る高さ |
 | `rulerFont` | 目盛の文字 | px | 12 | fontMin | 40 | 和文の可読下限を割らない |
 
 #### 縦の寸法
 
 | キー | 意味 | 単位 | 既定値 | 下限 | 上限 | 範囲の理由 |
 |---|---|:--:|--:|--:|--:|---|
-| `basePlanH` | 予定の縦幅（zoomY = 1） | px | 28 | actualMin / actualOfPlan | 200 | 下限 = actualMin ÷ actualOfPlan。等倍がこの値だと縦に縮める余地が無くなる |
+| `basePlanHeight` | 予定の縦幅（zoomY = 1） | px | 28 | actualMin / actualOfPlan | 200 | 下限 = actualMin ÷ actualOfPlan。等倍がこの値だと縦に縮める余地が無くなる |
 | `actualOfPlan` | 実績 ÷ 予定 | — | 0.73 | 0.05 | 1 − ε | 実績 < 予定。**🔎 由来は「寸法を 1 か所へ統合する前に基準としたページが描いていた 22 : 16」**（= 0.727。`../03-ui-naming/handover-ui-detail-spec-ja.md` §4-10-3）。**設計上の導出ではない**（下記） |
 | `actualMin` | 実績の縦幅の下限 | px | 16 | fontMin / fontOfActual | 80 | 下限 = fontMin ÷ fontOfActual。これを割ると文字が下限に張り付く（07 2-4-1） |
 | `fontOfActual` | フォント ÷ 実績 | — | 0.80 | 0.05 | 1 − ε | フォント < 実績 |
@@ -109,7 +109,7 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 
 > **`actualOfPlan = 0.73` の出所（重要）**
 >
-> この値は**縦寸法の鎖の最上流にある**（`basePlanH` の下限も `actualMin` の意味もこれに依存する）が、
+> この値は**縦寸法の鎖の最上流にある**（`basePlanHeight` の下限も `actualMin` の意味もこれに依存する）が、
 > **導出の記録が `handover/` のどこにも無い**。数値が一致する唯一の記述は
 > 「基準ページは **22 : 16**（比 0.73）、他のページは 28 : 15.4（比 0.55）を描いていた」
 > — これは**寸法を 1 か所へ統合する前に、9 ページが別々の値を持っていたときの実測**である。
@@ -156,8 +156,8 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 | `markerGap` | 実績の右端からの隙間 | px | 4 | 4 | 4 | 確定仕様で 4px 固定。端点の掴み代と重ならない最小距離であり、それ以上離さない（07 2-4） |
 | `markerStroke` | 円の線の太さ | px | 1.3 | 0.5 | 4 | 🔎 |
 | `resumeScaleInvalid` | 再開日未定のときの縮小率 | x | 0.7 | 0.3 | 1 | 未定は小さく薄く。🔎 0.7 の由来は無い |
-| `resumeArmOfMark` | Resume の腕の長さ ÷ マーカー | — | 0.62 | 0.2 | 1 - resumeHeadOfMark | 矢じりぶんを残す。🔎 0.62 の由来は無い |
-| `resumeHeadOfMark` | Resume の矢じり ÷ マーカー | — | 0.22 | 0.05 | 0.5 | 🔎 |
+| `resumeArmOfMarker` | Resume の腕の長さ ÷ マーカー | — | 0.62 | 0.2 | 1 - resumeHeadOfMarker | 矢じりぶんを残す。🔎 0.62 の由来は無い |
+| `resumeHeadOfMarker` | Resume の矢じり ÷ マーカー | — | 0.22 | 0.05 | 0.5 | 🔎 |
 | `resumeDashOn` | Resume へ繋ぐ破線の実部 | px | 3 | 1 | 12 | 🔎 |
 | `resumeDashOff` | Resume へ繋ぐ破線の空部 | px | 2 | 1 | 12 | 🔎 |
 
@@ -184,8 +184,8 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 | `thinStrokeOfPlan` | 細線の太さ ÷ その形状の予定の縦幅 | — | 0.20 | 0.05 | 0.6 | 🔎 |
 | `thinStrokeMin` | 細線の太さの下限 | px | 1.2 | 0.5 | thinStrokeMax | 上限を超えない。🔎 1.2 の由来は無い |
 | `thinStrokeMax` | 細線の太さの上限 | px | 4 | thinStrokeMin | 20 | 下限を下回らない |
-| `chevronNotchOfH` | 矢羽根の切り欠き ÷ 高さ | — | 0.45 | 0.05 | 1 | 🔎 |
-| `chevronNotchOfW` | 矢羽根の切り欠き ÷ 幅 | — | 0.35 | 0.05 | 0.5 | 0.5 を超えると先端が反転する。🔎 0.35 の由来は無い |
+| `chevronNotchOfHeight` | 矢羽根の切り欠き ÷ 高さ | — | 0.45 | 0.05 | 1 | 🔎 |
+| `chevronNotchOfWidth` | 矢羽根の切り欠き ÷ 幅 | — | 0.35 | 0.05 | 0.5 | 0.5 を超えると先端が反転する。🔎 0.35 の由来は無い |
 | `arrowHeadOfStroke` | 矢印の矢じり ÷ 線の太さ | x | 3.2 | 1.5 | 8 | 🔎 |
 | `arrowHeadOfSpan` | 矢印の矢じり ÷ 全長（上限） | — | 0.4 | 0.1 | 1 | 🔎 |
 | `spanDotOfStroke` | 端点の点の半径 ÷ 線の太さ | x | 1.15 | 0.5 | 4 | 🔎 |
@@ -226,22 +226,22 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 | `stackDirection` | `'up'` / `'down'` | `up` | 積む向き（`user-order.md` 項 30-5） |
 | `planActualDisplay` | `'both'` / `'plan-only'` / `'actual-only'` | `both` | 予実の表示。**3 値の列挙**にして「両方 OFF」を構造的に作れなくする |
 | `assigneeVisible` | 真偽 | **`false`** | 担当ラベル。**既定は隠す**（下記） |
-| `progressVisible` | 真偽 | **`false`** | 完了率ラベル。**既定は隠す**（下記） |
+| `percentCompleteVisible` | 真偽 | **`false`** | 完了率ラベル。**既定は隠す**（下記） |
 | `dependencyVisible` | 真偽 | — | 依存線。**担当 / 完了率とは独立**（§4-2 の確定） |
 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー |
 | `progressLineVisible` | 真偽 | — | イナズマ線 |
 | `progressLineColor` | 色 | — | 同上 |
 | `dualCursor` | `{ date1, date2 }` / `null` | `null` | デュアルカーソル。**2 本の日付を持つ**（持たないと測った日数が再現しない） |
 | `guideCursorMode` | `'none'` / `'crosshair'` / `'single-vertical'` / `'double-vertical'` | `none` | ガイドカーソル |
-| `gridDateLinesVisible` | 真偽 | — | 日付の縦罫線 |
-| `gridGroupLinesVisible` | 真偽 | — | `TaskGroup` 境界の横罫線 |
+| `dateGridLinesVisible` | 真偽 | — | 日付の縦罫線 |
+| `groupGridLinesVisible` | 真偽 | — | `TaskGroup` 境界の横罫線 |
 | `baselineVisible` | 真偽 | — | 変更前の予定（別ファイル）を重ねるか |
 | `fontScale` | `'S'` / `'M'` / `'L'` | `M` | 文字サイズ（項 6-3） |
 | `importSeq` | 整数 | — | 取込のたびに +1 |
 
 > **`todayLineVisible` は廃止した — 確定 2026-07-31。** §7 を見ること。
 
-**`assigneeVisible` / `progressVisible` の既定は `false`** — **確定**（ユーザー判断）。
+**`assigneeVisible` / `percentCompleteVisible` の既定は `false`** — **確定**（ユーザー判断）。
 
 PoC の実測で、**低ズームの段数膨張の主因が担当＋完了率のラベル**（バーの外側左）だと分かった。
 
@@ -254,7 +254,7 @@ zoomX 0.25 で 段数 96 → 72（担当・完了率を隠すと 24 段ぶん減
 出典は `../08-poc/POC-RESULTS-ja.md` §A-3 / §A-4。効く手は 2 つしかなく
 （**LOD で深い階層を間引く**か、**担当・完了率を既定で隠す**か）、
 **最優先事項 3「1 画面でスクロールなしに見られる」**を守るため後者を既定にする。
-**必要な人はトグルで出せる**（`user-order.md` 項 30-2「個別に表示/非表示」）。
+**必要な人はトグルで出せる**（`user-order.md`「決着した仕様」2「個別に表示/非表示」）。
 
 ### 4-2. 画面の状態 — **2026-07-31 に「保存しない」から移した**
 
@@ -265,8 +265,8 @@ zoomX 0.25 で 段数 96 → 72（担当・完了率を隠すと 24 段ぶん減
 | **`themeMonochrome`** | 真偽 | **モノクロにするか**（既定 `false`） |
 | `zoomX` / `zoomY` | 数値 | 横 / 縦のズーム倍率 |
 | `scrollDate` | 日付 | 表示の左端が指す日付 |
-| `scrollRowUid` | 行の識別子 | 表示の上端が指す行 |
-| `leftPaneWidth` | px | Row Title Panel の幅 |
+| `scrollGroupId` | **`TaskGroup.id`（UUID 文字列）** | 表示の上端が指す行。⚠️ **整数ではない**（行はインデックスではなく `TaskGroup.id` で参照する。`grs-native-erd-ja.md` §5.8） |
+| `rowTitlePanelWidth` | px | Row Title Panel の幅 |
 | `propertyPanelWidth` | px | Properties Panel の幅 |
 
 **なぜ移したか**: **「人に見せたい場所」を文書が持てないと WYSIWYG が成立しない**（ユーザー判断）。
@@ -317,9 +317,9 @@ zoomX 0.25 で 段数 96 → 72（担当・完了率を隠すと 24 段ぶん減
 | `rulerTierPxPerDayMonth` | `1` | 0.1 | `rulerTierPxPerDayWeek` | 目盛が 年 → 年＋月 に変わる px/day。**次のしきい値を超えない** |
 | `rulerTierPxPerDayWeek` | `4` | `rulerTierPxPerDayMonth` | `rulerTierPxPerDayDay` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day。**前後のしきい値の間** |
 | `rulerTierPxPerDayDay` | `14` | `rulerTierPxPerDayWeek` | 60 | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day。**前のしきい値を下回らない** |
-| `itemLodReadablePx` | `24` | `fontMin` | 200 | この幅を割った深さのタスクを描かない（軸A・WBS の深さ）。文字が 1 つも入らない幅にしない |
-| `rowLodBase` | `0.32` | 0.01 | 2 | 行階層 LOD の初項。`threshold(d) = rowLodBase x rowLodRatio^(d−2)` |
-| `rowLodRatio` | `1.875` | 1 + ε | 4 | 同上の公比。**1 以下だと深いほど出やすくなり単調性が壊れる** |
+| `taskLevelOfDetailReadablePx` | `24` | `fontMin` | 200 | この幅を割った深さのタスクを描かない（軸A・WBS の深さ）。文字が 1 つも入らない幅にしない |
+| `groupLevelOfDetailBase` | `0.32` | 0.01 | 2 | 行階層 LOD の初項。`threshold(d) = groupLevelOfDetailBase x groupLevelOfDetailRatio^(d−2)` |
+| `groupLevelOfDetailRatio` | `1.875` | 1 + ε | 4 | 同上の公比。**1 以下だと深いほど出やすくなり単調性が壊れる** |
 | `stackSafetyCap` | 十分に大きい値 | — | — | 積み順の安全弁。到達したら**人に知らせる**（項 30-7） |
 
 > **時間軸のしきい値は境目の数だけキーを置く** — **確定 2026-08-01**。
@@ -495,7 +495,7 @@ zoomMin       ↔  zoomMax          同上（ただし両方とも保存しな�
 
 | ファイル | 箇所 | 変更 |
 |---|---|---|
-| `grs-native-erd-ja.md` | §5.7-1 | **`themePreference` / `leftPaneWidth` / `propertyPanelWidth` / `zoomX` / `zoomY` / `scrollX` / `scrollY` を「保存しない」から `documentSettings` へ移した**。`todayLineVisible` を削除。全項目は本書へ |
+| `grs-native-erd-ja.md` | §5.7-1 | **`themePreference` / `rowTitlePanelWidth` / `propertyPanelWidth` / `zoomX` / `zoomY` / `scrollX` / `scrollY` を「保存しない」から `documentSettings` へ移した**。`todayLineVisible` を削除。全項目は本書へ |
 | 同 | §5.7 の「原理的な限界」 | LOD のビューポート依存は**ズームの保存で解消**、ラベル計測依存は **§6-2「実測しない」で解消済み**。主張を更新 |
 | 同 | §5.7-1「なぜズーム / スクロールを保存しないか」 | **節ごと差し替え**（保存する側になった） |
 | `handover-property-mspdi-mapping-ja.md` | C-8 | JSON 往復の検査 6 件を追記（§8-2） |

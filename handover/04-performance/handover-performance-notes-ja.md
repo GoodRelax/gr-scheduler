@@ -54,7 +54,7 @@ status: stable
 
 `src/domain/usecase/view-transform.ts` / `svg-renderer.ts` の `diffRender`
 
-- コンテンツ群 `<g>` に与えるのは `translate(leftPaneWidth - scrollX, topOffset - scrollY)` **のみ**。
+- コンテンツ群 `<g>` に与えるのは `translate(rowTitlePanelWidth - scrollX, topOffset - scrollY)` **のみ**。
   **`scale()` は一切使わない。** ズーム倍率はレイアウト時に world 座標へ掛け込む。
 - **なぜ効いたか**: `scale()` を使うと線幅・フォントサイズ・矢じり・角丸 R・破線パターンが全部
   倍率で歪み、それを打ち消す `vector-effect` や逆スケールが全レイヤに伝染する。
@@ -229,7 +229,7 @@ removed_count, total_item_count, dependency_node_count })`
 | ベンチ既定規模 | 50 行 / 1000 アイテム | `sample-data.ts` `DEFAULT_ROW_COUNT` / `DEFAULT_ITEM_COUNT` |
 | 1 日の基準幅 | 6 px（zoomX = 1） | `time-coordinate-mapper.ts` `BASE_PIXELS_PER_DAY` |
 | 行の基準高 | 44 px（zoomY = 1） | `layout-engine.ts` `BASE_ROW_HEIGHT` |
-| 段（サブレーン）の基準高 | 18 px、バーは段の 90% | 同 `BASE_LANE_HEIGHT` / `STACKED_BAR_HEIGHT_RATIO` |
+| 積み順 1 段の基準高 | 18 px、バーは段の 90% | 同 `BASE_LANE_HEIGHT` / `STACKED_BAR_HEIGHT_RATIO`（**定数名の `LANE` は旧名**。確定名は `stackOrder`） |
 | 段数上限 | 64 | 同 `MAX_STACK_LANES`（→ **廃止した**。積み順に機能上の上限は設けず、`stackSafetyCap` を安全弁として置く。`../07-plan-actual/handover-plan-actual-decisions-ja.md` §6-3） |
 | オーバースキャン | 96 px | `viewport.ts` `OVERSCAN_MARGIN` |
 | ズーム範囲 | 0.02 〜 64 倍 | `svg-renderer.ts` `clampZoom` |
@@ -356,7 +356,7 @@ removed_count, total_item_count, dependency_node_count })`
 
 **設計の要点**:
 
-1. **行内で時間が重なるアイテムを段（サブレーン）に積む**。行ごとにバケット分けしてから
+1. **行内で時間が重なる `Task` を積み順（`stackOrder`）に積む**。行ごとにバケット分けしてから
    段を割り当て、**行の帯高は段数で決まる**（段が増えた行は下の行を押し下げる）。
    固定行高を前提にすると必ず破綻する。**行高は可変が正**。
 2. **縦横の独立**（異方性ズーム）: 行 y は行インデックス × 基準行高 × zoomY から導く。
@@ -407,7 +407,7 @@ removed_count, total_item_count, dependency_node_count })`
    時間軸の LOD（E-5）と対になる。「縮小したら行も減る」（`user-order.md` 36）はここで実現する。
 3. **ヘッダーと行見出しは常に表示**（`user-order.md` 8）: ルーラーは screen 空間に固定しつつ
    **world x だけは追従**させる（縦スクロールで動かず、横スクロール・ズームでは動く）。
-   左ペインは transform の `leftPaneWidth` ぶんのオフセットで表現し、world x = 0 をその右に置く。
+   左ペインは transform の `rowTitlePanelWidth` ぶんのオフセットで表現し、world x = 0 をその右に置く。
 4. **ズームのポインタ中心はスケジュール局所座標で取る**（E-12）。生のポインタ座標では飛ぶ。
 5. **`renderNow()` は起動時とベンチ計測時のみ**。通常は必ず rAF 経由。
 
@@ -430,7 +430,8 @@ removed_count, total_item_count, dependency_node_count })`
 - [ ] レイアウトを**行単位**に切っておく（T-2 の改善余地を最初から確保）
 - [ ] 文字列キーは **ASCII のみ**（T-9）
 - [ ] **テキスト計測 API を使わない**方針を最初に決める（E-8）。後から直せない
-- [ ] 依存線の折れ点上限は**非対称に仕様化**する（前進 0〜3 / 後方・重なり ≤4）（§4-1）
+- [ ] 依存線の折れ点上限は**非対称に仕様化**する（**前進 0〜2** / 後方・日程が重なる場合 ≤4）（§4-1）。
+      **「0〜3」と書いてはならない**（`../03-ui-naming/handover-ui-detail-spec-ja.md` §4-9）
 - [ ] 未計測 5 項目（U-1〜U-5）を計測項目に入れる。**担当と期限を同時に決める**（N-3）
 - [ ] 節目ごとの再計測を**工程表に書く**（N-1）。ハーネスだけ作っても使われない
 

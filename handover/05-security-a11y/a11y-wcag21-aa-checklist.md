@@ -44,7 +44,7 @@ status: stable
 
 | SC | 名称 | レベル | 実装 | 自動検証 | 人手確認 (残) |
 |----|------|--------|------|----------|----------------|
-| 1.1.1 | Non-text Content | A | アイコンのみボタン (パレット図形/色スウォッチ/セクション隠す/タブ) に `aria-label`+`title`。SVG アイテムは `role="img"`+`<title>` に「略称+種別+日付」。`accessible-name.ts` / `svg-renderer.ts` / `tool-palette.ts` / `property-panel.ts` / `left-pane.ts` | `accessible-name.test.ts`、axe (image-alt/button-name) | スクリーンリーダーで各アイコンの読み上げが自然か |
+| 1.1.1 | Non-text Content | A | アイコンのみボタン (パレット図形/色スウォッチ/`Hidden Group Tab`/タブ) に `aria-label`+`title`。SVG の `Task` は `role="img"`+`<title>` に「名称+種別+日付」（**略称は廃止済み**）。`accessible-name.ts` / `svg-renderer.ts` / `tool-palette.ts` / `property-panel.ts` / `left-pane.ts` | `accessible-name.test.ts`、axe (image-alt/button-name) | スクリーンリーダーで各アイコンの読み上げが自然か |
 | 1.4.1 | Use of Color | A | 選択=破線枠、キーボードフォーカス=実線リング、予定/実績=破線/実線 (`a11y-tokens.ts` `planActualStrokeDashArray` / `SELECTION_DASH_ARRAY` / `FOCUS_RING_DASH_ARRAY`)。色スウォッチに色名ラベル | `a11y-encoding.test.ts` | グレースケール印刷/CVD シミュレータで予実・選択が判別可能か |
 | 1.4.4 | Resize Text | AA | `fontScale`（`S`/`M`/`L`）を `documentSettings` に持つが、**保存値は初期値であって読む人が変更できる**（`../02-data-model/grs-document-settings-ja.md` §4-2）。文書が強制してはならない | (未実装) | 200% 拡大で情報・機能が失われないか |
 | 1.4.11 | Non-text Contrast | AA | 重なる相手とのコントラスト **3:1 以上**（特に実績 ÷ 予定）。Progress Marker は**形が意味を担い色に依存しない**。実測値は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-6 | (未実装) | ダークモードで実績／予定の比が 3:1 を保つか |

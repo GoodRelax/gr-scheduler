@@ -247,7 +247,7 @@ erDiagram
         int minutes_per_day "← MinutesPerDay(Own・換算)"
         int week_start_day "← WeekStartDay(Own)"
         int calendar_id FK "← CalendarUID(Consume)"
-        string meta_own "他 Own メタ: Subject/Category/Company/Manager/Author/Created/LastSaved/MinutesPerWeek/DaysPerMonth(§7.3)"
+        string meta_own "他 Own メタ: Subject/Category/Company/Manager/Author/CreationDate/LastSaved/MinutesPerWeek/DaysPerMonth(§7.3)"
     }
     Task {
         int uid PK "← UID(Own・文書内一意・往復キー)"
@@ -258,7 +258,7 @@ erDiagram
         date finish "← Finish(Own・バー右)"
         bool milestone "← Milestone(Own・◆)"
         date actualStart "← ActualStart(Own・実績左)"
-        int actualDuration "← ActualDuration(Own・実績の長さ=稼働日数)"
+        int actualDuration "← ActualDuration(Own・実績の長さ=稼働日数・XSDはxsd:duration。§7.1a参照)"
         date actualFinish "← ActualFinish(Own・完了時のみ)"
         int percentComplete "← PercentComplete(Own・整数0以上・actualDurationから算出して格納)"
         date deadline "← Deadline(Own・目標)"
@@ -669,6 +669,8 @@ GRS が意味を使わない MSPDI 要素は**解釈せずそのまま保持**�
 - **`null` ＝ 元ファイルにその要素が無かった**（`0` や `false` とは異なる）
 - **GRS の JSON は全 Own/Consume 列を常に出力し、値が無ければ `null` と明示する**（**キーを省略しない**）
 - **MSPDI へ書き出すときだけ省略**する（`null` なら要素を書かない）。＝ **境界で変換する**
+- ⚠️ **例外: XSD の必須要素は `null` でも必ず書く**（既定値を焼く）。`WeekDay/DayType`・各 `UID`・
+  `SaveVersion`・`CurrencyCode` が該当する。**省略すると XSD 非妥当な XML を出力する**（§8 の検査「必須要素（下位）」）
 
 > ⚠️ **なぜ JSON でキーを省略しないか**: 「**定義していない**」と「**`null` と定義した**」は意味が違う。キーが無いと **書き忘れ（バグ）なのか、値が無いという意図なのかを区別できない**。GRS の JSON は自分の形式なので明示できる。一方 MSPDI は「省略＝無い」という流儀のスキーマ（ほぼ全フィールドが `minOccurs=0`）なので、そちらに合わせて省略する。
 
@@ -698,7 +700,8 @@ export MSPDI   <Task><UID>7</UID><Start>7/1</Start></Task>         ← 再び省
 | 検査 | 内容 | 失敗時 |
 |---|---|---|
 | **往復同一性** | **未編集**で import→export したとき、原 XML と**差分ゼロ**か | CI で失敗させる（回帰検出） |
-| **必須要素** | `SaveVersion` / `CurrencyCode` が出力されているか（XSD で `minOccurs=1` はこの 2 つだけ） | 既定値を焼き込む（§8A） |
+| **必須要素** | `SaveVersion` / `CurrencyCode` が出力されているか（**`Project` 直下**の必須はこの 2 つだけ） | 既定値を焼き込む（§8A） |
+| **必須要素（下位）** | `Calendars/Calendar`・`WeekDay/DayType`・各 `UID`（`Task` / `Calendar` / `Resource` / `Assignment`）が出力されているか | 既定値を焼き込む。⚠️ **XSD 全体では必須は 2 つではない** — 明示 `minOccurs="1"` が 3 箇所、属性省略による暗黙必須が 22 箇所ある（XSD 実測） |
 | **参照の解決** | ネイティブ `Dependency` / `Assignment` の UID が**文書内で解決できる**か | 該当要素を Carry へ退避（§7.2） |
 | **階層の妥当性** | `OutlineLevel` が「先頭=1・増分 ≤ +1」を満たすか | 木から全体を再生成する（§5.5e）。export は常に `wbs_parent_uid` の木から算出するので、この検査が落ちるのは実装の誤りである |
 | **XSD 妥当性** | 出力が XSD に対して valid か | 出力を中止して報告 |
@@ -935,7 +938,8 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 4. なお同着なら uid 昇順（uid は必ず一意 → 完全に決定的）
 ```
 
-> ⚠️ **ALIGN-L2-004（承認済み Must）との整合**: 同要求は「サブレーン割当順を**下から上**・**最上段にマイルストーン**」と規定する。したがって:
+> ⚠️ **ALIGN-L2-004（承認済み Must）との整合**: 同要求は「サブレーン割当順を**下から上**・**最上段にマイルストーン**」と規定する。
+> （**「サブレーン」は前プロジェクトの語で、確定名は「積み順（`stackOrder`）」**。以下は要求の原文を引用しているだけである。）したがって:
 > - 規則 1（milestone 優先）は**必須**。start/finish だけの規則では要求を満たせない。
 > - **`stack_direction` は ALIGN-L2-004 と矛盾する**（同要求は「下から上」に固定）。結論は下の「承認済み要求 ALIGN-L2-004 との差分」にある — **要求を「既定は下から上。人の明示指定が優先」と読み替える**。既定 `up` は要求と一致する側なので実害はない。
 > - **`stack_order`（疎な上書き）が必要な理由**: ALIGN-L1-001（同種マイルストーンを同じ高さに）/ ALIGN-L2-001（共有ベースラインへスナップ）は**ユーザーが指定した縦位置の意図**を前提とする。自動規則だけでは保存先が無く再現できない。また `uid` タイブレークはマージの再採番で**見た目が変わる**ため、人の指定を残す必要がある。
@@ -1030,7 +1034,8 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 **保存する（`documentSettings`）**
 
 ```
-描画の設定        58 項目（寸法・比率）        → grs-document-settings-ja.md §3
+描画の設定        58 項目のうち保存対象 54     → grs-document-settings-ja.md §3
+                  （⛔ 3 項目は保存しない / 🅿 1 項目は PoC 専用。件数は同書が正）
 表示の切り替え     15 項目                      → 同 §4-1
 画面の状態         9 項目（テーマ/ズーム/スクロール/ペイン幅）  → 同 §4-2
 出力               2 項目                       → 同 §4-3
@@ -1054,7 +1059,7 @@ LOD のしきい値      7 項目                       → 同 §4-4
 | 画面にも出力にも出ない **9 項目**（掴み代 4 / Undo 2 / ズームの刻みと範囲 3） | 製品の定数 | → `grs-document-settings-ja.md` §5 |
 
 > ⚠️ **`themePreference` はここに載っていた（読む人の好み、という理由で）が、2026-07-31 に
-> `documentSettings` へ移した。** `leftPaneWidth` / `propertyPanelWidth` / ズーム / スクロールも同様。
+> `documentSettings` へ移した。** `rowTitlePanelWidth` / `propertyPanelWidth` / ズーム / スクロールも同様。
 > **理由**: 文書が「人に見せたい場所・色」を持てないと WYSIWYG が成立しない。
 > ただし**保存値は初期値であって読む人は変更できる**（WCAG 1.4.3 / 1.4.4）。→ 同 §4-2
 
@@ -1076,7 +1081,7 @@ LOD のしきい値      7 項目                       → 同 §4-4
 | 「ここを見てほしい」は `HighlightBox` で表現する | **併用する。** 囲み枠は「何が重要か」、ズーム / スクロールは「最初にどこが見えるか」。**別の役割**である |
 
 > **スクロール位置は px で持たない。** ズームや画面幅が変わった瞬間に別の場所を指すため、
-> **日付 ＋ 行の識別子**で持つ（`scrollDate` / `scrollRowUid`）。
+> **日付 ＋ 行の識別子**で持つ（`scrollDate` / `scrollGroupId`）。
 > `Comment` の位置が同じ規則を採っている（`user-order.md` 項 44）。
 
 #### なぜ透かしを保存しないか
@@ -1116,7 +1121,7 @@ Progress Marker（進捗マーカー）は**全体を非表示にするトグル
 その状態を**どこに置くか**が定義されていなかったので、ここで `documentSettings` と定める。
 
 **理由**: 同書 §5-4 が「ユーザーが明示的に切り替える表示 / 非表示は **GRS の JSON だけで持ち、MSPDI へ渡さない**」
-と定めている。`assigneeVisible` / `progressVisible` / `progressLineVisible` と**同じ扱い**であり、
+と定めている。`assigneeVisible` / `percentCompleteVisible` / `progressLineVisible` と**同じ扱い**であり、
 本節の原則「文書に保存するのは作者がこの文書について決めたこと」にも合う。**MSPDI へは書かない。**
 
 > 既定は**表示**（`true`）。マーカーは**完了・中断・遅れを形で示す唯一の手段**であり
@@ -1140,7 +1145,7 @@ PNG のみ    倍率 1x / 2x
 | 旧名 | 確定名 | 理由 |
 |---|---|---|
 | `activeLocale` | **`language`** | 「ロケール」は位置を連想させる。値は `ja`/`en` の**言語**（項 66 言霊）。※曜日名（`Mon`/`月`）と日付の並びもこれに従う。将来「英語 UI で日本式の日付表記」の分離が必要になったら、そのとき別項目を足す |
-| `gridCategoryLinesVisible` | **`gridGroupLinesVisible`** | `category` は廃止語。示す対象は `TaskGroup` の境界（UI パーツ名 `Group Grid Lines`） |
+| `gridCategoryLinesVisible` | **`groupGridLinesVisible`** | `category` は廃止語。示す対象は `TaskGroup` の境界（UI パーツ名 `Group Grid Lines`） |
 | `cursorGuideMode` | **`guideCursorMode`** | UI パーツ名の改名（`Cursor Guide` → **`Guide Cursor`**）を**データ項目にも及ぼす**。UI 名とデータ名を食い違わせない（項 66）。改名の理由は `../03-ui-naming/handover-ui-parts-ja.md` §2-1-3 |
 
 #### 廃止した項目 — **確定 2026-07-30**
@@ -1258,7 +1263,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | `start` / `finish`             | Own(←Start/Finish)             | 予定開始/完了（バーの左右端）。                                    |
 | `milestone`                    | Own(←Milestone)                | ◆マイルストーン表示フラグ。                                        |
 | `actualStart`                  | Own(←ActualStart)              | 実績開始（実績バーの左端）。                                        |
-| `actualDuration`               | Own(←ActualDuration)           | **実績の期間（稼働日数）。実績バーの右端は `actualStart` ＋ これ。** |
+| `actualDuration`               | Own(←ActualDuration)           | **実績の期間（稼働日数）。実績バーの右端は `actualStart` ＋ これ。** ⚠️ **MSPDI 側は `xsd:duration`**（§7.1a） |
 | `actualFinish`                 | Own(←ActualFinish)             | **完了したときだけ**入る。完了時は右端の日付がそのまま入る。        |
 | `percentComplete`              | Own(←PercentComplete)          | **完了率（整数・0 以上。通常 0〜100）。`actualDuration ÷ 予定期間` から算出して格納。** |
 | `deadline`                     | Own(←Deadline)                 | 期限マーカー。                                                     |
@@ -1266,6 +1271,26 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | （`stop` は保存しない）         | export で算出                  | 中断時の実績バーの右端（`actualStart + actualDuration`）と同じ値。**中断のときだけ** `Task/Stop` へ書く。中断していないタスクに書くと相手が「分割されている」と誤解する恐れがあるため。 |
 | `notes`                        | Own(←Notes)                    | 注記。                                                             |
 | `calendar_id`                  | Consume(←CalendarUID)          | タスク暦参照（稼働日粒度描画）。                                   |
+
+### 7.1a 期間の型変換 — **GRS は稼働日数の整数、MSPDI は `xsd:duration`**
+
+**XSD 実測**: `ActualDuration` / `Duration` / `RemainingDuration` はいずれも `type="xsd:duration"`
+（例 `PT40H0M0S`）である。**実体は「時間」**で、それを何日と読むかは暦が決める。
+GRS は `int`（稼働日数）で持つので、**境界で必ず変換する**。
+
+```
+MSPDI → GRS   時間 ÷ Project.minutes_per_day = 稼働日数
+GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration へ整形
+```
+
+- **`minutes_per_day` は Own** なので取込元の値をそのまま使う（§7.3）。既定を仮定しない。
+- **表示の単位は `Task/DurationFormat` が決める**（分/時/日/週/月）。同要素は **Carry**（GRS は解釈しない）だが、
+  **export で `xsd:duration` を整形するときだけ読む**。⚠️ **Carry は「書き戻すだけ」であって「読まない」ではない。**
+- **端数は丸めない。** 割り切れない値は往復差分になるので、**`carry` に原文字列を保持して未編集なら原値を書き戻す**
+  （§5.5d のフィールド単位 Carry と同じ扱い）。編集されたタスクだけ再計算する。
+
+> ⚠️ **この変換を省くと `Drop = 0`（往復無損失）が静かに壊れる。** 数値としては近い値が出るので
+> テストが通ってしまう。**往復同一性の検査（§8）に期間の文字列一致を含めること。**
 
 ### 7.2 Dependency（← PredecessorLink）
 

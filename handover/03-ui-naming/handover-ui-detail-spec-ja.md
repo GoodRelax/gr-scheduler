@@ -553,11 +553,11 @@ x2 <  x1 → 右へ出て段間の通路を左へ戻る        ④ ⑤
 
 #### 4-10-1. 値の依存関係 — 何から何が計算されるか
 
-**根は 4 つだけ**（`basePlanH` / `actualMin` / `fontMin` / `pxPerDayAt1x`）。残りは全部そこから落ちてくる。
+**根は 4 つだけ**（`basePlanHeight` / `actualMin` / `fontMin` / `pxPerDayAt1x`）。残りは全部そこから落ちてくる。
 
 ```mermaid
 graph LR
-    basePlanH["予定の縦幅<br/>basePlanH"]
+    basePlanHeight["予定の縦幅<br/>basePlanHeight"]
     shapeHeightOf["形状の倍率<br/>shapeHeightOf.*<br/>細線 0.5 / 矩形 1 / ◇ 1.5"]
     planHeight["その形状の予定の縦幅<br/>planHeight"]
     actualHeight["実績の縦幅<br/>actualHeight"]
@@ -573,7 +573,7 @@ graph LR
 
     planFloor["予定の下限<br/>actualMin ÷ actualOfPlan"]
     planFloor -- "max()" --> planHeight
-    basePlanH -- "x zoomY x shapeHeightOf" --> planHeight
+    basePlanHeight -- "x zoomY x shapeHeightOf" --> planHeight
     shapeHeightOf --> planHeight
     planHeight -- "x actualOfPlan" --> actualHeight
     actualHeight -- "x fontOfActual<br/>細線はさらに x thinFontScale" --> fontRaw
@@ -623,33 +623,33 @@ graph TD
     fontMin["fontMin<br/>≧ 12px"]
     actualOfPlan["actualOfPlan<br/>0 &lt; x &lt; 1"]
     fontOfActual["fontOfActual<br/>0 &lt; x &lt; 1"]
-    basePlanH["basePlanH<br/>下限が動く"]
+    basePlanHeight["basePlanHeight<br/>下限が動く"]
     dependencyWidth["dependencyWidth<br/>上限が動く"]
     stackGap["stackGap<br/>下限が動く"]
     dependencyArrowLength["dependencyArrowLength<br/>下限が動く"]
     dependencyRunOfArrow["dependencyRunOfArrow<br/>&gt; 1"]
     thinMin["thinStrokeMin"]
     thinMax["thinStrokeMax"]
-    resumeArm["resumeArmOfMark<br/>上限が動く"]
-    resumeHead["resumeHeadOfMark"]
+    resumeArm["resumeArmOfMarker<br/>上限が動く"]
+    resumeHead["resumeHeadOfMarker"]
     zoomMin["zoomMin"]
     zoomMax["zoomMax"]
     rulerFont["rulerFont<br/>下限が動く"]
-    rulerH["rulerH<br/>下限が動く"]
+    rulerHeight["rulerHeight<br/>下限が動く"]
 
     actualMin["actualMin<br/>≧ fontMin ÷ fontOfActual"]
     fontMin -- "下限 = fontMin ÷ fontOfActual" --> actualMin
     fontOfActual --> actualMin
-    actualMin -- "下限 = actualMin ÷ actualOfPlan" --> basePlanH
-    actualOfPlan --> basePlanH
+    actualMin -- "下限 = actualMin ÷ actualOfPlan" --> basePlanHeight
+    actualOfPlan --> basePlanHeight
     fontMin -- "和文の可読下限" --> rulerFont
-    rulerFont -- "文字が入る高さ" --> rulerH
+    rulerFont -- "文字が入る高さ" --> rulerHeight
     dependencyWidth -- "下限 = dependencyWidth x 2" --> stackGap
     stackGap -- "上限 = stackGap ÷ 2" --> dependencyWidth
     dependencyWidth -- "下限 = dependencyWidth x 2" --> dependencyArrowLength
     thinMax -- "上限" --> thinMin
     thinMin -- "下限" --> thinMax
-    resumeHead -- "上限 = 1 − resumeHeadOfMark" --> resumeArm
+    resumeHead -- "上限 = 1 − resumeHeadOfMarker" --> resumeArm
     zoomMax -- "上限" --> zoomMin
     zoomMin -- "下限" --> zoomMax
 ```
@@ -663,13 +663,13 @@ graph TD
 | 実績 < 予定 | `actualOfPlan < 1` | 実績が予定からはみ出す |
 | フォント < 実績 | `fontOfActual < 1` | 文字がバーより高くなる |
 | 実績の下限に文字が収まる | `actualMin ≧ fontMin ÷ fontOfActual` | 実績が下限まで縮んだとき文字が下限を割る |
-| 縦に縮める余地がある | `basePlanH > actualMin ÷ actualOfPlan` | 等倍が既に下限。縦ズームを縮めても何も起きなくなる |
+| 縦に縮める余地がある | `basePlanHeight > actualMin ÷ actualOfPlan` | 等倍が既に下限。縦ズームを縮めても何も起きなくなる |
 
 #### 4-10-3. 縦の下限は **1 か所だけに置く** — 確定 2026-07-31
 
 ```
 予定の下限   = actualMin ÷ actualOfPlan        実績がちょうど下限に届く予定の高さ
-予定の縦幅   = max( 予定の下限, basePlanH x zoomY )
+予定の縦幅   = max( 予定の下限, basePlanHeight x zoomY )
 実績の縦幅   = 予定の縦幅 x actualOfPlan        ← クランプを掛けない
 ```
 
@@ -687,7 +687,7 @@ graph TD
 | 依存線が段の間を通る | `stackGap ≧ dependencyWidth × 2` | 線が上下のバーに接する |
 | 細線が矩形より薄い | `shapeHeightOf.arrow < 1` | 「縦に薄い」という取り柄が消える |
 | ◇ が矩形より大きい | `shapeHeightOf.milestone > 1` | 目立たなくなる |
-| 矢羽根の先端が反転しない | `chevronNotchOfW ≦ 0.5` | 切り欠きが交差して形が壊れる |
+| 矢羽根の先端が反転しない | `chevronNotchOfWidth ≦ 0.5` | 切り欠きが交差して形が壊れる |
 
 **実際に触れる**: `../08-poc/poc-integrated.html` の「設定・プロパティ」ボタン。
 **全項目**を個別に変えられ、**範囲は他の設定に追随して引き直される**。
@@ -1053,12 +1053,12 @@ graph TD
 - **単調性は 1 本の式で構造的に保証する。** 判定を次の形にする:
 
   ```
-  その深さの代表期間 x px/day ≧ itemLodReadablePx   … 描く
+  その深さの代表期間 x px/day ≧ taskLevelOfDetailReadablePx   … 描く
   ```
 
   **代表期間が深さに対して単調減少なので、逆転が起こり得ない**（存在しない事故を後から潰す必要がない）。
   PoC はこの式で **2 次元 9,600 点を走査し逆転 0 件**を実測した（`../08-poc/POC-RESULTS-ja.md` §B-2）。
-  定数 `itemLodReadablePx` の値と範囲は `../02-data-model/grs-document-settings-ja.md` が正。
+  定数 `taskLevelOfDetailReadablePx` の値と範囲は `../02-data-model/grs-document-settings-ja.md` が正。
 - **判定では深さを 5 で頭打ち**にしてよい（6 段以上は実務でほぼ無い）。
   ただし**書き戻す値は頭打ちにしない**（階層が壊れる。`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-2）。
 - **小さい文書では全部描く**（現行は 200 アイテム以下）。ただしこれは**閾値ハックであって根治ではない**
