@@ -270,12 +270,10 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 
 | 確定名（英） | 日本語 |
 |---|---|
-| `markerTextOfFont` | 中の数字 ÷ フォント |
-| `markerOfText` | マーカー径 ÷ 中の数字 |
+| `markerOfFont` | マーカー径 ÷ フォント |
 | `markerMin` | マーカー径の下限 |
 | `markerGap` | 実績の右端からの隙間 |
 | `markerStroke` | 円の線の太さ |
-| `markerTextBaseline` | 数字のベースライン補正 |
 | `resumeScaleInvalid` | 再開日未定のときの縮小率 |
 | `resumeArmOfMark` | Resume の腕の長さ ÷ マーカー |
 | `resumeHeadOfMark` | Resume の矢じり ÷ マーカー |

@@ -597,8 +597,7 @@ graph LR
     actualHeight -- "x fontOfActual<br/>細線はさらに x thinFontScale" --> fontRaw
     fontRaw -- "max()" --> fontSize
     fontMin -- "max()" --> fontSize
-    fontSize -- "x markerTextOfFont" --> markText
-    markText -- "x markerOfText" --> markerSize
+    fontSize -- "x markerOfFont" --> markerSize
     fontSize -- "x labelCoef x 文字数" --> labelW
     labelW -- "左: 担当+進捗 / 右: 名称" --> occW
     markerSize -- "右: markerGap + 径" --> occW
@@ -707,7 +706,6 @@ graph TD
 | 細線が矩形より薄い | `shapeHeightOf.arrow < 1` | 「縦に薄い」という取り柄が消える |
 | ◇ が矩形より大きい | `shapeHeightOf.milestone > 1` | 目立たなくなる |
 | 矢羽根の先端が反転しない | `chevronNotchOfW ≦ 0.5` | 切り欠きが交差して形が壊れる |
-| 3 桁がマーカーに収まる | `markerOfText ≧ 1.6` | 数字が円からはみ出す |
 
 **実際に触れる**: `../08-poc/poc-integrated.html` の「設定・プロパティ」ボタン。
 **全項目**を個別に変えられ、**範囲は他の設定に追随して引き直される**。

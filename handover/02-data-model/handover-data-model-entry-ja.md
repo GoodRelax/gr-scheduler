@@ -79,7 +79,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
 > **`documentSettings` は既定値のままの項目も含めて全項目を書く**
 > （`grs-document-settings-ja.md` §2。同じ JSON からいつでも同じ出力を得るため）。
-> 下の実例は **89 キー**で、これが「全項目」の実際の姿である。
+> 下の実例は **87 キー**で、これが「全項目」の実際の姿である。
 >
 > 書かないものが 4 つある。
 >
@@ -115,8 +115,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
     "dependencyWidth": 1.5, "dependencyArrowLength": 10, "dependencyRunOfArrow": 2,
 
-    "markerTextOfFont": 0.75, "markerOfText": 2.0, "markerMin": 16, "markerGap": 4,
-    "markerStroke": 1.3, "markerTextBaseline": 0.36,
+    "markerOfFont": 1.5, "markerMin": 16, "markerGap": 4, "markerStroke": 1.3,
     "resumeScaleInvalid": 0.7, "resumeArmOfMark": 0.62, "resumeHeadOfMark": 0.22,
     "resumeDashOn": 3, "resumeDashOff": 2,
 
