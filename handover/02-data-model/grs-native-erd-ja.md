@@ -1099,7 +1099,7 @@ Progress Marker（進捗マーカー）は**全体を非表示にするトグル
 と定めている。`assigneeVisible` / `progressVisible` / `progressLineVisible` と**同じ扱い**であり、
 本節の原則「文書に保存するのは作者がこの文書について決めたこと」にも合う。**MSPDI へは書かない。**
 
-> 既定は**表示**（`true`）。マーカーは**完了・中断・期限超過を形で示す唯一の手段**であり
+> 既定は**表示**（`true`）。マーカーは**完了・中断・遅れを形で示す唯一の手段**であり
 > （色に依存しない・WCAG 1.4.11）、既定で隠すと状態が読めなくなる。
 
 #### 出力サイズ（`exportCanvas`）
@@ -1127,7 +1127,7 @@ PNG のみ    倍率 1x / 2x
 
 | 廃止した項目 | 理由 |
 |---|---|
-| `planActualStyle`（`'overlap'` \| `'separate'`） | **上下分離表示そのものを廃止した**（`user-order.md` 項 52 は欠番）。予定バーの高さ > 実績バーの高さ で幾何的に解き、**幅がないタスク形状だけ実績を下にずらす**。切替の設定は要らない。詳細は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-3 |
+| `planActualStyle`（`'overlap'` \| `'separate'`） | **上下分離表示そのものを廃止した**（`user-order.md` 項 52 は欠番）。予定バーの高さ > 実績バーの高さ で幾何的に解き、**幅がない 2 タスク形状（`arrow` / `endpointSpan`）だけ実績を下にずらす**。**マイルストーンは実績日の位置へ横にずらす**（確定 2026-08-01）。切替の設定は要らない。詳細は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-3 |
 
 ---
 
