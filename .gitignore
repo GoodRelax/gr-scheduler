@@ -67,3 +67,6 @@ ai-cowork-trial/state.json
 # scratch
 scratch/
 tmp/
+
+# Shogi trial runtime state
+ai-cowork-trial/shogi/state.json
