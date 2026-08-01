@@ -746,7 +746,11 @@ global.POC_UI = {
   /* Colours come from the :root block above, dimensions from SPEC below.
      Identifiers below follow handover/03-ui-naming/handover-ui-parts-ja.md. */
   html, body { height:100%; }
-  body { display:flex; flex-direction:column; padding:0; overflow:hidden; }
+  /* `body.reading`, not `body`: poc-ui.css sets `body.reading { padding:0 0 80px }`
+     for prose pages, and a one-class selector beats a bare element one whatever
+     the order. This page is a window-filling app, so it must win back the zero.
+     The 80px was invisible while the canvas had a fixed height. */
+  body.reading { display:flex; flex-direction:column; padding:0; overflow:hidden; }
 
   /* ---- fixed header: one row. Tabs and commands never scroll away ----
      Everything is 12px: the Japanese readability floor (07 §2-4-1), not below
@@ -772,9 +776,17 @@ global.POC_UI = {
 
   /* ---- body scrolls; the prose may scroll away, that is fine ---- */
   .main { flex:1 1 auto; display:flex; min-height:0; }
-  .panelHost { flex:1 1 auto; overflow:auto; min-width:0; padding:0 16px 60px 16px; }
+  .panelHost { flex:1 1 auto; overflow:auto; min-width:0; padding:0 16px; }
   .panelHost > section { display:none; }
-  .panelHost > section.on { display:block; }
+  .panelHost > section.on { display:block; padding-bottom:60px; }
+
+  /* The schedule tab is an instrument, not a page: it fills the window and the
+     canvas runs to the bottom edge. Nothing is reserved below it. Enlarge the
+     window and the extra pixels become rows and days, which is the whole point
+     of a schedule that is fitted to the screen. */
+  .panelHost > section#tab-schedule.on { display:flex; flex-direction:column;
+                                         height:100%; padding-bottom:0; }
+  #tab-schedule .toggles, #tab-schedule .readbar { flex:0 0 auto; }
 
   /* ---- collapsible right panel ---- */
   /* The width is set through flex-basis, not width: inside a flex row the
@@ -807,8 +819,10 @@ global.POC_UI = {
   /* ---- schedule canvas ---- */
   /* overflow comes from .alwaysScroll further up -- do not set it here, this
      block comes later in the file and would win. */
-  .scheduleCanvas { border:1px solid var(--rule); border-radius:6px;
-                    background:var(--bg); height:min(62vh, 620px); outline:none; }
+  /* No fixed height: it takes whatever the window leaves (min-height:0 so the
+     flex item is allowed to be shorter than its content and scroll instead). */
+  .scheduleCanvas { border:1px solid var(--rule); border-radius:6px 6px 0 0;
+                    background:var(--bg); flex:1 1 auto; min-height:0; outline:none; }
   .scheduleCanvas svg { display:block; }
   .readbar { display:flex; flex-wrap:wrap; gap:3px 16px; align-items:baseline; padding:7px 11px;
              background:var(--panel); border:1px solid var(--rule); border-bottom:none;
@@ -902,11 +916,10 @@ global.POC_UI = {
   <div class="panelHost" id="panelHost">
 
     <!-- ============================================================ 日程表 -->
+    <!-- No heading and no prose here on purpose: this tab is the instrument,
+         and every line above the canvas is a line the canvas does not get.
+         What it verifies is listed in the 記録 tab. -->
     <section id="tab-schedule" class="on">
-      <h2>1. 日程表 — 操作と描画の検算</h2>
-      <p class="hint">確定した描画規則をすべて載せた日程表。ホイールとキーだけで拡縮する
-        （<code>../03-ui-naming/handover-ui-detail-spec-ja.md</code> §5-2）。
-        <strong>依存線の太さと走りはズームに追随しない</strong>ことも同時に確かめられる（同 §4-9）。</p>
       <div class="toggles">
         <label><input type="checkbox" id="tgDependency" checked> 依存線</label>
         <label><input type="checkbox" id="tgAssignee" checked> 担当</label>
