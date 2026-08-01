@@ -626,7 +626,7 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 > **検算**: Own 18 ＋ Consume 1 ＋ Reconstruct 1 ＋ Carry 43 = **63**（XSD 実測の Project 直下スカラー数と一致）。
 
 → **8 ネイティブテーブルで「未分類ゼロ」**（全スカラー名を XSD 突合で確認済み）。
-→ **明示許容の Drop は 2 件のみ**: ①**WBS 深さ 6 段以上のフラット化**（クランプして復元しない・`grs-native-erd-ja.md` §5.5e）②マージ時の取込側 Carry の欠落（同 §5.4）。
+→ **明示許容の Drop は 1 件のみ**: マージ時の取込側 Carry の欠落（`grs-native-erd-ja.md` §5.4）。**WBS の深さによる Drop は無い**（同 §5.5e・クランプしない）。
 → さらに **Carry ストア設計が確定した**（`grs-native-erd-ja.md` §5.5d）ことで、**Drop=0 は機械検証の結果**になった: **入口**で「ネイティブ列＋carry」の再合成が元要素と一致するか検証し（不一致なら要素まるごと退避＝**漏れても失われない**）、**出口**で未編集往復の差分ゼロを CI 検証する。前提は **Own/Consume 列が nullable**（`null`＝元ファイルに要素なし）であること。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough（案b）の実装が Drop=0 の前提**。
 > ⚠️ **H-2（要注意）**: `ActualDuration`/`RemainingDuration` は当初 Reconstruct としたが、**進行中タスク（`ActualFinish` 空）では単純再計算が破綻**するため Carry へ格下げ済み。§8D の round-trip 同一性テストに**進行中タスクのケースを必須追加**する（完了タスクだけの検証では欠落を見逃す）。
 

@@ -68,7 +68,7 @@
 | 2-2 | `16-dependencies` **DEP-L1-002**: 9 点アンカーの座標定義を**将来の手動選択復活に備えて保持** | **依存線は全自動配線・経路は保存しない**（`DependencyRoute` 廃止） | **今回** |
 | 2-3 | `12-properties-i18n` **PROP-L1-002**: `assignee` を**編集可能なプロパティ**として持つ | **担当者は `Assignment`→`Resource.name` から導出**。自由文字列プロパティは持たない | **今回** |
 | 2-4 | `40-data-format` 全般（`rows`/`sections`/`items`/`dependency.id`/`lagDays` 等） | GRS ネイティブ 12 エンティティ（`Task`/`TaskGroup`/…）へ全面置換 | **今回**（ユーザー指示により 40-data-format は判断材料から除外） |
-| 2-5 | 深い WBS の扱い（明示規定なし） | **6 段以上は 5 段にクランプし、export でも復元しない**（明示許容の損失） | **今回** |
+| 2-5 | 深い WBS の扱い（明示規定なし） | **クランプしない。**取り込んだ深さをそのまま保持し、そのまま書き戻す（`grs-native-erd-ja.md` §5.5e。深さによる損失は無い） | **今回** |
 | 2-6 | `15-classification-sections` **SECT-***: 分類（大中小）・セクション行・階層インデント | **軸A（WBS）＝`Task.wbs_parent_uid` / 軸B（行の器）＝`TaskGroup`** の 2 軸へ再整理 | **要統合**（下記 4-1） |
 
 ---
