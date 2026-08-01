@@ -50,7 +50,7 @@
   --actual-stroke: hsl(var(--hue) calc(66% * var(--sat-scale, 1)) 22%);
 
   /* ---- fixed-role colours */
-  --dep: hsl(26 calc(88% * var(--sat-scale, 1)) 44%);
+  --dependency: hsl(26 calc(88% * var(--sat-scale, 1)) 44%);
   --lightning: hsl(354 calc(62% * var(--sat-scale, 1)) 42%);
   --marker-ink: #16181d;
   --marker-bg: #ffffff;
@@ -88,7 +88,7 @@
     --plan-stroke: hsl(var(--hue) calc(46% * var(--sat-scale, 1)) var(--stroke-l, 66%));
     --actual-fill: hsl(var(--hue) calc(62% * var(--sat-scale, 1)) var(--actual-l, 64%));
     --actual-stroke: hsl(var(--hue) calc(70% * var(--sat-scale, 1)) 80%);
-    --dep: hsl(30 calc(92% * var(--sat-scale, 1)) 60%);
+    --dependency: hsl(30 calc(92% * var(--sat-scale, 1)) 60%);
     --lightning: hsl(354 calc(70% * var(--sat-scale, 1)) 64%);
     --marker-ink: #e8eaee;
     --marker-bg: #14161a;
@@ -117,7 +117,7 @@
   --plan-stroke: hsl(var(--hue) calc(46% * var(--sat-scale, 1)) var(--stroke-l, 66%));
   --actual-fill: hsl(var(--hue) calc(62% * var(--sat-scale, 1)) var(--actual-l, 64%));
   --actual-stroke: hsl(var(--hue) calc(70% * var(--sat-scale, 1)) 80%);
-  --dep: hsl(30 calc(92% * var(--sat-scale, 1)) 60%);
+  --dependency: hsl(30 calc(92% * var(--sat-scale, 1)) 60%);
   --lightning: hsl(354 calc(70% * var(--sat-scale, 1)) 64%);
   --marker-ink: #e8eaee;
   --marker-bg: #14161a;
@@ -271,14 +271,14 @@ var SPEC = [
   /* ---- time axis ---------------------------------------------------- */
   { g: "時間軸", k: "pxPerDayAt1x", n: "1 日の幅（zoomX = 1）", u: "px", step: 0.5, d: 6,
     rng: function () { return { lo: 0.5, hi: 60 }; } },
-  { g: "時間軸", k: "rulerH", n: "目盛の帯の高さ", u: "px", step: 1, d: 34,
+  { g: "時間軸", k: "rulerHeight", n: "目盛の帯の高さ", u: "px", step: 1, d: 34,
     rng: function (S) { return { lo: S.rulerFont + 6, hi: 120,
       why: "目盛の文字が入る高さ" }; } },
   { g: "時間軸", k: "rulerFont", n: "目盛の文字", u: "px", step: 1, d: 12,
     rng: function (S) { return { lo: S.fontMin, hi: 40, why: "和文の可読下限を割らない" }; } },
 
   /* ---- vertical ------------------------------------------------------ */
-  { g: "縦の寸法", k: "basePlanH", n: "予定の縦幅（zoomY = 1）", u: "px", step: 1, d: 28,
+  { g: "縦の寸法", k: "basePlanHeight", n: "予定の縦幅（zoomY = 1）", u: "px", step: 1, d: 28,
     rng: function (S) { return { lo: S.actualMin / S.actualOfPlan, hi: 200,
       why: "下限 = actualMin ÷ actualOfPlan。等倍がこの値だと縦に縮める余地が無くなる" }; } },
   { g: "縦の寸法", k: "actualOfPlan", n: "実績 ÷ 予定", u: "", step: 0.01, d: 0.73,
@@ -324,10 +324,9 @@ var SPEC = [
       why: "1 以下だと三角形が入口の走りを食い尽くし、同時に出口の走りが 0 以下になる" }; } },
 
   /* ---- progress marker ----------------------------------------------- */
-  { g: "進捗マーカー", k: "markerTextOfFont", n: "中の数字 ÷ フォント", u: "", step: 0.05, d: 0.75,
-    rng: function () { return { lo: 0.3, hi: 1.5 }; } },
-  { g: "進捗マーカー", k: "markerOfText", n: "マーカー径 ÷ 中の数字", u: "x", step: 0.1, d: 2.0,
-    rng: function () { return { lo: 1.6, hi: 4, why: "3 桁が円に収まる比" }; } },
+  { g: "進捗マーカー", k: "markerOfFont", n: "マーカー径 ÷ フォント", u: "x", step: 0.1, d: 1.5,
+    rng: function () { return { lo: 0.5, hi: 4,
+      why: "マーカーは実績バーに追随し、注釈が本体より大きくならない（07 2-4-1）" }; } },
   { g: "進捗マーカー", k: "markerMin", n: "マーカー径の下限", u: "px", step: 1, d: 16,
     rng: function (S) { return { lo: S.fontMin, hi: 80 }; } },
   { g: "進捗マーカー", k: "markerGap", n: "実績の右端からの隙間", u: "px", step: 1, d: 4,
@@ -335,13 +334,11 @@ var SPEC = [
       why: "確定仕様で 4px 固定。端点の掴み代と重ならない最小距離であり、それ以上離さない（07 2-4）" }; } },
   { g: "進捗マーカー", k: "markerStroke", n: "円の線の太さ", u: "px", step: 0.1, d: 1.3,
     rng: function () { return { lo: 0.5, hi: 4 }; } },
-  { g: "進捗マーカー", k: "markerTextBaseline", n: "数字のベースライン補正", u: "", step: 0.02, d: 0.36,
-    rng: function () { return { lo: 0, hi: 0.8 }; } },
   { g: "進捗マーカー", k: "resumeScaleInvalid", n: "再開日未定のときの縮小率", u: "x", step: 0.05, d: 0.7,
     rng: function () { return { lo: 0.3, hi: 1, why: "未定は小さく薄く" }; } },
-  { g: "進捗マーカー", k: "resumeArmOfMark", n: "Resume の腕の長さ ÷ マーカー", u: "", step: 0.02, d: 0.62,
-    rng: function (S) { return { lo: 0.2, hi: 1 - S.resumeHeadOfMark, why: "矢じりぶんを残す" }; } },
-  { g: "進捗マーカー", k: "resumeHeadOfMark", n: "Resume の矢じり ÷ マーカー", u: "", step: 0.02, d: 0.22,
+  { g: "進捗マーカー", k: "resumeArmOfMarker", n: "Resume の腕の長さ ÷ マーカー", u: "", step: 0.02, d: 0.62,
+    rng: function (S) { return { lo: 0.2, hi: 1 - S.resumeHeadOfMarker, why: "矢じりぶんを残す" }; } },
+  { g: "進捗マーカー", k: "resumeHeadOfMarker", n: "Resume の矢じり ÷ マーカー", u: "", step: 0.02, d: 0.22,
     rng: function () { return { lo: 0.05, hi: 0.5 }; } },
   { g: "進捗マーカー", k: "resumeDashOn", n: "Resume へ繋ぐ破線の実部", u: "px", step: 1, d: 3,
     rng: function () { return { lo: 1, hi: 12 }; } },
@@ -380,9 +377,9 @@ var SPEC = [
     rng: function (S) { return { lo: 0.5, hi: S.thinStrokeMax, why: "上限を超えない" }; } },
   { g: "形状の細部", k: "thinStrokeMax", n: "細線の太さの上限", u: "px", step: 0.5, d: 4,
     rng: function (S) { return { lo: S.thinStrokeMin, hi: 20, why: "下限を下回らない" }; } },
-  { g: "形状の細部", k: "chevronNotchOfH", n: "矢羽根の切り欠き ÷ 高さ", u: "", step: 0.05, d: 0.45,
+  { g: "形状の細部", k: "chevronNotchOfHeight", n: "矢羽根の切り欠き ÷ 高さ", u: "", step: 0.05, d: 0.45,
     rng: function () { return { lo: 0.05, hi: 1 }; } },
-  { g: "形状の細部", k: "chevronNotchOfW", n: "矢羽根の切り欠き ÷ 幅", u: "", step: 0.05, d: 0.35,
+  { g: "形状の細部", k: "chevronNotchOfWidth", n: "矢羽根の切り欠き ÷ 幅", u: "", step: 0.05, d: 0.35,
     rng: function () { return { lo: 0.05, hi: 0.5, why: "0.5 を超えると先端が反転する" }; } },
   { g: "形状の細部", k: "arrowHeadOfStroke", n: "矢印の矢じり ÷ 線の太さ", u: "x", step: 0.2, d: 3.2,
     rng: function () { return { lo: 1.5, hi: 8 }; } },
@@ -415,11 +412,11 @@ var SPEC = [
       why: "前後のしきい値の間" }; } },
   { g: "LOD のしきい値", k: "rulerTierPxPerDayDay", n: "目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day", u: "px", step: 0.5, d: 14,
     rng: function (S) { return { lo: S.rulerTierPxPerDayWeek, hi: 60, why: "前のしきい値を下回らない" }; } },
-  { g: "LOD のしきい値", k: "itemLodReadablePx", n: "この幅を割った深さは描かない", u: "px", step: 1, d: 24,
+  { g: "LOD のしきい値", k: "taskLevelOfDetailReadablePx", n: "この幅を割った深さは描かない", u: "px", step: 1, d: 24,
     rng: function (S) { return { lo: S.fontMin, hi: 200, why: "文字が 1 つも入らない幅にしない" }; } },
-  { g: "LOD のしきい値", k: "rowLodBase", n: "行階層 LOD の初項", u: "x", step: 0.01, d: 0.32,
+  { g: "LOD のしきい値", k: "groupLevelOfDetailBase", n: "グループ LOD の初項", u: "x", step: 0.01, d: 0.32,
     rng: function () { return { lo: 0.01, hi: 2 }; } },
-  { g: "LOD のしきい値", k: "rowLodRatio", n: "行階層 LOD の公比", u: "x", step: 0.005, d: 1.875,
+  { g: "LOD のしきい値", k: "groupLevelOfDetailRatio", n: "グループ LOD の公比", u: "x", step: 0.005, d: 1.875,
     rng: function () { return { lo: 1 + EPS, hi: 4, why: "1 以下だと深いほど出やすくなり単調性が壊れる" }; } },
 
   /* ---- zoom -------------------------------------------------------------- */
@@ -476,7 +473,7 @@ function dependencyRunExit() { return S.dependencyArrowLength * (S.dependencyRun
  * Clamped by the width so a short bar cannot invert its own point.
  */
 function chevronNotchOfPlan(planWidth, planHeight) {
-  return Math.min(planWidth * S.chevronNotchOfW, planHeight * S.chevronNotchOfH);
+  return Math.min(planWidth * S.chevronNotchOfWidth, planHeight * S.chevronNotchOfHeight);
 }
 
 /**
@@ -498,7 +495,7 @@ function chevronNotchOfActual(planNotch) { return planNotch * S.actualOfPlan; }
 function planFloor() { return S.actualMin / S.actualOfPlan; }
 
 /** True when this vertical zoom has hit the floor and a level must drop. */
-function atFloor(zoomY) { return S.basePlanH * zoomY < planFloor(); }
+function atFloor(zoomY) { return S.basePlanHeight * zoomY < planFloor(); }
 
 /** Every vertical dimension of one shape kind, derived from S alone. */
 function shapeMetrics(kind, zoomY) {
@@ -506,20 +503,18 @@ function shapeMetrics(kind, zoomY) {
   // One clamp, on the plan height. The actual then follows by ratio alone and
   // is guaranteed to clear its own 16px floor, so it needs no second clamp --
   // two independent clamps are what let the ratio drift away from the spec.
-  var planHeight = Math.max(planFloor(), S.basePlanH * zoomY) * ratio;
+  var planHeight = Math.max(planFloor(), S.basePlanHeight * zoomY) * ratio;
   var actualHeight = planHeight * S.actualOfPlan;
   var thin = !hasThickness(kind) && kind !== "milestone";
   var rawFont = actualHeight * S.fontOfActual * (thin ? S.thinFontScale : 1);
   var fontSize = Math.max(S.fontMin, rawFont);
-  var markText = Math.max(S.fontMin, fontSize * S.markerTextOfFont);
   return {
     kind: kind,
     planHeight: planHeight,
     actualHeight: actualHeight,
     fontSize: fontSize,
     fontFloored: rawFont < S.fontMin,
-    markerTextSize: markText,
-    markerSize: Math.max(S.markerMin, markText * S.markerOfText),
+    markerSize: Math.max(S.markerMin, fontSize * S.markerOfFont),
     // A milestone reserves ONE glyph: its actual sits at the actual date, on
     // the same centre line, not stacked underneath (07 §2-2). Stacking cost
     // 59px a stack against 22px for everything else and was what stopped Fit
@@ -947,13 +942,13 @@ global.POC_UI = {
          What it verifies is listed in the 記録 tab. -->
     <section id="tab-schedule" class="on">
       <div class="toggles">
-        <label><input type="checkbox" id="tgDependency" checked> 依存線</label>
-        <label><input type="checkbox" id="tgAssignee" checked> 担当</label>
-        <label><input type="checkbox" id="tgProgress" checked> 完了率</label>
-        <label><input type="checkbox" id="tgProgressLine" checked> イナズマ線</label>
-        <label><input type="checkbox" id="tgMarker" checked> 進捗マーカー</label>
-        <label><input type="checkbox" id="tgGridDate" checked> 日付方向の罫線</label>
-        <label><input type="checkbox" id="tgGridGroup" checked> タスク方向の罫線</label>
+        <label><input type="checkbox" id="dependencyVisible" checked> 依存線</label>
+        <label><input type="checkbox" id="assigneeVisible"> 担当</label>
+        <label><input type="checkbox" id="percentCompleteVisible"> 完了率</label>
+        <label><input type="checkbox" id="progressLineVisible" checked> イナズマ線</label>
+        <label><input type="checkbox" id="progressMarkerVisible" checked> 進捗マーカー</label>
+        <label><input type="checkbox" id="dateGridLinesVisible" checked> 日付罫線</label>
+        <label><input type="checkbox" id="groupGridLinesVisible" checked> グループ罫線</label>
         <span class="readbar" id="scheduleRead"></span>
       </div>
       <div class="scheduleCanvas alwaysScroll panReady" id="scheduleCanvas" tabindex="0"></div>
@@ -1017,7 +1012,7 @@ resume が空なら薄い〇。日付が入ったら resume の位置へ移り�
     <!-- ======================================================= レベル遷移 -->
     <section id="tab-lod">
       <h2>4. レベル遷移 — 拡大縮小で表示が狙いどおり増減するか</h2>
-      <p class="hint">3 系統（時間軸 / アイテム（軸A・WBS 深さ）/ 行階層（軸B））について、
+      <p class="hint">3 系統（時間軸 / タスク（軸A・WBS 深さ）/ グループ（軸B））について、
         <strong>狙った閾値</strong>と<strong>実測した遷移点</strong>を突き合わせる。
         <strong>単調であること</strong>（縮小したのに表示が増える逆転が無いこと）が要件。</p>
       <div id="lodHost"></div>
@@ -1084,7 +1079,8 @@ resume が空なら薄い〇。日付が入ったら resume の位置へ移り�
         <code>.html</code> も外部ファイルを 1 つも参照しないので、そのままダブルクリックで開く。</p>
 
       <div class="ruleBlock">このファイル（poc-integrated.html）  現役。確定した規則を検算する。編集するのはここだけ
-案比較の 5 本                        凍結した計測記録。値を焼き込んであるので、以後どこを直しても動かない
+POC-SPEC-ja.md                       共通仕様と入力データ
+OPEN-QUESTIONS-ja.md                 判断が要った 7 件（決着済み）
 POC-RESULTS-ja.md                    全部の結論
 README.md                            このフォルダの説明</div>
 
@@ -1098,21 +1094,22 @@ README.md                            このフォルダの説明</div>
         <tr><td>色と縁取り</td><td>文字を黒/白に固定したときに使える色（10 色相 × ライト/ダーク）と縁取りの描画コスト</td></tr>
       </table>
 
-      <h3>6-2. 凍結 — 案を比べた計測記録</h3>
-      <p class="hint">結論は出ている。<strong>開いて確かめる用であって、直す対象ではない。</strong>
-        各案の配線アルゴリズム定数（<code>STUB</code> / <code>lanePitch</code> / <code>V_PITCH</code> 等）は
-        その案の identity なので改名もしない。</p>
+      <h3>6-2. 案を比べた計測記録 — <b>2026-08-02 に引継ぎ資産から外した</b></h3>
+      <p class="hint">結論は出ており（案 B ＋ zoom A を推奨）、数値は <code>POC-RESULTS-ja.md</code> に記録済みである。
+        現物の 5 ファイルは<strong>廃止語（<code>lane</code> / <code>actualEnd</code> / <code>overdue</code>）を 158 箇所（99 行）抱えており</strong>、
+        「コピペ禁止」の原則に対するノイズになるため <code>to-del/</code> へ移した。
+        <strong>下表はリンクではなく記録である。</strong></p>
       <table>
         <tr><th>ファイル</th><th>案</th><th>結論</th></tr>
-        <tr><td><a href="poc-layout-A-orthogonal-channel.html">poc-layout-A</a></td><td>直交チャネル配線</td><td>横切り 1 だが線どうしの交差 50。トレードオフ</td></tr>
-        <tr><td><a href="poc-layout-B-anchor-search.html">poc-layout-B</a></td><td>9 点アンカーの候補探索</td><td><b>推奨</b>。横切り 0 / 交差 9。再レイアウト 13.3ms（60fps の予算 16.7ms に余裕が無い）のが弱点</td></tr>
-        <tr><td><a href="poc-layout-C-reserved-lane.html">poc-layout-C</a></td><td>予約が先・配線 1 パス</td><td>最速（2.1ms）だが横切り 8。縦の通り道も予約が要ると判明</td></tr>
-        <tr><td><a href="poc-zoom-A-depth-threshold.html">poc-zoom-A</a></td><td>深さしきい値 LOD</td><td><b>推奨</b>。Fit で 21 行 PASS / 再レイアウト 0.5ms / 横切り 0</td></tr>
-        <tr><td><a href="poc-zoom-B-fit-first.html">poc-zoom-B</a></td><td>画面予算が深さを決める</td><td>L1 が入ることが構造上保証される。縦スクロールが原理的に無いので基本には採らない</td></tr>
+        <tr><td>poc-layout-A</td><td>直交チャネル配線</td><td>横切り 1 だが線どうしの交差 50。トレードオフ</td></tr>
+        <tr><td>poc-layout-B</td><td>9 点アンカーの候補探索</td><td><b>推奨</b>。横切り 0 / 交差 9。再レイアウト 13.3ms（60fps の予算 16.7ms に余裕が無い）のが弱点</td></tr>
+        <tr><td>poc-layout-C</td><td>予約が先・配線 1 パス</td><td>最速（2.1ms）だが横切り 8。縦の通り道も予約が要ると判明</td></tr>
+        <tr><td>poc-zoom-A</td><td>深さしきい値 LOD</td><td><b>推奨</b>。Fit で 21 行 PASS / 再レイアウト 0.5ms / 横切り 0</td></tr>
+        <tr><td>poc-zoom-B</td><td>画面予算が深さを決める</td><td>L1 が入ることが構造上保証される。縦スクロールが原理的に無いので基本には採らない</td></tr>
       </table>
 
       <h3>6-3. なぜ 1 ファイルなのか — 2026-08-01 の再統合</h3>
-      <div class="ruleBlock">2026-07-31  色と寸法を poc-ui.css / poc-ui.js の 2 本へ統合した（11 ページの値の食い違いを止めるため）
+      <div class="ruleBlock">2026-07-31  色と寸法を poc-ui.css / poc-ui.js の 2 本へ統合した（9 ページの値の食い違いを止めるため）
 2026-08-01  その 2 本を各ページへ焼き込み、共有ファイルを廃止した</div>
       <p class="hint">共有ファイルは値の食い違いを止めた一方で、<strong>2 つの問題</strong>を作っていた。</p>
       <table>
@@ -1178,8 +1175,8 @@ function actualPlacementOf(shapeKind) {
 // Sized so every LOD threshold can actually be crossed on screen. The old
 // 19-task / 300-day / depth-2 set never reached any of them.
 //   期間 1095 日    目盛が 年月＋日 → 年＋月 → 年 まで落ちる（しきい値 8 / 1 px/day）
-//   行深さ 1..5     行階層 LOD の 4 しきい値（0.32 / 0.60 / 1.13 / 2.11）を跨げる
-//   WBS 深さ 1..5   アイテム LOD の 4 遷移点を跨げる
+//   行深さ 1..5     グループ LOD の 4 しきい値（0.32 / 0.60 / 1.13 / 2.11）を跨げる
+//   WBS 深さ 1..5   タスク LOD の 4 遷移点を跨げる
 // ===========================================================================
 var ASSIGNEES = ["田中", "佐藤", "鈴木", "高橋", "伊藤", "渡辺", "山本", "中村"];
 var HORIZON_DAYS = 1095;
@@ -1215,7 +1212,7 @@ function makeTask(groupId, name, start, finish, opt) {
   return t;
 }
 
-/* TaskGroup 木。深さ 1..5。行階層 LOD は深さで畳むので、木の形そのものが測定対象。 */
+/* TaskGroup 木。深さ 1..5。グループ LOD は深さで畳むので、木の形そのものが測定対象。 */
 var TASK_GROUPS = [
   { id:  0, depth: 1, name: "構想" },
   { id:  1, depth: 2, name: "構想・調査" },
@@ -1699,7 +1696,7 @@ function drawProgressMarker(out, t, x, cy, m, ctx) {
 function drawResumeIcon(out, t, x, cy, markerSize) {
   var scale = t.resumeValid ? 1 : settings.resumeScaleInvalid;
   var w = markerSize * scale;
-  var arm = w * settings.resumeArmOfMark, head = w * settings.resumeHeadOfMark;
+  var arm = w * settings.resumeArmOfMarker, head = w * settings.resumeHeadOfMarker;
   var dim = t.resumeValid ? "" : ' opacity="0.45"';
   out.push('<path d="M' + r1(x) + ',' + r1(cy + markerSize / 2) + ' V' + r1(cy) + ' h' + r1(arm) +
            '" fill="none" stroke="var(--marker-ink)" stroke-width="' + r1(settings.markerStroke) +
@@ -1769,7 +1766,7 @@ function rulerTicks(kind, toDay) {
  */
 function rulerRowHeight() { return settings.rulerFont + 5; }
 function rulerBandHeight(zoomX) {
-  return Math.max(settings.rulerH, TIER_ROWS[timeRulerTier(zoomX)].length * rulerRowHeight());
+  return Math.max(settings.rulerHeight, TIER_ROWS[timeRulerTier(zoomX)].length * rulerRowHeight());
 }
 
 /** Keep every Nth tick so labels never collide -- thinning, never shrinking. */
@@ -1779,15 +1776,15 @@ function thinTicks(ticks, pxPerDay, labelPx) {
   return ticks.filter(function (t) { return t.day % every === 0; });
 }
 /* MEDIAN_DURATION is declared with the dataset: the generated spans follow it. */
-function itemDepthLimit(zoomX) {
+function taskDepthLimit(zoomX) {
   var pxPerDay = settings.pxPerDayAt1x * zoomX, best = 1;
   for (var d = 1; d <= 5; d++) {
-    if (MEDIAN_DURATION[d] * pxPerDay >= settings.itemLodReadablePx) best = d;
+    if (MEDIAN_DURATION[d] * pxPerDay >= settings.taskLevelOfDetailReadablePx) best = d;
   }
   return best;
 }
 function rowDepthThreshold(d) {
-  return d <= 1 ? 0 : settings.rowLodBase * Math.pow(settings.rowLodRatio, d - 2);
+  return d <= 1 ? 0 : settings.groupLevelOfDetailBase * Math.pow(settings.groupLevelOfDetailRatio, d - 2);
 }
 function rowDepthLimit(zoomY) {
   var best = 1;
@@ -1811,9 +1808,9 @@ function scheduleContext(zoomX, zoomY) {
       if (!cache[shapeKind]) cache[shapeKind] = shapeMetrics(shapeKind, zoomY);
       return cache[shapeKind];
     },
-    showAssignee: el("tgAssignee").checked,
-    showProgress: el("tgProgress").checked,
-    showMarker: el("tgMarker").checked,
+    showAssignee: el("assigneeVisible").checked,
+    showProgress: el("percentCompleteVisible").checked,
+    showMarker: el("progressMarkerVisible").checked,
     showHalo: true,          // settled (07 §2-7). Not offered as a choice.
     selectedUid: selectedUid
   };
@@ -1830,7 +1827,7 @@ function scheduleContext(zoomX, zoomY) {
  */
 function layoutSchedule(zoomX, zoomY) {
   var ctx = scheduleContext(zoomX, zoomY);
-  var depthLimit = itemDepthLimit(zoomX);
+  var depthLimit = taskDepthLimit(zoomX);
   var rowLimit = rowDepthLimit(zoomY);
   var originX = settings.rowTitleWidth;
   var bandH = rulerBandHeight(zoomX);
@@ -1923,8 +1920,8 @@ function renderSchedule() {
   var width = layout.contentWidth, contentHeight = layout.contentHeight;
   var dependencyCount = 0;
 
-  var out = ['<defs><marker id="depArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
-             'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
+  var out = ['<defs><marker id="dependencyArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
+             'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dependency)"/></marker></defs>'];
 
   var tier = timeRulerTier(view.zoomX);
   var bandH = layout.bandH, rowH = rulerRowHeight();
@@ -1934,7 +1931,7 @@ function renderSchedule() {
   // ---- Date Grid Lines: verticals from the finest row of the ruler ----------
   var gridKind = rows[rows.length - 1];
   if (gridKind === "weekday") gridKind = "day";
-  if (el("tgGridDate").checked) {
+  if (el("dateGridLinesVisible").checked) {
     thinTicks(rulerTicks(gridKind, HORIZON_DAYS), ctx.pxPerDay, 3).forEach(function (t) {
       var x = originX + t.day * ctx.pxPerDay;
       out.push('<line x1="' + r1(x) + '" y1="' + r1(bandH) + '" x2="' + r1(x) + '" y2="' +
@@ -1950,7 +1947,7 @@ function renderSchedule() {
              '" height="' + r1(bandHeight) + '" fill="' +
              (group.depth === 1 ? "var(--row-top)" : (i % 2 ? "var(--row-alt)" : "var(--bg)")) + '"/>');
     // ---- Group Grid Lines: one horizontal per TaskGroup boundary ----
-    if (el("tgGridGroup").checked) {
+    if (el("groupGridLinesVisible").checked) {
       out.push('<line x1="0" y1="' + r1(bandTop) + '" x2="' + r1(width) + '" y2="' + r1(bandTop) +
                '" stroke="var(--rule)" stroke-opacity="0.7"/>');
     }
@@ -1966,7 +1963,7 @@ function renderSchedule() {
     var byUid = {};
     pack.placements.forEach(function (p) { byUid[p.task.uid] = p; });
 
-    if (el("tgDependency").checked) {
+    if (el("dependencyVisible").checked) {
       pack.placements.forEach(function (p) {
         var pre = p.task.predecessorUid != null ? byUid[p.task.predecessorUid] : null;
         if (!pre) return;
@@ -1975,8 +1972,8 @@ function renderSchedule() {
         var pts = routeDependencyLine(pre.geom.bodyX1, aTop, pre.geom.metrics.planHeight,
                                       p.geom.planX0, bTop, p.geom.metrics.planHeight);
         out.push('<path d="' + polylinePath(pts.map(function (pt) { return [originX + pt[0], pt[1]]; })) +
-                 '" fill="none" stroke="var(--dep)" stroke-width="' +
-                 r1(settings.dependencyWidth) + '" stroke-linejoin="round" marker-end="url(#depArrow)"/>');
+                 '" fill="none" stroke="var(--dependency)" stroke-width="' +
+                 r1(settings.dependencyWidth) + '" stroke-linejoin="round" marker-end="url(#dependencyArrow)"/>');
         dependencyCount++;
       });
     }
@@ -1986,7 +1983,7 @@ function renderSchedule() {
     });
   });
 
-  if (el("tgProgressLine").checked) {
+  if (el("progressLineVisible").checked) {
     out.push('<path d="' + polylinePath(progressLinePoints(layout)) +
              '" fill="none" stroke="var(--lightning)" stroke-width="' +
              r1(settings.progressLineWidth) + '" stroke-linejoin="round"/>');
@@ -2054,16 +2051,16 @@ function renderSchedule() {
   var m1 = ctx.metricsOf("rectangle");
   el("zoomOut").textContent = "横 " + view.zoomX.toFixed(2) + "x ／ 縦 " + view.zoomY.toFixed(2) + "x";
   el("scheduleRead").innerHTML = [
-    item("px/日", r3(ctx.pxPerDay)), item("目盛", TIER_NAME[tier]),
-    item("予定バー", r1(m1.planHeight) + "px"), item("実績バー", r1(m1.actualHeight) + "px"),
-    item("フォント", r1(m1.fontSize) + "px" + (m1.fontFloored ? "（下限）" : "")),
-    item("WBS 深さ", layout.depthLimit), item("行深さ", layout.rowLimit),
-    item("表示タスク", layout.shownTasks + " / " + TASKS.length),
-    item("表示行", layout.packs.length + " / " + TASK_GROUPS.length),
-    item("合計段数", layout.stackTotal), item("依存線", dependencyCount),
-    item("マーカー", "✓" + tally.done + " ／ !" + tally.late + " ／ ＼" + tally.suspended +
+    propertyRow("px/日", r3(ctx.pxPerDay)), propertyRow("目盛", TIER_NAME[tier]),
+    propertyRow("予定バー", r1(m1.planHeight) + "px"), propertyRow("実績バー", r1(m1.actualHeight) + "px"),
+    propertyRow("フォント", r1(m1.fontSize) + "px" + (m1.fontFloored ? "（下限）" : "")),
+    propertyRow("WBS 深さ", layout.depthLimit), propertyRow("行深さ", layout.rowLimit),
+    propertyRow("表示タスク", layout.shownTasks + " / " + TASKS.length),
+    propertyRow("表示行", layout.packs.length + " / " + TASK_GROUPS.length),
+    propertyRow("合計段数", layout.stackTotal), propertyRow("依存線", dependencyCount),
+    propertyRow("マーカー", "✓" + tally.done + " ／ !" + tally.late + " ／ ＼" + tally.suspended +
       " ／ ( )" + tally.open),
-    item("overlap", '<span style="color:' + (layout.overlaps ? "var(--bad)" : "var(--good)") + '">' +
+    propertyRow("overlap", '<span style="color:' + (layout.overlaps ? "var(--bad)" : "var(--good)") + '">' +
       layout.overlaps + "</span>"),
     // Only the axis that actually overflows is named: the row has to stay on
     // one line, and "横 0px" is not news.
@@ -2072,13 +2069,13 @@ function renderSchedule() {
       var over = [];
       if (fitShortfall.width) over.push("横 " + r1(fitShortfall.width) + "px");
       if (fitShortfall.height) over.push("縦 " + r1(fitShortfall.height) + "px");
-      return item("Fit", '<span style="color:var(--warn)">はみ出し ' +
+      return propertyRow("Fit", '<span style="color:var(--warn)">はみ出し ' +
                   over.join(" ／ ") + '（下限）</span>');
     })()
   ].join("");
 }
 
-function item(k, v) {
+function propertyRow(k, v) {
   return '<span><span class="k">' + k + '</span><span class="v">' + v + '</span></span>';
 }
 
@@ -2152,7 +2149,7 @@ var COLOUR_ROLES = [
   { token: "--plan-stroke",   role: "予定バーの輪郭・細線形状の線", where: "Plan Bar / 矢印 / 端点スパン", against: "--bg", need: 3 },
   { token: "--actual-fill",   role: "実績バーの塗り",              where: "Actual Bar", against: "--plan-fill", need: 3 },
   { token: "--actual-stroke", role: "実績バーの輪郭",              where: "この頁では未使用（実績は塗りだけで描く）", against: "--bg" },
-  { token: "--dep",           role: "依存線",                      where: "Dependency Lines", against: "--bg", need: 3 },
+  { token: "--dependency",           role: "依存線",                      where: "Dependency Lines", against: "--bg", need: 3 },
   { token: "--lightning",     role: "イナズマ線・基準日の縦線",    where: "Progress Line", against: "--bg", need: 3 },
   { token: "--marker-ink",    role: "マーカーの円と記号・再開アイコン", where: "Progress Marker / Resume Icon", against: "--marker-bg", need: 3 },
   { token: "--marker-bg",     role: "マーカーの不透明な下地",      where: "Progress Marker", against: "--bg" },
@@ -2423,7 +2420,7 @@ function renderMultibar() {
     var originX = 10 - minX, width = originX + maxX + 20;
 
     var out = ['<defs><marker id="dpa' + pat.id + '" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
-               'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dep)"/></marker></defs>'];
+               'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dependency)"/></marker></defs>'];
     var dependencyCount = 0;
     pack.placements.forEach(function (p) {
       var pre = p.task.predecessorUid != null ? byUid[p.task.predecessorUid] : null;
@@ -2433,7 +2430,7 @@ function renderMultibar() {
                                     p.geom.planX0, bTop, p.geom.metrics.planHeight);
       out.push('<path d="' + pts.map(function (pt, n) {
         return (n ? "L" : "M") + r1(originX + pt[0]) + "," + r1(pt[1]);
-      }).join(" ") + '" fill="none" stroke="var(--dep)" stroke-width="' + r1(settings.dependencyWidth) +
+      }).join(" ") + '" fill="none" stroke="var(--dependency)" stroke-width="' + r1(settings.dependencyWidth) +
       '" stroke-linejoin="round" marker-end="url(#dpa' + pat.id + ')"/>');
       dependencyCount++;
     });
@@ -2461,9 +2458,9 @@ function renderMultibar() {
   });
   el("multibarHost").innerHTML = host.join("");
   el("multibarRead").innerHTML = [
-    item("パターン", PATTERNS.length), item("タスク", totalTasks),
-    item("合計段数", totalStacks), item("依存線", totalDependency),
-    item("overlap", '<span style="color:' + (totalOverlap ? "var(--bad)" : "var(--good)") + '">' +
+    propertyRow("パターン", PATTERNS.length), propertyRow("タスク", totalTasks),
+    propertyRow("合計段数", totalStacks), propertyRow("依存線", totalDependency),
+    propertyRow("overlap", '<span style="color:' + (totalOverlap ? "var(--bad)" : "var(--good)") + '">' +
       totalOverlap + "</span>")
   ].join("");
 }
@@ -2505,19 +2502,19 @@ function renderLod() {
     { label: "年＋月＋週 → 年＋月＋日＋曜日", want: settings.rulerTierPxPerDayDay / settings.pxPerDayAt1x }
   ], TIER_NAME));
 
-  html.push('<h3>4-2. アイテム LOD（軸A・WBS の深さ・横ズーム）</h3>');
-  html.push('<p class="hint">深さ d の代表的な期間が可読下限 <b>' + settings.itemLodReadablePx +
+  html.push('<h3>4-2. タスク LOD（軸A・WBS の深さ・横ズーム）</h3>');
+  html.push('<p class="hint">深さ d の代表的な期間が可読下限 <b>' + settings.taskLevelOfDetailReadablePx +
     'px</b> を割ったら、その深さ以下を描かない。期間は深いほど短いので<strong>構造的に単調</strong>になる。</p>');
-  var t2 = findTransitions(itemDepthLimit, 0.005, 20, 4000);
+  var t2 = findTransitions(taskDepthLimit, 0.005, 20, 4000);
   var want2 = [];
   for (var d = 2; d <= 5; d++) {
     want2.push({ label: "深さ " + (d - 1) + " → " + d,
-                 want: settings.itemLodReadablePx / (MEDIAN_DURATION[d] * settings.pxPerDayAt1x) });
+                 want: settings.taskLevelOfDetailReadablePx / (MEDIAN_DURATION[d] * settings.pxPerDayAt1x) });
   }
   html.push(transitionTable(t2, want2, null));
 
-  html.push('<h3>4-3. 行階層 LOD（軸B・縦ズーム）</h3>');
-  html.push('<p class="hint">threshold(d) = ' + settings.rowLodBase + ' × ' + settings.rowLodRatio +
+  html.push('<h3>4-3. グループ LOD（軸B・縦ズーム）</h3>');
+  html.push('<p class="hint">threshold(d) = ' + settings.groupLevelOfDetailBase + ' × ' + settings.groupLevelOfDetailRatio +
     '^(d−2)。深さ 1 は常に表示。</p>');
   var t3 = findTransitions(rowDepthLimit, 0.02, 8, 4000);
   var want3 = [];
@@ -2528,7 +2525,7 @@ function renderLod() {
   var bad = 0, samples = 600, prevItem = null, prevRow = null;
   for (var i = 0; i <= samples; i++) {
     var z = 0.01 * Math.pow(2000, i / samples);
-    var vi = itemDepthLimit(z), vr = rowDepthLimit(z);
+    var vi = taskDepthLimit(z), vr = rowDepthLimit(z);
     if (prevItem != null && vi < prevItem) bad++;
     if (prevRow != null && vr < prevRow) bad++;
     prevItem = vi; prevRow = vr;
@@ -2740,8 +2737,8 @@ el("settingsHost").addEventListener("input", function (ev) {
   var v = parseFloat(ev.target.value);
   if (!isNaN(v)) { POC_UI.S[k] = v; renderSettings(); redrawActive(); }
 });
-["tgDependency", "tgAssignee", "tgProgress", "tgProgressLine", "tgMarker",
- "tgGridDate", "tgGridGroup"].forEach(function (id) {
+["dependencyVisible", "assigneeVisible", "percentCompleteVisible", "progressLineVisible", "progressMarkerVisible",
+ "dateGridLinesVisible", "groupGridLinesVisible"].forEach(function (id) {
   el(id).addEventListener("change", renderSchedule);
 });
 

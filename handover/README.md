@@ -159,7 +159,7 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | 11 | `05-security-a11y/security-design.md` | 脅威モデル・**JSON / MSPDI XML** の検証・単一 HTML の CSP | 要求として生きている（`user-order.md` 62）。⚠️ **冒頭の注記を先に読む** — SVG/PNG 取込の節は**対象機能が取り下げ済み** |
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
 | 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
-| **14** | **`08-poc/`** | **動く PoC 一式**（レイアウト 3 案 / ズーム 2 案 / 形状の基準 / マルチバー 20 パターン / LOD 遷移）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。**書き戻しは 2026-08-02 に全数を棚卸し済み**（同書 §6 の 6 件と末尾の表の 7 件）。**未反映は 3 件だけ** — §6-2（縦の通り道）／末尾 #5（Fit と LOD 閾値）／#7（レベル減の量の式）。**いずれも「確定していない提案」**なので、`NEXT-STEPS-ja.md` のステップ 6 に残作業として登録してある |
+| **14** | **`08-poc/`** | **動く PoC**（`poc-integrated.html` **1 本**・6 タブ。日程表 / 形状の基準 / マルチバー 20 パターン / レベル遷移 / 色と縁取り / 記録）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。**書き戻しは 2026-08-02 に全数を棚卸し済み**（同書 §6 の 6 件と末尾の表の 7 件）。**未反映は 3 件だけ** — §6-2（縦の通り道）／末尾 #5（Fit と LOD 閾値）／#7（レベル減の量の式）。**いずれも「確定していない提案」**なので、`NEXT-STEPS-ja.md` のステップ 6 に残作業として登録してある |
 | 15 | `09-architecture/handover-architecture-entry-ja.md` | **アーキ領域の所在**。描画方式 = SVG の結論がどこにあるか / 不変更新ストアが「前提として参照されているのに設計が無い」こと / **モジュール構成と技術スタックは意図的な空白**であること | 事実の所在のみ。決定はしない |
 | — | **`NEXT-STEPS-ja.md`** | **実開発ステップ別の欠落一覧 19 件**（要望ヒアリング / UI モック / アーキ / データモデル / 入出力 / 複合動作）。各件に「**今どこまで決まっているか**」を実測で併記 | **着手前に読む。** 既に決まっているものを決め直さないため |
 | — | **`OPEN-ITEMS-ja.md`** | **実機確認の残件 3 件**（MS Project を触らないと分からないこと）。**15 分で終わるチェックリスト** | 未解決はこれだけ。**開発を止める理由にはならない** |
@@ -248,12 +248,9 @@ handover/
 │   ├── POC-SPEC-ja.md               共通仕様と入力データ（§8 に既知の弱点）
 │   ├── POC-RESULTS-ja.md            **計測結果・推奨・書き戻しの反映状況**
 │   ├── OPEN-QUESTIONS-ja.md         判断が要った 7 件（全件 決着済みの記録）
-│   ├── poc-integrated.html          **入口。現役はこの 1 本だけ**。6 タブ
-│   ├── poc-layout-A-orthogonal-channel.html   ┐
-│   ├── poc-layout-B-anchor-search.html        │ 凍結した計測記録
-│   ├── poc-layout-C-reserved-lane.html        │ 値を焼き込んであるので動かない
-│   ├── poc-zoom-A-depth-threshold.html        │ B と zoom-A が推奨案
-│   └── poc-zoom-B-fit-first.html              ┘
+│   └── poc-integrated.html          **入口。PoC はこの 1 本だけ**。6 タブ
+│                                    （案比較の 5 本は 2026-08-02 に外した。
+│                                      結論と数値は POC-RESULTS-ja.md に残っている）
 │
 └── 09-architecture/                 アーキ領域の所在（決定はしない）
     └── handover-architecture-entry-ja.md

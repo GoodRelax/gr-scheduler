@@ -29,15 +29,18 @@ status: stable
 
 ---
 
-## ファイルは 6 本（2026-08-01）
+## ファイルは 1 本（2026-08-02）
 
 | ファイル | 位置づけ |
 |---|---|
-| **`poc-integrated.html`** | **現役。編集するのはここだけ。** 6 タブ（日程表 / 形状の基準 / マルチバー / レベル遷移 / 色と縁取り / 記録） |
-| `poc-layout-A/B/C` ・ `poc-zoom-A/B` | **凍結**した計測記録。5 本 |
+| **`poc-integrated.html`** | **これだけ。** 6 タブ（日程表 / 形状の基準 / マルチバー / レベル遷移 / 色と縁取り / 記録） |
 
-**現役が 1 本しかないので、値が複数ページに散ることは構造上起きない。**
-命名の一括置換もこの 1 本で済む。
+> **案比較の 5 本（`poc-layout-A/B/C` / `poc-zoom-A/B`）は 2026-08-02 に引継ぎ資産から外した。**
+> 比較は決着しており（**案 B ＋ zoom A** を推奨）、**数値は `POC-RESULTS-ja.md` に全部残っている**。
+> 現物は**廃止語（`lane` / `actualEnd` / `overdue`）を 158 箇所（99 行）抱えており**、
+> `README.md` §0-1「コピペ禁止」に対する最大の誘因だった。**そのため残さない。**
+
+**1 本しかないので、値が複数ページに散ることは構造上起きない。**
 
 ---
 
@@ -45,12 +48,12 @@ status: stable
 
 2 種類が混在している。**目的が違うので混同しないこと。**
 
-### (a) 案を比べる PoC — レイアウト 3 案 / ズーム 2 案
+### (a) 案を比べる PoC — レイアウト 3 案 / ズーム 2 案（**現物は残していない**）
 
-同じ入力・同じ計測項目で複数案を走らせ、**どれを採るかを決める**ためのもの。
-結論は `POC-RESULTS-ja.md` の前半にある。
+同じ入力・同じ計測項目で複数案を走らせ、**どれを採るかを決める**ためのものだった。
+結論は `POC-RESULTS-ja.md` の前半にある。**下表は記録であって、ファイルは存在しない。**
 
-| ファイル | 案 | 結論 |
+| 案（旧ファイル名） | 案 | 結論 |
 |---|---|---|
 | `poc-layout-A-orthogonal-channel.html` | 直交チャネル配線 | 横切り 1 だが線どうしの交差 50。トレードオフ |
 | `poc-layout-B-anchor-search.html` | 9 点アンカーの候補探索 | **推奨**。横切り 0 / 交差 9。1 回の再レイアウトが 13.3ms（60fps の予算 16.7ms にほぼ余裕が無い）のが弱点 |
@@ -78,7 +81,7 @@ status: stable
 ## 色と寸法の正（2026-08-01 の再統合）
 
 **`poc-integrated.html` の中にインラインで入っている。** 共有ファイル `poc-ui.css` / `poc-ui.js`
-は廃止した。値を変えたいときはこのファイルの `SPEC`（**66 項目**）と `:root`（色）を直す。
+は廃止した。値を変えたいときはこのファイルの `SPEC`（**64 項目**）と `:root`（色）を直す。
 
 ### なぜ共有ファイルをやめたか
 
@@ -96,9 +99,9 @@ status: stable
 **値が散る問題は再発しない。** 編集対象のページが 1 本しかないためである。
 
 - 各案固有のアルゴリズム定数（レイアウト A の `V_PITCH` / `STUB`、B の `STUB` / `SAFETY_CAP`、
-  C の `stubOut` / `stubIn` / `lanePitch` / `depthWeight`）は**各ページに残してある**。
-  そこを揃えると 3 案が同じものになり、比較の意味が消えるためである。
-- **ダークモードは全 6 ページで動く。** `poc-integrated.html` にテーマ切替ボタンがある。
+  C の `stubOut` / `stubIn` / `lanePitch` / `depthWeight`）は**各案に残してあった**
+  （揃えると 3 案が同じものになり比較の意味が消えるため）。**その 5 本は 2026-08-02 に外した。**
+- **ダークモードが動く。** `poc-integrated.html` にテーマ切替ボタンがある。
 
 ---
 
@@ -114,32 +117,30 @@ status: stable
 
 ## 読むときの注意
 
-### PoC の識別子は**旧名のまま**である — 対応表（2026-08-02）
+### PoC の識別子は**確定名である**（2026-08-02 に揃えた）
 
-**PoC は凍結記録なので、確定名が変わっても追随させない。** 動かして検証できない改名で
-「開いて触れる」という PoC 唯一の価値を壊さないため。**食い違ったら文書側が正。**
+**設定値のキー・CSS 変数・DOM の id は、すべて `../03-ui-naming/handover-ui-parts-ja.md` の確定名で書いてある。**
+読み替え表は要らない。**文書とコードが同じ語で書かれている。**
 
-**下の 9 キーは PoC の `.html` に計 99 箇所、旧名で残っている。** コードを読むときはここで読み替える。
+揃えたのは次のとおり。改名の全数と理由は同書の改名表（2026-08-02）が正。
 
-| PoC の識別子（旧） | 確定名（正） | 直した理由 |
-|---|---|---|
-| `itemLodReadablePx` | **`taskLevelOfDetailReadablePx`** | `item` は廃止語。`Lod` は camelCase で意味が消える |
-| `rowLodBase` | **`groupLevelOfDetailBase`** | 同上 ＋ 実体は `TaskGroup`（軸B） |
-| `rowLodRatio` | **`groupLevelOfDetailRatio`** | 同上 |
-| `rulerH` | **`rulerHeight`** | 裸の `H` は読めない |
-| `basePlanH` | **`basePlanHeight`** | 同上（**「根 4 つ」の 1 つ**なので特に注意） |
-| `chevronNotchOfH` | **`chevronNotchOfHeight`** | `OfX` は「÷ X」なので X が読めないと式が読めない |
-| `chevronNotchOfW` | **`chevronNotchOfWidth`** | 同上 |
-| `resumeArmOfMark` | **`resumeArmOfMarker`** | 2026-07-31 の `mark*` → `marker*` の取りこぼし |
-| `resumeHeadOfMark` | **`resumeHeadOfMarker`** | 同上 |
+| 種別 | 内容 |
+|---|---|
+| 設定値 9 キー | `taskLevelOfDetailReadablePx` / `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` / `basePlanHeight` / `rulerHeight` / `chevronNotchOfHeight` / `chevronNotchOfWidth` / `resumeArmOfMarker` / `resumeHeadOfMarker` |
+| CSS 変数・marker id | `--dep` → **`--dependency`**、`depArrow` → **`dependencyArrow`** |
+| トグルの DOM id | `tgAssignee` 等 → **`assigneeVisible`** など `documentSettings` の確定キー名 7 つ |
+| ヘルパ関数 | `item()` → **`propertyRow()`**（`item` は廃止語） |
 
-**改名の全数と理由は `../03-ui-naming/handover-ui-parts-ja.md` の改名表（2026-08-02）が正。**
-残る 5 キー（`rowTitlePanelWidth` / `scrollGroupId` / `percentCompleteVisible` / `dateGridLinesVisible` /
-`groupGridLinesVisible`）は **PoC に 1 箇所も無い**ので読み替えは要らない。
+> ⚠️ **`markerTextOfFont` / `markerOfText` / `markerTextBaseline` の 3 キーは廃止し、
+> `markerOfFont = 1.5` の 1 キーに畳んだ**（`../02-data-model/grs-document-settings-ja.md` §3）。
+> **これは絵が変わる変更である。** 旧式は内側で「中の数字」を `fontMin` でクランプしてから 2 倍しており、
+> **`fontSize < 16` の領域でマーカー径が 24px に張り付いていた**（実測: `fontSize = 12` で径 24px → 18px）。
+> `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-4-1 の
+> 「マーカーは**実績バーに追随する**。**注釈が本体より大きくならない**」を旧式は低ズームで破っていたので、
+> **新式が正しい。** `POC-RESULTS-ja.md` §6-3 が報告した「固定 px のマーカーが低ズームで段数を決める」の実体がこれである。
 
-> **`SPEC` の値そのものにも食い違いがある** — `markerTextOfFont` / `markerOfText` /
-> `markerTextBaseline` の 3 キーは文書側で `markerOfFont` 1 つに畳んだが、PoC は 3 つ持ったままである
-> （`../02-data-model/grs-document-settings-ja.md` §3）。
+> ⚠️ **担当ラベルと完了率ラベルのトグルは既定 OFF にした**
+> （`../02-data-model/grs-document-settings-ja.md` §4-1 の確定。測るときは手で入れる）。
 
 ### PoC は実装ではない
 

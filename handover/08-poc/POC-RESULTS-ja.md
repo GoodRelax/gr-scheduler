@@ -339,18 +339,15 @@ PoC で分かった、**次期の設計に効く事実**。
 
 ## 8. 自己完結の確認（全ファイル）
 
+> **2026-08-02 に測り直した。** 案比較の 5 本を引継ぎ資産から外したので、対象は現行の 1 本だけである。
+
 | ファイル | 外部参照 `src`/`href` | http(s) URL | 判定 |
 |---|:--:|:--:|:--:|
-| `index.html` | 0 | 0 | ○ |
-| `poc-glyphs-reference.html` | 0 | 0 | ○ |
-| `poc-layout-A-orthogonal-channel.html` | 0 | 0 | ○ |
-| `poc-layout-B-anchor-search.html` | 0 | 0 | ○ |
-| `poc-layout-C-reserved-lane.html` | 0 | 0 | ○ |
-| `poc-zoom-A-depth-threshold.html` | 0 | 0 | ○ |
-| `poc-zoom-B-fit-first.html` | 0 | 0 | ○ |
+| `poc-integrated.html` | 0 | 0 | ○ |
 
 ※ SVG の名前空間 URI（`http://www.w3.org/2000/svg`）は取得を伴わないので除外。
-**全ファイルがオフラインで開ける。**
+※ 旧版は「記録」タブから案比較の 5 本へ `<a href>` を張っていたが、**5 本を外したときにリンクも外した**。
+**オフラインで開ける。**
 
 
 ---

@@ -472,9 +472,8 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 > | 「アイテム LOD」 | **「タスク LOD」** | `item` は廃止語。キー名 `taskLevelOfDetail*` と語幹を合わせた |
 > | 「行階層 LOD」 | **「グループ LOD」** | 実体は `TaskGroup`（軸B）。`Rows` は UI 語。キー名 `groupLevelOfDetail*` と語幹を合わせた |
 >
-> ⚠️ **PoC（`../08-poc/*.html`）は凍結記録なので旧キーのままである。**
-> 上記 14 キーのうち **9 キーが PoC に 99 箇所**残る。**食い違ったら本書が正。**
-> 対応表は `../08-poc/README.md`。
+> ✅ **PoC（`../08-poc/poc-integrated.html`）も 2026-08-02 に確定名へ揃えた。** 読み替え表は要らない。
+> 案比較の 5 本は同日に引継ぎ資産から外した（`../DISCARDED-ja.md` §4-4b）。
 
 ---
 
