@@ -378,8 +378,10 @@ removed_count, total_item_count, dependency_node_count })`
    **引き継ぐのは「上限の振る舞いを決めておく」という考え方だけ**で、その振る舞いは「再利用」ではなく「通知」である。
 5. **人の明示指定が自動より優先**（`user-order.md` 30）。
    次期のモデルでは `TaskGroupMember.stackOrder`（`null` = 自動）。
-   自動順は「milestone 優先 → start 昇順 → finish 降順 → uid 昇順」で**決定的**にする
+   自動順は「start 昇順 → finish 降順 → uid 昇順」で**決定的**にする
    （`handover-data-model-entry-ja.md` §3）。**決定的でないと再描画ごとに段が入れ替わる。**
+   ※かつて先頭にあった `milestone` 優先は **2026-08-02 に廃止**した
+   （`../02-data-model/grs-native-erd-ja.md` §5.6）。`uid` 昇順が最終タイブレークなので決定性は変わらない。
 6. **性能上の注意**: これが T-2 の O(N) 本体。**行単位のキャッシュ**（変化した行だけ再レイアウト）が
    最も効く改善余地。次期は最初から**行を単位に切る**設計にしておくとよい。
 
