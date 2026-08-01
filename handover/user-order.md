@@ -527,6 +527,26 @@ status: stable
 実装の詳細は **`07-plan-actual/handover-plan-actual-decisions-ja.md`** が正
 （掴み点は §3、ラベルは §6、Progress Marker は §2-4）。
 
+### 対象環境（**確定 2026-08-02**）
+
+**項番号 1〜68 は動かさないため、ここに小節として置く。**
+
+| 事項 | 決定 |
+|---|---|
+| **対応ブラウザ** | **Chromium 系（Chrome / Edge）を基準**とする。**Firefox は動作確認**に留める。**Safari は対象外** |
+| **対応 OS** | **問わない**（Windows / macOS / Linux）。単一 HTML でネットワークを遮断するので、OS 差は実質フォントだけである |
+| **タッチ・モバイル** | **対象外。マウス ＋ キーボードのみ。** |
+
+- **Safari を外した理由**: 入れると Mac 実機での回帰検証と SVG テキスト幅の差分検証が恒常的に必要になり、
+  検証費用が製品の規模に見合わない。
+- **タッチを外した結果**、**WCAG 2.5.5 Target Size（AAA）は AA 適合判定に数えない**
+  （`05-security-a11y/a11y-wcag21-aa-checklist.md` の既存の扱いを追認）。
+  **掴み代 6px / フェード掴み点 15×15px はそのまま使える。** 残る関心は手が震える利用者だけである。
+- **性能測定の基準機と基準ブラウザ**は `04-performance/handover-performance-notes-ja.md` §2-0 が正。
+  **ここには複製しない。**
+- **CSP の `img-src` は `data:`** で決着した。根拠と判定基準は
+  `05-security-a11y/security-design.md` §4 が正。
+
 ### 決着した仕様
 
 1. **掴み点（選択点）の定義**
