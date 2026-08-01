@@ -45,6 +45,9 @@ status: stable
 |----|------|--------|------|----------|----------------|
 | 1.1.1 | Non-text Content | A | アイコンのみボタン (パレット図形/色スウォッチ/セクション隠す/タブ) に `aria-label`+`title`。SVG アイテムは `role="img"`+`<title>` に「略称+種別+日付」。`accessible-name.ts` / `svg-renderer.ts` / `tool-palette.ts` / `property-panel.ts` / `left-pane.ts` | `accessible-name.test.ts`、axe (image-alt/button-name) | スクリーンリーダーで各アイコンの読み上げが自然か |
 | 1.4.1 | Use of Color | A | 選択=破線枠、キーボードフォーカス=実線リング、予定/実績=破線/実線 (`a11y-tokens.ts` `planActualStrokeDashArray` / `SELECTION_DASH_ARRAY` / `FOCUS_RING_DASH_ARRAY`)。色スウォッチに色名ラベル | `a11y-encoding.test.ts` | グレースケール印刷/CVD シミュレータで予実・選択が判別可能か |
+| 1.4.4 | Resize Text | AA | `fontScale`（`S`/`M`/`L`）を `documentSettings` に持つが、**保存値は初期値であって読む人が変更できる**（`../02-data-model/grs-document-settings-ja.md` §4-2）。文書が強制してはならない | (未実装) | 200% 拡大で情報・機能が失われないか |
+| 1.4.11 | Non-text Contrast | AA | 重なる相手とのコントラスト **3:1 以上**（特に実績 ÷ 予定）。Progress Marker は**形が意味を担い色に依存しない**。実測値は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-6 | (未実装) | ダークモードで実績／予定の比が 3:1 を保つか |
+| 2.5.5 | Target Size | **AAA(参考採用)** | 掴み代は予定バーの上下 6px、フェード掴み点 15×15px。**文書に保存しない**（読む人のアクセシビリティに属するため。`../02-data-model/grs-document-settings-ja.md` §5-1） | (未実装) | 手が震える人・タッチ操作で掴めるか。**AA の要求ではないので、本表の AA 適合判定には数えない** |
 | 1.4.3 | Contrast (Minimum) | AA | UI 配色トークン集約 (`a11y-tokens.ts` `UI_COLOR_PAIRS`)。ツールバー/パネル/ペイン/ラベル/自動保存ステータスを AA 準拠値に調整。パレットの遊休時は「地色のみ」フェード (文字は不透明) にして文字コントラストを維持 | `contrast.test.ts` (全トークン ≥ AA)、axe (color-contrast) | 大規模フォント縮小時・ユーザー任意色 (fill/stroke) 選択時のラベル可読性 |
 | 2.1.1 | Keyboard | A | キャンバスをフォーカス可能化 (`tabindex=0`)。Tab=アイテム間移動、矢印=1日/1行移動、Shift+矢印=リサイズ、Enter/Space=配置/編集、Escape=取消。`keyboard-commands.ts` (純関数) + `keyboard-navigation.ts` (配線)。文書レベル操作 (Undo/Redo/Copy/Paste/Delete) は `keyboard-shortcuts.ts` | `keyboard-commands.test.ts`、axe (focusable) | 全操作 (依存線作成・整列・透かし等) がキーボードのみで完了できるか (依存線作成のキーボード経路は未実装—下記残課題) |
 | 2.1.2 | No Keyboard Trap | A | Tab のアイテムローピングは端で `preventDefault` せず、フォーカスがキャンバス外へ抜ける。`keyboard-navigation.ts` (focus-next/prev の境界処理) | axe、`keyboard-commands.test.ts` (roving 意図) | 実機で Tab/Shift+Tab がどのUI要素にも閉じ込められないか |
@@ -69,8 +72,16 @@ status: stable
 1. **依存線作成のキーボード経路**: 依存線 (DEP) の作成は現状ポインタ (Link モード
    ドラッグ) のみ。キーボードのみでの依存線作成は未実装。SC 2.1.1 の完全充足には
    将来対応が必要。
-2. **アイテムのユーザー任意色**: fill/stroke にユーザーが低コントラスト色を選ぶと
-   ラベル (`#1a1a1a`) が読みにくくなる可能性。ラベルの自動反転や縁取りは未実装。
+2. ~~**アイテムのユーザー任意色**: fill/stroke にユーザーが低コントラスト色を選ぶと
+   ラベル (`#1a1a1a`) が読みにくくなる可能性。ラベルの自動反転や縁取りは未実装。~~
+   → **解決済み（確定 2026-07-31）**。文字色はテーマの前景色 1 つに統一し、バーに載る文字に
+   **背景色の縁取り**（フォント × 0.17）を付ける。文字が接する色が縁＝背景色になるので
+   比は **21:1 で固定**され、人が選んだ色に依存しなくなる
+   （`../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-7）。
 3. **透かし/コメント等オーバレイ**: 装飾テキストのコントラストは固定値。ユーザー
    背景色変更機能が入った場合は再評価が必要。
+   → ⚠️ **条件が成立した（2026-08-01）。解決ではない。** `themeHue` / `themeMonochrome` が
+   まさにその「ユーザー背景色変更機能」である（`../02-data-model/grs-document-settings-ja.md` §4-2）。
+   同節が contrast 規則で解くのは**地の彩度と、予定・実績・輪郭線の明度**だけで、
+   **透かし・コメントのオーバレイ文字は対象外**。**次期で必ず解くこと。**
 4. **タッチ/ポインタ以外の支援入力**: スイッチ/音声入力での操作性は未検証。

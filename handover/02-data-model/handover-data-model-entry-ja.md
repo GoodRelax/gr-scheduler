@@ -57,8 +57,9 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 └─ Resource / Assignment（軽量）    ├─ Comment            引出し四角/折れ線の注記（§5.8）
                                     └─ HighlightBox       角丸の囲み枠（§5.8）
                                     documentSettings      文書の表示設定（§5.7-1 で確定）
-                                                          ※ズーム/スクロール/テーマ/言語/透かしは
-                                                            読む人の環境なので保存しない
+                                                          ※ズーム/スクロール/テーマは 2026-07-31 に
+                                                            「保存する」側へ移った
+                                                          ※言語/透かしは読む人の環境なので保存しない
 
 ★ ＋ TaskGroup / TaskGroupMember = コア 4（これが無いとモデルが成立しない）
 ```
@@ -76,6 +77,17 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
 「製品A」行に、企画◆・設計バー・検証◆を横並べした最小例。
 
+> **`documentSettings` は既定値のままの項目も含めて全項目を書く**
+> （`grs-document-settings-ja.md` §2。同じ JSON からいつでも同じ出力を得るため）。
+> 下の実例は **89 キー**で、これが「全項目」の実際の姿である。
+>
+> 書かないものが 4 つある。
+>
+> | 書かないもの | 理由 |
+> |---|---|
+> | `zoomStep` / `zoomMin` / `zoomMax` | 入力装置に依存する**操作の速さ**であって結果の絵は変わらない（同 §5-1） |
+> | `statusDate` | **PoC の都合の値**。製品では基準日は `Project.status_date` であり、`documentSettings` ではなく**文書のデータ**である（同 §3 の注記）。上の `project.statusDate` がそれ |
+
 ```json
 {
   "schemaVersion": "grs-1",
@@ -92,15 +104,52 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
   },
 
   "documentSettings": {
-    "stackDirection": "up", "importSeq": 1,
-    "planActualDisplay": "both",
-    "assigneeVisible": true, "progressVisible": true, "progressMarkerVisible": true,
-    "todayLineVisible": true, "dualCursor": null, "guideCursorMode": "none",
+    "pxPerDayAt1x": 6, "rulerH": 34, "rulerFont": 12,
+
+    "basePlanH": 28, "actualOfPlan": 0.73, "actualMin": 16, "fontOfActual": 0.80,
+    "fontMin": 12, "thinFontScale": 0.85, "actualGap": 2, "stackGap": 12, "rowGap": 8,
+
+    "shapeHeightOf": {
+      "rectangle": 1.0, "chevron": 1.0, "arrow": 0.5, "endpointSpan": 0.5, "milestone": 1.5
+    },
+
+    "dependencyWidth": 1.5, "dependencyArrowLength": 10, "dependencyRunOfArrow": 2,
+
+    "markerTextOfFont": 0.75, "markerOfText": 2.0, "markerMin": 16, "markerGap": 4,
+    "markerStroke": 1.3, "markerTextBaseline": 0.36,
+    "resumeScaleInvalid": 0.7, "resumeArmOfMark": 0.62, "resumeHeadOfMark": 0.22,
+    "resumeDashOn": 3, "resumeDashOff": 2,
+
+    "labelCoef": 0.5, "labelPad": 6, "labelGap": 8, "labelBaseline": 0.35,
+    "labelHaloOfFont": 0.17, "truncateUnits": 24,
+    "rowTitleWidth": 170, "rowTitleFont": 13, "rowTitleIndent": 12, "rowTitleTopScale": 1.3,
+
+    "planStroke": 1, "thinStrokeOfPlan": 0.20, "thinStrokeMin": 1.2, "thinStrokeMax": 4,
+    "chevronNotchOfH": 0.45, "chevronNotchOfW": 0.35,
+    "arrowHeadOfStroke": 3.2, "arrowHeadOfSpan": 0.4, "spanDotOfStroke": 1.15,
+    "starInnerOfOuter": 0.45, "minShapeWidth": 2,
+
+    "progressLineWidth": 2, "progressLineOverhang": 6,
+    "canvasPadding": 10, "svgPadding": 10,
+
+    "stackDirection": "up", "planActualDisplay": "both",
+    "assigneeVisible": true, "progressVisible": true, "dependencyVisible": true,
+    "progressMarkerVisible": true, "progressLineVisible": false,
+    "progressLineColor": "#b03030",
+    "dualCursor": null, "guideCursorMode": "none",
     "gridDateLinesVisible": true, "gridGroupLinesVisible": true,
-    "progressLineVisible": false, "progressLineColor": "#b03030",
-    "baselineVisible": false,
-    "fontScale": "M",
-    "exportCanvas": { "width": 1600, "height": 900 }
+    "baselineVisible": false, "fontScale": "M", "importSeq": 1,
+
+    "themePreference": "light", "themeHue": 210, "themeMonochrome": false,
+    "zoomX": 1, "zoomY": 1,
+    "scrollDate": "2026-04-01T00:00:00", "scrollRowUid": 101,
+    "leftPaneWidth": 170, "propertyPanelWidth": 280,
+
+    "exportCanvas": { "width": 1600, "height": 900 }, "exportPngScale": 1,
+
+    "rulerTierPxPerDayMonth": 1, "rulerTierPxPerDayWeek": 4, "rulerTierPxPerDayDay": 14,
+    "itemLodReadablePx": 24, "rowLodBase": 0.32, "rowLodRatio": 1.875,
+    "stackSafetyCap": 4096
   },
 
   "tasks": [
@@ -137,7 +186,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
       "milestone": false,
       "actualStart": "2026-05-20T09:00:00", "actualFinish": null,
       "actualDuration": 39, "percentComplete": 40,
-      "deadline": "2026-10-15T17:00:00", "resume": null, "resumeValid": false,
+      "deadline": "2026-10-15T17:00:00", "resume": null, "resumeValid": true,
       "notes": "外注分を含む",
       "fadeInDays": null, "fadeOutDays": 5,
       "calendarId": null,

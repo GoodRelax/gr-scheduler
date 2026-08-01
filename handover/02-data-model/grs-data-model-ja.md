@@ -13,7 +13,7 @@ status: deprecated
 >
 > | 本書の語 | 確定 |
 > |---|---|
-> | `progressRatio`（0〜1） | **`percentComplete`**（整数 0〜100。`actualDuration` から算出して格納） |
+> | `progressRatio`（0〜1） | **`percentComplete`**（**整数・0 以上**。上限を型に持たせない。`actualDuration` から算出して格納） |
 > | `iconShapeKind` | **`shapeKind`**（形状種） |
 > | `importance` | **廃止**。LOD は WBS の階層の深さで判定 |
 > | `progressStatus` | **廃止**。状態が構造化された |
@@ -167,7 +167,7 @@ documentSettings{ … }                            // 文書設定。全項目�
 | マルチバー | 1 行に複数 Task を横並べする**機能名**（視覚のみ・非 export） | 製品コンセプト | 軸B |
 | `TaskVisual` | GRS 固有の視覚列（名称ラベル位置/アイコン/色…）。Task と分離 | GRS 新設（§7.3） | — |
 | `Dependency` | 依存エッジ（task↔task）。`PredecessorLink` を Consume | MSPDI 由来（§7.4） | — |
-| `documentSettings` | 文書全体の表示設定。**全項目は `grs-document-settings-ja.md` が正**（2026-07-31: ズーム・スクロール・テーマ・ペイン幅は**保存する**側へ移った。保存しないのは言語・透かしと、画面にも出力にも出ない 8 項目） | GRS 新設 | — |
+| `documentSettings` | 文書全体の表示設定。**全項目は `grs-document-settings-ja.md` が正**（2026-07-31: ズーム・スクロール・テーマ・ペイン幅は**保存する**側へ移った。保存しないのは言語・透かしと、画面にも出力にも出ない 9 項目） | GRS 新設 | — |
 
 ---
 

@@ -137,7 +137,7 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | 6 | `02-data-model/handover-data-model-entry-ja.md` | データ構造の**入口**。読む順と JSON 実例 | 入口 |
 | 7 | `02-data-model/grs-mspdi-field-ledger-ja.md` | 全要素の取捨選択（Own / Consume / Reconstruct / Carry / Drop） | 仕分けの実例。枠組み自体が再利用できる |
 | **8** | **`02-data-model/grs-native-erd-ja.md`** | **データ構造の確定版**。ERD・識別子・マージ・Carry ストア・往復規約 | **データ構造の正** |
-| 8a | **`02-data-model/grs-document-settings-ja.md`** | **文書に保存する設定値の全数**（描画 59 項目 ＋ 表示状態 ＋ 出力 ＋ LOD）。保存しないもの 8 項目とその理由。自動保存と往復検査の規約 | **設定値の正** |
+| 8a | **`02-data-model/grs-document-settings-ja.md`** | **文書に保存する設定値の全数**（描画 60 項目 ＋ 表示状態 ＋ 出力 ＋ LOD）。保存しないもの 9 項目とその理由。自動保存と往復検査の規約 | **設定値の正** |
 | 8b | `02-data-model/handover-property-mspdi-mapping-ja.md` | プロパティ全項目の MSPDI 対応（XSD 実測）・**進捗と実績の関係**・無い項目の格納方式 3 案比較 | 項目を増やす前に読む |
 | **9** | **`03-ui-naming/handover-ui-parts-ja.md`** | **UI パーツ名と責務**（確定名）。語彙 6 系統 → 3 語。**面ごとの記法と語幹一致の規則**もここ | **命名の正** |
 | 9b | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**。4 部構成の内訳・上部ボタン・パレット構成・**掴み領域**・操作割当・自動レイアウト規則 | 実装前に読む |
@@ -169,7 +169,7 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | `docs/security/security-design.md` / `docs/dev/a11y-wcag21-aa-checklist.md` | `05-security-a11y/` |
 | `docs/spec/_assets/handover-stale-spec-audit-ja.md` / `handover-user-order-diff-ja.md` / `docs/analysis/refactor-gui-data-separation-ja.md` / `plan-actual-visibility-operability-model-ja.md` | `06-background/` |
 | `old/日程管理ツール.md`（既存ツール比較の調査記録） | **`handover/` には無い**。特定製品の評価を含むため外した（`DISCARDED-ja.md` §3） |
-| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`handover/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 26 文書にファイル名の重複は無い**ので名前で一意に定まる（`README.md` だけは本書と `01-mspdi/mspdi/README.md`（XSD の入手元）の 2 つある） |
+| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`handover/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 27 文書にファイル名の重複は無い**ので名前で一意に定まる（機械検査済み。衝突ゼロ）。`README.md` だけは **3 つ**ある — 本書 / `01-mspdi/mspdi/README.md`（XSD の入手元）/ `08-poc/README.md`（PoC の開き方） |
 | 上表に無いパス（`src/` / `tests/` / `.sdoc` / `project-records/` 等） | **`handover/` には無い**。凍結リポジトリを見る。理由は `DISCARDED-ja.md` |
 
 ---

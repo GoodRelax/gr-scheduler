@@ -334,6 +334,7 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `itemLodReadablePx` | この幅を割った深さは描かない |
 | `rowLodBase` | 行階層 LOD の初項 |
 | `rowLodRatio` | 行階層 LOD の公比 |
+| `stackSafetyCap` | 積み順の安全弁 |
 
 > **時間軸のしきい値をキーに分ける理由**（確定 2026-08-01）: 隣どうしが互いを縛るためである
 > （Month ≦ Week ≦ Day）。`rulerTierPxPerDay = [1, 8]` のような 1 つの配列にすると、
@@ -363,6 +364,57 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `zoomMax` ⛔ | 上限 |
 | `canvasPadding` | キャンバスの余白 |
 | `svgPadding` | SVG の縁の余白 |
+
+**画面の状態**
+
+2026-07-31 に「保存しない」から `documentSettings` へ移した
+（`../02-data-model/grs-document-settings-ja.md` §4-2）。
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `zoomX` | 横のズーム倍率 |
+| `zoomY` | 縦のズーム倍率 |
+| `scrollDate` | 表示の左端が指す日付 |
+| `scrollRowUid` | 表示の上端が指す行 |
+| `leftPaneWidth` | `Row Title Panel` の幅 |
+| `propertyPanelWidth` | `Properties Panel` の幅 |
+
+> **スクロール位置は px で持たない**（ズームや画面幅が変わると別の場所を指すため）。
+> **日付 ＋ 行の識別子**で持つので、名前も `scrollX` / `scrollY` ではない。
+
+**表示の切り替えと文書全体の書式**
+
+（`../02-data-model/grs-document-settings-ja.md` §4-1）
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `stackDirection` | 積む向き |
+| `planActualDisplay` | 予実の表示 |
+| `assigneeVisible` | 担当ラベル |
+| `progressVisible` | 完了率ラベル |
+| `dependencyVisible` | 依存線 |
+| `progressMarkerVisible` | 進捗マーカー |
+| `progressLineVisible` | イナズマ線 |
+| `progressLineColor` | イナズマ線の色 |
+| `dualCursor` | デュアルカーソル |
+| `guideCursorMode` | ガイドカーソル |
+| `gridDateLinesVisible` | 日付の縦罫線 |
+| `gridGroupLinesVisible` | `TaskGroup` 境界の横罫線 |
+| `baselineVisible` | 変更前の予定を重ねるか |
+| `fontScale` | 文字サイズ |
+| `importSeq` | 取込の連番 |
+
+> **`todayLineVisible` は廃止した**（確定 2026-07-31）。本日線は保存しない
+> （`../02-data-model/grs-document-settings-ja.md` §7）。
+
+**出力**
+
+（`../02-data-model/grs-document-settings-ja.md` §4-3）
+
+| 確定名（英） | 日本語 |
+|---|---|
+| `exportCanvas` | SVG / PNG の出力サイズ |
+| `exportPngScale` | PNG の倍率 |
 
 > **2026-07-31 の改名**: 略語が確定名と語幹一致していなかったものを展開した。
 >
@@ -562,6 +614,8 @@ App Shell                      アプリ全体の器
 1. **現行コードは全て旧名**。次期は本書の確定名で**最初から**書く。
 2. **用語集は次期が自分で作る。前プロジェクトの用語集は引き継がない**（`DISCARDED-ja.md` §3）。
    199 表行の大半が旧名か本書との重複で、**残すと「どちらが勝つか」を読む側が毎回判断させられる**。
-   **用語の正は 2 つだけにする**: 本書（命名）と `../02-data-model/grs-native-erd-ja.md`（データ構造）。
+   **用語の正は 4 つだけにする**: 本書（命名）／ `../02-data-model/grs-native-erd-ja.md`（データ構造）／
+   `../07-plan-actual/handover-plan-actual-decisions-ja.md`（予実・進捗）／
+   `../02-data-model/grs-document-settings-ja.md`（設定値）。frontmatter の `authority:` キーがその印である。
    新しい用語を足すときの規則は **§1-2（面ごとの記法・語幹一致）** と **1 概念 1 語**（`user-order.md` 項 66）。
 3. **語彙の重複がバグの源だった**という分析（`refactor-gui-data-separation-ja.md`）は次期でも有効。**1 概念 1 語**を維持する。

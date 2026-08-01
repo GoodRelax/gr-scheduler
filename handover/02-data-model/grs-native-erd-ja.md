@@ -987,7 +987,7 @@ MSPDI にも曖昧さの表現はあるが、**fade とは対応しない**。
 >
 > **⚠️ 2026-07-31 に「保存しない」の範囲を狭めた。** テーマ / ペイン幅 / ズーム / スクロールは
 > **`documentSettings` へ移した**（「人に見せたい場所」を文書が持てないと WYSIWYG が成立しないため）。
-> 保存しないのは **言語 / 透かし** と、画面にも出力にも出ない 8 項目だけになった。
+> 保存しないのは **言語 / 透かし** と、画面にも出力にも出ない 9 項目だけになった。
 > → `grs-document-settings-ja.md` §4-2 / §5
 >
 > **残る限界は 1 つだけになった**: **フォントが入っていない環境では字形が変わる**。
@@ -1058,7 +1058,7 @@ scrollRowUid          行の識別子                           表示の上端�
 leftPaneWidth         px                                   Row Title Panel の幅
 propertyPanelWidth    px                                   Properties Panel の幅
 
---- 描画の設定 59 項目（寸法・比率・色の使い方）は台帳を見る ---
+--- 描画の設定 60 項目（寸法・比率・色の使い方）は台帳を見る ---
 → grs-document-settings-ja.md §3
 ```
 
@@ -1079,7 +1079,7 @@ propertyPanelWidth    px                                   Properties Panel の�
 
 > ⚠️ **`themePreference` / `leftPaneWidth` / `propertyPanelWidth` / ズーム / スクロールは
 > 2026-07-31 に `documentSettings` へ移した。** 上の表から外れている。
-> 画面にも出力にも出ない 8 項目（掴み代 4 / Undo 2 / ズームの刻みと範囲 2）が
+> 画面にも出力にも出ない 9 項目（掴み代 4 / Undo 2 / ズームの刻みと範囲 3）が
 > 新しい「保存しない」の全数である。→ `grs-document-settings-ja.md` §5
 
 #### なぜズーム / スクロールを**保存する**か — 2026-07-31 に判断を覆した

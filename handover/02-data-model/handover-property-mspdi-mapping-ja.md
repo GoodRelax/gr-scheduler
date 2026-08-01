@@ -109,8 +109,8 @@ status: stable
 | 期間 | `ActualDuration` / `RemainingDuration` | `xsd:duration` | 実績期間 / 残期間 |
 | 工数 | `Work` | `xsd:duration` | 作業量（人日・人時） |
 | 工数 | `ActualWork` / `RemainingWork` | `xsd:duration` | 実績工数 / 残工数 |
-| 割合 | `PercentComplete` | `xsd:integer` | **期間**の完了率（0〜100） |
-| 割合 | `PercentWorkComplete` | `xsd:integer` | **工数**の完了率（0〜100） |
+| 割合 | `PercentComplete` | `xsd:integer` | **期間**の完了率（**整数・0 以上**。XSD に上限は無く、GRS も頭打ちにしない。`../07-plan-actual/handover-plan-actual-decisions-ja.md` §1-4） |
+| 割合 | `PercentWorkComplete` | `xsd:integer` | **工数**の完了率（同上。GRS は Carry） |
 | 割合 | `PhysicalPercentComplete` | `xsd:integer` | 手入力の完了率（EVM 用） |
 | 割当 | `Units` | `xsd:float` | 割当率。1 人 100% = 1.0 |
 | 制御 | `Type` | enum | 0=Fixed Units / 1=Fixed Duration / 2=Fixed Work |
@@ -207,7 +207,7 @@ percentComplete       =  round( actualDuration ÷ (finish − start) x 100 )   �
 未着手                      → start  < 基準日 なら start。 まだ来ていなければ打たない
 進行中                      → 実績バーの右端（actualStart + actualDuration）
 
-1 行に複数の Task があるときは、最も遅れた頂点（最も左）が勝つ
+同じ段に複数の Task があるときは、最も遅れた頂点（最も左）が勝つ（段ごとに計算する。正は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §4-2）
 縦線は statusDate（無ければ今日）に引く。ただし常時表示にはしない
 ```
 
@@ -520,7 +520,7 @@ import 時にその枠が他ツールに使われているかを検出する
 | 7 | `documentSettings` は**比較対象から外す**。代わりに **SVG 出力の一致**で再現性を見る | 表示状態は変わってよい。**再現するかどうか**が要件（項 57） |
 | 8 | `documentSettings` に**全項目が書かれている**ことを検査する | 「常に全項目を書き出す」方針。欠けたら同じ出力を保証できない |
 | 9 | 各項目が**定められた範囲内**にあることを検査する | 範囲は他の設定に追随する。範囲外の組は描画を壊す |
-| 10 | **保存しない 8 項目が JSON に現れない**ことを検査する | 分類が守られていることの機械的な確認 |
+| 10 | **⛔ の 3 キー（`zoomStep` / `zoomMin` / `zoomMax`）が JSON に現れない**ことを検査する | 分類が守られていることの機械的な確認。保存しない 9 項目のうちキー名を持つのはこの 3 つだけ（`grs-document-settings-ja.md` §8-2 が正） |
 | 11 | **保存しないと分類した値を変えて、SVG 出力が変わらない**ことを検査する | 分類の基準そのものの検証。**誤りを人のレビューに頼らない** |
 
 **全項目と分類の正は `grs-document-settings-ja.md`。**
