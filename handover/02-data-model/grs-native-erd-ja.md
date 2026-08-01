@@ -1489,4 +1489,4 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 - 取捨選択（MSPDI 全要素の仕分け）: `grs-mspdi-field-ledger-ja.md`
 - 設計判断・2軸・往復規約: `grs-data-model-ja.md` §2/§6/§7
 - MSPDI 事実・ERD: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-declutter-erd-ja.md`, `../01-mspdi/mspdi-core-tree.md`
-- 正本: `../01-mspdi/mspdi/mspdi_pj12.xsd`
+- 正: 公式 XSD <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>（ローカル複製 `../01-mspdi/mspdi/mspdi_pj12.xsd` は同梱していない）

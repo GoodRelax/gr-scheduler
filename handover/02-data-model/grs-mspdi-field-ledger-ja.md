@@ -9,7 +9,8 @@ status: stable
 # GRS × MSPDI フィールド仕分け台帳
 
 - 日付: 2026-07-25
-- 正本: `../01-mspdi/mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema・全 3906 行・ユニーク要素 499・named type は `TimephasedDataType` のみ他は inline）
+- 正: **公式 XSD** <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>（Microsoft Office Project 2007 XML Data Interchange Schema・全 3906 行・ユニーク要素 499・named type は `TimephasedDataType` のみ他は inline）。
+  ローカル複製は `../01-mspdi/mspdi/mspdi_pj12.xsd`。**同梱していない** — 取得は `../01-mspdi/mspdi/README.md`。
 - 構成: §1 本書の説明 → §2 GRS 概要 → §3 MSPDI 概要 → §4 分類の意図と基準 → §5 完全準拠 ERD → §6 全要素の説明 → §7 取捨選択・理由の表 → §8 Appendix
 
 > ⚠️ **要素名・型・カードは必ず XSD で検証**すること。`../01-mspdi/mspdi-*.md` の要約は参考であって正ではない（過去に命名ズレ発生）。表示用別名の実名対応は §8 Appendix A。
@@ -663,4 +664,4 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 - 分類定義・往復規約・2軸モデル: `grs-data-model-ja.md` §4/§6/§7
 - MSPDI 事実（責務・全要素・経緯 ERD）: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-declutter-erd-ja.md`, `../01-mspdi/mspdi-core-tree.md`
-- 正本: `../01-mspdi/mspdi/mspdi_pj12.xsd`
+- 正: 公式 XSD <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>（ローカル複製 `../01-mspdi/mspdi/mspdi_pj12.xsd` は同梱していない）

@@ -1,34 +1,89 @@
 ---
 type: Index
-title: "MSPDI (MS Project XML) reference -- vendored copies"
-description: "Where the authoritative XSD came from, its licence, and how to re-fetch it."
-resource: mspdi_pj12.xsd
+title: "MSPDI (MS Project XML) reference -- how to obtain the authoritative schema"
+description: "The XSD is NOT in this repository. Where it comes from, how to fetch it, and how to verify the copy you fetched."
 tags: [mspdi]
 phase: survey
 status: stable
 ---
-# MSPDI (MS Project XML) reference — vendored copies
+# MSPDI (MS Project XML) reference — how to obtain the schema
 
-This folder holds **local, offline copies** of the official Microsoft Project
-Data Interchange (MSPDI) specification, used while implementing the MSPDI
-mapping defined in [`../../40-data-format.sdoc`](../../40-data-format.sdoc)
-(section "2. MSPDI XML mapping", requirement `IO-L1-002`).
+## Read this first
 
-> **Only this `README.md` is committed.** The copied artifacts
-> (`mspdi_pj12.xsd`, `learn-docs/`) are **git-ignored** on purpose — see
-> [Licensing](#licensing) below. Re-fetch them locally with the commands in
-> [How to re-fetch](#how-to-re-fetch).
+**Nothing third-party is committed to this repository. This `README.md` is the only
+tracked file in this folder.** The schema and the upstream documentation are fetched
+locally by whoever needs them (see [How to fetch](#how-to-fetch)).
 
-## What belongs here
+That is deliberate. The schema carries `(c) 2007 Microsoft Corporation. All rights
+reserved.` and grants no explicit redistribution licence, so it is not redistributed
+here. The Microsoft Learn documentation is CC-BY-4.0 and *could* be redistributed with
+attribution, but it is left out too — one rule, no exceptions, nothing to argue about.
 
-| Path | Source | Description |
-| --- | --- | --- |
-| `mspdi_pj12.xsd` | `https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd` | The MSPDI XML Schema (Project 2007; still the de-facto schema for later Project desktop versions). ~234 KB. Use for offline schema validation. |
-| `learn-docs/project-xml-data-interchange/` | `https://github.com/MicrosoftDocs/office-developer-msproject-xml-docs` | Human-readable element reference (Microsoft Learn source Markdown). 378 pages. |
-| `learn-docs/LICENSE` | same repo | CC-BY-4.0 license text (attribution). |
-| `learn-docs/UPSTREAM-README.md` | same repo | The upstream repository README. |
+## Which one is authoritative
 
-## Official links (also cited in the spec)
+```
+Authoritative      https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd
+Local copy         handover/01-mspdi/mspdi/mspdi_pj12.xsd   (fetch it yourself; git-ignored)
+```
+
+**Rule, one sentence: check MSPDI facts against the local copy, but cite the official URL.**
+The local copy is a byte-identical replica, so looking at it and quoting the URL are the
+same claim. Do not call the local file "the authority" — it is a cache.
+
+## If you cannot reach the web
+
+The Japanese summaries in `../mspdi-*.md` are **secondary sources and can be wrong**
+(several were, and were corrected against the XSD). Without the XSD you cannot verify them.
+
+**Then say so.** Write "unverified — the XSD was not available" rather than asserting a
+fact you could not check. Guessing and stating it as fact is the failure this whole
+handover set exists to prevent.
+
+Ask whoever set up the environment to place `mspdi_pj12.xsd` in this folder. It is one
+file and needs no build step.
+
+## How to fetch
+
+Run from the repository root. Requires `curl`; `git` only for the Learn docs.
+
+```sh
+VDIR="handover/01-mspdi/mspdi"
+
+# 1) The MSPDI XML schema — this is the one you need
+curl -fsSL "https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd" \
+  -o "$VDIR/mspdi_pj12.xsd"
+
+# 2) Optional: Microsoft Learn element reference (human-readable prose)
+git clone --depth 1 \
+  https://github.com/MicrosoftDocs/office-developer-msproject-xml-docs /tmp/msp-docs
+mkdir -p "$VDIR/learn-docs"
+cp -r /tmp/msp-docs/project-xml-data-interchange "$VDIR/learn-docs/"
+cp /tmp/msp-docs/LICENSE   "$VDIR/learn-docs/LICENSE"
+cp /tmp/msp-docs/README.md "$VDIR/learn-docs/UPSTREAM-README.md"
+```
+
+## How to verify what you fetched
+
+The copy this handover set was written against:
+
+| | |
+| --- | --- |
+| Size | **239,895 bytes** |
+| Lines | **3,906** |
+| SHA-256 | **`a3e9138f0f02df06d7b1254be6190c2dd48fdcf6a2445ab79a6abab765a8c7b4`** |
+| Schema version | Microsoft Office Project **2007** (`pj12` = Project 12). Header revision date `2007-11-28` |
+
+```sh
+sha256sum handover/01-mspdi/mspdi/mspdi_pj12.xsd     # Linux
+shasum -a 256 handover/01-mspdi/mspdi/mspdi_pj12.xsd # macOS
+certutil -hashfile handover\01-mspdi\mspdi\mspdi_pj12.xsd SHA256   # Windows
+```
+
+**A different hash is not automatically a problem** — Microsoft may have republished the
+file. It does mean the line numbers quoted throughout `handover/` may no longer line up,
+so locate elements by name rather than by line.
+
+## Official links
 
 - Schema (XSD): <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>
 - Introduction: <https://learn.microsoft.com/en-us/office-project/xml-data-interchange/introduction-to-project-xml-data>
@@ -37,34 +92,13 @@ mapping defined in [`../../40-data-format.sdoc`](../../40-data-format.sdoc)
 
 ## Licensing
 
-- **`mspdi_pj12.xsd`**: published by Microsoft on `schemas.microsoft.com`. The
-  file header reserves Microsoft intellectual-property rights and does not grant
-  an explicit redistribution license. It is therefore **not redistributed** in
-  this repository (git-ignored) and is only fetched locally for development.
-- **`learn-docs/`**: licensed **CC-BY-4.0** (see `learn-docs/LICENSE`).
-  Redistribution with attribution would be permitted, but it is git-ignored here
-  too to keep the repository lean and avoid vendoring third-party doc trees.
+| Item | Licence | Redistributed here |
+| --- | --- | --- |
+| `mspdi_pj12.xsd` | Microsoft, all rights reserved. **No explicit redistribution grant** | **No** |
+| `learn-docs/` (incl. its own `LICENSE`) | **CC-BY-4.0** | **No** — permitted with attribution, but excluded by the same rule |
 
-Attribution (for the Learn docs): "Microsoft Project XML Data Interchange
+Attribution, if you do use the Learn docs: "Microsoft Project XML Data Interchange
 documentation" by Microsoft, licensed under CC-BY-4.0.
 
-## How to re-fetch
-
-Run from the repository root (requires `curl` and `git`):
-
-```sh
-VDIR="docs/spec/vendor/mspdi"
-mkdir -p "$VDIR"
-
-# 1) MSPDI XML schema
-curl -fsSL "https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd" \
-  -o "$VDIR/mspdi_pj12.xsd"
-
-# 2) Learn documentation (element reference), shallow clone then copy
-git clone --depth 1 \
-  https://github.com/MicrosoftDocs/office-developer-msproject-xml-docs /tmp/msp-docs
-mkdir -p "$VDIR/learn-docs"
-cp -r /tmp/msp-docs/project-xml-data-interchange "$VDIR/learn-docs/"
-cp /tmp/msp-docs/LICENSE   "$VDIR/learn-docs/LICENSE"
-cp /tmp/msp-docs/README.md "$VDIR/learn-docs/UPSTREAM-README.md"
-```
+> **A `LICENSE` file in this folder, if you fetched one, belongs to `learn-docs/` and
+> does NOT apply to `mspdi_pj12.xsd`.** That adjacency has misled readers before.

@@ -11,7 +11,8 @@ status: stable
 - 日付: 2026-07-26
 - 目的: `user-order.md` 項 20 のプロパティ**全項目**について、**MSPDI に対応要素があるか**を正本 XSD で確認し、
   無い項目を**どこにどう置くか**を複数案で比較して結論を出す。
-- 正本: `../01-mspdi/mspdi/mspdi_pj12.xsd`（本書の「MSPDI 側」列はすべてこの XSD で実在を確認した）
+- 正: **公式 XSD** <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>（本書の「MSPDI 側」列はすべてこの XSD で実在を確認した）。
+  ローカル複製は `../01-mspdi/mspdi/mspdi_pj12.xsd`。**同梱していない** — 取得は `../01-mspdi/mspdi/README.md`。
 - 位置づけ: `grs-native-erd-ja.md`（データ構造の正）と `grs-mspdi-field-ledger-ja.md`（全要素の棚卸し）の**プロパティ視点の要約 ＋ 未決だった格納方式の結論**。
 
 > 🔴 **本書の §2-2 / §3 / §4 は `../07-plan-actual/handover-plan-actual-decisions-ja.md` が上書きする。**

@@ -10,7 +10,9 @@ status: stable
 # MSPDI 実装の落とし穴（XSD 実測ベース）
 
 - 日付: 2026-07-26
-- 正本: `mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema・全 3906 行）
+- 正: **公式 XSD** <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>
+  （Microsoft Office Project 2007 XML Data Interchange Schema・全 3906 行。
+  ローカル複製は `mspdi/mspdi_pj12.xsd`。**同梱していない** — 取得は `mspdi/README.md`）
 - **位置づけ**: MSPDI を読み書きするツールを作るとき、**素直に実装すると必ず踏む罠**の一覧。本書の記述はすべて **XSD の機械パースと敵対的レビュー 2 巡で検証済みの事実**であり、要約からの推測を含まない。
 - **なぜ独立文書か**: これらは **どんなツールを作るかに依存しない知識**である。特定製品の設計判断（何を採用し何を捨てるか）と混ぜると、方針を変えた時に一緒に捨てられてしまう。再取得コストが高い（XSD 全走査＋実装を想定した反証が必要）ため、単独で残す。
 - 関連: `mspdi-core-tree.md`（構造の概観）/ `mspdi-tables.md`（全 29 テーブルの責務）/ `../_assets/grs-mspdi-field-ledger-ja.md`（ある製品での取捨選択の実例）

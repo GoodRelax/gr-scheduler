@@ -13,7 +13,9 @@ status: stable
 - 対象: `mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema）
 - 目的: MSPDI の全エンティティ（テーブル）の責務を一覧化し、ERD に「行」として現れない要素（スカラー/コンテナ/value-object）も棚卸しして、断捨離の判断材料にする。
 - 関連: `mspdi-core-tree.md`（MSPDI 解説）, `mspdi-declutter-erd-ja.md`（Step1-6 断捨離・ERD）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け）は `../02-data-model/grs-mspdi-field-ledger-ja.md`。
-- 位置づけ: **純 MSPDI のリファレンス**（GRS 固有情報は持たない）。正本は `mspdi/mspdi_pj12.xsd`。本書は参考。
+- 位置づけ: **純 MSPDI のリファレンス**（GRS 固有情報は持たない）。本書は参考。
+  正は **公式 XSD** <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>
+  （ローカル複製は `mspdi/mspdi_pj12.xsd`。**同梱していない** — 取得は `mspdi/README.md`）。
 
 ---
 

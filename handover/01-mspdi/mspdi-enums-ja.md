@@ -10,7 +10,9 @@ status: stable
 # MSPDI enum 全数リファレンス（XSD 実測）
 
 - 日付: 2026-07-26
-- 正本: `mspdi/mspdi_pj12.xsd`。本書は **XSD を機械パースして全 `xsd:enumeration` を抽出**したもの。
+- 正: **公式 XSD** <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>
+  （ローカル複製は `mspdi/mspdi_pj12.xsd`。**同梱していない** — 取得は `mspdi/README.md`）。
+  本書は **XSD を機械パースして全 `xsd:enumeration` を抽出**したもの。
 - 規模: **enum を持つ要素 53 個 / enumeration 値 535 個**。
 - **enum は必ず整数コードで入る**（`<Type>1</Type>`。文字列ではない）。値の意味は XSD の documentation に記載されている。
 - 関連: `mspdi-pitfalls-ja.md`（実装の落とし穴）/ `mspdi-core-tree.md`（構造）
