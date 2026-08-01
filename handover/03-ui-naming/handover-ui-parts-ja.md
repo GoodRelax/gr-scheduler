@@ -286,6 +286,7 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `rowTitleWidth` | 行名の欄の幅 |
 | `rowTitleFont` | 行名の文字 |
 | `rowTitleIndent` | 行名の 1 段のインデント |
+| `rowTitleTopScale` | `TaskGroup` 深さ 1 の行名の倍率 |
 
 **形状の細部**
 
