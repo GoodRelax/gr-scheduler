@@ -1,3 +1,11 @@
+---
+type: Requirement Input
+title: ユーザーオーダー
+description: 何が欲しいかを書いた要望の入力。設計の決定ではない。決定は authority を持つ 4 文書を見る。
+tags: [requirements]
+phase: planning
+status: stable
+---
 # ユーザーオーダー
 
 > **この文書について**

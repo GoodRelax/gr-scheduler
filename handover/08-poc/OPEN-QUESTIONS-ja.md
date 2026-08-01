@@ -1,3 +1,11 @@
+---
+type: Frozen Record
+title: 判断が要った 7 件 — 全件 決着
+description: PoC 中に判断が要った論点とその決着。全件 handover へ反映済み。
+tags: [poc]
+phase: proof-of-concept
+status: deprecated
+---
 # 判断が要った 7 件 — **全件 決着**（2026-07-30）
 
 - 全て `handover/` へ**反映済み**。**この文書はもう捨ててよい**（記録として残すだけ）。

@@ -1,3 +1,11 @@
+---
+type: Reference
+title: "gr-scheduler WCAG 2.1 AA チェックリスト"
+description: 達成基準と前プロジェクトの実装対応表。参照先の実装ファイルは handover に無い。
+tags: [a11y]
+phase: planning
+status: stable
+---
 # gr-scheduler WCAG 2.1 AA チェックリスト (M5c)
 
 本書は Phase 4 M5c で実装したアクセシビリティ対応を、WCAG 2.1 の各達成基準

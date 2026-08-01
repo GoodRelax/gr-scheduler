@@ -1,3 +1,11 @@
+---
+type: Reference
+title: プロパティ × MSPDI 対応表と、MSPDI に無い項目の格納方式
+description: "プロパティ全項目の MSPDI 対応。予実まわりは 07-plan-actual が上書きする。"
+tags: [data-model, mspdi]
+phase: planning
+status: stable
+---
 # プロパティ × MSPDI 対応表と、MSPDI に無い項目の格納方式
 
 - 日付: 2026-07-26

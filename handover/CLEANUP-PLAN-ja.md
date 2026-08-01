@@ -1,3 +1,11 @@
+---
+type: Working Note
+title: handover 整理計画
+description: "敵対的レビュー 5 本の統合結果。整理が完了したら to-del/ へ移す。"
+tags: [working]
+phase: packaging
+status: draft
+---
 # handover 整理計画 — 敵対的レビュー 5 本の統合結果
 
 - 日付: 2026-08-01

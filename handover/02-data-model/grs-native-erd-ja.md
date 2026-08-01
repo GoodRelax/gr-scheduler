@@ -1,3 +1,12 @@
+---
+type: Decision Record
+title: GRS ネイティブ構成 ERD ＋ 責務
+description: ERD・識別子・マージ・Carry ストア・往復規約。データ構造の正。
+tags: [data-model, mspdi]
+phase: planning
+authority: data-model
+status: stable
+---
 # GRS ネイティブ構成 ERD ＋ 責務
 
 - 日付: 2026-07-25

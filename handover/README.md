@@ -1,9 +1,76 @@
+---
+type: Index
+title: "gr-scheduler 引継ぎ資産（次期開発への入力）"
+description: このフォルダの読む順と 5 つの原則。最初に読む。
+tags: [index]
+phase: packaging
+status: stable
+---
 # gr-scheduler 引継ぎ資産（次期開発への入力）
 
 - 日付: 2026-07-26
 - 由来: gr-scheduler 第1次プロジェクト（2026-07-18 〜 2026-07-26）
 - 目的: 次期開発を **ノイズの少ない状態で最初から** 走らせるための、厳選した入力一式。
 - **このフォルダだけを次期リポジトリへ持っていけばよい。**
+
+---
+
+## 00. 各文書の冒頭 YAML の読み方（**先に読む**）
+
+全 `.md` の冒頭に **OKF（Open Knowledge Format）v0.2** の YAML があり、
+**その文書をどう扱えばよいか**を書いてある。本文を読む前にここを見る。
+
+```yaml
+---
+type: Decision Record          # 扱い
+title: 予定と実績の設計 — 決定事項
+description: ...
+tags: [plan-actual]
+phase: planning                # どの段階の産物か
+status: stable
+---
+```
+
+この文書は**この領域の正**なので、実際にはもう 1 行 `authority:` が付く（下の §`authority` を見る）。
+**検査を成立させるため、この例示にはあえて書いていない。**
+
+### `type` — この文書をどう扱うか
+
+| 値 | 意味 |
+|---|---|
+| **`Decision Record`** | **決定。これに従う** |
+| **`Requirement Input`** | **要望の入力。決定ではない**（`user-order.md` のみ） |
+| `Reference` | 事実の記録。決定ではない |
+| `Background` | 当時の検討。**採用しない** |
+| `Frozen Record` | 当時の記録。**追随させない**（食い違ったら他方が正） |
+| `Working Note` | 作業用。終わったら `to-del/` へ |
+| `Index` | 入口。それ自体は何も決めない |
+| `Open Items` | 未決の記録 |
+
+### `phase` — どの段階の産物か
+
+`survey`（先行調査）→ `planning`（企画）→ `proof-of-concept`（原理証明）→ `packaging`（成果物整理）
+
+**段階が新しいほうが正とは限らない。** どちらが正かは `type` と `authority` で決まる。
+
+### `authority` — **用語の正は 4 つだけ**
+
+このキーを持つ文書だけが、その領域の**唯一の正**である。**5 つ目を作らない。**
+
+| `authority` | 文書 | 何の正か |
+|---|---|---|
+| `naming` | `03-ui-naming/handover-ui-parts-ja.md` | 命名（§2-1 日英対応 / §2-1-6 設定値キー） |
+| `data-model` | `02-data-model/grs-native-erd-ja.md` | データ構造 |
+| `plan-actual` | `07-plan-actual/handover-plan-actual-decisions-ja.md` | 予実・進捗 |
+| `document-settings` | `02-data-model/grs-document-settings-ja.md` | 設定値（既定値・範囲） |
+
+```bash
+grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えている
+```
+
+### `status`
+
+`stable` = 現行 ／ `deprecated` = **歴史として残すが現行ではない** ／ `draft` = 作業中
 
 ---
 

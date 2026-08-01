@@ -1,3 +1,11 @@
+---
+type: Reference
+title: "gr-scheduler セキュリティ設計書"
+description: 脅威モデルと JSON / MSPDI XML の検証、単一 HTML の CSP。SVG/PNG 取込の節は対象機能が取下げ済み。
+tags: [security]
+phase: planning
+status: stable
+---
 # gr-scheduler セキュリティ設計書 (Security Design)
 
 - 文書ID: SEC-DESIGN-001

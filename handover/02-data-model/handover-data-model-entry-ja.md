@@ -1,3 +1,11 @@
+---
+type: Index
+title: データ構造設計 — 入口と JSON 実例
+description: データ構造の文書をどの順で読むかと、GRS JSON の具体形。
+tags: [data-model]
+phase: packaging
+status: stable
+---
 # データ構造設計 — 入口と JSON 実例（引継ぎ Step 3 成果物）
 
 - 日付: 2026-07-26

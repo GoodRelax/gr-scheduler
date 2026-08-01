@@ -1,3 +1,11 @@
+---
+type: Decision Record
+title: UI 詳細仕様（画面構成・操作割当・予実の編集モデル）
+description: "振る舞いの確定版。名前の正は handover-ui-parts-ja.md、予実の正は 07-plan-actual。"
+tags: [ui]
+phase: planning
+status: stable
+---
 # UI 詳細仕様（画面構成・操作割当・予実の編集モデル）
 
 - 日付: 2026-07-26

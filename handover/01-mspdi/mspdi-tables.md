@@ -1,3 +1,12 @@
+---
+type: Reference
+title: "MSPDI テーブル責務一覧 & 非テーブル要素"
+description: 全 29 テーブルの責務と、ERD に行として現れない要素の棚卸し。
+resource: mspdi/mspdi_pj12.xsd
+tags: [mspdi]
+phase: survey
+status: stable
+---
 # MSPDI テーブル責務一覧 & 非テーブル要素
 
 - 日付: 2026-07-24

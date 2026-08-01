@@ -1,3 +1,11 @@
+---
+type: Background
+title: "完全リファクタ: 画面 (GUI) とデータモデルの分離"
+description: バグが止まらない根因の分析。合意用の文書であって仕様ではない。
+tags: [background]
+phase: planning
+status: deprecated
+---
 # 完全リファクタ: 画面 (GUI) とデータモデルの分離
 
 - 作成: 2026-07-23

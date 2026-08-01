@@ -1,3 +1,12 @@
+---
+type: Reference
+title: MSPDI 実装の落とし穴（XSD 実測ベース）
+description: MSPDI を読み書きするときに素直に実装すると必ず踏む罠の一覧。製品に依存しない。
+resource: mspdi/mspdi_pj12.xsd
+tags: [mspdi]
+phase: survey
+status: stable
+---
 # MSPDI 実装の落とし穴（XSD 実測ベース）
 
 - 日付: 2026-07-26

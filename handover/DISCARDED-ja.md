@@ -1,3 +1,11 @@
+---
+type: Reference
+title: 資産の選別台帳
+description: 引継がなかった資産とその理由。同じものを作り直さないために読む。
+tags: [index]
+phase: packaging
+status: stable
+---
 # 資産の選別台帳（引継ぎ Step 5 成果物）
 
 - 日付: 2026-07-26

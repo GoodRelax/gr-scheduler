@@ -1,3 +1,11 @@
+---
+type: Background
+title: 予実の可視性・操作可能性モデルの理解
+description: "旧案。07-plan-actual が全面的に上書きした。設計として採用しない。"
+tags: [background, plan-actual]
+phase: planning
+status: deprecated
+---
 # 予実の可視性・操作可能性モデル（[P] / [A] 三状態案）の理解 — 第2版
 
 > 🔴 **本書は旧案である。`../07-plan-actual/handover-plan-actual-decisions-ja.md` が全面的に上書きした。**

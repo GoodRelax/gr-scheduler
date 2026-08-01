@@ -1,3 +1,13 @@
+---
+type: Background
+title: GRS データモデル（MSPDI 断捨離からの再構築）
+description: "設計判断の変遷と却下案の記録。確定は grs-native-erd-ja.md。生きているのは §7.1-1 / §7.1-2 / §8。"
+tags: [data-model]
+phase: planning
+status: deprecated
+---
+# GRS データモデル（MSPDI 断捨離からの再構築）
+
 > 🔴 **実績・進捗まわりは `../07-plan-actual/handover-plan-actual-decisions-ja.md` が上書きする。**
 > 本書に出てくる `progressRatio` / `importance` / `progressStatus` / `iconShapeKind` は**旧名または廃止**である。
 >
@@ -18,7 +28,6 @@
 > **本書のうち生きているのは §7.1（器の既定名・生成規則）と §7.1-2（移動時の追随規則）、
 > および §8（設計判断の変遷）である。** これらは予実とは独立している。
 
-# GRS データモデル（MSPDI 断捨離からの再構築）
 
 - 日付: 2026-07-25
 - 位置づけ: **GRS ネイティブ・データモデルの設計中ドキュメント**。断捨離後の MSPDI サブセット（`../01-mspdi/mspdi-tables.md`）を出発点に、GRS 固有の拡張を加えて組み直す。

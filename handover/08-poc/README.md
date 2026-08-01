@@ -1,3 +1,12 @@
+---
+type: Index
+title: "08-poc — 動く PoC 一式"
+description: PoC の開き方とファイルの位置づけ。サーバー不要。
+resource: "poc-integrated.html"
+tags: [poc]
+phase: proof-of-concept
+status: stable
+---
 # 08-poc — 動く PoC 一式（2026-08-01 再統合）
 
 このフォルダは **ブラウザで開いて動かせる PoC** である。文書ではなく実行物なので、

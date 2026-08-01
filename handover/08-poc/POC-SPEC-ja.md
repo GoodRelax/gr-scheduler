@@ -1,3 +1,11 @@
+---
+type: Frozen Record
+title: "gr-scheduler PoC 共通仕様"
+description: 案比較 PoC の仕様。製品仕様ではない。食い違ったら handover 側が正。
+tags: [poc]
+phase: proof-of-concept
+status: deprecated
+---
 # gr-scheduler PoC 共通仕様（2026-07-30）
 
 - 目的: **レイアウト（マルチバー行の依存線配線）** と **ズーム（LOD）** の実現性を、

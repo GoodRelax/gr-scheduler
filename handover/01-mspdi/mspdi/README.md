@@ -1,3 +1,12 @@
+---
+type: Index
+title: "MSPDI (MS Project XML) reference -- vendored copies"
+description: "Where the authoritative XSD came from, its licence, and how to re-fetch it."
+resource: mspdi_pj12.xsd
+tags: [mspdi]
+phase: survey
+status: stable
+---
 # MSPDI (MS Project XML) reference — vendored copies
 
 This folder holds **local, offline copies** of the official Microsoft Project

@@ -1,3 +1,12 @@
+---
+type: Reference
+title: MSPDI enum 全数リファレンス（XSD 実測）
+description: XSD を機械パースして抽出した enum の全数。
+resource: mspdi/mspdi_pj12.xsd
+tags: [mspdi]
+phase: survey
+status: stable
+---
 # MSPDI enum 全数リファレンス（XSD 実測）
 
 - 日付: 2026-07-26

@@ -1,3 +1,11 @@
+---
+type: Background
+title: "user-order.md 改訂の差分表"
+description: "user-order.md をゼロベースで書き直したときの変更と理由。"
+tags: [background]
+phase: packaging
+status: deprecated
+---
 # `user-order.md` 改訂の差分表（引継ぎ Step 1 の別紙）
 
 - 日付: 2026-07-26

@@ -1,3 +1,12 @@
+---
+type: Decision Record
+title: 予定と実績の設計 — 決定事項
+description: MSPDI 準拠の予実モデル・形状・Progress Marker・イナズマ線・Undo。予実・進捗の正。
+tags: [plan-actual]
+phase: planning
+authority: plan-actual
+status: stable
+---
 # 予定と実績の設計 — 決定事項
 
 - 日付: 2026-07-29

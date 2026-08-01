@@ -1,3 +1,11 @@
+---
+type: Reference
+title: 性能・実装ノート
+description: 効いた手 / 効かなかった手 / 踏んだ罠 / 実測基準線。仕様ではない。
+tags: [performance]
+phase: proof-of-concept
+status: stable
+---
 # 性能・実装ノート（引継ぎ Step 4 成果物）
 
 - 日付: 2026-07-26

@@ -1,3 +1,11 @@
+---
+type: Reference
+title: GRS × MSPDI フィールド仕分け台帳
+description: MSPDI 全要素を Own / Consume / Reconstruct / Carry / Drop へ仕分けた記録。
+tags: [data-model, mspdi]
+phase: planning
+status: stable
+---
 # GRS × MSPDI フィールド仕分け台帳
 
 - 日付: 2026-07-25

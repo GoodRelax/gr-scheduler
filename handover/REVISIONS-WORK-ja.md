@@ -1,3 +1,11 @@
+---
+type: Working Note
+title: 改訂 → 反映先 台帳
+description: "改訂の正と反映先の全数。マージが終わったら to-del/ へ移す。"
+tags: [working]
+phase: packaging
+status: draft
+---
 # 改訂 → 反映先 台帳（作業用）
 
 - 日付: 2026-08-01

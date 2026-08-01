@@ -1,3 +1,11 @@
+---
+type: Open Items
+title: 実機確認の残件
+description: MS Project の実機でしか確かめられない 3 件。開発を止める理由にはならない。
+tags: [open]
+phase: packaging
+status: stable
+---
 # 実機確認の残件（MS Project を触って確かめること）
 
 - 日付: 2026-07-30

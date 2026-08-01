@@ -1,3 +1,11 @@
+---
+type: Background
+title: 凍結仕様の陳腐化監査
+description: "user-order.md を書き直すために、旧仕様のうち最新でない箇所を特定した記録。"
+tags: [background]
+phase: packaging
+status: deprecated
+---
 # 凍結仕様の陳腐化監査（引継ぎ Step 0 成果物）
 
 - 日付: 2026-07-26

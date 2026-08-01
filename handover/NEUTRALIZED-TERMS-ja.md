@@ -1,3 +1,11 @@
+---
+type: Reference
+title: ドメイン語・製品名の中立化記録
+description: 特定業種の例示と製品名を排除した対応と理由。凍結リポジトリの原本との差分。
+tags: [index]
+phase: packaging
+status: stable
+---
 # ドメイン語・製品名の中立化記録
 
 - 日付: 2026-07-26

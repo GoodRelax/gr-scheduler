@@ -1,3 +1,12 @@
+---
+type: Reference
+title: MSPDI コアツリー
+description: XSD の本質だけを抜き出したツリービュー。正本ではない。
+resource: mspdi/mspdi_pj12.xsd
+tags: [mspdi]
+phase: survey
+status: stable
+---
 # MSPDI コアツリー
 
 `mspdi/mspdi_pj12.xsd`（全3906行）の**本質だけ**を抜き出したツリー。

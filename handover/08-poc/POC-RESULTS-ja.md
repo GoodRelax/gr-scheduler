@@ -1,3 +1,11 @@
+---
+type: Frozen Record
+title: PoC 計測結果と評価
+description: 使い捨ての実験の記録。handover の確定内容を変えるものではない。
+tags: [poc]
+phase: proof-of-concept
+status: deprecated
+---
 # PoC 計測結果と評価（2026-07-30 計測 / 2026-07-31 全面的に測り直し）
 
 - 対象: レイアウト 3 案 / ズーム 2 案 ＋ 字形の基準 1 枚。全案が同じ入力・同じ計測項目。

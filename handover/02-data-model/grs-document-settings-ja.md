@@ -1,3 +1,12 @@
+---
+type: Decision Record
+title: 設定値の台帳（documentSettings）
+description: 文書に保存する設定値の全数と既定値・範囲。設定値の正。
+tags: [data-model, settings]
+phase: planning
+authority: document-settings
+status: stable
+---
 # 設定値の台帳（`documentSettings`）
 
 - 日付: 2026-07-31

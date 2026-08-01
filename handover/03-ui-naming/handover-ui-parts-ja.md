@@ -1,3 +1,12 @@
+---
+type: Decision Record
+title: UI 基本設計（パーツ名と責務）
+description: UI パーツ名と日英対応表、面ごとの記法と語幹一致の規則。命名の正。
+tags: [ui, naming]
+phase: planning
+authority: naming
+status: stable
+---
 # UI 基本設計（パーツ名と責務）— 引継ぎ Step 2 成果物
 
 - 日付: 2026-07-26
