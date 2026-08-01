@@ -233,8 +233,8 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 | `progressLineColor` | 色 | — | 同上 |
 | `dualCursor` | `{ date1, date2 }` / `null` | `null` | デュアルカーソル。**2 本の日付を持つ**（持たないと測った日数が再現しない） |
 | `guideCursorMode` | `'none'` / `'crosshair'` / `'single-vertical'` / `'double-vertical'` | `none` | ガイドカーソル |
-| `dateGridLinesVisible` | 真偽 | — | 日付の縦罫線 |
-| `groupGridLinesVisible` | 真偽 | — | `TaskGroup` 境界の横罫線 |
+| `dateGridLinesVisible` | 真偽 | — | 日付罫線（日付ごとの縦線） |
+| `groupGridLinesVisible` | 真偽 | — | グループ罫線（`TaskGroup` 境界の横線） |
 | `baselineVisible` | 真偽 | — | 変更前の予定（別ファイル）を重ねるか |
 | `fontScale` | `'S'` / `'M'` / `'L'` | `M` | 文字サイズ（項 6-3） |
 | `importSeq` | 整数 | — | 取込のたびに +1 |
@@ -318,7 +318,7 @@ zoomX 0.25 で 段数 96 → 72（担当・完了率を隠すと 24 段ぶん減
 | `rulerTierPxPerDayWeek` | `4` | `rulerTierPxPerDayMonth` | `rulerTierPxPerDayDay` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day。**前後のしきい値の間** |
 | `rulerTierPxPerDayDay` | `14` | `rulerTierPxPerDayWeek` | 60 | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day。**前のしきい値を下回らない** |
 | `taskLevelOfDetailReadablePx` | `24` | `fontMin` | 200 | この幅を割った深さのタスクを描かない（軸A・WBS の深さ）。文字が 1 つも入らない幅にしない |
-| `groupLevelOfDetailBase` | `0.32` | 0.01 | 2 | 行階層 LOD の初項。`threshold(d) = groupLevelOfDetailBase x groupLevelOfDetailRatio^(d−2)` |
+| `groupLevelOfDetailBase` | `0.32` | 0.01 | 2 | グループ LOD の初項。`threshold(d) = groupLevelOfDetailBase x groupLevelOfDetailRatio^(d−2)` |
 | `groupLevelOfDetailRatio` | `1.875` | 1 + ε | 4 | 同上の公比。**1 以下だと深いほど出やすくなり単調性が壊れる** |
 | `stackSafetyCap` | 十分に大きい値 | — | — | 積み順の安全弁。到達したら**人に知らせる**（項 30-7） |
 

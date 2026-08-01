@@ -104,7 +104,7 @@ status: stable
 |---|---|---|---|
 | 日付 | `Start` / `Finish` | `xsd:dateTime` | 予定の開始 / 終了 |
 | 日付 | `ActualStart` / `ActualFinish` | `xsd:dateTime` | 実績の開始 / 終了 |
-| 日付 | `Stop` / `Resume` | `xsd:dateTime` | 実績が入っている境界 / 残作業の再開日 |
+| 日付 | `Stop` / `Resume` | `xsd:dateTime` | 実績が入っている境界 / 残作業の再開予定日 |
 | 日付 | `Deadline` | `xsd:dateTime` | 期限。終了日とは別 |
 | 期間 | `Duration` | `xsd:duration` | 所要期間 |
 | 期間 | `ActualDuration` / `RemainingDuration` | `xsd:duration` | 実績期間 / 残期間 |

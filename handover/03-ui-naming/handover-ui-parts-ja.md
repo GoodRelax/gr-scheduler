@@ -52,8 +52,8 @@ status: stable
 | 名前 | 何を増減するか | 駆動 |
 |---|---|---|
 | 時間軸 LOD | `Time Ruler` の粒度（年 → 年＋月 → 年＋月＋週 → 年＋月＋日＋曜日） | 横（`zoomX`） |
-| アイテム LOD | 深い WBS（**軸A**）の `Task` を描かない | 横（`zoomX`）＝ **幅** |
-| 行階層 LOD | 深い `TaskGroup`（**軸B**）を親へ畳む | 縦（`zoomY`）＝ **高さ** |
+| タスク LOD | 深い WBS（**軸A**）の `Task` を描かない | 横（`zoomX`）＝ **幅** |
+| グループ LOD | 深い `TaskGroup`（**軸B**）を親へ畳む | 縦（`zoomY`）＝ **高さ** |
 
 **散文では `LOD` と書いてよい**（大文字なら読める）。**軸A と軸B は別物なので必ず併記する**
 （`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3）。
@@ -220,9 +220,16 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 
 | 曖昧な日本語 | 書き方 |
 |---|---|
-| 段 | **「積み順（`stackOrder`）」** / **「階層の深さ（`OutlineLevel`）」** と必ず併記 |
+| 段 | **4 義ある。** ①**積み順（`stackOrder`）** ②**軸A の深さ**（WBS・`OutlineLevel`） ③**軸B の深さ**（`TaskGroup`） ④**ズームのノッチ**。**必ずどれかを併記する。「N 段」と単独で書かない** |
 | 行 | **`Rows`**（UI パーツ）/ **「タスクグループ（`TaskGroup`）」**（データ） |
 | レベル | `OutlineLevel` / `TaskGroup` の深さ / LOD のどれかを明示 |
+| 深さ | **軸A（WBS）** か **軸B（`TaskGroup`）** かを必ず併記（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3） |
+| マーカー | **単独で書いたら `Progress Marker`（進捗マーカー）。** 期限の印は「**期限の印**」（`deadline`）、マイルストーンの図形は「**マイルストーン形状（`milestoneGlyph`）**」と書く。**「マーク」とも書かない** |
+| 進捗 | **3 つが別物。** `Progress Marker`（状態の記号）/ `Progress Line`（イナズマ線）/ **完了率（`percentComplete`）**。ラベルを指すなら「完了率ラベル」 |
+| ベースライン | **2 義ある。** ①**変更前の予定**（`baselineVisible`。別ファイルを重ねる） ②**文字のベースライン**（`labelBaseline`）。前者は「変更前の予定」と書くのが安全 |
+| キャンバス | **`Schedule Canvas`**（UI 領域）/ **出力サイズ（`exportCanvas`）** / **余白（`canvasPadding`）** を区別 |
+| 基準線 | **`Baseline`（変更前の予定）の訳語に限る。** 性能の実測値は「**基準値**」「ベンチ基準」と書く |
+| 太さ | 英語は用途で分かれる（`lineWeight` / `dependencyWidth` / `progressLineWidth` / `markerStroke` / `planStroke` / `thinStroke*`）。**`Width` は寸法（幅）に使い、太さには使わない**のが原則だが既存キーに例外がある。**日本語で「幅」と「太さ」を取り違えないこと** |
 | 幅 | 「日付の幅」/ **「占有幅」**（ラベル込み）を区別 |
 | 期間 | 「予定の期間」/ **`actualDuration`（実績期間）** / 表示期間 を明示 |
 | 端点 | 単独で書いたら**掴み点**（全形状が持つバーの端）。形状名は必ず「**端点スパン**」と 4 文字で書く |
@@ -247,7 +254,7 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 
 > ⛔ は**文書に保存しない**もの（読む人の環境）。名前としては本表に載せる。
 
-**時間軸**
+**タイムルーラー（`Time Ruler`）**
 
 | 確定名（英） | 日本語 |
 |---|---|
@@ -351,8 +358,8 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `rulerTierPxPerDayWeek` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day |
 | `rulerTierPxPerDayDay` | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day |
 | `taskLevelOfDetailReadablePx` | この幅を割った深さは描かない |
-| `groupLevelOfDetailBase` | 行階層 LOD の初項 |
-| `groupLevelOfDetailRatio` | 行階層 LOD の公比 |
+| `groupLevelOfDetailBase` | グループ LOD の初項 |
+| `groupLevelOfDetailRatio` | グループ LOD の公比 |
 | `stackSafetyCap` | 積み順の安全弁 |
 
 > **時間軸のしきい値をキーに分ける理由**（確定 2026-08-01）: 隣どうしが互いを縛るためである
@@ -417,8 +424,8 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `progressLineColor` | イナズマ線の色 |
 | `dualCursor` | デュアルカーソル |
 | `guideCursorMode` | ガイドカーソル |
-| `dateGridLinesVisible` | 日付の縦罫線 |
-| `groupGridLinesVisible` | `TaskGroup` 境界の横罫線 |
+| `dateGridLinesVisible` | 日付罫線（日付ごとの縦線） |
+| `groupGridLinesVisible` | グループ罫線（`TaskGroup` 境界の横線） |
 | `baselineVisible` | 変更前の予定を重ねるか |
 | `fontScale` | 文字サイズ |
 | `importSeq` | 取込の連番 |
@@ -461,6 +468,10 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 > | `gridDateLinesVisible` / `gridGroupLinesVisible` | **`dateGridLinesVisible` / `groupGridLinesVisible`** | UI パーツ名 `Date Grid Lines` / `Group Grid Lines` に対し**語順が反転**していた（`Cursor Guide` → `Guide Cursor` で潰したのと同型） |
 > | `resumeArmOfMark` / `resumeHeadOfMark` | **`resumeArmOfMarker` / `resumeHeadOfMarker`** | 07-31 に `mark*` → `marker*` と決めたのに 2 キーだけ漏れた（日本語欄は既に「マーカー」だった） |
 >
+> | `add-box` | **`highlight-box`** | パレットのコマンド名が UI パーツ名 `Highlight Boxes` と繋がっていなかった（旧「囲み枠」時代の残骸） |
+> | 「アイテム LOD」 | **「タスク LOD」** | `item` は廃止語。キー名 `taskLevelOfDetail*` と語幹を合わせた |
+> | 「行階層 LOD」 | **「グループ LOD」** | 実体は `TaskGroup`（軸B）。`Rows` は UI 語。キー名 `groupLevelOfDetail*` と語幹を合わせた |
+>
 > ⚠️ **PoC（`../08-poc/*.html`）は凍結記録なので旧キーのままである。**
 > 上記 14 キーのうち **9 キーが PoC に 99 箇所**残る。**食い違ったら本書が正。**
 > 対応表は `../08-poc/README.md`。
@@ -488,7 +499,7 @@ App Shell                      アプリ全体の器
 ├─ Schedule Canvas             中央の描画領域
 │   ├─ Time Ruler              上端の目盛り。年 / 年月 / 年月週 / 年月日曜 の 4 段階
 │   ├─ Grid Lines              ‼️ 抜けていた
-│   │   ├─ Date Grid Lines     日付の縦罫線（表示切替あり）
+│   │   ├─ Date Grid Lines     日付罫線（日付ごとの縦線・表示切替あり）
 │   │   └─ Group Grid Lines    TaskGroup 境界の横罫線（表示切替あり）
 │   ├─ Rows                    TaskGroup 1 つ分の横帯。旧「ribbon」
 │   │   └─ Task Bars           その行に載る Task 全部の Bar（§2-0）。milestone も含む
@@ -503,7 +514,7 @@ App Shell                      アプリ全体の器
 │   ├─ Canvas Overlays         ‼️ Items から分離（重ね描き層）
 │   │   ├─ Progress Line       イナズマ線（実績の進み遅れ）
 │   │   ├─ Comment Boxes       引き出し線付きコメント
-│   │   ├─ Highlight Boxes     丸角の囲み枠
+│   │   ├─ Highlight Boxes     ハイライトボックス
 │   │   ├─ Cursors             日付を指す線 3 種の総称。マウスの「ポインタ」とは別物（§2-1-5）
 │   │   │   ├─ Today Line      本日線（固定）
 │   │   │   ├─ Dual Cursor     縦線 2 本で日数を測る

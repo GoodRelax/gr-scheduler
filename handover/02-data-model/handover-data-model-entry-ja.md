@@ -55,7 +55,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 ├─ Dependency ★                     ├─ TaskVisual         名称ラベル位置・色・形状・線幅
 ├─ Calendar / WeekDay / Exception   ├─ TaskOrigin         出自（マージ判定用）
 └─ Resource / Assignment（軽量）    ├─ Comment            引出し四角/折れ線の注記（§5.8）
-                                    └─ HighlightBox       角丸の囲み枠（§5.8）
+                                    └─ HighlightBox       ハイライトボックス（§5.8）
                                     documentSettings      文書の表示設定（§5.7-1 で確定）
                                                           ※ズーム/スクロール/テーマは 2026-07-31 に
                                                             「保存する」側へ移った

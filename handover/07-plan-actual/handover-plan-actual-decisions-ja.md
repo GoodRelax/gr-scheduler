@@ -463,7 +463,7 @@ TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
 | 予定バーの上下間隔（段の間隔） | **12px** | 依存線が 1 本通る幅 |
 
 **下限を割る文字サイズが必要になったら、マーカーや文字をさらに縮めるのではなく、
-行階層 LOD（軸B・`TaskGroup`）の深さを 1 つ減らす。** — **軸を確定 2026-08-02（ユーザー判断）**
+グループ LOD（軸B・`TaskGroup`）の深さを 1 つ減らす。** — **軸を確定 2026-08-02（ユーザー判断）**
 
 > ⚠️ **軸A ではない。** 旧版は「描画する `Outline` のレベルを 1 つ減らす」と書いていたが、
 > **`Outline` は軸A（WBS）で、その LOD は幅（`zoomX`）で駆動する**。
@@ -478,8 +478,8 @@ TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
 >
 > | 引き金 | 減らす軸 | 定数 |
 > |---|---|---|
-> | **幅**が足りない（`zoomX`） | **軸A**（WBS の深さ）＝ アイテム LOD | `taskLevelOfDetailReadablePx` |
-> | **フォント下限**を割る（`zoomY`） | **軸B**（`TaskGroup` の深さ）＝ 行階層 LOD | `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` |
+> | **幅**が足りない（`zoomX`） | **軸A**（WBS の深さ）＝ タスク LOD | `taskLevelOfDetailReadablePx` |
+> | **フォント下限**を割る（`zoomY`） | **軸B**（`TaskGroup` の深さ）＝ グループ LOD | `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` |
 >
 > **減らす量の式は未確定**（`../NEXT-STEPS-ja.md` 6-1）。確定しているのは「縮めるのではなく減らす」という方針と、上のどちらの軸かだけである。
 
@@ -809,8 +809,8 @@ LOD      wbs_parent_uid の深さに min( , 5) をかけて判定する
 
 | 軸 | 何の深さか | 上限 | export | LOD の名前 | 引き金 | 定数 |
 |---|---|:--:|:--:|---|---|---|
-| **軸A** | `OutlineLevel`（WBS の階層） | 相手次第 | **する** | **アイテム LOD** | **幅**が足りない（`zoomX`） | `taskLevelOfDetailReadablePx` |
-| **軸B** | `TaskGroup` の階層 | **5**（項 27） | **しない** | **行階層 LOD** | **フォント下限**を割る（`zoomY`） | `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` |
+| **軸A** | `OutlineLevel`（WBS の階層） | 相手次第 | **する** | **タスク LOD** | **幅**が足りない（`zoomX`） | `taskLevelOfDetailReadablePx` |
+| **軸B** | `TaskGroup` の階層 | **5**（項 27） | **しない** | **グループ LOD** | **フォント下限**を割る（`zoomY`） | `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` |
 
 **混同しないこと。両方に LOD がある。** — **引き金による使い分けを確定 2026-08-02（ユーザー判断）**
 
@@ -819,7 +819,7 @@ LOD      wbs_parent_uid の深さに min( , 5) をかけて判定する
   行数が減って残った行の高さが増えるので、**フォントが下限を上回る**。§2-4-1 を見ること。
 
 > **旧版は「LOD の判定に使うのは軸A の `OutlineLevel` である」とだけ書いていた。**
-> これは**アイテム LOD については正しいが、フォント下限の話には当てはまらない**。
+> これは**タスク LOD については正しいが、フォント下限の話には当てはまらない**。
 > 軸A を減らしても行は高くならないので、引き金が解消しない。
 
 **時間軸 LOD（`Time Ruler` の粒度）はどちらの軸でもない。** 3 つの LOD の一覧は
@@ -962,7 +962,7 @@ percentComplete = round( actualDuration ÷ (finish − start) x 100 )
 
 ```
 入れる    タスクの追加・削除・移動 / 日付・進捗・状態の変更 / プロパティの変更
-          階層の移動・畳み / 注記・強調枠の編集
+          階層の移動・畳み / 注記・ハイライトボックスの編集
 入れない  [予定] [実績] のトグル / ズーム / スクロール / 選択 / パレットの移動 / 言語の切替
 ```
 

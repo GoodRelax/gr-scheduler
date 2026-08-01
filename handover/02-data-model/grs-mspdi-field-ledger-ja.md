@@ -451,8 +451,8 @@ erDiagram
 | フィールド | 型 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|---|:--:|---|---|
 | `ActualStart` | dateTime | 実績開始 | 残 | 実績バー左端 | **Own** |
-| `ActualFinish` | dateTime | 実績完了 | 残 | 実績バー右端 | **Own** |
-| `PercentComplete` | int | 進捗率(%)・塗り | **残** | **進捗の唯一の入力源**。読まないと復元不能（`ActualStart/Finish` からは進行中の到達率を導けない）→ `percentComplete`（**整数のまま**）。`actualDuration` から算出して格納する | **Own** |
+| `ActualFinish` | dateTime | 実績終了日 | 残 | 実績バー右端 | **Own** |
+| `PercentComplete` | int | 完了率(%)・塗り | **残** | **進捗の唯一の入力源**。読まないと復元不能（`ActualStart/Finish` からは進行中の到達率を導けない）→ `percentComplete`（**整数のまま**）。`actualDuration` から算出して格納する | **Own** |
 | `ActualDuration` | duration | 実績期間 | **残** | **進行中は `ActualFinish` が空**で `ActualFinish−ActualStart` から復元不能（StatusДまでの実経過は独立情報）。**GRS が実績バーの長さとして一級で持つ**ようになったため Carry から昇格 | **Own** |
 | `RemainingDuration` | duration | 残期間 | 削 | 同上（進行中は `Duration−進捗` が破綻）。温存。**ただし完了時だけ GRS が `0` を書く**（Own 扱い・唯一の例外。`../07-plan-actual/handover-plan-actual-decisions-ja.md` §10-1） | **Carry**（完了時のみ Own） |
 | `PercentWorkComplete` | int | 作業進捗率 | 削 | 工数管理非対象 | Carry |

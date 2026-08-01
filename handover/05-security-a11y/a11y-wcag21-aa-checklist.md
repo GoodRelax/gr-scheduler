@@ -42,6 +42,17 @@ status: stable
 
 ## 対応表
 
+> ⚠️ **本表は WCAG 2.1 AA の全数ではない。部分集合である。** — 明記 2026-08-02
+>
+> 載っているのは **14 行**で、内訳は **A / AA が 12 件**と、**AAA から参考として採った 2 件**
+> （2.5.5 Target Size / 2.3.3 Animation from Interactions。**AA 判定には数えない**）。
+> **前プロジェクトが実装した範囲だけ**を書いたものであり、
+> **WCAG 2.1 の A / AA 基準の全数と突き合わせた記録は `handover/` に無い。**
+>
+> **「この表が全部緑なら AA 適合」ではない。** 次期は
+> **A / AA の全基準を列挙して本表と差分を取る**ところから始めること
+> （`../NEXT-STEPS-ja.md` ステップ 1）。適合を宣言するのはそのあとである。
+
 | SC | 名称 | レベル | 実装 | 自動検証 | 人手確認 (残) |
 |----|------|--------|------|----------|----------------|
 | 1.1.1 | Non-text Content | A | アイコンのみボタン (パレット図形/色スウォッチ/`Hidden Group Tab`/タブ) に `aria-label`+`title`。SVG の `Task` は `role="img"`+`<title>` に「名称+種別+日付」（**略称は廃止済み**）。`accessible-name.ts` / `svg-renderer.ts` / `tool-palette.ts` / `property-panel.ts` / `left-pane.ts` | `accessible-name.test.ts`、axe (image-alt/button-name) | スクリーンリーダーで各アイコンの読み上げが自然か |
