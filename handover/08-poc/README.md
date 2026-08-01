@@ -72,7 +72,7 @@ status: stable
 |---|---|---|
 | 日程表 | **操作の検算**（`../03-ui-naming/handover-ui-detail-spec-ja.md` §5-2）／ 依存線の太さと走りがズームに追随しないこと ／ 進捗マーカーの 4 記号 ／ イナズマ線が途切れないこと | `poc-schedule-zoom.html` |
 | 形状の基準 | 5 形状の描き分け / 実績の置き方と縮小比率 / 進捗マーカーの全パターン / Resume の幾何 / 文字色と全色見本 | `poc-glyphs-reference.html` |
-| マルチバー | 段割当。overlap 0・決定性・左右の張り出し・**依存線の 5 パターン**（`P00`） | `poc-multibar-patterns.html` |
+| マルチバー | 段割当。overlap 0・決定性・左右の張り出し・**依存線の 5 パターン**（`P00`。**FS のみ**。SF / FF / SS の標本は無い ＝ `../03-ui-naming/handover-ui-detail-spec-ja.md` §4-9） | `poc-multibar-patterns.html` |
 | レベル遷移 | 3 系統の LOD 遷移点・単調性 | `poc-zoom-lod-transitions.html` |
 | 色と縁取り | **文字を黒/白に固定したときに使える色**（10 色相 × ライト/ダーク、WCAG 5 条件の合否）と、**文字の縁取りの描画コスト** | `poc-color-and-halo.html` |
 
