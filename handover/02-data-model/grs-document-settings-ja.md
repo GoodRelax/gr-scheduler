@@ -165,7 +165,7 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 > **`statusDate` は PoC の都合の値である。** PoC は日付を「第 n 日」で持つのでこの形になっているが、
 > 製品では基準日は **`Project.status_date`**（MSPDI の `StatusDate` へ書き出す **Own**）であり、
 > `documentSettings` ではなく**文書のデータ**である。
-> → `grs-native-erd-ja.md` §1228 / `grs-mspdi-field-ledger-ja.md` §508
+> → `grs-native-erd-ja.md` §7.3 Project / `grs-mspdi-field-ledger-ja.md` §7.3 Project
 
 ---
 
@@ -372,7 +372,7 @@ zoomMin       ↔  zoomMax          同上（ただし両方とも保存しな�
 
 > **イナズマ線と `(!)` は再現する。** これらが依存するのは本日線ではなく**基準日**で、
 > 基準日は `Project.status_date` として**既に保存対象**（Own・MSPDI の `StatusDate` へ書き出す）。
-> `grs-native-erd-ja.md` §1228 / `grs-mspdi-field-ledger-ja.md` §508。
+> `grs-native-erd-ja.md` §7.3 Project / `grs-mspdi-field-ledger-ja.md` §7.3 Project。
 
 ---
 

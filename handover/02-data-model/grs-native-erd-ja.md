@@ -159,7 +159,7 @@ erDiagram
         date actualStart "実績"
         int actualDuration "実績の長さ(稼働日数)"
         date actualFinish "実績完了(完了時のみ)"
-        int percentComplete "完了率0-100"
+        int percentComplete "完了率(整数・0以上。頭打ちにしない)"
     }
     TaskGroup {
         string id PK "‼️ 行の器（非export・UUID）"
@@ -251,7 +251,7 @@ erDiagram
         date actualStart "← ActualStart(Own・実績左)"
         int actualDuration "← ActualDuration(Own・実績の長さ=稼働日数)"
         date actualFinish "← ActualFinish(Own・完了時のみ)"
-        int percentComplete "← PercentComplete(Own・0-100・actualDurationから算出して格納)"
+        int percentComplete "← PercentComplete(Own・整数0以上・actualDurationから算出して格納)"
         date deadline "← Deadline(Own・目標)"
         date resume "← Resume(Own・再開予定日・中断時のみ)"
         bool resumeValid "← ResumeValid(Own・false=再開日未定の中断)"
@@ -414,7 +414,8 @@ MVP スコープ。2 つ目以降の MSPDI を取り込む際、衝突時にユ�
 | 2. 別 UID でインポート | 別タスクとして追加 | **新規採番**（`uid_high_water_mark + 1`） | **✗ 諦める（C-3 確定）** |
 | 3. キャンセル | MSPDI 読込を中止（何も変更しない） | — | — |
 
-> **C-3 確定**: 選択 2 で UID を振り直したタスクは、**元ソース（外部マスタ等）への往復を諦める**。元 UID は保全しない（`source_uid` 列を持たない）。振り直し後の export は「新しいタスク」として出る。UI で**この旨を明示して選択させる**こと。
+> **C-3 確定**: 選択 2 で UID を振り直したタスクは、**元ソース（外部マスタ等）への往復を諦める**。振り直し後の export は「新しいタスク」として出る。
+> `TaskOrigin.source_uid` は**再取込の突合専用**であり、**export で元 UID を復元するものではない**（§5.3）。UI で**この旨を明示して選択させる**こと。
 
 **プロジェクト基本情報の衝突時**
 
@@ -1411,7 +1412,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 |---|---|:--:|---|
 | C-1 | 「同一タスク」の判定 | **確定** | 取込側 `Project.UID` で既定を変える（同一マスタ→「上書き」／別マスタ→「別UID」）。別マスタ×上書きは警告。→ §5.4 |
 | C-2 | 選択の粒度 | **確定** | 取込 1 回につき 1 度問い、衝突全件へ一括適用。→ §5.4 |
-| C-3 | 選択2（別UID）の往復 | **確定** | **元ソースへの往復を諦める**（`source_uid` を持たない）。UI で明示。→ §5.4 |
+| C-3 | 選択2（別UID）の往復 | **確定** | **元ソースへの往復を諦める**（`TaskOrigin.source_uid` は突合専用で、元 UID を復元しない・§5.3）。UI で明示。→ §5.4 |
 | C-4 | Carry 側参照の波及 | **確定** | **「担当者名をバーに表示する」要求を採用**したため `Assignment.TaskUID`/`ResourceUID`（＋`Resource.CalendarUID`）を **Consume へ格上げ**。結果、**UID 参照が全て Consume** になり **UID 再マップ表は不要**（当初の案A を廃止）。→ §5.5 |
 | C-5 | Calendar/Resource の UID 衝突 | **確定** | `Calendar` は**内容一致なら自動統合**（不一致は再採番＋接尾辞）、`Resource` は**同名なら自動統合**。ダイアログは増やさない。→ §5.4 |
 

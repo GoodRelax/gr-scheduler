@@ -250,7 +250,13 @@ erDiagram
 | WeekStartDay | ○ | 週の開始曜日（カレンダー表示） |
 | NewTaskStartDate | × | 新規タスク既定開始（編集プリファレンス） |
 
-**通貨（4）→ 全 ×**（コスト非対象）: CurrencyDigits, CurrencySymbol, CurrencyCode, CurrencySymbolPosition
+**通貨（4）→ 全 ×**（コスト非対象。GRS は通貨の**値**を使わない）: CurrencyDigits, CurrencySymbol, CurrencyCode, CurrencySymbolPosition
+
+> ⚠️ **`CurrencyCode` だけは出力から外してはならない。** XSD で `minOccurs=1` であり、
+> **`Project` 直下の必須要素は `SaveVersion` と `CurrencyCode` の 2 つだけ**である。
+> 値を使わなくても**要素は必ず書く**。外すと XSD 非妥当な XML を出す。
+> 既定値の焼き込みは `../02-data-model/grs-native-erd-ja.md` §8A、罠の説明は `mspdi-pitfalls-ja.md` §B-2。
+> 上の ○ / × は**内容を使うかどうか**の判定であって、出力するかどうかではない。
 
 **既定タスク/レート/書式（9）→ 全 ×**: DefaultTaskType, DefaultFixedCostAccrual, DefaultStandardRate, DefaultOvertimeRate, NewTasksEffortDriven, NewTasksEstimated, DefaultTaskEVMethod, DurationFormat, WorkFormat
 

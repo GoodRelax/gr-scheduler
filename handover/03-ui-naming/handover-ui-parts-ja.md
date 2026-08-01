@@ -110,7 +110,7 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 | `percentComplete` | **完了率** |
 | `deadline` | 期限 |
 | `shapeKind` | **タスク形状**（5 値。`'milestone'` のときだけ `milestoneGlyph` を見る） |
-| `'rectangle'` | **矩形**（`===`）。※2026-07-31 に `'bar'` から改名。理由は §2-2 |
+| `'rectangle'` | **矩形**（`===`）。※2026-07-31 に `'bar'` から改名。理由は §2-0 |
 | `'chevron'` | **矢羽根**（`>===>`）。※直訳ではない。例外リスト §2-1-4 |
 | `'arrow'` | **矢印**（`--->`） |
 | `'endpointSpan'` | **端点スパン**（`*----*`）。※「端点」と略さない。§2-1-5 |
@@ -199,13 +199,13 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 | バー | **`Task Bars`（総称）/ `Plan Bar` / `Actual Bar`** のどれかを明示。**形状の 1 値は `rectangle`（矩形）**であって「バー」ではない |
 | カーソル | **`Cursors`**（`Today Line` / `Dual Cursor` / `Guide Cursor` の総称。**日付を指す線**）と、**「ポインタ」**（マウスが指す点。掴めるかどうかで形が変わる）を区別する。**「カーソル」単独で書いたら `Cursors` の意味**とし、マウス側は必ず「ポインタ」と書く |
 
-**文中で属性に触れるときは所属を付ける**（`stackOrder` ではなく `Task.stackOrder`）。
+**文中で属性に触れるときは所属を付ける**（`stackOrder` ではなく `TaskGroupMember.stackOrder`）。
 §1-2 の記法により、**形で面が見分けられる**。
 
 ```
 UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel / Progress Marker
 データの実体       PascalCase 1 語                  Task / TaskGroup
-データの属性       Entity.field 形式                Task.stackOrder / Task.actualDuration
+データの属性       Entity.field 形式                TaskGroupMember.stackOrder / Task.actualDuration
 プロパティ項目名   snake_case                       stack_order
 ```
 
@@ -526,7 +526,7 @@ App Shell                      アプリ全体の器
 `[予定]` `[実績]` の 2 トグル（表示の絞り込み）は残す。**両方 OFF は作らせない。**
 根拠と却下案は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-2 / §2-3 が正。
 掴み点・ラベル書式の詳細は **`handover-ui-detail-spec-ja.md` §4**、
-実績の入力規則（3 状態）は同 **§4-0** と `../02-data-model/handover-property-mspdi-mapping-ja.md` §3-2 が正。
+実績の入力規則（4 状態）は同 **§4-0** と `../02-data-model/handover-property-mspdi-mapping-ja.md` §3-2 が正。
 
 `planSideVisibility` / `actualSideVisibility`（3 状態＝非表示/表示のみ/操作可能）という**新設列は採らない**。
 表示状態は `documentSettings.planActualDisplay`（`both` / `plan-only` / `actual-only` の 3 値）**1 つ**で表す

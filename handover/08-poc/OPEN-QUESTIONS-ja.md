@@ -7,7 +7,7 @@
 |:--:|---|---|---|
 | **Q1** | `percentComplete` の型宣言 | **「整数・0 以上」**へ。「0〜100」と書かない（そう読むとクランプを書かれ、予定超過の事実が消える） | `07` §1-4／`erd` ×3／`entry` ×2／`property-mapping` ×3／`ui-parts`／`user-order` ×2 |
 | **Q2** | MSPDI の不変条件 | **完了時の export は `RemainingDuration` 0 ＋ `ActualFinish` あり、`PercentComplete` は要素を書かない**。書かなければ 100 超との衝突が起きない | `07` §1-4 |
-| **Q3** | 往復検査（CI） | **`PercentComplete` を検査から外す**。分母が `Duration` ではなく `finish − start` で、100 超も丸めないため等式が成立しない | `property-mapping` §3-5 |
+| **Q3** | 往復検査（CI） | **`PercentComplete` を検査から外す**。分母が `Duration` ではなく `finish − start` で、100 超も丸めないため等式が成立しない | `property-mapping` §3-4 |
 | **Q4** | `OutlineLevel` は Own か | **Consume のまま**。台帳の定義では Own＝保存値を書く／Consume＝読む＋構造から再生成であり、`wbs_parent_uid` から再生成する本要素は Consume に当たる。Own にすると `wbs_parent_uid` と二重管理になりドリフトする | `07` §10-2（見出しを「GRS が値を決めて書き出す要素」に変更）／§11 の指示から除外 |
 | **Q5** | Row Title Tree の 5 段上限 | **人が作るときだけ 5 段で止める。import は上限なし、export はクランプしない。** 外部マスタの階層を勝手に浅くして返さない | `ui-detail-spec` §6-1-1 |
 | **Q6** | `shapeKind` の列挙形 | **5 値のまま ＋ `milestoneGlyph` を別列**。`shapeKind='milestone'` ⇔ `Task.milestone=true`、**権威は `Task.milestone`**（export される側だから） | `07` §2-2-2／`erd` TaskVisual／`entry` JSON 実例／`ui-parts` |

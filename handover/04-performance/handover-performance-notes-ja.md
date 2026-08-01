@@ -406,7 +406,7 @@ removed_count, total_item_count, dependency_node_count })`
 - [ ] レイアウトを**行単位**に切っておく（T-2 の改善余地を最初から確保）
 - [ ] 文字列キーは **ASCII のみ**（T-9）
 - [ ] **テキスト計測 API を使わない**方針を最初に決める（E-8）。後から直せない
-- [ ] 依存線の折れ点上限は**非対称に仕様化**する（前進 0〜3 / 後方・重なり ≤4）（§4-1-4）
+- [ ] 依存線の折れ点上限は**非対称に仕様化**する（前進 0〜3 / 後方・重なり ≤4）（§4-1）
 - [ ] 未計測 5 項目（U-1〜U-5）を計測項目に入れる。**担当と期限を同時に決める**（N-3）
 - [ ] 節目ごとの再計測を**工程表に書く**（N-1）。ハーネスだけ作っても使われない
 
@@ -421,7 +421,7 @@ removed_count, total_item_count, dependency_node_count })`
 | `project-records/reviews/R2-R5-M3-M4-code-review.md` | T-4（M-01）/ T-5・T-1（M-02）/ E-6（M2-M-02 解消） |
 | `project-records/reviews/review-checkpoint-svg-main-godobjects.md` | T-3（M-6）/ N-5（テスト構造）/ E-6 |
 | `project-records/risks/risk-register.md` RISK-001 | §2-1 / RISK-001 の mitigated 根拠 |
-| `project-records/defects/DEF-005` / `DEF-006` / `DEF-014` | §4-1-4 / T-11 / T-10 |
+| `project-records/defects/DEF-005` / `DEF-006` / `DEF-014` | §4-1 / T-11 / T-10 |
 | `docs/dev/perf-benchmark.md` | §2-4 / N-1（診断ツールでありゲートではない） |
 | `docs/spec/51-test-results.sdoc` | §2-1 |
 | メモリ `live-verify-gotchas` / `perf-test-notify` | T-8 / T-9 / T-10 / §0-2 |

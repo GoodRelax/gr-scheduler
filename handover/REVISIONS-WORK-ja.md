@@ -41,7 +41,7 @@
 
 | # | 確定内容 | 正 | 反映先 | 状態 |
 |:--:|---|---|---|:--:|
-| 30-a | **依存線の経路は 2 点（右辺中央 → 左辺中央）と 5 パターン 1 規則。候補列挙も採点も探索も要らない** | `ui-detail §4-9` | `04-performance/handover-performance-notes-ja.md` §4-1 が**候補列挙＋辞書式採点のまま**。撤回告知が §4-1-4 末尾 1 行に埋没し、`user-order` 項 48 が**この旧方式を名指しで読めと指している** | ❌ |
+| 30-a | **依存線の経路は 2 点（右辺中央 → 左辺中央）と 5 パターン 1 規則。候補列挙も採点も探索も要らない** | `ui-detail §4-9` | `04-performance/handover-performance-notes-ja.md` §4-1 が**候補列挙＋辞書式採点のまま**。撤回告知が §4-1 末尾 1 行に埋没し、`user-order` 項 48 が**この旧方式を名指しで読めと指している** | ❌ |
 | 30-b | **WBS の深さの上限は「人がインデントで作るとき」だけ。import は上限なし、export はクランプしない** | `ui-detail §6-1-1` | `grs-native-erd-ja.md` §5.5e ／ `grs-data-model-ja.md` §4.6・§8 #18 ／ `grs-mspdi-field-ledger-ja.md` §B ／ `stale-spec-audit` ／ `NEUTRALIZED-TERMS` の計 **17 箇所**が「5 段にクランプ」のまま残っていた。`ledger` は冒頭表・§7.4 と §B で自ファイル内が割れていた | ☑ |
 
 ---
