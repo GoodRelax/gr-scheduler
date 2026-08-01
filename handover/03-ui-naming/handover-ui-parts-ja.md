@@ -482,7 +482,7 @@ App Shell                      アプリ全体の器
 ├─ Row Title Panel             左の固定パネル。TaskGroup の見出しを階層表示する
 │   ├─ Row Title Tree          TaskGroup 木。畳み・並べ替え・表示切替の操作点
 │   │                          ‼️ ここでの階層移動は WBS（軸A）を動かし、MSPDI へ伝播する
-│   │                             （UID は保持。grs-data-model-ja.md §7.1-2）
+│   │                             （UID は保持。grs-native-erd-ja.md §5.5g）
 │   └─ Panel Divider           左パネルの幅を変えるドラッグ境界
 │
 ├─ Schedule Canvas             中央の描画領域
