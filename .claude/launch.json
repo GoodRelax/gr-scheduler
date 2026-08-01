@@ -8,6 +8,12 @@
       "port": 5173
     },
     {
+      "name": "ai-cowork-trial",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["ai-cowork-trial/server.mjs"],
+      "port": 8788
+    },
+    {
       "name": "poc-static",
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8899", "--directory", "handover/08-poc"],

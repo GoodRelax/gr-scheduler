@@ -61,6 +61,9 @@ _site/
 # Python bytecode cache (StrictDoc config)
 __pycache__/
 
+# AI co-work trial runtime state (written by ai-cowork-trial/server.mjs)
+ai-cowork-trial/state.json
+
 # scratch
 scratch/
 tmp/

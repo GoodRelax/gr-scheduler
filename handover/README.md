@@ -160,6 +160,8 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
 | 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
 | **14** | **`08-poc/`** | **動く PoC 一式**（レイアウト 3 案 / ズーム 2 案 / 形状の基準 / マルチバー 20 パターン / LOD 遷移）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。⚠️ 追試で分かった **7 件が未反映**（同書末尾の表）。うち 2 件は 10 の記述と食い違う |
+| 15 | `09-architecture/handover-architecture-entry-ja.md` | **アーキ領域の所在**。描画方式 = SVG の結論がどこにあるか / 不変更新ストアが「前提として参照されているのに設計が無い」こと / **モジュール構成と技術スタックは意図的な空白**であること | 事実の所在のみ。決定はしない |
+| — | **`NEXT-STEPS-ja.md`** | **実開発ステップ別の欠落一覧 18 件**（要望ヒアリング / UI モック / アーキ / データモデル / 入出力 / 複合動作）。各件に「**今どこまで決まっているか**」を実測で併記 | **着手前に読む。** 既に決まっているものを決め直さないため |
 | — | **`OPEN-ITEMS-ja.md`** | **実機確認の残件 3 件**（MS Project を触らないと分からないこと）。**15 分で終わるチェックリスト** | 未解決はこれだけ。**開発を止める理由にはならない** |
 | — | `NEUTRALIZED-TERMS-ja.md` | **ドメイン語・製品名を中立化した記録**（凍結リポジトリの原本との差分） | 原本を併読するとき必要 |
 
@@ -183,7 +185,7 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | `docs/security/security-design.md` / `docs/dev/a11y-wcag21-aa-checklist.md` | `05-security-a11y/` |
 | `docs/spec/_assets/handover-stale-spec-audit-ja.md` / `handover-user-order-diff-ja.md` / `docs/analysis/refactor-gui-data-separation-ja.md` / `plan-actual-visibility-operability-model-ja.md` | `06-background/` |
 | `old/日程管理ツール.md`（既存ツール比較の調査記録） | **`handover/` には無い**。特定製品の評価を含むため外した（`DISCARDED-ja.md` §3） |
-| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`handover/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 27 文書にファイル名の重複は無い**ので名前で一意に定まる（機械検査済み。衝突ゼロ）。`README.md` だけは **3 つ**ある — 本書 / `01-mspdi/mspdi/README.md`（XSD の入手元）/ `08-poc/README.md`（PoC の開き方） |
+| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`handover/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 29 文書にファイル名の重複は無い**ので名前で一意に定まる（機械検査済み。衝突ゼロ）。`README.md` だけは **3 つ**ある — 本書 / `01-mspdi/mspdi/README.md`（XSD の入手元）/ `08-poc/README.md`（PoC の開き方） |
 | `docs/spec/vendor/mspdi-declutter-erd-ja.md`（MSPDI 断捨離の中間分析） | **`handover/` には無い**。結論は `02-data-model/grs-mspdi-field-ledger-ja.md` に落ちている（`DISCARDED-ja.md`） |
 | `project-management/` 配下（`handoff-*.md` 等） | **`handover/` には無い**。中身の要点は `DISCARDED-ja.md` に書いてある |
 | 上表に無いパス（`src/` / `tests/` / `.sdoc` / `project-records/` 等） | **`handover/` には無い**。凍結リポジトリを見る。理由は `DISCARDED-ja.md` |
@@ -195,6 +197,7 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 ```
 handover/
 ├── README.md                        この文書
+├── NEXT-STEPS-ja.md                 実開発ステップ別の欠落一覧 18 件（着手前に読む）
 ├── OPEN-ITEMS-ja.md                 実機確認の残件 3 件（未解決はこれだけ）
 ├── DISCARDED-ja.md                  破棄した資産とその理由（同じものを作り直さないため）
 ├── NEUTRALIZED-TERMS-ja.md          ドメイン語・製品名の中立化記録（原本との差分）
@@ -240,17 +243,23 @@ handover/
 │                                    イナズマ線の頂点規則・Undo・命名
 │                                    ⚠️ §11 に「既存文書のどこを上書きするか」の全数
 │
-└── 08-poc/                          **動く PoC 一式**（開いて触る。サーバー不要）
-    ├── README.md                    開き方と読むときの注意。**最初にこれ**
-    ├── POC-SPEC-ja.md               共通仕様と入力データ（§8 に既知の弱点）
-    ├── POC-RESULTS-ja.md            **計測結果・推奨・書き戻し候補 7 件**
-    ├── OPEN-QUESTIONS-ja.md         判断が要った 7 件（全件 決着済みの記録）
-    ├── poc-integrated.html          **入口。現役はこの 1 本だけ**。6 タブ
-    ├── poc-layout-A-orthogonal-channel.html   ┐
-    ├── poc-layout-B-anchor-search.html        │ 凍結した計測記録
-    ├── poc-layout-C-reserved-lane.html        │ 値を焼き込んであるので動かない
-    ├── poc-zoom-A-depth-threshold.html        │ B と zoom-A が推奨案
-    └── poc-zoom-B-fit-first.html              ┘
+├── 08-poc/                          **動く PoC 一式**（開いて触る。サーバー不要）
+│   ├── README.md                    開き方と読むときの注意。**最初にこれ**
+│   ├── POC-SPEC-ja.md               共通仕様と入力データ（§8 に既知の弱点）
+│   ├── POC-RESULTS-ja.md            **計測結果・推奨・書き戻しの反映状況**
+│   ├── OPEN-QUESTIONS-ja.md         判断が要った 7 件（全件 決着済みの記録）
+│   ├── poc-integrated.html          **入口。現役はこの 1 本だけ**。6 タブ
+│   ├── poc-layout-A-orthogonal-channel.html   ┐
+│   ├── poc-layout-B-anchor-search.html        │ 凍結した計測記録
+│   ├── poc-layout-C-reserved-lane.html        │ 値を焼き込んであるので動かない
+│   ├── poc-zoom-A-depth-threshold.html        │ B と zoom-A が推奨案
+│   └── poc-zoom-B-fit-first.html              ┘
+│
+└── 09-architecture/                 アーキ領域の所在（決定はしない）
+    └── handover-architecture-entry-ja.md
+                                     描画方式 = SVG の結論の所在 / 不変更新ストアが
+                                     前提だけ参照され設計が無いこと /
+                                     モジュール構成・技術スタックは**意図的な空白**
 ```
 
 ---
@@ -263,6 +272,8 @@ handover/
 4. `02-data-model/grs-native-erd-ja.md` でデータ構造を確定する。**画面とデータを分離**する（`user-order.md` 67）。
 5. `01-mspdi/mspdi-pitfalls-ja.md` を読んでから MSPDI に着手する。往復無損失は**後付けできない**。
 6. `05-security-a11y/` を実装方針に織り込む。**`innerHTML` 直挿し禁止・XXE 無効化**は設計時点の判断。
+7. **`NEXT-STEPS-ja.md` で残作業を引く。** 実開発のステップごとに「まだ決まっていないこと 18 件」と
+   「**今どこまで決まっているか**」が対になっている。**決め直しを防ぐのはこの表である。**
 
 ---
 
