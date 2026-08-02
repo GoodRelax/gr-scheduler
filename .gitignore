@@ -55,6 +55,10 @@ docs/spec/vendor/mspdi/*
 handover/01-mspdi/mspdi/*
 !handover/01-mspdi/mspdi/README.md
 
+# Vendored W3C reference (WCAG 2.1) — same rule: keep only the README pointer.
+docs/spec/vendor/wcag/*
+!docs/spec/vendor/wcag/README.md
+
 # GitHub Pages site assembled by CI (.github/workflows/pages.yml)
 _site/
 

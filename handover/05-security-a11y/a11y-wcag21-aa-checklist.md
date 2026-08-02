@@ -1,17 +1,25 @@
 ---
 type: Reference
 title: "gr-scheduler WCAG 2.1 AA チェックリスト"
-description: 達成基準と前プロジェクトの実装対応表。参照先の実装ファイルは handover に無い。
+description: WCAG 2.1 の A / AA 全 50 基準の突合表。判定は 適合 1 / 該当なし 14 / 方針あり 14 / 要対応 21。
 tags: [a11y]
 phase: planning
 status: stable
 ---
 # gr-scheduler WCAG 2.1 AA チェックリスト (M5c)
 
-本書は Phase 4 M5c で実装したアクセシビリティ対応を、WCAG 2.1 の各達成基準
-(Success Criterion, SC) に対応づけたものである。`実装` 欄はコード上の対応箇所、
-`自動検証` 欄は自動テストの有無、`人手確認` 欄は人間のアクセシビリティレビュアが
-実機/支援技術で確認すべき残タスクを示す。
+本書は **WCAG 2.1 の A / AA 全 50 基準**を、この製品でどう満たすかに対応づけた突合表である。
+
+**2026-08-02 に部分集合から全数へ広げた。** それまでは前プロジェクトが実装した **12 件**しか無く、
+「この表が全部緑なら AA 適合」と誤読できる形だった。**残り 38 件を原文から補い、
+判定（適合 / 該当なし / 方針あり / 要対応）を全行に付けた。**
+
+| 欄 | 意味 |
+|---|---|
+| `判定` | **4 値**。下の表の直前に定義と件数がある |
+| `根拠・満たし方` | なぜその判定か。方針ありの行は**前プロジェクトの実装の記録**でもある |
+| `自動検証` | 自動テストで確かめられるもの |
+| `人手確認` | 人が実機・支援技術で見るしかないもの |
 
 - 対象要求: `docs/spec/25-nfr-a11y.sdoc` (NFR-L1-003/004/005/006)、`CLAUDE.md`
   品質目標 (WCAG 2.1 AA + 色弱者対応 + キーボード操作)。
@@ -40,35 +48,92 @@ status: stable
 > （`../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-2 / §2-4）。
 > **マーカーは SVG で描き、フォントの字形に依存させない**ことも同基準の充足条件である。
 
-## 対応表
+## 対応表 — **A / AA 全 50 基準の突合**（**確定 2026-08-02**）
 
-> ⚠️ **本表は WCAG 2.1 AA の全数ではない。部分集合である。** — 明記 2026-08-02
->
-> 載っているのは **14 行**で、内訳は **A / AA が 12 件**と、**AAA から参考として採った 2 件**
-> （2.5.5 Target Size / 2.3.3 Animation from Interactions。**AA 判定には数えない**）。
-> **前プロジェクトが実装した範囲だけ**を書いたものであり、
-> **WCAG 2.1 の A / AA 基準の全数と突き合わせた記録は `handover/` に無い。**
->
-> **「この表が全部緑なら AA 適合」ではない。** 次期は
-> **A / AA の全基準を列挙して本表と差分を取る**ところから始めること
-> （`../NEXT-STEPS-ja.md` ステップ 1）。適合を宣言するのはそのあとである。
+**本表は WCAG 2.1 の A / AA の全数である。** 一次資料は W3C 勧告の原文
+（**W3C Recommendation 2025-05-06**）で、入手手順とハッシュは `docs/spec/vendor/wcag/README.md`。
+**基準の番号・名称・レベルは原文から機械抽出した**（目視で書き写していない）。
 
-| SC | 名称 | レベル | 実装 | 自動検証 | 人手確認 (残) |
-|----|------|--------|------|----------|----------------|
-| 1.1.1 | Non-text Content | A | アイコンのみボタン (パレット図形/色スウォッチ/`Hidden Group Tab`/タブ) に `aria-label`+`title`。SVG の `Task` は `role="img"`+`<title>` に「名称+種別+日付」（**略称は廃止済み**）。`accessible-name.ts` / `svg-renderer.ts` / `tool-palette.ts` / `property-panel.ts` / `left-pane.ts` | `accessible-name.test.ts`、axe (image-alt/button-name) | スクリーンリーダーで各アイコンの読み上げが自然か |
-| 1.4.1 | Use of Color | A | 選択=破線枠、キーボードフォーカス=実線リング、予定/実績=破線/実線 (`a11y-tokens.ts` `planActualStrokeDashArray` / `SELECTION_DASH_ARRAY` / `FOCUS_RING_DASH_ARRAY`)。色スウォッチに色名ラベル | `a11y-encoding.test.ts` | グレースケール印刷/CVD シミュレータで予実・選択が判別可能か |
-| 1.4.4 | Resize Text | AA | `fontScale`（`S`/`M`/`L`）を `documentSettings` に持つが、**保存値は初期値であって読む人が変更できる**（`../02-data-model/grs-document-settings-ja.md` §4-2）。文書が強制してはならない | (未実装) | 200% 拡大で情報・機能が失われないか |
-| 1.4.11 | Non-text Contrast | AA | 重なる相手とのコントラスト **3:1 以上**（特に実績 ÷ 予定）。Progress Marker は**形が意味を担い色に依存しない**。実測値は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-6 | (未実装) | ダークモードで実績／予定の比が 3:1 を保つか |
-| 2.5.5 | Target Size | **AAA(参考採用)** | 掴み代は予定バーの上下 6px、フェード掴み点 15×15px。**文書に保存しない**（読む人のアクセシビリティに属するため。`../02-data-model/grs-document-settings-ja.md` §5-1） | (未実装) | **手が震える人が掴めるか**。**AA の要求ではないので、本表の AA 適合判定には数えない**（**確定 2026-08-02**: タッチ・モバイルを対象外としたので、この扱いは動かない ＝ `../user-order.md`「対象環境」）。**タッチ操作の観点は対象外になった** |
-| 1.4.3 | Contrast (Minimum) | AA | UI 配色トークン集約 (`a11y-tokens.ts` `UI_COLOR_PAIRS`)。ツールバー/パネル/ペイン/ラベル/自動保存ステータスを AA 準拠値に調整。パレットの遊休時は「地色のみ」フェード (文字は不透明) にして文字コントラストを維持 | `contrast.test.ts` (全トークン ≥ AA)、axe (color-contrast) | 大規模フォント縮小時・ユーザー任意色 (fill/stroke) 選択時のラベル可読性 |
-| 2.1.1 | Keyboard | A | キャンバスをフォーカス可能化 (`tabindex=0`)。Tab=アイテム間移動、矢印=1日/1行移動、Shift+矢印=リサイズ、Enter/Space=配置/編集、Escape=取消。`keyboard-commands.ts` (純関数) + `keyboard-navigation.ts` (配線)。文書レベル操作 (Undo/Redo/Copy/Paste/Delete) は `keyboard-shortcuts.ts` | `keyboard-commands.test.ts`、axe (focusable) | 全操作 (依存線作成・整列・透かし等) がキーボードのみで完了できるか (依存線作成のキーボード経路は未実装—下記残課題) |
-| 2.1.2 | No Keyboard Trap | A | Tab のアイテムローピングは端で `preventDefault` せず、フォーカスがキャンバス外へ抜ける。`keyboard-navigation.ts` (focus-next/prev の境界処理) | axe、`keyboard-commands.test.ts` (roving 意図) | 実機で Tab/Shift+Tab がどのUI要素にも閉じ込められないか |
-| 2.3.3 | Animation from Interactions | AAA(参考採用) | `prefers-reduced-motion: reduce` でパレットのフェード等の transition/animation を無効化。`a11y-stylesheet.ts` | (手動) | OS の「視差効果を減らす」設定でアニメーション停止を確認 |
-| 2.4.3 | Focus Order | A | DOM 順を ツールバー→パレット→左ペイン→キャンバス→プロパティパネル に整列 (`main.ts` の stage 子要素再配置)。オーバレイは絶対配置+z-index のため見た目は不変 | axe | 実機で論理的な移動順か |
-| 2.4.7 | Focus Visible | AA | `:focus-visible` で全コントロール/キャンバスに高コントラスト輪郭。フォーカス中アイテムに SVG 実線リング。`a11y-stylesheet.ts` / `svg-renderer.ts` (`updateFocusRing`) | axe、`a11y-encoding.test.ts` (リングが選択と別属性) | フォーカス表示が全要素で視認可能か |
-| 3.1.1 | Language of Page | A | `<html lang>` を起動時とロケール切替時に active locale へ設定。`main.ts` | (手動) | ja/en 切替で lang 属性が追従するか |
-| 4.1.2 | Name, Role, Value | A | ツールバー/パレット `role="toolbar"`、パネル/ペイン `role="region"`、キャンバス `role="application"`+`aria-label`+`aria-describedby`(操作ヘルプ)。プロパティは `<label>` で暗黙関連付け | axe (aria-*) | 支援技術で役割/名前/値が正しく伝わるか |
-| 4.1.3 | Status Messages | AA | 自動保存の成否・取込エラー・キーボードフォーカス移動を `aria-live="polite"` で通知。自動保存ラベルは `role="status"`。`live-region.ts` / `main.ts` | (手動) | スクリーンリーダーで保存/エラーが割り込みなく読み上げられるか |
+```text
+WCAG 2.1 の達成基準  全 78
+  レベル A    30
+  レベル AA   20
+  レベル AAA  28
+
+AA 適合に要るのは A + AA = 50   ← 本表の対象
+```
+
+**判定は 4 つに分かれる。**
+
+| 判定 | 件数 | 意味 |
+|---|--:|---|
+| **適合** | **1** | 原文が「常に満たされる」と定めている（4.1.1 のみ） |
+| **該当なし** | **14** | この製品には当たらない。**理由を必ず書いた**（音声・動画が無い / 単一ページ / タッチ対象外 ほか） |
+| **方針あり** | **14** | 満たし方が handover に書いてある。⚠️ **実装はまだ無い** |
+| **要対応** | **21** | 満たし方が書かれていない。**ここが残作業である** |
+
+> ⚠️ **「方針あり」は「適合」ではない。** 前プロジェクトの実装は引き継がない（`../README.md` §0-1）ので、
+> **50 基準のうち実装として存在するものは 1 つも無い。** 本表が言うのは「**満たし方が決まっているか**」だけである。
+>
+> ⚠️ **表中の実装の記述は前プロジェクトのものである。** 考え方は使えるが、
+> **ファイル名は凍結リポジトリを指す**ので、そのまま探しても handover には無い。
+>
+> **適合を宣言できるのは、要対応 21 件を埋め、全数を実装して検証したあとである。**
+
+| SC | 名称 | レベル | 判定 | 根拠・満たし方 | 自動検証 | 人手確認 |
+|----|------|--------|------|----------------|----------|----------|
+| 1.1.1 | Non-text Content | A | **方針あり** | アイコンのみボタン (パレット図形/色スウォッチ/`Hidden Group Tab`/タブ) に `aria-label`+`title`。SVG の `Task` は `role="img"`+`<title>` に「名称+種別+日付」（**略称は廃止済み**） | axe (image-alt/button-name) | スクリーンリーダーで各アイコンの読み上げが自然か |
+| 1.2.1 | Audio-only and Video-only (Prerecorded) | A | **該当なし** | **音声・動画を持たない。** 描画は SVG、出力は SVG / PNG / JSON / MSPDI XML のみ | — | — |
+| 1.2.2 | Captions (Prerecorded) | A | **該当なし** | 同上 | — | — |
+| 1.2.3 | Audio Description or Media Alternative (Prerecorded) | A | **該当なし** | 同上 | — | — |
+| 1.2.4 | Captions (Live) | AA | **該当なし** | 同上（ライブ音声も無い） | — | — |
+| 1.2.5 | Audio Description (Prerecorded) | AA | **該当なし** | 同上 | — | — |
+| 1.3.1 | Info and Relationships | A | **要対応** | **SVG キャンバスの構造（行 → 段 → タスク、依存の先行/後続）をプログラムから判別できるようにする。** 見た目でしか表していない関係が残ると落ちる。4.1.2 と一体で設計する | axe (aria-*) | 支援技術で行とタスクの所属関係が伝わるか |
+| 1.3.2 | Meaningful Sequence | A | **要対応** | **読み上げ順を決める**（行 → 段 → タスクの順）。2.4.3（フォーカス順）と対で決めること | axe | 読み上げ順が日程表の意味と一致するか |
+| 1.3.3 | Sensory Characteristics | A | **要対応** | **ヘルプ・ツールチップの文言**が「右の丸いボタン」のような感覚特性だけに頼らないこと。⚠️ Progress Marker が**形**で意味を担うのは 1.4.1 の要求であって本基準とは別 | — | ヘルプ文の全数を目視 |
+| 1.3.4 | Orientation | AA | **該当なし** | **表示方向を固定しない。** タッチ・モバイルを対象外とした（`../user-order.md`「対象環境」） | — | — |
+| 1.3.5 | Identify Input Purpose | AA | **該当なし** | 原文は「**利用者本人に関する情報**を集める入力欄」を対象とする。**Properties Panel はタスクの属性**であって利用者の情報ではない | — | — |
+| 1.4.1 | Use of Color | A | **方針あり** | 選択=破線枠、キーボードフォーカス=実線リング、予定/実績=破線/実線。色スウォッチに色名ラベル。`[予定][実績]` トグルは**押下状態＋アイコン形状の二重符号**（`../03-ui-naming/handover-ui-detail-spec-ja.md` §4-4） | axe | グレースケール印刷/CVD シミュレータで予実・選択が判別可能か |
+| 1.4.2 | Audio Control | A | **該当なし** | **自動再生する音声を持たない** | — | — |
+| 1.4.3 | Contrast (Minimum) | AA | **方針あり** | 文字と背景 **4.5:1**。UI 配色トークンを 1 か所へ集約し AA 準拠値に調整。パレットの遊休時は「地色のみ」フェード（文字は不透明）にして文字コントラストを維持 | 全トークンの比を検査、axe (color-contrast) | 縮小時・ユーザー任意色（fill/stroke）選択時のラベル可読性 |
+| 1.4.4 | Resize Text | AA | **方針あり** | `fontScale`（`S`/`M`/`L`）を持つが、**保存値は初期値であって読む人が変更できる**（`../02-data-model/grs-document-settings-ja.md` §4-2）。文書が強制してはならない。⚠️ **3 値が何 px かは未定義**（`../NEXT-STEPS-ja.md` 2-7） | — | 200% 拡大で情報・機能が失われないか |
+| 1.4.5 | Images of Text | AA | **方針あり** | **SVG の `<text>` は実テキストであって画像ではない。** アイコンは**全て線画**で文字を含まない（同 §3）。PNG 出力は成果物であってページの内容ではない | — | 文字を画像で描いている箇所が無いか |
+| 1.4.10 | Reflow | AA | **要対応** | **日程表そのものは例外に当たる** — 原文が「**2 次元配置が用途や意味に必要な部分は除く**」と定めており、日程表は縦=対象・横=時間の 2 次元が意味である。**例外にならないのは App Header / パネル / ダイアログ** | — | 320px 相当でパネル・ダイアログが読めるか |
+| 1.4.11 | Non-text Contrast | AA | **方針あり** | 重なる相手と **3:1 以上**（特に実績 ÷ 予定）。Progress Marker は**形が意味を担い色に依存しない**。実測値は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-6 | — | ダークモードで実績／予定の比が 3:1 を保つか |
+| 1.4.12 | Text Spacing | AA | **要対応** | 利用者が行間 1.5 倍・字間 0.12 倍などを上書きしても情報を失わないこと。⚠️ **本製品は「ラベル幅は概算する。実測もキャッシュもしない」と決めている**（同 §4-2）ので、上書きされると概算が外れる。**衝突する可能性がある確定事項である** | — | 字間・行間を上書きしてラベルが壊れないか |
+| 1.4.13 | Content on Hover or Focus | AA | **要対応** | ツールチップは **消せる / ポインタを乗せられる / 勝手に消えない** こと。掴めない端点の理由をツールチップで示す設計がある（同 §4-4） | — | ツールチップの 3 条件 |
+| 2.1.1 | Keyboard | A | **方針あり** | キャンバスをフォーカス可能化。Tab=アイテム間移動、矢印=1日/1行移動、Shift+矢印=リサイズ、Enter/Space=配置/編集、Escape=取消。**ドラッグの等価物は Properties Panel の日付入力に預けている**（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §7） | axe (focusable) | **依存線作成を含む全操作**がキーボードだけで完了できるか（`../NEXT-STEPS-ja.md` 2-4） |
+| 2.1.2 | No Keyboard Trap | A | **方針あり** | Tab のアイテムローピングは端で止めず、フォーカスがキャンバス外へ抜ける | axe | 実機で Tab/Shift+Tab がどの要素にも閉じ込められないか |
+| 2.1.4 | Character Key Shortcuts | A | **要対応** | ⚠️ **単文字キーが 3 つある** — `F`（Fit）、削除確認ダイアログ内の `D` / `C`（`../03-ui-naming/handover-ui-detail-spec-ja.md` §5）。**`D` / `C` はダイアログ内と明記されているので「フォーカスがあるときだけ有効」を満たす。`F` は有効範囲が書かれていないので判定できない。** 無効化 / 再割当 / フォーカス限定 のいずれかを満たすこと | — | 単文字キーの全数と有効範囲 |
+| 2.2.1 | Timing Adjustable | A | **要対応** | **Toast の滞留時間**（`../NEXT-STEPS-ja.md` 2-5 の決めること）が時間制限に当たるか判定する。当たるなら 無効化 / 調整 / 延長 のいずれかを持つ | — | 時間で消える表示の全数 |
+| 2.2.2 | Pause, Stop, Hide | A | **要対応** | **自動的に動く・点滅する・自動更新される表示**があるか。自動保存の状態表示が該当し得る | — | 自動更新する表示の全数 |
+| 2.3.1 | Three Flashes or Below Threshold | A | **方針あり** | **点滅する表示を持ち込まない**ことを設計制約とする | — | 点滅が無いこと |
+| 2.3.3 | Animation from Interactions | **AAA（参考採用）** | 方針あり | `prefers-reduced-motion: reduce` でフェード等の transition/animation を無効化。**AA 判定には数えない** | (手動) | OS の「視差効果を減らす」設定で停止するか |
+| 2.4.1 | Bypass Blocks | A | **該当なし** | 原文は「**複数のページに繰り返されるブロック**」を対象とする。本製品は**単一ページ**である | — | — |
+| 2.4.2 | Page Titled | A | **要対応** | `<title>` が主題を表すこと。**単一 HTML なので、開いている日程表の名前を反映させるか**を決める | axe (document-title) | — |
+| 2.4.3 | Focus Order | A | **方針あり** | DOM 順を ヘッダー → パレット → 左ペイン → キャンバス → Properties Panel に整列。オーバレイは絶対配置なので見た目は不変 | axe | 実機で論理的な移動順か |
+| 2.4.4 | Link Purpose (In Context) | A | **該当なし** | **リンクを持たない**（外部参照ゼロ ＝ `../08-poc/POC-RESULTS-ja.md` §8 と同じ制約）。⚠️ **`AI` / `?` モーダルにリンクを置くなら要対応へ変わる** | — | — |
+| 2.4.5 | Multiple Ways | AA | **該当なし** | 原文は「**ページの集合の中でページを見つける手段**」を対象とする。単一ページ | — | — |
+| 2.4.6 | Headings and Labels | AA | **要対応** | パネル・ダイアログの見出しとラベルが主題を表すこと。`Properties Panel` の設計と一体（`../NEXT-STEPS-ja.md` 2-4） | axe | 見出し・ラベルの文言 |
+| 2.4.7 | Focus Visible | AA | **方針あり** | `:focus-visible` で全コントロール/キャンバスに高コントラスト輪郭。フォーカス中アイテムに SVG 実線リング | axe | 全要素でフォーカス表示が視認可能か |
+| 2.5.1 | Pointer Gestures | A | **要対応** | **マルチポイント / 経路依存のジェスチャを使わない**ことを確認する。⚠️ ドラッグは 2.1.1 側の「経路に依存する機能」として扱い、キーボード等価物で担保する | — | 経路依存の操作の全数 |
+| 2.5.2 | Pointer Cancellation | A | **要対応** | **押した時点で実行せず、離した時点で確定し、途中で中断できる**こと。`Escape`=取消 が既に設計にある（同 §5）ので**明文化すれば満たせる** | — | ドラッグ操作の全数 |
+| 2.5.3 | Label in Name | A | **要対応** | 見えている文字が accessible name に含まれること。**アイコンのみのボタンは 1.1.1 側で名前を持つ**ので、文字を持つボタンが対象 | axe (label-in-name) | — |
+| 2.5.4 | Motion Actuation | A | **該当なし** | **デバイスの動き・利用者の動きで操作する機能が無い** | — | — |
+| 2.5.5 | Target Size | **AAA（参考採用）** | 方針あり | 掴み代は予定バーの上下 6px、フェード掴み点 15×15px。**文書に保存しない**（読む人のアクセシビリティに属する）。**AA 判定には数えない**（**確定 2026-08-02**: タッチ・モバイルを対象外としたので扱いは動かない） | (未実装) | **手が震える人が掴めるか**。タッチ操作の観点は対象外 |
+| 3.1.1 | Language of Page | A | **方針あり** | `<html lang>` を起動時とロケール切替時に active locale へ設定 | (手動) | ja/en 切替で `lang` が追従するか |
+| 3.1.2 | Language of Parts | AA | **要対応** | **ja / en の i18n がある**（`../user-order.md` 項 21）ので、地の文と違う言語の断片に `lang` を付ける。**タスク名・行名はデータなので翻訳対象外**だが、言語が混ざり得る | — | 混在箇所の全数 |
+| 3.2.1 | On Focus | A | **要対応** | フォーカスしただけで文脈が変わらないこと | axe | — |
+| 3.2.2 | On Input | A | **要対応** | 設定を変えただけで文脈が変わらないこと。⚠️ **`[予定][実績]` トグルや `fontScale` は表示が変わるが「文脈の変更」ではない**（原文の定義に照らして判定する） | — | 設定変更の全数 |
+| 3.2.3 | Consistent Navigation | AA | **該当なし** | 原文は「**ページの集合の中で**」を対象とする。単一ページ | — | — |
+| 3.2.4 | Consistent Identification | AA | **該当なし** | 同上 | — | — |
+| 3.3.1 | Error Identification | A | **要対応** | **取込バリデーションの拒否・警告**（`security-design.md` §3）と Properties Panel の入力エラーを、**どの項目が誤りかとその内容を文字で**示す | — | エラー表示の全数 |
+| 3.3.2 | Labels or Instructions | A | **要対応** | Properties Panel の各項目にラベルまたは説明を付ける（`../NEXT-STEPS-ja.md` 2-4） | axe (form-field-multiple-labels) | — |
+| 3.3.3 | Error Suggestion | AA | **要対応** | 訂正案が分かる場合は提示する（日付形式・範囲外の設定値など。範囲は `../02-data-model/grs-document-settings-ja.md` §3〜§4 が持つ） | — | — |
+| 3.3.4 | Error Prevention (Legal, Financial, Data) | AA | **要対応** | ⚠️ **「利用者が制御できるデータを変更・削除する」に該当する** — **連鎖削除**と**取込による上書き**。原文は 取消可能 / 検査と訂正機会 / 確認 のいずれかを求める。**Undo があるので「取消可能」で満たせる**見込み | — | 破壊的操作の全数と Undo の到達範囲 |
+| 4.1.1 | Parsing | A | **適合** | **原文の Note 1 が「HTML または XML を使う内容では常に満たされるとみなす」と明記している。** 本製品は単一 HTML なので該当する | — | — |
+| 4.1.2 | Name, Role, Value | A | **方針あり** | ヘッダー/パレット `role="toolbar"`、パネル/ペイン `role="region"`、キャンバス `role="application"`+`aria-label`+`aria-describedby`。プロパティは `<label>` で暗黙関連付け | axe (aria-*) | 支援技術で役割/名前/値が正しく伝わるか |
+| 4.1.3 | Status Messages | AA | **方針あり** | 自動保存の成否・取込エラー・フォーカス移動を `aria-live="polite"` で通知。自動保存ラベルは `role="status"`。**通知の発生源は 8 系統**（`../NEXT-STEPS-ja.md` 2-5） | (手動) | 保存/エラーが割り込みなく読み上げられるか |
 
 ## 実施済 / 未実施の明示
 
