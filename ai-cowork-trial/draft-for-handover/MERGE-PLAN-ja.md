@@ -76,6 +76,7 @@ handover に入ると二重の入口になる）。
 | `handover/NEXT-STEPS-ja.md` | **ステップ 3 の表に 1 行**（**描画の純粋性＝決定-1** と **公開点は 1 か所・既定非公開＝決定-4** を**レビュー観点として登録**）。**件数 18 → 20 に更新** |
 | `handover/NEXT-STEPS-ja.md` ステップ 3（localStorage のキー設計） | **1 行**: **自動保存のキーは文書ごと**（`grsched.autosave.<documentId>`）。**`file://` では全ローカルファイルが保管庫を共有する**ため（決着-8 / 決定-5） |
 | `handover/NEXT-STEPS-ja.md` **2-1 視覚モック** ／ **2-5 通知** | **1 行**: **起動時の保留用件（ファイル復帰・復旧確認・AI 連携）を 1 枚に集約**し、AI 有効中は**常時表示**を出す（決定-5） |
+| `handover/NEXT-STEPS-ja.md` **2-6 初期テンプレート** | **1 行**: **初期テンプレートを埋込文書の入れ口に置かない。** 置くとクラッシュ復旧が壊れる（`agent-interface-spec-ja.md` §5-1 規約 7） |
 | `handover/NEXT-STEPS-ja.md` 5-1（JSON Schema） | **`revisionStamp` と `changeLog` を含める**（決定-2 / 決定-3）。`agentApiVersion` は含めない |
 | `handover/09-architecture/handover-architecture-entry-ja.md` §4 | 「**意図的な空白**」の表に、ライブラリ／CLI 出力の判断が乗ることを 1 行 |
 | `handover/05-security-a11y/security-design.md` §2 | 脅威モデルに **1 段落**。**文面は `agent-interface-spec-ja.md` §6-1 に用意済み**（そのまま貼る）。要点は「**API は信頼境界ではないが、既定では公開しない**」（`A-7` / 決定-4） |
