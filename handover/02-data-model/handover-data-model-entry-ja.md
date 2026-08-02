@@ -106,7 +106,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
   },
 
   "documentSettings": {
-    "pxPerDayAt1x": 6, "rulerHeight": 34, "rulerFont": 12,
+    "pxPerDayAt1x": 6, "rulerHeight": 48, "rulerFont": 12,
 
     "basePlanHeight": 28, "actualOfPlan": 0.73, "actualMin": 16, "fontOfActual": 0.80,
     "fontMin": 12, "thinFontScale": 0.85, "actualGap": 2, "stackGap": 12, "rowGap": 8,
