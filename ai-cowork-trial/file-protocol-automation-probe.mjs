@@ -38,9 +38,9 @@ const PROBE_PAGE = `<!doctype html>
 <body>
 <h1 id="heading">automation probe</h1>
 <p id="state">untouched</p>
-<script type="application/json" id="grs-boot-document">null</script>
+<script type="application/json" id="embedded-document">null</script>
 <script>
-  // Stands in for the planned window.grScheduler agent interface.
+  // Stands in for the planned globalThis.grSchedulerAgentApi.
   window.pretendAgentInterface = {
     agentApiVersion: '1.0.0',
     revision: 0,
@@ -54,7 +54,7 @@ const PROBE_PAGE = `<!doctype html>
   };
   // Read whatever was injected into the boot holder.
   window.bootReadOutcome = (function () {
-    const holders = document.querySelectorAll('#grs-boot-document');
+    const holders = document.querySelectorAll('#embedded-document');
     if (holders.length !== 1) return { ok: false, reason: 'holder-not-unique:' + holders.length };
     try {
       return { ok: true, parsed: JSON.parse(holders[0].textContent) };
@@ -76,8 +76,8 @@ function buildInjectedPage(documentToInject, escapeLessThan) {
   const json = JSON.stringify(documentToInject);
   const payload = escapeLessThan ? json.replace(/</g, '\\u003c') : json;
   return PROBE_PAGE.replace(
-    '<script type="application/json" id="grs-boot-document">null</script>',
-    '<script type="application/json" id="grs-boot-document">' + payload + '</script>',
+    '<script type="application/json" id="embedded-document">null</script>',
+    '<script type="application/json" id="embedded-document">' + payload + '</script>',
   );
 }
 

@@ -1,7 +1,7 @@
 ---
 type: Working Note
 title: Agent Interface サンプル
-description: 文書の実例・書き込みの実例・監視ループ・起動時注入・トライアルとの対応表。
+description: 文書の実例・書き込みの実例・監視ループ・文書の埋め込み・トライアルとの対応表。
 tags: [agent-interface, samples]
 phase: proof-of-concept
 status: draft
@@ -93,15 +93,15 @@ AI  : watchChanges({ sinceRevision: 12 }) で また待つ
 
 ---
 
-## 5. 起動時注入（`file://` で成立する唯一の経路）
+## 5. 文書の埋め込み（`file://` で成立する唯一の経路）
 
 ### 5-1. ビルド成果物の側
 
 ```html
-<script type="application/json" id="grs-boot-document">null</script>
+<script type="application/json" id="embedded-document">null</script>
 ```
 
-### 5-2. 注入する側（生成の実例）
+### 5-2. 埋め込む側（生成の実例）
 
 ```js
 // Build a self-contained "GRS + data" file. Works from file:// with no server.
@@ -115,7 +115,7 @@ const documentJson = readFileSync('schedule.json', 'utf8');
 const payload = documentJson.replace(/</g, '\\u003c');
 
 const injected = shellHtml.replace(
-  /(<script type="application\/json" id="grs-boot-document">)null(<\/script>)/,
+  /(<script type="application\/json" id="embedded-document">)null(<\/script>)/,
   `$1${payload}$2`,
 );
 
@@ -127,7 +127,7 @@ writeFileSync('grs-with-schedule.html', injected, 'utf8');
 ```js
 /** Read the injected document, or null when there is none. */
 function readBootDocument(hostDocument) {
-  const holders = hostDocument.querySelectorAll('#grs-boot-document');
+  const holders = hostDocument.querySelectorAll('#embedded-document');
   if (holders.length !== 1) {
     return { bootDocument: null, failureReason: 'boot-holder-not-unique' };
   }
