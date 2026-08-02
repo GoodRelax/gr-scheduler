@@ -43,7 +43,7 @@ status: draft
 | 2 | `agent-interface-requirements-ja.md` | 要求 18 件。各件に「どの実測から来たか」を併記 | **提案**。決定ではない |
 | 3 | `agent-interface-spec-ja.md` | API 契約の具体形（関数・エンベロープ・コマンド・エラー・監視・起動時投入） | **提案**。決定ではない |
 | 4 | `agent-interface-samples-ja.md` | 動く実例。`handover/02-data-model/handover-data-model-entry-ja.md` の JSON 実例に**エンベロープを足した形** | 参考 |
-| — | `OPEN-ITEMS-ja.md` | **未決 3 件**（＋ **実測で決着 7 件**・**決定 4 件**） | 未決 |
+| — | `OPEN-ITEMS-ja.md` | **未決 2 件**（＋ **実測で決着 8 件**・**決定 5 件**） | 未決 |
 | — | `MERGE-PLAN-ja.md` | どのフォルダへ入れ、どの既存文書に 1 行足すか。検査コマンド付き | 作業用 |
 | — | `samples/*.json` | 機械可読の実例 2 本 | 参考 |
 

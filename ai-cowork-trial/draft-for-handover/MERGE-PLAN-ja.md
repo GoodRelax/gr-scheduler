@@ -74,10 +74,13 @@ handover に入ると二重の入口になる）。
 | `handover/README.md` §1 読む順 | 行 1 本（順位は 15 の次、`NEXT-STEPS-ja.md` の前） |
 | `handover/README.md` §2 フォルダ構成 | ツリーに `10-agent-interface/` を 1 ブロック |
 | `handover/NEXT-STEPS-ja.md` | **ステップ 3 の表に 1 行**（**描画の純粋性＝決定-1** と **公開点は 1 か所・既定非公開＝決定-4** を**レビュー観点として登録**）。**件数 18 → 20 に更新** |
-| `handover/NEXT-STEPS-ja.md` ステップ 3（localStorage のキー設計） | **1 行**: 人間が起動したときの API 有効化を**毎回聞くか記憶するか**（決定-4 から O-7 へ送った件） |
+| `handover/NEXT-STEPS-ja.md` ステップ 3（localStorage のキー設計） | **1 行**: **自動保存のキーは文書ごと**（`grsched.autosave.<documentId>`）。**`file://` では全ローカルファイルが保管庫を共有する**ため（決着-8 / 決定-5） |
+| `handover/NEXT-STEPS-ja.md` **2-1 視覚モック** ／ **2-5 通知** | **1 行**: **起動時の保留用件（ファイル復帰・復旧確認・AI 連携）を 1 枚に集約**し、AI 有効中は**常時表示**を出す（決定-5） |
 | `handover/NEXT-STEPS-ja.md` 5-1（JSON Schema） | **`revisionStamp` と `changeLog` を含める**（決定-2 / 決定-3）。`agentApiVersion` は含めない |
 | `handover/09-architecture/handover-architecture-entry-ja.md` §4 | 「**意図的な空白**」の表に、ライブラリ／CLI 出力の判断が乗ることを 1 行 |
 | `handover/05-security-a11y/security-design.md` §2 | 脅威モデルに **1 段落**。**文面は `agent-interface-spec-ja.md` §6-1 に用意済み**（そのまま貼る）。要点は「**API は信頼境界ではないが、既定では公開しない**」（`A-7` / 決定-4） |
+| `handover/05-security-a11y/security-design.md` §5 | **1 行**: **`file://` では localStorage も IndexedDB も全ローカルファイルで共有される**（決着-8 で実測）。同節の「同一オリジン JS から平文で読める」は、`file://` では「**そのマシンの全ローカルファイル**」を意味する。**`http(s)` 配信で消える** |
+| `handover/02-data-model/grs-native-erd-ja.md`（**データ構造の正**） | **直接書き足さない。** `documentId` が要る理由と最小の形は `agent-interface-spec-ja.md` §2-3 にある。**採否は change-manager 経由で正の側に節を起こす**（決定-5） |
 | `handover/02-data-model/handover-data-model-entry-ja.md` | JSON 実例の**すぐ下**に、`revisionStamp` を足す提案の所在を 1 行（**実例そのものは変えない**） |
 
 > ⚠️ **`grs-native-erd-ja.md`（データ構造の正）と `grs-document-settings-ja.md`（設定値の正）は触らない。**
@@ -136,6 +139,7 @@ grep -rn "将棋\|○×\|棋譜\|持ち駒" handover/10-agent-interface/ \
 | `file-protocol-automation-probe.mjs` | 決着-4 / 決着-5 |
 | **`agent-api-exposure-probe.mjs`** | **決着-6**（既定非公開・起動側の有効化・取り消し不能） |
 | **`cowork-live-probe.html` ＋ `cowork-live-attach.mjs`** | **決着-7**（人間が開いている画面への接続） |
+| **`startup-storage-probe.mjs`** | **決着-8**（`file://` の保管庫は全ローカルファイルで共有） |
 | `shogi/` ／ `server.mjs` | トライアル本体（`ai-cowork-trial-findings-ja.md` §1-5） |
 
 - **理由**: `handover/README.md` §0-1「コードは引き継がない。**コピペ禁止**」。
