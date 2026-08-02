@@ -421,7 +421,6 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `dependencyVisible` | 依存線 |
 | `progressMarkerVisible` | 進捗マーカー |
 | `progressLineVisible` | イナズマ線 |
-| `progressLineColor` | イナズマ線の色 |
 | `dualCursor` | デュアルカーソル |
 | `guideCursorMode` | ガイドカーソル |
 | `dateGridLinesVisible` | 日付罫線（日付ごとの縦線） |

@@ -136,19 +136,18 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
     "stackDirection": "up", "planActualDisplay": "both",
     "assigneeVisible": false, "percentCompleteVisible": false, "dependencyVisible": true,
     "progressMarkerVisible": true, "progressLineVisible": false,
-    "progressLineColor": "#b03030",
     "dualCursor": null, "guideCursorMode": "none",
     "dateGridLinesVisible": true, "groupGridLinesVisible": true,
     "baselineVisible": false, "fontScale": "M", "importSeq": 1,
 
-    "themePreference": "light", "themeHue": 210, "themeMonochrome": false,
+    "themePreference": "light", "themeHue": 214, "themeMonochrome": false,
     "zoomX": 1, "zoomY": 1,
     "scrollDate": "2026-04-01T00:00:00", "scrollGroupId": "grp-a",
     "rowTitlePanelWidth": 170, "propertyPanelWidth": 280,
 
     "exportCanvas": { "width": 1600, "height": 900 }, "exportPngScale": 1,
 
-    "rulerTierPxPerDayMonth": 1, "rulerTierPxPerDayWeek": 4, "rulerTierPxPerDayDay": 14,
+    "rulerTierPxPerDayMonth": 1.4, "rulerTierPxPerDayWeek": 4.3, "rulerTierPxPerDayDay": 30,
     "taskLevelOfDetailReadablePx": 24, "groupLevelOfDetailBase": 0.32, "groupLevelOfDetailRatio": 1.875,
     "stackSafetyCap": 4096
   },

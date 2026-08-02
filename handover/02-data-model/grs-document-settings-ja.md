@@ -227,19 +227,41 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 | `planActualDisplay` | `'both'` / `'plan-only'` / `'actual-only'` | `both` | 予実の表示。**3 値の列挙**にして「両方 OFF」を構造的に作れなくする |
 | `assigneeVisible` | 真偽 | **`false`** | 担当ラベル。**既定は隠す**（下記） |
 | `percentCompleteVisible` | 真偽 | **`false`** | 完了率ラベル。**既定は隠す**（下記） |
-| `dependencyVisible` | 真偽 | — | 依存線。**担当 / 完了率とは独立**（§4-2 の確定） |
+| `dependencyVisible` | 真偽 | **`true`** | 依存線。**担当 / 完了率とは独立**（§4-2 の確定） |
 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー |
-| `progressLineVisible` | 真偽 | — | イナズマ線 |
-| `progressLineColor` | 色 | — | 同上 |
+| `progressLineVisible` | 真偽 | **`false`** | イナズマ線 |
 | `dualCursor` | `{ date1, date2 }` / `null` | `null` | デュアルカーソル。**2 本の日付を持つ**（持たないと測った日数が再現しない） |
 | `guideCursorMode` | `'none'` / `'crosshair'` / `'single-vertical'` / `'double-vertical'` | `none` | ガイドカーソル |
-| `dateGridLinesVisible` | 真偽 | — | 日付罫線（日付ごとの縦線） |
-| `groupGridLinesVisible` | 真偽 | — | グループ罫線（`TaskGroup` 境界の横線） |
-| `baselineVisible` | 真偽 | — | 変更前の予定（別ファイル）を重ねるか |
-| `fontScale` | `'S'` / `'M'` / `'L'` | `M` | 文字サイズ（項 6-3） |
-| `importSeq` | 整数 | — | 取込のたびに +1 |
+| `dateGridLinesVisible` | 真偽 | **`false`** | 日付罫線（日付ごとの縦線） |
+| `groupGridLinesVisible` | 真偽 | **`true`** | グループ罫線（`TaskGroup` 境界の横線） |
+| `baselineVisible` | 真偽 | **`false`** | 変更前の予定（別ファイル）を重ねるか |
+| `fontScale` | `'S'` / `'M'` / `'L'` | `M` | 文字サイズ（項 6-3）。⚠️ **3 値が何 px かは未定義**（`../NEXT-STEPS-ja.md` 2-7） |
+| `importSeq` | 整数 | **`0`** | 取込のたびに +1 |
 
 > **`todayLineVisible` は廃止した — 確定 2026-07-31。** §7 を見ること。
+>
+> **`progressLineColor` も廃止した — 確定 2026-08-02（ユーザー判断）。** 下記。
+
+**既定値の根拠 — 確定 2026-08-02**
+
+| キー | 既定 | なぜ |
+|---|---|---|
+| `dependencyVisible` | **`true`** | 核機能（`../user-order.md` 項 49）。**段数に影響しない**（走りの確保は測らない ＝ `../03-ui-naming/handover-ui-detail-spec-ja.md` §4-9）。太さも走りもズームに追随しないので低ズームで潰れない。**担当 / 完了率を隠した理由（段数膨張）はここには当たらない** |
+| `progressLineVisible` | **`false`** | イナズマ線は基準日と**実績**から引く。**新規文書に実績は 1 つも無い**ので、出しても意味のある形にならない |
+| `dateGridLinesVisible` | **`false`** | **日付ごとの縦線を目盛の段階に連動させる規定が無い。** `px/day = 1` では 1px ごとに線が立ち面になる。日付の手がかりは `Time Ruler` が担う。⚠️ **連動の規定を次期が置くなら `true` に変えてよい** |
+| `groupGridLinesVisible` | **`true`** | 本数は行数ぶんで軽い。**1 行 ＝ 1 対象のマルチバーが本ツールの中核**なので、境界が見えないと「どこまでが 1 行か」が読めない |
+| `baselineVisible` | **`false`** | 別ファイルを重ねる機能。**新規文書には重ねる相手が無い** |
+| `importSeq` | **`0`** | **取込を 1 度もしていない状態。** `../handover-data-model-entry-ja.md` の JSON 実例の `1` は 1 回取り込んだ後の値である |
+
+**`progressLineColor` を廃止した理由 — 確定 2026-08-02（ユーザー判断）**
+
+**イナズマ線の色は文書に保存しない。依存線と同じ固定色にする。**
+
+§4-2 が「**派生する色は保存しない。解いた結果を保存すると、規則を直したときに古い値が残って規則と絵が食い違う**」と
+既に決めている。依存線は同じ性質のオーバーレイだが**橙で固定**であり、設定値キーを持っていない。
+**イナズマ線だけ色を保存すると、`themeHue` を変えたときにこの線だけ取り残される。**
+
+**固定色の規則は `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-6 が正。ここには書かない。**
 
 **`assigneeVisible` / `percentCompleteVisible` の既定は `false`** — **確定**（ユーザー判断）。
 
@@ -258,16 +280,34 @@ zoomX 0.25 で 段数 96 → 72（担当・完了率を隠すと 24 段ぶん減
 
 ### 4-2. 画面の状態 — **2026-07-31 に「保存しない」から移した**
 
-| キー | 型 | 意味 |
-|---|---|---|
-| `themePreference` | `'light'` / `'dark'` | 明暗テーマ |
-| **`themeHue`** | 0〜359 | **テーマの色相**（予定・実績・行の帯・地の色がここから決まる） |
-| **`themeMonochrome`** | 真偽 | **モノクロにするか**（既定 `false`） |
-| `zoomX` / `zoomY` | 数値 | 横 / 縦のズーム倍率 |
-| `scrollDate` | 日付 | 表示の左端が指す日付 |
-| `scrollGroupId` | **`TaskGroup.id`（UUID 文字列）** | 表示の上端が指す行。⚠️ **整数ではない**（行はインデックスではなく `TaskGroup.id` で参照する。`grs-native-erd-ja.md` §5.8） |
-| `rowTitlePanelWidth` | px | Row Title Panel の幅 |
-| `propertyPanelWidth` | px | Properties Panel の幅 |
+**既定値の列は 2026-08-02 に足した**（それまで列そのものが無かった）。
+
+| キー | 型 | 既定 | 意味 |
+|---|---|---|---|
+| `themePreference` | `'light'` / `'dark'` | **`'light'`** 🔎 | 明暗テーマ |
+| **`themeHue`** | 0〜359 | **`214`** | **テーマの色相**（予定・実績・行の帯・地の色がここから決まる）。**214 は実測値**（下記） |
+| **`themeMonochrome`** | 真偽 | **`false`** | **モノクロにするか** |
+| `zoomX` | 数値 | **`1`** | 横のズーム倍率 |
+| `zoomY` | 数値 | **`1`** | 縦のズーム倍率。**`basePlanHeight` が「予定の縦幅（`zoomY = 1`）」と定義されている**ので、等倍がその基準（§3 縦の寸法） |
+| `scrollDate` | 日付 / `null` | **`null`** | 表示の左端が指す日付。**`null` ＝ 人がまだ場所を決めていない**（下記） |
+| `scrollGroupId` | **`TaskGroup.id`（UUID 文字列）** / `null` | **`null`** | 表示の上端が指す行。⚠️ **整数ではない**（行はインデックスではなく `TaskGroup.id` で参照する。`grs-native-erd-ja.md` §5.8） |
+| `rowTitlePanelWidth` | px | **`170`** 🔎 | Row Title Panel の幅 |
+| `propertyPanelWidth` | px | **`280`** 🔎 | Properties Panel の幅 |
+
+**`themeHue = 214` の根拠 — 確定 2026-08-02**
+
+`../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-6 の色表は**色相 214 で PoC 実測**しており
+（実績 ÷ 予定 ＝ ライト 4.81:1 / ダーク 3.74:1）、**この色相だけがコントラスト検証を通っている。**
+`../handover-data-model-entry-ja.md` の JSON 実例にある `210` に根拠は無い。**裏付けがあるのは 214 である。**
+
+**`scrollDate` / `scrollGroupId` の既定が `null` である理由 — 確定 2026-08-02**
+
+**「人がまだ表示位置を決めていない」を表す値が要る。** §2 の規約により**常に全項目を書き出す**ので、
+`null` も明示的に書き出す。**読み込む側は `null` のとき `Fit` 相当（全体が収まる位置）を選ぶ。**
+JSON 実例にある日付と `grp-a` は**インスタンスの値であって既定値ではない。**
+
+> 🔎 **`themePreference` / `rowTitlePanelWidth` / `propertyPanelWidth` の 3 つに由来は無い。**
+> §3 の 🔎 と同じ扱いで、**次期が選び直してよい。**
 
 **なぜ移したか**: **「人に見せたい場所」を文書が持てないと WYSIWYG が成立しない**（ユーザー判断）。
 全体を見たい人は `Fit` ボタンを押せばよい。
@@ -314,13 +354,13 @@ zoomX 0.25 で 段数 96 → 72（担当・完了率を隠すと 24 段ぶん減
 
 | キー | 既定 | 下限 | 上限 | 意味・範囲の理由 |
 |---|--:|--:|--:|---|
-| `rulerTierPxPerDayMonth` | `1` | 0.1 | `rulerTierPxPerDayWeek` | 目盛が 年 → 年＋月 に変わる px/day。**次のしきい値を超えない** |
-| `rulerTierPxPerDayWeek` | `4` | `rulerTierPxPerDayMonth` | `rulerTierPxPerDayDay` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day。**前後のしきい値の間** |
-| `rulerTierPxPerDayDay` | `14` | `rulerTierPxPerDayWeek` | 60 | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day。**前のしきい値を下回らない** |
+| `rulerTierPxPerDayMonth` | **`1.4`** | 0.1 | `rulerTierPxPerDayWeek` | 目盛が 年 → 年＋月 に変わる px/day。**次のしきい値を超えない** |
+| `rulerTierPxPerDayWeek` | **`4.3`** | `rulerTierPxPerDayMonth` | `rulerTierPxPerDayDay` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day。**前後のしきい値の間** |
+| `rulerTierPxPerDayDay` | **`30`** | `rulerTierPxPerDayWeek` | 60 | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day。**前のしきい値を下回らない** |
 | `taskLevelOfDetailReadablePx` | `24` | `fontMin` | 200 | この幅を割った深さのタスクを描かない（軸A・WBS の深さ）。文字が 1 つも入らない幅にしない |
 | `groupLevelOfDetailBase` | `0.32` | 0.01 | 2 | グループ LOD の初項。`threshold(d) = groupLevelOfDetailBase x groupLevelOfDetailRatio^(d−2)` |
 | `groupLevelOfDetailRatio` | `1.875` | 1 + ε | 4 | 同上の公比。**1 以下だと深いほど出やすくなり単調性が壊れる** |
-| `stackSafetyCap` | 十分に大きい値 | — | — | 積み順の安全弁。到達したら**人に知らせる**（項 30-7） |
+| `stackSafetyCap` | **`4096`** | — | — | 積み順の安全弁。到達したら**人に知らせる**（項 30-7）。**目標規模の 1000 アイテムが 1 行で全部重なっても 1000 段**なので、その 4 倍。ここに届くのは明らかな異常 |
 
 > **時間軸のしきい値は境目の数だけキーを置く** — **確定 2026-08-01**。
 > 旧版は `rulerTierPxPerDay = [1, 8]` という 1 キーだった。
@@ -332,8 +372,24 @@ zoomX 0.25 で 段数 96 → 72（担当・完了率を隠すと 24 段ぶん減
 > **この 3 キーは固定値であり、実行時に導出しない** — **確定 2026-08-02（ユーザー判断）**。
 > `../03-ui-naming/handover-ui-detail-spec-ja.md` §6-3 のラベル幅の式は
 > **既定値を選ぶときの考え方**であって判定式ではない。実装が値を書き換えてはならない。
-> ⚠️ **現行の既定値 1 / 4 / 14 はその考え方を 3 つとも満たしていない。**
-> 決め直しは `../NEXT-STEPS-ja.md` ステップ 4 で扱う。
+>
+> **既定値を 1 / 4 / 14 から 1.4 / 4.3 / 30 へ決め直した — 確定 2026-08-02。**
+> 旧値は §6-3 の目安を**3 つとも割っていた**。ラベル幅の概算規則
+> （**全角 2・半角 1 の単位数 × フォントサイズ ÷ 2**）に**和文の可読下限 12px** を当てて導いた。
+>
+> | 段階 | ラベル | 単位数 | 必要幅 | 条件 | 解 | 採用 |
+> |---|---|:--:|--:|---|--:|--:|
+> | 2 年＋月 | `2026-01` | 7 | 42px | `30.4 x ppd ≧ 42` | 1.38 | **1.4** |
+> | 3 ＋週 | `01-05` | 5 | 30px | `7 x ppd ≧ 30` | 4.29 | **4.3** |
+> | 4 ＋日曜 | `05 月` | 5 | 30px | `1 x ppd ≧ 30` | 30 | **30** |
+>
+> 単調性（Month ≦ Week ≦ Day）を満たす。既定の `px/day = 6 x zoomX` なので、
+> **等倍では段階 3（年＋月＋週）**になる。段階 4 は `zoomX ≧ 5`。
+>
+> ⚠️ **この 3 値は「目盛のフォントが 12px のとき」の解である。** `fontScale` を `L` にして
+> フォントが大きくなると、**段階 2 と 3 のラベルは入らなくなる**（間引けるのは日の段だけで、
+> 年月・週の段は「間引かない」と決まっている ＝ §6-3）。
+> **`fontScale` の S / M / L が何 px かは未定義**であり、`../NEXT-STEPS-ja.md` **2-7** で決める。
 
 > **「200 アイテム以下なら全部描く」は設定にしない。** 前プロジェクトの閾値ハックであり、
 > **次期は起動シーケンスで根治する**と決まっている
