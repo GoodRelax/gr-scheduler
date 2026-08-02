@@ -81,6 +81,7 @@ handover に入ると二重の入口になる）。
 | `handover/05-security-a11y/security-design.md` §2 | 脅威モデルに **1 段落**。**文面は `agent-interface-spec-ja.md` §6-1 に用意済み**（そのまま貼る）。要点は「**API は信頼境界ではないが、既定では公開しない**」（`A-7` / 決定-4） |
 | `handover/05-security-a11y/security-design.md` §5 | **1 行**: **`file://` では localStorage も IndexedDB も全ローカルファイルで共有される**（決着-8 で実測）。同節の「同一オリジン JS から平文で読める」は、`file://` では「**そのマシンの全ローカルファイル**」を意味する。**`http(s)` 配信で消える** |
 | `handover/02-data-model/grs-native-erd-ja.md`（**データ構造の正**） | **直接書き足さない。** `documentId` が要る理由と最小の形は `agent-interface-spec-ja.md` §2-3 にある。**採否は change-manager 経由で正の側に節を起こす**（決定-5） |
+| `handover/03-ui-naming/handover-ui-parts-ja.md`（**命名の正**） | **直接書き足さない。** 決定-6 の 4 語（`ConcurrentUpdate` / `BaseRevisionCheck` / `AutomaticReconciliation` / `ImportMerge`）を **§2-1 の日英対応表へ通す**。**`ImportMerge` は ERD §5.4 の「マージ」を*狭める*提案**なので、**採否をここで判断してもらう** |
 | `handover/02-data-model/handover-data-model-entry-ja.md` | JSON 実例の**すぐ下**に、`revisionStamp` を足す提案の所在を 1 行（**実例そのものは変えない**） |
 
 > ⚠️ **`grs-native-erd-ja.md`（データ構造の正）と `grs-document-settings-ja.md`（設定値の正）は触らない。**
