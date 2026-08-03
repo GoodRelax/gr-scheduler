@@ -92,7 +92,7 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
 | **Drop** | ✗ | ✗ | — | 書かない | **あり** | 理解も保持もしない＝**捨てる**。**原則ゼロ**（明示許容時のみ）。 |
 
 - **リトマス試験**: 「その列を**読み飛ばしたら GRS は復元不能な情報を失うか?**」→ 失う＆使う=Own/Consume、失わない(冗長)=Reconstruct、失うが意味は使わない=**Carry**（温存で回避）、失って良い=Drop。
-- **※ Carry の損失は「passthrough を実装しない場合のみ」発生**。Carry=実際に温存し export で書き戻す（案b）ため、**未編集往復は無損失**。
+- **※ Carry の損失は「passthrough を実装しない場合のみ」発生**。Carry=実際に温存し export で書き戻すため、**未編集往復は無損失**。
 - **断捨離（29→8 テーブル）と分類は別概念**: 断捨離＝「GRS が**ネイティブに構造化する**テーブルを 8 に絞る」。構造化しない要素も **Carry で温存**するので**捨てていない**。「削除した＝Drop」ではない。
 - **正規形と発行**: 正規 JSON（編集・autosave）= Own/Consume/Carry のみ（Reconstruct は持たない＝ドリフト防止）。MSPDI export = Reconstruct 値をその場で計算して焼き込む（MSPDI は自己完結スナップショットの思想）。両立する（別成果物）。
 
@@ -640,7 +640,7 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 → **8 ネイティブテーブルで「未分類ゼロ」**（全スカラー名を XSD 突合で確認済み）。
 → **明示許容の Drop は 1 件のみ**: マージ時の取込側 Carry の欠落（`grs-native-erd-ja.md` §5.4）。**WBS の深さによる Drop は無い**（同 §5.5e・クランプしない）。
-→ さらに **Carry ストア設計が確定した**（`grs-native-erd-ja.md` §5.5d）ことで、**Drop=0 は機械検証の結果**になった: **入口**で「ネイティブ列＋carry」の再合成が元要素と一致するか検証し（不一致なら要素まるごと退避＝**漏れても失われない**）、**出口**で未編集往復の差分ゼロを CI 検証する。前提は **Own/Consume 列が nullable**（`null`＝元ファイルに要素なし）であること。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough（案b）の実装が Drop=0 の前提**。
+→ さらに **Carry ストア設計が確定した**（`grs-native-erd-ja.md` §5.5d）ことで、**Drop=0 は機械検証の結果**になった: **入口**で「ネイティブ列＋carry」の再合成が元要素と一致するか検証し（不一致なら要素まるごと退避＝**漏れても失われない**）、**出口**で未編集往復の差分ゼロを CI 検証する。前提は **Own/Consume 列が nullable**（`null`＝元ファイルに要素なし）であること。**残り 21 テーブルの Drop=0 は §7.0「丸ごと Carry」に依拠**（フィールド単位ではなく opaque passthrough で温存）。損失は「Carry を実装しない」場合のみ発生 → **Carry passthrough の実装が Drop=0 の前提**。
 > ⚠️ **H-2（要注意）**: `ActualDuration`/`RemainingDuration` は当初 Reconstruct としたが、**進行中タスク（`ActualFinish` 空）では単純再計算が破綻**するため Carry へ格下げ済み。
 > なお `ActualDuration` はその後 **Own** に上がり（実績の長さを GRS が決める）、`RemainingDuration` は **完了時だけ `0` を書く**例外を持つ（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §10-1）。§8D の round-trip 同一性テストに**進行中タスクのケースを必須追加**する（完了タスクだけの検証では欠落を見逃す）。
 
@@ -661,7 +661,7 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 ### D. 残アクション
 
-- **Carry passthrough の実装**（案b）と **round-trip 同一性テスト**を CI に（未編集 import→export の差分ゼロを機械検証）。
+- **Carry passthrough の実装**と **round-trip 同一性テスト**を CI に（未編集 import→export の差分ゼロを機械検証）。
 - **enum 全数化**（Appendix C の未完分）。
 - 敵対的レビュー（本書 × XSD）で命名ズレ・分類漏れ・完全性を最終確認。
 

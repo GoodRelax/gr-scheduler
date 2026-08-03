@@ -133,7 +133,7 @@ gr-scheduler 固有の内容は持っていない。
 
 | 資産 | 件数 | **破棄理由** |
 |---|:--:|---|
-| `poc-layout-A-orthogonal-channel.html` / `-B-anchor-search` / `-C-reserved-lane` / `poc-zoom-A-depth-threshold` / `-B-fit-first` | 5 | **比較は決着済み**（案 B ＋ zoom A を推奨）で、**計測値は `08-poc/POC-RESULTS-ja.md` に全数記録されている**。現物は**廃止語を 158 箇所（99 行）抱えており**（`lane` / `actualEnd` / `overdue`／定数 `LANE_H` `LANE_OFF`）、`README.md` §0-1「コピペ禁止」に対する最大の誘因だった。次期は「自分の数字を取り直す」方針（同 §0-2）なので、前回の比較実装を参照する場面が無い。**PoC は `poc-integrated.html` 1 本に絞った** |
+| `poc-layout-A-orthogonal-channel.html` / `-B-anchor-search` / `-C-reserved-lane` / `poc-zoom-A-depth-threshold` / `-B-fit-first` | 5 | **比較は決着済み**（**9 点アンカーの候補探索** ＋ **深さしきい値のズーム** を推奨）で、**計測値は `08-poc/POC-RESULTS-ja.md` に全数記録されている**。現物は**廃止語を 158 箇所（99 行）抱えており**（`lane` / `actualEnd` / `overdue`／定数 `LANE_H` `LANE_OFF`）、`README.md` §0-1「コピペ禁止」に対する最大の誘因だった。次期は「自分の数字を取り直す」方針（同 §0-2）なので、前回の比較実装を参照する場面が無い。**PoC は `poc-integrated.html` 1 本に絞った** |
 
 ### 4-5. 破棄しなかったが**注意が要る**もの
 
