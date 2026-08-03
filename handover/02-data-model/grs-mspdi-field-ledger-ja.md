@@ -43,7 +43,7 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
 
 この往復で情報を落とさないため、**MSPDI の全要素を「GRS がどう扱うか」で仕分ける**のが本書の目的。判定は 5 分類（**Own / Consume / Reconstruct / Carry / Drop**・§4）で行い、**未分類ゼロ・Drop ゼロ**を厳格チェックする。
 
-本書は「MSPDI を**読む材料**として棚卸し → GRS の内部モデル（`grs-data-model-ja.md`）へどう写すか」を定める、Adapter 設計の一次資料である。
+本書は「MSPDI を**読む材料**として棚卸し → GRS の内部モデル（`grs-native-erd-ja.md`）へどう写すか」を定める、Adapter 設計の一次資料である。
 
 ---
 
@@ -51,7 +51,7 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
 
 - **GRS（gr-scheduler）**: 単一 `.html` でブラウザだけで動く WYSIWYG 日程表ツール。パワポで日程表を書く操作感で、成果物は画像でなく構造化データ（JSON / MSPDI XML / SVG）。
 - **コア価値**: **マルチバー**（1 行に複数タスク/マイルストーンを横並べ）＋上下左右整列＋ズーム連動 LOD＋依存線自動配線。
-- **ネイティブモデルは 2 軸**（`grs-data-model-ja.md` §2）:
+- **ネイティブモデルは 2 軸**（`grs-native-erd-ja.md` §5.1）:
   - **軸A: WBS 構造ツリー** = `Task.wbs_parent_uid`（MSPDI `OutlineLevel` 対応・**export する**）。
   - **軸B: マルチバー視覚層** = `TaskGroup`（行の器・入れ子 ≤Lv5）＋ `TaskGroupMember`（**GRS 専用・非 export**）。
 - **対象外ドメイン**（＝ MSPDI の該当フィールドは GRS が解釈しない → Carry）: コスト管理・EVM（出来高）・資源平準化・**資源/割当の管理**（工数・割当率・単価）・エンタープライズ/サーバ連携・カスタムフィールド・独自コード体系。
@@ -667,6 +667,6 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 ### E. 参照
 
-- 分類定義・往復規約・2軸モデル: `grs-data-model-ja.md` §4/§6/§7
+- 往復規約・設計判断の変遷: `grs-native-erd-ja.md` §8H / §8I
 - MSPDI 事実（責務・全要素）: `../01-mspdi/mspdi-tables.md`, `../01-mspdi/mspdi-core-tree.md`（断捨離の経緯 ERD は **`handover/` に無い**。`../DISCARDED-ja.md`）
 - 正: 公式 XSD <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>（ローカル複製 `../01-mspdi/mspdi/mspdi_pj12.xsd` は同梱していない）

@@ -1262,7 +1262,6 @@ C-6 で「割当は MSPDI の `FieldName` に書く（これが正）＋ JSON �
 | 同 | §3-4 #8 | **判断を撤回**（拡張領域 → Own）。撤回理由を記録 |
 | 同 | §4-1 / §4-2 | 往復対象を 6 属性 → **2 属性**に更新。C-1 の条件分岐を削除。**C-2 を反転** |
 | `grs-mspdi-field-ledger-ja.md` | 該当行 | `Stop` / `Resume` / `ResumeValid` / `ActualDuration` の仕訳を **Own** へ。※`OutlineLevel` は **Consume のまま**（§10-2 の注記） |
-| `../06-background/plan-actual-visibility-operability-model-ja.md` | 冒頭 | 「**旧案。本書が上書きする**」の注記を追加 |
 | **`OPEN-ITEMS-ja.md`（新規）** | — | 実機確認 **3 件**（§12） |
 
 ---

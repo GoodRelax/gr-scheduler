@@ -11,7 +11,7 @@ status: stable
 
 - 日付: 2026-07-26
 - 目的: 次期開発が**最初から確定名で始められる**ようにする。現行コードは旧名のままなので、本書の名前で作り直す。
-- 素材: 前プロジェクトの用語集・GUI 木（**どちらも旧名のため `handover/` には無い**。`DISCARDED-ja.md` §3）/ `../06-background/refactor-gui-data-separation-ja.md`（木の抜けの指摘）/ `../02-data-model/grs-native-erd-ja.md`（データモデル）
+- 素材: 前プロジェクトの用語集・GUI 木（**どちらも旧名のため `handover/` には無い**。`../DISCARDED-ja.md` §3）/ `../02-data-model/grs-native-erd-ja.md`（データモデル）
 - 位置づけ: **UI パーツ名の確定版**。データ構造は `../02-data-model/grs-native-erd-ja.md` が正。
   **日英対応表は §2-1 が正**（全数をそこに置く。他の文書に同じ表を作らない）。
   予実・進捗まわりの設計は `../07-plan-actual/handover-plan-actual-decisions-ja.md` が正。
@@ -24,7 +24,7 @@ status: stable
 
 **UI 名称とモデル名称が食い違う場合は、UI 名称を変更する。**
 
-現行は同じものに **UI 側と データ側で別の語**を当てており、それが「画面とデータが同じ語彙で混在している」（`refactor-gui-data-separation-ja.md` が指摘した**バグの根因**）状態を生んでいた。次期は**モデルの語彙に一本化**する。
+現行は同じものに **UI 側と データ側で別の語**を当てており、それが「画面とデータが同じ語彙で混在している」（**バグの根因**。`../README.md` §0-1）状態を生んでいた。次期は**モデルの語彙に一本化**する。
 
 ### 1-2. 面ごとの記法（**本書が正**）
 
@@ -665,4 +665,4 @@ App Shell                      アプリ全体の器
    `../07-plan-actual/handover-plan-actual-decisions-ja.md`（予実・進捗）／
    `../02-data-model/grs-document-settings-ja.md`（設定値）。frontmatter の `authority:` キーがその印である。
    新しい用語を足すときの規則は **§1-2（面ごとの記法・語幹一致）** と **1 概念 1 語**（`user-order.md` 項 66）。
-3. **語彙の重複がバグの源だった**という分析（`refactor-gui-data-separation-ja.md`）は次期でも有効。**1 概念 1 語**を維持する。
+3. **語彙の重複がバグの源だった**という分析（`../README.md` §0-1）は次期でも有効。**1 概念 1 語**を維持する。

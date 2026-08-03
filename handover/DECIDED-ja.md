@@ -157,7 +157,7 @@ status: stable
 | 予実の編集モデルにまつわる命名を解決した | §5-4/5-5 |
 | **予定日付のフィールド名は `start` / `finish`** で確定した | §5-1 |
 
-> ⚠️ **語彙の重複が前プロジェクトのバグ根因であった**（`06-background/refactor-gui-data-separation-ja.md`）。
+> ⚠️ **語彙の重複が前プロジェクトのバグ根因であった**（`README.md` §0-1）。
 > **1 概念 1 語を崩さないこと。**
 > ⚠️ **`ImportMerge` はまだこの表を通っていない**（`NEXT-STEPS-ja.md` 2-8）。
 

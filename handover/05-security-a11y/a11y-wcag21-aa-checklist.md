@@ -183,7 +183,7 @@ AA 適合に要るのは A + AA = 50   ← 本表の対象
 | 出典 | 何と書いてあるか |
 |---|---|
 | `../user-order.md` 項 67 | **画面とデータを分離する** |
-| `../06-background/refactor-gui-data-separation-ja.md` | **バグ根因は「画面とデータの語彙混在」だった** |
+| `../README.md` §0-1 | **バグ根因は「画面とデータの語彙混在」だった** |
 | `CLAUDE.md` | Clean Architecture / DIP。**SVG 描画は Adapter へ分離** |
 
 **1.3.1 は、この分離が本物かを外から測る物差しになっている。**

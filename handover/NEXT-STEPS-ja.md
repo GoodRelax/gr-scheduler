@@ -212,7 +212,7 @@ AA 適合に要るのは A + AA = 50
 | **決めること** | **`ImportMerge` を `03-ui-naming/handover-ui-parts-ja.md` §2-1 の日英対応表へ通すかどうか。** これは正（`02-data-model/grs-native-erd-ja.md` §5.4「マージ規約」）が使っている**「マージ」を*狭める*提案**である。構造も挙動も変えない |
 
 > **なぜ語だけ先に分けたか**: **前プロジェクトのバグ根因が語彙の重複だった**
-> （`06-background/refactor-gui-data-separation-ja.md`）。**機能を作る前に語を分けるのは安い。**
+> （`README.md` §0-1）。**機能を作る前に語を分けるのは安い。**
 > 調べたところ、正の側が「マージ」（取込の合流）と「衝突」（取込時の UID 衝突）を**両方とも使っていた**。
 
 > ⚠️ **識別子は 1 つも増えない。** 既存の `baseRevision` / `stale-base-revision` / `expectedRevision` は変えない。

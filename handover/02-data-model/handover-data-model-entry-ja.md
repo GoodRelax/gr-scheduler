@@ -40,7 +40,7 @@ status: stable
 | 3 | `../01-mspdi/mspdi-core-tree.md` / `mspdi-tables.md` | MSPDI の構造・全 29 テーブルの責務 | MSPDI 自体の理解 |
 | 4 | `grs-mspdi-field-ledger-ja.md` | **全要素の取捨選択**（Own/Consume/Reconstruct/Carry/Drop） | 仕分けの実例。枠組み自体が再利用できる |
 | **5** | **`grs-native-erd-ja.md`** | **GRS の構成（確定版）**。ERD・識別子・マージ・Carry ストア | **データ構造の正** |
-| 6 | `grs-data-model-ja.md` §8 | **設計判断の変遷**（何を試し、なぜ変えたか） | 却下案とその理由 |
+| 6 | `grs-native-erd-ja.md` §8I | **設計判断の変遷**（何を試し、なぜ変えたか） | 却下案とその理由 |
 
 > **迷ったら 5 を見る。** 1〜4 は前提知識、6 は経緯。
 

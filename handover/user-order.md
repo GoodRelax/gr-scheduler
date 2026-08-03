@@ -514,13 +514,12 @@ status: stable
 | `02-data-model/grs-native-erd-ja.md` | **データ構造の確定版**（ERD・識別子・マージ・往復の規約） |
 | `02-data-model/grs-mspdi-field-ledger-ja.md` | MSPDI 全要素の取捨選択台帳 |
 | `02-data-model/handover-property-mspdi-mapping-ja.md` | **プロパティ全項目の MSPDI 対応**と、無い項目の格納方式（3 案比較・推奨） |
-| `02-data-model/grs-data-model-ja.md` §8 | **設計判断の変遷**（何を試し、なぜ変えたか） |
+| `02-data-model/grs-native-erd-ja.md` §8I | **設計判断の変遷**（何を試し、なぜ変えたか） |
 | `03-ui-naming/handover-ui-parts-ja.md` | **UI パーツ名と責務**（確定名）。**用語の正**。§2-1 が**日英対応表の正** |
 | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**（4 部構成の内訳・上部ボタン・パレット構成・ショートカット一覧） |
 | **`07-plan-actual/handover-plan-actual-decisions-ja.md`** | **予実・進捗の確定設計**。MSPDI 準拠モデル・5 状態・タスク形状・Progress Marker・イナズマ線の頂点規則・Undo・レイアウトの計算順序。**この領域はここが正**。§11 に「既存文書のどこを上書きするか」の全数 |
 | `04-performance/handover-performance-notes-ja.md` | **ぬるサクの引継ぎ**。効いた手 / 効かなかった手 / 踏んだ罠・実測基準線。最優先事項 1 の根拠。**既存コードは参考のみ・コピペ禁止** |
 | `05-security-a11y/security-design.md` | 脅威モデルと入力検証の設計 |
-| `06-background/handover-stale-spec-audit-ja.md` | 旧仕様のどこが陳腐化しているかの監査 |
 
 ---
 

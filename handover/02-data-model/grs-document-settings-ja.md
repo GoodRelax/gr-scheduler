@@ -317,7 +317,7 @@ zoomX 0.25 で 段数 96 → 72（担当・完了率を隠すと 24 段ぶん減
 
 `../07-plan-actual/handover-plan-actual-decisions-ja.md` §2-6 の色表は**色相 214 で PoC 実測**しており
 （実績 ÷ 予定 ＝ ライト 4.81:1 / ダーク 3.74:1）、**この色相だけがコントラスト検証を通っている。**
-`../handover-data-model-entry-ja.md` の JSON 実例にある `210` に根拠は無い。**裏付けがあるのは 214 である。**
+`handover-data-model-entry-ja.md` の JSON 実例にある `210` に根拠は無い。**裏付けがあるのは 214 である。**
 
 **`scrollDate` / `scrollGroupId` の既定が `null` である理由 — 確定 2026-08-02**
 
@@ -593,4 +593,3 @@ rulerHeight   ↔  rulerFont        rulerHeight ≧ rulerFont x 3 + 6 ／ rulerF
 | 同 | §5.7 の「原理的な限界」 | LOD のビューポート依存は**ズームの保存で解消**、ラベル計測依存は **§6-2「実測しない」で解消済み**。主張を更新 |
 | 同 | §5.7-1「なぜズーム / スクロールを保存しないか」 | **節ごと差し替え**（保存する側になった） |
 | `handover-property-mspdi-mapping-ja.md` | C-8 | JSON 往復の検査 6 件を追記（§8-2） |
-| `grs-data-model-ja.md` | 冒頭の上書き表 | 「JSON＝見た目の完全再現」の限定条件を更新（本文は歴史文書として触らない） |

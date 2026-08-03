@@ -26,7 +26,7 @@ status: stable
 1. **現行コードは全て旧名**（`item` / `itemKind` / `laneIndex` / `section` / `ScheduleItem` …）。
    確定名は `handover-ui-parts-ja.md` にある（`Task` / `Task.milestone` / `TaskGroupMember.stackOrder` /
    `TaskGroup`）。**コピペは旧語彙を次期に流入させる**。前プロジェクトで「バグが止まらない」根因は
-   語彙の重複だった（`refactor-gui-data-separation-ja.md`）。同じ穴に落ちる。
+   語彙の重複だった（`../README.md` §0-1）。同じ穴に落ちる。
 2. **設計判断とその代償**が本書に書いてある。**判断を読んで、自分で書く**のが引継ぎの中身であって、
    動くファイルを受け取ることではない。
 

@@ -158,7 +158,6 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | **10** | **`07-plan-actual/handover-plan-actual-decisions-ja.md`** | **予実・進捗の確定設計**。MSPDI の `Stop`/`Resume`/`ResumeValid` をそのまま使うモデル・5 状態・形状・Progress Marker・イナズマ線の頂点規則・Undo・命名 | **この領域はここが正**。⚠️ 8b と 9b の予実まわりを**上書きする**（同書 §11 に差分の全数） |
 | 11 | `05-security-a11y/security-design.md` | 脅威モデル・**JSON / MSPDI XML** の検証・単一 HTML の CSP | 要求として生きている（`user-order.md` 62）。⚠️ **冒頭の注記を先に読む** — SVG/PNG 取込の節は**対象機能が取り下げ済み** |
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
-| 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
 | **14** | **`08-poc/`** | **動く PoC**（`poc-integrated.html` **1 本**・6 タブ。日程表 / 形状の基準 / マルチバー 20 パターン / レベル遷移 / 色と縁取り / 記録）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。**書き戻しは 2026-08-02 に全数を棚卸し済み**（同書 §6 の 6 件と末尾の表の 7 件）。**2026-08-02 に 3 件とも決着した**（§6-2 は不採用・横切りは重ね順で解く／#5 は罠 T-14 へ／#7 は深さ 5〜1 を試す方式に確定）。**書き戻し待ちのものは無い** |
 | 15 | `09-architecture/handover-architecture-entry-ja.md` | **アーキ領域の所在**。描画方式 = SVG の結論がどこにあるか / 不変更新ストアが「前提として参照されているのに設計が無い」こと / **モジュール構成と技術スタックは意図的な空白**であること | 事実の所在のみ。決定はしない |
 | 15b | `09-architecture/handover-architecture-layering-draft-ja.md` | **層仕訳の推奨案**。中核計算を entity、操作層を use case、UI と機械向けの口を同格の adapter に置く形 | ⚠️ **`status: draft`。推奨案であって決定ではない**。正式版は次期が決める |
@@ -186,7 +185,6 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | `docs/spec/glossary.md`（前プロジェクトの用語集） | **`handover/` には無い**。旧名で書かれているため外した（`DISCARDED-ja.md` §3） |
 | `docs/spec/_assets/handover-performance-notes-ja.md` | `04-performance/` |
 | `docs/security/security-design.md` / `docs/dev/a11y-wcag21-aa-checklist.md` | `05-security-a11y/` |
-| `docs/spec/_assets/handover-stale-spec-audit-ja.md` / `handover-user-order-diff-ja.md` / `docs/analysis/refactor-gui-data-separation-ja.md` / `plan-actual-visibility-operability-model-ja.md` | `06-background/` |
 | `old/日程管理ツール.md`（既存ツール比較の調査記録） | **`handover/` には無い**。特定製品の評価を含むため外した（`DISCARDED-ja.md` §3） |
 | **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`handover/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 29 文書にファイル名の重複は無い**ので名前で一意に定まる（機械検査済み。衝突ゼロ）。`README.md` だけは **3 つ**ある — 本書 / `01-mspdi/mspdi/README.md`（XSD の入手元）/ `08-poc/README.md`（PoC の開き方） |
 | `docs/spec/vendor/mspdi-declutter-erd-ja.md`（MSPDI 断捨離の中間分析） | **`handover/` には無い**。結論は `02-data-model/grs-mspdi-field-ledger-ja.md` に落ちている（`DISCARDED-ja.md`） |
@@ -221,8 +219,7 @@ handover/
 │   ├── grs-native-erd-ja.md              ★データ構造の正（14 エンティティ・2 軸）
 │   ├── grs-document-settings-ja.md        ★設定値の正（保存する全項目・保存しないもの・自動保存）
 │   ├── grs-mspdi-field-ledger-ja.md      MSPDI 全要素の取捨選択台帳
-│   ├── handover-property-mspdi-mapping-ja.md  プロパティ×MSPDI 対応・進捗と実績・格納方式3案
-│   └── grs-data-model-ja.md              §8 に設計判断の変遷（却下案とその理由）
+│   └── handover-property-mspdi-mapping-ja.md  プロパティ×MSPDI 対応・進捗と実績・格納方式3案
 │
 ├── 03-ui-naming/                    命名（1 概念 1 語）
 │   ├── handover-ui-parts-ja.md      ★UI パーツ名と責務の確定版
@@ -235,12 +232,6 @@ handover/
 │   ├── security-design.md           脅威モデルとサニタイズ設計
 │   └── a11y-wcag21-aa-checklist.md  WCAG 2.1 AA
 │
-├── 06-background/                   経緯（迷ったときに読む）
-│   ├── handover-stale-spec-audit-ja.md              旧仕様の陳腐化監査
-│   ├── handover-user-order-diff-ja.md               user-order 改訂の差分と理由
-│   ├── refactor-gui-data-separation-ja.md           **バグ根因の分析**（画面とデータの語彙混在）
-│   └── plan-actual-visibility-operability-model-ja.md  予実の可視性/操作性モデル（**旧案。07 が上書き**）
-│
 ├── 07-plan-actual/                  予実・進捗の確定設計（この領域の正）
 │   └── handover-plan-actual-decisions-ja.md
 │                                    MSPDI 準拠モデル・5 状態・形状・Progress Marker
@@ -251,7 +242,6 @@ handover/
 │   ├── README.md                    開き方と読むときの注意。**最初にこれ**
 │   ├── POC-SPEC-ja.md               共通仕様と入力データ（§8 に既知の弱点）
 │   ├── POC-RESULTS-ja.md            **計測結果・推奨・書き戻しの反映状況**
-│   ├── OPEN-QUESTIONS-ja.md         判断が要った 7 件（全件 決着済みの記録）
 │   └── poc-integrated.html          **入口。PoC はこの 1 本だけ**。6 タブ
 │                                    （案比較の 5 本は 2026-08-02 に外した。
 │                                      結論と数値は POC-RESULTS-ja.md に残っている）

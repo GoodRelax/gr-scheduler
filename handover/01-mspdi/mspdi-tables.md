@@ -307,4 +307,4 @@ erDiagram
 
 - MSPDI 全 **29 テーブル**。ただし中核は **6** のみで、残り 23 は分類コード/カスタムフィールド/Baseline/カレンダー詳細/時系列/単価の従属テーブル。
 - ERD 非表示要素は「Project スカラー 63（**○26 / ×37**）」「コンテナ 15（吸収6 / 削9）」「value-object 2（TimePeriod ○ / WorkingTime ×）」。
-- 断捨離後は **8 テーブル**（中核 6 ＋ Calendar_WeekDay ＋ Calendar_Exception）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け・マルチバー拡張）は `../02-data-model/grs-mspdi-field-ledger-ja.md` / `grs-data-model-ja.md`。
+- 断捨離後は **8 テーブル**（中核 6 ＋ Calendar_WeekDay ＋ Calendar_Exception）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け・マルチバー拡張）は `../02-data-model/grs-mspdi-field-ledger-ja.md`。
