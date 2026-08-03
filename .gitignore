@@ -74,3 +74,6 @@ tmp/
 
 # Shogi trial runtime state
 ai-cowork-trial/shogi/state.json
+
+# Internal working notes (handoff prompts). Never published.
+handover/temp/
