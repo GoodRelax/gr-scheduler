@@ -376,7 +376,7 @@ JSON 実例にある日付と `grp-a` は**インスタンスの値であって�
 | `rulerTierPxPerDayMonth` | **`1.4`** | 0.1 | `rulerTierPxPerDayWeek` | 目盛が 年 → 年＋月 に変わる px/day。**次のしきい値を超えない** |
 | `rulerTierPxPerDayWeek` | **`4.3`** | `rulerTierPxPerDayMonth` | `rulerTierPxPerDayDay` | 目盛が 年＋月 → 年＋月＋週 に変わる px/day。**前後のしきい値の間** |
 | `rulerTierPxPerDayDay` | **`30`** | `rulerTierPxPerDayWeek` | 60 | 目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day。**前のしきい値を下回らない** |
-| `taskLevelOfDetailReadablePx` | `24` | `fontMin` | 200 | この幅を割った深さのタスクを描かない（軸A・WBS の深さ）。文字が 1 つも入らない幅にしない |
+| `taskLevelOfDetailReadablePx` | `24` | `fontMin` | 200 | この幅を割った深さのタスクを描かない（WBS の深さ）。文字が 1 つも入らない幅にしない |
 | `groupLevelOfDetailBase` | `0.32` | 0.01 | 2 | グループ LOD の初項。`threshold(d) = groupLevelOfDetailBase x groupLevelOfDetailRatio^(d−2)` |
 | `groupLevelOfDetailRatio` | `1.875` | 1 + ε | 4 | 同上の公比。**1 以下だと深いほど出やすくなり単調性が壊れる** |
 | `stackSafetyCap` | **`4096`** | — | — | 積み順の安全弁。到達したら**人に知らせる**（項 30-7）。**目標規模の 1000 アイテムが 1 行で全部重なっても 1000 段**なので、その 4 倍。ここに届くのは明らかな異常 |

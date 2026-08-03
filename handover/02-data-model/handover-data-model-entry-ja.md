@@ -66,8 +66,8 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
 **2 軸**（最重要）:
 
-- **軸A: WBS 階層** = `Task.wbs_parent_uid`（MSPDI `OutlineLevel` 対応・**export する**）
-- **軸B: マルチバー** = `TaskGroup` ＋ `TaskGroupMember`（**GRS 専用・非 export**）
+- **WBS** = `Task.wbs_parent_uid`（MSPDI `OutlineLevel` 対応・**export する**）
+- **マルチバー** = `TaskGroup` ＋ `TaskGroupMember`（**GRS 専用・非 export**）
 
 行に入れ直しても WBS は動かない。`OutlineLevel` を `TaskGroup` から算出しないので、2 つの木があってもドリフトしない。
 
@@ -280,8 +280,8 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 |---|---|
 | `"actualFinish": null` | **キーを省略せず `null` を明示**。「元ファイルに要素が無かった」を意図として残す（§5.5d） |
 | `"uid": 4` が **`taskOrigins` に無い** | **GRS 生まれ**（`TaskOrigin` の行が無い＝出自なし）。マージで**照合対象にならない**（§5.4） |
-| `"wbsParentUid": 1` が 3 件 | **軸A**（WBS）。企画・設計・検証は「製品A」の子 |
-| `taskGroupMembers` が 3 件で同じ `groupId` | **軸B**（マルチバー）。**1 行に 3 つのタスク**が載る＝製品の核 |
+| `"wbsParentUid": 1` が 3 件 | **WBS**。企画・設計・検証は「製品A」の子 |
+| `taskGroupMembers` が 3 件で同じ `groupId` | **マルチバー**（`TaskGroupMember`）。**1 行に 3 つのタスク**が載る＝製品の核 |
 | `"stackOrder": null` | **自動**（start 昇順 → finish 降順 → uid 昇順）。人が指定した時だけ値が入る。**マイルストーンは特別扱いしない**（2026-08-02 に `milestone` 優先を廃止 ＝ `grs-native-erd-ja.md` §5.6） |
 | `"label": null` ＋ `"derivedFromTaskUid": 1` | **器の名前は uid=1 のタスク名（「製品A」）から導出**。人が改名すると `label` に値が入り導出が止まる（`grs-native-erd-ja.md` §5.5g） |
 | `"fadeOutDays": 5` | 終了日の曖昧さ。**MSPDI へは拡張領域で往復**（§5.5f） |

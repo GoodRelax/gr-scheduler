@@ -52,10 +52,10 @@ status: stable
 | 名前 | 何を増減するか | 駆動 |
 |---|---|---|
 | 時間軸 LOD | `Time Ruler` の粒度（年 → 年＋月 → 年＋月＋週 → 年＋月＋日＋曜日） | 横（`zoomX`） |
-| タスク LOD | 深い WBS（**軸A**）の `Task` を描かない | 横（`zoomX`）＝ **幅** |
-| グループ LOD | 深い `TaskGroup`（**軸B**）を親へ畳む | 縦（`zoomY`）＝ **高さ** |
+| タスク LOD | 深い **WBS** の `Task` を描かない | 横（`zoomX`）＝ **幅** |
+| グループ LOD | 深い **`TaskGroup`** を親へ畳む | 縦（`zoomY`）＝ **高さ** |
 
-**散文では `LOD` と書いてよい**（大文字なら読める）。**軸A と軸B は別物なので必ず併記する**
+**散文では `LOD` と書いてよい**（大文字なら読める）。**タスク LOD（WBS）とグループ LOD（`TaskGroup`）は別物なので必ず言い分ける**
 （`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3）。
 
 ---
@@ -220,10 +220,10 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 
 | 曖昧な日本語 | 書き方 |
 |---|---|
-| 段 | **4 義ある。** ①**積み順（`stackOrder`）** ②**軸A の深さ**（WBS・`OutlineLevel`） ③**軸B の深さ**（`TaskGroup`） ④**ズームのノッチ**。**必ずどれかを併記する。「N 段」と単独で書かない** |
+| 段 | **4 義ある。** ①**積み順（`stackOrder`）** ②**WBS の深さ**（`OutlineLevel` から導出） ③**`TaskGroup` の深さ** ④**ズームのノッチ**。**必ずどれかを併記する。「N 段」と単独で書かない** |
 | 行 | **`Rows`**（UI パーツ）/ **「タスクグループ（`TaskGroup`）」**（データ） |
 | レベル | `OutlineLevel` / `TaskGroup` の深さ / LOD のどれかを明示 |
-| 深さ | **軸A（WBS）** か **軸B（`TaskGroup`）** かを必ず併記（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3） |
+| 深さ | **WBS** か **`TaskGroup`** かを必ず併記（`深さ` と単独で書かない）（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3） |
 | マーカー | **単独で書いたら `Progress Marker`（進捗マーカー）。** 期限の印は「**期限の印**」（`deadline`）、マイルストーンの図形は「**マイルストーン形状（`milestoneGlyph`）**」と書く。**「マーク」とも書かない** |
 | 進捗 | **3 つが別物。** `Progress Marker`（状態の記号）/ `Progress Line`（イナズマ線）/ **完了率（`percentComplete`）**。ラベルを指すなら「完了率ラベル」 |
 | ベースライン | **2 義ある。** ①**変更前の予定**（`baselineVisible`。別ファイルを重ねる） ②**文字のベースライン**（`labelBaseline`）。前者は「変更前の予定」と書くのが安全 |
@@ -458,7 +458,7 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 > | 旧 | 新 | 直した理由 |
 > |---|---|---|
 > | `itemLodReadablePx` | **`taskLevelOfDetailReadablePx`** | ① `item` は廃止語（正は `Task`） ② **`LOD` は略語として読めるが `Lod` になると意味が消える**（ユーザー判断 2026-08-02） |
-> | `rowLodBase` / `rowLodRatio` | **`groupLevelOfDetailBase` / `groupLevelOfDetailRatio`** | 同上 ＋ 実体は `TaskGroup` の深さ（軸B）であって UI 語の `Rows` ではない |
+> | `rowLodBase` / `rowLodRatio` | **`groupLevelOfDetailBase` / `groupLevelOfDetailRatio`** | 同上 ＋ 実体は `TaskGroup` の深さであって UI 語の `Rows` ではない |
 > | `rulerH` / `basePlanH` | **`rulerHeight` / `basePlanHeight`** | **裸の `H` は `Lod` と同じ**。07-31 に `shapeH` → `shapeHeightOf` を直したのに残っていた |
 > | `chevronNotchOfH` / `chevronNotchOfW` | **`chevronNotchOfHeight` / `chevronNotchOfWidth`** | 同上（`OfX` は「÷ X」の意味なので X が読めないと式が読めない） |
 > | `leftPaneWidth` | **`rowTitlePanelWidth`** | 07-31 に `rowLabelW` → `rowTitleWidth` で語幹を `Row Title Panel` に合わせたのに、この 1 キーだけ漏れた。`Pane` / `Panel` の綴りも不一致だった |
@@ -469,7 +469,7 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 >
 > | `add-box` | **`highlight-box`** | パレットのコマンド名が UI パーツ名 `Highlight Boxes` と繋がっていなかった（旧「囲み枠」時代の残骸） |
 > | 「アイテム LOD」 | **「タスク LOD」** | `item` は廃止語。キー名 `taskLevelOfDetail*` と語幹を合わせた |
-> | 「行階層 LOD」 | **「グループ LOD」** | 実体は `TaskGroup`（軸B）。`Rows` は UI 語。キー名 `groupLevelOfDetail*` と語幹を合わせた |
+> | 「行階層 LOD」 | **「グループ LOD」** | 実体は `TaskGroup`。`Rows` は UI 語。キー名 `groupLevelOfDetail*` と語幹を合わせた |
 >
 > ✅ **PoC（`../08-poc/poc-integrated.html`）も 2026-08-02 に確定名へ揃えた。** 読み替え表は要らない。
 > 案比較の 5 本は同日に引継ぎ資産から外した（`../DISCARDED-ja.md` §4-4b）。
@@ -490,7 +490,7 @@ App Shell                      アプリ全体の器
 │
 ├─ Row Title Panel             左の固定パネル。TaskGroup の見出しを階層表示する
 │   ├─ Row Title Tree          TaskGroup 木。畳み・並べ替え・表示切替の操作点
-│   │                          ‼️ ここでの階層移動は WBS（軸A）を動かし、MSPDI へ伝播する
+│   │                          ‼️ ここでの階層移動は WBS を動かし、MSPDI へ伝播する
 │   │                             （UID は保持。grs-native-erd-ja.md §5.5g）
 │   └─ Panel Divider           左パネルの幅を変えるドラッグ境界
 │
@@ -551,6 +551,17 @@ App Shell                      アプリ全体の器
 | activity major/middle/minor category | **`TaskGroup` の深さ** | 3 層固定をやめ、≤Lv5 の入れ子で表す |
 | category gridline | **Group Grid Lines** | 「分類」語彙の廃止に合わせる |
 | hidden section tab | **Hidden Group Tab** | `section` は廃止済み語 |
+| **軸A** | **WBS** | **確定 2026-08-04。** 中身の無いラベルだった。実際の文はほぼ全部「軸A（WBS）」と併記されており、**括弧の中身が全部の仕事をしていた**。実体は `Task.wbs_parent_uid`（親ポインタの木）。**識別子には一度も使われていなかった**ので、コード契約への影響はゼロ |
+| **軸B** | **`TaskGroup` ＋ `TaskGroupMember`**（散文では「マルチバー」） | **確定 2026-08-04。** 同上。⚠️ **1 語に置き換えない** — `TaskGroup` は行の器（木の節点）だけで、**「どのタスクが載るか」は `TaskGroupMember`**。**マルチバー＝製品最大の差別化は後者**なので、`TaskGroup` だけに畳むと核が名前から落ちる |
+
+> **なぜ対称な名前をやめたか（2026-08-04）**
+>
+> **2 つは同じ種類のものではなかった。** `WBS` は木の節点が `Task` 自身で、**外部マスタが権威を持ち export する**。
+> `TaskGroup` は節点が器で、`Task` は**載る側**であり、**GRS 専用で export しない**。
+> 実体の数も 1 対 2 で違う。**「軸A / 軸B」という対称なラベルが、この非対称を全部隠していた。**
+>
+> **既成概念があるのは `WBS` だけである。** `TaskGroup` ＋ `TaskGroupMember` を覆う既成語は無く、
+> **前プロジェクトが中身の無い記号を置いたのはそのためと思われる。** 次期も 1 語に畳もうとしないこと。
 
 ---
 

@@ -52,8 +52,8 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
 - **GRS（gr-scheduler）**: 単一 `.html` でブラウザだけで動く WYSIWYG 日程表ツール。パワポで日程表を書く操作感で、成果物は画像でなく構造化データ（JSON / MSPDI XML / SVG）。
 - **コア価値**: **マルチバー**（1 行に複数タスク/マイルストーンを横並べ）＋上下左右整列＋ズーム連動 LOD＋依存線自動配線。
 - **ネイティブモデルは 2 軸**（`grs-native-erd-ja.md` §5.1）:
-  - **軸A: WBS 構造ツリー** = `Task.wbs_parent_uid`（MSPDI `OutlineLevel` 対応・**export する**）。
-  - **軸B: マルチバー視覚層** = `TaskGroup`（行の器・入れ子 ≤Lv5）＋ `TaskGroupMember`（**GRS 専用・非 export**）。
+  - **WBS** = `Task.wbs_parent_uid`（MSPDI `OutlineLevel` 対応・**export する**）。
+  - **マルチバー** = `TaskGroup`（行の器・入れ子 ≤Lv5）＋ `TaskGroupMember`（**GRS 専用・非 export**）。
 - **対象外ドメイン**（＝ MSPDI の該当フィールドは GRS が解釈しない → Carry）: コスト管理・EVM（出来高）・資源平準化・**資源/割当の管理**（工数・割当率・単価）・エンタープライズ/サーバ連携・カスタムフィールド・独自コード体系。
 
 → **GRS がドメインとして持つのは「予定・実績・中断の日付／マイルストーン／階層／依存／稼働カレンダー／担当者名」だけ**。これが Own/Consume の範囲を規定し、それ以外は Carry になる（§4）。
@@ -72,7 +72,7 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
   - **予定/実績**: `Start`/`Finish`（予定）、`ActualStart`/`ActualFinish`/`PercentComplete`（実績）。※**中断は `Stop`/`Resume`/`ResumeValid` へ写す**（意味が一致することを解説書で確認した）。
   - **マイルストーン**: 専用要素なし。`Milestone=1` フラグ（慣習で `Duration=0`）。
   - **時系列**: `TimephasedData`（作業/コストの時間軸分解・S字/ヒストグラム/多重split の素）。
-- **MSPDI にできないこと**: **1 行に複数の独立タスクを横並べ**（マルチバー）。ビュー描画書式（Bar Styles・色）はファイル外。→ マルチバーは GRS が新規に定義する（§2 軸B）。
+- **MSPDI にできないこと**: **1 行に複数の独立タスクを横並べ**（マルチバー）。ビュー描画書式（Bar Styles・色）はファイル外。→ マルチバーは GRS が新規に定義する（§2）。
 - 規模: 全 **29 テーブル**（中核 6＋衛星 23）、Task 約 91 列・Resource 約 65 列・Assignment 約 61 列＋201 予約枠（XSD 機械実測で確定: Task 91＋子5 / Resource 65＋子6 / Assignment 61＋201枠＋子3）。date/time は ISO8601、enum は整数コード、多くが `minOccurs=0`（省略可）。
 
 ---
@@ -416,7 +416,7 @@ erDiagram
 
 | フィールド | 型 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|---|:--:|---|---|
-| `OutlineLevel` | int | 階層の深さ（親子） | 残→構造化 | `Task.wbs_parent_uid` へ消費（軸A）。**欠落・レベル飛び・先頭≠1 は正規化**、**クランプしない**。深さは `wbs_parent_uid` が持ち、export で算出して書き戻す。**LOD の判定でだけ 5 で頭打ち**にする | **Consume** |
+| `OutlineLevel` | int | 階層の深さ（親子） | 残→構造化 | `Task.wbs_parent_uid` へ消費（WBS）。**欠落・レベル飛び・先頭≠1 は正規化**、**クランプしない**。深さは `wbs_parent_uid` が持ち、export で算出して書き戻す。**LOD の判定でだけ 5 で頭打ち**にする | **Consume** |
 | `OutlineNumber` | str | "1.2.3" 形式コード | 削 | 階層＋順序から算出 | Reconstruct |
 | `Summary` | bool | サマリタスクか | 削 | 子の有無から算出 | Reconstruct |
 | `WBS` `WBSLevel` | str | WBSコード/レベル | 削 | 独自採番・非使用 | Carry |

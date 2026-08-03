@@ -83,7 +83,7 @@ status: stable
 | ~~`importance`~~ | （廃止）LOD は **WBS の階層の深さ**（`OutlineLevel`）で判定する | — |
 | ~~`progressStatus`~~ | （廃止）状態が `actualFinish`/`resume`/`resumeValid` で構造化された | — |
 | `fadeInDays` / `fadeOutDays` | バー端のぼかし（日付の曖昧さ） | GRS 固有の表現 |
-| `TaskGroup` / `TaskGroupMember` / `stackOrder` | **マルチバー（軸B）** | MSPDI は「1 行 = 1 タスク = 1 バー」。**概念が無い**（`mspdi-core-tree.md` の対比図） |
+| `TaskGroup` / `TaskGroupMember` / `stackOrder` | **マルチバー** | MSPDI は「1 行 = 1 タスク = 1 バー」。**概念が無い**（`mspdi-core-tree.md` の対比図） |
 
 > **`TaskGroup` 系は export しない**（GRS 専用の視覚層）。以下 §4 の格納方式は
 > **「1 つの `Task` に付随する GRS 固有属性」**についての議論である。
@@ -368,7 +368,7 @@ import 時にその枠が他ツールに使われているかを検出する
 | ~~`importance`~~ / ~~`progressStatus`~~ | **廃止したので対象外** | LOD は WBS の階層の深さで判定。状態は `actualFinish`/`resume`/`resumeValid` で構造化された |
 | `stop` / `resume` / `resumeValid` | **MSPDI ネイティブで往復**（拡張領域を使わない） | §3-4 #8 を撤回した。`Stop`/`Resume`/`ResumeValid` がそのまま使える |
 | `shapeKind` / 色 / `lineWeight` / `nameAnchor` / `nameAlign` | **させない**（確定 2026-07-26） | **相手ツールは Bar Styles として解釈できない**ので載せても誰も読まない。MSPDI の思想は「ビュー定義はファイル外」。**JSON だけで持つ** |
-| `TaskGroup` / `TaskGroupMember` / `stackOrder` | **させない** | 軸B は GRS 専用（`grs-native-erd-ja.md`） |
+| `TaskGroup` / `TaskGroupMember` / `stackOrder` | **させない** | `TaskGroup` と `TaskGroupMember` は GRS 専用（`grs-native-erd-ja.md`） |
 
 > **確定した原則**: **業務情報は往復させ、純粋な見た目は JSON だけで持つ。**
 > `user-order.md` 項 57「JSON を渡せば GRS 同士で同じ見た目が再現される」は JSON で満たせる。

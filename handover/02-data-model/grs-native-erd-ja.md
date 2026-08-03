@@ -81,8 +81,8 @@ GRS 追加要素（マルチバー等）        ─┘
 - **GRS（gr-scheduler）**: 単一 `.html` の WYSIWYG 日程表ツール。成果物は JSON（主）/ MSPDI XML / SVG。
 - **コア価値**: マルチバー（1 行に複数タスク横並べ）＋整列＋ズーム連動 LOD＋**依存線の全自動配線**（手動調整なし・§5.6）。
 - **ネイティブモデルは 2 軸**:
-  - **軸A: WBS 構造ツリー** = `Task.wbs_parent_uid`（MSPDI `OutlineLevel` 対応・**export する**）。
-  - **軸B: マルチバー視覚層** = `TaskGroup`（行の器・≤Lv5）＋ `TaskGroupMember`（**GRS 専用・非 export**）。
+  - **WBS** = `Task.wbs_parent_uid`（MSPDI `OutlineLevel` 対応・**export する**）。
+  - **マルチバー** = `TaskGroup`（行の器・≤Lv5）＋ `TaskGroupMember`（**GRS 専用・非 export**）。
 - **JSON = GRS メモリの無変換直列化**（正規形）。MSPDI 交換は Adapter が担う。
 
 ---
@@ -108,11 +108,11 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 
 1. **Own は列**: 同形で GRS の列に持つ（`Task.UID`→`Task.uid` 等、名は GRS 側規約）。**MSPDI 由来テーブルに GRS 代理キーを足さない**（§5.3）。
 2. **Consume は構造**: 意味を解釈して GRS 構造へ写す。
-   - `OutlineLevel`＋順序 → `Task.wbs_parent_uid` / `wbs_order`（**軸A・唯一の真実**）。
+   - `OutlineLevel`＋順序 → `Task.wbs_parent_uid` / `wbs_order`（**WBS・唯一の真実**）。
    - `PredecessorLink` → `Dependency`（task↔task エッジ）。
    - `CalendarUID` → `Task.calendar_id` / `Project.calendar_id`（ネイティブ暦参照）。
 3. **Reconstruct は非保存**: 正規 JSON に持たない（ドリフト防止）。export でその場算出（§8A）。
-4. **GRS 追加はマルチバーと視覚**: MSPDI に対応が無い軸B・視覚属性。**すべて非 export**。
+4. **GRS 追加はマルチバーと視覚**: MSPDI に対応が無いマルチバー・視覚属性。**すべて非 export**。
 5. **Carry は本 ERD 外**: passthrough ストアで温存（往復専用・GRS は解釈しない）。
 6. **依存の向き**: GRS 追加（TaskGroup/TaskVisual）→ Task。逆流させない（Task 無汚染）。
 7. **自動算出できるものは保存しない**（§5.6）: 自動配線の経路・LOD の見え方など、エンジンが毎回決めるものはデータに持たない。
@@ -130,9 +130,9 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 
 | 層             | エンティティ                                        | 本質? | 理由                                                                                                            |
 | -------------- | --------------------------------------------------- | :---: | --------------------------------------------------------------------------------------------------------------- |
-| **コア**       | `Task`                                              | **◎** | 日程要素の本体。**軸A（WBS）は `wbs_parent_uid` の自己参照で Task 内に閉じる**ため、階層に別テーブルは要らない。 |
-| **コア**       | `TaskGroup` / `TaskGroupMember`                     | **◎** | **軸B（マルチバー）＝製品最大の差別化**。この 2 つが無いと「1 行に複数タスク」が表現できない。                  |
-| **コア**       | `Dependency`                                        | **◎** | 依存線＝コアドメイン（自動配線）。Task 間の関係で、軸A/軸B のどちらとも独立。                                   |
+| **コア**       | `Task`                                              | **◎** | 日程要素の本体。**WBS は `wbs_parent_uid` の自己参照で Task 内に閉じる**ため、階層に別テーブルは要らない。 |
+| **コア**       | `TaskGroup` / `TaskGroupMember`                     | **◎** | **マルチバー＝製品最大の差別化**。この 2 つが無いと「1 行に複数タスク」が表現できない。                  |
+| **コア**       | `Dependency`                                        | **◎** | 依存線＝コアドメイン（自動配線）。Task 間の関係で、WBS とも `TaskGroup` とも独立。                                   |
 | ルートメタ     | `Project`                                           |   ○   | 1 個の器（文書メタ・期間・換算）。構造の理解には寄与しない。                                                    |
 | 暦クラスタ     | `Calendar` / `WeekDay` / `Exception`                |   ○   | 稼働日・祝日のグレー表示と期間換算。**外しても日程の構造は成立**（描画が退化するだけ）。                        |
 | 資源（軽量）   | `Resource` / `Assignment`                           |   ○   | **担当者名の表示**のみを担う軽量層（§5.5）。外すと担当者が出ないだけで日程の構造は成立。                        |
@@ -150,8 +150,8 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 
 ```mermaid
 erDiagram
-    Task ||--o{ Task : "wbs_parent_uid（軸A: WBS階層 上限なし・exportする）"
-    TaskGroup ||--o{ TaskGroup : "‼️ parent_id（軸B: 行の入れ子 ≤Lv5）"
+    Task ||--o{ Task : "wbs_parent_uid（WBS 階層 上限なし・exportする）"
+    TaskGroup ||--o{ TaskGroup : "‼️ parent_id（行の入れ子 ≤Lv5）"
     TaskGroup ||--o{ TaskGroupMember : "‼️ 行に載せる"
     TaskGroupMember }o--|| Task : "‼️ task_uid（UNIQUE=1タスク1行）"
     Task ||--o{ Dependency : "successor_uid（後続）"
@@ -159,8 +159,8 @@ erDiagram
 
     Task {
         int uid PK "← UID（文書内一意・往復キー）"
-        int wbs_parent_uid FK "軸A: null=root"
-        int wbs_order "軸A: 兄弟順"
+        int wbs_parent_uid FK "WBS: null=root"
+        int wbs_order "WBS: 兄弟順"
         string name
         date start "予定"
         date finish "予定"
@@ -172,7 +172,7 @@ erDiagram
     }
     TaskGroup {
         string id PK "‼️ 行の器（非export・UUID）"
-        string parent_id FK "‼️ 軸B: null=root"
+        string parent_id FK "‼️ 行の入れ子: null=root"
         string label "‼️ 行/見出し名（null=導出）"
         int derived_from_task_uid "‼️ null 可。label=null のとき名前の導出元"
         int order "‼️ 兄弟順"
@@ -193,10 +193,10 @@ erDiagram
 **この 4 つで表現できること**:
 
 - **識別** = `Task.uid`（= MSPDI UID）**一本**。代理キーを持たない（§5.3）
-- **軸A: WBS 階層** = `Task.wbs_parent_uid` の自己参照（外部マスタへ export・明示編集でのみ伝播）
+- **WBS** = `Task.wbs_parent_uid` の自己参照（外部マスタへ export・明示編集でのみ伝播）
 
 > **用語**: **外部 WBS マスタ**（以後「外部マスタ」）= **GRS の外側で WBS 構造を保持し、MSPDI を生成・再取込する対向ツール**。特定の製品を指す語ではない。往復規約は **本書 §8H** が正で、そこに**どの挙動を実機で検証したか**も記してある。
-- **軸B: マルチバー** = `TaskGroup` に `TaskGroupMember` で複数 Task を載せる（GRS 専用・非 export・WBS 不変）
+- **マルチバー** = `TaskGroup` に `TaskGroupMember` で複数 Task を載せる（GRS 専用・非 export・WBS 不変）
 - **依存** = `Dependency`（先行/後続・種別・ラグ）
 - **予定/実績/マイルストーン** = Task の日付列
 
@@ -220,7 +220,7 @@ erDiagram
     Assignment }o--o| Resource : "resource_uid(未割当あり)"
     Resource }o--o| Calendar : "calendar_id"
 
-    Task ||--o{ Task : "wbs_parent_uid(軸A 上限なし)"
+    Task ||--o{ Task : "wbs_parent_uid(WBS 上限なし)"
     Task }o--o| Calendar : "calendar_id"
     Task ||--o{ Dependency : "successor_uid"
     Task ||--o{ Dependency : "predecessor_uid"
@@ -228,7 +228,7 @@ erDiagram
     Task ||--o| TaskOrigin : "‼️ task_uid(出自)"
     Task ||--o| TaskGroupMember : "‼️ task_uid(0..1)"
 
-    TaskGroup ||--o{ TaskGroup : "‼️ parent_id(軸B ≤Lv5)"
+    TaskGroup ||--o{ TaskGroup : "‼️ parent_id(行の入れ子 ≤Lv5)"
     TaskGroup ||--o{ TaskGroupMember : "‼️ members"
 
     Calendar ||--o| Calendar : "base_calendar_id"
@@ -251,8 +251,8 @@ erDiagram
     }
     Task {
         int uid PK "← UID(Own・文書内一意・往復キー)"
-        int wbs_parent_uid FK "← OutlineLevel(Consume・軸A・null=root)"
-        int wbs_order "軸A: 兄弟順"
+        int wbs_parent_uid FK "← OutlineLevel(Consume・WBS・null=root)"
+        int wbs_order "WBS: 兄弟順"
         string name "← Name(Own)"
         date start "← Start(Own・バー左)"
         date finish "← Finish(Own・バー右)"
@@ -308,7 +308,7 @@ erDiagram
     }
     TaskGroup {
         string id PK "‼️ UUID(行の器)"
-        string parent_id FK "‼️ 軸B: null=root(≤Lv5)"
+        string parent_id FK "‼️ 行の入れ子: null=root(≤Lv5)"
         string label "‼️ 行/見出し名"
         int order "‼️ 兄弟内の並び順"
         bool collapsed "‼️ 折り畳み(見た目の一部→保存)"
@@ -729,7 +729,7 @@ export MSPDI   <Task><UID>7</UID><Start>7/1</Start></Task>         ← 再び省
 全要素が入口の検査を通り、出口の往復同一性テストが差分ゼロなら、**定義上、失った情報は無い**。
 Drop=0 は主張ではなく**機械検証の結果**になる（→ §8D）。
 
-### 5.5e import 異常系の正規化と WBS の深さ（軸A）
+### 5.5e import 異常系の正規化と WBS の深さ
 
 MSPDI の階層は `OutlineLevel`（`xsd:integer`・**`minOccurs=0`**・値域制約なし）＋ 文書順の暗黙表現で、**XSD 上の制約が何も無い**。したがって次はすべて「スキーマ妥当」であり、**受け取り側で正規化するしかない**。
 
@@ -922,7 +922,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 
 「両軸は独立」を**双方向と読んではならない。**
 
-| 操作 | WBS（軸A） | 器（軸B） | 外部マスタへ伝播 |
+| 操作 | WBS | `TaskGroup` | 外部マスタへ伝播 |
 |---|---|---|---|
 | **バーを別の行へドラッグ**（マルチバー化） | **変わらない** | member が変わる | ✗ 視覚のみ |
 | **Row Title Tree で階層を移動**（インデント / アウトデント / 親を変える / 兄弟並べ替え） | **変わる** | **追随して動く** | **○ 伝播する** |
@@ -1325,7 +1325,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 
 | エンティティ           |     層     | 由来                             | 責務（一言）                                                                                                               |
 | ---------------------- | :--------: | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Task**               |  **コア**  | MSPDI-Own 継承                   | 日程要素（スパン/◆マイルストーン）の本体。予定・実績・中断の日付、WBS 親（軸A）、暦参照を持つ。MSPDI Task を無汚染で継承。 |
+| **Task**               |  **コア**  | MSPDI-Own 継承                   | 日程要素（スパン/◆マイルストーン）の本体。予定・実績・中断の日付、WBS 親、暦参照を持つ。MSPDI Task を無汚染で継承。 |
 | **TaskGroup** ‼️       |  **コア**  | GRS 新設                         | **マルチバー行の器**＋見出し階層（≤Lv5）＋**行の書式**（折畳/色/行高）。GRS 専用・**非 export**・保存され共有で再現。       |
 | **TaskGroupMember** ‼️ |  **コア**  | GRS 新設                         | どの Task がどの行に載るか＋**縦積み順 `stack_order`（null=自動 / 値=人の指定）**。**1 タスクは高々 1 行**（task_uid UNIQUE）。 |
 | **Dependency**         |  **コア**  | MSPDI-Consume（PredecessorLink） | タスク間依存エッジ（先行/後続/種別 FF-SS/ラグ）。**線の幾何は保存しない**（毎回自動配線で算出・§5.6）。          |
@@ -1352,7 +1352,7 @@ HighlightBox  範囲内の行が非表示になった → 見えている行だ�
 | 列                             | 由来                           | 責務                                                               |
 | ------------------------------ | ------------------------------ | ------------------------------------------------------------------ |
 | `uid` **PK**                   | Own(←UID)                      | **識別子**。代理キーを持たない（§5.3）。往復キーとして不変保持し外部マスタの UID 照合に使う。文書内一意（衝突は取込時に解消・§5.4）。新規作成時は **`uid_high_water_mark + 1`**（`max(uid)+1` は UID 再利用が起きるため使わない・§5.3）。 |
-| `wbs_parent_uid`               | Consume(←OutlineLevel＋順序)   | WBS 親（軸A・null=root・**深さの上限なし**）。明示的 WBS 編集で伝播。 |
+| `wbs_parent_uid`               | Consume(←OutlineLevel＋順序)   | WBS 親（null=root・**深さの上限なし**）。明示的 WBS 編集で伝播。 |
 | `wbs_order`                    | Consume                        | 兄弟内の順序（OutlineNumber の順序成分）。                         |
 | `name`                         | Own(←Name)                     | タスク名（バーのラベル）。                                         |
 | `start` / `finish`             | Own(←Start/Finish)             | 予定開始/完了（バーの左右端）。                                    |
@@ -1500,7 +1500,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 | `Task.Start/Finish/Milestone/ActualStart/ActualFinish/Deadline/Notes` | 同名 GRS 列 | Own |
 | `Task.Stop` / `Task.Resume` / `Task.ResumeValid` | **中断のときだけ書く**（`Stop` は算出値） | **Own（ネイティブ）**。§3-4 #8 を撤回 |
 | `Task.PercentComplete`                                                            | `Task.percentComplete`（整数・0 以上・そのまま）                                       | Own |
-| `Task.OutlineLevel`＋順序                                                         | `Task.wbs_parent_uid` / `wbs_order`                                                   | Consume（軸A）               |
+| `Task.OutlineLevel`＋順序                                                         | `Task.wbs_parent_uid` / `wbs_order`                                                   | Consume（WBS）               |
 | `Task.CalendarUID`                                                                | `Task.calendar_id`                                                                    | Consume                      |
 | `PredecessorLink`                                                                 | `Dependency`                                                                          | Consume                      |
 | `Project.CalendarUID`                                                             | `Project.calendar_id`                                                                 | Consume                      |
@@ -1628,7 +1628,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
   → export で 作業X の OutlineLevel=2。外部マスタが UID 照合で設計の兄弟に再親付け。◎ 意図どおり伝播
 ```
 
-### 構造上の含意（**軸A と軸B が別物である**ことの精緻化）
+### 構造上の含意（**WBS と `TaskGroup` が別物である**ことの精緻化）
 
 - **WBS 階層**（`OutlineLevel` が対応・明示編集でのみ伝播）と **マルチバー**（視覚・GRS 専用・export に出さない）は**別軸**。
 - **フラット化の許容範囲**を精緻化: **フラット化は明示的 WBS 編集の時だけ**。マルチバー（バーのレーン移動）では `OutlineLevel` は不変。
@@ -1656,7 +1656,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 | 11 | 例外日（祝日） | `Exception`(2007) に一本化・`Type` は Carry | **`Type` を Consume に格上げ** | `TimePeriod` は `Type` と組で読む要素で、繰返し時は「適用範囲」を表す。`Type` を読まないと**祝日 1 日が数年間の非稼働に化ける** |
 | 12 | `PercentComplete` | **Reconstruct**（progressRatio×100 で算出できると判断） | **Own**（÷100 して保持） | 逆だった。`progressRatio` の**唯一の入力源**であり、読まなければ進捗が復元不能＝**export で外部マスタの進捗を全消去**する |
 | 13 | `ActualDuration` / `RemainingDuration` | Reconstruct | **Carry** | **進行中タスクは `ActualFinish` が空**なので単純な引き算で復元できない |
-| 18 | **深い WBS（6 段以上）の扱い** | ①5 段にクランプ＋警告 → ②原レベルを退避して export で復元 → ③クランプしたまま export する | **クランプしない**（取り込んだ深さをそのまま保持し、そのまま書き戻す） | ② の副問題は 3 つ（復元は文書順に依存するため兄弟並べ替えで親が変わる／レベル飛びが生じる／「未編集」の判定単位が定義できない）。③ はこの 3 つを消すが**代わりにデータを捨てる**。**クランプしなければ 3 つとも発生せず、データも失われない**。深さは `wbs_parent_uid` の木から数えるだけなので、退避も復元も判定も要らない。5 段の根拠だった「推奨 3 段に対するマージン」は `user-order.md` 項 27 ＝ **軸B（`TaskGroup`）の要求**であり、軸A へ流用していた（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3「軸A と軸B は別物」）。項 36 は「**書き戻す値は頭打ちにしない**」と明記している |
+| 18 | **深い WBS（6 段以上）の扱い** | ①5 段にクランプ＋警告 → ②原レベルを退避して export で復元 → ③クランプしたまま export する | **クランプしない**（取り込んだ深さをそのまま保持し、そのまま書き戻す） | ② の副問題は 3 つ（復元は文書順に依存するため兄弟並べ替えで親が変わる／レベル飛びが生じる／「未編集」の判定単位が定義できない）。③ はこの 3 つを消すが**代わりにデータを捨てる**。**クランプしなければ 3 つとも発生せず、データも失われない**。深さは `wbs_parent_uid` の木から数えるだけなので、退避も復元も判定も要らない。5 段の根拠だった「推奨 3 段に対するマージン」は `user-order.md` 項 27 ＝ **`TaskGroup` の要求**であり、WBS へ流用していた（`../07-plan-actual/handover-plan-actual-decisions-ja.md` §5-3「WBS と `TaskGroup` は別物」）。項 36 は「**書き戻す値は頭打ちにしない**」と明記している |
 | 17 | **「上書き」で取込側に無いタスクをどうするか** | 未定義（「置換」としか書いていなかった） | **削除しない。最終目撃記録から「消えた候補」を導出して通知** | **MSPDI からは「全体か部分か」を判別できない**（そのフラグが XSD に無い）ため「来なかった＝削除された」と推論できない。部分エクスポートを取り込むと大量削除が走る。被害も非対称（消す＝復元不能／残す＝気づけば消せる）。印は**フラグを立てず `last_seen_import_seq` から導出**＝消し忘れバグが構造的に起きない。取込ログ表は**出力を絞る方針**で不採用 |
 | 16 | **UID の一意性をどう担保するか** | 高水位採番＋（検討）**番号空間の分割**（GRS 生まれを予約帯に隔離） | **UID は不透明な整数**として扱い、**GRS 生まれは照合対象にしない**。責任範囲は**受け取った文書の中**に限る | 予約帯は **UID の値に意味を持たせる**ため脆く（ランダム ID で壊れる）、しかも**同じ規則を使う別 GRS 文書とは結局ぶつかる**。「GRS 生まれ＝`TaskOrigin` 行なし＝照合対象外」という規則にすると、**予約帯なしで UID 再利用・同一マスタ由来 2 文書の両方が解ける**。文書外（外部マスタ側の並行採番）との衝突は**別ツールで検査**する前提とし、GRS は担保しない |
 | 15 | **Carry の格納方法** | 「不透明に温存する」とだけ宣言（**格納設計なし**） | **案D＝エンティティ別バッグ ＋ 入口/出口の検査** | 影文書案（原 XML 丸ごと保持）は往復に最強だが**マージで破綻**し JSON が不透明になる。バッグ案は**入れ忘れで漏れる**（実際 `WeekDay.TimePeriod` で発生）。→ バッグに**自己検証と要素まるごと退避**を足して漏れを構造的に潰した。「**臭いものに蓋。ただし受ける時と出る時に検査する**」 |

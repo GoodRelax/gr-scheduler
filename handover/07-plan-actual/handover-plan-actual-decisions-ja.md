@@ -59,7 +59,7 @@ MSPDI 準拠モデル   実績の期間を ActualDuration で持つ。新しい�
 | `percentComplete` | `PercentComplete` | 整数 | 完了率。日付から算出して格納する |
 | `deadline` | `Deadline` | 日付 | 期限 |
 | `milestone` | `Milestone` | 真偽 | マイルストーンか |
-| `wbs_parent_uid` | （`OutlineLevel` へ導出） | UID | WBS の親。**軸A。階層はこれが持つ**（既存の確定） |
+| `wbs_parent_uid` | （`OutlineLevel` へ導出） | UID | WBS の親。**階層はこれが持つ**（既存の確定） |
 
 **実績バーの右端は保存しない。** 描画時に導出する。
 
@@ -463,14 +463,14 @@ TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
 | 予定バーの上下間隔（段の間隔） | **12px** | 依存線が 1 本通る幅 |
 
 **下限を割る文字サイズが必要になったら、マーカーや文字をさらに縮めるのではなく、
-グループ LOD（軸B・`TaskGroup`）の深さを 1 つ減らす。** — **軸を確定 2026-08-02（ユーザー判断）**
+グループ LOD（`TaskGroup`）の深さを 1 つ減らす。** — **確定 2026-08-02（ユーザー判断）**
 
-> ⚠️ **軸A ではない。** 旧版は「描画する `Outline` のレベルを 1 つ減らす」と書いていたが、
-> **`Outline` は軸A（WBS）で、その LOD は幅（`zoomX`）で駆動する**。
-> **引き金であるフォント下限は縦（`zoomY`）の話**なので、軸A を減らしても行は高くならず、
+> ⚠️ **WBS ではない。** 旧版は「描画する `Outline` のレベルを 1 つ減らす」と書いていたが、
+> **`Outline` は WBS で、その LOD は幅（`zoomX`）で駆動する**。
+> **引き金であるフォント下限は縦（`zoomY`）の話**なので、WBS の深さを減らしても行は高くならず、
 > 深いタスクが消えるだけで**フォント下限は解消しない**（因果が閉じない）。
 >
-> **軸B の深さを 1 つ減らすと行数が減り、残った行の高さが増える**のでフォントが下限を上回る。
+> **`TaskGroup` の深さを 1 つ減らすと行数が減り、残った行の高さが増える**のでフォントが下限を上回る。
 > PoC が実測・実装したのもこちらである（「行ツリーの分岐数を 3 と見て、レベルを 1 つ落とすと
 > 行数が 1/3 になり残った行の高さが 3 倍になる」＝ `../08-poc/POC-RESULTS-ja.md` §B-6）。
 >
@@ -478,8 +478,8 @@ TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
 >
 > | 引き金 | 減らす軸 | 定数 |
 > |---|---|---|
-> | **幅**が足りない（`zoomX`） | **軸A**（WBS の深さ）＝ タスク LOD | `taskLevelOfDetailReadablePx` |
-> | **フォント下限**を割る（`zoomY`） | **軸B**（`TaskGroup` の深さ）＝ グループ LOD | `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` |
+> | **幅**が足りない（`zoomX`） | **WBS の深さ**＝ タスク LOD | `taskLevelOfDetailReadablePx` |
+> | **フォント下限**を割る（`zoomY`） | **`TaskGroup` の深さ**＝ グループ LOD | `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` |
 >
 > **減らす量は式で求めない。深さを 1 つずつ下げて試す** — **確定 2026-08-02（ユーザー判断）**
 >
@@ -489,7 +489,7 @@ TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
 >     fontMin を上回る最初の d を採る
 > ```
 >
-> **軸B の深さは高々 5 段**（`user-order.md` 項 27）なので、**試す範囲は 5 通りしかない。**
+> **`TaskGroup` の深さは高々 5 段**（`user-order.md` 項 27）なので、**試す範囲は 5 通りしかない。**
 > **閉じた式を立てる必要がない。**
 >
 > | なぜこれか | |
@@ -817,7 +817,7 @@ TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
 
 ### 5-2. `OutlineLevel` は導出する。クランプの議論も起きない
 
-**階層を持つのは `wbs_parent_uid`（軸A）である**（既存の確定。`grs-native-erd-ja.md`）。
+**階層を持つのは `wbs_parent_uid` である**（既存の確定。`grs-native-erd-ja.md`）。
 `OutlineLevel` はそこから**導出する値**なので、GRS は保存しない。
 
 ```
@@ -839,29 +839,29 @@ LOD      wbs_parent_uid の深さに min( , 5) をかけて判定する
 > 5 に丸めると 6 段目以下が 5 段目に潰れ、親子関係が変わる。`UID` が保たれてもタスクの所属先が変わってしまう。
 > 導出方式ならこの問題が発生しない。
 
-### 5-3. 軸A と 軸B は別物
+### 5-3. WBS と `TaskGroup` は別物
 
 | 軸 | 何の深さか | 上限 | export | LOD の名前 | 引き金 | 定数 |
 |---|---|:--:|:--:|---|---|---|
-| **軸A** | `OutlineLevel`（WBS の階層） | 相手次第 | **する** | **タスク LOD** | **幅**が足りない（`zoomX`） | `taskLevelOfDetailReadablePx` |
-| **軸B** | `TaskGroup` の階層 | **5**（項 27） | **しない** | **グループ LOD** | **フォント下限**を割る（`zoomY`） | `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` |
+| **WBS** | `OutlineLevel`（WBS の階層） | 相手次第 | **する** | **タスク LOD** | **幅**が足りない（`zoomX`） | `taskLevelOfDetailReadablePx` |
+| **`TaskGroup`** | `TaskGroup` の階層 | **5**（項 27） | **しない** | **グループ LOD** | **フォント下限**を割る（`zoomY`） | `groupLevelOfDetailBase` / `groupLevelOfDetailRatio` |
 
 **混同しないこと。両方に LOD がある。** — **引き金による使い分けを確定 2026-08-02（ユーザー判断）**
 
-- **横に縮めて幅が足りなくなったら軸A を減らす**（深い WBS のタスクを描かない）。
-- **縦に縮めてフォントが下限を割ったら軸B を減らす**（深い `TaskGroup` を親へ畳む）。
+- **横に縮めて幅が足りなくなったら WBS の深さを減らす**（深い WBS のタスクを描かない）。
+- **縦に縮めてフォントが下限を割ったら `TaskGroup` の深さを減らす**（深い `TaskGroup` を親へ畳む）。
   行数が減って残った行の高さが増えるので、**フォントが下限を上回る**。§2-4-1 を見ること。
 
-> **旧版は「LOD の判定に使うのは軸A の `OutlineLevel` である」とだけ書いていた。**
+> **旧版は「LOD の判定に使うのは WBS の `OutlineLevel` である」とだけ書いていた。**
 > これは**タスク LOD については正しいが、フォント下限の話には当てはまらない**。
-> 軸A を減らしても行は高くならないので、引き金が解消しない。
+> WBS の深さを減らしても行は高くならないので、引き金が解消しない。
 
 **時間軸 LOD（`Time Ruler` の粒度）はどちらの軸でもない。** 3 つの LOD の一覧は
 `../03-ui-naming/handover-ui-parts-ja.md` §1-2。
 
 ### 5-4. ユーザーが明示的に切り替える表示 / 非表示
 
-**GRS の JSON だけで持ち、MSPDI へ渡さない。** 軸B を export しない方針と一致する。
+**GRS の JSON だけで持ち、MSPDI へ渡さない。** `TaskGroup` と `TaskGroupMember` を export しない方針と一致する。
 
 ---
 
