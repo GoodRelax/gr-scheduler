@@ -266,7 +266,7 @@ JSON には、既定値から変えていない項目も含めて 全項目を�
 | `dateGridLinesVisible` | **`false`** | **日付ごとの縦線を目盛の段階に連動させる規定が無い。** `px/day = 1` では 1px ごとに線が立ち面になる。日付の手がかりは `Time Ruler` が担う。⚠️ **連動の規定を次期が置くなら `true` に変えてよい** |
 | `groupGridLinesVisible` | **`true`** | 本数は行数ぶんで軽い。**1 行 ＝ 1 対象のマルチバーが本ツールの中核**なので、境界が見えないと「どこまでが 1 行か」が読めない |
 | `baselineVisible` | **`false`** | 別ファイルを重ねる機能。**新規文書には重ねる相手が無い** |
-| `importSeq` | **`0`** | **取込を 1 度もしていない状態。** `../handover-data-model-entry-ja.md` の JSON 実例の `1` は 1 回取り込んだ後の値である |
+| `importSeq` | **`0`** | **取込を 1 度もしていない状態。** `handover-data-model-entry-ja.md` の JSON 実例の `1` は 1 回取り込んだ後の値である |
 
 **`progressLineColor` を廃止した理由 — 確定 2026-08-02（ユーザー判断）**
 

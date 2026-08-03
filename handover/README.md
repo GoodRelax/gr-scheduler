@@ -161,7 +161,10 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | 13 | `06-background/` | 経緯（監査・改訂差分・バグ根因分析・未決論点） | **迷ったとき**に読む |
 | **14** | **`08-poc/`** | **動く PoC**（`poc-integrated.html` **1 本**・6 タブ。日程表 / 形状の基準 / マルチバー 20 パターン / レベル遷移 / 色と縁取り / 記録）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。**書き戻しは 2026-08-02 に全数を棚卸し済み**（同書 §6 の 6 件と末尾の表の 7 件）。**2026-08-02 に 3 件とも決着した**（§6-2 は不採用・横切りは重ね順で解く／#5 は罠 T-14 へ／#7 は深さ 5〜1 を試す方式に確定）。**書き戻し待ちのものは無い** |
 | 15 | `09-architecture/handover-architecture-entry-ja.md` | **アーキ領域の所在**。描画方式 = SVG の結論がどこにあるか / 不変更新ストアが「前提として参照されているのに設計が無い」こと / **モジュール構成と技術スタックは意図的な空白**であること | 事実の所在のみ。決定はしない |
-| — | **`NEXT-STEPS-ja.md`** | **実開発ステップ別の欠落一覧 14 件**（要望ヒアリング / UI モック / アーキ / データモデル / 入出力 / 複合動作）。各件に「**今どこまで決まっているか**」を実測で併記 | **着手前に読む。** 既に決まっているものを決め直さないため |
+| 15b | `09-architecture/handover-architecture-layering-draft-ja.md` | **層仕訳の推奨案**。中核計算を entity、操作層を use case、UI と機械向けの口を同格の adapter に置く形 | ⚠️ **`status: draft`。推奨案であって決定ではない**。正式版は次期が決める |
+| **16** | **`10-agent-interface/`** | **機械向けインターフェース**。要求 17 件・API 契約・実測（`file://` の 8 件）・決定 6 件・サンプル JSON 2 本。中心は「**口は 2 つあるが、文書は 1 つ**」 | 入口は `agent-interface-requirements-ja.md`。**`authority` は持たない** |
+| — | **`DECIDED-ja.md`** | **決まっていることの全数**。決定文書 8 本に散っている決定を 1 行ずつ引ける索引（170 行）。**結論と所在だけで、値は書いていない** | **最初に読む索引。** ⚠️ **索引であって正ではない**（`type: Index`）。食い違ったら所在の側が勝つ |
+| — | **`NEXT-STEPS-ja.md`** | **実開発ステップ別の欠落一覧 16 件**（要望ヒアリング / UI モック / アーキ / データモデル / 入出力 / 複合動作）。各件に「**今どこまで決まっているか**」を実測で併記 | **着手前に読む。** 既に決まっているものを決め直さないため |
 | — | **`OPEN-ITEMS-ja.md`** | **実機確認の残件 3 件**（MS Project を触らないと分からないこと）。**15 分で終わるチェックリスト** | 未解決はこれだけ。**開発を止める理由にはならない** |
 | — | `NEUTRALIZED-TERMS-ja.md` | **ドメイン語・製品名を中立化した記録**（凍結リポジトリの原本との差分） | 原本を併読するとき必要 |
 
@@ -197,7 +200,8 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 ```
 handover/
 ├── README.md                        この文書
-├── NEXT-STEPS-ja.md                 実開発ステップ別の欠落一覧 14 件（着手前に読む）
+├── DECIDED-ja.md                    ★決まっていることの全数（索引 170 行。値は書いていない）
+├── NEXT-STEPS-ja.md                 実開発ステップ別の欠落一覧 16 件（着手前に読む）
 ├── OPEN-ITEMS-ja.md                 実機確認の残件 3 件（未解決はこれだけ）
 ├── DISCARDED-ja.md                  破棄した資産とその理由（同じものを作り直さないため）
 ├── NEUTRALIZED-TERMS-ja.md          ドメイン語・製品名の中立化記録（原本との差分）
@@ -252,12 +256,28 @@ handover/
 │                                    （案比較の 5 本は 2026-08-02 に外した。
 │                                      結論と数値は POC-RESULTS-ja.md に残っている）
 │
-└── 09-architecture/                 アーキ領域の所在（決定はしない）
-    └── handover-architecture-entry-ja.md
-                                     描画方式 = SVG の結論の所在 / 不変更新ストアが
-                                     前提だけ参照され設計が無いこと /
-                                     モジュール構成・技術スタックは**意図的な空白**
+├── 09-architecture/                 アーキ領域の所在（決定はしない）
+│   ├── handover-architecture-entry-ja.md
+│   │                                 描画方式 = SVG の結論の所在 / 不変更新ストアが
+│   │                                 前提だけ参照され設計が無いこと /
+│   │                                 モジュール構成・技術スタックは**意図的な空白**
+│   └── handover-architecture-layering-draft-ja.md
+│                                     ⚠️ **層仕訳の推奨案（`status: draft`）。決定ではない**
+│                                     entity / use case / adapter / framework の割り当てと
+│                                     「操作層は use case、UI と機械向けの口は同格」の根拠
+│
+└── 10-agent-interface/              **機械向けインターフェース**（AI 共同編集トライアルの成果）
+    ├── agent-interface-requirements-ja.md   ★要求 17 件（採用済み）。実測の根拠つき
+    ├── agent-interface-spec-ja.md           API 契約（関数・エンベロープ・コマンド・拒否理由・監視・起動時投入）
+    ├── agent-interface-samples-ja.md        動く実例と、トライアルの API との対応表
+    ├── agent-interface-open-items-ja.md     実測で決着 8 件 / 決定 6 件 / 未決 2 件（いずれも延期）
+    ├── ai-cowork-trial-findings-ja.md       トライアルの実測（要求の根拠はここ）
+    └── samples/
+        ├── grs-document-with-revision-stamp.json
+        └── agent-apply-request-and-outcomes.json
 ```
+
+> ⚠️ **`10-agent-interface/` は `authority` を持たない。** 用語の正は 4 文書のままである。
 
 ---
 
@@ -269,7 +289,7 @@ handover/
 4. `02-data-model/grs-native-erd-ja.md` でデータ構造を確定する。**画面とデータを分離**する（`user-order.md` 67）。
 5. `01-mspdi/mspdi-pitfalls-ja.md` を読んでから MSPDI に着手する。往復無損失は**後付けできない**。
 6. `05-security-a11y/` を実装方針に織り込む。**`innerHTML` 直挿し禁止・XXE 無効化**は設計時点の判断。
-7. **`NEXT-STEPS-ja.md` で残作業を引く。** 実開発のステップごとに「まだ決まっていないこと 14 件」と
+7. **`NEXT-STEPS-ja.md` で残作業を引く。** 実開発のステップごとに「まだ決まっていないこと 16 件」と
    「**今どこまで決まっているか**」が対になっている。**決め直しを防ぐのはこの表である。**
 
 ---

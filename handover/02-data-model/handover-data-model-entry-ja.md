@@ -267,6 +267,13 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 }
 ```
 
+> ⚠️ **この実例には、まだトップレベルの 2 つが入っていない。**
+> **`revisionStamp`**（`revision` / `lastEditedBy` / `updatedAt`）と **`changeLog`** を足す提案があり、
+> **足す形は `../10-agent-interface/agent-interface-samples-ja.md` にある**
+> （機械可読な実例は `../10-agent-interface/samples/grs-document-with-revision-stamp.json`）。
+> **上の実例そのものは変えていない。** 提案の採否と初期値は `../NEXT-STEPS-ja.md` **5-1 / 2-6** で決める。
+> ⚠️ **`documentId` も同様に未収録**である（`../NEXT-STEPS-ja.md` **4-2**）。
+
 ### 実例が示している要点
 
 | 箇所 | 意味 |
