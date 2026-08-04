@@ -13,7 +13,10 @@ status: stable
 - 対象: `mspdi/mspdi_pj12.xsd`（Microsoft Office Project 2007 XML Data Interchange Schema）
 - 目的: MSPDI の全エンティティ（テーブル）の責務を一覧化し、ERD に「行」として現れない要素（スカラー/コンテナ/value-object）も棚卸しして、断捨離の判断材料にする。
 - 関連: `mspdi-core-tree.md`（MSPDI 解説）。GRS 側の扱い（Own/Consume/Reconstruct/Carry/Drop 仕分け）は `../02-data-model/grs-mspdi-field-ledger-ja.md`。
-- 位置づけ: **純 MSPDI のリファレンス**（GRS 固有情報は持たない）。本書は参考。
+- 位置づけ: **MSPDI の構造そのもののリファレンス**。本書は参考。
+  ⚠️ **「要否」だけは GRS 側の判断である**（A の「断捨離」列と B の ○/×。理由欄も透かし・イナズマ線など
+  GRS の用途で書いてある）。**構造は MSPDI・要否は GRS** と読み分けること。
+  要否の正は `../02-data-model/grs-mspdi-field-ledger-ja.md` §7。
   正は **公式 XSD** <https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd>
   （ローカル複製は `mspdi/mspdi_pj12.xsd`。**同梱していない** — 取得は `mspdi/README.md`）。
 
@@ -221,7 +224,12 @@ erDiagram
 
 ## B. テーブルに無い要素 — 全項目 要否判定（1行1項目）
 
-凡例: **○=残す / ×=削除**（△は解消し全項目を確定）。集計（B-1）: **○26 / ×37**（63項目）。
+凡例: **○=内容を使う / ×=内容を使わない**（△は解消し全項目を確定）。集計（B-1）: **○20 / ×43**（63項目）。
+
+> ⚠️ **判定の正は `../02-data-model/grs-mspdi-field-ledger-ja.md` §7 である。** 本書の ○/× はその要約であり、
+> **2026-08-04 に台帳へ合わせて 6 件を ○ → × に直した**（`ScheduleFromStart` / `CurrentDate` ＋ サーバ/管理 4）。
+> いずれも台帳 §5.6 の監査で「**GRS は解釈しない**」と判定されたもので、本書がその降格に追随していなかった。
+> **×＝捨てるではない。** 使わない値も往復のため Carry で温存する。
 
 ### B-1. Project 直下スカラー（63）
 
@@ -244,15 +252,15 @@ erDiagram
 | ExtendedCreationDate | × | CreationDate と重複（MS 内部用） |
 | RemoveFileProperties | × | MS ファイルプロパティ削除フラグ（無関係） |
 
-**期間/基準日（8）→ ○5 / ×3**
+**期間/基準日（8）→ ○3 / ×5**
 
 | 要素 | 要否 | 理由 |
 |---|:--:|---|
-| ScheduleFromStart | ○ | 前方/後方計算の向き |
+| ScheduleFromStart | × | 前方/後方計算の向き。**GRS はスケジューラを持たない＝意味を使わない**（台帳 §5.6 の監査で降格） |
 | StartDate | ○ | プロジェクト開始 |
-| FinishDate | ○ | プロジェクト完了 |
+| FinishDate | ○ | プロジェクト完了。⚠️ **入力は読まず、全 Task 最遅から算出して出す**（台帳では Reconstruct） |
 | StatusDate | ○ | イナズマ線の基準日（コア） |
-| CurrentDate | ○ | 「現在日」参照 |
+| CurrentDate | × | 「現在日」参照。**今日線は実行時のシステム日付で描く**ので保存値を使わない（同監査で降格） |
 | FYStartDate | × | 会計年度開始（会計用途・非対象） |
 | FiscalYearStart | × | 会計年度フラグ（非対象） |
 | CriticalSlackLimit | × | CPM スラック閾値（非対象） |
@@ -286,7 +294,7 @@ erDiagram
 
 **EV（2）→ 全 ×**: EarnedValueMethod, BaselineForEarnedValue
 
-**サーバ/管理（4）→ 全 ○**（将来サーバ連携予定）: MicrosoftProjectServerURL（boolean・URL ではない）, ProjectExternallyEdited, ActualsInSync, AdminProject
+**サーバ/管理（4）→ 全 ×**（**MVP にサーバ連携が無く GRS は解釈しない**。台帳 §5.6 の監査で Own(暫定)→Carry へ降格。往復のため温存はする）: MicrosoftProjectServerURL（boolean・URL ではない）, ProjectExternallyEdited, ActualsInSync, AdminProject
 
 ### B-2. コンテナ（wrapper）— データを持たない入れ物（15）
 

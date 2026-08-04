@@ -113,9 +113,9 @@ erDiagram
     Project ||--o{ ExtAttr_Def : "ExtendedAttributes(定義)"
     Project }o--o| Calendar : "CalendarUID(既定暦)"
 
-    OutlineCode ||--o{ OutlineCode_Value : "Values"
-    OutlineCode ||--o{ OutlineCode_Mask : "Masks"
-    OutlineCode_Value ||--o{ OutlineCode_Value : "ParentValueID(自己)"
+    OutlineCode ||--o{ OutlineCodeValue : "Values"
+    OutlineCode ||--o{ OutlineCodeMask : "Masks"
+    OutlineCodeValue ||--o{ OutlineCodeValue : "ParentValueID(自己)"
     WBSMasks ||--o{ WBSMask : "WBSMask"
     ExtAttr_Def ||--o{ ExtAttr_ValueItem : "ValueList"
 
@@ -131,29 +131,29 @@ erDiagram
     Task }o--o| Calendar : "CalendarUID(タスク暦)"
     Task ||--o{ PredecessorLink : "PredecessorLink"
     PredecessorLink }o--o| Task : "PredecessorUID→先行(minOccurs=0)"
-    Task ||--o{ Task_ExtAttr : "ExtendedAttribute(値)"
+    Task ||--o{ Task_ExtendedAttribute : "ExtendedAttribute(値)"
     Task ||--o{ Task_Baseline : "Baseline(0..10)"
     Task ||--o{ Task_OutlineCode : "OutlineCode(値)"
     Task ||--o{ TimephasedData : "TimephasedData"
     Task_Baseline ||--o{ TimephasedData : "TimephasedData"
-    Task_ExtAttr }o--|| ExtAttr_Def : "FieldID→定義"
+    Task_ExtendedAttribute }o--|| ExtAttr_Def : "FieldID→定義"
     Task_OutlineCode }o--|| OutlineCode : "FieldID→定義"
 
     Resource }o--o| Calendar : "CalendarUID(個人暦)"
-    Resource ||--o{ Res_ExtAttr : "ExtendedAttribute(値)"
-    Resource ||--o{ Res_Baseline : "Baseline"
-    Resource ||--o{ Res_OutlineCode : "OutlineCode(値)"
+    Resource ||--o{ Resource_ExtendedAttribute : "ExtendedAttribute(値)"
+    Resource ||--o{ Resource_Baseline : "Baseline"
+    Resource ||--o{ Resource_OutlineCode : "OutlineCode(値)"
     Resource ||--o{ AvailabilityPeriod : "AvailabilityPeriods"
     Resource ||--o{ Rate : "Rates(≤25)"
     Resource ||--o{ TimephasedData : "TimephasedData"
-    Res_ExtAttr }o--|| ExtAttr_Def : "FieldID→定義"
+    Resource_ExtendedAttribute }o--|| ExtAttr_Def : "FieldID→定義"
 
     Assignment }o--o| Task : "TaskUID(minOccurs=0)"
     Assignment }o--o| Resource : "ResourceUID(minOccurs=0)"
-    Assignment ||--o{ Assn_ExtAttr : "ExtendedAttribute(値)"
-    Assignment ||--o{ Assn_Baseline : "Baseline"
+    Assignment ||--o{ Assignment_ExtendedAttribute : "ExtendedAttribute(値)"
+    Assignment ||--o{ Assignment_Baseline : "Baseline"
     Assignment ||--o{ TimephasedData : "TimephasedData"
-    Assn_Baseline ||--o{ TimephasedData : "TimephasedData"
+    Assignment_Baseline ||--o{ TimephasedData : "TimephasedData"
 
     Project {
         string UID PK "projectId(string≤16・省略可)"
@@ -223,12 +223,12 @@ erDiagram
         string FieldID
         string FieldName
     }
-    OutlineCode_Value {
+    OutlineCodeValue {
         int ValueID PK
         int ParentValueID FK
         string Value
     }
-    OutlineCode_Mask {
+    OutlineCodeMask {
         int Level
         int Length
         string Separator
@@ -254,7 +254,7 @@ erDiagram
         string Value
         string Description
     }
-    Task_ExtAttr {
+    Task_ExtendedAttribute {
         string FieldID FK
         string Value
     }
@@ -268,16 +268,16 @@ erDiagram
         string FieldID FK
         int ValueID FK
     }
-    Res_ExtAttr {
+    Resource_ExtendedAttribute {
         string FieldID FK
         string Value
     }
-    Res_Baseline {
+    Resource_Baseline {
         int Number
         duration Work
         decimal Cost
     }
-    Res_OutlineCode {
+    Resource_OutlineCode {
         string FieldID FK
         int ValueID FK
     }
@@ -292,11 +292,11 @@ erDiagram
         int RateTable "A-E"
         decimal StandardRate
     }
-    Assn_ExtAttr {
+    Assignment_ExtendedAttribute {
         string FieldID FK
         string Value
     }
-    Assn_Baseline {
+    Assignment_Baseline {
         int Number
         date Start
         date Finish
@@ -311,7 +311,7 @@ erDiagram
     }
 ```
 
-> **エンティティ数 = 29**（Project / Task / PredecessorLink / Calendar / Calendar_WeekDay / Calendar_Exception / Calendar_WorkWeek / WorkWeek_WeekDay / WorkingTime / Resource / Assignment / OutlineCode / OutlineCode_Value / OutlineCode_Mask / WBSMasks / WBSMask / ExtAttr_Def / ExtAttr_ValueItem / Task_ExtAttr / Task_Baseline / Task_OutlineCode / Res_ExtAttr / Res_Baseline / Res_OutlineCode / AvailabilityPeriod / Rate / Assn_ExtAttr / Assn_Baseline / TimephasedData）。別名→XSD 実名は §8 A。
+> **エンティティ数 = 29**（Project / Task / PredecessorLink / Calendar / Calendar_WeekDay / Calendar_Exception / Calendar_WorkWeek / WorkWeek_WeekDay / WorkingTime / Resource / Assignment / OutlineCode / OutlineCodeValue / OutlineCodeMask / WBSMasks / WBSMask / ExtAttr_Def / ExtAttr_ValueItem / Task_ExtendedAttribute / Task_Baseline / Task_OutlineCode / Resource_ExtendedAttribute / Resource_Baseline / Resource_OutlineCode / AvailabilityPeriod / Rate / Assignment_ExtendedAttribute / Assignment_Baseline / TimephasedData）。別名→XSD 実名は §8 A。
 
 ---
 
@@ -613,18 +613,18 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 | `Calendar_Exception` | `Exception` | Calendars/Calendar/Exceptions/Exception | 1331 |
 | `Calendar_WorkWeek` | `WorkWeek` | Calendars/Calendar/WorkWeeks/WorkWeek | 1514 |
 | `WorkWeek_WeekDay` | `WeekDay` | …/WorkWeek/WeekDay | 1553 |
-| `OutlineCode_Value` | `Value` | OutlineCodes/OutlineCode/Values/Value | 775 |
-| `OutlineCode_Mask` | `Mask` | OutlineCodes/OutlineCode/Masks/Mask | 866 |
+| `OutlineCodeValue` | `Value` | OutlineCodes/OutlineCode/Values/Value | 775 |
+| `OutlineCodeMask` | `Mask` | OutlineCodes/OutlineCode/Masks/Mask | 866 |
 | `Task_OutlineCode` | `OutlineCode` | Tasks/Task/OutlineCode | 2413 |
-| `Res_OutlineCode` | `OutlineCode` | Resources/Resource/OutlineCode | 3005 |
+| `Resource_OutlineCode` | `OutlineCode` | Resources/Resource/OutlineCode | 3005 |
 | `ExtAttr_Def` | `ExtendedAttribute` | Project/ExtendedAttributes/ExtendedAttribute | 986 |
 | `ExtAttr_ValueItem` | `Value` | …/ExtendedAttribute/ValueList/Value | 1157 |
-| `Task_ExtAttr` | `ExtendedAttribute` | Tasks/Task/ExtendedAttribute | 2248 |
-| `Res_ExtAttr` | `ExtendedAttribute` | Resources/Resource/ExtendedAttribute | 2912 |
-| `Assn_ExtAttr` | `ExtendedAttribute` | Assignments/Assignment/ExtendedAttribute | 3581 |
+| `Task_ExtendedAttribute` | `ExtendedAttribute` | Tasks/Task/ExtendedAttribute | 2248 |
+| `Resource_ExtendedAttribute` | `ExtendedAttribute` | Resources/Resource/ExtendedAttribute | 2912 |
+| `Assignment_ExtendedAttribute` | `ExtendedAttribute` | Assignments/Assignment/ExtendedAttribute | 3581 |
 | `Task_Baseline` | `Baseline` | Tasks/Task/Baseline | 2307 |
-| `Res_Baseline` | `Baseline` | Resources/Resource/Baseline | 2971 |
-| `Assn_Baseline` | `Baseline` | Assignments/Assignment/Baseline | 3640 |
+| `Resource_Baseline` | `Baseline` | Resources/Resource/Baseline | 2971 |
+| `Assignment_Baseline` | `Baseline` | Assignments/Assignment/Baseline | 3640 |
 
 その他（`Project`/`Task`/`PredecessorLink`/`Calendar`/`Resource`/`Assignment`/`TimephasedData`/`WorkingTime`/`OutlineCode`/`WBSMasks`/`WBSMask`/`AvailabilityPeriod`/`Rate`）は XSD 実名そのもの。
 

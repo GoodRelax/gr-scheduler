@@ -100,5 +100,9 @@ so locate elements by name rather than by line.
 Attribution, if you do use the Learn docs: "Microsoft Project XML Data Interchange
 documentation" by Microsoft, licensed under CC-BY-4.0.
 
-> **A `LICENSE` file in this folder, if you fetched one, belongs to `learn-docs/` and
-> does NOT apply to `mspdi_pj12.xsd`.** That adjacency has misled readers before.
+> **A `LICENSE` file anywhere in this folder tree belongs to `learn-docs/` and does NOT
+> apply to `mspdi_pj12.xsd`.** That adjacency has misled readers before.
+>
+> The fetch step above places it at `learn-docs/LICENSE`, but copies made by hand often
+> land next to the XSD instead — which is exactly the arrangement that misleads. Wherever
+> it sits, it is the CC-BY-4.0 text for the Learn docs. **The XSD carries no such grant.**
