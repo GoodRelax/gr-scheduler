@@ -309,7 +309,8 @@ erDiagram
     TaskGroup {
         string id PK "‼️ UUID(行の器)"
         string parent_id FK "‼️ 行の入れ子: null=root(≤Lv5)"
-        string label "‼️ 行/見出し名"
+        string label "‼️ 行/見出し名（null=導出）"
+        int derived_from_task_uid "‼️ null 可。label=null のとき名前の導出元（§5.5g）"
         int order "‼️ 兄弟内の並び順"
         bool collapsed "‼️ 折り畳み(見た目の一部→保存)"
         string color "‼️ 行色"
@@ -1432,7 +1433,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 | `Calendar.name`                   | Own                       | 暦名。                           |
 | `Calendar.is_base`                | Own(←IsBaseCalendar)      | 基準暦か。                       |
 | `Calendar.base_calendar_id`       | Consume(←BaseCalendarUID) | 派生元参照（自己）。             |
-| `WeekDay.day_type`                | Own(←DayType)             | 曜日（0=例外,1=日..7=土）。      |
+| `WeekDay.day_type`                | Own(←DayType)             | 曜日（**1=日..7=土**）。⚠️ **`0`（旧形式の例外日）は入らない** — 不採用で要素まるごと Carry へ退避する（§5.5b・§8D）。例外日は `Exception` に一本化。 |
 | `WeekDay.day_working`             | Own(←DayWorking)          | その曜日が稼働か（週末グレー）。 |
 | `Exception.name`                  | Own                       | 祝日名。                         |
 | `Exception.from_date` / `to_date` | Own(←TimePeriod)          | 例外日の期間。                   |
@@ -1522,16 +1523,21 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 | C-4 | Carry 側参照の波及 | **確定** | **「担当者名をバーに表示する」要求を採用**したため `Assignment.TaskUID`/`ResourceUID`（＋`Resource.CalendarUID`）を **Consume へ格上げ**。結果、**UID 参照が全て Consume** になり、**当初持つつもりだった UID 再マップ表が不要になった**。→ §5.5 |
 | C-5 | Calendar/Resource の UID 衝突 | **確定** | `Calendar` は**内容一致なら自動統合**（不一致は再採番＋接尾辞）、`Resource` は**同名なら自動統合**。ダイアログは増やさない。→ §5.4 |
 
-#### マージの同一性 — 残っていた 3 つの穴の決着（②）
+#### マージの同一性 — 残っていた 4 つの穴の決着（②）
+
+> ⚠️ **記号を廃した（2026-08-04）。** 旧版はこの表の 1 行目を `C-2` と呼んでいたが、
+> **同じ文書の上の表にある `C-2`（選択の粒度）とは別物**だった。さらに 2 行目の `C-02` は
+> 見分けが付かない。**穴は中身で呼ぶ**（`../03-ui-naming/handover-ui-parts-ja.md` §1-3）。
+> 旧版はこの節を「3 つの穴」と書いていたが、**表は 4 行ある**（同日訂正）。
 
 | # | 穴 | 決着 |
 |---|---|---|
-| C-2 | **同一マスタ由来の 2 文書**をマージ → 双方の新規タスクが同 UID → 既定「上書き」で片方が消える | **GRS 生まれは照合対象にしない**（§5.4）。UID が一致しても常に衝突扱い＝上書きされない |
-| C-02 | UID の**再利用**（削除 → 新規作成 → 再取込で別物を上書き） | 同上の規則が本質的に防ぐ。**高水位は正しさの前提ではなくなった**（§5.3） |
-| H-5 | 「別 UID」取込後の**再取込で複製** | **`TaskOrigin.source_uid`** を追加し (`source_project_uid`, `source_uid`) で突合 |
-| H-6 | **外部マスタ側の並行採番**との衝突 | **GRS の責任範囲外**（文書外の一意性は担保しない）。**別ツールで ID 衝突を検査**する前提とする |
+| 同 UID の新規衝突 | **同一マスタ由来の 2 文書**をマージ → 双方の新規タスクが同 UID → 既定「上書き」で片方が消える | **GRS 生まれは照合対象にしない**（§5.4）。UID が一致しても常に衝突扱い＝上書きされない |
+| UID の再利用 | 削除 → 新規作成 → 再取込で別物を上書き | 同上の規則が本質的に防ぐ。**高水位は正しさの前提ではなくなった**（§5.3） |
+| 再取込での複製 | 「別 UID」で取り込んだ後、もう一度取り込むと複製される | **`TaskOrigin.source_uid`** を追加し (`source_project_uid`, `source_uid`) で突合 |
+| 外部側の並行採番 | 外部マスタが同時に採番して UID がぶつかる | **GRS の責任範囲外**（文書外の一意性は担保しない）。**別ツールで ID 衝突を検査**する前提とする |
 
-> **却下: 番号空間の分割（予約帯）**。「1,000,000 以上は GRS 専用」とする案は H-6 を機械的に防げるが、①**同じ規則を使う別の GRS 文書とは結局ぶつかる**（C-2 は解けない）②**UID の値に意味を持たせる**ため脆く、ランダム ID で壊れる。→ **UID は不透明な整数として扱う**大原則を採用した（§5.3）。
+> **却下: 番号空間の分割（予約帯）**。「1,000,000 以上は GRS 専用」とする案は**外部側の並行採番**を機械的に防げるが、①**同じ規則を使う別の GRS 文書とは結局ぶつかる**（同 UID の新規衝突は解けない）②**UID の値に意味を持たせる**ため脆く、ランダム ID で壊れる。→ **UID は不透明な整数として扱う**大原則を採用した（§5.3）。
 
 #### 経緯: なぜ「UID 再マップ表」を廃止したか
 

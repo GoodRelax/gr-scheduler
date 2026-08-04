@@ -121,6 +121,7 @@ interface GrSchedulerAgentApi {
   loadDocument(request: LoadRequest): ApplyOutcome;
 
   // --- 履歴（コマンドではない。履歴そのものを動かすため）
+  // revision は巻き戻さず前へ進む。理由は下の注記。
   undo(steps?: number): ApplyOutcome;
   redo(steps?: number): ApplyOutcome;
 
@@ -140,6 +141,19 @@ interface GrSchedulerAgentApi {
 
 type StopWatching = () => void;
 ```
+
+> ⚠️ **上の 3 型は本書に定義が無い**（`ViewState` / `LoadRequest` / `ViewStateRequest`。2026-08-04 に判明）。
+> `ApplyRequest` / `ApplyOutcome` / `RejectionReason` / `WatchRequest` は §4 に定義がある。
+> **次期は実装前にこの 3 つを埋めること。** 中身の所在は分かっている:
+>
+> | 型 | 何を入れるか | 所在 |
+> |---|---|---|
+> | `ViewState` | ズーム 2 つ・スクロール位置（日付 ＋ `TaskGroup.id`）・テーマ・パネル幅・表示トグル | `../02-data-model/grs-document-settings-ja.md` §4-2 が**全項目と既定値と範囲を持つ** |
+> | `ViewStateRequest` | `ViewState` の**部分更新**（全項目必須にしない）。範囲外は §4-2 の下限・上限でクランプする | 同上 |
+> | `LoadRequest` | 読み込む文書（JSON 文字列か構造体か）と、**取込マージの選択**（上書き / 別 UID / 取消） | `../02-data-model/grs-native-erd-ja.md` §5.4 |
+>
+> **`ViewState` を新しく設計してはならない。** 設定値の正は §4-2 の 1 か所であり、
+> ここで別の形を作ると**二重管理になる**。
 
 ### 1-1. 純粋性と品詞
 
@@ -295,14 +309,29 @@ interface ApplyOutcome {
   /** 常に現在の文書（不変コピー）。拒否時も返す — 読み直しの往復を省くため。 */
   document: GrSchedulerDocument;
 }
+```
 
+**`undo` / `redo` は `revision` を巻き戻さない — 確定 2026-08-04**
+
+**`revision` は単調増加する。** `undo` も `redo` も**新しい版を 1 つ進める**（戻した結果もまた 1 つの版である）。
+
+**なぜ巻き戻してはならないか**: 監視の条件は `revision > sinceRevision` である（§4-1）。
+`revision` を戻せる設計にすると、**`undo` の後に相手の監視が二度と起きない**（現在の版が
+相手の `sinceRevision` を下回るため）。**取り消したことは相手に伝わらなければならない。**
+
+- `steps` を省略したら **1 段**。履歴の端を越える指定は**端で止め、進んだぶんだけ適用する**（エラーにしない）。
+- **戻す段が 1 つも無いときは `accepted: false` ＋ `nothing-to-undo`** を返し、`revision` は動かさない。
+- `changeLog` には**取り消した事実を 1 件足す**（消さない）。**履歴は減らない。**
+
+```ts
 type RejectionReason =
   | 'stale-base-revision'   // baseRevision が現在と違う
   | 'unknown-command'       // 知らない commandName
   | 'invalid-argument'      // 引数の型・値域
   | 'validation-rejected'   // 取込検証で弾いた（user-order.md 62）
   | 'document-locked'       // 読取専用／権限（user-order.md 65-2）
-  | 'gesture-in-progress';  // 人間がドラッグ中
+  | 'gesture-in-progress'   // 人間がドラッグ中
+  | 'nothing-to-undo';      // undo/redo で動かせる段が無い
 ```
 
 **拒否のときも文書を返す**のが要点である。トライアルでは拒否 6 回のすべてで、
