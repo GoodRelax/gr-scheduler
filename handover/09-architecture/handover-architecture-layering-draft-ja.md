@@ -87,9 +87,13 @@ flowchart TB
 
 **3 つの独立な根拠が同じ答えを指している。**
 
+> ⚠️ **`handover/` の中で完結しているのは根拠 2 だけである。** 根拠 1（`CLAUDE.md`）と根拠 3
+> （レビュー観点規約）は**フレームワーク側の文書**で、引継ぎ資産には入らない（`../DISCARDED-ja.md` 方針 7）。
+> **結論は根拠 2 だけでも立つ**が、次期が同じ 3 点を確かめたいなら**フレームワーク側を自分で用意する**必要がある。
+
 | # | 根拠 | 所在 |
 |:--:|---|---|
-| 1 | ドメイン（レイアウトエンジン・整列・LOD・依存線ルーティング・日付モデル）を entity / use case に置き、SVG 描画・File I/O・localStorage を adapter / framework に分離する | `CLAUDE.md`「Clean Architecture / DIP 遵守」 |
+| 1 | ドメイン（レイアウトエンジン・整列・LOD・依存線ルーティング・日付モデル）を entity / use case に置き、SVG 描画・File I/O・localStorage を adapter / framework に分離する | ⚠️ **`CLAUDE.md`「Clean Architecture / DIP 遵守」— この出典は引き継がれない**（`../DISCARDED-ja.md` 方針 7）。**次期は自分の設定で立て直すこと** |
 | 2 | 描画は DOM 非依存の純粋関数に保つ（`document` に触らず SVG 文字列を返す） | 決定-1（`../10-agent-interface/agent-interface-open-items-ja.md`） |
 | 3 | **ドメインの計算ロジック（業務規則・判断・変換）は `pure` または `semi-pure-a`**（MUST） | レビュー観点規約 **R7.2** |
 

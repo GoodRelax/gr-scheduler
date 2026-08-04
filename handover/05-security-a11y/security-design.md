@@ -46,6 +46,7 @@ status: stable
 | §2.4 | **AS-1（スクリプト入り SVG アイコン）が丸ごと死んでいる** |
 | §3.6 | SVG / PNG のサイズ上限・SVG ノード数・PNG 最大寸法 |
 | §8 | C-03 / C-04 / C-09 / C-10 |
+| 付録の OWASP 対応表 | **A03 の行**が参照先に `§3.1-3.5` と `C-01..04` を挙げている（`§3.2` / `§3.5` と `C-03` / `C-04` が死んでいる） |
 | §9 | ST-01〜04 / ST-11〜13 |
 | §11 | DOMPurify の採用可否 |
 | 付録 | A06 / A10 の §3.2 参照 |
@@ -403,10 +404,15 @@ Import は同期処理で UI スレッドを止めうるため、**取り込み�
 
 **title: 推奨 CSP (単一 HTML, ネットワーク遮断前提)**
 
+> ⚠️ **このブロックはそのままでは動かない。** `script-src` にハッシュを入れないと、
+> 単一 HTML にインライン化された `<script>` が **CSP に弾かれて起動しない**。
+> `'sha256-...'` は**ビルド後にインライン script から算出して注入する**（下記「インラインスクリプト方針」1）。
+> **下の `__INLINE_SCRIPT_SHA256__` は差し込み位置を示す目印であって、値ではない。**
+
 ```html
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'none';
-  script-src 'self';
+  script-src 'self' 'sha256-__INLINE_SCRIPT_SHA256__';
   style-src 'self' 'unsafe-inline';
   img-src 'self' data:;
   font-src 'self' data:;
@@ -474,7 +480,9 @@ Import は同期処理で UI スレッドを止めうるため、**取り込み�
 > **別の複製を開くと無関係な文書のハンドルが「編集中のファイル」として復帰しうる。**
 >
 > **`http(s)` で配信すれば本物のオリジンになり、この問題は消える。**
-> ⚠️ **Chromium 1228 での実測であり、他エンジンは未測定。** 対応ブラウザ確定時に測り直すこと。
+> ⚠️ **Playwright の Chromium 1228 での実測であり、他エンジンは未測定。** 対応ブラウザ確定時に測り直すこと。
+> **`1228` は Playwright のビルド番号であって Chrome の版ではない**（基準ブラウザは Chrome 150 系。
+> `../04-performance/handover-performance-notes-ja.md` §2-0）。**数字の大小で新旧を判断しないこと。**
 
 ---
 

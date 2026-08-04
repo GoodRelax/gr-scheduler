@@ -510,7 +510,7 @@ status: stable
 |---|---|
 | `01-mspdi/mspdi-pitfalls-ja.md` | **MSPDI 実装の落とし穴**。素直に実装すると必ず踏む罠。**最優先で読む** |
 | `01-mspdi/mspdi-enums-ja.md` | MSPDI の enum 全数（53 要素 / 535 値） |
-| `01-mspdi/mspdi/mspdi_pj12.xsd` | **MSPDI の正本スキーマ**。事実はここで検証する |
+| `01-mspdi/mspdi/mspdi_pj12.xsd` | **MSPDI の正本スキーマ**。事実はここで検証する。⚠️ **同梱していない**（第三者の著作物は再配布しない。入手手順とハッシュは `01-mspdi/mspdi/README.md`） |
 | `02-data-model/handover-data-model-entry-ja.md` | **データ構造の入口**。読む順と JSON 実例 |
 | `02-data-model/grs-native-erd-ja.md` | **データ構造の確定版**（ERD・識別子・マージ・往復の規約） |
 | `02-data-model/grs-mspdi-field-ledger-ja.md` | MSPDI 全要素の取捨選択台帳 |
