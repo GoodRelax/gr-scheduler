@@ -228,7 +228,8 @@ erDiagram
 
 > ⚠️ **判定の正は `../02-data-model/grs-mspdi-field-ledger-ja.md` §7 である。** 本書の ○/× はその要約であり、
 > **2026-08-04 に台帳へ合わせて 6 件を ○ → × に直した**（`ScheduleFromStart` / `CurrentDate` ＋ サーバ/管理 4）。
-> いずれも台帳 §5.6 の監査で「**GRS は解釈しない**」と判定されたもので、本書がその降格に追随していなかった。
+> いずれも `../02-data-model/grs-native-erd-ja.md` §5.6 の監査で「**GRS は解釈しない**」と判定されたもので、
+> 本書がその降格に追随していなかった。
 > **×＝捨てるではない。** 使わない値も往復のため Carry で温存する。
 
 ### B-1. Project 直下スカラー（63）
@@ -256,7 +257,7 @@ erDiagram
 
 | 要素 | 要否 | 理由 |
 |---|:--:|---|
-| ScheduleFromStart | × | 前方/後方計算の向き。**GRS はスケジューラを持たない＝意味を使わない**（台帳 §5.6 の監査で降格） |
+| ScheduleFromStart | × | 前方/後方計算の向き。**GRS はスケジューラを持たない＝意味を使わない**（`../02-data-model/grs-native-erd-ja.md` §5.6 の監査で降格） |
 | StartDate | ○ | プロジェクト開始 |
 | FinishDate | ○ | プロジェクト完了。⚠️ **入力は読まず、全 Task 最遅から算出して出す**（台帳では Reconstruct） |
 | StatusDate | ○ | イナズマ線の基準日（コア） |
@@ -294,7 +295,7 @@ erDiagram
 
 **EV（2）→ 全 ×**: EarnedValueMethod, BaselineForEarnedValue
 
-**サーバ/管理（4）→ 全 ×**（**MVP にサーバ連携が無く GRS は解釈しない**。台帳 §5.6 の監査で Own(暫定)→Carry へ降格。往復のため温存はする）: MicrosoftProjectServerURL（boolean・URL ではない）, ProjectExternallyEdited, ActualsInSync, AdminProject
+**サーバ/管理（4）→ 全 ×**（**MVP にサーバ連携が無く GRS は解釈しない**。`../02-data-model/grs-native-erd-ja.md` §5.6 の監査で Own(暫定)→Carry へ降格。往復のため温存はする）: MicrosoftProjectServerURL（boolean・URL ではない）, ProjectExternallyEdited, ActualsInSync, AdminProject
 
 ### B-2. コンテナ（wrapper）— データを持たない入れ物（15）
 

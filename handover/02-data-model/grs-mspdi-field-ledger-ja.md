@@ -517,14 +517,14 @@ erDiagram
 | `SaveVersion` | MSPDI の版メタ | 残 | **XSD 必須**（`minOccurs=1`）。**固定値 12** を焼き込む。**Carry があれば優先**（`grs-native-erd-ja.md` §8A） | **Reconstruct** |
 | `CurrencyCode` | 通貨コード | 残 | **XSD 必須**（`minOccurs=1`）。既定 `"JPY"` を焼き込む。**Carry があれば優先**（同上） | **Reconstruct** |
 | `StartDate` `StatusDate` | 全体開始・予実基準日 | 残 | 全体期間／イナズマ線の基準 | **Own** |
-| `ScheduleFromStart` | 前方/後方計算の向き | 削 | **GRS はスケジューラを持たない**＝意味を使わない（§5.6 監査で Own→Carry 降格） | Carry |
+| `ScheduleFromStart` | 前方/後方計算の向き | 削 | **GRS はスケジューラを持たない**＝意味を使わない（`grs-native-erd-ja.md` §5.6 の監査で Own→Carry 降格） | Carry |
 | `CurrentDate` | 「現在日」参照 | 削 | **今日線は実行時のシステム日付で描く**。保存すると保存時点で凍結（§5.6 監査で降格） | Carry |
 | `MinutesPerDay` `MinutesPerWeek` `DaysPerMonth` `WeekStartDay` | 期間換算・週開始 | 残 | Duration 解釈・暦表示に必須 | **Own** |
 | `MicrosoftProjectServerURL` `ProjectExternallyEdited` `ActualsInSync` `AdminProject` | サーバ/管理 | 削 | **MVP にサーバ連携が無く GRS は解釈しない**。往復のため温存（§5.6 監査で Own(暫定)→Carry 降格。将来必要時に格上げ） | Carry |
 | `CalendarUID` | 既定カレンダー参照 | 残→参照 | ネイティブ暦参照 | **Consume** |
 | `FinishDate` | プロジェクト完了 | 削 | 全Task最遅からロールアップ | Reconstruct |
 
-**削（42・全 Carry）** ※ §5.6 監査で `ScheduleFromStart`/`CurrentDate`/サーバ管理4 を Own から降格（37+6=43）。
+**削（42・全 Carry）** ※ `grs-native-erd-ja.md` §5.6 の監査で `ScheduleFromStart`/`CurrentDate`/サーバ管理4 を Own から降格（37+6=43）。
 2026-08-04 に **`CurrencyCode` を残側へ移した**（XSD 必須のため出さないと非妥当）ので **43−1=42**。
 
 | フィールド群 | 説明 | 採否 | 根拠 | GRS扱い |
