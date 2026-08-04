@@ -107,7 +107,9 @@ status: stable
 
 ### B-1. ほぼ全てのフィールドが `minOccurs="0"`
 
-**事実**: 8 つの主要テーブルで必須なのは `Task/UID` `Calendar/UID` `Resource/UID` `Assignment/UID` `WeekDay/DayType`、および Project の 2 つ（B-2）だけ。**残りは全て省略可**。
+**事実**: **断捨離後の 8 テーブル**（`Project` / `Task` / `PredecessorLink` / `Calendar` / `WeekDay` / `Exception` / `Resource` / `Assignment`。`mspdi-tables.md`「断捨離後 8 テーブル」）で必須なのは
+`Task/UID` `Calendar/UID` `Resource/UID` `Assignment/UID` `WeekDay/DayType`、および Project の 2 つ（B-2）だけ。**残りは全て省略可**。
+⚠️ **`Project/UID` も省略可である**（A-2）。`PredecessorLink` と `Exception` には必須要素が 1 つも無い。
 
 **何が起きるか（重要）**: 「値が無い」と「既定値」を区別できない実装は、**往復で差分が出る**。
 
@@ -266,9 +268,9 @@ Assignment/Baseline/Number  xsd:string   minOccurs=1   ← 型も必須性も違
 
 **対処**: 「WeekDay なら WorkingTimes を持つ」と一般化しない。
 
-### D-5. enum は整数コード。`DurationFormat` は約 30 種
+### D-5. enum は整数コード。`DurationFormat` は 26 種
 
-**事実**: 依存種別は `<Type>1</Type>`（FS）のように**数値**で入る。`DurationFormat` / `LagFormat` は約 20〜30 の値を持ち、末尾に「推定」を示す変種がある。
+**事実**: 依存種別は `<Type>1</Type>`（FS）のように**数値**で入る。**`DurationFormat` は 26 値・`LagFormat` は 25 値**（XSD 実測。`LagFormat` は `DurationFormat` から `21=null` を除いたもの）で、末尾に「推定」を示す変種がある。
 
 **対処**: enum を実装する前に XSD の `xsd:enumeration` を全数列挙する。要約文書の抜粋を信用しない。
 

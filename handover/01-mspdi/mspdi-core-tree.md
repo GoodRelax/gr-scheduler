@@ -40,9 +40,9 @@ XSD を一枚絵で理解するためのビューであり、正本ではない�
 ```text
 Project（プロジェクト＝ファイル1個）
   │
-  ├─ 【設定】  通貨・既定時刻・スケジュール方針… スカラー値が約90個ベタ並び
+  ├─ 【設定】  通貨・既定時刻・スケジュール方針… スカラー値が63個ベタ並び（XSD実測）
   │
-  └─ 【データ】 相互に UID で参照し合う5つのテーブル
+  └─ 【データ】 相互に UID で参照し合う4つのテーブル
        │
        Calendars ──────< 稼働日・稼働時間の定義（祝日/休日/勤務時間帯）
           ▲                              ▲
@@ -60,6 +60,9 @@ Project（プロジェクト＝ファイル1個）
   これは DB の設計とまったく同じ。「田中さんが設計タスクに50%」= 1 Assignment。
 - **時系列の実績値**（週ごとの作業量など）は `TimephasedData` という共通ブロックで、
   Task / Resource / Assignment のどれにもぶら下がりうる。
+- ⚠️ **上の図は日程表に効く 4 つだけを描いている。** XSD 実測では `Project` 直下の容れ物は **7 つ**で、
+  残り 3 つは分類コードとカスタムフィールド（`OutlineCodes` / `WBSMasks` / `ExtendedAttributes`）である。
+  **いずれも断捨離対象**（`mspdi-tables.md` §A）。
 
 ---
 
@@ -149,7 +152,7 @@ Project                                    # ルート。1ファイル=1プロ�
 │     ├─【予定（スケジュール）】
 │     │  ├─ Start? / Finish? : dateTime
 │     │  ├─ Duration? : duration            # 例 "PT8H0M0S"（ISO8601 duration）
-│     │  ├─ DurationFormat? : enum{7=d,9=w,11=mo,5=h,3=m,19=%,…(約30種),末尾?=推定}
+│     │  ├─ DurationFormat? : enum{7=d,9=w,11=mo,5=h,3=m,19=%,…(全26値),末尾?=推定}
 │     │  ├─ Work? : duration                # 総工数
 │     │  ├─ Type? : enum{0=FixedUnits,1=FixedDuration,2=FixedWork}
 │     │  ├─ Milestone? : bool               # true=マイルストーン（期間0の点）
@@ -319,7 +322,7 @@ TimephasedData
   └─ Value? : str                  # その区間の値（作業量やコスト）
 ```
 
-### TimephasedData.Type 全対応表（原 XSD 35〜107 行 / enum 112〜183 行）
+### TimephasedData.Type の読み方（全対応表は `mspdi-enums-ja.md`）
 
 - 有効なコードは **1〜11 と 16〜76 の計72個**。**12〜15 は欠番（予約・未使用）**。
 - 名称の "Baseline"（番号なし）= **ベースライン0（既定の基準計画）**。"Baseline 1〜10" は追加の保存枠。
@@ -330,81 +333,8 @@ TimephasedData
   - **ベースライン0**（4,5,7,8,9,10）: 既定の基準計画
   - **ベースライン1〜10**（16〜75）: 追加の基準計画スナップショット
 
-| コード | 英語名（原文） | 対象 | 指標 | 基準番号 | 和訳 |
-|---:|---|---|---|:--:|---|
-| 1 | Assignment Remaining Work | 割当 | 残作業 | — | 割当: 残作業 |
-| 2 | Assignment Actual Work | 割当 | 実績作業 | — | 割当: 実績作業 |
-| 3 | Assignment Actual Overtime Work | 割当 | 実績残業 | — | 割当: 実績残業作業 |
-| 4 | Assignment Baseline Work | 割当 | 作業 | 0 | 割当: ベースライン作業 |
-| 5 | Assignment Baseline Cost | 割当 | コスト | 0 | 割当: ベースラインコスト |
-| 6 | Assignment Actual Cost | 割当 | 実績コスト | — | 割当: 実績コスト |
-| 7 | Resource Baseline Work | リソース | 作業 | 0 | リソース: ベースライン作業 |
-| 8 | Resource Baseline Cost | リソース | コスト | 0 | リソース: ベースラインコスト |
-| 9 | Task Baseline Work | タスク | 作業 | 0 | タスク: ベースライン作業 |
-| 10 | Task Baseline Cost | タスク | コスト | 0 | タスク: ベースラインコスト |
-| 11 | Task Percent Complete | タスク | 進捗率 | — | タスク: 進捗率(%) |
-| *12–15* | *（欠番・予約）* | — | — | — | *未使用* |
-| 16 | Assignment Baseline 1 Work | 割当 | 作業 | 1 | 割当: ベースライン1 作業 |
-| 17 | Assignment Baseline 1 Cost | 割当 | コスト | 1 | 割当: ベースライン1 コスト |
-| 18 | Task Baseline 1 Work | タスク | 作業 | 1 | タスク: ベースライン1 作業 |
-| 19 | Task Baseline 1 Cost | タスク | コスト | 1 | タスク: ベースライン1 コスト |
-| 20 | Resource Baseline 1 Work | リソース | 作業 | 1 | リソース: ベースライン1 作業 |
-| 21 | Resource Baseline 1 Cost | リソース | コスト | 1 | リソース: ベースライン1 コスト |
-| 22 | Assignment Baseline 2 Work | 割当 | 作業 | 2 | 割当: ベースライン2 作業 |
-| 23 | Assignment Baseline 2 Cost | 割当 | コスト | 2 | 割当: ベースライン2 コスト |
-| 24 | Task Baseline 2 Work | タスク | 作業 | 2 | タスク: ベースライン2 作業 |
-| 25 | Task Baseline 2 Cost | タスク | コスト | 2 | タスク: ベースライン2 コスト |
-| 26 | Resource Baseline 2 Work | リソース | 作業 | 2 | リソース: ベースライン2 作業 |
-| 27 | Resource Baseline 2 Cost | リソース | コスト | 2 | リソース: ベースライン2 コスト |
-| 28 | Assignment Baseline 3 Work | 割当 | 作業 | 3 | 割当: ベースライン3 作業 |
-| 29 | Assignment Baseline 3 Cost | 割当 | コスト | 3 | 割当: ベースライン3 コスト |
-| 30 | Task Baseline 3 Work | タスク | 作業 | 3 | タスク: ベースライン3 作業 |
-| 31 | Task Baseline 3 Cost | タスク | コスト | 3 | タスク: ベースライン3 コスト |
-| 32 | Resource Baseline 3 Work | リソース | 作業 | 3 | リソース: ベースライン3 作業 |
-| 33 | Resource Baseline 3 Cost | リソース | コスト | 3 | リソース: ベースライン3 コスト |
-| 34 | Assignment Baseline 4 Work | 割当 | 作業 | 4 | 割当: ベースライン4 作業 |
-| 35 | Assignment Baseline 4 Cost | 割当 | コスト | 4 | 割当: ベースライン4 コスト |
-| 36 | Task Baseline 4 Work | タスク | 作業 | 4 | タスク: ベースライン4 作業 |
-| 37 | Task Baseline 4 Cost | タスク | コスト | 4 | タスク: ベースライン4 コスト |
-| 38 | Resource Baseline 4 Work | リソース | 作業 | 4 | リソース: ベースライン4 作業 |
-| 39 | Resource Baseline 4 Cost | リソース | コスト | 4 | リソース: ベースライン4 コスト |
-| 40 | Assignment Baseline 5 Work | 割当 | 作業 | 5 | 割当: ベースライン5 作業 |
-| 41 | Assignment Baseline 5 Cost | 割当 | コスト | 5 | 割当: ベースライン5 コスト |
-| 42 | Task Baseline 5 Work | タスク | 作業 | 5 | タスク: ベースライン5 作業 |
-| 43 | Task Baseline 5 Cost | タスク | コスト | 5 | タスク: ベースライン5 コスト |
-| 44 | Resource Baseline 5 Work | リソース | 作業 | 5 | リソース: ベースライン5 作業 |
-| 45 | Resource Baseline 5 Cost | リソース | コスト | 5 | リソース: ベースライン5 コスト |
-| 46 | Assignment Baseline 6 Work | 割当 | 作業 | 6 | 割当: ベースライン6 作業 |
-| 47 | Assignment Baseline 6 Cost | 割当 | コスト | 6 | 割当: ベースライン6 コスト |
-| 48 | Task Baseline 6 Work | タスク | 作業 | 6 | タスク: ベースライン6 作業 |
-| 49 | Task Baseline 6 Cost | タスク | コスト | 6 | タスク: ベースライン6 コスト |
-| 50 | Resource Baseline 6 Work | リソース | 作業 | 6 | リソース: ベースライン6 作業 |
-| 51 | Resource Baseline 6 Cost | リソース | コスト | 6 | リソース: ベースライン6 コスト |
-| 52 | Assignment Baseline 7 Work | 割当 | 作業 | 7 | 割当: ベースライン7 作業 |
-| 53 | Assignment Baseline 7 Cost | 割当 | コスト | 7 | 割当: ベースライン7 コスト |
-| 54 | Task Baseline 7 Work | タスク | 作業 | 7 | タスク: ベースライン7 作業 |
-| 55 | Task Baseline 7 Cost | タスク | コスト | 7 | タスク: ベースライン7 コスト |
-| 56 | Resource Baseline 7 Work | リソース | 作業 | 7 | リソース: ベースライン7 作業 |
-| 57 | Resource Baseline 7 Cost | リソース | コスト | 7 | リソース: ベースライン7 コスト |
-| 58 | Assignment Baseline 8 Work | 割当 | 作業 | 8 | 割当: ベースライン8 作業 |
-| 59 | Assignment Baseline 8 Cost | 割当 | コスト | 8 | 割当: ベースライン8 コスト |
-| 60 | Task Baseline 8 Work | タスク | 作業 | 8 | タスク: ベースライン8 作業 |
-| 61 | Task Baseline 8 Cost | タスク | コスト | 8 | タスク: ベースライン8 コスト |
-| 62 | Resource Baseline 8 Work | リソース | 作業 | 8 | リソース: ベースライン8 作業 |
-| 63 | Resource Baseline 8 Cost | リソース | コスト | 8 | リソース: ベースライン8 コスト |
-| 64 | Assignment Baseline 9 Work | 割当 | 作業 | 9 | 割当: ベースライン9 作業 |
-| 65 | Assignment Baseline 9 Cost | 割当 | コスト | 9 | 割当: ベースライン9 コスト |
-| 66 | Task Baseline 9 Work | タスク | 作業 | 9 | タスク: ベースライン9 作業 |
-| 67 | Task Baseline 9 Cost | タスク | コスト | 9 | タスク: ベースライン9 コスト |
-| 68 | Resource Baseline 9 Work | リソース | 作業 | 9 | リソース: ベースライン9 作業 |
-| 69 | Resource Baseline 9 Cost | リソース | コスト | 9 | リソース: ベースライン9 コスト |
-| 70 | Assignment Baseline 10 Work | 割当 | 作業 | 10 | 割当: ベースライン10 作業 |
-| 71 | Assignment Baseline 10 Cost | 割当 | コスト | 10 | 割当: ベースライン10 コスト |
-| 72 | Task Baseline 10 Work | タスク | 作業 | 10 | タスク: ベースライン10 作業 |
-| 73 | Task Baseline 10 Cost | タスク | コスト | 10 | タスク: ベースライン10 コスト |
-| 74 | Resource Baseline 10 Work | リソース | 作業 | 10 | リソース: ベースライン10 作業 |
-| 75 | Resource Baseline 10 Cost | リソース | コスト | 10 | リソース: ベースライン10 コスト |
-| 76 | Physical Percent Complete | タスク | 物理進捗率 | — | タスク: 物理進捗率(%) |
+> **全 72 値の対応表は `mspdi-enums-ja.md` §`Type`（72）が持つ**（値 / 原文 / 対象 / 指標 / 基準 / 和訳）。
+> **ここには複製しない。** 上の周期規則さえ分かれば、表は引かずに読める。
 
 ---
 
@@ -426,6 +356,7 @@ erDiagram
     PROJECT }o--o| CALENDAR : "CalendarUID (default cal)"
     CALENDAR |o--o{ CALENDAR : "BaseCalendarUID (derives from)"
     RESOURCE }o--o| CALENDAR : "CalendarUID (personal cal)"
+    TASK }o--o| CALENDAR : "CalendarUID (task cal)"
     TASK ||--o{ PREDECESSOR_LINK : "owns"
     PREDECESSOR_LINK }o--|| TASK : "PredecessorUID -> predecessor"
     ASSIGNMENT }o--|| TASK : "TaskUID"
@@ -442,6 +373,7 @@ erDiagram
     TASK {
         int UID PK "referenced by links & assignments"
         int ID "display row no. (mutable)"
+        int CalendarUID FK "task calendar"
     }
     RESOURCE {
         int UID PK
@@ -467,6 +399,7 @@ erDiagram
 |---|---|---|
 | `Project.CalendarUID` | `Calendar.UID` | プロジェクト既定カレンダー |
 | `Calendar.BaseCalendarUID` | `Calendar.UID` | 派生カレンダーの基準暦 |
+| `Task.CalendarUID` | `Calendar.UID` | **タスク個別の稼働暦**（省略時はプロジェクト既定暦） |
 | `Task.PredecessorLink.PredecessorUID` | `Task.UID` | タスク間の依存 |
 | `Resource.CalendarUID` | `Calendar.UID` | リソース個人暦 |
 | `Assignment.TaskUID` | `Task.UID` | 割当先タスク |
@@ -500,7 +433,9 @@ erDiagram
 
 - 4 つの容れ物（`Project` / `Task` / `Resource` / `Assignment`）は**すべて `xsd:sequence`** である。
   **省略はできるが、並べ替えはできない。**
-- **必須は全体で 3 つだけ** — `Project/SaveVersion`・`Project/CurrencyCode`・各要素の `UID`。
+- **必須は 4 種だけ**（XSD 実測）— `Project/SaveVersion`・`Project/CurrencyCode`・
+  `Task`/`Resource`/`Assignment`/`Calendar` の `UID`・**`WeekDay/DayType`**。
+  ⚠️ **`Project/UID` は省略可である**（罠 A-2。`mspdi-pitfalls-ja.md` B-1 も同じ列挙）。
   それ以外は全部 `minOccurs=0` なので、**全数を出す必要はない。**
 - したがって「全項目を埋める」実装は要らない。**部分集合を順序どおりに並べれば妥当になる。**
 

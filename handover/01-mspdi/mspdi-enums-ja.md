@@ -157,7 +157,7 @@ How cost is accrued against the resource. Values are: 1=Start, 2=End, 3=Prorated
 - `WorkGroup`: The type of workgroup to which the resource belongs. Values are: 0=Default, 1=None, 2=Email, 3=Web.
 - `BookingType`: The booking type of the resource. 1=Commited, 2=Proposed. — `Assignment/BookingType` も同じ。
 
-### レート書式 — **同名で 3 通りある**
+### レート書式 — **4 か所にあり、値集合は 2 種類**
 
 | 要素 | 値数 | 内容 |
 |---|:--:|---|
@@ -203,8 +203,8 @@ The work contour of the assignment. Values are: 0=Flat, 1=Back Loaded, 2=Front L
 | `OutlineCode/Masks/Mask/Type` | 4 | 0=Numbers, 1=Upper Case Letters, 2=Lower Case Letters, 3=Characters |
 | `WBSMask/Type` | 4 | 同上 |
 | `ExtendedAttribute/CFType` | 8 | 0=Cost, 1=Date, 2=Duration, 3=Finish, 4=Flag, 5=Number, 6=Start, 7=Text |
-| `ExtendedAttribute/ElemType` | 4 | 20=Task, 21=Resource, 22=Assignment ほか |
-| `ExtendedAttribute/RollupType` | 8 | 0=Maximum(OR), 1=Minimum(AND), 2=Count ほか |
+| `ExtendedAttribute/ElemType` | 4 | 20=Task, 21=Resource, **22=Calendar, 23=Assignment** |
+| `ExtendedAttribute/RollupType` | 8 | 0=Maximum(OR), 1=Minimum(AND), 2=Count all, 3=Sum, 4=Average, 5=Average First Sublevel, 6=Count First Sublevel, 7=Count Nonsummaries |
 | `ExtendedAttribute/CalculationType` | 3 | 0=None, 1=Rollup, 2=Calculation |
 | `ExtendedAttribute/ValuelistSortOrder` | 2 | 0=Descending, 1=Ascending |
 
@@ -224,80 +224,80 @@ The time unit of the timephased data period. Values are: 0=m, 1=h, 2=d, 3=w, 5=m
 
 有効なコードは **1〜11 と 16〜76 の計 72 個**。**16〜75 は 6 個周期**で `[Assignment Work, Assignment Cost, Task Work, Task Cost, Resource Work, Resource Cost]` が Baseline 1〜10 ぶん繰り返す。
 
-| 値 | 意味 |
-|---|---|
-| 1 | Assignment Remaining Work |
-| 2 | Assignment Actual Work |
-| 3 | Assignment Actual Overtime Work |
-| 4 | Assignment Baseline Work |
-| 5 | Assignment Baseline Cost |
-| 6 | Assignment Actual Cost |
-| 7 | Resource Baseline Work |
-| 8 | Resource Baseline Cost |
-| 9 | Task Baseline Work |
-| 10 | Task Baseline Cost |
-| 11 | Task Percent Complete |
-| 16 | Assignment Baseline 1 Work |
-| 17 | Assignment Baseline 1 Cost |
-| 18 | Task Baseline 1 Work |
-| 19 | Task Baseline 1 Cost |
-| 20 | Resource Baseline 1 Work |
-| 21 | Resource Baseline 1 Cost |
-| 22 | Assignment Baseline 2 Work |
-| 23 | Assignment Baseline 2 Cost |
-| 24 | Task Baseline 2 Work |
-| 25 | Task Baseline 2 Cost |
-| 26 | Resource Baseline 2 Work |
-| 27 | Resource Baseline 2 Cost |
-| 28 | Assignment Baseline 3 Work |
-| 29 | Assignment Baseline 3 Cost |
-| 30 | Task Baseline 3 Work |
-| 31 | Task Baseline 3 Cost |
-| 32 | Resource Baseline 3 Work |
-| 33 | Resource Baseline 3 Cost |
-| 34 | Assignment Baseline 4 Work |
-| 35 | Assignment Baseline 4 Cost |
-| 36 | Task Baseline 4 Work |
-| 37 | Task Baseline 4 Cost |
-| 38 | Resource Baseline 4 Work |
-| 39 | Resource Baseline 4 Cost |
-| 40 | Assignment Baseline 5 Work |
-| 41 | Assignment Baseline 5 Cost |
-| 42 | Task Baseline 5 Work |
-| 43 | Task Baseline 5 Cost |
-| 44 | Resource Baseline 5 Work |
-| 45 | Resource Baseline 5 Cost |
-| 46 | Assignment Baseline 6 Work |
-| 47 | Assignment Baseline 6 Cost |
-| 48 | Task Baseline 6 Work |
-| 49 | Task Baseline 6 Cost |
-| 50 | Resource Baseline 6 Work |
-| 51 | Resource Baseline 6 Cost |
-| 52 | Assignment Baseline 7 Work |
-| 53 | Assignment Baseline 7 Cost |
-| 54 | Task Baseline 7 Work |
-| 55 | Task Baseline 7 Cost |
-| 56 | Resource Baseline 7 Work |
-| 57 | Resource Baseline 7 Cost |
-| 58 | Assignment Baseline 8 Work |
-| 59 | Assignment Baseline 8 Cost |
-| 60 | Task Baseline 8 Work |
-| 61 | Task Baseline 8 Cost |
-| 62 | Resource Baseline 8 Work |
-| 63 | Resource Baseline 8 Cost |
-| 64 | Assignment Baseline 9 Work |
-| 65 | Assignment Baseline 9 Cost |
-| 66 | Task Baseline 9 Work |
-| 67 | Task Baseline 9 Cost |
-| 68 | Resource Baseline 9 Work |
-| 69 | Resource Baseline 9 Cost |
-| 70 | Assignment Baseline 10 Work |
-| 71 | Assignment Baseline 10 Cost |
-| 72 | Task Baseline 10 Work |
-| 73 | Task Baseline 10 Cost |
-| 74 | Resource Baseline 10 Work |
-| 75 | Resource Baseline 10 Cost |
-| 76 | Physical Percent Complete |
+| 値 | 意味（原文） | 対象 | 指標 | 基準 | 和訳 |
+|---:|---|---|---|:--:|---|
+| 1 | Assignment Remaining Work | 割当 | 残作業 | — | 割当: 残作業 |
+| 2 | Assignment Actual Work | 割当 | 実績作業 | — | 割当: 実績作業 |
+| 3 | Assignment Actual Overtime Work | 割当 | 実績残業 | — | 割当: 実績残業作業 |
+| 4 | Assignment Baseline Work | 割当 | 作業 | 0 | 割当: ベースライン作業 |
+| 5 | Assignment Baseline Cost | 割当 | コスト | 0 | 割当: ベースラインコスト |
+| 6 | Assignment Actual Cost | 割当 | 実績コスト | — | 割当: 実績コスト |
+| 7 | Resource Baseline Work | リソース | 作業 | 0 | リソース: ベースライン作業 |
+| 8 | Resource Baseline Cost | リソース | コスト | 0 | リソース: ベースラインコスト |
+| 9 | Task Baseline Work | タスク | 作業 | 0 | タスク: ベースライン作業 |
+| 10 | Task Baseline Cost | タスク | コスト | 0 | タスク: ベースラインコスト |
+| 11 | Task Percent Complete | タスク | 進捗率 | — | タスク: 進捗率(%) |
+| 16 | Assignment Baseline 1 Work | 割当 | 作業 | 1 | 割当: ベースライン1 作業 |
+| 17 | Assignment Baseline 1 Cost | 割当 | コスト | 1 | 割当: ベースライン1 コスト |
+| 18 | Task Baseline 1 Work | タスク | 作業 | 1 | タスク: ベースライン1 作業 |
+| 19 | Task Baseline 1 Cost | タスク | コスト | 1 | タスク: ベースライン1 コスト |
+| 20 | Resource Baseline 1 Work | リソース | 作業 | 1 | リソース: ベースライン1 作業 |
+| 21 | Resource Baseline 1 Cost | リソース | コスト | 1 | リソース: ベースライン1 コスト |
+| 22 | Assignment Baseline 2 Work | 割当 | 作業 | 2 | 割当: ベースライン2 作業 |
+| 23 | Assignment Baseline 2 Cost | 割当 | コスト | 2 | 割当: ベースライン2 コスト |
+| 24 | Task Baseline 2 Work | タスク | 作業 | 2 | タスク: ベースライン2 作業 |
+| 25 | Task Baseline 2 Cost | タスク | コスト | 2 | タスク: ベースライン2 コスト |
+| 26 | Resource Baseline 2 Work | リソース | 作業 | 2 | リソース: ベースライン2 作業 |
+| 27 | Resource Baseline 2 Cost | リソース | コスト | 2 | リソース: ベースライン2 コスト |
+| 28 | Assignment Baseline 3 Work | 割当 | 作業 | 3 | 割当: ベースライン3 作業 |
+| 29 | Assignment Baseline 3 Cost | 割当 | コスト | 3 | 割当: ベースライン3 コスト |
+| 30 | Task Baseline 3 Work | タスク | 作業 | 3 | タスク: ベースライン3 作業 |
+| 31 | Task Baseline 3 Cost | タスク | コスト | 3 | タスク: ベースライン3 コスト |
+| 32 | Resource Baseline 3 Work | リソース | 作業 | 3 | リソース: ベースライン3 作業 |
+| 33 | Resource Baseline 3 Cost | リソース | コスト | 3 | リソース: ベースライン3 コスト |
+| 34 | Assignment Baseline 4 Work | 割当 | 作業 | 4 | 割当: ベースライン4 作業 |
+| 35 | Assignment Baseline 4 Cost | 割当 | コスト | 4 | 割当: ベースライン4 コスト |
+| 36 | Task Baseline 4 Work | タスク | 作業 | 4 | タスク: ベースライン4 作業 |
+| 37 | Task Baseline 4 Cost | タスク | コスト | 4 | タスク: ベースライン4 コスト |
+| 38 | Resource Baseline 4 Work | リソース | 作業 | 4 | リソース: ベースライン4 作業 |
+| 39 | Resource Baseline 4 Cost | リソース | コスト | 4 | リソース: ベースライン4 コスト |
+| 40 | Assignment Baseline 5 Work | 割当 | 作業 | 5 | 割当: ベースライン5 作業 |
+| 41 | Assignment Baseline 5 Cost | 割当 | コスト | 5 | 割当: ベースライン5 コスト |
+| 42 | Task Baseline 5 Work | タスク | 作業 | 5 | タスク: ベースライン5 作業 |
+| 43 | Task Baseline 5 Cost | タスク | コスト | 5 | タスク: ベースライン5 コスト |
+| 44 | Resource Baseline 5 Work | リソース | 作業 | 5 | リソース: ベースライン5 作業 |
+| 45 | Resource Baseline 5 Cost | リソース | コスト | 5 | リソース: ベースライン5 コスト |
+| 46 | Assignment Baseline 6 Work | 割当 | 作業 | 6 | 割当: ベースライン6 作業 |
+| 47 | Assignment Baseline 6 Cost | 割当 | コスト | 6 | 割当: ベースライン6 コスト |
+| 48 | Task Baseline 6 Work | タスク | 作業 | 6 | タスク: ベースライン6 作業 |
+| 49 | Task Baseline 6 Cost | タスク | コスト | 6 | タスク: ベースライン6 コスト |
+| 50 | Resource Baseline 6 Work | リソース | 作業 | 6 | リソース: ベースライン6 作業 |
+| 51 | Resource Baseline 6 Cost | リソース | コスト | 6 | リソース: ベースライン6 コスト |
+| 52 | Assignment Baseline 7 Work | 割当 | 作業 | 7 | 割当: ベースライン7 作業 |
+| 53 | Assignment Baseline 7 Cost | 割当 | コスト | 7 | 割当: ベースライン7 コスト |
+| 54 | Task Baseline 7 Work | タスク | 作業 | 7 | タスク: ベースライン7 作業 |
+| 55 | Task Baseline 7 Cost | タスク | コスト | 7 | タスク: ベースライン7 コスト |
+| 56 | Resource Baseline 7 Work | リソース | 作業 | 7 | リソース: ベースライン7 作業 |
+| 57 | Resource Baseline 7 Cost | リソース | コスト | 7 | リソース: ベースライン7 コスト |
+| 58 | Assignment Baseline 8 Work | 割当 | 作業 | 8 | 割当: ベースライン8 作業 |
+| 59 | Assignment Baseline 8 Cost | 割当 | コスト | 8 | 割当: ベースライン8 コスト |
+| 60 | Task Baseline 8 Work | タスク | 作業 | 8 | タスク: ベースライン8 作業 |
+| 61 | Task Baseline 8 Cost | タスク | コスト | 8 | タスク: ベースライン8 コスト |
+| 62 | Resource Baseline 8 Work | リソース | 作業 | 8 | リソース: ベースライン8 作業 |
+| 63 | Resource Baseline 8 Cost | リソース | コスト | 8 | リソース: ベースライン8 コスト |
+| 64 | Assignment Baseline 9 Work | 割当 | 作業 | 9 | 割当: ベースライン9 作業 |
+| 65 | Assignment Baseline 9 Cost | 割当 | コスト | 9 | 割当: ベースライン9 コスト |
+| 66 | Task Baseline 9 Work | タスク | 作業 | 9 | タスク: ベースライン9 作業 |
+| 67 | Task Baseline 9 Cost | タスク | コスト | 9 | タスク: ベースライン9 コスト |
+| 68 | Resource Baseline 9 Work | リソース | 作業 | 9 | リソース: ベースライン9 作業 |
+| 69 | Resource Baseline 9 Cost | リソース | コスト | 9 | リソース: ベースライン9 コスト |
+| 70 | Assignment Baseline 10 Work | 割当 | 作業 | 10 | 割当: ベースライン10 作業 |
+| 71 | Assignment Baseline 10 Cost | 割当 | コスト | 10 | 割当: ベースライン10 コスト |
+| 72 | Task Baseline 10 Work | タスク | 作業 | 10 | タスク: ベースライン10 作業 |
+| 73 | Task Baseline 10 Cost | タスク | コスト | 10 | タスク: ベースライン10 コスト |
+| 74 | Resource Baseline 10 Work | リソース | 作業 | 10 | リソース: ベースライン10 作業 |
+| 75 | Resource Baseline 10 Cost | リソース | コスト | 10 | リソース: ベースライン10 コスト |
+| 76 | Physical Percent Complete | タスク | 物理進捗率 | — | タスク: 物理進捗率(%) |
 
 ---
 
