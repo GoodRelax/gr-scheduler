@@ -151,14 +151,14 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | 6 | `02-data-model/handover-data-model-entry-ja.md` | データ構造の**入口**。読む順と JSON 実例 | 入口 |
 | 7 | `02-data-model/grs-mspdi-field-ledger-ja.md` | 全要素の取捨選択（Own / Consume / Reconstruct / Carry / Drop） | 仕分けの実例。枠組み自体が再利用できる |
 | **8** | **`02-data-model/grs-native-erd-ja.md`** | **データ構造の確定版**。ERD・識別子・マージ・Carry ストア・往復規約 | **データ構造の正** |
-| 8a | **`02-data-model/grs-document-settings-ja.md`** | **文書に保存する設定値の全数**（描画 58 項目 ＋ 表示状態 ＋ 出力 ＋ LOD）。保存しないもの 9 項目とその理由。自動保存と往復検査の規約 | **設定値の正** |
+| 8a | **`02-data-model/grs-document-settings-ja.md`** | **文書に保存する設定値の全数**（描画 57 項目 ＋ 表示状態 ＋ 出力 ＋ LOD）。保存しないもの 9 項目とその理由。自動保存と往復検査の規約 | **設定値の正** |
 | 8b | `02-data-model/handover-property-mspdi-mapping-ja.md` | プロパティ全項目の MSPDI 対応（XSD 実測）・**進捗と実績の関係**・無い項目の格納方式 3 案比較 | 項目を増やす前に読む |
 | **9** | **`03-ui-naming/handover-ui-parts-ja.md`** | **UI パーツ名と責務**（確定名）。語彙 6 系統 → 3 語。**面ごとの記法と語幹一致の規則**もここ | **命名の正** |
 | 9b | `03-ui-naming/handover-ui-detail-spec-ja.md` | **UI 詳細仕様**。4 部構成の内訳・上部ボタン・パレット構成・**掴み領域**・操作割当・自動レイアウト規則 | 実装前に読む |
 | **10** | **`07-plan-actual/handover-plan-actual-decisions-ja.md`** | **予実・進捗の確定設計**。MSPDI の `Stop`/`Resume`/`ResumeValid` をそのまま使うモデル・5 状態・形状・Progress Marker・イナズマ線の頂点規則・Undo・命名 | **この領域はここが正**。⚠️ 8b と 9b の予実まわりを**上書きする**（同書 §11 に差分の全数） |
 | 11 | `05-security-a11y/security-design.md` | 脅威モデル・**JSON / MSPDI XML** の検証・単一 HTML の CSP | 要求として生きている（`user-order.md` 62）。⚠️ **冒頭の注記を先に読む** — SVG/PNG 取込の節は**対象機能が取り下げ済み** |
 | 12 | `05-security-a11y/a11y-wcag21-aa-checklist.md` | WCAG 2.1 AA チェックリスト | 有効な条件付きプロセス |
-| **14** | **`08-poc/`** | **動く PoC**（`poc-integrated.html` **1 本**・6 タブ。日程表 / 形状の基準 / マルチバー 20 パターン / レベル遷移 / 色と縁取り / 記録）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。**書き戻しは 2026-08-02 に全数を棚卸し済み**（同書 §6 の 6 件と末尾の表の 7 件）。**2026-08-02 に 3 件とも決着した**（§6-2 は不採用・横切りは重ね順で解く／#5 は罠 T-14 へ／#7 は深さ 5〜1 を試す方式に確定）。**書き戻し待ちのものは無い** |
+| **14** | **`08-poc/`** | **動く PoC**（`poc-integrated.html` **1 本**・6 タブ。日程表 / 形状の基準 / マルチバー 15 パターン / レベル遷移 / 色と縁取り / 記録）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。**書き戻しは 2026-08-02 に全数を棚卸し済み**（同書 §6 の 6 件と末尾の表の 7 件）。**2026-08-02 に 3 件とも決着した**（§6-2 は不採用・横切りは重ね順で解く／#5 は罠 T-14 へ／#7 は深さ 5〜1 を試す方式に確定）。**書き戻し待ちのものは無い** |
 | 15 | `09-architecture/handover-architecture-entry-ja.md` | **アーキ領域の所在**。描画方式 = SVG の結論がどこにあるか / 不変更新ストアが「前提として参照されているのに設計が無い」こと / **モジュール構成と技術スタックは意図的な空白**であること | 事実の所在のみ。決定はしない |
 | 15b | `09-architecture/handover-architecture-layering-draft-ja.md` | **層仕訳の推奨案**。中核計算を entity、操作層を use case、UI と機械向けの口を同格の adapter に置く形 | ⚠️ **`status: draft`。推奨案であって決定ではない**。正式版は次期が決める |
 | **16** | **`10-agent-interface/`** | **機械向けインターフェース**。要求 17 件・API 契約・実測（`file://` の 8 件）・決定 6 件・サンプル JSON 2 本。中心は「**口は 2 つあるが、文書は 1 つ**」 | 入口は `agent-interface-requirements-ja.md`。**`authority` は持たない** |
@@ -187,7 +187,7 @@ grep -rl "^authority:" handover/ | wc -l   # 4 でなければ正が増えてい
 | `docs/spec/_assets/handover-performance-notes-ja.md` | `04-performance/` |
 | `docs/security/security-design.md` / `docs/dev/a11y-wcag21-aa-checklist.md` | `05-security-a11y/` |
 | `old/日程管理ツール.md`（既存ツール比較の調査記録） | **`handover/` には無い**。特定製品の評価を含むため外した（`DISCARDED-ja.md` §3） |
-| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`handover/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 29 文書にファイル名の重複は無い**ので名前で一意に定まる（機械検査済み。衝突ゼロ）。`README.md` だけは **3 つ**ある — 本書 / `01-mspdi/mspdi/README.md`（XSD の入手元）/ `08-poc/README.md`（PoC の開き方） |
+| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`handover/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 31 文書にファイル名の重複は無い**ので名前で一意に定まる（機械検査済み。衝突ゼロ）。`README.md` だけは **3 つ**ある — 本書 / `01-mspdi/mspdi/README.md`（XSD の入手元）/ `08-poc/README.md`（PoC の開き方） |
 | `docs/spec/vendor/mspdi-declutter-erd-ja.md`（MSPDI 断捨離の中間分析） | **`handover/` には無い**。結論は `02-data-model/grs-mspdi-field-ledger-ja.md` に落ちている（`DISCARDED-ja.md`） |
 | `project-management/` 配下（`handoff-*.md` 等） | **`handover/` には無い**。中身の要点は `DISCARDED-ja.md` に書いてある |
 | 上表に無いパス（`src/` / `tests/` / `.sdoc` / `project-records/` 等） | **`handover/` には無い**。凍結リポジトリを見る。理由は `DISCARDED-ja.md` |

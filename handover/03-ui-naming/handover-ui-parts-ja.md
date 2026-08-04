@@ -237,7 +237,8 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 
 **例外はこの 2 件だけ。** 増やすときは必ずこの表に追記する。「なんとなく違う」を許すと規則が崩れる。
 
-> **確認できる事実**: 「矢羽根」は `handover/` 内に 32 箇所あり `user-order.md` を含む。
+> **確認できる事実**: 「矢羽根」は `handover/` 内に **33 箇所**あり `user-order.md` を含む
+> （内訳: `.md` に 28 ＋ `../08-poc/poc-integrated.html` に 5。**数え直すときはこの内訳で照合すること**）。
 > 「山形」は**本表の中の 2 箇所（この行と直訳の説明）以外に 0 箇所**。
 > 「日本の工程表で通用する語である」というのは**推定**であって、リポジトリ内では裏付けられない。
 
@@ -345,7 +346,6 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 | `labelBaseline` | ベースライン補正 |
 | `labelHaloOfFont` | 縁取りの太さ ÷ フォント |
 | `truncateUnits` | 打ち切り幅（半角換算） |
-| `rowTitleWidth` | 行名の欄の幅 |
 | `rowTitleFont` | 行名の文字 |
 | `rowTitleIndent` | 行名の 1 段のインデント |
 | `rowTitleTopScale` | `TaskGroup` 深さ 1 の行名の倍率 |
@@ -475,7 +475,7 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 > | `depWidth` / `depArrowLen` / `depRunOfArrow` | `dependencyWidth` / `dependencyArrowLength` / `dependencyRunOfArrow` | `Dependency Lines` |
 > | `markGap` / `markMin` / `markStroke` / `markOfText` / `markTextOfFont` / `markTextBaseline` | `marker...` | `Progress Marker` |
 > | `progWidth` / `progOverhang` | `progressLineWidth` / `progressLineOverhang` | `Progress Line` |
-> | `rowLabelW` / `rowLabelFont` / `rowIndent` | `rowTitleWidth` / `rowTitleFont` / `rowTitleIndent` | `Row Title Panel` |
+> | `rowLabelW` / `rowLabelFont` / `rowIndent` | ~~`rowTitleWidth`~~ / `rowTitleFont` / `rowTitleIndent` | `Row Title Panel`。⚠️ **`rowTitleWidth` は 2026-08-04 に廃止**（下記） |
 > | `laneGap` | `stackGap` | `stackOrder`（`lane` は廃止語） |
 > | `shapeH` / `truncUnits` / `minShapeW` / `svgPad` / `canvasPad` | `shapeHeightOf` / `truncateUnits` / `minShapeWidth` / `svgPadding` / `canvasPadding` | 略語をやめた |
 > | `todayDay` | `statusDate` | 中身は**基準日**であって本日ではなかった |
@@ -500,6 +500,22 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 >
 > ✅ **PoC（`../08-poc/poc-integrated.html`）も 2026-08-02 に確定名へ揃えた。** 読み替え表は要らない。
 > 案比較の 5 本は同日に引継ぎ資産から外した（`../DISCARDED-ja.md` §4-4b）。
+
+> ⚠️ **2026-08-04 の統合（1 キー）— 改名が 2 キーを生んでいた。**
+>
+> **`rowTitleWidth` を廃止し、`rowTitlePanelWidth` に一本化した。**
+> 07-31 の `rowLabelW` → `rowTitleWidth`（PoC 側の名前）と、08-02 の `leftPaneWidth` → `rowTitlePanelWidth`
+> （製品側の名前）は、**別々の改名でありながら同じ「行名ペインの幅」を指していた**。
+> どちらも既定 170 で、`../02-data-model/grs-document-settings-ja.md` §3 と §4-2 の両方に載り、
+> JSON 実例にも両方入っていた。**製品の実装には `leftPaneWidth` の 1 本しか無かった。**
+>
+> **`rowTitlePanelWidth` を残した理由**: ①§6 の「使える幅」の式が使っているのはこちら
+> ②`propertyPanelWidth` と対になり、上限が相互に依存する規則に載っている
+> ③**人がドラッグして変える値**なので、置き場所は §3「描画の設定」ではなく §4-2「画面の状態」が正しい。
+>
+> **この型は 3 度目である** — §1-3 が潰した記号ラベル 2 組（`軸A`/`軸B` と `案A`〜`案D`）に続く 3 例目。
+> **改名は「新しい名前を決める」ことではなく「古い名前を全部潰す」ことである。**
+> 改名表を書いたら、**旧名の全出現を機械で走査して残りゼロを確かめる**こと。
 
 ---
 

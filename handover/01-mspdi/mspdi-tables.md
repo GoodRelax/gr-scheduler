@@ -128,7 +128,7 @@ erDiagram
     Assignment }o--o| Resource : "ResourceUID"
 
     Project {
-        string UID PK "projectId"
+        string UID "省略可・最大16文字。PKではない"
         string Name
         string Title
         string Author
@@ -225,7 +225,7 @@ erDiagram
 | 要素 | 要否 | 理由 |
 |---|:--:|---|
 | SaveVersion | ○ | MSPDI export 書出し時のバージョンメタ |
-| UID | ○ | プロジェクト GUID（= projectId、識別） |
+| UID | ○ | プロジェクト識別子。**GUID ではなく最大 16 文字の文字列。しかも省略可**（罠 A-2。XSD 実測） |
 | Name | ○ | プロジェクト名 |
 | Title | ○ | 文書タイトル（ヘッダ表示） |
 | Subject | ○ | 主題（メタ） |

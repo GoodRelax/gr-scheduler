@@ -58,7 +58,7 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
 
 → **GRS がドメインとして持つのは「予定・実績・中断の日付／マイルストーン／階層／依存／稼働カレンダー／担当者名」だけ**。これが Own/Consume の範囲を規定し、それ以外は Carry になる（§4）。
 
-> **担当者名の例外**: 資源管理は非対象だが、**担当者名をバーに表示する**ため `Resource`（`UID`/`Name`/`Type`/`CalendarUID`）と `Assignment`（`UID`/`TaskUID`/`ResourceUID`）の**計 7 列だけ**を軽量ネイティブ化する（§7.5/§7.6・`grs-native-erd-ja.md` §5.5）。この格上げにより **MSPDI の UID 参照 7 つが全て Consume** となり、**Carry に UID 参照が残らない**（＝マージ時の UID 振り直しに構造的に追従する）。
+> **担当者名の例外**: 資源管理は非対象だが、**担当者名をバーに表示する**ため `Resource`（`UID`/`Name`/`Type`/`IsCostResource`/`CalendarUID`）と `Assignment`（`UID`/`TaskUID`/`ResourceUID`）の**計 8 列だけ**を軽量ネイティブ化する（§7.5/§7.6・`grs-native-erd-ja.md` §5.5）。この格上げにより **MSPDI の UID 参照 7 つが全て Consume** となり、**Carry に UID 参照が残らない**（＝マージ時の UID 振り直しに構造的に追従する）。
 
 ---
 
@@ -87,7 +87,7 @@ GRS は日程表を **JSON**（主データ）で保持し、外部との交換�
 |---|:--:|:--:|:--:|---|:--:|---|
 | **Own** | ○ | ○（同形） | 読む | 保存値を書く | なし | GRS がドメインとして**編集・描画に使う原本**。日付/名前/フラグ等。 |
 | **Consume** | ○ | ○（別形） | **読む（必須）** | 構造から再生成 | なし | 意味を理解するが**GRS では別構造で持つ**（例: `OutlineLevel`→WBS木、`PredecessorLink`→依存エッジ）。読み飛ばすと階層/依存が失われる。 |
-| **Reconstruct** | ○ | ✗ | **読まない** | 他 Own から算出 | なし | 他フィールドから**一意に導ける冗長値**（例: `Duration`=Finish−Start、`OutlineNumber`、`ID`）。保存するとドリフトするので持たない。 |
+| **Reconstruct** | ○ | ✗ | **読まない** | 他 Own から算出 | なし | 他フィールドから**一意に導ける冗長値**（例: `OutlineNumber`＝WBS 木のパス、`ID`＝深さ優先順、`Summary`＝子の有無）。保存するとドリフトするので持たない。 |
 | **Carry** | ✗ | ○（不透明） | 読む | そのまま書き戻す | なし※ | GRS が**意味を使わないが往復のため温存**（passthrough）。コスト/EVM/平準化/enterprise 等。 |
 | **Drop** | ✗ | ✗ | — | 書かない | **あり** | 理解も保持もしない＝**捨てる**。**原則ゼロ**（明示許容時のみ）。 |
 
@@ -390,7 +390,7 @@ erDiagram
 | テーブル | 採否 | GRS扱い | 根拠 |
 |---|:--:|---|---|
 | `Project` `Task` `PredecessorLink` `Calendar` `WeekDay` `Exception` | **残** | Own/Consume/Reconstruct 混在 | 日程表の本体・階層・依存・稼働日描画に必須 |
-| `Resource` `Assignment` | **残** | **軽量ネイティブ（計7列）＋残り Carry** | **担当者名をバーに表示**するため 7 列のみ Own/Consume 化。工数・コスト・割当率は非対象で Carry（§7.5/§7.6） |
+| `Resource` `Assignment` | **残** | **軽量ネイティブ（計8列）＋残り Carry** | **担当者名をバーに表示**するため 8 列のみ Own/Consume 化。工数・コスト・割当率は非対象で Carry（§7.5/§7.6） |
 | `TimephasedData` `WorkingTime` `WorkWeek` 系 | **削** | Carry | S字/多重split/勤務時刻/週上書きは非対象・温存 |
 | `Baseline`(Task/Res/Assn) | **削** | Carry | 変更前予定グレーは別ファイルで代替・温存 |
 | `OutlineCode` 系 `WBSMask` 系 | **削** | Carry | 独自コード/採番非対象・温存 |
@@ -507,13 +507,15 @@ erDiagram
 
 ### 7.3 Project（63 スカラー）
 
-文書メタ・期間・換算は Own、既定暦は Consume、`FinishDate` は Reconstruct、残り 37 は Carry。
+文書メタ・期間・換算は Own、既定暦は Consume、`FinishDate` と **XSD 必須の 2 つ**（`SaveVersion` / `CurrencyCode`）は Reconstruct、残り 42 は Carry。
 
-**残（20: Own 18 / Consume 1 / Reconstruct 1）**
+**残（21: Own 17 / Consume 1 / Reconstruct 3）**
 
 | フィールド | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
-| `SaveVersion` `UID` `Name` `Title` `Subject` `Category` `Company` `Manager` `Author` `CreationDate` `Revision` `LastSaved` | 文書メタ（識別/名称/会社/来歴） | 残 | ヘッダ表示・透かし・版管理 | **Own** |
+| `UID` `Name` `Title` `Subject` `Category` `Company` `Manager` `Author` `CreationDate` `Revision` `LastSaved` | 文書メタ（識別/名称/会社/来歴） | 残 | ヘッダ表示・透かし・版管理 | **Own** |
+| `SaveVersion` | MSPDI の版メタ | 残 | **XSD 必須**（`minOccurs=1`）。**固定値 12** を焼き込む。**Carry があれば優先**（`grs-native-erd-ja.md` §8A） | **Reconstruct** |
+| `CurrencyCode` | 通貨コード | 残 | **XSD 必須**（`minOccurs=1`）。既定 `"JPY"` を焼き込む。**Carry があれば優先**（同上） | **Reconstruct** |
 | `StartDate` `StatusDate` | 全体開始・予実基準日 | 残 | 全体期間／イナズマ線の基準 | **Own** |
 | `ScheduleFromStart` | 前方/後方計算の向き | 削 | **GRS はスケジューラを持たない**＝意味を使わない（§5.6 監査で Own→Carry 降格） | Carry |
 | `CurrentDate` | 「現在日」参照 | 削 | **今日線は実行時のシステム日付で描く**。保存すると保存時点で凍結（§5.6 監査で降格） | Carry |
@@ -522,14 +524,15 @@ erDiagram
 | `CalendarUID` | 既定カレンダー参照 | 残→参照 | ネイティブ暦参照 | **Consume** |
 | `FinishDate` | プロジェクト完了 | 削 | 全Task最遅からロールアップ | Reconstruct |
 
-**削（43・全 Carry）** ※ §5.6 監査で `ScheduleFromStart`/`CurrentDate`/サーバ管理4 を Own から降格（37+6=43）
+**削（42・全 Carry）** ※ §5.6 監査で `ScheduleFromStart`/`CurrentDate`/サーバ管理4 を Own から降格（37+6=43）。
+2026-08-04 に **`CurrencyCode` を残側へ移した**（XSD 必須のため出さないと非妥当）ので **43−1=42**。
 
 | フィールド群 | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
 | `ExtendedCreationDate` `RemoveFileProperties` | MS 内部用 | 削 | 重複・無関係 | Carry |
 | `FYStartDate` `FiscalYearStart` `CriticalSlackLimit` | 会計年度・CPM閾値 | 削 | 会計/CPM 非対象 | Carry |
 | `DefaultStartTime` `DefaultFinishTime` `NewTaskStartDate` | 新規既定時刻/開始 | 削 | 日粒度・編集プリファレンス | Carry |
-| 通貨4 `Currency*` | 通貨表示 | 削 | コスト非対象 | Carry |
+| 通貨3 `CurrencyDigits` `CurrencySymbol` `CurrencySymbolPosition` | 通貨表示 | 削 | コスト非対象。**`CurrencyCode` は XSD 必須なので残側**（上表） | Carry |
 | 既定タスク/レート/書式9 `DefaultTaskType`… | 新規既定値 | 削 | ソルバ/コスト既定 | Carry |
 | 計算オプション10 `HonorConstraints`… | 計算挙動 | 削 | ソルバ挙動・無関係 | Carry |
 | Move系4 `MoveCompletedEndsBack`… | 進捗移動規則 | 削 | ソルバ挙動 | Carry |
@@ -557,7 +560,7 @@ erDiagram
 
 ### 7.5 Resource（約 65 スカラー＋子要素）＝ 軽量ネイティブ（5列）＋ 残り Carry
 
-**資源管理（工数/コスト/平準化）は非対象。ただし「担当者名をバーに表示する」ため 4 列だけ軽量ネイティブ化**（`grs-native-erd-ja.md` §5.5）。残りは全て Carry。
+**資源管理（工数/コスト/平準化）は非対象。ただし「担当者名をバーに表示する」ため 5 列だけ軽量ネイティブ化**（`grs-native-erd-ja.md` §5.5）。残りは全て Carry。
 
 | フィールド | 説明 | 採否 | 根拠 | GRS扱い |
 |---|---|:--:|---|---|
@@ -629,9 +632,9 @@ MSPDI は葉要素名が親を跨いで重複するため、§5 ERD は親付き
 
 | テーブル | Own | Consume | Reconstruct | Carry | **Drop** |
 |---|---|---|---|---|:--:|
-| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ResumeValid/ActualStart/**ActualDuration**/ActualFinish/Notes/**PercentComplete** | OutlineLevel/CalendarUID/PredecessorLink/**ExtendedAttribute(GRS枠=fade)** | ID/OutlineNumber/Summary/Duration | RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
+| Task | UID/Name/Start/Finish/Milestone/Deadline/Stop/Resume/ResumeValid/ActualStart/**ActualDuration**/ActualFinish/Notes/**PercentComplete** | OutlineLevel/CalendarUID/PredecessorLink/**ExtendedAttribute(GRS枠=fade)** | ID/OutlineNumber/Summary/**Duration(編集済のみ)** | **Duration(未編集)**/RemainingDuration(進行中復元不能・H-2)/制約/工数/コスト/EVM/CPM派生/平準化/サブPJ/enterprise/補助/子要素 | **0** |
 | PredecessorLink | — | PredecessorUID/Type/LinkLag/LagFormat | — | CrossProject/CrossProjectName | **0** |
-| Project | 識別/文書/期間/換算(**18**) | CalendarUID(1) | FinishDate(1) | 通貨/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(**43**) | **0** |
+| Project | 識別/文書/期間/換算(**17**) | CalendarUID(1) | FinishDate/SaveVersion/CurrencyCode(**3**) | 通貨3/既定/計算/Move/EV/会計/時刻＋ScheduleFromStart/CurrentDate/サーバ管理4(**42**) | **0** |
 | Calendar/WeekDay/Exception | UID/Name/IsBaseCalendar/DayType(1-7)/DayWorking/例外日/名称 | BaseCalendarUID/(Task・Project).CalendarUID/**Exception.Type** | — | WorkingTime/WorkWeek/繰返し詳細/**WeekDay.DayType=0＋TimePeriod(2003形式)** | **0** |
 | Resource | UID/Name/Type/IsCostResource | CalendarUID | ID | 他スカラー全て＋子要素 | **0** |
 | Assignment | UID | TaskUID/ResourceUID | — | 他全スカラー＋201枠＋子要素 | **0** |

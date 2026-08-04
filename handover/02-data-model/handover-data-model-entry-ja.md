@@ -79,9 +79,14 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
 > **`documentSettings` は既定値のままの項目も含めて全項目を書く**
 > （`grs-document-settings-ja.md` §2。同じ JSON からいつでも同じ出力を得るため）。
-> 下の実例の `documentSettings` は **トップレベル 83 キー**で、これが「全項目」の実際の姿である。
-> **数え方**: `shapeHeightOf`（5 個の入れ子）と `exportCanvas`（`width` / `height`）を**展開して数えると葉は 88**。
+> 下の実例の `documentSettings` は **トップレベル 81 キー**で、これが「全項目」の実際の姿である。
+> **数え方**: `shapeHeightOf`（5 個の入れ子）と `exportCanvas`（`width` / `height`）を**展開して数えると葉は 86**
+> （81 − 2 + 5 + 2 = 86）。
 > **件数を照合するときは必ずどちらで数えたかを書くこと**（`grs-document-settings-ja.md` §8-2 の検査 3 がこの数を根拠にする）。
+>
+> ⚠️ **旧版はここを 83 / 88 と書いていた。2 つの理由で動いた** — ①**目視で 1 多く数えていた**（実測 82 / 87）
+> ②2026-08-04 に **`rowTitleWidth` を `rowTitlePanelWidth` へ統合**して 1 キー減った
+> （`../03-ui-naming/handover-ui-parts-ja.md` §4）。**数は目視で書かないこと。**
 >
 > 書かないものが 4 つある。
 >
@@ -123,7 +128,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
     "labelCoef": 0.5, "labelPad": 6, "labelGap": 8, "labelBaseline": 0.35,
     "labelHaloOfFont": 0.17, "truncateUnits": 24,
-    "rowTitleWidth": 170, "rowTitleFont": 13, "rowTitleIndent": 12, "rowTitleTopScale": 1.3,
+    "rowTitleFont": 13, "rowTitleIndent": 12, "rowTitleTopScale": 1.3,
 
     "planStroke": 1, "thinStrokeOfPlan": 0.20, "thinStrokeMin": 1.2, "thinStrokeMax": 4,
     "chevronNotchOfHeight": 0.45, "chevronNotchOfWidth": 0.35,

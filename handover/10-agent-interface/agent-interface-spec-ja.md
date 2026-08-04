@@ -420,6 +420,12 @@ revision > sinceRevision  かつ  lastEditedBy !== self
 > 省略できる設計にすると、**処理済みの状態で即座に起きて、監視を張り直すたびに空振りする**。
 > トライアルで実際にビジーループを踏み、必須化して直した（`ai-cowork-trial-findings-ja.md` §3-1）。
 
+> ⚠️ **`revision` が進むのは文書が変わったときだけである。**
+> **チャット欄は保存しない**ので（§2-2）、**人間がチャットに書いても `watchChanges` は起きない。**
+> チャット欄は同じページの中にあり、**人間の言葉は AI へ直接届く**。
+> **この監視が受け持つのは「相手が文書を変えた」だけ**である
+> （`agent-interface-requirements-ja.md` `A-11`／`agent-interface-samples-ja.md` §6）。
+
 **プロセス外（将来の CLI／サーバ）でも意味は同じ**である。
 「`sinceRevision` より後に、自分以外が確定するまで返らない」呼び出しを 1 つ用意する。
 

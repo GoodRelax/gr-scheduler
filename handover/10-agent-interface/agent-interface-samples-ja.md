@@ -34,10 +34,10 @@ status: stable
 
 ## 2. 一往復のかたち
 
-**人間が話しかけ、AI が読んで、直して、答えて、また待つ。** これが 1 サイクルである。
+**人間が日程表を触り、AI が読んで、直して、理由を残して、また待つ。** これが 1 サイクルである。
 
 ```
-人間: 画面のチャットに書く                      -> revision 10 -> 11
+人間: 日程表を編集する                          -> revision 10 -> 11
 AI  : 起きる（sinceRevision 10 で待っていた）
 AI  : readDocument() で 11 を読む
 AI  : applyCommands({ baseRevision: 11, commands: [...], changeExplanation: "..." })
@@ -47,6 +47,12 @@ AI  : watchChanges({ sinceRevision: 12 }) で また待つ
 
 **呼び出しは 3 回である**（起床 → 読む → 書く＋理由を残す）。
 `applyCommands` が新しい `revision` を返すので、**待機を張り直すために読み直す必要がない**（`A-18`）。
+
+> ⚠️ **チャットで話しかけただけでは、この輪は回らない。**
+> **会話は保存しないので `revision` が進まず**、`watchChanges` は起きない（§6 の
+> 「会話だけで `revision` が進むのも避ける」／`agent-interface-spec-ja.md` §2-2）。
+> **チャット欄は同じページの中にあるので、人間の言葉は AI へ直接届く。**
+> 上の輪が受け持つのは「**人間が文書を変えた**」ときだけである。
 
 実際のやり取りは `samples/agent-apply-request-and-outcomes.json` の
 `example1_acceptedBatch` と `example4_watchLoop` にある。

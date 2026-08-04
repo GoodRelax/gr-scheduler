@@ -100,7 +100,7 @@ ledger の 8 ネイティブテーブルから、**Own/Consume/Reconstruct の�
 | Resource                   | `UID`/`Name`/`Type`/`IsCostResource`（Own）、`CalendarUID`（Consume）                                                                                                                                                              | 他全列（工数/コスト/EVM/enterprise/子要素）                                                         |
 | Assignment                 | `UID`（Own）、`TaskUID`/`ResourceUID`（Consume）                                                                                                                                                                  | 他全列（`Units`/工数/コスト/EVM/201予約枠/子要素）                                                  |
 
-- **Resource / Assignment は「軽量ネイティブ」**（§5.5）。**担当者名をバーに表示する**ため、`Resource.Name`/`Type` と `Assignment` の 2 参照だけを理解し、**残りは全て Carry** で温存する。資源管理（工数・コスト・平準化）は引き続き非対象。
+- **Resource / Assignment は「軽量ネイティブ」**（§5.5）。**担当者名をバーに表示する**ため、`Resource` の 5 列（`Name` を出し、`Type`/`IsCostResource` で出す相手を絞り、`CalendarUID` で暦を辿る）と `Assignment` の 3 列、**計 8 列だけ**を理解し、**残りは全て Carry** で温存する。資源管理（工数・コスト・平準化）は引き続き非対象。
 
 ---
 
@@ -1128,7 +1128,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 **保存する（`documentSettings`）**
 
 ```
-描画の設定        58 項目のうち保存対象 54     → grs-document-settings-ja.md §3
+描画の設定        57 項目のうち保存対象 53     → grs-document-settings-ja.md §3
                   （⛔ 3 項目は保存しない / 🅿 1 項目は PoC 専用。件数は同書が正）
 表示の切り替え     14 項目                      → 同 §4-1
                   （2026-08-02 に progressLineColor を廃止して 15 → 14）
@@ -1478,7 +1478,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 | `Task.OutlineLevel`    | `wbs_parent` 木の深さ      | export     |
 | `Task.OutlineNumber`   | `wbs_parent` 木のパス      | export     |
 | `Task.Summary`         | 子の有無                   | export     |
-| `Task.Duration`        | `finish − start`＋暦       | export     |
+| `Task.Duration`        | **編集済のみ** `finish − start`＋暦。**未編集は Carry を優先** | export |
 | `Project.FinishDate`   | 全 Task 最遅のロールアップ | export     |
 | `Resource.ID`          | resources 配列の 0 起点連番 | export     |
 | `Project.SaveVersion`  | **固定値 12**（XSD 必須・`minOccurs=1`）。Carry があれば優先 | export |
@@ -1487,6 +1487,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 > **必須要素の既定値**: `SaveVersion` と `CurrencyCode` は XSD で `minOccurs=1`（Project 直下で必須なのはこの 2 つだけ）。**MSPDI import を経ていない GRS 生まれの文書**は Carry を持たないため、上表の既定値を焼き込まないと **XSD 非妥当な XML** を出力してしまう。
 > `Task.PercentComplete` も **Reconstruct にしない**（読まないと外部マスタの進捗を消す）。**Own（整数のまま `percentComplete`）** とする。編集したタスクだけ `actualDuration` から再算出し、未編集は受け取った値をそのまま返す。
 > `RemainingDuration` は **Reconstruct にしない**（進行中タスクで `ActualFinish` 空のため単純再計算が破綻）。ledger H-2 により **Carry**（本 ERD 外）。
+> `Task.Duration` は **純 Reconstruct ではない**。**未編集タスクは受け取った値をそのまま返す**（暦の解釈差で往復差分が出るのを防ぐ）。**編集済タスクだけ** `finish − start` で算出する。分類は **Carry（未編集）/ Reconstruct（編集済）**（`grs-mspdi-field-ledger-ja.md` §7.1）。
 >
 > ⚠️ **`ActualDuration` は Carry ではない。Own である**（2026-07-30 是正）。**実績バーの長さそのもの**であり
 > GRS の一級の列（§5.2 の `Task.actualDuration`・§7）。ここを Carry にすると**実績バーの右端の出所が 2 つになる**。
@@ -1518,7 +1519,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 | C-1 | 「同一タスク」の判定 | **確定** | 取込側 `Project.UID` で既定を変える（同一マスタ→「上書き」／別マスタ→「別UID」）。別マスタ×上書きは警告。→ §5.4 |
 | C-2 | 選択の粒度 | **確定** | 取込 1 回につき 1 度問い、衝突全件へ一括適用。→ §5.4 |
 | C-3 | 選択2（別UID）の往復 | **確定** | **元ソースへの往復を諦める**（`TaskOrigin.source_uid` は突合専用で、元 UID を復元しない・§5.3）。UI で明示。→ §5.4 |
-| C-4 | Carry 側参照の波及 | **確定** | **「担当者名をバーに表示する」要求を採用**したため `Assignment.TaskUID`/`ResourceUID`（＋`Resource.CalendarUID`）を **Consume へ格上げ**。結果、**UID 参照が全て Consume** になり **UID 再マップ表は不要**（当初の案A を廃止）。→ §5.5 |
+| C-4 | Carry 側参照の波及 | **確定** | **「担当者名をバーに表示する」要求を採用**したため `Assignment.TaskUID`/`ResourceUID`（＋`Resource.CalendarUID`）を **Consume へ格上げ**。結果、**UID 参照が全て Consume** になり、**当初持つつもりだった UID 再マップ表が不要になった**。→ §5.5 |
 | C-5 | Calendar/Resource の UID 衝突 | **確定** | `Calendar` は**内容一致なら自動統合**（不一致は再採番＋接尾辞）、`Resource` は**同名なら自動統合**。ダイアログは増やさない。→ §5.4 |
 
 #### マージの同一性 — 残っていた 3 つの穴の決着（②）
@@ -1542,7 +1543,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 
 ### D. 本 ERD から除外したもの（Carry / Drop）
 
-- **Carry**: GRS が解釈しない MSPDI 要素（Task の制約/工数/コスト/EVM/CPM派生/平準化/enterprise/子要素、**Resource/Assignment の §5.5 の 7 列を除く全て**、Calendar の勤務時刻/繰返し詳細、Project の 37 メタ、`RemainingDuration` 等。**`ActualDuration` は含まない — Own である**）。**別 passthrough ストアで温存**し export で書き戻す（往復無損失）。本 ERD には構造として出さない。詳細は `grs-mspdi-field-ledger-ja.md` §7。
+- **Carry**: GRS が解釈しない MSPDI 要素（Task の制約/工数/コスト/EVM/CPM派生/平準化/enterprise/子要素、**Resource/Assignment の §5.5 の 8 列を除く全て**、Calendar の勤務時刻/繰返し詳細、Project の 37 メタ、`RemainingDuration` 等。**`ActualDuration` は含まない — Own である**）。**別 passthrough ストアで温存**し export で書き戻す（往復無損失）。本 ERD には構造として出さない。詳細は `grs-mspdi-field-ledger-ja.md` §7。
 - **Carry の不変条件（限定版）**: **8 ネイティブテーブルの整数 UID 空間（Task/Resource/Calendar/Assignment）を指す参照は Carry に含まれない**（全 7 参照は Consume・§5.5）。したがって UID 振り直し時も Carry を書き換える必要がない。
   > ⚠️ **一般化しないこと**: 「Carry に参照が一切無い」とは言えない。`TimephasedData/UID`（必須 int・Carry 内に 5 経路）、`ExtendedAttribute.FieldID`/`OutlineCode.ValueID`/`ValueGUID`/`Ltuid` 等の**定義への参照**は Carry 内に残る。これらは**参照元・参照先とも Carry** なので一緒に運ばれる限り整合するが、**マージで片側だけ破棄すると dangling になる**（→ 上記「マージ時の Carry 欠落」の明示許容に含む）。`TimephasedData/UID` は **XSD documentation で「The unique identifier of the timephased data record」＝自己識別と確定**（親 UID の写しではない）。したがって UID 振り直しで壊れることはない。ただし **2 文書の Carry を併合すると番号が衝突**しうるため、Carry ストアは**所有エンティティの下にぶら下げて保持**する（グローバル索引を持たない）こと。
 - **Drop=0 の位置づけ（更新）**: **「未分類ゼロ」は達成済み**（8 テーブルの全スカラー名を XSD 突合）。加えて **Carry ストア設計が確定した**（§5.5d）ことで、Drop=0 は**主張ではなく機械検証の結果**になった:
@@ -1650,7 +1651,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 | 5 | 行の表示状態 | `viewState` に**分離**（マージで UI 状態を引きずらないため） | **`TaskGroup` に畳み込み**（`GroupViewState` 廃止） | 「JSON＝見た目の再現」を要件化したので、書式は**共有される文書データ**になった。かつ `TaskGroup` は元から GRS 独自で、`TaskVisual` のような「MSPDI 核を汚さないための分離」が**不要** |
 | 6 | 依存線の経路 | `DependencyRoute` に保存（自動＋手動上書き） | **廃止（保存しない）** | 依存線は**全自動配線で人が触らない**ため、毎回算出すれば足りる。保存すると再計算結果との二重管理＝ドリフト。経路の規則は `../03-ui-naming/handover-ui-detail-spec-ja.md` §4-9 |
 | 7 | 行内の縦積み順 | `stack_order` 列 → **一旦廃止**（全自動と判断） | **疎な上書きで復活**（`null`=自動 / 値=人の指定） | 承認済み Must（ALIGN-L2-004 の「最上段＝マイルストーン」、ALIGN-L1-001 の「同種を同じ高さに」）が**縦位置の意図**を前提としており、自動規則だけでは保存先が無い。積み順規則にも `milestone` 優先項を追加 |
-| 8 | Resource / Assignment | **丸ごと Carry**（資源管理は非対象） | **軽量ネイティブ 7 列**＋残り Carry | 「**担当者名をバーに表示**」の要求。副産物として **MSPDI の UID 参照 7 つが全て Consume** になった |
+| 8 | Resource / Assignment | **丸ごと Carry**（資源管理は非対象） | **軽量ネイティブ 8 列**＋残り Carry | 「**担当者名をバーに表示**」の要求。副産物として **MSPDI の UID 参照 7 つが全て Consume** になった |
 | 9 | UID 再マップ表 | 導入を検討（Carry 内の UID 参照が振り直しで壊れるため） | **不要**（ただし主張を限定） | #8 の格上げで整数 UID 参照が全て Consume になり、機構が 1 つ減った。**ただし**「Carry に参照が一切無い」への一般化は誤り（`TimephasedData/UID`・`FieldID`/`ValueID` 等は残る）ため、主張は「8 テーブルの整数 UID 空間を指す参照」に限定した |
 | 10 | タスクの出自 | `source_id` 構想→ **一旦廃止**（代理キーゼロを優先） | **`TaskOrigin{task_uid, source_project_uid, source_uid, import_session_id}`** として復活（別テーブル） | 出自が無いとマージの既定判定が計算できず、**再取込のたびにタスクが無限複製**する。`Task` に置くと「Task 無汚染」原則に反するため、`TaskVisual` と同じ基準で分離。`source_uid`（元 UID）は**別 UID で振り直した後の再取込を突合**するために必要（export での復元用ではない） |
 | 11 | 例外日（祝日） | `Exception`(2007) に一本化・`Type` は Carry | **`Type` を Consume に格上げ** | `TimePeriod` は `Type` と組で読む要素で、繰返し時は「適用範囲」を表す。`Type` を読まないと**祝日 1 日が数年間の非稼働に化ける** |
