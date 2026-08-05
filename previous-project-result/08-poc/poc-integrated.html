@@ -31,13 +31,19 @@
 :root {
   color-scheme: light dark;
 
-  /* ---- page chrome */
+  /* ---- page chrome. The hue is the PROJECT's theme colour, so the chrome
+     follows it too -- App Header, Row Title Panel and Time Ruler all paint with
+     --panel, and leaving those on a fixed grey made the palette look broken
+     (grs-document-settings-ja.md 4-2: the hue drives plan, actual, the row
+     banding AND the ground). Saturation is kept low so the contrast against
+     --ink / --sub barely moves, and at the default hue 214 these reproduce the
+     old fixed values almost exactly. */
   --bg: #ffffff;
   --ink: #16181d;
   --sub: #5b6068;
-  --rule: #d9dce1;
-  --panel: #f5f6f8;
-  --accent: #2b5ea8;
+  --rule: hsl(var(--hue) calc(14% * var(--sat-scale, 1)) 87%);
+  --panel: hsl(var(--hue) calc(20% * var(--sat-scale, 1)) 97%);
+  --accent: hsl(var(--hue) calc(59% * var(--sat-scale, 1)) var(--accent-l, 42%));
   --good: #1f7a3d;
   --warn: #a8600f;
   --bad: #a02b2b;
@@ -53,14 +59,14 @@
   --dependency: hsl(26 calc(88% * var(--sat-scale, 1)) 44%);
   --lightning: hsl(354 calc(62% * var(--sat-scale, 1)) 42%);
   --marker-ink: #16181d;
-  --marker-bg: #ffffff;
+  --marker-bg: var(--bg);
   --status: #8b9099;
 
   /* ---- row banding */
   --band: hsl(var(--hue) calc(42% * var(--sat-scale, 1)) 96%);
   --band-edge: hsl(var(--hue) calc(34% * var(--sat-scale, 1)) 88%);
   --row-top: hsl(var(--hue) calc(40% * var(--sat-scale, 1)) 97%);
-  --row-alt: #fafbfc;
+  --row-alt: hsl(var(--hue) calc(20% * var(--sat-scale, 1)) 99%);
 
   /* ---- label ink. Black on light, white on dark. */
   --label-ink: #000000;
@@ -75,12 +81,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #14161a;
+    --bg: hsl(var(--hue) calc(12% * var(--sat-scale, 1)) 9%);
     --ink: #e8eaee;
     --sub: #9aa1ab;
-    --rule: #333840;
-    --panel: #1c1f25;
-    --accent: #7aa6e0;
+    --rule: hsl(var(--hue) calc(12% * var(--sat-scale, 1)) 23%);
+    --panel: hsl(var(--hue) calc(14% * var(--sat-scale, 1)) 13%);
+    --accent: hsl(var(--hue) calc(62% * var(--sat-scale, 1)) var(--accent-l, 68%));
     --good: #6fc98d;
     --warn: #e0a353;
     --bad: #e07a7a;
@@ -91,12 +97,12 @@
     --dependency: hsl(30 calc(92% * var(--sat-scale, 1)) 60%);
     --lightning: hsl(354 calc(70% * var(--sat-scale, 1)) 64%);
     --marker-ink: #e8eaee;
-    --marker-bg: #14161a;
+    --marker-bg: var(--bg);
     --status: #767c86;
     --band: hsl(var(--hue) calc(18% * var(--sat-scale, 1)) 20%);
     --band-edge: hsl(var(--hue) calc(16% * var(--sat-scale, 1)) 28%);
     --row-top: hsl(var(--hue) calc(20% * var(--sat-scale, 1)) 17%);
-    --row-alt: #191c21;
+    --row-alt: hsl(var(--hue) calc(14% * var(--sat-scale, 1)) 11%);
     --label-ink: #ffffff;
     --shadow: rgba(0, 0, 0, 0.6);
   }
@@ -104,12 +110,12 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #14161a;
+  --bg: hsl(var(--hue) calc(12% * var(--sat-scale, 1)) 9%);
   --ink: #e8eaee;
   --sub: #9aa1ab;
-  --rule: #333840;
-  --panel: #1c1f25;
-  --accent: #7aa6e0;
+  --rule: hsl(var(--hue) calc(12% * var(--sat-scale, 1)) 23%);
+  --panel: hsl(var(--hue) calc(14% * var(--sat-scale, 1)) 13%);
+  --accent: hsl(var(--hue) calc(62% * var(--sat-scale, 1)) var(--accent-l, 68%));
   --good: #6fc98d;
   --warn: #e0a353;
   --bad: #e07a7a;
@@ -120,12 +126,12 @@
   --dependency: hsl(30 calc(92% * var(--sat-scale, 1)) 60%);
   --lightning: hsl(354 calc(70% * var(--sat-scale, 1)) 64%);
   --marker-ink: #e8eaee;
-  --marker-bg: #14161a;
+  --marker-bg: var(--bg);
   --status: #767c86;
   --band: hsl(var(--hue) calc(18% * var(--sat-scale, 1)) 20%);
   --band-edge: hsl(var(--hue) calc(16% * var(--sat-scale, 1)) 28%);
   --row-top: hsl(var(--hue) calc(20% * var(--sat-scale, 1)) 17%);
-  --row-alt: #191c21;
+  --row-alt: hsl(var(--hue) calc(14% * var(--sat-scale, 1)) 11%);
   --label-ink: #ffffff;
   --shadow: rgba(0, 0, 0, 0.6);
 }
@@ -1961,8 +1967,13 @@ function renderSchedule() {
   var width = layout.contentWidth, contentHeight = layout.contentHeight;
   var dependencyCount = 0;
 
-  var out = ['<defs><marker id="dependencyArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
-             'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dependency)"/></marker></defs>'];
+  var defs = '<defs><marker id="dependencyArrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" ' +
+             'markerHeight="5" orient="auto"><path d="M0,1 L7,4 L0,7 Z" fill="var(--dependency)"/></marker></defs>';
+  // Three buckets, painted back to front: the row bands are OPAQUE, so anything
+  // that has to be seen over them cannot be pushed into `out` ahead of them.
+  // That is what hid the Date Grid Lines: they were emitted before the loop
+  // that paints the bands, so every one of them was covered.
+  var bands = [], gridLines = [], out = [];
 
   var tier = timeRulerTier(view.zoomX);
   var bandH = layout.bandH, rowH = rulerRowHeight();
@@ -1975,7 +1986,7 @@ function renderSchedule() {
   if (el("dateGridLinesVisible").checked) {
     thinTicks(gridKind, rulerTicks(gridKind, HORIZON_DAYS), ctx.pxPerDay, 3).forEach(function (t) {
       var x = originX + t.day * ctx.pxPerDay;
-      out.push('<line x1="' + r1(x) + '" y1="' + r1(bandH) + '" x2="' + r1(x) + '" y2="' +
+      gridLines.push('<line x1="' + r1(x) + '" y1="' + r1(bandH) + '" x2="' + r1(x) + '" y2="' +
                r1(contentHeight) + '" stroke="var(--rule)" stroke-opacity="0.45"/>');
     });
   }
@@ -1984,7 +1995,7 @@ function renderSchedule() {
     var group = pack.group;
     var bandTop = pack.y - settings.rowGap / 2;
     var bandHeight = Math.max(pack.height, 1) + settings.rowGap;
-    out.push('<rect x="0" y="' + r1(bandTop) + '" width="' + r1(width) +
+    bands.push('<rect x="0" y="' + r1(bandTop) + '" width="' + r1(width) +
              '" height="' + r1(bandHeight) + '" fill="' +
              (group.depth === 1 ? "var(--row-top)" : (i % 2 ? "var(--row-alt)" : "var(--bg)")) + '"/>');
     // ---- Group Grid Lines: one horizontal per TaskGroup boundary ----
@@ -2083,7 +2094,8 @@ function renderSchedule() {
 
   el("scheduleCanvas").innerHTML =
     '<svg width="' + r1(width) + '" height="' + r1(contentHeight) + '" viewBox="0 0 ' +
-    r1(width) + ' ' + r1(contentHeight) + '"><g id="gBody">' + out.join("") + '</g>' +
+    r1(width) + ' ' + r1(contentHeight) + '"><g id="gBody">' +
+    defs + bands.join("") + gridLines.join("") + out.join("") + '</g>' +
     titleLayer + rulerLayer + cornerLayer + '</svg>';
   syncFrozenPanes();
 
@@ -2201,8 +2213,11 @@ var COLOUR_ROLES = [
   { token: "--label-ink",     role: "担当ラベル・完了率・名称ラベルの文字", where: "Assignee Label / Name Label", against: "--label-halo", need: 4.5 },
   { token: "--label-halo",    role: "文字の縁取り（＝背景色）",    where: "同上", against: "--bg" },
   { token: "--ink",           role: "本文の文字",                  where: "説明・表", against: "--bg", need: 4.5 },
-  { token: "--sub",           role: "説明文・目盛の文字・深さ 2 以下の行見出し", where: "Time Ruler / Row Title Panel", against: "--bg", need: 4.5 },
-  { token: "--accent",        role: "深さ 1 の行見出し・計測値",   where: "Row Title Panel / 計測パネル", against: "--bg", need: 4.5 },
+  /* この 2 つは --bg ではなく --panel の上に載る（Time Ruler / Row Title Panel /
+     計測パネルの地はすべて --panel）。--panel が色相連動になり --bg と別の色に
+     なったので、実際に接する側で測らないと WCAG 1.4.3 を割っても気づけない。 */
+  { token: "--sub",           role: "説明文・目盛の文字・深さ 2 以下の行見出し", where: "Time Ruler / Row Title Panel", against: "--panel", need: 4.5 },
+  { token: "--accent",        role: "深さ 1 の行見出し・計測値",   where: "Row Title Panel / 計測パネル", against: "--panel", need: 4.5 },
   { token: "--bg",            role: "キャンバスの地",              where: "Schedule Canvas", against: null },
   { token: "--panel",         role: "目盛の帯・パネル・ヘッダー",  where: "Time Ruler / 各パネル", against: "--bg" },
   { token: "--rule",          role: "罫線・日付罫線・スクロールバーの摘み", where: "Date Grid Lines / Scrollbars", against: "--bg" },
@@ -2728,13 +2743,18 @@ function applyPalette() {
   // lighter to the eye than blue at 46%, so one fixed set of lightnesses
   // cannot serve ten hues. The shift is the SMALLEST that works, so the
   // settled blue palette (07 §2-6) comes out untouched at 0.
-  var base = dark ? { plan: 26, stroke: 66, actual: 64 }
-                  : { plan: 80, stroke: 46, actual: 34 };
+  // --accent joins the shift because it follows the hue now (it used to be a
+  // fixed blue, which passed 4.5:1 whatever the project colour was). Left
+  // fixed at one lightness it falls below 4.5:1 on the yellow-green half of
+  // the wheel, and the solver answers by draining the background tint to 0%.
+  var base = dark ? { plan: 26, stroke: 66, actual: 64, accent: 68 }
+                  : { plan: 80, stroke: 46, actual: 34, accent: 42 };
   var dir = dark ? 1 : -1;
   function setShift(k) {
     root.style.setProperty("--plan-l", clampPct(base.plan + dir * k * 0.4) + "%");
     root.style.setProperty("--stroke-l", clampPct(base.stroke + dir * k) + "%");
     root.style.setProperty("--actual-l", clampPct(base.actual + dir * k * 0.6) + "%");
+    root.style.setProperty("--accent-l", clampPct(base.accent + dir * k) + "%");
   }
   paletteShift = 0;
   for (var k = 0; k <= 44; k += 2) { setShift(k); paletteShift = k; if (!paletteFails()) break; }

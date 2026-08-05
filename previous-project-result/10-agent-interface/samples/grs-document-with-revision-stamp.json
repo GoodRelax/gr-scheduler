@@ -80,7 +80,7 @@
 
   "taskGroups": [
     { "id": "grp-a", "parentId": null, "label": null, "derivedFromTaskUid": 1, "order": 0,
-      "collapsed": false, "color": "#e8eef7", "height": null }
+      "collapsed": false, "color": null, "height": null }
   ],
   "taskGroupMembers": [
     { "groupId": "grp-a", "taskUid": 3, "stackOrder": null },

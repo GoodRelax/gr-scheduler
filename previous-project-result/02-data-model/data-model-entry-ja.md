@@ -218,7 +218,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 
   "taskGroups": [
     { "id": "grp-a", "parentId": null, "label": null, "derivedFromTaskUid": 1, "order": 0,
-      "collapsed": false, "color": "#e8eef7", "height": null }
+      "collapsed": false, "color": null, "height": null }
   ],
   "taskGroupMembers": [
     { "groupId": "grp-a", "taskUid": 2, "stackOrder": null },
@@ -229,7 +229,7 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
   "taskVisuals": [
     { "taskUid": 2, "nameAnchor": null, "nameAlign": null,
       "shapeKind": "milestone", "milestoneGlyph": "diamond",
-      "fillColor": "#4a76c8", "strokeColor": "#2b4a80",
+      "fillColor": null, "strokeColor": null,
       "lineWeight": "medium" },
     { "taskUid": 3, "nameAnchor": null, "nameAlign": null,
       "shapeKind": "rectangle", "milestoneGlyph": null,
@@ -278,6 +278,12 @@ MSPDI 由来（Own / Consume）          GRS 新設（‼️ 非 export）
 > （機械可読な実例は `../10-agent-interface/samples/grs-document-with-revision-stamp.json`）。
 > **上の実例そのものは変えていない。** 提案の採否と初期値は `../NEXT-STEPS-ja.md` **5-1 / 2-6** で決める。
 > ⚠️ **`documentId` も同様に未収録**である（`../NEXT-STEPS-ja.md` **4-2**）。
+
+> **色の `null` は「無い」ではなく「選んでいない」である**（`grs-native-erd-ja.md` §5.6 の疎な上書き）。
+> `taskVisuals` の `taskUid: 2` は色を選んでいないので**テーマから解いた色で描かれ、`themeHue` を変えると追随する**。
+> `taskUid: 3` は人が選んだ色なので**テーマを変えても動かない**。**両方の形をわざと 1 つずつ載せてある。**
+> **`taskGroups` の `color` も同じ疎な上書き**で、この実例では `null`（＝行の帯もテーマに追随する）。
+> **キーは省略しない** — 省略すると「書き忘れ」と「選んでいない」を区別できなくなる（§5.5d-4 と同じ理由）。
 
 ### 実例が示している要点
 

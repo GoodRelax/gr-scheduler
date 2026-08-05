@@ -171,7 +171,7 @@ status: stable
     | **`percentComplete`** | **完了率** | **整数・0 以上**（通常 0〜100）。`actualDuration ÷ 予定期間` から算出して格納する | `Task/PercentComplete` |
     | `deadline` | 期限 | 「この日までに終える」独立マーカー。終了日とは別 | `Task/Deadline` |
     | **`shapeKind`** | **タスク形状** | 項 10 | **無い** → JSON のみ |
-    | `strokeColor` / `fillColor` / `lineWeight` | 線色 / 塗り色 / 線の太さ | | **無い** → JSON のみ |
+    | `strokeColor` / `fillColor` / `lineWeight` | 線色 / 塗り色 / 線の太さ | **色は指定しなければテーマ色**（項 23 のパレットから選べば上書き。テーマを変えても動かなくなる） | **無い** → JSON のみ |
     | `nameAnchor` / `nameAlign` | 名称アンカー / 名称の揃え | 9 点アンカー ＋ 整列 | **無い** → JSON のみ |
     | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 | バー端をぼかして日付の曖昧さを表す | **無い** → **拡張領域（唯一）** |
     | `wbs_parent_uid` | WBS の親 | **WBS の木そのもの。**階層の深さはここから導出する（LOD に使う） | `Task/OutlineLevel` へ導出 |
