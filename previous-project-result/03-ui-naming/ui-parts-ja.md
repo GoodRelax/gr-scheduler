@@ -494,6 +494,11 @@ UI パーツ         PascalCase の複合語（空白あり）   Row Title Panel
 > | `gridDateLinesVisible` / `gridGroupLinesVisible` | **`dateGridLinesVisible` / `groupGridLinesVisible`** | UI パーツ名 `Date Grid Lines` / `Group Grid Lines` に対し**語順が反転**していた（`Cursor Guide` → `Guide Cursor` で潰したのと同型） |
 > | `resumeArmOfMark` / `resumeHeadOfMark` | **`resumeArmOfMarker` / `resumeHeadOfMarker`** | 07-31 に `mark*` → `marker*` と決めたのに 2 キーだけ漏れた（日本語欄は既に「マーカー」だった） |
 >
+> **同じ日に、設定値キーではないものも 3 つ直した**（**上の 14 キーには数えない**）。
+> 面が違う ＝ 文字列判別値 1 ＋ 日本語の呼び名 2 である（記法は §1-2）。
+>
+> | 旧 | 新 | 直した理由 |
+> |---|---|---|
 > | `add-box` | **`highlight-box`** | パレットのコマンド名が UI パーツ名 `Highlight Boxes` と繋がっていなかった（旧「囲み枠」時代の残骸） |
 > | 「アイテム LOD」 | **「タスク LOD」** | `item` は廃止語。キー名 `taskLevelOfDetail*` と語幹を合わせた |
 > | 「行階層 LOD」 | **「グループ LOD」** | 実体は `TaskGroup`。`Rows` は UI 語。キー名 `groupLevelOfDetail*` と語幹を合わせた |
