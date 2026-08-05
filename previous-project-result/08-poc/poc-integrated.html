@@ -405,12 +405,15 @@ var SPEC = [
   /* Four ruler tiers, so three thresholds -- one per boundary. Each is the
      px/day at which one more unit of time has room for its own label without
      the type dropping below the 12px floor (§6-3). */
-  { g: "LOD のしきい値", k: "rulerTierPxPerDayMonth", n: "目盛が 年 → 年＋月 に変わる px/day", u: "px", step: 0.5, d: 1,
+  /* 1.4 / 4.3 / 30 -- the values settled on 2026-08-02. The old 1 / 4 / 14 all
+     fell below the guides above, so a tier was entered before its labels fit.
+     The document side is authoritative: grs-document-settings-ja.md §4-4. */
+  { g: "LOD のしきい値", k: "rulerTierPxPerDayMonth", n: "目盛が 年 → 年＋月 に変わる px/day", u: "px", step: 0.1, d: 1.4,
     rng: function (S) { return { lo: 0.1, hi: S.rulerTierPxPerDayWeek, why: "次のしきい値を超えない" }; } },
-  { g: "LOD のしきい値", k: "rulerTierPxPerDayWeek", n: "目盛が 年＋月 → 年＋月＋週 に変わる px/day", u: "px", step: 0.5, d: 4,
+  { g: "LOD のしきい値", k: "rulerTierPxPerDayWeek", n: "目盛が 年＋月 → 年＋月＋週 に変わる px/day", u: "px", step: 0.1, d: 4.3,
     rng: function (S) { return { lo: S.rulerTierPxPerDayMonth, hi: S.rulerTierPxPerDayDay,
       why: "前後のしきい値の間" }; } },
-  { g: "LOD のしきい値", k: "rulerTierPxPerDayDay", n: "目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day", u: "px", step: 0.5, d: 14,
+  { g: "LOD のしきい値", k: "rulerTierPxPerDayDay", n: "目盛が 年＋月＋週 → 年＋月＋日＋曜日 に変わる px/day", u: "px", step: 0.5, d: 30,
     rng: function (S) { return { lo: S.rulerTierPxPerDayWeek, hi: 60, why: "前のしきい値を下回らない" }; } },
   { g: "LOD のしきい値", k: "taskLevelOfDetailReadablePx", n: "この幅を割った深さは描かない", u: "px", step: 1, d: 24,
     rng: function (S) { return { lo: S.fontMin, hi: 200, why: "文字が 1 つも入らない幅にしない" }; } },
@@ -1771,8 +1774,21 @@ function rulerBandHeight(zoomX) {
   return Math.max(settings.rulerHeight, TIER_ROWS[timeRulerTier(zoomX)].length * rulerRowHeight());
 }
 
-/** Keep every Nth tick so labels never collide -- thinning, never shrinking. */
-function thinTicks(ticks, pxPerDay, labelPx) {
+/**
+ * Keep every Nth tick so labels never collide -- thinning, never shrinking.
+ *
+ * ONLY the day rows may be thinned (ui-detail 6-3: "間引けるのは日の段だけ").
+ * The year, month and week rows are never thinned; the tier thresholds are what
+ * keep them readable, and a tier whose labels do not fit is simply not entered.
+ *
+ * The modulo test is also only VALID on the day rows, because it assumes the
+ * ticks are one day apart. Month and year ticks are irregular (28-31, 365-366),
+ * so "day % every" keeps day 0 and throws the rest away: at Fit the year ticks
+ * are days 0 / 365 / 730 with every = 37, and only 2026年 survived -- while the
+ * years were 395px apart and colliding with nothing.
+ */
+function thinTicks(kind, ticks, pxPerDay, labelPx) {
+  if (kind !== "day" && kind !== "weekday") return ticks;
   var every = Math.max(1, Math.ceil(labelPx / Math.max(0.001, pxPerDay)));
   if (every === 1) return ticks;
   return ticks.filter(function (t) { return t.day % every === 0; });
@@ -1957,7 +1973,7 @@ function renderSchedule() {
   var gridKind = rows[rows.length - 1];
   if (gridKind === "weekday") gridKind = "day";
   if (el("dateGridLinesVisible").checked) {
-    thinTicks(rulerTicks(gridKind, HORIZON_DAYS), ctx.pxPerDay, 3).forEach(function (t) {
+    thinTicks(gridKind, rulerTicks(gridKind, HORIZON_DAYS), ctx.pxPerDay, 3).forEach(function (t) {
       var x = originX + t.day * ctx.pxPerDay;
       out.push('<line x1="' + r1(x) + '" y1="' + r1(bandH) + '" x2="' + r1(x) + '" y2="' +
                r1(contentHeight) + '" stroke="var(--rule)" stroke-opacity="0.45"/>');
@@ -2025,7 +2041,7 @@ function renderSchedule() {
   rows.forEach(function (kind, n) {
     var yTop = n * rowH, baseline = yTop + settings.rulerFont;
     var need = kind === "year" ? 40 : (kind === "month" ? 30 : (kind === "week" ? 34 : 16));
-    var ticks = thinTicks(rulerTicks(kind, HORIZON_DAYS), ctx.pxPerDay, need);
+    var ticks = thinTicks(kind, rulerTicks(kind, HORIZON_DAYS), ctx.pxPerDay, need);
     if (n) ruler.push('<line x1="0" y1="' + r1(yTop) + '" x2="' + r1(width) + '" y2="' + r1(yTop) +
                       '" stroke="var(--rule)" stroke-opacity="0.6"/>');
     ticks.forEach(function (t) {

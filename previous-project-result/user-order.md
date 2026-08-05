@@ -91,7 +91,7 @@ status: stable
 |---|---|---|---|
 | **上部** | **App Header** | 文書名と全体操作 | Branding / Schedule Title / Header Commands / Autosave Status |
 | **左** | **Row Title Panel** | `TaskGroup` の見出しを階層表示 | Row Title Tree / Panel Divider（幅を変えるドラッグ境界） |
-| **中央** | **Schedule Canvas** | 日程の描画領域 | Time Ruler / Grid Lines / Rows / Task Bars / Dependency Lines / Canvas Overlays |
+| **中央** | **Schedule Canvas** | 日程の描画領域 | **Time Ruler（タイムルーラー）** / Grid Lines / Rows（行）/ Task Bars（タスクバー）/ Dependency Lines（依存線）/ Canvas Overlays |
 | **右** | **Properties Panel** | 選択物の属性編集 | — |
 | 浮遊 | **Command Palette** | 図形と機能のボタン群。ドラッグで移動 | Palette Groups / Palette Commands |
 | 浮遊 | **Modals** | Help / AI Export / Hidden Group Tab | — |
@@ -99,7 +99,9 @@ status: stable
 **Canvas Overlays**（重ね描き層）= Progress Line（イナズマ線）/ Comment Boxes / Highlight Boxes / **Cursors**（カーソル 3 種）/ Watermark。
 **Task Bars** には **Progress Marker**（進捗マーカー）が付く。
 
-> **時間軸の目盛りは `Time Ruler`** であって `App Header` ではない。両者は別物（項 32）。
+> **時間軸の目盛りは `Time Ruler`（日本語名 **タイムルーラー**）** であって `App Header` ではない。両者は別物（項 32）。
+> **日英対応の全数は `03-ui-naming/ui-parts-ja.md` §2-1 が正。** 上表の括弧書きはそこからの再掲であり、
+> **食い違ったら §2-1 が勝つ。**
 
 ---
 
