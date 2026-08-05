@@ -1826,15 +1826,20 @@ function scheduleContext(zoomX, zoomY) {
  * occupied span already carries label and marker overhang, and the height adds
  * the progress-line overhang. Measuring the logical box is what clipped the
  * bottom row in the previous project (performance-notes T-11).
+ *
+ * The overhang is not symmetric. The Assignee Label hangs to the LEFT of the
+ * Plan Bar (ui-detail 4-2), so a task near day 0 wants space left of it, and
+ * that space cannot be reached by scrolling: the Row Title Panel is an opaque
+ * frozen pane that follows scrollLeft, so it covers the same body band at every
+ * scroll position. leadGutter reserves it between the panel and day 0.
  */
 function layoutSchedule(zoomX, zoomY) {
   var ctx = scheduleContext(zoomX, zoomY);
   var depthLimit = taskDepthLimit(zoomX);
   var rowLimit = rowDepthLimit(zoomY);
-  var originX = settings.rowTitleWidth;
   var bandH = rulerBandHeight(zoomX);
   var y = bandH + settings.progressLineOverhang;
-  var packs = [], shownTasks = 0, overlaps = 0, stackTotal = 0, maxX = 0;
+  var packs = [], shownTasks = 0, overlaps = 0, stackTotal = 0, maxX = 0, minX = 0;
 
   TASK_GROUPS.forEach(function (group) {
     if (group.depth > rowLimit) return;
@@ -1848,12 +1853,21 @@ function layoutSchedule(zoomX, zoomY) {
     packs.push(pack);
     overlaps += pack.overlaps;
     stackTotal += pack.stackCount;
-    pack.placements.forEach(function (p) { maxX = Math.max(maxX, p.geom.occupiedX1); });
+    pack.placements.forEach(function (p) {
+      minX = Math.min(minX, p.geom.occupiedX0);
+      maxX = Math.max(maxX, p.geom.occupiedX1);
+    });
     y += Math.max(pack.height, ctx.metricsOf("rectangle").reserved) + settings.rowGap;
   });
 
+  // Reserve the left overhang in pixels, never in days: the label width comes
+  // from the font, which follows zoomY, so a day-denominated gutter would be
+  // too small at low zoom and wasted at high zoom.
+  var leadGutter = Math.max(0, -minX);
+  var originX = settings.rowTitleWidth + leadGutter;
+
   return {
-    ctx: ctx, packs: packs, originX: originX, bandH: bandH,
+    ctx: ctx, packs: packs, originX: originX, leadGutter: leadGutter, bandH: bandH,
     depthLimit: depthLimit, rowLimit: rowLimit,
     shownTasks: shownTasks, overlaps: overlaps, stackTotal: stackTotal,
     contentWidth: originX + maxX + settings.canvasPadding * 2,
@@ -1916,9 +1930,18 @@ function syncFrozenPanes() {
   corner.setAttribute("transform", "translate(" + r1(sx) + "," + r1(sy) + ")");
 }
 
+/**
+ * Where day 0 sits in body coordinates for the layout currently on screen.
+ * zoomAt needs it to map pointer x to a date, and it is no longer a constant
+ * because leadGutter moves it. Cached rather than recomputed per wheel tick --
+ * asking for a fresh layout inside the wheel handler is the T-13 mistake.
+ */
+var scheduleOriginX = settings.rowTitleWidth;
+
 function renderSchedule() {
   var layout = layoutSchedule(view.zoomX, view.zoomY);
   var ctx = layout.ctx, originX = layout.originX;
+  scheduleOriginX = originX;
   var width = layout.contentWidth, contentHeight = layout.contentHeight;
   var dependencyCount = 0;
 
@@ -2023,18 +2046,22 @@ function renderSchedule() {
   // which is why nothing has to be redrawn while scrolling.
   // The Panel Divider is a wider invisible strip over the border: 1px is not
   // something anyone can hit, so the grab area is 8px and the border stays 1px.
+  // NOTE: these layers are the PANEL, so they keep panelW -- not originX, which
+  // is panelW + leadGutter. Widening the opaque panel by the gutter would put
+  // the Assignee Label straight back under it.
+  var panelW = settings.rowTitleWidth;
   var titleLayer =
-    '<g id="gTitles"><rect x="0" y="0" width="' + r1(originX) + '" height="' + r1(contentHeight) +
-    '" fill="var(--panel)"/><line x1="' + r1(originX) + '" y1="0" x2="' + r1(originX) +
+    '<g id="gTitles"><rect x="0" y="0" width="' + r1(panelW) + '" height="' + r1(contentHeight) +
+    '" fill="var(--panel)"/><line x1="' + r1(panelW) + '" y1="0" x2="' + r1(panelW) +
     '" y2="' + r1(contentHeight) + '" stroke="var(--rule)"/>' + titles.join("") +
-    '<rect id="panelDivider" x="' + r1(originX - 4) + '" y="0" width="8" height="' +
+    '<rect id="panelDivider" x="' + r1(panelW - 4) + '" y="0" width="8" height="' +
     r1(contentHeight) + '" fill="transparent"/></g>';
   var rulerLayer = '<g id="gRuler">' + ruler.join("") + '</g>';
   var cornerLayer =
-    '<g id="gCorner"><rect x="0" y="0" width="' + r1(originX) + '" height="' + r1(bandH) +
-    '" fill="var(--panel)"/><line x1="' + r1(originX) + '" y1="0" x2="' + r1(originX) +
+    '<g id="gCorner"><rect x="0" y="0" width="' + r1(panelW) + '" height="' + r1(bandH) +
+    '" fill="var(--panel)"/><line x1="' + r1(panelW) + '" y1="0" x2="' + r1(panelW) +
     '" y2="' + r1(bandH) + '" stroke="var(--rule)"/><line x1="0" y1="' + r1(bandH) +
-    '" x2="' + r1(originX) + '" y2="' + r1(bandH) + '" stroke="var(--rule)"/>' +
+    '" x2="' + r1(panelW) + '" y2="' + r1(bandH) + '" stroke="var(--rule)"/>' +
     '<text x="' + r1(settings.labelPad) + '" y="' + r1(bandH - 6) + '" font-size="' +
     r1(settings.rulerFont) + '" fill="var(--sub)">' + esc(TIER_NAME[tier]) + '</text></g>';
 
@@ -2806,14 +2833,16 @@ function zoomAt(fx, fy, clientX, clientY) {
   var box = canvas.getBoundingClientRect();
   var cx = clientX - box.left, cy = clientY - box.top;
   var pxPerDay = settings.pxPerDayAt1x * view.zoomX;
-  var day = (canvas.scrollLeft + cx - settings.rowTitleWidth) / pxPerDay;
+  // Day 0 is at scheduleOriginX, not at the panel edge: leadGutter sits between
+  // them and changes with the zoom, so read it before and after the redraw.
+  var day = (canvas.scrollLeft + cx - scheduleOriginX) / pxPerDay;
   var fracY = canvas.scrollHeight ? (canvas.scrollTop + cy) / canvas.scrollHeight : 0;
 
   view.zoomX = clampZoom(view.zoomX * fx);
   view.zoomY = clampZoom(view.zoomY * fy);
   renderSchedule();
 
-  canvas.scrollLeft = settings.rowTitleWidth + day * settings.pxPerDayAt1x * view.zoomX - cx;
+  canvas.scrollLeft = scheduleOriginX + day * settings.pxPerDayAt1x * view.zoomX - cx;
   canvas.scrollTop = fracY * canvas.scrollHeight - cy;
 }
 
