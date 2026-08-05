@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>App Header / Command Palette アイコン案 (draft)</title>
+<style>
+:root{
+  --bg:#f7f7f5; --panel:#ffffff; --ink:#1f2328; --ink-weak:#5b6169;
+  --line:#d6d8dc; --line-strong:#b3b8bf; --accent:#3a6ea8; --accent-weak:#e6eef7;
+  --on:#2f6f4e; --on-weak:#e3f0e8; --warn:#8a5a00; --danger:#9a3a3a;
+  --canvas:#fbfbfa;
+}
+:root[data-theme="dark"]{
+  --bg:#16181c; --panel:#1e2126; --ink:#e6e8ea; --ink-weak:#a4abb4;
+  --line:#343a42; --line-strong:#4b535d; --accent:#7fb0e0; --accent-weak:#22303d;
+  --on:#8fd0aa; --on-weak:#1e2f26; --warn:#e0b768; --danger:#e08a8a;
+  --canvas:#191c20;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Segoe UI","Yu Gothic UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.7;}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 24px 96px}
+h1{font-size:26px;line-height:1.4;margin:0 0 4px}
+h2{font-size:20px;line-height:1.5;margin:48px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--line-strong)}
+h3{font-size:17px;margin:28px 0 8px}
+p,li{font-size:16px}
+.lead{color:var(--ink-weak);margin:0 0 24px}
+.note{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);
+  padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0}
+.note.warn{border-left-color:var(--warn)}
+.note.ask{border-left-color:var(--danger)}
+code{font-family:Consolas,"Courier New",monospace;font-size:0.92em;
+  background:var(--accent-weak);padding:1px 5px;border-radius:3px}
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:15px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--accent-weak);font-weight:600}
+.mono{font-family:Consolas,monospace;font-size:14px}
+
+/* ---------- shared button look (product mock) ---------- */
+.btn{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid transparent;border-radius:5px;background:transparent;color:inherit;
+  cursor:pointer;padding:0;flex:0 0 auto}
+.btn:hover{background:var(--accent-weak);border-color:var(--line)}
+.btn[aria-pressed="true"]{background:var(--accent-weak);border-color:var(--accent);color:var(--accent)}
+.btn svg{width:22px;height:22px}
+.sep{width:1px;height:20px;background:var(--line);margin:0 6px;flex:0 0 auto}
+
+/* ---------- App Header mock ---------- */
+.appheader{display:flex;align-items:center;gap:6px;height:40px;padding:0 10px;
+  background:var(--panel);border:1px solid var(--line);border-radius:7px 7px 0 0}
+.brand{display:flex;align-items:center;gap:7px;font-weight:700;font-size:14px;letter-spacing:.02em}
+.brand .glyph{width:20px;height:20px;color:var(--accent)}
+.brand small{font-weight:400;font-size:11px;color:var(--ink-weak)}
+.title{font-size:14px;padding:3px 8px;border:1px dashed transparent;border-radius:4px;cursor:text;white-space:nowrap}
+.title:hover{border-color:var(--line-strong)}
+.status{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-weak);white-space:nowrap}
+.status svg{width:16px;height:16px}
+.spacer{flex:1 1 auto;min-width:8px}
+.appheader .grp{display:flex;align-items:center;gap:2px}
+.stage{background:var(--canvas);border:1px solid var(--line);border-top:none;
+  border-radius:0 0 7px 7px;padding:0;overflow-x:auto;overflow-y:hidden}
+.stage>*{min-width:1180px}
+.stagebody{display:flex;height:210px}
+.rowtitle{width:150px;border-right:1px solid var(--line);padding:8px;font-size:12px;color:var(--ink-weak)}
+.rowtitle div{padding:2px 0}
+.rowtitle .l2{padding-left:12px}
+.rowtitle .l3{padding-left:24px}
+.cvs{flex:1;position:relative}
+.badge{position:absolute;font-size:11px;color:var(--ink-weak)}
+
+/* ---------- Command Palette mock ---------- */
+.paletteRow{display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start}
+.palette{width:236px;background:var(--panel);border:1px solid var(--line-strong);
+  border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);overflow:hidden}
+.palette.dim{opacity:.42}
+.palette.dim .plabel,.palette.dim .phandle span{opacity:1}
+.phandle{display:flex;align-items:center;gap:6px;height:24px;padding:0 8px;
+  background:var(--accent-weak);cursor:move;font-size:11px;color:var(--ink-weak)}
+.phandle svg{width:14px;height:14px}
+.pgroup{border-top:1px solid var(--line);padding:7px 8px}
+.plabel{font-size:10.5px;letter-spacing:.08em;color:var(--ink-weak);margin:0 0 4px;text-transform:none}
+.prow{display:flex;flex-wrap:wrap;gap:2px;align-items:center}
+.armed{display:flex;align-items:center;gap:8px;padding:2px 4px}
+.armedbox{width:56px;height:34px;border:1px dashed var(--line-strong);border-radius:5px;
+  display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.armedbox svg{width:30px;height:30px}
+.armedtext{font-size:11px;color:var(--ink-weak);line-height:1.4}
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;
+  padding:0 4px;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:4px;
+  font-size:11px;color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.seg .btn{border-radius:0;border:none;width:28px;height:26px}
+.seg .btn+.btn{border-left:1px solid var(--line)}
+.expander{display:flex;align-items:center;gap:4px}
+.msRow{margin-top:4px;padding-top:5px;border-top:1px dashed var(--line)}
+.hidden{display:none}
+
+/* ---------- icon catalogue ---------- */
+.cat{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:10px;margin:14px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:10px;
+  display:flex;gap:10px;align-items:flex-start}
+.card .ico{width:36px;height:36px;flex:0 0 auto;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:5px;background:var(--canvas)}
+.card .ico svg{width:26px;height:26px}
+.card .txt{font-size:12.5px;line-height:1.5}
+.card .en{font-family:Consolas,monospace;font-size:11.5px;color:var(--ink-weak);display:block}
+.gridshow{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0}
+.gridcell{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:8px;text-align:center}
+.gridcell svg{width:112px;height:112px}
+.gridcell figcaption{font-size:11.5px;color:var(--ink-weak);margin-top:4px}
+.themebar{display:flex;gap:10px;align-items:center;margin:0 0 20px}
+.themebar button{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line-strong);
+  background:var(--panel);color:var(--ink);border-radius:6px;cursor:pointer}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;
+  background:var(--accent-weak);color:var(--accent);margin-left:6px;vertical-align:middle}
+.tag.new{background:var(--on-weak);color:var(--on)}
+</style>
+</head>
+<body>
+
+<!-- ============ ICON SPRITE : 24x24 viewBox / drawing area 2..22 (=20x20 grid) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<style>
+  symbol{overflow:visible}
+  .s{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .s2{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round}
+  .f{fill:currentColor;stroke:none}
+  .d{stroke-dasharray:3.4 2.6}
+</style>
+
+<!-- ---------- App Header ---------- -->
+<symbol id="i-fit" viewBox="0 0 24 24">
+  <path class="s" d="M3 8V3h5M16 3h5v5M21 16v5h-5M8 21H3v-5"/>
+  <path class="s" d="M7.5 10h9M7.5 14h5.5"/>
+</symbol>
+<symbol id="i-palette" viewBox="0 0 24 24">
+  <rect class="s" x="3.2" y="4.5" width="17.6" height="15" rx="2"/>
+  <path class="s" d="M3.2 8.6h17.6"/>
+  <circle class="f" cx="8" cy="12.4" r="1.15"/><circle class="f" cx="12" cy="12.4" r="1.15"/>
+  <circle class="f" cx="16" cy="12.4" r="1.15"/>
+  <circle class="f" cx="8" cy="16.2" r="1.15"/><circle class="f" cx="12" cy="16.2" r="1.15"/>
+  <circle class="f" cx="16" cy="16.2" r="1.15"/>
+</symbol>
+<symbol id="i-open" viewBox="0 0 24 24">
+  <path class="s" d="M3.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h14a1.5 1.5 0 0 0 1.5-1.5V15"/>
+  <path class="s" d="M12 16V3.5M7.8 7.7 12 3.5l4.2 4.2"/>
+</symbol>
+<symbol id="i-save" viewBox="0 0 24 24">
+  <path class="s" d="M3.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h14a1.5 1.5 0 0 0 1.5-1.5V15"/>
+  <path class="s" d="M12 3.5V16M7.8 11.8 12 16l4.2-4.2"/>
+</symbol>
+<symbol id="i-export" viewBox="0 0 24 24">
+  <path class="s" d="M13.5 4.5H4.2A1.2 1.2 0 0 0 3 5.7v11.6a1.2 1.2 0 0 0 1.2 1.2h11.6a1.2 1.2 0 0 0 1.2-1.2V12"/>
+  <path class="s" d="M3 14.4l3.4-3.4 2.6 2.6 2.4-2.9 3.4 4"/>
+  <circle class="s" cx="7.4" cy="8.2" r="1.2"/>
+  <path class="s" d="M15.6 6.6H21M21 6.6l-2.6-2.6M21 6.6l-2.6 2.6"/>
+</symbol>
+<symbol id="i-baseline" viewBox="0 0 24 24">
+  <rect class="s d" x="3" y="6" width="13" height="5" rx="1.4"/>
+  <rect class="s" x="8" y="13" width="13" height="5" rx="1.4"/>
+</symbol>
+<symbol id="i-undo" viewBox="0 0 24 24">
+  <path class="s" d="M8.5 7.5h6.2a5 5 0 0 1 0 10H7.6"/>
+  <path class="s" d="M11.6 4.4 8.5 7.5l3.1 3.1"/>
+</symbol>
+<symbol id="i-redo" viewBox="0 0 24 24">
+  <path class="s" d="M15.5 7.5H9.3a5 5 0 0 0 0 10h7.1"/>
+  <path class="s" d="M12.4 4.4l3.1 3.1-3.1 3.1"/>
+</symbol>
+<symbol id="i-theme" viewBox="0 0 24 24">
+  <circle class="s" cx="12" cy="12" r="8"/>
+  <path class="f" d="M12 4a8 8 0 0 1 0 16z"/>
+</symbol>
+<symbol id="i-ai-export" viewBox="0 0 24 24">
+  <path class="s" d="M6 3.2h7.2L18.4 8.4V19a1.6 1.6 0 0 1-1.6 1.6H6A1.6 1.6 0 0 1 4.4 19V4.8A1.6 1.6 0 0 1 6 3.2z"/>
+  <path class="s" d="M13.2 3.2v5.2h5.2"/>
+  <path class="s" d="M11.4 10.6 12.6 13l2.4 1.2-2.4 1.2-1.2 2.4-1.2-2.4L7.8 14.2 10.2 13z"/>
+</symbol>
+<symbol id="i-chat" viewBox="0 0 24 24">
+  <path class="s" d="M4 6.4A2 2 0 0 1 6 4.4h12a2 2 0 0 1 2 2v7.2a2 2 0 0 1-2 2h-6.6L7 19.6v-4H6a2 2 0 0 1-2-2z"/>
+  <path class="s" d="M12 6.9l1.05 2.1 2.1 1.05-2.1 1.05L12 13.2l-1.05-2.1-2.1-1.05 2.1-1.05z"/>
+</symbol>
+<symbol id="i-agent" viewBox="0 0 24 24">
+  <rect class="s" x="7" y="7" width="10" height="10" rx="1.6"/>
+  <path class="s" d="M10 7V3.6M14 7V3.6M10 17v3.4M14 17v3.4M7 10H3.6M7 14H3.6M17 10h3.4M17 14h3.4"/>
+</symbol>
+<symbol id="i-help" viewBox="0 0 24 24">
+  <circle class="s" cx="12" cy="12" r="8.6"/>
+  <path class="s" d="M9.4 9.6a2.6 2.6 0 1 1 3.4 2.5c-.55.2-.8.6-.8 1.15v.75"/>
+  <circle class="f" cx="12" cy="17" r="1.05"/>
+</symbol>
+<symbol id="i-autosave-ok" viewBox="0 0 24 24">
+  <circle class="s" cx="12" cy="12" r="7.6"/><path class="s" d="M8.4 12.2l2.5 2.5 4.7-5.2"/>
+</symbol>
+<symbol id="i-autosave-busy" viewBox="0 0 24 24">
+  <path class="s" d="M19.6 12a7.6 7.6 0 1 1-2.3-5.4"/><path class="s" d="M17.3 2.6v4h-4"/>
+</symbol>
+<symbol id="i-autosave-fail" viewBox="0 0 24 24">
+  <path class="s" d="M12 4.2l8.4 14.6H3.6z"/><path class="s" d="M12 9.6v4.2"/>
+  <circle class="f" cx="12" cy="16.4" r="1"/>
+</symbol>
+<symbol id="i-brandmark" viewBox="0 0 24 24">
+  <path class="s" d="M3 5.5h9M6 12h13M3 18.5h8"/>
+  <circle class="f" cx="16" cy="5.5" r="2"/>
+</symbol>
+<symbol id="i-grip" viewBox="0 0 24 24">
+  <circle class="f" cx="8" cy="8" r="1.4"/><circle class="f" cx="8" cy="12" r="1.4"/><circle class="f" cx="8" cy="16" r="1.4"/>
+  <circle class="f" cx="16" cy="8" r="1.4"/><circle class="f" cx="16" cy="12" r="1.4"/><circle class="f" cx="16" cy="16" r="1.4"/>
+</symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path class="s" d="M9.5 5.5 16 12l-6.5 6.5"/></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><path class="s" d="M5.5 9.5 12 16l6.5-6.5"/></symbol>
+
+<!-- ---------- Palette : task shapes ---------- -->
+<symbol id="i-rectangle" viewBox="0 0 24 24"><rect class="s" x="3" y="8.5" width="18" height="7" rx="1.2"/></symbol>
+<symbol id="i-chevron-shape" viewBox="0 0 24 24">
+  <path class="s" d="M3 8.5h13l4 3.5-4 3.5H3l3-3.5z"/>
+</symbol>
+<symbol id="i-arrow-shape" viewBox="0 0 24 24">
+  <path class="s" d="M3 12h15.4"/><path class="s" d="M15 8.4 18.9 12 15 15.6"/>
+</symbol>
+<symbol id="i-endpoint-span" viewBox="0 0 24 24">
+  <path class="s" d="M5.6 12h12.8"/><circle class="f" cx="4.2" cy="12" r="1.9"/><circle class="f" cx="19.8" cy="12" r="1.9"/>
+</symbol>
+
+<!-- ---------- Palette : milestone glyphs (R=7.5 @ 12,12) ---------- -->
+<symbol id="i-ms-circle" viewBox="0 0 24 24"><circle class="s" cx="12" cy="12" r="7.5"/></symbol>
+<symbol id="i-ms-hexagon" viewBox="0 0 24 24"><path class="s" d="M19.5 12 15.75 18.5H8.25L4.5 12l3.75-6.5h7.5z"/></symbol>
+<symbol id="i-ms-pentagon" viewBox="0 0 24 24"><path class="s" d="M12 4.5 19.13 9.68 16.41 18.07H7.59L4.87 9.68z"/></symbol>
+<symbol id="i-ms-diamond" viewBox="0 0 24 24"><path class="s" d="M12 4.5 19.5 12 12 19.5 4.5 12z"/></symbol>
+<symbol id="i-ms-square" viewBox="0 0 24 24"><rect class="s" x="6.7" y="6.7" width="10.6" height="10.6"/></symbol>
+<symbol id="i-ms-star" viewBox="0 0 24 24">
+  <path class="s" d="M12 4.5 13.98 9.27 19.13 9.68 15.21 13.05 16.41 18.07 12 15.38 7.59 18.07 8.79 13.05 4.87 9.68 10.02 9.27z"/>
+</symbol>
+<symbol id="i-ms-triangle-up" viewBox="0 0 24 24"><path class="s" d="M12 4.5 18.5 15.75h-13z"/></symbol>
+<symbol id="i-ms-triangle-down" viewBox="0 0 24 24"><path class="s" d="M12 19.5 5.5 8.25h13z"/></symbol>
+
+<!-- ---------- Palette : place / annotate ---------- -->
+<symbol id="i-comment" viewBox="0 0 24 24">
+  <rect class="s" x="8" y="3.6" width="13" height="9.2" rx="1.5"/>
+  <path class="s" d="M8.6 12.4 3.8 19.2"/><circle class="f" cx="3.2" cy="20.1" r="1.4"/>
+</symbol>
+<symbol id="i-highlight" viewBox="0 0 24 24">
+  <rect class="s" x="3" y="5" width="18" height="14" rx="3.4"/>
+  <path class="s" d="M6.8 10h7.4M6.8 14.2h10.4"/>
+</symbol>
+
+<!-- ---------- Palette : align ---------- -->
+<symbol id="i-align-start" viewBox="0 0 24 24">
+  <path class="s" d="M4.4 3.6v16.8"/>
+  <path class="s" d="M4.4 8h11M4.4 12h7M4.4 16h13.6"/>
+</symbol>
+<symbol id="i-align-finish" viewBox="0 0 24 24">
+  <path class="s" d="M19.6 3.6v16.8"/>
+  <path class="s" d="M8.6 8h11M12.6 12h7M6 16h13.6"/>
+</symbol>
+
+<!-- ---------- Palette : display toggles ---------- -->
+<symbol id="i-progress-line" viewBox="0 0 24 24">
+  <path class="s" d="M3.2 7.4h5.6M15.2 16.6h5.6"/>
+  <path class="s" d="M15.4 3 9.4 9l6 6-6 6"/>
+</symbol>
+<symbol id="i-progress-marker" viewBox="0 0 24 24">
+  <circle class="s" cx="12" cy="12" r="6.6"/><path class="s" d="M9 12.2l2.1 2.1 3.9-4.4"/>
+</symbol>
+<symbol id="i-watermark" viewBox="0 0 24 24">
+  <rect class="s" x="3.2" y="5" width="17.6" height="14" rx="1.5"/>
+  <path class="s" d="M5.6 17.2 10.4 6.8M11 17.2 15.8 6.8M16.4 17.2 20.4 8.5"/>
+</symbol>
+<symbol id="i-grid-date" viewBox="0 0 24 24">
+  <rect class="s" x="3.2" y="4.6" width="17.6" height="14.8" rx="1.5"/>
+  <path class="s" d="M9.1 4.6v14.8M14.9 4.6v14.8"/>
+</symbol>
+<symbol id="i-grid-group" viewBox="0 0 24 24">
+  <rect class="s" x="3.2" y="4.6" width="17.6" height="14.8" rx="1.5"/>
+  <path class="s" d="M3.2 9.5h17.6M3.2 14.5h17.6"/>
+</symbol>
+
+<!-- ---------- Palette : plan / actual ---------- -->
+<symbol id="i-plan" viewBox="0 0 24 24"><path class="s2 d" d="M3.5 12h17"/></symbol>
+<symbol id="i-actual" viewBox="0 0 24 24"><path class="s2" d="M3.5 12h17"/></symbol>
+
+<!-- ---------- Palette : cursors ---------- -->
+<symbol id="i-today" viewBox="0 0 24 24">
+  <path class="s" d="M11 3.4v17.2"/><path class="s" d="M11 4.4h6.4l-1.9 2.5 1.9 2.5H11z"/>
+</symbol>
+<symbol id="i-dual" viewBox="0 0 24 24">
+  <path class="s" d="M6.4 3.6v16.8M17.6 3.6v16.8"/>
+  <path class="s" d="M8.8 12h6.4M8.8 12l2-2M8.8 12l2 2M15.2 12l-2-2M15.2 12l-2 2"/>
+</symbol>
+<symbol id="i-guide-none" viewBox="0 0 24 24">
+  <rect class="s" x="4" y="4" width="16" height="16" rx="2.4"/><path class="s" d="M6.6 17.4 17.4 6.6"/>
+</symbol>
+<symbol id="i-guide-cross" viewBox="0 0 24 24"><path class="s" d="M12 3.4v17.2M3.4 12h17.2"/></symbol>
+<symbol id="i-guide-v1" viewBox="0 0 24 24"><path class="s" d="M12 3.4v17.2"/></symbol>
+<symbol id="i-guide-v2" viewBox="0 0 24 24"><path class="s" d="M8 3.4v17.2M16 3.4v17.2"/></symbol>
+
+<!-- ---------- misc ---------- -->
+<symbol id="i-enter" viewBox="0 0 24 24">
+  <path class="s" d="M20 5.5v7.2a1.6 1.6 0 0 1-1.6 1.6H5.2"/><path class="s" d="M8.6 10.9 5.2 14.3l3.4 3.4"/>
+</symbol>
+</defs>
+</svg>
+
+<div class="wrap">
+
+<h1>App Header / Command Palette — アイコンとレイアウトの案</h1>
+<p class="lead">
+  gr-scheduler 次期開発向けドラフト（2026-08-06）。<br>
+  <strong>この文書は決定ではない</strong>（<code>status: draft</code>）。埋めようとしている穴は
+  <code>previous-project-result/NEXT-STEPS-ja.md</code> の <strong>2-2 アイコンの図形定義</strong>
+  （図形が 0 件 ＋ App Header の <code>Cmd</code> / <code>SS</code> / <code>Theme</code> の行き先が未記載）と
+  <strong>2-1 視覚モック</strong>（絵が 1 枚も無い）。
+</p>
+
+<div class="themebar">
+  <button type="button" id="themeBtn">明暗テーマを切り替える</button>
+  <span class="mono" id="themeNow">light</span>
+  <span style="color:var(--ink-weak);font-size:14px">— 全アイコンは <code>currentColor</code> の線画なので両テーマで同じ図形を使う</span>
+</div>
+
+<div class="note">
+  <strong>守った確定事項</strong>：全て線画・20×20 のデザイングリッド・線の太さを揃える（<code>ui-detail-spec-ja.md</code> §3）／
+  ドロップダウンにまとめない（同 §2）／責務で置き場所を分ける（同 §2）／
+  <code>[予定]</code>＝破線 1 本・<code>[実績]</code>＝実線 1 本（同 §4-4）／
+  カーソル 6 個は 1 グループ・ガイドは 4 モード排他（同 §3）／
+  日付罫線とグループ罫線は独立トグル 2 つ（同 §1）／
+  マイルストーン 8 種は畳んでおき展開して選ぶ・並びは面積の大きい順（<code>plan-actual-decisions-ja.md</code> §2-2-2）／
+  パレットは選択していないとき薄く透明・文字は不透明（<code>user-order.md</code> 項 7）。
+</div>
+
+<!-- ================================================================= -->
+<h2>1. App Header — レイアウト案</h2>
+
+<p>左は<strong>文書そのもの</strong>（ブランド・文書名・自動保存の状態）、右は<strong>操作</strong>。
+操作は 5 群に分け、群の境目に細い区切り線を置く。全ボタンは 30×30px、アイコンは 22px、ヘッダー高は 40px。</p>
+
+<div class="stage">
+  <div class="appheader">
+    <span class="brand"><svg class="glyph"><use href="#i-brandmark"/></svg>gr-scheduler <small>© GoodRelax</small></span>
+    <span class="title" title="クリック / F2 で編集">2026年度 開発日程（案）</span>
+    <span class="status" title="自動保存：12:04 に保存済み"><svg><use href="#i-autosave-ok"/></svg>12:04</span>
+    <span class="spacer"></span>
+
+    <span class="grp">
+      <button class="btn" title="開く（.json / .xml）"><svg><use href="#i-open"/></svg></button>
+      <button class="btn" title="保存（.json / .xml）"><svg><use href="#i-save"/></svg></button>
+      <button class="btn" title="画像で出力（SVG / PNG）"><svg><use href="#i-export"/></svg></button>
+      <button class="btn" title="変更前の予定を重ねる"><svg><use href="#i-baseline"/></svg></button>
+    </span>
+    <span class="sep"></span>
+    <span class="grp">
+      <button class="btn" title="元に戻す（Ctrl+Z）"><svg><use href="#i-undo"/></svg></button>
+      <button class="btn" title="やり直す（Ctrl+Y）"><svg><use href="#i-redo"/></svg></button>
+    </span>
+    <span class="sep"></span>
+    <span class="grp">
+      <button class="btn" title="全体を収める（F）"><svg><use href="#i-fit"/></svg></button>
+      <button class="btn" aria-pressed="true" title="コマンドパレットの表示 / 非表示"><svg><use href="#i-palette"/></svg></button>
+      <button class="btn" title="明暗テーマの切替"><svg><use href="#i-theme"/></svg></button>
+    </span>
+    <span class="sep"></span>
+    <span class="grp">
+      <button class="btn" title="チャット欄の表示 / 非表示"><svg><use href="#i-chat"/></svg></button>
+      <button class="btn" title="AI へ渡す JSON を表示"><svg><use href="#i-ai-export"/></svg></button>
+      <button class="btn" aria-pressed="true" title="機械向けの口：有効（クリックで無効化）"><svg><use href="#i-agent"/></svg></button>
+    </span>
+    <span class="sep"></span>
+    <button class="btn" title="ヘルプ"><svg><use href="#i-help"/></svg></button>
+  </div>
+
+  <div class="stagebody">
+    <div class="rowtitle">
+      <div>製品A</div><div class="l2">企画</div><div class="l2">設計</div>
+      <div class="l3">詳細設計</div><div class="l2">検証</div><div>製品B</div>
+    </div>
+    <div class="cvs">
+      <span class="badge" style="left:14px;top:10px">Schedule Canvas（この面は本書の対象外）</span>
+      <span class="badge" style="left:14px;bottom:10px">← Row Title Panel は拡大しても常に表示（項 8）</span>
+    </div>
+  </div>
+</div>
+
+<p style="font-size:14.5px;color:var(--ink-weak);margin:8px 0 0">
+  ※ 上のモックは <strong>1180px 幅</strong>で描いてある（画面が狭ければ横スクロールする）。
+  この案の実測は <strong>左の文書側 381px ＋ 操作群 410px ＋ 区切りと隙間 72px ＝ 約 880px</strong> で、
+  <strong>1280px 幅の画面でも 400px 余る</strong>。ボタンを 13 個に増やしても項 6-1（App Header は最小化）は破れていない。
+  さらに狭い画面では、削るのは<strong>文書名（中央省略）</strong>とする — ボタンを畳むとドロップダウンになり §2 に反する。
+</p>
+
+<h3>1-1. <code>Cmd</code> / <code>SS</code> / <code>Theme</code> の行き先（<code>NEXT-STEPS-ja.md</code> 2-2 ② の残件）</h3>
+
+<table>
+<tr><th>現行</th><th>案</th><th>理由</th></tr>
+<tr>
+  <td><code>Cmd</code></td>
+  <td><strong>App Header に残す</strong><br><span class="mono">Palette Toggle</span></td>
+  <td><strong>パレット自身の中に置けない。</strong> 非表示のときに押す面が消えるので、押して戻す手段が無くなる。
+      「描画に対する操作」ではなく「面を出し入れする操作」なので責務の線も跨いでいない。</td>
+</tr>
+<tr>
+  <td><code>SS</code></td>
+  <td><strong>App Header に残し、<span class="mono">Export Image</span> に改める</strong></td>
+  <td><code>SS</code> という略語は項 6-6（言葉ではなくアイコンで伝える）に反すると §2 が明示している。
+      中身も、項 58 が要求する <strong>SVG / PNG 出力</strong>（サイズのプリセット・PNG 1x/2x・
+      文字が下限を割るときの警告）と同じ「画面を画像として外に出す」ことである。
+      <strong>1 つのボタンで出力モーダルを開き、クリップボードへのコピーはその中に置く。</strong>
+      画像の出力設定（<code>exportCanvas</code> / <code>exportPngScale</code>）は文書に保存する設定なので、
+      置き場所は「文書に対する操作」＝ App Header で整合する。</td>
+</tr>
+<tr>
+  <td><code>Theme</code></td>
+  <td><strong>App Header に残す</strong></td>
+  <td><code>themePreference</code> / <code>themeHue</code> / <code>themeMonochrome</code> は
+      <strong>文書に保存する設定</strong>（<code>grs-document-settings-ja.md</code> §4-2）。
+      パレットの担当は「図形・注記・カーソル・グリッド・予実の表示切替」と列挙されていて、テーマはそこに無い。
+      <span class="tag">要確認</span> ただし明暗以外の 2 項目（色相・モノクロ）を触る面が
+      どこにも無い（§4 の質問 5）。</td>
+</tr>
+</table>
+
+<h3>1-2. アイコン一覧（App Header）</h3>
+<div class="cat" id="catHeader"></div>
+
+<div class="note">
+  <strong><code>Open</code> / <code>Save</code> の矢印の向きについて。</strong>
+  受け皿から<strong>上へ出る矢印＝開く</strong>、受け皿へ<strong>下へ入る矢印＝保存</strong>とした。
+  ブラウザで実際に起きることが「アップロード（ファイルを選んでアプリへ渡す）」と
+  「ダウンロード（アプリからファイルを落とす）」であり、その世界共通の絵と一致する。
+  フロッピーは物として知らない層が増えており、初見の各国ユーザー（項 6-4）には賭けになる。
+</div>
+
+<!-- ================================================================= -->
+<h2>2. Command Palette — レイアウト案</h2>
+
+<p>浮遊パネル。幅 236px。上端の帯が掴み領域（ドラッグで移動）。
+<strong>押した後の振る舞いで群を分ける</strong> — ①構える → 置く ②選択物に効かせる ③表示の ON/OFF。</p>
+
+<div class="paletteRow">
+
+  <div>
+    <div class="palette" id="paletteMain">
+      <div class="phandle"><svg><use href="#i-grip"/></svg><span>Command Palette</span></div>
+
+      <div class="pgroup">
+        <p class="plabel">構え / Armed</p>
+        <div class="armed">
+          <span class="armedbox"><svg><use href="#i-chevron-shape"/></svg></span>
+          <span class="armedtext">矢羽根を構えている<br>
+            <span class="kbd"><svg style="width:12px;height:12px"><use href="#i-enter"/></svg></span> で配置</span>
+        </div>
+      </div>
+
+      <div class="pgroup">
+        <p class="plabel">置く / Place</p>
+        <div class="prow">
+          <button class="btn" aria-pressed="true" title="矩形 ==="><svg><use href="#i-rectangle"/></svg></button>
+          <button class="btn" title="矢羽根 &gt;===&gt;"><svg><use href="#i-chevron-shape"/></svg></button>
+          <button class="btn" title="矢印 ---&gt;"><svg><use href="#i-arrow-shape"/></svg></button>
+          <button class="btn" title="端点スパン *----*"><svg><use href="#i-endpoint-span"/></svg></button>
+          <span class="sep"></span>
+          <button class="btn" title="コメント"><svg><use href="#i-comment"/></svg></button>
+          <button class="btn" title="ハイライトボックス"><svg><use href="#i-highlight"/></svg></button>
+        </div>
+        <div class="prow msRow">
+          <span class="expander">
+            <button class="btn" id="msToggle" title="マイルストーン形状を展開"><svg id="msChev"><use href="#i-chevron-right"/></svg></button>
+            <button class="btn" title="マイルストーン（いま選んでいる形状：◇）"><svg><use href="#i-ms-diamond"/></svg></button>
+          </span>
+        </div>
+        <div class="prow hidden" id="msRow2" style="margin-top:4px">
+          <button class="btn" title="〇 circle"><svg><use href="#i-ms-circle"/></svg></button>
+          <button class="btn" title="六角形 hexagon"><svg><use href="#i-ms-hexagon"/></svg></button>
+          <button class="btn" title="五角形 pentagon"><svg><use href="#i-ms-pentagon"/></svg></button>
+          <button class="btn" aria-pressed="true" title="◇ diamond（既定）"><svg><use href="#i-ms-diamond"/></svg></button>
+          <button class="btn" title="□ square"><svg><use href="#i-ms-square"/></svg></button>
+          <button class="btn" title="☆ star"><svg><use href="#i-ms-star"/></svg></button>
+          <button class="btn" title="△ triangleUp"><svg><use href="#i-ms-triangle-up"/></svg></button>
+          <button class="btn" title="▽ triangleDown"><svg><use href="#i-ms-triangle-down"/></svg></button>
+        </div>
+      </div>
+
+      <div class="pgroup">
+        <p class="plabel">揃える / Align <span class="tag new">新設の提案</span></p>
+        <div class="prow">
+          <button class="btn" title="開始日で揃える"><svg><use href="#i-align-start"/></svg></button>
+          <button class="btn" title="終了日で揃える"><svg><use href="#i-align-finish"/></svg></button>
+        </div>
+      </div>
+
+      <div class="pgroup">
+        <p class="plabel">表示 / Display</p>
+        <div class="prow">
+          <button class="btn" title="イナズマ線"><svg><use href="#i-progress-line"/></svg></button>
+          <button class="btn" aria-pressed="true" title="進捗マーカー"><svg><use href="#i-progress-marker"/></svg></button>
+          <button class="btn" title="透かし"><svg><use href="#i-watermark"/></svg></button>
+          <button class="btn" aria-pressed="true" title="日付罫線"><svg><use href="#i-grid-date"/></svg></button>
+          <button class="btn" title="グループ罫線"><svg><use href="#i-grid-group"/></svg></button>
+        </div>
+      </div>
+
+      <div class="pgroup">
+        <p class="plabel">予実 / Plan &amp; Actual</p>
+        <div class="prow">
+          <button class="btn" aria-pressed="true" title="予定を表示"><svg><use href="#i-plan"/></svg></button>
+          <button class="btn" aria-pressed="true" title="実績を表示"><svg><use href="#i-actual"/></svg></button>
+        </div>
+      </div>
+
+      <div class="pgroup">
+        <p class="plabel">カーソル / Cursors</p>
+        <div class="prow">
+          <button class="btn" aria-pressed="true" title="本日線"><svg><use href="#i-today"/></svg></button>
+          <button class="btn" title="デュアルカーソル"><svg><use href="#i-dual"/></svg></button>
+          <span class="sep"></span>
+          <span class="seg" title="ガイドカーソル（4 モード排他）">
+            <button class="btn" aria-pressed="true" title="ガイドなし"><svg><use href="#i-guide-none"/></svg></button>
+            <button class="btn" title="十字"><svg><use href="#i-guide-cross"/></svg></button>
+            <button class="btn" title="縦 1 本"><svg><use href="#i-guide-v1"/></svg></button>
+            <button class="btn" title="縦 2 本"><svg><use href="#i-guide-v2"/></svg></button>
+          </span>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--ink-weak);margin:8px 0 0">選択しているとき（不透明）</p>
+  </div>
+
+  <div>
+    <div class="palette dim">
+      <div class="phandle"><svg><use href="#i-grip"/></svg><span>Command Palette</span></div>
+      <div class="pgroup"><p class="plabel">構え / Armed</p>
+        <div class="armed"><span class="armedbox"><svg><use href="#i-chevron-shape"/></svg></span>
+          <span class="armedtext">矢羽根を構えている</span></div></div>
+      <div class="pgroup"><p class="plabel">置く / Place</p>
+        <div class="prow">
+          <button class="btn" title=""><svg><use href="#i-rectangle"/></svg></button>
+          <button class="btn"><svg><use href="#i-chevron-shape"/></svg></button>
+          <button class="btn"><svg><use href="#i-arrow-shape"/></svg></button>
+          <button class="btn"><svg><use href="#i-endpoint-span"/></svg></button>
+          <span class="sep"></span>
+          <button class="btn"><svg><use href="#i-comment"/></svg></button>
+          <button class="btn"><svg><use href="#i-highlight"/></svg></button>
+        </div></div>
+      <div class="pgroup"><p class="plabel">カーソル / Cursors</p>
+        <div class="prow">
+          <button class="btn"><svg><use href="#i-today"/></svg></button>
+          <button class="btn"><svg><use href="#i-dual"/></svg></button>
+          <span class="sep"></span>
+          <span class="seg">
+            <button class="btn"><svg><use href="#i-guide-none"/></svg></button>
+            <button class="btn"><svg><use href="#i-guide-cross"/></svg></button>
+            <button class="btn"><svg><use href="#i-guide-v1"/></svg></button>
+            <button class="btn"><svg><use href="#i-guide-v2"/></svg></button>
+          </span>
+        </div></div>
+    </div>
+    <p style="font-size:13px;color:var(--ink-weak);margin:8px 0 0">
+      選択していないとき（項 7・薄く透明）<br>
+      <span class="tag">要確認</span> 「文字は不透明を保つ」の実装は
+      <strong>群の見出しだけ不透明</strong>にした。パネル全体に <code>opacity</code> を掛けると文字も薄くなるため。</p>
+  </div>
+</div>
+
+<h3>2-1. アイコン一覧（Command Palette）</h3>
+<div class="cat" id="catPalette"></div>
+
+<!-- ================================================================= -->
+<h2>3. 作画規則</h2>
+
+<p><code>viewBox="0 0 24 24"</code>、描画は <strong>2〜22 の内側＝20×20 のデザイングリッド</strong>。
+線幅は全アイコン <strong>1.6</strong>（<code>[予定]</code> <code>[実績]</code> の 2 つだけ、バーに見せるため 3.0）。
+端と角は丸、塗りは原則なし、色は <code>currentColor</code> 1 色。</p>
+
+<div class="gridshow">
+  <figure class="gridcell"><svg viewBox="0 0 24 24">
+    <g stroke="var(--line)" stroke-width=".25">
+      <path d="M2 2h20v20H2z" stroke="var(--line-strong)" stroke-width=".5" fill="none"/>
+      <path d="M6 2v20M10 2v20M14 2v20M18 2v20M2 6h20M2 10h20M2 14h20M2 18h20"/>
+    </g><use href="#i-fit"/></svg><figcaption>Fit（20×20 の内側）</figcaption></figure>
+  <figure class="gridcell"><svg viewBox="0 0 24 24">
+    <g stroke="var(--line)" stroke-width=".25">
+      <path d="M2 2h20v20H2z" stroke="var(--line-strong)" stroke-width=".5" fill="none"/>
+      <path d="M6 2v20M10 2v20M14 2v20M18 2v20M2 6h20M2 10h20M2 14h20M2 18h20"/>
+    </g><use href="#i-ms-hexagon"/></svg><figcaption>六角形（外接円 R=7.5）</figcaption></figure>
+  <figure class="gridcell"><svg viewBox="0 0 24 24">
+    <g stroke="var(--line)" stroke-width=".25">
+      <path d="M2 2h20v20H2z" stroke="var(--line-strong)" stroke-width=".5" fill="none"/>
+      <path d="M6 2v20M10 2v20M14 2v20M18 2v20M2 6h20M2 10h20M2 14h20M2 18h20"/>
+    </g><use href="#i-progress-line"/></svg><figcaption>イナズマ線（絵文字ではなくジグザグの線画）</figcaption></figure>
+</div>
+
+<h3>3-1. マイルストーン 8 種の作図（<code>NEXT-STEPS-ja.md</code> 2-2 の「幾何は未定」への案）</h3>
+
+<p>すべて<strong>同じ外接円 R = 7.5</strong> に内接させる（面積順の根拠がこの前提で書かれているため）。
+向きの案：<strong>六角形は左右に頂点</strong>（flat-top）、<strong>五角形・△ は頂点が上</strong>、
+<strong>▽ は頂点が下</strong>、<strong>☆ は頂点が上・<code>starInnerOfOuter</code> = 0.45</strong>、
+<strong>□ は辺が水平垂直</strong>（◇ はそれを 45° 回したもの）。</p>
+
+<div class="gridshow" id="msGeom"></div>
+
+<div class="note warn">
+  <strong>六角形を flat-top にした理由は、依存線のアンカーである。</strong>
+  <code>ui-detail-spec-ja.md</code> §4-9 は「8 種はいずれも<strong>左右の極値が中心の高さに来る</strong>ので、
+  外接矩形の左右の中央が図形の輪郭に触れる」と書いている。六角形は向きでこれが決まる —
+  左右に頂点を置けば成立し、上下に頂点を置く（pointy-top）と左右は<strong>辺</strong>になるが、
+  その辺の中点はやはり中心の高さなので成立する。<strong>どちらでも成立するので、
+  ◇ との見分けやすさで flat-top を採った。</strong>
+  <br><br>
+  <strong>ただし §4-9 のこの記述は、五角形・☆・△・▽ では成り立たない。</strong>詳細は §4 の質問 1。
+</div>
+
+<!-- ================================================================= -->
+<h2>4. 質問・意見</h2>
+
+<div class="note ask">
+<h3 style="margin-top:0">質問 1（最重要）— 依存線のアンカーが図形の外に出るマイルストーンが 4 種ある</h3>
+<p><code>ui-detail-spec-ja.md</code> §4-9「アンカーの辺は描かれる図形で決める」は、
+8 種のグリフすべてで「左右の極値が中心の高さに来る」と書いているが、
+<strong>五角形・☆・△・▽ では成り立たない</strong>（通常の向きの場合）。</p>
+<table>
+<tr><th>グリフ</th><th>外接矩形の右辺・中心高さ</th><th>その高さでの図形の実幅</th><th>隙間</th></tr>
+<tr><td>〇 circle</td><td>輪郭に触れる</td><td>100%</td><td>0</td></tr>
+<tr><td>六角形（flat-top）</td><td>触れる（頂点）</td><td>100%</td><td>0</td></tr>
+<tr><td>◇ diamond</td><td>触れる（頂点）</td><td>100%</td><td>0</td></tr>
+<tr><td>□ square</td><td>触れる（辺）</td><td>100%</td><td>0</td></tr>
+<tr><td>五角形 pentagon</td><td><strong>外れる</strong></td><td>約 89%</td><td>約 0.10R</td></tr>
+<tr><td>☆ star</td><td><strong>外れる</strong></td><td>約 45%</td><td>約 0.28R</td></tr>
+<tr><td>△ triangleUp / ▽ triangleDown</td><td><strong>外れる</strong></td><td><strong>50%</strong></td><td><strong>0.25R</strong></td></tr>
+</table>
+<p>△ で R = 10px なら、依存線の走りが図形から <strong>2.5px 浮いて始まる</strong>。
+依存線はバーより前面に描く（§4-3）ので、<strong>線が斜辺の横で宙に浮いて見える</strong>。
+どれを採るか決めていただきたい：</p>
+<ol>
+<li><strong>許容する</strong>（アンカーは外接矩形のまま。実装が最も単純で、規則も 1 行のまま）</li>
+<li><strong>グリフごとに寄せ量を持つ</strong>（<code>milestoneAnchorInsetOf.*</code> を 8 値。設定値が 1 つ増える）</li>
+<li><strong>中心高さでの輪郭で取る</strong>（幾何が正しくなるが、グリフごとの交点計算が要る）</li>
+</ol>
+<p><strong>私の推奨は 1（許容する）。</strong>「マイルストーンの実績は横にずらす」ときの見え方と同じ程度の
+ずれであり、<strong>設定値を増やさない</strong>方針（§4-9「新しい設定値キーは 1 つも増えていない」）を崩さない。
+ただし <strong>§4-9 の断定文は事実と違う</strong>ので、そこは直す必要がある。</p>
+</div>
+
+<div class="note ask">
+<h3 style="margin-top:0">質問 2 — <code>AI</code> という 1 語に、いま 3 つの別機能がぶら下がっている</h3>
+<p>項 66（1 概念 1 語）に照らすと分けたほうがよい。名前の案：</p>
+<table>
+<tr><th>機能</th><th>名前の案</th><th>アイコン</th><th>出所</th></tr>
+<tr><td>AI へ渡す JSON を表示するモーダル</td><td><code>AI Export Modal</code>（現行のまま）</td>
+    <td><svg style="width:20px;height:20px;vertical-align:-4px"><use href="#i-ai-export"/></svg> 文書＋四芒星</td>
+    <td><code>ui-parts-ja.md</code> §3</td></tr>
+<tr><td>画面で AI と会話する欄</td><td><code>Chat Panel</code></td>
+    <td><svg style="width:20px;height:20px;vertical-align:-4px"><use href="#i-chat"/></svg> 吹き出し＋四芒星</td>
+    <td>決定-2（UI パーツ木に未収録）</td></tr>
+<tr><td>機械向けの口の有効化と、有効な間の常時表示</td><td><code>Agent Api Toggle</code></td>
+    <td><svg style="width:20px;height:20px;vertical-align:-4px"><use href="#i-agent"/></svg> チップ</td>
+    <td>決定-4 / 決定-5（同上）</td></tr>
+</table>
+<p>3 つとも「四芒星＝AI の系統」で見た目を揃え、チップだけ系統を外して<strong>機械の口だと分かる</strong>ようにした。
+<strong>有効な間の常時表示</strong>は、このボタンを押下状態（枠＋色）にすることで満たす案。
+別に帯を出すと画面を恒久的に食う（項 3・項 6-1）。<strong>これで「常時表示」の要件を満たしたと見なせるか</strong>を確認したい。</p>
+</div>
+
+<div class="note ask">
+<h3 style="margin-top:0">質問 3 — 整列コマンドがパレットの内訳に無い</h3>
+<p><code>user-order.md</code> 項 31 と <code>ui-detail-spec-ja.md</code> §6-2 は
+「横（同じ日付に揃える）は <strong>Command Palette の整列コマンド</strong>で人が実行する」と要求しているのに、
+<strong>§3 のパレット内訳にも <code>NEXT-STEPS-ja.md</code> 2-2 のアイコン員数にも整列が無い</strong>
+（現行 27 個の内訳＝形状 4 ＋ マイルストーン 8 ＋ 機能 7 ＋ カーソル 6 ＋ 予実 2）。
+本案では <strong>「揃える」群に 2 個</strong>（開始日で揃える／終了日で揃える）を新設した。</p>
+<p><strong>2 個で足りるか。</strong> パワポの整列（左揃え・右揃え・中央揃え・等間隔）に慣れた人は
+「中央で揃える」「等間隔に配る」を探すと思われる。ただし日付は人が決めるもの（「やらないこと」＝
+クリティカルパス計算・スケジューラ無し）なので、<strong>等間隔は日付を機械が決めることになりかねない</strong>。
+現時点の私の推奨は <strong>2 個だけ</strong>（開始日／終了日）。</p>
+</div>
+
+<div class="note ask">
+<h3 style="margin-top:0">質問 4 — <code>Open</code> / <code>Save</code> は形式（JSON / MSPDI XML）をどう出し分けるか</h3>
+<p>現行のヘッダーは <code>Load</code> / <code>Save</code> の 2 個だが、扱う形式は
+<strong>JSON（主データ形式）と MSPDI XML（往復無損失）の 2 つ</strong>あり、
+さらに項 61 の<strong>取込マージ</strong>（同じタスクが来たら 3 択）が Open 側にぶら下がる。案は 3 つ：</p>
+<ol>
+<li><strong>ボタンは 2 個のまま</strong>。Open は拡張子で判別、Save は保存ダイアログで形式を選ぶ（<strong>推奨</strong>）</li>
+<li>ボタンを 4 個にする（JSON 用と MSPDI 用を分ける）— ヘッダーが 2 個増える</li>
+<li>Save は JSON 固定にし、MSPDI は「画像で出力」と同じ<strong>出力モーダル</strong>に同居させる</li>
+</ol>
+<p>推奨は 1。<strong>「ドロップダウンにまとめない」（§2）は<em>ボタンの並びを畳むな</em>という規則</strong>であって、
+保存ダイアログを禁じるものではないと読んだ（保存先を選ぶ操作は元々ダイアログが要る）。この読みでよいか。</p>
+</div>
+
+<div class="note ask">
+<h3 style="margin-top:0">質問 5 — 描画設定（57 項目）を人が触る面が、UI パーツ木のどこにも無い</h3>
+<p><code>grs-document-settings-ja.md</code> は文書に保存する設定を全数決めているが、
+<strong>それを編集する UI が定義されていない</strong>。<code>Properties Panel</code> は「選択物の属性編集」であって
+文書全体の設定ではなく、<code>ui-parts-ja.md</code> §3 の木にも設定の面が無い（PoC には
+「設定・プロパティ」ボタンがあった）。<code>Theme</code> をヘッダーに置くなら、
+<strong>色相（<code>themeHue</code>）とモノクロ（<code>themeMonochrome</code>）、文字サイズ
+（<code>fontScale</code> の S/M/L）をどこで触るか</strong>が同時に問題になる。</p>
+<p>案：<strong>ヘッダーに「設定」を 1 個足す</strong>か、<strong>Properties Panel に「文書」タブを作る</strong>か。
+本モックでは<strong>まだ置いていない</strong>（決めていただく前に員数を増やしたくないため）。</p>
+</div>
+
+<div class="note ask">
+<h3 style="margin-top:0">質問 6 — 言語切替（<code>ja</code> / <code>en</code>）の置き場所</h3>
+<p>項 21 で 2 言語対応は確定しているが、<strong>切替の入口が引継ぎ資産に無い</strong>。
+前プロジェクトでは「ヘッダーには置かず、<code>AI</code> / <code>?</code> で開いたモーダルのヘッダー右上、
+閉じる <code>×</code> の左」と決めた経緯がある（本資産には未収録）。
+同じ置き方を踏襲してよいか。<strong>ヘッダーに 1 個増やさずに済む</strong>ので私も賛成だが、
+初見の各国ユーザー（項 6-4）が言語切替をモーダルの中で見つけられるかは弱点である。</p>
+</div>
+
+<div class="note ask">
+<h3 style="margin-top:0">意見 1 — 明暗テーマのアイコンだけ「塗り」を使っている</h3>
+<p>「全て線画」（§3）に対する唯一の例外。<strong>円の半分を塗る</strong>のが明暗を 1 つの図形で表す最短の絵で、
+線画だけで表すと三日月（＝暗い側だけを示す）になり、<strong>どちらの状態を指しているのか読めなくなる</strong>。
+例外として認めていただきたい。認められない場合は三日月に差し替える。</p>
+</div>
+
+<div class="note ask">
+<h3 style="margin-top:0">意見 2 — 「置く」群と「表示」群を分けた（現行の「機能コマンド 7」を割った）</h3>
+<p>現行の「機能コマンド」7 個は、<strong>押した後の振る舞いが 2 種類</strong>混ざっている。</p>
+<table>
+<tr><th>振る舞い</th><th>中身</th></tr>
+<tr><td><strong>構えて、キャンバスに置く</strong></td><td>コメント／ハイライトボックス（＋ タスク形状 4・マイルストーン 8）</td></tr>
+<tr><td><strong>その場で ON / OFF が切り替わる</strong></td><td>イナズマ線／進捗マーカー／透かし／日付罫線／グループ罫線</td></tr>
+</table>
+<p>同じ群に混ぜると<strong>押す前に何が起きるか予測できない</strong>（項 6-5 アフォーダンス）。
+コメントとハイライトボックスを「置く」群へ移し、残り 5 個を「表示」群にした。員数は 7 のまま変わらない。</p>
+</div>
+
+<div class="note">
+<h3 style="margin-top:0">員数のまとめ</h3>
+<table>
+<tr><th>面</th><th>現行（<code>NEXT-STEPS-ja.md</code> 2-2）</th><th>本案</th><th>差分</th></tr>
+<tr><td>App Header</td><td>11</td><td><strong>13</strong></td><td>＋ チャット ＋ 機械向けの口（決定-2 / 決定-4）。<code>SS</code> は名前が変わっただけで員数は同じ</td></tr>
+<tr><td>Command Palette</td><td>27</td><td><strong>29</strong></td><td>＋ 整列 2（質問 3）</td></tr>
+<tr><td>状態表示（ボタンではない）</td><td>—</td><td><strong>3</strong></td><td>自動保存の 3 状態（保存済み／保存中／失敗）</td></tr>
+<tr><td>合計</td><td>38</td><td><strong>45</strong></td><td></td></tr>
+</table>
+<p>質問 5（設定の面）が「ヘッダーに 1 個」で決着すると App Header は 14 になる。</p>
+</div>
+
+<h3>自動保存の状態表示（3 種）</h3>
+<div class="cat" id="catStatus"></div>
+<p style="font-size:14.5px;color:var(--ink-weak)">
+「失敗」に△＋！を使っている。<code>plan-actual-decisions-ja.md</code> §2-4 は進捗マーカーの符号として
+△＋！を<strong>却下</strong>しているが、その理由は「<strong>システムエラーの通知に見える</strong>から」であった。
+ここは実際にシステムエラーなので、同じ絵が正しく働く。</p>
+
+</div><!-- /wrap -->
+
+<script>
+"use strict";
+(function () {
+  var HEADER_ICONS = [
+    ["i-open", "開く", "Open", "ファイルを読み込む。取込マージの 3 択もここから"],
+    ["i-save", "保存", "Save", "ファイルへ書き出す"],
+    ["i-export", "画像で出力", "Export Image", "SVG / PNG。現行の SS を改めたもの"],
+    ["i-baseline", "変更前の予定", "Baseline", "別ファイルを重ねる / 外す（トグル）"],
+    ["i-undo", "元に戻す", "Undo", "Ctrl+Z"],
+    ["i-redo", "やり直す", "Redo", "Ctrl+Y / Ctrl+Shift+Z"],
+    ["i-fit", "全体を収める", "Fit", "縦横とも。F キー"],
+    ["i-palette", "コマンドパレット", "Palette Toggle", "表示 / 非表示（トグル）"],
+    ["i-theme", "明暗テーマ", "Theme", "themePreference を切り替える"],
+    ["i-chat", "チャット欄", "Chat Panel", "表示 / 非表示（トグル）"],
+    ["i-ai-export", "AI 出力", "AI Export Modal", "AI へ渡す JSON を表示"],
+    ["i-agent", "機械向けの口", "Agent Api Toggle", "既定は無効。有効な間は押下状態で常時表示"],
+    ["i-help", "ヘルプ", "Help Modal", "操作の一覧"]
+  ];
+  var PALETTE_ICONS = [
+    ["i-rectangle", "矩形", "rectangle", "==="],
+    ["i-chevron-shape", "矢羽根", "chevron", ">===>"],
+    ["i-arrow-shape", "矢印", "arrow", "--->"],
+    ["i-endpoint-span", "端点スパン", "endpointSpan", "*----*"],
+    ["i-ms-circle", "〇", "circle", "面積 3.142"],
+    ["i-ms-hexagon", "六角形", "hexagon", "面積 2.598 / 左右に頂点"],
+    ["i-ms-pentagon", "五角形", "pentagon", "面積 2.378 / 頂点は上"],
+    ["i-ms-diamond", "◇", "diamond", "面積 2.000 / 既定"],
+    ["i-ms-square", "□", "square", "面積 2.000"],
+    ["i-ms-star", "☆", "star", "面積 1.323 / 内接 0.45"],
+    ["i-ms-triangle-up", "△", "triangleUp", "面積 1.299"],
+    ["i-ms-triangle-down", "▽", "triangleDown", "面積 1.299"],
+    ["i-comment", "コメント", "comment", "引出し線付き。構えて置く"],
+    ["i-highlight", "ハイライトボックス", "highlight-box", "範囲を囲む。構えて置く"],
+    ["i-align-start", "開始日で揃える", "align-start", "新設の提案（質問 3）"],
+    ["i-align-finish", "終了日で揃える", "align-finish", "新設の提案（質問 3）"],
+    ["i-progress-line", "イナズマ線", "progress-line", "絵文字ではなくジグザグの線画"],
+    ["i-progress-marker", "進捗マーカー", "progress-marker", "代表として完了記号を使う"],
+    ["i-watermark", "透かし", "watermark", "斜めタイル"],
+    ["i-grid-date", "日付罫線", "grid-date", "縦線。独立トグル"],
+    ["i-grid-group", "グループ罫線", "grid-group", "横線。独立トグル"],
+    ["i-plan", "予定", "plan", "破線 1 本（§4-4 の確定）"],
+    ["i-actual", "実績", "actual", "実線 1 本（§4-4 の確定）"],
+    ["i-today", "本日線", "today-line", "固定の縦線"],
+    ["i-dual", "デュアルカーソル", "dual-cursor", "2 本で日数を測る"],
+    ["i-guide-none", "ガイドなし", "guide-cursor-none", "4 モード排他"],
+    ["i-guide-cross", "十字", "guide-cursor-crosshair", "同上"],
+    ["i-guide-v1", "縦 1 本", "guide-cursor-single-vertical", "同上"],
+    ["i-guide-v2", "縦 2 本", "guide-cursor-double-vertical", "同上"]
+  ];
+  var STATUS_ICONS = [
+    ["i-autosave-ok", "保存済み", "autosave-ok", "時刻を添える"],
+    ["i-autosave-busy", "保存中", "autosave-busy", "回転させない（描画コストのため）"],
+    ["i-autosave-fail", "保存失敗", "autosave-fail", "Toast も出す"]
+  ];
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var XLINK_HREF = "href";
+
+  function iconSvg(id, size) {
+    var svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    if (size) { svg.setAttribute("width", size); svg.setAttribute("height", size); }
+    var use = document.createElementNS(SVG_NS, "use");
+    use.setAttribute(XLINK_HREF, "#" + id);
+    svg.appendChild(use);
+    return svg;
+  }
+
+  function buildCatalogue(hostId, rows) {
+    var host = document.getElementById(hostId);
+    if (!host) { return; }
+    rows.forEach(function (row) {
+      var card = document.createElement("div");
+      card.className = "card";
+      var box = document.createElement("div");
+      box.className = "ico";
+      box.appendChild(iconSvg(row[0]));
+      var txt = document.createElement("div");
+      txt.className = "txt";
+      var ja = document.createElement("strong");
+      ja.textContent = row[1];
+      var en = document.createElement("span");
+      en.className = "en";
+      en.textContent = row[2];
+      var note = document.createElement("span");
+      note.textContent = row[3];
+      txt.appendChild(ja);
+      txt.appendChild(en);
+      txt.appendChild(note);
+      card.appendChild(box);
+      card.appendChild(txt);
+      host.appendChild(card);
+    });
+  }
+
+  function buildMilestoneGeometry() {
+    var host = document.getElementById("msGeom");
+    if (!host) { return; }
+    var glyphs = [
+      ["i-ms-circle", "circle"], ["i-ms-hexagon", "hexagon"], ["i-ms-pentagon", "pentagon"],
+      ["i-ms-diamond", "diamond"], ["i-ms-square", "square"], ["i-ms-star", "star"],
+      ["i-ms-triangle-up", "triangleUp"], ["i-ms-triangle-down", "triangleDown"]
+    ];
+    glyphs.forEach(function (g) {
+      var fig = document.createElement("figure");
+      fig.className = "gridcell";
+      var svg = document.createElementNS(SVG_NS, "svg");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      // bounding box of the glyph (R = 7.5 around 12,12)
+      var box = document.createElementNS(SVG_NS, "rect");
+      box.setAttribute("x", "4.5"); box.setAttribute("y", "4.5");
+      box.setAttribute("width", "15"); box.setAttribute("height", "15");
+      box.setAttribute("fill", "none");
+      box.setAttribute("stroke", "var(--line-strong)");
+      box.setAttribute("stroke-width", "0.35");
+      box.setAttribute("stroke-dasharray", "1.2 1");
+      svg.appendChild(box);
+      // dependency anchors: mid-height of the bounding box, both sides
+      [4.5, 19.5].forEach(function (x) {
+        var dot = document.createElementNS(SVG_NS, "circle");
+        dot.setAttribute("cx", String(x));
+        dot.setAttribute("cy", "12");
+        dot.setAttribute("r", "0.85");
+        dot.setAttribute("fill", "var(--danger)");
+        svg.appendChild(dot);
+      });
+      var use = document.createElementNS(SVG_NS, "use");
+      use.setAttribute(XLINK_HREF, "#" + g[0]);
+      svg.appendChild(use);
+      var cap = document.createElement("figcaption");
+      cap.textContent = g[1];
+      fig.appendChild(svg);
+      fig.appendChild(cap);
+      host.appendChild(fig);
+    });
+  }
+
+  buildCatalogue("catHeader", HEADER_ICONS);
+  buildCatalogue("catPalette", PALETTE_ICONS);
+  buildCatalogue("catStatus", STATUS_ICONS);
+  buildMilestoneGeometry();
+
+  var themeBtn = document.getElementById("themeBtn");
+  var themeNow = document.getElementById("themeNow");
+  themeBtn.addEventListener("click", function () {
+    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    themeNow.textContent = next;
+  });
+
+  var msToggle = document.getElementById("msToggle");
+  var msRow2 = document.getElementById("msRow2");
+  var msChev = document.getElementById("msChev");
+  msToggle.addEventListener("click", function () {
+    var open = msRow2.classList.toggle("hidden") === false;
+    msChev.firstChild.setAttribute(XLINK_HREF, open ? "#i-chevron-down" : "#i-chevron-right");
+    msToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  // palette buttons: demonstrate pressed state without touching real behaviour
+  Array.prototype.forEach.call(document.querySelectorAll("#paletteMain .btn"), function (b) {
+    b.addEventListener("click", function () {
+      if (b.getAttribute("aria-pressed") === null) { return; }
+      b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    });
+  });
+})();
+</script>
+</body>
+</html>
