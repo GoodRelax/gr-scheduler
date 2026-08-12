@@ -562,8 +562,10 @@ TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
 > **この「既定」がどこから来るか** — **`themeHue` / `themePreference` から contrast 規則で解いた色**であり、
 > **`TaskVisual.fillColor` / `strokeColor` が `null` のタスクに適用される**
 > （`../02-data-model/grs-native-erd-ja.md` §5.6 の疎な上書き・確定 2026-08-06）。
-> **人が色を選んだタスクはその色のままで、テーマを変えても動かない。**
-> 解いた結果は保存しない（`../02-data-model/grs-document-settings-ja.md` **§4-2**）。
+> **人が色を選んだタスクは `themeHue` / `themePreference` を変えても動かない。**
+> **`themeMonochrome` は描画時に彩度を落とすので、指定色も無彩色で描かれる**
+> （**保存値は変わらない**。確定 2026-08-06 ＝ `../02-data-model/grs-document-settings-ja.md` §4-2）。
+> 解いた結果は保存しない（同 **§4-2**）。
 
 - **青い予定に緑の実績、のような色相違いは禁止する。** 同じ 1 つの作業の 2 つの側面なので、色相を分けると別物に見える。
 - **依存線は橙で固定**。ライトモードでもダークモードでも判別できる彩度・明度にする。
@@ -597,6 +599,10 @@ TaskVisual.milestoneGlyph   'circle' | 'hexagon' | 'pentagon' | 'diamond'
 | 依存線 ÷ 背景 | 3.78:1 | 8.25:1 |
 
 > **予定の塗り単体は背景と 1.7:1 しかない**（薄い色なので当然）。**予定バーの輪郭は線が担保する**（両モードで 5:1 以上）。
+
+> **この表は 予定塗り / 予定線 / 実績塗り / 依存線 の 4 つで、行の帯を持たない。**
+> **行の帯の色の正は `../02-data-model/grs-document-settings-ja.md` §4-2** である
+> （`themeHue` から解く。入力は**深さと行の位置**の 2 つ）。**ここには値を書かない。**
 
 ### 2-7. 文字の色と縁取り — **確定 2026-07-31**
 

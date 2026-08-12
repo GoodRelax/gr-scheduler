@@ -1029,7 +1029,7 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 | `TaskGroup.order` / `Task.wbs_order` | 妥当 | 並び順はユーザーの意思。算出不能。保持 |
 | `GroupViewState` 全体 | **無駄** | **削除**。`TaskGroup` は元から GRS 独自で「MSPDI 核を汚さないための分離」が不要 → 書式 3 列を `TaskGroup` に畳み込み（§5.7） |
 
-**疎な上書きパターン（確定）**: 「原則自動・人が触る場合あり」の列は、**全件保存せず `null`=自動 / 値あり=人の上書き**とする。既定は常にエンジンが算出し、上書きは例外として少数だけ保存される。該当: `TaskVisual.nameAnchor`/`nameAlign`、`TaskGroup.height`、`TaskGroupMember.stack_order`、**`TaskVisual.fillColor`/`strokeColor`**、**`TaskGroup.color`**。
+**疎な上書きパターン（確定）**: 「原則自動・人が触る場合あり」の列は、**全件保存せず `null`=自動 / 値あり=人の上書き**とする。既定は常にエンジンが算出し、上書きは例外として少数だけ保存される。該当: `TaskVisual.nameAnchor`/`nameAlign`、`TaskGroup.height`、`TaskGroupMember.stack_order`、**`TaskVisual.fillColor`/`strokeColor`**、**`TaskGroup.color`**、**`HighlightBox.strokeColor`**（§5.8）。**`null` を何で埋めるかは列ごとに違う**（下記「`null` の解決先」）。
 
 **色を疎な上書きにする理由 — 確定 2026-08-06**
 
@@ -1051,16 +1051,75 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 - **`lineWeight` は対象外**である。色ではなく、色に頼らない識別手段（項 25 / WCAG 1.4.1）なので
   テーマから導出する意味が無い。
 - **色を既定へ戻す操作は `null` を代入する**ことである。UI の入口は `../NEXT-STEPS-ja.md` 2-4 で決める。
+  **機械向けの口では `update-*` に `null` を送る**（部分更新。`../10-agent-interface/agent-interface-spec-ja.md` §3-1）。
 
-> ⚠️ **この決定が開いた未決が 5 つある。次期が決める。推測で埋めないこと。**
+**色の値域は 3 種 — 確定 2026-08-06**
+
+```text
+null           選んでいない → テーマから解く
+'transparent'  人が透明を選んだ
+'#rrggbb'      人が色を選んだ
+```
+
+- **`null` は「選んでいない」であって「透明」ではない。** 透明は**選んだ結果**なので値の側に置く。
+  `'transparent'` は文字列判別値なので kebab-case（`../03-ui-naming/ui-parts-ja.md` §1-2。1 語なので区切りは現れない）。
+- **塗りと輪郭を同時に透明にはできない。** 後から選んだ側を優先し、他方をテーマへ戻す。
+  両方を透明にすると**そのタスクが画面から消えて掴めなくなる**。`../user-order.md` 項 25 の
+  「色以外にも識別手段」は**線の太さと形状**だが、**どちらも図形が描かれることが前提**である。
+  **塗りだけ透明（＝輪郭だけの図形）は正当な表現なので許す。**
+- **透明の要素は「その下にある色」を相手にコントラストを判定する**（下限 3:1 ＝
+  `../07-plan-actual/plan-actual-decisions-ja.md` §2-6）。
+  ⚠️ **未検証である。次期の色 PoC で実測する。推測で値を書かない。**
+- ⚠️ **SVG 出力で透明をどう書くか（`fill="none"` か `fill="transparent"` か）は決まっていない。**
+  本資産に記述が無い。次期が決める。
+
+**採らなかった案**
+
+| 案 | 却下理由 |
+|---|---|
+| 空文字 `''` | 「書き忘れ」と区別できない（§5.5d-4 と同じ理由） |
+| 8 桁 hex `#00000000` | アルファを導入すると**半透明を止める理由が無くなる**。半透明は下地と混ざるので、コントラストの下限が下地しだいで壊れる。`../user-order.md` 項 23 は透明 1 段しか求めていない |
+| 真偽の列 `fillTransparent` を新設 | **色を決める場所が 2 つになる**（`../user-order.md` 項 66「1 概念 1 語」違反）。`fillColor='#fff'` かつ `fillTransparent=true` という矛盾状態を表現できてしまう |
+| `null` を「透明」に入れ替える | **致命的。** 既定が `null` なので、**色を選んでいない全タスクが一斉に透明になる** |
+
+**`null` の解決先は列ごとに違う — 確定 2026-08-06**
+
+**疎な上書きの型は 1 つのまま**である。違うのは「`null` を何で埋めるか」だけである。
+
+| 列 | `null` の解決先 |
+|---|---|
+| `TaskVisual.fillColor` / `strokeColor` | **テーマ**（`themeHue` から解く） |
+| `TaskGroup.color` | **テーマ**（同上。行の帯の色 ＝ `grs-document-settings-ja.md` §4-2） |
+| `HighlightBox.strokeColor`（§5.8） | **注記用の固定色**（テーマから独立） |
+
+- **注記だけテーマから外す理由**: `../user-order.md` 項 45 の目的は「**一部を強調**」である。
+  テーマ色相に追随させると**日程表と同じ色になって強調にならない**。
+  `../07-plan-actual/plan-actual-decisions-ja.md` §2-6 が依存線とイナズマ線を
+  「**テーマ色相からも離す。予定・実績と同系色だと本体に溶ける**」として固定色にしたのと**同じ判断**である。
+- **常に具体色を焼き込む案は採らない。** 解いた結果を保存すると、規則を直したときに古い値が残って
+  **規則と絵が食い違う**（設定値キー `progressLineColor` を廃止したのと同じ事故。
+  **廃止の記録は `grs-document-settings-ja.md` §4-1**、保存しない原則は同 §4-2）。
+- **`HighlightBox.strokeColor` に透明は無い。** 枠線が**この注記の唯一の描画要素**なので、
+  透明にすると注記そのものが消える。**塗りと輪郭を同時に透明にできないのと同じ理由**である。
+- **`Comment` には色の列が無い**（`leaderShapeKind` / `text` / 位置だけ ＝ §5.8）。**決めるのは 1 列だけ**である。
+
+> ⚠️ **注記用の固定色の値は未定である。** 制約だけ先に置く —
+> **依存線の橙・イナズマ線・`themeHue` のいずれとも色相を離し、ライト / ダークの両方で地に対し 3:1 以上。**
+> **次期の色 PoC で確定させる。推測で書かない。**
+
+> **この決定が開いた未決 5 件は、すべて決着した — 確定 2026-08-06（ユーザー判断）。**
 >
-> | # | 未決 | なぜ開いたか |
-> |:--:|---|---|
-> | 1 | **「透明」をどの値で表すか** | `null` が「テーマから解く」に占められたので、`../user-order.md` 項 23 の**透明**を表す値が無い。`null` とは別の値が要る |
-> | 2 | **行の帯の色の正がどこにも無い** | `TaskGroup.color` の `null` を解く右辺が未定義。§2-6（予実の正）の実測表は 予定塗り / 予定線 / 実績塗り / 依存線 の 4 つだけで**行の帯を持たない**。PoC は帯を 3 色使い分けており（深さ 1 / 交互 2 色）、**1 行だけ上書きしたとき交互の縞がどうなるか**も未定義 |
-> | 3 | **`themeMonochrome` を on にしたとき、人が選んだ色はどうなるか** | 「人が選んだ色はテーマを変えても動かない」を字義どおり読むとモノクロにならない。**明暗・モノクロが「テーマ」に含まれるか**を決める必要がある |
-> | 4 | **`HighlightBox.strokeColor`（§5.8）は疎な上書きにするか** | 本節は `Task` と `TaskGroup` の色だけを対象にした。注記の色は**対象外である**が、`user-order.md` 項 45 が「**任意の色**の角丸四角」と書いており、既定が要るかどうかから決める |
-> | 5 | **機械向けの口で色を既定へ戻す方法** | `../10-agent-interface/agent-interface-spec-ja.md` §3 は**キーの欠落と `null` 値の区別を定義していない**。`null` を送れば戻るのか、別のコマンドが要るのかが決まっていない |
+> | # | 何が未決だったか | 決着 | 所在 |
+> |:--:|---|---|---|
+> | 1 | 「透明」をどの値で表すか | **`'transparent'`**。`null`（選んでいない）とは別の値である。**塗りと輪郭を同時に透明にはできない** | 本節「色の値域は 3 種」 |
+> | 2 | 行の帯の色の正がどこにも無い | **`themeHue` から解く。正は設定値の側**。入力は**深さと行の位置**の 2 つで、**縞は行の位置で数える** | `grs-document-settings-ja.md` §4-2 |
+> | 3 | `themeMonochrome` を on にしたとき人の指定色はどうなるか | **描画時のフィルタである。** 保存値は変えず、**人の指定色も無彩色で描かれる** | 同 §4-2 ／ `../07-plan-actual/plan-actual-decisions-ja.md` §2-6 |
+> | 4 | `HighlightBox.strokeColor` は疎な上書きにするか | **する。ただし `null` の解決先は注記用の固定色**（テーマから独立） | 本節「`null` の解決先」／ §5.8 |
+> | 5 | 機械向けの口で色を既定へ戻す方法 | **`update-*` は部分更新である。** `null` を送れば既定へ戻る。**新しいコマンドも新しい拒否理由も作らない** | `../10-agent-interface/agent-interface-spec-ja.md` §3-1 |
+>
+> ⚠️ **残るのは 4 件で、いずれも規則ではなく実測・表記である** — 透明時のコントラスト判定 ／
+> モノクロ時のコントラスト ／ 注記用の固定色の値 ／ SVG 出力で透明をどう書くか。
+> **次期の色 PoC が出す。推測で埋めない。**
 
 > **注**: `DependencyRoute` はこのパターンにも該当しない（**人が一切触らない**ため、上書きの余地がなく全削除）。
 
@@ -1152,9 +1211,10 @@ label = null のとき、derived_from_task_uid のタスクの name をそのま
 | `TaskVisual.nameAlign` | `null` / `left`・`center`・`right` | ラベルの**左詰め/中央ぞろえ/右詰め**。`null`=自動 |
 | `TaskGroup.height` | `null` / 論理高さ | `null`=自動。値は**ズーム=1 基準の論理高さ**で保存し、**ズームに比例**して伸縮する（相対関係が保たれる） |
 | `TaskGroupMember.stack_order` | `null` / 整数 | `null`=自動（決定的な順序で割当）。値=人が指定した段 |
-| `TaskVisual.fillColor` | `null` / 色 | **`null`=テーマから解く**（人が選んでいない）。値=人が選んだ塗り色 |
-| `TaskVisual.strokeColor` | `null` / 色 | **`null`=テーマから解く**。**`fillColor` とは独立に判定する** |
-| `TaskGroup.color` | `null` / 色 | **`null`=テーマから解く**。値=人が選んだ行色 |
+| `TaskVisual.fillColor` | `null` / `'transparent'` / 色 | **`null`=テーマから解く**（人が選んでいない）。値=人が選んだ塗り色。**透明も選んだ値である** |
+| `TaskVisual.strokeColor` | `null` / `'transparent'` / 色 | **`null`=テーマから解く**。**`fillColor` とは独立に判定する**。ただし**両方を同時に透明にはできない** |
+| `TaskGroup.color` | `null` / `'transparent'` / 色 | **`null`=テーマから解く**。値=人が選んだ行色 |
+| `HighlightBox.strokeColor` | `null` / 色 | **`null`=注記用の固定色**（テーマから独立）。**透明は選べない** — 枠線がこの注記の唯一の描画要素だから |
 
 > **ピクセル座標で保存しない理由**: GRS は**縦横独立ズーム**のため、絶対座標だとズームで位置がずれる。ラベルは離散アンカー＋整列、行高は論理値（ズーム比例）とすることでズームに追従する。
 
@@ -1366,7 +1426,8 @@ HighlightBox   ハイライトボックス
   startDate / endDate   日付の範囲              ← world
   topGroupId    FK      範囲の上端 = TaskGroup.id
   bottomGroupId FK      範囲の下端 = TaskGroup.id
-  strokeColor           枠線の色
+  strokeColor           枠線の色: null=注記用の固定色 / 値=人の指定（疎な上書き・§5.6）
+                        ※透明は選べない（枠線がこの注記の唯一の描画要素）
   cornerRadiusPx        角丸の R                ← screen（項 45「ズームで同じ大きさに見える」）
 ```
 
@@ -1551,7 +1612,7 @@ GRS → MSPDI   稼働日数 x Project.minutes_per_day = 時間 → xsd:duration
 | 列                                                                         | エンティティ    | 責務                                                  |
 | -------------------------------------------------------------------------- | --------------- | ----------------------------------------------------- |
 | `group_id` `task_uid` `stack_order`                                        | TaskGroupMember | 行への所属（1タスク1行）＋縦積み順（`null`=自動 / 値=人の指定・§5.6） |
-| `task_uid` `nameAnchor` `nameAlign` `shapeKind` `milestoneGlyph` `fillColor` `strokeColor` `lineWeight` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置**と色**は `null`=自動の疎な上書き（**色の `null` はテーマから解く**。§5.6）。`lineWeight` は色以外の冗長符号（a11y）なので**テーマから導出しない**。`shapeKind` は 5 値で、`'milestone'` のときだけ `milestoneGlyph`（〇 六角形 五角形 ◇ □ ☆ △ ▽）を見る。**`shapeKind='milestone'` ⇔ `Task.milestone=true`**（権威は `Task.milestone`）。 |
+| `task_uid` `nameAnchor` `nameAlign` `shapeKind` `milestoneGlyph` `fillColor` `strokeColor` `lineWeight` | TaskVisual | Task ごとの視覚属性（Task 本体を汚さず分離・非 export）。名称ラベル位置**と色**は `null`=自動の疎な上書き（**色の `null` はテーマから解き、`'transparent'` は人が選んだ透明である**。値域は §5.6）。`lineWeight` は色以外の冗長符号（a11y）なので**テーマから導出しない**。`shapeKind` は 5 値で、`'milestone'` のときだけ `milestoneGlyph`（〇 六角形 五角形 ◇ □ ☆ △ ▽）を見る。**`shapeKind='milestone'` ⇔ `Task.milestone=true`**（権威は `Task.milestone`）。 |
 | `task_uid` `source_project_uid` `source_uid` `last_seen_import_seq` `import_session_id` | TaskOrigin | 出自（マージの照合・§5.3/§5.4）。**行が無い＝GRS 生まれ**。`source_uid` は再取込の突合専用、`last_seen_import_seq` は「マスタから消えた候補」の導出用（§5.4C）。 |
 | `id` `parent_id` `label` `derived_from_task_uid` `order` `collapsed` `color` `height` | TaskGroup       | 行の器・階層・並び＋**行の書式**（`height` は `null`=自動の疎な上書き・論理高さ。**`color` も疎で `null`=テーマから解く**。§5.6）。`label`=`null` のとき `derived_from_task_uid` のタスク名を表示（§5.5g）。**両方 `null` は禁止**。 |
 

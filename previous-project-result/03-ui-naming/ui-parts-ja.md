@@ -174,6 +174,7 @@ rectangle    shapeKind の 1 値（`===`）。日本語は「矩形」。
 | `milestoneGlyph` | **マイルストーン形状**（〇 六角形 五角形 ◇ □ ☆ △ ▽） |
 | **`actualPlacement`** | **実績の置き方**（`'inside'` = 内側 / `'below'` = 下 / `'atActualDate'` = 実績日）。`shapeKind` から導出する |
 | `strokeColor` / `fillColor` / `lineWeight` | **線色** / 塗り色 / 線の太さ |
+| `'transparent'` | **透明**（`strokeColor` / `fillColor` / `TaskGroup.color` が取りうる値。`null`＝選んでいない とは別物 ＝ `../02-data-model/grs-native-erd-ja.md` §5.6） |
 | `nameAnchor` / `nameAlign` | **名称アンカー** / **名称の揃え** |
 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 |
 | `wbs_parent_uid` | **WBS の親**（深さは導出） |
