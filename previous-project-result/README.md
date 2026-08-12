@@ -256,7 +256,14 @@ previous-project-result/
 │
 ├── 03-ui-naming/                    命名（1 概念 1 語）
 │   ├── ui-parts-ja.md      ★UI パーツ名と責務の確定版
-│   └── ui-detail-spec-ja.md  UI 詳細仕様（画面構成・掴み領域・操作割当・予実の編集モデル）
+│   ├── ui-detail-spec-ja.md  UI 詳細仕様（画面構成・掴み領域・操作割当・予実の編集モデル）
+│   └── appheader-palette-icons.html
+│                                    App Header / Command Palette / Help Modal の
+│                                    アイコンとレイアウトの案（draft rev.11）。**開いて見る**
+│                                    ⚠️ **§6 に「確定済み文書への書き戻し 8 件」が未処理で残る。**
+│                                    特に「決着 D」は ui-detail-spec-ja.md §4-4 の確定
+│                                    （予定＝破線 / 実績＝実線）を覆すと宣言しながら
+│                                    書き戻していない。**両方を読むこと**（追加 2026-08-12）
 │
 ├── 04-performance/                  ぬるサク
 │   └── performance-notes-ja.md  ★効いた手 / 罠 / 実測基準線 / 参考実装
