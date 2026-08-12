@@ -10,9 +10,14 @@
 # from source on every push to main and deploys it as a Pages artifact.
 name: Deploy to GitHub Pages
 
+# PAUSED. The automatic trigger is removed while the repository is rebuilt from
+# previous-project-result/: package.json, the app sources and docs/spec/ do not
+# exist yet, so every push-triggered run fails at "npm ci". The steps below are
+# kept as-is on purpose -- they record the layout that used to work and are the
+# starting point for the rewrite. Restore `push: branches: [main]` only after the
+# file structure fixed in Chapter 5.3 of the spec is in place and `npm run build`
+# succeeds locally.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 # Least-privilege token required by actions/deploy-pages.
