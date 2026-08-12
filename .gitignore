@@ -17,17 +17,21 @@ docs/spec/output/
 __pycache__/
 
 # ---- Third-party reference copies ------------------------------------------
-# Nothing third-party is redistributed here, including CC-BY material.
-# Only the README pointer of each vendor folder is tracked; the copies are
-# fetched locally by whoever needs them. A new vendor folder is excluded by
-# default, so the safe direction is the automatic one.
-previous-project-result/**/vendor/**
-!previous-project-result/**/vendor/**/
-!previous-project-result/**/vendor/**/README.md
+# docs/reference/ holds the external primary sources this project checks its
+# claims against: the MSPDI schema, the Microsoft Learn element reference and
+# the WCAG 2.1 text. Nothing third-party is redistributed here, including
+# CC-BY material, so only the README pointer of each folder is tracked and the
+# copies are fetched locally by whoever needs them. A folder added later is
+# excluded without editing this file, so the safe direction is the automatic one.
+docs/reference/**
+!docs/reference/**/
+!docs/reference/**/README.md
+
+# The same rule for the frozen input set. It carries no copies of its own -- the
+# README below is a pointer to docs/reference/mspdi/ -- but keep the net in place
+# so a stray re-fetch there cannot be committed by accident.
 previous-project-result/01-mspdi/mspdi/*
 !previous-project-result/01-mspdi/mspdi/README.md
-previous-project-result/05-security-a11y/wcag/*
-!previous-project-result/05-security-a11y/wcag/README.md
 
 # ---- Internal working notes. Never published. ----
 previous-project-result/temp/

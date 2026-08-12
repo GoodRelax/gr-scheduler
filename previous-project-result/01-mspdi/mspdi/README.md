@@ -23,8 +23,13 @@ attribution, but it is left out too — one rule, no exceptions, nothing to argu
 
 ```
 Authoritative      https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd
-Local copy         previous-project-result/01-mspdi/mspdi/mspdi_pj12.xsd   (fetch it yourself; git-ignored)
+Local copy         docs/reference/mspdi/mspdi_pj12.xsd   (fetch it yourself; git-ignored)
 ```
+
+**The copy lives outside this folder.** `previous-project-result/` is the frozen result of
+the first project, while the schema is an external source the current project keeps
+consulting, so the copies sit on the project's own reference shelf at `docs/reference/`.
+This file stays here because every document in `previous-project-result/` points at it.
 
 **Rule, one sentence: check MSPDI facts against the local copy, but cite the official URL.**
 The local copy is a byte-identical replica, so looking at it and quoting the URL are the
@@ -39,15 +44,15 @@ The Japanese summaries in `../mspdi-*.md` are **secondary sources and can be wro
 fact you could not check. Guessing and stating it as fact is the failure this whole
 reference set exists to prevent.
 
-Ask whoever set up the environment to place `mspdi_pj12.xsd` in this folder. It is one
-file and needs no build step.
+Ask whoever set up the environment to place `mspdi_pj12.xsd` in `docs/reference/mspdi/`.
+It is one file and needs no build step.
 
 ## How to fetch
 
 Run from the repository root. Requires `curl`; `git` only for the Learn docs.
 
 ```sh
-VDIR="previous-project-result/01-mspdi/mspdi"
+VDIR="docs/reference/mspdi"
 
 # 1) The MSPDI XML schema — this is the one you need
 curl -fsSL "https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd" \
@@ -74,9 +79,9 @@ The copy this reference set was written against:
 | Schema version | Microsoft Office Project **2007** (`pj12` = Project 12). Header revision date `2007-11-28` |
 
 ```sh
-sha256sum previous-project-result/01-mspdi/mspdi/mspdi_pj12.xsd     # Linux
-shasum -a 256 previous-project-result/01-mspdi/mspdi/mspdi_pj12.xsd # macOS
-certutil -hashfile previous-project-result\01-mspdi\mspdi\mspdi_pj12.xsd SHA256   # Windows
+sha256sum docs/reference/mspdi/mspdi_pj12.xsd     # Linux
+shasum -a 256 docs/reference/mspdi/mspdi_pj12.xsd # macOS
+certutil -hashfile docs\reference\mspdi\mspdi_pj12.xsd SHA256   # Windows
 ```
 
 **A different hash is not automatically a problem** — Microsoft may have republished the

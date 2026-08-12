@@ -102,8 +102,13 @@ grep -rl "^authority:" previous-project-result/ | wc -l   # 4 でなければ正
 
 ```
 正            https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd
-ローカル複製   01-mspdi/mspdi/mspdi_pj12.xsd   ← 自分で取得する（git 管理外）
+ローカル複製   docs/reference/mspdi/mspdi_pj12.xsd   ← 自分で取得する（git 管理外）
 ```
+
+**複製の置き場は本フォルダの外**（`docs/reference/`）である。`previous-project-result/` は
+前プロジェクトの凍結した成果で、XSD は次期プロジェクトが参照し続ける外部資料だからである。
+**入手方法を書いた `01-mspdi/mspdi/README.md` だけは本フォルダに残してある**（本書を含む
+12 文書が相対パスで名指ししているため）。
 
 **規則は 1 文: 事実はローカル複製で確かめ、出典には公式 URL を書く。**
 複製は公式とバイト単位で同一なので、見る先と書く先が違っても主張は同じである。
@@ -180,14 +185,14 @@ grep -rl "^authority:" previous-project-result/ | wc -l   # 4 でなければ正
 | 文書中の表記 | `previous-project-result/` 内の位置 |
 |---|---|
 | `docs/spec/vendor/mspdi-*.md` | `01-mspdi/mspdi-*.md` |
-| `docs/spec/vendor/mspdi/mspdi_pj12.xsd` | `01-mspdi/mspdi/mspdi_pj12.xsd` |
+| `docs/spec/vendor/mspdi/mspdi_pj12.xsd` | `docs/reference/mspdi/mspdi_pj12.xsd`（**本フォルダの外**。入手方法は `01-mspdi/mspdi/README.md`） |
 | `docs/spec/_assets/grs-*.md` / `docs/spec/_assets/handover-data-model-entry-ja.md` | `02-data-model/`（**`handover-` の接頭辞は落とした** ＝ `data-model-entry-ja.md`） |
 | `docs/spec/_assets/handover-ui-parts-ja.md` | `03-ui-naming/ui-parts-ja.md`（**接頭辞を落とした**） |
 | `docs/spec/glossary.md`（前プロジェクトの用語集） | **`previous-project-result/` には無い**。旧名で書かれているため外した（`DISCARDED-ja.md` §3） |
 | `docs/spec/_assets/handover-performance-notes-ja.md` | `04-performance/performance-notes-ja.md`（**接頭辞を落とした**） |
 | `docs/security/security-design.md` / `docs/dev/a11y-wcag21-aa-checklist.md` | `05-security-a11y/` |
 | `old/日程管理ツール.md`（既存ツール比較の調査記録） | **`previous-project-result/` には無い**。特定製品の評価を含むため外した（`DISCARDED-ja.md` §3） |
-| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`previous-project-result/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 31 文書にファイル名の重複は無い**ので名前で一意に定まる（機械検査済み。衝突ゼロ）。`README.md` だけは **3 つ**ある — 本書 / `01-mspdi/mspdi/README.md`（XSD の入手元）/ `08-poc/README.md`（PoC の開き方） |
+| **フォルダを付けない裸のファイル名**（`user-order.md` / `grs-native-erd-ja.md` 等） | **`previous-project-result/` 内の同名ファイル**を指す。所在は §2 のフォルダ構成で引く。**`README.md` を除き、全 36 文書にファイル名の重複は無い**ので名前で一意に定まる（機械検査済み。衝突ゼロ）。`README.md` だけは **3 つ**ある — 本書 / `01-mspdi/mspdi/README.md`（XSD の入手元）/ `08-poc/README.md`（PoC の開き方） |
 | `docs/spec/vendor/mspdi-declutter-erd-ja.md`（MSPDI 断捨離の中間分析） | **`previous-project-result/` には無い**。結論は `02-data-model/grs-mspdi-field-ledger-ja.md` に落ちている（`DISCARDED-ja.md`） |
 | `project-management/` 配下（`handoff-*.md` 等） | **`previous-project-result/` には無い**。中身の要点は `DISCARDED-ja.md` に書いてある |
 | 上表に無いパス（`src/` / `tests/` / `.sdoc` / `project-records/` 等） | **`previous-project-result/` には無い**。凍結リポジトリを見る。理由は `DISCARDED-ja.md` |
@@ -239,8 +244,8 @@ previous-project-result/
 │   ├── mspdi-core-tree.md           構造
 │   ├── mspdi-tables.md              全 29 テーブルの責務
 │   └── mspdi/
-│       ├── README.md                ★入手方法・照合ハッシュ・ライセンス（**追跡しているのはこれだけ**）
-│       └── mspdi_pj12.xsd           MS Project 2007 MSPDI スキーマ。**同梱していない**（自分で取得する）
+│       └── README.md                ★入手方法・照合ハッシュ・ライセンス（**このフォルダはこれ 1 本**）
+│                                    複製の置き場は docs/reference/mspdi/（本フォルダの外・git 管理外）
 │
 ├── 02-data-model/                   GRS のデータ構造（確定版）
 │   ├── data-model-entry-ja.md   入口・読む順・JSON 実例
@@ -284,15 +289,25 @@ previous-project-result/
 │                                     entity / use case / adapter / framework の割り当てと
 │                                     「操作層は use case、UI と機械向けの口は同格」の根拠
 │
-└── 10-agent-interface/              **機械向けインターフェース**（AI 共同編集トライアルの成果）
-    ├── agent-interface-requirements-ja.md   ★要求 17 件（採用済み）。実測の根拠つき
-    ├── agent-interface-spec-ja.md           API 契約（関数・エンベロープ・コマンド・拒否理由・監視・起動時投入）
-    ├── agent-interface-samples-ja.md        動く実例と、トライアルの API との対応表
-    ├── agent-interface-open-items-ja.md     実測で決着 8 件 / 決定 6 件 / 未決 2 件（いずれも延期）
-    ├── ai-cowork-trial-findings-ja.md       トライアルの実測（要求の根拠はここ）
-    └── samples/
-        ├── grs-document-with-revision-stamp.json
-        └── agent-apply-request-and-outcomes.json
+├── 10-agent-interface/              **機械向けインターフェース**（AI 共同編集トライアルの成果）
+│   ├── agent-interface-requirements-ja.md   ★要求 17 件（採用済み）。実測の根拠つき
+│   ├── agent-interface-spec-ja.md           API 契約（関数・エンベロープ・コマンド・拒否理由・監視・起動時投入）
+│   ├── agent-interface-samples-ja.md        動く実例と、トライアルの API との対応表
+│   ├── agent-interface-open-items-ja.md     実測で決着 8 件 / 決定 6 件 / 未決 2 件（いずれも延期）
+│   ├── ai-cowork-trial-findings-ja.md       トライアルの実測（要求の根拠はここ）
+│   └── samples/
+│       ├── grs-document-with-revision-stamp.json
+│       └── agent-apply-request-and-outcomes.json
+│
+├── 20-spec-template/                **仕様書の書き方**（フレームワークからの供給。追加 2026-08-12）
+│   ├── 00-ai-guide.md               Markdown 形式 StrictDoc の AI 向け手引き。**書く前に読む**
+│   ├── 01-ai-queries.md             書いたあとの検査に使う jq クエリ集（G29 / G33 / G35 / G37 等）
+│   ├── spec-template.md             ★仕様書の雛形（10 章 ＋ 付録）
+│   ├── spec-writing-rules.md        ★書き方の規則 v0.36（ANMS / ANPS-part / ANPS-chapter）
+│   └── spec.sgra                    ANPS の文法。仕様書のフォルダへ複製して使う
+│
+└── 21-review-standard/              **レビュー観点の規約**（フレームワークからの供給）
+    └── review-standards.md          R1〜R7 の観点。review-agent が参照する正
 ```
 
 > ⚠️ **`10-agent-interface/` は `authority` を持たない。** 用語の正は 4 文書のままである。

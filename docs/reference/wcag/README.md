@@ -1,19 +1,20 @@
 # WCAG 2.1 の正本（入手手順）
 
-**このフォルダの実体は git 管理外である。** `docs/spec/vendor/mspdi/` と同じ扱いで、
+**このフォルダの実体は git 管理外である。** `docs/reference/mspdi/` と同じ扱いで、
 **第三者の著作物をこのリポジトリで再配布しない**という方針による。
 必要になったら下の手順で取り直す。
 
 ## 何のためにあるか
 
-`handover/05-security-a11y/a11y-wcag21-aa-checklist.md` の **A / AA 全 50 基準の突合**は、
-この原文を一次資料として作った。**要約や記憶で基準を書かない**ための置き場である。
+`previous-project-result/05-security-a11y/a11y-wcag21-aa-checklist.md` の
+**A / AA 全 50 基準の突合**は、この原文を一次資料として作った。
+**要約や記憶で基準を書かない**ための置き場である。
 
 ## 取得
 
 ```bash
-mkdir -p docs/spec/vendor/wcag
-curl -sS -L -o docs/spec/vendor/wcag/wcag21-rec.html "https://www.w3.org/TR/WCAG21/"
+mkdir -p docs/reference/wcag
+curl -sS -L -o docs/reference/wcag/wcag21-rec.html "https://www.w3.org/TR/WCAG21/"
 ```
 
 `https://www.w3.org/TR/WCAG21/` は**常に最新の改訂**を指す。
@@ -58,5 +59,5 @@ W3C の文書は **W3C Software and Document License** による。
 
 | 文書 | 何が書いてあるか |
 |---|---|
-| `handover/05-security-a11y/a11y-wcag21-aa-checklist.md` | **A / AA 全 50 基準の突合表**（適合 / 該当なし / 要対応） |
-| `handover/NEXT-STEPS-ja.md` ステップ 1 | 適合範囲を要求として確定させる作業 |
+| `previous-project-result/05-security-a11y/a11y-wcag21-aa-checklist.md` | **A / AA 全 50 基準の突合表**（適合 / 該当なし / 要対応） |
+| `previous-project-result/NEXT-STEPS-ja.md` ステップ 1 | 適合範囲を要求として確定させる作業 |
