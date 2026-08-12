@@ -25,7 +25,8 @@
 | N-1 | `Task` | タスク（`shapeKind` が `'milestone'` のときは「マイルストーン」と表示する）。⚠️ **真偽値の `milestone` という列は持たない** |
 | N-2 | `TaskGroup` | タスクグループ |
 | N-3 | `TaskGroupMember` | タスクグループメンバー |
-| N-4 | `stackOrder` | 積み順 |
+| N-4 | `stackOrder` | 積み順。**自動で決まる値であり、人が手で指定する経路は持たない**（表 T-014 の ST-6） |
+| N-4a | `Item` | **アイテム**。**当たり判定と選択の対象となるものの総称**（タスク・依存線・コメントボックス・ハイライトボックス）。全数は表 T-023c の SL-1 が持つ。⚠️ **`Task` の別名ではない** —— 外延が広いので `CN-9`（画面とデータで別名を与えない）には当たらない。**`Task` 1 つを指すときは「タスク」と書く** |
 
 ## 2. プロパティ
 
@@ -188,7 +189,7 @@
 | K-56 | LOD | `groupLevelOfDetailBase` | グループ LOD の初項 |
 | K-57 | LOD | `groupLevelOfDetailRatio` | グループ LOD の公比 |
 | K-58 | LOD | `stackSafetyCap` | 積み順の安全弁 |
-| K-59 | テーマ | `themePreference` | 明暗テーマ |
+| K-59 | テーマ | `themePreference` | 明暗テーマ（**ダークモード**はこの値の `'dark'` を指す通称） |
 | K-60 | テーマ | `themeHue` | テーマの色相 |
 | K-61 | テーマ | `themeMonochrome` | モノクロにするか |
 | K-62 | ズーム | `zoomStep` ⛔ | 1 ノッチの倍率 |
@@ -218,6 +219,19 @@
 | K-86 | 表示の切り替え | `importSeq` | 取込の連番 |
 | K-87 | 出力 | `exportCanvas` | SVG / PNG の出力サイズ |
 | K-88 | 出力 | `exportPngScale` | PNG の倍率 |
+| K-91 | 予実の補助線 | `planActualGuideWeight` | 補助線の太さ |
+| K-92 | 予実の補助線 | `planActualGuidePattern` | 補助線の破線の刻み |
+| K-93 | 予実の補助線 | `planActualGuideColor` | 補助線の色 |
+| K-94 | フェード | `fadeHandleHalfPx` | フェード掴み点の半辺 |
+| K-95 | フェード | `fadeHandleStrokePx` | フェード掴み点の枠線 |
+| K-96 | 保存と上限 | `autosaveIdleMs` | 自動保存の操作の切れ目 |
+| K-97 | 保存と上限 | `importMaxBytes` | 取り込むファイルの上限 |
+| K-98 | 保存と上限 | `importMaxItems` | 取り込む `Task` の件数の上限 |
+| K-99 | 保存と上限 | `importMaxDepth` | WBS のネストの深さの上限 |
+| K-100 | 画面の寸法 | `appHeaderMaxHeight` | `App Header` の高さの上限 |
+| K-101 | 透かし | `watermarkOpacity` | 透かしの濃さ |
+| K-89 | 表示の切り替え | `statusDateLineVisible` | 基準日の縦線 |
+| K-90 | 保存しないもの（別枠） | `language` ⛔ | 表示言語（`ja` / `en`）。**文書に保存せず `localStorage` に置く**（表 T-206 の S-99）。**表 T-202 に行は無いので `FR-049` の切り替え対象ではない** |
 
 **キーに関する規約:**
 
