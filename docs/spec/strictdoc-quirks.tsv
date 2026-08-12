@@ -1,1 +1,2 @@
 date	sd_version	step	symptom	workaround	where
+2026-08-12	0.27.1	export-json	Semantic error: Invalid node type: REQUIREMENT.	add **Type**: SECTION to the heading that has prose but no type marker; no line number is reported so bisect by heading	docs/spec/01-04-requirements.md
