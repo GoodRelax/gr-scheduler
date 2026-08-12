@@ -258,8 +258,10 @@ previous-project-result/
 │   ├── ui-parts-ja.md      ★UI パーツ名と責務の確定版
 │   ├── ui-detail-spec-ja.md  UI 詳細仕様（画面構成・掴み領域・操作割当・予実の編集モデル）
 │   └── appheader-palette-icons.html
-│                                    App Header / Command Palette / Help Modal の
-│                                    アイコンとレイアウトの案（draft rev.11）。**開いて見る**
+│                                    ★**アイコンの図形と画面上の配置の正**（確定 2026-08-12）。
+│                                    App Header / Command Palette / Help Modal。**開いて見る**
+│                                    次期の仕様書（docs/spec）はここを名指しで参照しており、
+│                                    **絵を写し取っていない**（写すと正が 2 つになるため）
 │                                    ⚠️ **§6 に「確定済み文書への書き戻し 8 件」が未処理で残る。**
 │                                    特に「決着 D」は ui-detail-spec-ja.md §4-4 の確定
 │                                    （予定＝破線 / 実績＝実線）を覆すと宣言しながら

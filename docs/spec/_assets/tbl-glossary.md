@@ -22,7 +22,7 @@
 
 | 行 ID | 確定名（英） | 日本語 |
 | --- | --- | --- |
-| N-1 | `Task` | タスク（`milestone = true` のときは「マイルストーン」と表示する） |
+| N-1 | `Task` | タスク（`shapeKind` が `'milestone'` のときは「マイルストーン」と表示する）。⚠️ **真偽値の `milestone` という列は持たない** |
 | N-2 | `TaskGroup` | タスクグループ |
 | N-3 | `TaskGroupMember` | タスクグループメンバー |
 | N-4 | `stackOrder` | 積み順 |
