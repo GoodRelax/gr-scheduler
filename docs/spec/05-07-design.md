@@ -2,7 +2,7 @@
 
 **Grammar**: spec.sgra
 **UID**: DOC-DESIGN
-**Version**: 0.1
+**Version**: 0.2
 
 本書は第 2 部（Chapter 5 〜 7）である。
 
@@ -58,7 +58,11 @@
 
 **Type**: SECTION
 
-> 未記入。JSON Schema を置く。永続ストアを持たない場合は「持たない」と書き、Chapter 2.4 と揃える。文書の形の正は `02-data-model/grs-native-erd-ja.md`、設定値の正は `02-data-model/grs-document-settings-ja.md`。
+**設定値（`documentSettings`）の既定値と範囲は `_assets/tbl-settings.md`（`DOC-TBL-SETTINGS`）が持つ。本節はそこを指し、値を再掲しないこと（MUST NOT）。** 名前の正は `_assets/tbl-glossary.md` の表 T-104 である。名前と値を 2 か所で管理しない。
+
+**MSPDI の要素と列挙値は本仕様書に写さない（MUST NOT）。** それは本プロジェクトの決定ではなく Microsoft のスキーマの事実であり、正は公式 XSD（`https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd`）である。**事実はローカル複製で確かめ、出典には公式 URL を書く**（`docs/reference/README.md`）。
+
+> 未記入。文書の形（エンティティと関係）を JSON Schema として置く。永続ストアを持たない場合は「持たない」と書き、Chapter 2.4 の表 T-009（X-3）と揃える。出どころは `previous-project-result/02-data-model/grs-native-erd-ja.md`。
 
 ## Chapter 7. Test Strategy (テスト戦略)
 
