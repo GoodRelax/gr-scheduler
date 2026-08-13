@@ -36,6 +36,23 @@ fresh contradiction is born. Measured on round 7 → 8: **0.46 new defects per
 defect fixed**, and 26 of 77 findings sat on lines the previous round had
 written.
 
+The rate is falsifiable, so measure it each round rather than assuming the
+method worked. Take the previous round's commits as the seed, review only the
+lines they wrote, and divide fresh defects by defects fixed. Round 7 → 8 came
+in at **0.46**; round 8 → 9, after switching to the object-first loop and
+adding checks 12–14, came in at **0.24**.
+
+### A lens the first eight rounds never used
+
+Checking that every requirement *links* to a goal is mechanical and always
+passed. Checking whether the requirements under a goal **collectively achieve
+it** is not, and it found 21 defects on its first run, including five `NFR`s
+whose measurement target is undefined and so can never be judged.
+
+Walk it top-down: decompose each `GOAL` and each `USE_CASE` step into the
+actions a person must perform, then find the requirement that performs each
+one. A link that resolves is not a step that works.
+
 ### How to group a batch of fixes
 
 Two findings belong to the same **unit** when they touch the same table, row,
@@ -125,7 +142,25 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
   correct (`FR-050` is retired on purpose). Before adding a settings key,
   check the whole `S-` range — the highest number is not always free.
 - Changing a use case's step numbering cascades into `ORIGIN` spans that
-  check 3 does not see. Count the references first.
+  check 3 does not see. Count the references first — **and the `EXTENSIONS`
+  branch labels (`1a.`, `3a.`), which are numbered against the steps.**
+- **Before naming or renaming anything, read table T-006b and table T-104.**
+  T-006b reserves ambiguous Japanese words with MUST NOT clauses. Naming the
+  merged line 基準線 collided with `A-9`, which reserves that word for the
+  baseline plan — eight newly written places broke the document's own rule.
+- **When a transfer moves a rule from A to B, confirm the rule now appears in
+  B's text.** Once, B was a requirement that says in so many words "this
+  requirement creates no new rule", so the rule vanished from the
+  specification while both sides still looked tidy. The checks verify that
+  references resolve, not that anything was received.
+- **A new "this is the full count" sentence must be counted, not asserted.**
+  Three separate defects came from writing one: "table T-202 has no row for
+  this" (it did), "table T-024 is every export format" (it also holds
+  clipboard and localStorage), and a selection list that disagreed with the
+  deletion list it was paired with.
+- Adding a member to a full-count table pulls in every rule that quantifies
+  over it. Adding the status line to `SL-1` silently made it deletable by
+  `SK-3` and draggable in bulk by `SL-7`.
 
 ## Layout
 

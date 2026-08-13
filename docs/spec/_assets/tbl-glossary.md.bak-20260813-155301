@@ -77,7 +77,7 @@
 | U-8 | `Assignee Label` | 担当ラベル |
 | U-9 | `Progress Line` | イナズマ線。直訳ではない。例外は表 T-105 |
 | U-10 | `Cursors` | カーソル |
-| U-11 | `Status Line` | 基準日線。`Project.status_date` の位置に引く縦線（`FR-046`）。⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる |
+| U-11 | `Status Line` | 基準線。`Project.status_date` の位置に引く縦線（`FR-046`）。⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる |
 | U-12 | `Dual Cursor` | デュアルカーソル |
 | U-13 | `Guide Cursor` | ガイドカーソル |
 | U-14 | `Comment Boxes` | コメントボックス。⚠️ **「コメント」と略さない（MUST NOT）** —— 本文だけを指すのか器を指すのかが読めなくなる。本文は「コメントボックスの本文」と書く |
@@ -229,6 +229,7 @@
 | K-99 | 保存と上限 | `importMaxDepth` | WBS のネストの深さの上限 |
 | K-100 | 画面の寸法 | `appHeaderMaxHeight` | `App Header` の高さの上限 |
 | K-101 | 透かし | `watermarkOpacity` | 透かしの濃さ |
+| K-89 | 表示の切り替え | `statusDateLineVisible` | 基準日の縦線 |
 | K-90 | 保存しないもの（別枠） | `language` ⛔ | 表示言語（`ja` / `en`）。置き場と規則は表 T-206 の `S-99` |
 
 **キーに関する規約:**
