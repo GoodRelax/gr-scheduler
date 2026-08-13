@@ -30,6 +30,7 @@ FILES = [
     'docs/spec/01-04-requirements.md',
     'docs/spec/_assets/tbl-glossary.md',
     'docs/spec/_assets/tbl-settings.md',
+    'docs/spec/_assets/tbl-datamodel.md',
     'docs/spec/05-07-design.md',
     'docs/spec/08-10-test.md',
     'docs/spec/A-appendix.md',
