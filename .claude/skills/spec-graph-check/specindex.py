@@ -15,17 +15,30 @@ import os
 import re
 import collections
 
-FILES = [
-    'docs/spec/01-04-requirements.md',
-    'docs/spec/_assets/tbl-glossary.md',
-    'docs/spec/_assets/tbl-settings.md',
-    'docs/spec/_assets/tbl-datamodel.md',
-    'docs/spec/_assets/fig-domain-model.md',
-    'docs/spec/_assets/fig-components.md',
-    'docs/spec/05-07-design.md',
-    'docs/spec/08-10-test.md',
-    'docs/spec/A-appendix.md',
-]
+def discover(root='.'):
+    """Every specification source file, found rather than listed.
+
+    A hardcoded list was kept here and in md-checks.py, so a new
+    `_assets/*.md` was invisible to checks 5-10 and 15 until someone
+    remembered to register it in both places -- and the checks reported
+    green while never having read it. Scanning removes that failure mode.
+
+    Only two levels are scanned, which is what keeps the generated export
+    out: `docs/spec/output/strictdoc/html/spec/_assets/*.md` sits deeper.
+    `*.bak-<stamp>` files do not end in `.md` and so cannot match.
+    """
+    out = []
+    for d in ('docs/spec', 'docs/spec/_assets'):
+        full = os.path.join(root, d)
+        if not os.path.isdir(full):
+            continue
+        for name in sorted(os.listdir(full)):
+            if name.endswith('.md') and os.path.isfile(os.path.join(full, name)):
+                out.append(d + '/' + name)
+    return out
+
+
+FILES = discover()
 
 ROW_ID = re.compile(r'^[A-Z]{1,3}-[0-9]+[a-z]?$')
 TABLE_HEAD = re.compile(r'^\*\*表 (T-[0-9]+[a-z]?) —')
@@ -124,7 +137,7 @@ class Index(object):
 
 def build(root='.'):
     idx = Index()
-    for rel in FILES:
+    for rel in discover(root):
         path = os.path.join(root, rel)
         if not os.path.exists(path):
             continue

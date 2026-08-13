@@ -1,96 +1,110 @@
-# 図 — コンポーネント
+# 図 F-005 — コンポーネント
 
 **UID**: DOC-FIG-COMPONENTS
 **Version**: 0.1
 
-**本書は図だけを持つ。** 部品の責務と機器の対応は `05-07-design.md` の Chapter 5.2 が表として持つ。**ここに責務を書かない（MUST NOT）。**
+**本書は 図 F-005 とその読み方だけを持つ。** 部品の責務は `05-07-design.md` の 表 T-046 が持ち、**ここに責務を書かない（MUST NOT）。** 層の凡例は同書の 図 F-007 が持つ。
 
-## 1. 全体
+本書は `05-07-design.md` の Chapter 5.2 から参照される。
 
-**Type**: SECTION
-
-**図 F-005 — コンポーネントの全体**
-
-**枠は層である**（`05-07-design.md` の 表 T-045）。**矢印は「呼ぶ」向きであり、依存の向きと同じである。** すべての矢印が内側を向いていることが、この図で確かめるべきことである。
-
-```mermaid
-flowchart TB
-    subgraph FW["土台"]
-        direction LR
-        DOM["ブラウザと DOM"]
-        FILE["ファイルへの読み書き"]
-        LS["localStorage"]
-    end
-    subgraph AD["接続"]
-        direction LR
-        VIEW["画面の接続"]
-        AGENT["Agent API"]
-        SER["SVG の直列化"]
-        CODEC["JSON と MSPDI の変換"]
-        IO["入出力の門"]
-    end
-    subgraph UC["操作層"]
-        direction LR
-        CMD["命令の実行"]
-        HIST["履歴"]
-        VAL["取り込みの検証"]
-        NOTE["変更の通知"]
-    end
-    subgraph EN["中核"]
-        direction LR
-        MODEL["文書のモデル"]
-        GEOM["幾何<br/>時刻と座標・縦積み・整列<br/>選別・依存線の経路・遅れの頂点"]
-    end
-
-    DOM --> VIEW
-    FILE --> IO
-    LS --> IO
-    VIEW --> CMD
-    AGENT --> CMD
-    IO --> CODEC
-    CODEC --> CMD
-    CMD --> VAL
-    CMD --> HIST
-    CMD --> NOTE
-    CMD --> GEOM
-    CMD --> MODEL
-    NOTE --> VIEW
-    NOTE --> AGENT
-    SER --> GEOM
-    VIEW --> GEOM
-    SER --> DOM
-```
-
-⚠️ **`SVG の直列化` から `幾何` への矢印が操作層を通っていないことが、この図の要点である。** 描画は**読み取りの経路**であって書き込みの経路ではない。書き込みの経路は `命令の実行` の 1 本しかない。
-
-## 2. 書き込みの経路
+## 1. 図
 
 **Type**: SECTION
 
-**図 F-006 — 書き込みは 1 本の関門を通る**
+**色は 図 F-007 の凡例と同じである。** 矢印は「呼ぶ」向きであり、依存の向きと同じである。**すべての矢印が内側の層を向いていることが、この図で確かめるべきことである。**
 
-**人が画面から行う編集と、`Agent API` から行う編集は、同じ関門を通る。** 関門を通らない書き込みの経路は存在しない。
+**図 F-005 — コンポーネント**
 
 ```mermaid
-sequenceDiagram
-    participant H as 人（画面）
-    participant A as AI（Agent API）
-    participant C as 命令の実行
-    participant V as 検証
-    participant M as 文書のモデル
-    participant N as 変更の通知
+graph RL
+    subgraph FW["Framework"]
+        direction TB
+        BrowserDom["BrowserDom"]:::framework
+        FileSystemAccess["FileSystemAccess"]:::framework
+        LocalStorage["LocalStorage"]:::framework
+        SingleFileShell["SingleFileShell"]:::framework
+    end
+    subgraph AD["Adapter"]
+        direction TB
+        ViewAdapter["ViewAdapter"]:::adapter
+        AgentApi["AgentApi"]:::adapter
+        SvgSerializer["SvgSerializer"]:::adapter
+        JsonCodec["JsonCodec"]:::adapter
+        MspdiCodec["MspdiCodec"]:::adapter
+        StorageGateway["StorageGateway"]:::adapter
+    end
+    subgraph UC["Use Case"]
+        direction TB
+        CommandExecutor["CommandExecutor"]:::usecase
+        RevisionGuard["RevisionGuard"]:::usecase
+        UndoHistory["UndoHistory"]:::usecase
+        ImportValidator["ImportValidator"]:::usecase
+        ChangeNotifier["ChangeNotifier"]:::usecase
+    end
+    subgraph EN["Entity"]
+        direction TB
+        DocumentModel["DocumentModel"]:::entity
+        TimeAxis["TimeAxis"]:::entity
+        RowLayout["RowLayout"]:::entity
+        AlignmentSolver["AlignmentSolver"]:::entity
+        DetailSelector["DetailSelector"]:::entity
+        DependencyRouter["DependencyRouter"]:::entity
+        ProgressGeometry["ProgressGeometry"]:::entity
+        FitCalculator["FitCalculator"]:::entity
+    end
 
-    H->>C: 命令（誰が出したかを添える）
-    A->>C: 同じ命令（誰が出したかを添える）
-    C->>V: 基準の版と中身を確かめる
-    V-->>C: 受理／拒否
-    Note over C: 拒否なら文書を変えずに値で返す
-    C->>C: 直前の状態を履歴へ積む
-    C->>M: 不変の更新で置き換える
-    C->>C: 版数を 1 つ上げ、最後に書いた者を記す
-    C->>N: 変わったことを知らせる
-    N-->>H: 画面を描き直す
-    N-->>A: 自分以外が確定した変更だけを通知する
+    BrowserDom --> ViewAdapter
+    SingleFileShell --> AgentApi
+    FileSystemAccess --> StorageGateway
+    LocalStorage --> StorageGateway
+
+    ViewAdapter --> CommandExecutor
+    AgentApi --> CommandExecutor
+    StorageGateway --> JsonCodec
+    StorageGateway --> MspdiCodec
+    JsonCodec --> CommandExecutor
+    MspdiCodec --> CommandExecutor
+
+    ViewAdapter --> TimeAxis
+    ViewAdapter --> RowLayout
+    SvgSerializer --> RowLayout
+    SvgSerializer --> DependencyRouter
+    SvgSerializer --> ProgressGeometry
+
+    CommandExecutor --> RevisionGuard
+    CommandExecutor --> ImportValidator
+    CommandExecutor --> UndoHistory
+    CommandExecutor --> ChangeNotifier
+    CommandExecutor --> DocumentModel
+    CommandExecutor --> AlignmentSolver
+    CommandExecutor --> FitCalculator
+
+    RevisionGuard --> DocumentModel
+    UndoHistory --> DocumentModel
+    ChangeNotifier --> DocumentModel
+    RowLayout --> DocumentModel
+    RowLayout --> DetailSelector
+    DependencyRouter --> RowLayout
+    ProgressGeometry --> RowLayout
+    FitCalculator --> RowLayout
+    AlignmentSolver --> DocumentModel
+    TimeAxis --> DocumentModel
+
+    classDef entity fill:#FF8C00,stroke:#333,color:#000
+    classDef usecase fill:#FFD700,stroke:#333,color:#000
+    classDef adapter fill:#90EE90,stroke:#333,color:#000
+    classDef framework fill:#87CEEB,stroke:#333,color:#000
 ```
 
-⚠️ **版数を上げることと知らせることを、この関門の外で行ってはならない（MUST NOT）。** 外で行える経路を 1 本でも作ると、**版数が上がったのに誰も知らない状態**が生まれる。前プロジェクトの共同編集の試作は、受理した書き込みをすべて 1 つの関門に通すことでこれを防いでいた。
+## 2. この図で確かめること
+
+**Type**: SECTION
+
+| 確かめること | 図のどこに出ているか |
+| --- | --- |
+| 書き込みの入口が 1 つであること | `ViewAdapter` と `AgentApi` の矢印が、どちらも `CommandExecutor` へ入る |
+| 書き込みの経路が 1 本であること | `DocumentModel` へ向かう `Use Case` の矢印のうち、値を変えるのは `CommandExecutor` からの 1 本だけである |
+| 描画が書き込みの経路でないこと | `SvgSerializer` の矢印が `Use Case` を通らず `Entity` へ直接入る |
+| 依存が内向きであること | `Entity` から外へ出る矢印が 1 本も無い |
+
+⚠️ **`ChangeNotifier` から `ViewAdapter` と `AgentApi` への通知は、依存の向きと逆なので図に矢印として描いていない。** 実装では**外側が購読する形**にし、内側が外側の型を知らないままにすること（MUST）。順序は 図 F-006 が持つ。

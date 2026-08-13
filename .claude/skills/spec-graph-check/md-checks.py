@@ -6,11 +6,14 @@ run against the Markdown source, because they are about tables and prose,
 which the export flattens away.
 
     5  undefined table reference   "表 T-999" with no "**表 T-999 —" heading
-    6  duplicate row ID            the same row ID defined in two tables
+    6  duplicate definition        the same row ID in two tables, or one
+                                  table number defined twice
     7  row ID reference existence  `X-4` pointing at a row that exists nowhere
     8  pointed-to row exists       "表 T-009 の `X-5`" where T-009 has no X-5
     9  prose count vs table rows   "表 T-0xx の N 件" gone stale
     10 column count in a table     a row with more or fewer cells than the header
+    15 figure reference           "図 F-999" with no "**図 F-999 —" heading,
+                                  or one figure number defined twice
 
 Usage: python md-checks.py [repo-root]
 Exit code 1 if any check reports a finding.
@@ -26,20 +29,16 @@ import collections
 
 ROOT = sys.argv[1] if len(sys.argv) > 1 else '.'
 
-FILES = [
-    'docs/spec/01-04-requirements.md',
-    'docs/spec/_assets/tbl-glossary.md',
-    'docs/spec/_assets/tbl-settings.md',
-    'docs/spec/_assets/tbl-datamodel.md',
-    'docs/spec/_assets/fig-domain-model.md',
-    'docs/spec/_assets/fig-components.md',
-    'docs/spec/05-07-design.md',
-    'docs/spec/08-10-test.md',
-    'docs/spec/A-appendix.md',
-]
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import specindex                                    # noqa: E402
+
+# One source of truth for which files are the specification; specindex
+# finds them rather than listing them, so a new asset cannot be missed.
+FILES = specindex.discover(ROOT)
 
 ROW_ID = re.compile(r'^[A-Z]{1,3}-[0-9]+[a-z]?$')
 TABLE_HEAD = re.compile(r'^\*\*表 (T-[0-9]+[a-z]?) —')
+FIGURE_HEAD = re.compile(r'^\*\*図 (F-[0-9]+[a-z]?) —')
 SEPARATOR = re.compile(r'^\|[\s:|-]+\|\s*$')
 UID_LINE = re.compile(r'^\*\*UID\*\*:\s*(\S+)')
 
@@ -88,6 +87,10 @@ for rel in FILES:
         if m:
             current = m.group(1)
             header_cols = None
+            if current in tables:
+                prev = tables[current]
+                report('6', rel, i, 'table %s already defined at %s:%s'
+                       % (current, prev['file'], prev['line']))
             tables[current] = {'rows': [], 'file': rel, 'line': i, 'nrows': 0}
             continue
         if line.startswith('|'):
@@ -183,6 +186,33 @@ for rel, lines in lines_by_file.items():
                 report('9', rel, i, 'prose says %s %s of %s, table has %d rows'
                        % (num, unit, tid, actual))
 
+# ---------------------------------------------------------------- check 15
+
+# Figures obey the same seat-number rule as tables (1.9): a reference must
+# resolve, and one number must be defined exactly once. Check 5 only ever
+# looked at tables, so figures were unguarded.
+figures = {}
+for rel, lines in lines_by_file.items():
+    for i, line in enumerate(lines, 1):
+        m = FIGURE_HEAD.match(line)
+        if m:
+            figures.setdefault(m.group(1), []).append((rel, i))
+
+for fid, where in sorted(figures.items()):
+    if len(where) > 1:
+        spots = ', '.join('%s:%s' % w for w in where)
+        report('15', where[0][0], where[0][1],
+               'figure %s defined %d times (%s)' % (fid, len(where), spots))
+
+ref_figure = re.compile(r'図 (F-[0-9]+[a-z]?)')
+for rel, lines in lines_by_file.items():
+    for i, line in enumerate(lines, 1):
+        if FIGURE_HEAD.match(line):
+            continue
+        for f in ref_figure.findall(line):
+            if f not in figures:
+                report('15', rel, i, 'reference to undefined figure %s' % f)
+
 # ---------------------------------------------------------------- output
 
 for f in sorted(findings):
@@ -202,8 +232,9 @@ if orphan:
                                        ' '.join(d['rows'])))
     print('')
 
-for c in ['5', '6', '7', '8', '9', '10']:
+for c in ['5', '6', '7', '8', '9', '10', '15']:
     print('check %-2s : %d' % (c, by_check.get(c, 0)))
-print('tables=%d  rows=%d  uids=%d' % (len(tables), len(all_rows), len(uids)))
+print('tables=%d  figures=%d  rows=%d  uids=%d'
+      % (len(tables), len(figures), len(all_rows), len(uids)))
 
 sys.exit(1 if findings else 0)

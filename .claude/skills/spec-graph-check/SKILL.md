@@ -5,7 +5,7 @@ description: Mechanical checks and graph-based impact analysis for the gr-schedu
 
 # Specification checks and impact analysis
 
-Fourteen mechanical checks plus a dependency-graph toolkit for `docs/spec`.
+Fifteen mechanical checks plus a dependency-graph toolkit for `docs/spec`.
 
 **Green proves references resolve. It does not prove the specification agrees
 with itself.** Across eight review rounds, every Critical defect appeared
@@ -18,8 +18,8 @@ graph to decide *how* to edit; neither replaces reading.
 bash .claude/skills/spec-graph-check/check.sh
 ```
 
-Output goes to `scratch/spec-check/` (gitignored). Checks 1–12 are gates;
-13 and 14 are advisory counts that should trend down.
+Output goes to `scratch/spec-check/` (gitignored). Checks 1–12 and 15 are
+gates; 13 and 14 are advisory counts that should trend down.
 
 ## The one rule that matters most
 
@@ -138,6 +138,11 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 - When resolving a contradiction, the reflex is to write the same explanation
   into both places. That is the single most common way new duplication is
   created. Decide one owner; the other side points.
+- **A new `_assets/*.md` is invisible until it is registered.** `specindex.py`
+  and `md-checks.py` each hold a hardcoded `FILES` list. `tbl-datamodel.md`
+  was reported green by checks 5–10 for a whole session before anyone
+  noticed they had never read it. Add the path to **both** lists, then
+  confirm the `tables=` / `figures=` counters move.
 - Do not renumber. `FR-xxx` / `T-xxx` / row IDs are seat numbers, and gaps are
   correct (`FR-050` is retired on purpose). Before adding a settings key,
   check the whole `S-` range — the highest number is not always free.
@@ -168,7 +173,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 | --- | --- |
 | `check.sh` | all 14 checks |
 | `specindex.py` | shared parser: tables, rows, owners, references |
-| `md-checks.py` | checks 5–10 (Markdown structure) |
+| `md-checks.py` | checks 5–10 and 15 (Markdown structure, figure seat numbers) |
 | `style-checks.py` | checks 12–14 (recurring defect types) |
 | `impact.py` | blast radius for one object, two hops |
 | `graph.py` | cycles, depth measurement, unit partition |

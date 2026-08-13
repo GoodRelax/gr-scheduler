@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# All 14 mechanical checks for the gr-scheduler specification.
+# All 15 mechanical checks for the gr-scheduler specification.
 #
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
 #   5-10   Markdown source (md-checks.py) : undefined table reference,
 #          duplicate row ID, row ID reference existence, pointed-to row
 #          exists, prose count vs table rows, column count
+#   15     Figure seat numbers (md-checks.py) : a reference to a figure that
+#          is never defined, or one figure number defined twice
 #   12-14  Recurring defect types (style-checks.py) : a rule sitting in a
 #          value or name table (gate), a transfer leftover (advisory), a
 #          value written twice (advisory)
@@ -67,7 +69,7 @@ jq -r '([.DOCUMENTS[] | recurse(.NODES[]?)
     + (if ($gap|length)==0 then "none" else ($gap|map(tostring)|join(",")) end)' "$J"
 
 echo ""
-echo "===== 5-10  Markdown source ====="
+echo "===== 5-10, 15  Markdown source ====="
 python "$HERE/md-checks.py" "$REPO" || fail=1
 
 echo ""
