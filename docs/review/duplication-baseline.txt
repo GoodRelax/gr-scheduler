@@ -1,12 +1,9 @@
-01-04-requirements.md/FR-020 + 01-04-requirements.md/FR-024 + 01-04-requirements.md/FR-026 + 01-04-requirements.md/FR-039 + 01-04-requirements.md/FR-054 + 01-04-requirements.md/NFR-007 + 01-04-requirements.md/T:T-012a + 01-04-requirements.md/T:T-014 ST-7 + 01-04-requirements.md/T:T-018 + 01-04-requirements.md/T:T-020a + 01-04-requirements.md/T:T-021a + 01-04-requirements.md/T:T-023d + tbl-glossary.md/T:T-103 U-37
 01-04-requirements.md/T:T-006 E-2 + 01-04-requirements.md/T:T-006 E-3 + 01-04-requirements.md/T:T-006 E-6
-01-04-requirements.md/UC-012 + 01-04-requirements.md/UC-013
 01-04-requirements.md/T:T-011 V-12 + 01-04-requirements.md/T:T-011 V-12a
 01-04-requirements.md/FR-048 + 01-04-requirements.md/FR-054
 01-04-requirements.md/T:T-016 PR-12 + tbl-glossary.md/T:T-102 P-18
 01-04-requirements.md/T:T-016 PR-13 + tbl-glossary.md/T:T-102 P-20
 tbl-glossary.md/T:T-104 K-28 + tbl-glossary.md/T:T-104 K-29
-01-04-requirements.md/T:T-032 MG-7 + 01-04-requirements.md/UC-010
 01-04-requirements.md/T:T-016 PR-14 + tbl-glossary.md/T:T-102 P-21
 tbl-glossary.md/T:T-104 K-41 + tbl-glossary.md/T:T-104 K-42
 01-04-requirements.md/NFR-004 + 01-04-requirements.md/NFR-005

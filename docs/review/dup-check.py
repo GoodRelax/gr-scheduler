@@ -141,7 +141,7 @@ def group(units, pairs):
     return out
 
 
-POINTER = re.compile(r'(が持つ|に従う|が定める)')
+POINTER = re.compile(r'(が持つ|として持つ|に従|が定める|に置く)')
 NAME_TABLE = re.compile(r'^T:T-10[0-5]')     # glossary: names are authoritative
 VALUE_TABLE = re.compile(r'^T:T-2[0-9]{2}')  # settings: values are authoritative
 
