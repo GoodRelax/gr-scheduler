@@ -46,7 +46,7 @@
 | P-8 | `percentComplete` | 完了率 |
 | P-9 | `deadline` | 期限 |
 | P-10 | `shapeKind` | タスク形状（5 値。`'milestone'` のときだけ `milestoneGlyph` を見る） |
-| P-11 | `'rectangle'` | 矩形（`===`） |
+| P-11 | `'rectangle'` | 矩形（`===`）。**ASCII 表記の正は本表である** |
 | P-12 | `'chevron'` | 矢羽根（`>===>`）。直訳ではない。例外は表 T-105 |
 | P-13 | `'arrow'` | 矢印（`--->`） |
 | P-14 | `'endpointSpan'` | 端点スパン（`*----*`）。「端点」と略さない |
@@ -142,11 +142,11 @@
 | K-10 | 縦の寸法 | `actualGap` | 予定から実績までの間隔（下に置くとき） |
 | K-11 | 縦の寸法 | `stackGap` | 段の間隔 |
 | K-12 | 縦の寸法 | `rowGap` | 行の間隔 |
-| K-13 | 形状の縦幅 | `shapeHeightOf.rectangle` | 矩形（`===`） |
-| K-14 | 形状の縦幅 | `shapeHeightOf.chevron` | 矢羽根（`>===>`） |
-| K-15 | 形状の縦幅 | `shapeHeightOf.arrow` | 矢印（`--->`） |
-| K-16 | 形状の縦幅 | `shapeHeightOf.endpointSpan` | 端点スパン（`*----*`） |
-| K-17 | 形状の縦幅 | `shapeHeightOf.milestone` | マイルストーン（◇） |
+| K-13 | 形状の縦幅 | `shapeHeightOf.rectangle` | 矩形 |
+| K-14 | 形状の縦幅 | `shapeHeightOf.chevron` | 矢羽根 |
+| K-15 | 形状の縦幅 | `shapeHeightOf.arrow` | 矢印 |
+| K-16 | 形状の縦幅 | `shapeHeightOf.endpointSpan` | 端点スパン |
+| K-17 | 形状の縦幅 | `shapeHeightOf.milestone` | マイルストーン |
 | K-18 | 依存線 | `dependencyWidth` | 太さ |
 | K-19 | 依存線 | `dependencyArrowLength` | 矢印の三角形の長さ |
 | K-20 | 依存線 | `dependencyRunOfArrow` | 入口の走り ÷ 三角形 |
@@ -229,6 +229,11 @@
 | K-99 | 保存と上限 | `importMaxDepth` | WBS のネストの深さの上限 |
 | K-100 | 画面の寸法 | `appHeaderMaxHeight` | `App Header` の高さの上限 |
 | K-101 | 透かし | `watermarkOpacity` | 透かしの濃さ |
+| K-102 | 構造の上限 | `maxGroupDepth` | `TaskGroup` の深さの上限 |
+| K-103 | 保存と上限 | `importMinDate` / `importMaxDate` | 受け入れる日付の範囲 |
+| K-104 | 依存線 | `dependencyLagDefault` | 依存を作ったときに置くラグ |
+| K-105 | 文字サイズ | `fontScaleSizes.S` / `fontScaleSizes.M` / `fontScaleSizes.L` | 文字サイズの 3 段の px |
+| K-106 | 画面の寸法 | `iconHintDelayMs` | アイコンの説明を出すまでの待ち時間 |
 | K-90 | 保存しないもの（別枠） | `language` ⛔ | 表示言語（`ja` / `en`）。置き場と規則は表 T-206 の `S-99` |
 
 **キーに関する規約:**
