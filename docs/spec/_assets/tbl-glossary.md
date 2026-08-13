@@ -80,7 +80,7 @@
 | U-11 | `Status Line` | 基準線。`Project.status_date` の位置に引く縦線（`FR-046`）。⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる |
 | U-12 | `Dual Cursor` | デュアルカーソル |
 | U-13 | `Guide Cursor` | ガイドカーソル |
-| U-14 | `Comment Boxes` | コメントボックス |
+| U-14 | `Comment Boxes` | コメントボックス。⚠️ **「コメント」と略さない（MUST NOT）** —— 本文だけを指すのか器を指すのかが読めなくなる。本文は「コメントボックスの本文」と書く |
 | U-15 | `Highlight Boxes` | ハイライトボックス。**「囲み枠」と呼んではならない（MUST NOT）** |
 | U-15a | `Annotations` | **注記**。コメントボックスとハイライトボックスをまとめて指す上位語 |
 | U-16 | `Dependency Lines` | 依存線 |
@@ -94,7 +94,7 @@
 | U-24 | `Panel Divider` | パネル境界 |
 | U-25 | `Properties Panel` | プロパティパネル |
 | U-26 | `Command Palette` | コマンドパレット |
-| U-27 | `Schedule Title` | 文書名 |
+| U-27 | `Schedule Title` | 文書名。MSPDI の `Project/Title` に対応する。⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す |
 | U-28 | `Autosave Status` | 自動保存の状態 |
 | U-29 | `Hidden Group Tab` | 非表示グループタブ |
 | U-30 | `Help Modal` / `AI Export Modal` | ヘルプ / AI 出力 |
