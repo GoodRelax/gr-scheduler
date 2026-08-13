@@ -77,7 +77,7 @@
 | U-8 | `Assignee Label` | 担当ラベル |
 | U-9 | `Progress Line` | イナズマ線。直訳ではない。例外は表 T-105 |
 | U-10 | `Cursors` | カーソル |
-| U-11 | `Today Line` | 本日線 |
+| U-11 | `Status Line` | 基準線。`Project.status_date` の位置に引く縦線（`FR-046`）。⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる |
 | U-12 | `Dual Cursor` | デュアルカーソル |
 | U-13 | `Guide Cursor` | ガイドカーソル |
 | U-14 | `Comment Boxes` | コメントボックス |
