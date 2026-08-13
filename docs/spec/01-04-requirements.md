@@ -117,7 +117,7 @@
 | SO-2 | In-scope | 予定と実績の管理・表示。進捗の可視化 |
 | SO-3 | In-scope | タスク間の依存関係の表現と自動配線 |
 | SO-4 | In-scope | 注記・強調・カーソル・透かし |
-| SO-5 | In-scope | JSON と MSPDI XML の双方向 Import / Export。複数 MSPDI の合流 |
+| SO-5 | In-scope | JSON と MSPDI XML の双方向 Import / Export。複数ファイルの合流（形式は問わない） |
 | SO-6 | In-scope | SVG と PNG の出力 |
 | SO-7 | In-scope | 人間向け UI と同格の `Agent API` |
 | SO-8 | Out-of-scope | 資源管理（工数・割当率・稼働率）。ただし担当者の表示と割当の追加・編集・解除は行う |
@@ -2426,7 +2426,7 @@ flowchart LR
 
 **「Excel 互換のため BOM を付ける」実装を入れてはならない（MUST NOT）** —— MSPDI が壊れる。ブラウザのファイル API は既定で BOM を付けないので、何もしなければ正しい。
 
-#### 複数の MSPDI を合流させる
+#### 複数のファイルを合流させる
 
 **Type**: FUNC_REQ
 **UID**: FR-022
