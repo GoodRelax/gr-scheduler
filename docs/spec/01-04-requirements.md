@@ -441,24 +441,24 @@ flowchart LR
 
 | 行 ID | ユースケース | 吸収した要望の項番 | 主なアクター |
 | --- | --- | --- | --- |
-| V-1 | UC-001 タスクを置いて期間を決める | [10](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [12](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [13](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [15](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [17](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [18](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [30](../../previous-project-result/user-order.md#行と階層) / [31](../../previous-project-result/user-order.md#行と階層) | AC-1 |
-| V-2 | UC-002 行を階層で組み立てる | [26](../../previous-project-result/user-order.md#行と階層) / [27](../../previous-project-result/user-order.md#行と階層) / [28](../../previous-project-result/user-order.md#行と階層) / [29](../../previous-project-result/user-order.md#行と階層) | AC-1 |
-| V-3 | UC-003 タスクの属性を編集する | [16](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [19](../../previous-project-result/user-order.md#プロパティ) / [20](../../previous-project-result/user-order.md#プロパティ) / [21](../../previous-project-result/user-order.md#プロパティ) / [22](../../previous-project-result/user-order.md#プロパティ) / [23](../../previous-project-result/user-order.md#色) / [24](../../previous-project-result/user-order.md#色) / [25](../../previous-project-result/user-order.md#色) / [69](../../previous-project-result/user-order.md#プロパティ) | AC-1 |
-| V-4 | UC-004 タスク間の依存を示す | [46](../../previous-project-result/user-order.md#依存関係) / [47](../../previous-project-result/user-order.md#依存関係) / [48](../../previous-project-result/user-order.md#依存関係) / [49](../../previous-project-result/user-order.md#依存関係) | AC-1 |
-| V-5 | UC-005 実績を記録する | [50](../../previous-project-result/user-order.md#予定と実績) / [51](../../previous-project-result/user-order.md#予定と実績) | AC-1 |
-| V-6 | UC-006 遅れを見つける | [53](../../previous-project-result/user-order.md#予定と実績) / [54](../../previous-project-result/user-order.md#予定と実績) | AC-2 |
-| V-7 | UC-007 見たい範囲を出す | [6](../../previous-project-result/user-order.md#画面) / [7](../../previous-project-result/user-order.md#画面) / [8](../../previous-project-result/user-order.md#画面) / [9](../../previous-project-result/user-order.md#画面) / [32](../../previous-project-result/user-order.md#時間軸ズーム) / [33](../../previous-project-result/user-order.md#時間軸ズーム) / [34](../../previous-project-result/user-order.md#時間軸ズーム) / [35](../../previous-project-result/user-order.md#時間軸ズーム) / [36](../../previous-project-result/user-order.md#時間軸ズーム) / [37](../../previous-project-result/user-order.md#時間軸ズーム) / [38](../../previous-project-result/user-order.md#時間軸ズーム) / [39](../../previous-project-result/user-order.md#時間軸ズーム) / [40](../../previous-project-result/user-order.md#カーソル) / [41](../../previous-project-result/user-order.md#カーソル) / [42](../../previous-project-result/user-order.md#カーソル) / [43](../../previous-project-result/user-order.md#カーソル) / [64](../../previous-project-result/user-order.md#入出力) | AC-2 |
+| V-1 | UC-001 タスクを置いて期間を決める | [10](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [15](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [17](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [18](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [30](../../previous-project-result/user-order.md#行と階層)（一部） / [31](../../previous-project-result/user-order.md#行と階層)（一部） | AC-1 |
+| V-2 | UC-002 行を階層で組み立てる | [26](../../previous-project-result/user-order.md#行と階層) / [27](../../previous-project-result/user-order.md#行と階層) / [28](../../previous-project-result/user-order.md#行と階層) | AC-1 |
+| V-3 | UC-003 タスクの属性を編集する | [12](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [13](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [16](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [19](../../previous-project-result/user-order.md#プロパティ) / [20](../../previous-project-result/user-order.md#プロパティ) / [21](../../previous-project-result/user-order.md#プロパティ) / [22](../../previous-project-result/user-order.md#プロパティ) / [23](../../previous-project-result/user-order.md#色) / [24](../../previous-project-result/user-order.md#色) / [25](../../previous-project-result/user-order.md#色) / [69](../../previous-project-result/user-order.md#プロパティ) | AC-1 |
+| V-4 | UC-004 タスク間の依存を示す | [46](../../previous-project-result/user-order.md#依存関係) / [47](../../previous-project-result/user-order.md#依存関係)（**表 T-026 の `RC-6` により 2 種へ縮小**） / [48](../../previous-project-result/user-order.md#依存関係) / [49](../../previous-project-result/user-order.md#依存関係) | AC-1 |
+| V-5 | UC-005 実績を記録する | [50](../../previous-project-result/user-order.md#予定と実績) / [51](../../previous-project-result/user-order.md#予定と実績) / [39](../../previous-project-result/user-order.md#時間軸ズーム)（暦。`FR-054`） / [52](../../previous-project-result/user-order.md#予定と実績)（**モード切替のみ取り下げ。重ね順と局所分離は `FR-011` と表 T-020 が受ける**） | AC-1 |
+| V-6 | UC-006 遅れを見つける | [53](../../previous-project-result/user-order.md#予定と実績) / [54](../../previous-project-result/user-order.md#予定と実績) / [40](../../previous-project-result/user-order.md#カーソル)（基準日線。`FR-046`） | AC-2 |
+| V-7 | UC-007 見たい範囲を出す | [6](../../previous-project-result/user-order.md#画面)（6-1・6-2 のみ） / [8](../../previous-project-result/user-order.md#画面) / [9](../../previous-project-result/user-order.md#画面) / [29](../../previous-project-result/user-order.md#行と階層) / [32](../../previous-project-result/user-order.md#時間軸ズーム) / [33](../../previous-project-result/user-order.md#時間軸ズーム) / [34](../../previous-project-result/user-order.md#時間軸ズーム) / [35](../../previous-project-result/user-order.md#時間軸ズーム) / [36](../../previous-project-result/user-order.md#時間軸ズーム)（**素の左ドラッグは範囲選択へ変更。パンは `Ctrl`・中ボタン・スクロールバーに残す**） / [37](../../previous-project-result/user-order.md#時間軸ズーム) / [38](../../previous-project-result/user-order.md#時間軸ズーム) / [41](../../previous-project-result/user-order.md#カーソル) / [42](../../previous-project-result/user-order.md#カーソル) / [43](../../previous-project-result/user-order.md#カーソル) | AC-2 |
 | V-8 | UC-008 注記で伝える | [44](../../previous-project-result/user-order.md#注記強調) / [45](../../previous-project-result/user-order.md#注記強調) | AC-1 |
 | V-9 | UC-009 秘密の日程を画面に出す | [55](../../previous-project-result/user-order.md#透かし) | AC-1 / AC-2 |
-| V-10 | UC-010 外部 WBS マスタとやりとりする | [56](../../previous-project-result/user-order.md#入出力) / [61](../../previous-project-result/user-order.md#入出力) / [62](../../previous-project-result/user-order.md#入出力) | AC-1 / AC-4 |
+| V-10 | UC-010 外部 WBS マスタとやりとりする | [56](../../previous-project-result/user-order.md#入出力) / [62](../../previous-project-result/user-order.md#入出力) | AC-1 / AC-4 |
 | V-11 | UC-011 文書を保存して配る | [57](../../previous-project-result/user-order.md#入出力) / [58](../../previous-project-result/user-order.md#入出力) / [59](../../previous-project-result/user-order.md#入出力) / [60](../../previous-project-result/user-order.md#入出力) / [63](../../previous-project-result/user-order.md#入出力) | AC-1 |
-| V-11a | UC-014 複数の日程を 1 つにまとめる | **`V-10` の項 56 から分けたもの**（合流は形式に依らなくなり、`UC-010` にも `UC-011` にも属さなくなったため。2026-08-13）。要望の項番は `V-10` が持つ | AC-1 |
+| V-11a | UC-014 複数の日程を 1 つにまとめる | [61](../../previous-project-result/user-order.md#入出力)（**`V-10` から分けたもの。** 合流は形式に依らなくなり、`UC-010` にも `UC-011` にも属さなくなったため。2026-08-13） | AC-1 |
 | V-12 | UC-012 AI エージェントに編集させる | （要望の項番に対応するものは無い。前プロジェクトの AI 共同編集トライアルの成果から起こした） | AC-3 |
 | V-12a | UC-013 AI と相談しながら日程を直す | （要望の項番に対応するものは無い。前プロジェクトの AI 共同編集トライアルの成果から起こした） | AC-1 / AC-3 |
 | V-13a | （ユースケースを持たない項番。将来の拡張） | [65](../../previous-project-result/user-order.md#作り方の原則)（5 つ。`NFR-012` が受ける） | — |
-| V-13 | （ユースケースを持たない項番） | [1](../../previous-project-result/user-order.md#最優先事項ここを外すと作る意味がない) 〜 [5](../../previous-project-result/user-order.md#最優先事項ここを外すと作る意味がない)（最優先事項）／ [66](../../previous-project-result/user-order.md#作り方の原則) / [67](../../previous-project-result/user-order.md#作り方の原則) / [68](../../previous-project-result/user-order.md#作り方の原則)（作り方の原則）／ [11](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [14](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [52](../../previous-project-result/user-order.md#予定と実績)（欠番） | — |
+| V-13 | （ユースケースを持たない項番） | [1](../../previous-project-result/user-order.md#最優先事項ここを外すと作る意味がない) 〜 [5](../../previous-project-result/user-order.md#最優先事項ここを外すと作る意味がない)（最優先事項）／ [66](../../previous-project-result/user-order.md#作り方の原則) / [67](../../previous-project-result/user-order.md#作り方の原則) / [68](../../previous-project-result/user-order.md#作り方の原則)（作り方の原則）／ [6](../../previous-project-result/user-order.md#画面)（6-3 〜 6-6。**`GL-006` 配下の横断要求が受ける**） / [7]（コマンドパレットの薄さ。`FR-053`） / [64]（ショートカット。`FR-070`）／ [11](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [14](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) / [52](../../previous-project-result/user-order.md#予定と実績)（欠番） | — |
 
-> **V-13 は取りこぼしではない。** 最優先事項のうち **1 〜 4 は目標**として Chapter 1.3 が、**5（WYSIWYG）は `FR-080`** が受ける（同要求の `ORIGIN` がそう宣言している）。作り方の原則は**表記と命名の規約**として Chapter 1.9 が、**層の分離**は制約として表 T-003 の CN-9 が、**提案すること（項 68）**は製品への要求ではなく進め方なので Chapter 1.4 が受ける。欠番 3 件は要望として取り下げられたものである。
+> **V-13 は取りこぼしではない。** 最優先事項のうち **1 〜 4 は目標**として Chapter 1.3 が、**5（WYSIWYG）は `FR-080`** が受ける（同要求の `ORIGIN` がそう宣言している）。作り方の原則は**表記と命名の規約**として Chapter 1.9 が、**層の分離**は制約として表 T-003 の CN-9 が、**提案すること（項 68）**は製品への要求ではなく**進め方**なので、仕様書のどの要求も受けない —— 本プロジェクトの進め方として、レビューのたびに提案を出すことで果たす。⚠️ **受け手を要求側に作らないこと（MUST NOT）** —— 製品の振る舞いではないので、要求に置くと検証できない項目が増える。欠番 3 件のうち [11](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) と [14](../../previous-project-result/user-order.md#アイテムタスク--マイルストーン) は取り下げられたもの、[52](../../previous-project-result/user-order.md#予定と実績) は本文の決定が生きている（`V-5` を見よ）。
 >
 > ⚠️ **将来の拡張（項 65）にユースケースを立てないのは、いま作らないものにユースケースを立てないという判断である**（受け手は `NFR-012`。行は `V-13a`）。
 
@@ -484,8 +484,12 @@ flowchart LR
 - 2a. ドラッグの幅が 1 日に満たない。
   - タスク形状を構えているなら、システムは**開始日と終了日が同じタスク**を作る。マイルストーンには変えない。
   - マイルストーン形状を構えているなら、システムはその日のマイルストーンを作る。
+- 3a. 作成者が既存のタスクを複製して隣へ置く。
+  - システムは複製を作り、複製したことが分かる位置に置く。
 - 4a. 名称が形状の幅に収まらない。
   - システムは表示だけを打ち切り、全文をツールチップで出す。データは切らない。
+- 4b. 作成者が名称ラベルの位置をずらす。
+  - システムは指定を保持し、以後その位置に置く。
 - 5a. 積み順が安全弁の上限に達した。
   - システムは積むのをやめ、上限に達したことを作成者に知らせる。
 
@@ -1180,7 +1184,7 @@ flowchart LR
 | ST-3 | 各 `Task` を、その段の既存 `Task` と重ならない**最も浅い段**へ置く（貪欲割当） |
 | ST-4 | **マイルストーンを特別扱いしない。** 1 か所へ集めたいときは、人が専用の行を作る（`FR-085`） |
 | ST-5 | 積む向きは文書全体で選ぶ（`stackDirection`。既定は表 T-202 の `S-58`） |
-| ST-6 | **積み順は自動割当のみとし、人が段を手で指定する手段を設けない（MUST NOT）** —— 日付が動くたびに破綻する指定であり、ST-2 の決定的な順序があれば足りる |
+| ST-6 | **積み順は自動割当のみとし、人が段を手で指定する手段を設けない（MUST NOT）。** ⚠️ **要望 30-6「人が `stackOrder` を指定したら優先する」を取り下げた結果である**（表 T-011 の `V-1`） —— 日付が動くたびに破綻する指定であり、ST-2 の決定的な順序があれば足りる |
 | ST-7 | 段数に機能上の上限を設けない。**ただし 1 つの `TaskGroup` あたりの段数に安全弁を置き、達したらエラーを出して処理を止めること（MUST）。** 黙って切り捨てても、重ねて押し込んでもならない（MUST NOT）。**数えるのは、その `TaskGroup` の行に載っている `Task` が同時に重なる段数である**（取込で載せたもの（`FR-058`）を含む）—— 畳んだ配下は描かないので（表 T-015 の `HR-1a`）、畳みで段数が増えることはない。⚠️ **人が置いたものに限ってはならない（MUST NOT）** —— 段が最も膨らむのは深い WBS を取り込んだときであり、そこで安全弁が働かなくなる。段数は `_assets/tbl-settings.md` の `S-89` が持つ |
 | ST-8 | **最終段を再利用して重なりを許す挙動を実装してはならない（MUST NOT）** |
 | ST-9 | 行の帯高は段数で決まる。**行高固定を前提にしてはならない（MUST NOT）** |
