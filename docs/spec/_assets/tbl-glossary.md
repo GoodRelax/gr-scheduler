@@ -237,7 +237,7 @@
 - **`palette` を設定値の名前に使わないこと（MUST NOT）。** `Command Palette` / `Palette Groups` / `Palette Commands` が既にあり、同じ語が別のものを指すことになる。
 - **スクロール位置の名前は `scrollDate` と `scrollGroupId` とし、`scrollX` / `scrollY` にしない。** px で持たない規則と理由は `FR-080` が持つ。
 - **時間軸のしきい値は 1 つの配列にせず、境目ごとに別のキーとして名づける。** キーは表 T-205 の `S-83` 〜 `S-85`。まとめない規則と理由は `FR-017` が持つ。
-- **基準日は設定値ではない。** `Project.status_date` として文書のデータが持つ。
+- 基準日の名前は `Project.status_date`。設定値ではないという規則と理由は `FR-046` が持つ。
 
 ## 5. 直訳しない語
 
