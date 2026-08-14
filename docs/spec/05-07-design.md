@@ -75,7 +75,7 @@ graph RL
 
 **Type**: SECTION
 
-**部品を 表 T-062 に、全体を 図 F-013 に、経路ごとの詳細を 図 F-014 〜 図 F-017 に示す**（`_assets/fig-components.md`）。層の定義と依存の規則は 5.1 が持つ。
+**部品を 表 T-062 に、全体を 図 F-013 に、経路ごとの詳細を 図 F-014 〜 図 F-017 に示す**（`_assets/fig-components.md`）。層の定義と依存の規則は 5.1 が持つ。 → [LINK: DOC-FIG-COMPONENTS]
 
 **部品はすべて機器 `D-1` に載る。** 表 T-007 で「対象ソフトが載る」機器は `D-1` だけであり、`D-2` 〜 `D-5` に載る部品は 1 つも無い。
 
@@ -137,7 +137,7 @@ graph RL
 
 **Type**: SECTION
 
-**文書の全体像を 図 F-010 に、エンティティを 表 T-056 に示す**（`_assets/fig-erd-overview.md`）。
+**文書の全体像を 図 F-010 に、エンティティを 表 T-056 に示す**（`_assets/fig-erd-overview.md`）。 → [LINK: DOC-FIG-ERD-OVERVIEW]
 **ルートを日程データの群・見せ方の群・文書の刻印に分ける規則は 表 T-052 が、交換相手の木をそのまま持つ規則は 表 T-053 が持つ。**
 
 **縦の並びを決める軸が 2 本ある。** 一方は WBS で、`Task.wbsParentUid` が持ち、深さに上限を課さず、
@@ -182,7 +182,7 @@ graph RL
 
 **交換相手のスキーマからの引用は、表 T-003 の `CN-7` に従うこと。** 本ソフトウェアが実際に読み書きする要素名と列挙値だけを、出典つきで引く。**正は公式 XSD**（`https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd`）であり、**事実はローカル複製（`docs/reference/mspdi/mspdi_pj12.xsd`）で確かめる**（`docs/reference/README.md`）。
 
-**列と関係の全数を 図 F-011・表 T-057・表 T-058 に示す**（`_assets/fig-erd-detail.md`）。
+**列と関係の全数を 図 F-011・表 T-057・表 T-058 に示す**（`_assets/fig-erd-detail.md`）。 → [LINK: DOC-FIG-ERD-DETAIL]
 **文書が持たず、書き出すときに作る値は 表 T-059 が持つ。** 概念と 2 本の軸は Chapter 5.4 が持つ。
 
 **永続ストアは持たない**（Chapter 2.4 の表 T-009 の `XO-3`）。

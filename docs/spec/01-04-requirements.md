@@ -459,7 +459,7 @@ flowchart LR
 
 **表 T-011 — ユースケースと要望の対応**
 
-**項番はすべて要望の入力（[`user-order.md`](../../previous-project-result/user-order.md)）の該当節へのリンクである。**
+**項番はすべて要望の入力（[`user-order.md`](../../previous-project-result/user-order.md)）の該当節へのリンクである。** ⚠️ **このリンクが解決するのは `.md` を直に読むときだけである** —— 宛先は `docs/spec` の外にあり、StrictDoc は `_assets/` の外を出力へ複製しないので、書き出した HTML では開けない。
 
 | 行 ID | ユースケース | 吸収した要望の項番 | 主なアクター |
 | --- | --- | --- | --- |
