@@ -1,0 +1,352 @@
+{
+ "title": "gr-scheduler components by layer",
+ "options": {
+  "engine": "cluster-dot",
+  "direction": "TB",
+  "column_width": 210,
+  "node_separation": 0.5,
+  "rank_separation": 3.0
+ },
+ "nodes": [
+  {
+   "name": "SingleHtmlShell",
+   "shape": "component",
+   "description": "Boots the page, wires every part together, holds the embedded-document slot and installs the exposure point.",
+   "remark": "FR-067 / FR-065"
+  },
+  {
+   "name": "DomSvgSurface",
+   "shape": "component",
+   "description": "Puts the SVG string on screen.",
+   "remark": "implements SvgSurface"
+  },
+  {
+   "name": "DomInputSource",
+   "shape": "component",
+   "description": "Delivers pointer and keyboard events.",
+   "remark": "implements InputSource"
+  },
+  {
+   "name": "FileSystemAccessFileStore",
+   "shape": "component",
+   "description": "Reads and writes files and keeps the handle.",
+   "remark": "implements FileStore / FR-060"
+  },
+  {
+   "name": "LocalStorageDocumentStore",
+   "shape": "component",
+   "description": "Stores and restores the autosaved document.",
+   "remark": "implements DocumentStore / FR-026"
+  },
+  {
+   "name": "BrowserClipboard",
+   "shape": "component",
+   "description": "Writes to the clipboard.",
+   "remark": "implements Clipboard / FR-033"
+  },
+  {
+   "name": "CanvasRasterizer",
+   "shape": "component",
+   "description": "Turns SVG into a raster image.",
+   "remark": "implements Rasterizer / FR-025"
+  },
+  {
+   "name": "AgentApiEndpoint",
+   "shape": "component",
+   "description": "Installs Agent API. Not exposed by default. Seventeen flat members.",
+   "remark": "FR-028 / FR-065 / T-035"
+  },
+  {
+   "name": "InputCommandTranslator",
+   "shape": "component",
+   "description": "Turns pointer and keyboard input into one operation. Declares InputSource.",
+   "remark": "FR-016 / FR-070"
+  },
+  {
+   "name": "SvgRenderer",
+   "shape": "component",
+   "description": "Builds the SVG string from geometry, then hands it over. Declares SvgSurface.",
+   "remark": "pure core / FR-080"
+  },
+  {
+   "name": "DocumentCodec",
+   "shape": "component",
+   "description": "Converts between the document and JSON or MSPDI.",
+   "remark": "FR-024 / FR-021 / FR-056 / FR-057"
+  },
+  {
+   "name": "ImageExporter",
+   "shape": "component",
+   "description": "Produces the image output. Declares Rasterizer.",
+   "remark": "FR-025"
+  },
+  {
+   "name": "FileGateway",
+   "shape": "component",
+   "description": "Opens and overwrites the document file. Declares FileStore.",
+   "remark": "FR-060 / T-024"
+  },
+  {
+   "name": "AutosaveGateway",
+   "shape": "component",
+   "description": "Saves at the idle boundary and offers recovery. Declares DocumentStore.",
+   "remark": "FR-026 / FR-061"
+  },
+  {
+   "name": "ClipboardGateway",
+   "shape": "component",
+   "description": "Sends the document or the picture out. Declares Clipboard.",
+   "remark": "FR-033 / FR-068"
+  },
+  {
+   "name": "ApplyDocumentChange",
+   "shape": "component",
+   "description": "The only write path. Checks the stamp, applies all or nothing, records history, advances the revision, notifies.",
+   "remark": "MS-1 / FR-028 / AG-2 / AG-3 / FR-031 / FR-063"
+  },
+  {
+   "name": "EditDocument",
+   "shape": "component",
+   "description": "One pure operation per aggregate: task, group, dependency, annotation, resource, calendar, project, settings.",
+   "remark": "T-027"
+  },
+  {
+   "name": "ImportDocument",
+   "shape": "component",
+   "description": "Takes in a document and merges it.",
+   "remark": "FR-087 / FR-022"
+  },
+  {
+   "name": "UndoEdit",
+   "shape": "component",
+   "description": "Steps the history back by one.",
+   "remark": "FR-031"
+  },
+  {
+   "name": "RedoEdit",
+   "shape": "component",
+   "description": "Steps the history forward by one.",
+   "remark": "FR-031"
+  },
+  {
+   "name": "ValidateImportedDocument",
+   "shape": "component",
+   "description": "Checks untrusted input. Shared by every intake path.",
+   "remark": "FR-023 / NFR-009"
+  },
+  {
+   "name": "ChooseStartupDocument",
+   "shape": "component",
+   "description": "Picks the document to open at start-up, in the given order.",
+   "remark": "FR-062 / T-034"
+  },
+  {
+   "name": "NotifyChangeWatchers",
+   "shape": "component",
+   "description": "Hands confirmed changes to the watchers.",
+   "remark": "AG-6 / AG-11"
+  },
+  {
+   "name": "PostChatMessage",
+   "shape": "component",
+   "description": "Takes a confirmed utterance and passes it on. Runtime only, never saved.",
+   "remark": "FR-066 / AG-11"
+  },
+  {
+   "name": "Schedule",
+   "shape": "component",
+   "description": "The schedule-data group and its invariants.",
+   "remark": "DR-2 / T-056"
+  },
+  {
+   "name": "DocumentSettings",
+   "shape": "component",
+   "description": "The presentation group: every saved setting with its bounds.",
+   "remark": "DR-3 / FR-063"
+  },
+  {
+   "name": "DocumentStamp",
+   "shape": "component",
+   "description": "schemaVersion, revisionStamp and changeLog, plus the pure functions that advance them.",
+   "remark": "DR-4 / FR-063"
+  },
+  {
+   "name": "EditHistory",
+   "shape": "component",
+   "description": "The undo stack as an immutable value, replaced whole.",
+   "remark": "FR-031 / T-027"
+  },
+  {
+   "name": "ScheduleLayout",
+   "shape": "component",
+   "description": "Time axis, label width estimate, row placement, detail level, fit.",
+   "remark": "FR-017 / FR-093 / FR-003 / FR-018 / FR-055"
+  },
+  {
+   "name": "ScheduleGeometry",
+   "shape": "component",
+   "description": "Vertices of everything drawn: bars, dependency routes, progress line, cursors, annotations, watermark.",
+   "remark": "FR-094 / FR-009 / FR-014 / FR-048 / FR-086"
+  },
+  {
+   "name": "ItemHitArea",
+   "shape": "component",
+   "description": "Which item the pointer is over.",
+   "remark": "SL-1 / PG-9"
+  }
+ ],
+ "edges": [
+  {
+   "source": "adapter",
+   "target": "documentModel",
+   "arrow": "dependency",
+   "label": "converts",
+   "description": "backed by 4 component edge(s): SvgRenderer -> DocumentSettings; DocumentCodec -> Schedule; DocumentCodec -> DocumentSettings; DocumentCodec -> DocumentStamp"
+  },
+  {
+   "source": "adapter",
+   "target": "layoutEngine",
+   "arrow": "dependency",
+   "label": "geometry only",
+   "description": "backed by 3 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout"
+  },
+  {
+   "source": "adapter",
+   "target": "usecase",
+   "arrow": "dependency",
+   "label": "one operation",
+   "description": "backed by 6 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostChatMessage; FileGateway -> ApplyDocumentChange; AutosaveGateway -> ApplyDocumentChange"
+  },
+  {
+   "source": "framework",
+   "target": "adapter",
+   "arrow": "dependency",
+   "label": "implements",
+   "description": "backed by 7 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; LocalStorageDocumentStore -> AutosaveGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter"
+  },
+  {
+   "source": "framework",
+   "target": "usecase",
+   "arrow": "dependency",
+   "label": "candidates",
+   "description": "backed by 1 component edge(s): SingleHtmlShell -> ChooseStartupDocument"
+  },
+  {
+   "source": "layoutEngine",
+   "target": "documentModel",
+   "arrow": "dependency",
+   "label": "reads",
+   "description": "backed by 3 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule"
+  },
+  {
+   "source": "usecase",
+   "target": "documentModel",
+   "arrow": "dependency",
+   "label": "updates",
+   "description": "backed by 8 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule"
+  },
+  {
+   "source": "usecase",
+   "target": "layoutEngine",
+   "arrow": "dependency",
+   "label": "calculates",
+   "description": "backed by 1 component edge(s): EditDocument -> ScheduleLayout"
+  }
+ ],
+ "layout": {
+  "direction": "TB",
+  "clusters": [
+   {
+    "name": "entity",
+    "label": "Entity",
+    "color": "#B36200",
+    "fill": "#FF8C00",
+    "direction": "TB",
+    "description": "The document and the pure calculation over it.",
+    "clusters": [
+     {
+      "name": "documentModel",
+      "label": "documentModel",
+      "color": "#B36200",
+      "fill": "#FFD1A3",
+      "direction": "LR",
+      "description": "Every one of the three root groups of table T-052, plus the undo history.",
+      "nodes": [
+       "Schedule",
+       "DocumentSettings",
+       "DocumentStamp",
+       "EditHistory"
+      ]
+     },
+     {
+      "name": "layoutEngine",
+      "label": "layoutEngine",
+      "color": "#B36200",
+      "fill": "#FFB870",
+      "direction": "LR",
+      "description": "Pure calculation. Needs no browser.",
+      "nodes": [
+       "ScheduleLayout",
+       "ScheduleGeometry",
+       "ItemHitArea"
+      ]
+     }
+    ]
+   },
+   {
+    "name": "usecase",
+    "label": "UseCase",
+    "color": "#B39400",
+    "fill": "#FFD700",
+    "direction": "LR",
+    "description": "Operations on the document and the path to confirming them.",
+    "nodes": [
+     "ApplyDocumentChange",
+     "EditDocument",
+     "ImportDocument",
+     "UndoEdit",
+     "RedoEdit",
+     "ValidateImportedDocument",
+     "ChooseStartupDocument",
+     "NotifyChangeWatchers",
+     "PostChatMessage"
+    ]
+   },
+   {
+    "name": "adapter",
+    "label": "Adapter",
+    "color": "#4E9A4E",
+    "fill": "#90EE90",
+    "direction": "LR",
+    "description": "Declares the interfaces for outside tools, and converts.",
+    "nodes": [
+     "AgentApiEndpoint",
+     "InputCommandTranslator",
+     "SvgRenderer",
+     "DocumentCodec",
+     "ImageExporter",
+     "FileGateway",
+     "AutosaveGateway",
+     "ClipboardGateway"
+    ]
+   },
+   {
+    "name": "framework",
+    "label": "Framework",
+    "color": "#3A7D95",
+    "fill": "#87CEEB",
+    "direction": "LR",
+    "description": "The browser facilities and the single-html shell.",
+    "nodes": [
+     "SingleHtmlShell",
+     "DomSvgSurface",
+     "DomInputSource",
+     "FileSystemAccessFileStore",
+     "LocalStorageDocumentStore",
+     "BrowserClipboard",
+     "CanvasRasterizer"
+    ]
+   }
+  ]
+ }
+}

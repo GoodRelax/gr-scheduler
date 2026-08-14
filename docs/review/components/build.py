@@ -1,0 +1,160 @@
+#!/usr/bin/env python
+"""Build every component figure and the component table from model.json.
+
+model.json is the single source of truth. It holds ONLY node-level edges.
+
+The overview figure is DERIVED, never hand-written: each node-level edge is
+collapsed onto the innermost labelled cluster of its endpoints, and every
+collapsed edge must be backed by at least one real node-level edge. An arrow
+that nothing supports cannot be drawn, and a backed pair with no label stops
+the build. That is what keeps the overview honest without a second source.
+
+Cluster-level edges are deliberately kept OUT of model.json: a view keeps
+every edge whose endpoints survive, so a cluster edge would leak into every
+view that spans those layers and collide with the node-level labels.
+
+Usage:  python docs/review/components/build.py
+"""
+
+import json
+import os
+import subprocess
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+MODEL = os.path.join(HERE, "model.json")
+OVERVIEW = os.path.join(HERE, "overview.json")
+# The .svg is what the specification carries, so it lands in the spec's asset
+# folder. The .drawio and .png stay here as working files.
+ASSETS = os.path.abspath(os.path.join(HERE, "..", "..", "spec", "_assets"))
+SKILL = os.path.expanduser(r"~\.claude\skills\drawio-uml\scripts")
+DRAWIO = r"C:\Program Files\draw.io\draw.io.exe"
+
+# The only hand-written part: what each collapsed arrow means. Every entry must
+# be backed by node-level edges in model.json, and every backed pair must have
+# an entry -- both directions are asserted below.
+CLUSTER_EDGE_LABELS = {
+    ("framework", "adapter"): "implements",
+    ("framework", "usecase"): "candidates",
+    ("adapter", "usecase"): "one operation",
+    ("adapter", "layoutEngine"): "geometry only",
+    ("adapter", "documentModel"): "converts",
+    ("usecase", "documentModel"): "updates",
+    ("usecase", "layoutEngine"): "calculates",
+    ("layoutEngine", "documentModel"): "reads",
+}
+
+
+def labelled_cluster_of(layout):
+    """Map every node name to the innermost labelled cluster that holds it."""
+    owner = {}
+
+    def walk(cluster, nearest):
+        here = cluster.get("name") if "label" in cluster else nearest
+        for child in cluster.get("clusters", []):
+            walk(child, here)
+        for name in cluster.get("nodes", []):
+            owner[name] = here
+
+    walk(layout, None)
+    return owner
+
+
+def collapse(model):
+    """Collapse node-level edges onto cluster pairs, with their backing counts."""
+    owner = labelled_cluster_of(model["layout"])
+    missing = sorted(n["name"] for n in model["nodes"] if owner.get(n["name"]) is None)
+    if missing:
+        sys.exit("build: node(s) outside every labelled cluster: %s" % ", ".join(missing))
+    backing = {}
+    for edge in model["edges"]:
+        pair = (owner[edge["source"]], owner[edge["target"]])
+        if pair[0] == pair[1]:
+            continue
+        backing.setdefault(pair, []).append("%s -> %s" % (edge["source"], edge["target"]))
+    return backing
+
+
+def build_overview(model, backing):
+    unlabelled = sorted(backing.keys() - CLUSTER_EDGE_LABELS.keys())
+    unbacked = sorted(CLUSTER_EDGE_LABELS.keys() - backing.keys())
+    if unlabelled:
+        sys.exit("build: cluster pair(s) with no label: %s"
+                 % ", ".join("%s -> %s" % p for p in unlabelled))
+    if unbacked:
+        sys.exit("build: label(s) with no backing edge in model.json: %s"
+                 % ", ".join("%s -> %s" % p for p in unbacked))
+    edges = [{"source": src, "target": dst, "arrow": "dependency",
+              "label": CLUSTER_EDGE_LABELS[(src, dst)],
+              "description": "backed by %d component edge(s): %s"
+                             % (len(backing[(src, dst)]), "; ".join(backing[(src, dst)]))}
+             for (src, dst) in sorted(backing, key=lambda p: sorted(CLUSTER_EDGE_LABELS).index(p))]
+    overview = {"title": model["title"] + " by layer",
+                "options": dict(model["options"], node_separation=0.5, rank_separation=3.0),
+                "nodes": model["nodes"],
+                "edges": edges,
+                "layout": model["layout"]}
+    with open(OVERVIEW, "w", encoding="utf-8") as handle:
+        json.dump(overview, handle, ensure_ascii=False, indent=1)
+    return edges
+
+
+def run(argv):
+    print("  " + " ".join(os.path.basename(a) for a in argv[1:]))
+    result = subprocess.run(argv, capture_output=True, text=True)
+    if result.returncode:
+        sys.exit((result.stderr or result.stdout).strip())
+    return result.stdout.strip()
+
+
+def draw(model_path, out_stem, view=None):
+    argv = [sys.executable, os.path.join(SKILL, "draw.py"), model_path, out_stem + ".drawio"]
+    if view:
+        argv += ["--view", view]
+    print("    " + run(argv))
+    if os.path.exists(DRAWIO):
+        stem = os.path.basename(out_stem)
+        # Only the .svg is produced. To eyeball a figure as a raster, run the
+        # draw.io CLI by hand:
+        #   drawio -x -f png -b 12 -o out.png docs/review/components/<stem>.drawio
+        for fmt, where in (("svg", os.path.join(ASSETS, stem)),):
+            # No -e: the editable XML is not embedded. model.json is the source,
+            # so nothing is ever re-opened from the picture.
+            argv = [DRAWIO, "-x", "-f", fmt, "-b", "12",
+                    "-o", "%s.%s" % (where, fmt), out_stem + ".drawio"]
+            if fmt == "svg":
+                # Embedded fonts make draw.io raster every label into a base64
+                # <image> fallback: 578 KB instead of 57 KB for the same picture.
+                argv[1:1] = ["--embed-svg-fonts", "false"]
+            run(argv)
+
+
+def main():
+    with open(MODEL, encoding="utf-8") as handle:
+        model = json.load(handle)
+
+    stray = [e for e in model["edges"]
+             if e["source"] not in {n["name"] for n in model["nodes"]}
+             or e["target"] not in {n["name"] for n in model["nodes"]}]
+    if stray:
+        sys.exit("build: model.json must hold node-level edges only; found %d cluster edge(s)"
+                 % len(stray))
+
+    backing = collapse(model)
+    edges = build_overview(model, backing)
+    print("overview: %d cluster edges, each backed by component edges" % len(edges))
+    for src, dst in sorted(backing):
+        print("  %-14s -> %-14s  %d" % (src, dst, len(backing[(src, dst)])))
+
+    print("figures:")
+    draw(OVERVIEW, os.path.join(HERE, "fig-components"))
+    for key in model.get("views", {}):
+        draw(MODEL, os.path.join(HERE, "view-" + key), view=key)
+
+    print("table:")
+    print("    " + run([sys.executable, os.path.join(SKILL, "table.py"),
+                        MODEL, os.path.join(HERE, "components.md")]))
+
+
+if __name__ == "__main__":
+    main()

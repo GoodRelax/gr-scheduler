@@ -2,7 +2,7 @@
 
 **Grammar**: spec.sgra
 **UID**: DOC-DESIGN
-**Version**: 0.2
+**Version**: 0.4
 
 本書は第 2 部（Chapter 5 〜 7）である。
 
@@ -14,7 +14,7 @@
 
 **Type**: SECTION
 
-**Clean Architecture を採る。** 層は `Entity` / `UseCase` / `Adapter` / `Framework` の 4 つとし、既定の名前をそのまま使う。**`Entity` の内側は、さらに `model` と `layout` に分ける。**
+**Clean Architecture を採る。** 層は `Entity` / `UseCase` / `Adapter` / `Framework` の 4 つとし、既定の名前をそのまま使う。**`Entity` の内側は、さらに `documentModel` と `layoutEngine` に分ける。**
 
 **層の凡例と依存の向きを 図 F-012 に、各層に置くものを 表 T-060 に、依存の規則を 表 T-061 に示す。**
 
@@ -22,12 +22,12 @@
 
 ```mermaid
 graph RL
-    Fw["Framework"]:::framework -->|"面を渡し、結線する"| Ad
+    Fw["Framework"]:::framework -->|"宣言されたインターフェースを実装する"| Ad
     Ad["Adapter"]:::adapter -->|"操作を渡す"| Uc
-    Uc["UseCase"]:::usecase -->|"計算と不変条件を使う"| Lay
+    Uc["UseCase"]:::usecase -->|"エンティティと計算を使う"| Lay
     subgraph Ent["Entity"]
         direction RL
-        Lay["layout"]:::entity -->|"エンティティを読む"| Mdl["model"]:::entity
+        Lay["layoutEngine"]:::entity -->|"文書のデータを読む"| Mdl["documentModel"]:::entity
     end
 
     classDef entity fill:#FF8C00,stroke:#333,color:#000
@@ -36,17 +36,17 @@ graph RL
     classDef framework fill:#87CEEB,stroke:#333,color:#000
 ```
 
-**矢印は依存の向きを表し、ラベルはその依存が何のためかを表す。** 本図は層の凡例であり、**部品どうしの辺は Chapter 5.2 が持つ。** **内向きであれば層を飛び越してよい** —— たとえば SVG を作る部品は `Adapter` にあるが、`UseCase` を通らずに `layout` を直接読む。
+**矢印は依存の向きを表し、ラベルはその依存が何のためかを表す。外向きの辺は 1 本も無い。** 本図は層の凡例であり、**部品どうしの辺は Chapter 5.2 が持つ。** 層を飛び越す例（`LR-1`）—— SVG を作る部品は `Adapter` にあるが、`UseCase` を通らずに `layoutEngine` を直接読む。
 
 **表 T-060 — 層**
 
 | 行 ID | 層 | 置くもの | 純粋性 |
 | --- | --- | --- | --- |
-| LY-1 | `Entity` / `model` | 表 T-056 のエンティティと不変条件、および取り消しの積み | すべて `pure` |
-| LY-2 | `Entity` / `layout` | 日付と座標の対応、行の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
-| LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。取り込みの検証。購読者への配布 | 操作と検証は `pure`、確定と配布は `non-pure` |
-| LY-4 | `Adapter` | `Agent API`、SVG の生成、交換形式との相互変換、画面の入力を操作へ変えること、ファイルと保管庫とクリップボードの出し入れ | 変換と直列化は `pure`、残りは `non-pure` |
-| LY-5 | `Framework` | ブラウザが供給する面（DOM・SVG・File System Access API・`localStorage`）と、単一 `.html` のシェル | すべて `non-pure` |
+| LY-1 | `Entity` / `documentModel` | 表 T-052 が定める文書ルートの 3 群すべて（日程データの群のエンティティは 表 T-056）と、その不変条件（全数は Chapter 6.1 が持つ）。取り消しの履歴（不変の値として持ち、丸ごと置き換える） | すべて `pure` |
+| LY-2 | `Entity` / `layoutEngine` | 日付と座標の対応、`Rows` の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
+| LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。取り込みの検証。変更の通知 | 操作と検証は `pure`、確定と通知は `non-pure` |
+| LY-4 | `Adapter` | `Agent API`、SVG の生成、交換形式との相互変換、画面の入力を操作へ変えること、および**外側の道具を使うためのインターフェースの宣言** | 変換と直列化は `pure`、外を読むものは `semi-pure-b`、残りは `non-pure` |
+| LY-5 | `Framework` | **`Adapter` が宣言したインターフェースの実装**（ブラウザの DOM・SVG・File System Access API・`localStorage` を使う）と、単一 `.html` のシェル | 外を読むものは `semi-pure-b`、残りは `non-pure` |
 
 **表 T-061 — 依存の規則**
 
@@ -55,27 +55,75 @@ graph RL
 | LR-1 | **層をまたぐ依存は内向きだけとすること（MUST）。外向きの依存を作ってはならない（MUST NOT）。** 内向きであれば層を飛び越してよい |
 | LR-2 | **同じ層の中で呼び合ってよい。ただし相手が Chapter 5.3 で宣言したインターフェースを介すること（MUST）。他の部品の内部へ直に触れてはならない（MUST NOT）** |
 | LR-3 | **層の中の呼び出しを非巡回に保つこと（MUST）** —— 巡回すると、どちらが先に成り立つのかを決められなくなる |
-| LR-4 | **`layout` は `model` を読んでよい。`model` が `layout` を知ってはならない（MUST NOT）** |
-| LR-5 | **依存先は、自分より変わりにくい側とすること（SHOULD）** |
+| LR-4 | **`layoutEngine` は `documentModel` を読んでよい。`documentModel` が `layoutEngine` を知ってはならない（MUST NOT）** |
+| LR-5 | **外側の道具は、内側が宣言したインターフェースを介して使うこと（MUST）。その実装は外側の層が持つこと（MUST）** —— これがあるので `LR-1` に例外が要らない |
 | LR-6 | **`Entity` と `UseCase` が、ブラウザの供給する型に触れてはならない（MUST NOT）** |
 
-**`Entity` を 2 つに割るのは、レイアウトが本ソフトウェアの価値の中心でありながら、ブラウザを必要としないためである。** 目標が「1 つの行に複数のタスクを置いて俯瞰できる」（`GL-001`）と「全体日程を 1 画面で見られる」（`GL-002`）である以上、行の配置と表示量の増減はこの道具の本質であって画面の都合ではない。そして `FR-093` が文字の実測を禁じているので、**レイアウトの計算はブラウザに何も訊かずに済む。** 割っておくと `NFR-013` の計算量をブラウザ無しで測れる —— 表 T-043 の `PG-8` 〜 `PG-12` がその対象である。
+**本表が規則を持つのは、`R2.16` が層の定義と依存の向きを Chapter 5.1 に置くよう要求しているためである。** 依存の向きは実行して確かめる性質ではなく、構造を静的に見て確かめる性質なので、テストを持つ要求としてではなく本章が持つ。
+
+**`Entity` を 2 つに割るのは、レイアウトがこの道具の価値そのものでありながら、ブラウザを必要としないためである。** 価値は「ペライチ」（`_assets/tbl-glossary.md` の `VK-3`）であり、**それを成り立たせているのが `layoutEngine` の算法である。座標と当たり判定は手段ではなく本質であり、手段はむしろ描き方のほうである** —— 描き方は `Adapter` が持ち、`layoutEngine` は座標までしか持たない。そして `FR-093` が文字の実測を禁じているので、**レイアウトの計算は文字の実寸をブラウザに訊かずに済む。** 画面の寸法は引数として受け取る。割っておくと `NFR-013` の計算量をブラウザ無しで測れる（測り方は表 T-025 の `MC-9` が持つ）。
 
 ⚠️ **この方針の代償は `LM-2a` が持つ。** レイアウトを純粋に保てることと、`LM-2a` が適合範囲を絞っていることは、**同じ 1 つの決定の表と裏である。** 片方だけを変えることはできない。
 
-**文書への書き込みの経路は 1 本である。** 人向けの画面と `Agent API` の双方が同じ経路を通ることは `FR-028` が要求し、表 T-042 の `MS-1` がその形を M1 で作ると定めている。**入口が 2 つに分かれると、片方にしか掛からない検証や履歴が生まれる。**
+**文書への書き込みの経路は 1 本である。** 人が UI で行えることを `Agent API` でも行えることは `FR-028` が要求し、**双方が同じ経路を通る形は表 T-042 の `MS-1` が定めている。****入口が 2 つに分かれると、片方にしか掛からない検証や履歴が生まれる。**
 
 **描画はその経路を通らない。** 描画は文書を読むだけで変えないので、書き込みの経路に載せる理由が無い。**載せると、画面を描くたびに書き込みの経路が起動する。**
 
-**設計の合否は `previous-project-result/21-review-standard/review-standards.md` の `R2` で判定する**（`FR-092` の `EZ-5`）。**同書は `R7`（純粋性・構造）も Chapter 5 〜 6 を対象と定めている。層に掛かる条項のうち、意図して満たさないものが 1 つある。**
-
-> **`R2.6`（DIP・SHOULD）** —— `Adapter` はブラウザの供給する面を直に呼び、抽象を挟まない。**ビジネスロジックはブラウザの型に触れない**（`LR-6`）ので条項の趣旨は満たすが、`Adapter` 自身は具象に依存する。**差し替える先が存在しないためである** —— `NFR-005` が対象を Chromium 系（Chrome / Edge）に限り、Safari を対象としないと定めている。抽象を挟むほうが `R2.9`（YAGNI）に当たる。
+**設計の合否は `previous-project-result/21-review-standard/review-standards.md` の `R2` で判定する**（`FR-092` の `EZ-5`）。**同書は `R7`（純粋性・構造）も Chapter 5 〜 6 を対象と定めている。** `R2.6`（DIP）は `LR-5` が満たす。
 
 ### 5.2 Components (コンポーネント)
 
 **Type**: SECTION
 
-> 未記入。部品と責務の分割をコンポーネント図で書く。各コンポーネントが Chapter 2.2 のどの機器に載るかを明記する。
+**部品を 表 T-062 に、全体を 図 F-013 に、経路ごとの詳細を 図 F-014 〜 図 F-017 に示す**（`_assets/fig-components.md`）。層の定義と依存の規則は 5.1 が持つ。
+
+**部品はすべて機器 `D-1` に載る。** 表 T-007 で「対象ソフトが載る」機器は `D-1` だけであり、`D-2` 〜 `D-5` に載る部品は 1 つも無い。
+
+**部品を分ける基準は 1 つである** —— **同じ表・同じ要求が寸法と規則を持っているなら 1 部品、別々の要求が持っているなら別部品とする。** `ScheduleGeometry` が予定・実績・依存線・注記をまとめて持つのは、それらの寸法を 表 T-201 が 1 枚で持ち `FR-094` が縛っているからであり、逆に `Framework` の 6 部品が分かれているのは、実装するインターフェースが別だからである。
+
+**表 T-062 — コンポーネント**
+
+| 行 ID | 層 | 部品 | 責務 | 正 |
+| --- | --- | --- | --- | --- |
+| CP-1 | `documentModel` | `Schedule` | 日程データの群と、その不変条件 | 表 T-052 の `DR-2` |
+| CP-2 | `documentModel` | `DocumentSettings` | 見せ方の群。保存する値と、その下限・上限 | 表 T-052 の `DR-3` / `FR-063` |
+| CP-3 | `documentModel` | `DocumentStamp` | 文書の刻印と、版を進める純粋関数 | 表 T-052 の `DR-4` / `FR-063` |
+| CP-4 | `documentModel` | `EditHistory` | 取り消しの履歴。不変の値として持つ | `FR-031` |
+| CP-5 | `layoutEngine` | `ScheduleLayout` | 時間軸、ラベル幅の概算、`Rows` の配置、表示量の増減、全体を収める表示 | `FR-017` / `FR-093` / `FR-003` / `FR-018` / `FR-055` |
+| CP-6 | `layoutEngine` | `ScheduleGeometry` | 描くものの頂点。バー・依存線・イナズマ線・カーソル・注記・透かし | `FR-094` / `FR-009` / `FR-014` |
+| CP-7 | `layoutEngine` | `ItemHitArea` | ポインタが指すアイテムの判定 | 表 T-023c の `SL-1` |
+| CP-8 | `UseCase` | `ApplyDocumentChange` | **文書への書き込みの唯一の経路。** 照合・全か無か・履歴・版数・刻印・通知 | 表 T-042 の `MS-1` / `FR-028` / `AG-2` / `AG-3` / `FR-031` / `FR-063` |
+| CP-9 | `UseCase` | `EditDocument` | 集約ごとの編集。検証して新しい文書を返すだけで、確定させない | 表 T-027 |
+| CP-10 | `UseCase` | `ImportDocument` | 取り込みと合流 | `FR-087` / `FR-022` |
+| CP-11 | `UseCase` | `UndoEdit` | 履歴を 1 段戻す | `FR-031` |
+| CP-12 | `UseCase` | `RedoEdit` | 履歴を 1 段進める | `FR-031` |
+| CP-13 | `UseCase` | `ValidateImportedDocument` | 信頼できない入力の検証。取り込みの 3 経路が共有する | `FR-023` / `NFR-009` |
+| CP-14 | `UseCase` | `ChooseStartupDocument` | 起動時に開く文書を決める | `FR-062` / 表 T-034 |
+| CP-15 | `UseCase` | `NotifyChangeWatchers` | 確定を購読者へ配る | 表 T-035 の `AG-6` |
+| CP-16 | `UseCase` | `PostChatMessage` | 確定した発話を配る。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` |
+| CP-17 | `Adapter` | `AgentApiEndpoint` | `Agent API` を設置する。既定で公開しない | `FR-028` / `FR-065` / 表 T-035 |
+| CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を操作へ変える。`InputSource` を宣言する | `FR-016` / `FR-070` |
+| CP-19 | `Adapter` | `SvgRenderer` | 幾何から SVG 文字列を作る。`SvgSurface` を宣言する | `FR-080` |
+| CP-20 | `Adapter` | `DocumentCodec` | JSON と `MSPDI` を文書と相互変換する | `FR-024` / `FR-021` / `FR-056` / `FR-057` |
+| CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。`Rasterizer` を宣言する | `FR-025` |
+| CP-22 | `Adapter` | `FileGateway` | ファイルの読み書きとハンドルの保持。`FileStore` を宣言する | `FR-060` / 表 T-024 |
+| CP-23 | `Adapter` | `AutosaveGateway` | 自動保存と復元。`DocumentStore` を宣言する | `FR-026` / `FR-061` |
+| CP-24 | `Adapter` | `ClipboardGateway` | クリップボードへ出す。`Clipboard` を宣言する | `FR-033` / `FR-068` |
+| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。埋め込みの入れ物を持ち、公開点を置く | `FR-067` / `FR-065` |
+| CP-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 | — |
+| CP-27 | `Framework` | `DomInputSource` | `InputSource` の実装 | — |
+| CP-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装 | `FR-060` |
+| CP-29 | `Framework` | `LocalStorageDocumentStore` | `DocumentStore` の実装 | `FR-026` |
+| CP-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 | `FR-033` |
+| CP-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 | `FR-025` |
+
+**各部品の内側のユニットと、公開するインターフェースは Chapter 5.3 が宣言する。** 本表が定めるのは部品の境界だけである。
+
+**規約のうち、意図して満たさないものが 2 つある。**
+
+> **`R2.13`（CQS・SHOULD）** —— `ApplyDocumentChange` は文書を変え、かつ結果を値で返す。**`FR-028` が「受理したか否かを値で返すこと」を、`AG-9a` が拒否の値の中身を、それぞれ MUST で定めているためである。** 状態変更とその結果通知を分けると、2 回の呼び出しの間に別の書き込みが入り、`AG-3` の原子性が保てない。
+
+> **`R2.5`（ISP・SHOULD）** —— `Agent API` は 17 のメンバを 1 つの面に載せ、用途別に分けない。**`FR-028` が入口を 1 つと定めているためである。** 呼ぶ側が複数の面を持つと「人間向け UI と同格」が崩れる。**同条項が禁じているのは「使わないメソッドを実装させられること」であり、実装は 1 つなのでその害は生じない。**
 
 ### 5.3 File Structure (ファイル構成)
 
