@@ -309,7 +309,7 @@
 | AM-3 | 読む | `readDocument` | 動詞＋目的語・`semi-pure-b` | 文書ぜんたいの凍結された複製。ルートの 3 群すべてを含む | 表 T-035 の `AG-4` ／ 表 T-052 の `DR-1` |
 | AM-4 | 読む | `readStamp` | 動詞＋目的語・`semi-pure-b` | 文書の刻印。楽観ロックの照合に用いる | 表 T-035 の `AG-2` ／ `FR-063` |
 | AM-5 | 読む | `readSelection` | 動詞＋目的語・`semi-pure-b` | いま選ばれている対象。選んだ順序を保つ | 表 T-023c の `SL-1` / `SL-7b` |
-| AM-6 | 読む | `readChatMessages` | 動詞＋目的語・`semi-pure-b` | 人が確定した発話。文書には保存されない | 表 T-035 の `AG-11` ／ `FR-066` |
+| AM-6 | 読む | `readDialogueMessages` | 動詞＋目的語・`semi-pure-b` | 人が確定した発話。文書には保存されない | 表 T-035 の `AG-11` ／ `FR-066` |
 | AM-7 | 書く | `applyCommands` | 動詞＋目的語・`non-pure` | 一括の書き込み。原子的に適用し、受理したか否かを値で返す | `FR-028` ／ 表 T-035 の `AG-3` / `AG-9a` |
 | AM-8 | 書く | `importDocument` | 動詞＋目的語・`non-pure` | 取り込みと合流 | `FR-087` / `FR-022` ／ 表 T-032a |
 | AM-9 | 履歴 | `undoEdit` | 動詞＋目的語・`non-pure` | 履歴を戻す | `FR-031` ／ 表 T-035 の `AG-10` |

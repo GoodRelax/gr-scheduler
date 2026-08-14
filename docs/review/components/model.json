@@ -147,9 +147,9 @@
    "remark": "AG-6 / AG-11"
   },
   {
-   "name": "PostChatMessage",
+   "name": "PostDialogueMessage",
    "shape": "component",
-   "description": "Takes a confirmed utterance and passes it on. Runtime only, never saved.",
+   "description": "Takes a confirmed utterance, appends it to DialogueLog and passes it on. Runtime only, never saved.",
    "remark": "FR-066 / AG-11"
   },
   {
@@ -193,6 +193,18 @@
    "shape": "component",
    "description": "Which item the pointer is over.",
    "remark": "SL-1 / PG-9"
+  },
+  {
+   "name": "Selection",
+   "shape": "rectangle",
+   "description": "The set of selected objects and the order they were selected in. Never saved.",
+   "remark": ""
+  },
+  {
+   "name": "DialogueLog",
+   "shape": "rectangle",
+   "description": "Confirmed utterances, in an order of their own that is independent of the revision. Never saved.",
+   "remark": ""
   }
  ],
  "edges": [
@@ -200,8 +212,8 @@
    "source": "SingleHtmlShell",
    "target": "AgentApiEndpoint",
    "arrow": "dependency",
-   "label": "installs",
-   "description": "installs the exposure point"
+   "label": "installs / implements SnapshotSource",
+   "description": "installs the exposure point and implements the frozen-snapshot source it declares"
   },
   {
    "source": "SingleHtmlShell",
@@ -269,7 +281,7 @@
   },
   {
    "source": "AgentApiEndpoint",
-   "target": "PostChatMessage",
+   "target": "PostDialogueMessage",
    "arrow": "dependency",
    "label": "utterance",
    "description": "hands over an utterance"
@@ -518,6 +530,111 @@
    "arrow": "dependency",
    "label": "vertices",
    "description": "reads the vertices"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "schedule data",
+   "description": "reads the schedule data for readDocument"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "presentation values",
+   "description": "reads the presentation values for readDocument"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "DocumentStamp",
+   "arrow": "dependency",
+   "label": "stamp",
+   "description": "reads the stamp for readStamp"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "what is selected",
+   "description": "reads the selection for readSelection"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "DialogueLog",
+   "arrow": "dependency",
+   "label": "confirmed utterances",
+   "description": "reads the utterances for readDialogueMessages"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "DocumentCodec",
+   "arrow": "dependency",
+   "label": "exchange formats",
+   "description": "gets JSON, MSPDI and the single .html"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "SvgRenderer",
+   "arrow": "dependency",
+   "label": "picture out",
+   "description": "gets the SVG string"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "ImageExporter",
+   "arrow": "dependency",
+   "label": "image out",
+   "description": "gets the raster image"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "ScheduleLayout",
+   "arrow": "dependency",
+   "label": "where a task sits",
+   "description": "asks where a task sits, to focus it"
+  },
+  {
+   "source": "SvgRenderer",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "what is selected",
+   "description": "shows the selection by more than colour"
+  },
+  {
+   "source": "ScheduleGeometry",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "what is selected",
+   "description": "puts handles on selected tasks only"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "make and clear",
+   "description": "makes, widens and clears the selection"
+  },
+  {
+   "source": "PostDialogueMessage",
+   "target": "DialogueLog",
+   "arrow": "dependency",
+   "label": "append one",
+   "description": "appends one confirmed utterance"
+  },
+  {
+   "source": "NotifyChangeWatchers",
+   "target": "DialogueLog",
+   "arrow": "dependency",
+   "label": "utterance order",
+   "description": "picks utterances by their own order"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "DocumentCodec",
+   "arrow": "dependency",
+   "label": "implements AppShellSource",
+   "description": ""
   }
  ],
  "layout": {
@@ -542,7 +659,9 @@
        "Schedule",
        "DocumentSettings",
        "DocumentStamp",
-       "EditHistory"
+       "EditHistory",
+       "Selection",
+       "DialogueLog"
       ]
      },
      {
@@ -576,7 +695,7 @@
      "ValidateImportedDocument",
      "ChooseStartupDocument",
      "NotifyChangeWatchers",
-     "PostChatMessage"
+     "PostDialogueMessage"
     ]
    },
    {
@@ -630,7 +749,8 @@
     "DocumentStamp",
     "NotifyChangeWatchers",
     "Schedule",
-    "DocumentSettings"
+    "DocumentSettings",
+    "Selection"
    ]
   },
   "read": {
@@ -642,7 +762,8 @@
     "ScheduleGeometry",
     "ItemHitArea",
     "Schedule",
-    "DocumentSettings"
+    "DocumentSettings",
+    "Selection"
    ]
   },
   "io": {
@@ -660,7 +781,8 @@
     "ImportDocument",
     "ValidateImportedDocument",
     "ChooseStartupDocument",
-    "ApplyDocumentChange"
+    "ApplyDocumentChange",
+    "DocumentStamp"
    ]
   },
   "startup": {
@@ -672,10 +794,11 @@
     "ChooseStartupDocument",
     "ValidateImportedDocument",
     "AgentApiEndpoint",
-    "PostChatMessage",
+    "PostDialogueMessage",
     "NotifyChangeWatchers",
     "ApplyDocumentChange",
-    "DocumentStamp"
+    "DocumentStamp",
+    "DialogueLog"
    ]
   }
  }

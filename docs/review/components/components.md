@@ -27,7 +27,7 @@
 | usecase | ValidateImportedDocument | Checks untrusted input. Shared by every intake path. | FR-023 / NFR-009 |
 | usecase | ChooseStartupDocument | Picks the document to open at start-up, in the given order. | FR-062 / T-034 |
 | usecase | NotifyChangeWatchers | Hands confirmed changes to the watchers. | AG-6 / AG-11 |
-| usecase | PostChatMessage | Takes a confirmed utterance and passes it on. Runtime only, never saved. | FR-066 / AG-11 |
+| usecase | PostDialogueMessage | Takes a confirmed utterance, appends it to DialogueLog and passes it on. Runtime only, never saved. | FR-066 / AG-11 |
 | entity / documentModel | Schedule | The schedule-data group and its invariants. | DR-2 / T-056 |
 | entity / documentModel | DocumentSettings | The presentation group: every saved setting with its bounds. | DR-3 / FR-063 |
 | entity / documentModel | DocumentStamp | schemaVersion, revisionStamp and changeLog, plus the pure functions that advance them. | DR-4 / FR-063 |
@@ -35,12 +35,14 @@
 | entity / layoutEngine | ScheduleLayout | Time axis, label width estimate, row placement, detail level, fit. | FR-017 / FR-093 / FR-003 / FR-018 / FR-055 |
 | entity / layoutEngine | ScheduleGeometry | Vertices of everything drawn: bars, dependency routes, progress line, cursors, annotations, watermark. | FR-094 / FR-009 / FR-014 / FR-048 / FR-086 |
 | entity / layoutEngine | ItemHitArea | Which item the pointer is over. | SL-1 / PG-9 |
+| entity / documentModel | Selection | The set of selected objects and the order they were selected in. Never saved. |  |
+| entity / documentModel | DialogueLog | Confirmed utterances, in an order of their own that is independent of the revision. Never saved. |  |
 
 ## Edges
 
 | arrow | source | target | label | description | remark |
 | --- | --- | --- | --- | --- | --- |
-| dependency | SingleHtmlShell | AgentApiEndpoint | installs | installs the exposure point |  |
+| dependency | SingleHtmlShell | AgentApiEndpoint | installs / implements SnapshotSource | installs the exposure point and implements the frozen-snapshot source it declares |  |
 | dependency | SingleHtmlShell | ChooseStartupDocument | four candidates | hands over the four candidates |  |
 | realization | DomSvgSurface | SvgRenderer | implements SvgSurface |  |  |
 | realization | DomInputSource | InputCommandTranslator | implements InputSource |  |  |
@@ -51,7 +53,7 @@
 | dependency | InputCommandTranslator | ApplyDocumentChange | one operation | hands over one operation |  |
 | dependency | AgentApiEndpoint | ApplyDocumentChange | same operation | hands over the same operation |  |
 | dependency | AgentApiEndpoint | NotifyChangeWatchers | watch / unwatch | starts and stops watching |  |
-| dependency | AgentApiEndpoint | PostChatMessage | utterance | hands over an utterance |  |
+| dependency | AgentApiEndpoint | PostDialogueMessage | utterance | hands over an utterance |  |
 | dependency | FileGateway | ApplyDocumentChange | intake | asks for an intake |  |
 | dependency | AutosaveGateway | ApplyDocumentChange | restore | asks for a restore |  |
 | dependency | ImageExporter | SvgRenderer | SVG string | takes the SVG string |  |
@@ -87,6 +89,21 @@
 | dependency | ScheduleGeometry | ScheduleLayout | coordinates | takes the coordinates |  |
 | dependency | ScheduleGeometry | Schedule | tasks + annotations | reads tasks and annotations |  |
 | dependency | ItemHitArea | ScheduleGeometry | vertices | reads the vertices |  |
+| dependency | AgentApiEndpoint | Schedule | schedule data | reads the schedule data for readDocument |  |
+| dependency | AgentApiEndpoint | DocumentSettings | presentation values | reads the presentation values for readDocument |  |
+| dependency | AgentApiEndpoint | DocumentStamp | stamp | reads the stamp for readStamp |  |
+| dependency | AgentApiEndpoint | Selection | what is selected | reads the selection for readSelection |  |
+| dependency | AgentApiEndpoint | DialogueLog | confirmed utterances | reads the utterances for readDialogueMessages |  |
+| dependency | AgentApiEndpoint | DocumentCodec | exchange formats | gets JSON, MSPDI and the single .html |  |
+| dependency | AgentApiEndpoint | SvgRenderer | picture out | gets the SVG string |  |
+| dependency | AgentApiEndpoint | ImageExporter | image out | gets the raster image |  |
+| dependency | AgentApiEndpoint | ScheduleLayout | where a task sits | asks where a task sits, to focus it |  |
+| dependency | SvgRenderer | Selection | what is selected | shows the selection by more than colour |  |
+| dependency | ScheduleGeometry | Selection | what is selected | puts handles on selected tasks only |  |
+| dependency | InputCommandTranslator | Selection | make and clear | makes, widens and clears the selection |  |
+| dependency | PostDialogueMessage | DialogueLog | append one | appends one confirmed utterance |  |
+| dependency | NotifyChangeWatchers | DialogueLog | utterance order | picks utterances by their own order |  |
+| dependency | SingleHtmlShell | DocumentCodec | implements AppShellSource |  |  |
 
 ## Clusters
 

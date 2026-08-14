@@ -42,11 +42,11 @@ graph RL
 
 | 行 ID | 層 | 置くもの | 純粋性 |
 | --- | --- | --- | --- |
-| LY-1 | `Entity` / `documentModel` | 表 T-052 が定める文書ルートの 3 群すべて（日程データの群のエンティティは 表 T-056）と、その不変条件（全数は Chapter 6.1 が持つ）。取り消しの履歴（不変の値として持ち、丸ごと置き換える） | すべて `pure` |
+| LY-1 | `Entity` / `documentModel` | 表 T-052 が定める文書ルートの 3 群すべて（日程データの群のエンティティは 表 T-056）と、その不変条件（全数は Chapter 6.1 が持つ）。および**文書に保存しない実行時の値**（取り消しの履歴・選択・確定した発話。いずれも不変の値として持ち、丸ごと置き換える） | すべて `pure` |
 | LY-2 | `Entity` / `layoutEngine` | 日付と座標の対応、`Rows` の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
 | LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。取り込みの検証。変更の通知 | 操作と検証は `pure`、確定と通知は `non-pure` |
 | LY-4 | `Adapter` | `Agent API`、SVG の生成、交換形式との相互変換、画面の入力を操作へ変えること、および**外側の道具を使うためのインターフェースの宣言** | 変換と直列化は `pure`、外を読むものは `semi-pure-b`、残りは `non-pure` |
-| LY-5 | `Framework` | **`Adapter` が宣言したインターフェースの実装**（ブラウザの DOM・SVG・File System Access API・`localStorage` を使う）と、単一 `.html` のシェル | 外を読むものは `semi-pure-b`、残りは `non-pure` |
+| LY-5 | `Framework` | **`Adapter` が宣言したインターフェースの実装**（ブラウザの DOM・SVG・File System Access API・`localStorage` を使う）と、単一 `.html` のシェル。**現在値を保持するのはこの層だけである** —— 内側の 3 層はすべて値を引数で受け取る | 外を読むものは `semi-pure-b`、残りは `non-pure` |
 
 **表 T-061 — 依存の規則**
 
@@ -100,22 +100,24 @@ graph RL
 | CP-13 | `UseCase` | `ValidateImportedDocument` | 信頼できない入力の検証。取り込みの 3 経路が共有する | `FR-023` / `NFR-009` |
 | CP-14 | `UseCase` | `ChooseStartupDocument` | 起動時に開く文書を決める | `FR-062` / 表 T-034 |
 | CP-15 | `UseCase` | `NotifyChangeWatchers` | 確定を購読者へ配る | 表 T-035 の `AG-6` |
-| CP-16 | `UseCase` | `PostChatMessage` | 確定した発話を配る。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` |
-| CP-17 | `Adapter` | `AgentApiEndpoint` | `Agent API` を設置する。既定で公開しない | `FR-028` / `FR-065` / 表 T-035 |
+| CP-16 | `UseCase` | `PostDialogueMessage` | 確定した発話を `DialogueLog` へ積み、配る。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` |
+| CP-17 | `Adapter` | `AgentApiEndpoint` | `Agent API` を設置する。既定で公開しない。`SnapshotSource` を宣言する | `FR-028` / `FR-065` / 表 T-035 / 表 T-107 |
 | CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を操作へ変える。`InputSource` を宣言する | `FR-016` / `FR-070` |
 | CP-19 | `Adapter` | `SvgRenderer` | 幾何から SVG 文字列を作る。`SvgSurface` を宣言する | `FR-080` |
-| CP-20 | `Adapter` | `DocumentCodec` | JSON と `MSPDI` を文書と相互変換する | `FR-024` / `FR-021` / `FR-056` / `FR-057` |
+| CP-20 | `Adapter` | `DocumentCodec` | JSON・`MSPDI`・単一 `.html` を文書と相互変換する。`AppShellSource` を宣言する | `FR-024` / `FR-021` / `FR-056` / `FR-057` / `FR-067` |
 | CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。`Rasterizer` を宣言する | `FR-025` |
 | CP-22 | `Adapter` | `FileGateway` | ファイルの読み書きとハンドルの保持。`FileStore` を宣言する | `FR-060` / 表 T-024 |
 | CP-23 | `Adapter` | `AutosaveGateway` | 自動保存と復元。`DocumentStore` を宣言する | `FR-026` / `FR-061` |
 | CP-24 | `Adapter` | `ClipboardGateway` | クリップボードへ出す。`Clipboard` を宣言する | `FR-033` / `FR-068` |
-| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。埋め込みの入れ物を持ち、公開点を置く | `FR-067` / `FR-065` |
+| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。**現在値を保持する。** 埋め込みの入れ物を持ち、公開点を置く。`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` |
 | CP-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 | — |
 | CP-27 | `Framework` | `DomInputSource` | `InputSource` の実装 | — |
 | CP-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装 | `FR-060` |
 | CP-29 | `Framework` | `LocalStorageDocumentStore` | `DocumentStore` の実装 | `FR-026` |
 | CP-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 | `FR-033` |
 | CP-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 | `FR-025` |
+| CP-32 | `documentModel` | `Selection` | 選ばれている対象の集合と、選んだ順序。文書に保存しない | 表 T-023c の `SL-1` / `SL-7b` / `SL-8` |
+| CP-33 | `documentModel` | `DialogueLog` | 確定した発話と、版数とは別の順序。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` / `AG-6` |
 
 **各部品の内側のユニットと、公開するインターフェースは Chapter 5.3 が宣言する。** 本表が定めるのは部品の境界だけである。
 

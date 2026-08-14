@@ -147,9 +147,9 @@
    "remark": "AG-6 / AG-11"
   },
   {
-   "name": "PostChatMessage",
+   "name": "PostDialogueMessage",
    "shape": "component",
-   "description": "Takes a confirmed utterance and passes it on. Runtime only, never saved.",
+   "description": "Takes a confirmed utterance, appends it to DialogueLog and passes it on. Runtime only, never saved.",
    "remark": "FR-066 / AG-11"
   },
   {
@@ -193,6 +193,18 @@
    "shape": "component",
    "description": "Which item the pointer is over.",
    "remark": "SL-1 / PG-9"
+  },
+  {
+   "name": "Selection",
+   "shape": "rectangle",
+   "description": "The set of selected objects and the order they were selected in. Never saved.",
+   "remark": ""
+  },
+  {
+   "name": "DialogueLog",
+   "shape": "rectangle",
+   "description": "Confirmed utterances, in an order of their own that is independent of the revision. Never saved.",
+   "remark": ""
   }
  ],
  "edges": [
@@ -201,28 +213,28 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "converts",
-   "description": "backed by 4 component edge(s): SvgRenderer -> DocumentSettings; DocumentCodec -> Schedule; DocumentCodec -> DocumentSettings; DocumentCodec -> DocumentStamp"
+   "description": "backed by 11 component edge(s): SvgRenderer -> DocumentSettings; DocumentCodec -> Schedule; DocumentCodec -> DocumentSettings; DocumentCodec -> DocumentStamp; AgentApiEndpoint -> Schedule; AgentApiEndpoint -> DocumentSettings; AgentApiEndpoint -> DocumentStamp; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; InputCommandTranslator -> Selection"
   },
   {
    "source": "adapter",
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "geometry only",
-   "description": "backed by 3 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout"
+   "description": "backed by 4 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout"
   },
   {
    "source": "adapter",
    "target": "usecase",
    "arrow": "dependency",
    "label": "one operation",
-   "description": "backed by 6 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostChatMessage; FileGateway -> ApplyDocumentChange; AutosaveGateway -> ApplyDocumentChange"
+   "description": "backed by 6 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; AutosaveGateway -> ApplyDocumentChange"
   },
   {
    "source": "framework",
    "target": "adapter",
    "arrow": "dependency",
    "label": "implements",
-   "description": "backed by 7 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; LocalStorageDocumentStore -> AutosaveGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter"
+   "description": "backed by 8 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; LocalStorageDocumentStore -> AutosaveGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec"
   },
   {
    "source": "framework",
@@ -236,14 +248,14 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "reads",
-   "description": "backed by 3 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule"
+   "description": "backed by 4 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule; ScheduleGeometry -> Selection"
   },
   {
    "source": "usecase",
    "target": "documentModel",
    "arrow": "dependency",
    "label": "updates",
-   "description": "backed by 8 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule"
+   "description": "backed by 10 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; PostDialogueMessage -> DialogueLog; NotifyChangeWatchers -> DialogueLog"
   },
   {
    "source": "usecase",
@@ -275,7 +287,9 @@
        "Schedule",
        "DocumentSettings",
        "DocumentStamp",
-       "EditHistory"
+       "EditHistory",
+       "Selection",
+       "DialogueLog"
       ]
      },
      {
@@ -309,7 +323,7 @@
      "ValidateImportedDocument",
      "ChooseStartupDocument",
      "NotifyChangeWatchers",
-     "PostChatMessage"
+     "PostDialogueMessage"
     ]
    },
    {
