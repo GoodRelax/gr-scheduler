@@ -13,7 +13,7 @@ Cluster-level edges are deliberately kept OUT of model.json: a view keeps
 every edge whose endpoints survive, so a cluster edge would leak into every
 view that spans those layers and collide with the node-level labels.
 
-Usage:  python docs/review/components/build.py
+Usage:  python docs/spec/_assets/source/build.py
 """
 
 import json
@@ -24,9 +24,15 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODEL = os.path.join(HERE, "model.json")
 OVERVIEW = os.path.join(HERE, "overview.json")
-# The .svg is what the specification carries, so it lands in the spec's asset
-# folder. The .drawio and .png stay here as working files.
-ASSETS = os.path.abspath(os.path.join(HERE, "..", "..", "spec", "_assets"))
+# The .svg is what the specification carries, so it lands one level up, in the
+# asset folder itself. The .drawio stay here beside model.json as working files.
+ASSETS = os.path.abspath(os.path.join(HERE, ".."))
+# components.md must NOT live under _assets/: StrictDoc parses every .md below
+# the input folder as a document, but specindex.discover() only lists
+# docs/spec and docs/spec/_assets without recursing -- the table would ship in
+# the export while no mechanical check ever read it.
+TABLE = os.path.abspath(os.path.join(HERE, "..", "..", "..",
+                                     "review", "components", "components.md"))
 SKILL = os.path.expanduser(r"~\.claude\skills\drawio-uml\scripts")
 DRAWIO = r"C:\Program Files\draw.io\draw.io.exe"
 
@@ -116,7 +122,7 @@ def draw(model_path, out_stem, view=None):
         stem = os.path.basename(out_stem)
         # Only the .svg is produced. To eyeball a figure as a raster, run the
         # draw.io CLI by hand:
-        #   drawio -x -f png -b 12 -o out.png docs/review/components/<stem>.drawio
+        #   drawio -x -f png -b 12 -o out.png docs/spec/_assets/source/<stem>.drawio
         for fmt, where in (("svg", os.path.join(ASSETS, stem)),):
             # No -e: the editable XML is not embedded. model.json is the source,
             # so nothing is ever re-opened from the picture.
@@ -153,7 +159,7 @@ def main():
 
     print("table:")
     print("    " + run([sys.executable, os.path.join(SKILL, "table.py"),
-                        MODEL, os.path.join(HERE, "components.md")]))
+                        MODEL, TABLE]))
 
 
 if __name__ == "__main__":
