@@ -14,7 +14,62 @@
 
 **Type**: SECTION
 
-> 未記入。採用するアーキテクチャと層の凡例を書く。Clean Architecture を採る場合は entity / use case / adapter / framework の依存方向を mermaid で示す。推奨案は `09-architecture/architecture-layering-draft-ja.md` にあるが `status: draft` であり決定ではない。ここで決める。
+**Clean Architecture を採る。** 層は `Entity` / `UseCase` / `Adapter` / `Framework` の 4 つとし、既定の名前をそのまま使う。**`Entity` の内側は、さらに `model` と `layout` に分ける。**
+
+**層の凡例と依存の向きを 図 F-012 に、各層に置くものを 表 T-060 に、依存の規則を 表 T-061 に示す。**
+
+**図 F-012 — 層と依存の向き**
+
+```mermaid
+graph RL
+    Fw["Framework"]:::framework -->|"面を渡し、結線する"| Ad
+    Ad["Adapter"]:::adapter -->|"操作を渡す"| Uc
+    Uc["UseCase"]:::usecase -->|"計算と不変条件を使う"| Lay
+    subgraph Ent["Entity"]
+        direction RL
+        Lay["layout"]:::entity -->|"エンティティを読む"| Mdl["model"]:::entity
+    end
+
+    classDef entity fill:#FF8C00,stroke:#333,color:#000
+    classDef usecase fill:#FFD700,stroke:#333,color:#000
+    classDef adapter fill:#90EE90,stroke:#333,color:#000
+    classDef framework fill:#87CEEB,stroke:#333,color:#000
+```
+
+**矢印は依存の向きを表し、ラベルはその依存が何のためかを表す。** 本図は層の凡例であり、**部品どうしの辺は Chapter 5.2 が持つ。** **内向きであれば層を飛び越してよい** —— たとえば SVG を作る部品は `Adapter` にあるが、`UseCase` を通らずに `layout` を直接読む。
+
+**表 T-060 — 層**
+
+| 行 ID | 層 | 置くもの | 純粋性 |
+| --- | --- | --- | --- |
+| LY-1 | `Entity` / `model` | 表 T-056 のエンティティと不変条件、および取り消しの積み | すべて `pure` |
+| LY-2 | `Entity` / `layout` | 日付と座標の対応、行の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
+| LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。取り込みの検証。購読者への配布 | 操作と検証は `pure`、確定と配布は `non-pure` |
+| LY-4 | `Adapter` | `Agent API`、SVG の生成、交換形式との相互変換、画面の入力を操作へ変えること、ファイルと保管庫とクリップボードの出し入れ | 変換と直列化は `pure`、残りは `non-pure` |
+| LY-5 | `Framework` | ブラウザが供給する面（DOM・SVG・File System Access API・`localStorage`）と、単一 `.html` のシェル | すべて `non-pure` |
+
+**表 T-061 — 依存の規則**
+
+| 行 ID | 規則 |
+| --- | --- |
+| LR-1 | **層をまたぐ依存は内向きだけとすること（MUST）。外向きの依存を作ってはならない（MUST NOT）。** 内向きであれば層を飛び越してよい |
+| LR-2 | **同じ層の中で呼び合ってよい。ただし相手が Chapter 5.3 で宣言したインターフェースを介すること（MUST）。他の部品の内部へ直に触れてはならない（MUST NOT）** |
+| LR-3 | **層の中の呼び出しを非巡回に保つこと（MUST）** —— 巡回すると、どちらが先に成り立つのかを決められなくなる |
+| LR-4 | **`layout` は `model` を読んでよい。`model` が `layout` を知ってはならない（MUST NOT）** |
+| LR-5 | **依存先は、自分より変わりにくい側とすること（SHOULD）** |
+| LR-6 | **`Entity` と `UseCase` が、ブラウザの供給する型に触れてはならない（MUST NOT）** |
+
+**`Entity` を 2 つに割るのは、レイアウトが本ソフトウェアの価値の中心でありながら、ブラウザを必要としないためである。** 目標が「1 つの行に複数のタスクを置いて俯瞰できる」（`GL-001`）と「全体日程を 1 画面で見られる」（`GL-002`）である以上、行の配置と表示量の増減はこの道具の本質であって画面の都合ではない。そして `FR-093` が文字の実測を禁じているので、**レイアウトの計算はブラウザに何も訊かずに済む。** 割っておくと `NFR-013` の計算量をブラウザ無しで測れる —— 表 T-043 の `PG-8` 〜 `PG-12` がその対象である。
+
+⚠️ **この方針の代償は `LM-2a` が持つ。** レイアウトを純粋に保てることと、`LM-2a` が適合範囲を絞っていることは、**同じ 1 つの決定の表と裏である。** 片方だけを変えることはできない。
+
+**文書への書き込みの経路は 1 本である。** 人向けの画面と `Agent API` の双方が同じ経路を通ることは `FR-028` が要求し、表 T-042 の `MS-1` がその形を M1 で作ると定めている。**入口が 2 つに分かれると、片方にしか掛からない検証や履歴が生まれる。**
+
+**描画はその経路を通らない。** 描画は文書を読むだけで変えないので、書き込みの経路に載せる理由が無い。**載せると、画面を描くたびに書き込みの経路が起動する。**
+
+**設計の合否は `previous-project-result/21-review-standard/review-standards.md` の `R2` で判定する**（`FR-092` の `EZ-5`）。**同書は `R7`（純粋性・構造）も Chapter 5 〜 6 を対象と定めている。層に掛かる条項のうち、意図して満たさないものが 1 つある。**
+
+> **`R2.6`（DIP・SHOULD）** —— `Adapter` はブラウザの供給する面を直に呼び、抽象を挟まない。**ビジネスロジックはブラウザの型に触れない**（`LR-6`）ので条項の趣旨は満たすが、`Adapter` 自身は具象に依存する。**差し替える先が存在しないためである** —— `NFR-005` が対象を Chromium 系（Chrome / Edge）に限り、Safari を対象としないと定めている。抽象を挟むほうが `R2.9`（YAGNI）に当たる。
 
 ### 5.2 Components (コンポーネント)
 
