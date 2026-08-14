@@ -148,7 +148,15 @@ for rid, owners in sorted(row_owner.items()):
 token = re.compile(r'`([A-Z]{1,3}-[0-9]+[a-z]?)`')
 # Retired on purpose; the reduction-candidate table records the retirement,
 # so a reference to them is correct and must not be reported.
-RETIRED = {'FR-050', 'T-030'}
+#
+# T-044..T-047 and F-002..F-007 belong to the Chapter 5/6 design that was
+# discarded on 2026-08-13. The changelog names them so the numbers are never
+# handed to something else; the seats stay burnt. Do NOT remove them from
+# this set to "make the reference resolve" -- resolving it would mean a new
+# table had taken a used seat number.
+RETIRED = {'FR-050', 'T-030',
+           'T-044', 'T-045', 'T-046', 'T-047',
+           'F-002', 'F-003', 'F-004', 'F-005', 'F-006', 'F-007'}
 known = all_rows | uids | all_tables | RETIRED
 for rel, lines in lines_by_file.items():
     for i, line in enumerate(lines, 1):

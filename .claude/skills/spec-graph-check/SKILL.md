@@ -138,11 +138,13 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 - When resolving a contradiction, the reflex is to write the same explanation
   into both places. That is the single most common way new duplication is
   created. Decide one owner; the other side points.
-- **A new `_assets/*.md` is invisible until it is registered.** `specindex.py`
-  and `md-checks.py` each hold a hardcoded `FILES` list. `tbl-datamodel.md`
-  was reported green by checks 5–10 for a whole session before anyone
-  noticed they had never read it. Add the path to **both** lists, then
-  confirm the `tables=` / `figures=` counters move.
+- **A new `_assets/*.md` is picked up by scanning, but confirm it.**
+  `specindex.discover()` scans `docs/spec` and `docs/spec/_assets`, and
+  `md-checks.py` uses the same list. It was a hardcoded `FILES` list until
+  2026-08-16, and a new asset file was reported green by checks 5–10 for a
+  whole session before anyone noticed they had never read it. After adding a
+  file, **confirm the `tables=` / `figures=` / `rows=` counters move** — that
+  is the only evidence it was read.
 - Do not renumber. `FR-xxx` / `T-xxx` / row IDs are seat numbers, and gaps are
   correct (`FR-050` is retired on purpose). Before adding a settings key,
   check the whole `S-` range — the highest number is not always free.
@@ -171,7 +173,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 
 | file | role |
 | --- | --- |
-| `check.sh` | all 14 checks |
+| `check.sh` | all 15 checks |
 | `specindex.py` | shared parser: tables, rows, owners, references |
 | `md-checks.py` | checks 5–10 and 15 (Markdown structure, figure seat numbers) |
 | `style-checks.py` | checks 12–14 (recurring defect types) |

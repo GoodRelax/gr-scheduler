@@ -7,7 +7,6 @@
 本書は `01-04-requirements.md` の Chapter 1.8 から参照される。
 
 由来は前プロジェクトの命名確定版（`previous-project-result/03-ui-naming/ui-parts-ja.md` §2-1）である。
-**語は 1 つも落とさずに引き継いだ。** 一方、そこに併記されていた**旧名と改名の経緯は引き継がない** —— 旧語彙を本プロジェクトへ流入させないためである。経緯が要るときは由来の文書を読む。
 
 記法の規則と、単独で使ってはならない曖昧な日本語は **`01-04-requirements.md` の 1.9 表記規約**が持つ。ここには置かない。
 
@@ -22,11 +21,14 @@
 
 | 行 ID | 確定名（英） | 日本語 |
 | --- | --- | --- |
-| N-1 | `Task` | タスク（`shapeKind` が `'milestone'` のときは「マイルストーン」と表示する）。⚠️ **真偽値の `milestone` という列は持たない** |
+| N-1 | `Task` | タスク。`milestone` が真のときマイルストーンである。⚠️ **描画の形は `TaskVisual.shapeKind` が別に持つ。混同しない**（往復の規則は表 T-016 の `PR-18`） |
 | N-2 | `TaskGroup` | タスクグループ |
 | N-3 | `TaskGroupMember` | タスクグループメンバー |
 | N-4 | `stackOrder` | 積み順。**人が指定できるかどうかは表 T-014 の `ST-6` が定める** |
 | N-4a | `Item` | **アイテム**。**当たり判定と選択の対象となるものの総称。** 全数は表 T-023c の `SL-1` が持つ。⚠️ **`Task` の別名ではない** —— 外延が広いので 1.9 の命名の規約（同じものを 2 つの語で呼ばない）には当たらない。**`Task` 1 つを指すときは「タスク」と書く** |
+| N-5 | `CommentBox` / `commentBoxes` | コメントボックス 1 つ分の型と、文書が持つその配列の鍵。画面の部品名は `Comment Boxes`（`U-14`） |
+| N-6 | `HighlightBox` / `highlightBoxes` | ハイライトボックス 1 つ分の型と、文書が持つその配列の鍵。画面の部品名は `Highlight Boxes`（`U-15`） |
+| N-7 | `carry` / `carryElements` | 取り込んだ交換形式の項目を、解釈せずにそのまま持ち回るための入れ物 |
 
 ## 2. プロパティ
 
@@ -57,7 +59,8 @@
 | P-19 | `'transparent'` | 透明。`strokeColor` / `fillColor` / `TaskGroup.color` が取りうる値。`null`（選んでいない）とは別物である |
 | P-20 | `nameAnchor` / `nameAlign` | 名称アンカー / 名称の揃え |
 | P-21 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 |
-| P-22 | `wbs_parent_uid` | WBS の親（深さは導出する） |
+| P-22 | `wbsParentUid` | WBS の親（深さは導出する） |
+| P-23 | `linkType` | 依存の種別（4 値は表 T-018 が持つ） |
 
 ## 3. UI パーツ
 
@@ -68,7 +71,7 @@
 | 行 ID | 確定名（英） | 日本語 |
 | --- | --- | --- |
 | U-1 | `Rows` | 行 |
-| U-2 | `Task Bars` | タスクバー |
+| U-2 | `Task Bars` | タスクバー（**総称**）。`Plan Bar` と `Actual Bar` をまとめて指す。言い分ける規則は表 T-006b の `A-14` が持つ |
 | U-3 | `Plan Bar` | 予定バー |
 | U-4 | `Actual Bar` | 実績バー |
 | U-5 | `Progress Marker` | 進捗マーカー |
@@ -77,7 +80,7 @@
 | U-8 | `Assignee Label` | 担当ラベル |
 | U-9 | `Progress Line` | イナズマ線。直訳ではない。例外は表 T-105 |
 | U-10 | `Cursors` | カーソル |
-| U-11 | `Status Line` | 基準日線。`Project.status_date` の位置に引く縦線（`FR-046`）。⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる |
+| U-11 | `Status Line` | 基準日線。直訳ではない。例外は表 T-105。`Project.statusDate` の位置に引く縦線（`FR-046`）。⚠️ **「本日線」と呼んではならない（MUST NOT）** —— 本日以外を指せる |
 | U-12 | `Dual Cursor` | デュアルカーソル |
 | U-13 | `Guide Cursor` | ガイドカーソル |
 | U-14 | `Comment Boxes` | コメントボックス。⚠️ **「コメント」と略さない（MUST NOT）** —— 本文だけを指すのか器を指すのかが読めなくなる。本文は「コメントボックスの本文」と書く |
@@ -94,7 +97,7 @@
 | U-24 | `Panel Divider` | パネル境界 |
 | U-25 | `Properties Panel` | プロパティパネル |
 | U-26 | `Command Palette` | コマンドパレット |
-| U-27 | `Schedule Title` | 文書名。MSPDI の `Project/Title` に対応する。⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す |
+| U-27 | `Document Title` | 文書名。MSPDI の `Project/Title` に対応する。⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す |
 | U-28 | `Autosave Status` | 自動保存の状態 |
 | U-29 | `Hidden Group Tab` | 非表示グループタブ |
 | U-30 | `Help Modal` / `AI Export Modal` | ヘルプ / AI 出力 |
@@ -104,17 +107,24 @@
 | U-34 | `Palette Groups` / `Palette Commands` | （同上） |
 | U-35 | `Header Commands` / `Branding` | （同上） |
 | U-36 | `Agent API` | **`Agent API`**（日英とも同じ語を使い、訳語を当てない） |
-| U-37 | `WatermarkPassword` | **透かし解除パスワード**。**「合言葉」と呼んではならない（MUST NOT）** —— 何のための語かが伝わらない。既定値と SHA-256 は `tbl-settings.md` の表 T-207 が持つ |
-| U-38 | `ArmedShape` | **構え**。パレットで選んでいて「次に引いたら作られる / 結ばれるもの」。全数は表 T-023b が持つ。**「選択」と呼んではならない（MUST NOT）** —— 選択（`Selection`）は既にある対象を選ぶことであり、別の状態である |
+| U-37 | `WatermarkUnlockPassword` | **透かし解除パスワード**。**「合言葉」と呼んではならない（MUST NOT）** —— 何のための語かが伝わらない。既定値と SHA-256 は `tbl-settings.md` の表 T-207 が持つ |
+| U-38 | `ArmedShape` | **構え**。直訳ではない。例外は表 T-105。パレットで選んでいて「次に引いたら作られる / 結ばれるもの」。全数は表 T-023b が持つ。**「選択」と呼んではならない（MUST NOT）** —— 選択（`Selection`）は既にある対象を選ぶことであり、別の状態である |
 | U-39 | `Selection` | **選択**。既にある対象を選ぶこと、およびその集合。描画領域の規則は表 T-023c、行の規則は `FR-085` が持つ |
-| U-40 | `Marquee` | **範囲選択**。何にも当たらない場所からドラッグして矩形で選ぶこと |
+| U-40 | `Marquee` | **範囲選択**。直訳ではない。例外は表 T-105。何にも当たらない場所からドラッグして矩形で選ぶこと |
+| U-41 | `Percent Complete Label` | 完了率ラベル |
+| U-42 | `Pointer` | ポインタ。マウスが指す点 |
+| U-43 | `Grab Region` / `Grab Point` | 掴み領域 / 掴み点（全数と優先順位は表 T-023d が持つ） |
+| U-44 | `Dialogue Field` | 対話欄 |
+| U-45 | `GoodRelax Scheduler` | 本ソフトウェアの名称。略称は `GRS`。日本語に訳さない |
+| U-46 | `Pinned Row` | ピン止めした行。縦にスクロールしても画面に残る |
+| U-47 | `Row Expander` | 行の折り畳みの操作子。開く側と閉じる側の 2 つで 1 組 |
 
-> **`Agent API` は 2026-08-12 に確定した呼び名である**（ユーザー判断）。**日本語でも `Agent API` と書く。**
+> **呼び名は `Agent API` とする。日本語でも `Agent API` と書く。**
 > **「機械向けの口」「口」と呼んではならない（MUST NOT）。**
 >
 > **`AI API` を採らない理由**: 英語では「**AI を提供する API**」と読まれる（OpenAI API などと同型）。これは AI が叩く側の API なので向きが逆であり、**Chapter 2.4（表 T-009 の `XO-4`）「本ソフトウェアは AI 推論の実行系を持たない」と矛盾する。** `agent` は叩く側を名指しする語なので誤読が起きない。**同じ理由で再提案しないこと。**
 >
-> **公開する識別子は `grSchedulerAgentApi` とする —— 確定 2026-08-12（ユーザー判断）。**
+> **公開する識別子は `grSchedulerAgentApi` とする。**
 > `globalThis` に載る名前なので、**他のツールが公開する同種の API と衝突しないよう製品名の接頭辞を残す。**
 > 概念とインターフェースの呼び名が `Agent API`、実際に公開する識別子が `grSchedulerAgentApi` であり、
 > **面が違うだけで食い違いではない**（記法は表 T-006a）。
@@ -140,14 +150,14 @@
 | K-8 | 縦の寸法 | `fontMin` | 最小フォント |
 | K-9 | 縦の寸法 | `thinFontScale` | 細線のフォント倍率 |
 | K-10 | 縦の寸法 | `actualGap` | 予定から実績までの間隔（下に置くとき） |
-| K-11 | 縦の寸法 | `stackGap` | 段の間隔 |
+| K-11 | 縦の寸法 | `stackGap` | 積み順の段の間隔 |
 | K-12 | 縦の寸法 | `rowGap` | 行の間隔 |
 | K-13 | 形状の縦幅 | `shapeHeightOf.rectangle` | 矩形 |
 | K-14 | 形状の縦幅 | `shapeHeightOf.chevron` | 矢羽根 |
 | K-15 | 形状の縦幅 | `shapeHeightOf.arrow` | 矢印 |
 | K-16 | 形状の縦幅 | `shapeHeightOf.endpointSpan` | 端点スパン |
 | K-17 | 形状の縦幅 | `shapeHeightOf.milestone` | マイルストーン |
-| K-18 | 依存線 | `dependencyWidth` | 太さ |
+| K-18 | 依存線 | `dependencyWidth` | 依存線の太さ |
 | K-19 | 依存線 | `dependencyArrowLength` | 矢印の三角形の長さ |
 | K-20 | 依存線 | `dependencyRunOfArrow` | 入口の走り ÷ 三角形 |
 | K-21 | 進捗マーカー | `markerOfFont` | マーカー径 ÷ フォント |
@@ -166,7 +176,7 @@
 | K-34 | ラベル | `labelHaloOfFont` | 縁取りの太さ ÷ フォント |
 | K-35 | ラベル | `truncateUnits` | 打ち切り幅（半角換算） |
 | K-36 | ラベル | `rowTitleFont` | 行名の文字 |
-| K-37 | ラベル | `rowTitleIndent` | 行名の 1 段のインデント |
+| K-37 | ラベル | `rowTitleIndent` | 行名の `TaskGroup` の深さ 1 段ぶんのインデント |
 | K-38 | ラベル | `rowTitleTopScale` | `TaskGroup` 深さ 1 の行名の倍率 |
 | K-39 | 形状の細部 | `planStroke` | 予定の輪郭線 |
 | K-40 | 形状の細部 | `thinStrokeOfPlan` | 細線の太さ ÷ その形状の予定の縦幅 |
@@ -176,15 +186,15 @@
 | K-44 | 形状の細部 | `chevronNotchOfWidth` | 矢羽根の切り欠き ÷ 幅 |
 | K-45 | 形状の細部 | `arrowHeadOfStroke` | 矢印の矢じり ÷ 線の太さ |
 | K-46 | 形状の細部 | `arrowHeadOfSpan` | 矢印の矢じり ÷ 全長（上限） |
-| K-47 | 形状の細部 | `spanDotOfStroke` | 端点の点の半径 ÷ 線の太さ |
+| K-47 | 形状の細部 | `spanDotOfStroke` | 端点スパンの点の半径 ÷ 線の太さ |
 | K-48 | 形状の細部 | `starInnerOfOuter` | ☆ の内接半径 ÷ 外接半径 |
 | K-49 | 形状の細部 | `minShapeWidth` | ゼロ期間でも残す最小幅 |
-| K-50 | イナズマ線 | `progressLineWidth` | 太さ |
+| K-50 | イナズマ線 | `progressLineWidth` | イナズマ線の太さ |
 | K-51 | イナズマ線 | `progressLineOverhang` | 上下へのはみ出し |
 | K-52 | LOD | `rulerTierPxPerDayMonth` | 目盛が「年」から「年 ＋ 月」に変わる px/day |
 | K-53 | LOD | `rulerTierPxPerDayWeek` | 目盛が「年 ＋ 月」から「年 ＋ 月 ＋ 週」に変わる px/day |
 | K-54 | LOD | `rulerTierPxPerDayDay` | 目盛が「年 ＋ 月 ＋ 週」から「年 ＋ 月 ＋ 日 ＋ 曜日」に変わる px/day |
-| K-55 | LOD | `taskLevelOfDetailReadablePx` | この幅を割った深さは描かない |
+| K-55 | LOD | `taskLevelOfDetailReadablePx` | この幅を割った WBS の深さは描かない |
 | K-56 | LOD | `groupLevelOfDetailBase` | グループ LOD の初項 |
 | K-57 | LOD | `groupLevelOfDetailRatio` | グループ LOD の公比 |
 | K-58 | LOD | `stackSafetyCap` | 積み順の安全弁 |
@@ -232,7 +242,7 @@
 | K-102 | 構造の上限 | `maxGroupDepth` | `TaskGroup` の深さの上限 |
 | K-103 | 保存と上限 | `importMinDate` / `importMaxDate` | 受け入れる日付の範囲 |
 | K-104 | 依存線 | `dependencyLagDefault` | 依存を作ったときに置くラグ |
-| K-105 | 文字サイズ | `fontScaleSizes.S` / `fontScaleSizes.M` / `fontScaleSizes.L` | 文字サイズの 3 段の px |
+| K-105 | 文字サイズ | `fontScaleSizes.S` / `fontScaleSizes.M` / `fontScaleSizes.L` | 文字サイズの段（S / M / L）の px |
 | K-106 | 画面の寸法 | `iconHintDelayMs` | アイコンの説明を出すまでの待ち時間 |
 | K-90 | 保存しないもの（別枠） | `language` ⛔ | 表示言語（`ja` / `en`）。置き場と規則は表 T-206 の `S-99` |
 
@@ -241,14 +251,26 @@
 - **`palette` を設定値の名前に使わないこと（MUST NOT）。** `Command Palette` / `Palette Groups` / `Palette Commands` が既にあり、同じ語が別のものを指すことになる。
 - **スクロール位置の名前は `scrollDate` と `scrollGroupId` とし、`scrollX` / `scrollY` にしない。** px で持たない規則と理由は `FR-080` が持つ。
 - **時間軸のしきい値は 1 つの配列にせず、境目ごとに別のキーとして名づける。** キーは表 T-205 の `S-83` 〜 `S-85`。まとめない規則と理由は `FR-017` が持つ。
-- 基準日の名前は `Project.status_date`。設定値ではないという規則と理由は `FR-046` が持つ。
+- 基準日の名前は `Project.statusDate`。設定値ではないという規則と理由は `FR-046` が持つ。
+
+## 4a. 価値のことば
+
+**Type**: SECTION
+
+**表 T-106 — 価値のことば**
+
+| 行 ID | ことば | 意味 |
+| --- | --- | --- |
+| VK-1 | **ぬるサク** | 目標 `GL-003` が述べる状態を指すことば |
+| VK-2 | **すぐわか** | 目標 `GL-006` が述べる状態を指すことば |
+| VK-3 | **ペライチ** | 目標 `GL-001` / `GL-002` が述べる状態を指すことば |
 
 ## 5. 直訳しない語
 
 **Type**: SECTION
 
 日本語ラベルは英語の確定名の直訳とする。意訳・別語・語順の反転を禁止する（MUST NOT）。
-**例外は表 T-105 の 2 件だけである。増やすときは必ず本表に追記すること（MUST）。**
+**例外は表 T-105 の 5 件だけである。増やすときは必ず本表に追記すること（MUST）。**
 「なんとなく違う」を許すと規則が崩れる。
 
 **表 T-105 — 直訳しない語（例外）**
@@ -257,3 +279,6 @@
 | --- | --- | --- | --- |
 | X-1 | `Progress Line` | イナズマ線 | 日本の日程管理で定着した語である。「進捗線」に変えると日本の利用者に通じなくなり、目標 `GL-006`（マニュアルを読まずに使える）に反する |
 | X-2 | `chevron` | 矢羽根 | 図形名としての直訳は「山形」だが、要望の入力が「矢羽根」を使っており、日程表の文脈で意味が通る。英語側は世界共通の図形名 `chevron` を使う（コードは英語で書くため） |
+| X-3 | `ArmedShape` | 構え | **英語は「構えている形状」というものを指し、日本語は「構えている」という状態を指す。** 直訳の「構えた形状」は画面の語として長く、`Selection` との対比が読めない |
+| X-4 | `Marquee` | 範囲選択 | **`Marquee` は選ぶための矩形そのものを指し、「範囲選択」は操作を指す。** 直訳の「マーキー」は日程表の文脈で通じない |
+| X-5 | `Status Line` | 基準日線 | **直訳の「状態線」では意味が取れない。**「基準線」は表 T-006b の `A-9` が変更前の予定の訳語として予約しているので使えない |

@@ -17,3 +17,4 @@ tbl-settings.md/T:T-203 S-75 + tbl-settings.md/T:T-203 S-76
 01-04-requirements.md/NFR-006 + 01-04-requirements.md/NFR-009
 01-04-requirements.md/FR-026 + 01-04-requirements.md/UC-011
 01-04-requirements.md/T:T-011 V-11a + 01-04-requirements.md/UC-010
+01-04-requirements.md/T:T-011 V-10 + 01-04-requirements.md/UC-014
