@@ -29,6 +29,13 @@
 | N-5 | `CommentBox` / `commentBoxes` | コメントボックス 1 つ分の型と、文書が持つその配列の鍵。画面の部品名は `Comment Boxes`（`U-14`） |
 | N-6 | `HighlightBox` / `highlightBoxes` | ハイライトボックス 1 つ分の型と、文書が持つその配列の鍵。画面の部品名は `Highlight Boxes`（`U-15`） |
 | N-7 | `carry` / `carryElements` | 取り込んだ交換形式の項目を、解釈せずにそのまま持ち回るための入れ物 |
+| N-8 | `Project` | プロジェクト。文書が表す 1 件 |
+| N-9 | `Calendar` | 暦 |
+| N-10 | `Resource` | 担当者。⚠️ **「資源」という日本語は、範囲の記述（表 T-002 の `SO-8` / `SO-9`）と外部通信（表 T-003 の `CN-6`）では別の意味である** |
+| N-11 | `Assignment` | 割当。どの担当者がどのタスクに就くか |
+| N-12 | `Dependency` | 依存。⚠️ **画面に描く線は `Dependency Lines`（`U-16`）であり、別の語である** |
+| N-13 | `TaskVisual` | タスクの見せ方。形・色・名前の置き方 |
+| N-14 | `TaskOrigin` | 取り込み元の記録 |
 
 ## 2. プロパティ
 
