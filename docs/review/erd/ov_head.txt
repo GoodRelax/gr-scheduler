@@ -51,6 +51,7 @@ flowchart TB
       <tr><td>commentBoxes[]</td><td>ET-13</td></tr>
       <tr><td>highlightBoxes[]</td><td>ET-14</td></tr>
       <tr><td>taskOrigins[]</td><td>ET-12</td></tr>
+      <tr><td>baselineTasks[]</td><td>ET-18</td></tr>
     </table>"]
     Settings["<table style='white-space:nowrap'>
       <tr><td colspan='2'><b>documentSettings</b>（見せ方の群）</td></tr>

@@ -51,6 +51,7 @@ flowchart TB
       <tr><td>commentBoxes[]</td><td>ET-13</td></tr>
       <tr><td>highlightBoxes[]</td><td>ET-14</td></tr>
       <tr><td>taskOrigins[]</td><td>ET-12</td></tr>
+      <tr><td>baselineTasks[]</td><td>ET-18</td></tr>
     </table>"]
     Settings["<table style='white-space:nowrap'>
       <tr><td colspan='2'><b>documentSettings</b>（見せ方の群）</td></tr>
@@ -120,6 +121,7 @@ flowchart TB
 | ET-15 | `CarryElement` | 解釈しない要素 1 つを、原形のまま抱える器（自己参照） | 所有者 ＋ `ordinal` | 書き出す | — |
 | ET-16 | `revisionStamp` | 版数と、最後に書いた者と時刻 | — （文書に 1 つしか無い） | **書き出さない** | — |
 | ET-17 | `changeLog` | 変更の理由。**会話そのものは保存しない**（`FR-066`） | `revision` | **書き出さない** | — |
+| ET-18 | `BaselineTask` | 変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ | `uid` | **書き出さない** | — |
 
 ⚠️ **`carry` の器を持たないものは、交換相手に対応が無いか、対応があっても解釈しない要素を持たない。**
 持たせると、書き戻す先が無い値を抱えることになる。

@@ -31,6 +31,8 @@ RELATIONS = [
     ('HighlightBox', 'TaskGroup', '0..n ─ 0..1', '囲む範囲の上端の行（`topGroupId`）'),
     ('HighlightBox', 'TaskGroup', '0..n ─ 0..1', '囲む範囲の下端の行（`bottomGroupId`）'),
     ('CarryElement', 'CarryElement', '1 ─ 0..n', '入れ子の子（`children`）'),
+    ('Task', 'BaselineTask', '0..1 ─ 0..1',
+     '変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`）'),
 ]
 
 CARRY_OWNERS = ['Project', 'Task', 'Dependency', 'Calendar', 'WeekDay',
@@ -68,7 +70,7 @@ def node(ident, title, cols):
 def figure():
     out = ['```mermaid', '---', 'config:', '  flowchart:',
            '    wrappingWidth: 1200', '    htmlLabels: true', '---', 'flowchart TB']
-    for name, desc, cols in m.ENTITIES + m.STAMP:
+    for name, desc, cols in m.ENTITIES + m.STAMP + m.LATE:
         out.append(node(name, name, cols))
     for a, b, mult, label in RELATIONS:
         out.append('    %s -->|"%s（%s）"| %s' % (a, esc(label), mult, b))
@@ -84,7 +86,7 @@ def figure():
 def column_table():
     rows = []
     n = 0
-    for name, desc, cols in m.ENTITIES + m.STAMP:
+    for name, desc, cols in m.ENTITIES + m.STAMP + m.LATE:
         for cname, typ, nul, key, fk, origin, mspdi, meaning in cols:
             n += 1
             rows.append('| AT-%d | `%s` | `%s` | %s | %s | %s | %s | %s | %s |'
@@ -104,12 +106,13 @@ KEY_NOTE = {
 
 def entity_table():
     rows = []
-    for i, (name, desc, cols) in enumerate(m.ENTITIES + m.STAMP, 1):
+    for i, (name, desc, cols) in enumerate(m.ENTITIES + m.STAMP + m.LATE, 1):
         keys = [c[0] for c in cols if c[3].startswith('PK')]
         carry = 'あり' if name in CARRY_OWNERS else '—'
         export = '書き出す'
         if name in ('TaskGroup', 'TaskGroupMember', 'TaskVisual', 'TaskOrigin',
-                    'CommentBox', 'HighlightBox', 'revisionStamp', 'changeLog'):
+                    'CommentBox', 'HighlightBox', 'BaselineTask',
+                    'revisionStamp', 'changeLog'):
             export = '**書き出さない**'
         key = KEY_NOTE.get(
             name, ' ＋ '.join('`%s`' % k for k in keys) or '—')
