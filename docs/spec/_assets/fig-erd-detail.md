@@ -203,7 +203,20 @@ flowchart TB
       <tr><td>fields</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
       <tr><td>children</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
     </table>"]
-    Task -->|"WBS の親子（wbsParentUid）。**輪を禁じる規則は 表 T-015a の HM-4 と FR-023 が持つ**（0..n ─ 0..1）"| Task
+    revisionStamp["<table style='white-space:nowrap'>
+      <tr><td colspan='4'><b>revisionStamp</b></td></tr>
+      <tr><td>revision</td><td>整数</td><td>—</td><td>GRS</td></tr>
+      <tr><td>lastEditedBy</td><td>文字列</td><td>—</td><td>GRS</td></tr>
+      <tr><td>updatedAt</td><td>文字列（ISO 8601・UTC・秒）</td><td>—</td><td>GRS</td></tr>
+    </table>"]
+    changeLog["<table style='white-space:nowrap'>
+      <tr><td colspan='4'><b>changeLog</b></td></tr>
+      <tr><td><b><span style='color:#C00000'>revision</span></b></td><td>整数</td><td>PK</td><td>GRS</td></tr>
+      <tr><td>editedBy</td><td>文字列</td><td>—</td><td>GRS</td></tr>
+      <tr><td>explanation</td><td>文字列</td><td>—</td><td>GRS</td></tr>
+      <tr><td>changedAt</td><td>文字列（ISO 8601・UTC・秒）</td><td>—</td><td>GRS</td></tr>
+    </table>"]
+    Task -->|"WBS の親子（wbsParentUid）。輪を禁じる規則は 表 T-015a の HM-4 と FR-023 が持つ（0..n ─ 0..1）"| Task
     Task -->|"この依存の後続（入れ子の位置が表す）（1 ─ 0..n）"| Dependency
     Dependency -->|"この依存の先行（predecessorUid）（0..n ─ 1）"| Task
     TaskGroup -->|"行の親子（parentId）。深さの上限は FR-004（0..n ─ 0..1）"| TaskGroup
@@ -234,6 +247,7 @@ flowchart TB
     Resource -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
     Assignment -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
 ```
+
 ## 2. 関係
 
 **Type**: SECTION
@@ -242,7 +256,7 @@ flowchart TB
 
 | 行 ID | 親 | 子 | 多重度 | 何を表すか |
 | --- | --- | --- | --- | --- |
-| RL-1 | `Task` | `Task` | 0..n ─ 0..1 | WBS の親子（`wbsParentUid`）。**輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ** |
+| RL-1 | `Task` | `Task` | 0..n ─ 0..1 | WBS の親子（`wbsParentUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ |
 | RL-2 | `Task` | `Dependency` | 1 ─ 0..n | この依存の後続（入れ子の位置が表す） |
 | RL-3 | `Dependency` | `Task` | 0..n ─ 1 | この依存の先行（`predecessorUid`） |
 | RL-4 | `TaskGroup` | `TaskGroup` | 0..n ─ 0..1 | 行の親子（`parentId`）。深さの上限は `FR-004` |
@@ -379,7 +393,7 @@ flowchart TB
 | AT-93 | `Assignment` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 58 |
 | AT-94 | `Assignment` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 3 |
 | AT-95 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
-| AT-96 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置（表 T-019） |
+| AT-96 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置（表 T-013） |
 | AT-97 | `TaskVisual` | `nameAlign` | 列挙（`'left'` ほか 3 値） | 可 | — | GRS | — | 名前の揃え |
 | AT-98 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可 | — | GRS | — | **描画の形だけを決める。`Task.milestone` を変えない**（表 T-012） |
 | AT-99 | `TaskVisual` | `milestoneGlyph` | 列挙（8 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る |

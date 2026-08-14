@@ -9,7 +9,7 @@ FK = '#008000'
 # parent, child, multiplicity, label
 RELATIONS = [
     ('Task', 'Task', '0..n ─ 0..1',
-     'WBS の親子（`wbsParentUid`）。**輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ**'),
+     'WBS の親子（`wbsParentUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ'),
     ('Task', 'Dependency', '1 ─ 0..n', 'この依存の後続（入れ子の位置が表す）'),
     ('Dependency', 'Task', '0..n ─ 1', 'この依存の先行（`predecessorUid`）'),
     ('TaskGroup', 'TaskGroup', '0..n ─ 0..1', '行の親子（`parentId`）。深さの上限は `FR-004`'),
@@ -68,7 +68,7 @@ def node(ident, title, cols):
 def figure():
     out = ['```mermaid', '---', 'config:', '  flowchart:',
            '    wrappingWidth: 1200', '    htmlLabels: true', '---', 'flowchart TB']
-    for name, desc, cols in m.ENTITIES:
+    for name, desc, cols in m.ENTITIES + m.STAMP:
         out.append(node(name, name, cols))
     for a, b, mult, label in RELATIONS:
         out.append('    %s -->|"%s（%s）"| %s' % (a, esc(label), mult, b))
