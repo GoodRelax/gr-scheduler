@@ -152,7 +152,7 @@
 | S-78 | `scrollGroupId` | `TaskGroup.id`（UUID 文字列）/ `null` | `null` | — | — | 表示の上端が指す行。⚠️ **整数ではない。** 存在しない id を指していたときの規則は表 T-024a の `OP-10` |
 | S-79 | `rowTitlePanelWidth` | px | `170` 🔎 | `rowTitleIndent` × `maxGroupDepth` | 使える幅 > 0 に従う | 行見出しパネルの幅。下限が 0 にならない理由は `FR-052`。範囲としては `S-125` の深さぶんのインデントが入る幅を要する |
 | S-80 | `propertyPanelWidth` | px | `280` 🔎 | 0 | 同上 | プロパティパネルの幅 |
-| S-126 | `pinnedGroupIds` | `TaskGroup.id` の配列 | `[]` | 0 件 | `pinnedRowMax` | ピン止めしている行。上限は `S-127` |
+| S-126 | `pinnedGroupIds` | `TaskGroup.id` の配列 | `[]` | 0 件 | `pinnedRowMax` | ピン止めしている行。上限は `S-127`。指す行を消したときの規則は表 T-050 の `CD-2` |
 | S-127 | `pinnedRowMax` | 整数 | `5` 🔎 | 1 | 8 | 同時にピン止めできる行の数の上限 |
 
 **`themeHue = 214` は実測値である。** 予実の色表は色相 214 で測られており（実績 ÷ 予定 = ライト 4.81 : 1 / ダーク 3.74 : 1）、**この色相だけがコントラスト検証を通っている。** 前プロジェクトの JSON 実例にある `210` に根拠は無い。
