@@ -44,7 +44,7 @@ ENTITIES = [
      '⚠️ **主キーにしない**（理由は Chapter 5.4）。'
      '省略されたときは `TaskOrigin.importSessionId` が代わりを務める'),
     ('name', '文字列', '可', '', '', 'Own', 'Project/Name', 'プロジェクト名'),
-    ('title', '文字列', '可', '', '', 'Own', 'Project/Title', '表題'),
+    ('title', '文字列', '可', '', '', 'Own', 'Project/Title', '文書名（`U-27`）'),
     ('subject', '文字列', '可', '', '', 'Own', 'Project/Subject', '件名'),
     ('category', '文字列', '可', '', '', 'Own', 'Project/Category', '分類'),
     ('company', '文字列', '可', '', '', 'Own', 'Project/Company', '会社名'),

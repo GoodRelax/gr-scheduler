@@ -7,7 +7,7 @@
 > 直すのは `docs/review/erd/erd_model.py`（列と関係）と同フォルダの散文の型である。
 > **図と表を同じ原稿から起こすことで、列の食い違いが起きないようにしている。**
 
-**本書は文書が持つ列の全数である。** 文書ぜんたいの形は `fig-erd-overview.md`（`DOC-FIG-ERD-OVERVIEW`）が持ち、
+**本書は文書が持つ列の全数である。** ⚠️ **ただしルート直下の `schemaVersion` は、どのエンティティの列でもない**（1 つのスカラーである）。**型と置き場は表 T-052 の `DR-4` が持つ。** 文書ぜんたいの形は `fig-erd-overview.md`（`DOC-FIG-ERD-OVERVIEW`）が持ち、
 **ルートの群の規則は `01-04-requirements.md` の表 T-052 が、持ち回りの形は表 T-053 が持つ。**
 
 **名前の正は `tbl-glossary.md`、値の正は `tbl-settings.md`、規則と理由の正は要求である。**
@@ -314,7 +314,7 @@ flowchart TB
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | AT-1 | `Project` | `id` | 文字列（16 字以下） | 可 | — | Own | `Project/UID` | ⚠️ **主キーにしない**（理由は Chapter 5.4）。省略されたときは `TaskOrigin.importSessionId` が代わりを務める |
 | AT-2 | `Project` | `name` | 文字列 | 可 | — | Own | `Project/Name` | プロジェクト名 |
-| AT-3 | `Project` | `title` | 文字列 | 可 | — | Own | `Project/Title` | 表題 |
+| AT-3 | `Project` | `title` | 文字列 | 可 | — | Own | `Project/Title` | 文書名（`U-27`） |
 | AT-4 | `Project` | `subject` | 文字列 | 可 | — | Own | `Project/Subject` | 件名 |
 | AT-5 | `Project` | `category` | 文字列 | 可 | — | Own | `Project/Category` | 分類 |
 | AT-6 | `Project` | `company` | 文字列 | 可 | — | Own | `Project/Company` | 会社名 |
