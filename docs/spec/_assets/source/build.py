@@ -116,7 +116,15 @@ def build_overview(model, backing):
 # the box's name. Moving the label along its own edge keeps every layer
 # dependency in the picture; dropping the arrow would not. Widening the gaps does
 # not help -- the midpoint stays on the corridor.
+#
+# Two labels can also land on each other: the corridor is shared, so an arrow
+# spanning three bands and one spanning a single band may pick the same point.
+# That happened when the framework -> layoutEngine pair was added and its label
+# printed on top of "one operation". Labels are therefore kept clear of the
+# labels already placed as well as of the boxes.
 LABEL_FRACTIONS = (0.50, 0.60, 0.40, 0.68, 0.32, 0.76, 0.24, 0.84, 0.16)
+LABEL_CHAR_W = 6        # px per character at fontSize 11, deliberately generous
+LABEL_LINE_H = 18       # px for one line of label text plus its padding
 LABEL_STYLE = ("edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;"
                "points=[];labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#222222;")
 LABEL_MARGIN = 6
@@ -142,6 +150,27 @@ def _point_at(path, fraction):
     return path[-1]
 
 
+def _inside(point, rect):
+    x, y, w, h = rect
+    return x <= point[0] <= x + w and y <= point[1] <= y + h
+
+
+def _trimmed(path, src_rect, dst_rect, steps=400):
+    """The visible part of an edge.
+
+    draw.io clips an edge to the borders of the two shapes, so a fraction along
+    the centre-to-centre polyline is not the fraction the label is drawn at.
+    Sampling and dropping the ends that fall inside the shapes brings the two
+    back into agreement -- without this, two labels the placer believes are
+    apart still print on top of each other.
+    """
+    pts = [_point_at(path, i / steps) for i in range(steps + 1)]
+    lo = next((i for i, p in enumerate(pts) if not _inside(p, src_rect)), 0)
+    hi = next((i for i in range(len(pts) - 1, -1, -1)
+               if not _inside(pts[i], dst_rect)), len(pts) - 1)
+    return pts[lo:hi + 1] if lo < hi else pts
+
+
 def place_labels(drawio_path):
     """Move every edge label clear of the node boxes. Stop the build if one cannot be."""
     text = open(drawio_path, encoding="utf-8").read()
@@ -157,6 +186,18 @@ def place_labels(drawio_path):
                        and y - LABEL_MARGIN <= point[1] <= y + h + LABEL_MARGIN
                        for x, y, w, h in boxes)
 
+    def rect_of(point, label):
+        width = max(len(label), 1) * LABEL_CHAR_W
+        return (point[0] - width / 2, point[1] - LABEL_LINE_H / 2,
+                width, LABEL_LINE_H)
+
+    def clear_of_labels(point, label):
+        ax, ay, aw, ah = rect_of(point, label)
+        return not any(ax < bx + bw and bx < ax + aw
+                       and ay < by + bh and by < ay + ah
+                       for bx, by, bw, bh in taken)
+
+    taken = []
     moved, stuck = [], []
     for match in list(EDGE_RE.finditer(text)):
         eid, label, rest, src, dst, body = match.groups()
@@ -164,11 +205,15 @@ def place_labels(drawio_path):
             continue
         waypoints = [(float(a), float(b))
                      for a, b in re.findall(r'<mxPoint x="([-\d.]+)" y="([-\d.]+)"/>', body)]
-        path = [centre(src)] + waypoints + [centre(dst)]
-        chosen = next((f for f in LABEL_FRACTIONS if clear_of_boxes(_point_at(path, f))), None)
+        path = _trimmed([centre(src)] + waypoints + [centre(dst)],
+                        geom[src], geom[dst])
+        chosen = next((f for f in LABEL_FRACTIONS
+                       if clear_of_boxes(_point_at(path, f))
+                       and clear_of_labels(_point_at(path, f), label)), None)
         if chosen is None:
             stuck.append(label)
             continue
+        taken.append(rect_of(_point_at(path, chosen), label))
         if chosen == LABEL_FRACTIONS[0]:
             continue                                    # the midpoint is already clear
         cell = ('<mxCell id="%s-label" value="%s" style="%s" vertex="1" connectable="0" '
