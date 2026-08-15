@@ -53,7 +53,7 @@
   {
    "name": "AgentApiEndpoint",
    "shape": "component",
-   "description": "Installs Agent API. Not exposed by default. Seventeen flat members.",
+   "description": "Installs Agent API. Not exposed by default. Eighteen flat members.",
    "remark": "FR-028 / FR-065 / T-035"
   },
   {
@@ -635,6 +635,69 @@
    "arrow": "dependency",
    "label": "implements AppShellSource",
    "description": ""
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "PostDialogueMessage",
+   "arrow": "dependency",
+   "label": "confirmed utterance",
+   "description": "hands over the utterance a person confirmed in the dialogue field"
+  },
+  {
+   "source": "PostDialogueMessage",
+   "target": "NotifyChangeWatchers",
+   "arrow": "dependency",
+   "label": "utterance posted",
+   "description": "wakes the watchers although the revision did not move"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "ScheduleLayout",
+   "arrow": "dependency",
+   "label": "pointer to date",
+   "description": "turns a pointer position into a date on the time axis"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "SvgRenderer",
+   "arrow": "dependency",
+   "label": "frame",
+   "description": "redraws the screen once per frame"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "InputCommandTranslator",
+   "arrow": "dependency",
+   "label": "input",
+   "description": "turns each input into an operation and a new selection"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "FileGateway",
+   "arrow": "dependency",
+   "label": "open / save",
+   "description": "opens and saves the document file for a person"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "AutosaveGateway",
+   "arrow": "dependency",
+   "label": "idle boundary",
+   "description": "saves at the idle boundary and offers recovery"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ImageExporter",
+   "arrow": "dependency",
+   "label": "image out",
+   "description": "writes the image out for a person"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ClipboardGateway",
+   "arrow": "dependency",
+   "label": "clipboard out",
+   "description": "sends the document or the picture to the clipboard for a person"
   }
  ],
  "layout": {

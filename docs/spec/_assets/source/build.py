@@ -42,7 +42,7 @@ DRAWIO = r"C:\Program Files\draw.io\draw.io.exe"
 # be backed by node-level edges in model.json, and every backed pair must have
 # an entry -- both directions are asserted below.
 CLUSTER_EDGE_LABELS = {
-    ("framework", "adapter"): "implements",
+    ("framework", "adapter"): "drives / implements",
     ("framework", "usecase"): "candidates",
     ("adapter", "usecase"): "one operation",
     ("adapter", "layoutEngine"): "geometry only",

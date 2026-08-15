@@ -104,17 +104,17 @@ graph RL
 | CP-15 | `UseCase` | `NotifyChangeWatchers` | 確定を購読者へ配る | 表 T-035 の `AG-6` |
 | CP-16 | `UseCase` | `PostDialogueMessage` | 確定した発話を `DialogueLog` へ積み、配る。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` |
 | CP-17 | `Adapter` | `AgentApiEndpoint` | `Agent API` を設置する。既定で公開しない。`SnapshotSource` を宣言する | `FR-028` / `FR-065` / 表 T-035 / 表 T-107 |
-| CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を操作へ変える。`InputSource` を宣言する | `FR-016` / `FR-070` |
+| CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を操作へ変え、対話欄で確定した発話を渡す。`InputSource` を宣言する | `FR-016` / `FR-070` / `FR-066` |
 | CP-19 | `Adapter` | `SvgRenderer` | 幾何から SVG 文字列を作る。`SvgSurface` を宣言する | `FR-080` |
 | CP-20 | `Adapter` | `DocumentCodec` | JSON・`MSPDI`・単一 `.html` を文書と相互変換する。`AppShellSource` を宣言する | `FR-024` / `FR-021` / `FR-056` / `FR-057` / `FR-067` |
 | CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。`Rasterizer` を宣言する | `FR-025` |
-| CP-22 | `Adapter` | `FileGateway` | ファイルの読み書きとハンドルの保持。`FileStore` を宣言する | `FR-060` / 表 T-024 |
+| CP-22 | `Adapter` | `FileGateway` | ファイルの読み書き。`FileStore` を宣言する | `FR-060` / 表 T-024 |
 | CP-23 | `Adapter` | `AutosaveGateway` | 自動保存と復元。`DocumentStore` を宣言する | `FR-026` / `FR-061` |
 | CP-24 | `Adapter` | `ClipboardGateway` | クリップボードへ出す。`Clipboard` を宣言する | `FR-033` / `FR-068` |
-| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。**現在値を保持する。** 埋め込みの入れ物を持ち、公開点を置く。`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` |
+| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。**現在値を保持する。** フレームごとに描画を回し、入力を渡す。埋め込みの入れ物を持ち、公開点を置く。`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` |
 | CP-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 | — |
 | CP-27 | `Framework` | `DomInputSource` | `InputSource` の実装 | — |
-| CP-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装 | `FR-060` |
+| CP-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装。**ファイルのハンドルを保持する** | `FR-060` |
 | CP-29 | `Framework` | `LocalStorageDocumentStore` | `DocumentStore` の実装 | `FR-026` |
 | CP-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 | `FR-033` |
 | CP-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 | `FR-025` |
@@ -127,7 +127,7 @@ graph RL
 
 > **`R2.13`（CQS・SHOULD）** —— `ApplyDocumentChange` は文書を変え、かつ結果を値で返す。**`FR-028` が「受理したか否かを値で返すこと」を、`AG-9a` が拒否の値の中身を、それぞれ MUST で定めているためである。** 状態変更とその結果通知を分けると、2 回の呼び出しの間に別の書き込みが入り、`AG-3` の原子性が保てない。
 
-> **`R2.5`（ISP・SHOULD）** —— `Agent API` は 17 のメンバを 1 つの面に載せ、用途別に分けない。**`FR-028` が入口を 1 つと定めているためである。** 呼ぶ側が複数の面を持つと「人間向け UI と同格」が崩れる。**同条項が禁じているのは「使わないメソッドを実装させられること」であり、実装は 1 つなのでその害は生じない。**
+> **`R2.5`（ISP・SHOULD）** —— `Agent API` は 18 のメンバを 1 つの面に載せ、用途別に分けない。**`FR-028` が入口を 1 つと定めているためである。** 呼ぶ側が複数の面を持つと「人間向け UI と同格」が崩れる。**同条項が禁じているのは「使わないメソッドを実装させられること」であり、実装は 1 つなのでその害は生じない。**
 
 **図の原稿は `_assets/source/model.json` である**（部品・辺・層の木）。**`_assets/source/build.py` が `.svg` と部品表を書き出す。`.svg` と `.drawio` を手で直してはならない（MUST NOT）** —— 次の生成で消える。**図と部品表を同じ原稿から起こすことで、両者の食い違いが起きないようにしている。**
 
@@ -210,7 +210,7 @@ src/
 | UT-1 | `ApplyDocumentChange` | `apply-document-change.ts`（`non-pure`。確定と通知）／ `document-change-plan.ts`（`pure`。照合と、全か無かの組み立て） | **純粋性。** 表 T-060 の `LY-3` が「操作と検証は `pure`、確定と通知は `non-pure`」と定めている |
 | UT-2 | `EditDocument` | `edit-document.ts`（公開エントリ）と、集約ごとの 8 ファイル —— `edit-task.ts` / `edit-task-group.ts` / `edit-dependency.ts` / `edit-annotation.ts` / `edit-resource.ts` / `edit-calendar.ts` / `edit-project.ts` / `edit-document-settings.ts` | **純粋性ではない。8 つとも `pure` である。** 集約ごとに変更の理由が別なので割った —— タスクの規則が変わっても暦の規則は変わらない |
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts`（`non-pure`。購読の登録・解除と配ること）／ `change-notice.ts`（`pure`。まだ受け取っていない変更と発話を選ぶ） | **純粋性**（`LY-3`）。⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。値だけで決まる |
-| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts`（公開エントリ。設置と公開点の管理）／ `agent-api-members.ts`（表 T-107 の 17 メンバの結線） | **純粋性ではない。どちらも `non-pure` である。** 設置は `FR-065`（既定で公開しない）が、17 メンバは 表 T-107 が縛るので、変更の理由が別である |
+| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts`（公開エントリ。設置と公開点の管理）／ `agent-api-members.ts`（表 T-107 の 18 メンバの結線） | **純粋性ではない。どちらも `non-pure` である。** 設置は `FR-065`（既定で公開しない）が、18 メンバは 表 T-107 が縛るので、変更の理由が別である |
 | UT-5 | `DocumentCodec` | `document-codec.ts`（公開エントリ）／ `json-codec.ts`（`pure`）／ `mspdi-codec.ts`（`pure`）／ `embedded-html-codec.ts`（`semi-pure-b`） | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。**残りは形式ごとに正が別だからである** —— JSON は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
 
 **表 T-064 の `PI-n` は、表 T-062 の `CP-n` と同じ部品である。純粋性を添えていないメンバは `pure` である。**
@@ -224,7 +224,7 @@ src/
 | PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める） |
 | PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`）／ `isNewerStamp`（起動時の比較。表 T-034） |
 | PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
-| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutOfSchedule` ／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか） |
+| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutOfSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか） |
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryOfLayout` |
 | PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。完全に囲まれたものだけ） |
 | PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は Chapter 6.1 が持つ**）／ `applyDocumentChange`（`non-pure`。唯一の書き込みの経路） |
@@ -236,7 +236,7 @@ src/
 | PI-14 | `UseCase` | `ChooseStartupDocument` | `chooseStartupDocument`（順は 表 T-034） |
 | PI-15 | `UseCase` | `NotifyChangeWatchers` | `watchChanges`（`non-pure`）／ `unwatchChanges`（`non-pure`）／ `notifyChangeWatchers`（`non-pure`） |
 | PI-16 | `UseCase` | `PostDialogueMessage` | `postDialogueMessage`（`non-pure`） |
-| PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。既定で公開しない。`FR-065`）／ `SnapshotSource`（表 T-065）。⚠️ **外へ公開する 17 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。本表に書き写さない（MUST NOT）** |
+| PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。既定で公開しない。`FR-065`）／ `SnapshotSource`（表 T-065）。⚠️ **外へ公開する 18 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。本表に書き写さない（MUST NOT）** |
 | PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `commandOfInput`（割当は 表 T-023 と 表 T-036）／ `selectionOfInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`） |
 | PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgOfSchedule`（`FR-080`） |
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentOfJson` ／ `jsonOfDocument` ／ `documentOfMspdi` ／ `mspdiOfDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`） |
@@ -262,7 +262,7 @@ src/
 | --- | --- | --- | --- | --- |
 | IF-1 | `SvgSurface` | `SvgRenderer`（`CP-19`） | `DomSvgSurface`（`CP-26`） | 作った SVG 文字列を画面に載せる |
 | IF-2 | `InputSource` | `InputCommandTranslator`（`CP-18`） | `DomInputSource`（`CP-27`） | ポインタとキーの出来事 |
-| IF-3 | `FileStore` | `FileGateway`（`CP-22`） | `FileSystemAccessFileStore`（`CP-28`） | ファイルの読み書きとハンドル（`FR-060`） |
+| IF-3 | `FileStore` | `FileGateway`（`CP-22`） | `FileSystemAccessFileStore`（`CP-28`） | ファイルの読み書き。ハンドルは実装が保持する（`FR-060`） |
 | IF-4 | `DocumentStore` | `AutosaveGateway`（`CP-23`） | `LocalStorageDocumentStore`（`CP-29`） | 自動保存の置き場（表 T-024 の `IO-5`） |
 | IF-5 | `Clipboard` | `ClipboardGateway`（`CP-24`） | `BrowserClipboard`（`CP-30`） | クリップボードへの書き出し（`IO-6`） |
 | IF-6 | `Rasterizer` | `ImageExporter`（`CP-21`） | `CanvasRasterizer`（`CP-31`） | SVG から画像へ（`IO-4`） |

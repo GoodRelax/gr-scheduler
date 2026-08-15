@@ -11,7 +11,7 @@
 | framework | LocalStorageDocumentStore | Stores and restores the autosaved document. | implements DocumentStore / FR-026 |
 | framework | BrowserClipboard | Writes to the clipboard. | implements Clipboard / FR-033 |
 | framework | CanvasRasterizer | Turns SVG into a raster image. | implements Rasterizer / FR-025 |
-| adapter | AgentApiEndpoint | Installs Agent API. Not exposed by default. Seventeen flat members. | FR-028 / FR-065 / T-035 |
+| adapter | AgentApiEndpoint | Installs Agent API. Not exposed by default. Eighteen flat members. | FR-028 / FR-065 / T-035 |
 | adapter | InputCommandTranslator | Turns pointer and keyboard input into one operation. Declares InputSource. | FR-016 / FR-070 |
 | adapter | SvgRenderer | Builds the SVG string from geometry, then hands it over. Declares SvgSurface. | pure core / FR-080 |
 | adapter | DocumentCodec | Converts between the document and JSON or MSPDI. | FR-024 / FR-021 / FR-056 / FR-057 |
@@ -104,6 +104,15 @@
 | dependency | PostDialogueMessage | DialogueLog | append one | appends one confirmed utterance |  |
 | dependency | NotifyChangeWatchers | DialogueLog | utterance order | picks utterances by their own order |  |
 | dependency | SingleHtmlShell | DocumentCodec | implements AppShellSource |  |  |
+| dependency | InputCommandTranslator | PostDialogueMessage | confirmed utterance | hands over the utterance a person confirmed in the dialogue field |  |
+| dependency | PostDialogueMessage | NotifyChangeWatchers | utterance posted | wakes the watchers although the revision did not move |  |
+| dependency | InputCommandTranslator | ScheduleLayout | pointer to date | turns a pointer position into a date on the time axis |  |
+| dependency | SingleHtmlShell | SvgRenderer | frame | redraws the screen once per frame |  |
+| dependency | SingleHtmlShell | InputCommandTranslator | input | turns each input into an operation and a new selection |  |
+| dependency | SingleHtmlShell | FileGateway | open / save | opens and saves the document file for a person |  |
+| dependency | SingleHtmlShell | AutosaveGateway | idle boundary | saves at the idle boundary and offers recovery |  |
+| dependency | SingleHtmlShell | ImageExporter | image out | writes the image out for a person |  |
+| dependency | SingleHtmlShell | ClipboardGateway | clipboard out | sends the document or the picture to the clipboard for a person |  |
 
 ## Clusters
 

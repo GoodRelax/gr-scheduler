@@ -53,7 +53,7 @@
   {
    "name": "AgentApiEndpoint",
    "shape": "component",
-   "description": "Installs Agent API. Not exposed by default. Seventeen flat members.",
+   "description": "Installs Agent API. Not exposed by default. Eighteen flat members.",
    "remark": "FR-028 / FR-065 / T-035"
   },
   {
@@ -220,21 +220,21 @@
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "geometry only",
-   "description": "backed by 4 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout"
+   "description": "backed by 5 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout; InputCommandTranslator -> ScheduleLayout"
   },
   {
    "source": "adapter",
    "target": "usecase",
    "arrow": "dependency",
    "label": "one operation",
-   "description": "backed by 6 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; AutosaveGateway -> ApplyDocumentChange"
+   "description": "backed by 7 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; AutosaveGateway -> ApplyDocumentChange; InputCommandTranslator -> PostDialogueMessage"
   },
   {
    "source": "framework",
    "target": "adapter",
    "arrow": "dependency",
-   "label": "implements",
-   "description": "backed by 8 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; LocalStorageDocumentStore -> AutosaveGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec"
+   "label": "drives / implements",
+   "description": "backed by 14 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; LocalStorageDocumentStore -> AutosaveGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec; SingleHtmlShell -> SvgRenderer; SingleHtmlShell -> InputCommandTranslator; SingleHtmlShell -> FileGateway; SingleHtmlShell -> AutosaveGateway; SingleHtmlShell -> ImageExporter; SingleHtmlShell -> ClipboardGateway"
   },
   {
    "source": "framework",
