@@ -44,6 +44,7 @@ DRAWIO = r"C:\Program Files\draw.io\draw.io.exe"
 CLUSTER_EDGE_LABELS = {
     ("framework", "adapter"): "drives / implements",
     ("framework", "usecase"): "candidates",
+    ("framework", "layoutEngine"): "layout once per frame",
     ("adapter", "usecase"): "one operation",
     ("adapter", "layoutEngine"): "geometry only",
     ("adapter", "documentModel"): "converts",

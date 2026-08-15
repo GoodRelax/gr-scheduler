@@ -114,6 +114,8 @@
 | dependency | Document | Schedule | schedule data | the group of table T-052 DR-2 |  |
 | dependency | Document | DocumentSettings | presentation values | the group of table T-052 DR-3 |  |
 | dependency | Document | DocumentStamp | stamp | the three root keys of table T-052 DR-4 |  |
+| dependency | SingleHtmlShell | ScheduleLayout | layout once per frame | computes the frame's layout once and hands it to everyone who needs it (ADR-001) |  |
+| dependency | SingleHtmlShell | ScheduleGeometry | geometry once per frame | computes the frame's geometry from that layout, once (ADR-001) |  |
 
 ## Clusters
 

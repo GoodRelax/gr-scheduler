@@ -244,6 +244,13 @@
   },
   {
    "source": "framework",
+   "target": "layoutEngine",
+   "arrow": "dependency",
+   "label": "layout once per frame",
+   "description": "backed by 2 component edge(s): SingleHtmlShell -> ScheduleLayout; SingleHtmlShell -> ScheduleGeometry"
+  },
+  {
+   "source": "framework",
    "target": "usecase",
    "arrow": "dependency",
    "label": "candidates",

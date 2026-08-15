@@ -704,6 +704,20 @@
    "arrow": "dependency",
    "label": "stamp",
    "description": "the three root keys of table T-052 DR-4"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ScheduleLayout",
+   "arrow": "dependency",
+   "label": "layout once per frame",
+   "description": "computes the frame's layout once and hands it to everyone who needs it (ADR-001)"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ScheduleGeometry",
+   "arrow": "dependency",
+   "label": "geometry once per frame",
+   "description": "computes the frame's geometry from that layout, once (ADR-001)"
   }
  ],
  "layout": {
@@ -827,6 +841,7 @@
   "read": {
    "label": "The read path for drawing",
    "nodes": [
+    "SingleHtmlShell",
     "SvgRenderer",
     "DomSvgSurface",
     "ScheduleLayout",
