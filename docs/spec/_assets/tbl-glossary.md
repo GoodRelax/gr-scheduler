@@ -214,7 +214,6 @@
 | K-63 | ズーム | `zoomMin` ⛔ | 下限 |
 | K-64 | ズーム | `zoomMax` ⛔ | 上限 |
 | K-65 | ズーム | `canvasPadding` | キャンバスの余白 |
-| K-66 | ズーム | `svgPadding` | SVG の縁の余白 |
 | K-67 | 画面の状態 | `zoomX` | 横のズーム倍率 |
 | K-68 | 画面の状態 | `zoomY` | 縦のズーム倍率 |
 | K-69 | 画面の状態 | `scrollDate` | 表示の左端が指す日付 |
@@ -315,7 +314,7 @@
 | AM-10 | 履歴 | `redoEdit` | 動詞＋目的語・`non-pure` | 履歴を進める | `FR-031` |
 | AM-11 | 出す | `exportJson` | 動詞＋目的語・`semi-pure-b` | `GRS JSON` を値で返す | 表 T-024 の `IO-2` ／ `FR-024` ／ 表 T-035 の `AG-7` |
 | AM-12 | 出す | `exportMspdi` | 動詞＋目的語・`semi-pure-b` | 交換形式を値で返す | 表 T-024 の `IO-1` ／ `FR-021` |
-| AM-13 | 出す | `exportSvg` | 動詞＋目的語・`semi-pure-b` | 画面と同じ絵を値で返す | 表 T-024 の `IO-3` ／ `FR-080` |
+| AM-13 | 出す | `exportSvg` | 動詞＋目的語・`semi-pure-b` | 画面を縮めた絵を値で返す | 表 T-024 の `IO-3` ／ `FR-080` |
 | AM-14 | 出す | `exportPng` | 動詞＋目的語・`semi-pure-b` | 画像を値で返す。失敗も値で返す | 表 T-024 の `IO-4` ／ `FR-025` ／ 表 T-035 の `AG-8` |
 | AM-15 | 出す | `exportEmbeddedHtml` | 動詞＋目的語・`semi-pure-b` | 本体と文書を合わせた 1 つの `.html` を値で返す | 表 T-024 の `IO-7` ／ `FR-067` |
 | AM-16 | 見せる | `focusTask` | 動詞＋目的語・`non-pure` | 指定したタスクが見える位置へ表示を寄せる | `FR-055` ／ 表 T-203 の `S-77` / `S-78` |
