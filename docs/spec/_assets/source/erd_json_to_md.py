@@ -144,34 +144,40 @@ def container_figure(doc):
     was hand written an entity added to `entities` slipped past it silently,
     and the numbers it used to name them with were array positions, so they
     went stale without anything noticing.
+
+    An erDiagram, the same shape as F-011. The flowchart of HTML tables it
+    replaced drew two frames around every box -- mermaid's own node border
+    around a table that already carried one -- and StrictDoc's autogen.css
+    widened those table cells after mermaid had already fixed the box size, so
+    the contents overflowed. An erDiagram uses no HTML, so neither happens.
+    The multiplicity moves out of the label text into crow's foot notation,
+    and the type column a flowchart had no room for replaces the `[]` suffix
+    that used to stand in for "this key holds an array".
+
+    Only constructs figure F-011 already renders in this document set are
+    used: ASCII entity and attribute names, a whitespace-free Japanese type
+    token, and a quoted Japanese comment. Entity aliases would let the boxes
+    carry Japanese names, but nothing here proves the bundled mermaid accepts
+    them, so the boxes are named by their JSON key instead -- which is what
+    this figure is about anyway.
     """
     c = doc['container']
-    columns = {e['name']: [x['name'] for x in e['columns']]
-               for e in doc['entities']}
-    out = ['```mermaid', '---', 'config:', '  flowchart:',
-           '    wrappingWidth: 1200', '    htmlLabels: true', '---',
-           'flowchart TB']
+    columns = {e['name']: e['columns'] for e in doc['entities']}
+    out = ['```mermaid', '---', 'config:', '  er:', '    entityPadding: 6',
+           '---', 'erDiagram']
     for b in c['boxes']:
-        # Only the key itself is bold; the parenthetical gloss beside it is not.
-        title = '<b>%s</b>' % esc(b['title'])
-        if b.get('subtitle'):
-            title += '（%s）' % esc(b['subtitle'])
-        rows = ["<tr><td colspan='2'>%s</td></tr>" % title]
-        if b.get('note'):
-            rows.append("<tr><td colspan='2'>%s</td></tr>" % esc(b['note']))
-        pairs = b.get('rows') or b.get('entity_rows')
-        if pairs is None:                      # a box that IS one entity
-            pairs = list(zip(columns[b['entity']], b['labels']))
-        for left, right in pairs:
-            rows.append('<tr><td>%s</td><td>%s</td></tr>'
-                        % (esc(left), esc(right)))
-        out.append('    %s["<table style=\'white-space:nowrap\'>\n      %s\n'
-                   '    </table>"]' % (b['id'], '\n      '.join(rows)))
-    for n in c['nodes']:
-        out.append('    %s["<b>%s</b>"]' % (n['id'], n['entity']))
+        rows = b.get('rows') or b.get('entity_rows')
+        if rows is None:                       # a box that IS one entity
+            rows = [[split_type(x['type'])[0], x['name'], label]
+                    for x, label in zip(columns[b['entity']], b['labels'])]
+        out.append('    %s {' % b['id'])
+        for typ, name, comment in rows:
+            out.append('        %s %s "%s"' % (esc(typ), name, esc(comment)))
+        out.append('    }')
     for e in c['edges']:
-        out.append('    %s -->|"%s"| %s'
-                   % (e['from'], esc(e['label']), e['to']))
+        out.append('    %s %s %s : "%s"'
+                   % (e['from'], CROWS_FOOT[e['multiplicity']], e['to'],
+                      esc(e['label'])))
     out.append('```')
     return '\n'.join(out)
 
@@ -322,7 +328,7 @@ def problems(doc):
     for i in sorted(set(x for x in ids if ids.count(x) > 1)):
         found.append('container: box id %r is used twice' % i)
 
-    placed = [n for b in c['boxes'] for _, n in (b.get('entity_rows') or [])]
+    placed = [r[2] for b in c['boxes'] for r in (b.get('entity_rows') or [])]
     placed += [b['entity'] for b in c['boxes'] if 'entity' in b]
     placed += [n['entity'] for n in c['nodes']]
     for n in sorted(set(placed) - names):
@@ -345,6 +351,16 @@ def problems(doc):
             if e[side] not in ids:
                 found.append('container edge %s -> %s: no box %r'
                              % (e['from'], e['to'], e[side]))
+        if e['multiplicity'] not in CROWS_FOOT:
+            found.append('container edge %s -> %s: multiplicity %r cannot be '
+                         'drawn' % (e['from'], e['to'], e['multiplicity']))
+    # A bare node draws nothing on its own in an erDiagram: it only appears
+    # because an edge names it. One that no edge touches would vanish.
+    touched = {x for e in c['edges'] for x in (e['from'], e['to'])}
+    for n in c['nodes']:
+        if n['id'] not in touched:
+            found.append('container node %s is in no edge, so it would not be '
+                         'drawn at all' % n['id'])
 
     # A row with the wrong number of cells silently stops markdown from
     # drawing the table at all.

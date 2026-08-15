@@ -61,109 +61,122 @@
  "container": {
   "boxes": [
    {
-    "id": "Document",
-    "title": "文書ルート",
+    "id": "documentRoot",
     "rows": [
      [
+      "文字列",
       "schemaVersion",
       "文書の形式の版"
      ],
      [
+      "オブジェクト",
       "schedule",
       "日程データの群"
      ],
      [
+      "オブジェクト",
       "documentSettings",
       "見せ方の群"
      ],
      [
+      "オブジェクト",
       "revisionStamp",
       "文書の刻印"
      ],
      [
-      "changeLog[]",
+      "配列",
+      "changeLog",
       "文書の刻印"
      ]
     ]
    },
    {
-    "id": "Schedule",
-    "title": "schedule",
-    "subtitle": "日程データの群",
+    "id": "schedule",
     "entity_rows": [
      [
+      "オブジェクト",
       "project",
       "Project"
      ],
      [
-      "calendars[]",
+      "配列",
+      "calendars",
       "Calendar"
      ],
      [
-      "tasks[]",
+      "配列",
+      "tasks",
       "Task"
      ],
      [
-      "resources[]",
+      "配列",
+      "resources",
       "Resource"
      ],
      [
-      "assignments[]",
+      "配列",
+      "assignments",
       "Assignment"
      ],
      [
-      "taskGroups[]",
+      "配列",
+      "taskGroups",
       "TaskGroup"
      ],
      [
-      "taskGroupMembers[]",
+      "配列",
+      "taskGroupMembers",
       "TaskGroupMember"
      ],
      [
-      "taskVisuals[]",
+      "配列",
+      "taskVisuals",
       "TaskVisual"
      ],
      [
-      "commentBoxes[]",
+      "配列",
+      "commentBoxes",
       "CommentBox"
      ],
      [
-      "highlightBoxes[]",
+      "配列",
+      "highlightBoxes",
       "HighlightBox"
      ],
      [
-      "taskOrigins[]",
+      "配列",
+      "taskOrigins",
       "TaskOrigin"
      ],
      [
-      "baselineTasks[]",
+      "配列",
+      "baselineTasks",
       "BaselineTask"
      ]
     ]
    },
    {
-    "id": "Settings",
-    "title": "documentSettings",
-    "subtitle": "見せ方の群",
-    "note": "鍵と値の全数は tbl-settings.md",
+    "id": "documentSettings",
     "rows": [
      [
+      "文字列",
       "scrollGroupId",
       "S-78"
      ],
      [
-      "pinnedGroupIds[]",
+      "配列",
+      "pinnedGroupIds",
       "S-126"
      ],
      [
+      "整数",
       "importSeq",
       "S-71"
      ]
     ]
    },
    {
-    "id": "Stamp",
-    "title": "revisionStamp",
+    "id": "revisionStamp",
     "entity": "revisionStamp",
     "labels": [
      "版数",
@@ -172,8 +185,7 @@
     ]
    },
    {
-    "id": "Log",
-    "title": "changeLog[]",
+    "id": "changeLog",
     "entity": "changeLog",
     "labels": [
      "適用された版数",
@@ -185,77 +197,88 @@
   ],
   "nodes": [
    {
-    "id": "Dep",
+    "id": "Dependency",
     "entity": "Dependency"
    },
    {
-    "id": "Week",
+    "id": "WeekDay",
     "entity": "WeekDay"
    },
    {
-    "id": "Exc",
+    "id": "Exception",
     "entity": "Exception"
    },
    {
-    "id": "Carry",
+    "id": "CarryElement",
     "entity": "CarryElement"
    }
   ],
   "edges": [
    {
-    "from": "Document",
-    "to": "Schedule",
-    "label": "日程データの群（1 ─ 1）"
+    "from": "documentRoot",
+    "to": "schedule",
+    "multiplicity": "1 ─ 1",
+    "label": "日程データの群"
    },
    {
-    "from": "Document",
-    "to": "Settings",
-    "label": "見せ方の群（1 ─ 1）"
+    "from": "documentRoot",
+    "to": "documentSettings",
+    "multiplicity": "1 ─ 1",
+    "label": "見せ方の群"
    },
    {
-    "from": "Document",
-    "to": "Stamp",
-    "label": "文書の刻印（1 ─ 1）"
+    "from": "documentRoot",
+    "to": "revisionStamp",
+    "multiplicity": "1 ─ 1",
+    "label": "文書の刻印"
    },
    {
-    "from": "Document",
-    "to": "Log",
-    "label": "文書の刻印（1 ─ 0..n）"
+    "from": "documentRoot",
+    "to": "changeLog",
+    "multiplicity": "1 ─ 0..n",
+    "label": "文書の刻印"
    },
    {
-    "from": "Schedule",
-    "to": "Dep",
-    "label": "tasks[] の各要素の下に入れ子（1 ─ 0..n）"
+    "from": "schedule",
+    "to": "Dependency",
+    "multiplicity": "1 ─ 0..n",
+    "label": "tasks の各要素の下に入れ子"
    },
    {
-    "from": "Schedule",
-    "to": "Week",
-    "label": "calendars[] の各要素の下に入れ子（1 ─ 0..n）"
+    "from": "schedule",
+    "to": "WeekDay",
+    "multiplicity": "1 ─ 0..n",
+    "label": "calendars の各要素の下に入れ子"
    },
    {
-    "from": "Schedule",
-    "to": "Exc",
-    "label": "calendars[] の各要素の下に入れ子（1 ─ 0..n）"
+    "from": "schedule",
+    "to": "Exception",
+    "multiplicity": "1 ─ 0..n",
+    "label": "calendars の各要素の下に入れ子"
    },
    {
-    "from": "Schedule",
-    "to": "Carry",
-    "label": "carryElements を持つ 8 型の兄弟の鍵（1 ─ 0..n）"
+    "from": "schedule",
+    "to": "CarryElement",
+    "multiplicity": "1 ─ 0..n",
+    "label": "carryElements を持つ 8 型の兄弟の鍵"
    },
    {
-    "from": "Settings",
-    "to": "Schedule",
-    "label": "表示位置が指す行（弱い参照。0..1 ─ 1）"
+    "from": "documentSettings",
+    "to": "schedule",
+    "multiplicity": "0..1 ─ 1",
+    "label": "表示位置が指す行。弱い参照"
    },
    {
-    "from": "Settings",
-    "to": "Schedule",
-    "label": "ピン止めした行（弱い参照。0..n ─ 1）"
+    "from": "documentSettings",
+    "to": "schedule",
+    "multiplicity": "0..n ─ 1",
+    "label": "ピン止めした行。弱い参照"
    },
    {
-    "from": "Settings",
-    "to": "Schedule",
-    "label": "前回の取り込みの通し番号（taskOrigins と突き合わせる）"
+    "from": "documentSettings",
+    "to": "schedule",
+    "multiplicity": "0..1 ─ 1",
+    "label": "前回の取り込みの通し番号。taskOrigins と突き合わせる"
    }
   ]
  },

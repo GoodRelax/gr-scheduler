@@ -337,7 +337,7 @@
   },
   "container": {
    "type": "object",
-   "description": "Figure F-010: the shape of the JSON container that holds the entities. Every entity must be placed exactly once -- beside its key in a box with entity_rows, as a box of its own, or as a bare node -- and the generator refuses to write anything until that holds. That is what keeps an added entity from slipping past this figure.",
+   "description": "Figure F-010: the shape of the JSON container that holds the entities, drawn as an erDiagram like F-011. Every entity must be placed exactly once -- as the comment of an entity_rows row, as a box of its own, or as a bare node -- and the generator refuses to write anything until that holds. That is what keeps an added entity from slipping past this figure.",
    "required": [
     "boxes",
     "nodes",
@@ -370,10 +370,9 @@
   },
   "box": {
    "type": "object",
-   "description": "Exactly one of `rows`, `entity_rows` or (`entity` with `labels`) says what the box contains.",
+   "description": "One erDiagram entity box. Exactly one of `rows`, `entity_rows` or (`entity` with `labels`) says what it contains. `id` is the name drawn on the box: ASCII, because nothing proves the bundled mermaid accepts an alias.",
    "required": [
-    "id",
-    "title"
+    "id"
    ],
    "additionalProperties": false,
    "properties": {
@@ -382,45 +381,31 @@
      "pattern": "^[A-Za-z][A-Za-z0-9]*$",
      "description": "Node id inside the mermaid figure. Edges use it."
     },
-    "title": {
-     "type": "string",
-     "minLength": 1
-    },
-    "subtitle": {
-     "type": "string",
-     "minLength": 1,
-     "description": "A gloss drawn in parentheses after the title. Only the title is bold."
-    },
-    "note": {
-     "type": "string",
-     "minLength": 1,
-     "description": "A full-width row directly under the title."
-    },
     "rows": {
      "type": "array",
      "items": {
       "type": "array",
-      "minItems": 2,
-      "maxItems": 2,
+      "minItems": 3,
+      "maxItems": 3,
       "items": {
        "type": "string"
       },
-      "description": "Left cell and right cell of one row of a box."
+      "description": "Type token, attribute name, comment -- the three cells of one erDiagram attribute. The type must hold no whitespace; the name must be ASCII."
      },
-     "description": "Plain rows. Nothing here is checked against the entities, so use it only for keys that are not entities."
+     "description": "Plain attribute rows. Nothing here is checked against the entities, so use it only for keys that are not entities."
     },
     "entity_rows": {
      "type": "array",
      "items": {
       "type": "array",
-      "minItems": 2,
-      "maxItems": 2,
+      "minItems": 3,
+      "maxItems": 3,
       "items": {
        "type": "string"
       },
-      "description": "Left cell and right cell of one row of a box."
+      "description": "Type token, attribute name, comment -- the three cells of one erDiagram attribute. The type must hold no whitespace; the name must be ASCII."
      },
-     "description": "Rows whose RIGHT cell is an entity name. Every name is checked against `entities`."
+     "description": "Attribute rows whose COMMENT cell is an entity name. Every name is checked against `entities`."
     },
     "entity": {
      "type": "string",
@@ -432,7 +417,7 @@
      "items": {
       "type": "string"
      },
-     "description": "Short right-hand cell per column, in the same order. The count must equal the entity's column count, so adding a column stops the build until the figure says what it is. The column `meaning` is deliberately not reused here: it is prose, it is too long for a box, and it holds backticks, which break mermaid."
+     "description": "Comment cell per column, in the same order; the type and the name come from the entity itself. The count must equal the entity's column count, so adding a column stops the build until the figure says what it is. The column `meaning` is deliberately not reused: it is prose, too long for a box, and it holds backticks, which break mermaid."
     }
    }
   },
@@ -460,6 +445,7 @@
    "required": [
     "from",
     "to",
+    "multiplicity",
     "label"
    ],
    "additionalProperties": false,
@@ -472,10 +458,23 @@
      "type": "string",
      "description": "A box or node id."
     },
+    "multiplicity": {
+     "enum": [
+      "0..1 ─ 0..1",
+      "0..1 ─ 1",
+      "1 ─ 1",
+      "1 ─ 0..1",
+      "1 ─ 0..n",
+      "0..n ─ 1",
+      "0..n ─ 0..1",
+      "0..n ─ 0..n"
+     ],
+     "description": "Parent side first, child side second. Drawn as crow's foot notation, so it is NOT repeated in the label."
+    },
     "label": {
      "type": "string",
      "minLength": 1,
-     "description": "What the edge means. Unlike the entity relations, the multiplicity IS written here: a flowchart has no notation of its own for it."
+     "description": "What the edge means. The multiplicity is not repeated here."
     }
    }
   }

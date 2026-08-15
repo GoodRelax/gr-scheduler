@@ -15,67 +15,56 @@
 ```mermaid
 ---
 config:
-  flowchart:
-    wrappingWidth: 1200
-    htmlLabels: true
+  er:
+    entityPadding: 6
 ---
-flowchart TB
-    Document["<table style='white-space:nowrap'>
-      <tr><td colspan='2'><b>文書ルート</b></td></tr>
-      <tr><td>schemaVersion</td><td>文書の形式の版</td></tr>
-      <tr><td>schedule</td><td>日程データの群</td></tr>
-      <tr><td>documentSettings</td><td>見せ方の群</td></tr>
-      <tr><td>revisionStamp</td><td>文書の刻印</td></tr>
-      <tr><td>changeLog[]</td><td>文書の刻印</td></tr>
-    </table>"]
-    Schedule["<table style='white-space:nowrap'>
-      <tr><td colspan='2'><b>schedule</b>（日程データの群）</td></tr>
-      <tr><td>project</td><td>Project</td></tr>
-      <tr><td>calendars[]</td><td>Calendar</td></tr>
-      <tr><td>tasks[]</td><td>Task</td></tr>
-      <tr><td>resources[]</td><td>Resource</td></tr>
-      <tr><td>assignments[]</td><td>Assignment</td></tr>
-      <tr><td>taskGroups[]</td><td>TaskGroup</td></tr>
-      <tr><td>taskGroupMembers[]</td><td>TaskGroupMember</td></tr>
-      <tr><td>taskVisuals[]</td><td>TaskVisual</td></tr>
-      <tr><td>commentBoxes[]</td><td>CommentBox</td></tr>
-      <tr><td>highlightBoxes[]</td><td>HighlightBox</td></tr>
-      <tr><td>taskOrigins[]</td><td>TaskOrigin</td></tr>
-      <tr><td>baselineTasks[]</td><td>BaselineTask</td></tr>
-    </table>"]
-    Settings["<table style='white-space:nowrap'>
-      <tr><td colspan='2'><b>documentSettings</b>（見せ方の群）</td></tr>
-      <tr><td colspan='2'>鍵と値の全数は tbl-settings.md</td></tr>
-      <tr><td>scrollGroupId</td><td>S-78</td></tr>
-      <tr><td>pinnedGroupIds[]</td><td>S-126</td></tr>
-      <tr><td>importSeq</td><td>S-71</td></tr>
-    </table>"]
-    Stamp["<table style='white-space:nowrap'>
-      <tr><td colspan='2'><b>revisionStamp</b></td></tr>
-      <tr><td>revision</td><td>版数</td></tr>
-      <tr><td>lastEditedBy</td><td>最後に書いた者</td></tr>
-      <tr><td>updatedAt</td><td>時刻</td></tr>
-    </table>"]
-    Log["<table style='white-space:nowrap'>
-      <tr><td colspan='2'><b>changeLog[]</b></td></tr>
-      <tr><td>revision</td><td>適用された版数</td></tr>
-      <tr><td>editedBy</td><td>書いた者</td></tr>
-      <tr><td>explanation</td><td>変更の理由</td></tr>
-      <tr><td>changedAt</td><td>時刻</td></tr>
-    </table>"]
-    Dep["<b>Dependency</b>"]
-    Week["<b>WeekDay</b>"]
-    Exc["<b>Exception</b>"]
-    Carry["<b>CarryElement</b>"]
-    Document -->|"日程データの群（1 ─ 1）"| Schedule
-    Document -->|"見せ方の群（1 ─ 1）"| Settings
-    Document -->|"文書の刻印（1 ─ 1）"| Stamp
-    Document -->|"文書の刻印（1 ─ 0..n）"| Log
-    Schedule -->|"tasks[] の各要素の下に入れ子（1 ─ 0..n）"| Dep
-    Schedule -->|"calendars[] の各要素の下に入れ子（1 ─ 0..n）"| Week
-    Schedule -->|"calendars[] の各要素の下に入れ子（1 ─ 0..n）"| Exc
-    Schedule -->|"carryElements を持つ 8 型の兄弟の鍵（1 ─ 0..n）"| Carry
-    Settings -->|"表示位置が指す行（弱い参照。0..1 ─ 1）"| Schedule
-    Settings -->|"ピン止めした行（弱い参照。0..n ─ 1）"| Schedule
-    Settings -->|"前回の取り込みの通し番号（taskOrigins と突き合わせる）"| Schedule
+erDiagram
+    documentRoot {
+        文字列 schemaVersion "文書の形式の版"
+        オブジェクト schedule "日程データの群"
+        オブジェクト documentSettings "見せ方の群"
+        オブジェクト revisionStamp "文書の刻印"
+        配列 changeLog "文書の刻印"
+    }
+    schedule {
+        オブジェクト project "Project"
+        配列 calendars "Calendar"
+        配列 tasks "Task"
+        配列 resources "Resource"
+        配列 assignments "Assignment"
+        配列 taskGroups "TaskGroup"
+        配列 taskGroupMembers "TaskGroupMember"
+        配列 taskVisuals "TaskVisual"
+        配列 commentBoxes "CommentBox"
+        配列 highlightBoxes "HighlightBox"
+        配列 taskOrigins "TaskOrigin"
+        配列 baselineTasks "BaselineTask"
+    }
+    documentSettings {
+        文字列 scrollGroupId "S-78"
+        配列 pinnedGroupIds "S-126"
+        整数 importSeq "S-71"
+    }
+    revisionStamp {
+        整数 revision "版数"
+        文字列 lastEditedBy "最後に書いた者"
+        文字列 updatedAt "時刻"
+    }
+    changeLog {
+        整数 revision "適用された版数"
+        文字列 editedBy "書いた者"
+        文字列 explanation "変更の理由"
+        文字列 changedAt "時刻"
+    }
+    documentRoot ||--|| schedule : "日程データの群"
+    documentRoot ||--|| documentSettings : "見せ方の群"
+    documentRoot ||--|| revisionStamp : "文書の刻印"
+    documentRoot ||--o{ changeLog : "文書の刻印"
+    schedule ||--o{ Dependency : "tasks の各要素の下に入れ子"
+    schedule ||--o{ WeekDay : "calendars の各要素の下に入れ子"
+    schedule ||--o{ Exception : "calendars の各要素の下に入れ子"
+    schedule ||--o{ CarryElement : "carryElements を持つ 8 型の兄弟の鍵"
+    documentSettings |o--|| schedule : "表示位置が指す行。弱い参照"
+    documentSettings }o--|| schedule : "ピン止めした行。弱い参照"
+    documentSettings |o--|| schedule : "前回の取り込みの通し番号。taskOrigins と突き合わせる"
 ```
