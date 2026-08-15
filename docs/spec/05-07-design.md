@@ -77,7 +77,6 @@ graph RL
 
 **Type**: SECTION
 
-[![図 F-017 — 起動の経路](_assets/view-startup.svg)](_assets/view-startup.svg)
 **部品を 表 T-062 に、全体を 図 F-013 に、経路ごとの詳細を 図 F-014 〜 図 F-017 に示す。** 層の定義と依存の規則は 5.1 が持つ。
 
 **部品はすべて機器 `D-1` に載る。** 表 T-007 で「対象ソフトが載る」機器は `D-1` だけであり、`D-2` 〜 `D-5` に載る部品は 1 つも無い。
@@ -168,7 +167,109 @@ graph RL
 
 **Type**: SECTION
 
-> 未記入。ディレクトリ構成と、コンポーネントとフォルダの対応を書く。各コンポーネントの公開面を宣言する。`src/` の中身が確定するのはここである。
+**本節が宣言するのは公開インターフェースである** —— **部品の外から呼んでよい名前の全数**のことである。**`R2.19` が各コンポーネントの公開面を本節に置くよう要求しており、その定義の正とする用語集がこのリポジトリに無いので、本節が定義を持つ。** 表 T-061 が規則を持つのと同じ事情である。
+
+⚠️ **これを「面」と呼ばない。** 表 T-006a の「面ごとの記法」・画面の面・前面と背面で 3 義あるためである。**層をまたぐ 8 本だけは「層をまたぐインターフェース」と呼び分け（表 T-065）、裸の「インターフェース」を書かない。**
+
+**部品ごとにフォルダを作り、部品名と語幹が同じ 1 ファイルだけを公開エントリとすること（MUST）。フォルダの外から、公開エントリ以外のファイルを読んではならない（MUST NOT）** —— 読めてしまうと、`LR-2` の「他の部品の内部へ直に触れてはならない」を検査できない。記法は 表 T-006a の `W-11` である。
+
+**どの部品もインスタンスを作らない。公開するのは型と関数だけである。** 表 T-060 の `LY-5` が「現在値を保持するのは `Framework` だけである」と定めたことの帰結であり、**内側の 3 層には漏らせる可変状態がそもそも無い。**
+
+**ユニットを割る基準は純粋性である**（`R7.9`）—— **純粋な側と非純粋な側が同じ部品にあるとき、別のファイルへ出す。** それ以外の理由で割ったものは 表 T-063 が行ごとに理由を持つ。**本表に無い部品は 1 ユニットであり、公開エントリがそのままユニットである。**
+
+**`UseCase` の部品名は動詞句であり**（`R2.1` の層別表）、**その部品が公開する操作は部品名を camelCase にしたものとする** —— 同じ概念に 2 つの語を与えないためである。**記法が違うだけで、食い違いではない**（表 T-006a の `W-1` と `W-2`）。⚠️ **外側の状態を読むメンバだけは動詞＋目的語とする** —— 名詞にすると、遅さと失敗しうることが名前から消える。
+
+**`main.ts` を作らない。** Vite の入口は `single-html-shell.ts` である —— 表 T-062 の `CP-25` が「起動と結線」を負う。**テストコードの置き場は Chapter 7 が持つ。本節は `src/` だけを持つ。**
+
+**ディレクトリ構成を次に示す。33 のフォルダは 表 T-062 の 33 部品と 1 対 1 である。**
+
+```text
+src/
+  entity/
+    document-model/   schedule/ · document-settings/ · document-stamp/ · edit-history/
+                      selection/ · dialogue-log/
+    layout-engine/    schedule-layout/ · schedule-geometry/ · item-hit-area/
+  use-case/           apply-document-change/ · edit-document/ · import-document/
+                      undo-edit/ · redo-edit/ · validate-imported-document/
+                      choose-startup-document/ · notify-change-watchers/
+                      post-dialogue-message/
+  adapter/            agent-api-endpoint/ · input-command-translator/ · svg-renderer/
+                      document-codec/ · image-exporter/ · file-gateway/
+                      autosave-gateway/ · clipboard-gateway/
+  framework/          single-html-shell/ · dom-svg-surface/ · dom-input-source/
+                      file-system-access-file-store/ · local-storage-document-store/
+                      browser-clipboard/ · canvas-rasterizer/
+```
+
+**1 つより多いユニットを持つ部品を 表 T-063 に、33 部品の公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。**
+
+**表 T-063 — 1 つより多いユニットを持つ部品**
+
+| 行 ID | 部品 | ユニット | 割った理由 |
+| --- | --- | --- | --- |
+| UT-1 | `ApplyDocumentChange` | `apply-document-change.ts`（`non-pure`。確定と通知）／ `document-change-plan.ts`（`pure`。照合と、全か無かの組み立て） | **純粋性。** 表 T-060 の `LY-3` が「操作と検証は `pure`、確定と通知は `non-pure`」と定めている |
+| UT-2 | `EditDocument` | `edit-document.ts`（公開エントリ）と、集約ごとの 8 ファイル —— `edit-task.ts` / `edit-task-group.ts` / `edit-dependency.ts` / `edit-annotation.ts` / `edit-resource.ts` / `edit-calendar.ts` / `edit-project.ts` / `edit-document-settings.ts` | **純粋性ではない。8 つとも `pure` である。** 集約ごとに変更の理由が別なので割った —— タスクの規則が変わっても暦の規則は変わらない |
+| UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts`（`non-pure`。購読の登録・解除と配ること）／ `change-notice.ts`（`pure`。まだ受け取っていない変更と発話を選ぶ） | **純粋性**（`LY-3`）。⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。値だけで決まる |
+| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts`（公開エントリ。設置と公開点の管理）／ `agent-api-members.ts`（表 T-107 の 17 メンバの結線） | **純粋性ではない。どちらも `non-pure` である。** 設置は `FR-065`（既定で公開しない）が、17 メンバは 表 T-107 が縛るので、変更の理由が別である |
+| UT-5 | `DocumentCodec` | `document-codec.ts`（公開エントリ）／ `json-codec.ts`（`pure`）／ `mspdi-codec.ts`（`pure`）／ `embedded-html-codec.ts`（`semi-pure-b`） | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。**残りは形式ごとに正が別だからである** —— JSON は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
+
+**表 T-064 の `PI-n` は、表 T-062 の `CP-n` と同じ部品である。純粋性を添えていないメンバは `pure` である。**
+**本表は名前と、それが何を担うかだけを持つ。引数・戻り値・境界値は Chapter 6.1 が持つ**（表 T-107 と同じ扱いである）。
+
+**表 T-064 — 公開インターフェース**
+
+| 行 ID | 層 | 部品 | 公開するメンバ |
+| --- | --- | --- | --- |
+| PI-1 | `documentModel` | `Schedule` | `Schedule`（型。12 の鍵は 表 T-052 の `DR-2`）／ `scheduleViolations`（不変条件に反する箇所）／ `taskOf`（`uid` で引く。`FR-022` の照合が使う） |
+| PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める） |
+| PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`）／ `isNewerStamp`（起動時の比較。表 T-034） |
+| PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
+| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutOfSchedule` ／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか） |
+| PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryOfLayout` |
+| PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。完全に囲まれたものだけ） |
+| PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は Chapter 6.1 が持つ**）／ `applyDocumentChange`（`non-pure`。唯一の書き込みの経路） |
+| PI-9 | `UseCase` | `EditDocument` | `editTask` / `editTaskGroup` / `editDependency` / `editAnnotation` / `editResource` / `editCalendar` / `editProject` / `editDocumentSettings` |
+| PI-10 | `UseCase` | `ImportDocument` | `importDocument`（合流の選択肢は 表 T-032a） |
+| PI-11 | `UseCase` | `UndoEdit` | `undoEdit` |
+| PI-12 | `UseCase` | `RedoEdit` | `redoEdit` |
+| PI-13 | `UseCase` | `ValidateImportedDocument` | `validateImportedDocument`（`FR-023` / `NFR-009`） |
+| PI-14 | `UseCase` | `ChooseStartupDocument` | `chooseStartupDocument`（順は 表 T-034） |
+| PI-15 | `UseCase` | `NotifyChangeWatchers` | `watchChanges`（`non-pure`）／ `unwatchChanges`（`non-pure`）／ `notifyChangeWatchers`（`non-pure`） |
+| PI-16 | `UseCase` | `PostDialogueMessage` | `postDialogueMessage`（`non-pure`） |
+| PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。既定で公開しない。`FR-065`）／ `SnapshotSource`（表 T-065）。⚠️ **外へ公開する 17 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。本表に書き写さない（MUST NOT）** |
+| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `commandOfInput`（割当は 表 T-023 と 表 T-036）／ `selectionOfInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`） |
+| PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgOfSchedule`（`FR-080`） |
+| PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentOfJson` ／ `jsonOfDocument` ／ `documentOfMspdi` ／ `mspdiOfDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`） |
+| PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
+| PI-22 | `Adapter` | `FileGateway` | `FileStore`（表 T-065）／ `openDocumentFile`（`semi-pure-b`）／ `saveDocumentFile`（`non-pure`） |
+| PI-23 | `Adapter` | `AutosaveGateway` | `DocumentStore`（表 T-065）／ `saveDocumentSnapshot`（`non-pure`）／ `restoreDocumentSnapshot`（`semi-pure-b`） |
+| PI-24 | `Adapter` | `ClipboardGateway` | `Clipboard`（表 T-065）／ `writeClipboard`（`non-pure`。表 T-024 の `IO-6` と `FR-033`） |
+| PI-25 | `Framework` | `SingleHtmlShell` | **他の部品から呼ばれるメンバを持たない。** Vite の入口である。`SnapshotSource` と `AppShellSource` の実装を、宣言した部品へ渡す |
+| PI-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 1 つ |
+| PI-27 | `Framework` | `DomInputSource` | `InputSource` の実装 1 つ |
+| PI-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装 1 つ |
+| PI-29 | `Framework` | `LocalStorageDocumentStore` | `DocumentStore` の実装 1 つ |
+| PI-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 1 つ |
+| PI-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 1 つ |
+| PI-32 | `documentModel` | `Selection` | `Selection`（型。順序は 表 T-023c の `SL-7b`）／ `selectionWith` ／ `selectionWithout` ／ `emptySelection` ／ `isSelected` |
+| PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。版数とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |
+
+**層をまたぐインターフェースは、宣言する部品のフォルダに、その名前の語幹で置く**（例 —— `adapter/svg-renderer/svg-surface.ts`）。**実装を外側の層が持つことは `LR-5` が定めている。**
+
+**表 T-065 — 層をまたぐインターフェース**
+
+| 行 ID | インターフェース | 宣言する部品 | 実装する部品 | 何を供給するか |
+| --- | --- | --- | --- | --- |
+| IF-1 | `SvgSurface` | `SvgRenderer`（`CP-19`） | `DomSvgSurface`（`CP-26`） | 作った SVG 文字列を画面に載せる |
+| IF-2 | `InputSource` | `InputCommandTranslator`（`CP-18`） | `DomInputSource`（`CP-27`） | ポインタとキーの出来事 |
+| IF-3 | `FileStore` | `FileGateway`（`CP-22`） | `FileSystemAccessFileStore`（`CP-28`） | ファイルの読み書きとハンドル（`FR-060`） |
+| IF-4 | `DocumentStore` | `AutosaveGateway`（`CP-23`） | `LocalStorageDocumentStore`（`CP-29`） | 自動保存の置き場（表 T-024 の `IO-5`） |
+| IF-5 | `Clipboard` | `ClipboardGateway`（`CP-24`） | `BrowserClipboard`（`CP-30`） | クリップボードへの書き出し（`IO-6`） |
+| IF-6 | `Rasterizer` | `ImageExporter`（`CP-21`） | `CanvasRasterizer`（`CP-31`） | SVG から画像へ（`IO-4`） |
+| IF-7 | `SnapshotSource` | `AgentApiEndpoint`（`CP-17`） | `SingleHtmlShell`（`CP-25`） | 凍結された現在値（表 T-035 の `AG-4`）と、身振りの最中かどうか（`AG-9`） |
+| IF-8 | `AppShellSource` | `DocumentCodec`（`CP-20`） | `SingleHtmlShell`（`CP-25`） | アプリ自身の HTML。`IO-7` を作るのに要る |
+
+**`SvgRenderer` が SVG の文字列を作り、`DomSvgSurface` がそれを画面に載せる** —— 名前が近い 2 つを別のフォルダへ分けたのは、**前者が `pure` で後者が `non-pure` だからである。**
 
 ### 5.4 Domain Model (ドメインモデル)
 

@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8799", "--directory", "scratch"],
       "port": 8799
+    },
+    {
+      "name": "erd-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8801", "--directory", "scratch"],
+      "port": 8801
     }
   ]
 }

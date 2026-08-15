@@ -35,6 +35,8 @@ previous-project-result/01-mspdi/mspdi/*
 
 # ---- Internal working notes. Never published. ----
 previous-project-result/temp/
+# Scratch copies of documents that are still being edited elsewhere in the tree.
+temp/
 
 # ---- Secrets ----
 .env
