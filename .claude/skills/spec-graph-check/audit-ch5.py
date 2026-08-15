@@ -55,6 +55,18 @@ for doc, want in (("01-04-requirements", 1), ("A-appendix", 1)):
           open("docs/spec/%s.md" % doc, encoding="utf-8").read().count("部品"), want)
 check("T-063 rows", len(ut), 6)
 
+# SU-1 defines a component by its public entry.  The earlier wording -- "it
+# publishes an interface outward" -- was false for 7 of the 34 (CP-25 publishes
+# no member; CP-26..CP-31 only implement interfaces another component declares),
+# so it was abandoned.  It must not grow back, in the design or in the record.
+SPEC = ("01-04-requirements", "05-07-design", "08-10-test", "A-appendix")
+check("T-074 SU-1 defines a component by its entry",
+      design.count("フォルダの外へ見せる公開エントリを 1 つ持つもの"), 1)
+check("the abandoned definition survives only in the record",
+      {d: open("docs/spec/%s.md" % d, encoding="utf-8").read().count("外へインターフェースを公開")
+       for d in SPEC},
+      {"01-04-requirements": 0, "05-07-design": 0, "08-10-test": 0, "A-appendix": 1})
+
 # the directory tree in 5.3 must hold one folder per component
 tree = design[design.index("```text"):design.index("```", design.index("```text") + 5)]
 folders = re.findall(r"([a-z0-9-]+)/", tree)
