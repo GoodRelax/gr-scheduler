@@ -17,7 +17,9 @@ Usage:  python docs/spec/_assets/source/build.py
 """
 
 import json
+import math
 import os
+import re
 import subprocess
 import sys
 
@@ -105,6 +107,86 @@ def build_overview(model, backing):
     return edges
 
 
+
+# ------------------------------------------------------ edge label placement
+# draw.io draws an edge label at the midpoint of its edge. In the overview every
+# arrow runs down one corridor, so a midpoint can land inside a component box in
+# a band the arrow only passes through, and the label's white background hides
+# the box's name. Moving the label along its own edge keeps every layer
+# dependency in the picture; dropping the arrow would not. Widening the gaps does
+# not help -- the midpoint stays on the corridor.
+LABEL_FRACTIONS = (0.50, 0.60, 0.40, 0.68, 0.32, 0.76, 0.24, 0.84, 0.16)
+LABEL_STYLE = ("edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;"
+               "points=[];labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#222222;")
+LABEL_MARGIN = 6
+CELL_RE = re.compile(
+    r'<mxCell id="([^"]+)" value="([^"]*)"[^>]*vertex="1"[^>]*>\s*'
+    r'<mxGeometry x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"')
+EDGE_RE = re.compile(
+    r'<mxCell id="(edge\d+)" value="([^"]*)"([^>]*?)source="([^"]+)" target="([^"]+)">(.*?)</mxCell>',
+    re.S)
+
+
+def _point_at(path, fraction):
+    """The point `fraction` of the way along a polyline."""
+    total = sum(math.dist(path[i], path[i + 1]) for i in range(len(path) - 1))
+    want, walked = total * fraction, 0.0
+    for i in range(len(path) - 1):
+        step = math.dist(path[i], path[i + 1])
+        if step and walked + step >= want:
+            ratio = (want - walked) / step
+            return (path[i][0] + (path[i + 1][0] - path[i][0]) * ratio,
+                    path[i][1] + (path[i + 1][1] - path[i][1]) * ratio)
+        walked += step
+    return path[-1]
+
+
+def place_labels(drawio_path):
+    """Move every edge label clear of the node boxes. Stop the build if one cannot be."""
+    text = open(drawio_path, encoding="utf-8").read()
+    geom = {m.group(1): tuple(map(float, m.groups()[2:])) for m in CELL_RE.finditer(text)}
+    boxes = [geom[i] for i in geom if i.startswith("n_")]
+
+    def centre(cell_id):
+        x, y, w, h = geom[cell_id]
+        return (x + w / 2, y + h / 2)
+
+    def clear_of_boxes(point):
+        return not any(x - LABEL_MARGIN <= point[0] <= x + w + LABEL_MARGIN
+                       and y - LABEL_MARGIN <= point[1] <= y + h + LABEL_MARGIN
+                       for x, y, w, h in boxes)
+
+    moved, stuck = [], []
+    for match in list(EDGE_RE.finditer(text)):
+        eid, label, rest, src, dst, body = match.groups()
+        if not label:
+            continue
+        waypoints = [(float(a), float(b))
+                     for a, b in re.findall(r'<mxPoint x="([-\d.]+)" y="([-\d.]+)"/>', body)]
+        path = [centre(src)] + waypoints + [centre(dst)]
+        chosen = next((f for f in LABEL_FRACTIONS if clear_of_boxes(_point_at(path, f))), None)
+        if chosen is None:
+            stuck.append(label)
+            continue
+        if chosen == LABEL_FRACTIONS[0]:
+            continue                                    # the midpoint is already clear
+        cell = ('<mxCell id="%s-label" value="%s" style="%s" vertex="1" connectable="0" '
+                'parent="%s"><mxGeometry x="%.3f" relative="1" as="geometry">'
+                '<mxPoint as="offset"/></mxGeometry></mxCell>'
+                % (eid, label, LABEL_STYLE, eid, 2 * chosen - 1))
+        original = match.group(0)
+        text = text.replace(original,
+                            original.replace('value="%s"' % label, 'value=""', 1) + cell, 1)
+        moved.append((label, chosen))
+
+    if stuck:
+        sys.exit("build: no clear position for edge label(s): %s" % ", ".join(stuck))
+    if moved:
+        open(drawio_path, "w", encoding="utf-8").write(text)
+        print("    labels moved clear of the boxes: "
+              + ", ".join("%s@%.2f" % m for m in moved))
+
+
 def run(argv):
     print("  " + " ".join(os.path.basename(a) for a in argv[1:]))
     result = subprocess.run(argv, capture_output=True, text=True)
@@ -118,6 +200,7 @@ def draw(model_path, out_stem, view=None):
     if view:
         argv += ["--view", view]
     print("    " + run(argv))
+    place_labels(out_stem + ".drawio")
     if os.path.exists(DRAWIO):
         stem = os.path.basename(out_stem)
         # Only the .svg is produced. To eyeball a figure as a raster, run the

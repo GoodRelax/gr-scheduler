@@ -1,7 +1,7 @@
 # gr-scheduler 仕様書 — 設計
 
-**Grammar**: spec.sgra
-**UID**: DOC-DESIGN
+**Grammar**: spec.sgra \
+**UID**: DOC-DESIGN \
 **Version**: 0.4
 
 本書は第 2 部（Chapter 5 〜 7）である。
@@ -9,6 +9,8 @@
 > **この文書はまだ器である。** 未記入の節は引用で始まる行を持つ。
 
 ## Chapter 5. Design (設計)
+
+**Type**: SECTION
 
 ### 5.1 Architecture Concept (アーキテクチャ方式)
 
@@ -75,6 +77,7 @@ graph RL
 
 **Type**: SECTION
 
+[![図 F-017 — 起動の経路](_assets/view-startup.svg)](_assets/view-startup.svg)
 **部品を 表 T-062 に、全体を 図 F-013 に、経路ごとの詳細を 図 F-014 〜 図 F-017 に示す。** 層の定義と依存の規則は 5.1 が持つ。
 
 **部品はすべて機器 `D-1` に載る。** 表 T-007 で「対象ソフトが載る」機器は `D-1` だけであり、`D-2` 〜 `D-5` に載る部品は 1 つも無い。
@@ -133,7 +136,7 @@ graph RL
 
 **図 F-013 — コンポーネントと層**
 
-[![図 F-013 — コンポーネントと層](_assets/fig-components.svg)](_assets/fig-components.svg)
+[![コンポーネントと層](_assets/fig-components.svg)](_assets/fig-components.svg)
 
 **図をクリックすると原寸で開く。**
 
@@ -201,6 +204,8 @@ graph RL
 > 未記入。ADR-000 に「要求を満たす最小の構成と比べて何を増やしたか」を書く。以降は ADR-001 から採番する。前プロジェクトの記録番号は引き継がない（`previous-project-result/README.md` §0-4）。描かなかった図とその理由もここに書く。
 
 ## Chapter 6. Software Specification (ソフトウェア仕様)
+
+**Type**: SECTION
 
 ### 6.1 Software Specifications (ソフトウェア仕様)
 

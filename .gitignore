@@ -52,6 +52,10 @@ previous-project-result/temp/
 .DS_Store
 Thumbs.db
 *.bak
+# *.bak alone does not match the dated form the editor writes (*.bak-20260815-090337),
+# and _assets/ is copied verbatim into the HTML export -- a stale copy of the
+# specification shipped to every reader until it was noticed.
+*.bak-*
 *.orig
 *.tmp
 *~
