@@ -167,11 +167,6 @@
       "配列",
       "pinnedGroupIds",
       "S-126"
-     ],
-     [
-      "整数",
-      "importSeq",
-      "S-71"
      ]
     ]
    },
@@ -273,12 +268,6 @@
     "to": "schedule",
     "multiplicity": "0..n ─ 1",
     "label": "ピン止めした行。弱い参照"
-   },
-   {
-    "from": "documentSettings",
-    "to": "schedule",
-    "multiplicity": "0..1 ─ 1",
-    "label": "前回の取り込みの通し番号。taskOrigins と突き合わせる"
    }
   ]
  },
@@ -469,6 +458,15 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": "発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う**"
+    },
+    {
+     "name": "importSeq",
+     "type": "整数",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13`"
     },
     {
      "name": "carry",

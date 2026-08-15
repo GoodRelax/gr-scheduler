@@ -40,6 +40,7 @@ erDiagram
         整数 **calendarUid** FK "Consume"
         整数 themeHue "GRS・0〜359"
         整数 uidHighWaterMark "GRS"
+        整数 importSeq "GRS"
         連想 carry "Carry・文字列→文字列"
         CarryElement[] carryElements "Carry"
     }
@@ -322,125 +323,126 @@ erDiagram
 | AT-18 | `Project` | `calendarUid` | 整数 | 可 | FK | Consume | `Project/CalendarUID` | 既定の暦 |
 | AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマの色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
 | AT-20 | `Project` | `uidHighWaterMark` | 整数 | 否 | — | GRS | — | 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** |
-| AT-21 | `Project` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Project` 直下のスカラー |
-| AT-22 | `Project` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素（表 T-053 の `DF-3`） |
-| AT-23 | `Task` | `uid` | 整数 | 否 | PK | Own | `Task/UID` | 文書内で一意・不変。**値から意味を読まない** |
-| AT-24 | `Task` | `wbsParentUid` | 整数 | 可（`null` = 根） | FK | Consume | — | WBS の親。交換相手には対応要素が無く、深さと出現順から起こす |
-| AT-25 | `Task` | `wbsOrder` | 整数 | 可 | — | Consume | — | 同じ親の下での並び |
-| AT-26 | `Task` | `name` | 文字列 | 可 | — | Own | `Task/Name` | タスク名 |
-| AT-27 | `Task` | `start` | 日時 | 可 | — | Own | `Task/Start` | 予定の開始 |
-| AT-28 | `Task` | `finish` | 日時 | 可 | — | Own | `Task/Finish` | 予定の終了 |
-| AT-29 | `Task` | `milestone` | 真偽 | 可 | — | Own | `Task/Milestone` | **マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別（表 T-016 の `PR-18`） |
-| AT-30 | `Task` | `deadline` | 日時 | 可 | — | Own | `Task/Deadline` | 期限 |
-| AT-31 | `Task` | `notes` | 文字列 | 可 | — | Own | `Task/Notes` | 備考 |
-| AT-32 | `Task` | `calendarUid` | 整数 | 可 | FK | Consume | `Task/CalendarUID` | このタスクが使う暦 |
-| AT-33 | `Task` | `actualStart` | 日時 | 可 | — | Own | `Task/ActualStart` | 実績の開始。空 = 未着手 |
-| AT-34 | `Task` | `actualDuration` | 整数（稼働日） | 可 | — | Own | `Task/ActualDuration` | 実績バーの長さ |
-| AT-35 | `Task` | `actualFinish` | 日時 | 可 | — | Own | `Task/ActualFinish` | **完了したときだけ入る** |
-| AT-36 | `Task` | `resume` | 日時 | 可 | — | Own | `Task/Resume` | 中断中に、残りが始まる予定の日 |
-| AT-37 | `Task` | `resumeValid` | 真偽 | 可 | — | Own | `Task/ResumeValid` | 偽 = 再開日が未定の中断 |
-| AT-38 | `Task` | `percentComplete` | 整数（0 以上） | 可 | — | Own | `Task/PercentComplete` | 完了率。**上限を型に持たせない**（`FR-012`） |
-| AT-39 | `Task` | `fadeInDays` | 整数（日数） | 可 | — | Consume | `Task/ExtendedAttribute` | 左のぼかしの日数。`null` と `0` を区別する |
-| AT-40 | `Task` | `fadeOutDays` | 整数（日数） | 可 | — | Consume | `Task/ExtendedAttribute` | 右のぼかしの日数。同上 |
-| AT-41 | `Task` | `dependencies` | `Dependency[]` | 否（空可） | — | Consume | `Task/PredecessorLink` | **このタスクを後続とする依存**（表 T-053 の `DF-4`） |
-| AT-42 | `Task` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Task` 直下のスカラー |
-| AT-43 | `Task` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
-| AT-44 | `Dependency` | `predecessorUid` | 整数 | 否 | FK | Consume | `PredecessorLink/PredecessorUID` | 先行タスク。**後続は入れ子の位置が表す** |
-| AT-45 | `Dependency` | `linkType` | 整数（0〜3） | 否 | — | Consume | `PredecessorLink/Type` | 依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS |
-| AT-46 | `Dependency` | `lag` | 整数 | 可 | — | Consume | `PredecessorLink/LinkLag` | ラグ。単位は `lagFormat` |
-| AT-47 | `Dependency` | `lagFormat` | 整数 | 可 | — | Consume | `PredecessorLink/LagFormat` | ラグの単位 |
-| AT-48 | `Dependency` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | `CrossProject` ほか、解釈しないスカラー |
-| AT-49 | `Dependency` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
-| AT-50 | `TaskGroup` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 行の識別子 |
-| AT-51 | `TaskGroup` | `parentId` | 文字列（UUID） | 可（`null` = 根） | FK | GRS | — | 親の行。深さの上限は `FR-004` |
-| AT-52 | `TaskGroup` | `label` | 文字列 | 可（`null` = 導出） | — | GRS | — | 行の名前 |
-| AT-53 | `TaskGroup` | `derivedFromTaskUid` | 整数 | 可 | FK | GRS | — | 名前の導出元。`label` と同時に `null` にできない |
-| AT-54 | `TaskGroup` | `order` | 整数 | 可 | — | GRS | — | 同じ親の下での並び |
-| AT-55 | `TaskGroup` | `isCollapsed` | 真偽 | 可 | — | GRS | — | 畳んでいるか |
-| AT-56 | `TaskGroup` | `isHidden` | 真偽 | 可 | — | GRS | — | 隠しているか。戻す入口は親の非表示グループタブ（表 T-015 の `HR-6`） |
-| AT-57 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色 |
-| AT-58 | `TaskGroup` | `height` | 整数 | 可（`null` = 自動） | — | GRS | — | 倍率 1 のときの論理の高さ |
-| AT-59 | `TaskGroupMember` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である |
-| AT-60 | `TaskGroupMember` | `groupId` | 文字列（UUID） | 否 | FK | GRS | — | 載せる行 |
-| AT-61 | `TaskGroupMember` | `stackOrder` | 整数 | 可（`null` = 自動） | — | GRS | — | 段。人が指定できるかは表 T-014 の `ST-6` |
-| AT-62 | `Calendar` | `uid` | 整数 | 否 | PK | Own | `Calendars/Calendar/UID` | 暦の識別子 |
-| AT-63 | `Calendar` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Name` | 暦の名前 |
-| AT-64 | `Calendar` | `isBaseCalendar` | 真偽 | 可 | — | Own | `Calendars/Calendar/IsBaseCalendar` | 基準の暦か |
-| AT-65 | `Calendar` | `baseCalendarUid` | 整数 | 可 | FK | Consume | `Calendars/Calendar/BaseCalendarUID` | 継承元の暦 |
-| AT-66 | `Calendar` | `ordinal` | 整数 | 否 | — | GRS | — | 出現順。書き出しで元の並びに戻す |
-| AT-67 | `Calendar` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
-| AT-68 | `Calendar` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkWeeks` ほか、行にならなかった子要素 |
-| AT-69 | `WeekDay` | `calendarUid` | 整数 | 否 | PK/FK | GRS | — | 親の暦 |
-| AT-70 | `WeekDay` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
-| AT-71 | `WeekDay` | `dayType` | 整数（1〜7） | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayType` | 曜日 |
-| AT-72 | `WeekDay` | `dayWorking` | 真偽 | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayWorking` | 稼働日か |
-| AT-73 | `WeekDay` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
-| AT-74 | `WeekDay` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
-| AT-75 | `Exception` | `calendarUid` | 整数 | 否 | PK/FK | GRS | — | 親の暦 |
-| AT-76 | `Exception` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
-| AT-77 | `Exception` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Exceptions/Exception/Name` | 例外の名前 |
-| AT-78 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | ⚠️ **繰り返しの起点であって実日付の範囲ではない** |
-| AT-79 | `Exception` | `toDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/ToDate` | 同上 |
-| AT-80 | `Exception` | `dayWorking` | 真偽 | 可 | — | Own | `…/Exception/DayWorking` | 稼働日か |
-| AT-81 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | **繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる** |
-| AT-82 | `Exception` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
-| AT-83 | `Exception` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
-| AT-84 | `Resource` | `uid` | 整数 | 否 | PK | Own | `Resource/UID` | 担当者の識別子 |
-| AT-85 | `Resource` | `name` | 文字列 | 可 | — | Own | `Resource/Name` | 担当者名 |
-| AT-86 | `Resource` | `resourceKind` | 整数 | 可 | — | Own | `Resource/Type` | `0` = 材料 / `1` = 作業 / `2` = 費用 |
-| AT-87 | `Resource` | `isCostResource` | 真偽 | 可 | — | Own | `Resource/IsCostResource` | 費用資源か |
-| AT-88 | `Resource` | `calendarUid` | 整数 | 可 | FK | Consume | `Resource/CalendarUID` | この担当者が使う暦 |
-| AT-89 | `Resource` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 59 |
-| AT-90 | `Resource` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 6 |
-| AT-91 | `Assignment` | `uid` | 整数 | 否 | PK | Own | `Assignment/UID` | 割当の識別子 |
-| AT-92 | `Assignment` | `taskUid` | 整数 | 可 | FK | Consume | `Assignment/TaskUID` | 就くタスク |
-| AT-93 | `Assignment` | `resourceUid` | 整数 | 可 | FK | Consume | `Assignment/ResourceUID` | 就く担当者 |
-| AT-94 | `Assignment` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 58 |
-| AT-95 | `Assignment` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 3 |
-| AT-96 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
-| AT-97 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置（表 T-013） |
-| AT-98 | `TaskVisual` | `nameAlign` | 列挙（`'left'` ほか 3 値） | 可 | — | GRS | — | 名前の揃え |
-| AT-99 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可 | — | GRS | — | **描画の形だけを決める。`Task.milestone` を変えない**（表 T-012） |
-| AT-100 | `TaskVisual` | `milestoneGlyph` | 列挙（8 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る |
-| AT-101 | `TaskVisual` | `fillColor` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 塗り。**輪郭と同時に透明にできない**（`FR-030`） |
-| AT-102 | `TaskVisual` | `strokeColor` | 文字列 | 可（同上） | — | GRS | — | 輪郭。同上 |
-| AT-103 | `TaskVisual` | `lineWeight` | 列挙（`'thin'` ほか 3 値） | 可 | — | GRS | — | 輪郭の太さ |
-| AT-104 | `TaskOrigin` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク。**行が無い = 本ソフトウェア生まれ** |
-| AT-105 | `TaskOrigin` | `sourceProjectUid` | 文字列 | 可 | — | GRS | — | 取り込み元のプロジェクト |
-| AT-106 | `TaskOrigin` | `sourceUid` | 整数 | 否 | — | GRS | — | 取り込み元でのタスクの識別子 |
-| AT-107 | `TaskOrigin` | `lastSeenImportSeq` | 整数 | 否 | — | GRS | — | 最後に見た取り込みの通し番号（`MG-13`） |
-| AT-108 | `TaskOrigin` | `importSessionId` | 文字列 | 可 | — | GRS | — | 取り込み 1 回の識別子 |
-| AT-109 | `CommentBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
-| AT-110 | `CommentBox` | `leaderShapeKind` | 列挙（2 値） | 可 | — | GRS | — | 引き出し線の形 |
-| AT-111 | `CommentBox` | `text` | 文字列 | 可 | — | GRS | — | **本文。「コメント」と略さない**（`U-14`） |
-| AT-112 | `CommentBox` | `anchorDate` | 日時 | 可 | — | GRS | — | 留める日 |
-| AT-113 | `CommentBox` | `anchorGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 留める行 |
-| AT-114 | `CommentBox` | `anchorTaskUid` | 整数 | 可 | FK | GRS | — | 留めるタスク |
-| AT-115 | `CommentBox` | `anchorPoint` | 整数（0〜8） | 可 | — | GRS | — | タスクのどこに留めるか |
-| AT-116 | `CommentBox` | `bodyOffsetPx` | `{ dx, dy }` | 可 | — | GRS | — | 留めた点から本文までのずれ |
-| AT-117 | `HighlightBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
-| AT-118 | `HighlightBox` | `startDate` | 日時 | 可 | — | GRS | — | 囲む範囲の左端 |
-| AT-119 | `HighlightBox` | `endDate` | 日時 | 可 | — | GRS | — | 囲む範囲の右端 |
-| AT-120 | `HighlightBox` | `topGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の上端の行 |
-| AT-121 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端の行 |
-| AT-122 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色 |
-| AT-123 | `HighlightBox` | `cornerRadiusPx` | 数値 | 可 | — | GRS | — | 角の丸み |
-| AT-124 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す** |
-| AT-125 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |
-| AT-126 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |
-| AT-127 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は定めない** |
-| AT-128 | `revisionStamp` | `revision` | 整数 | 否 | — | GRS | — | 1 ずつ増える。上げる条件は `FR-063` |
-| AT-129 | `revisionStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。人か、AI か |
-| AT-130 | `revisionStamp` | `updatedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 最後に書いた時刻。**秒までとする**（透かしと精度を揃える） |
-| AT-131 | `changeLog` | `revision` | 整数 | 否 | PK | GRS | — | どの版に対する理由か |
-| AT-132 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |
-| AT-133 | `changeLog` | `explanation` | 文字列 | 否 | — | GRS | — | なぜそう変えたか（`UC-013`） |
-| AT-134 | `changeLog` | `changedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | その版の時刻 |
-| AT-135 | `BaselineTask` | `uid` | 整数 | 否 | PK | GRS | — | 重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`） |
-| AT-136 | `BaselineTask` | `name` | 文字列 | 可 | — | GRS | — | タスク名 |
-| AT-137 | `BaselineTask` | `start` | 日時 | 可 | — | GRS | — | 変更前の予定の開始 |
-| AT-138 | `BaselineTask` | `finish` | 日時 | 可 | — | GRS | — | 変更前の予定の終了 |
-| AT-139 | `BaselineTask` | `milestone` | 真偽 | 可 | — | GRS | — | マイルストーンとして描くか |
+| AT-21 | `Project` | `importSeq` | 整数 | 否 | — | GRS | — | 取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
+| AT-22 | `Project` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Project` 直下のスカラー |
+| AT-23 | `Project` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素（表 T-053 の `DF-3`） |
+| AT-24 | `Task` | `uid` | 整数 | 否 | PK | Own | `Task/UID` | 文書内で一意・不変。**値から意味を読まない** |
+| AT-25 | `Task` | `wbsParentUid` | 整数 | 可（`null` = 根） | FK | Consume | — | WBS の親。交換相手には対応要素が無く、深さと出現順から起こす |
+| AT-26 | `Task` | `wbsOrder` | 整数 | 可 | — | Consume | — | 同じ親の下での並び |
+| AT-27 | `Task` | `name` | 文字列 | 可 | — | Own | `Task/Name` | タスク名 |
+| AT-28 | `Task` | `start` | 日時 | 可 | — | Own | `Task/Start` | 予定の開始 |
+| AT-29 | `Task` | `finish` | 日時 | 可 | — | Own | `Task/Finish` | 予定の終了 |
+| AT-30 | `Task` | `milestone` | 真偽 | 可 | — | Own | `Task/Milestone` | **マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別（表 T-016 の `PR-18`） |
+| AT-31 | `Task` | `deadline` | 日時 | 可 | — | Own | `Task/Deadline` | 期限 |
+| AT-32 | `Task` | `notes` | 文字列 | 可 | — | Own | `Task/Notes` | 備考 |
+| AT-33 | `Task` | `calendarUid` | 整数 | 可 | FK | Consume | `Task/CalendarUID` | このタスクが使う暦 |
+| AT-34 | `Task` | `actualStart` | 日時 | 可 | — | Own | `Task/ActualStart` | 実績の開始。空 = 未着手 |
+| AT-35 | `Task` | `actualDuration` | 整数（稼働日） | 可 | — | Own | `Task/ActualDuration` | 実績バーの長さ |
+| AT-36 | `Task` | `actualFinish` | 日時 | 可 | — | Own | `Task/ActualFinish` | **完了したときだけ入る** |
+| AT-37 | `Task` | `resume` | 日時 | 可 | — | Own | `Task/Resume` | 中断中に、残りが始まる予定の日 |
+| AT-38 | `Task` | `resumeValid` | 真偽 | 可 | — | Own | `Task/ResumeValid` | 偽 = 再開日が未定の中断 |
+| AT-39 | `Task` | `percentComplete` | 整数（0 以上） | 可 | — | Own | `Task/PercentComplete` | 完了率。**上限を型に持たせない**（`FR-012`） |
+| AT-40 | `Task` | `fadeInDays` | 整数（日数） | 可 | — | Consume | `Task/ExtendedAttribute` | 左のぼかしの日数。`null` と `0` を区別する |
+| AT-41 | `Task` | `fadeOutDays` | 整数（日数） | 可 | — | Consume | `Task/ExtendedAttribute` | 右のぼかしの日数。同上 |
+| AT-42 | `Task` | `dependencies` | `Dependency[]` | 否（空可） | — | Consume | `Task/PredecessorLink` | **このタスクを後続とする依存**（表 T-053 の `DF-4`） |
+| AT-43 | `Task` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Task` 直下のスカラー |
+| AT-44 | `Task` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
+| AT-45 | `Dependency` | `predecessorUid` | 整数 | 否 | FK | Consume | `PredecessorLink/PredecessorUID` | 先行タスク。**後続は入れ子の位置が表す** |
+| AT-46 | `Dependency` | `linkType` | 整数（0〜3） | 否 | — | Consume | `PredecessorLink/Type` | 依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS |
+| AT-47 | `Dependency` | `lag` | 整数 | 可 | — | Consume | `PredecessorLink/LinkLag` | ラグ。単位は `lagFormat` |
+| AT-48 | `Dependency` | `lagFormat` | 整数 | 可 | — | Consume | `PredecessorLink/LagFormat` | ラグの単位 |
+| AT-49 | `Dependency` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | `CrossProject` ほか、解釈しないスカラー |
+| AT-50 | `Dependency` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
+| AT-51 | `TaskGroup` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 行の識別子 |
+| AT-52 | `TaskGroup` | `parentId` | 文字列（UUID） | 可（`null` = 根） | FK | GRS | — | 親の行。深さの上限は `FR-004` |
+| AT-53 | `TaskGroup` | `label` | 文字列 | 可（`null` = 導出） | — | GRS | — | 行の名前 |
+| AT-54 | `TaskGroup` | `derivedFromTaskUid` | 整数 | 可 | FK | GRS | — | 名前の導出元。`label` と同時に `null` にできない |
+| AT-55 | `TaskGroup` | `order` | 整数 | 可 | — | GRS | — | 同じ親の下での並び |
+| AT-56 | `TaskGroup` | `isCollapsed` | 真偽 | 可 | — | GRS | — | 畳んでいるか |
+| AT-57 | `TaskGroup` | `isHidden` | 真偽 | 可 | — | GRS | — | 隠しているか。戻す入口は親の非表示グループタブ（表 T-015 の `HR-6`） |
+| AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色 |
+| AT-59 | `TaskGroup` | `height` | 整数 | 可（`null` = 自動） | — | GRS | — | 倍率 1 のときの論理の高さ |
+| AT-60 | `TaskGroupMember` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である |
+| AT-61 | `TaskGroupMember` | `groupId` | 文字列（UUID） | 否 | FK | GRS | — | 載せる行 |
+| AT-62 | `TaskGroupMember` | `stackOrder` | 整数 | 可（`null` = 自動） | — | GRS | — | 段。人が指定できるかは表 T-014 の `ST-6` |
+| AT-63 | `Calendar` | `uid` | 整数 | 否 | PK | Own | `Calendars/Calendar/UID` | 暦の識別子 |
+| AT-64 | `Calendar` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Name` | 暦の名前 |
+| AT-65 | `Calendar` | `isBaseCalendar` | 真偽 | 可 | — | Own | `Calendars/Calendar/IsBaseCalendar` | 基準の暦か |
+| AT-66 | `Calendar` | `baseCalendarUid` | 整数 | 可 | FK | Consume | `Calendars/Calendar/BaseCalendarUID` | 継承元の暦 |
+| AT-67 | `Calendar` | `ordinal` | 整数 | 否 | — | GRS | — | 出現順。書き出しで元の並びに戻す |
+| AT-68 | `Calendar` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
+| AT-69 | `Calendar` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkWeeks` ほか、行にならなかった子要素 |
+| AT-70 | `WeekDay` | `calendarUid` | 整数 | 否 | PK/FK | GRS | — | 親の暦 |
+| AT-71 | `WeekDay` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
+| AT-72 | `WeekDay` | `dayType` | 整数（1〜7） | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayType` | 曜日 |
+| AT-73 | `WeekDay` | `dayWorking` | 真偽 | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayWorking` | 稼働日か |
+| AT-74 | `WeekDay` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
+| AT-75 | `WeekDay` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
+| AT-76 | `Exception` | `calendarUid` | 整数 | 否 | PK/FK | GRS | — | 親の暦 |
+| AT-77 | `Exception` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
+| AT-78 | `Exception` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Exceptions/Exception/Name` | 例外の名前 |
+| AT-79 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | ⚠️ **繰り返しの起点であって実日付の範囲ではない** |
+| AT-80 | `Exception` | `toDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/ToDate` | 同上 |
+| AT-81 | `Exception` | `dayWorking` | 真偽 | 可 | — | Own | `…/Exception/DayWorking` | 稼働日か |
+| AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | **繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる** |
+| AT-83 | `Exception` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
+| AT-84 | `Exception` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
+| AT-85 | `Resource` | `uid` | 整数 | 否 | PK | Own | `Resource/UID` | 担当者の識別子 |
+| AT-86 | `Resource` | `name` | 文字列 | 可 | — | Own | `Resource/Name` | 担当者名 |
+| AT-87 | `Resource` | `resourceKind` | 整数 | 可 | — | Own | `Resource/Type` | `0` = 材料 / `1` = 作業 / `2` = 費用 |
+| AT-88 | `Resource` | `isCostResource` | 真偽 | 可 | — | Own | `Resource/IsCostResource` | 費用資源か |
+| AT-89 | `Resource` | `calendarUid` | 整数 | 可 | FK | Consume | `Resource/CalendarUID` | この担当者が使う暦 |
+| AT-90 | `Resource` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 59 |
+| AT-91 | `Resource` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 6 |
+| AT-92 | `Assignment` | `uid` | 整数 | 否 | PK | Own | `Assignment/UID` | 割当の識別子 |
+| AT-93 | `Assignment` | `taskUid` | 整数 | 可 | FK | Consume | `Assignment/TaskUID` | 就くタスク |
+| AT-94 | `Assignment` | `resourceUid` | 整数 | 可 | FK | Consume | `Assignment/ResourceUID` | 就く担当者 |
+| AT-95 | `Assignment` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 58 |
+| AT-96 | `Assignment` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 3 |
+| AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
+| AT-98 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置（表 T-013） |
+| AT-99 | `TaskVisual` | `nameAlign` | 列挙（`'left'` ほか 3 値） | 可 | — | GRS | — | 名前の揃え |
+| AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可 | — | GRS | — | **描画の形だけを決める。`Task.milestone` を変えない**（表 T-012） |
+| AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（8 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る |
+| AT-102 | `TaskVisual` | `fillColor` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 塗り。**輪郭と同時に透明にできない**（`FR-030`） |
+| AT-103 | `TaskVisual` | `strokeColor` | 文字列 | 可（同上） | — | GRS | — | 輪郭。同上 |
+| AT-104 | `TaskVisual` | `lineWeight` | 列挙（`'thin'` ほか 3 値） | 可 | — | GRS | — | 輪郭の太さ |
+| AT-105 | `TaskOrigin` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク。**行が無い = 本ソフトウェア生まれ** |
+| AT-106 | `TaskOrigin` | `sourceProjectUid` | 文字列 | 可 | — | GRS | — | 取り込み元のプロジェクト |
+| AT-107 | `TaskOrigin` | `sourceUid` | 整数 | 否 | — | GRS | — | 取り込み元でのタスクの識別子 |
+| AT-108 | `TaskOrigin` | `lastSeenImportSeq` | 整数 | 否 | — | GRS | — | 最後に見た取り込みの通し番号（`MG-13`） |
+| AT-109 | `TaskOrigin` | `importSessionId` | 文字列 | 可 | — | GRS | — | 取り込み 1 回の識別子 |
+| AT-110 | `CommentBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
+| AT-111 | `CommentBox` | `leaderShapeKind` | 列挙（2 値） | 可 | — | GRS | — | 引き出し線の形 |
+| AT-112 | `CommentBox` | `text` | 文字列 | 可 | — | GRS | — | **本文。「コメント」と略さない**（`U-14`） |
+| AT-113 | `CommentBox` | `anchorDate` | 日時 | 可 | — | GRS | — | 留める日 |
+| AT-114 | `CommentBox` | `anchorGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 留める行 |
+| AT-115 | `CommentBox` | `anchorTaskUid` | 整数 | 可 | FK | GRS | — | 留めるタスク |
+| AT-116 | `CommentBox` | `anchorPoint` | 整数（0〜8） | 可 | — | GRS | — | タスクのどこに留めるか |
+| AT-117 | `CommentBox` | `bodyOffsetPx` | `{ dx, dy }` | 可 | — | GRS | — | 留めた点から本文までのずれ |
+| AT-118 | `HighlightBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
+| AT-119 | `HighlightBox` | `startDate` | 日時 | 可 | — | GRS | — | 囲む範囲の左端 |
+| AT-120 | `HighlightBox` | `endDate` | 日時 | 可 | — | GRS | — | 囲む範囲の右端 |
+| AT-121 | `HighlightBox` | `topGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の上端の行 |
+| AT-122 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端の行 |
+| AT-123 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色 |
+| AT-124 | `HighlightBox` | `cornerRadiusPx` | 数値 | 可 | — | GRS | — | 角の丸み |
+| AT-125 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す** |
+| AT-126 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |
+| AT-127 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |
+| AT-128 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は定めない** |
+| AT-129 | `revisionStamp` | `revision` | 整数 | 否 | — | GRS | — | 1 ずつ増える。上げる条件は `FR-063` |
+| AT-130 | `revisionStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。人か、AI か |
+| AT-131 | `revisionStamp` | `updatedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 最後に書いた時刻。**秒までとする**（透かしと精度を揃える） |
+| AT-132 | `changeLog` | `revision` | 整数 | 否 | PK | GRS | — | どの版に対する理由か |
+| AT-133 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |
+| AT-134 | `changeLog` | `explanation` | 文字列 | 否 | — | GRS | — | なぜそう変えたか（`UC-013`） |
+| AT-135 | `changeLog` | `changedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | その版の時刻 |
+| AT-136 | `BaselineTask` | `uid` | 整数 | 否 | PK | GRS | — | 重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`） |
+| AT-137 | `BaselineTask` | `name` | 文字列 | 可 | — | GRS | — | タスク名 |
+| AT-138 | `BaselineTask` | `start` | 日時 | 可 | — | GRS | — | 変更前の予定の開始 |
+| AT-139 | `BaselineTask` | `finish` | 日時 | 可 | — | GRS | — | 変更前の予定の終了 |
+| AT-140 | `BaselineTask` | `milestone` | 真偽 | 可 | — | GRS | — | マイルストーンとして描くか |
 
 ## 5. 列にせず、書き出すときに作るもの
 

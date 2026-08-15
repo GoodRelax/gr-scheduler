@@ -43,7 +43,6 @@ erDiagram
     documentSettings {
         文字列 scrollGroupId "S-78"
         配列 pinnedGroupIds "S-126"
-        整数 importSeq "S-71"
     }
     revisionStamp {
         整数 revision "版数"
@@ -66,5 +65,4 @@ erDiagram
     schedule ||--o{ CarryElement : "carryElements を持つ 8 型の兄弟の鍵"
     documentSettings |o--|| schedule : "表示位置が指す行。弱い参照"
     documentSettings }o--|| schedule : "ピン止めした行。弱い参照"
-    documentSettings |o--|| schedule : "前回の取り込みの通し番号。taskOrigins と突き合わせる"
 ```
