@@ -195,6 +195,15 @@ print("  purity T-064 names but T-075 drops   : %s" % (missed or "none"))
 if missed:
     fails.append("purity dropped between T-064 and T-075")
 
+# the changelog names the components holding more than two units.  That claim
+# went stale once already, so derive it from T-075 and compare it exactly.
+appendix = open("docs/spec/A-appendix.md", encoding="utf-8").read()
+sentence = appendix[appendix.index("2 つより多いユニットを持つのは"):]
+sentence = sentence[:sentence.index("。")]
+check("changelog's >2-unit claim matches T-075",
+      {n: int(c) for n, c in re.findall(r"`([A-Za-z]+)`（(\d+)）", sentence)},
+      {c: len(u) for c, u in owners.items() if len(u) > 2})
+
 print()
 print("== layer rules ==")
 layer = {}
