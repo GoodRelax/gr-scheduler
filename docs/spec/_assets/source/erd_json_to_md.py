@@ -62,7 +62,12 @@ BANNER = ('> **本書は `_assets/source/erd.json` から '
 # cannot drift apart. The caption and its number are data and come from the
 # JSON.
 HEADERS = {
-    'entity': ('| 行 ID | 名前 | 何を表すか | 鍵 | 書き出すか | `carry` の器 |',
+    # The column names the destination: the software always writes every
+    # entity to its own GRS JSON (FR-024), so a bare "書き出すか" could only
+    # ever have meant the exchange partner -- but the reader had to leave the
+    # table to find that out.
+    'entity': ('| 行 ID | 名前 | 何を表すか | 鍵 | `MSPDI` へ書き出すか |'
+               ' `carry` の器 |',
                '| --- | --- | --- | --- | --- | --- |'),
     'relation': ('| 行 ID | 親 | 子 | 多重度 | 何を表すか |',
                  '| --- | --- | --- | --- | --- |'),

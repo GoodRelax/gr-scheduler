@@ -314,7 +314,7 @@
 | AM-8 | 書く | `importDocument` | 動詞＋目的語・`non-pure` | 取り込みと合流 | `FR-087` / `FR-022` ／ 表 T-032a |
 | AM-9 | 履歴 | `undoEdit` | 動詞＋目的語・`non-pure` | 履歴を戻す | `FR-031` ／ 表 T-035 の `AG-10` |
 | AM-10 | 履歴 | `redoEdit` | 動詞＋目的語・`non-pure` | 履歴を進める | `FR-031` |
-| AM-11 | 出す | `exportJson` | 動詞＋目的語・`semi-pure-b` | JSON を値で返す | 表 T-024 の `IO-2` ／ `FR-024` ／ 表 T-035 の `AG-7` |
+| AM-11 | 出す | `exportJson` | 動詞＋目的語・`semi-pure-b` | `GRS JSON` を値で返す | 表 T-024 の `IO-2` ／ `FR-024` ／ 表 T-035 の `AG-7` |
 | AM-12 | 出す | `exportMspdi` | 動詞＋目的語・`semi-pure-b` | 交換形式を値で返す | 表 T-024 の `IO-1` ／ `FR-021` |
 | AM-13 | 出す | `exportSvg` | 動詞＋目的語・`semi-pure-b` | 画面と同じ絵を値で返す | 表 T-024 の `IO-3` ／ `FR-080` |
 | AM-14 | 出す | `exportPng` | 動詞＋目的語・`semi-pure-b` | 画像を値で返す。失敗も値で返す | 表 T-024 の `IO-4` ／ `FR-025` ／ 表 T-035 の `AG-8` |
