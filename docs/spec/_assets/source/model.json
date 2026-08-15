@@ -153,6 +153,12 @@
    "remark": "FR-066 / AG-11"
   },
   {
+   "name": "Document",
+   "shape": "component",
+   "description": "The document root. Composes the three groups of table T-052 and holds the DR-1 invariant.",
+   "remark": "table T-052 DR-1"
+  },
+  {
    "name": "Schedule",
    "shape": "component",
    "description": "The schedule-data group and its invariants.",
@@ -364,27 +370,6 @@
    "description": "reads the presentation values"
   },
   {
-   "source": "DocumentCodec",
-   "target": "Schedule",
-   "arrow": "dependency",
-   "label": "schedule data",
-   "description": "converts the whole document"
-  },
-  {
-   "source": "DocumentCodec",
-   "target": "DocumentSettings",
-   "arrow": "dependency",
-   "label": "presentation values",
-   "description": "converts the whole document"
-  },
-  {
-   "source": "DocumentCodec",
-   "target": "DocumentStamp",
-   "arrow": "dependency",
-   "label": "stamp",
-   "description": "converts the whole document"
-  },
-  {
    "source": "ApplyDocumentChange",
    "target": "EditDocument",
    "arrow": "dependency",
@@ -533,27 +518,6 @@
   },
   {
    "source": "AgentApiEndpoint",
-   "target": "Schedule",
-   "arrow": "dependency",
-   "label": "schedule data",
-   "description": "reads the schedule data for readDocument"
-  },
-  {
-   "source": "AgentApiEndpoint",
-   "target": "DocumentSettings",
-   "arrow": "dependency",
-   "label": "presentation values",
-   "description": "reads the presentation values for readDocument"
-  },
-  {
-   "source": "AgentApiEndpoint",
-   "target": "DocumentStamp",
-   "arrow": "dependency",
-   "label": "stamp",
-   "description": "reads the stamp for readStamp"
-  },
-  {
-   "source": "AgentApiEndpoint",
    "target": "Selection",
    "arrow": "dependency",
    "label": "what is selected",
@@ -698,6 +662,48 @@
    "arrow": "dependency",
    "label": "clipboard out",
    "description": "sends the document or the picture to the clipboard for a person"
+  },
+  {
+   "source": "DocumentCodec",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "whole document",
+   "description": "reads and writes the document root as a whole (FR-024)"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "frozen snapshot",
+   "description": "AM-3 readDocument returns a frozen copy of the whole root (AG-4)"
+  },
+  {
+   "source": "ApplyDocumentChange",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "all or nothing",
+   "description": "rebuilds the whole root in one step and checks DR-1 (AG-3)"
+  },
+  {
+   "source": "Document",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "schedule data",
+   "description": "the group of table T-052 DR-2"
+  },
+  {
+   "source": "Document",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "presentation values",
+   "description": "the group of table T-052 DR-3"
+  },
+  {
+   "source": "Document",
+   "target": "DocumentStamp",
+   "arrow": "dependency",
+   "label": "stamp",
+   "description": "the three root keys of table T-052 DR-4"
   }
  ],
  "layout": {
@@ -717,8 +723,9 @@
       "color": "#B36200",
       "fill": "#FFD1A3",
       "direction": "LR",
-      "description": "Every one of the three root groups of table T-052, plus the undo history.",
+      "description": "The document root, the three root groups of table T-052, and the runtime values the document does not store.",
       "nodes": [
+       "Document",
        "Schedule",
        "DocumentSettings",
        "DocumentStamp",
@@ -813,7 +820,8 @@
     "NotifyChangeWatchers",
     "Schedule",
     "DocumentSettings",
-    "Selection"
+    "Selection",
+    "Document"
    ]
   },
   "read": {
@@ -845,7 +853,8 @@
     "ValidateImportedDocument",
     "ChooseStartupDocument",
     "ApplyDocumentChange",
-    "DocumentStamp"
+    "DocumentStamp",
+    "Document"
    ]
   },
   "startup": {
@@ -861,7 +870,8 @@
     "NotifyChangeWatchers",
     "ApplyDocumentChange",
     "DocumentStamp",
-    "DialogueLog"
+    "DialogueLog",
+    "Document"
    ]
   }
  }

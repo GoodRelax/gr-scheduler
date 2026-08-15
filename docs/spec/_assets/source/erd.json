@@ -61,7 +61,7 @@
  "container": {
   "boxes": [
    {
-    "id": "documentRoot",
+    "id": "Document",
     "rows": [
      [
       "文字列",
@@ -210,25 +210,25 @@
   ],
   "edges": [
    {
-    "from": "documentRoot",
+    "from": "Document",
     "to": "schedule",
     "multiplicity": "1 ─ 1",
     "label": "日程データの群"
    },
    {
-    "from": "documentRoot",
+    "from": "Document",
     "to": "documentSettings",
     "multiplicity": "1 ─ 1",
     "label": "見せ方の群"
    },
    {
-    "from": "documentRoot",
+    "from": "Document",
     "to": "revisionStamp",
     "multiplicity": "1 ─ 1",
     "label": "文書の刻印"
    },
    {
-    "from": "documentRoot",
+    "from": "Document",
     "to": "changeLog",
     "multiplicity": "1 ─ 0..n",
     "label": "文書の刻印"

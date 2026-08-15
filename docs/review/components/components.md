@@ -28,6 +28,7 @@
 | usecase | ChooseStartupDocument | Picks the document to open at start-up, in the given order. | FR-062 / T-034 |
 | usecase | NotifyChangeWatchers | Hands confirmed changes to the watchers. | AG-6 / AG-11 |
 | usecase | PostDialogueMessage | Takes a confirmed utterance, appends it to DialogueLog and passes it on. Runtime only, never saved. | FR-066 / AG-11 |
+| entity / documentModel | Document | The document root. Composes the three groups of table T-052 and holds the DR-1 invariant. | table T-052 DR-1 |
 | entity / documentModel | Schedule | The schedule-data group and its invariants. | DR-2 / T-056 |
 | entity / documentModel | DocumentSettings | The presentation group: every saved setting with its bounds. | DR-3 / FR-063 |
 | entity / documentModel | DocumentStamp | schemaVersion, revisionStamp and changeLog, plus the pure functions that advance them. | DR-4 / FR-063 |
@@ -65,9 +66,6 @@
 | dependency | SvgRenderer | ScheduleGeometry | geometry | reads geometry only, never the write path |  |
 | dependency | SvgRenderer | ScheduleLayout | ruler and rows | reads the ruler and the row placement |  |
 | dependency | SvgRenderer | DocumentSettings | presentation values | reads the presentation values |  |
-| dependency | DocumentCodec | Schedule | schedule data | converts the whole document |  |
-| dependency | DocumentCodec | DocumentSettings | presentation values | converts the whole document |  |
-| dependency | DocumentCodec | DocumentStamp | stamp | converts the whole document |  |
 | dependency | ApplyDocumentChange | EditDocument | validate + update | asks for validation and an immutable update |  |
 | dependency | ApplyDocumentChange | ImportDocument | intake | asks for an intake |  |
 | dependency | ApplyDocumentChange | UndoEdit | step back | asks to step back |  |
@@ -89,9 +87,6 @@
 | dependency | ScheduleGeometry | ScheduleLayout | coordinates | takes the coordinates |  |
 | dependency | ScheduleGeometry | Schedule | tasks + annotations | reads tasks and annotations |  |
 | dependency | ItemHitArea | ScheduleGeometry | vertices | reads the vertices |  |
-| dependency | AgentApiEndpoint | Schedule | schedule data | reads the schedule data for readDocument |  |
-| dependency | AgentApiEndpoint | DocumentSettings | presentation values | reads the presentation values for readDocument |  |
-| dependency | AgentApiEndpoint | DocumentStamp | stamp | reads the stamp for readStamp |  |
 | dependency | AgentApiEndpoint | Selection | what is selected | reads the selection for readSelection |  |
 | dependency | AgentApiEndpoint | DialogueLog | confirmed utterances | reads the utterances for readDialogueMessages |  |
 | dependency | AgentApiEndpoint | DocumentCodec | exchange formats | gets JSON, MSPDI and the single .html |  |
@@ -113,13 +108,19 @@
 | dependency | SingleHtmlShell | AutosaveGateway | idle boundary | saves at the idle boundary and offers recovery |  |
 | dependency | SingleHtmlShell | ImageExporter | image out | writes the image out for a person |  |
 | dependency | SingleHtmlShell | ClipboardGateway | clipboard out | sends the document or the picture to the clipboard for a person |  |
+| dependency | DocumentCodec | Document | whole document | reads and writes the document root as a whole (FR-024) |  |
+| dependency | AgentApiEndpoint | Document | frozen snapshot | AM-3 readDocument returns a frozen copy of the whole root (AG-4) |  |
+| dependency | ApplyDocumentChange | Document | all or nothing | rebuilds the whole root in one step and checks DR-1 (AG-3) |  |
+| dependency | Document | Schedule | schedule data | the group of table T-052 DR-2 |  |
+| dependency | Document | DocumentSettings | presentation values | the group of table T-052 DR-3 |  |
+| dependency | Document | DocumentStamp | stamp | the three root keys of table T-052 DR-4 |  |
 
 ## Clusters
 
 | cluster | label | description | remark |
 | --- | --- | --- | --- |
 | entity | Entity | The document and the pure calculation over it. |  |
-| entity / documentModel | documentModel | Every one of the three root groups of table T-052, plus the undo history. |  |
+| entity / documentModel | documentModel | The document root, the three root groups of table T-052, and the runtime values the document does not store. |  |
 | entity / layoutEngine | layoutEngine | Pure calculation. Needs no browser. |  |
 | usecase | UseCase | Operations on the document and the path to confirming them. |  |
 | adapter | Adapter | Declares the interfaces for outside tools, and converts. |  |

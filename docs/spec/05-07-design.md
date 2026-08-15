@@ -120,6 +120,7 @@ graph RL
 | CP-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 | `FR-025` |
 | CP-32 | `documentModel` | `Selection` | 選ばれている対象の集合と、選んだ順序。文書に保存しない | 表 T-023c の `SL-1` / `SL-7b` / `SL-8` |
 | CP-33 | `documentModel` | `DialogueLog` | 確定した発話と、版数とは別の順序。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` / `AG-6` |
+| CP-34 | `documentModel` | `Document` | **文書ルートの合成と、`DR-1` の不変条件**（ルートに 3 群だけを置く／群に属する値をルート直下へ直に置かない） | 表 T-052 の `DR-1` |
 
 **各部品の内側のユニットと、公開するインターフェースは Chapter 5.3 が宣言する。** 本表が定めるのは部品の境界だけである。
 
@@ -181,13 +182,13 @@ graph RL
 
 **`main.ts` を作らない。** Vite の入口は `single-html-shell.ts` である —— 表 T-062 の `CP-25` が「起動と結線」を負う。**テストコードの置き場は Chapter 7 が持つ。本節は `src/` だけを持つ。**
 
-**ディレクトリ構成を次に示す。33 のフォルダは 表 T-062 の 33 部品と 1 対 1 である。**
+**ディレクトリ構成を次に示す。34 のフォルダは 表 T-062 の 34 部品と 1 対 1 である。**
 
 ```text
 src/
   entity/
-    document-model/   schedule/ · document-settings/ · document-stamp/ · edit-history/
-                      selection/ · dialogue-log/
+    document-model/   document/ · schedule/ · document-settings/ · document-stamp/
+                      edit-history/ · selection/ · dialogue-log/
     layout-engine/    schedule-layout/ · schedule-geometry/ · item-hit-area/
   use-case/           apply-document-change/ · edit-document/ · import-document/
                       undo-edit/ · redo-edit/ · validate-imported-document/
@@ -201,7 +202,7 @@ src/
                       browser-clipboard/ · canvas-rasterizer/
 ```
 
-**1 つより多いユニットを持つ部品を 表 T-063 に、33 部品の公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。**
+**1 つより多いユニットを持つ部品を 表 T-063 に、34 部品の公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。**
 
 **表 T-063 — 1 つより多いユニットを持つ部品**
 
@@ -253,6 +254,7 @@ src/
 | PI-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 1 つ |
 | PI-32 | `documentModel` | `Selection` | `Selection`（型。順序は 表 T-023c の `SL-7b`）／ `selectionWith` ／ `selectionWithout` ／ `emptySelection` ／ `isSelected` |
 | PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。版数とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |
+| PI-34 | `documentModel` | `Document` | `Document`（型。5 つの鍵は 表 T-052 の `DR-1` 〜 `DR-4`）／ `documentViolations`（`DR-1` に反する箇所） |
 
 **層をまたぐインターフェースは、宣言する部品のフォルダに、その名前の語幹で置く**（例 —— `adapter/svg-renderer/svg-surface.ts`）。**実装を外側の層が持つことは `LR-5` が定めている。**
 
@@ -283,6 +285,9 @@ src/
 **入れ子でしか現れないものは、どの鍵の下に入るかを辺のラベルに書いた。**
 **鍵に入るのがエンティティであれば、意味の欄にその名前を置いた。**
 **多重度は線の端の記号が表す** —— 記法は 図 F-011 と同じである。
+
+⚠️ **ルートの箱だけは鍵を持たない** —— 文書そのものであり、どの鍵の下にも無いためである。
+**この箱には型の名（`Document`。表 T-062 の `CP-34`）を置いた。**
 
 ⚠️ **`documentSettings` から `schedule` への 2 本は弱い参照である。** 指す先の行が消えても
 `documentSettings` は 1 文字も変わらないので、**指す先が無くなりうる。**

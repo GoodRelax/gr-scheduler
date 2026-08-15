@@ -19,7 +19,7 @@ config:
     entityPadding: 6
 ---
 erDiagram
-    documentRoot {
+    Document {
         文字列 schemaVersion "文書の形式の版"
         オブジェクト schedule "日程データの群"
         オブジェクト documentSettings "見せ方の群"
@@ -55,10 +55,10 @@ erDiagram
         文字列 explanation "変更の理由"
         文字列 changedAt "時刻"
     }
-    documentRoot ||--|| schedule : "日程データの群"
-    documentRoot ||--|| documentSettings : "見せ方の群"
-    documentRoot ||--|| revisionStamp : "文書の刻印"
-    documentRoot ||--o{ changeLog : "文書の刻印"
+    Document ||--|| schedule : "日程データの群"
+    Document ||--|| documentSettings : "見せ方の群"
+    Document ||--|| revisionStamp : "文書の刻印"
+    Document ||--o{ changeLog : "文書の刻印"
     schedule ||--o{ Dependency : "tasks の各要素の下に入れ子"
     schedule ||--o{ WeekDay : "calendars の各要素の下に入れ子"
     schedule ||--o{ Exception : "calendars の各要素の下に入れ子"

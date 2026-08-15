@@ -153,6 +153,12 @@
    "remark": "FR-066 / AG-11"
   },
   {
+   "name": "Document",
+   "shape": "component",
+   "description": "The document root. Composes the three groups of table T-052 and holds the DR-1 invariant.",
+   "remark": "table T-052 DR-1"
+  },
+  {
    "name": "Schedule",
    "shape": "component",
    "description": "The schedule-data group and its invariants.",
@@ -213,7 +219,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "converts",
-   "description": "backed by 11 component edge(s): SvgRenderer -> DocumentSettings; DocumentCodec -> Schedule; DocumentCodec -> DocumentSettings; DocumentCodec -> DocumentStamp; AgentApiEndpoint -> Schedule; AgentApiEndpoint -> DocumentSettings; AgentApiEndpoint -> DocumentStamp; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; InputCommandTranslator -> Selection"
+   "description": "backed by 7 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document"
   },
   {
    "source": "adapter",
@@ -255,7 +261,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "updates",
-   "description": "backed by 10 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; PostDialogueMessage -> DialogueLog; NotifyChangeWatchers -> DialogueLog"
+   "description": "backed by 11 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; PostDialogueMessage -> DialogueLog; NotifyChangeWatchers -> DialogueLog; ApplyDocumentChange -> Document"
   },
   {
    "source": "usecase",
@@ -282,8 +288,9 @@
       "color": "#B36200",
       "fill": "#FFD1A3",
       "direction": "LR",
-      "description": "Every one of the three root groups of table T-052, plus the undo history.",
+      "description": "The document root, the three root groups of table T-052, and the runtime values the document does not store.",
       "nodes": [
+       "Document",
        "Schedule",
        "DocumentSettings",
        "DocumentStamp",
