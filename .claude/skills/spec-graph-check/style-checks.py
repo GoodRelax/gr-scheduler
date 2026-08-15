@@ -35,10 +35,7 @@ REQS = 'docs/spec/01-04-requirements.md'
 # Rules may sit in a value table only where the document says so. Each entry
 # is a row ID or an anchor phrase; anything else is a violation. Keep this
 # list short -- it is the exception, not the escape hatch.
-CHECK12_ALLOWED = {
-    'S-21',    # the reason a RANGE exists, not a rule about behaviour
-    'S-22',    # same: the upper bound's own justification
-}
+CHECK12_ALLOWED = set()
 
 # Two whole-line exceptions the specification itself sanctions.
 CHECK12_ALLOWED_TEXT = (

@@ -170,8 +170,7 @@
 | K-18 | 依存線 | `dependencyWidth` | 依存線の太さ |
 | K-19 | 依存線 | `dependencyArrowLength` | 矢印の三角形の長さ |
 | K-20 | 依存線 | `dependencyRunOfArrow` | 入口の走り ÷ 三角形 |
-| K-21 | 進捗マーカー | `markerOfFont` | マーカー径 ÷ フォント |
-| K-22 | 進捗マーカー | `markerMin` | マーカー径の下限 |
+| K-22 | 進捗マーカー | `markerSize` | マーカー径 |
 | K-23 | 進捗マーカー | `markerGap` | 実績の右端からの隙間 |
 | K-24 | 進捗マーカー | `markerStroke` | 円の線の太さ |
 | K-25 | 進捗マーカー | `resumeScaleInvalid` | 再開日未定のときの縮小率 |

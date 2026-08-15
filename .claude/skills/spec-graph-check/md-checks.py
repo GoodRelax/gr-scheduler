@@ -156,7 +156,8 @@ token = re.compile(r'`([A-Z]{1,3}-[0-9]+[a-z]?)`')
 # table had taken a used seat number.
 RETIRED = {'FR-050', 'T-030',
            'T-044', 'T-045', 'T-046', 'T-047',
-           'F-002', 'F-003', 'F-004', 'F-005', 'F-006', 'F-007'}
+           'F-002', 'F-003', 'F-004', 'F-005', 'F-006', 'F-007',
+           'S-21', 'S-52', 'K-21'}
 known = all_rows | uids | all_tables | RETIRED
 for rel, lines in lines_by_file.items():
     for i, line in enumerate(lines, 1):

@@ -36,7 +36,7 @@
 
 **⛔ は文書に保存しない**（表 T-206）。
 
-**根は 4 つである**（`basePlanHeight` / `actualMin` / `fontMin` / `pxPerDayAt1x`）。残りはすべてそこから落ちてくる。
+**根は 4 つである**（`basePlanHeight` / `actualMin` / `fontMin` / `pxPerDayAt1x`）。残りはそこから落ちてくる。**進捗マーカーの径（`S-22`）だけは鎖の外の固定値である** —— 規則と理由は `FR-094` が持つ。
 
 ## 3. 描画の設定
 
@@ -66,8 +66,7 @@
 | S-18 | 依存線 | `dependencyWidth` | px | 1.5 | 0.5 | `stackGap` ÷ 2 | 段の間隔の半分を超えない |
 | S-19 | 依存線 | `dependencyArrowLength` | px | 10 🔎 | `dependencyWidth` × 2 | 40 | 線より太くならない長さ。10px の由来は無い |
 | S-20 | 依存線 | `dependencyRunOfArrow` | × | 2 | 1 + ε | 6 | 1 以下だと三角形が入口の走りを食い尽くし、同時に出口の走りが 0 以下になる |
-| S-21 | 進捗マーカー | `markerOfFont` | × | 1.2 🔎 | 0.5 | 1 ÷ `fontOfActual` | **`markerOfFont` × `fontOfActual` が 1 を超えると、マーカーが実績バーより大きくなり `FR-013` の MUST NOT を破る。** 既定値 1.5 と `fontOfActual` 0.80 の組は 1.2 倍で破っていた |
-| S-22 | 進捗マーカー | `markerMin` | px | 16 🔎 | `fontMin` | `actualMin` | **実績バーより大きくできない**（`FR-013`）。`S-21` は掛け算の鎖を塞いでいるが、下限どうしの鎖はこの上限が塞ぐ |
+| S-22 | 進捗マーカー | `markerSize` | px | 16 | `fontMin` | `actualMin` | 固定値。縦の鎖に載らない（規則は `FR-094`）。上限が `actualMin` なのは、実績バーの床と同じ値までなら実績バーより大きくならないためである。下限が `fontMin` なのは、記号がこれを割ると読めないためである |
 | S-23 | 進捗マーカー | `markerGap` | px | 4 | 4 | 4 | 固定。端点の掴み代と重ならない最小距離であり、それ以上離さない |
 | S-24 | 進捗マーカー | `markerStroke` | px | 1.3 🔎 | 0.5 | 4 | — |
 | S-25 | 進捗マーカー | `resumeScaleInvalid` | × | 0.7 🔎 | 0.3 | 1 | 再開日未定は小さく薄く。0.7 の由来は無い |
@@ -122,7 +121,7 @@
 | S-60 | `assigneeVisible` | 真偽 | `false` | 担当ラベル。既定は隠す（下記） |
 | S-61 | `percentCompleteVisible` | 真偽 | `false` | 完了率ラベル。既定は隠す（下記） |
 | S-62 | `dependencyVisible` | 真偽 | `true` | 依存線。核機能であり、段数に影響しない。寸法をズームに追随させない規則は `FR-094` が持つ |
-| S-63 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー |
+| S-63 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー。寸法をズームに追随させない規則は `FR-094` が持つ |
 | S-64 | `progressLineVisible` | 真偽 | `false` | イナズマ線。基準日と実績から引くので、**新規文書には出しても意味のある形にならない** |
 | S-65 | `dualCursor` | `{ date1, date2 }` / `null` | `null` | デュアルカーソル。2 本の日付を持つ理由は表 T-029 の `CU-2` |
 | S-66 | `guideCursorMode` | `'none'` / `'crosshair'` / `'single-vertical'` / `'double-vertical'` | `'none'` | ガイドカーソル |
