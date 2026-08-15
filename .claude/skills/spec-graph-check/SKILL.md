@@ -5,7 +5,7 @@ description: Mechanical checks and graph-based impact analysis for the gr-schedu
 
 # Specification checks and impact analysis
 
-Fifteen mechanical checks plus a dependency-graph toolkit for `docs/spec`.
+Sixteen mechanical checks plus a dependency-graph toolkit for `docs/spec`.
 
 **Green proves references resolve. It does not prove the specification agrees
 with itself.** Across eight review rounds, every Critical defect appeared
@@ -18,8 +18,17 @@ graph to decide *how* to edit; neither replaces reading.
 bash .claude/skills/spec-graph-check/check.sh
 ```
 
-Output goes to `scratch/spec-check/` (gitignored). Checks 1–12 and 15 are
+Output goes to `scratch/spec-check/` (gitignored). Checks 1–12, 15 and 16 are
 gates; 13 and 14 are advisory counts that should trend down.
+
+**Check 16 guards the generated documents.** `docs/spec/_assets/fig-erd-*.md`
+are written by `docs/spec/_assets/source/erd_json_to_md.py` from `erd.json`;
+their banner says never to edit them, and check 16 is what makes that true —
+it rebuilds both and reports the first line that differs. When it fires, the
+fix is to move the edit into `erd.json` and regenerate, never to re-apply it
+to the output. The generator also refuses to write at all unless figure F-010
+places every entity exactly once, so an entity added to `erd.json` cannot slip
+past the figure the way it did while that figure was hand written.
 
 ## The one rule that matters most
 
@@ -173,7 +182,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 
 | file | role |
 | --- | --- |
-| `check.sh` | all 15 checks |
+| `check.sh` | all 16 checks |
 | `specindex.py` | shared parser: tables, rows, owners, references |
 | `md-checks.py` | checks 5–10 and 15 (Markdown structure, figure seat numbers) |
 | `style-checks.py` | checks 12–14 (recurring defect types) |

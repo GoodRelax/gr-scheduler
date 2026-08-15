@@ -1,24 +1,14 @@
 # データモデル — 概要（文書の全体像）
 
 **UID**: DOC-FIG-ERD-OVERVIEW
-**Version**: 0.1
+**Version**: 0.3
 
-> **本書は `docs/review/erd/build.py` が書き出す。手で直さない。**
-> 直すのは `docs/review/erd/erd_model.py`（列と関係）と同フォルダの散文の型である。
-> **図と表を同じ原稿から起こすことで、列の食い違いが起きないようにしている。**
-
-**本書は文書ルートの形と、そこにぶら下がるものの一覧である。** 列と関係の全数は
-`fig-erd-detail.md`（`DOC-FIG-ERD-DETAIL`）が持つ。
-
-**ルートを 2 群と刻印に分ける規則は `01-04-requirements.md` の表 T-052 が、
-交換相手の木をそのまま持つ規則は表 T-053 が持つ。本書はそこを指し、規則を再掲しない。**
+> **本書は `_assets/source/erd.json` から `erd_json_to_md.py` が書き出す。手で直さない。**
+> **直すのは `erd.json` である。** 説明の散文は `05-07-design.md` が持つ。
 
 ## 1. 文書の全体像
 
 **Type**: SECTION
-
-**箱は JSON のオブジェクトである。** 配列の鍵には `[]` を付けた。
-**入れ子でしか現れないものは、どの鍵の下に入るかを辺のラベルに書いた。**
 
 **図 F-010 — 文書の全体像**
 
@@ -40,18 +30,18 @@ flowchart TB
     </table>"]
     Schedule["<table style='white-space:nowrap'>
       <tr><td colspan='2'><b>schedule</b>（日程データの群）</td></tr>
-      <tr><td>project</td><td>ET-1</td></tr>
-      <tr><td>calendars[]</td><td>ET-6</td></tr>
-      <tr><td>tasks[]</td><td>ET-2</td></tr>
-      <tr><td>resources[]</td><td>ET-9</td></tr>
-      <tr><td>assignments[]</td><td>ET-10</td></tr>
-      <tr><td>taskGroups[]</td><td>ET-4</td></tr>
-      <tr><td>taskGroupMembers[]</td><td>ET-5</td></tr>
-      <tr><td>taskVisuals[]</td><td>ET-11</td></tr>
-      <tr><td>commentBoxes[]</td><td>ET-13</td></tr>
-      <tr><td>highlightBoxes[]</td><td>ET-14</td></tr>
-      <tr><td>taskOrigins[]</td><td>ET-12</td></tr>
-      <tr><td>baselineTasks[]</td><td>ET-18</td></tr>
+      <tr><td>project</td><td>Project</td></tr>
+      <tr><td>calendars[]</td><td>Calendar</td></tr>
+      <tr><td>tasks[]</td><td>Task</td></tr>
+      <tr><td>resources[]</td><td>Resource</td></tr>
+      <tr><td>assignments[]</td><td>Assignment</td></tr>
+      <tr><td>taskGroups[]</td><td>TaskGroup</td></tr>
+      <tr><td>taskGroupMembers[]</td><td>TaskGroupMember</td></tr>
+      <tr><td>taskVisuals[]</td><td>TaskVisual</td></tr>
+      <tr><td>commentBoxes[]</td><td>CommentBox</td></tr>
+      <tr><td>highlightBoxes[]</td><td>HighlightBox</td></tr>
+      <tr><td>taskOrigins[]</td><td>TaskOrigin</td></tr>
+      <tr><td>baselineTasks[]</td><td>BaselineTask</td></tr>
     </table>"]
     Settings["<table style='white-space:nowrap'>
       <tr><td colspan='2'><b>documentSettings</b>（見せ方の群）</td></tr>
@@ -62,21 +52,21 @@ flowchart TB
     </table>"]
     Stamp["<table style='white-space:nowrap'>
       <tr><td colspan='2'><b>revisionStamp</b></td></tr>
-      <tr><td>revision</td><td>ET-16</td></tr>
-      <tr><td>lastEditedBy</td><td>ET-16</td></tr>
-      <tr><td>updatedAt</td><td>ET-16</td></tr>
+      <tr><td>revision</td><td>版数</td></tr>
+      <tr><td>lastEditedBy</td><td>最後に書いた者</td></tr>
+      <tr><td>updatedAt</td><td>時刻</td></tr>
     </table>"]
     Log["<table style='white-space:nowrap'>
       <tr><td colspan='2'><b>changeLog[]</b></td></tr>
-      <tr><td>revision</td><td>ET-17</td></tr>
-      <tr><td>editedBy</td><td>ET-17</td></tr>
-      <tr><td>explanation</td><td>ET-17</td></tr>
-      <tr><td>changedAt</td><td>ET-17</td></tr>
+      <tr><td>revision</td><td>適用された版数</td></tr>
+      <tr><td>editedBy</td><td>書いた者</td></tr>
+      <tr><td>explanation</td><td>変更の理由</td></tr>
+      <tr><td>changedAt</td><td>時刻</td></tr>
     </table>"]
-    Dep["<b>Dependency</b>（ET-3）"]
-    Week["<b>WeekDay</b>（ET-7）"]
-    Exc["<b>Exception</b>（ET-8）"]
-    Carry["<b>CarryElement</b>（ET-15）"]
+    Dep["<b>Dependency</b>"]
+    Week["<b>WeekDay</b>"]
+    Exc["<b>Exception</b>"]
+    Carry["<b>CarryElement</b>"]
     Document -->|"日程データの群（1 ─ 1）"| Schedule
     Document -->|"見せ方の群（1 ─ 1）"| Settings
     Document -->|"文書の刻印（1 ─ 1）"| Stamp
@@ -89,41 +79,3 @@ flowchart TB
     Settings -->|"ピン止めした行（弱い参照。0..n ─ 1）"| Schedule
     Settings -->|"前回の取り込みの通し番号（taskOrigins と突き合わせる）"| Schedule
 ```
-
-⚠️ **`documentSettings` から `schedule` への 3 本は弱い参照である。** 指す先の行が消えても
-`documentSettings` は 1 文字も変わらないので、**指す先が無くなりうる。**
-表示位置についての扱いは表 T-024a の `OP-10` が持つ。
-
-## 2. エンティティ
-
-**Type**: SECTION
-
-**「書き出すか」は交換相手（MSPDI）への書き出しである。** JSON にはどれも書き出す（`FR-024`）。
-
-**表 T-056 — エンティティ**
-
-| 行 ID | 名前 | 何を表すか | 鍵 | 書き出すか | `carry` の器 |
-| --- | --- | --- | --- | --- | --- |
-| ET-1 | `Project` | プロジェクトの基本情報と、文書ぜんたいに掛かる暦の既定 | — （文書に 1 つしか無い。`id` は主キーにしない） | 書き出す | あり |
-| ET-2 | `Task` | タスク 1 つ。予定と実績を同じ行が持つ | `uid` | 書き出す | あり |
-| ET-3 | `Dependency` | 依存 1 本。**後続タスクの下に入れ子で持つ** | — （後続タスクの下での位置が表す） | 書き出す | あり |
-| ET-4 | `TaskGroup` | 行の器。縦積みの軸を作る（`FR-004`） | `id` | **書き出さない** | — |
-| ET-5 | `TaskGroupMember` | どのタスクがどの行の何段目に載るか | `taskUid`（一意） | **書き出さない** | — |
-| ET-6 | `Calendar` | 暦 1 つ。稼働日と非稼働日を決める | `uid` | 書き出す | あり |
-| ET-7 | `WeekDay` | 曜日ごとの稼働の定め（弱エンティティ） | `calendarUid` ＋ `ordinal` | 書き出す | あり |
-| ET-8 | `Exception` | 暦の例外日（弱エンティティ） | `calendarUid` ＋ `ordinal` | 書き出す | あり |
-| ET-9 | `Resource` | 担当者 1 人（または 1 つの資源） | `uid` | 書き出す | あり |
-| ET-10 | `Assignment` | どの担当者がどのタスクに就くか | `uid` | 書き出す | あり |
-| ET-11 | `TaskVisual` | タスクの見せ方。形・色・名前の置き方 | `taskUid` | **書き出さない** | — |
-| ET-12 | `TaskOrigin` | 取り込み元の記録。合流の照合に使う | `taskUid` | **書き出さない** | — |
-| ET-13 | `CommentBox` | コメントボックス 1 つ。日付と行に留める | `id` | **書き出さない** | — |
-| ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付と行の範囲を囲む | `id` | **書き出さない** | — |
-| ET-15 | `CarryElement` | 解釈しない要素 1 つを、原形のまま抱える器（自己参照） | 所有者 ＋ `ordinal` | 書き出す | — |
-| ET-16 | `revisionStamp` | 版数と、最後に書いた者と時刻 | — （文書に 1 つしか無い） | **書き出さない** | — |
-| ET-17 | `changeLog` | 変更の理由。**会話そのものは保存しない**（`FR-066`） | `revision` | **書き出さない** | — |
-| ET-18 | `BaselineTask` | 変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ | `uid` | **書き出さない** | — |
-
-⚠️ **`carry` の器を持たないものは、交換相手に対応が無いか、対応があっても解釈しない要素を持たない。**
-持たせると、書き戻す先が無い値を抱えることになる。
-
-⚠️ **`carry` の中身は本書に写さない。** 交換相手のスキーマの事実であり、正は公式 XSD である（表 T-003 の `CN-7`）。

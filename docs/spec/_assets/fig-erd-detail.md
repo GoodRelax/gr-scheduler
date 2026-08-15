@@ -3,262 +3,258 @@
 **UID**: DOC-FIG-ERD-DETAIL
 **Version**: 0.1
 
-> **本書は `docs/review/erd/build.py` が書き出す。手で直さない。**
-> 直すのは `docs/review/erd/erd_model.py`（列と関係）と同フォルダの散文の型である。
-> **図と表を同じ原稿から起こすことで、列の食い違いが起きないようにしている。**
-
-**本書は文書が持つ列の全数である。** ⚠️ **ただしルート直下の `schemaVersion` は、どのエンティティの列でもない**（1 つのスカラーである）。**型と置き場は表 T-052 の `DR-4` が持つ。** 文書ぜんたいの形は `fig-erd-overview.md`（`DOC-FIG-ERD-OVERVIEW`）が持ち、
-**ルートの群の規則は `01-04-requirements.md` の表 T-052 が、持ち回りの形は表 T-053 が持つ。**
-
-**名前の正は `tbl-glossary.md`、値の正は `tbl-settings.md`、規則と理由の正は要求である。**
-本書が持つのは**列の構成**である。
+> **本書は `_assets/source/erd.json` から `erd_json_to_md.py` が書き出す。手で直さない。**
+> **直すのは `erd.json` である。** 説明の散文は `05-07-design.md` が持つ。
 
 ## 1. 詳細 ERD
 
 **Type**: SECTION
-
-**赤の太字が主キー、緑の太字が外部キーである。** 主キーを兼ねる外部キーは赤で示し、鍵の欄に `PK/FK` と書く。
-**辺のラベルは、その線が何を表すかと多重度である。** 多重度は「親側 ─ 子側」の順に書く。
-
-⚠️ **交換相手へ書き出すときに作る列は、図に描いていない。** 文書が持たないためである。全数は表 T-059 が持つ。
 
 **図 F-011 — データモデルの詳細**
 
 ```mermaid
 ---
 config:
-  flowchart:
-    wrappingWidth: 1200
-    htmlLabels: true
+  er:
+    entityPadding: 6
 ---
-flowchart TB
-    Project["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>Project</b></td></tr>
-      <tr><td>id</td><td>文字列（16 字以下）</td><td>—</td><td>Own</td></tr>
-      <tr><td>name</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>title</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>subject</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>category</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>company</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>manager</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>author</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>created</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>revision</td><td>整数</td><td>—</td><td>Own</td></tr>
-      <tr><td>lastSaved</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>startDate</td><td>日付</td><td>—</td><td>Own</td></tr>
-      <tr><td>statusDate</td><td>日付</td><td>—</td><td>Own</td></tr>
-      <tr><td>minutesPerDay</td><td>整数</td><td>—</td><td>Own</td></tr>
-      <tr><td>minutesPerWeek</td><td>整数</td><td>—</td><td>Own</td></tr>
-      <tr><td>daysPerMonth</td><td>整数</td><td>—</td><td>Own</td></tr>
-      <tr><td>weekStartDay</td><td>整数（0〜6）</td><td>—</td><td>Own</td></tr>
-      <tr><td><b><span style='color:#008000'>calendarUid</span></b></td><td>整数</td><td>FK</td><td>Consume</td></tr>
-      <tr><td>themeHue</td><td>整数（0〜359）</td><td>—</td><td>GRS</td></tr>
-      <tr><td>uidHighWaterMark</td><td>整数</td><td>—</td><td>GRS</td></tr>
-      <tr><td>carry</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>carryElements</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    Task["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>Task</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>uid</span></b></td><td>整数</td><td>PK</td><td>Own</td></tr>
-      <tr><td><b><span style='color:#008000'>wbsParentUid</span></b></td><td>整数</td><td>FK</td><td>Consume</td></tr>
-      <tr><td>wbsOrder</td><td>整数</td><td>—</td><td>Consume</td></tr>
-      <tr><td>name</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>start</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>finish</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>milestone</td><td>真偽</td><td>—</td><td>Own</td></tr>
-      <tr><td>deadline</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>notes</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td><b><span style='color:#008000'>calendarUid</span></b></td><td>整数</td><td>FK</td><td>Consume</td></tr>
-      <tr><td>actualStart</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>actualDuration</td><td>整数（稼働日）</td><td>—</td><td>Own</td></tr>
-      <tr><td>actualFinish</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>resume</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>resumeValid</td><td>真偽</td><td>—</td><td>Own</td></tr>
-      <tr><td>percentComplete</td><td>整数（0 以上）</td><td>—</td><td>Own</td></tr>
-      <tr><td>fadeInDays</td><td>整数（日数）</td><td>—</td><td>Consume</td></tr>
-      <tr><td>fadeOutDays</td><td>整数（日数）</td><td>—</td><td>Consume</td></tr>
-      <tr><td>dependencies</td><td>Dependency[]</td><td>—</td><td>Consume</td></tr>
-      <tr><td>carry</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>carryElements</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    Dependency["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>Dependency</b></td></tr>
-      <tr><td><b><span style='color:#008000'>predecessorUid</span></b></td><td>整数</td><td>FK</td><td>Consume</td></tr>
-      <tr><td>linkType</td><td>整数（0〜3）</td><td>—</td><td>Consume</td></tr>
-      <tr><td>lag</td><td>整数</td><td>—</td><td>Consume</td></tr>
-      <tr><td>lagFormat</td><td>整数</td><td>—</td><td>Consume</td></tr>
-      <tr><td>carry</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>carryElements</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    TaskGroup["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>TaskGroup</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>id</span></b></td><td>文字列（UUID）</td><td>PK</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#008000'>parentId</span></b></td><td>文字列（UUID）</td><td>FK</td><td>GRS</td></tr>
-      <tr><td>label</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#008000'>derivedFromTaskUid</span></b></td><td>整数</td><td>FK</td><td>GRS</td></tr>
-      <tr><td>order</td><td>整数</td><td>—</td><td>GRS</td></tr>
-      <tr><td>isCollapsed</td><td>真偽</td><td>—</td><td>GRS</td></tr>
-      <tr><td>isHidden</td><td>真偽</td><td>—</td><td>GRS</td></tr>
-      <tr><td>color</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>height</td><td>整数</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    TaskGroupMember["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>TaskGroupMember</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>taskUid</span></b></td><td>整数</td><td>PK/FK</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#008000'>groupId</span></b></td><td>文字列（UUID）</td><td>FK</td><td>GRS</td></tr>
-      <tr><td>stackOrder</td><td>整数</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    Calendar["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>Calendar</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>uid</span></b></td><td>整数</td><td>PK</td><td>Own</td></tr>
-      <tr><td>name</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>isBaseCalendar</td><td>真偽</td><td>—</td><td>Own</td></tr>
-      <tr><td><b><span style='color:#008000'>baseCalendarUid</span></b></td><td>整数</td><td>FK</td><td>Consume</td></tr>
-      <tr><td>ordinal</td><td>整数</td><td>—</td><td>GRS</td></tr>
-      <tr><td>carry</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>carryElements</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    WeekDay["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>WeekDay</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>calendarUid</span></b></td><td>整数</td><td>PK/FK</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#C00000'>ordinal</span></b></td><td>整数</td><td>PK</td><td>GRS</td></tr>
-      <tr><td>dayType</td><td>整数（1〜7）</td><td>—</td><td>Own</td></tr>
-      <tr><td>dayWorking</td><td>真偽</td><td>—</td><td>Own</td></tr>
-      <tr><td>carry</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>carryElements</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    Exception["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>Exception</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>calendarUid</span></b></td><td>整数</td><td>PK/FK</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#C00000'>ordinal</span></b></td><td>整数</td><td>PK</td><td>GRS</td></tr>
-      <tr><td>name</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>fromDate</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>toDate</td><td>日時</td><td>—</td><td>Own</td></tr>
-      <tr><td>dayWorking</td><td>真偽</td><td>—</td><td>Own</td></tr>
-      <tr><td>recurrenceKind</td><td>整数（1〜9）</td><td>—</td><td>Consume</td></tr>
-      <tr><td>carry</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>carryElements</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    Resource["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>Resource</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>uid</span></b></td><td>整数</td><td>PK</td><td>Own</td></tr>
-      <tr><td>name</td><td>文字列</td><td>—</td><td>Own</td></tr>
-      <tr><td>resourceKind</td><td>整数</td><td>—</td><td>Own</td></tr>
-      <tr><td>isCostResource</td><td>真偽</td><td>—</td><td>Own</td></tr>
-      <tr><td><b><span style='color:#008000'>calendarUid</span></b></td><td>整数</td><td>FK</td><td>Consume</td></tr>
-      <tr><td>carry</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>carryElements</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    Assignment["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>Assignment</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>uid</span></b></td><td>整数</td><td>PK</td><td>Own</td></tr>
-      <tr><td><b><span style='color:#008000'>taskUid</span></b></td><td>整数</td><td>FK</td><td>Consume</td></tr>
-      <tr><td><b><span style='color:#008000'>resourceUid</span></b></td><td>整数</td><td>FK</td><td>Consume</td></tr>
-      <tr><td>carry</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>carryElements</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    TaskVisual["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>TaskVisual</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>taskUid</span></b></td><td>整数</td><td>PK/FK</td><td>GRS</td></tr>
-      <tr><td>nameAnchor</td><td>整数（0〜8）</td><td>—</td><td>GRS</td></tr>
-      <tr><td>nameAlign</td><td>列挙（'left' ほか 3 値）</td><td>—</td><td>GRS</td></tr>
-      <tr><td>shapeKind</td><td>列挙（5 値）</td><td>—</td><td>GRS</td></tr>
-      <tr><td>milestoneGlyph</td><td>列挙（8 値）</td><td>—</td><td>GRS</td></tr>
-      <tr><td>fillColor</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>strokeColor</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>lineWeight</td><td>列挙（'thin' ほか 3 値）</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    TaskOrigin["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>TaskOrigin</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>taskUid</span></b></td><td>整数</td><td>PK/FK</td><td>GRS</td></tr>
-      <tr><td>sourceProjectUid</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>sourceUid</td><td>整数</td><td>—</td><td>GRS</td></tr>
-      <tr><td>lastSeenImportSeq</td><td>整数</td><td>—</td><td>GRS</td></tr>
-      <tr><td>importSessionId</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    CommentBox["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>CommentBox</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>id</span></b></td><td>文字列（UUID）</td><td>PK</td><td>GRS</td></tr>
-      <tr><td>leaderShapeKind</td><td>列挙（2 値）</td><td>—</td><td>GRS</td></tr>
-      <tr><td>text</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>anchorDate</td><td>日時</td><td>—</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#008000'>anchorGroupId</span></b></td><td>文字列（UUID）</td><td>FK</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#008000'>anchorTaskUid</span></b></td><td>整数</td><td>FK</td><td>GRS</td></tr>
-      <tr><td>anchorPoint</td><td>整数（0〜8）</td><td>—</td><td>GRS</td></tr>
-      <tr><td>bodyOffsetPx</td><td>{ dx, dy }</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    HighlightBox["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>HighlightBox</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>id</span></b></td><td>文字列（UUID）</td><td>PK</td><td>GRS</td></tr>
-      <tr><td>startDate</td><td>日時</td><td>—</td><td>GRS</td></tr>
-      <tr><td>endDate</td><td>日時</td><td>—</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#008000'>topGroupId</span></b></td><td>文字列（UUID）</td><td>FK</td><td>GRS</td></tr>
-      <tr><td><b><span style='color:#008000'>bottomGroupId</span></b></td><td>文字列（UUID）</td><td>FK</td><td>GRS</td></tr>
-      <tr><td>strokeColor</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>cornerRadiusPx</td><td>数値</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    CarryElement["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>CarryElement</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>ordinal</span></b></td><td>整数</td><td>PK</td><td>GRS</td></tr>
-      <tr><td>name</td><td>文字列</td><td>—</td><td>Carry</td></tr>
-      <tr><td>fields</td><td>連想（文字列→文字列）</td><td>—</td><td>Carry</td></tr>
-      <tr><td>children</td><td>CarryElement[]</td><td>—</td><td>Carry</td></tr>
-    </table>"]
-    revisionStamp["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>revisionStamp</b></td></tr>
-      <tr><td>revision</td><td>整数</td><td>—</td><td>GRS</td></tr>
-      <tr><td>lastEditedBy</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>updatedAt</td><td>文字列（ISO 8601・UTC・秒）</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    changeLog["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>changeLog</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>revision</span></b></td><td>整数</td><td>PK</td><td>GRS</td></tr>
-      <tr><td>editedBy</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>explanation</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>changedAt</td><td>文字列（ISO 8601・UTC・秒）</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    BaselineTask["<table style='white-space:nowrap'>
-      <tr><td colspan='4'><b>BaselineTask</b></td></tr>
-      <tr><td><b><span style='color:#C00000'>uid</span></b></td><td>整数</td><td>PK</td><td>GRS</td></tr>
-      <tr><td>name</td><td>文字列</td><td>—</td><td>GRS</td></tr>
-      <tr><td>start</td><td>日時</td><td>—</td><td>GRS</td></tr>
-      <tr><td>finish</td><td>日時</td><td>—</td><td>GRS</td></tr>
-      <tr><td>milestone</td><td>真偽</td><td>—</td><td>GRS</td></tr>
-    </table>"]
-    Task -->|"WBS の親子（wbsParentUid）。輪を禁じる規則は 表 T-015a の HM-4 と FR-023 が持つ（0..n ─ 0..1）"| Task
-    Task -->|"この依存の後続（入れ子の位置が表す）（1 ─ 0..n）"| Dependency
-    Dependency -->|"この依存の先行（predecessorUid）（0..n ─ 1）"| Task
-    TaskGroup -->|"行の親子（parentId）。深さの上限は FR-004（0..n ─ 0..1）"| TaskGroup
-    TaskGroupMember -->|"どの行に載るか（groupId）（0..n ─ 1）"| TaskGroup
-    TaskGroupMember -->|"どのタスクが載るか（taskUid）（1 ─ 1）"| Task
-    TaskGroup -->|"行の名前の導出元（derivedFromTaskUid）（0..n ─ 0..1）"| Task
-    Project -->|"文書の既定の暦（calendarUid）（1 ─ 0..1）"| Calendar
-    Task -->|"このタスクが使う暦（calendarUid）（0..n ─ 0..1）"| Calendar
-    Resource -->|"この担当者が使う暦（calendarUid）（0..n ─ 0..1）"| Calendar
-    Calendar -->|"継承元の暦（baseCalendarUid）（0..n ─ 0..1）"| Calendar
-    Calendar -->|"曜日ごとの稼働（弱エンティティ）（1 ─ 0..n）"| WeekDay
-    Calendar -->|"例外日（弱エンティティ）（1 ─ 0..n）"| Exception
-    Assignment -->|"就くタスク（taskUid）（0..n ─ 1）"| Task
-    Assignment -->|"就く担当者（resourceUid）（0..n ─ 1）"| Resource
-    TaskVisual -->|"そのタスクの見せ方（taskUid）（0..1 ─ 1）"| Task
-    TaskOrigin -->|"そのタスクの取り込み元（taskUid）（0..1 ─ 1）"| Task
-    CommentBox -->|"留めるタスク（anchorTaskUid）（0..n ─ 0..1）"| Task
-    CommentBox -->|"留める行（anchorGroupId）（0..n ─ 0..1）"| TaskGroup
-    HighlightBox -->|"囲む範囲の上端の行（topGroupId）（0..n ─ 0..1）"| TaskGroup
-    HighlightBox -->|"囲む範囲の下端の行（bottomGroupId）（0..n ─ 0..1）"| TaskGroup
-    CarryElement -->|"入れ子の子（children）（1 ─ 0..n）"| CarryElement
-    Task -->|"変更前の予定との対応（uid の一致。参照ではない）。対応が無いものは描かない（FR-015）（0..1 ─ 0..1）"| BaselineTask
-    Project -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
-    Task -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
-    Dependency -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
-    Calendar -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
-    WeekDay -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
-    Exception -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
-    Resource -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
-    Assignment -->|"carryElements の中身（1 ─ 0..n）"| CarryElement
+erDiagram
+    Project {
+        文字列 id "Own・16 字以下"
+        文字列 name "Own"
+        文字列 title "Own"
+        文字列 subject "Own"
+        文字列 category "Own"
+        文字列 company "Own"
+        文字列 manager "Own"
+        文字列 author "Own"
+        日時 created "Own"
+        整数 revision "Own"
+        日時 lastSaved "Own"
+        日付 startDate "Own"
+        日付 statusDate "Own"
+        整数 minutesPerDay "Own"
+        整数 minutesPerWeek "Own"
+        整数 daysPerMonth "Own"
+        整数 weekStartDay "Own・0〜6"
+        整数 **calendarUid** FK "Consume"
+        整数 themeHue "GRS・0〜359"
+        整数 uidHighWaterMark "GRS"
+        連想 carry "Carry・文字列→文字列"
+        CarryElement[] carryElements "Carry"
+    }
+    Task {
+        整数 **uid** PK "Own"
+        整数 **wbsParentUid** FK "Consume"
+        整数 wbsOrder "Consume"
+        文字列 name "Own"
+        日時 start "Own"
+        日時 finish "Own"
+        真偽 milestone "Own"
+        日時 deadline "Own"
+        文字列 notes "Own"
+        整数 **calendarUid** FK "Consume"
+        日時 actualStart "Own"
+        整数 actualDuration "Own・稼働日"
+        日時 actualFinish "Own"
+        日時 resume "Own"
+        真偽 resumeValid "Own"
+        整数 percentComplete "Own・0 以上"
+        整数 fadeInDays "Consume・日数"
+        整数 fadeOutDays "Consume・日数"
+        Dependency[] dependencies "Consume"
+        連想 carry "Carry・文字列→文字列"
+        CarryElement[] carryElements "Carry"
+    }
+    Dependency {
+        整数 **predecessorUid** FK "Consume"
+        整数 linkType "Consume・0〜3"
+        整数 lag "Consume"
+        整数 lagFormat "Consume"
+        連想 carry "Carry・文字列→文字列"
+        CarryElement[] carryElements "Carry"
+    }
+    TaskGroup {
+        文字列 **id** PK "GRS・UUID"
+        文字列 **parentId** FK "GRS・UUID"
+        文字列 label "GRS"
+        整数 **derivedFromTaskUid** FK "GRS"
+        整数 order "GRS"
+        真偽 isCollapsed "GRS"
+        真偽 isHidden "GRS"
+        文字列 color "GRS"
+        整数 height "GRS"
+    }
+    TaskGroupMember {
+        整数 **taskUid** PK,FK "GRS"
+        文字列 **groupId** FK "GRS・UUID"
+        整数 stackOrder "GRS"
+    }
+    Calendar {
+        整数 **uid** PK "Own"
+        文字列 name "Own"
+        真偽 isBaseCalendar "Own"
+        整数 **baseCalendarUid** FK "Consume"
+        整数 ordinal "GRS"
+        連想 carry "Carry・文字列→文字列"
+        CarryElement[] carryElements "Carry"
+    }
+    WeekDay {
+        整数 **calendarUid** PK,FK "GRS"
+        整数 **ordinal** PK "GRS"
+        整数 dayType "Own・1〜7"
+        真偽 dayWorking "Own"
+        連想 carry "Carry・文字列→文字列"
+        CarryElement[] carryElements "Carry"
+    }
+    Exception {
+        整数 **calendarUid** PK,FK "GRS"
+        整数 **ordinal** PK "GRS"
+        文字列 name "Own"
+        日時 fromDate "Own"
+        日時 toDate "Own"
+        真偽 dayWorking "Own"
+        整数 recurrenceKind "Consume・1〜9"
+        連想 carry "Carry・文字列→文字列"
+        CarryElement[] carryElements "Carry"
+    }
+    Resource {
+        整数 **uid** PK "Own"
+        文字列 name "Own"
+        整数 resourceKind "Own"
+        真偽 isCostResource "Own"
+        整数 **calendarUid** FK "Consume"
+        連想 carry "Carry・文字列→文字列"
+        CarryElement[] carryElements "Carry"
+    }
+    Assignment {
+        整数 **uid** PK "Own"
+        整数 **taskUid** FK "Consume"
+        整数 **resourceUid** FK "Consume"
+        連想 carry "Carry・文字列→文字列"
+        CarryElement[] carryElements "Carry"
+    }
+    TaskVisual {
+        整数 **taskUid** PK,FK "GRS"
+        整数 nameAnchor "GRS・0〜8"
+        列挙 nameAlign "GRS・'left' ほか 3 値"
+        列挙 shapeKind "GRS・5 値"
+        列挙 milestoneGlyph "GRS・8 値"
+        文字列 fillColor "GRS"
+        文字列 strokeColor "GRS"
+        列挙 lineWeight "GRS・'thin' ほか 3 値"
+    }
+    TaskOrigin {
+        整数 **taskUid** PK,FK "GRS"
+        文字列 sourceProjectUid "GRS"
+        整数 sourceUid "GRS"
+        整数 lastSeenImportSeq "GRS"
+        文字列 importSessionId "GRS"
+    }
+    CommentBox {
+        文字列 **id** PK "GRS・UUID"
+        列挙 leaderShapeKind "GRS・2 値"
+        文字列 text "GRS"
+        日時 anchorDate "GRS"
+        文字列 **anchorGroupId** FK "GRS・UUID"
+        整数 **anchorTaskUid** FK "GRS"
+        整数 anchorPoint "GRS・0〜8"
+        オブジェクト bodyOffsetPx "GRS・{ dx, dy }"
+    }
+    HighlightBox {
+        文字列 **id** PK "GRS・UUID"
+        日時 startDate "GRS"
+        日時 endDate "GRS"
+        文字列 **topGroupId** FK "GRS・UUID"
+        文字列 **bottomGroupId** FK "GRS・UUID"
+        文字列 strokeColor "GRS"
+        数値 cornerRadiusPx "GRS"
+    }
+    CarryElement {
+        整数 **ordinal** PK "GRS"
+        文字列 name "Carry"
+        連想 fields "Carry・文字列→文字列"
+        CarryElement[] children "Carry"
+    }
+    revisionStamp {
+        整数 revision "GRS"
+        文字列 lastEditedBy "GRS"
+        文字列 updatedAt "GRS・ISO 8601・UTC・秒"
+    }
+    changeLog {
+        整数 **revision** PK "GRS"
+        文字列 editedBy "GRS"
+        文字列 explanation "GRS"
+        文字列 changedAt "GRS・ISO 8601・UTC・秒"
+    }
+    BaselineTask {
+        整数 **uid** PK "GRS"
+        文字列 name "GRS"
+        日時 start "GRS"
+        日時 finish "GRS"
+        真偽 milestone "GRS"
+    }
+    Task }o--o| Task : "WBS の親子（wbsParentUid）。輪を禁じる規則は 表 T-015a の HM-4 と FR-023 が持つ"
+    Task ||--o{ Dependency : "この依存の後続（入れ子の位置が表す）"
+    Dependency }o--|| Task : "この依存の先行（predecessorUid）"
+    TaskGroup }o--o| TaskGroup : "行の親子（parentId）。深さの上限は FR-004"
+    TaskGroupMember }o--|| TaskGroup : "どの行に載るか（groupId）"
+    TaskGroupMember ||--|| Task : "どのタスクが載るか（taskUid）"
+    TaskGroup }o--o| Task : "行の名前の導出元（derivedFromTaskUid）"
+    Project ||--o| Calendar : "文書の既定の暦（calendarUid）"
+    Task }o--o| Calendar : "このタスクが使う暦（calendarUid）"
+    Resource }o--o| Calendar : "この担当者が使う暦（calendarUid）"
+    Calendar }o--o| Calendar : "継承元の暦（baseCalendarUid）"
+    Calendar ||--o{ WeekDay : "曜日ごとの稼働（弱エンティティ）"
+    Calendar ||--o{ Exception : "例外日（弱エンティティ）"
+    Assignment }o--|| Task : "就くタスク（taskUid）"
+    Assignment }o--|| Resource : "就く担当者（resourceUid）"
+    TaskVisual |o--|| Task : "そのタスクの見せ方（taskUid）"
+    TaskOrigin |o--|| Task : "そのタスクの取り込み元（taskUid）"
+    CommentBox }o--o| Task : "留めるタスク（anchorTaskUid）"
+    CommentBox }o--o| TaskGroup : "留める行（anchorGroupId）"
+    HighlightBox }o--o| TaskGroup : "囲む範囲の上端の行（topGroupId）"
+    HighlightBox }o--o| TaskGroup : "囲む範囲の下端の行（bottomGroupId）"
+    CarryElement ||--o{ CarryElement : "入れ子の子（children）"
+    Task |o--o| BaselineTask : "変更前の予定との対応（uid の一致。参照ではない）。対応が無いものは描かない（FR-015）"
+    Project ||--o{ CarryElement : "carryElements の中身"
+    Task ||--o{ CarryElement : "carryElements の中身"
+    Dependency ||--o{ CarryElement : "carryElements の中身"
+    Calendar ||--o{ CarryElement : "carryElements の中身"
+    WeekDay ||--o{ CarryElement : "carryElements の中身"
+    Exception ||--o{ CarryElement : "carryElements の中身"
+    Resource ||--o{ CarryElement : "carryElements の中身"
+    Assignment ||--o{ CarryElement : "carryElements の中身"
 ```
 
-## 2. 関係
+## 2. エンティティ
+
+**Type**: SECTION
+
+**表 T-056 — エンティティ**
+
+| 行 ID | 名前 | 何を表すか | 鍵 | 書き出すか | `carry` の器 |
+| --- | --- | --- | --- | --- | --- |
+| ET-1 | `Project` | プロジェクトの基本情報と、文書ぜんたいに掛かる暦の既定 | — （文書に 1 つしか無い。`id` は主キーにしない） | 書き出す | あり |
+| ET-2 | `Task` | タスク 1 つ。予定と実績を同じ行が持つ | `uid` | 書き出す | あり |
+| ET-3 | `Dependency` | 依存 1 本。**後続タスクの下に入れ子で持つ** | — （後続タスクの下での位置が表す） | 書き出す | あり |
+| ET-4 | `TaskGroup` | 行の器。縦積みの軸を作る（`FR-004`） | `id` | **書き出さない** | — |
+| ET-5 | `TaskGroupMember` | どのタスクがどの行の何段目に載るか | `taskUid`（一意） | **書き出さない** | — |
+| ET-6 | `Calendar` | 暦 1 つ。稼働日と非稼働日を決める | `uid` | 書き出す | あり |
+| ET-7 | `WeekDay` | 曜日ごとの稼働の定め（弱エンティティ） | `calendarUid` ＋ `ordinal` | 書き出す | あり |
+| ET-8 | `Exception` | 暦の例外日（弱エンティティ） | `calendarUid` ＋ `ordinal` | 書き出す | あり |
+| ET-9 | `Resource` | 担当者 1 人（または 1 つの資源） | `uid` | 書き出す | あり |
+| ET-10 | `Assignment` | どの担当者がどのタスクに就くか | `uid` | 書き出す | あり |
+| ET-11 | `TaskVisual` | タスクの見せ方。形・色・名前の置き方 | `taskUid` | **書き出さない** | — |
+| ET-12 | `TaskOrigin` | 取り込み元の記録。合流の照合に使う | `taskUid` | **書き出さない** | — |
+| ET-13 | `CommentBox` | コメントボックス 1 つ。日付と行に留める | `id` | **書き出さない** | — |
+| ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付と行の範囲を囲む | `id` | **書き出さない** | — |
+| ET-15 | `CarryElement` | 解釈しない要素 1 つを、原形のまま抱える器（自己参照） | 所有者 ＋ `ordinal` | 書き出す | — |
+| ET-16 | `revisionStamp` | 版数と、最後に書いた者と時刻 | — （文書に 1 つしか無い） | **書き出さない** | — |
+| ET-17 | `changeLog` | 変更の理由。**会話そのものは保存しない**（`FR-066`） | `revision` | **書き出さない** | — |
+| ET-18 | `BaselineTask` | 変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ | `uid` | **書き出さない** | — |
+
+## 3. 関係
 
 **Type**: SECTION
 
@@ -298,15 +294,9 @@ flowchart TB
 | RL-30 | `Resource` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
 | RL-31 | `Assignment` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
 
-## 3. 列
+## 4. 列
 
 **Type**: SECTION
-
-**出自の 4 区分** —— `Own` は交換相手から取り込んでそのまま書き戻すもの、`Consume` は取り込んで解釈し、
-書き出すときに作り直すもの、`GRS` は本ソフトウェアが新たに持つもの、`Carry` は解釈せずに持ち回る器である。
-
-⚠️ **`AT-` の番号は本表の中の位置である。列を足すと、それ以降の番号が動く。**
-**本書の外から列を指すときは、エンティティ名と列名の対で指すこと**（`Task.wbsParentUid` の形。表 T-006a の `W-7`）。
 
 **表 T-058 — 列**
 
@@ -452,11 +442,9 @@ flowchart TB
 | AT-138 | `BaselineTask` | `finish` | 日時 | 可 | — | GRS | — | 変更前の予定の終了 |
 | AT-139 | `BaselineTask` | `milestone` | 真偽 | 可 | — | GRS | — | マイルストーンとして描くか |
 
-## 4. 列にせず、書き出すときに作るもの
+## 5. 列にせず、書き出すときに作るもの
 
 **Type**: SECTION
-
-**文書はこれらを持たない。** 持つと、元になった列と食い違ったときにどちらが正かを決める規則が要る。
 
 **表 T-059 — 書き出すときに作る値**
 
@@ -472,6 +460,3 @@ flowchart TB
 | DV-8 | `Task` | `duration` | `Task/Duration` | `finish` − `start` と暦。**人が編集していないタスクは受け取った値をそのまま返す** |
 | DV-9 | `Task` | `stop` | `Task/Stop` | `actualStart` ＋ `actualDuration`。**中断のときだけ書く** |
 | DV-10 | `Resource` | `id` | `Resource/ID` | 書き出す順に振り直す。**`uid` とは別物** |
-
-⚠️ **描くときに求める値は本表に含まない** —— 実績バーの右端・予実の状態・遅れ・進捗の記号は、
-文書にも交換相手にも書かないためである。**それらは Chapter 5.5 が持つ。**

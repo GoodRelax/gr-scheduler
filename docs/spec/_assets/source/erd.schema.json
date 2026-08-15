@@ -1,0 +1,483 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_assets/source/erd.schema.json",
+ "title": "gr-scheduler data model source",
+ "description": "The single source for the data-model figure and its explanation tables. A generator turns this into a StrictDoc markdown document; the prose that explains the tables lives in the specification body, never here.",
+ "type": "object",
+ "required": [
+  "documents",
+  "container",
+  "entities",
+  "relations",
+  "derived"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": {
+   "type": "string",
+   "description": "Path to this schema, so an editor validates the file while it is being written."
+  },
+  "$comment": {
+   "type": "array",
+   "description": "JSON carries no comments, so notes for whoever edits this file go here. Not rendered.",
+   "items": {
+    "type": "string"
+   }
+  },
+  "documents": {
+   "type": "array",
+   "description": "One entry per generated markdown document. Each names the file it is written to; nothing else may be written.",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/document"
+   }
+  },
+  "container": {
+   "$ref": "#/$defs/container"
+  },
+  "entities": {
+   "type": "array",
+   "description": "Every entity of the data model, in the order they appear in the figure and the tables. ORDER IS LOAD BEARING: the row IDs of the entity table and the column table are positions in this array, so a new entity goes at the END or every later ID shifts.",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/entity"
+   }
+  },
+  "relations": {
+   "type": "array",
+   "description": "Edges between entities. Order fixes the relation table's row IDs; append at the end. The carry-store edges are NOT listed here: they are derived from the entities whose `carry` is true.",
+   "items": {
+    "$ref": "#/$defs/relation"
+   }
+  },
+  "derived": {
+   "type": "array",
+   "description": "Values the document does not store and rebuilds when writing to the exchange partner. Order fixes the derived table's row IDs; append at the end.",
+   "items": {
+    "$ref": "#/$defs/derived"
+   }
+  }
+ },
+ "$defs": {
+  "document": {
+   "type": "object",
+   "description": "One generated StrictDoc document: where it is written, the UID the specification body links to, and the figures and tables it carries, in order.",
+   "required": [
+    "file",
+    "uid",
+    "title",
+    "version",
+    "sections"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "file": {
+     "type": "string",
+     "pattern": "^[a-z0-9]+(-[a-z0-9]+)*\\.md$",
+     "description": "File name under docs/spec/_assets/. kebab-case, per W-11 of table T-006a."
+    },
+    "uid": {
+     "type": "string",
+     "pattern": "^DOC-[A-Z0-9]+(-[A-Z0-9]+)*$",
+     "description": "The UID the specification body links to. Changing it breaks every [LINK:] that points here."
+    },
+    "title": {
+     "type": "string",
+     "minLength": 1
+    },
+    "version": {
+     "type": "string",
+     "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "sections": {
+     "type": "array",
+     "description": "One section per figure or table, in document order.",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/section"
+     }
+    }
+   }
+  },
+  "section": {
+   "type": "object",
+   "required": [
+    "title",
+    "block",
+    "caption"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "title": {
+     "type": "string",
+     "minLength": 1,
+     "description": "The heading text, numbered by hand: '2. 関係'."
+    },
+    "block": {
+     "enum": [
+      "figure",
+      "container",
+      "entity",
+      "relation",
+      "column",
+      "derived"
+     ],
+     "description": "Which generated block fills this section. 'figure' draws the entity diagram F-011 and 'container' the document-shape figure F-010; the other four are the explanation tables."
+    },
+    "caption": {
+     "type": "string",
+     "pattern": "^(図 F|表 T)-[0-9]+[a-z]? — .+$",
+     "description": "The figure or table number and its title, as the specification numbers them: '表 T-057 — エンティティのあいだの関係'."
+    },
+    "row_prefix": {
+     "type": "string",
+     "pattern": "^[A-Z]{1,3}$",
+     "description": "First column of every row of this table: 'RL' yields RL-1, RL-2 ... The prefix must not be in use by any other table in the specification; that is checked spec-wide by the markdown checker, not here."
+    }
+   },
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "block": {
+        "enum": [
+         "figure",
+         "container"
+        ]
+       }
+      },
+      "required": [
+       "block"
+      ]
+     },
+     "then": {
+      "not": {
+       "required": [
+        "row_prefix"
+       ]
+      }
+     },
+     "else": {
+      "required": [
+       "row_prefix"
+      ]
+     }
+    }
+   ]
+  },
+  "entity": {
+   "type": "object",
+   "required": [
+    "name",
+    "description",
+    "export",
+    "carry",
+    "columns"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "Identifier as it appears in the figure. Upper camel case for an entity, lower camel case for the two document stamps."
+    },
+    "description": {
+     "type": "string",
+     "minLength": 1
+    },
+    "export": {
+     "type": "boolean",
+     "description": "Whether the entity is written out to the exchange partner. It is always written to the native JSON."
+    },
+    "carry": {
+     "type": "boolean",
+     "description": "Whether the entity holds a carry store for elements the software does not interpret. Also decides whether an edge to the carry-element entity is drawn."
+    },
+    "key_note": {
+     "type": "string",
+     "description": "Overrides the key cell of the entity table when the key cannot be written as a list of column names."
+    },
+    "columns": {
+     "type": "array",
+     "description": "ORDER IS LOAD BEARING: the column table numbers its rows across all entities in this order.",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/column"
+     }
+    }
+   }
+  },
+  "column": {
+   "type": "object",
+   "required": [
+    "name",
+    "type",
+    "nullable",
+    "key",
+    "origin",
+    "exchange",
+    "meaning"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "type": "string",
+     "pattern": "^[a-z][A-Za-z0-9]*$",
+     "description": "Lower camel case."
+    },
+    "type": {
+     "type": "string",
+     "minLength": 1,
+     "description": "Written for a reader, not for a compiler. A parenthetical part carries the range, the number of values or the unit: '整数（0〜359）'. The figure can only hold one word, so the generator moves the parenthetical next to the origin."
+    },
+    "nullable": {
+     "type": "string",
+     "pattern": "^(可|否)(（.+）)?$",
+     "description": "Whether the column may be absent, and what absence means: '可（`null` = 根）'."
+    },
+    "key": {
+     "enum": [
+      "",
+      "PK",
+      "FK",
+      "PK/FK"
+     ],
+     "description": "Empty for an ordinary column. A key column has its name drawn in bold in the figure."
+    },
+    "origin": {
+     "enum": [
+      "Own",
+      "Consume",
+      "GRS",
+      "Carry"
+     ],
+     "description": "Own: taken from the exchange partner and written back unchanged. Consume: taken in, interpreted, and rebuilt on the way out. GRS: new in this software, no counterpart. Carry: an opaque holder for what is not interpreted."
+    },
+    "exchange": {
+     "type": "string",
+     "pattern": "^$|^[^\\s|]+$",
+     "description": "The element of the exchange partner this column comes from, as a path: 'Task/ActualStart'. A leading ellipsis abbreviates a long path. Empty when the column has no counterpart."
+    },
+    "meaning": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "relation": {
+   "type": "object",
+   "required": [
+    "parent",
+    "child",
+    "multiplicity",
+    "label"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "parent": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "Name of an entity in `entities`."
+    },
+    "child": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "Name of an entity in `entities`."
+    },
+    "multiplicity": {
+     "enum": [
+      "0..1 ─ 0..1",
+      "0..1 ─ 1",
+      "1 ─ 1",
+      "1 ─ 0..1",
+      "1 ─ 0..n",
+      "0..n ─ 1",
+      "0..n ─ 0..1",
+      "0..n ─ 0..n"
+     ],
+     "description": "Parent side first, child side second, separated by a box-drawing dash. Only these eight can be drawn."
+    },
+    "label": {
+     "type": "string",
+     "minLength": 1,
+     "description": "What the edge means. The multiplicity is NOT repeated here: the figure draws it as crow's foot notation."
+    }
+   }
+  },
+  "derived": {
+   "type": "object",
+   "required": [
+    "entity",
+    "name",
+    "exchange",
+    "source"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "entity": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "Name of an entity in `entities`."
+    },
+    "name": {
+     "type": "string",
+     "pattern": "^[a-z][A-Za-z0-9]*$",
+     "description": "Name at the exchange partner. Must NOT also be a stored column of the same entity, or the two could disagree."
+    },
+    "exchange": {
+     "type": "string",
+     "minLength": 1
+    },
+    "source": {
+     "type": "string",
+     "minLength": 1,
+     "description": "What the value is computed from."
+    }
+   }
+  },
+  "container": {
+   "type": "object",
+   "description": "Figure F-010: the shape of the JSON container that holds the entities. Every entity must be placed exactly once -- beside its key in a box with entity_rows, as a box of its own, or as a bare node -- and the generator refuses to write anything until that holds. That is what keeps an added entity from slipping past this figure.",
+   "required": [
+    "boxes",
+    "nodes",
+    "edges"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "boxes": {
+     "type": "array",
+     "minItems": 1,
+     "description": "A box drawn as a small table.",
+     "items": {
+      "$ref": "#/$defs/box"
+     }
+    },
+    "nodes": {
+     "type": "array",
+     "description": "An entity drawn as a bare labelled node, because it only ever appears nested under another key.",
+     "items": {
+      "$ref": "#/$defs/node"
+     }
+    },
+    "edges": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/container_edge"
+     }
+    }
+   }
+  },
+  "box": {
+   "type": "object",
+   "description": "Exactly one of `rows`, `entity_rows` or (`entity` with `labels`) says what the box contains.",
+   "required": [
+    "id",
+    "title"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "Node id inside the mermaid figure. Edges use it."
+    },
+    "title": {
+     "type": "string",
+     "minLength": 1
+    },
+    "subtitle": {
+     "type": "string",
+     "minLength": 1,
+     "description": "A gloss drawn in parentheses after the title. Only the title is bold."
+    },
+    "note": {
+     "type": "string",
+     "minLength": 1,
+     "description": "A full-width row directly under the title."
+    },
+    "rows": {
+     "type": "array",
+     "items": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+       "type": "string"
+      },
+      "description": "Left cell and right cell of one row of a box."
+     },
+     "description": "Plain rows. Nothing here is checked against the entities, so use it only for keys that are not entities."
+    },
+    "entity_rows": {
+     "type": "array",
+     "items": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+       "type": "string"
+      },
+      "description": "Left cell and right cell of one row of a box."
+     },
+     "description": "Rows whose RIGHT cell is an entity name. Every name is checked against `entities`."
+    },
+    "entity": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "This whole box IS one entity; its rows are that entity's columns, in order."
+    },
+    "labels": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Short right-hand cell per column, in the same order. The count must equal the entity's column count, so adding a column stops the build until the figure says what it is. The column `meaning` is deliberately not reused here: it is prose, it is too long for a box, and it holds backticks, which break mermaid."
+    }
+   }
+  },
+  "node": {
+   "type": "object",
+   "required": [
+    "id",
+    "entity"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+    },
+    "entity": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "Name of an entity in `entities`."
+    }
+   }
+  },
+  "container_edge": {
+   "type": "object",
+   "required": [
+    "from",
+    "to",
+    "label"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "from": {
+     "type": "string",
+     "description": "A box or node id."
+    },
+    "to": {
+     "type": "string",
+     "description": "A box or node id."
+    },
+    "label": {
+     "type": "string",
+     "minLength": 1,
+     "description": "What the edge means. Unlike the entity relations, the multiplicity IS written here: a flowchart has no notation of its own for it."
+    }
+   }
+  }
+ }
+}

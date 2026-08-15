@@ -1,0 +1,1866 @@
+{
+ "$schema": "./erd.schema.json",
+ "$comment": [
+  "Single source for figure F-011 and tables T-056 through T-059.",
+  "Built into the specification by docs/spec/_assets/source/build-erd.py -- never edit the generated .md.",
+  "Array order is load bearing: AT-, ET-, RL- and DV- numbers are positions in these arrays, so a new record goes at the END.",
+  "key is one of \"\", \"PK\", \"FK\", \"PK/FK\". origin is one of Own, Consume, GRS, Carry."
+ ],
+ "documents": [
+  {
+   "file": "fig-erd-detail.md",
+   "uid": "DOC-FIG-ERD-DETAIL",
+   "title": "データモデル — 詳細（列と関係）",
+   "version": "0.1",
+   "sections": [
+    {
+     "title": "1. 詳細 ERD",
+     "block": "figure",
+     "caption": "図 F-011 — データモデルの詳細"
+    },
+    {
+     "title": "2. エンティティ",
+     "block": "entity",
+     "caption": "表 T-056 — エンティティ",
+     "row_prefix": "ET"
+    },
+    {
+     "title": "3. 関係",
+     "block": "relation",
+     "caption": "表 T-057 — エンティティのあいだの関係",
+     "row_prefix": "RL"
+    },
+    {
+     "title": "4. 列",
+     "block": "column",
+     "caption": "表 T-058 — 列",
+     "row_prefix": "AT"
+    },
+    {
+     "title": "5. 列にせず、書き出すときに作るもの",
+     "block": "derived",
+     "caption": "表 T-059 — 書き出すときに作る値",
+     "row_prefix": "DV"
+    }
+   ]
+  },
+  {
+   "file": "fig-erd-overview.md",
+   "uid": "DOC-FIG-ERD-OVERVIEW",
+   "title": "データモデル — 概要（文書の全体像）",
+   "version": "0.3",
+   "sections": [
+    {
+     "title": "1. 文書の全体像",
+     "block": "container",
+     "caption": "図 F-010 — 文書の全体像"
+    }
+   ]
+  }
+ ],
+ "container": {
+  "boxes": [
+   {
+    "id": "Document",
+    "title": "文書ルート",
+    "rows": [
+     [
+      "schemaVersion",
+      "文書の形式の版"
+     ],
+     [
+      "schedule",
+      "日程データの群"
+     ],
+     [
+      "documentSettings",
+      "見せ方の群"
+     ],
+     [
+      "revisionStamp",
+      "文書の刻印"
+     ],
+     [
+      "changeLog[]",
+      "文書の刻印"
+     ]
+    ]
+   },
+   {
+    "id": "Schedule",
+    "title": "schedule",
+    "subtitle": "日程データの群",
+    "entity_rows": [
+     [
+      "project",
+      "Project"
+     ],
+     [
+      "calendars[]",
+      "Calendar"
+     ],
+     [
+      "tasks[]",
+      "Task"
+     ],
+     [
+      "resources[]",
+      "Resource"
+     ],
+     [
+      "assignments[]",
+      "Assignment"
+     ],
+     [
+      "taskGroups[]",
+      "TaskGroup"
+     ],
+     [
+      "taskGroupMembers[]",
+      "TaskGroupMember"
+     ],
+     [
+      "taskVisuals[]",
+      "TaskVisual"
+     ],
+     [
+      "commentBoxes[]",
+      "CommentBox"
+     ],
+     [
+      "highlightBoxes[]",
+      "HighlightBox"
+     ],
+     [
+      "taskOrigins[]",
+      "TaskOrigin"
+     ],
+     [
+      "baselineTasks[]",
+      "BaselineTask"
+     ]
+    ]
+   },
+   {
+    "id": "Settings",
+    "title": "documentSettings",
+    "subtitle": "見せ方の群",
+    "note": "鍵と値の全数は tbl-settings.md",
+    "rows": [
+     [
+      "scrollGroupId",
+      "S-78"
+     ],
+     [
+      "pinnedGroupIds[]",
+      "S-126"
+     ],
+     [
+      "importSeq",
+      "S-71"
+     ]
+    ]
+   },
+   {
+    "id": "Stamp",
+    "title": "revisionStamp",
+    "entity": "revisionStamp",
+    "labels": [
+     "版数",
+     "最後に書いた者",
+     "時刻"
+    ]
+   },
+   {
+    "id": "Log",
+    "title": "changeLog[]",
+    "entity": "changeLog",
+    "labels": [
+     "適用された版数",
+     "書いた者",
+     "変更の理由",
+     "時刻"
+    ]
+   }
+  ],
+  "nodes": [
+   {
+    "id": "Dep",
+    "entity": "Dependency"
+   },
+   {
+    "id": "Week",
+    "entity": "WeekDay"
+   },
+   {
+    "id": "Exc",
+    "entity": "Exception"
+   },
+   {
+    "id": "Carry",
+    "entity": "CarryElement"
+   }
+  ],
+  "edges": [
+   {
+    "from": "Document",
+    "to": "Schedule",
+    "label": "日程データの群（1 ─ 1）"
+   },
+   {
+    "from": "Document",
+    "to": "Settings",
+    "label": "見せ方の群（1 ─ 1）"
+   },
+   {
+    "from": "Document",
+    "to": "Stamp",
+    "label": "文書の刻印（1 ─ 1）"
+   },
+   {
+    "from": "Document",
+    "to": "Log",
+    "label": "文書の刻印（1 ─ 0..n）"
+   },
+   {
+    "from": "Schedule",
+    "to": "Dep",
+    "label": "tasks[] の各要素の下に入れ子（1 ─ 0..n）"
+   },
+   {
+    "from": "Schedule",
+    "to": "Week",
+    "label": "calendars[] の各要素の下に入れ子（1 ─ 0..n）"
+   },
+   {
+    "from": "Schedule",
+    "to": "Exc",
+    "label": "calendars[] の各要素の下に入れ子（1 ─ 0..n）"
+   },
+   {
+    "from": "Schedule",
+    "to": "Carry",
+    "label": "carryElements を持つ 8 型の兄弟の鍵（1 ─ 0..n）"
+   },
+   {
+    "from": "Settings",
+    "to": "Schedule",
+    "label": "表示位置が指す行（弱い参照。0..1 ─ 1）"
+   },
+   {
+    "from": "Settings",
+    "to": "Schedule",
+    "label": "ピン止めした行（弱い参照。0..n ─ 1）"
+   },
+   {
+    "from": "Settings",
+    "to": "Schedule",
+    "label": "前回の取り込みの通し番号（taskOrigins と突き合わせる）"
+   }
+  ]
+ },
+ "entities": [
+  {
+   "name": "Project",
+   "description": "プロジェクトの基本情報と、文書ぜんたいに掛かる暦の既定",
+   "export": true,
+   "carry": true,
+   "key_note": "— （文書に 1 つしか無い。`id` は主キーにしない）",
+   "columns": [
+    {
+     "name": "id",
+     "type": "文字列（16 字以下）",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/UID",
+     "meaning": "⚠️ **主キーにしない**（理由は Chapter 5.4）。省略されたときは `TaskOrigin.importSessionId` が代わりを務める"
+    },
+    {
+     "name": "name",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/Name",
+     "meaning": "プロジェクト名"
+    },
+    {
+     "name": "title",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/Title",
+     "meaning": "文書名（`U-27`）"
+    },
+    {
+     "name": "subject",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/Subject",
+     "meaning": "件名"
+    },
+    {
+     "name": "category",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/Category",
+     "meaning": "分類"
+    },
+    {
+     "name": "company",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/Company",
+     "meaning": "会社名"
+    },
+    {
+     "name": "manager",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/Manager",
+     "meaning": "管理者名"
+    },
+    {
+     "name": "author",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/Author",
+     "meaning": "**作成者。最後に書いた者ではない**"
+    },
+    {
+     "name": "created",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/CreationDate",
+     "meaning": "作成日時"
+    },
+    {
+     "name": "revision",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/Revision",
+     "meaning": "⚠️ **交換相手の保存回数。`revisionStamp.revision` とは別物**"
+    },
+    {
+     "name": "lastSaved",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/LastSaved",
+     "meaning": "最後に保存した日時"
+    },
+    {
+     "name": "startDate",
+     "type": "日付",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/StartDate",
+     "meaning": "プロジェクトの開始日"
+    },
+    {
+     "name": "statusDate",
+     "type": "日付",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/StatusDate",
+     "meaning": "基準日線が立つ日"
+    },
+    {
+     "name": "minutesPerDay",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/MinutesPerDay",
+     "meaning": "1 日あたりの分数。期間の換算に使う"
+    },
+    {
+     "name": "minutesPerWeek",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/MinutesPerWeek",
+     "meaning": "1 週あたりの分数"
+    },
+    {
+     "name": "daysPerMonth",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/DaysPerMonth",
+     "meaning": "1 か月あたりの日数"
+    },
+    {
+     "name": "weekStartDay",
+     "type": "整数（0〜6）",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/WeekStartDay",
+     "meaning": "週の始まりの曜日"
+    },
+    {
+     "name": "calendarUid",
+     "type": "整数",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "Consume",
+     "exchange": "Project/CalendarUID",
+     "meaning": "既定の暦"
+    },
+    {
+     "name": "themeHue",
+     "type": "整数（0〜359）",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "テーマの色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73`"
+    },
+    {
+     "name": "uidHighWaterMark",
+     "type": "整数",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う**"
+    },
+    {
+     "name": "carry",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "解釈しない `Project` 直下のスカラー"
+    },
+    {
+     "name": "carryElements",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "行にならなかった子要素（表 T-053 の `DF-3`）"
+    }
+   ]
+  },
+  {
+   "name": "Task",
+   "description": "タスク 1 つ。予定と実績を同じ行が持つ",
+   "export": true,
+   "carry": true,
+   "columns": [
+    {
+     "name": "uid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "Own",
+     "exchange": "Task/UID",
+     "meaning": "文書内で一意・不変。**値から意味を読まない**"
+    },
+    {
+     "name": "wbsParentUid",
+     "type": "整数",
+     "nullable": "可（`null` = 根）",
+     "key": "FK",
+     "origin": "Consume",
+     "exchange": "",
+     "meaning": "WBS の親。交換相手には対応要素が無く、深さと出現順から起こす"
+    },
+    {
+     "name": "wbsOrder",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "Consume",
+     "exchange": "",
+     "meaning": "同じ親の下での並び"
+    },
+    {
+     "name": "name",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/Name",
+     "meaning": "タスク名"
+    },
+    {
+     "name": "start",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/Start",
+     "meaning": "予定の開始"
+    },
+    {
+     "name": "finish",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/Finish",
+     "meaning": "予定の終了"
+    },
+    {
+     "name": "milestone",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/Milestone",
+     "meaning": "**マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別（表 T-016 の `PR-18`）"
+    },
+    {
+     "name": "deadline",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/Deadline",
+     "meaning": "期限"
+    },
+    {
+     "name": "notes",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/Notes",
+     "meaning": "備考"
+    },
+    {
+     "name": "calendarUid",
+     "type": "整数",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "Consume",
+     "exchange": "Task/CalendarUID",
+     "meaning": "このタスクが使う暦"
+    },
+    {
+     "name": "actualStart",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/ActualStart",
+     "meaning": "実績の開始。空 = 未着手"
+    },
+    {
+     "name": "actualDuration",
+     "type": "整数（稼働日）",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/ActualDuration",
+     "meaning": "実績バーの長さ"
+    },
+    {
+     "name": "actualFinish",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/ActualFinish",
+     "meaning": "**完了したときだけ入る**"
+    },
+    {
+     "name": "resume",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/Resume",
+     "meaning": "中断中に、残りが始まる予定の日"
+    },
+    {
+     "name": "resumeValid",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/ResumeValid",
+     "meaning": "偽 = 再開日が未定の中断"
+    },
+    {
+     "name": "percentComplete",
+     "type": "整数（0 以上）",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Task/PercentComplete",
+     "meaning": "完了率。**上限を型に持たせない**（`FR-012`）"
+    },
+    {
+     "name": "fadeInDays",
+     "type": "整数（日数）",
+     "nullable": "可",
+     "key": "",
+     "origin": "Consume",
+     "exchange": "Task/ExtendedAttribute",
+     "meaning": "左のぼかしの日数。`null` と `0` を区別する"
+    },
+    {
+     "name": "fadeOutDays",
+     "type": "整数（日数）",
+     "nullable": "可",
+     "key": "",
+     "origin": "Consume",
+     "exchange": "Task/ExtendedAttribute",
+     "meaning": "右のぼかしの日数。同上"
+    },
+    {
+     "name": "dependencies",
+     "type": "`Dependency[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Consume",
+     "exchange": "Task/PredecessorLink",
+     "meaning": "**このタスクを後続とする依存**（表 T-053 の `DF-4`）"
+    },
+    {
+     "name": "carry",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "解釈しない `Task` 直下のスカラー"
+    },
+    {
+     "name": "carryElements",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "行にならなかった子要素"
+    }
+   ]
+  },
+  {
+   "name": "Dependency",
+   "description": "依存 1 本。**後続タスクの下に入れ子で持つ**",
+   "export": true,
+   "carry": true,
+   "key_note": "— （後続タスクの下での位置が表す）",
+   "columns": [
+    {
+     "name": "predecessorUid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "FK",
+     "origin": "Consume",
+     "exchange": "PredecessorLink/PredecessorUID",
+     "meaning": "先行タスク。**後続は入れ子の位置が表す**"
+    },
+    {
+     "name": "linkType",
+     "type": "整数（0〜3）",
+     "nullable": "否",
+     "key": "",
+     "origin": "Consume",
+     "exchange": "PredecessorLink/Type",
+     "meaning": "依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS"
+    },
+    {
+     "name": "lag",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "Consume",
+     "exchange": "PredecessorLink/LinkLag",
+     "meaning": "ラグ。単位は `lagFormat`"
+    },
+    {
+     "name": "lagFormat",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "Consume",
+     "exchange": "PredecessorLink/LagFormat",
+     "meaning": "ラグの単位"
+    },
+    {
+     "name": "carry",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "`CrossProject` ほか、解釈しないスカラー"
+    },
+    {
+     "name": "carryElements",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "行にならなかった子要素"
+    }
+   ]
+  },
+  {
+   "name": "TaskGroup",
+   "description": "行の器。縦積みの軸を作る（`FR-004`）",
+   "export": false,
+   "carry": false,
+   "columns": [
+    {
+     "name": "id",
+     "type": "文字列（UUID）",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "行の識別子"
+    },
+    {
+     "name": "parentId",
+     "type": "文字列（UUID）",
+     "nullable": "可（`null` = 根）",
+     "key": "FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "親の行。深さの上限は `FR-004`"
+    },
+    {
+     "name": "label",
+     "type": "文字列",
+     "nullable": "可（`null` = 導出）",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "行の名前"
+    },
+    {
+     "name": "derivedFromTaskUid",
+     "type": "整数",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "名前の導出元。`label` と同時に `null` にできない"
+    },
+    {
+     "name": "order",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "同じ親の下での並び"
+    },
+    {
+     "name": "isCollapsed",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "畳んでいるか"
+    },
+    {
+     "name": "isHidden",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "隠しているか。戻す入口は親の非表示グループタブ（表 T-015 の `HR-6`）"
+    },
+    {
+     "name": "color",
+     "type": "文字列",
+     "nullable": "可（`null` = テーマから解く）",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "行の帯の色"
+    },
+    {
+     "name": "height",
+     "type": "整数",
+     "nullable": "可（`null` = 自動）",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "倍率 1 のときの論理の高さ"
+    }
+   ]
+  },
+  {
+   "name": "TaskGroupMember",
+   "description": "どのタスクがどの行の何段目に載るか",
+   "export": false,
+   "carry": false,
+   "key_note": "`taskUid`（一意）",
+   "columns": [
+    {
+     "name": "taskUid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK/FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である"
+    },
+    {
+     "name": "groupId",
+     "type": "文字列（UUID）",
+     "nullable": "否",
+     "key": "FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "載せる行"
+    },
+    {
+     "name": "stackOrder",
+     "type": "整数",
+     "nullable": "可（`null` = 自動）",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "段。人が指定できるかは表 T-014 の `ST-6`"
+    }
+   ]
+  },
+  {
+   "name": "Calendar",
+   "description": "暦 1 つ。稼働日と非稼働日を決める",
+   "export": true,
+   "carry": true,
+   "columns": [
+    {
+     "name": "uid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "Own",
+     "exchange": "Calendars/Calendar/UID",
+     "meaning": "暦の識別子"
+    },
+    {
+     "name": "name",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Calendars/Calendar/Name",
+     "meaning": "暦の名前"
+    },
+    {
+     "name": "isBaseCalendar",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Calendars/Calendar/IsBaseCalendar",
+     "meaning": "基準の暦か"
+    },
+    {
+     "name": "baseCalendarUid",
+     "type": "整数",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "Consume",
+     "exchange": "Calendars/Calendar/BaseCalendarUID",
+     "meaning": "継承元の暦"
+    },
+    {
+     "name": "ordinal",
+     "type": "整数",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "出現順。書き出しで元の並びに戻す"
+    },
+    {
+     "name": "carry",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "解釈しないスカラー"
+    },
+    {
+     "name": "carryElements",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "`WorkWeeks` ほか、行にならなかった子要素"
+    }
+   ]
+  },
+  {
+   "name": "WeekDay",
+   "description": "曜日ごとの稼働の定め（弱エンティティ）",
+   "export": true,
+   "carry": true,
+   "columns": [
+    {
+     "name": "calendarUid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK/FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "親の暦"
+    },
+    {
+     "name": "ordinal",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "親の中での出現順"
+    },
+    {
+     "name": "dayType",
+     "type": "整数（1〜7）",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Calendars/Calendar/WeekDays/WeekDay/DayType",
+     "meaning": "曜日"
+    },
+    {
+     "name": "dayWorking",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Calendars/Calendar/WeekDays/WeekDay/DayWorking",
+     "meaning": "稼働日か"
+    },
+    {
+     "name": "carry",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "解釈しないスカラー"
+    },
+    {
+     "name": "carryElements",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "`WorkingTimes` ほか"
+    }
+   ]
+  },
+  {
+   "name": "Exception",
+   "description": "暦の例外日（弱エンティティ）",
+   "export": true,
+   "carry": true,
+   "columns": [
+    {
+     "name": "calendarUid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK/FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "親の暦"
+    },
+    {
+     "name": "ordinal",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "親の中での出現順"
+    },
+    {
+     "name": "name",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Calendars/Calendar/Exceptions/Exception/Name",
+     "meaning": "例外の名前"
+    },
+    {
+     "name": "fromDate",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "…/Exception/TimePeriod/FromDate",
+     "meaning": "⚠️ **繰り返しの起点であって実日付の範囲ではない**"
+    },
+    {
+     "name": "toDate",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "…/Exception/TimePeriod/ToDate",
+     "meaning": "同上"
+    },
+    {
+     "name": "dayWorking",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "…/Exception/DayWorking",
+     "meaning": "稼働日か"
+    },
+    {
+     "name": "recurrenceKind",
+     "type": "整数（1〜9）",
+     "nullable": "可",
+     "key": "",
+     "origin": "Consume",
+     "exchange": "…/Exception/Type",
+     "meaning": "**繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる**"
+    },
+    {
+     "name": "carry",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "解釈しないスカラー"
+    },
+    {
+     "name": "carryElements",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "`WorkingTimes` ほか"
+    }
+   ]
+  },
+  {
+   "name": "Resource",
+   "description": "担当者 1 人（または 1 つの資源）",
+   "export": true,
+   "carry": true,
+   "columns": [
+    {
+     "name": "uid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "Own",
+     "exchange": "Resource/UID",
+     "meaning": "担当者の識別子"
+    },
+    {
+     "name": "name",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Resource/Name",
+     "meaning": "担当者名"
+    },
+    {
+     "name": "resourceKind",
+     "type": "整数",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Resource/Type",
+     "meaning": "`0` = 材料 / `1` = 作業 / `2` = 費用"
+    },
+    {
+     "name": "isCostResource",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "Own",
+     "exchange": "Resource/IsCostResource",
+     "meaning": "費用資源か"
+    },
+    {
+     "name": "calendarUid",
+     "type": "整数",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "Consume",
+     "exchange": "Resource/CalendarUID",
+     "meaning": "この担当者が使う暦"
+    },
+    {
+     "name": "carry",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "解釈しないスカラー 59"
+    },
+    {
+     "name": "carryElements",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "行にならなかった子要素 6"
+    }
+   ]
+  },
+  {
+   "name": "Assignment",
+   "description": "どの担当者がどのタスクに就くか",
+   "export": true,
+   "carry": true,
+   "columns": [
+    {
+     "name": "uid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "Own",
+     "exchange": "Assignment/UID",
+     "meaning": "割当の識別子"
+    },
+    {
+     "name": "taskUid",
+     "type": "整数",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "Consume",
+     "exchange": "Assignment/TaskUID",
+     "meaning": "就くタスク"
+    },
+    {
+     "name": "resourceUid",
+     "type": "整数",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "Consume",
+     "exchange": "Assignment/ResourceUID",
+     "meaning": "就く担当者"
+    },
+    {
+     "name": "carry",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "解釈しないスカラー 58"
+    },
+    {
+     "name": "carryElements",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "行にならなかった子要素 3"
+    }
+   ]
+  },
+  {
+   "name": "TaskVisual",
+   "description": "タスクの見せ方。形・色・名前の置き方",
+   "export": false,
+   "carry": false,
+   "columns": [
+    {
+     "name": "taskUid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK/FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "対象のタスク"
+    },
+    {
+     "name": "nameAnchor",
+     "type": "整数（0〜8）",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "名前を置く位置（表 T-013）"
+    },
+    {
+     "name": "nameAlign",
+     "type": "列挙（`'left'` ほか 3 値）",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "名前の揃え"
+    },
+    {
+     "name": "shapeKind",
+     "type": "列挙（5 値）",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "**描画の形だけを決める。`Task.milestone` を変えない**（表 T-012）"
+    },
+    {
+     "name": "milestoneGlyph",
+     "type": "列挙（8 値）",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "`shapeKind` が `'milestone'` のときだけ見る"
+    },
+    {
+     "name": "fillColor",
+     "type": "文字列",
+     "nullable": "可（`null` = テーマから解く）",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "塗り。**輪郭と同時に透明にできない**（`FR-030`）"
+    },
+    {
+     "name": "strokeColor",
+     "type": "文字列",
+     "nullable": "可（同上）",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "輪郭。同上"
+    },
+    {
+     "name": "lineWeight",
+     "type": "列挙（`'thin'` ほか 3 値）",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "輪郭の太さ"
+    }
+   ]
+  },
+  {
+   "name": "TaskOrigin",
+   "description": "取り込み元の記録。合流の照合に使う",
+   "export": false,
+   "carry": false,
+   "columns": [
+    {
+     "name": "taskUid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK/FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "対象のタスク。**行が無い = 本ソフトウェア生まれ**"
+    },
+    {
+     "name": "sourceProjectUid",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "取り込み元のプロジェクト"
+    },
+    {
+     "name": "sourceUid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "取り込み元でのタスクの識別子"
+    },
+    {
+     "name": "lastSeenImportSeq",
+     "type": "整数",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "最後に見た取り込みの通し番号（`MG-13`）"
+    },
+    {
+     "name": "importSessionId",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "取り込み 1 回の識別子"
+    }
+   ]
+  },
+  {
+   "name": "CommentBox",
+   "description": "コメントボックス 1 つ。日付と行に留める",
+   "export": false,
+   "carry": false,
+   "columns": [
+    {
+     "name": "id",
+     "type": "文字列（UUID）",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "注記の識別子"
+    },
+    {
+     "name": "leaderShapeKind",
+     "type": "列挙（2 値）",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "引き出し線の形"
+    },
+    {
+     "name": "text",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "**本文。「コメント」と略さない**（`U-14`）"
+    },
+    {
+     "name": "anchorDate",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "留める日"
+    },
+    {
+     "name": "anchorGroupId",
+     "type": "文字列（UUID）",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "留める行"
+    },
+    {
+     "name": "anchorTaskUid",
+     "type": "整数",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "留めるタスク"
+    },
+    {
+     "name": "anchorPoint",
+     "type": "整数（0〜8）",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "タスクのどこに留めるか"
+    },
+    {
+     "name": "bodyOffsetPx",
+     "type": "`{ dx, dy }`",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "留めた点から本文までのずれ"
+    }
+   ]
+  },
+  {
+   "name": "HighlightBox",
+   "description": "ハイライトボックス 1 つ。日付と行の範囲を囲む",
+   "export": false,
+   "carry": false,
+   "columns": [
+    {
+     "name": "id",
+     "type": "文字列（UUID）",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "注記の識別子"
+    },
+    {
+     "name": "startDate",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "囲む範囲の左端"
+    },
+    {
+     "name": "endDate",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "囲む範囲の右端"
+    },
+    {
+     "name": "topGroupId",
+     "type": "文字列（UUID）",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "囲む範囲の上端の行"
+    },
+    {
+     "name": "bottomGroupId",
+     "type": "文字列（UUID）",
+     "nullable": "可",
+     "key": "FK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "囲む範囲の下端の行"
+    },
+    {
+     "name": "strokeColor",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "枠の色"
+    },
+    {
+     "name": "cornerRadiusPx",
+     "type": "数値",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "角の丸み"
+    }
+   ]
+  },
+  {
+   "name": "CarryElement",
+   "description": "解釈しない要素 1 つを、原形のまま抱える器（自己参照）",
+   "export": true,
+   "carry": false,
+   "key_note": "所有者 ＋ `ordinal`",
+   "columns": [
+    {
+     "name": "ordinal",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す**"
+    },
+    {
+     "name": "name",
+     "type": "文字列",
+     "nullable": "否",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "交換相手での要素名。**綴りを変えない**（`W-9`）"
+    },
+    {
+     "name": "fields",
+     "type": "連想（文字列→文字列）",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "その要素が持つ葉"
+    },
+    {
+     "name": "children",
+     "type": "`CarryElement[]`",
+     "nullable": "否（空可）",
+     "key": "",
+     "origin": "Carry",
+     "exchange": "",
+     "meaning": "入れ子の子。**深さの上限は定めない**"
+    }
+   ]
+  },
+  {
+   "name": "revisionStamp",
+   "description": "版数と、最後に書いた者と時刻",
+   "export": false,
+   "carry": false,
+   "key_note": "— （文書に 1 つしか無い）",
+   "columns": [
+    {
+     "name": "revision",
+     "type": "整数",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "1 ずつ増える。上げる条件は `FR-063`"
+    },
+    {
+     "name": "lastEditedBy",
+     "type": "文字列",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "最後に書いた者。人か、AI か"
+    },
+    {
+     "name": "updatedAt",
+     "type": "文字列（`ISO 8601`・UTC・秒）",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "最後に書いた時刻。**秒までとする**（透かしと精度を揃える）"
+    }
+   ]
+  },
+  {
+   "name": "changeLog",
+   "description": "変更の理由。**会話そのものは保存しない**（`FR-066`）",
+   "export": false,
+   "carry": false,
+   "columns": [
+    {
+     "name": "revision",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "どの版に対する理由か"
+    },
+    {
+     "name": "editedBy",
+     "type": "文字列",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "その版を書いた者"
+    },
+    {
+     "name": "explanation",
+     "type": "文字列",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "なぜそう変えたか（`UC-013`）"
+    },
+    {
+     "name": "changedAt",
+     "type": "文字列（`ISO 8601`・UTC・秒）",
+     "nullable": "否",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "その版の時刻"
+    }
+   ]
+  },
+  {
+   "name": "BaselineTask",
+   "description": "変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ",
+   "export": false,
+   "carry": false,
+   "columns": [
+    {
+     "name": "uid",
+     "type": "整数",
+     "nullable": "否",
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`）"
+    },
+    {
+     "name": "name",
+     "type": "文字列",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "タスク名"
+    },
+    {
+     "name": "start",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "変更前の予定の開始"
+    },
+    {
+     "name": "finish",
+     "type": "日時",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "変更前の予定の終了"
+    },
+    {
+     "name": "milestone",
+     "type": "真偽",
+     "nullable": "可",
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": "マイルストーンとして描くか"
+    }
+   ]
+  }
+ ],
+ "relations": [
+  {
+   "parent": "Task",
+   "child": "Task",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "WBS の親子（`wbsParentUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ"
+  },
+  {
+   "parent": "Task",
+   "child": "Dependency",
+   "multiplicity": "1 ─ 0..n",
+   "label": "この依存の後続（入れ子の位置が表す）"
+  },
+  {
+   "parent": "Dependency",
+   "child": "Task",
+   "multiplicity": "0..n ─ 1",
+   "label": "この依存の先行（`predecessorUid`）"
+  },
+  {
+   "parent": "TaskGroup",
+   "child": "TaskGroup",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "行の親子（`parentId`）。深さの上限は `FR-004`"
+  },
+  {
+   "parent": "TaskGroupMember",
+   "child": "TaskGroup",
+   "multiplicity": "0..n ─ 1",
+   "label": "どの行に載るか（`groupId`）"
+  },
+  {
+   "parent": "TaskGroupMember",
+   "child": "Task",
+   "multiplicity": "1 ─ 1",
+   "label": "どのタスクが載るか（`taskUid`）"
+  },
+  {
+   "parent": "TaskGroup",
+   "child": "Task",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "行の名前の導出元（`derivedFromTaskUid`）"
+  },
+  {
+   "parent": "Project",
+   "child": "Calendar",
+   "multiplicity": "1 ─ 0..1",
+   "label": "文書の既定の暦（`calendarUid`）"
+  },
+  {
+   "parent": "Task",
+   "child": "Calendar",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "このタスクが使う暦（`calendarUid`）"
+  },
+  {
+   "parent": "Resource",
+   "child": "Calendar",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "この担当者が使う暦（`calendarUid`）"
+  },
+  {
+   "parent": "Calendar",
+   "child": "Calendar",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "継承元の暦（`baseCalendarUid`）"
+  },
+  {
+   "parent": "Calendar",
+   "child": "WeekDay",
+   "multiplicity": "1 ─ 0..n",
+   "label": "曜日ごとの稼働（弱エンティティ）"
+  },
+  {
+   "parent": "Calendar",
+   "child": "Exception",
+   "multiplicity": "1 ─ 0..n",
+   "label": "例外日（弱エンティティ）"
+  },
+  {
+   "parent": "Assignment",
+   "child": "Task",
+   "multiplicity": "0..n ─ 1",
+   "label": "就くタスク（`taskUid`）"
+  },
+  {
+   "parent": "Assignment",
+   "child": "Resource",
+   "multiplicity": "0..n ─ 1",
+   "label": "就く担当者（`resourceUid`）"
+  },
+  {
+   "parent": "TaskVisual",
+   "child": "Task",
+   "multiplicity": "0..1 ─ 1",
+   "label": "そのタスクの見せ方（`taskUid`）"
+  },
+  {
+   "parent": "TaskOrigin",
+   "child": "Task",
+   "multiplicity": "0..1 ─ 1",
+   "label": "そのタスクの取り込み元（`taskUid`）"
+  },
+  {
+   "parent": "CommentBox",
+   "child": "Task",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "留めるタスク（`anchorTaskUid`）"
+  },
+  {
+   "parent": "CommentBox",
+   "child": "TaskGroup",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "留める行（`anchorGroupId`）"
+  },
+  {
+   "parent": "HighlightBox",
+   "child": "TaskGroup",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "囲む範囲の上端の行（`topGroupId`）"
+  },
+  {
+   "parent": "HighlightBox",
+   "child": "TaskGroup",
+   "multiplicity": "0..n ─ 0..1",
+   "label": "囲む範囲の下端の行（`bottomGroupId`）"
+  },
+  {
+   "parent": "CarryElement",
+   "child": "CarryElement",
+   "multiplicity": "1 ─ 0..n",
+   "label": "入れ子の子（`children`）"
+  },
+  {
+   "parent": "Task",
+   "child": "BaselineTask",
+   "multiplicity": "0..1 ─ 0..1",
+   "label": "変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`）"
+  }
+ ],
+ "derived": [
+  {
+   "entity": "Project",
+   "name": "finishDate",
+   "exchange": "Project/FinishDate",
+   "source": "最も遅い `Task.finish`"
+  },
+  {
+   "entity": "Project",
+   "name": "saveVersion",
+   "exchange": "Project/SaveVersion",
+   "source": "書き出す本ソフトウェアの版"
+  },
+  {
+   "entity": "Project",
+   "name": "currencyCode",
+   "exchange": "Project/CurrencyCode",
+   "source": "`carry` に控えた原値"
+  },
+  {
+   "entity": "Task",
+   "name": "id",
+   "exchange": "Task/ID",
+   "source": "書き出す順に振り直す。**`uid` とは別物で、可変である**"
+  },
+  {
+   "entity": "Task",
+   "name": "outlineLevel",
+   "exchange": "Task/OutlineLevel",
+   "source": "`wbsParentUid` の木の深さ。**浅く丸めない**（`FR-004`）"
+  },
+  {
+   "entity": "Task",
+   "name": "outlineNumber",
+   "exchange": "Task/OutlineNumber",
+   "source": "木の道すじ。**照合の鍵にしない**"
+  },
+  {
+   "entity": "Task",
+   "name": "summary",
+   "exchange": "Task/Summary",
+   "source": "子を持つかどうか"
+  },
+  {
+   "entity": "Task",
+   "name": "duration",
+   "exchange": "Task/Duration",
+   "source": "`finish` − `start` と暦。**人が編集していないタスクは受け取った値をそのまま返す**"
+  },
+  {
+   "entity": "Task",
+   "name": "stop",
+   "exchange": "Task/Stop",
+   "source": "`actualStart` ＋ `actualDuration`。**中断のときだけ書く**"
+  },
+  {
+   "entity": "Resource",
+   "name": "id",
+   "exchange": "Resource/ID",
+   "source": "書き出す順に振り直す。**`uid` とは別物**"
+  }
+ ]
+}
