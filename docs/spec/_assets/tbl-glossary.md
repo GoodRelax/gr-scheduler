@@ -26,8 +26,8 @@
 | N-3 | `TaskGroupMember` | タスクグループメンバー |
 | N-4 | `stackOrder` | 積み順。**人が指定できるかどうかは表 T-014 の `ST-6` が定める** |
 | N-4a | `Item` | **アイテム**。**当たり判定と選択の対象となるものの総称。** 全数は表 T-023c の `SL-1` が持つ。⚠️ **`Task` の別名ではない** —— 外延が広いので 1.9 の命名の規約（同じものを 2 つの語で呼ばない）には当たらない。**`Task` 1 つを指すときは「タスク」と書く** |
-| N-5 | `CommentBox` / `commentBoxes` | コメントボックス 1 つ分の型と、文書が持つその配列の鍵。画面の部品名は `Comment Boxes`（`U-14`） |
-| N-6 | `HighlightBox` / `highlightBoxes` | ハイライトボックス 1 つ分の型と、文書が持つその配列の鍵。画面の部品名は `Highlight Boxes`（`U-15`） |
+| N-5 | `CommentBox` / `commentBoxes` | コメントボックス 1 つ分の型と、文書が持つその配列の鍵。UI パーツ名は `Comment Boxes`（`U-14`） |
+| N-6 | `HighlightBox` / `highlightBoxes` | ハイライトボックス 1 つ分の型と、文書が持つその配列の鍵。UI パーツ名は `Highlight Boxes`（`U-15`） |
 | N-7 | `carry` / `carryElements` | 取り込んだ交換形式の項目を、解釈せずにそのまま持ち回るための入れ物 |
 | N-8 | `Project` | プロジェクト。文書が表す 1 件 |
 | N-9 | `Calendar` | 暦 |

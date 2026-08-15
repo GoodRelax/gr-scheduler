@@ -46,8 +46,14 @@ check("T-065 rows (cross-layer interfaces)", len(iface), 8)
 check("CP-n and PI-n are one to one",
       [c.replace("CP-", "") for c in cp], [p.replace("PI-", "") for p in pi])
 
-for phrase, want in (("34 のフォルダ", 1), ("34 部品", 2), ("33 部品", 0), ("33 のフォルダ", 0)):
+for phrase, want in (("34 のフォルダ", 1), ("34 コンポーネント", 2), ("部品", 1)):
     check("phrase %r appears" % phrase, design.count(phrase), want)
+
+# 部品 is forbidden (T-006b A-17); it may appear only where a rule names it
+for doc, want in (("01-04-requirements", 1), ("A-appendix", 1)):
+    check("%s names 部品 only where a rule does" % doc,
+          open("docs/spec/%s.md" % doc, encoding="utf-8").read().count("部品"), want)
+check("T-063 rows", len(ut), 6)
 
 # the directory tree in 5.3 must hold one folder per component
 tree = design[design.index("```text"):design.index("```", design.index("```text") + 5)]
