@@ -122,7 +122,7 @@ def build_overview(model, backing):
 # That happened when the framework -> layoutEngine pair was added and its label
 # printed on top of "one operation". Labels are therefore kept clear of the
 # labels already placed as well as of the boxes.
-LABEL_FRACTIONS = (0.50, 0.60, 0.40, 0.68, 0.32, 0.76, 0.24, 0.84, 0.16)
+LABEL_FRACTIONS = (0.50, 0.60, 0.40, 0.68, 0.32, 0.76, 0.24, 0.84, 0.16, 0.90, 0.10, 0.94, 0.06)
 LABEL_CHAR_W = 6        # px per character at fontSize 11, deliberately generous
 LABEL_LINE_H = 18       # px for one line of label text plus its padding
 LABEL_STYLE = ("edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;"
