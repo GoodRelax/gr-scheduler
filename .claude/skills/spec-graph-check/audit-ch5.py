@@ -112,6 +112,78 @@ if unreached:
     fails.append("unreached component")
 
 print()
+print("== table T-075: the unit inventory ==")
+PURITY = {"pure", "semi-pure-a", "semi-pure-b", "non-pure"}
+
+
+def kebab(name):
+    return re.sub(r"(?<!^)(?=[A-Z])", "-", name).lower()
+
+
+check("T-075 rows (units)", len(rows_of("T-075")), 57)
+unit_cells = re.findall(
+    r"^\| UF-\d+ \| `([^`]+)` \| `([^`]+)` \| (.+?) \| (.+) \|$", design, re.M)
+check("T-075 rows that parse into 4 cells", len(unit_cells), 57)
+check("T-074 SU-3 states the unit count", design.count("**57。** 全数は 表 T-075"), 1)
+
+files = [f for _, f, _, _ in unit_cells]
+check("unit file names are unique", len(set(files)), len(files))
+
+owners, purity_of = {}, {}
+for comp, f, pur, _ in unit_cells:
+    owners.setdefault(comp, []).append(f)
+    purity_of[f] = set(re.findall(r"`([^`]+)`", pur)) or {pur.strip()}
+check("T-075 covers every component", sorted(owners), sorted(nodes))
+
+# every component owns the entry file named after its folder, and the folder
+# is in the directory tree -- this is what ties T-075 to the tree in 5.3
+no_entry = sorted(c for c in owners if kebab(c) + ".ts" not in owners[c])
+print("  components missing their entry file  : %s" % (no_entry or "none"))
+if no_entry:
+    fails.append("component without its entry file")
+check("T-075 components vs tree folders",
+      sorted(kebab(c) for c in owners), sorted(leaves))
+
+# T-063 records why a component was split, so each of its rows must be split
+split = re.findall(r"^\| UT-\d+ \| `([^`]+)` \|", design, re.M)
+unsplit = sorted(c for c in split if len(owners.get(c, [])) < 2)
+print("  T-063 rows that T-075 shows as 1 unit: %s" % (unsplit or "none"))
+if unsplit:
+    fails.append("T-063 row is not split in T-075")
+
+# each cross-layer interface of T-065 is a unit of the component declaring it
+iface_rows = re.findall(r"^\| IF-\d+ \| `([^`]+)` \| `([^`]+)`", design, re.M)
+check("T-065 rows that parse", len(iface_rows), 8)
+iface_files = {kebab(n) + ".ts": d for n, d in iface_rows}
+homeless = sorted(f for f, d in iface_files.items() if f not in owners.get(d, []))
+print("  interfaces with no unit of their own : %s" % (homeless or "none"))
+if homeless:
+    fails.append("cross-layer interface without a unit")
+check("interface units carry no purity",
+      sorted(f for f in iface_files if purity_of.get(f) != {"—"}), [])
+
+bad = sorted(f for f, p in purity_of.items()
+             if f not in iface_files and not p <= PURITY)
+print("  units with a purity outside the 4    : %s" % (bad or "none"))
+if bad:
+    fails.append("purity outside the four values")
+
+# T-064 annotates members; T-075 annotates units.  Where a component's only
+# code unit is its entry, every purity T-064 names must appear on that unit.
+missed = []
+for name, cell in member_cells:
+    code = [f for f in owners.get(name, []) if f not in iface_files]
+    if len(code) != 1:
+        continue
+    declared = {p for p in PURITY if "`%s`" % p in cell}
+    if not declared <= purity_of[code[0]]:
+        missed.append("%s: T-064 has %s, T-075 has %s"
+                      % (name, sorted(declared), sorted(purity_of[code[0]])))
+print("  purity T-064 names but T-075 drops   : %s" % (missed or "none"))
+if missed:
+    fails.append("purity dropped between T-064 and T-075")
+
+print()
 print("== layer rules ==")
 layer = {}
 

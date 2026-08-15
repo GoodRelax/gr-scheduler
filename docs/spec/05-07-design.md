@@ -180,17 +180,17 @@ graph RL
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **34。** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。** 公開エントリもユニットである | 1 つより多く持つものは 表 T-063 が持つ |
+| SU-3 | **ユニット** | **1 ファイル。** 公開エントリもユニットである | **57。** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。** **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
 
-⚠️ **本設計にモジュールは 1 つも無い。** 表 T-063 の `UT-2` と `UT-5` が最も多くのユニットを持つが、**どちらも平らに並べている。** 束ねる必要が出たときに 表 T-063 へ階層を足す —— **要らないうちは作らない**（`R2.9`）。
+⚠️ **本設計にモジュールは 1 つも無い。** 表 T-075 のとおり `EditDocument` と `DocumentCodec` が最も多くのユニットを持つが、**どちらも平らに並べている。** 束ねる必要が出たときに階層を足す —— **要らないうちは作らない**（`R2.9`）。
 
 **コンポーネントごとにフォルダを作り、コンポーネント名と語幹が同じ 1 ファイルだけを公開エントリとすること（MUST）。フォルダの外から、公開エントリ以外のファイルを読んではならない（MUST NOT）** —— 読めてしまうと、`LR-2` の「他のコンポーネントの内部へ直に触れてはならない」を検査できない。記法は 表 T-006a の `W-11` である。
 
 **どのコンポーネントもインスタンスを作らない。公開するのは型と関数だけである。** 表 T-060 の `LY-5` が「現在値を保持するのは `Framework` だけである」と定めたことの帰結であり、**内側の 3 層には漏らせる可変状態がそもそも無い。**
 
-**ユニットを割る基準は純粋性である**（`R7.9`）—— **純粋な側と非純粋な側が同じコンポーネントにあるとき、別のファイルへ出す。** それ以外の理由で割ったものは 表 T-063 が行ごとに理由を持つ。**本表に無いコンポーネントは 1 ユニットであり、公開エントリがそのままユニットである。**
+**ユニットを割る基準は純粋性である**（`R7.9`）—— **純粋な側と非純粋な側が同じコンポーネントにあるとき、別のファイルへ出す。** それ以外の理由で割ったものは 表 T-063 が行ごとに理由を持つ。**ユニットの全数と、どのコンポーネントに属するかは 表 T-075 が持つ。**
 
 **`UseCase` のコンポーネント名は動詞句であり**（`R2.1` の層別表）、**そのコンポーネントが公開する操作はコンポーネント名を camelCase にしたものとする** —— 同じ概念に 2 つの語を与えないためである。**記法が違うだけで、食い違いではない**（表 T-006a の `W-1` と `W-2`）。⚠️ **外側の状態を読むメンバだけは動詞＋目的語とする** —— 名詞にすると、遅さと失敗しうることが名前から消える。
 
@@ -216,18 +216,90 @@ src/
                       browser-clipboard/ · canvas-rasterizer/
 ```
 
-**1 つより多いユニットを持つコンポーネントを 表 T-063 に、34 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。**
+**ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、34 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。**
 
-**表 T-063 — 1 つより多いユニットを持つコンポーネント**
+**表 T-063 が持つのは、割った理由だけである。** ⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない** —— 割った理由が「宣言の置き場」の 1 つしか無く、その規則を 表 T-065 の後で本節が定めるからである。**ユニットの全数を数える表は 表 T-075 である。**
+
+**表 T-063 — ユニットを割った理由**
 
 | 行 ID | コンポーネント | ユニット | 割った理由 |
 | --- | --- | --- | --- |
-| UT-1 | `ApplyDocumentChange` | `apply-document-change.ts`（`non-pure`。確定と通知）／ `document-change-plan.ts`（`pure`。照合と、全か無かの組み立て） | **純粋性。** 表 T-060 の `LY-3` が「操作と検証は `pure`、確定と通知は `non-pure`」と定めている |
-| UT-2 | `EditDocument` | `edit-document.ts`（公開エントリ）と、集約ごとの 8 ファイル —— `edit-task.ts` / `edit-task-group.ts` / `edit-dependency.ts` / `edit-annotation.ts` / `edit-resource.ts` / `edit-calendar.ts` / `edit-project.ts` / `edit-document-settings.ts` | **純粋性ではない。8 つとも `pure` である。** 集約ごとに変更の理由が別なので割った —— タスクの規則が変わっても暦の規則は変わらない |
-| UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts`（`non-pure`。購読の登録・解除と配ること）／ `change-notice.ts`（`pure`。まだ受け取っていない変更と発話を選ぶ） | **純粋性**（`LY-3`）。⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。値だけで決まる |
-| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts`（公開エントリ。設置と公開点の管理）／ `agent-api-members.ts`（表 T-107 の 18 メンバの結線） | **純粋性ではない。どちらも `non-pure` である。** 設置は `FR-065`（既定で公開しない）が、18 メンバは 表 T-107 が縛るので、変更の理由が別である |
-| UT-5 | `DocumentCodec` | `document-codec.ts`（公開エントリ）／ `json-codec.ts`（`pure`）／ `mspdi-codec.ts`（`pure`）／ `embedded-html-codec.ts`（`semi-pure-b`） | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
-| UT-6 | `SingleHtmlShell` | `single-html-shell.ts`（公開エントリ。起動と結線、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装）／ `frame-loop.ts`（現在値の保持、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装） | **純粋性ではない。どちらも `non-pure` である。** 起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、**変更の理由が別である。** ⚠️ **割らないと 1 つのユニットが 8 つの事柄を負い、`R2.2` に反する** —— 5.2 の分割基準「別々の要求が寸法と規則を持っているなら別コンポーネントとする」が、ユニットの側でも同じことを言う |
+| UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性。** 表 T-060 の `LY-3` が「操作と検証は `pure`、確定と通知は `non-pure`」と定めている |
+| UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル | **純粋性ではない** —— 表 T-075 のとおり 9 つとも同じである。**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない |
+| UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。値だけで決まる |
+| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。**設置は `FR-065`（既定で公開しない）が、18 メンバは 表 T-107 が縛るので、変更の理由が別である** |
+| UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
+| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。**起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。** ⚠️ **割らないと 1 つのユニットが 8 つの事柄を負い、`R2.2` に反する** —— 5.2 の分割基準「別々の要求が寸法と規則を持っているなら別コンポーネントとする」が、ユニットの側でも同じことを言う |
+
+**ユニットの全数を 表 T-075 に示す。行は 表 T-062 の `CP-n` の順に並べ、コンポーネントの中では公開エントリを先に置く。**
+
+**責務の欄が `CP-n` を指しているとき、そのユニットは 表 T-062 のその行の責務をそのまま負う** —— **「の残り」と書いたものは、同じコンポーネントの別のユニットが負う分を除いた残りである。**
+
+⚠️ **純粋性は関数ごとの分類である**（`R7.1`）。**本欄はそのユニットが持つ関数の純粋性を重複なく並べたものであり、メンバごとの値は 表 T-064 が持つ。** ⚠️ **層をまたぐインターフェースの 8 ファイルは型の宣言だけを持ち、関数を持たないので、純粋性を持たない（`—`）。**
+
+**表 T-075 — ユニット**
+
+| 行 ID | コンポーネント | ユニット | 純粋性 | 責務 |
+| --- | --- | --- | --- | --- |
+| UF-1 | `Schedule` | `schedule.ts` | `pure` | `CP-1` |
+| UF-2 | `DocumentSettings` | `document-settings.ts` | `pure` | `CP-2` |
+| UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` |
+| UF-4 | `EditHistory` | `edit-history.ts` | `pure` | `CP-4` |
+| UF-5 | `ScheduleLayout` | `schedule-layout.ts` | `pure` | `CP-5` |
+| UF-6 | `ScheduleGeometry` | `schedule-geometry.ts` | `pure` | `CP-6` |
+| UF-7 | `ItemHitArea` | `item-hit-area.ts` | `pure` | `CP-7` |
+| UF-8 | `ApplyDocumentChange` | `apply-document-change.ts` | `non-pure` | 確定と通知 |
+| UF-9 | `ApplyDocumentChange` | `document-change-plan.ts` | `pure` | 照合と、全か無かの組み立て |
+| UF-10 | `EditDocument` | `edit-document.ts` | `pure` | 集約ごとの 8 ファイルを束ねて公開する |
+| UF-11 | `EditDocument` | `edit-task.ts` | `pure` | `Task` の編集 |
+| UF-12 | `EditDocument` | `edit-task-group.ts` | `pure` | `TaskGroup` の編集 |
+| UF-13 | `EditDocument` | `edit-dependency.ts` | `pure` | `Dependency` の編集 |
+| UF-14 | `EditDocument` | `edit-annotation.ts` | `pure` | 注記（`CommentBox` と `HighlightBox`）の編集 |
+| UF-15 | `EditDocument` | `edit-resource.ts` | `pure` | `Resource` と `Assignment` の編集 |
+| UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集 |
+| UF-17 | `EditDocument` | `edit-project.ts` | `pure` | `Project` の編集 |
+| UF-18 | `EditDocument` | `edit-document-settings.ts` | `pure` | `DocumentSettings` の編集 |
+| UF-19 | `ImportDocument` | `import-document.ts` | `pure` | `CP-10` |
+| UF-20 | `UndoEdit` | `undo-edit.ts` | `pure` | `CP-11` |
+| UF-21 | `RedoEdit` | `redo-edit.ts` | `pure` | `CP-12` |
+| UF-22 | `ValidateImportedDocument` | `validate-imported-document.ts` | `pure` | `CP-13` |
+| UF-23 | `ChooseStartupDocument` | `choose-startup-document.ts` | `pure` | `CP-14` |
+| UF-24 | `NotifyChangeWatchers` | `notify-change-watchers.ts` | `non-pure` | 購読の登録・解除と、配ること |
+| UF-25 | `NotifyChangeWatchers` | `change-notice.ts` | `pure` | まだ受け取っていない変更と発話を選ぶ |
+| UF-26 | `PostDialogueMessage` | `post-dialogue-message.ts` | `non-pure` | `CP-16` |
+| UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 |
+| UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 18 メンバの結線 |
+| UF-29 | `AgentApiEndpoint` | `snapshot-source.ts` | `—` | `SnapshotSource` の宣言（`IF-7`） |
+| UF-30 | `InputCommandTranslator` | `input-command-translator.ts` | `pure` | `CP-18` の残り |
+| UF-31 | `InputCommandTranslator` | `input-source.ts` | `—` | `InputSource` の宣言（`IF-2`） |
+| UF-32 | `SvgRenderer` | `svg-renderer.ts` | `pure` | `CP-19` の残り |
+| UF-33 | `SvgRenderer` | `svg-surface.ts` | `—` | `SvgSurface` の宣言（`IF-1`） |
+| UF-34 | `DocumentCodec` | `document-codec.ts` | `pure` | 3 つの符号器を束ねて公開する |
+| UF-35 | `DocumentCodec` | `json-codec.ts` | `pure` | `GRS JSON` と文書の相互変換 |
+| UF-36 | `DocumentCodec` | `mspdi-codec.ts` | `pure` | `MSPDI` と文書の相互変換 |
+| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-b` | 単一 `.html` の書き出し |
+| UF-38 | `DocumentCodec` | `app-shell-source.ts` | `—` | `AppShellSource` の宣言（`IF-8`） |
+| UF-39 | `ImageExporter` | `image-exporter.ts` | `semi-pure-b` | `CP-21` の残り |
+| UF-40 | `ImageExporter` | `rasterizer.ts` | `—` | `Rasterizer` の宣言（`IF-6`） |
+| UF-41 | `FileGateway` | `file-gateway.ts` | `semi-pure-b` ／ `non-pure` | `CP-22` の残り |
+| UF-42 | `FileGateway` | `file-store.ts` | `—` | `FileStore` の宣言（`IF-3`） |
+| UF-43 | `AutosaveGateway` | `autosave-gateway.ts` | `semi-pure-b` ／ `non-pure` | `CP-23` の残り |
+| UF-44 | `AutosaveGateway` | `document-store.ts` | `—` | `DocumentStore` の宣言（`IF-4`） |
+| UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り |
+| UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） |
+| UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 |
+| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装 |
+| UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` |
+| UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` |
+| UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` |
+| UF-52 | `LocalStorageDocumentStore` | `local-storage-document-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-29` |
+| UF-53 | `BrowserClipboard` | `browser-clipboard.ts` | `non-pure` | `CP-30` |
+| UF-54 | `CanvasRasterizer` | `canvas-rasterizer.ts` | `semi-pure-b` | `CP-31` |
+| UF-55 | `Selection` | `selection.ts` | `pure` | `CP-32` |
+| UF-56 | `DialogueLog` | `dialogue-log.ts` | `pure` | `CP-33` |
+| UF-57 | `Document` | `document.ts` | `pure` | `CP-34` |
+
+⚠️ **`semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反しない。** 同条項が別ファイルへ分けよと求めるのは**純粋な側と非純粋な側**であり、`semi-pure-b` は非純粋な側だからである。**外を読むだけのメンバと外へ書くメンバが同じ入口に並ぶのは、表 T-065 のインターフェース 1 本が両方を持つときである。**
 
 **表 T-064 の `PI-n` は、表 T-062 の `CP-n` と同じコンポーネントである。純粋性を添えていないメンバは `pure` である。**
 **本表は名前と、それが何を担うかだけを持つ。引数・戻り値・境界値は Chapter 6.1 が持つ**（表 T-107 と同じ扱いである）。
@@ -271,7 +343,9 @@ src/
 | PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。版数とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |
 | PI-34 | `documentModel` | `Document` | `Document`（型。5 つの鍵は 表 T-052 の `DR-1` 〜 `DR-4`）／ `documentViolations`（`DR-1` に反する箇所） |
 
-**層をまたぐインターフェースは、宣言するコンポーネントのフォルダに、その名前の語幹で置く**（例 —— `adapter/svg-renderer/svg-surface.ts`）。**実装を外側の層が持つことは `LR-5` が定めている。**
+**層をまたぐインターフェースは、宣言するコンポーネントのフォルダに、その名前の語幹で置くこと（MUST）**（例 —— `adapter/svg-renderer/svg-surface.ts`）。**実装を外側の層が持つことは `LR-5` が定めている。**
+
+⚠️ **この 8 ファイルもユニットである**（表 T-074 の `SU-3`）—— 表 T-075 の `UF-29` / `UF-31` / `UF-33` / `UF-38` / `UF-40` / `UF-42` / `UF-44` / `UF-46` がそれである。**宣言だけを別ファイルにするのは、実装する側が公開エントリを丸ごと取り込まずに型を得られるようにするためである。** ⚠️ **公開エントリは、そのインターフェースを再び公開すること（MUST）** —— さもないと外側の層が公開エントリ以外のファイルを読むことになり、本節の MUST NOT に反する。**再び公開した名前は 表 T-064 が持つ。**
 
 **表 T-065 — 層をまたぐインターフェース**
 
@@ -366,7 +440,7 @@ src/
 
 ⚠️ **通知を配っているあいだの書き込みは拒否すること（MUST）** —— 購読者が通知を受けてそのまま書き込むと、**どの版に対する通知だったのかが決まらなくなる。** 拒否は `WS-2` で行い、**値の中身は `AG-9a` に従う。** 待ち行列を作らないのは、`FR-028` が受理したか否かをその場で値で返すと定めているためである。
 
-**自分の書き込みで自分が起きてはならない（`AG-6`）。** 発話は版数を上げないが通知は起きる（`AG-11`）—— 選び方は `AG-6` が持ち、判定するのは表 T-063 の `UT-3` が分けた純粋な側である。
+**自分の書き込みで自分が起きてはならない（`AG-6`）。** 発話は版数を上げないが通知は起きる（`AG-11`）—— 選び方は `AG-6` が持ち、判定するのは表 T-063 の `UT-3` が分けた純粋な側（表 T-075 の `UF-25`）である。
 
 **予実の状態遷移を 図 F-018 に示す。箱は 表 T-019 の 5 行、辺は 表 T-021a の 4 行と `FR-043` / `FR-044` である。**
 
