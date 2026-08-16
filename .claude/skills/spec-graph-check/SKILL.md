@@ -18,7 +18,7 @@ graph to decide *how* to edit; neither replaces reading.
 bash .claude/skills/spec-graph-check/check.sh
 ```
 
-Output goes to `scratch/spec-check/` (gitignored). Checks 1–12 and 15–18 are
+Output goes to `scratch/spec-check/` (gitignored). Checks 1–12 and 15–19 are
 gates; 13 and 14 are advisory counts that should trend down.
 
 **Check 16 guards the generated documents.** `docs/spec/_assets/fig-erd-*.md`
@@ -49,6 +49,18 @@ paths only**, never the contents, so it goes on guarding after implementers
 have filled the files in — and the generator itself never rewrites a file that
 exists. A unit added to table T-075 without a file, or a file added to `src/`
 without a row, both go red.
+
+**Check 19 guards the dependency direction.** Chapter 5.1 says of table T-061
+that the direction "is not a property you confirm by running something", which
+is why it sits in the chapter rather than behind a requirement with a test —
+but nothing said who looks. `tools/check_layer_rules.py` does: it reads every
+relative import in `src/`, maps it to a layer and a component, and reports an
+outward edge (LR-1 / LR-4), a reach past another component's public entry
+(LR-2 / LR-5) and a cycle inside a layer (LR-3). All five were confirmed to
+fire by breaking each on purpose. **LR-6 is not in this script** — a name-based
+screen would only guess, so `tsconfig.entity.json` compiles `src/entity` and
+`src/use-case` without the DOM library and the compiler rejects a browser type
+outright.
 
 ## The one rule that matters most
 
@@ -202,7 +214,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 
 | file | role |
 | --- | --- |
-| `check.sh` | all 18 checks |
+| `check.sh` | all 19 checks |
 | `specindex.py` | shared parser: tables, rows, owners, references |
 | `md-checks.py` | checks 5–10 and 15 (Markdown structure, figure seat numbers) |
 | `style-checks.py` | checks 12–14 (recurring defect types) |
@@ -211,7 +223,8 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 
 `docs/spec/_assets/source/erd_json_to_md.py` and `erd_json_to_schema.py` live
 with their source and are invoked by `check.sh` as checks 16 and 17;
-`tools/generate_unit_tree.py` writes `src/` and is invoked as check 18.
+`tools/generate_unit_tree.py` writes `src/` and is invoked as check 18,
+`tools/check_layer_rules.py` reads it back as check 19.
 
 `docs/review/dup-check.py` and `duplication-baseline.txt` live in the
 repository and are invoked by `check.sh`. **The detector and its baseline

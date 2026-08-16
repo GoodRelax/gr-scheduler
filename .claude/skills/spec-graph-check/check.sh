@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 18 mechanical checks for the gr-scheduler specification.
+# All 19 mechanical checks for the gr-scheduler specification.
 #
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
@@ -22,6 +22,11 @@
 #          table T-075, at the paths Chapter 5.3 fixes. It compares the set of
 #          paths, never the contents, so it keeps guarding once the files are
 #          written
+#   19     check_layer_rules.py : src/ obeys table T-061 -- a dependency that
+#          crosses a layer points inward only, a call into another component
+#          goes through its public entry, and the same-layer graph is acyclic.
+#          LR-6 is not here: tsconfig.entity.json compiles Entity and UseCase
+#          without the DOM library, so the compiler enforces it
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -103,6 +108,10 @@ PYTHONIOENCODING=utf-8 python docs/spec/_assets/source/erd_json_to_schema.py --c
 echo ""
 echo "===== 18  src/ still holds exactly the units of table T-075 ====="
 PYTHONIOENCODING=utf-8 python tools/generate_unit_tree.py --check || fail=1
+
+echo ""
+echo "===== 19  src/ obeys the dependency rules of table T-061 ====="
+PYTHONIOENCODING=utf-8 python tools/check_layer_rules.py || fail=1
 
 echo ""
 if [ "$fail" -eq 0 ]; then

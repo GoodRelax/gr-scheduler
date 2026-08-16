@@ -1,0 +1,16 @@
+{
+  "$comment": [
+    "Table T-061 LR-6: Entity and UseCase must not touch a type the browser",
+    "supplies. A name-based screen would only guess, so the compiler enforces it:",
+    "these two layers are compiled here WITHOUT the DOM library and without the",
+    "Node types, which turns `document`, `window`, `HTMLElement` and the rest into",
+    "type errors rather than something review has to catch.",
+    "Run together with the root tsconfig: `npm run typecheck`."
+  ],
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es2022"],
+    "types": []
+  },
+  "include": ["src/entity", "src/use-case"]
+}

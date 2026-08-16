@@ -12,16 +12,18 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.entity.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "e2e": "playwright test",
     "tree": "python tools/generate_unit_tree.py",
-    "tree:check": "python tools/generate_unit_tree.py --check"
+    "tree:check": "python tools/generate_unit_tree.py --check",
+    "layers": "python tools/check_layer_rules.py"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.2.0",
+    "ajv": "^8.20.0",
     "typescript": "^7.0.2",
     "vite": "^8.2.1",
     "vitest": "^4.1.10"
