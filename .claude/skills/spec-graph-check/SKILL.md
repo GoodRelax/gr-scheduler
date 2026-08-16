@@ -18,7 +18,7 @@ graph to decide *how* to edit; neither replaces reading.
 bash .claude/skills/spec-graph-check/check.sh
 ```
 
-Output goes to `scratch/spec-check/` (gitignored). Checks 1–12, 15 and 16 are
+Output goes to `scratch/spec-check/` (gitignored). Checks 1–12 and 15–17 are
 gates; 13 and 14 are advisory counts that should trend down.
 
 **Check 16 guards the generated documents.** `docs/spec/_assets/fig-erd-*.md`
@@ -29,6 +29,18 @@ fix is to move the edit into `erd.json` and regenerate, never to re-apply it
 to the output. The generator also refuses to write at all unless figure F-010
 places every entity exactly once, so an entity added to `erd.json` cannot slip
 past the figure the way it did while that figure was hand written.
+
+**Check 17 guards the other generated artifact.**
+`docs/spec/_assets/grs-document.schema.json` is the `GRS JSON` schema, written
+by `docs/spec/_assets/source/erd_json_to_schema.py` from the two sources
+Chapter 6.2 names: `erd.json` (the `json` key of every column) and
+`tbl-settings.md` (read in its present table form). It fires in both
+directions — a hand edit to the schema and a source edit that was never
+regenerated. Run `erd_json_to_schema.py --report` to see what the sources
+leave open: enumerations whose members are unspelled, settings keys whose row
+does not say what type they hold, and entities the container places nowhere.
+**The generator never invents a value** — an unspelled enumeration widens to a
+plain string and is recorded in the schema's `$comment` instead.
 
 ## The one rule that matters most
 
@@ -182,12 +194,15 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 
 | file | role |
 | --- | --- |
-| `check.sh` | all 16 checks |
+| `check.sh` | all 17 checks |
 | `specindex.py` | shared parser: tables, rows, owners, references |
 | `md-checks.py` | checks 5–10 and 15 (Markdown structure, figure seat numbers) |
 | `style-checks.py` | checks 12–14 (recurring defect types) |
 | `impact.py` | blast radius for one object, two hops |
 | `graph.py` | cycles, depth measurement, unit partition |
+
+`docs/spec/_assets/source/erd_json_to_md.py` and `erd_json_to_schema.py` live
+with their source and are invoked by `check.sh` as checks 16 and 17.
 
 `docs/review/dup-check.py` and `duplication-baseline.txt` live in the
 repository and are invoked by `check.sh`. **The detector and its baseline

@@ -216,7 +216,8 @@
     "key",
     "origin",
     "exchange",
-    "meaning"
+    "meaning",
+    "json"
    ],
    "additionalProperties": false,
    "properties": {
@@ -234,6 +235,10 @@
      "type": "string",
      "pattern": "^(可|否)(（.+）)?$",
      "description": "Whether the column may be absent, and what absence means: '可（`null` = 根）'."
+    },
+    "json": {
+     "$ref": "#/$defs/jsonType",
+     "description": "The machine-readable form of \"type\" and \"nullable\". It carries what a JSON Schema generator needs and nothing else: the two prose fields stay the ones a reader reads. A range written in \"type\" appears here as min/max; a rule stated elsewhere in the specification does not."
     },
     "key": {
      "enum": [
@@ -261,6 +266,95 @@
     "meaning": {
      "type": "string",
      "minLength": 1
+    }
+   }
+  },
+  "jsonType": {
+   "type": "object",
+   "required": [
+    "kind",
+    "null"
+   ],
+   "additionalProperties": false,
+   "description": "A column type a generator can read. \"enum\" carries \"values\" once the specification has decided the spellings, and \"valuesUndecided\" until it has -- a generator must not invent members, so an undecided enum widens to a plain string and gets reported.",
+   "properties": {
+    "kind": {
+     "enum": [
+      "integer",
+      "number",
+      "string",
+      "boolean",
+      "enum",
+      "map",
+      "array",
+      "object"
+     ]
+    },
+    "min": {
+     "type": "integer"
+    },
+    "max": {
+     "type": "integer"
+    },
+    "maxLength": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "format": {
+     "enum": [
+      "uuid",
+      "iso8601Seconds"
+     ],
+     "description": "A spelling the specification pins by itself. A date taken from the exchange partner keeps the format it arrived in (EX-4), so it carries no format here."
+    },
+    "values": {
+     "type": "array",
+     "minItems": 1,
+     "uniqueItems": true,
+     "items": {
+      "type": "string"
+     }
+    },
+    "valuesUndecided": {
+     "const": true,
+     "description": "The specification names the number of members but not their spellings."
+    },
+    "of": {
+     "$ref": "#/$defs/jsonTypeElement"
+    },
+    "fields": {
+     "type": "object",
+     "minProperties": 1,
+     "additionalProperties": {
+      "$ref": "#/$defs/jsonTypeElement"
+     }
+    },
+    "null": {
+     "type": "boolean",
+     "description": "Must agree with the \"nullable\" prose: 可 is true, 否 is false."
+    }
+   }
+  },
+  "jsonTypeElement": {
+   "type": "object",
+   "required": [
+    "kind"
+   ],
+   "additionalProperties": false,
+   "description": "The element type of a map, an array or an object field. It has no \"null\" of its own: only a column can be null.",
+   "properties": {
+    "kind": {
+     "enum": [
+      "integer",
+      "number",
+      "string",
+      "boolean",
+      "ref"
+     ]
+    },
+    "entity": {
+     "type": "string",
+     "description": "Required when kind is \"ref\": the entity this element repeats."
     }
    }
   },

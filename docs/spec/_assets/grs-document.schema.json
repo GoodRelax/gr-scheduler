@@ -1,0 +1,1836 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_assets/grs-document.schema.json",
+ "title": "GRS JSON document",
+ "description": "Generated from docs/spec/_assets/source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md (the presentation group). Never edit by hand: run docs/spec/_assets/source/erd_json_to_schema.py.",
+ "$comment": "Enumerations whose members the specification has not spelled out, widened to a plain string here: TaskVisual.nameAlign, TaskVisual.milestoneGlyph, TaskVisual.lineWeight, CommentBox.leaderShapeKind. Settings keys whose own row does not say what type they hold, left unconstrained here: dualCursor.date1, dualCursor.date2, planActualGuidePattern. Entities the container does not place anywhere, so no property points at their definition: Exception, WeekDay.",
+ "type": "object",
+ "required": [
+  "schemaVersion",
+  "schedule",
+  "documentSettings",
+  "revisionStamp",
+  "changeLog"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "schemaVersion": {
+   "type": "string"
+  },
+  "schedule": {
+   "type": "object",
+   "description": "日程データの群（表 T-052 の `DR-2`）。",
+   "required": [
+    "project",
+    "calendars",
+    "tasks",
+    "resources",
+    "assignments",
+    "taskGroups",
+    "taskGroupMembers",
+    "taskVisuals",
+    "commentBoxes",
+    "highlightBoxes",
+    "taskOrigins",
+    "baselineTasks"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "project": {
+     "$ref": "#/$defs/Project"
+    },
+    "calendars": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/Calendar"
+     }
+    },
+    "tasks": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/Task"
+     }
+    },
+    "resources": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/Resource"
+     }
+    },
+    "assignments": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/Assignment"
+     }
+    },
+    "taskGroups": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/TaskGroup"
+     }
+    },
+    "taskGroupMembers": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/TaskGroupMember"
+     }
+    },
+    "taskVisuals": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/TaskVisual"
+     }
+    },
+    "commentBoxes": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CommentBox"
+     }
+    },
+    "highlightBoxes": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/HighlightBox"
+     }
+    },
+    "taskOrigins": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/TaskOrigin"
+     }
+    },
+    "baselineTasks": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/BaselineTask"
+     }
+    }
+   }
+  },
+  "documentSettings": {
+   "type": "object",
+   "description": "見せ方の群（表 T-052 の `DR-3`）。全数は `FR-063` が定める。",
+   "required": [
+    "actualGap",
+    "actualInitialDuration",
+    "actualMin",
+    "actualOfPlan",
+    "appHeaderMaxHeight",
+    "arrowHeadOfSpan",
+    "arrowHeadOfStroke",
+    "assigneeVisible",
+    "autosaveIdleMs",
+    "basePlanHeight",
+    "baselineVisible",
+    "canvasPadding",
+    "chevronNotchOfHeight",
+    "chevronNotchOfWidth",
+    "dateGridLinesVisible",
+    "dependencyArrowLength",
+    "dependencyLagDefault",
+    "dependencyRunOfArrow",
+    "dependencyVisible",
+    "dependencyWidth",
+    "dualCursor",
+    "dummyOpacity",
+    "exportCanvas",
+    "exportPngScale",
+    "fadeHandleHalfPx",
+    "fadeHandleStrokePx",
+    "fontMin",
+    "fontOfActual",
+    "fontScale",
+    "fontScaleSizes",
+    "groupGridLinesVisible",
+    "groupLevelOfDetailBase",
+    "groupLevelOfDetailRatio",
+    "guideCursorMode",
+    "iconHintDelayMs",
+    "importMaxBytes",
+    "importMaxDate",
+    "importMaxDepth",
+    "importMaxItems",
+    "importMinDate",
+    "labelBaseline",
+    "labelCoef",
+    "labelGap",
+    "labelHaloOfFont",
+    "labelPad",
+    "markerGap",
+    "markerSize",
+    "markerStroke",
+    "maxGroupDepth",
+    "milestoneActualDuration",
+    "minShapeWidth",
+    "percentCompleteVisible",
+    "pinnedGroupIds",
+    "pinnedRowMax",
+    "planActualDisplay",
+    "planActualGuidePattern",
+    "planActualGuideWeight",
+    "planStroke",
+    "progressLineOverhang",
+    "progressLineVisible",
+    "progressLineWidth",
+    "progressMarkerVisible",
+    "propertyPanelWidth",
+    "pxPerDayAt1x",
+    "resumeArmOfMarker",
+    "resumeDashOff",
+    "resumeDashOn",
+    "resumeHeadOfMarker",
+    "resumeScaleInvalid",
+    "rowGap",
+    "rowTitleFont",
+    "rowTitleIndent",
+    "rowTitlePanelWidth",
+    "rowTitleTopScale",
+    "rulerFont",
+    "rulerHeight",
+    "rulerTierPxPerDayDay",
+    "rulerTierPxPerDayMonth",
+    "rulerTierPxPerDayWeek",
+    "scrollDate",
+    "scrollGroupId",
+    "shapeHeightOf",
+    "spanDotOfStroke",
+    "stackDirection",
+    "stackGap",
+    "stackSafetyCap",
+    "starInnerOfOuter",
+    "taskLevelOfDetailReadablePx",
+    "themeMonochrome",
+    "themePreference",
+    "thinFontScale",
+    "thinStrokeMax",
+    "thinStrokeMin",
+    "thinStrokeOfPlan",
+    "truncateUnits",
+    "zoomX",
+    "zoomY"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "actualGap": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 20
+    },
+    "actualInitialDuration": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 1
+    },
+    "actualMin": {
+     "type": "integer",
+     "maximum": 80
+    },
+    "actualOfPlan": {
+     "type": "number",
+     "minimum": 0.05
+    },
+    "appHeaderMaxHeight": {
+     "type": "integer",
+     "minimum": 32,
+     "maximum": 96
+    },
+    "arrowHeadOfSpan": {
+     "type": "number",
+     "minimum": 0.1,
+     "maximum": 1
+    },
+    "arrowHeadOfStroke": {
+     "type": "number",
+     "minimum": 1.5,
+     "maximum": 8
+    },
+    "assigneeVisible": {
+     "type": "boolean"
+    },
+    "autosaveIdleMs": {
+     "type": "integer",
+     "minimum": 300,
+     "maximum": 10000
+    },
+    "basePlanHeight": {
+     "type": "integer",
+     "maximum": 200
+    },
+    "baselineVisible": {
+     "type": "boolean"
+    },
+    "canvasPadding": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 60
+    },
+    "chevronNotchOfHeight": {
+     "type": "number",
+     "minimum": 0.05,
+     "maximum": 1
+    },
+    "chevronNotchOfWidth": {
+     "type": "number",
+     "minimum": 0.05,
+     "maximum": 0.5
+    },
+    "dateGridLinesVisible": {
+     "type": "boolean"
+    },
+    "dependencyArrowLength": {
+     "type": "integer",
+     "maximum": 40
+    },
+    "dependencyLagDefault": {
+     "type": "integer"
+    },
+    "dependencyRunOfArrow": {
+     "type": "integer",
+     "maximum": 6
+    },
+    "dependencyVisible": {
+     "type": "boolean"
+    },
+    "dependencyWidth": {
+     "type": "number",
+     "minimum": 0.5
+    },
+    "dualCursor": {
+     "oneOf": [
+      {
+       "type": "object",
+       "required": [
+        "date1",
+        "date2"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "date1": {
+         "$comment": "The source does not say what type this holds; its default is written as '`null`'."
+        },
+        "date2": {
+         "$comment": "The source does not say what type this holds; its default is written as '`null`'."
+        }
+       }
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "dummyOpacity": {
+     "type": "number",
+     "minimum": 0.05,
+     "maximum": 0.5
+    },
+    "exportCanvas": {
+     "type": "object",
+     "required": [
+      "width",
+      "height"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "width": {
+       "type": "integer"
+      },
+      "height": {
+       "type": "integer"
+      }
+     }
+    },
+    "exportPngScale": {
+     "enum": [
+      1,
+      2
+     ]
+    },
+    "fadeHandleHalfPx": {
+     "type": "number",
+     "minimum": 3,
+     "maximum": 8
+    },
+    "fadeHandleStrokePx": {
+     "type": "number",
+     "minimum": 1,
+     "maximum": 3
+    },
+    "fontMin": {
+     "type": "integer",
+     "minimum": 12,
+     "maximum": 40
+    },
+    "fontOfActual": {
+     "type": "number",
+     "minimum": 0.05
+    },
+    "fontScale": {
+     "enum": [
+      "S",
+      "M",
+      "L"
+     ]
+    },
+    "fontScaleSizes": {
+     "type": "object",
+     "required": [
+      "L",
+      "M",
+      "S"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "L": {
+       "type": "integer",
+       "maximum": 40
+      },
+      "M": {
+       "type": "integer"
+      },
+      "S": {
+       "type": "integer"
+      }
+     }
+    },
+    "groupGridLinesVisible": {
+     "type": "boolean"
+    },
+    "groupLevelOfDetailBase": {
+     "type": "number",
+     "minimum": 0.01,
+     "maximum": 2
+    },
+    "groupLevelOfDetailRatio": {
+     "type": "number",
+     "maximum": 4
+    },
+    "guideCursorMode": {
+     "enum": [
+      "none",
+      "crosshair",
+      "single-vertical",
+      "double-vertical"
+     ]
+    },
+    "iconHintDelayMs": {
+     "type": "integer",
+     "minimum": 500,
+     "maximum": 10000
+    },
+    "importMaxBytes": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 256
+    },
+    "importMaxDate": {
+     "type": "string",
+     "format": "date"
+    },
+    "importMaxDepth": {
+     "type": "integer",
+     "minimum": 8,
+     "maximum": 256
+    },
+    "importMaxItems": {
+     "type": "integer",
+     "minimum": 1000,
+     "maximum": 200000
+    },
+    "importMinDate": {
+     "type": "string",
+     "format": "date"
+    },
+    "labelBaseline": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 0.8
+    },
+    "labelCoef": {
+     "type": "number",
+     "minimum": 0.3,
+     "maximum": 1
+    },
+    "labelGap": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 30
+    },
+    "labelHaloOfFont": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 0.3
+    },
+    "labelPad": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 30
+    },
+    "markerGap": {
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 4
+    },
+    "markerSize": {
+     "type": "integer"
+    },
+    "markerStroke": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 4
+    },
+    "maxGroupDepth": {
+     "type": "integer",
+     "minimum": 3,
+     "maximum": 8
+    },
+    "milestoneActualDuration": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 0
+    },
+    "minShapeWidth": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 20
+    },
+    "percentCompleteVisible": {
+     "type": "boolean"
+    },
+    "pinnedGroupIds": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "pinnedRowMax": {
+     "type": "integer"
+    },
+    "planActualDisplay": {
+     "enum": [
+      "both",
+      "plan-only",
+      "actual-only"
+     ]
+    },
+    "planActualGuidePattern": {
+     "$comment": "The source does not say what type this holds; its default is written as '`2,2`'."
+    },
+    "planActualGuideWeight": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 2
+    },
+    "planStroke": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 4
+    },
+    "progressLineOverhang": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 40
+    },
+    "progressLineVisible": {
+     "type": "boolean"
+    },
+    "progressLineWidth": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 8
+    },
+    "progressMarkerVisible": {
+     "type": "boolean"
+    },
+    "propertyPanelWidth": {
+     "type": "number"
+    },
+    "pxPerDayAt1x": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 60
+    },
+    "resumeArmOfMarker": {
+     "type": "number",
+     "minimum": 0.2
+    },
+    "resumeDashOff": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 12
+    },
+    "resumeDashOn": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 12
+    },
+    "resumeHeadOfMarker": {
+     "type": "number",
+     "minimum": 0.05,
+     "maximum": 0.5
+    },
+    "resumeScaleInvalid": {
+     "type": "number",
+     "minimum": 0.3,
+     "maximum": 1
+    },
+    "rowGap": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 60
+    },
+    "rowTitleFont": {
+     "type": "integer",
+     "maximum": 40
+    },
+    "rowTitleIndent": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 60
+    },
+    "rowTitlePanelWidth": {
+     "type": "number"
+    },
+    "rowTitleTopScale": {
+     "type": "number",
+     "minimum": 1,
+     "maximum": 2
+    },
+    "rulerFont": {
+     "type": "number"
+    },
+    "rulerHeight": {
+     "type": "number",
+     "maximum": 150
+    },
+    "rulerTierPxPerDayDay": {
+     "type": "integer",
+     "maximum": 60
+    },
+    "rulerTierPxPerDayMonth": {
+     "type": "number",
+     "minimum": 0.1
+    },
+    "rulerTierPxPerDayWeek": {
+     "type": "number"
+    },
+    "scrollDate": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "scrollGroupId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid"
+    },
+    "shapeHeightOf": {
+     "type": "object",
+     "required": [
+      "arrow",
+      "chevron",
+      "endpointSpan",
+      "milestone",
+      "rectangle"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "arrow": {
+       "type": "number",
+       "minimum": 0.1
+      },
+      "chevron": {
+       "type": "number",
+       "minimum": 0.2,
+       "maximum": 3
+      },
+      "endpointSpan": {
+       "type": "number",
+       "minimum": 0.1
+      },
+      "milestone": {
+       "type": "number",
+       "maximum": 4
+      },
+      "rectangle": {
+       "type": "number",
+       "minimum": 1,
+       "maximum": 1
+      }
+     }
+    },
+    "spanDotOfStroke": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 4
+    },
+    "stackDirection": {
+     "enum": [
+      "up",
+      "down"
+     ]
+    },
+    "stackGap": {
+     "type": "integer",
+     "maximum": 60
+    },
+    "stackSafetyCap": {
+     "type": "integer"
+    },
+    "starInnerOfOuter": {
+     "type": "number",
+     "minimum": 0.2,
+     "maximum": 0.8
+    },
+    "taskLevelOfDetailReadablePx": {
+     "type": "integer",
+     "maximum": 200
+    },
+    "themeMonochrome": {
+     "type": "boolean"
+    },
+    "themePreference": {
+     "enum": [
+      "light",
+      "dark"
+     ]
+    },
+    "thinFontScale": {
+     "type": "number",
+     "minimum": 0.3,
+     "maximum": 1
+    },
+    "thinStrokeMax": {
+     "type": "integer",
+     "maximum": 20
+    },
+    "thinStrokeMin": {
+     "type": "number",
+     "minimum": 0.5
+    },
+    "thinStrokeOfPlan": {
+     "type": "number",
+     "minimum": 0.05,
+     "maximum": 0.6
+    },
+    "truncateUnits": {
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 120
+    },
+    "zoomX": {
+     "type": "number"
+    },
+    "zoomY": {
+     "type": "number"
+    }
+   }
+  },
+  "revisionStamp": {
+   "$ref": "#/$defs/revisionStamp"
+  },
+  "changeLog": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/changeLog"
+   }
+  }
+ },
+ "$defs": {
+  "Project": {
+   "type": "object",
+   "description": "プロジェクトの基本情報と、文書ぜんたいに掛かる暦の既定",
+   "required": [
+    "id",
+    "name",
+    "title",
+    "subject",
+    "category",
+    "company",
+    "manager",
+    "author",
+    "created",
+    "revision",
+    "lastSaved",
+    "startDate",
+    "statusDate",
+    "minutesPerDay",
+    "minutesPerWeek",
+    "daysPerMonth",
+    "weekStartDay",
+    "calendarUid",
+    "themeHue",
+    "uidHighWaterMark",
+    "importSeq",
+    "carry",
+    "carryElements"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "maxLength": 16
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "title": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "subject": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "category": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "company": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "manager": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "author": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "created": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "revision": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "lastSaved": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "startDate": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "statusDate": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "minutesPerDay": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "minutesPerWeek": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "daysPerMonth": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "weekStartDay": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 0,
+     "maximum": 6
+    },
+    "calendarUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "themeHue": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 359
+    },
+    "uidHighWaterMark": {
+     "type": "integer"
+    },
+    "importSeq": {
+     "type": "integer"
+    },
+    "carry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "carryElements": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "Task": {
+   "type": "object",
+   "description": "タスク 1 つ。予定と実績を同じ行が持つ",
+   "required": [
+    "uid",
+    "wbsParentUid",
+    "wbsOrder",
+    "name",
+    "start",
+    "finish",
+    "milestone",
+    "deadline",
+    "notes",
+    "calendarUid",
+    "actualStart",
+    "actualDuration",
+    "actualFinish",
+    "resume",
+    "resumeValid",
+    "percentComplete",
+    "fadeInDays",
+    "fadeOutDays",
+    "dependencies",
+    "carry",
+    "carryElements"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "uid": {
+     "type": "integer"
+    },
+    "wbsParentUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "wbsOrder": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "start": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "finish": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "milestone": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    },
+    "deadline": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "notes": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "calendarUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "actualStart": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "actualDuration": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "actualFinish": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "resume": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "resumeValid": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    },
+    "percentComplete": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 0
+    },
+    "fadeInDays": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "fadeOutDays": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "dependencies": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/Dependency"
+     }
+    },
+    "carry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "carryElements": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "Dependency": {
+   "type": "object",
+   "description": "依存 1 本。**後続タスクの下に入れ子で持つ**",
+   "required": [
+    "predecessorUid",
+    "linkType",
+    "lag",
+    "lagFormat",
+    "carry",
+    "carryElements"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "predecessorUid": {
+     "type": "integer"
+    },
+    "linkType": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 3
+    },
+    "lag": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "lagFormat": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "carry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "carryElements": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "TaskGroup": {
+   "type": "object",
+   "description": "行の器。縦積みの軸を作る（`FR-004`）",
+   "required": [
+    "id",
+    "parentId",
+    "label",
+    "derivedFromTaskUid",
+    "order",
+    "isCollapsed",
+    "isHidden",
+    "color",
+    "height"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "parentId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid"
+    },
+    "label": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "derivedFromTaskUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "order": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "isCollapsed": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    },
+    "isHidden": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    },
+    "color": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "height": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    }
+   }
+  },
+  "TaskGroupMember": {
+   "type": "object",
+   "description": "どのタスクがどの行の何段目に載るか",
+   "required": [
+    "taskUid",
+    "groupId",
+    "stackOrder"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "taskUid": {
+     "type": "integer"
+    },
+    "groupId": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "stackOrder": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    }
+   }
+  },
+  "Calendar": {
+   "type": "object",
+   "description": "暦 1 つ。稼働日と非稼働日を決める",
+   "required": [
+    "uid",
+    "name",
+    "isBaseCalendar",
+    "baseCalendarUid",
+    "ordinal",
+    "carry",
+    "carryElements"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "uid": {
+     "type": "integer"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "isBaseCalendar": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    },
+    "baseCalendarUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "ordinal": {
+     "type": "integer"
+    },
+    "carry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "carryElements": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "WeekDay": {
+   "type": "object",
+   "description": "曜日ごとの稼働の定め（弱エンティティ）",
+   "required": [
+    "calendarUid",
+    "ordinal",
+    "dayType",
+    "dayWorking",
+    "carry",
+    "carryElements"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "calendarUid": {
+     "type": "integer"
+    },
+    "ordinal": {
+     "type": "integer"
+    },
+    "dayType": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 1,
+     "maximum": 7
+    },
+    "dayWorking": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    },
+    "carry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "carryElements": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "Exception": {
+   "type": "object",
+   "description": "暦の例外日（弱エンティティ）",
+   "required": [
+    "calendarUid",
+    "ordinal",
+    "name",
+    "fromDate",
+    "toDate",
+    "dayWorking",
+    "recurrenceKind",
+    "carry",
+    "carryElements"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "calendarUid": {
+     "type": "integer"
+    },
+    "ordinal": {
+     "type": "integer"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "fromDate": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "toDate": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "dayWorking": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    },
+    "recurrenceKind": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 1,
+     "maximum": 9
+    },
+    "carry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "carryElements": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "Resource": {
+   "type": "object",
+   "description": "担当者 1 人（または 1 つの資源）",
+   "required": [
+    "uid",
+    "name",
+    "resourceKind",
+    "isCostResource",
+    "calendarUid",
+    "carry",
+    "carryElements"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "uid": {
+     "type": "integer"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "resourceKind": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "isCostResource": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    },
+    "calendarUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "carry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "carryElements": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "Assignment": {
+   "type": "object",
+   "description": "どの担当者がどのタスクに就くか",
+   "required": [
+    "uid",
+    "taskUid",
+    "resourceUid",
+    "carry",
+    "carryElements"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "uid": {
+     "type": "integer"
+    },
+    "taskUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "resourceUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "carry": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "carryElements": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "TaskVisual": {
+   "type": "object",
+   "description": "タスクの見せ方。形・色・名前の置き方",
+   "required": [
+    "taskUid",
+    "nameAnchor",
+    "nameAlign",
+    "shapeKind",
+    "milestoneGlyph",
+    "fillColor",
+    "strokeColor",
+    "lineWeight"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "taskUid": {
+     "type": "integer"
+    },
+    "nameAnchor": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 0,
+     "maximum": 8
+    },
+    "nameAlign": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "$comment": "The specification names how many members this enumeration has but not their spellings."
+    },
+    "shapeKind": {
+     "enum": [
+      "rectangle",
+      "chevron",
+      "arrow",
+      "endpointSpan",
+      "milestone",
+      null
+     ]
+    },
+    "milestoneGlyph": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "$comment": "The specification names how many members this enumeration has but not their spellings."
+    },
+    "fillColor": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "strokeColor": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "lineWeight": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "$comment": "The specification names how many members this enumeration has but not their spellings."
+    }
+   }
+  },
+  "TaskOrigin": {
+   "type": "object",
+   "description": "取り込み元の記録。合流の照合に使う",
+   "required": [
+    "taskUid",
+    "sourceProjectUid",
+    "sourceUid",
+    "lastSeenImportSeq",
+    "importSessionId"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "taskUid": {
+     "type": "integer"
+    },
+    "sourceProjectUid": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "sourceUid": {
+     "type": "integer"
+    },
+    "lastSeenImportSeq": {
+     "type": "integer"
+    },
+    "importSessionId": {
+     "type": [
+      "string",
+      "null"
+     ]
+    }
+   }
+  },
+  "CommentBox": {
+   "type": "object",
+   "description": "コメントボックス 1 つ。日付と行に留める",
+   "required": [
+    "id",
+    "leaderShapeKind",
+    "text",
+    "anchorDate",
+    "anchorGroupId",
+    "anchorTaskUid",
+    "anchorPoint",
+    "bodyOffsetPx"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "leaderShapeKind": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "$comment": "The specification names how many members this enumeration has but not their spellings."
+    },
+    "text": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "anchorDate": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "anchorGroupId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid"
+    },
+    "anchorTaskUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "anchorPoint": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 0,
+     "maximum": 8
+    },
+    "bodyOffsetPx": {
+     "type": [
+      "object",
+      "null"
+     ],
+     "required": [
+      "dx",
+      "dy"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "dx": {
+       "type": "number"
+      },
+      "dy": {
+       "type": "number"
+      }
+     }
+    }
+   }
+  },
+  "HighlightBox": {
+   "type": "object",
+   "description": "ハイライトボックス 1 つ。日付と行の範囲を囲む",
+   "required": [
+    "id",
+    "startDate",
+    "endDate",
+    "topGroupId",
+    "bottomGroupId",
+    "strokeColor",
+    "cornerRadiusPx"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "startDate": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "endDate": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "topGroupId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid"
+    },
+    "bottomGroupId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid"
+    },
+    "strokeColor": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "cornerRadiusPx": {
+     "type": [
+      "number",
+      "null"
+     ]
+    }
+   }
+  },
+  "CarryElement": {
+   "type": "object",
+   "description": "解釈しない要素 1 つを、原形のまま抱える器（自己参照）",
+   "required": [
+    "ordinal",
+    "name",
+    "fields",
+    "children"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ordinal": {
+     "type": "integer"
+    },
+    "name": {
+     "type": "string"
+    },
+    "fields": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "string"
+     }
+    },
+    "children": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/CarryElement"
+     }
+    }
+   }
+  },
+  "revisionStamp": {
+   "type": "object",
+   "description": "版数と、最後に書いた者と時刻",
+   "required": [
+    "revision",
+    "lastEditedBy",
+    "updatedAt"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "revision": {
+     "type": "integer"
+    },
+    "lastEditedBy": {
+     "type": "string"
+    },
+    "updatedAt": {
+     "type": "string",
+     "format": "date-time",
+     "$comment": "ISO 8601, UTC, to the second."
+    }
+   }
+  },
+  "changeLog": {
+   "type": "object",
+   "description": "変更の理由。**会話そのものは保存しない**（`FR-066`）",
+   "required": [
+    "revision",
+    "editedBy",
+    "explanation",
+    "changedAt"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "revision": {
+     "type": "integer"
+    },
+    "editedBy": {
+     "type": "string"
+    },
+    "explanation": {
+     "type": "string"
+    },
+    "changedAt": {
+     "type": "string",
+     "format": "date-time",
+     "$comment": "ISO 8601, UTC, to the second."
+    }
+   }
+  },
+  "BaselineTask": {
+   "type": "object",
+   "description": "変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ",
+   "required": [
+    "uid",
+    "name",
+    "start",
+    "finish",
+    "milestone"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "uid": {
+     "type": "integer"
+    },
+    "name": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "start": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "finish": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "milestone": {
+     "type": [
+      "boolean",
+      "null"
+     ]
+    }
+   }
+  }
+ }
+}

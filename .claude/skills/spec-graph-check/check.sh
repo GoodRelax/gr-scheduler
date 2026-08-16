@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 16 mechanical checks for the gr-scheduler specification.
+# All 17 mechanical checks for the gr-scheduler specification.
 #
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
@@ -15,6 +15,9 @@
 #   16     erd_json_to_md.py --check : the two generated data-model documents
 #          still match erd.json, which is what catches a hand edit to a file
 #          whose banner says never to edit it
+#   17     erd_json_to_schema.py --check : the GRS JSON schema still matches
+#          the two sources Chapter 6.2 names (erd.json and tbl-settings.md),
+#          the same guard as 16 for the other generated artifact
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -88,6 +91,10 @@ echo "   report: $OUT/dup-report.txt"
 echo ""
 echo "===== 16  generated documents still match their source ====="
 python docs/spec/_assets/source/erd_json_to_md.py --check || fail=1
+
+echo ""
+echo "===== 17  the GRS JSON schema still matches its two sources ====="
+PYTHONIOENCODING=utf-8 python docs/spec/_assets/source/erd_json_to_schema.py --check || fail=1
 
 echo ""
 if [ "$fail" -eq 0 ]; then
