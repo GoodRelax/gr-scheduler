@@ -38,6 +38,10 @@
 | entity / layoutEngine | ItemHitArea | Which item the pointer is over. | SL-1 / PG-9 |
 | entity / documentModel | Selection | The set of selected objects and the order they were selected in. Never saved. |  |
 | entity / documentModel | DialogueLog | Confirmed utterances, in an order of their own that is independent of the revision. Never saved. |  |
+| entity / layoutEngine | ScreenRegions | The rectangle of every screen part, and which region the pointer is in. | FR-051 / T-103 |
+| entity / documentModel | ScreenState | The screen values the document never saves: what is armed, which surface is open, the palette and the full screen. | FR-053 / FR-071 / T-023b |
+| adapter | ScreenRenderer | Builds the description of the UI parts outside the schedule, and passes on the utterance confirmed in the dialogue field. Declares ScreenSurface. | FR-051 / FR-006 / FR-036 / FR-053 / FR-076 / FR-066 |
+| framework | DomScreenSurface | Puts that description on the page. | implements ScreenSurface |
 
 ## Edges
 
@@ -99,7 +103,7 @@
 | dependency | PostDialogueMessage | DialogueLog | append one | appends one confirmed utterance |  |
 | dependency | NotifyChangeWatchers | DialogueLog | utterance order | picks utterances by their own order |  |
 | dependency | SingleHtmlShell | DocumentCodec | implements AppShellSource |  |  |
-| dependency | InputCommandTranslator | PostDialogueMessage | confirmed utterance | hands over the utterance a person confirmed in the dialogue field |  |
+| dependency | ScreenRenderer | PostDialogueMessage | confirmed utterance | hands over the utterance a person confirmed in the dialogue field |  |
 | dependency | PostDialogueMessage | NotifyChangeWatchers | utterance posted | wakes the watchers although the revision did not move |  |
 | dependency | InputCommandTranslator | ScheduleLayout | pointer to date | turns a pointer position into a date on the time axis |  |
 | dependency | SingleHtmlShell | SvgRenderer | frame | redraws the screen once per frame |  |
@@ -116,6 +120,19 @@
 | dependency | Document | DocumentStamp | stamp | the three root keys of table T-052 DR-4 |  |
 | dependency | SingleHtmlShell | ScheduleLayout | layout once per frame | computes the frame's layout once and hands it to everyone who needs it (ADR-001) |  |
 | dependency | SingleHtmlShell | ScheduleGeometry | geometry once per frame | computes the frame's geometry from that layout, once (ADR-001) |  |
+| dependency | SingleHtmlShell | ScreenRegions | regions once per frame | computes the frame's screen rectangles once, before the layout (ADR-001) |  |
+| dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved panel widths (S-79 / S-80) |  |
+| dependency | InputCommandTranslator | ScreenRegions | region under pointer | asks which region the pointer is in |  |
+| dependency | InputCommandTranslator | ScreenState | next screen state | reads what is armed and which surface is open, and returns the next screen state |  |
+| dependency | SingleHtmlShell | ScreenRenderer | screen frame | rebuilds the UI parts outside the schedule once per frame |  |
+| realization | DomScreenSurface | ScreenRenderer | implements ScreenSurface |  |  |
+| dependency | ScreenRenderer | ScreenRegions | where each part sits | reads the rectangle of each screen part |  |
+| dependency | ScreenRenderer | ScreenState | screen values | reads the screen values the document never saves |  |
+| dependency | ScreenRenderer | Schedule | row names + attributes | reads the row names and the attributes the properties panel shows |  |
+| dependency | ScreenRenderer | DocumentSettings | outer presentation | reads the presentation values |  |
+| dependency | ScreenRenderer | Selection | selection to show | reads what is selected |  |
+| dependency | ScreenRenderer | DialogueLog | utterances shown | reads the utterances the dialogue field shows |  |
+| dependency | ImageExporter | ScreenRenderer | parts that go out | takes the parts table T-076 lets into the export (EP-1 / EP-3) |  |
 
 ## Clusters
 

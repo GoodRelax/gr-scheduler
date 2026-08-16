@@ -211,6 +211,30 @@
    "shape": "rectangle",
    "description": "Confirmed utterances, in an order of their own that is independent of the revision. Never saved.",
    "remark": ""
+  },
+  {
+   "name": "ScreenRegions",
+   "shape": "component",
+   "description": "The rectangle of every screen part, and which region the pointer is in.",
+   "remark": "FR-051 / T-103"
+  },
+  {
+   "name": "ScreenState",
+   "shape": "component",
+   "description": "The screen values the document never saves: what is armed, which surface is open, the palette and the full screen.",
+   "remark": "FR-053 / FR-071 / T-023b"
+  },
+  {
+   "name": "ScreenRenderer",
+   "shape": "component",
+   "description": "Builds the description of the UI parts outside the schedule, and passes on the utterance confirmed in the dialogue field. Declares ScreenSurface.",
+   "remark": "FR-051 / FR-006 / FR-036 / FR-053 / FR-076 / FR-066"
+  },
+  {
+   "name": "DomScreenSurface",
+   "shape": "component",
+   "description": "Puts that description on the page.",
+   "remark": "implements ScreenSurface"
   }
  ],
  "edges": [
@@ -601,7 +625,7 @@
    "description": ""
   },
   {
-   "source": "InputCommandTranslator",
+   "source": "ScreenRenderer",
    "target": "PostDialogueMessage",
    "arrow": "dependency",
    "label": "confirmed utterance",
@@ -718,6 +742,96 @@
    "arrow": "dependency",
    "label": "geometry once per frame",
    "description": "computes the frame's geometry from that layout, once (ADR-001)"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "regions once per frame",
+   "description": "computes the frame's screen rectangles once, before the layout (ADR-001)"
+  },
+  {
+   "source": "ScreenRegions",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "panel widths",
+   "description": "reads the saved panel widths (S-79 / S-80)"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "region under pointer",
+   "description": "asks which region the pointer is in"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "ScreenState",
+   "arrow": "dependency",
+   "label": "next screen state",
+   "description": "reads what is armed and which surface is open, and returns the next screen state"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ScreenRenderer",
+   "arrow": "dependency",
+   "label": "screen frame",
+   "description": "rebuilds the UI parts outside the schedule once per frame"
+  },
+  {
+   "source": "DomScreenSurface",
+   "target": "ScreenRenderer",
+   "arrow": "realization",
+   "label": "implements ScreenSurface"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "where each part sits",
+   "description": "reads the rectangle of each screen part"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "ScreenState",
+   "arrow": "dependency",
+   "label": "screen values",
+   "description": "reads the screen values the document never saves"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "row names + attributes",
+   "description": "reads the row names and the attributes the properties panel shows"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "outer presentation",
+   "description": "reads the presentation values"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "selection to show",
+   "description": "reads what is selected"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "DialogueLog",
+   "arrow": "dependency",
+   "label": "utterances shown",
+   "description": "reads the utterances the dialogue field shows"
+  },
+  {
+   "source": "ImageExporter",
+   "target": "ScreenRenderer",
+   "arrow": "dependency",
+   "label": "parts that go out",
+   "description": "takes the parts table T-076 lets into the export (EP-1 / EP-3)"
   }
  ],
  "layout": {
@@ -745,7 +859,8 @@
        "DocumentStamp",
        "EditHistory",
        "Selection",
-       "DialogueLog"
+       "DialogueLog",
+       "ScreenState"
       ]
      },
      {
@@ -758,7 +873,8 @@
       "nodes": [
        "ScheduleLayout",
        "ScheduleGeometry",
-       "ItemHitArea"
+       "ItemHitArea",
+       "ScreenRegions"
       ]
      }
     ]
@@ -797,7 +913,8 @@
      "ImageExporter",
      "FileGateway",
      "AutosaveGateway",
-     "ClipboardGateway"
+     "ClipboardGateway",
+     "ScreenRenderer"
     ]
    },
    {
@@ -814,7 +931,8 @@
      "FileSystemAccessFileStore",
      "LocalStorageDocumentStore",
      "BrowserClipboard",
-     "CanvasRasterizer"
+     "CanvasRasterizer",
+     "DomScreenSurface"
     ]
    }
   ]
@@ -835,6 +953,7 @@
     "Schedule",
     "DocumentSettings",
     "Selection",
+    "ScreenState",
     "Document"
    ]
   },
@@ -844,12 +963,16 @@
     "SingleHtmlShell",
     "SvgRenderer",
     "DomSvgSurface",
+    "ScreenRenderer",
+    "DomScreenSurface",
     "ScheduleLayout",
     "ScheduleGeometry",
     "ItemHitArea",
+    "ScreenRegions",
     "Schedule",
     "DocumentSettings",
-    "Selection"
+    "Selection",
+    "ScreenState"
    ]
   },
   "io": {
@@ -860,6 +983,7 @@
     "ClipboardGateway",
     "ImageExporter",
     "DocumentCodec",
+    "ScreenRenderer",
     "FileSystemAccessFileStore",
     "LocalStorageDocumentStore",
     "BrowserClipboard",
@@ -877,7 +1001,9 @@
    "nodes": [
     "SingleHtmlShell",
     "DomInputSource",
+    "DomScreenSurface",
     "InputCommandTranslator",
+    "ScreenRenderer",
     "ChooseStartupDocument",
     "ValidateImportedDocument",
     "AgentApiEndpoint",

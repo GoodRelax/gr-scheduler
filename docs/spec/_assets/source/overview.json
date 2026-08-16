@@ -211,6 +211,30 @@
    "shape": "rectangle",
    "description": "Confirmed utterances, in an order of their own that is independent of the revision. Never saved.",
    "remark": ""
+  },
+  {
+   "name": "ScreenRegions",
+   "shape": "component",
+   "description": "The rectangle of every screen part, and which region the pointer is in.",
+   "remark": "FR-051 / T-103"
+  },
+  {
+   "name": "ScreenState",
+   "shape": "component",
+   "description": "The screen values the document never saves: what is armed, which surface is open, the palette and the full screen.",
+   "remark": "FR-053 / FR-071 / T-023b"
+  },
+  {
+   "name": "ScreenRenderer",
+   "shape": "component",
+   "description": "Builds the description of the UI parts outside the schedule, and passes on the utterance confirmed in the dialogue field. Declares ScreenSurface.",
+   "remark": "FR-051 / FR-006 / FR-036 / FR-053 / FR-076 / FR-066"
+  },
+  {
+   "name": "DomScreenSurface",
+   "shape": "component",
+   "description": "Puts that description on the page.",
+   "remark": "implements ScreenSurface"
   }
  ],
  "edges": [
@@ -219,35 +243,35 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "converts",
-   "description": "backed by 7 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document"
+   "description": "backed by 13 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; ScreenRenderer -> DialogueLog"
   },
   {
    "source": "adapter",
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "geometry only",
-   "description": "backed by 5 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout; InputCommandTranslator -> ScheduleLayout"
+   "description": "backed by 7 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout; InputCommandTranslator -> ScheduleLayout; InputCommandTranslator -> ScreenRegions; ScreenRenderer -> ScreenRegions"
   },
   {
    "source": "adapter",
    "target": "usecase",
    "arrow": "dependency",
    "label": "one operation",
-   "description": "backed by 7 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; AutosaveGateway -> ApplyDocumentChange; InputCommandTranslator -> PostDialogueMessage"
+   "description": "backed by 7 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; AutosaveGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage"
   },
   {
    "source": "framework",
    "target": "adapter",
    "arrow": "dependency",
    "label": "drives / implements",
-   "description": "backed by 14 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; LocalStorageDocumentStore -> AutosaveGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec; SingleHtmlShell -> SvgRenderer; SingleHtmlShell -> InputCommandTranslator; SingleHtmlShell -> FileGateway; SingleHtmlShell -> AutosaveGateway; SingleHtmlShell -> ImageExporter; SingleHtmlShell -> ClipboardGateway"
+   "description": "backed by 16 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; LocalStorageDocumentStore -> AutosaveGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec; SingleHtmlShell -> SvgRenderer; SingleHtmlShell -> InputCommandTranslator; SingleHtmlShell -> FileGateway; SingleHtmlShell -> AutosaveGateway; SingleHtmlShell -> ImageExporter; SingleHtmlShell -> ClipboardGateway; SingleHtmlShell -> ScreenRenderer; DomScreenSurface -> ScreenRenderer"
   },
   {
    "source": "framework",
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "layout once per frame",
-   "description": "backed by 2 component edge(s): SingleHtmlShell -> ScheduleLayout; SingleHtmlShell -> ScheduleGeometry"
+   "description": "backed by 3 component edge(s): SingleHtmlShell -> ScheduleLayout; SingleHtmlShell -> ScheduleGeometry; SingleHtmlShell -> ScreenRegions"
   },
   {
    "source": "framework",
@@ -261,7 +285,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "reads",
-   "description": "backed by 4 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule; ScheduleGeometry -> Selection"
+   "description": "backed by 5 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule; ScheduleGeometry -> Selection; ScreenRegions -> DocumentSettings"
   },
   {
    "source": "usecase",
@@ -303,7 +327,8 @@
        "DocumentStamp",
        "EditHistory",
        "Selection",
-       "DialogueLog"
+       "DialogueLog",
+       "ScreenState"
       ]
      },
      {
@@ -316,7 +341,8 @@
       "nodes": [
        "ScheduleLayout",
        "ScheduleGeometry",
-       "ItemHitArea"
+       "ItemHitArea",
+       "ScreenRegions"
       ]
      }
     ]
@@ -355,7 +381,8 @@
      "ImageExporter",
      "FileGateway",
      "AutosaveGateway",
-     "ClipboardGateway"
+     "ClipboardGateway",
+     "ScreenRenderer"
     ]
    },
    {
@@ -372,7 +399,8 @@
      "FileSystemAccessFileStore",
      "LocalStorageDocumentStore",
      "BrowserClipboard",
-     "CanvasRasterizer"
+     "CanvasRasterizer",
+     "DomScreenSurface"
     ]
    }
   ]

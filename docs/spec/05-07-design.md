@@ -44,10 +44,10 @@ graph RL
 
 | 行 ID | 層 | 置くもの | 純粋性 |
 | --- | --- | --- | --- |
-| LY-1 | `Entity` / `documentModel` | 表 T-052 が定める文書ルートの 3 群すべて（日程データの群のエンティティは 表 T-056）と、その不変条件（全数は Chapter 6.1 が持つ）。および**文書に保存しない実行時の値**（取り消しの履歴・選択・確定した発話。いずれも不変の値として持ち、丸ごと置き換える） | すべて `pure` |
-| LY-2 | `Entity` / `layoutEngine` | 日付と座標の対応、`Rows` の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
+| LY-1 | `Entity` / `documentModel` | 表 T-052 が定める文書ルートの 3 群すべて（日程データの群のエンティティは 表 T-056）と、その不変条件（全数は Chapter 6.1 が持つ）。および**文書に保存しない実行時の値**（取り消しの履歴・選択・確定した発話・画面の使い方の値。いずれも不変の値として持ち、丸ごと置き換える） | すべて `pure` |
+| LY-2 | `Entity` / `layoutEngine` | 画面の各部の矩形、日付と座標の対応、`Rows` の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
 | LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。取り込みの検証。変更の通知 | 操作と検証は `pure`、確定と通知は `non-pure` |
-| LY-4 | `Adapter` | `Agent API`、SVG の生成、交換形式との相互変換、画面の入力を操作へ変えること、および**外側の道具を使うためのインターフェースの宣言** | 変換と直列化は `pure`、外を読むものは `semi-pure-b`、残りは `non-pure` |
+| LY-4 | `Adapter` | `Agent API`、SVG の生成、日程表の外側の UI パーツの記述の生成、交換形式との相互変換、画面の入力を操作へ変えること、および**外側の道具を使うためのインターフェースの宣言** | 変換と直列化は `pure`、外を読むものは `semi-pure-b`、残りは `non-pure` |
 | LY-5 | `Framework` | **`Adapter` が宣言したインターフェースの実装**（ブラウザの DOM・SVG・File System Access API・`localStorage` を使う）と、単一 `.html` のシェル。**現在値を保持するのはこの層だけである** —— 内側の 3 層はすべて値を引数で受け取る | 外を読むものは `semi-pure-b`、残りは `non-pure` |
 
 **表 T-061 — 依存の規則**
@@ -81,7 +81,7 @@ graph RL
 
 **コンポーネントはすべて機器 `D-1` に載る。** 表 T-007 で「対象ソフトが載る」機器は `D-1` だけであり、`D-2` 〜 `D-5` に載るコンポーネントは 1 つも無い。
 
-**コンポーネントを分ける基準は 1 つである** —— **同じ表・同じ要求が寸法と規則を持っているなら 1 コンポーネント、別々の要求が持っているなら別コンポーネントとする。** `ScheduleGeometry` が予定・実績・依存線・注記をまとめて持つのは、それらの寸法を 表 T-201 が 1 枚で持ち `FR-094` が縛っているからであり、逆に `Framework` の 6 コンポーネントが分かれているのは、実装するインターフェースが別だからである。
+**コンポーネントを分ける基準は 1 つである** —— **同じ表・同じ要求が寸法と規則を持っているなら 1 コンポーネント、別々の要求が持っているなら別コンポーネントとする。** `ScheduleGeometry` が予定・実績・依存線・注記をまとめて持つのは、それらの寸法を 表 T-201 が 1 枚で持ち `FR-094` が縛っているからであり、逆に `Framework` の 7 コンポーネントが分かれているのは、実装するインターフェースが別だからである。
 
 **表 T-062 — コンポーネント**
 
@@ -104,14 +104,14 @@ graph RL
 | CP-15 | `UseCase` | `NotifyChangeWatchers` | 確定を購読者へ配る | 表 T-035 の `AG-6` |
 | CP-16 | `UseCase` | `PostDialogueMessage` | 確定した発話を `DialogueLog` へ積み、配る。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` |
 | CP-17 | `Adapter` | `AgentApiEndpoint` | `Agent API` を設置する。既定で公開しない。`SnapshotSource` を宣言する | `FR-028` / `FR-065` / 表 T-035 / 表 T-107 |
-| CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を操作へ変え、対話欄で確定した発話を渡す。`InputSource` を宣言する | `FR-016` / `FR-070` / `FR-066` |
+| CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を操作へ変える。`InputSource` を宣言する | `FR-016` / `FR-070` |
 | CP-19 | `Adapter` | `SvgRenderer` | 幾何から SVG 文字列を作る。`SvgSurface` を宣言する | `FR-080` |
 | CP-20 | `Adapter` | `DocumentCodec` | `GRS JSON`・`MSPDI`・単一 `.html` を文書と相互変換する。`AppShellSource` を宣言する | `FR-024` / `FR-021` / `FR-056` / `FR-057` / `FR-067` |
-| CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。`Rasterizer` を宣言する | `FR-025` |
+| CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。**表 T-076 が「描く」と定めた UI パーツを組み立て、縦に収まらない `TaskGroup` を落とす。** `Rasterizer` を宣言する | `FR-025` / `FR-080` |
 | CP-22 | `Adapter` | `FileGateway` | ファイルの読み書き。`FileStore` を宣言する | `FR-060` / 表 T-024 |
 | CP-23 | `Adapter` | `AutosaveGateway` | 自動保存と復元。`DocumentStore` を宣言する | `FR-026` / `FR-061` |
 | CP-24 | `Adapter` | `ClipboardGateway` | クリップボードへ出す。`Clipboard` を宣言する | `FR-033` / `FR-068` |
-| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。**現在値を保持する。** **フレームの先頭でレイアウトと幾何を 1 回計算して配り**、描画を回し、入力を渡す。埋め込みの入れ物を持ち、公開点を置く。`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` / 5.6 の ADR-001 |
+| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。**現在値を保持する。** **フレームの先頭で画面の矩形とレイアウトと幾何を 1 回計算して配り**、描画を回し、入力を渡す。埋め込みの入れ物を持ち、公開点を置く。`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` / 5.6 の ADR-001 |
 | CP-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 | — |
 | CP-27 | `Framework` | `DomInputSource` | `InputSource` の実装 | — |
 | CP-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装。**ファイルのハンドルを保持する** | `FR-060` |
@@ -121,6 +121,10 @@ graph RL
 | CP-32 | `documentModel` | `Selection` | 選ばれている対象の集合と、選んだ順序。文書に保存しない | 表 T-023c の `SL-1` / `SL-7b` / `SL-8` |
 | CP-33 | `documentModel` | `DialogueLog` | 確定した発話と、版数とは別の順序。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` / `AG-6` |
 | CP-34 | `documentModel` | `Document` | **文書ルートの合成と、`DR-1` の不変条件**（ルートに 3 群だけを置く／群に属する値をルート直下へ直に置かない） | 表 T-052 の `DR-1` |
+| CP-35 | `layoutEngine` | `ScreenRegions` | **画面の各部の矩形**（各部の名は 表 T-103 が持つ）と、ポインタがどの領域にあるかの判定 | `FR-051` |
+| CP-36 | `documentModel` | `ScreenState` | **文書に保存しない画面の値** —— 構え（全数は 表 T-023b）と、表 T-206 の `S-99e` / `S-99f` / `S-99g` | `FR-053` / `FR-071` / 表 T-023b |
+| CP-37 | `Adapter` | `ScreenRenderer` | 日程表の外側の UI パーツの記述を作り、対話欄で確定した発話を渡す。`ScreenSurface` を宣言する | `FR-051` / `FR-006` / `FR-036` / `FR-053` / `FR-076` / `FR-066` |
+| CP-38 | `Framework` | `DomScreenSurface` | `ScreenSurface` の実装 | — |
 
 **各コンポーネントの内側のユニットと、公開するインターフェースは Chapter 5.3 が宣言する。** 本表が定めるのはコンポーネントの境界だけである。
 
@@ -170,7 +174,7 @@ graph RL
 
 **本節が宣言するのは公開インターフェースである** —— **コンポーネントの外から呼んでよい名前の全数**のことである。**`R2.19` が各コンポーネントの公開面を本節に置くよう要求しており、その定義の正とする用語集がこのリポジトリに無いので、本節が定義を持つ。** 表 T-061 が規則を持つのと同じ事情である。
 
-⚠️ **これを「面」と呼ばない。** 表 T-006a の「面ごとの記法」・画面の面・前面と背面で 3 義あるためである。**層をまたぐ 8 本だけは「層をまたぐインターフェース」と呼び分け（表 T-065）、裸の「インターフェース」を書かない。**
+⚠️ **これを「面」と呼ばない。** 表 T-006a の「面ごとの記法」・画面の面・前面と背面で 3 義あるためである。**層をまたぐ 9 本だけは「層をまたぐインターフェース」と呼び分け（表 T-065）、裸の「インターフェース」を書かない。**
 
 **構造の単位を 3 語で呼び分ける。全数と定義を 表 T-074 に示す。** 本節が定義を持つ事情は公開インターフェースと同じである。⚠️ **「部品」を使ってはならないことは 表 T-006b の `A-17` が定める。**
 
@@ -178,13 +182,13 @@ graph RL
 
 | 行 ID | 語 | 定義 | 本設計での全数 |
 | --- | --- | --- | --- |
-| SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **34。** 全数は 表 T-062、公開する名前は 表 T-064 |
+| SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **38。** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。** 公開エントリもユニットである | **57。** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。** 公開エントリもユニットである | **71。** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。** **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
 
-⚠️ **本設計にモジュールは 1 つも無い。** 表 T-075 のとおり `EditDocument` と `DocumentCodec` が最も多くのユニットを持つが、**どちらも平らに並べている。** 束ねる必要が出たときに階層を足す —— **要らないうちは作らない**（`R2.9`）。
+⚠️ **本設計にモジュールは 1 つも無い。** 表 T-075 のとおり `ScreenRenderer` と `EditDocument` が最も多くのユニットを持つが、**どちらも平らに並べている。** 束ねる必要が出たときに階層を足す —— **要らないうちは作らない**（`R2.9`）。
 
 **コンポーネントごとにフォルダを作り、コンポーネント名と語幹が同じ 1 ファイルだけを公開エントリとすること（MUST）。フォルダの外から、公開エントリ以外のファイルを読んではならない（MUST NOT）** —— 読めてしまうと、`LR-2` の「他のコンポーネントの内部へ直に触れてはならない」を検査できない。記法は 表 T-006a の `W-11` である。
 
@@ -196,29 +200,30 @@ graph RL
 
 **`main.ts` を作らない。** Vite の入口は `single-html-shell.ts` である —— 表 T-062 の `CP-25` が「起動と結線」を負う。**テストコードの置き場は Chapter 7 が持つ。本節は `src/` だけを持つ。**
 
-**ディレクトリ構成を次に示す。34 のフォルダは 表 T-062 の 34 コンポーネントと 1 対 1 である。**
+**ディレクトリ構成を次に示す。38 のフォルダは 表 T-062 の 38 コンポーネントと 1 対 1 である。**
 
 ```text
 src/
   entity/
     document-model/   document/ · schedule/ · document-settings/ · document-stamp/
-                      edit-history/ · selection/ · dialogue-log/
+                      edit-history/ · selection/ · dialogue-log/ · screen-state/
     layout-engine/    schedule-layout/ · schedule-geometry/ · item-hit-area/
+                      screen-regions/
   use-case/           apply-document-change/ · edit-document/ · import-document/
                       undo-edit/ · redo-edit/ · validate-imported-document/
                       choose-startup-document/ · notify-change-watchers/
                       post-dialogue-message/
   adapter/            agent-api-endpoint/ · input-command-translator/ · svg-renderer/
                       document-codec/ · image-exporter/ · file-gateway/
-                      autosave-gateway/ · clipboard-gateway/
+                      autosave-gateway/ · clipboard-gateway/ · screen-renderer/
   framework/          single-html-shell/ · dom-svg-surface/ · dom-input-source/
                       file-system-access-file-store/ · local-storage-document-store/
-                      browser-clipboard/ · canvas-rasterizer/
+                      browser-clipboard/ · canvas-rasterizer/ · dom-screen-surface/
 ```
 
-**ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、34 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。**
+**ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、38 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 9 本を 表 T-065 に示す。**
 
-**表 T-063 が持つのは、割った理由だけである。** ⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない** —— 割った理由が「宣言の置き場」の 1 つしか無く、その規則を 表 T-065 の後で本節が定めるからである。**ユニットの全数を数える表は 表 T-075 である。**
+**表 T-063 が持つのは、割った理由だけである。** ⚠️ **層をまたぐインターフェースの 9 ファイルは本表に行を持たない** —— 割った理由が「宣言の置き場」の 1 つしか無く、その規則を 表 T-065 の後で本節が定めるからである。**ユニットの全数を数える表は 表 T-075 である。**
 
 **表 T-063 — ユニットを割った理由**
 
@@ -230,12 +235,13 @@ src/
 | UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。**設置は `FR-065`（既定で公開しない）が、18 メンバは 表 T-107 が縛るので、変更の理由が別である** |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
 | UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。**起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。** ⚠️ **割らないと 1 つのユニットが 8 つの事柄を負い、`R2.2` に反する** —— 5.2 の分割基準「別々の要求が寸法と規則を持っているなら別コンポーネントとする」が、ユニットの側でも同じことを言う |
+| UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 9 ファイル | **純粋性ではない** —— 表 T-075 のとおり 10 とも同じである。**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない |
 
 **ユニットの全数を 表 T-075 に示す。行は 表 T-062 の `CP-n` の順に並べ、コンポーネントの中では公開エントリを先に置く。**
 
 **責務の欄が `CP-n` を指しているとき、そのユニットは 表 T-062 のその行の責務をそのまま負う** —— **「の残り」と書いたものは、同じコンポーネントの別のユニットが負う分を除いた残りである。**
 
-⚠️ **純粋性は関数ごとの分類である**（`R7.1`）。**本欄はそのユニットが持つ関数の純粋性を重複なく並べたものであり、メンバごとの値は 表 T-064 が持つ。** ⚠️ **層をまたぐインターフェースの 8 ファイルは型の宣言だけを持ち、関数を持たないので、純粋性を持たない（`—`）。**
+⚠️ **純粋性は関数ごとの分類である**（`R7.1`）。**本欄はそのユニットが持つ関数の純粋性を重複なく並べたものであり、メンバごとの値は 表 T-064 が持つ。** ⚠️ **層をまたぐインターフェースの 9 ファイルは型の宣言だけを持ち、関数を持たないので、純粋性を持たない（`—`）。**
 
 **表 T-075 — ユニット**
 
@@ -298,6 +304,20 @@ src/
 | UF-55 | `Selection` | `selection.ts` | `pure` | `CP-32` |
 | UF-56 | `DialogueLog` | `dialogue-log.ts` | `pure` | `CP-33` |
 | UF-57 | `Document` | `document.ts` | `pure` | `CP-34` |
+| UF-58 | `ScreenRegions` | `screen-regions.ts` | `pure` | `CP-35` |
+| UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` |
+| UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開する |
+| UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付けと、全画面表示（`FR-051` / `FR-052` / `FR-071`） |
+| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Autosave Status`（`FR-061`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`） |
+| UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） |
+| UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） |
+| UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） |
+| UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` / `FR-068` |
+| UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 知らせ（`FR-076`。作法は 表 T-037） |
+| UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。順序は 表 T-035 の `AG-11`） |
+| UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） |
+| UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） |
+| UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` |
 
 ⚠️ **`semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反しない。** 同条項が別ファイルへ分けよと求めるのは**純粋な側と非純粋な側**であり、`semi-pure-b` は非純粋な側だからである。**外を読むだけのメンバと外へ書くメンバが同じ入口に並ぶのは、表 T-065 のインターフェース 1 本が両方を持つときである。**
 
@@ -325,7 +345,7 @@ src/
 | PI-15 | `UseCase` | `NotifyChangeWatchers` | `watchChanges`（`non-pure`）／ `unwatchChanges`（`non-pure`）／ `notifyChangeWatchers`（`non-pure`） |
 | PI-16 | `UseCase` | `PostDialogueMessage` | `postDialogueMessage`（`non-pure`） |
 | PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。既定で公開しない。`FR-065`）／ `SnapshotSource`（表 T-065）。⚠️ **外へ公開する 18 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。本表に書き写さない（MUST NOT）** |
-| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`） |
+| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。置き場は `CP-36`） |
 | PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`） |
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`） |
 | PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
@@ -342,10 +362,14 @@ src/
 | PI-32 | `documentModel` | `Selection` | `Selection`（型。順序は 表 T-023c の `SL-7b`）／ `selectionWith` ／ `selectionWithout` ／ `emptySelection` ／ `isSelected` |
 | PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。版数とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |
 | PI-34 | `documentModel` | `Document` | `Document`（型。5 つの鍵は 表 T-052 の `DR-1` 〜 `DR-4`）／ `documentViolations`（`DR-1` に反する箇所） |
+| PI-35 | `layoutEngine` | `ScreenRegions` | `ScreenRect`（型。矩形。左上の座標と幅と高さの数値 4 つを自前で宣言し、**ブラウザの供給する型に触れない**（`LR-6`））／ `ScreenRegions`（型。各部の矩形。各部の名は 表 T-103 が持つ）／ `regionsFromScreen`（画面の寸法と `DocumentSettings` から各部の矩形を出す）／ `regionAtPointer`（ポインタがどの領域にあるか） |
+| PI-36 | `documentModel` | `ScreenState` | `ScreenState`（型。構えは 表 T-023b、ほかは 表 T-206 の `S-99e` / `S-99f` / `S-99g`）／ `emptyScreenState` ／ `screenStateWithArmed` ／ `screenStateWithSurface`（開いている面）／ `screenStateWithPalette`（`S-99e`）／ `screenStateWithFullScreen`（`S-99f`）／ `escapeTarget`（`Esc` が次に消費するもの。階層は 表 T-028 の `IN-4`） |
+| PI-37 | `Adapter` | `ScreenRenderer` | `ScreenSurface`（表 T-065）／ `ScreenView`（型。日程表の外側の UI パーツの記述）／ `screenViewFromRegions` ／ `dialogueMessageFromInput`（対話欄で確定した発話。順序の規則は 表 T-035 の `AG-11`） |
+| PI-38 | `Framework` | `DomScreenSurface` | `ScreenSurface` の実装 1 つ |
 
 **層をまたぐインターフェースは、宣言するコンポーネントのフォルダに、その名前の語幹で置くこと（MUST）**（例 —— `adapter/svg-renderer/svg-surface.ts`）。**実装を外側の層が持つことは `LR-5` が定めている。**
 
-⚠️ **この 8 ファイルもユニットである**（表 T-074 の `SU-3`）—— 表 T-075 の `UF-29` / `UF-31` / `UF-33` / `UF-38` / `UF-40` / `UF-42` / `UF-44` / `UF-46` がそれである。**宣言だけを別ファイルにするのは、実装する側が公開エントリを丸ごと取り込まずに型を得られるようにするためである。** ⚠️ **公開エントリは、そのインターフェースを再び公開すること（MUST）** —— さもないと外側の層が公開エントリ以外のファイルを読むことになり、本節の MUST NOT に反する。**再び公開した名前は 表 T-064 が持つ。**
+⚠️ **この 9 ファイルもユニットである**（表 T-074 の `SU-3`）—— 表 T-075 の `UF-29` / `UF-31` / `UF-33` / `UF-38` / `UF-40` / `UF-42` / `UF-44` / `UF-46` / `UF-70` がそれである。**宣言だけを別ファイルにするのは、実装する側が公開エントリを丸ごと取り込まずに型を得られるようにするためである。** ⚠️ **公開エントリは、そのインターフェースを再び公開すること（MUST）** —— さもないと外側の層が公開エントリ以外のファイルを読むことになり、本節の MUST NOT に反する。**再び公開した名前は 表 T-064 が持つ。**
 
 **表 T-065 — 層をまたぐインターフェース**
 
@@ -359,6 +383,7 @@ src/
 | IF-6 | `Rasterizer` | `ImageExporter`（`CP-21`） | `CanvasRasterizer`（`CP-31`） | SVG から画像へ（`IO-4`） |
 | IF-7 | `SnapshotSource` | `AgentApiEndpoint`（`CP-17`） | `SingleHtmlShell`（`CP-25`） | 凍結された現在値（表 T-035 の `AG-4`）と、身振りの最中かどうか（`AG-9`） |
 | IF-8 | `AppShellSource` | `DocumentCodec`（`CP-20`） | `SingleHtmlShell`（`CP-25`） | アプリ自身の HTML。`IO-7` を作るのに要る |
+| IF-9 | `ScreenSurface` | `ScreenRenderer`（`CP-37`） | `DomScreenSurface`（`CP-38`） | 作った記述を画面に載せ、対話欄で確定した発話を返す |
 
 **`SvgRenderer` が SVG の文字列を作り、`DomSvgSurface` がそれを画面に載せる** —— 名前が近い 2 つを別のフォルダへ分けたのは、**前者が `pure` で後者が `non-pure` だからである。**
 
@@ -539,7 +564,7 @@ stateDiagram-v2
 
 **Context** —— **要求をすべて満たす最小の構成は、1 つのコンポーネントが `GRS JSON` を読み、レイアウトを計算し、SVG を組み立ててブラウザへ載せる形である。** 層も、コンポーネントの境界も、宣言されたインターフェースも要らない。
 
-**Decision** —— **表 T-070 の 6 つを増やした。**
+**Decision** —— **表 T-070 の 8 つを増やした。**
 
 **Status** —— `Accepted`。
 
@@ -550,15 +575,17 @@ stateDiagram-v2
 | 行 ID | 増やしたもの | 最小構成では | 増やした理由 | 代償 |
 | --- | --- | --- | --- | --- |
 | MN-1 | 層を 4 つに分け、`Entity` をさらに 2 つに割った（表 T-060） | 1 コンポーネント | `FR-092` の `EZ-5` が設計の合否を `R2` で判定すると定め、`R2.16` が CA を求める。**割った側の理由は 5.1 が持つ** | 構造を保つ手間。**非巡回であることを毎回検算する** |
-| MN-2 | コンポーネントを 34 に分けた（表 T-062） | 分けない | 分ける基準は 5.2 が持つ | コンポーネントをまたぐ呼び出しが 表 T-064 の宣言を介する（`LR-2`） |
-| MN-3 | 層をまたぐインターフェースを 8 本宣言した（表 T-065） | ブラウザの API を直に呼ぶ | `LR-5`。**これがあるので `LR-1` に例外が要らない** | `Framework` に実装だけのコンポーネントが 6 つ増えた |
+| MN-2 | コンポーネントを 38 に分けた（表 T-062） | 分けない | 分ける基準は 5.2 が持つ | コンポーネントをまたぐ呼び出しが 表 T-064 の宣言を介する（`LR-2`） |
+| MN-3 | 層をまたぐインターフェースを 9 本宣言した（表 T-065） | ブラウザの API を直に呼ぶ | `LR-5`。**これがあるので `LR-1` に例外が要らない** | `Framework` に実装だけのコンポーネントが 7 つ増えた |
 | MN-4 | 文書への書き込みの経路を 1 本にした（`CP-8`） | 呼ぶ側が直に書き換える | `FR-028` と 表 T-042 の `MS-1`。**入口が 2 つに分かれると、片方にしか掛からない検証や履歴が生まれる** | 描画がこの経路を通らないことを別に定める必要があった（5.1） |
 | MN-5 | 文書ルートをコンポーネントとして立てた（`CP-34`） | ルートに型を与えない | **表 T-052 の `DR-1` は 3 群すべてに同時に掛かる規則であり、どの 1 群からも検査できない** | コンポーネントが 1 つ増えた。⚠️ **辺はむしろ 6 本減った** |
-| MN-6 | ⭐ **レイアウトと幾何をフレーム先頭で 1 回だけ計算して配る**（ADR-001） | 必要になったコンポーネントが各々計算する | 4 本の経路が `ScheduleLayout` を必要とし、**ポインタが動くたびに 表 T-068 の 11 段が 4 回走る**。`NFR-002` / `NFR-003` の予算に収まらない | `Framework` から `layoutEngine` への辺が 2 本増え、図 F-013 にクラスタ対が 1 つ増えた |
+| MN-6 | ⭐ **画面の矩形とレイアウトと幾何をフレーム先頭で 1 回だけ計算して配る**（ADR-001） | 必要になったコンポーネントが各々計算する | 4 本の経路が `ScheduleLayout` を必要とし、**ポインタが動くたびに 表 T-068 の 11 段が 4 回走る**。`NFR-002` / `NFR-003` の予算に収まらない | `Framework` から `layoutEngine` への辺が 3 本増え、図 F-013 にクラスタ対が 1 つ増えた |
+| MN-7 | ⭐ **画面のモデルを `Entity` に置いた**（`CP-35` / `CP-36`） | 描く直前にその場で割り付ける | **`LR-6` により、矩形も画面の値もブラウザ無しで決まる。** 書き出しが文書だけの純粋関数になり、書き出しが通る値（`CP-35`）と画面にしか要らない値（`CP-36`）が 2 小層の境目で分かれる | 現在値は `Framework` が持つので（`LY-5`）、毎フレーム引数で内側へ渡す |
+| MN-8 | ⭐ **日程表の外側の UI パーツを組み立てるコンポーネントを立てた**（`CP-37` / `CP-38`） | 描画が 1 つで日程表も外側も描く | **表 T-075 の `UF-61` 〜 `UF-69` が受ける要求を、組み立てる側で受けるコンポーネントが 1 つも無かった。** `FR-080` の `WY-2` が除外を持つのは透かしの層だけなので、外側を日程表と同じ出口に混ぜられない | コンポーネントが 2 つ、層をまたぐインターフェースが 1 本増えた |
 
 **`R2.20`（MUST）が、キャッシュを用いる場合に 4 点を本節の ADR に置くことを求めている。**
 
-**ADR-001 — レイアウトと幾何をフレーム先頭で 1 回だけ計算する**
+**ADR-001 — 画面の矩形とレイアウトと幾何をフレーム先頭で 1 回だけ計算する**
 
 **Context** —— **表 T-068 の 11 段を必要とする経路が 1 フレームに 4 本ある** —— `SvgRenderer`（目盛と行）／ `ScheduleGeometry`（座標）／ `InputCommandTranslator`（ポインタ → 日付）／ `ItemHitArea`（当たり判定）。**どのコンポーネントもインスタンスを持たないので**（5.3）、各々が自分で計算すると同じ 11 段が 4 回走る。
 
@@ -566,16 +593,16 @@ stateDiagram-v2
 
 **Status** —— `Accepted`。
 
-**Consequences** —— `Framework` から `layoutEngine` への辺が 2 本増えた。図 F-013 にクラスタ対が 1 つ、図 F-015 にシェルが現れる。⚠️ **計算する場所が `Framework` になるが、計算そのものは `layoutEngine` の純粋関数のままである** —— **シェルは呼んで結果を持つだけで、算法を持たない。** 表 T-068 の順序も変わらない。
+**Consequences** —— `Framework` から `layoutEngine` への辺が 3 本増えた。図 F-013 にクラスタ対が 1 つ、図 F-015 にシェルが現れる。⚠️ **計算する場所が `Framework` になるが、計算そのものは `layoutEngine` の純粋関数のままである** —— **シェルは呼んで結果を持つだけで、算法を持たない。** 表 T-068 の順序も変わらない。
 
 **表 T-071 — キャッシュの 4 点**
 
 | 行 ID | 事項 | 内容 |
 | --- | --- | --- |
-| CA-1 | 何をキャッシュするか | **そのフレームの `ScheduleLayout` と `ScheduleGeometry`**（表 T-068 の結果）。⚠️ **文書そのものはキャッシュではない** —— 現在値であり、持ち主は `LY-5` が定めている |
+| CA-1 | 何をキャッシュするか | **そのフレームの `ScreenRegions` と `ScheduleLayout` と `ScheduleGeometry`**（後の 2 つは 表 T-068 の結果）。⚠️ **文書そのものはキャッシュではない** —— 現在値であり、持ち主は `LY-5` が定めている |
 | CA-2 | 無効化の契機 | **フレームの先頭。** そのフレームのあいだは作り直さない。⚠️ **`NFR-010` により、入力も差し替えも無いフレームはそもそも走らない** |
 | CA-3 | 許容する陳腐化 | **1 フレームぶん。** ⚠️ **フレームの途中で文書が変わることは無い** —— 身振りの最中の書き込みは 表 T-035 の `AG-9` が、通知の配布中の書き込みは 表 T-067 の `WS-2` が拒否する |
-| CA-4 | 同時失効時の挙動 | **同時に失効する複数のキャッシュを持たない。** 持ち主は `SingleHtmlShell` ただ 1 つで、`CA-1` の 2 つは同じ契機で同時に作り直される。**片方だけが古いという状態を作ってはならない（MUST NOT）** |
+| CA-4 | 同時失効時の挙動 | **同時に失効する複数のキャッシュを持たない。** 持ち主は `SingleHtmlShell` ただ 1 つで、`CA-1` の 3 つは同じ契機で同時に作り直される。**1 つだけが古いという状態を作ってはならない（MUST NOT）** |
 
 **描かなかった図とその理由を 表 T-072 に示す。**
 
