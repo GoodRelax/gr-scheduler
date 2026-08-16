@@ -129,7 +129,7 @@
 | U-49 | `Resource Roster` | 名簿。文書が持つ担当者の一覧。出し方と消し方は `FR-099` |
 | U-50 | `Row Area` | （画面に出ない構造名。日本語を当てない）。**`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Rows` が並ぶ領域。**左右は `Row Title Panel` と `Properties Panel` の内側 |
 | U-52 | `Actual Operation Dummy` | 実績操作のダミー。**未着手のタスクに薄く出す掴みシロ。**文書のデータとしては存在しない（`FR-043`） |
-| U-51 | `ScreenState` | （画面に出ない構造名。日本語を当てない）。文書に保存しない画面の値をまとめて持つ型の名。⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の `K-67` 〜 `K-72` が既に使っており、あちらは文書に保存する値である |
+| U-51 | `ScreenState` | （画面に出ない構造名。日本語を当てない）。文書に保存しない画面の値をまとめて持つ型の名。⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の `K-67` 〜 `K-72` / `K-110` / `K-111` が既に使っており、あちらは文書に保存する値である |
 
 > **呼び名は `Agent API` とする。日本語でも `Agent API` と書く。**
 > **「機械向けの口」「口」と呼んではならない（MUST NOT）。**
@@ -222,6 +222,8 @@
 | K-70 | 画面の状態 | `scrollGroupId` | 表示の上端が指す行 |
 | K-71 | 画面の状態 | `rowTitlePanelWidth` | `Row Title Panel` の幅 |
 | K-72 | 画面の状態 | `propertyPanelWidth` | `Properties Panel` の幅 |
+| K-110 | 画面の状態 | `pinnedGroupIds` | ピン止めの対象 |
+| K-111 | 画面の状態 | `pinnedRowMax` | ピン止めの件数の上限 |
 | K-73 | 表示の切り替え | `stackDirection` | 積む向き |
 | K-74 | 表示の切り替え | `planActualDisplay` | 予実の表示 |
 | K-75 | 表示の切り替え | `assigneeVisible` | 担当ラベル |

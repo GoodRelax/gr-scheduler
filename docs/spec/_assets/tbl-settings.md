@@ -123,7 +123,7 @@
 | S-60 | `assigneeVisible` | 真偽 | `false` | 担当ラベル。既定は隠す（下記） |
 | S-61 | `percentCompleteVisible` | 真偽 | `false` | 完了率ラベル。既定は隠す（下記） |
 | S-62 | `dependencyVisible` | 真偽 | `true` | 依存線。核機能であり、段数に影響しない。寸法をズームに追随させない規則は `FR-094` が持つ |
-| S-63 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー。寸法をズームに追随させない規則は `FR-094` が持つ |
+| S-63 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー（`FR-013`）と再開アイコン（`FR-044`）。寸法をズームに追随させない規則は `FR-094` が持つ |
 | S-64 | `progressLineVisible` | 真偽 | `false` | イナズマ線。基準日と実績から引くので、**新規文書には出しても意味のある形にならない** |
 | S-65 | `dualCursor` | `{ date1, date2 }` / `null` | `null` | デュアルカーソル。2 本の日付を持つ理由は表 T-029 の `CU-2` |
 | S-66 | `guideCursorMode` | `'none'` / `'crosshair'` / `'single-vertical'` / `'double-vertical'` | `'none'` | ガイドカーソル |
@@ -328,7 +328,7 @@
 
 ⚠️ **保存の可否: 保存する。規則と理由は `FR-054` が持つ。**
 
-⚠️ **本表の値は日程データの群に入る** —— 収まる先が暦（`Calendar`）と `Project` の列だからである。**`FR-063` が「見せ方の群の全数は本書が持つ」と述べるときの例外である**（表 T-216 と同じ扱い）。
+⚠️ **本表の値は日程データの群に入る** —— 収まる先が暦（`Calendar`）と `Project` の列だからである。**どちらの群に属するかの判定は表 T-052 が持つ**（表 T-216 と同じ扱いである）。
 
 **表 T-208 — 予実の補助線（`FR-084`）**
 
