@@ -18,6 +18,8 @@
     "e2e": "playwright test",
     "tree": "python tools/generate_unit_tree.py",
     "tree:check": "python tools/generate_unit_tree.py --check",
+    "types": "python tools/generate_entity_types.py",
+    "types:check": "python tools/generate_entity_types.py --check",
     "layers": "python tools/check_layer_rules.py"
   },
   "devDependencies": {

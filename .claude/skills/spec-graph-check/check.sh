@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 19 mechanical checks for the gr-scheduler specification.
+# All 20 mechanical checks for the gr-scheduler specification.
 #
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
@@ -27,6 +27,9 @@
 #          goes through its public entry, and the same-layer graph is acyclic.
 #          LR-6 is not here: tsconfig.entity.json compiles Entity and UseCase
 #          without the DOM library, so the compiler enforces it
+#   20     generate_entity_types.py --check : the TypeScript types of the
+#          schedule group still match erd.json. Only the marked region is
+#          compared, so a unit that has been filled in stays guarded
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -112,6 +115,10 @@ PYTHONIOENCODING=utf-8 python tools/generate_unit_tree.py --check || fail=1
 echo ""
 echo "===== 19  src/ obeys the dependency rules of table T-061 ====="
 PYTHONIOENCODING=utf-8 python tools/check_layer_rules.py || fail=1
+
+echo ""
+echo "===== 20  the generated entity types still match erd.json ====="
+PYTHONIOENCODING=utf-8 python tools/generate_entity_types.py --check || fail=1
 
 echo ""
 if [ "$fail" -eq 0 ]; then
