@@ -202,13 +202,13 @@
   },
   {
    "name": "Selection",
-   "shape": "rectangle",
+   "shape": "component",
    "description": "The set of selected objects and the order they were selected in. Never saved.",
    "remark": ""
   },
   {
    "name": "DialogueLog",
-   "shape": "rectangle",
+   "shape": "component",
    "description": "Confirmed utterances, in an order of their own that is independent of the revision. Never saved.",
    "remark": ""
   },

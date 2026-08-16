@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""Build every component figure and the component table from model.json.
+"""Build every component figure and the component table from components.json.
 
-model.json is the single source of truth. It holds ONLY node-level edges.
+components.json is the single source of truth. It holds ONLY node-level edges.
 
 The overview figure is DERIVED, never hand-written: each node-level edge is
 collapsed onto the innermost labelled cluster of its endpoints, and every
@@ -9,7 +9,7 @@ collapsed edge must be backed by at least one real node-level edge. An arrow
 that nothing supports cannot be drawn, and a backed pair with no label stops
 the build. That is what keeps the overview honest without a second source.
 
-Cluster-level edges are deliberately kept OUT of model.json: a view keeps
+Cluster-level edges are deliberately kept OUT of components.json: a view keeps
 every edge whose endpoints survive, so a cluster edge would leak into every
 view that spans those layers and collide with the node-level labels.
 
@@ -24,10 +24,10 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MODEL = os.path.join(HERE, "model.json")
+MODEL = os.path.join(HERE, "components.json")
 OVERVIEW = os.path.join(HERE, "overview.json")
 # The .svg is what the specification carries, so it lands one level up, in the
-# asset folder itself. The .drawio stay here beside model.json as working files.
+# asset folder itself. The .drawio stay here beside components.json as working files.
 ASSETS = os.path.abspath(os.path.join(HERE, ".."))
 # components.md must NOT live under _assets/: StrictDoc parses every .md below
 # the input folder as a document, but specindex.discover() only lists
@@ -39,7 +39,7 @@ SKILL = os.path.expanduser(r"~\.claude\skills\drawio-uml\scripts")
 DRAWIO = r"C:\Program Files\draw.io\draw.io.exe"
 
 # The only hand-written part: what each collapsed arrow means. Every entry must
-# be backed by node-level edges in model.json, and every backed pair must have
+# be backed by node-level edges in components.json, and every backed pair must have
 # an entry -- both directions are asserted below.
 CLUSTER_EDGE_LABELS = {
     ("framework", "adapter"): "drives / implements",
@@ -91,7 +91,7 @@ def build_overview(model, backing):
         sys.exit("build: cluster pair(s) with no label: %s"
                  % ", ".join("%s -> %s" % p for p in unlabelled))
     if unbacked:
-        sys.exit("build: label(s) with no backing edge in model.json: %s"
+        sys.exit("build: label(s) with no backing edge in components.json: %s"
                  % ", ".join("%s -> %s" % p for p in unbacked))
     edges = [{"source": src, "target": dst, "arrow": "dependency",
               "label": CLUSTER_EDGE_LABELS[(src, dst)],
@@ -253,7 +253,7 @@ def draw(model_path, out_stem, view=None):
         # draw.io CLI by hand:
         #   drawio -x -f png -b 12 -o out.png docs/spec/_assets/source/<stem>.drawio
         for fmt, where in (("svg", os.path.join(ASSETS, stem)),):
-            # No -e: the editable XML is not embedded. model.json is the source,
+            # No -e: the editable XML is not embedded. components.json is the source,
             # so nothing is ever re-opened from the picture.
             argv = [DRAWIO, "-x", "-f", fmt, "-b", "12",
                     "-o", "%s.%s" % (where, fmt), out_stem + ".drawio"]
@@ -272,7 +272,7 @@ def main():
              if e["source"] not in {n["name"] for n in model["nodes"]}
              or e["target"] not in {n["name"] for n in model["nodes"]}]
     if stray:
-        sys.exit("build: model.json must hold node-level edges only; found %d cluster edge(s)"
+        sys.exit("build: components.json must hold node-level edges only; found %d cluster edge(s)"
                  % len(stray))
 
     backing = collapse(model)

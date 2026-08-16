@@ -1,4 +1,4 @@
-"""Audit chapter 5 against itself and against model.json.
+"""Audit chapter 5 against itself and against components.json.
 
 Everything here is a claim the chapter makes about a count or a correspondence.
 Green means the claim matches what is actually written -- it does not mean the
@@ -10,7 +10,7 @@ import sys
 
 DESIGN = "docs/spec/05-07-design.md"
 GLOSSARY = "docs/spec/_assets/tbl-glossary.md"
-MODEL = "docs/spec/_assets/source/model.json"
+MODEL = "docs/spec/_assets/source/components.json"
 
 design = open(DESIGN, encoding="utf-8").read()
 glossary = open(GLOSSARY, encoding="utf-8").read()
@@ -82,7 +82,7 @@ check("design never says a stale member count",
       len(re.findall(r"1[0-7] [のメ]ンバ|17 メンバ", design)), 0)
 
 print()
-print("== model.json against table T-062 ==")
+print("== components.json against table T-062 ==")
 nodes = [n["name"] for n in model["nodes"]]
 named = re.findall(r"^\| CP-\d+ \| `[^`]+` \| `([^`]+)` \|", design, re.M)
 check("model nodes", len(nodes), 38)
@@ -226,7 +226,7 @@ print("  LR-1 outward edges                   : %s" % (outward or "none"))
 if outward:
     fails.append("outward edge")
 
-# T-062's layer column must agree with model.json's clusters
+# T-062's layer column must agree with components.json's clusters
 declared = {name: lay for lay, name in
             re.findall(r"^\| CP-\d+ \| `([^`]+)` \| `([^`]+)` \|", design, re.M)}
 bad_layer = ["%s: table=%s model=%s" % (n, declared.get(n), layer.get(n))
