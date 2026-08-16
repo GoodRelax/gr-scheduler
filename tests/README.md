@@ -1,18 +1,32 @@
 # tests/
 
-⚠️ **This layout is provisional.** Chapter 5.3 of the specification says the
-place for test code is Chapter 7's to decide, and Chapter 7 is still an empty
-frame. Revisit this file when it is written.
+**Table T-218 of Chapter 7 settles this layout.** The directory a test sits in
+is what says which kind it is, so a test may only live in one of the six places
+below (MUST), and no seventh place may be made (MUST NOT).
 
 ## Who writes what
 
-| | who writes it | what it protects |
-| --- | --- | --- |
-| unit tests | the agent that implements the unit | the inside of one unit |
-| **contract tests** | **neither side — written once, from a table** | **the seam** |
-| integration tests | the same separate place | `WY-1`–`WY-3`, `FR-021`, the 14 use cases, the performance gates |
+| place | row | receiver in the specification | who writes it | what it protects |
+| --- | --- | --- | --- | --- |
+| `usecase/` | `TS-1` | Chapter 8, parent `UC-xxx` | by hand | the user's own steps, through the UI |
+| `integration/` | `TS-2` | Chapter 9, parent `SWS-xxx` | by hand; the case list is generated from it | units wired together |
+| `system/` | `TS-3` | Chapter 9, parent `SWS-xxx` | the same | the whole product, through the UI |
+| `nfr/` | `TS-4` | Chapter 10, parent `NFR-xxx` | by hand | the performance gates of table T-043 |
+| **`contract/`** | **`TS-5`** | **none -- the grammar refuses `Unit`** | **neither side of the seam, once, from a table** | **the seam** |
+| `unit/` | `TS-6` | none, for the same reason | whoever implemented the unit | the inside of one unit |
 
-The middle row is the reason this directory exists. Seventy-one units can each
+**Having no receiver does not mean it need not be written.** The last two rows
+carry no node in the specification only because `SW_SPEC_TEST` admits
+`Integration` and `System` and nothing else. Both still stop the milestone when
+they fail.
+
+**Chapter 9's case list is a generated artifact (MUST) and must not be written
+by hand (MUST NOT).** Writing it by hand would put the same claim in two places,
+and the copy in the specification is the one that cannot fail. So a test under
+`integration/` or `system/` carries, in a form a machine can read, the `SWS-xxx`
+it hangs from and its GIVEN / WHEN / THEN.
+
+The contract row is the reason this directory exists. Seventy-one units can each
 be green on their own while the application does not run, and the place that
 breaks is always the seam between two of them. A test owned by one side of a
 seam tests that side's idea of the seam, which is the thing in question.
@@ -39,10 +53,18 @@ later can tell why" is made of; more prose does not make it.
 
 ```
 tests/
-  contract/    *.contract.test.ts, driven by a specification table
-  fixtures/    what every test shares
-  e2e/         Playwright's (see playwright.config.ts); Vitest excludes it
+  contract/     Vitest.      *.contract.test.ts, driven by a specification table
+  integration/  Vitest.      not written yet
+  unit/         Vitest.      the inside of one unit
+  usecase/      Playwright.  not written yet
+  system/       Playwright.  not written yet
+  nfr/          Playwright.  not written yet
+  fixtures/     what every test shares -- not a kind of its own
 ```
+
+**Four of those directories do not exist yet**, because no case has been written
+for them. They appear in `vitest.config.ts` and `playwright.config.ts` so that
+the first test written lands in the right place rather than inventing one.
 
 `fixtures/grs-document.ts` holds the shared document shape: the generated
 `GRS JSON` schema and validators over it. It deliberately carries **no sample
@@ -53,7 +75,8 @@ nobody took.
 ## Running
 
 ```bash
-npm test          # vitest, the contract tests
+npm test          # vitest: contract/, integration/, unit/
+npm run e2e       # playwright: usecase/, system/, nfr/
 npm run typecheck # tsc, both projects: the root one and the DOM-free Entity one
 npm run layers    # table T-061: dependency direction and acyclicity
 npm run tree:check

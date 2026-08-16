@@ -206,8 +206,8 @@ erDiagram
     Calendar }o--o| Calendar : "継承元の暦（baseCalendarUid）"
     Calendar ||--o{ WeekDay : "曜日ごとの稼働（弱エンティティ）"
     Calendar ||--o{ Exception : "例外日（弱エンティティ）"
-    Assignment }o--|| Task : "就くタスク（taskUid）"
-    Assignment }o--|| Resource : "就く担当者（resourceUid）"
+    Assignment }o--o| Task : "就くタスク（taskUid）"
+    Assignment }o--o| Resource : "就く担当者（resourceUid）"
     TaskVisual |o--|| Task : "そのタスクの見せ方（taskUid）"
     TaskOrigin |o--|| Task : "そのタスクの取り込み元（taskUid）"
     CommentBox }o--o| TaskGroup : "留める行（anchorGroupId）"
@@ -273,8 +273,8 @@ erDiagram
 | RL-11 | `Calendar` | `Calendar` | 0..n ─ 0..1 | 継承元の暦（`baseCalendarUid`） |
 | RL-12 | `Calendar` | `WeekDay` | 1 ─ 0..n | 曜日ごとの稼働（弱エンティティ） |
 | RL-13 | `Calendar` | `Exception` | 1 ─ 0..n | 例外日（弱エンティティ） |
-| RL-14 | `Assignment` | `Task` | 0..n ─ 1 | 就くタスク（`taskUid`） |
-| RL-15 | `Assignment` | `Resource` | 0..n ─ 1 | 就く担当者（`resourceUid`） |
+| RL-14 | `Assignment` | `Task` | 0..n ─ 0..1 | 就くタスク（`taskUid`） |
+| RL-15 | `Assignment` | `Resource` | 0..n ─ 0..1 | 就く担当者（`resourceUid`） |
 | RL-16 | `TaskVisual` | `Task` | 0..1 ─ 1 | そのタスクの見せ方（`taskUid`） |
 | RL-17 | `TaskOrigin` | `Task` | 0..1 ─ 1 | そのタスクの取り込み元（`taskUid`） |
 | RL-18 | `CommentBox` | `TaskGroup` | 0..n ─ 0..1 | 留める行（`anchorGroupId`） |

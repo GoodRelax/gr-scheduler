@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.entity.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "e2e": "playwright test",
+    "e2e": "playwright test --pass-with-no-tests",
     "tree": "python tools/generate_unit_tree.py",
     "tree:check": "python tools/generate_unit_tree.py --check",
     "types": "python tools/generate_entity_types.py",

@@ -2418,13 +2418,13 @@
   {
    "parent": "Assignment",
    "child": "Task",
-   "multiplicity": "0..n ─ 1",
+   "multiplicity": "0..n ─ 0..1",
    "label": "就くタスク（`taskUid`）"
   },
   {
    "parent": "Assignment",
    "child": "Resource",
-   "multiplicity": "0..n ─ 1",
+   "multiplicity": "0..n ─ 0..1",
    "label": "就く担当者（`resourceUid`）"
   },
   {

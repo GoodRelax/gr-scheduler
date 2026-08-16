@@ -1,24 +1,28 @@
 import { defineConfig } from 'vitest/config'
 
 // Chapter 1.4 puts the layers that are decided by values alone under Vitest.
+// Table T-218 of Chapter 7 settles which places those are: the directory a test
+// sits in is what says which of the six kinds it is, so the three Vitest ones
+// are listed here rather than swept up by a wildcard.
 //
-// ⚠️ Where test code lives is NOT settled here. Chapter 5.3 hands that to
-// Chapter 7, and Chapter 7 is still an empty frame, so the layout below is
-// provisional and must be revisited when it is written:
+//   TS-2  tests/integration/  Chapter 9's Integration cases, parent SWS-xxx
+//   TS-5  tests/contract/     the seams. Owned by neither side of a seam,
+//                             driven by a specification table (Chapter 1.9,
+//                             :275). No node in the specification: the grammar
+//                             does not admit Unit as a TEST_LEVEL
+//   TS-6  tests/unit/         the inside of one unit, written by whoever
+//                             implemented it. No node, for the same reason
 //
-//   tests/contract/*.contract.test.ts   the seams. Owned by neither side of a
-//                                       seam, driven by a specification table,
-//                                       written once (Chapter 1.9, :275)
-//   tests/fixtures/                     what every test shares, so 71 units do
-//                                       not each invent their own
-//   tests/e2e/                          Playwright's, not Vitest's
-//
-// Unit tests are not listed: Chapter 9 does not allow Unit as a TEST_LEVEL, so
-// where they go and who writes them is still open.
+// tests/fixtures/ holds what every test shares and is not a kind of its own.
+// The other three places of table T-218 are Playwright's; see
+// playwright.config.ts.
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['tests/**/*.test.ts'],
-    exclude: ['tests/e2e/**', 'node_modules/**', 'dist/**'],
+    include: [
+      'tests/contract/**/*.test.ts',
+      'tests/integration/**/*.test.ts',
+      'tests/unit/**/*.test.ts',
+    ],
   },
 })
