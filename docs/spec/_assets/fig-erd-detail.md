@@ -398,7 +398,7 @@ erDiagram
 | AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
 | AT-98 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置（表 T-013） |
 | AT-99 | `TaskVisual` | `nameAlign` | 列挙（`'left'` ほか 3 値） | 可 | — | GRS | — | 名前の揃え |
-| AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可 | — | GRS | — | **描画の形だけを決める。`Task.milestone` を変えない**（表 T-012） |
+| AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | **描画の形だけを決める。`Task.milestone` を変えない**（表 T-012） |
 | AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（8 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る |
 | AT-102 | `TaskVisual` | `fillColor` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 塗り。**輪郭と同時に透明にできない**（`FR-030`） |
 | AT-103 | `TaskVisual` | `strokeColor` | 文字列 | 可（同上） | — | GRS | — | 輪郭。同上 |

@@ -1739,7 +1739,7 @@
     {
      "name": "shapeKind",
      "type": "列挙（5 値）",
-     "nullable": "可",
+     "nullable": "可（`null` = `Task.milestone` から解く）",
      "json": {
       "kind": "enum",
       "values": [
