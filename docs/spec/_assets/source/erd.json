@@ -403,7 +403,7 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/MinutesPerDay",
-     "meaning": "1 日あたりの分数。期間の換算に使う"
+     "meaning": "1 日あたりの分数。期間の換算に使う。空のときの既定は 表 T-209 の `S-128`"
     },
     {
      "name": "minutesPerWeek",
@@ -430,7 +430,7 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/WeekStartDay",
-     "meaning": "週の始まりの曜日"
+     "meaning": "週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）"
     },
     {
      "name": "calendarUid",
@@ -598,9 +598,9 @@
      "type": "整数（稼働日）",
      "nullable": "可",
      "key": "",
-     "origin": "Own",
+     "origin": "Consume",
      "exchange": "Task/ActualDuration",
-     "meaning": "実績バーの長さ"
+     "meaning": "実績バーの長さ。**交換相手は時間の量なので、取り込むときに稼働日へ解釈し、書き出すときに `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）で作り直す**（`FR-054`）"
     },
     {
      "name": "actualFinish",
@@ -815,7 +815,7 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "隠しているか。戻す入口は親の非表示グループタブ（表 T-015 の `HR-6`）"
+     "meaning": "隠しているか。戻す入口は 表 T-015 の `HR-6` が持つ"
     },
     {
      "name": "color",
