@@ -426,3 +426,157 @@ describe('Schedule (PI-1) -- table T-021b', () => {
     expect(isDelayed({ ...emptyTask, start: '2026-01-01T00:00:00' }, null)).toBe(false)
   })
 })
+
+// -------------------------------------------------- the last three units ----
+
+import {
+  clampedSettings,
+  SETTINGS_BOUNDS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
+
+import {
+  emptyScreenState,
+  escapeTarget,
+  screenStateWithArmed,
+  screenStateWithFullScreen,
+  screenStateWithPalette,
+  screenStateWithSurface,
+} from '../../src/entity/document-model/screen-state/screen-state'
+
+import {
+  documentViolations,
+  ROOT_KEYS,
+} from '../../src/entity/document-model/document/document'
+
+// A whole DocumentSettings is 97 keys; a clamp reads one key at a time, so the
+// cases below carry only the keys they are about.
+const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
+  part as unknown as DocumentSettings
+
+describe('DocumentSettings (PI-2)', () => {
+  it('reads its bounds from the sources, not from a second copy', () => {
+    // S-1 pxPerDayAt1x: 0.5 to 60 in table T-201.
+    expect(SETTINGS_BOUNDS['pxPerDayAt1x']).toEqual({ min: 0.5, max: 60 })
+  })
+
+  it('pulls a value up to the lower bound and says it moved', () => {
+    const result = clampedSettings(settingsOf({ pxPerDayAt1x: 0.1 }))
+    expect(result.settings.pxPerDayAt1x).toBe(0.5)
+    expect(result.clamped).toEqual([{ key: 'pxPerDayAt1x', was: 0.1, now: 0.5 }])
+  })
+
+  it('pushes a value down to the upper bound', () => {
+    const result = clampedSettings(settingsOf({ pxPerDayAt1x: 999 }))
+    expect(result.settings.pxPerDayAt1x).toBe(60)
+  })
+
+  it('leaves a value that is already inside alone, and reports nothing', () => {
+    const result = clampedSettings(settingsOf({ pxPerDayAt1x: 6 }))
+    expect(result.settings.pxPerDayAt1x).toBe(6)
+    expect(result.clamped).toEqual([])
+  })
+
+  it('reaches a nested key the way tbl-settings.md writes it', () => {
+    // S-121: fontScaleSizes.S is bounded above by fontScaleSizes.M, which is
+    // not a number, so only the numeric side of the row can be clamped.
+    const result = clampedSettings(settingsOf({ fontScaleSizes: { S: 1, M: 14, L: 999 } }))
+    expect(result.settings.fontScaleSizes.L).toBe(40)
+    expect(result.clamped.map((one) => one.key)).toContain('fontScaleSizes.L')
+  })
+
+  it('does not touch what is not a number', () => {
+    const result = clampedSettings(settingsOf({ stackDirection: 'up', pxPerDayAt1x: 6 }))
+    expect(result.settings.stackDirection).toBe('up')
+    expect(result.clamped).toEqual([])
+  })
+})
+
+describe('ScreenState (PI-36)', () => {
+  const quiet = { gestureInFlight: false, dualCursorMode: false }
+
+  it('starts with the palette showing and nothing armed or open (S-99e to S-99g)', () => {
+    const state = emptyScreenState()
+    expect(state.armed.kind).toBe('none')
+    expect(state.paletteShown).toBe(true)
+    expect(state.fullScreen).toBe(false)
+    expect(state.surface).toBeNull()
+  })
+
+  it('IN-4 consumes in order: surface, gesture, armed, then the dual cursor', () => {
+    const armed = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
+    const opened = screenStateWithSurface(armed, 'help')
+
+    expect(escapeTarget(opened, { gestureInFlight: true, dualCursorMode: true })).toBe('surface')
+    expect(escapeTarget(armed, { gestureInFlight: true, dualCursorMode: true })).toBe('gesture')
+    expect(escapeTarget(armed, { ...quiet, dualCursorMode: true })).toBe('armed')
+    expect(escapeTarget(emptyScreenState(), { ...quiet, dualCursorMode: true }))
+      .toBe('dualCursorMode')
+  })
+
+  it('IN-4a hands the key to the browser when there is nothing to consume', () => {
+    expect(escapeTarget(emptyScreenState(), quiet)).toBeNull()
+  })
+
+  it('IN-4a: being armed still consumes, even in full screen', () => {
+    // The note on IN-4a: someone who armed something and then went full screen
+    // presses Esc twice.
+    const state = screenStateWithFullScreen(
+      screenStateWithArmed(emptyScreenState(), { kind: 'commentBox' }),
+      true,
+    )
+    expect(escapeTarget(state, quiet)).toBe('armed')
+  })
+
+  it('replaces the value whole rather than setting a field', () => {
+    const state = emptyScreenState()
+    const hidden = screenStateWithPalette(state, false)
+    expect(hidden.paletteShown).toBe(false)
+    expect(state.paletteShown).toBe(true)
+  })
+})
+
+describe('Document (PI-34) -- table T-052', () => {
+  const sound = {
+    schemaVersion: '1',
+    schedule: {},
+    documentSettings: {},
+    revisionStamp: {},
+    changeLog: [],
+  }
+
+  it('holds the five keys DR-1 to DR-4 name', () => {
+    expect([...ROOT_KEYS]).toEqual([
+      'schemaVersion',
+      'schedule',
+      'documentSettings',
+      'revisionStamp',
+      'changeLog',
+    ])
+    expect(documentViolations(sound)).toEqual([])
+  })
+
+  it('DR-1 catches a value put straight onto the root', () => {
+    const found = documentViolations({ ...sound, themeHue: 214 })
+    expect(found).toHaveLength(1)
+    expect(found[0]?.row).toBe('DR-1')
+    expect(found[0]?.at).toBe('/themeHue')
+  })
+
+  it('DR-4 catches a missing root key', () => {
+    const { changeLog: _dropped, ...without } = sound
+    const found = documentViolations(without)
+    expect(found.map((one) => one.row)).toEqual(['DR-4'])
+    expect(found[0]?.at).toBe('/changeLog')
+  })
+
+  it('DR-5 catches the theme hue kept in the presentation group', () => {
+    const found = documentViolations({ ...sound, documentSettings: { themeHue: 214 } })
+    expect(found.map((one) => one.row)).toEqual(['DR-5'])
+  })
+
+  it('DR-1 catches a root that is not an object at all', () => {
+    expect(documentViolations(null).map((one) => one.row)).toEqual(['DR-1'])
+    expect(documentViolations([]).map((one) => one.row)).toEqual(['DR-1'])
+  })
+})

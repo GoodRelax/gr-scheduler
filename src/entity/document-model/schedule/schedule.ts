@@ -376,7 +376,7 @@ export type PlanActualState =
 
 /**
  * Which of the five a task is in. Table T-019a is a decision list read in the
- * order of its `順` column, and it is total: PS-5 catches whatever the first
+ * order of its rank column, and it is total: PS-5 catches whatever the first
  * four did not, which is what made the table replace a set of conditions that
  * left a real task -- one suspended and then finished -- matching no row.
  *

@@ -9,6 +9,11 @@ generated into the units that Chapter 5.3 says own them:
   src/entity/document-model/schedule/schedule.ts        the 18 entity types
                                                         and the Schedule group
   src/entity/document-model/document-stamp/…            the stamp and the log
+  src/entity/document-model/document-settings/…         the presentation group
+
+The presentation group is read from grs-document.schema.json rather than from
+tbl-settings.md a second time: check 17 already keeps that artifact in step
+with both of its sources, so deriving from it means one parser, not two.
 
 Chapter 6.2 does not require this (CR-147 dropped the MUST for .ts types); it
 only leaves it open. This is the project taking the offer.
@@ -30,6 +35,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ERD = os.path.join(ROOT, 'docs', 'spec', '_assets', 'source', 'erd.json')
+SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_assets', 'grs-document.schema.json')
 MODEL = os.path.join(ROOT, 'src', 'entity', 'document-model')
 
 OPEN = '// <generated from docs/spec/_assets/source/erd.json -- do not edit by hand>'
@@ -128,9 +134,101 @@ def stamp_block(erd):
     return '\n\n'.join(blocks)
 
 
+def settings_property(name, node, indent):
+    """One documentSettings key, from the schema the two sources produced."""
+    pad = '  ' * indent
+    if 'enum' in node:
+        members = [m for m in node['enum'] if m is not None]
+        kind = ' | '.join(("'%s'" % m) if isinstance(m, str) else str(m) for m in members)
+        if any(m is None for m in node['enum']):
+            kind += ' | null'
+        return ['%s  readonly %s: %s' % (pad, name, kind)]
+    if 'oneOf' in node:
+        body = [b for b in node['oneOf'] if b.get('type') != 'null']
+        inner = settings_object(body[0], indent + 1)
+        return ['%s  readonly %s:' % (pad, name)] + inner[:-1] + ['%s  } | null' % pad]
+    kinds = node.get('type')
+    if kinds is None:
+        # A key whose own row does not say what it holds; the schema records
+        # that rather than guessing, and so does the type.
+        return ['%s  /** the source does not say what this holds */' % pad,
+                '%s  readonly %s: unknown' % (pad, name)]
+    if isinstance(kinds, list):
+        base = ' | '.join('null' if k == 'null' else TS_OF[k] for k in kinds)
+        return ['%s  readonly %s: %s' % (pad, name, base)]
+    if kinds == 'object' and 'properties' in node:
+        out = ['%s  readonly %s: {' % (pad, name)]
+        for key, child in node['properties'].items():
+            out.extend(settings_property(key, child, indent + 1))
+        out.append('%s  }' % pad)
+        return out
+    if kinds == 'array':
+        return ['%s  readonly %s: readonly %s[]'
+                % (pad, name, TS_OF[node['items'].get('type', 'string')])]
+    return ['%s  readonly %s: %s' % (pad, name, TS_OF[kinds])]
+
+
+TS_OF = {'integer': 'number', 'number': 'number', 'string': 'string',
+         'boolean': 'boolean', 'object': 'object'}
+
+
+def settings_object(node, indent):
+    lines = ['{']
+    for name, child in node['properties'].items():
+        lines.extend(settings_property(name, child, indent))
+    lines.append('}')
+    return lines
+
+
+def bounds_of(node, prefix, found):
+    """Every numeric bound the sources state, by dotted key."""
+    for name, child in node.get('properties', {}).items():
+        path = ('%s.%s' % (prefix, name)) if prefix else name
+        if 'properties' in child:
+            bounds_of(child, path, found)
+        elif 'minimum' in child or 'maximum' in child:
+            found.append((path, child.get('minimum'), child.get('maximum')))
+    return found
+
+
+BOUNDS_NOTE = [
+    '/**',
+    ' * The bounds tbl-settings.md states for one key on its own.',
+    ' * A bound written as another key rather than a number is NOT here: those',
+    ' * hold BETWEEN two keys -- FR-052 is the one with a rule of its own -- and',
+    ' * no per-key clamp can decide them.',
+    ' */',
+    'export const SETTINGS_BOUNDS: Readonly<',
+    '  Record<string, { readonly min?: number; readonly max?: number }>',
+    '> = {',
+]
+
+
+def settings_block(_erd):
+    schema = json.load(io.open(SCHEMA, encoding='utf-8'),
+                       object_pairs_hook=collections.OrderedDict)
+    node = schema['properties']['documentSettings']
+
+    head = '/** The presentation group. DR-3 of table T-052; FR-063 says what is in it. */'
+    body = [head + '\nexport interface DocumentSettings '
+            + '\n'.join(settings_object(node, 0))]
+
+    rows = []
+    for path, low, high in bounds_of(node, '', []):
+        parts = []
+        if low is not None:
+            parts.append('min: %s' % low)
+        if high is not None:
+            parts.append('max: %s' % high)
+        rows.append("  '%s': { %s }," % (path, ', '.join(parts)))
+    body.append('\n'.join(BOUNDS_NOTE + rows + ['}']))
+    return '\n\n'.join(body)
+
+
 TARGETS = [
     (os.path.join(MODEL, 'schedule', 'schedule.ts'), schedule_block),
     (os.path.join(MODEL, 'document-stamp', 'document-stamp.ts'), stamp_block),
+    (os.path.join(MODEL, 'document-settings', 'document-settings.ts'), settings_block),
 ]
 
 
