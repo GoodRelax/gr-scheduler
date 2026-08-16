@@ -1147,10 +1147,7 @@
      ]
     },
     "order": {
-     "type": [
-      "integer",
-      "null"
-     ]
+     "type": "integer"
     },
     "isCollapsed": {
      "type": [
@@ -1587,8 +1584,6 @@
     "text",
     "anchorDate",
     "anchorGroupId",
-    "anchorTaskUid",
-    "anchorPoint",
     "bodyOffsetPx"
    ],
    "additionalProperties": false,
@@ -1622,20 +1617,6 @@
       "null"
      ],
      "format": "uuid"
-    },
-    "anchorTaskUid": {
-     "type": [
-      "integer",
-      "null"
-     ]
-    },
-    "anchorPoint": {
-     "type": [
-      "integer",
-      "null"
-     ],
-     "minimum": 0,
-     "maximum": 8
     },
     "bodyOffsetPx": {
      "type": [

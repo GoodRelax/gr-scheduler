@@ -52,6 +52,7 @@ TABLE_GROUP = {
     'T-215': ('documentSettings', None),
     'T-216': ('schedule', '日程データに属する値'),
     'T-209': ('schedule', '本表の値は日程データの群に入る'),
+    'T-217': ('schedule', '本表の値は日程データの群に入る'),
     'T-206': ('notStored', '保存しないもの'),
     'T-207': ('notStored', '文書には保存しない'),
 }

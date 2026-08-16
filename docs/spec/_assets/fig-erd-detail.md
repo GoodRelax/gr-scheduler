@@ -158,8 +158,6 @@ erDiagram
         文字列 text "GRS"
         日時 anchorDate "GRS"
         文字列 **anchorGroupId** FK "GRS・UUID"
-        整数 **anchorTaskUid** FK "GRS"
-        整数 anchorPoint "GRS・0〜8"
         オブジェクト bodyOffsetPx "GRS・{ dx, dy }"
     }
     HighlightBox {
@@ -212,7 +210,6 @@ erDiagram
     Assignment }o--|| Resource : "就く担当者（resourceUid）"
     TaskVisual |o--|| Task : "そのタスクの見せ方（taskUid）"
     TaskOrigin |o--|| Task : "そのタスクの取り込み元（taskUid）"
-    CommentBox }o--o| Task : "留めるタスク（anchorTaskUid）"
     CommentBox }o--o| TaskGroup : "留める行（anchorGroupId）"
     HighlightBox }o--o| TaskGroup : "囲む範囲の上端の行（topGroupId）"
     HighlightBox }o--o| TaskGroup : "囲む範囲の下端の行（bottomGroupId）"
@@ -280,20 +277,19 @@ erDiagram
 | RL-15 | `Assignment` | `Resource` | 0..n ─ 1 | 就く担当者（`resourceUid`） |
 | RL-16 | `TaskVisual` | `Task` | 0..1 ─ 1 | そのタスクの見せ方（`taskUid`） |
 | RL-17 | `TaskOrigin` | `Task` | 0..1 ─ 1 | そのタスクの取り込み元（`taskUid`） |
-| RL-18 | `CommentBox` | `Task` | 0..n ─ 0..1 | 留めるタスク（`anchorTaskUid`） |
-| RL-19 | `CommentBox` | `TaskGroup` | 0..n ─ 0..1 | 留める行（`anchorGroupId`） |
-| RL-20 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の上端の行（`topGroupId`） |
-| RL-21 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の下端の行（`bottomGroupId`） |
-| RL-22 | `CarryElement` | `CarryElement` | 1 ─ 0..n | 入れ子の子（`children`） |
-| RL-23 | `Task` | `BaselineTask` | 0..1 ─ 0..1 | 変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`） |
-| RL-24 | `Project` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
-| RL-25 | `Task` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
-| RL-26 | `Dependency` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
-| RL-27 | `Calendar` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
-| RL-28 | `WeekDay` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
-| RL-29 | `Exception` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
-| RL-30 | `Resource` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
-| RL-31 | `Assignment` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
+| RL-18 | `CommentBox` | `TaskGroup` | 0..n ─ 0..1 | 留める行（`anchorGroupId`） |
+| RL-19 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の上端の行（`topGroupId`） |
+| RL-20 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の下端の行（`bottomGroupId`） |
+| RL-21 | `CarryElement` | `CarryElement` | 1 ─ 0..n | 入れ子の子（`children`） |
+| RL-22 | `Task` | `BaselineTask` | 0..1 ─ 0..1 | 変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`） |
+| RL-23 | `Project` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
+| RL-24 | `Task` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
+| RL-25 | `Dependency` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
+| RL-26 | `Calendar` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
+| RL-27 | `WeekDay` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
+| RL-28 | `Exception` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
+| RL-29 | `Resource` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
+| RL-30 | `Assignment` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
 
 ## 4. 列
 
@@ -357,7 +353,7 @@ erDiagram
 | AT-52 | `TaskGroup` | `parentId` | 文字列（UUID） | 可（`null` = 根） | FK | GRS | — | 親の行。深さの上限は `FR-004` |
 | AT-53 | `TaskGroup` | `label` | 文字列 | 可（`null` = 導出） | — | GRS | — | 行の名前 |
 | AT-54 | `TaskGroup` | `derivedFromTaskUid` | 整数 | 可 | FK | GRS | — | 名前の導出元。`label` と同時に `null` にできない |
-| AT-55 | `TaskGroup` | `order` | 整数 | 可 | — | GRS | — | 同じ親の下での並び |
+| AT-55 | `TaskGroup` | `order` | 整数 | 否 | — | GRS | — | 同じ親の下での並び |
 | AT-56 | `TaskGroup` | `isCollapsed` | 真偽 | 可 | — | GRS | — | 畳んでいるか |
 | AT-57 | `TaskGroup` | `isHidden` | 真偽 | 可 | — | GRS | — | 隠しているか。戻す入口は 表 T-015 の `HR-6` が持つ |
 | AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色 |
@@ -417,32 +413,30 @@ erDiagram
 | AT-112 | `CommentBox` | `text` | 文字列 | 可 | — | GRS | — | **本文。「コメント」と略さない**（`U-14`） |
 | AT-113 | `CommentBox` | `anchorDate` | 日時 | 可 | — | GRS | — | 留める日 |
 | AT-114 | `CommentBox` | `anchorGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 留める行 |
-| AT-115 | `CommentBox` | `anchorTaskUid` | 整数 | 可 | FK | GRS | — | 留めるタスク |
-| AT-116 | `CommentBox` | `anchorPoint` | 整数（0〜8） | 可 | — | GRS | — | タスクのどこに留めるか |
-| AT-117 | `CommentBox` | `bodyOffsetPx` | `{ dx, dy }` | 可 | — | GRS | — | 留めた点から本文までのずれ |
-| AT-118 | `HighlightBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
-| AT-119 | `HighlightBox` | `startDate` | 日時 | 可 | — | GRS | — | 囲む範囲の左端 |
-| AT-120 | `HighlightBox` | `endDate` | 日時 | 可 | — | GRS | — | 囲む範囲の右端 |
-| AT-121 | `HighlightBox` | `topGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の上端の行 |
-| AT-122 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端の行 |
-| AT-123 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色 |
-| AT-124 | `HighlightBox` | `cornerRadiusPx` | 数値 | 可 | — | GRS | — | 角の丸み |
-| AT-125 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す** |
-| AT-126 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |
-| AT-127 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |
-| AT-128 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は定めない** |
-| AT-129 | `revisionStamp` | `revision` | 整数 | 否 | — | GRS | — | 1 ずつ増える。上げる条件は `FR-063` |
-| AT-130 | `revisionStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。人か、AI か |
-| AT-131 | `revisionStamp` | `updatedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 最後に書いた時刻。**秒までとする**（透かしと精度を揃える） |
-| AT-132 | `changeLog` | `revision` | 整数 | 否 | PK | GRS | — | どの版に対する理由か |
-| AT-133 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |
-| AT-134 | `changeLog` | `explanation` | 文字列 | 否 | — | GRS | — | なぜそう変えたか（`UC-013`） |
-| AT-135 | `changeLog` | `changedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | その版の時刻 |
-| AT-136 | `BaselineTask` | `uid` | 整数 | 否 | PK | GRS | — | 重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`） |
-| AT-137 | `BaselineTask` | `name` | 文字列 | 可 | — | GRS | — | タスク名 |
-| AT-138 | `BaselineTask` | `start` | 日時 | 可 | — | GRS | — | 変更前の予定の開始 |
-| AT-139 | `BaselineTask` | `finish` | 日時 | 可 | — | GRS | — | 変更前の予定の終了 |
-| AT-140 | `BaselineTask` | `milestone` | 真偽 | 可 | — | GRS | — | マイルストーンとして描くか |
+| AT-115 | `CommentBox` | `bodyOffsetPx` | `{ dx, dy }` | 可 | — | GRS | — | 留めた点から本文までのずれ |
+| AT-116 | `HighlightBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
+| AT-117 | `HighlightBox` | `startDate` | 日時 | 可 | — | GRS | — | 囲む範囲の左端 |
+| AT-118 | `HighlightBox` | `endDate` | 日時 | 可 | — | GRS | — | 囲む範囲の右端 |
+| AT-119 | `HighlightBox` | `topGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の上端の行 |
+| AT-120 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端の行 |
+| AT-121 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色 |
+| AT-122 | `HighlightBox` | `cornerRadiusPx` | 数値 | 可 | — | GRS | — | 角の丸み |
+| AT-123 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す** |
+| AT-124 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |
+| AT-125 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |
+| AT-126 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は定めない** |
+| AT-127 | `revisionStamp` | `revision` | 整数 | 否 | — | GRS | — | 1 ずつ増える。上げる条件は `FR-063` |
+| AT-128 | `revisionStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。人か、AI か |
+| AT-129 | `revisionStamp` | `updatedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 最後に書いた時刻。**秒までとする**（透かしと精度を揃える） |
+| AT-130 | `changeLog` | `revision` | 整数 | 否 | PK | GRS | — | どの版に対する理由か |
+| AT-131 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |
+| AT-132 | `changeLog` | `explanation` | 文字列 | 否 | — | GRS | — | なぜそう変えたか（`UC-013`） |
+| AT-133 | `changeLog` | `changedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | その版の時刻 |
+| AT-134 | `BaselineTask` | `uid` | 整数 | 否 | PK | GRS | — | 重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`） |
+| AT-135 | `BaselineTask` | `name` | 文字列 | 可 | — | GRS | — | タスク名 |
+| AT-136 | `BaselineTask` | `start` | 日時 | 可 | — | GRS | — | 変更前の予定の開始 |
+| AT-137 | `BaselineTask` | `finish` | 日時 | 可 | — | GRS | — | 変更前の予定の終了 |
+| AT-138 | `BaselineTask` | `milestone` | 真偽 | 可 | — | GRS | — | マイルストーンとして描くか |
 
 ## 5. 列にせず、書き出すときに作るもの
 

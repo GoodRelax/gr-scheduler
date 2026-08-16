@@ -1044,10 +1044,10 @@
     {
      "name": "order",
      "type": "整数",
-     "nullable": "可",
+     "nullable": "否",
      "json": {
       "kind": "integer",
-      "null": true
+      "null": false
      },
      "key": "",
      "origin": "GRS",
@@ -1960,34 +1960,6 @@
      "meaning": "留める行"
     },
     {
-     "name": "anchorTaskUid",
-     "type": "整数",
-     "nullable": "可",
-     "json": {
-      "kind": "integer",
-      "null": true
-     },
-     "key": "FK",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": "留めるタスク"
-    },
-    {
-     "name": "anchorPoint",
-     "type": "整数（0〜8）",
-     "nullable": "可",
-     "json": {
-      "kind": "integer",
-      "min": 0,
-      "max": 8,
-      "null": true
-     },
-     "key": "",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": "タスクのどこに留めるか"
-    },
-    {
      "name": "bodyOffsetPx",
      "type": "`{ dx, dy }`",
      "nullable": "可",
@@ -2466,12 +2438,6 @@
    "child": "Task",
    "multiplicity": "0..1 ─ 1",
    "label": "そのタスクの取り込み元（`taskUid`）"
-  },
-  {
-   "parent": "CommentBox",
-   "child": "Task",
-   "multiplicity": "0..n ─ 0..1",
-   "label": "留めるタスク（`anchorTaskUid`）"
   },
   {
    "parent": "CommentBox",
