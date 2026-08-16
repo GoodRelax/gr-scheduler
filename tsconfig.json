@@ -1,0 +1,35 @@
+{
+  "$comment": [
+    "Chapter 1.4 of the specification names TypeScript as the language and says",
+    "Vite does not type-check: `tsc --noEmit` runs on its own. That is what this",
+    "file configures, so it emits nothing.",
+    "The strict family is on in full. A stub tree is the cheapest moment to turn",
+    "these on -- every one of them is far more expensive to adopt once 71 units",
+    "are written against the looser setting."
+  ],
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "types": ["node"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "useUnknownInCatchVariables": true,
+
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
+}

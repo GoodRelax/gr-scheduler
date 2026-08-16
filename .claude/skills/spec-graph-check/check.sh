@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 17 mechanical checks for the gr-scheduler specification.
+# All 18 mechanical checks for the gr-scheduler specification.
 #
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
@@ -18,6 +18,10 @@
 #   17     erd_json_to_schema.py --check : the GRS JSON schema still matches
 #          the two sources Chapter 6.2 names (erd.json and tbl-settings.md),
 #          the same guard as 16 for the other generated artifact
+#   18     generate_unit_tree.py --check : src/ holds exactly the units of
+#          table T-075, at the paths Chapter 5.3 fixes. It compares the set of
+#          paths, never the contents, so it keeps guarding once the files are
+#          written
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -95,6 +99,10 @@ python docs/spec/_assets/source/erd_json_to_md.py --check || fail=1
 echo ""
 echo "===== 17  the GRS JSON schema still matches its two sources ====="
 PYTHONIOENCODING=utf-8 python docs/spec/_assets/source/erd_json_to_schema.py --check || fail=1
+
+echo ""
+echo "===== 18  src/ still holds exactly the units of table T-075 ====="
+PYTHONIOENCODING=utf-8 python tools/generate_unit_tree.py --check || fail=1
 
 echo ""
 if [ "$fail" -eq 0 ]; then
