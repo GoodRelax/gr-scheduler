@@ -128,6 +128,7 @@
 | U-48 | `Row Pin` | ピン止めの操作子。置き方は `FR-098` |
 | U-49 | `Resource Roster` | 名簿。文書が持つ担当者の一覧。出し方と消し方は `FR-099` |
 | U-50 | `Row Area` | （画面に出ない構造名。日本語を当てない）。**`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Rows` が並ぶ領域。**左右は `Row Title Panel` と `Properties Panel` の内側 |
+| U-52 | `Actual Operation Dummy` | 実績操作のダミー。**未着手のタスクに薄く出す掴みシロ。**文書のデータとしては存在しない（`FR-043`） |
 | U-51 | `ScreenState` | （画面に出ない構造名。日本語を当てない）。文書に保存しない画面の値をまとめて持つ型の名。⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の `K-67` 〜 `K-72` が既に使っており、あちらは文書に保存する値である |
 
 > **呼び名は `Agent API` とする。日本語でも `Agent API` と書く。**
@@ -253,6 +254,9 @@
 | K-104 | 依存線 | `dependencyLagDefault` | 依存を作ったときに置くラグ |
 | K-105 | 文字サイズ | `fontScaleSizes.S` / `fontScaleSizes.M` / `fontScaleSizes.L` | 文字サイズの段（S / M / L）の px |
 | K-106 | 画面の寸法 | `iconHintDelayMs` | アイコンの説明を出すまでの待ち時間 |
+| K-107 | 予実 | `actualInitialDuration` | 掴んだときの実績期間 |
+| K-108 | 予実 | `milestoneActualDuration` | マイルストーンの実績期間 |
+| K-109 | 予実 | `dummyOpacity` | ダミーの濃さ |
 | K-90 | 保存しないもの（別枠） | `language` ⛔ | 表示言語（`ja` / `en`）。置き場と規則は表 T-206 の `S-99` |
 
 **キーに関する規約:**
