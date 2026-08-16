@@ -322,7 +322,7 @@ src/
 ⚠️ **`semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反しない。** 同条項が別ファイルへ分けよと求めるのは**純粋な側と非純粋な側**であり、`semi-pure-b` は非純粋な側だからである。**外を読むだけのメンバと外へ書くメンバが同じ入口に並ぶのは、表 T-065 のインターフェース 1 本が両方を持つときである。**
 
 **表 T-064 の `PI-n` は、表 T-062 の `CP-n` と同じコンポーネントである。純粋性を添えていないメンバは `pure` である。**
-**本表は名前と、それが何を担うかだけを持つ。引数・戻り値・境界値は Chapter 6.1 が持つ**（表 T-107 と同じ扱いである）。
+**本表は名前と、それが何を担うかだけを持つ。引数・戻り値は `src/` の公開エントリが持ち、境界値は Chapter 6.1 が持つ**（表 T-107 と同じ扱いである）。⭐ **`src/` を正とするのは、署名に型検査が当たる場所がそこだけだからである** —— 実装言語と `tsc --noEmit` は Chapter 1.4 が、`src/` の木と公開エントリを 1 ファイルに限る MUST は本節が持つ。
 
 **表 T-064 — 公開インターフェース**
 
@@ -335,7 +335,7 @@ src/
 | PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか） |
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryFromLayout` |
 | PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。完全に囲まれたものだけ） |
-| PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は Chapter 6.1 が持つ**）／ `applyDocumentChange`（`non-pure`。唯一の書き込みの経路） |
+| PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は 表 T-108 が持つ**）／ `applyDocumentChange`（`non-pure`。唯一の書き込みの経路） |
 | PI-9 | `UseCase` | `EditDocument` | `editTask` / `editTaskGroup` / `editDependency` / `editAnnotation` / `editResource` / `editCalendar` / `editProject` / `editDocumentSettings` |
 | PI-10 | `UseCase` | `ImportDocument` | `importDocument`（合流の選択肢は 表 T-032a） |
 | PI-11 | `UseCase` | `UndoEdit` | `undoEdit` |
@@ -721,7 +721,17 @@ stateDiagram-v2
 
 **永続ストアは持たない**（Chapter 2.4 の表 T-009 の `XO-3`）。
 
-> 未記入。上の図と表から JSON Schema を起こす。
+**`GRS JSON` のスキーマは、原稿から起こす生成物とする（MUST）** —— 本節はスキーマ本体を持たない。図と表が持つ列の構成を 2 か所で抱えることになるためである。
+
+**起こす原稿は 2 つとする（MUST）** —— **日程データの群は `_assets/source/erd.json`、見せ方の群は `_assets/tbl-settings.md` である**。前者は 図 F-011 と 表 T-056・表 T-057・表 T-058・表 T-059 を書き出している原稿であり、後者は値の正である。⚠️ **どちらも既にあるものであり、値を写した 3 つ目の原稿を作ってはならない（MUST NOT）**。
+
+**日程データの群の原稿は、生成に要る型と、値の範囲と、空を許すかどうかを、機械が読める形で持つこと（MUST）** —— いまはそれらを日本語の散文で書いており、列挙の中には値そのものを持たない行がある。⚠️ **どの鍵をどう足すかは原稿の作りであり、本節は定めない**。
+
+⚠️ **見せ方の群の原稿は、いまの表の形のまま読む** —— 値を機械可読な原稿へ移し替えると `_assets/tbl-settings.md` の作り直しになり、得るものに見合わない。
+
+**生成物は、原稿から作り直した結果と一致すること（MUST）** —— **生成物を手で直してはならない（MUST NOT）**。5.2 が `_assets/source/components.json` の生成物に同じ MUST NOT を定めている。
+
+> 未記入。原稿が機械可読になってから起こす。
 
 ## Chapter 7. Test Strategy (テスト戦略)
 

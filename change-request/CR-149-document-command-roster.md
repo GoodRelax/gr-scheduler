@@ -6,7 +6,7 @@
 
 **閉じるもの**: CR-146 §4 が「利用者が裁定していない第三の論点」として落とした **`DocumentCommand` の全数を誰が持つか**。
 ⚠️ **`CR-145` は版 0.39 の変更履歴が席を使っている。ファイルは無いが再利用しない。**
-⛔ **本 CR は名簿を置くだけである。** 名簿を組むときに見つかった仕様の穴（**49 件**）は **CR-150** が持つ。
+⛔ **本 CR は名簿を置くだけである。** 名簿を組むときに見つかった仕様の穴（**49 件**）は **CR-150** が引き受ける —— **10 件を要求本文で閉じ、残りは利用者の裁定へ回す。**
 
 ## 1. 出どころ
 
@@ -88,11 +88,11 @@
 | CM-47 | `CommentBox` | `deleteCommentBox` | — | コメントボックスを消す | `FR-032` |
 | CM-48 | `CommentBox` | `setCommentBoxText` | — | 本文を書く | `FR-097` |
 | CM-49 | `CommentBox` | `setCommentBoxLeaderShapeKind` | — | 引出し線の形を選ぶ | `FR-019` |
-| CM-50 | `CommentBox` | `setCommentBoxAnchor` | — | 留め先を変える | `FR-019` |
-| CM-51 | `CommentBox` | `setCommentBoxBodyOffsetPx` | — | 本文のずれを変える | `FR-019` |
+| CM-50 | `CommentBox` | `setCommentBoxAnchor` | — | 留め先を変える | `FR-016` |
+| CM-51 | `CommentBox` | `setCommentBoxBodyOffsetPx` | — | 本文のずれを変える | `FR-016` |
 | CM-52 | `HighlightBox` | `createHighlightBox` | — | ハイライトボックスを置く | `FR-019` |
 | CM-53 | `HighlightBox` | `deleteHighlightBox` | — | ハイライトボックスを消す | `FR-032` |
-| CM-54 | `HighlightBox` | `setHighlightBoxRange` | — | 囲む範囲を変える | `FR-019` |
+| CM-54 | `HighlightBox` | `setHighlightBoxRange` | — | 囲む範囲を変える | `FR-016` |
 | CM-55 | `HighlightBox` | `setHighlightBoxStrokeColor` | — | 枠の色を置く | `FR-019` |
 | CM-56 | 見せ方の群 | `setStackDirection` | — | 積む向きを選ぶ | `FR-003` |
 | CM-57 | 見せ方の群 | `setPlanActualDisplay` | — | 予実の表示を選ぶ | `FR-049` |
@@ -124,7 +124,7 @@
 | | |
 |---|---|
 | **改名 4 件** | `advanceTaskPlanActualState`→**`cycleTaskPlanActualState`**（仕様自身の動詞が「巡らせる」。`FR-013` / `FR-043` ／ `05-07-design.md:500`）／ `deleteAssignment`→**`unassignResource`**（仕様は割当の「解除」と担当者の「削除」を書き分ける。`:1514` / `:1520`）／ `setTaskGroupOrder`→**`reorderTaskGroupSiblings`**（`HM-8` の動詞は「並べ替え」。`:1350`）／ `setCommentBoxBodyOffset`→**`setCommentBoxBodyOffsetPx`**（列名が `bodyOffsetPx` であり、`setTaskFadeInDays` と同じ逐語の慣行）|
-| **「正」の訂正** | `setTaskPlanDates` の正は `FR-006` ではなく **`FR-012`** —— `finish` が `start` より前を受け付けない等の MUST NOT は `:1991` / `:1995` にあり、`FR-006` が持つのは入口（`PR-3`）だけである |
+| **「正」の訂正 4 件** | `setTaskPlanDates` の正は `FR-006` ではなく **`FR-012`** —— `finish` が `start` より前を受け付けない等の MUST NOT は `:1991` / `:1995` にあり、`FR-006` が持つのは入口（`PR-3`）だけである。⭐ **`CM-50` / `CM-51` / `CM-54` の正も `FR-019` ではなく `FR-016`** —— `FR-019`（`:2599`）の STATEMENT は「構えて置いたとき…作り…持つこと」＝**置くときだけ**を縛り、置いた後に留め先・本文のずれ・囲む範囲を変える規則は 表 T-023d の `GR-14`（`:2268`。`FR-016` の表）にしか無い（CR-150 §5）。**種類の数は 39 のまま**である（`FR-019` が 7 → 4、`FR-016` が 1 → 4）|
 | **判定** | `setDependencyLag` は **⭐ 側**である —— `01-04-requirements.md:1775` が `lag` の編集と `linkType` を 1 操作で縛る。名簿の集計（19 / 52）は **20 / 51** に直る |
 | **接頭辞** | `DC-` が使えないので **`CM-`** にした。表 T-107 の `AM-`（Agent Member）と対になる |
 | **ベースライン** | ⚠️ **`CM-16` / `CM-17`（フェードイン・フェードアウト）が新しい重複として立つ**（類似 0.49）。**同じ形の兄弟行が既に 6 組ベースラインに載っている**（`S-28`+`S-29`、`S-75`+`S-76`、`S-122`+`S-123`、`K-28`+`K-29` ほか）ので、文言を歪めず署名を足す |

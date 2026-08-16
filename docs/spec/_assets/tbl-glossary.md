@@ -303,7 +303,7 @@
 **Type**: SECTION
 
 **`Agent API` は 1 つの面に 18 のメンバをフラットに並べる。** 用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。
-**引数・戻り値・境界値は Chapter 6.1 が持つ。本表は名前と、何を担うかだけを持つ。**
+**引数・戻り値は `src/` の公開エントリが持ち、境界値は Chapter 6.1 が持つ。本表は名前と、何を担うかだけを持つ。**
 
 **表 T-107 — `Agent API` のメンバ**
 
@@ -333,3 +333,91 @@
 
 ⚠️ **クリップボードと `localStorage` は本表に無い。** 理由は表 T-024 の `IO-5` / `IO-6` の用途にある ——
 **前者は保存と復旧、後者は他のアプリへ画像を渡す経路であり、どちらも値で受け取る相手を持たない。**
+
+## 7. `DocumentCommand` の全数
+
+**Type**: SECTION
+
+**本表は `applyDocumentChange` が受け取る命令の全数である**（表 T-064 の `PI-8`）。
+**引数・戻り値は `src/` の公開エントリが持ち、境界値は Chapter 6.1 が持つ。従う規則は「正」の列が指す要求が持つ。本表は名前と、何を担うかだけを持つ。**
+
+⚠️ **`組` の欄が ⭐ の行は、複数の列にまたがる MUST を 1 つの命令へ畳んだものである。** 畳むのは**その MUST の持ち主を作るため**であり、`AG-9a` が拒むときに何を指しているかがこれで決まる。⚠️ **原子性のためではない** —— 束の単位で原子的に適用することは 表 T-035 の `AG-3` が既に定めている。
+
+**表 T-108 — `DocumentCommand` の全数**
+
+| 行 ID | 群 | 確定名 | 組 | 何を担うか | 正 |
+| --- | --- | --- | --- | --- | --- |
+| CM-1 | `Project` | `setProjectTitle` | — | 文書名を変える | `FR-035` |
+| CM-2 | `Project` | `setProjectProfile` | — | 基本情報を直す | `FR-074` |
+| CM-3 | `Project` | `setStatusDate` | — | 基準日を置く・動かす | `FR-046` |
+| CM-4 | `Project` | `clearStatusDate` | — | 基準日を消す | `FR-046` |
+| CM-5 | `Project` | `setThemeHue` | — | テーマの色相を変える | `FR-041` |
+| CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
+| CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
+| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する | `FR-033` |
+| CM-9 | `Task` | `setTaskName` | — | 名称を変える | `FR-091` |
+| CM-10 | `Task` | `setTaskNotes` | — | 備考を置く | `FR-006` |
+| CM-11 | `Task` | `setTaskPlanDates` | ⭐ | 予定の開始・終了を置く | `FR-012` |
+| CM-12 | `Task` | `setTaskDeadline` | — | 期限を置く | `FR-006` |
+| CM-13 | `Task` | `setTaskPlanActualState` | ⭐ | 予実の 5 列を置く | `FR-010` |
+| CM-14 | `Task` | `beginTaskActual` | ⭐ | 実績を置き始める | `FR-043` |
+| CM-15 | `Task` | `cycleTaskPlanActualState` | ⭐ | 予実の状態を巡らせる | `FR-013` |
+| CM-16 | `Task` | `setTaskFadeInDays` | — | フェードイン日数を置く | `FR-075` |
+| CM-17 | `Task` | `setTaskFadeOutDays` | — | フェードアウト日数を置く | `FR-075` |
+| CM-18 | `Task` | `setTaskWbsParent` | — | WBS の親を移す | `FR-005` |
+| CM-19 | `Task` | `moveTaskToTaskGroup` | — | 別の行へ載せ替える | `FR-005` |
+| CM-20 | `TaskVisual` | `setTaskVisualShapeKind` | — | タスク形状を変える | `FR-083` |
+| CM-21 | `TaskVisual` | `setTaskVisualMilestoneGlyph` | — | マイルストーン形状を変える | `FR-078` |
+| CM-22 | `TaskVisual` | `setTaskVisualColors` | ⭐ | 線色と塗り色を置く | `FR-007` |
+| CM-23 | `TaskVisual` | `resetTaskVisualColors` | ⭐ | 色をテーマ追随へ戻す | `FR-007` |
+| CM-24 | `TaskVisual` | `setTaskVisualLineWeight` | — | 線の太さを置く | `FR-007` |
+| CM-25 | `TaskVisual` | `setTaskVisualNamePlacement` | ⭐ | 名称ラベルの位置を置く | `FR-002` |
+| CM-26 | `TaskGroup` | `createTaskGroup` | ⭐ | 行を作る | `FR-085` |
+| CM-27 | `TaskGroup` | `deleteTaskGroup` | — | 行を消す | `FR-032` |
+| CM-28 | `TaskGroup` | `pasteTaskGroupSubtree` | ⭐ | 行の部分木を複製する | `FR-033` |
+| CM-29 | `TaskGroup` | `setTaskGroupLabel` | — | 行の名前を変える | `FR-085` |
+| CM-30 | `TaskGroup` | `setTaskGroupColor` | — | 行の色を置く | `FR-042` |
+| CM-31 | `TaskGroup` | `resetTaskGroupColor` | — | 行の色をテーマ追随へ戻す | `FR-007` |
+| CM-32 | `TaskGroup` | `setTaskGroupHeight` | — | 行の高さを置く | `FR-042` |
+| CM-33 | `TaskGroup` | `setTaskGroupCollapsed` | — | 行を畳む・開く | `FR-004` |
+| CM-34 | `TaskGroup` | `setTaskGroupHidden` | — | 行を隠す・戻す | `FR-004` |
+| CM-35 | `TaskGroup` | `reorderTaskGroupSiblings` | ⭐ | 兄弟の並びを変える | `FR-005` |
+| CM-36 | `Dependency` | `createDependency` | ⭐ | 依存線を引く | `FR-009` |
+| CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す | `FR-032` |
+| CM-38 | `Dependency` | `setDependencyLag` | ⭐ | ラグを変える | `FR-009` |
+| CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦と週の始まりを直す | `FR-088` |
+| CM-40 | `Resource` | `createResource` | — | 担当者を足す | `FR-008` |
+| CM-41 | `Resource` | `setResourceName` | — | 担当者の名前を変える | `FR-008` |
+| CM-42 | `Resource` | `deleteResource` | — | 選んだ担当者を消す | `FR-099` |
+| CM-43 | `Resource` | `deleteUnreferencedResources` | — | 未参照をまとめて消す | `FR-099` |
+| CM-44 | `Assignment` | `createAssignment` | — | 担当者を就ける | `FR-008` |
+| CM-45 | `Assignment` | `unassignResource` | — | 割当を解く | `FR-008` |
+| CM-46 | `CommentBox` | `createCommentBox` | — | コメントボックスを置く | `FR-019` |
+| CM-47 | `CommentBox` | `deleteCommentBox` | — | コメントボックスを消す | `FR-032` |
+| CM-48 | `CommentBox` | `setCommentBoxText` | — | 本文を書く | `FR-097` |
+| CM-49 | `CommentBox` | `setCommentBoxLeaderShapeKind` | — | 引出し線の形を選ぶ | `FR-019` |
+| CM-50 | `CommentBox` | `setCommentBoxAnchor` | — | 留め先を変える | `FR-016` |
+| CM-51 | `CommentBox` | `setCommentBoxBodyOffsetPx` | — | 本文のずれを変える | `FR-016` |
+| CM-52 | `HighlightBox` | `createHighlightBox` | — | ハイライトボックスを置く | `FR-019` |
+| CM-53 | `HighlightBox` | `deleteHighlightBox` | — | ハイライトボックスを消す | `FR-032` |
+| CM-54 | `HighlightBox` | `setHighlightBoxRange` | — | 囲む範囲を変える | `FR-016` |
+| CM-55 | `HighlightBox` | `setHighlightBoxStrokeColor` | — | 枠の色を置く | `FR-019` |
+| CM-56 | 見せ方の群 | `setStackDirection` | — | 積む向きを選ぶ | `FR-003` |
+| CM-57 | 見せ方の群 | `setPlanActualDisplay` | — | 予実の表示を選ぶ | `FR-049` |
+| CM-58 | 見せ方の群 | `setElementVisible` | — | 要素の表示を切り替える | `FR-049` |
+| CM-59 | 見せ方の群 | `setGuideCursorMode` | — | ガイドカーソルを選ぶ | `FR-048` |
+| CM-60 | 見せ方の群 | `setDualCursor` | ⭐ | 2 本のカーソルを置く | `FR-082` |
+| CM-61 | 見せ方の群 | `clearDualCursor` | — | 2 本のカーソルを解く | `FR-082` |
+| CM-62 | 見せ方の群 | `setFontScale` | ⭐ | 文字サイズの段を変える | `FR-039` |
+| CM-63 | 見せ方の群 | `setThemePreference` | — | 明暗テーマを選ぶ | `FR-039` |
+| CM-64 | 見せ方の群 | `setThemeMonochrome` | — | モノクロを選ぶ | `FR-041` |
+| CM-65 | 見せ方の群 | `setZoom` | ⭐ | 表示倍率を変える | `FR-016` |
+| CM-66 | 見せ方の群 | `setScrollPosition` | — | 表示位置を変える | `FR-051` |
+| CM-67 | 見せ方の群 | `setPanelWidths` | ⭐ | パネル幅を変える | `FR-052` |
+| CM-68 | 見せ方の群 | `pinTaskGroup` | — | 行をピン止めする | `FR-098` |
+| CM-69 | 見せ方の群 | `unpinTaskGroup` | — | ピン止めを外す | `FR-098` |
+| CM-70 | 見せ方の群 | `setExportPngScale` | — | PNG の倍率を選ぶ | `FR-025` |
+| CM-71 | 見せ方の群 | `fitScheduleToScreen` | ⭐ | 全体を 1 画面に収める | `FR-055` |
+
+⚠️ **`群` は対象の確定名（表 T-058 のエンティティ）と、どのエンティティにも属さない見せ方の群である。**
+
