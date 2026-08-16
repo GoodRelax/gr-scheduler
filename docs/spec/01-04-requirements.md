@@ -8,8 +8,7 @@
 書き方の規則は `previous-project-result/20-spec-template/spec-writing-rules.md`、
 要望の入力は `previous-project-result/user-order.md` が正である。
 
-> **Chapter 3 と 4 はまだ器である。** 未記入の節は引用で始まる行を持つ。
-> `grep -n "^> 未記入" docs/spec/*.md` で残りを引ける。
+> **未記入の節は引用で始まる行を持つ。** `grep -n "^> 未記入" docs/spec/*.md` で残りを引ける。
 
 ## Chapter 1. Foundation (基本事項)
 
