@@ -1260,6 +1260,40 @@
      "origin": "Carry",
      "exchange": "",
      "meaning": "`WorkWeeks` ほか、行にならなかった子要素"
+    },
+    {
+     "name": "weekDays",
+     "type": "`WeekDay[]`",
+     "nullable": "否（空可）",
+     "json": {
+      "kind": "array",
+      "of": {
+       "kind": "ref",
+       "entity": "WeekDay"
+      },
+      "null": false
+     },
+     "key": "",
+     "origin": "Consume",
+     "exchange": "Calendars/Calendar/WeekDays/WeekDay",
+     "meaning": "**曜日ごとの稼働**（表 T-053 の `DF-1`）"
+    },
+    {
+     "name": "exceptions",
+     "type": "`Exception[]`",
+     "nullable": "否（空可）",
+     "json": {
+      "kind": "array",
+      "of": {
+       "kind": "ref",
+       "entity": "Exception"
+      },
+      "null": false
+     },
+     "key": "",
+     "origin": "Consume",
+     "exchange": "Calendars/Calendar/Exceptions/Exception",
+     "meaning": "**例外日**（表 T-053 の `DF-1`）"
     }
    ]
   },
@@ -1268,20 +1302,8 @@
    "description": "曜日ごとの稼働の定め（弱エンティティ）",
    "export": true,
    "carry": true,
+   "key_note": "親の暦 ＋ `ordinal`",
    "columns": [
-    {
-     "name": "calendarUid",
-     "type": "整数",
-     "nullable": "否",
-     "json": {
-      "kind": "integer",
-      "null": false
-     },
-     "key": "PK/FK",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": "親の暦"
-    },
     {
      "name": "ordinal",
      "type": "整数",
@@ -1363,20 +1385,8 @@
    "description": "暦の例外日（弱エンティティ）",
    "export": true,
    "carry": true,
+   "key_note": "親の暦 ＋ `ordinal`",
    "columns": [
-    {
-     "name": "calendarUid",
-     "type": "整数",
-     "nullable": "否",
-     "json": {
-      "kind": "integer",
-      "null": false
-     },
-     "key": "PK/FK",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": "親の暦"
-    },
     {
      "name": "ordinal",
      "type": "整数",

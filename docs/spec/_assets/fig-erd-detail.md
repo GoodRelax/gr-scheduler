@@ -99,9 +99,10 @@ erDiagram
         整数 ordinal "GRS"
         連想 carry "Carry・文字列→文字列"
         CarryElement[] carryElements "Carry"
+        WeekDay[] weekDays "Consume"
+        Exception[] exceptions "Consume"
     }
     WeekDay {
-        整数 **calendarUid** PK,FK "GRS"
         整数 **ordinal** PK "GRS"
         整数 dayType "Own・1〜7"
         真偽 dayWorking "Own"
@@ -109,7 +110,6 @@ erDiagram
         CarryElement[] carryElements "Carry"
     }
     Exception {
-        整数 **calendarUid** PK,FK "GRS"
         整数 **ordinal** PK "GRS"
         文字列 name "Own"
         日時 fromDate "Own"
@@ -242,8 +242,8 @@ erDiagram
 | ET-4 | `TaskGroup` | 行の器。縦積みの軸を作る（`FR-004`） | `id` | **書き出さない** | — |
 | ET-5 | `TaskGroupMember` | どのタスクがどの行の何段目に載るか | `taskUid`（一意） | **書き出さない** | — |
 | ET-6 | `Calendar` | 暦 1 つ。稼働日と非稼働日を決める | `uid` | 書き出す | あり |
-| ET-7 | `WeekDay` | 曜日ごとの稼働の定め（弱エンティティ） | `calendarUid` ＋ `ordinal` | 書き出す | あり |
-| ET-8 | `Exception` | 暦の例外日（弱エンティティ） | `calendarUid` ＋ `ordinal` | 書き出す | あり |
+| ET-7 | `WeekDay` | 曜日ごとの稼働の定め（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
+| ET-8 | `Exception` | 暦の例外日（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
 | ET-9 | `Resource` | 担当者 1 人（または 1 つの資源） | `uid` | 書き出す | あり |
 | ET-10 | `Assignment` | どの担当者がどのタスクに就くか | `uid` | 書き出す | あり |
 | ET-11 | `TaskVisual` | タスクの見せ方。形・色・名前の置き方 | `taskUid` | **書き出さない** | — |
@@ -372,13 +372,13 @@ erDiagram
 | AT-67 | `Calendar` | `ordinal` | 整数 | 否 | — | GRS | — | 出現順。書き出しで元の並びに戻す |
 | AT-68 | `Calendar` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
 | AT-69 | `Calendar` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkWeeks` ほか、行にならなかった子要素 |
-| AT-70 | `WeekDay` | `calendarUid` | 整数 | 否 | PK/FK | GRS | — | 親の暦 |
-| AT-71 | `WeekDay` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
-| AT-72 | `WeekDay` | `dayType` | 整数（1〜7） | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayType` | 曜日 |
-| AT-73 | `WeekDay` | `dayWorking` | 真偽 | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayWorking` | 稼働日か |
-| AT-74 | `WeekDay` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
-| AT-75 | `WeekDay` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
-| AT-76 | `Exception` | `calendarUid` | 整数 | 否 | PK/FK | GRS | — | 親の暦 |
+| AT-70 | `Calendar` | `weekDays` | `WeekDay[]` | 否（空可） | — | Consume | `Calendars/Calendar/WeekDays/WeekDay` | **曜日ごとの稼働**（表 T-053 の `DF-1`） |
+| AT-71 | `Calendar` | `exceptions` | `Exception[]` | 否（空可） | — | Consume | `Calendars/Calendar/Exceptions/Exception` | **例外日**（表 T-053 の `DF-1`） |
+| AT-72 | `WeekDay` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
+| AT-73 | `WeekDay` | `dayType` | 整数（1〜7） | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayType` | 曜日 |
+| AT-74 | `WeekDay` | `dayWorking` | 真偽 | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayWorking` | 稼働日か |
+| AT-75 | `WeekDay` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
+| AT-76 | `WeekDay` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
 | AT-77 | `Exception` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
 | AT-78 | `Exception` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Exceptions/Exception/Name` | 例外の名前 |
 | AT-79 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | ⚠️ **繰り返しの起点であって実日付の範囲ではない** |

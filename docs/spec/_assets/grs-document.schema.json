@@ -3,7 +3,7 @@
  "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_assets/grs-document.schema.json",
  "title": "GRS JSON document",
  "description": "Generated from docs/spec/_assets/source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md (the presentation group). Never edit by hand: run docs/spec/_assets/source/erd_json_to_schema.py.",
- "$comment": "Enumerations whose members the specification has not spelled out, widened to a plain string here: TaskVisual.nameAlign, TaskVisual.milestoneGlyph, TaskVisual.lineWeight, CommentBox.leaderShapeKind. Settings keys whose own row does not say what type they hold, left unconstrained here: dualCursor.date1, dualCursor.date2, planActualGuidePattern. Entities the container does not place anywhere, so no property points at their definition: Exception, WeekDay.",
+ "$comment": "Enumerations whose members the specification has not spelled out, widened to a plain string here: TaskVisual.nameAlign, TaskVisual.milestoneGlyph, TaskVisual.lineWeight, CommentBox.leaderShapeKind. Settings keys whose own row does not say what type they hold, left unconstrained here: dualCursor.date1, dualCursor.date2, planActualGuidePattern.",
  "type": "object",
  "required": [
   "schemaVersion",
@@ -1213,7 +1213,9 @@
     "baseCalendarUid",
     "ordinal",
     "carry",
-    "carryElements"
+    "carryElements",
+    "weekDays",
+    "exceptions"
    ],
    "additionalProperties": false,
    "properties": {
@@ -1252,6 +1254,18 @@
      "items": {
       "$ref": "#/$defs/CarryElement"
      }
+    },
+    "weekDays": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/WeekDay"
+     }
+    },
+    "exceptions": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/Exception"
+     }
     }
    }
   },
@@ -1259,7 +1273,6 @@
    "type": "object",
    "description": "曜日ごとの稼働の定め（弱エンティティ）",
    "required": [
-    "calendarUid",
     "ordinal",
     "dayType",
     "dayWorking",
@@ -1268,9 +1281,6 @@
    ],
    "additionalProperties": false,
    "properties": {
-    "calendarUid": {
-     "type": "integer"
-    },
     "ordinal": {
      "type": "integer"
     },
@@ -1306,7 +1316,6 @@
    "type": "object",
    "description": "暦の例外日（弱エンティティ）",
    "required": [
-    "calendarUid",
     "ordinal",
     "name",
     "fromDate",
@@ -1318,9 +1327,6 @@
    ],
    "additionalProperties": false,
    "properties": {
-    "calendarUid": {
-     "type": "integer"
-    },
     "ordinal": {
      "type": "integer"
     },
