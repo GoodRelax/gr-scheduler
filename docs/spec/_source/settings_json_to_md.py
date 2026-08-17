@@ -93,7 +93,12 @@ def build(doc):
     lines = []
     for block in doc['blocks']:
         if block['kind'] == 'prose':
-            lines.extend(block['lines'])
+            # A line carrying Japanese is a language dictionary; a line that
+            # carries none -- a blank, a `**Type**: SECTION`, a rule row --
+            # belongs to no language and stays a plain string. Chapter 6.2
+            # requires the printed prose to be held per language, and this is
+            # printed prose: it is the paragraphs BETWEEN the tables.
+            lines.extend(text(x) for x in block['lines'])
         else:
             lines.extend(table(block))
     return '\n'.join(lines)

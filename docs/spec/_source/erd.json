@@ -11,36 +11,58 @@
   {
    "file": "fig-erd-detail.md",
    "uid": "DOC-FIG-ERD-DETAIL",
-   "title": "データモデル — 詳細（列と関係）",
+   "title": {
+    "ja": "データモデル — 詳細（列と関係）"
+   },
    "version": "0.1",
    "sections": [
     {
-     "title": "1. 詳細 ERD",
+     "title": {
+      "ja": "1. 詳細 ERD"
+     },
      "block": "figure",
-     "caption": "図 F-011 — データモデルの詳細"
+     "caption": {
+      "ja": "図 F-011 — データモデルの詳細"
+     }
     },
     {
-     "title": "2. エンティティ",
+     "title": {
+      "ja": "2. エンティティ"
+     },
      "block": "entity",
-     "caption": "表 T-056 — エンティティ",
+     "caption": {
+      "ja": "表 T-056 — エンティティ"
+     },
      "row_prefix": "ET"
     },
     {
-     "title": "3. 関係",
+     "title": {
+      "ja": "3. 関係"
+     },
      "block": "relation",
-     "caption": "表 T-057 — エンティティのあいだの関係",
+     "caption": {
+      "ja": "表 T-057 — エンティティのあいだの関係"
+     },
      "row_prefix": "RL"
     },
     {
-     "title": "4. 列",
+     "title": {
+      "ja": "4. 列"
+     },
      "block": "column",
-     "caption": "表 T-058 — 列",
+     "caption": {
+      "ja": "表 T-058 — 列"
+     },
      "row_prefix": "AT"
     },
     {
-     "title": "5. 列にせず、書き出すときに作るもの",
+     "title": {
+      "ja": "5. 列にせず、書き出すときに作るもの"
+     },
      "block": "derived",
-     "caption": "表 T-059 — 書き出すときに作る値",
+     "caption": {
+      "ja": "表 T-059 — 書き出すときに作る値"
+     },
      "row_prefix": "DV"
     }
    ]
@@ -48,13 +70,19 @@
   {
    "file": "fig-erd-overview.md",
    "uid": "DOC-FIG-ERD-OVERVIEW",
-   "title": "データモデル — 概要（文書の全体像）",
+   "title": {
+    "ja": "データモデル — 概要（文書の全体像）"
+   },
    "version": "0.3",
    "sections": [
     {
-     "title": "1. 文書の全体像",
+     "title": {
+      "ja": "1. 文書の全体像"
+     },
      "block": "container",
-     "caption": "図 F-010 — 文書の全体像"
+     "caption": {
+      "ja": "図 F-010 — 文書の全体像"
+     }
     }
    ]
   }
@@ -67,27 +95,37 @@
      [
       "文字列",
       "schemaVersion",
-      "文書の形式の版"
+      {
+       "ja": "文書の形式の版"
+      }
      ],
      [
       "オブジェクト",
       "schedule",
-      "日程データの群"
+      {
+       "ja": "日程データの群"
+      }
      ],
      [
       "オブジェクト",
       "documentSettings",
-      "見せ方の群"
+      {
+       "ja": "見せ方の群"
+      }
      ],
      [
       "オブジェクト",
       "revisionStamp",
-      "文書の刻印"
+      {
+       "ja": "文書の刻印"
+      }
      ],
      [
       "配列",
       "changeLog",
-      "文書の刻印"
+      {
+       "ja": "文書の刻印"
+      }
      ]
     ]
    },
@@ -175,19 +213,33 @@
     "id": "revisionStamp",
     "entity": "revisionStamp",
     "labels": [
-     "版数",
-     "最後に書いた者",
-     "時刻"
+     {
+      "ja": "版数"
+     },
+     {
+      "ja": "最後に書いた者"
+     },
+     {
+      "ja": "時刻"
+     }
     ]
    },
    {
     "id": "changeLog",
     "entity": "changeLog",
     "labels": [
-     "適用された版数",
-     "書いた者",
-     "変更の理由",
-     "時刻"
+     {
+      "ja": "適用された版数"
+     },
+     {
+      "ja": "書いた者"
+     },
+     {
+      "ja": "変更の理由"
+     },
+     {
+      "ja": "時刻"
+     }
     ]
    }
   ],
@@ -214,61 +266,81 @@
     "from": "Document",
     "to": "schedule",
     "multiplicity": "1 ─ 1",
-    "label": "日程データの群"
+    "label": {
+     "ja": "日程データの群"
+    }
    },
    {
     "from": "Document",
     "to": "documentSettings",
     "multiplicity": "1 ─ 1",
-    "label": "見せ方の群"
+    "label": {
+     "ja": "見せ方の群"
+    }
    },
    {
     "from": "Document",
     "to": "revisionStamp",
     "multiplicity": "1 ─ 1",
-    "label": "文書の刻印"
+    "label": {
+     "ja": "文書の刻印"
+    }
    },
    {
     "from": "Document",
     "to": "changeLog",
     "multiplicity": "1 ─ 0..n",
-    "label": "文書の刻印"
+    "label": {
+     "ja": "文書の刻印"
+    }
    },
    {
     "from": "schedule",
     "to": "Dependency",
     "multiplicity": "1 ─ 0..n",
-    "label": "tasks の各要素の下に入れ子"
+    "label": {
+     "ja": "tasks の各要素の下に入れ子"
+    }
    },
    {
     "from": "schedule",
     "to": "WeekDay",
     "multiplicity": "1 ─ 0..n",
-    "label": "calendars の各要素の下に入れ子"
+    "label": {
+     "ja": "calendars の各要素の下に入れ子"
+    }
    },
    {
     "from": "schedule",
     "to": "Exception",
     "multiplicity": "1 ─ 0..n",
-    "label": "calendars の各要素の下に入れ子"
+    "label": {
+     "ja": "calendars の各要素の下に入れ子"
+    }
    },
    {
     "from": "schedule",
     "to": "CarryElement",
     "multiplicity": "1 ─ 0..n",
-    "label": "carryElements を持つ 8 型の兄弟の鍵"
+    "label": {
+     "ja": "carryElements を持つ 8 型の兄弟の鍵"
+    }
    },
    {
     "from": "documentSettings",
     "to": "schedule",
     "multiplicity": "0..1 ─ 1",
-    "label": "表示位置が指す行。弱い参照"
+    "label": {
+     "ja": "表示位置が指す行。弱い参照"
+    }
    },
    {
     "from": "documentSettings",
     "to": "schedule",
     "multiplicity": "0..n ─ 1",
-    "label": "ピン止めした行。弱い参照"
+    "label": {
+     "ja": "ピン止めした行。弱い参照"
+    }
    }
   ]
  },
@@ -281,7 +353,9 @@
    },
    "export": true,
    "carry": true,
-   "key_note": "— （文書に 1 つしか無い。`id` は主キーにしない）",
+   "key_note": {
+    "ja": "— （文書に 1 つしか無い。`id` は主キーにしない）"
+   },
    "columns": [
     {
      "name": "id",
@@ -295,7 +369,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/UID",
-     "meaning": "⚠️ **主キーにしない**（理由は Chapter 5.4）。省略されたときは `TaskOrigin.importSessionId` が代わりを務める"
+     "meaning": {
+      "ja": "⚠️ **主キーにしない**（理由は Chapter 5.4）。省略されたときは `TaskOrigin.importSessionId` が代わりを務める"
+     }
     },
     {
      "name": "name",
@@ -308,7 +384,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/Name",
-     "meaning": "プロジェクト名"
+     "meaning": {
+      "ja": "プロジェクト名"
+     }
     },
     {
      "name": "title",
@@ -321,7 +399,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/Title",
-     "meaning": "文書名（`U-27`）"
+     "meaning": {
+      "ja": "文書名（`U-27`）"
+     }
     },
     {
      "name": "subject",
@@ -334,7 +414,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/Subject",
-     "meaning": "件名"
+     "meaning": {
+      "ja": "件名"
+     }
     },
     {
      "name": "category",
@@ -347,7 +429,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/Category",
-     "meaning": "分類"
+     "meaning": {
+      "ja": "分類"
+     }
     },
     {
      "name": "company",
@@ -360,7 +444,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/Company",
-     "meaning": "会社名"
+     "meaning": {
+      "ja": "会社名"
+     }
     },
     {
      "name": "manager",
@@ -373,7 +459,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/Manager",
-     "meaning": "管理者名"
+     "meaning": {
+      "ja": "管理者名"
+     }
     },
     {
      "name": "author",
@@ -386,7 +474,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/Author",
-     "meaning": "**作成者。最後に書いた者ではない**"
+     "meaning": {
+      "ja": "**作成者。最後に書いた者ではない**"
+     }
     },
     {
      "name": "created",
@@ -400,7 +490,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/CreationDate",
-     "meaning": "作成日時"
+     "meaning": {
+      "ja": "作成日時"
+     }
     },
     {
      "name": "revision",
@@ -413,7 +505,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/Revision",
-     "meaning": "⚠️ **交換相手の保存回数。`revisionStamp.revision` とは別物**"
+     "meaning": {
+      "ja": "⚠️ **交換相手の保存回数。`revisionStamp.revision` とは別物**"
+     }
     },
     {
      "name": "lastSaved",
@@ -427,7 +521,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/LastSaved",
-     "meaning": "最後に保存した日時"
+     "meaning": {
+      "ja": "最後に保存した日時"
+     }
     },
     {
      "name": "startDate",
@@ -441,7 +537,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/StartDate",
-     "meaning": "プロジェクトの開始日"
+     "meaning": {
+      "ja": "プロジェクトの開始日"
+     }
     },
     {
      "name": "statusDate",
@@ -455,7 +553,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/StatusDate",
-     "meaning": "基準日線が立つ日"
+     "meaning": {
+      "ja": "基準日線が立つ日"
+     }
     },
     {
      "name": "minutesPerDay",
@@ -468,7 +568,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/MinutesPerDay",
-     "meaning": "1 日あたりの分数。期間の換算に使う。空のときの既定は 表 T-209 の `S-128`"
+     "meaning": {
+      "ja": "1 日あたりの分数。期間の換算に使う。空のときの既定は 表 T-209 の `S-128`"
+     }
     },
     {
      "name": "minutesPerWeek",
@@ -481,7 +583,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/MinutesPerWeek",
-     "meaning": "1 週あたりの分数"
+     "meaning": {
+      "ja": "1 週あたりの分数"
+     }
     },
     {
      "name": "daysPerMonth",
@@ -494,7 +598,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/DaysPerMonth",
-     "meaning": "1 か月あたりの日数"
+     "meaning": {
+      "ja": "1 か月あたりの日数"
+     }
     },
     {
      "name": "weekStartDay",
@@ -509,7 +615,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Project/WeekStartDay",
-     "meaning": "週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）"
+     "meaning": {
+      "ja": "週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）"
+     }
     },
     {
      "name": "calendarUid",
@@ -522,7 +630,9 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Project/CalendarUID",
-     "meaning": "既定の暦。文書の暦を指す（`FR-054`）"
+     "meaning": {
+      "ja": "既定の暦。文書の暦を指す（`FR-054`）"
+     }
     },
     {
      "name": "themeHue",
@@ -537,7 +647,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "テーマの色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73`"
+     "meaning": {
+      "ja": "テーマの色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73`"
+     }
     },
     {
      "name": "uidHighWaterMark",
@@ -550,7 +662,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う**"
+     "meaning": {
+      "ja": "発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う**"
+     }
     },
     {
      "name": "importSeq",
@@ -563,7 +677,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13`"
+     "meaning": {
+      "ja": "取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13`"
+     }
     },
     {
      "name": "carry",
@@ -579,7 +695,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "解釈しない `Project` 直下のスカラー"
+     "meaning": {
+      "ja": "解釈しない `Project` 直下のスカラー"
+     }
     },
     {
      "name": "carryElements",
@@ -596,7 +714,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "行にならなかった子要素（表 T-053 の `DF-3`）"
+     "meaning": {
+      "ja": "行にならなかった子要素（表 T-053 の `DF-3`）"
+     }
     }
    ]
   },
@@ -620,7 +740,9 @@
      "key": "PK",
      "origin": "Own",
      "exchange": "Task/UID",
-     "meaning": "文書内で一意・不変。**値から意味を読まない**"
+     "meaning": {
+      "ja": "文書内で一意・不変。**値から意味を読まない**"
+     }
     },
     {
      "name": "wbsParentUid",
@@ -633,7 +755,9 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "",
-     "meaning": "WBS の親。交換相手には対応要素が無く、深さと出現順から起こす"
+     "meaning": {
+      "ja": "WBS の親。交換相手には対応要素が無く、深さと出現順から起こす"
+     }
     },
     {
      "name": "wbsOrder",
@@ -646,7 +770,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "",
-     "meaning": "同じ親の下での並び"
+     "meaning": {
+      "ja": "同じ親の下での並び"
+     }
     },
     {
      "name": "name",
@@ -659,7 +785,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/Name",
-     "meaning": "タスク名"
+     "meaning": {
+      "ja": "タスク名"
+     }
     },
     {
      "name": "start",
@@ -673,7 +801,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/Start",
-     "meaning": "予定の開始"
+     "meaning": {
+      "ja": "予定の開始"
+     }
     },
     {
      "name": "finish",
@@ -687,7 +817,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/Finish",
-     "meaning": "予定の終了"
+     "meaning": {
+      "ja": "予定の終了"
+     }
     },
     {
      "name": "milestone",
@@ -700,7 +832,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/Milestone",
-     "meaning": "**マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別（表 T-016 の `PR-18`）"
+     "meaning": {
+      "ja": "**マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別（表 T-016 の `PR-18`）"
+     }
     },
     {
      "name": "deadline",
@@ -714,7 +848,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/Deadline",
-     "meaning": "期限"
+     "meaning": {
+      "ja": "期限"
+     }
     },
     {
      "name": "notes",
@@ -727,7 +863,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/Notes",
-     "meaning": "備考"
+     "meaning": {
+      "ja": "備考"
+     }
     },
     {
      "name": "calendarUid",
@@ -740,7 +878,9 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Task/CalendarUID",
-     "meaning": "交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`）"
+     "meaning": {
+      "ja": "交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`）"
+     }
     },
     {
      "name": "actualStart",
@@ -754,7 +894,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/ActualStart",
-     "meaning": "実績の開始。空 = 未着手"
+     "meaning": {
+      "ja": "実績の開始。空 = 未着手"
+     }
     },
     {
      "name": "actualDuration",
@@ -767,7 +909,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "Task/ActualDuration",
-     "meaning": "実績バーの長さ。**交換相手は時間の量なので、取り込むときに稼働日へ解釈し、書き出すときに `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）で作り直す**（`FR-054`）"
+     "meaning": {
+      "ja": "実績バーの長さ。**交換相手は時間の量なので、取り込むときに稼働日へ解釈し、書き出すときに `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）で作り直す**（`FR-054`）"
+     }
     },
     {
      "name": "actualFinish",
@@ -781,7 +925,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/ActualFinish",
-     "meaning": "**完了したときだけ入る**"
+     "meaning": {
+      "ja": "**完了したときだけ入る**"
+     }
     },
     {
      "name": "resume",
@@ -795,7 +941,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/Resume",
-     "meaning": "中断中に、残りが始まる予定の日"
+     "meaning": {
+      "ja": "中断中に、残りが始まる予定の日"
+     }
     },
     {
      "name": "resumeValid",
@@ -808,7 +956,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/ResumeValid",
-     "meaning": "偽 = 再開日が未定の中断"
+     "meaning": {
+      "ja": "偽 = 再開日が未定の中断"
+     }
     },
     {
      "name": "percentComplete",
@@ -822,7 +972,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Task/PercentComplete",
-     "meaning": "完了率。**上限を型に持たせない**（`FR-012`）"
+     "meaning": {
+      "ja": "完了率。**上限を型に持たせない**（`FR-012`）"
+     }
     },
     {
      "name": "fadeInDays",
@@ -835,7 +987,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "Task/ExtendedAttribute",
-     "meaning": "左のぼかしの日数。`null` と `0` を区別する"
+     "meaning": {
+      "ja": "左のぼかしの日数。`null` と `0` を区別する"
+     }
     },
     {
      "name": "fadeOutDays",
@@ -848,7 +1002,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "Task/ExtendedAttribute",
-     "meaning": "右のぼかしの日数。同上"
+     "meaning": {
+      "ja": "右のぼかしの日数。同上"
+     }
     },
     {
      "name": "dependencies",
@@ -865,7 +1021,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "Task/PredecessorLink",
-     "meaning": "**このタスクを後続とする依存**（表 T-053 の `DF-4`）"
+     "meaning": {
+      "ja": "**このタスクを後続とする依存**（表 T-053 の `DF-4`）"
+     }
     },
     {
      "name": "carry",
@@ -881,7 +1039,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "解釈しない `Task` 直下のスカラー"
+     "meaning": {
+      "ja": "解釈しない `Task` 直下のスカラー"
+     }
     },
     {
      "name": "carryElements",
@@ -898,7 +1058,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "行にならなかった子要素"
+     "meaning": {
+      "ja": "行にならなかった子要素"
+     }
     }
    ]
   },
@@ -910,7 +1072,9 @@
    },
    "export": true,
    "carry": true,
-   "key_note": "— （後続タスクの下での位置が表す）",
+   "key_note": {
+    "ja": "— （後続タスクの下での位置が表す）"
+   },
    "columns": [
     {
      "name": "predecessorUid",
@@ -923,7 +1087,9 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "PredecessorLink/PredecessorUID",
-     "meaning": "先行タスク。**後続は入れ子の位置が表す**"
+     "meaning": {
+      "ja": "先行タスク。**後続は入れ子の位置が表す**"
+     }
     },
     {
      "name": "linkType",
@@ -938,7 +1104,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "PredecessorLink/Type",
-     "meaning": "依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS"
+     "meaning": {
+      "ja": "依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS"
+     }
     },
     {
      "name": "lag",
@@ -951,7 +1119,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "PredecessorLink/LinkLag",
-     "meaning": "ラグ。単位は `lagFormat`"
+     "meaning": {
+      "ja": "ラグ。単位は `lagFormat`"
+     }
     },
     {
      "name": "lagFormat",
@@ -964,7 +1134,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "PredecessorLink/LagFormat",
-     "meaning": "ラグの単位"
+     "meaning": {
+      "ja": "ラグの単位"
+     }
     },
     {
      "name": "carry",
@@ -980,7 +1152,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "`CrossProject` ほか、解釈しないスカラー"
+     "meaning": {
+      "ja": "`CrossProject` ほか、解釈しないスカラー"
+     }
     },
     {
      "name": "carryElements",
@@ -997,7 +1171,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "行にならなかった子要素"
+     "meaning": {
+      "ja": "行にならなかった子要素"
+     }
     }
    ]
   },
@@ -1022,7 +1198,9 @@
      "key": "PK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "行の識別子"
+     "meaning": {
+      "ja": "行の識別子"
+     }
     },
     {
      "name": "parentId",
@@ -1036,7 +1214,9 @@
      "key": "FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "親の行。深さの上限は `FR-004`"
+     "meaning": {
+      "ja": "親の行。深さの上限は `FR-004`"
+     }
     },
     {
      "name": "label",
@@ -1049,7 +1229,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "行の名前"
+     "meaning": {
+      "ja": "行の名前"
+     }
     },
     {
      "name": "derivedFromTaskUid",
@@ -1062,7 +1244,9 @@
      "key": "FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "名前の導出元。`label` と同時に `null` にできない"
+     "meaning": {
+      "ja": "名前の導出元。`label` と同時に `null` にできない"
+     }
     },
     {
      "name": "order",
@@ -1075,7 +1259,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "同じ親の下での並び"
+     "meaning": {
+      "ja": "同じ親の下での並び"
+     }
     },
     {
      "name": "isCollapsed",
@@ -1088,7 +1274,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "畳んでいるか"
+     "meaning": {
+      "ja": "畳んでいるか"
+     }
     },
     {
      "name": "isHidden",
@@ -1101,7 +1289,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "隠しているか。戻す入口は 表 T-015 の `HR-6` が持つ"
+     "meaning": {
+      "ja": "隠しているか。戻す入口は 表 T-015 の `HR-6` が持つ"
+     }
     },
     {
      "name": "color",
@@ -1114,7 +1304,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "行の帯の色"
+     "meaning": {
+      "ja": "行の帯の色"
+     }
     },
     {
      "name": "height",
@@ -1127,7 +1319,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "倍率 1 のときの論理の高さ"
+     "meaning": {
+      "ja": "倍率 1 のときの論理の高さ"
+     }
     }
    ]
   },
@@ -1139,7 +1333,9 @@
    },
    "export": false,
    "carry": false,
-   "key_note": "`taskUid`（一意）",
+   "key_note": {
+    "ja": "`taskUid`（一意）"
+   },
    "columns": [
     {
      "name": "taskUid",
@@ -1152,7 +1348,9 @@
      "key": "PK/FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である"
+     "meaning": {
+      "ja": "載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である"
+     }
     },
     {
      "name": "groupId",
@@ -1166,7 +1364,9 @@
      "key": "FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "載せる行"
+     "meaning": {
+      "ja": "載せる行"
+     }
     },
     {
      "name": "stackOrder",
@@ -1179,7 +1379,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "段。人が指定できるかは表 T-014 の `ST-6`"
+     "meaning": {
+      "ja": "段。人が指定できるかは表 T-014 の `ST-6`"
+     }
     }
    ]
   },
@@ -1203,7 +1405,9 @@
      "key": "PK",
      "origin": "Own",
      "exchange": "Calendars/Calendar/UID",
-     "meaning": "暦の識別子"
+     "meaning": {
+      "ja": "暦の識別子"
+     }
     },
     {
      "name": "name",
@@ -1216,7 +1420,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Calendars/Calendar/Name",
-     "meaning": "暦の名前"
+     "meaning": {
+      "ja": "暦の名前"
+     }
     },
     {
      "name": "isBaseCalendar",
@@ -1229,7 +1435,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Calendars/Calendar/IsBaseCalendar",
-     "meaning": "基準の暦か"
+     "meaning": {
+      "ja": "基準の暦か"
+     }
     },
     {
      "name": "baseCalendarUid",
@@ -1242,7 +1450,9 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Calendars/Calendar/BaseCalendarUID",
-     "meaning": "継承元の暦"
+     "meaning": {
+      "ja": "継承元の暦"
+     }
     },
     {
      "name": "ordinal",
@@ -1255,7 +1465,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "出現順。書き出しで元の並びに戻す"
+     "meaning": {
+      "ja": "出現順。書き出しで元の並びに戻す"
+     }
     },
     {
      "name": "carry",
@@ -1271,7 +1483,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "解釈しないスカラー"
+     "meaning": {
+      "ja": "解釈しないスカラー"
+     }
     },
     {
      "name": "carryElements",
@@ -1288,7 +1502,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "`WorkWeeks` ほか、行にならなかった子要素"
+     "meaning": {
+      "ja": "`WorkWeeks` ほか、行にならなかった子要素"
+     }
     },
     {
      "name": "weekDays",
@@ -1305,7 +1521,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "Calendars/Calendar/WeekDays/WeekDay",
-     "meaning": "**曜日ごとの稼働**（表 T-053 の `DF-1`）"
+     "meaning": {
+      "ja": "**曜日ごとの稼働**（表 T-053 の `DF-1`）"
+     }
     },
     {
      "name": "exceptions",
@@ -1322,7 +1540,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "Calendars/Calendar/Exceptions/Exception",
-     "meaning": "**例外日**（表 T-053 の `DF-1`）"
+     "meaning": {
+      "ja": "**例外日**（表 T-053 の `DF-1`）"
+     }
     }
    ]
   },
@@ -1334,7 +1554,9 @@
    },
    "export": true,
    "carry": true,
-   "key_note": "親の暦 ＋ `ordinal`",
+   "key_note": {
+    "ja": "親の暦 ＋ `ordinal`"
+   },
    "columns": [
     {
      "name": "ordinal",
@@ -1347,7 +1569,9 @@
      "key": "PK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "親の中での出現順"
+     "meaning": {
+      "ja": "親の中での出現順"
+     }
     },
     {
      "name": "dayType",
@@ -1362,7 +1586,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Calendars/Calendar/WeekDays/WeekDay/DayType",
-     "meaning": "曜日"
+     "meaning": {
+      "ja": "曜日"
+     }
     },
     {
      "name": "dayWorking",
@@ -1375,7 +1601,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Calendars/Calendar/WeekDays/WeekDay/DayWorking",
-     "meaning": "稼働日か"
+     "meaning": {
+      "ja": "稼働日か"
+     }
     },
     {
      "name": "carry",
@@ -1391,7 +1619,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "解釈しないスカラー"
+     "meaning": {
+      "ja": "解釈しないスカラー"
+     }
     },
     {
      "name": "carryElements",
@@ -1408,7 +1638,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "`WorkingTimes` ほか"
+     "meaning": {
+      "ja": "`WorkingTimes` ほか"
+     }
     }
    ]
   },
@@ -1420,7 +1652,9 @@
    },
    "export": true,
    "carry": true,
-   "key_note": "親の暦 ＋ `ordinal`",
+   "key_note": {
+    "ja": "親の暦 ＋ `ordinal`"
+   },
    "columns": [
     {
      "name": "ordinal",
@@ -1433,7 +1667,9 @@
      "key": "PK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "親の中での出現順"
+     "meaning": {
+      "ja": "親の中での出現順"
+     }
     },
     {
      "name": "name",
@@ -1446,7 +1682,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Calendars/Calendar/Exceptions/Exception/Name",
-     "meaning": "例外の名前"
+     "meaning": {
+      "ja": "例外の名前"
+     }
     },
     {
      "name": "fromDate",
@@ -1460,7 +1698,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "…/Exception/TimePeriod/FromDate",
-     "meaning": "⚠️ **繰り返しの起点であって実日付の範囲ではない**"
+     "meaning": {
+      "ja": "⚠️ **繰り返しの起点であって実日付の範囲ではない**"
+     }
     },
     {
      "name": "toDate",
@@ -1474,7 +1714,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "…/Exception/TimePeriod/ToDate",
-     "meaning": "同上"
+     "meaning": {
+      "ja": "同上"
+     }
     },
     {
      "name": "dayWorking",
@@ -1487,7 +1729,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "…/Exception/DayWorking",
-     "meaning": "稼働日か"
+     "meaning": {
+      "ja": "稼働日か"
+     }
     },
     {
      "name": "recurrenceKind",
@@ -1502,7 +1746,9 @@
      "key": "",
      "origin": "Consume",
      "exchange": "…/Exception/Type",
-     "meaning": "**繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる**"
+     "meaning": {
+      "ja": "**繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる**"
+     }
     },
     {
      "name": "carry",
@@ -1518,7 +1764,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "解釈しないスカラー"
+     "meaning": {
+      "ja": "解釈しないスカラー"
+     }
     },
     {
      "name": "carryElements",
@@ -1535,7 +1783,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "`WorkingTimes` ほか"
+     "meaning": {
+      "ja": "`WorkingTimes` ほか"
+     }
     }
    ]
   },
@@ -1559,7 +1809,9 @@
      "key": "PK",
      "origin": "Own",
      "exchange": "Resource/UID",
-     "meaning": "担当者の識別子"
+     "meaning": {
+      "ja": "担当者の識別子"
+     }
     },
     {
      "name": "name",
@@ -1572,7 +1824,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Resource/Name",
-     "meaning": "担当者名"
+     "meaning": {
+      "ja": "担当者名"
+     }
     },
     {
      "name": "resourceKind",
@@ -1585,7 +1839,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Resource/Type",
-     "meaning": "`0` = 材料 / `1` = 作業 / `2` = 費用"
+     "meaning": {
+      "ja": "`0` = 材料 / `1` = 作業 / `2` = 費用"
+     }
     },
     {
      "name": "isCostResource",
@@ -1598,7 +1854,9 @@
      "key": "",
      "origin": "Own",
      "exchange": "Resource/IsCostResource",
-     "meaning": "費用資源か"
+     "meaning": {
+      "ja": "費用資源か"
+     }
     },
     {
      "name": "calendarUid",
@@ -1611,7 +1869,9 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Resource/CalendarUID",
-     "meaning": "交換相手の担当者ごとの暦。稼働日の数え上げには使わない（`FR-054`）"
+     "meaning": {
+      "ja": "交換相手の担当者ごとの暦。稼働日の数え上げには使わない（`FR-054`）"
+     }
     },
     {
      "name": "carry",
@@ -1627,7 +1887,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "解釈しないスカラー 59"
+     "meaning": {
+      "ja": "解釈しないスカラー 59"
+     }
     },
     {
      "name": "carryElements",
@@ -1644,7 +1906,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "行にならなかった子要素 6"
+     "meaning": {
+      "ja": "行にならなかった子要素 6"
+     }
     }
    ]
   },
@@ -1668,7 +1932,9 @@
      "key": "PK",
      "origin": "Own",
      "exchange": "Assignment/UID",
-     "meaning": "割当の識別子"
+     "meaning": {
+      "ja": "割当の識別子"
+     }
     },
     {
      "name": "taskUid",
@@ -1681,7 +1947,9 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Assignment/TaskUID",
-     "meaning": "就くタスク"
+     "meaning": {
+      "ja": "就くタスク"
+     }
     },
     {
      "name": "resourceUid",
@@ -1694,7 +1962,9 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Assignment/ResourceUID",
-     "meaning": "就く担当者"
+     "meaning": {
+      "ja": "就く担当者"
+     }
     },
     {
      "name": "carry",
@@ -1710,7 +1980,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "解釈しないスカラー 58"
+     "meaning": {
+      "ja": "解釈しないスカラー 58"
+     }
     },
     {
      "name": "carryElements",
@@ -1727,7 +1999,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "行にならなかった子要素 3"
+     "meaning": {
+      "ja": "行にならなかった子要素 3"
+     }
     }
    ]
   },
@@ -1751,7 +2025,9 @@
      "key": "PK/FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "対象のタスク"
+     "meaning": {
+      "ja": "対象のタスク"
+     }
     },
     {
      "name": "nameAnchor",
@@ -1766,7 +2042,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "名前を置く位置（表 T-013）"
+     "meaning": {
+      "ja": "名前を置く位置（表 T-013）"
+     }
     },
     {
      "name": "nameAlign",
@@ -1784,7 +2062,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "名前の揃え"
+     "meaning": {
+      "ja": "名前の揃え"
+     }
     },
     {
      "name": "shapeKind",
@@ -1804,7 +2084,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "**描画の形だけを決める。`Task.milestone` を変えない**（表 T-012）"
+     "meaning": {
+      "ja": "**描画の形だけを決める。`Task.milestone` を変えない**（表 T-012）"
+     }
     },
     {
      "name": "milestoneGlyph",
@@ -1827,7 +2109,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "`shapeKind` が `'milestone'` のときだけ見る"
+     "meaning": {
+      "ja": "`shapeKind` が `'milestone'` のときだけ見る"
+     }
     },
     {
      "name": "fillColor",
@@ -1840,7 +2124,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "塗り。**輪郭と同時に透明にできない**（`FR-030`）"
+     "meaning": {
+      "ja": "塗り。**輪郭と同時に透明にできない**（`FR-030`）"
+     }
     },
     {
      "name": "strokeColor",
@@ -1853,7 +2139,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "輪郭。同上"
+     "meaning": {
+      "ja": "輪郭。同上"
+     }
     },
     {
      "name": "lineWeight",
@@ -1871,7 +2159,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "輪郭の太さ"
+     "meaning": {
+      "ja": "輪郭の太さ"
+     }
     }
    ]
   },
@@ -1895,7 +2185,9 @@
      "key": "PK/FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "対象のタスク。**行が無い = 本ソフトウェア生まれ**"
+     "meaning": {
+      "ja": "対象のタスク。**行が無い = 本ソフトウェア生まれ**"
+     }
     },
     {
      "name": "sourceProjectUid",
@@ -1908,7 +2200,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "取り込み元のプロジェクト"
+     "meaning": {
+      "ja": "取り込み元のプロジェクト"
+     }
     },
     {
      "name": "sourceUid",
@@ -1921,7 +2215,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "取り込み元でのタスクの識別子"
+     "meaning": {
+      "ja": "取り込み元でのタスクの識別子"
+     }
     },
     {
      "name": "lastSeenImportSeq",
@@ -1934,7 +2230,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "最後に見た取り込みの通し番号（`MG-13`）"
+     "meaning": {
+      "ja": "最後に見た取り込みの通し番号（`MG-13`）"
+     }
     },
     {
      "name": "importSessionId",
@@ -1947,7 +2245,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "取り込み 1 回の識別子"
+     "meaning": {
+      "ja": "取り込み 1 回の識別子"
+     }
     }
    ]
   },
@@ -1972,7 +2272,9 @@
      "key": "PK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "注記の識別子"
+     "meaning": {
+      "ja": "注記の識別子"
+     }
     },
     {
      "name": "leaderShapeKind",
@@ -1989,7 +2291,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "引き出し線の形"
+     "meaning": {
+      "ja": "引き出し線の形"
+     }
     },
     {
      "name": "text",
@@ -2002,7 +2306,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "**本文。「コメント」と略さない**（`U-14`）"
+     "meaning": {
+      "ja": "**本文。「コメント」と略さない**（`U-14`）"
+     }
     },
     {
      "name": "anchorDate",
@@ -2016,7 +2322,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "留める日"
+     "meaning": {
+      "ja": "留める日"
+     }
     },
     {
      "name": "anchorGroupId",
@@ -2030,7 +2338,9 @@
      "key": "FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "留める行"
+     "meaning": {
+      "ja": "留める行"
+     }
     },
     {
      "name": "bodyOffsetPx",
@@ -2051,7 +2361,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "留めた点から本文までのずれ"
+     "meaning": {
+      "ja": "留めた点から本文までのずれ"
+     }
     }
    ]
   },
@@ -2076,7 +2388,9 @@
      "key": "PK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "注記の識別子"
+     "meaning": {
+      "ja": "注記の識別子"
+     }
     },
     {
      "name": "startDate",
@@ -2090,7 +2404,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "囲む範囲の左端"
+     "meaning": {
+      "ja": "囲む範囲の左端"
+     }
     },
     {
      "name": "endDate",
@@ -2104,7 +2420,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "囲む範囲の右端"
+     "meaning": {
+      "ja": "囲む範囲の右端"
+     }
     },
     {
      "name": "topGroupId",
@@ -2118,7 +2436,9 @@
      "key": "FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "囲む範囲の上端の行"
+     "meaning": {
+      "ja": "囲む範囲の上端の行"
+     }
     },
     {
      "name": "bottomGroupId",
@@ -2132,7 +2452,9 @@
      "key": "FK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "囲む範囲の下端の行"
+     "meaning": {
+      "ja": "囲む範囲の下端の行"
+     }
     },
     {
      "name": "strokeColor",
@@ -2145,7 +2467,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "枠の色"
+     "meaning": {
+      "ja": "枠の色"
+     }
     },
     {
      "name": "cornerRadiusPx",
@@ -2158,7 +2482,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "角の丸み"
+     "meaning": {
+      "ja": "角の丸み"
+     }
     }
    ]
   },
@@ -2170,7 +2496,9 @@
    },
    "export": true,
    "carry": false,
-   "key_note": "所有者 ＋ `ordinal`",
+   "key_note": {
+    "ja": "所有者 ＋ `ordinal`"
+   },
    "columns": [
     {
      "name": "ordinal",
@@ -2183,7 +2511,9 @@
      "key": "PK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す**"
+     "meaning": {
+      "ja": "所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す**"
+     }
     },
     {
      "name": "name",
@@ -2196,7 +2526,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "交換相手での要素名。**綴りを変えない**（`W-9`）"
+     "meaning": {
+      "ja": "交換相手での要素名。**綴りを変えない**（`W-9`）"
+     }
     },
     {
      "name": "fields",
@@ -2212,7 +2544,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "その要素が持つ葉"
+     "meaning": {
+      "ja": "その要素が持つ葉"
+     }
     },
     {
      "name": "children",
@@ -2229,7 +2563,9 @@
      "key": "",
      "origin": "Carry",
      "exchange": "",
-     "meaning": "入れ子の子。**深さの上限は定めない**"
+     "meaning": {
+      "ja": "入れ子の子。**深さの上限は定めない**"
+     }
     }
    ]
   },
@@ -2241,7 +2577,9 @@
    },
    "export": false,
    "carry": false,
-   "key_note": "— （文書に 1 つしか無い）",
+   "key_note": {
+    "ja": "— （文書に 1 つしか無い）"
+   },
    "columns": [
     {
      "name": "revision",
@@ -2254,7 +2592,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "1 ずつ増える。上げる条件は `FR-063`"
+     "meaning": {
+      "ja": "1 ずつ増える。上げる条件は `FR-063`"
+     }
     },
     {
      "name": "lastEditedBy",
@@ -2267,7 +2607,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "最後に書いた者。人か、AI か"
+     "meaning": {
+      "ja": "最後に書いた者。人か、AI か"
+     }
     },
     {
      "name": "updatedAt",
@@ -2281,7 +2623,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "最後に書いた時刻。**秒までとする**（透かしと精度を揃える）"
+     "meaning": {
+      "ja": "最後に書いた時刻。**秒までとする**（透かしと精度を揃える）"
+     }
     }
    ]
   },
@@ -2305,7 +2649,9 @@
      "key": "PK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "どの版に対する理由か"
+     "meaning": {
+      "ja": "どの版に対する理由か"
+     }
     },
     {
      "name": "editedBy",
@@ -2318,7 +2664,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "その版を書いた者"
+     "meaning": {
+      "ja": "その版を書いた者"
+     }
     },
     {
      "name": "explanation",
@@ -2331,7 +2679,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "なぜそう変えたか（`UC-013`）"
+     "meaning": {
+      "ja": "なぜそう変えたか（`UC-013`）"
+     }
     },
     {
      "name": "changedAt",
@@ -2345,7 +2695,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "その版の時刻"
+     "meaning": {
+      "ja": "その版の時刻"
+     }
     }
    ]
   },
@@ -2369,7 +2721,9 @@
      "key": "PK",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`）"
+     "meaning": {
+      "ja": "重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`）"
+     }
     },
     {
      "name": "name",
@@ -2382,7 +2736,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "タスク名"
+     "meaning": {
+      "ja": "タスク名"
+     }
     },
     {
      "name": "start",
@@ -2396,7 +2752,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "変更前の予定の開始"
+     "meaning": {
+      "ja": "変更前の予定の開始"
+     }
     },
     {
      "name": "finish",
@@ -2410,7 +2768,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "変更前の予定の終了"
+     "meaning": {
+      "ja": "変更前の予定の終了"
+     }
     },
     {
      "name": "milestone",
@@ -2423,7 +2783,9 @@
      "key": "",
      "origin": "GRS",
      "exchange": "",
-     "meaning": "マイルストーンとして描くか"
+     "meaning": {
+      "ja": "マイルストーンとして描くか"
+     }
     }
    ]
   }
@@ -2433,133 +2795,177 @@
    "parent": "Task",
    "child": "Task",
    "multiplicity": "0..n ─ 0..1",
-   "label": "WBS の親子（`wbsParentUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ"
+   "label": {
+    "ja": "WBS の親子（`wbsParentUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ"
+   }
   },
   {
    "parent": "Task",
    "child": "Dependency",
    "multiplicity": "1 ─ 0..n",
-   "label": "この依存の後続（入れ子の位置が表す）"
+   "label": {
+    "ja": "この依存の後続（入れ子の位置が表す）"
+   }
   },
   {
    "parent": "Dependency",
    "child": "Task",
    "multiplicity": "0..n ─ 1",
-   "label": "この依存の先行（`predecessorUid`）"
+   "label": {
+    "ja": "この依存の先行（`predecessorUid`）"
+   }
   },
   {
    "parent": "TaskGroup",
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
-   "label": "行の親子（`parentId`）。深さの上限は `FR-004`"
+   "label": {
+    "ja": "行の親子（`parentId`）。深さの上限は `FR-004`"
+   }
   },
   {
    "parent": "TaskGroupMember",
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 1",
-   "label": "どの行に載るか（`groupId`）"
+   "label": {
+    "ja": "どの行に載るか（`groupId`）"
+   }
   },
   {
    "parent": "TaskGroupMember",
    "child": "Task",
    "multiplicity": "1 ─ 1",
-   "label": "どのタスクが載るか（`taskUid`）"
+   "label": {
+    "ja": "どのタスクが載るか（`taskUid`）"
+   }
   },
   {
    "parent": "TaskGroup",
    "child": "Task",
    "multiplicity": "0..n ─ 0..1",
-   "label": "行の名前の導出元（`derivedFromTaskUid`）"
+   "label": {
+    "ja": "行の名前の導出元（`derivedFromTaskUid`）"
+   }
   },
   {
    "parent": "Project",
    "child": "Calendar",
    "multiplicity": "1 ─ 0..1",
-   "label": "文書の既定の暦（`calendarUid`）"
+   "label": {
+    "ja": "文書の既定の暦（`calendarUid`）"
+   }
   },
   {
    "parent": "Task",
    "child": "Calendar",
    "multiplicity": "0..n ─ 0..1",
-   "label": "交換相手のタスクごとの暦（`calendarUid`）"
+   "label": {
+    "ja": "交換相手のタスクごとの暦（`calendarUid`）"
+   }
   },
   {
    "parent": "Resource",
    "child": "Calendar",
    "multiplicity": "0..n ─ 0..1",
-   "label": "交換相手の担当者ごとの暦（`calendarUid`）"
+   "label": {
+    "ja": "交換相手の担当者ごとの暦（`calendarUid`）"
+   }
   },
   {
    "parent": "Calendar",
    "child": "Calendar",
    "multiplicity": "0..n ─ 0..1",
-   "label": "継承元の暦（`baseCalendarUid`）"
+   "label": {
+    "ja": "継承元の暦（`baseCalendarUid`）"
+   }
   },
   {
    "parent": "Calendar",
    "child": "WeekDay",
    "multiplicity": "1 ─ 0..n",
-   "label": "曜日ごとの稼働（弱エンティティ）"
+   "label": {
+    "ja": "曜日ごとの稼働（弱エンティティ）"
+   }
   },
   {
    "parent": "Calendar",
    "child": "Exception",
    "multiplicity": "1 ─ 0..n",
-   "label": "例外日（弱エンティティ）"
+   "label": {
+    "ja": "例外日（弱エンティティ）"
+   }
   },
   {
    "parent": "Assignment",
    "child": "Task",
    "multiplicity": "0..n ─ 0..1",
-   "label": "就くタスク（`taskUid`）"
+   "label": {
+    "ja": "就くタスク（`taskUid`）"
+   }
   },
   {
    "parent": "Assignment",
    "child": "Resource",
    "multiplicity": "0..n ─ 0..1",
-   "label": "就く担当者（`resourceUid`）"
+   "label": {
+    "ja": "就く担当者（`resourceUid`）"
+   }
   },
   {
    "parent": "TaskVisual",
    "child": "Task",
    "multiplicity": "0..1 ─ 1",
-   "label": "そのタスクの見せ方（`taskUid`）"
+   "label": {
+    "ja": "そのタスクの見せ方（`taskUid`）"
+   }
   },
   {
    "parent": "TaskOrigin",
    "child": "Task",
    "multiplicity": "0..1 ─ 1",
-   "label": "そのタスクの取り込み元（`taskUid`）"
+   "label": {
+    "ja": "そのタスクの取り込み元（`taskUid`）"
+   }
   },
   {
    "parent": "CommentBox",
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
-   "label": "留める行（`anchorGroupId`）"
+   "label": {
+    "ja": "留める行（`anchorGroupId`）"
+   }
   },
   {
    "parent": "HighlightBox",
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
-   "label": "囲む範囲の上端の行（`topGroupId`）"
+   "label": {
+    "ja": "囲む範囲の上端の行（`topGroupId`）"
+   }
   },
   {
    "parent": "HighlightBox",
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
-   "label": "囲む範囲の下端の行（`bottomGroupId`）"
+   "label": {
+    "ja": "囲む範囲の下端の行（`bottomGroupId`）"
+   }
   },
   {
    "parent": "CarryElement",
    "child": "CarryElement",
    "multiplicity": "1 ─ 0..n",
-   "label": "入れ子の子（`children`）"
+   "label": {
+    "ja": "入れ子の子（`children`）"
+   }
   },
   {
    "parent": "Task",
    "child": "BaselineTask",
    "multiplicity": "0..1 ─ 0..1",
-   "label": "変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`）"
+   "label": {
+    "ja": "変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`）"
+   }
   }
  ],
  "derived": [
@@ -2567,61 +2973,81 @@
    "entity": "Project",
    "name": "finishDate",
    "exchange": "Project/FinishDate",
-   "source": "最も遅い `Task.finish`"
+   "source": {
+    "ja": "最も遅い `Task.finish`"
+   }
   },
   {
    "entity": "Project",
    "name": "saveVersion",
    "exchange": "Project/SaveVersion",
-   "source": "書き出す本ソフトウェアの版"
+   "source": {
+    "ja": "書き出す本ソフトウェアの版"
+   }
   },
   {
    "entity": "Project",
    "name": "currencyCode",
    "exchange": "Project/CurrencyCode",
-   "source": "`carry` に控えた原値"
+   "source": {
+    "ja": "`carry` に控えた原値"
+   }
   },
   {
    "entity": "Task",
    "name": "id",
    "exchange": "Task/ID",
-   "source": "書き出す順に振り直す。**`uid` とは別物で、可変である**"
+   "source": {
+    "ja": "書き出す順に振り直す。**`uid` とは別物で、可変である**"
+   }
   },
   {
    "entity": "Task",
    "name": "outlineLevel",
    "exchange": "Task/OutlineLevel",
-   "source": "`wbsParentUid` の木の深さ。**浅く丸めない**（`FR-004`）"
+   "source": {
+    "ja": "`wbsParentUid` の木の深さ。**浅く丸めない**（`FR-004`）"
+   }
   },
   {
    "entity": "Task",
    "name": "outlineNumber",
    "exchange": "Task/OutlineNumber",
-   "source": "木の道すじ。**照合の鍵にしない**"
+   "source": {
+    "ja": "木の道すじ。**照合の鍵にしない**"
+   }
   },
   {
    "entity": "Task",
    "name": "summary",
    "exchange": "Task/Summary",
-   "source": "子を持つかどうか"
+   "source": {
+    "ja": "子を持つかどうか"
+   }
   },
   {
    "entity": "Task",
    "name": "duration",
    "exchange": "Task/Duration",
-   "source": "`finish` − `start` と暦。**人が編集していないタスクは受け取った値をそのまま返す**"
+   "source": {
+    "ja": "`finish` − `start` と暦。**人が編集していないタスクは受け取った値をそのまま返す**"
+   }
   },
   {
    "entity": "Task",
    "name": "stop",
    "exchange": "Task/Stop",
-   "source": "`actualStart` ＋ `actualDuration`。**中断のときだけ書く**"
+   "source": {
+    "ja": "`actualStart` ＋ `actualDuration`。**中断のときだけ書く**"
+   }
   },
   {
    "entity": "Resource",
    "name": "id",
    "exchange": "Resource/ID",
-   "source": "書き出す順に振り直す。**`uid` とは別物**"
+   "source": {
+    "ja": "書き出す順に振り直す。**`uid` とは別物**"
+   }
   }
  ]
 }

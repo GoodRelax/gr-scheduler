@@ -93,6 +93,36 @@ def esc(s):
     return s.replace('`', '')
 
 
+LANG = 'ja'
+
+
+def text(value):
+    """One piece of prose, in the language being printed.
+
+    A value in erd.json is one of two things:
+
+      "Own"            a plain string -- a key, a row ID, a multiplicity, an
+                       entity name: something that belongs to no language and
+                       is the same in every edition
+      {"ja": "…"}      prose that is PRINTED, which the ja/en split divides
+
+    The same shape settings.json uses (`text` in settings_json_to_md.py), so
+    both manuscripts answer "what does adding English cost" the same way: one
+    key beside `ja`, not a second copy of the file (CR-175's 裁定 ㊹).
+
+    ⚠️ It is not "wrap every Japanese string". The `type` and `nullable`
+    columns hold Japanese too, and they are NOT prose -- they are a
+    classification whose Japanese wording is a display decision, so wrapping
+    them would burn 「可」 into the manuscript. They stay plain strings until a
+    separate change decides how the classification is spelled.
+    """
+    if not isinstance(value, dict):
+        return value
+    if LANG in value:
+        return value[LANG]
+    raise SystemExit('prose without a %r key: %r' % (LANG, value))
+
+
 def carry_owners(doc):
     return [e['name'] for e in doc['entities'] if e['carry']]
 
@@ -137,7 +167,7 @@ def figure(doc):
     for r in doc['relations']:
         out.append('    %s %s %s : "%s"'
                    % (r['parent'], CROWS_FOOT[r['multiplicity']], r['child'],
-                      esc(r['label'])))
+                      esc(text(r['label']))))
     for o in carry_owners(doc):
         out.append('    %s ||--o{ CarryElement : "%s"' % (o, CARRY_LABEL))
     out.append('```')
@@ -181,12 +211,13 @@ def container_figure(doc):
                     for x, label in zip(columns[b['entity']], b['labels'])]
         out.append('    %s {' % b['id'])
         for typ, name, comment in rows:
-            out.append('        %s %s "%s"' % (esc(typ), name, esc(comment)))
+            out.append('        %s %s "%s"'
+                       % (esc(text(typ)), name, esc(text(comment))))
         out.append('    }')
     for e in c['edges']:
         out.append('    %s %s %s : "%s"'
                    % (e['from'], CROWS_FOOT[e['multiplicity']], e['to'],
-                      esc(e['label'])))
+                      esc(text(e['label']))))
     out.append('```')
     return '\n'.join(out)
 
@@ -200,9 +231,10 @@ def entity_table(doc, prefix):
     rows = []
     for i, e in enumerate(doc['entities'], 1):
         keys = [c['name'] for c in e['columns'] if c['key'].startswith('PK')]
-        key = e.get('key_note', ' ＋ '.join('`%s`' % k for k in keys) or '—')
+        key = (text(e['key_note']) if 'key_note' in e
+               else (' ＋ '.join('`%s`' % k for k in keys) or '—'))
         rows.append('| %s-%d | `%s` | %s | %s | %s | %s |'
-                    % (prefix, i, e['name'], e['description']['ja'], key,
+                    % (prefix, i, e['name'], text(e['description']), key,
                        '書き出す' if e['export'] else '**書き出さない**',
                        'あり' if e['carry'] else '—'))
     return rows
@@ -211,7 +243,7 @@ def entity_table(doc, prefix):
 def relation_table(doc, prefix):
     rows = ['| %s-%d | `%s` | `%s` | %s | %s |'
             % (prefix, i, r['parent'], r['child'], r['multiplicity'],
-               r['label'])
+               text(r['label']))
             for i, r in enumerate(doc['relations'], 1)]
     for j, o in enumerate(carry_owners(doc), len(doc['relations']) + 1):
         rows.append('| %s-%d | `%s` | `CarryElement` | %s | %s |'
@@ -230,13 +262,14 @@ def column_table(doc, prefix):
                            c['nullable'],
                            c['key'] or '—', c['origin'],
                            ('`%s`' % c['exchange']) if c['exchange'] else '—',
-                           c['meaning']))
+                           text(c['meaning'])))
     return rows
 
 
 def derived_table(doc, prefix):
     return ['| %s-%d | `%s` | `%s` | `%s` | %s |'
-            % (prefix, i, d['entity'], d['name'], d['exchange'], d['source'])
+            % (prefix, i, d['entity'], d['name'], d['exchange'],
+               text(d['source']))
             for i, d in enumerate(doc['derived'], 1)]
 
 
@@ -247,13 +280,13 @@ BUILDERS = {'entity': entity_table, 'relation': relation_table,
 # -------------------------------------------------------------- document ---
 
 def document(doc, meta):
-    out = ['# %s' % meta['title'], '',
+    out = ['# %s' % text(meta['title']), '',
            '**UID**: %s' % meta['uid'],
            '**Version**: %s' % meta['version'], '',
            BANNER, '']
     for section in meta['sections']:
-        out += ['## %s' % section['title'], '', '**Type**: SECTION', '',
-                '**%s**' % section['caption'], '']
+        out += ['## %s' % text(section['title']), '', '**Type**: SECTION', '',
+                '**%s**' % text(section['caption']), '']
         if section['block'] in FIGURES:
             out += [FIGURES[section['block']](doc), '']
         else:
@@ -402,10 +435,15 @@ def problems(doc):
     return found
 
 
-def say(text):
-    """The Windows console is cp932; an em dash must not kill the run."""
+def say(message):
+    """The Windows console is cp932; an em dash must not kill the run.
+
+    ⚠️ The parameter used to be named `text`, which now shadows the prose
+    reader above. Nothing here calls it, but a later line inside this function
+    would have reached the string instead of the function.
+    """
     enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
-    sys.stdout.write(text.encode(enc, 'replace').decode(enc) + '\n')
+    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
 def compare(target, built):

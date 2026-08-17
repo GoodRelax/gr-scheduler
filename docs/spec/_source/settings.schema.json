@@ -160,8 +160,31 @@
     },
     "lines": {
      "type": "array",
+     "description": "One printed line each, in order. ⚠️ A line that carries Japanese is PRINTED PROSE, so Chapter 6.2 requires it to be a language dictionary; a line that carries none -- a blank line, `**Type**: SECTION`, a table rule -- belongs to no language and stays a plain string. The pattern on the plain form is what enforces the split: it admits no character in the Japanese ranges, so prose cannot be left bare.",
      "items": {
-      "type": "string"
+      "oneOf": [
+       {
+        "type": "object",
+        "required": [
+         "ja"
+        ],
+        "additionalProperties": false,
+        "properties": {
+         "ja": {
+          "type": "string",
+          "minLength": 1
+         },
+         "en": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
+       },
+       {
+        "type": "string",
+        "pattern": "^[^\\u3040-\\u30ff\\u4e00-\\u9fff\\uff00-\\uffef]*$"
+       }
+      ]
      }
     }
    }

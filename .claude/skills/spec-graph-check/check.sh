@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 20 mechanical checks for the gr-scheduler specification.
+# All 23 mechanical checks for the gr-scheduler specification.
 #
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
@@ -30,6 +30,16 @@
 #   20     generate_entity_types.py --check : the TypeScript types of the
 #          schedule group still match erd.json. Only the marked region is
 #          compared, so a unit that has been filled in stays guarded
+#   21     check-provenance.py : every generated artifact names the manuscript
+#          it came from and how to rebuild it, and every file of _source/ says
+#          which of the three it is. A stale signpost is worse than none
+#   22     check-cr-discipline.py : every change request from CR-175 on
+#          answers standing rules 1, 2 and 8, which is where those rules moved
+#          when the principle alone kept being skipped (68 of 75 skipped 1)
+#   23     check-language-dictionary.py : a manuscript holds its PRINTED prose
+#          as a language dictionary (Chapter 6.2), so adding an edition is a
+#          fill-in. Japanese that is a classification rather than prose is
+#          exempt BY PATH AND COUNT, so an exemption cannot grow in silence
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -112,6 +122,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-provenance.p
 echo ""
 echo "===== 22  each change request answers standing rules 1, 2 and 8 ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-cr-discipline.py || fail=1
+
+echo ""
+echo "===== 23  a manuscript holds its printed prose per language ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-language-dictionary.py || fail=1
 
 echo ""
 echo "===== 17  the GRS JSON schema still matches its two sources ====="
