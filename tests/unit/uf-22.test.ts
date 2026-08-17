@@ -643,6 +643,43 @@ describe('ValidateImportedDocument (UF-22) -- table T-214, the accepted date ran
       ok: true,
     })
   })
+
+  // CR-179. FR-023 now names one class -- 「文書が使えない日付」 -- covering a
+  // value that names no day AND one outside table T-214, and forbids taking
+  // either in silence. ⛔ Before it, a date column holding text went STRAIGHT
+  // THROUGH and no test noticed, because none asked.
+  it('IV-14 refuses a date column that names no day, in every date column of table T-058', () => {
+    for (const { row, entity, column } of T_058_DATE_COLUMNS) {
+      const verdict = verdictOf(documentWithDate(entity, column, 'not a date'))
+      expect({ row, ok: verdict.ok }).toEqual({ row, ok: false })
+      expect({ row, rules: refusalsOf(verdict).map((refusal) => refusal.rule) }).toEqual({
+        row,
+        rules: expect.arrayContaining(['IV-14']),
+      })
+      // NT-1 wants 「どの項目が、なぜ誤りか」, and FR-023 makes the caller offer
+      // "drop those rows" -- which it cannot do unless the refusal says which
+      // row and which column.
+      expect({ row, named: refusalsOf(verdict).some((one) => one.at.endsWith(`/${column}`)) })
+        .toEqual({ row, named: true })
+    }
+  })
+
+  it('IV-14 refuses an EMPTY date column -- absence is spelled `null`, not `""`', () => {
+    // ⚠️ The tempting special case. A column that allows absence carries
+    // `null` (FR-024's contract), so `""` is already outside the contract and
+    // is not a second way of saying "absent".
+    const verdict = verdictOf(documentWithDate('task', 'deadline', ''))
+    expect(verdict.ok).toBe(false)
+    expect(refusalsOf(verdict).map((one) => one.rule)).toEqual(expect.arrayContaining(['IV-14']))
+  })
+
+  it('IV-14 sends its refusal down the NT-1 notice, not the resource one', () => {
+    // NT-6 is 「資源の上限に達したとき」 and belongs to table T-211. An unusable
+    // date is an item the reader can be pointed at, which is what parts the two
+    // treatments: FR-023 offers the two choices here and not for a ceiling.
+    const verdict = verdictOf(documentWithDate('task', 'deadline', 'not a date'))
+    expect(refusalsOf(verdict).every((one) => one.notice === 'NT-1')).toBe(true)
+  })
 })
 
 describe('ValidateImportedDocument (UF-22) -- FR-012, the two rules it sends here', () => {

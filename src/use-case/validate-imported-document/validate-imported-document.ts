@@ -85,13 +85,13 @@
 // depth 1. That agrees with FR-004, where a depth of 3 is the three levels a
 // person would have called 大 / 中 / 小.
 //
-// ⛔ STOP 3 -- a date column that names no day. Table T-214 bounds the dates an
-// input may hold, and IV-14 asks the date columns to sit inside that range, but
-// neither says what becomes of a date column holding a string that is not a date
-// at all (an empty string, or text). This file lets such a value THROUGH: FR-023
-// refuses "範囲の外にある日付", and a value that names no day names no date
-// either, while refusing it would fail whole files that FR-021's round trip has
-// to survive. Reported -- it is the specification's to decide, not this file's.
+// ✅ STOP 3 is closed (CR-179). A date column naming no day used to pass
+// THROUGH here, because table T-214 bounded the range and nobody had said what
+// an unreadable value was. FR-023 now names both as one thing -- "文書が使えな
+// い日付" -- and refuses to take either in silence. ⚠️ The remedy is not this
+// file's to apply: it reports, and FR-023 makes whoever called it offer the
+// person two choices (drop those rows per CD-1, or stop the load). ⭐ The empty
+// string is refused too: a column that allows absence spells it `null`.
 //
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
@@ -183,8 +183,14 @@ export interface ImportRefusal {
 }
 
 /**
- * Yes or no about the whole candidate. There is no third answer: FR-023 admits
- * no partially applied import, so nothing here hands back a mended document.
+ * Yes or no about the whole candidate. There is no third answer, and this file
+ * never hands back a mended document.
+ *
+ * ⚠️ FR-023 does let a PERSON choose to drop the rows a date refusal names and
+ * take the rest (the other choice being to stop the load). That choice is not
+ * made here: a refusal carries the row and the column in `at`, which is what
+ * the caller needs to offer it and to count what would go. ⛔ Mending here
+ * would put the choice in a pure function that cannot ask anyone.
  */
 export type ImportVerdict =
   | { readonly ok: true }
@@ -254,7 +260,17 @@ function sweepDateColumns<TRow extends object>(
     // no date to judge.
     if (typeof value !== 'string') continue
     const day = dayOf(value)
-    if (day === null) continue
+    // A string that names no day. FR-023 puts it in the same class as a date
+    // outside table T-214 -- both are "a date the document cannot use" -- and
+    // refuses to take either in silence. ⚠️ The empty string is HERE, not
+    // waved through as "absent": a column that allows absence spells it `null`
+    // (FR-024's contract), so an empty string is already outside the contract.
+    if (day === null) {
+      found ??= []
+      found.push(refusal('IV-14', `${at}/${column}`,
+                         `${JSON.stringify(value)} names no day`, 'NT-1'))
+      continue
+    }
     if (compareDays(day, accepted.min) < 0) {
       found ??= []
       found.push(refusal('S-119', `${at}/${column}`, `${value} is before importMinDate`, 'NT-1'))
