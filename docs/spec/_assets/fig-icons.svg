@@ -1,0 +1,339 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 240" width="452" height="240" role="img" aria-label="GRS icon glyphs IC-1 to IC-57">
+  <title>図 F-019 — アイコンの図形</title>
+  <style>
+    svg { color: #1f2328; }
+    @media (prefers-color-scheme: dark) { svg { color: #e6e8ea; } }
+    .s { fill: none; stroke: currentColor; stroke-width: 1.6;
+         stroke-linecap: round; stroke-linejoin: round; }
+    .f { fill: currentColor; stroke: none; }
+    .d { stroke-dasharray: 3 2.4; }
+    .lbl { fill: currentColor; opacity: 0.6; text-anchor: middle;
+           font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+           font-size: 6.5px; }
+  </style>
+  <g transform="translate(16 12)">
+    <path class="s" d="M4 13.5 v4.5 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 v-4.5"/>
+    <path class="s" d="M12 16.5 V4"/>
+    <path class="s" d="M8 8 L12 4 L16 8"/>
+  </g>
+  <text class="lbl" x="28" y="46">IC-1</text>
+  <g transform="translate(52 12)">
+    <path class="s" d="M4 13.5 v4.5 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 v-4.5"/>
+    <path class="s" d="M12 4 V16.5"/>
+    <path class="s" d="M8 12.5 L12 16.5 L16 12.5"/>
+  </g>
+  <text class="lbl" x="64" y="46">IC-2</text>
+  <g transform="translate(88 12)">
+    <rect class="s" x="3.5" y="4.5" width="12" height="14" rx="2"/>
+    <path class="s" d="M5 15 L8.5 11 L11 13.5 L14 9.5"/>
+    <circle class="f" cx="6.8" cy="8.2" r="1.1"/>
+    <path class="s" d="M16.5 11.5 H21.5"/>
+    <path class="s" d="M19.5 9.5 L21.5 11.5 L19.5 13.5"/>
+  </g>
+  <text class="lbl" x="100" y="46">IC-3</text>
+  <g transform="translate(124 12)">
+    <rect class="s d" x="4" y="4" width="13" height="7" rx="2"/>
+    <rect class="s" x="7" y="13" width="13" height="7" rx="2"/>
+  </g>
+  <text class="lbl" x="136" y="46">IC-4</text>
+  <g transform="translate(160 12)">
+    <path class="s" d="M5 10 H14 a5 5 0 0 1 0 10 H9"/>
+    <path class="s" d="M9 6 L5 10 L9 14"/>
+  </g>
+  <text class="lbl" x="172" y="46">IC-5</text>
+  <g transform="translate(196 12)">
+    <path class="s" d="M19 10 H10 a5 5 0 0 0 0 10 H15"/>
+    <path class="s" d="M15 6 L19 10 L15 14"/>
+  </g>
+  <text class="lbl" x="208" y="46">IC-6</text>
+  <g transform="translate(232 12)">
+    <rect class="s" x="3.5" y="3.5" width="17" height="17" rx="2.5"/>
+    <rect class="s" x="6.5" y="13.5" width="7.5" height="3.5" rx="1.75"/>
+    <path class="s" d="M16 6.5 L18.6 9.1 L16 11.7 L13.4 9.1 Z"/>
+  </g>
+  <text class="lbl" x="244" y="46">IC-7</text>
+  <g transform="translate(268 12)">
+    <rect class="s" x="2.9" y="8.2" width="18.2" height="7.6" rx="2"/>
+  </g>
+  <text class="lbl" x="280" y="46">IC-8</text>
+  <g transform="translate(304 12)">
+    <rect class="f" x="5.2" y="9.4" width="13.6" height="5.2" rx="1.6"/>
+  </g>
+  <text class="lbl" x="316" y="46">IC-9</text>
+  <g transform="translate(340 12)">
+    <path class="s" d="M3.5 8 V4.5 H7"/>
+    <path class="s" d="M17 4.5 H20.5 V8"/>
+    <path class="s" d="M20.5 16 V19.5 H17"/>
+    <path class="s" d="M7 19.5 H3.5 V16"/>
+    <path class="s" d="M7.5 10.5 H16.5"/>
+    <path class="s" d="M7.5 14 H13"/>
+  </g>
+  <text class="lbl" x="352" y="46">IC-10</text>
+  <g transform="translate(376 12)">
+    <path class="s" d="M10.5 13.5 L4.5 19.5"/>
+    <path class="s" d="M4.5 14.5 V19.5 H9.5"/>
+    <path class="s" d="M13.5 10.5 L19.5 4.5"/>
+    <path class="s" d="M14.5 4.5 H19.5 V9.5"/>
+  </g>
+  <text class="lbl" x="388" y="46">IC-11</text>
+  <g transform="translate(412 12)">
+    <path class="s" d="M3 12 H10"/>
+    <path class="s" d="M7.5 9.5 L10 12 L7.5 14.5"/>
+    <path class="s" d="M21 12 H14"/>
+    <path class="s" d="M16.5 9.5 L14 12 L16.5 14.5"/>
+  </g>
+  <text class="lbl" x="424" y="46">IC-12</text>
+  <g transform="translate(16 56)">
+    <path class="s" d="M11 12 H3"/>
+    <path class="s" d="M5.5 9.5 L3 12 L5.5 14.5"/>
+    <path class="s" d="M13 12 H21"/>
+    <path class="s" d="M18.5 9.5 L21 12 L18.5 14.5"/>
+  </g>
+  <text class="lbl" x="28" y="90">IC-13</text>
+  <g transform="translate(52 56)">
+    <path class="s" d="M12 3 V10"/>
+    <path class="s" d="M9.5 7.5 L12 10 L14.5 7.5"/>
+    <path class="s" d="M12 21 V14"/>
+    <path class="s" d="M9.5 16.5 L12 14 L14.5 16.5"/>
+  </g>
+  <text class="lbl" x="64" y="90">IC-14</text>
+  <g transform="translate(88 56)">
+    <path class="s" d="M12 11 V3"/>
+    <path class="s" d="M9.5 5.5 L12 3 L14.5 5.5"/>
+    <path class="s" d="M12 13 V21"/>
+    <path class="s" d="M9.5 18.5 L12 21 L14.5 18.5"/>
+  </g>
+  <text class="lbl" x="100" y="90">IC-15</text>
+  <g transform="translate(124 56)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <path class="f" d="M12 4 a8 8 0 0 1 0 16 Z"/>
+  </g>
+  <text class="lbl" x="136" y="90">IC-16</text>
+  <g transform="translate(160 56)">
+    <path class="s" d="M3.5 7 H7"/>
+    <path class="s" d="M11 7 H20.5"/>
+    <circle class="s" cx="9" cy="7" r="2"/>
+    <path class="s" d="M3.5 12 H13"/>
+    <path class="s" d="M17 12 H20.5"/>
+    <circle class="s" cx="15" cy="12" r="2"/>
+    <path class="s" d="M3.5 17 H5"/>
+    <path class="s" d="M9 17 H20.5"/>
+    <circle class="s" cx="7" cy="17" r="2"/>
+  </g>
+  <text class="lbl" x="172" y="90">IC-17</text>
+  <g transform="translate(196 56)">
+    <path class="s" d="M4.5 7 a2.5 2.5 0 0 1 2.5 -2.5 h10 a2.5 2.5 0 0 1 2.5 2.5 v6 a2.5 2.5 0 0 1 -2.5 2.5 H10.5 L6.5 19.5 V15.5 H7 A2.5 2.5 0 0 1 4.5 13 Z"/>
+    <circle class="f" cx="9.8" cy="9.8" r="1"/>
+    <circle class="f" cx="14.2" cy="9.8" r="1"/>
+    <path class="s" d="M9.6 12.4 q2.4 2.2 4.8 0"/>
+  </g>
+  <text class="lbl" x="208" y="90">IC-18</text>
+  <g transform="translate(232 56)">
+    <path class="s" d="M6 3.5 h7.5 L19 9 v9.5 a1.5 1.5 0 0 1 -1.5 1.5 H6 a1.5 1.5 0 0 1 -1.5 -1.5 V5 A1.5 1.5 0 0 1 6 3.5 Z"/>
+    <path class="s" d="M13.5 3.5 V9 H19"/>
+    <circle class="f" cx="9.6" cy="13.6" r="0.95"/>
+    <circle class="f" cx="14" cy="13.6" r="0.95"/>
+    <path class="s" d="M9.4 16.1 q2.2 2 4.4 0"/>
+  </g>
+  <text class="lbl" x="244" y="90">IC-19</text>
+  <g transform="translate(268 56)">
+    <rect class="s" x="2.5" y="6" width="19" height="12" rx="3"/>
+    <circle class="f" cx="8.2" cy="11" r="0.95"/>
+    <circle class="f" cx="15.8" cy="11" r="0.95"/>
+    <path class="s" d="M8 13.8 q4 3 8 0"/>
+  </g>
+  <text class="lbl" x="280" y="90">IC-20</text>
+  <g transform="translate(304 56)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <ellipse class="s" cx="12" cy="12" rx="4" ry="8"/>
+    <path class="s" d="M4 12 H20"/>
+  </g>
+  <text class="lbl" x="316" y="90">IC-21</text>
+  <g transform="translate(340 56)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <path class="s" d="M9.4 9.7 a2.6 2.6 0 1 1 2.7 2.9 V14.6"/>
+    <circle class="f" cx="12.1" cy="17" r="0.95"/>
+  </g>
+  <text class="lbl" x="352" y="90">IC-22</text>
+  <g transform="translate(376 56)">
+    <rect class="s" x="3" y="8.5" width="18" height="7" rx="1.6"/>
+  </g>
+  <text class="lbl" x="388" y="90">IC-23</text>
+  <g transform="translate(412 56)">
+    <path class="s" d="M3 8.5 H16.5 L20.5 12 L16.5 15.5 H3 L6 12 Z"/>
+  </g>
+  <text class="lbl" x="424" y="90">IC-24</text>
+  <g transform="translate(16 100)">
+    <path class="s" d="M3 12 H20"/>
+    <path class="s" d="M16.2 8.2 L20.5 12 L16.2 15.8"/>
+  </g>
+  <text class="lbl" x="28" y="134">IC-25</text>
+  <g transform="translate(52 100)">
+    <circle class="s" cx="5.6" cy="12" r="2.4"/>
+    <circle class="s" cx="18.4" cy="12" r="2.4"/>
+    <path class="s" d="M8 12 H16"/>
+  </g>
+  <text class="lbl" x="64" y="134">IC-26</text>
+  <g transform="translate(88 100)">
+    <circle class="s" cx="12" cy="12" r="7.5"/>
+  </g>
+  <text class="lbl" x="100" y="134">IC-27</text>
+  <g transform="translate(124 100)">
+    <path class="s" d="M19.5 12 L15.75 18.49 L8.25 18.49 L4.5 12 L8.25 5.51 L15.75 5.51 Z"/>
+  </g>
+  <text class="lbl" x="136" y="134">IC-28</text>
+  <g transform="translate(160 100)">
+    <path class="s" d="M12 4.5 L19.13 9.68 L16.41 18.07 L7.59 18.07 L4.87 9.68 Z"/>
+  </g>
+  <text class="lbl" x="172" y="134">IC-29</text>
+  <g transform="translate(196 100)">
+    <path class="s" d="M12 4.5 L19.5 12 L12 19.5 L4.5 12 Z"/>
+  </g>
+  <text class="lbl" x="208" y="134">IC-30</text>
+  <g transform="translate(232 100)">
+    <rect class="s" x="6.7" y="6.7" width="10.6" height="10.6"/>
+  </g>
+  <text class="lbl" x="244" y="134">IC-31</text>
+  <g transform="translate(268 100)">
+    <path class="s" d="M12 4.5 L13.98 9.27 L19.13 9.68 L15.21 13.04 L16.41 18.07 L12 15.38 L7.59 18.07 L8.79 13.04 L4.87 9.68 L10.02 9.27 Z"/>
+  </g>
+  <text class="lbl" x="280" y="134">IC-32</text>
+  <g transform="translate(304 100)">
+    <path class="s" d="M12 4.5 L18.5 15.75 L5.5 15.75 Z"/>
+  </g>
+  <text class="lbl" x="316" y="134">IC-33</text>
+  <g transform="translate(340 100)">
+    <path class="s" d="M12 19.5 L18.5 8.25 L5.5 8.25 Z"/>
+  </g>
+  <text class="lbl" x="352" y="134">IC-34</text>
+  <g transform="translate(376 100)">
+    <rect class="s" x="7" y="4" width="14" height="9" rx="2"/>
+    <path class="s" d="M9.5 13 L4.6 18.8"/>
+    <circle class="f" cx="3.6" cy="19.8" r="1.2"/>
+  </g>
+  <text class="lbl" x="388" y="134">IC-35</text>
+  <g transform="translate(412 100)">
+    <rect class="s" x="3" y="5" width="18" height="14" rx="2"/>
+    <path class="s" d="M7 10.5 H17"/>
+    <path class="s" d="M7 14.5 H14"/>
+  </g>
+  <text class="lbl" x="424" y="134">IC-36</text>
+  <g transform="translate(16 144)">
+    <path class="s" d="M4.5 4 V20"/>
+    <path class="s" d="M4.5 8 H18"/>
+    <path class="s" d="M4.5 12 H12.5"/>
+    <path class="s" d="M4.5 16 H20.5"/>
+  </g>
+  <text class="lbl" x="28" y="178">IC-37</text>
+  <g transform="translate(52 144)">
+    <path class="s" d="M19.5 4 V20"/>
+    <path class="s" d="M6 8 H19.5"/>
+    <path class="s" d="M11.5 12 H19.5"/>
+    <path class="s" d="M3.5 16 H19.5"/>
+  </g>
+  <text class="lbl" x="64" y="178">IC-38</text>
+  <g transform="translate(88 144)">
+    <path class="s" d="M10 3 L15.5 7.5 L8.5 12 L15.5 16.5 L10 21"/>
+  </g>
+  <text class="lbl" x="100" y="178">IC-39</text>
+  <g transform="translate(124 144)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <path class="s" d="M12 7.5 V13.2"/>
+    <circle class="f" cx="12" cy="16.4" r="1"/>
+  </g>
+  <text class="lbl" x="136" y="178">IC-40</text>
+  <g transform="translate(160 144)">
+    <rect class="s" x="3" y="5" width="18" height="14" rx="1.6"/>
+    <path class="s d" d="M5.5 16.5 L11 7.5"/>
+    <path class="s d" d="M9.5 16.5 L15 7.5"/>
+    <path class="s d" d="M13.5 16.5 L19 7.5"/>
+  </g>
+  <text class="lbl" x="172" y="178">IC-41</text>
+  <g transform="translate(196 144)">
+    <rect class="s" x="3" y="5" width="18" height="14" rx="1.6"/>
+    <path class="s" d="M9 5 V19"/>
+    <path class="s" d="M15 5 V19"/>
+  </g>
+  <text class="lbl" x="208" y="178">IC-42</text>
+  <g transform="translate(232 144)">
+    <rect class="s" x="3" y="5" width="18" height="14" rx="1.6"/>
+    <path class="s" d="M3 9.7 H21"/>
+    <path class="s" d="M3 14.3 H21"/>
+  </g>
+  <text class="lbl" x="244" y="178">IC-43</text>
+  <g transform="translate(268 144)">
+    <path class="s" d="M7 3 V21"/>
+    <path class="s" d="M7 4 H16.5 L14 6.75 L16.5 9.5 H7 Z"/>
+  </g>
+  <text class="lbl" x="280" y="178">IC-44</text>
+  <g transform="translate(304 144)">
+    <path class="s" d="M6 3 V21"/>
+    <path class="s" d="M18 3 V21"/>
+    <path class="s" d="M8.6 12 H15.4"/>
+    <path class="s" d="M10.6 10 L8.6 12 L10.6 14"/>
+    <path class="s" d="M13.4 10 L15.4 12 L13.4 14"/>
+  </g>
+  <text class="lbl" x="316" y="178">IC-45</text>
+  <g transform="translate(340 144)">
+    <rect class="s" x="4" y="4" width="16" height="16" rx="2"/>
+    <path class="s" d="M6.8 17.2 L17.2 6.8"/>
+  </g>
+  <text class="lbl" x="352" y="178">IC-46</text>
+  <g transform="translate(376 144)">
+    <path class="s" d="M12 3 V21"/>
+    <path class="s" d="M3 12 H21"/>
+  </g>
+  <text class="lbl" x="388" y="178">IC-47</text>
+  <g transform="translate(412 144)">
+    <path class="s" d="M12 3 V21"/>
+  </g>
+  <text class="lbl" x="424" y="178">IC-48</text>
+  <g transform="translate(16 188)">
+    <path class="s" d="M8 3 V21"/>
+    <path class="s" d="M16 3 V21"/>
+  </g>
+  <text class="lbl" x="28" y="222">IC-49</text>
+  <g transform="translate(52 188)">
+    <path class="f" d="M6 9 H18 L12 16 Z"/>
+  </g>
+  <text class="lbl" x="64" y="222">IC-50</text>
+  <g transform="translate(88 188)">
+    <path class="f" d="M6 15 H18 L12 8 Z"/>
+  </g>
+  <text class="lbl" x="100" y="222">IC-51</text>
+  <g transform="translate(124 188)">
+    <path class="s" d="M6 6 L18 18"/>
+    <path class="s" d="M18 6 L6 18"/>
+  </g>
+  <text class="lbl" x="136" y="222">IC-52</text>
+  <g transform="translate(160 188)">
+    <circle class="f" cx="9" cy="7.5" r="1.3"/>
+    <circle class="f" cx="9" cy="12" r="1.3"/>
+    <circle class="f" cx="9" cy="16.5" r="1.3"/>
+    <circle class="f" cx="15" cy="7.5" r="1.3"/>
+    <circle class="f" cx="15" cy="12" r="1.3"/>
+    <circle class="f" cx="15" cy="16.5" r="1.3"/>
+  </g>
+  <text class="lbl" x="172" y="222">IC-53</text>
+  <g transform="translate(196 188)">
+    <path class="s" d="M20 5 V13 a2 2 0 0 1 -2 2 H6"/>
+    <path class="s" d="M9.5 11.5 L6 15 L9.5 18.5"/>
+  </g>
+  <text class="lbl" x="208" y="222">IC-54</text>
+  <g transform="translate(232 188)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <path class="s" d="M8 12.2 L11 15.2 L16.2 9"/>
+  </g>
+  <text class="lbl" x="244" y="222">IC-55</text>
+  <g transform="translate(268 188)">
+    <path class="s" d="M8.12 5 A8 8 0 1 0 15.88 5"/>
+    <path class="s" d="M17.43 7.57 L15.88 5 L18.88 4.95"/>
+  </g>
+  <text class="lbl" x="280" y="222">IC-56</text>
+  <g transform="translate(304 188)">
+    <path class="s" d="M12 4 L21 19.5 H3 Z"/>
+    <path class="s" d="M12 10 V14.6"/>
+    <circle class="f" cx="12" cy="17.2" r="1"/>
+  </g>
+  <text class="lbl" x="316" y="222">IC-57</text>
+</svg>
