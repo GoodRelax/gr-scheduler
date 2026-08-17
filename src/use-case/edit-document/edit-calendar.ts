@@ -104,9 +104,30 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
       // names no weekday, so it cannot be stored and cannot be counted by.
       if (workingDayTypes !== undefined) {
         for (const dayType of workingDayTypes) {
-          if (!Number.isInteger(dayType) || dayType < 1 || dayType > 7) {
+          if (!isDayType(dayType)) {
             refusals.push(reject('CM-39', 'AT-73', `dayType outside 1..7: ${dayType}`))
           }
+        }
+
+        // FR-088 (MUST NOT, then MUST): 「稼働する曜日を 1 つも持たない暦を、
+        // 文書の暦（`FR-054`）にしてはならない（MUST NOT）。受け付けずに知らせ
+        // ること（MUST）」。 The condition is IV-17 of table T-220 -- the
+        // calendar FR-054 resolves works at least one weekday -- and this list
+        // is the WHOLE answer, so a list naming no weekday of AT-73's range
+        // leaves that calendar working none.
+        //
+        // ⚠️ Refused here rather than thrown where the days are counted: FR-088
+        // sets this beside FR-085 and FR-098 ("受け付けずに知らせる") and apart
+        // from `ST-7` of table T-014, because a person taking all seven
+        // weekdays off reaches it in the ordinary way.
+        //
+        // ⚠️ Refused rather than put back: 「既定の暦（表 T-209）へ黙って戻して
+        // はならない（MUST NOT）」 —— a silent reset would count the days by the
+        // weekdays the person had just taken off.
+        if (!workingDayTypes.some(isDayType)) {
+          refusals.push(
+            reject('CM-39', 'FR-088', 'the document calendar would work no weekday at all'),
+          )
         }
       }
 
@@ -222,11 +243,19 @@ function withWorkingDayTypes(calendar: Calendar, workingDayTypes: readonly numbe
     changed = true
   }
 
-  // ⚠️ A command that works NO day is accepted. Nothing in the specification
-  // forbids such a calendar, and refusing it here would be a rule this file
-  // invented; UF-1 stops on one rather than answering with a wrong day
-  // (`NoWorkingDayReached`).
+  // ⚠️ A command that works NO day never arrives here: FR-088 has the caller
+  // above refuse it, so this function is only ever asked for a calendar that
+  // still works at least one weekday (IV-17 of table T-220).
   return changed ? { ...calendar, weekDays: held } : calendar
+}
+
+/**
+ * Whether the value names a weekday: AT-73 fixes `WeekDay.dayType` at 1..7.
+ *
+ * @purity pure
+ */
+function isDayType(value: number): boolean {
+  return Number.isInteger(value) && value >= 1 && value <= 7
 }
 
 /** @purity pure */
