@@ -39,6 +39,7 @@ export interface DocumentSettings {
   readonly basePlanHeight: number
   readonly baselineVisible: boolean
   readonly canvasPadding: number
+  readonly carryMaxDepth: number
   readonly chevronNotchOfHeight: number
   readonly chevronNotchOfWidth: number
   readonly dateGridLinesVisible: boolean
@@ -163,6 +164,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'basePlanHeight': 28,
   'baselineVisible': false,
   'canvasPadding': 10,
+  'carryMaxDepth': 16,
   'chevronNotchOfHeight': 0.45,
   'chevronNotchOfWidth': 0.35,
   'dateGridLinesVisible': false,
@@ -280,6 +282,7 @@ export const SETTINGS_BOUNDS: Readonly<
   'autosaveIdleMs': { min: 300, max: 10000 },
   'basePlanHeight': { max: 200 },
   'canvasPadding': { min: 0, max: 60 },
+  'carryMaxDepth': { min: 4, max: 64 },
   'chevronNotchOfHeight': { min: 0.05, max: 1 },
   'chevronNotchOfWidth': { min: 0.05, max: 0.5 },
   'dependencyArrowLength': { max: 40 },

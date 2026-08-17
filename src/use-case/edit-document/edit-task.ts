@@ -1029,11 +1029,16 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // membership. ⚠️ Automatic placement is NOT a fourth member; the column
       // being nullable is what holds it.
       //
-      // ⛔ MISSING, and not guessed here: AT-98 fixes the range 0..8 but NO
-      // table says which index is which of the nine points. AT-98's meaning
-      // column points at table T-013, and table T-013 is FR-002's automatic
-      // decision order (NL-1 / NL-3) -- there is no anchor grid in it. The
-      // number is stored unmapped, so nothing here can tell 0 from 8.
+      // ✅ CR-181 closed the hole this used to carry: AT-98 fixed the range
+      // 0..8 while NO table said which index was which of the nine points, so
+      // the number was stored unmapped and nothing could tell 0 from 8. AT-98
+      // now numbers the nine points of the bounding box in reading order,
+      // 0 top-left to 8 bottom-right.
+      //
+      // ⚠️ This entry still checks the RANGE and nothing else, which is all it
+      // can: every index in it is a legal place to put a label, so there is no
+      // further rule to apply here. Table T-013 remains a different question --
+      // it decides where the label goes when nobody chose an anchor.
       if (
         command.nameAnchor !== null &&
         (!Number.isInteger(command.nameAnchor) || command.nameAnchor < 0 || command.nameAnchor > 8)

@@ -86,6 +86,39 @@ const planOf = (
     ...part,
   })
 
+describe('ApplyDocumentChange -- how big one undo step is (FR-031)', () => {
+  // ⛔ FR-031 (MUST): 「1 段の大きさは、その段の保存形を UTF-8 で符号化した長さ
+  // （バイト）で測ること」、and (MUST NOT) 「文字数で測ってはならない」. S-95 is
+  // written in megabytes, so counting characters ran the bound about three
+  // times loose on Japanese text -- which is what this file used to do, saying
+  // in as many words that the measure was its own decision (CR-182).
+  it('measures the stored form in bytes, not characters', () => {
+    // ⚠️ The step measures the document BEFORE the edit -- that is what undo
+    // restores -- so the two documents differ in their starting title.
+    // Both titles are FIVE characters: counting characters makes the two steps
+    // cost the same, counting UTF-8 bytes makes the Japanese one cost 2 more
+    // per character. The difference IS the measure.
+    const ascii = 'abcde'
+    const japanese = '日程表の名'
+    expect([...ascii]).toHaveLength([...japanese].length)
+
+    const sizeOf = (title: string): number => {
+      const document = documentOf({
+        schedule: { project: { title, statusDate: null, themeHue: 214, startDate: null },
+                    taskGroups: [], tasks: [] },
+      })
+      const plan = planOf(document, [{ kind: 'setProjectTitle', title: 'zz' }])
+      expect(plan.ok).toBe(true)
+      if (!plan.ok) throw new Error('the plan was refused')
+      expect(plan.history.done).toHaveLength(1)
+      return plan.history.done[0]!.size
+    }
+
+    // Each of the five characters is three bytes where a letter is one.
+    expect(sizeOf(japanese) - sizeOf(ascii)).toBe([...japanese].length * 2)
+  })
+})
+
 describe('EditDocument (PI-9) -- the Project aggregate', () => {
   it('FR-035 refuses an empty document name but accepts null', () => {
     const document = documentOf()

@@ -114,17 +114,33 @@ function isUndoable(command: DocumentCommand): boolean {
 /**
  * What one held step costs, for the total S-95 bounds.
  *
- * ⚠️ FR-031 requires a total-memory bound and names S-95 as its value, but
- * says nothing about HOW a step is measured -- and `historyWithStep` takes the
- * size as an argument, so W1 left the measure to whoever pushes the step. This
- * counts the characters of the stored form, because that is the shape S-95
- * bounds in megabytes and it is the only measure available to a pure function.
- * ⚠️ It is a decision of this file, not of the specification.
+ * ✅ FR-031 now states the measure (CR-182): the stored form, encoded as UTF-8,
+ * in bytes. ⛔ This used to count CHARACTERS and said so as a decision of its
+ * own -- and S-95 is written in megabytes, so on Japanese text, where one
+ * character is three bytes, the bound was running about three times loose.
+ *
+ * ⛔ `TextEncoder` is NOT used, and the attempt to is worth recording: LR-6
+ * compiles UseCase without the DOM library, so `tsc` refused it outright. The
+ * rule held where a comment claiming the API was "not really DOM" would have
+ * slipped past a reader. The bytes are counted from the code points instead --
+ * eight lines, pure, and testable without a runtime global.
  *
  * @purity pure
  */
+function utf8Length(text: string): number {
+  let bytes = 0
+  for (const character of text) {
+    const point = character.codePointAt(0) ?? 0
+    // The four UTF-8 lengths, by the ranges that define them. A code point
+    // over 0xFFFF is one `for...of` step here and four bytes there, which is
+    // why this walks characters rather than `.length` units.
+    bytes += point < 0x80 ? 1 : point < 0x800 ? 2 : point < 0x10000 ? 3 : 4
+  }
+  return bytes
+}
+
 function stepSize(document: Document): number {
-  return JSON.stringify(document).length
+  return utf8Length(JSON.stringify(document))
 }
 
 /**

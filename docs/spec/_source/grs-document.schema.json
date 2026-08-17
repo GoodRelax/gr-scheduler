@@ -122,6 +122,7 @@
     "basePlanHeight",
     "baselineVisible",
     "canvasPadding",
+    "carryMaxDepth",
     "chevronNotchOfHeight",
     "chevronNotchOfWidth",
     "dateGridLinesVisible",
@@ -262,6 +263,11 @@
      "type": "integer",
      "minimum": 0,
      "maximum": 60
+    },
+    "carryMaxDepth": {
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 64
     },
     "chevronNotchOfHeight": {
      "type": "number",
@@ -1040,13 +1046,15 @@
      "type": [
       "integer",
       "null"
-     ]
+     ],
+     "minimum": 0
     },
     "fadeOutDays": {
      "type": [
       "integer",
       "null"
-     ]
+     ],
+     "minimum": 0
     },
     "dependencies": {
      "type": "array",

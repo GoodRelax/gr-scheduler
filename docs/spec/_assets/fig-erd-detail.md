@@ -381,7 +381,7 @@ erDiagram
 | AT-79 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | ⚠️ **繰り返しの起点であって実日付の範囲ではない** |
 | AT-80 | `Exception` | `toDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/ToDate` | 同上 |
 | AT-81 | `Exception` | `dayWorking` | 真偽 | 可 | — | Own | `…/Exception/DayWorking` | 稼働日か |
-| AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | **繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる** |
+| AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | **繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる**（`FR-088`）。**`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし**（正は Chapter 6.2 が指す公式 XSD） |
 | AT-83 | `Exception` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
 | AT-84 | `Exception` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
 | AT-85 | `Resource` | `uid` | 整数 | 否 | PK | Own | `Resource/UID` | 担当者の識別子 |
@@ -397,7 +397,7 @@ erDiagram
 | AT-95 | `Assignment` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 58 |
 | AT-96 | `Assignment` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 3 |
 | AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
-| AT-98 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置（表 T-013） |
+| AT-98 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置。**外接矩形の 9 点を読み順に数える** —— `0` 左上 / `1` 上中央 / `2` 右上 / `3` 左中央 / `4` 中央 / `5` 右中央 / `6` 左下 / `7` 下中央 / `8` 右下。⚠️ **指定が無いときの置き方は 表 T-013 が決める**（`FR-002`）—— そちらは自動配置の順であって、この格子ではない |
 | AT-99 | `TaskVisual` | `nameAlign` | 列挙（3 値） | 可 | — | GRS | — | 名前の揃え |
 | AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | **描画の形だけを決める。`Task.milestone` を変えない**（表 T-012） |
 | AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（8 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る。**既定は `'diamond'`** |
@@ -425,7 +425,7 @@ erDiagram
 | AT-123 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。**所有者とこれで一意になる。これで元の位置に戻す** |
 | AT-124 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |
 | AT-125 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |
-| AT-126 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は定めない** |
+| AT-126 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は `_assets/tbl-settings.md` の `S-133` が持つ**（`FR-023`）—— ⚠️ **信頼できない入力が運んでくる木であり、WBS の上限（`S-115`）とは別物である** |
 | AT-127 | `revisionStamp` | `revision` | 整数 | 否 | — | GRS | — | 1 ずつ増える。上げる条件は `FR-063` |
 | AT-128 | `revisionStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。人か、AI か |
 | AT-129 | `revisionStamp` | `updatedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 最後に書いた時刻。**秒までとする**（透かしと精度を揃える） |
