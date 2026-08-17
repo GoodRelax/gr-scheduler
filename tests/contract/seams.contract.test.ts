@@ -19,6 +19,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { bare, specTable } from './spec-table'
+import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
+import { NOT_STORED_LIMITS } from '../../src/entity/document-model/edit-history/edit-history'
 
 const T065 = specTable('T-065')
 const T062 = specTable('T-062')
@@ -106,4 +108,39 @@ describe('table T-065 -- the interfaces that cross a layer boundary', () => {
       expect(existsSync(join(folderOf(implementedBy), `${kebab(implementedBy)}.ts`))).toBe(true)
     },
   )
+})
+
+describe('the values table T-206 keeps out of the document', () => {
+  // T-206 holds what the document does NOT store, so the value cannot travel
+  // inside a document -- it reaches the unit that owns its type as a generated
+  // constant, and the caller passes it in (CR-178). That makes the published
+  // table and the constant two ends of one seam, and this is the test that
+  // fails if only one of them moves. ⚠️ Before CR-178 the numbers existed only
+  // in whatever a caller happened to type; CR-174 is the session where exactly
+  // that let a changed value reach nothing at all.
+  const numbersOf = (cell: string): number[] =>
+    (cell.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)
+
+  const published = new Map<string, number[]>()
+  for (const row of specTable('T-206').rows) {
+    published.set(row.id, numbersOf(bare(row.by['既定'] ?? '')))
+  }
+
+  const generated: Record<string, number | readonly [number, number]> = {
+    ...NOT_STORED_SIZES,
+    ...NOT_STORED_LIMITS,
+  }
+
+  it.each(Object.keys(generated))('%s says the same number as the table', (rowId) => {
+    const value = generated[rowId]
+    const mine = typeof value === 'number' ? [value] : [...(value as readonly number[])]
+    expect(published.get(rowId), `table T-206 has no row ${rowId}`).toBeDefined()
+    expect(published.get(rowId)).toEqual(mine)
+  })
+
+  it('generates no row the table does not state', () => {
+    for (const rowId of Object.keys(generated)) {
+      expect(published.has(rowId), `${rowId} is not a row of table T-206`).toBe(true)
+    }
+  })
 })

@@ -98,7 +98,21 @@ say = lambda m: sys.stdout.write(m + '\n')
 
 
 def frag(spec, open_enums, where):
-    """Turn one "json" object of erd.json into a JSON Schema fragment."""
+    """Turn one "json" object of erd.json into a JSON Schema fragment.
+
+    ⚠️ A decided default is carried through as JSON Schema's own "default",
+    which is an ANNOTATION: it describes what the absent value means and never
+    makes a document valid or invalid. That is what is wanted here -- the
+    column stays nullable, and the reader of the schema learns what null
+    means without this file inventing a rule.
+    """
+    out = frag_body(spec, open_enums, where)
+    if 'default' in spec:
+        out['default'] = spec['default']
+    return out
+
+
+def frag_body(spec, open_enums, where):
     kind = spec['kind']
     nullable = spec.get('null', False)
 

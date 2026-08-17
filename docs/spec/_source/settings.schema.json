@@ -116,18 +116,51 @@
      "required": [
       "lit"
      ]
+    },
+    {
+     "required": [
+      "pair"
+     ]
     }
    ],
    "properties": {
+    "pair": {
+     "description": "Two numbers printed as one cell: 30 x 20px. Table T-206 gives several sizes as width by height, and a cell holding both as one string is not a value a generator can read. The separator the document prints is the generator's, not a language's.",
+     "type": "array",
+     "minItems": 2,
+     "maxItems": 2,
+     "items": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+     }
+    },
+    "prefix": {
+     "description": "A phrase printed BEFORE the value, held per language. It exists so that a cell like S-90's can carry its number as a value instead of burying it in a sentence -- and the number is not written a second time inside the phrase.",
+     "type": "object",
+     "required": [
+      "ja"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "ja": {
+       "type": "string",
+       "minLength": 1
+      },
+      "en": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
     "num": {
      "description": "The number AS WRITTEN, not a JSON number: 0.80 and 1.0 would come back as 0.8 and 1.0 and stop matching the document. The author's precision is part of the value.",
      "type": "string",
      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
     },
     "lit": {
-     "description": "A literal the specification writes as itself.",
+     "description": "A literal the specification writes as itself. A bare word is allowed because table T-206 prints one (S-99a's `user`, the name the watermark starts from); it is still a value the code reads, not prose.",
      "type": "string",
-     "pattern": "^(?:'[^']*'|true|false|null)$"
+     "pattern": "^(?:'[^']*'|true|false|null|[A-Za-z][A-Za-z0-9]*)$"
     },
     "code": {
      "description": "Printed inside backticks.",

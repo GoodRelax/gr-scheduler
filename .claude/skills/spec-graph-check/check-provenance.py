@@ -36,6 +36,12 @@ ARTIFACTS = [
     ('src/entity/document-model/document-stamp/document-stamp.ts', 'erd.json'),
     ('src/entity/document-model/document-settings/document-settings.ts',
      'settings.json'),
+    # Two units whose generated region carries table T-206 -- the values the
+    # document does NOT store, which reach the unit that owns their type
+    # (CR-178). ⚠️ Most of each file is hand written; only the marked region
+    # is generated, which is why the banner has to say so per file.
+    ('src/entity/layout-engine/item-hit-area/item-hit-area.ts', 'settings.json'),
+    ('src/entity/document-model/edit-history/edit-history.ts', 'settings.json'),
 ]
 
 # How far into the file the banner may sit. Long enough for a StrictDoc header

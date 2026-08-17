@@ -387,6 +387,25 @@ export const DATE_COLUMNS: {
   HighlightBox: ['startDate', 'endDate'],
   BaselineTask: ['start', 'finish'],
 }
+
+/**
+ * Every column the specification gives a default, by entity.
+ *
+ * ⭐ A default is only here when the specification HAS decided one: the
+ * value comes from erd.json, is printed beside the column in table T-058,
+ * and reaches the GRS JSON schema as its "default" annotation. So the
+ * number of places holding it is one.
+ *
+ * ⚠️ The value type is read off the generated interface, so a default that
+ * is not a member of its own column fails to compile rather than shipping.
+ */
+export const COLUMN_DEFAULTS: {
+  readonly TaskVisual: {
+    readonly milestoneGlyph: NonNullable<TaskVisual['milestoneGlyph']>
+  }
+} = {
+  TaskVisual: { milestoneGlyph: 'diamond' },
+}
 // </generated>
 
 

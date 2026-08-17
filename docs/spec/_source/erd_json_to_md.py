@@ -251,19 +251,41 @@ def relation_table(doc, prefix):
     return rows
 
 
+# The sentence that prints a decided default beside a column's meaning.
+#
+# ⚠️ It is Japanese held in the GENERATOR, like HEADERS and BANNER above. That
+# is carry-over (u), not a new problem: the fixed prose of this generator moves
+# to the manuscript in one change, and inventing a half-way home for this one
+# fragment would only have to be undone then. The VALUE is not duplicated --
+# it comes from json.default, which is the single place that holds it.
+DEFAULT_NOTE = '。**既定は `%s`**'
+
+
 def column_table(doc, prefix):
     rows = []
     n = 0
     for e in doc['entities']:
         for c in e['columns']:
             n += 1
+            meaning = text(c['meaning'])
+            if 'default' in c['json']:
+                meaning += DEFAULT_NOTE % json_literal(c['json']['default'])
             rows.append('| %s-%d | `%s` | `%s` | %s | %s | %s | %s | %s | %s |'
                         % (prefix, n, e['name'], c['name'], c['type'],
                            c['nullable'],
                            c['key'] or '—', c['origin'],
                            ('`%s`' % c['exchange']) if c['exchange'] else '—',
-                           text(c['meaning'])))
+                           meaning))
     return rows
+
+
+def json_literal(value):
+    """A machine value as the specification writes it in a table cell."""
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
+    if isinstance(value, str):
+        return "'%s'" % value
+    return str(value)
 
 
 def derived_table(doc, prefix):
@@ -344,6 +366,19 @@ def problems(doc):
             if c['origin'] not in ORIGINS:
                 found.append('%s.%s has origin %r'
                              % (e['name'], c['name'], c['origin']))
+            # A default outside the column's own vocabulary would publish a
+            # value the document may not hold. A schema cannot say this: the
+            # allowed set is a sibling key, not a fixed list.
+            j = c['json']
+            if 'default' in j and j['kind'] == 'enum':
+                if 'values' not in j:
+                    found.append('%s.%s has a default but its members are not '
+                                 'decided yet' % (e['name'], c['name']))
+                elif j['default'] not in j['values']:
+                    found.append('%s.%s defaults to %r, which is not one of '
+                                 'its %d values'
+                                 % (e['name'], c['name'], j['default'],
+                                    len(j['values'])))
 
     for r in doc['relations']:
         for side in ('parent', 'child'):

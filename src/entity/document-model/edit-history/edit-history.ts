@@ -5,6 +5,15 @@
 // @purity    pure
 // @publishes table T-064 row PI-4
 //
+// ⚠️ PART of this file is generated. The marked region at the bottom -- search
+// for NOT_STORED_LIMITS -- comes from docs/spec/_source/settings.json (table
+// T-206) and is overwritten by `npm run gen`; `npm run gen:check` fails if it
+// has drifted. Everything above the marker is hand written. Do not edit by hand
+// inside that region: edit the manuscript instead.
+// ⛔ This note does NOT quote the marker itself -- writing it here made the
+// generator treat this comment as the region and inject the block into the
+// middle of it. The marker must occur exactly once per file.
+//
 // FR-031 holds the rule: undo the previous edit, redo what was undone, and
 // keep a bound on both the number of steps and the total memory, dropping the
 // oldest step once either is passed.
@@ -106,3 +115,31 @@ export function nextStep<TStep>(history: EditHistory<TStep>): HistoryMove<TStep>
     step: held.step,
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ Reading this is NOT the same as taking it: the value still
+ * arrives as an argument, because table T-206 keeps these out of the
+ * document on purpose (the environment may hold a larger one). This
+ * is what a caller passes when it has nothing better.
+ */
+export const NOT_STORED_LIMITS: {
+  /** S-94 */
+  readonly 'S-94': number
+  /** S-95, in MB */
+  readonly 'S-95': number
+} = {
+  'S-94': 50,
+  'S-95': 64,
+}
+// </generated>

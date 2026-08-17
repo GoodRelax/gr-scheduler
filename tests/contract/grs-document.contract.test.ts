@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest'
 import { bare, specTable } from './spec-table'
 import { documentSchema, validateDocument, validateEntity } from '../fixtures/grs-document'
+import { COLUMN_DEFAULTS } from '../../src/entity/document-model/schedule/schedule'
 
 const schema = documentSchema as {
   required: string[]
@@ -54,5 +55,41 @@ describe('the GRS JSON schema, as a shared fixture', () => {
     const result = validateEntity('WeekDay', weekDay)
     expect(result.valid).toBe(false)
     expect(result.errors.join(' ')).toMatch(/dayType/)
+  })
+
+  it('carries every default table T-058 publishes, spelled the same way', () => {
+    // FR-078 sends an unchosen milestone figure to AT-101's default rather
+    // than naming a figure itself, so the value has exactly one home. This
+    // walks the published table and holds the code against it: change the
+    // default in the manuscript and this fails until the code is rebuilt,
+    // which is the guard CR-174 found missing when S-49 moved and nothing
+    // anywhere said so.
+    const published = new Map<string, string>()
+    for (const row of specTable('T-058').rows) {
+      const note = row.by['意味'] ?? ''
+      const found = /既定は `'?([A-Za-z0-9.-]+)'?`/.exec(note)
+      if (found) {
+        published.set(`${bare(row.by['エンティティ'] ?? '')}.${bare(row.by['列'] ?? '')}`,
+                      found[1] as string)
+      }
+    }
+    expect(published.size, 'table T-058 publishes no default at all').toBeGreaterThan(0)
+
+    const generated = new Map<string, string>()
+    for (const [entity, columns] of Object.entries(COLUMN_DEFAULTS)) {
+      for (const [column, value] of Object.entries(columns)) {
+        generated.set(`${entity}.${column}`, String(value))
+      }
+    }
+    expect(generated, 'the code and the table disagree about the defaults')
+      .toEqual(published)
+
+    // ⚠️ And the schema says the same, as an annotation: the column stays
+    // nullable, so null still means "not chosen" rather than "invalid".
+    const visual = schema.$defs['TaskVisual'] as {
+      properties: Record<string, { default?: unknown }>
+    }
+    expect(visual.properties['milestoneGlyph']?.default)
+      .toBe(COLUMN_DEFAULTS.TaskVisual.milestoneGlyph)
   })
 })

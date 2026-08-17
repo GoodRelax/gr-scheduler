@@ -374,6 +374,15 @@
      "const": true,
      "description": "The specification names the number of members but not their spellings."
     },
+    "default": {
+     "type": [
+      "string",
+      "integer",
+      "number",
+      "boolean"
+     ],
+     "description": "The value the specification uses when the column is absent. ⛔ Only where the specification HAS decided one -- a generator must not invent a default, and a column without this key has none. ⚠️ It is a machine value and belongs to no language, which is why it sits here rather than in the prose of \"meaning\": the number or spelling is the same in every edition, and holding it twice would let the two disagree. An enum default must be one of \"values\"; erd_json_to_md.py checks that, because a schema cannot say it."
+    },
     "of": {
      "$ref": "#/$defs/jsonTypeElement"
     },

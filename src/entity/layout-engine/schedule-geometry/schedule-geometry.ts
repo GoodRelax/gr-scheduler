@@ -30,11 +30,13 @@
 //     CR-172 named them circle / hexagon / pentagon / diamond / square / star /
 //     triangleUp / triangleDown -- so what is missing here is the GEOMETRY of
 //     the other seven, not their names. Every milestone is still drawn as a ◇.
-//     ⛔ Which figure a milestone starts with is a separate hole CR-172 declined
-//     to close: docs/spec names no default (P-15's 「マイルストーン（◇ ほか）」
-//     is a glossary example and table T-202 holds no key for it), and SH-5's own
-//     order starts at 〇, not ◇. Until that is settled the fallback here is a
-//     choice this file made, not one the specification states.
+//     ⭐ The ◇ is no longer a value this file chose: FR-078 sends an unchosen
+//     figure to AT-101's default, which is `diamond` and reaches code as
+//     `COLUMN_DEFAULTS` in the schedule group (CR-177).
+//     ⛔ But this file does NOT read the glyph at all yet -- `TaskPlacement`
+//     does not carry it, so every milestone takes the same outline whatever
+//     the document stores. That is carry-over (l), and it is a bigger hole
+//     than the default was: choosing ☆ currently draws a ◇ in silence.
 //
 // The signature of what this file publishes is owned here, not in the
 // specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a

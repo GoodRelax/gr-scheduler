@@ -55,14 +55,29 @@ def text(value):
         return value
     if 'ja' in value:
         return value[LANG]
-    if 'num' in value or 'lit' in value:
-        body = value.get('num', value.get('lit'))
+    if 'num' in value or 'lit' in value or 'pair' in value:
+        if 'pair' in value:
+            body = PAIR_SEPARATOR.join(value['pair'])
+        else:
+            body = value.get('num', value.get('lit'))
         out = '`%s`' % body if value.get('code') else body
+        # A word that WRAPS the value belongs to a language, so it is a
+        # dictionary of its own -- and the number inside it is not written a
+        # second time. S-90's 「バーの上下に 6px」 is one number and one phrase,
+        # not a sentence with a 6 buried in it.
+        if 'prefix' in value:
+            out = text(value['prefix']) + out
         out += value.get('suffix', '')
         if value.get('mark'):
             out += ' ' + value['mark']
         return out
     raise SystemExit('a cell is neither prose nor a machine value: %r' % value)
+
+
+# Two numbers printed as one cell: 「30 × 20px」. The separator is the
+# specification's, not a language's -- 表 T-206 writes it this way for every
+# size it gives as width by height.
+PAIR_SEPARATOR = ' × '
 
 
 def markdown_row(cells):

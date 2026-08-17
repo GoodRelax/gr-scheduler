@@ -1532,7 +1532,8 @@
       "triangleUp",
       "triangleDown",
       null
-     ]
+     ],
+     "default": "diamond"
     },
     "fillColor": {
      "type": [

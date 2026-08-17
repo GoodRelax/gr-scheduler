@@ -38,6 +38,7 @@ ERD = os.path.join(ROOT, 'docs', 'spec', '_source', 'erd.json')
 SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json')
 SETTINGS = os.path.join(ROOT, 'docs', 'spec', '_source', 'settings.json')
 MODEL = os.path.join(ROOT, 'src', 'entity', 'document-model')
+LAYOUT = os.path.join(ROOT, 'src', 'entity', 'layout-engine')
 
 # ⚠️ The marker carries NO path. It used to read "<generated from
 # docs/spec/_assets/source/erd.json …>", and when CR-175 moved the manuscript
@@ -142,6 +143,54 @@ def date_columns_block(erd):
     return '\n'.join(out)
 
 
+COLUMN_DEFAULTS_NOTE = [
+    '/**',
+    ' * Every column the specification gives a default, by entity.',
+    ' *',
+    ' * ⭐ A default is only here when the specification HAS decided one: the',
+    ' * value comes from erd.json, is printed beside the column in table T-058,',
+    ' * and reaches the GRS JSON schema as its "default" annotation. So the',
+    ' * number of places holding it is one.',
+    ' *',
+    ' * ⚠️ The value type is read off the generated interface, so a default that',
+    ' * is not a member of its own column fails to compile rather than shipping.',
+    ' */',
+    'export const COLUMN_DEFAULTS: {',
+]
+
+
+def column_defaults_block(erd):
+    """The decided defaults, typed from the interfaces above."""
+    holders = [(e['name'], [(c['name'], c['json']['default'])
+                            for c in e['columns'] if 'default' in c['json']])
+               for e in erd['entities']]
+    holders = [(name, cols) for name, cols in holders if cols]
+    if not holders:
+        return ''
+    out = list(COLUMN_DEFAULTS_NOTE)
+    for name, cols in holders:
+        out.append('  readonly %s: {' % name)
+        for column, _value in cols:
+            out.append("    readonly %s: NonNullable<%s['%s']>"
+                       % (column, name, column))
+        out.append('  }')
+    out.append('} = {')
+    for name, cols in holders:
+        pairs = ', '.join('%s: %s' % (column, ts_literal(value))
+                          for column, value in cols)
+        out.append('  %s: { %s },' % (name, pairs))
+    out.append('}')
+    return '\n'.join(out)
+
+
+def ts_literal(value):
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
+    if isinstance(value, str):
+        return "'%s'" % value
+    return str(value)
+
+
 def numbering(erd):
     """The ET- row and the first AT- row of every entity, by position."""
     seats, column = {}, 0
@@ -165,6 +214,9 @@ def schedule_block(erd):
     out.append('/** The schedule group. Its keys are DR-2 of table T-052. */\n'
                'export interface Schedule {\n%s\n}' % '\n'.join(keys))
     out.append(date_columns_block(erd))
+    defaults = column_defaults_block(erd)
+    if defaults:
+        out.append(defaults)
     return '\n\n'.join(out)
 
 
@@ -282,6 +334,89 @@ def number_of(cell):
     return None
 
 
+# ---- table T-206: the values the document does NOT store ------------------
+#
+# ⛔ These rows have no key column: the 値 column of table T-206 is prose for
+# most of them ("予定の端点の掴み代"), so they cannot be reached the way
+# settings_manuscript() reaches a named setting. They are reached by ROW ID,
+# which is the specification's own identifier and invents no name -- and the
+# interfaces that consume them already document their fields that way
+# (`/** S-90: … */` in PointerSlop).
+#
+# ⚠️ Which rows land in which unit is decided HERE, not in the manuscript: it
+# is a fact about the code's shape, and the manuscript describes values.
+NOT_STORED_TARGETS = {
+    'NOT_STORED_SIZES': ['S-90', 'S-92', 'S-93'],
+    'NOT_STORED_LIMITS': ['S-94', 'S-95'],
+}
+
+
+def not_stored_cell(cell):
+    """One machine value of table T-206, as a TypeScript literal and type."""
+    if not isinstance(cell, dict):
+        return None
+    if 'pair' in cell:
+        return ('[%s]' % ', '.join(cell['pair']), 'readonly [number, number]')
+    if 'num' in cell:
+        return (cell['num'], 'number')
+    if 'lit' in cell:
+        return ("'%s'" % cell['lit'], "'%s'" % cell['lit'])
+    return None
+
+
+def not_stored_block(name):
+    """The rows of table T-206 one unit needs, by row ID.
+
+    ⭐ The seam is unchanged: S-94 and S-95 still arrive as an argument, the
+    way edit-history.ts says they do. What this adds is a correct thing for the
+    caller to pass -- before it, the only place outside docs/spec holding these
+    numbers was whatever a caller happened to type.
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-206']
+    if not block:
+        raise SystemExit('settings.json holds no table T-206')
+    by_id = {r['id']: r for r in block[0]['rows']}
+    got = []
+    for row_id in NOT_STORED_TARGETS[name]:
+        if row_id not in by_id:
+            raise SystemExit('table T-206 has no row %s' % row_id)
+        raw = by_id[row_id].get('default')
+        cell = not_stored_cell(raw)
+        if cell is None:
+            raise SystemExit(
+                'table T-206 row %s holds no machine value, so %s cannot be '
+                'generated. Give the row a num / pair / lit cell, or take the '
+                'row out of NOT_STORED_TARGETS.' % (row_id, name))
+        # ⛔ The unit rides along. Without it S-95 generates a bare 64 and the
+        # reader cannot tell megabytes from bytes -- the exact defect CR-173
+        # closed for S-113, which was a boundary that moved in silence.
+        unit = (raw.get('suffix') or '').strip()
+        got.append((row_id, cell[0], cell[1], unit))
+    out = ['/**',
+           ' * The values table T-206 states that this unit needs, by row ID.',
+           ' *',
+           ' * ⭐ Table T-206 holds what the document does NOT store, so these',
+           ' * are not document settings and are not in SETTINGS_DEFAULTS. They',
+           ' * are reached by row ID because most rows of that table have no key',
+           ' * column -- the row ID is the specification\'s own name for them.',
+           ' *',
+           ' * ⚠️ Reading this is NOT the same as taking it: the value still',
+           ' * arrives as an argument, because table T-206 keeps these out of the',
+           ' * document on purpose (the environment may hold a larger one). This',
+           ' * is what a caller passes when it has nothing better.',
+           ' */',
+           'export const %s: {' % name]
+    for row_id, _literal, ts, unit in got:
+        out.append('  /** %s%s */' % (row_id, (', in %s' % unit) if unit else ''))
+        out.append("  readonly '%s': %s" % (row_id, ts))
+    out.append('} = {')
+    for row_id, literal, _ts, _unit in got:
+        out.append("  '%s': %s," % (row_id, literal))
+    out.append('}')
+    return '\n'.join(out)
+
+
 DEFAULTS_NOTE = [
     '/**',
     ' * The default settings.json states for each key.',
@@ -388,6 +523,12 @@ TARGETS = [
      ['docs/spec/_source/settings.json',
       'docs/spec/_source/erd.json',
       'docs/spec/_source/grs-document.schema.json (itself generated from the two above)']),
+    (os.path.join(LAYOUT, 'item-hit-area', 'item-hit-area.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    (os.path.join(MODEL, 'edit-history', 'edit-history.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_LIMITS'),
+     ['docs/spec/_source/settings.json (table T-206)']),
 ]
 
 

@@ -5,6 +5,16 @@
 // @purity    pure
 // @publishes table T-064 row PI-7
 //
+// ⚠️ PART of this file is generated. The marked region at the bottom -- search
+// for NOT_STORED_SIZES -- comes from docs/spec/_source/settings.json (table
+// T-206) and is overwritten by `npm run gen`; `npm run gen:check` fails if it
+// has drifted. Everything above the marker is hand written. Do not edit by hand
+// inside that region: edit the manuscript instead.
+// ⛔ This note does NOT quote the marker itself. Writing the opening marker
+// here made the generator treat this comment as the region and inject the
+// block into the middle of it -- the same class of failure as putting a path
+// in the marker (CR-175). The marker must occur exactly once per file.
+//
 // What the pointer is on (CP-7). Two tables rule this file, and it holds no
 // rule of its own:
 //
@@ -93,15 +103,20 @@ export interface Hit {
  * ⚠️ S-90 states the overhang ABOVE and BELOW the bar. Reading the same number
  * as the reach to either SIDE of an endpoint is this file's decision, not the
  * table's: the table gives an endpoint no width, and a point cannot be hit.
+ *
+ * ⛔ These comments name the ROW, never the number. They used to say "6px",
+ * "15 x 15" and "30 x 20", and changing S-90 in the manuscript left all three
+ * saying the old figure -- a copy of a value nothing checks is the defect
+ * CR-174 spent a session chasing. `NOT_STORED_SIZES` below carries the figures.
  */
 export interface PointerSlop {
-  /** S-90: 6px past the plan bar, and the same reach to either side of an end. */
+  /** S-90: past the plan bar, and the same reach to either side of an end. */
   readonly planEndpoint: number
   /** S-91: the actual bar's own band, narrower than the plan. Its side reach. */
   readonly actualEndpoint: number
-  /** S-92: the fade handle's 15 x 15 square, as its half-width. */
+  /** S-92: the fade handle's square, as its half-width. */
   readonly fadeHandle: number
-  /** S-93: the dummy's 30 x 20 box. */
+  /** S-93: the dummy's box. */
   readonly dummyWidth: number
   readonly dummyHeight: number
   /**
@@ -466,3 +481,34 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
   }
   return out
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ Reading this is NOT the same as taking it: the value still
+ * arrives as an argument, because table T-206 keeps these out of the
+ * document on purpose (the environment may hold a larger one). This
+ * is what a caller passes when it has nothing better.
+ */
+export const NOT_STORED_SIZES: {
+  /** S-90, in px */
+  readonly 'S-90': number
+  /** S-92, in px */
+  readonly 'S-92': readonly [number, number]
+  /** S-93, in px */
+  readonly 'S-93': readonly [number, number]
+} = {
+  'S-90': 6,
+  'S-92': [15, 15],
+  'S-93': [30, 20],
+}
+// </generated>

@@ -2104,6 +2104,7 @@
        "triangleUp",
        "triangleDown"
       ],
+      "default": "diamond",
       "null": true
      },
      "key": "",
