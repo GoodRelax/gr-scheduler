@@ -19,13 +19,13 @@ import {
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   geometryFromLayout,
-  progressSymbolOf,
   type Point,
   type ScheduleGeometry,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   itemAtPointer,
   itemsInMarquee,
+  type PointerSlop,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   regionAtPointer,
@@ -177,6 +177,9 @@ const LAYOUT_SETTINGS = settingsOf({
   stackGap: 12, // S-11
   rowGap: 8, // S-12
   stackSafetyCap: 255, // S-89
+  // ⚠️ S-58 defaults to 'up'; these cases pin 'down' so every y below reads
+  // from the top of the band. The 'up' half of ST-5 has its own cases.
+  stackDirection: 'down', // S-58
   shapeHeightOf: { rectangle: 1, chevron: 1, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
 })
 
@@ -255,13 +258,31 @@ describe('ScheduleLayout (PI-5) -- the time axis', () => {
 
   it('S-77 pins the left edge of the Row Area to scrollDate', () => {
     const layout = layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS)
-    expect(dateAtX(layout, REGIONS, REGIONS.rowArea.x)).toEqual({ year: 2026, month: 1, day: 1 })
-    expect(dateAtX(layout, REGIONS, REGIONS.rowArea.x + 60)).toEqual({ year: 2026, month: 1, day: 11 })
+    expect(dateAtX(layout, REGIONS.rowArea.x)).toEqual({ year: 2026, month: 1, day: 1 })
+    expect(dateAtX(layout, REGIONS.rowArea.x + 60)).toEqual({ year: 2026, month: 1, day: 11 })
   })
 
   it('answers null for the day while no origin is set, which is when OP-10 picks one', () => {
     const unset = settingsOf({ ...LAYOUT_SETTINGS, scrollDate: null })
-    expect(dateAtX(layoutFromSchedule(oneRow([]), unset, REGIONS), REGIONS, 0)).toBeNull()
+    expect(dateAtX(layoutFromSchedule(oneRow([]), unset, REGIONS), 0)).toBeNull()
+  })
+
+  it('reads the axis off the layout it was built from, so x inverts xOfDay exactly', () => {
+    // ⚠️ The inverse has to divide by layout.originX. Re-deriving the origin
+    // from a ScreenRegions the caller hands in lets a value arrive that the
+    // layout was NOT built from, and x -> day then lands on a different day
+    // without saying so.
+    const layout = layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS)
+    const dayAfterOrigin = (days: number): Record<string, number> => {
+      const at = new Date(Date.UTC(2026, 0, 1) + days * 86400000)
+      return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
+    }
+    // -1 covers a point LEFT of the origin, which S-77 reaches by scrolling.
+    for (const days of [-1, 0, 1, 7, 100]) {
+      expect(dateAtX(layout, layout.originX + days * layout.pxPerDay)).toEqual(
+        dayAfterOrigin(days),
+      )
+    }
   })
 })
 
@@ -356,6 +377,34 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     // A rectangle reserves basePlanHeight, 28, at zoomY 1.
     expect(one.rows[0]!.height).toBe(28)
     expect(two.rows[0]!.height).toBe(28 + 12 + 28)
+  })
+
+  it('ST-5 stacks down from the top of the band, and S-58 up reverses only the y', () => {
+    // Lane 0 takes a 28-tall rectangle and lane 1 a 42-tall milestone that
+    // overlaps it, so the band is 28 + 12 + 42 = 82 whichever way it stacks --
+    // and the reversal has to use each lane's OWN height, not one of them.
+    const overlapping = oneRow([
+      spanning(1, '2026-01-01', 20),
+      taskOf({ uid: 2, start: '2026-01-05', finish: '2026-01-05', milestone: true }),
+    ])
+    const top = REGIONS.rowArea.y
+
+    const down = layoutFromSchedule(overlapping, LAYOUT_SETTINGS, REGIONS)
+    expect(down.rows[0]!.height).toBe(82)
+    expect(down.rows[0]!.stackTops).toEqual([top, top + 28 + 12])
+    expect(down.placements.map((p) => p.y)).toEqual([top, top + 40])
+
+    const up = layoutFromSchedule(
+      overlapping,
+      settingsOf({ ...LAYOUT_SETTINGS, stackDirection: 'up' }),
+      REGIONS,
+    )
+    // ST-2 and ST-3 do not read the direction: every Task keeps its lane.
+    expect(up.placements.map((p) => p.stack)).toEqual(down.placements.map((p) => p.stack))
+    expect(up.rows[0]!.height).toBe(82)
+    // Lane 0 is now the lowest, and lane 1 -- the taller -- takes the top.
+    expect(up.rows[0]!.stackTops).toEqual([top + 42 + 12, top])
+    expect(up.placements.map((p) => p.y)).toEqual([top + 54, top])
   })
 
   it('LF-3 advances the next row by the band height and rowGap', () => {
@@ -465,6 +514,41 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
   it('still has an extent when a row holds no Task, because the band is drawn', () => {
     const layout = layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS)
     expect(layout.contentHeight).toBe(28)
+  })
+
+  it('FR-055 measures to the RIGHTMOST occupied edge, even when every one is negative', () => {
+    // S-77 puts the origin a year after the content, so the whole occupancy
+    // sits left of the Row Area. Measuring the right edge from a floor of 0
+    // reported the distance to x = 0 instead -- here 2020px for 120px of bar,
+    // which would have zoomed the fit out by nearly 17x.
+    const scrolled = settingsOf({ ...LAYOUT_SETTINGS, scrollDate: '2027-01-01' })
+    const layout = layoutFromSchedule(oneRow([spanning(1, '2026-01-01', 20)]), scrolled, REGIONS)
+    expect(taskPlacement(layout, 1)!.occupiedX1).toBeLessThan(0)
+    expect(layout.contentWidth).toBeCloseTo(120, 6)
+  })
+
+  it('FR-077 carries the drawn type size on the placement, with S-8 applied last', () => {
+    const layout = layoutFromSchedule(
+      oneRow([spanning(1, '2026-01-01', 60, { name: 'ab' })]),
+      LAYOUT_SETTINGS,
+      REGIONS,
+    )
+    // A rectangle: 28 x actualOfPlan x fontOfActual = 16.352, clear of S-8.
+    expect(taskPlacement(layout, 1)!.labelFontSize).toBeCloseTo(28 * 0.73 * 0.8, 6)
+
+    const thin = layoutFromSchedule(
+      scheduleOf({
+        tasks: [spanning(2, '2026-01-01', 60, { name: 'ab' })],
+        taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
+        taskGroupMembers: [{ groupId: 'g1', taskUid: 2 }],
+        taskVisuals: [{ taskUid: 2, shapeKind: 'arrow' }],
+      }),
+      LAYOUT_SETTINGS,
+      REGIONS,
+    )
+    // An arrow is 14 tall, so 14 x 0.73 x 0.8 x thinFontScale is 6.95. FR-094
+    // puts S-8's floor on AFTER the thin scale, so the answer is 12, not 6.95.
+    expect(taskPlacement(thin, 2)!.labelFontSize).toBe(12)
   })
 })
 
@@ -634,19 +718,23 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
   })
 
   it('RV-5 answers table T-021, and PM-4 wins whenever it holds', () => {
-    const late = taskOf({ uid: 1, start: '2026-01-01', finish: '2026-01-05' })
-    expect(progressSymbolOf(late, { year: 2026, month: 6, day: 1 })).toBe('PM-4')
-    expect(progressSymbolOf(late, null)).toBe('PM-1a')
-    expect(
-      progressSymbolOf(
-        taskOf({ uid: 1, actualStart: '2026-01-01', actualFinish: '2026-01-05' }),
-        null,
-      ),
-    ).toBe('PM-2')
-    expect(
-      progressSymbolOf(taskOf({ uid: 1, actualStart: '2026-01-01', resumeValid: false }), null),
-    ).toBe('PM-3')
-    expect(progressSymbolOf(taskOf({ uid: 1, actualStart: '2026-01-01' }), null)).toBe('PM-1')
+    // Read through the marker: table T-064's PI-6 declares two members, and the
+    // symbol leaves the component on MarkerGeometry rather than on its own.
+    const symbolOf = (part: Record<string, unknown>, statusDate: string | null): string =>
+      geometryOf(
+        scheduleOf({
+          project: { calendarUid: null, statusDate },
+          tasks: [spanning(1, '2026-01-01', 20, part)],
+          taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
+          taskGroupMembers: [{ groupId: 'g1', taskUid: 1 }],
+        }),
+      ).tasks[0]!.marker!.symbol
+
+    expect(symbolOf({}, '2026-06-01')).toBe('PM-4')
+    expect(symbolOf({}, null)).toBe('PM-1a')
+    expect(symbolOf({ actualStart: '2026-01-01', actualFinish: '2026-01-21' }, null)).toBe('PM-2')
+    expect(symbolOf({ actualStart: '2026-01-01', resumeValid: false }, null)).toBe('PM-3')
+    expect(symbolOf({ actualStart: '2026-01-01' }, null)).toBe('PM-1')
   })
 
   it('LF-11 puts the marker markerGap past the rightmost bar, on the plan centre', () => {
@@ -658,6 +746,27 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     expect(marker.centre.x).toBeCloseTo(xOf(20) + 4 + 8, 6)
     expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + 14, 6)
     expect(marker.radius).toBe(8)
+  })
+
+  it('GR-7 hangs the marker off the end-point dummy while nothing is started', () => {
+    // 実績バーの右端の外側。未着手のときは終了点の掴みシロの外側 -- a Task not
+    // started has no actual bar, so FR-043's GR-17 stands in for its right end
+    // and the marker leaves the plan's own right end alone.
+    const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
+    expect(fresh.marker!.centre.x).toBeCloseTo(fresh.dummies[1]!.at.x + 4 + 8, 6)
+    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(1) + 12, 6)
+  })
+
+  it('GR-7 keeps a milestone on its figure, which has no GR-17 to follow', () => {
+    // マイルストーンのときは図形の外側. GR-15 gives it no actual bar and so no
+    // end-point dummy either; LF-10 already makes the plan figure's right edge
+    // the outside of the figure.
+    const milestone = geometryOf(
+      oneRow([taskOf({ uid: 1, start: '2026-01-11', finish: '2026-01-11', milestone: true })]),
+    ).tasks[0]!
+    expect(milestone.dummies.map((one) => one.grab)).toEqual(['GR-18'])
+    // The figure is 42 across and centred on day 10, so its right edge is at 21.
+    expect(milestone.marker!.centre.x).toBeCloseTo(xOf(10) + 21 + 4 + 8, 6)
   })
 
   it('S-63 takes the marker away', () => {
@@ -824,17 +933,102 @@ describe('ScheduleGeometry (PI-6) -- FR-014 and LF-12', () => {
   })
 })
 
+describe('ScheduleGeometry (PI-6) -- table T-020a, GR-10 and FR-019', () => {
+  const asMilestone = (part: Record<string, unknown>): Schedule =>
+    oneRow([taskOf({ uid: 1, start: '2026-01-11', finish: '2026-01-11', milestone: true, ...part })])
+
+  it('GD-4 judges a milestone on its DAY, having no notion of overlap', () => {
+    // The two figures are 42 and 30 across and one day -- 6px -- apart, so they
+    // overlap heavily. GD-1's overlap gate would leave this row unable to fire.
+    const apart = geometryOf(asMilestone({ actualStart: '2026-01-12' })).tasks[0]!
+    expect(apart.guides).toHaveLength(1)
+    expect(apart.guides[0]![0]!.x).toBeCloseTo(xOf(11), 6)
+    expect(apart.guides[0]![1]!.x).toBeCloseTo(xOf(10), 6)
+    const together = geometryOf(asMilestone({ actualStart: '2026-01-11' })).tasks[0]!
+    expect(together.guides).toHaveLength(0)
+  })
+
+  it('GD-2 draws two lines once the two bars have come apart, and none while they meet', () => {
+    const apart = geometryOf(
+      oneRow([spanning(1, '2026-01-01', 5, { actualStart: '2026-02-02', actualDuration: 3 })]),
+    ).tasks[0]!
+    expect(apart.guides).toHaveLength(2)
+    const overlapping = geometryOf(
+      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-05', actualDuration: 3 })]),
+    ).tasks[0]!
+    expect(overlapping.guides).toHaveLength(0)
+  })
+
+  it('GR-10 takes the label font LC-6 stored rather than deriving it a second time', () => {
+    // An arrow's plan bar is 14 tall, so planHeight x actualOfPlan x fontOfActual
+    // is 8.176 -- under S-8. FR-094 applies the text floor SEPARATELY and has
+    // S-9 multiply the thin shapes, which is the value LC-5 measured with.
+    const schedule = withVisuals(
+      [spanning(1, '2026-01-01', 5, { name: 'a'.repeat(40) })],
+      [{ taskUid: 1, shapeKind: 'arrow' }],
+    )
+    const placed = layoutFromSchedule(schedule, GEOM_SETTINGS, REGIONS).placements[0]!
+    const label = geometryOf(schedule).tasks[0]!.label!
+    expect(placed.labelPlacement).toBe('right')
+    expect(label.height).toBe(placed.labelFontSize)
+    expect(label.height).toBe(12)
+  })
+
+  it('FR-019 encloses both rows when the range names the top one below the bottom', () => {
+    const schedule = scheduleOf({
+      taskGroups: [
+        { id: 'g1', parentId: null, order: 0, height: null },
+        { id: 'g2', parentId: null, order: 1, height: null },
+      ],
+      highlightBoxes: [
+        {
+          id: 'h1',
+          startDate: '2026-01-11',
+          endDate: '2026-01-01',
+          topGroupId: 'g2',
+          bottomGroupId: 'g1',
+          strokeColor: null,
+          cornerRadiusPx: null,
+        },
+      ],
+    })
+    const rows = layoutFromSchedule(schedule, GEOM_SETTINGS, REGIONS).rows
+    const box = geometryOf(schedule).highlightBoxes[0]!.box
+    // Both axes read both edges: the range is inverted on each, and the last
+    // row of it has to stay inside the box.
+    expect(box.x).toBeCloseTo(xOf(0), 6)
+    expect(box.x + box.width).toBeCloseTo(xOf(10), 6)
+    expect(box.y).toBeCloseTo(rows[0]!.y, 6)
+    expect(box.y + box.height).toBeCloseTo(rows[1]!.y + rows[1]!.height, 6)
+  })
+})
+
 // ---------------------------------------------------------------------------
 // ItemHitArea (PI-7) -- table T-023d's order, and SL-3.
 // ---------------------------------------------------------------------------
 
 describe('ItemHitArea (PI-7)', () => {
+  // ⚠️ itemAtPointer takes the slop as an argument and ships no default, the
+  // same way EditHistory takes S-94 / S-95: table T-206 keeps these values out
+  // of the document because they belong to the reader's environment. So the
+  // cases below state them, at the numbers table T-206 records.
+  const SLOP: PointerSlop = {
+    planEndpoint: 6, // S-90 -- 6px above and below the plan bar
+    actualEndpoint: 6, // S-91 -- the actual bar's own band
+    fadeHandle: 7.5, // S-92 -- half of the 15 x 15 square
+    dummyWidth: 30, // S-93 -- 30 x 20
+    dummyHeight: 20, // S-93
+    // ⛔ No row of table T-206 states this one, and no other table does either:
+    // GR-13 and GR-16 give the place as 線の上 and stop. The value here is the
+    // test's own, chosen so a probe sitting exactly ON the line answers.
+    line: 4,
+  }
   const oneTask = (part: Record<string, unknown> = {}): ScheduleGeometry =>
     geometryOf(oneRow([spanning(1, '2026-01-01', 20, part)]))
   const middleY = REGIONS.rowArea.y + 14
 
   it('GR-12 answers the plan bar body', () => {
-    expect(itemAtPointer(oneTask(), xOf(10), middleY)).toEqual({
+    expect(itemAtPointer(oneTask(), xOf(10), middleY, SLOP)).toEqual({
       item: { kind: 'task', taskUid: 1 },
       grab: 'GR-12',
     })
@@ -842,34 +1036,43 @@ describe('ItemHitArea (PI-7)', () => {
 
   it('GR-3 and GR-4 beat GR-12 at the two ends', () => {
     const geometry = oneTask()
-    expect(itemAtPointer(geometry, xOf(0), middleY)?.grab).toBe('GR-3')
-    expect(itemAtPointer(geometry, xOf(20), middleY)?.grab).toBe('GR-4')
+    expect(itemAtPointer(geometry, xOf(0), middleY, SLOP)?.grab).toBe('GR-3')
+    expect(itemAtPointer(geometry, xOf(20), middleY, SLOP)?.grab).toBe('GR-4')
   })
 
   it('S-90 reaches past the top and the bottom of the bar', () => {
     const geometry = oneTask()
-    expect(itemAtPointer(geometry, xOf(10), REGIONS.rowArea.y - 4)?.grab).toBe('GR-12')
-    expect(itemAtPointer(geometry, xOf(10), REGIONS.rowArea.y - 9)).toBeNull()
+    expect(itemAtPointer(geometry, xOf(10), REGIONS.rowArea.y - 4, SLOP)?.grab).toBe('GR-12')
+    expect(itemAtPointer(geometry, xOf(10), REGIONS.rowArea.y - 9, SLOP)).toBeNull()
   })
 
   it('GR-5 takes the actual start, and the actual BODY is not a grab area at all', () => {
     // 2026-01-05 is a Monday, so five worked days reach the 10th: x 194 to 230.
     const geometry = oneTask({ actualStart: '2026-01-05', actualDuration: 5 })
-    expect(itemAtPointer(geometry, xOf(4), middleY)?.grab).toBe('GR-5')
+    expect(itemAtPointer(geometry, xOf(4), middleY, SLOP)?.grab).toBe('GR-5')
     // The MIDDLE of the actual bar answers GR-12: the plan is the taller of the
     // two, so where they overlap the plan is what is picked up.
-    expect(itemAtPointer(geometry, xOf(7), middleY)?.grab).toBe('GR-12')
+    expect(itemAtPointer(geometry, xOf(7), middleY, SLOP)?.grab).toBe('GR-12')
   })
 
   it('GR-7 takes the marker, which sits outside every bar', () => {
-    expect(itemAtPointer(oneTask(), xOf(20) + 4 + 8, middleY)?.grab).toBe('GR-7')
+    // Under way, so FR-013 anchors on the rightmost bar -- the plan, here.
+    const running = oneTask({ actualStart: '2026-01-01', actualDuration: 5 })
+    expect(itemAtPointer(running, xOf(20) + 4 + 8, middleY, SLOP)?.grab).toBe('GR-7')
+  })
+
+  it('GR-7 follows the end-point dummy while the Task is not started', () => {
+    // 未着手のときは終了点の掴みシロの外側: the marker leaves the plan's right
+    // end and joins the two faint dummies at the head of the bar.
+    expect(itemAtPointer(oneTask(), xOf(1) + 4 + 8, middleY, SLOP)?.grab).toBe('GR-7')
   })
 
   it('GR-9 beats GR-17 where the two dummies overlap', () => {
     // Both are 30 x 20 and one worked day apart -- 6px here -- so they do. The
     // probe stands clear of GR-3, which is above BOTH of them in the table and
-    // would otherwise win at the plan's own start.
-    expect(itemAtPointer(oneTask(), xOf(2), middleY)?.grab).toBe('GR-9')
+    // would otherwise win at the plan's own start, and clear of GR-7, which
+    // GR-7's own 未着手 clause has just brought within 8px of GR-17.
+    expect(itemAtPointer(oneTask(), xOf(0) + 8, middleY, SLOP)?.grab).toBe('GR-9')
   })
 
   it('holds table T-023d order ACROSS Tasks, not within one', () => {
@@ -877,11 +1080,16 @@ describe('ItemHitArea (PI-7)', () => {
     // OC-3 keeps the marker out of the occupancy, so Task 1's marker lands
     // inside Task 2's body. GR-7 is above GR-12, so it wins -- walking Task by
     // Task instead would answer GR-12 whenever Task 2 was reached first.
+    // Task 1 is under way so that its marker anchors on the plan's right end;
+    // not started, GR-7 would put it back at Task 1's own head instead.
     const geometry = geometryOf(
-      oneRow([spanning(1, '2026-01-01', 20), spanning(2, '2026-01-21', 20)]),
+      oneRow([
+        spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
+        spanning(2, '2026-01-21', 20),
+      ]),
     )
     expect(geometry.tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(20) + 12, 6)
-    expect(itemAtPointer(geometry, xOf(20) + 12, middleY)?.grab).toBe('GR-7')
+    expect(itemAtPointer(geometry, xOf(20) + 12, middleY, SLOP)?.grab).toBe('GR-7')
   })
 
   it('GR-13 takes a dependency line where it runs clear of the bars', () => {
@@ -897,7 +1105,7 @@ describe('ItemHitArea (PI-7)', () => {
     const geometry = geometryOf(schedule)
     const line = geometry.dependencies[0]!
     const between = (line.points[0]!.x + line.points[1]!.x) / 2
-    expect(itemAtPointer(geometry, between, line.points[0]!.y)?.item).toEqual({
+    expect(itemAtPointer(geometry, between, line.points[0]!.y, SLOP)?.item).toEqual({
       kind: 'dependency',
       predecessorUid: 1,
       successorUid: 3,
@@ -905,7 +1113,7 @@ describe('ItemHitArea (PI-7)', () => {
   })
 
   it('answers null off everything', () => {
-    expect(itemAtPointer(oneTask(), xOf(200), REGIONS.rowArea.y + 400)).toBeNull()
+    expect(itemAtPointer(oneTask(), xOf(200), REGIONS.rowArea.y + 400, SLOP)).toBeNull()
   })
 
   it('SL-3 takes what the rectangle wholly encloses and leaves what it merely touches', () => {
@@ -928,7 +1136,7 @@ describe('ItemHitArea (PI-7)', () => {
     expect(geometry.statusLine).not.toBeNull()
     const taken = itemsInMarquee(geometry, { x: 0, y: 0, width: 4000, height: 4000 })
     expect(taken.every((one) => one.kind !== 'statusLine')).toBe(true)
-    expect(itemAtPointer(geometry, geometry.statusLine!.x, REGIONS.rowArea.y + 200)?.grab).toBe(
+    expect(itemAtPointer(geometry, geometry.statusLine!.x, REGIONS.rowArea.y + 200, SLOP)?.grab).toBe(
       'GR-16',
     )
   })

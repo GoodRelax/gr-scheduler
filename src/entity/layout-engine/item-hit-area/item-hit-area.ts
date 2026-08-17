@@ -34,6 +34,11 @@
 // table T-038) and the comment box half of GR-14 (whose size column does not
 // exist). Both slots are marked below, in the order they belong.
 //
+// ⛔ One value this file needs has no row anywhere: how near the pointer counts
+// as on a LINE (GR-13's dependency line, GR-16's status line). Table T-023d
+// sends every 掴み代 and 当たり判定 to table T-206, and table T-206 records
+// S-90 to S-93 and nothing for a line. `PointerSlop.line` carries the mark.
+//
 // The signature of what this file publishes is owned here, not in the
 // specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
 // member obeys stays with the requirement that states it.
@@ -73,11 +78,17 @@ export interface Hit {
 /**
  * How far past the drawn edge a grab still counts.
  *
- * ⚠️ Table T-206 keeps every one of these OUT of the document on purpose:
- * "掴み領域は読む人のアクセシビリティに属する。手が震える人には大きな掴み代が
- * 要る。文書が強制してよい値ではない". So they arrive as an argument -- the way
- * ScreenEnvironment carries what the machine settles -- and the defaults below
- * are the numbers table T-206 records rather than values chosen here.
+ * ⚠️ The values table T-206 DOES record -- S-90 to S-93 -- it keeps out of the
+ * document on purpose: "掴み領域は読む人のアクセシビリティに属する。手が震える
+ * 人には大きな掴み代が要る。文書が強制してよい値ではない". So they arrive as an
+ * argument, exactly the way S-94 and S-95 reach EditHistory's `HistoryLimits`,
+ * and this file ships NO defaults. A default here would be this file quietly
+ * standing in for a table that refused to hold the number, and it would let a
+ * caller forget to ask the environment it is running on.
+ *
+ * ⚠️ Not every field below has a row. `line` has none at all -- see its own
+ * mark. Read this block as "the fields that name an S-row mirror it", not as
+ * "table T-206 records all of this".
  *
  * ⚠️ S-90 states the overhang ABOVE and BELOW the bar. Reading the same number
  * as the reach to either SIDE of an endpoint is this file's decision, not the
@@ -93,29 +104,39 @@ export interface PointerSlop {
   /** S-93: the dummy's 30 x 20 box. */
   readonly dummyWidth: number
   readonly dummyHeight: number
-  /** How near a line counts as on it. */
+  /**
+   * How near a line counts as on it: GR-13's dependency line and GR-16's
+   * status line.
+   *
+   * ⛔ Table T-206 has NO row for this, and no other table has one either.
+   * T-023d's preamble sends every 掴み代 and 当たり判定 to T-206, while GR-13
+   * and GR-16 give the place as 線の上 and stop there -- so how near "on it" is
+   * has never been settled. Whatever a caller passes rests on nothing the
+   * specification wrote. A T-206 row is what is missing; this file does not
+   * invent one, and does not pretend the number came from the table.
+   */
   readonly line: number
-}
-
-/** Table T-206's own numbers. A caller may widen any of them; none may be stored. */
-export const DEFAULT_POINTER_SLOP: PointerSlop = {
-  planEndpoint: 6,
-  actualEndpoint: 6,
-  fadeHandle: 7.5,
-  dummyWidth: 30,
-  dummyHeight: 20,
-  line: 4,
 }
 
 // ------------------------------------------------------------ geometry ----
 
-/** @purity pure */
-function withinBox(x: number, y: number, box: ScreenRect): boolean {
+/**
+ * Both axes CLOSED: a point on the right or bottom edge is inside. A click on a
+ * bar's exact right edge has to hit the bar, or the last pixel of every shape
+ * would be dead. ⚠️ The sibling test in this layer -- the one screen-regions.ts
+ * applies to the regions of table T-103 -- is HALF-open instead, because
+ * abutting regions must not both claim their shared edge. Two conventions live
+ * side by side on purpose, so R3.4 asks the closed one to say so in its name:
+ * that is the whole of why this is not called `isInsideBox`.
+ *
+ * @purity pure
+ */
+function isInsideBoxInclusive(x: number, y: number, box: ScreenRect): boolean {
   return x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height
 }
 
 /** @purity pure */
-function nearPoint(x: number, y: number, point: Point, halfWidth: number, halfHeight: number): boolean {
+function isNearPoint(x: number, y: number, point: Point, halfWidth: number, halfHeight: number): boolean {
   return Math.abs(x - point.x) <= halfWidth && Math.abs(y - point.y) <= halfHeight
 }
 
@@ -170,7 +191,7 @@ function distanceToSegment(x: number, y: number, from: Point, to: Point): number
 }
 
 /** @purity pure */
-function onPolyline(x: number, y: number, points: Path, slop: number): boolean {
+function isOnPolyline(x: number, y: number, points: Path, slop: number): boolean {
   for (let index = 1; index < points.length; index++) {
     if (distanceToSegment(x, y, points[index - 1]!, points[index]!) <= slop) return true
   }
@@ -182,12 +203,39 @@ function dummyAt(task: TaskGeometry, grab: 'GR-9' | 'GR-17' | 'GR-18'): Point | 
   return task.dummies.find((one) => one.grab === grab)?.at ?? null
 }
 
+/**
+ * One Task with its two bounding boxes already built.
+ *
+ * ⚠️ The boxes are loop-invariant and belong outside the row walk. Six of the
+ * rows below want the plan's box or the actual's -- GR-3, GR-4 and GR-12 the
+ * plan, GR-5, GR-6 and GR-15 the actual -- and `boxOfBar` allocates two arrays
+ * and spreads them into Math.min / Math.max every time it is asked. Rebuilt per
+ * row, a pointer resting over empty canvas paid for six of them per Task per
+ * move. Hit testing while the pointer is down carries a gate of its own (table
+ * T-043 row PG-9, NFR-002), so the arithmetic is not free.
+ */
+type BoxedTask = {
+  readonly task: TaskGeometry
+  readonly plan: ScreenRect | null
+  readonly actual: ScreenRect | null
+}
+
+/** @purity pure */
+function boxedTasksOf(geometry: ScheduleGeometry): readonly BoxedTask[] {
+  return geometry.tasks.map((task) => ({
+    task,
+    plan: boxOfBar(task.plan),
+    actual: boxOfBar(task.actual),
+  }))
+}
+
 // ------------------------------------------------------- the eighteen rows ----
 
 /** One row of table T-023d, as the test it applies to one Task. */
 type TaskRow = {
   readonly grab: GrabArea
-  readonly holds: (task: TaskGeometry, x: number, y: number, slop: PointerSlop) => boolean
+  /** @purity pure */
+  readonly isClaimedBy: (boxed: BoxedTask, x: number, y: number, slop: PointerSlop) => boolean
 }
 
 /**
@@ -202,59 +250,62 @@ const TASK_ROWS: readonly TaskRow[] = [
   // bottom-right corners. FD-5 gives them to the two shapes with thickness.
   {
     grab: 'GR-1',
-    holds: (task, x, y, slop) => {
+    /** @purity pure */
+    isClaimedBy: ({ task }, x, y, slop) => {
       const corner = task.fadeHandles[0]
-      return corner !== undefined && nearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
+      return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
     },
   },
   {
     grab: 'GR-2',
-    holds: (task, x, y, slop) => {
+    /** @purity pure */
+    isClaimedBy: ({ task }, x, y, slop) => {
       const corner = task.fadeHandles[1]
-      return corner !== undefined && nearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
+      return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
     },
   },
   // GR-3 / GR-4 -- the plan's two ends. GR-15's row records why a milestone
   // has neither: a point has no duration to resize.
-  { grab: 'GR-3', holds: (task, x, y, slop) => onPlanEnd(task, x, y, slop, 'left') },
-  { grab: 'GR-4', holds: (task, x, y, slop) => onPlanEnd(task, x, y, slop, 'right') },
+  { grab: 'GR-3', isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left') },
+  { grab: 'GR-4', isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'right') },
   // GR-5 / GR-6 -- the actual's two ends, inside its own band (S-91).
-  { grab: 'GR-5', holds: (task, x, y, slop) => onActualEnd(task, x, y, slop, 'left') },
-  { grab: 'GR-6', holds: (task, x, y, slop) => onActualEnd(task, x, y, slop, 'right') },
+  { grab: 'GR-5', isClaimedBy: (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'left') },
+  { grab: 'GR-6', isClaimedBy: (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'right') },
   // GR-7 -- the progress marker, outside the bar FR-013 names.
   {
     grab: 'GR-7',
-    holds: (task, x, y) =>
+    isClaimedBy: ({ task }, x, y) =>
       task.marker !== null &&
-      nearPoint(x, y, task.marker.centre, task.marker.radius, task.marker.radius),
+      isNearPoint(x, y, task.marker.centre, task.marker.radius, task.marker.radius),
   },
   // GR-8 -- the resume icon, further out again.
   {
     grab: 'GR-8',
-    holds: (task, x, y) => {
+    /** @purity pure */
+    isClaimedBy: ({ task }, x, y) => {
       if (task.resume === null) return false
       const box = boxOfPath([...task.resume.arm, ...task.resume.head])
-      return box !== null && withinBox(x, y, box)
+      return box !== null && isInsideBoxInclusive(x, y, box)
     },
   },
   // GR-9, then GR-17 -- GR-17's own row puts itself below GR-9 so that the
   // start point wins where the two overlap.
-  { grab: 'GR-9', holds: (task, x, y, slop) => onDummy(task, 'GR-9', x, y, slop) },
-  { grab: 'GR-17', holds: (task, x, y, slop) => onDummy(task, 'GR-17', x, y, slop) },
+  { grab: 'GR-9', isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-9', x, y, slop) },
+  { grab: 'GR-17', isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-17', x, y, slop) },
   // GR-10 -- the name label, wherever LC-6 put it.
-  { grab: 'GR-10', holds: (task, x, y) => task.label !== null && withinBox(x, y, task.label) },
+  {
+    grab: 'GR-10',
+    isClaimedBy: ({ task }, x, y) => task.label !== null && isInsideBoxInclusive(x, y, task.label),
+  },
   // GR-15 -- a milestone's actual figure. Above GR-12 so that an actual
   // landing on its own plan day can still be picked up.
   {
     grab: 'GR-15',
-    holds: (task, x, y) => {
-      if (task.shapeKind !== 'milestone') return false
-      const box = boxOfBar(task.actual)
-      return box !== null && withinBox(x, y, box)
-    },
+    isClaimedBy: ({ task, actual }, x, y) =>
+      task.shapeKind === 'milestone' && actual !== null && isInsideBoxInclusive(x, y, actual),
   },
   // GR-18 -- the dummy on a milestone not started.
-  { grab: 'GR-18', holds: (task, x, y, slop) => onDummy(task, 'GR-18', x, y, slop) },
+  { grab: 'GR-18', isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-18', x, y, slop) },
   // GR-12 -- the plan bar's middle, the ends having taken their share.
   //
   // ⚠️ The actual bar's BODY is deliberately NOT a grab area (MUST NOT): the
@@ -262,45 +313,48 @@ const TASK_ROWS: readonly TaskRow[] = [
   // picked up, and the only way to move an actual is by its ends.
   {
     grab: 'GR-12',
-    holds: (task, x, y, slop) => {
-      const box = boxOfBar(task.plan)
-      return box !== null && withinBox(x, y, grown(box, slop.planEndpoint))
-    },
+    isClaimedBy: ({ plan }, x, y, slop) =>
+      plan !== null && isInsideBoxInclusive(x, y, grown(plan, slop.planEndpoint)),
   },
 ]
 
 /** @purity pure */
-function onPlanEnd(task: TaskGeometry, x: number, y: number, slop: PointerSlop,
-                   which: 'left' | 'right'): boolean {
-  if (task.shapeKind === 'milestone') return false
-  const box = boxOfBar(task.plan)
-  if (box === null || !withinBox(x, y, grown(box, slop.planEndpoint))) return false
+function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
+                     which: 'left' | 'right'): boolean {
+  if (boxed.task.shapeKind === 'milestone') return false
+  const box = boxed.plan
+  if (box === null || !isInsideBoxInclusive(x, y, grown(box, slop.planEndpoint))) return false
   const edge = which === 'left' ? box.x : box.x + box.width
   return Math.abs(x - edge) <= slop.planEndpoint
 }
 
 /** @purity pure */
-function onActualEnd(task: TaskGeometry, x: number, y: number, slop: PointerSlop,
-                     which: 'left' | 'right'): boolean {
+function isOnActualEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
+                       which: 'left' | 'right'): boolean {
   // GR-15's row: a milestone holds no actual BAR, so GR-5 and GR-6 never fire.
-  if (task.shapeKind === 'milestone') return false
-  const box = boxOfBar(task.actual)
-  if (box === null || !withinBox(x, y, box)) return false
+  if (boxed.task.shapeKind === 'milestone') return false
+  const box = boxed.actual
+  if (box === null || !isInsideBoxInclusive(x, y, box)) return false
   const edge = which === 'left' ? box.x : box.x + box.width
   return Math.abs(x - edge) <= slop.actualEndpoint
 }
 
 /** @purity pure */
-function onDummy(task: TaskGeometry, grab: 'GR-9' | 'GR-17' | 'GR-18', x: number, y: number,
-                 slop: PointerSlop): boolean {
+function isOnDummy(task: TaskGeometry, grab: 'GR-9' | 'GR-17' | 'GR-18', x: number, y: number,
+                   slop: PointerSlop): boolean {
   const point = dummyAt(task, grab)
   // GR-9's own note: the dummy is S-93 in size and NOT the whole Task, or a
   // Task not started would have no middle left for GR-12 to move.
-  return point !== null && nearPoint(x, y, point, slop.dummyWidth / 2, slop.dummyHeight / 2)
+  return point !== null && isNearPoint(x, y, point, slop.dummyWidth / 2, slop.dummyHeight / 2)
 }
 
 /**
  * What the pointer is on, or null when it is on nothing.
+ *
+ * ⚠️ `slop` is required and has no default. Table T-206 keeps those numbers out
+ * of the document because they belong to the reader's environment; a default
+ * here would put them back by another door (the same reason `HistoryLimits`
+ * ships none for S-94 and S-95).
  *
  * ⚠️ The caller applies table T-023a FIRST. PD-1 makes a `Ctrl` drag a pan
  * whatever lies under it, PD-2 turns hit testing off entirely while the dual
@@ -314,12 +368,13 @@ export function itemAtPointer(
   geometry: ScheduleGeometry,
   x: number,
   y: number,
-  slop: PointerSlop = DEFAULT_POINTER_SLOP,
+  slop: PointerSlop,
 ): Hit | null {
+  const boxed = boxedTasksOf(geometry)
   for (const row of TASK_ROWS) {
-    for (const task of geometry.tasks) {
-      if (row.holds(task, x, y, slop)) {
-        return { item: { kind: 'task', taskUid: task.taskUid }, grab: row.grab }
+    for (const one of boxed) {
+      if (row.isClaimedBy(one, x, y, slop)) {
+        return { item: { kind: 'task', taskUid: one.task.taskUid }, grab: row.grab }
       }
     }
   }
@@ -327,7 +382,7 @@ export function itemAtPointer(
   // GR-13 -- a dependency line. MK-9a records the consequence of putting it
   // below the Tasks: to select one, grab the stretch not lying over a bar.
   for (const line of geometry.dependencies) {
-    if (onPolyline(x, y, line.points, slop.line)) {
+    if (isOnPolyline(x, y, line.points, slop.line)) {
       return {
         item: {
           kind: 'dependency',
@@ -341,7 +396,9 @@ export function itemAtPointer(
 
   // GR-14 -- the annotations. ⛔ The comment box half waits on its size column.
   for (const box of geometry.highlightBoxes) {
-    if (withinBox(x, y, box.box)) return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14' }
+    if (isInsideBoxInclusive(x, y, box.box)) {
+      return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14' }
+    }
   }
 
   // GR-16 -- the status line.
@@ -352,8 +409,17 @@ export function itemAtPointer(
   return null
 }
 
-/** @purity pure */
-function enclosed(box: ScreenRect | null, marquee: ScreenRect): boolean {
+/**
+ * Both bounds CLOSED: a box flush with the marquee's own edge is still wholly
+ * enclosed. SL-3 asks whether the rectangle contains the shape, and a shape
+ * drawn exactly to the edge is contained. ⚠️ The half-open test in this layer
+ * is the region test of screen-regions.ts, which needs the other convention
+ * because adjoining regions share edges. R3.4 asks the closed one to say so in
+ * its name.
+ *
+ * @purity pure
+ */
+function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boolean {
   if (box === null) return false
   return (
     box.x >= marquee.x &&
@@ -381,12 +447,13 @@ function enclosed(box: ScreenRect | null, marquee: ScreenRect): boolean {
  */
 export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {
   const out: Item[] = []
-  for (const task of geometry.tasks) {
-    const box = merged(boxOfBar(task.plan), boxOfBar(task.actual))
-    if (enclosed(box, marquee)) out.push({ kind: 'task', taskUid: task.taskUid })
+  for (const one of boxedTasksOf(geometry)) {
+    if (isEnclosedInclusive(merged(one.plan, one.actual), marquee)) {
+      out.push({ kind: 'task', taskUid: one.task.taskUid })
+    }
   }
   for (const line of geometry.dependencies) {
-    if (enclosed(boxOfPath(line.points), marquee)) {
+    if (isEnclosedInclusive(boxOfPath(line.points), marquee)) {
       out.push({
         kind: 'dependency',
         predecessorUid: line.predecessorUid,
@@ -395,7 +462,7 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
     }
   }
   for (const box of geometry.highlightBoxes) {
-    if (enclosed(box.box, marquee)) out.push({ kind: 'highlightBox', id: box.id })
+    if (isEnclosedInclusive(box.box, marquee)) out.push({ kind: 'highlightBox', id: box.id })
   }
   return out
 }

@@ -81,6 +81,7 @@ const INNER_FIRST = [
   'scheduleCanvas',
 ] as const
 
+/** @purity pure */
 function rect(x: number, y: number, width: number, height: number): ScreenRect {
   return { x, y, width, height }
 }

@@ -26,10 +26,10 @@ import { refused, edited } from './edit-document'
  *
  * ⚠️ Table T-206 keeps `zoomMin` (S-97) and `zoomMax` (S-98) out of the
  * document on purpose -- they are "操作の速さであって結果ではない" -- yet
- * FR-016 still requires the zoom to be held inside them (MUST). The screen
+ * FR-016 still requires the zoom to be held inside them (MUST). The Row Area's
  * width is the same kind of value: FR-052 makes "the Row Area is wider than
- * zero" the test for a pair of panel widths, and that cannot be seen from the
- * document alone.
+ * zero" the test for a pair of panel widths, and the screen it is measured on
+ * cannot be seen from the document alone.
  *
  * ⚠️ The clamp lives HERE rather than in the translator that reads the wheel,
  * because FR-028 requires the Agent API to be able to do what the screen can.
@@ -38,8 +38,29 @@ import { refused, edited } from './edit-document'
 export interface SettingsLimits {
   readonly zoomMin: number
   readonly zoomMax: number
-  /** The whole window, as ScreenEnvironment measures it. */
-  readonly screenWidth: number
+  /**
+   * What the Row Area's width would be with both panel widths at zero.
+   *
+   * ⭐ FR-052's arithmetic is NOT written here. Its one implementation is
+   * `regionsFromScreen` (PI-35 of ScreenRegions): the Schedule Canvas width,
+   * less `canvasPadding` (S-56), less the two panel widths, less the vertical
+   * scrollbar that the rule after table T-031 gives width to. The caller
+   * already holds that frame's regions -- CS-1 gathers the screen's dimensions
+   * once at the head of the frame -- so it hands back the sum
+   *
+   *     regions.rowArea.width + rowTitlePanelWidth + propertyPanelWidth
+   *
+   * and this file subtracts only the pair it is judging.
+   *
+   * ⛔ Do not rebuild it from a window width here. The copy that did dropped
+   * the scrollbar term, and FR-052 counts it -- two copies, one wrong. The
+   * import direction would allow reading ScreenRegions instead (LR-1 lets
+   * UseCase reach inward to layoutEngine), but Chapter 5.2 keeps the
+   * component-to-component edges in figures F-013 to F-017, and the only edge
+   * they give EditDocument into that layer is `EditDocument -> ScheduleLayout`.
+   * Adding a second one is a change request, not an implementation choice.
+   */
+  readonly rowAreaWidthWithoutPanels: number
 }
 
 /** The eight boolean rows of table T-202 -- the ones FR-049 calls toggles. */
@@ -143,15 +164,30 @@ export function editDocumentSettings(
       // them into every export with no way to stop it.
       return put({ dualCursor: null })
 
-    case 'setFontScale': // CM-62
+    case 'setFontScale': { // CM-62
       // ⭐ S-2 and S-3 follow `fontScale` (FR-039), so the ruler's type and
       // band are recomputed here rather than stored independently: keeping
-      // them as separate keys is what lets them drift.
+      // them as separate keys is what lets them drift -- FR-039 requires both
+      // halves: they follow (MUST) and they stay separate keys (MUST).
+      //
+      // ⚠️ `rulerFont * 3 + 6` is row S-2 of tbl-settings.md written a second
+      // time -- the row states it twice itself, as the default and as the
+      // lower bound -- and this file is not where that value is decided. It
+      // stays only because there is nothing to read it from: the generated
+      // carrier is SETTINGS_BOUNDS in DocumentSettings, and
+      // tools/generate_entity_types.py builds it from the GRS JSON schema,
+      // which carries the bounds stated as NUMBERS (S-2's max of 150) and no
+      // default and no bound written as a formula over other keys.
+      // ⛔ Change request: give the generated carrier the formula rows, so
+      // this asks DocumentSettings (CP-2 owns the saved values and their
+      // bounds) for the band height instead of owning the arithmetic.
+      const rulerFont = settings.fontScaleSizes[command.scale]
       return put({
         fontScale: command.scale,
-        rulerFont: settings.fontScaleSizes[command.scale],
-        rulerHeight: settings.fontScaleSizes[command.scale] * 3 + 6,
+        rulerFont,
+        rulerHeight: rulerFont * 3 + 6,
       })
+    }
 
     case 'setThemePreference': // CM-63
       return put({ themePreference: command.preference })
@@ -182,15 +218,37 @@ export function editDocumentSettings(
       // FR-052 states the test between the two: the Row Area has to stay
       // wider than zero. It cannot be applied to either width on its own,
       // which is why clampedSettings deliberately leaves this pair alone.
+      //
+      // ⭐ The arithmetic that gets to a Row Area width is regionsFromScreen's
+      // and stays there; `rowAreaWidthWithoutPanels` arrives already carrying
+      // the padding and the scrollbar, and this branch subtracts only the pair
+      // it is judging. See the field for why it is not read from layoutEngine.
+      //
+      // ⚠️ Each test below is the NEGATION of the rule's own wording rather
+      // than its opposite (`!(w > 0)`, not `w <= 0`), because AG-8 hands a
+      // command over as data: a width that is not a number answers false to
+      // BOTH comparisons and would otherwise slip through the MUST NOT.
+      if (!(command.rowTitlePanelWidth > 0)) {
+        // FR-052 (MUST NOT): the row title panel may not be taken to zero --
+        // SC-3 of table T-031 keeps it showing at every zoom, and a width of
+        // zero breaks that. S-80 puts no such floor under the other panel.
+        //
+        // ⚠️ S-79 states a tighter floor -- `rowTitleIndent` * `maxGroupDepth`,
+        // the width the deepest indent needs -- and this does NOT apply it:
+        // that is a bound written as a formula over other keys, the same kind
+        // SETTINGS_BOUNDS leaves out, so applying it here would own a second
+        // copy of the row. It belongs in the same change request as S-2.
+        return refused([reject('CM-67', 'FR-052', 'the row title panel must be wider than zero')])
+      }
+      if (!(command.propertyPanelWidth >= 0)) {
+        // S-80 is the row with the floor of 0 under this one, not FR-052.
+        return refused([reject('CM-67', 'S-80', 'a panel width may not be negative')])
+      }
       const rowArea =
-        limits.screenWidth -
-        settings.canvasPadding -
+        limits.rowAreaWidthWithoutPanels -
         command.rowTitlePanelWidth -
         command.propertyPanelWidth
-      if (command.rowTitlePanelWidth < 0 || command.propertyPanelWidth < 0) {
-        return refused([reject('CM-67', 'FR-052', 'a panel width may not be negative')])
-      }
-      if (rowArea <= 0) {
+      if (!(rowArea > 0)) {
         return refused([reject('CM-67', 'FR-052', 'the pair would leave the Row Area at or below zero')])
       }
       return put({

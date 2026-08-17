@@ -268,6 +268,7 @@ describe('Schedule (PI-1) -- table T-019a', () => {
 import {
   compareDays,
   dateFromWorkingDays,
+  DaySpanTooWide,
   dayOf,
   delayWorkingDays,
   isDelayed,
@@ -346,8 +347,8 @@ describe('Schedule (PI-1) -- one calendar for the document (FR-054)', () => {
     const held = workingCalendarOf(scheduleWith({ calendarUid: null }, []))
     expect(held.exceptions).toEqual([])
     // 2026-08-17 is a Monday and the 16th a Sunday.
-    expect(isWorkingDay(held.calendar, held.weekDays, held.exceptions, day(2026, 8, 17))).toBe(true)
-    expect(isWorkingDay(held.calendar, held.weekDays, held.exceptions, day(2026, 8, 16))).toBe(false)
+    expect(isWorkingDay(held, day(2026, 8, 17))).toBe(true)
+    expect(isWorkingDay(held, day(2026, 8, 16))).toBe(false)
   })
 
   it('stops rather than spinning when a calendar works none of its days', () => {
@@ -381,12 +382,25 @@ describe('Schedule (PI-1) -- dates are days (FR-054, EX-7)', () => {
     // Monday 2026-08-17 .. Monday 2026-08-24 is five worked days.
     expect(workingDaysBetween(plain, day(2026, 8, 17), day(2026, 8, 24))).toBe(5)
     expect(workingDaysBetween(plain, day(2026, 8, 17), day(2026, 8, 17))).toBe(0)
-    expect(isWorkingDay(calendar, weekDays, [], day(2026, 8, 22))).toBe(false) // Saturday
+    expect(isWorkingDay(plain, day(2026, 8, 22))).toBe(false) // Saturday
   })
 
   it('an exception that covers the day beats the weekly pattern', () => {
-    expect(isWorkingDay(calendar, weekDays, [holiday], day(2026, 8, 19))).toBe(false)
+    expect(isWorkingDay(withHoliday, day(2026, 8, 19))).toBe(false)
     expect(workingDaysBetween(withHoliday, day(2026, 8, 17), day(2026, 8, 24))).toBe(4)
+  })
+
+  it('stops rather than counting a span table T-214 does not accept', () => {
+    // FR-023 keeps a date outside table T-214 out of the document, but
+    // ValidateImportedDocument (PI-13) is not written yet, so this valve is
+    // what stands between a stray date and millions of steps on one command.
+    expect(() => workingDaysBetween(plain, day(1500, 1, 1), day(2026, 8, 17)))
+      .toThrow(DaySpanTooWide)
+    // Backwards is the same span, and the accepted range itself is inside it.
+    expect(() => workingDaysBetween(plain, day(2026, 8, 17), day(1500, 1, 1)))
+      .toThrow(DaySpanTooWide)
+    expect(() => workingDaysBetween(plain, day(1970, 1, 1), day(2200, 12, 31)))
+      .not.toThrow()
   })
 
   it('counting backwards is the mirror of counting forwards', () => {

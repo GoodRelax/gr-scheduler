@@ -395,6 +395,12 @@ export function taskByUid(schedule: Schedule, uid: number): Task | null {
   return schedule.tasks.find((task) => task.uid === uid) ?? null
 }
 
+// ⛔ `scheduleViolations` is MISSING. Table T-064 lists it among the members
+// `PI-1` publishes, Chapter 6.1 requires it to be driven by table T-220 rather
+// than written out row by row (MUST), and `edit-annotation.ts` already names it
+// as the one place that check lives. Nothing decides it -- it is simply not
+// written yet, and it is a unit of work of its own, not part of this change.
+
 // ---------------------------------------------------------------- dates ----
 //
 // GRS does not handle time: the smallest unit is the day (FR-054). A date
@@ -450,7 +456,18 @@ export function compareDays(a: CalendarDay, b: CalendarDay): number {
   return a.day - b.day
 }
 
-/** @purity pure */
+/**
+ * ⚠️ `Date.UTC` maps a year of 0 .. 99 onto 1900 .. 1999, so a day whose year
+ * is below 100 lands on the wrong serial. `dayOf` admits one -- its regular
+ * expression takes any four digits -- and table T-214 forbids one from ever
+ * being stored (`FR-023`), but `ValidateImportedDocument` (`PI-13`) is still an
+ * empty unit, so nothing enforces that yet. Left as it is on purpose: the same
+ * mapping sits in `dayOf`'s round-trip check, so the fix moves both together
+ * and changes what they answer for years 1 .. 99. It is not part of this change
+ * and it is reported.
+ *
+ * @purity pure
+ */
 function serial(day: CalendarDay): number {
   return Date.UTC(day.year, day.month - 1, day.day) / 86400000
 }
@@ -461,6 +478,95 @@ function dayFromSerial(value: number): CalendarDay {
   return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
 }
 
+/** The one calendar a count runs by, in the three parts `workingCalendarOf` resolves. */
+export interface WorkingCalendar {
+  readonly calendar: Calendar
+  readonly weekDays: readonly WeekDay[]
+  readonly exceptions: readonly Exception[]
+}
+
+/**
+ * One `Exception`'s days, as serials. Both ends are INCLUSIVE -- AT-79 and
+ * AT-80 name the first and the last day the exception covers -- which is why
+ * the field says so (`R3.4`: a closed interval is shown by its name).
+ */
+interface ExceptionSpan {
+  readonly from: number
+  readonly toInclusive: number
+  readonly isWorking: boolean
+}
+
+/**
+ * The calendar in the shape one day-question wants: the exceptions as serial
+ * spans, in the order the array holds them, and the weekly pattern laid out by
+ * AT-73's coding. Building it reads the calendar once; asking it parses
+ * nothing.
+ */
+interface CalendarIndex {
+  readonly exceptionSpans: readonly ExceptionSpan[]
+  /** Indexed by AT-73's 1..7 with 1 = Sunday. Index 0 is never asked. */
+  readonly worksWeekday: readonly (boolean | undefined)[]
+}
+
+/**
+ * Read the calendar once, so that a walk does not read it once per day.
+ *
+ * ⭐ Both walks below call this BEFORE their loop, never inside it (`R5`, code
+ * level -- loop-invariant work does not belong in the loop): `dayOf` runs a
+ * regular expression and builds a `Date` for every exception, and
+ * `layoutFromSchedule` reaches `dateFromWorkingDays` once per `Task` per frame,
+ * where `NFR-002` fixes the budget.
+ *
+ * ⚠️ The index is built per call, never held between calls. Holding one would
+ * be a cache, and `R2.20` requires Chapter 5.6 to record what is cached, what
+ * invalidates it, and what staleness is allowed. Chapter 5.6 records none of
+ * that for this, so this file does not invent it -- a short walk therefore
+ * still pays one pass over the exceptions, the same pass its first day used to
+ * pay on its own.
+ *
+ * @purity pure
+ */
+function indexOfCalendar(within: WorkingCalendar): CalendarIndex {
+  const exceptionSpans: ExceptionSpan[] = []
+  for (const exception of within.exceptions) {
+    const from = dayOf(exception.fromDate)
+    if (from === null) continue
+    // AT-80 may be absent: an exception of a single day names only its start.
+    const toInclusive = dayOf(exception.toDate) ?? from
+    exceptionSpans.push({
+      from: serial(from),
+      toInclusive: serial(toInclusive),
+      isWorking: exception.dayWorking === true,
+    })
+  }
+
+  const worksWeekday: (boolean | undefined)[] = new Array<boolean | undefined>(8)
+  for (const weekDay of within.weekDays) {
+    const dayType = weekDay.dayType
+    if (dayType === null || dayType < 1 || dayType > 7) continue
+    // The FIRST row for a day type decides it, which is what the `find` this
+    // replaced did. A weekday with no row at all is not worked.
+    if (worksWeekday[dayType] === undefined) worksWeekday[dayType] = weekDay.dayWorking === true
+  }
+
+  return { exceptionSpans, worksWeekday }
+}
+
+/**
+ * Whether the day at a serial is worked. `exceptionSpans` is in the order of
+ * the array it came from and the FIRST span that covers the day decides it --
+ * that is what makes an exception beat the weekly pattern.
+ *
+ * @purity pure
+ */
+function isWorkingDayAt(index: CalendarIndex, atSerial: number): boolean {
+  for (const span of index.exceptionSpans) {
+    if (atSerial >= span.from && atSerial <= span.toInclusive) return span.isWorking
+  }
+  const weekday = new Date(atSerial * 86400000).getUTCDay() + 1
+  return index.worksWeekday[weekday] === true
+}
+
 /**
  * Whether a day is worked. WeekDay.dayType is 1..7 with 1 = Sunday, the coding
  * of the exchange partner (AT-73); an exception that covers the day wins over
@@ -468,28 +574,17 @@ function dayFromSerial(value: number): CalendarDay {
  * exceptions this software interprets are considered -- a recurring one it did
  * not interpret stays in carry and is not read here.
  *
+ * One day at a time. A walk over many asks `isWorkingDayAt` against an index it
+ * built once, so the answer is the same and the calendar is read once.
+ *
+ * ⚠️ The whole `WorkingCalendar` is the argument, not its three fields spread
+ * out. Every caller held one anyway and had to reach through it (`R2.12`), and
+ * the `calendar` field was accepted only to be discarded (`R2.9`).
+ *
  * @purity pure
  */
-export function isWorkingDay(calendar: Calendar, weekDays: readonly WeekDay[],
-                             exceptions: readonly Exception[], day: CalendarDay): boolean {
-  void calendar
-  for (const exception of exceptions) {
-    const from = dayOf(exception.fromDate)
-    const to = dayOf(exception.toDate) ?? from
-    if (from === null || to === null) continue
-    if (compareDays(day, from) >= 0 && compareDays(day, to) <= 0) {
-      return exception.dayWorking === true
-    }
-  }
-  const weekday = new Date(Date.UTC(day.year, day.month - 1, day.day)).getUTCDay() + 1
-  const match = weekDays.find((one) => one.dayType === weekday)
-  return match?.dayWorking ?? false
-}
-
-export interface WorkingCalendar {
-  readonly calendar: Calendar
-  readonly weekDays: readonly WeekDay[]
-  readonly exceptions: readonly Exception[]
+export function isWorkingDay(within: WorkingCalendar, day: CalendarDay): boolean {
+  return isWorkingDayAt(indexOfCalendar(within), serial(day))
 }
 
 /**
@@ -553,18 +648,61 @@ export function workingCalendarOf(schedule: Schedule): WorkingCalendar {
 }
 
 /**
- * The days table T-214 accepts, 1970-01-01 to 2200-12-31, plus a year's slack.
- * A walk that passes this has left the range no input may hold, which is what
- * a calendar working none of its days does -- and the alternative is a loop
- * that never ends.
+ * The two ends of table T-214, as rows S-119 and S-120 write them.
+ *
+ * ⚠️ These are the DEFAULT values of two settings, not constants of the domain:
+ * `DocumentSettings` publishes `importMinDate` (S-119) and `importMaxDate`
+ * (S-120) per document, and both rows carry 🔎 -- the values may yet be
+ * re-chosen. Reading them from the settings was the alternative and was not
+ * taken: this file is handed the schedule group (DR-2 of table T-052) and never
+ * the presentation group (DR-3), so the settings would have to be added to the
+ * two signatures below and threaded through five call sites in three
+ * components -- to size a safety valve, not to decide an answer. If the two
+ * rows move, move these two with them.
  */
-const ACCEPTED_DAY_SPAN = 85000
+const IMPORT_MIN_DAY: CalendarDay = { year: 1970, month: 1, day: 1 }
+const IMPORT_MAX_DAY: CalendarDay = { year: 2200, month: 12, day: 31 }
+
+/**
+ * The most days a walk can cross and still be inside the range table T-214
+ * accepts. A walk that passes this has left the range no input may hold, which
+ * is what a calendar working none of its days does -- and the alternative is a
+ * loop that never ends.
+ *
+ * ⚠️ Derived from the two rows above, not chosen. It was written as the bare
+ * literal 85000, which is this span plus 630 days that no row asks for.
+ */
+const ACCEPTED_DAY_SPAN = serial(IMPORT_MAX_DAY) - serial(IMPORT_MIN_DAY)
 
 /** ST-7's shape: stop and say so, rather than answer with a wrong day. */
 export class NoWorkingDayReached extends Error {
+  /** @purity pure */
   constructor(readonly calendarUid: number) {
     super(`table T-214: calendar ${calendarUid} works no day inside the accepted range`)
     this.name = 'NoWorkingDayReached'
+  }
+}
+
+/**
+ * ST-7's shape again, for the counting walk. What that walk needs a valve for
+ * is cost rather than a spin -- it always ends -- and the cost is not bounded
+ * by anything else: `dayOf` admits any four-digit year, `FR-023` is the MUST
+ * NOT that keeps a date outside table T-214 out of the document, and
+ * `ValidateImportedDocument` (`PI-13`) is the unit that enforces it and is
+ * still empty. Until it is written a document can hold 0001-01-01 and ask for
+ * millions of steps on one command.
+ *
+ * ⚠️ A separate class from `NoWorkingDayReached` on purpose: there the calendar
+ * is what is wrong, here the two ends are, and one message cannot say both.
+ */
+export class DaySpanTooWide extends Error {
+  /** @purity pure */
+  constructor(readonly from: CalendarDay, readonly to: CalendarDay) {
+    super(
+      `table T-214: ${textOfDay(from)} to ${textOfDay(to)} is wider than the `
+      + `${ACCEPTED_DAY_SPAN} days the accepted range holds`,
+    )
+    this.name = 'DaySpanTooWide'
   }
 }
 
@@ -577,13 +715,18 @@ export class NoWorkingDayReached extends Error {
  */
 export function workingDaysBetween(within: WorkingCalendar, from: CalendarDay,
                                    to: CalendarDay): number {
-  const step = compareDays(to, from) < 0 ? -1 : 1
+  const start = serial(from)
+  const stop = serial(to)
+  // The same bound `dateFromWorkingDays` walks under, for the same reason:
+  // table T-214 bounds every date an input may hold, so a wider span is
+  // counting days no document may name. Here the number of steps is known
+  // before the walk, so the valve costs one subtraction instead of a counter.
+  if (Math.abs(stop - start) > ACCEPTED_DAY_SPAN) throw new DaySpanTooWide(from, to)
+  const index = indexOfCalendar(within)
+  const step = stop < start ? -1 : 1
   let counted = 0
-  for (let at = serial(from); at !== serial(to); at += step) {
-    const day = dayFromSerial(step > 0 ? at : at - 1)
-    if (isWorkingDay(within.calendar, within.weekDays, within.exceptions, day)) {
-      counted += step
-    }
+  for (let at = start; at !== stop; at += step) {
+    if (isWorkingDayAt(index, step > 0 ? at : at - 1)) counted += step
   }
   return counted
 }
@@ -602,6 +745,7 @@ export function workingDaysBetween(within: WorkingCalendar, from: CalendarDay,
  */
 export function dateFromWorkingDays(within: WorkingCalendar, from: CalendarDay,
                                     workingDays: number): CalendarDay {
+  const index = indexOfCalendar(within)
   const step = workingDays < 0 ? -1 : 1
   let remaining = Math.abs(workingDays)
   let at = serial(from)
@@ -610,10 +754,12 @@ export function dateFromWorkingDays(within: WorkingCalendar, from: CalendarDay,
     // A calendar that works none of its days would spin here forever, and
     // nothing in the specification forbids one arriving. Table T-214 bounds
     // every date an input may hold, so a walk past that span cannot be real.
+    // Unlike the count above, how far a day of work lies is not known before
+    // the walk -- it depends on the calendar -- so this valve has to count.
     if (walked++ > ACCEPTED_DAY_SPAN) throw new NoWorkingDayReached(within.calendar.uid)
-    const day = dayFromSerial(step > 0 ? at : at - 1)
+    const covered = step > 0 ? at : at - 1
     at += step
-    if (isWorkingDay(within.calendar, within.weekDays, within.exceptions, day)) remaining -= 1
+    if (isWorkingDayAt(index, covered)) remaining -= 1
   }
   return dayFromSerial(at)
 }
@@ -651,6 +797,10 @@ export function isDelayed(task: Task, statusDate: CalendarDay | null): boolean {
 /**
  * The delay in worked days, counted from the day table T-021b names to the
  * status date. Zero when the task is not behind.
+ *
+ * ⚠️ Raises `DaySpanTooWide` when the two ends are further apart than table
+ * T-214 accepts. It counts dates the document already holds, and nothing has
+ * range-checked them yet (`FR-023` / `PI-13`), so the valve is reachable here.
  *
  * @purity pure
  */

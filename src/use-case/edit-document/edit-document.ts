@@ -118,15 +118,37 @@ export type EditResult =
   | { readonly ok: true; readonly document: Document }
   | { readonly ok: false; readonly refusals: readonly Refusal[] }
 
-/** @purity pure */
-export function edited(document: Document): EditResult {
+/**
+ * The accepted edit: the document an aggregate answers with.
+ *
+ * ⚠️ A noun phrase, not `edited`. R2.1's parts-of-speech table keeps the past
+ * tense for events -- notice of something already done, which a receiver may
+ * not refuse -- and reads a noun phrase as a pure query. These two build the
+ * VALUE an aggregate returns, and that value IS refusable: WS-3 throws a whole
+ * bundle away when one command comes back refused. The participle still reads
+ * once a noun follows it, as it does in `advancedStamp` and `clampedSettings`.
+ *
+ * @purity pure
+ */
+export function acceptedEdit(document: Document): EditResult {
   return { ok: true, document }
 }
 
-/** @purity pure */
-export function refused(refusals: readonly Refusal[]): EditResult {
+/**
+ * The refused edit, carrying every reason it was refused.
+ *
+ * @purity pure
+ */
+export function refusedEdit(refusals: readonly Refusal[]): EditResult {
   return { ok: false, refusals }
 }
+
+// ⛔ MIGRATION SHIM -- delete these two aliases once the eight aggregate files
+// call the names above. `edited` / `refused` are the past-tense shape R2.1
+// reserves for events, so they are a defect wherever they appear; they survive
+// here only because every call site is in the other eight files of this
+// folder, which this pass is not permitted to touch. Nothing new may use them.
+export { acceptedEdit as edited, refusedEdit as refused }
 
 /** Every command table T-108 admits. Dispatch is by `kind`. */
 export type DocumentCommand =
@@ -290,8 +312,6 @@ const SETTINGS_KINDS = [
  * whose list forgets one of its own commands does not build, and the compiler
  * says which name is missing. That is the whole reason the routing is a table
  * derived from eight lists rather than a chain of branches.
- *
- * @purity pure
  */
 const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
   ...routes(TASK_KINDS, (document, command) => editTask(document, command as TaskCommand)),
@@ -347,7 +367,7 @@ export function editDocument(
 ): EditResult {
   const run = ROUTES.get(command.kind)
   if (run === undefined) {
-    return refused([
+    return refusedEdit([
       {
         command: command.kind,
         rule: 'T-108',

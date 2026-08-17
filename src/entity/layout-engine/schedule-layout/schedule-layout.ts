@@ -43,6 +43,8 @@ import {
   type Schedule,
   type Task,
   type TaskGroup,
+  type TaskGroupMember,
+  type TaskVisual,
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
 import type { ScreenRegions } from '../screen-regions/screen-regions'
@@ -94,6 +96,15 @@ export interface TaskPlacement {
   readonly labelPlacement: LabelPlacement
   /** The label after LC-4 cut it to truncateUnits. */
   readonly label: string
+  /**
+   * The type size the label is drawn at: FR-077's derivation with FR-094's two
+   * floors already applied. LC-5 measured the label with THIS value, so it is
+   * the single source for the drawn type size -- anything that puts the text on
+   * screen reads it here rather than writing the formula a second time. Written
+   * twice, the two copies part company the moment S-8 or S-9 moves, and the
+   * measured width stops matching the glyphs.
+   */
+  readonly labelFontSize: number
   /** What the row's stacking measured it as. Table T-038. */
   readonly occupiedX0: number
   readonly occupiedX1: number
@@ -109,10 +120,15 @@ export interface RowPlacement {
   readonly height: number
   readonly stackCount: number
   /**
-   * The top of each lane. LF-12 walks these to place the progress line's
-   * vertices, which is why they leave the layout rather than being rebuilt
-   * from the placements -- a lane holding no drawn Task has no placement to
-   * rebuild from.
+   * The top of each lane, indexed by lane -- the same number `TaskPlacement.stack`
+   * carries. LF-12 walks these to place the progress line's vertices, which is
+   * why they leave the layout rather than being rebuilt from the placements --
+   * a lane holding no drawn Task has no placement to rebuild from.
+   *
+   * ⚠️ NOT sorted by y. ST-5 lets `stackDirection` (S-58) put lane 0 at the
+   * bottom of the band, and then this array DESCENDS in y. FR-014 wants "上端
+   * から下端まで途切れない 1 本の折れ線", so a caller that draws through the
+   * lanes must visit them by increasing `y`, not by index.
    */
   readonly stackTops: readonly number[]
 }
@@ -141,6 +157,7 @@ export interface ScheduleLayout {
 
 /** ST-7 stops the whole layout rather than truncating or overlapping. */
 export class StackSafetyCapReached extends Error {
+  /** @purity pure */
   constructor(readonly groupId: string, readonly cap: number) {
     super(`table T-014 ST-7: group ${groupId} needs more than ${cap} stacks`)
     this.name = 'StackSafetyCapReached'
@@ -174,14 +191,14 @@ function labelWidth(text: string, fontSize: number, settings: DocumentSettings):
 /** LC-4. Cuts to truncateUnits (S-35) counting the same units. @purity pure */
 function truncate(text: string, limit: number): string {
   let units = 0
-  let out = ''
+  let kept = ''
   for (const ch of text) {
     const next = units + (ch.charCodeAt(0) < 0x100 ? 1 : 2)
-    if (next > limit) return out
+    if (next > limit) return kept
     units = next
-    out += ch
+    kept += ch
   }
-  return out
+  return kept
 }
 
 /**
@@ -272,11 +289,16 @@ export function tickStrideOf(layout: ScheduleLayout, settings: DocumentSettings)
  * width of one day, so the two together settle the axis without a rule of their
  * own. Returns null while no origin is set -- OP-10 has FR-055 choose one.
  *
+ * ⚠️ Reads `layout.originX` rather than re-deriving the origin from a
+ * `ScreenRegions`, which is what that member exists for. Taking the regions
+ * from the caller instead lets a value arrive that the layout was NOT built
+ * from, and then x -> day -> x lands on a different day without saying so.
+ *
  * @purity pure
  */
-export function dateAtX(layout: ScheduleLayout, regions: ScreenRegions, x: number): CalendarDay | null {
+export function dateAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
   if (layout.originDay === null || layout.pxPerDay <= 0) return null
-  const days = Math.floor((x - regions.rowArea.x) / layout.pxPerDay)
+  const days = Math.floor((x - layout.originX) / layout.pxPerDay)
   const at = new Date((serialOf(layout.originDay) + days) * MS_PER_DAY)
   return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
 }
@@ -289,7 +311,7 @@ function xOfDay(originSerial: number, pxPerDay: number, originX: number, day: Ca
 /** LC-1. A row goes when it, or anything above it, is hidden or collapsed. @purity pure */
 function drawnGroups(schedule: Schedule, settings: DocumentSettings): readonly (TaskGroup & { depth: number })[] {
   const byId = new Map(schedule.taskGroups.map((g) => [g.id, g]))
-  const out: (TaskGroup & { depth: number })[] = []
+  const drawnRows: (TaskGroup & { depth: number })[] = []
 
   for (const group of schedule.taskGroups) {
     let depth = 1
@@ -303,9 +325,9 @@ function drawnGroups(schedule: Schedule, settings: DocumentSettings): readonly (
       if (parent.isHidden === true || parent.isCollapsed === true) dropped = true
       at = parent.parentId
     }
-    if (!dropped) out.push({ ...group, depth })
+    if (!dropped) drawnRows.push({ ...group, depth })
   }
-  return out.sort((a, b) => a.depth - b.depth || a.order - b.order)
+  return drawnRows.sort((a, b) => a.depth - b.depth || a.order - b.order)
 }
 
 /**
@@ -326,16 +348,32 @@ export function groupDepthLimit(settings: DocumentSettings): number {
   return limit
 }
 
-/** @purity pure */
-function shapeKindOf(schedule: Schedule, task: Task): ShapeKind {
-  const visual = schedule.taskVisuals.find((v) => v.taskUid === task.uid)
-  const kind = visual?.shapeKind ?? null
+/**
+ * Takes the index rather than the `Schedule`: `taskVisuals` holds up to one row
+ * per Task, so scanning it for each Task is O(n^2) in the task count, which
+ * NFR-013 forbids in as many words for レイアウトの算出.
+ *
+ * @purity pure
+ */
+function shapeKindOf(visualByUid: ReadonlyMap<number, TaskVisual>, task: Task): ShapeKind {
+  const kind = visualByUid.get(task.uid)?.shapeKind ?? null
   // AT-100: a null resolves through Task.milestone, which AT-30 calls the truth.
   if (kind !== null) return kind
   return task.milestone === true ? 'milestone' : 'rectangle'
 }
 
-/** The span of the dates in pixels, before anything widens it. @purity pure */
+/**
+ * The span of the dates in pixels, before anything widens it.
+ *
+ * ⚠️ This definition is this file's own: the plan bar runs from `start` to
+ * `finish` EXCLUDING the finish day, so start == finish measures zero. Table
+ * T-221 fixes the milestone figure (LF-10) and the actual bar (RV-1) but has no
+ * row for the plan bar's extent, and no requirement elsewhere fixes it either.
+ * A change request has to settle whether the finish day counts -- until it
+ * does, nothing here may be read as the specification's answer.
+ *
+ * @purity pure
+ */
 function spanWidthOf(task: Task, pxPerDay: number): number {
   const from = dayOf(task.start)
   const to = dayOf(task.finish)
@@ -410,40 +448,69 @@ export function layoutFromSchedule(
   const depthLimit = groupDepthLimit(settings)
   const rows = drawnGroups(schedule, settings).filter((g) => g.depth <= depthLimit)
 
+  // Three indexes, built once, before the row loop opens. Scanning
+  // taskGroupMembers per row and taskVisuals per Task made the whole layout
+  // O(n^2) in the task count -- NFR-013 forbids that outright ("`O(n²)` の算法を
+  // 用いてはならない（MUST NOT）", naming レイアウトの算出 first), and MN-6 of
+  // Chapter 5.6 runs the whole of table T-068 once at the head of every frame.
   const taskByUid = new Map(schedule.tasks.map((t) => [t.uid, t]))
+  const visualByUid = new Map(schedule.taskVisuals.map((v) => [v.taskUid, v]))
+  const membersByGroup = new Map<string, TaskGroupMember[]>()
+  for (const member of schedule.taskGroupMembers) {
+    // Insertion order is kept, so the order inside a group is what the source
+    // array had -- LC-8/ST-2's sort below still decides what the order means.
+    const groupMembers = membersByGroup.get(member.groupId)
+    if (groupMembers === undefined) membersByGroup.set(member.groupId, [member])
+    else groupMembers.push(member)
+  }
+
   // FR-054: one calendar for the whole document, resolved once.
   const within = workingCalendarOf(schedule)
   const placements: TaskPlacement[] = []
   const rowPlacements: RowPlacement[] = []
 
   let y = regions.rowArea.y
-  let widest = 0
+  // Both sentinels are replaced together by the first placement, so the one
+  // test at the end settles "nothing was placed at all". Seeding `widest` at 0
+  // instead measured from the leftmost occupied edge all the way to x = 0
+  // whenever every drawn Task sat left of the origin -- which S-77 reaches as
+  // soon as scrollDate is later than the content -- and FR-055 then fitted to
+  // a width several times the real one.
+  let widest = Number.NEGATIVE_INFINITY
   let leftmost = Number.POSITIVE_INFINITY
   const emptyLane = reservedHeight('rectangle', settings)
 
   for (const row of rows) {
     // ---- LC-2, the task half: CR-163 measures the shape, not the depth -----
-    const members = schedule.taskGroupMembers
-      .filter((m) => m.groupId === row.id)
+    // The kind is resolved ONCE per Task here. S-86's filter and the measuring
+    // below both want it, and asking twice doubles the work NFR-013 caps.
+    const drawnTasks = (membersByGroup.get(row.id) ?? [])
       .map((m) => taskByUid.get(m.taskUid))
       .filter((t): t is Task => t !== undefined)
+      .map((task) => ({ task, kind: shapeKindOf(visualByUid, task) }))
       .filter(
-        (t) =>
-          shapeWidthOf(t, shapeKindOf(schedule, t), pxPerDay, settings) >=
+        ({ task, kind }) =>
+          shapeWidthOf(task, kind, pxPerDay, settings) >=
           settings.taskLevelOfDetailReadablePx,
       )
       // ---- LC-8, ST-2: start ascending, finish descending, uid ascending ---
       .sort(
         (a, b) =>
-          (a.start ?? '').localeCompare(b.start ?? '') ||
-          (b.finish ?? '').localeCompare(a.finish ?? '') ||
-          a.uid - b.uid,
+          (a.task.start ?? '').localeCompare(b.task.start ?? '') ||
+          (b.task.finish ?? '').localeCompare(a.task.finish ?? '') ||
+          a.task.uid - b.task.uid,
       )
 
     const lanes: { x0: number; x1: number }[][] = []
+    // Two running summaries per lane, so ST-3's search does not have to walk
+    // every interval already placed. A row of m Tasks that do not overlap --
+    // the ordinary case, every one of them landing on lane 0 -- cost
+    // 1 + 2 + ... + (m-1) comparisons without them, which is the O(n^2)
+    // NFR-013 forbids, and stacking is what PG-8 measures.
+    const laneMaxX1: number[] = []
+    const laneMinX0: number[] = []
     const laneOf: number[] = []
-    const measured = members.map((task) => {
-      const kind = shapeKindOf(schedule, task)
+    const measured = drawnTasks.map(({ task, kind }) => {
       const from = dayOf(task.start)
       const at = from === null ? originX : xOfDay(originSerial, pxPerDay, originX, from)
       const width = shapeWidthOf(task, kind, pxPerDay, settings)
@@ -458,43 +525,87 @@ export function layoutFromSchedule(
       // ---- LC-7: OC-1 is the label the shape could not hold --------------
       const occupiedX1 = placement === 'right' ? x + width + settings.labelGap + text : x + width
       const actual = actualSpanOf(task, within, originSerial, pxPerDay, originX)
-      return { task, kind, x, width, label, placement, actual, occupiedX0: x, occupiedX1 }
+      return { task, kind, x, width, label, font, placement, actual, occupiedX0: x, occupiedX1 }
     })
 
     for (const item of measured) {
       // ---- LC-8, ST-3: the shallowest lane it does not overlap ------------
       // ST-10 keeps the interval half-open, so touching ends do not collide.
-      let lane = lanes.findIndex((held) =>
-        held.every((q) => item.occupiedX1 <= q.x0 || item.occupiedX0 >= q.x1),
-      )
+      let lane = -1
+      for (let i = 0; i < lanes.length; i++) {
+        // The two summaries answer without a scan whenever the item clears the
+        // whole lane on one side. ST-2 sorts by start ascending, so occupiedX0
+        // is non-decreasing for every shape but a milestone (LF-10 shifts its x
+        // left by half the figure) and the first test settles nearly every
+        // item. Neither is a new rule -- the exact scan below still decides
+        // when they do not hold, so the answer is what it always was.
+        if (item.occupiedX0 >= laneMaxX1[i]! || item.occupiedX1 <= laneMinX0[i]!) {
+          lane = i
+          break
+        }
+        if (lanes[i]!.every((q) => item.occupiedX1 <= q.x0 || item.occupiedX0 >= q.x1)) {
+          lane = i
+          break
+        }
+      }
       if (lane < 0) {
         if (lanes.length >= settings.stackSafetyCap) {
           throw new StackSafetyCapReached(row.id, settings.stackSafetyCap)
         }
         lane = lanes.length
         lanes.push([])
+        laneMaxX1.push(Number.NEGATIVE_INFINITY)
+        laneMinX0.push(Number.POSITIVE_INFINITY)
       }
       lanes[lane]!.push({ x0: item.occupiedX0, x1: item.occupiedX1 })
+      laneMaxX1[lane] = Math.max(laneMaxX1[lane]!, item.occupiedX1)
+      laneMinX0[lane] = Math.min(laneMinX0[lane]!, item.occupiedX0)
       laneOf.push(lane)
     }
 
     // ---- LC-9, LF-2: each lane is its tallest, gaps go between them -------
-    const laneHeights = lanes.map((held, index) =>
-      held.length === 0
-        ? emptyLane
-        : Math.max(...measured.filter((_, i) => laneOf[i] === index).map((m) => reservedHeight(m.kind, settings))),
-    )
+    // One pass over `measured`. Re-filtering it per lane cost O(lanes x m), and
+    // lanes == m exactly when the Tasks overlap -- which is when stacking
+    // matters at all -- so it was the O(n^2) NFR-013 forbids. The spread of
+    // Math.max went with it: a lane holding tens of thousands of Tasks passed
+    // that many arguments and threw RangeError rather than answering.
+    const laneHeights = lanes.map(() => 0)
+    measured.forEach((item, index) => {
+      const reserved = reservedHeight(item.kind, settings)
+      const lane = laneOf[index]!
+      if (reserved > laneHeights[lane]!) laneHeights[lane] = reserved
+    })
+    // LF-2's empty-lane arm. ⚠️ A lane is only ever created because a Task
+    // needed one, so this cannot fire today -- it is kept because LF-2 states
+    // the rule, not because the loop above can leave a lane at zero.
+    for (let i = 0; i < laneHeights.length; i++) {
+      if (laneHeights[i] === 0) laneHeights[i] = emptyLane
+    }
     const stacked = laneHeights.reduce((sum, h) => sum + h + settings.stackGap, 0)
     const packed = Math.max(0, stacked - settings.stackGap)
     // FR-042 reads a stated height as a floor, never as a cap.
     const height = Math.max(packed, emptyLane, row.height ?? 0)
 
+    // ---- LC-9, ST-5: stackDirection (S-58) picks which end lane 0 sits at --
+    // ⚠️ ST-5 settles that the direction is one choice for the whole document
+    // and that S-58 defaults it to 'up'; it does NOT spell out which end of the
+    // band the shallowest lane lands on. The reading taken here is the one the
+    // previous project settled and the specification has not contradicted:
+    // 'down' puts lane 0 at the TOP of the band and stacks downward, 'up' puts
+    // it at the BOTTOM and stacks upward. ST-2 and ST-3 are untouched -- the
+    // lane a Task is given is the same either way, and only the y it is drawn
+    // at is reversed, which is why no rule of table T-014 has to be re-read.
+    // ⚠️ The block stays anchored to the top of the band. When FR-042's stated
+    // height makes the band taller than the lanes need, nothing in docs/spec
+    // says whether the slack belongs above or below the stack.
+    const upward = settings.stackDirection === 'up'
+    const tops = new Array<number>(laneHeights.length)
     let laneTop = y
-    const tops = laneHeights.map((h) => {
-      const top = laneTop
-      laneTop += h + settings.stackGap
-      return top
-    })
+    for (let slot = 0; slot < laneHeights.length; slot++) {
+      const lane = upward ? laneHeights.length - 1 - slot : slot
+      tops[lane] = laneTop
+      laneTop += laneHeights[lane]! + settings.stackGap
+    }
 
     measured.forEach((item, index) => {
       const lane = laneOf[index]!
@@ -514,6 +625,9 @@ export function layoutFromSchedule(
         actualWidth: item.actual === null ? 0 : item.actual.width,
         labelPlacement: item.placement,
         label: item.label,
+        // LC-5 measured the label with this size; it leaves with the placement
+        // so nothing downstream writes FR-077's formula a second time.
+        labelFontSize: item.font,
         occupiedX0: item.occupiedX0,
         occupiedX1: item.occupiedX1,
       })
@@ -536,7 +650,8 @@ export function layoutFromSchedule(
   }
 
   const contentHeight = Math.max(0, y - settings.rowGap - regions.rowArea.y)
-  const contentWidth = leftmost === Number.POSITIVE_INFINITY ? 0 : widest - leftmost
+  const contentWidth =
+    leftmost === Number.POSITIVE_INFINITY ? 0 : Math.max(0, widest - leftmost)
 
   return {
     pxPerDay,

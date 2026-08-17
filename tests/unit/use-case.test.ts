@@ -10,9 +10,12 @@ import type { Document } from '../../src/entity/document-model/document/document
 import type { EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
 import {
   applyDocumentChange,
+  type ApplyOutcome,
+  type ChangeAudience,
   type ChangeStep,
   type DocumentCommand,
   type DocumentHolder,
+  type HeldDocument,
   type SettingsLimits,
   type WriteMoment,
 } from '../../src/use-case/apply-document-change/apply-document-change'
@@ -56,7 +59,11 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
     changeLog: [],
   }) as unknown as Document
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, screenWidth: 1000 }
+// `rowAreaWidthWithoutPanels` is what the caller reads off the frame's
+// ScreenRegions (CS-1) and hands over: with a 1000px canvas, `canvasPadding`
+// 10 and an 8px vertical scrollbar, regionsFromScreen leaves 982 once the two
+// panels are added back. The arithmetic is layoutEngine's, not this file's.
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSize: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
@@ -147,7 +154,9 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
       LIMITS,
     )
     expect(ok.ok).toBe(true)
-    // 1000 - 10 padding - 600 - 400 leaves the Row Area at or below zero.
+    // 982 - 600 - 400 leaves the Row Area at or below zero. The pair passes
+    // one at a time (600 and 400 each fit on their own) and fails together,
+    // which is the MUST NOT.
     const tooWide = editDocumentSettings(
       documentOf(),
       { kind: 'setPanelWidths', rowTitlePanelWidth: 600, propertyPanelWidth: 400 },
@@ -155,6 +164,34 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     )
     expect(tooWide.ok).toBe(false)
     if (!tooWide.ok) expect(tooWide.refusals[0]!.rule).toBe('FR-052')
+  })
+
+  it('FR-052 refuses a row title panel of zero, which SC-3 forbids', () => {
+    // The scrollbar term is in `rowAreaWidthWithoutPanels`, so a pair that
+    // only fits when the scrollbar is forgotten is refused: 982 - 972 - 10
+    // is at zero, while the old screen-width copy left 1000 - 10 - 972 - 10.
+    const grazing = editDocumentSettings(
+      documentOf(),
+      { kind: 'setPanelWidths', rowTitlePanelWidth: 972, propertyPanelWidth: 10 },
+      LIMITS,
+    )
+    expect(grazing.ok).toBe(false)
+    // MUST NOT: width 0 breaks SC-3's "showing at every zoom", so it is
+    // refused even though the Row Area would be at its widest.
+    const flat = editDocumentSettings(
+      documentOf(),
+      { kind: 'setPanelWidths', rowTitlePanelWidth: 0, propertyPanelWidth: 280 },
+      LIMITS,
+    )
+    expect(flat.ok).toBe(false)
+    if (!flat.ok) expect(flat.refusals[0]!.rule).toBe('FR-052')
+    // S-80 puts no such floor under the properties panel: zero is legitimate.
+    const collapsed = editDocumentSettings(
+      documentOf(),
+      { kind: 'setPanelWidths', rowTitlePanelWidth: 170, propertyPanelWidth: 0 },
+      LIMITS,
+    )
+    expect(collapsed.ok).toBe(true)
   })
 
   it('FR-098 refuses a pin at the cap and leaves the ones already placed alone', () => {
@@ -308,9 +345,9 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     let held = { document, history: EMPTY_HISTORY }
     const holder: DocumentHolder = {
       read: () => held,
-      replace: (next, history) => {
+      replace: (next) => {
         seen.push('replace')
-        held = { document: next, history }
+        held = next
       },
     }
     const audience = {
@@ -361,5 +398,101 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     )
     expect(outcome.accepted).toBe(false)
     expect(seen).toEqual([])
+  })
+
+  it('WS-2 refuses a write made from inside the delivery, and swaps only once', () => {
+    // Chapter 5.5 (MUST): 通知を配っているあいだの書き込みは拒否すること。
+    // The subscriber cannot know -- it builds its own WriteMoment and says
+    // deliveringNotices: false in perfect good faith -- so the refusal has to
+    // come from the site that is running WS-7.
+    const document = documentOf()
+    let held: HeldDocument = { document, history: EMPTY_HISTORY }
+    let replaced = 0
+    const holder: DocumentHolder = {
+      read: () => held,
+      replace: (next) => {
+        replaced += 1
+        held = next
+      },
+    }
+    const nested: ApplyOutcome[] = []
+    const audience: ChangeAudience = {
+      deliver: (given) => {
+        nested.push(
+          applyDocumentChange(
+            {
+              readStamp: given.revisionStamp,
+              commands: [{ kind: 'setProjectTitle', title: 'C' }],
+              moment: CALM,
+              historyLimits: HISTORY_LIMITS,
+              settingsLimits: LIMITS,
+              editedBy: 'agent',
+              updatedAt: '2026-08-17T02:00:00',
+            },
+            holder,
+            audience,
+          ),
+        )
+      },
+    }
+
+    const outcome = applyDocumentChange(
+      {
+        readStamp: document.revisionStamp,
+        commands: [{ kind: 'setProjectTitle', title: 'B' }],
+        moment: CALM,
+        historyLimits: HISTORY_LIMITS,
+        settingsLimits: LIMITS,
+        editedBy: 'user',
+        updatedAt: '2026-08-17T01:00:00',
+      },
+      holder,
+      audience,
+    )
+
+    expect(outcome.accepted).toBe(true)
+    // AG-9a's shape, refused at WS-2 exactly as the chapter says.
+    expect(nested).toEqual([
+      { accepted: false, refusal: { step: 'WS-2', reason: 'deliveringNotices' } },
+    ])
+    // The nested write reached neither WS-6 nor WS-7: one swap, and the
+    // document the others are still being told about is the current one.
+    expect(replaced).toBe(1)
+    expect(held.document.schedule.project.title).toBe('B')
+  })
+
+  it('opens the window for the delivery only, and closes it when a subscriber throws', () => {
+    let held: HeldDocument = { document: documentOf(), history: EMPTY_HISTORY }
+    const holder: DocumentHolder = {
+      read: () => held,
+      replace: (next) => {
+        held = next
+      },
+    }
+    const writeOf = (title: string, audience: ChangeAudience) =>
+      applyDocumentChange(
+        {
+          readStamp: held.document.revisionStamp,
+          commands: [{ kind: 'setProjectTitle', title }],
+          moment: CALM,
+          historyLimits: HISTORY_LIMITS,
+          settingsLimits: LIMITS,
+          editedBy: 'user',
+          updatedAt: '2026-08-17T01:00:00',
+        },
+        holder,
+        audience,
+      )
+
+    expect(() =>
+      writeOf('B', {
+        deliver: () => {
+          throw new Error('subscriber')
+        },
+      }),
+    ).toThrow('subscriber')
+    // That delivery ended, badly but it ended. Chapter 5.5 refuses writes
+    // DURING the delivery, not for the rest of the run.
+    expect(writeOf('C', { deliver: () => undefined }).accepted).toBe(true)
   })
 })

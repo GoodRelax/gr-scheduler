@@ -53,7 +53,11 @@ import {
   type Task,
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
-import type { ScheduleLayout, TaskPlacement } from '../schedule-layout/schedule-layout'
+import type {
+  ScheduleLayout,
+  ShapeKind,
+  TaskPlacement,
+} from '../schedule-layout/schedule-layout'
 import type { ScreenRect, ScreenRegions } from '../screen-regions/screen-regions'
 
 /** A point. LR-6 keeps this layer off the browser's own types. */
@@ -171,12 +175,18 @@ function serialOf(day: CalendarDay): number {
 }
 
 /** @purity pure */
-function at(x: number, y: number): Point {
+function point(x: number, y: number): Point {
   return { x, y }
 }
 
-/** What every stage below reads. Assembled once, never rebuilt. */
-interface Frame {
+/**
+ * What every stage below reads. Assembled once, never rebuilt.
+ *
+ * ⚠️ Named for what it holds rather than for the moment it belongs to: a
+ * "frame" in this codebase is FrameLoop's render tick or ScreenFrame's UF-61
+ * region, and neither of those is this.
+ */
+interface GeometryInputs {
   readonly settings: DocumentSettings
   readonly layout: ScheduleLayout
   readonly within: WorkingCalendar
@@ -207,7 +217,12 @@ function xOfDay(layout: ScheduleLayout, day: CalendarDay): number {
 function fadedOutline(x0: number, x1: number, top: number, height: number,
                       fadeIn: number, fadeOut: number): Path {
   const bottom = top + height
-  return [at(x0, bottom), at(x1 - fadeOut, bottom), at(x1, top), at(x0 + fadeIn, top)]
+  return [
+    point(x0, bottom),
+    point(x1 - fadeOut, bottom),
+    point(x1, top),
+    point(x0 + fadeIn, top),
+  ]
 }
 
 /**
@@ -220,7 +235,7 @@ function fadedOutline(x0: number, x1: number, top: number, height: number,
  *
  * @purity pure
  */
-function clampedFade(task: Task, kind: string, span: number, pxPerDay: number): {
+function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number): {
   readonly fadeIn: number
   readonly fadeOut: number
 } {
@@ -246,12 +261,12 @@ function chevronOutline(x0: number, x1: number, top: number, height: number, not
   const middle = top + height / 2
   const bottom = top + height
   return [
-    at(x0, top),
-    at(x1 - notch, top),
-    at(x1, middle),
-    at(x1 - notch, bottom),
-    at(x0, bottom),
-    at(x0 + notch, middle),
+    point(x0, top),
+    point(x1 - notch, top),
+    point(x1, middle),
+    point(x1 - notch, bottom),
+    point(x0, bottom),
+    point(x0 + notch, middle),
   ]
 }
 
@@ -259,10 +274,10 @@ function chevronOutline(x0: number, x1: number, top: number, height: number, not
 function milestoneOutline(centre: Point, side: number): Path {
   const half = side / 2
   return [
-    at(centre.x, centre.y - half),
-    at(centre.x + half, centre.y),
-    at(centre.x, centre.y + half),
-    at(centre.x - half, centre.y),
+    point(centre.x, centre.y - half),
+    point(centre.x + half, centre.y),
+    point(centre.x, centre.y + half),
+    point(centre.x - half, centre.y),
   ]
 }
 
@@ -275,27 +290,31 @@ function thinStroke(planHeight: number, settings: DocumentSettings): number {
 }
 
 /** One bar of a shape without thickness (SH-3 or SH-4), by LF-7. @purity pure */
-function lineBar(kind: string, x0: number, x1: number, middle: number, stroke: number,
+function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number, stroke: number,
                  settings: DocumentSettings): BarGeometry {
   if (kind === 'arrow') {
     const head = Math.min(stroke * settings.arrowHeadOfStroke, (x1 - x0) * settings.arrowHeadOfSpan)
     return {
       form: 'line',
-      from: at(x0, middle),
-      to: at(x1 - head, middle),
+      from: point(x0, middle),
+      to: point(x1 - head, middle),
       strokeWidth: stroke,
-      head: [at(x1, middle), at(x1 - head, middle - head / 2), at(x1 - head, middle + head / 2)],
+      head: [
+        point(x1, middle),
+        point(x1 - head, middle - head / 2),
+        point(x1 - head, middle + head / 2),
+      ],
       dots: [],
     }
   }
   const radius = stroke * settings.spanDotOfStroke
   return {
     form: 'line',
-    from: at(x0, middle),
-    to: at(x1, middle),
+    from: point(x0, middle),
+    to: point(x1, middle),
     strokeWidth: stroke,
     head: null,
-    dots: [{ at: at(x0, middle), radius }, { at: at(x1, middle), radius }],
+    dots: [{ at: point(x0, middle), radius }, { at: point(x1, middle), radius }],
   }
 }
 
@@ -304,12 +323,15 @@ function lineBar(kind: string, x0: number, x1: number, middle: number, stroke: n
  *
  * @purity pure
  */
-function barOf(frame: Frame, placed: TaskPlacement, task: Task, x0: number, x1: number,
+function barOf(inputs: GeometryInputs, placed: TaskPlacement, task: Task, x0: number, x1: number,
                top: number, height: number, isActual: boolean): BarGeometry {
-  const settings = frame.settings
+  const settings = inputs.settings
   const kind = placed.shapeKind
   if (kind === 'milestone') {
-    return { form: 'outline', points: milestoneOutline(at((x0 + x1) / 2, top + height / 2), height) }
+    return {
+      form: 'outline',
+      points: milestoneOutline(point((x0 + x1) / 2, top + height / 2), height),
+    }
   }
   if (kind === 'arrow' || kind === 'endpointSpan') {
     // LF-8 reads the PLAN height for both bars, so the two lines hold one
@@ -319,7 +341,7 @@ function barOf(frame: Frame, placed: TaskPlacement, task: Task, x0: number, x1: 
   // FD-6a: no fade on the actual. It records what happened, which is not vague.
   const fade = isActual
     ? { fadeIn: 0, fadeOut: 0 }
-    : clampedFade(task, kind, x1 - x0, frame.layout.pxPerDay)
+    : clampedFade(task, kind, x1 - x0, inputs.layout.pxPerDay)
   if (kind === 'chevron') {
     // LF-6: the plan's notch is clamped, the actual's is derived from it and
     // NOT clamped again. FD-5 has a fade replace the notch outright.
@@ -333,8 +355,16 @@ function barOf(frame: Frame, placed: TaskPlacement, task: Task, x0: number, x1: 
 
 // -------------------------------------------------------------- the mark ----
 
-/** RV-5: table T-021, with PM-4 winning whenever it holds. @purity pure */
-export function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressSymbol {
+/**
+ * RV-5: table T-021, with PM-4 winning whenever it holds.
+ *
+ * ⚠️ NOT exported. Table T-064's PI-6 declares two members -- the
+ * `ScheduleGeometry` type and `geometryFromLayout` -- and this is neither.
+ * It leaves the component as `MarkerGeometry.symbol`.
+ *
+ * @purity pure
+ */
+function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressSymbol {
   if (isDelayed(task, statusDate)) return 'PM-4'
   switch (planActualState(task)) {
     case 'finished':
@@ -349,23 +379,55 @@ export function progressSymbolOf(task: Task, statusDate: CalendarDay | null): Pr
   }
 }
 
-/** LF-11's square, and the symbol it carries. @purity pure */
-function markerOf(frame: Frame, task: Task, placed: TaskPlacement): MarkerGeometry | null {
-  const settings = frame.settings
+/**
+ * LF-11's square, and the symbol it carries.
+ *
+ * FR-013 anchors on the actual bar's right end, and on the plan bar's right end
+ * while only the plan is displayed (MUST). Table T-023d's GR-7 states the two
+ * remaining places in its own words: 実績バーの右端の外側。未着手のときは終了点の
+ * 掴みシロの外側、マイルストーンのときは図形の外側.
+ *
+ * A milestone needs no branch -- LF-10 makes its plan figure's right edge the
+ * outside of the figure already. A Task not started does: it has no actual bar,
+ * so FR-043's two dummies stand in for that bar's ends -- 掴みシロは実績バーの
+ * 両端に、マーカーはその右端の外側にあり、位置が重ならない -- and the marker
+ * hangs off GR-17 rather than off the plan, which is why FR-013 draws it faint
+ * beside the faint dummies rather than out at the end of the plan bar.
+ *
+ * ⛔ The clearance is `markerGap` alone, which is every distance the document
+ * holds: S-23 calls it 端点の掴み代と重ならない最小距離 and forbids going any
+ * further. The dummy's own grab allowance is S-93 (30 x 20px), and table T-206
+ * keeps it OUT of the document on purpose -- it reaches ItemHitArea as an
+ * argument and never reaches this layer -- so where that allowance is wider
+ * than `markerGap` plus the marker's radius, GR-7 still covers part of GR-17
+ * and GR-7 is the higher row. Squaring S-23 against S-93 changes the
+ * specification; it is not a value to pick here.
+ *
+ * @purity pure
+ */
+function markerOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
+                  dummies: readonly DummyGeometry[]): MarkerGeometry | null {
+  const settings = inputs.settings
   if (!settings.progressMarkerVisible) return null
-  // FR-013 anchors on the actual bar's right end, or the plan's when only the
-  // plan is drawn. GR-7 puts a milestone's outside its figure, which is what
-  // the plan's own right edge already is.
-  const right: number[] = []
-  if (frame.showPlan) right.push(placed.x + placed.width)
-  if (frame.showActual && placed.actualX !== null) right.push(placed.actualX + placed.actualWidth)
-  if (right.length === 0) return null
   const radius = settings.markerSize / 2
-  return {
-    symbol: progressSymbolOf(task, frame.statusDate),
-    centre: at(Math.max(...right) + settings.markerGap + radius, placed.y + placed.planHeight / 2),
-    radius,
+  const middle = placed.y + placed.planHeight / 2
+  const symbol = progressSymbolOf(task, inputs.statusDate)
+
+  // GR-7's 未着手 clause. A milestone carries GR-18 and no GR-17 (it holds no
+  // actual bar at all -- GR-15), so the milestone clause falls through to the
+  // figure's own right edge below, and so does FR-013's plan-only MUST.
+  const endpoint = inputs.showActual ? dummies.find((one) => one.grab === 'GR-17') : undefined
+  if (endpoint !== undefined) {
+    return { symbol, centre: point(endpoint.at.x + settings.markerGap + radius, middle), radius }
   }
+
+  const right: number[] = []
+  if (inputs.showPlan) right.push(placed.x + placed.width)
+  if (inputs.showActual && placed.actualX !== null) {
+    right.push(placed.actualX + placed.actualWidth)
+  }
+  if (right.length === 0) return null
+  return { symbol, centre: point(Math.max(...right) + settings.markerGap + radius, middle), radius }
 }
 
 /** LF-13. @purity pure */
@@ -378,8 +440,12 @@ function resumeOf(task: Task, marker: MarkerGeometry, settings: DocumentSettings
   const middle = marker.centre.y
   return {
     // LF-13 pins both ends: up from the marker's own bottom, then right.
-    arm: [at(x, marker.centre.y + marker.radius), at(x, middle), at(x + arm, middle)],
-    head: [at(x + arm, middle - head), at(x + arm + head, middle), at(x + arm, middle + head)],
+    arm: [point(x, marker.centre.y + marker.radius), point(x, middle), point(x + arm, middle)],
+    head: [
+      point(x + arm, middle - head),
+      point(x + arm + head, middle),
+      point(x + arm, middle + head),
+    ],
     valid,
   }
 }
@@ -436,12 +502,12 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
       return {
         pattern: 'RP-8',
         points: [
-          at(from.edge, from.middle),
-          at(outward, from.middle),
-          at(outward, corridor),
-          at(x2, corridor),
-          at(x2, to.middle),
-          at(to.edge, to.middle),
+          point(from.edge, from.middle),
+          point(outward, from.middle),
+          point(outward, corridor),
+          point(x2, corridor),
+          point(x2, to.middle),
+          point(to.edge, to.middle),
         ],
       }
     }
@@ -451,10 +517,10 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
     return {
       pattern: below ? 'RP-6' : 'RP-7',
       points: [
-        at(from.edge, from.middle),
-        at(back, from.middle),
-        at(back, to.middle),
-        at(to.edge, to.middle),
+        point(from.edge, from.middle),
+        point(back, from.middle),
+        point(back, to.middle),
+        point(to.edge, to.middle),
       ],
     }
   }
@@ -463,7 +529,7 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
   // RP-1 asks for the entry run alone: a route of one horizontal line has no
   // vertical for the exit run to hold away from the edge.
   if (sameLane && to.edge - from.edge >= entryRun) {
-    return { pattern: 'RP-1', points: [at(from.edge, from.middle), at(to.edge, to.middle)] }
+    return { pattern: 'RP-1', points: [point(from.edge, from.middle), point(to.edge, to.middle)] }
   }
   if (!sameLane && x2 >= x1) {
     // RP-2 and RP-3: fold at the midpoint, held inside [x1, x2].
@@ -471,10 +537,10 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
     return {
       pattern: below ? 'RP-2' : 'RP-3',
       points: [
-        at(from.edge, from.middle),
-        at(mid, from.middle),
-        at(mid, to.middle),
-        at(to.edge, to.middle),
+        point(from.edge, from.middle),
+        point(mid, from.middle),
+        point(mid, to.middle),
+        point(to.edge, to.middle),
       ],
     }
   }
@@ -485,12 +551,12 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
   return {
     pattern: below || sameLane ? 'RP-4' : 'RP-5',
     points: [
-      at(from.edge, from.middle),
-      at(x1, from.middle),
-      at(x1, corridor),
-      at(x2, corridor),
-      at(x2, to.middle),
-      at(to.edge, to.middle),
+      point(from.edge, from.middle),
+      point(x1, from.middle),
+      point(x1, corridor),
+      point(x2, corridor),
+      point(x2, to.middle),
+      point(to.edge, to.middle),
     ],
   }
 }
@@ -501,22 +567,26 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
  *
  * @purity pure
  */
-function attachedBar(frame: Frame, placed: TaskPlacement): { readonly x: number; readonly width: number } {
-  return !frame.showPlan && placed.actualX !== null
+function attachedBar(inputs: GeometryInputs, placed: TaskPlacement): {
+  readonly x: number
+  readonly width: number
+} {
+  return !inputs.showPlan && placed.actualX !== null
     ? { x: placed.actualX, width: placed.actualWidth }
     : { x: placed.x, width: placed.width }
 }
 
 /** @purity pure */
-function routedDependency(frame: Frame, from: TaskPlacement, to: TaskPlacement,
+function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskPlacement,
                           linkType: number): DependencyGeometry {
   const right = exitsRight(linkType)
   const sign = right ? 1 : -1
   // DP-1 exits right and enters left; DP-2 mirrors it. DP-3 and DP-4 use the
   // same edge at both ends, which after mirroring is the right one twice.
   const entryRight = sameSide(linkType) ? right : !right
+  /** @purity pure */
   const anchor = (placed: TaskPlacement, edgeRight: boolean): Anchored => {
-    const bar = attachedBar(frame, placed)
+    const bar = attachedBar(inputs, placed)
     return {
       edge: sign * (edgeRight ? bar.x + bar.width : bar.x),
       middle: placed.y + placed.planHeight / 2,
@@ -524,23 +594,48 @@ function routedDependency(frame: Frame, from: TaskPlacement, to: TaskPlacement,
       bottom: placed.y + placed.planHeight,
     }
   }
-  const route = routeOf(anchor(from, right), anchor(to, entryRight), linkType, frame.settings)
+  const route = routeOf(anchor(from, right), anchor(to, entryRight), linkType, inputs.settings)
   return {
     predecessorUid: from.taskUid,
     successorUid: to.taskUid,
     linkType,
     pattern: route.pattern,
-    points: route.points.map((point) => at(sign * point.x, point.y)),
+    points: route.points.map((vertex) => point(sign * vertex.x, vertex.y)),
   }
 }
 
 // ------------------------------------------------------------- the whole ----
 
-/** @purity pure */
-function guidesOf(frame: Frame, placed: TaskPlacement, actualHeight: number): readonly Path[] {
-  const settings = frame.settings
-  // GD-1: only with both bars on screen, and only once they have come apart.
+/**
+ * Table T-020a.
+ *
+ * ⚠️ GD-4 is judged BEFORE GD-1's overlap, because it carries a condition of
+ * its own -- 実績日が予定日と違うとき -- and says why: 点なので「重なる」概念を
+ * 持たない. Two milestone figures one day apart still overlap in pixels at
+ * every ordinary zoom, so asking the overlap first would leave the row unable
+ * ever to fire.
+ *
+ * @purity pure
+ */
+function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
+                  actualHeight: number): readonly Path[] {
+  const settings = inputs.settings
+  // GD-1: only with both bars on screen, and only with an actual to connect to.
   if (settings.planActualDisplay !== 'both' || placed.actualX === null) return []
+  const middle = placed.y + placed.planHeight / 2
+
+  // GD-4: the days themselves, not the pixels the figures cover.
+  if (placed.actualPlacement === 'sideways') {
+    const planDay = dayOf(task.start)
+    const actualDay = dayOf(task.actualStart)
+    if (planDay === null || actualDay === null) return []
+    if (compareDays(planDay, actualDay) === 0) return []
+    // GD-5 asks for the near end of each. A point has no end but itself, and
+    // LF-10 centres both figures on their own day.
+    return [[point(placed.actualX, middle), point(placed.x + placed.width / 2, middle)]]
+  }
+
+  // GD-1's other half: the two bars have come apart.
   const planX0 = placed.x
   const planX1 = placed.x + placed.width
   const actualX0 = placed.actualX
@@ -551,19 +646,19 @@ function guidesOf(frame: Frame, placed: TaskPlacement, actualHeight: number): re
   const rightwards = actualX0 > planX1
   const from = rightwards ? actualX0 : actualX1
   const to = rightwards ? planX1 : planX0
-  const middle = placed.y + placed.planHeight / 2
 
-  // GD-4: a milestone is a point, so one line and no notion of overlap.
-  if (placed.actualPlacement === 'sideways') return [[at(from, middle), at(to, middle)]]
   // GD-3: one line from a shape with no thickness.
   if (placed.actualPlacement === 'below') {
     const below = placed.y + placed.planHeight + settings.actualGap + actualHeight / 2
-    return [[at(from, below), at(to, below)]]
+    return [[point(from, below), point(to, below)]]
   }
   // GD-2: two, from the actual bar's own top and bottom.
   const top = middle - actualHeight / 2
   const bottom = middle + actualHeight / 2
-  return [[at(from, top), at(to, top)], [at(from, bottom), at(to, bottom)]]
+  return [
+    [point(from, top), point(to, top)],
+    [point(from, bottom), point(to, bottom)],
+  ]
 }
 
 /**
@@ -575,26 +670,37 @@ function guidesOf(frame: Frame, placed: TaskPlacement, actualHeight: number): re
  *
  * @purity pure
  */
-function dummiesOf(frame: Frame, task: Task, placed: TaskPlacement): readonly DummyGeometry[] {
+function dummiesOf(inputs: GeometryInputs, task: Task,
+                   placed: TaskPlacement): readonly DummyGeometry[] {
   if (placed.actualX !== null) return []
   const middle = placed.y + placed.planHeight / 2
   if (placed.actualPlacement === 'sideways') {
-    return [{ grab: 'GR-18', at: at(placed.x + placed.width / 2, middle) }]
+    return [{ grab: 'GR-18', at: point(placed.x + placed.width / 2, middle) }]
   }
   const start = dayOf(task.start)
   if (start === null) return []
-  const end = dateFromWorkingDays(frame.within, start, frame.settings.actualInitialDuration)
+  const end = dateFromWorkingDays(inputs.within, start, inputs.settings.actualInitialDuration)
   return [
-    { grab: 'GR-9', at: at(xOfDay(frame.layout, start), middle) },
-    { grab: 'GR-17', at: at(xOfDay(frame.layout, end), middle) },
+    { grab: 'GR-9', at: point(xOfDay(inputs.layout, start), middle) },
+    { grab: 'GR-17', at: point(xOfDay(inputs.layout, end), middle) },
   ]
 }
 
-/** GR-10's box. LC-6 already chose inside or right. @purity pure */
-function labelBoxOf(frame: Frame, placed: TaskPlacement): ScreenRect | null {
+/**
+ * GR-10's box. LC-6 already chose inside or right.
+ *
+ * ⚠️ The type size is READ, never re-derived. FR-094 applies the text floor
+ * (S-8) separately from the height floor and has `thinFontScale` (S-9)
+ * multiply the thin shapes, so `planHeight x actualOfPlan x fontOfActual` is
+ * not the answer -- and LC-5 measured the label with the value LC-6 stored,
+ * so a second formula here would size the box against glyphs of another size.
+ *
+ * @purity pure
+ */
+function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect | null {
   if (placed.label === '') return null
-  const settings = frame.settings
-  const height = placed.planHeight * settings.actualOfPlan * settings.fontOfActual
+  const settings = inputs.settings
+  const height = placed.labelFontSize
   return placed.labelPlacement === 'inside'
     ? {
         x: placed.x + settings.labelPad,
@@ -611,33 +717,36 @@ function labelBoxOf(frame: Frame, placed: TaskPlacement): ScreenRect | null {
 }
 
 /** @purity pure */
-function taskGeometryOf(frame: Frame, task: Task, placed: TaskPlacement): TaskGeometry {
-  const settings = frame.settings
+function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry {
+  const settings = inputs.settings
   const actualHeight = placed.planHeight * settings.actualOfPlan
   const planTop = placed.y
 
-  const plan = frame.showPlan
-    ? barOf(frame, placed, task, placed.x, placed.x + placed.width, planTop, placed.planHeight, false)
+  const plan = inputs.showPlan
+    ? barOf(inputs, placed, task, placed.x, placed.x + placed.width, planTop, placed.planHeight, false)
     : null
 
   let actual: BarGeometry | null = null
-  if (frame.showActual && placed.actualX !== null) {
+  if (inputs.showActual && placed.actualX !== null) {
     const x0 = placed.actualX
     if (placed.actualPlacement === 'sideways') {
       // LF-10: a smaller figure at the actual day, on the plan's centre line.
       const side = placed.planHeight * settings.actualOfPlan
       const top = planTop + (placed.planHeight - side) / 2
-      actual = barOf(frame, placed, task, x0 - side / 2, x0 + side / 2, top, side, true)
+      actual = barOf(inputs, placed, task, x0 - side / 2, x0 + side / 2, top, side, true)
     } else {
       // LF-9: centred inside, or pushed down by the plan plus the gap.
       const top = placed.actualPlacement === 'inside'
         ? planTop + (placed.planHeight - actualHeight) / 2
         : planTop + placed.planHeight + settings.actualGap
-      actual = barOf(frame, placed, task, x0, x0 + placed.actualWidth, top, actualHeight, true)
+      actual = barOf(inputs, placed, task, x0, x0 + placed.actualWidth, top, actualHeight, true)
     }
   }
 
-  const marker = markerOf(frame, task, placed)
+  // GR-7 reads the dummies (its 未着手 clause hangs the marker off GR-17), so
+  // they are settled once here rather than counted through the calendar twice.
+  const dummies = dummiesOf(inputs, task, placed)
+  const marker = markerOf(inputs, task, placed, dummies)
   const state = planActualState(task)
   const suspended = state === 'suspendedResumePlanned' || state === 'suspendedResumeUnknown'
 
@@ -646,29 +755,30 @@ function taskGeometryOf(frame: Frame, task: Task, placed: TaskPlacement): TaskGe
     shapeKind: placed.shapeKind,
     plan,
     actual,
-    guides: guidesOf(frame, placed, actualHeight),
+    guides: guidesOf(inputs, task, placed, actualHeight),
     marker,
     // FR-044's icon follows the STATE, not the symbol: a suspended Task that
     // is also late shows (!) and must still say that it is suspended.
     resume: marker !== null && suspended ? resumeOf(task, marker, settings) : null,
-    dummies: dummiesOf(frame, task, placed),
+    dummies,
     // FD-5 gives the handles to the two shapes with thickness only. FR-075
     // then shows them on the selected Task alone, which the renderer decides.
     fadeHandles:
       placed.actualPlacement === 'inside'
-        ? [at(placed.x, planTop), at(placed.x + placed.width, planTop + placed.planHeight)]
+        ? [point(placed.x, planTop), point(placed.x + placed.width, planTop + placed.planHeight)]
         : [],
-    label: labelBoxOf(frame, placed),
+    label: labelBoxOf(inputs, placed),
   }
 }
 
 /** Table T-022's PL-1 to PL-5. Null means this Task gets no vertex. @purity pure */
-function vertexXOf(frame: Frame, task: Task, placed: TaskPlacement,
+function vertexXOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    statusDate: CalendarDay): number | null {
+  /** @purity pure */
   const before = (text: string | null): number | null => {
     const day = dayOf(text)
     if (day === null || compareDays(day, statusDate) >= 0) return null
-    return xOfDay(frame.layout, day)
+    return xOfDay(inputs.layout, day)
   }
   switch (planActualState(task)) {
     case 'finished':
@@ -692,8 +802,8 @@ function vertexXOf(frame: Frame, task: Task, placed: TaskPlacement,
  *
  * @purity pure
  */
-function progressLineOf(frame: Frame): Path {
-  const { layout, settings, statusDate } = frame
+function progressLineOf(inputs: GeometryInputs): Path {
+  const { layout, settings, statusDate } = inputs
   if (!settings.progressLineVisible || statusDate === null) return []
   const first = layout.rows[0]
   const last = layout.rows[layout.rows.length - 1]
@@ -701,32 +811,37 @@ function progressLineOf(frame: Frame): Path {
 
   const baseX = xOfDay(layout, statusDate)
   const half = layout.rectangleHeight / 2
-  const byRow = new Map<string, TaskPlacement[]>()
+  // Bucketed by row AND lane in one pass. Bucketing by row alone leaves every
+  // lane walking its whole row and skipping the other lanes' Tasks, which is
+  // O(lanes x Tasks in the row) -- quadratic once a row's Tasks all overlap,
+  // and NFR-013 forbids an O(n²) algorithm outright (MUST NOT).
+  const byLane = new Map<string, TaskPlacement[][]>()
   for (const placed of layout.placements) {
-    const held = byRow.get(placed.groupId)
-    if (held === undefined) byRow.set(placed.groupId, [placed])
-    else held.push(placed)
+    const lanes = byLane.get(placed.groupId) ?? []
+    const held = lanes[placed.stack] ?? []
+    held.push(placed)
+    lanes[placed.stack] = held
+    byLane.set(placed.groupId, lanes)
   }
 
-  const points: Point[] = [at(baseX, first.y - settings.progressLineOverhang)]
+  const points: Point[] = [point(baseX, first.y - settings.progressLineOverhang)]
   for (const row of layout.rows) {
-    const held = byRow.get(row.groupId) ?? []
+    const lanes = byLane.get(row.groupId)
     row.stackTops.forEach((top, lane) => {
       // Table T-022: one vertex per lane, and the most delayed -- the leftmost
       // -- wins when the lane holds more than one Task. A lane with none
       // passes through the status date so the line never breaks.
       let x: number | null = null
-      for (const placed of held) {
-        if (placed.stack !== lane) continue
-        const task = frame.taskByUid.get(placed.taskUid)
+      for (const placed of lanes?.[lane] ?? []) {
+        const task = inputs.taskByUid.get(placed.taskUid)
         if (task === undefined) continue
-        const vertex = vertexXOf(frame, task, placed, statusDate)
+        const vertex = vertexXOf(inputs, task, placed, statusDate)
         if (vertex !== null && (x === null || vertex < x)) x = vertex
       }
-      points.push(at(x ?? baseX, top + half))
+      points.push(point(x ?? baseX, top + half))
     })
   }
-  points.push(at(baseX, last.y + last.height + settings.progressLineOverhang))
+  points.push(point(baseX, last.y + last.height + settings.progressLineOverhang))
   return points
 }
 
@@ -735,28 +850,39 @@ function progressLineOf(frame: Frame): Path {
  * requirement says so in as many words -- so a box whose named rows were both
  * dropped falls back to the drawn extent rather than vanishing.
  *
+ * ⚠️ Both edges are read on BOTH axes. FR-019's entrance does not decide
+ * whether the top row may lie below the bottom one (EditAnnotation records the
+ * gap in as many words and stores the pair as given), so an inverted range
+ * reaches here, and a one-sided height would leave the last row of the range
+ * outside its own box.
+ *
  * @purity pure
  */
 function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] {
+  // One index for the whole pass: a find per edge per box is a linear scan of
+  // the drawn rows, and this runs per frame.
+  const rowById = new Map(layout.rows.map((row) => [row.groupId, row]))
   const out: HighlightGeometry[] = []
   for (const box of schedule.highlightBoxes) {
     const from = dayOf(box.startDate)
     const to = dayOf(box.endDate)
     if (from === null || to === null) continue
-    const top = layout.rows.find((row) => row.groupId === box.topGroupId) ?? layout.rows[0]
+    const top =
+      (box.topGroupId === null ? undefined : rowById.get(box.topGroupId)) ?? layout.rows[0]
     const bottom =
-      layout.rows.find((row) => row.groupId === box.bottomGroupId) ??
+      (box.bottomGroupId === null ? undefined : rowById.get(box.bottomGroupId)) ??
       layout.rows[layout.rows.length - 1]
     if (top === undefined || bottom === undefined) continue
     const x0 = xOfDay(layout, from)
     const x1 = xOfDay(layout, to)
+    const y = Math.min(top.y, bottom.y)
     out.push({
       id: box.id,
       box: {
         x: Math.min(x0, x1),
-        y: Math.min(top.y, bottom.y),
+        y,
         width: Math.abs(x1 - x0),
-        height: Math.abs(bottom.y + bottom.height - top.y),
+        height: Math.max(top.y + top.height, bottom.y + bottom.height) - y,
       },
     })
   }
@@ -774,7 +900,7 @@ export function geometryFromLayout(
   layout: ScheduleLayout,
   regions: ScreenRegions,
 ): ScheduleGeometry {
-  const frame: Frame = {
+  const inputs: GeometryInputs = {
     settings,
     layout,
     within: workingCalendarOf(schedule),
@@ -786,8 +912,8 @@ export function geometryFromLayout(
 
   const tasks: TaskGeometry[] = []
   for (const placed of layout.placements) {
-    const task = frame.taskByUid.get(placed.taskUid)
-    if (task !== undefined) tasks.push(taskGeometryOf(frame, task, placed))
+    const task = inputs.taskByUid.get(placed.taskUid)
+    if (task !== undefined) tasks.push(taskGeometryOf(inputs, task, placed))
   }
 
   // LC-10. RT-4a drops a line whose either end this zoom did not draw.
@@ -799,7 +925,7 @@ export function geometryFromLayout(
       if (to === undefined) continue
       for (const link of successor.dependencies) {
         const from = placedByUid.get(link.predecessorUid)
-        if (from !== undefined) dependencies.push(routedDependency(frame, from, to, link.linkType))
+        if (from !== undefined) dependencies.push(routedDependency(inputs, from, to, link.linkType))
       }
     }
   }
@@ -807,12 +933,12 @@ export function geometryFromLayout(
   return {
     tasks,
     dependencies,
-    progressLine: progressLineOf(frame),
+    progressLine: progressLineOf(inputs),
     statusLine:
-      frame.statusDate === null
+      inputs.statusDate === null
         ? null
         : {
-            x: xOfDay(layout, frame.statusDate),
+            x: xOfDay(layout, inputs.statusDate),
             top: regions.rowArea.y,
             bottom: regions.rowArea.y + regions.rowArea.height,
           },
