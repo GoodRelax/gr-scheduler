@@ -143,6 +143,23 @@ To find what must move together, take the **induced subgraph on the objects
 you are about to touch** and look for cycles there. The 180-member
 whole-graph cycle is useless for this; the induced one is actionable.
 
+```bash
+python .claude/skills/spec-graph-check/induced.py T-027 UN-13 FR-074 FR-098
+```
+
+**Run this before editing, not after** — with every object the change names,
+both the ones being rewritten and the ones they will newly point at. It is one
+of the two measurements a change request takes; `impact.py` is the other, and
+running only `impact.py` is the failure mode this tool was added to stop.
+
+> **This step was skipped in four consecutive sessions.** The rule was here in
+> prose the whole time, but `impact.py` was runnable and the induced subgraph
+> had to be hand-built, so only the blast radius ever got measured. Once the
+> tool existed, the first run found three cycles among the objects that
+> session had already edited — two of them with members written in separate
+> passes. They happened to agree; nothing in the process had made them.
+> **A rule whose tool must be rebuilt by hand is a rule that does not run.**
+
 A real example: `FR-022 ↔ FR-056 ↔ FR-087/OP-3` all reference each other, so
 changing the merge dialog meant writing all of them plus `MG-1`/`MG-10` in a
 single pass. Editing them in sequence cannot converge.
@@ -220,6 +237,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 | `style-checks.py` | checks 12–14 (recurring defect types) |
 | `impact.py` | blast radius for one object, two hops |
 | `graph.py` | cycles, depth measurement, unit partition |
+| `induced.py` | cycles among the objects one change touches — run before editing |
 
 `docs/spec/_assets/source/erd_json_to_md.py` and `erd_json_to_schema.py` live
 with their source and are invoked by `check.sh` as checks 16 and 17;
