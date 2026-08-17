@@ -18,7 +18,7 @@
   },
   "schedule": {
    "type": "object",
-   "description": "日程データの群（表 T-052 の `DR-2`）。",
+   "description": "The schedule group (DR-2 of table T-052).",
    "required": [
     "project",
     "calendars",
@@ -108,7 +108,7 @@
   },
   "documentSettings": {
    "type": "object",
-   "description": "見せ方の群（表 T-052 の `DR-3`）。全数は `FR-063` が定める。",
+   "description": "The presentation group (DR-3 of table T-052). FR-063 fixes what is in it.",
    "required": [
     "actualGap",
     "actualInitialDuration",
@@ -750,7 +750,7 @@
  "$defs": {
   "Project": {
    "type": "object",
-   "description": "プロジェクトの基本情報と、文書ぜんたいに掛かる暦の既定",
+   "description": "The project's own particulars, and the calendar defaults that apply to the whole document.",
    "required": [
     "id",
     "name",
@@ -916,7 +916,7 @@
   },
   "Task": {
    "type": "object",
-   "description": "タスク 1 つ。予定と実績を同じ行が持つ",
+   "description": "One task. The plan and the actual are held by the same row.",
    "required": [
     "uid",
     "wbsParentUid",
@@ -1070,7 +1070,7 @@
   },
   "Dependency": {
    "type": "object",
-   "description": "依存 1 本。**後続タスクの下に入れ子で持つ**",
+   "description": "One dependency. **Nested under the task that succeeds it.**",
    "required": [
     "predecessorUid",
     "linkType",
@@ -1117,7 +1117,7 @@
   },
   "TaskGroup": {
    "type": "object",
-   "description": "行の器。縦積みの軸を作る（`FR-004`）",
+   "description": "A row, and the container that gives stacking its axis (`FR-004`).",
    "required": [
     "id",
     "parentId",
@@ -1185,7 +1185,7 @@
   },
   "TaskGroupMember": {
    "type": "object",
-   "description": "どのタスクがどの行の何段目に載るか",
+   "description": "Which task sits on which row, and at which stacking position.",
    "required": [
     "taskUid",
     "groupId",
@@ -1210,7 +1210,7 @@
   },
   "Calendar": {
    "type": "object",
-   "description": "暦 1 つ。稼働日と非稼働日を決める",
+   "description": "One calendar. Decides which days are worked and which are not.",
    "required": [
     "uid",
     "name",
@@ -1276,7 +1276,7 @@
   },
   "WeekDay": {
    "type": "object",
-   "description": "曜日ごとの稼働の定め（弱エンティティ）",
+   "description": "What one day of the week is worked as (a weak entity).",
    "required": [
     "ordinal",
     "dayType",
@@ -1319,7 +1319,7 @@
   },
   "Exception": {
    "type": "object",
-   "description": "暦の例外日（弱エンティティ）",
+   "description": "One exception day of a calendar (a weak entity).",
    "required": [
     "ordinal",
     "name",
@@ -1383,7 +1383,7 @@
   },
   "Resource": {
    "type": "object",
-   "description": "担当者 1 人（または 1 つの資源）",
+   "description": "One person to assign work to, or one resource.",
    "required": [
     "uid",
     "name",
@@ -1438,7 +1438,7 @@
   },
   "Assignment": {
    "type": "object",
-   "description": "どの担当者がどのタスクに就くか",
+   "description": "Which person is on which task.",
    "required": [
     "uid",
     "taskUid",
@@ -1479,7 +1479,7 @@
   },
   "TaskVisual": {
    "type": "object",
-   "description": "タスクの見せ方。形・色・名前の置き方",
+   "description": "How a task is drawn: its shape, its colours and where its name sits.",
    "required": [
     "taskUid",
     "nameAnchor",
@@ -1558,7 +1558,7 @@
   },
   "TaskOrigin": {
    "type": "object",
-   "description": "取り込み元の記録。合流の照合に使う",
+   "description": "What an import brought this task from. Used to match rows when merging.",
    "required": [
     "taskUid",
     "sourceProjectUid",
@@ -1593,7 +1593,7 @@
   },
   "CommentBox": {
    "type": "object",
-   "description": "コメントボックス 1 つ。日付と行に留める",
+   "description": "One comment box. Pinned to a date and a row.",
    "required": [
     "id",
     "leaderShapeKind",
@@ -1657,7 +1657,7 @@
   },
   "HighlightBox": {
    "type": "object",
-   "description": "ハイライトボックス 1 つ。日付と行の範囲を囲む",
+   "description": "One highlight box. Encloses a range of dates and rows.",
    "required": [
     "id",
     "startDate",
@@ -1715,7 +1715,7 @@
   },
   "CarryElement": {
    "type": "object",
-   "description": "解釈しない要素 1 つを、原形のまま抱える器（自己参照）",
+   "description": "A container that keeps one uninterpreted element exactly as it arrived (self-referencing).",
    "required": [
     "ordinal",
     "name",
@@ -1746,7 +1746,7 @@
   },
   "revisionStamp": {
    "type": "object",
-   "description": "版数と、最後に書いた者と時刻",
+   "description": "The revision number, and who last wrote the document and when.",
    "required": [
     "revision",
     "lastEditedBy",
@@ -1769,7 +1769,7 @@
   },
   "changeLog": {
    "type": "object",
-   "description": "変更の理由。**会話そのものは保存しない**（`FR-066`）",
+   "description": "Why a change was made. **The conversation itself is not stored** (`FR-066`).",
    "required": [
     "revision",
     "editedBy",
@@ -1796,7 +1796,7 @@
   },
   "BaselineTask": {
    "type": "object",
-   "description": "変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ",
+   "description": "One task of the plan as it stood before a change. Held only so its outline can be drawn over the current one.",
    "required": [
     "uid",
     "name",

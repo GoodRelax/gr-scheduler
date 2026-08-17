@@ -182,8 +182,21 @@
      "description": "Identifier as it appears in the figure. Upper camel case for an entity, lower camel case for the two document stamps."
     },
     "description": {
-     "type": "string",
-     "minLength": 1
+     "description": "What the entity is. ⚠️ A language dictionary: the Japanese specification prints \"ja\" in table T-056, and the GRS JSON schema -- which belongs to no language because machines and exchange partners read it -- prints \"en\" (CR-175).",
+     "type": "object",
+     "required": [
+      "ja",
+      "en"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "ja": {
+       "type": "string"
+      },
+      "en": {
+       "type": "string"
+      }
+     }
     },
     "export": {
      "type": "boolean",

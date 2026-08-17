@@ -274,7 +274,10 @@
  "entities": [
   {
    "name": "Project",
-   "description": "プロジェクトの基本情報と、文書ぜんたいに掛かる暦の既定",
+   "description": {
+    "ja": "プロジェクトの基本情報と、文書ぜんたいに掛かる暦の既定",
+    "en": "The project's own particulars, and the calendar defaults that apply to the whole document."
+   },
    "export": true,
    "carry": true,
    "key_note": "— （文書に 1 つしか無い。`id` は主キーにしない）",
@@ -598,7 +601,10 @@
   },
   {
    "name": "Task",
-   "description": "タスク 1 つ。予定と実績を同じ行が持つ",
+   "description": {
+    "ja": "タスク 1 つ。予定と実績を同じ行が持つ",
+    "en": "One task. The plan and the actual are held by the same row."
+   },
    "export": true,
    "carry": true,
    "columns": [
@@ -897,7 +903,10 @@
   },
   {
    "name": "Dependency",
-   "description": "依存 1 本。**後続タスクの下に入れ子で持つ**",
+   "description": {
+    "ja": "依存 1 本。**後続タスクの下に入れ子で持つ**",
+    "en": "One dependency. **Nested under the task that succeeds it.**"
+   },
    "export": true,
    "carry": true,
    "key_note": "— （後続タスクの下での位置が表す）",
@@ -993,7 +1002,10 @@
   },
   {
    "name": "TaskGroup",
-   "description": "行の器。縦積みの軸を作る（`FR-004`）",
+   "description": {
+    "ja": "行の器。縦積みの軸を作る（`FR-004`）",
+    "en": "A row, and the container that gives stacking its axis (`FR-004`)."
+   },
    "export": false,
    "carry": false,
    "columns": [
@@ -1120,7 +1132,10 @@
   },
   {
    "name": "TaskGroupMember",
-   "description": "どのタスクがどの行の何段目に載るか",
+   "description": {
+    "ja": "どのタスクがどの行の何段目に載るか",
+    "en": "Which task sits on which row, and at which stacking position."
+   },
    "export": false,
    "carry": false,
    "key_note": "`taskUid`（一意）",
@@ -1169,7 +1184,10 @@
   },
   {
    "name": "Calendar",
-   "description": "暦 1 つ。稼働日と非稼働日を決める",
+   "description": {
+    "ja": "暦 1 つ。稼働日と非稼働日を決める",
+    "en": "One calendar. Decides which days are worked and which are not."
+   },
    "export": true,
    "carry": true,
    "columns": [
@@ -1309,7 +1327,10 @@
   },
   {
    "name": "WeekDay",
-   "description": "曜日ごとの稼働の定め（弱エンティティ）",
+   "description": {
+    "ja": "曜日ごとの稼働の定め（弱エンティティ）",
+    "en": "What one day of the week is worked as (a weak entity)."
+   },
    "export": true,
    "carry": true,
    "key_note": "親の暦 ＋ `ordinal`",
@@ -1392,7 +1413,10 @@
   },
   {
    "name": "Exception",
-   "description": "暦の例外日（弱エンティティ）",
+   "description": {
+    "ja": "暦の例外日（弱エンティティ）",
+    "en": "One exception day of a calendar (a weak entity)."
+   },
    "export": true,
    "carry": true,
    "key_note": "親の暦 ＋ `ordinal`",
@@ -1516,7 +1540,10 @@
   },
   {
    "name": "Resource",
-   "description": "担当者 1 人（または 1 つの資源）",
+   "description": {
+    "ja": "担当者 1 人（または 1 つの資源）",
+    "en": "One person to assign work to, or one resource."
+   },
    "export": true,
    "carry": true,
    "columns": [
@@ -1622,7 +1649,10 @@
   },
   {
    "name": "Assignment",
-   "description": "どの担当者がどのタスクに就くか",
+   "description": {
+    "ja": "どの担当者がどのタスクに就くか",
+    "en": "Which person is on which task."
+   },
    "export": true,
    "carry": true,
    "columns": [
@@ -1702,7 +1732,10 @@
   },
   {
    "name": "TaskVisual",
-   "description": "タスクの見せ方。形・色・名前の置き方",
+   "description": {
+    "ja": "タスクの見せ方。形・色・名前の置き方",
+    "en": "How a task is drawn: its shape, its colours and where its name sits."
+   },
    "export": false,
    "carry": false,
    "columns": [
@@ -1843,7 +1876,10 @@
   },
   {
    "name": "TaskOrigin",
-   "description": "取り込み元の記録。合流の照合に使う",
+   "description": {
+    "ja": "取り込み元の記録。合流の照合に使う",
+    "en": "What an import brought this task from. Used to match rows when merging."
+   },
    "export": false,
    "carry": false,
    "columns": [
@@ -1916,7 +1952,10 @@
   },
   {
    "name": "CommentBox",
-   "description": "コメントボックス 1 つ。日付と行に留める",
+   "description": {
+    "ja": "コメントボックス 1 つ。日付と行に留める",
+    "en": "One comment box. Pinned to a date and a row."
+   },
    "export": false,
    "carry": false,
    "columns": [
@@ -2017,7 +2056,10 @@
   },
   {
    "name": "HighlightBox",
-   "description": "ハイライトボックス 1 つ。日付と行の範囲を囲む",
+   "description": {
+    "ja": "ハイライトボックス 1 つ。日付と行の範囲を囲む",
+    "en": "One highlight box. Encloses a range of dates and rows."
+   },
    "export": false,
    "carry": false,
    "columns": [
@@ -2121,7 +2163,10 @@
   },
   {
    "name": "CarryElement",
-   "description": "解釈しない要素 1 つを、原形のまま抱える器（自己参照）",
+   "description": {
+    "ja": "解釈しない要素 1 つを、原形のまま抱える器（自己参照）",
+    "en": "A container that keeps one uninterpreted element exactly as it arrived (self-referencing)."
+   },
    "export": true,
    "carry": false,
    "key_note": "所有者 ＋ `ordinal`",
@@ -2189,7 +2234,10 @@
   },
   {
    "name": "revisionStamp",
-   "description": "版数と、最後に書いた者と時刻",
+   "description": {
+    "ja": "版数と、最後に書いた者と時刻",
+    "en": "The revision number, and who last wrote the document and when."
+   },
    "export": false,
    "carry": false,
    "key_note": "— （文書に 1 つしか無い）",
@@ -2238,7 +2286,10 @@
   },
   {
    "name": "changeLog",
-   "description": "変更の理由。**会話そのものは保存しない**（`FR-066`）",
+   "description": {
+    "ja": "変更の理由。**会話そのものは保存しない**（`FR-066`）",
+    "en": "Why a change was made. **The conversation itself is not stored** (`FR-066`)."
+   },
    "export": false,
    "carry": false,
    "columns": [
@@ -2299,7 +2350,10 @@
   },
   {
    "name": "BaselineTask",
-   "description": "変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ",
+   "description": {
+    "ja": "変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ",
+    "en": "One task of the plan as it stood before a change. Held only so its outline can be drawn over the current one."
+   },
    "export": false,
    "carry": false,
    "columns": [

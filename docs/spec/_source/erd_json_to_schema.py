@@ -173,7 +173,7 @@ def entity_defs(erd, open_enums):
                                     '%s.%s' % (e['name'], c['name']))
         defs[e['name']] = collections.OrderedDict([
             ('type', 'object'),
-            ('description', e['description']),
+            ('description', e['description']['en']),
             # FR-024: in the schedule group every key is written out, a null
             # column included, so every column is required.
             ('required', [c['name'] for c in e['columns']]),
@@ -197,7 +197,7 @@ def schedule_object(erd, reachable):
             props[key] = ref
     return collections.OrderedDict([
         ('type', 'object'),
-        ('description', '日程データの群（表 T-052 の `DR-2`）。'),
+        ('description', 'The schedule group (DR-2 of table T-052).'),
         ('required', order),
         ('additionalProperties', False),
         ('properties', props),
@@ -430,7 +430,7 @@ def document_settings(tables, open_types, skipped):
             else:
                 flat[key.group(1)] = settings_type(row, header, key.group(1),
                                                    open_types)
-    return as_object(nest(flat), '見せ方の群（表 T-052 の `DR-3`）。全数は `FR-063` が定める。')
+    return as_object(nest(flat), 'The presentation group (DR-3 of table T-052). FR-063 fixes what is in it.')
 
 
 # ---------------------------------------------------------------------- build

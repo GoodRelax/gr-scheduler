@@ -202,7 +202,7 @@ def entity_table(doc, prefix):
         keys = [c['name'] for c in e['columns'] if c['key'].startswith('PK')]
         key = e.get('key_note', ' ＋ '.join('`%s`' % k for k in keys) or '—')
         rows.append('| %s-%d | `%s` | %s | %s | %s | %s |'
-                    % (prefix, i, e['name'], e['description'], key,
+                    % (prefix, i, e['name'], e['description']['ja'], key,
                        '書き出す' if e['export'] else '**書き出さない**',
                        'あり' if e['carry'] else '—'))
     return rows
