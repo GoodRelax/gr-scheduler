@@ -110,6 +110,10 @@ echo "===== 21  every generated artifact names its manuscript ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-provenance.py || fail=1
 
 echo ""
+echo "===== 22  each change request answers standing rules 1, 2 and 8 ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-cr-discipline.py || fail=1
+
+echo ""
 echo "===== 17  the GRS JSON schema still matches its two sources ====="
 PYTHONIOENCODING=utf-8 python docs/spec/_source/erd_json_to_schema.py --check || fail=1
 
