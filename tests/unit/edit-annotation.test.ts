@@ -281,16 +281,33 @@ describe('EditAnnotation (UF-14) -- the CommentBox group, CM-46 to CM-51', () =>
       { kind: 'setCommentBoxText', id: 'nope', text: 'x' },
       { kind: 'setCommentBoxAnchor', id: 'nope', anchor: ANCHOR },
       { kind: 'setCommentBoxBodyOffsetPx', id: 'nope', dx: 1, dy: 1 },
-      // ⛔ CM-49 is deliberately absent from this list. FR-019 requires the
-      // leader to be choosable between 引出し四角 and 折れ線 (MUST), but
-      // AT-111's two enumeration members have no settled spelling anywhere in
-      // docs/spec, so no case here can say which value is accepted -- and a
-      // case that only checked `ok === false` would pass whether the entrance
-      // was answered or the value was rejected, which is no check at all. The
-      // gap is reported, not papered over.
+      // CR-172 spelled AT-111's two members, so this case now says something:
+      // the value is one the entrance accepts, and the refusal can only be
+      // about the id. Before that it could not be told apart from a rejected
+      // value, which is why it used to be left out.
+      { kind: 'setCommentBoxLeaderShapeKind', id: 'nope', leaderShapeKind: 'calloutBox' },
     ]
     for (const command of strangers) {
       expect(editAnnotation(document, command).ok).toBe(false)
+    }
+  })
+
+  it('FR-019 lets a comment box be set to either leader shape (CM-49)', () => {
+    // FR-019: 「コメントボックスは引出し四角と折れ線の 2 種から選べること
+    // （MUST）」-- so BOTH have to be reachable through CM-49, and the value
+    // that arrives has to be the value stored. The two spellings are AT-111's,
+    // named by CR-172; this case names them rather than reading them from the
+    // implementation.
+    for (const kind of ['calloutBox', 'polyline'] as const) {
+      const document = documentOf({ schedule: { commentBoxes: [commentBoxOf({ id: 'c1' })] } })
+      const result = editAnnotation(document, {
+        kind: 'setCommentBoxLeaderShapeKind',
+        id: 'c1',
+        leaderShapeKind: kind,
+      })
+      expect(result.ok).toBe(true)
+      if (!result.ok) return
+      expect(result.document.schedule.commentBoxes[0]!.leaderShapeKind).toBe(kind)
     }
   })
 

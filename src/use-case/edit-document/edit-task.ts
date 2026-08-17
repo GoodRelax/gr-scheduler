@@ -43,8 +43,17 @@ import {
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
 
-/** The five shapes of table T-012. `shapeKind` is the one enumeration the manuscript spells (AT-100). */
+/** The five shapes of table T-012 (AT-100). */
 export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
+
+/** The eight figures table T-012's SH-5 names, in the area order S-48 fixes (AT-101, CR-172). */
+export type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
+
+/** The three weights of table T-017's CL-2 (AT-104, CR-172). */
+export type TaskLineWeight = NonNullable<TaskVisual['lineWeight']>
+
+/** The three alignments FR-002 names (AT-99, CR-172). */
+export type TaskNameAlign = NonNullable<TaskVisual['nameAlign']>
 
 /**
  * The five rows of table T-019, each carrying the values that row calls あり.
@@ -116,7 +125,11 @@ export type TaskCommand =
   | { readonly kind: 'moveTaskToTaskGroup'; readonly uid: number; readonly groupId: string }
   // ---------------------------------------------------- `TaskVisual` (6) ----
   | { readonly kind: 'setTaskVisualShapeKind'; readonly uid: number; readonly shapeKind: TaskShapeKind }
-  | { readonly kind: 'setTaskVisualMilestoneGlyph'; readonly uid: number; readonly glyph: string | null }
+  | {
+      readonly kind: 'setTaskVisualMilestoneGlyph'
+      readonly uid: number
+      readonly glyph: TaskMilestoneGlyph | null
+    }
   | {
       readonly kind: 'setTaskVisualColors'
       readonly uid: number
@@ -124,13 +137,17 @@ export type TaskCommand =
       readonly strokeColor: string | null
     }
   | { readonly kind: 'resetTaskVisualColors'; readonly uid: number }
-  | { readonly kind: 'setTaskVisualLineWeight'; readonly uid: number; readonly lineWeight: string | null }
+  | {
+      readonly kind: 'setTaskVisualLineWeight'
+      readonly uid: number
+      readonly lineWeight: TaskLineWeight | null
+    }
   | {
       readonly kind: 'setTaskVisualNamePlacement'
       readonly uid: number
       /** AT-98: an integer 0 to 8, or null for FR-002's automatic placement. */
       readonly nameAnchor: number | null
-      readonly nameAlign: string | null
+      readonly nameAlign: TaskNameAlign | null
     }
 
 /** P-19 of the glossary: the one colour spelling the specification fixes. */
@@ -942,10 +959,11 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // FR-078: 表 T-012 の `SH-5` が挙げる図形から選べるようにすること -- eight
       // of them, and AT-101 counts eight.
       //
-      // ⛔ MISSING: the eight are drawn in the table (〇 六角形 五角形 ◇ □ ☆ △ ▽)
-      // but their stored spellings are nowhere; the generated schema widens this
-      // column to a plain string for that reason. No membership test can be
-      // written, so none is. The value is stored as it arrives.
+      // CR-172 spelled the eight (circle / hexagon / pentagon / diamond /
+      // square / star / triangleUp / triangleDown), in the order SH-5 prints
+      // them, which S-48 fixes as the order of their areas. `TaskMilestoneGlyph`
+      // now carries membership, so no runtime test is written here -- the same
+      // way `setTaskVisualShapeKind` leaves it to `TaskShapeKind`.
       //
       // ⚠️ Not refused for a task that is not a milestone: AT-101 says the column
       // is only READ while `shapeKind` is `'milestone'`, which is not a bar on
@@ -988,13 +1006,10 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
 
     case 'setTaskVisualLineWeight': { // CM-24
       // FR-007: 線の太さは色に頼らない識別手段として必須である. CL-2 of table
-      // T-017 names three -- 細 / 中 / 太 -- and AT-104's type reads 列挙
-      // （`'thin'` ほか 3 値）.
-      //
-      // ⛔ MISSING: `'thin'` is the only spelling anywhere; the other two are
-      // named in Japanese and nowhere given a stored form, which is why the
-      // generated schema widens this column to a plain string. No membership
-      // test can be written, so none is.
+      // T-017 names three -- 細 / 中 / 太 -- and CR-172 spelled them thin /
+      // medium / thick, at the same time narrowing AT-104's type column to
+      // 列挙（3 値）: the older wording, 列挙（`'thin'` ほか 3 値）, could be read
+      // as four. `TaskLineWeight` carries membership.
       const visual = visualOf(schedule, command.uid)
       return edited(withVisual(document, { ...visual, lineWeight: command.lineWeight }))
     }
@@ -1007,18 +1022,18 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // ⚠️ Not pixels: ピクセル座標で持ってはならない（MUST NOT）-- 縦横独立ズーム
       // でずれる. That is why AT-98 is an index and not a coordinate.
       //
-      // ⛔ MISSING, two things, and neither is guessed here:
-      //   * AT-98 fixes the range 0..8 but NO table says which index is which of
-      //     the nine points. AT-98's meaning column points at table T-013, and
-      //     table T-013 is FR-002's automatic decision order (NL-1 / NL-3) --
-      //     there is no anchor grid in it. The number is stored unmapped, so
-      //     nothing here can tell 0 from 8.
-      //   * AT-99's members have no spellings at all. Its type reads 列挙
-      //     （`'left'` ほか 3 値）, which reads either as three members in all or
-      //     as `'left'` and three more, while FR-002's prose names three
-      //     placements -- so neither the count nor the values are settled. The
-      //     generated schema widens the column to a plain string for exactly
-      //     this reason, and no membership test can be written.
+      // The alignment is settled: CR-172 read AT-99's 列挙（`'left'` ほか 3 値）
+      // as three in all -- FR-002's prose names three placements and no fourth
+      // appears anywhere in docs/spec -- spelled them left / center / right, and
+      // narrowed the type column to 列挙（3 値）. `TaskNameAlign` carries
+      // membership. ⚠️ Automatic placement is NOT a fourth member; the column
+      // being nullable is what holds it.
+      //
+      // ⛔ MISSING, and not guessed here: AT-98 fixes the range 0..8 but NO
+      // table says which index is which of the nine points. AT-98's meaning
+      // column points at table T-013, and table T-013 is FR-002's automatic
+      // decision order (NL-1 / NL-3) -- there is no anchor grid in it. The
+      // number is stored unmapped, so nothing here can tell 0 from 8.
       if (
         command.nameAnchor !== null &&
         (!Number.isInteger(command.nameAnchor) || command.nameAnchor < 0 || command.nameAnchor > 8)

@@ -172,7 +172,10 @@ const LAYOUT_SETTINGS = settingsOf({
   actualMin: 16, // S-6
   actualOfPlan: 0.73, // S-5
   actualGap: 2, // S-10
-  minShapeWidth: 2, // S-49
+  // ⚠️ Re-typed from S-49, which CR-174 moved from 2 to 6. Nothing caught the
+  // drift: SETTINGS_BOUNDS generates each key's min and max but NOT its
+  // default, so no generated carrier holds this number. That gap is CR-175's.
+  minShapeWidth: 6, // S-49
   thinFontScale: 0.85, // S-9
   stackGap: 12, // S-11
   rowGap: 8, // S-12
@@ -320,6 +323,30 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
 
   it('CR-163 keeps a shape that clears S-86 and drops one that does not', () => {
     // 10 days at 6px is 60; 3 days is 18, under the 24px threshold.
+    const layout = layoutFromSchedule(
+      oneRow([spanning(1, '2026-01-01', 10), spanning(2, '2026-02-01', 3)]),
+      LAYOUT_SETTINGS,
+      REGIONS,
+    )
+    expect(layout.placements.map((p) => p.taskUid)).toEqual([1])
+  })
+
+  it('FR-018 draws a zero-duration Task at every zoom, because its width is not a duration', () => {
+    // UC-001's extension 2a: ドラッグせずにクリックしたときは開始日と終了日が
+    // 同じタスクを作ること（MUST）. FR-018 measures 期間から出た幅 and 幅が期間
+    // から出ていない形状を落としてはならない（MUST NOT）-- a zero-duration shape
+    // is drawn at S-49's floor, which is not a duration, so it stays (CR-174).
+    // ⚠️ 6 < 24, so before CR-174 this Task was dropped at EVERY zoom.
+    const schedule = oneRow([spanning(1, '2026-01-01', 0), spanning(2, '2026-02-01', 30)])
+    for (const zoomX of [1, 0.5, 0.1, 0.02]) {
+      const layout = layoutFromSchedule(schedule, settingsOf({ ...LAYOUT_SETTINGS, zoomX }), REGIONS)
+      expect(layout.placements.map((p) => p.taskUid)).toContain(1)
+    }
+  })
+
+  it('FR-018 still drops a Task that is merely short, so the exemption is not a hole', () => {
+    // 3 days at 6px is 18, under the 24px S-86 states. Its width DID come from
+    // a duration, so the CR-174 exemption must not reach it.
     const layout = layoutFromSchedule(
       oneRow([spanning(1, '2026-01-01', 10), spanning(2, '2026-02-01', 3)]),
       LAYOUT_SETTINGS,

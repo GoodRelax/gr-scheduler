@@ -69,6 +69,9 @@ export interface HighlightRange {
  * integer `uid` columns only, not the UUID keys. The command carries the id so
  * that the same call gives the same document twice.
  */
+/** The two leader shapes FR-019 requires a choice between (AT-111, CR-172). */
+export type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']>
+
 export type AnnotationCommand =
   | { readonly kind: 'createCommentBox'; readonly id: string; readonly anchor: AnnotationAnchor }
   | { readonly kind: 'deleteCommentBox'; readonly id: string }
@@ -76,7 +79,7 @@ export type AnnotationCommand =
   | {
       readonly kind: 'setCommentBoxLeaderShapeKind'
       readonly id: string
-      readonly leaderShapeKind: string
+      readonly leaderShapeKind: CommentBoxLeaderShapeKind
     }
   | { readonly kind: 'setCommentBoxAnchor'; readonly id: string; readonly anchor: AnnotationAnchor }
   | {
@@ -250,23 +253,22 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       return edited(putCommentBox(document, { ...box, text: command.text }))
     }
 
-    case 'setCommentBoxLeaderShapeKind': // CM-49
-      // ⛔ NOT DECIDED, so this command does nothing but say so. FR-019
-      // requires the choice of two -- "コメントボックスは引出し四角と折れ線の
-      // 2 種から選べること（MUST）" -- but no table spells the two values:
-      // docs/spec/_assets/source/erd.json marks `CommentBox.leaderShapeKind`
-      // `"valuesUndecided": true`, and _assets/grs-document.schema.json widens
-      // the column to a plain string for that stated reason. Taking any string
-      // would let a third shape into the document and leave the MUST with
-      // nothing to enforce, so the row is declared and refused until a change
-      // request names the two.
-      return refused([
-        reject(
-          'CM-49',
-          'FR-019',
-          'the two leader shapes have no spelled values: erd.json marks leaderShapeKind valuesUndecided',
-        ),
-      ])
+    case 'setCommentBoxLeaderShapeKind': { // CM-49
+      const box = commentBoxOf(document, command.id)
+      if (box === null) {
+        return refused([reject('CM-49', 'AT-110', `no comment box with id ${command.id}`)])
+      }
+      // FR-019: コメントボックスは引出し四角と折れ線の 2 種から選べること（MUST）.
+      // CR-172 spelled the two -- calloutBox / polyline -- so
+      // `CommentBoxLeaderShapeKind` carries membership and the MUST has
+      // something to enforce; before that this command could only refuse.
+      //
+      // ⚠️ The payload is NOT nullable, though AT-111 admits null. FR-019 asks
+      // for a choice between two, and no requirement gives a way back to naming
+      // neither -- inventing one here would decide what CM-46's ⛔ above is
+      // still waiting on. A box created by AR-5 keeps null until this is called.
+      return edited(putCommentBox(document, { ...box, leaderShapeKind: command.leaderShapeKind }))
+    }
 
     case 'setCommentBoxAnchor': { // CM-50
       const box = commentBoxOf(document, command.id)

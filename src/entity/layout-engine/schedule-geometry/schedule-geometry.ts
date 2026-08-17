@@ -26,11 +26,15 @@
 //   - the guide and dual cursors. `dualCursor`'s two dates hold `unknown` in
 //     the source, so there is no value to read.
 //   - the watermark (FR-020) and the baseline overlay (FR-015). M4 and M5.
-//   - seven of the eight milestone figures. `milestoneGlyph` is an enumeration
-//     of eight whose members the source marks undecided, so the spellings do
-//     not exist yet. Every milestone is drawn as the ◇ that table T-012's SH-5
-//     names first; inventing the other seven strings would put values in the
-//     implementation that the specification does not hold.
+//   - seven of the eight milestone figures. ⚠️ The spellings now exist --
+//     CR-172 named them circle / hexagon / pentagon / diamond / square / star /
+//     triangleUp / triangleDown -- so what is missing here is the GEOMETRY of
+//     the other seven, not their names. Every milestone is still drawn as a ◇.
+//     ⛔ Which figure a milestone starts with is a separate hole CR-172 declined
+//     to close: docs/spec names no default (P-15's 「マイルストーン（◇ ほか）」
+//     is a glossary example and table T-202 holds no key for it), and SH-5's own
+//     order starts at 〇, not ◇. Until that is settled the fallback here is a
+//     choice this file made, not one the specification states.
 //
 // The signature of what this file publishes is owned here, not in the
 // specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a

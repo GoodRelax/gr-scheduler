@@ -71,24 +71,19 @@
 //   - Whether the bounds themselves are sane. `clampedSettings` (PI-2) holds
 //     every settings row to its own limits.
 //
-// ---- two numbers this file had to settle, and neither is in docs/spec -------
+// ---- the two numbers this file reads, and where the specification states
+// ---- how to read them (CR-173) ----------------------------------------------
 //
-// ⛔ STOP 1 -- the megabyte. S-113 is named `importMaxBytes` but its value
-// column reads "`32` MB", and its lower and upper bounds (1 and 256) are in
-// megabytes too. So the setting is a COUNT OF MEGABYTES and the byte count has
-// to be converted, and docs/spec never states how many bytes a megabyte is.
-// This file uses 1 MB = 1024 * 1024 bytes. A file of 32,000,001 bytes is
-// therefore accepted and one of 33,554,433 bytes is refused; on the other
-// reading the first would be refused. Reported -- the row needs to state the
-// factor, or be renamed to the unit it actually holds.
+// The megabyte. S-113 is named `importMaxBytes` but holds a COUNT OF MEGABYTES
+// -- its value column reads "`32` MB" and its bounds (1 and 256) are megabytes
+// too -- so the byte count has to be converted. The row states the factor:
+// 1 MB = 1024 * 1024 bytes. A file of 32,000,001 bytes is accepted; one of
+// 33,554,433 bytes is refused.
 //
-// ⛔ STOP 2 -- where depth starts counting. S-115 gives the WBS a maximum depth
-// of 64 without saying whether a root row is at depth 1 or 0. This file counts a
-// `Task` with no `wbsParentUid` as depth 1, because the only place docs/spec
-// pins the word is FR-004, where a depth of 3 is the three levels a person would
-// have called 大 / 中 / 小 ("「大 / 中 / 小」という専用語を持たず、深さで表す").
-// That is the reading, not a statement of the specification, and it moves the
-// boundary by one row. Reported.
+// Where depth starts counting. S-115 gives the WBS a maximum depth of 64 and
+// states that a root row -- a `Task` whose `wbsParentUid` is `null` -- is at
+// depth 1. That agrees with FR-004, where a depth of 3 is the three levels a
+// person would have called 大 / 中 / 小.
 //
 // ⛔ STOP 3 -- a date column that names no day. Table T-214 bounds the dates an
 // input may hold, and IV-14 asks the date columns to sit inside that range, but
@@ -148,8 +143,8 @@ export interface ImportCandidate {
    * (R-5). A pure function cannot measure it, so the caller states it, the way
    * `historyWithStep` is told the size of a step.
    *
-   * ⚠️ Bytes. S-113 states its limit in megabytes; the conversion is this
-   * file's, and STOP 1 in the header says why that is a gap.
+   * ⚠️ Bytes. S-113 states its limit in megabytes, and states the factor that
+   * converts it: 1 MB = 1024 * 1024 bytes (CR-173).
    */
   readonly byteLength: number
   /**
@@ -199,7 +194,7 @@ export type ImportVerdict =
   | { readonly ok: true }
   | { readonly ok: false; readonly refusals: readonly ImportRefusal[] }
 
-/** ⛔ See STOP 1 in the header. docs/spec does not state this factor. */
+/** The factor S-113's remark states: 1 MB = 1024 * 1024 bytes (CR-173). */
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
 /** @purity pure */

@@ -1724,11 +1724,11 @@
     },
     {
      "name": "nameAlign",
-     "type": "列挙（`'left'` ほか 3 値）",
+     "type": "列挙（3 値）",
      "nullable": "可",
      "json": {
       "kind": "enum",
-      "valuesUndecided": true,
+      "values": ["left", "center", "right"],
       "null": true
      },
      "key": "",
@@ -1762,7 +1762,7 @@
      "nullable": "可",
      "json": {
       "kind": "enum",
-      "valuesUndecided": true,
+      "values": ["circle", "hexagon", "pentagon", "diamond", "square", "star", "triangleUp", "triangleDown"],
       "null": true
      },
      "key": "",
@@ -1798,11 +1798,11 @@
     },
     {
      "name": "lineWeight",
-     "type": "列挙（`'thin'` ほか 3 値）",
+     "type": "列挙（3 値）",
      "nullable": "可",
      "json": {
       "kind": "enum",
-      "valuesUndecided": true,
+      "values": ["thin", "medium", "thick"],
       "null": true
      },
      "key": "",
@@ -1911,7 +1911,7 @@
      "nullable": "可",
      "json": {
       "kind": "enum",
-      "valuesUndecided": true,
+      "values": ["calloutBox", "polyline"],
       "null": true
      },
      "key": "",

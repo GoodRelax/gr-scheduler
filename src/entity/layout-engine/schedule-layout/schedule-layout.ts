@@ -14,12 +14,15 @@
 // assigning a stack and then testing interference would close a loop. Nothing
 // below reads a value produced after it.
 //
-// ⚠️ OPEN, and not this unit's to settle: FR-001's RATIONALE says a Task of
-// zero duration is still drawn, at `minShapeWidth` (S-49) -- two pixels. CR-163
-// then made the level of detail read that same drawn width against S-86, whose
-// floor is 24. So a zero-duration rectangle, which UC-001's extension 2a
-// creates by a plain click, is dropped at EVERY zoom. The two rules cannot both
-// hold. A milestone escapes it only because LF-10 gives it a figure to measure.
+// ⚠️ The task level of detail measures the width a DURATION produced, and drops
+// nothing whose width came from somewhere else (FR-018, CR-174). Two shapes get
+// their width from somewhere else: a Task of zero duration, whose width is the
+// `minShapeWidth` floor (S-49), and a milestone, whose width is the figure side
+// LF-10 gives it. Neither shrinks as the zoom falls, so neither is evidence
+// that the Task is too short to read. Before CR-174 the floor was measured
+// against S-86 like any other width, and since 6 < 24 a zero-duration rectangle
+// -- the thing UC-001's extension 2a creates by a plain click -- was dropped at
+// EVERY zoom.
 //
 // ⛔ INCOMPLETE, and deliberately so: LC-7 counts OC-1 alone. The other rows of
 // table T-038 measure things this milestone does not draw yet -- the assignee
@@ -393,14 +396,39 @@ function spanWidthOf(task: Task, pxPerDay: number): number {
  * @purity pure
  */
 function shapeWidthOf(
-  task: Task,
+  spanWidth: number,
   shapeKind: ShapeKind,
-  pxPerDay: number,
   settings: DocumentSettings,
 ): number {
   if (shapeKind === 'milestone') return planHeightOf(shapeKind, settings)
   // FR-001's RATIONALE: a Task of zero duration is still a Task, drawn at S-49.
-  return Math.max(spanWidthOf(task, pxPerDay), settings.minShapeWidth)
+  return Math.max(spanWidth, settings.minShapeWidth)
+}
+
+/**
+ * Whether the task level of detail leaves this Task on the screen (FR-018).
+ *
+ * ⚠️ The rule measures the width a DURATION produced -- 幅が期間から出ていない
+ * 形状を落としてはならない（MUST NOT）(CR-174). Two shapes take their width from
+ * somewhere else: a milestone from LF-10's figure, and a Task of zero duration
+ * from S-49's floor. Neither shrinks as the zoom falls, so neither is evidence
+ * that the Task has grown too short to read. A Task holding no dates has no
+ * span either, and is exempt for the same reason.
+ *
+ * ⭐ The exempt set does not vary with the zoom, so what is drawn stays
+ * "a fixed set plus a shrinking one" and FR-018's MUST NOT against a shrink
+ * that shows MORE still holds without an argument.
+ *
+ * @purity pure
+ */
+function keptByLevelOfDetail(
+  shapeKind: ShapeKind,
+  spanWidth: number,
+  shapeWidth: number,
+  settings: DocumentSettings,
+): boolean {
+  if (shapeKind === 'milestone' || spanWidth <= 0) return true
+  return shapeWidth >= settings.taskLevelOfDetailReadablePx
 }
 
 /**
@@ -482,17 +510,18 @@ export function layoutFromSchedule(
 
   for (const row of rows) {
     // ---- LC-2, the task half: CR-163 measures the shape, not the depth -----
-    // The kind is resolved ONCE per Task here. S-86's filter and the measuring
-    // below both want it, and asking twice doubles the work NFR-013 caps.
+    // The kind, the span and the drawn width are resolved ONCE per Task here.
+    // S-86's filter and the measuring below both want all three, and asking
+    // twice doubles the work NFR-013 caps.
     const drawnTasks = (membersByGroup.get(row.id) ?? [])
       .map((m) => taskByUid.get(m.taskUid))
       .filter((t): t is Task => t !== undefined)
-      .map((task) => ({ task, kind: shapeKindOf(visualByUid, task) }))
-      .filter(
-        ({ task, kind }) =>
-          shapeWidthOf(task, kind, pxPerDay, settings) >=
-          settings.taskLevelOfDetailReadablePx,
-      )
+      .map((task) => {
+        const kind = shapeKindOf(visualByUid, task)
+        const span = spanWidthOf(task, pxPerDay)
+        return { task, kind, span, width: shapeWidthOf(span, kind, settings) }
+      })
+      .filter(({ kind, span, width }) => keptByLevelOfDetail(kind, span, width, settings))
       // ---- LC-8, ST-2: start ascending, finish descending, uid ascending ---
       .sort(
         (a, b) =>
@@ -510,10 +539,9 @@ export function layoutFromSchedule(
     const laneMaxX1: number[] = []
     const laneMinX0: number[] = []
     const laneOf: number[] = []
-    const measured = drawnTasks.map(({ task, kind }) => {
+    const measured = drawnTasks.map(({ task, kind, width }) => {
       const from = dayOf(task.start)
       const at = from === null ? originX : xOfDay(originSerial, pxPerDay, originX, from)
-      const width = shapeWidthOf(task, kind, pxPerDay, settings)
       // LF-10 centres a milestone's figure on its day; every other shape
       // starts at it.
       const x = kind === 'milestone' ? at - width / 2 : at

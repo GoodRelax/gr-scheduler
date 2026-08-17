@@ -258,17 +258,17 @@ export interface TaskVisual {
   /** AT-98 */
   readonly nameAnchor: number | null
   /** AT-99 */
-  readonly nameAlign: string | null
+  readonly nameAlign: 'left' | 'center' | 'right' | null
   /** AT-100 */
   readonly shapeKind: 'rectangle' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone' | null
   /** AT-101 */
-  readonly milestoneGlyph: string | null
+  readonly milestoneGlyph: 'circle' | 'hexagon' | 'pentagon' | 'diamond' | 'square' | 'star' | 'triangleUp' | 'triangleDown' | null
   /** AT-102 */
   readonly fillColor: string | null
   /** AT-103 */
   readonly strokeColor: string | null
   /** AT-104 */
-  readonly lineWeight: string | null
+  readonly lineWeight: 'thin' | 'medium' | 'thick' | null
 }
 
 /** ET-12 of table T-056. */
@@ -290,7 +290,7 @@ export interface CommentBox {
   /** AT-110 */
   readonly id: string
   /** AT-111 */
-  readonly leaderShapeKind: string | null
+  readonly leaderShapeKind: 'calloutBox' | 'polyline' | null
   /** AT-112 */
   readonly text: string | null
   /** AT-113 */

@@ -3,7 +3,7 @@
  "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_assets/grs-document.schema.json",
  "title": "GRS JSON document",
  "description": "Generated from docs/spec/_assets/source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md (the presentation group). Never edit by hand: run docs/spec/_assets/source/erd_json_to_schema.py.",
- "$comment": "Enumerations whose members the specification has not spelled out, widened to a plain string here: TaskVisual.nameAlign, TaskVisual.milestoneGlyph, TaskVisual.lineWeight, CommentBox.leaderShapeKind. Settings keys whose own row does not say what type they hold, left unconstrained here: dualCursor.date1, dualCursor.date2, planActualGuidePattern.",
+ "$comment": "Settings keys whose own row does not say what type they hold, left unconstrained here: dualCursor.date1, dualCursor.date2, planActualGuidePattern.",
  "type": "object",
  "required": [
   "schemaVersion",
@@ -1496,11 +1496,12 @@
      "maximum": 8
     },
     "nameAlign": {
-     "type": [
-      "string",
-      "null"
-     ],
-     "$comment": "The specification names how many members this enumeration has but not their spellings."
+     "enum": [
+      "left",
+      "center",
+      "right",
+      null
+     ]
     },
     "shapeKind": {
      "enum": [
@@ -1513,11 +1514,17 @@
      ]
     },
     "milestoneGlyph": {
-     "type": [
-      "string",
-      "null"
-     ],
-     "$comment": "The specification names how many members this enumeration has but not their spellings."
+     "enum": [
+      "circle",
+      "hexagon",
+      "pentagon",
+      "diamond",
+      "square",
+      "star",
+      "triangleUp",
+      "triangleDown",
+      null
+     ]
     },
     "fillColor": {
      "type": [
@@ -1532,11 +1539,12 @@
      ]
     },
     "lineWeight": {
-     "type": [
-      "string",
-      "null"
-     ],
-     "$comment": "The specification names how many members this enumeration has but not their spellings."
+     "enum": [
+      "thin",
+      "medium",
+      "thick",
+      null
+     ]
     }
    }
   },
@@ -1593,11 +1601,11 @@
      "format": "uuid"
     },
     "leaderShapeKind": {
-     "type": [
-      "string",
-      "null"
-     ],
-     "$comment": "The specification names how many members this enumeration has but not their spellings."
+     "enum": [
+      "calloutBox",
+      "polyline",
+      null
+     ]
     },
     "text": {
      "type": [
