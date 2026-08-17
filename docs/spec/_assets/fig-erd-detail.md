@@ -201,8 +201,8 @@ erDiagram
     TaskGroupMember ||--|| Task : "どのタスクが載るか（taskUid）"
     TaskGroup }o--o| Task : "行の名前の導出元（derivedFromTaskUid）"
     Project ||--o| Calendar : "文書の既定の暦（calendarUid）"
-    Task }o--o| Calendar : "このタスクが使う暦（calendarUid）"
-    Resource }o--o| Calendar : "この担当者が使う暦（calendarUid）"
+    Task }o--o| Calendar : "交換相手のタスクごとの暦（calendarUid）"
+    Resource }o--o| Calendar : "交換相手の担当者ごとの暦（calendarUid）"
     Calendar }o--o| Calendar : "継承元の暦（baseCalendarUid）"
     Calendar ||--o{ WeekDay : "曜日ごとの稼働（弱エンティティ）"
     Calendar ||--o{ Exception : "例外日（弱エンティティ）"
@@ -268,8 +268,8 @@ erDiagram
 | RL-6 | `TaskGroupMember` | `Task` | 1 ─ 1 | どのタスクが載るか（`taskUid`） |
 | RL-7 | `TaskGroup` | `Task` | 0..n ─ 0..1 | 行の名前の導出元（`derivedFromTaskUid`） |
 | RL-8 | `Project` | `Calendar` | 1 ─ 0..1 | 文書の既定の暦（`calendarUid`） |
-| RL-9 | `Task` | `Calendar` | 0..n ─ 0..1 | このタスクが使う暦（`calendarUid`） |
-| RL-10 | `Resource` | `Calendar` | 0..n ─ 0..1 | この担当者が使う暦（`calendarUid`） |
+| RL-9 | `Task` | `Calendar` | 0..n ─ 0..1 | 交換相手のタスクごとの暦（`calendarUid`） |
+| RL-10 | `Resource` | `Calendar` | 0..n ─ 0..1 | 交換相手の担当者ごとの暦（`calendarUid`） |
 | RL-11 | `Calendar` | `Calendar` | 0..n ─ 0..1 | 継承元の暦（`baseCalendarUid`） |
 | RL-12 | `Calendar` | `WeekDay` | 1 ─ 0..n | 曜日ごとの稼働（弱エンティティ） |
 | RL-13 | `Calendar` | `Exception` | 1 ─ 0..n | 例外日（弱エンティティ） |
@@ -316,7 +316,7 @@ erDiagram
 | AT-15 | `Project` | `minutesPerWeek` | 整数 | 可 | — | Own | `Project/MinutesPerWeek` | 1 週あたりの分数 |
 | AT-16 | `Project` | `daysPerMonth` | 整数 | 可 | — | Own | `Project/DaysPerMonth` | 1 か月あたりの日数 |
 | AT-17 | `Project` | `weekStartDay` | 整数（0〜6） | 可 | — | Own | `Project/WeekStartDay` | 週の始まりの曜日。暦ではなくここが置き場である（`FR-088`） |
-| AT-18 | `Project` | `calendarUid` | 整数 | 可 | FK | Consume | `Project/CalendarUID` | 既定の暦 |
+| AT-18 | `Project` | `calendarUid` | 整数 | 可 | FK | Consume | `Project/CalendarUID` | 既定の暦。文書の暦を指す（`FR-054`） |
 | AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマの色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
 | AT-20 | `Project` | `uidHighWaterMark` | 整数 | 否 | — | GRS | — | 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** |
 | AT-21 | `Project` | `importSeq` | 整数 | 否 | — | GRS | — | 取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
@@ -331,7 +331,7 @@ erDiagram
 | AT-30 | `Task` | `milestone` | 真偽 | 可 | — | Own | `Task/Milestone` | **マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別（表 T-016 の `PR-18`） |
 | AT-31 | `Task` | `deadline` | 日時 | 可 | — | Own | `Task/Deadline` | 期限 |
 | AT-32 | `Task` | `notes` | 文字列 | 可 | — | Own | `Task/Notes` | 備考 |
-| AT-33 | `Task` | `calendarUid` | 整数 | 可 | FK | Consume | `Task/CalendarUID` | このタスクが使う暦 |
+| AT-33 | `Task` | `calendarUid` | 整数 | 可 | FK | Consume | `Task/CalendarUID` | 交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`） |
 | AT-34 | `Task` | `actualStart` | 日時 | 可 | — | Own | `Task/ActualStart` | 実績の開始。空 = 未着手 |
 | AT-35 | `Task` | `actualDuration` | 整数（稼働日） | 可 | — | Consume | `Task/ActualDuration` | 実績バーの長さ。**交換相手は時間の量なので、取り込むときに稼働日へ解釈し、書き出すときに `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）で作り直す**（`FR-054`） |
 | AT-36 | `Task` | `actualFinish` | 日時 | 可 | — | Own | `Task/ActualFinish` | **完了したときだけ入る** |
@@ -387,7 +387,7 @@ erDiagram
 | AT-86 | `Resource` | `name` | 文字列 | 可 | — | Own | `Resource/Name` | 担当者名 |
 | AT-87 | `Resource` | `resourceKind` | 整数 | 可 | — | Own | `Resource/Type` | `0` = 材料 / `1` = 作業 / `2` = 費用 |
 | AT-88 | `Resource` | `isCostResource` | 真偽 | 可 | — | Own | `Resource/IsCostResource` | 費用資源か |
-| AT-89 | `Resource` | `calendarUid` | 整数 | 可 | FK | Consume | `Resource/CalendarUID` | この担当者が使う暦 |
+| AT-89 | `Resource` | `calendarUid` | 整数 | 可 | FK | Consume | `Resource/CalendarUID` | 交換相手の担当者ごとの暦。稼働日の数え上げには使わない（`FR-054`） |
 | AT-90 | `Resource` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 59 |
 | AT-91 | `Resource` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 6 |
 | AT-92 | `Assignment` | `uid` | 整数 | 否 | PK | Own | `Assignment/UID` | 割当の識別子 |

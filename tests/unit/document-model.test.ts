@@ -272,7 +272,9 @@ import {
   delayWorkingDays,
   isDelayed,
   isWorkingDay,
+  NoWorkingDayReached,
   textOfDay,
+  workingCalendarOf,
   workingDaysBetween,
   type Calendar,
   type CalendarDay,
@@ -317,6 +319,48 @@ const holiday: Exception = {
 
 const plain: WorkingCalendar = { calendar, weekDays, exceptions: [] }
 const withHoliday: WorkingCalendar = { calendar, weekDays, exceptions: [holiday] }
+
+describe('Schedule (PI-1) -- one calendar for the document (FR-054)', () => {
+  const scheduleWith = (project: Record<string, unknown>, calendars: readonly Calendar[]) =>
+    ({ project, calendars, tasks: [] }) as unknown as Parameters<typeof workingCalendarOf>[0]
+
+  const second: Calendar = { ...calendar, uid: 2, name: 'Night', ordinal: 5 }
+  const third: Calendar = { ...calendar, uid: 3, name: 'Derived', isBaseCalendar: false, ordinal: 1 }
+
+  it('takes what Project.calendarUid names, ahead of any base calendar', () => {
+    const held = workingCalendarOf(scheduleWith({ calendarUid: 3 }, [calendar, second, third]))
+    expect(held.calendar.uid).toBe(3)
+  })
+
+  it('falls to the lowest-ordinal base calendar when the project names none', () => {
+    // `second` has the lower uid of the two bases but the higher ordinal.
+    const held = workingCalendarOf(scheduleWith({ calendarUid: null }, [second, calendar, third]))
+    expect(held.calendar.uid).toBe(1)
+  })
+
+  it('falls to the same place when the project names a calendar that is not there', () => {
+    expect(workingCalendarOf(scheduleWith({ calendarUid: 99 }, [calendar])).calendar.uid).toBe(1)
+  })
+
+  it('falls to table T-209 default -- Monday to Friday, no exception -- when the document holds none', () => {
+    const held = workingCalendarOf(scheduleWith({ calendarUid: null }, []))
+    expect(held.exceptions).toEqual([])
+    // 2026-08-17 is a Monday and the 16th a Sunday.
+    expect(isWorkingDay(held.calendar, held.weekDays, held.exceptions, day(2026, 8, 17))).toBe(true)
+    expect(isWorkingDay(held.calendar, held.weekDays, held.exceptions, day(2026, 8, 16))).toBe(false)
+  })
+
+  it('stops rather than spinning when a calendar works none of its days', () => {
+    // Nothing in the specification forbids one arriving, and the walk would
+    // otherwise never end. Table T-214 bounds every date an input may hold.
+    const closed: Calendar = {
+      ...calendar,
+      weekDays: weekDays.map((one) => ({ ...one, dayWorking: false })),
+    }
+    const held = workingCalendarOf(scheduleWith({ calendarUid: 1 }, [closed]))
+    expect(() => dateFromWorkingDays(held, day(2026, 1, 1), 1)).toThrow(NoWorkingDayReached)
+  })
+})
 
 describe('Schedule (PI-1) -- dates are days (FR-054, EX-7)', () => {
   it('takes the day from the lexical date part, whatever time came with it', () => {

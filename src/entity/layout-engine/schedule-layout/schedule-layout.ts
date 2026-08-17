@@ -14,6 +14,13 @@
 // assigning a stack and then testing interference would close a loop. Nothing
 // below reads a value produced after it.
 //
+// ⚠️ OPEN, and not this unit's to settle: FR-001's RATIONALE says a Task of
+// zero duration is still drawn, at `minShapeWidth` (S-49) -- two pixels. CR-163
+// then made the level of detail read that same drawn width against S-86, whose
+// floor is 24. So a zero-duration rectangle, which UC-001's extension 2a
+// creates by a plain click, is dropped at EVERY zoom. The two rules cannot both
+// hold. A milestone escapes it only because LF-10 gives it a figure to measure.
+//
 // ⛔ INCOMPLETE, and deliberately so: LC-7 counts OC-1 alone. The other rows of
 // table T-038 measure things this milestone does not draw yet -- the assignee
 // and percent labels (OC-2), an actual bar reaching outside the plan (OC-5),
@@ -29,11 +36,14 @@
 
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import {
+  dateFromWorkingDays,
   dayOf,
+  workingCalendarOf,
   type CalendarDay,
   type Schedule,
   type Task,
   type TaskGroup,
+  type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
 import type { ScreenRegions } from '../screen-regions/screen-regions'
 
@@ -43,17 +53,43 @@ export type RulerTier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWe
 /** Where a label sits relative to its shape. Table T-013. */
 export type LabelPlacement = 'inside' | 'right'
 
+/** The five of table T-012, spelled as AT-100 spells them. */
+export type ShapeKind = 'rectangle' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone'
+
 /** One Task, placed. */
 export interface TaskPlacement {
   readonly taskUid: number
   readonly groupId: string
+  /** Resolved through AT-100, so nothing downstream reads Task.milestone again. */
+  readonly shapeKind: ShapeKind
   /** The lane ST-3's greedy pass put it in, counted from the shallowest. */
   readonly stack: number
-  /** The shape itself: x from its start, width from its duration. */
+  /**
+   * The drawn plan shape, not the span of the dates. They differ twice: a
+   * milestone is a figure centred on its day (LF-10), and a shape shorter than
+   * `minShapeWidth` is drawn at that width (FR-001's RATIONALE). LC-7 measures
+   * what is drawn, so this is the value the occupancy is built on.
+   */
   readonly x: number
   readonly width: number
   readonly y: number
+  /** What the row's stacking reserved: the plan, plus the actual when SH-3 or SH-4 pushes it below. */
   readonly height: number
+  /** The plan bar alone, floored once by FR-094. The actual is this times `actualOfPlan`. */
+  readonly planHeight: number
+  /** Table T-012's last column, resolved once so nothing downstream re-reads it. */
+  readonly actualPlacement: 'inside' | 'below' | 'sideways'
+  /**
+   * RV-1: the actual bar, from `actualStart` to `actualStart` plus
+   * `actualDuration` counted in worked days. `null` while the Task has no
+   * actual at all -- FR-043 says the dummy is drawn but not held.
+   *
+   * ⚠️ This IS the span of the dates. A milestone's actualDuration is S-130,
+   * which is zero, so its width is zero and the figure is centred on `actualX`
+   * (LF-10) -- the centring belongs to the geometry, not here.
+   */
+  readonly actualX: number | null
+  readonly actualWidth: number
   /** NL-1 or NL-3 of table T-013. */
   readonly labelPlacement: LabelPlacement
   /** The label after LC-4 cut it to truncateUnits. */
@@ -72,6 +108,13 @@ export interface RowPlacement {
   /** LF-2 of table T-221. */
   readonly height: number
   readonly stackCount: number
+  /**
+   * The top of each lane. LF-12 walks these to place the progress line's
+   * vertices, which is why they leave the layout rather than being rebuilt
+   * from the placements -- a lane holding no drawn Task has no placement to
+   * rebuild from.
+   */
+  readonly stackTops: readonly number[]
 }
 
 export interface ScheduleLayout {
@@ -80,6 +123,15 @@ export interface ScheduleLayout {
   readonly tier: RulerTier
   /** The day the left edge of the Row Area points at (S-77). */
   readonly originDay: CalendarDay | null
+  /** The x that day sits at, so a caller need not re-derive the axis. */
+  readonly originX: number
+  /**
+   * What a rectangle's plan bar is tall at this zoom. LF-2 and LF-3 give it to
+   * empty lanes and empty rows, and LF-12 measures the progress line's
+   * vertices by it -- a shape-independent height, so the vertices of one row
+   * line up whatever sits in its lanes.
+   */
+  readonly rectangleHeight: number
   readonly rows: readonly RowPlacement[]
   readonly placements: readonly TaskPlacement[]
   /** Everything drawn, measured with table T-038's occupancy. FR-055 fits to this. */
@@ -142,24 +194,44 @@ function truncate(text: string, limit: number): string {
  *
  * @purity pure
  */
-function reservedHeight(shapeKind: string, settings: DocumentSettings): number {
-  const ratios = settings.shapeHeightOf
-  const ratio =
-    shapeKind === 'chevron' ? ratios.chevron
-    : shapeKind === 'arrow' ? ratios.arrow
-    : shapeKind === 'endpointSpan' ? ratios.endpointSpan
-    : shapeKind === 'milestone' ? ratios.milestone
-    : ratios.rectangle
-  const floor = settings.actualMin / settings.actualOfPlan
-  const planHeight = Math.max(floor, settings.basePlanHeight * settings.zoomY) * ratio
-  const laidBelow = shapeKind === 'arrow' || shapeKind === 'endpointSpan'
-  return laidBelow ? planHeight + settings.actualGap + planHeight * settings.actualOfPlan : planHeight
+function reservedHeight(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  const planHeight = planHeightOf(shapeKind, settings)
+  return laidBelow(shapeKind)
+    ? planHeight + settings.actualGap + planHeight * settings.actualOfPlan
+    : planHeight
 }
 
-/** The font a bar's label is drawn at. Floored at fontMin (S-8). @purity pure */
-function labelFontSize(shapeKind: string, settings: DocumentSettings): number {
-  const actual = reservedHeight(shapeKind, settings) * settings.actualOfPlan
-  return Math.max(settings.fontMin, actual * settings.fontOfActual)
+/** SH-3 and SH-4 push the actual below; the rest do not. Table T-012. @purity pure */
+function laidBelow(shapeKind: ShapeKind): boolean {
+  return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
+}
+
+/**
+ * The plan bar's own height. FR-094 puts the floor on it ONCE, before the
+ * shape ratio, and forbids a second floor on the actual.
+ *
+ * @purity pure
+ */
+function planHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  const ratio = settings.shapeHeightOf[shapeKind]
+  const floor = settings.actualMin / settings.actualOfPlan
+  return Math.max(floor, settings.basePlanHeight * settings.zoomY) * ratio
+}
+
+/**
+ * The font a bar's label is drawn at.
+ *
+ * FR-077 derives it from the bar, and FR-094 fixes how the floors are applied:
+ * the text floor (S-8) is applied SEPARATELY from the height floor, because
+ * `thinFontScale` (S-9) multiplies the thin shapes and would otherwise take
+ * the type under what can be read.
+ *
+ * @purity pure
+ */
+function labelFontSize(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  const actual = planHeightOf(shapeKind, settings) * settings.actualOfPlan
+  const scale = laidBelow(shapeKind) ? settings.thinFontScale : 1
+  return Math.max(settings.fontMin, actual * settings.fontOfActual * scale)
 }
 
 /**
@@ -255,7 +327,7 @@ export function groupDepthLimit(settings: DocumentSettings): number {
 }
 
 /** @purity pure */
-function shapeKindOf(schedule: Schedule, task: Task): string {
+function shapeKindOf(schedule: Schedule, task: Task): ShapeKind {
   const visual = schedule.taskVisuals.find((v) => v.taskUid === task.uid)
   const kind = visual?.shapeKind ?? null
   // AT-100: a null resolves through Task.milestone, which AT-30 calls the truth.
@@ -263,12 +335,59 @@ function shapeKindOf(schedule: Schedule, task: Task): string {
   return task.milestone === true ? 'milestone' : 'rectangle'
 }
 
-/** @purity pure */
-function barWidthOf(task: Task, pxPerDay: number): number {
+/** The span of the dates in pixels, before anything widens it. @purity pure */
+function spanWidthOf(task: Task, pxPerDay: number): number {
   const from = dayOf(task.start)
   const to = dayOf(task.finish)
   if (from === null || to === null) return 0
   return Math.max(0, serialOf(to) - serialOf(from)) * pxPerDay
+}
+
+/**
+ * The width the shape is actually drawn at, which is what CR-163 makes the
+ * task level of detail read (S-86: "形状の幅がこれを割る Task を描かない").
+ *
+ * ⚠️ A milestone is a figure, not a span: LF-10 gives it a side equal to its
+ * own plan height, so its date span (zero, since start equals finish) is not
+ * its width. Reading the span here would drop every real milestone at every
+ * zoom.
+ *
+ * @purity pure
+ */
+function shapeWidthOf(
+  task: Task,
+  shapeKind: ShapeKind,
+  pxPerDay: number,
+  settings: DocumentSettings,
+): number {
+  if (shapeKind === 'milestone') return planHeightOf(shapeKind, settings)
+  // FR-001's RATIONALE: a Task of zero duration is still a Task, drawn at S-49.
+  return Math.max(spanWidthOf(task, pxPerDay), settings.minShapeWidth)
+}
+
+/**
+ * RV-1 and the left edge that goes with it, in pixels, or null when the Task
+ * holds no actual at all.
+ *
+ * FR-011 fixes both ends. Table T-069's note requires the counting itself to
+ * come from `Schedule` -- writing it a second time here is a MUST NOT.
+ *
+ * @purity pure
+ */
+function actualSpanOf(
+  task: Task,
+  within: WorkingCalendar,
+  originSerial: number,
+  pxPerDay: number,
+  originX: number,
+): { readonly x: number; readonly width: number } | null {
+  const from = dayOf(task.actualStart)
+  if (from === null) return null
+  const to = dateFromWorkingDays(within, from, task.actualDuration ?? 0)
+  return {
+    x: xOfDay(originSerial, pxPerDay, originX, from),
+    width: Math.max(0, serialOf(to) - serialOf(from)) * pxPerDay,
+  }
 }
 
 /**
@@ -292,6 +411,8 @@ export function layoutFromSchedule(
   const rows = drawnGroups(schedule, settings).filter((g) => g.depth <= depthLimit)
 
   const taskByUid = new Map(schedule.tasks.map((t) => [t.uid, t]))
+  // FR-054: one calendar for the whole document, resolved once.
+  const within = workingCalendarOf(schedule)
   const placements: TaskPlacement[] = []
   const rowPlacements: RowPlacement[] = []
 
@@ -306,7 +427,11 @@ export function layoutFromSchedule(
       .filter((m) => m.groupId === row.id)
       .map((m) => taskByUid.get(m.taskUid))
       .filter((t): t is Task => t !== undefined)
-      .filter((t) => barWidthOf(t, pxPerDay) >= settings.taskLevelOfDetailReadablePx)
+      .filter(
+        (t) =>
+          shapeWidthOf(t, shapeKindOf(schedule, t), pxPerDay, settings) >=
+          settings.taskLevelOfDetailReadablePx,
+      )
       // ---- LC-8, ST-2: start ascending, finish descending, uid ascending ---
       .sort(
         (a, b) =>
@@ -320,8 +445,11 @@ export function layoutFromSchedule(
     const measured = members.map((task) => {
       const kind = shapeKindOf(schedule, task)
       const from = dayOf(task.start)
-      const x = from === null ? originX : xOfDay(originSerial, pxPerDay, originX, from)
-      const width = barWidthOf(task, pxPerDay)
+      const at = from === null ? originX : xOfDay(originSerial, pxPerDay, originX, from)
+      const width = shapeWidthOf(task, kind, pxPerDay, settings)
+      // LF-10 centres a milestone's figure on its day; every other shape
+      // starts at it.
+      const x = kind === 'milestone' ? at - width / 2 : at
       // ---- LC-4, LC-5, LC-6: cut, estimate, then table T-013 -------------
       const label = truncate(task.name ?? '', settings.truncateUnits)
       const font = labelFontSize(kind, settings)
@@ -329,7 +457,8 @@ export function layoutFromSchedule(
       const placement: LabelPlacement = text <= width ? 'inside' : 'right'
       // ---- LC-7: OC-1 is the label the shape could not hold --------------
       const occupiedX1 = placement === 'right' ? x + width + settings.labelGap + text : x + width
-      return { task, kind, x, width, label, placement, occupiedX0: x, occupiedX1 }
+      const actual = actualSpanOf(task, within, originSerial, pxPerDay, originX)
+      return { task, kind, x, width, label, placement, actual, occupiedX0: x, occupiedX1 }
     })
 
     for (const item of measured) {
@@ -372,11 +501,17 @@ export function layoutFromSchedule(
       placements.push({
         taskUid: item.task.uid,
         groupId: row.id,
+        shapeKind: item.kind,
         stack: lane,
         x: item.x,
         width: item.width,
         y: tops[lane]!,
         height: reservedHeight(item.kind, settings),
+        planHeight: planHeightOf(item.kind, settings),
+        actualPlacement:
+          item.kind === 'milestone' ? 'sideways' : laidBelow(item.kind) ? 'below' : 'inside',
+        actualX: item.actual === null ? null : item.actual.x,
+        actualWidth: item.actual === null ? 0 : item.actual.width,
         labelPlacement: item.placement,
         label: item.label,
         occupiedX0: item.occupiedX0,
@@ -386,7 +521,16 @@ export function layoutFromSchedule(
       leftmost = Math.min(leftmost, item.occupiedX0)
     })
 
-    rowPlacements.push({ groupId: row.id, depth: row.depth, y, height, stackCount: lanes.length })
+    rowPlacements.push({
+      groupId: row.id,
+      depth: row.depth,
+      y,
+      height,
+      stackCount: lanes.length,
+      // LF-2 gives a row with no lane one rectangle's band, so LF-12 still has
+      // one height to pass the progress line through.
+      stackTops: tops.length === 0 ? [y] : tops,
+    })
     // ---- LC-9, LF-3 ------------------------------------------------------
     y += height + settings.rowGap
   }
@@ -394,7 +538,17 @@ export function layoutFromSchedule(
   const contentHeight = Math.max(0, y - settings.rowGap - regions.rowArea.y)
   const contentWidth = leftmost === Number.POSITIVE_INFINITY ? 0 : widest - leftmost
 
-  return { pxPerDay, tier: rulerTierOf(pxPerDay, settings), originDay, rows: rowPlacements, placements, contentWidth, contentHeight }
+  return {
+    pxPerDay,
+    tier: rulerTierOf(pxPerDay, settings),
+    originDay,
+    originX,
+    rectangleHeight: planHeightOf('rectangle', settings),
+    rows: rowPlacements,
+    placements,
+    contentWidth,
+    contentHeight,
+  }
 }
 
 /** Where one Task ended up, or null when this zoom does not draw it. @purity pure */

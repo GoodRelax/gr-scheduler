@@ -18,6 +18,16 @@ import {
   taskPlacement,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
+  geometryFromLayout,
+  progressSymbolOf,
+  type Point,
+  type ScheduleGeometry,
+} from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import {
+  itemAtPointer,
+  itemsInMarquee,
+} from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
+import {
   regionAtPointer,
   regionsFromScreen,
   type ScreenEnvironment,
@@ -162,6 +172,8 @@ const LAYOUT_SETTINGS = settingsOf({
   actualMin: 16, // S-6
   actualOfPlan: 0.73, // S-5
   actualGap: 2, // S-10
+  minShapeWidth: 2, // S-49
+  thinFontScale: 0.85, // S-9
   stackGap: 12, // S-11
   rowGap: 8, // S-12
   stackSafetyCap: 255, // S-89
@@ -170,11 +182,41 @@ const LAYOUT_SETTINGS = settingsOf({
 
 const REGIONS = regionsFromScreen(ENV, LAYOUT_SETTINGS)
 
+// ⚠️ Every nullable column table T-019a reads has to be spelled `null` here.
+// Leaving one `undefined` reads as "set" -- `actualFinish` undefined made
+// planActualState answer PS-2 for a task that had never finished.
 const taskOf = (part: Record<string, unknown>): Task =>
-  ({ name: null, start: null, finish: null, milestone: null, ...part }) as unknown as Task
+  ({
+    name: null,
+    start: null,
+    finish: null,
+    milestone: null,
+    actualStart: null,
+    actualDuration: null,
+    actualFinish: null,
+    resume: null,
+    resumeValid: null,
+    fadeInDays: null,
+    fadeOutDays: null,
+    dependencies: [],
+    ...part,
+  }) as unknown as Task
 
+// ⚠️ `project` and `calendars` are not optional padding: DR-2 makes both part
+// of the schedule group, and FR-054 has layoutFromSchedule resolve the
+// document's one calendar through them. Naming no calendar is what sends
+// workingCalendarOf to table T-209's default, which is what these cases want.
 const scheduleOf = (part: Record<string, unknown>): Schedule =>
-  ({ tasks: [], taskGroups: [], taskGroupMembers: [], taskVisuals: [], ...part }) as unknown as Schedule
+  ({
+    project: { calendarUid: null, statusDate: null },
+    calendars: [],
+    tasks: [],
+    taskGroups: [],
+    taskGroupMembers: [],
+    taskVisuals: [],
+    highlightBoxes: [],
+    ...part,
+  }) as unknown as Schedule
 
 /** One root row holding the tasks given, each a member of it. */
 const oneRow = (tasks: readonly Task[], group: Record<string, unknown> = {}): Schedule =>
@@ -423,5 +465,471 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
   it('still has an extent when a row holds no Task, because the band is drawn', () => {
     const layout = layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS)
     expect(layout.contentHeight).toBe(28)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// ScheduleGeometry (PI-6) -- table T-068's LC-10 and LC-11, and RV-5.
+// ---------------------------------------------------------------------------
+
+/** LAYOUT_SETTINGS plus every key LC-10 and LC-11 read, at their table T-201 values. */
+const GEOM_SETTINGS = settingsOf({
+  ...(LAYOUT_SETTINGS as unknown as Record<string, unknown>),
+  planActualDisplay: 'both', // S-59
+  dependencyVisible: true, // S-62
+  progressMarkerVisible: true, // S-63
+  progressLineVisible: true, // S-64
+  dependencyArrowLength: 10, // S-19
+  dependencyRunOfArrow: 2, // S-20
+  markerSize: 16, // S-22
+  markerGap: 4, // S-23
+  resumeScaleInvalid: 0.7, // S-25
+  resumeArmOfMarker: 0.62, // S-26
+  resumeHeadOfMarker: 0.22, // S-27
+  chevronNotchOfHeight: 0.45, // S-43
+  chevronNotchOfWidth: 0.35, // S-44
+  arrowHeadOfStroke: 3.2, // S-45
+  arrowHeadOfSpan: 0.4, // S-46
+  spanDotOfStroke: 1.15, // S-47
+  thinStrokeOfPlan: 0.2, // S-40
+  thinStrokeMin: 1.2, // S-41
+  thinStrokeMax: 4, // S-42
+  labelPad: 6, // S-31
+  progressLineOverhang: 6, // S-51
+  actualInitialDuration: 1, // S-129
+})
+
+const geometryOf = (
+  schedule: Schedule,
+  settings: DocumentSettings = GEOM_SETTINGS,
+): ScheduleGeometry =>
+  geometryFromLayout(schedule, settings, layoutFromSchedule(schedule, settings, REGIONS), REGIONS)
+
+/** The x of a day index, at pxPerDay 6 from a Row Area starting at 170. */
+const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6
+
+/** One row holding the tasks given, with a shape chosen for each. */
+const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, unknown>[]): Schedule =>
+  scheduleOf({
+    tasks,
+    taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
+    taskGroupMembers: tasks.map((t) => ({ groupId: 'g1', taskUid: t.uid })),
+    taskVisuals: visuals,
+  })
+
+describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
+  it('LF-10 centres a milestone on its day and gives it its own plan height', () => {
+    // A real milestone has start === finish, so its date span is zero. CR-163
+    // measures the SHAPE, which LF-10 makes 28 x 1.5 = 42 wide, clearing S-86.
+    const schedule = oneRow([
+      taskOf({ uid: 1, start: '2026-01-11', finish: '2026-01-11', milestone: true }),
+    ])
+    const geometry = geometryOf(schedule)
+    expect(geometry.tasks).toHaveLength(1)
+    const points = (geometry.tasks[0]!.plan as { points: Point[] }).points
+    expect(points).toHaveLength(4)
+    const xs = points.map((p) => p.x)
+    expect((Math.min(...xs) + Math.max(...xs)) / 2).toBeCloseTo(xOf(10), 6)
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(42, 6)
+  })
+
+  it('T-012a draws a rectangle as its own four points when no fade is set', () => {
+    const geometry = geometryOf(oneRow([spanning(1, '2026-01-01', 20)]))
+    const points = (geometry.tasks[0]!.plan as { points: Point[] }).points
+    expect(points).toHaveLength(4)
+    expect(new Set(points.map((p) => p.x))).toEqual(new Set([xOf(0), xOf(20)]))
+  })
+
+  it('FD-6 lets fadeIn win and cuts fadeOut to what is left', () => {
+    const geometry = geometryOf(
+      oneRow([spanning(1, '2026-01-01', 20, { fadeInDays: 15, fadeOutDays: 15 })]),
+    )
+    const points = (geometry.tasks[0]!.plan as { points: Point[] }).points
+    // Point 2 is end - fadeOut and point 4 is start + fadeIn. fadeIn takes 15
+    // of the 20 days, so fadeOut is cut to the 5 that are left and they meet.
+    expect(points[1]!.x).toBeCloseTo(xOf(15), 6)
+    expect(points[3]!.x).toBeCloseTo(xOf(15), 6)
+  })
+
+  it('FD-6a keeps the fade off the actual bar', () => {
+    const schedule = oneRow([
+      spanning(1, '2026-01-01', 20, { fadeInDays: 5, actualStart: '2026-01-01', actualDuration: 5 }),
+    ])
+    const points = (geometryOf(schedule).tasks[0]!.actual as { points: Point[] }).points
+    // With no fade the trapezoid is a rectangle: two distinct x, not three.
+    expect(new Set(points.map((p) => p.x)).size).toBe(2)
+  })
+
+  it('LF-6 derives the actual chevron notch from the plan and does not clamp it twice', () => {
+    const schedule = withVisuals(
+      [spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 3 })],
+      [{ taskUid: 1, shapeKind: 'chevron' }],
+    )
+    const geometry = geometryOf(schedule)
+    const planX = (geometry.tasks[0]!.plan as { points: Point[] }).points.map((p) => p.x)
+    const actualX = (geometry.tasks[0]!.actual as { points: Point[] }).points.map((p) => p.x)
+    // The plan notch is min(120 x 0.35, 28 x 0.45) = 12.6. The actual's is that
+    // times actualOfPlan -- NOT min(its own width x 0.35, ...), which would be
+    // smaller and would tilt the two slopes apart.
+    expect(Math.max(...planX) - planX[1]!).toBeCloseTo(12.6, 6)
+    expect(Math.max(...actualX) - actualX[1]!).toBeCloseTo(12.6 * 0.73, 6)
+  })
+
+  it('LF-9 centres an actual laid inside and pushes one laid below by actualGap', () => {
+    const build = (kind: string): Schedule =>
+      withVisuals(
+        [spanning(1, '2026-01-01', 40, { actualStart: '2026-01-01', actualDuration: 5 })],
+        [{ taskUid: 1, shapeKind: kind }],
+      )
+    const inside = geometryOf(build('rectangle')).tasks[0]!
+    const actualTop = Math.min(...(inside.actual as { points: Point[] }).points.map((p) => p.y))
+    expect(actualTop).toBeCloseTo(REGIONS.rowArea.y + (28 - 28 * 0.73) / 2, 6)
+
+    const below = geometryOf(build('arrow')).tasks[0]!
+    const planLine = below.plan as { from: Point }
+    const actualLine = below.actual as { from: Point }
+    // An arrow's plan is 28 x 0.5 = 14 tall, so its line runs at 7 from the
+    // top; the actual sits 14 + actualGap below that top, on its own centre.
+    const planTop = planLine.from.y - 7
+    expect(actualLine.from.y - planTop).toBeCloseTo(14 + 2 + (14 * 0.73) / 2, 6)
+  })
+
+  it('LF-7 gives an arrow a head and a span two dots', () => {
+    const build = (kind: string): Schedule =>
+      withVisuals([spanning(1, '2026-01-01', 40)], [{ taskUid: 1, shapeKind: kind }])
+    const arrow = geometryOf(build('arrow')).tasks[0]!.plan as {
+      head: Point[] | null
+      dots: unknown[]
+    }
+    expect(arrow.head).toHaveLength(3)
+    expect(arrow.dots).toHaveLength(0)
+    const span = geometryOf(build('endpointSpan')).tasks[0]!.plan as {
+      head: null
+      dots: unknown[]
+    }
+    expect(span.head).toBeNull()
+    expect(span.dots).toHaveLength(2)
+  })
+})
+
+describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
+  it('RV-1 counts actualDuration in WORKED days, so a weekend does not shorten the bar', () => {
+    // 2026-01-01 is a Thursday. Five worked days from it reaches the 8th, not
+    // the 6th -- table T-209 works Monday to Friday.
+    const schedule = oneRow([
+      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
+    ])
+    const placed = layoutFromSchedule(schedule, GEOM_SETTINGS, REGIONS).placements[0]!
+    expect(placed.actualX).toBeCloseTo(xOf(0), 6)
+    expect(placed.actualX! + placed.actualWidth).toBeCloseTo(xOf(7), 6)
+  })
+
+  it('holds no actual bar at all while the Task has not started', () => {
+    const placed = layoutFromSchedule(
+      oneRow([spanning(1, '2026-01-01', 20)]),
+      GEOM_SETTINGS,
+      REGIONS,
+    ).placements[0]!
+    expect(placed.actualX).toBeNull()
+  })
+
+  it('RV-5 answers table T-021, and PM-4 wins whenever it holds', () => {
+    const late = taskOf({ uid: 1, start: '2026-01-01', finish: '2026-01-05' })
+    expect(progressSymbolOf(late, { year: 2026, month: 6, day: 1 })).toBe('PM-4')
+    expect(progressSymbolOf(late, null)).toBe('PM-1a')
+    expect(
+      progressSymbolOf(
+        taskOf({ uid: 1, actualStart: '2026-01-01', actualFinish: '2026-01-05' }),
+        null,
+      ),
+    ).toBe('PM-2')
+    expect(
+      progressSymbolOf(taskOf({ uid: 1, actualStart: '2026-01-01', resumeValid: false }), null),
+    ).toBe('PM-3')
+    expect(progressSymbolOf(taskOf({ uid: 1, actualStart: '2026-01-01' }), null)).toBe('PM-1')
+  })
+
+  it('LF-11 puts the marker markerGap past the rightmost bar, on the plan centre', () => {
+    const schedule = oneRow([
+      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
+    ])
+    const marker = geometryOf(schedule).tasks[0]!.marker!
+    // The plan ends at day 20 and the actual at day 7, so the plan is rightmost.
+    expect(marker.centre.x).toBeCloseTo(xOf(20) + 4 + 8, 6)
+    expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + 14, 6)
+    expect(marker.radius).toBe(8)
+  })
+
+  it('S-63 takes the marker away', () => {
+    const hidden = settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      progressMarkerVisible: false,
+    })
+    expect(geometryOf(oneRow([spanning(1, '2026-01-01', 20)]), hidden).tasks[0]!.marker).toBeNull()
+  })
+
+  it('FR-044 draws the resume icon on a suspended Task only', () => {
+    const suspended = oneRow([
+      spanning(1, '2026-01-01', 20, {
+        actualStart: '2026-01-01',
+        actualDuration: 2,
+        resumeValid: false,
+      }),
+    ])
+    expect(geometryOf(suspended).tasks[0]!.resume).not.toBeNull()
+    const running = oneRow([
+      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 2 }),
+    ])
+    expect(geometryOf(running).tasks[0]!.resume).toBeNull()
+  })
+
+  it('FR-043 draws both dummies while nothing is started, and none once it is', () => {
+    const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
+    expect(fresh.dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
+    // S-129 is ONE worked day, and 2026-01-01 is a Thursday, so GR-17 lands on
+    // the Friday -- one day along rather than on a day nobody works.
+    expect(fresh.dummies[1]!.at.x).toBeCloseTo(xOf(1), 6)
+    const started = geometryOf(
+      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 1 })]),
+    ).tasks[0]!
+    expect(started.dummies).toHaveLength(0)
+  })
+})
+
+describe('ScheduleGeometry (PI-6) -- LC-10, the routes of table T-222', () => {
+  /** Three Tasks on one row -- 1 and 2 overlap, so they take separate lanes. */
+  const linked = (linkType: number, predecessor: number, successor: number): Schedule => {
+    const tasks = [
+      spanning(1, '2026-01-01', 20), // lane 0
+      spanning(2, '2026-01-05', 20), // overlaps 1, so lane 1
+      spanning(3, '2026-03-01', 20), // clear of both, so lane 0
+    ].map((task) =>
+      task.uid === successor
+        ? taskOf({
+            ...(task as unknown as Record<string, unknown>),
+            dependencies: [{ predecessorUid: predecessor, linkType }],
+          })
+        : task,
+    )
+    return oneRow(tasks)
+  }
+
+  it('RP-1 draws one horizontal line when the lane is shared and the gap clears the entry run', () => {
+    const route = geometryOf(linked(1, 1, 3)).dependencies[0]!
+    expect(route.pattern).toBe('RP-1')
+    expect(route.points).toHaveLength(2)
+    expect(route.points[0]!.y).toBeCloseTo(route.points[1]!.y, 6)
+  })
+
+  it('RP-3 folds at a midpoint held inside x1 and x2 when the lanes differ', () => {
+    const route = geometryOf(linked(1, 2, 3)).dependencies[0]!
+    expect(route.pattern).toBe('RP-3')
+    expect(route.points).toHaveLength(4) // 2 bends
+    expect(route.points[1]!.x).toBeCloseTo(route.points[2]!.x, 6)
+  })
+
+  it('RP-4 takes a backwards dependency on one lane out through the corridor', () => {
+    const route = geometryOf(linked(1, 3, 1)).dependencies[0]!
+    expect(route.pattern).toBe('RP-4')
+    expect(route.points).toHaveLength(6) // 4 bends
+  })
+
+  it('the same-side family turns back once and never draws 0 bends', () => {
+    const route = geometryOf(linked(0, 2, 3)).dependencies[0]! // FF
+    expect(route.pattern).toBe('RP-7')
+    expect(route.points).toHaveLength(4)
+    // Both runs leave by the right edge, so the turn-back is right of both.
+    expect(route.points[1]!.x).toBeGreaterThan(route.points[0]!.x)
+    expect(route.points[2]!.x).toBeGreaterThan(route.points[3]!.x)
+  })
+
+  it('RP-8 uses two verticals when a same-side pair shares a lane', () => {
+    const route = geometryOf(linked(0, 1, 3)).dependencies[0]! // FF, one lane
+    expect(route.pattern).toBe('RP-8')
+    expect(route.points).toHaveLength(6)
+  })
+
+  it('mirrors x for SS rather than holding a second set of rules', () => {
+    const forward = geometryOf(linked(0, 2, 3)).dependencies[0]! // FF, exits right
+    const mirrored = geometryOf(linked(3, 2, 3)).dependencies[0]! // SS, exits left
+    expect(mirrored.pattern).toBe(forward.pattern)
+    // Every run leaves by the LEFT edge now, so the turn-back is left of both.
+    expect(mirrored.points[1]!.x).toBeLessThan(mirrored.points[0]!.x)
+    expect(mirrored.points[2]!.x).toBeLessThan(mirrored.points[3]!.x)
+  })
+
+  it('RT-4a draws nothing when either end is not on screen', () => {
+    const zoomedOut = settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      zoomX: 0.05,
+    })
+    expect(geometryOf(linked(1, 2, 3), zoomedOut).dependencies).toHaveLength(0)
+  })
+
+  it('S-62 takes every dependency line away', () => {
+    const hidden = settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      dependencyVisible: false,
+    })
+    expect(geometryOf(linked(1, 1, 3), hidden).dependencies).toHaveLength(0)
+  })
+})
+
+describe('ScheduleGeometry (PI-6) -- FR-014 and LF-12', () => {
+  const withStatus = (tasks: readonly Task[], statusDate: string): Schedule =>
+    scheduleOf({
+      project: { calendarUid: null, statusDate },
+      tasks,
+      taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
+      taskGroupMembers: tasks.map((t) => ({ groupId: 'g1', taskUid: t.uid })),
+    })
+
+  it('runs one unbroken line, one vertex per lane, from above the first row to below the last', () => {
+    const schedule = withStatus(
+      [spanning(1, '2026-01-01', 20), spanning(2, '2026-01-05', 20)],
+      '2026-02-01',
+    )
+    const line = geometryOf(schedule).progressLine
+    // Two lanes, plus the entry above and the exit below.
+    expect(line).toHaveLength(4)
+    expect(line[0]!.y).toBeCloseTo(REGIONS.rowArea.y - 6, 6)
+    expect(line[0]!.x).toBeCloseTo(xOf(31), 6)
+    // LF-12 puts each vertex half a RECTANGLE's height below its lane's top.
+    expect(line[1]!.y).toBeCloseTo(REGIONS.rowArea.y + 14, 6)
+  })
+
+  it('PL-4 marks a Task not started whose start has gone by; PL-1 leaves a finished one alone', () => {
+    const late = geometryOf(withStatus([spanning(1, '2026-01-01', 20)], '2026-02-01')).progressLine
+    expect(late[1]!.x).toBeCloseTo(xOf(0), 6) // its own start
+    const done = geometryOf(
+      withStatus(
+        [spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualFinish: '2026-01-21' })],
+        '2026-02-01',
+      ),
+    ).progressLine
+    // No vertex, so that lane passes through the status date and the line holds.
+    expect(done[1]!.x).toBeCloseTo(xOf(31), 6)
+  })
+
+  it('S-64 and an unset status date each take the line away', () => {
+    const hidden = settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      progressLineVisible: false,
+    })
+    expect(
+      geometryOf(withStatus([spanning(1, '2026-01-01', 20)], '2026-02-01'), hidden).progressLine,
+    ).toHaveLength(0)
+    expect(geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).progressLine).toHaveLength(0)
+    expect(geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).statusLine).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// ItemHitArea (PI-7) -- table T-023d's order, and SL-3.
+// ---------------------------------------------------------------------------
+
+describe('ItemHitArea (PI-7)', () => {
+  const oneTask = (part: Record<string, unknown> = {}): ScheduleGeometry =>
+    geometryOf(oneRow([spanning(1, '2026-01-01', 20, part)]))
+  const middleY = REGIONS.rowArea.y + 14
+
+  it('GR-12 answers the plan bar body', () => {
+    expect(itemAtPointer(oneTask(), xOf(10), middleY)).toEqual({
+      item: { kind: 'task', taskUid: 1 },
+      grab: 'GR-12',
+    })
+  })
+
+  it('GR-3 and GR-4 beat GR-12 at the two ends', () => {
+    const geometry = oneTask()
+    expect(itemAtPointer(geometry, xOf(0), middleY)?.grab).toBe('GR-3')
+    expect(itemAtPointer(geometry, xOf(20), middleY)?.grab).toBe('GR-4')
+  })
+
+  it('S-90 reaches past the top and the bottom of the bar', () => {
+    const geometry = oneTask()
+    expect(itemAtPointer(geometry, xOf(10), REGIONS.rowArea.y - 4)?.grab).toBe('GR-12')
+    expect(itemAtPointer(geometry, xOf(10), REGIONS.rowArea.y - 9)).toBeNull()
+  })
+
+  it('GR-5 takes the actual start, and the actual BODY is not a grab area at all', () => {
+    // 2026-01-05 is a Monday, so five worked days reach the 10th: x 194 to 230.
+    const geometry = oneTask({ actualStart: '2026-01-05', actualDuration: 5 })
+    expect(itemAtPointer(geometry, xOf(4), middleY)?.grab).toBe('GR-5')
+    // The MIDDLE of the actual bar answers GR-12: the plan is the taller of the
+    // two, so where they overlap the plan is what is picked up.
+    expect(itemAtPointer(geometry, xOf(7), middleY)?.grab).toBe('GR-12')
+  })
+
+  it('GR-7 takes the marker, which sits outside every bar', () => {
+    expect(itemAtPointer(oneTask(), xOf(20) + 4 + 8, middleY)?.grab).toBe('GR-7')
+  })
+
+  it('GR-9 beats GR-17 where the two dummies overlap', () => {
+    // Both are 30 x 20 and one worked day apart -- 6px here -- so they do. The
+    // probe stands clear of GR-3, which is above BOTH of them in the table and
+    // would otherwise win at the plan's own start.
+    expect(itemAtPointer(oneTask(), xOf(2), middleY)?.grab).toBe('GR-9')
+  })
+
+  it('holds table T-023d order ACROSS Tasks, not within one', () => {
+    // Two Tasks on ONE lane: ST-10 does not call touching ends an overlap, and
+    // OC-3 keeps the marker out of the occupancy, so Task 1's marker lands
+    // inside Task 2's body. GR-7 is above GR-12, so it wins -- walking Task by
+    // Task instead would answer GR-12 whenever Task 2 was reached first.
+    const geometry = geometryOf(
+      oneRow([spanning(1, '2026-01-01', 20), spanning(2, '2026-01-21', 20)]),
+    )
+    expect(geometry.tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(20) + 12, 6)
+    expect(itemAtPointer(geometry, xOf(20) + 12, middleY)?.grab).toBe('GR-7')
+  })
+
+  it('GR-13 takes a dependency line where it runs clear of the bars', () => {
+    const schedule = oneRow([
+      spanning(1, '2026-01-01', 20),
+      taskOf({
+        uid: 3,
+        start: '2026-03-01',
+        finish: '2026-03-21',
+        dependencies: [{ predecessorUid: 1, linkType: 1 }],
+      }),
+    ])
+    const geometry = geometryOf(schedule)
+    const line = geometry.dependencies[0]!
+    const between = (line.points[0]!.x + line.points[1]!.x) / 2
+    expect(itemAtPointer(geometry, between, line.points[0]!.y)?.item).toEqual({
+      kind: 'dependency',
+      predecessorUid: 1,
+      successorUid: 3,
+    })
+  })
+
+  it('answers null off everything', () => {
+    expect(itemAtPointer(oneTask(), xOf(200), REGIONS.rowArea.y + 400)).toBeNull()
+  })
+
+  it('SL-3 takes what the rectangle wholly encloses and leaves what it merely touches', () => {
+    const geometry = oneTask()
+    expect(itemsInMarquee(geometry, { x: 0, y: 0, width: 2000, height: 2000 })).toEqual([
+      { kind: 'task', taskUid: 1 },
+    ])
+    // Cutting the bar in half touches it, which SL-3 forbids counting.
+    expect(itemsInMarquee(geometry, { x: 0, y: 0, width: xOf(10), height: 2000 })).toEqual([])
+  })
+
+  it('SL-1 keeps the status line out of a marquee but leaves GR-16 answering', () => {
+    const schedule = scheduleOf({
+      project: { calendarUid: null, statusDate: '2026-06-01' },
+      tasks: [spanning(1, '2026-01-01', 20)],
+      taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
+      taskGroupMembers: [{ groupId: 'g1', taskUid: 1 }],
+    })
+    const geometry = geometryOf(schedule)
+    expect(geometry.statusLine).not.toBeNull()
+    const taken = itemsInMarquee(geometry, { x: 0, y: 0, width: 4000, height: 4000 })
+    expect(taken.every((one) => one.kind !== 'statusLine')).toBe(true)
+    expect(itemAtPointer(geometry, geometry.statusLine!.x, REGIONS.rowArea.y + 200)?.grab).toBe(
+      'GR-16',
+    )
   })
 })

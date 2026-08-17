@@ -493,6 +493,82 @@ export interface WorkingCalendar {
 }
 
 /**
+ * Table T-209's default: Monday to Friday worked, no exception days.
+ *
+ * ⚠️ This calendar is NOT in the document. It is built to count by when the
+ * document names none, so its `uid` stands for nothing and is never written --
+ * FR-054 requires an unimported document to have a calendar all the same.
+ */
+const DEFAULT_WEEK_DAYS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) => ({
+  ordinal,
+  dayType,
+  // AT-73 codes the days 1..7 from Sunday, so 2..6 is Monday to Friday (S-106).
+  dayWorking: dayType >= 2 && dayType <= 6,
+  carry: {},
+  carryElements: [],
+}))
+
+const DEFAULT_CALENDAR: Calendar = {
+  uid: 0,
+  name: null,
+  isBaseCalendar: true,
+  baseCalendarUid: null,
+  ordinal: 0,
+  carry: {},
+  carryElements: [],
+  weekDays: DEFAULT_WEEK_DAYS,
+  exceptions: [],
+}
+
+/**
+ * The one calendar the document counts working days by.
+ *
+ * FR-054 says "文書が持つ暦" and then "同じ暦", singular both times, and fixes
+ * the order: what `Project.calendarUid` names, else the lowest-ordinal base
+ * calendar, else table T-209's default.
+ *
+ * ⚠️ `Task.calendarUid` and `Resource.calendarUid` are NOT read here (MUST
+ * NOT). They are held to send the exchange partner's value back. Counting two
+ * Tasks of one row by different calendars would leave the progress line's
+ * vertices (table T-022) and the days late (FR-047) incomparable inside that
+ * row, which is the one comparison UC-006 exists to make.
+ *
+ * ⚠️ `Calendar.baseCalendarUid` is NOT walked -- resolving that inheritance is
+ * the import's job (FR-023), and doing it here would rebuild the same answer
+ * every frame.
+ *
+ * @purity pure
+ */
+export function workingCalendarOf(schedule: Schedule): WorkingCalendar {
+  const named = schedule.project.calendarUid
+  const held = named === null ? undefined : schedule.calendars.find((one) => one.uid === named)
+  const base = schedule.calendars
+    .filter((one) => one.isBaseCalendar === true)
+    .reduce<Calendar | undefined>(
+      (best, one) => (best === undefined || one.ordinal < best.ordinal ? one : best),
+      undefined,
+    )
+  const calendar = held ?? base ?? DEFAULT_CALENDAR
+  return { calendar, weekDays: calendar.weekDays, exceptions: calendar.exceptions }
+}
+
+/**
+ * The days table T-214 accepts, 1970-01-01 to 2200-12-31, plus a year's slack.
+ * A walk that passes this has left the range no input may hold, which is what
+ * a calendar working none of its days does -- and the alternative is a loop
+ * that never ends.
+ */
+const ACCEPTED_DAY_SPAN = 85000
+
+/** ST-7's shape: stop and say so, rather than answer with a wrong day. */
+export class NoWorkingDayReached extends Error {
+  constructor(readonly calendarUid: number) {
+    super(`table T-214: calendar ${calendarUid} works no day inside the accepted range`)
+    this.name = 'NoWorkingDayReached'
+  }
+}
+
+/**
  * How many worked days lie in [from, to). Counting a half-open span is what
  * makes the count of a day against itself zero and keeps the two directions
  * symmetric; a negative span counts backwards.
@@ -529,7 +605,12 @@ export function dateFromWorkingDays(within: WorkingCalendar, from: CalendarDay,
   const step = workingDays < 0 ? -1 : 1
   let remaining = Math.abs(workingDays)
   let at = serial(from)
+  let walked = 0
   while (remaining > 0) {
+    // A calendar that works none of its days would spin here forever, and
+    // nothing in the specification forbids one arriving. Table T-214 bounds
+    // every date an input may hold, so a walk past that span cannot be real.
+    if (walked++ > ACCEPTED_DAY_SPAN) throw new NoWorkingDayReached(within.calendar.uid)
     const day = dayFromSerial(step > 0 ? at : at - 1)
     at += step
     if (isWorkingDay(within.calendar, within.weekDays, within.exceptions, day)) remaining -= 1

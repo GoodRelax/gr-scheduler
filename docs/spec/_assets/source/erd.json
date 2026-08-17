@@ -514,7 +514,7 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Project/CalendarUID",
-     "meaning": "既定の暦"
+     "meaning": "既定の暦。文書の暦を指す（`FR-054`）"
     },
     {
      "name": "themeHue",
@@ -726,7 +726,7 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Task/CalendarUID",
-     "meaning": "このタスクが使う暦"
+     "meaning": "交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`）"
     },
     {
      "name": "actualStart",
@@ -1571,7 +1571,7 @@
      "key": "FK",
      "origin": "Consume",
      "exchange": "Resource/CalendarUID",
-     "meaning": "この担当者が使う暦"
+     "meaning": "交換相手の担当者ごとの暦。稼働日の数え上げには使わない（`FR-054`）"
     },
     {
      "name": "carry",
@@ -2389,13 +2389,13 @@
    "parent": "Task",
    "child": "Calendar",
    "multiplicity": "0..n ─ 0..1",
-   "label": "このタスクが使う暦（`calendarUid`）"
+   "label": "交換相手のタスクごとの暦（`calendarUid`）"
   },
   {
    "parent": "Resource",
    "child": "Calendar",
    "multiplicity": "0..n ─ 0..1",
-   "label": "この担当者が使う暦（`calendarUid`）"
+   "label": "交換相手の担当者ごとの暦（`calendarUid`）"
   },
   {
    "parent": "Calendar",
