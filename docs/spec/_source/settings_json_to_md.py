@@ -65,7 +65,7 @@ def text(value):
     raise SystemExit('a cell is neither prose nor a machine value: %r' % value)
 
 
-def pipe_row(cells):
+def markdown_row(cells):
     """One Markdown row.
 
     ⚠️ An empty cell is written `| |`, not `|  |`. Joining on ' | ' would put
@@ -76,14 +76,14 @@ def pipe_row(cells):
 
 
 def row_line(fields, row):
-    return pipe_row([text(row[f]) for f in fields])
+    return markdown_row([text(row[f]) for f in fields])
 
 
 def table(block):
     fields = [c['field'] for c in block['columns']]
     out = ['**表 %s — %s**' % (block['id'], text(block['caption'])),
            block['blank_before_header'],
-           pipe_row([text(c) for c in block['columns']]),
+           markdown_row([text(c) for c in block['columns']]),
            block['separator']]
     out.extend(row_line(fields, r) for r in block['rows'])
     return out
