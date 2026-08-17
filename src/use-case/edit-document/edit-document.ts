@@ -30,10 +30,23 @@
 // ApplyDocumentChange while ApplyDocumentChange already imports EditDocument
 // for WS-3, and LR-3 forbids a cycle inside a layer.
 //
-// ⛔ INCOMPLETE: two of the eight aggregates are written. The other six are
-// listed above with their command counts and are not yet declared, so
-// `DocumentCommand` is not yet the full 71. Nothing below assumes a count --
-// the dispatch is by `kind` -- so the union grows without the plan changing.
+// ✅ COMPLETE: all eight aggregates are written, and `DocumentCommand` is the
+// full 71 commands of table T-108 -- 20 + 10 + 3 + 10 + 6 + 1 + 5 + 16. The
+// count is not a claim made in prose: `ROUTE_TABLE` below is annotated
+// `Record<DocumentCommand['kind'], AggregateEdit>`, so a row of table T-108
+// that no aggregate lists is a missing property the compiler NAMES, and a
+// listed kind that belongs to no command is rejected by the `satisfies` on the
+// list that holds it. Neither can pass review by being overlooked.
+//
+// ⛔ One aggregate still reports a gap of its own, and it is a gap INSIDE a
+// command rather than a command left out: edit-calendar.ts declares CM-39
+// without a field for FR-088's exception days (例外日（休業日）), because
+// `Exception.recurrenceKind` (AT-82) has no coded value standing for "does not
+// recur" and nothing says what becomes of the exception rows already held.
+// The other seven declare every row of their groups; the ⛔ marks inside them
+// are points the specification leaves undecided WITHIN a command -- where a
+// created row lands among its siblings, what ST-7's cap counts -- not commands
+// that are absent.
 //
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
@@ -41,9 +54,25 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 
+export type { TaskCommand, TaskShapeKind, PlanActualPlacement } from './edit-task'
+export type { TaskGroupCommand } from './edit-task-group'
+export type { DependencyCommand, DependencyEdge } from './edit-dependency'
+export type { AnnotationCommand, AnnotationAnchor, HighlightRange } from './edit-annotation'
+export type { ResourceCommand } from './edit-resource'
+export type { CalendarCommand } from './edit-calendar'
 export type { ProjectCommand, ProjectProfileFields } from './edit-project'
-export type { DocumentSettingsCommand, SettingsLimits } from './edit-document-settings'
+export type {
+  DocumentSettingsCommand,
+  SettingsLimits,
+  VisibleElement,
+} from './edit-document-settings'
 
+import { editTask, type TaskCommand } from './edit-task'
+import { editTaskGroup, type TaskGroupCommand } from './edit-task-group'
+import { editDependency, type DependencyCommand } from './edit-dependency'
+import { editAnnotation, type AnnotationCommand } from './edit-annotation'
+import { editResource, type ResourceCommand } from './edit-resource'
+import { editCalendar, type CalendarCommand } from './edit-calendar'
 import { editProject, type ProjectCommand } from './edit-project'
 import {
   editDocumentSettings,
@@ -51,7 +80,16 @@ import {
   type SettingsLimits,
 } from './edit-document-settings'
 
-export { editProject, editDocumentSettings }
+export {
+  editTask,
+  editTaskGroup,
+  editDependency,
+  editAnnotation,
+  editResource,
+  editCalendar,
+  editProject,
+  editDocumentSettings,
+}
 
 /**
  * One reason a command was refused.
@@ -91,24 +129,202 @@ export function refused(refusals: readonly Refusal[]): EditResult {
 }
 
 /** Every command table T-108 admits. Dispatch is by `kind`. */
-export type DocumentCommand = ProjectCommand | DocumentSettingsCommand
+export type DocumentCommand =
+  | TaskCommand
+  | TaskGroupCommand
+  | DependencyCommand
+  | AnnotationCommand
+  | ResourceCommand
+  | CalendarCommand
+  | ProjectCommand
+  | DocumentSettingsCommand
 
 /**
- * Which aggregate owns a command, resolved from `kind` alone.
+ * One aggregate's edit function, with `limits` folded in.
  *
- * ⚠️ Kept as one list rather than a `switch` per aggregate: table T-108 is the
- * full count, and a command whose kind reaches no aggregate must be a visible
- * refusal rather than a silent no-op.
+ * ⚠️ Only the presentation aggregate reads `limits`; the other seven declare
+ * two parameters and ignore the third, which is what makes one shape enough
+ * for all eight.
+ */
+type AggregateEdit = (
+  document: Document,
+  command: DocumentCommand,
+  limits: SettingsLimits,
+) => EditResult
+
+/**
+ * Spreads one aggregate's edit function across the kinds it owns.
+ *
+ * ⚠️ The cast is the one place the discriminant is lost. It is sound because
+ * the key IS `command.kind` and the list handed in is checked against that
+ * aggregate's own command type -- a kind that is not the aggregate's cannot be
+ * in the list at all.
  *
  * @purity pure
  */
-const PROJECT_KINDS = new Set<string>([
+function routes<K extends readonly string[]>(
+  kinds: K,
+  run: AggregateEdit,
+): Record<K[number], AggregateEdit> {
+  const table: Record<string, AggregateEdit> = {}
+  for (const kind of kinds) {
+    table[kind] = run
+  }
+  return table as Record<K[number], AggregateEdit>
+}
+
+// ---- One list per aggregate ------------------------------------------------
+//
+// ⚠️ Each list is `satisfies` its own aggregate's `kind`, so a name that is not
+// a command of that aggregate is a compile error naming the string. Together
+// with `ROUTE_TABLE`'s annotation this pins the routing from both sides: no
+// stray kinds, and no command left unrouted. An eight-way `if`/`else` could do
+// neither -- the last branch would swallow whatever the earlier ones missed.
+
+/** CM-6 to CM-25. */
+const TASK_KINDS = [
+  'createTask',
+  'deleteTask',
+  'pasteTaskSubtree',
+  'setTaskName',
+  'setTaskNotes',
+  'setTaskPlanDates',
+  'setTaskDeadline',
+  'setTaskPlanActualState',
+  'beginTaskActual',
+  'cycleTaskPlanActualState',
+  'setTaskFadeInDays',
+  'setTaskFadeOutDays',
+  'setTaskWbsParent',
+  'moveTaskToTaskGroup',
+  'setTaskVisualShapeKind',
+  'setTaskVisualMilestoneGlyph',
+  'setTaskVisualColors',
+  'resetTaskVisualColors',
+  'setTaskVisualLineWeight',
+  'setTaskVisualNamePlacement',
+] as const satisfies readonly TaskCommand['kind'][]
+
+/** CM-26 to CM-35. */
+const TASK_GROUP_KINDS = [
+  'createTaskGroup',
+  'deleteTaskGroup',
+  'pasteTaskGroupSubtree',
+  'setTaskGroupLabel',
+  'setTaskGroupColor',
+  'resetTaskGroupColor',
+  'setTaskGroupHeight',
+  'setTaskGroupCollapsed',
+  'setTaskGroupHidden',
+  'reorderTaskGroupSiblings',
+] as const satisfies readonly TaskGroupCommand['kind'][]
+
+/** CM-36 to CM-38. */
+const DEPENDENCY_KINDS = [
+  'createDependency',
+  'deleteDependency',
+  'setDependencyLag',
+] as const satisfies readonly DependencyCommand['kind'][]
+
+/** CM-46 to CM-55. */
+const ANNOTATION_KINDS = [
+  'createCommentBox',
+  'deleteCommentBox',
+  'setCommentBoxText',
+  'setCommentBoxLeaderShapeKind',
+  'setCommentBoxAnchor',
+  'setCommentBoxBodyOffsetPx',
+  'createHighlightBox',
+  'deleteHighlightBox',
+  'setHighlightBoxRange',
+  'setHighlightBoxStrokeColor',
+] as const satisfies readonly AnnotationCommand['kind'][]
+
+/** CM-40 to CM-45. */
+const RESOURCE_KINDS = [
+  'createResource',
+  'setResourceName',
+  'deleteResource',
+  'deleteUnreferencedResources',
+  'createAssignment',
+  'unassignResource',
+] as const satisfies readonly ResourceCommand['kind'][]
+
+/** CM-39. */
+const CALENDAR_KINDS = ['setCalendar'] as const satisfies readonly CalendarCommand['kind'][]
+
+/** CM-1 to CM-5. */
+const PROJECT_KINDS = [
   'setProjectTitle',
   'setProjectProfile',
   'setStatusDate',
   'clearStatusDate',
   'setThemeHue',
-])
+] as const satisfies readonly ProjectCommand['kind'][]
+
+/** CM-56 to CM-71, the 見せ方の群. */
+const SETTINGS_KINDS = [
+  'setStackDirection',
+  'setPlanActualDisplay',
+  'setElementVisible',
+  'setGuideCursorMode',
+  'setDualCursor',
+  'clearDualCursor',
+  'setFontScale',
+  'setThemePreference',
+  'setThemeMonochrome',
+  'setZoom',
+  'setScrollPosition',
+  'setPanelWidths',
+  'pinTaskGroup',
+  'unpinTaskGroup',
+  'setExportPngScale',
+  'fitScheduleToScreen',
+] as const satisfies readonly DocumentSettingsCommand['kind'][]
+
+/**
+ * Which aggregate owns a command, resolved from `kind` alone.
+ *
+ * ⭐ The annotation is the census. `Record<DocumentCommand['kind'], ...>`
+ * demands a property for every one of table T-108's 71 rows, so an aggregate
+ * whose list forgets one of its own commands does not build, and the compiler
+ * says which name is missing. That is the whole reason the routing is a table
+ * derived from eight lists rather than a chain of branches.
+ *
+ * @purity pure
+ */
+const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
+  ...routes(TASK_KINDS, (document, command) => editTask(document, command as TaskCommand)),
+  ...routes(TASK_GROUP_KINDS, (document, command) =>
+    editTaskGroup(document, command as TaskGroupCommand),
+  ),
+  ...routes(DEPENDENCY_KINDS, (document, command) =>
+    editDependency(document, command as DependencyCommand),
+  ),
+  ...routes(ANNOTATION_KINDS, (document, command) =>
+    editAnnotation(document, command as AnnotationCommand),
+  ),
+  ...routes(RESOURCE_KINDS, (document, command) =>
+    editResource(document, command as ResourceCommand),
+  ),
+  ...routes(CALENDAR_KINDS, (document, command) =>
+    editCalendar(document, command as CalendarCommand),
+  ),
+  ...routes(PROJECT_KINDS, (document, command) => editProject(document, command as ProjectCommand)),
+  ...routes(SETTINGS_KINDS, (document, command, limits) =>
+    editDocumentSettings(document, command as DocumentSettingsCommand, limits),
+  ),
+}
+
+/**
+ * The same table, keyed by any string.
+ *
+ * ⚠️ `ROUTE_TABLE` is typed by the 71 kinds, so reading it never admits a
+ * miss. A command can still arrive from outside TypeScript -- AG-8's Agent API
+ * hands one over as data -- and that miss must be VISIBLE. The map answers
+ * `undefined`, which the dispatch below turns into a refusal.
+ */
+const ROUTES: ReadonlyMap<string, AggregateEdit> = new Map(Object.entries(ROUTE_TABLE))
 
 /**
  * Runs one command against the document, whichever aggregate owns it.
@@ -117,6 +333,11 @@ const PROJECT_KINDS = new Set<string>([
  * `zoomMin` / `zoomMax` out of it on purpose, and the Row Area test FR-052
  * states needs the screen. Only the presentation aggregate reads them.
  *
+ * ⚠️ A kind no aggregate owns comes back as a refusal, not as a throw (AG-8)
+ * and not as a silent no-op -- returning the document untouched would tell the
+ * caller the change was applied. `Refusal.command` carries the kind itself
+ * here, because a kind reaching this branch names no row of table T-108.
+ *
  * @purity pure
  */
 export function editDocument(
@@ -124,8 +345,15 @@ export function editDocument(
   command: DocumentCommand,
   limits: SettingsLimits,
 ): EditResult {
-  if (PROJECT_KINDS.has(command.kind)) {
-    return editProject(document, command as ProjectCommand)
+  const run = ROUTES.get(command.kind)
+  if (run === undefined) {
+    return refused([
+      {
+        command: command.kind,
+        rule: 'T-108',
+        what: `no aggregate owns the command kind '${command.kind}'`,
+      },
+    ])
   }
-  return editDocumentSettings(document, command as DocumentSettingsCommand, limits)
+  return run(document, command, limits)
 }
