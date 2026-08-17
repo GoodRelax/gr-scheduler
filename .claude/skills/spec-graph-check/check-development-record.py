@@ -70,7 +70,9 @@ def main():
 
     problems, checked = [], 0
     for name in sorted(os.listdir(RECORDS)):
-        if not name.endswith('.md') or name == 'README.md':
+        # ⚠️ Not every file here is a wave record. The index and the
+        # pending-decision list live beside them and answer to check 25.
+        if not name.endswith('.md') or name in ('README.md', 'pending-decisions.md'):
             continue
         path = os.path.join(RECORDS, name)
         body = io.open(path, encoding='utf-8').read()

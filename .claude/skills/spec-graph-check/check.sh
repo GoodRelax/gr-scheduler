@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 24 mechanical checks for the gr-scheduler specification.
+# All 25 mechanical checks for the gr-scheduler specification.
 #
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
@@ -45,6 +45,11 @@
 #          session reads it after a stop and starts from a state that is not
 #          true. "Not started" is decided exactly: the file is byte for byte
 #          the stub tools/generate_unit_tree.py writes
+##   25     check-pending-decisions.py : a value implemented before the user
+#          decided it carries a mark, and the mark and the list agree in both
+#          directions. A class the rule says to wait for may not carry a mark
+#          at all, and a class that cannot be reversed may not be left open
+#          behind a finished wave
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -135,6 +140,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-language-dic
 echo ""
 echo "===== 24  the development record still matches the tree ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-development-record.py || fail=1
+
+echo ""
+echo "===== 25  provisional marks match the pending-decision list ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-pending-decisions.py || fail=1
 
 echo ""
 echo "===== 17  the GRS JSON schema still matches its two sources ====="

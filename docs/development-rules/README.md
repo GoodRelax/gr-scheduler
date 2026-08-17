@@ -16,6 +16,7 @@
 | **03** | [実装の規則](03-implementation.md) —— 識別子・命名・コメント・読みやすさ | 本フォルダ（原本）|
 | **04** | [確かめ方](04-verification.md) —— 試験の作法・実物の確認・機械検査 | 本フォルダ（原本）|
 | **05** | [進め方](05-working-method.md) —— **記録・実装の順番・並行の解禁・段を飛ばさない・緑で止まる** | 本フォルダ（原本）|
+| **06** | [裁定待ちの扱い](06-pending-decisions.md) —— **待たずに進める範囲を可逆コストで決める**（`A`〜`C` は推奨で進む、`D`〜`H` は待つ）| 本フォルダ（原本）|
 | **REC** | **作業中の記録**（現在地・状態表・罠）| ⭐ [`docs/development-records/`](../development-records/) |
 | **RS** | **レビュー観点の規約**（`R1` 〜 `R7`）| ⛔ **`previous-project-result/21-review-standard/review-standards.md`** |
 | **SW** | **仕様書の書き方**（章立て・記法・AI への問い方）| ⛔ **`previous-project-result/20-spec-template/`** |

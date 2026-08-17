@@ -63,7 +63,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 
 | | |
 |---|---|
-| **機械検査（24 本）** | `bash .claude/skills/spec-graph-check/check.sh` |
+| **機械検査（25 本）** | `bash .claude/skills/spec-graph-check/check.sh` |
 | Chapter 5 の自己検算 | `PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py` |
 | 刊行物の描画 | ⚠️ **先に** `strictdoc export docs/spec --formats=html --output-dir scratch/spec-html-probe`、その後 `check-render.py` |
 | 影響範囲 / 閉路 | `impact.py` ／ `induced.py`（[02](02-changing-the-spec.md)）|
@@ -79,6 +79,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
               変更要求が 8 条の ①②⑧ に答えていること
               原稿が刊行する散文を言語ごとに持っていること
               開発の記録が実物と合っていること（05 の 1.）
+              暫定の印と裁定待ちの一覧が一致すること（06 の 6.）
 描画検査      刊行物が実際に表として描かれること（記法の崩れ）
 試験          仕様の値が実際にコードへ届いていること
 人            答えの質。⛔ ここは機械に下ろせない
