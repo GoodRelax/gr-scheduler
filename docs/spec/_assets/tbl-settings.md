@@ -204,7 +204,7 @@
 | S-83 | `rulerTierPxPerDayMonth` | `1.4` | 0.1 | `rulerTierPxPerDayWeek` | 目盛が「年」から「年 ＋ 月」に変わる px/day。次のしきい値を超えない |
 | S-84 | `rulerTierPxPerDayWeek` | `4.3` | `rulerTierPxPerDayMonth` | `rulerTierPxPerDayDay` | 目盛が「年 ＋ 月」から「年 ＋ 月 ＋ 週」に変わる px/day。前後のしきい値の間 |
 | S-85 | `rulerTierPxPerDayDay` | `30` | `rulerTierPxPerDayWeek` | 60 | 目盛が「年 ＋ 月 ＋ 週」から「年 ＋ 月 ＋ 日 ＋ 曜日」に変わる px/day。前のしきい値を下回らない |
-| S-86 | `taskLevelOfDetailReadablePx` | `24` | `fontMin` | 200 | この幅を割った深さのタスクを描かない（WBS の深さ）。文字が 1 つも入らない幅にしない |
+| S-86 | `taskLevelOfDetailReadablePx` | `24` | `fontMin` | 200 | 形状の幅がこれを割る `Task` を描かない。文字が 1 つも入らない幅にしない |
 | S-87 | `groupLevelOfDetailBase` | `0.32` | 0.01 | 2 | グループ LOD の初項。`threshold(d) = base × ratio^(d − 2)` |
 | S-88 | `groupLevelOfDetailRatio` | `1.875` | 1 + ε | 4 | 同上の公比。**1 以下だと深いほど出やすくなり単調性が壊れる** |
 | S-89 | `stackSafetyCap` | `255` | — | — | **1 つの `TaskGroup` あたりの段数の安全弁**（**測って決めた値ではない**）。**数え方と、到達したときの挙動は `FR-003` の `ST-7` が持つ。** これだけの本数が 1 つの行で同時に重なるのは実務では起きないので、届いたときは入力か操作の異常である |
