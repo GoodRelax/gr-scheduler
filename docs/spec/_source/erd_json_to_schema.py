@@ -6,7 +6,11 @@
   documentSettings    docs/spec/_assets/tbl-settings.md     (read in its present
                       table form, as Chapter 6.2 requires)
 
-Output: docs/spec/_assets/grs-document.schema.json -- a generated artifact.
+Output: docs/spec/_source/grs-document.schema.json -- a generated artifact.
+It sits beside the manuscripts because it belongs to no language: the ja/en
+split divides _assets/, and this schema is the ONE format contract of
+FR-024, read by machines and exchange partners rather than looked up by a
+person (CR-175).
 Never edit it by hand; run this instead.
 
   python erd_json_to_schema.py            write the schema
@@ -31,9 +35,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 ERD = os.path.join(HERE, 'erd.json')
 SETTINGS = os.path.join(ASSETS, 'tbl-settings.md')
-OUT = os.path.join(ASSETS, 'grs-document.schema.json')
+OUT = os.path.join(HERE, 'grs-document.schema.json')
 
-SCHEMA_ID = ('https://github.com/GoodRelax/gr-scheduler/docs/spec/_assets/'
+SCHEMA_ID = ('https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/'
              'grs-document.schema.json')
 
 # Which group each settings table belongs to, and the marker in the document

@@ -1,6 +1,6 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_assets/grs-document.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/grs-document.schema.json",
  "title": "GRS JSON document",
  "description": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md (the presentation group). Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py.",
  "type": "object",

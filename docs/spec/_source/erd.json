@@ -1,10 +1,11 @@
 {
  "$schema": "./erd.schema.json",
  "$comment": [
-  "Single source for figure F-011 and tables T-056 through T-059.",
-  "Built into the specification by docs/spec/_source/build-erd.py -- never edit the generated .md.",
-  "Array order is load bearing: AT-, ET-, RL- and DV- numbers are positions in these arrays, so a new record goes at the END.",
-  "key is one of \"\", \"PK\", \"FK\", \"PK/FK\". origin is one of Own, Consume, GRS, Carry."
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "The schedule group of a GRS JSON document: its entities, columns, relations and the machine-readable type of every column (the \"json\" key).",
+  "Generated FROM this file: _assets/fig-erd-detail.md and _assets/fig-erd-overview.md (erd_json_to_md.py), _source/grs-document.schema.json (erd_json_to_schema.py), and the entity types in src/entity/document-model (tools/generate_entity_types.py).",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by _source/erd.schema.json before a byte is written."
  ],
  "documents": [
   {

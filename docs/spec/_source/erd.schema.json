@@ -1,6 +1,10 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/erd.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/erd.json, which is the single source of truth. It is not generated from anything and nothing is generated from it: it exists so that a manuscript missing a bound, a type or a language is refused instead of quietly producing a wrong artifact."
+ ],
  "title": "gr-scheduler data model source",
  "description": "The single source for the data-model figure and its explanation tables. A generator turns this into a StrictDoc markdown document; the prose that explains the tables lives in the specification body, never here.",
  "type": "object",

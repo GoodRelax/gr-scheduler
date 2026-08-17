@@ -31,7 +31,7 @@ places every entity exactly once, so an entity added to `erd.json` cannot slip
 past the figure the way it did while that figure was hand written.
 
 **Check 17 guards the other generated artifact.**
-`docs/spec/_assets/grs-document.schema.json` is the `GRS JSON` schema, written
+`docs/spec/_source/grs-document.schema.json` is the `GRS JSON` schema, written
 by `docs/spec/_source/erd_json_to_schema.py` from the two sources
 Chapter 6.2 names: `erd.json` (the `json` key of every column) and
 `tbl-settings.md` (read in its present table form). It fires in both

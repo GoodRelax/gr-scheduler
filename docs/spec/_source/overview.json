@@ -1,4 +1,9 @@
 {
+ "$comment": [
+  "GENERATED -- do not edit by hand. Your change is overwritten by the next rebuild.",
+  "Written by docs/spec/_source/build.py from docs/spec/_source/components.json, the single source of truth.",
+  "Rebuild: python docs/spec/_source/build.py"
+ ],
  "title": "gr-scheduler components by layer",
  "options": {
   "engine": "cluster-dot",

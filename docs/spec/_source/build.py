@@ -63,6 +63,30 @@ BANNER = (
     " Rebuild: python docs/spec/_source/build.py -->\n")
 
 
+DRAWIO_MARK = (
+    "<!-- GENERATED -- do not edit by hand. Your change is overwritten by"
+    " the next rebuild. Written by docs/spec/_source/build.py from"
+    " docs/spec/_source/components.json, the single source of truth."
+    " Rebuild: python docs/spec/_source/build.py -->")
+
+
+def stamp_drawio(path):
+    """Put the back-pointer inside a generated .drawio.
+
+    ⚠️ It goes just after <root>, NOT before <mxGraphModel>. Measured with the
+    draw.io CLI: a comment in the XML prolog makes the export fail outright,
+    while one inside <root> exports a byte-for-byte identical .svg. A generated
+    file that does not say so gets edited by hand, and this is the only place
+    in the file where saying so is possible.
+    """
+    with open(path, encoding="utf-8") as handle:
+        body = handle.read()
+    if DRAWIO_MARK in body or "<root>" not in body:
+        return
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(body.replace("<root>", "<root>" + DRAWIO_MARK, 1))
+
+
 def stamp(path):
     """Put the back-pointer at the top of a generated document."""
     with open(path, encoding="utf-8") as handle:
@@ -266,6 +290,7 @@ def draw(model_path, out_stem, view=None):
         argv += ["--view", view]
     print("    " + run(argv))
     place_labels(out_stem + ".drawio")
+    stamp_drawio(out_stem + ".drawio")
     if os.path.exists(DRAWIO):
         stem = os.path.basename(out_stem)
         # Only the .svg is produced. To eyeball a figure as a raster, run the

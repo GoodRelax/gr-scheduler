@@ -23,7 +23,7 @@ export {}
 // Single source of truth:
 //   docs/spec/_source/settings.json
 //   docs/spec/_source/erd.json
-//   docs/spec/_assets/grs-document.schema.json (itself generated from the two above)
+//   docs/spec/_source/grs-document.schema.json (itself generated from the two above)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 /** The presentation group. DR-3 of table T-052; FR-063 says what is in it. */
 export interface DocumentSettings {

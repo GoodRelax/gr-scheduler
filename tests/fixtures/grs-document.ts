@@ -17,7 +17,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Ajv2020, type ErrorObject } from 'ajv/dist/2020.js'
 
-const SCHEMA_PATH = join(process.cwd(), 'docs', 'spec', '_assets', 'grs-document.schema.json')
+const SCHEMA_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json')
 
 /** The `GRS JSON` schema, as generated from its two sources. */
 export const documentSchema: unknown = JSON.parse(readFileSync(SCHEMA_PATH, 'utf8'))

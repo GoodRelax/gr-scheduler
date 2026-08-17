@@ -30,7 +30,7 @@ ARTIFACTS = [
     ('docs/spec/_assets/tbl-settings.md', 'settings.json'),
     ('docs/spec/_assets/fig-erd-detail.md', 'erd.json'),
     ('docs/spec/_assets/fig-erd-overview.md', 'erd.json'),
-    ('docs/spec/_assets/grs-document.schema.json', 'erd.json'),
+    ('docs/spec/_source/grs-document.schema.json', 'erd.json'),
     ('docs/review/components/components.md', 'components.json'),
     ('src/entity/document-model/schedule/schedule.ts', 'erd.json'),
     ('src/entity/document-model/document-stamp/document-stamp.ts', 'erd.json'),
@@ -48,8 +48,42 @@ NO_HAND = ('手で直さない', 'do not edit by hand', 'Do not edit by hand',
 REBUILD = ('npm run gen', 'build.py')
 
 
-def main():
+# Every file of docs/spec/_source/ has to say which of the two it is. The
+# folder holds BOTH -- erd.json is edited by hand, overview.json and the
+# .drawio are written by build.py -- so the folder name cannot answer the
+# question and the file has to. ⚠️ A README cannot: whoever opens a file from
+# a search result never sees it.
+SOURCE_DIR = 'docs/spec/_source'
+MANUSCRIPT = ('SINGLE SOURCE OF TRUTH', 'EDIT THIS', 'single source of truth')
+DERIVED = ('GENERATED --', 'do not edit by hand', 'Never edit by hand',
+           'Do not edit by hand')
+
+
+def source_folder_problems():
+    """docs/spec/_source holds manuscripts AND generated files. Each says which."""
     problems = []
+    root = os.path.join(ROOT, *SOURCE_DIR.split('/'))
+    for name in sorted(os.listdir(root)):
+        path = os.path.join(root, name)
+        if os.path.isdir(path) or name.startswith('.'):
+            continue
+        head = io.open(path, encoding='utf-8', errors='replace').read(HEAD_CHARS)
+        if name.endswith('.py'):
+            # A generator is neither. Its docstring must name what it writes.
+            if 'docs/spec/' not in head:
+                problems.append('%s/%s: a generator that does not name what it '
+                                'writes' % (SOURCE_DIR, name))
+            continue
+        if not (any(w in head for w in MANUSCRIPT)
+                or any(w in head for w in DERIVED)):
+            problems.append('%s/%s: says neither that it is a single source of '
+                            'truth nor that it is generated'
+                            % (SOURCE_DIR, name))
+    return problems
+
+
+def main():
+    problems = source_folder_problems()
     for rel, manuscript in ARTIFACTS:
         path = os.path.join(ROOT, rel)
         if not os.path.exists(path):
@@ -69,11 +103,12 @@ def main():
     for p in problems:
         sys.stdout.write('  %s\n' % p)
     if problems:
-        sys.stdout.write('FAIL     %d generated artifact(s) cannot be traced '
-                         'back to a manuscript\n' % len(problems))
+        sys.stdout.write('FAIL     %d file(s) leave a reader unable to tell '
+                         'a manuscript from an artifact\n' % len(problems))
         return 1
-    sys.stdout.write('OK       all %d generated artifacts name their '
-                     'manuscript and how to rebuild\n' % len(ARTIFACTS))
+    sys.stdout.write('OK       %d generated artifacts name their manuscript and '
+                     'how to rebuild; every file of %s says which it is\n'
+                     % (len(ARTIFACTS), SOURCE_DIR))
     return 0
 
 

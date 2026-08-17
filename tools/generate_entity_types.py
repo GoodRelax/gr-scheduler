@@ -35,7 +35,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ERD = os.path.join(ROOT, 'docs', 'spec', '_source', 'erd.json')
-SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_assets', 'grs-document.schema.json')
+SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json')
 SETTINGS = os.path.join(ROOT, 'docs', 'spec', '_source', 'settings.json')
 MODEL = os.path.join(ROOT, 'src', 'entity', 'document-model')
 
@@ -387,7 +387,7 @@ TARGETS = [
     (os.path.join(MODEL, 'document-settings', 'document-settings.ts'), settings_block,
      ['docs/spec/_source/settings.json',
       'docs/spec/_source/erd.json',
-      'docs/spec/_assets/grs-document.schema.json (itself generated from the two above)']),
+      'docs/spec/_source/grs-document.schema.json (itself generated from the two above)']),
 ]
 
 

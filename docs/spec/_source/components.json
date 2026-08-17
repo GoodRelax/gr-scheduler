@@ -1,4 +1,10 @@
 {
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- edit this file.",
+  "The nodes, edges and layer tree of the component figures and of docs/review/components/components.md.",
+  "Generated FROM this file by docs/spec/_source/build.py: overview.json, fig-components.drawio, view-*.drawio, the .svg beside the specification, and docs/review/components/components.md.",
+  "Rebuild: python docs/spec/_source/build.py  (needs the draw.io CLI)."
+ ],
  "title": "gr-scheduler components",
  "options": {
   "engine": "cluster-dot",
