@@ -27,7 +27,7 @@
 //      版数を上げないので `WS-6` を通らない）」. That is why table T-078 needed
 //      FT-5 at all: the frame that shows the utterance cannot be raised by FT-2
 //      (the WS-6 swap), because there is no WS-6 swap.
-//   4. The component graph agrees: `_assets/source/components.json` gives this
+//   4. The component graph agrees: `_source/components.json` gives this
 //      component two outgoing edges, to `DialogueLog` and to
 //      `NotifyChangeWatchers`, and none to `ApplyDocumentChange`.
 //

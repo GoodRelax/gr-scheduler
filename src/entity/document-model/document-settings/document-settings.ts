@@ -19,7 +19,12 @@
 
 export {}
 
-// <generated from docs/spec/_assets/source/erd.json -- do not edit by hand>
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json
+//   docs/spec/_source/erd.json
+//   docs/spec/_assets/grs-document.schema.json (itself generated from the two above)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 /** The presentation group. DR-3 of table T-052; FR-063 says what is in it. */
 export interface DocumentSettings {
   readonly actualGap: number
@@ -42,13 +47,7 @@ export interface DocumentSettings {
   readonly dependencyRunOfArrow: number
   readonly dependencyVisible: boolean
   readonly dependencyWidth: number
-  readonly dualCursor:
-{
-    /** the source does not say what this holds */
-    readonly date1: unknown
-    /** the source does not say what this holds */
-    readonly date2: unknown
-  } | null
+  readonly dualCursor: object | null
   readonly dummyOpacity: number
   readonly exportCanvas: {
     readonly width: number
@@ -90,8 +89,10 @@ export interface DocumentSettings {
   readonly pinnedGroupIds: readonly string[]
   readonly pinnedRowMax: number
   readonly planActualDisplay: 'both' | 'plan-only' | 'actual-only'
-  /** the source does not say what this holds */
-  readonly planActualGuidePattern: unknown
+  readonly planActualGuidePattern: {
+    readonly off: number
+    readonly on: number
+  }
   readonly planActualGuideWeight: number
   readonly planStroke: number
   readonly progressLineOverhang: number
@@ -139,6 +140,125 @@ export interface DocumentSettings {
   readonly truncateUnits: number
   readonly zoomX: number
   readonly zoomY: number
+}
+
+/**
+ * The default settings.json states for each key.
+ *
+ * ⭐ Before CR-175 nothing generated these. SETTINGS_BOUNDS carried a
+ * key's range but never its value, so every caller that wanted a default
+ * typed the number again -- and when CR-174 moved `minShapeWidth` from 2
+ * to 6 not one check, type or test noticed.
+ */
+export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
+  'actualGap': 2,
+  'actualInitialDuration': 1,
+  'actualMin': 16,
+  'actualOfPlan': 0.73,
+  'appHeaderMaxHeight': 56,
+  'arrowHeadOfSpan': 0.4,
+  'arrowHeadOfStroke': 3.2,
+  'assigneeVisible': false,
+  'autosaveIdleMs': 3000,
+  'basePlanHeight': 28,
+  'baselineVisible': false,
+  'canvasPadding': 10,
+  'chevronNotchOfHeight': 0.45,
+  'chevronNotchOfWidth': 0.35,
+  'dateGridLinesVisible': false,
+  'dependencyArrowLength': 10,
+  'dependencyLagDefault': 0,
+  'dependencyRunOfArrow': 2,
+  'dependencyVisible': true,
+  'dependencyWidth': 1.5,
+  'dummyOpacity': 0.20,
+  'exportPngScale': 1,
+  'fadeHandleHalfPx': 4.5,
+  'fadeHandleStrokePx': 1.5,
+  'fontMin': 12,
+  'fontOfActual': 0.80,
+  'fontScale': 'M',
+  'fontScaleSizes.L': 16,
+  'fontScaleSizes.M': 14,
+  'fontScaleSizes.S': 12,
+  'groupGridLinesVisible': true,
+  'groupLevelOfDetailBase': 0.32,
+  'groupLevelOfDetailRatio': 1.875,
+  'guideCursorMode': 'none',
+  'iconHintDelayMs': 3000,
+  'importMaxBytes': 32,
+  'importMaxDepth': 64,
+  'importMaxItems': 20000,
+  'labelBaseline': 0.35,
+  'labelCoef': 0.5,
+  'labelGap': 8,
+  'labelHaloOfFont': 0.17,
+  'labelPad': 6,
+  'markerGap': 4,
+  'markerSize': 16,
+  'markerStroke': 1.3,
+  'maxGroupDepth': 5,
+  'milestoneActualDuration': 0,
+  'minShapeWidth': 6,
+  'percentCompleteVisible': false,
+  'pinnedRowMax': 5,
+  'planActualDisplay': 'both',
+  'planActualGuideWeight': 1,
+  'planStroke': 1,
+  'progressLineOverhang': 6,
+  'progressLineVisible': false,
+  'progressLineWidth': 2,
+  'progressMarkerVisible': true,
+  'propertyPanelWidth': 280,
+  'pxPerDayAt1x': 6,
+  'resumeArmOfMarker': 0.62,
+  'resumeDashOff': 2,
+  'resumeDashOn': 3,
+  'resumeHeadOfMarker': 0.22,
+  'resumeScaleInvalid': 0.7,
+  'rowGap': 8,
+  'rowTitleFont': 13,
+  'rowTitleIndent': 12,
+  'rowTitlePanelWidth': 170,
+  'rowTitleTopScale': 1.3,
+  'rulerTierPxPerDayDay': 30,
+  'rulerTierPxPerDayMonth': 1.4,
+  'rulerTierPxPerDayWeek': 4.3,
+  'scrollDate': null,
+  'scrollGroupId': null,
+  'shapeHeightOf.arrow': 0.5,
+  'shapeHeightOf.chevron': 1.0,
+  'shapeHeightOf.endpointSpan': 0.5,
+  'shapeHeightOf.milestone': 1.5,
+  'shapeHeightOf.rectangle': 1.0,
+  'spanDotOfStroke': 1.15,
+  'stackDirection': 'up',
+  'stackGap': 12,
+  'stackSafetyCap': 255,
+  'starInnerOfOuter': 0.45,
+  'taskLevelOfDetailReadablePx': 24,
+  'themeMonochrome': false,
+  'themePreference': 'light',
+  'thinFontScale': 0.85,
+  'thinStrokeMax': 4,
+  'thinStrokeMin': 1.2,
+  'thinStrokeOfPlan': 0.20,
+  'truncateUnits': 24,
+  'zoomX': 1,
+  'zoomY': 1,
+  // ⛔ Not stated as a machine value by settings.json,
+  // so not generated rather than guessed:
+  //   dualCursor.date1
+  //   dualCursor.date2
+  //   exportCanvas.height
+  //   exportCanvas.width
+  //   importMaxDate
+  //   importMinDate
+  //   pinnedGroupIds
+  //   planActualGuidePattern.off
+  //   planActualGuidePattern.on
+  //   rulerFont
+  //   rulerHeight
 }
 
 /**
@@ -220,6 +340,8 @@ export const SETTINGS_BOUNDS: Readonly<
   'truncateUnits': { min: 4, max: 120 },
 }
 // </generated>
+
+
 
 /** One value that had to be moved to get inside the bounds. */
 export interface ClampedValue {

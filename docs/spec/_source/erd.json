@@ -2,7 +2,7 @@
  "$schema": "./erd.schema.json",
  "$comment": [
   "Single source for figure F-011 and tables T-056 through T-059.",
-  "Built into the specification by docs/spec/_assets/source/build-erd.py -- never edit the generated .md.",
+  "Built into the specification by docs/spec/_source/build-erd.py -- never edit the generated .md.",
   "Array order is load bearing: AT-, ET-, RL- and DV- numbers are positions in these arrays, so a new record goes at the END.",
   "key is one of \"\", \"PK\", \"FK\", \"PK/FK\". origin is one of Own, Consume, GRS, Carry."
  ],
@@ -390,6 +390,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -416,6 +417,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -429,6 +431,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -442,6 +445,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -656,6 +660,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -669,6 +674,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -695,6 +701,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -734,6 +741,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -760,6 +768,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -773,6 +782,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -1419,6 +1429,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -1432,6 +1443,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -1728,7 +1740,11 @@
      "nullable": "可",
      "json": {
       "kind": "enum",
-      "values": ["left", "center", "right"],
+      "values": [
+       "left",
+       "center",
+       "right"
+      ],
       "null": true
      },
      "key": "",
@@ -1762,7 +1778,16 @@
      "nullable": "可",
      "json": {
       "kind": "enum",
-      "values": ["circle", "hexagon", "pentagon", "diamond", "square", "star", "triangleUp", "triangleDown"],
+      "values": [
+       "circle",
+       "hexagon",
+       "pentagon",
+       "diamond",
+       "square",
+       "star",
+       "triangleUp",
+       "triangleDown"
+      ],
       "null": true
      },
      "key": "",
@@ -1802,7 +1827,11 @@
      "nullable": "可",
      "json": {
       "kind": "enum",
-      "values": ["thin", "medium", "thick"],
+      "values": [
+       "thin",
+       "medium",
+       "thick"
+      ],
       "null": true
      },
      "key": "",
@@ -1911,7 +1940,10 @@
      "nullable": "可",
      "json": {
       "kind": "enum",
-      "values": ["calloutBox", "polyline"],
+      "values": [
+       "calloutBox",
+       "polyline"
+      ],
       "null": true
      },
      "key": "",
@@ -1938,6 +1970,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -2008,6 +2041,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -2021,6 +2055,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -2300,6 +2335,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
@@ -2313,6 +2349,7 @@
      "nullable": "可",
      "json": {
       "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",

@@ -6,7 +6,10 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   dateAtX,
@@ -33,18 +36,18 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 
-// A whole DocumentSettings is 97 keys; regionsFromScreen reads five of them, so
-// the cases below carry only those. Same idiom as document-model.test.ts.
+// A whole DocumentSettings is 97 keys. A case states the ones it deliberately
+// pins -- values chosen to make the sums easy to check -- and every other key
+// comes from SETTINGS_DEFAULTS, which is generated from the manuscript
+// (CR-175). ⚠️ Before that a case re-typed the specification's own defaults,
+// so moving `minShapeWidth` from 2 to 6 changed nothing here and 671 tests
+// stayed green while the fixture quietly disagreed with the specification.
 const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
-  part as unknown as DocumentSettings
+  ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
 
 /** The five keys regionsFromScreen reads, at values that make the sums easy to check. */
 const SETTINGS = settingsOf({
-  appHeaderMaxHeight: 56, // S-116
-  rowTitlePanelWidth: 170, // S-79
-  propertyPanelWidth: 280, // S-80
   rulerHeight: 48, // S-2
-  canvasPadding: 10, // S-56
 })
 
 const ENV: ScreenEnvironment = {
@@ -146,40 +149,9 @@ describe('ScreenRegions (PI-35)', () => {
 
 /** The keys layoutFromSchedule reads, at their table T-201 / T-205 values. */
 const LAYOUT_SETTINGS = settingsOf({
-  appHeaderMaxHeight: 56,
-  rowTitlePanelWidth: 170,
-  propertyPanelWidth: 280,
   rulerHeight: 48,
-  canvasPadding: 10,
-  pxPerDayAt1x: 6, // S-1
-  zoomX: 1,
-  zoomY: 1, // S-75 / S-76
   scrollDate: '2026-01-01', // S-77
-  maxGroupDepth: 5, // S-125
-  groupLevelOfDetailBase: 0.32, // S-87
-  groupLevelOfDetailRatio: 1.875, // S-88
-  taskLevelOfDetailReadablePx: 24, // S-86
-  rulerTierPxPerDayMonth: 1.4, // S-83
-  rulerTierPxPerDayWeek: 4.3, // S-84
-  rulerTierPxPerDayDay: 30, // S-85
   rulerFont: 12, // S-3
-  fontMin: 12, // S-8
-  fontOfActual: 0.8, // S-7
-  truncateUnits: 24, // S-35
-  labelCoef: 0.5, // S-30
-  labelGap: 8, // S-32
-  basePlanHeight: 28, // S-4
-  actualMin: 16, // S-6
-  actualOfPlan: 0.73, // S-5
-  actualGap: 2, // S-10
-  // ⚠️ Re-typed from S-49, which CR-174 moved from 2 to 6. Nothing caught the
-  // drift: SETTINGS_BOUNDS generates each key's min and max but NOT its
-  // default, so no generated carrier holds this number. That gap is CR-175's.
-  minShapeWidth: 6, // S-49
-  thinFontScale: 0.85, // S-9
-  stackGap: 12, // S-11
-  rowGap: 8, // S-12
-  stackSafetyCap: 255, // S-89
   // ⚠️ S-58 defaults to 'up'; these cases pin 'down' so every y below reads
   // from the top of the band. The 'up' half of ST-5 has its own cases.
   stackDirection: 'down', // S-58
@@ -586,28 +558,7 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
 /** LAYOUT_SETTINGS plus every key LC-10 and LC-11 read, at their table T-201 values. */
 const GEOM_SETTINGS = settingsOf({
   ...(LAYOUT_SETTINGS as unknown as Record<string, unknown>),
-  planActualDisplay: 'both', // S-59
-  dependencyVisible: true, // S-62
-  progressMarkerVisible: true, // S-63
   progressLineVisible: true, // S-64
-  dependencyArrowLength: 10, // S-19
-  dependencyRunOfArrow: 2, // S-20
-  markerSize: 16, // S-22
-  markerGap: 4, // S-23
-  resumeScaleInvalid: 0.7, // S-25
-  resumeArmOfMarker: 0.62, // S-26
-  resumeHeadOfMarker: 0.22, // S-27
-  chevronNotchOfHeight: 0.45, // S-43
-  chevronNotchOfWidth: 0.35, // S-44
-  arrowHeadOfStroke: 3.2, // S-45
-  arrowHeadOfSpan: 0.4, // S-46
-  spanDotOfStroke: 1.15, // S-47
-  thinStrokeOfPlan: 0.2, // S-40
-  thinStrokeMin: 1.2, // S-41
-  thinStrokeMax: 4, // S-42
-  labelPad: 6, // S-31
-  progressLineOverhang: 6, // S-51
-  actualInitialDuration: 1, // S-129
 })
 
 const geometryOf = (

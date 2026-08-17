@@ -1,0 +1,3090 @@
+{
+ "$schema": "./settings.schema.json",
+ "$comment": "The settings manuscript (Chapter 6.2). Generated from this file: docs/spec/_assets/tbl-settings.md. Never edit that document by hand -- edit this one and run npm run gen.",
+ "blocks": [
+  {
+   "kind": "prose",
+   "lines": [
+    "# 設定値 — 既定値と範囲の全数",
+    "",
+    "**UID**: DOC-TBL-SETTINGS",
+    "**Version**: 0.1",
+    "",
+    "> ⛔ **本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。**",
+    "> **設定値の唯一の正は `_source/settings.json` である。** 本書はそれを `_source/settings_json_to_md.py` が印字したものである。",
+    "> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`（検査 16 が呼ぶ）。",
+    "",
+    "**設定値の正は `_source/settings.json` が持つ。** 名前の正は `tbl-glossary.md` の表 T-104 が持ち、**本書は値**（既定値・下限・上限・範囲の理由）を印字する。**名前と値を 2 か所で管理しない。**",
+    "",
+    "由来は前プロジェクトの設定値確定版（`previous-project-result/02-data-model/grs-document-settings-ja.md`）である。",
+    "",
+    "## 1. 保存するかどうかの判定",
+    "",
+    "**Type**: SECTION",
+    "",
+    "**判定は 2 段である。**",
+    "",
+    "> **第 1 段 —— その値を変えると、画面または出力の絵が変わるか。**",
+    "> **第 2 段 —— その値は文書の内容か、読む人の環境か。**",
+    ">",
+    "> ⚠️ **第 3 の枠がある** —— 保存値を**初期値**として持ち、読む人の指定が上書きするもの（`fontScale` / `themePreference`。規則は `FR-039`）。",
+    "",
+    "第 1 段で絵が変わり、**かつ**第 2 段で文書の内容であるものだけを文書が持つ（`documentSettings`）。第 1 段で変わらないものは持たない。**絵が変わっても読む人の環境に属するものは持たない。その全数と、環境に属すると判断した理由は表 T-206 が持つ。**",
+    "",
+    "**同じ JSON からは同じ絵が出る**ことが第 1 段の目的である。⚠️ **第 2 段で外したものは、この保証の対象に入らない。**",
+    "",
+    "**書き出しの規則と理由は `FR-024` が持つ**（常に全項目を書き出す）。",
+    "",
+    "## 2. 由来の無い既定値",
+    "",
+    "**Type**: SECTION",
+    "",
+    "**🔎 を付けた既定値は、由来が記録されていない。** 測って決めた値ではなく、実装時に置いて動いたのでそのまま残った値である。**本プロジェクトで選び直してよい。むしろ選び直すべきである。**",
+    "",
+    "印が要る理由は、全項目を書き出す方針の帰結である。凍結する以上、由来の無い値も永久に残る。どれが測った値でどれが置いただけの値かを区別できないと、次の担当者は全部を等しく尊重してしまい、直す機会を永久に失う。",
+    "",
+    "**「範囲の理由」列は範囲（下限・上限）の根拠であって、既定値の根拠ではない。両者は別である。**",
+    "",
+    "**⛔ は文書に保存しない**（表 T-206）。",
+    "",
+    "**根は 4 つである**（`basePlanHeight` / `actualMin` / `fontMin` / `pxPerDayAt1x`）。残りはそこから落ちてくる。**進捗マーカーの径（`S-22`）だけは鎖の外の固定値である** —— 規則と理由は `FR-094` が持つ。",
+    "",
+    "## 3. 描画の設定",
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-201",
+   "caption": {
+    "ja": "描画の設定"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "group",
+     "ja": "群"
+    },
+    {
+     "field": "key",
+     "ja": "キー"
+    },
+    {
+     "field": "unit",
+     "ja": "単位"
+    },
+    {
+     "field": "default",
+     "ja": "既定値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "範囲の理由"
+    }
+   ],
+   "separator": "| --- | --- | --- | :--: | --: | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-1",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "key": "`pxPerDayAt1x`",
+     "unit": "px",
+     "default": {
+      "num": "6",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.5"
+     },
+     "max": {
+      "num": "60"
+     },
+     "note": {
+      "ja": "基準の環境で 1 年がおよそ 2200px になる値だが、そう選んだ記録は無い"
+     }
+    },
+    {
+     "id": "S-2",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "key": "`rulerHeight`",
+     "unit": "px",
+     "default": {
+      "ja": "`rulerFont` × 3 + 6（S = 42 / M = 48 / L = 54）🔎"
+     },
+     "min": "`rulerFont` × 3 + 6",
+     "max": {
+      "num": "150"
+     },
+     "note": {
+      "ja": "段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）。3 段ぶんの文字と余白が入る高さ。追随の規則と、キーを独立に保つことは `FR-039` が持つ"
+     }
+    },
+    {
+     "id": "S-3",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "key": "`rulerFont`",
+     "unit": "px",
+     "default": {
+      "ja": "`fontScaleSizes[fontScale]`（S = 12 / M = 14 / L = 16）🔎"
+     },
+     "min": "`fontMin`",
+     "max": "(`rulerHeight` − 6) ÷ 3",
+     "note": {
+      "ja": "和文の可読下限を割らない。帯の 3 段に収まる。**`fontScale`（表 T-215）に追随する。追随の規則と、キーを独立に保つことは `FR-039` が持つ**"
+     }
+    },
+    {
+     "id": "S-4",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`basePlanHeight`",
+     "unit": "px",
+     "default": {
+      "num": "28"
+     },
+     "min": "`actualMin` ÷ `actualOfPlan`",
+     "max": {
+      "num": "200"
+     },
+     "note": {
+      "ja": "等倍がこの値だと縦に縮める余地が無くなる"
+     }
+    },
+    {
+     "id": "S-5",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`actualOfPlan`",
+     "unit": "—",
+     "default": {
+      "num": "0.73",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.05"
+     },
+     "max": "1 − ε",
+     "note": {
+      "ja": "実績 < 予定。**由来は寸法統合前の 1 ページが描いていた 22 : 16 であり、設計上の導出ではない**（下記）"
+     }
+    },
+    {
+     "id": "S-6",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`actualMin`",
+     "unit": "px",
+     "default": {
+      "num": "16"
+     },
+     "min": "`fontMin` ÷ `fontOfActual`",
+     "max": {
+      "num": "80"
+     },
+     "note": {
+      "ja": "これを割ると文字が下限に張り付く"
+     }
+    },
+    {
+     "id": "S-7",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`fontOfActual`",
+     "unit": "—",
+     "default": {
+      "num": "0.80"
+     },
+     "min": {
+      "num": "0.05"
+     },
+     "max": "1 − ε",
+     "note": {
+      "ja": "フォント < 実績"
+     }
+    },
+    {
+     "id": "S-8",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`fontMin`",
+     "unit": "px",
+     "default": {
+      "num": "12"
+     },
+     "min": {
+      "num": "12"
+     },
+     "max": {
+      "num": "40"
+     },
+     "note": {
+      "ja": "和文がこれを割ると読めない"
+     }
+    },
+    {
+     "id": "S-9",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`thinFontScale`",
+     "unit": "—",
+     "default": {
+      "num": "0.85",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.3"
+     },
+     "max": {
+      "num": "1"
+     },
+     "note": {
+      "ja": "**この倍率を掛けた後も可読の下限（`S-8`）を割らないこと。** 割るときの扱いは `FR-077` が持つ（倍率ではなく行の量を減らす）"
+     }
+    },
+    {
+     "id": "S-10",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`actualGap`",
+     "unit": "px",
+     "default": {
+      "num": "2",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "20"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-11",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`stackGap`",
+     "unit": "px",
+     "default": {
+      "num": "12"
+     },
+     "min": "`dependencyWidth` × 2",
+     "max": {
+      "num": "60"
+     },
+     "note": {
+      "ja": "依存線が 1 本通る幅"
+     }
+    },
+    {
+     "id": "S-12",
+     "group": {
+      "ja": "縦の寸法"
+     },
+     "key": "`rowGap`",
+     "unit": "px",
+     "default": {
+      "num": "8",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "60"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-13",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "key": "`shapeHeightOf.rectangle`",
+     "unit": "×",
+     "default": {
+      "num": "1.0"
+     },
+     "min": {
+      "num": "1"
+     },
+     "max": {
+      "num": "1"
+     },
+     "note": {
+      "ja": "基準なので 1 固定"
+     }
+    },
+    {
+     "id": "S-14",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "key": "`shapeHeightOf.chevron`",
+     "unit": "×",
+     "default": {
+      "num": "1.0",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.2"
+     },
+     "max": {
+      "num": "3"
+     },
+     "note": {
+      "ja": "矩形と同じ"
+     }
+    },
+    {
+     "id": "S-15",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "key": "`shapeHeightOf.arrow`",
+     "unit": "×",
+     "default": {
+      "num": "0.5"
+     },
+     "min": {
+      "num": "0.1"
+     },
+     "max": "1 − ε",
+     "note": {
+      "ja": "細線は矩形より薄い（それが取り柄）"
+     }
+    },
+    {
+     "id": "S-16",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "key": "`shapeHeightOf.endpointSpan`",
+     "unit": "×",
+     "default": {
+      "num": "0.5"
+     },
+     "min": {
+      "num": "0.1"
+     },
+     "max": "1 − ε",
+     "note": {
+      "ja": "同上"
+     }
+    },
+    {
+     "id": "S-17",
+     "group": {
+      "ja": "形状の縦幅"
+     },
+     "key": "`shapeHeightOf.milestone`",
+     "unit": "×",
+     "default": {
+      "num": "1.5"
+     },
+     "min": "1 + ε",
+     "max": {
+      "num": "4"
+     },
+     "note": {
+      "ja": "目立たせるので矩形より大きい"
+     }
+    },
+    {
+     "id": "S-18",
+     "group": {
+      "ja": "依存線"
+     },
+     "key": "`dependencyWidth`",
+     "unit": "px",
+     "default": {
+      "num": "1.5"
+     },
+     "min": {
+      "num": "0.5"
+     },
+     "max": "`stackGap` ÷ 2",
+     "note": {
+      "ja": "段の間隔の半分を超えない"
+     }
+    },
+    {
+     "id": "S-19",
+     "group": {
+      "ja": "依存線"
+     },
+     "key": "`dependencyArrowLength`",
+     "unit": "px",
+     "default": {
+      "num": "10",
+      "mark": "🔎"
+     },
+     "min": "`dependencyWidth` × 2",
+     "max": {
+      "num": "40"
+     },
+     "note": {
+      "ja": "線より太くならない長さ。10px の由来は無い"
+     }
+    },
+    {
+     "id": "S-20",
+     "group": {
+      "ja": "依存線"
+     },
+     "key": "`dependencyRunOfArrow`",
+     "unit": "×",
+     "default": {
+      "num": "2"
+     },
+     "min": "1 + ε",
+     "max": {
+      "num": "6"
+     },
+     "note": {
+      "ja": "1 以下だと三角形が入口の走りを食い尽くし、同時に出口の走りが 0 以下になる"
+     }
+    },
+    {
+     "id": "S-22",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "key": "`markerSize`",
+     "unit": "px",
+     "default": {
+      "num": "16"
+     },
+     "min": "`fontMin`",
+     "max": "`actualMin`",
+     "note": {
+      "ja": "固定値。縦の鎖に載らない（規則は `FR-094`）。上限が `actualMin` なのは、実績バーの床と同じ値までなら実績バーより大きくならないためである。下限が `fontMin` なのは、記号がこれを割ると読めないためである"
+     }
+    },
+    {
+     "id": "S-23",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "key": "`markerGap`",
+     "unit": "px",
+     "default": {
+      "num": "4"
+     },
+     "min": {
+      "num": "4"
+     },
+     "max": {
+      "num": "4"
+     },
+     "note": {
+      "ja": "固定。端点の掴み代と重ならない最小距離であり、それ以上離さない"
+     }
+    },
+    {
+     "id": "S-24",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "key": "`markerStroke`",
+     "unit": "px",
+     "default": {
+      "num": "1.3",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.5"
+     },
+     "max": {
+      "num": "4"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-25",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "key": "`resumeScaleInvalid`",
+     "unit": "×",
+     "default": {
+      "num": "0.7",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.3"
+     },
+     "max": {
+      "num": "1"
+     },
+     "note": {
+      "ja": "再開日未定は小さく薄く。0.7 の由来は無い"
+     }
+    },
+    {
+     "id": "S-26",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "key": "`resumeArmOfMarker`",
+     "unit": "—",
+     "default": {
+      "num": "0.62",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.2"
+     },
+     "max": "1 − `resumeHeadOfMarker`",
+     "note": {
+      "ja": "矢じりぶんを残す。0.62 の由来は無い"
+     }
+    },
+    {
+     "id": "S-27",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "key": "`resumeHeadOfMarker`",
+     "unit": "—",
+     "default": {
+      "num": "0.22",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.05"
+     },
+     "max": {
+      "num": "0.5"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-28",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "key": "`resumeDashOn`",
+     "unit": "px",
+     "default": {
+      "num": "3",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1"
+     },
+     "max": {
+      "num": "12"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-29",
+     "group": {
+      "ja": "進捗マーカー"
+     },
+     "key": "`resumeDashOff`",
+     "unit": "px",
+     "default": {
+      "num": "2",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1"
+     },
+     "max": {
+      "num": "12"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-30",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`labelCoef`",
+     "unit": "—",
+     "default": {
+      "num": "0.5",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.3"
+     },
+     "max": {
+      "num": "1"
+     },
+     "note": {
+      "ja": "全角 1 文字 = フォント × 2 × 係数。**実測しない方針なので、この 1 値がレイアウト精度を単独で決める**"
+     }
+    },
+    {
+     "id": "S-31",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`labelPad`",
+     "unit": "px",
+     "default": {
+      "num": "6",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "30"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-32",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`labelGap`",
+     "unit": "px",
+     "default": {
+      "num": "8",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "30"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-33",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`labelBaseline`",
+     "unit": "—",
+     "default": {
+      "num": "0.35",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "0.8"
+     },
+     "note": {
+      "ja": "フォントのベースライン補正。実測の記録が無い"
+     }
+    },
+    {
+     "id": "S-34",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`labelHaloOfFont`",
+     "unit": "—",
+     "default": {
+      "num": "0.17"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "0.3"
+     },
+     "note": {
+      "ja": "0 = 縁取りなし。12px の文字で約 2px。バーの上の文字が色に依存せず読める"
+     }
+    },
+    {
+     "id": "S-35",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`truncateUnits`",
+     "unit": "—",
+     "default": {
+      "num": "24"
+     },
+     "min": {
+      "num": "4"
+     },
+     "max": {
+      "num": "120"
+     },
+     "note": {
+      "ja": "全角 12 文字 = 半角 24"
+     }
+    },
+    {
+     "id": "S-36",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`rowTitleFont`",
+     "unit": "px",
+     "default": {
+      "num": "13",
+      "mark": "🔎"
+     },
+     "min": "`fontMin`",
+     "max": {
+      "num": "40"
+     },
+     "note": {
+      "ja": "和文の可読下限を割らない。13 という値自体の由来は無い"
+     }
+    },
+    {
+     "id": "S-37",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`rowTitleIndent`",
+     "unit": "px",
+     "default": {
+      "num": "12",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "60"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-38",
+     "group": {
+      "ja": "ラベル"
+     },
+     "key": "`rowTitleTopScale`",
+     "unit": "×",
+     "default": {
+      "num": "1.3",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1"
+     },
+     "max": {
+      "num": "2"
+     },
+     "note": {
+      "ja": "深さ 1 は他より小さくしない。1.3 の由来は無い"
+     }
+    },
+    {
+     "id": "S-39",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`planStroke`",
+     "unit": "px",
+     "default": {
+      "num": "1",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "4"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-40",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`thinStrokeOfPlan`",
+     "unit": "—",
+     "default": {
+      "num": "0.20",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.05"
+     },
+     "max": {
+      "num": "0.6"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-41",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`thinStrokeMin`",
+     "unit": "px",
+     "default": {
+      "num": "1.2",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.5"
+     },
+     "max": "`thinStrokeMax`",
+     "note": {
+      "ja": "上限を超えない。1.2 の由来は無い"
+     }
+    },
+    {
+     "id": "S-42",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`thinStrokeMax`",
+     "unit": "px",
+     "default": {
+      "num": "4"
+     },
+     "min": "`thinStrokeMin`",
+     "max": {
+      "num": "20"
+     },
+     "note": {
+      "ja": "下限を下回らない"
+     }
+    },
+    {
+     "id": "S-43",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`chevronNotchOfHeight`",
+     "unit": "—",
+     "default": {
+      "num": "0.45",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.05"
+     },
+     "max": {
+      "num": "1"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-44",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`chevronNotchOfWidth`",
+     "unit": "—",
+     "default": {
+      "num": "0.35",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.05"
+     },
+     "max": {
+      "num": "0.5"
+     },
+     "note": {
+      "ja": "0.5 を超えると先端が反転する。0.35 の由来は無い"
+     }
+    },
+    {
+     "id": "S-45",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`arrowHeadOfStroke`",
+     "unit": "×",
+     "default": {
+      "num": "3.2",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1.5"
+     },
+     "max": {
+      "num": "8"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-46",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`arrowHeadOfSpan`",
+     "unit": "—",
+     "default": {
+      "num": "0.4",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.1"
+     },
+     "max": {
+      "num": "1"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-47",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`spanDotOfStroke`",
+     "unit": "×",
+     "default": {
+      "num": "1.15",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.5"
+     },
+     "max": {
+      "num": "4"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-48",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`starInnerOfOuter`",
+     "unit": "—",
+     "default": {
+      "num": "0.45",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.2"
+     },
+     "max": {
+      "num": "0.8"
+     },
+     "note": {
+      "ja": "この値が ☆ の面積を決め、`milestoneGlyph` の面積順に影響する"
+     }
+    },
+    {
+     "id": "S-49",
+     "group": {
+      "ja": "形状の細部"
+     },
+     "key": "`minShapeWidth`",
+     "unit": "px",
+     "default": {
+      "num": "6",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1"
+     },
+     "max": {
+      "num": "20"
+     },
+     "note": {
+      "ja": "期間がゼロでも残す最小の幅（`FR-001`）。由来は予定の端点の掴み代（`S-90`）—— 掴み代より狭い形状は自分の胴で掴めない。⚠️ **床が `S-86` 以上になると、どの `Task` も LOD で落ちなくなる** —— 床は全 `Task` に掛かるためである"
+     }
+    },
+    {
+     "id": "S-50",
+     "group": {
+      "ja": "イナズマ線"
+     },
+     "key": "`progressLineWidth`",
+     "unit": "px",
+     "default": {
+      "num": "2",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.5"
+     },
+     "max": {
+      "num": "8"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-51",
+     "group": {
+      "ja": "イナズマ線"
+     },
+     "key": "`progressLineOverhang`",
+     "unit": "px",
+     "default": {
+      "num": "6",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "40"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-53",
+     "group": {
+      "ja": "ズーム"
+     },
+     "key": "`zoomStep` ⛔",
+     "unit": "×",
+     "default": {
+      "num": "1.1",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1.01"
+     },
+     "max": {
+      "num": "2"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-54",
+     "group": {
+      "ja": "ズーム"
+     },
+     "key": "`zoomMin` ⛔",
+     "unit": "×",
+     "default": {
+      "num": "0.02",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.001"
+     },
+     "max": "`zoomMax`",
+     "note": {
+      "ja": "上限を超えない。0.02 の由来は無い"
+     }
+    },
+    {
+     "id": "S-55",
+     "group": {
+      "ja": "ズーム"
+     },
+     "key": "`zoomMax` ⛔",
+     "unit": "×",
+     "default": {
+      "num": "64",
+      "mark": "🔎"
+     },
+     "min": "`zoomMin`",
+     "max": {
+      "num": "512"
+     },
+     "note": {
+      "ja": "下限を下回らない。64 の由来は無い"
+     }
+    },
+    {
+     "id": "S-56",
+     "group": {
+      "ja": "ズーム"
+     },
+     "key": "`canvasPadding`",
+     "unit": "px",
+     "default": {
+      "num": "10",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "60"
+     },
+     "note": "—"
+    },
+    {
+     "id": "S-129",
+     "group": {
+      "ja": "予実"
+     },
+     "key": "`actualInitialDuration`",
+     "unit": {
+      "ja": "稼働日"
+     },
+     "default": {
+      "num": "1"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "1"
+     },
+     "note": {
+      "ja": "掴みシロを掴んだときに置く実績期間（`FR-043`）。**1 日で終わる業務も 1 日ぶん入力する**ので 1。0 にすると幅が 0 になる"
+     }
+    },
+    {
+     "id": "S-130",
+     "group": {
+      "ja": "予実"
+     },
+     "key": "`milestoneActualDuration`",
+     "unit": {
+      "ja": "稼働日"
+     },
+     "default": {
+      "num": "0"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "0"
+     },
+     "note": {
+      "ja": "マイルストーンの実績期間（`FR-043`）。**点なので長さを持たない**（表 T-012 の `SH-5`）。表 T-019 の `PA-2` 〜 `PA-5` を満たすための固定値である"
+     }
+    },
+    {
+     "id": "S-131",
+     "group": {
+      "ja": "予実"
+     },
+     "key": "`dummyOpacity`",
+     "unit": "—",
+     "default": {
+      "num": "0.20",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.05"
+     },
+     "max": {
+      "num": "0.5"
+     },
+     "note": {
+      "ja": "実績のダミーと未着手マーカーの濃さ（`FR-043` / `FR-013`）。**狙いも適合範囲の外し方も `S-102` と同じである。**掴める大きさは濃さと別に `S-93` が持つので、薄くしても掴みにくくならない"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "**帯の高さを目盛の段階で動かさない規則は `FR-017` が持つ。** **文字の大きさは段階によらず `rulerFont` とし、段階が変えるのは帯の中の段の組み方だけである** —— 段階で文字が変わると、段階 → 実効フォントサイズ → 判定 → 段階 の循環になる。",
+    "",
+    "> ⚠️ **`actualOfPlan = 0.73` は縦寸法の鎖の最上流にありながら、導出の記録がどこにも無い。**",
+    "> 数値が一致する唯一の記述は「寸法を 1 か所へ統合する前に、ページごとに別々の値を持っていたときの実測 22 : 16」である。**22 も 16 もその時点で根拠を持っていない。**",
+    "> **選び直してよい。** 「実績 < 予定」（＝ 上下に帯が露出して予定を掴める）さえ満たせば、比そのものは設計判断である。",
+    "",
+    "## 4. 表示の切り替えと文書全体の書式",
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-202",
+   "caption": {
+    "ja": "表示の切り替えと書式"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "key",
+     "ja": "キー"
+    },
+    {
+     "field": "type",
+     "ja": "型"
+    },
+    {
+     "field": "default",
+     "ja": "既定"
+    },
+    {
+     "field": "note",
+     "ja": "意味"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-58",
+     "key": "`stackDirection`",
+     "type": "`'up'` / `'down'`",
+     "default": {
+      "lit": "'up'",
+      "code": true
+     },
+     "note": {
+      "ja": "積む向き"
+     }
+    },
+    {
+     "id": "S-59",
+     "key": "`planActualDisplay`",
+     "type": "`'both'` / `'plan-only'` / `'actual-only'`",
+     "default": {
+      "lit": "'both'",
+      "code": true
+     },
+     "note": {
+      "ja": "予実の表示。3 値にした規則と理由は `FR-049`"
+     }
+    },
+    {
+     "id": "S-60",
+     "key": "`assigneeVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "false",
+      "code": true
+     },
+     "note": {
+      "ja": "担当ラベル。既定は隠す（下記）"
+     }
+    },
+    {
+     "id": "S-61",
+     "key": "`percentCompleteVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "false",
+      "code": true
+     },
+     "note": {
+      "ja": "完了率ラベル。既定は隠す（下記）"
+     }
+    },
+    {
+     "id": "S-62",
+     "key": "`dependencyVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "true",
+      "code": true
+     },
+     "note": {
+      "ja": "依存線。核機能であり、段数に影響しない。寸法をズームに追随させない規則は `FR-094` が持つ"
+     }
+    },
+    {
+     "id": "S-63",
+     "key": "`progressMarkerVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "true",
+      "code": true
+     },
+     "note": {
+      "ja": "進捗マーカー（`FR-013`）と再開アイコン（`FR-044`）。寸法をズームに追随させない規則は `FR-094` が持つ"
+     }
+    },
+    {
+     "id": "S-64",
+     "key": "`progressLineVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "false",
+      "code": true
+     },
+     "note": {
+      "ja": "イナズマ線。基準日と実績から引くので、**新規文書には出しても意味のある形にならない**"
+     }
+    },
+    {
+     "id": "S-65",
+     "key": "`dualCursor`",
+     "type": "`{ date1, date2 }` / `null`",
+     "default": {
+      "lit": "null",
+      "code": true
+     },
+     "note": {
+      "ja": "デュアルカーソル。2 本の日付を持つ理由は表 T-029 の `CU-2`"
+     },
+     "json": {
+      "kind": "object",
+      "fields": {
+       "date1": {
+        "kind": "string"
+       },
+       "date2": {
+        "kind": "string"
+       }
+      },
+      "null": true
+     }
+    },
+    {
+     "id": "S-66",
+     "key": "`guideCursorMode`",
+     "type": "`'none'` / `'crosshair'` / `'single-vertical'` / `'double-vertical'`",
+     "default": {
+      "lit": "'none'",
+      "code": true
+     },
+     "note": {
+      "ja": "ガイドカーソル"
+     }
+    },
+    {
+     "id": "S-67",
+     "key": "`dateGridLinesVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "false",
+      "code": true
+     },
+     "note": {
+      "ja": "日付罫線。既定が `false` である理由と、目盛の段階に連動させる規則は `FR-089` が持つ。"
+     }
+    },
+    {
+     "id": "S-68",
+     "key": "`groupGridLinesVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "true",
+      "code": true
+     },
+     "note": {
+      "ja": "グループ罫線。本数は行数ぶんで軽い。描く規則と理由は `FR-042`"
+     }
+    },
+    {
+     "id": "S-69",
+     "key": "`baselineVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "false",
+      "code": true
+     },
+     "note": {
+      "ja": "変更前の予定を重ねるか。既定が `false` である理由は `FR-015`"
+     }
+    },
+    {
+     "id": "S-70",
+     "key": "`fontScale`",
+     "type": "`'S'` / `'M'` / `'L'`",
+     "default": {
+      "lit": "'M'",
+      "code": true
+     },
+     "note": {
+      "ja": "文字サイズ。**各値が何 px かは表 T-215 が持つ**"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "**`assigneeVisible` と `percentCompleteVisible` の既定が `false` である根拠は `FR-049` が持つ。** 実測は、前プロジェクトの PoC で `zoomX = 0.25` のとき段数 96 → 72（24 段ぶん減る）というものである。",
+    "",
+    "**依存線とイナズマ線の色の規則と理由は `FR-041` が持つ。**",
+    "",
+    "## 5. 画面の状態",
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-203",
+   "caption": {
+    "ja": "画面の状態"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "key",
+     "ja": "キー"
+    },
+    {
+     "field": "type",
+     "ja": "型"
+    },
+    {
+     "field": "default",
+     "ja": "既定"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "意味・範囲の理由"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-72",
+     "key": "`themePreference`",
+     "type": "`'light'` / `'dark'`",
+     "default": {
+      "lit": "'light'",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "明暗テーマ。列挙なので範囲は無い"
+     }
+    },
+    {
+     "id": "S-74",
+     "key": "`themeMonochrome`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "false",
+      "code": true
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "モノクロにするか"
+     }
+    },
+    {
+     "id": "S-75",
+     "key": "`zoomX`",
+     "type": {
+      "ja": "数値"
+     },
+     "default": {
+      "num": "1",
+      "code": true
+     },
+     "min": "`zoomMin`",
+     "max": "`zoomMax`",
+     "note": {
+      "ja": "横のズーム倍率"
+     }
+    },
+    {
+     "id": "S-76",
+     "key": "`zoomY`",
+     "type": {
+      "ja": "数値"
+     },
+     "default": {
+      "num": "1",
+      "code": true
+     },
+     "min": "`zoomMin`",
+     "max": "`zoomMax`",
+     "note": {
+      "ja": "縦のズーム倍率。`basePlanHeight` が「予定の縦幅（`zoomY` = 1）」と定義されているので等倍がその基準"
+     }
+    },
+    {
+     "id": "S-77",
+     "key": "`scrollDate`",
+     "type": {
+      "ja": "日付 / `null`"
+     },
+     "default": {
+      "lit": "null",
+      "code": true
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "表示の左端が指す日付。`null` は「人がまだ場所を決めていない」を表す。読み込む側の規則は表 T-024a の `OP-10`"
+     }
+    },
+    {
+     "id": "S-78",
+     "key": "`scrollGroupId`",
+     "type": {
+      "ja": "`TaskGroup.id`（UUID 文字列）/ `null`"
+     },
+     "default": {
+      "lit": "null",
+      "code": true
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "表示の上端が指す行。⚠️ **整数ではない。** 存在しない id を指していたときの規則は表 T-024a の `OP-10`"
+     }
+    },
+    {
+     "id": "S-79",
+     "key": "`rowTitlePanelWidth`",
+     "type": "px",
+     "default": {
+      "num": "170",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": "`rowTitleIndent` × `maxGroupDepth`",
+     "max": {
+      "ja": "`Row Area` の幅 > 0 に従う"
+     },
+     "note": {
+      "ja": "行見出しパネルの幅。下限が 0 にならない理由は `FR-052`。範囲としては `S-125` の深さぶんのインデントが入る幅を要する"
+     }
+    },
+    {
+     "id": "S-80",
+     "key": "`propertyPanelWidth`",
+     "type": "px",
+     "default": {
+      "num": "280",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "ja": "同上"
+     },
+     "note": {
+      "ja": "プロパティパネルの幅"
+     }
+    },
+    {
+     "id": "S-126",
+     "key": "`pinnedGroupIds`",
+     "type": {
+      "ja": "`TaskGroup.id` の配列"
+     },
+     "default": "`[]`",
+     "min": {
+      "ja": "0 件"
+     },
+     "max": "`pinnedRowMax`",
+     "note": {
+      "ja": "ピン止めしている行。上限は `S-127`。指す行を消したときの規則は表 T-050 の `CD-2`"
+     }
+    },
+    {
+     "id": "S-127",
+     "key": "`pinnedRowMax`",
+     "type": {
+      "ja": "整数"
+     },
+     "default": {
+      "num": "5",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1"
+     },
+     "max": {
+      "num": "8"
+     },
+     "note": {
+      "ja": "同時にピン止めできる行の数の上限"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "**`themeHue = 214` は実測値である。** 予実の色表は色相 214 で測られており（実績 ÷ 予定 = ライト 4.81 : 1 / ダーク 3.74 : 1）、**この色相だけがコントラスト検証を通っている。** 前プロジェクトの JSON 実例にある `210` に根拠は無い。",
+    "",
+    "**2 つのパネル幅の上限は互いに依存する。式と検証の規則と理由は `FR-052`。**",
+    "",
+    "**派生する色を保存しない規則と理由は `FR-041` が持つ。** 解き方は「色相ごとに、コントラスト規則が壊れる寸前まで濃い地色」である。",
+    "",
+    "**行の帯の色も `themeHue` から解く。** 解き方の規則と理由は `FR-042`。",
+    "",
+    "**`themeMonochrome` は保存値を変えない。** 描画時にどう効くかの規則と理由は `FR-041` が持つ。",
+    "",
+    "> ⚠️ **モノクロ時のコントラストは未検証である。** 前プロジェクトのコントラスト検査は色を指定していない側しか測っていない。**扱いと測る対象は `NFR-007` が持つ。**",
+    "",
+    "> ⚠️ **`themePreference` と `fontScale` の保存値は初期値である。** 読む人が変更できること、および変更が文書の編集になることは `FR-039` が定める。",
+    "",
+    "## 5a. 日程データに属する値",
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-216",
+   "caption": {
+    "ja": "日程データに属する値"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "key",
+     "ja": "キー"
+    },
+    {
+     "field": "type",
+     "ja": "型"
+    },
+    {
+     "field": "default",
+     "ja": "既定"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "意味・範囲の理由"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-73",
+     "key": "`themeHue`",
+     "type": "0〜359",
+     "default": {
+      "num": "214",
+      "code": true
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "359"
+     },
+     "note": {
+      "ja": "テーマの色相。置き場は表 T-052 の `DR-5`。追随の対象と規則は `FR-041`"
+     }
+    },
+    {
+     "id": "S-71",
+     "key": "`importSeq`",
+     "type": {
+      "ja": "整数"
+     },
+     "default": {
+      "num": "0",
+      "code": true
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "取込のたびに +1。既定は取込を 1 度もしていない状態。置き場は `Project.importSeq`（表 T-058）。**使い道は表 T-032 の `MG-13`**"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "## 6. 出力",
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-204",
+   "caption": {
+    "ja": "出力"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "key",
+     "ja": "キー"
+    },
+    {
+     "field": "type",
+     "ja": "型"
+    },
+    {
+     "field": "default",
+     "ja": "既定"
+    },
+    {
+     "field": "note",
+     "ja": "意味"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-81",
+     "key": "`exportCanvas`",
+     "type": "`{ width, height }`",
+     "default": "`1600 × 900`",
+     "note": {
+      "ja": "SVG / PNG の出力サイズ。規則と理由は `FR-025`、縮める比は `FR-080` が持つ"
+     }
+    },
+    {
+     "id": "S-82",
+     "key": "`exportPngScale`",
+     "type": "`1` / `2`",
+     "default": {
+      "num": "1",
+      "code": true
+     },
+     "note": {
+      "ja": "PNG の倍率。毎回手で選ばせない"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "## 7. LOD のしきい値",
+    "",
+    "**Type**: SECTION",
+    "",
+    "出力に含まれるタスクが変わるので保存する。",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-205",
+   "caption": {
+    "ja": "LOD のしきい値"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "key",
+     "ja": "キー"
+    },
+    {
+     "field": "default",
+     "ja": "既定"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "意味・範囲の理由"
+    }
+   ],
+   "separator": "| --- | --- | --: | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-83",
+     "key": "`rulerTierPxPerDayMonth`",
+     "default": {
+      "num": "1.4",
+      "code": true
+     },
+     "min": {
+      "num": "0.1"
+     },
+     "max": "`rulerTierPxPerDayWeek`",
+     "note": {
+      "ja": "目盛が「年」から「年 ＋ 月」に変わる px/day。次のしきい値を超えない"
+     }
+    },
+    {
+     "id": "S-84",
+     "key": "`rulerTierPxPerDayWeek`",
+     "default": {
+      "num": "4.3",
+      "code": true
+     },
+     "min": "`rulerTierPxPerDayMonth`",
+     "max": "`rulerTierPxPerDayDay`",
+     "note": {
+      "ja": "目盛が「年 ＋ 月」から「年 ＋ 月 ＋ 週」に変わる px/day。前後のしきい値の間"
+     }
+    },
+    {
+     "id": "S-85",
+     "key": "`rulerTierPxPerDayDay`",
+     "default": {
+      "num": "30",
+      "code": true
+     },
+     "min": "`rulerTierPxPerDayWeek`",
+     "max": {
+      "num": "60"
+     },
+     "note": {
+      "ja": "目盛が「年 ＋ 月 ＋ 週」から「年 ＋ 月 ＋ 日 ＋ 曜日」に変わる px/day。前のしきい値を下回らない"
+     }
+    },
+    {
+     "id": "S-86",
+     "key": "`taskLevelOfDetailReadablePx`",
+     "default": {
+      "num": "24",
+      "code": true
+     },
+     "min": "`fontMin`",
+     "max": {
+      "num": "200"
+     },
+     "note": {
+      "ja": "形状の幅がこれを割る `Task` を描かない。文字が 1 つも入らない幅にしない"
+     }
+    },
+    {
+     "id": "S-87",
+     "key": "`groupLevelOfDetailBase`",
+     "default": {
+      "num": "0.32",
+      "code": true
+     },
+     "min": {
+      "num": "0.01"
+     },
+     "max": {
+      "num": "2"
+     },
+     "note": {
+      "ja": "グループ LOD の初項。`threshold(d) = base × ratio^(d − 2)`"
+     }
+    },
+    {
+     "id": "S-88",
+     "key": "`groupLevelOfDetailRatio`",
+     "default": {
+      "num": "1.875",
+      "code": true
+     },
+     "min": "1 + ε",
+     "max": {
+      "num": "4"
+     },
+     "note": {
+      "ja": "同上の公比。**1 以下だと深いほど出やすくなり単調性が壊れる**"
+     }
+    },
+    {
+     "id": "S-89",
+     "key": "`stackSafetyCap`",
+     "default": {
+      "num": "255",
+      "code": true
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "**1 つの `TaskGroup` あたりの段数の安全弁**（**測って決めた値ではない**）。**数え方と、到達したときの挙動は `FR-003` の `ST-7` が持つ。** これだけの本数が 1 つの行で同時に重なるのは実務では起きないので、届いたときは入力か操作の異常である"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "**時間軸のしきい値の 3 値は、目盛のフォントが 12px のときの解である。** ラベル幅の概算は `FR-093` に従う（導出時点の `labelCoef` は 0.5）。和文の可読下限 12px を当てて導いた。",
+    "",
+    "| 段階 | ラベル | 単位数 | 必要幅 | 条件 | 解 | 採用 |",
+    "| --- | --- | :--: | --: | --- | --: | --: |",
+    "| 2 年 ＋ 月 | `2026-01` | 7 | 42px | `30.4 × ppd ≧ 42` | 1.38 | **1.4** |",
+    "| 3 ＋ 週 | `01-05` | 5 | 30px | `7 × ppd ≧ 30` | 4.29 | **4.3** |",
+    "| 4 ＋ 日曜 | `05 月` | 5 | 30px | `1 × ppd ≧ 30` | 30 | **30** |",
+    "",
+    "上の式は既定値を選ぶときの考え方であって判定式ではない。**固定値であること・判定の仕方・実効フォントサイズの定義・基準とする文字の大きさは `FR-017` が持つ。**",
+    "",
+    "**「一定数以下なら全部描く」というしきい値は本表に無い。禁止と理由は `FR-018` が持つ。**",
+    "",
+    "## 8. 保存しないもの",
+    "",
+    "**Type**: SECTION",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-206",
+   "caption": {
+    "ja": "保存しないもの（本体と、`localStorage` に置く別枠）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "default",
+     "ja": "既定"
+    },
+    {
+     "field": "note",
+     "ja": "保存しない理由"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-90",
+     "value": {
+      "ja": "予定の端点の掴み代"
+     },
+     "default": {
+      "ja": "バーの上下に 6px"
+     },
+     "note": {
+      "ja": "**掴み領域は読む人のアクセシビリティに属する。** 手が震える人には大きな掴み代が要る。文書が強制してよい値ではない"
+     }
+    },
+    {
+     "id": "S-91",
+     "value": {
+      "ja": "実績の端点の掴み代"
+     },
+     "default": {
+      "ja": "実績バーの帯"
+     },
+     "note": {
+      "ja": "同上"
+     }
+    },
+    {
+     "id": "S-92",
+     "value": {
+      "ja": "フェード掴み点の当たり判定"
+     },
+     "default": "15 × 15px",
+     "note": {
+      "ja": "同上"
+     }
+    },
+    {
+     "id": "S-93",
+     "value": {
+      "ja": "実績のダミーの当たり判定（表 T-023d の `GR-9` / `GR-17` / `GR-18`）"
+     },
+     "default": "30 × 20px",
+     "note": {
+      "ja": "同上。"
+     }
+    },
+    {
+     "id": "S-94",
+     "value": {
+      "ja": "取り消しの段数"
+     },
+     "default": {
+      "num": "50"
+     },
+     "note": {
+      "ja": "動いている端末のメモリ予算。**履歴自体を保存しないのに回数だけ文書が指定するのは筋が通らない**"
+     }
+    },
+    {
+     "id": "S-95",
+     "value": {
+      "ja": "取り消しの合計メモリ上限"
+     },
+     "default": {
+      "num": "64",
+      "code": true,
+      "suffix": " MB",
+      "mark": "🔎"
+     },
+     "note": {
+      "ja": "同上。**値の由来は無い** —— 動いている端末の予算から選び直す"
+     }
+    },
+    {
+     "id": "S-96",
+     "value": "`zoomStep`",
+     "default": "`S-53`",
+     "note": {
+      "ja": "**操作の速さであって結果ではない。** 1 ノッチで何倍動くかは入力装置に依存する。結果の絵は変わらない"
+     }
+    },
+    {
+     "id": "S-97",
+     "value": "`zoomMin`",
+     "default": "`S-54`",
+     "note": {
+      "ja": "同上。倍率そのもの（`zoomX` / `zoomY`）は保存するので再現性は損なわれない"
+     }
+    },
+    {
+     "id": "S-98",
+     "value": "`zoomMax`",
+     "default": "`S-55`",
+     "note": {
+      "ja": "同上"
+     }
+    },
+    {
+     "id": "S-99a",
+     "value": {
+      "ja": "透かしに出す**開いた者の名前**"
+     },
+     "default": "`user`",
+     "note": {
+      "ja": "**別枠。`localStorage` に置く。** 文書に保存しない規則と理由は `FR-020`"
+     }
+    },
+    {
+     "id": "S-99c",
+     "value": {
+      "ja": "利用者が設定した**透かし解除パスワードの SHA-256**"
+     },
+     "default": "—",
+     "note": {
+      "ja": "**別枠。`localStorage` に置く。** 保存の規則は `FR-020` と `FR-086` が持つ。設定されていなければ表 T-207 の既定値を使う"
+     }
+    },
+    {
+     "id": "S-99b",
+     "value": {
+      "ja": "`Agent API` を有効にした文書の記録"
+     },
+     "default": "—",
+     "note": {
+      "ja": "**別枠。`localStorage` に置く。** `FR-065` が「文書ごとに記憶する」と定めるが、**有効化は読む人の判断であって文書の内容ではない**ので、文書の識別子と対にして環境側へ置く"
+     }
+    },
+    {
+     "id": "S-99",
+     "value": {
+      "ja": "`language`（`ja` / `en`）"
+     },
+     "default": "—",
+     "note": {
+      "ja": "**別枠。`localStorage` に置く。** 保存しない規則と理由は `FR-038`。⚠️ **表 T-202 に行が無いので `FR-049` の切り替え対象ではない**"
+     }
+    },
+    {
+     "id": "S-99e",
+     "value": {
+      "ja": "コマンドパレットの表示状態"
+     },
+     "default": {
+      "ja": "表示"
+     },
+     "note": {
+      "ja": "画面の使い方であって文書の内容ではない（`FR-053`。切替は表 T-036 の `SK-14`）"
+     }
+    },
+    {
+     "id": "S-99f",
+     "value": {
+      "ja": "全画面表示かどうか"
+     },
+     "default": {
+      "ja": "通常"
+     },
+     "note": {
+      "ja": "同上（`FR-071`。切替は表 T-036 の `SK-15`）"
+     }
+    },
+    {
+     "id": "S-99g",
+     "value": {
+      "ja": "開いている面"
+     },
+     "default": {
+      "ja": "開いていない"
+     },
+     "note": {
+      "ja": "同上。**「面」とは、画面の上に重ねて開き、`Esc` の第 1 階層で閉じられるものをいう**（表 T-028 の `IN-4`）"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-207",
+   "caption": {
+    "ja": "透かし（成果物に埋め込む定数。文書には保存しない）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-100",
+     "name": {
+      "ja": "既定の透かし解除パスワード"
+     },
+     "value": "`goodrelax-scheduler`",
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "保存の規則は `FR-020` が持つ。ここに書くのは仕様として値を定めるためであり、成果物へ入るのは下の SHA-256 だけである。⚠️ **汎用の道具に固有名を既定値として置かないため、既定値は製品名とする。**"
+     }
+    },
+    {
+     "id": "S-101",
+     "name": {
+      "ja": "既定の透かし解除パスワードの SHA-256"
+     },
+     "value": "`e2b7f98dfe8145444b33263989fe5e47f9150fe1ef6460713268af974e6df134`",
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "UTF-8・末尾の改行を含めない。**成果物へ定数として埋め込むのはこの値である**"
+     }
+    },
+    {
+     "id": "S-102",
+     "name": "`watermarkOpacity`",
+     "value": {
+      "num": "0.08",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.02"
+     },
+     "max": {
+      "num": "0.30"
+     },
+     "note": {
+      "ja": "透かしの濃さ。**コントラストの適合範囲から外してある**（`NFR-007` / `LM-13`）ので、可読性ではなく「よく見れば分かるが通常は気にならない」を狙う値である"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "## 9. 後から選び直す値",
+    "",
+    "**Type**: SECTION",
+    "",
+    "**本節の表は、§1 の判定では文書に保存する側に落ちるものを含む。** §8 と分けてあるのは保存の可否ではなく、**由来が実測でなく、骨格で測って選び直す対象である**という括りだからである（表 T-026 の `RC-1`）。",
+    "各表の中で保存の可否を明記する。",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-212",
+   "caption": {
+    "ja": "画面の各部の寸法の上限（`FR-051`）と、待ち時間"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-124",
+     "name": "`iconHintDelayMs`",
+     "value": {
+      "num": "3000",
+      "code": true,
+      "suffix": " ms",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "500"
+     },
+     "max": {
+      "num": "10000"
+     },
+     "note": {
+      "ja": "**アイコンの説明を出すまでの待ち時間**（`FR-092` の `EZ-2`）"
+     }
+    },
+    {
+     "id": "S-116",
+     "name": "`appHeaderMaxHeight`",
+     "value": {
+      "num": "56",
+      "code": true,
+      "suffix": " px",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "32"
+     },
+     "max": {
+      "num": "96"
+     },
+     "note": {
+      "ja": "**上部に使った高さはそのまま日程表から引かれる。** 「視認できる範囲で最小」では合否を判定できないので、上限を数値で置く"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-211",
+   "caption": {
+    "ja": "保存と受け入れの上限（`FR-026` / `FR-023`）と構造の上限（`FR-004`）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-112",
+     "name": "`autosaveIdleMs`",
+     "value": {
+      "num": "3000",
+      "code": true,
+      "suffix": " ms"
+     },
+     "min": {
+      "num": "300"
+     },
+     "max": {
+      "num": "10000"
+     },
+     "note": {
+      "ja": "**自動保存の「操作の切れ目」**（定義は `FR-026`）。**ドラッグ 1 回より長く、`LM-11` が述べる「数秒ぶん」に収まる値**である。**由来** —— 一瞬スクロールを止めただけで書き込みが走らないようにするため。`1000` ms では、スクロールを短く止めて再開する操作の途中で書き込みが割り込む"
+     }
+    },
+    {
+     "id": "S-113",
+     "name": "`importMaxBytes`",
+     "value": {
+      "num": "32",
+      "code": true,
+      "suffix": " MB",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1"
+     },
+     "max": {
+      "num": "256"
+     },
+     "note": {
+      "ja": "取り込むファイルの上限（`FR-023`）。**1 MB = 1024 × 1024 バイトとする。**"
+     }
+    },
+    {
+     "id": "S-114",
+     "name": "`importMaxItems`",
+     "value": {
+      "num": "20000",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1000"
+     },
+     "max": {
+      "num": "200000"
+     },
+     "note": {
+      "ja": "取り込む `Task` の件数の上限。**目標規模（表 T-025 の MC-7 は 1000）の 20 倍**。性能の目標より広く受理し、資源が尽きる手前で止める"
+     }
+    },
+    {
+     "id": "S-115",
+     "name": "`importMaxDepth`",
+     "value": {
+      "num": "64",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "8"
+     },
+     "max": {
+      "num": "256"
+     },
+     "note": {
+      "ja": "WBS のネストの深さの上限。**`maxGroupDepth`（`S-125`）とは別物**（WBS はクランプしない）。**根の行を深さ 1 と数える** —— `wbsParentUid` が `null` の `Task` が深さ 1 である"
+     }
+    },
+    {
+     "id": "S-125",
+     "name": "`maxGroupDepth`",
+     "value": {
+      "num": "5",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "3"
+     },
+     "max": {
+      "num": "8"
+     },
+     "note": {
+      "ja": "`TaskGroup` の深さの上限。**推奨の深さは 3。** 規則（上限を課すこと・LOD の判定でのみ頭打ちにしてよいこと）と理由は `FR-004`"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "⚠️ **上限を超えた入力の扱いと、循環をこの上限では検出できないことは `FR-023` が定める。**",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-213",
+   "caption": {
+    "ja": "依存のラグ（`FR-009`）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-117",
+     "name": "`dependencyLagDefault`",
+     "value": {
+      "num": "0",
+      "code": true
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "依存を作ったときに置く値。**0 は「間を空けない」**"
+     }
+    },
+    {
+     "id": "S-118",
+     "name": {
+      "ja": "ラグの単位"
+     },
+     "value": {
+      "ja": "**稼働日** 🔎"
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "`FR-011` / `FR-012` / `FR-054` が使う単位に揃える。**単位を定めないと、同じ値で実装ごとに違う日数になる**"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "⚠️ **ラグが日付を動かさないことは表 T-018 が定める。**",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-214",
+   "caption": {
+    "ja": "受け入れる日付の範囲（`FR-023`）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-119",
+     "name": "`importMinDate`",
+     "value": "`1970-01-01` 🔎",
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "これより前の日付を持つ入力を受け付けない"
+     }
+    },
+    {
+     "id": "S-120",
+     "name": "`importMaxDate`",
+     "value": "`2200-12-31` 🔎",
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "これより後を受け付けない。**231 年ぶんの期間でも稼働日の数え上げが計算量に効く**（件数の上限とは別の経路）"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-215",
+   "caption": {
+    "ja": "文字サイズ（`FR-039` の `fontScale`）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-121",
+     "name": "`fontScaleSizes.S`",
+     "value": {
+      "num": "12",
+      "code": true,
+      "suffix": " px",
+      "mark": "🔎"
+     },
+     "min": "`fontMin`",
+     "max": "`fontScaleSizes.M`",
+     "note": {
+      "ja": "**PoC の `fontMin` = 12 をそのまま S に据えた。** 下限を割らない"
+     }
+    },
+    {
+     "id": "S-122",
+     "name": "`fontScaleSizes.M`",
+     "value": {
+      "num": "14",
+      "code": true,
+      "suffix": " px",
+      "mark": "🔎"
+     },
+     "min": "`fontScaleSizes.S`",
+     "max": "`fontScaleSizes.L`",
+     "note": ""
+    },
+    {
+     "id": "S-123",
+     "name": "`fontScaleSizes.L`",
+     "value": {
+      "num": "16",
+      "code": true,
+      "suffix": " px",
+      "mark": "🔎"
+     },
+     "min": "`fontScaleSizes.M`",
+     "max": {
+      "num": "40"
+     },
+     "note": ""
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "⚠️ **`fontScale` は読む人が文字を大きくするための設定であり（WCAG 1.4.4）、下限を割るためのものではない。** 公開実装は `S = 10` を持つが、これは `S-8`（`fontMin` の下限 12）と `FR-077` に反するので採らない。",
+    "⚠️ **`fontScale` は目盛の文字（`S-3`）と目盛の帯の高さ（`S-2`）にも掛かるので、時間軸のしきい値の判定にも効く。判定の仕方は表 T-205 の注が持つ。**",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-210",
+   "caption": {
+    "ja": "フェードの掴み点（`FR-075`）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-109",
+     "name": "`fadeHandleHalfPx`",
+     "value": {
+      "num": "4.5",
+      "code": true,
+      "suffix": " px",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "3"
+     },
+     "max": {
+      "num": "8"
+     },
+     "note": {
+      "ja": "掴み点の半辺。**正方形 9 × 9px を点の中心に置く**"
+     }
+    },
+    {
+     "id": "S-110",
+     "name": "`fadeHandleStrokePx`",
+     "value": {
+      "num": "1.5",
+      "code": true,
+      "suffix": " px",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "1"
+     },
+     "max": {
+      "num": "3"
+     },
+     "note": {
+      "ja": "掴み点の枠線"
+     }
+    },
+    {
+     "id": "S-111",
+     "name": {
+      "ja": "掴み点を出す条件"
+     },
+     "value": {
+      "ja": "選択中のタスクだけ 🔎"
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "出す条件の規則と理由は `FR-075`"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "⚠️ **当たり判定の大きさは `S-92`（15 × 15px）が別に持つ。** 見た目の点（9 × 9px）より広く取る —— 掴み代は読む人のアクセシビリティに属する（表 T-206 の注）。",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-209",
+   "caption": {
+    "ja": "既定の暦と期間の換算（`FR-054`。取り込んでいない文書、および、取り込んだが値が空の文書が使う）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-106",
+     "name": {
+      "ja": "稼働する曜日"
+     },
+     "value": {
+      "ja": "月・火・水・木・金 🔎"
+     },
+     "note": {
+      "ja": "**土日を非稼働とする。** 特定の業種や地域を前提にしない範囲で最も広く使われる形である"
+     }
+    },
+    {
+     "id": "S-107",
+     "name": {
+      "ja": "例外日（休業日）"
+     },
+     "value": {
+      "ja": "**無し** 🔎"
+     },
+     "note": {
+      "ja": "**祝日を持たない**（理由は `FR-088`）。必要なら MSPDI を取り込むか、非稼働日として個別に置く"
+     }
+    },
+    {
+     "id": "S-108",
+     "name": {
+      "ja": "週の始まり"
+     },
+     "value": {
+      "ja": "月曜 🔎"
+     },
+     "note": {
+      "ja": "週の目盛が書く日付の基準（`FR-054`）。置き場は `Project.weekStartDay`"
+     }
+    },
+    {
+     "id": "S-128",
+     "name": {
+      "ja": "1 日あたりの分数"
+     },
+     "value": {
+      "num": "480",
+      "code": true,
+      "mark": "🔎"
+     },
+     "note": {
+      "ja": "`Project.minutesPerDay` が空のときに使う（`FR-054`）。1 日 8 時間。選び方は `S-106` と同じである"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "⚠️ **保存の可否: 保存する。規則と理由は `FR-054` が持つ。**",
+    "",
+    "⚠️ **本表の値は日程データの群に入る** —— 収まる先が暦（`Calendar`）と `Project` の列だからである。**どちらの群に属するかの判定は表 T-052 が持つ**（表 T-216 と同じ扱いである）。",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-208",
+   "caption": {
+    "ja": "予実の補助線（`FR-084`）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "名前"
+    },
+    {
+     "field": "value",
+     "ja": "値"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --: | --: | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-103",
+     "name": "`planActualGuideWeight`",
+     "value": {
+      "num": "1",
+      "code": true,
+      "suffix": " px",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0.5"
+     },
+     "max": {
+      "num": "2"
+     },
+     "note": {
+      "ja": "バーより目立つと、事実（バー）より補いの線が前に出るので細くする"
+     }
+    },
+    {
+     "id": "S-104",
+     "name": "`planActualGuidePattern`",
+     "value": "`2,2` 🔎",
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "破線の刻み（描く長さ, 空ける長さ）。刻みの規則は表 T-020a の `GD-6`"
+     },
+     "json": {
+      "kind": "object",
+      "fields": {
+       "on": {
+        "kind": "number"
+       },
+       "off": {
+        "kind": "number"
+       }
+      }
+     }
+    },
+    {
+     "id": "S-105",
+     "name": "`planActualGuideColor`",
+     "value": {
+      "ja": "実績バーの色に追随 🔎"
+     },
+     "min": "—",
+     "max": "—",
+     "note": {
+      "ja": "**実績から伸びる線なので実績の色を継ぐ。** 独立した色を保存しない —— 派生する色を保存しない規則は `FR-041` が持つ"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "⚠️ **ズームに追随させない規則は表 T-020a の `GD-6` が持つ。** 依存線と同じ扱いである（`FR-079`）。",
+    "",
+    "**既定値を本書に置くのは、仕様として値を定めるためである。** 秘密として機能しないことの議論は表 T-004 の `LM-12` が持つ。",
+    "**この機能は将来サーバーと接続したときに意味を持つ**ものであり、現段階では動作を示せればよい（`LM-12`）。",
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-217",
+   "caption": {
+    "ja": "注記の既定値"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "key",
+     "ja": "キー"
+    },
+    {
+     "field": "type",
+     "ja": "型"
+    },
+    {
+     "field": "default",
+     "ja": "既定"
+    },
+    {
+     "field": "min",
+     "ja": "下限"
+    },
+    {
+     "field": "max",
+     "ja": "上限"
+    },
+    {
+     "field": "note",
+     "ja": "意味・範囲の理由"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-132",
+     "key": "`cornerRadiusPx`",
+     "type": {
+      "ja": "数値"
+     },
+     "default": {
+      "num": "4",
+      "code": true,
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "24"
+     },
+     "note": {
+      "ja": "ハイライトボックスの角の丸み（`AT-122`）。ズームによらず一定に描く規則は `FR-019` が持つ。上限は、枠が角丸に食われて囲んだ範囲が読めなくなる手前"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    "⚠️ **本表の値は日程データの群に入る** —— 収まる先が `HighlightBox` の列だからである。**どちらの群に属するかの判定は表 T-052 が持つ**（表 T-209 と同じ扱いである）。",
+    ""
+   ]
+  }
+ ]
+}

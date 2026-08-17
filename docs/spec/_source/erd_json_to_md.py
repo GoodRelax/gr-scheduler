@@ -27,9 +27,10 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# After the move this file sits in docs/spec/_assets/source/ and the document
-# lands one level up, beside the other assets.
-ASSETS = os.path.abspath(os.path.join(HERE, '..'))
+# This file sits in docs/spec/_source/ -- the manuscripts belong to no language,
+# so they stay out of the _assets folder that the ja/en split will divide
+# (CR-175). The document it writes lands in _assets/, beside the other assets.
+ASSETS = os.path.abspath(os.path.join(HERE, '..', '_assets'))
 
 KEYS = ('', 'PK', 'FK', 'PK/FK')
 ORIGINS = ('Own', 'Consume', 'GRS', 'Carry')
@@ -53,10 +54,13 @@ CARRY_LABEL = 'carryElements の中身'
 CARRY_MULT = '1 ─ 0..n'
 CARRY_MEANING = '解釈しない要素の退避先（`carryElements`）'
 
-BANNER = ('> **本書は `_assets/source/erd.json` から '
-          '`erd_json_to_md.py` が書き出す。手で直さない。**\n'
-          '> **直すのは `erd.json` である。** 説明の散文は `05-07-design.md` '
-          'が持つ。')
+BANNER = ('> ⛔ **本書は生成物である。手で直さない —— 直しても次の '
+          '`npm run gen` で消える。**\n'
+          '> **唯一の正は `_source/erd.json` であり、本書はそれを '
+          '`_source/erd_json_to_md.py` が書き出したものである。**\n'
+          '> **作り直す**: `npm run gen` ／ **ズレを検出する**: '
+          '`npm run gen:check`（検査 16 が呼ぶ）。説明の散文は '
+          '`05-07-design.md` が持つ。')
 
 # The header row lives next to the code that builds the body rows, so the two
 # cannot drift apart. The caption and its number are data and come from the

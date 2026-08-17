@@ -2,8 +2,7 @@
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_assets/grs-document.schema.json",
  "title": "GRS JSON document",
- "description": "Generated from docs/spec/_assets/source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md (the presentation group). Never edit by hand: run docs/spec/_assets/source/erd_json_to_schema.py.",
- "$comment": "Settings keys whose own row does not say what type they hold, left unconstrained here: dualCursor.date1, dualCursor.date2, planActualGuidePattern.",
+ "description": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md (the presentation group). Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py.",
  "type": "object",
  "required": [
   "schemaVersion",
@@ -296,27 +295,23 @@
      "minimum": 0.5
     },
     "dualCursor": {
-     "oneOf": [
-      {
-       "type": "object",
-       "required": [
-        "date1",
-        "date2"
-       ],
-       "additionalProperties": false,
-       "properties": {
-        "date1": {
-         "$comment": "The source does not say what type this holds; its default is written as '`null`'."
-        },
-        "date2": {
-         "$comment": "The source does not say what type this holds; its default is written as '`null`'."
-        }
-       }
+     "type": [
+      "object",
+      "null"
+     ],
+     "required": [
+      "date1",
+      "date2"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "date1": {
+       "type": "string"
       },
-      {
-       "type": "null"
+      "date2": {
+       "type": "string"
       }
-     ]
+     }
     },
     "dummyOpacity": {
      "type": "number",
@@ -514,7 +509,20 @@
      ]
     },
     "planActualGuidePattern": {
-     "$comment": "The source does not say what type this holds; its default is written as '`2,2`'."
+     "type": "object",
+     "required": [
+      "off",
+      "on"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "off": {
+       "type": "number"
+      },
+      "on": {
+       "type": "number"
+      }
+     }
     },
     "planActualGuideWeight": {
      "type": "number",

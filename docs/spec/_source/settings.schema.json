@@ -1,0 +1,141 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/settings.schema.json",
+ "title": "The settings manuscript",
+ "description": "The manuscript Chapter 6.2 names for the presentation group. docs/spec/_assets/tbl-settings.md is printed from it and is a generated artifact. The manuscript belongs to no language: every cell that holds Japanese is a language dictionary so that the ja/en split is data entry rather than a second copy of 1533 rows.",
+ "type": "object",
+ "required": ["blocks"],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": { "type": "string" },
+  "$comment": { "type": "string" },
+  "blocks": {
+   "type": "array",
+   "minItems": 1,
+   "comment": "Dispatched on `kind` rather than oneOf: a failing oneOf reports only that the block matched nothing, printing the whole table back at whoever edited it. if/then names the field that is actually wrong.",
+   "items": {
+    "type": "object",
+    "required": ["kind"],
+    "properties": { "kind": { "enum": ["prose", "table"] } },
+    "allOf": [
+     {
+      "if": { "properties": { "kind": { "const": "prose" } }, "required": ["kind"] },
+      "then": { "$ref": "#/$defs/prose" }
+     },
+     {
+      "if": { "properties": { "kind": { "const": "table" } }, "required": ["kind"] },
+      "then": { "$ref": "#/$defs/table" }
+     }
+    ]
+   }
+  }
+ },
+ "$defs": {
+  "cell": {
+   "description": "One printed cell, in one of three forms: a plain string when it is printed verbatim and is the same in every language (an expression naming another key, a dash, an empty cell); a language dictionary when it holds prose; a machine value when the cell IS a value the code generators read.",
+   "oneOf": [
+    { "type": "string" },
+    {
+     "type": "object",
+     "required": ["ja"],
+     "additionalProperties": false,
+     "properties": { "ja": { "type": "string" }, "en": { "type": "string" } }
+    },
+    { "$ref": "#/$defs/machine" }
+   ]
+  },
+  "machine": {
+   "description": "A value the generators read. The printed decoration is kept as flags so the document still prints byte for byte.",
+   "type": "object",
+   "additionalProperties": false,
+   "oneOf": [{ "required": ["num"] }, { "required": ["lit"] }],
+   "properties": {
+    "num": {
+     "description": "The number AS WRITTEN, not a JSON number: 0.80 and 1.0 would come back as 0.8 and 1.0 and stop matching the document. The author's precision is part of the value.",
+     "type": "string",
+     "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "lit": {
+     "description": "A literal the specification writes as itself.",
+     "type": "string",
+     "pattern": "^(?:'[^']*'|true|false|null)$"
+    },
+    "code": { "description": "Printed inside backticks.", "const": true },
+    "suffix": { "description": "A unit printed after the value.", "type": "string" },
+    "mark": {
+     "description": "🔎 = the default has no recorded origin and may be chosen again. ⛔ = not stored in the document.",
+     "enum": ["🔎", "⛔"]
+    }
+   }
+  },
+  "prose": {
+   "description": "Everything that is not a numbered settings table, verbatim: section headings, the notes between tables, and the ruler derivation table, which carries no row IDs.",
+   "type": "object",
+   "required": ["kind", "lines"],
+   "additionalProperties": false,
+   "properties": {
+    "kind": { "const": "prose" },
+    "lines": { "type": "array", "items": { "type": "string" } }
+   }
+  },
+  "table": {
+   "type": "object",
+   "required": ["kind", "id", "caption", "columns", "separator", "blank_before_header", "rows"],
+   "additionalProperties": false,
+   "properties": {
+    "kind": { "const": "table" },
+    "id": { "type": "string", "pattern": "^T-[0-9]+[a-z]?$" },
+    "caption": { "$ref": "#/$defs/cell" },
+    "columns": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "type": "object",
+      "required": ["field", "ja"],
+      "additionalProperties": false,
+      "properties": {
+       "field": {
+        "description": "The English name the cells of this column are keyed by. 値 is one field even though table T-206 uses that column for what the value IS while the T-211 shape uses it for the value itself; telling those apart is a promotion, not a rename.",
+        "enum": ["id", "group", "key", "name", "unit", "type", "default", "value", "min", "max", "note"]
+       },
+       "ja": { "type": "string" },
+       "en": { "type": "string" }
+      }
+     }
+    },
+    "separator": {
+     "description": "The alignment row, verbatim: the columns are not all aligned the same way and the printed document has to come back byte for byte.",
+     "type": "string",
+     "pattern": "^\\|"
+    },
+    "blank_before_header": { "type": "string" },
+    "rows": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+       "id": { "type": "string", "pattern": "^S-[0-9]+[a-z]?$" },
+       "group": { "$ref": "#/$defs/cell" },
+       "key": { "$ref": "#/$defs/cell" },
+       "name": { "$ref": "#/$defs/cell" },
+       "unit": { "$ref": "#/$defs/cell" },
+       "type": { "$ref": "#/$defs/cell" },
+       "default": { "$ref": "#/$defs/cell" },
+       "value": { "$ref": "#/$defs/cell" },
+       "min": { "$ref": "#/$defs/cell" },
+       "max": { "$ref": "#/$defs/cell" },
+       "note": { "$ref": "#/$defs/cell" },
+       "json": {
+        "description": "The machine type, in the same shape erd.json gives an entity column. Stated only for a row whose printed 型 cell is written for a person and cannot be machine-read.",
+        "type": "object"
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

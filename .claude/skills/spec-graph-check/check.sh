@@ -102,11 +102,16 @@ echo "   report: $OUT/dup-report.txt"
 
 echo ""
 echo "===== 16  generated documents still match their source ====="
-python docs/spec/_assets/source/erd_json_to_md.py --check || fail=1
+python docs/spec/_source/erd_json_to_md.py --check || fail=1
+PYTHONIOENCODING=utf-8 python docs/spec/_source/settings_json_to_md.py --check || fail=1
+
+echo ""
+echo "===== 21  every generated artifact names its manuscript ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-provenance.py || fail=1
 
 echo ""
 echo "===== 17  the GRS JSON schema still matches its two sources ====="
-PYTHONIOENCODING=utf-8 python docs/spec/_assets/source/erd_json_to_schema.py --check || fail=1
+PYTHONIOENCODING=utf-8 python docs/spec/_source/erd_json_to_schema.py --check || fail=1
 
 echo ""
 echo "===== 18  src/ still holds exactly the units of table T-075 ====="

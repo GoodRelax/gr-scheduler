@@ -24,7 +24,10 @@
 
 export {}
 
-// <generated from docs/spec/_assets/source/erd.json -- do not edit by hand>
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/erd.json
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 /** ET-16 of table T-056. */
 export interface DocumentStamp {
   /** AT-127 */
@@ -47,6 +50,8 @@ export interface ChangeLogEntry {
   readonly changedAt: string
 }
 // </generated>
+
+
 
 /**
  * The stamp after one write. FR-063: the revision rises by one, and who wrote

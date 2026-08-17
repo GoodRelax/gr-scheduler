@@ -10,7 +10,7 @@ import sys
 
 DESIGN = "docs/spec/05-07-design.md"
 GLOSSARY = "docs/spec/_assets/tbl-glossary.md"
-MODEL = "docs/spec/_assets/source/components.json"
+MODEL = "docs/spec/_source/components.json"
 
 design = open(DESIGN, encoding="utf-8").read()
 glossary = open(GLOSSARY, encoding="utf-8").read()

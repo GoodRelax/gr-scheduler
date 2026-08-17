@@ -18,7 +18,10 @@
 
 export {}
 
-// <generated from docs/spec/_assets/source/erd.json -- do not edit by hand>
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/erd.json
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 /** ET-1 of table T-056. */
 export interface Project {
   /** AT-1 */
@@ -360,7 +363,33 @@ export interface Schedule {
   readonly taskOrigins: readonly TaskOrigin[]
   readonly baselineTasks: readonly BaselineTask[]
 }
+
+/**
+ * Every column table T-058 gives a date or a datetime type, by entity.
+ *
+ * ⭐ IV-14 reaches these as "表 T-058 の型の欄が日付または日時とする列"
+ * rather than naming them, so a hand-written roster goes stale the moment
+ * a column is added and nothing says so (F-3). erd.json marks them, so
+ * this is the roster, not a copy of it.
+ */
+export const DATE_COLUMNS: {
+  readonly Project: readonly (keyof Project & string)[]
+  readonly Task: readonly (keyof Task & string)[]
+  readonly Exception: readonly (keyof Exception & string)[]
+  readonly CommentBox: readonly (keyof CommentBox & string)[]
+  readonly HighlightBox: readonly (keyof HighlightBox & string)[]
+  readonly BaselineTask: readonly (keyof BaselineTask & string)[]
+} = {
+  Project: ['created', 'lastSaved', 'startDate', 'statusDate'],
+  Task: ['start', 'finish', 'deadline', 'actualStart', 'actualFinish', 'resume'],
+  Exception: ['fromDate', 'toDate'],
+  CommentBox: ['anchorDate'],
+  HighlightBox: ['startDate', 'endDate'],
+  BaselineTask: ['start', 'finish'],
+}
 // </generated>
+
+
 
 /**
  * The five states of table T-019a. The spellings are this file's own: the

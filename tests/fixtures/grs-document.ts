@@ -4,7 +4,7 @@
 // idea of what a document looks like, no integration test can be written at
 // all, because no two of them agree. So the shape comes from one place, and
 // that place is the generated schema -- which check 17 keeps in step with
-// docs/spec/_assets/source/erd.json and docs/spec/_assets/tbl-settings.md.
+// docs/spec/_source/erd.json and docs/spec/_assets/tbl-settings.md.
 //
 // Deliberately NOT here: a sample document.
 // A sample needs values the specification has not decided -- what string

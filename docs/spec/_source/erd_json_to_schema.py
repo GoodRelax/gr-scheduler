@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Build the `GRS JSON` schema from the two sources Chapter 6.2 names.
 
-  schedule group      docs/spec/_assets/source/erd.json     (the "json" key of
+  schedule group      docs/spec/_source/erd.json     (the "json" key of
                       every column carries the machine-readable type)
   documentSettings    docs/spec/_assets/tbl-settings.md     (read in its present
                       table form, as Chapter 6.2 requires)
@@ -26,7 +26,9 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ASSETS = os.path.dirname(HERE)
+# HERE is docs/spec/_source/ (the manuscripts, which belong to no language);
+# what it writes goes to docs/spec/_assets/ (CR-175).
+ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
 ERD = os.path.join(HERE, 'erd.json')
 SETTINGS = os.path.join(ASSETS, 'tbl-settings.md')
 OUT = os.path.join(ASSETS, 'grs-document.schema.json')
@@ -56,6 +58,31 @@ TABLE_GROUP = {
     'T-206': ('notStored', '保存しないもの'),
     'T-207': ('notStored', '文書には保存しない'),
 }
+
+def manuscript_types():
+    """Rows of settings.json that state their machine type directly.
+
+    ⚠️ This generator still reads the PRINTED table for everything else, on
+    purpose: tools/generate_entity_types.py reads settings.json instead, and
+    two independent readers of the same manuscript disagreeing is what catches
+    a misread cell. Only the rows whose 型 cell cannot be machine-read at all
+    are taken from here.
+    """
+    path = os.path.join(HERE, 'settings.json')
+    if not os.path.exists(path):
+        return {}
+    doc = json.load(io.open(path, encoding='utf-8'))
+    out = {}
+    for block in doc['blocks']:
+        if block['kind'] != 'table':
+            continue
+        for row in block['rows']:
+            if 'json' in row:
+                out[row['id']] = row['json']
+    return out
+
+
+MANUSCRIPT_TYPES = manuscript_types()
 
 NOT_STORED_MARK = '⛔'          # the stop sign the sources put on a key
 UNSOURCED_MARK = '\U0001f50e'       # the magnifier marking a default with no origin
@@ -391,7 +418,18 @@ def document_settings(tables, open_types, skipped):
             if not key:
                 skipped.append((row[0], clean(name_cell), 'not a named key'))
                 continue
-            flat[key.group(1)] = settings_type(row, header, key.group(1), open_types)
+            stated = MANUSCRIPT_TYPES.get(row[0])
+            if stated is not None:
+                # ⭐ The manuscript states the machine type for a row whose
+                # printed 型 cell cannot carry one -- `{ date1: 日付, date2:
+                # 日付 }` is written for a person, and no regex over it is the
+                # specification's answer (CR-175). The printed table stays the
+                # human type; settings.json holds the machine one, in the same
+                # "json" shape erd.json uses for an entity column.
+                flat[key.group(1)] = frag(stated, [], row[0])
+            else:
+                flat[key.group(1)] = settings_type(row, header, key.group(1),
+                                                   open_types)
     return as_object(nest(flat), '見せ方の群（表 T-052 の `DR-3`）。全数は `FR-063` が定める。')
 
 
@@ -449,9 +487,10 @@ def build():
     schema['$id'] = SCHEMA_ID
     schema['title'] = 'GRS JSON document'
     schema['description'] = (
-        'Generated from docs/spec/_assets/source/erd.json (the schedule group) '
+        'Generated from docs/spec/_source/erd.json (the schedule group) '
         'and docs/spec/_assets/tbl-settings.md (the presentation group). '
-        'Never edit by hand: run docs/spec/_assets/source/erd_json_to_schema.py.')
+        'Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails '
+        'on drift. The generator is docs/spec/_source/erd_json_to_schema.py.')
     note = []
     if open_enums:
         note.append('Enumerations whose members the specification has not spelled '

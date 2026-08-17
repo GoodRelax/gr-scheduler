@@ -25,7 +25,7 @@
 // could not be read arrives as `unreadable` / `entryCountNotOne` / `broken`,
 // never as `read`.
 //
-// ⚠️ The figure source (docs/spec/_assets/source/components.json) draws an edge
+// ⚠️ The figure source (docs/spec/_source/components.json) draws an edge
 // ChooseStartupDocument -> ValidateImportedDocument, "checks each candidate".
 // That call is NOT made here: `validateImportedDocument` (PI-13, UF-22) has no
 // signature yet, and a pure unit cannot depend on one it cannot see. The

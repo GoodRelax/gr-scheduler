@@ -22,7 +22,7 @@ Output goes to `scratch/spec-check/` (gitignored). Checks 1–12 and 15–20 are
 gates; 13 and 14 are advisory counts that should trend down.
 
 **Check 16 guards the generated documents.** `docs/spec/_assets/fig-erd-*.md`
-are written by `docs/spec/_assets/source/erd_json_to_md.py` from `erd.json`;
+are written by `docs/spec/_source/erd_json_to_md.py` from `erd.json`;
 their banner says never to edit them, and check 16 is what makes that true —
 it rebuilds both and reports the first line that differs. When it fires, the
 fix is to move the edit into `erd.json` and regenerate, never to re-apply it
@@ -32,7 +32,7 @@ past the figure the way it did while that figure was hand written.
 
 **Check 17 guards the other generated artifact.**
 `docs/spec/_assets/grs-document.schema.json` is the `GRS JSON` schema, written
-by `docs/spec/_assets/source/erd_json_to_schema.py` from the two sources
+by `docs/spec/_source/erd_json_to_schema.py` from the two sources
 Chapter 6.2 names: `erd.json` (the `json` key of every column) and
 `tbl-settings.md` (read in its present table form). It fires in both
 directions — a hand edit to the schema and a source edit that was never
@@ -239,7 +239,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 | `graph.py` | cycles, depth measurement, unit partition |
 | `induced.py` | cycles among the objects one change touches — run before editing |
 
-`docs/spec/_assets/source/erd_json_to_md.py` and `erd_json_to_schema.py` live
+`docs/spec/_source/erd_json_to_md.py` and `erd_json_to_schema.py` live
 with their source and are invoked by `check.sh` as checks 16 and 17;
 `tools/generate_unit_tree.py` writes `src/` and is invoked as check 18,
 `tools/check_layer_rules.py` reads it back as check 19, and

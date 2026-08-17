@@ -3,7 +3,11 @@
 **UID**: DOC-TBL-SETTINGS
 **Version**: 0.1
 
-**本書が設定値の正である。** 名前の正は `tbl-glossary.md` の表 T-104 が持ち、**本書は値**（既定値・下限・上限・範囲の理由）を持つ。**名前と値を 2 か所で管理しない。**
+> ⛔ **本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。**
+> **設定値の唯一の正は `_source/settings.json` である。** 本書はそれを `_source/settings_json_to_md.py` が印字したものである。
+> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`（検査 16 が呼ぶ）。
+
+**設定値の正は `_source/settings.json` が持つ。** 名前の正は `tbl-glossary.md` の表 T-104 が持ち、**本書は値**（既定値・下限・上限・範囲の理由）を印字する。**名前と値を 2 か所で管理しない。**
 
 由来は前プロジェクトの設定値確定版（`previous-project-result/02-data-model/grs-document-settings-ja.md`）である。
 

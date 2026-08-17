@@ -1,6 +1,6 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_assets/source/erd.schema.json",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/erd.schema.json",
  "title": "gr-scheduler data model source",
  "description": "The single source for the data-model figure and its explanation tables. A generator turns this into a StrictDoc markdown document; the prose that explains the tables lives in the specification body, never here.",
  "type": "object",
@@ -306,6 +306,10 @@
       "iso8601Seconds"
      ],
      "description": "A spelling the specification pins by itself. A date taken from the exchange partner keeps the format it arrived in (EX-4), so it carries no format here."
+    },
+    "isDate": {
+     "const": true,
+     "description": "This column is one table T-058 gives a date or a datetime type. ⚠️ NOT a format: EX-4 keeps whatever spelling the value arrived in, and this says nothing about that. It exists because IV-14 reaches these columns as a set without naming them, so without a marker the roster gets copied by hand and goes stale (F-3, CR-175)."
     },
     "values": {
      "type": "array",

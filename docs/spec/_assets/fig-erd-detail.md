@@ -3,8 +3,9 @@
 **UID**: DOC-FIG-ERD-DETAIL
 **Version**: 0.1
 
-> **本書は `_assets/source/erd.json` から `erd_json_to_md.py` が書き出す。手で直さない。**
-> **直すのは `erd.json` である。** 説明の散文は `05-07-design.md` が持つ。
+> ⛔ **本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。**
+> **唯一の正は `_source/erd.json` であり、本書はそれを `_source/erd_json_to_md.py` が書き出したものである。**
+> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`（検査 16 が呼ぶ）。説明の散文は `05-07-design.md` が持つ。
 
 ## 1. 詳細 ERD
 

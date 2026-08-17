@@ -100,14 +100,10 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
+  DATE_COLUMNS,
   compareDays,
   dayOf,
-  type BaselineTask,
   type CalendarDay,
-  type CommentBox,
-  type Exception,
-  type HighlightBox,
-  type Project,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 
@@ -206,59 +202,16 @@ function refusal(rule: string, at: string, what: string, notice: 'NT-1' | 'NT-6'
 //
 // IV-14 points at "表 T-058 の型の欄が日付または日時とする列" rather than naming
 // them, so that adding a column does not have to be remembered in two places.
-// The generated types carry `string | null` and not the 型 column, so the four
-// lists below are the only form that reading can take in code.
 //
-// ⛔ They are a COPY of the ERD, and the only lists in this file that a new
-// column can go stale against. `satisfies` catches a misspelling, not an
-// omission. The generator (tools/generate_entity_types.py) is where the copy
-// could end, and it does not emit this today. Reported.
+// ⭐ CR-175 made that reachable: erd.json marks each such column, and
+// `DATE_COLUMNS` is generated from those marks. Before it, six lists here were
+// a COPY of the ERD -- `satisfies` caught a misspelling but nothing caught a
+// column that had been added and never listed.
 //
-// ⚠️ `revisionStamp.updatedAt` and `changeLog.changedAt` are NOT here: AT-129
+// ⚠️ `revisionStamp.updatedAt` and `changeLog.changedAt` are NOT in it: AT-129
 // and AT-133 give their type as 文字列, so table T-058 does not call them dates
 // and IV-14 does not reach them. Neither does `scrollDate` or the dual cursor --
 // they are in the presentation group, which table T-058 does not describe.
-
-/** AT-9 / AT-11 / AT-12 / AT-13. */
-const PROJECT_DATE_COLUMNS = [
-  'created',
-  'lastSaved',
-  'startDate',
-  'statusDate',
-] as const satisfies readonly (keyof Project & string)[]
-
-/** AT-28 / AT-29 / AT-31 / AT-34 / AT-36 / AT-37. */
-const TASK_DATE_COLUMNS = [
-  'start',
-  'finish',
-  'deadline',
-  'actualStart',
-  'actualFinish',
-  'resume',
-] as const satisfies readonly (keyof Task & string)[]
-
-/** AT-79 / AT-80. */
-const EXCEPTION_DATE_COLUMNS = [
-  'fromDate',
-  'toDate',
-] as const satisfies readonly (keyof Exception & string)[]
-
-/** AT-113. */
-const COMMENT_BOX_DATE_COLUMNS = [
-  'anchorDate',
-] as const satisfies readonly (keyof CommentBox & string)[]
-
-/** AT-117 / AT-118. */
-const HIGHLIGHT_BOX_DATE_COLUMNS = [
-  'startDate',
-  'endDate',
-] as const satisfies readonly (keyof HighlightBox & string)[]
-
-/** AT-136 / AT-137. */
-const BASELINE_TASK_DATE_COLUMNS = [
-  'start',
-  'finish',
-] as const satisfies readonly (keyof BaselineTask & string)[]
 
 /** The two ends of table T-214, once each string has been read as a day. */
 interface AcceptedDays {
@@ -525,14 +478,14 @@ export function validateImportedDocument(
 
   if (accepted !== null) {
     found.push(
-      ...sweepDateColumns(schedule.project, PROJECT_DATE_COLUMNS, '/schedule/project', accepted),
+      ...sweepDateColumns(schedule.project, DATE_COLUMNS.Project, '/schedule/project', accepted),
     )
   }
 
   for (const [index, task] of tasks.entries()) {
     const at = `/schedule/tasks/${index}`
     if (accepted !== null) {
-      found.push(...sweepDateColumns(task, TASK_DATE_COLUMNS, at, accepted))
+      found.push(...sweepDateColumns(task, DATE_COLUMNS.Task, at, accepted))
     }
 
     // FR-012: "`start` または `finish` を持たない `Task` を、画面に出す `Task` と
@@ -567,7 +520,7 @@ export function validateImportedDocument(
         found.push(
           ...sweepDateColumns(
             exception,
-            EXCEPTION_DATE_COLUMNS,
+            DATE_COLUMNS.Exception,
             `/schedule/calendars/${calendarIndex}/exceptions/${exceptionIndex}`,
             accepted,
           ),
@@ -576,17 +529,17 @@ export function validateImportedDocument(
     }
     for (const [index, box] of schedule.commentBoxes.entries()) {
       found.push(
-        ...sweepDateColumns(box, COMMENT_BOX_DATE_COLUMNS, `/schedule/commentBoxes/${index}`, accepted),
+        ...sweepDateColumns(box, DATE_COLUMNS.CommentBox, `/schedule/commentBoxes/${index}`, accepted),
       )
     }
     for (const [index, box] of schedule.highlightBoxes.entries()) {
       found.push(
-        ...sweepDateColumns(box, HIGHLIGHT_BOX_DATE_COLUMNS, `/schedule/highlightBoxes/${index}`, accepted),
+        ...sweepDateColumns(box, DATE_COLUMNS.HighlightBox, `/schedule/highlightBoxes/${index}`, accepted),
       )
     }
     for (const [index, baseline] of schedule.baselineTasks.entries()) {
       found.push(
-        ...sweepDateColumns(baseline, BASELINE_TASK_DATE_COLUMNS, `/schedule/baselineTasks/${index}`, accepted),
+        ...sweepDateColumns(baseline, DATE_COLUMNS.BaselineTask, `/schedule/baselineTasks/${index}`, accepted),
       )
     }
   }
