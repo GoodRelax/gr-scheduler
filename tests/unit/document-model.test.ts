@@ -276,6 +276,7 @@ import {
   NoWorkingDayReached,
   textOfDay,
   workingCalendarOf,
+  DEFAULT_CALENDAR_VALUES,
   workingDaysBetween,
   type Calendar,
   type CalendarDay,
@@ -349,6 +350,19 @@ describe('Schedule (PI-1) -- one calendar for the document (FR-054)', () => {
     // 2026-08-17 is a Monday and the 16th a Sunday.
     expect(isWorkingDay(held, day(2026, 8, 17))).toBe(true)
     expect(isWorkingDay(held, day(2026, 8, 16))).toBe(false)
+  })
+
+  it('works exactly the days S-106 names, in the dayType numbering AT-73 states', () => {
+    // ⭐ The working days used to be a hand-written `dayType >= 2 && <= 6` with
+    // a comment that was the ONLY place the numbering was written down. CR-180
+    // put the numbering in AT-73 and the days in table T-209, and this holds
+    // the built calendar against the manuscript's value.
+    const held = workingCalendarOf(scheduleWith({ calendarUid: null }, []))
+    const working = held.weekDays.filter((one) => one.dayWorking === true).map((one) => one.dayType)
+    expect(working).toEqual([...DEFAULT_CALENDAR_VALUES['S-106']])
+    // ⚠️ And every day of the week is present, working or not: FR-054 counts by
+    // this calendar, so a missing row would be neither working nor non-working.
+    expect(held.weekDays.map((one) => one.dayType)).toEqual([1, 2, 3, 4, 5, 6, 7])
   })
 
   it('stops rather than spinning when a calendar works none of its days', () => {

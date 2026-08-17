@@ -217,6 +217,7 @@ def schedule_block(erd):
     defaults = column_defaults_block(erd)
     if defaults:
         out.append(defaults)
+    out.append(default_calendar_block())
     return '\n\n'.join(out)
 
 
@@ -332,6 +333,83 @@ def number_of(cell):
     if isinstance(cell, dict) and 'num' in cell:
         return float(cell['num'])
     return None
+
+
+# ---- table T-209: the calendar a document starts from ---------------------
+#
+# ⭐ Unlike table T-206 these values ARE stored: they land in the columns of
+# Calendar and Project, so a document made without importing one still round
+# trips (EX-1). FR-054 resolves the document's calendar down to them.
+#
+# ⛔ The two weekday columns are numbered DIFFERENTLY by the exchange format --
+# WeekDay/DayType counts 1 = Sunday, Project/WeekStartDay counts 0 = Sunday
+# (AT-73 and AT-17) -- so each row states its own encoding and this generator
+# never converts between them. Monday is 2 in one row and 1 in the next, and
+# that is the format's doing, not a mistake here.
+DEFAULT_CALENDAR_ROWS = ['S-106', 'S-107', 'S-108', 'S-128']
+
+
+def default_calendar_block():
+    """Table T-209, by row ID, with the encoding written beside each row."""
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-209']
+    if not block:
+        raise SystemExit('settings.json holds no table T-209')
+    by_id = {r['id']: r for r in block[0]['rows']}
+    got = []
+    for row_id in DEFAULT_CALENDAR_ROWS:
+        if row_id not in by_id:
+            raise SystemExit('table T-209 has no row %s' % row_id)
+        cell = by_id[row_id].get('value')
+        if not isinstance(cell, dict):
+            raise SystemExit('table T-209 row %s is not a machine value' % row_id)
+        if 'days' in cell:
+            days, encoding = cell['days'], cell['encoding']
+            note = ('as `WeekDay.dayType` (1 = Sunday)' if encoding == 'dayType'
+                    else 'as `Project.weekStartDay` (0 = Sunday)')
+            if encoding == 'weekStartDay':
+                # That column holds ONE day, so a list of any other length
+                # would be silently truncated by whoever read it.
+                if len(days) != 1:
+                    raise SystemExit(
+                        'table T-209 row %s is a weekStartDay and must state '
+                        'exactly one day, not %d' % (row_id, len(days)))
+                got.append((row_id, str(days[0]), 'number', note))
+            else:
+                got.append((row_id, '[%s]' % ', '.join(str(d) for d in days),
+                            'readonly number[]', note))
+        elif 'num' in cell:
+            unit = (cell.get('suffix') or '').strip()
+            got.append((row_id, cell['num'], 'number',
+                        ('in %s' % unit) if unit
+                        else 'the number the row states'))
+        else:
+            raise SystemExit(
+                'table T-209 row %s holds no machine value this generator '
+                'reads' % row_id)
+
+    out = ['/**',
+           ' * Table T-209 -- the values a document starts its calendar from,',
+           ' * by row ID. `DEFAULT_CALENDAR` below is built out of them.',
+           ' *',
+           ' * ⭐ FR-054 resolves the document\'s calendar to these when nothing',
+           ' * was imported, or when what was imported left the value empty.',
+           ' *',
+           ' * ⛔ The two weekday rows do NOT share a numbering. S-106 is in the',
+           ' * dayType encoding and S-108 in the weekStartDay one, which differ',
+           ' * by one -- so Monday is 2 in the first and 1 in the second. Each',
+           ' * row says which below; converting between them is the reader\'s',
+           ' * job and the specification states both (AT-73, AT-17).',
+           ' */',
+           'export const DEFAULT_CALENDAR_VALUES: {']
+    for row_id, _literal, ts, note in got:
+        out.append('  /** %s, %s */' % (row_id, note))
+        out.append("  readonly '%s': %s" % (row_id, ts))
+    out.append('} = {')
+    for row_id, literal, _ts, _note in got:
+        out.append("  '%s': %s," % (row_id, literal))
+    out.append('}')
+    return '\n'.join(out)
 
 
 # ---- table T-206: the values the document does NOT store ------------------
@@ -516,7 +594,8 @@ def flat_keys(node, prefix):
 # is the same failure as having none.
 TARGETS = [
     (os.path.join(MODEL, 'schedule', 'schedule.ts'), schedule_block,
-     ['docs/spec/_source/erd.json']),
+     ['docs/spec/_source/erd.json',
+      'docs/spec/_source/settings.json (table T-209)']),
     (os.path.join(MODEL, 'document-stamp', 'document-stamp.ts'), stamp_block,
      ['docs/spec/_source/erd.json']),
     (os.path.join(MODEL, 'document-settings', 'document-settings.ts'), settings_block,

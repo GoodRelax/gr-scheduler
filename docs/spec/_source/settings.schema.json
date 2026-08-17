@@ -9,6 +9,7 @@
  "description": "The manuscript Chapter 6.2 names for the presentation group. docs/spec/_assets/tbl-settings.md is printed from it and is a generated artifact. The manuscript belongs to no language: every cell that holds Japanese is a language dictionary so that the ja/en split is data entry rather than a second copy of 1533 rows.",
  "type": "object",
  "required": [
+  "weekdays",
   "blocks"
  ],
  "additionalProperties": false,
@@ -21,6 +22,67 @@
    "type": "array",
    "items": {
     "type": "string"
+   }
+  },
+  "weekdays": {
+   "description": "The seven day names, INDEXED 0 = Sunday to 6 = Saturday. A cell that states weekdays holds the numbers; the generator prints the names from here, so the value and the word cannot drift apart and a later edition fills in one roster rather than editing every row.",
+   "type": "object",
+   "required": [
+    "short",
+    "long",
+    "separator",
+    "none"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "$comment": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "short": {
+     "$ref": "#/$defs/dayNames"
+    },
+    "long": {
+     "$ref": "#/$defs/dayNames"
+    },
+    "separator": {
+     "description": "Printed between the names of a list. ⚠️ It belongs to a language: this was first written as a plain string on the reasoning that a mark is a mark, and check 23 refused it -- 「・」 is Japanese punctuation, and an English edition joins with a comma.",
+     "type": "object",
+     "required": [
+      "ja"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "ja": {
+       "type": "string",
+       "minLength": 1
+      },
+      "en": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "none": {
+     "description": "Printed when the list is empty, as the document words it.",
+     "type": "object",
+     "required": [
+      "ja"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "ja": {
+       "type": "string",
+       "minLength": 1
+      },
+      "en": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    }
    }
   },
   "blocks": {
@@ -76,6 +138,34 @@
   }
  },
  "$defs": {
+  "dayNames": {
+   "description": "Seven names, Sunday first. ⚠️ Exactly seven, so an index can never miss.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "array",
+     "minItems": 7,
+     "maxItems": 7,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "en": {
+     "type": "array",
+     "minItems": 7,
+     "maxItems": 7,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   }
+  },
   "cell": {
    "description": "One printed cell, in one of three forms: a plain string when it is printed verbatim and is the same in every language (an expression naming another key, a dash, an empty cell); a language dictionary when it holds prose; a machine value when the cell IS a value the code generators read.",
    "oneOf": [
@@ -121,6 +211,13 @@
      "required": [
       "pair"
      ]
+    },
+    {
+     "required": [
+      "days",
+      "encoding",
+      "form"
+     ]
     }
    ],
    "properties": {
@@ -133,6 +230,30 @@
       "type": "string",
       "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
      }
+    },
+    "days": {
+     "description": "Weekdays as NUMBERS. The day names are printed from the manuscript's roster, so a cell that states weekdays never holds the words -- holding both would let them disagree. An empty list prints the roster's word for none.",
+     "type": "array",
+     "uniqueItems": true,
+     "items": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 7
+     }
+    },
+    "encoding": {
+     "description": "Which of the exchange format's two weekday numberings this cell uses. ⛔ It has two, and they differ by one: WeekDay/DayType counts 1 = Sunday to 7 = Saturday (0 marks an exception day), while Project/WeekStartDay counts 0 = Sunday to 6 = Saturday. AT-73 and AT-17 state both. A cell must say which, or Monday is 1 in one row and 2 in the next with nothing to tell them apart.",
+     "enum": [
+      "dayType",
+      "weekStartDay"
+     ]
+    },
+    "form": {
+     "description": "Which roster the names come from: the one-character form (used in a list) or the full one.",
+     "enum": [
+      "short",
+      "long"
+     ]
     },
     "prefix": {
      "description": "A phrase printed BEFORE the value, held per language. It exists so that a cell like S-90's can carry its number as a value instead of burying it in a sentence -- and the number is not written a second time inside the phrase.",

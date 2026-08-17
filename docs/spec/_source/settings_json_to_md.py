@@ -33,7 +33,43 @@ LANG = 'ja'
 # Row keys that are not printed cells.
 METADATA = frozenset(['json'])
 
-say = lambda m: sys.stdout.write(m + '\n')
+def say(message):
+    """⛔ The Windows console is cp932 and this file's messages quote the
+    manuscript, which holds 🔎 and ⛔. Writing them raw raised
+    UnicodeEncodeError from INSIDE the problem reporter -- so a bad manuscript
+    killed the run with a stack trace instead of naming the row. Same guard as
+    erd_json_to_md.py's `say`.
+    """
+    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
+    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
+
+
+# The day-name roster of the manuscript, put here by build() so that text()
+# keeps one argument. ⚠️ Read only -- the manuscript owns it.
+ROSTER = None
+
+
+def weekdays(value, roster):
+    """A cell that states weekdays: the NUMBERS render into the day names.
+
+    ⛔ The words are not in the cell. Table T-209 prints 「月・火・水・木・金」
+    and the code needs [2, 3, 4, 5, 6]; holding both would let them disagree,
+    and nothing would say so.
+
+    ⚠️ The exchange format numbers weekdays two different ways, so a cell says
+    which one it uses: `WeekDay/DayType` counts 1 = Sunday to 7 = Saturday,
+    `Project/WeekStartDay` counts 0 = Sunday to 6 = Saturday (AT-73 and AT-17).
+    The roster below is indexed the second way, so a dayType value is shifted.
+    """
+    names = roster[value['form']][LANG]
+    shift = 1 if value['encoding'] == 'dayType' else 0
+    days = [names[day - shift] for day in value['days']]
+    if not days:
+        return roster['none'][LANG]
+    # ⚠️ The separator belongs to a language too. It was written as a plain
+    # string first, and check 23 caught it: 「・」 is Japanese punctuation and an
+    # English edition would join with a comma.
+    return roster['separator'][LANG].join(days)
 
 
 def text(value):
@@ -55,6 +91,11 @@ def text(value):
         return value
     if 'ja' in value:
         return value[LANG]
+    if 'days' in value:
+        if ROSTER is None:
+            raise SystemExit('a weekday cell was printed before the roster was read')
+        out = weekdays(value, ROSTER)
+        return out + (' ' + value['mark'] if value.get('mark') else '')
     if 'num' in value or 'lit' in value or 'pair' in value:
         if 'pair' in value:
             body = PAIR_SEPARATOR.join(value['pair'])
@@ -105,6 +146,8 @@ def table(block):
 
 
 def build(doc):
+    global ROSTER
+    ROSTER = doc['weekdays']
     lines = []
     for block in doc['blocks']:
         if block['kind'] == 'prose':

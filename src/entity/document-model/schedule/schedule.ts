@@ -21,6 +21,7 @@ export {}
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/erd.json
+//   docs/spec/_source/settings.json (table T-209)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 /** ET-1 of table T-056. */
 export interface Project {
@@ -406,9 +407,36 @@ export const COLUMN_DEFAULTS: {
 } = {
   TaskVisual: { milestoneGlyph: 'diamond' },
 }
+
+/**
+ * Table T-209 -- the values a document starts its calendar from,
+ * by row ID. `DEFAULT_CALENDAR` below is built out of them.
+ *
+ * ⭐ FR-054 resolves the document's calendar to these when nothing
+ * was imported, or when what was imported left the value empty.
+ *
+ * ⛔ The two weekday rows do NOT share a numbering. S-106 is in the
+ * dayType encoding and S-108 in the weekStartDay one, which differ
+ * by one -- so Monday is 2 in the first and 1 in the second. Each
+ * row says which below; converting between them is the reader's
+ * job and the specification states both (AT-73, AT-17).
+ */
+export const DEFAULT_CALENDAR_VALUES: {
+  /** S-106, as `WeekDay.dayType` (1 = Sunday) */
+  readonly 'S-106': readonly number[]
+  /** S-107, as `WeekDay.dayType` (1 = Sunday) */
+  readonly 'S-107': readonly number[]
+  /** S-108, as `Project.weekStartDay` (0 = Sunday) */
+  readonly 'S-108': number
+  /** S-128, the number the row states */
+  readonly 'S-128': number
+} = {
+  'S-106': [2, 3, 4, 5, 6],
+  'S-107': [],
+  'S-108': 1,
+  'S-128': 480,
+}
 // </generated>
-
-
 
 /**
  * The five states of table T-019a. The spellings are this file's own: the
@@ -645,8 +673,12 @@ export function isWorkingDay(within: WorkingCalendar, day: CalendarDay): boolean
 const DEFAULT_WEEK_DAYS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) => ({
   ordinal,
   dayType,
-  // AT-73 codes the days 1..7 from Sunday, so 2..6 is Monday to Friday (S-106).
-  dayWorking: dayType >= 2 && dayType <= 6,
+  // ⭐ S-106 itself, in the dayType numbering AT-73 states, generated from the
+  // manuscript. This line used to read `dayType >= 2 && dayType <= 6` with a
+  // comment explaining the mapping -- and that comment was the ONLY place the
+  // mapping was written down anywhere: the specification did not state it
+  // until CR-180. Changing 表 T-209 now changes this (CR-180).
+  dayWorking: DEFAULT_CALENDAR_VALUES['S-106'].includes(dayType),
   carry: {},
   carryElements: [],
 }))

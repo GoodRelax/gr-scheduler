@@ -8,7 +8,10 @@
 import { describe, expect, it } from 'vitest'
 import { bare, specTable } from './spec-table'
 import { documentSchema, validateDocument, validateEntity } from '../fixtures/grs-document'
-import { COLUMN_DEFAULTS } from '../../src/entity/document-model/schedule/schedule'
+import {
+  COLUMN_DEFAULTS,
+  DEFAULT_CALENDAR_VALUES,
+} from '../../src/entity/document-model/schedule/schedule'
 
 const schema = documentSchema as {
   required: string[]
@@ -55,6 +58,32 @@ describe('the GRS JSON schema, as a shared fixture', () => {
     const result = validateEntity('WeekDay', weekDay)
     expect(result.valid).toBe(false)
     expect(result.errors.join(' ')).toMatch(/dayType/)
+  })
+
+  it('states the default calendar in two weekday numberings that differ by one', () => {
+    // ⛔ The trap CR-180 wrote into AT-73 and AT-17. The exchange format counts
+    // weekdays twice over: WeekDay/DayType from 1 = Sunday, and
+    // Project/WeekStartDay from 0 = Sunday. So Monday is 2 in one row of table
+    // T-209 and 1 in the next, and a reader who assumes one numbering shifts
+    // every day by one without anything failing.
+    const sundayIndexOfDayType = (n: number): number => n - 1
+    const sundayIndexOfWeekStart = (n: number): number => n
+
+    // S-106 is 月〜金 and S-108 is 月曜. Changing either in the manuscript is
+    // meant to fail here: they are 🔎 values, and this is the test that makes
+    // reselecting one a visible act rather than a silent one.
+    expect(DEFAULT_CALENDAR_VALUES['S-106'].map(sundayIndexOfDayType)).toEqual([1, 2, 3, 4, 5])
+    expect(sundayIndexOfWeekStart(DEFAULT_CALENDAR_VALUES['S-108'])).toBe(1)
+    expect(DEFAULT_CALENDAR_VALUES['S-107']).toEqual([])
+
+    // And each row stays inside the range its own numbering allows, so a
+    // dayType number cannot be pasted into the weekStartDay row unnoticed.
+    for (const day of DEFAULT_CALENDAR_VALUES['S-106']) {
+      expect(day, 'a dayType runs 1..7').toBeGreaterThanOrEqual(1)
+      expect(day).toBeLessThanOrEqual(7)
+    }
+    expect(DEFAULT_CALENDAR_VALUES['S-108']).toBeGreaterThanOrEqual(0)
+    expect(DEFAULT_CALENDAR_VALUES['S-108']).toBeLessThanOrEqual(6)
   })
 
   it('carries every default table T-058 publishes, spelled the same way', () => {

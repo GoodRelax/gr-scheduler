@@ -616,7 +616,7 @@
      "origin": "Own",
      "exchange": "Project/WeekStartDay",
      "meaning": {
-      "ja": "週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）"
+      "ja": "週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）。**`0` が日曜で、土曜の `6` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⛔ **`WeekDay.dayType` とは番号が 1 ずれる** —— 同じ曜日が別の数で書かれる。"
      }
     },
     {
@@ -1587,7 +1587,7 @@
      "origin": "Own",
      "exchange": "Calendars/Calendar/WeekDays/WeekDay/DayType",
      "meaning": {
-      "ja": "曜日"
+      "ja": "曜日。**`1` が日曜で、土曜の `7` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⚠️ **`0` は例外日を表すので本列は採らない** —— 例外日は `Exception` が持つ。⛔ **`Project.weekStartDay` とは番号が 1 ずれる** —— 交換相手が列ごとに別の体系を使っている。"
      }
     },
     {
