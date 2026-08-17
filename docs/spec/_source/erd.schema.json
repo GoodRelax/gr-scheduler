@@ -13,7 +13,8 @@
   "container",
   "entities",
   "relations",
-  "derived"
+  "derived",
+  "printed"
  ],
  "additionalProperties": false,
  "properties": {
@@ -59,6 +60,85 @@
    "description": "Values the document does not store and rebuilds when writing to the exchange partner. Order fixes the derived table's row IDs; append at the end.",
    "items": {
     "$ref": "#/$defs/derived"
+   }
+  },
+  "printed": {
+   "description": "The fixed prose the generated documents print: the banner, the derived carry rows, and the words a boolean cell shows. ⛔ It used to live inside erd_json_to_md.py, where adding an edition meant editing Python (CR-183). The table HEADINGS sit on their own section, beside the caption they head.",
+   "type": "object",
+   "required": [
+    "banner",
+    "carry",
+    "words"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "$comment": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "banner": {
+     "$ref": "#/$defs/proseList"
+    },
+    "carry": {
+     "description": "The edge and the relation rows drawn for every entity whose `carry` is true. They are derived, so no row of `relations` states them.",
+     "type": "object",
+     "required": [
+      "label",
+      "multiplicity",
+      "meaning"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "label": {
+       "$ref": "#/$defs/prose"
+      },
+      "multiplicity": {
+       "type": "string"
+      },
+      "meaning": {
+       "$ref": "#/$defs/prose"
+      }
+     }
+    },
+    "words": {
+     "description": "What a cell prints for a value that is not itself prose: a boolean, an absence, and the sentence that carries a decided default. ⚠️ `default_note` holds `{value}` where the value goes. ⚠️ The two separators are prose as well: check 23 caught the same assumption about 「・」 in settings.json -- a mark is not language-neutral just because it is short.",
+     "type": "object",
+     "required": [
+      "export_yes",
+      "export_no",
+      "carry_yes",
+      "none",
+      "default_note",
+      "type_detail_separator",
+      "key_separator"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "export_yes": {
+       "$ref": "#/$defs/prose"
+      },
+      "export_no": {
+       "$ref": "#/$defs/prose"
+      },
+      "carry_yes": {
+       "$ref": "#/$defs/prose"
+      },
+      "none": {
+       "type": "string"
+      },
+      "default_note": {
+       "$ref": "#/$defs/prose"
+      },
+      "type_detail_separator": {
+       "$ref": "#/$defs/prose"
+      },
+      "key_separator": {
+       "$ref": "#/$defs/prose"
+      }
+     }
+    }
    }
   }
  },
@@ -171,6 +251,10 @@
      "type": "string",
      "pattern": "^[A-Z]{1,3}$",
      "description": "First column of every row of this table: 'RL' yields RL-1, RL-2 ... The prefix must not be in use by any other table in the specification; that is checked spec-wide by the markdown checker, not here."
+    },
+    "header": {
+     "description": "The heading cells of this table, in printed order. ⭐ The markdown rule under them is DERIVED from how many there are -- writing both was two places to keep in step. A figure section has no header.",
+     "$ref": "#/$defs/proseList"
     }
    },
    "allOf": [
@@ -641,6 +725,32 @@
     "label": {
      "$ref": "#/$defs/prose",
      "description": "What the edge means. The multiplicity is not repeated here."
+    }
+   }
+  },
+  "proseList": {
+   "description": "Prose printed as several lines, held per language. The lines are the document's, not the generator's.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "en": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
     }
    }
   }

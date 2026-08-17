@@ -50,38 +50,12 @@ CROWS_FOOT = {
     '0..n ─ 0..n': '}o--o{',
 }
 
-CARRY_LABEL = 'carryElements の中身'
-CARRY_MULT = '1 ─ 0..n'
-CARRY_MEANING = '解釈しない要素の退避先（`carryElements`）'
-
-BANNER = ('> ⛔ **本書は生成物である。手で直さない —— 直しても次の '
-          '`npm run gen` で消える。**\n'
-          '> **唯一の正は `_source/erd.json` であり、本書はそれを '
-          '`_source/erd_json_to_md.py` が書き出したものである。**\n'
-          '> **作り直す**: `npm run gen` ／ **ズレを検出する**: '
-          '`npm run gen:check`（検査 16 が呼ぶ）。説明の散文は '
-          '`05-07-design.md` が持つ。')
-
-# The header row lives next to the code that builds the body rows, so the two
-# cannot drift apart. The caption and its number are data and come from the
-# JSON.
-HEADERS = {
-    # The column names the destination: the software always writes every
-    # entity to its own GRS JSON (FR-024), so a bare "書き出すか" could only
-    # ever have meant the exchange partner -- but the reader had to leave the
-    # table to find that out.
-    'entity': ('| 行 ID | 名前 | 何を表すか | 鍵 | `MSPDI` へ書き出すか |'
-               ' `carry` の器 |',
-               '| --- | --- | --- | --- | --- | --- |'),
-    'relation': ('| 行 ID | 親 | 子 | 多重度 | 何を表すか |',
-                 '| --- | --- | --- | --- | --- |'),
-    'column': ('| 行 ID | エンティティ | 列 | 型 | `null` | 鍵 | 出自 |'
-               ' 交換相手の要素 | 意味 |',
-               '| --- | --- | --- | --- | --- | --- | --- | --- | --- |'),
-    'derived': ('| 行 ID | エンティティ | 交換相手での名前 |'
-                ' 交換相手の要素 | 何から作るか |',
-                '| --- | --- | --- | --- | --- |'),
-}
+# ⛔ The fixed prose this file PRINTS is not here any more. The banner, the four
+# table headings, the derived carry rows and the words a boolean cell shows all
+# moved into erd.json's "printed" block (CR-183, carry-over (u)) -- they are
+# published sentences, and Chapter 6.2 requires those to be held per language.
+# ⚠️ What is still here is markup, not prose: the crow's foot codes and the
+# markdown rule row, which are the same in every edition.
 
 
 def load(path=None):
@@ -149,13 +123,15 @@ def split_type(typ):
 
 
 def figure(doc):
+    words = doc['printed']['words']
     out = ['```mermaid', '---', 'config:', '  er:', '    entityPadding: 6',
            '---', 'erDiagram']
     for e in doc['entities']:
         out.append('    %s {' % e['name'])
         for c in e['columns']:
             base, detail = split_type(c['type'])
-            comment = c['origin'] + ('・' + detail if detail else '')
+            comment = c['origin'] + (text(words['type_detail_separator']) + detail
+                                     if detail else '')
             marker = (' ' + c['key'].replace('/', ',')) if c['key'] else ''
             # A key column keeps its name in bold, the way the red and the
             # green did before. erDiagram cannot colour one attribute, but it
@@ -168,8 +144,10 @@ def figure(doc):
         out.append('    %s %s %s : "%s"'
                    % (r['parent'], CROWS_FOOT[r['multiplicity']], r['child'],
                       esc(text(r['label']))))
+    carry = doc['printed']['carry']
     for o in carry_owners(doc):
-        out.append('    %s ||--o{ CarryElement : "%s"' % (o, CARRY_LABEL))
+        out.append('    %s ||--o{ CarryElement : "%s"'
+                   % (o, esc(text(carry['label']))))
     out.append('```')
     return '\n'.join(out)
 
@@ -228,15 +206,17 @@ FIGURES = {'figure': figure, 'container': container_figure}
 # ---------------------------------------------------------------- tables ---
 
 def entity_table(doc, prefix):
+    words = doc['printed']['words']
     rows = []
     for i, e in enumerate(doc['entities'], 1):
         keys = [c['name'] for c in e['columns'] if c['key'].startswith('PK')]
         key = (text(e['key_note']) if 'key_note' in e
-               else (' ＋ '.join('`%s`' % k for k in keys) or '—'))
+               else (text(words['key_separator']).join('`%s`' % k for k in keys)
+                     or words['none']))
         rows.append('| %s-%d | `%s` | %s | %s | %s | %s |'
                     % (prefix, i, e['name'], text(e['description']), key,
-                       '書き出す' if e['export'] else '**書き出さない**',
-                       'あり' if e['carry'] else '—'))
+                       text(words['export_yes' if e['export'] else 'export_no']),
+                       text(words['carry_yes']) if e['carry'] else words['none']))
     return rows
 
 
@@ -245,20 +225,12 @@ def relation_table(doc, prefix):
             % (prefix, i, r['parent'], r['child'], r['multiplicity'],
                text(r['label']))
             for i, r in enumerate(doc['relations'], 1)]
+    carry = doc['printed']['carry']
     for j, o in enumerate(carry_owners(doc), len(doc['relations']) + 1):
         rows.append('| %s-%d | `%s` | `CarryElement` | %s | %s |'
-                    % (prefix, j, o, CARRY_MULT, CARRY_MEANING))
+                    % (prefix, j, o, carry['multiplicity'],
+                       text(carry['meaning'])))
     return rows
-
-
-# The sentence that prints a decided default beside a column's meaning.
-#
-# ⚠️ It is Japanese held in the GENERATOR, like HEADERS and BANNER above. That
-# is carry-over (u), not a new problem: the fixed prose of this generator moves
-# to the manuscript in one change, and inventing a half-way home for this one
-# fragment would only have to be undone then. The VALUE is not duplicated --
-# it comes from json.default, which is the single place that holds it.
-DEFAULT_NOTE = '。**既定は `%s`**'
 
 
 def column_table(doc, prefix):
@@ -269,7 +241,8 @@ def column_table(doc, prefix):
             n += 1
             meaning = text(c['meaning'])
             if 'default' in c['json']:
-                meaning += DEFAULT_NOTE % json_literal(c['json']['default'])
+                meaning += text(doc['printed']['words']['default_note']).replace(
+                    '{value}', '`%s`' % json_literal(c['json']['default']))
             rows.append('| %s-%d | `%s` | `%s` | %s | %s | %s | %s | %s | %s |'
                         % (prefix, n, e['name'], c['name'], c['type'],
                            c['nullable'],
@@ -277,6 +250,18 @@ def column_table(doc, prefix):
                            ('`%s`' % c['exchange']) if c['exchange'] else '—',
                            meaning))
     return rows
+
+
+def header_rows(section):
+    """The heading row of a table, and the markdown rule under it.
+
+    ⭐ The rule is DERIVED from the number of headings. It used to be written
+    beside each heading and checked for the same pipe count -- a check that
+    exists only because the two were written twice.
+    """
+    cells = text(section['header'])
+    return ('| %s |' % ' | '.join(cells),
+            '| %s |' % ' | '.join(['---'] * len(cells)))
 
 
 def json_literal(value):
@@ -305,14 +290,14 @@ def document(doc, meta):
     out = ['# %s' % text(meta['title']), '',
            '**UID**: %s' % meta['uid'],
            '**Version**: %s' % meta['version'], '',
-           BANNER, '']
+           '\n'.join(text(doc['printed']['banner'])), '']
     for section in meta['sections']:
         out += ['## %s' % text(section['title']), '', '**Type**: SECTION', '',
                 '**%s**' % text(section['caption']), '']
         if section['block'] in FIGURES:
             out += [FIGURES[section['block']](doc), '']
         else:
-            header, rule = HEADERS[section['block']]
+            header, rule = header_rows(section)
             rows = BUILDERS[section['block']](doc, section['row_prefix'])
             out += [header, rule] + rows + ['']
     return '\n'.join(out)
@@ -445,11 +430,11 @@ def problems(doc):
         kind = section['block']
         if kind in FIGURES:
             continue
-        header, rule = HEADERS[kind]
+        # ⭐ The rule row is derived from the heading now, so "the two disagree"
+        # is no longer a state that exists. What can still go wrong is a BUILT
+        # row with the wrong number of cells, and that is what this counts.
+        header, _rule = header_rows(section)
         want = header.count('|')
-        if rule.count('|') != want:
-            found.append('%s: rule has %d pipes, header has %d'
-                         % (kind, rule.count('|'), want))
         for i, row in enumerate(BUILDERS[kind](doc, section['row_prefix']), 1):
             if row.count('|') != want:
                 found.append('%s row %d has %d cells, header has %d'

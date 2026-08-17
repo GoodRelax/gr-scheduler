@@ -7,6 +7,49 @@
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/erd.schema.json before a byte is written."
  ],
+ "printed": {
+  "$comment": [
+   "The fixed prose this document set prints: the banner, the table headings, the derived carry rows and the words a boolean cell is printed as.",
+   "It used to sit inside erd_json_to_md.py, where adding an edition would have meant editing Python (carry-over (u))."
+  ],
+  "banner": {
+   "ja": [
+    "> ⛔ **本書は生成物である。手で直さない —— 直しても次の `npm run gen` で消える。**",
+    "> **唯一の正は `_source/erd.json` であり、本書はそれを `_source/erd_json_to_md.py` が書き出したものである。**",
+    "> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`（検査 16 が呼ぶ）。説明の散文は `05-07-design.md` が持つ。"
+   ]
+  },
+  "carry": {
+   "label": {
+    "ja": "carryElements の中身"
+   },
+   "multiplicity": "1 ─ 0..n",
+   "meaning": {
+    "ja": "解釈しない要素の退避先（`carryElements`）"
+   }
+  },
+  "words": {
+   "export_yes": {
+    "ja": "書き出す"
+   },
+   "export_no": {
+    "ja": "**書き出さない**"
+   },
+   "carry_yes": {
+    "ja": "あり"
+   },
+   "none": "—",
+   "type_detail_separator": {
+    "ja": "・"
+   },
+   "key_separator": {
+    "ja": " ＋ "
+   },
+   "default_note": {
+    "ja": "。**既定は {value}**"
+   }
+  }
+ },
  "documents": [
   {
    "file": "fig-erd-detail.md",
@@ -33,7 +76,17 @@
      "caption": {
       "ja": "表 T-056 — エンティティ"
      },
-     "row_prefix": "ET"
+     "row_prefix": "ET",
+     "header": {
+      "ja": [
+       "行 ID",
+       "名前",
+       "何を表すか",
+       "鍵",
+       "`MSPDI` へ書き出すか",
+       "`carry` の器"
+      ]
+     }
     },
     {
      "title": {
@@ -43,7 +96,16 @@
      "caption": {
       "ja": "表 T-057 — エンティティのあいだの関係"
      },
-     "row_prefix": "RL"
+     "row_prefix": "RL",
+     "header": {
+      "ja": [
+       "行 ID",
+       "親",
+       "子",
+       "多重度",
+       "何を表すか"
+      ]
+     }
     },
     {
      "title": {
@@ -53,7 +115,20 @@
      "caption": {
       "ja": "表 T-058 — 列"
      },
-     "row_prefix": "AT"
+     "row_prefix": "AT",
+     "header": {
+      "ja": [
+       "行 ID",
+       "エンティティ",
+       "列",
+       "型",
+       "`null`",
+       "鍵",
+       "出自",
+       "交換相手の要素",
+       "意味"
+      ]
+     }
     },
     {
      "title": {
@@ -63,7 +138,16 @@
      "caption": {
       "ja": "表 T-059 — 書き出すときに作る値"
      },
-     "row_prefix": "DV"
+     "row_prefix": "DV",
+     "header": {
+      "ja": [
+       "行 ID",
+       "エンティティ",
+       "交換相手での名前",
+       "交換相手の要素",
+       "何から作るか"
+      ]
+     }
     }
    ]
   },
