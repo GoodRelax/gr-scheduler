@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 23 mechanical checks for the gr-scheduler specification.
+# All 24 mechanical checks for the gr-scheduler specification.
 #
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
@@ -40,6 +40,11 @@
 #          as a language dictionary (Chapter 6.2), so adding an edition is a
 #          fill-in. Japanese that is a classification rather than prose is
 #          exempt BY PATH AND COUNT, so an exemption cannot grow in silence
+#   24     check-development-record.py : the development record still matches
+#          the tree. A record that has drifted is worse than none -- the next
+#          session reads it after a stop and starts from a state that is not
+#          true. "Not started" is decided exactly: the file is byte for byte
+#          the stub tools/generate_unit_tree.py writes
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -126,6 +131,10 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-cr-disciplin
 echo ""
 echo "===== 23  a manuscript holds its printed prose per language ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-language-dictionary.py || fail=1
+
+echo ""
+echo "===== 24  the development record still matches the tree ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-development-record.py || fail=1
 
 echo ""
 echo "===== 17  the GRS JSON schema still matches its two sources ====="
