@@ -27,7 +27,8 @@
 ```
 docs/development-records/
   W4-adapter.md      Adapter の 31 ユニット
-  W5-framework.md    （まだ無い。着手時に作る）
+  W5-framework.md    Framework の 9 ユニット
+  pending-decisions.md  裁定待ちの一覧（検査 25 が印と突き合わせる）
 ```
 
 **各ファイルは 3 節だけを持つ:**
