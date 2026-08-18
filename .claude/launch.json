@@ -2,15 +2,36 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "gr-scheduler",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 5173
+    },
+    {
       "name": "scratch-static",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8799", "--directory", "scratch"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8799",
+        "--directory",
+        "scratch"
+      ],
       "port": 8799
     },
     {
       "name": "erd-preview",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8801", "--directory", "scratch"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8801",
+        "--directory",
+        "scratch"
+      ],
       "port": 8801
     }
   ]

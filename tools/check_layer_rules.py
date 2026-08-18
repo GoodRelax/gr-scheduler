@@ -98,6 +98,15 @@ def main():
             continue
 
         target = os.path.normpath(os.path.join(os.path.dirname(path), spec))
+        if spec.endswith('.json'):
+            # Data, not a unit. Table T-075 counts units and check 18 counts
+            # `.ts`, so a bundled document (FR-027's template) is neither a
+            # component nor a reach into one. ⛔ Still has to exist: a missing
+            # one would be a build error nobody saw here.
+            if not os.path.exists(target):
+                violations.append('%s: imports %r, which is not a file'
+                                  % (here, spec))
+            continue
         if not target.endswith('.ts'):
             target += '.ts'
         if not os.path.exists(target):

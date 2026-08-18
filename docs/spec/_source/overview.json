@@ -255,7 +255,7 @@
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "geometry only",
-   "description": "backed by 7 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout; InputCommandTranslator -> ScheduleLayout; InputCommandTranslator -> ScreenRegions; ScreenRenderer -> ScreenRegions"
+   "description": "backed by 8 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout; SvgRenderer -> ScreenRegions; InputCommandTranslator -> ScheduleLayout; InputCommandTranslator -> ScreenRegions; ScreenRenderer -> ScreenRegions"
   },
   {
    "source": "adapter",

@@ -100,6 +100,7 @@
 | dependency | AgentApiEndpoint | ScheduleLayout | where a task sits | asks where a task sits, to focus it |  |
 | dependency | SvgRenderer | Selection | what is selected | shows the selection by more than colour |  |
 | dependency | SvgRenderer | Schedule | colours + theme hue | reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries |  |
+| dependency | SvgRenderer | ScreenRegions | the screen it fills | FR-080 makes the picture the whole screen GRS occupies, so the renderer needs the rectangles, not just the content |  |
 | dependency | ScheduleGeometry | Selection | what is selected | puts handles on selected tasks only |  |
 | dependency | InputCommandTranslator | Selection | make and clear | makes, widens and clears the selection |  |
 | dependency | PostDialogueMessage | DialogueLog | append one | appends one confirmed utterance |  |

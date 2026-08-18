@@ -603,6 +603,13 @@
    "description": "reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries"
   },
   {
+   "source": "SvgRenderer",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "the screen it fills",
+   "description": "FR-080 makes the picture the whole screen GRS occupies, so the renderer needs the rectangles, not just the content"
+  },
+  {
    "source": "ScheduleGeometry",
    "target": "Selection",
    "arrow": "dependency",
