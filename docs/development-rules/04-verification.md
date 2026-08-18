@@ -63,7 +63,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 
 | | |
 |---|---|
-| **機械検査（25 本）** | `bash .claude/skills/spec-graph-check/check.sh` |
+| **機械検査（26 本）** | `bash .claude/skills/spec-graph-check/check.sh`。⭐ **検査 0 が最初に走り、`docs/development-rules/` の索引を刷る** —— この規則が読まれるのは、読めと書いたからではなく、**最初の命令が出すから**である |
 | Chapter 5 の自己検算 | `PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py` |
 | 刊行物の描画 | ⚠️ **先に** `strictdoc export docs/spec --formats=html --output-dir scratch/spec-html-probe`、その後 `check-render.py` |
 | 影響範囲 / 閉路 | `impact.py` ／ `induced.py`（[02](02-changing-the-spec.md)）|

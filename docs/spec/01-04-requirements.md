@@ -5,7 +5,7 @@
 **Version**: 0.4
 
 本書は第 1 部（Chapter 1 〜 4）である。仕様形式は **ANPS-part**（4 枚）。
-書き方の規則は `previous-project-result/20-spec-template/spec-writing-rules.md`、
+書き方の規則は `docs/development-rules/08-spec-template/spec-writing-rules.md`、
 要望の入力は `previous-project-result/user-order.md` が正である。
 
 > **未記入の節は引用で始まる行を持つ。** `grep -n "^> 未記入" docs/spec/*.md` で残りを引ける。
@@ -3618,7 +3618,7 @@ flowchart LR
 | EZ-2 | **アイコンにポインタを合わせて一定時間が経ったら、そのアイコンの説明を出すこと（MUST）。** 待ち時間は `_assets/tbl-settings.md` の `S-124` が持つ | 本要求。作法は表 T-028 の `IN-3` |
 | EZ-3 | ヘルプ 1 画面で機能を説明する。**ヘルプ 1 画面はマニュアルではない** | `FR-036` |
 | EZ-4 | **作図ソフトや表計算ソフトの操作感に近づけること（SHOULD）** —— 利用者がいま日程表を描いている道具であり（Chapter 1.1）、**そこで身に付いた手が通じることが、読まずに使える最短の道である** | 本要求 |
-| EZ-5 | **試用して改良できる形に設計すること（MUST）** —— 改良に耐える設計の基準は `previous-project-result/21-review-standard/review-standards.md` の `R2` とする | 本要求。Chapter 5 が具体を決める |
+| EZ-5 | **試用して改良できる形に設計すること（MUST）** —— 改良に耐える設計の基準は `docs/development-rules/07-review-standards.md` の `R2` とする | 本要求。Chapter 5 が具体を決める |
 
 ⚠️ **`EZ-4` で製品名を挙げるのは操作感の参照先としてであって、依存でも評価でもない**（Chapter 1.1 と同じ扱い）。**特定の業種や製品を前提としない方針は変えない。**
 

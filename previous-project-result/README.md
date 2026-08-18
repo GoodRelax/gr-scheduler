@@ -308,16 +308,19 @@ previous-project-result/
 │       ├── grs-document-with-revision-stamp.json
 │       └── agent-apply-request-and-outcomes.json
 │
-├── 20-spec-template/                **仕様書の書き方**（フレームワークからの供給。追加 2026-08-12）
-│   ├── 00-ai-guide.md               Markdown 形式 StrictDoc の AI 向け手引き。**書く前に読む**
-│   ├── 01-ai-queries.md             書いたあとの検査に使う jq クエリ集（G29 / G33 / G35 / G37 等）
-│   ├── spec-template.md             ★仕様書の雛形（10 章 ＋ 付録）
-│   ├── spec-writing-rules.md        ★書き方の規則 v0.36（ANMS / ANPS-part / ANPS-chapter）
-│   └── spec.sgra                    ANPS の文法。仕様書のフォルダへ複製して使う
-│
-└── 21-review-standard/              **レビュー観点の規約**（フレームワークからの供給）
-    └── review-standards.md          R1〜R7 の観点。review-agent が参照する正
+└── （20-spec-template/ と 21-review-standard/ は移動した）
 ```
+
+⚠️ **20 と 21 は `docs/development-rules/` へ移した**（2026-08-19。利用者の裁定。CR-190）——
+**作り方の規則は 1 か所に集める**という判断である。移動先:
+
+```
+docs/development-rules/07-review-standards.md   R1〜R7 の観点（旧 21-review-standard/）
+docs/development-rules/08-spec-template/        仕様書の書き方（旧 20-spec-template/）
+```
+
+⛔ **過去の変更要求とレビュー在庫は書き換えていない**（本プロジェクトの規則）。
+⚠️ **そこに残る古いパスは、この節を見て読み替えること。**
 
 > ⚠️ **`10-agent-interface/` は `authority` を持たない。** 用語の正は 4 文書のままである。
 

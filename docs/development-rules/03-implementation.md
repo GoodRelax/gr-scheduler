@@ -1,7 +1,7 @@
 # 03 実装の規則 —— 識別子・命名・コメント・読みやすさ
 
 ⛔ **本書は「レビュー観点の規約」を書き写さない。** 正は
-`previous-project-result/21-review-standard/review-standards.md` にあり、条項番号で引く。
+`docs/development-rules/07-review-standards.md` にあり、条項番号で引く。
 ⭐ **本書が持つのは、あちらに無い規則と、この製品に固有の作法だけである。**
 
 ---

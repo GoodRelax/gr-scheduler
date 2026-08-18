@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-# All 25 mechanical checks for the gr-scheduler specification.
+# All 26 mechanical checks for the gr-scheduler specification.
 #
+#   0      The rules themselves. check-rules-index.py keeps the index of
+#          docs/development-rules/ honest -- every rule linked, every number
+#          cited, every link resolving -- and this script prints that index
+#          before any check runs, because a session opens this before it
+#          opens anything else
 #   1-4    StrictDoc JSON export : node counts, parentless nodes,
 #          ORIGIN vs Relations, UID gaps
 #   5-10   Markdown source (md-checks.py) : undefined table reference,
@@ -68,6 +73,23 @@ fail=0
 mkdir -p "$OUT"
 cd "$REPO" || exit 2
 
+# ⭐ The rules, before the checks. docs/development-rules/README.md is what a
+# session is told to open first, and the measurement in that file's section 2
+# says why this is printed rather than merely asked for: a rule written as a
+# principle was followed 7 times in 75, and one written into a procedure ran.
+# This IS the procedure -- every session runs this script before it starts.
+#
+# ⛔ The one-liners are READ from the index, never copied here. Two copies of
+# the same sentence part company, which is the failure R4 is about.
+echo "===== 0  the rules ====="
+echo "   docs/development-rules/ is the authority on HOW this product is built."
+echo "   Read ALL of them through before touching anything -- a rule you did"
+echo "   not read is one you cannot notice yourself breaking."
+echo "   The front session ORCHESTRATES: subagents implement and test (05.6)."
+echo ""
+# The index is Japanese; a cp932 console would mangle it.
+PYTHONIOENCODING=utf-8 python "$HERE/check-rules-index.py" || fail=1
+echo ""
 echo "===== 1-4  StrictDoc export ====="
 strictdoc export docs/spec --formats=json --output-dir "$SD" \
     --no-parallelization >/dev/null 2>&1 || {

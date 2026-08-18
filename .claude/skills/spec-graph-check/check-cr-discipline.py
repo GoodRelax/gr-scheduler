@@ -57,8 +57,8 @@ WANTED = [
      'does, say so plainly -- infrastructure with no CH behind it is a real '
      'answer, and a silent one is not.'),
     (STANDARD, '②', 'names no clause of the review standard',
-     'say which clauses of previous-project-result/21-review-standard/'
-     'review-standards.md were held against the change, and what they found.'),
+     'say which clauses of docs/development-rules/07-review-standards.md '
+     'were held against the change, and what they found.'),
     (None, '⑧', 'has no "%s" section' % DECIDED,
      'list what was settled WITHOUT asking the user, so it can be overturned '
      'later. An empty list is fine; a missing section is not.'),
