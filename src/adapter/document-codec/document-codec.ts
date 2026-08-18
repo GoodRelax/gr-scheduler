@@ -21,3 +21,10 @@
 // (Chapter 5.3, MUST).
 
 export type { AppShellSource } from './app-shell-source'
+
+// PI-20's six members. ⚠️ Only the GRS JSON pair is written: the MSPDI pair
+// answers to the exchange partner's schema and the embedded .html to FR-067,
+// and table T-063 UT-5 keeps the three apart precisely so one can land without
+// the others.
+export { documentFromJson, jsonFromDocument } from './json-codec'
+export type { JsonDecoding, JsonFault } from './json-codec'

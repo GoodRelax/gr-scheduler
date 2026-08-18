@@ -19,6 +19,7 @@
 
 import { chooseStartupDocument } from '../../use-case/choose-startup-document/choose-startup-document'
 import type { Document } from '../../entity/document-model/document/document'
+import { documentFromJson } from '../../adapter/document-codec/document-codec'
 import { domSvgSurface } from '../dom-svg-surface/dom-svg-surface'
 import { frameLoop, type FrameEnvironment } from './frame-loop'
 import startupTemplate from './startup-template.json'
@@ -27,17 +28,26 @@ import startupTemplate from './startup-template.json'
  * BT-4 of table T-034 -- the template FR-027 keeps exactly one of.
  *
  * ⭐ Bundled as a `GRS JSON` rather than assembled here, which FR-027 requires
- * in as many words, so the same validator the import path uses can be pointed
- * at it. tools/generate_startup_template.py writes it and `npm run gen:check`
+ * in as many words, so the same reader the import path uses can be pointed at
+ * it. tools/generate_startup_template.py writes it and `npm run gen:check`
  * fails when it drifts.
  *
- * ⚠️ The assertion is not a shrug: both this type and that file are generated
- * out of docs/spec/_source/erd.json, so a mismatch is a bug in one of two
- * generators rather than something to be handled here. ⛔ It stands in for
- * DocumentCodec's documentFromJson (UF-35), which is still a stub -- once that
- * exists this becomes a parse and a validation.
+ * ⭐ Read through `documentFromJson`, not asserted into shape: FR-023 calls
+ * every intake untrusted, and a template that stopped being a document would
+ * otherwise reach the layout as one. ⚠️ It is bundled, so a fault here is a
+ * build that shipped broken -- there is nobody to tell, and nothing to fall
+ * back to (FR-067 says a lost BT-1 descends, and BT-4 is the bottom).
  */
-const TEMPLATE = startupTemplate as unknown as Document
+function startupTemplateDocument(): Document {
+  const read = documentFromJson(JSON.stringify(startupTemplate))
+  if (!read.ok) {
+    throw new Error(
+      'the bundled startup template is not a GRS JSON document: ' +
+        read.faults.map((one) => `${one.at} ${one.what}`).join('; '),
+    )
+  }
+  return read.document
+}
 
 /**
  * What BO-1 has to settle before anything is drawn.
@@ -71,7 +81,7 @@ function boot(): void {
     embedded: { kind: 'none' },
     handed: { kind: 'none' },
     autosave: { kind: 'none' },
-    template: TEMPLATE,
+    template: startupTemplateDocument(),
   })
 
   // BO-3 is inside the document: zoomX / zoomY and scrollDate / scrollGroupId

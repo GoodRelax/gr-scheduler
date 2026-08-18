@@ -39,6 +39,7 @@
 
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import {
+  COLUMN_DEFAULTS,
   dateFromWorkingDays,
   dayOf,
   workingCalendarOf,
@@ -58,6 +59,9 @@ export type RulerTier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWe
 /** Where a label sits relative to its shape. Table T-013. */
 export type LabelPlacement = 'inside' | 'right'
 
+/** AT-101's eight. Taken from the generated column so the spellings are CR-172's. */
+export type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
+
 /** The five of table T-012, spelled as AT-100 spells them. */
 export type ShapeKind = 'rectangle' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone'
 
@@ -67,6 +71,16 @@ export interface TaskPlacement {
   readonly groupId: string
   /** Resolved through AT-100, so nothing downstream reads Task.milestone again. */
   readonly shapeKind: ShapeKind
+  /**
+   * AT-101's figure, resolved through its default so nothing downstream reads
+   * `taskVisuals` again. ⚠️ Only meaningful when `shapeKind` is `'milestone'`;
+   * AT-101 says in as many words that it is looked at then and not otherwise.
+   *
+   * ⭐ Carried here because the geometry had no way to reach it: it drew every
+   * milestone as a ◇ whatever the document said, and the value never left the
+   * document model.
+   */
+  readonly milestoneGlyph: MilestoneGlyph
   /** The lane ST-3's greedy pass put it in, counted from the shallowest. */
   readonly stack: number
   /**
@@ -366,6 +380,21 @@ function shapeKindOf(visualByUid: ReadonlyMap<number, TaskVisual>, task: Task): 
 }
 
 /**
+ * AT-101's figure, or the default CR-177 settled.
+ *
+ * ⭐ The default is read from COLUMN_DEFAULTS rather than written here: it is
+ * generated out of erd.json, so changing the manuscript changes what is drawn.
+ *
+ * @purity pure
+ */
+function milestoneGlyphOf(
+  visualByUid: ReadonlyMap<number, TaskVisual>,
+  task: Task,
+): MilestoneGlyph {
+  return visualByUid.get(task.uid)?.milestoneGlyph ?? COLUMN_DEFAULTS.TaskVisual.milestoneGlyph
+}
+
+/**
  * The span of the dates in pixels, before anything widens it.
  *
  * ⚠️ This definition is this file's own: the plan bar runs from `start` to
@@ -519,7 +548,8 @@ export function layoutFromSchedule(
       .map((task) => {
         const kind = shapeKindOf(visualByUid, task)
         const span = spanWidthOf(task, pxPerDay)
-        return { task, kind, span, width: shapeWidthOf(span, kind, settings) }
+        const glyph = milestoneGlyphOf(visualByUid, task)
+        return { task, kind, glyph, span, width: shapeWidthOf(span, kind, settings) }
       })
       .filter(({ kind, span, width }) => keptByLevelOfDetail(kind, span, width, settings))
       // ---- LC-8, ST-2: start ascending, finish descending, uid ascending ---
@@ -539,7 +569,7 @@ export function layoutFromSchedule(
     const laneMaxX1: number[] = []
     const laneMinX0: number[] = []
     const laneOf: number[] = []
-    const measured = drawnTasks.map(({ task, kind, width }) => {
+    const measured = drawnTasks.map(({ task, kind, glyph, width }) => {
       const from = dayOf(task.start)
       const at = from === null ? originX : xOfDay(originSerial, pxPerDay, originX, from)
       // LF-10 centres a milestone's figure on its day; every other shape
@@ -553,7 +583,8 @@ export function layoutFromSchedule(
       // ---- LC-7: OC-1 is the label the shape could not hold --------------
       const occupiedX1 = placement === 'right' ? x + width + settings.labelGap + text : x + width
       const actual = actualSpanOf(task, within, originSerial, pxPerDay, originX)
-      return { task, kind, x, width, label, font, placement, actual, occupiedX0: x, occupiedX1 }
+      return { task, kind, glyph, x, width, label, font, placement, actual,
+               occupiedX0: x, occupiedX1 }
     })
 
     for (const item of measured) {
@@ -641,6 +672,7 @@ export function layoutFromSchedule(
         taskUid: item.task.uid,
         groupId: row.id,
         shapeKind: item.kind,
+        milestoneGlyph: item.glyph,
         stack: lane,
         x: item.x,
         width: item.width,

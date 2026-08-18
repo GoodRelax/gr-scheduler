@@ -148,7 +148,7 @@ export function frameLoop(surface: SvgSurface, first: Document, env: FrameEnviro
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions)
     values = { regions, layout, geometry }
     surface.showSvg(
-      svgFromSchedule(document.schedule, settings, geometry, regions, selection),
+      svgFromSchedule(document.schedule, settings, layout, geometry, regions, selection),
     )
   }
 
@@ -162,16 +162,46 @@ export function frameLoop(surface: SvgSurface, first: Document, env: FrameEnviro
     else runFrame()
   }
 
-  runFrame() // BO-5 -- the first frame, which table T-078's note excludes from FT-1.
+  /**
+   * BO-1 -- 「寸法が確定するまで 1 枚も描かない」. ⛔ NFR-011 makes it a MUST,
+   * and a host really can hand over a 0 x 0 window: a preview pane that has
+   * not been laid out yet does exactly that, and the frame drawn then is a
+   * picture of nothing that the person sees before the real one.
+   *
+   * @purity pure
+   */
+  function settled(env: FrameEnvironment): boolean {
+    return env.width > 0 && env.height > 0
+  }
+
+  // BO-5 -- the first frame, which table T-078's note excludes from FT-1.
+  // ⚠️ Held back while BO-1 is unsettled; the first resize that settles the
+  // size runs it.
+  if (settled(environment)) runFrame()
 
   return {
     replaceDocument(next: Document): void {
       document = next
-      ask()
+      if (settled(environment)) ask()
     },
     resize(next: FrameEnvironment): void {
+      // ⛔ FT-3 is 「画面の寸法が変わったこと」. A resize event that carries the
+      // size already in force did not change it, and NFR-010 forbids waking a
+      // frame on anything table T-078 does not list (MUST NOT). ⚠️ A browser
+      // fires resize for things that leave the window alone.
+      const same =
+        next.width === environment.width &&
+        next.height === environment.height &&
+        next.appHeaderHeight === environment.appHeaderHeight &&
+        next.scrollbarThickness === environment.scrollbarThickness
+      if (same) return
+      const wasSettled = settled(environment)
       environment = next
-      ask()
+      if (!settled(next)) return
+      // The first settled size is BO-5's frame, not FT-3's: table T-077 runs
+      // once, and until now it had not.
+      if (!wasSettled) runFrame()
+      else ask()
     },
     current: () => values,
     document: () => document,

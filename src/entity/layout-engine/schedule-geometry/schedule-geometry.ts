@@ -26,17 +26,12 @@
 //   - the guide and dual cursors. `dualCursor`'s two dates hold `unknown` in
 //     the source, so there is no value to read.
 //   - the watermark (FR-020) and the baseline overlay (FR-015). M4 and M5.
-//   - seven of the eight milestone figures. ⚠️ The spellings now exist --
-//     CR-172 named them circle / hexagon / pentagon / diamond / square / star /
-//     triangleUp / triangleDown -- so what is missing here is the GEOMETRY of
-//     the other seven, not their names. Every milestone is still drawn as a ◇.
-//     ⭐ The ◇ is no longer a value this file chose: FR-078 sends an unchosen
-//     figure to AT-101's default, which is `diamond` and reaches code as
-//     `COLUMN_DEFAULTS` in the schedule group (CR-177).
-//     ⛔ But this file does NOT read the glyph at all yet -- `TaskPlacement`
-//     does not carry it, so every milestone takes the same outline whatever
-//     the document stores. That is carry-over (l), and it is a bigger hole
-//     than the default was: choosing ☆ currently draws a ◇ in silence.
+// ⭐ The eight milestone figures are no longer among them. All eight of
+// AT-101's are drawn, from one inscribed circle, and `TaskPlacement` now
+// carries the chosen one -- until it did, picking ☆ drew a ◇ in silence.
+// FR-078 sends an unchosen figure to AT-101's default, which is `diamond` and
+// reaches code as `COLUMN_DEFAULTS` (CR-177), so the ◇ is still not a value
+// this file chose. ⚠️ The corners themselves are this file's: see PD-2.
 //
 // The signature of what this file publishes is owned here, not in the
 // specification (CR-146). Chapter 6.1 owns the boundary values, and the rule a
@@ -60,6 +55,7 @@ import {
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
 import type {
+  MilestoneGlyph,
   ScheduleLayout,
   ShapeKind,
   TaskPlacement,
@@ -276,15 +272,92 @@ function chevronOutline(x0: number, x1: number, top: number, height: number, not
   ]
 }
 
-/** LF-10's figure. Only the ◇ is drawn -- see the block at the top of the file. @purity pure */
-function milestoneOutline(centre: Point, side: number): Path {
+/**
+ * A regular figure with `count` corners, inscribed in the circle of radius
+ * `radius` around `centre`, with the first corner at `startTurn` of a turn
+ * measured clockwise from straight up.
+ *
+ * ⭐ Every one of AT-101's eight is built from this one circle, which is what
+ * makes `starInnerOfOuter` (S-48) able to say it "decides the area of the ☆ and
+ * so affects the order of the figures by area" -- there is an order only
+ * because they share a size.
+ *
+ * @purity pure
+ */
+function regularCorners(
+  centre: Point,
+  radius: number,
+  count: number,
+  startTurn: number,
+): Path {
+  const out: Point[] = []
+  for (let i = 0; i < count; i += 1) {
+    const turn = startTurn + i / count
+    const angle = turn * 2 * Math.PI
+    out.push(point(centre.x + radius * Math.sin(angle), centre.y - radius * Math.cos(angle)))
+  }
+  return out
+}
+
+/**
+ * LF-10's figure, for each of AT-101's eight.
+ *
+ * ⛔ The vertices are NOT in the specification. `S-48` gives the star's waist
+ * and 図 F-019 draws the palette ICONS, but nothing states the corners of the
+ * figure a milestone is drawn as. What IS fixed is the observable behaviour:
+ * eight spellings that must be told apart, all at LF-10's size.
+ *
+ * ⭐ Class B of docs/development-rules/06-pending-decisions.md -- the inside of
+ * a pure function, with the behaviour around it already settled.
+ *
+ * ⚠️ The ◇ and the □ are the same four corners a quarter turn apart, so they
+ * enclose the same area; that is the point rather than an accident.
+ * ⚠️ The 〇 is a polygon of many corners, because BarGeometry's outline form
+ * carries a path and nothing else. Adding an arc form would change a type two
+ * accepted units already build against, for one figure.
+ *
+ * @provisional PD-2
+ */
+const CIRCLE_CORNERS = 24
+
+/** @purity pure */
+function milestoneOutline(
+  centre: Point,
+  side: number,
+  glyph: MilestoneGlyph,
+  starInnerOfOuter: number,
+): Path {
   const half = side / 2
-  return [
-    point(centre.x, centre.y - half),
-    point(centre.x + half, centre.y),
-    point(centre.x, centre.y + half),
-    point(centre.x - half, centre.y),
-  ]
+  switch (glyph) {
+    case 'circle':
+      return regularCorners(centre, half, CIRCLE_CORNERS, 0)
+    case 'hexagon':
+      return regularCorners(centre, half, 6, 0)
+    case 'pentagon':
+      return regularCorners(centre, half, 5, 0)
+    case 'square':
+      // A quarter of a quarter turn from the ◇, which lands its sides square
+      // with the axes.
+      return regularCorners(centre, half, 4, 0.125)
+    case 'triangleUp':
+      return regularCorners(centre, half, 3, 0)
+    case 'triangleDown':
+      return regularCorners(centre, half, 3, 0.5)
+    case 'star': {
+      // Ten corners, the odd ones pulled in to S-48's fraction of the radius.
+      const inner = half * starInnerOfOuter
+      const outer = regularCorners(centre, half, 5, 0)
+      const waist = regularCorners(centre, inner, 5, 0.1)
+      const out: Point[] = []
+      for (let i = 0; i < 5; i += 1) {
+        out.push(outer[i]!, waist[i]!)
+      }
+      return out
+    }
+    case 'diamond':
+    default:
+      return regularCorners(centre, half, 4, 0)
+  }
 }
 
 /** LF-8. @purity pure */
@@ -334,9 +407,17 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, task: Task, x0: nu
   const settings = inputs.settings
   const kind = placed.shapeKind
   if (kind === 'milestone') {
+    // AT-101's figure now travels with the placement; before it did, every
+    // milestone came out a ◇ whatever the document chose.
+    const glyph = placed.milestoneGlyph
     return {
       form: 'outline',
-      points: milestoneOutline(point((x0 + x1) / 2, top + height / 2), height),
+      points: milestoneOutline(
+        point((x0 + x1) / 2, top + height / 2),
+        height,
+        glyph,
+        settings.starInnerOfOuter,
+      ),
     }
   }
   if (kind === 'arrow' || kind === 'endpointSpan') {
