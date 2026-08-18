@@ -64,27 +64,58 @@ BANNER = (
 
 
 DRAWIO_MARK = (
-    "<!-- GENERATED -- do not edit by hand. Your change is overwritten by"
+    "GENERATED -- do not edit by hand. Your change is overwritten by"
     " the next rebuild. Written by docs/spec/_source/build.py from"
     " docs/spec/_source/components.json, the single source of truth."
-    " Rebuild: python docs/spec/_source/build.py -->")
+    " Rebuild: python docs/spec/_source/build.py")
+
+# The mark used to be an XML comment just after <root>. Recognised here only so
+# a file written by the older build can be migrated on the next run.
+LEGACY_DRAWIO_COMMENT = re.compile(r'<!--\s*GENERATED --.*?-->', re.S)
+
+# draw.io reports "nothing to draw" as a 37px-wide stub, and it exits 0 while
+# doing it. Any real figure here is hundreds of pixels across.
+MIN_FIGURE_WIDTH_PX = 100
+SVG_WIDTH = re.compile(r'\bwidth="(\d+)px"')
+
+
+# JSON carries no comment syntax, so the back-pointer rides in a "$comment"
+# key. It has to be the FIRST key: check 21 reads only the head of the file,
+# and docs/spec/_source/ holds manuscripts (erd.json) beside generated files
+# (overview.json), so a reader who opens one from a search result has nothing
+# but the file itself to tell the two apart.
+JSON_MARK = [
+    "GENERATED -- do not edit by hand. Your change is overwritten by the next rebuild.",
+    "Written by docs/spec/_source/build.py from docs/spec/_source/components.json,"
+    " the single source of truth.",
+    "Rebuild: python docs/spec/_source/build.py",
+]
 
 
 def stamp_drawio(path):
-    """Put the back-pointer inside a generated .drawio.
+    """Put the back-pointer inside a generated .drawio, as an attribute.
 
-    ⚠️ It goes just after <root>, NOT before <mxGraphModel>. Measured with the
-    draw.io CLI: a comment in the XML prolog makes the export fail outright,
-    while one inside <root> exports a byte-for-byte identical .svg. A generated
-    file that does not say so gets edited by hand, and this is the only place
-    in the file where saying so is possible.
+    ⛔ It must NOT be an XML comment. Measured 2026-08-18 against draw.io
+    26.x: a comment anywhere in the file -- the prolog OR just inside <root>,
+    which an earlier measurement had found safe -- makes the export produce a
+    37px stub while still exiting 0. Five figures were silently emptied that
+    way, and no check caught it, because nothing held the .svg against
+    anything. An unknown attribute on <mxGraphModel> is ignored by draw.io,
+    survives a round trip, and exports byte for byte like the unmarked file.
+
+    A generated file that does not say so gets edited by hand, so the mark has
+    to be somewhere -- this is the only place left that costs nothing.
     """
     with open(path, encoding="utf-8") as handle:
         body = handle.read()
-    if DRAWIO_MARK in body or "<root>" not in body:
-        return
-    with open(path, "w", encoding="utf-8", newline="\n") as handle:
-        handle.write(body.replace("<root>", "<root>" + DRAWIO_MARK, 1))
+    body, migrated = LEGACY_DRAWIO_COMMENT.subn("", body, count=1)
+    if DRAWIO_MARK not in body and "<mxGraphModel " in body:
+        body = body.replace("<mxGraphModel ",
+                            '<mxGraphModel generatedBy="%s" ' % DRAWIO_MARK, 1)
+        migrated = True
+    if migrated:
+        with open(path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(body)
 
 
 def stamp(path):
@@ -141,13 +172,15 @@ def build_overview(model, backing):
               "description": "backed by %d component edge(s): %s"
                              % (len(backing[(src, dst)]), "; ".join(backing[(src, dst)]))}
              for (src, dst) in sorted(backing, key=lambda p: sorted(CLUSTER_EDGE_LABELS).index(p))]
-    overview = {"title": model["title"] + " by layer",
+    overview = {"$comment": JSON_MARK,
+                "title": model["title"] + " by layer",
                 "options": dict(model["options"], node_separation=0.5, rank_separation=3.0),
                 "nodes": model["nodes"],
                 "edges": edges,
                 "layout": model["layout"]}
-    with open(OVERVIEW, "w", encoding="utf-8") as handle:
+    with open(OVERVIEW, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(overview, handle, ensure_ascii=False, indent=1)
+        handle.write("\n")
     return edges
 
 
@@ -284,6 +317,26 @@ def run(argv):
     return result.stdout.strip()
 
 
+def assert_drawn(svg_path):
+    """Refuse to leave an emptied figure on disk.
+
+    ⛔ draw.io exits 0 when it renders nothing, so `run` cannot see it. The
+    only evidence is in the file: a picture with no content comes out 37px
+    wide. Five figures were replaced by that stub once, and every mechanical
+    check stayed green -- so the guard belongs here, where the artifact is
+    written, not in a check that would have to know what each figure holds.
+    """
+    with open(svg_path, encoding="utf-8") as handle:
+        head = handle.read(2048)
+    found = SVG_WIDTH.search(head)
+    width = int(found.group(1)) if found else 0
+    if width < MIN_FIGURE_WIDTH_PX:
+        sys.exit("build: %s came out %dpx wide -- draw.io rendered nothing and "
+                 "still exited 0. The .drawio it read is on disk; check it for "
+                 "an XML comment, which empties the export."
+                 % (os.path.basename(svg_path), width))
+
+
 def draw(model_path, out_stem, view=None):
     argv = [sys.executable, os.path.join(SKILL, "draw.py"), model_path, out_stem + ".drawio"]
     if view:
@@ -306,6 +359,8 @@ def draw(model_path, out_stem, view=None):
                 # <image> fallback: 578 KB instead of 57 KB for the same picture.
                 argv[1:1] = ["--embed-svg-fonts", "false"]
             run(argv)
+            if fmt == "svg":
+                assert_drawn("%s.%s" % (where, fmt))
 
 
 def main():

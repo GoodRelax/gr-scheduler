@@ -248,7 +248,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "converts",
-   "description": "backed by 13 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; ScreenRenderer -> DialogueLog"
+   "description": "backed by 14 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; SvgRenderer -> Schedule; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; ScreenRenderer -> DialogueLog"
   },
   {
    "source": "adapter",

@@ -596,6 +596,13 @@
    "description": "shows the selection by more than colour"
   },
   {
+   "source": "SvgRenderer",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "colours + theme hue",
+   "description": "reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries"
+  },
+  {
    "source": "ScheduleGeometry",
    "target": "Selection",
    "arrow": "dependency",

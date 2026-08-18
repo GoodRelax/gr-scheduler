@@ -99,6 +99,7 @@
 | dependency | AgentApiEndpoint | ImageExporter | image out | gets the raster image |  |
 | dependency | AgentApiEndpoint | ScheduleLayout | where a task sits | asks where a task sits, to focus it |  |
 | dependency | SvgRenderer | Selection | what is selected | shows the selection by more than colour |  |
+| dependency | SvgRenderer | Schedule | colours + theme hue | reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries |  |
 | dependency | ScheduleGeometry | Selection | what is selected | puts handles on selected tasks only |  |
 | dependency | InputCommandTranslator | Selection | make and clear | makes, widens and clears the selection |  |
 | dependency | PostDialogueMessage | DialogueLog | append one | appends one confirmed utterance |  |
