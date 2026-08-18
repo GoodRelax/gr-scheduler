@@ -184,6 +184,29 @@
       },
       "en": {
        "type": "string"
+      },
+      "index": {
+       "description": "This default is another key indexed by a second one: [table, byKey] means the value of `table` at the value of `byKey`. S-3 follows fontScale this way (FR-039), and stating it keeps the number in one place instead of two that can disagree.",
+       "type": "array",
+       "minItems": 2,
+       "maxItems": 2,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      },
+      "from": {
+       "description": "This default is computed from the named key.",
+       "type": "string",
+       "minLength": 1
+      },
+      "times": {
+       "description": "What `from` is multiplied by.",
+       "type": "number"
+      },
+      "plus": {
+       "description": "What is added after multiplying.",
+       "type": "number"
       }
      }
     },
@@ -281,7 +304,7 @@
     "lit": {
      "description": "A literal the specification writes as itself. A bare word is allowed because table T-206 prints one (S-99a's `user`, the name the watermark starts from); it is still a value the code reads, not prose.",
      "type": "string",
-     "pattern": "^(?:'[^']*'|true|false|null|[A-Za-z][A-Za-z0-9]*)$"
+     "pattern": "^(?:'[^']*'|true|false|null|\\[\\]|[0-9]{4}-[0-9]{2}-[0-9]{2}|[A-Za-z][A-Za-z0-9]*)$"
     },
     "code": {
      "description": "Printed inside backticks.",
@@ -297,6 +320,24 @@
       "🔎",
       "⛔"
      ]
+    },
+    "quote": {
+     "description": "The literal is a STRING. The generators quote it; the document prints it bare, because the specification writes a date as 1970-01-01 and not as '1970-01-01'. Without this flag lit would have to carry the quotes and the printed document would grow a pair it never had.",
+     "const": true
+    },
+    "sep": {
+     "description": "The separator a pair is printed with, when it is not width by height. S-104's dash pattern is written 2,2, and printing it with the default separator would rewrite the document.",
+     "type": "string"
+    },
+    "parts": {
+     "description": "What the two numbers of a pair are CALLED. The stored key holds an object, so a generator needs the names to reach the halves; without them the pair prints but never arrives in the code.",
+     "type": "array",
+     "minItems": 2,
+     "maxItems": 2,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
     }
    }
   },

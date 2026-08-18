@@ -210,7 +210,10 @@
      "key": "`rulerHeight`",
      "unit": "px",
      "default": {
-      "ja": "`rulerFont` × 3 + 6（S = 42 / M = 48 / L = 54）🔎"
+      "ja": "`rulerFont` × 3 + 6（S = 42 / M = 48 / L = 54）🔎",
+      "from": "rulerFont",
+      "times": 3,
+      "plus": 6
      },
      "min": "`rulerFont` × 3 + 6",
      "max": {
@@ -228,7 +231,11 @@
      "key": "`rulerFont`",
      "unit": "px",
      "default": {
-      "ja": "`fontScaleSizes[fontScale]`（S = 12 / M = 14 / L = 16）🔎"
+      "ja": "`fontScaleSizes[fontScale]`（S = 12 / M = 14 / L = 16）🔎",
+      "index": [
+       "fontScaleSizes",
+       "fontScale"
+      ]
      },
      "min": "`fontMin`",
      "max": "(`rulerHeight` − 6) ÷ 3",
@@ -1721,7 +1728,10 @@
      "type": {
       "ja": "`TaskGroup.id` の配列"
      },
-     "default": "`[]`",
+     "default": {
+      "lit": "[]",
+      "code": true
+     },
      "min": {
       "ja": "0 件"
      },
@@ -1915,7 +1925,17 @@
      "id": "S-81",
      "key": "`exportCanvas`",
      "type": "`{ width, height }`",
-     "default": "`1600 × 900`",
+     "default": {
+      "pair": [
+       "1600",
+       "900"
+      ],
+      "code": true,
+      "parts": [
+       "width",
+       "height"
+      ]
+     },
      "note": {
       "ja": "SVG / PNG の出力サイズ。規則と理由は `FR-025`、縮める比は `FR-080` が持つ"
      }
@@ -2800,7 +2820,12 @@
     {
      "id": "S-119",
      "name": "`importMinDate`",
-     "value": "`1970-01-01` 🔎",
+     "value": {
+      "lit": "1970-01-01",
+      "code": true,
+      "quote": true,
+      "mark": "🔎"
+     },
      "min": "—",
      "max": "—",
      "note": {
@@ -2810,7 +2835,12 @@
     {
      "id": "S-120",
      "name": "`importMaxDate`",
-     "value": "`2200-12-31` 🔎",
+     "value": {
+      "lit": "2200-12-31",
+      "code": true,
+      "quote": true,
+      "mark": "🔎"
+     },
      "min": "—",
      "max": "—",
      "note": {
@@ -3184,7 +3214,19 @@
     {
      "id": "S-104",
      "name": "`planActualGuidePattern`",
-     "value": "`2,2` 🔎",
+     "value": {
+      "pair": [
+       "2",
+       "2"
+      ],
+      "code": true,
+      "sep": ",",
+      "mark": "🔎",
+      "parts": [
+       "on",
+       "off"
+      ]
+     },
      "min": "—",
      "max": "—",
      "note": {

@@ -325,8 +325,59 @@ def literal_of(cell):
     if 'num' in cell:
         return cell['num']
     if 'lit' in cell:
+        # `quote` says the literal is a string. The document prints a date as
+        # 1970-01-01 and not as '1970-01-01', so the quotes cannot live in the
+        # cell -- they would print.
+        if cell.get('quote'):
+            return "'%s'" % cell['lit']
         return cell['lit'].replace("'", "'") if cell['lit'][0] == "'" else cell['lit']
     return None
+
+
+def derived_defaults(manuscript, direct):
+    """Every default a rule computes out of another key.
+
+    ⭐ The rule stays in the manuscript -- `index` for S-3, which follows
+    fontScale, and `from`/`times`/`plus` for S-2, which is three lines of the
+    ruler plus its padding. Evaluating it here rather than writing the answer
+    down keeps the number in one place; a second copy is what CR-175 and
+    CR-178 were spent removing.
+
+    ⚠️ Resolved by repeated passes, because one derived key may feed another
+    (S-2 reads S-3). A pass that settles nothing means the rest cannot be
+    reached, and the caller reports them as unstated rather than guessing.
+    """
+    known = dict(direct)
+    pending = {key: said['default'] for key, said in manuscript.items()
+               if isinstance(said['default'], dict)
+               and ('index' in said['default'] or 'from' in said['default'])}
+    out = {}
+    while pending:
+        settled = []
+        for key, cell in pending.items():
+            if 'index' in cell:
+                table, by = cell['index']
+                chosen = known.get(by)
+                value = known.get('%s.%s' % (table, chosen)) if chosen else None
+                if isinstance(chosen, str):
+                    value = known.get('%s.%s' % (table, chosen.strip("'")))
+            else:
+                base = known.get(cell['from'])
+                value = None
+                if isinstance(base, (int, float)):
+                    value = base * cell.get('times', 1) + cell.get('plus', 0)
+            if value is None:
+                continue
+            if isinstance(value, float) and value == int(value):
+                value = int(value)
+            known[key] = value
+            out[key] = value
+            settled.append(key)
+        if not settled:
+            break
+        for key in settled:
+            del pending[key]
+    return out
 
 
 def number_of(cell):
@@ -558,14 +609,49 @@ def settings_block(_erd):
     # The defaults, for every stored key the schema names. A key the schema
     # holds but the manuscript cannot state a machine value for is reported
     # rather than guessed -- those are the rows stage 3b promotes.
+    # What each key states outright, before anything is derived. A pair
+    # carries two numbers under the names its `parts` gives, which is how a
+    # stored key holding an object reaches the code at all.
+    direct, literals = {}, {}
+    for key, said in manuscript.items():
+        cell = said['default']
+        if not isinstance(cell, dict):
+            continue
+        if 'pair' in cell and 'parts' in cell:
+            for name, number in zip(cell['parts'], cell['pair']):
+                literals['%s.%s' % (key, name)] = number
+                direct['%s.%s' % (key, name)] = float(number)
+            continue
+        literal = literal_of(cell)
+        if literal is None:
+            continue
+        literals[key] = literal
+        direct[key] = float(cell['num']) if 'num' in cell else cell.get('lit')
+
+    for key, value in derived_defaults(manuscript, direct).items():
+        literals[key] = repr(value)
+
     defaults, unstated = [], []
     for path in sorted(flat_keys(node, '')):
-        said = manuscript.get(path) or manuscript.get(path.split('.')[-1])
-        literal = literal_of(said['default']) if said else None
+        # ⚠️ A key whose own cell says `null` HOLDS null; the leaves the schema
+        # lists under it describe what it looks like when it is not null, and
+        # asking the manuscript for them would report a gap that is not one.
+        parent = path.split('.')[0]
+        if parent != path and literals.get(parent) == 'null':
+            continue
+        literal = literals.get(path)
+        if literal is None:
+            said = manuscript.get(path) or manuscript.get(path.split('.')[-1])
+            literal = literal_of(said['default']) if said else None
         if literal is None:
             unstated.append(path)
             continue
         defaults.append("  '%s': %s," % (path, literal))
+    for parent, literal in sorted(literals.items()):
+        if literal == 'null' and any(p.startswith(parent + '.')
+                                     for p in flat_keys(node, '')):
+            defaults.append("  '%s': null," % parent)
+    defaults.sort()
     if unstated:
         defaults.append('  // ⛔ Not stated as a machine value by settings.json,')
         defaults.append('  // so not generated rather than guessed:')

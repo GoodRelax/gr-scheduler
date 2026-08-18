@@ -98,7 +98,10 @@ def text(value):
         return out + (' ' + value['mark'] if value.get('mark') else '')
     if 'num' in value or 'lit' in value or 'pair' in value:
         if 'pair' in value:
-            body = PAIR_SEPARATOR.join(value['pair'])
+            # `sep` is for the pairs the specification does NOT write as
+            # width by height -- S-104's dash pattern is 「2,2」, and printing
+            # it with the default separator would rewrite the document.
+            body = value.get('sep', PAIR_SEPARATOR).join(value['pair'])
         else:
             body = value.get('num', value.get('lit'))
         out = '`%s`' % body if value.get('code') else body

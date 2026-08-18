@@ -16,8 +16,8 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "e2e": "playwright test --pass-with-no-tests",
-    "gen": "npm run gen:settings && npm run gen:md && npm run gen:schema && npm run types && npm run tree",
-    "gen:check": "npm run gen:settings:check && npm run gen:md:check && npm run gen:schema:check && npm run types:check && npm run tree:check",
+    "gen": "npm run gen:settings && npm run gen:md && npm run gen:schema && npm run types && npm run tree && npm run startup",
+    "gen:check": "npm run gen:settings:check && npm run gen:md:check && npm run gen:schema:check && npm run types:check && npm run tree:check && npm run startup:check",
     "gen:settings": "python docs/spec/_source/settings_json_to_md.py",
     "gen:settings:check": "python docs/spec/_source/settings_json_to_md.py --check",
     "gen:md": "python docs/spec/_source/erd_json_to_md.py",
@@ -28,7 +28,9 @@
     "tree:check": "python tools/generate_unit_tree.py --check",
     "types": "python tools/generate_entity_types.py",
     "types:check": "python tools/generate_entity_types.py --check",
-    "layers": "python tools/check_layer_rules.py"
+    "layers": "python tools/check_layer_rules.py",
+    "startup": "python tools/generate_startup_template.py",
+    "startup:check": "python tools/generate_startup_template.py --check"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

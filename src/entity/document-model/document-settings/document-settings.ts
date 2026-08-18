@@ -173,7 +173,10 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'dependencyRunOfArrow': 2,
   'dependencyVisible': true,
   'dependencyWidth': 1.5,
+  'dualCursor': null,
   'dummyOpacity': 0.20,
+  'exportCanvas.height': 900,
+  'exportCanvas.width': 1600,
   'exportPngScale': 1,
   'fadeHandleHalfPx': 4.5,
   'fadeHandleStrokePx': 1.5,
@@ -189,8 +192,10 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'guideCursorMode': 'none',
   'iconHintDelayMs': 3000,
   'importMaxBytes': 32,
+  'importMaxDate': '2200-12-31',
   'importMaxDepth': 64,
   'importMaxItems': 20000,
+  'importMinDate': '1970-01-01',
   'labelBaseline': 0.35,
   'labelCoef': 0.5,
   'labelGap': 8,
@@ -203,8 +208,11 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'milestoneActualDuration': 0,
   'minShapeWidth': 6,
   'percentCompleteVisible': false,
+  'pinnedGroupIds': [],
   'pinnedRowMax': 5,
   'planActualDisplay': 'both',
+  'planActualGuidePattern.off': 2,
+  'planActualGuidePattern.on': 2,
   'planActualGuideWeight': 1,
   'planStroke': 1,
   'progressLineOverhang': 6,
@@ -223,6 +231,8 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'rowTitleIndent': 12,
   'rowTitlePanelWidth': 170,
   'rowTitleTopScale': 1.3,
+  'rulerFont': 14,
+  'rulerHeight': 48,
   'rulerTierPxPerDayDay': 30,
   'rulerTierPxPerDayMonth': 1.4,
   'rulerTierPxPerDayWeek': 4.3,
@@ -248,19 +258,6 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'truncateUnits': 24,
   'zoomX': 1,
   'zoomY': 1,
-  // ⛔ Not stated as a machine value by settings.json,
-  // so not generated rather than guessed:
-  //   dualCursor.date1
-  //   dualCursor.date2
-  //   exportCanvas.height
-  //   exportCanvas.width
-  //   importMaxDate
-  //   importMinDate
-  //   pinnedGroupIds
-  //   planActualGuidePattern.off
-  //   planActualGuidePattern.on
-  //   rulerFont
-  //   rulerHeight
 }
 
 /**
