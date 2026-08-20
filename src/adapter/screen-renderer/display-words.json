@@ -1,0 +1,1017 @@
+{
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/display-words.json (the words the screen prints, FR-038). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_display_words.py. Every entry is empty until the user fills the manuscript: table T-109 refuses an English column because one would settle dozens of names the glossary has not settled, and an invented word settles the same names. Whoever prints one of these falls back to what it printed before while the entry is empty.",
+ "icons": [
+  {
+   "rowId": "IC-1",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-2",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-3",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-4",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-5",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-6",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-7",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-8",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-9",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-10",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-11",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-12",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-13",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-14",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-15",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-16",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-17",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-18",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-19",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-20",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-21",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-22",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-23",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-24",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-25",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-26",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-27",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-28",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-29",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-30",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-31",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-32",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-33",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-34",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-35",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-36",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-37",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-38",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-39",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-40",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-41",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-42",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-43",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-44",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-45",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-46",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-47",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-48",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-49",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-50",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-51",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-52",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-53",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-54",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-55",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-56",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-57",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-58",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-59",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-60",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-61",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-62",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-63",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-64",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-65",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-66",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-67",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-68",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  }
+ ],
+ "paletteGroups": [
+  {
+   "firstRow": "IC-23",
+   "name": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "firstRow": "IC-37",
+   "name": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "firstRow": "IC-39",
+   "name": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "firstRow": "IC-44",
+   "name": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "firstRow": "IC-54",
+   "name": {
+    "ja": "",
+    "en": ""
+   }
+  }
+ ],
+ "surfaces": [
+  {
+   "name": "Help Modal",
+   "heading": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "name": "AI Export Modal",
+   "heading": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "name": "Resource Roster",
+   "heading": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "name": "Export Chooser",
+   "heading": {
+    "ja": "",
+    "en": ""
+   }
+  }
+ ],
+ "notices": [
+  {
+   "rowId": "NT-1",
+   "manner": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "NT-2",
+   "manner": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "NT-3",
+   "manner": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "NT-3a",
+   "manner": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "NT-4",
+   "manner": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "NT-6",
+   "manner": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "NT-5",
+   "manner": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "NT-7",
+   "manner": {
+    "ja": "",
+    "en": ""
+   }
+  }
+ ],
+ "confirmation": [
+  {
+   "answer": "proceed",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "answer": "cancel",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  }
+ ],
+ "panelHeadings": [
+  {
+   "showing": "selection",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "showing": "documentSettings",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "showing": "noSelection",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  }
+ ],
+ "assignments": [
+  {
+   "rowId": "MK-1",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-2",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-3",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-4",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-5",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-6",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-7",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-8",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-9",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-9a",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-10",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-11",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-12",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "MK-13",
+   "text": {
+    "ja": "",
+    "en": ""
+   }
+  }
+ ]
+}

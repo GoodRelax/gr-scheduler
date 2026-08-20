@@ -792,6 +792,13 @@
    "description": "reads what is armed and which surface is open, and returns the next screen state"
   },
   {
+   "source": "InputCommandTranslator",
+   "target": "ScreenRenderer",
+   "arrow": "dependency",
+   "label": "entry under pointer",
+   "description": "asks which UI part and which entry a point on the screen is on (IF-9)"
+  },
+  {
    "source": "SingleHtmlShell",
    "target": "ScreenRenderer",
    "arrow": "dependency",

@@ -12,12 +12,13 @@
 // uf-69.test.ts already drive those. ⛔ Nothing below re-tests them. What is
 // tested here is only what the binding can get wrong:
 //
-//   1. every one of the nine members of `ScreenView` is filled, and filled from
-//      its OWN unit -- table T-075 gives the component eleven units, nine of
-//      which describe one part each (UF-61 .. UF-69);
-//   2. the ORDER. `tooltipsFromScreenView` takes the eight already built, so a
-//      tooltip that explains a part has to see that part as the other eight
-//      built it -- not as some earlier or emptier value;
+//   1. every member of `ScreenView` is filled, and filled from its OWN unit --
+//      table T-075 gives the component eleven units, nine of which describe one
+//      part each (UF-61 .. UF-69), and UF-67 fills two members because it
+//      answers to two manners of 表 T-037;
+//   2. the ORDER. `tooltipsFromScreenView` takes the members already built, so
+//      tooltip that explains a part has to see that part as the units that own
+//      the other members built it -- not as some earlier or emptier value;
 //   3. the ARGUMENTS. Each of the nine has a fixed argument list, and a caller
 //      that hands one the wrong value cannot be caught by that unit's own
 //      tests;
@@ -102,7 +103,10 @@ import type {
 import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
 import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
 import { dialogueFieldFromLog } from '../../src/adapter/screen-renderer/dialogue-field'
-import { noticesFromSession } from '../../src/adapter/screen-renderer/notices'
+import {
+  confirmationFromSession,
+  noticesFromSession,
+} from '../../src/adapter/screen-renderer/notices'
 import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
 import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
@@ -137,12 +141,17 @@ const T_075_PARTS = [
   { unit: 'UF-65', file: 'command-palette.ts', member: 'commandPalette' },
   { unit: 'UF-66', file: 'open-modals.ts', member: 'openModal' },
   { unit: 'UF-67', file: 'notices.ts', member: 'notices' },
+  // ⭐ UF-67 twice. Its row of 表 T-075 reads 「知らせと確認（FR-076。作法は
+  // 表 T-037）」, and NT-7 -- the manner for ASKING, which that table gained on
+  // 2026-08-21 -- is a row of the same table. One more manner, not one more unit:
+  // a tenth FILE would need a tenth row in 表 T-075.
+  { unit: 'UF-67', file: 'notices.ts', member: 'confirmation' },
   { unit: 'UF-68', file: 'dialogue-field.ts', member: 'dialogueField' },
   { unit: 'UF-69', file: 'tooltips.ts', member: 'tooltips' },
 ] as const
 
-/** The eight UF-69 is handed, which is T-075's nine less UF-69 itself. */
-const T_075_EIGHT = T_075_PARTS.filter((part) => part.unit !== 'UF-69')
+/** The members UF-69 is handed, which is every one of them but its own. */
+const T_075_BEFORE_TOOLTIPS = T_075_PARTS.filter((part) => part.unit !== 'UF-69')
 
 /** 表 T-103 -- the settled name of the surface FR-036 opens, spelling and all. */
 const U_30_HELP = 'Help Modal'
@@ -320,6 +329,7 @@ const SESSION: ScreenSession = {
   propertiesShowing: 'selection',
   propertiesSubject: null,
   notices: [],
+  confirmation: null,
   rowBoxes: [{ groupId: 'g1', box: ROW_BOX }],
 }
 
@@ -371,11 +381,12 @@ const viewOf = (frame: Frame = FRAME): ScreenView =>
   )
 
 /**
- * What each of the eight owners answers when called with the arguments its own
- * contract declares. ⭐ This -- not a copy of a part's contents -- is what the
- * composition owes: table T-075 makes each unit the owner of one member.
+ * What each owner answers when called with the arguments its own contract
+ * declares. ⭐ This -- not a copy of a part's contents -- is what the
+ * composition owes: table T-075 makes each member's unit its owner.
+ * ⚠️ Nine members, not nine units: UF-67 owns two of them.
  */
-const eightFrom = (frame: Frame): Omit<ScreenView, 'tooltips'> => ({
+const membersFrom = (frame: Frame): Omit<ScreenView, 'tooltips'> => ({
   frame: screenFrameFromRegions(frame.regions, frame.settings, frame.state),
   appHeaderItems: appHeaderItemsFromDocument(
     frame.schedule,
@@ -398,13 +409,14 @@ const eightFrom = (frame: Frame): Omit<ScreenView, 'tooltips'> => ({
   commandPalette: commandPaletteFromScreenState(frame.state, frame.selection, frame.session),
   openModal: openModalFromScreenState(frame.state, frame.schedule, frame.session),
   notices: noticesFromSession(frame.session),
+  confirmation: confirmationFromSession(frame.session),
   dialogueField: dialogueFieldFromLog(frame.dialogueLog, frame.session),
 })
 
-/** The eight as they came back from the composition, which is what UF-69 is owed. */
-const eightOf = (view: ScreenView): Omit<ScreenView, 'tooltips'> => {
-  const { tooltips: _tooltips, ...eight } = view
-  return eight
+/** The rest as they came back from the composition, which is what UF-69 is owed. */
+const membersOf = (view: ScreenView): Omit<ScreenView, 'tooltips'> => {
+  const { tooltips: _tooltips, ...rest } = view
+  return rest
 }
 
 const anchorsOf = (tooltips: readonly Tooltip[], kind: Tooltip['anchor']['kind']): readonly string[] =>
@@ -432,11 +444,13 @@ const RESTED = sessionWith({
 
 // ---------------------------------------------------------------------------
 
-describe('UF-60 -- the nine parts of table T-075, one member each', () => {
-  it('describes every one of the nine, and nothing beside them', () => {
+describe('UF-60 -- the nine parts of table T-075, one member each but UF-67', () => {
+  it('describes every one of them, and nothing beside them', () => {
     // 表 T-075 gives `ScreenRenderer` nine units that describe a UI part
-    // (UF-61 .. UF-69); UF-60 binds them and UF-70 declares the seam. A tenth
-    // member would be a part no unit of that table owns.
+    // (UF-61 .. UF-69); UF-60 binds them and UF-70 declares the seam. A member
+    // beyond the copy above would be a part no unit of that table owns.
+    // ⚠️ UF-67's row reads 「知らせと確認」, so it owns two: NT-1 .. NT-6 are
+    // manners of telling and NT-7 is the manner of asking, all of 表 T-037.
     const members = Object.keys(viewOf()).sort()
     expect(members).toEqual(T_075_PARTS.map((part) => part.member).slice().sort())
   })
@@ -450,10 +464,10 @@ describe('UF-60 -- the nine parts of table T-075, one member each', () => {
     }
   })
 
-  for (const part of T_075_EIGHT) {
+  for (const part of T_075_BEFORE_TOOLTIPS) {
     it(`fills ${part.member} with what ${part.unit} (${part.file}) answers`, () => {
       const view = viewOf()
-      const owner = eightFrom(FRAME) as Record<string, unknown>
+      const owner = membersFrom(FRAME) as Record<string, unknown>
       expect((view as unknown as Record<string, unknown>)[part.member]).toEqual(owner[part.member])
     })
   }
@@ -461,26 +475,26 @@ describe('UF-60 -- the nine parts of table T-075, one member each', () => {
   it('fills tooltips with what UF-69 (tooltips.ts) answers for that very frame', () => {
     const view = viewOf(frameWith({ session: RESTED }))
     expect(view.tooltips).toEqual(
-      tooltipsFromScreenView(eightOf(view), FRAME.settings, RESTED),
+      tooltipsFromScreenView(membersOf(view), FRAME.settings, RESTED),
     )
   })
 })
 
-describe('UF-60 -- the order: UF-69 is handed the eight already built', () => {
-  it('hands UF-69 the eight exactly as they came back to the caller', () => {
+describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
+  it('hands UF-69 the rest exactly as they came back to the caller', () => {
     // ⭐ The contract of UF-69 takes `Omit<ScreenView, "tooltips">`, so the
-    // tooltips a caller receives have to be the answer for the eight that same
+    // tooltips a caller receives have to be the answer for the rest that same
     // caller receives. Anything else means a tooltip explains a part the reader
     // is not looking at.
     for (const frame of [FRAME, frameWith({ session: RESTED })]) {
       const view = viewOf(frame)
       expect(view.tooltips).toEqual(
-        tooltipsFromScreenView(eightOf(view), frame.settings, frame.session),
+        tooltipsFromScreenView(membersOf(view), frame.settings, frame.session),
       )
     }
   })
 
-  it('does not build the tooltips before the eight', () => {
+  it('does not build the tooltips before the rest', () => {
     // ⛔ The failure this rules out: tooltips computed against a frame that is
     // still empty. With the pointer rested, an empty frame explains nothing,
     // while this one holds the `App Header` entries UF-62 built.
@@ -675,8 +689,8 @@ describe('UF-60 -- the arguments each unit receives', () => {
       session: sessionWith({ rowBoxes: [], propertiesShowing: null, isAgentApiEnabled: false }),
     }
     const view = viewOf(bare)
-    expect(eightOf(view)).toEqual(eightFrom(bare))
-    expect(view.tooltips).toEqual(tooltipsFromScreenView(eightOf(view), bare.settings, bare.session))
+    expect(membersOf(view)).toEqual(membersFrom(bare))
+    expect(view.tooltips).toEqual(tooltipsFromScreenView(membersOf(view), bare.settings, bare.session))
   })
 })
 
@@ -684,9 +698,9 @@ describe('UF-60 -- a part that is absent comes back null', () => {
   /** Every member but the named one still has to be its own unit's answer. */
   const expectNeighboursIntact = (frame: Frame): void => {
     const view = viewOf(frame)
-    expect(eightOf(view)).toEqual(eightFrom(frame))
+    expect(membersOf(view)).toEqual(membersFrom(frame))
     expect(view.tooltips).toEqual(
-      tooltipsFromScreenView(eightOf(view), frame.settings, frame.session),
+      tooltipsFromScreenView(membersOf(view), frame.settings, frame.session),
     )
   }
 
@@ -729,12 +743,12 @@ describe('UF-60 -- a part that is absent comes back null', () => {
     expect(view.openModal).toBeNull()
     expect(view.dialogueField).toBeNull()
 
-    expect(view.frame).toEqual(eightFrom(bare).frame)
-    expect(view.appHeaderItems).toEqual(eightFrom(bare).appHeaderItems)
-    expect(view.rowTitlePanel).toEqual(eightFrom(bare).rowTitlePanel)
-    expect(view.notices).toEqual(eightFrom(bare).notices)
+    expect(view.frame).toEqual(membersFrom(bare).frame)
+    expect(view.appHeaderItems).toEqual(membersFrom(bare).appHeaderItems)
+    expect(view.rowTitlePanel).toEqual(membersFrom(bare).rowTitlePanel)
+    expect(view.notices).toEqual(membersFrom(bare).notices)
     expect(view.tooltips).toEqual(
-      tooltipsFromScreenView(eightOf(view), bare.settings, bare.session),
+      tooltipsFromScreenView(membersOf(view), bare.settings, bare.session),
     )
   })
 })

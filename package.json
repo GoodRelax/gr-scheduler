@@ -16,8 +16,8 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "e2e": "playwright test --pass-with-no-tests",
-    "gen": "npm run gen:settings && npm run gen:md && npm run gen:schema && npm run types && npm run tree && npm run startup && npm run icons",
-    "gen:check": "npm run gen:settings:check && npm run gen:md:check && npm run gen:schema:check && npm run types:check && npm run tree:check && npm run startup:check && npm run icons:check",
+    "gen": "npm run gen:settings && npm run gen:md && npm run gen:schema && npm run types && npm run tree && npm run startup && npm run icons && npm run words",
+    "gen:check": "npm run gen:settings:check && npm run gen:md:check && npm run gen:schema:check && npm run types:check && npm run tree:check && npm run startup:check && npm run icons:check && npm run words:check",
     "gen:settings": "python docs/spec/_source/settings_json_to_md.py",
     "gen:settings:check": "python docs/spec/_source/settings_json_to_md.py --check",
     "gen:md": "python docs/spec/_source/erd_json_to_md.py",
@@ -32,7 +32,9 @@
     "startup": "python tools/generate_startup_template.py",
     "startup:check": "python tools/generate_startup_template.py --check",
     "icons": "python tools/generate_icon_roster.py",
-    "icons:check": "python tools/generate_icon_roster.py --check"
+    "icons:check": "python tools/generate_icon_roster.py --check",
+    "words": "python tools/generate_display_words.py",
+    "words:check": "python tools/generate_display_words.py --check"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

@@ -76,19 +76,33 @@ import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open
 
 /**
  * Table T-103 -- the settled surface names, spelling and all (rule 03 section
- * 1). U-30 settles two of the five surfaces and U-49 a third; the surfaces
+ * 1). U-30 settles two of them, U-49 a third and U-54 a fourth; the surfaces
  * FR-074 and FR-088 open have no row, which is why neither appears below.
+ *
+ * ⭐ U-54 was settled on 2026-08-21. Until then the surface FR-096 opens had no
+ * name `ScreenState.surface` could hold, so IN-4's first level could not close
+ * it -- and IC-52's surface column could not name it either.
  */
 const U_30_HELP = 'Help Modal'
 const U_30_AI_EXPORT = 'AI Export Modal'
 const U_49_ROSTER = 'Resource Roster'
+const U_54_EXPORT_CHOOSER = 'Export Chooser'
 
 /**
  * Table T-109 -- every row whose surface column names a surface UF-66
  * describes. Section 8 of `_assets/tbl-glossary.md` makes that column table
- * T-103's settled names, and IC-52 is the only row placed on one of them.
+ * T-103's settled names. IC-52 closes whichever of them is open, and the
+ * roster FR-099 asks for carries six entries of its own.
  */
-const T_109_MODAL_PLACEMENTS = [{ row: 'IC-52', surfaces: [U_30_HELP, U_30_AI_EXPORT] }] as const
+const T_109_MODAL_PLACEMENTS = [
+  { row: 'IC-52', surfaces: [U_30_HELP, U_30_AI_EXPORT, U_49_ROSTER, U_54_EXPORT_CHOOSER] },
+  { row: 'IC-63', surfaces: [U_49_ROSTER] },
+  { row: 'IC-64', surfaces: [U_49_ROSTER] },
+  { row: 'IC-65', surfaces: [U_49_ROSTER] },
+  { row: 'IC-66', surfaces: [U_49_ROSTER] },
+  { row: 'IC-67', surfaces: [U_49_ROSTER] },
+  { row: 'IC-68', surfaces: [U_49_ROSTER] },
+] as const
 
 /**
  * The one placement the surface column of table T-109 does not carry. IC-21's
@@ -117,7 +131,14 @@ const iconsPlacedOn = (surface: string): readonly string[] => {
  * stands for the surfaces FR-074 and FR-088 open, the other for the empty name
  * `ScreenState.surface` admits without the specification giving it a meaning.
  */
-const SURFACES_ASKED = [U_30_HELP, U_30_AI_EXPORT, U_49_ROSTER, 'a surface with no settled name', '']
+const SURFACES_ASKED = [
+  U_30_HELP,
+  U_30_AI_EXPORT,
+  U_49_ROSTER,
+  U_54_EXPORT_CHOOSER,
+  'a surface with no settled name',
+  '',
+]
 
 // ---------------------------------------------------------------------------
 // Inputs. UF-66 fills one member of `ScreenView` and reads none of the others,
@@ -136,6 +157,7 @@ const sessionOf = (language: DisplayLanguage = 'ja'): ScreenSession => ({
   commandPaletteAt: { x: 0, y: 0 },
   propertiesShowing: null,
   notices: [],
+  confirmation: null,
   rowBoxes: [],
 })
 
@@ -294,10 +316,10 @@ describe('UF-66 -- FR-029 (MUST): the placement follows table T-109', () => {
   })
 
   it('places no entry on a surface no row of table T-109 names', () => {
-    // U-49 and the two unnamed surfaces carry no row of table T-109, and
-    // FR-029 (MUST) forbids minting one. IN-4 is why nothing is trapped: Esc
-    // still closes them.
-    expect(describedOn(U_49_ROSTER).commands).toEqual([])
+    // The two unnamed surfaces carry no row of table T-109, and FR-029 (MUST)
+    // forbids minting one. IN-4 is why nothing is trapped: Esc still closes
+    // them. ⭐ U-49 is no longer one of them -- its rows are asserted by the
+    // case above, which walks the placement of every surface.
     expect(describedOn('a surface with no settled name').commands).toEqual([])
     expect(describedOn('').commands).toEqual([])
   })

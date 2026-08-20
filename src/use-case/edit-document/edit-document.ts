@@ -54,7 +54,12 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 
-export type { TaskCommand, TaskShapeKind, PlanActualPlacement } from './edit-task'
+export type {
+  TaskCommand,
+  TaskMilestoneGlyph,
+  TaskShapeKind,
+  PlanActualPlacement,
+} from './edit-task'
 export type { TaskGroupCommand } from './edit-task-group'
 export type { DependencyCommand, DependencyEdge } from './edit-dependency'
 export type { AnnotationCommand, AnnotationAnchor, HighlightRange } from './edit-annotation'

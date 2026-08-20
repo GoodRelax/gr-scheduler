@@ -63,7 +63,7 @@ import type { SettledUtterance } from '../../use-case/post-dialogue-message/post
 import { appHeaderItemsFromDocument } from './app-header-items'
 import { commandPaletteFromScreenState } from './command-palette'
 import { dialogueFieldFromLog } from './dialogue-field'
-import { noticesFromSession } from './notices'
+import { confirmationFromSession, noticesFromSession } from './notices'
 import { openModalFromScreenState } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule } from './row-title-panel'
@@ -71,7 +71,7 @@ import { screenFrameFromRegions } from './screen-frame'
 import type { DialogueInput } from './screen-surface'
 import { tooltipsFromScreenView } from './tooltips'
 
-export type { DialogueInput, ScreenSurface } from './screen-surface'
+export type { DialogueInput, ScreenPart, ScreenSurface } from './screen-surface'
 
 // ---------------------------------------------------------------- shared ----
 
@@ -129,13 +129,16 @@ export interface CommandItem {
    */
   readonly isPressed: boolean
   /**
-   * The words for the accessible name and for the explanation EZ-2 shows, in
-   * the display language already.
+   * The accessible name of the entry, in the display language already.
    *
-   * ⛔ WHERE THE WORDS COME FROM IS NOT SETTLED. FR-038 requires menus and
-   * panels to be shown in the chosen language and names no store of translated
-   * strings, and no table holds one. Until it does, the words arrive already
-   * chosen and this unit only carries them.
+   * ⭐ WHERE THE WORD COMES FROM. FR-038 (MUST) now puts every word the screen
+   * prints in one per-language dictionary, and Chapter 6.2 fixes its manuscript
+   * as `_source/display-words.json`; `display-words.json` beside this file is
+   * that dictionary generated into `src/`, keyed by the row of table T-109.
+   * ⛔ THE WORDS ARE NOT WRITTEN YET (PD-160) -- every entry is empty, and the
+   * unit that fills this member falls back to the empty string while it is.
+   * ⚠️ The explanation EZ-2 shows is a SECOND word (`hint` of that dictionary),
+   * not this one: UF-69 raises it and reads it for itself.
    */
   readonly label: string
 }
@@ -649,6 +652,74 @@ export interface Notice {
   readonly affectedCount: number | null
 }
 
+/**
+ * One question put before something goes ahead (UF-67, NT-7 of table T-037).
+ *
+ * ⭐ NOT A `Notice`, although both follow table T-037. A notice is told and the
+ * person carries on; this one stops until they answer, and NT-7 (MUST) is the
+ * row that says so -- what is about to happen is shown and then continuing or
+ * calling it off is CHOSEN. Two shapes rather than one, because a notice with a
+ * pending answer bolted on would let a caller raise a question nobody can
+ * answer.
+ *
+ * ⚠️ FR-031 keeps the places that may ask down to two, and NT-7 (MUST) repeats
+ * the limit: a confirmation stands only where a requirement asks for one.
+ */
+export interface Confirmation {
+  /**
+   * The row of table T-037 this one follows -- `NT-7`.
+   *
+   * ⭐ Carried rather than assumed, for the reason `Notice.manner` is: the row
+   * is the join to the table, and a reader of one value can tell which manner it
+   * is written against without being told separately.
+   */
+  readonly manner: string
+  /**
+   * NT-7 (MUST): what is about to happen, in words, in the display language.
+   *
+   * ⛔ Written by whoever asks, never here. FR-038 names no store of translated
+   * strings, so this arrives already in the language -- the move `Notice.text`
+   * and `CommandItem.label` both make.
+   */
+  readonly text: string
+  /**
+   * NT-7 (MUST): what would go, BY NAME. Empty where nothing goes.
+   *
+   * ⛔ A COUNT MAY NOT STAND IN FOR THIS. FR-032 and FR-099 each forbid showing
+   * only a number in as many words (MUST NOT), and NT-7 points at both. That is
+   * also why the list is here rather than a length: `Notice.affectedCount` is
+   * the one place a count lives (NT-3), and NT-3's count sits BESIDE these names
+   * rather than instead of them.
+   *
+   * ⚠️ EMPTY IS A REAL ANSWER, not a missing one. A question can be asked about
+   * something that takes nothing with it -- overwriting a file is the case the
+   * user settled on 2026-08-21 -- and NT-7 asks for names only "where there is
+   * something that goes".
+   */
+  readonly items: readonly ConfirmationItem[]
+}
+
+/** One thing a confirmation says would go. */
+export interface ConfirmationItem {
+  /**
+   * Its name, or `null` where it carries none.
+   *
+   * ⭐ Same shape as `RosterResource.unassignedTaskNames`, which is FR-099's
+   * half of this: `Task.name` (AT-27) is optional in the document, so a nameless
+   * task has to stay describable rather than be dropped from the list.
+   */
+  readonly name: string | null
+  /**
+   * FR-032 (MUST): a `Task` that goes with a row but is DRAWN on another row is
+   * shown as such, because it is not visible on the row being deleted. Which
+   * ones those are is HM-10 of table T-015a.
+   *
+   * ⚠️ `false` wherever FR-032 is not the one asking -- FR-099's list is of the
+   * tasks an unassignment reaches, and rows have nothing to do with it.
+   */
+  readonly isShownOnAnotherRow: boolean
+}
+
 // ------------------------------------------------------------ UF-68 ---------
 
 /**
@@ -707,9 +778,16 @@ export type TooltipAnchor =
  * The description of the UI parts outside the schedule. PI-37 publishes it, and
  * `ScreenSurface.showScreenView` is what carries it to the page.
  *
- * ⭐ Nine members, one per unit of table T-075 -- UF-61 to UF-69 in that order.
- * That is the whole reason the shape is what it is: each unit fills exactly one
- * member and reads none of the others, so the nine can be written at once.
+ * ⭐ Ten members over the nine units of table T-075 -- UF-61 to UF-69 in that
+ * order, with UF-67 filling two. Each unit reads none of the others' members,
+ * which is the whole reason the shape is what it is: the nine can be written at
+ * once.
+ *
+ * ⚠️ WHY UF-67 FILLS TWO. Its row of table T-075 reads 「知らせと確認（FR-076。
+ * 作法は 表 T-037）」, and NT-7 -- the row that says how a question is put -- is
+ * a row of that same table. ⛔ A tenth FILE would need a tenth row in table
+ * T-075 (check 18 holds `src/` against it); one more manner asked for one more
+ * member, not one more unit.
  */
 export interface ScreenView {
   /** UF-61 */
@@ -726,6 +804,8 @@ export interface ScreenView {
   readonly openModal: OpenModal | null
   /** UF-67, in the order they are shown. */
   readonly notices: readonly Notice[]
+  /** UF-67. `null` while nothing is waiting to be answered (NT-7). */
+  readonly confirmation: Confirmation | null
   /** UF-68. `null` while the `Agent API` is off (FR-066). */
   readonly dialogueField: DialogueField | null
   /** UF-69 */
@@ -797,6 +877,12 @@ export interface ScreenSession {
    * `IconId` keyed to a rectangle inside `ScreenView` -- would make every unit
    * that emits a `CommandItem` invent a layout it cannot measure.
    *
+   * ⭐ WHERE THE SHELL GETS IT FROM IS NOW SETTLED, although WHO KEEPS IT still
+   * is not: `ScreenSurface.readScreenPartAt` (IF-9) answers which entry a point
+   * is on, so the shell asks the surface rather than reading its markup. The
+   * rule Chapter 5.3 states under table T-065 is the same one this note argues
+   * from -- the side that drew the entry is the side that answers.
+   *
    * @provisional PD-141
    */
   readonly iconUnderPointer: IconId | null
@@ -865,6 +951,19 @@ export interface ScreenSession {
   /** What has been raised to tell (FR-076). UF-67 decides which are shown, and in what order. */
   readonly notices: readonly Notice[]
   /**
+   * The question waiting to be answered (NT-7 of table T-037), or `null` while
+   * none is.
+   *
+   * ⭐ HELD BY THE SHELL, like the notices beside it: LY-5 of table T-060 leaves
+   * the Framework as the only layer that may hold a current value, and a
+   * question that is waiting is exactly that. ⛔ Nothing in table T-203 or table
+   * T-206 holds it either, so it does not travel in `ScreenState`.
+   *
+   * ⚠️ WHAT THE ANSWER TRAVELS BACK ON IS NOT DECIDED. See the STOP note in
+   * `notices.ts`.
+   */
+  readonly confirmation: Confirmation | null
+  /**
    * Where each drawn row sits, as the shell measured it this frame.
    *
    * ⭐ ADR-001 has the shell run table T-068 once per frame and hand the result
@@ -883,10 +982,12 @@ export interface ScreenSession {
 
 // ------------------------------------------------- the nine unit contracts ---
 //
-// ⭐ THE CONTRACT THE NINE INTERNAL UNITS ARE WRITTEN AGAINST. Each fills one
-// member of `ScreenView` and reads none of the others -- except UF-69, which is
-// handed the eight. All nine are written, and `screenViewFromRegions` below
+// ⭐ THE CONTRACT THE NINE INTERNAL UNITS ARE WRITTEN AGAINST. Each reads none
+// of the other units' members -- except UF-69, which is handed the nine members
+// built before it. All nine are written, and `screenViewFromRegions` below
 // calls them in the order the UF-69 note at the foot of this section fixes.
+// ⚠️ UF-67 fills TWO members, one per manner of table T-037 it answers to; every
+// other unit fills one.
 //
 //   UF-61  screen-frame.ts
 //     export function screenFrameFromRegions(
@@ -946,8 +1047,12 @@ export interface ScreenSession {
 //
 //   UF-67  notices.ts
 //     export function noticesFromSession(session: ScreenSession): readonly Notice[]
+//     export function confirmationFromSession(session: ScreenSession): Confirmation | null
 //     ⚠️ NT-4 (MUST) gathers what is pending at startup into ONE surface rather
 //     than showing them one after another, so this is where several become one.
+//     ⭐ The second member is NT-7's -- the manner for ASKING, which table T-037
+//     gained on 2026-08-21. Table T-075 gives this unit 「知らせと確認」, so both
+//     manners are one unit's, and neither reads the other's member.
 //
 //   UF-68  dialogue-field.ts
 //     export function dialogueFieldFromLog(
@@ -961,17 +1066,17 @@ export interface ScreenSession {
 //       settings: DocumentSettings,
 //       session: ScreenSession,
 //     ): readonly Tooltip[]
-//     ⭐ Takes the eight already built, because what a tooltip explains is one of
-//     the parts they hold. That fixes the order `screenViewFromRegions` builds
-//     in: the eight, then this one.
+//     ⭐ Takes everything already built, because what a tooltip explains is one
+//     of the parts those members hold. That fixes the order
+//     `screenViewFromRegions` builds in: the rest, then this one.
 
 /**
  * The description of one frame's UI parts outside the schedule.
  *
- * ⭐ THE EIGHT, THEN UF-69. The eight parts are built first and handed to
- * `tooltipsFromScreenView` as one value, because what a tooltip explains is one
- * of the parts the other eight described. That is the only order this function
- * chooses: the eight read none of each other, so among themselves they stand in
+ * ⭐ EVERYTHING ELSE, THEN UF-69. The other members are built first and handed
+ * to `tooltipsFromScreenView` as one value, because what a tooltip explains is
+ * one of the parts they described. That is the only order this function chooses:
+ * the units read none of each other, so among themselves the members stand in
  * the order `ScreenView` prints them.
  *
  * ⚠️ NO RULE OF ITS OWN LIVES HERE. Every requirement is answered by the unit
@@ -999,6 +1104,7 @@ export function screenViewFromRegions(
     commandPalette: commandPaletteFromScreenState(state, selection, session),
     openModal: openModalFromScreenState(state, schedule, session),
     notices: noticesFromSession(session),
+    confirmation: confirmationFromSession(session),
     dialogueField: dialogueFieldFromLog(dialogueLog, session),
   }
 

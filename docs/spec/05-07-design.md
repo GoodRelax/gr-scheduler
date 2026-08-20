@@ -306,14 +306,14 @@ src/
 | UF-57 | `Document` | `document.ts` | `pure` | `CP-34` |
 | UF-58 | `ScreenRegions` | `screen-regions.ts` | `pure` | `CP-35` |
 | UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` |
-| UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開する |
+| UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`） |
 | UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付けと、全画面表示（`FR-051` / `FR-052` / `FR-071`） |
 | UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Autosave Status`（`FR-061`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`） |
 | UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） |
 | UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` / `FR-068` |
-| UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 知らせ（`FR-076`。作法は 表 T-037） |
+| UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 知らせと確認（`FR-076`。作法は 表 T-037） |
 | UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。順序は 表 T-035 の `AG-11`） |
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） |
@@ -383,9 +383,11 @@ src/
 | IF-6 | `Rasterizer` | `ImageExporter`（`CP-21`） | `CanvasRasterizer`（`CP-31`） | SVG から画像へ（`IO-4`） |
 | IF-7 | `SnapshotSource` | `AgentApiEndpoint`（`CP-17`） | `SingleHtmlShell`（`CP-25`） | 凍結された現在値（表 T-035 の `AG-4`）と、身振りの最中かどうか（`AG-9`） |
 | IF-8 | `AppShellSource` | `DocumentCodec`（`CP-20`） | `SingleHtmlShell`（`CP-25`） | アプリ自身の HTML。`IO-7` を作るのに要る |
-| IF-9 | `ScreenSurface` | `ScreenRenderer`（`CP-37`） | `DomScreenSurface`（`CP-38`） | 作った記述を画面に載せ、対話欄で確定した発話を返す |
+| IF-9 | `ScreenSurface` | `ScreenRenderer`（`CP-37`） | `DomScreenSurface`（`CP-38`） | 作った記述を画面に載せ、対話欄で確定した発話を返し、**画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える** |
 
 **`SvgRenderer` が SVG の文字列を作り、`DomSvgSurface` がそれを画面に載せる** —— 名前が近い 2 つを別のフォルダへ分けたのは、**前者が `pure` で後者が `non-pure` だからである。**
+
+⛔ **点がどの入口の上かは、その入口を描いた側が答えること（MUST）。他所で同じ矩形を計算し直してはならない（MUST NOT）** —— 描き方を変えた瞬間に 2 つの答えがずれ、どちらが正かを読む者が決められなくなる。⚠️ **`ScreenView` の各部に矩形を持たせる形は採らない** —— 記述を組み立てる 9 ユニットはどれも寸法を測る手段を持たない（`LR-6`）。**同じ判断を 表 T-070 の `MN-6` が計算の側で下している**（1 回だけ計算して配る）。
 
 ### 5.4 Domain Model (ドメインモデル)
 
@@ -877,6 +879,8 @@ stateDiagram-v2
 **起こす原稿は 2 つとする（MUST）** —— **日程データの群は `_source/erd.json`、見せ方の群は `_source/settings.json` である**。前者は 図 F-011 と 表 T-056・表 T-057・表 T-058・表 T-059 を書き出している原稿であり、後者は値の正であって 表 T-201 以降を書き出している。⚠️ **どちらも既にあるものであり、値を写した 3 つ目の原稿を作ってはならない（MUST NOT）**。
 
 ⭐ **原稿は `_source/` に置くこと（MUST）。`_assets/` に置いてはならない（MUST NOT）** —— **原稿は言語に属さないからである。** 刊行物を日英で出すとき `_assets/` は言語ごとに分かれるので、そこに原稿を置けば原稿そのものが 2 つに割れ、値が 2 か所に在ることになる。⚠️ **散文のうち刊行される欄は、言語ごとの辞書として持つこと（MUST）** —— 後から言語を足す作業を、書き直しではなく記入にするためである。⛔ **分類を述べる欄を辞書にしてはならない（MUST NOT）** —— 表 T-058 の型の欄と `null` の欄がそれである。**日本語で書かれていても散文ではない。** ⚠️ **辞書にすると「可」という表示の語を原稿へ焼き付けることになる** —— 分類は分類として持ち、言語ごとの表示は生成器が刷ること（MUST）。
+
+⭐ **画面に刷る語の原稿は `_source/display-words.json` とする（MUST）** —— `FR-038` が「画面に刷る語は言語ごとの辞書として 1 か所に持つ」と課したものの置き場である。⛔ **同原稿は語だけを持ち、どの語が要るかの名簿を持ってはならない（MUST NOT）** —— 名簿は 表 T-109・表 T-037・表 T-023 と `FR-072` が既に持っており、**生成器が毎回そこから起こして原稿と突き合わせる。** ⚠️ **本原稿は `GRS JSON` のスキーマを起こさない** —— 上の「起こす原稿は 2 つ」はスキーマの原稿の数であり、本原稿はそこに数えない。⛔ **語を仕様書の表へ刷ってはならない（MUST NOT）** —— 空の欄が並ぶだけで、規則を 1 つも述べない表になる。**語が届く先は `src/` の生成物 1 本とし（MUST）**、その素性は下の道標の規則に従う。
 
 **日程データの群の原稿は、生成に要る型と、値の範囲と、空を許すかどうかを、機械が読める形で持つこと（MUST）** —— いまはそれらを日本語の散文で書いており、列挙の中には値そのものを持たない行がある。⚠️ **どの鍵をどう足すかは原稿の作りであり、本節は定めない**。
 

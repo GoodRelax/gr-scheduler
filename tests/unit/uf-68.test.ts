@@ -74,6 +74,7 @@ const SESSION: ScreenSession = {
   commandPaletteAt: { x: 0, y: 0 },
   propertiesShowing: null,
   notices: [],
+  confirmation: null,
   rowBoxes: [],
 }
 

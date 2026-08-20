@@ -69,6 +69,7 @@ const T_037 = [
   { row: 'NT-4', when: '起動時の保留中の用件', binds: 'shown' },
   { row: 'NT-6', when: '資源の上限に達したとき', binds: 'raiser' },
   { row: 'NT-5', when: '受け付けたうえで注意を伝えるとき', binds: 'raiser' },
+  { row: 'NT-7', when: '続けてよいかを問うとき', binds: 'raiser' },
 ] as const
 
 /** The row of table T-037 whose several notices become one surface. */
@@ -98,6 +99,7 @@ const sessionOf = (notices: readonly Notice[]): ScreenSession => ({
   commandPaletteAt: { x: 0, y: 0 },
   propertiesShowing: null,
   notices,
+  confirmation: null,
   rowBoxes: [],
 })
 

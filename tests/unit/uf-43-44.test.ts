@@ -114,10 +114,11 @@ const STORE_FAULTS = [
 
 /**
  * 表 T-037 in the table's printed order, with the rows this component answers
- * to marked. ⚠️ The other four are the screen's: they are about how long a
+ * to marked. ⚠️ The other five are the screen's: they are about how long a
  * notice stays, how many items a destructive result touches, gathering the
- * startup notices onto one surface, and telling someone about an input that
- * WAS accepted.
+ * startup notices onto one surface, telling someone about an input that WAS
+ * accepted, and putting a question before something goes ahead. ⛔ NT-7 is not
+ * this component's: a store neither asks nor waits for an answer.
  */
 const T_037 = [
   { row: 'NT-1', bindsHere: true, what: 'a refusal says WHICH item is wrong, and why, in words' },
@@ -127,6 +128,7 @@ const T_037 = [
   { row: 'NT-4', bindsHere: false, what: 'the startup errands gathered onto one surface' },
   { row: 'NT-6', bindsHere: true, what: 'a ceiling reached is told -- LM-4, `capacityExceeded`' },
   { row: 'NT-5', bindsHere: false, what: 'accepted, and cautioned about' },
+  { row: 'NT-7', bindsHere: false, what: 'asking whether to go on, and naming what would go' },
 ] as const
 
 /**
@@ -345,10 +347,10 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_052_DR2).not.toContain('dependencies')
   })
 
-  it('carries both fault codes, the seven rows of 表 T-037 and FR-061 の 3 種', () => {
+  it('carries both fault codes, the eight rows of 表 T-037 and FR-061 の 3 種', () => {
     expect(STORE_FAULTS).toHaveLength(2)
     expect(new Set(STORE_FAULTS.map((fault) => fault.code)).size).toBe(2)
-    expect(T_037).toHaveLength(7)
+    expect(T_037).toHaveLength(8)
     expect(T_037.filter((row) => row.bindsHere)).toHaveLength(3)
     expect(FR_061_STATES).toHaveLength(3)
   })

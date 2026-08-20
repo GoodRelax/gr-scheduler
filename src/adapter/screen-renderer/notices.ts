@@ -4,10 +4,16 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 //
-// UF-67 fills one member of ScreenView -- `notices` -- and reads none of the
-// others. FR-076 (MUST) makes table T-037 the manner of every telling, and the
-// signature published here is the one the "nine unit contracts" section of
-// screen-renderer.ts fixes.
+// UF-67 fills two members of ScreenView -- `notices` and `confirmation` -- and
+// reads none of the others. FR-076 (MUST) makes table T-037 the manner of every
+// telling, and the signatures published here are the ones the "nine unit
+// contracts" section of screen-renderer.ts fixes.
+//
+// ⭐ TWO MEMBERS, ONE TABLE. The UF-67 row of table T-075 reads 「知らせと確認
+// （FR-076。作法は 表 T-037）」: NT-1 .. NT-6 are manners of TELLING and NT-7 is
+// the manner of ASKING, and both are rows of the one table this unit answers to.
+// ⛔ A confirmation is not a notice -- it stops until it is answered -- so it is
+// its own member rather than a notice wearing another manner.
 //
 // ⭐ WHAT IS RAISED IS NOT WHAT IS SHOWN. `ScreenSession.notices` is what has
 // been raised; the return value is what is showing and in what order. The same
@@ -40,9 +46,9 @@
 // to the shell, and CS-1 of table T-066 keeps it away from a `pure` unit. A
 // notice whose time is up is one that is no longer raised.
 //
-// ⛔ Four STOP notes below say what table T-037 leaves open.
+// ⛔ Five STOP notes below say what table T-037 leaves open.
 
-import type { Notice, ScreenSession } from './screen-renderer'
+import type { Confirmation, Notice, ScreenSession } from './screen-renderer'
 
 /**
  * The manner NT-4 gathers. ⚠️ A row id appears here as a VALUE, not as a copy of
@@ -162,4 +168,40 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
   }
 
   return shown
+}
+
+/**
+ * The question waiting to be answered, or `null` while none is (NT-7).
+ *
+ * ⭐ PASSED THROUGH, NEVER COMPOSED, for the same reason a notice is: everything
+ * NT-7 (MUST) asks for -- what is about to happen in words, and the names of
+ * what would go -- can only be known where the question is raised. FR-032 asks
+ * for the names of the tasks a row takes with it and FR-099 for the names of the
+ * tasks an unassignment reaches; neither is derivable from a `Confirmation` that
+ * already exists.
+ *
+ * ⛔ AT MOST ONE. NT-4 (MUST) is the only row of table T-037 that speaks about
+ * several at once and it is about notices, so nothing here gathers or orders
+ * questions -- and a second question raised over the first would be one nothing
+ * in the table says how to show.
+ *
+ * ⚠️ NOT DROPPED FOR BEING EMPTY. `Confirmation.items` may be empty: NT-7 asks
+ * for names only where something goes, and the overwrite question the user
+ * settled on 2026-08-21 takes nothing with it.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how the answer travels back, and
+ * what the two choices are called. Looked in table T-037 (NT-7 says the person
+ * chooses between going on and calling it off, and says nothing about entries or
+ * words), in FR-032 and FR-099 (both say 「確認を求める」 and neither names a
+ * control), in `_assets/tbl-glossary.md` (table T-109 has no row placed on a
+ * confirmation, and table T-103 has settled no name for one -- so it is not a
+ * surface `ScreenState.surface` can hold either), and in table T-036 (no
+ * shortcut). Nothing is invented here: the words would be `OpenModal.heading`'s
+ * problem over again, and an entry would be a row of table T-109 that only a
+ * ruling can add.
+ *
+ * @purity pure
+ */
+export function confirmationFromSession(session: ScreenSession): Confirmation | null {
+  return session.confirmation
 }

@@ -127,6 +127,7 @@
 | dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved panel widths (S-79 / S-80) |  |
 | dependency | InputCommandTranslator | ScreenRegions | region under pointer | asks which region the pointer is in |  |
 | dependency | InputCommandTranslator | ScreenState | next screen state | reads what is armed and which surface is open, and returns the next screen state |  |
+| dependency | InputCommandTranslator | ScreenRenderer | entry under pointer | asks which UI part and which entry a point on the screen is on (IF-9) |  |
 | dependency | SingleHtmlShell | ScreenRenderer | screen frame | rebuilds the UI parts outside the schedule once per frame |  |
 | realization | DomScreenSurface | ScreenRenderer | implements ScreenSurface |  |  |
 | dependency | ScreenRenderer | ScreenRegions | where each part sits | reads the rectangle of each screen part |  |

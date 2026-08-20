@@ -162,12 +162,11 @@ const T_036: readonly ShortcutRow[] = [
   { row: 'SK-9', keys: [{ key: 'F2' }], member: 'action', action: 'editInPlace' },
   { row: 'SK-10', keys: [{ key: 'O', mods: { ctrl: true } }], member: 'action', action: 'openDocumentFile' },
   { row: 'SK-11', keys: [{ key: 'S', mods: { ctrl: true } }], member: 'action', action: 'saveDocumentFile' },
-  {
-    row: 'SK-12',
-    keys: [{ key: 'E', mods: { ctrl: true, shift: true } }],
-    member: 'action',
-    action: 'openExportChooser',
-  },
+  // ⭐ `screenState` since 2026-08-21: 表 T-103 settled `Export Chooser` (U-54)
+  // for the surface FR-096 opens, so its name is one `ScreenState.surface`
+  // (S-99g) can hold and IN-4's first level closes it -- the same shape SK-13
+  // has for the help. Before the name existed it could only be an action.
+  { row: 'SK-12', keys: [{ key: 'E', mods: { ctrl: true, shift: true } }], member: 'screenState' },
   { row: 'SK-13', keys: [{ key: 'F1' }], member: 'screenState' },
   { row: 'SK-14', keys: [{ key: 'P' }], member: 'screenState' },
   { row: 'SK-15', keys: [{ key: 'F11' }], member: 'screenState' },
@@ -507,6 +506,10 @@ const TASK_1_HIT = hitOf({ kind: 'task', taskUid: 1 }, 'GR-12')
 // Reading the three answers.
 // ---------------------------------------------------------------------------
 
+// ⚠️ `on: null` below is 「the screen surface had drawn nothing where the press
+// landed」 -- the third thing IF-9 of 表 T-065 supplies, and the state every case
+// in this file is about. The cases that press an ENTRY say so themselves.
+
 /** IN-1 settles a pointer operation on release, so a gesture is press + up. */
 function afterGesture(
   from: PointerInput,
@@ -514,7 +517,7 @@ function afterGesture(
   hit: Hit | null,
   part: Partial<InputContext> = {},
 ): { readonly answer: TranslatedInput; readonly context: InputContext } {
-  const context = contextOf({ ...part, pressed: { at: from, hit } })
+  const context = contextOf({ ...part, pressed: { at: from, hit, on: null } })
   return { answer: commandFromInput(to, context), context }
 }
 
@@ -531,7 +534,7 @@ function gestureSelection(
   hit: Hit | null,
   part: Partial<InputContext> = {},
 ): Selection {
-  const context = contextOf({ ...part, pressed: { at: from, hit } })
+  const context = contextOf({ ...part, pressed: { at: from, hit, on: null } })
   return selectionFromInput(to, context)
 }
 
@@ -1268,7 +1271,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
           const armedLine = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
           const context = contextOf({
             screenState: armedLine,
-            pressed: { at: pointerOf('down', from, y3), hit: null },
+            pressed: { at: pointerOf('down', from, y3), hit: null, on: null },
           })
           const up = pointerOf('up', to, y3)
           expect(commandFromInput(up, context).action, row).toBeNull()
@@ -1444,7 +1447,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
   it('AR-4 / PD-4a: the dependency arm on empty ground writes nothing and keeps the arm', () => {
     const context = contextOf({
       screenState: armedWith({ kind: 'dependency' }),
-      pressed: { at: pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')), hit: null },
+      pressed: { at: pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')), hit: null, on: null },
     })
     const up = pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3'))
     expect(commandFromInput(up, context).action).toBeNull()

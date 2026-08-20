@@ -32,8 +32,8 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "画像として書き出す",
-   "authority": "`FR-025`"
+   "entryTo": "書き出す形式を選ぶ",
+   "authority": "`FR-096`（表 T-036 の `SK-12`）"
   },
   {
    "rowId": "IC-4",
@@ -471,7 +471,9 @@
    "rowId": "IC-52",
    "surfaces": [
     "Help Modal",
-    "AI Export Modal"
+    "AI Export Modal",
+    "Resource Roster",
+    "Export Chooser"
    ],
    "group": null,
    "entryTo": "開いている面を閉じる",
@@ -528,7 +530,7 @@
     "Row Title Panel"
    ],
    "group": null,
-   "entryTo": "行の配下を 1 段開く。**未描画 🔎**",
+   "entryTo": "行の配下を 1 段開く",
    "authority": "表 T-051 の `HF-2`"
   },
   {
@@ -537,7 +539,7 @@
     "Row Title Panel"
    ],
    "group": null,
-   "entryTo": "行の配下をすべて閉じる。**未描画 🔎**",
+   "entryTo": "行の配下をすべて閉じる",
    "authority": "表 T-051 の `HF-3`"
   },
   {
@@ -546,7 +548,7 @@
     "Row Title Panel"
    ],
    "group": null,
-   "entryTo": "行をピン止めし、同じ入口で外す。**未描画 🔎**",
+   "entryTo": "行をピン止めし、同じ入口で外す",
    "authority": "`FR-098`"
   },
   {
@@ -555,8 +557,71 @@
     "Command Palette"
    ],
    "group": "置く",
-   "entryTo": "依存線を構える（表 T-023b の `AR-4`）。**未描画 🔎** —— 構えの入口 6 つのうち、これだけ図形が無い",
+   "entryTo": "依存線を構える（表 T-023b の `AR-4`）",
    "authority": "`FR-009`"
+  },
+  {
+   "rowId": "IC-62",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "担当者の名簿を出す",
+   "authority": "`FR-099`"
+  },
+  {
+   "rowId": "IC-63",
+   "surfaces": [
+    "Resource Roster"
+   ],
+   "group": null,
+   "entryTo": "一覧のすべてを選ぶ",
+   "authority": "`FR-099`"
+  },
+  {
+   "rowId": "IC-64",
+   "surfaces": [
+    "Resource Roster"
+   ],
+   "group": null,
+   "entryTo": "一覧の選択をすべて解く",
+   "authority": "`FR-099`"
+  },
+  {
+   "rowId": "IC-65",
+   "surfaces": [
+    "Resource Roster"
+   ],
+   "group": null,
+   "entryTo": "どの割当からも参照されていない担当者を選ぶ",
+   "authority": "`FR-099`（表 T-108 の `CM-43`）"
+  },
+  {
+   "rowId": "IC-66",
+   "surfaces": [
+    "Resource Roster"
+   ],
+   "group": null,
+   "entryTo": "選んだ担当者を消す",
+   "authority": "`FR-099`（表 T-108 の `CM-42`）"
+  },
+  {
+   "rowId": "IC-67",
+   "surfaces": [
+    "Resource Roster"
+   ],
+   "group": null,
+   "entryTo": "選ばれていることを示し、同じ入口で解く",
+   "authority": "`FR-099`"
+  },
+  {
+   "rowId": "IC-68",
+   "surfaces": [
+    "Resource Roster"
+   ],
+   "group": null,
+   "entryTo": "選ばれていないことを示し、同じ入口で選ぶ",
+   "authority": "`FR-099`"
   }
  ]
 }

@@ -132,6 +132,7 @@ const T_109_PALETTE = [
   { row: 'IC-53', group: '', authority: 'FR-053', isButton: false },
   { row: 'IC-54', group: '構え', authority: 'SK-19', isButton: false },
   { row: 'IC-61', group: '置く', authority: 'FR-009', isButton: true },
+  { row: 'IC-62', group: '表示', authority: 'FR-099', isButton: true },
 ] as const
 
 /**
@@ -216,6 +217,7 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   commandPaletteAt: { x: 0, y: 0 },
   propertiesShowing: null,
   notices: [],
+  confirmation: null,
   rowBoxes: [],
   ...part,
 })

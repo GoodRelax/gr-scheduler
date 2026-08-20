@@ -61,6 +61,16 @@
 //      document at the moment of the press -- so what was under the pointer
 //      THEN is what the gesture is about, and re-running `itemAtPointer` on
 //      release would answer about a screen that has since moved.
+//   4. What the SCREEN SURFACE drew at the press arrives the same way
+//      (`PointerPress.on`), and it is read BEFORE table T-023a. The note under
+//      that table limits its decision order to the schedule's drawing area
+//      (MUST), and the floating palette, the open surface, the notices and the
+//      dialogue field are drawn over that area while `ScreenRegions` (PI-35)
+//      holds a rectangle for none of them -- so `regionAtPointer` alone answers
+//      `rowArea` for a point on any of them, and a press on an entry would
+//      become a marquee on the schedule underneath. ⭐ The answer comes from
+//      the side that DREW the entry, which Chapter 5.3 makes a MUST under table
+//      T-065; nothing here recomputes a rectangle it cannot see.
 //
 // ⛔ WHAT THIS FILE MAY NOT DO. It never invents a value the specification
 // owns: where a row is missing, a STOP note names the row that is missing and
@@ -82,6 +92,7 @@ import {
   screenStateWithFullScreen,
   screenStateWithPalette,
   screenStateWithSurface,
+  type Armed,
   type EscapeContext,
   type ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
@@ -118,7 +129,12 @@ import {
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { DocumentCommand, TaskShapeKind } from '../../use-case/edit-document/edit-document'
+import type { ScreenPart } from '../screen-renderer/screen-renderer'
+import type {
+  DocumentCommand,
+  TaskMilestoneGlyph,
+  TaskShapeKind,
+} from '../../use-case/edit-document/edit-document'
 import type {
   HumanInput,
   InputModifiers,
@@ -162,6 +178,25 @@ export interface PointerPress {
    * moment the press happens rather than one frame later.
    */
   readonly hit: Hit | null
+  /**
+   * What the screen surface had drawn where the press landed -- the UI part and
+   * the entry within it -- or `null` where it had drawn nothing there and the
+   * schedule below was exposed.
+   *
+   * ⭐ ASKED OF THE SIDE THAT DREW IT. `ScreenSurface.readScreenPartAt` (IF-9)
+   * answers it, and Chapter 5.3 states under table T-065 that no one else may
+   * compute the same rectangle (MUST NOT). ⚠️ Resolved by the CALLER at the
+   * moment of the press, for the same reason `hit` is: CS-2 of table T-066
+   * freezes a gesture's screen at the press, so a palette dragged away since
+   * must not change what this gesture was about.
+   *
+   * ⛔ `null` IS WHAT ADMITS TABLE T-023a. Its own note limits the decision
+   * order to the schedule's drawing area (MUST), and the floating palette, the
+   * open surface, the notices and the dialogue field are all drawn OVER that
+   * area while `ScreenRegions` (PI-35) holds a rectangle for none of them -- so
+   * `regionAtPointer` alone answers `rowArea` for a point on any of them.
+   */
+  readonly on: ScreenPart | null
 }
 
 /**
@@ -191,7 +226,16 @@ export interface InputContext {
    * section 1).
    */
   readonly zoomStep: number
-  /** The gesture in flight, or null while none is. */
+  /**
+   * The gesture in flight, or null while none is.
+   *
+   * ⚠️ ON A `down` HAPPENING THIS IS THAT PRESS. The caller records the press --
+   * with its hit and with what the surface had drawn there -- before it asks any
+   * of the three members, because IN-1 settles nothing on the press and the only
+   * thing this file answers for a `down` is whether the tool has taken the
+   * gesture (MK-10). ⛔ A caller that leaves it null on the press leaves every
+   * entry it drew unassigned.
+   */
   readonly pressed: PointerPress | null
   /**
    * IN-5a: a name, an assignee, a row name or the document title is being typed
@@ -278,16 +322,6 @@ export type InputAction =
   | { readonly kind: 'openDocumentFile' }
   /** SK-11. */
   | { readonly kind: 'saveDocumentFile' }
-  /**
-   * SK-12, which FR-096 says begins with the choice of a format.
-   *
-   * ⚠️ An action rather than a surface, unlike SK-13. S-99g holds the name of
-   * the surface that is open and table T-103 has settled a name for the help
-   * (U-30) but for nothing FR-096 opens -- `open-modals.ts` says the same of
-   * the surfaces FR-074 and FR-088 open. Minting one here would settle a name
-   * the glossary has not.
-   */
-  | { readonly kind: 'openExportChooser' }
   /** SK-19. */
   | { readonly kind: 'settleTextEntry' }
   /** SK-9 and MK-13. */
@@ -466,6 +500,19 @@ const KEY = {
 
 /** U-30 of table T-103, the half FR-036 opens. */
 const HELP_MODAL = 'Help Modal'
+
+/**
+ * The other three surfaces table T-103 has settled a name for -- U-30's other
+ * half (FR-068), U-49 (FR-099) and U-54 (FR-096).
+ *
+ * ⭐ Copied spelling and all, which is what `open-modals.ts` keys its rules on
+ * and what `ScreenState.surface` (S-99g) carries. ⛔ No name is minted here for
+ * the surfaces FR-074 and FR-088 open -- table T-103 has none, and
+ * `open-modals.ts` records the same hole.
+ */
+const AI_EXPORT_MODAL = 'AI Export Modal'
+const RESOURCE_ROSTER = 'Resource Roster'
+const EXPORT_CHOOSER = 'Export Chooser'
 
 /**
  * Whether this is one of IN-5's 「単文字キー」.
@@ -787,6 +834,142 @@ function taskShapeKindOf(name: string): TaskShapeKind | null {
     : null
 }
 
+/**
+ * The eight spellings table T-012's SH-5 gives a milestone's figure, kept the
+ * same way and for the same reason as the five above.
+ *
+ * ⚠️ The ORDER matters and is SH-5's own: S-48 fixes it as the order of their
+ * areas, and table T-109 places IC-27 .. IC-34 in it.
+ */
+const TASK_MILESTONE_GLYPHS: Readonly<Record<TaskMilestoneGlyph, true>> = {
+  circle: true,
+  hexagon: true,
+  pentagon: true,
+  diamond: true,
+  square: true,
+  star: true,
+  triangleUp: true,
+  triangleDown: true,
+}
+
+/** @purity pure */
+function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
+  return Object.prototype.hasOwnProperty.call(TASK_MILESTONE_GLYPHS, name)
+    ? (name as TaskMilestoneGlyph)
+    : null
+}
+
+// --------------------------------------------------------------- entries ----
+//
+// ⭐ THE ROWS OF TABLE T-109 THIS FILE ANSWERS FOR, by the row id that is the
+// only join that table admits (it has no English column, and says why). This is
+// the same move the keyboard already makes: `KEY` spells table T-036's
+// assignment column and the rows below are matched one by one.
+//
+// ⛔ NOT A ROSTER, and not a count. Table T-109 counts itself (FR-029 forbids
+// the requirement to state the number) and 32 of its rows are absent here on
+// purpose -- the STOP note at the foot of this file says what each of them is
+// missing. ⚠️ `screen-renderer.ts` reads the generated `icon-roster.json`;
+// this component has no edge to that file and must not grow one, so what
+// crosses is the row id alone.
+
+/** The entries this file assigns, spelled as table T-109 spells its row ids. */
+const ENTRY = {
+  /** IC-1 -- FR-087 (OP-2 of table T-024a). Same operation as SK-10. */
+  openDocument: 'IC-1',
+  /** IC-2 -- FR-060. SK-11. */
+  saveDocument: 'IC-2',
+  /** IC-3 -- FR-096, which SK-12 begins with the choice of a format. */
+  exportChooser: 'IC-3',
+  /** IC-5 / IC-6 -- FR-031. SK-6 / SK-7. */
+  undo: 'IC-5',
+  redo: 'IC-6',
+  /** IC-7 -- FR-053, S-99e. SK-14. */
+  palette: 'IC-7',
+  /** IC-10 -- FR-055. SK-18. */
+  fitToScreen: 'IC-10',
+  /** IC-11 -- FR-071, S-99f. SK-15. */
+  fullScreen: 'IC-11',
+  /** IC-12 .. IC-15 -- FR-018, S-75 / S-76. SK-16 / SK-16a. */
+  zoomTimeOut: 'IC-12',
+  zoomTimeIn: 'IC-13',
+  zoomRowOut: 'IC-14',
+  zoomRowIn: 'IC-15',
+  /** IC-19 -- FR-068. U-30 `AI Export Modal` of table T-103. */
+  aiExportModal: 'IC-19',
+  /** IC-22 -- FR-036. SK-13. */
+  help: 'IC-22',
+  /** IC-44 -- FR-046. SK-20. */
+  statusLine: 'IC-44',
+  /** IC-52 -- the first level of IN-4 (table T-028). */
+  closeSurface: 'IC-52',
+  /** IC-62 -- FR-099. U-49 `Resource Roster` of table T-103. */
+  resourceRoster: 'IC-62',
+} as const
+
+/**
+ * The palette entries that arm, and what each one arms -- table T-023b through
+ * table T-109's `Command Palette` rows.
+ *
+ * ⭐ THE SPELLINGS ARE NOT INVENTED HERE. The four task shapes are
+ * `TaskShapeKind`'s, which the generator writes from table T-012's SH-1 .. SH-4;
+ * the eight glyphs are `TaskMilestoneGlyph`'s, in the order SH-5 prints them,
+ * which is the order table T-109 places IC-27 .. IC-34 in and the order S-48
+ * fixes as the order of their areas.
+ * ⚠️ `Armed` types both as bare strings (`screen-state.ts` says the
+ * specification has not settled them as names), so nothing here is checked by
+ * the compiler against those unions -- which is why the two orders are stated
+ * above and are the thing to re-read if a row moves.
+ */
+const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
+  'IC-23': { kind: 'taskShape', shapeKind: 'rectangle' },
+  'IC-24': { kind: 'taskShape', shapeKind: 'chevron' },
+  'IC-25': { kind: 'taskShape', shapeKind: 'arrow' },
+  'IC-26': { kind: 'taskShape', shapeKind: 'endpointSpan' },
+  'IC-27': { kind: 'milestoneShape', glyph: 'circle' },
+  'IC-28': { kind: 'milestoneShape', glyph: 'hexagon' },
+  'IC-29': { kind: 'milestoneShape', glyph: 'pentagon' },
+  'IC-30': { kind: 'milestoneShape', glyph: 'diamond' },
+  'IC-31': { kind: 'milestoneShape', glyph: 'square' },
+  'IC-32': { kind: 'milestoneShape', glyph: 'star' },
+  'IC-33': { kind: 'milestoneShape', glyph: 'triangleUp' },
+  'IC-34': { kind: 'milestoneShape', glyph: 'triangleDown' },
+  /** AR-5 of table T-023b (FR-019). */
+  'IC-35': { kind: 'commentBox' },
+  /** AR-6 (FR-019). */
+  'IC-36': { kind: 'highlightBox' },
+  /** AR-4 (FR-009). */
+  'IC-61': { kind: 'dependency' },
+}
+
+/** @purity pure */
+function armedByEntry(entry: string): Armed | null {
+  return Object.prototype.hasOwnProperty.call(ARMED_BY_ENTRY, entry)
+    ? (ARMED_BY_ENTRY[entry] as Armed)
+    : null
+}
+
+/**
+ * Whether two arms are the same one, which is what SP-4 turns on.
+ *
+ * ⚠️ The shape and the glyph are compared as well as the kind: SP-4 says 「構え
+ * ている入口を再び押した」, and IC-30 and IC-31 are different ENTRIES although
+ * both are `milestoneShape`. Comparing the kind alone would let a press on the
+ * square disarm the diamond.
+ *
+ * @purity pure
+ */
+function isSameArm(held: Armed, pressed: Armed): boolean {
+  if (held.kind !== pressed.kind) return false
+  if (held.kind === 'taskShape' && pressed.kind === 'taskShape') {
+    return held.shapeKind === pressed.shapeKind
+  }
+  if (held.kind === 'milestoneShape' && pressed.kind === 'milestoneShape') {
+    return held.glyph === pressed.glyph
+  }
+  return true
+}
+
 // =========================================================== the members ====
 
 /**
@@ -879,9 +1062,12 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   }
   if (ctrl && key === KEY.o) return acted({ kind: 'openDocumentFile' }) // SK-10
   if (ctrl && key === KEY.s) return acted({ kind: 'saveDocumentFile' }) // SK-11
-  if (ctrlShift && key === KEY.e) return acted({ kind: 'openExportChooser' }) // SK-12
 
-  // SK-13 / SK-14 / SK-15 -- all three land in `ScreenState`.
+  // SK-12 / SK-13 / SK-14 / SK-15 -- all four land in `ScreenState`.
+  // ⭐ SK-12 joined them when table T-103 settled `Export Chooser` (U-54): the
+  // surface FR-096 opens now has a name S-99g can hold, so opening it IS a
+  // change of screen state and IN-4's first level can close it again.
+  if (ctrlShift && key === KEY.e) return CONSUMED_ELSEWHERE
   if (plain && (key === KEY.f1 || key === KEY.p || key === KEY.f11)) return CONSUMED_ELSEWHERE
 
   // SK-16 / SK-16a -- one axis each, by the same step the wheel turns by.
@@ -1014,6 +1200,11 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     // (MK-10, MUST NOT). Everything else inside the drawing area is this
     // tool's, by one row of table T-023a or another.
     if (input.button === 'right') return UNASSIGNED
+    // A press on something this tool drew is this tool's, wherever it landed:
+    // the browser must not start a text selection under a palette that FR-053
+    // has the person drag, nor under an entry.
+    const press = context.pressed
+    if (press !== null && press.on !== null) return CONSUMED_ELSEWHERE
     return isOnRowArea(context, input.x, input.y) ? CONSUMED_ELSEWHERE : UNASSIGNED
   }
   // ⚠️ A move carries no action either. What a drag will do is decided once, on
@@ -1027,6 +1218,10 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
 
   const press = context.pressed
   if (press === null) return UNASSIGNED
+  // ⭐ FIRST, because table T-023a's own note limits its decision order to the
+  // schedule's drawing area (MUST): a press the surface answered for was not on
+  // the schedule at all, whatever `regionAtPointer` says about the point.
+  if (press.on !== null) return commandFromEntry(press, context)
   if (!isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
   switch (pressRowOf(press, context)) {
@@ -1066,6 +1261,116 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       // (SL-3 / MK-11), and `selectionFromInput` answers it.
       return CONSUMED_ELSEWHERE
   }
+}
+
+/**
+ * What a press on one of the entries this tool drew is assigned to.
+ *
+ * ⭐ IN-1: settled on the RELEASE, and read against the PRESS -- which is why
+ * `PointerPress.on` is what is looked at rather than where the pointer ended up.
+ * ⚠️ Every row below is an operation this file already answers for a row of
+ * table T-036, or a surface whose name table T-103 has settled; nothing new is
+ * invented for an entry (see the STOP note at the foot of this file).
+ *
+ * ⛔ THE ARMING ENTRIES ANSWER NOTHING HERE except SP-2 and SP-3's shape change.
+ * What is armed lives in `ScreenState` (UN-11 keeps it out of the undo record),
+ * so `screenStateFromInput` is the member that answers SP-1 and SP-4.
+ *
+ * @purity pure
+ */
+function commandFromEntry(press: PointerPress, context: InputContext): TranslatedInput {
+  const entry = press.on === null ? null : press.on.entry
+  // On the part but on no entry -- the palette's own body, a surface's
+  // background, a notice. The press is this tool's (the browser must not act
+  // under it) and writes nothing.
+  if (entry === null) return CONSUMED_ELSEWHERE
+
+  switch (entry) {
+    case ENTRY.openDocument:
+      return acted({ kind: 'openDocumentFile' })
+    case ENTRY.saveDocument:
+      return acted({ kind: 'saveDocumentFile' })
+    case ENTRY.undo:
+      return acted({ kind: 'undoEdit' })
+    case ENTRY.redo:
+      return acted({ kind: 'redoEdit' })
+    case ENTRY.fitToScreen:
+      return changed([fitCommand(context)])
+    case ENTRY.zoomTimeIn:
+    case ENTRY.zoomTimeOut: {
+      const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
+      return changed([zoomCommand(context, zoomTimes(context, factor, 'x'), null)])
+    }
+    case ENTRY.zoomRowIn:
+    case ENTRY.zoomRowOut: {
+      const factor = keyZoomFactor(context, entry === ENTRY.zoomRowIn)
+      return changed([zoomCommand(context, null, zoomTimes(context, factor, 'y'))])
+    }
+    case ENTRY.statusLine:
+      // FR-046, as SK-20 states it: showing the line puts today into
+      // `statusDate` and hiding it puts null there. ⚠️ Table T-109 also says
+      // 「動かす」, which is GR-16's drag and not this entry.
+      return changed([
+        context.document.schedule.project.statusDate === null
+          ? { kind: 'setStatusDate', date: context.today }
+          : { kind: 'clearStatusDate' },
+      ])
+    default:
+      return commandFromArmingEntry(entry, context)
+  }
+}
+
+/**
+ * SP-2 and SP-3 of FR-083 -- a palette shape pressed while something is
+ * selected changes what is selected, and leaves the arming alone.
+ *
+ * ⛔ A MIXED SELECTION IS NOT FILTERED HERE, AND THAT IS NOT AN OVERSIGHT.
+ * FR-083 states SP-3 (change ALL of what is selected) and, in the same
+ * requirement, that a shape MUST NOT cross between table T-012's SH-1 .. SH-4
+ * and SH-5 -- and no row says which of the two wins when the selection holds
+ * both kinds. The whole bundle is planned, `editTask` refuses the crossing one
+ * (CM-20 against FR-083), and AG-3 makes the bundle atomic, so the gesture
+ * changes nothing and NT-1 tells the person why. ⭐ That is the reading that
+ * writes nothing it was not asked to; filtering here would settle the question
+ * instead. Searched: FR-083, table T-012, table T-108 CM-20 / CM-21, table
+ * T-035 AG-3, `edit-task.ts`.
+ *
+ * @purity pure
+ */
+function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput {
+  const armed = armedByEntry(entry)
+  // Not an entry this file has an assignment for. ⛔ It is still this tool's
+  // press -- MK-10 keeps the browser out from under something this tool drew.
+  if (armed === null) return CONSUMED_ELSEWHERE
+  // SP-1 and SP-4 belong to `screenStateFromInput`, which is where the arming
+  // lives; with nothing selected there is no shape to change.
+  if (context.selection.items.length === 0) return CONSUMED_ELSEWHERE
+
+  const commands: DocumentCommand[] = []
+  for (const one of context.selection.items) {
+    if (one.kind !== 'task') continue
+    if (armed.kind === 'taskShape') {
+      const shapeKind = taskShapeKindOf(armed.shapeKind)
+      if (shapeKind !== null) commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind })
+      continue
+    }
+    if (armed.kind === 'milestoneShape') {
+      const glyph = milestoneGlyphOf(armed.glyph)
+      // ⚠️ An armed figure whose spelling AT-101 does not admit changes nothing.
+      // `Armed` types it as a bare string, so a caller CAN hold one.
+      if (glyph === null) continue
+      // ⚠️ Two commands, because FR-078's eight figures are a column of their
+      // own (AT-101) while the SHAPE that makes a task a milestone is SH-5.
+      // CM-20 is what refuses the crossing; CM-21 only chooses the figure.
+      commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind: 'milestone' })
+      commands.push({ kind: 'setTaskVisualMilestoneGlyph', uid: one.uid, glyph })
+      continue
+    }
+    // AR-4 / AR-5 / AR-6 are not 形状. SP-1 to SP-3 speak of 「パレットの形状」
+    // only, so a dependency or an annotation entry changes nothing selected --
+    // it arms, which is `screenStateFromInput`'s answer.
+  }
+  return changed(commands)
 }
 
 /**
@@ -1383,12 +1688,16 @@ function fitCommand(context: InputContext): DocumentCommand {
  *
  * ⚠️ The chain each one drags with it is table T-050's and is applied by the
  * aggregate, not here: CD-1 alone reaches six other rows.
- * ⛔ FR-032's CONFIRMATION HAS NOWHERE TO GO. It requires a Task with WBS
- * descendants to be confirmed before it is deleted (MUST) and the names of what
- * will vanish to be shown -- and no member of table T-064 carries a question
- * back to a person. Searched: table T-064 (PI-8, PI-9, PI-18, PI-37), table
- * T-037 (which is about telling, not asking), `apply-document-change.ts`.
- * A caller that runs these commands unasked breaks that MUST.
+ * ⛔ FR-032's CONFIRMATION IS PUT BUT NOT ANSWERED HERE. It requires a Task with
+ * WBS descendants to be confirmed before it is deleted (MUST) and the names of
+ * what will vanish to be shown. ⭐ Half of that now has somewhere to go: NT-7 of
+ * table T-037 is the manner for ASKING and `ScreenView.confirmation` (PI-37)
+ * carries the question and the names to the screen. ⚠️ What is still missing is
+ * the way BACK -- no member of table T-064 returns an answer, table T-109 has no
+ * row for either choice, and `notices.ts` holds the same STOP note. Searched:
+ * table T-064 (PI-8, PI-9, PI-18, PI-37), table T-037, table T-109,
+ * `apply-document-change.ts`. A caller that runs these commands unasked breaks
+ * that MUST.
  *
  * @purity pure
  */
@@ -1457,6 +1766,12 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
 
   const press = context.pressed
   if (press === null) return held
+  // ⛔ A press on something the screen surface drew is not a press on the
+  // schedule, whatever `regionAtPointer` answers for the point: the note under
+  // table T-023a limits its decision order to the drawing area (MUST), and
+  // SL-3's marquee is one of the rows of that order. ⚠️ FR-083's SP-2 and SP-3
+  // change what is selected without changing WHICH things are selected.
+  if (press.on !== null) return held
   if (!isOnRowArea(context, press.at.x, press.at.y)) return held
 
   const isAdding = press.at.modifiers.shift // SL-4
@@ -1517,6 +1832,64 @@ function escapeContextOf(context: InputContext): EscapeContext {
 }
 
 /**
+ * The next screen state after a press on one of the entries this tool drew.
+ *
+ * ⭐ FR-083's SP-1 and SP-4 are the whole reason this exists: a palette entry
+ * pressed with NOTHING selected arms what it stands for (SP-1), and the same
+ * entry pressed again disarms it (SP-4). ⚠️ With something selected the arming
+ * is left exactly as it is -- SP-2 and SP-3 say so in as many words, and
+ * `commandFromArmingEntry` is where that half is answered.
+ *
+ * ⛔ AR-4, AR-5 AND AR-6 ARM WHATEVER IS SELECTED. FR-083's four rows speak of
+ * 「パレットの形状」 only, and a dependency (AR-4) and the two annotations
+ * (AR-5 / AR-6) are not shapes -- table T-023b's note gives them no meaning
+ * against a selection either. So the only meaning their entry has is the arming
+ * table T-023b gives it, and refusing it while something was selected would
+ * leave an entry that does nothing -- the fault FR-029's RATIONALE names.
+ * Searched: FR-083, FR-053, table T-023b and its note, table T-109.
+ *
+ * @purity pure
+ */
+function screenStateFromEntry(entry: string, context: InputContext): ScreenState {
+  const state = context.screenState
+
+  switch (entry) {
+    // SK-14's other entrance -- S-99e, which FR-053 (MUST) puts OUTSIDE the
+    // palette so that hiding it does not take away the way back.
+    case ENTRY.palette:
+      return screenStateWithPalette(state, !state.paletteShown)
+    // FR-071: 「同じ入口で解除できること」, so this one entry does both ways.
+    // ⚠️ The flag is this tool's record of the state and not the act -- asking
+    // the browser is the shell's, which is the layer that may touch it (LY-5).
+    case ENTRY.fullScreen:
+      return screenStateWithFullScreen(state, !state.fullScreen)
+    case ENTRY.help:
+      return screenStateWithSurface(state, HELP_MODAL)
+    case ENTRY.aiExportModal:
+      return screenStateWithSurface(state, AI_EXPORT_MODAL)
+    case ENTRY.resourceRoster:
+      return screenStateWithSurface(state, RESOURCE_ROSTER)
+    // IC-3 -- SK-12's other entrance. FR-096 (MUST) keeps it the ONE way out,
+    // and U-54 is the name table T-103 settled for what it opens.
+    case ENTRY.exportChooser:
+      return screenStateWithSurface(state, EXPORT_CHOOSER)
+    // IC-52 is the same level of IN-4 that Esc's first press consumes.
+    case ENTRY.closeSurface:
+      return screenStateWithSurface(state, null)
+    default:
+      break
+  }
+
+  const armed = armedByEntry(entry)
+  if (armed === null) return state
+  // SP-2 / SP-3 -- 「構えは変えない」.
+  if (context.selection.items.length > 0) return state
+  // SP-4 -- the same entry pressed again, with nothing selected, disarms.
+  // SP-1 -- otherwise it arms.
+  return screenStateWithArmed(state, isSameArm(state.armed, armed) ? { kind: 'none' } : armed)
+}
+
+/**
  * The next screen state (CP-36): what is armed, the palette, full screen and
  * the surface that is open.
  *
@@ -1526,7 +1899,23 @@ function escapeContextOf(context: InputContext): EscapeContext {
  */
 export function screenStateFromInput(input: HumanInput, context: InputContext): ScreenState {
   const state = context.screenState
+  // IN-1 settles a pointer operation on the RELEASE, so a press on an entry is
+  // read here and nowhere else in this member.
+  if (input.kind === 'pointer') {
+    if (input.phase !== 'up') return state
+    const on = context.pressed === null ? null : context.pressed.on
+    return on === null || on.entry === null ? state : screenStateFromEntry(on.entry, context)
+  }
   if (input.kind !== 'key') return state
+  // SK-12 -- FR-096's one way out, and the only row of table T-036 that lands
+  // here while holding a modifier. ⭐ It joined SK-13 .. SK-15 when table T-103
+  // settled `Export Chooser` (U-54): the surface FR-096 opens now has a name
+  // S-99g can hold, so opening it IS a change of screen state and IN-4's first
+  // level closes it again. ⚠️ Read before the plain-key gate below, which every
+  // other row here passes through.
+  if (isCombo(input.modifiers, true, true, false) && input.key === KEY.e) {
+    return screenStateWithSurface(state, EXPORT_CHOOSER)
+  }
   const plain = isCombo(input.modifiers, false, false, false)
   if (!plain) return state
   if (context.isTextEntryUnsettled) {
@@ -1576,15 +1965,50 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ THE PALETTE CANNOT ARM ANYTHING FROM HERE, and that is a gap in
-// what is published rather than a decision. SP-1 to SP-4 of FR-083 make a press
-// on a palette entry mean 「構える」 / 「形を変える」 / 「構えを解く」 depending
-// on the selection, and table T-023b holds what may be armed -- but the note
-// under table T-023a puts the floating palette outside this decision order
-// (FR-053 owns it), and NOTHING says which entry a point is on: `ScreenRegions`
-// (PI-35) holds six rectangles and none of them is the palette, and
-// `CommandPalette` (PI-37) is a description built for drawing, which this
-// component has no edge to. Searched: table T-103, table T-064 PI-35 and PI-37,
-// FR-053, FR-083, table T-023b, `screen-regions.ts`, `command-palette.ts`.
-// Until a member answers "which palette entry is at this point", `armed` can
-// only be CLEARED here -- by Esc, which IN-4 gives a level of its own.
+// STOP -- ⛔ 32 ROWS OF TABLE T-109 REACH `commandFromEntry` AND ARE ANSWERED
+// WITH NOTHING. Each is missing something different, and none is an oversight.
+// ⭐ The entries that ARE answered were chosen by a rule rather than one at a
+// time: an entry is answered when this file already answers the same operation
+// for a row of table T-036, or when it opens a surface whose name table T-103
+// has settled -- plus FR-083's arming, which is the whole point of the seam
+// member that brought the press here.
+//
+// ⛔ FOUR OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
+//
+//   IC-17 / IC-18 / IC-20 / IC-21
+//                each writes a value NOTHING published holds. Which of its two
+//                contents the properties panel shows (FR-072), whether the
+//                dialogue field is up and whether the `Agent API` is on
+//                (S-99b), and the display language (S-99) all live in
+//                `ScreenSession` -- the shell's, and not any of the three
+//                answers this file returns. `screen-renderer.ts` records each.
+//   IC-37 / IC-38  FR-034's alignment. ⛔ Table T-108 holds NO command for it,
+//                so there is nothing to plan even with the press in hand.
+//   IC-41        FR-020 asks for the unlock password first, and nothing carries
+//                an ANSWER back from a person -- the same half of the hole
+//                FR-032's confirmation runs into above.
+//   IC-45        `setDualCursor` (CM-60) demands BOTH dates at once (IV-13),
+//                which is the gap PD-2 already records above.
+//   IC-50 / IC-51  the palette's own folding. Nothing holds it: table T-203 and
+//                table T-206 have no row and `ScreenState` has no member.
+//   IC-58 / IC-59 / IC-60 / IC-63 .. IC-68
+//                drawn once per ROW or once per RESOURCE, so a press has to say
+//                WHICH -- and `ScreenPart` (IF-9) carries the part and the entry
+//                and no key. ⭐ It carries none because nothing here consumes
+//                one yet (R4's YAGNI); the change that answers these adds it.
+//                ⚠️ IC-63 / IC-64 / IC-67 / IC-68 also write
+//                `ScreenSession.selectedResourceUids`, which is the shell's
+//                (PD-143) and not a `DocumentCommand` at all.
+//   IC-53 .. IC-57  ⛔ NOT ENTRIES. Table T-109 says so in its own column: two
+//                of them show a drag and a keystroke, and three show the
+//                autosave state (FR-061).
+//
+// ⚠️ THE REST ARE REACHABLE AND ARE STILL NOT WRITTEN -- IC-4, IC-8, IC-9,
+// IC-16, IC-39, IC-40, IC-42, IC-43 (the drawing settings, CM-59 / CM-61 /
+// CM-63 / CM-66) and IC-46 .. IC-49 (the guide cursor, whose four values table
+// T-109 spells verbatim). ⛔ They are outside the rule stated above, not
+// impossible, and leaving them here rather than half-writing them is the
+// choice: each is a toggle, and which of S-59's or S-72's values a press moves
+// to is not stated by table T-109 for any of them.
+// Searched: table T-109, table T-108, table T-036, table T-023b, table T-203,
+// table T-206, `screen-renderer.ts`, `edit-document-settings.ts`.

@@ -33,8 +33,10 @@
 //
 // The rules these cases answer to:
 //   表 T-065 IF-9   the seam this unit implements, and the rule that its supply
-//                   is not widened -- exactly two members, with the two
-//                   purities the declaration fixes
+//                   is not widened -- exactly the members that cell names, with
+//                   the purities the declaration fixes. ⚠️ CR-192 added a third
+//                   supply to that cell（画面上の点がどの UI パーツのどの入口の
+//                   上かを答える）, so the count below is three
 //   表 T-077 BO-1   the dimensions are settled first, and 「寸法が確定するまで
 //                   1 枚も描かない」; NFR-011's rationale names the 0×0 window
 //                   as one of the two things this ordering exists to stop
@@ -154,6 +156,7 @@ const T_103_PARTS = [
   { row: 'U-47', name: 'Row Expander' },
   { row: 'U-48', name: 'Row Pin' },
   { row: 'U-49', name: 'Resource Roster' },
+  { row: 'U-53', name: 'Tooltip' },
 ] as const
 
 /**
@@ -890,6 +893,7 @@ const EMPTY_VIEW: ScreenView = {
   commandPalette: null,
   openModal: null,
   notices: [],
+  confirmation: null,
   dialogueField: null,
   tooltips: [],
 }
@@ -1028,23 +1032,34 @@ describe('the tables these cases copy still say what the copies say', () => {
 })
 
 describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
-  it('gives back exactly the two members the declaration fixes', () => {
+  // ⚠️ 表 T-065's IF-9 said 「作った記述を画面に載せ、対話欄で確定した発話を返す」
+  // when this file was written, and CR-192 added a third supply to that cell:
+  // 「画面上の点がどの UI パーツのどの入口の上かを答える」. ⭐ The copy below is
+  // the one that went stale, not the expectation -- the count is still exactly
+  // what that cell names, and no fourth member is admitted.
+  it('gives back exactly the three members the declaration fixes', () => {
     const built = wire({ 'App Header': 37 })
     const surface = surfaceOf(built)
 
-    expect(Object.keys(surface).sort()).toEqual(['readDialogueInput', 'showScreenView'])
+    expect(Object.keys(surface).sort()).toEqual([
+      'readDialogueInput',
+      'readScreenPartAt',
+      'showScreenView',
+    ])
     expect(typeof surface.showScreenView).toBe('function')
     expect(typeof surface.readDialogueInput).toBe('function')
+    expect(typeof surface.readScreenPartAt).toBe('function')
   })
 
   it('reports the measured height on the FACTORY, never as a third member', () => {
     const built = wire({ 'App Header': 37 })
 
     // ⛔ The move dom-input-source made with `isBrowserDefaultStopped`: what the
-    // caller has to supply travels on the wiring, so 表 T-065's IF-9 keeps the
-    // two members it declares.
+    // caller has to supply travels on the wiring, so 表 T-065's IF-9 keeps only
+    // the members that cell names -- three since CR-192, and the height is not
+    // one of them.
     expect(built.reportedHeights).toEqual([37])
-    expect(Object.keys(surfaceOf(built))).toHaveLength(2)
+    expect(Object.keys(surfaceOf(built))).toHaveLength(3)
   })
 })
 
@@ -1456,7 +1471,7 @@ describe('EZ-2 of 表 T-040 -- the entry the pointer rests on can be found', () 
 describe('IN-3 of 表 T-028 -- a tooltip is pointable, dismissible, and does not go by itself', () => {
   const tooltipView = viewWith({ tooltips: [iconTooltip('IC-20', 'TooltipTextOne')] })
 
-  const tooltipsBox = (root: FakeElement): FakeElement => oneByRole(root, 'tooltips')
+  const tooltipsBox = (root: FakeElement): FakeElement => oneByRole(root, 'Tooltip')
 
   /**
    * The one node inside a tooltip that answers a press. IN-3 asks a tooltip to
@@ -1603,12 +1618,15 @@ describe('表 T-103 -- the settled names reach the DOM so the parts can be found
     expect(byRole(built.root(), 'FR-074').length).toBeGreaterThan(0)
   })
 
-  it('names the two members PI-37 publishes that 表 T-103 has no row for', () => {
+  it('names the ONE member PI-37 publishes that 表 T-103 still has no row for', () => {
+    // ⚠️ It was two. 表 T-103 settled `Tooltip` (U-53) on 2026-08-21, so that
+    // member now carries the glossary's spelling and is checked with the rest of
+    // T_103_PARTS above. Notices are the one left with no row, and the member
+    // name PI-37 publishes is what stands in for it.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
     expect(byRole(built.root(), 'notices').length).toBeGreaterThan(0)
-    expect(byRole(built.root(), 'tooltips').length).toBeGreaterThan(0)
   })
 })
 
@@ -1984,7 +2002,7 @@ describe('boundaries', () => {
 
     expect(isShown(built.root())).toBe(true)
     expect(byRole(built.root(), 'notices').every((one) => one.textContent === '')).toBe(true)
-    expect(byRole(built.root(), 'tooltips').every((one) => one.textContent === '')).toBe(true)
+    expect(byRole(built.root(), 'Tooltip').every((one) => one.textContent === '')).toBe(true)
   })
 
   it('⛔ substitutes nothing for a document that carries no title', () => {

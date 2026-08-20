@@ -82,13 +82,18 @@
 //
 // ⭐ WHAT THE DOM IS FOR, BESIDES BEING LOOKED AT. Every part carries
 // `data-role` with the settled name table T-103 gives it, and every entry
-// carries `data-icon` with its row of table T-109. That is not decoration:
+// carries `data-icon` with its row of table T-109 -- ⛔ save for the one pair
+// this unit does not yet draw as a pair (IC-58 / IC-59, the `Row Expander`;
+// `rowTitleElement` holds the STOP note that says why). That is not decoration:
 //
-//   - `ScreenSession.iconUnderPointer` (PD-141) says in as many words that the
-//     shell is the one side that can answer EZ-2's PLACE condition 「because the
-//     unit that DREW the entries is DomScreenSurface」. It answers it by asking
-//     its own document what is at the pointer and reading `data-icon` off it --
-//     no member on this seam is needed, and none is added.
+//   - `readScreenPartAt` reads them back. It is the third member of IF-9, and
+//     `data-role` / `data-icon` are what it walks: the entry a point is on, and
+//     the part that entry was drawn in. ⭐ Chapter 5.3 states under table T-065
+//     (MUST) that the side which DREW an entry is the side that answers where it
+//     is -- which is this unit, and is why the answer leaves through the seam
+//     rather than being read out of this markup by whoever holds the page.
+//     `ScreenSession.iconUnderPointer` (PD-141) is the shell's, and the shell
+//     fills it from this member.
 //   - IN-5a's 「文字入力を確定していない間」 is answerable the same way: the
 //     entry is the only `input` inside `[data-role="Dialogue Field"]`, so the
 //     shell can tell from `activeElement` that text is being entered.
@@ -131,6 +136,7 @@ import type {
   RowTitle,
   RowTitlePanel,
   ScreenFrame,
+  ScreenPart,
   ScreenSurface,
   ScreenView,
   Tooltip,
@@ -147,10 +153,13 @@ import type { ScreenRect } from '../../entity/layout-engine/screen-regions/scree
  * specification's own spelling for a concept it has named, and these are the
  * only names the DOM is allowed to call these parts by.
  *
- * ⚠️ TWO OF THEM ARE NOT IN TABLE T-103. Notices and tooltips have no row
- * there, so they carry the member name PI-37 publishes for them on `ScreenView`
- * -- `notices` and `tooltips` -- which is also a settled name, of the seam
- * rather than of the glossary. ⛔ No third spelling is minted for either.
+ * ⚠️ ONE OF THEM IS NOT IN TABLE T-103. Notices have no row there, so they
+ * carry the member name PI-37 publishes for them on `ScreenView` -- `notices` --
+ * which is also a settled name, of the seam rather than of the glossary. ⛔ No
+ * third spelling is minted for it.
+ * ⭐ Tooltips used to be the second. Table T-103 settled `Tooltip` (U-53) on
+ * 2026-08-21, so the layer now carries the glossary's own spelling and rule 03
+ * of docs/development-rules is satisfied where it was not.
  */
 const ROLE = {
   appHeader: 'App Header',
@@ -170,7 +179,7 @@ const ROLE = {
   paletteCommands: 'Palette Commands',
   dialogueField: 'Dialogue Field',
   notices: 'notices',
-  tooltips: 'tooltips',
+  tooltips: 'Tooltip',
 } as const
 
 /**
@@ -557,6 +566,16 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // HF-1 of table T-051: a row with something under it carries BOTH controls,
   // and one of the pair can be spent while the other is not (HF-2 opens one
   // level, HF-3 closes all of them).
+  //
+  // STOP -- ⛔ ONE NODE IS DRAWN WHERE HF-1 ASKS FOR TWO, and that is why the
+  // pair carries no row of table T-109 the way the `Row Pin` below does. HF-1
+  // 「開く操作子と閉じる操作子を 1 つずつ」 and U-47 of table T-103 「開く側と
+  // 閉じる側の 2 つで 1 組」 both count two controls; table T-109 gives them a
+  // row EACH (IC-58 opens one level, HF-2; IC-59 closes all of them, HF-3), and
+  // one node cannot carry two. ⛔ Nothing is invented here: splitting the pair
+  // changes WHAT IS DRAWN, which is a finding of its own and not the answer to
+  // where a press landed. Until it is split, a press on this control is answered
+  // 「面の上・入口の外」 and IF-9 still owes those two rows.
   if (title.expander !== null) {
     const expander = part(host, 'button', ROLE.rowExpander, STYLE.rowControl)
     expander.setAttribute('type', 'button')
@@ -574,8 +593,25 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
 
   // U-48 `Row Pin` (FR-098): the control sits on every row, and the same one
   // lets go.
+  //
+  // ⭐ IT CARRIES ITS ROW OF TABLE T-109 THE WAY EVERY OTHER ENTRY DOES. IF-9
+  // of table T-065 supplies 「画面上の点がどの UI パーツ（表 T-103）のどの入口
+  // （表 T-109）の上か」 and states under that table (MUST) that the side which
+  // DREW an entrance is the side that answers where it is -- so an entrance this
+  // unit draws and leaves unmarked is a supply the seam promises and cannot
+  // deliver. ⛔ IC-60 is that row: table T-109 places it on the `Row Title
+  // Panel` with FR-098 as its authority, and FR-098 puts exactly ONE `Row Pin`
+  // on each row and unpins by that same one (MUST) -- so the control and the
+  // entrance are one thing, and one attribute on one node states the whole join.
+  //
+  // ⚠️ The KEY of the row it pins is deliberately not on this seam (`ScreenPart`
+  // carries the part and the entry and no key, R4's YAGNI), which is why
+  // `input-command-translator.ts` still lists IC-60 among the entries it cannot
+  // act on. ⭐ That is a different question from whether the entry can be NAMED,
+  // and table T-109 is 「アイコンの全数」 that FR-029 (MUST) joins on.
   const pin = part(host, 'button', ROLE.rowPin, STYLE.rowControl)
   pin.setAttribute('type', 'button')
+  pin.setAttribute('data-icon', 'IC-60')
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
   row.append(pin)
@@ -704,7 +740,7 @@ function paletteElement(
  * TypeScript would keep that member in every comparison.
  *
  * ⚠️ `data-role` takes the surface's own name, which is either one of table
- * T-103's three settled spellings or the UID of the requirement that opens it
+ * T-103's four settled spellings or the UID of the requirement that opens it
  * (FR-074, FR-088) -- both are the specification's own joins, and no name is
  * minted here for the two it has not named.
  *
@@ -1243,6 +1279,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * a focused input takes the focus and the caret with it, and the person would
    * lose the line they are typing every frame.
    *
+   * STOP -- ⛔ ONE MEMBER IS NOT DRAWN: `view.confirmation`, the question NT-7 of
+   * table T-037 puts before something goes ahead. ⭐ It reaches this side now,
+   * which it did not before, and the two things it would need to be DRAWN are
+   * both unsettled: the words on the two choices (FR-038 places no store of
+   * translated strings, the same hole `OpenModal.heading` sits in) and an entry
+   * to press (table T-109 has no row on a confirmation, and table T-103 has
+   * settled no name for one -- so it is not a surface either). ⛔ Nothing is
+   * invented here; `notices.ts` holds the same STOP note on the way back.
+   *
    * @purity non-pure
    */
   function showScreenView(view: ScreenView): void {
@@ -1376,8 +1421,58 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     return { text: typed, isSettled: false, author: readAuthor(), settledAt: '' }
   }
 
+  /**
+   * What this surface has drawn at (x, y) -- the third member of IF-9.
+   *
+   * ⭐ THE BROWSER ANSWERS "WHAT IS ON TOP", which is the whole reason this is
+   * asked of the surface rather than computed anywhere else: the parts overlap
+   * (a modal covers the palette, the palette covers the row titles), several are
+   * placed by `em` and by percentages, and `pointer-events` decides which of
+   * them takes a press. ⛔ Nothing outside this unit can reproduce that, and
+   * Chapter 5.3 forbids it to try (MUST NOT, under table T-065).
+   *
+   * ⛔ `null` FOR A POINT THIS UNIT DID NOT DRAW ON, including one outside the
+   * window and one over the schedule. That is what tells the caller that table
+   * T-023a's decision order applies -- its own note limits that order to the
+   * schedule's drawing area (MUST), and the palette, the open surface, the
+   * notices and the dialogue field are drawn over that area while
+   * `ScreenRegions` (PI-35) holds a rectangle for none of them.
+   *
+   * ⚠️ `elementFromPoint` may be absent -- these cases run under Node with no
+   * DOM (R7.3 hands the host in rather than reaching for one), and a host that
+   * lays nothing out has nothing at any point. Absent is answered as `null`,
+   * which is the same answer as "nothing of mine is there".
+   *
+   * @purity semi-pure-b
+   */
+  function readScreenPartAt(x: number, y: number): ScreenPart | null {
+    const ask = (host as Partial<Document>).elementFromPoint
+    if (typeof ask !== 'function') return null
+
+    let node: Element | null = ask.call(host, x, y)
+    let entry: string | null = null
+    let part: string | null = null
+    // ⭐ The innermost `data-icon` and the OUTERMOST `data-role`: an entry sits
+    // inside its part, and table T-109's surface column names the containing
+    // surface rather than the grouping inside it (U-34 / U-35). So the icon is
+    // taken once and the role keeps being replaced on the way up.
+    while (node !== null && node !== root) {
+      const icon = node.getAttribute('data-icon')
+      if (icon !== null && entry === null) entry = icon
+      const role = node.getAttribute('data-role')
+      if (role !== null) part = role
+      node = node.parentElement
+    }
+    // The walk ran off the top instead of reaching the root, so the point is on
+    // something this unit did not draw -- the schedule, or the page around it.
+    if (node !== root || part === null) return null
+    // U-23 (MUST): an entrance for an operation is named by the panel, not by
+    // the tree inside it. Table T-109 puts IC-58 .. IC-60 on the panel too.
+    return { part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part, entry }
+  }
+
   // BO-1: settled before the first frame, and before this factory returns.
   reportHeaderHeight()
 
-  return { showScreenView, readDialogueInput }
+  return { showScreenView, readDialogueInput, readScreenPartAt }
 }

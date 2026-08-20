@@ -166,6 +166,7 @@ const EMPTY_VIEW: Omit<ScreenView, 'tooltips'> = {
   commandPalette: null,
   openModal: null,
   notices: [],
+  confirmation: null,
   dialogueField: null,
 }
 
@@ -188,6 +189,7 @@ const EMPTY_SESSION: ScreenSession = {
   commandPaletteAt: { x: 0, y: 0 },
   propertiesShowing: null,
   notices: [],
+  confirmation: null,
   rowBoxes: [],
 }
 

@@ -15,7 +15,50 @@
 // `ScreenView` instead: table T-075 fixes this folder at eleven units, and the
 // one that binds the nine descriptions together is UF-60.
 
-import type { ScreenView } from './screen-renderer'
+import type { IconId, ScreenView } from './screen-renderer'
+
+/**
+ * What this surface has drawn at one point on the screen.
+ *
+ * ⭐ WHY THE SURFACE IS ASKED AND NOT MEASURED FROM OUTSIDE. Chapter 5.3 states
+ * it under table T-065 (MUST): the side that DREW an entry is the side that
+ * answers where it is, and no one else may compute the same rectangle. Two
+ * computations of one rectangle disagree the moment the drawing changes, and
+ * nothing in `ScreenView` carries a rectangle for an entry -- the nine units
+ * that build it have no way to measure one (LR-6 keeps the browser out of them).
+ *
+ * ⚠️ ONE ANSWER AND NOT TWO MEMBERS. The part and the entry are read at the
+ * same instant because the screen can move between two calls (R7.4: the reading
+ * is finished before the deciding starts).
+ */
+export interface ScreenPart {
+  /**
+   * The UI part the point is on -- table T-103's settled name, spelled as that
+   * table spells it, or the member name `ScreenView` publishes for the two
+   * parts table T-103 has no row for (`notices`, `tooltips`).
+   *
+   * ⭐ THE OUTERMOST NAMED PART, not the innermost. Table T-109's surface column
+   * is what an entry is joined to that table by, and it names the containing
+   * surface (`App Header`, `Command Palette`, `Resource Roster`) rather than the
+   * grouping inside it (`Header Commands`, `Palette Commands`, U-34 / U-35).
+   * ⚠️ `Row Title Tree` (U-23) is answered as `Row Title Panel` (U-22): U-23
+   * requires (MUST) an entrance for an operation to be named by the panel, and
+   * table T-109 puts IC-58 .. IC-60 on the panel.
+   */
+  readonly part: string
+  /**
+   * The entry the point is on -- a row of table T-109, e.g. `IC-7` -- or `null`
+   * where the point is on the part but on none of its entries.
+   *
+   * ⛔ THE THIRD ANSWER IS THE POINT OF IT. Table T-023a applies its decision
+   * order to the schedule's drawing area ALONE (MUST), and the palette, the open
+   * surface, the notices and the dialogue field are drawn OVER that area while
+   * `ScreenRegions` (PI-35) holds a rectangle for none of them. So "on a part,
+   * on no entry" is what stops a press on one of them from being read as a
+   * marquee on the schedule underneath.
+   */
+  readonly entry: IconId | null
+}
 
 /**
  * What stands in the `Dialogue Field` (U-44), as the surface read it.
@@ -85,4 +128,26 @@ export interface ScreenSurface {
    * @purity semi-pure-b
    */
   readDialogueInput(): DialogueInput | null
+
+  /**
+   * What this surface has drawn at (x, y), or `null` where it has drawn nothing
+   * there and the schedule below is exposed. The third of what IF-9 says this
+   * seam supplies.
+   *
+   * ⭐ Pulled, like `readDialogueInput` and for the same reason: UF-60 is
+   * `pure`, so it can neither hold a listener nor remember one. The shell asks
+   * at the moment of a press and carries the answer into `InputContext`, which
+   * is where CS-2 of table T-066 wants it -- a gesture is about what was under
+   * the pointer when the button went down, not one frame later.
+   *
+   * ⚠️ The window's own coordinates, the frame of reference `ScreenRegions`
+   * (PI-35) and `PointerInput` already speak in. ⛔ No conversion happens on
+   * either side of this seam.
+   *
+   * ⚠️ Reads the page as it stands now, so it is not deterministic: the same
+   * point answers differently after a redraw.
+   *
+   * @purity semi-pure-b
+   */
+  readScreenPartAt(x: number, y: number): ScreenPart | null
 }

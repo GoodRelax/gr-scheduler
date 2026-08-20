@@ -182,6 +182,7 @@ const SESSION: ScreenSession = {
   commandPaletteAt: { x: 0, y: 0 },
   propertiesShowing: 'selection',
   notices: [],
+  confirmation: null,
   rowBoxes: [],
 }
 

@@ -47,6 +47,11 @@ ARTIFACTS = [
     # startup template beside it may NOT have: that one is validated by the GRS
     # JSON schema, and this one is not.
     ('src/adapter/screen-renderer/icon-roster.json', 'tbl-glossary.md'),
+    # The words the screen prints (FR-038). ⚠️ Its manuscript is a manuscript of
+    # WORDS ONLY: which words exist is read from the specification on every run,
+    # so this artifact drifts if a table moves and the manuscript does not.
+    ('src/adapter/screen-renderer/display-words.json',
+     'docs/spec/_source/display-words.json'),
 ]
 
 # How far into the file the banner may sit. Long enough for a StrictDoc header
