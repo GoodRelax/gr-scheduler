@@ -75,70 +75,70 @@ J-3  件数が誤っていた。5 件ではなく 3 件（CM-40 / CM-44 / CM-45�
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-27 | `agent-api-endpoint.ts` | **公開エントリ** | non-pure | PI-17 | ⬜ 未着手 |
-| UF-28 | `agent-api-members.ts` | 内部 | non-pure |  | ⬜ 未着手 |
-| UF-29 | `snapshot-source.ts` | 内部 | n/a |  | ⬜ 未着手 |
+| UF-27 | `agent-api-endpoint.ts` | **公開エントリ** | non-pure | PI-17 | 🧪 試験済 |
+| UF-28 | `agent-api-members.ts` | 内部 | non-pure |  | 🧪 試験済 |
+| UF-29 | `snapshot-source.ts` | 内部 | n/a |  | 🧪 試験済 |
 
 ### `autosave-gateway` —— AutosaveGateway（PI-23）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-43 | `autosave-gateway.ts` | **公開エントリ** | semi-pure-b | PI-23 | ⬜ 未着手 |
-| UF-44 | `document-store.ts` | 内部 | n/a |  | ⬜ 未着手 |
+| UF-43 | `autosave-gateway.ts` | **公開エントリ** | semi-pure-b | PI-23 | 🧪 試験済 |
+| UF-44 | `document-store.ts` | 内部 | n/a |  | 🧪 試験済 |
 
 ### `clipboard-gateway` —— ClipboardGateway（PI-24）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-45 | `clipboard-gateway.ts` | **公開エントリ** | non-pure | PI-24 | ⬜ 未着手 |
-| UF-46 | `clipboard.ts` | 内部 | n/a |  | ⬜ 未着手 |
+| UF-45 | `clipboard-gateway.ts` | **公開エントリ** | non-pure | PI-24 | ✅ 受入済 |
+| UF-46 | `clipboard.ts` | 内部 | n/a |  | ✅ 受入済 |
 
 ### `document-codec` —— DocumentCodec（PI-20）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-34 | `document-codec.ts` | **公開エントリ** | pure | PI-20 | 🔧 実装済 |
-| UF-38 | `app-shell-source.ts` | 内部 | n/a |  | ⬜ 未着手 |
-| UF-37 | `embedded-html-codec.ts` | 内部 | semi-pure-b |  | ⬜ 未着手 |
-| UF-35 | `json-codec.ts` | 内部 | pure |  | 🔧 実装済 |
-| UF-36 | `mspdi-codec.ts` | 内部 | pure |  | ⬜ 未着手 |
+| UF-34 | `document-codec.ts` | **公開エントリ** | pure | PI-20 | ✅ 受入済 |
+| UF-38 | `app-shell-source.ts` | 内部 | n/a |  | ✅ 受入済 |
+| UF-37 | `embedded-html-codec.ts` | 内部 | semi-pure-b |  | ✅ 受入済 |
+| UF-35 | `json-codec.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-36 | `mspdi-codec.ts` | 内部 | pure |  | ✅ 受入済 |
 
 ### `file-gateway` —— FileGateway（PI-22）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-41 | `file-gateway.ts` | **公開エントリ** | semi-pure-b | PI-22 | ⬜ 未着手 |
-| UF-42 | `file-store.ts` | 内部 | n/a |  | ⬜ 未着手 |
+| UF-41 | `file-gateway.ts` | **公開エントリ** | semi-pure-b | PI-22 | ✅ 受入済 |
+| UF-42 | `file-store.ts` | 内部 | n/a |  | ✅ 受入済 |
 
 ### `image-exporter` —— ImageExporter（PI-21）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-39 | `image-exporter.ts` | **公開エントリ** | semi-pure-b | PI-21 | ⬜ 未着手 |
-| UF-40 | `rasterizer.ts` | 内部 | n/a |  | ⬜ 未着手 |
+| UF-39 | `image-exporter.ts` | **公開エントリ** | semi-pure-b | PI-21 | 🧪 試験済 |
+| UF-40 | `rasterizer.ts` | 内部 | n/a |  | 🧪 試験済 |
 
 ### `input-command-translator` —— InputCommandTranslator（PI-18）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-30 | `input-command-translator.ts` | **公開エントリ** | pure | PI-18 | ⬜ 未着手 |
-| UF-31 | `input-source.ts` | 内部 | n/a |  | ⬜ 未着手 |
+| UF-30 | `input-command-translator.ts` | **公開エントリ** | pure | PI-18 | 🧪 試験済 |
+| UF-31 | `input-source.ts` | 内部 | n/a |  | 🧪 試験済 |
 
 ### `screen-renderer` —— ScreenRenderer（PI-37）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-60 | `screen-renderer.ts` | **公開エントリ** | pure | PI-37 | 🔧 実装済 |
-| UF-62 | `app-header-items.ts` | 内部 | pure |  | ⬜ 未着手 |
-| UF-65 | `command-palette.ts` | 内部 | pure |  | ⬜ 未着手 |
-| UF-68 | `dialogue-field.ts` | 内部 | pure |  | ⬜ 未着手 |
-| UF-67 | `notices.ts` | 内部 | pure |  | ⬜ 未着手 |
-| UF-66 | `open-modals.ts` | 内部 | pure |  | ⬜ 未着手 |
-| UF-64 | `properties-panel.ts` | 内部 | pure |  | ⬜ 未着手 |
-| UF-63 | `row-title-panel.ts` | 内部 | pure |  | ⬜ 未着手 |
-| UF-61 | `screen-frame.ts` | 内部 | pure |  | ⬜ 未着手 |
-| UF-70 | `screen-surface.ts` | 内部 | n/a |  | 🔧 実装済 |
-| UF-69 | `tooltips.ts` | 内部 | pure |  | ⬜ 未着手 |
+| UF-60 | `screen-renderer.ts` | **公開エントリ** | pure | PI-37 | ✅ 受入済 |
+| UF-62 | `app-header-items.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-65 | `command-palette.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-68 | `dialogue-field.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-67 | `notices.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-66 | `open-modals.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-64 | `properties-panel.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-63 | `row-title-panel.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-61 | `screen-frame.ts` | 内部 | pure |  | 🧪 試験済 |
+| UF-70 | `screen-surface.ts` | 内部 | n/a |  | ✅ 受入済 |
+| UF-69 | `tooltips.ts` | 内部 | pure |  | ✅ 受入済 |
 
 ### `svg-renderer` —— SvgRenderer（PI-19）
 

@@ -1,0 +1,635 @@
+// Unit tests for `commandPaletteFromScreenState` (unit UF-65 of table T-075,
+// component CP-37 of table T-062, which table T-064 publishes as PI-37).
+//
+// Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
+// specification. Table T-218 of Chapter 7 gives them their place: TS-6,
+// tests/unit/.
+//
+// WRITTEN AGAINST THE SPECIFICATION ALONE (docs/development-rules/
+// 04-verification.md, section 1). What was read: docs/spec/ for every rule
+// below, `screen-renderer.ts` in full because it is the contract that fixes the
+// signature and the shape of `CommandPalette`, the entity types the inputs are
+// built from, and the head comment plus the declarations of
+// `command-palette.ts`. No function body of the unit was read, and no expected
+// value below comes from what the unit happens to produce.
+//
+// WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED. Three questions
+// were searched for and have no answer in docs/spec, so no case invents one:
+//   * HOW BIG THE PALETTE IS. `CommandPalette.box` is a rectangle and only its
+//     corner arrives (`ScreenSession.commandPaletteAt`). Searched: FR-053,
+//     FR-051, table T-206 (S-90..S-99g), table T-212, table T-203 and the whole
+//     of `_assets/tbl-settings.md`, whose only palette row is S-99e. So the
+//     pointer cases below assert the RELATION FR-053 states -- faint while the
+//     pointer is off `box` -- computed from `box` itself, and never a width.
+//   * THE WORDS. FR-038 (MUST) shows menus in the chosen language and names no
+//     store of translated strings; section 8 of `_assets/tbl-glossary.md`
+//     refuses table T-109 an English column because it would mint settled names
+//     the glossary has not settled. One case asserts instead that none was
+//     minted.
+//   * WHETHER AN ENTRY IS A TOGGLE THAT IS ON. `CommandItem.isPressed` is shown
+//     by FR-065 of IC-20 and by FR-072 of IC-17, both `App Header` rows. What
+//     the palette's toggling entries reflect lives in `DocumentSettings`, which
+//     this signature does not carry, and table T-109 joins no icon row to an
+//     arm of table T-023b. So no case asks for a pressed entry.
+//
+// The rules these cases answer to:
+//   S-99e        the palette is showing or hidden, defaulting to showing
+//                (table T-206); EP-11 of table T-076 exports it closed
+//   FR-053       it floats and is dragged; faint while the pointer is off it;
+//                (MUST) what is armed is readable; (MUST) the show/hide
+//                entrance is OUTSIDE the palette
+//   T-023b       AR-1 .. AR-6, the whole of what can be armed
+//   T-023c       SL-1 does not admit the palette; SL-7b (MUST NOT) refuses
+//                FR-034 an unordered selection
+//   FR-034       alignment goes to the LAST-picked task's date
+//   FR-029       (MUST) the roster of icons and where each is placed follow
+//                table T-109; (MUST) what cannot be used is faint and gives its
+//                reason; (MUST NOT) one entrance per function
+//   FR-083       SP-1 .. SP-4: pressing a shape entry has a defined meaning
+//                with a selection and without one
+//   T-103        U-26 `Command Palette`, U-34 `Palette Groups` / `Palette
+//                Commands`
+//   T-075        UF-65 is `pure`, which R7.1 makes testable
+//   R3.4         intervals are half-open, so an edge belongs to one side only
+//
+// Chapter 1.9 asks a test of a requirement that points at a table to be driven
+// by a fixed copy of that table. T_109_PALETTE and T_023b below are that copy;
+// nothing here re-reads `icon-roster.json`, because a copy read from the same
+// generated file as the unit could not tell drift from agreement.
+
+import { describe, expect, it } from 'vitest'
+
+import {
+  emptyScreenState,
+  screenStateWithArmed,
+  screenStateWithPalette,
+  type Armed,
+  type ScreenState,
+} from '../../src/entity/document-model/screen-state/screen-state'
+import {
+  emptySelection,
+  selectionOfAll,
+  selectionWith,
+  type ItemRef,
+  type Selection,
+} from '../../src/entity/document-model/selection/selection'
+import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import type {
+  CommandItem,
+  CommandPalette,
+  DisplayLanguage,
+  ScreenSession,
+} from '../../src/adapter/screen-renderer/screen-renderer'
+import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+
+// ---------------------------------------------------------------------------
+// Fixed copies of the tables these cases are driven by.
+// ---------------------------------------------------------------------------
+
+/**
+ * 表 T-109 -- every row whose 面 column reads `Command Palette`, in the table's
+ * own print order, with its 群 and its 正.
+ *
+ * The 群 column is carried in the manuscript's own language on purpose: the
+ * preamble of section 8 of `_assets/tbl-glossary.md` states that the table has
+ * no English column and why adding one is refused. Writing an English group
+ * name here would mint the very names that refusal is about.
+ *
+ * `isButton` is false for the two rows whose 何の入口か column says in as many
+ * words that they are not buttons. That fact lives as prose inside a column
+ * rather than as a column of its own, which is why it is copied by row id.
+ */
+const T_109_PALETTE = [
+  { row: 'IC-23', group: '置く', authority: 'FR-083', isButton: true },
+  { row: 'IC-24', group: '置く', authority: 'FR-083', isButton: true },
+  { row: 'IC-25', group: '置く', authority: 'FR-083', isButton: true },
+  { row: 'IC-26', group: '置く', authority: 'FR-083', isButton: true },
+  { row: 'IC-27', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-28', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-29', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-30', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-31', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-32', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-33', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-34', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-35', group: '置く', authority: 'FR-019', isButton: true },
+  { row: 'IC-36', group: '置く', authority: 'FR-019', isButton: true },
+  { row: 'IC-37', group: '揃える', authority: 'FR-034', isButton: true },
+  { row: 'IC-38', group: '揃える', authority: 'FR-034', isButton: true },
+  { row: 'IC-39', group: '表示', authority: 'FR-049', isButton: true },
+  { row: 'IC-40', group: '表示', authority: 'FR-049', isButton: true },
+  { row: 'IC-41', group: '表示', authority: 'FR-020', isButton: true },
+  { row: 'IC-42', group: '表示', authority: 'FR-049', isButton: true },
+  { row: 'IC-43', group: '表示', authority: 'FR-049', isButton: true },
+  { row: 'IC-44', group: 'カーソル', authority: 'FR-046', isButton: true },
+  { row: 'IC-45', group: 'カーソル', authority: 'FR-082', isButton: true },
+  { row: 'IC-46', group: 'カーソル', authority: 'FR-048', isButton: true },
+  { row: 'IC-47', group: 'カーソル', authority: 'FR-048', isButton: true },
+  { row: 'IC-48', group: 'カーソル', authority: 'FR-048', isButton: true },
+  { row: 'IC-49', group: 'カーソル', authority: 'FR-048', isButton: true },
+  { row: 'IC-50', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-51', group: '置く', authority: 'FR-078', isButton: true },
+  { row: 'IC-53', group: '', authority: 'FR-053', isButton: false },
+  { row: 'IC-54', group: '構え', authority: 'SK-19', isButton: false },
+  { row: 'IC-61', group: '置く', authority: 'FR-009', isButton: true },
+] as const
+
+/**
+ * Rows of table T-109 placed on a surface OTHER than the palette. One per
+ * surface the table names, plus the two the palette is most easily confused
+ * with: IC-7 is the show/hide entrance FR-053 (MUST) keeps outside the palette,
+ * and IC-21 is FR-029's single two-place exception.
+ */
+const T_109_ELSEWHERE = ['IC-1', 'IC-7', 'IC-17', 'IC-21', 'IC-52', 'IC-55', 'IC-58'] as const
+
+/**
+ * 表 T-023b -- the whole of what can be armed, in the table's own order. The
+ * spellings a shape and a glyph carry are not settled (`Armed` says so of
+ * AR-3), so each row is built with a spelling the case never reads back.
+ */
+const T_023b: readonly { readonly row: string; readonly armed: Armed }[] = [
+  { row: 'AR-1', armed: { kind: 'none' } },
+  { row: 'AR-2', armed: { kind: 'taskShape', shapeKind: 'SH-1' } },
+  { row: 'AR-3', armed: { kind: 'milestoneShape', glyph: 'SH-5' } },
+  { row: 'AR-4', armed: { kind: 'dependency' } },
+  { row: 'AR-5', armed: { kind: 'commentBox' } },
+  { row: 'AR-6', armed: { kind: 'highlightBox' } },
+]
+
+/** FR-034, as the 正 column of table T-109 writes it for IC-37 and IC-38. */
+const ALIGN_REQUIREMENT = 'FR-034'
+
+// ---------------------------------------------------------------------------
+// What the table copy says the answer is.
+// ---------------------------------------------------------------------------
+
+/** The rows that become entries: 面 is the palette, and the row is a button. */
+const PALETTE_ENTRY_ROWS = T_109_PALETTE.filter((entry) => entry.isButton)
+
+/**
+ * The 群 names in the order the table first meets them. FR-029's RATIONALE
+ * groups the palette because the number of choices sets the time to decide, and
+ * the table's own order is the only order it states -- which matters here
+ * because the table returns to an earlier group three times near its end.
+ */
+const PALETTE_GROUP_NAMES: readonly string[] = PALETTE_ENTRY_ROWS.reduce<string[]>(
+  (names, entry) => (names.includes(entry.group) ? names : [...names, entry.group]),
+  [],
+)
+
+/** The rows of one group, in the table's print order. */
+const rowsOfGroup = (group: string): readonly string[] =>
+  PALETTE_ENTRY_ROWS.filter((entry) => entry.group === group).map((entry) => entry.row)
+
+/**
+ * Every entry, read the way the palette lays them out: group by group in the
+ * order the table first meets each, and inside a group the table's print order.
+ *
+ * That is NOT the table's print order end to end, and the difference is the
+ * point of the grouping FR-029 asks for: the table returns to the group it
+ * opened first three times near its end, so those three rows stand with the
+ * group rather than where the table happens to print them.
+ */
+const PALETTE_ENTRY_ROWS_GROUPED: readonly string[] = PALETTE_GROUP_NAMES.flatMap((group) =>
+  rowsOfGroup(group),
+)
+
+/** The rows FR-034 owns, read off the 正 column rather than named by row id. */
+const ALIGN_ROWS: readonly string[] = PALETTE_ENTRY_ROWS.filter(
+  (entry) => entry.authority === ALIGN_REQUIREMENT,
+).map((entry) => entry.row)
+
+// ---------------------------------------------------------------------------
+// Inputs. UF-65 fills one member of `ScreenView` and reads none of the others,
+// so every member below that a case does not mean is inert.
+// ---------------------------------------------------------------------------
+
+const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
+const HIDDEN: ScreenState = screenStateWithPalette(emptyScreenState(), false)
+
+const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
+  language: 'ja',
+  autosave: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
+  isAgentApiEnabled: false,
+  pointer: null,
+  pointerRestedMs: 0,
+  commandPaletteAt: { x: 0, y: 0 },
+  propertiesShowing: null,
+  notices: [],
+  rowBoxes: [],
+  ...part,
+})
+
+const TASK_A: ItemRef = { kind: 'task', uid: 11 }
+const TASK_B: ItemRef = { kind: 'task', uid: 12 }
+const COMMENT_BOX: ItemRef = { kind: 'commentBox', id: 'cb-1' }
+
+/** Picked one at a time, so SL-7b's order exists. */
+const pickedInTurn = (...items: readonly ItemRef[]): Selection =>
+  items.reduce((selection, item) => selectionWith(selection, item), emptySelection())
+
+/** A marquee (SL-3) or a select-all (SL-5): everything at once, so no order. */
+const pickedAtOnce = (...items: readonly ItemRef[]): Selection => selectionOfAll(items)
+
+/** Selections a case may hand the unit without changing what it means. */
+const SELECTIONS: readonly { readonly what: string; readonly selection: Selection }[] = [
+  { what: 'nothing selected', selection: emptySelection() },
+  { what: 'one task, picked', selection: pickedInTurn(TASK_A) },
+  { what: 'two tasks, picked in turn', selection: pickedInTurn(TASK_A, TASK_B) },
+  { what: 'two tasks, taken at once', selection: pickedAtOnce(TASK_A, TASK_B) },
+  { what: 'one comment box, picked', selection: pickedInTurn(COMMENT_BOX) },
+]
+
+// ---------------------------------------------------------------------------
+// Reading the answer.
+// ---------------------------------------------------------------------------
+
+/** Fails the case when no palette is described, so a case can go on reading. */
+const describedWith = (
+  selection: Selection = emptySelection(),
+  session: ScreenSession = sessionOf(),
+  state: ScreenState = SHOWN,
+): CommandPalette => {
+  const palette = commandPaletteFromScreenState(state, selection, session)
+  expect(palette, 'S-99e: the palette is showing, so one is described').not.toBeNull()
+  return palette as CommandPalette
+}
+
+const entriesOf = (palette: CommandPalette): readonly CommandItem[] =>
+  palette.groups.flatMap((group) => group.commands)
+
+const iconsOf = (palette: CommandPalette): readonly string[] =>
+  entriesOf(palette).map((entry) => entry.icon)
+
+const entryFor = (palette: CommandPalette, icon: string): CommandItem | undefined =>
+  entriesOf(palette).find((entry) => entry.icon === icon)
+
+/** R3.4: half-open on both axes, so an edge point belongs to one side only. */
+const rectHolds = (box: ScreenRect, x: number, y: number): boolean =>
+  x >= box.x && x < box.x + box.width && y >= box.y && y < box.y + box.height
+
+/** A word carries a letter or a digit; a separator or an empty string does not. */
+const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text)
+
+const deepFreeze = <T>(value: T): T => {
+  if (value === null || typeof value !== 'object') return value
+  for (const inner of Object.values(value as Record<string, unknown>)) deepFreeze(inner)
+  return Object.freeze(value)
+}
+
+// ---------------------------------------------------------------------------
+
+describe('UF-65 -- S-99e: described only while the palette is showing', () => {
+  it('describes nothing while S-99e says it is hidden', () => {
+    expect(commandPaletteFromScreenState(HIDDEN, emptySelection(), sessionOf())).toBeNull()
+  })
+
+  it('describes one by default, because S-99e defaults to showing', () => {
+    // `emptyScreenState` is where that default lives; nothing here repeats it.
+    expect(commandPaletteFromScreenState(emptyScreenState(), emptySelection(), sessionOf())).not.toBeNull()
+  })
+
+  it('spells hidden one way only, which EP-11 of table T-076 also exports', () => {
+    // EP-11 treats the palette as closed on the export path, so a description
+    // carrying no entry would be a second spelling of hidden, and nothing says
+    // which of the two wins. A shown palette always carries entries.
+    for (const { what, selection } of SELECTIONS) {
+      expect(commandPaletteFromScreenState(HIDDEN, selection, sessionOf()), what).toBeNull()
+      expect(entriesOf(describedWith(selection)).length, what).toBeGreaterThan(0)
+    }
+  })
+
+  it('answers hidden whatever else is going on', () => {
+    // S-99e is the whole condition: no arm, no pointer and no selection turns
+    // it back on.
+    for (const { row, armed } of T_023b) {
+      const state = screenStateWithArmed(HIDDEN, armed)
+      const session = sessionOf({ pointer: { x: 5, y: 5 }, commandPaletteAt: { x: 0, y: 0 } })
+      expect(commandPaletteFromScreenState(state, pickedInTurn(TASK_A), session), row).toBeNull()
+    }
+  })
+})
+
+describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
+  it('puts the corner of `box` where `ScreenSession.commandPaletteAt` says', () => {
+    // FR-053 has the person drag the palette, so its place is not one of
+    // ScreenRegions' rectangles -- and no rectangle of the layout is an
+    // argument here at all.
+    for (const at of [
+      { x: 0, y: 0 },
+      { x: 12, y: 340 },
+      { x: -40, y: -1 },
+      { x: 1919.5, y: 1079.5 },
+    ]) {
+      const box = describedWith(emptySelection(), sessionOf({ commandPaletteAt: at })).box
+      expect({ x: box.x, y: box.y }, JSON.stringify(at)).toEqual(at)
+    }
+  })
+
+  it('moves only the place when the person drags it', () => {
+    // SC-6 of table T-031 keeps the palette still against the screen, so a drag
+    // is the only thing that moves it -- and moving it changes nothing else
+    // that is described.
+    const here = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 0, y: 0 } }))
+    const there = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 300, y: 90 } }))
+    expect({ ...there, box: here.box }).toEqual(here)
+  })
+})
+
+describe('UF-65 -- FR-053: faint while the pointer is off it', () => {
+  it('reports the pointer as off it while the pointer is outside the window', () => {
+    // `ScreenSession.pointer` is `null` for exactly that, and FR-053 draws the
+    // palette faint whenever the pointer is not on it.
+    expect(describedWith(emptySelection(), sessionOf({ pointer: null })).isPointerOver).toBe(false)
+  })
+
+  it('agrees with `box` about every point, half-open on both axes (R3.4)', () => {
+    // The specification fixes no extent for the palette, so this asserts the
+    // RELATION FR-053 states rather than a size: the pointer is on the palette
+    // exactly when `box` holds it.
+    // ⚠️ HOW MUCH THIS CATCHES DEPENDS ON THAT MISSING EXTENT. While `box` has
+    // none, no point is inside it and the case can only catch an answer that is
+    // wrongly true; it starts catching a wrongly faint palette the day a width
+    // and a height arrive. That is the cost of the gap, recorded rather than
+    // papered over with a guessed size.
+    const at = { x: 100, y: 50 }
+    const session = (pointer: { x: number; y: number } | null): ScreenSession =>
+      sessionOf({ commandPaletteAt: at, pointer })
+    const palette = describedWith(emptySelection(), session(null))
+    const box = palette.box
+    const probes = [
+      { x: box.x, y: box.y },
+      { x: box.x - 1, y: box.y },
+      { x: box.x + box.width, y: box.y },
+      { x: box.x, y: box.y + box.height },
+      { x: box.x + box.width / 2, y: box.y + box.height / 2 },
+      { x: box.x + box.width - 0.5, y: box.y + box.height - 0.5 },
+      { x: 10000, y: 10000 },
+    ]
+    for (const pointer of probes) {
+      const answer = describedWith(emptySelection(), session(pointer)).isPointerOver
+      expect(answer, `FR-053: the pointer at ${JSON.stringify(pointer)}`).toBe(
+        rectHolds(box, pointer.x, pointer.y),
+      )
+    }
+  })
+
+  it('never reads the faintness off a selection', () => {
+    // FR-053 warns against writing this as a selection in as many words: SL-1
+    // of table T-023c does not admit the palette, so a selection-worded
+    // condition would have no state that ever clears it.
+    for (const pointer of [null, { x: 0, y: 0 }, { x: 100, y: 50 }]) {
+      const answers = SELECTIONS.map(
+        ({ selection }) => describedWith(selection, sessionOf({ pointer })).isPointerOver,
+      )
+      expect(new Set(answers).size, JSON.stringify(pointer)).toBe(1)
+    }
+  })
+})
+
+describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () => {
+  it('says something for every arm of table T-023b', () => {
+    // An empty `armedText` would answer nothing, and FR-053 makes reading what
+    // is armed a MUST -- IC-61's arm (AR-4) is the one it names, because
+    // otherwise AR-4's "whatever is hit becomes an endpoint" happens unannounced.
+    for (const { row, armed } of T_023b) {
+      const palette = describedWith(emptySelection(), sessionOf(), screenStateWithArmed(SHOWN, armed))
+      expect(palette.armedText.length, `FR-053 (MUST): ${row}`).toBeGreaterThan(0)
+    }
+  })
+
+  it('tells the six arms of table T-023b apart', () => {
+    // Table T-023b holds the whole of what can be armed. Two arms wearing one
+    // text cannot be read apart, which is what the MUST asks for.
+    const texts = T_023b.map(
+      ({ armed }) =>
+        describedWith(emptySelection(), sessionOf(), screenStateWithArmed(SHOWN, armed)).armedText,
+    )
+    expect(new Set(texts).size).toBe(T_023b.length)
+  })
+
+  it('reads the arm off `ScreenState` and nothing else', () => {
+    // U-38 of table T-103 forbids calling an arm a selection, and they are
+    // different states: neither the selection nor the pointer may move it.
+    for (const { row, armed } of T_023b) {
+      const state = screenStateWithArmed(SHOWN, armed)
+      const texts = SELECTIONS.map(
+        ({ selection }) =>
+          describedWith(selection, sessionOf({ pointer: { x: 3, y: 4 } }), state).armedText,
+      )
+      expect(new Set(texts).size, row).toBe(1)
+    }
+  })
+})
+
+describe('UF-65 -- FR-029 (MUST): the roster and the placement follow table T-109', () => {
+  it('carries every palette row of the table that is a button, and no other', () => {
+    // The 面 column IS the placement (FR-029, MUST). One pass over the table
+    // copy, as Chapter 1.9 asks.
+    expect(iconsOf(describedWith())).toEqual(PALETTE_ENTRY_ROWS_GROUPED)
+  })
+
+  it('leaves out the two rows the table marks as not being buttons', () => {
+    // Both reach the screen as something other than an entry: one as the place
+    // a drag moves, the other alongside what is armed.
+    const icons = iconsOf(describedWith())
+    for (const entry of T_109_PALETTE.filter((row) => !row.isButton)) {
+      expect(icons, `table T-109: ${entry.row} is not a button`).not.toContain(entry.row)
+    }
+  })
+
+  it('lets no row placed on another surface reach the palette', () => {
+    // FR-029 (MUST) binds the placement to the 面 column, so a row placed on
+    // the `App Header`, a modal, the autosave status or the row title panel has
+    // no business here.
+    const icons = iconsOf(describedWith())
+    for (const row of T_109_ELSEWHERE) {
+      expect(icons, `FR-029 (MUST): ${row} is placed elsewhere`).not.toContain(row)
+    }
+  })
+
+  it('keeps the show/hide entrance outside the palette (FR-053, MUST)', () => {
+    // FR-053: the entrance that hides the palette must sit outside it, or the
+    // surface to press disappears the moment it is used. Table T-109 places
+    // IC-7 on the `App Header` for that reason.
+    expect(iconsOf(describedWith())).not.toContain('IC-7')
+  })
+
+  it('never carries the same entry twice (MUST NOT)', () => {
+    // FR-029 forbids two entrances onto one function; its single exception is
+    // the display language, which is placed on two OTHER surfaces.
+    for (const { what, selection } of SELECTIONS) {
+      const icons = iconsOf(describedWith(selection))
+      expect(new Set(icons).size, `FR-029 (MUST NOT): a repeat with ${what}`).toBe(icons.length)
+    }
+  })
+
+  it('invents no entry the table does not place here', () => {
+    const placed = new Set(T_109_PALETTE.map((entry) => entry.row))
+    for (const icon of iconsOf(describedWith())) {
+      expect(placed.has(icon), `FR-029 (MUST): ${icon} is not a row of the palette`).toBe(true)
+    }
+  })
+})
+
+describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
+  it('opens the groups in the order the table first meets them', () => {
+    // FR-029's RATIONALE is why the palette is grouped at all. Re-sorting by
+    // anything else would move entries out of the group it puts them in: the
+    // table returns to an earlier group three times near its end.
+    expect(describedWith().groups.map((group) => group.name)).toEqual(PALETTE_GROUP_NAMES)
+  })
+
+  it('keeps the table print order inside each group', () => {
+    for (const group of describedWith().groups) {
+      expect(group.commands.map((entry) => entry.icon), group.name).toEqual(rowsOfGroup(group.name))
+    }
+  })
+
+  it('opens no group for a row that is not an entry', () => {
+    // One of the two rows that are not buttons carries a 群 of its own. A group
+    // standing empty would be a heading with nothing under it.
+    const names = describedWith().groups.map((group) => group.name)
+    expect(names).not.toContain('構え')
+    for (const group of describedWith().groups) expect(group.commands.length).toBeGreaterThan(0)
+  })
+
+  it('mints no group name of its own', () => {
+    // Table T-109 has no English column, and section 8 of the glossary refuses
+    // it one. So the 群 column travels as the manuscript wrote it, in either
+    // display language.
+    for (const language of ['ja', 'en'] as const) {
+      const palette = describedWith(emptySelection(), sessionOf({ language }))
+      expect(palette.groups.map((group) => group.name), language).toEqual(PALETTE_GROUP_NAMES)
+    }
+  })
+})
+
+describe('UF-65 -- FR-029 (MUST) with SL-7b (MUST NOT): what cannot be used is faint', () => {
+  it('offers the alignment entries while an ordered selection holds tasks', () => {
+    // FR-034 lines the selected tasks up on the LAST-picked task's date, which
+    // an order makes reachable.
+    const palette = describedWith(pickedInTurn(TASK_A, TASK_B))
+    for (const row of ALIGN_ROWS) {
+      expect(entryFor(palette, row)?.isEnabled, `FR-034: ${row}`).toBe(true)
+    }
+  })
+
+  it('refuses them on a selection that carries no order (SL-7b, MUST NOT)', () => {
+    // SL-7b: a marquee (SL-3) and a select-all (SL-5) make no order, and
+    // alignment MUST NOT be executed on that alone. FR-029 (MUST) is how a
+    // person is told: faint, rather than a press that does nothing.
+    const palette = describedWith(pickedAtOnce(TASK_A, TASK_B))
+    for (const row of ALIGN_ROWS) {
+      expect(entryFor(palette, row)?.isEnabled, `SL-7b (MUST NOT): ${row}`).toBe(false)
+    }
+  })
+
+  it('refuses them while nothing is selected', () => {
+    // FR-034 has no task to move and no last-picked task to move it to.
+    const palette = describedWith(emptySelection())
+    for (const row of ALIGN_ROWS) {
+      expect(entryFor(palette, row)?.isEnabled, `FR-034: ${row} with nothing selected`).toBe(false)
+    }
+  })
+
+  it('refuses them when the ordered selection holds no task', () => {
+    // FR-034 speaks of the selected TASKS and of the last-picked TASK. SL-1
+    // admits four other kinds, none of which carries a date to line up.
+    const palette = describedWith(pickedInTurn(COMMENT_BOX))
+    for (const row of ALIGN_ROWS) {
+      expect(entryFor(palette, row)?.isEnabled, `FR-034: ${row} with no task selected`).toBe(false)
+    }
+  })
+
+  it('leaves every other entry usable, whatever is selected', () => {
+    // FR-083's SP-1 .. SP-4 give a shape entry a defined meaning both with a
+    // selection and without one, and no requirement takes any other palette
+    // entry away. FR-029 draws faint only what cannot be used -- an entry that
+    // does nothing reads as a fault.
+    for (const { what, selection } of SELECTIONS) {
+      for (const entry of entriesOf(describedWith(selection))) {
+        if (ALIGN_ROWS.includes(entry.icon)) continue
+        expect(entry.isEnabled, `FR-029: ${entry.icon} with ${what}`).toBe(true)
+      }
+    }
+  })
+})
+
+describe('UF-65 -- FR-038: the display language', () => {
+  it('mints no word, because no table settles one', () => {
+    // FR-038 (MUST) shows menus in the chosen language and names no store of
+    // translated strings; section 8 of `_assets/tbl-glossary.md` refuses table
+    // T-109 an English column for exactly this reason. A word written into
+    // `CommandItem.label` would settle wording the glossary has not.
+    // WHEN A STORE OF WORDS IS SETTLED, THIS CASE IS THE ONE TO REVISIT.
+    for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
+      for (const entry of entriesOf(describedWith(emptySelection(), sessionOf({ language })))) {
+        expect(hasWord(entry.label), `${language}: a word was minted on ${entry.icon}`).toBe(false)
+      }
+    }
+  })
+
+  it('describes the same entries in either language', () => {
+    // FR-038 keeps one language state for the whole screen and translates no
+    // roster: which entries stand there is table T-109's answer, not a
+    // language's.
+    const inJapanese = describedWith(emptySelection(), sessionOf({ language: 'ja' }))
+    const inEnglish = describedWith(emptySelection(), sessionOf({ language: 'en' }))
+    expect(iconsOf(inEnglish)).toEqual(iconsOf(inJapanese))
+  })
+})
+
+describe('UF-65 -- table T-075 makes the unit `pure` (R7.1)', () => {
+  it('rewrites none of its three arguments', () => {
+    // A `pure` unit that rewrites an argument is the defect
+    // docs/development-rules/04-verification.md records having been caught by
+    // a specification-driven run.
+    const state = deepFreeze(screenStateWithArmed(SHOWN, { kind: 'dependency' }))
+    const selection = deepFreeze(pickedInTurn(TASK_A, TASK_B))
+    const session = deepFreeze(sessionOf({ pointer: { x: 4, y: 4 } }))
+    const before = JSON.stringify([state, selection, session])
+
+    commandPaletteFromScreenState(state, selection, session)
+
+    expect(JSON.stringify([state, selection, session])).toBe(before)
+  })
+
+  it('answers the same for the same inputs', () => {
+    for (const { what, selection } of SELECTIONS) {
+      const session = sessionOf({ commandPaletteAt: { x: 7, y: 8 }, pointer: { x: 7, y: 8 } })
+      const first = commandPaletteFromScreenState(SHOWN, selection, session)
+      const second = commandPaletteFromScreenState(SHOWN, selection, session)
+      expect(second, what).toEqual(first)
+    }
+  })
+})
+
+describe('UF-65 -- boundaries the specification admits', () => {
+  it('describes the palette with nothing selected at all', () => {
+    // `emptySelection` is SL-6's state: FR-083's SP-1 is defined there, so the
+    // palette is no less usable for it.
+    const palette = describedWith(emptySelection())
+    expect(iconsOf(palette).length).toBe(PALETTE_ENTRY_ROWS.length)
+  })
+
+  it('describes the palette with a single selected item', () => {
+    // SP-2 of FR-083 is the one-selected case; SL-7b's order exists from the
+    // first pick.
+    expect(iconsOf(describedWith(pickedInTurn(TASK_A)))).toEqual(PALETTE_ENTRY_ROWS_GROUPED)
+  })
+
+  it('describes the palette while the pointer is outside the window', () => {
+    const palette = describedWith(emptySelection(), sessionOf({ pointer: null }))
+    expect(palette.isPointerOver).toBe(false)
+    expect(iconsOf(palette).length).toBe(PALETTE_ENTRY_ROWS.length)
+  })
+
+  it('takes a corner outside the screen without changing what it holds', () => {
+    // Nothing clamps `commandPaletteAt`: table T-206 holds no row for the
+    // palette's place, so there is no bound to apply here.
+    const offScreen = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: -500, y: -500 } }))
+    expect(iconsOf(offScreen)).toEqual(PALETTE_ENTRY_ROWS_GROUPED)
+    expect(offScreen.isPointerOver).toBe(false)
+  })
+})

@@ -1,0 +1,562 @@
+{
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/tbl-glossary.md, table T-109 (the whole of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_roster.py. An icon is carried by its row id alone: table T-109 deliberately has no English column and no shape column, and the shapes are figure F-019.",
+ "columns": {
+  "rowId": "行 ID",
+  "surfaces": "面",
+  "group": "群",
+  "entryTo": "何の入口か",
+  "authority": "正"
+ },
+ "icons": [
+  {
+   "rowId": "IC-1",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "文書",
+   "entryTo": "文書を開く",
+   "authority": "`FR-087`（表 T-024a の `OP-2`）"
+  },
+  {
+   "rowId": "IC-2",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "文書",
+   "entryTo": "開いたファイルへ上書き保存する",
+   "authority": "`FR-060`"
+  },
+  {
+   "rowId": "IC-3",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "文書",
+   "entryTo": "画像として書き出す",
+   "authority": "`FR-025`"
+  },
+  {
+   "rowId": "IC-4",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "文書",
+   "entryTo": "変更前の予定の重ねを出す・しまう（`S-69`）。⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
+   "authority": "`FR-049`（`FR-015`）"
+  },
+  {
+   "rowId": "IC-5",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "履歴",
+   "entryTo": "編集を取り消す",
+   "authority": "`FR-031`"
+  },
+  {
+   "rowId": "IC-6",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "履歴",
+   "entryTo": "取り消した編集をやり直す",
+   "authority": "`FR-031`"
+  },
+  {
+   "rowId": "IC-7",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "コマンドパレットを出す・しまう（`S-99e`）",
+   "authority": "`FR-053`"
+  },
+  {
+   "rowId": "IC-8",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "予定を出す・しまう（`S-59` の 3 値のうち）",
+   "authority": "`FR-049`"
+  },
+  {
+   "rowId": "IC-9",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "実績を出す・しまう（同上）",
+   "authority": "`FR-049`"
+  },
+  {
+   "rowId": "IC-10",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "全体を 1 画面に収める",
+   "authority": "`FR-055`"
+  },
+  {
+   "rowId": "IC-11",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "全画面表示に入り、同じ入口で出る（`S-99f`）",
+   "authority": "`FR-071`"
+  },
+  {
+   "rowId": "IC-12",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "時間軸を縮小する（`S-75`）",
+   "authority": "`FR-018`"
+  },
+  {
+   "rowId": "IC-13",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "時間軸を拡大する（`S-75`）",
+   "authority": "`FR-018`"
+  },
+  {
+   "rowId": "IC-14",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "行軸を縮小する（`S-76`）",
+   "authority": "`FR-018`"
+  },
+  {
+   "rowId": "IC-15",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "行軸を拡大する（`S-76`）",
+   "authority": "`FR-018`"
+  },
+  {
+   "rowId": "IC-16",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "明暗テーマを選ぶ（`S-72`）",
+   "authority": "`FR-039`"
+  },
+  {
+   "rowId": "IC-17",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "文書の描画設定をプロパティパネルに出す",
+   "authority": "`FR-072`"
+  },
+  {
+   "rowId": "IC-18",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "AI",
+   "entryTo": "AI との対話欄を出す・しまう",
+   "authority": "`FR-066`"
+  },
+  {
+   "rowId": "IC-19",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "AI",
+   "entryTo": "AI へ渡す文書を画面で確かめて写す",
+   "authority": "`FR-068`"
+  },
+  {
+   "rowId": "IC-20",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "AI",
+   "entryTo": "`Agent API` を有効にする・無効にする",
+   "authority": "`FR-065`"
+  },
+  {
+   "rowId": "IC-21",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "補助",
+   "entryTo": "表示言語を選ぶ（`S-99`）。⚠️ **入口を 2 か所に置く唯一の例外である**（`FR-029`）",
+   "authority": "`FR-038`"
+  },
+  {
+   "rowId": "IC-22",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "補助",
+   "entryTo": "ヘルプを開く",
+   "authority": "`FR-036`"
+  },
+  {
+   "rowId": "IC-23",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "矩形を構える（表 T-012 の `SH-1`）",
+   "authority": "`FR-083`"
+  },
+  {
+   "rowId": "IC-24",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "矢羽根を構える（`SH-2`）",
+   "authority": "`FR-083`"
+  },
+  {
+   "rowId": "IC-25",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "矢印を構える（`SH-3`）",
+   "authority": "`FR-083`"
+  },
+  {
+   "rowId": "IC-26",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "端点スパンを構える（`SH-4`）",
+   "authority": "`FR-083`"
+  },
+  {
+   "rowId": "IC-27",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "マイルストーンを 〇 で構える（表 T-012 の `SH-5`）",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-28",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・六角形",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-29",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・五角形",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-30",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・◇",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-31",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・□",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-32",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・☆（内外比は `S-48`）",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-33",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・△",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-34",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・▽",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-35",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "コメントボックスを構える（表 T-023b の `AR-5`）",
+   "authority": "`FR-019`"
+  },
+  {
+   "rowId": "IC-36",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "ハイライトボックスを構える（`AR-6`）",
+   "authority": "`FR-019`"
+  },
+  {
+   "rowId": "IC-37",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "揃える",
+   "entryTo": "選んだものを開始日で揃える",
+   "authority": "`FR-034`"
+  },
+  {
+   "rowId": "IC-38",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "揃える",
+   "entryTo": "選んだものを終了日で揃える",
+   "authority": "`FR-034`"
+  },
+  {
+   "rowId": "IC-39",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "イナズマ線を出す・しまう（`S-64`）",
+   "authority": "`FR-049`（`FR-014`）"
+  },
+  {
+   "rowId": "IC-40",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "進捗マーカーを出す・しまう（`S-63`）",
+   "authority": "`FR-049`（`FR-013`）"
+  },
+  {
+   "rowId": "IC-41",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "透かしをしまう（解除パスワードを求める）",
+   "authority": "`FR-020`"
+  },
+  {
+   "rowId": "IC-42",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "日付罫線を出す・しまう（`S-67`）",
+   "authority": "`FR-049`（`FR-089`）"
+  },
+  {
+   "rowId": "IC-43",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "グループ罫線を出す・しまう（`S-68`）",
+   "authority": "`FR-049`（`FR-042`）"
+  },
+  {
+   "rowId": "IC-44",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "カーソル",
+   "entryTo": "基準日を置く・動かす・消す。⚠️ **「本日線」と呼んではならない**（表 T-103 の `U-11`）",
+   "authority": "`FR-046`"
+  },
+  {
+   "rowId": "IC-45",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "カーソル",
+   "entryTo": "デュアルカーソルの 2 本を置く（`S-65`）",
+   "authority": "`FR-082`"
+  },
+  {
+   "rowId": "IC-46",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "カーソル",
+   "entryTo": "ガイドカーソルを `'none'` にする（`S-66`。4 値排他）",
+   "authority": "`FR-048`"
+  },
+  {
+   "rowId": "IC-47",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "カーソル",
+   "entryTo": "同・`'crosshair'`",
+   "authority": "`FR-048`"
+  },
+  {
+   "rowId": "IC-48",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "カーソル",
+   "entryTo": "同・`'single-vertical'`",
+   "authority": "`FR-048`"
+  },
+  {
+   "rowId": "IC-49",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "カーソル",
+   "entryTo": "同・`'double-vertical'`",
+   "authority": "`FR-048`"
+  },
+  {
+   "rowId": "IC-50",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "マイルストーンの図形の一覧を開く",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-51",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・畳む",
+   "authority": "`FR-078`"
+  },
+  {
+   "rowId": "IC-52",
+   "surfaces": [
+    "Help Modal",
+    "AI Export Modal"
+   ],
+   "group": null,
+   "entryTo": "開いている面を閉じる",
+   "authority": "表 T-028 の `IN-4`"
+  },
+  {
+   "rowId": "IC-53",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": null,
+   "entryTo": "掴んで動かせることを示す。**ボタンではない**",
+   "authority": "`FR-053`"
+  },
+  {
+   "rowId": "IC-54",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "構え",
+   "entryTo": "構えた図形を置く打鍵を示す。**ボタンではない**",
+   "authority": "表 T-036 の `SK-19`"
+  },
+  {
+   "rowId": "IC-55",
+   "surfaces": [
+    "Autosave Status"
+   ],
+   "group": null,
+   "entryTo": "保存済みであることを示す。**ボタンではない**",
+   "authority": "`FR-061`"
+  },
+  {
+   "rowId": "IC-56",
+   "surfaces": [
+    "Autosave Status"
+   ],
+   "group": null,
+   "entryTo": "保存中であることを示す。**ボタンではない。回さない**",
+   "authority": "`FR-061`"
+  },
+  {
+   "rowId": "IC-57",
+   "surfaces": [
+    "Autosave Status"
+   ],
+   "group": null,
+   "entryTo": "保存に失敗したことを示す。**ボタンではない**（通知は 表 T-037 の `NT-3a`）",
+   "authority": "`FR-061`"
+  },
+  {
+   "rowId": "IC-58",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "行の配下を 1 段開く。**未描画 🔎**",
+   "authority": "表 T-051 の `HF-2`"
+  },
+  {
+   "rowId": "IC-59",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "行の配下をすべて閉じる。**未描画 🔎**",
+   "authority": "表 T-051 の `HF-3`"
+  },
+  {
+   "rowId": "IC-60",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "行をピン止めし、同じ入口で外す。**未描画 🔎**",
+   "authority": "`FR-098`"
+  },
+  {
+   "rowId": "IC-61",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "依存線を構える（表 T-023b の `AR-4`）。**未描画 🔎** —— 構えの入口 6 つのうち、これだけ図形が無い",
+   "authority": "`FR-009`"
+  }
+ ]
+}

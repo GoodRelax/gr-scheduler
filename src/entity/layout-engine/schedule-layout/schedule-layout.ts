@@ -24,14 +24,25 @@
 // -- the thing UC-001's extension 2a creates by a plain click -- was dropped at
 // EVERY zoom.
 //
-// ⛔ INCOMPLETE, and deliberately so: LC-7 counts OC-1 alone. The other rows of
-// table T-038 measure things this milestone does not draw yet -- the assignee
-// and percent labels (OC-2), an actual bar reaching outside the plan (OC-5),
-// the plan-against-actual guide (OC-7), the days-late label (OC-8) and the
+// ⛔ INCOMPLETE, and deliberately so: LC-7 counts OC-1 and OC-5 of table T-038.
+// The rows still missing measure things this milestone does not draw yet -- the
+// assignee and percent labels (OC-2), the days-late label (OC-8) and the
 // deadline mark (OC-9). Table T-042 puts those at M3 and M4. Each one widens
 // what a Task occupies, so ST-1's overlap test and FR-055's fit both read low
 // until they arrive. Add them here, not at the call sites: table T-038's
 // preamble makes stacking and the fit measurement share this one count (MUST).
+//
+// ⚠️ OC-7, the plan-against-actual guide, needs no term of its own: GD-5 of
+// table T-020a draws it from the actual's near end to the plan's near end, so
+// it never reaches past what OC-1 and OC-5 have already counted.
+//
+// ⛔ Two extents ARE drawn and are still not counted, because table T-038 is a
+// closed list and neither has a row: the actual figure of a milestone, which
+// LF-10 centres on `actualStart` (GR-15 says a milestone has no actual BAR, so
+// OC-5 is not about it), and the actual bar of an arrow or endpoint span, which
+// OC-6 takes the horizontal off in as many words. Both can sit far from the
+// plan, so FR-055 can fit and still leave them off screen. ⚠️ Do not invent a
+// term for either -- it takes a change request against table T-038.
 //
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
@@ -238,6 +249,22 @@ function reservedHeight(shapeKind: ShapeKind, settings: DocumentSettings): numbe
 /** SH-3 and SH-4 push the actual below; the rest do not. Table T-012. @purity pure */
 function laidBelow(shapeKind: ShapeKind): boolean {
   return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
+}
+
+/**
+ * Table T-012's last column: where the actual sits relative to the plan.
+ *
+ * ⭐ Resolved in one place because LC-7 and the placement below both need it,
+ * and because it is what decides whether OC-5 of table T-038 applies: only the
+ * actual laid INSIDE the plan (SH-1, SH-2) is counted left and right. OC-6
+ * takes the horizontal off the one pushed below (SH-3, SH-4), and GR-15 of
+ * table T-023d says a milestone has no actual bar for OC-5 to be about.
+ *
+ * @purity pure
+ */
+function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways' {
+  if (shapeKind === 'milestone') return 'sideways'
+  return laidBelow(shapeKind) ? 'below' : 'inside'
 }
 
 /**
@@ -581,10 +608,19 @@ export function layoutFromSchedule(
       const text = labelWidth(label, font, settings)
       const placement: LabelPlacement = text <= width ? 'inside' : 'right'
       // ---- LC-7: OC-1 is the label the shape could not hold --------------
-      const occupiedX1 = placement === 'right' ? x + width + settings.labelGap + text : x + width
+      const labelledX1 = placement === 'right' ? x + width + settings.labelGap + text : x + width
       const actual = actualSpanOf(task, within, originSerial, pxPerDay, originX)
+      // ---- LC-7: OC-5 is the actual bar reaching outside the plan --------
+      // ⛔ Not conditioned on `planActualDisplay`: OC-2 is the row that spells
+      // out "count it only while it is shown", and OC-3 / OC-4 give the reason
+      // for the silence on the other rows -- a Task must not move when a
+      // display toggle is flipped.
+      const spread = actual !== null && actualPlacementOf(kind) === 'inside' ? actual : null
+      const occupiedX0 = spread === null ? x : Math.min(x, spread.x)
+      const occupiedX1 =
+        spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, x, width, label, font, placement, actual,
-               occupiedX0: x, occupiedX1 }
+               occupiedX0, occupiedX1 }
     })
 
     for (const item of measured) {
@@ -679,8 +715,7 @@ export function layoutFromSchedule(
         y: tops[lane]!,
         height: reservedHeight(item.kind, settings),
         planHeight: planHeightOf(item.kind, settings),
-        actualPlacement:
-          item.kind === 'milestone' ? 'sideways' : laidBelow(item.kind) ? 'below' : 'inside',
+        actualPlacement: actualPlacementOf(item.kind),
         actualX: item.actual === null ? null : item.actual.x,
         actualWidth: item.actual === null ? 0 : item.actual.width,
         labelPlacement: item.placement,

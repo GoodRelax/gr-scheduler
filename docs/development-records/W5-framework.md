@@ -50,25 +50,25 @@
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-53 | `browser-clipboard.ts` | **公開エントリ** | non-pure | PI-30 | ⬜ 未着手 |
+| UF-53 | `browser-clipboard.ts` | **公開エントリ** | non-pure | PI-30 | ✅ 受入済 |
 
 ### `canvas-rasterizer` —— CanvasRasterizer（PI-31）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-54 | `canvas-rasterizer.ts` | **公開エントリ** | semi-pure-b | PI-31 | ⬜ 未着手 |
+| UF-54 | `canvas-rasterizer.ts` | **公開エントリ** | semi-pure-b | PI-31 | ✅ 受入済 |
 
 ### `dom-input-source` —— DomInputSource（PI-27）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-50 | `dom-input-source.ts` | **公開エントリ** | non-pure | PI-27 | ⬜ 未着手 |
+| UF-50 | `dom-input-source.ts` | **公開エントリ** | non-pure | PI-27 | ✅ 受入済 |
 
 ### `dom-screen-surface` —— DomScreenSurface（PI-38）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-71 | `dom-screen-surface.ts` | **公開エントリ** | non-pure | PI-38 | ⬜ 未着手 |
+| UF-71 | `dom-screen-surface.ts` | **公開エントリ** | non-pure | PI-38 | ✅ 受入済 |
 
 ### `dom-svg-surface` —— DomSvgSurface（PI-26）
 
@@ -80,13 +80,13 @@
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-51 | `file-system-access-file-store.ts` | **公開エントリ** | semi-pure-b ／ non-pure | PI-28 | ⬜ 未着手 |
+| UF-51 | `file-system-access-file-store.ts` | **公開エントリ** | semi-pure-b ／ non-pure | PI-28 | ✅ 受入済 |
 
 ### `local-storage-document-store` —— LocalStorageDocumentStore（PI-29）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
-| UF-52 | `local-storage-document-store.ts` | **公開エントリ** | semi-pure-b ／ non-pure | PI-29 | ⬜ 未着手 |
+| UF-52 | `local-storage-document-store.ts` | **公開エントリ** | semi-pure-b ／ non-pure | PI-29 | ✅ 受入済 |
 
 ### `single-html-shell` —— SingleHtmlShell（PI-25）
 

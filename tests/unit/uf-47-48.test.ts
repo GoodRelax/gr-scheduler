@@ -31,8 +31,10 @@ import type { Document } from '../../src/entity/document-model/document/document
 import {
   compareDays,
   dayOf,
+  planActualState,
   textOfDay,
   type CalendarDay,
+  type Task,
 } from '../../src/entity/document-model/schedule/schedule'
 import {
   frameLoop,
@@ -66,32 +68,82 @@ const GONE = '99999999-9999-4999-8999-999999999999'
 
 const FIRST_START = '2026-04-01'
 
+/**
+ * An actual that begins after its Task's plan has already finished, which is
+ * the half of OC-5 (table T-038) a late start produces; FR-084 is where that
+ * overhang is drawn. Long enough that the actual bar ends beyond every plan bar
+ * in the document, short enough that no Task drops under the LOD floor (S-86).
+ */
+const LATE_ACTUAL_START = '2026-04-20'
+const LATE_ACTUAL_WORKED_DAYS = 20
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
  * Two rows, one Task on each, so what table T-068 draws can be named row by
- * row. Built out of the template, so the calendar (IV-7 / IV-17), the project
- * and the 97 settings are the ones the specification decided; only the rows,
- * the Tasks and whatever the case overrides differ.
+ * row. The calendar (IV-7 / IV-17), the project and the 97 settings are the
+ * ones the specification decided, so those are taken from the template; the
+ * rows, the Tasks and whatever the case overrides are written out here.
  *
  * IV-1 (uids and ids unique), IV-2 (every reference resolves), IV-6 (each Task
  * named by exactly one member), IV-8 (every row has a label), IV-10 (finish is
  * not before start) all hold by construction, and `validateDocument` below
  * keeps the shape honest.
+ *
+ * ⚠️ What is NOT "by construction" is what the template holds. The two premises
+ * every case below stands on -- a Task with no actual, and settings with no
+ * stored place -- are pinned by the cases at the head of this file, so a
+ * template that stops meeting them fails there and says which one it broke.
  */
 function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
   const template = structuredClone(TEMPLATE) as any
-  const task = (uid: number, start: string, finish: string, name: string) => ({
-    ...structuredClone(template.schedule.tasks[0]),
+  /**
+   * ⛔ Every column table T-058 gives a Task (AT-24 .. AT-44) is named here.
+   *
+   * ⚠️ This used to spread `template.schedule.tasks[0]` and override only the
+   * fields a case cared about, which made all the others an unstated dependency
+   * on the bundled document: when that Task stopped being a milestone with no
+   * actual and became the overview roll-up, carrying an `actualStart` and a
+   * three-figure `actualDuration`, both Tasks here silently grew an actual bar
+   * hundreds of working days long. FR-055 fits the drawn extent and OC-5 of
+   * table T-038 counts an actual that runs outside its plan, so the fit shrank
+   * until both Tasks fell under the task LOD floor (S-86) and neither was
+   * drawn -- with nothing in the file saying an actual was ever involved.
+   *
+   * ⭐ Naming the columns cannot fail that way again, and the check is a
+   * machine's: the schema `validateDocument` runs requires all of them and sets
+   * `additionalProperties` false, so a dropped column and a stray one both come
+   * back named. ⚠️ The `Task` return type is for the reader and the editor
+   * only -- `tsc --noEmit` includes `src`, not `tests`, so it never sees this
+   * file.
+   *
+   * ⭐ No actual at all is what these cases mean by a Task: PS-1 of table
+   * T-019a, a Task nobody has started. Nothing below measures an actual bar, a
+   * progress marker or a resume icon; the one case that wants an actual builds
+   * it through `edit`.
+   */
+  const task = (uid: number, start: string, finish: string, name: string): Task => ({
     uid,
+    wbsParentUid: null,
+    wbsOrder: uid,
     name,
     start,
     finish,
     milestone: false,
+    deadline: null,
+    notes: null,
+    calendarUid: null,
+    actualStart: null,
+    actualDuration: null,
+    actualFinish: null,
+    resume: null,
+    resumeValid: null,
     percentComplete: 0,
+    fadeInDays: null,
+    fadeOutDays: null,
     dependencies: [],
-    wbsParentUid: null,
-    wbsOrder: uid,
+    carry: {},
+    carryElements: [],
   })
   const row = (id: string, parentId: string | null, label: string) => ({
     id,
@@ -222,6 +274,30 @@ describe('the document these cases drive', () => {
     expect(report.errors).toEqual([])
     expect(report.valid).toBe(true)
   })
+
+  it('carries no actual: every Task is PS-1 of table T-019a', () => {
+    // ⛔ A premise, not decoration. FR-055 fits the drawn extent and OC-5 of
+    // table T-038 counts an actual bar that runs outside its plan, so an actual
+    // nobody asked for moves the zoom every case below is standing on, and a
+    // large enough one takes both Tasks under the task LOD floor (S-86). The
+    // case further down that does want an actual says so through `edit`.
+    for (const task of (twoRowDocument() as any).schedule.tasks) {
+      expect(planActualState(task)).toBe('notStarted')
+      expect(task.actualStart).toBeNull()
+      expect(task.actualDuration).toBeNull()
+      expect(task.actualFinish).toBeNull()
+    }
+  })
+
+  it('stores no place: the OP-10 cases below really drive the null side', () => {
+    // The settings come from the template, so this is the one thing about it
+    // the OP-10 cases depend on. S-77 / S-78 hold the stored place, and OP-10
+    // branches on whether it is null; a template that filled either in would
+    // send those cases down the other branch without changing a line of them.
+    const settings = settingsOf(twoRowDocument())
+    expect(settings.scrollDate).toBeNull()
+    expect(settings.scrollGroupId).toBeNull()
+  })
 })
 
 describe('UF-48 frameLoop -- BO-5 of table T-077', () => {
@@ -298,6 +374,53 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
         values.regions.rowArea.x + values.regions.rowArea.width,
       )
     }
+  })
+
+  it('FR-055: an actual bar that runs past its plan is inside the screen too', () => {
+    // FR-055's RATIONALE (MUST): what the fit measures is the drawn extent,
+    // and what counts towards it is table T-038 -- whose OC-5 row is the actual
+    // bar that runs outside its plan, in both directions. So the fit is taken
+    // on the plan AND on the part of the actual sticking out of it, and OP-10
+    // is what makes boot run that fit at all.
+    //
+    // ⚠️ The two sibling cases above cannot see this: they drive plan-only
+    // Tasks, and a fit measured on plans alone still puts every plan bar on
+    // screen. What leaves the screen is the actual. FR-055's RATIONALE spells
+    // out the cost in the other direction -- an overhang to the left ends up
+    // behind the row title panel, where no scroll position reaches it.
+    const late = twoRowDocument((draft) => {
+      draft.schedule.tasks[0].actualStart = LATE_ACTUAL_START
+      draft.schedule.tasks[0].actualDuration = LATE_ACTUAL_WORKED_DAYS
+    })
+    expect(validateDocument(late).valid).toBe(true)
+
+    const pane = host()
+    const values = frameLoop(pane.surface, late, SCREEN).current()!
+    const placement = values.layout.placements.find((p) => p.taskUid === 1)!
+    const rowArea = values.regions.rowArea
+    const actualEnd = placement.actualX! + placement.actualWidth
+
+    // ⛔ The premise. OC-6 takes the horizontal extent of a below-shifted actual
+    // back out of the count, so this case only means what it says while the
+    // actual is drawn on the plan (table T-012, SH-1 / SH-2)...
+    expect(placement.actualPlacement).toBe('inside')
+    // ...and only while that actual really does run past its plan (RV-1 puts
+    // its right end at `actualStart` plus `actualDuration` in worked days).
+    expect(placement.actualX).not.toBeNull()
+    expect(actualEnd).toBeGreaterThan(placement.x + placement.width)
+
+    // LC-7 sums the occupancy from table T-038, so it reaches the actual's end.
+    expect(placement.occupiedX1).toBeGreaterThanOrEqual(actualEnd)
+
+    // And the fit was taken on that: the whole actual bar is on screen.
+    expect(placement.actualX!).toBeGreaterThanOrEqual(rowArea.x)
+    expect(actualEnd).toBeLessThanOrEqual(rowArea.x + rowArea.width)
+
+    // The extent grew, so the fit had to give a day less room than it does for
+    // the same document without the actual. Measuring the plan alone would
+    // hand back that same zoom and draw the overhang off the right edge.
+    const planOnly = frameLoop(pane.surface, twoRowDocument(), SCREEN).current()!
+    expect(values.layout.pxPerDay).toBeLessThan(planOnly.layout.pxPerDay)
   })
 
   it('is a reading rule: the stored place stays null, OP-6 does not fill it in', () => {

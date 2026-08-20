@@ -23,10 +23,11 @@
 //
 // ⭐ WHAT MAY ARRIVE AS AN ARGUMENT is fixed by that same file. This component's
 // outgoing edges are ScreenRegions, ScreenState, Schedule, DocumentSettings,
-// Selection, DialogueLog and PostDialogueMessage, and the imports below are one
-// per edge. ⛔ Nothing here may reach ScheduleLayout or ScheduleGeometry, which
-// is why what only they can measure arrives as plain rectangles in
-// `ScreenSession`.
+// Selection, DialogueLog and PostDialogueMessage, and the imports from outside
+// this folder are one per edge -- the nine beside them are this folder's own
+// units, which are not edges. ⛔ Nothing here may reach ScheduleLayout or
+// ScheduleGeometry, which is why what only they can measure arrives as plain
+// rectangles in `ScreenSession`.
 //
 // ⭐ WHERE A RECTANGLE APPEARS. A part carries one only where a requirement
 // fixes its geometry: the scrollbar lanes and the divider bands (FR-051 /
@@ -51,7 +52,7 @@
 
 import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { Schedule } from '../../entity/document-model/schedule/schedule'
+import type { Exception, Schedule, WeekDay } from '../../entity/document-model/schedule/schedule'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
@@ -59,7 +60,16 @@ import type {
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
+import { appHeaderItemsFromDocument } from './app-header-items'
+import { commandPaletteFromScreenState } from './command-palette'
+import { dialogueFieldFromLog } from './dialogue-field'
+import { noticesFromSession } from './notices'
+import { openModalFromScreenState } from './open-modals'
+import { propertiesPanelFromSelection } from './properties-panel'
+import { rowTitlePanelFromSchedule } from './row-title-panel'
+import { screenFrameFromRegions } from './screen-frame'
 import type { DialogueInput } from './screen-surface'
+import { tooltipsFromScreenView } from './tooltips'
 
 export type { DialogueInput, ScreenSurface } from './screen-surface'
 
@@ -238,8 +248,15 @@ export interface RowTitle {
    */
   readonly box: ScreenRect
   /**
-   * `TaskGroup.label` (AT-53) after FR-085's truncation, or `null` where the
-   * row carries none.
+   * The name the row is shown by, after FR-085's truncation, or `null` where
+   * none could be resolved.
+   *
+   * ⭐ TWO COLUMNS CAN HOLD IT. `TaskGroup.label` (AT-53) where the row carries
+   * one; where it does not, FR-058 (MUST) shows the name of the `Task` the row
+   * was derived from (`derivedFromTaskUid`, AT-54). ⛔ FR-058 also forbids a row
+   * with neither (MUST NOT), and AT-54 carries that same rule as a document
+   * invariant -- so `null` here is either a document that broke one of them or a
+   * derivation whose `Task` has no name of its own (AT-27).
    *
    * ⛔ FR-085 fixes the width it is cut to: `rowTitlePanelWidth` (S-79) less the
    * indent for its depth (`rowTitleIndent`, S-37) less the room kept for the
@@ -249,7 +266,41 @@ export interface RowTitle {
    * here; FR-085 says so in as many words.
    */
   readonly label: string | null
-  /** FR-085 (MUST): what was cut is shown whole in a tooltip. */
+  /**
+   * The same name BEFORE FR-085's cut -- the whole of it, which that
+   * requirement (MUST) shows in a tooltip -- or `null` where none could be
+   * resolved.
+   *
+   * ⭐ IT IS THE RESOLVED NAME, NOT `TaskGroup.label` (AT-53) AS STORED. Where
+   * the row carries none, FR-058 (MUST) shows the name of the `Task` it was
+   * derived from (AT-54, whose name is AT-27), and the whole of what a reader
+   * was shown is the whole of THAT name. ⭐ It is resolved once, here, rather
+   * than a second time by whoever raises the tooltip: FR-058's substitution
+   * stated twice is a rule that can drift.
+   *
+   * ⭐ IT IS FILLED WHETHER OR NOT THE NAME WAS CUT, so no caller has to ask a
+   * second question to learn the row's name. The three cases are:
+   *
+   * ```
+   * no name resolved  wholeLabel null   label null          isLabelTruncated false
+   * name that fits    wholeLabel === label                  isLabelTruncated false
+   * name that was cut label is its leading part             isLabelTruncated true
+   * ```
+   *
+   * ⛔ `isLabelTruncated` is exactly `wholeLabel !== null && wholeLabel !== label`.
+   * The flag stays because it is the question a tooltip asks, not because it can
+   * ever answer differently from these two.
+   *
+   * ⚠️ It is the WHOLE name and not the tail that was dropped. FR-085 asks for
+   * the name shown in full, and a tooltip built from the tail alone would show
+   * the end of a name whose beginning the reader cannot see beside it.
+   */
+  readonly wholeLabel: string | null
+  /**
+   * FR-085 (MUST): a name that did not fit is cut, and shown whole in a tooltip.
+   * This is the question that tooltip is raised on -- FR-085 states no pointer
+   * condition -- and `wholeLabel` above is what it shows.
+   */
   readonly isLabelTruncated: boolean
   /** U-47 `Row Expander`. `null` where nothing sits under the row. */
   readonly expander: RowExpander | null
@@ -291,14 +342,36 @@ export interface PropertiesPanel {
   /**
    * FR-072 (MUST): when the selection went away the panel KEEPS the fields it
    * had and says so in the heading. True is that state.
+   *
+   * ⭐ WHAT IS KEPT IS THE SUBJECT, NOT THE DRAWN FIELDS. FR-072 also says that
+   * pressing the same entry again brings the panel back to what was selected
+   * before, so the thing to remember is the subject; the fields are worked out
+   * from the document each frame, and keeping the drawn ones would go on showing
+   * values that an edit had already made untrue. `ScreenSession.propertiesSubject`
+   * is that memory.
    */
   readonly isSubjectGone: boolean
-  /** Table T-016's items, or the drawing settings, according to `showing`. */
+  /**
+   * The items of the subject `showing` names, or the drawing settings.
+   *
+   * ⚠️ THREE ROSTERS, NOT TWO. FR-006 gives table T-016's items for a selected
+   * `Task`; FR-042 gives a selected ROW its band colour (AT-58) and its height
+   * (AT-59), which table T-016 does not hold because that table is the `Task`
+   * one; and the settings side is table T-104's keys. All three are `showing:
+   * 'selection'` except the last -- FR-072 knows only two panels.
+   */
   readonly fields: readonly PropertyField[]
 }
 
 export interface PropertyField {
-  /** The row that holds this item: `PR-n` of table T-016, or `K-n` of table T-104. */
+  /**
+   * The row that holds this item: `PR-n` of table T-016 (a `Task`, FR-006),
+   * `AT-58` / `AT-59` of table T-058 (a row's colour and height, FR-042), or
+   * `K-n` of table T-104 (the settings).
+   *
+   * ⚠️ FR-042's two are named by their COLUMN rather than by a `PR-n`, because
+   * table T-016 has no row for either and rule 03 forbids minting one here.
+   */
   readonly row: string
   /**
    * Table T-016's own item name.
@@ -348,33 +421,196 @@ export interface PaletteGroup {
 // ------------------------------------------------------------ UF-66 ---------
 
 /**
- * A surface opened over the screen (UF-66). IN-4 of table T-028 defines it as
- * what the first press of Esc closes, and S-99g holds which one is open.
+ * What every surface carries, whichever one is open (UF-66). IN-4 of table
+ * T-028 defines a surface as what the FIRST press of Esc closes, and S-99g
+ * holds which one is open.
  *
  * ⚠️ Singular, although UF-70's file is named for the plural: `ScreenState`
  * carries ONE open surface (S-99g), so at most one is described at a time. The
  * plural in the file name is the set of surfaces that CAN be opened.
  *
- * ⛔ WHAT EACH SURFACE SHOWS IS NOT MODELLED HERE. The five that FR-036 /
- * FR-074 / FR-099 / FR-088 / FR-068 open show unlike things -- a roster with a
- * selection, a calendar, a form, a copyable document. UF-66 declares the shape
- * of each as it writes them and adds them to this type; putting a general
- * container here first would be a guess with nothing behind it.
+ * ⚠️ Not exported and never held alone -- a value of this type is a surface with
+ * no name. `OpenModal` is what a caller receives.
  */
-export interface OpenModal {
-  /**
-   * The name `ScreenState.surface` carries (S-99g).
-   *
-   * ⛔ Table T-103 has settled only two of them -- `Help Modal` / `AI Export
-   * Modal` (U-30) and `Resource Roster` (U-49). The surfaces FR-074 and FR-088
-   * open have no settled name, so no name is minted here for them.
-   */
-  readonly surface: string
+interface OpenSurface {
   /** In the display language. */
   readonly heading: string
   /** IC-52 closes it, and Esc's first level does the same (IN-4). */
   readonly commands: readonly CommandItem[]
 }
+
+/** U-30 `Help Modal` of table T-103 -- the half of that row FR-036 opens. */
+export interface HelpModal extends OpenSurface {
+  readonly surface: 'Help Modal'
+  /**
+   * FR-036 (MUST): what the help has to show -- every row of tables T-023a,
+   * T-023b, T-023c, T-023d, T-023 and T-036, and every entry of the `Command
+   * Palette`.
+   *
+   * ⛔ NOT A ROSTER. FR-036 counts them itself and rule 03 forbids re-typing
+   * what a table holds. ⚠️ None of those tables is generated into `src/` the way
+   * `icon-roster.json` is, so either they reach the code that way or a copy goes
+   * stale in silence -- the gap `AppHeaderItems.commands` already records.
+   * ⚠️ Grouping and paging are the surface's: FR-036 asks the help to need no
+   * scrolling at MC-6 of table T-025, and that is a layout, not a description.
+   */
+  readonly entries: readonly HelpEntry[]
+  /**
+   * FR-038 (MUST): which language is on NOW, readable BEFORE the toggle is
+   * pressed. ⛔ `CommandItem` cannot carry it -- `isPressed` is a toggle that is
+   * on, and a choice between two languages has no off. The entry itself (IC-21)
+   * stands in `commands`, which is where FR-038 puts the second of its two.
+   */
+  readonly language: DisplayLanguage
+  /** FR-069 (MUST): the whole licence text, which the help is where one reads. */
+  readonly licenceText: string
+  /** FR-069 (MUST): the copyright notice. */
+  readonly copyrightNotice: string
+  /** FR-069 (MUST): the third-party attributions, one per library. */
+  readonly attributions: readonly string[]
+}
+
+/** One line the help shows. */
+export interface HelpEntry {
+  /** The table FR-036 names, e.g. `T-036`. */
+  readonly table: string
+  /**
+   * Its row, e.g. `MK-1`.
+   *
+   * ⭐ A row id for the same reason `IconId` and `Notice.manner` are ones: it is
+   * the join the specification prescribes, and it cannot go stale when the rule
+   * it names changes.
+   */
+  readonly row: string
+  /** In the display language. */
+  readonly text: string
+}
+
+/** U-30 `AI Export Modal` of table T-103 -- the half of that row FR-068 opens. */
+export interface AiExportModal extends OpenSurface {
+  readonly surface: 'AI Export Modal'
+  /**
+   * FR-068: the document that would be handed to an AI. One value, because the
+   * requirement shows and copies the same thing.
+   *
+   * ⛔ NO ENTRY FOR THE COPY. FR-068 asks for a way to put it on the clipboard,
+   * and table T-109 -- which FR-029 makes the whole of the icons (MUST) -- holds
+   * no row for one, so a `CommandItem` for it would mint an icon. The text is
+   * carried; the control is a gap in table T-109.
+   */
+  readonly documentText: string
+}
+
+/** U-49 `Resource Roster` of table T-103, which FR-099 opens. */
+export interface ResourceRoster extends OpenSurface {
+  readonly surface: 'Resource Roster'
+  /** FR-099: the resources the document holds, in `Schedule.resources`' own order. */
+  readonly resources: readonly RosterResource[]
+}
+
+/** One resource as the roster shows it. */
+export interface RosterResource {
+  /** `Resource.uid` (AT-85). */
+  readonly uid: number
+  /**
+   * `Resource.name` (AT-86), or `null` where the resource carries none.
+   * ⚠️ Never translated: FR-038 leaves the document's own values alone.
+   */
+  readonly name: string | null
+  /**
+   * FR-099 (MUST): one of the two ways of deleting takes every resource that no
+   * assignment refers to, so which ones those are has to be readable.
+   */
+  readonly isReferenced: boolean
+  /**
+   * FR-099 (MUST): the other way takes the chosen ones, and the surface carries
+   * a select-all and a clear-all beside them. Which are chosen arrives in
+   * `ScreenSession.selectedResourceUids`.
+   */
+  readonly isSelected: boolean
+  /**
+   * FR-099 (MUST NOT): what a deletion would unassign is shown by NAME, and
+   * reducing it to a count is forbidden in as many words.
+   *
+   * `Task.name` (AT-27) for every task the chain CD-5 of table T-050 would
+   * reach, and `null` for a task that carries no name of its own.
+   */
+  readonly unassignedTaskNames: readonly (string | null)[]
+}
+
+/**
+ * The surface open over the screen, described as the requirement that opens it
+ * asks for (UF-66).
+ *
+ * ⭐ DISCRIMINATED ON THE SURFACE, so a reader can tell from the type which one
+ * carries what. Five requirements open one -- FR-036, FR-074, FR-099, FR-088 and
+ * FR-068, the UF-66 row of table T-075 -- and the name of each is what
+ * `ScreenState.surface` carries (S-99g).
+ *
+ * ⛔ THREE NAMES ARE SETTLED AND TWO ARE NOT. Table T-103 spells `Help Modal`
+ * and `AI Export Modal` (U-30) and `Resource Roster` (U-49), copied here
+ * spelling and all. FR-074's surface and FR-088's have no row in that table, so
+ * ⛔ no name is minted for either: each is carried by the one thing the
+ * specification does give it, its requirement's own UID -- the move `IconId`
+ * makes with `IC-7` and `Notice.manner` with `NT-1`.
+ *
+ * ⚠️ THE LAST MEMBER TAKES ANY OTHER NAME, and it is not a spare shape: S-99g
+ * holds a name rather than a choice among five, so a name outside the five has
+ * to stay describable. ⛔ It is also why this type cannot by itself force the
+ * five payloads to be filled -- a bare `{ surface, heading, commands }` lands
+ * there whatever its name. What requires them is the requirement, not the type.
+ * ⚠️ For the same reason, a caller narrows by what a member carries
+ * (`'resources' in modal`) rather than by comparing the name: a `string`
+ * discriminant is comparable to every literal, so TypeScript keeps the last
+ * member in every comparison.
+ *
+ * @provisional PD-140
+ */
+export type OpenModal =
+  | HelpModal
+  | AiExportModal
+  | ResourceRoster
+  // FR-074's surface, which table T-103 has not named.
+  | (OpenSurface & {
+      readonly surface: 'FR-074'
+      /**
+       * FR-074 (MUST): the rows of table T-224, each with the column it writes
+       * and whether it may be edited -- PF-9 and PF-10 may not, because both are
+       * written straight back to the exchange partner and FR-021's lossless
+       * round trip would stop meaning anything if a person could change them.
+       * ⛔ That table is the whole of what this surface writes, and the
+       * document's title is not in it (FR-035 owns the one entry).
+       */
+      readonly fields: readonly PropertyField[]
+    })
+  // FR-088's surface, which table T-103 has not named either.
+  // ⚠️ The number of `Task`s a change reaches is NOT a member, although FR-088
+  // makes telling it a MUST: NT-3 of table T-037 already carries a count on a
+  // notice, and `Notice.affectedCount` is it. Two places would be two answers.
+  | (OpenSurface & {
+      readonly surface: 'FR-088'
+      /**
+       * The `WeekDay` rows (AT-70) of the calendar FR-054 resolves for the
+       * document -- FR-088's working weekdays.
+       *
+       * ⛔ Carried as the column holds them, and NOT renumbered.
+       * `WeekDay.dayType` (AT-73) makes Sunday 1 and `Project.weekStartDay`
+       * (AT-17) makes Sunday 0, so the two codings are ONE APART; converting
+       * either here would put one weekday under two numbers on one surface.
+       */
+      readonly weekDays: readonly WeekDay[]
+      /** Its `Exception` rows (AT-71) -- FR-088's exception days. */
+      readonly exceptions: readonly Exception[]
+      /**
+       * `Project.weekStartDay` (AT-17), whose place FR-088 fixes as `Project`
+       * rather than the calendar. `null` where the document carries none.
+       */
+      readonly weekStartDay: number | null
+    })
+  // Any other name S-99g carries. ⛔ Nothing beyond the three members every
+  // surface has: with no settled name for FR-074's surface or FR-088's, a caller
+  // that spelled either differently cannot be told from the other.
+  | (OpenSurface & { readonly surface: string })
 
 // ------------------------------------------------------------ UF-67 ---------
 
@@ -497,6 +733,21 @@ export interface ScreenView {
 }
 
 /**
+ * What the properties panel is pinned to (FR-072).
+ *
+ * ⭐ TWO SETS, because rows are selected apart from everything else: SL-1 of
+ * table T-023c leaves them out of the drawing area's selection and FR-085 gives
+ * them their own. A subject can hold one, the other, or both -- the panel shows
+ * the properties of whatever the last operation picked.
+ */
+export interface PropertiesSubject {
+  /** The table T-023c selection as it stood when the last operation chose it. */
+  readonly selection: Selection
+  /** The rows FR-085 had selected then, by `TaskGroup.id` (AT-51). */
+  readonly groupIds: readonly string[]
+}
+
+/**
  * What the shell holds for this reading session and hands over each frame.
  *
  * ⭐ Why any of this is an argument at all: LY-5 of table T-060 leaves the
@@ -528,8 +779,61 @@ export interface ScreenSession {
    * number is in the settings, not here.
    */
   readonly pointerRestedMs: number
+  /**
+   * EZ-2 of table T-040 (MUST): the icon the pointer is resting ON, or `null`
+   * while it rests on none. The explanation EZ-2 shows is THAT icon's.
+   *
+   * ⭐ WHY THE ANSWER COMES FROM THE SHELL. EZ-2 states a TIME condition, which
+   * `pointerRestedMs` answers, and a PLACE condition, which nothing this
+   * component may reach can: no part of `ScreenView` carries an entry's
+   * rectangle, PI-35's rectangles are the regions and not the entries inside
+   * them, and `_source/components.json` gives this component no edge to
+   * ScheduleLayout. The unit that DREW the entries is DomScreenSurface (PI-38),
+   * so the shell is the one side that knows -- which is what this whole type is
+   * for.
+   *
+   * ⛔ NO TABLE HOLDS IT. Searched: FR-092 (table T-040), FR-029, table T-109,
+   * table T-203 and table T-206. Recommended because the alternative -- an
+   * `IconId` keyed to a rectangle inside `ScreenView` -- would make every unit
+   * that emits a `CommandItem` invent a layout it cannot measure.
+   *
+   * @provisional PD-141
+   */
+  readonly iconUnderPointer: IconId | null
   /** Where the person dragged the palette to (FR-053). See `CommandPalette.box`. */
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
+  /**
+   * FR-085 (MUST): the rows selected in the `Row Title Panel`, by
+   * `TaskGroup.id` (AT-51). FR-042 reads the same set -- the row whose band
+   * colour (AT-58) and height (AT-59) the properties panel puts up is the row
+   * selected here.
+   *
+   * ⚠️ NOT the set table T-023c governs. SL-1 leaves rows out of the drawing
+   * area's selection in as many words, and FR-085 says the two are separate, so
+   * `Selection` (PI-32) cannot hold them: its `SelectableKind` is SL-1's five.
+   *
+   * ⛔ NOTHING IN THE SPECIFICATION HOLDS THE SET. Searched: `Selection`,
+   * `ScreenState` (S-99e / S-99f / S-99g), table T-203 and table T-206. It sits
+   * here for the reason `propertiesShowing` does -- LY-5 of table T-060 leaves
+   * the Framework as the only layer that may hold a current value, and a
+   * selection is not part of the document (UN-9 of table T-027). ⚠️ It is lost
+   * with the page.
+   *
+   * @provisional PD-142
+   */
+  readonly selectedGroupIds: readonly string[]
+  /**
+   * FR-099 (MUST): the resources chosen in the `Resource Roster` (U-49), by
+   * `Resource.uid` (AT-85) -- what its select-all and clear-all operate on and
+   * what its second way of deleting takes.
+   *
+   * ⛔ NOTHING HOLDS THIS EITHER, and SL-1 does not admit a resource. Searched
+   * as above. Empty is "none chosen"; a roster that is not open leaves it empty
+   * too, because S-99g already says which surface is up.
+   *
+   * @provisional PD-143
+   */
+  readonly selectedResourceUids: readonly number[]
   /**
    * FR-072: which of the two the LAST operation chose, or `null` while the
    * properties panel is closed.
@@ -540,6 +844,24 @@ export interface ScreenSession {
    * states the rule as a MUST.
    */
   readonly propertiesShowing: 'selection' | 'documentSettings' | null
+  /**
+   * FR-072 (MUST): what the panel was showing when the selection went away, so
+   * that it can go on showing it and say so in the heading. `null` while no
+   * operation has chosen a subject yet.
+   *
+   * ⭐ THE SUBJECT, NOT THE DRAWN FIELDS. FR-072 also requires a second press of
+   * the same entry to bring the panel back to what was selected before, so what
+   * has to be remembered is the subject. Keeping the fields instead would go on
+   * showing values that an edit had already made untrue, and `PropertyField`
+   * carries no way to say a value has stopped being current.
+   *
+   * ⛔ NOTHING HOLDS IT, for the same reason `propertiesShowing` is not held:
+   * table T-203 keeps a width for the panel (S-80) and no key for its subject,
+   * and table T-206 has no row for one.
+   *
+   * @provisional PD-144
+   */
+  readonly propertiesSubject: PropertiesSubject | null
   /** What has been raised to tell (FR-076). UF-67 decides which are shown, and in what order. */
   readonly notices: readonly Notice[]
   /**
@@ -562,8 +884,9 @@ export interface ScreenSession {
 // ------------------------------------------------- the nine unit contracts ---
 //
 // ⭐ THE CONTRACT THE NINE INTERNAL UNITS ARE WRITTEN AGAINST. Each fills one
-// member of `ScreenView` and reads none of the others. ⛔ None of them is
-// written yet, and nothing below calls them.
+// member of `ScreenView` and reads none of the others -- except UF-69, which is
+// handed the eight. All nine are written, and `screenViewFromRegions` below
+// calls them in the order the UF-69 note at the foot of this section fixes.
 //
 //   UF-61  screen-frame.ts
 //     export function screenFrameFromRegions(
@@ -645,44 +968,41 @@ export interface ScreenSession {
 /**
  * The description of one frame's UI parts outside the schedule.
  *
- * ⛔ NOT THE FINISHED VIEW. UF-61 to UF-69 are not written, so nothing is
- * described: every list is empty and every surface that can be absent is
- * absent. ⚠️ Three members do carry a value, and each is carried across rather
- * than computed -- `isFullScreen` off S-99f, `documentTitle` off `Project.title`
- * and `autosaveStatus` off the session. Nothing here stands in for a value that
- * has still to be worked out: an empty `commands` says the header draws no
- * entries, which is what is true of this build.
+ * ⭐ THE EIGHT, THEN UF-69. The eight parts are built first and handed to
+ * `tooltipsFromScreenView` as one value, because what a tooltip explains is one
+ * of the parts the other eight described. That is the only order this function
+ * chooses: the eight read none of each other, so among themselves they stand in
+ * the order `ScreenView` prints them.
  *
- * ⚠️ The arguments nothing reads yet carry a leading underscore, which is what
- * keeps `noUnusedParameters` green AND says at a glance which of them the body
- * has begun to use. They lose it as the nine units are wired in.
+ * ⚠️ NO RULE OF ITS OWN LIVES HERE. Every requirement is answered by the unit
+ * that owns it, and this function only hands each one the arguments its contract
+ * asks for. ⭐ So a rule that looks missing from the screen is missing from that
+ * unit, and its STOP note there says why -- looking for it in this file will
+ * find nothing.
  *
  * @purity pure
  */
 export function screenViewFromRegions(
-  _regions: ScreenRegions,
+  regions: ScreenRegions,
   schedule: Schedule,
-  _settings: DocumentSettings,
-  _selection: Selection,
+  settings: DocumentSettings,
+  selection: Selection,
   state: ScreenState,
-  _dialogueLog: DialogueLog,
+  dialogueLog: DialogueLog,
   session: ScreenSession,
 ): ScreenView {
-  return {
-    frame: { isFullScreen: state.fullScreen, dividers: [], scrollbars: [] },
-    appHeaderItems: {
-      documentTitle: schedule.project.title,
-      autosaveStatus: session.autosave,
-      commands: [],
-    },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
-    propertiesPanel: null,
-    commandPalette: null,
-    openModal: null,
-    notices: [],
-    dialogueField: null,
-    tooltips: [],
+  const shown: Omit<ScreenView, 'tooltips'> = {
+    frame: screenFrameFromRegions(regions, settings, state),
+    appHeaderItems: appHeaderItemsFromDocument(schedule, settings, state, session),
+    rowTitlePanel: rowTitlePanelFromSchedule(schedule, settings, selection, session),
+    propertiesPanel: propertiesPanelFromSelection(schedule, settings, selection, session),
+    commandPalette: commandPaletteFromScreenState(state, selection, session),
+    openModal: openModalFromScreenState(state, schedule, session),
+    notices: noticesFromSession(session),
+    dialogueField: dialogueFieldFromLog(dialogueLog, session),
   }
+
+  return { ...shown, tooltips: tooltipsFromScreenView(shown, settings, session) }
 }
 
 /**

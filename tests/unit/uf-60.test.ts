@@ -1,0 +1,814 @@
+// Unit tests for `screenViewFromRegions` and `dialogueMessageFromInput` (unit
+// UF-60 of table T-075, component CP-37 of table T-062, published as PI-37 of
+// table T-064).
+//
+// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
+// the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
+// tests/unit/.
+//
+// ⭐ WHAT IS UNDER TEST IS THE COMPOSITION. UF-60's row of table T-075 says it
+// binds the nine UI-part files together and publishes them; the nine own every
+// rule about what a part looks like, and tests/unit/uf-61.test.ts ..
+// uf-69.test.ts already drive those. ⛔ Nothing below re-tests them. What is
+// tested here is only what the binding can get wrong:
+//
+//   1. every one of the nine members of `ScreenView` is filled, and filled from
+//      its OWN unit -- table T-075 gives the component eleven units, nine of
+//      which describe one part each (UF-61 .. UF-69);
+//   2. the ORDER. `tooltipsFromScreenView` takes the eight already built, so a
+//      tooltip that explains a part has to see that part as the other eight
+//      built it -- not as some earlier or emptier value;
+//   3. the ARGUMENTS. Each of the nine has a fixed argument list, and a caller
+//      that hands one the wrong value cannot be caught by that unit's own
+//      tests;
+//   4. a part that is ABSENT -- a closed properties panel (FR-072), a hidden
+//      palette (S-99e), no open surface (S-99g), the `Agent API` off (FR-066)
+//      -- comes back `null` without making a neighbour wrong;
+//   5. `dialogueMessageFromInput` refuses what has not been settled. AG-11 of
+//      table T-035 states that as a MUST NOT.
+//
+// ⛔ HOW THE EXPECTED VALUES ARE OBTAINED (docs/development-rules/
+// 04-verification.md, section 1). What was read: docs/spec/ for every rule
+// named below, docs/development-rules/, the entity types the arguments are
+// built from, and in `screen-renderer.ts` its head comment, its declared types
+// and its exported signatures -- including the "nine unit contracts" section,
+// which is the declaration of what each of the nine is handed.
+//
+// ⚠️ HONEST NOTE ON WHAT WAS SEEN. The body of `screenViewFromRegions` sits in
+// the same file as those declarations and was seen while reading them. ⭐ No
+// expected value below is taken from it: every member is compared against the
+// answer of the unit that table T-075 makes its owner, called with the
+// arguments the contract section declares. That comparison is the composition's
+// whole contract, and it is written from the contract, not from the body.
+//
+// The rules these cases answer to:
+//   表 T-075   UF-60 binds the nine UI-part files and publishes them; UF-61 ..
+//              UF-69 are those nine, and the component is `pure`
+//   表 T-064   PI-37 publishes `ScreenView`, `screenViewFromRegions` and
+//              `dialogueMessageFromInput`, and points the last one at AG-11
+//   AG-11      表 T-035 (docs/spec/01-04-requirements.md:3491) -- its last
+//              clause is a MUST NOT against reading the half-typed line as an
+//              utterance, and it makes the log count utterances in an order of
+//              its own, which `logWithMessage` (PI-33) assigns, not this unit
+//   FR-066     the dialogue field stands while the `Agent API` is on
+//   FR-072     the properties panel shows one of two, and is closed when the
+//              session names neither
+//   S-99e      the palette's shown-or-hidden state, kept out of the document
+//   S-99g      the one open surface, and none open by default
+//   FR-085     a row name that does not fit is cut and shown whole in a tooltip
+//   FR-037     the faster assignment is shown while the pointer rests on a
+//              scrollbar, and taken away when it leaves
+//   EZ-2       表 T-040: an icon explains itself once the pointer has rested on
+//              it longer than `iconHintDelayMs` (S-124)
+//   R7.1/R7.6  `pure` in table T-075: what was handed over comes back untouched
+//              and the same frame answers the same way twice
+//
+// ⭐ THREE THINGS THIS FILE DELIBERATELY DOES NOT ASSERT:
+//   1. WHAT any part contains. That is the nine units' own contract, and
+//      tests/unit/uf-61.test.ts .. uf-69.test.ts already drive it. Every
+//      assertion here is either "this member equals what its own unit answers"
+//      or "this member is null".
+//   2. THE KEY ORDER of the returned object. `ScreenView` prints its members in
+//      UF-61 .. UF-69 order, but no requirement makes the enumeration order of
+//      a JavaScript object observable, so the cases compare the SET of members.
+//   3. WHETHER AN EMPTY OR BLANK utterance is refused. AG-11 and FR-066 state
+//      no rule on the text and `_assets/tbl-settings.md` holds no dialogue row,
+//      so a case asserting either way would settle a rule the specification has
+//      not. What is asserted is that settledness alone decides.
+
+import { describe, expect, it } from 'vitest'
+
+import {
+  emptyDialogueLog,
+  logWithMessage,
+  type DialogueLog,
+} from '../../src/entity/document-model/dialogue-log/dialogue-log'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
+import type { Schedule, Task, TaskGroup } from '../../src/entity/document-model/schedule/schedule'
+import {
+  emptyScreenState,
+  screenStateWithPalette,
+  screenStateWithSurface,
+  type ScreenState,
+} from '../../src/entity/document-model/screen-state/screen-state'
+import { emptySelection, type Selection } from '../../src/entity/document-model/selection/selection'
+import type {
+  ScreenRect,
+  ScreenRegions,
+} from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
+import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import { dialogueFieldFromLog } from '../../src/adapter/screen-renderer/dialogue-field'
+import { noticesFromSession } from '../../src/adapter/screen-renderer/notices'
+import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
+import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
+import { screenFrameFromRegions } from '../../src/adapter/screen-renderer/screen-frame'
+import {
+  dialogueMessageFromInput,
+  screenViewFromRegions,
+  type DialogueInput,
+  type ScreenSession,
+  type ScreenView,
+  type Tooltip,
+} from '../../src/adapter/screen-renderer/screen-renderer'
+import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+
+// ---------------------------------------------------------------------------
+// Fixed copies of the specification the cases are driven by (Chapter 1.9).
+// ---------------------------------------------------------------------------
+
+/**
+ * 表 T-075 -- the nine rows of the `ScreenRenderer` component that describe one
+ * UI part each, in the table's own printed order, against the member of
+ * `ScreenView` each one fills.
+ *
+ * ⭐ The unit and the file name are the table's; the member name is the one the
+ * declared type publishes for that unit (its doc comment names the row).
+ */
+const T_075_PARTS = [
+  { unit: 'UF-61', file: 'screen-frame.ts', member: 'frame' },
+  { unit: 'UF-62', file: 'app-header-items.ts', member: 'appHeaderItems' },
+  { unit: 'UF-63', file: 'row-title-panel.ts', member: 'rowTitlePanel' },
+  { unit: 'UF-64', file: 'properties-panel.ts', member: 'propertiesPanel' },
+  { unit: 'UF-65', file: 'command-palette.ts', member: 'commandPalette' },
+  { unit: 'UF-66', file: 'open-modals.ts', member: 'openModal' },
+  { unit: 'UF-67', file: 'notices.ts', member: 'notices' },
+  { unit: 'UF-68', file: 'dialogue-field.ts', member: 'dialogueField' },
+  { unit: 'UF-69', file: 'tooltips.ts', member: 'tooltips' },
+] as const
+
+/** The eight UF-69 is handed, which is T-075's nine less UF-69 itself. */
+const T_075_EIGHT = T_075_PARTS.filter((part) => part.unit !== 'UF-69')
+
+/** 表 T-103 -- the settled name of the surface FR-036 opens, spelling and all. */
+const U_30_HELP = 'Help Modal'
+
+/** A row of 表 T-109 placed on the `App Header`: IC-7 shows and hides the palette. */
+const IC_COMMAND_PALETTE = 'IC-7'
+
+/**
+ * 表 T-109's IC-52 -- the entry that closes an open surface. ⭐ Used here
+ * because its surface column names the modals ALONE: FR-029 (MUST) makes that
+ * column the placement, so an entry that stands on the `App Header` as well
+ * (IC-21, which FR-038 puts in the help too) could not tell "the surface went"
+ * from "the header still has it".
+ */
+const IC_CLOSE_SURFACE = 'IC-52'
+
+// ---------------------------------------------------------------------------
+// Inputs. A whole `DocumentSettings` is 100+ keys, so a case pins the ones it
+// means and the rest come from the generated defaults -- ⛔ rule 03 of
+// docs/development-rules forbids re-typing a value the manuscript holds.
+// ---------------------------------------------------------------------------
+
+const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
+  ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
+
+/**
+ * The same numbers uf-63's cases are driven from: `rowTitleFont` x `labelCoef`
+ * is 10px per half-width character, so how much of a row name fits in
+ * `rowTitlePanelWidth` (S-79) is arithmetic rather than a measurement.
+ */
+const SETTINGS = settingsOf({
+  rowTitlePanelWidth: 400, // S-79
+  rowTitleIndent: 20, // S-37
+  rowTitleFont: 20, // S-36
+  rowTitleTopScale: 1, // S-38
+  labelCoef: 0.5, // S-30
+  maxGroupDepth: 5, // S-125
+  truncateUnits: 24, // S-35
+  pinnedGroupIds: [], // S-126
+  pinnedRowMax: 5, // S-127
+})
+
+/** `iconHintDelayMs` (S-124), read from the generated defaults, never typed. */
+const ICON_HINT_MS = SETTINGS_DEFAULTS['iconHintDelayMs'] as number
+
+/** `canvasPadding` (S-56), likewise. */
+const PADDING = SETTINGS_DEFAULTS['canvasPadding'] as number
+
+/**
+ * What the shell measured this frame. ⚠️ FR-051 (MUST NOT) keeps the header
+ * height and the bar thickness out of the settings, so none of these is a
+ * specification value and no case asserts one.
+ */
+const SCREEN = {
+  width: 1280,
+  height: 800,
+  appHeaderHeight: 56,
+  rulerHeight: 48,
+  rowTitlePanelWidth: SETTINGS.rowTitlePanelWidth as unknown as number,
+  propertyPanelWidth: 280,
+  canvasPadding: PADDING,
+  scrollbarThickness: 8,
+} as const
+
+/**
+ * The screen cut into table T-103's parts by FR-052's own expression -- the
+ * canvas width less `canvasPadding`, the two panel widths and the vertical bar
+ * is the `Row Area`'s width -- and U-50's, which takes the ruler band and the
+ * padding off the canvas height.
+ *
+ * ⭐ Built here rather than through `regionsFromScreen` (UF-58): these
+ * rectangles are this component's INPUT, and driving the input from another
+ * unit's code would make a shared misreading invisible.
+ */
+const regionsOf = (part: Partial<typeof SCREEN> = {}): ScreenRegions => {
+  const screen = { ...SCREEN, ...part }
+  const canvas: ScreenRect = {
+    x: 0,
+    y: screen.appHeaderHeight,
+    width: screen.width,
+    height: screen.height - screen.appHeaderHeight,
+  }
+  const rowAreaWidth =
+    canvas.width -
+    screen.canvasPadding -
+    screen.rowTitlePanelWidth -
+    screen.propertyPanelWidth -
+    screen.scrollbarThickness
+  const rowAreaHeight =
+    canvas.height - screen.rulerHeight - screen.canvasPadding - screen.scrollbarThickness
+
+  return {
+    appHeader: { x: 0, y: 0, width: screen.width, height: screen.appHeaderHeight },
+    scheduleCanvas: canvas,
+    rowTitlePanel: {
+      x: canvas.x,
+      y: canvas.y,
+      width: screen.rowTitlePanelWidth,
+      height: canvas.height,
+    },
+    timeRuler: {
+      x: canvas.x + screen.rowTitlePanelWidth,
+      y: canvas.y,
+      width: rowAreaWidth,
+      height: screen.rulerHeight,
+    },
+    propertiesPanel: {
+      x: canvas.x + canvas.width - screen.propertyPanelWidth,
+      y: canvas.y,
+      width: screen.propertyPanelWidth,
+      height: canvas.height,
+    },
+    rowArea: {
+      x: canvas.x + screen.rowTitlePanelWidth,
+      y: canvas.y + screen.rulerHeight,
+      width: rowAreaWidth,
+      height: rowAreaHeight,
+    },
+  }
+}
+
+const REGIONS = regionsOf()
+
+/** Every nullable column of ET-4 spelled out; leaving one `undefined` reads as "set". */
+const groupOf = (part: Record<string, unknown>): TaskGroup =>
+  ({
+    parentId: null,
+    label: null,
+    derivedFromTaskUid: null,
+    order: 0,
+    isCollapsed: null,
+    isHidden: null,
+    color: null,
+    height: null,
+    ...part,
+  }) as unknown as TaskGroup
+
+const scheduleOf = (groups: readonly TaskGroup[], tasks: readonly Task[] = []): Schedule =>
+  ({
+    project: { title: null, themeHue: 214, uidHighWaterMark: 0 },
+    calendars: [],
+    tasks,
+    resources: [],
+    assignments: [],
+    taskGroups: groups,
+    taskGroupMembers: [],
+    taskVisuals: [],
+    commentBoxes: [],
+    highlightBoxes: [],
+    taskOrigins: [],
+    baselineTasks: [],
+  }) as unknown as Schedule
+
+/** One half-width character costs 10px under SETTINGS, so 400 of them never fit. */
+const NAME_TOO_LONG = 'x'.repeat(400)
+
+/** Short enough to fit whole, so FR-085 has nothing to cut. */
+const NAME_THAT_FITS = 'ab'
+
+const SCHEDULE = scheduleOf([groupOf({ id: 'g1', label: NAME_THAT_FITS, order: 0 })])
+
+/** Where the shell drew the one row -- inside the `Row Title Panel`, clear of both lanes. */
+const ROW_BOX: ScreenRect = { x: 0, y: 104, width: 400, height: 24 }
+
+const SESSION: ScreenSession = {
+  language: 'ja',
+  autosave: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
+  isAgentApiEnabled: true,
+  pointer: null,
+  pointerRestedMs: 0,
+  iconUnderPointer: null,
+  commandPaletteAt: { x: 500, y: 300 },
+  selectedGroupIds: [],
+  selectedResourceUids: [],
+  propertiesShowing: 'selection',
+  propertiesSubject: null,
+  notices: [],
+  rowBoxes: [{ groupId: 'g1', box: ROW_BOX }],
+}
+
+const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+
+const STATE = screenStateWithSurface(emptyScreenState(), U_30_HELP)
+
+const LOG = [
+  { author: 'person', text: 'move the milestone', settledAt: '2026-08-19T09:00:00Z' },
+  { author: 'ai', text: 'moved it to the 21st', settledAt: '2026-08-19T09:00:04Z' },
+].reduce(logWithMessage, emptyDialogueLog())
+
+/** The whole argument list of `screenViewFromRegions`, in its declared order. */
+interface Frame {
+  readonly regions: ScreenRegions
+  readonly schedule: Schedule
+  readonly settings: DocumentSettings
+  readonly selection: Selection
+  readonly state: ScreenState
+  readonly dialogueLog: DialogueLog
+  readonly session: ScreenSession
+}
+
+const FRAME: Frame = {
+  regions: REGIONS,
+  schedule: SCHEDULE,
+  settings: SETTINGS,
+  selection: emptySelection(),
+  state: STATE,
+  dialogueLog: LOG,
+  session: SESSION,
+}
+
+const frameWith = (part: Partial<Frame>): Frame => ({ ...FRAME, ...part })
+
+// ---------------------------------------------------------------------------
+// Reading the answer, and the oracle it is read against.
+// ---------------------------------------------------------------------------
+
+const viewOf = (frame: Frame = FRAME): ScreenView =>
+  screenViewFromRegions(
+    frame.regions,
+    frame.schedule,
+    frame.settings,
+    frame.selection,
+    frame.state,
+    frame.dialogueLog,
+    frame.session,
+  )
+
+/**
+ * What each of the eight owners answers when called with the arguments its own
+ * contract declares. ⭐ This -- not a copy of a part's contents -- is what the
+ * composition owes: table T-075 makes each unit the owner of one member.
+ */
+const eightFrom = (frame: Frame): Omit<ScreenView, 'tooltips'> => ({
+  frame: screenFrameFromRegions(frame.regions, frame.settings, frame.state),
+  appHeaderItems: appHeaderItemsFromDocument(
+    frame.schedule,
+    frame.settings,
+    frame.state,
+    frame.session,
+  ),
+  rowTitlePanel: rowTitlePanelFromSchedule(
+    frame.schedule,
+    frame.settings,
+    frame.selection,
+    frame.session,
+  ),
+  propertiesPanel: propertiesPanelFromSelection(
+    frame.schedule,
+    frame.settings,
+    frame.selection,
+    frame.session,
+  ),
+  commandPalette: commandPaletteFromScreenState(frame.state, frame.selection, frame.session),
+  openModal: openModalFromScreenState(frame.state, frame.schedule, frame.session),
+  notices: noticesFromSession(frame.session),
+  dialogueField: dialogueFieldFromLog(frame.dialogueLog, frame.session),
+})
+
+/** The eight as they came back from the composition, which is what UF-69 is owed. */
+const eightOf = (view: ScreenView): Omit<ScreenView, 'tooltips'> => {
+  const { tooltips: _tooltips, ...eight } = view
+  return eight
+}
+
+const anchorsOf = (tooltips: readonly Tooltip[], kind: Tooltip['anchor']['kind']): readonly string[] =>
+  tooltips
+    .filter((one) => one.anchor.kind === kind)
+    .map((one) => JSON.stringify(one.anchor))
+
+const iconsIn = (view: ScreenView): readonly string[] => [
+  ...view.appHeaderItems.commands.map((one) => one.icon),
+  ...(view.commandPalette?.groups.flatMap((group) => group.commands.map((one) => one.icon)) ?? []),
+  ...(view.openModal?.commands.map((one) => one.icon) ?? []),
+]
+
+const iconTooltipsIn = (view: ScreenView): readonly string[] =>
+  view.tooltips
+    .filter((one) => one.anchor.kind === 'icon')
+    .map((one) => (one.anchor as { icon: string }).icon)
+
+/** A pointer resting on an icon for longer than EZ-2 asks (S-124). */
+const RESTED = sessionWith({
+  pointer: { x: 5, y: 5 },
+  pointerRestedMs: ICON_HINT_MS + 1,
+  iconUnderPointer: IC_COMMAND_PALETTE,
+})
+
+// ---------------------------------------------------------------------------
+
+describe('UF-60 -- the nine parts of table T-075, one member each', () => {
+  it('describes every one of the nine, and nothing beside them', () => {
+    // 表 T-075 gives `ScreenRenderer` nine units that describe a UI part
+    // (UF-61 .. UF-69); UF-60 binds them and UF-70 declares the seam. A tenth
+    // member would be a part no unit of that table owns.
+    const members = Object.keys(viewOf()).sort()
+    expect(members).toEqual(T_075_PARTS.map((part) => part.member).slice().sort())
+  })
+
+  it('leaves no member undefined', () => {
+    // ⭐ `null` is an answer four of the nine may give (a part that is not
+    // there); `undefined` is a member nobody filled.
+    const view = viewOf() as Record<string, unknown>
+    for (const part of T_075_PARTS) {
+      expect(view[part.member], `${part.unit} fills ${part.member}`).not.toBeUndefined()
+    }
+  })
+
+  for (const part of T_075_EIGHT) {
+    it(`fills ${part.member} with what ${part.unit} (${part.file}) answers`, () => {
+      const view = viewOf()
+      const owner = eightFrom(FRAME) as Record<string, unknown>
+      expect((view as unknown as Record<string, unknown>)[part.member]).toEqual(owner[part.member])
+    })
+  }
+
+  it('fills tooltips with what UF-69 (tooltips.ts) answers for that very frame', () => {
+    const view = viewOf(frameWith({ session: RESTED }))
+    expect(view.tooltips).toEqual(
+      tooltipsFromScreenView(eightOf(view), FRAME.settings, RESTED),
+    )
+  })
+})
+
+describe('UF-60 -- the order: UF-69 is handed the eight already built', () => {
+  it('hands UF-69 the eight exactly as they came back to the caller', () => {
+    // ⭐ The contract of UF-69 takes `Omit<ScreenView, "tooltips">`, so the
+    // tooltips a caller receives have to be the answer for the eight that same
+    // caller receives. Anything else means a tooltip explains a part the reader
+    // is not looking at.
+    for (const frame of [FRAME, frameWith({ session: RESTED })]) {
+      const view = viewOf(frame)
+      expect(view.tooltips).toEqual(
+        tooltipsFromScreenView(eightOf(view), frame.settings, frame.session),
+      )
+    }
+  })
+
+  it('does not build the tooltips before the eight', () => {
+    // ⛔ The failure this rules out: tooltips computed against a frame that is
+    // still empty. With the pointer rested, an empty frame explains nothing,
+    // while this one holds the `App Header` entries UF-62 built.
+    const view = viewOf(frameWith({ session: RESTED }))
+    expect(iconTooltipsIn(view).length).toBeGreaterThan(0)
+    expect(iconsIn(view)).toEqual(expect.arrayContaining(iconTooltipsIn(view)))
+  })
+
+  it('explains a row name as UF-63 cut it (FR-085)', () => {
+    // FR-085 (MUST): a row name that does not fit is cut and the whole of it is
+    // shown in a tooltip. The cut is UF-63's answer and the tooltip is UF-69's,
+    // so the two agreeing is the composition's doing.
+    const view = viewOf(
+      frameWith({
+        schedule: scheduleOf([groupOf({ id: 'g1', label: NAME_TOO_LONG, order: 0 })]),
+        session: sessionWith({ pointer: { x: ROW_BOX.x + 1, y: ROW_BOX.y + 1 } }),
+      }),
+    )
+
+    const cut = [...view.rowTitlePanel.pinnedTitles, ...view.rowTitlePanel.titles].filter(
+      (title) => title.isLabelTruncated,
+    )
+    expect(cut.map((title) => title.groupId)).toEqual(['g1'])
+    expect(anchorsOf(view.tooltips, 'rowTitle')).toEqual([
+      JSON.stringify({ kind: 'rowTitle', groupId: 'g1' }),
+    ])
+  })
+
+  it('explains no row when UF-63 had nothing to cut', () => {
+    // The same frame with a name that fits: UF-63 says nothing was cut, and the
+    // tooltip has to follow that answer rather than the schedule.
+    const view = viewOf(
+      frameWith({ session: sessionWith({ pointer: { x: ROW_BOX.x + 1, y: ROW_BOX.y + 1 } }) }),
+    )
+
+    expect(
+      [...view.rowTitlePanel.pinnedTitles, ...view.rowTitlePanel.titles].map(
+        (title) => title.isLabelTruncated,
+      ),
+    ).toEqual([false])
+    expect(anchorsOf(view.tooltips, 'rowTitle')).toEqual([])
+  })
+
+  it('explains the scrollbar UF-61 placed, at the place UF-61 placed it (FR-037)', () => {
+    // FR-037: the faster assignment is shown while the pointer rests ON the
+    // scrollbar. Where that lane is, is UF-61's answer -- so this case reads
+    // the lane out of the frame the composition returned and points at it.
+    const lane = viewOf().frame.scrollbars.find((bar) => bar.axis === 'vertical')
+    expect(lane, 'SC-4 keeps both bars drawn at all times').toBeDefined()
+
+    const inside = {
+      x: (lane as { track: ScreenRect }).track.x + 1,
+      y: (lane as { track: ScreenRect }).track.y + 1,
+    }
+    const onLane = viewOf(frameWith({ session: sessionWith({ pointer: inside }) }))
+    expect(anchorsOf(onLane.tooltips, 'scrollbar')).toEqual([
+      JSON.stringify({ kind: 'scrollbar', axis: 'vertical' }),
+    ])
+
+    // ⭐ And away from it there is none -- so the tooltip is keyed to the lane's
+    // own rectangle, not to the axis being present in the frame.
+    const offLane = viewOf(frameWith({ session: sessionWith({ pointer: { x: 5, y: 300 } }) }))
+    expect(anchorsOf(offLane.tooltips, 'scrollbar')).toEqual([])
+  })
+
+  it('explains the entries of the surface UF-66 opened, and none once it is closed', () => {
+    const opened = viewOf(frameWith({ session: RESTED }))
+    expect(opened.openModal).not.toBeNull()
+    const surfaceIcons = opened.openModal?.commands.map((one) => one.icon) ?? []
+    expect(surfaceIcons, 'IC-52 closes an open surface').toContain(IC_CLOSE_SURFACE)
+    expect(iconTooltipsIn(opened)).toEqual(expect.arrayContaining(surfaceIcons))
+
+    // S-99g: none open. The entry goes, and so does the explanation of it.
+    const closed = viewOf(
+      frameWith({ state: screenStateWithSurface(emptyScreenState(), null), session: RESTED }),
+    )
+    expect(closed.openModal).toBeNull()
+    expect(iconsIn(closed)).not.toContain(IC_CLOSE_SURFACE)
+    expect(iconTooltipsIn(closed)).not.toContain(IC_CLOSE_SURFACE)
+    expect(iconTooltipsIn(closed).length).toBeLessThan(iconTooltipsIn(opened).length)
+  })
+
+  it('explains the entries of the palette UF-65 built, and none once S-99e hides it', () => {
+    const shown = viewOf(frameWith({ session: RESTED }))
+    expect(shown.commandPalette).not.toBeNull()
+    const paletteIcons =
+      shown.commandPalette?.groups.flatMap((group) => group.commands.map((one) => one.icon)) ?? []
+    expect(paletteIcons.length, 'U-34 `Palette Commands`').toBeGreaterThan(0)
+    expect(iconTooltipsIn(shown)).toEqual(expect.arrayContaining(paletteIcons))
+
+    const hidden = viewOf(
+      frameWith({ state: screenStateWithPalette(STATE, false), session: RESTED }),
+    )
+    expect(hidden.commandPalette).toBeNull()
+    for (const icon of paletteIcons) {
+      expect(iconsIn(hidden), `${icon} is gone with the palette`).not.toContain(icon)
+    }
+    expect(iconTooltipsIn(hidden).length).toBeLessThan(iconTooltipsIn(shown).length)
+  })
+})
+
+describe('UF-60 -- the arguments each unit receives', () => {
+  /** The members no contract lets the named argument reach, compared across two frames. */
+  const expectUnreached = (
+    changed: Frame,
+    members: readonly (keyof Omit<ScreenView, 'tooltips'>)[],
+  ): void => {
+    const before = viewOf() as unknown as Record<string, unknown>
+    const after = viewOf(changed) as unknown as Record<string, unknown>
+    for (const member of members) {
+      expect(after[member], `${member} is out of this argument's reach`).toEqual(before[member])
+    }
+  }
+
+  it('gives the regions to UF-61 and to no other part', () => {
+    // The contract lists `regions` in UF-61's signature alone. ⚠️ `tooltips` is
+    // left out of the comparison on purpose: UF-69 reads the frame UF-61 built,
+    // so it is reached THROUGH UF-61 and not by the argument.
+    const narrower = frameWith({ regions: regionsOf({ propertyPanelWidth: 360 }) })
+    expect(viewOf(narrower).frame).not.toEqual(viewOf().frame)
+    expectUnreached(narrower, [
+      'appHeaderItems',
+      'rowTitlePanel',
+      'propertiesPanel',
+      'commandPalette',
+      'openModal',
+      'notices',
+      'dialogueField',
+    ])
+  })
+
+  it('gives the dialogue log to UF-68 and to no other part', () => {
+    const spoken = frameWith({
+      dialogueLog: logWithMessage(LOG, {
+        author: 'person',
+        text: 'and the next one',
+        settledAt: '2026-08-19T09:01:00Z',
+      }),
+    })
+    expect(viewOf(spoken).dialogueField).not.toEqual(viewOf().dialogueField)
+    expectUnreached(spoken, [
+      'frame',
+      'appHeaderItems',
+      'rowTitlePanel',
+      'propertiesPanel',
+      'commandPalette',
+      'openModal',
+      'notices',
+    ])
+  })
+
+  it('keeps the schedule out of the four parts whose contract does not name it', () => {
+    // UF-62 / UF-63 / UF-64 / UF-66 take a `Schedule`; UF-61, UF-65, UF-67 and
+    // UF-68 do not.
+    const other = frameWith({
+      schedule: scheduleOf([
+        groupOf({ id: 'g1', label: 'renamed', order: 0 }),
+        groupOf({ id: 'g2', label: 'and another', order: 1 }),
+      ]),
+    })
+    // ⛔ First that the new schedule is a different one at all, so the four
+    // "unchanged" assertions cannot pass because nothing moved anywhere.
+    expect(viewOf(other).rowTitlePanel).not.toEqual(viewOf().rowTitlePanel)
+    expectUnreached(other, ['frame', 'commandPalette', 'notices', 'dialogueField'])
+  })
+
+  it('keeps the notices of the session in UF-67 alone', () => {
+    // UF-67's contract takes the session and nothing else, and `notices` is the
+    // member it fills. ⭐ The other seven take a session too, so this checks
+    // that the composition does not route the raised notices anywhere else.
+    const raised = frameWith({
+      session: sessionWith({
+        notices: [{ manner: 'NT-1', text: 'that day is not a day', nextSteps: [], affectedCount: null }],
+      }),
+    })
+    expect(viewOf(raised).notices).toEqual(noticesFromSession(raised.session))
+    expect(viewOf(raised).notices).not.toEqual(viewOf().notices)
+    expectUnreached(raised, ['frame', 'rowTitlePanel', 'dialogueField'])
+  })
+
+  it("answers with each owner's own answer for a frame nothing was pinned in", () => {
+    // ⭐ The whole argument list at once: an empty document, an empty selection,
+    // an empty log and a screen with nothing open. Every member still has to be
+    // its owner's answer for THESE arguments.
+    const bare: Frame = {
+      regions: REGIONS,
+      schedule: scheduleOf([]),
+      settings: SETTINGS,
+      selection: emptySelection(),
+      state: emptyScreenState(),
+      dialogueLog: emptyDialogueLog(),
+      session: sessionWith({ rowBoxes: [], propertiesShowing: null, isAgentApiEnabled: false }),
+    }
+    const view = viewOf(bare)
+    expect(eightOf(view)).toEqual(eightFrom(bare))
+    expect(view.tooltips).toEqual(tooltipsFromScreenView(eightOf(view), bare.settings, bare.session))
+  })
+})
+
+describe('UF-60 -- a part that is absent comes back null', () => {
+  /** Every member but the named one still has to be its own unit's answer. */
+  const expectNeighboursIntact = (frame: Frame): void => {
+    const view = viewOf(frame)
+    expect(eightOf(view)).toEqual(eightFrom(frame))
+    expect(view.tooltips).toEqual(
+      tooltipsFromScreenView(eightOf(view), frame.settings, frame.session),
+    )
+  }
+
+  it('answers null for a closed properties panel (FR-072) without disturbing a neighbour', () => {
+    const closed = frameWith({ session: sessionWith({ propertiesShowing: null }) })
+    expect(viewOf(closed).propertiesPanel).toBeNull()
+    expectNeighboursIntact(closed)
+  })
+
+  it('answers null for a hidden palette (S-99e) without disturbing a neighbour', () => {
+    const hidden = frameWith({ state: screenStateWithPalette(STATE, false) })
+    expect(viewOf(hidden).commandPalette).toBeNull()
+    expectNeighboursIntact(hidden)
+  })
+
+  it('answers null when no surface is open (S-99g) without disturbing a neighbour', () => {
+    const none = frameWith({ state: screenStateWithSurface(emptyScreenState(), null) })
+    expect(viewOf(none).openModal).toBeNull()
+    expectNeighboursIntact(none)
+  })
+
+  it('answers null for the dialogue field while the `Agent API` is off (FR-066)', () => {
+    const off = frameWith({ session: sessionWith({ isAgentApiEnabled: false }) })
+    expect(viewOf(off).dialogueField).toBeNull()
+    expectNeighboursIntact(off)
+  })
+
+  it('answers null four times over, and still describes the five that remain', () => {
+    // ⭐ All four absent at once. The five members no requirement lets go away
+    // -- UF-61, UF-62, UF-63, UF-67 and UF-69 -- are still their owners'
+    // answers, so one part's absence cannot empty another.
+    const bare = frameWith({
+      state: screenStateWithPalette(screenStateWithSurface(emptyScreenState(), null), false),
+      session: sessionWith({ propertiesShowing: null, isAgentApiEnabled: false }),
+    })
+    const view = viewOf(bare)
+
+    expect(view.propertiesPanel).toBeNull()
+    expect(view.commandPalette).toBeNull()
+    expect(view.openModal).toBeNull()
+    expect(view.dialogueField).toBeNull()
+
+    expect(view.frame).toEqual(eightFrom(bare).frame)
+    expect(view.appHeaderItems).toEqual(eightFrom(bare).appHeaderItems)
+    expect(view.rowTitlePanel).toEqual(eightFrom(bare).rowTitlePanel)
+    expect(view.notices).toEqual(eightFrom(bare).notices)
+    expect(view.tooltips).toEqual(
+      tooltipsFromScreenView(eightOf(view), bare.settings, bare.session),
+    )
+  })
+})
+
+describe('PI-37 dialogueMessageFromInput -- AG-11 of table T-035 (MUST NOT)', () => {
+  const inputOf = (part: Partial<DialogueInput> = {}): DialogueInput => ({
+    text: 'move the milestone to the 21st',
+    isSettled: true,
+    author: 'person',
+    settledAt: '2026-08-19T09:00:00Z',
+    ...part,
+  })
+
+  it('refuses a line that has not been settled', () => {
+    // AG-11 (docs/spec/01-04-requirements.md:3491) forbids reading the
+    // half-typed line as an utterance (MUST NOT). `null` is the whole answer.
+    expect(dialogueMessageFromInput(inputOf({ isSettled: false }))).toBeNull()
+  })
+
+  it('lets nothing of the unsettled line through', () => {
+    // ⛔ Not "an utterance with empty text" -- an utterance at all would already
+    // be a reading of what was not settled.
+    const half = inputOf({ text: 'move the mile', isSettled: false })
+    expect(dialogueMessageFromInput(half)).toBeNull()
+    expect(JSON.stringify(dialogueMessageFromInput(half))).not.toContain('move the mile')
+  })
+
+  it('refuses a blank line that has not been settled', () => {
+    expect(dialogueMessageFromInput(inputOf({ text: '', isSettled: false }))).toBeNull()
+    expect(dialogueMessageFromInput(inputOf({ text: '   ', isSettled: false }))).toBeNull()
+  })
+
+  it('lets a settled line through, carrying the three values it arrived with', () => {
+    // ⚠️ `author` and `settledAt` are carried, not read: table T-066's CS-1
+    // keeps the clock and the identity out of a `pure` unit.
+    expect(dialogueMessageFromInput(inputOf())).toEqual({
+      author: 'person',
+      text: 'move the milestone to the 21st',
+      settledAt: '2026-08-19T09:00:00Z',
+    })
+  })
+
+  it('does not number the utterance', () => {
+    // AG-11 (MUST): the log counts utterances in an order of its own, and PI-33
+    // `logWithMessage` is what assigns the number -- two writers choosing one
+    // would lose a message from AG-6's selection.
+    expect(Object.keys(dialogueMessageFromInput(inputOf()) ?? {})).not.toContain('sequence')
+  })
+
+  it('is settledness alone that decides', () => {
+    // ⭐ The same three values, twice, differing in the flag AG-11 names.
+    const settled = inputOf({ text: 'the same words', isSettled: true })
+    const unsettled = inputOf({ text: 'the same words', isSettled: false })
+    expect(dialogueMessageFromInput(settled)).not.toBeNull()
+    expect(dialogueMessageFromInput(unsettled)).toBeNull()
+  })
+
+  it('does not write to the input it was handed (R7.1)', () => {
+    const input = inputOf()
+    const before = structuredClone(input)
+    dialogueMessageFromInput(input)
+    expect(input).toEqual(before)
+  })
+})
+
+describe('UF-60 -- `pure` in table T-075', () => {
+  it('gives the same frame the same answer twice (R7.6)', () => {
+    expect(viewOf()).toEqual(viewOf())
+    expect(viewOf(frameWith({ session: RESTED }))).toEqual(viewOf(frameWith({ session: RESTED })))
+  })
+
+  it('writes to none of the seven arguments it was handed (R7.1)', () => {
+    const before = structuredClone(FRAME)
+    viewOf()
+    expect(FRAME).toEqual(before)
+  })
+})

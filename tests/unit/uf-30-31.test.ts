@@ -1,0 +1,1975 @@
+// Unit tests for UF-30 `input-command-translator.ts` (the public entry) and
+// UF-31 `input-source.ts` (the seam IF-2) -- table T-075 of
+// docs/spec/05-07-design.md, component `InputCommandTranslator` (CP-18 of table
+// T-062), published as PI-18 of table T-064.
+//
+// Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
+// specification. Table T-218 of Chapter 7 gives them their place: TS-6,
+// tests/unit/.
+//
+// WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
+// 04-verification.md, section 1). What was read: docs/spec/ for every rule
+// below, the entity and use-case types the inputs are built from, and of the
+// unit itself only its head comment, its published types and the three
+// signatures `commandFromInput`, `selectionFromInput` and
+// `screenStateFromInput`. Every expected value here comes from a requirement or
+// a table, never from the implementation.
+//
+// The rows these cases answer to (rule 03: name the row, never copy its prose):
+//   T-023a  PD-1..PD-5 -- the press decision order, first row that holds wins
+//   T-023b  AR-1..AR-6 -- what may be armed
+//   T-023   MK-1..MK-13 -- the pointer and keyboard assignment
+//   T-023c  SL-1..SL-8 -- selection (FR-081)
+//   T-023d  GR-1..GR-18 -- grab areas and their priority
+//   T-036   SK-1..SK-20 -- the shortcut assignment (FR-070)
+//   T-028   IN-1..IN-5a -- input manners (FR-040)
+//   T-027   UN-8/UN-9/UN-11/UN-16 -- what undo does not carry
+//   T-067   WS-3/WS-4 -- all-or-nothing, and no step for an empty bundle
+//   T-066   CS-1/CS-2 -- the frame's frozen copy, the gesture's press
+//   T-078   FT-1 -- a person's input is the trigger, so IF-2 pushes
+//   FR-001 / FR-011 / FR-016 / FR-029 / FR-031 / FR-046 / FR-055 / FR-070 /
+//   FR-071 / FR-081 / FR-083 / FR-097 and T-029a DC-5
+//
+// Chapter 1.9 (:275) asks a test of a requirement that points at a table to be
+// driven by a fixed copy of that table, one case walking every row. T_023,
+// T_023A, T_023B, T_023C, T_023D, T_036 and T_028 below are those copies.
+
+import { describe, expect, it } from 'vitest'
+
+import type { Document } from '../../src/entity/document-model/document/document'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
+import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
+import {
+  emptyScreenState,
+  screenStateWithArmed,
+  screenStateWithFullScreen,
+  screenStateWithPalette,
+  screenStateWithSurface,
+  type Armed,
+  type ScreenState,
+} from '../../src/entity/document-model/screen-state/screen-state'
+import {
+  emptySelection,
+  selectionOfAll,
+  selectionWith,
+  type ItemRef,
+  type Selection,
+} from '../../src/entity/document-model/selection/selection'
+import type { Hit } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
+import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import {
+  layoutFromSchedule,
+  taskPlacement,
+} from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  regionsFromScreen,
+  type ScreenEnvironment,
+} from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import type { DocumentCommand } from '../../src/use-case/edit-document/edit-document'
+import {
+  commandFromInput,
+  screenStateFromInput,
+  selectionFromInput,
+  type InputContext,
+  type InputModifiers,
+  type InputSource,
+  type KeyInput,
+  type PointerInput,
+  type TranslatedInput,
+  type WheelInput,
+} from '../../src/adapter/input-command-translator/input-command-translator'
+
+// ---------------------------------------------------------------------------
+// Fixed copies of the tables these cases are driven by.
+// ---------------------------------------------------------------------------
+
+/** 表 T-023a -- the press decision order, evaluated from the top (MUST). */
+const T_023A = ['PD-1', 'PD-2', 'PD-3', 'PD-4', 'PD-4a', 'PD-5'] as const
+
+/** 表 T-023b -- what the palette may have armed. */
+const T_023B = [
+  { row: 'AR-1', armed: { kind: 'none' } as Armed, makesATask: false },
+  { row: 'AR-2', armed: { kind: 'taskShape', shapeKind: 'rectangle' } as Armed, makesATask: true },
+  { row: 'AR-3', armed: { kind: 'milestoneShape', glyph: 'diamond' } as Armed, makesATask: true },
+  { row: 'AR-4', armed: { kind: 'dependency' } as Armed, makesATask: false },
+  { row: 'AR-5', armed: { kind: 'commentBox' } as Armed, makesATask: false },
+  { row: 'AR-6', armed: { kind: 'highlightBox' } as Armed, makesATask: false },
+] as const
+
+/** 表 T-023 -- the pointer and keyboard assignment (FR-016). */
+const T_023 = [
+  'MK-1', 'MK-2', 'MK-3', 'MK-4', 'MK-5', 'MK-6', 'MK-7', 'MK-8',
+  'MK-9', 'MK-9a', 'MK-10', 'MK-11', 'MK-12', 'MK-13',
+] as const
+
+/** 表 T-023c -- the selection rules (FR-081). */
+const T_023C = [
+  'SL-1', 'SL-2', 'SL-3', 'SL-4', 'SL-5', 'SL-6', 'SL-7', 'SL-7a', 'SL-7b', 'SL-8',
+] as const
+
+/**
+ * SL-1's set of selectable kinds. Rows (`TaskGroup`) are deliberately absent:
+ * FR-085 owns that other set.
+ */
+const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusLine'] as const
+
+/** 表 T-023d -- the grab areas, most-preferred first, in the table's own order. */
+const T_023D = [
+  'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8', 'GR-9', 'GR-17',
+  'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-16',
+] as const
+
+/** 表 T-028 -- the input manners (FR-040). */
+const T_028 = ['IN-1', 'IN-1a', 'IN-2', 'IN-3', 'IN-4', 'IN-4a', 'IN-5', 'IN-5a'] as const
+
+/** IN-4's levels, in the order the row fixes, outermost first. */
+const IN_4_LEVELS = ['surface', 'gesture', 'armed', 'dualCursorMode'] as const
+
+/** 表 T-027 -- the rows this unit answers to. */
+const T_027_HERE = ['UN-8', 'UN-9', 'UN-11', 'UN-16'] as const
+
+/**
+ * 表 T-036 -- the whole shortcut assignment (FR-070). `keys` is the assignment
+ * column, spelled as `KeyInput.key` spells it; a row whose column is a dash
+ * carries none. `member` says which of PI-18's three members answers the row.
+ */
+type ShortcutRow = {
+  readonly row: string
+  readonly keys: readonly { readonly key: string; readonly mods?: Partial<InputModifiers> }[]
+  readonly member: 'action' | 'selection' | 'screenState' | 'none'
+  readonly action?: string
+}
+
+const T_036: readonly ShortcutRow[] = [
+  { row: 'SK-1', keys: [], member: 'none' },
+  { row: 'SK-1a', keys: [], member: 'none' },
+  { row: 'SK-19', keys: [{ key: 'Enter' }], member: 'action', action: 'settleTextEntry' },
+  { row: 'SK-2', keys: [{ key: 'A', mods: { ctrl: true } }], member: 'selection' },
+  { row: 'SK-3', keys: [{ key: 'Delete' }, { key: 'Backspace' }], member: 'action', action: 'changeDocument' },
+  { row: 'SK-4', keys: [{ key: 'C', mods: { ctrl: true } }], member: 'action', action: 'copySelection' },
+  { row: 'SK-5', keys: [{ key: 'V', mods: { ctrl: true } }], member: 'action', action: 'pasteClipboard' },
+  { row: 'SK-6', keys: [{ key: 'Z', mods: { ctrl: true } }], member: 'action', action: 'undoEdit' },
+  {
+    row: 'SK-7',
+    keys: [{ key: 'Y', mods: { ctrl: true } }, { key: 'Z', mods: { ctrl: true, shift: true } }],
+    member: 'action',
+    action: 'redoEdit',
+  },
+  { row: 'SK-8', keys: [{ key: 'Esc' }], member: 'screenState' },
+  { row: 'SK-9', keys: [{ key: 'F2' }], member: 'action', action: 'editInPlace' },
+  { row: 'SK-10', keys: [{ key: 'O', mods: { ctrl: true } }], member: 'action', action: 'openDocumentFile' },
+  { row: 'SK-11', keys: [{ key: 'S', mods: { ctrl: true } }], member: 'action', action: 'saveDocumentFile' },
+  {
+    row: 'SK-12',
+    keys: [{ key: 'E', mods: { ctrl: true, shift: true } }],
+    member: 'action',
+    action: 'openExportChooser',
+  },
+  { row: 'SK-13', keys: [{ key: 'F1' }], member: 'screenState' },
+  { row: 'SK-14', keys: [{ key: 'P' }], member: 'screenState' },
+  { row: 'SK-15', keys: [{ key: 'F11' }], member: 'screenState' },
+  {
+    row: 'SK-16',
+    keys: [{ key: '+', mods: { shift: true } }, { key: '-', mods: { shift: true } }],
+    member: 'action',
+    action: 'changeDocument',
+  },
+  {
+    row: 'SK-16a',
+    keys: [{ key: '+', mods: { alt: true } }, { key: '-', mods: { alt: true } }],
+    member: 'action',
+    action: 'changeDocument',
+  },
+  { row: 'SK-17', keys: [{ key: '0', mods: { ctrl: true } }], member: 'action', action: 'changeDocument' },
+  { row: 'SK-18', keys: [{ key: 'F' }], member: 'action', action: 'changeDocument' },
+  {
+    row: 'SK-20',
+    keys: [{ key: 'D', mods: { ctrl: true, shift: true } }],
+    member: 'action',
+    action: 'changeDocument',
+  },
+]
+
+/**
+ * MK-10's own two examples of combinations this tool did NOT assign, which it
+ * therefore may not take from the browser (MUST NOT). Both letters carry a
+ * bare-key row of table T-036 (SK-14 and SK-18), so a translator that matched
+ * on the letter alone would fail here.
+ */
+const MK_10_UNASSIGNED = [
+  { key: 'P', mods: { ctrl: true } },
+  { key: 'F', mods: { ctrl: true } },
+] as const
+
+// ---------------------------------------------------------------------------
+// Inputs. A whole DocumentSettings is 100+ keys, so a case pins the ones it
+// means and everything else comes from SETTINGS_DEFAULTS, which is generated
+// from the manuscript.
+// ---------------------------------------------------------------------------
+
+/** The four keys SETTINGS_DEFAULTS carries under dotted names, as objects. */
+const NESTED = {
+  exportCanvas: { width: 1600, height: 900 },
+  fontScaleSizes: { L: 16, M: 14, S: 12 },
+  planActualGuidePattern: { off: 2, on: 2 },
+  shapeHeightOf: { arrow: 0.5, chevron: 1, endpointSpan: 0.5, milestone: 1.5, rectangle: 1 },
+}
+
+const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
+  ({ ...SETTINGS_DEFAULTS, ...NESTED, ...part }) as unknown as DocumentSettings
+
+const SETTINGS = settingsOf({
+  scrollDate: '2026-01-01', // S-77, pinned so `dateAtX` has an origin
+  scrollGroupId: 'g1', // S-78, pinned so a vertical move is visible
+  stackDirection: 'down', // S-58, pinned so every y reads from the top
+  rulerHeight: 48,
+  rulerFont: 12,
+})
+
+const ENV: ScreenEnvironment = {
+  width: 1000,
+  height: 700,
+  appHeaderHeight: 56,
+  scrollbarThickness: 8,
+}
+
+/**
+ * S-53 arrives as a value (`InputContext.zoomStep`) because no generator brings
+ * table T-201 into `src/`. Deliberately NOT the figure the manuscript prints:
+ * a translator that re-typed the constant instead of reading the argument
+ * would pass every zoom case below if this were that figure.
+ */
+const ZOOM_STEP = 3
+
+/** Today, spelled the way `textOfDay` spells a date column. FR-046 / SK-20. */
+const TODAY = '2026-03-01T00:00:00'
+
+const NEW_GROUP_ID = 'row-minted-outside'
+
+// Every nullable column has to be spelled `null`; leaving one `undefined`
+// reads as "set".
+const taskOf = (part: Record<string, unknown>): Task =>
+  ({
+    name: null,
+    start: null,
+    finish: null,
+    milestone: null,
+    percentComplete: null,
+    actualStart: null,
+    actualDuration: null,
+    actualFinish: null,
+    resume: null,
+    resumeValid: null,
+    fadeInDays: null,
+    fadeOutDays: null,
+    dependencies: [],
+    ...part,
+  }) as unknown as Task
+
+const scheduleOf = (part: Record<string, unknown>): Schedule =>
+  ({
+    project: {
+      calendarUid: null,
+      statusDate: null,
+      themeHue: 214,
+      title: null,
+      uidHighWaterMark: 10,
+    },
+    calendars: [],
+    tasks: [],
+    resources: [],
+    assignments: [],
+    taskGroups: [],
+    taskGroupMembers: [],
+    taskVisuals: [],
+    commentBoxes: [],
+    highlightBoxes: [],
+    taskOrigins: [],
+    baselineTasks: [],
+    ...part,
+  }) as unknown as Schedule
+
+/** Two rows; task 1 lives on the first, task 2 on the second and far later. */
+const TASK_1 = taskOf({ uid: 1, name: 'one', start: '2026-01-05', finish: '2026-01-09' })
+const TASK_2 = taskOf({ uid: 2, name: 'two', start: '2026-02-10', finish: '2026-02-14' })
+
+/**
+ * Enough rows that the drawn schedule is taller than the Row Area: a wheel
+ * over a schedule that already fits has nowhere to scroll to, and MK-1 could
+ * not be told from doing nothing.
+ */
+const ROW_COUNT = 24
+
+const SCHEDULE = scheduleOf({
+  tasks: [TASK_1, TASK_2],
+  taskGroups: Array.from({ length: ROW_COUNT }, (_unused, index) => ({
+    id: `g${index + 1}`,
+    parentId: null,
+    label: `row ${index + 1}`,
+    order: index,
+    height: null,
+  })),
+  taskGroupMembers: [
+    { groupId: 'g1', taskUid: 1 },
+    { groupId: 'g2', taskUid: 2 },
+  ],
+})
+
+/**
+ * The same schedule with one of every other SL-1 kind on it, so that a case
+ * about a dependency, a box or the status line has something real to name.
+ * Kept apart from `SCHEDULE` because `statusDate` decides which way SK-20's
+ * switch goes (FR-046).
+ */
+const RICH_SCHEDULE = scheduleOf({
+  ...(SCHEDULE as unknown as Record<string, unknown>),
+  project: { ...SCHEDULE.project, statusDate: '2026-02-01T00:00:00' },
+  tasks: [
+    TASK_1,
+    taskOf({
+      ...(TASK_2 as unknown as Record<string, unknown>),
+      dependencies: [
+        { predecessorUid: 1, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] },
+      ],
+    }),
+  ],
+  commentBoxes: [
+    {
+      id: 'c1',
+      leaderShapeKind: null,
+      text: null,
+      anchorDate: '2026-01-06',
+      anchorGroupId: 'g1',
+      bodyOffsetPx: null,
+    },
+  ],
+  highlightBoxes: [
+    {
+      id: 'h1',
+      startDate: '2026-01-05',
+      endDate: '2026-01-09',
+      topGroupId: 'g1',
+      bottomGroupId: 'g1',
+      strokeColor: null,
+      cornerRadiusPx: null,
+    },
+  ],
+})
+
+/** ADR-001 has the shell compute these once a frame and hand them round. */
+const REGIONS = regionsFromScreen(ENV, SETTINGS)
+const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
+const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS)
+
+const RICH_LAYOUT = layoutFromSchedule(RICH_SCHEDULE, SETTINGS, REGIONS)
+const RICH_GEOMETRY = geometryFromLayout(RICH_SCHEDULE, SETTINGS, RICH_LAYOUT, REGIONS)
+
+const documentOf = (schedule: Schedule, settings: DocumentSettings = SETTINGS): Document =>
+  ({
+    schemaVersion: '2026-01-01',
+    schedule,
+    documentSettings: settings,
+    revisionStamp: { revision: 1, lastEditedBy: 'test', updatedAt: '2026-01-01T00:00:00' },
+    changeLog: [],
+  }) as unknown as Document
+
+const DOCUMENT = documentOf(SCHEDULE)
+
+const BASE: InputContext = {
+  document: DOCUMENT,
+  layout: LAYOUT,
+  geometry: GEOMETRY,
+  regions: REGIONS,
+  screenState: emptyScreenState(),
+  selection: emptySelection(),
+  zoomStep: ZOOM_STEP,
+  pressed: null,
+  isTextEntryUnsettled: false,
+  isDualCursorMode: false,
+  today: TODAY,
+  newGroupId: NEW_GROUP_ID,
+}
+
+const contextOf = (part: Partial<InputContext> = {}): InputContext => ({ ...BASE, ...part })
+
+/** The same frame, drawn from the schedule that carries every SL-1 kind. */
+const richOf = (part: Partial<InputContext> = {}): InputContext =>
+  contextOf({
+    document: documentOf(RICH_SCHEDULE),
+    layout: RICH_LAYOUT,
+    geometry: RICH_GEOMETRY,
+    ...part,
+  })
+
+// ---------------------------------------------------------------------------
+// Building the happenings IF-2 supplies.
+// ---------------------------------------------------------------------------
+
+const NO_MODS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
+const modsOf = (part: Partial<InputModifiers> = {}): InputModifiers => ({ ...NO_MODS, ...part })
+
+const pointerOf = (
+  phase: PointerInput['phase'],
+  x: number,
+  y: number,
+  part: Partial<PointerInput> = {},
+): PointerInput => ({
+  kind: 'pointer',
+  phase,
+  button: 'left',
+  x,
+  y,
+  modifiers: NO_MODS,
+  clickCount: 1,
+  ...part,
+})
+
+const wheelOf = (
+  x: number,
+  y: number,
+  notches: number,
+  mods: InputModifiers = NO_MODS,
+): WheelInput => ({
+  kind: 'wheel',
+  x,
+  y,
+  modifiers: mods,
+  notches,
+  // The two axes differ so that a case can tell which one was read.
+  scrollPx: { x: notches * 60, y: notches * 100 },
+})
+
+const keyOf = (key: string, mods: Partial<InputModifiers> = {}): KeyInput => ({
+  kind: 'key',
+  key,
+  modifiers: modsOf(mods),
+})
+
+// ---------------------------------------------------------------------------
+// Coordinates. Read from the layout the shell built, never guessed.
+// ---------------------------------------------------------------------------
+
+const MS_PER_DAY = 86400000
+const serialOf = (text: string): number =>
+  Date.UTC(Number(text.slice(0, 4)), Number(text.slice(5, 7)) - 1, Number(text.slice(8, 10))) /
+  MS_PER_DAY
+
+const ORIGIN_SERIAL = serialOf('2026-01-01')
+
+/** The left edge of the column the given day is drawn in. */
+const xOfDay = (text: string): number =>
+  LAYOUT.originX + (serialOf(text) - ORIGIN_SERIAL) * LAYOUT.pxPerDay
+
+const rowOf = (groupId: string) => {
+  const row = LAYOUT.rows.find((one) => one.groupId === groupId)
+  if (row === undefined) throw new Error(`no row ${groupId} in the layout`)
+  return row
+}
+
+const midYOfRow = (groupId: string): number => {
+  const row = rowOf(groupId)
+  return row.y + row.height / 2
+}
+
+const placementOf = (uid: number) => {
+  const at = taskPlacement(LAYOUT, uid)
+  if (at === null) throw new Error(`no placement for task ${uid}`)
+  return at
+}
+
+/**
+ * A rectangle that wholly encloses the first Task's bar and nothing else.
+ *
+ * ⚠️ Both corners sit inside the Row Area on purpose: the note under table
+ * T-023a applies the press decision order to the schedule's drawing area only,
+ * so a press one pixel above the first row is not a marquee at all.
+ */
+const marqueeOverTask1 = (): {
+  readonly from: PointerInput
+  readonly to: PointerInput
+} => {
+  const at = placementOf(1)
+  const row = rowOf('g1')
+  return {
+    from: pointerOf('down', at.x - 12, row.y),
+    to: pointerOf('up', at.x + at.width + 12, row.y + row.height + 8),
+  }
+}
+
+const hitOf = (item: Hit['item'], grab: Hit['grab']): Hit => ({ item, grab })
+
+const TASK_1_HIT = hitOf({ kind: 'task', taskUid: 1 }, 'GR-12')
+
+// ---------------------------------------------------------------------------
+// Reading the three answers.
+// ---------------------------------------------------------------------------
+
+/** IN-1 settles a pointer operation on release, so a gesture is press + up. */
+function afterGesture(
+  from: PointerInput,
+  to: PointerInput,
+  hit: Hit | null,
+  part: Partial<InputContext> = {},
+): { readonly answer: TranslatedInput; readonly context: InputContext } {
+  const context = contextOf({ ...part, pressed: { at: from, hit } })
+  return { answer: commandFromInput(to, context), context }
+}
+
+const gestureAction = (
+  from: PointerInput,
+  to: PointerInput,
+  hit: Hit | null,
+  part: Partial<InputContext> = {},
+): TranslatedInput => afterGesture(from, to, hit, part).answer
+
+function gestureSelection(
+  from: PointerInput,
+  to: PointerInput,
+  hit: Hit | null,
+  part: Partial<InputContext> = {},
+): Selection {
+  const context = contextOf({ ...part, pressed: { at: from, hit } })
+  return selectionFromInput(to, context)
+}
+
+/** The commands of a `changeDocument`, or an empty list when it is not one. */
+function commandsOf(answer: TranslatedInput): readonly DocumentCommand[] {
+  const action = answer.action
+  if (action === null || action.kind !== 'changeDocument') return []
+  return action.commands
+}
+
+const kindsOf = (answer: TranslatedInput): readonly string[] =>
+  commandsOf(answer).map((one) => one.kind)
+
+function oneCommand(answer: TranslatedInput, kind: string): Record<string, unknown> {
+  const found = commandsOf(answer).filter((one) => one.kind === kind)
+  expect(found, `expected exactly one ${kind}, saw ${JSON.stringify(kindsOf(answer))}`).toHaveLength(
+    1,
+  )
+  return found[0] as unknown as Record<string, unknown>
+}
+
+/** Every command kind of table T-108 that writes an actual-side column. */
+const ACTUAL_WRITERS = [
+  'beginTaskActual',
+  'cycleTaskPlanActualState',
+  'setTaskPlanActualState',
+] as const
+
+// ---------------------------------------------------------------------------
+// The rosters themselves, before anything walks them.
+// ---------------------------------------------------------------------------
+
+describe('the rosters these cases walk are the ones the tables state', () => {
+  // A walk over an empty roster passes without asserting anything. These pin
+  // the counts so a vacuous case cannot go green.
+  it('carries every row of the seven tables, with no repeats', () => {
+    expect(T_023A).toHaveLength(6)
+    expect(T_023B).toHaveLength(6)
+    expect(T_023).toHaveLength(14)
+    expect(T_023C).toHaveLength(10)
+    expect(T_023D).toHaveLength(18)
+    expect(T_028).toHaveLength(8)
+    expect(T_036).toHaveLength(22)
+    expect(new Set(T_036.map((one) => one.row)).size).toBe(22)
+    expect(new Set(T_023D).size).toBe(18)
+    expect(SL_1_KINDS).toHaveLength(5)
+    expect(IN_4_LEVELS).toHaveLength(4)
+    expect(T_027_HERE).toHaveLength(4)
+  })
+
+  it('draws a schedule the coordinates can be read from', () => {
+    expect(LAYOUT.originDay).not.toBeNull()
+    expect(LAYOUT.pxPerDay).toBeGreaterThan(0)
+    expect(LAYOUT.rows).toHaveLength(ROW_COUNT)
+    // MK-1 needs somewhere to scroll to.
+    expect(LAYOUT.contentHeight).toBeGreaterThan(REGIONS.rowArea.height)
+    expect(placementOf(1).width).toBeGreaterThan(0)
+    expect(placementOf(2).x).toBeGreaterThan(placementOf(1).x + placementOf(1).width)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// UF-31 -- the seam IF-2 of table T-065
+// ---------------------------------------------------------------------------
+
+describe('UF-31 input-source.ts -- the seam IF-2 of 表 T-065', () => {
+  it('is re-exported from the public entry (Chapter 5.3, MUST)', () => {
+    // Type-only: 5.3 makes the public entry the only door out of the folder,
+    // and the seam's implementer lives in another layer. That this compiles
+    // against the entry rather than the declaring file is the assertion.
+    const seam: InputSource | null = null
+    expect(seam).toBeNull()
+  })
+
+  it('spells a key the way 表 T-036 spells it, not the way a host does', () => {
+    // FT-1 makes IF-2 the whole vocabulary a person can operate in, so a row
+    // of table T-036 that no `KeyInput.key` can carry is unreachable.
+    for (const row of T_036) {
+      for (const stroke of row.keys) {
+        expect(stroke.key, `${row.row}`).not.toBe('')
+        expect(stroke.key, `${row.row} must not carry a host's spelling`).not.toBe('Escape')
+        // A letter or a sign travels as ONE character; the named keys are the
+        // table's own words.
+        const isNamed = ['Esc', 'Enter', 'Delete', 'Backspace', 'F1', 'F2', 'F11'].includes(
+          stroke.key,
+        )
+        expect(isNamed || stroke.key.length === 1, `${row.row} ${stroke.key}`).toBe(true)
+        if (!isNamed) expect(stroke.key, `${row.row}`).toBe(stroke.key.toUpperCase())
+      }
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FR-028 -- a failure is a value, never an exception
+// ---------------------------------------------------------------------------
+
+describe('FR-028 -- every answer is a value; nothing is thrown', () => {
+  it('answers a record for a happening this tool assigns to nothing (MK-12)', () => {
+    // MK-12's own example of an unassigned combination.
+    const answer = commandFromInput(
+      pointerOf('up', xOfDay('2026-01-20'), midYOfRow('g3'), { modifiers: modsOf({ alt: true }) }),
+      contextOf(),
+    )
+    expect(answer.action).toBeNull()
+    expect(answer.isBrowserDefaultStopped).toBe(false)
+  })
+
+  it('answers rather than throwing for a pointer outside every region', () => {
+    const far = pointerOf('up', 10_000, 10_000)
+    expect(() => commandFromInput(far, contextOf())).not.toThrow()
+    expect(() => selectionFromInput(far, contextOf())).not.toThrow()
+    expect(() => screenStateFromInput(far, contextOf())).not.toThrow()
+  })
+
+  it('answers rather than throwing for a document with nothing in it', () => {
+    const bare = scheduleOf({})
+    const regions = regionsFromScreen(ENV, SETTINGS)
+    const layout = layoutFromSchedule(bare, SETTINGS, regions)
+    const context = contextOf({
+      document: documentOf(bare),
+      layout,
+      geometry: geometryFromLayout(bare, SETTINGS, layout, regions),
+      regions,
+    })
+    for (const input of [
+      keyOf('A', { ctrl: true }),
+      keyOf('Delete'),
+      keyOf('F'),
+      keyOf('D', { ctrl: true, shift: true }),
+      wheelOf(REGIONS.rowArea.x + 10, REGIONS.rowArea.y + 10, 1),
+      pointerOf('up', REGIONS.rowArea.x + 10, REGIONS.rowArea.y + 10),
+    ]) {
+      expect(() => commandFromInput(input, context), JSON.stringify(input.kind)).not.toThrow()
+      expect(() => selectionFromInput(input, context)).not.toThrow()
+      expect(() => screenStateFromInput(input, context)).not.toThrow()
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-067 の WS-3 / WS-4 -- one gesture, one bundle, never an empty one
+// ---------------------------------------------------------------------------
+
+describe('WS-3 / WS-4 of 表 T-067 and FR-031 -- one write per gesture', () => {
+  it('never answers `changeDocument` with an empty command list (WS-4)', () => {
+    const from = pointerOf('down', xOfDay('2026-01-05'), midYOfRow('g1'))
+    const answers = [
+      gestureAction(from, pointerOf('up', xOfDay('2026-01-12'), midYOfRow('g1')), TASK_1_HIT),
+      commandFromInput(keyOf('Delete'), contextOf({ selection: selectionWith(emptySelection(), { kind: 'task', uid: 1 }) })),
+      commandFromInput(keyOf('F'), contextOf()),
+      commandFromInput(keyOf('0', { ctrl: true }), contextOf()),
+      commandFromInput(keyOf('D', { ctrl: true, shift: true }), contextOf()),
+    ]
+    for (const answer of answers) {
+      if (answer.action !== null && answer.action.kind === 'changeDocument') {
+        expect(answer.action.commands.length).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  it('carries a whole gesture as ONE `changeDocument` (FR-031, MUST)', () => {
+    // A body drag that crosses a row asks two rows of table T-108 at once
+    // (GR-12: the parallel move, and HM-3's transplant).
+    const from = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'))
+    const to = pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g2'))
+    const answer = gestureAction(from, to, TASK_1_HIT)
+    expect(answer.action?.kind).toBe('changeDocument')
+    expect(commandsOf(answer).length).toBeGreaterThanOrEqual(2)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-028 -- the input manners (FR-040)
+// ---------------------------------------------------------------------------
+
+describe('表 T-028 -- the input manners (FR-040)', () => {
+  it('IN-1: a press carries no action; the release settles the operation', () => {
+    const down = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'))
+    const answer = commandFromInput(down, contextOf({ pressed: null }))
+    expect(answer.action).toBeNull()
+  })
+
+  it('IN-1: leaving the drawing area is NOT an interruption (MUST NOT)', () => {
+    // A marquee that reaches past the edge of the Row Area is an ordinary
+    // operation, so the release still settles it.
+    const from = pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g1'))
+    const beyond = pointerOf('up', REGIONS.rowArea.x + REGIONS.rowArea.width + 400, 10_000)
+    const picked = gestureSelection(from, beyond, null)
+    expect(picked.items.map((one) => one.kind)).toContain('task')
+  })
+
+  it('IN-1a: a lost pointer ends the drag as an abort and writes nothing (MUST)', () => {
+    const from = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'))
+    const lost = pointerOf('lost', xOfDay('2026-01-20'), midYOfRow('g2'))
+    const answer = gestureAction(from, lost, TASK_1_HIT)
+    expect(answer.action).toBeNull()
+    expect(commandsOf(answer)).toHaveLength(0)
+  })
+
+  it('IN-1a: an aborted creation drag writes nothing either', () => {
+    const armed = screenStateWithArmed(emptyScreenState(), {
+      kind: 'taskShape',
+      shapeKind: 'rectangle',
+    })
+    const from = pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3'))
+    const lost = pointerOf('lost', xOfDay('2026-01-11'), midYOfRow('g3'))
+    expect(gestureAction(from, lost, null, { screenState: armed }).action).toBeNull()
+  })
+
+  it('IN-4: one press of Esc consumes ONE level, in the order the row fixes', () => {
+    // All four levels are up at once; each Esc takes the outermost that is
+    // left, so four presses walk IN_4_LEVELS from the top.
+    let state: ScreenState = screenStateWithSurface(
+      screenStateWithArmed(emptyScreenState(), { kind: 'dependency' }),
+      'Help Modal',
+    )
+    const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: null }
+
+    // Level 1 -- the open surface.
+    state = screenStateFromInput(keyOf('Esc'), contextOf({ screenState: state, pressed, isDualCursorMode: true }))
+    expect(state.surface).toBeNull()
+    expect(state.armed.kind).toBe('dependency')
+
+    // Level 2 -- the gesture in flight. Nothing in ScreenState moves, because
+    // the gesture is the Framework's to hold (LY-5).
+    const afterGestureEsc = screenStateFromInput(
+      keyOf('Esc'),
+      contextOf({ screenState: state, pressed, isDualCursorMode: true }),
+    )
+    expect(afterGestureEsc.armed.kind).toBe('dependency')
+
+    // Level 3 -- what is armed, once no gesture is in flight.
+    state = screenStateFromInput(
+      keyOf('Esc'),
+      contextOf({ screenState: state, pressed: null, isDualCursorMode: true }),
+    )
+    expect(state.armed.kind).toBe('none')
+  })
+
+  it('IN-4: Esc that consumes a level emits no command (UN-11 of 表 T-027)', () => {
+    const armed = screenStateWithArmed(emptyScreenState(), { kind: 'commentBox' })
+    const answer = commandFromInput(keyOf('Esc'), contextOf({ screenState: armed }))
+    expect(answer.action).toBeNull()
+    expect(answer.isBrowserDefaultStopped).toBe(true)
+  })
+
+  it('IN-4a: Esc with nothing to consume MUST reach the browser', () => {
+    const answer = commandFromInput(keyOf('Esc'), contextOf())
+    expect(answer.action).toBeNull()
+    expect(answer.isBrowserDefaultStopped).toBe(false)
+  })
+
+  it('IN-4a: while something is armed the key is consumed, so it does not reach the browser', () => {
+    const armed = screenStateWithArmed(emptyScreenState(), { kind: 'taskShape', shapeKind: 'arrow' })
+    expect(
+      commandFromInput(keyOf('Esc'), contextOf({ screenState: armed })).isBrowserDefaultStopped,
+    ).toBe(true)
+  })
+
+  it('IN-5a: a single-character key and Delete/Backspace do nothing while text entry is unsettled (MUST NOT)', () => {
+    const typing = contextOf({
+      isTextEntryUnsettled: true,
+      selection: selectionWith(emptySelection(), { kind: 'task', uid: 1 }),
+    })
+    for (const key of ['P', 'F', 'Delete', 'Backspace']) {
+      const answer = commandFromInput(keyOf(key), typing)
+      expect(answer.action, key).toBeNull()
+      expect(screenStateFromInput(keyOf(key), typing), key).toBe(typing.screenState)
+    }
+  })
+
+  it('IN-5a: Ctrl+C and Ctrl+V are handed to the browser while text entry is unsettled (MUST)', () => {
+    const typing = contextOf({ isTextEntryUnsettled: true })
+    for (const key of ['C', 'V']) {
+      const answer = commandFromInput(keyOf(key, { ctrl: true }), typing)
+      expect(answer.action, key).toBeNull()
+      // The exception MK-10 names: not stopped, so the character can be
+      // copied and pasted.
+      expect(answer.isBrowserDefaultStopped, key).toBe(false)
+    }
+  })
+
+  it('SK-19: Enter settles the in-place edit that IN-5a describes', () => {
+    const typing = contextOf({ isTextEntryUnsettled: true })
+    expect(commandFromInput(keyOf('Enter'), typing).action?.kind).toBe('settleTextEntry')
+  })
+
+  it('walks 表 T-028 and records which rows this unit answers', () => {
+    const answeredHere = ['IN-1', 'IN-1a', 'IN-4', 'IN-4a', 'IN-5a']
+    const elsewhere = ['IN-2', 'IN-3', 'IN-5']
+    for (const row of T_028) {
+      expect(answeredHere.includes(row) || elsewhere.includes(row), row).toBe(true)
+    }
+    // IN-2 (the pointer's shape) and IN-3 (tooltips) are drawing, and IN-5's
+    // third branch is met by the host that decides focus; none of the three
+    // has a member here.
+    expect(answeredHere).toHaveLength(5)
+    expect(elsewhere).toHaveLength(3)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-036 -- the shortcut assignment (FR-070)
+// ---------------------------------------------------------------------------
+
+describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
+  /** The context each row needs to have something to act on. */
+  function contextFor(row: string): InputContext {
+    if (row === 'SK-19') return contextOf({ isTextEntryUnsettled: true })
+    if (row === 'SK-8') return contextOf({ screenState: screenStateWithSurface(emptyScreenState(), 'Help Modal') })
+    if (row === 'SK-3') {
+      return contextOf({ selection: selectionWith(emptySelection(), { kind: 'task', uid: 1 }) })
+    }
+    return contextOf()
+  }
+
+  it('answers every row of 表 T-036 through the member PI-18 gives it', () => {
+    for (const row of T_036) {
+      if (row.member === 'none') {
+        // The assignment column is a dash: the row records that no route
+        // exists, so it carries no key to press.
+        expect(row.keys, row.row).toHaveLength(0)
+        continue
+      }
+      expect(row.keys.length, row.row).toBeGreaterThan(0)
+      for (const stroke of row.keys) {
+        const context = contextFor(row.row)
+        const input = keyOf(stroke.key, stroke.mods)
+        const answer = commandFromInput(input, context)
+        const where = `${row.row} ${stroke.key}`
+
+        if (row.member === 'action') {
+          expect(answer.action?.kind, where).toBe(row.action)
+        } else {
+          // UN-9 and UN-11 keep selection and arming out of the undo record,
+          // so neither travels as a command.
+          expect(answer.action, where).toBeNull()
+        }
+
+        if (row.member === 'selection') {
+          expect(selectionFromInput(input, context), where).not.toBe(context.selection)
+        }
+        if (row.member === 'screenState') {
+          expect(screenStateFromInput(input, context), where).not.toBe(context.screenState)
+        }
+
+        // MK-10 (MUST): a combination this tool assigned is taken from the
+        // browser. Every row above is assigned.
+        expect(answer.isBrowserDefaultStopped, where).toBe(true)
+      }
+    }
+  })
+
+  it('SK-2: Ctrl+A picks exactly the kinds SL-1 admits, and no row', () => {
+    const picked = selectionFromInput(keyOf('A', { ctrl: true }), contextOf())
+    expect(picked.items.length).toBeGreaterThan(0)
+    for (const item of picked.items) expect(SL_1_KINDS).toContain(item.kind)
+    expect(picked.items.map((one) => one.kind)).not.toContain('taskGroup')
+    // SL-5 picks everything at once, so SL-7b leaves no order behind.
+    expect(picked.ordered).toBe(false)
+  })
+
+  it('SK-3: Delete removes every selected thing, one command per SL-1 kind', () => {
+    const items: readonly ItemRef[] = [
+      { kind: 'task', uid: 1 },
+      { kind: 'dependency', successorUid: 2, ordinal: 0 },
+      { kind: 'highlightBox', id: 'h1' },
+      { kind: 'commentBox', id: 'c1' },
+      { kind: 'statusLine' },
+    ]
+    const answer = commandFromInput(keyOf('Delete'), richOf({ selection: selectionOfAll(items) }))
+    const kinds = kindsOf(answer)
+    expect(kinds).toContain('deleteTask')
+    expect(kinds).toContain('deleteDependency')
+    expect(kinds).toContain('deleteHighlightBox')
+    expect(kinds).toContain('deleteCommentBox')
+    // FR-046 owns the status line: removing it is `statusDate` going null.
+    expect(kinds).toContain('clearStatusDate')
+  })
+
+  it('SK-3: Backspace does the same as Delete (both are in the row)', () => {
+    const selection = selectionWith(emptySelection(), { kind: 'task', uid: 1 })
+    const byDelete = kindsOf(commandFromInput(keyOf('Delete'), contextOf({ selection })))
+    const byBackspace = kindsOf(commandFromInput(keyOf('Backspace'), contextOf({ selection })))
+    expect(byBackspace).toEqual(byDelete)
+  })
+
+  it('SK-3: nothing selected asks for no write (WS-4)', () => {
+    const answer = commandFromInput(keyOf('Delete'), contextOf({ selection: emptySelection() }))
+    expect(commandsOf(answer)).toHaveLength(0)
+  })
+
+  it('SK-9 / FR-035: F2 opens the one entrance to the document name', () => {
+    const action = commandFromInput(keyOf('F2'), contextOf()).action
+    expect(action?.kind).toBe('editInPlace')
+    if (action !== null && action.kind === 'editInPlace') {
+      expect(action.target.kind).toBe('documentTitle')
+    }
+  })
+
+  it('SK-13 / FR-029: F1 OPENS the help and does not toggle it', () => {
+    // The assignment column says open, where SK-14 and SK-15 say switch. IN-4
+    // already owns the closing, and FR-029 forbids a second entrance.
+    const opened = screenStateFromInput(keyOf('F1'), contextOf())
+    expect(opened.surface).toBe('Help Modal')
+    const again = screenStateFromInput(keyOf('F1'), contextOf({ screenState: opened }))
+    expect(again.surface).toBe('Help Modal')
+  })
+
+  it('SK-14: P switches the palette both ways', () => {
+    const first = screenStateFromInput(keyOf('P'), contextOf())
+    expect(first.paletteShown).toBe(!emptyScreenState().paletteShown)
+    const back = screenStateFromInput(keyOf('P'), contextOf({ screenState: first }))
+    expect(back.paletteShown).toBe(emptyScreenState().paletteShown)
+  })
+
+  it('SK-15 / FR-071: F11 switches full screen both ways', () => {
+    const on = screenStateFromInput(keyOf('F11'), contextOf())
+    expect(on.fullScreen).toBe(true)
+    const off = screenStateFromInput(
+      keyOf('F11'),
+      contextOf({ screenState: screenStateWithFullScreen(emptyScreenState(), true) }),
+    )
+    expect(off.fullScreen).toBe(false)
+  })
+
+  it('SK-16: Shift + sign zooms the time axis only, by the step handed in', () => {
+    const bigger = oneCommand(commandFromInput(keyOf('+', { shift: true }), contextOf()), 'setZoom')
+    expect(bigger['zoomX']).toBeCloseTo(SETTINGS.zoomX * ZOOM_STEP, 10)
+    expect(bigger['zoomY']).toBeCloseTo(SETTINGS.zoomY, 10)
+
+    const smaller = oneCommand(commandFromInput(keyOf('-', { shift: true }), contextOf()), 'setZoom')
+    expect(smaller['zoomX']).toBeCloseTo(SETTINGS.zoomX / ZOOM_STEP, 10)
+    expect(smaller['zoomY']).toBeCloseTo(SETTINGS.zoomY, 10)
+  })
+
+  it('SK-16a: Alt + sign zooms the row axis only', () => {
+    const bigger = oneCommand(commandFromInput(keyOf('+', { alt: true }), contextOf()), 'setZoom')
+    expect(bigger['zoomY']).toBeCloseTo(SETTINGS.zoomY * ZOOM_STEP, 10)
+    expect(bigger['zoomX']).toBeCloseTo(SETTINGS.zoomX, 10)
+
+    const smaller = oneCommand(commandFromInput(keyOf('-', { alt: true }), contextOf()), 'setZoom')
+    expect(smaller['zoomY']).toBeCloseTo(SETTINGS.zoomY / ZOOM_STEP, 10)
+    expect(smaller['zoomX']).toBeCloseTo(SETTINGS.zoomX, 10)
+  })
+
+  it('SK-17: Ctrl+0 puts both axes back to unity', () => {
+    const zoomed = settingsOf({ ...SETTINGS, zoomX: 4, zoomY: 0.5 })
+    const context = contextOf({ document: documentOf(SCHEDULE, zoomed) })
+    const back = oneCommand(commandFromInput(keyOf('0', { ctrl: true }), context), 'setZoom')
+    expect(back['zoomX']).toBe(1)
+    expect(back['zoomY']).toBe(1)
+  })
+
+  it('SK-18 / FR-055: F asks for one fit, zoom and position together', () => {
+    const fitted = oneCommand(commandFromInput(keyOf('F'), contextOf()), 'fitScheduleToScreen')
+    expect(typeof fitted['zoomX']).toBe('number')
+    expect(typeof fitted['zoomY']).toBe('number')
+    expect(fitted).toHaveProperty('scrollDate')
+    expect(fitted).toHaveProperty('scrollGroupId')
+  })
+
+  it('SK-20 / FR-046: showing the line writes today, hiding it writes null', () => {
+    const shown = commandFromInput(keyOf('D', { ctrl: true, shift: true }), contextOf())
+    expect(oneCommand(shown, 'setStatusDate')['date']).toBe(TODAY)
+
+    const withLine = scheduleOf({
+      ...(SCHEDULE as unknown as Record<string, unknown>),
+      project: { ...SCHEDULE.project, statusDate: '2026-02-01T00:00:00' },
+    })
+    const hidden = commandFromInput(
+      keyOf('D', { ctrl: true, shift: true }),
+      contextOf({ document: documentOf(withLine) }),
+    )
+    expect(kindsOf(hidden)).toContain('clearStatusDate')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-023 の MK-10 / MK-12 -- what may and may not be taken from the browser
+// ---------------------------------------------------------------------------
+
+describe('MK-10 / MK-12 of 表 T-023 -- the browser keeps what this tool did not assign', () => {
+  it('MK-10 (MUST NOT): leaves the combinations the row itself names alone', () => {
+    for (const stroke of MK_10_UNASSIGNED) {
+      const answer = commandFromInput(keyOf(stroke.key, stroke.mods), contextOf())
+      expect(answer.action, stroke.key).toBeNull()
+      expect(answer.isBrowserDefaultStopped, `Ctrl+${stroke.key}`).toBe(false)
+    }
+  })
+
+  it('MK-10 (MUST): takes the assigned ones, whatever the answer turns out to be', () => {
+    for (const stroke of [
+      { key: 'S', mods: { ctrl: true } },
+      { key: 'O', mods: { ctrl: true } },
+      { key: 'A', mods: { ctrl: true } },
+      { key: 'Z', mods: { ctrl: true } },
+    ]) {
+      expect(
+        commandFromInput(keyOf(stroke.key, stroke.mods), contextOf()).isBrowserDefaultStopped,
+        stroke.key,
+      ).toBe(true)
+    }
+  })
+
+  it('MK-12 (MUST NOT): an unassigned modified drag still lands on 表 T-023a', () => {
+    // Alt + drag and Ctrl + Shift + drag have no assignment of their own, and
+    // the row forbids answering "nothing": PD-3 decides, because something is
+    // under the pointer.
+    for (const mods of [modsOf({ alt: true }), modsOf({ ctrl: true, shift: true })]) {
+      const from = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { modifiers: mods })
+      const to = pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1'), { modifiers: mods })
+      const answer = gestureAction(from, to, TASK_1_HIT)
+      expect(kindsOf(answer), JSON.stringify(mods)).toContain('setTaskPlanDates')
+    }
+  })
+
+  // ⛔ DELIBERATELY LEFT FAILING -- the specification is clear and the answer
+  // is not. MK-12 of 表 T-023 names these two combinations and says
+  // 「この組合せに本ツールの割当を与えない。ブラウザの既定動作はそのまま委ねる
+  // —— `MK-10` が、割り当てていない組合せを止めることを禁じている」
+  // (docs/spec/01-04-requirements.md:2290), and MK-10 states the prohibition
+  // itself: 「割り当てていない組合せを止めてはならない（MUST NOT）」
+  // (docs/spec/01-04-requirements.md:2288). `isBrowserDefaultStopped` comes
+  // back true for both.
+  it('MK-12 (MUST NOT): an unassigned modified drag does not silence the browser', () => {
+    for (const mods of [modsOf({ alt: true }), modsOf({ ctrl: true, shift: true })]) {
+      const from = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { modifiers: mods })
+      const to = pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1'), { modifiers: mods })
+      expect(
+        gestureAction(from, to, TASK_1_HIT).isBrowserDefaultStopped,
+        JSON.stringify(mods),
+      ).toBe(false)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-023 の MK-1 〜 MK-5 -- the wheel
+// ---------------------------------------------------------------------------
+
+describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
+  const X = () => REGIONS.rowArea.x + 40
+  const Y = () => REGIONS.rowArea.y + 40
+
+  /** A bare wheel that would carry the view `px` pixels down the schedule. */
+  const wheelDown = (px: number): WheelInput => ({
+    kind: 'wheel',
+    x: X(),
+    y: Y(),
+    modifiers: NO_MODS,
+    notches: 1,
+    scrollPx: { x: px, y: px },
+  })
+
+  it('MK-1: a bare wheel scrolls, and is not a zoom', () => {
+    const answer = commandFromInput(wheelDown(120), contextOf())
+    expect(kindsOf(answer)).toContain('setScrollPosition')
+    expect(kindsOf(answer)).not.toContain('setZoom')
+    // Vertical: the row at the top moves, the day at the left edge does not.
+    // The two spellings of one day differ (`textOfDay` writes the exchange
+    // partner's own type), so the comparison is of the day, not the text.
+    const moved = oneCommand(answer, 'setScrollPosition')
+    expect(String(moved['scrollDate']).slice(0, 10)).toBe(SETTINGS.scrollDate)
+    expect(moved['scrollGroupId']).not.toBe(SETTINGS.scrollGroupId)
+  })
+
+  // ⛔ DELIBERATELY LEFT FAILING. MK-1 of 表 T-023 assigns a bare wheel to
+  // 「**縦スクロール**（ズームではない）」
+  // (docs/spec/01-04-requirements.md:2278), and FR-016's STATEMENT makes
+  // accepting that assignment the requirement:
+  // 「`GRS` は、ポインタとキーボードの操作を**表 T-023 の割当**で受け付けること」
+  // (docs/spec/01-04-requirements.md:2226). Turns of 100px and 250px come back
+  // with the row the view already sat on -- the distances whose landing point
+  // falls in the gap between two rows (`rowGap`, S-59) rather than on one. A
+  // device whose notch is one of those distances never scrolls the schedule
+  // vertically at all, though every one of them is longer than a whole row.
+  it('MK-1: every turn longer than one row moves the row at the top', () => {
+    const pitch = rowOf('g2').y - rowOf('g1').y
+    for (const px of [36, 100, 120, 200, 250, 300]) {
+      expect(px, 'the case only means distances longer than one row').toBeGreaterThanOrEqual(pitch)
+      const moved = oneCommand(commandFromInput(wheelDown(px), contextOf()), 'setScrollPosition')
+      expect(moved['scrollGroupId'], `${px}px`).not.toBe(SETTINGS.scrollGroupId)
+    }
+  })
+
+  it('MK-5: Ctrl+Shift+wheel scrolls sideways', () => {
+    const answer = commandFromInput(
+      wheelOf(X(), Y(), 1, modsOf({ ctrl: true, shift: true })),
+      contextOf(),
+    )
+    const moved = oneCommand(answer, 'setScrollPosition')
+    expect(String(moved['scrollDate']).slice(0, 10)).not.toBe(SETTINGS.scrollDate)
+    expect(moved['scrollGroupId']).toBe(SETTINGS.scrollGroupId)
+  })
+
+  it('MK-2: Ctrl+wheel zooms both axes by the same factor', () => {
+    const zoomed = oneCommand(
+      commandFromInput(wheelOf(X(), Y(), -1, modsOf({ ctrl: true })), contextOf()),
+      'setZoom',
+    )
+    expect(zoomed['zoomX']).not.toBe(SETTINGS.zoomX)
+    expect(zoomed['zoomY']).not.toBe(SETTINGS.zoomY)
+    expect(Number(zoomed['zoomX']) / SETTINGS.zoomX).toBeCloseTo(
+      Number(zoomed['zoomY']) / SETTINGS.zoomY,
+      10,
+    )
+  })
+
+  it('MK-3: Shift+wheel zooms the time axis only', () => {
+    const zoomed = oneCommand(
+      commandFromInput(wheelOf(X(), Y(), -1, modsOf({ shift: true })), contextOf()),
+      'setZoom',
+    )
+    expect(zoomed['zoomX']).not.toBe(SETTINGS.zoomX)
+    expect(zoomed['zoomY']).toBeCloseTo(SETTINGS.zoomY, 10)
+  })
+
+  it('MK-4: Alt+wheel zooms the row axis only', () => {
+    const zoomed = oneCommand(
+      commandFromInput(wheelOf(X(), Y(), -1, modsOf({ alt: true })), contextOf()),
+      'setZoom',
+    )
+    expect(zoomed['zoomY']).not.toBe(SETTINGS.zoomY)
+    expect(zoomed['zoomX']).toBeCloseTo(SETTINGS.zoomX, 10)
+  })
+
+  it('MK-2 〜 MK-4: one notch steps by the factor handed in (S-53 through the context)', () => {
+    const oneNotch = oneCommand(
+      commandFromInput(wheelOf(X(), Y(), -1, modsOf({ shift: true })), contextOf()),
+      'setZoom',
+    )
+    const twoNotches = oneCommand(
+      commandFromInput(wheelOf(X(), Y(), -2, modsOf({ shift: true })), contextOf()),
+      'setZoom',
+    )
+    const first = Number(oneNotch['zoomX']) / SETTINGS.zoomX
+    const second = Number(twoNotches['zoomX']) / SETTINGS.zoomX
+    expect(first).toBeCloseTo(ZOOM_STEP, 10)
+    expect(second).toBeCloseTo(ZOOM_STEP * ZOOM_STEP, 10)
+  })
+
+  it('MK-2 〜 MK-4: turning the other way undoes the step', () => {
+    const away = oneCommand(
+      commandFromInput(wheelOf(X(), Y(), -1, modsOf({ shift: true })), contextOf()),
+      'setZoom',
+    )
+    const toward = oneCommand(
+      commandFromInput(wheelOf(X(), Y(), 1, modsOf({ shift: true })), contextOf()),
+      'setZoom',
+    )
+    expect(Number(away['zoomX']) * Number(toward['zoomX'])).toBeCloseTo(SETTINGS.zoomX ** 2, 10)
+  })
+
+  it('FR-016 (MUST NOT): a wheel during a drag is refused', () => {
+    const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: TASK_1_HIT }
+    for (const mods of [modsOf({ ctrl: true }), modsOf({ shift: true }), modsOf({ alt: true })]) {
+      const answer = commandFromInput(wheelOf(X(), Y(), -1, mods), contextOf({ pressed }))
+      expect(answer.action, JSON.stringify(mods)).toBeNull()
+      // Still an assigned combination, so MK-10 still takes it (MUST).
+      expect(answer.isBrowserDefaultStopped, JSON.stringify(mods)).toBe(true)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-023a -- the press decision order
+// ---------------------------------------------------------------------------
+
+describe('表 T-023a -- the press decision order, first row that holds (MUST)', () => {
+  const armedShape = screenStateWithArmed(emptyScreenState(), {
+    kind: 'taskShape',
+    shapeKind: 'rectangle',
+  })
+
+  it('walks 表 T-023a and settles each row on what it names', () => {
+    const from = xOfDay('2026-01-06')
+    const to = xOfDay('2026-01-13')
+    const y1 = midYOfRow('g1')
+    const y3 = midYOfRow('g3')
+
+    const seen: Record<string, boolean> = {}
+    for (const row of T_023A) {
+      switch (row) {
+        case 'PD-1': {
+          // Ctrl alone, on top of something: still a pan.
+          const mods = modsOf({ ctrl: true })
+          const answer = gestureAction(
+            pointerOf('down', from, y1, { modifiers: mods }),
+            pointerOf('up', to, y1, { modifiers: mods }),
+            TASK_1_HIT,
+          )
+          expect(kindsOf(answer), row).toContain('setScrollPosition')
+          expect(kindsOf(answer), row).not.toContain('setTaskPlanDates')
+          seen[row] = true
+          break
+        }
+        case 'PD-2': {
+          // Dual Cursor mode: DC-5 refuses creation, movement and editing.
+          const answer = gestureAction(
+            pointerOf('down', from, y1),
+            pointerOf('up', to, y1),
+            TASK_1_HIT,
+            { isDualCursorMode: true, screenState: armedShape },
+          )
+          expect(kindsOf(answer), row).not.toContain('setTaskPlanDates')
+          expect(kindsOf(answer), row).not.toContain('createTask')
+          seen[row] = true
+          break
+        }
+        case 'PD-3': {
+          const answer = gestureAction(
+            pointerOf('down', from, y1),
+            pointerOf('up', to, y1),
+            TASK_1_HIT,
+          )
+          expect(kindsOf(answer), row).toContain('setTaskPlanDates')
+          seen[row] = true
+          break
+        }
+        case 'PD-4': {
+          const answer = gestureAction(
+            pointerOf('down', from, y3),
+            pointerOf('up', to, y3),
+            null,
+            { screenState: armedShape },
+          )
+          expect(kindsOf(answer), row).toContain('createTask')
+          seen[row] = true
+          break
+        }
+        case 'PD-4a': {
+          const armedLine = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
+          const context = contextOf({
+            screenState: armedLine,
+            pressed: { at: pointerOf('down', from, y3), hit: null },
+          })
+          const up = pointerOf('up', to, y3)
+          expect(commandFromInput(up, context).action, row).toBeNull()
+          // The arm is not released by the gesture.
+          expect(screenStateFromInput(up, context).armed.kind, row).toBe('dependency')
+          seen[row] = true
+          break
+        }
+        case 'PD-5': {
+          const marquee = marqueeOverTask1()
+          const picked = gestureSelection(marquee.from, marquee.to, null)
+          expect(picked.items.map((one) => one.kind), row).toContain('task')
+          seen[row] = true
+          break
+        }
+      }
+    }
+    expect(Object.keys(seen).sort()).toEqual([...T_023A].sort())
+  })
+
+  it('PD-1: the middle button pans too', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { button: 'middle' }),
+      pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1'), { button: 'middle' }),
+      TASK_1_HIT,
+    )
+    expect(kindsOf(answer)).toContain('setScrollPosition')
+  })
+
+  it('MK-7 (MUST): the pan is one-to-one -- the schedule moves as far as the pointer', () => {
+    const mods = modsOf({ ctrl: true })
+    const days = 5
+    const from = xOfDay('2026-01-06')
+    const to = from + days * LAYOUT.pxPerDay
+    const answer = gestureAction(
+      pointerOf('down', from, midYOfRow('g1'), { modifiers: mods }),
+      pointerOf('up', to, midYOfRow('g1'), { modifiers: mods }),
+      null,
+    )
+    const moved = oneCommand(answer, 'setScrollPosition')
+    const landed = String(moved['scrollDate']).slice(0, 10)
+    expect(Math.abs(serialOf(landed) - ORIGIN_SERIAL)).toBe(days)
+  })
+
+  it('第 1 の分岐 (MUST): what was hit decides before what is armed', () => {
+    // PD-3 comes before PD-4, so an armed shape does not make a new Task on
+    // top of an existing one.
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1')),
+      TASK_1_HIT,
+      { screenState: armedShape },
+    )
+    expect(kindsOf(answer)).not.toContain('createTask')
+    expect(kindsOf(answer)).toContain('setTaskPlanDates')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-023b -- what may be armed, and FR-001's creation
+// ---------------------------------------------------------------------------
+
+describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
+  const armedWith = (armed: Armed): ScreenState => screenStateWithArmed(emptyScreenState(), armed)
+
+  it('walks 表 T-023b: only a shape row makes a Task on empty ground', () => {
+    for (const row of T_023B) {
+      const answer = gestureAction(
+        pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
+        pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
+        null,
+        { screenState: armedWith(row.armed) },
+      )
+      expect(kindsOf(answer).includes('createTask'), `${row.row}`).toBe(row.makesATask)
+      // UN-11: arming is outside the undo record, so nothing here ever asks
+      // for a write that changes what is armed.
+      expect(kindsOf(answer), row.row).not.toContain('setArmed')
+    }
+  })
+
+  it('AR-2 / FR-001: the created Task carries the armed shape', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
+      pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
+      null,
+      { screenState: armedWith({ kind: 'taskShape', shapeKind: 'chevron' }) },
+    )
+    expect(oneCommand(answer, 'createTask')['shapeKind']).toBe('chevron')
+  })
+
+  it('AR-3 / FR-001 (MUST): a milestone arm makes a milestone-shaped Task', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
+      pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
+      null,
+      { screenState: armedWith({ kind: 'milestoneShape', glyph: 'diamond' }) },
+    )
+    expect(oneCommand(answer, 'createTask')['shapeKind']).toBe('milestone')
+  })
+
+  it('FR-001 (MUST): the row is the one the START of the drag points at', () => {
+    // "ドラッグを始めた縦位置が指す TaskGroup に載せること（MUST）"
+    // -- docs/spec/01-04-requirements.md:943 (FR-001 STATEMENT).
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
+      pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g5')),
+      null,
+      { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+    )
+    expect(oneCommand(answer, 'createTask')['groupId']).toBe('g3')
+  })
+
+  it('FR-001 (MUST): a click, not a drag, makes start and finish the same day', () => {
+    const at = xOfDay('2026-01-04')
+    const y = midYOfRow('g3')
+    const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+      screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+    })
+    const made = oneCommand(answer, 'createTask')
+    expect(made['start']).toBe(made['finish'])
+  })
+
+  it('FR-001 (MUST): a drag shorter than one day makes start and finish the same day', () => {
+    const at = xOfDay('2026-01-04')
+    const y = midYOfRow('g3')
+    const answer = gestureAction(
+      pointerOf('down', at, y),
+      pointerOf('up', at + LAYOUT.pxPerDay / 3, y),
+      null,
+      { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+    )
+    const made = oneCommand(answer, 'createTask')
+    expect(made['start']).toBe(made['finish'])
+  })
+
+  it('FR-001 (MUST): a drag on no row at all names the row that has to be made', () => {
+    const bare = scheduleOf({})
+    const regions = regionsFromScreen(ENV, SETTINGS)
+    const layout = layoutFromSchedule(bare, SETTINGS, regions)
+    const answer = gestureAction(
+      pointerOf('down', regions.rowArea.x + 30, regions.rowArea.y + 20),
+      pointerOf('up', regions.rowArea.x + 90, regions.rowArea.y + 20),
+      null,
+      {
+        document: documentOf(bare),
+        layout,
+        regions,
+        geometry: geometryFromLayout(bare, SETTINGS, layout, regions),
+        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+      },
+    )
+    // FR-001's second MUST is answered by naming an id no row holds: CM-6 is
+    // the entrance that makes the row, and `newGroupId` is the identifier the
+    // caller minted for it (AT-51 is a UUID, so minting is not a pure act).
+    expect(oneCommand(answer, 'createTask')['groupId']).toBe(NEW_GROUP_ID)
+    expect(
+      SCHEDULE.taskGroups.some((one) => one.id === NEW_GROUP_ID),
+      'the id must be one no row holds',
+    ).toBe(false)
+  })
+
+  it('FR-001 (MUST): a created Task is given no WBS parent', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
+      pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
+      null,
+      { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+    )
+    expect(oneCommand(answer, 'createTask')).not.toHaveProperty('wbsParentUid')
+    expect(kindsOf(answer)).not.toContain('setTaskWbsParent')
+  })
+
+  it('AR-4 / PD-4a: the dependency arm on empty ground writes nothing and keeps the arm', () => {
+    const context = contextOf({
+      screenState: armedWith({ kind: 'dependency' }),
+      pressed: { at: pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')), hit: null },
+    })
+    const up = pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3'))
+    expect(commandFromInput(up, context).action).toBeNull()
+    expect(screenStateFromInput(up, context).armed.kind).toBe('dependency')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-023c -- the selection rules (FR-081)
+// ---------------------------------------------------------------------------
+
+describe('表 T-023c -- the selection rules (FR-081)', () => {
+  const wholeRow1 = marqueeOverTask1
+
+  it('SL-1: never answers with a row, whatever the gesture', () => {
+    const marquee = wholeRow1()
+    const answers = [
+      gestureSelection(marquee.from, marquee.to, null),
+      selectionFromInput(keyOf('A', { ctrl: true }), contextOf()),
+      gestureSelection(
+        pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+        pointerOf('up', xOfDay('2026-01-06'), midYOfRow('g1')),
+        TASK_1_HIT,
+      ),
+    ]
+    for (const picked of answers) {
+      for (const item of picked.items) expect(SL_1_KINDS).toContain(item.kind)
+    }
+  })
+
+  it('SL-2: a click on a target replaces what was selected', () => {
+    const held = selectionWith(emptySelection(), { kind: 'task', uid: 2 })
+    const at = xOfDay('2026-01-06')
+    const y = midYOfRow('g1')
+    const picked = gestureSelection(pointerOf('down', at, y), pointerOf('up', at, y), TASK_1_HIT, {
+      selection: held,
+    })
+    expect(picked.items).toEqual([{ kind: 'task', uid: 1 }])
+  })
+
+  it('SL-2: a click selects a dependency, a box and the status line (SL-1 kinds)', () => {
+    const cases: readonly { readonly hit: Hit; readonly expected: ItemRef }[] = [
+      {
+        hit: hitOf({ kind: 'dependency', predecessorUid: 1, successorUid: 2 }, 'GR-13'),
+        expected: { kind: 'dependency', successorUid: 2, ordinal: 0 },
+      },
+      {
+        hit: hitOf({ kind: 'highlightBox', id: 'h1' }, 'GR-14'),
+        expected: { kind: 'highlightBox', id: 'h1' },
+      },
+      {
+        hit: hitOf({ kind: 'commentBox', id: 'c1' }, 'GR-14'),
+        expected: { kind: 'commentBox', id: 'c1' },
+      },
+      { hit: hitOf({ kind: 'statusLine' }, 'GR-16'), expected: { kind: 'statusLine' } },
+    ]
+    for (const one of cases) {
+      const at = xOfDay('2026-01-06')
+      const y = midYOfRow('g1')
+      const picked = gestureSelection(
+        pointerOf('down', at, y),
+        pointerOf('up', at, y),
+        one.hit,
+        richOf(),
+      )
+      expect(picked.items, one.hit.item.kind).toContainEqual(one.expected)
+    }
+  })
+
+  it('SL-3 (MUST): a marquee takes only what it wholly encloses', () => {
+    const marquee = wholeRow1()
+    const picked = gestureSelection(marquee.from, marquee.to, null)
+    expect(picked.items).toContainEqual({ kind: 'task', uid: 1 })
+    expect(picked.items).not.toContainEqual({ kind: 'task', uid: 2 })
+  })
+
+  it('SL-3 (MUST NOT): a marquee that merely touches a bar does not take it', () => {
+    const at = placementOf(1)
+    const row = rowOf('g1')
+    // Left edge only: the rectangle overlaps the first pixels of the bar.
+    const picked = gestureSelection(
+      pointerOf('down', at.x - 12, row.y),
+      pointerOf('up', at.x + at.width / 2, row.y + row.height + 8),
+      null,
+    )
+    expect(picked.items).not.toContainEqual({ kind: 'task', uid: 1 })
+  })
+
+  it('SL-1 (MUST NOT): a marquee never sweeps in the status line', () => {
+    const picked = gestureSelection(
+      pointerOf('down', REGIONS.rowArea.x, REGIONS.rowArea.y),
+      pointerOf(
+        'up',
+        REGIONS.rowArea.x + REGIONS.rowArea.width,
+        REGIONS.rowArea.y + REGIONS.rowArea.height,
+      ),
+      null,
+      richOf(),
+    )
+    expect(picked.items.length).toBeGreaterThan(0)
+    expect(picked.items).not.toContainEqual({ kind: 'statusLine' })
+  })
+
+  it('SL-4: Shift + click adds one at a time', () => {
+    const held = selectionWith(emptySelection(), { kind: 'task', uid: 2 })
+    const at = xOfDay('2026-01-06')
+    const y = midYOfRow('g1')
+    const shift = modsOf({ shift: true })
+    const picked = gestureSelection(
+      pointerOf('down', at, y, { modifiers: shift }),
+      pointerOf('up', at, y, { modifiers: shift }),
+      TASK_1_HIT,
+      { selection: held },
+    )
+    expect(picked.items).toContainEqual({ kind: 'task', uid: 2 })
+    expect(picked.items).toContainEqual({ kind: 'task', uid: 1 })
+  })
+
+  it('SL-4: Shift + click a second time takes it out again', () => {
+    const held = selectionOfAll([
+      { kind: 'task', uid: 1 },
+      { kind: 'task', uid: 2 },
+    ])
+    const at = xOfDay('2026-01-06')
+    const y = midYOfRow('g1')
+    const shift = modsOf({ shift: true })
+    const picked = gestureSelection(
+      pointerOf('down', at, y, { modifiers: shift }),
+      pointerOf('up', at, y, { modifiers: shift }),
+      TASK_1_HIT,
+      { selection: held },
+    )
+    expect(picked.items).not.toContainEqual({ kind: 'task', uid: 1 })
+    expect(picked.items).toContainEqual({ kind: 'task', uid: 2 })
+  })
+
+  it('SL-4: Shift + marquee adds the enclosed to what was already held', () => {
+    const held = selectionWith(emptySelection(), { kind: 'task', uid: 2 })
+    const marquee = wholeRow1()
+    const shift = modsOf({ shift: true })
+    const picked = gestureSelection(
+      { ...marquee.from, modifiers: shift },
+      { ...marquee.to, modifiers: shift },
+      null,
+      { selection: held },
+    )
+    expect(picked.items).toContainEqual({ kind: 'task', uid: 1 })
+    expect(picked.items).toContainEqual({ kind: 'task', uid: 2 })
+  })
+
+  it('SL-6 / MK-11: a bare click on nothing clears the selection', () => {
+    const held = selectionOfAll([
+      { kind: 'task', uid: 1 },
+      { kind: 'task', uid: 2 },
+    ])
+    const at = xOfDay('2026-01-20')
+    const y = midYOfRow('g4')
+    const picked = gestureSelection(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+      selection: held,
+    })
+    expect(picked.items).toEqual([])
+  })
+
+  it('MK-11 only bites when nothing is armed (FR-083 note)', () => {
+    // With a shape armed, a click on empty ground is PD-4 and makes a Task of
+    // zero length, so the selection is not the answer being asked for.
+    const held = selectionWith(emptySelection(), { kind: 'task', uid: 2 })
+    const at = xOfDay('2026-01-20')
+    const y = midYOfRow('g4')
+    const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
+      selection: held,
+      screenState: screenStateWithArmed(emptyScreenState(), {
+        kind: 'taskShape',
+        shapeKind: 'rectangle',
+      }),
+    })
+    expect(kindsOf(answer)).toContain('createTask')
+  })
+
+  it('SL-7 (MUST): a body drag moves every selected Task', () => {
+    const held = selectionOfAll([
+      { kind: 'task', uid: 1 },
+      { kind: 'task', uid: 2 },
+    ])
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1')),
+      TASK_1_HIT,
+      { selection: held },
+    )
+    const moved = commandsOf(answer).filter((one) => one.kind === 'setTaskPlanDates')
+    expect(moved.map((one) => (one as unknown as Record<string, unknown>)['uid']).sort()).toEqual([
+      1, 2,
+    ])
+  })
+
+  it('SL-7a (MUST): an END drag narrows to the one that was grabbed', () => {
+    const held = selectionOfAll([
+      { kind: 'task', uid: 1 },
+      { kind: 'task', uid: 2 },
+    ])
+    const answer = gestureAction(
+      pointerOf('down', placementOf(1).x + placementOf(1).width, midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-15'), midYOfRow('g1')),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GR-4'),
+      { selection: held },
+    )
+    const moved = commandsOf(answer).filter((one) => one.kind === 'setTaskPlanDates')
+    expect(moved).toHaveLength(1)
+    expect((moved[0] as unknown as Record<string, unknown>)['uid']).toBe(1)
+  })
+
+  it('SL-1 (MUST NOT): the status line is not carried along by a group move', () => {
+    const held = selectionOfAll([
+      { kind: 'task', uid: 1 },
+      { kind: 'statusLine' },
+    ])
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1')),
+      TASK_1_HIT,
+      { selection: held },
+    )
+    expect(kindsOf(answer)).not.toContain('setStatusDate')
+  })
+
+  it('SL-7b (MUST): picking one at a time keeps an order; a marquee does not', () => {
+    const at = xOfDay('2026-01-06')
+    const y = midYOfRow('g1')
+    const oneByOne = gestureSelection(pointerOf('down', at, y), pointerOf('up', at, y), TASK_1_HIT)
+    expect(oneByOne.ordered).toBe(true)
+
+    const marquee = wholeRow1()
+    expect(gestureSelection(marquee.from, marquee.to, null).ordered).toBe(false)
+  })
+
+  it('UN-9 of 表 T-027: a selection change is never a command', () => {
+    const at = xOfDay('2026-01-06')
+    const y = midYOfRow('g1')
+    const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), TASK_1_HIT)
+    expect(commandsOf(answer)).toHaveLength(0)
+    expect(commandFromInput(keyOf('A', { ctrl: true }), contextOf()).action).toBeNull()
+  })
+
+  it('UN-9: an input with no effect on the selection gives back the same value', () => {
+    const held = selectionWith(emptySelection(), { kind: 'task', uid: 1 })
+    const context = contextOf({ selection: held })
+    for (const input of [keyOf('S', { ctrl: true }), keyOf('F11'), wheelOf(300, 300, 1)]) {
+      expect(selectionFromInput(input, context), JSON.stringify(input)).toBe(held)
+    }
+  })
+
+  it('walks 表 T-023c and records where each row is answered', () => {
+    const here = ['SL-1', 'SL-2', 'SL-3', 'SL-4', 'SL-5', 'SL-6', 'SL-7', 'SL-7a', 'SL-7b']
+    const drawing = ['SL-8']
+    for (const row of T_023C) {
+      expect(here.includes(row) || drawing.includes(row), row).toBe(true)
+    }
+    expect(here).toHaveLength(9)
+    expect(drawing).toHaveLength(1)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-023d -- the grab areas
+// ---------------------------------------------------------------------------
+
+describe('表 T-023d -- what a grab does', () => {
+  /** The rows whose operation the published vocabulary can already express. */
+  const ROUTED: Readonly<Record<string, string>> = {
+    'GR-3': 'setTaskPlanDates',
+    'GR-4': 'setTaskPlanDates',
+    'GR-7': 'cycleTaskPlanActualState',
+    'GR-12': 'setTaskPlanDates',
+    'GR-16': 'setStatusDate',
+  }
+
+  const itemFor = (row: string): Hit['item'] =>
+    row === 'GR-16'
+      ? { kind: 'statusLine' }
+      : row === 'GR-13'
+        ? { kind: 'dependency', predecessorUid: 1, successorUid: 2 }
+        : row === 'GR-14'
+          ? { kind: 'commentBox', id: 'c1' }
+          : { kind: 'task', taskUid: 1 }
+
+  it('walks 表 T-023d: every row answers with a value, and the routed ones name their command', () => {
+    for (const row of T_023D) {
+      const hit = hitOf(itemFor(row), row as Hit['grab'])
+      const from = pointerOf('down', xOfDay('2026-01-07'), midYOfRow('g1'))
+      const to = pointerOf('up', xOfDay('2026-01-14'), midYOfRow('g1'))
+      let answer: TranslatedInput | null = null
+      expect(() => {
+        answer = gestureAction(from, to, hit)
+      }, row).not.toThrow()
+      expect(answer, row).not.toBeNull()
+      const routed = ROUTED[row]
+      if (routed !== undefined) {
+        expect(kindsOf(answer as unknown as TranslatedInput), row).toContain(routed)
+      }
+    }
+  })
+
+  it('GR-3: dragging the left end moves `start` to the day it was dropped on', () => {
+    const answer = gestureAction(
+      pointerOf('down', placementOf(1).x, midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-02'), midYOfRow('g1')),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GR-3'),
+    )
+    const moved = oneCommand(answer, 'setTaskPlanDates')
+    expect(String(moved['start']).slice(0, 10)).toBe('2026-01-02')
+    expect(String(moved['finish']).slice(0, 10)).toBe('2026-01-09')
+  })
+
+  it('GR-4: dragging the right end moves `finish` only', () => {
+    const answer = gestureAction(
+      pointerOf('down', placementOf(1).x + placementOf(1).width, midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-15'), midYOfRow('g1')),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GR-4'),
+    )
+    const moved = oneCommand(answer, 'setTaskPlanDates')
+    expect(String(moved['start']).slice(0, 10)).toBe('2026-01-05')
+    expect(String(moved['finish']).slice(0, 10)).toBe('2026-01-15')
+  })
+
+  it('GR-12 / FR-011 (MUST): a body drag shifts the plan and keeps its length', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-09'), midYOfRow('g1')),
+      TASK_1_HIT,
+    )
+    const moved = oneCommand(answer, 'setTaskPlanDates')
+    const start = serialOf(String(moved['start']).slice(0, 10))
+    const finish = serialOf(String(moved['finish']).slice(0, 10))
+    expect(finish - start).toBe(serialOf('2026-01-09') - serialOf('2026-01-05'))
+    expect(start - serialOf('2026-01-05')).toBe(3)
+  })
+
+  it('GR-12 / FR-011 (MUST NOT): a body drag never writes an actual date', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g2')),
+      TASK_1_HIT,
+    )
+    for (const forbidden of ACTUAL_WRITERS) expect(kindsOf(answer)).not.toContain(forbidden)
+  })
+
+  it('GR-12 / HM-3 of 表 T-015a: a vertical body drag transplants the row', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-06'), midYOfRow('g4')),
+      TASK_1_HIT,
+    )
+    const moved = oneCommand(answer, 'moveTaskToTaskGroup')
+    expect(moved['uid']).toBe(1)
+    expect(moved['groupId']).toBe('g4')
+  })
+
+  it('GR-12: a body drag that stays on its row asks for no transplant', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1')),
+      TASK_1_HIT,
+    )
+    expect(kindsOf(answer)).not.toContain('moveTaskToTaskGroup')
+  })
+
+  it('GR-7 / FR-013: pressing the progress marker cycles the state', () => {
+    const at = xOfDay('2026-01-10')
+    const y = midYOfRow('g1')
+    const answer = gestureAction(
+      pointerOf('down', at, y),
+      pointerOf('up', at, y),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GR-7'),
+    )
+    expect(oneCommand(answer, 'cycleTaskPlanActualState')['uid']).toBe(1)
+  })
+
+  it('GR-16 / FR-046 (MUST): dragging the status line makes `statusDate` follow', () => {
+    const answer = gestureAction(
+      pointerOf('down', xOfDay('2026-01-10'), midYOfRow('g1')),
+      pointerOf('up', xOfDay('2026-01-22'), midYOfRow('g1')),
+      hitOf({ kind: 'statusLine' }, 'GR-16'),
+    )
+    expect(String(oneCommand(answer, 'setStatusDate')['date']).slice(0, 10)).toBe('2026-01-22')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// MK-13 -- the double click
+// ---------------------------------------------------------------------------
+
+describe('MK-13 of 表 T-023 -- the double click', () => {
+  const doubleClickOn = (hit: Hit): TranslatedInput => {
+    const at = xOfDay('2026-01-06')
+    const y = midYOfRow('g1')
+    return gestureAction(
+      pointerOf('down', at, y, { clickCount: 2 }),
+      pointerOf('up', at, y, { clickCount: 2 }),
+      hit,
+    )
+  }
+
+  it('the name label opens the name for editing', () => {
+    const action = doubleClickOn(hitOf({ kind: 'task', taskUid: 1 }, 'GR-10')).action
+    expect(action?.kind).toBe('editInPlace')
+    if (action !== null && action.kind === 'editInPlace') {
+      expect(action.target).toEqual({ kind: 'taskName', uid: 1 })
+    }
+  })
+
+  it('the task body opens the properties panel', () => {
+    const action = doubleClickOn(TASK_1_HIT).action
+    expect(action?.kind).toBe('openPropertiesPanel')
+    if (action !== null && action.kind === 'openPropertiesPanel') {
+      expect(action.uid).toBe(1)
+    }
+  })
+
+  it('a single click on the same body does not open the panel', () => {
+    const at = xOfDay('2026-01-06')
+    const y = midYOfRow('g1')
+    const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), TASK_1_HIT)
+    expect(answer.action?.kind).not.toBe('openPropertiesPanel')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-027 -- what still travels as a command, and what does not
+// ---------------------------------------------------------------------------
+
+describe('表 T-027 -- undo carries the document, not the view', () => {
+  it('walks the four rows this unit answers', () => {
+    for (const row of T_027_HERE) {
+      switch (row) {
+        case 'UN-8': {
+          // Zoom, scroll and pan are outside undo yet are saved settings, so
+          // they still reach the document as commands.
+          const zoom = commandFromInput(keyOf('+', { shift: true }), contextOf())
+          expect(kindsOf(zoom), row).toContain('setZoom')
+          const scroll = commandFromInput(
+            wheelOf(REGIONS.rowArea.x + 20, REGIONS.rowArea.y + 20, 1),
+            contextOf(),
+          )
+          expect(kindsOf(scroll), row).toContain('setScrollPosition')
+          break
+        }
+        case 'UN-9': {
+          expect(commandFromInput(keyOf('A', { ctrl: true }), contextOf()).action, row).toBeNull()
+          break
+        }
+        case 'UN-11': {
+          const armed = screenStateWithArmed(emptyScreenState(), { kind: 'highlightBox' })
+          const context = contextOf({ screenState: armed })
+          expect(commandFromInput(keyOf('Esc'), context).action, row).toBeNull()
+          expect(screenStateFromInput(keyOf('Esc'), context).armed.kind, row).toBe('none')
+          break
+        }
+        case 'UN-16': {
+          // Panel widths, pins and the PNG scale have no entrance here; the
+          // row is recorded so the walk covers it.
+          expect(kindsOf(commandFromInput(keyOf('F'), contextOf())), row).not.toContain(
+            'setPanelWidths',
+          )
+          break
+        }
+      }
+    }
+  })
+
+  it('LY-1: an input with no effect on the screen gives back the same state', () => {
+    const state = screenStateWithPalette(emptyScreenState(), false)
+    const context = contextOf({ screenState: state })
+    for (const input of [keyOf('S', { ctrl: true }), keyOf('Delete'), wheelOf(300, 300, 1)]) {
+      expect(screenStateFromInput(input, context), JSON.stringify(input)).toBe(state)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-029a の DC-5 -- the Dual Cursor refuses creation, movement and editing
+// ---------------------------------------------------------------------------
+
+describe('DC-5 of 表 T-029a / PD-2 -- the Dual Cursor mode is exclusive', () => {
+  const dual = { isDualCursorMode: true }
+
+  it('refuses to create, move or edit while the mode is up (MUST NOT)', () => {
+    const armed = screenStateWithArmed(emptyScreenState(), {
+      kind: 'taskShape',
+      shapeKind: 'rectangle',
+    })
+    const cases: readonly TranslatedInput[] = [
+      gestureAction(
+        pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+        pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1')),
+        TASK_1_HIT,
+        dual,
+      ),
+      gestureAction(
+        pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
+        pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
+        null,
+        { ...dual, screenState: armed },
+      ),
+      gestureAction(
+        pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { clickCount: 2 }),
+        pointerOf('up', xOfDay('2026-01-06'), midYOfRow('g1'), { clickCount: 2 }),
+        hitOf({ kind: 'task', taskUid: 1 }, 'GR-10'),
+        dual,
+      ),
+    ]
+    for (const answer of cases) {
+      for (const forbidden of ['createTask', 'setTaskPlanDates', 'setTaskName']) {
+        expect(kindsOf(answer), forbidden).not.toContain(forbidden)
+      }
+      expect(answer.action?.kind).not.toBe('editInPlace')
+    }
+  })
+
+  it('IN-4: the mode is the last level Esc consumes', () => {
+    const context = contextOf({ ...dual })
+    // Nothing else is up, so this Esc is consumed by the mode and does not
+    // reach the browser (IN-4a's exception).
+    expect(commandFromInput(keyOf('Esc'), context).isBrowserDefaultStopped).toBe(true)
+  })
+})
+
+

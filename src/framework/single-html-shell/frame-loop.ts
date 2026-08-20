@@ -93,9 +93,18 @@ function viewSettings(
   const placed = stored.scrollDate !== null && groupIds.has(stored.scrollGroupId ?? '')
   if (placed) return stored
 
-  // Where the fit starts from: the earliest day anything is drawn on, and the
-  // first row in the document's own order. Nothing in table T-064 publishes
-  // this, so it is decided here -- and it is a view, not a stored value.
+  // Where the fit starts from: the earliest planned start, and the first row in
+  // the document's own order. Nothing in table T-064 publishes this, so it is
+  // decided here -- and it is a view, not a stored value.
+  //
+  // ⛔ NOT the earliest day anything is drawn on. An `actualStart` before the
+  // plan's start is drawn left of this origin (OC-5 of table T-038 counts it,
+  // and LC-7 now measures it), so FR-055's fit sizes it in but this anchor
+  // leaves it behind the Row Header panel -- the very harm FR-055's RATIONALE
+  // names. ⚠️ Anchoring on the actual instead is not obviously right either:
+  // OC-6 keeps the below-laid actual out of the width, so the zoom half and the
+  // position half of FR-055 would then measure different sets. Settling it
+  // takes a change request, not a guess here.
   const starts = held.schedule.tasks
     .map((one) => one.start)
     .filter((one): one is string => one !== null)

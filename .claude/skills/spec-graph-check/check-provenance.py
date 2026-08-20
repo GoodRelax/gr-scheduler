@@ -42,6 +42,11 @@ ARTIFACTS = [
     # is generated, which is why the banner has to say so per file.
     ('src/entity/layout-engine/item-hit-area/item-hit-area.ts', 'settings.json'),
     ('src/entity/document-model/edit-history/edit-history.ts', 'settings.json'),
+    # The roster of icons (table T-109), which UF-62 and UF-65 read instead of
+    # naming its rows themselves. ⚠️ Its banner is a "$comment" key, which the
+    # startup template beside it may NOT have: that one is validated by the GRS
+    # JSON schema, and this one is not.
+    ('src/adapter/screen-renderer/icon-roster.json', 'tbl-glossary.md'),
 ]
 
 # How far into the file the banner may sit. Long enough for a StrictDoc header
