@@ -1,0 +1,25 @@
+{
+ "$comment": [
+  "GENERATED -- do not edit by hand. Your change is overwritten by the next rebuild.",
+  "Generated from docs/spec/_source/mspdi-custom-fields.json (the two MSPDI custom-field frames GRS borrows for the fade day counts, EX-6 / EX-8 of table T-033), which is the single source of truth. The generator is tools/generate_mspdi_custom_fields.py.",
+  "Rebuild: npm run gen   |   npm run gen:check fails on drift.",
+  "The FieldID numbers are a quotation from Microsoft PjCustomField, not a GRS decision. The manuscript records the source and what could and could not be corroborated locally."
+ ],
+ "elemType": 20,
+ "cfType": 5,
+ "aliasMaxLength": 50,
+ "frames": [
+  {
+   "name": "pjCustomTaskNumber1",
+   "fieldId": 188743767,
+   "prefers": "fadeInDays",
+   "alias": ""
+  },
+  {
+   "name": "pjCustomTaskNumber2",
+   "fieldId": 188743768,
+   "prefers": "fadeOutDays",
+   "alias": ""
+  }
+ ]
+}

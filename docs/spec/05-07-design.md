@@ -332,10 +332,10 @@ src/
 | PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める） |
 | PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`）／ `isNewerStamp`（起動時の比較。表 T-034） |
 | PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
-| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか） |
+| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか） |
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryFromLayout` |
 | PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。完全に囲まれたものだけ） |
-| PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は 表 T-108 が持つ**）／ `applyDocumentChange`（`non-pure`。唯一の書き込みの経路） |
+| PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は 表 T-108 が持つ**）／ `applyDocumentChange`（`non-pure`。命令の列で書き込む）／ `replaceDocument`（`non-pure`。外で組み立てた文書を現在値にする。段は 表 T-067） |
 | PI-9 | `UseCase` | `EditDocument` | `editDocument`（表 T-108 の命令を集約へ振り分ける。表 T-067 の `WS-3` が呼ぶ。集約ごとの割りは 表 T-063 の `UT-2`）／ `Refusal`（型。拒んだ理由。表 T-035 の `AG-9a`）／ `SettingsLimits`（型。`editDocument` に渡す下限・上限） |
 | PI-10 | `UseCase` | `ImportDocument` | `importDocument`（合流の選択肢は 表 T-032a） |
 | PI-11 | `UseCase` | `UndoEdit` | `undoEdit` |
@@ -348,7 +348,7 @@ src/
 | PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。置き場は `CP-36`） |
 | PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`） |
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`） |
-| PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
+| PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。落とす規則は `FR-080`）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
 | PI-22 | `Adapter` | `FileGateway` | `FileStore`（表 T-065）／ `openDocumentFile`（`semi-pure-b`）／ `saveDocumentFile`（`non-pure`） |
 | PI-23 | `Adapter` | `AutosaveGateway` | `DocumentStore`（表 T-065）／ `saveDocumentSnapshot`（`non-pure`）／ `restoreDocumentSnapshot`（`semi-pure-b`） |
 | PI-24 | `Adapter` | `ClipboardGateway` | `Clipboard`（表 T-065）／ `writeClipboard`（`non-pure`。表 T-024 の `IO-6` と `FR-033`） |
@@ -682,7 +682,7 @@ stateDiagram-v2
 
 **文書の不変条件の全数を 表 T-220 に示す** —— 表 T-060 の `LY-1` が、その全数を本節が持つと定めている。**`scheduleViolations`（表 T-064 の `PI-1`）は本表を駆動して回ること（MUST）。行ごとに条件を書き下してはならない（MUST NOT）** —— 表を指す要求を検証するテストの駆動の仕方は 1.9 が持つ。
 
-⚠️ **本表は、生成したスキーマが持てない条件だけを持つ** —— `_assets/grs-document.schema.json` は、列ごとの型と、`null` を許すかと、文字列の長さと、数値の範囲と、原稿が値を綴った列挙を既に強制する。**1 つの列だけで決まる条件を本表に書いてはならない（MUST NOT）** —— 二重に持つことになる。⭐ **足りないものは原稿の側を直し、スキーマに強制させること（MUST）。**
+⚠️ **本表は、生成したスキーマが持てない条件だけを持つ** —— `_source/grs-document.schema.json` は、列ごとの型と、`null` を許すかと、文字列の長さと、数値の範囲と、原稿が値を綴った列挙を既に強制する。**1 つの列だけで決まる条件を本表に書いてはならない（MUST NOT）** —— 二重に持つことになる。⭐ **足りないものは原稿の側を直し、スキーマに強制させること（MUST）。**
 
 **表 T-220 — 文書の不変条件**
 
@@ -829,6 +829,21 @@ stateDiagram-v2
   **ID**: `FR-014`
   **Role**: `Satisfies`
 
+#### MSPDI を比べる前の正規化
+
+**Type**: SW_SPEC
+**UID**: SWS-6
+
+**STATEMENT**: 2 つの MSPDI を比べるとき、`GRS` は、W3C の Canonical XML に従って双方を正規化してから比べること。
+
+**RATIONALE**: `FR-021` が挙げる 4 つの揺れ（属性の並び・要素の間の空白と改行・自己終了タグの綴り方・名前空間の接頭辞）に対して、**発明せずに既にある規格を採る。** **正は W3C の公式文書**（`https://www.w3.org/TR/xml-c14n/`）**であり、事実はローカル複製**（`docs/reference/w3c/`）**で確かめる**（`docs/reference/README.md`）。⚠️ **本仕様書に原文を写さない** —— 第三者著作物の扱いは 表 T-003 の `CN-7` が持つ。
+
+**Relations**:
+
+- **Type**: `Parent`
+  **ID**: `FR-021`
+  **Role**: `Satisfies`
+
 > 未記入。`SW_SPEC` ノード（`SWS-xxx`）を並べる。符号・状態遷移・境界値などの手段を EARS 1 文で書き、`FR-xxx` を親に取る。
 
 ### 6.2 Data Schema (データスキーマ)
@@ -879,6 +894,8 @@ stateDiagram-v2
 **起こす原稿は 2 つとする（MUST）** —— **日程データの群は `_source/erd.json`、見せ方の群は `_source/settings.json` である**。前者は 図 F-011 と 表 T-056・表 T-057・表 T-058・表 T-059 を書き出している原稿であり、後者は値の正であって 表 T-201 以降を書き出している。⚠️ **どちらも既にあるものであり、値を写した 3 つ目の原稿を作ってはならない（MUST NOT）**。
 
 ⭐ **原稿は `_source/` に置くこと（MUST）。`_assets/` に置いてはならない（MUST NOT）** —— **原稿は言語に属さないからである。** 刊行物を日英で出すとき `_assets/` は言語ごとに分かれるので、そこに原稿を置けば原稿そのものが 2 つに割れ、値が 2 か所に在ることになる。⚠️ **散文のうち刊行される欄は、言語ごとの辞書として持つこと（MUST）** —— 後から言語を足す作業を、書き直しではなく記入にするためである。⛔ **分類を述べる欄を辞書にしてはならない（MUST NOT）** —— 表 T-058 の型の欄と `null` の欄がそれである。**日本語で書かれていても散文ではない。** ⚠️ **辞書にすると「可」という表示の語を原稿へ焼き付けることになる** —— 分類は分類として持ち、言語ごとの表示は生成器が刷ること（MUST）。
+
+⭐ **交換相手から借りる拡張領域の枠の原稿は `_source/mspdi-custom-fields.json` とする（MUST）** —— 表 T-033 の `EX-6` と `EX-8` が規則を持ち、**番号と `Alias` と型はこの原稿が持つ。** ⛔ **番号を本仕様書へ写してはならない（MUST NOT）。コードに打ってもならない（MUST NOT）** —— **同じ数を 2 か所に書けば、片方が必ず腐る**（表 T-038 の前文）。⚠️ **番号は `GRS` の決定ではなく、Microsoft の `PjCustomField` 列挙からの引用である** —— その旨と出典は原稿自身が名乗る。⭐ **正は外部の列挙表であり、手元の正典で裏付けられるのは `Text1` の 1 件だけであることも、原稿に書かせる（MUST）。**
 
 ⭐ **画面に刷る語の原稿は `_source/display-words.json` とする（MUST）** —— `FR-038` が「画面に刷る語は言語ごとの辞書として 1 か所に持つ」と課したものの置き場である。⛔ **同原稿は語だけを持ち、どの語が要るかの名簿を持ってはならない（MUST NOT）** —— 名簿は 表 T-109・表 T-037・表 T-023 と `FR-072` が既に持っており、**生成器が毎回そこから起こして原稿と突き合わせる。** ⚠️ **本原稿は `GRS JSON` のスキーマを起こさない** —— 上の「起こす原稿は 2 つ」はスキーマの原稿の数であり、本原稿はそこに数えない。⛔ **語を仕様書の表へ刷ってはならない（MUST NOT）** —— 空の欄が並ぶだけで、規則を 1 つも述べない表になる。**語が届く先は `src/` の生成物 1 本とし（MUST）**、その素性は下の道標の規則に従う。
 

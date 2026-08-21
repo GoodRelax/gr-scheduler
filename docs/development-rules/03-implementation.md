@@ -26,14 +26,20 @@
 ⭐ **いま原稿から生成されている定数**（増えたらここに足す）:
 
 ```
-COLUMN_DEFAULTS          列の既定値（表 T-058 が刷る）
-NOT_STORED_SIZES         掴み代・当たり判定（表 T-206）
-NOT_STORED_LIMITS        取り消しの段数と上限（表 T-206）
-DEFAULT_CALENDAR_VALUES  既定の暦（表 T-209）
-DATE_COLUMNS             日付列の全数（表 T-058）
-SETTINGS_DEFAULTS        見せ方の群の既定値
-SETTINGS_BOUNDS          その下限・上限
+COLUMN_DEFAULTS                 列の既定値（表 T-058 が刷る）
+NOT_STORED_SIZES                掴み代・当たり判定（表 T-206）
+NOT_STORED_LIMITS               取り消しの段数と上限（表 T-206）
+NOT_STORED_PANEL_DIVIDER_SIZES  `Panel Divider` の掴み帯（表 T-206 の `S-134`）
+DEFAULT_CALENDAR_VALUES         既定の暦（表 T-209）
+DATE_COLUMNS                    日付列の全数（表 T-058）
+SETTINGS_DEFAULTS               見せ方の群の既定値
+SETTINGS_BOUNDS                 その下限・上限
 ```
+
+⚠️ **表 T-206 の行は、値の種類ではなく**使うユニット**で分ける。** ⭐ 同じ掴み代でも
+`S-90` 〜 `S-93` は `item-hit-area.ts`（`Entity`）へ、`S-134` は `screen-frame.ts`（`Adapter`）へ行く ——
+⛔ **1 つの定数に相乗りさせると、片方のユニットが他方の値を持つことになる**（1. の重複）。
+**どの行がどのユニットへ行くかは `tools/generate_entity_types.py` が決める。**
 
 ---
 

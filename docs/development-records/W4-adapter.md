@@ -8,60 +8,50 @@
 
 ## 現在地
 
-⭐ **6 / 31 が進んだ。** ✅ `UF-32` `UF-33`（受入済）／🔧 `UF-34` `UF-35`（実装済、試験未）。🔧 `UF-60` `UF-70`（ScreenRenderer の継ぎ目と型）。⬜ **残り 25 は未着手。**
-
-### 調査で決まったこと
-
-⭐ **裁定 J の 3 件は、いずれも利用者に問う必要が無かった**（規則 06 の 1. の実測がまた再現した）。
+⭐ **31 ユニットすべてが受入済である。** ⛔ **W4 に赤は 1 件も残っていない。**
 
 ```
-J-1  裁定不要。FR-019 が「指定が無ければ注記用の固定色で描くこと（MUST）」と
-     既に定めており、CM-55 の引数は既に string | null で実装済み・試験済み
-J-2  裁定不要。前提が誤っていた。CM-33 は選択を前提にしない —— 対象は
-     groupId で受ける（実装済み・試験済み）。Agent API は applyCommands に
-     その値を渡すだけである
-J-3  件数が誤っていた。5 件ではなく 3 件（CM-40 / CM-44 / CM-45）。
-     しかも「面が無い」のではなく、⛔ 仕様の中で 2 つの文が食い違っている
+✅ 受入済  31 ／ 🔧 実装済 0 ／ ⬜ 未着手 0
+試験       tests/unit 全部緑（2026-08-21 時点で 2016 / 2016）
 ```
 
-### 縦線 —— **N = 5。31 本そろえる必要は無い**
+⭐ **最後に残っていた `UF-61` は 2026-08-21 に閉じた** —— `FR-051` が `Panel Divider` を
+「掴みやすさのために広げた帯」と呼ぶのに幅を持つ行がどの表にも無く、`screen-frame.ts` は
+**幅 0 を出荷していた（どの利用者にも掴めない）。**
+`CR-195` が 表 T-206 に `S-134`（境界に重なる 8px 🔎）を足し、
+**生成器が `NOT_STORED_PANEL_DIVIDER_SIZES` として同ユニットへ届けるようにした。**
+⛔ **数はコードに打っていない**（規則 03 の 1.）。
+
+### ⭐ 2026-08-21 に仕様の側から降ってきた宿題
+
+⛔ **どれも「仕様に無いので書けない」と `STOP` で止めていたものであり、いま書ける。**
+
+| CR | ユニット | 何をするか | 今まで止まっていた理由 |
+| --- | --- | --- | --- |
+| `CR-196` | `UF-39` `UF-28` `UF-45` | `exportSvg`（`PI-21`）と、その 3 人の呼び手 | `PI-21` が組み立てた画面を SVG で返す口を持たなかった |
+| `CR-196` | `UF-30` | `xFromDay`（`PI-5`）を使う | ⭐ **私有の `xOfDay` が 2 つのユニットに写しで在る。公開すれば 1 つになる** |
+| `CR-197` | `UF-41` `UF-42` `UF-67` | 表 T-227 の `DI-1` 〜 `DI-5`（上書きの確認）| 「同じ文書」の判定規則が無かった |
+| `CR-198` | `UF-36` | 先頭の BOM を受け入れて捨てる | `CN-5` が読み書きを分けていなかった |
+| `CR-198` | `UF-30` | 身振りの 3 件（稼働日へ寄せない・押下で見せる・フェードの日数）| 表 T-023d が境界を書いていなかった |
+| `CR-198` | `UF-41` `UF-42` | `OP-11`（一度に N 件）| 同時に渡されたときの規則が無かった |
+| `CR-199` | `UF-36` | 拡張領域への書き出しと取り込み | ⛔ **`mspdi-codec.ts:1247` の `STOP` がまさにこれである** |
+
+⚠️ **`replaceDocument`（`PI-8`・`UF-8` / `UF-9`）だけは、まだ全部は書けない** ——
+⛔ **差し替えた文書が持つ版数が未決である**（分類 `D`）。**入口は書けるが、版数は `STOP` を残すこと。**
+
+### ⛔ まだ誰も直していない繰り越し
 
 ```
-1  src/adapter/svg-renderer/svg-surface.ts          UF-33  継ぎ目 IF-1 の宣言
-2  src/adapter/svg-renderer/svg-renderer.ts         UF-32  公開エントリ PI-19
-3  src/framework/dom-svg-surface/dom-svg-surface.ts UF-49  IF-1 の実装（W5）
-4  src/framework/single-html-shell/single-html-shell.ts UF-47  BO-1〜BO-5（W5）
-5  src/framework/single-html-shell/frame-loop.ts    UF-48  現在値と CA-1（W5）
+layoutFromSchedule が scrollGroupId を一度も適用していない（schedule-layout.ts:556）
+  行を無条件に regions.rowArea.y から始める。scrollDate は適用されている
+  ⚠️ 縦だけが絶対座標であり、ホイールを 2 回回しても 1 回と同じ行に着く
 ```
 
-⭐ **表 T-077 の BO-1 / BO-2 / BO-4 が名指すユニットは全部実装済みである**
-（`UF-58` `regionsFromScreen` ／ `UF-23` `chooseStartupDocument` ／
-`UF-5` `layoutFromSchedule` ／ `UF-6` `geometryFromLayout`）。**未実装は BO-5 だけである。**
+### ⚠️ 次の波（W5）が塞いでいるもの
 
-⚠️ **W5 に先に手を出すのは 8 コンポーネント中 2 つ・9 ファイル中 3 ファイルだけである。**
-
-**次の一手**:
-
-```
-1. ✅ CR-185（SvgRenderer → Schedule の辺）適用済み
-2. ✅ CR-186（担当者の面。表 T-225 を新設）適用済み
-     25 検査 ALL GREEN／audit-ch5 PASS／描画 PASS／試験 684 件緑
-3. ✅ CR-187（初期テンプレートの置き場・形・版の書式）適用済み
-4. ✅ CR-188（原稿が言えなかった 8 個の値）適用済み
-     startup-template.json が出た。GRS JSON スキーマに valid
-     100 行 / 1000 タスク / 深さ 5 / 森 7 本 / 1 行 3〜24 本
-     npm run gen と gen:check へ繋いだ
-5. ✅ 縦線は通った。UF-33 / UF-32 / UF-49 / UF-48 は受入済
-6. 🔧 ScreenRenderer の継ぎ目と型（UF-70 / UF-60）まで書けた
-7. ⛔ ここから —— 9 本の内部ユニットを 1 体 1 ファイルで並列に書く
-     UF-61 screen-frame / UF-62 app-header-items / UF-63 row-title-panel /
-     UF-64 properties-panel（⛔ 表 T-225 を読ませること）/ UF-65 command-palette /
-     UF-66 open-modals / UF-67 notices / UF-68 dialogue-field / UF-69 tooltips
-     ⭐ 契約は screen-renderer.ts のコメントが持つ。読ませてから書かせる
-8. 結線 —— UF-71 DomScreenSurface ＋ screenViewFromRegions の合成
-     ⭐ ここで appHeaderHeight が実測になる（いま 0 で走っている）
-9. 試験は別のエージェントに docs/spec だけを読ませて書かせる（04 の 1.）
-```
+⛔ **`single-html-shell.ts` は `ScreenRenderer` も `InputCommandTranslator` も呼んでいない。**
+**画面に出るのは日程の SVG だけで、ヘッダーもパネルも無く、ポインタも打鍵も届かない。**
+⭐ **`tests/usecase` と `tests/system` が書けないのはこれが理由である。**
 
 ---
 
@@ -136,7 +126,7 @@ J-3  件数が誤っていた。5 件ではなく 3 件（CM-40 / CM-44 / CM-45�
 | UF-66 | `open-modals.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-64 | `properties-panel.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-63 | `row-title-panel.ts` | 内部 | pure |  | ✅ 受入済 |
-| UF-61 | `screen-frame.ts` | 内部 | pure |  | 🧪 試験済 |
+| UF-61 | `screen-frame.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-70 | `screen-surface.ts` | 内部 | n/a |  | ✅ 受入済 |
 | UF-69 | `tooltips.ts` | 内部 | pure |  | ✅ 受入済 |
 
@@ -219,3 +209,8 @@ J-3  件数が誤っていた。5 件ではなく 3 件（CM-40 / CM-44 / CM-45�
 | 2026-08-21 | 調査 | ⭐ **表 T-016 の項目名は辞書に入れない。決めている文が 2 つとも逐語で在った** —— `FR-038`（`:3748`）「タスク名と行名、および表 T-016 の項目名は翻訳の対象ではない」と 表 T-016 の直後（`:1396`）「項目名は英語表記とすること（MUST）」。⚠️ **同表の「日本語」の欄は用語辞書からの抜粋であって画面の文字ではない**（同表の前書き）。⛔ **文書自身の値も対象外**（`FR-038`「日程表の出力に言語は含まれない」）|
 | 2026-08-21 | 発見 | ⛔ ⭐ **`FR-038` の MUST が 2 本、実際に満たされていなかった。** ① 「押す前に現在どちらの言語かが読めること（MUST）」—— **切替の入口は 2 か所なのに、現在の言語を運ぶ値は `HelpModal.language` だけで、`App Header` 側（`IC-21`）は答えられない**（`CommandItem` の `isPressed` は「入っているトグル」であり、2 言語の選択に「切」は無い）。② 「言語の状態は 1 つ（MUST）」—— **`ScreenView` に宣言が無いので、機械が確かめる相手がいない** |
 | 2026-08-21 | 変更要求 | ⭐ **CR-194 を書いた**（`change-request/CR-194-a-home-for-the-words-nobody-may-invent.md`）—— 裁定 D4。**原稿 `_source/display-words.json` ＋ 生成器 `tools/generate_display_words.py` ＋ `src/adapter/screen-renderer/display-words.json`。⛔ 語は 1 つも書かない**（172 の欄 × 2 言語 = 344 の空文字）。⭐ **名簿は原稿が持たず、生成器が毎回 `docs/spec` から起こして突き合わせる** —— 表が動けば黙らずに落ちる。⛔ **予測**: tables 126 ／ figures 11 ／ rows **1562** ／ uids 145 は**すべて不変**（散文とセルの書き換えだけ）。検査 21 の生成物 11 → **12**、検査 23 の原稿 3 → **4** |
+| 2026-08-21 | 決めた | ⭐ **`S-134`（表 T-206）をコードへ届ける経路を決めた**（`CR-195` の ⑧ の 4 が未定として残していた件） —— `tools/generate_entity_types.py` に `NOT_STORED_PANEL_DIVIDER_SIZES` を追加し、`src/adapter/screen-renderer/screen-frame.ts` の末尾へ生成する。⛔ **`NOT_STORED_SIZES` へは相乗りさせない** —— あちらは `item-hit-area.ts`（`Entity`）へ生成される定数であり、掴み帯を使うのは `Adapter` の `UF-61` である。⚠️ **引数で受け取る道は無い** —— `screen-renderer.ts` の継ぎ目が `UF-61` を 3 引数に固定しており、`FR-051`（MUST NOT）が設定値も禁じている。⭐ **帯は境界に中心を合わせて重ねる**ので `Row Area` から幅を取らない。⛔ **線の太さは未決のまま**（`EP-9` が新しい設定鍵を禁じており、幅を持つ行がどこにも無い）—— `screen-frame.ts` の `STOP` 注記はその 1 件だけに狭めた |
+| 2026-08-21 | 実測 | ⭐ **原稿の値を 1 つ変えて落ちることを確かめた**（規則 04 の 2.）—— `_source/settings.json` の `S-134` を 8 → 9 にすると `npm run types:check` が `DRIFTED src/adapter/screen-renderer/screen-frame.ts` で落ち、`npm run types` を走らせると生成定数も 9 になる。⚠️ **控えは `ls -la` で大きさを見てから戻した**（73440 バイト、`cmp` で一致確認）。⭐ **試験は幅の数値を見ていない**（仕様が数値を検査に固定していない）ので、値が届いていることを保証するのは `types:check` のこの落ち方である |
+| 2026-08-21 | 実装 | ⭐ **`UF-61` の幅 0 の仮置きをやめた**。`uf-61.test.ts` の ⛔ LEFT FAILING の 1 件が緑になり、`tests/unit` は **43 ファイル 1747 件全緑**。検査 21 の生成物は 13 → **14**（`screen-frame.ts` を名簿へ追加）|
+| 2026-08-21 | 実測 | ⭐ **`tests/integration`（`TS-2`）を開き、`SWS-1` 〜 `SWS-5` に 24 ケースを置いた** —— 駆動は `regionsFromScreen` → `layoutFromSchedule` → `geometryFromLayout`（＋ `svgFromSchedule`）。⚠️ **表の写しを打ち直さず `tests/contract/spec-table.ts` で読み時に解析している**ので、表 T-221 / T-222 を直すと落ちる。⛔ **本物の欠陥が 3 件出た**（`LF-11` 進捗マーカーが `Math.max` で違うバーに付く／`LF-12` イナズマ線が既定の `stackDirection: 'up'` で折り返す／`LF-1` 除数に `labelGap` が混ざり `FR-093` の純粋な積でない）。**3 件とも赤のまま残してある** —— 直すのは実装側であり、試験を触ってはならない（規則 04 の 1.）。⭐ **型検査も 2016 件の単体試験も 1 件も捕まえていない** |
+| 2026-08-21 | 決めた | ⚠️ **`SWS-6`（Canonical XML）にケースを置かない** —— `FR-021` の MSPDI 比較がまだ実装されていない。⭐ **試験ファイルの冒頭にそう書かせた** |

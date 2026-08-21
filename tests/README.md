@@ -54,7 +54,7 @@ later can tell why" is made of; more prose does not make it.
 ```
 tests/
   contract/     Vitest.      *.contract.test.ts, driven by a specification table
-  integration/  Vitest.      not written yet
+  integration/  Vitest.      *.sws.test.ts, one case per SWS node of Chapter 6.1
   unit/         Vitest.      the inside of one unit
   usecase/      Playwright.  not written yet
   system/       Playwright.  not written yet

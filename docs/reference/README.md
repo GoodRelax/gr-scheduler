@@ -13,6 +13,7 @@ CC-BY のように帰属表示を付ければ再配布できるものも、**同
 |---|---|---|
 | `mspdi/` | `mspdi_pj12.xsd`（MS Project 2007 MSPDI スキーマ）／ `learn-docs/`（MS Learn 要素リファレンス 390 本）／ `LICENSE`（learn-docs の CC-BY-4.0） | **`previous-project-result/01-mspdi/mspdi/README.md`** — 入手手順・照合ハッシュ・ライセンスの正 |
 | `wcag/` | `wcag21-rec.html`（WCAG 2.1 原文） | `wcag/README.md` |
+| `w3c/` | `xml-c14n.html`（Canonical XML 原文）。⛔ **未取得** | `w3c/README.md` |
 
 > **MSPDI の手順を本フォルダに複製しないこと。**
 > `previous-project-result/` の 12 文書が `01-mspdi/mspdi/README.md` を相対パスで

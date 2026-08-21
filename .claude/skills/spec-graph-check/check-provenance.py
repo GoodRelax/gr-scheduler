@@ -36,12 +36,15 @@ ARTIFACTS = [
     ('src/entity/document-model/document-stamp/document-stamp.ts', 'erd.json'),
     ('src/entity/document-model/document-settings/document-settings.ts',
      'settings.json'),
-    # Two units whose generated region carries table T-206 -- the values the
+    # Three units whose generated region carries table T-206 -- the values the
     # document does NOT store, which reach the unit that owns their type
     # (CR-178). ⚠️ Most of each file is hand written; only the marked region
     # is generated, which is why the banner has to say so per file.
+    # ⚠️ The third is an Adapter unit: a row of that table goes to the unit that
+    # consumes it, and S-134's consumer is the screen frame, not a hit area.
     ('src/entity/layout-engine/item-hit-area/item-hit-area.ts', 'settings.json'),
     ('src/entity/document-model/edit-history/edit-history.ts', 'settings.json'),
+    ('src/adapter/screen-renderer/screen-frame.ts', 'settings.json'),
     # The roster of icons (table T-109), which UF-62 and UF-65 read instead of
     # naming its rows themselves. ⚠️ Its banner is a "$comment" key, which the
     # startup template beside it may NOT have: that one is validated by the GRS
@@ -52,6 +55,13 @@ ARTIFACTS = [
     # so this artifact drifts if a table moves and the manuscript does not.
     ('src/adapter/screen-renderer/display-words.json',
      'docs/spec/_source/display-words.json'),
+    # The two MSPDI custom-field frames GRS borrows for the fade day counts
+    # (EX-6 / EX-8 of table T-033). ⚠️ The FieldID numbers are a quotation from
+    # Microsoft's PjCustomField enumeration, so the manuscript has to say where
+    # they came from as well as what it is -- rule 03 section 1 forbids typing
+    # them a second time anywhere.
+    ('src/adapter/document-codec/mspdi-custom-fields.json',
+     'docs/spec/_source/mspdi-custom-fields.json'),
 ]
 
 # How far into the file the banner may sit. Long enough for a StrictDoc header

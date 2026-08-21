@@ -1,0 +1,42 @@
+{
+ "$schema": "./mspdi-custom-fields.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "The two MSPDI custom-field frames GRS borrows to carry Task.fadeInDays and Task.fadeOutDays (AT-40 / AT-41 of table T-058). The rules for using them are EX-6 and EX-8 of table T-033; this file holds only the values those rules need.",
+  "THE NUMBERS BELOW ARE A QUOTATION, NOT A GRS DECISION. They are members of Microsoft's PjCustomField enumeration and mean nothing GRS chose. Source: https://github.com/MicrosoftDocs/VBA-Docs/blob/main/api/Project.PjCustomField.md",
+  "WARNING -- the committed canon does not carry these two numbers. docs/reference/mspdi/ names only pjCustomTaskText1 = 188743731 (learn-docs/project-xml-data-interchange/fieldid-element.md:54) and pjCustomResourceCost1 = 205521019 (same file, :58). The external table is the only source for Number1 and Number2. What can be checked locally is that the SAME external table gives pjCustomTaskText1 = 188743731, which matches fieldid-element.md:54 and the worked example at custom-field-data-in-xml.md:52 to the digit -- two independent sources agreeing is why the table is trusted for the other two.",
+  "Generated FROM this file: src/adapter/document-codec/mspdi-custom-fields.json (tools/generate_mspdi_custom_fields.py).",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by _source/mspdi-custom-fields.schema.json before a byte is written."
+ ],
+ "elemType": {
+  "value": 20,
+  "means": "Task",
+  "source": "docs/reference/mspdi/mspdi_pj12.xsd:1027"
+ },
+ "cfType": {
+  "value": 5,
+  "means": "Number",
+  "source": "docs/reference/mspdi/mspdi_pj12.xsd:1005",
+  "why": "Duration (CFType 2) is not used: it carries a DurationFormat and invites the partner to give the value a calendar meaning. A fade is a count of days that does not walk the calendar."
+ },
+ "aliasMaxLength": {
+  "value": 50,
+  "source": "docs/reference/mspdi/mspdi_pj12.xsd:1055"
+ },
+ "frames": [
+  {
+   "name": "pjCustomTaskNumber1",
+   "fieldId": 188743767,
+   "prefers": "fadeInDays",
+   "alias": ""
+  },
+  {
+   "name": "pjCustomTaskNumber2",
+   "fieldId": 188743768,
+   "prefers": "fadeOutDays",
+   "alias": ""
+  }
+ ],
+ "aliasNote": "EVERY alias IS EMPTY ON PURPOSE. It is written into the partner's file and shows as a column heading in the partner's tool, and it is also the key EX-6 uses to tell a frame GRS wrote from a frame the import source wrote. It is NOT a word the screen prints, so it is not in display-words.json and MUST NOT be translated. Until the user fills it, GRS cannot recognise its own frame and must not claim one."
+}

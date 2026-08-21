@@ -366,10 +366,10 @@
   },
   {
    "source": "ClipboardGateway",
-   "target": "SvgRenderer",
+   "target": "ImageExporter",
    "arrow": "dependency",
-   "label": "picture out",
-   "description": "gets the picture to send out"
+   "label": "image out",
+   "description": "gets the raster image to send out"
   },
   {
    "source": "InputCommandTranslator",
@@ -571,8 +571,8 @@
    "source": "AgentApiEndpoint",
    "target": "SvgRenderer",
    "arrow": "dependency",
-   "label": "picture out",
-   "description": "gets the SVG string"
+   "label": "picture arguments",
+   "description": "names what the frame hands over, through PI-19's own signature (AG-4)"
   },
   {
    "source": "AgentApiEndpoint",
@@ -1009,6 +1009,7 @@
     "AutosaveGateway",
     "ClipboardGateway",
     "ImageExporter",
+    "SvgRenderer",
     "DocumentCodec",
     "ScreenRenderer",
     "FileSystemAccessFileStore",

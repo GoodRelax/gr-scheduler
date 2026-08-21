@@ -112,7 +112,11 @@ def main():
                         'if it were decided'
                         % (pd, ', '.join(sorted(marks[pd]))))
     for pd, row in sorted(rows.items()):
-        if row['state'] == '未裁定' and pd not in marks:
+        # ⚠️ Only classes A to C are implemented provisionally, so only they can
+        # carry a mark. For D to H the rule says WAIT, and the row is the whole
+        # record -- demanding a mark there would make that class unusable.
+        if (row['state'] == '未裁定' and row['class'] in DEFER_OK
+                and pd not in marks):
             problems.append('%s is still open in the list but nothing in the '
                             'tree carries its mark -- either the code was '
                             'fixed and the row is stale, or the mark was lost'

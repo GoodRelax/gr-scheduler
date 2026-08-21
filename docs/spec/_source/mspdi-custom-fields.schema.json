@@ -1,0 +1,57 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/mspdi-custom-fields.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/mspdi-custom-fields.json, which is the single source of truth. It is not generated from anything and nothing is generated from it: tools/generate_mspdi_custom_fields.py reads it to check the manuscript before writing a byte.",
+  "It refuses a frame whose fieldId is not a positive integer, a frames list that is not exactly the two columns AT-40 and AT-41 want, and any key nobody declared."
+ ],
+ "type": "object",
+ "required": ["$schema", "$comment", "elemType", "cfType", "aliasMaxLength", "frames", "aliasNote"],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": { "type": "string" },
+  "$comment": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+  "elemType": { "$ref": "#/$defs/quotedNumber" },
+  "cfType": { "$ref": "#/$defs/quotedNumber" },
+  "aliasMaxLength": {
+   "type": "object",
+   "required": ["value", "source"],
+   "additionalProperties": false,
+   "properties": {
+    "value": { "type": "integer", "minimum": 1 },
+    "source": { "type": "string", "pattern": "^docs/reference/" }
+   }
+  },
+  "frames": {
+   "type": "array",
+   "minItems": 2,
+   "maxItems": 2,
+   "items": {
+    "type": "object",
+    "required": ["name", "fieldId", "prefers", "alias"],
+    "additionalProperties": false,
+    "properties": {
+     "name": { "type": "string", "pattern": "^pjCustomTaskNumber[1-9][0-9]*$" },
+     "fieldId": { "type": "integer", "minimum": 1 },
+     "prefers": { "type": "string", "enum": ["fadeInDays", "fadeOutDays"] },
+     "alias": { "type": "string" }
+    }
+   }
+  },
+  "aliasNote": { "type": "string", "minLength": 1 }
+ },
+ "$defs": {
+  "quotedNumber": {
+   "type": "object",
+   "required": ["value", "means", "source"],
+   "additionalProperties": false,
+   "properties": {
+    "value": { "type": "integer", "minimum": 0 },
+    "means": { "type": "string", "minLength": 1 },
+    "source": { "type": "string", "pattern": "^docs/reference/" },
+    "why": { "type": "string" }
+   }
+  }
+ }
+}

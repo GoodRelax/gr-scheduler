@@ -938,8 +938,16 @@ const LAYOUT = new Map<string, ScreenRect>([
   ['role:App Header', rect(0, 0, WINDOW.width, HEADER_HEIGHT)],
   ['role:Row Title Panel', rect(0, 40, 170, 660)],
   ['role:Row Title Tree', rect(0, 40, 170, 660)],
+  // ⭐ The `Row Expander` is placed by ROLE and the `Row Pin` by ICON, and the
+  // difference is the unit's, not this file's: the unit marks the pin with its
+  // row of 表 T-109 (`data-icon="IC-60"`) and deliberately leaves the expander
+  // unmarked (IC-58 / IC-59 are not yet drawn as a pair). `layoutKey` reads
+  // `data-icon` FIRST -- as it must, since a browser lays a node out whatever
+  // attributes it carries -- so each box has to be registered under the key its
+  // own node actually yields. ⛔ Registering the pin under `role:Row Pin` would
+  // give it the ZERO rectangle in silence and no press would ever reach it.
   ['role:Row Expander', rect(10, 60, 16, 16)],
-  ['role:Row Pin', rect(140, 60, 16, 16)],
+  ['icon:IC-60', rect(140, 60, 16, 16)],
   ['role:Command Palette', rect(400, 300, 220, 180)],
   ['role:Help Modal', rect(500, 380, 400, 300)],
   ['role:notices', rect(700, 40, 280, 80)],
@@ -1521,9 +1529,19 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
 
 // ===========================================================================
 
-describe('⛔ DELIBERATELY LEFT FAILING -- the entries with no row of 表 T-109', () => {
-  // ⛔ THIS IS A FINDING, NOT A CHORE, and the expectation is NOT bent to the
-  // code (docs/development-rules/04-verification.md §1).
+describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
+  // ⭐ THE FINDING THIS BLOCK ONCE HELD IS CLOSED. It read: the unit DRAWS the
+  // `Row Pin` (U-48) but marks it with no row of 表 T-109, so IF-9 cannot name
+  // the entry and a press comes back 「面の上・入口の外」. The unit has since
+  // marked it -- `data-icon="IC-60"` at dom-screen-surface.ts:614, with the
+  // reasoning above it -- so the case below is live and passing.
+  //
+  // ⚠️ The case kept failing for a while after the unit was fixed, and that was
+  // THIS FILE's fault, not the unit's: the pin's box was registered under
+  // `role:Row Pin` while `layoutKey` had begun yielding `icon:IC-60` for it, so
+  // the fake handed the pin a ZERO rectangle and no press could land. Repaired
+  // at the registration site (see the note in `LAYOUT`); the expectation was
+  // never touched (docs/development-rules/04-verification.md §1).
   //
   // 表 T-065 IF-9, docs/spec/05-07-design.md:386, and its MUST at :390:
   //   「画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える」
@@ -1535,16 +1553,16 @@ describe('⛔ DELIBERATELY LEFT FAILING -- the entries with no row of 表 T-109'
   //   IC-59  行の配下をすべて閉じる          表 T-051 の HF-3
   //   IC-60  行をピン止めし、同じ入口で外す   FR-098
   //
-  // The unit DRAWS all three -- `Row Expander` (U-47) and `Row Pin` (U-48) reach
-  // the page -- but neither carries a row of 表 T-109, so a press on one is
-  // answered as 「面の上・入口の外」. ⛔ 表 T-109 is 「アイコンの全数」 (FR-029,
-  // MUST), and an entry it holds that this seam cannot name is a supply IF-9
-  // promises and does not deliver.
+  // ⛔ IC-58 / IC-59 REMAIN UNANSWERED -- the unit draws the `Row Expander`
+  // (U-47) as one control and does not mark it, because 表 T-109 gives the pair
+  // two rows and the note at dom-screen-surface.ts:85 records the hole. 表 T-109
+  // is 「アイコンの全数」 (FR-029, MUST), so that is still a supply IF-9 promises
+  // and does not yet deliver -- but it belongs to the unit, and no case here
+  // pretends otherwise.
   //
   // ⚠️ CR-192 §0 ⑧-5 leaves IC-58 .. IC-60 out of what the TRANSLATOR consumes,
-  // for want of the row key (`TaskGroup.id`) -- a different question. The key is
-  // left off `ScreenPart` by design (R2.9); the ROW ID is not optional, and
-  // 表 T-109 is the join FR-029 fixes.
+  // for want of the row key (`TaskGroup.id`) -- a different question from whether
+  // the entry can be NAMED. The key is left off `ScreenPart` by design (R2.9).
   it('answers IC-60 for a press on the Row Pin (FR-098, 表 T-109 IC-60)', () => {
     const built = drawn(viewWith({}))
 

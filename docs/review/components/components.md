@@ -66,7 +66,7 @@
 | dependency | FileGateway | DocumentCodec | format | gets the exchange format |  |
 | dependency | AutosaveGateway | DocumentCodec | string to store | gets the string to store |  |
 | dependency | ClipboardGateway | DocumentCodec | text out | gets the text to send out |  |
-| dependency | ClipboardGateway | SvgRenderer | picture out | gets the picture to send out |  |
+| dependency | ClipboardGateway | ImageExporter | image out | gets the raster image to send out |  |
 | dependency | InputCommandTranslator | ItemHitArea | item under pointer | asks which item is under the pointer |  |
 | dependency | SvgRenderer | ScheduleGeometry | geometry | reads geometry only, never the write path |  |
 | dependency | SvgRenderer | ScheduleLayout | ruler and rows | reads the ruler and the row placement |  |
@@ -95,7 +95,7 @@
 | dependency | AgentApiEndpoint | Selection | what is selected | reads the selection for readSelection |  |
 | dependency | AgentApiEndpoint | DialogueLog | confirmed utterances | reads the utterances for readDialogueMessages |  |
 | dependency | AgentApiEndpoint | DocumentCodec | exchange formats | gets JSON, MSPDI and the single .html |  |
-| dependency | AgentApiEndpoint | SvgRenderer | picture out | gets the SVG string |  |
+| dependency | AgentApiEndpoint | SvgRenderer | picture arguments | names what the frame hands over, through PI-19's own signature (AG-4) |  |
 | dependency | AgentApiEndpoint | ImageExporter | image out | gets the raster image |  |
 | dependency | AgentApiEndpoint | ScheduleLayout | where a task sits | asks where a task sits, to focus it |  |
 | dependency | SvgRenderer | Selection | what is selected | shows the selection by more than colour |  |

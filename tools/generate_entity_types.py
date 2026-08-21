@@ -39,6 +39,10 @@ SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json
 SETTINGS = os.path.join(ROOT, 'docs', 'spec', '_source', 'settings.json')
 MODEL = os.path.join(ROOT, 'src', 'entity', 'document-model')
 LAYOUT = os.path.join(ROOT, 'src', 'entity', 'layout-engine')
+# ⚠️ Not every generated region lands in Entity. Table T-206 holds values whose
+# consumer is an Adapter unit, and the constant goes where its consumer is --
+# see the note on NOT_STORED_TARGETS.
+ADAPTER = os.path.join(ROOT, 'src', 'adapter')
 
 # ⚠️ The marker carries NO path. It used to read "<generated from
 # docs/spec/_assets/source/erd.json …>", and when CR-175 moved the manuscript
@@ -474,9 +478,35 @@ def default_calendar_block():
 #
 # ⚠️ Which rows land in which unit is decided HERE, not in the manuscript: it
 # is a fact about the code's shape, and the manuscript describes values.
+#
+# ⛔ ONE CONSTANT PER CONSUMING UNIT, never a shared one. S-134 is a 掴み帯 the
+# same way S-90 to S-93 are, but its consumer is screen-frame.ts in the Adapter
+# layer while NOT_STORED_SIZES is generated into item-hit-area.ts in the Entity
+# layer. Adding the row to that constant would hand one unit a value belonging
+# to another, which is the duplication rule 03 section 1 forbids -- and the
+# Adapter would have to import an Entity unit to read a number the layer rules
+# (table T-061) never meant it to cross for.
+#
+# ⭐ Each entry is (the rows, the paragraph that says HOW the unit gets them).
+# The paragraph differs because the seam does: the first two are handed their
+# values, and the third reads its own.
+ARRIVES_AS_ARGUMENT = [
+    ' * ⚠️ Reading this is NOT the same as taking it: the value still',
+    ' * arrives as an argument, because table T-206 keeps these out of the',
+    ' * document on purpose (the environment may hold a larger one). This',
+    ' * is what a caller passes when it has nothing better.',
+]
+READ_WHERE_IT_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands instead of being handed',
+    ' * it: the contract in screen-renderer.ts fixes UF-61 at three',
+    ' * arguments, and FR-051 (MUST NOT) forbids a setting to hold the',
+    ' * value either -- so there is no door to pass it through. ⛔ It is',
+    ' * still not a document setting and must not become one.',
+]
 NOT_STORED_TARGETS = {
-    'NOT_STORED_SIZES': ['S-90', 'S-92', 'S-93'],
-    'NOT_STORED_LIMITS': ['S-94', 'S-95'],
+    'NOT_STORED_SIZES': (['S-90', 'S-92', 'S-93'], ARRIVES_AS_ARGUMENT),
+    'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
+    'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
 }
 
 
@@ -496,18 +526,20 @@ def not_stored_cell(cell):
 def not_stored_block(name):
     """The rows of table T-206 one unit needs, by row ID.
 
-    ⭐ The seam is unchanged: S-94 and S-95 still arrive as an argument, the
-    way edit-history.ts says they do. What this adds is a correct thing for the
+    ⭐ No seam moves: S-94 and S-95 still arrive as an argument, the way
+    edit-history.ts says they do. What this adds is a correct thing for the
     caller to pass -- before it, the only place outside docs/spec holding these
-    numbers was whatever a caller happened to type.
+    numbers was whatever a caller happened to type. ⚠️ Where a unit has no
+    caller to be handed the value by, its own paragraph says so instead.
     """
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-206']
     if not block:
         raise SystemExit('settings.json holds no table T-206')
     by_id = {r['id']: r for r in block[0]['rows']}
+    rows, seam = NOT_STORED_TARGETS[name]
     got = []
-    for row_id in NOT_STORED_TARGETS[name]:
+    for row_id in rows:
         if row_id not in by_id:
             raise SystemExit('table T-206 has no row %s' % row_id)
         raw = by_id[row_id].get('default')
@@ -529,11 +561,7 @@ def not_stored_block(name):
            ' * are not document settings and are not in SETTINGS_DEFAULTS. They',
            ' * are reached by row ID because most rows of that table have no key',
            ' * column -- the row ID is the specification\'s own name for them.',
-           ' *',
-           ' * ⚠️ Reading this is NOT the same as taking it: the value still',
-           ' * arrives as an argument, because table T-206 keeps these out of the',
-           ' * document on purpose (the environment may hold a larger one). This',
-           ' * is what a caller passes when it has nothing better.',
+           ' *'] + list(seam) + [
            ' */',
            'export const %s: {' % name]
     for row_id, _literal, ts, unit in got:
@@ -693,6 +721,9 @@ TARGETS = [
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(MODEL, 'edit-history', 'edit-history.ts'),
      lambda _erd: not_stored_block('NOT_STORED_LIMITS'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    (os.path.join(ADAPTER, 'screen-renderer', 'screen-frame.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_PANEL_DIVIDER_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
 ]
 

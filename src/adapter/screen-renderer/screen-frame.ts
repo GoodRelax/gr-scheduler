@@ -4,6 +4,17 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 //
+// ⚠️ PART of this file is generated. The marked region at the bottom -- search
+// for NOT_STORED_PANEL_DIVIDER_SIZES -- comes from
+// docs/spec/_source/settings.json (table T-206) and is overwritten by
+// `npm run gen`; `npm run gen:check` fails if it has drifted. Everything above
+// the marker is hand written. Do not edit by hand inside that region: edit the
+// manuscript instead.
+// ⛔ This note does NOT quote the marker itself -- writing the opening marker in
+// a comment makes the generator treat the comment as the region and inject the
+// block into the middle of it (the mark item-hit-area.ts carries for the same
+// reason). The marker must occur exactly once per file.
+//
 // UF-61 fills one member of ScreenView -- `frame` -- and reads none of the
 // others. Its row of table T-075 names FR-051, FR-052 and FR-071, and the
 // signature published here is the one the "nine unit contracts" section of
@@ -32,9 +43,10 @@
 // layout. So `scrollbars` has no case in which it is short of two, and the lane
 // is the very width FR-052 already subtracted.
 //
-// ⛔ Three STOP notes below say what the specification leaves open: the
-// divider's two thicknesses, which side of the gap the lane sits on, and the
-// grip.
+// ⛔ Two STOP notes below say what the specification leaves open: which side of
+// the gap the lane sits on, and the grip. ⭐ The divider's BAND is no longer
+// among them -- table T-206 gained S-134 -- and what is left of that pair, the
+// thickness of the line, is marked where the divider is built.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
@@ -54,18 +66,23 @@ import type { PanelDivider, ScreenFrame, Scrollbar } from './screen-renderer'
  * the requirement forbids is a band that widens the arithmetic, which is why
  * the band is placed rather than allowed for.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how wide the band is, and how
- * thick the line is. Looked in FR-051 and FR-052 (both state where the boundary
- * is and what a drag does, neither gives it a size), in table T-206, which holds
- * every grab margin that HAS been settled (S-90 to S-93) and has no row for this
- * one, in table T-023d, which counts the grab areas and does not list it, in
- * tables T-201 / T-203 / T-212, and -- for the line -- in EP-9 of table T-076,
- * which makes it the same one line as `Group Grid Lines` (U-18) and ⛔ forbids
- * a new settings key for it, while FR-042, FR-089 and S-68 give that line a
- * rule, a colour and a visibility and never a width. Chose the boundary segment
- * itself for both: zero width is the one value that cannot claim room no row
- * grants, it keeps the pair honest about being the SAME boundary, and it leaves
- * the stroke to the surface -- which EP-9 has already tied to U-18's.
+ * ⭐ THE BAND'S WIDTH IS ROW S-134 of table T-206, which the region at the foot
+ * of this file carries. ⛔ This note names the ROW and not the number: a figure
+ * written here a second time goes on stating the old one after the manuscript
+ * moves (rule 03 section 3). The band is CENTRED on the boundary because S-134
+ * lays it OVER the boundary line rather than beside it -- which is the same
+ * thing the MUST NOT above asks for, and the reason the width may be spent
+ * without asking the `Row Area` for any of it.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how thick the LINE is. Looked in
+ * FR-051 and FR-052 (both state where the boundary is and what a drag does,
+ * neither sizes the line), in tables T-201 / T-203 / T-212, and in EP-9 of table
+ * T-076, which makes it the same one line as `Group Grid Lines` (U-18) and ⛔
+ * forbids a new settings key for it, while FR-042, FR-089 and S-68 give that
+ * line a rule, a colour and a visibility and never a width. Chose the boundary
+ * segment itself: zero width is the one value that cannot claim room no row
+ * grants, and it leaves the stroke to the surface -- which EP-9 has already tied
+ * to U-18's.
  *
  * @purity pure
  */
@@ -74,8 +91,17 @@ function dividerAt(
   panelBox: ScreenRect,
   boundaryX: number,
 ): PanelDivider {
-  const boundary: ScreenRect = { x: boundaryX, y: panelBox.y, width: 0, height: panelBox.height }
-  return { panel, band: boundary, line: boundary }
+  const bandWidth = NOT_STORED_PANEL_DIVIDER_SIZES['S-134']
+  return {
+    panel,
+    band: {
+      x: boundaryX - bandWidth / 2,
+      y: panelBox.y,
+      width: bandWidth,
+      height: panelBox.height,
+    },
+    line: { x: boundaryX, y: panelBox.y, width: 0, height: panelBox.height },
+  }
 }
 
 /**
@@ -164,3 +190,29 @@ export function screenFrameFromRegions(
     ],
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands instead of being handed
+ * it: the contract in screen-renderer.ts fixes UF-61 at three
+ * arguments, and FR-051 (MUST NOT) forbids a setting to hold the
+ * value either -- so there is no door to pass it through. ⛔ It is
+ * still not a document setting and must not become one.
+ */
+export const NOT_STORED_PANEL_DIVIDER_SIZES: {
+  /** S-134, in px */
+  readonly 'S-134': number
+} = {
+  'S-134': 8,
+}
+// </generated>
