@@ -17,8 +17,8 @@
 // ⚠️ Everything this file writes -- `Resource`, `Assignment`, and the
 // `uidHighWaterMark` the two are numbered from -- lives in the schedule group,
 // so every command that changes something rebuilds `document.schedule`. Each
-// one returns the document UNCHANGED when it changes nothing: FR-063 raises
-// the revision for a write that moved the schedule group, and
+// one returns the document UNCHANGED when it changes nothing: FR-063 moves
+// the schedule instant for a write that moved the schedule group, and
 // document-change-plan.ts reads that from the schedule REFERENCE.
 //
 // ⚠️ It is not the public entry of its component. Nothing outside
@@ -127,8 +127,8 @@ export function editResource(document: Document, command: ResourceCommand): Edit
           reject('CM-41', 'FR-008', `no resource with uid ${command.uid} is in the document`),
         ])
       }
-      // FR-063: the revision may only rise for a write that moved the schedule
-      // group. Renaming to the name already held moves nothing, so the same
+      // FR-063: the schedule instant may only move for a write that moved the
+      // schedule group. Renaming to the name already held moves nothing, so the same
       // document goes back untouched.
       if (held.name === command.name) return edited(document)
       // ⚠️ The MUST to say how many tasks change with the name is NOT this
@@ -189,7 +189,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
       )
       const kept = resources.filter((one) => referenced.has(one.uid))
       // Nothing was unreferenced: the schedule must keep its reference so
-      // FR-063 does not raise the revision for a sweep that swept nothing.
+      // FR-063 does not move the schedule instant for a sweep that swept nothing.
       if (kept.length === resources.length) return edited(document)
       // ⚠️ No assignment is touched. CD-5's cascade has nothing to do here --
       // every resource that goes is one no assignment points at.

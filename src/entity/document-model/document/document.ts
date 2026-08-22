@@ -28,7 +28,7 @@ export interface Document {
   /** DR-3 */
   readonly documentSettings: DocumentSettings
   /** DR-4 */
-  readonly revisionStamp: DocumentStamp
+  readonly documentStamp: DocumentStamp
   /** DR-4 */
   readonly changeLog: readonly ChangeLogEntry[]
 }
@@ -38,7 +38,7 @@ export const ROOT_KEYS = [
   'schemaVersion',
   'schedule',
   'documentSettings',
-  'revisionStamp',
+  'documentStamp',
   'changeLog',
 ] as const
 
@@ -87,8 +87,8 @@ export function documentViolations(value: unknown): readonly DocumentViolation[]
 
   // DR-5: the theme hue is the project's, never the presentation group's. The
   // row's reason is that everything which follows it is schedule data, so a
-  // split across the two groups would let a change that does not raise the
-  // revision alter how one that does is seen.
+  // split across the two groups would let a change that does not move the
+  // schedule instant (FR-063) alter how one that does is seen.
   const settings = root['documentSettings']
   if (settings !== null && typeof settings === 'object' && 'themeHue' in settings) {
     found.push({

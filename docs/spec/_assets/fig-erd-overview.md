@@ -24,7 +24,7 @@ erDiagram
         文字列 schemaVersion "文書の形式の版"
         オブジェクト schedule "日程データの群"
         オブジェクト documentSettings "見せ方の群"
-        オブジェクト revisionStamp "文書の刻印"
+        オブジェクト documentStamp "文書の刻印"
         配列 changeLog "文書の刻印"
     }
     schedule {
@@ -45,20 +45,20 @@ erDiagram
         文字列 scrollGroupId "S-78"
         配列 pinnedGroupIds "S-126"
     }
-    revisionStamp {
-        整数 revision "版数"
+    documentStamp {
+        文字列 scheduleUpdatedUtc "日程が動いた刻"
         文字列 lastEditedBy "最後に書いた者"
-        文字列 updatedAt "時刻"
+        文字列 settingsUpdatedUtc "時刻"
     }
     changeLog {
-        整数 revision "適用された版数"
+        整数 ordinal "文書の中での出現順"
         文字列 editedBy "書いた者"
         文字列 explanation "変更の理由"
-        文字列 changedAt "時刻"
+        文字列 changedUtc "時刻"
     }
     Document ||--|| schedule : "日程データの群"
     Document ||--|| documentSettings : "見せ方の群"
-    Document ||--|| revisionStamp : "文書の刻印"
+    Document ||--|| documentStamp : "文書の刻印"
     Document ||--o{ changeLog : "文書の刻印"
     schedule ||--o{ Dependency : "tasks の各要素の下に入れ子"
     schedule ||--o{ WeekDay : "calendars の各要素の下に入れ子"

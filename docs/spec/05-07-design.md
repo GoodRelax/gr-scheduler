@@ -94,7 +94,7 @@ graph RL
 | CP-5 | `layoutEngine` | `ScheduleLayout` | 時間軸、ラベル幅の概算、`Rows` の配置、表示量の増減、全体を収める表示 | `FR-017` / `FR-093` / `FR-003` / `FR-018` / `FR-055` |
 | CP-6 | `layoutEngine` | `ScheduleGeometry` | 描くものの頂点。バー・依存線・イナズマ線・カーソル・注記・透かし | `FR-094` / `FR-009` / `FR-014` |
 | CP-7 | `layoutEngine` | `ItemHitArea` | ポインタが指すアイテムの判定 | 表 T-023c の `SL-1` |
-| CP-8 | `UseCase` | `ApplyDocumentChange` | **文書への書き込みの唯一の経路。** 照合・全か無か・履歴・版数・刻印・通知 | 表 T-042 の `MS-1` / `FR-028` / `AG-2` / `AG-3` / `FR-031` / `FR-063` |
+| CP-8 | `UseCase` | `ApplyDocumentChange` | **文書への書き込みの唯一の経路。** 照合・全か無か・履歴・刻印・通知 | 表 T-042 の `MS-1` / `FR-028` / `AG-2` / `AG-3` / `FR-031` / `FR-063` |
 | CP-9 | `UseCase` | `EditDocument` | 集約ごとの編集。検証して新しい文書を返すだけで、確定させない | 表 T-027 / `FR-088` |
 | CP-10 | `UseCase` | `ImportDocument` | 取り込みと合流 | `FR-087` / `FR-022` |
 | CP-11 | `UseCase` | `UndoEdit` | 履歴を 1 段戻す | `FR-031` |
@@ -119,7 +119,7 @@ graph RL
 | CP-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 | `FR-033` |
 | CP-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 | `FR-025` |
 | CP-32 | `documentModel` | `Selection` | 選ばれている対象の集合と、選んだ順序。文書に保存しない | 表 T-023c の `SL-1` / `SL-7b` / `SL-8` |
-| CP-33 | `documentModel` | `DialogueLog` | 確定した発話と、版数とは別の順序。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` / `AG-6` |
+| CP-33 | `documentModel` | `DialogueLog` | 確定した発話と、刻印とは別の順序。文書に保存しない | `FR-066` / 表 T-035 の `AG-11` / `AG-6` |
 | CP-34 | `documentModel` | `Document` | **文書ルートの合成と、`DR-1` の不変条件**（ルートに 3 群だけを置く／群に属する値をルート直下へ直に置かない） | 表 T-052 の `DR-1` |
 | CP-35 | `layoutEngine` | `ScreenRegions` | **画面の各部の矩形**（各部の名は 表 T-103 が持つ）と、ポインタがどの領域にあるかの判定 | `FR-051` |
 | CP-36 | `documentModel` | `ScreenState` | **文書に保存しない画面の値** —— 構え（全数は 表 T-023b）と、表 T-206 の `S-99e` / `S-99f` / `S-99g` | `FR-053` / `FR-071` / 表 T-023b |
@@ -330,7 +330,7 @@ src/
 | --- | --- | --- | --- |
 | PI-1 | `documentModel` | `Schedule` | `Schedule`（型。12 の鍵は 表 T-052 の `DR-2`）／ `DATE_COLUMNS`（表 T-058 の型の欄が日付とする列の全数。`IV-14` が名指さずに指すので、写しではなく生成する）／ `scheduleViolations`（不変条件に反する箇所）／ `taskByUid`（`uid` で引く。`FR-022` の照合が使う）／ `planActualState`（表 T-019a の判別）／ `isDelayed`（表 T-021b の 3 条件）／ `delayWorkingDays`（表 T-021b の起点と終点）／ `workingDaysBetween`（2 つの日付のあいだの稼働日数。暦は `FR-054`）／ `dateFromWorkingDays`（起点の日付に稼働日を加えた日）／ `workingCalendarOf`（文書の暦を解く。順は `FR-054`）／ `dayOf`（日付の字面を日にする。規則は `FR-054`）／ `textOfDay`（日を日付の字面に戻す）／ `compareDays`（2 つの日の前後） |
 | PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める）／ 原稿を刷った 3 つの定数（既定値・単独の下限と上限・他の鍵の式で書かれた既定値） |
-| PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`）／ `isNewerStamp`（起動時の比較。表 T-034） |
+| PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`） |
 | PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
 | PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか） |
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryFromLayout` |
@@ -360,7 +360,7 @@ src/
 | PI-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 1 つ |
 | PI-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 1 つ |
 | PI-32 | `documentModel` | `Selection` | `Selection`（型。順序は 表 T-023c の `SL-7b`）／ `selectionWith` ／ `selectionWithout` ／ `emptySelection` ／ `isSelected` |
-| PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。版数とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |
+| PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。刻印とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |
 | PI-34 | `documentModel` | `Document` | `Document`（型。5 つの鍵は 表 T-052 の `DR-1` 〜 `DR-4`）／ `documentViolations`（`DR-1` に反する箇所） |
 | PI-35 | `layoutEngine` | `ScreenRegions` | `ScreenRect`（型。矩形。左上の座標と幅と高さの数値 4 つを自前で宣言し、**ブラウザの供給する型に触れない**（`LR-6`））／ `ScreenRegions`（型。各部の矩形。各部の名は 表 T-103 が持つ）／ `regionsFromScreen`（画面の寸法と `DocumentSettings` から各部の矩形を出す）／ `regionAtPointer`（ポインタがどの領域にあるか） |
 | PI-36 | `documentModel` | `ScreenState` | `ScreenState`（型。構えは 表 T-023b、ほかは 表 T-206 の `S-99e` / `S-99f` / `S-99g`）／ `emptyScreenState` ／ `screenStateWithArmed` ／ `screenStateWithSurface`（開いている面）／ `screenStateWithPalette`（`S-99e`）／ `screenStateWithFullScreen`（`S-99f`）／ `escapeTarget`（`Esc` が次に消費するもの。階層は 表 T-028 の `IN-4`） |
@@ -459,7 +459,7 @@ src/
 | WS-2 | 2 | 書ける時機かを見る。**身振りの最中・編集入力の確定前・通知の配布中は拒否する** | `pure` | `AG-9` ／ 本節 |
 | WS-3 | 3 | 操作を検証し、新しい文書を組み立てる。**1 つでも拒まれたら全部を捨てる** | `pure` | `AG-3` ／ 表 T-063 の `UT-1` |
 | WS-4 | 4 | 取り消しの履歴に 1 段積む。表 T-027 の対象外なら積まない | `pure` | `FR-031` ／ `AG-10` |
-| WS-5 | 5 | 刻印を進める。**版数を上げるのは日程データの群を変えたときだけ** | `pure` | `FR-063` |
+| WS-5 | 5 | 刻印を進める。**日程データの群の刻を動かすのは、その群を変えたときだけ。どちらの群であれ動いた刻と、最後に書いた者は必ず更新する** | `pure` | `FR-063` |
 | WS-6 | 6 | ⭐ **現在値を差し替える** | `non-pure` | 表 T-060 の `LY-5` |
 | WS-7 | 7 | ⭐ **差し替えの後に通知を配る** | `non-pure` | `AG-6` |
 
@@ -471,7 +471,7 @@ src/
 
 ⚠️ **通知を配っているあいだの書き込みは拒否すること（MUST）** —— 購読者が通知を受けてそのまま書き込むと、**どの版に対する通知だったのかが決まらなくなる。** 拒否は `WS-2` で行い、**値の中身は `AG-9a` に従う。** 待ち行列を作らないのは、`FR-028` が受理したか否かをその場で値で返すと定めているためである。
 
-**自分の書き込みで自分が起きてはならない（`AG-6`）。** 発話は版数を上げないが通知は起きる（`AG-11`）—— 選び方は `AG-6` が持ち、判定するのは表 T-063 の `UT-3` が分けた純粋な側（表 T-075 の `UF-25`）である。
+**自分の書き込みで自分が起きてはならない（`AG-6`）。** 発話は日程データの群の刻を動かさないが通知は起きる（`AG-11`）—— 選び方は `AG-6` が持ち、判定するのは表 T-063 の `UT-3` が分けた純粋な側（表 T-075 の `UF-25`）である。
 
 **予実の状態遷移を 図 F-018 に示す。箱は 表 T-019 の 5 行、辺は 表 T-021a の 4 行と `FR-043` / `FR-044` である。**
 
@@ -586,7 +586,7 @@ stateDiagram-v2
 | FT-2 | 現在値の差し替え（表 T-067 の `WS-6`） | `SingleHtmlShell`（`CP-25`） | 表 T-067 |
 | FT-3 | **画面の寸法が変わったこと** | `SingleHtmlShell`（`CP-25`）が自分で観測する | `NFR-011` ／ 表 T-066 の `CS-1` |
 | FT-4 | **時間が来たこと** | `SingleHtmlShell`（`CP-25`）が自分で計る | `FR-092` の `EZ-2` ／ 表 T-037 の `NT-2` ／ `FR-061` |
-| FT-5 | **版数を上げずに届いた発話** | `PostDialogueMessage`（`CP-16`）が配る | 表 T-035 の `AG-11` |
+| FT-5 | **日程データの群の刻を動かさずに届いた発話** | `PostDialogueMessage`（`CP-16`）が配る | 表 T-035 の `AG-11` |
 
 **本表に無い契機でフレームを起こしてはならない（MUST NOT）** —— これが `NFR-010` の具体である。⚠️ **最初の 1 枚は 表 T-077 の `BO-5` が起こす。**
 

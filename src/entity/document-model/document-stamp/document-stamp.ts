@@ -8,13 +8,15 @@
 // Generated as an empty unit by tools/generate_unit_tree.py. Fill it in; the
 // generator never rewrites a file that exists.
 //
-// FR-063 holds the rule: an integer that rises by one, plus who wrote last and
-// when, carried in the document and written into the JSON.
+// FR-063 holds the rule: two UTC instants -- the one the schedule-data group
+// last moved at, and the one either group last moved at -- plus who wrote last.
 //
-// AG-2 of table T-035 is why `isStampMatched` compares all three and not just
-// the revision: a change to the presentation group alone does not raise the
-// revision (FR-063), so a revision-only check would let one writer wipe out
-// what another had just done to it.
+// ⛔ THE STAMP IS NOT AN ORDER. FR-063 forbids reading it as one (MUST NOT) and
+// makes every judgement on it an equality (MUST), so nothing here compares two
+// instants with `<` or `>`. It answers which document this is, never which of
+// two is newer -- an undo restores an earlier document stamp and all (FR-031),
+// and a wall clock runs backwards over an NTP correction, so an order read off
+// the stamp calls a document that IS current "not newer".
 //
 // The three fields themselves are generated from erd.json below.
 
@@ -31,70 +33,78 @@ export {}
 /** ET-16 of table T-056. */
 export interface DocumentStamp {
   /** AT-127 */
-  readonly revision: number
+  readonly scheduleUpdatedUtc: string
   /** AT-128 */
   readonly lastEditedBy: string
   /** AT-129 */
-  readonly updatedAt: string
+  readonly settingsUpdatedUtc: string
 }
 
 /** ET-17 of table T-056. */
 export interface ChangeLogEntry {
   /** AT-130 */
-  readonly revision: number
+  readonly ordinal: number
   /** AT-131 */
   readonly editedBy: string
   /** AT-132 */
   readonly explanation: string
   /** AT-133 */
-  readonly changedAt: string
+  readonly changedUtc: string
 }
 // </generated>
 
-
-
 /**
- * The stamp after one write. FR-063: the revision rises by one, and who wrote
- * last and when are replaced every time -- including a write that touched the
- * presentation group only, which does NOT raise the revision.
+ * The stamp after one write, which is step WS-5 of table T-067.
+ *
+ * FR-063: who wrote last, and the instant EITHER group last moved at, are
+ * replaced by every write -- including one that touched the presentation group
+ * only. The schedule-data group's own instant moves only when that group moved
+ * (MUST), and MUST NOT move for a presentation-only write.
+ *
+ * ⚠️ `hasMovedSchedule` is a judgement this function is TOLD, never one it
+ * makes: what moved is known where the new document was built (WS-3), and a
+ * second derivation here would be a second place for AG-6 to disagree with
+ * itself.
+ *
+ * ⚠️ Two writes inside the same second leave the schedule instant unchanged.
+ * That is not a defect to paper over with a discriminator: AG-2 settles such a
+ * collision as last-writer-wins, and the watchers are woken from
+ * `hasMovedSchedule` rather than from the instant (AG-6).
  *
  * @purity pure
  */
 export function advancedStamp(
   stamp: DocumentStamp,
   editedBy: string,
-  updatedAt: string,
-  options: { readonly raisesRevision: boolean },
+  updatedUtc: string,
+  options: { readonly hasMovedSchedule: boolean },
 ): DocumentStamp {
   return {
-    revision: options.raisesRevision ? stamp.revision + 1 : stamp.revision,
+    scheduleUpdatedUtc: options.hasMovedSchedule ? updatedUtc : stamp.scheduleUpdatedUtc,
     lastEditedBy: editedBy,
-    updatedAt,
+    settingsUpdatedUtc: updatedUtc,
   }
 }
 
 /**
- * Whether a writer read the document it is now writing over (AG-2). All three
- * fields, because the revision alone cannot see a presentation-group write.
+ * Whether a writer read the document it is now writing over (AG-2), and whether
+ * two stamps are the same one at all -- which is the only question FR-063 lets
+ * a stamp be asked.
+ *
+ * All three fields (MUST), because the schedule instant alone cannot see a
+ * write that touched the presentation group only. One difference is enough to
+ * answer no (MUST).
+ *
+ * ⭐ Table T-034 asks the same question of a losing autosave, so the startup
+ * comparison is this function and not a second one: "same document" and "same
+ * stamp" are one judgement now that the ordering is gone.
  *
  * @purity pure
  */
 export function isStampMatched(read: DocumentStamp, current: DocumentStamp): boolean {
   return (
-    read.revision === current.revision &&
+    read.scheduleUpdatedUtc === current.scheduleUpdatedUtc &&
     read.lastEditedBy === current.lastEditedBy &&
-    read.updatedAt === current.updatedAt
+    read.settingsUpdatedUtc === current.settingsUpdatedUtc
   )
-}
-
-/**
- * Whether `candidate` is a later state of the same document than `held`. A
- * higher revision wins; at the same revision the later `updatedAt` wins, which
- * is what FR-063 leaves for a change that did not raise the revision.
- *
- * @purity pure
- */
-export function isNewerStamp(candidate: DocumentStamp, held: DocumentStamp): boolean {
-  if (candidate.revision !== held.revision) return candidate.revision > held.revision
-  return candidate.updatedAt > held.updatedAt
 }

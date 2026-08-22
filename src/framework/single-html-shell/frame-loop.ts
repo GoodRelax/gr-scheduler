@@ -106,14 +106,15 @@ export interface ScreenWiring {
  * be told apart (MUST) -- saved with a time, saving, failed -- and NONE of the
  * three describes a document that has just been opened and not yet autosaved.
  * ⚠️ `saved` is the nearest of the three, and the time it carries is the
- * document's own AT-129 rather than a moment invented here: what is on the
- * screen is what was last written. ⛔ A ruling is owed, and so is the wiring of
+ * document's own AT-129 -- the instant either group last moved at (FR-063) --
+ * rather than a moment invented here: what is on the screen is what was last
+ * written. ⛔ A ruling is owed, and so is the wiring of
  * FR-026's autosave -- nothing in this build performs one.
  *
  * @purity pure
  */
 function autosaveAtStartup(held: Document): AutosaveStatus {
-  return { kind: 'saved', at: held.revisionStamp.updatedAt }
+  return { kind: 'saved', at: held.documentStamp.settingsUpdatedUtc }
 }
 
 /**

@@ -110,8 +110,16 @@
 // family) belong to the schedule and none of them crosses this seam, so the
 // parts are painted in the environment's own system colours -- `Canvas`,
 // `CanvasText`, `GrayText`, `Highlight`. ⚠️ `GrayText` is also what FR-029's
-// 「薄く描く」 asks for, and it is the one faint colour that follows the reader's
-// own contrast settings instead of guessing at them.
+// 「薄く描く」 asks for, and what HF-6 of table T-051 asks of the row controls,
+// and it is the one faint colour that follows the reader's own contrast
+// settings instead of guessing at them.
+//
+// ⭐ ONE THING IS NOT AN INLINE DECLARATION, AND ONLY ONE. HF-6's second half
+// -- 「ポインタが乗っているあいだだけ濃くする」 -- cannot be stated in a `style`
+// attribute, so the unit hangs ONE `style` element off its own root
+// (`ROW_CONTROL_HOVER_CSS`), scoped by the root's `data-unit`. ⛔ It is built
+// from constants and never from a description, it paints nothing itself, and
+// nothing else in this file is placed or painted by a sheet.
 //
 // ⛔ WHAT THE CALLER MUST SUPPLY is `ScreenSurfaceWiring` below: the document
 // the nodes are made in, the element they are mounted in, who is speaking, the
@@ -145,6 +153,14 @@ import type {
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 
 // ------------------------------------------------------- the settled names ---
+
+/**
+ * This unit's own row of table T-075, which the root carries and which scopes
+ * `ROW_CONTROL_HOVER_CSS` to the tree this unit built.
+ *
+ * ⚠️ Not a name for a part: table T-103 has no row for the whole screen.
+ */
+const UNIT_ROW = 'UF-71'
 
 /**
  * The names table T-103 settles, spelled as that table spells them.
@@ -255,8 +271,28 @@ const STYLE = {
     'box-sizing:border-box;display:flex;align-items:center;gap:0.25em;' +
     'overflow:hidden;white-space:nowrap;background:Canvas;color:CanvasText;' +
     'pointer-events:auto;',
+  // HF-4 of table T-051 (MUST): the controls keep the panel's right edge
+  // whatever the name's length, so the NAME is what takes every pixel left over
+  // -- `flex:1` is the whole of that, and the controls drawn after it are held
+  // at the edge by what is left. ⚠️ The row's own left padding carries the
+  // depth (`ROW_INDENT_EM`), so an indented row moves its name and not its
+  // controls, which is what HF-4's 「名前ごとに位置が変わると狙えない」 asks for
+  // on the other axis.
+  rowLabel: 'flex:1;overflow:hidden;text-overflow:ellipsis;',
+  // HF-6 of table T-051: 「操作子は薄く描き、ポインタが乗っているあいだだけ濃く
+  // すること」. This is the FAINT half; the darkening is `ROW_CONTROL_HOVER_CSS`
+  // below, because ⛔ an inline declaration cannot state a hover state at all.
+  // FR-098 sends the `Row Pin`'s 濃さ to this same row rather than restating it,
+  // so one declaration covers all three controls.
+  //
+  // ⚠️ NO NUMBER IS COPIED, BECAUSE HF-6 NAMES NONE. `dummyOpacity` (S-131) is
+  // FR-013's and FR-043's value for the schedule's own faint marks and belongs
+  // to the surface that draws them; borrowing it here would give this unit a
+  // value the row it cites does not have. `GrayText` is this unit's settled
+  // vocabulary for 薄く (see the head of this file) and follows the reader's own
+  // contrast settings instead of guessing at them.
   rowControl:
-    'font:inherit;background:transparent;color:CanvasText;border:none;' +
+    'font:inherit;background:transparent;color:GrayText;border:none;' +
     'padding:0 0.125em;cursor:pointer;',
   // SC-5 of table T-031: only the contents scroll, and never in step with the
   // drawing area.
@@ -300,6 +336,39 @@ const STYLE = {
     'font:inherit;background:transparent;color:CanvasText;border:none;cursor:pointer;',
   hidden: 'display:none;',
 } as const
+
+/**
+ * The other half of HF-6 of table T-051: 「ポインタが乗っているあいだだけ濃く
+ * すること」, which FR-098 binds the `Row Pin` to as well.
+ *
+ * ⛔ WHY A RULE AND NOT A LISTENER. A `pointerover` / `pointerout` pair would
+ * paint the node under the pointer, not the CONTROL under it: a row is rebuilt
+ * whenever `RowTitlePanel`'s description changed, and the press that opens a
+ * level changes it -- so the fresh node would stand faint under a pointer that
+ * never moved, which is the one state HF-6's second half is about. ⭐ `:hover`
+ * is the environment's own answer to 「乗っているあいだ」 and survives the
+ * rebuild. ⚠️ It also wakes nothing: NFR-010 (MUST NOT) forbids running a frame
+ * on a trigger table T-078 does not name, and FR-048 names HF-6 among the four
+ * it excuses from its own MUST NOT -- an excuse this side does not have to
+ * spend, because no frame is run at all.
+ *
+ * ⛔ WHY `!important`. The faint paint is an INLINE declaration (`STYLE.rowControl`,
+ * like every other paint in this unit) and no selector outranks one -- so this
+ * is the only way a rule can state the second half while the first stays where
+ * the rest of this file's paint lives.
+ *
+ * ⛔ NOTHING IS FETCHED AND NOTHING IS INVENTED. The sheet is built from the
+ * names of tables T-103 and T-075 that this unit already writes, and it is put
+ * on the page by the same script the single `.html` carries (FR-067, CN-1 and
+ * CN-6). ⚠️ CN-8's `CSP` is not written yet; when it is, a policy that allows
+ * this unit's inline `style` attributes at all allows this element too.
+ * ⭐ It draws nothing: a `style` element has no box, so table T-076's EP-4 --
+ * an export draws no row control -- has nothing more to answer for here.
+ */
+const ROW_CONTROL_HOVER_CSS =
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"]:hover,` +
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"]:hover` +
+  '{color:CanvasText !important;}'
 
 /**
  * How far a row is set in for each level below the root.
@@ -606,6 +675,25 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   row.setAttribute('data-truncated', String(title.isLabelTruncated))
   if (title.isSelected) row.setAttribute('aria-selected', 'true')
 
+  const label = made(host, 'span', STYLE.rowLabel)
+  // ⛔ `null` is a row FR-058 leaves with no name at all -- a document that
+  // broke that requirement, or a derivation whose `Task` carries none. Nothing
+  // is invented in its place.
+  label.textContent = title.label
+  row.append(label)
+
+  // ⭐ THE NAME FIRST AND THE THREE CONTROLS AFTER IT, WHICH IS HF-4 OF TABLE
+  // T-051 (MUST): 「行の名前の長さにかかわらず、操作子を行見出しパネルの右端に
+  // 揃えること」. The name takes the leftover (`STYLE.rowLabel`), so the trio
+  // ends at the panel's edge whatever the name is and whatever the row's depth
+  // -- the depth is the row's own left padding and moves the name alone.
+  //
+  // ⚠️ HF-4 FIXES THE EDGE AND NOT THE ORDER, so the order is the
+  // specification's own print order and not a choice made here: HF-2 (IC-58)
+  // before HF-3 (IC-59) because HF-1 counts the opening control first, and the
+  // `Row Pin` after both because FR-098 is where it is written and table T-109
+  // prints IC-60 after them.
+  //
   // U-47 `Row Expander`, drawn as the TWO controls the specification counts.
   //
   // ⭐ HF-1 of table T-051 puts one opening control AND one closing control on
@@ -640,13 +728,6 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     close.setAttribute('data-can-close', String(title.expander.canClose))
     row.append(close)
   }
-
-  const label = made(host, 'span', 'overflow:hidden;text-overflow:ellipsis;')
-  // ⛔ `null` is a row FR-058 leaves with no name at all -- a document that
-  // broke that requirement, or a derivation whose `Task` carries none. Nothing
-  // is invented in its place.
-  label.textContent = title.label
-  row.append(label)
 
   // U-48 `Row Pin` (FR-098): the control sits on every row, and the same one
   // lets go.
@@ -1071,7 +1152,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const root = made(host, 'div', STYLE.root)
   // ⚠️ Not a name for a part: table T-103 has no row for the whole screen, so
   // the root carries the unit's own row of table T-075 instead of a minted one.
-  root.setAttribute('data-unit', 'UF-71')
+  // ⭐ It is also what scopes `ROW_CONTROL_HOVER_CSS` to this tree.
+  root.setAttribute('data-unit', UNIT_ROW)
+
+  // The second half of HF-6, which no inline declaration can state. ⭐ Hung off
+  // the root so that it lives and dies with the tree this unit built, and it is
+  // never rewritten: the rule does not depend on any description.
+  const rowControlSheet = host.createElement('style')
+  rowControlSheet.textContent = ROW_CONTROL_HOVER_CSS
 
   const frameLayer = made(host, 'div', STYLE.layer)
   const rowTitlePanel = part(host, 'div', ROLE.rowTitlePanel, STYLE.hidden)
@@ -1093,8 +1181,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // The order is the stacking order: the frame and the panels first, the header
   // over them, and what is meant to be read over everything last. ⚠️ The
   // tooltip layer is last because IN-3 lets a person point at a tooltip, which
-  // it cannot do through something drawn on top of it.
+  // it cannot do through something drawn on top of it. ⭐ The sheet is not in
+  // that order at all -- it has no box and paints nothing of its own.
   root.append(
+    rowControlSheet,
     frameLayer,
     rowTitlePanel,
     rowTitleTree,

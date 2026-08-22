@@ -1049,6 +1049,15 @@ function carriedDefinitions(carried: readonly CarryElement[]): readonly CarryEle
 /** Everything one pass of the reader accumulates besides the document. */
 interface ImportRun {
   readonly notices: MspdiNotice[]
+  /**
+   * How many `Task`s had an `ActualDuration` rounded to whole working days.
+   *
+   * ⛔ A COUNT and not a notice each. FR-054 requires the count of rounded
+   * `Task`s to be told (MUST), and one notice per `Task` is neither that count
+   * nor bearable: a file of a thousand tasks would raise a thousand notices and
+   * the person would still not be told how many were rounded.
+   */
+  roundedActualDurationCount: number
 }
 
 /**
@@ -1077,7 +1086,7 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
     }
   }
 
-  const run: ImportRun = { notices: [] }
+  const run: ImportRun = { notices: [], roundedActualDurationCount: 0 }
   const schedule = scheduleFromRoot(root, current, run)
   return {
     ok: true,
@@ -1086,7 +1095,7 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
       schemaVersion: current.schemaVersion,
       schedule,
       documentSettings: current.documentSettings,
-      revisionStamp: current.revisionStamp,
+      documentStamp: current.documentStamp,
       changeLog: current.changeLog,
     },
   }
@@ -1329,7 +1338,36 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
       element, uid, parentUid, wbsOrder, minutesPerDay, fadeColumns, ordinal, run,
     ))
   })
+  tellRoundedActualDurations(run)
   return { tasks, carriedRows }
+}
+
+/**
+ * FR-054 (MUST): tell the COUNT of `Task`s whose actual duration was rounded.
+ *
+ * ⛔ ONE notice for the file, raised once every task has been read -- a count
+ * is not a count before then, and one notice per task would put a thousand of
+ * them on a thousand-task file while never saying how many there were. ⭐ The
+ * shape is NT-1 of table T-037 (FR-076): the notice names the item it is about
+ * and says why in words, never in a colour or a frame.
+ *
+ * ⚠️ Silent when nothing was rounded. A notice that always fires says nothing.
+ *
+ * ⚠️ `run` is this reading's own accumulator -- made inside the one entry, never
+ * escaping it -- which is why table T-075 files the whole unit as `pure` and why
+ * every reader here writes into it the same way.
+ *
+ * @purity pure
+ */
+function tellRoundedActualDurations(run: ImportRun): void {
+  const rounded = run.roundedActualDurationCount
+  if (rounded === 0) return
+  run.notices.push(notice(
+    '/Project/Tasks',
+    `${rounded} Task${rounded === 1 ? '' : 's'} carried an actual duration that is not`
+      + ' a whole number of working days, and each was rounded to whole working days'
+      + ' -- what the file states is no longer exactly what this document holds',
+  ))
 }
 
 /**
@@ -1507,7 +1545,9 @@ function fadeOfCarried(
  * all, so dropping it deletes what the exchange partner wrote.
  *
  * ⚠️ Rounding is lossy on the way back -- FR-054 (MUST) therefore has the
- * count of rounded tasks reported to the person.
+ * COUNT of rounded tasks reported to the person. ⛔ This function only counts;
+ * `tasksFromRoot` tells it once for the whole file, because a count is not a
+ * count until every task has been read.
  *
  * @purity pure
  */
@@ -1526,12 +1566,8 @@ function workingDaysOfActualDuration(
   }
   const days = minutes / minutesPerDay
   if (Number.isInteger(days)) return days
-  const rounded = Math.sign(days) * Math.round(Math.abs(days))
-  run.notices.push(notice(
-    `${at}/ActualDuration`,
-    `is not a whole number of working days and was rounded to ${rounded}`,
-  ))
-  return rounded
+  run.roundedActualDurationCount += 1
+  return Math.sign(days) * Math.round(Math.abs(days))
 }
 
 /**
@@ -2182,6 +2218,13 @@ function definitionOfFrame(claimed: ClaimedFrame, ordinal: number): CarryElement
  * ahead of an uninterpreted one. A value this unit interprets stops being a
  * `CarryElement`, and `Task` has no column keeping where it sat -- AT-123
  * belongs to the elements that stay carried. Reported.
+ *
+ * ⛔ Normalization does NOT absorb this. NR-1 of table T-228 fixes the rule as
+ * Canonical XML 1.1, which keeps sibling order, and none of NR-2 to NR-5
+ * touches it either -- so a file reordered here is a real FR-021 deviation and
+ * not a wobble the comparison forgives. ⚠️ Closing it takes a column on `Task`
+ * for the position a claimed value arrived at, which is a change request
+ * against table T-058, not a choice this file may make.
  *
  * @purity pure
  */

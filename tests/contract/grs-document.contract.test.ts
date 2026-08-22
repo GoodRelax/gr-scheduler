@@ -41,8 +41,39 @@ describe('the GRS JSON schema, as a shared fixture', () => {
     expect(schema.required).toContain('schedule')
     expect(schema.required).toContain('documentSettings')
     expect(schema.required).toContain('schemaVersion')
-    expect(schema.required).toContain('revisionStamp')
+    expect(schema.required).toContain('documentStamp')
     expect(schema.required).toContain('changeLog')
+  })
+
+  it('keys changeLog by its position in the document, and by nothing borrowed (AT-130)', () => {
+    // 表 T-058 の `AT-130`: 「`changeLog` / `ordinal` / 整数 / PK / 文書の中での
+    // 出現順」 -- the same 作法 as `WeekDay`, `Exception` and `CarryElement`,
+    // each of which keys on 「親の中での出現順」. The row is READ here rather
+    // than copied, so a rename in the source lands in this case.
+    const columns = specTable('T-058').rows.filter(
+      (row) => bare(row.by['エンティティ'] ?? '') === 'changeLog',
+    )
+    expect(columns.map((row) => bare(row.by['列'] ?? ''))).toEqual([
+      'ordinal',
+      'editedBy',
+      'explanation',
+      'changedUtc',
+    ])
+
+    // ⛔ Exactly one primary key, and it is the position -- not a value
+    // borrowed from the stamp, which is what made this the one entity of the
+    // eighteen without a key of its own.
+    const keyed = columns.filter((row) => row.by['鍵'] === 'PK')
+    expect(keyed.map((row) => bare(row.by['列'] ?? ''))).toEqual(['ordinal'])
+    expect(bare(keyed[0]!.by['型'] ?? '')).toBe('整数')
+
+    // The schema generated from the same source admits an entry at a position
+    // and refuses one that carries a key it does not define.
+    const entry = { ordinal: 0, editedBy: 'user', explanation: 'why', changedUtc: '2026-08-17T00:00:00Z' }
+    expect(validateEntity('changeLog', entry).valid).toBe(true)
+    expect(validateEntity('changeLog', { ...entry, revision: 1 }).valid).toBe(false)
+    const { ordinal: _dropped, ...keyless } = entry
+    expect(validateEntity('changeLog', keyless).valid).toBe(false)
   })
 
   it('rejects a key the schedule group does not define', () => {

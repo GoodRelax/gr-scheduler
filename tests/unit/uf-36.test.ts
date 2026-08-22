@@ -920,7 +920,7 @@ describe('the ordinary case -- one MSPDI in', () => {
     const document = accepted(BASE_TEXT)
     expect(document.schemaVersion).toBe(CURRENT.schemaVersion)
     expect(document.documentSettings).toEqual(CURRENT.documentSettings)
-    expect(document.revisionStamp).toEqual(CURRENT.revisionStamp)
+    expect(document.documentStamp).toEqual(CURRENT.documentStamp)
     expect(document.changeLog).toEqual(CURRENT.changeLog)
     expect(document.schedule.project.themeHue).toBe(CURRENT.schedule.project.themeHue)
     expect(document.schedule.project.importSeq).toBe(CURRENT.schedule.project.importSeq)
@@ -2822,5 +2822,333 @@ describe('DF-2 -- an extension element the tool does not recognise', () => {
     const once = mspdiFromDocument(accepted(outsideFrame('42'))).text
     const twice = mspdiFromDocument(accepted(once)).text
     expect(twice).toBe(once)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FR-054 -- an arrived amount of time that is not a whole number of working
+// days.
+//
+// Written from the specification alone (rule 04, section 1). The STATEMENT of
+// FR-054 (docs/spec/01-04-requirements.md:2518) carries the whole rule, and
+// every number below is read out of it:
+//
+//   * the same minutes-per-day serves BOTH directions -- the file's
+//     `Project.minutesPerDay`, and S-128 of table T-209 only when the file
+//     states none (AT-35 of table T-058 says the same for this column);
+//   * an amount that is not a whole number of working days is rounded to whole
+//     days (MUST);
+//   * exactly half a day goes to the larger MAGNITUDE (MUST) -- the rule is
+//     written so the answer does not depend on the sign, so both signs are
+//     driven below;
+//   * a value MUST NOT be discarded for not dividing -- a discarded column
+//     writes no element at all, so the partner's own length would disappear on
+//     the round trip;
+//   * an amount carrying years or months is NOT converted, and the person is
+//     told (MUST) -- the reason table T-228's NR-5 gives on the comparing
+//     side: those two have no length until you say where you start counting;
+//   * the COUNT of rounded Tasks is told (MUST), in the shape of NT-1 of table
+//     T-037 (FR-076): the notice names the item and says why in words.
+//
+// What goes back out is table T-033's EX-9: `PTnHnMnS`, all three of hours,
+// minutes and seconds present, never a year and never a month.
+//
+// Chapter 1.9 asks a case that answers to a table to be driven by fixed data
+// copied from it. The divisor is never typed as a number here: it is read from
+// the document that states it, falling back to the generated S-128 constant.
+// ---------------------------------------------------------------------------
+
+/** S-128 of table T-209, as the settings manuscript generates it. */
+const S_128_MINUTES_PER_DAY: number = DEFAULT_CALENDAR_VALUES['S-128']
+
+/**
+ * The minutes of one working day for a document: what the document itself
+ * states, and S-128 only when it states nothing (FR-054 MUST, AT-35).
+ */
+function minutesPerDayOf(document: Document): number {
+  return document.schedule.project.minutesPerDay ?? S_128_MINUTES_PER_DAY
+}
+
+/** The divisor the fixture below states in its own head. */
+const PER_DAY = SAMPLE.minutesPerDay
+
+/**
+ * One amount of time in the partner's own type (`xsd:duration`,
+ * mspdi_pj12.xsd:1929). A negative amount takes the leading minus that type
+ * allows, so the half-day rule can be driven from both sides of zero.
+ */
+function amountOfMinutes(minutes: number): string {
+  const size = Math.abs(minutes)
+  const sign = minutes < 0 ? '-' : ''
+  return `${sign}PT${Math.floor(size / 60)}H${size % 60}M0S`
+}
+
+/**
+ * A file of `durations.length` Tasks, the n-th carrying that amount of time as
+ * its `ActualDuration` (or none at all when it is null). The calendar carries
+ * no recurring exception day (AT-82's 9), so the only notices such a file can
+ * draw are the ones these cases are about.
+ */
+function durationFileText(
+  durations: readonly (string | null)[],
+  minutesPerDay: number | null = PER_DAY,
+): string {
+  const head =
+    minutesPerDay === null
+      ? projectHeadXml().replace(`  <MinutesPerDay>${PER_DAY}</MinutesPerDay>\n`, '')
+      : projectHeadXml().replace(
+          `<MinutesPerDay>${PER_DAY}</MinutesPerDay>`,
+          `<MinutesPerDay>${minutesPerDay}</MinutesPerDay>`,
+        )
+  const tasks = durations.map((amount, index) => {
+    const uid = index + 1
+    const held = amount === null ? '' : `\n      <ActualDuration>${amount}</ActualDuration>`
+    return `    <Task>
+      <UID>${uid}</UID>
+      <ID>${index}</ID>
+      <Name>Measured ${uid}</Name>
+      <OutlineNumber>${uid}</OutlineNumber>
+      <OutlineLevel>1</OutlineLevel>
+      <Start>2026-04-01T08:00:00</Start>
+      <Finish>2026-04-30T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>50</PercentComplete>
+      <ActualStart>2026-04-01T08:00:00</ActualStart>${held}
+    </Task>`
+  })
+  const body =
+    tasks.length === 0 ? '  <Tasks></Tasks>' : `  <Tasks>\n${tasks.join('\n')}\n  </Tasks>`
+  return mspdi([head, calendarXml(9), body, RESOURCES_XML].join('\n'))
+}
+
+function actualDurationOf(document: Document, uid: number): number | null {
+  const task = document.schedule.tasks.find((each) => each.uid === uid)
+  if (task === undefined) throw new Error(`no Task ${uid} was read`)
+  return task.actualDuration
+}
+
+/**
+ * The notices `text` draws that `baseline` does not. The baseline is the same
+ * file with every amount already a whole number of working days, so what is
+ * left over is what FR-054's new sentences owe the person.
+ */
+function noticesBeyond(baseline: string, text: string): readonly MspdiNotice[] {
+  const before = new Set(noticesOf(baseline).map((each) => `${each.at}|${each.what}`))
+  return noticesOf(text).filter((each) => !before.has(`${each.at}|${each.what}`))
+}
+
+const WHOLE_FIVE_DAYS = amountOfMinutes(PER_DAY * 5)
+
+/** The one written `Task` of a `durationFileText` file. */
+function writtenFirstTask(document: Document): XmlNode {
+  const root = written(document)
+  const task = childrenNamed(nodeAt(root, 'Tasks') ?? ({} as XmlNode), 'Task')[0]
+  if (task === undefined) throw new Error('no Task was written')
+  return task
+}
+
+describe('FR-054 -- reading an amount of time that does not divide into working days', () => {
+  it('GIVEN the fixture WHEN its head is read THEN the divisor is the one the document states (FR-054, AT-35)', () => {
+    const document = accepted(durationFileText([WHOLE_FIVE_DAYS]))
+    expect(document.schedule.project.minutesPerDay).toBe(PER_DAY)
+    expect(minutesPerDayOf(document)).toBe(PER_DAY)
+    // The cases below spell quarter days and half days, which asks for a
+    // working day that divides by four into whole minutes.
+    expect(PER_DAY % 4).toBe(0)
+  })
+
+  it('GIVEN an amount of exactly five working days WHEN read THEN it is five and nothing is reported (FR-054)', () => {
+    const text = durationFileText([WHOLE_FIVE_DAYS])
+    expect(actualDurationOf(accepted(text), 1)).toBe(5)
+    expect(noticesBeyond(text, text)).toHaveLength(0)
+  })
+
+  it('GIVEN five and a quarter working days WHEN read THEN it is rounded down to five (FR-054 MUST)', () => {
+    const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
+    expect(actualDurationOf(accepted(text), 1)).toBe(5)
+  })
+
+  it('GIVEN five and three quarters working days WHEN read THEN it is rounded up to six (FR-054 MUST)', () => {
+    const text = durationFileText([amountOfMinutes(PER_DAY * 5 + (PER_DAY * 3) / 4)])
+    expect(actualDurationOf(accepted(text), 1)).toBe(6)
+  })
+
+  it('GIVEN exactly five and a half working days WHEN read THEN it goes to six -- the larger magnitude (FR-054 MUST)', () => {
+    const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 2)])
+    expect(actualDurationOf(accepted(text), 1)).toBe(6)
+  })
+
+  it('GIVEN exactly minus five and a half working days WHEN read THEN it goes to minus six -- the same larger magnitude (FR-054 MUST)', () => {
+    // FR-054 spells the half-day rule as the larger MAGNITUDE precisely so the
+    // answer does not depend on the sign, and `xsd:duration` admits a leading
+    // minus, so this side of zero is driven too.
+    const text = durationFileText([amountOfMinutes(-(PER_DAY * 5 + PER_DAY / 2))])
+    expect(actualDurationOf(accepted(text), 1)).toBe(-6)
+  })
+
+  it('GIVEN minus five and a quarter working days WHEN read THEN it is minus five, not minus six (FR-054 MUST)', () => {
+    const text = durationFileText([amountOfMinutes(-(PER_DAY * 5 + PER_DAY / 4))])
+    expect(actualDurationOf(accepted(text), 1)).toBe(-5)
+  })
+
+  it('GIVEN an amount that does not divide WHEN read THEN the value is NOT discarded (FR-054 MUST NOT)', () => {
+    const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
+    expect(actualDurationOf(accepted(text), 1)).not.toBeNull()
+  })
+
+  it('GIVEN an amount that does not divide WHEN written back THEN the length is still there (FR-054 MUST NOT, FR-021)', () => {
+    // The failure this MUST NOT names: a discarded column writes no element,
+    // so the partner's own length vanishes on the round trip.
+    const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
+    expect(textAt(writtenFirstTask(accepted(text)), 'ActualDuration')).not.toBeNull()
+  })
+
+  it('GIVEN a rounded amount WHEN written back THEN it is spelled PTnHnMnS with all three parts (EX-9 MUST)', () => {
+    const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
+    const spelled = textAt(writtenFirstTask(accepted(text)), 'ActualDuration')
+    expect(spelled).toBe(WHOLE_FIVE_DAYS)
+    expect(spelled ?? '').toMatch(/^-?PT\d+H\d+M\d+S$/)
+  })
+
+  it('GIVEN a rounded amount WHEN the written file is read again THEN nothing is rounded a second time (FR-054)', () => {
+    const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
+    const again = mspdiFromDocument(accepted(text)).text
+    expect(actualDurationOf(accepted(again), 1)).toBe(5)
+    expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), again)).toHaveLength(0)
+  })
+})
+
+describe('FR-054 -- which minutes-per-day the rounding divides by', () => {
+  it('GIVEN a file that states its own minutes per day WHEN a half day is read THEN that number is the divisor, not S-128 (FR-054 MUST)', () => {
+    // A working day of PER_DAY + 120 minutes makes the same text read as a
+    // different number of days under S-128 (seven, not six), so this case
+    // tells the two sources apart.
+    const ownPerDay = PER_DAY + 120
+    const text = durationFileText([amountOfMinutes(ownPerDay * 5 + ownPerDay / 2)], ownPerDay)
+    const document = accepted(text)
+    expect(minutesPerDayOf(document)).toBe(ownPerDay)
+    expect(actualDurationOf(document, 1)).toBe(6)
+  })
+
+  it('GIVEN a file that states no minutes per day WHEN a half day is read THEN S-128 of table T-209 is the divisor (FR-054 MUST)', () => {
+    const half = S_128_MINUTES_PER_DAY * 5 + S_128_MINUTES_PER_DAY / 2
+    const text = durationFileText([amountOfMinutes(half)], null)
+    const document = accepted(text)
+    expect(document.schedule.project.minutesPerDay).toBeNull()
+    expect(minutesPerDayOf(document)).toBe(S_128_MINUTES_PER_DAY)
+    expect(actualDurationOf(document, 1)).toBe(6)
+  })
+})
+
+describe('FR-054 -- an amount of time carrying years or months', () => {
+  it('GIVEN an amount of one month WHEN read THEN it is not converted (FR-054 MUST)', () => {
+    const text = durationFileText(['P1M'])
+    expect(actualDurationOf(accepted(text), 1)).toBeNull()
+  })
+
+  it('GIVEN an amount of one month WHEN read THEN the person is told, naming the item in words (FR-054 MUST, NT-1)', () => {
+    const text = durationFileText(['P1M'])
+    const told = noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), text)
+    expect(told.length).toBeGreaterThan(0)
+    expect(told.every(namesAnItem)).toBe(true)
+  })
+
+  it('GIVEN an amount of one year WHEN read THEN it is not converted and the person is told (FR-054 MUST)', () => {
+    const text = durationFileText(['P1Y'])
+    expect(actualDurationOf(accepted(text), 1)).toBeNull()
+    expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), text).length).toBeGreaterThan(0)
+  })
+
+  it('GIVEN an amount that mixes a month with hours WHEN read THEN the hours alone are not taken (FR-054 MUST)', () => {
+    const text = durationFileText([`P1MT${PER_DAY / 60}H0M0S`])
+    expect(actualDurationOf(accepted(text), 1)).toBeNull()
+    expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), text).length).toBeGreaterThan(0)
+  })
+
+  it('GIVEN an amount carrying months WHEN read THEN the file is still accepted (FR-054, FR-028)', () => {
+    const read = answered(durationFileText(['P1M']))
+    expect(read.ok).toBe(true)
+  })
+})
+
+describe('FR-054 -- the count of rounded Tasks is told', () => {
+  const NOT_WHOLE = amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)
+  const THREE_WHOLE = durationFileText([WHOLE_FIVE_DAYS, WHOLE_FIVE_DAYS, WHOLE_FIVE_DAYS])
+
+  it('GIVEN two of three Tasks rounded WHEN read THEN the count two is told in words (FR-054 MUST, NT-1)', () => {
+    const told = noticesBeyond(
+      THREE_WHOLE,
+      durationFileText([NOT_WHOLE, NOT_WHOLE, WHOLE_FIVE_DAYS]),
+    )
+    expect(told.length).toBeGreaterThan(0)
+    expect(told.every(namesAnItem)).toBe(true)
+    // LEFT RED ON PURPOSE (rule 04, section 1): FR-054 states
+    // "the count of rounded Tasks MUST be told" (docs/spec/01-04-requirements
+    // .md:2518, the sentence after the one about years and months). Two Tasks
+    // were rounded here and the number two is told nowhere -- what comes back
+    // is one notice per Task, none of which carries a count.
+    expect(told.some((each) => each.what.includes('2'))).toBe(true)
+  })
+
+  it('GIVEN one of three Tasks rounded WHEN read THEN the number told is one -- it is the count, not a constant (FR-054 MUST)', () => {
+    const told = noticesBeyond(
+      THREE_WHOLE,
+      durationFileText([NOT_WHOLE, WHOLE_FIVE_DAYS, WHOLE_FIVE_DAYS]),
+    )
+    expect(told.length).toBeGreaterThan(0)
+    // LEFT RED ON PURPOSE, the same MUST as above: a count that is told has to
+    // be the count, so one rounded Task says one and two rounded Tasks say
+    // two. Neither number is told at all today.
+    expect(told.some((each) => each.what.includes('1'))).toBe(true)
+    expect(told.some((each) => each.what.includes('2'))).toBe(false)
+  })
+
+  it('GIVEN two Tasks rounded WHEN read THEN both values are kept, not only the counting (FR-054 MUST NOT)', () => {
+    const document = accepted(durationFileText([NOT_WHOLE, NOT_WHOLE, WHOLE_FIVE_DAYS]))
+    expect(actualDurationOf(document, 1)).toBe(5)
+    expect(actualDurationOf(document, 2)).toBe(5)
+    expect(actualDurationOf(document, 3)).toBe(5)
+  })
+
+  it('GIVEN every Task already whole WHEN read THEN nothing is reported as rounded (the empty case, R6.2)', () => {
+    expect(noticesBeyond(THREE_WHOLE, THREE_WHOLE)).toHaveLength(0)
+  })
+
+  it('GIVEN no Task carrying an actual duration WHEN read THEN the column is null and nothing is reported (the empty case)', () => {
+    const text = durationFileText([null, null])
+    expect(actualDurationOf(accepted(text), 1)).toBeNull()
+    expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), text)).toHaveLength(0)
+  })
+
+  it('GIVEN a file with no Task at all WHEN read THEN it is accepted and nothing is reported as rounded (the empty case)', () => {
+    const text = durationFileText([])
+    expect(answered(text).ok).toBe(true)
+    expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), text)).toHaveLength(0)
+  })
+})
+
+describe('FR-054 -- an actual duration this unit cannot read as an amount of time', () => {
+  it('GIVEN a text that is not an amount of time WHEN read THEN a value comes back, never a throw (FR-028)', () => {
+    const read = answered(durationFileText(['five days or so']))
+    if (read.ok) {
+      // Nothing invented: the column takes no number it could not read.
+      expect(actualDurationOf(read.document, 1)).toBeNull()
+    } else {
+      expect(read.faults.length).toBeGreaterThan(0)
+      const named = read.faults.every(
+        (each) => each.at.trim().length > 0 && each.what.trim().length > 0,
+      )
+      expect(named, 'NT-1: a refusal names the item and says why in words').toBe(true)
+    }
+  })
+
+  it('GIVEN an empty actual duration element WHEN read THEN no number is invented and nothing throws (FR-028)', () => {
+    const read = answered(durationFileText(['']))
+    if (read.ok) {
+      expect(actualDurationOf(read.document, 1)).toBeNull()
+    } else {
+      expect(read.faults.every((each) => each.what.trim().length > 0)).toBe(true)
+    }
   })
 })

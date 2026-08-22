@@ -32,16 +32,16 @@
 //      `NotifyChangeWatchers`, and none to `ApplyDocumentChange`.
 //
 // ⚠️ What follows from writing beside the one path, so that nobody looks for it
-// here: no stamp is advanced (FR-063 raises the revision for the schedule group
-// and touches 最後に書いた者と時刻 for the presentation group -- an utterance is
+// here: no stamp is advanced (FR-063 moves the schedule instant for the schedule
+// group and the other instant and 最後に書いた者 for either group -- an utterance is
 // in NEITHER group, so the requirement does not reach it, and a reader's stamp
 // stays valid across a post, which is what AG-2's lock wants); no history step
 // (table T-027 is about editing the document); no WS-1 stamp match and no WS-2
 // moment check (an utterance passes neither).
 //
 // ⚠️ And what does NOT follow: the notice still happens. AG-11 says the
-// utterance 版数を上げない and then 「それでも監視は起きること」(AG-6). Since the
-// revision cannot select it, the log counts in an order of its own, and
+// utterance 日程データの群の刻を動かさない and then 「それでも監視は起きること」(AG-6).
+// Since the stamp cannot select it, the log counts in an order of its own, and
 // `messagesSince` selects on that (PI-33). Picking WHICH watcher wakes is not
 // this file's: table T-063's UT-3 puts that rule on the pure side of
 // NotifyChangeWatchers (UF-25).
@@ -73,7 +73,7 @@ import { logWithMessage } from '../../entity/document-model/dialogue-log/dialogu
  * ⚠️ `author` and `settledAt` are VALUES, not something read here. Who is
  * speaking and what the clock says are outside (LY-5 of table T-060, and CS-1 of
  * table T-066 keeps the clock out of the inner layers) -- the same reason
- * `editedBy` and `updatedAt` are arguments on the document write path. AG-6
+ * `editedBy` and `updatedUtc` are arguments on the document write path. AG-6
  * selects on 自分以外の書き手, so `author` is the name a watcher compares
  * against its own.
  */
@@ -97,7 +97,7 @@ export interface DialogueLogHolder {
 /**
  * Who is told, once the log holds the utterance. This is the 配る of CP-16 and
  * the FT-5 trigger of table T-078 -- the watchers of AG-6 wake here although the
- * revision did not move, and the frame that shows the dialogue field runs.
+ * schedule instant did not move, and the frame that shows the dialogue field runs.
  *
  * ⚠️ Declared here rather than imported from NotifyChangeWatchers: the seam is
  * an interface the caller satisfies (LR-5 / R2.6), which is how `ChangeAudience`

@@ -171,9 +171,9 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
       if (workingDayTypes !== undefined) {
         const next = withWorkingDayTypes(within.calendar, workingDayTypes)
         // ⚠️ Rebuild the array only when a weekday actually moved. FR-063
-        // raises the revision for a write that changed the schedule group, and
+        // moves the schedule instant for a write that changed that group, and
         // document-change-plan.ts reads that off the schedule REFERENCE -- an
-        // unconditional rebuild would raise the revision for a command that
+        // unconditional rebuild would move that instant for a command that
         // set the calendar to what it already said.
         if (next !== within.calendar) {
           calendars = schedule.calendars.map((one, index) => (index === at ? next : one))

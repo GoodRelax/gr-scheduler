@@ -12,15 +12,16 @@
 //
 // ⭐ AG-6 selects in TWO ways and the two are not interchangeable:
 //
-//     schedule data   by the revision          (raised by WS-5 only when the
-//                                               schedule group moved, FR-063)
-//     utterances      by the log's own order   (AG-11, never by the revision)
+//     schedule data   by WS-5's judgement, and by the equality of the schedule
+//                     instant this watcher was last handed (FR-063)
+//     utterances      by the log's own order   (AG-11, never by the stamp)
 //
 // ⚠️ The second rule is not a convenience. AG-11 says an utterance is not
-// schedule data, so it does NOT raise the revision -- a watcher selected on the
-// revision alone would never wake for 「待った」 or 「なぜそうしたか」, and
+// schedule data, so it does NOT move the schedule instant -- a watcher selected
+// on the stamp alone would never wake for 「待った」 or 「なぜそうしたか」, and
 // UC-013 would stall between its step 2 and step 3. That is the whole reason
-// DialogueLog counts in an order of its own.
+// DialogueLog counts in an order of its own, and that order is NOT part of the
+// stamp: the stamp answers only which document this is.
 //
 // ⚠️ The utterance half is NOT re-implemented here: DialogueLog already
 // publishes `messagesSince` with AG-6's selection inside it (table T-064's
@@ -41,20 +42,24 @@ import {
 } from '../../entity/document-model/dialogue-log/dialogue-log'
 
 /**
- * How far one watcher has already been told, in the two counters AG-6 selects
- * on and in nothing else.
+ * How far one watcher has already been told, in the two values AG-6 selects on
+ * and in nothing else.
  *
- * ⚠️ Two counters and not one: the revision cannot order utterances (AG-11) and
- * the log's sequence cannot order schedule changes. Folding them into a single
- * number would lose whichever of the two moved last.
+ * ⚠️ Two and not one: the stamp says nothing about utterances (AG-11) and the
+ * log's sequence says nothing about schedule changes. Folding them into a
+ * single value would lose whichever of the two moved last.
  */
 export interface WatcherMark {
   /**
-   * The revision of the last document this watcher was HANDED. It is not the
-   * revision the watcher last read on its own -- AG-6 selects on what it has
-   * received, so only a notice actually taken moves this.
+   * The schedule-data group's instant on the last document this watcher was
+   * HANDED. It is not what the watcher last read on its own -- AG-6 selects on
+   * what it has received, so only a notice actually taken moves this.
+   *
+   * ⛔ Compared for EQUALITY and never for order (FR-063, MUST NOT). A watcher
+   * holding an instant the document no longer carries has not received the
+   * document it is looking at, whichever of the two was written first.
    */
-  readonly seenRevision: number
+  readonly seenScheduleUpdatedUtc: string
   /** The dialogue sequence (AG-11's own order) up to which it has been told. */
   readonly seenSequence: number
 }
@@ -70,6 +75,20 @@ export interface WatcherMark {
 export interface ConfirmedChange {
   /** The document as WS-6 left it. Never a half-built one: WS-7 runs after. */
   readonly document: Document
+  /**
+   * WS-5's judgement about the write being announced: it moved the
+   * schedule-data group.
+   *
+   * ⭐ CARRIED, not derived. AG-6 selects a live watcher by exactly this (MUST)
+   * and states that WS-5 has already made the call, so working it out again
+   * here would be the same rule in two places (R2.7). It also could not be
+   * worked out here: two writes inside one second leave `scheduleUpdatedUtc`
+   * unchanged, and the second of them still moved the schedule.
+   *
+   * ⚠️ `false` for an utterance (AG-11): speaking is not a schedule change, and
+   * the utterance half below is what wakes a watcher for it.
+   */
+  readonly hasMovedSchedule: boolean
   /** The settled utterances as they stand. AG-11 keeps drafts out of it. */
   readonly dialogue: DialogueLog
 }
@@ -86,9 +105,10 @@ export interface ChangeNotice {
    * The confirmed document, and `null` when the schedule half selected nothing.
    *
    * ⚠️ `null` is not "no document" -- it is "nothing about the schedule is new
-   * to you". It happens when the revision did not move past `seenRevision`
-   * (an utterance never moves it, AG-11; neither does a write that touched the
-   * presentation group alone, FR-063) or when this watcher was the writer.
+   * to you". It happens when the write left the schedule-data group alone (an
+   * utterance always does, AG-11; so does a write that touched the presentation
+   * group alone, FR-063) and this watcher already holds the schedule instant
+   * the document carries, or when this watcher was the writer.
    */
   readonly document: Document | null
   /** AG-6's other half, straight from `messagesSince` (PI-33). May be empty. */
@@ -119,17 +139,39 @@ export function changeNoticeFor(
   seen: WatcherMark,
   confirmed: ConfirmedChange,
 ): ChangeNotice | null {
-  const stamp = confirmed.document.revisionStamp
+  const stamp = confirmed.document.documentStamp
 
-  // ---- AG-6, first half: the schedule data, selected by the revision -------
+  // ---- AG-6, first half: the schedule data ---------------------------------
+  // TWO ways in, and AG-6 states both (MUST):
+  //
+  //   live          the write moved the schedule-data group -- WS-5's own
+  //                 judgement, carried here rather than re-derived
+  //   re-subscribed the schedule instant this watcher was last handed is not
+  //                 the one the document carries, so it never received the
+  //                 document it is looking at
+  //
+  // ⛔ Both are equalities. Neither asks which of two instants is later:
+  // FR-063 forbids that (MUST NOT), and an undo -- which restores an earlier
+  // document stamp and all (FR-031) -- is exactly where an order gets it wrong
+  // and leaves a watcher holding a document nobody has any more.
+  //
+  // ⚠️ A write that moved the presentation group ALONE must not wake a watcher
+  // (MUST NOT), and it does not: such a write leaves the schedule instant where
+  // it was, so a watcher that is up to date matches on it and is passed over.
+  // A watcher that is BEHIND is woken on the next notice whatever moved -- what
+  // it is being handed is the schedule change it never received, which is the
+  // "だけ" AG-6 asks for, and it goes quiet again immediately afterwards.
+  //
   // ⚠️ `lastEditedBy` IS the writer of the change being announced, because a
   // notice is produced at WS-7 and WS-7 runs once per write, immediately after
   // the swap. So "the last writer is me" and "this change is mine" are the same
   // sentence here, which is what AG-6's MUST NOT is about.
-  // ⚠️ Selected by the stamp and never by the undo history: AG-10 lets a call
-  // that table T-027 excludes run and leave no step, and such a call is still a
-  // confirmed change -- a history-driven selection would drop it silently.
-  const changed = stamp.revision > seen.seenRevision && stamp.lastEditedBy !== watcher
+  // ⚠️ Never selected by the undo history: AG-10 lets a call that table T-027
+  // excludes run and leave no step, and such a call is still a confirmed change
+  // -- a history-driven selection would drop it silently.
+  const isScheduleUnseen =
+    confirmed.hasMovedSchedule || stamp.scheduleUpdatedUtc !== seen.seenScheduleUpdatedUtc
+  const changed = isScheduleUnseen && stamp.lastEditedBy !== watcher
 
   // ---- AG-6, second half: the utterances, selected by the log's own order --
   // The guard is not the selection -- `messagesSince` is (PI-33). It is there
@@ -151,10 +193,10 @@ export function changeNoticeFor(
     document: changed ? confirmed.document : null,
     messages,
     mark: {
-      // ⚠️ The revision advances only when the document was actually handed
-      // over. Advancing it for a notice that carried only utterances would
-      // record a schedule change as received that the watcher never saw.
-      seenRevision: changed ? stamp.revision : seen.seenRevision,
+      // ⚠️ The instant moves only when the document was actually handed over.
+      // Moving it for a notice that carried only utterances would record a
+      // schedule change as received that the watcher never saw.
+      seenScheduleUpdatedUtc: changed ? stamp.scheduleUpdatedUtc : seen.seenScheduleUpdatedUtc,
       // The sequence advances to the end of the log, not to the last message
       // taken: what was skipped was this watcher's own speech (AG-6), and its
       // own speech must never wake it later either.

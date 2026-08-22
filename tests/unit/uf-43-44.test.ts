@@ -73,7 +73,7 @@ const T_052_ROOT = [
   'schemaVersion',
   'schedule',
   'documentSettings',
-  'revisionStamp',
+  'documentStamp',
   'changeLog',
 ] as const
 
@@ -491,9 +491,11 @@ describe('FT-4 of 表 T-078 -- no clock is read here', () => {
   })
 
   it('does not put the time beside the snapshot -- 表 T-034 compares the stamp', () => {
-    // `revisionStamp` (DR-4) is what 表 T-034 and `isNewerStamp` (PI-3) compare.
-    // A second time kept next to the text would be a second answer to "which is
-    // newer", and the root may hold only the five keys of 表 T-052 anyway.
+    // `documentStamp` (DR-4) is what 表 T-034 and `isStampMatched` (PI-3)
+    // compare, and FR-063 makes that comparison an equality (MUST). A second
+    // time kept next to the text would be a second answer to "is this the same
+    // document" -- and an invitation to read it as an order, which FR-063
+    // forbids (MUST NOT). The root may hold only the five keys of 表 T-052 anyway.
     const double = storeDouble()
     saveDocumentSnapshot(double.store, snapshotOf('doc-1', SMALL, SAVED_AT))
     const held = double.held()
@@ -523,7 +525,7 @@ describe('FR-063 / AG-11 -- the write is never skipped on an unchanged revision'
     const before = templateSettings[BOOLEAN_SETTING_KEY]
     const settings: Group = { ...templateSettings, [BOOLEAN_SETTING_KEY]: !before }
     const edited = documentOf(JSON.stringify({ ...SMALL_ROOT, documentSettings: settings }))
-    expect(edited.revisionStamp).toEqual(SMALL.revisionStamp)
+    expect(edited.documentStamp).toEqual(SMALL.documentStamp)
 
     const double = storeDouble()
     saveDocumentSnapshot(double.store, snapshotOf('doc-1', SMALL))

@@ -104,7 +104,7 @@ export interface AgentSnapshot {
   /**
    * AM-6. Not part of the document either: FR-066 forbids saving the
    * conversation into it (MUST NOT), and AG-11 counts it in an order of its
-   * own because an utterance does not raise the revision.
+   * own because an utterance does not move the schedule instant.
    */
   readonly dialogue: DialogueLog
   /** `null` until BO-1 has settled the dimensions. See `FrameSnapshot`. */
@@ -150,8 +150,9 @@ export interface AgentSnapshot {
    * ⭐ The clock is read HERE and nowhere inside this component, because CS-1
    * of table T-066 keeps it on the Framework's side and R7.3 asks for an
    * outside reading to be lifted into an argument. It becomes WS-5's
-   * `updatedAt` on a write (FR-063 requires the writer and the time to be
-   * refreshed even by a write that does not raise the revision) and a settled
+   * `updatedUtc` on a write (FR-063 requires the writer and the instant
+   * either group moved at to be refreshed by every write, including one that
+   * leaves the schedule instant alone) and a settled
    * utterance's `settledAt` on AM-18.
    */
   readonly readAt: string

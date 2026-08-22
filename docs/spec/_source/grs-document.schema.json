@@ -8,7 +8,7 @@
   "schemaVersion",
   "schedule",
   "documentSettings",
-  "revisionStamp",
+  "documentStamp",
   "changeLog"
  ],
  "additionalProperties": false,
@@ -755,8 +755,8 @@
     }
    }
   },
-  "revisionStamp": {
-   "$ref": "#/$defs/revisionStamp"
+  "documentStamp": {
+   "$ref": "#/$defs/documentStamp"
   },
   "changeLog": {
    "type": "array",
@@ -1765,23 +1765,25 @@
     }
    }
   },
-  "revisionStamp": {
+  "documentStamp": {
    "type": "object",
-   "description": "The revision number, and who last wrote the document and when.",
+   "description": "The two instants, and who last wrote the document.",
    "required": [
-    "revision",
+    "scheduleUpdatedUtc",
     "lastEditedBy",
-    "updatedAt"
+    "settingsUpdatedUtc"
    ],
    "additionalProperties": false,
    "properties": {
-    "revision": {
-     "type": "integer"
+    "scheduleUpdatedUtc": {
+     "type": "string",
+     "format": "date-time",
+     "$comment": "ISO 8601, UTC, to the second."
     },
     "lastEditedBy": {
      "type": "string"
     },
-    "updatedAt": {
+    "settingsUpdatedUtc": {
      "type": "string",
      "format": "date-time",
      "$comment": "ISO 8601, UTC, to the second."
@@ -1792,14 +1794,14 @@
    "type": "object",
    "description": "Why a change was made. **The conversation itself is not stored** (`FR-066`).",
    "required": [
-    "revision",
+    "ordinal",
     "editedBy",
     "explanation",
-    "changedAt"
+    "changedUtc"
    ],
    "additionalProperties": false,
    "properties": {
-    "revision": {
+    "ordinal": {
      "type": "integer"
     },
     "editedBy": {
@@ -1808,7 +1810,7 @@
     "explanation": {
      "type": "string"
     },
-    "changedAt": {
+    "changedUtc": {
      "type": "string",
      "format": "date-time",
      "$comment": "ISO 8601, UTC, to the second."

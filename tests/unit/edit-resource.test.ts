@@ -140,7 +140,11 @@ const documentOf = (part: DocumentParts = {}): Document =>
       exportPngScale: 1,
       dependencyVisible: true,
     },
-    revisionStamp: { revision: 3, lastEditedBy: 'user', updatedAt: '2026-08-17T00:00:00' },
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      lastEditedBy: 'user',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    },
     changeLog: [],
   }) as unknown as Document
 
@@ -372,14 +376,14 @@ describe('EditDocument (UF-15) -- 表 T-027 の UN-15', () => {
     for (const command of commands) {
       const plan = planDocumentChange({
         document,
-        readStamp: document.revisionStamp,
+        readStamp: document.documentStamp,
         commands: [command as DocumentCommand],
         moment: CALM,
         history: EMPTY_HISTORY,
         historyLimits: { maxSteps: 50, maxTotalSize: 64 * 1024 * 1024 },
         settingsLimits: LIMITS,
         editedBy: 'user',
-        updatedAt: '2026-08-17T01:00:00',
+        updatedUtc: '2026-08-17T01:00:00Z',
       })
       expect(plan.ok).toBe(true)
       expect(plan.ok && plan.history.done).toHaveLength(1)

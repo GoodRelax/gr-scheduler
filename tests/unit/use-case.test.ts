@@ -66,7 +66,11 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       ...DEFAULT_SETTINGS,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
     },
-    revisionStamp: { revision: 3, lastEditedBy: 'user', updatedAt: '2026-08-17T00:00:00' },
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      lastEditedBy: 'user',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    },
     changeLog: [],
   }) as unknown as Document
 
@@ -86,14 +90,14 @@ const planOf = (
 ) =>
   planDocumentChange({
     document,
-    readStamp: document.revisionStamp,
+    readStamp: document.documentStamp,
     commands,
     moment: CALM,
     history: EMPTY_HISTORY,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'user',
-    updatedAt: '2026-08-17T01:00:00',
+    updatedUtc: '2026-08-17T01:00:00Z',
     ...part,
   })
 
@@ -317,23 +321,35 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
 })
 
 describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
-  it('WS-1 turns away a writer that read an older stamp', () => {
+  it('WS-1 turns away a writer that read a stamp that is not this one', () => {
+    // AG-2: 「食い違えば書き込みを拒否して現在の文書を返すこと（MUST）」.
     const document = documentOf()
     const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
-      readStamp: { ...document.revisionStamp, revision: 2 },
+      readStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2026-08-17T00:00:02Z' },
     })
     expect(plan.ok).toBe(false)
     if (!plan.ok) expect(plan.refusal).toEqual({ step: 'WS-1', reason: 'staleStamp' })
   })
 
-  it('WS-1 compares all three fields, so a presentation-only write is still seen', () => {
+  it('WS-1 refuses on any ONE of the three differing, EARLIER stamps included', () => {
+    // AG-2: 「照合は刻印の 3 つすべての等値で行うこと（MUST）。1 つでも違えば拒否
+    // すること（MUST）」. FR-063 leaves the schedule instant alone for a
+    // presentation write, so only lastEditedBy and settingsUpdatedUtc can tell
+    // that one happened -- and FR-063 forbids reading any of the three as an
+    // order (MUST NOT), so a stamp that reads EARLIER is a mismatch just the
+    // same, not a stale-but-harmless one.
     const document = documentOf()
-    // FR-063 leaves the revision alone for a presentation write, so only
-    // lastEditedBy and updatedAt can tell that one happened.
-    const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
-      readStamp: { ...document.revisionStamp, lastEditedBy: 'someone else' },
-    })
-    expect(plan.ok).toBe(false)
+    for (const differing of [
+      { scheduleUpdatedUtc: '2020-01-01T00:00:00Z' },
+      { lastEditedBy: 'someone else' },
+      { settingsUpdatedUtc: '2020-01-01T00:00:00Z' },
+      { settingsUpdatedUtc: '2030-01-01T00:00:00Z' },
+    ] as const) {
+      const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
+        readStamp: { ...document.documentStamp, ...differing },
+      })
+      expect(plan.ok, JSON.stringify(differing)).toBe(false)
+    }
   })
 
   it('WS-2 refuses mid-gesture, mid-edit and while notices are going out', () => {
@@ -373,18 +389,25 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     }
   })
 
-  it('WS-5 raises the revision for the schedule group and not for the presentation group', () => {
+  it('WS-5 moves the schedule instant for the schedule group and not for the presentation group', () => {
     const document = documentOf()
     const schedule = planOf(document, [{ kind: 'setProjectTitle', title: 'B' }])
-    expect(schedule.ok && schedule.raisedRevision).toBe(true)
-    expect(schedule.ok && schedule.document.revisionStamp.revision).toBe(4)
+    expect(schedule.ok && schedule.hasMovedSchedule).toBe(true)
+    expect(schedule.ok && schedule.document.documentStamp.scheduleUpdatedUtc).toBe(
+      '2026-08-17T01:00:00Z',
+    )
 
     const presentation = planOf(document, [{ kind: 'setStackDirection', direction: 'down' }])
-    expect(presentation.ok && presentation.raisedRevision).toBe(false)
-    expect(presentation.ok && presentation.document.revisionStamp.revision).toBe(3)
-    // FR-063: who wrote last and when are replaced either way.
-    expect(presentation.ok && presentation.document.revisionStamp.updatedAt).toBe(
-      '2026-08-17T01:00:00',
+    expect(presentation.ok && presentation.hasMovedSchedule).toBe(false)
+    // FR-063 (MUST NOT): 「見せ方の群だけを変える更新で、日程データの群の刻を
+    // 動かしてはならない」 -- so it still reads as it did before the write.
+    expect(presentation.ok && presentation.document.documentStamp.scheduleUpdatedUtc).toBe(
+      document.documentStamp.scheduleUpdatedUtc,
+    )
+    // FR-063 (MUST): who wrote last and the instant EITHER group moved at are
+    // replaced either way.
+    expect(presentation.ok && presentation.document.documentStamp.settingsUpdatedUtc).toBe(
+      '2026-08-17T01:00:00Z',
     )
   })
 
@@ -399,17 +422,17 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     ])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
-    expect(plan.raisedRevision).toBe(true)
+    expect(plan.hasMovedSchedule).toBe(true)
     expect(plan.document.schedule.taskGroups[0]!.isCollapsed).toBe(false)
     // UN-17 makes that half undoable, so the press leaves one step.
     expect(plan.history.done).toHaveLength(1)
   })
 
-  it('leaves the revision alone when fit had no collapse to discard', () => {
+  it('leaves the schedule instant alone when fit had no collapse to discard', () => {
     const plan = planOf(documentOf({ schedule: { taskGroups: [{ id: 'g1', isCollapsed: false }] } }), [
       { kind: 'fitScheduleToScreen', zoomX: 2, zoomY: 2, scrollDate: null, scrollGroupId: null },
     ])
-    expect(plan.ok && plan.raisedRevision).toBe(false)
+    expect(plan.ok && plan.hasMovedSchedule).toBe(false)
   })
 
   it('WS-7 hands out the notice AFTER the swap, never before', () => {
@@ -423,24 +446,29 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         held = next
       },
     }
-    const audience = {
-      deliver: (given: Document) => {
+    const audience: ChangeAudience = {
+      deliver: (given: Document, hasMovedSchedule: boolean) => {
         seen.push('deliver')
         // The subscriber must be able to read the NEW document, which is the
         // whole reason table T-067 fixes this order.
         expect(given.schedule.project.title).toBe('B')
         expect(held.document).toBe(given)
+        // ⭐ AG-6 selects a live watcher by WS-5's judgement (MUST), and R2.7
+        // keeps that judgement in ONE place: it is carried out to the audience
+        // rather than derived a second time from the stamp. The title is
+        // schedule data, so it is true here.
+        expect(hasMovedSchedule).toBe(true)
       },
     }
     const outcome = applyDocumentChange(
       {
-        readStamp: document.revisionStamp,
+        readStamp: document.documentStamp,
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
         historyLimits: HISTORY_LIMITS,
         settingsLimits: LIMITS,
         editedBy: 'user',
-        updatedAt: '2026-08-17T01:00:00',
+        updatedUtc: '2026-08-17T01:00:00Z',
       },
       holder,
       audience,
@@ -458,13 +486,13 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     }
     const outcome = applyDocumentChange(
       {
-        readStamp: { ...document.revisionStamp, revision: 1 },
+        readStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2020-01-01T00:00:00Z' },
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
         historyLimits: HISTORY_LIMITS,
         settingsLimits: LIMITS,
         editedBy: 'user',
-        updatedAt: '2026-08-17T01:00:00',
+        updatedUtc: '2026-08-17T01:00:00Z',
       },
       holder,
       { deliver: () => seen.push('deliver') },
@@ -494,13 +522,13 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         nested.push(
           applyDocumentChange(
             {
-              readStamp: given.revisionStamp,
+              readStamp: given.documentStamp,
               commands: [{ kind: 'setProjectTitle', title: 'C' }],
               moment: CALM,
               historyLimits: HISTORY_LIMITS,
               settingsLimits: LIMITS,
               editedBy: 'agent',
-              updatedAt: '2026-08-17T02:00:00',
+              updatedUtc: '2026-08-17T02:00:00Z',
             },
             holder,
             audience,
@@ -511,13 +539,13 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     const outcome = applyDocumentChange(
       {
-        readStamp: document.revisionStamp,
+        readStamp: document.documentStamp,
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
         historyLimits: HISTORY_LIMITS,
         settingsLimits: LIMITS,
         editedBy: 'user',
-        updatedAt: '2026-08-17T01:00:00',
+        updatedUtc: '2026-08-17T01:00:00Z',
       },
       holder,
       audience,
@@ -545,13 +573,13 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const writeOf = (title: string, audience: ChangeAudience) =>
       applyDocumentChange(
         {
-          readStamp: held.document.revisionStamp,
+          readStamp: held.document.documentStamp,
           commands: [{ kind: 'setProjectTitle', title }],
           moment: CALM,
           historyLimits: HISTORY_LIMITS,
           settingsLimits: LIMITS,
           editedBy: 'user',
-          updatedAt: '2026-08-17T01:00:00',
+          updatedUtc: '2026-08-17T01:00:00Z',
         },
         holder,
         audience,

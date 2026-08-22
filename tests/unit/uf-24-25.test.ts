@@ -6,11 +6,16 @@
 //
 // Everything asserted here comes from table T-035 of `FR-064` -- rows `AG-6`
 // (what a watcher is told, and that a writer is not woken by its own write) and
-// `AG-11` (the dialogue's own order, separate from the revision) -- together
-// with `FR-063` (only a schedule-group write raises the revision) and Chapter
-// 5.5 (the notice goes out after the swap, `WS-7`). Chapter 1.9 asks a test of
-// a requirement that points at a table to be driven by fixed data copied out of
-// that table, which is what `AG_6_CASES` below is.
+// `AG-11` (the dialogue's own order, separate from the stamp) -- together with
+// `FR-063` (only a schedule-group write moves the schedule-data instant) and
+// Chapter 5.5 (the notice goes out after the swap, `WS-7`). Chapter 1.9 asks a
+// test of a requirement that points at a table to be driven by fixed data
+// copied out of that table, which is what `AG_6_CASES` below is.
+//
+// ⛔ NO CASE HERE ASKS WHICH OF TWO INSTANTS IS LATER. `FR-063` forbids reading
+// the stamp as an order (MUST NOT) and makes every judgement on it an equality
+// (MUST). The case named 「an undo returns the document to t1」 below is the one
+// that goes red if an ordering comparison ever comes back.
 //
 // ⚠️ Neither unit answers with the `{ ok, refusals }` shape the editing units
 // use, so the "assert a refusal both ways" idiom has nothing to bite on here:
@@ -63,14 +68,21 @@ import {
 const SELF = 'ai'
 const OTHER = 'user'
 
-// A whole Document is far more than these cases read -- `AG-6` selects schedule
-// data by the revision alone -- so the fixture carries the stamp and the four
-// other root keys of table T-052's `DR-1` / `DR-4`. Same idiom as the other
-// unit files.
+// The three instants these cases stand on. ⛔ They are only ever compared for
+// equality; `T1 < T2` appears exactly once below, in the undo case, and only to
+// show that the case really is the backwards one.
+const T0 = '2026-08-17T00:00:00Z'
+const T1 = '2026-08-17T00:01:00Z'
+const T2 = '2026-08-17T00:02:00Z'
+
+// A whole Document is far more than these cases read -- `AG-6` looks at the
+// schedule-data group's instant and at nothing else in the stamp -- so the
+// fixture carries the stamp and the four other root keys of table T-052's
+// `DR-1` / `DR-4`. Same idiom as the other unit files.
 const documentOf = (
-  revision: number,
+  scheduleUpdatedUtc: string,
   lastEditedBy: string,
-  updatedAt = '2026-08-17T00:00:00',
+  settingsUpdatedUtc = T0,
 ): Document =>
   ({
     schemaVersion: '1',
@@ -80,7 +92,7 @@ const documentOf = (
       tasks: [],
     },
     documentSettings: {},
-    revisionStamp: { revision, lastEditedBy, updatedAt },
+    documentStamp: { scheduleUpdatedUtc, lastEditedBy, settingsUpdatedUtc },
     changeLog: [],
   }) as unknown as Document
 
@@ -92,15 +104,22 @@ const logOf = (...utterances: readonly (readonly [author: string, text: string])
     emptyDialogueLog(),
   )
 
-/** `{ document, dialogue }` -- side by side, because `FR-066` keeps the log out of the document. */
+/**
+ * `{ document, hasMovedSchedule, dialogue }` -- the document and the log side by
+ * side, because `FR-066` keeps the conversation out of the document, and
+ * `WS-5`'s judgement beside them because `AG-6` selects a live watcher by it
+ * (「その書き込みが日程データの群を変えたかどうかで選ぶこと（MUST。判定は 表
+ * T-067 の `WS-5` が既に下している）」).
+ */
 const confirmedOf = (
   document: Document,
   dialogue: DialogueLog = emptyDialogueLog(),
-): ConfirmedChange => ({ document, dialogue })
+  hasMovedSchedule = false,
+): ConfirmedChange => ({ document, hasMovedSchedule, dialogue })
 
-/** "Only from now on": the two counters `AG-6` selects on, as they stand. */
+/** "Only from now on": the two values `AG-6` selects on, as they stand. */
 const markAt = (confirmed: ConfirmedChange): WatcherMark => ({
-  seenRevision: confirmed.document.revisionStamp.revision,
+  seenScheduleUpdatedUtc: confirmed.document.documentStamp.scheduleUpdatedUtc,
   seenSequence: latestSequence(confirmed.dialogue),
 })
 
@@ -108,21 +127,27 @@ const markAt = (confirmed: ConfirmedChange): WatcherMark => ({
  * Table T-035's `AG-6` copied out as the cases it names, one row at a time.
  *
  * 「監視は『自分がまだ受け取っていない、自分以外の書き手が確定した変更と発話
- * だけ』を通知すること。日程データの変更は版数で選び、確定した発話（`AG-11`）
- * は版数に依らず選ぶ（MUST）。自分の書き込みで自分が起きてはならない
+ * だけ』を通知すること。日程データの変更は、その書き込みが日程データの群を変えた
+ * かどうかで選ぶこと（MUST。判定は 表 T-067 の `WS-5` が既に下している）。購読し
+ * 直したときは、最後に手渡した日程データの群の刻との等値で選ぶこと（MUST）。確定
+ * した発話（`AG-11`）は刻に依らず選ぶ（MUST）。⛔ 見せ方の群だけが動いた書き込み
+ * で起きてはならない（MUST NOT）。自分の書き込みで自分が起きてはならない
  * （MUST NOT）。」
  *
- * The watcher is `SELF` and has already been told everything up to revision 4
- * and dialogue sequence 0. `raisedTo` is the revision the confirmed document
- * carries, `writer` is its `lastEditedBy` (`FR-063`: who wrote last), and
- * `spokenBy` is the author of the one utterance settled since, if any.
+ * The watcher is `SELF` and has already been handed the document as it stood at
+ * `T0`, with nothing said yet. `scheduleUtc` is the schedule-data instant the
+ * confirmed document carries, `movedSchedule` is `WS-5`'s own judgement about
+ * the write being announced, `writer` is the document's `lastEditedBy`
+ * (`FR-063`: who wrote last), and `spokenBy` is the author of the one utterance
+ * settled since, if any.
  */
-const SEEN: WatcherMark = { seenRevision: 4, seenSequence: 0 }
+const SEEN: WatcherMark = { seenScheduleUpdatedUtc: T0, seenSequence: 0 }
 
 const AG_6_CASES = [
   {
-    case: 'someone else raised the revision',
-    raisedTo: 5,
+    case: 'someone else moved the schedule-data group',
+    scheduleUtc: T1,
+    movedSchedule: true,
     writer: OTHER,
     spokenBy: null,
     woken: true,
@@ -130,8 +155,9 @@ const AG_6_CASES = [
     messageCount: 0,
   },
   {
-    case: 'my own write raised the revision (MUST NOT wake me)',
-    raisedTo: 5,
+    case: 'my own write moved the schedule-data group (MUST NOT wake me)',
+    scheduleUtc: T1,
+    movedSchedule: true,
     writer: SELF,
     spokenBy: null,
     woken: false,
@@ -139,8 +165,9 @@ const AG_6_CASES = [
     messageCount: 0,
   },
   {
-    case: 'someone else settled an utterance, which raises no revision (AG-11)',
-    raisedTo: 4,
+    case: 'someone else settled an utterance, which moves no instant (AG-11)',
+    scheduleUtc: T0,
+    movedSchedule: false,
     writer: OTHER,
     spokenBy: OTHER,
     woken: true,
@@ -149,7 +176,8 @@ const AG_6_CASES = [
   },
   {
     case: 'my own utterance (MUST NOT wake me)',
-    raisedTo: 4,
+    scheduleUtc: T0,
+    movedSchedule: false,
     writer: OTHER,
     spokenBy: SELF,
     woken: false,
@@ -158,7 +186,8 @@ const AG_6_CASES = [
   },
   {
     case: 'both halves at once: a change and an utterance by someone else',
-    raisedTo: 5,
+    scheduleUtc: T1,
+    movedSchedule: true,
     writer: OTHER,
     spokenBy: OTHER,
     woken: true,
@@ -167,7 +196,8 @@ const AG_6_CASES = [
   },
   {
     case: 'nothing new to me',
-    raisedTo: 4,
+    scheduleUtc: T0,
+    movedSchedule: false,
     writer: OTHER,
     spokenBy: null,
     woken: false,
@@ -176,7 +206,8 @@ const AG_6_CASES = [
   },
 ] as const satisfies readonly {
   case: string
-  raisedTo: number
+  scheduleUtc: string
+  movedSchedule: boolean
   writer: string
   spokenBy: string | null
   woken: boolean
@@ -188,8 +219,9 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   it('AG-6 wakes a watcher for the confirmed changes and utterances of OTHER writers only', () => {
     for (const row of AG_6_CASES) {
       const confirmed = confirmedOf(
-        documentOf(row.raisedTo, row.writer),
+        documentOf(row.scheduleUtc, row.writer),
         row.spokenBy === null ? emptyDialogueLog() : logOf([row.spokenBy, 'ま']),
+        row.movedSchedule,
       )
       const notice = changeNoticeFor(SELF, SEEN, confirmed)
 
@@ -219,52 +251,149 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     }
   })
 
-  it('AG-6 selects schedule data BY THE REVISION, so FR-063 keeps a presentation write silent', () => {
-    // `FR-063` (MUST NOT): 「見せ方の群だけを変える更新で版数を上げてはならない」,
-    // while 「最後に書いた者と時刻は、見せ方の群だけを変えたときも更新する
-    // こと（MUST）」. So a presentation-only write by someone else shows up as
-    // a stamp whose revision stands still and whose other two fields moved --
-    // and `AG-6` picks schedule data by the revision, not by the stamp.
-    const confirmed = confirmedOf(documentOf(4, OTHER, '2026-08-17T09:00:00'))
-    expect(changeNoticeFor(SELF, SEEN, confirmed)).toBeNull()
+  it('AG-6 MUST NOT wake a watcher for a write that moved the presentation group ONLY', () => {
+    // ⛔ 「見せ方の群だけが動いた書き込みで起きてはならない（MUST NOT）—— 見せ方の
+    // 群は 1 秒に何十回も動くので、起きると『だけ』が意味を失う。」
+    // `FR-063` (MUST NOT): 「見せ方の群だけを変える更新で、日程データの群の刻を
+    // 動かしてはならない」, while 「どちらの群であれ動いた刻と、最後に書いた者
+    // は、見せ方の群だけを変えたときも更新すること（MUST）」. So a
+    // presentation-only write by someone else shows up as a stamp whose SCHEDULE
+    // instant stands still and whose other two fields moved.
+    const presentationOnly = confirmedOf(
+      documentOf(T0, OTHER, '2026-08-17T09:00:00Z'),
+      emptyDialogueLog(),
+      false,
+    )
+    expect(changeNoticeFor(SELF, SEEN, presentationOnly)).toBeNull()
 
-    // The same write with the revision moved IS a schedule change, which is
-    // the distinction the row draws.
-    const raised = confirmedOf(documentOf(5, OTHER, '2026-08-17T09:00:00'))
-    expect(changeNoticeFor(SELF, SEEN, raised)).not.toBeNull()
+    // ⭐ And it stays silent however many times it happens -- a wheel turn puts
+    // dozens of these through WS-1 〜 WS-7, which is why the row says 「だけ」.
+    for (let n = 1; n <= 30; n += 1) {
+      const again = confirmedOf(
+        documentOf(T0, OTHER, `2026-08-17T09:00:${String(n).padStart(2, '0')}Z`),
+        emptyDialogueLog(),
+        false,
+      )
+      expect(changeNoticeFor(SELF, SEEN, again), `presentation write ${n}`).toBeNull()
+    }
+
+    // The same write with the schedule-data group moved IS a schedule change,
+    // which is the distinction the row draws.
+    const moved = confirmedOf(documentOf(T1, OTHER, '2026-08-17T09:00:00Z'), emptyDialogueLog(), true)
+    expect(changeNoticeFor(SELF, SEEN, moved)).not.toBeNull()
   })
 
-  it('AG-11 counts utterances in an order of their own, not by the revision', () => {
-    // 「版数で選べないので、監視は発話を版数とは別の順序で数えること（MUST）」.
-    // Three utterances settle while the revision never moves; a watcher that
-    // has been told up to sequence 1 is owed the two after it, and no more.
-    const dialogue = logOf([OTHER, 'a'], [OTHER, 'b'], [OTHER, 'c'])
-    const confirmed = confirmedOf(documentOf(4, OTHER), dialogue)
+  it('AG-6 MUST NOT wake a writer for its OWN write, whatever moved and however far behind it is', () => {
+    // ⛔ 「自分の書き込みで自分が起きてはならない（MUST NOT）。」 The veto is on
+    // the writer's identity, so neither half of the selection may talk round it:
+    // not `WS-5`'s live judgement, and not the re-subscription equality (here
+    // the watcher is holding an instant the document does not carry, which is
+    // the one case that WOULD have selected).
+    for (const movedSchedule of [true, false]) {
+      for (const held of [T0, T2]) {
+        const confirmed = confirmedOf(documentOf(T1, SELF), emptyDialogueLog(), movedSchedule)
+        const notice = changeNoticeFor(
+          SELF,
+          { seenScheduleUpdatedUtc: held, seenSequence: 0 },
+          confirmed,
+        )
+        expect(notice, `movedSchedule=${movedSchedule} held=${held}`).toBeNull()
+      }
+    }
+  })
 
-    const notice = changeNoticeFor(SELF, { seenRevision: 4, seenSequence: 1 }, confirmed)
+  it('AG-6 wakes a watcher holding t2 when an UNDO returns the document to t1', () => {
+    // ⛔ THE DEFECT CR-205 EXISTS FOR, and the one case that goes red if the
+    // ordering read ever comes back.
+    //
+    // 取り消しは以前の `Document` を刻印ごと復元する（`FR-031`）, so the document
+    // comes back carrying `t1` while this watcher was last handed `t2`.
+    // `FR-063`: 「刻印を順序として読んではならない（MUST NOT）。どの判定も等値で
+    // 行うこと（MUST）」 —— 「順序で読むと『戻った文書』を『新しくない』と読み、
+    // `AG-6` が通知を落とす。」
+    const held: WatcherMark = { seenScheduleUpdatedUtc: T2, seenSequence: 0 }
+
+    // ⚠️ The ONE place these instants are compared for order, and only to show
+    // that the restored one really does read as the older of the two.
+    expect(T1 < T2).toBe(true)
+
+    // The restored document is announced WITHOUT any claim that a fresh
+    // schedule edit happened, so the equality against the instant the watcher
+    // holds is the only thing that can wake it.
+    const restored = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), false)
+    const notice = changeNoticeFor(SELF, held, restored)
+
+    expect(notice).not.toBeNull()
+    if (notice === null) return
+    expect(notice.document).toBe(restored.document)
+    // 「最後に手渡した日程データの群の刻」 now IS `t1`: the watcher holds what it
+    // was handed, not the high-water mark of everything it ever saw.
+    expect(notice.mark.seenScheduleUpdatedUtc).toBe(T1)
+
+    // And announcing the same restore as a schedule move wakes it too -- the
+    // row admits both routes in, and neither is an order.
+    const asAMove = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
+    expect(changeNoticeFor(SELF, held, asAMove)).not.toBeNull()
+
+    // Case B of the same table: a watcher already holding `t1` is NOT woken by
+    // the restore, because there is nothing in it that it has not received.
+    const alreadyThere: WatcherMark = { seenScheduleUpdatedUtc: T1, seenSequence: 0 }
+    expect(changeNoticeFor(SELF, alreadyThere, restored)).toBeNull()
+  })
+
+  it('AG-11 counts utterances in an order of their own, separate from the stamp', () => {
+    // 「刻で選べないので、監視は発話を刻印とは別の順序で数えること（MUST）。この
+    // 順序は購読ごとの数え上げであり、刻印の一部ではない」. Three utterances
+    // settle while no instant moves; a watcher that has been told up to sequence
+    // 1 is owed the two after it, and no more.
+    const dialogue = logOf([OTHER, 'a'], [OTHER, 'b'], [OTHER, 'c'])
+    const confirmed = confirmedOf(documentOf(T0, OTHER), dialogue, false)
+
+    const notice = changeNoticeFor(
+      SELF,
+      { seenScheduleUpdatedUtc: T0, seenSequence: 1 },
+      confirmed,
+    )
     expect(notice).not.toBeNull()
     if (notice === null) return
     expect(notice.messages.map((message) => message.text)).toEqual(['b', 'c'])
-    // The revision did not move, so the schedule half selected nothing.
+    // The schedule-data group did not move, so that half selected nothing.
     expect(notice.document).toBeNull()
+    // ⭐ AG-11: the utterance moved the dialogue's own counter and left the
+    // schedule instant exactly where it was.
+    expect(notice.mark.seenSequence).toBe(3)
+    expect(notice.mark.seenScheduleUpdatedUtc).toBe(T0)
+    expect(confirmed.document.documentStamp.scheduleUpdatedUtc).toBe(T0)
   })
 
   it('AG-6 tells a watcher only what it has NOT received: its mark silences the repeat', () => {
     // 「自分がまだ受け取っていない ... だけ」. Whatever the notice's mark is, it
     // has to be far enough along that the same confirmed change said twice is
     // not delivered twice.
-    const confirmed = confirmedOf(documentOf(5, OTHER), logOf([OTHER, 'a'], [OTHER, 'b']))
+    const confirmed = confirmedOf(
+      documentOf(T1, OTHER),
+      logOf([OTHER, 'a'], [OTHER, 'b']),
+      true,
+    )
     const first = changeNoticeFor(SELF, SEEN, confirmed)
     expect(first).not.toBeNull()
     if (first === null) return
     expect(first.document).not.toBeNull()
     expect(first.messages).toHaveLength(2)
 
-    expect(changeNoticeFor(SELF, first.mark, confirmed)).toBeNull()
+    // ⚠️ Said again with `hasMovedSchedule` false, because a second announcement
+    // of the SAME write is not a second write: what is left to select on is the
+    // equality, and the watcher now matches it.
+    const saidAgain = confirmedOf(confirmed.document, confirmed.dialogue, false)
+    expect(changeNoticeFor(SELF, first.mark, saidAgain)).toBeNull()
 
     // ...and the next change by someone else still gets through, so the mark
     // silences the repeat rather than the watcher.
-    const next = confirmedOf(documentOf(6, OTHER), logOf([OTHER, 'a'], [OTHER, 'b'], [OTHER, 'c']))
+    const next = confirmedOf(
+      documentOf(T2, OTHER),
+      logOf([OTHER, 'a'], [OTHER, 'b'], [OTHER, 'c']),
+      true,
+    )
     const second = changeNoticeFor(SELF, first.mark, next)
     expect(second).not.toBeNull()
     if (second === null) return
@@ -277,15 +406,16 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     // of the component, so calling it twice cannot differ, and it cannot have
     // moved anything it was handed.
     const dialogue = logOf([OTHER, 'a'])
-    const confirmed = confirmedOf(documentOf(5, OTHER), dialogue)
+    const confirmed = confirmedOf(documentOf(T1, OTHER), dialogue, true)
     const once = changeNoticeFor(SELF, SEEN, confirmed)
     const twice = changeNoticeFor(SELF, SEEN, confirmed)
     expect(once).toEqual(twice)
     expect(confirmed.dialogue).toEqual(dialogue)
-    expect(confirmed.document.revisionStamp).toEqual({
-      revision: 5,
+    expect(confirmed.hasMovedSchedule).toBe(true)
+    expect(confirmed.document.documentStamp).toEqual({
+      scheduleUpdatedUtc: T1,
       lastEditedBy: OTHER,
-      updatedAt: '2026-08-17T00:00:00',
+      settingsUpdatedUtc: T0,
     })
   })
 })
@@ -308,13 +438,13 @@ afterEach(() => {
 describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, delivering', () => {
   it('AM-17 delivers a confirmed change to other writers, and AG-6 skips the writer', () => {
     // Table T-107's `AM-17`: 「自分以外が確定した変更と発話を待つ」.
-    const start = confirmedOf(documentOf(4, OTHER))
+    const start = confirmedOf(documentOf(T0, OTHER))
     const heardBySelf: ChangeNotice[] = []
     const heardByOther: ChangeNotice[] = []
     subscribe(SELF, markAt(start), heardBySelf)
     subscribe(OTHER, markAt(start), heardByOther)
 
-    const confirmed = confirmedOf(documentOf(5, OTHER))
+    const confirmed = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
     const outcome = notifyChangeWatchers(confirmed)
 
     expect([...outcome.notified].sort()).toEqual([SELF])
@@ -324,44 +454,116 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     expect(heardByOther).toHaveLength(0)
   })
 
-  it('AG-11 wakes the watchers for an utterance although the revision stood still (FT-5)', () => {
-    // Table T-078's `FT-5` 「版数を上げずに届いた発話」 is delivered by
-    // `PostDialogueMessage` (`CP-16`) through this same entry, and `AG-11`
-    // makes waking for it a MUST.
-    const start = confirmedOf(documentOf(4, OTHER))
+  it('AG-11 wakes the watchers for an utterance although no instant moved (FT-5)', () => {
+    // Table T-078's `FT-5` is delivered by `PostDialogueMessage` (`CP-16`)
+    // through this same entry, and `AG-11` makes waking for it a MUST: 「発話は
+    // 日程データではないので日程データの群の刻を動かさない（`FR-063`）。それでも
+    // 監視は起きること（`AG-6`）。」
+    const start = confirmedOf(documentOf(T0, OTHER))
     const heard: ChangeNotice[] = []
     subscribe(SELF, markAt(start), heard)
 
-    const spoken = confirmedOf(documentOf(4, OTHER), logOf([OTHER, 'なぜそうしたか']))
+    const spoken = confirmedOf(
+      documentOf(T0, OTHER),
+      logOf([OTHER, 'なぜそうしたか']),
+      false,
+    )
     expect([...notifyChangeWatchers(spoken).notified]).toEqual([SELF])
     expect(heard).toHaveLength(1)
     expect(heard[0]!.messages.map((message) => message.text)).toEqual(['なぜそうしたか'])
+    // ⭐ `AG-11` (MUST): the utterance did NOT move the schedule-data instant --
+    // the stamp is the same one the watcher started on -- and the watcher woke
+    // all the same.
+    expect(spoken.document.documentStamp.scheduleUpdatedUtc).toBe(
+      start.document.documentStamp.scheduleUpdatedUtc,
+    )
+    expect(spoken.hasMovedSchedule).toBe(false)
     // `FR-063`: an utterance is not schedule data, so nothing about the
     // schedule is new to this watcher.
     expect(heard[0]!.document).toBeNull()
+    expect(heard[0]!.mark.seenScheduleUpdatedUtc).toBe(T0)
   })
 
-  it('AG-6 tells each watcher once: the registry holds the mark of the notice taken', () => {
-    const start = confirmedOf(documentOf(4, OTHER))
+  it('AG-6 delivers the UNDO to a watcher that already took t2, all the way through the registry', () => {
+    // ⛔ The same defect as the UF-25 case above, told end to end: the mark the
+    // registry is holding is the one that was actually TAKEN, so after the t2
+    // notice the watcher stands on t2 -- and the undo hands it a document
+    // carrying t1. 「自分がまだ受け取っていない ... だけ」 is satisfied by t1
+    // BECAUSE the two differ, not because either is later (FR-063, MUST NOT).
+    const start = confirmedOf(documentOf(T1, OTHER))
     const heard: ChangeNotice[] = []
     subscribe(SELF, markAt(start), heard)
 
-    const confirmed = confirmedOf(documentOf(5, OTHER), logOf([OTHER, 'a']))
+    const moved = confirmedOf(documentOf(T2, OTHER), emptyDialogueLog(), true)
+    expect([...notifyChangeWatchers(moved).notified]).toEqual([SELF])
+    expect(heard).toHaveLength(1)
+    expect(heard[0]!.mark.seenScheduleUpdatedUtc).toBe(T2)
+
+    // 取り消しは以前の `Document` を刻印ごと復元する（FR-031）: the earlier
+    // document comes back, stamp and all, and it is announced as a change like
+    // any other.
+    const undone = confirmedOf(start.document, emptyDialogueLog(), false)
+    expect([...notifyChangeWatchers(undone).notified]).toEqual([SELF])
+    expect(heard).toHaveLength(2)
+    expect(heard[1]!.document).toBe(start.document)
+    expect(heard[1]!.document?.documentStamp.scheduleUpdatedUtc).toBe(T1)
+  })
+
+  it('AG-2 settles a same-instant collision as last-writer-wins: the watcher ends on the SECOND', () => {
+    // 「同じ刻に 2 度書かれたときは後から来たほうが残る —— `FR-063` が『最後に書い
+    // た者』と定め、`WS-6` が差し替えを 1 つの参照の置き換えと定めているためであ
+    // る。」 Both writes carry the SAME `scheduleUpdatedUtc`, so nothing in the
+    // stamp can tell them apart; `AG-6` selects on `WS-5`'s judgement instead,
+    // which is why the second one still gets through.
+    const SECOND_WRITER = 'user-2'
+    const start = confirmedOf(documentOf(T0, OTHER))
+    const heard: ChangeNotice[] = []
+    subscribe(SELF, markAt(start), heard)
+
+    const first = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
+    const second = confirmedOf(documentOf(T1, SECOND_WRITER), emptyDialogueLog(), true)
+    expect(first.document.documentStamp.scheduleUpdatedUtc).toBe(
+      second.document.documentStamp.scheduleUpdatedUtc,
+    )
+
+    expect([...notifyChangeWatchers(first).notified]).toEqual([SELF])
+    expect([...notifyChangeWatchers(second).notified]).toEqual([SELF])
+
+    expect(heard).toHaveLength(2)
+    // ⭐ What the watcher is left holding is the SECOND document, by reference.
+    expect(heard.at(-1)!.document).toBe(second.document)
+    expect(heard.at(-1)!.document?.documentStamp.lastEditedBy).toBe(SECOND_WRITER)
+    expect(heard.at(-1)!.document).not.toBe(first.document)
+  })
+
+  it('AG-6 tells each watcher once: the registry holds the mark of the notice taken', () => {
+    const start = confirmedOf(documentOf(T0, OTHER))
+    const heard: ChangeNotice[] = []
+    subscribe(SELF, markAt(start), heard)
+
+    const confirmed = confirmedOf(documentOf(T1, OTHER), logOf([OTHER, 'a']), true)
     expect([...notifyChangeWatchers(confirmed).notified]).toEqual([SELF])
-    // 「自分がまだ受け取っていない ... だけ」: the second round has nothing left
-    // for it, so nobody is woken and nothing is delivered again.
-    expect(notifyChangeWatchers(confirmed).notified).toEqual([])
+    // 「自分がまだ受け取っていない ... だけ」: said again as the same write (not
+    // as a second one), the second round has nothing left for it, so nobody is
+    // woken and nothing is delivered again.
+    const saidAgain = confirmedOf(confirmed.document, confirmed.dialogue, false)
+    expect(notifyChangeWatchers(saidAgain).notified).toEqual([])
     expect(heard).toHaveLength(1)
   })
 
   it('AM-17 stops at unwatchChanges: a subscription that was dropped hears nothing', () => {
-    const start = confirmedOf(documentOf(4, OTHER))
+    const start = confirmedOf(documentOf(T0, OTHER))
     const heard: ChangeNotice[] = []
     subscribe(SELF, markAt(start), heard)
 
-    expect([...notifyChangeWatchers(confirmedOf(documentOf(5, OTHER))).notified]).toEqual([SELF])
+    expect(
+      [...notifyChangeWatchers(confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true))
+        .notified],
+    ).toEqual([SELF])
     unwatchChanges(REGISTERED.pop()!)
-    expect(notifyChangeWatchers(confirmedOf(documentOf(6, OTHER))).notified).toEqual([])
+    expect(
+      notifyChangeWatchers(confirmedOf(documentOf(T2, OTHER), emptyDialogueLog(), true)).notified,
+    ).toEqual([])
     expect(heard).toHaveLength(1)
   })
 

@@ -24,9 +24,10 @@ import {
 } from '../../src/use-case/choose-startup-document/choose-startup-document'
 
 // A whole Document is far more than this unit reads -- it compares stamps
-// (PI-3's `isNewerStamp`, which table T-034 asks for) and hands the winner on
-// -- so the fixture carries the root keys of table T-052 and a name that tells
-// the four candidates apart in a failure message.
+// (PI-3's `isStampMatched`, which table T-034's note asks for: 「自動保存の刻印
+// が開いた文書のそれと 1 つでも違えば確認を求めること（MUST）」) and hands the
+// winner on -- so the fixture carries the root keys of table T-052 and a name
+// that tells the four candidates apart in a failure message.
 const documentOf = (name: string, stamp: Partial<DocumentStamp> = {}): Document =>
   ({
     schemaVersion: '1',
@@ -36,10 +37,10 @@ const documentOf = (name: string, stamp: Partial<DocumentStamp> = {}): Document 
       tasks: [],
     },
     documentSettings: {},
-    revisionStamp: {
-      revision: 3,
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
       lastEditedBy: 'user',
-      updatedAt: '2026-08-17T00:00:00',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
       ...stamp,
     },
     changeLog: [],
@@ -168,14 +169,17 @@ describe('ChooseStartupDocument (UF-23) -- BT-1, the embedded document (FR-067)'
 })
 
 describe('ChooseStartupDocument (UF-23) -- the losing autosave, table T-034 note', () => {
-  // 「負けた自動保存の扱い: 同じ文書で自動保存のほうが新しければ確認を求める。
-  // 別の文書なら触らない。壊れていれば知らせたうえで退避する。」
+  // 「負けた自動保存の扱い: 同じ文書で、自動保存の刻印が開いた文書のそれと 1 つ
+  // でも違えば確認を求めること（MUST）。⛔ どちらが新しいかで判定してはならない
+  // （MUST NOT）—— 壁時計は逆行しうるうえ、取り消しで戻った文書は「新しくない」
+  // ので黙って捨てられる（`FR-063`）。別の文書なら触らない。壊れていれば知らせた
+  // うえで退避する。」
   // FR-062 adds the MUST NOT that guards all three: 「負けた自動保存を黙って
   // 捨ててはならない」.
   const WINNER_STAMP: DocumentStamp = {
-    revision: 3,
+    scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
     lastEditedBy: 'user',
-    updatedAt: '2026-08-17T00:00:00',
+    settingsUpdatedUtc: '2026-08-17T00:00:00Z',
   }
   const winner = documentOf('embedded', WINNER_STAMP)
 
@@ -191,40 +195,61 @@ describe('ChooseStartupDocument (UF-23) -- the losing autosave, table T-034 note
       template: documentOf('template'),
     })
 
-  it('T-034 asks to recover when it is the same document and the autosave is newer', () => {
-    // The comparison is PI-3's `isNewerStamp` (table T-064: 「起動時の比較。表
-    // T-034」): a higher revision is newer.
-    const stored = documentOf('autosave', { ...WINNER_STAMP, revision: 4 })
+  it('T-034 asks to recover on ANY ONE of the three differing (MUST), one case per field', () => {
+    // 「刻印が開いた文書のそれと 1 つでも違えば確認を求めること（MUST）」 -- the
+    // comparison is PI-3's `isStampMatched` (FR-063: 「どの判定も等値で行うこと
+    // （MUST）」), so each of the stamp's three fields alone is enough. The
+    // settings instant matters on its own because FR-063 moves it for a
+    // presentation-only write while leaving the schedule instant still: without
+    // that field, an autosave of exactly the work FR-062 exists to protect
+    // would look equal.
+    for (const differing of [
+      { scheduleUpdatedUtc: '2026-08-17T00:30:00Z' },
+      { lastEditedBy: 'agent' },
+      { settingsUpdatedUtc: '2026-08-17T00:30:00Z' },
+    ] as const) {
+      const stored = documentOf('autosave', { ...WINNER_STAMP, ...differing })
+      const choice = startedWith('key-a', {}, stored)
+      expect(choice.row, JSON.stringify(differing)).toBe('BT-1')
+      expect(choice.autosave, JSON.stringify(differing)).toEqual({
+        kind: 'askToRecover',
+        document: stored,
+      })
+    }
+  })
+
+  it('T-034 asks to recover when the autosave stamp is EARLIER, because newness decides nothing', () => {
+    // ⛔ 「どちらが新しいかで判定してはならない（MUST NOT）—— 壁時計は逆行しうる
+    // うえ、取り消しで戻った文書は『新しくない』ので黙って捨てられる」. An undo
+    // restores the earlier document stamp and all (FR-031), so an autosave that
+    // reads as older is still a DIFFERENT document and still has to be asked
+    // about. This case goes red the moment an ordering comparison comes back.
+    const stored = documentOf('autosave', {
+      ...WINNER_STAMP,
+      scheduleUpdatedUtc: '2020-01-01T00:00:00Z',
+      settingsUpdatedUtc: '2020-01-01T00:00:00Z',
+    })
     const choice = startedWith('key-a', {}, stored)
-    expect(choice.row).toBe('BT-1')
     expect(choice.autosave).toEqual({ kind: 'askToRecover', document: stored })
   })
 
-  it('T-034 asks to recover at the same revision when the autosave was written later', () => {
-    // FR-063 leaves the revision alone for a write to the presentation group,
-    // so `isNewerStamp` falls through to `updatedAt`. Without that half, an
-    // autosave of exactly the work FR-062 exists to protect would look equal.
-    const stored = documentOf('autosave', { ...WINNER_STAMP, updatedAt: '2026-08-17T00:30:00' })
-    const choice = startedWith('key-a', {}, stored)
-    expect(choice.autosave).toEqual({ kind: 'askToRecover', document: stored })
-  })
-
-  it('T-034 leaves a different document alone, however much newer it is', () => {
+  it('T-034 leaves a different document alone, however far apart the two stamps are', () => {
     // 「別の文書なら触らない」 -- and FR-061 makes never confusing two of them
-    // a MUST NOT, so the newness of an unrelated autosave decides nothing.
-    const choice = startedWith('key-b', { revision: 99, updatedAt: '2026-12-31T00:00:00' })
+    // a MUST NOT, so the stamp of an unrelated autosave decides nothing.
+    const choice = startedWith('key-b', {
+      scheduleUpdatedUtc: '2026-12-31T00:00:00Z',
+      settingsUpdatedUtc: '2026-12-31T00:00:00Z',
+    })
     expect(choice.row).toBe('BT-1')
     expect(choice.autosave).toEqual({ kind: 'leaveAlone' })
   })
 
-  it('T-034 does not ask about the same document when the autosave is not newer', () => {
-    // The note conditions the confirmation on 「自動保存のほうが新しければ」,
-    // which is why PI-3 publishes a comparison at all; and FR-062's MUST NOT
-    // keeps the loser from being dropped on the floor. That leaves neither a
-    // question nor a discard, and `quarantine` is reserved for the broken one
-    // -- so `leaveAlone` is what is left.
-    const older = startedWith('key-a', { ...WINNER_STAMP, revision: 2 })
-    expect(older.autosave).toEqual({ kind: 'leaveAlone' })
+  it('T-034 does not ask about the same document when the stamps match in all three', () => {
+    // The note conditions the confirmation on 「1 つでも違えば」, so nothing
+    // differing is nothing to ask about; and FR-062's MUST NOT keeps the loser
+    // from being dropped on the floor. That leaves neither a question nor a
+    // discard, and `quarantine` is reserved for the broken one -- so
+    // `leaveAlone` is what is left.
     const equal = startedWith('key-a', WINNER_STAMP)
     expect(equal.autosave).toEqual({ kind: 'leaveAlone' })
   })
@@ -257,7 +282,10 @@ describe('ChooseStartupDocument (UF-23) -- the losing autosave, table T-034 note
     // wins after BT-1 was turned away (FR-067), and the autosave stands under
     // the winner's key.
     const handed = documentOf('handed', WINNER_STAMP)
-    const stored = documentOf('autosave', { ...WINNER_STAMP, revision: 5 })
+    const stored = documentOf('autosave', {
+      ...WINNER_STAMP,
+      scheduleUpdatedUtc: '2026-08-17T05:00:00Z',
+    })
     const choice = chooseStartupDocument({
       embedded: { kind: 'unreadable' },
       handed: { kind: 'read', document: handed, documentKey: 'key-handed' },
@@ -315,7 +343,7 @@ describe('ChooseStartupDocument (UF-23) -- what the startup has to tell', () => 
       handed: { kind: 'read', document: documentOf('handed'), documentKey: 'key-handed' },
       autosave: {
         kind: 'read',
-        document: documentOf('autosave', { revision: 9 }),
+        document: documentOf('autosave', { scheduleUpdatedUtc: '2026-08-17T09:00:00Z' }),
         documentKey: 'key-handed',
       },
       template: documentOf('template'),

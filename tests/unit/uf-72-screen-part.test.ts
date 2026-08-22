@@ -76,8 +76,12 @@
 // `T_103_PARTS` are those copies, and each is checked against the .md at read
 // time so it cannot fall behind a row.
 //
-// ⛔ ONE CASE IS DELIBERATELY LEFT FAILING -- see the last describe. It is a
-// finding, not a chore.
+// ⭐ THE CASE THAT WAS LEFT FAILING (表 T-051 HF-6, the controls drawn faint) IS
+// NOW GREEN -- the finding it reported was fixed rather than the expectation
+// bent. The two blocks after it were added by the same reading: HF-6's SECOND
+// half (「あいだだけ濃く」) and HF-4 (the right edge, whatever the name and
+// whatever the depth). ⛔ They were written by someone who did not write the
+// unit and did not read its body, exactly as the first pass was.
 //
 // ⚠️ THREE THINGS ARE DELIBERATELY NOT ASSERTED, because no requirement decides
 // them:
@@ -2276,9 +2280,12 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
 })
 
 // ===========================================================================
-// ⛔ ONE CASE IS DELIBERATELY LEFT FAILING. It is a finding, not a chore, and it
-// was found while reading these three controls' declarations for the block
-// above -- the same nodes, the same inline style, a different rule.
+// ⭐ THE CASE BELOW WAS LEFT FAILING ON PURPOSE AND IS NOW GREEN. It was found
+// while reading these three controls' declarations for the block above -- the
+// same nodes, the same inline style, a different rule -- and the unit was
+// changed to satisfy it. ⛔ The expectation is untouched: what moved was the
+// paint on the controls, which now carry the faint colour this file already
+// named. The second half of HF-6 has its own block further down.
 //
 // 表 T-051 HF-6 (docs/spec/01-04-requirements.md:1312):
 //   「操作子は薄く描き、ポインタが乗っているあいだだけ濃くすること
@@ -2326,14 +2333,648 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn faint', () => {
     })).filter((one) => !isDrawnFaint(entryFor(built.root(), one.row)))
 
     // ⚠️ HF-6 has two halves and this checks the FIRST one only. The second --
-    // 「ポインタが乗っているあいだだけ濃くする」 -- needs a hover path, and the
-    // fake records every listener the unit registered, so it can be checked the
-    // same way once the first half lands. ⛔ Not asserted yet, because a control
-    // that is never faint has nothing to darken FROM and the two would fail as
-    // one finding.
+    // 「ポインタが乗っているあいだだけ濃くする」 -- has its own block at the end
+    // of this file, which could only be written once this one landed: a control
+    // that is never faint has nothing to darken FROM, and the two would have
+    // failed as one finding.
     expect(
       notFaint,
       'HF-6 「常に濃いと、日程より操作子が目立つ」 -- these are painted at full strength',
     ).toEqual([])
+  })
+})
+
+// ===========================================================================
+// 表 T-051 HF-4 -- THE CONTROLS HOLD THE RIGHT EDGE, WHATEVER THE NAME IS AND
+// HOWEVER DEEP THE ROW SITS.
+//
+// 表 T-051 HF-4 (docs/spec/01-04-requirements.md:1310, MUST):
+//   「行の名前の長さにかかわらず、操作子を行見出しパネルの右端に揃えること
+//     （MUST）」—— 名前ごとに位置が変わると狙えない
+// FR-098 (:2594) binds the `Row Pin` to that rule rather than restating it:
+//   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折り畳みの
+//     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
+// FR-085 (:1272) is what makes DEPTH the second variable. The room a name gets
+// is the panel width less 「その行の深さぶんのインデント（`rowTitleIndent`）」
+// less the room kept for the controls -- so the indent is spent on the NAME's
+// side. An indent that moved the controls would make the right edge depend on
+// the depth, which is the same defect HF-4 names for the name's length.
+//
+// ⚠️ THE HARNESS CANNOT SEE A RIGHT EDGE, SAID PLAINLY. `laidOut` answers from
+// `LAYOUT`, this file's own map keyed by `data-icon` and then `data-role`, so
+// `getBoundingClientRect()` on a control hands back the rectangle THIS FILE
+// stipulated -- IC-58 at x 100, IC-59 at 116, IC-60 at 140 -- for every name and
+// every depth alike. ⛔ A case comparing those numbers across two names would
+// pass against a unit that put the controls on the LEFT and would look like it
+// had checked HF-4. It is deliberately not written.
+//
+// ⭐ WHAT IS CHECKED INSTEAD is the arrangement the unit itself declared, which
+// is what a browser turns into that edge:
+//   1. the row is a flex row and the three entries of 表 T-109 are its LAST
+//      children, in the order the roster numbers them, so nothing of the row's
+//      own comes after them;
+//   2. the cell holding the name grows into the free space (`flex-grow` of 1 or
+//      more) from a `flex-basis` that contributes nothing, so a SHORT name
+//      lengthens the gap before the controls instead of moving them;
+//   3. that cell's `overflow` is not `visible`, which is what stops a LONG name:
+//      CSS sizing turns a flex item's automatic minimum size off exactly when
+//      its overflow is not visible, so a name wider than the row cannot push
+//      anything out of it;
+//   4. what the depth writes never reaches the controls or the row's right side.
+// ⛔ Points 2 and 3 are the flexbox and sizing rules, not an opinion of this
+// file's, and both are decidable from the declarations the fake records.
+//
+// ⚠️ ONE THING IS DELIBERATELY NOT ASSERTED: that the row's own box ends where
+// the `Row Title Panel` ends. `RowTitle.box` ARRIVES -- screen-renderer.ts says
+// it comes from `ScreenSession.rowBoxes` and forbids this side to measure it --
+// so a row narrower than the panel would be UF-63's finding, not this unit's.
+// ===========================================================================
+
+/** 表 T-051 HF-4, copied from docs/spec/01-04-requirements.md:1310. */
+const T_051_HF4_RIGHT_EDGE =
+  '行の名前の長さにかかわらず、操作子を行見出しパネルの右端に揃えること（MUST）'
+
+/** FR-085's rule that the depth is spent as an indent, copied from :1272. */
+const FR_085_INDENT_BY_DEPTH = 'その行の深さぶんのインデント'
+
+/**
+ * A number out of a settings table, read at the moment this file is read so a
+ * boundary below cannot fall behind the manuscript (Chapter 1.9).
+ */
+function settingNumber(table: string, row: string): number {
+  const cell = specTable(table).rows.find((one) => one.id === row)?.by['値'] ?? ''
+  const found = /`(\d+)`/.exec(cell)
+  if (found === null) throw new Error(`table ${table} row ${row} has no number in its 値 column`)
+  return Number.parseInt(found[1] ?? '', 10)
+}
+
+/**
+ * `maxGroupDepth` (S-125) as 表 T-211 holds it.
+ *
+ * ⭐ 表 T-211 (docs/spec/_assets/tbl-settings.md:286): 「`TaskGroup` の深さの上限。
+ * …**根の行を深さ 1 と数える**」 -- so 1 and this number are the two ends.
+ */
+const MAX_GROUP_DEPTH = settingNumber('T-211', 'S-125')
+
+/** Depth 1 (the root row) up to S-125 -- both ends of the range, and the inside. */
+const DEPTHS = Array.from({ length: MAX_GROUP_DEPTH }, (_unused, index) => index + 1)
+
+/** The names HF-4 says must not move anything, from nothing at all to far past the panel. */
+const ROW_NAMES = [
+  { what: 'empty', label: '' },
+  { what: 'null -- no name could be resolved (FR-058)', label: null },
+  { what: 'one character', label: 'A' },
+  { what: 'far longer than the panel', label: 'N'.repeat(400) },
+] as const
+
+/** One plainly drawn row, named as given and sitting at the given depth. */
+const rowNamed = (label: string | null, depth = 1): ScreenView =>
+  viewWith({
+    rowTitlePanel: {
+      pinnedTitles: [],
+      titles: [
+        rowTitle({
+          groupId: 'g-1',
+          label,
+          wholeLabel: label,
+          depth,
+          expander: { canOpen: true, canClose: true },
+        }),
+      ],
+    },
+  })
+
+/** Every row the panel drew -- pinned ones and ordinary ones alike -- in document order. */
+const rowsOf = (built: Stage): FakeElement[] =>
+  selfAndDescendants(built.root()).filter((one) => one.hasAttribute('data-group-id'))
+
+function theRowOf(built: Stage): FakeElement {
+  const first = rowsOf(built)[0]
+  if (first === undefined) throw new Error('the panel drew no row')
+  return first
+}
+
+/** The children of a row that carry an entry of 表 T-109, in the order they were appended. */
+const controlsOf = (row: FakeElement): FakeElement[] =>
+  row.children.filter((one) => one.hasAttribute('data-icon'))
+
+/**
+ * The cell the row's name is in: the last child standing BEFORE the first
+ * control. ⭐ It is found by position rather than by a role, because HF-4 is
+ * about what stands between the name and the right edge, and nothing in the
+ * specification names that cell.
+ */
+function nameCellOf(row: FakeElement): FakeElement | null {
+  const firstControl = row.children.findIndex((one) => one.hasAttribute('data-icon'))
+  const before = firstControl < 0 ? row.children : row.children.slice(0, firstControl)
+  return before[before.length - 1] ?? null
+}
+
+/** Split a shorthand at the top level, so `calc(0.25em + 2em)` stays ONE value. */
+function shorthandParts(value: string): string[] {
+  const parts: string[] = []
+  let depth = 0
+  let at = ''
+  for (const character of value.trim()) {
+    if (character === '(') depth += 1
+    if (character === ')') depth -= 1
+    if (/\s/.test(character) && depth === 0) {
+      if (at !== '') parts.push(at)
+      at = ''
+      continue
+    }
+    at += character
+  }
+  if (at !== '') parts.push(at)
+  return parts
+}
+
+/** The four sides a `padding` / `margin` shorthand expands to, in CSS order. */
+function sidesOf(shorthand: string): {
+  readonly top: string
+  readonly right: string
+  readonly bottom: string
+  readonly left: string
+} {
+  const parts = shorthandParts(shorthand)
+  const [first = '', second = first, third = first, fourth = second] = parts
+  return { top: first, right: second, bottom: third, left: fourth }
+}
+
+type BoxSide = 'top' | 'right' | 'bottom' | 'left'
+
+/** One side of a box property, longhand first and the shorthand behind it. */
+function insetOf(element: FakeElement, property: 'padding' | 'margin', side: BoxSide): string {
+  const declared = styleMap(element)
+  const longhand = declared.get(`${property}-${side}`)
+  if (longhand !== undefined && longhand.trim() !== '') return longhand.trim()
+  return sidesOf(declared.get(property) ?? '')[side]
+}
+
+/** `flex-grow` as it reaches this item, through the `flex` shorthand where that is what was written. */
+function flexGrowOf(element: FakeElement): number {
+  const declared = styleMap(element)
+  const longhand = declared.get('flex-grow')
+  if (longhand !== undefined && longhand.trim() !== '') return Number.parseFloat(longhand)
+  const shorthand = (declared.get('flex') ?? '').trim().toLowerCase()
+  if (shorthand === '' || shorthand === 'none' || shorthand === 'initial') return 0
+  if (shorthand === 'auto') return 1
+  const first = shorthandParts(shorthand)[0] ?? ''
+  const value = Number.parseFloat(first)
+  return Number.isFinite(value) ? value : 0
+}
+
+/** `flex-basis` as it reaches this item. ⚠️ `flex: 1` means a basis of `0%`, not `auto`. */
+function flexBasisOf(element: FakeElement): string {
+  const declared = styleMap(element)
+  const longhand = declared.get('flex-basis')
+  if (longhand !== undefined && longhand.trim() !== '') return longhand.trim().toLowerCase()
+  const shorthand = (declared.get('flex') ?? '').trim().toLowerCase()
+  if (shorthand === '' || shorthand === 'none' || shorthand === 'auto' || shorthand === 'initial') {
+    return 'auto'
+  }
+  const parts = shorthandParts(shorthand)
+  if (parts.every((one) => /^[0-9.]+$/.test(one))) return '0%'
+  return parts[parts.length - 1] ?? 'auto'
+}
+
+/** A basis that contributes nothing, so the item's CONTENT cannot decide the layout. */
+const isZeroBasis = (value: string): boolean => /^0(?:[a-z%]+)?$/i.test(value.trim())
+
+/** The properties two drawings of the same node disagree about. */
+function differingProperties(a: FakeElement, b: FakeElement): string[] {
+  const left = styleMap(a)
+  const right = styleMap(b)
+  return [...new Set([...left.keys(), ...right.keys()])]
+    .filter((one) => left.get(one) !== right.get(one))
+    .sort()
+}
+
+/**
+ * The properties an indent is allowed to land on without touching the right
+ * edge: the row's own left inset, and the shorthands that carry it (whose RIGHT
+ * component the cases read out and compare separately).
+ */
+const LEFT_INSETS = new Set(['padding', 'padding-left', 'margin', 'margin-left', 'text-indent'])
+
+/** Each control's whole inline declaration, by its row of 表 T-109. */
+const controlStyles = (built: Stage): Record<string, string> =>
+  Object.fromEntries(
+    T_109_ON_THE_ROW.map((one) => [one.row, inlineStyle(entryFor(built.root(), one.row))]),
+  )
+
+describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever the name is', () => {
+  it.each(ROW_NAMES)(
+    '⭐ GIVEN a row whose name is $what WHEN the row it built is read THEN the three entries of 表 T-109 are its LAST children in roster order and the name beside them is what takes the free space (表 T-051 HF-4 MUST) -- IC-58 / IC-59 / IC-60',
+    ({ label }) => {
+      const built = drawn(rowNamed(label))
+      const row = theRowOf(built)
+
+      // ⛔ 表 T-051 HF-4 (MUST): 「行の名前の長さにかかわらず、操作子を行見出し
+      // パネルの右端に揃えること」. In a flex line the last items sit at its end
+      // only if something ahead of them absorbs the free space -- so these four
+      // readings together are the rule, and no one of them is it alone.
+      expect(styleMap(row).get('display'), 'the row is not a flex line').toBe('flex')
+
+      const tail = row.children.slice(-T_109_ON_THE_ROW.length)
+      expect(
+        tail.map((one) => one.getAttribute('data-icon')),
+        `the row does not end with 表 T-109's three entries: ${serialize(row)}`,
+      ).toEqual(T_109_ON_THE_ROW.map((one) => one.row))
+
+      const name = nameCellOf(row)
+      expect(name, 'the row has no cell for its name at all').not.toBeNull()
+      const cell = name as FakeElement
+      expect(
+        flexGrowOf(cell),
+        `the name cell does not grow, so the controls follow the name: ${inlineStyle(cell)}`,
+      ).toBeGreaterThanOrEqual(1)
+      // ⭐ A basis of zero is what makes the name's LENGTH irrelevant: the cell
+      // starts at nothing and is handed the space that is left over.
+      expect(
+        isZeroBasis(flexBasisOf(cell)),
+        `the name cell is sized from its content (flex-basis:${flexBasisOf(cell)})`,
+      ).toBe(true)
+      // ⭐ And this is what stops the LONG name: a flex item's automatic minimum
+      // size does not apply when its overflow is not `visible`.
+      expect(
+        (styleMap(cell).get('overflow') ?? 'visible').trim().toLowerCase(),
+        'a name longer than the row can push the controls out of it',
+      ).not.toBe('visible')
+    },
+  )
+
+  it('⭐ GIVEN the same row drawn with an empty name and with one far longer than the panel WHEN the two are compared THEN not one declaration on the controls differs, and neither does the row (表 T-051 HF-4: 名前ごとに位置が変わると狙えない)', () => {
+    const empty = drawn(rowNamed(''))
+    const long = drawn(rowNamed('N'.repeat(400)))
+
+    expect(controlStyles(long)).toEqual(controlStyles(empty))
+    expect(
+      differingProperties(theRowOf(empty), theRowOf(long)),
+      'the row itself is drawn differently for a long name',
+    ).toEqual([])
+  })
+
+  it('GIVEN a row with no expander in its description WHEN it is read THEN the `Row Pin` alone ends the row and the name still grows (FR-098 「各行に 1 つ」, 表 T-051 HF-4) -- IC-60 alone', () => {
+    const built = drawn(withExpander(null))
+    const row = theRowOf(built)
+
+    // ⚠️ The boundary where the trio is a single control: FR-098 puts the pin on
+    // every row whether or not HF-1's pair is there, so the right edge has to
+    // hold with one control on it as well as with three.
+    expect(controlsOf(row).map((one) => one.getAttribute('data-icon'))).toEqual(['IC-60'])
+    expect(row.children[row.children.length - 1]?.getAttribute('data-icon')).toBe('IC-60')
+    const cell = nameCellOf(row)
+    expect(cell).not.toBeNull()
+    expect(flexGrowOf(cell as FakeElement)).toBeGreaterThanOrEqual(1)
+  })
+
+  it('GIVEN a PINNED row WHEN it is read THEN its controls end the row the same way (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [
+            rowTitle({
+              groupId: 'g-pinned',
+              isPinned: true,
+              depth: 2,
+              expander: { canOpen: true, canClose: true },
+            }),
+          ],
+          titles: [],
+        },
+      }),
+    )
+    const row = theRowOf(built)
+
+    expect(styleMap(row).get('display')).toBe('flex')
+    expect(row.children.slice(-3).map((one) => one.getAttribute('data-icon'))).toEqual([
+      'IC-58',
+      'IC-59',
+      'IC-60',
+    ])
+    expect(flexGrowOf(nameCellOf(row) as FakeElement)).toBeGreaterThanOrEqual(1)
+  })
+
+  it('GIVEN a panel with no rows at all WHEN it is read THEN nothing claims the edge -- no row and no control (empty)', () => {
+    const built = drawn(viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [] } }))
+
+    expect(rowsOf(built)).toEqual([])
+    for (const one of T_109_ON_THE_ROW) {
+      expect(
+        selfAndDescendants(built.root()).filter(
+          (node) => node.getAttribute('data-icon') === one.row,
+        ),
+        `${one.row} was drawn on an empty panel`,
+      ).toEqual([])
+    }
+  })
+
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-4 is looked up THEN it still puts the controls on the right edge regardless of the name (Chapter 1.9: the case is driven by the table)', () => {
+    const hf4 = specTable('T-051').rows.find((one) => one.id === 'HF-4')
+    expect(hf4, '表 T-051 no longer holds HF-4').toBeDefined()
+    expect(hf4?.cells.join(' ')).toContain('行の名前の長さにかかわらず')
+    expect(hf4?.cells.join(' ')).toContain('右端に揃えること（MUST）')
+    expect(specText('01-04-requirements.md')).toContain(T_051_HF4_RIGHT_EDGE)
+    // ⭐ FR-098 does not restate the rule; it refers the 置き方 to HF-4 .. HF-6.
+    expect(specText('01-04-requirements.md')).toContain(FR_098_SAME_AS_THE_EXPANDER)
+  })
+})
+
+describe('表 T-051 HF-4 / FR-085 -- the row depth moves the name, never the right edge', () => {
+  it.each(DEPTHS)(
+    '⭐ GIVEN a row at depth %i WHEN it is compared with a root row THEN every control is drawn identically and the row differs only on its LEFT inset (表 T-051 HF-4, FR-085 「深さぶんのインデント」) -- IC-58 / IC-59 / IC-60',
+    (depth) => {
+      const root = drawn(rowNamed('RowOne', 1))
+      const deeper = drawn(rowNamed('RowOne', depth))
+
+      // ⛔ The controls first: nothing the depth wrote may reach them, or the
+      // right edge walks in with the depth and HF-4's 「狙えない」 is exactly
+      // what the reader is left with.
+      expect(controlStyles(deeper), `the depth ${depth} indent reached the controls`).toEqual(
+        controlStyles(root),
+      )
+
+      // ⭐ And on the row itself the indent may only land on the left.
+      const differing = differingProperties(theRowOf(root), theRowOf(deeper))
+      expect(
+        differing.filter((one) => !LEFT_INSETS.has(one)),
+        `depth ${depth} changed something that is not a left inset: ${inlineStyle(theRowOf(deeper))}`,
+      ).toEqual([])
+
+      // ⚠️ `padding` is a shorthand and IS allowed to differ, so the side it
+      // carries for the right edge is read out and compared on its own.
+      expect(
+        insetOf(theRowOf(deeper), 'padding', 'right'),
+        `depth ${depth} changed the row's right padding`,
+      ).toBe(insetOf(theRowOf(root), 'padding', 'right'))
+      expect(insetOf(theRowOf(deeper), 'margin', 'right')).toBe(
+        insetOf(theRowOf(root), 'margin', 'right'),
+      )
+    },
+  )
+
+  it('⭐ GIVEN the deepest row S-125 allows and a root row WHEN their drawings are compared THEN they DIFFER -- the depth was spent, and spent on the name side (FR-085 :1272)', () => {
+    const root = drawn(rowNamed('RowOne', 1))
+    const deepest = drawn(rowNamed('RowOne', MAX_GROUP_DEPTH))
+
+    // ⚠️ Without this, the case above would be satisfied by a unit that ignored
+    // the depth altogether: nothing differs, so nothing differs on the right.
+    // FR-085 (:1272) counts on the indent being there -- 「その行の深さぶんの
+    // インデント（`rowTitleIndent`）…を引いた残り」.
+    expect(
+      differingProperties(theRowOf(root), theRowOf(deepest)),
+      `depth ${MAX_GROUP_DEPTH} is drawn exactly like depth 1 -- the indent is missing`,
+    ).not.toEqual([])
+    expect(specText('01-04-requirements.md')).toContain(FR_085_INDENT_BY_DEPTH)
+  })
+
+  it('GIVEN 表 T-211 is re-read WHEN S-125 is looked up THEN the depths these cases walk are the ones it allows (Chapter 1.9)', () => {
+    const row = specTable('T-211').rows.find((one) => one.id === 'S-125')
+    expect(row?.cells.join(' '), '表 T-211 no longer holds maxGroupDepth').toContain('maxGroupDepth')
+    expect(row?.cells.join(' '), 'S-125 no longer counts the root row as depth 1').toContain(
+      '根の行を深さ 1 と数える',
+    )
+    expect(DEPTHS[0]).toBe(1)
+    expect(DEPTHS[DEPTHS.length - 1]).toBe(MAX_GROUP_DEPTH)
+  })
+})
+
+// ===========================================================================
+// 表 T-051 HF-6, THE SECOND HALF -- 「ポインタが乗っているあいだだけ濃くする
+// こと」. The block above pins the first half (the controls are drawn faint);
+// this one pins the other, which that block had to leave alone because a control
+// that is never faint has nothing to darken FROM.
+//
+// 表 T-051 HF-6 (docs/spec/01-04-requirements.md:1312):
+//   「操作子は薄く描き、ポインタが乗っているあいだだけ濃くすること
+//     —— 常に濃いと、日程より操作子が目立つ」
+// FR-098 (:2594) refers the 濃さ of the `Row Pin` to the same row.
+//
+// ⚠️ WHAT THE HARNESS CAN AND CANNOT SEE. There is no pointer here and no style
+// resolution: the fake records the declarations a node was given and nothing
+// else, so 「乗っているあいだ」 cannot be entered and then measured. ⛔ A case
+// that dispatched a made-up `pointerover` and then read a colour would be
+// checking a listener this file invented, not the rule.
+// ⭐ WHAT IS CHECKED INSTEAD is the sheet the unit put on the page: whether a
+// rule keyed on the pointer resting on the control exists, whether it reaches
+// THAT control, and whether it can win. The last is the part that decides
+// whether the rule does anything at all -- the faint half is an inline
+// declaration, and an inline declaration beats a sheet unless the sheet's is
+// `!important`. A rule without it would look right in the file and paint
+// nothing in the browser.
+// ⚠️ 「あいだ・だけ」 is the other half, and it is read the same way: no rule of
+// the unit's own sheet may paint these controls at full strength with NO pointer
+// condition on it, because that would undo the 薄く the block above pins.
+//
+// ⛔ NOT ASSERTED, because no requirement decides it: WHICH mechanism carries
+// 「乗っているあいだ」. FR-048's MUST NOT (:2705) names HF-6 as one of the four
+// things it does NOT cover, so a listener would be admissible too; the cases
+// below read whichever of the two the unit chose to declare, and only a unit
+// that declared NEITHER fails them.
+// ===========================================================================
+
+/** One declaration of a rule in the unit's own sheet. */
+interface SheetDeclaration {
+  readonly value: string
+  readonly isImportant: boolean
+}
+
+/** One selector of the unit's own sheet, with the declarations it carries. */
+interface SheetRule {
+  readonly selector: string
+  readonly declarations: ReadonlyMap<string, SheetDeclaration>
+}
+
+/**
+ * A tiny stylesheet reader: enough for the flat `selector, selector { … }` a
+ * single-file page can carry.
+ *
+ * ⚠️ It knows nothing of at-rules. A rule nested inside `@media` would be read
+ * as though it applied always, so if one ever appears here, re-read this.
+ */
+function parseCss(css: string): SheetRule[] {
+  const rules: SheetRule[] = []
+  for (const block of css.split('}')) {
+    const brace = block.indexOf('{')
+    if (brace < 0) continue
+    const declarations = new Map<string, SheetDeclaration>()
+    for (const one of block.slice(brace + 1).split(';')) {
+      const colon = one.indexOf(':')
+      if (colon < 0) continue
+      const property = one.slice(0, colon).trim().toLowerCase()
+      const written = one.slice(colon + 1).trim()
+      declarations.set(property, {
+        value: written.replace(/!\s*important$/i, '').trim(),
+        isImportant: /!\s*important$/i.test(written),
+      })
+    }
+    for (const selector of block.slice(0, brace).split(',')) {
+      if (selector.trim() !== '') rules.push({ selector: selector.trim(), declarations })
+    }
+  }
+  return rules
+}
+
+/** Every rule the unit put on the page, from every `style` element under its own root. */
+const sheetRulesOf = (root: FakeElement): SheetRule[] =>
+  selfAndDescendants(root)
+    .filter((one) => one.tagName === 'STYLE')
+    .flatMap((one) => parseCss(one.textContent))
+
+/**
+ * What a rule set would paint on this node WHILE the pointer rests on it, or
+ * `null` where nothing would. The last matching rule wins, as in a browser.
+ */
+function hoverDeclaration(
+  rules: readonly SheetRule[],
+  node: FakeElement,
+  property: string,
+): SheetDeclaration | null {
+  let found: SheetDeclaration | null = null
+  for (const rule of rules) {
+    if (!rule.selector.endsWith(':hover')) continue
+    if (!matches(node, rule.selector.slice(0, -':hover'.length))) continue
+    found = rule.declarations.get(property) ?? found
+  }
+  return found
+}
+
+/**
+ * What a rule set would paint on this node with NO pointer condition at all.
+ *
+ * ⭐ Any selector carrying a `:` is treated as conditional and left out, which
+ * is the safe direction: it can only make this reading MISS a rule, never
+ * invent one.
+ */
+function restingDeclaration(
+  rules: readonly SheetRule[],
+  node: FakeElement,
+  property: string,
+): SheetDeclaration | null {
+  let found: SheetDeclaration | null = null
+  for (const rule of rules) {
+    if (rule.selector.includes(':')) continue
+    if (!matches(node, rule.selector)) continue
+    found = rule.declarations.get(property) ?? found
+  }
+  return found
+}
+
+/** The one colour this unit already uses for 薄く (see `isDrawnFaint` above). */
+const isFaintColour = (value: string): boolean => value.trim().toLowerCase() === 'graytext'
+
+describe('表 T-051 HF-6 / FR-098 -- the row controls darken while the pointer rests on them', () => {
+  it.each(T_109_ON_THE_ROW)(
+    '⭐ GIVEN $row is drawn WHEN the sheet the unit put on the page is read THEN a rule keyed on the pointer resting there paints it at full strength, and can beat the faint inline declaration (表 T-051 HF-6 second half, referred to by FR-098) -- $row',
+    ({ row }) => {
+      const built = drawn(oneLiveRow())
+      const node = entryFor(built.root(), row)
+      const rules = sheetRulesOf(built.root())
+      const painted = hoverDeclaration(rules, node, 'color')
+
+      // ⛔ 表 T-051 HF-6: 「操作子は薄く描き、ポインタが乗っているあいだだけ濃く
+      // すること」. Faint with nothing to darken it is half a rule.
+      expect(
+        painted,
+        `${row} has no rule for the pointer resting on it: ${rules.map((one) => one.selector).join(' | ')}`,
+      ).not.toBeNull()
+      const declaration = painted as SheetDeclaration
+      expect(
+        isFaintColour(declaration.value),
+        `${row} is repainted ${declaration.value} while the pointer is on it -- that is not 濃く`,
+      ).toBe(false)
+      // ⛔ THE PART THAT DECIDES WHETHER THE RULE DOES ANYTHING. 薄く is written
+      // inline on the control (`color:GrayText`), and an inline declaration wins
+      // over a sheet. Without `!important` the sheet is dead text and the
+      // control stays faint under the pointer.
+      expect(
+        declaration.isImportant,
+        `${row}'s rule is not !important, so the inline faint declaration wins and nothing darkens`,
+      ).toBe(true)
+    },
+  )
+
+  it.each(T_109_ON_THE_ROW)(
+    '⭐ GIVEN $row is drawn WHEN the rules with NO pointer condition are read THEN none of them paints it at full strength -- 「あいだ・だけ」 (表 T-051 HF-6: 常に濃いと、日程より操作子が目立つ) -- $row',
+    ({ row }) => {
+      const built = drawn(oneLiveRow())
+      const node = entryFor(built.root(), row)
+      const resting = restingDeclaration(sheetRulesOf(built.root()), node, 'color')
+
+      // ⚠️ The first half is pinned above by reading the node's own inline
+      // declaration; a sheet rule with no pointer condition would undo it
+      // without touching that declaration at all.
+      expect(
+        resting === null || isFaintColour(resting.value),
+        `${row} is painted ${resting?.value ?? ''} with no pointer condition on the rule`,
+      ).toBe(true)
+    },
+  )
+
+  it('⛔ GIVEN the same rule written WITHOUT !important, and one with no pointer condition at all WHEN each is read through the predicates above THEN neither counts -- so the two cases above are not greens that prove nothing (04-verification.md §2)', () => {
+    const built = drawn(oneLiveRow())
+    const node = entryFor(built.root(), 'IC-58')
+    const base = '[data-unit="UF-71"] [data-role="Row Expander"]'
+
+    const weak = parseCss(`${base}:hover{color:CanvasText;}`)
+    expect(hoverDeclaration(weak, node, 'color')?.isImportant).toBe(false)
+
+    const always = parseCss(`${base}{color:CanvasText !important;}`)
+    expect(hoverDeclaration(always, node, 'color')).toBeNull()
+    expect(restingDeclaration(always, node, 'color')?.value).toBe('CanvasText')
+
+    // ⭐ And a rule for somebody else does not reach this control either, which
+    // is what stops the reading above from passing on any `:hover` rule at all.
+    const elsewhere = parseCss('[data-role="Header Commands"] button:hover{color:CanvasText;}')
+    expect(hoverDeclaration(elsewhere, node, 'color')).toBeNull()
+  })
+
+  it('GIVEN a PINNED row WHEN its controls are read THEN the same rule reaches them (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [
+            rowTitle({
+              groupId: 'g-pinned',
+              isPinned: true,
+              expander: { canOpen: true, canClose: true },
+            }),
+          ],
+          titles: [],
+        },
+      }),
+    )
+    const rules = sheetRulesOf(built.root())
+
+    for (const one of T_109_ON_THE_ROW) {
+      const painted = hoverDeclaration(rules, entryFor(built.root(), one.row), 'color')
+      expect(painted, `${one.row} on a pinned row has no rule for the pointer`).not.toBeNull()
+      expect((painted as SheetDeclaration).isImportant).toBe(true)
+    }
+  })
+
+  it('GIVEN nothing has been drawn yet WHEN the sheet is read THEN it paints nothing at full strength on its own (BO-1 of 表 T-077, the empty case)', () => {
+    const built = wire()
+
+    // ⚠️ The boundary the sheet has to survive: it is put on the page once, not
+    // per row, so it exists before any row does. It may say nothing about a
+    // node that is not there -- but it must not paint the page dark either.
+    for (const rule of sheetRulesOf(built.root())) {
+      const colour = rule.declarations.get('color')
+      if (colour === undefined) continue
+      expect(
+        rule.selector.includes(':hover') || isFaintColour(colour.value),
+        `a rule with no pointer condition paints ${colour.value}: ${rule.selector}`,
+      ).toBe(true)
+    }
+  })
+
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-6 is looked up THEN it still asks for both halves (Chapter 1.9: the case is driven by the table)', () => {
+    const hf6 = specTable('T-051').rows.find((one) => one.id === 'HF-6')
+    expect(hf6, '表 T-051 no longer holds HF-6').toBeDefined()
+    expect(hf6?.cells.join(' ')).toContain('薄く描き')
+    expect(hf6?.cells.join(' ')).toContain('ポインタが乗っているあいだだけ濃くすること')
+    expect(specText('01-04-requirements.md')).toContain(T_051_HF6_DRAW_FAINT)
   })
 })

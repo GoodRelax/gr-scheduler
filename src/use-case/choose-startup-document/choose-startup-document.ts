@@ -44,7 +44,7 @@
 // leaves through here.
 
 import type { Document } from '../../entity/document-model/document/document'
-import { isNewerStamp } from '../../entity/document-model/document-stamp/document-stamp'
+import { isStampMatched } from '../../entity/document-model/document-stamp/document-stamp'
 
 /** The four rows of table T-034, in the order the table lists them. */
 export type StartupRow = 'BT-1' | 'BT-2' | 'BT-3' | 'BT-4'
@@ -118,13 +118,13 @@ export type AutosaveDisposition =
   /** There is no losing autosave: none was stored, or BT-3 itself won. */
   | { readonly kind: 'none' }
   /**
-   * "別の文書なら触らない" -- and also the same document whose autosave is NOT
-   * newer, because the note asks for a confirmation only when it is newer, and
-   * FR-062 forbids discarding it either way.
+   * "別の文書なら触らない" -- and also the same document whose autosave carries
+   * the very stamp the opened one carries, because there is then nothing in it
+   * the person has not got, and FR-062 forbids discarding it either way.
    */
   | { readonly kind: 'leaveAlone' }
   /**
-   * "同じ文書で自動保存のほうが新しければ確認を求める". The stored document
+   * "同じ文書で自動保存の刻印が開いた文書のそれと 1 つでも違えば確認を求める". The stored document
    * travels with the question so that answering it needs no second read of
    * storage (R7.4: the collecting is over before the deciding starts).
    */
@@ -208,10 +208,14 @@ function dispositionOfAutosave(
   // "別の文書なら触らない."
   if (winnerKey === null || winnerKey !== autosave.documentKey) return { kind: 'leaveAlone' }
 
-  // "同じ文書で自動保存のほうが新しければ確認を求める." `isNewerStamp` (PI-3) is
-  // the comparison table T-034 asks for, so the revision-then-time rule of
-  // FR-063 is not spelled a second time here.
-  if (!isNewerStamp(autosave.document.revisionStamp, winner.revisionStamp)) {
+  // Table T-034: the same document, and the autosave's stamp differing from the
+  // opened one in even ONE of the three, is what asks for a confirmation (MUST).
+  // ⛔ NEVER "whichever is newer" (MUST NOT): a wall clock runs backwards over
+  // an NTP correction, and an undo restores an earlier document stamp and all
+  // (FR-063), so an autosave holding work the person still wants would be
+  // dropped in silence for not being "newer". `isStampMatched` (PI-3) is the
+  // one comparison, so the rule is not spelled a second time here.
+  if (isStampMatched(autosave.document.documentStamp, winner.documentStamp)) {
     return { kind: 'leaveAlone' }
   }
   return { kind: 'askToRecover', document: autosave.document }

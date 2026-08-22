@@ -176,16 +176,16 @@ erDiagram
         連想 fields "Carry・文字列→文字列"
         CarryElement[] children "Carry"
     }
-    revisionStamp {
-        整数 revision "GRS"
+    documentStamp {
+        文字列 scheduleUpdatedUtc "GRS・ISO 8601・UTC・秒"
         文字列 lastEditedBy "GRS"
-        文字列 updatedAt "GRS・ISO 8601・UTC・秒"
+        文字列 settingsUpdatedUtc "GRS・ISO 8601・UTC・秒"
     }
     changeLog {
-        整数 **revision** PK "GRS"
+        整数 **ordinal** PK "GRS"
         文字列 editedBy "GRS"
         文字列 explanation "GRS"
-        文字列 changedAt "GRS・ISO 8601・UTC・秒"
+        文字列 changedUtc "GRS・ISO 8601・UTC・秒"
     }
     BaselineTask {
         整数 **uid** PK "GRS"
@@ -249,8 +249,8 @@ erDiagram
 | ET-13 | `CommentBox` | コメントボックス 1 つ。日付と行に留める | `id` | **書き出さない** | — |
 | ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付と行の範囲を囲む | `id` | **書き出さない** | — |
 | ET-15 | `CarryElement` | 解釈しない要素 1 つを、原形のまま抱える器（自己参照） | 所有者 ＋ `ordinal` | 書き出す | — |
-| ET-16 | `revisionStamp` | 版数と、最後に書いた者と時刻 | — （文書に 1 つしか無い） | **書き出さない** | — |
-| ET-17 | `changeLog` | 変更の理由。**会話そのものは保存しない**（`FR-066`） | `revision` | **書き出さない** | — |
+| ET-16 | `documentStamp` | 2 つの刻と、最後に書いた者 | — （文書に 1 つしか無い） | **書き出さない** | — |
+| ET-17 | `changeLog` | 変更の理由。**会話そのものは保存しない**（`FR-066`） | `ordinal` | **書き出さない** | — |
 | ET-18 | `BaselineTask` | 変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ | `uid` | **書き出さない** | — |
 
 ## 3. 関係
@@ -309,7 +309,7 @@ erDiagram
 | AT-7 | `Project` | `manager` | 文字列 | 可 | — | Own | `Project/Manager` | 管理者名 |
 | AT-8 | `Project` | `author` | 文字列 | 可 | — | Own | `Project/Author` | **作成者。最後に書いた者ではない** |
 | AT-9 | `Project` | `created` | 日時 | 可 | — | Own | `Project/CreationDate` | 作成日時 |
-| AT-10 | `Project` | `revision` | 整数 | 可 | — | Own | `Project/Revision` | ⚠️ **交換相手の保存回数。`revisionStamp.revision` とは別物** |
+| AT-10 | `Project` | `revision` | 整数 | 可 | — | Own | `Project/Revision` | ⚠️ **交換相手の保存回数。`documentStamp` の 2 つの刻とは別物** |
 | AT-11 | `Project` | `lastSaved` | 日時 | 可 | — | Own | `Project/LastSaved` | 最後に保存した日時 |
 | AT-12 | `Project` | `startDate` | 日付 | 可 | — | Own | `Project/StartDate` | プロジェクトの開始日 |
 | AT-13 | `Project` | `statusDate` | 日付 | 可 | — | Own | `Project/StatusDate` | 基準日線が立つ日 |
@@ -426,13 +426,13 @@ erDiagram
 | AT-124 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |
 | AT-125 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |
 | AT-126 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は `_assets/tbl-settings.md` の `S-133` が持つ**（`FR-023`）—— ⚠️ **信頼できない入力が運んでくる木であり、WBS の上限（`S-115`）とは別物である** |
-| AT-127 | `revisionStamp` | `revision` | 整数 | 否 | — | GRS | — | 1 ずつ増える。上げる条件は `FR-063` |
-| AT-128 | `revisionStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。人か、AI か |
-| AT-129 | `revisionStamp` | `updatedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 最後に書いた時刻。**秒までとする**（透かしと精度を揃える） |
-| AT-130 | `changeLog` | `revision` | 整数 | 否 | PK | GRS | — | どの版に対する理由か |
+| AT-127 | `documentStamp` | `scheduleUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 日程データの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである** |
+| AT-128 | `documentStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。人か、AI か |
+| AT-129 | `documentStamp` | `settingsUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | どちらの群であれ動いた刻。**秒までとする**（透かしと精度を揃える） |
+| AT-130 | `changeLog` | `ordinal` | 整数 | 否 | PK | GRS | — | 文書の中での出現順。`WeekDay` / `Exception` / `CarryElement` と同じ作法である |
 | AT-131 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |
 | AT-132 | `changeLog` | `explanation` | 文字列 | 否 | — | GRS | — | なぜそう変えたか（`UC-013`） |
-| AT-133 | `changeLog` | `changedAt` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | その版の時刻 |
+| AT-133 | `changeLog` | `changedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | その版の時刻 |
 | AT-134 | `BaselineTask` | `uid` | 整数 | 否 | PK | GRS | — | 重ねる相手での識別子。**現在の文書のタスクとはこの一致で対応づける**（`FR-015`） |
 | AT-135 | `BaselineTask` | `name` | 文字列 | 可 | — | GRS | — | タスク名 |
 | AT-136 | `BaselineTask` | `start` | 日時 | 可 | — | GRS | — | 変更前の予定の開始 |

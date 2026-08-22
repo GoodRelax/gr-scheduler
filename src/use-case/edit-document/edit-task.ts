@@ -16,8 +16,8 @@
 // ⚠️ Every command here reaches schedule-group data, so every one that really
 // changes something rebuilds `document.schedule` -- and every one that changes
 // nothing returns the SAME document. document-change-plan.ts decides whether
-// FR-063 raises the revision by comparing the schedule reference, so a rebuild
-// on a no-op would raise the revision with nothing behind it.
+// FR-063 moves the schedule instant by comparing the schedule reference, so a
+// rebuild on a no-op would move that instant with nothing behind it.
 //
 // ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
 
@@ -166,10 +166,10 @@ function withSchedule(document: Document, schedule: Schedule): Document {
 /**
  * Whether two rows of the same entity carry the same values.
  *
- * ⚠️ This is what keeps a command that changed nothing from raising the
- * revision. document-change-plan.ts reads `schedule !== schedule` to apply
- * FR-063, so rebuilding the group for a value that did not move would raise the
- * revision with nothing behind it. Columns that hold a list or a map are
+ * ⚠️ This is what keeps a command that changed nothing from moving the
+ * schedule instant. document-change-plan.ts reads `schedule !== schedule` to
+ * apply FR-063, so rebuilding the group for a value that did not move would
+ * move that instant with nothing behind it. Columns that hold a list or a map are
  * compared by reference, which is exact here: every arm below builds its next
  * row by spreading the held one, so those columns keep the same object unless
  * the arm replaced them on purpose.
@@ -197,7 +197,7 @@ function withVisual(document: Document, next: TaskVisual): Document {
   const at = held.findIndex((one) => one.taskUid === next.taskUid)
   // A task with no row and a task with an all-null row are the same task, so
   // the absent row is compared as the blank one -- otherwise a command that
-  // chose nothing would append a row full of nulls and move the revision.
+  // chose nothing would append a row full of nulls and move the schedule instant.
   const standing = at < 0 ? blankVisual(next.taskUid) : held[at]
   if (standing !== undefined && sameRow(standing, next)) return document
   const taskVisuals = at < 0 ? [...held, next] : held.map((one, index) => (index === at ? next : one))

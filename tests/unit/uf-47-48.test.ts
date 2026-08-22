@@ -182,7 +182,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
       baselineTasks: [],
     },
     documentSettings: structuredClone(template.documentSettings),
-    revisionStamp: structuredClone(template.revisionStamp),
+    documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
   }
   edit(draft)

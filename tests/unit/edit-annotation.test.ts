@@ -97,7 +97,11 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       dependencyVisible: true,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
     },
-    revisionStamp: { revision: 3, lastEditedBy: 'user', updatedAt: '2026-08-17T00:00:00' },
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      lastEditedBy: 'user',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    },
     changeLog: [],
   }) as unknown as Document
 
@@ -122,14 +126,14 @@ const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
   planDocumentChange({
     document,
-    readStamp: document.revisionStamp,
+    readStamp: document.documentStamp,
     commands,
     moment: CALM,
     history: EMPTY_HISTORY,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'user',
-    updatedAt: '2026-08-17T01:00:00',
+    updatedUtc: '2026-08-17T01:00:00Z',
   })
 
 describe('EditAnnotation (UF-14) -- the CommentBox group, CM-46 to CM-51', () => {
@@ -501,8 +505,8 @@ describe('EditAnnotation (UF-14) -- what a deletion drags with it, and the revis
       const plan = planOf(document, [command as DocumentCommand])
       expect(plan.ok).toBe(true)
       if (!plan.ok) return
-      expect(plan.raisedRevision).toBe(true)
-      expect(plan.document.revisionStamp.revision).toBe(4)
+      expect(plan.hasMovedSchedule).toBe(true)
+      expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe('2026-08-17T01:00:00Z')
     }
   })
 })

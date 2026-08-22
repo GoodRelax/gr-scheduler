@@ -229,7 +229,11 @@ const documentOf = (
     schemaVersion: '1',
     schedule: scheduleOf(part.schedule),
     documentSettings: settingsOf(part.documentSettings),
-    revisionStamp: { revision: 3, lastEditedBy: 'user', updatedAt: '2026-08-17T00:00:00' },
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      lastEditedBy: 'user',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    },
     changeLog: [],
   }) as unknown as Document
 

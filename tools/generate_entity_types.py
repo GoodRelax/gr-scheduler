@@ -61,7 +61,18 @@ STALE = '// <generated from '
 
 # The stamp and the change log are the document's own record, not part of the
 # schedule group (table T-052 DR-4), so they belong to DocumentStamp.
-STAMP_ENTITIES = ('revisionStamp', 'changeLog')
+STAMP_ENTITIES = ('documentStamp', 'changeLog')
+
+# The TypeScript name of each. Written as a MAPPING and not as a conditional:
+# a conditional that names one entity turns every OTHER name into the second
+# type, so a rename in the manuscript emitted the same interface twice and
+# only `tsc` said so (CR-205 renamed `revisionStamp` to `documentStamp`).
+# ⚠️ `changeLog` is a collection in the document and one entry in the type,
+# which is why the two names are not simply capitalised.
+TS_NAME_OF_STAMP_ENTITY = {
+    'documentStamp': 'DocumentStamp',
+    'changeLog': 'ChangeLogEntry',
+}
 
 say = lambda m: sys.stdout.write(m + '\n')
 
@@ -233,7 +244,7 @@ def stamp_block(erd):
     blocks = []
     for name in STAMP_ENTITIES:
         renamed = dict(by[name])
-        renamed['name'] = 'DocumentStamp' if name == 'revisionStamp' else 'ChangeLogEntry'
+        renamed['name'] = TS_NAME_OF_STAMP_ENTITY[name]
         blocks.append(entity_block(renamed, *seats[name]))
     return '\n\n'.join(blocks)
 

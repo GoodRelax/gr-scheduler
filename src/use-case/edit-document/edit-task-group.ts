@@ -7,10 +7,10 @@
 // The ten commands table T-108 puts in the `TaskGroup` group: CM-26 to CM-35.
 //
 // ⚠️ All ten write a `TaskGroup` column, which is schedule-group data, so each
-// of them rebuilds `document.schedule` and FR-063 raises the revision for it.
+// of them rebuilds `document.schedule` and FR-063 moves the schedule instant for it.
 // A command that asks for the value already held rebuilds NOTHING and returns
 // the document untouched -- document-change-plan.ts reads the schedule
-// REFERENCE, so a rebuild that changed no value would raise the revision for a
+// REFERENCE, so a rebuild that changed no value would move that instant for a
 // write that changed nothing.
 //
 // ⚠️ Identity arrives as a value. `TaskGroup.id` is a UUID (AT-51) and a pure
@@ -320,7 +320,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       // position to null (S-78) rather than dropping it: null is "the person
       // has not chosen a place yet", which OP-10 of table T-024a knows how to
       // read. The presentation group moves with the schedule here, and FR-063
-      // still raises the revision because the schedule moved.
+      // still moves the schedule instant because the schedule moved.
       const pinned = settings.pinnedGroupIds.filter((one) => !doomedRows.has(one))
       const scrollGroupId =
         settings.scrollGroupId !== null && doomedRows.has(settings.scrollGroupId)

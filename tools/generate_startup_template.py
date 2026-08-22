@@ -880,7 +880,7 @@ AUTHOR_PAINT = (
 # The rows that carry a colour of their own, so FR-042's override is drawn.
 ROW_PAINT = (('Quality And Release', 'lightgray'), ('Mobile Client', 'orange'))
 
-# The document's one calendar (FR-054), and who the revision stamp says last
+# The document's one calendar (FR-054), and who the document stamp says last
 # wrote the file. ⭐ Both are words this generator says, so both are declared
 # rather than typed at the point of use -- the neutrality check reads the
 # declarations, and a string it cannot find among them is refused.
@@ -904,7 +904,7 @@ PROJECT_MANAGER = 'Programme Manager A'
 PROJECT_AUTHOR = 'Planner A'
 PROJECT_CREATED = date(2026, 3, 6)
 PROJECT_LAST_SAVED = date(2027, 6, 14)
-# PF-7: the exchange partner's save count, which is NOT the stamp's revision
+# PF-7: the exchange partner's save count, which is NOT the document's stamp
 # (FR-074 says so). A plan fourteen months in has been saved more than once.
 PROJECT_REVISION = 37
 
@@ -4338,10 +4338,12 @@ def build():
             'baselineTasks': [],
         },
         'documentSettings': settings,
-        'revisionStamp': {
-            'revision': 1,
+        'documentStamp': {
+            # FR-063: the two instants say WHICH document this is, never which
+            # is newer. A template nobody has edited has one instant for both.
+            'scheduleUpdatedUtc': STAMPED_AT,
             'lastEditedBy': STAMP_AUTHOR,
-            'updatedAt': STAMPED_AT,
+            'settingsUpdatedUtc': STAMPED_AT,
         },
         'changeLog': [],
     }

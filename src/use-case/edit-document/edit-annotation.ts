@@ -12,11 +12,11 @@
 //
 // ⚠️ Both arrays are SCHEDULE-group data: DR-2 of table T-052 lists
 // `commentBoxes` and `highlightBoxes` among its twelve keys. So every command
-// here that actually moves something raises the revision (FR-063), which is
+// here that actually moves something moves the schedule instant (FR-063), which is
 // the opposite of edit-document-settings.ts. A command that changes nothing
 // must therefore leave `document.schedule` alone BY REFERENCE --
 // document-change-plan.ts reads exactly that reference to decide, so an
-// unconditional rebuild would raise the revision for a no-op.
+// unconditional rebuild would move that instant for a no-op.
 //
 // ⚠️ This file VALIDATES and returns a new Document. It settles nothing
 // (CP-9); WS-6 of table T-067 owns replacing the current value.

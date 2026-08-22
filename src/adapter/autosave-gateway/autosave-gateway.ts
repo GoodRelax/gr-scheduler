@@ -49,11 +49,11 @@
 // ⛔ WHAT THIS COMPONENT DOES NOT DECIDE EITHER: which edits are worth a
 // snapshot. FR-026 draws that line (a gesture is not an edit, but it does
 // restart the wait), and it is drawn where the wait is counted -- see 1. above.
-// ⚠️ In particular nothing here compares revisions to skip a write: FR-063
-// raises the revision only for the schedule-data group, and AG-11 of table
+// ⚠️ In particular nothing here compares stamps to skip a write: FR-063 moves
+// the schedule instant only for the schedule-data group, and AG-11 of table
 // T-035 keeps a settled utterance out of it entirely, so a gateway that saved
-// only on a raised revision would silently drop every presentation-group edit
-// that FR-024 and WY-1 require a document to come back with.
+// only when that instant moved would silently drop every presentation-group
+// edit that FR-024 and WY-1 require a document to come back with.
 //
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
@@ -118,8 +118,8 @@ export interface DocumentSnapshot {
    *
    * ⚠️ The spelling is the one AT-129 uses for the stamp: ISO 8601, UTC, to the
    * second. ⛔ It is NOT stored beside the snapshot -- what a stored snapshot
-   * holds is table T-034's business through `revisionStamp`, and a second time
-   * kept next to it would be a second answer to "which is newer".
+   * holds is table T-034's business through `documentStamp`, and a second time
+   * kept next to it would be a second answer to "which document is this".
    */
   readonly savedAt: string
 }
@@ -196,8 +196,8 @@ export type SnapshotRestoreOutcome =
  * ⚠️ Writes every time it is asked, and compares nothing against what is already
  * there. Who decides that there is something worth saving is FR-026's idle
  * boundary, counted in the shell (FT-4 of table T-078); a second opinion here
- * would be a second answer to the same question, and the revision is not usable
- * as one (see the note at the top of this file).
+ * would be a second answer to the same question, and the stamp is not usable as
+ * one (see the note at the top of this file).
  *
  * ⚠️ Failure comes back as a value. FR-028 states that rule for the other
  * entrance to this product and AG-8 of table T-035 for the other export that can

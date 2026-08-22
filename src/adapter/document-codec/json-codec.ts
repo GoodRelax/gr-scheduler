@@ -42,7 +42,7 @@ const ROOT_KEYS = [
   'schemaVersion',
   'schedule',
   'documentSettings',
-  'revisionStamp',
+  'documentStamp',
   'changeLog',
 ] as const
 
@@ -125,8 +125,8 @@ export function documentFromJson(text: string): JsonDecoding {
   if (!isObject(parsed['documentSettings'])) {
     faults.push(fault('/documentSettings', 'is not an object (DR-3)'))
   }
-  if (!isObject(parsed['revisionStamp'])) {
-    faults.push(fault('/revisionStamp', 'is not an object (DR-4)'))
+  if (!isObject(parsed['documentStamp'])) {
+    faults.push(fault('/documentStamp', 'is not an object (DR-4)'))
   }
   if (!Array.isArray(parsed['changeLog'])) {
     faults.push(fault('/changeLog', 'is not an array (DR-4)'))

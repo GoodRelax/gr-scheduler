@@ -57,7 +57,8 @@ export interface PlanInput {
   readonly settingsLimits: SettingsLimits
   /** WS-5's stamp fields. The clock belongs to the Framework (LY-5, CS-1). */
   readonly editedBy: string
-  readonly updatedAt: string
+  /** The instant of this write. FR-063 spells it ISO 8601, UTC, to the second. */
+  readonly updatedUtc: string
 }
 
 /** Why a write was turned away before any command ran. */
@@ -72,8 +73,16 @@ export type ChangePlan =
       readonly ok: true
       readonly document: Document
       readonly history: EditHistory<ChangeStep>
-      /** True when the schedule group moved, which is the only thing FR-063 raises the revision for. */
-      readonly raisedRevision: boolean
+      /**
+       * WS-5's judgement: the schedule-data group moved, which is the only
+       * thing FR-063 moves `scheduleUpdatedUtc` for.
+       *
+       * ⭐ It travels on the answer because AG-6 selects live watchers by it
+       * (MUST) and says in as many words that WS-5 has already made the call.
+       * Deriving it a second time on the notifying side is the duplication
+       * R2.7 refuses, and two derivations are two chances to disagree.
+       */
+      readonly hasMovedSchedule: boolean
     }
 
 /**
@@ -150,9 +159,10 @@ function stepSize(document: Document): number {
  */
 export function planDocumentChange(input: PlanInput): ChangePlan {
   // ---- WS-1: the stamps ---------------------------------------------------
-  // AG-2 compares all three fields, because the revision alone cannot see a
-  // write that touched the presentation group only (FR-063 does not raise it).
-  if (!isStampMatched(input.readStamp, input.document.revisionStamp)) {
+  // AG-2 compares all three fields and refuses on one difference (MUST): the
+  // schedule instant alone cannot see a write that touched the presentation
+  // group only, because FR-063 does not move it for one.
+  if (!isStampMatched(input.readStamp, input.document.documentStamp)) {
     return { ok: false, refusal: { step: 'WS-1', reason: 'staleStamp' } }
   }
 
@@ -202,20 +212,25 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
         )
 
   // ---- WS-5: advance the stamp -------------------------------------------
-  // FR-063: the revision rises for a write that changed the SCHEDULE group,
-  // and must not for one that changed the presentation group alone.
+  // FR-063: `scheduleUpdatedUtc` moves for a write that changed the SCHEDULE
+  // group, and MUST NOT move for one that changed the presentation group
+  // alone. The other instant and the writer move either way.
   //
   // ⚠️ Read from what actually moved, not from table T-108's group column:
   // `fitScheduleToScreen` is filed under 見せ方の群 and still clears
   // `isCollapsed`, which is a TaskGroup column. Every aggregate rebuilds the
   // schedule only when it touches it, so the reference answers exactly.
-  const raisedRevision = held.schedule !== input.document.schedule
+  //
+  // ⭐ This is the ONE place the judgement is made. AG-6 names WS-5 as the
+  // step that makes it, so it leaves on the answer below rather than being
+  // worked out again from the stamp by whoever notifies (R2.7).
+  const hasMovedSchedule = held.schedule !== input.document.schedule
   const document: Document = {
     ...held,
-    revisionStamp: advancedStamp(held.revisionStamp, input.editedBy, input.updatedAt, {
-      raisesRevision: raisedRevision,
+    documentStamp: advancedStamp(held.documentStamp, input.editedBy, input.updatedUtc, {
+      hasMovedSchedule,
     }),
   }
 
-  return { ok: true, document, history, raisedRevision }
+  return { ok: true, document, history, hasMovedSchedule }
 }

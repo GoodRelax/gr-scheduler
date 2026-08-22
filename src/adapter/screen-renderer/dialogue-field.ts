@@ -18,13 +18,14 @@
 //
 // ⭐ WHY THE ORDER IS MADE HERE rather than taken as the array came. AG-11 of
 // table T-035 makes the log count in an order of its own, and FR-063 is the
-// reason: an utterance is not schedule data, so it does not raise the revision,
-// and the revision therefore cannot tell one utterance from the next.
+// reason: an utterance is not schedule data, so it does not move the schedule
+// instant, and the stamp therefore cannot tell one utterance from the next.
 // `DialogueLog` (PI-33) publishes that counter as `DialogueMessage.sequence`,
 // but it declares no order for its `messages` array -- so trusting the array
 // order would be leaning on an invariant the entity never stated.
 // ⛔ Neither of the other two candidates may stand in for the sequence:
-//   - the revision, for the reason above (FR-063);
+//   - the stamp, for the reason above (FR-063), and because FR-063 forbids
+//     reading it as an order at all (MUST NOT);
 //   - `settledAt`, which is a clock reading from whatever machine settled the
 //     utterance. AM-18 of table T-107 has the AI post one while a person posts
 //     another, so two disagreeing clocks would reorder a conversation, and the

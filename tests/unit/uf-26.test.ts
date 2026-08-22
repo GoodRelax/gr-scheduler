@@ -128,8 +128,9 @@ describe('PostDialogueMessage (PI-16) -- CP-16', () => {
     expect(log.messages[0]).toEqual({ ...utterance, sequence: 1 })
   })
 
-  it('FT-5 of table T-078 wakes the watchers once per utterance, though no revision moved', () => {
-    // FT-5: 版数を上げずに届いた発話 / 気づくもの: PostDialogueMessage が配る。
+  it('FT-5 of table T-078 wakes the watchers once per utterance, though no instant moved', () => {
+    // FT-5: 日程データの群の刻を動かさずに届いた発話 / 気づくもの:
+    // PostDialogueMessage が配る。
     // AG-11 says それでも監視は起きること, so the delivery is not conditional.
     const recorder = recorderOf()
     postDialogueMessage(settled({ text: 'wait' }), recorder.holder, recorder.audience)

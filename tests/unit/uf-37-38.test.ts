@@ -103,7 +103,7 @@ const T_052_ROOT = [
   'schemaVersion',
   'schedule',
   'documentSettings',
-  'revisionStamp',
+  'documentStamp',
   'changeLog',
 ] as const
 

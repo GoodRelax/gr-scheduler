@@ -199,7 +199,7 @@
      ],
      [
       "オブジェクト",
-      "revisionStamp",
+      "documentStamp",
       {
        "ja": "文書の刻印"
       }
@@ -294,11 +294,11 @@
     ]
    },
    {
-    "id": "revisionStamp",
-    "entity": "revisionStamp",
+    "id": "documentStamp",
+    "entity": "documentStamp",
     "labels": [
      {
-      "ja": "版数"
+      "ja": "日程が動いた刻"
      },
      {
       "ja": "最後に書いた者"
@@ -313,7 +313,7 @@
     "entity": "changeLog",
     "labels": [
      {
-      "ja": "適用された版数"
+      "ja": "文書の中での出現順"
      },
      {
       "ja": "書いた者"
@@ -364,7 +364,7 @@
    },
    {
     "from": "Document",
-    "to": "revisionStamp",
+    "to": "documentStamp",
     "multiplicity": "1 ─ 1",
     "label": {
      "ja": "文書の刻印"
@@ -590,7 +590,7 @@
      "origin": "Own",
      "exchange": "Project/Revision",
      "meaning": {
-      "ja": "⚠️ **交換相手の保存回数。`revisionStamp.revision` とは別物**"
+      "ja": "⚠️ **交換相手の保存回数。`documentStamp` の 2 つの刻とは別物**"
      }
     },
     {
@@ -2657,10 +2657,10 @@
    ]
   },
   {
-   "name": "revisionStamp",
+   "name": "documentStamp",
    "description": {
-    "ja": "版数と、最後に書いた者と時刻",
-    "en": "The revision number, and who last wrote the document and when."
+    "ja": "2 つの刻と、最後に書いた者",
+    "en": "The two instants, and who last wrote the document."
    },
    "export": false,
    "carry": false,
@@ -2669,18 +2669,19 @@
    },
    "columns": [
     {
-     "name": "revision",
-     "type": "整数",
+     "name": "scheduleUpdatedUtc",
+     "type": "文字列（`ISO 8601`・UTC・秒）",
      "nullable": "否",
      "json": {
-      "kind": "integer",
+      "kind": "string",
+      "format": "iso8601Seconds",
       "null": false
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "1 ずつ増える。上げる条件は `FR-063`"
+      "ja": "日程データの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである**"
      }
     },
     {
@@ -2699,7 +2700,7 @@
      }
     },
     {
-     "name": "updatedAt",
+     "name": "settingsUpdatedUtc",
      "type": "文字列（`ISO 8601`・UTC・秒）",
      "nullable": "否",
      "json": {
@@ -2711,7 +2712,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "最後に書いた時刻。**秒までとする**（透かしと精度を揃える）"
+      "ja": "どちらの群であれ動いた刻。**秒までとする**（透かしと精度を揃える）"
      }
     }
    ]
@@ -2726,7 +2727,7 @@
    "carry": false,
    "columns": [
     {
-     "name": "revision",
+     "name": "ordinal",
      "type": "整数",
      "nullable": "否",
      "json": {
@@ -2737,7 +2738,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "どの版に対する理由か"
+      "ja": "文書の中での出現順。`WeekDay` / `Exception` / `CarryElement` と同じ作法である"
      }
     },
     {
@@ -2771,7 +2772,7 @@
      }
     },
     {
-     "name": "changedAt",
+     "name": "changedUtc",
      "type": "文字列（`ISO 8601`・UTC・秒）",
      "nullable": "否",
      "json": {

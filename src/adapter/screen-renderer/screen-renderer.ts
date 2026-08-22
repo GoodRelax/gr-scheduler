@@ -735,8 +735,9 @@ export interface DialogueField {
    * The settled utterances, oldest first.
    *
    * ⚠️ Ordered by `DialogueMessage.sequence`, which AG-11 makes an order of its
-   * own BECAUSE an utterance does not raise the revision (FR-063). ⛔ Do not
-   * order these by the revision or by `settledAt`: the first cannot see them and
+   * own BECAUSE an utterance does not move the schedule instant (FR-063).
+   * ⛔ Do not order these by the stamp or by `settledAt`: the first cannot see
+   * them -- and FR-063 forbids reading it as an order at all (MUST NOT) -- and
    * the second is a clock reading from whatever machine settled it.
    */
   readonly messages: readonly DialogueMessage[]

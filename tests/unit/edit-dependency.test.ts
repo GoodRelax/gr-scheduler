@@ -104,7 +104,11 @@ const documentOf = (tasks: readonly Task[]): Document =>
       // value the table gives: `0`, meaning 「間を空けない」.
       dependencyLagDefault: 0,
     },
-    revisionStamp: { revision: 3, lastEditedBy: 'user', updatedAt: '2026-08-17T00:00:00' },
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      lastEditedBy: 'user',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    },
     changeLog: [],
   }) as unknown as Document
 

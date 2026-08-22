@@ -14,8 +14,8 @@
 // successor), which is also the pair FR-009 allows only once.
 //
 // ⚠️ All three commands reach the schedule group, so all three rebuild
-// `document.schedule` -- but ONLY when they changed something. FR-063 raises
-// the revision by comparing that reference, so a command that wrote nothing
+// `document.schedule` -- but ONLY when they changed something. FR-063 moves
+// the schedule instant by that reference, so a command that wrote nothing
 // gives the same document back untouched.
 //
 // ⚠️ This file validates and returns a new Document. It settles nothing
@@ -219,7 +219,7 @@ export function editDependency(document: Document, command: DependencyCommand): 
       if (successor === null || kept.length === held.length) {
         // The pair names no dependency, so the document already stands as the
         // command asks. The SAME document comes back: its `schedule` reference
-        // does not move, and FR-063 therefore leaves the revision alone.
+        // does not move, and FR-063 therefore leaves the schedule instant alone.
         return edited(document)
       }
       return edited(withTask(document, { ...successor, dependencies: kept }))

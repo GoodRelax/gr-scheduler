@@ -19,12 +19,13 @@
 //             record in the environment -- so the flag arrives in the session
 //   AG-11     (table T-035, under FR-064) MUST: the utterances a person settled
 //             in the dialogue field can be read; the count runs in an order of
-//             its own, apart from the revision. MUST NOT: nothing reads what has
+//             its own, apart from the stamp. MUST NOT: nothing reads what has
 //             not been settled
 //   AG-6      (table T-035) the watcher's own writes are dropped from a WATCH.
 //             ⛔ Deliberately not applied to this field -- see the group below
-//   FR-063    an utterance is not schedule data, so it does not raise the
-//             revision, which is why AG-11 needs an order of its own
+//   FR-063    an utterance is not schedule data, so it does not move the
+//             schedule-data group's instant, which is why AG-11 needs an order
+//             of its own
 //   AM-6/AM-18 (table T-107) the API reads settled utterances, and the AI posts
 //             its own into the same field -- so both sides stand in it
 //   U-44      (table T-103) the settled name `Dialogue Field`

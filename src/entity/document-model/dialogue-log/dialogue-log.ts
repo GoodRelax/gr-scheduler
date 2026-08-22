@@ -6,16 +6,18 @@
 // @publishes table T-064 row PI-33
 //
 // AG-11 of table T-035 is the whole reason this unit exists as its own value:
-// a settled utterance is not schedule data, so it does NOT raise the revision
-// (FR-063) -- and yet a watcher still has to wake for it (AG-6). Since the
-// revision cannot be used to pick what is new, the log counts in an order of
+// a settled utterance is not schedule data, so it does NOT move the schedule
+// instant (FR-063) -- and yet a watcher still has to wake for it (AG-6). Since
+// the stamp cannot be used to pick what is new, the log counts in an order of
 // its own. That counter is what `messagesSince` selects on.
+// ⛔ The counter is NOT part of the stamp (AG-11): the stamp answers only which
+// document this is, and an order lives here instead.
 //
 // AG-11 also forbids reading input that has not been settled, so nothing here
 // takes a half-typed line: a message enters the log only once it is settled.
 
 export interface DialogueMessage {
-  /** The log's own order, rising by one. Not the revision (AG-11). */
+  /** The log's own order, rising by one. Not part of the stamp (AG-11). */
   readonly sequence: number
   /** Who settled it. AG-6 selects on "someone other than me". */
   readonly author: string

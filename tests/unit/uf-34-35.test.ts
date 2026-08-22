@@ -66,7 +66,7 @@ const T_052_ROOT = [
   'schemaVersion',
   'schedule',
   'documentSettings',
-  'revisionStamp',
+  'documentStamp',
   'changeLog',
 ] as const
 
@@ -286,6 +286,34 @@ describe('DR-1 of 表 T-052 -- the root holds the three groups and nothing else'
       const faults = refused(rootWithout(SMALL, key))
       expect(faults.map((f) => f.at), `the root without ${key}`).toContain(`/${key}`)
     }
+  })
+
+  it('DR-4 keeps the changeLog at the positions its ordinals name (AT-130 of 表 T-058)', () => {
+    // 表 T-058 の `AT-130`: 「`changeLog` / `ordinal` / 整数 / PK / 文書の中での
+    // 出現順」. The key IS the position, so a round trip may neither renumber
+    // the entries nor reorder them -- if it could, the key would be saying
+    // something the document does not.
+    const entries = [0, 1, 2].map((ordinal) => ({
+      ordinal,
+      editedBy: ordinal === 1 ? 'agent' : 'user',
+      explanation: `step ${ordinal}`,
+      changedUtc: `2026-08-17T00:00:0${ordinal}Z`,
+    }))
+    const document = accepted(textOf({ ...SMALL, changeLog: entries }))
+
+    // Read: every entry sits where its own key says it does.
+    document.changeLog.forEach((entry, index) => {
+      expect(entry.ordinal, `entry at index ${index}`).toBe(index)
+    })
+    expect(document.changeLog.map((entry) => entry.explanation)).toEqual([
+      'step 0',
+      'step 1',
+      'step 2',
+    ])
+
+    // Written back: the same positions, the same order, nothing renumbered.
+    const written = JSON.parse(jsonFromDocument(document)) as Root
+    expect(written['changeLog']).toEqual(entries)
   })
 
   it('refuses a root that is not an object at all', () => {

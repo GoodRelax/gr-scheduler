@@ -15,12 +15,14 @@
 //
 //   * ApplyDocumentChange, at WS-7 of table T-067 -- after the swap, never
 //     before. It reaches here through its own `ChangeAudience` seam, which
-//     hands over a `Document` alone, so the Framework wires it as
-//     `{ deliver: (document) => notifyChangeWatchers({ document, dialogue }) }`
-//     with the dialogue log it holds (LY-5: only that layer holds current
-//     values, and FR-066 keeps the log out of the document).
+//     hands over the document and WS-5's judgement, so the Framework wires it
+//     as `{ deliver: (document, hasMovedSchedule) =>
+//     notifyChangeWatchers({ document, hasMovedSchedule, dialogue }) }` with
+//     the dialogue log it holds (LY-5: only that layer holds current values,
+//     and FR-066 keeps the log out of the document).
 //   * PostDialogueMessage, after it has appended a settled utterance -- the
-//     revision did not move (AG-11) and the watchers must still wake (AG-6).
+//     schedule instant did not move (AG-11), so `hasMovedSchedule` is false,
+//     and the watchers must still wake (AG-6).
 //   * AgentApiEndpoint, for `watchChanges` / `unwatchChanges` (AM-17 of table
 //     T-107).
 //
@@ -38,8 +40,8 @@
 //
 // ⛔ NOT DECIDED: what a subscriber SPEAKING from inside `deliver` should mean.
 // Chapter 5.5 refuses writes during the delivery, and an utterance is not a
-// write -- it never touches the document (FR-066) and never raises the revision
-// (AG-11) -- so PostDialogueMessage re-enters this file and starts a nested
+// write -- it never touches the document (FR-066) and never moves the schedule
+// instant (AG-11) -- so PostDialogueMessage re-enters this file and starts a nested
 // round. The round below is fixed before its first `deliver`, so each round
 // ends; two subscribers answering each other's utterances would still not.
 // Nothing in table T-035 or Chapter 5.5 rules on it, so nothing here refuses
@@ -82,7 +84,8 @@ export interface ChangeWatcher {
    * would replay the whole dialogue log at the first notice. Nothing in table
    * T-035, table T-107's AM-17 or Chapter 6.1 fixes the starting point, so this
    * unit does not choose: the caller says. "Only what happens from now on" is
-   * spelled `{ seenRevision: document.revisionStamp.revision, seenSequence:
+   * spelled `{ seenScheduleUpdatedUtc:
+   * document.documentStamp.scheduleUpdatedUtc, seenSequence:
    * latestSequence(log) }`, both values being public (PI-3, PI-33).
    */
   readonly since: WatcherMark

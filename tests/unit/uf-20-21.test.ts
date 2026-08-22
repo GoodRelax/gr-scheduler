@@ -29,7 +29,7 @@
 // restores a whole document, so there is no published entry to drive here. Both
 // target files carry a STOP comment naming the same gap. Reported, not asserted.
 //
-// ⛔ NOT TESTED -- what `revisionStamp` the committed document carries after an
+// ⛔ NOT TESTED -- what `documentStamp` the committed document carries after an
 // undo. Restoring the stored document verbatim carries the earlier revision
 // back; advancing it instead is `WS-5`, which needs the Framework's clock
 // (`CS-1` / `LY-5`). Neither FR-031 nor FR-063 decides. Reported, not asserted.
@@ -91,7 +91,11 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       dependencyVisible: true,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
     },
-    revisionStamp: { revision: 3, lastEditedBy: 'user', updatedAt: '2026-08-17T00:00:00' },
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      lastEditedBy: 'user',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    },
     changeLog: [],
   }) as unknown as Document
 
@@ -379,14 +383,14 @@ const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliv
 const planOf = (document: Document, command: DocumentCommand) =>
   planDocumentChange({
     document,
-    readStamp: document.revisionStamp,
+    readStamp: document.documentStamp,
     commands: [command],
     moment: CALM,
     history: EMPTY_HISTORY,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'user',
-    updatedAt: '2026-08-17T01:00:00',
+    updatedUtc: '2026-08-17T01:00:00Z',
   })
 
 /**
@@ -478,14 +482,14 @@ describe('FR-031 -- 取り消しの対象は表 T-027 に従うこと', () => {
     if (!edit.ok) return
     const toggle = planDocumentChange({
       document: edit.document,
-      readStamp: edit.document.revisionStamp,
+      readStamp: edit.document.documentStamp,
       commands: [{ kind: 'setElementVisible', element: 'dependencyVisible', visible: false }],
       moment: CALM,
       history: edit.history,
       historyLimits: HISTORY_LIMITS,
       settingsLimits: LIMITS,
       editedBy: 'user',
-      updatedAt: '2026-08-17T02:00:00',
+      updatedUtc: '2026-08-17T02:00:00Z',
     })
     expect(toggle.ok).toBe(true)
     if (!toggle.ok) return

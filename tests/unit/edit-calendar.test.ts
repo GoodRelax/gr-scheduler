@@ -130,7 +130,11 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       exportPngScale: 1,
       dependencyVisible: true,
     },
-    revisionStamp: { revision: 3, lastEditedBy: 'user', updatedAt: '2026-08-17T00:00:00' },
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      lastEditedBy: 'user',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    },
     changeLog: [],
   }) as unknown as Document
 
@@ -372,10 +376,10 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
     expect(calendarWithUid(result.document, 1).exceptions).toEqual(exceptions)
   })
 
-  it('UN-13 of table T-027 makes an edit of the calendar undoable and raises the revision', () => {
+  it('UN-13 of table T-027 makes an edit of the calendar undoable and moves the schedule instant', () => {
     // UN-13 lists 暦（`FR-088`）among the document-wide settings undo covers,
     // and table T-209 files its values in 日程データの群, which WS-5 of table
-    // T-067 is the one that raises `revisionStamp.revision` for.
+    // T-067 is the one that moves `documentStamp.scheduleUpdatedUtc` for.
     const document = documentOf()
     const command: DocumentCommand = {
       kind: 'setCalendar',
@@ -384,19 +388,19 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
     }
     const plan = planDocumentChange({
       document,
-      readStamp: document.revisionStamp,
+      readStamp: document.documentStamp,
       commands: [command],
       moment: CALM,
       history: EMPTY_HISTORY,
       historyLimits: HISTORY_LIMITS,
       settingsLimits: LIMITS,
       editedBy: 'user',
-      updatedAt: '2026-08-17T01:00:00',
+      updatedUtc: '2026-08-17T01:00:00Z',
     })
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
     expect(plan.history.done).toHaveLength(1)
-    expect(plan.raisedRevision).toBe(true)
+    expect(plan.hasMovedSchedule).toBe(true)
     // One write, both halves (FR-088).
     expect(workingOf(plan.document, 1)).toEqual([2, 3, 4, 5, 6, 7])
     expect(plan.document.schedule.project.weekStartDay).toBe(0)

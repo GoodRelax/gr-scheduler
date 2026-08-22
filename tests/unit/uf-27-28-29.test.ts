@@ -23,8 +23,9 @@
 //                 AG-10 a call that runs but leaves no step, AG-11 the
 //                 utterance order
 //   FR-028        accepted or refused, as a value; never a thrown exception
-//   FR-063        the revision rises only for the schedule-data group, and the
-//                 writer and the time are refreshed either way
+//   FR-063        the schedule-data instant moves only for the schedule-data
+//                 group, and the writer and the settings instant are refreshed
+//                 either way. ⛔ The stamp is never read as an order
 //   FR-065        nothing is exposed until the install call is made
 //   FR-031        one call is one step of the undo history
 //   table T-067   WS-1 the three-field stamp match, WS-2 the moment, WS-3 the
@@ -131,9 +132,14 @@ const T_035_UNWIRED = ['AM-8', 'AM-9', 'AM-10', 'AM-12', 'AM-14', 'AM-15'] as co
  * The values below are only "something other than what the document holds".
  */
 const T_067_WS1 = [
-  { field: 'revision', differs: { revision: 999 } },
+  { field: 'scheduleUpdatedUtc', differs: { scheduleUpdatedUtc: '2026-08-19T11:00:00Z' } },
   { field: 'lastEditedBy', differs: { lastEditedBy: 'somebody else entirely' } },
-  { field: 'updatedAt', differs: { updatedAt: '1999-01-01T00:00:00Z' } },
+  { field: 'settingsUpdatedUtc', differs: { settingsUpdatedUtc: '2026-08-19T11:00:00Z' } },
+  // ⛔ FR-063 (MUST NOT): 「刻印を順序として読んではならない」. A stamp that
+  // reads EARLIER than the document's is a mismatch just the same -- an undo
+  // restores one (FR-031), so "older" is not "harmless".
+  { field: 'scheduleUpdatedUtc, earlier', differs: { scheduleUpdatedUtc: '1999-01-01T00:00:00Z' } },
+  { field: 'settingsUpdatedUtc, earlier', differs: { settingsUpdatedUtc: '1999-01-01T00:00:00Z' } },
 ] as const
 
 // ---------------------------------------------------------------------------
@@ -215,9 +221,9 @@ const SMALL_SCHEDULE: Loose = {
 
 /** The stamp the document starts each case with. AT-127 to AT-129 name the three. */
 const STARTING_STAMP = {
-  revision: 3,
+  scheduleUpdatedUtc: '2026-08-19T10:00:00Z',
   lastEditedBy: 'a person at the keyboard',
-  updatedAt: '2026-08-19T10:00:00Z',
+  settingsUpdatedUtc: '2026-08-19T10:00:00Z',
 } as const
 
 /** The same root with nothing in the schedule: the empty boundary. */
@@ -232,7 +238,7 @@ const startingDocument = (): Document =>
   ({
     ...TEMPLATE,
     schedule: SMALL_SCHEDULE,
-    revisionStamp: { ...STARTING_STAMP },
+    documentStamp: { ...STARTING_STAMP },
     changeLog: [],
   }) as unknown as Document
 
@@ -436,13 +442,13 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     writeAsPerson: (commands, editedBy) => {
       applyDocumentChange(
         {
-          readStamp: state.document.revisionStamp,
+          readStamp: state.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
           historyLimits: state.historyLimits,
           settingsLimits: SETTINGS_LIMITS,
           editedBy,
-          updatedAt: state.readAt,
+          updatedUtc: state.readAt,
         },
         wiring.holder,
         wiring.audience,
@@ -478,7 +484,7 @@ const RENAME = { kind: 'setProjectTitle', title: 'a new document name' } as cons
 // second half of an AG-3 bundle that must be dropped whole.
 const BAD_RENAME = { kind: 'setProjectTitle', title: '' } as const
 // UN-13 of table T-027 keeps the theme in the presentation group, so FR-063
-// does not raise the revision for it.
+// does not move the schedule-data instant for it.
 const RECOLOUR = { kind: 'setThemeMonochrome', monochrome: true } as const
 
 function accepted(outcome: AgentWriteOutcome): Extract<AgentWriteOutcome, { accepted: true }> {
@@ -677,10 +683,14 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
     const one = bench()
     const stamp = one.api.readStamp()
 
-    expect(stamp).toEqual(one.document.revisionStamp)
-    expect(stamp).not.toBe(one.document.revisionStamp)
+    expect(stamp).toEqual(one.document.documentStamp)
+    expect(stamp).not.toBe(one.document.documentStamp)
     expect(Object.isFrozen(stamp)).toBe(true)
-    expect([...Object.keys(stamp)].sort()).toEqual(['lastEditedBy', 'revision', 'updatedAt'])
+    expect([...Object.keys(stamp)].sort()).toEqual([
+      'lastEditedBy',
+      'scheduleUpdatedUtc',
+      'settingsUpdatedUtc',
+    ])
   })
 
   it('AM-5 answers a frozen copy of the selection, keeping the order SL-7b keeps', () => {
@@ -737,7 +747,7 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
 
     expect(() => one.api.readDocument()).not.toThrow()
     expect(one.api.readDocument().schemaVersion).toBe(one.document.schemaVersion)
-    expect(one.api.readStamp()).toEqual(one.document.revisionStamp)
+    expect(one.api.readStamp()).toEqual(one.document.documentStamp)
   })
 })
 
@@ -752,45 +762,45 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
       one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
-    expect(outcome.stamp).toEqual(one.document.revisionStamp)
+    expect(outcome.stamp).toEqual(one.document.documentStamp)
     expect(one.document.schedule.project.title).toBe(RENAME.title)
   })
 
-  it('raises the revision for a schedule-data change and says so (FR-063)', () => {
+  it('moves the schedule-data instant for a schedule-data change and says so (FR-063)', () => {
     const one = bench()
     const outcome = accepted(
       one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
-    expect(outcome.hasRaisedRevision).toBe(true)
-    expect(outcome.stamp.revision).toBe(STARTING_STAMP.revision + 1)
+    expect(outcome.hasMovedSchedule).toBe(true)
+    expect(outcome.stamp.scheduleUpdatedUtc).toBe(READ_AT)
   })
 
-  it('does NOT raise the revision for a presentation-group change (FR-063 MUST NOT)', () => {
+  it('does NOT move the schedule instant for a presentation-group change (FR-063 MUST NOT)', () => {
     const one = bench()
     const outcome = accepted(
       one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOUR] }),
     )
 
-    expect(outcome.hasRaisedRevision).toBe(false)
-    expect(outcome.stamp.revision).toBe(STARTING_STAMP.revision)
+    expect(outcome.hasMovedSchedule).toBe(false)
+    expect(outcome.stamp.scheduleUpdatedUtc).toBe(STARTING_STAMP.scheduleUpdatedUtc)
   })
 
-  it('refreshes who wrote and when even when the revision did not move (FR-063 MUST)', () => {
+  it('refreshes who wrote and when even when the schedule instant did not move (FR-063 MUST)', () => {
     const one = bench()
     const outcome = accepted(
       one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOUR] }),
     )
 
     expect(outcome.stamp.lastEditedBy).toBe(one.writerName)
-    expect(outcome.stamp.updatedAt).toBe(READ_AT)
-    expect(outcome.stamp.updatedAt).not.toBe(STARTING_STAMP.updatedAt)
+    expect(outcome.stamp.settingsUpdatedUtc).toBe(READ_AT)
+    expect(outcome.stamp.settingsUpdatedUtc).not.toBe(STARTING_STAMP.settingsUpdatedUtc)
   })
 
   it('records the write under the name AM-17 subscribes with (AG-6 needs one name)', () => {
     const one = bench()
     accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
-    expect(one.document.revisionStamp.lastEditedBy).toBe(one.writerName)
+    expect(one.document.documentStamp.lastEditedBy).toBe(one.writerName)
   })
 
   it('is one step of the undo history, however many commands the bundle held (FR-031)', () => {
@@ -810,7 +820,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
     const outcome = one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [] })
 
     expect(typeof outcome.accepted).toBe('boolean')
-    expect(one.document.revisionStamp.revision).toBe(STARTING_STAMP.revision)
+    expect(one.document.documentStamp.scheduleUpdatedUtc).toBe(STARTING_STAMP.scheduleUpdatedUtc)
   })
 })
 
@@ -828,7 +838,7 @@ describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
 
   it('answers a stale write WITH the current document (AG-2, MUST)', () => {
     const one = bench()
-    const stale = { ...one.api.readStamp(), revision: 1 }
+    const stale = { ...one.api.readStamp(), scheduleUpdatedUtc: '1999-01-01T00:00:00Z' }
     const outcome = refused(one.api.applyCommands({ readStamp: stale, commands: [RENAME] }))
 
     expect(outcome.refusal.document).not.toBeNull()
@@ -838,13 +848,13 @@ describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
 
   it('carries the whole current stamp, so the caller can retry from the answer (AG-2)', () => {
     const one = bench()
-    const stale = { ...one.api.readStamp(), revision: 1 }
+    const stale = { ...one.api.readStamp(), scheduleUpdatedUtc: '1999-01-01T00:00:00Z' }
     const first = refused(one.api.applyCommands({ readStamp: stale, commands: [RENAME] }))
 
     const retry = accepted(
       one.api.applyCommands({ readStamp: first.refusal.stamp, commands: [RENAME] }),
     )
-    expect(retry.hasRaisedRevision).toBe(true)
+    expect(retry.hasMovedSchedule).toBe(true)
   })
 })
 
@@ -976,7 +986,7 @@ describe('Chapter 5.5 -- a write attempted while notices are going out', () => {
 })
 
 describe('AG-9a / NT-1 -- what a refusal carries', () => {
-  it('names the row of table T-107 that was called, the category, and the revision (MUST)', () => {
+  it('names the row of table T-107 that was called, the category, and the current stamp (MUST)', () => {
     const one = bench()
     one.isGestureInFlight = true
     const { refusal } = refused(
@@ -985,8 +995,11 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
 
     expect(refusal.target).toBe('AM-7')
     expect(typeof refusal.reason).toBe('string')
-    expect(refusal.revision).toBe(one.document.revisionStamp.revision)
-    expect(refusal.stamp).toEqual(one.document.revisionStamp)
+    // ⚠ AG-9a still words the third as 「現在の版数」, a value FR-063 no longer
+    // has; what stands in its place is the whole current stamp, which is also
+    // what the row exists for (「そのまま再試行に使える形にする」, UC-012 拡張 3a).
+    expect(refusal.stamp).toEqual(one.document.documentStamp)
+    expect(Object.keys(refusal)).not.toContain('revision')
   })
 
   it('carries no document when the stamp was not the thing at fault (AG-2 names one case)', () => {
@@ -1068,14 +1081,14 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     expect(one.history.done).toHaveLength(0)
   })
 
-  it('does not raise the revision, and still refreshes the writer and the time (FR-063)', () => {
+  it('does not move the schedule instant, and still refreshes the writer and the time (FR-063)', () => {
     const one = bench()
     const outcome = accepted(one.api.focusTask(FIRST_UID))
 
-    expect(outcome.hasRaisedRevision).toBe(false)
-    expect(outcome.stamp.revision).toBe(STARTING_STAMP.revision)
+    expect(outcome.hasMovedSchedule).toBe(false)
+    expect(outcome.stamp.scheduleUpdatedUtc).toBe(STARTING_STAMP.scheduleUpdatedUtc)
     expect(outcome.stamp.lastEditedBy).toBe(one.writerName)
-    expect(outcome.stamp.updatedAt).toBe(READ_AT)
+    expect(outcome.stamp.settingsUpdatedUtc).toBe(READ_AT)
   })
 
   it('refuses a uid no task carries, as a value, naming its own row (FR-028 / AG-9a)', () => {
@@ -1162,7 +1175,7 @@ describe('AM-13 exportSvg -- the picture as a value', () => {
       // AG-9a fixes the three a refusal carries, whichever member raised it.
       expect(answer.refusal.target).toBe('AM-13')
       expect(typeof answer.refusal.reason).toBe('string')
-      expect(answer.refusal.revision).toBe(one.document.revisionStamp.revision)
+      expect(answer.refusal.stamp).toEqual(one.document.documentStamp)
     }
   })
 })
@@ -1247,8 +1260,11 @@ describe('AM-17 watchChanges -- AG-6', () => {
     expect(one.notices).toEqual([])
   })
 
-  it('wakes for an utterance somebody else settled, although no revision moved (AG-11)', () => {
+  it('wakes for an utterance somebody else settled, although NO instant moved (AG-11)', () => {
+    // AG-11: 「発話は日程データではないので日程データの群の刻を動かさない
+    // （`FR-063`）。それでも監視は起きること（`AG-6`）」.
     const one = bench()
+    const before = one.api.readStamp()
     one.api.watchChanges((notice) => one.notices.push(notice))
 
     one.speakAsPerson('wait -- why did you do that', 'a person at the keyboard')
@@ -1258,6 +1274,11 @@ describe('AM-17 watchChanges -- AG-6', () => {
       'wait -- why did you do that',
     ])
     expect(one.notices[0]?.document).toBeNull()
+    // ⭐ The watcher woke and not one of the stamp's three fields moved -- the
+    // dialogue's own order is what carried it (AG-11, MUST).
+    expect(one.api.readStamp()).toEqual(before)
+    expect(one.notices[0]?.mark.seenScheduleUpdatedUtc).toBe(before.scheduleUpdatedUtc)
+    expect(one.notices[0]?.mark.seenSequence).toBe(1)
   })
 
   it('is told only what happens from now on -- the tripwire PD-62 asks for', () => {
@@ -1316,7 +1337,7 @@ describe('AM-18 postDialogueMessage -- AG-11', () => {
     expect(one.api.postDialogueMessage('anything').settledAt).toBe('2027-01-02T03:04:05Z')
   })
 
-  it("does not raise the revision, so a caller's AG-2 lock survives a post (AG-11)", () => {
+  it("moves no instant, so a caller's AG-2 lock survives a post (AG-11)", () => {
     const one = bench()
     const before = one.api.readStamp()
 
@@ -1406,7 +1427,7 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
       }),
     )
 
-    expect(outcome.hasRaisedRevision).toBe(false)
+    expect(outcome.hasMovedSchedule).toBe(false)
     expect(one.history.done).toHaveLength(0)
     expect(one.document.documentSettings.rowTitlePanelWidth).toBe(200)
   })

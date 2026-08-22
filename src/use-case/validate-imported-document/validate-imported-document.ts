@@ -214,9 +214,12 @@ function refusal(rule: string, at: string, what: string, notice: 'NT-1' | 'NT-6'
 // a COPY of the ERD -- `satisfies` caught a misspelling but nothing caught a
 // column that had been added and never listed.
 //
-// ⚠️ `revisionStamp.updatedAt` and `changeLog.changedAt` are NOT in it: AT-129
-// and AT-133 give their type as 文字列, so table T-058 does not call them dates
-// and IV-14 does not reach them. Neither does `scrollDate` or the dual cursor --
+// ⚠️ The stamp's two instants (`documentStamp.scheduleUpdatedUtc` and
+// `settingsUpdatedUtc`) and `changeLog.changedUtc` are NOT in it: AT-127,
+// AT-129 and AT-133 give their type as 文字列, so table T-058 does not call
+// them dates and IV-14 does not reach them. ⚠️ They are instants and not days
+// on purpose (FR-063), so table T-214's two ends would not be the right bound
+// for them either. Neither does `scrollDate` or the dual cursor --
 // they are in the presentation group, which table T-058 does not describe.
 
 /** The two ends of table T-214, once each string has been read as a day. */

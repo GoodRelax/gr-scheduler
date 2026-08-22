@@ -268,7 +268,7 @@ export interface InputContext {
    *
    * ⛔ The clock is NOT read here and cannot be: CS-1 keeps it out of the frame
    * and LY-5 leaves it to the Framework, which is the same route
-   * `PlanInput.updatedAt` takes. FR-046 is the one operation that needs it --
+   * `PlanInput.updatedUtc` takes. FR-046 is the one operation that needs it --
    * SK-20 puts today into `statusDate` when the line is shown.
    */
   readonly today: string
@@ -380,7 +380,7 @@ function acted(action: InputAction): TranslatedInput {
 /** @purity pure */
 function changed(commands: readonly DocumentCommand[]): TranslatedInput {
   // ⚠️ An empty bundle is not a write. WS-4 would push an undo step for it, and
-  // FR-063 would raise a revision behind a gesture that moved nothing.
+  // FR-063 would move the schedule instant behind a gesture that moved nothing.
   return commands.length === 0 ? CONSUMED_ELSEWHERE : acted({ kind: 'changeDocument', commands })
 }
 
@@ -2052,5 +2052,3 @@ export const NOT_STORED_ZOOM_STEP: {
   'S-96': 1.1,
 }
 // </generated>
-
-

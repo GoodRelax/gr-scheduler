@@ -32,15 +32,15 @@
 // This unit neither chooses an entry nor opens one; whoever closes this adds it
 // to ApplyDocumentChange (CP-8), never here and never in the holder's owner.
 //
-// ⛔ STOP -- nor does it decide what `revisionStamp` the committed document
-// carries. A step holds a whole `Document`, stamp and all, so replaying it
-// verbatim carries that stamp with it, while FR-063 calls the revision "1 ずつ
-// 増える整数" and AG-6 selects what a watcher has not yet seen BY that revision.
-// Advancing it instead is WS-5, which needs the clock the Framework owns (CS-1 /
-// LY-5) and is part of a write this unit does not perform. ⚠️ What this unit
-// answers is the document the history holds, exactly as it holds it -- an undo
-// followed by a redo therefore lands on precisely the two documents that were
-// current before and after that write.
+// ⭐ WHAT STAMP THE REPLAYED DOCUMENT CARRIES IS SETTLED, and it is the one the
+// step holds. A step holds a whole `Document`, stamp and all, so replaying it
+// verbatim carries that stamp with it -- which FR-063 allows precisely because
+// no judgement reads the stamp as an order any more (MUST NOT). AG-6 asks
+// whether the schedule instant a watcher holds is the one the document carries,
+// so a watcher is told about the replayed document either way round.
+// ⚠️ What this unit answers is the document the history holds, exactly as it
+// holds it -- an undo followed by a redo therefore lands on precisely the two
+// documents that were current before and after that write.
 //
 // ⭐ What an entry of the history holds depends on which side it is on:
 //

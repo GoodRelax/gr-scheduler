@@ -82,13 +82,27 @@ export interface DocumentHolder {
 
 /** WS-7's audience. Told after the swap, never before. */
 export interface ChangeAudience {
-  /** @purity non-pure */
-  deliver(document: Document): void
+  /**
+   * ⭐ WS-5's judgement travels WITH the document, because AG-6 selects a live
+   * watcher by whether the write moved the schedule-data group (MUST) and says
+   * that WS-5 has already made that call. Handing the document alone would
+   * force the notifying side to work it out again from the stamp, which is the
+   * duplication R2.7 refuses -- and it could not work it out at all when two
+   * writes fall inside the same second.
+   *
+   * @purity non-pure
+   */
+  deliver(document: Document, hasMovedSchedule: boolean): void
 }
 
 export type ApplyOutcome =
   | { readonly accepted: false; readonly refusal: PlanRefusal }
-  | { readonly accepted: true; readonly document: Document; readonly raisedRevision: boolean }
+  | {
+      readonly accepted: true
+      readonly document: Document
+      /** WS-5's judgement: the schedule-data group moved (FR-063). */
+      readonly hasMovedSchedule: boolean
+    }
 
 // ---- non-pure from here on (R7.7) -----------------------------------------
 
@@ -138,10 +152,10 @@ export function applyDocumentChange(
   // for the rest of the run, and Chapter 5.5 refuses DURING the delivery only.
   deliveringNotices = true
   try {
-    audience.deliver(plan.document)
+    audience.deliver(plan.document, plan.hasMovedSchedule)
   } finally {
     deliveringNotices = false
   }
 
-  return { accepted: true, document: plan.document, raisedRevision: plan.raisedRevision }
+  return { accepted: true, document: plan.document, hasMovedSchedule: plan.hasMovedSchedule }
 }

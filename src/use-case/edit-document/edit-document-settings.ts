@@ -7,7 +7,7 @@
 // The sixteen commands table T-108 puts in 見せ方の群: CM-56 to CM-71.
 //
 // ⚠️ Fifteen of the sixteen change the presentation group alone, so FR-063
-// forbids them raising the revision. CM-71 is the exception and it is NOT
+// forbids them moving the schedule instant. CM-71 is the exception and it is NOT
 // decided by the group column: table T-051's HF-8 has fit discard what people
 // collapsed, and `isCollapsed` is a TaskGroup column -- schedule-group data.
 // The plan therefore reads WHAT CHANGED rather than which group the command
@@ -288,7 +288,7 @@ export function editDocumentSettings(
       // ⭐ The one command of this group that reaches the schedule: HF-8 drops
       // every collapse a person made. UN-17 makes that half undoable while
       // UN-8 leaves the zoom and the position outside, and FR-063 therefore
-      // raises the revision for this command and no other one here.
+      // moves the schedule instant for this command and no other one here.
       //
       // ⚠️ The zoom itself arrives as a value. FR-055's two passes need the
       // laid-out extent, which belongs to layoutEngine and to the frame that

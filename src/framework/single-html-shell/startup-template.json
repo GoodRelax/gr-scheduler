@@ -41024,10 +41024,10 @@
   "zoomX": 1,
   "zoomY": 1
  },
- "revisionStamp": {
-  "revision": 1,
+ "documentStamp": {
+  "scheduleUpdatedUtc": "2026-08-20T00:00:00Z",
   "lastEditedBy": "template",
-  "updatedAt": "2026-08-20T00:00:00Z"
+  "settingsUpdatedUtc": "2026-08-20T00:00:00Z"
  },
  "changeLog": []
 }

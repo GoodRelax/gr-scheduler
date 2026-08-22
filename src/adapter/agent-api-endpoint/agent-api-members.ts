@@ -23,8 +23,8 @@
 // ⭐ THE SHAPE EVERY MEMBER SHARES, and why. FR-028 says a call answers whether
 // it was accepted, as a VALUE, and must not throw (MUST NOT) -- so nothing here
 // throws and nothing here rejects a promise. AG-9a of table T-035 then fixes
-// what a refusal carries: what was refused, the category of the reason, and the
-// revision as it now stands, in a form the caller can retry from. That is
+// what a refusal carries: what was refused, the category of the reason, and
+// which document it now stands at, in a form the caller can retry from. That is
 // `AgentRefusal`, and every member that can be turned away answers with it.
 //
 // ⭐ WHAT IS REFUSED WHILE A PERSON IS MID-GESTURE. Two different things, for
@@ -89,7 +89,7 @@ import type { AgentSnapshot, FrameSnapshot, SnapshotSource } from './snapshot-so
  * inside the document, which is also why AM-4 needs no snapshot field of its
  * own.
  */
-type DocumentStamp = Document['revisionStamp']
+type DocumentStamp = Document['documentStamp']
 
 /**
  * The category of a refusal. AG-9a requires a category rather than a sentence;
@@ -127,21 +127,20 @@ export type AgentRefusalReason =
 
 /**
  * Why a call was turned away. AG-9a fixes the first three fields (MUST): the
- * target, the category, and the revision as it now stands.
+ * target, the category, and which document it now stands at.
  */
 export interface AgentRefusal {
   /** What was refused: the row of table T-107 whose member was called. */
   readonly target: string
   readonly reason: AgentRefusalReason
   /**
-   * The current revision, which AG-9a names in as many words.
+   * The whole current stamp, which is both what AG-9a asks a refusal to carry
+   * and what a retry has to declare (AG-2).
    *
-   * ⚠️ Also inside `stamp`, and deliberately: AG-9a asks for the revision, and
-   * AG-2 needs all three fields to let the caller retry. Both are built from
-   * one value in one place, so they cannot disagree.
+   * ⭐ ONE field and not two. A separate count beside it would be a second way
+   * to say which document this is, and FR-063 leaves the stamp exactly one
+   * question to answer -- "which one" -- with all three values (MUST).
    */
-  readonly revision: number
-  /** The whole current stamp, which is what a retry has to declare (AG-2). */
   readonly stamp: DocumentStamp
   /**
    * The current document -- present only when the stamp did not match.
@@ -180,10 +179,10 @@ export interface AgentWriteRequest {
   /**
    * The stamp the caller read before deciding on these commands.
    *
-   * ⭐ AG-2 (MUST): the writer declares which version it is writing against, and
-   * all three fields are compared -- the revision alone cannot see a write that
-   * touched the presentation group only, because FR-063 does not raise it for
-   * one. `readStamp` (AM-4) is where a caller gets this.
+   * ⭐ AG-2 (MUST): the writer declares which document it is writing against,
+   * and all three values are compared -- the schedule instant alone cannot see
+   * a write that touched the presentation group only, because FR-063 does not
+   * move it for one. `readStamp` (AM-4) is where a caller gets this.
    */
   readonly readStamp: DocumentStamp
   /**
@@ -204,8 +203,8 @@ export type AgentWriteOutcome =
       readonly accepted: true
       /** The stamp after the write. A caller holds it for its next AG-2 check. */
       readonly stamp: DocumentStamp
-      /** FR-063: true only when the schedule-data group actually moved. */
-      readonly hasRaisedRevision: boolean
+      /** WS-5's judgement: true only when the schedule-data group moved (FR-063). */
+      readonly hasMovedSchedule: boolean
     }
   | { readonly accepted: false; readonly refusal: AgentRefusal }
 
@@ -318,8 +317,8 @@ export interface AgentApi {
    * AM-18. Put a settled utterance in the dialogue field.
    *
    * ⚠️ Answers with the message the log gave a sequence to. FR-063 does NOT
-   * raise the revision for it (AG-11), so there is no new stamp to answer with
-   * and a caller's AG-2 lock stays valid across a post.
+   * move the schedule instant for it (AG-11), so there is no new stamp to
+   * answer with and a caller's AG-2 lock stays valid across a post.
    */
   postDialogueMessage(text: string): DialogueMessage
 }
@@ -470,11 +469,10 @@ function agentRefusal(
   what: string,
   refusals: readonly Refusal[],
 ): AgentRefusal {
-  const stamp = snapshot.document.revisionStamp
+  const stamp = snapshot.document.documentStamp
   return {
     target,
     reason,
-    revision: stamp.revision,
     stamp: frozenCopy(stamp),
     document: reason === 'staleStamp' ? frozenCopy(snapshot.document) : null,
     refusals,
@@ -571,10 +569,11 @@ function writeThroughTheOnePath(
       },
       historyLimits: snapshot.historyLimits,
       settingsLimits: snapshot.settingsLimits,
-      // FR-063: who wrote last and when are replaced by every write, including
-      // one that does not raise the revision.
+      // FR-063: who wrote last, and the instant either group moved at, are
+      // replaced by every write -- including one that leaves the schedule
+      // instant where it was.
       editedBy: wiring.writerName,
-      updatedAt: snapshot.readAt,
+      updatedUtc: snapshot.readAt,
     },
     wiring.holder,
     wiring.audience,
@@ -596,8 +595,8 @@ function writeThroughTheOnePath(
 
   return {
     accepted: true,
-    stamp: frozenCopy(outcome.document.revisionStamp),
-    hasRaisedRevision: outcome.raisedRevision,
+    stamp: frozenCopy(outcome.document.documentStamp),
+    hasMovedSchedule: outcome.hasMovedSchedule,
   }
 }
 
@@ -624,7 +623,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     readStamp(): DocumentStamp {
-      return frozenCopy(source.readSnapshot().document.revisionStamp)
+      return frozenCopy(source.readSnapshot().document.documentStamp)
     },
 
     readSelection(): Selection {
@@ -859,7 +858,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // declared: moving the view is not a change to the schedule a caller
       // could have read a version of. The signature therefore asks for no
       // stamp, and a person's concurrent edit does not turn this away.
-      return writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.revisionStamp, [
+      return writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, [
         { kind: 'setScrollPosition', scrollDate: view.scrollDate, scrollGroupId: view.scrollGroupId },
       ])
     },
@@ -882,7 +881,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         // AG-6, table T-107 AM-17, Chapter 6.1.
         // @provisional PD-62
         since: {
-          seenRevision: snapshot.document.revisionStamp.revision,
+          seenScheduleUpdatedUtc: snapshot.document.documentStamp.scheduleUpdatedUtc,
           seenSequence: latestSequence(snapshot.dialogue),
         },
         // ⚠️ The caller's own function, handed over as it is. PI-15 catches
