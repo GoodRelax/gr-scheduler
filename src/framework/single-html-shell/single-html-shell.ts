@@ -31,28 +31,28 @@
 // ⛔ Nothing is SHOWN by step 2: PI-38 keeps its root out of sight until the
 // first `showScreenView`, which is BO-1's 「寸法が確定するまで 1 枚も描かない」.
 //
-// STOP -- ⛔ FT-1 OF TABLE T-078 IS NOT WIRED, and what blocks it is a value
-// with no route into `src/`, not a decision this file could make.
-// DomInputSource (PI-27) takes MK-10's answer as a factory argument, and the
-// only party that can give it is `commandFromInput` (PI-18); that member --
-// and `selectionFromInput` and `screenStateFromInput` beside it -- takes an
-// `InputContext`, whose `zoomStep` member is S-53.
-// ⛔ S-53, S-54 (`zoomMin`) and S-55 (`zoomMax`) are marked 「文書に保存しない」
-// in table T-201, and NO generated constant carries them: the targets in
-// tools/generate_entity_types.py are NOT_STORED_SIZES (S-90 / S-92 / S-93),
-// NOT_STORED_LIMITS (S-94 / S-95) and NOT_STORED_PANEL_DIVIDER_SIZES (S-134).
-// Rule 03 section 1 forbids re-typing the manuscript's figure here, and
-// `input-command-translator.ts` records the same absence on the member itself.
-// ⭐ WHAT WOULD UNBLOCK IT: one more NOT_STORED_* target carrying S-53 .. S-55.
-// ⚠️ `PointerSlop` is short in the same way and worse, so `PointerPress.hit`
-// has nothing to be answered from either: S-91's manuscript cell is prose
-// (「実績バーの帯」) rather than a figure, and how near a pointer counts as ON a
-// line has no row in any table -- `item-hit-area.ts` holds that STOP.
+// ⭐ FT-1 OF TABLE T-078 IS WIRED HERE, in two statements and no more.
+// DomInputSource (PI-27) watches the window and hands each happening over; the
+// loop turns it into an operation, because LY-5 of table T-060 leaves the
+// Framework as the only layer that may hold a current value and ADR-001 has the
+// loop compute the frame's values. MK-10's answer travels the other way as the
+// factory argument PI-27 declares, and is asked BEFORE the watcher runs.
+// ⚠️ Started AFTER the loop exists, so `loop` is never null by the time a
+// happening can arrive. ⛔ One that arrives before the first frame is dropped
+// by the loop and not by this file: BO-1 has not settled the size, so there is
+// no frame of reference to read a coordinate against.
+//
+// ⭐ THE FIGURES THAT MADE THIS POSSIBLE ARRIVE GENERATED, none of them typed
+// anywhere in `src/`: the zoom step (S-96), its bounds (S-97 / S-98), the grab
+// slop of table T-023d (S-90 .. S-93 and S-137) and the history bounds (S-94 /
+// S-95) all reach the loop through NOT_STORED_* constants that
+// `tools/generate_entity_types.py` prints from the manuscript.
 
 import { chooseStartupDocument } from '../../use-case/choose-startup-document/choose-startup-document'
 import type { Document } from '../../entity/document-model/document/document'
 import { documentFromJson } from '../../adapter/document-codec/document-codec'
 import type { DisplayLanguage } from '../../adapter/screen-renderer/screen-renderer'
+import { domInputSource } from '../dom-input-source/dom-input-source'
 import { domScreenSurface } from '../dom-screen-surface/dom-screen-surface'
 import { domSvgSurface } from '../dom-svg-surface/dom-svg-surface'
 import { frameLoop, type FrameEnvironment, type FrameLoop } from './frame-loop'
@@ -257,6 +257,22 @@ function boot(): void {
     surface: screenSurface,
     language: displayLanguage(),
   })
+
+  // FT-1 of table T-078 -- the person operating the tool.
+  // ⭐ `window` is what `InputHost` asks for: the seam names the five members
+  // it touches, and a real window has every one. ⚠️ MK-10's answer is handed to
+  // the FACTORY and the happenings to the WATCHER, because PI-27's
+  // `InputWatcher` returns nothing -- so the answer cannot come back the way it
+  // was asked, and the question has to be asked before the watcher runs.
+  // ⚠️ `unwatchInput` is never called, and that is not a leak left behind: the
+  // listeners live exactly as long as the page that boots this file, which is
+  // the same lifetime the two FT-3 observations below take. R3.5's pairing has
+  // nowhere else to end -- `boot` runs once and never returns a way to stop.
+  const inputSource = domInputSource(
+    window,
+    (input) => loop?.isBrowserDefaultStopped(input) ?? false,
+  )
+  inputSource.watchInput((input) => loop?.receiveInput(input))
 
   // FT-3 of table T-078 -- the shell observes the window itself, because the
   // size is the host's value and not an input device's (IF-2 stays narrow).

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 26 mechanical checks for the gr-scheduler specification.
+# All 27 mechanical checks for the gr-scheduler specification.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -55,6 +55,18 @@
 #          directions. A class the rule says to wait for may not carry a mark
 #          at all, and a class that cannot be reversed may not be left open
 #          behind a finished wave
+#   26b    check-published-members.py : every member table T-064 publishes is
+#          exported by its component's public entry, the one way out of the
+#          folder Chapter 5.3 allows. The "b" is deliberate -- audit-ch5.py
+#          already holds table T-064's ROWS against table T-075, and nobody
+#          held a row's MEMBERS against an export, so
+#          ApplyDocumentChange.replaceDocument sat declared and unwritten with
+#          every check green. It reads a name only where the cell IS one and
+#          prints how many pieces it skipped, so it cannot be read as covering
+#          the whole table. Its two known gaps are held in
+#          published-members-baseline.txt (the shape of 11): green when the
+#          gaps found are exactly those, red on a new one and red on a held
+#          line that is no longer a gap. A held gap is a debt, not a permission
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -182,6 +194,10 @@ PYTHONIOENCODING=utf-8 python tools/check_layer_rules.py || fail=1
 echo ""
 echo "===== 20  the generated entity types still match erd.json ====="
 PYTHONIOENCODING=utf-8 python tools/generate_entity_types.py --check || fail=1
+
+echo ""
+echo "===== 26b every member of table T-064 leaves through its entry ====="
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-published-members.py || fail=1
 
 echo ""
 if [ "$fail" -eq 0 ]; then

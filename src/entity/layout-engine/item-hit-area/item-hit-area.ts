@@ -96,13 +96,11 @@ export interface Hit {
  * standing in for a table that refused to hold the number, and it would let a
  * caller forget to ask the environment it is running on.
  *
- * ⚠️ Not every field below has a row. `line` has none at all -- see its own
- * mark. Read this block as "the fields that name an S-row mirror it", not as
- * "table T-206 records all of this".
- *
- * ⚠️ S-90 states the overhang ABOVE and BELOW the bar. Reading the same number
- * as the reach to either SIDE of an endpoint is this file's decision, not the
- * table's: the table gives an endpoint no width, and a point cannot be hit.
+ * ⭐ EVERY field below now names a row. CR-208 closed the two that did not:
+ * S-91 held prose where the others held a figure, and how near a pointer counts
+ * as ON a line had no row anywhere. ⚠️ Both figures are marked 🔎 in the
+ * manuscript -- they are recommendations with no measured basis, and the
+ * pending-decision rows say what falls over if they are re-chosen.
  *
  * ⛔ These comments name the ROW, never the number. They used to say "6px",
  * "15 x 15" and "30 x 20", and changing S-90 in the manuscript left all three
@@ -110,9 +108,24 @@ export interface Hit {
  * CR-174 spent a session chasing. `NOT_STORED_SIZES` below carries the figures.
  */
 export interface PointerSlop {
-  /** S-90: past the plan bar, and the same reach to either side of an end. */
+  /**
+   * S-90: past the plan bar, and the same reach to either side of an end.
+   *
+   * ⭐ The sideways half is the ROW's now, not this file's guess: S-90 reads
+   * 「バーの上下と、端点の左右に」 since CR-208. ⚠️ S-49's floor already relied on
+   * it being a width, which is what made the omission a defect rather than a
+   * preference.
+   */
   readonly planEndpoint: number
-  /** S-91: the actual bar's own band, narrower than the plan. Its side reach. */
+  /**
+   * S-91: the actual bar's own band vertically, and this reach to either side.
+   *
+   * ⚠️ The band and the side reach are two directions of one row. The band is
+   * the actual bar's own height (the vertical chain S-5 governs); only the
+   * sideways figure is a number, and it is 🔎 -- nothing measured it.
+   *
+   * @provisional PD-167
+   */
   readonly actualEndpoint: number
   /** S-92: the fade handle's square, as its half-width. */
   readonly fadeHandle: number
@@ -120,15 +133,14 @@ export interface PointerSlop {
   readonly dummyWidth: number
   readonly dummyHeight: number
   /**
-   * How near a line counts as on it: GR-13's dependency line and GR-16's
-   * status line.
+   * S-137: how near a line counts as on it -- GR-13's dependency line and
+   * GR-16's status line.
    *
-   * ⛔ Table T-206 has NO row for this, and no other table has one either.
-   * T-023d's preamble sends every 掴み代 and 当たり判定 to T-206, while GR-13
-   * and GR-16 give the place as 線の上 and stop there -- so how near "on it" is
-   * has never been settled. Whatever a caller passes rests on nothing the
-   * specification wrote. A T-206 row is what is missing; this file does not
-   * invent one, and does not pretend the number came from the table.
+   * ⭐ 「線の上」 is a set with no width, so without a reach neither row could
+   * ever be hit. ⚠️ Both sit low in table T-023d's priority, which is why a
+   * generous reach takes nothing from the rows above it.
+   *
+   * @provisional PD-168
    */
   readonly line: number
 }
@@ -502,13 +514,19 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
 export const NOT_STORED_SIZES: {
   /** S-90, in px */
   readonly 'S-90': number
+  /** S-91, in px */
+  readonly 'S-91': number
   /** S-92, in px */
   readonly 'S-92': readonly [number, number]
   /** S-93, in px */
   readonly 'S-93': readonly [number, number]
+  /** S-137, in px */
+  readonly 'S-137': number
 } = {
   'S-90': 6,
+  'S-91': 6,
   'S-92': [15, 15],
   'S-93': [30, 20],
+  'S-137': 6,
 }
 // </generated>

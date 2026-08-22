@@ -427,7 +427,7 @@ erDiagram
 | AT-125 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |
 | AT-126 | `CarryElement` | `children` | `CarryElement[]` | 否（空可） | — | Carry | — | 入れ子の子。**深さの上限は `_assets/tbl-settings.md` の `S-133` が持つ**（`FR-023`）—— ⚠️ **信頼できない入力が運んでくる木であり、WBS の上限（`S-115`）とは別物である** |
 | AT-127 | `documentStamp` | `scheduleUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 日程データの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである** |
-| AT-128 | `documentStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。人か、AI か |
+| AT-128 | `documentStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。書く語の全数は 表 T-229 が持つ |
 | AT-129 | `documentStamp` | `settingsUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | どちらの群であれ動いた刻。**秒までとする**（透かしと精度を揃える） |
 | AT-130 | `changeLog` | `ordinal` | 整数 | 否 | PK | GRS | — | 文書の中での出現順。`WeekDay` / `Exception` / `CarryElement` と同じ作法である |
 | AT-131 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |

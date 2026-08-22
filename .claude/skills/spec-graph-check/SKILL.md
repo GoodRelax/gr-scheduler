@@ -62,6 +62,54 @@ screen would only guess, so `tsconfig.entity.json` compiles `src/entity` and
 `src/use-case` without the DOM library and the compiler rejects a browser type
 outright.
 
+**Check 26b guards the published face.** Table T-064 names the members each
+component publishes, and Chapter 5.3 lets exactly one file carry them out of
+the folder, so `check-published-members.py` opens every component's public
+entry — the unit of table T-075 named after the component — and asks whether
+the name is exported there. It is a gate. The `b` is deliberate: `audit-ch5.py`
+already holds T-064's **rows** against table T-075, and nothing held a row's
+**members** against an export, so `ApplyDocumentChange.replaceDocument` sat
+declared and unwritten while every other check was green.
+
+**Its two known gaps are held in a baseline, and a held gap is still a defect.**
+`published-members-baseline.txt` carries the shape check 11 uses for the 26
+standing duplications: the run is green when the gaps it finds are **exactly**
+the ones held there, red when a gap appears that is **not** held there, and red
+when a held line no longer matches a real gap — a debt that was paid must leave
+the file, or the baseline rots into permission. A record is the row, the
+component, the member and the entry file, plus one line saying why it is not
+closed and where the work belongs; every held gap is printed as `KNOWN` on every
+run, green or red, and counted in the green line — `2 known gap(s) held against
+the baseline (new 0)`. The two are **`Schedule.scheduleViolations`** (`PI-1`),
+the one place the 17 document invariants of table T-220 are answered, which
+`schedule.ts` itself records as unwritten and a unit of work of its own; and
+**`ApplyDocumentChange.replaceDocument`** (`PI-8`), the entry CR-196 opened and
+nothing has written, which undo and redo ought to go through instead of
+replacing the held pair themselves. **Adding a line is not how the suite is made
+green** — a new gap is a defect found, and closing a gap means deleting its
+lines in the change that writes the member.
+
+**It reads a name only where the cell is one, and says how much it left out.**
+A piece of the member cell (split on `／`) counts as a member only when it
+opens with one back-quoted ASCII identifier and what follows is either nothing
+or `（`. That single condition is what separates publishing a name from
+mentioning one: `` `applyDocumentChange`（…） `` publishes, `` `SvgSurface` の実装 1 つ ``
+does not. Everything else is skipped, counted, and **the count is printed on
+every run, green or red** — `--skips` lists them. Today it checks **97 members
+and skips 9 pieces**: the seven Framework rows `PI-26`–`PI-31` and `PI-38`,
+whose cell names the interface implemented and never the name actually
+exported; `PI-25`, which publishes nothing; and `PI-2`'s "原稿を刷った 3 つの定数",
+which is prose. An entry using an export form the check cannot read is also a
+skip, never a failure — a noisy gate gets legitimate text "fixed", which is what
+demoted 13 and 14.
+
+**What it deliberately does NOT guard.** Signatures: table T-075 puts arguments
+and return values in `src/` because that is where `tsc` reaches them, so a
+member that exists with the wrong shape passes here. And the 18 Agent API
+members, because `PI-17` says (MUST NOT) not to copy them into T-064 — only
+`installAgentApi` and `SnapshotSource` are held against that entry, and table
+T-107 stays their only full count.
+
 ## The one rule that matters most
 
 **Iterate over objects, not over findings.**

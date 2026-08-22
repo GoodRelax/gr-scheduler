@@ -1,0 +1,31 @@
+# Known gaps of check 26b -- members table T-064 publishes that src/ does not
+# export yet. Held by check-published-members.py.
+#
+# A line in this file is a DEBT, not a permission. The member is still missing,
+# the table still publishes it, and everything that plans against the table --
+# a caller, a test, a change request counting members -- still plans against a
+# name nothing answers to. The line says only that the gap was seen, weighed,
+# and left standing as a unit of work of its own, so that a NEW gap cannot hide
+# behind an old one and so that the suite can stop green (05-working-method.md
+# section 1).
+#
+# Closing a gap means DELETING its two lines here, in the same change that
+# writes the member. The check goes red when a line no longer matches a real
+# gap, so a debt that was paid cannot sit here pretending to still be owed --
+# a stale baseline is its own defect.
+#
+# Adding a line is not a way to make the suite green. A new gap is a defect
+# found: write the member, or bring the line here with the user's decision
+# behind it.
+#
+# FORMAT -- one record is two lines:
+#     <row of table T-064> | <component> | <member> | <public entry file>
+#     why: one line, ASCII, saying why it is not closed and where the work
+#          belongs. It is printed on every green run, so keep it readable.
+# Blank lines and lines opening with "#" are ignored.
+
+PI-1 | Schedule | scheduleViolations | src/entity/document-model/schedule/schedule.ts
+why: not written yet -- schedule.ts:474 says so in as many words and calls it a unit of work of its own; it is the one place the 17 document invariants of table T-220 are answered, driven by that table rather than written out row by row (Chapter 6.1, MUST), and validate-imported-document.ts:34,47,308 and edit-document/edit-annotation.ts:151 already write as if it existed.
+
+PI-8 | ApplyDocumentChange | replaceDocument | src/use-case/apply-document-change/apply-document-change.ts
+why: CR-196 opened the name and nothing has written it -- the folder holds zero occurrences; it is the entrance undo and redo ought to use instead of replacing the held pair themselves (ft1-wiring-findings-2026-08-22.md row 1), its steps are WS-1 to WS-7 of table T-067, and the revision stamp it puts on the replaced document is still undecided (class D), which is why W4-adapter.md records it as not writable in one go.
