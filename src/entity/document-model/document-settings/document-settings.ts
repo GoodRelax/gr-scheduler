@@ -114,6 +114,8 @@ export interface DocumentSettings {
   readonly rowTitleTopScale: number
   readonly rulerFont: number
   readonly rulerHeight: number
+  readonly rulerLabelGap: number
+  readonly rulerLabelPad: number
   readonly rulerTierPxPerDayDay: number
   readonly rulerTierPxPerDayMonth: number
   readonly rulerTierPxPerDayWeek: number
@@ -233,6 +235,8 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'rowTitleTopScale': 1.3,
   'rulerFont': 14,
   'rulerHeight': 48,
+  'rulerLabelGap': 8,
+  'rulerLabelPad': 2,
   'rulerTierPxPerDayDay': 30,
   'rulerTierPxPerDayMonth': 1.4,
   'rulerTierPxPerDayWeek': 4.3,
@@ -322,6 +326,8 @@ export const SETTINGS_BOUNDS: Readonly<
   'rowTitleIndent': { min: 0, max: 60 },
   'rowTitleTopScale': { min: 1, max: 2 },
   'rulerHeight': { max: 150 },
+  'rulerLabelGap': { min: 0, max: 30 },
+  'rulerLabelPad': { min: 0, max: 20 },
   'rulerTierPxPerDayDay': { max: 60 },
   'rulerTierPxPerDayMonth': { min: 0.1 },
   'shapeHeightOf.arrow': { min: 0.1 },
@@ -339,9 +345,35 @@ export const SETTINGS_BOUNDS: Readonly<
   'thinStrokeOfPlan': { min: 0.05, max: 0.6 },
   'truncateUnits': { min: 4, max: 120 },
 }
+
+/**
+ * The defaults settings.json states as a rule over OTHER keys, printed as
+ * the rule rather than as its answer.
+ *
+ * ⭐ SETTINGS_DEFAULTS holds what such a key works out to while the keys it
+ * reads are still at THEIR defaults. That answer goes stale the moment one
+ * of them is edited, and S-2 follows S-3 by FR-039, so the band height has
+ * to be worked out again every time the ruler type changes.
+ *
+ * ⛔ Before CR-200 there was nowhere to read the rule from, so
+ * edit-document-settings.ts wrote S-2's arithmetic out a second time --
+ * with the padding as a bare 6, which no longer even names a value.
+ *
+ * ⚠️ Only the `from` family is here. S-3's `index` rule is not: the one
+ * caller that needs it already reads fontScaleSizes directly, and a second
+ * path to the same answer is what this constant exists to prevent.
+ *
+ * ⭐ `as const` is deliberate: it makes every key name a literal type, so
+ * `settings[rule.from]` type checks and a key renamed in the manuscript
+ * fails the build instead of reading undefined at run time.
+ *
+ * The value is `from x times + plus + plusFrom x plusTimes`, and a rule
+ * that names no second key states plusFrom as null.
+ */
+export const SETTINGS_DERIVED = {
+  'rulerHeight': { from: 'rulerFont', times: 3, plus: 0, plusFrom: 'rulerLabelPad', plusTimes: 3 },
+} as const
 // </generated>
-
-
 
 /** One value that had to be moved to get inside the bounds. */
 export interface ClampedValue {

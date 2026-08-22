@@ -207,6 +207,15 @@
       "plus": {
        "description": "What is added after multiplying.",
        "type": "number"
+      },
+      "plusFrom": {
+       "description": "What is added after multiplying, named as another key instead of written as a number. S-2 adds three rows' worth of rulerLabelPad this way. A literal here would be the padding written a second time, and CR-200 was spent taking one such copy back out.",
+       "type": "string",
+       "minLength": 1
+      },
+      "plusTimes": {
+       "description": "What `plusFrom` is multiplied by before it is added. Defaults to 1.",
+       "type": "number"
       }
      }
     },

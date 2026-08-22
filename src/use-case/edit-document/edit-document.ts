@@ -5,6 +5,16 @@
 // @purity    pure
 // @publishes table T-064 row PI-9
 //
+// ⚠️ PART of this file is generated. The marked region at the bottom -- search
+// for NOT_STORED_ZOOM_BOUNDS -- comes from docs/spec/_source/settings.json
+// (table T-206's S-97 and S-98, which name S-54 and S-55 of table T-201) and is
+// overwritten by `npm run gen`; `npm run gen:check` fails if it has drifted.
+// Everything above the marker is hand written. Do not edit by hand inside that
+// region: edit the manuscript instead.
+// ⛔ This note does NOT quote the opening marker itself -- writing it in a
+// comment makes the generator treat the comment as the region and inject the
+// block into the middle of it. The marker must occur exactly once per file.
+//
 // Editing by aggregate: validate, return a new Document, settle nothing
 // (CP-9). Table T-063's UT-2 splits the eight aggregate files apart NOT by
 // purity -- all nine are pure -- but because the reason each changes is
@@ -382,3 +392,36 @@ export function editDocument(
   }
   return run(document, command, limits)
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206, which names table T-201)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ Reading this is NOT the same as taking it: the value still
+ * arrives as an argument, because table T-206 keeps these out of the
+ * document on purpose (the environment may hold a larger one). This
+ * is what a caller passes when it has nothing better.
+ *
+ * ⚠️ Table T-206 states these by POINTING at table T-201 (S-96 names
+ * S-53, and so on), so both row IDs appear below: the first is where
+ * the specification says the document does not keep the value, and
+ * the second is where the value itself stands.
+ */
+export const NOT_STORED_ZOOM_BOUNDS: {
+  /** S-97, stated at S-54 */
+  readonly 'S-97': number
+  /** S-98, stated at S-55 */
+  readonly 'S-98': number
+} = {
+  'S-97': 0.02,
+  'S-98': 64,
+}
+// </generated>

@@ -210,17 +210,18 @@
      "key": "`rulerHeight`",
      "unit": "px",
      "default": {
-      "ja": "`rulerFont` × 3 + 6（S = 42 / M = 48 / L = 54）🔎",
+      "ja": "`rulerFont` × 3 + `rulerLabelPad` × 3（S = 42 / M = 48 / L = 54）🔎",
       "from": "rulerFont",
       "times": 3,
-      "plus": 6
+      "plusFrom": "rulerLabelPad",
+      "plusTimes": 3
      },
-     "min": "`rulerFont` × 3 + 6",
+     "min": "`rulerFont` × 3 + `rulerLabelPad` × 3",
      "max": {
       "num": "150"
      },
      "note": {
-      "ja": "段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）。3 段ぶんの文字と余白が入る高さ。追随の規則と、キーを独立に保つことは `FR-039` が持つ"
+      "ja": "段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）。3 段ぶんの文字と余白が入る高さで、余白は `S-136` が持つ。追随の規則と、キーを独立に保つことは `FR-039` が持つ"
      }
     },
     {
@@ -238,9 +239,51 @@
       ]
      },
      "min": "`fontMin`",
-     "max": "(`rulerHeight` − 6) ÷ 3",
+     "max": "(`rulerHeight` − `rulerLabelPad` × 3) ÷ 3",
      "note": {
       "ja": "和文の可読下限を割らない。帯の 3 段に収まる。**`fontScale`（表 T-215）に追随する。追随の規則と、キーを独立に保つことは `FR-039` が持つ**"
+     }
+    },
+    {
+     "id": "S-135",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "key": "`rulerLabelGap`",
+     "unit": "px",
+     "default": {
+      "num": "8",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "30"
+     },
+     "note": {
+      "ja": "目盛ラベルどうしの隙間（横）。間引きの算式は 表 T-221 の `LF-1` が持つ。⛔ **`labelGap`（`S-32`）は形状の外へ出すラベル用であり、目盛には当てない。** 上限は `S-32` と同じとし、由来は無い"
+     }
+    },
+    {
+     "id": "S-136",
+     "group": {
+      "ja": "タイムルーラー"
+     },
+     "key": "`rulerLabelPad`",
+     "unit": "px",
+     "default": {
+      "num": "2",
+      "mark": "🔎"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": {
+      "num": "20"
+     },
+     "note": {
+      "ja": "罫線と目盛ラベルの余白（縦）。**帯の高さ（`S-2`）はこれを目盛の帯の中の段（表 T-006b の `A-1` の ⑤）3 つぶん含む。** 上限は、`rulerFont` が下限（`S-8`）のときでも 3 段ぶんが `S-2` の上限に収まる値"
      }
     },
     {

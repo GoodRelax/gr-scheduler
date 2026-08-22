@@ -105,6 +105,7 @@ import type {
   DialogueField,
   Notice,
   OpenModal,
+  RowExpander,
   RowTitle,
   ScreenFrame,
   ScreenPart,
@@ -179,7 +180,46 @@ const T_103_PARTS = [
   { row: 'U-34', name: 'Palette Commands' },
   { row: 'U-35', name: 'Header Commands' },
   { row: 'U-44', name: 'Dialogue Field' },
+  { row: 'U-47', name: 'Row Expander' },
 ] as const
+
+/**
+ * The two entries of 表 T-109 that the `Row Expander` (U-47) is made of, each
+ * with the row of 表 T-051 that is its 正.
+ *
+ * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:499-500:
+ *   | IC-58 | `Row Title Panel` | — | 行の配下を 1 段開く       | 表 T-051 の `HF-2` |
+ *   | IC-59 | `Row Title Panel` | — | 行の配下をすべて閉じる     | 表 T-051 の `HF-3` |
+ * ⛔ The pair is TWO rows of the roster and not one row in two states, which is
+ * exactly what U-47 says out loud: 「開く側と閉じる側の 2 つで 1 組」.
+ */
+const T_109_ROW_EXPANDER = [
+  { row: 'IC-58', rule: 'HF-2', gist: '行の配下を 1 段開く', side: 'opening' },
+  {
+    row: 'IC-59',
+    rule: 'HF-3',
+    gist: '行の配下をすべて閉じる',
+    side: 'closing',
+  },
+] as const
+
+/**
+ * 表 T-051 — the rules the pair above answers to, copied from
+ * docs/spec/01-04-requirements.md:1307-1309.
+ *
+ * ⚠️ HF-2 and HF-3 are what the two ENTRIES mean; neither is carried out by this
+ * unit, which draws. What this unit owes them is that a press on either can be
+ * told apart from a press on the other -- otherwise the shell has one control to
+ * hang two different effects on.
+ */
+const T_051_EXPANDER = [
+  { row: 'HF-1', gist: '開く操作子と閉じる操作子を 1 つずつ' },
+  { row: 'HF-2', gist: 'その行の配下を 1 段だけ開く（MUST）' },
+  { row: 'HF-3', gist: 'その行の配下をすべて閉じる' },
+] as const
+
+/** 表 T-103's U-47 — one part, two controls. */
+const T_103_U47_TWO_CONTROLS = '開く側と閉じる側の 2 つで 1 組'
 
 /** 表 T-023a's own note, which the 面 table under it belongs to. */
 const T_023A_ONLY_THE_DRAWING_AREA =
@@ -946,7 +986,19 @@ const LAYOUT = new Map<string, ScreenRect>([
   // attributes it carries -- so each box has to be registered under the key its
   // own node actually yields. ⛔ Registering the pin under `role:Row Pin` would
   // give it the ZERO rectangle in silence and no press would ever reach it.
+  // ⭐ Kept as the fallback for a `Row Expander` node that carries no row of 表
+  // T-109; the two that DO carry one are placed by icon just below, because
+  // `layoutKey` reads `data-icon` first (see the note on `laidOut`).
   ['role:Row Expander', rect(10, 60, 16, 16)],
+  // ⭐ The pair of U-47, laid side by side ON PURPOSE: IC-58 holds x 100..116 and
+  // IC-59 x 116..132, so the two share an edge and R3.4 has one to resolve. The
+  // gap to the `Row Pin` at x 140 leaves a strip of bare panel between them, so
+  // 「面の上・入口の外」 can be told from 「入口の上」 without leaving the row.
+  // ⛔ These boxes are this file's own; nothing in docs/spec fixes an entry's
+  // geometry -- that is the very reason IF-9 needs `readScreenPartAt` -- so only
+  // their EDGES are asserted, and only against R3.4.
+  ['icon:IC-58', rect(100, 60, 16, 16)],
+  ['icon:IC-59', rect(116, 60, 16, 16)],
   ['icon:IC-60', rect(140, 60, 16, 16)],
   ['role:Command Palette', rect(400, 300, 220, 180)],
   ['role:Help Modal', rect(500, 380, 400, 300)],
@@ -976,6 +1028,10 @@ const AT = {
   notices: { x: 900, y: 100 },
   dialogue: { x: 300, y: 730 },
   rowPin: { x: 144, y: 64 },
+  rowExpanderOpen: { x: 108, y: 64 },
+  rowExpanderClose: { x: 124, y: 64 },
+  /** The strip of bare `Row Title Panel` between IC-59's right edge and the pin. */
+  rowExpanderGap: { x: 136, y: 64 },
   rowTreeNoEntry: { x: 80, y: 400 },
   bareSchedule: { x: 500, y: 600 },
 } as const
@@ -1164,6 +1220,37 @@ describe('the specification still says what these cases copy', () => {
       expect(row, `表 T-103 no longer holds ${part.row}`).toBeDefined()
       expect(row?.cells[0]).toContain(`\`${part.name}\``)
     }
+  })
+
+  it('表 T-109 still gives the Row Expander TWO rows, one per side (IC-58 / IC-59)', () => {
+    const rows = specTable('T-109').rows
+    for (const one of T_109_ROW_EXPANDER) {
+      const row = rows.find((held) => held.id === one.row)
+      expect(row, `表 T-109 no longer holds ${one.row}`).toBeDefined()
+      // 面: the entrance is named by the panel (U-23), and 正: 表 T-051.
+      expect(row?.by['面'], `${one.row} left the Row Title Panel`).toContain('Row Title Panel')
+      expect(row?.by['何の入口か'], `${one.row} no longer means "${one.gist}"`).toContain(one.gist)
+      expect(row?.by['正'], `${one.row} no longer traces 表 T-051 の ${one.rule}`).toContain(
+        one.rule,
+      )
+    }
+    // ⛔ The two are DIFFERENT rows of the roster. If they were ever merged the
+    // cases below would be asking for an entry the specification does not name.
+    expect(new Set(T_109_ROW_EXPANDER.map((one) => one.row)).size).toBe(2)
+  })
+
+  it('表 T-051 still asks for one opening and one closing control per row (HF-1 .. HF-3)', () => {
+    const rows = specTable('T-051').rows
+    for (const one of T_051_EXPANDER) {
+      const row = rows.find((held) => held.id === one.row)
+      expect(row, `表 T-051 no longer holds ${one.row}`).toBeDefined()
+      expect(row?.cells.join(' '), `${one.row} no longer says "${one.gist}"`).toContain(one.gist)
+    }
+  })
+
+  it('表 T-103 U-47 still calls the Row Expander one part made of two controls', () => {
+    const row = specTable('T-103').rows.find((one) => one.id === 'U-47')
+    expect(row?.cells.join(' ')).toContain(T_103_U47_TWO_CONTROLS)
   })
 
   it('U-23 still requires an entrance to be named by the Row Title Panel (MUST)', () => {
@@ -1571,5 +1658,682 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
       part: 'Row Title Panel',
       entry: 'IC-60',
     })
+  })
+})
+
+// ===========================================================================
+// U-47 `Row Expander` -- the pair of entries 表 T-109 gives the panel.
+//
+// ⭐ WHAT IS BEING PINNED HERE, AND WHAT IS NOT. 表 T-051 says what the two
+// controls DO (`HF-2` opens one level, `HF-3` closes all of them); carrying that
+// out is the use case's. What IF-9 owes, and all these cases ask for, is that a
+// press on one can be told from a press on the other -- 「点がどの入口の上かは、
+// その入口を描いた側が答えること（MUST）」 (docs/spec/05-07-design.md:390). ⛔ A
+// unit that drew one control, or that drew two and named neither, would leave
+// the shell with one place to hang two different effects on, and 表 T-051 would
+// have no way to be obeyed downstream.
+// ===========================================================================
+
+/** A panel holding exactly one row, with the expander this case wants. */
+const withExpander = (expander: RowExpander | null): ScreenView =>
+  viewWith({
+    rowTitlePanel: {
+      pinnedTitles: [],
+      titles: [rowTitle({ groupId: 'g-1', label: 'RowOne', expander })],
+    },
+  })
+
+/** Every state `RowExpander` can be in -- both spent is the boundary FR-029 speaks to. */
+const EXPANDER_STATES = [
+  { canOpen: true, canClose: true },
+  { canOpen: true, canClose: false },
+  { canOpen: false, canClose: true },
+  { canOpen: false, canClose: false },
+] as const
+
+/** Where each side of the pair was laid out. ⚠️ This file's placing, not the specification's. */
+const EXPANDER_AT: Readonly<Record<string, { readonly x: number; readonly y: number }>> = {
+  'IC-58': AT.rowExpanderOpen,
+  'IC-59': AT.rowExpanderClose,
+}
+
+const expanderControls = (built: Stage): FakeElement[] => byRole(built.root(), 'Row Expander')
+
+const expanderIcons = (built: Stage): string[] =>
+  expanderControls(built).map((one) => one.getAttribute('data-icon') ?? '(unmarked)')
+
+/** The roster's two rows, as a plain sorted list of ids. */
+const EXPANDER_ROWS = T_109_ROW_EXPANDER.map((one) => one.row as string).sort()
+
+describe('表 T-051 HF-1 -- one opening control and one closing control per row', () => {
+  it('GIVEN a row whose description carries an expander WHEN the panel is drawn THEN the row holds one IC-58 and one IC-59 (HF-1, U-47)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: false }))
+
+    // ⭐ 表 T-103 U-47: 「開く側と閉じる側の 2 つで 1 組」 -- one part, two
+    // controls, so the count is two and the rows are the roster's two.
+    expect(expanderIcons(built).sort()).toEqual(EXPANDER_ROWS)
+  })
+
+  it('GIVEN two rows, one pinned and one not, WHEN the panel is drawn THEN EACH row gets the pair (HF-1 「各行に」)', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [
+            rowTitle({
+              groupId: 'g-pinned',
+              isPinned: true,
+              expander: { canOpen: true, canClose: true },
+            }),
+          ],
+          titles: [
+            rowTitle({
+              groupId: 'g-1',
+              expander: { canOpen: false, canClose: true },
+            }),
+          ],
+        },
+      }),
+    )
+
+    const icons = expanderIcons(built)
+    expect(icons).toHaveLength(4)
+    // ⛔ U-46 lifts a pinned row out of the scrolling list, but it is still a row
+    // OF the panel, and HF-1 says 各行 without an exception for it.
+    for (const one of T_109_ROW_EXPANDER) {
+      const drawnTwice = icons.filter((held) => held === one.row)
+      expect(drawnTwice, `${one.row} was not drawn once per row`).toHaveLength(2)
+    }
+  })
+
+  it.each(EXPANDER_STATES)(
+    'GIVEN canOpen=$canOpen and canClose=$canClose WHEN the row is drawn THEN both controls stand (FR-029: faint, never absent)',
+    (state) => {
+      const built = drawn(withExpander(state))
+
+      // ⛔ FR-029's RATIONALE 「無反応だと故障に見える」 and its MUST 「掴めない
+      // 端点を薄く描いて理由をツールチップで示すこと」: the spent side is drawn
+      // faint. A control that vanished when it could not be used would move the
+      // OTHER one under the pointer, and HF-4's 「名前ごとに位置が変わると狙え
+      // ない」 is the same complaint about the same panel.
+      expect(expanderIcons(built).sort()).toEqual(EXPANDER_ROWS)
+    },
+  )
+
+  it('GIVEN a row with no expander in its description WHEN the panel is drawn THEN neither control is drawn (RowTitle.expander is null where nothing sits under the row)', () => {
+    const built = drawn(withExpander(null))
+
+    // ⚠️ HF-1 is about a ROW THAT HAS SOMETHING UNDER IT -- that is what makes
+    // `expander` nullable at the seam at all. Which rows get one is decided
+    // where the description is built, not here.
+    expect(expanderControls(built)).toHaveLength(0)
+  })
+
+  it('GIVEN a panel with no rows at all WHEN it is drawn THEN no expander control exists anywhere (empty)', () => {
+    const built = drawn(viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [] } }))
+
+    expect(expanderControls(built)).toHaveLength(0)
+  })
+})
+
+describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', () => {
+  it.each(T_109_ROW_EXPANDER)(
+    'GIVEN the pair is drawn WHEN a point over the $side control is asked about THEN IF-9 answers Row Title Panel / $row (表 T-051 の $rule)',
+    ({ row }) => {
+      const built = drawn(withExpander({ canOpen: true, canClose: true }))
+      const at = EXPANDER_AT[row]
+
+      expect(at, `no point was laid out for ${row}`).toBeDefined()
+      expect(ask(built, at?.x ?? -1, at?.y ?? -1)).toEqual({
+        part: 'Row Title Panel',
+        entry: row,
+      })
+    },
+  )
+
+  it('GIVEN both controls WHEN each is pressed THEN two DIFFERENT entries come back (U-47: two controls, not one in two states)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+
+    const opening = ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)
+    const closing = ask(built, AT.rowExpanderClose.x, AT.rowExpanderClose.y)
+
+    // ⛔ If one control answered for both, HF-2 (1 段だけ開く) and HF-3 (すべて
+    // 閉じる) would have to be told apart by something other than the press --
+    // and 表 T-109 gives them two rows precisely so they need not be.
+    expect(opening?.entry).not.toBe(closing?.entry)
+    expect([opening?.entry, closing?.entry]).toEqual(['IC-58', 'IC-59'])
+  })
+
+  it('GIVEN the pair is drawn WHEN the entries answered are compared with the tree THEN the unit answers only what it itself drew (IF-9 MUST, 05-07-design.md:390)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+
+    for (const one of T_109_ROW_EXPANDER) {
+      const node = entryFor(built.root(), one.row)
+      expect(node.getAttribute('data-role')).toBe('Row Expander')
+      const at = EXPANDER_AT[one.row]
+      expect(ask(built, at?.x ?? -1, at?.y ?? -1)?.entry).toBe(one.row)
+    }
+  })
+
+  it('GIVEN both sides are spent WHEN either is pressed THEN it still answers its entry (FR-029: it does not go quiet)', () => {
+    const built = drawn(withExpander({ canOpen: false, canClose: false }))
+
+    for (const one of T_109_ROW_EXPANDER) {
+      const at = EXPANDER_AT[one.row]
+      expect(ask(built, at?.x ?? -1, at?.y ?? -1)).toEqual({
+        part: 'Row Title Panel',
+        entry: one.row,
+      })
+    }
+  })
+
+  it('GIVEN both sides are spent WHEN the controls are read THEN neither is disabled nor hidden (FR-029: drawn faint, not removed)', () => {
+    const built = drawn(withExpander({ canOpen: false, canClose: false }))
+
+    for (const one of T_109_ROW_EXPANDER) {
+      const node = entryFor(built.root(), one.row)
+      // ⚠️ `disabled` stops an element taking the pointer, and then no answer
+      // above could ever be given.
+      expect(node.hasAttribute('disabled'), `${one.row} was disabled`).toBe(false)
+      expect(isShown(node), `${one.row} was hidden`).toBe(true)
+    }
+  })
+
+  it('GIVEN the pair is drawn WHEN canOpen and canClose differ THEN each side records its own half (HF-6 / FR-029 need the spent one tellable)', () => {
+    // ⚠️ The attribute NAMES below are the seam's published DOM contract, not
+    // the specification's -- docs/spec fixes no attribute. What IS spec-driven
+    // is that `RowExpander.canOpen` (HF-2) and `.canClose` (HF-3) must ARRIVE
+    // separately, or the faint drawing FR-029 asks for has nothing to key on.
+    const open = drawn(withExpander({ canOpen: true, canClose: false }))
+    const close = drawn(withExpander({ canOpen: false, canClose: true }))
+
+    expect(entryFor(open.root(), 'IC-58').getAttribute('data-can-open')).toBe('true')
+    expect(entryFor(open.root(), 'IC-59').getAttribute('data-can-close')).toBe('false')
+    expect(entryFor(close.root(), 'IC-58').getAttribute('data-can-open')).toBe('false')
+    expect(entryFor(close.root(), 'IC-59').getAttribute('data-can-close')).toBe('true')
+  })
+})
+
+describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', () => {
+  it('GIVEN IC-58 holds x 100..116 and IC-59 x 116..132 WHEN the shared edge is pressed THEN it belongs to IC-59 (R3.4, half-open)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+
+    expect(ask(built, 115, 64)?.entry).toBe('IC-58')
+    expect(ask(built, 116, 64)?.entry).toBe('IC-59')
+  })
+
+  it('GIVEN IC-58 begins at x 100, y 60 WHEN its left and top edge are pressed THEN it holds them (R3.4, half-open)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+
+    expect(ask(built, 100, 60)?.entry).toBe('IC-58')
+  })
+
+  it('GIVEN IC-59 ends at x 132 WHEN the strip beyond it is pressed THEN the panel answers with entry null (EZ-2: the icon the pointer rests ON)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+
+    // ⭐ 表 T-023a: the panel holds no `ScreenRegions` rectangle, so the answer
+    // is the part and never nothing -- but 「入口の上」 has to stay tellable
+    // from 「面の上・入口の外」 for EZ-2 to know which explanation to raise.
+    expect(ask(built, 132, 64)).toEqual({
+      part: 'Row Title Panel',
+      entry: null,
+    })
+    expect(ask(built, AT.rowExpanderGap.x, AT.rowExpanderGap.y)).toEqual({
+      part: 'Row Title Panel',
+      entry: null,
+    })
+  })
+
+  it('GIVEN a row with no expander WHEN the place the controls would stand is pressed THEN the panel answers with entry null (null path)', () => {
+    const built = drawn(withExpander(null))
+
+    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)).toEqual({
+      part: 'Row Title Panel',
+      entry: null,
+    })
+  })
+
+  it('GIVEN the expander was drawn and the next frame drops it WHEN the same point is pressed THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)?.entry).toBe('IC-58')
+
+    surfaceOf(built).showScreenView(withExpander(null))
+
+    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)?.entry).toBeNull()
+    expect(expanderControls(built)).toHaveLength(0)
+  })
+
+  it('GIVEN nothing has been drawn yet WHEN the expander point is asked about THEN nothing is on it (BO-1 of 表 T-077)', () => {
+    const built = wire()
+
+    expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)).toBeNull()
+  })
+})
+
+// ===========================================================================
+// IC-58 / IC-59 / IC-60 -- A CONTROL THE SPECIFICATION PUTS ON SCREEN MUST HAVE
+// A BOX, AND MUST TAKE THE POINTER.
+//
+// ⭐ WHY THIS BLOCK EXISTS. 表 T-109 puts three entries on the `Row Title
+// Panel` (_assets/tbl-glossary.md:499-501) and 表 T-065's IF-9 joins each to a
+// point on the screen. Twenty-one of these controls were found in the live DOM
+// at 4 x 0 pixels: they could not be seen and could not be pressed. ⛔ EVERY
+// CASE IN THIS FILE WAS GREEN WHILE THAT WAS TRUE, and the reason is worth
+// naming out loud, because it decides what the cases below are allowed to
+// assert.
+//
+// ⚠️ THE HARNESS CANNOT MEASURE A PIXEL. `laidOut` answers from `LAYOUT`, keyed
+// by `data-icon` and then `data-role`, so `getBoundingClientRect()` hands back
+// the box THIS FILE stipulated and never one the unit's own declarations
+// produced. ⛔ A case reading `getBoundingClientRect().width` here would pass
+// against a control that is 4 x 0 in a browser -- it would look like it checked
+// this and would check nothing. It is deliberately not written.
+//   ⚠️ The fallback in `laidOut` is no better: it unions the ELEMENT children,
+//   and these controls carry a text node and no element, so it would report zero
+//   for a control that a browser lays out perfectly well.
+//
+// ⭐ WHAT IS CHECKED INSTEAD IS THE THING A BROWSER READS TO GET THE PIXEL --
+// the declarations the unit itself wrote on the node. A box has extent on an
+// axis only if something gives it one: content, an explicit size, a padding or a
+// border. That is the CSS box model, not an opinion of this file's, and it is
+// decidable from what the fake records. ⭐ `intrinsicExtent` below is that
+// reading, and the case right after it BREAKS the predicate on purpose and
+// watches it fail (docs/development-rules/04-verification.md §2), so the ⭐ case
+// cannot be a green that proves nothing.
+//
+// The rules these cases answer to:
+//   表 T-109        IC-58 / IC-59 / IC-60 are entries ON the `Row Title Panel`
+//   表 T-065 IF-9   「画面上の点がどの UI パーツのどの入口の上か」 -- an entry
+//                   that covers no point is an entry no point can be on
+//   表 T-051 HF-1   「行見出しパネルの各行に、開く操作子と閉じる操作子を 1 つずつ
+//                   置く」 -- a 操作子 that cannot be operated is not placed
+//   表 T-051 HF-5   「行の名前の文字サイズにかかわらず、操作子を同じ大きさで描く
+//                   こと（MUST）」 -- it has A SIZE, and the row's name is not
+//                   what decides it
+//   FR-098          「ピン止めの操作子（`Row Pin`）を、行見出しパネルの各行に
+//                   1 つ置くこと（MUST）」「その操作子で同じようにピン止めを
+//                   外せること（MUST）」
+//   FR-029          RATIONALE 「無反応だと故障に見える」
+// ===========================================================================
+
+/** The three rows of 表 T-109 the `Row Title Panel` holds, with the part IF-9 must name. */
+const T_109_ON_THE_ROW = T_109_ELSEWHERE.filter((one) => one.surface === 'Row Title Panel')
+
+/** 表 T-051 HF-5, copied from docs/spec/01-04-requirements.md:1311. */
+const T_051_HF5_SAME_SIZE = '操作子を同じ大きさで描くこと（MUST）'
+
+/** FR-098's MUST, copied from docs/spec/01-04-requirements.md:2594. */
+const FR_098_ONE_PER_ROW = '行見出しパネルの各行に 1 つ置くこと（MUST）'
+
+/** A length that contributes nothing. ⚠️ `none` and `auto` are a length's absence, not zero. */
+const isZeroLength = (value: string): boolean =>
+  value === '' || /^(0(?:[a-z%]+)?|none|auto|initial|unset)$/i.test(value.trim())
+
+/** The four sides a `padding` / `border-width` shorthand expands to, in CSS order. */
+function fourSides(shorthand: string): {
+  readonly top: string
+  readonly right: string
+  readonly bottom: string
+  readonly left: string
+} {
+  const parts = shorthand
+    .trim()
+    .split(/\s+/)
+    .filter((one) => one.length > 0)
+  const [first = '', second = first, third = first, fourth = second] = parts
+  return { top: first, right: second, bottom: third, left: fourth }
+}
+
+/** Whether a `border` / `border-top` shorthand carries a width at all. */
+const borderHasWidth = (shorthand: string): boolean =>
+  !/(^|\s)(none|hidden)(\s|$)/i.test(shorthand) &&
+  /(^|\s)(thin|medium|thick|[0-9.]+[a-z%]+)(\s|$)/i.test(shorthand)
+
+/**
+ * What, among the declarations this node carries, can give it a pixel on each
+ * axis.
+ *
+ * ⭐ CONTENT COUNTS ON BOTH AXES: a `button` is `inline-block` by default, so a
+ * glyph or a word is what makes it as wide and as tall as a line. ⛔ Nothing
+ * here consults `LAYOUT` -- the whole point is to read what a browser would
+ * read, which is the node itself.
+ */
+function intrinsicExtent(element: FakeElement): {
+  readonly hasContent: boolean
+  readonly widthSources: string[]
+  readonly heightSources: string[]
+} {
+  const declared = styleMap(element)
+  const at = (property: string): string => declared.get(property) ?? ''
+  const padding = fourSides(at('padding'))
+  const border = at('border')
+  const widthSources: string[] = []
+  const heightSources: string[] = []
+
+  const hasContent = element.textContent !== '' || element.children.length > 0
+  if (hasContent) {
+    widthSources.push('content')
+    heightSources.push('content')
+  }
+  for (const [axis, sources] of [
+    ['width', widthSources],
+    ['height', heightSources],
+  ] as const) {
+    if (!isZeroLength(at(axis))) sources.push(axis)
+    if (!isZeroLength(at(`min-${axis}`))) sources.push(`min-${axis}`)
+  }
+  for (const side of ['top', 'bottom'] as const) {
+    if (!isZeroLength(at(`padding-${side}`) || padding[side])) heightSources.push(`padding-${side}`)
+    if (borderHasWidth(at(`border-${side}`) || border)) heightSources.push(`border-${side}`)
+  }
+  for (const side of ['left', 'right'] as const) {
+    if (!isZeroLength(at(`padding-${side}`) || padding[side])) widthSources.push(`padding-${side}`)
+    if (borderHasWidth(at(`border-${side}`) || border)) widthSources.push(`border-${side}`)
+  }
+  return { hasContent, widthSources, heightSources }
+}
+
+/**
+ * `pointer-events` as it reaches this node.
+ *
+ * ⭐ It is an INHERITED property, so a control inside a subtree declared
+ * `pointer-events:none` takes no pointer unless it -- or something between --
+ * declares otherwise. ⚠️ The fake's `stackAt` models only `visibility` and
+ * `display`, so a control lost this way is invisible to every other case in this
+ * file; this reads the declarations instead.
+ */
+function inheritedPointerEvents(element: FakeElement): {
+  readonly value: string
+  readonly declaredBy: string
+} {
+  let at: FakeElement | null = element
+  while (at !== null) {
+    const held = styleMap(at).get('pointer-events')
+    if (held !== undefined && held.trim() !== '' && held.trim() !== 'inherit') {
+      return {
+        value: held.trim().toLowerCase(),
+        declaredBy: at.getAttribute('data-role') ?? at.tagName.toLowerCase(),
+      }
+    }
+    at = at.parentNode
+  }
+  return { value: 'auto', declaredBy: '(nothing declared one)' }
+}
+
+/** Every control of 表 T-109 the panel drew, by row. */
+function rowControlsOf(built: Stage): Map<string, FakeElement[]> {
+  const held = new Map<string, FakeElement[]>()
+  for (const one of T_109_ON_THE_ROW) {
+    held.set(
+      one.row,
+      selfAndDescendants(built.root()).filter((node) => node.getAttribute('data-icon') === one.row),
+    )
+  }
+  return held
+}
+
+/** One row, drawn plainly, with both sides of the expander live. */
+const oneLiveRow = (): ScreenView => withExpander({ canOpen: true, canClose: true })
+
+describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 finding)', () => {
+  it.each(T_109_ON_THE_ROW)(
+    '⭐ GIVEN $row is drawn on the $surface WHEN the declarations a browser would measure are read THEN the control has BOTH a width and a HEIGHT -- the case that catches the 4 x 0 control nobody could press (表 T-109 $row, 表 T-051 HF-5 MUST)',
+    ({ row }) => {
+      const built = drawn(oneLiveRow())
+      const node = entryFor(built.root(), row)
+      const extent = intrinsicExtent(node)
+
+      // ⛔ 表 T-051 HF-5 (MUST): 「操作子を同じ大きさで描くこと」. A control with
+      // no source of height is drawn at height 0 -- it is not "the same size" as
+      // anything, and 表 T-065's IF-9 can never answer a point that is on it,
+      // because no point ever is. FR-029's RATIONALE 「無反応だと故障に見える」
+      // is the same complaint from the reader's side.
+      // ⚠️ The declarations found at the time of writing were
+      // `padding: 0 0.125em` with `border: none` and no width, height, min-width
+      // or min-height -- horizontal padding ONLY. With an empty control that is
+      // 2 x 0.125em wide and NOTHING high: the 4 x 0 that was reported.
+      expect(
+        extent.heightSources,
+        `${row} has nothing that gives it a height: ${inlineStyle(node)}`,
+      ).not.toHaveLength(0)
+      expect(
+        extent.widthSources,
+        `${row} has nothing that gives it a width: ${inlineStyle(node)}`,
+      ).not.toHaveLength(0)
+    },
+  )
+
+  it('⛔ GIVEN a node carrying the SAME declarations but nothing inside WHEN it is read THEN it measures wide and NOT high -- so the case above is not a green that proves nothing (04-verification.md §2)', () => {
+    const built = drawn(oneLiveRow())
+    const real = entryFor(built.root(), 'IC-58')
+
+    // The control as it would be with the fallback taken away again: same node,
+    // same declarations, nothing inside.
+    const emptied = new FakeElement('button', built.world)
+    emptied.setAttribute('style', inlineStyle(real))
+    const extent = intrinsicExtent(emptied)
+
+    expect(extent.hasContent).toBe(false)
+    expect(extent.heightSources, 'the predicate would pass an empty control').toHaveLength(0)
+    // ⭐ And it is wide, which is why the report said 4 x 0 and not 0 x 0: the
+    // horizontal padding survives an empty control and the vertical one does not
+    // exist. ⛔ If this ever becomes empty too, the ⭐ case above stopped being
+    // the case that catches this defect and has to be re-read.
+    expect(extent.widthSources).not.toHaveLength(0)
+  })
+
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-5 and FR-098 are looked up THEN they still require a size and one control per row', () => {
+    const requirements = specText('01-04-requirements.md')
+
+    expect(requirements).toContain(T_051_HF5_SAME_SIZE)
+    expect(requirements).toContain(FR_098_ONE_PER_ROW)
+  })
+
+  it('GIVEN both sides of the expander are spent WHEN the controls are read THEN each still has a width and a height (FR-029: 薄く描く, not shrunk to nothing) -- IC-58 / IC-59', () => {
+    const built = drawn(withExpander({ canOpen: false, canClose: false }))
+
+    // ⛔ The boundary FR-029 speaks to. 「掴めない端点を薄く描いて理由をツール
+    // チップで示すこと（MUST）」 -- a tooltip has to be pointed AT, so the faint
+    // control needs its box more than the live one does.
+    for (const one of T_109_ROW_EXPANDER) {
+      const extent = intrinsicExtent(entryFor(built.root(), one.row))
+      expect(extent.heightSources, `spent ${one.row} lost its height`).not.toHaveLength(0)
+      expect(extent.widthSources, `spent ${one.row} lost its width`).not.toHaveLength(0)
+    }
+  })
+
+  it('GIVEN a row whose own name is EMPTY WHEN its controls are read THEN they still have a height (表 T-051 HF-5: the row name does not decide it) -- IC-58 / IC-59 / IC-60', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [],
+          titles: [
+            rowTitle({
+              groupId: 'g-1',
+              label: '',
+              wholeLabel: '',
+              expander: { canOpen: true, canClose: true },
+            }),
+          ],
+        },
+      }),
+    )
+
+    // ⚠️ The empty case that matters for a control whose extent comes from what
+    // is inside it: if the ROW's own name were what filled the control, an
+    // unnamed row would take the control away with it.
+    for (const one of T_109_ON_THE_ROW) {
+      const extent = intrinsicExtent(entryFor(built.root(), one.row))
+      expect(extent.heightSources, `${one.row} lost its height on an unnamed row`).not.toHaveLength(
+        0,
+      )
+    }
+  })
+
+  it('GIVEN a pinned row and an ordinary row WHEN every control of 表 T-109 on the panel is read THEN each of the six has a box (HF-1 「各行に」, FR-098 「各行に 1 つ」)', () => {
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [
+            rowTitle({
+              groupId: 'g-pinned',
+              isPinned: true,
+              expander: { canOpen: true, canClose: true },
+            }),
+          ],
+          titles: [
+            rowTitle({
+              groupId: 'g-1',
+              expander: { canOpen: true, canClose: true },
+            }),
+          ],
+        },
+      }),
+    )
+
+    const held = rowControlsOf(built)
+    for (const one of T_109_ON_THE_ROW) {
+      const controls = held.get(one.row) ?? []
+      expect(controls, `${one.row} was not drawn once per row`).toHaveLength(2)
+      for (const node of controls) {
+        expect(
+          intrinsicExtent(node).heightSources,
+          `${one.row} has no height on one of the two rows`,
+        ).not.toHaveLength(0)
+      }
+    }
+  })
+
+  it('GIVEN a row with no expander in its description WHEN the panel is read THEN the pin is still there with a box and no expander is (FR-098 does not depend on HF-1) -- IC-60 alone', () => {
+    const built = drawn(withExpander(null))
+
+    const held = rowControlsOf(built)
+    expect(held.get('IC-58')).toHaveLength(0)
+    expect(held.get('IC-59')).toHaveLength(0)
+    const pins = held.get('IC-60') ?? []
+    expect(pins, 'FR-098 puts one Row Pin on EVERY row').toHaveLength(1)
+    for (const node of pins) {
+      expect(intrinsicExtent(node).heightSources).not.toHaveLength(0)
+    }
+  })
+
+  it('GIVEN a panel with no rows at all WHEN it is read THEN no control of 表 T-109 is drawn and none claims a box (empty)', () => {
+    const built = drawn(viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [] } }))
+
+    const held = rowControlsOf(built)
+    for (const one of T_109_ON_THE_ROW) {
+      expect(held.get(one.row), `${one.row} was drawn on an empty panel`).toEqual([])
+    }
+    expect(ask(built, AT.rowPin.x, AT.rowPin.y)).toEqual({
+      part: 'Row Title Panel',
+      entry: null,
+    })
+  })
+})
+
+describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () => {
+  // ⭐ THE SECOND HALF OF 「押せない」. A control can have a perfectly good box
+  // and still take no press, and the fake cannot tell: `stackAt` weighs
+  // `visibility` and `display` and nothing else, so `pointer-events` is a way
+  // for every case above to stay green while the live DOM answers the node
+  // BEHIND the control. These two cases read the declarations instead.
+  it('GIVEN the panel is drawn WHEN the tree over it is read THEN it really does declare pointer-events:none -- without which the case below would be checking nothing', () => {
+    const built = drawn(oneLiveRow())
+    const overlay = byRole(built.root(), 'Row Title Tree')[0]
+
+    // ⚠️ The overlay is `position:absolute` across the whole panel, so it is
+    // laid `none` on purpose: were it `auto` it would swallow every press meant
+    // for the panel underneath. ⛔ That is exactly why each control's own branch
+    // has to hand the pointer BACK, and why the case below is live rather than
+    // decorative. If this ever stops being `none`, re-read the pair.
+    expect(overlay, 'no Row Title Tree was drawn').toBeDefined()
+    expect(styleMap(overlay as FakeElement).get('pointer-events')).toBe('none')
+  })
+
+  it.each(T_109_ON_THE_ROW)(
+    '⛔ GIVEN $row is drawn WHEN the pointer-events it INHERITS is resolved up the tree THEN it is not none -- a control the pointer passes through cannot be pressed (FR-098 MUST, 表 T-051 HF-1)',
+    ({ row }) => {
+      const built = drawn(oneLiveRow())
+      const node = entryFor(built.root(), row)
+      const reaching = inheritedPointerEvents(node)
+
+      // ⛔ FR-098 (docs/spec/01-04-requirements.md:2594, MUST):
+      //   「ピン止めの操作子（`Row Pin`）を、行見出しパネルの各行に 1 つ置くこと
+      //    （MUST）」…「その操作子で同じようにピン止めを外せること（MUST）」
+      // 「外せること」 is a press. 表 T-051 HF-1 asks the same of the expander:
+      //   「行見出しパネルの各行に、開く操作子と閉じる操作子を 1 つずつ置く」
+      // ⚠️ `pointer-events` INHERITS. A control inside a subtree that declared
+      // `pointer-events:none` is not a hit target, so a real
+      // `document.elementFromPoint` answers whatever is BEHIND it and IF-9 can
+      // never name the entry -- which is 表 T-065's MUST at 05-07-design.md:390
+      // failing in the browser while every case above stays green, because the
+      // fake's `stackAt` models `visibility` and `display` and not this.
+      expect(
+        reaching.value,
+        `${row} inherits pointer-events:${reaching.value} from ${reaching.declaredBy}`,
+      ).not.toBe('none')
+    },
+  )
+})
+
+// ===========================================================================
+// ⛔ ONE CASE IS DELIBERATELY LEFT FAILING. It is a finding, not a chore, and it
+// was found while reading these three controls' declarations for the block
+// above -- the same nodes, the same inline style, a different rule.
+//
+// 表 T-051 HF-6 (docs/spec/01-04-requirements.md:1312):
+//   「操作子は薄く描き、ポインタが乗っているあいだだけ濃くすること
+//     —— 常に濃いと、日程より操作子が目立つ」
+// FR-098 (docs/spec/01-04-requirements.md:2594) binds the `Row Pin` to the same
+// rule rather than restating it:
+//   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折り畳みの
+//     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
+//
+// ⚠️ The expectation is NOT bent to match the code
+// (docs/development-rules/04-verification.md §1).
+// ===========================================================================
+
+/** 表 T-051 HF-6, copied from docs/spec/01-04-requirements.md:1312. */
+const T_051_HF6_DRAW_FAINT = '操作子は薄く描き、ポインタが乗っているあいだだけ濃くすること'
+
+/** FR-098's referral of 濃さ to HF-6, copied from docs/spec/01-04-requirements.md:2594. */
+const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
+
+/**
+ * Whether this node is painted faint.
+ *
+ * ⭐ The unit's own vocabulary for 「薄く」 is the environment's `GrayText`, which
+ * is what its head comment names and what `uf-71.test.ts` already pins for a
+ * disabled header entry. An `opacity` below 1 would do as well; either is 薄く,
+ * and `CanvasText` with no opacity is the full-strength foreground, which is 濃い.
+ */
+function isDrawnFaint(element: FakeElement): boolean {
+  const declared = styleMap(element)
+  const colour = (declared.get('color') ?? '').trim().toLowerCase()
+  const opacity = Number.parseFloat(declared.get('opacity') ?? '1')
+  return colour === 'graytext' || (Number.isFinite(opacity) && opacity < 1)
+}
+
+describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn faint', () => {
+  it('⛔ GIVEN IC-58 / IC-59 / IC-60 are drawn WHEN their paint is read THEN each is faint, not the full-strength foreground (表 T-051 HF-6, referred to by FR-098)', () => {
+    const requirements = specText('01-04-requirements.md')
+    expect(requirements).toContain(T_051_HF6_DRAW_FAINT)
+    expect(requirements).toContain(FR_098_SAME_AS_THE_EXPANDER)
+
+    const built = drawn(oneLiveRow())
+    const notFaint = T_109_ON_THE_ROW.map((one) => ({
+      row: one.row,
+      paint: styleMap(entryFor(built.root(), one.row)).get('color') ?? '(none declared)',
+    })).filter((one) => !isDrawnFaint(entryFor(built.root(), one.row)))
+
+    // ⚠️ HF-6 has two halves and this checks the FIRST one only. The second --
+    // 「ポインタが乗っているあいだだけ濃くする」 -- needs a hover path, and the
+    // fake records every listener the unit registered, so it can be checked the
+    // same way once the first half lands. ⛔ Not asserted yet, because a control
+    // that is never faint has nothing to darken FROM and the two would fail as
+    // one finding.
+    expect(
+      notFaint,
+      'HF-6 「常に濃いと、日程より操作子が目立つ」 -- these are painted at full strength',
+    ).toEqual([])
   })
 })

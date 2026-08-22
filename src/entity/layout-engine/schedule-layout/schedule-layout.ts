@@ -322,7 +322,7 @@ export function rulerTierOf(pxPerDay: number, settings: DocumentSettings): Ruler
  */
 export function tickStrideOf(layout: ScheduleLayout, settings: DocumentSettings): number {
   if (layout.tier !== 'yearMonthDayWeekday') return 1
-  const needed = labelWidth('00', settings.rulerFont, settings) + settings.labelGap
+  const needed = labelWidth('00', settings.rulerFont, settings) + settings.rulerLabelGap
   return Math.max(1, Math.ceil(needed / Math.max(0.001, layout.pxPerDay)))
 }
 
@@ -347,9 +347,32 @@ export function dateAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
   return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
 }
 
-/** @purity pure */
-function xOfDay(originSerial: number, pxPerDay: number, originX: number, day: CalendarDay): number {
+/**
+ * The x of a day on the time axis the three arguments define.
+ *
+ * ⚠️ Takes the axis in pieces rather than a `ScheduleLayout` because LC-1 to
+ * LC-9 need it while that layout is still being built. It is the one formula:
+ * `xFromDay` below is the same axis read off a finished layout.
+ *
+ * @purity pure
+ */
+function xOnTimeAxis(originSerial: number, pxPerDay: number, originX: number,
+                     day: CalendarDay): number {
   return originX + (serialOf(day) - originSerial) * pxPerDay
+}
+
+/**
+ * PI-5's `xFromDay`: `dateAtX` run the other way.
+ *
+ * Answers the origin's own x while no origin is set, which is where `dateAtX`
+ * answers null -- there is no day to measure from, so nothing is offset.
+ *
+ * @purity pure
+ */
+export function xFromDay(layout: ScheduleLayout, day: CalendarDay): number {
+  const origin = layout.originDay
+  if (origin === null) return layout.originX
+  return xOnTimeAxis(serialOf(origin), layout.pxPerDay, layout.originX, day)
 }
 
 /** LC-1. A row goes when it, or anything above it, is hidden or collapsed. @purity pure */
@@ -507,7 +530,7 @@ function actualSpanOf(
   if (from === null) return null
   const to = dateFromWorkingDays(within, from, task.actualDuration ?? 0)
   return {
-    x: xOfDay(originSerial, pxPerDay, originX, from),
+    x: xOnTimeAxis(originSerial, pxPerDay, originX, from),
     width: Math.max(0, serialOf(to) - serialOf(from)) * pxPerDay,
   }
 }
@@ -553,7 +576,12 @@ export function layoutFromSchedule(
   const placements: TaskPlacement[] = []
   const rowPlacements: RowPlacement[] = []
 
+  // The bands are measured from the top of the Row Area and the whole stack is
+  // slid at the end, because a band's height is only known once its lanes are:
+  // the row S-78 names cannot be put at the top before the rows above it have
+  // been measured.
   let y = regions.rowArea.y
+  let topOfScrollRow: number | null = null
   // Both sentinels are replaced together by the first placement, so the one
   // test at the end settles "nothing was placed at all". Seeding `widest` at 0
   // instead measured from the leftmost occupied edge all the way to x = 0
@@ -565,6 +593,9 @@ export function layoutFromSchedule(
   const emptyLane = reservedHeight('rectangle', settings)
 
   for (const row of rows) {
+    // S-78 names the row the top of the display points at, so this band's own
+    // top is the distance the whole stack has to move.
+    if (row.id === settings.scrollGroupId) topOfScrollRow = y
     // ---- LC-2, the task half: CR-163 measures the shape, not the depth -----
     // The kind, the span and the drawn width are resolved ONCE per Task here.
     // S-86's filter and the measuring below both want all three, and asking
@@ -598,7 +629,7 @@ export function layoutFromSchedule(
     const laneOf: number[] = []
     const measured = drawnTasks.map(({ task, kind, glyph, width }) => {
       const from = dayOf(task.start)
-      const at = from === null ? originX : xOfDay(originSerial, pxPerDay, originX, from)
+      const at = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
       // LF-10 centres a milestone's figure on its day; every other shape
       // starts at it.
       const x = kind === 'milestone' ? at - width / 2 : at
@@ -744,6 +775,21 @@ export function layoutFromSchedule(
     y += height + settings.rowGap
   }
 
+  // ---- S-78: put the row the display points at at the top of the Row Area --
+  // ⭐ The vertical counterpart of S-77, which the origin above already
+  // applies to the horizontal. Without it the wheel writes a new
+  // `scrollGroupId` every turn and every turn draws the same rows.
+  // ⚠️ FR-051 sends the READING side to OP-10 of table T-024a, and the shell
+  // answers OP-10's two cases -- a null, and an id naming no `TaskGroup` --
+  // by handing FR-055's fit down in the settings, so neither is decided a
+  // second time here.
+  // ⛔ An id naming a row this pass did NOT draw (FR-018 dropped it, or HR-1a
+  // collapsed something above it) is neither of OP-10's cases and no rule
+  // covers it. The stack then stays where it was measured rather than being
+  // slid to a row that is not on screen.
+  const scrollOffsetY = topOfScrollRow === null ? 0 : topOfScrollRow - regions.rowArea.y
+  // ⚠️ Measured before the slide: FR-055 fits to the extent of the content,
+  // which does not change when the content is scrolled.
   const contentHeight = Math.max(0, y - settings.rowGap - regions.rowArea.y)
   const contentWidth =
     leftmost === Number.POSITIVE_INFINITY ? 0 : Math.max(0, widest - leftmost)
@@ -754,11 +800,35 @@ export function layoutFromSchedule(
     originDay,
     originX,
     rectangleHeight: planHeightOf('rectangle', settings),
-    rows: rowPlacements,
-    placements,
+    rows: scrolledRows(rowPlacements, scrollOffsetY),
+    placements: scrolledPlacements(placements, scrollOffsetY),
     contentWidth,
     contentHeight,
   }
+}
+
+/**
+ * The rows, slid up by S-78's offset. One pass, and none at all when the
+ * display sits at the top.
+ *
+ * @purity pure
+ */
+function scrolledRows(rows: readonly RowPlacement[], offsetY: number): readonly RowPlacement[] {
+  if (offsetY === 0) return rows
+  return rows.map((row) => ({
+    ...row,
+    y: row.y - offsetY,
+    stackTops: row.stackTops.map((top) => top - offsetY),
+  }))
+}
+
+/** The placements, slid by the same offset as their rows. @purity pure */
+function scrolledPlacements(
+  placements: readonly TaskPlacement[],
+  offsetY: number,
+): readonly TaskPlacement[] {
+  if (offsetY === 0) return placements
+  return placements.map((one) => ({ ...one, y: one.y - offsetY }))
 }
 
 /** Where one Task ended up, or null when this zoom does not draw it. @purity pure */

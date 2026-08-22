@@ -11,9 +11,9 @@
 //
 // ---- why this component exists ---------------------------------------------
 //
-// CP-22 answers to FR-060 and to table T-024. Between the shell that has a
-// `FileStore` and the codecs that speak formats, exactly three jobs are left
-// over, and they are the whole of this file:
+// CP-22 answers to FR-060, to table T-024 and to table T-227. Between the shell
+// that has a `FileStore` and the codecs that speak formats, exactly four jobs
+// are left over, and they are the whole of this file:
 //
 //   1. ONE ENTRY for reading. OP-2 of table T-024a forbids a second way in
 //      (MUST NOT) -- the first file and every later one arrive the same way,
@@ -27,6 +27,12 @@
 //      else and it has to be got right once per format.
 //   3. WHICH FILE FR-060 OVERWRITES NEXT. Table T-024's direction column is
 //      what decides it; see `isRoundTripForm` below.
+//   4. WHETHER TWO DOCUMENTS ARE ONE AND THE SAME, and therefore whether a
+//      write over an existing file has to be asked about. Table T-227 is the
+//      whole rule (DI-1 .. DI-5); `isSameDocument` and `askToWriteOver` below
+//      are the whole of its implementation. ⛔ FR-061 forbids the autosave key
+//      being built out of DI-1 (MUST NOT), so `DocumentIdentity` never leaves
+//      this act -- see the type's own note.
 //
 // ---- ⛔ what this component does NOT do ------------------------------------
 //
@@ -51,6 +57,12 @@
 // runs) are all ImportDocument's, and OP-10 is the startup order's. This file
 // finishes the moment there is text.
 //
+// ⚠️ OP-11 IS THE ONE ROW OF TABLE T-024a THIS FILE CARRIES, and it carries
+// only the number: several files handed over at once leave one opened and the
+// rest ignored, and saying so is a MUST. ⛔ It is not a judgement about the
+// document -- the file that was accepted is read exactly as any other -- and
+// the words belong to whoever raises NT-5's telling.
+//
 // ---- failures ---------------------------------------------------------------
 //
 // ⚠️ Everything comes back as a value. FR-028 forbids throwing (MUST NOT) and
@@ -70,6 +82,7 @@
 
 import type {
   ChosenFileWrite,
+  ChosenWriteDestination,
   FileStore,
   FileStoreFault,
   FileStoreFaultReason,
@@ -81,6 +94,7 @@ import type {
 
 export type {
   ChosenFileWrite,
+  ChosenWriteDestination,
   FileReading,
   FileStore,
   FileStoreFault,
@@ -137,7 +151,26 @@ export interface OpenedDocumentFile {
 }
 
 export type DocumentFileOpening =
-  | { readonly ok: true; readonly file: OpenedDocumentFile }
+  | {
+      readonly ok: true
+      readonly file: OpenedDocumentFile
+      /**
+       * OP-11 of table T-024a: how many files handed over in the same act were
+       * left behind. `0` where none were, which is every ordinary open.
+       *
+       * ⭐ CARRIED, NOT PHRASED. OP-11 puts a MUST on saying that the rest were
+       * ignored and sends the manner to NT-5 of table T-037; the words are the
+       * raiser's, because FR-038 places no store of translated strings in this
+       * component. ⛔ And it is not a refusal: OP-11 forbids letting the act
+       * read as if nothing was accepted (MUST NOT), so this rides on the
+       * SUCCESS arm beside the file that WAS opened.
+       *
+       * ⚠️ Not a list of the names that were left. NT-5 asks for the fact and
+       * the caution; the names-not-a-count rule is NT-7's and FR-032's, and
+       * neither reaches here.
+       */
+      readonly ignoredFileCount: number
+    }
   | { readonly ok: false; readonly fault: DocumentFileFault }
 
 // ------------------------------------------------------------- writing ------
@@ -163,6 +196,47 @@ export type SaveFileContent =
   | { readonly text: string }
   | { readonly bytes: Uint8Array }
 
+// -------------------------------------------------- table T-227: identity ----
+
+/**
+ * The two values DI-1 of table T-227 reads out of a document itself.
+ *
+ * ⛔ Spelled after the columns DI-1 names -- `Project.name` and `Project.id` --
+ * and not after any new identifier. DI-1's own note says why: the three values
+ * it compares are ones a document ALREADY carries, and a minted identifier is
+ * one that every document written before it lacks.
+ *
+ * ⚠️ Both sides are `null`-able because AT-1 and AT-2 keep them so: the exchange
+ * partner's schema lets either be left out, and requiring them here would refuse
+ * files that really exist.
+ */
+export interface ProjectIdentity {
+  readonly projectName: string | null
+  readonly projectId: string | null
+}
+
+/**
+ * The three values DI-1 compares, for one document.
+ *
+ * ⛔ NOT AN AUTOSAVE KEY. FR-061 forbids building the key that keeps two
+ * documents apart in autosave out of DI-1 (MUST NOT), and states the reason: a
+ * document that has never been in a file has no file name, and autosave runs on
+ * it all the same. ⚠️ FR-061's key is still undecided; nothing in this folder
+ * may be handed to AutosaveGateway as one.
+ */
+export interface DocumentIdentity extends ProjectIdentity {
+  /**
+   * The name of the file this document stands in, or `null` where it has never
+   * been in one.
+   *
+   * ⚠️ `null` cannot equal the name of any destination, so a document that has
+   * never been saved matches nothing and the question of DI-4 gets asked. That
+   * is the direction CR-197 chose everywhere in this table: an extra question
+   * costs one gesture, and a file overwritten in silence cannot be got back.
+   */
+  readonly fileName: string | null
+}
+
 /**
  * FR-060's overwrite and FR-096's export, told apart by where they land.
  *
@@ -177,22 +251,74 @@ export type SaveFileContent =
  */
 export type DocumentFileSaveRequest =
   | {
+      /**
+       * ⭐ DI-5 of table T-227 (MUST): nothing on this route is ever asked. The
+       * file that was opened is, by definition, this document's own file, and a
+       * question here would fire every time the project was renamed -- which is
+       * the growth FR-031 forbids.
+       */
       readonly destination: 'openedFile'
       readonly content: SaveFileContent
       readonly form: SaveFileForm
     }
-  | {
-      readonly destination: 'chosenFile'
-      readonly content: SaveFileContent
-      readonly form: SaveFileForm
-      readonly suggestedFileName: string
-    }
+  | ChosenFileSaveRequest
+
+/**
+ * FR-096's export, to a file the person picks out.
+ *
+ * ⭐ Named on its own because table T-227 hangs entirely off this arm, and
+ * three of its five rows are fields here.
+ */
+export interface ChosenFileSaveRequest {
+  readonly destination: 'chosenFile'
+  readonly content: SaveFileContent
+  readonly form: SaveFileForm
+  readonly suggestedFileName: string
+  /**
+   * DI-1: the identity of the document being written, as it stands now.
+   *
+   * ⛔ Given rather than worked out here. This component does not know what a
+   * schedule is -- it hands bytes to whichever codec the caller chose -- so the
+   * two project values are read where the document is, not out of the bytes on
+   * their way past.
+   */
+  readonly identity: DocumentIdentity
+  /**
+   * DI-3: the two project values of whatever is ALREADY at the destination, or
+   * `null` where those characters are not `GRS JSON`.
+   *
+   * ⛔ A function rather than a parsed value, and supplied rather than written:
+   * the destination is not known until the chooser closes, and UT-5 of table
+   * T-063 keeps the three formats in codecs of their own. A gateway that parsed
+   * `GRS JSON` would hold an authority `FR-024` already owns.
+   *
+   * ⚠️ `null` is the whole of DI-3's rule: a destination this cannot read is a
+   * destination whose owner is unknown, and DI-3 forbids calling it the same
+   * document (MUST NOT).
+   */
+  projectIdentityFromText(text: string): ProjectIdentity | null
+  /**
+   * DI-4 (MUST): put the overwrite question to the person and bring the answer
+   * back. `true` goes ahead, `false` writes nothing.
+   *
+   * ⭐ Asked ONLY where DI-1 .. DI-3 could not call the destination this same
+   * document. NT-7 of table T-037 is the manner, and FR-031 (MUST NOT) is why
+   * it is not asked more widely than that.
+   *
+   * ⚠️ HOW THE PERSON'S ANSWER GETS HERE IS NOT DECIDED BY THE SPECIFICATION --
+   * see the STOP note in `adapter/screen-renderer/notices.ts`, which records
+   * that table T-109 carries no row for either choice. This field states only
+   * that an answer is owed, which NT-7 does fix (MUST): what happens is shown,
+   * and going on or calling off is chosen.
+   */
+  confirmOverwrite(): Promise<boolean>
+}
 
 export type DocumentFileSaving =
   | { readonly ok: true; readonly openedFile: OpenedFileState }
   | { readonly ok: false; readonly fault: DocumentFileFault }
 
-// ---------------------------------------------------------- the two rules ----
+// ------------------------------------------------ the rules, pure side ------
 
 /**
  * Whether a form can be the file FR-060 overwrites.
@@ -282,10 +408,80 @@ function openedOf(file: OpenedFileContent, text: string): OpenedDocumentFile {
   return { text, byteLength: file.bytes.byteLength, fileName: file.fileName }
 }
 
+// ------------------------------------------- table T-227: is it the same? ----
+
+/**
+ * DI-1 and DI-2 of table T-227: whether two documents are one and the same.
+ *
+ * ⭐ Read the two rows in the order they are printed. DI-2 (MUST NOT) strikes
+ * out any pair where a project value is missing on EITHER side before DI-1
+ * (MUST) is allowed to find three agreements -- so a missing value can never be
+ * matched against another missing value and pass as agreement. Standing in
+ * for it with a substitute name was considered and rejected in CR-197: two
+ * substitutes agree with each other, which is precisely the false "same" this
+ * order exists to stop.
+ *
+ * ⚠️ The file name is struck out for being absent as well. DI-1 asks for three
+ * agreements and a document that has never been in a file has nothing to put in
+ * the first of them.
+ *
+ * @purity pure
+ */
+function isSameDocument(here: DocumentIdentity, there: DocumentIdentity): boolean {
+  const isEitherProjectUnnamed =
+    here.projectName === null ||
+    here.projectId === null ||
+    there.projectName === null ||
+    there.projectId === null
+  if (isEitherProjectUnnamed) return false
+  if (here.fileName === null || there.fileName === null) return false
+
+  return (
+    here.fileName === there.fileName &&
+    here.projectName === there.projectName &&
+    here.projectId === there.projectId
+  )
+}
+
+/**
+ * DI-3 of table T-227: who the destination belongs to, or `null` where that
+ * cannot be read.
+ *
+ * ⛔ Three separate ways of not knowing, all answered the same: the destination
+ * held nothing readable in this encoding (CN-5 of table T-003), or the caller's
+ * codec would not take those characters as `GRS JSON`. DI-3 (MUST NOT) puts all
+ * of them on the same side -- a destination whose owner cannot be read is not
+ * to be called the same document.
+ *
+ * ⭐ The file name comes from the DESTINATION, never from inside its content.
+ * DI-1 compares the name of the file being written over, and a name carried in
+ * the bytes would be the name of wherever those bytes were written before.
+ *
+ * @purity pure
+ */
+function destinationIdentity(
+  destination: ChosenWriteDestination,
+  projectIdentityFromText: (text: string) => ProjectIdentity | null,
+): DocumentIdentity | null {
+  if (destination.kind === 'empty') return null
+
+  const decoded = textOfBytes(destination.bytes)
+  if (!decoded.ok) return null
+
+  const project = projectIdentityFromText(decoded.text)
+  if (project === null) return null
+
+  return {
+    fileName: destination.fileName,
+    projectName: project.projectName,
+    projectId: project.projectId,
+  }
+}
+
 // -------------------------------------------- what is published: reading ----
 //
 // R7.7's order: everything above is `pure`, this one is `semi-pure-b`, and the
-// section below it is the only `non-pure` thing in the folder.
+// section below it holds the only two `non-pure` things in the folder.
 
 /**
  * Read the file the person pointed at, and hand back its text.
@@ -296,6 +492,12 @@ function openedOf(file: OpenedFileContent, text: string): OpenedDocumentFile {
  *
  * ⚠️ It stops at text. The caller picks the codec, asks CP-13 for FR-023's
  * verdict, and only then asks OP-3's question. Nothing above is this file's.
+ *
+ * ⭐ OP-11's count rides out beside the file. The store keeps the first of
+ * several and reports how many it left; this carries that number so the caller
+ * can raise NT-5's telling. ⛔ A store that says nothing left nothing -- see
+ * `FileReading` -- so the absence becomes `0` here rather than staying a value
+ * every caller has to rule out.
  *
  * ⚠️ `semi-pure-b` is PI-22's classification and is kept even though a chooser
  * appears on the screen: what the caller gets back is decided by the file and
@@ -315,12 +517,46 @@ export async function openDocumentFile(
   const decoded = textOfBytes(reading.file.bytes)
   if (!decoded.ok) return { ok: false, fault: fault('notUtf8', decoded.what) }
 
-  return { ok: true, file: openedOf(reading.file, decoded.text) }
+  return {
+    ok: true,
+    file: openedOf(reading.file, decoded.text),
+    ignoredFileCount: reading.ignoredFileCount ?? 0,
+  }
 }
 
 // -------------------------------------------- what is published: writing ----
 //
 // ⚠️ `non-pure` from here down: the disk changes.
+
+/**
+ * Table T-227's answer for one destination: may this write go over what is
+ * standing there?
+ *
+ * ⭐ THE ROWS, IN THE ORDER THEY DECIDE. FR-096 sends only an EXISTING file to
+ * this table, so an empty destination is past before any row is read. Then
+ * DI-1 .. DI-3 settle whether the destination IS this document -- if it is,
+ * writing over it is what saving means and there is nothing to ask. Only what
+ * is left over reaches DI-4 (MUST), and that is exactly what FR-031 (MUST NOT)
+ * permits: the class it admits is losing something that cannot be got back by
+ * undoing, and somebody else's file is not even undo's to give back.
+ *
+ * ⚠️ It asks the caller, not the person. The words of the question and the two
+ * choices are NT-7's and are put together by whoever raises it -- FR-038 places
+ * no store of translated strings in this component.
+ *
+ * @purity non-pure
+ */
+async function askToWriteOver(
+  request: ChosenFileSaveRequest,
+  destination: ChosenWriteDestination,
+): Promise<boolean> {
+  if (destination.kind === 'empty') return true
+
+  const there = destinationIdentity(destination, request.projectIdentityFromText)
+  if (there !== null && isSameDocument(request.identity, there)) return true
+
+  return await request.confirmOverwrite()
+}
 
 /**
  * Write one of table T-024's file forms, over the file that was opened or to
@@ -335,6 +571,10 @@ export async function openDocumentFile(
  * is open the store answers `noOpenedFile`, and offering the chooser instead is
  * a next step under NT-3a, which is the shell's to offer and the person's to
  * take. Choosing it silently would make one control do the other's job.
+ *
+ * ⭐ DI-5 of table T-227 (MUST) is why only one of the two arms carries a
+ * question: the `openedFile` arm goes to the file this document already stands
+ * in, and there is no other document to be mistaken for.
  *
  * @purity non-pure
  */
@@ -358,6 +598,10 @@ export async function saveDocumentFile(
       // document, which is why it is being run with rather than waited on.
       // @provisional PD-20
       shouldBecomeOpenedFile: isRoundTripForm(request.form),
+      // DI-4 of table T-227 (MUST). The store holds the question until the
+      // destination is known and the bytes are still unwritten; the answer is
+      // this side's, and `askToWriteOver` is the whole of the table.
+      askToWriteOver: (destination) => askToWriteOver(request, destination),
     }
     return savingOfWriting(await store.writeChosenFile(write))
   }

@@ -129,7 +129,23 @@ export type OpenedFileState =
 
 /** Yes-or-no about one read, failures included. */
 export type FileReading =
-  | { readonly ok: true; readonly file: OpenedFileContent }
+  | {
+      readonly ok: true
+      readonly file: OpenedFileContent
+      /**
+       * OP-11 of table T-024a: how many of the files handed over in the same
+       * act were NOT accepted. The row keeps the first one and puts a MUST on
+       * saying that the rest were left, and only the side that saw the whole
+       * hand-over can count them.
+       *
+       * ⚠️ Absent means none were left. It is optional rather than always
+       * stated because a route that can only ever carry one file has nothing
+       * to count, and a store that says nothing is asserting exactly that.
+       * ⛔ A store that DOES drop files must state the number: leaving it out
+       * there turns OP-11's MUST into silence, which its MUST NOT forbids.
+       */
+      readonly ignoredFileCount?: number
+    }
   | { readonly ok: false; readonly fault: FileStoreFault }
 
 /**
@@ -144,6 +160,36 @@ export type FileWriting =
   | { readonly ok: true; readonly openedFile: OpenedFileState }
   | { readonly ok: false; readonly fault: FileStoreFault }
 
+/**
+ * What already sits where a chosen write would land.
+ *
+ * ⭐ Two states rather than a nullable byte string, because DI-3 of table T-227
+ * turns on whether the destination was ALREADY THERE, and a file the chooser
+ * has just created carries the same zero bytes as one that was standing empty.
+ * A boolean beside the bytes would leave "empty but occupied" and "occupied
+ * with nothing in it" spelled the same way.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: which of the two a store must
+ * report when it cannot tell them apart. Looked in table T-227 (DI-3 turns on
+ * the destination "already being there" and rules on nothing else), in FR-096,
+ * in table T-024a (OP-1 .. OP-11 are all about the way IN), and in table T-024.
+ * ⚠️ The case is real, not hypothetical: a chooser that creates the file it
+ * names hands back the same zero bytes either way. Chose `occupied`, which is
+ * the side every other row of this table falls to -- an extra question costs one
+ * gesture and a file overwritten in silence cannot be got back -- but the
+ * choice is this file's, not the specification's.
+ */
+export type ChosenWriteDestination =
+  /** Nothing was there before this write. Table T-227 has no question to ask. */
+  | { readonly kind: 'empty' }
+  | {
+      readonly kind: 'occupied'
+      /** The name the person actually chose, which DI-1 compares. */
+      readonly fileName: string
+      /** ⭐ Bytes, for the same reason `OpenedFileContent` carries bytes. */
+      readonly bytes: Uint8Array
+    }
+
 /** One write to a file the person is about to point at. */
 export interface ChosenFileWrite {
   readonly bytes: Uint8Array
@@ -156,6 +202,27 @@ export interface ChosenFileWrite {
    * decides it there.
    */
   readonly shouldBecomeOpenedFile: boolean
+  /**
+   * DI-4 of table T-227 (MUST): asked once, after the person has pointed at a
+   * file and BEFORE anything is written. `false` means write nothing.
+   * ⚠️ `non-pure` where it is implemented, which is the near side of this seam.
+   *
+   * ⛔ THE STORE DOES NOT JUDGE. Whether the destination holds this same
+   * document is DI-1 .. DI-3, and those are the near side's -- `file-gateway.ts`
+   * answers this. All the store owes is the chance to answer, at the one moment
+   * when both the destination and the unwritten bytes exist.
+   *
+   * ⭐ Why a call rather than a value on the request: the file being written
+   * over is not known until the chooser closes, and asking afterwards would
+   * mean asking about a file that has already been destroyed. Handing the
+   * question DOWN keeps FR-096's one entry to one round trip -- see
+   * `writeChosenFile` for the consistency unit R7.4 asks to be stated.
+   *
+   * ⚠️ A `false` answer is `cancelled`, not a failure: the person called the
+   * write off, exactly as they may call the chooser off, and IF-3 keeps
+   * `cancelled` apart so that nothing is told to somebody who is owed nothing.
+   */
+  askToWriteOver(destination: ChosenWriteDestination): Promise<boolean>
 }
 
 export interface FileStore {
@@ -172,6 +239,11 @@ export interface FileStore {
    * ⛔ One file per call. OP-3 of table T-024a asks the person one question
    * about one read content, and OP-8 forbids a second open while one is
    * running, so there is no case here that wants a list.
+   *
+   * ⚠️ OP-11 is the case where several arrive together, and it does NOT want a
+   * list either: the row keeps the FIRST one and has the rest merely reported
+   * as left behind (MUST), because one file is open and the act must not read
+   * as refused (MUST NOT). That report is `ignoredFileCount` on the answer.
    */
   readFileToOpen(route: OpenRoute): Promise<FileReading>
 
@@ -195,6 +267,17 @@ export interface FileStore {
   /** Write over the file that was opened, keeping it open. `non-pure`. */
   overwriteOpenedFile(bytes: Uint8Array): Promise<FileWriting>
 
-  /** Write to a file the person points at. `non-pure`. */
+  /**
+   * Write to a file the person points at. `non-pure`.
+   *
+   * ⭐ THE ORDER IS FIXED, because table T-227 has no meaning in any other:
+   * point at the destination, read what is already there, ask
+   * `ChosenFileWrite.askToWriteOver`, and write only on a `true`.
+   *
+   * ⚠️ R7.4's consistency unit is this ONE call. The destination is read once,
+   * inside it, and the answer to the question is about that reading -- the near
+   * side performs no external read of its own part-way through, and a caller
+   * never sees a half-finished write.
+   */
   writeChosenFile(write: ChosenFileWrite): Promise<FileWriting>
 }

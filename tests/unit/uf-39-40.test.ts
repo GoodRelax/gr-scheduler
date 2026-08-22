@@ -10,10 +10,18 @@
 // ⛔ WRITTEN WITHOUT READING THE UNITS' FUNCTION BODIES
 // (docs/development-rules/04-verification.md, section 1). What was read: docs/spec/
 // for every rule below; the whole of `rasterizer.ts`, which declares types and
-// no function; and of `image-exporter.ts` only its head comment, its two
-// published interfaces (`ExportScene`, `ImageExport`) and the one signature
-// `exportPng(rasterizer, scene)`. Every expected value here comes from a
-// requirement, a table or a generated constant -- never from the code.
+// no function; and of `image-exporter.ts` only its head comment, its three
+// published interfaces (`ExportScene`, `SvgExport`, `ImageExport`) and the two
+// signatures `exportSvg(scene)` and `exportPng(rasterizer, scene)`. Every
+// expected value here comes from a requirement, a table or a generated
+// constant -- never from the code.
+//
+// ⭐ SECOND PASS (CR-196). `exportSvg` is a public entry of PI-21 now, so
+// IO-3's route is reachable on its own and the half of WY-2 that lives inside
+// one unit -- the SVG and the PNG of ONE state being one drawing -- can be
+// judged here. The cases added for it are gathered under
+// "PI-21 exportSvg" and "boundaries of the SVG route" below; nothing above them
+// was rewritten.
 //
 // The rules these cases answer to:
 //   FR-080      the whole screen GRS occupies, shrunk by `exportCanvas`'s width
@@ -47,10 +55,12 @@
 
 import { describe, expect, it } from 'vitest'
 
+import * as imageExporter from '../../src/adapter/image-exporter/image-exporter'
 import {
   exportPng,
+  exportSvg,
   type ExportScene,
-  type ImageExport,
+  type SvgExport,
   type RasterFault,
   type RasterFaultReason,
   type RasterSizePx,
@@ -520,7 +530,7 @@ const scaledRect = (rect: ScreenRect, ratio: number): ScreenRect => ({
 
 /** One finished export, with the scene it was made from, ready to be read. */
 interface Assembled {
-  readonly result: ImageExport
+  readonly result: SvgExport
   readonly scene: ExportScene
   readonly ratio: number
   /** How many times the picture that ARRIVED appears, verbatim. */
@@ -538,7 +548,7 @@ interface Assembled {
 
 const CLIP_BLOCK = /<clipPath((?:[^<>"]|"[^"]*")*)>([\s\S]*?)<\/clipPath>/
 
-const assembledOf = (result: ImageExport, scene: ExportScene): Assembled => {
+const assembledOf = (result: SvgExport, scene: ExportScene): Assembled => {
   const parts = result.svg.split(scene.svg)
   const withoutPicture = parts.join('')
   const clipHit = CLIP_BLOCK.exec(withoutPicture)
@@ -579,6 +589,37 @@ const sceneOf = (
 const exportedOf = async (scene: ExportScene): Promise<Assembled> => {
   const { rasterizer } = watchedRasterizer()
   return assembledOf(await exportPng(rasterizer, scene), scene)
+}
+
+/**
+ * The same reading, taken off IO-3's own entry.
+ *
+ * ⭐ PI-21 publishes `exportSvg` as well since CR-196, and WY-2 of table T-041
+ * judges the SVG and the PNG of one state to be the same drawing -- so every
+ * reading `exportedOf` supports has to hold of this one too.
+ */
+const svgOnlyOf = (scene: ExportScene): Assembled => assembledOf(exportSvg(scene), scene)
+
+/**
+ * A copy of a scene with every object in it frozen.
+ *
+ * ⭐ `@purity pure` (R7.1) says the output is decided by the arguments alone and
+ * that nothing is written. ⚠️ Rule 04, section 1 records a function that named
+ * itself `pure` while rewriting an argument, and a frozen copy is what turns
+ * that into a failing case rather than a silent one: a write into a frozen
+ * object throws under a module's strict mode.
+ */
+const deeplyFrozenCopy = (scene: ExportScene): ExportScene => {
+  const seen = new Set<unknown>()
+  const freeze = (one: unknown): void => {
+    if (one === null || typeof one !== 'object' || seen.has(one)) return
+    seen.add(one)
+    Object.freeze(one)
+    for (const inner of Object.values(one as Record<string, unknown>)) freeze(inner)
+  }
+  const copy = structuredClone(scene) as ExportScene
+  freeze(copy)
+  return copy
 }
 
 const hasRect = (assembled: Assembled, screenRect: ScreenRect): boolean =>
@@ -1501,5 +1542,199 @@ describe('IF-6 -- the seam goes one way, so there is no round trip to test', () 
     })
     await exportPng(watched, TALL_SCENE)
     expect([...new Set(touched)]).toEqual(['rasterizePng'])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// PI-21 `exportSvg` -- IO-3's own entry, and the half of WY-2 that fits in one
+// unit
+//
+// ⭐ WHY THESE CASES EXIST. WY-2 of table T-041 judges "the drawing, once the
+// watermark layer is set aside, to be the same SVG / PNG after normalisation".
+// A whole-product run of that row is out of one unit's reach -- it loads a JSON
+// and performs the fit of FR-055 first -- but the half that says the SVG and
+// the PNG of ONE state are ONE drawing is not: it is exactly the two entries
+// PI-21 publishes answering from one assembly. IO-3 and IO-4 of table T-024 are
+// the two outputs, and IO-3's size is S-81 of table T-204.
+// ---------------------------------------------------------------------------
+
+describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041)', () => {
+  it('GIVEN one scene WHEN both entries run THEN the SVG route and the PNG route answer the same string (WY-2)', async () => {
+    const { rasterizer } = watchedRasterizer()
+    const svgOnly = exportSvg(TALL_SCENE)
+    const both = await exportPng(rasterizer, TALL_SCENE)
+    // ⛔ Not "equal after normalisation" but the SAME string: FR-080 admits
+    // normalisation because two DRAWERS spell a picture differently, and there
+    // is only one drawer here. A difference of any kind would be a second
+    // assembly, which is the thing CR-196 closed.
+    expect(svgOnly.svg).toBe(both.svg)
+    expect(svgOnly.droppedGroupIds).toEqual(both.droppedGroupIds)
+  })
+
+  it('GIVEN one scene WHEN exportPng runs THEN the rasterizer is painted from exportSvg own string (IO-4 from IO-3)', async () => {
+    const { rasterizer, calls } = watchedRasterizer()
+    await exportPng(rasterizer, TALL_SCENE)
+    expect(calls).toHaveLength(1)
+    expect(calls[0]?.svg).toBe(exportSvg(TALL_SCENE).svg)
+  })
+
+  it('GIVEN a scene WHEN exportSvg runs THEN the output is exportCanvas wide and tall (IO-3 of table T-024, S-81)', () => {
+    // Table T-024 IO-3: "SVG / write only / the screen's output / the output
+    // size is S-81 of table T-204."
+    const assembled = svgOnlyOf(TALL_SCENE)
+    expect(assembled.root.tag).toBe('svg')
+    expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
+    expect(num(assembled.root.attrs, 'height')).toBe(SETTINGS.exportCanvas.height)
+    expect(assembled.root.attrs['viewBox']).toBe(
+      `0 0 ${SETTINGS.exportCanvas.width} ${SETTINGS.exportCanvas.height}`,
+    )
+  })
+
+  it('GIVEN a screen taller than S-81 WHEN exportSvg runs THEN it drops the same TaskGroups the PNG route drops (FR-025)', () => {
+    // ⭐ THE DEFECT CR-196 CLOSED, as a case: before the entry existed the SVG
+    // route went through neither table T-076's assembly nor FR-025's cut.
+    const assembled = svgOnlyOf(TALL_SCENE)
+    expect(assembled.result.droppedGroupIds).toEqual(TALL_DROPPED)
+    for (const id of TALL_KEPT) {
+      expect(assembled.texts.map((t) => t.content), id).toContain(`name of ${id}`)
+    }
+    for (const id of TALL_DROPPED) {
+      expect(assembled.texts.map((t) => t.content), id).not.toContain(`name of ${id}`)
+    }
+    expect(assembled.clip, 'the fit clip of FR-025').not.toBeNull()
+    expect((assembled.clip as ScreenRect).y + (assembled.clip as ScreenRect).height).toBeCloseTo(
+      TALL_CUT_AT * RATIO,
+      1,
+    )
+  })
+
+  it('GIVEN the fixed copy of table T-076 WHEN exportSvg assembles the picture THEN all fourteen rows hold', () => {
+    // Chapter 1.9 (:275): a requirement that points at a table is tested from a
+    // copy of that table. The same copy the PNG route is walked with, walked
+    // again through IO-3's entry -- WY-2 leaves no room for the two to differ.
+    const assembled = svgOnlyOf(TALL_SCENE)
+    expect(T_076_ROWS).toHaveLength(14)
+    for (const row of T_076_ROWS) {
+      expect(row.holds(assembled), `${row.id} (${row.expectation}): ${row.part}`).toBe(true)
+    }
+  })
+
+  it('GIVEN the same scene twice WHEN exportSvg runs THEN it answers the same string both times (@purity pure)', () => {
+    // WY-2's premise: the same JSON in the same environment gives the same
+    // picture. A pure entry may not read a clock, a random or a counter --
+    // CS-1 of table T-066 (design :448) says in as many words that reading the
+    // clock in the frame would break WY-2.
+    expect(exportSvg(TALL_SCENE).svg).toBe(exportSvg(TALL_SCENE).svg)
+    expect(exportSvg(sceneOf(viewOf([])))).toEqual(exportSvg(sceneOf(viewOf([]))))
+  })
+
+  it('GIVEN a scene frozen through and through WHEN exportSvg runs THEN it writes into none of it (@purity pure)', () => {
+    const frozen = deeplyFrozenCopy(TALL_SCENE)
+    const before = JSON.stringify(frozen)
+    const answer = exportSvg(frozen)
+    expect(answer.svg).toContain('<svg')
+    expect(JSON.stringify(frozen), 'the scene came back as it went in').toBe(before)
+  })
+
+  it('GIVEN exportSvg WHEN its parameter list is read THEN it takes the scene alone and no output size (FR-025 MUST NOT)', () => {
+    // FR-025 (MUST NOT): the output size is fixed at S-81 and a person is never
+    // asked for it at each export. There is no size to pass, on either entry.
+    expect(exportSvg).toHaveLength(1)
+    expect(exportPng).toHaveLength(2)
+  })
+
+  it('GIVEN a rasterizer that fails WHEN exportPng runs THEN IO-3 picture is still exportSvg own (NT-3a next step)', async () => {
+    // NT-3a of table T-037 (MUST): a failure notice carries what can be done
+    // next, and for `unsupported` that next step is the SVG -- which is only
+    // true if the string handed back is the assembled one.
+    const { rasterizer } = watchedRasterizer({
+      ok: false,
+      fault: { reason: 'unsupported', what: 'no canvas in this host' },
+    })
+    const result = await exportPng(rasterizer, TALL_SCENE)
+    expect(result.png.ok).toBe(false)
+    expect(result.svg).toBe(exportSvg(TALL_SCENE).svg)
+    expect(result.droppedGroupIds).toEqual(exportSvg(TALL_SCENE).droppedGroupIds)
+  })
+})
+
+describe('PI-21 -- what leaves `image-exporter.ts` at run time (Chapter 5.3)', () => {
+  it('GIVEN the public entry WHEN its runtime names are read THEN they are exactly exportSvg and exportPng', () => {
+    // ⚠️ The types PI-21 re-publishes are erased, so only the two entries are
+    // there to count. A third runtime name would be a member table T-064 does
+    // not give this component.
+    expect(Object.keys(imageExporter).sort()).toEqual(['exportPng', 'exportSvg'])
+    expect(typeof exportSvg).toBe('function')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Boundaries of the SVG route: empty, one, null, and the edge of S-81
+// ---------------------------------------------------------------------------
+
+describe('boundaries of the SVG route', () => {
+  it('GIVEN a screen with no rows at all WHEN exportSvg runs THEN it drops nothing and still draws EP-1 and EP-3', () => {
+    const assembled = svgOnlyOf(sceneOf(viewOf([])))
+    expect(assembled.result.droppedGroupIds).toEqual([])
+    expect(assembled.result.svg).toContain(PICTURE)
+    expect(assembled.texts.map((t) => t.content)).toEqual([DOCUMENT_TITLE])
+    expect(hasRect(assembled, REGIONS.appHeader), 'EP-1 band').toBe(true)
+    expect(hasRect(assembled, REGIONS.rowTitlePanel), 'EP-3 panel').toBe(true)
+  })
+
+  it('GIVEN exactly one row WHEN exportSvg runs THEN its name is written and nothing is dropped', () => {
+    const assembled = svgOnlyOf(
+      sceneOf(
+        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 })]),
+      ),
+    )
+    expect(assembled.result.droppedGroupIds).toEqual([])
+    expect(assembled.texts.map((t) => t.content)).toContain('name of only')
+  })
+
+  it('GIVEN a row whose label is null WHEN exportSvg runs THEN no name is written for it', () => {
+    const assembled = svgOnlyOf(
+      sceneOf(
+        viewOf([
+          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 }, null),
+        ]),
+      ),
+    )
+    expect(assembled.texts.map((t) => t.content)).toEqual([DOCUMENT_TITLE])
+    expect(assembled.result.droppedGroupIds).toEqual([])
+  })
+
+  it('GIVEN a document with no title WHEN exportSvg runs THEN nothing is written in its place (FR-035 speaks of the tab)', () => {
+    const assembled = svgOnlyOf(
+      sceneOf(viewOf(TALL_ROWS, { appHeaderItems: { ...APP_HEADER_ITEMS, documentTitle: null } })),
+    )
+    expect(assembled.texts.map((t) => t.content)).toEqual(TALL_KEPT.map((id) => `name of ${id}`))
+    expect(hasRect(assembled, REGIONS.appHeader), 'the band is still drawn').toBe(true)
+  })
+
+  it('GIVEN an empty picture string WHEN exportSvg runs THEN the S-81 frame and the cut still come back', () => {
+    const answer = exportSvg(sceneOf(viewOf(TALL_ROWS), { svg: '' }))
+    expect(answer.svg).toContain('<svg')
+    expect(answer.droppedGroupIds).toEqual(TALL_DROPPED)
+  })
+
+  it('GIVEN a row whose bottom lands exactly on S-81 edge WHEN exportSvg runs THEN it is kept and the next is dropped', () => {
+    // FR-025 (MUST) drops the `TaskGroup` that STRADDLES the lower edge; a row
+    // whose bottom IS the edge does not straddle it.
+    const rows = [
+      rowOf('e1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: FIT_LIMIT - 100 }),
+      rowOf('e2', 1, { x: 0, y: FIT_LIMIT, width: SETTINGS.rowTitlePanelWidth, height: 40 }),
+    ]
+    const answer = exportSvg(sceneOf(viewOf(rows)))
+    expect(answer.droppedGroupIds).toEqual(['e2'])
+  })
+
+  it('GIVEN the very first row already straddles the edge WHEN exportSvg runs THEN every row is reported dropped', () => {
+    const rows = [
+      rowOf('a1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 600 }),
+      rowOf('a2', 1, { x: 0, y: 700, width: SETTINGS.rowTitlePanelWidth, height: 40 }),
+    ]
+    const answer = exportSvg(sceneOf(viewOf(rows)))
+    expect(answer.droppedGroupIds).toEqual(['a1', 'a2'])
   })
 })

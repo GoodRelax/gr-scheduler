@@ -30,6 +30,7 @@ import collections
 import io
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -43,6 +44,7 @@ LAYOUT = os.path.join(ROOT, 'src', 'entity', 'layout-engine')
 # consumer is an Adapter unit, and the constant goes where its consumer is --
 # see the note on NOT_STORED_TARGETS.
 ADAPTER = os.path.join(ROOT, 'src', 'adapter')
+USECASE = os.path.join(ROOT, 'src', 'use-case')
 
 # ⚠️ The marker carries NO path. It used to read "<generated from
 # docs/spec/_assets/source/erd.json …>", and when CR-175 moved the manuscript
@@ -342,10 +344,14 @@ def derived_defaults(manuscript, direct):
     """Every default a rule computes out of another key.
 
     ⭐ The rule stays in the manuscript -- `index` for S-3, which follows
-    fontScale, and `from`/`times`/`plus` for S-2, which is three lines of the
-    ruler plus its padding. Evaluating it here rather than writing the answer
-    down keeps the number in one place; a second copy is what CR-175 and
-    CR-178 were spent removing.
+    fontScale, and `from`/`times`/`plusFrom`/`plusTimes` for S-2, which is
+    three rows of the ruler plus three rows' worth of its padding. Evaluating
+    it here rather than writing the answer down keeps the number in one place;
+    a second copy is what CR-175 and CR-178 were spent removing.
+
+    ⚠️ `plusFrom` names a key where `plus` would have written a number.
+    CR-200 needed it: once the padding became a settings row of its own
+    (S-136), a literal 6 here would have been that row written a second time.
 
     ⚠️ Resolved by repeated passes, because one derived key may feed another
     (S-2 reads S-3). A pass that settles nothing means the rest cannot be
@@ -368,8 +374,16 @@ def derived_defaults(manuscript, direct):
             else:
                 base = known.get(cell['from'])
                 value = None
-                if isinstance(base, (int, float)):
-                    value = base * cell.get('times', 1) + cell.get('plus', 0)
+                added = cell.get('plus', 0)
+                if 'plusFrom' in cell:
+                    # ⛔ Named, not resolved yet, is NOT zero: adding nothing
+                    # would settle the key at a wrong value and the pass that
+                    # could have settled it right would never run again.
+                    other = known.get(cell['plusFrom'])
+                    added = (cell.get('plus', 0) + other * cell.get('plusTimes', 1)
+                             if isinstance(other, (int, float)) else None)
+                if isinstance(base, (int, float)) and added is not None:
+                    value = base * cell.get('times', 1) + added
             if value is None:
                 continue
             if isinstance(value, float) and value == int(value):
@@ -503,10 +517,28 @@ READ_WHERE_IT_STANDS = [
     ' * value either -- so there is no door to pass it through. ⛔ It is',
     ' * still not a document setting and must not become one.',
 ]
+# ⭐ Three rows of table T-206 hold no value of their own: their 値 column NAMES
+# a row of table T-201 instead (S-96 -> S-53, S-97 -> S-54, S-98 -> S-55). The
+# zoom trio is stated once, among the drawing settings, and table T-206 records
+# only that the document does not keep it.
+#
+# ⛔ Before this, nothing carried them into src/ at all, and that single gap
+# stopped the whole of FT-1: `InputContext.zoomStep` is S-53 and
+# `SettingsLimits.zoomMin` / `zoomMax` are S-54 / S-55, so no member of PI-18
+# could be called and no pointer or key ever reached the application.
+ARRIVES_AS_ARGUMENT_ZOOM = ARRIVES_AS_ARGUMENT + [
+    ' *',
+    ' * ⚠️ Table T-206 states these by POINTING at table T-201 (S-96 names',
+    ' * S-53, and so on), so both row IDs appear below: the first is where',
+    ' * the specification says the document does not keep the value, and',
+    ' * the second is where the value itself stands.',
+]
 NOT_STORED_TARGETS = {
     'NOT_STORED_SIZES': (['S-90', 'S-92', 'S-93'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
+    'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
+    'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
 
 
@@ -523,6 +555,29 @@ def not_stored_cell(cell):
     return None
 
 
+def pointed_row(cell, everywhere):
+    """The row a table T-206 cell NAMES, when it states no value of its own.
+
+    ⭐ S-96 says `S-53` rather than 1.1: the zoom trio is stated once, among
+    the drawing settings, and table T-206 records only that the document does
+    not keep it. Following the pointer keeps the number in that one place.
+
+    ⚠️ Nothing is guessed. A cell that is not exactly one row ID in backticks
+    is left alone, and a row ID that resolves to nothing is an error at the
+    call site rather than a silent zero.
+    """
+    if not isinstance(cell, str):
+        return None, None
+    named = cell.strip().strip('`')
+    if not re.match(r'^S-\d+[a-z]?$', named):
+        return None, None
+    row = everywhere.get(named)
+    if row is None:
+        raise SystemExit('table T-206 names row %s, which settings.json has not'
+                         % named)
+    return named, row.get('default')
+
+
 def not_stored_block(name):
     """The rows of table T-206 one unit needs, by row ID.
 
@@ -537,23 +592,41 @@ def not_stored_block(name):
     if not block:
         raise SystemExit('settings.json holds no table T-206')
     by_id = {r['id']: r for r in block[0]['rows']}
+    everywhere = {}
+    for other in doc['blocks']:
+        for row in other.get('rows', []) if other.get('kind') == 'table' else []:
+            everywhere.setdefault(row['id'], row)
     rows, seam = NOT_STORED_TARGETS[name]
     got = []
     for row_id in rows:
         if row_id not in by_id:
             raise SystemExit('table T-206 has no row %s' % row_id)
         raw = by_id[row_id].get('default')
+        # ⛔ The KEY stays the table T-206 row ID even when the value stands
+        # elsewhere: that row is where the specification says the document does
+        # not keep it, which is what this constant is about. The row it points
+        # at rides in the comment instead -- a key of "S-96 -> S-53" would put
+        # an arrow in every call site.
+        named, stated = pointed_row(raw, everywhere)
+        if named is not None:
+            raw = stated
         cell = not_stored_cell(raw)
         if cell is None:
             raise SystemExit(
                 'table T-206 row %s holds no machine value, so %s cannot be '
-                'generated. Give the row a num / pair / lit cell, or take the '
-                'row out of NOT_STORED_TARGETS.' % (row_id, name))
+                'generated. Give the row a num / pair / lit cell, name a row '
+                'that has one, or take the row out of NOT_STORED_TARGETS.'
+                % (row_id, name))
         # ⛔ The unit rides along. Without it S-95 generates a bare 64 and the
         # reader cannot tell megabytes from bytes -- the exact defect CR-173
         # closed for S-113, which was a boundary that moved in silence.
         unit = (raw.get('suffix') or '').strip()
-        got.append((row_id, cell[0], cell[1], unit))
+        note = row_id
+        if unit:
+            note += ', in %s' % unit
+        if named is not None:
+            note += ', stated at %s' % named
+        got.append((note, cell[0], cell[1], row_id))
     out = ['/**',
            ' * The values table T-206 states that this unit needs, by row ID.',
            ' *',
@@ -564,11 +637,11 @@ def not_stored_block(name):
            ' *'] + list(seam) + [
            ' */',
            'export const %s: {' % name]
-    for row_id, _literal, ts, unit in got:
-        out.append('  /** %s%s */' % (row_id, (', in %s' % unit) if unit else ''))
+    for note, _literal, ts, row_id in got:
+        out.append('  /** %s */' % note)
         out.append("  readonly '%s': %s" % (row_id, ts))
     out.append('} = {')
-    for row_id, literal, _ts, _unit in got:
+    for _note, literal, _ts, row_id in got:
         out.append("  '%s': %s," % (row_id, literal))
     out.append('}')
     return '\n'.join(out)
@@ -598,6 +671,55 @@ BOUNDS_NOTE = [
     '  Record<string, { readonly min?: number; readonly max?: number }>',
     '> = {',
 ]
+
+
+DERIVED_NOTE = [
+    '/**',
+    ' * The defaults settings.json states as a rule over OTHER keys, printed as',
+    ' * the rule rather than as its answer.',
+    ' *',
+    ' * ⭐ SETTINGS_DEFAULTS holds what such a key works out to while the keys it',
+    ' * reads are still at THEIR defaults. That answer goes stale the moment one',
+    ' * of them is edited, and S-2 follows S-3 by FR-039, so the band height has',
+    ' * to be worked out again every time the ruler type changes.',
+    ' *',
+    ' * ⛔ Before CR-200 there was nowhere to read the rule from, so',
+    ' * edit-document-settings.ts wrote S-2\'s arithmetic out a second time --',
+    ' * with the padding as a bare 6, which no longer even names a value.',
+    ' *',
+    ' * ⚠️ Only the `from` family is here. S-3\'s `index` rule is not: the one',
+    ' * caller that needs it already reads fontScaleSizes directly, and a second',
+    ' * path to the same answer is what this constant exists to prevent.',
+    ' *',
+    ' * ⭐ `as const` is deliberate: it makes every key name a literal type, so',
+    ' * `settings[rule.from]` type checks and a key renamed in the manuscript',
+    ' * fails the build instead of reading undefined at run time.',
+    ' *',
+    ' * The value is `from x times + plus + plusFrom x plusTimes`, and a rule',
+    ' * that names no second key states plusFrom as null.',
+    ' */',
+    'export const SETTINGS_DERIVED = {',
+]
+
+
+def derived_rules(manuscript):
+    """Print each `from`-shaped default as the rule the manuscript states.
+
+    ⭐ Every field is written out, defaults included, so a reader of the
+    generated file never has to know which ones may be left off.
+    """
+    out = []
+    for key in sorted(manuscript):
+        cell = manuscript[key]['default']
+        if not isinstance(cell, dict) or 'from' not in cell:
+            continue
+        named = cell.get('plusFrom')
+        out.append(
+            "  '%s': { from: '%s', times: %s, plus: %s, plusFrom: %s, "
+            "plusTimes: %s },"
+            % (key, cell['from'], cell.get('times', 1), cell.get('plus', 0),
+               ("'%s'" % named) if named else 'null', cell.get('plusTimes', 1)))
+    return out
 
 
 def settings_block(_erd):
@@ -688,6 +810,8 @@ def settings_block(_erd):
     body.append('\n'.join(DEFAULTS_NOTE + defaults + ['}']))
 
     body.append('\n'.join(BOUNDS_NOTE + rows + ['}']))
+    body.append('\n'.join(DERIVED_NOTE + derived_rules(manuscript)
+                          + ['} as const']))
     return '\n\n'.join(body)
 
 
@@ -725,6 +849,16 @@ TARGETS = [
     (os.path.join(ADAPTER, 'screen-renderer', 'screen-frame.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PANEL_DIVIDER_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ The zoom trio, split by consuming unit the way the note above requires:
+    # `InputContext.zoomStep` is read by the translator, `SettingsLimits`
+    # zoomMin / zoomMax by the edit path. ⛔ One shared constant would hand each
+    # unit a value belonging to the other.
+    (os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP'),
+     ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
+    (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
+     ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
 ]
 
 

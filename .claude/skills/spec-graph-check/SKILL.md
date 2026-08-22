@@ -193,6 +193,13 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
   assert each matches exactly once.
 - After inserting a table, check for two consecutive blank lines — StrictDoc
   rejects them and the export failure names no line number.
+- **Leave the space before a row's closing `|`.** Appending to the last cell of
+  a table T-064 row and ending it `…）|` instead of `…） |` made
+  `audit-ch5.py` read the row as declaring no members at all, so
+  `DocumentSettings` became an "edge target with no declared member".
+  **All 26 checks stayed green** — only the Chapter 5 self-audit saw it, and
+  only because it parses the published-entries cell. Run `audit-ch5.py` after
+  touching any cell of T-064, T-065 or T-075.
 - When resolving a contradiction, the reflex is to write the same explanation
   into both places. That is the single most common way new duplication is
   created. Decide one owner; the other side points.

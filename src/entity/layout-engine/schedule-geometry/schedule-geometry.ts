@@ -54,11 +54,15 @@ import {
   type Task,
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
-import type {
-  MilestoneGlyph,
-  ScheduleLayout,
-  ShapeKind,
-  TaskPlacement,
+import {
+  // PI-5's own member (table T-064). ⛔ Not written a second time here: two
+  // copies of the axis part company the moment S-77 or FR-017 moves, and this
+  // file measures against the very layout that one was built from.
+  xFromDay,
+  type MilestoneGlyph,
+  type ScheduleLayout,
+  type ShapeKind,
+  type TaskPlacement,
 } from '../schedule-layout/schedule-layout'
 import type { ScreenRect, ScreenRegions } from '../screen-regions/screen-regions'
 
@@ -169,13 +173,6 @@ export interface ScheduleGeometry {
   readonly highlightBoxes: readonly HighlightGeometry[]
 }
 
-const MS_PER_DAY = 86400000
-
-/** @purity pure */
-function serialOf(day: CalendarDay): number {
-  return Math.floor(Date.UTC(day.year, day.month - 1, day.day) / MS_PER_DAY)
-}
-
 /** @purity pure */
 function point(x: number, y: number): Point {
   return { x, y }
@@ -196,13 +193,6 @@ interface GeometryInputs {
   readonly statusDate: CalendarDay | null
   readonly showPlan: boolean
   readonly showActual: boolean
-}
-
-/** @purity pure */
-function xOfDay(layout: ScheduleLayout, day: CalendarDay): number {
-  const origin = layout.originDay
-  if (origin === null) return layout.originX
-  return layout.originX + (serialOf(day) - serialOf(origin)) * layout.pxPerDay
 }
 
 // ---------------------------------------------------------------- shapes ----
@@ -467,24 +457,61 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
 }
 
 /**
+ * The right end LF-11 measures from -- the bar FR-013 names -- or null when
+ * this Task draws nothing that has one.
+ *
+ * ⭐ ONE rule with four arms, because FR-013 and GR-7 between them state one.
+ * FR-013's STATEMENT names the actual bar, and the plan bar only while the
+ * plan alone is displayed (MUST). Table T-023d's GR-7 names the two cases
+ * that have no actual bar to point at: a Task not started goes to the outside
+ * of the end-point grab, and a milestone to the outside of its figure.
+ *
+ * ⛔ The plan bar is NOT a candidate while the actual is on screen. Taking
+ * whichever of the two reached further right put the marker at the end of the
+ * plan on every Task running behind schedule -- the further behind, the
+ * further the marker walked from the actual bar it is named against.
+ *
+ * ⚠️ A milestone has no actual bar at all (GR-15 says GR-5, GR-6 and GR-17 do
+ * not apply to one), so GR-7 sends it to its figure and LF-10 makes the plan
+ * figure's right edge that figure's outside. ⛔ NOT DECIDED BY THE
+ * SPECIFICATION: which figure GR-7 means while the plan is not drawn at all
+ * (`planActualDisplay` is actual-only, so only the actual figure is on
+ * screen). LF-10 gives the actual figure a centre and no right end, so the
+ * plan figure is the only reading table T-221 supports, and it is taken here.
+ *
+ * A Task not started has no actual bar either, so FR-043's two dummies stand
+ * in for that bar's ends and the marker hangs off GR-17 rather than off the
+ * plan -- which is why FR-013 draws it faint beside the faint dummies rather
+ * than out at the end of the plan bar.
+ *
+ * @purity pure
+ */
+function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement,
+                       dummies: readonly DummyGeometry[]): number | null {
+  const planRight = placed.x + placed.width
+  // FR-013's MUST: the plan alone is being displayed.
+  if (!inputs.showActual) return inputs.showPlan ? planRight : null
+  // GR-7's milestone clause.
+  if (placed.shapeKind === 'milestone') return planRight
+  // GR-7's not-started clause.
+  const endpoint = dummies.find((one) => one.grab === 'GR-17')
+  if (endpoint !== undefined) return endpoint.at.x
+  // FR-013's own first clause, and the only arm that reads the actual bar.
+  if (placed.actualX !== null) return placed.actualX + placed.actualWidth
+  // Nothing is started and FR-043 drew no dummy, which happens only where the
+  // Task holds no start date -- and FR-013 forbids such a Task from reaching
+  // the screen at all (MUST NOT), so there is no place to name here.
+  return null
+}
+
+/**
  * LF-11's square, and the symbol it carries.
  *
- * FR-013 anchors on the actual bar's right end, and on the plan bar's right end
- * while only the plan is displayed (MUST). Table T-023d's GR-7 states the two
- * remaining places in its own words: 実績バーの右端の外側。未着手のときは終了点の
- * 掴みシロの外側、マイルストーンのときは図形の外側.
- *
- * A milestone needs no branch -- LF-10 makes its plan figure's right edge the
- * outside of the figure already. A Task not started does: it has no actual bar,
- * so FR-043's two dummies stand in for that bar's ends -- 掴みシロは実績バーの
- * 両端に、マーカーはその右端の外側にあり、位置が重ならない -- and the marker
- * hangs off GR-17 rather than off the plan, which is why FR-013 draws it faint
- * beside the faint dummies rather than out at the end of the plan bar.
- *
  * ⛔ The clearance is `markerGap` alone, which is every distance the document
- * holds: S-23 calls it 端点の掴み代と重ならない最小距離 and forbids going any
- * further. The dummy's own grab allowance is S-93 (30 x 20px), and table T-206
- * keeps it OUT of the document on purpose -- it reaches ItemHitArea as an
+ * holds: S-23 states it as the least distance that does not overlap the end
+ * point's grab allowance, and forbids going any further. The dummy's own grab
+ * allowance is the one S-93 holds, and table T-206 keeps it OUT of the
+ * document on purpose -- it reaches ItemHitArea as an
  * argument and never reaches this layer -- so where that allowance is wider
  * than `markerGap` plus the marker's radius, GR-7 still covers part of GR-17
  * and GR-7 is the higher row. Squaring S-23 against S-93 changes the
@@ -496,25 +523,15 @@ function markerOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   dummies: readonly DummyGeometry[]): MarkerGeometry | null {
   const settings = inputs.settings
   if (!settings.progressMarkerVisible) return null
+  const anchorX = markerAnchorX(inputs, placed, dummies)
+  if (anchorX === null) return null
   const radius = settings.markerSize / 2
-  const middle = placed.y + placed.planHeight / 2
-  const symbol = progressSymbolOf(task, inputs.statusDate)
-
-  // GR-7's 未着手 clause. A milestone carries GR-18 and no GR-17 (it holds no
-  // actual bar at all -- GR-15), so the milestone clause falls through to the
-  // figure's own right edge below, and so does FR-013's plan-only MUST.
-  const endpoint = inputs.showActual ? dummies.find((one) => one.grab === 'GR-17') : undefined
-  if (endpoint !== undefined) {
-    return { symbol, centre: point(endpoint.at.x + settings.markerGap + radius, middle), radius }
+  return {
+    symbol: progressSymbolOf(task, inputs.statusDate),
+    // LF-11 puts the vertical on the middle of the PLAN bar.
+    centre: point(anchorX + settings.markerGap + radius, placed.y + placed.planHeight / 2),
+    radius,
   }
-
-  const right: number[] = []
-  if (inputs.showPlan) right.push(placed.x + placed.width)
-  if (inputs.showActual && placed.actualX !== null) {
-    right.push(placed.actualX + placed.actualWidth)
-  }
-  if (right.length === 0) return null
-  return { symbol, centre: point(Math.max(...right) + settings.markerGap + radius, middle), radius }
 }
 
 /** LF-13. @purity pure */
@@ -768,8 +785,8 @@ function dummiesOf(inputs: GeometryInputs, task: Task,
   if (start === null) return []
   const end = dateFromWorkingDays(inputs.within, start, inputs.settings.actualInitialDuration)
   return [
-    { grab: 'GR-9', at: point(xOfDay(inputs.layout, start), middle) },
-    { grab: 'GR-17', at: point(xOfDay(inputs.layout, end), middle) },
+    { grab: 'GR-9', at: point(xFromDay(inputs.layout, start), middle) },
+    { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle) },
   ]
 }
 
@@ -865,7 +882,7 @@ function vertexXOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   const before = (text: string | null): number | null => {
     const day = dayOf(text)
     if (day === null || compareDays(day, statusDate) >= 0) return null
-    return xOfDay(inputs.layout, day)
+    return xFromDay(inputs.layout, day)
   }
   switch (planActualState(task)) {
     case 'finished':
@@ -896,7 +913,7 @@ function progressLineOf(inputs: GeometryInputs): Path {
   const last = layout.rows[layout.rows.length - 1]
   if (first === undefined || last === undefined) return []
 
-  const baseX = xOfDay(layout, statusDate)
+  const baseX = xFromDay(layout, statusDate)
   const half = layout.rectangleHeight / 2
   // Bucketed by row AND lane in one pass. Bucketing by row alone leaves every
   // lane walking its whole row and skipping the other lanes' Tasks, which is
@@ -914,7 +931,16 @@ function progressLineOf(inputs: GeometryInputs): Path {
   const points: Point[] = [point(baseX, first.y - settings.progressLineOverhang)]
   for (const row of layout.rows) {
     const lanes = byLane.get(row.groupId)
-    row.stackTops.forEach((top, lane) => {
+    // ⛔ NOT `stackTops`'s own order. That array is indexed by lane, and ST-5
+    // lets S-58 -- whose default is the one that does it -- put lane 0 at the
+    // BOTTOM of the band, after which it DESCENDS in y. `RowPlacement` says so
+    // where it declares the member. Walking it by index sent the line down,
+    // back up and down again inside one row, and FR-014 asks for a single
+    // unbroken polyline running from its top end to its bottom end.
+    const lanesByTop = row.stackTops
+      .map((top, lane) => ({ top, lane }))
+      .sort((a, b) => a.top - b.top)
+    for (const { top, lane } of lanesByTop) {
       // Table T-022: one vertex per lane, and the most delayed -- the leftmost
       // -- wins when the lane holds more than one Task. A lane with none
       // passes through the status date so the line never breaks.
@@ -926,7 +952,7 @@ function progressLineOf(inputs: GeometryInputs): Path {
         if (vertex !== null && (x === null || vertex < x)) x = vertex
       }
       points.push(point(x ?? baseX, top + half))
-    })
+    }
   }
   points.push(point(baseX, last.y + last.height + settings.progressLineOverhang))
   return points
@@ -960,8 +986,8 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
       (box.bottomGroupId === null ? undefined : rowById.get(box.bottomGroupId)) ??
       layout.rows[layout.rows.length - 1]
     if (top === undefined || bottom === undefined) continue
-    const x0 = xOfDay(layout, from)
-    const x1 = xOfDay(layout, to)
+    const x0 = xFromDay(layout, from)
+    const x1 = xFromDay(layout, to)
     const y = Math.min(top.y, bottom.y)
     out.push({
       id: box.id,
@@ -1025,7 +1051,7 @@ export function geometryFromLayout(
       inputs.statusDate === null
         ? null
         : {
-            x: xOfDay(layout, inputs.statusDate),
+            x: xFromDay(layout, inputs.statusDate),
             top: regions.rowArea.y,
             bottom: regions.rowArea.y + regions.rowArea.height,
           },

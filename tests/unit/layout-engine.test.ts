@@ -570,6 +570,12 @@ const geometryOf = (
 /** The x of a day index, at pxPerDay 6 from a Row Area starting at 170. */
 const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6
 
+// LF-11 places the marker `markerGap` past the right end of the bar FR-013
+// names, as a square of side `markerSize`, so its CENTRE stands this far past
+// that end. Read from the generated defaults (S-23 = 4, S-22 = 16) rather than
+// re-typed, so moving either value moves these cases with it.
+const MARKER_OFFSET = SETTINGS_DEFAULTS.markerGap + SETTINGS_DEFAULTS.markerSize / 2
+
 /** One row holding the tasks given, with a shape chosen for each. */
 const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, unknown>[]): Schedule =>
   scheduleOf({
@@ -715,15 +721,39 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     expect(symbolOf({ actualStart: '2026-01-01' }, null)).toBe('PM-1')
   })
 
-  it('LF-11 puts the marker markerGap past the rightmost bar, on the plan centre', () => {
+  it('LF-11 puts the marker markerGap past the ACTUAL bar, on the plan bar centre', () => {
     const schedule = oneRow([
       spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
     ])
     const marker = geometryOf(schedule).tasks[0]!.marker!
-    // The plan ends at day 20 and the actual at day 7, so the plan is rightmost.
-    expect(marker.centre.x).toBeCloseTo(xOf(20) + 4 + 8, 6)
+    // FR-013: 実績バーの右端の外側に進捗マーカーを出し -- the marker hangs off
+    // the ACTUAL bar. ⛔ Not "the rightmost bar": FR-013 names exactly one
+    // exception, 予定だけを表示しているとき, and this Task shows both bars.
+    // Five worked days from Thursday 2026-01-01 end the actual at day 7 (RV-1)
+    // while the plan runs to day 20, so the two candidates are 78px apart and
+    // the case can tell them apart.
+    expect(marker.centre.x).toBeCloseTo(xOf(7) + MARKER_OFFSET, 6)
+    // LF-11: 縦は予定バーの中心 -- the plan's centre, not the actual's.
     expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + 14, 6)
-    expect(marker.radius).toBe(8)
+    // LF-11: markerSize を一辺とする正方形.
+    expect(marker.radius).toBe(SETTINGS_DEFAULTS.markerSize / 2)
+  })
+
+  it('FR-013 moves the marker to the plan bar when only the plan is displayed', () => {
+    // 予定だけを表示しているときは、予定バーの右端の外側に出すこと（MUST）--
+    // the one exception FR-013 names, keyed on S-59, and the same form as
+    // FR-009's 予定を表示していないときに限り、実績の幾何に付ける.
+    const planOnly = settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      planActualDisplay: 'plan-only', // S-59
+    })
+    const schedule = oneRow([
+      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
+    ])
+    expect(geometryOf(schedule, planOnly).tasks[0]!.marker!.centre.x).toBeCloseTo(
+      xOf(20) + MARKER_OFFSET,
+      6,
+    )
   })
 
   it('GR-7 hangs the marker off the end-point dummy while nothing is started', () => {
@@ -731,8 +761,8 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // started has no actual bar, so FR-043's GR-17 stands in for its right end
     // and the marker leaves the plan's own right end alone.
     const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
-    expect(fresh.marker!.centre.x).toBeCloseTo(fresh.dummies[1]!.at.x + 4 + 8, 6)
-    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(1) + 12, 6)
+    expect(fresh.marker!.centre.x).toBeCloseTo(fresh.dummies[1]!.at.x + MARKER_OFFSET, 6)
+    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(1) + MARKER_OFFSET, 6)
   })
 
   it('GR-7 keeps a milestone on its figure, which has no GR-17 to follow', () => {
@@ -744,7 +774,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     ).tasks[0]!
     expect(milestone.dummies.map((one) => one.grab)).toEqual(['GR-18'])
     // The figure is 42 across and centred on day 10, so its right edge is at 21.
-    expect(milestone.marker!.centre.x).toBeCloseTo(xOf(10) + 21 + 4 + 8, 6)
+    expect(milestone.marker!.centre.x).toBeCloseTo(xOf(10) + 21 + MARKER_OFFSET, 6)
   })
 
   it('S-63 takes the marker away', () => {
@@ -1033,16 +1063,25 @@ describe('ItemHitArea (PI-7)', () => {
     expect(itemAtPointer(geometry, xOf(7), middleY, SLOP)?.grab).toBe('GR-12')
   })
 
-  it('GR-7 takes the marker, which sits outside every bar', () => {
-    // Under way, so FR-013 anchors on the rightmost bar -- the plan, here.
+  it('GR-7 takes the marker markerGap outside the ACTUAL bar, over the plan body', () => {
+    // GR-7: 進捗マーカー -- 実績バーの右端の外側. ⛔ Outside the ACTUAL bar,
+    // which is not "outside every bar": the actual ends at day 7 while the plan
+    // runs to day 20, so the marker lands ON the plan bar. GR-7 stands above
+    // GR-12 in table T-023d, so the marker wins there anyway.
     const running = oneTask({ actualStart: '2026-01-01', actualDuration: 5 })
-    expect(itemAtPointer(running, xOf(20) + 4 + 8, middleY, SLOP)?.grab).toBe('GR-7')
+    expect(itemAtPointer(running, xOf(7) + MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
+    // A whole markerSize further along the same plan body -- clear of the
+    // square -- GR-12 answers, which is what makes the line above a real win.
+    expect(
+      itemAtPointer(running, xOf(7) + MARKER_OFFSET + SETTINGS_DEFAULTS.markerSize, middleY, SLOP)
+        ?.grab,
+    ).toBe('GR-12')
   })
 
   it('GR-7 follows the end-point dummy while the Task is not started', () => {
     // 未着手のときは終了点の掴みシロの外側: the marker leaves the plan's right
     // end and joins the two faint dummies at the head of the bar.
-    expect(itemAtPointer(oneTask(), xOf(1) + 4 + 8, middleY, SLOP)?.grab).toBe('GR-7')
+    expect(itemAtPointer(oneTask(), xOf(1) + MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
   })
 
   it('GR-9 beats GR-17 where the two dummies overlap', () => {
@@ -1054,20 +1093,24 @@ describe('ItemHitArea (PI-7)', () => {
   })
 
   it('holds table T-023d order ACROSS Tasks, not within one', () => {
-    // Two Tasks on ONE lane: ST-10 does not call touching ends an overlap, and
-    // OC-3 keeps the marker out of the occupancy, so Task 1's marker lands
-    // inside Task 2's body. GR-7 is above GR-12, so it wins -- walking Task by
-    // Task instead would answer GR-12 whenever Task 2 was reached first.
-    // Task 1 is under way so that its marker anchors on the plan's right end;
-    // not started, GR-7 would put it back at Task 1's own head instead.
+    // Two Tasks on ONE lane. Task 1's plan stops at day 15 but its actual runs
+    // on to day 20 -- 14 worked days from Thursday 2026-01-01 (RV-1) -- and
+    // Task 2 starts on day 20, which ST-10 does not call an overlap. GR-7 hangs
+    // the marker off the ACTUAL bar's right end (FR-013), and OC-3 keeps it out
+    // of the occupancy, so Task 1's marker lands inside Task 2's BODY. GR-7 is
+    // above GR-12 in table T-023d, so it wins -- walking Task by Task instead
+    // would answer GR-12 whenever Task 2 was reached first.
+    // ⚠️ Task 1 is under way on purpose: 未着手 would send GR-7 back to the
+    // end-point dummy at Task 1's own head, and the two Tasks would not meet.
     const geometry = geometryOf(
       oneRow([
-        spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
+        spanning(1, '2026-01-01', 15, { actualStart: '2026-01-01', actualDuration: 14 }),
         spanning(2, '2026-01-21', 20),
       ]),
     )
-    expect(geometry.tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(20) + 12, 6)
-    expect(itemAtPointer(geometry, xOf(20) + 12, middleY, SLOP)?.grab).toBe('GR-7')
+    // Day 20 is the actual's right end, not the plan's, which stopped at 15.
+    expect(geometry.tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(20) + MARKER_OFFSET, 6)
+    expect(itemAtPointer(geometry, xOf(20) + MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
   })
 
   it('GR-13 takes a dependency line where it runs clear of the bars', () => {

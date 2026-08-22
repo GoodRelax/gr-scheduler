@@ -21,6 +21,35 @@ import {
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { planDocumentChange } from '../../src/use-case/apply-document-change/document-change-plan'
 import { editDocumentSettings, editProject } from '../../src/use-case/edit-document/edit-document'
+import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+
+// Every key DocumentSettings declares, at the value the manuscript states.
+//
+// ⚠️ This used to be a hand-written list of the twenty keys these cases read,
+// each with its default re-typed here. A key added to table T-201 then never
+// reached the fixture: CR-200 added `rulerLabelPad` (S-136), S-2's default
+// started to read it, and the band height came out NaN because the fixture had
+// no such key -- the case below could not have caught the change it exists to
+// catch. tests/unit/layout-engine.test.ts has taken its settings from
+// SETTINGS_DEFAULTS since CR-175 for the same reason; this is that shape.
+//
+// SETTINGS_DEFAULTS writes a nested key with a dot (`fontScaleSizes.M`), so
+// the dotted names are expanded into the nested objects the type declares.
+const DEFAULT_SETTINGS: Record<string, unknown> = (() => {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
+    const dot = key.indexOf('.')
+    if (dot < 0) {
+      out[key] = value
+      continue
+    }
+    const head = key.slice(0, dot)
+    const nest = { ...((out[head] as Record<string, unknown>) ?? {}) }
+    nest[key.slice(dot + 1)] = value
+    out[head] = nest
+  }
+  return out
+})()
 
 // A whole Document is far more than these cases read, so they carry the keys
 // the aggregates actually touch. Same idiom as the other unit files.
@@ -34,25 +63,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       ...((part.schedule as Record<string, unknown>) ?? {}),
     },
     documentSettings: {
-      stackDirection: 'up',
-      planActualDisplay: 'both',
-      guideCursorMode: 'none',
-      dualCursor: null,
-      fontScale: 'M',
-      fontScaleSizes: { S: 12, M: 14, L: 16 },
-      rulerFont: 14,
-      rulerHeight: 48,
-      canvasPadding: 10,
-      rowTitlePanelWidth: 170,
-      propertyPanelWidth: 280,
-      pinnedGroupIds: [],
-      pinnedRowMax: 5,
-      zoomX: 1,
-      zoomY: 1,
-      scrollDate: null,
-      scrollGroupId: null,
-      exportPngScale: 1,
-      dependencyVisible: true,
+      ...DEFAULT_SETTINGS,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
     },
     revisionStamp: { revision: 3, lastEditedBy: 'user', updatedAt: '2026-08-17T00:00:00' },
@@ -268,11 +279,40 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   })
 
   it('FR-039 drags the ruler type and band along with the font scale', () => {
+    // ⛔ FR-039 (MUST): 「文字サイズの変更は目盛にも及ぶこと」 -- the ruler type
+    // and the band height follow it and their saved values are rewritten, and
+    // the requirement names the two rows that hold them: S-3 and S-2.
+    //
+    //   S-3  `fontScaleSizes[fontScale]`                    (S = 12 / M = 14 / L = 16)
+    //   S-2  `rulerFont` x 3 + `rulerLabelPad` x 3          (S = 42 / M = 48 / L = 54)
+    //
+    // Three tiers of type plus three tiers of padding: the band carries "文字と
+    // 余白" for each of its three tiers, and the padding is S-136's own key.
+    // Only the two 3s are transcribed from the cell -- every number they
+    // multiply is read from SETTINGS_DEFAULTS, which `npm run gen` prints from
+    // the manuscript. ⚠️ This case used to spell the whole thing `16 * 3 + 6`,
+    // and that 6 named nothing: when CR-200 replaced it with a key the copy
+    // could only go stale.
+    const sizeL = SETTINGS_DEFAULTS['fontScaleSizes.L'] as number
+    const pad = SETTINGS_DEFAULTS['rulerLabelPad'] as number
     const result = editDocumentSettings(documentOf(), { kind: 'setFontScale', scale: 'L' }, LIMITS)
     expect(result.ok).toBe(true)
     if (!result.ok) return
-    expect(settingsOf(result.document).rulerFont).toBe(16)
-    expect(settingsOf(result.document).rulerHeight).toBe(16 * 3 + 6)
+    expect(settingsOf(result.document).rulerFont).toBe(sizeL)
+    expect(settingsOf(result.document).rulerHeight).toBe(sizeL * 3 + pad * 3)
+
+    // 04-verification section 2: a value that comes from the manuscript is
+    // only shown to ARRIVE when moving it moves the answer. A document that
+    // saved a wider `rulerLabelPad` has to get a band three pixels taller per
+    // pixel of padding; a bare 6 in the arithmetic leaves this flat.
+    const padded = editDocumentSettings(
+      documentOf({ documentSettings: { rulerLabelPad: pad + 2 } }),
+      { kind: 'setFontScale', scale: 'L' },
+      LIMITS,
+    )
+    expect(padded.ok).toBe(true)
+    if (!padded.ok) return
+    expect(settingsOf(padded.document).rulerHeight).toBe(sizeL * 3 + (pad + 2) * 3)
   })
 })
 

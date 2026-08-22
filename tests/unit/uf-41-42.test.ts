@@ -51,10 +51,13 @@ import * as fileGatewayModule from '../../src/adapter/file-gateway/file-gateway'
 import {
   openDocumentFile,
   saveDocumentFile,
+  type ChosenFileSaveRequest,
   type ChosenFileWrite,
+  type ChosenWriteDestination,
   type DocumentFileFault,
   type DocumentFileFaultReason,
   type DocumentFileSaveRequest,
+  type DocumentIdentity,
   type FileReading,
   type FileStore,
   type FileStoreFault,
@@ -63,6 +66,7 @@ import {
   type OpenedDocumentFile,
   type OpenedFileState,
   type OpenRoute,
+  type ProjectIdentity,
   type SaveFileContent,
   type SaveFileForm,
 } from '../../src/adapter/file-gateway/file-gateway'
@@ -917,5 +921,637 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
       kind: 'permissionLost',
       fileName: 'a',
     })
+  })
+})
+
+// ===========================================================================
+// Added for table T-227 (DI-1 .. DI-5), OP-11 of table T-024a and FR-061's
+// MUST NOT. Written against docs/spec only; the unit's body was not read.
+//
+// The rows these cases answer to:
+//   DI-1   same document only where the file name AND `Project.name` AND
+//          `Project.id` all three match (MUST)
+//   DI-2   either side `null` in `Project.name` or `Project.id` -- MUST NOT
+//          call it the same document
+//   DI-3   a destination already there whose content cannot be read as
+//          `GRS JSON` -- MUST NOT call it the same document
+//   DI-4   a destination that cannot be called the same -- ask whether it may
+//          be written over (MUST). The manner is NT-7 of table T-037
+//   DI-5   FR-060's route asks nothing (MUST)
+//   FR-031 asking anywhere a requirement did not ask for it is forbidden
+//          (MUST NOT), so a destination table T-227 calls the same is written
+//          over in silence
+//   OP-11  several files handed over at once: keep the first, say how many
+//          were left (MUST), and MUST NOT let the act read as refused
+//   FR-061 MUST NOT build the autosave key out of DI-1 -- so no identity
+//          leaves this component at all
+//   FR-096 one entry for the export side (MUST), one per format forbidden
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Fixed copies of table T-227, of OP-11 and of the identity they compare.
+// ---------------------------------------------------------------------------
+
+/** Table T-227, its five rows and the subject of each. */
+const T_227_ROWS = [
+  { row: 'DI-1', subject: 'how the same document is recognised' },
+  { row: 'DI-2', subject: 'what null means' },
+  { row: 'DI-3', subject: 'a destination that cannot be read' },
+  { row: 'DI-4', subject: 'the overwrite question' },
+  { row: 'DI-5', subject: 'overwrite-saving the file that was opened' },
+] as const
+
+/** The document being written, with all three of DI-1's values present. */
+const THIS_DOCUMENT: DocumentIdentity = {
+  fileName: 'plan-a.json',
+  projectName: 'Bridge Renewal',
+  projectId: 'P-001',
+}
+
+/** What DI-1 reads out of the destination when the two are one and the same. */
+const SAME_PROJECT: ProjectIdentity = {
+  projectName: THIS_DOCUMENT.projectName,
+  projectId: THIS_DOCUMENT.projectId,
+}
+
+/**
+ * Multi-byte on purpose: DI-3 reads the destination through CN-5's encoding,
+ * and a case that only ever carries ASCII cannot tell one decoding from another.
+ */
+const DESTINATION_TEXT = '{"schemaVersion":"2026-08-18","name":"\u6a4b\u306e\u66f4\u65b0"}'
+
+/**
+ * Table T-227 as a roster: one row per way the destination can stand to the
+ * document being written, and whether DI-1 .. DI-3 leave it the SAME document.
+ *
+ * `destinationProject` is what DI-3's reading of the destination yields, with
+ * `null` standing for the destination DI-3 describes -- one whose content is
+ * not `GRS JSON`.
+ */
+const T_227_SAMENESS = [
+  {
+    row: 'DI-1',
+    why: 'the file name and both project values all match',
+    document: THIS_DOCUMENT,
+    destinationFileName: 'plan-a.json',
+    destinationProject: SAME_PROJECT,
+    isSame: true,
+  },
+  {
+    row: 'DI-1',
+    why: 'the two project values match but the file name does not',
+    document: THIS_DOCUMENT,
+    destinationFileName: 'plan-b.json',
+    destinationProject: SAME_PROJECT,
+    isSame: false,
+  },
+  {
+    row: 'DI-1',
+    why: 'the file name and the id match but Project.name does not',
+    document: THIS_DOCUMENT,
+    destinationFileName: 'plan-a.json',
+    destinationProject: { projectName: 'Tunnel Renewal', projectId: 'P-001' },
+    isSame: false,
+  },
+  {
+    row: 'DI-1',
+    why: 'the file name and the name match but Project.id does not',
+    document: THIS_DOCUMENT,
+    destinationFileName: 'plan-a.json',
+    destinationProject: { projectName: 'Bridge Renewal', projectId: 'P-002' },
+    isSame: false,
+  },
+  {
+    row: 'DI-2',
+    why: 'Project.name is null on the destination side',
+    document: THIS_DOCUMENT,
+    destinationFileName: 'plan-a.json',
+    destinationProject: { projectName: null, projectId: 'P-001' },
+    isSame: false,
+  },
+  {
+    row: 'DI-2',
+    why: 'Project.id is null on the destination side',
+    document: THIS_DOCUMENT,
+    destinationFileName: 'plan-a.json',
+    destinationProject: { projectName: 'Bridge Renewal', projectId: null },
+    isSame: false,
+  },
+  {
+    row: 'DI-2',
+    why: 'Project.name is null on the document side',
+    document: { fileName: 'plan-a.json', projectName: null, projectId: 'P-001' },
+    destinationFileName: 'plan-a.json',
+    destinationProject: { projectName: 'Bridge Renewal', projectId: 'P-001' },
+    isSame: false,
+  },
+  {
+    row: 'DI-2',
+    why: 'Project.id is null on the document side',
+    document: { fileName: 'plan-a.json', projectName: 'Bridge Renewal', projectId: null },
+    destinationFileName: 'plan-a.json',
+    destinationProject: { projectName: 'Bridge Renewal', projectId: 'P-001' },
+    isSame: false,
+  },
+  {
+    row: 'DI-2',
+    why: 'Project.name is null on BOTH sides -- equal is still not the same',
+    document: { fileName: 'plan-a.json', projectName: null, projectId: 'P-001' },
+    destinationFileName: 'plan-a.json',
+    destinationProject: { projectName: null, projectId: 'P-001' },
+    isSame: false,
+  },
+  {
+    row: 'DI-2',
+    why: 'Project.id is null on BOTH sides -- equal is still not the same',
+    document: { fileName: 'plan-a.json', projectName: 'Bridge Renewal', projectId: null },
+    destinationFileName: 'plan-a.json',
+    destinationProject: { projectName: 'Bridge Renewal', projectId: null },
+    isSame: false,
+  },
+  {
+    row: 'DI-1',
+    why: 'the document has never been in a file, so its name matches nothing',
+    document: { fileName: null, projectName: 'Bridge Renewal', projectId: 'P-001' },
+    destinationFileName: 'plan-a.json',
+    destinationProject: SAME_PROJECT,
+    isSame: false,
+  },
+  {
+    row: 'DI-3',
+    why: 'the destination is there but cannot be read as GRS JSON',
+    document: THIS_DOCUMENT,
+    destinationFileName: 'plan-a.json',
+    destinationProject: null,
+    isSame: false,
+  },
+] as const satisfies readonly {
+  readonly row: string
+  readonly why: string
+  readonly document: DocumentIdentity
+  readonly destinationFileName: string
+  readonly destinationProject: ProjectIdentity | null
+  readonly isSame: boolean
+}[]
+
+/**
+ * OP-11 of table T-024a: how many files came in the same hand-over and were
+ * left behind. A store that says nothing left nothing, which `FileReading`
+ * states, so the absent case is one of the rows.
+ */
+const OP_11_COUNTS = [
+  { why: 'one file, so the store counts nothing', reported: undefined, told: 0 },
+  { why: 'one file, and the store says so', reported: 0, told: 0 },
+  { why: 'two arrived, one was left', reported: 1, told: 1 },
+  { why: 'a whole folder was dropped', reported: 11, told: 11 },
+] as const
+
+// ---------------------------------------------------------------------------
+// A stand-in for IF-3 that plays `writeChosenFile` the way its own note fixes:
+// point at the destination, read what is there, ask `askToWriteOver`, and write
+// only on a `true`.
+// ---------------------------------------------------------------------------
+
+interface AskingStandIn {
+  readonly store: FileStore
+  readonly calls: readonly StoreCall[]
+  /** Every answer `askToWriteOver` gave, in the order it gave them. */
+  readonly permissions: readonly boolean[]
+}
+
+/**
+ * IF-3's own wording: a `false` answer is `cancelled`, not a failure -- the
+ * person called the write off exactly as they may call the chooser off.
+ */
+const CANCELLED_BY_THE_ANSWER: FileStoreFault = {
+  reason: 'cancelled',
+  what: 'the overwrite question was answered no, so nothing was written',
+}
+
+function storeAt(
+  destination: ChosenWriteDestination,
+  onWrite: FileWriting = writtenTo({ kind: 'none' }),
+): AskingStandIn {
+  const calls: StoreCall[] = []
+  const permissions: boolean[] = []
+  const store: FileStore = {
+    readFileToOpen: async (route: OpenRoute): Promise<FileReading> => {
+      calls.push({ member: 'readFileToOpen', argument: route })
+      return { ok: false, fault: UNCONFIGURED }
+    },
+    readOpenedFileState: async (): Promise<OpenedFileState> => {
+      calls.push({ member: 'readOpenedFileState', argument: undefined })
+      return { kind: 'none' }
+    },
+    restoreOpenedFilePermission: async (): Promise<OpenedFileState> => {
+      calls.push({ member: 'restoreOpenedFilePermission', argument: undefined })
+      return { kind: 'none' }
+    },
+    overwriteOpenedFile: async (bytes: Uint8Array): Promise<FileWriting> => {
+      calls.push({ member: 'overwriteOpenedFile', argument: bytes })
+      return onWrite
+    },
+    writeChosenFile: async (write: ChosenFileWrite): Promise<FileWriting> => {
+      calls.push({ member: 'writeChosenFile', argument: write })
+      const mayWrite = await write.askToWriteOver(destination)
+      permissions.push(mayWrite)
+      if (!mayWrite) return { ok: false, fault: CANCELLED_BY_THE_ANSWER }
+      calls.push({ member: 'putTheBytesDown', argument: write.bytes })
+      return onWrite
+    },
+  }
+  return { store, calls, permissions }
+}
+
+const occupiedBy = (fileName: string, text: string): ChosenWriteDestination => ({
+  kind: 'occupied',
+  fileName,
+  bytes: encoded(text),
+})
+
+const NOTHING_THERE: ChosenWriteDestination = { kind: 'empty' }
+
+interface ChosenSave {
+  readonly request: DocumentFileSaveRequest
+  /** Every text DI-3's reading was handed, in order. */
+  readonly textsRead: readonly string[]
+  /** How many times DI-4's question was put to the person. */
+  readonly timesAsked: () => number
+}
+
+function chosenSaveOf(
+  identity: DocumentIdentity,
+  destinationProject: ProjectIdentity | null,
+  answer: boolean,
+  overrides: {
+    readonly form?: SaveFileForm
+    readonly content?: SaveFileContent
+    readonly suggestedFileName?: string
+  } = {},
+): ChosenSave {
+  const textsRead: string[] = []
+  let asked = 0
+  const request: ChosenFileSaveRequest = {
+    destination: 'chosenFile',
+    content: overrides.content ?? { text: '{"schemaVersion":"2026-08-18"}' },
+    form: overrides.form ?? 'grsJson',
+    suggestedFileName: overrides.suggestedFileName ?? 'plan-a.json',
+    identity,
+    projectIdentityFromText: (text: string): ProjectIdentity | null => {
+      textsRead.push(text)
+      return destinationProject
+    },
+    confirmOverwrite: async (): Promise<boolean> => {
+      asked += 1
+      return answer
+    },
+  }
+  return { request, textsRead, timesAsked: () => asked }
+}
+
+const readingWithIgnored = (
+  bytes: Uint8Array,
+  fileName: string,
+  ignoredFileCount: number | undefined,
+): FileReading =>
+  ignoredFileCount === undefined
+    ? { ok: true, file: { bytes, fileName } }
+    : { ok: true, file: { bytes, fileName }, ignoredFileCount }
+
+// ---------------------------------------------------------------------------
+
+describe('the rosters for table T-227 and for OP-11 are the ones the tables state', () => {
+  it('GIVEN table T-227 WHEN its rows are counted THEN there are five, DI-1 .. DI-5', () => {
+    expect(T_227_ROWS).toHaveLength(5)
+    expect(T_227_ROWS.map((entry) => entry.row)).toEqual(['DI-1', 'DI-2', 'DI-3', 'DI-4', 'DI-5'])
+  })
+
+  it('GIVEN the sameness roster WHEN it is counted THEN one row is the same document and eleven are not', () => {
+    // A walk that never met the SAME case would prove only that a question is
+    // always asked, which FR-031 forbids just as flatly as DI-4 requires one.
+    expect(T_227_SAMENESS.filter((row) => row.isSame)).toHaveLength(1)
+    expect(T_227_SAMENESS.filter((row) => !row.isSame)).toHaveLength(11)
+    expect(new Set(T_227_SAMENESS.map((row) => row.row))).toEqual(new Set(['DI-1', 'DI-2', 'DI-3']))
+  })
+
+  it('GIVEN OP-11 WHEN the roster is counted THEN the absent count and three stated ones are in it', () => {
+    expect(OP_11_COUNTS).toHaveLength(4)
+    expect(OP_11_COUNTS.filter((row) => row.reported === undefined)).toHaveLength(1)
+  })
+})
+
+describe('table T-227 DI-1 / DI-2 / DI-3 -- when a destination is this same document', () => {
+  it('GIVEN a destination already holding a file WHEN a chosen write is prepared THEN the question is put only where DI-1 .. DI-3 refuse to call it the same (one case walks the roster)', async () => {
+    for (const row of T_227_SAMENESS) {
+      const save = chosenSaveOf(row.document, row.destinationProject, true)
+      const stand = storeAt(occupiedBy(row.destinationFileName, DESTINATION_TEXT))
+
+      const result = await saveDocumentFile(stand.store, save.request)
+
+      expect(save.timesAsked(), `${row.row}: ${row.why}`).toBe(row.isSame ? 0 : 1)
+      expect(stand.permissions, `${row.row}: ${row.why}`).toEqual([true])
+      expect(result.ok, `${row.row}: ${row.why}`).toBe(true)
+    }
+  })
+
+  it('GIVEN a destination table T-227 calls this same document WHEN it is written THEN it is written over in silence (DI-4 asks only where it is not the same; FR-031 MUST NOT)', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, SAME_PROJECT, false)
+    const stand = storeAt(occupiedBy('plan-a.json', DESTINATION_TEXT))
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    // `confirmOverwrite` here would answer `false`; a write that went ahead
+    // proves the question was never put.
+    expect(save.timesAsked()).toBe(0)
+    expect(stand.permissions).toEqual([true])
+    expect(stand.calls.map((call) => call.member)).toEqual(['writeChosenFile', 'putTheBytesDown'])
+    expect(result.ok).toBe(true)
+  })
+
+  it('GIVEN a destination that is already there WHEN DI-3 judges it THEN its bytes are read once, by CN-5 encoding', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, SAME_PROJECT, true)
+    const stand = storeAt(occupiedBy('plan-a.json', DESTINATION_TEXT))
+
+    await saveDocumentFile(stand.store, save.request)
+
+    expect(save.textsRead).toEqual([DESTINATION_TEXT])
+  })
+
+  it('GIVEN a destination that is there but holds no bytes at all WHEN DI-3 judges it THEN it is read as empty text and the question is put (the empty case)', async () => {
+    // `ChosenWriteDestination` keeps `empty` and `occupied` apart precisely
+    // because a file standing there with nothing in it is still a file that is
+    // there. Empty text is not `GRS JSON`, so DI-3 applies (MUST NOT).
+    const save = chosenSaveOf(THIS_DOCUMENT, null, true)
+    const stand = storeAt(occupiedBy('plan-a.json', ''))
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    expect(save.textsRead).toEqual([''])
+    expect(save.timesAsked()).toBe(1)
+    expect(result.ok).toBe(true)
+  })
+
+  it('GIVEN nothing at the destination WHEN a chosen write happens THEN no question is put (table T-227 has none to ask; FR-031 MUST NOT)', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, SAME_PROJECT, false)
+    const stand = storeAt(NOTHING_THERE)
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    expect(save.timesAsked()).toBe(0)
+    expect(save.textsRead).toEqual([])
+    expect(stand.permissions).toEqual([true])
+    expect(result.ok).toBe(true)
+  })
+
+  it('GIVEN a destination whose bytes are not CN-5 encoded at all WHEN it is judged THEN it is not this document and the question is put (DI-3, DI-4 MUST)', async () => {
+    // DI-3: a destination whose content cannot be read as `GRS JSON` MUST NOT
+    // be called the same document, and DI-4 then puts a MUST on asking. Bytes
+    // that CN-5's encoding does not admit cannot be that JSON by any reading.
+    const save = chosenSaveOf(THIS_DOCUMENT, null, true)
+    const stand = storeAt({
+      kind: 'occupied',
+      fileName: 'plan-a.json',
+      bytes: bytesOf([0xff, 0xfe, 0x00]),
+    })
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    expect(save.timesAsked()).toBe(1)
+    expect(result.ok).toBe(true)
+  })
+
+  it('GIVEN a chosen write WHEN nothing at all is being written THEN the destination is still judged (the empty document case)', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, null, true, { content: { text: '' } })
+    const stand = storeAt(occupiedBy('plan-a.json', DESTINATION_TEXT))
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    expect(save.timesAsked()).toBe(1)
+    expect(result.ok).toBe(true)
+  })
+})
+
+describe('table T-227 DI-4 -- the overwrite question and the answer to it', () => {
+  it('GIVEN a destination that is not this document WHEN the person says go on THEN the bytes are put down (DI-4 MUST)', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, null, true)
+    const stand = storeAt(occupiedBy('someone-elses.json', DESTINATION_TEXT))
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    expect(save.timesAsked()).toBe(1)
+    expect(stand.permissions).toEqual([true])
+    expect(stand.calls.map((call) => call.member)).toEqual(['writeChosenFile', 'putTheBytesDown'])
+    expect(result.ok).toBe(true)
+  })
+
+  it('GIVEN a destination that is not this document WHEN the person calls it off THEN nothing is written (the error path)', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, null, false)
+    const stand = storeAt(occupiedBy('someone-elses.json', DESTINATION_TEXT))
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    expect(save.timesAsked()).toBe(1)
+    expect(stand.permissions).toEqual([false])
+    expect(stand.calls.map((call) => call.member)).toEqual(['writeChosenFile'])
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.fault.reason).toBe('cancelled')
+  })
+
+  it('GIVEN one chosen write WHEN the destination is not this document THEN the question is put exactly once, before anything is written', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, null, true)
+    const stand = storeAt(occupiedBy('someone-elses.json', DESTINATION_TEXT))
+
+    await saveDocumentFile(stand.store, save.request)
+
+    expect(save.timesAsked()).toBe(1)
+    const members = stand.calls.map((call) => call.member)
+    expect(members.indexOf('putTheBytesDown')).toBeGreaterThan(members.indexOf('writeChosenFile'))
+  })
+
+  it('GIVEN two chosen writes in a row WHEN each meets a destination that is not this document THEN each is asked about on its own', async () => {
+    for (const answer of [true, false]) {
+      const save = chosenSaveOf(THIS_DOCUMENT, null, answer)
+      const stand = storeAt(occupiedBy('someone-elses.json', DESTINATION_TEXT))
+      await saveDocumentFile(stand.store, save.request)
+      expect(save.timesAsked(), `answer ${String(answer)}`).toBe(1)
+      expect(stand.permissions, `answer ${String(answer)}`).toEqual([answer])
+    }
+  })
+
+  it('GIVEN any of table T-024 file forms WHEN it lands on a destination that is not this document THEN the question is put all the same (one case walks table T-024)', async () => {
+    for (const row of T_024_FILE_ROWS) {
+      const save = chosenSaveOf(THIS_DOCUMENT, null, true, {
+        form: row.form,
+        content: { bytes: bytesOf([1, 2, 3]) },
+      })
+      const stand = storeAt(occupiedBy('someone-elses.json', DESTINATION_TEXT))
+
+      const result = await saveDocumentFile(stand.store, save.request)
+
+      expect(save.timesAsked(), row.id).toBe(1)
+      expect(result.ok, row.id).toBe(true)
+    }
+  })
+})
+
+describe('table T-227 DI-5 -- FR-060 route asks nothing', () => {
+  it('GIVEN a document saved over the file it was opened from WHEN it is written THEN no chosen write and no question happen (DI-5 MUST)', async () => {
+    const stand = storeAt(
+      occupiedBy('someone-elses.json', DESTINATION_TEXT),
+      writtenTo({ kind: 'writable', fileName: 'plan-a.json' }),
+    )
+
+    const result = await saveDocumentFile(
+      stand.store,
+      overwriteRequest('grsJson', { text: '{"schemaVersion":"2026-08-18"}' }),
+    )
+
+    expect(stand.calls.map((call) => call.member)).toEqual(['overwriteOpenedFile'])
+    expect(stand.permissions).toEqual([])
+    expect(result.ok).toBe(true)
+  })
+
+  it('GIVEN FR-060 route WHEN the request is inspected THEN it carries no identity and no question to put (DI-5)', () => {
+    // DI-5's reason: were the question put here it would fire every time the
+    // project was renamed. The arm has nowhere to carry a renaming to compare.
+    const request = overwriteRequest('grsJson', { text: 'A' })
+    expect(Object.keys(request).sort()).toEqual(['content', 'destination', 'form'])
+  })
+
+  it('GIVEN both forms that come in WHEN each is overwrite-saved THEN neither is asked about (one case walks the two)', async () => {
+    for (const row of T_024_FILE_ROWS.filter((one) => one.comesIn)) {
+      const stand = storeAt(NOTHING_THERE, writtenTo({ kind: 'writable', fileName: 'plan-a.json' }))
+      await saveDocumentFile(stand.store, overwriteRequest(row.form, { text: 'A' }))
+      expect(stand.permissions, row.id).toEqual([])
+    }
+  })
+})
+
+describe('OP-11 of table T-024a -- several files handed over at once', () => {
+  it('GIVEN a hand-over the store left files out of WHEN it is read THEN the number left is told (one case walks the roster, MUST)', async () => {
+    for (const row of OP_11_COUNTS) {
+      const stand = storeThat({
+        reading: readingWithIgnored(encoded('{"a":1}'), 'first.json', row.reported),
+      })
+
+      const result = await openDocumentFile(stand.store, 'drop')
+
+      expect(result.ok, row.why).toBe(true)
+      if (result.ok) expect(result.ignoredFileCount, row.why).toBe(row.told)
+    }
+  })
+
+  it('GIVEN files were left behind WHEN the read comes back THEN the one that WAS opened comes with it (MUST NOT read as refused)', async () => {
+    const stand = storeThat({
+      reading: readingWithIgnored(encoded('{"a":1}'), 'first.json', 4),
+    })
+
+    const result = await openDocumentFile(stand.store, 'drop')
+
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.file.fileName).toBe('first.json')
+      expect(result.file.text).toBe('{"a":1}')
+      expect(result.ignoredFileCount).toBe(4)
+    }
+  })
+
+  it('GIVEN the chooser route WHEN files were left behind THEN the count rides out the same way (OP-2 has one entry, not one per route)', async () => {
+    const stand = storeThat({
+      reading: readingWithIgnored(encoded('{"a":1}'), 'first.json', 2),
+    })
+
+    const result = await openDocumentFile(stand.store, 'chooser')
+
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.ignoredFileCount).toBe(2)
+  })
+
+  it('GIVEN the read was refused WHEN the answer comes back THEN it carries no count at all (one case walks the four reasons)', async () => {
+    for (const reason of storeReasons) {
+      const stand = storeThat({
+        reading: { ok: false, fault: { reason, what: `the store said ${reason}` } },
+      })
+
+      const result = await openDocumentFile(stand.store, 'drop')
+
+      expect(result.ok, reason).toBe(false)
+      expect(Object.keys(result).sort(), reason).toEqual(['fault', 'ok'])
+    }
+  })
+
+  it('GIVEN the OP-11 count WHEN it is carried THEN no list of the names that were left goes with it (NT-5 asks the fact, not the names)', async () => {
+    const stand = storeThat({
+      reading: readingWithIgnored(encoded('{"a":1}'), 'first.json', 3),
+    })
+
+    const result = await openDocumentFile(stand.store, 'drop')
+
+    expect(Object.keys(result).sort()).toEqual(['file', 'ignoredFileCount', 'ok'])
+  })
+})
+
+describe('FR-061 (MUST NOT) -- no identity leaves this component to become an autosave key', () => {
+  it('GIVEN a file was opened WHEN the answer comes back THEN it carries the text, the byte count and the name, and no project values', async () => {
+    const stand = storeThat({ reading: readingOf(encoded('{"a":1}'), 'plan-a.json') })
+
+    const file = await opened(stand.store)
+
+    expect(Object.keys(file).sort()).toEqual(['byteLength', 'fileName', 'text'])
+  })
+
+  it('GIVEN a chosen write that was handed an identity WHEN it succeeds THEN the identity is nowhere in the answer', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, SAME_PROJECT, true)
+    const stand = storeAt(
+      occupiedBy('plan-a.json', DESTINATION_TEXT),
+      writtenTo({ kind: 'writable', fileName: 'plan-a.json' }),
+    )
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    expect(result.ok).toBe(true)
+    expect(Object.keys(result).sort()).toEqual(['ok', 'openedFile'])
+    expect(JSON.stringify(result)).not.toContain(String(THIS_DOCUMENT.projectId))
+    expect(JSON.stringify(result)).not.toContain(String(THIS_DOCUMENT.projectName))
+  })
+
+  it('GIVEN the identity it was handed WHEN a chosen write runs THEN the identity is left as it was found', async () => {
+    const identity: DocumentIdentity = { ...THIS_DOCUMENT }
+    const before = structuredClone(identity)
+    const save = chosenSaveOf(identity, null, true)
+    const stand = storeAt(occupiedBy('someone-elses.json', DESTINATION_TEXT))
+
+    await saveDocumentFile(stand.store, save.request)
+
+    expect(identity).toEqual(before)
+  })
+})
+
+describe('FR-096 -- one entry for the export side, table T-227 hanging off it', () => {
+  it('GIVEN the two destinations WHEN each is written THEN both go through the one published function (MUST; one per format MUST NOT)', async () => {
+    const overwrite = storeAt(
+      NOTHING_THERE,
+      writtenTo({ kind: 'writable', fileName: 'plan-a.json' }),
+    )
+    const chosen = chosenSaveOf(THIS_DOCUMENT, SAME_PROJECT, true)
+    const chosenStand = storeAt(occupiedBy('plan-a.json', DESTINATION_TEXT))
+
+    const written = await saveDocumentFile(overwrite.store, overwriteRequest('grsJson', { text: 'A' }))
+    const exported = await saveDocumentFile(chosenStand.store, chosen.request)
+
+    expect(written.ok).toBe(true)
+    expect(exported.ok).toBe(true)
+    expect(Object.keys(fileGatewayModule).sort()).toEqual(['openDocumentFile', 'saveDocumentFile'])
+  })
+
+  it('GIVEN a chosen write WHEN the store is handed the request THEN the suggested name and the T-227 question travel together', async () => {
+    const save = chosenSaveOf(THIS_DOCUMENT, null, true, { suggestedFileName: 'export-1.json' })
+    const stand = storeAt(occupiedBy('someone-elses.json', DESTINATION_TEXT))
+
+    await saveDocumentFile(stand.store, save.request)
+
+    const write = argumentOf(stand.calls, 'writeChosenFile') as ChosenFileWrite
+    expect(write.suggestedFileName).toBe('export-1.json')
+    expect(typeof write.askToWriteOver).toBe('function')
   })
 })

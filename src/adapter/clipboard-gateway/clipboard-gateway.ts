@@ -13,13 +13,25 @@
 // whole of what leaves. What it is for is in `clipboard.ts`, next to the seam
 // that carries it.
 //
-// ⛔ Nothing is composed here. The picture arrives from SvgRenderer and the
+// ⛔ Nothing is composed here. The picture arrives from ImageExporter and the
 // text from DocumentCodec -- the two edges `_source/components.json` draws into
 // this component -- already made. ⚠️ Those are edges of supply, not of import:
 // ADR-001 has the frame computed once and handed to everyone who needs it, so
-// asking SvgRenderer again would both repeat that work and let the picture
-// that goes out drift from the one on the screen -- and sameness is what
+// assembling a picture here would both repeat that work and let the picture
+// that goes out drift from the one an export writes -- and sameness is what
 // FR-025 says of this route.
+//
+// ⭐ WHY THE PICTURE EDGE ENDS AT ImageExporter AND NOT AT SvgRenderer, which
+// is where it used to end. What SvgRenderer publishes is the SCHEDULE's
+// drawing (PI-19 spells it `svgFromSchedule`); it has been through neither
+// table T-076's assembly nor FR-025's cut. FR-025 (:3136) puts this route
+// inside its own scope in as many words -- only the download dialogue is
+// missing from it, not any part of the picture -- and WY-2 of table T-041
+// makes the two routes' pictures the same drawing after normalization. CP-21
+// is the one component that holds that assembly, so the picture handed to
+// `writeClipboard` is the `svg` of ImageExporter's `SvgExport` (PI-21).
+// ⛔ Which is a fact about the caller, and this component cannot check it: a
+// finished string does not say how it was made. Reported, not asserted.
 //
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes

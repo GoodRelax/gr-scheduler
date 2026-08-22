@@ -157,6 +157,8 @@
 | K-1 | タイムルーラー | `pxPerDayAt1x` | 1 日の幅（`zoomX` = 1） |
 | K-2 | タイムルーラー | `rulerHeight` | 目盛の帯の高さ |
 | K-3 | タイムルーラー | `rulerFont` | 目盛の文字 |
+| K-112 | タイムルーラー | `rulerLabelGap` | 目盛ラベルどうしの隙間（横） |
+| K-113 | タイムルーラー | `rulerLabelPad` | 罫線と目盛ラベルの余白（縦） |
 | K-4 | 縦の寸法 | `basePlanHeight` | 予定の縦幅（`zoomY` = 1） |
 | K-5 | 縦の寸法 | `actualOfPlan` | 実績 ÷ 予定 |
 | K-6 | 縦の寸法 | `actualMin` | 実績の縦幅の下限 |

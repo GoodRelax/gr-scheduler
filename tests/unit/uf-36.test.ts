@@ -1794,3 +1794,1033 @@ describe('PI-20 -- the published pair', () => {
     expect(JSON.stringify(frozen)).toBe(before)
   })
 })
+
+// ---------------------------------------------------------------------------
+// The byte order mark, and the two custom-field frames the fade day counts
+// ride in.
+//
+// What was read for these cases:
+//   FR-023   a LEADING byte order mark is accepted and dropped (MUST), and is
+//            not a reason to refuse (MUST NOT)
+//            (docs/spec/01-04-requirements.md:3037). The same paragraph names
+//            the writing side as the OPPOSITE rule and hands it to CN-5.
+//   CN-5     what GRS writes is UTF-8 with no BOM (MUST) (table T-003, :157).
+//   EX-6     the roster of frames is `_source/mspdi-custom-fields.json` and a
+//            free one is looked for IN THAT ORDER (MUST); a frame the import
+//            source uses is not overwritten (MUST NOT); GRS moves to a free one
+//            and TELLS, and when there is no free one it writes nothing and
+//            TELLS (MUST); which side owns a frame is told apart by the
+//            DEFINITION's `Alias` against the roster's (MUST) -- the value side
+//            carries only a number -- and the same test is used on the way in,
+//            a frame that does not match being left uninterpreted in
+//            `carryElements` (MUST). (table T-033, :2951)
+//   EX-8     the definition goes into `Project/ExtendedAttributes` ONCE (MUST),
+//            its children follow the official schema's `xsd:sequence` (MUST),
+//            and when no task has a fade the collection is not written at all
+//            (MUST NOT -- the schema states each `ExtendedAttributes` needs at
+//            least one child, mspdi_pj12.xsd:988). (table T-033, :2953)
+//   EX-1     what goes out is valid against the official schema, whose `Alias`
+//            is `maxLength` 50 (mspdi_pj12.xsd:1055). (table T-033, :2946)
+//   DF-2     an element GRS does not interpret stays in its OWNER's
+//            `carryElements`, in its original form. (table T-053, :2851)
+//   AT-40 /  `Task.fadeInDays` / `Task.fadeOutDays`: whole days, nullable,
+//   AT-41    `Consume`, exchanged through `Task/ExtendedAttribute`, and `null`
+//            is told apart from `0` (_assets/fig-erd-detail.md:342).
+//   NT-1 /   a notice says WHICH item and WHY in words; a notice that comes
+//   NT-5     with accepted work does not stop the work. (table T-037, :3703)
+//
+// No number below is typed. Every one is read out of the MANUSCRIPT
+// `docs/spec/_source/mspdi-custom-fields.json`, and the one bound the official
+// schema owns (`Alias` maxLength) is read out of the XSD. Section 2 of
+// docs/development-rules/04-verification.md asks exactly this of a case whose
+// point is that a manuscript value reaches the code: change one value in the
+// manuscript and these fail.
+// ---------------------------------------------------------------------------
+
+const BYTE_ORDER_MARK = '\uFEFF'
+
+const ROSTER_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'mspdi-custom-fields.json')
+
+interface RosterFrame {
+  readonly name: string
+  readonly fieldId: number
+  readonly prefers: 'fadeInDays' | 'fadeOutDays'
+  readonly alias: string
+}
+
+interface Roster {
+  readonly elemType: { readonly value: number }
+  readonly cfType: { readonly value: number }
+  readonly aliasMaxLength: { readonly value: number }
+  readonly frames: readonly RosterFrame[]
+}
+
+const ROSTER = JSON.parse(readFileSync(ROSTER_PATH, 'utf8')) as Roster
+
+/**
+ * EX-6 tells GRS's own frame from the import source's by the DEFINITION's
+ * `Alias`. The manuscript ships both aliases empty on purpose and says why:
+ * until the user fills one, GRS cannot recognise its own frame and must not
+ * claim one. So while they are empty there is no frame GRS may claim, and the
+ * cases below expect the "nowhere to go" arm of EX-6. Filling an alias in the
+ * manuscript moves these expectations, which is the point of reading it here.
+ */
+const ROSTER_ALIASES_ARE_USABLE = ROSTER.frames.every((each) => each.alias.trim().length > 0)
+
+function rosterFrame(prefers: RosterFrame['prefers']): RosterFrame {
+  const found = ROSTER.frames.find((each) => each.prefers === prefers)
+  if (found === undefined) throw new Error(`the roster names no frame for ${prefers}`)
+  return found
+}
+
+/** The `maxLength` the official schema puts on a definition's `Alias`. */
+function schemaAliasMaxLength(): number {
+  const source = readFileSync(XSD_PATH, 'utf8')
+  const hits = [...source.matchAll(/name="Alias"[\s\S]{0,400}?<xsd:maxLength value="(\d+)"/g)]
+  if (hits.length !== 1) {
+    throw new Error(`the schema states ${hits.length} bounds for Alias, expected 1`)
+  }
+  return Number(hits[0]?.[1] ?? NaN)
+}
+
+const SCHEMA_ALIAS_MAX_LENGTH = schemaAliasMaxLength()
+
+const FADE_IN_DAYS = 3
+const FADE_OUT_DAYS = 2
+
+/** A definition row of `Project/ExtendedAttributes`, in the schema's own order. */
+function definitionXml(fieldId: number, fieldName: string, alias: string | null): string {
+  const aliasPart = alias === null ? '' : `<Alias>${alias}</Alias>`
+  return (
+    `<ExtendedAttribute><FieldID>${fieldId}</FieldID><FieldName>${fieldName}</FieldName>` +
+    `<CFType>${ROSTER.cfType.value}</CFType><ElemType>${ROSTER.elemType.value}</ElemType>` +
+    `${aliasPart}</ExtendedAttribute>`
+  )
+}
+
+/** A value row under a `Task`. The value side carries only a number (xsd:2254). */
+function valueXml(fieldId: number, value: string): string {
+  return `<ExtendedAttribute><FieldID>${fieldId}</FieldID><Value>${value}</Value></ExtendedAttribute>`
+}
+
+/** `projectHeadXml()` with its own `ExtendedAttributes` block swapped out. */
+function headWithDefinitions(definitions: readonly string[]): string {
+  const bare = projectHeadXml()
+    .replace(/\n {2}<ExtendedAttributes>[\s\S]*?<\/ExtendedAttributes>/, '')
+    .trimEnd()
+  if (definitions.length === 0) return bare
+  const rows = definitions.map((each) => `    ${each}`).join('\n')
+  return `${bare}\n  <ExtendedAttributes>\n${rows}\n  </ExtendedAttributes>`
+}
+
+/** One task, with no fade values unless the caller supplies them. */
+function fadeFileText(definitions: readonly string[], taskValues: readonly string[]): string {
+  return mspdi(
+    [
+      headWithDefinitions(definitions),
+      calendarXml(9),
+      `  <Tasks>
+    <Task>
+      <UID>${SAMPLE.taskUid}</UID>
+      <ID>0</ID>
+      <Name>${SAMPLE.taskName}</Name>
+      <OutlineNumber>1</OutlineNumber>
+      <OutlineLevel>1</OutlineLevel>
+      <Start>${SAMPLE.taskStart}</Start>
+      <Finish>${SAMPLE.taskFinish}</Finish>
+      ${taskValues.join('')}
+    </Task>
+  </Tasks>`,
+    ].join('\n'),
+  )
+}
+
+/** The same document with the fade day counts put on the fixture's one task. */
+function withFade(document: Document, inDays: number | null, outDays: number | null): Document {
+  const copy = JSON.parse(JSON.stringify(document)) as {
+    schedule: {
+      tasks: {
+        uid: number
+        fadeInDays: number | null
+        fadeOutDays: number | null
+      }[]
+    }
+  }
+  for (const task of copy.schedule.tasks) {
+    if (task.uid !== SAMPLE.taskUid) continue
+    task.fadeInDays = inDays
+    task.fadeOutDays = outDays
+  }
+  return copy as unknown as Document
+}
+
+/** The same document with EVERY task's fade day counts cleared. */
+function withoutAnyFade(document: Document): Document {
+  const copy = JSON.parse(JSON.stringify(document)) as {
+    schedule: {
+      tasks: { fadeInDays: number | null; fadeOutDays: number | null }[]
+    }
+  }
+  for (const task of copy.schedule.tasks) {
+    task.fadeInDays = null
+    task.fadeOutDays = null
+  }
+  return copy as unknown as Document
+}
+
+function definitionsOf(root: XmlNode): readonly XmlNode[] {
+  const collection = firstNamed(root, 'ExtendedAttributes')
+  return collection === null ? [] : childrenNamed(collection, 'ExtendedAttribute')
+}
+
+function fieldIdsOf(nodes: readonly XmlNode[]): readonly string[] {
+  return nodes.map((each) => textAt(each, 'FieldID') ?? '')
+}
+
+function valueForField(task: XmlNode, fieldId: number): string | null {
+  const found = childrenNamed(task, 'ExtendedAttribute').find(
+    (each) => textAt(each, 'FieldID') === String(fieldId),
+  )
+  return found === undefined ? null : textAt(found, 'Value')
+}
+
+function carriedNames(holder: Record<string, unknown>): readonly string[] {
+  const carried = holder['carryElements'] as readonly {
+    readonly name: string
+  }[]
+  return carried.map((each) => each.name)
+}
+
+function writeOf(document: Document): {
+  readonly root: XmlNode
+  readonly notices: readonly MspdiNotice[]
+} {
+  const encoding: MspdiEncoding = mspdiFromDocument(document)
+  return { root: parseXml(encoding.text), notices: encoding.notices }
+}
+
+/** NT-1's shape: a notice says WHICH item, and says why in words. */
+function namesAnItem(notice: MspdiNotice): boolean {
+  return notice.at.trim().length > 0 && notice.what.trim().length > 0
+}
+
+describe('the fade roster these cases walk', () => {
+  it('GIVEN the manuscript roster WHEN read THEN it holds the two frames AT-40 and AT-41 need', () => {
+    expect(ROSTER.frames).toHaveLength(2)
+    expect(ROSTER.frames.map((each) => each.prefers)).toEqual(['fadeInDays', 'fadeOutDays'])
+    expect(new Set(ROSTER.frames.map((each) => each.fieldId)).size).toBe(2)
+    for (const frame of ROSTER.frames) {
+      expect(Number.isInteger(frame.fieldId)).toBe(true)
+      expect(frame.fieldId).toBeGreaterThan(0)
+    }
+    // CFType 5 = Number, ElemType 20 = Task (mspdi_pj12.xsd:1005, :1027).
+    expect(ROSTER.cfType.value).toBe(5)
+    expect(ROSTER.elemType.value).toBe(20)
+  })
+
+  it('GIVEN the official schema WHEN its Alias bound is read THEN the manuscript states the same bound (EX-1)', () => {
+    expect(ROSTER.aliasMaxLength.value).toBe(SCHEMA_ALIAS_MAX_LENGTH)
+  })
+
+  it('GIVEN the roster aliases WHEN measured THEN none is longer than the schema allows (EX-1)', () => {
+    // EX-1 is a MUST that what goes out is valid against the official schema.
+    // An Alias over the bound could not be written without breaking it, so the
+    // roster may not hold one.
+    for (const frame of ROSTER.frames) {
+      expect(frame.alias.length).toBeLessThanOrEqual(SCHEMA_ALIAS_MAX_LENGTH)
+    }
+  })
+
+  it('GIVEN the official schema WHEN the definition order is read THEN FieldID precedes Alias (EX-8)', () => {
+    const declared = CHILD_ORDER.get('Project/ExtendedAttributes/ExtendedAttribute')
+    expect(declared, 'mspdi_pj12.xsd declares the definition').toBeDefined()
+    const order = declared ?? []
+    expect(order.indexOf('FieldID')).toBeGreaterThanOrEqual(0)
+    expect(order.indexOf('Alias')).toBeGreaterThan(order.indexOf('FieldID'))
+    expect(order.indexOf('CFType')).toBeGreaterThan(order.indexOf('FieldName'))
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FR-023 -- a leading byte order mark is accepted and dropped
+// ---------------------------------------------------------------------------
+
+describe('FR-023 -- a leading byte order mark is accepted and dropped', () => {
+  it('GIVEN an MSPDI text behind a BOM WHEN read THEN it is not refused (MUST NOT)', () => {
+    const read = documentFromMspdi(`${BYTE_ORDER_MARK}${BASE_TEXT}`, CURRENT)
+    expect(read.ok, 'a BOM is not a reason to refuse').toBe(true)
+  })
+
+  it('GIVEN the same file with and without a BOM WHEN both are read THEN the documents are the same', () => {
+    // Accepted AND dropped, so nothing downstream of the parser can see it.
+    const plain = documentFromMspdi(BASE_TEXT, CURRENT)
+    const marked = documentFromMspdi(`${BYTE_ORDER_MARK}${BASE_TEXT}`, CURRENT)
+    expect(marked).toEqual(plain)
+  })
+
+  it('GIVEN a BOM before a file with no tasks WHEN read THEN it is still accepted', () => {
+    const empty = mspdi([projectHeadXml(), calendarXml(9), '  <Tasks/>'].join('\n'))
+    const read = documentFromMspdi(`${BYTE_ORDER_MARK}${empty}`, CURRENT)
+    expect(read.ok).toBe(true)
+  })
+
+  it('GIVEN a BOM and nothing else WHEN read THEN it is refused with words, not accepted as empty', () => {
+    // The boundary of accepting a BOM: dropping it leaves no document at all.
+    const faults = refused(BYTE_ORDER_MARK)
+    expect(faults.length).toBeGreaterThan(0)
+    expect(faults.every((fault) => fault.what.trim().length > 0)).toBe(true)
+  })
+
+  it('GIVEN a BOM before whitespace WHEN read THEN it is refused (the empty case)', () => {
+    expect(refused(`${BYTE_ORDER_MARK}   \n\t `).length).toBeGreaterThan(0)
+  })
+
+  it('GIVEN a leading character that is NOT a BOM WHEN read THEN it is still refused', () => {
+    // FR-023 exempts the byte order mark and nothing else. Without this the
+    // case above would pass on a parser that simply skips leading junk, and
+    // the exemption would not have been tested at all.
+    expect(refused(`x${BASE_TEXT}`).length).toBeGreaterThan(0)
+  })
+
+  it('GIVEN a BOM before a text that is not MSPDI WHEN read THEN the refusal names the item in words (NT-1)', () => {
+    const faults = refused(`${BYTE_ORDER_MARK}<Nope><Inside/></Nope>`)
+    expect(faults.length).toBeGreaterThan(0)
+    // NT-1: which item, and why, in words. An empty `at` is this unit's way of
+    // naming the whole text when no single item can be pointed at.
+    for (const fault of faults) {
+      expect(typeof fault.at).toBe('string')
+      expect(fault.what.trim().length).toBeGreaterThan(0)
+    }
+  })
+
+  it('GIVEN a BOM inside a value WHEN read THEN it is kept as the partner`s own text', () => {
+    // FR-023 accepts and drops the LEADING one. A BOM inside a value is the
+    // partner's data, and EX-4 keeps the spelling that arrived.
+    const text = BASE_TEXT.replace(SAMPLE.taskNotes, `${SAMPLE.taskNotes}${BYTE_ORDER_MARK}x`)
+    const document = accepted(text)
+    expect(instanceOf(document, 'Task')['notes']).toBe(`${SAMPLE.taskNotes}${BYTE_ORDER_MARK}x`)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// CN-5 of table T-003 -- the writing side is the opposite rule
+// ---------------------------------------------------------------------------
+
+describe('CN-5 -- what GRS writes carries no byte order mark', () => {
+  it('GIVEN an imported document WHEN written THEN the text does not begin with a BOM (MUST)', () => {
+    const text = mspdiFromDocument(accepted(BASE_TEXT)).text
+    expect(text.startsWith(BYTE_ORDER_MARK)).toBe(false)
+    expect(text.startsWith('<?xml')).toBe(true)
+  })
+
+  it('GIVEN a document imported FROM a BOM`d file WHEN written THEN no BOM comes back out', () => {
+    const text = mspdiFromDocument(accepted(`${BYTE_ORDER_MARK}${BASE_TEXT}`)).text
+    expect(text.includes(BYTE_ORDER_MARK)).toBe(false)
+  })
+
+  it('GIVEN a GRS-born document WHEN written THEN it carries no BOM either', () => {
+    expect(mspdiFromDocument(CURRENT).text.includes(BYTE_ORDER_MARK)).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// EX-6 -- reading: the definition's Alias decides whose frame it is
+// ---------------------------------------------------------------------------
+
+describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
+  it('GIVEN a frame whose definition Alias is not the roster`s WHEN read THEN it is not interpreted (EX-6 MUST)', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, 'Number1', 'The import source owns this')],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const document = accepted(text)
+    const task = instanceOf(document, 'Task')
+    expect(task['fadeInDays']).toBeNull()
+    expect(task['fadeOutDays']).toBeNull()
+    // DF-2: left in its OWNER's carryElements, in its original form.
+    expect(carriedNames(task)).toContain('ExtendedAttribute')
+  })
+
+  it('GIVEN an unrecognised frame WHEN read THEN it is not gathered at the root (DF-2 MUST NOT)', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, 'Number1', 'The import source owns this')],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const document = accepted(text)
+    const project = document.schedule.project as unknown as Record<string, unknown>
+    const carriedOnProject = (
+      project['carryElements'] as readonly { readonly name: string }[]
+    ).filter((each) => each.name === 'ExtendedAttribute')
+    expect(carriedOnProject).toHaveLength(0)
+  })
+
+  it('GIVEN an unrecognised frame WHEN written back THEN it comes back untouched (DF-2, FR-021)', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, 'Number1', 'The import source owns this')],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const root = written(accepted(text))
+    const task = writtenInstance(root, 'Task')
+    expect(valueForField(task, frame.fieldId)).toBe(String(FADE_IN_DAYS))
+    const definitions = definitionsOf(root)
+    expect(fieldIdsOf(definitions)).toEqual([String(frame.fieldId)])
+    expect(textAt(definitions[0] ?? ({} as XmlNode), 'Alias')).toBe('The import source owns this')
+  })
+
+  it('GIVEN a frame whose definition Alias IS the roster`s WHEN read THEN the roster decides whether it is claimed', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, frame.alias)],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const task = instanceOf(accepted(text), 'Task')
+    // The manuscript's own note: an empty alias is no alias, so GRS cannot
+    // recognise its own frame and must not claim one. Fill the alias in
+    // `_source/mspdi-custom-fields.json` and this expectation moves.
+    expect(task['fadeInDays']).toBe(ROSTER_ALIASES_ARE_USABLE ? FADE_IN_DAYS : null)
+    if (!ROSTER_ALIASES_ARE_USABLE) expect(carriedNames(task)).toContain('ExtendedAttribute')
+  })
+
+  it('GIVEN no frame at all WHEN read THEN the fade columns are null, not zero (AT-40, AT-41)', () => {
+    const task = instanceOf(accepted(fadeFileText([], [])), 'Task')
+    expect(task['fadeInDays']).toBeNull()
+    expect(task['fadeOutDays']).toBeNull()
+  })
+
+  it('GIVEN a frame whose value is not a number WHEN read THEN no NaN reaches the column (AT-40)', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, frame.alias)],
+      [valueXml(frame.fieldId, 'not a number')],
+    )
+    const read = documentFromMspdi(text, CURRENT)
+    expect(read.ok, 'FR-023 leaves the value checks to CP-13; this unit must not throw').toBe(true)
+    if (!read.ok) return
+    const value = read.document.schedule.tasks.find(
+      (each) => each.uid === SAMPLE.taskUid,
+    )?.fadeInDays
+    expect(value === null || Number.isInteger(value)).toBe(true)
+  })
+
+  it('GIVEN a frame whose value is zero WHEN read THEN zero is told apart from null (AT-40)', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, frame.alias)],
+      [valueXml(frame.fieldId, '0')],
+    )
+    const task = instanceOf(accepted(text), 'Task')
+    expect(task['fadeInDays']).toBe(ROSTER_ALIASES_ARE_USABLE ? 0 : null)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// EX-6 -- writing: the roster order, and the two ways it can fail to find room
+// ---------------------------------------------------------------------------
+
+describe('EX-6 -- writing the fade day counts into a frame', () => {
+  const bothHeld = (): string =>
+    fadeFileText(
+      [
+        definitionXml(rosterFrame('fadeInDays').fieldId, 'Number1', 'Import source first'),
+        definitionXml(rosterFrame('fadeOutDays').fieldId, 'Number2', 'Import source second'),
+      ],
+      [],
+    )
+
+  it('GIVEN both frames held by the import source WHEN written THEN nothing is written there and the person is told (MUST)', () => {
+    const inFrame = rosterFrame('fadeInDays')
+    const outFrame = rosterFrame('fadeOutDays')
+    const faded = withFade(accepted(bothHeld()), FADE_IN_DAYS, FADE_OUT_DAYS)
+    const { root, notices } = writeOf(faded)
+    const task = writtenInstance(root, 'Task')
+    expect(valueForField(task, inFrame.fieldId)).toBeNull()
+    expect(valueForField(task, outFrame.fieldId)).toBeNull()
+    expect(notices.length).toBeGreaterThan(0)
+    expect(notices.some(namesAnItem), 'NT-1: a notice names the item, in words').toBe(true)
+  })
+
+  it('GIVEN both frames held by the import source WHEN written THEN neither is overwritten (MUST NOT)', () => {
+    const inFrame = rosterFrame('fadeInDays')
+    const outFrame = rosterFrame('fadeOutDays')
+    const { root } = writeOf(withFade(accepted(bothHeld()), FADE_IN_DAYS, FADE_OUT_DAYS))
+    const definitions = definitionsOf(root)
+    expect(fieldIdsOf(definitions)).toEqual([String(inFrame.fieldId), String(outFrame.fieldId)])
+    expect(textAt(definitions[0] ?? ({} as XmlNode), 'Alias')).toBe('Import source first')
+    expect(textAt(definitions[1] ?? ({} as XmlNode), 'Alias')).toBe('Import source second')
+  })
+
+  it('GIVEN nowhere to write the fade WHEN written THEN the rest of the work is not stopped (NT-5)', () => {
+    const encoding = mspdiFromDocument(withFade(accepted(bothHeld()), FADE_IN_DAYS, FADE_OUT_DAYS))
+    // NT-5 does not stop the operation: the text is whole and the task is in it.
+    expect(encoding.text.length).toBeGreaterThan(0)
+    const task = writtenInstance(parseXml(encoding.text), 'Task')
+    expect(textAt(task, 'Name')).toBe(SAMPLE.taskName)
+    expect(textAt(task, 'Start')).toBe(SAMPLE.taskStart)
+  })
+
+  it('GIVEN the first frame held by the import source WHEN written THEN it is left alone and the person is told', () => {
+    const inFrame = rosterFrame('fadeInDays')
+    const outFrame = rosterFrame('fadeOutDays')
+    const text = fadeFileText(
+      [definitionXml(inFrame.fieldId, 'Number1', 'Import source first')],
+      [],
+    )
+    const { root, notices } = writeOf(withFade(accepted(text), FADE_IN_DAYS, null))
+    const task = writtenInstance(root, 'Task')
+    // MUST NOT overwrite: the held frame keeps the import source's Alias and
+    // gains no value of GRS's.
+    const held = definitionsOf(root).find(
+      (each) => textAt(each, 'FieldID') === String(inFrame.fieldId),
+    )
+    expect(textAt(held ?? ({} as XmlNode), 'Alias')).toBe('Import source first')
+    expect(valueForField(task, inFrame.fieldId)).toBeNull()
+    // MUST tell, whether it moved to the free frame or found nowhere to go.
+    expect(notices.length).toBeGreaterThan(0)
+    expect(notices.some(namesAnItem)).toBe(true)
+    expect(valueForField(task, outFrame.fieldId)).toBe(
+      ROSTER_ALIASES_ARE_USABLE ? String(FADE_IN_DAYS) : null,
+    )
+  })
+
+  it('GIVEN both frames free WHEN written THEN the roster order decides which carries which (MUST)', () => {
+    const inFrame = rosterFrame('fadeInDays')
+    const outFrame = rosterFrame('fadeOutDays')
+    const { root, notices } = writeOf(
+      withFade(accepted(fadeFileText([], [])), FADE_IN_DAYS, FADE_OUT_DAYS),
+    )
+    const task = writtenInstance(root, 'Task')
+    if (ROSTER_ALIASES_ARE_USABLE) {
+      expect(valueForField(task, inFrame.fieldId)).toBe(String(FADE_IN_DAYS))
+      expect(valueForField(task, outFrame.fieldId)).toBe(String(FADE_OUT_DAYS))
+      expect(notices).toEqual([])
+    } else {
+      // The manuscript keeps both aliases empty, so there is no frame GRS may
+      // claim and EX-6's last arm applies: write nothing, and tell.
+      expect(valueForField(task, inFrame.fieldId)).toBeNull()
+      expect(valueForField(task, outFrame.fieldId)).toBeNull()
+      expect(notices.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('GIVEN a task with no fade WHEN written THEN no frame of the roster is claimed for it', () => {
+    const { root } = writeOf(accepted(fadeFileText([], [])))
+    const task = writtenInstance(root, 'Task')
+    for (const frame of ROSTER.frames) expect(valueForField(task, frame.fieldId)).toBeNull()
+  })
+
+  it('GIVEN a fade of zero WHEN written THEN zero is written and null is not (AT-40, AT-41)', () => {
+    const inFrame = rosterFrame('fadeInDays')
+    const outFrame = rosterFrame('fadeOutDays')
+    const { root } = writeOf(withFade(accepted(fadeFileText([], [])), 0, null))
+    const task = writtenInstance(root, 'Task')
+    expect(valueForField(task, inFrame.fieldId)).toBe(ROSTER_ALIASES_ARE_USABLE ? '0' : null)
+    expect(valueForField(task, outFrame.fieldId)).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// EX-8 -- one definition, the schema's child order, never an empty collection
+// ---------------------------------------------------------------------------
+
+describe('EX-8 -- the definition collection', () => {
+  const writtenDocuments = (): readonly Document[] => [
+    accepted(BASE_TEXT),
+    accepted(
+      fadeFileText([definitionXml(rosterFrame('fadeInDays').fieldId, 'Number1', 'Held')], []),
+    ),
+    withFade(accepted(fadeFileText([], [])), FADE_IN_DAYS, FADE_OUT_DAYS),
+    CURRENT,
+  ]
+
+  it('GIVEN no fade and no arrived definition WHEN written THEN the collection is not written at all (MUST NOT)', () => {
+    // mspdi_pj12.xsd:988 -- there must be at least one ExtendedAttribute in
+    // each ExtendedAttributes collection, so an empty one would break EX-1.
+    const { root } = writeOf(accepted(fadeFileText([], [])))
+    expect(firstNamed(root, 'ExtendedAttributes')).toBeNull()
+  })
+
+  it('GIVEN a GRS-born document with no fade WHEN written THEN no empty collection appears', () => {
+    // ⚠️ The premise has to be MADE, not assumed: the bundled template carries
+    // a fade on some of its tasks, so `CURRENT` is not a document with no
+    // fade. With every fade cleared there is nothing to define, and EX-8
+    // forbids writing the collection at all (mspdi_pj12.xsd:988).
+    expect(firstNamed(written(withoutAnyFade(CURRENT)), 'ExtendedAttributes')).toBeNull()
+  })
+
+  it('GIVEN a collection IS written WHEN its children are counted THEN it holds at least one (MUST NOT be empty)', () => {
+    for (const document of writtenDocuments()) {
+      const { root } = writeOf(document)
+      const collection = firstNamed(root, 'ExtendedAttributes')
+      if (collection === null) continue
+      expect(childrenNamed(collection, 'ExtendedAttribute').length).toBeGreaterThan(0)
+    }
+  })
+
+  it('GIVEN two tasks with a fade WHEN written THEN each frame is defined exactly once (MUST)', () => {
+    const twoTasks = mspdi(
+      [
+        headWithDefinitions([]),
+        calendarXml(9),
+        `  <Tasks>
+    <Task><UID>${SAMPLE.taskUid}</UID><ID>0</ID><Name>${SAMPLE.taskName}</Name>
+      <OutlineNumber>1</OutlineNumber><OutlineLevel>1</OutlineLevel>
+      <Start>${SAMPLE.taskStart}</Start><Finish>${SAMPLE.taskFinish}</Finish></Task>
+    <Task><UID>${SAMPLE.childUid}</UID><ID>1</ID><Name>${SAMPLE.childName}</Name>
+      <OutlineNumber>2</OutlineNumber><OutlineLevel>1</OutlineLevel>
+      <Start>${SAMPLE.childStart}</Start><Finish>${SAMPLE.childFinish}</Finish></Task>
+  </Tasks>`,
+      ].join('\n'),
+    )
+    const copy = JSON.parse(JSON.stringify(accepted(twoTasks))) as {
+      schedule: {
+        tasks: { fadeInDays: number | null; fadeOutDays: number | null }[]
+      }
+    }
+    for (const task of copy.schedule.tasks) {
+      task.fadeInDays = FADE_IN_DAYS
+      task.fadeOutDays = FADE_OUT_DAYS
+    }
+    const { root } = writeOf(copy as unknown as Document)
+    const ids = fieldIdsOf(definitionsOf(root))
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('GIVEN a written definition WHEN its children are read THEN they follow the schema`s xsd:sequence (MUST)', () => {
+    for (const document of writtenDocuments()) {
+      const { root } = writeOf(document)
+      const collection = firstNamed(root, 'ExtendedAttributes')
+      if (collection === null) continue
+      expect(orderFaults(collection, 'Project/ExtendedAttributes')).toEqual([])
+    }
+  })
+
+  it('GIVEN a written definition WHEN its Alias is measured THEN it does not exceed the schema bound (EX-1)', () => {
+    for (const document of writtenDocuments()) {
+      const { root } = writeOf(document)
+      for (const definition of definitionsOf(root)) {
+        const alias = textAt(definition, 'Alias')
+        if (alias === null) continue
+        expect(alias.length).toBeLessThanOrEqual(SCHEMA_ALIAS_MAX_LENGTH)
+      }
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// What a wrong input does: the boundaries of the byte order mark (CR-198) and
+// of the two borrowed frames (CR-199).
+//
+// Read for these cases, beyond the block above:
+//   FR-023 (:3040)   the LEADING byte order mark is accepted and dropped
+//                    (MUST) and is not a reason to refuse (MUST NOT). That
+//                    sentence settles ONE mark at the front and says nothing
+//                    about a second one or one further in, so those two cases
+//                    assert only what holds under either reading: the answer
+//                    is a VALUE (FR-028) and no mark reaches the document.
+//   CR-199 section 7 while an alias is empty GRS cannot recognise its own
+//                    frame and must not claim one. Every case below is written
+//                    so that filling an alias in the manuscript moves it.
+//   rule 04 sect. 2  a manuscript value only counts as reaching the code if
+//                    changing that one value breaks a case. The generated
+//                    roster is therefore measured against the manuscript
+//                    rather than either being trusted on its own.
+// ---------------------------------------------------------------------------
+
+const GENERATED_ROSTER_PATH = join(
+  process.cwd(),
+  'src',
+  'adapter',
+  'document-codec',
+  'mspdi-custom-fields.json',
+)
+
+interface GeneratedRoster {
+  readonly elemType: number
+  readonly cfType: number
+  readonly aliasMaxLength: number
+  readonly frames: readonly RosterFrame[]
+}
+
+const GENERATED_ROSTER = JSON.parse(readFileSync(GENERATED_ROSTER_PATH, 'utf8')) as GeneratedRoster
+
+/** A field id no frame of the roster names, derived from the roster itself. */
+const OUTSIDE_FIELD_ID = Math.max(...ROSTER.frames.map((each) => each.fieldId)) + 1000
+
+const ALIAS_AT_BOUND = 'A'.repeat(SCHEMA_ALIAS_MAX_LENGTH)
+const ALIAS_OVER_BOUND = 'A'.repeat(SCHEMA_ALIAS_MAX_LENGTH + 1)
+
+/** FR-028: an answer is a value. A throw is turned into words here. */
+function answered(text: string, current: Document = CURRENT): MspdiDecoding {
+  try {
+    return documentFromMspdi(text, current)
+  } catch (thrown) {
+    throw new Error(`FR-028 asks for a value; a throw came out instead: ${String(thrown)}`)
+  }
+}
+
+function carriesAnyMark(document: Document): boolean {
+  return JSON.stringify(document).includes(BYTE_ORDER_MARK)
+}
+
+/** The value rows of one written `Task`, as `FieldID` to `Value`. */
+function valueRowsOf(task: XmlNode): ReadonlyMap<string, string> {
+  const rows = new Map<string, string>()
+  for (const each of childrenNamed(task, 'ExtendedAttribute')) {
+    rows.set(textAt(each, 'FieldID') ?? '', textAt(each, 'Value') ?? '')
+  }
+  return rows
+}
+
+describe('the roster the code reads is the roster the manuscript states (rule 04 section 2)', () => {
+  it('GIVEN the manuscript WHEN the generated roster is read THEN every value is the manuscript`s', () => {
+    // ⭐ This is the case that gives the two frame numbers their meaning: the
+    // code reads `src/adapter/document-codec/mspdi-custom-fields.json`, and
+    // changing ONE value in `docs/spec/_source/mspdi-custom-fields.json`
+    // without rebuilding breaks here. Nothing in this file types a number.
+    expect(GENERATED_ROSTER.elemType).toBe(ROSTER.elemType.value)
+    expect(GENERATED_ROSTER.cfType).toBe(ROSTER.cfType.value)
+    expect(GENERATED_ROSTER.aliasMaxLength).toBe(ROSTER.aliasMaxLength.value)
+    expect(GENERATED_ROSTER.frames).toEqual(
+      ROSTER.frames.map((each) => ({
+        name: each.name,
+        fieldId: each.fieldId,
+        prefers: each.prefers,
+        alias: each.alias,
+      })),
+    )
+  })
+
+  it('GIVEN the roster WHEN its order is read THEN fadeInDays is looked for first (EX-6 MUST)', () => {
+    // EX-6: a free frame is looked for IN THE ROSTER'S ORDER. That order is
+    // the manuscript's, so it is read here and not restated.
+    expect(GENERATED_ROSTER.frames.map((each) => each.prefers)).toEqual([
+      'fadeInDays',
+      'fadeOutDays',
+    ])
+    expect(new Set(GENERATED_ROSTER.frames.map((each) => each.fieldId)).size).toBe(
+      GENERATED_ROSTER.frames.length,
+    )
+  })
+
+  it('GIVEN an empty alias in the manuscript WHEN a file offers that frame THEN nothing is claimed on either side (CR-199 section 7)', () => {
+    // The manuscript ships both aliases EMPTY on purpose -- the user has not
+    // chosen the two words -- and says that until one is filled GRS cannot
+    // recognise its own frame and must not claim one. So while an alias is
+    // empty: import reads the column null, and export writes no fade day.
+    const frame = rosterFrame('fadeInDays')
+    const offered = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, frame.alias)],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const imported = instanceOf(accepted(offered), 'Task')
+    const { root } = writeOf(withFade(accepted(fadeFileText([], [])), FADE_IN_DAYS, FADE_OUT_DAYS))
+    const rows = valueRowsOf(writtenInstance(root, 'Task'))
+    if (ROSTER_ALIASES_ARE_USABLE) {
+      expect(imported['fadeInDays']).toBe(FADE_IN_DAYS)
+      expect(rows.get(String(frame.fieldId))).toBe(String(FADE_IN_DAYS))
+      return
+    }
+    expect(imported['fadeInDays']).toBeNull()
+    expect(imported['fadeOutDays']).toBeNull()
+    for (const each of ROSTER.frames) expect(rows.has(String(each.fieldId))).toBe(false)
+  })
+
+  it('GIVEN a frame GRS claims WHEN written THEN its definition carries the roster`s own alias and types', () => {
+    // EX-6 recognises GRS's own frame by the DEFINITION's `Alias`, so the
+    // alias GRS writes has to be the roster's, character for character, or the
+    // next import would not recognise what this export just wrote. The types
+    // are the roster's too: CFType 5 (Number) and ElemType 20 (Task).
+    // ⚠️ While the manuscript keeps the aliases empty there is no claimed
+    // frame to look at, and this case has nothing to assert -- filling one
+    // makes it live.
+    if (!ROSTER_ALIASES_ARE_USABLE) {
+      expect(ROSTER.frames.some((each) => each.alias.trim().length === 0)).toBe(true)
+      return
+    }
+    const inFrame = rosterFrame('fadeInDays')
+    const { root } = writeOf(withFade(accepted(fadeFileText([], [])), FADE_IN_DAYS, FADE_OUT_DAYS))
+    const definition = definitionsOf(root).find(
+      (each) => textAt(each, 'FieldID') === String(inFrame.fieldId),
+    )
+    expect(definition, 'a claimed frame is defined once (EX-8)').toBeDefined()
+    const found = definition ?? ({} as XmlNode)
+    expect(textAt(found, 'Alias')).toBe(inFrame.alias)
+    expect(textAt(found, 'CFType')).toBe(String(GENERATED_ROSTER.cfType))
+    expect(textAt(found, 'ElemType')).toBe(String(GENERATED_ROSTER.elemType))
+  })
+
+  it('GIVEN a frame GRS claims WHEN the written file is read back THEN the fade day counts survive (FR-021)', () => {
+    if (!ROSTER_ALIASES_ARE_USABLE) {
+      expect(ROSTER.frames.some((each) => each.alias.trim().length === 0)).toBe(true)
+      return
+    }
+    const faded = withFade(accepted(fadeFileText([], [])), FADE_IN_DAYS, FADE_OUT_DAYS)
+    const again = instanceOf(accepted(mspdiFromDocument(faded).text), 'Task')
+    expect(again['fadeInDays']).toBe(FADE_IN_DAYS)
+    expect(again['fadeOutDays']).toBe(FADE_OUT_DAYS)
+  })
+})
+
+describe('FR-023 -- the boundaries of the leading byte order mark', () => {
+  it('GIVEN two byte order marks WHEN read THEN the answer is a value and no mark reaches the document', () => {
+    // FR-023 settles ONE leading mark. A second one is neither accepted nor
+    // refused by any line of the specification, so this case asserts only what
+    // both readings share: FR-028's value, and nothing of the mark left in the
+    // document if it was accepted. ⚠️ Reported as a gap, not as a defect.
+    const read = answered(`${BYTE_ORDER_MARK}${BYTE_ORDER_MARK}${BASE_TEXT}`)
+    if (read.ok) {
+      expect(carriesAnyMark(read.document)).toBe(false)
+      expect(read.document).toEqual(accepted(BASE_TEXT))
+      return
+    }
+    expect(read.faults.length).toBeGreaterThan(0)
+    expect(read.faults.every((fault) => fault.what.trim().length > 0)).toBe(true)
+  })
+
+  it('GIVEN a byte order mark after the XML declaration WHEN read THEN the answer is a value, never a throw', () => {
+    // Not the LEADING mark: FR-023's MUST does not reach it. Same shape as
+    // above -- what is asserted is that an answer comes back at all.
+    const read = answered(BASE_TEXT.replace('?>\n', `?>\n${BYTE_ORDER_MARK}`))
+    if (read.ok) {
+      expect(carriesAnyMark(read.document)).toBe(false)
+      return
+    }
+    expect(read.faults.every((fault) => fault.what.trim().length > 0)).toBe(true)
+  })
+
+  it('GIVEN a mark at the front AND one inside a value WHEN read THEN only the leading one is dropped (EX-4)', () => {
+    // ⛔ The boundary that tells "drop the leading mark" apart from "strip
+    // every mark": the one inside the partner's own text is data, and EX-4
+    // keeps the spelling that arrived.
+    const inside = `${SAMPLE.taskNotes}${BYTE_ORDER_MARK}tail`
+    const text = `${BYTE_ORDER_MARK}${BASE_TEXT.replace(SAMPLE.taskNotes, inside)}`
+    const document = accepted(text)
+    expect(instanceOf(document, 'Task')['notes']).toBe(inside)
+    expect(textAt(writtenInstance(written(document), 'Task'), 'Notes')).toBe(inside)
+  })
+
+  it('GIVEN a byte order mark followed by junk WHEN read THEN it is refused and the fault says why in words', () => {
+    // FR-023 forbids refusing BECAUSE of the mark. It does not turn junk into
+    // a document, and a refusal has to say which item and why (NT-1).
+    const junk = [
+      `${BYTE_ORDER_MARK}not a document at all`,
+      `${BYTE_ORDER_MARK}<Project><Tasks><Task></Tasks></Project>`,
+      `${BYTE_ORDER_MARK}<?xml version="1.0" encoding="UTF-8"?>`,
+      `${BYTE_ORDER_MARK}{"schedule":{}}`,
+    ]
+    for (const text of junk) {
+      const read = answered(text)
+      expect(read.ok, `expected a refusal for ${JSON.stringify(text.slice(0, 24))}`).toBe(false)
+      if (read.ok) continue
+      expect(read.faults.length).toBeGreaterThan(0)
+      expect(read.faults.every((fault) => fault.what.trim().length > 0)).toBe(true)
+    }
+  })
+
+  it('GIVEN a byte order mark`d file WHEN written THEN the text is the one the unmarked file writes (FR-021, CN-5)', () => {
+    const marked = mspdiFromDocument(accepted(`${BYTE_ORDER_MARK}${BASE_TEXT}`))
+    const plain = mspdiFromDocument(accepted(BASE_TEXT))
+    expect(marked.text).toBe(plain.text)
+    expect(marked.text.startsWith(BYTE_ORDER_MARK)).toBe(false)
+  })
+
+  it('GIVEN a byte order mark before a file that holds only a calendar WHEN read THEN it is accepted', () => {
+    const bare = mspdi([projectHeadXml(), calendarXml(9)].join('\n'))
+    expect(answered(`${BYTE_ORDER_MARK}${bare}`).ok).toBe(true)
+  })
+})
+
+describe('EX-6 and EX-1 -- an Alias at and over the bound the official schema states', () => {
+  it('GIVEN an arrived Alias exactly at the schema bound WHEN read THEN it is accepted and not claimed', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, ALIAS_AT_BOUND)],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const read = answered(text)
+    expect(read.ok, 'a definition the schema admits is still an MSPDI document').toBe(true)
+    if (!read.ok) return
+    const task = instanceOf(read.document, 'Task')
+    // The alias is not the roster's, so EX-6's test fails and DF-2 applies.
+    expect(task['fadeInDays']).toBeNull()
+    expect(carriedNames(task)).toContain('ExtendedAttribute')
+  })
+
+  it('GIVEN an arrived Alias one character over the bound WHEN read THEN this unit does not refuse it', () => {
+    // ⚠️ The bound is the official schema's (mspdi_pj12.xsd:1055) and EX-1
+    // puts it on what GRS WRITES. The head of the unit says the content checks
+    // are CP-13's; this unit answers only "is this an MSPDI document at all".
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, ALIAS_OVER_BOUND)],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const read = answered(text)
+    expect(read.ok).toBe(true)
+    if (!read.ok) return
+    expect(instanceOf(read.document, 'Task')['fadeInDays']).toBeNull()
+  })
+
+  it('GIVEN an over-long arrived Alias WHEN written back THEN it is neither truncated nor dropped (EX-4, DF-2)', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, ALIAS_OVER_BOUND)],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const { root } = writeOf(accepted(text))
+    const definition = definitionsOf(root).find(
+      (each) => textAt(each, 'FieldID') === String(frame.fieldId),
+    )
+    expect(definition, 'the arrived definition is written back').toBeDefined()
+    expect(textAt(definition ?? ({} as XmlNode), 'Alias')).toBe(ALIAS_OVER_BOUND)
+  })
+
+  it('GIVEN a definition with NO Alias at all WHEN read THEN the frame is not claimed (an empty alias is no alias)', () => {
+    // ⛔ The trap the manuscript names: both roster aliases are the empty
+    // string. A definition that carries no `Alias` must NOT be read as
+    // matching it, or GRS would claim every untitled frame in the world.
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, null)],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    const task = instanceOf(accepted(text), 'Task')
+    expect(task['fadeInDays']).toBeNull()
+    expect(carriedNames(task)).toContain('ExtendedAttribute')
+  })
+
+  it('GIVEN a definition with an empty Alias element WHEN read THEN the frame is not claimed either', () => {
+    const frame = rosterFrame('fadeInDays')
+    const text = fadeFileText(
+      [definitionXml(frame.fieldId, frame.name, '')],
+      [valueXml(frame.fieldId, String(FADE_IN_DAYS))],
+    )
+    expect(instanceOf(accepted(text), 'Task')['fadeInDays']).toBeNull()
+  })
+})
+
+describe('AT-40 and AT-41 -- a Value that is not a whole number', () => {
+  /** Values a `Number` frame can hold that are not a count of whole days. */
+  const NOT_WHOLE_DAYS = ['2.5', '-1', '', ' 3 ', '1e3', 'NaN', 'Infinity', '9007199254740993']
+
+  it('GIVEN a Value that is not a whole number WHEN read THEN no fraction and no NaN reaches the column', () => {
+    // AT-40 / AT-41 make the column an integer count of days, nullable. FD-7
+    // of table T-012a refuses rather than rounds, and FR-023 leaves that
+    // refusal to CP-13 -- so what this unit may not do is invent a value.
+    const frame = rosterFrame('fadeInDays')
+    for (const value of NOT_WHOLE_DAYS) {
+      const read = answered(
+        fadeFileText(
+          [definitionXml(frame.fieldId, frame.name, frame.alias)],
+          [valueXml(frame.fieldId, value)],
+        ),
+      )
+      expect(read.ok, `a Value of ${JSON.stringify(value)} is still an MSPDI document`).toBe(true)
+      if (!read.ok) continue
+      const held = read.document.schedule.tasks.find((each) => each.uid === SAMPLE.taskUid)
+      const days = held?.fadeInDays ?? null
+      expect(days === null || Number.isInteger(days), `fadeInDays for ${value}`).toBe(true)
+      expect(Number.isNaN(days), `NaN for ${value}`).toBe(false)
+    }
+  })
+
+  it('GIVEN a Value that is not a whole number WHEN written back THEN it comes back as it arrived (EX-4, FR-021)', () => {
+    const frame = rosterFrame('fadeInDays')
+    for (const value of NOT_WHOLE_DAYS) {
+      const document = accepted(
+        fadeFileText(
+          [definitionXml(frame.fieldId, frame.name, frame.alias)],
+          [valueXml(frame.fieldId, value)],
+        ),
+      )
+      const { root } = writeOf(document)
+      const rows = valueRowsOf(writtenInstance(root, 'Task'))
+      expect(rows.get(String(frame.fieldId)), `the arrived ${JSON.stringify(value)}`).toBe(
+        value.trim(),
+      )
+    }
+  })
+
+  it('GIVEN a Value that IS a whole number WHEN read THEN the manuscript alias still decides (CR-199 section 7)', () => {
+    const frame = rosterFrame('fadeOutDays')
+    const task = instanceOf(
+      accepted(
+        fadeFileText(
+          [definitionXml(frame.fieldId, frame.name, frame.alias)],
+          [valueXml(frame.fieldId, String(FADE_OUT_DAYS))],
+        ),
+      ),
+      'Task',
+    )
+    expect(task['fadeOutDays']).toBe(ROSTER_ALIASES_ARE_USABLE ? FADE_OUT_DAYS : null)
+  })
+})
+
+describe('DF-2 -- an extension element the tool does not recognise', () => {
+  const outsideFrame = (value: string): string =>
+    fadeFileText(
+      [definitionXml(OUTSIDE_FIELD_ID, 'Number9', 'The import source owns this one')],
+      [valueXml(OUTSIDE_FIELD_ID, value)],
+    )
+
+  it('GIVEN a field no roster frame names WHEN read THEN it is carried on its owner, not interpreted', () => {
+    const task = instanceOf(accepted(outsideFrame('42')), 'Task')
+    expect(task['fadeInDays']).toBeNull()
+    expect(task['fadeOutDays']).toBeNull()
+    expect(carriedNames(task)).toContain('ExtendedAttribute')
+  })
+
+  it('GIVEN a field no roster frame names WHEN written back THEN its number and value are untouched', () => {
+    const { root } = writeOf(accepted(outsideFrame('42')))
+    expect(valueRowsOf(writtenInstance(root, 'Task')).get(String(OUTSIDE_FIELD_ID))).toBe('42')
+    const definition = definitionsOf(root).find(
+      (each) => textAt(each, 'FieldID') === String(OUTSIDE_FIELD_ID),
+    )
+    expect(textAt(definition ?? ({} as XmlNode), 'Alias')).toBe('The import source owns this one')
+  })
+
+  it('GIVEN an extension element carrying children the codec does not name WHEN written back THEN they ride along', () => {
+    // `Task/ExtendedAttribute` declares FieldID / Value / ValueGUID /
+    // DurationFormat and nothing else (mspdi_pj12.xsd:2254-2269). The last two
+    // are never interpreted, and DF-2 keeps them in their owner's carry.
+    const extra =
+      `<ExtendedAttribute><FieldID>${OUTSIDE_FIELD_ID}</FieldID><Value>42</Value>` +
+      `<ValueGUID>7</ValueGUID><DurationFormat>7</DurationFormat></ExtendedAttribute>`
+    const text = fadeFileText(
+      [definitionXml(OUTSIDE_FIELD_ID, 'Number9', 'Held elsewhere')],
+      [extra],
+    )
+    const { root } = writeOf(accepted(text))
+    const row = childrenNamed(writtenInstance(root, 'Task'), 'ExtendedAttribute').find(
+      (each) => textAt(each, 'FieldID') === String(OUTSIDE_FIELD_ID),
+    )
+    expect(row, 'the unrecognised row is written back').toBeDefined()
+    expect(textAt(row ?? ({} as XmlNode), 'ValueGUID')).toBe('7')
+    expect(textAt(row ?? ({} as XmlNode), 'DurationFormat')).toBe('7')
+  })
+
+  it('GIVEN a file of unrecognised frames WHEN round-tripped THEN no element goes missing (FR-021)', () => {
+    const text = fadeFileText(
+      [
+        definitionXml(OUTSIDE_FIELD_ID, 'Number9', 'Held elsewhere'),
+        definitionXml(rosterFrame('fadeInDays').fieldId, 'Number1', 'Import source first'),
+      ],
+      [
+        valueXml(OUTSIDE_FIELD_ID, '42'),
+        valueXml(rosterFrame('fadeInDays').fieldId, String(FADE_IN_DAYS)),
+      ],
+    )
+    const before = everyNodeName(parseXml(text)).length
+    const after = everyNodeName(written(accepted(text))).length
+    expect(after).toBeGreaterThanOrEqual(before)
+  })
+
+  it('GIVEN an unrecognised frame WHEN the document is written twice THEN the second text is the first (stability)', () => {
+    const once = mspdiFromDocument(accepted(outsideFrame('42'))).text
+    const twice = mspdiFromDocument(accepted(once)).text
+    expect(twice).toBe(once)
+  })
+})

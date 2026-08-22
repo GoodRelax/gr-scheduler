@@ -99,6 +99,7 @@ function rounded(value: number): string {
   // Two places. FR-080's WY-3 compares the picture against the screen after a
   // rounding rule is applied to BOTH sides, so what matters is that this one
   // is stated somewhere rather than which one it is.
+  // ⛔ The 0.01px grid itself is NOT settled. // @provisional PD-162
   return (Math.round(value * 100) / 100).toString()
 }
 

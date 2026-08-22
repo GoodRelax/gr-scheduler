@@ -45,6 +45,14 @@ ARTIFACTS = [
     ('src/entity/layout-engine/item-hit-area/item-hit-area.ts', 'settings.json'),
     ('src/entity/document-model/edit-history/edit-history.ts', 'settings.json'),
     ('src/adapter/screen-renderer/screen-frame.ts', 'settings.json'),
+    # ⚠️ Two more of the same kind, and the first pair whose table T-206 rows
+    # hold no value of their own: S-96 / S-97 / S-98 NAME S-53 / S-54 / S-55 of
+    # table T-201, so the manuscript is still settings.json but the number is
+    # one hop away. ⛔ Nothing carried the zoom trio into src/ until then, and
+    # that single gap stopped FT-1 -- every pointer and key path -- outright.
+    ('src/adapter/input-command-translator/input-command-translator.ts',
+     'settings.json'),
+    ('src/use-case/edit-document/edit-document.ts', 'settings.json'),
     # The roster of icons (table T-109), which UF-62 and UF-65 read instead of
     # naming its rows themselves. ⚠️ Its banner is a "$comment" key, which the
     # startup template beside it may NOT have: that one is validated by the GRS

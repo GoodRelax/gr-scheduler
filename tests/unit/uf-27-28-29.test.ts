@@ -1473,3 +1473,92 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
     ).not.toThrow()
   })
 })
+
+// ---------------------------------------------------------------------------
+// AM-13 `exportSvg`, second pass -- what table T-107 says the picture IS
+//
+// ⭐ Table T-107 row AM-13 (`_assets/tbl-glossary.md` :328) gives the member one
+// job and two sources: "the picture of the screen, shrunk, returned as a value",
+// from "table T-024's IO-3 / FR-080". Table T-024 row IO-3
+// (01-04-requirements.md :2838) then fixes the one measurable thing about that
+// picture: "SVG | write only | the screen's output | the output size is S-81 of
+// table T-204", and S-81 is `exportCanvas`, 1600 x 900.
+//
+// ⭐ FR-080's own words for the picture AM-13 owes: "the WHOLE of the screen GRS
+// occupies, shrunk by the ratio of `exportCanvas`'s width to the screen's
+// width", with table T-076 deciding which UI parts reach it and FR-025 deciding
+// what is dropped down the page. CR-196 opened PI-21's `exportSvg` for exactly
+// this reason -- WY-2 of table T-041 judges the SVG and the PNG of one state to
+// be one drawing, and before that entry existed "the SVG route alone went
+// through neither table T-076's assembly nor the TaskGroup cut" (A-appendix.md
+// :101).
+//
+// ⚠️ These cases are driven from the settings of the document under test, so
+// they follow `docs/spec/_source/settings.json` rather than a number typed here.
+// ---------------------------------------------------------------------------
+
+/** Table T-024 row IO-3, copied. */
+const T_024_IO_3 = {
+  id: 'IO-3',
+  format: 'SVG',
+  canWrite: true,
+  canRead: false,
+  sizeRow: 'S-81',
+} as const
+
+/** The `width`/`height` of a picture's outermost element, as numbers. */
+function rootSizeOf(svg: string): { readonly width: number; readonly height: number } {
+  const root = /<svg((?:[^<>"]|"[^"]*")*)>/.exec(svg)?.[1] ?? ''
+  const attr = (name: string): number =>
+    Number.parseFloat(new RegExp(`${name}="([^"]*)"`).exec(root)?.[1] ?? 'NaN')
+  return { width: attr('width'), height: attr('height') }
+}
+
+describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-81)', () => {
+  it('GIVEN a settled frame WHEN AM-13 answers THEN the picture is exportCanvas wide and tall (IO-3, S-81 of table T-204)', () => {
+    const one = bench()
+    const svg = exported(one.api.exportSvg())
+    const canvas = one.document.documentSettings.exportCanvas
+
+    expect(T_024_IO_3.sizeRow).toBe('S-81')
+    expect(rootSizeOf(svg)).toEqual({ width: canvas.width, height: canvas.height })
+  })
+
+  it('GIVEN a settled frame WHEN AM-13 answers THEN what comes back is one SVG document, not a fragment', () => {
+    const svg = exported(bench().api.exportSvg())
+    expect(svg.startsWith('<svg')).toBe(true)
+    expect(svg.trimEnd().endsWith('</svg>')).toBe(true)
+  })
+
+  it('GIVEN one unchanged state WHEN AM-13 answers twice THEN the same picture comes back both times (WY-2 premise)', () => {
+    // WY-2 of table T-041 rests on the same state giving the same picture; CS-1
+    // of table T-066 (design :448) states the failure mode -- read the clock
+    // inside a frame and the picture moves between two calls of one minute.
+    const one = bench()
+    expect(exported(one.api.exportSvg())).toBe(exported(one.api.exportSvg()))
+  })
+
+  it('GIVEN a document whose schedule is empty WHEN AM-13 answers THEN a picture still comes back as a value', () => {
+    // The empty boundary. FR-025 (MUST) leaves the remainder of a short picture
+    // blank rather than filling it, so an empty schedule is a picture, not a
+    // refusal.
+    const one = bench(true, EMPTY_SCHEDULE)
+    const answer = one.api.exportSvg()
+
+    expect(answer.ok).toBe(true)
+    if (!answer.ok) return
+    const canvas = one.document.documentSettings.exportCanvas
+    expect(rootSizeOf(answer.value)).toEqual({ width: canvas.width, height: canvas.height })
+  })
+
+  it('GIVEN no frame has settled WHEN AM-13 answers THEN the refusal is a value naming its own row (FR-028, AG-9a)', () => {
+    // The error path, restated against the second-pass cases above so that a
+    // picture and a refusal cannot both be answered by one shape.
+    const answer = bench(false).api.exportSvg()
+
+    expect(answer.ok).toBe(false)
+    if (answer.ok) return
+    expect(answer.refusal.target).toBe('AM-13')
+    expect(Object.keys(answer).sort()).toEqual(['ok', 'refusal'])
+  })
+})

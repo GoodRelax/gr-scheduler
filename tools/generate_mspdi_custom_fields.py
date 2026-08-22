@@ -119,6 +119,22 @@ def build():
     if len(set(ids)) != len(ids):
         problems.append('two frames share a FieldID (%s) -- the partner links '
                         'a value to its definition by that number alone' % ids)
+
+    # ⛔ EX-1: an alias longer than the exchange schema allows produces a file
+    # the partner's own validator rejects, and nothing downstream would say so.
+    # ⚠️ The bound is NOT written here and NOT written into
+    # mspdi-custom-fields.schema.json: the manuscript already carries it once,
+    # with the line of the XSD it was read from. A second copy is the defect
+    # rule 03 section 1 is about -- it would go on stating 50 after the XSD
+    # moved. The contract says the shape; this says the bound, by reading it.
+    limit = source['aliasMaxLength']['value']
+    for frame in source['frames']:
+        if len(frame['alias']) > limit:
+            problems.append(
+                "frame %s has an alias of %d characters, and aliasMaxLength "
+                "(%s) allows %d -- writing it would break EX-1"
+                % (frame['name'], len(frame['alias']),
+                   source['aliasMaxLength']['source'], limit))
     if problems:
         return None, problems
 

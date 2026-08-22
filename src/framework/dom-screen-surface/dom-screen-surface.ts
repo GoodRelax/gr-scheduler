@@ -82,9 +82,9 @@
 //
 // ⭐ WHAT THE DOM IS FOR, BESIDES BEING LOOKED AT. Every part carries
 // `data-role` with the settled name table T-103 gives it, and every entry
-// carries `data-icon` with its row of table T-109 -- ⛔ save for the one pair
-// this unit does not yet draw as a pair (IC-58 / IC-59, the `Row Expander`;
-// `rowTitleElement` holds the STOP note that says why). That is not decoration:
+// carries `data-icon` with its row of table T-109 -- including the `Row
+// Expander`, which is ONE part (U-47) drawn as the TWO controls HF-1 counts
+// (IC-58 / IC-59; see `rowTitleElement`). That is not decoration:
 //
 //   - `readScreenPartAt` reads them back. It is the third member of IF-9, and
 //     `data-role` / `data-icon` are what it walks: the entry a point is on, and
@@ -537,6 +537,49 @@ function fillScreenFrame(
 }
 
 /**
+ * One control of a row of the `Row Title Panel` -- U-47 `Row Expander`'s two
+ * halves and U-48 `Row Pin`.
+ *
+ * ⭐ EVERY ONE OF THEM CARRIES ITS ROW OF TABLE T-109. IF-9 of table T-065 has
+ * this seam answer which part of table T-103 and which entrance of table T-109
+ * a point is on, and states under that table (MUST) that the side which DREW an
+ * entrance is the side that answers where it is -- so an entrance this unit
+ * draws and leaves unmarked is a supply the seam promises and cannot deliver.
+ *
+ * ⚠️ Two of them share `role` on purpose: U-47 of table T-103 is ONE part made
+ * of an opening side and a closing side, and it is `icon` that tells the halves
+ * apart.
+ *
+ * ⛔ THE SHAPE IS NOT REACHABLE FROM `src/`, SO THE ROW ID IS THE BODY. FR-098
+ * asks for the `Row Pin` to be DRAWN AS A SHAPE (MUST) and FR-029 makes figure
+ * F-019 the one authority for every shape (MUST) while forbidding a third-party
+ * set (MUST NOT); that figure is `_assets/fig-icons.svg` and nothing generates
+ * it into `src/` the way `icon-roster.json` is generated -- and that roster
+ * carries a row id, the surfaces, the group, what the row is an entrance to and
+ * the authority, and NO glyph, because table T-109 deliberately holds none.
+ * ⛔ So no glyph and no word is invented here: the row id itself is put in as
+ * the body, which is the same fallback `commandEntry` already takes, and which
+ * the shape replaces on the day F-019 reaches the code the way the roster does.
+ *
+ * ⛔ WITHOUT A BODY THE CONTROL CANNOT BE PRESSED AT ALL. An empty `button`
+ * with no length of its own collapses to zero height, so every entrance drawn
+ * here was unreachable by pointer and by IF-9's third member alike -- which is
+ * the supply that table T-065 promises above, made undeliverable by having
+ * nothing to hit. ⚠️ The words are NOT what FR-029 asks the entrance to say;
+ * they are what keeps it a target until the shape arrives.
+ *
+ * @provisional PD-154
+ * @purity non-pure
+ */
+function rowControlElement(host: Document, role: string, icon: string): HTMLElement {
+  const control = part(host, 'button', role, STYLE.rowControl)
+  control.setAttribute('type', 'button')
+  control.setAttribute('data-icon', icon)
+  control.textContent = icon
+  return control
+}
+
+/**
  * One row of U-23 `Row Title Tree`.
  *
  * ⭐ Placed by the box the description carries, never by one worked out here:
@@ -563,25 +606,39 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   row.setAttribute('data-truncated', String(title.isLabelTruncated))
   if (title.isSelected) row.setAttribute('aria-selected', 'true')
 
-  // HF-1 of table T-051: a row with something under it carries BOTH controls,
-  // and one of the pair can be spent while the other is not (HF-2 opens one
-  // level, HF-3 closes all of them).
+  // U-47 `Row Expander`, drawn as the TWO controls the specification counts.
   //
-  // STOP -- ⛔ ONE NODE IS DRAWN WHERE HF-1 ASKS FOR TWO, and that is why the
-  // pair carries no row of table T-109 the way the `Row Pin` below does. HF-1
-  // 「開く操作子と閉じる操作子を 1 つずつ」 and U-47 of table T-103 「開く側と
-  // 閉じる側の 2 つで 1 組」 both count two controls; table T-109 gives them a
-  // row EACH (IC-58 opens one level, HF-2; IC-59 closes all of them, HF-3), and
-  // one node cannot carry two. ⛔ Nothing is invented here: splitting the pair
-  // changes WHAT IS DRAWN, which is a finding of its own and not the answer to
-  // where a press landed. Until it is split, a press on this control is answered
-  // 「面の上・入口の外」 and IF-9 still owes those two rows.
+  // ⭐ HF-1 of table T-051 puts one opening control AND one closing control on
+  // a row, U-47 of table T-103 counts the same two as one part, and table T-109
+  // gives them a row EACH -- IC-58 opens one level (HF-2), IC-59 closes all of
+  // them (HF-3). ⛔ They are NOT one control in two states: the two operations
+  // differ in reach, so one of the pair can be spent while the other is not,
+  // which is why `RowExpander` carries two flags and not one.
+  //
+  // ⚠️ The order is the specification's own print order (HF-2 before HF-3,
+  // IC-58 before IC-59): a table's order is kept in the code that follows it,
+  // because a reader who knows the table reads this list against it.
+  //
+  // ⛔ `null` is a row with nothing under it, and neither half is drawn then --
+  // that judgement is `expanderOf`'s (UF-63) and is not repeated here.
+  //
+  // STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how a SPENT half is drawn.
+  // `canOpen` / `canClose` are false when that half has nothing left to reach,
+  // and no row says what then. HF-6 of table T-051 governs the faintness of the
+  // controls as such and turns on the POINTER, not on reach; FR-029 asks for
+  // faintness of an endpoint that cannot be grabbed, and the palette's answer
+  // (`commandEntry`: faint plus `aria-disabled`) is FR-029's `isEnabled` and not
+  // this. ⛔ So neither half is dimmed or disabled here and nothing is invented:
+  // the two flags are put on the DOM under their own names, and whoever settles
+  // the look reads them back.
   if (title.expander !== null) {
-    const expander = part(host, 'button', ROLE.rowExpander, STYLE.rowControl)
-    expander.setAttribute('type', 'button')
-    expander.setAttribute('data-can-open', String(title.expander.canOpen))
-    expander.setAttribute('data-can-close', String(title.expander.canClose))
-    row.append(expander)
+    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58')
+    open.setAttribute('data-can-open', String(title.expander.canOpen))
+    row.append(open)
+
+    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59')
+    close.setAttribute('data-can-close', String(title.expander.canClose))
+    row.append(close)
   }
 
   const label = made(host, 'span', 'overflow:hidden;text-overflow:ellipsis;')
@@ -594,24 +651,19 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // U-48 `Row Pin` (FR-098): the control sits on every row, and the same one
   // lets go.
   //
-  // ⭐ IT CARRIES ITS ROW OF TABLE T-109 THE WAY EVERY OTHER ENTRY DOES. IF-9
-  // of table T-065 supplies 「画面上の点がどの UI パーツ（表 T-103）のどの入口
-  // （表 T-109）の上か」 and states under that table (MUST) that the side which
-  // DREW an entrance is the side that answers where it is -- so an entrance this
-  // unit draws and leaves unmarked is a supply the seam promises and cannot
-  // deliver. ⛔ IC-60 is that row: table T-109 places it on the `Row Title
+  // ⭐ IC-60 IS ITS ROW OF TABLE T-109: that table places it on the `Row Title
   // Panel` with FR-098 as its authority, and FR-098 puts exactly ONE `Row Pin`
   // on each row and unpins by that same one (MUST) -- so the control and the
   // entrance are one thing, and one attribute on one node states the whole join.
+  // ⚠️ This is where U-47 above differs: HF-1 counts TWO controls there, so one
+  // node could never have stated it.
   //
   // ⚠️ The KEY of the row it pins is deliberately not on this seam (`ScreenPart`
   // carries the part and the entry and no key, R4's YAGNI), which is why
   // `input-command-translator.ts` still lists IC-60 among the entries it cannot
   // act on. ⭐ That is a different question from whether the entry can be NAMED,
   // and table T-109 is 「アイコンの全数」 that FR-029 (MUST) joins on.
-  const pin = part(host, 'button', ROLE.rowPin, STYLE.rowControl)
-  pin.setAttribute('type', 'button')
-  pin.setAttribute('data-icon', 'IC-60')
+  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60')
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
   row.append(pin)

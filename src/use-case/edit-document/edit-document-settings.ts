@@ -16,7 +16,10 @@
 // ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_DERIVED,
+  type DocumentSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import { dayOf } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
@@ -170,22 +173,22 @@ export function editDocumentSettings(
       // them as separate keys is what lets them drift -- FR-039 requires both
       // halves: they follow (MUST) and they stay separate keys (MUST).
       //
-      // ⚠️ `rulerFont * 3 + 6` is row S-2 of tbl-settings.md written a second
-      // time -- the row states it twice itself, as the default and as the
-      // lower bound -- and this file is not where that value is decided. It
-      // stays only because there is nothing to read it from: the generated
-      // carrier is SETTINGS_BOUNDS in DocumentSettings, and
-      // tools/generate_entity_types.py builds it from the GRS JSON schema,
-      // which carries the bounds stated as NUMBERS (S-2's max of 150) and no
-      // default and no bound written as a formula over other keys.
-      // ⛔ Change request: give the generated carrier the formula rows, so
-      // this asks DocumentSettings (CP-2 owns the saved values and their
-      // bounds) for the band height instead of owning the arithmetic.
+      // ⭐ The band height is NOT arithmetic this file owns. S-2 states it as
+      // a rule over other keys, and CR-200 gave that rule a printed carrier
+      // (SETTINGS_DERIVED), so the numbers live in the manuscript alone.
+      // ⚠️ Before that, this line read `rulerFont * 3 + 6` -- and the 6 has
+      // since become a row of its own (S-136), which a copy here could not
+      // have followed.
       const rulerFont = settings.fontScaleSizes[command.scale]
+      const band = SETTINGS_DERIVED.rulerHeight
+      const padded = { ...settings, rulerFont }
       return put({
         fontScale: command.scale,
         rulerFont,
-        rulerHeight: rulerFont * 3 + 6,
+        rulerHeight:
+          padded[band.from] * band.times +
+          band.plus +
+          padded[band.plusFrom] * band.plusTimes,
       })
     }
 

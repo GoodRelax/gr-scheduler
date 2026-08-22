@@ -45,8 +45,16 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { Notice, ScreenSession } from '../../src/adapter/screen-renderer/screen-renderer'
-import { noticesFromSession } from '../../src/adapter/screen-renderer/notices'
+import type {
+  Confirmation,
+  ConfirmationItem,
+  Notice,
+  ScreenSession,
+} from '../../src/adapter/screen-renderer/screen-renderer'
+import {
+  confirmationFromSession,
+  noticesFromSession,
+} from '../../src/adapter/screen-renderer/notices'
 
 // ---------------------------------------------------------------------------
 // The fixed copy of the table these cases are driven by.
@@ -398,5 +406,251 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
     const session = sessionOf([REFUSAL, PENDING_RESTORE, DESTRUCTIVE, PENDING_AGENT_API])
 
     expect(noticesFromSession(session)).toEqual(noticesFromSession(session))
+  })
+})
+
+// ===========================================================================
+// Added for `confirmationFromSession` -- NT-7 of table T-037, the row that asks
+// rather than tells -- and for NT-5, the manner OP-11 of table T-024a sends its
+// telling to. Written against docs/spec only; the unit's body was not read.
+//
+// The rules these cases answer to:
+//   NT-7   「何が起きるかを示したうえで、続けるか取りやめるかを選ばせること
+//          （MUST）」／「消えるもの・解かれるものがあるときは、その名前を挙げる
+//          こと（MUST）」／「問うてよいのは、要求が確認を求めると定めた場面だけ
+//          とすること（MUST）」
+//   DI-4   表 T-227:「同じとみなせない相手へ書き出そうとするときは、上書きして
+//          よいかを問うこと（MUST）—— 作法は 表 T-037 の `NT-7`。消えるものの
+//          名前を挙げる義務はここには無い」-- so an EMPTY list of names is a
+//          real answer and a question carrying one may not be dropped
+//   FR-031 「場面を列挙してはならない（MUST NOT）」-- so nothing here may sort
+//          the questions by which requirement raised them
+//   NT-5   「操作を止めないこと（MUST）」／「`NT-1`（受け付けないとき）と見分け
+//          がつく形にすること（MUST）」-- OP-11 of table T-024a sends its
+//          telling here: 先頭の 1 つだけを受け入れ、残りを無視したことを告げる
+//   NT-3   「対象の件数を添えること」-- the count OP-11 has to carry
+//   R7.1   `pure` in table T-075
+// ===========================================================================
+
+/**
+ * The three places a requirement says 確認を求める, as of table T-227.
+ *
+ * ⛔ A roster of INPUTS, never of what may be shown: FR-031 forbids enumerating
+ * the places that may ask (MUST NOT), so these cases prove that each of the
+ * three comes back UNCHANGED -- which is what a unit that does not know the
+ * roster does. `items` is copied from what each requirement asks for by name:
+ * FR-032 the row and its WBS descendants, FR-099 the tasks an unassignment
+ * reaches, and DI-4 nothing at all.
+ */
+const NT_7_ASKING_SITES = [
+  {
+    by: 'FR-032',
+    text: 'this row and its WBS descendants would go',
+    items: [
+      { name: 'foundation work', isShownOnAnotherRow: false },
+      { name: 'steel delivery', isShownOnAnotherRow: true },
+    ],
+  },
+  {
+    by: 'FR-099',
+    text: 'the assignments on these tasks would be released',
+    items: [{ name: 'painting', isShownOnAnotherRow: false }],
+  },
+  {
+    by: 'DI-4',
+    text: 'the file at that place is not this document and would be written over',
+    items: [],
+  },
+] as const satisfies readonly {
+  readonly by: string
+  readonly text: string
+  readonly items: readonly ConfirmationItem[]
+}[]
+
+/** The row of table T-037 a question follows. */
+const ASKING = 'NT-7'
+
+const confirmationOf = (
+  text: string,
+  items: readonly ConfirmationItem[],
+  manner: string = ASKING,
+): Confirmation => ({ manner, text, items })
+
+const sessionAsking = (
+  confirmation: Confirmation | null,
+  notices: readonly Notice[] = [],
+): ScreenSession => ({ ...sessionOf(notices), confirmation })
+
+/**
+ * OP-11 of table T-024a as it reaches this unit: 受け付けたうえで注意を伝える
+ * (NT-5), with 表 T-037 の NT-3 の件数 standing for 無視した残りの数.
+ */
+const OP_11_TELLING = noticeOf(
+  'NT-5',
+  'the first file was opened; the rest of the hand-over was ignored',
+  ['hand the others over one at a time'],
+  2,
+)
+
+// ---------------------------------------------------------------------------
+
+describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
+  it('GIVEN no question was raised WHEN the view is filled THEN there is none to answer (the empty case)', () => {
+    expect(confirmationFromSession(sessionAsking(null))).toBeNull()
+  })
+
+  it('GIVEN a question was raised WHEN the view is filled THEN it comes back exactly as it was raised', () => {
+    // NT-7 asks for 何が起きるか in words and for the names of what would go,
+    // and neither can be known anywhere but where the question is raised.
+    const asked = confirmationOf('twelve rows would go', [
+      { name: 'foundation work', isShownOnAnotherRow: false },
+    ])
+
+    expect(confirmationFromSession(sessionAsking(asked))).toEqual(asked)
+  })
+
+  it('GIVEN each place a requirement asks WHEN the view is filled THEN each comes back untouched (one case walks the roster; FR-031 MUST NOT)', () => {
+    // FR-031 no longer counts the places that may ask, so filtering by WHICH
+    // requirement raised the question is exactly what its MUST NOT bars.
+    for (const site of NT_7_ASKING_SITES) {
+      const asked = confirmationOf(site.text, site.items)
+
+      expect(confirmationFromSession(sessionAsking(asked)), site.by).toEqual(asked)
+    }
+  })
+
+  it('GIVEN DI-4 question, which takes nothing with it WHEN the view is filled THEN it is still asked (empty items is an answer, not a missing one)', () => {
+    // 表 T-227 DI-4:「消えるものの名前を挙げる義務はここには無い」。Dropping a
+    // question for having no names would silence the one MUST of that table.
+    const asked = confirmationOf('that file is not this document', [])
+
+    const shown = confirmationFromSession(sessionAsking(asked))
+
+    expect(shown).not.toBeNull()
+    expect((shown as Confirmation).items).toEqual([])
+    expect((shown as Confirmation).text).toBe('that file is not this document')
+  })
+
+  it('GIVEN a thing that carries no name WHEN the question is shown THEN the null name survives rather than the item being dropped', () => {
+    // `Task.name` is optional in the document, so a nameless task has to stay
+    // describable. A count may not stand in for the names (FR-032, FR-099).
+    const asked = confirmationOf('two tasks would go', [
+      { name: null, isShownOnAnotherRow: false },
+      { name: 'painting', isShownOnAnotherRow: true },
+    ])
+
+    const shown = confirmationFromSession(sessionAsking(asked)) as Confirmation
+
+    expect(shown.items).toHaveLength(2)
+    expect(shown.items.map((item) => item.name)).toEqual([null, 'painting'])
+    expect(shown.items.map((item) => item.isShownOnAnotherRow)).toEqual([false, true])
+  })
+
+  it('GIVEN many things would go WHEN the question is shown THEN every name reaches it (no cap; the count may not stand in)', () => {
+    const many = Array.from({ length: 12 }, (_, index) => ({
+      name: `task number ${index}`,
+      isShownOnAnotherRow: index % 2 === 0,
+    }))
+    const asked = confirmationOf('twelve tasks would go', many)
+
+    expect((confirmationFromSession(sessionAsking(asked)) as Confirmation).items).toEqual(many)
+  })
+
+  it('GIVEN a question raised WHEN it is shown THEN the row of table T-037 it follows travels with it', () => {
+    // `Confirmation.manner` is the join to the table, carried rather than
+    // assumed -- the same move `Notice.manner` makes for NT-5 against NT-1.
+    const asked = confirmationOf('that file would be written over', [])
+
+    expect((confirmationFromSession(sessionAsking(asked)) as Confirmation).manner).toBe(ASKING)
+  })
+
+  it('GIVEN notices raised beside the question WHEN both members are filled THEN neither becomes the other (a question is not a notice)', () => {
+    // NT-7 stops until it is answered and NT-1 .. NT-6 do not, so a question
+    // wearing a notice's shape would let a caller show one nobody can answer.
+    const asked = confirmationOf('that file would be written over', [])
+    const session = sessionAsking(asked, [REFUSAL, PENDING_RESTORE, WARNING])
+
+    const shown = noticesFromSession(session)
+
+    expect(shown.map((notice) => notice.manner).sort()).toEqual(['NT-1', 'NT-4', 'NT-5'])
+    expect(shown.some((notice) => notice.text === asked.text)).toBe(false)
+    expect(confirmationFromSession(session)).toEqual(asked)
+  })
+
+  it('GIVEN pending startup items being gathered WHEN a question stands beside them THEN NT-4 gathering does not reach it', () => {
+    // NT-4 (MUST) is the only row that speaks about several at once, and it is
+    // about notices. Nothing here gathers or orders questions.
+    const asked = confirmationOf('a newer autosave would be discarded', [
+      { name: 'the autosave of 09:00', isShownOnAnotherRow: false },
+    ])
+    const session = sessionAsking(asked, [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API])
+
+    expect(noticesFromSession(session)).toHaveLength(1)
+    expect(confirmationFromSession(session)).toEqual(asked)
+  })
+
+  it('GIVEN nothing was raised at all WHEN both members are filled THEN there is nothing to tell and nothing to answer', () => {
+    const session = sessionAsking(null, [])
+
+    expect(noticesFromSession(session)).toEqual([])
+    expect(confirmationFromSession(session)).toBeNull()
+  })
+})
+
+describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
+  it('GIVEN files were left out of a hand-over WHEN the telling is shown THEN it stands apart from NT-1 refusal (NT-5 MUST)', () => {
+    // OP-11:「先頭の 1 つだけを受け入れ、残りを無視したことを告げること
+    // （MUST）。作法は 表 T-037 の `NT-5`」／「受け付けなかったことにしては
+    // ならない（MUST NOT）」。
+    const shown = noticesFromSession(sessionOf([REFUSAL, OP_11_TELLING]))
+
+    expect(shown).toHaveLength(2)
+    expect(shown.map((notice) => notice.manner).sort()).toEqual(['NT-1', 'NT-5'])
+    const told = shown.find((notice) => notice.manner === 'NT-5') as Notice
+    expect(told).toEqual(OP_11_TELLING)
+  })
+
+  it('GIVEN the count of what was ignored WHEN the telling is shown THEN the count survives (NT-3)', () => {
+    const shown = noticesFromSession(sessionOf([OP_11_TELLING]))
+
+    expect((shown[0] as Notice).affectedCount).toBe(2)
+  })
+
+  it('GIVEN nothing was left behind WHEN a count of zero is told THEN zero survives as zero, not as absent', () => {
+    const none = noticeOf('NT-5', 'the whole hand-over was accepted', ['carry on'], 0)
+    const shown = noticesFromSession(sessionOf([none]))
+
+    expect((shown[0] as Notice).affectedCount).toBe(0)
+  })
+
+  it('GIVEN the OP-11 telling raised at startup beside pending items WHEN the surfaces are chosen THEN it is not swept into NT-4 gathering', () => {
+    // Merging it would put it under another row's manner, and NT-5 (MUST) has
+    // to stay tellable apart from NT-1's refusal.
+    const shown = noticesFromSession(sessionOf([PENDING_RESTORE, OP_11_TELLING, PENDING_RECOVERY]))
+
+    expect(shown).toHaveLength(2)
+    expect(shown.filter((notice) => notice.manner === 'NT-5')).toEqual([OP_11_TELLING])
+  })
+})
+
+describe('UF-67 -- confirmationFromSession is @purity pure (table T-075, R7.1)', () => {
+  it('GIVEN a question and its items WHEN the view is filled THEN nothing it was given is rewritten', () => {
+    const asked = confirmationOf('two tasks would go', [
+      { name: 'foundation work', isShownOnAnotherRow: false },
+      { name: null, isShownOnAnotherRow: true },
+    ])
+    const before = structuredClone(asked)
+    const session = sessionAsking(asked, [REFUSAL, PENDING_RESTORE])
+
+    confirmationFromSession(session)
+
+    expect(asked).toEqual(before)
+    expect(session.confirmation).toEqual(before)
+  })
+
+  it('GIVEN the same session WHEN it is asked twice THEN it answers the same way both times', () => {
+    const session = sessionAsking(confirmationOf('that file would be written over', []), [REFUSAL])
+
+    expect(confirmationFromSession(session)).toEqual(confirmationFromSession(session))
   })
 })

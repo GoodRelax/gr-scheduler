@@ -750,14 +750,37 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
 
-      // ⛔ NOT SCALED HERE, and the difference is worth knowing about: FR-080
-      // makes the picture the whole of the screen reduced by the ratio S-81's
-      // width bears to the screen's, and says which UI parts go into it (table
-      // T-076). PI-19 owns that rule; `svgFromSchedule` is what it publishes,
-      // and it draws the schedule at the size the frame drew it. Applying the
-      // ratio here would put a second implementation of FR-080 in a component
-      // that does not own it, and WY-3 of table T-041 judges the result. What
-      // this member answers with is the picture SvgRenderer makes. Reported.
+      // ⛔ STOP -- NOT THE PICTURE FR-080 DEFINES, AND THE REASON HAS MOVED.
+      // CR-196 gave PI-21 the member that assembles one: `exportSvg` lays
+      // table T-076's parts over the screen shrunk by the ratio S-81's width
+      // bears to the screen's, and applies FR-025's cut. D5b settled that this
+      // member answers with THAT picture, so the wiring this row wants is a
+      // call to `exportSvg` and nothing else. ⛔ What stops the call is that
+      // its `ExportScene` cannot be built from what IF-7 supplies. Two of the
+      // four values are reachable here (`regions` and `settings`); the other
+      // two are not:
+      //   screenView  PI-37's `ScreenView`. Chapter 5.2 draws this component
+      //               no edge to ScreenRenderer, and that component's entry
+      //               takes a `ScreenState` and a session which `AgentSnapshot`
+      //               does not carry either. ⛔ Building the row names here
+      //               instead would put FR-085's cut in a second component.
+      //   svg         one rendered FOR the export. FR-080 (MUST) fixes that
+      //               base environment -- MC-6 of table T-025 with the
+      //               properties panel and the command palette CLOSED, and
+      //               CU-3 of table T-029 has no pointer to follow -- and the
+      //               frame in the snapshot is the one a person is looking at.
+      //               Its regions and its picture are a different environment.
+      // ⭐ Both belong to the side that computes a frame (ADR-001): the shell
+      // (CP-25) can run table T-068 once for the export's environment and hand
+      // the result over, which is what IF-7 exists to do -- `FrameSnapshot`
+      // already carries what one frame computed. ⛔ Widening that seam is
+      // UF-29's to do, not this file's. Reported.
+      //
+      // ⚠️ MEANWHILE this member answers with SvgRenderer's schedule drawing at
+      // the frame's own scale. It is a picture, which is what the row requires
+      // and what BO-1's refusal above exists to distinguish from no picture at
+      // all -- but WY-2 and WY-3 of table T-041 do not hold of it until the
+      // scene arrives.
       const { document } = snapshot
       return {
         ok: true,

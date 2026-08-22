@@ -47,12 +47,20 @@
 //                     reads any other file in it (MUST NOT)
 //   table T-064 PI-24 the whole of what this component publishes
 //
-// ⛔ NOT CHECKABLE HERE, and deliberately not asserted: the output size
-// (S-81 of table T-204), the TaskGroup-wise clipping, and whether FR-020's
-// watermark question was put to the person on this route -- FR-025 (:3132 and
-// :3134) requires all three, and LM-8 is why the last one reaches an outbound
-// route. They belong where the picture is made; this unit is handed a finished
-// string and cannot tell whether any of them were applied.
+// ⛔ NOT CHECKABLE ON THE GATEWAY ITSELF, and deliberately not asserted of it:
+// the output size (S-81 of table T-204), the TaskGroup-wise clipping, and
+// whether FR-020's watermark question was put to the person on this route --
+// FR-025 (:3132 and :3134) requires all three, and LM-8 is why the last one
+// reaches an outbound route. They belong where the picture is made; this unit
+// is handed a finished string and cannot tell whether any of them were applied.
+//
+// ⭐ SECOND PASS (CR-196). The first two of those three ARE checkable now, one
+// step upstream: PI-21 publishes `exportSvg`, and the manuscript's picture edge
+// for this component was corrected from SvgRenderer to ImageExporter. The last
+// block of this file therefore assembles a picture through PI-21's own entry
+// and sends THAT down the route, so that "the picture that comes out is the
+// same" (FR-025 :3145) is judged rather than assumed. ⚠️ The watermark question
+// stays unreachable from here for the reason above.
 
 import { describe, expect, it } from 'vitest'
 
@@ -64,6 +72,21 @@ import {
   type ClipboardFault,
   type ClipboardWriting,
 } from '../../src/adapter/clipboard-gateway/clipboard-gateway'
+// ⭐ PI-21, reached through its public entry only (Chapter 5.3). CR-196 moved
+// the manuscript's picture edge for this component from SvgRenderer to
+// ImageExporter, so the picture IO-6 carries is the one PI-21 assembles.
+import {
+  exportPng,
+  exportSvg,
+  type ExportScene,
+  type Rasterizer,
+} from '../../src/adapter/image-exporter/image-exporter'
+import type { RowTitle, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
+import type { ScreenRegions } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by (Chapter 1.9, :275).
@@ -493,5 +516,231 @@ describe('table T-037 -- the refusal carries what the notice needs', () => {
       if (writing.ok) continue
       expect(CLIPBOARD_FAULTS, why).toContain(writing.fault)
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// IO-6 of table T-024 -- the picture that leaves by this route is the one
+// ImageExporter assembled, and it is the same picture IO-3 and IO-4 carry
+//
+// ⭐ WHY THIS BLOCK EXISTS. FR-025 (:3145) puts this route inside its own scope:
+// "the route that sends to the clipboard (IO-6) is also within this
+// requirement's scope. It only skips the download dialogue; the picture that
+// comes out is the same (FR-080)." CR-196 corrected the manuscript's own edge
+// for exactly that reason -- the picture ClipboardGateway is handed comes from
+// ImageExporter (PI-21), not from SvgRenderer -- and WY-2 of table T-041 makes
+// "the same picture" a judgement rather than a wish.
+//
+// ⛔ These cases do NOT claim that this unit builds a picture. It does not, and
+// the case above ("nothing is made again here") is what pins that. What they
+// pin is the other half: the string that goes out on R-9 is IO-3's own output,
+// unaltered, and the gateway is the one place all three routes meet.
+// ---------------------------------------------------------------------------
+
+const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
+  const built: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(flat)) {
+    const dot = key.indexOf('.')
+    if (dot < 0) {
+      built[key] = value
+      continue
+    }
+    const head = key.slice(0, dot)
+    const existing = built[head]
+    const group = (typeof existing === 'object' && existing !== null ? existing : {}) as Record<
+      string,
+      unknown
+    >
+    group[key.slice(dot + 1)] = value
+    built[head] = group
+  }
+  return built
+}
+
+/**
+ * ⛔ Rule 03 forbids re-typing a value the specification holds, so S-81 and
+ * every other key arrive through `SETTINGS_DEFAULTS`, which `npm run gen`
+ * writes out of `docs/spec/_source/settings.json`.
+ */
+const EXPORT_SETTINGS = nestedFrom(SETTINGS_DEFAULTS) as unknown as DocumentSettings
+
+/** A screen of the export's base environment. 1000 wide, so FR-080's ratio is 1.6. */
+const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
+
+const EXPORT_REGIONS: ScreenRegions = (() => {
+  const canvasHeight = EXPORT_SCREEN.height - EXPORT_SCREEN.appHeaderHeight
+  const rowAreaWidth =
+    EXPORT_SCREEN.width - EXPORT_SETTINGS.canvasPadding - EXPORT_SETTINGS.rowTitlePanelWidth
+  return {
+    appHeader: { x: 0, y: 0, width: EXPORT_SCREEN.width, height: EXPORT_SCREEN.appHeaderHeight },
+    scheduleCanvas: {
+      x: 0,
+      y: EXPORT_SCREEN.appHeaderHeight,
+      width: EXPORT_SCREEN.width,
+      height: canvasHeight,
+    },
+    rowTitlePanel: {
+      x: 0,
+      y: EXPORT_SCREEN.appHeaderHeight,
+      width: EXPORT_SETTINGS.rowTitlePanelWidth,
+      height: canvasHeight,
+    },
+    timeRuler: {
+      x: EXPORT_SETTINGS.rowTitlePanelWidth,
+      y: EXPORT_SCREEN.appHeaderHeight,
+      width: rowAreaWidth,
+      height: EXPORT_SETTINGS.rulerHeight,
+    },
+    // FR-080 (MUST): the properties panel goes into an export CLOSED, so the
+    // base environment hands over a region of no width.
+    propertiesPanel: {
+      x: EXPORT_SCREEN.width,
+      y: EXPORT_SCREEN.appHeaderHeight,
+      width: 0,
+      height: canvasHeight,
+    },
+    rowArea: {
+      x: EXPORT_SETTINGS.rowTitlePanelWidth,
+      y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeight,
+      width: rowAreaWidth,
+      height: canvasHeight - EXPORT_SETTINGS.rulerHeight - EXPORT_SETTINGS.canvasPadding,
+    },
+  }
+})()
+
+/** The base environment of FR-080: the panel and the palette closed, nothing overlaid. */
+const EXPORT_VIEW: ScreenView = {
+  frame: { isFullScreen: false, dividers: [], scrollbars: [] },
+  appHeaderItems: {
+    documentTitle: 'a document on its way to the clipboard',
+    autosaveStatus: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
+    commands: [],
+  },
+  rowTitlePanel: {
+    pinnedTitles: [],
+    titles: [
+      {
+        groupId: 'g1',
+        depth: 1,
+        box: { x: 0, y: 120, width: EXPORT_SETTINGS.rowTitlePanelWidth, height: 60 },
+        label: 'a row that reaches the picture',
+        isLabelTruncated: false,
+        expander: { canOpen: true, canClose: true },
+        isPinned: false,
+        isSelected: false,
+      },
+    ],
+  },
+  propertiesPanel: null,
+  commandPalette: null,
+  openModal: null,
+  notices: [],
+  confirmation: null,
+  dialogueField: null,
+  tooltips: [],
+}
+
+const EXPORT_SCENE: ExportScene = {
+  svg: '<svg xmlns="http://www.w3.org/2000/svg" data-from="svg-renderer"><circle cx="7" cy="11" r="3"/></svg>',
+  regions: EXPORT_REGIONS,
+  screenView: EXPORT_VIEW,
+  settings: EXPORT_SETTINGS,
+}
+
+/** The `width`/`height` of the outermost element of a picture, as numbers. */
+const rootSizeOf = (svg: string): { readonly width: number; readonly height: number } => {
+  const root = /<svg((?:[^<>"]|"[^"]*")*)>/.exec(svg)?.[1] ?? ''
+  const attr = (name: string): number =>
+    Number.parseFloat(new RegExp(`${name}="([^"]*)"`).exec(root)?.[1] ?? 'NaN')
+  return { width: attr('width'), height: attr('height') }
+}
+
+/** A rasterizer that answers without looking, so IO-4 can be compared to IO-3. */
+const STILL_RASTERIZER: Rasterizer = {
+  rasterizePng: () => Promise.resolve({ ok: true, pngBytes: Uint8Array.from([0x89, 0x50]) }),
+}
+
+describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () => {
+  it('GIVEN the picture ImageExporter assembled WHEN it leaves by the clipboard THEN the seam is handed that very string (IO-6, FR-025 :3145)', async () => {
+    const assembled = exportSvg(EXPORT_SCENE)
+    const { clipboard, received } = answeringClipboard({ ok: true })
+
+    await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+
+    expect(received).toHaveLength(1)
+    const sent = received[0]
+    expect(sent?.kind).toBe('picture')
+    expect(sent === undefined ? '' : stringOf(sent)).toBe(assembled.svg)
+  })
+
+  it('GIVEN IO-6 payload WHEN its root is read THEN it is exportCanvas wide and tall, as IO-3 is (S-81 of table T-204)', async () => {
+    // FR-025 (MUST NOT): the output size is fixed at S-81 and never chosen at
+    // each export -- and this route "only skips the download dialogue".
+    const assembled = exportSvg(EXPORT_SCENE)
+    const { clipboard, received } = answeringClipboard({ ok: true })
+
+    await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+
+    const sent = received[0]
+    expect(rootSizeOf(sent === undefined ? '' : stringOf(sent))).toEqual({
+      width: EXPORT_SETTINGS.exportCanvas.width,
+      height: EXPORT_SETTINGS.exportCanvas.height,
+    })
+  })
+
+  it('GIVEN one state WHEN IO-3, IO-4 and IO-6 each take their picture THEN all three carry one drawing (WY-2 of table T-041)', async () => {
+    const assembled = exportSvg(EXPORT_SCENE)
+    const both = await exportPng(STILL_RASTERIZER, EXPORT_SCENE)
+    const { clipboard, received } = answeringClipboard({ ok: true })
+
+    await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+
+    // IO-3 against IO-4 -- one assembly, so one string.
+    expect(both.svg).toBe(assembled.svg)
+    // IO-4 against IO-6 -- the clipboard carries what the rasterizer painted.
+    const sent = received[0]
+    expect(sent === undefined ? '' : stringOf(sent)).toBe(both.svg)
+  })
+
+  it('GIVEN a picture that FR-025 cut down WHEN it leaves by the clipboard THEN the gateway neither restores nor re-cuts it', async () => {
+    // ⚠️ What was dropped travels beside the picture, not inside it: FR-025
+    // (MUST) has the count told to a person, and `ClipboardContent` carries no
+    // field for it -- so this unit can only be shown not to touch the string.
+    const tall: ExportScene = {
+      ...EXPORT_SCENE,
+      screenView: {
+        ...EXPORT_VIEW,
+        rowTitlePanel: {
+          pinnedTitles: [],
+          titles: [
+            {
+              ...(EXPORT_VIEW.rowTitlePanel.titles[0] as RowTitle),
+              groupId: 'below',
+              box: { x: 0, y: 900, width: EXPORT_SETTINGS.rowTitlePanelWidth, height: 60 },
+              label: 'a row FR-025 drops',
+            },
+          ],
+        },
+      },
+    }
+    const assembled = exportSvg(tall)
+    expect(assembled.droppedGroupIds).toEqual(['below'])
+
+    const { clipboard, received } = answeringClipboard({ ok: true })
+    await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+
+    const sent = received[0]
+    expect(sent === undefined ? '' : stringOf(sent)).toBe(assembled.svg)
+    expect(assembled.svg).not.toContain('a row FR-025 drops')
+  })
+
+  it('GIVEN the clipboard refuses WHEN an assembled picture is sent THEN the refusal is a value and the picture is untouched (FR-028)', async () => {
+    const assembled = exportSvg(EXPORT_SCENE)
+    for (const fault of CLIPBOARD_FAULTS) {
+      const { clipboard } = answeringClipboard({ ok: false, fault })
+      const writing = await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+      expect(writing, fault).toEqual({ ok: false, fault })
+    }
+    expect(exportSvg(EXPORT_SCENE).svg).toBe(assembled.svg)
   })
 })

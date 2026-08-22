@@ -185,9 +185,19 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * questions -- and a second question raised over the first would be one nothing
  * in the table says how to show.
  *
- * ⚠️ NOT DROPPED FOR BEING EMPTY. `Confirmation.items` may be empty: NT-7 asks
- * for names only where something goes, and the overwrite question the user
- * settled on 2026-08-21 takes nothing with it.
+ * ⚠️ NOT DROPPED FOR BEING EMPTY. `Confirmation.items` may be empty, and an
+ * empty list is an answer rather than a missing one. NT-7 asks for names only
+ * where something goes, and DI-4 of table T-227 -- the question asked before
+ * writing over a file that is not this document -- takes nothing with it: the
+ * file that would go is the other side's, and DI-4 says in as many words that
+ * the naming clause does not reach it. ⛔ Dropping a question for having no
+ * items would silence the one row of table T-227 that is a MUST.
+ *
+ * ⚠️ FR-031 no longer counts the places that may ask; it states the class they
+ * belong to (losing what undoing cannot give back) and forbids enumerating them
+ * (MUST NOT). ⭐ So nothing here may be filtered by WHICH requirement raised the
+ * question: a roster of the admitted sites is exactly what that MUST NOT bars,
+ * and NT-7's own limit binds the raiser, not this unit.
  *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how the answer travels back, and
  * what the two choices are called. Looked in table T-037 (NT-7 says the person
@@ -199,6 +209,10 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * shortcut). Nothing is invented here: the words would be `OpenModal.heading`'s
  * problem over again, and an entry would be a row of table T-109 that only a
  * ruling can add.
+ * ⚠️ STILL OPEN AFTER TABLE T-227. CR-197 added DI-4, which is a fourth place
+ * that asks, and closed nothing about how the answer comes back -- its own
+ * closing section records the return path as left open. ⛔ Do not read the new
+ * table as having settled this.
  *
  * @purity pure
  */

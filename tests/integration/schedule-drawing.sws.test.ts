@@ -61,7 +61,7 @@
 //   PI-35 regionsFromScreen  -> PI-5 layoutFromSchedule -> PI-6 geometryFromLayout
 //   PI-19 svgFromSchedule    where the case is about what is drawn
 //
-// THREE CASES ARE LEFT FAILING. They are findings, not chores (04-verification
+// TWO CASES ARE LEFT FAILING. They are findings, not chores (04-verification
 // section 1): the expected value states what the specification says, and the
 // specification is quoted in the case. Search for `FINDING` below.
 
@@ -415,6 +415,11 @@ const closeTo = (p: Point, x: number, y: number): void => {
  * lets these cases test the formula without inventing a label the
  * specification does not fix.
  *
+ * ⚠️ W is LF-1's OCCUPIED width, not FR-093's estimate: since CR-200 the row
+ * reads "the estimated label width (`FR-093`) plus `rulerLabelGap`", so what
+ * the bisection recovers is `estimate + rulerLabelGap` (table T-006b A-11
+ * keeps the two words apart).
+ *
  * The day step (`L-1` of table T-005a, the fourth) is the only step LF-1 acts
  * on, so the search runs with the day threshold at its floor -- `S-85`'s lower
  * bound is `rulerTierPxPerDayWeek` -- and asserts it stayed on that step.
@@ -425,17 +430,22 @@ const FONT_MIN = SETTINGS_DEFAULTS['fontMin'] as number
 /** The narrowest day that still shows the day step, once S-85 is at its floor. */
 const dayStepFrom = (rulerFont: number): number => (DAY_STEP_FLOOR * rulerFont) / FONT_MIN
 
+/** What S-135 states, printed from the manuscript by `npm run gen`. */
+const RULER_LABEL_GAP = SETTINGS_DEFAULTS['rulerLabelGap'] as number
+
 /** Settings that put the ruler on its day step at `pxPerDay`, however narrow. */
 const dayStepSettings = (
   pxPerDay: number,
   rulerFont: number,
   labelCoef: number,
+  rulerLabelGap: number = RULER_LABEL_GAP,
 ): DocumentSettings =>
   settingsOf({
     pxPerDayAt1x: 1,
     zoomX: pxPerDay,
     rulerFont,
     labelCoef,
+    rulerLabelGap,
     // S-85's own lower bound is rulerTierPxPerDayWeek, so this is the widest
     // stretch of the axis the specification lets the day step cover. FR-017
     // divides by the ruler font over S-8 before testing, which is why the
@@ -444,9 +454,13 @@ const dayStepSettings = (
     scrollDate: day(1),
   })
 
-const impliedLabelWidth = (rulerFont: number, labelCoef: number): number => {
+const impliedLabelWidth = (
+  rulerFont: number,
+  labelCoef: number,
+  rulerLabelGap: number = RULER_LABEL_GAP,
+): number => {
   const strideAt = (pxPerDay: number): number => {
-    const settings = dayStepSettings(pxPerDay, rulerFont, labelCoef)
+    const settings = dayStepSettings(pxPerDay, rulerFont, labelCoef, rulerLabelGap)
     const regions = regionsFromScreen(SCREEN, settings)
     const layout = layoutFromSchedule(ONE_TASK_SCHEDULE, settings, regions)
     expect(layout.tier).toBe('yearMonthDayWeekday')
@@ -557,30 +571,50 @@ describe('SWS-1 -- thin out the fine steps of the ruler (FR-017)', () => {
       covers: ['LF-1'],
       given: 'the ruler font doubled, and labelCoef doubled',
       when: 'the width LF-1 divides by is recovered from the strides',
-      then: 'it doubles with each, because FR-093 makes it their product',
+      then: 'the estimate doubles with each and rulerLabelGap rides along unchanged',
     }),
     () => {
-      // FINDING (left failing). LF-1 divides by "the estimated label width
-      // (FR-093)", and FR-093 fixes that width as
-      //     units counted 2 per full-width and 1 per half-width
-      //       * font size * labelCoef
-      // -- a product of three, with nothing added. So the width has to scale
-      // with each factor, whatever the unit count of the day and weekday label
-      // turns out to be. Measured, it does not: it comes out
-      //     2 * rulerFont * labelCoef + labelGap
-      // and the `+ labelGap` term is what breaks the proportion. The gap may
-      // well be the right picture -- two touching labels are unreadable -- but
-      // no line of the specification puts it in LF-1 or FR-093, so the code and
-      // the specification disagree and one of them has to move. Recorded here
-      // rather than absorbed into the expected value.
-      mentions(T221, 'LF-1', 'FR-093')
-      const base = impliedLabelWidth(12, 0.5)
-      expect(impliedLabelWidth(12, 1), 'doubling labelCoef must double it').toBeCloseTo(base * 2, 6)
-      expect(impliedLabelWidth(24, 0.5), 'doubling the ruler font must double it').toBeCloseTo(
+      // LF-1 divides by an OCCUPIED width: "the estimated label width
+      // (`FR-093`) plus `rulerLabelGap`". The two halves answer to different
+      // things, and this case pins each of them:
+      //
+      //   * FR-093 fixes the estimate as
+      //         units counted 2 per full-width and 1 per half-width
+      //           * font size * labelCoef
+      //     -- a product of three, with nothing added. So the ESTIMATE doubles
+      //     with each factor, whatever the unit count of the day and weekday
+      //     label turns out to be.
+      //   * `rulerLabelGap` (S-135) names no font and no coefficient, so it is
+      //     the same number of pixels at every font and every coefficient.
+      //
+      // ⚠️ The occupied width is therefore NOT proportional to either factor
+      // -- taking the gap off first is what makes the proportion testable.
+      // Before CR-200 LF-1 stated a bare estimate and this case demanded the
+      // proportion of the sum; it was red, and the manuscript moved.
+      mentions(T221, 'LF-1', 'FR-093', 'rulerLabelGap')
+      const estimate = (rulerFont: number, labelCoef: number): number =>
+        impliedLabelWidth(rulerFont, labelCoef) - RULER_LABEL_GAP
+      const base = estimate(12, 0.5)
+      expect(base, 'a label of no width would make the proportions vacuous').toBeGreaterThan(0)
+      expect(estimate(12, 1), 'doubling labelCoef must double the estimate').toBeCloseTo(base * 2, 6)
+      expect(estimate(24, 0.5), 'doubling the ruler font must double the estimate').toBeCloseTo(
         base * 2,
         6,
       )
-      expect(impliedLabelWidth(24, 1), 'doubling both must quadruple it').toBeCloseTo(base * 4, 6)
+      expect(estimate(24, 1), 'doubling both must quadruple the estimate').toBeCloseTo(base * 4, 6)
+
+      // 04-verification section 2: a value that comes from the manuscript is
+      // only shown to ARRIVE when moving it moves the answer. Widening S-135
+      // by six pixels has to widen the occupied width by exactly six -- the
+      // gap is added once, and it is added at the same place whatever the
+      // font. A bare number in the code, or the old `labelGap` (S-32, which is
+      // for labels put OUTSIDE a shape, per K-32), leaves this flat.
+      const wider = RULER_LABEL_GAP + 6
+      expect(
+        impliedLabelWidth(12, 0.5, wider) - impliedLabelWidth(12, 0.5, RULER_LABEL_GAP),
+        'S-135 does not reach the thinning',
+      ).toBeCloseTo(wider - RULER_LABEL_GAP, 6)
+      expect(impliedLabelWidth(24, 1, wider) - estimate(24, 1)).toBeCloseTo(wider, 6)
     },
   )
 })

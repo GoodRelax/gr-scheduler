@@ -35,7 +35,10 @@
      "name": { "type": "string", "pattern": "^pjCustomTaskNumber[1-9][0-9]*$" },
      "fieldId": { "type": "integer", "minimum": 1 },
      "prefers": { "type": "string", "enum": ["fadeInDays", "fadeOutDays"] },
-     "alias": { "type": "string" }
+     "alias": {
+      "description": "The column heading the partner's tool shows, empty until the user chooses the word. ⛔ NO maxLength here on purpose: the bound is aliasMaxLength above, stated once with the line of the XSD it was read from, and tools/generate_mspdi_custom_fields.py refuses an alias longer than it. A maxLength written here would be that number a second time and would go on stating it after the XSD moved.",
+      "type": "string"
+     }
     }
    }
   },

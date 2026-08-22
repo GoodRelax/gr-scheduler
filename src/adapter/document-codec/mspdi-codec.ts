@@ -21,10 +21,11 @@
 // This file answers one narrower question: is the text an MSPDI document at
 // all. `json-codec.ts` draws the same line for its own half; a caller runs both,
 // in that order, because the validator takes a `Document` and cannot be handed
-// a shape that is not one. ⭐ Two of FR-023's own MUSTs land HERE rather than
-// there, because they are about the parser and not about the values:
-// external entities are disabled (no DOCTYPE is accepted at all) and no text
-// ever reaches `innerHTML` -- this unit holds no DOM.
+// a shape that is not one. ⭐ Three of FR-023's own MUSTs land HERE rather than
+// there, because they are about the TEXT and not about the values: external
+// entities are disabled (no DOCTYPE is accepted at all), no text ever reaches
+// `innerHTML` -- this unit holds no DOM -- and a leading byte order mark is
+// accepted and dropped, which nothing downstream of the parser could still do.
 //
 // ⛔ It does not advance `Project.importSeq` and it writes no `TaskOrigin`.
 // MG-13 of table T-032 makes the sequence number a property of an import
@@ -118,6 +119,7 @@ import {
   textOfDay,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
+import customFields from './mspdi-custom-fields.json'
 
 // ---------------------------------------------------------------- surface ---
 
@@ -674,8 +676,21 @@ function textColumn(element: XmlElement, name: string): string | null {
 
 /** @purity pure */
 function integerColumn(element: XmlElement, name: string): number | null {
-  const raw = textColumn(element, name)
-  if (raw === null) return null
+  return wholeNumberOf(textColumn(element, name))
+}
+
+/**
+ * One `xsd:integer` the document can hold, or `null` when the text is not one.
+ *
+ * ⭐ Split out of `integerColumn` because a value that arrived inside a
+ * `CarryElement` is a plain string by then (AT-125 is a map of text) and must
+ * be read by the same rule -- two spellings of "is this a whole number" would
+ * be two chances to disagree.
+ *
+ * @purity pure
+ */
+function wholeNumberOf(raw: string | null | undefined): number | null {
+  if (raw === null || raw === undefined) return null
   const trimmed = raw.trim()
   if (!/^[+-]?\d+$/.test(trimmed)) return null
   const value = Number(trimmed)
@@ -918,6 +933,117 @@ function optionalLeaf(name: string, value: string | number | boolean | null): Pl
   return [leaf(name, String(value))]
 }
 
+// -------------------------------------------- the two borrowed frames -------
+
+/**
+ * AT-40 and AT-41 -- the only two columns of table T-058 whose exchange place
+ * is `Task/ExtendedAttribute`.
+ */
+type FadeColumn = 'fadeInDays' | 'fadeOutDays'
+
+/** One row of the roster EX-6 of table T-033 searches. */
+interface CustomFieldFrame {
+  /** The exchange partner's own name for the frame, for a notice to quote. */
+  readonly name: string
+  /**
+   * `FieldID`. ⛔ The only thing a VALUE carries: the partner's
+   * `Task/ExtendedAttribute` has no `FieldName` (mspdi_pj12.xsd:2254).
+   */
+  readonly fieldId: number
+  /** Which column asks for this frame first. EX-6 searches in roster order. */
+  readonly prefers: string
+  /**
+   * The word written into the definition's `Alias`, and the ONLY thing that
+   * tells a frame GRS wrote from a frame the import source wrote (EX-6).
+   * ⛔ Empty until the user fills the manuscript in. While it is empty GRS
+   * cannot recognise its own frame, so it claims none.
+   */
+  readonly alias: string
+}
+
+/**
+ * The roster, and the two numbers with it.
+ *
+ * ⛔ No frame number is written in this file. The numbers are a quotation from
+ * the exchange partner's own enumeration, the manuscript
+ * `docs/spec/_source/mspdi-custom-fields.json` owns them, and `npm run gen`
+ * prints the copy imported above (rule 03 section 1). Renumbering a frame in
+ * the manuscript changes what this file writes with no edit here.
+ *
+ * ⚠️ Reading `customFields` does not make a function `semi-pure-a`: it is a
+ * module constant compiled into the program, not external state read while
+ * running -- the same reading `app-header-items.ts` records for its own
+ * generated roster.
+ */
+const CUSTOM_FIELD_FRAMES: readonly CustomFieldFrame[] = customFields.frames
+
+/**
+ * Where a notice about the frames points. NT-1 of table T-037 wants the item
+ * named, and the item EX-6 and EX-8 are about is the definition collection.
+ */
+const EXTENDED_ATTRIBUTES_AT = '/Project/ExtendedAttributes'
+
+/**
+ * The column this manuscript name stands for, or `null` for a name this file
+ * has no column for.
+ *
+ * ⚠️ The manuscript's own contract already restricts the field to these two
+ * spellings. The check is here because a generated file is still read as data,
+ * and a third name must not silently become one of these two.
+ *
+ * @purity pure
+ */
+function fadeColumnOf(prefers: string): FadeColumn | null {
+  if (prefers === 'fadeInDays') return 'fadeInDays'
+  if (prefers === 'fadeOutDays') return 'fadeOutDays'
+  return null
+}
+
+/**
+ * The word this column is known by on both sides of the exchange, or `''` when
+ * the manuscript has none yet.
+ *
+ * ⭐ The alias belongs to the COLUMN, not to the frame: the manuscript calls it
+ * a heading in the partner's tool, and EX-6 lets a column move to the other
+ * frame. A moved column keeps its own word, which is what lets the reader find
+ * it again wherever it landed.
+ *
+ * @purity pure
+ */
+function aliasOfColumn(column: FadeColumn): string {
+  return CUSTOM_FIELD_FRAMES.find((frame) => frame.prefers === column)?.alias ?? ''
+}
+
+/**
+ * Whether a frame may be claimed at all.
+ *
+ * ⛔ An empty alias claims nothing (CR-199 leaves the words to the user): with
+ * no word, a definition GRS wrote and a definition the partner wrote are the
+ * same thing to the reader, and EX-6 turns on telling them apart. An alias
+ * longer than the schema allows is refused for EX-1's sake -- writing it would
+ * make the output invalid against the official schema (mspdi_pj12.xsd:1055,
+ * the limit the manuscript carries).
+ *
+ * @purity pure
+ */
+function isAliasUsable(alias: string): boolean {
+  // Code points, which is what `xsd:maxLength` counts.
+  return alias !== '' && [...alias].length <= customFields.aliasMaxLength
+}
+
+/**
+ * The custom-field definitions that arrived, still where DF-2 of table T-053
+ * put them. ⭐ This unit interprets none of them: it only reads their `Alias`
+ * to answer EX-6's question about who owns which frame.
+ *
+ * @purity pure
+ */
+function carriedDefinitions(carried: readonly CarryElement[]): readonly CarryElement[] {
+  const collection = carried.find((one) => one.name === 'ExtendedAttributes')
+  if (collection === undefined) return []
+  return collection.children.filter((one) => one.name === 'ExtendedAttribute')
+}
+
 // -------------------------------------------------------------- importing ---
 
 /** Everything one pass of the reader accumulates besides the document. */
@@ -941,7 +1067,7 @@ interface ImportRun {
  * @purity pure
  */
 export function documentFromMspdi(text: string, current: Document): MspdiDecoding {
-  const reading = readXml(text)
+  const reading = readXml(withoutLeadingByteOrderMark(text))
   if (!reading.ok) return { ok: false, faults: [reading.fault] }
   const root = reading.root
   if (root.name !== 'Project') {
@@ -964,6 +1090,30 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
       changeLog: current.changeLog,
     },
   }
+}
+
+/**
+ * The mark a spreadsheet tool writes in front of a file it exported.
+ *
+ * ⚠️ Written as an escape and never as the character itself: rule 03 section 5
+ * keeps this source ASCII, and an invisible code point pasted into a file is
+ * exactly the accident that rule was written after.
+ */
+const BYTE_ORDER_MARK = '\uFEFF'
+
+/**
+ * FR-023 (MUST): a leading byte order mark is accepted and dropped, and its
+ * presence is never a reason to refuse the file.
+ *
+ * ⛔ Only the leading one goes. A `U+FEFF` anywhere else is content, and what
+ * this file does with content is not judge it. ⚠️ The writing side is the
+ * opposite rule and lives elsewhere: CN-5 of table T-003 forbids writing a
+ * mark, and `writtenXml` writes none.
+ *
+ * @purity pure
+ */
+function withoutLeadingByteOrderMark(text: string): string {
+  return text.startsWith(BYTE_ORDER_MARK) ? text.slice(BYTE_ORDER_MARK.length) : text
 }
 
 /** @purity pure */
@@ -1138,6 +1288,9 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
   // FR-054, on the file being read: `Project/MinutesPerDay` first, `S-128` only
   // when the file states none. ⛔ Not the standing document's number.
   const minutesPerDay = minutesPerWorkingDay(integerColumn(root, 'MinutesPerDay'))
+  // EX-6, once for the whole file: the definitions are the project's, and every
+  // task's values are read against the same answer.
+  const fadeColumns = fadeColumnsByFieldId(root)
   const tasks: Task[] = []
   const carriedRows: CarryElement[] = []
   const levels: number[] = []
@@ -1172,9 +1325,51 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
     const wbsOrder = countOfChildrenSoFar(levels, uids, parentIndex, depth)
     levels.push(depth)
     uids.push(uid)
-    tasks.push(taskFromElement(element, uid, parentUid, wbsOrder, minutesPerDay, ordinal, run))
+    tasks.push(taskFromElement(
+      element, uid, parentUid, wbsOrder, minutesPerDay, fadeColumns, ordinal, run,
+    ))
   })
   return { tasks, carriedRows }
+}
+
+/**
+ * Which frame carries which fade column IN THIS FILE, read off the definitions
+ * under `Project/ExtendedAttributes`.
+ *
+ * EX-6 (MUST): the telling apart is done on the definition's `Alias` and never
+ * on the number alone. A value carries only its `FieldID` (mspdi_pj12.xsd:2254),
+ * so reading by number would take the partner's own estimate sitting in the
+ * same frame and call it a count of days. A frame this returns nothing for
+ * stays uninterpreted, and its values ride on in `carryElements` (DF-2 of table
+ * T-053).
+ *
+ * ⛔ While the manuscript's aliases are empty this returns nothing at all, so
+ * no frame is ever claimed -- `isAliasUsable` is what says so, and an empty
+ * word would otherwise match every definition that has no alias.
+ *
+ * @purity pure
+ */
+function fadeColumnsByFieldId(root: XmlElement): ReadonlyMap<number, FadeColumn> {
+  const claimed = new Map<number, FadeColumn>()
+  const collection = childOf(root, 'ExtendedAttributes')
+  if (collection === null) return claimed
+  const columnOfAlias = new Map<string, FadeColumn>()
+  const knownFieldIds = new Set<number>()
+  for (const frame of CUSTOM_FIELD_FRAMES) {
+    knownFieldIds.add(frame.fieldId)
+    const column = fadeColumnOf(frame.prefers)
+    if (column === null || !isAliasUsable(frame.alias)) continue
+    columnOfAlias.set(frame.alias, column)
+  }
+  if (columnOfAlias.size === 0) return claimed
+  for (const definition of collection.children) {
+    if (definition.name !== 'ExtendedAttribute') continue
+    const fieldId = integerColumn(definition, 'FieldID')
+    const column = columnOfAlias.get(textColumn(definition, 'Alias') ?? '')
+    if (fieldId === null || column === undefined || !knownFieldIds.has(fieldId)) continue
+    claimed.set(fieldId, column)
+  }
+  return claimed
 }
 
 /**
@@ -1221,10 +1416,12 @@ function taskFromElement(
   wbsParentUid: number | null,
   wbsOrder: number,
   minutesPerDay: number,
+  fadeColumns: ReadonlyMap<number, FadeColumn>,
   ordinal: number,
   run: ImportRun,
 ): Task {
   const split = carrySplit(element, TASK_CONSUMED)
+  const fade = fadeOfCarried(split.carryElements, fadeColumns)
   const at = `/Project/Tasks/Task[${ordinal + 1}]`
   return {
     uid,                                                    // AT-24
@@ -1244,30 +1441,73 @@ function taskFromElement(
     resume: textColumn(element, 'Resume'),
     resumeValid: booleanColumn(element, 'ResumeValid'),     // AT-38
     percentComplete: integerColumn(element, 'PercentComplete'), // AT-39
-    // ⚠️ STOP -- AT-40 and AT-41 name `Task/ExtendedAttribute` as the place the
-    // fade days ride in, and no row anywhere names WHICH extended attribute.
-    // EX-6 of table T-033 turns on that name (do not overwrite the partner's
-    // value in the same slot; move to a free one; say so when there is none),
-    // so choosing one here would decide a value the document exchanges. The
-    // extended attributes stay in `carryElements` untouched and both columns
-    // read null. Reported.
-    fadeInDays: null,
-    fadeOutDays: null,
+    // AT-40 and AT-41, out of the frames EX-6 recognised. ⚠️ Both read null
+    // while the manuscript's aliases are empty, and every extended attribute
+    // then stays in `carryElements` where DF-2 put it.
+    fadeInDays: fade.fadeInDays,
+    fadeOutDays: fade.fadeOutDays,
     dependencies: dependenciesFromTask(element),            // AT-42
     carry: split.carry,                                     // AT-43
-    carryElements: split.carryElements,                     // AT-44
+    carryElements: fade.carryElements,                      // AT-44
   }
+}
+
+/** AT-40 and AT-41, and what is left to carry once they are taken out. */
+interface FadeReading {
+  readonly fadeInDays: number | null
+  readonly fadeOutDays: number | null
+  readonly carryElements: readonly CarryElement[]
+}
+
+/**
+ * Take the fade days out of one task's extended attributes.
+ *
+ * ⭐ A claimed value LEAVES `carryElements`: the column owns it now and the
+ * writer puts it back from there, so a copy left behind would write the element
+ * twice and break the very round trip FR-021 asks for.
+ *
+ * ⚠️ A frame whose `Value` is not a whole number is left alone instead. The
+ * column cannot hold such a text, and carrying it on is what keeps the file
+ * whole; judging it is FR-023's business in CP-13, not this file's.
+ *
+ * @purity pure
+ */
+function fadeOfCarried(
+  carried: readonly CarryElement[],
+  fadeColumns: ReadonlyMap<number, FadeColumn>,
+): FadeReading {
+  let fadeInDays: number | null = null
+  let fadeOutDays: number | null = null
+  const rest: CarryElement[] = []
+  for (const one of carried) {
+    const fieldId = one.name === 'ExtendedAttribute'
+      ? wholeNumberOf(one.fields['FieldID'])
+      : null
+    const column = fieldId === null ? undefined : fadeColumns.get(fieldId)
+    const days = column === undefined ? null : wholeNumberOf(one.fields['Value'])
+    if (days === null) {
+      rest.push(one)
+      continue
+    }
+    if (column === 'fadeInDays') fadeInDays = days
+    else fadeOutDays = days
+  }
+  return { fadeInDays, fadeOutDays, carryElements: rest }
 }
 
 /**
  * AT-35: the exchange partner states a quantity of time and the column holds
  * working days, so FR-054's conversion runs here.
  *
- * ⚠️ STOP -- only an exact multiple of `minutesPerDay` is stored. A length that
- * is not one would have to be rounded, and no row says in which direction; the
- * result is a column of the document and a value the round trip writes back
- * (`D` of rule 06), so it is not invented. Such a task keeps `actualDuration`
- * null and the person is told. Reported.
+ * ⭐ FR-054 (MUST) rounds to whole working days, sending an exact half to
+ * whichever whole day is larger IN ABSOLUTE VALUE -- that is what 四捨五入
+ * means, and writing it by sign keeps the rule true for a negative length as
+ * well. ⛔ A length that does not divide MUST NOT be dropped: `ActualDuration`
+ * is consumed rather than carried, and a null one is written as no element at
+ * all, so dropping it deletes what the exchange partner wrote.
+ *
+ * ⚠️ Rounding is lossy on the way back -- FR-054 (MUST) therefore has the
+ * count of rounded tasks reported to the person.
  *
  * @purity pure
  */
@@ -1285,14 +1525,13 @@ function workingDaysOfActualDuration(
     return null
   }
   const days = minutes / minutesPerDay
-  if (!Number.isInteger(days)) {
-    run.notices.push(notice(
-      `${at}/ActualDuration`,
-      'is not a whole number of working days and was not read (the rounding is undecided)',
-    ))
-    return null
-  }
-  return days
+  if (Number.isInteger(days)) return days
+  const rounded = Math.sign(days) * Math.round(Math.abs(days))
+  run.notices.push(notice(
+    `${at}/ActualDuration`,
+    `is not a whole number of working days and was rounded to ${rounded}`,
+  ))
+  return rounded
 }
 
 /**
@@ -1649,6 +1888,10 @@ export function mspdiFromDocument(document: Document): MspdiEncoding {
 /** @purity pure */
 function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly XmlElement[] {
   const project = schedule.project
+  // EX-6 first: which frame each fade column goes to decides both what the
+  // tasks below carry and which definitions this element needs (EX-8).
+  const frames = claimedFrames(schedule, run)
+  const definitions = writtenFadeDefinitions(frames, project.carryElements, project.carry)
   const named: PlacedChild[] = [
     // EX-1 of table T-033 makes the output valid against the official schema a
     // MUST, and these two are the only children mspdi_pj12.xsd declares with no
@@ -1686,6 +1929,9 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
     ...(project.carry['FinishDate'] === undefined
       ? optionalLeaf('FinishDate', latestTaskFinish(schedule))
       : []),
+    // EX-8: the definitions of the frames this write uses, and only when the
+    // file did not already bring them.
+    ...definitions.named,
   ]
   // ⚠️ Each of the four is spliced BEFORE its length is looked at: a file whose
   // only `Calendar` had no UID has none in `schedule.calendars` and one on
@@ -1695,7 +1941,7 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
     schedule.calendars.map(writtenCalendar), project.carryElements, 'Calendar',
   )
   if (calendars.length > 0) named.push(collection('Calendars', calendars))
-  const tasks = writtenTasks(schedule, run)
+  const tasks = writtenTasks(schedule, frames, run)
   if (tasks.length > 0) named.push(collection('Tasks', tasks))
   const resources = writtenResources(schedule)
   if (resources.length > 0) named.push(collection('Resources', resources))
@@ -1707,12 +1953,12 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
   return writtenChildren(
     'Project',
     named,
-    project.carry,
+    definitions.carry,
     // ⛔ The rows that did not become rows are written INSIDE their collection
     // above, so they must not also be written as children of `Project`. The
     // schema declares no `Project/Task` and no `Project/Calendar` (only the
     // four collections), so the name alone tells them apart.
-    project.carryElements.filter((one) => !isCarriedRow(one)),
+    definitions.carried.filter((one) => !isCarriedRow(one)),
   )
 }
 
@@ -1728,6 +1974,237 @@ function isCarriedRow(carried: CarryElement): boolean {
 }
 
 const CARRIED_ROW_NAMES: readonly string[] = ['Calendar', 'Task', 'Resource', 'Assignment']
+
+/** One fade column and the frame EX-6's search gave it. */
+interface ClaimedFrame {
+  readonly column: FadeColumn
+  /** The frame actually used, which is not always the preferred one. */
+  readonly fieldId: number
+  /**
+   * ⭐ The COLUMN's word, not the frame's. A column that had to move keeps its
+   * own alias, which is how the reader finds it again wherever it landed.
+   */
+  readonly alias: string
+}
+
+/**
+ * EX-6's search: which frame each fade column is written to.
+ *
+ * The roster is searched in its own order (MUST), each column asking for the
+ * frame that prefers it and falling back to the others. A frame the import
+ * source uses is never taken (MUST NOT), and when a column that has values
+ * finds nothing, it is not written and the person is told (MUST).
+ *
+ * ⚠️ Both notices are raised only for a column that actually has a value to
+ * write: telling someone that a column they never used could not be placed is
+ * noise, and NT-5 of table T-037 is about not stopping the work, not about
+ * narrating it.
+ *
+ * @purity pure
+ */
+function claimedFrames(schedule: Schedule, run: ExportRun): readonly ClaimedFrame[] {
+  const inUse = new Set<FadeColumn>()
+  for (const task of schedule.tasks) {
+    if (task.fadeInDays !== null) inUse.add('fadeInDays')
+    if (task.fadeOutDays !== null) inUse.add('fadeOutDays')
+  }
+  if (inUse.size === 0) return []
+
+  const spokenFor = aliasesOfDefinitions(schedule.project.carryElements)
+  const claimed: ClaimedFrame[] = []
+  for (const preferred of CUSTOM_FIELD_FRAMES) {
+    const column = fadeColumnOf(preferred.prefers)
+    if (column === null || !inUse.has(column)) continue
+    const alias = aliasOfColumn(column)
+    if (!isAliasUsable(alias)) {
+      run.notices.push(notice(EXTENDED_ATTRIBUTES_AT, `${column} was not written: `
+        + 'the roster mspdi-custom-fields.json states no usable Alias for it, and '
+        + 'without one a frame GRS wrote cannot be told from one the import '
+        + 'source wrote (EX-6)'))
+      continue
+    }
+    const free = [preferred, ...CUSTOM_FIELD_FRAMES].find((frame) => {
+      const standing = spokenFor.get(frame.fieldId)
+      return (standing === undefined || standing === alias)
+        && !claimed.some((one) => one.fieldId === frame.fieldId)
+    })
+    if (free === undefined) {
+      run.notices.push(notice(EXTENDED_ATTRIBUTES_AT, `${column} was not written: `
+        + 'every frame of the roster is spoken for (EX-6)'))
+      continue
+    }
+    if (free !== preferred) {
+      run.notices.push(notice(EXTENDED_ATTRIBUTES_AT,
+        `${column} was written to ${free.name} because ${preferred.name} is already spoken for`))
+    }
+    claimed.push({ column, fieldId: free.fieldId, alias })
+  }
+  return claimed
+}
+
+/**
+ * The `Alias` standing against each frame of the roster in the file that
+ * arrived, so EX-6 can ask who owns it.
+ *
+ * ⭐ A frame is free for a column when it carries no definition at all, or one
+ * whose alias is THAT column's word. Any other alias means somebody else has
+ * it: the exchange partner, or the other fade column from an earlier write.
+ * ⛔ "Any word the roster names" is the looser reading and it is wrong -- it
+ * would let a column that had moved into the other column's frame be evicted,
+ * leaving two definitions for one number and no rule saying which the reader
+ * should believe.
+ *
+ * ⚠️ A person who renames the alias in the partner's tool makes GRS see its own
+ * frame as someone else's and move on. That falls to the safe side -- the value
+ * that is already there survives -- which is why it is allowed.
+ *
+ * @purity pure
+ */
+function aliasesOfDefinitions(carried: readonly CarryElement[]): ReadonlyMap<number, string> {
+  const knownFieldIds = new Set(CUSTOM_FIELD_FRAMES.map((frame) => frame.fieldId))
+  const aliases = new Map<number, string>()
+  for (const definition of carriedDefinitions(carried)) {
+    const fieldId = wholeNumberOf(definition.fields['FieldID'])
+    if (fieldId === null || !knownFieldIds.has(fieldId)) continue
+    aliases.set(fieldId, definition.fields['Alias'] ?? '')
+  }
+  return aliases
+}
+
+/** What EX-8 adds to `Project`, and the carried values it had to take over. */
+interface FadeDefinitions {
+  readonly carry: Readonly<Record<string, string>>
+  readonly carried: readonly CarryElement[]
+  readonly named: readonly PlacedChild[]
+}
+
+/**
+ * EX-8: the definition of every frame this write uses, once.
+ *
+ * ⭐ A definition the file brought is left exactly where it arrived and NOT
+ * written a second time -- EX-2 forbids rewriting what nobody edited, and the
+ * definition holds nothing an edit could change. What is missing is appended to
+ * the collection that arrived, so `Project` keeps the single
+ * `<ExtendedAttributes>` the schema declares; a document GRS made itself has
+ * none, and then the collection is built here.
+ *
+ * ⛔ Nothing at all is written when no frame was claimed: the official schema
+ * requires at least one `ExtendedAttribute` in every `ExtendedAttributes`
+ * (mspdi_pj12.xsd:988), and EX-8 turns that into a MUST NOT on the empty
+ * collection. ⚠️ An EMPTY one that ARRIVED is a different matter -- it came in
+ * with no children at all, so `carrySplit` filed it as a scalar. It is written
+ * back untouched while no frame is claimed, and taken over (the key dropped)
+ * when one is, because `Project` may hold only one such element.
+ *
+ * @purity pure
+ */
+function writtenFadeDefinitions(
+  frames: readonly ClaimedFrame[],
+  carried: readonly CarryElement[],
+  carry: Readonly<Record<string, string>>,
+): FadeDefinitions {
+  const unchanged: FadeDefinitions = { carry, carried, named: [] }
+  if (frames.length === 0) return unchanged
+  const present = carriedDefinitions(carried)
+  const missing = frames.filter((claimed) => !present.some(
+    (one) => wholeNumberOf(one.fields['FieldID']) === claimed.fieldId
+      && one.fields['Alias'] === claimed.alias,
+  ))
+  if (missing.length === 0) return unchanged
+
+  const at = carried.findIndex((one) => one.name === 'ExtendedAttributes')
+  const collection = at < 0 ? undefined : carried[at]
+  if (collection === undefined) {
+    const children = missing.map((claimed, index) => writtenCarriedElement(
+      definitionOfFrame(claimed, index),
+    ))
+    const { ExtendedAttributes: _takenOver, ...rest } = carry
+    return {
+      carry: rest,
+      carried,
+      named: [{ element: { name: 'ExtendedAttributes', text: '', children }, ordinal: 0 }],
+    }
+  }
+  const nextOrdinal = collection.children.reduce((top, one) => Math.max(top, one.ordinal + 1), 0)
+  const grown: CarryElement = {
+    ...collection,
+    children: [
+      ...collection.children,
+      ...missing.map((claimed, index) => definitionOfFrame(claimed, nextOrdinal + index)),
+    ],
+  }
+  return {
+    carry,
+    carried: carried.map((one, index) => (index === at ? grown : one)),
+    named: [],
+  }
+}
+
+/**
+ * One custom-field definition.
+ *
+ * ⭐ The children go out in the order the official schema declares them
+ * (mspdi_pj12.xsd:991 -- `FieldID`, `FieldName`, `CFType`, `Guid`, `ElemType`,
+ * `MaxMultiValues`, `UserDef`, `Alias`), which EX-8 makes a MUST; the ones this
+ * definition has no answer for are simply not written, all being optional.
+ * ⛔ `CFType` and `ElemType` are the manuscript's numbers, not this file's.
+ * `UserDef` is the one value written from here rather than quoted: it is not a
+ * number taken from the partner but a fact about the definition GRS is making,
+ * which is that GRS defined it.
+ *
+ * ⚠️ Built as a `CarryElement` so that the collection that arrived and the
+ * collection built here are written by the same code -- two spellings of the
+ * same element would be two chances for the order to drift.
+ *
+ * @purity pure
+ */
+function definitionOfFrame(claimed: ClaimedFrame, ordinal: number): CarryElement {
+  return {
+    ordinal,
+    name: 'ExtendedAttribute',
+    fields: {
+      FieldID: String(claimed.fieldId),
+      CFType: String(customFields.cfType),
+      ElemType: String(customFields.elemType),
+      UserDef: '1',
+      Alias: claimed.alias,
+    },
+    children: [],
+  }
+}
+
+/**
+ * AT-40 and AT-41 as `Task/ExtendedAttribute` values, in the frames EX-6 chose.
+ *
+ * ⚠️ STOP -- these go AFTER everything the file carried for this task, which
+ * reproduces the arriving order for a file GRS wrote and for one whose own
+ * extended attributes came first, and not for one that put a claimed value
+ * ahead of an uninterpreted one. A value this unit interprets stops being a
+ * `CarryElement`, and `Task` has no column keeping where it sat -- AT-123
+ * belongs to the elements that stay carried. Reported.
+ *
+ * @purity pure
+ */
+function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedChild[] {
+  const afterCarried = task.carryElements.reduce((top, one) => Math.max(top, one.ordinal + 1), 0)
+  const placed: PlacedChild[] = []
+  for (const claimed of frames) {
+    const days = task[claimed.column]
+    if (days === null) continue
+    placed.push({
+      element: {
+        name: 'ExtendedAttribute',
+        text: '',
+        children: [
+          { name: 'FieldID', text: String(claimed.fieldId), children: [] },
+          { name: 'Value', text: String(days), children: [] },
+        ],
+      },
+      ordinal: afterCarried + placed.length,
+    })
+  }
+  return placed
+}
 
 /**
  * `Project/SaveVersion` for a document GRS made itself.
@@ -1798,7 +2275,11 @@ function latestTaskFinish(schedule: Schedule): string | null {
  *
  * @purity pure
  */
-function writtenTasks(schedule: Schedule, run: ExportRun): readonly XmlElement[] {
+function writtenTasks(
+  schedule: Schedule,
+  frames: readonly ClaimedFrame[],
+  run: ExportRun,
+): readonly XmlElement[] {
   const depths = taskDepths(schedule.tasks)
   const numbers = outlineNumbers(schedule.tasks)
   const hasChildren = new Set(
@@ -1806,7 +2287,7 @@ function writtenTasks(schedule: Schedule, run: ExportRun): readonly XmlElement[]
   )
   const minutesPerDay = minutesPerWorkingDay(schedule.project.minutesPerDay)
   const written = schedule.tasks.map((task, index) => writtenTask(
-    task, schedule, index, depths, numbers, hasChildren, minutesPerDay, run,
+    task, schedule, index, depths, numbers, hasChildren, minutesPerDay, frames, run,
   ))
   return splicedCarriedRows(written, schedule.project.carryElements, 'Task')
 }
@@ -1882,6 +2363,7 @@ function writtenTask(
   numbers: ReadonlyMap<number, string>,
   hasChildren: ReadonlySet<number>,
   minutesPerDay: number,
+  frames: readonly ClaimedFrame[],
   run: ExportRun,
 ): XmlElement {
   const named: PlacedChild[] = [
@@ -1911,6 +2393,7 @@ function writtenTask(
     ...writtenActualDuration(task, minutesPerDay),
     ...writtenStop(task, schedule, run),
     ...task.dependencies.map(writtenDependency),
+    ...writtenFadeValues(task, frames),
   ]
   return {
     name: 'Task',

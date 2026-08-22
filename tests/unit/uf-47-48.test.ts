@@ -36,9 +36,15 @@ import {
   type CalendarDay,
   type Task,
 } from '../../src/entity/document-model/schedule/schedule'
+import type {
+  DisplayLanguage,
+  ScreenSurface,
+  ScreenView,
+} from '../../src/adapter/screen-renderer/screen-renderer'
 import {
   frameLoop,
   type FrameEnvironment,
+  type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { validateDocument } from '../fixtures/grs-document'
 
@@ -651,5 +657,508 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
 
     expect(pane.frames()).toBe(before + 1)
     expect(pane.drawn[before]).toContain('width="1400"')
+  })
+})
+
+// ===========================================================================
+// The second surface: IF-9
+// ===========================================================================
+//
+// ⛔ Written from docs/spec and from the declarations UF-48 publishes, the same
+// way the cases above were. What was read of `frame-loop.ts` is its head
+// comment and its exported declarations (`ScreenWiring` among them); its body
+// was not.
+//
+// The rows these cases answer to:
+//   IF-9    表 T-065 -- `ScreenSurface`, declared by `ScreenRenderer` (CP-37)
+//           and implemented by `DomScreenSurface` (CP-38): the description of
+//           the UI parts outside the schedule is put on the screen
+//   MN-8    表 T-070 -- the rejected alternative was ONE renderer drawing both
+//           the schedule and everything around it
+//   SC-1    表 T-031 -- the row title panel follows the body vertically and
+//           does not flow sideways
+//   SC-4    表 T-031 -- both scrollbars are always drawn, fitted or not
+//   FR-051  the `App Header` height and the scrollbar thickness are settled
+//           from the environment at boot and are NOT settings; the header does
+//           not exceed `appHeaderMaxHeight` (S-116)
+//   FR-038  which language the screen is read in is the reader's environment,
+//           and the document does not hold it (MUST NOT)
+//   U-32    `Schedule Canvas` -- the container the frame is carved out of
+//   NFR-011 no screen goes up blank, and none goes up with a part missing
+//   CA-2 / CA-4  the frame's three values are computed once and rebuilt
+//           together, which is what both surfaces of one frame are filled from
+
+/** S-116 `appHeaderMaxHeight`, copied from table T-212 of _assets/tbl-settings.md. */
+const APP_HEADER_MAX_HEIGHT = 56
+
+interface ScreenPane {
+  /** Every description the loop has put on the surface, oldest first. */
+  readonly views: ScreenView[]
+  readonly wiring: ScreenWiring
+  /** How many descriptions the surface has been given. */
+  screens(): number
+  /** The last one. */
+  last(): ScreenView
+}
+
+function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
+  const views: ScreenView[] = []
+  const surface: ScreenSurface = {
+    showScreenView: (view) => {
+      views.push(view)
+    },
+    // ⚠️ Nothing below drives the two pulled members. `readDialogueInput`
+    // answers `null` because the person has typed nothing, and
+    // `readScreenPartAt` answers `null` because this fake has drawn nothing
+    // anywhere -- which is what that member calls "the schedule below is
+    // exposed".
+    readDialogueInput: () => null,
+    readScreenPartAt: () => null,
+  }
+  return {
+    views,
+    wiring: { surface, language },
+    screens: () => views.length,
+    last: () => {
+      const view = views[views.length - 1]
+      if (view === undefined) throw new Error('the surface was given no description')
+      return view
+    },
+  }
+}
+
+/** One scrollbar of a description, by axis. SC-4 requires both to exist. */
+const scrollbarOf = (view: ScreenView, axis: 'horizontal' | 'vertical') =>
+  view.frame.scrollbars.find((bar) => bar.axis === axis)
+
+/** Every row the panel shows, pinned ones first (FR-098 lifts those out of the list). */
+const titlesOf = (view: ScreenView) => [
+  ...view.rowTitlePanel.pinnedTitles,
+  ...view.rowTitlePanel.titles,
+]
+
+/** A document with no rows and no tasks -- the empty case SC-4 still has to draw for. */
+const emptyDocument = () =>
+  twoRowDocument((draft) => {
+    draft.schedule.tasks = []
+    draft.schedule.taskGroups = []
+    draft.schedule.taskGroupMembers = []
+  })
+
+describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
+  it('GIVEN a screen wiring WHEN boot ends THEN the first description is already on the surface (BO-5)', () => {
+    // NFR-011 (MUST NOT): "空白のまま残る画面も、内容が欠けたまま出る画面も出さ
+    // ないこと". Table T-078 closes with "最初の 1 枚は 表 T-077 の `BO-5` が
+    // 起こす", and BO-5 is "最初の 1 枚を出す" -- one screen, not the schedule
+    // now and the parts around it on some later frame.
+    const pane = host()
+    const screen = screenPane()
+
+    frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+
+    expect(pane.frames()).toBe(1)
+    expect(screen.screens()).toBe(1)
+  })
+
+  it('GIVEN a screen wiring WHEN boot ends THEN BO-5 owes no second description', () => {
+    const pane = host()
+    const screen = screenPane()
+
+    frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    pane.runAnimationFrames()
+
+    expect(screen.screens()).toBe(1)
+  })
+
+  it('GIVEN no screen wiring WHEN boot ends THEN the schedule alone is drawn (the omitted case)', () => {
+    // ⛔ The absent parameter is the null case for this seam. `ScreenWiring` is
+    // optional on purpose, and table T-077 governs the schedule whether or not
+    // the caller had a browser to build a surface on.
+    const pane = host()
+
+    expect(() => frameLoop(pane.surface, twoRowDocument(), SCREEN)).not.toThrow()
+    expect(pane.frames()).toBe(1)
+  })
+
+  it('GIVEN no screen wiring WHEN a frame is woken THEN it still runs (FT-3 without IF-9)', () => {
+    const pane = host()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+
+    loop.resize({ ...SCREEN, width: 1400 })
+    pane.runAnimationFrames()
+
+    expect(pane.frames()).toBe(2)
+    expect(pane.drawn[1]).toContain('width="1400"')
+  })
+
+  it('MN-8: GIVEN one frame THEN each of the two surfaces is fed exactly once', () => {
+    // MN-8 of table T-070 rejected "描画が 1 つで日程表も外側も描く": the parts
+    // outside the schedule are assembled by CP-37 and land on IF-9, while the
+    // schedule lands on IF-1. ⛔ Both are filled from the SAME frame, which is
+    // what CA-4 forbids splitting.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+
+    loop.resize({ ...SCREEN, width: 1400 })
+    pane.runAnimationFrames()
+    loop.replaceDocument(
+      twoRowDocument((draft) => {
+        draft.schedule.tasks[0].name = 'Renamed'
+      }),
+    )
+    pane.runAnimationFrames()
+
+    expect(pane.frames()).toBe(3)
+    expect(screen.screens()).toBe(3)
+  })
+
+  it('NFR-010: GIVEN a screen wiring WHEN nothing in table T-078 fires THEN no description is made', () => {
+    // "本表に無い契機でフレームを起こしてはならない（MUST NOT）". Reading the
+    // current values is in no row of table T-078, and neither is a resize that
+    // reports the size the screen already had.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+
+    for (let turn = 0; turn < 5; turn += 1) {
+      loop.current()
+      loop.document()
+      loop.resize({ ...SCREEN })
+      pane.runAnimationFrames()
+    }
+
+    expect(screen.screens()).toBe(1)
+    expect(pane.frames()).toBe(1)
+  })
+})
+
+describe('SC-4 of table T-031 -- both scrollbars, always', () => {
+  it('GIVEN the two-row document WHEN the first description is made THEN it carries both scrollbars', () => {
+    // SC-4: "横・縦とも常時表示する。内容が収まっていても消さない". ⚠️ NFR-011
+    // is what makes this the loop's business: a description handed over with a
+    // part missing is "内容が欠けたまま出る画面".
+    const pane = host()
+    const screen = screenPane()
+    frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+
+    const view = screen.last()
+    expect(view.frame.scrollbars).toHaveLength(2)
+    expect(scrollbarOf(view, 'horizontal')).toBeDefined()
+    expect(scrollbarOf(view, 'vertical')).toBeDefined()
+  })
+
+  it('GIVEN a document with no rows and no tasks THEN both scrollbars are still drawn (the empty case)', () => {
+    // ⛔ The empty case is the one SC-4 was written for: "内容が収まっていても
+    // 消さない" -- and nothing fits more completely than nothing. FR-051 gives
+    // the reason under table T-031: "消えるとキャンバスの幅が変わり、再レイア
+    // ウトが走る".
+    const document = emptyDocument()
+    expect(validateDocument(document).valid).toBe(true)
+
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, document, SCREEN, screen.wiring)
+
+    const view = screen.last()
+    expect(view.frame.scrollbars).toHaveLength(2)
+    expect(scrollbarOf(view, 'horizontal')).toBeDefined()
+    expect(scrollbarOf(view, 'vertical')).toBeDefined()
+    // And the frame really was built on an empty schedule.
+    expect(loop.current()!.layout.rows).toEqual([])
+    expect(titlesOf(view)).toEqual([])
+  })
+
+  it('FR-051: GIVEN a frame THEN the scrollbar lanes take their place FROM the Row Area, not over it', () => {
+    // FR-051 (MUST): "`Scrollbars` は `Row Area` から場所を取ること". SC-4 is
+    // the reason it has to take place at all -- "場所を取らない形では `SC-4` が
+    // 意味を持たない". So the vertical lane begins where the Row Area ends, and
+    // the horizontal lane below it; neither is drawn over the schedule.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const rowArea = loop.current()!.regions.rowArea
+    const canvas = loop.current()!.regions.scheduleCanvas
+    const view = screen.last()
+
+    const vertical = scrollbarOf(view, 'vertical')!
+    const horizontal = scrollbarOf(view, 'horizontal')!
+    expect(vertical.track.x).toBeGreaterThanOrEqual(rowArea.x + rowArea.width)
+    expect(horizontal.track.y).toBeGreaterThanOrEqual(rowArea.y + rowArea.height)
+
+    // U-32: the `Schedule Canvas` is the container the lanes are cut out of, so
+    // neither of them leaves it.
+    for (const bar of view.frame.scrollbars) {
+      expect(bar.track.x).toBeGreaterThanOrEqual(canvas.x)
+      expect(bar.track.y).toBeGreaterThanOrEqual(canvas.y)
+      expect(bar.track.x + bar.track.width).toBeLessThanOrEqual(canvas.x + canvas.width)
+      expect(bar.track.y + bar.track.height).toBeLessThanOrEqual(canvas.y + canvas.height)
+    }
+  })
+})
+
+describe('SC-1 of table T-031 -- the panel follows the body, sideways it does not', () => {
+  it('GIVEN two drawn rows THEN each title stands at the y and height the body row has', () => {
+    // SC-1: "縦は本体と連動する". ⛔ The panel and the `Row Area` have to be the
+    // SAME numbers, which is why a row title takes its box from the shell's
+    // measurement of this frame rather than from a second computation.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const rows = loop.current()!.layout.rows
+    const titles = titlesOf(screen.last())
+
+    // ⛔ Not a vacuous comparison: both rows of the document are drawn.
+    expect(rows).toHaveLength(2)
+    expect(titles).toHaveLength(2)
+    expect(titles.map((title) => title.groupId)).toEqual(rows.map((row) => row.groupId))
+    for (const row of rows) {
+      const title = titles.find((candidate) => candidate.groupId === row.groupId)!
+      expect(title.box.y).toBe(row.y)
+      expect(title.box.height).toBe(row.height)
+    }
+  })
+
+  it('GIVEN a collapsed row THEN the panel drops the same row the body drops (HF-8 / HR-1a)', () => {
+    // The vertical link is not only the numbers: a row the body does not draw
+    // is a row the panel has no line for. HR-1a forbids drawing "畳んだ
+    // `TaskGroup` の配下の行", and HF-8 keeps the saved collapse at boot.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(
+      pane.surface,
+      twoRowDocument((draft) => {
+        draft.schedule.taskGroups[0].isCollapsed = true
+      }),
+      SCREEN,
+      screen.wiring,
+    )
+
+    expect(loop.current()!.layout.rows.map((row) => row.groupId)).toEqual([ALPHA])
+    expect(titlesOf(screen.last()).map((title) => title.groupId)).toEqual([ALPHA])
+  })
+
+  it('GIVEN the body standing at a different day THEN the titles have not moved sideways', () => {
+    // SC-1: "**横には流れない**". The stored place (S-77 / S-78) puts the body
+    // on 2026-04-05 in one case and OP-10's fit decides it in the other, so the
+    // two frames look at different days -- and the panel stands where it stood.
+    const scrolled = twoRowDocument((draft) => {
+      draft.documentSettings.scrollDate = '2026-04-05'
+      draft.documentSettings.scrollGroupId = ALPHA
+    })
+    expect(validateDocument(scrolled).valid).toBe(true)
+
+    const pane = host()
+    const fittedScreen = screenPane()
+    const scrolledScreen = screenPane()
+    const fittedLoop = frameLoop(pane.surface, twoRowDocument(), SCREEN, fittedScreen.wiring)
+    const scrolledLoop = frameLoop(pane.surface, scrolled, SCREEN, scrolledScreen.wiring)
+
+    // ⛔ The premise: the two frames really are looking at different days.
+    expect(scrolledLoop.current()!.layout.originDay).not.toEqual(
+      fittedLoop.current()!.layout.originDay,
+    )
+
+    const fittedTitles = titlesOf(fittedScreen.last())
+    const scrolledTitles = titlesOf(scrolledScreen.last())
+    expect(scrolledTitles.map((title) => title.groupId)).toEqual(
+      fittedTitles.map((title) => title.groupId),
+    )
+    for (const [index, title] of scrolledTitles.entries()) {
+      expect(title.box.x).toBe(fittedTitles[index]!.box.x)
+      expect(title.box.width).toBe(fittedTitles[index]!.box.width)
+    }
+  })
+})
+
+describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled', () => {
+  it('GIVEN FT-3 WHEN the frame runs THEN the description is built on the regions of THAT frame', () => {
+    // CA-4 (MUST NOT): "1 つだけが古いという状態を作ってはならない". The parts
+    // around the schedule are cut from the same `ScreenRegions` the schedule
+    // was laid out on, so a wider window widens both in the same frame.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const before = scrollbarOf(screen.last(), 'vertical')!.track.x
+
+    loop.resize({ ...SCREEN, width: 1400 })
+    pane.runAnimationFrames()
+
+    expect(screen.screens()).toBe(2)
+    expect(pane.drawn[1]).toContain('width="1400"')
+    const after = scrollbarOf(screen.last(), 'vertical')!.track.x
+    expect(after).toBeGreaterThan(before)
+    expect(after).toBeGreaterThanOrEqual(
+      loop.current()!.regions.rowArea.x + loop.current()!.regions.rowArea.width,
+    )
+  })
+
+  it('FT-3: GIVEN only the App Header height changed THEN a frame runs', () => {
+    // ⛔ FR-051 (MUST): the header height is settled from the environment at
+    // boot and may not be a setting, and "上部に使った高さはそのまま日程表から
+    // 引かれる". So a header that changed height changed the screen dimensions
+    // in the sense FT-3 means -- leaving the old picture up shows a schedule
+    // sized to a screen that no longer exists (NFR-011).
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const before = loop.current()!.regions.scheduleCanvas.height
+
+    loop.resize({ ...SCREEN, appHeaderHeight: 40 })
+    pane.runAnimationFrames()
+
+    expect(pane.frames()).toBe(2)
+    expect(screen.screens()).toBe(2)
+    expect(loop.current()!.regions.appHeader.height).toBe(40)
+    expect(loop.current()!.regions.scheduleCanvas.height).toBeGreaterThan(before)
+  })
+
+  it('FT-3: GIVEN only the scrollbar thickness changed THEN a frame runs', () => {
+    // Same MUST of FR-051: the thickness is settled from the environment, not
+    // held as a setting, and it takes its place from the `Row Area` -- so a
+    // thicker bar shrinks the drawing area and the picture is no longer right.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const before = loop.current()!.regions.rowArea.width
+
+    loop.resize({ ...SCREEN, scrollbarThickness: 16 })
+    pane.runAnimationFrames()
+
+    expect(pane.frames()).toBe(2)
+    expect(screen.screens()).toBe(2)
+    expect(loop.current()!.regions.rowArea.width).toBeLessThan(before)
+  })
+
+  it('FR-051: GIVEN a host reporting a header taller than S-116 THEN the cap is what is used', () => {
+    // FR-051 (MUST): "`App Header` の高さは、`_assets/tbl-settings.md` の表
+    // T-212 が持つ上限を超えないこと". S-116 `appHeaderMaxHeight` = 56 px, and
+    // ⚠️ FR-051 says in as many words that it "はその上限であって、高さそのもの
+    // ではない" -- so 40 above is used as it stands and 80 here is not.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(
+      pane.surface,
+      twoRowDocument(),
+      { ...SCREEN, appHeaderHeight: 80 },
+      screen.wiring,
+    )
+    const regions = loop.current()!.regions
+
+    expect(regions.appHeader.height).toBe(APP_HEADER_MAX_HEIGHT)
+    expect(regions.scheduleCanvas.y).toBe(APP_HEADER_MAX_HEIGHT)
+    expect(regions.scheduleCanvas.height).toBe(SCREEN.height - APP_HEADER_MAX_HEIGHT)
+  })
+
+  it('FR-051: GIVEN a header of exactly S-116 THEN it is used whole (the boundary)', () => {
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(
+      pane.surface,
+      twoRowDocument(),
+      { ...SCREEN, appHeaderHeight: APP_HEADER_MAX_HEIGHT },
+      screen.wiring,
+    )
+
+    expect(loop.current()!.regions.appHeader.height).toBe(APP_HEADER_MAX_HEIGHT)
+  })
+})
+
+describe('FR-038 -- the display language is the environment, not the document', () => {
+  it('GIVEN either language WHEN the frame is drawn THEN the document holds no language', () => {
+    // FR-038's RATIONALE (MUST NOT): "どの言語で開くかは読む人の環境であり、
+    // 文書に保存しない". The settings table says the same from the other side --
+    // S-99 `language` is 「別枠。`localStorage` に置く。」, so no key of table
+    // T-203 carries it and the loop may not put one there.
+    for (const language of ['ja', 'en'] as const) {
+      const pane = host()
+      const screen = screenPane(language)
+      // ⚠️ The baseline is a COPY taken before the loop ran: the loop answers
+      // with the very object it was handed, so comparing it against itself
+      // would pass whatever the loop wrote into it.
+      const opened = twoRowDocument()
+      const asOpened = structuredClone(settingsOf(opened))
+      const loop = frameLoop(pane.surface, opened, SCREEN, screen.wiring)
+      pane.runAnimationFrames()
+
+      expect(screen.screens()).toBe(1)
+      expect(Object.keys(settingsOf(loop.document()))).not.toContain('language')
+      expect(settingsOf(loop.document())).toEqual(asOpened)
+    }
+  })
+
+  it('GIVEN the language chosen for this session THEN the schedule itself is the same either way', () => {
+    // ⚠️ What the words ARE cannot be driven from here: table T-109 refuses an
+    // English column, so `_source/display-words.json` is empty (PD-160) and
+    // both languages print the same empty strings today. What CAN be driven is
+    // that the choice reaches neither the layout nor the geometry -- FR-038
+    // says the export carries no language ("日程表の出力に言語は含まれない").
+    const pane = host()
+    const japanese = screenPane('ja')
+    const english = screenPane('en')
+
+    const inJapanese = frameLoop(pane.surface, twoRowDocument(), SCREEN, japanese.wiring)
+    const drawnInJapanese = pane.drawn[0]
+    const inEnglish = frameLoop(pane.surface, twoRowDocument(), SCREEN, english.wiring)
+
+    expect(pane.drawn[1]).toBe(drawnInJapanese)
+    expect(inEnglish.current()!.layout).toEqual(inJapanese.current()!.layout)
+    expect(inEnglish.current()!.regions).toEqual(inJapanese.current()!.regions)
+  })
+})
+
+describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS document', () => {
+  const named = (title: string) =>
+    twoRowDocument((draft) => {
+      draft.schedule.project.title = title
+    })
+
+  it('NFR-011: GIVEN the first frame THEN no member of the description is missing', () => {
+    // NFR-011 (MUST NOT): "空白のまま残る画面も、内容が欠けたまま出る画面も出さ
+    // ないこと". ⚠️ The members that may be `null` are the ones a requirement
+    // says are absent -- a closed properties panel (FR-072), a hidden palette
+    // (S-99e), no open surface (S-99g), the `Agent API` off (FR-066), nothing
+    // waiting to be answered (NT-7). The rest are always there.
+    const pane = host()
+    const screen = screenPane()
+    frameLoop(pane.surface, named('Under test'), SCREEN, screen.wiring)
+    const view = screen.last()
+
+    expect(view.frame).toBeDefined()
+    expect(view.appHeaderItems).toBeDefined()
+    expect(view.rowTitlePanel).toBeDefined()
+    expect(Array.isArray(view.notices)).toBe(true)
+    expect(Array.isArray(view.tooltips)).toBe(true)
+  })
+
+  it('GIVEN a document with a title and two rows THEN the description carries both', () => {
+    // ⛔ The wiring is what this measures. `Project.title` (AT-3) is the
+    // `Document Title` (U-27) the `App Header` shows, and the two rows are what
+    // the `Row Title Panel` (U-22) lists -- so a loop that handed the surface an
+    // empty schedule, or last frame's, would answer with neither.
+    const pane = host()
+    const screen = screenPane()
+    frameLoop(pane.surface, named('Under test'), SCREEN, screen.wiring)
+    const view = screen.last()
+
+    expect(view.appHeaderItems.documentTitle).toBe('Under test')
+    expect(titlesOf(view).map((title) => title.wholeLabel)).toEqual(['Alpha', 'Beta'])
+  })
+
+  it('FT-2: GIVEN the current value is replaced THEN the next description is of the new document', () => {
+    // FT-2 of table T-078: "現在値の差し替え（表 T-067 の `WS-6`）". LY-5 makes
+    // this layer the only holder of a current value, so the description that
+    // frame hands over is cut from the value that replaced it -- CA-4 forbids
+    // one of the three being left as it was.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, named('First'), SCREEN, screen.wiring)
+    expect(screen.last().appHeaderItems.documentTitle).toBe('First')
+
+    loop.replaceDocument(named('Second'))
+    pane.runAnimationFrames()
+
+    expect(screen.screens()).toBe(2)
+    expect(screen.last().appHeaderItems.documentTitle).toBe('Second')
   })
 })

@@ -16,6 +16,17 @@
 // SAME ratio on both axes (MUST NOT: two ratios) -- and FR-025 fixes what
 // becomes of what will not fit.
 //
+// ⭐ EVERY ROUTE THAT SENDS THE SCREEN OUT IS ASSEMBLED HERE, AND NOWHERE
+// ELSE. WY-2 of table T-041 judges the SVG and the PNG of one state to be the
+// same drawing once the watermark layer is set aside, and FR-025 (:3136) says
+// the clipboard route differs from the download only in the dialogue it skips
+// -- so a second assembly anywhere is a second answer to a question the
+// specification says has one. `_source/components.json` draws the picture edge
+// of ClipboardGateway (IO-6) to this component rather than to SvgRenderer for
+// that reason, and AM-13 of table T-107 is to answer with what `exportSvg`
+// returns. ⚠️ What still stands between AM-13 and that call is recorded at the
+// member itself, in `agent-api-members.ts`.
+//
 // ⭐ WHAT ARRIVES, AND WHY NOTHING IS CALLED FOR IT. `_source/components.json`
 // draws this component exactly two outgoing edges: to SvgRenderer ("takes the
 // SVG string") and to ScreenRenderer ("takes the parts table T-076 lets into
@@ -121,21 +132,14 @@ export interface ExportScene {
 }
 
 /**
- * What one export produced.
+ * The assembled picture, and what FR-025 kept out of it.
  *
- * ⭐ The SVG is always here and the PNG may not be, because the two fail
- * differently: assembling the picture is arithmetic over values and cannot
- * fail, while painting it needs a machine. IO-3 (SVG) and IO-4 (PNG) are two
- * rows of table T-024 and FR-025 sends the export to both, so `exportPng`
- * answering with both is one operation and not two: a second assembly would be
- * the way the two outputs come to differ.
- *
- * ⚠️ It is also the next step NT-3a (MUST) owes a person when
- * `RasterFaultReason` is `unsupported`: the picture they asked for exists, and
- * only the raster of it does not.
+ * ⭐ Two fields rather than one string, because FR-025 (MUST) has an export
+ * tell a person what went undrawn, and that is as true of the route that ends
+ * in an SVG as of the one that ends in a PNG.
  */
-export interface ImageExport {
-  /** IO-3's output: `exportCanvas` wide, `exportCanvas` tall, and what the rasterizer was given. */
+export interface SvgExport {
+  /** IO-3's output: `exportCanvas` wide, `exportCanvas` tall, and what the rasterizer is given. */
   readonly svg: string
   /**
    * The `TaskGroup`s FR-025 kept out, top-most first.
@@ -148,6 +152,28 @@ export interface ImageExport {
    * than S-81 leaves the remainder blank (MUST) rather than filling it.
    */
   readonly droppedGroupIds: readonly string[]
+}
+
+/**
+ * What one export produced.
+ *
+ * ⭐ The SVG is always here and the PNG may not be, because the two fail
+ * differently: assembling the picture is arithmetic over values and cannot
+ * fail, while painting it needs a machine. IO-3 (SVG) and IO-4 (PNG) are two
+ * rows of table T-024 and FR-025 sends the export to both, so `exportPng`
+ * answering with both is one operation and not two: a second assembly would be
+ * the way the two outputs come to differ.
+ *
+ * ⭐ It extends `SvgExport` rather than restating it, so that the string a
+ * caller of `exportSvg` receives and the one the rasterizer is handed cannot
+ * become two different shapes -- WY-2 of table T-041 compares exactly those two
+ * against each other.
+ *
+ * ⚠️ It is also the next step NT-3a (MUST) owes a person when
+ * `RasterFaultReason` is `unsupported`: the picture they asked for exists, and
+ * only the raster of it does not.
+ */
+export interface ImageExport extends SvgExport {
   /** IO-4's output, or the reason there is none. AG-8 of table T-035. */
   readonly png: Rastering
 }
@@ -215,6 +241,10 @@ const FIT_CLIP_ID = 'grs-export-fit'
  * been applied to both sides, so the two halves of one picture may not round
  * differently.
  *
+ * ⛔ The 0.01px grid itself is NOT settled. // @provisional PD-162
+ * ⚠️ The mark is on both copies on purpose -- marking one would make the other
+ * read as decided. Fold them into one place when the ruling lands.
+ *
  * @purity pure
  */
 function rounded(value: number): string {
@@ -247,7 +277,7 @@ function escaped(text: string): string {
  * ⭐ The ratio is multiplied into what this component draws rather than left to
  * a `transform`, so that the numbers in the finished picture are the ones WY-3
  * compares: "the bounding rectangle on the screen times the ratio". ⚠️ The
- * received picture cannot be treated that way -- see `assembledPicture`.
+ * received picture cannot be treated that way -- see `exportSvg`.
  *
  * @purity pure
  */
@@ -367,15 +397,22 @@ function dividerLinesSvg(view: ScreenView, ratio: number): string {
     .join('')
 }
 
-/** The picture, and what FR-025 kept out of it. */
-interface AssembledPicture {
-  readonly svg: string
-  readonly droppedGroupIds: readonly string[]
-}
-
 /**
  * The whole picture: FR-080's shrunken screen with table T-076's parts on it,
  * cut down the page by FR-025.
+ *
+ * ⭐ THE ONE PLACE A PICTURE THAT GOES OUT IS ASSEMBLED, and the reason it is
+ * published rather than kept inside `exportPng`: WY-2 of table T-041 judges the
+ * SVG and the PNG of one state to be the same drawing once the watermark layer
+ * is set aside, and two assemblies are how they would come to differ. FR-025
+ * (:3136) says the same of the clipboard route -- only the download dialogue is
+ * missing from it, not any part of the picture. Every route that sends the
+ * screen out therefore ends here: AM-13 of table T-107, IO-6 of table T-024
+ * through CP-24, and IO-3 through the shell.
+ *
+ * ⚠️ The name is table T-064's (PI-21) and table T-107's (AM-13), so the
+ * parts-of-speech rule that would make a `pure` query a noun phrase does not
+ * get to rename it; rule 03 section 1 has the specification's spelling win.
  *
  * ⭐ THE RATIO. `exportCanvas`'s width over the screen's width, multiplied into
  * both axes (FR-080, MUST; MUST NOT: one ratio per axis). The width is read
@@ -403,7 +440,7 @@ interface AssembledPicture {
  *
  * @purity pure
  */
-function assembledPicture(scene: ExportScene): AssembledPicture {
+export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene
   const screenWidth = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
   const ratio = settings.exportCanvas.width / screenWidth
@@ -472,7 +509,7 @@ export async function exportPng(
   rasterizer: Rasterizer,
   scene: ExportScene,
 ): Promise<ImageExport> {
-  const picture = assembledPicture(scene)
+  const picture = exportSvg(scene)
   const scale = scene.settings.exportPngScale
   const sizePx = {
     widthPx: scene.settings.exportCanvas.width * scale,
