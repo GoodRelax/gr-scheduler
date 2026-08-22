@@ -30,3 +30,5 @@ tbl-glossary.md/T:T-109 IC-14 + tbl-glossary.md/T:T-109 IC-15
 tbl-glossary.md/T:T-109 IC-35 + tbl-glossary.md/T:T-109 IC-61
 tbl-glossary.md/T:T-109 IC-58 + tbl-glossary.md/T:T-109 IC-59
 tbl-glossary.md/T:T-109 IC-67 + tbl-glossary.md/T:T-109 IC-68
+tbl-glossary.md/T:T-109 IC-69 + tbl-glossary.md/T:T-109 IC-70
+01-04-requirements.md/T:T-024 IO-1 + 01-04-requirements.md/T:T-024 IO-2

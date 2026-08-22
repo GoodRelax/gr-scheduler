@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 284" width="452" height="284" role="img" aria-label="GRS icon glyphs IC-1 to IC-68">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 284" width="452" height="284" role="img" aria-label="GRS icon glyphs IC-1 to IC-70">
   <title>図 F-019 — アイコンの図形</title>
   <style>
     svg { color: #1f2328; }
@@ -401,4 +401,15 @@
     <rect class="s" x="4" y="4" width="16" height="16" rx="2"/>
   </g>
   <text class="lbl" x="280" y="266">IC-68</text>
+  <g transform="translate(304 232)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <path class="s" d="M8.2 12.3 L10.9 15 L15.8 9.4"/>
+  </g>
+  <text class="lbl" x="316" y="266">IC-69</text>
+  <g transform="translate(340 232)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <path class="s" d="M9.2 9.2 L14.8 14.8"/>
+    <path class="s" d="M14.8 9.2 L9.2 14.8"/>
+  </g>
+  <text class="lbl" x="352" y="266">IC-70</text>
 </svg>

@@ -622,6 +622,24 @@
    "group": null,
    "entryTo": "選ばれていないことを示し、同じ入口で選ぶ",
    "authority": "`FR-099`"
+  },
+  {
+   "rowId": "IC-69",
+   "surfaces": [
+    "Confirmation"
+   ],
+   "group": null,
+   "entryTo": "問いに「続ける」と答える",
+   "authority": "表 T-037 の `NT-7`"
+  },
+  {
+   "rowId": "IC-70",
+   "surfaces": [
+    "Confirmation"
+   ],
+   "group": null,
+   "entryTo": "問いに「取りやめる」と答える",
+   "authority": "表 T-037 の `NT-7`"
   }
  ]
 }
