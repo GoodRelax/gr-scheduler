@@ -50,8 +50,16 @@
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { CommandItem, CommandPalette, PaletteGroup, ScreenSession } from './screen-renderer'
+import type {
+  CommandItem,
+  CommandPalette,
+  DisplayLanguage,
+  IconId,
+  PaletteGroup,
+  ScreenSession,
+} from './screen-renderer'
 import iconRoster from './icon-roster.json'
+import displayWords from './display-words.json'
 
 /** One row of the generated roster, so its shape is never written out here. */
 type IconRosterRow = (typeof iconRoster.icons)[number]
@@ -91,29 +99,91 @@ const ALIGN_REQUIREMENT = 'FR-034'
 const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
 
 /**
- * ⛔ NO WORDS HAVE BEEN SETTLED. See the STOP note below: this stands for
- * "nothing to say yet", not for "say nothing".
+ * What an entry says while the dictionary holds no word for its row.
+ *
+ * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
+ * has been SETTLED for that row yet (PD-160), and this is exactly what UF-65
+ * printed before the dictionary was wired.
+ *
+ * @provisional PD-4
  */
 const NO_WORDS = ''
 
-// STOP -- ⚠️ NOT DECIDED BY THE SPECIFICATION: the words. `CommandItem.label`
-// is declared to be in the display language and carries both the accessible
-// name and the explanation EZ-2 of table T-040 shows -- and FR-029 (MUST) makes
-// an entry that cannot be used give its REASON through that explanation, so the
-// words are not optional there. No table holds a translated string. Searched:
-// FR-029, FR-038, FR-053, FR-083, table T-040, table T-103 (settled names,
-// whose Japanese column is prose about the name rather than screen text), table
-// T-109 (which states that it has no English column, and why) and
-// `_assets/tbl-settings.md` (no row for any wording). None of the three
-// arguments carries any either: `ScreenSession` holds `language`, which is the
-// choice and not the text.
-// ⭐ Smallest thing that cannot be wrong: the empty string, which says that no
-// words have been settled -- what is true of this build. ⛔ Anything written
-// here would settle wording the glossary has not, in the one component that is
-// forbidden to mint names. UF-66 answers the same hole the same way, and UF-62
-// is what put the hole on the list.
-//
-// @provisional PD-4
+// ⭐ WHERE THE WORDS COME FROM. FR-038 (MUST) holds every word the screen prints
+// as one dictionary per language, and Chapter 6.2 fixes its manuscript as
+// `_source/display-words.json`; `display-words.json` beside this file is that
+// manuscript generated into `src/`. ⛔ Its entries are keyed by the row of table
+// T-109 -- the only join that table admits, since it deliberately has no English
+// column -- so nothing here is minted and nothing is read off another column.
+// ⚠️ Every one of the 176 cells is still empty (PD-160), so what actually
+// reaches the screen today is the stand-in beside each lookup below. Reading
+// `displayWords` no more makes this unit `semi-pure-a` than reading `iconRoster`
+// does: both are module constants compiled into the program, not state read
+// while running. Table T-075 fixes UF-65 as `pure`.
+
+/**
+ * The words of table T-109's rows, keyed by the row id, and the group names,
+ * keyed by the FIRST row of the table that sits in the group.
+ *
+ * ⭐ `Map`s rather than a scan per entry: a description is built for every
+ * frame, and rule 05 of docs/development-rules forbids a linear search on that
+ * path (NFR-013).
+ */
+const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
+const GROUP_NAMES_BY_FIRST_ROW = new Map(
+  displayWords.paletteGroups.map((entry) => [entry.firstRow, entry]),
+)
+
+/**
+ * The accessible name of one entry, in the display language (FR-038).
+ *
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
+ * "the dictionary holds no word yet" and "the word is the empty string" as one
+ * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * an instruction to print nothing. The day a word is written this line stops
+ * standing in without being edited.
+ * ⚠️ A row the dictionary does not hold AT ALL is a second condition and is
+ * answered separately, although with the same stand-in. It cannot happen while
+ * `npm run gen:check` passes -- the generator builds its roster from table T-109
+ * every run -- so what is guarded is a generated file edited by hand.
+ *
+ * @provisional PD-4
+ * @purity pure
+ */
+function entryLabel(icon: IconId, language: DisplayLanguage): string {
+  const word = WORDS_BY_ROW.get(icon)?.label[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
+}
+
+/**
+ * The name of one group of the palette, in the display language (FR-038).
+ *
+ * ⛔ THE STAND-IN IS NOT THE EMPTY STRING HERE, which is where this member parts
+ * company with `CommandItem.label`: table T-109's group column DOES hold a word,
+ * and falling back to nothing would hide a group that has a name. So an unwritten
+ * cell falls back to that column as the roster carries it -- what UF-65 printed
+ * before the dictionary was wired. ⚠️ For a reader on `en` it is the Japanese
+ * cell, which is the hole PD-160 closes and not a translation claimed here.
+ *
+ * ⛔ THE KEY IS DERIVED, NEVER WRITTEN DOWN. The specification gives a group no
+ * id of its own, so the dictionary keys one by the first row of table T-109 that
+ * sits in it -- and the caller finds that row by WALKING the roster in the
+ * table's own order, so a re-ordering moves the key on both sides at once. A
+ * roster of row ids typed here would be the copy rule 03 section 1 forbids.
+ * ⚠️ One key of the dictionary is never asked for: the only palette row of its
+ * group is one of the two `NOT_BUTTON_ROWS`, so no group is opened for it here.
+ * That is the roster carrying a fact this file cannot read (see the STOP note on
+ * those rows), not a lookup gone missing.
+ *
+ * @provisional PD-4
+ * @purity pure
+ */
+function groupName(groupCell: string, firstRow: string, language: DisplayLanguage): string {
+  const word = GROUP_NAMES_BY_FIRST_ROW.get(firstRow)?.name[language]
+  if (word === undefined) return groupCell
+  return word === '' ? groupCell : word
+}
 
 /**
  * Half-open on both axes, as R3.4 of the review standard asks: a point on the
@@ -167,12 +237,16 @@ function isEntryUsable(row: IconRosterRow, selection: Selection): boolean {
  *
  * @purity pure
  */
-function commandItemFor(row: IconRosterRow, selection: Selection): CommandItem {
+function commandItemFor(
+  row: IconRosterRow,
+  selection: Selection,
+  language: DisplayLanguage,
+): CommandItem {
   return {
     icon: row.rowId,
     isEnabled: isEntryUsable(row, selection),
     isPressed: false,
-    label: NO_WORDS,
+    label: entryLabel(row.rowId, language),
   }
 }
 
@@ -184,14 +258,14 @@ function commandItemFor(row: IconRosterRow, selection: Selection): CommandItem {
  * entries inside one come out in the order the table prints them -- without
  * this file knowing what either order is.
  *
- * ⚠️ `name` is the group column carried as it stands, and NOT a translation:
- * the generator's own note is that the manuscript's wording may travel as data,
- * while table T-109 states that it has no English column and why. ⛔ For a
- * reader on `en` there is therefore nothing to give -- the same hole the STOP
- * note on `NO_WORDS` describes, and the reason no English name is minted here.
- * ⭐ The answer differs from that note's for one reason: a value DOES exist for
- * this member, so the manuscript's own word is carried rather than an empty one
- * that would hide a group that has a name.
+ * ⛔ THE GROUPS ARE GATHERED ON THE TABLE'S OWN CELL AND NAMED ONLY AT THE END.
+ * The cell is what says two entries are in one group; the word printed for it is
+ * looked up per language, and two languages could spell two groups alike -- so
+ * gathering on the printed word would fold two groups into one, or split one in
+ * a language where the dictionary is only half filled in.
+ * ⭐ The lookup key is the FIRST row of table T-109 that opened the group, which
+ * is exactly the row this walk is standing on when it opens one. `groupName`
+ * says why that is the key and why it may not be written down.
  *
  * ⚠️ Reading `iconRoster` does not make this `semi-pure-a`: it is a module
  * constant compiled into the program, not state read while running. Table T-075
@@ -200,8 +274,12 @@ function commandItemFor(row: IconRosterRow, selection: Selection): CommandItem {
  * @provisional PD-4
  * @purity pure
  */
-function paletteGroups(selection: Selection): readonly PaletteGroup[] {
-  const groups: { readonly name: string; readonly commands: CommandItem[] }[] = []
+function paletteGroups(selection: Selection, language: DisplayLanguage): readonly PaletteGroup[] {
+  const groups: {
+    readonly cell: string
+    readonly firstRow: IconId
+    readonly commands: CommandItem[]
+  }[] = []
 
   for (const row of iconRoster.icons) {
     if (!row.surfaces.includes(COMMAND_PALETTE)) continue
@@ -210,28 +288,38 @@ function paletteGroups(selection: Selection): readonly PaletteGroup[] {
     // ⚠️ Required by the type, and unreachable while the only groupless palette
     // row is one of the two refused above. A row that reaches the palette
     // without a group is dropped rather than given a group name invented here.
-    const name = row.group
-    if (name === null) continue
+    const cell = row.group
+    if (cell === null) continue
 
-    const command = commandItemFor(row, selection)
-    const opened = groups.find((group) => group.name === name)
-    if (opened === undefined) groups.push({ name, commands: [command] })
+    const command = commandItemFor(row, selection, language)
+    const opened = groups.find((group) => group.cell === cell)
+    if (opened === undefined) groups.push({ cell, firstRow: row.rowId, commands: [command] })
     else opened.commands.push(command)
   }
 
-  return groups
+  return groups.map((group) => ({
+    name: groupName(group.cell, group.firstRow, language),
+    commands: group.commands,
+  }))
 }
 
 /**
  * The row of table T-023b the palette has armed. FR-053 (MUST) requires this to
  * be readable on the screen.
  *
- * ⭐ WHY A ROW ID AND NOT WORDS. `armedText` is words rather than a figure
- * because AR-4 is not a shape and its entry has no figure drawn yet -- and no
- * words exist (the STOP note on `NO_WORDS`). The row id is the join the
- * specification itself prescribes, it names exactly the arms table T-023b
- * counts, and ⛔ it cannot be mistaken for a settled name the glossary has not
- * settled. UF-69 answers the same hole the same way.
+ * STOP -- ⛔ THE DICTIONARY HAS NO SECTION FOR TABLE T-023b. FR-038's store
+ * holds the entries of table T-109, the palette's group names, the headings of
+ * the surfaces table T-103 names, the manners of table T-037, the two answers
+ * NT-7 asks for, FR-072's three headings and the assignments of table T-023 --
+ * and no arm of table T-023b is any of those. Searched: `display-words.json`
+ * beside this file, `_source/display-words.json`, Chapter 6.2, FR-053 and table
+ * T-023b. ⚠️ Widening the manuscript is a change to what FR-038 stores, which
+ * this unit may not make.
+ * ⭐ WHY A ROW ID STANDS IN. `armedText` is words rather than a figure because
+ * AR-4 is not a shape and its entry has no figure drawn yet. The row id is the
+ * join the specification itself prescribes, it names exactly the arms table
+ * T-023b counts, and ⛔ it cannot be mistaken for a settled name the glossary
+ * has not settled. UF-69 stands in the same way where its own row is unwritten.
  * ⛔ THE EMPTY STRING IS NOT AVAILABLE HERE, which is where this member parts
  * company with `CommandItem.label`: FR-053 (MUST) requires what is armed to be
  * READABLE, and an empty string would answer nothing at all. So the same
@@ -307,7 +395,7 @@ export function commandPaletteFromScreenState(
   return {
     box,
     isPointerOver: pointer !== null && rectHoldsPoint(box, pointer.x, pointer.y),
-    groups: paletteGroups(selection),
+    groups: paletteGroups(selection, session.language),
     armedText: armedRow(state.armed),
   }
 }

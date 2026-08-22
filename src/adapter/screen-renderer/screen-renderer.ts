@@ -212,10 +212,10 @@ export interface AppHeaderItems {
    * ⛔ WHICH ROWS THOSE ARE IS NOT DECIDED HERE and must not be typed out in
    * UF-62 either: table T-109 counts itself (FR-029 forbids the requirement to
    * state the number), and rule 03 forbids copying a value the specification
-   * holds. ⚠️ Nothing generates that table into `src/` today, the way
-   * `settings.json` is generated -- so either the roster reaches the code the
-   * way `SETTINGS_DEFAULTS` does, or a copy will go stale in silence. It is a
-   * gap, not a decision.
+   * holds. ⭐ THE GAP IS CLOSED: `icon-roster.json` beside this file is table
+   * T-109 generated into `src/`, the way `settings.json` reaches
+   * `SETTINGS_DEFAULTS`, and UF-62 walks it -- so membership, print order and
+   * count all arrive from where they live and no copy can go stale in silence.
    */
   readonly commands: readonly CommandItem[]
 }
@@ -452,8 +452,10 @@ export interface HelpModal extends OpenSurface {
    *
    * ⛔ NOT A ROSTER. FR-036 counts them itself and rule 03 forbids re-typing
    * what a table holds. ⚠️ None of those tables is generated into `src/` the way
-   * `icon-roster.json` is, so either they reach the code that way or a copy goes
-   * stale in silence -- the gap `AppHeaderItems.commands` already records.
+   * `icon-roster.json` and `display-words.json` are, so either they reach the
+   * code that way or a copy goes stale in silence. ⛔ This member is where that
+   * gap now stands alone: the icon roster it used to be recorded beside has
+   * since been generated.
    * ⚠️ Grouping and paging are the surface's: FR-036 asks the help to need no
    * scrolling at MC-6 of table T-025, and that is a layout, not a description.
    */
@@ -653,7 +655,8 @@ export interface Notice {
 }
 
 /**
- * One question put before something goes ahead (UF-67, NT-7 of table T-037).
+ * One question as it is RAISED, before the surface it will stand on is
+ * described (UF-67, NT-7 of table T-037).
  *
  * ⭐ NOT A `Notice`, although both follow table T-037. A notice is told and the
  * person carries on; this one stops until they answer, and NT-7 (MUST) is the
@@ -662,10 +665,17 @@ export interface Notice {
  * pending answer bolted on would let a caller raise a question nobody can
  * answer.
  *
- * ⚠️ FR-031 keeps the places that may ask down to two, and NT-7 (MUST) repeats
- * the limit: a confirmation stands only where a requirement asks for one.
+ * ⭐ WHY THE RAISED HALF IS ITS OWN TYPE. Everything here can only be known
+ * where the question is raised, and the two answers on `Confirmation` can only
+ * be known from table T-109 -- so an asker that had to supply them would be
+ * writing the roster's answer. `ScreenSession` holds this half; UF-67 turns it
+ * into the surface below.
+ *
+ * ⚠️ FR-031 states the class of the places that may ask (losing what undoing
+ * cannot give back) and forbids enumerating them (MUST NOT); NT-7 (MUST) keeps
+ * the same limit -- a confirmation stands only where a requirement asks for one.
  */
-export interface Confirmation {
+export interface RaisedConfirmation {
   /**
    * The row of table T-037 this one follows -- `NT-7`.
    *
@@ -677,9 +687,11 @@ export interface Confirmation {
   /**
    * NT-7 (MUST): what is about to happen, in words, in the display language.
    *
-   * ⛔ Written by whoever asks, never here. FR-038 names no store of translated
-   * strings, so this arrives already in the language -- the move `Notice.text`
-   * and `CommandItem.label` both make.
+   * ⛔ Written by whoever asks, never here. ⚠️ FR-038 (MUST) names ONE store of
+   * translated strings -- `display-words.json` beside this file -- but it holds
+   * no sentence saying WHAT is about to happen: that names the thing at hand,
+   * which only the asker knows. So this member arrives already in the language,
+   * the move `Notice.text` makes and `CommandItem.label` no longer needs.
    */
   readonly text: string
   /**
@@ -697,6 +709,28 @@ export interface Confirmation {
    * something that goes".
    */
   readonly items: readonly ConfirmationItem[]
+}
+
+/**
+ * U-55 `Confirmation` of table T-103 -- the raised question WITH the surface it
+ * stands on (UF-67).
+ *
+ * ⭐ THE TWO ANSWERS ARE THE ROSTER'S, NOT THE ASKER'S. The preamble above table
+ * T-109 fixes its 面 column as table T-103's settled names, so which entries
+ * stand on this surface is that table's answer and UF-67 reads it out of
+ * `icon-roster.json`. ⛔ That is why this type is not what a caller raises:
+ * `ScreenSession.confirmation` takes `RaisedConfirmation`, and the entries are
+ * added on the way to the screen.
+ */
+export interface Confirmation extends RaisedConfirmation {
+  /**
+   * IC-69 and IC-70 of table T-109, in that table's own print order.
+   *
+   * ⭐ NT-7 (MUST) makes choosing between the two the whole of this surface, so
+   * neither can be spent and neither is a toggle: `isEnabled` is true and
+   * `isPressed` is false on both.
+   */
+  readonly entries: readonly CommandItem[]
 }
 
 /** One thing a confirmation says would go. */
@@ -780,17 +814,35 @@ export type TooltipAnchor =
  * `ScreenSurface.showScreenView` is what carries it to the page.
  *
  * ⭐ Ten members over the nine units of table T-075 -- UF-61 to UF-69 in that
- * order, with UF-67 filling two. Each unit reads none of the others' members,
- * which is the whole reason the shape is what it is: the nine can be written at
- * once.
+ * order, with UF-67 filling two -- and ONE member of UF-60's own, which stands
+ * first. Each of the nine units reads none of the others' members, which is the
+ * whole reason the shape is what it is: the nine can be written at once.
  *
  * ⚠️ WHY UF-67 FILLS TWO. Its row of table T-075 reads 「知らせと確認（FR-076。
  * 作法は 表 T-037）」, and NT-7 -- the row that says how a question is put -- is
  * a row of that same table. ⛔ A tenth FILE would need a tenth row in table
  * T-075 (check 18 holds `src/` against it); one more manner asked for one more
  * member, not one more unit.
+ *
+ * ⭐ WHY `language` IS NOT ONE OF THE NINE. It is not a UI part: UF-60's own row
+ * of table T-075 is what carries it, in that row's own words. So no unit fills
+ * it and `screenViewFromRegions` carries it across itself -- which is also why
+ * it is the one member of this type that names no `UF-6n` below.
  */
 export interface ScreenView {
+  /**
+   * UF-60. FR-038 (MUST): the language state is ONE and reaches the WHOLE
+   * screen -- ⛔ the help may not stand in a different one (MUST NOT), which is
+   * the reading a per-surface answer would allow.
+   *
+   * ⚠️ Carried, never chosen here: it arrives in `ScreenSession.language`,
+   * because LY-5 of table T-060 leaves the Framework as the only layer that may
+   * hold a current value, and FR-038 (MUST NOT) keeps it out of the document.
+   * ⭐ `HelpModal.language` is THIS value seen from inside the help, not a
+   * second state: FR-038 puts the second toggle there and requires the current
+   * language to be readable beside it.
+   */
+  readonly language: DisplayLanguage
   /** UF-61 */
   readonly frame: ScreenFrame
   /** UF-62 */
@@ -805,7 +857,10 @@ export interface ScreenView {
   readonly openModal: OpenModal | null
   /** UF-67, in the order they are shown. */
   readonly notices: readonly Notice[]
-  /** UF-67. `null` while nothing is waiting to be answered (NT-7). */
+  /**
+   * UF-67. U-55 of table T-103, or `null` while nothing is waiting to be
+   * answered (NT-7). ⚠️ Wider than what was raised: `entries` is added here.
+   */
   readonly confirmation: Confirmation | null
   /** UF-68. `null` while the `Agent API` is off (FR-066). */
   readonly dialogueField: DialogueField | null
@@ -960,10 +1015,13 @@ export interface ScreenSession {
    * question that is waiting is exactly that. ⛔ Nothing in table T-203 or table
    * T-206 holds it either, so it does not travel in `ScreenState`.
    *
-   * ⚠️ WHAT THE ANSWER TRAVELS BACK ON IS NOT DECIDED. See the STOP note in
-   * `notices.ts`.
+   * ⛔ THE RAISED HALF ONLY. The two answers are table T-109's (IC-69 / IC-70)
+   * and UF-67 reads them out of the roster, so a shell that had to name them
+   * here would be settling the placement that table already settles.
+   *
+   * ⚠️ NOTHING IN THIS BUILD RAISES ONE. See the STOP note in `notices.ts`.
    */
-  readonly confirmation: Confirmation | null
+  readonly confirmation: RaisedConfirmation | null
   /**
    * Where each drawn row sits, as the shell measured it this frame.
    *
@@ -1054,6 +1112,9 @@ export interface ScreenSession {
 //     ⭐ The second member is NT-7's -- the manner for ASKING, which table T-037
 //     gained on 2026-08-21. Table T-075 gives this unit 「知らせと確認」, so both
 //     manners are one unit's, and neither reads the other's member.
+//     ⚠️ It WIDENS what it is given, which the first does not: the session holds
+//     a `RaisedConfirmation` and the answer is a `Confirmation`, because IC-69
+//     and IC-70 stand on U-55 by table T-109 and not by the asker's choice.
 //
 //   UF-68  dialogue-field.ts
 //     export function dialogueFieldFromLog(
@@ -1080,11 +1141,13 @@ export interface ScreenSession {
  * the units read none of each other, so among themselves the members stand in
  * the order `ScreenView` prints them.
  *
- * ⚠️ NO RULE OF ITS OWN LIVES HERE. Every requirement is answered by the unit
- * that owns it, and this function only hands each one the arguments its contract
- * asks for. ⭐ So a rule that looks missing from the screen is missing from that
- * unit, and its STOP note there says why -- looking for it in this file will
- * find nothing.
+ * ⚠️ ONE RULE OF ITS OWN LIVES HERE, and only because table T-075 puts it here:
+ * `language` is UF-60's own cell, so it is carried across from the session by
+ * this function rather than by one of the nine. Every OTHER requirement is
+ * answered by the unit that owns it, and this function only hands each one the
+ * arguments its contract asks for. ⭐ So a rule that looks missing from the
+ * screen is missing from that unit, and its STOP note there says why -- looking
+ * for it in this file will find nothing.
  *
  * @purity pure
  */
@@ -1098,6 +1161,10 @@ export function screenViewFromRegions(
   session: ScreenSession,
 ): ScreenView {
   const shown: Omit<ScreenView, 'tooltips'> = {
+    // FR-038 (MUST): one language for the whole screen. ⛔ Nothing is chosen or
+    // normalised on the way through -- `DisplayLanguage` admits the two FR-038
+    // admits and no third, so there is no state to fall back from.
+    language: session.language,
     frame: screenFrameFromRegions(regions, settings, state),
     appHeaderItems: appHeaderItemsFromDocument(schedule, settings, state, session),
     rowTitlePanel: rowTitlePanelFromSchedule(schedule, settings, selection, session),

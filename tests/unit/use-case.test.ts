@@ -80,7 +80,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
 // panels are added back. The arithmetic is layoutEngine's, not this file's.
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
-const HISTORY_LIMITS = { maxSteps: 50, maxTotalSize: 64 * 1024 * 1024 }
+const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 
 const planOf = (
@@ -126,7 +126,7 @@ describe('ApplyDocumentChange -- how big one undo step is (FR-031)', () => {
       expect(plan.ok).toBe(true)
       if (!plan.ok) throw new Error('the plan was refused')
       expect(plan.history.done).toHaveLength(1)
-      return plan.history.done[0]!.size
+      return plan.history.done[0]!.sizeBytes
     }
 
     // Each of the five characters is three bytes where a letter is one.

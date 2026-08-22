@@ -26,6 +26,3 @@
 
 PI-1 | Schedule | scheduleViolations | src/entity/document-model/schedule/schedule.ts
 why: not written yet -- schedule.ts:474 says so in as many words and calls it a unit of work of its own; it is the one place the 17 document invariants of table T-220 are answered, driven by that table rather than written out row by row (Chapter 6.1, MUST), and validate-imported-document.ts:34,47,308 and edit-document/edit-annotation.ts:151 already write as if it existed.
-
-PI-8 | ApplyDocumentChange | replaceDocument | src/use-case/apply-document-change/apply-document-change.ts
-why: CR-196 opened the name and nothing has written it -- the folder holds zero occurrences; it is the entrance undo and redo ought to use instead of replacing the held pair themselves (ft1-wiring-findings-2026-08-22.md row 1), its steps are WS-1 to WS-7 of table T-067, and the revision stamp it puts on the replaced document is still undecided (class D), which is why W4-adapter.md records it as not writable in one go.

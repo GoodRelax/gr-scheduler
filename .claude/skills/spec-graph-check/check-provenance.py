@@ -58,6 +58,13 @@ ARTIFACTS = [
     # startup template beside it may NOT have: that one is validated by the GRS
     # JSON schema, and this one is not.
     ('src/adapter/screen-renderer/icon-roster.json', 'tbl-glossary.md'),
+    # The shapes themselves (figure F-019), which UF-71 draws instead of
+    # printing the row id where a glyph belongs. ⚠️ Its manuscript is a FIGURE,
+    # and the only one of these artifacts whose manuscript is not a table or a
+    # _source/ file: FR-029 (MUST) makes that figure the authority for every
+    # icon's shape, so the banner names the .svg and the generator cross-checks
+    # it against table T-109 so neither can move alone.
+    ('src/adapter/screen-renderer/icon-glyphs.json', 'fig-icons.svg'),
     # The words the screen prints (FR-038). ⚠️ Its manuscript is a manuscript of
     # WORDS ONLY: which words exist is read from the specification on every run,
     # so this artifact drifts if a table moves and the manuscript does not.
@@ -70,6 +77,13 @@ ARTIFACTS = [
     # them a second time anywhere.
     ('src/adapter/document-codec/mspdi-custom-fields.json',
      'docs/spec/_source/mspdi-custom-fields.json'),
+    # The two values OP-12 of table T-024a compares (CR-214 moved them out of
+    # prose and into columns of table T-024, so that a generator could reach
+    # them at all). ⚠️ Its manuscript is a REQUIREMENTS document rather than a
+    # _source/ file: the values are the specification's own, and the row id is
+    # the only join the table admits.
+    ('src/adapter/document-codec/exchange-formats.json',
+     'docs/spec/01-04-requirements.md'),
 ]
 
 # How far into the file the banner may sit. Long enough for a StrictDoc header

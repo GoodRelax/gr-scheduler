@@ -12,23 +12,26 @@
 // ⚠️ This unit decides WHAT the document becomes, and nothing else. Replacing
 // the current value is WS-6 of table T-067 and belongs to ApplyDocumentChange
 // alone (CP-8, and table T-042's MS-1 -- with two entrances "片方にしか掛から
-// ない検証や履歴が生まれる"). So the answer is a value, and the caller joins
-// the two like this:
+// ない検証や履歴が生まれる"). So the answer is a value.
 //
-//     const held = holder.read()        // CS-3: one read of the pair
-//     const outcome = undoEdit(held)    // pure -- this unit
-//     if (outcome.undone) { ...commit outcome.next through the one write path }
+// ⭐ RD-1 OF TABLE T-230 PUTS THIS UNIT IN WS-3's POSITION, so the value is
+// asked for by the one write path rather than committed beside it:
+// `replaceDocument` (PI-8) reads the pair once (CS-3), asks `undoEdit`, and
+// runs WS-4 to WS-7 over the answer. ⭐ RD-1's own three columns are that
+// caller's: the history is the one this unit answered, the stamp is left as it
+// came in, and no undo step is pushed.
+//
+// ⚠️ THE DIRECTION IS ApplyDocumentChange -> UndoEdit, which is the component
+// figure's and which A-appendix 0.86 settles in words. That is why `ChangeStep`
+// and `HeldDocument` are DECLARED below: the pair used to be imported from
+// ApplyDocumentChange, and leaving it there once that component asks this one
+// would close a cycle inside the layer (LR-3, MUST NOT). ⭐ The identical move
+// `DocumentCommand` already makes towards EditDocument. ⚠️ Neither name is a
+// member of table T-064 -- its preamble leaves arguments and return values to
+// `src/`, and both are `undoEdit`'s.
 //
 // Judging the moment (WS-2 / AG-9 -- mid-gesture, mid-edit, mid-delivery) and
-// handing out notices (WS-7) belong to that commit, not here.
-//
-// ⛔ STOP -- the specification does not decide HOW `outcome.next` reaches WS-6.
-// `applyDocumentChange` takes `DocumentCommand`s (PI-8) and table T-108 has no
-// command that restores a whole document, so ApplyDocumentChange publishes no
-// entry that commits a document computed elsewhere. FR-031 requires the undo to
-// take effect and MS-1 forbids it taking effect through a second write path.
-// This unit neither chooses an entry nor opens one; whoever closes this adds it
-// to ApplyDocumentChange (CP-8), never here and never in the holder's owner.
+// handing out notices (WS-7) belong to that caller, not here.
 //
 // ⭐ WHAT STAMP THE RESTORED DOCUMENT CARRIES IS SETTLED, and it is the earlier
 // one. A step holds the whole earlier `Document`, stamp and all, so restoring it
@@ -78,11 +81,35 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import { previousStep, type EditHistory } from '../../entity/document-model/edit-history/edit-history'
-// LR-2: through the other component's public entry. `ChangeStep` and
-// `HeldDocument` are declared there because WS-4 pushes the one and WS-6
-// replaces the other; naming them here would be a second declaration of the
-// same pair.
-import type { ChangeStep, HeldDocument } from '../apply-document-change/apply-document-change'
+
+/**
+ * One step of the undo history: the document as it stood before the write.
+ *
+ * ⚠️ Declared here although WS-4 of table T-067 is what pushes one -- see the
+ * header: RD-1 of table T-230 makes ApplyDocumentChange the importer of this
+ * component, so the declaration cannot sit on the other side of that import
+ * (LR-3). ⭐ ApplyDocumentChange re-exports it, so PI-8's face does not move.
+ */
+export interface ChangeStep {
+  readonly document: Document
+  /** The rows of table T-108 this step undoes, in the order they were applied. */
+  readonly commands: readonly string[]
+}
+
+/**
+ * The pair the holder keeps: the current document and the history that undoes
+ * it. ⚠️ They are ONE value because WS-6 is one reference assignment (MUST) --
+ * a document paired with the previous history is exactly the mixture AG-4
+ * forbids, and a seam that took two arguments would ask every holder to write
+ * two fields and trust it to do so in one breath.
+ *
+ * ⭐ It is this unit's argument AND its answer (RD-1 hands the answered pair
+ * straight to WS-6), which is the other reason the declaration belongs here.
+ */
+export interface HeldDocument {
+  readonly document: Document
+  readonly history: EditHistory<ChangeStep>
+}
 
 /**
  * What one press of undo answers.

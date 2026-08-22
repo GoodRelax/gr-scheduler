@@ -1133,6 +1133,13 @@ const BASE_VIEW: ScreenView = {
   commandPalette: null,
   openModal: null,
   notices: [],
+  // ⚠️ MENDED BY THE RECONCILER, NOT BY THIS FILE'S AUTHOR, and no assertion
+  // moved: `ScreenView` gained this member when 表 T-075's UF-67 cell became
+  // 「知らせと確認」, so a base view built without it is no longer a
+  // `ScreenView` at all and `showScreenView` read `undefined.manner`. `null` is
+  // what every other absent surface here already carries.
+  // ⛔ THIS FILE STILL HAS NO CASE FOR THE CONFIRMATION -- see the report.
+  confirmation: null,
   dialogueField: null,
   tooltips: [],
 }

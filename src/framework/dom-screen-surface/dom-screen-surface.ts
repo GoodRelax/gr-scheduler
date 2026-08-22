@@ -12,10 +12,11 @@
 //
 // ⭐ WHY THIS UNIT EXISTS. ScreenRenderer (UF-60) describes every UI part
 // OUTSIDE the schedule -- the header, the row titles, the properties panel, the
-// palette, the surfaces that open over the screen, the notices, the dialogue
-// field and the tooltips -- and it is `pure`, so the description is a value and
-// nothing in it is a node. ⛔ Until this file existed none of it reached the
-// screen: the application drew a schedule (UF-49 over IF-1) and nothing else.
+// palette, the surfaces that open over the screen, the notices, the confirmation
+// (U-55), the dialogue field and the tooltips -- and it is `pure`, so the
+// description is a value and nothing in it is a node. ⛔ Until this file existed
+// none of it reached the screen: the application drew a schedule (UF-49 over
+// IF-1) and nothing else.
 //
 // ⭐ THE DEPENDENCY POINTS INWARD (LR-5 of table T-061). `ScreenSurface` is
 // declared by ScreenRenderer, an Adapter, and realised here because LR-5 puts
@@ -114,6 +115,35 @@
 // and it is the one faint colour that follows the reader's own contrast
 // settings instead of guessing at them.
 //
+// ⭐ THE ENTRIES ARE DRAWN AS SHAPES, AND THE SHAPES ARRIVE THE WAY THE ROSTER
+// DOES. FR-029 (MUST) has this product tell what a menu is for with an icon
+// rather than a word, makes figure F-019 the authority for every icon's shape
+// (MUST), and forbids taking one from a third party's set (MUST NOT).
+// `tools/generate_icon_glyphs.py` carries that figure into
+// `icon-glyphs.json` -- cross-checked against table T-109, so a row without a
+// shape and a shape without a row both stop the build -- and `glyphElement`
+// below puts one on the page. ⛔ Nothing here re-draws, re-scales or tidies a
+// path: what is set on each node is what the figure holds.
+//
+//   - THE WORD IS THE NAME, NOT THE BODY. `CommandItem.label` is declared as
+//     the ACCESSIBLE name of the entry, so it leaves through `aria-label` and
+//     the shape is what is seen. ⚠️ The shape is hidden from the accessibility
+//     tree (`aria-hidden`) precisely so the name still comes from the word,
+//     with the row id as the fallback the dictionary's empty cells (PD-160)
+//     leave in use today.
+//   - THE COLOUR IS THE APP'S. The figure paints `currentColor` and switches its
+//     own `color` on the viewer's light / dark preference; ⛔ that media query
+//     is NOT carried (FR-041 leaves the theme to this product), so a shape takes
+//     the colour of the entry it sits in -- `ButtonText`, FR-029's faint
+//     `GrayText`, and HF-6's darkening on hover, with no rule of its own.
+//   - ⚠️ `createElementNS` IS THE ONE MEMBER BESIDES `createElement`. A shape
+//     made with `createElement` would be an unknown HTML element and would draw
+//     nothing at all, so there is no doing this without it. It is asked for
+//     rather than assumed, the way `elementFromPoint` is: a host that lays
+//     nothing out (R7.3 hands one in) has no namespaces either, and an element
+//     with the same tag and the same attributes is enough for it to be read
+//     back.
+//
 // ⭐ ONE THING IS NOT AN INLINE DECLARATION, AND ONLY ONE. HF-6's second half
 // -- 「ポインタが乗っているあいだだけ濃くする」 -- cannot be stated in a `style`
 // attribute, so the unit hangs ONE `style` element off its own root
@@ -135,6 +165,7 @@ import type {
   AppHeaderItems,
   CommandItem,
   CommandPalette,
+  Confirmation,
   DialogueField,
   DialogueInput,
   Notice,
@@ -151,6 +182,7 @@ import type {
   TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
+import iconGlyphs from '../../adapter/screen-renderer/icon-glyphs.json'
 
 // ------------------------------------------------------- the settled names ---
 
@@ -175,7 +207,9 @@ const UNIT_ROW = 'UF-71'
  * third spelling is minted for it.
  * ⭐ Tooltips used to be the second. Table T-103 settled `Tooltip` (U-53) on
  * 2026-08-21, so the layer now carries the glossary's own spelling and rule 03
- * of docs/development-rules is satisfied where it was not.
+ * of docs/development-rules is satisfied where it was not. `Confirmation`
+ * (U-55) arrived already named, and is the spelling table T-109 joins IC-69 and
+ * IC-70 to it by.
  */
 const ROLE = {
   appHeader: 'App Header',
@@ -195,6 +229,7 @@ const ROLE = {
   paletteCommands: 'Palette Commands',
   dialogueField: 'Dialogue Field',
   notices: 'notices',
+  confirmation: 'Confirmation',
   tooltips: 'Tooltip',
 } as const
 
@@ -214,6 +249,23 @@ const ROLE = {
 const HOST_ENTER = 'Enter'
 
 // -------------------------------------------------------------- the styles ---
+
+/**
+ * The box a part that STOPS THE READING takes: in the middle of the screen, over
+ * everything under it, and taking the pointer.
+ *
+ * ⭐ Written once and used by the two parts that stop the reading -- the surface
+ * IN-4 of table T-028 defines by what Esc closes, and U-55 `Confirmation`, which
+ * NT-7 (MUST) holds until it is answered. ⛔ They are not the same part and the
+ * specification does not say they look alike; what they share is the reason for
+ * the place, so a change to it is meant to reach both.
+ *
+ * @provisional PD-151
+ */
+const STOPPING_BOX =
+  'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
+  'box-sizing:border-box;max-width:92%;max-height:92%;overflow:auto;padding:1em;' +
+  'background:Canvas;color:CanvasText;border:1px solid CanvasText;pointer-events:auto;'
 
 /**
  * How the parts are placed and painted.
@@ -260,6 +312,18 @@ const STYLE = {
   entryFaint:
     'font:inherit;background:ButtonFace;color:GrayText;border:1px solid GrayText;' +
     'border-radius:0.25em;padding:0 0.375em;line-height:1.5;cursor:default;',
+  // The box one shape of figure F-019 is drawn in, and the whole of what this
+  // unit decides about a shape -- the paint is the figure's own.
+  //
+  // ⛔ NO TABLE SETTLES A SIZE, so this is the same frame of reference every
+  // other length here uses: the environment's own text size, which is exactly
+  // the height the row id took while it stood in for the shape. ⚠️ It is
+  // `inline-block` and not `block` so that the line box, and with it the header
+  // FR-051 measures at BO-1, is the one the surrounding text already made.
+  // ⛔ `pointer-events:none` so the ANSWER does not move: IF-9's third member
+  // reads back the entry a point is on, and the button is what carried
+  // `data-icon` before a shape was inside it.
+  glyph: 'display:inline-block;vertical-align:middle;width:1em;height:1em;pointer-events:none;',
   // EP-9 of table T-076: the boundary is the same one line as `Group Grid
   // Lines`, so the band that is grabbed carries no paint of its own.
   dividerBand: 'cursor:col-resize;pointer-events:auto;',
@@ -310,15 +374,21 @@ const STYLE = {
   paletteGroupName: 'color:GrayText;',
   paletteCommands: 'display:flex;flex-wrap:wrap;gap:0.25em;',
   armedText: 'color:CanvasText;',
-  modal:
-    'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
-    'box-sizing:border-box;max-width:92%;max-height:92%;overflow:auto;padding:1em;' +
-    'background:Canvas;color:CanvasText;border:1px solid CanvasText;pointer-events:auto;',
+  modal: STOPPING_BOX,
   modalHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
   notices: 'position:absolute;left:50%;transform:translateX(-50%);max-width:60%;',
   notice:
     'box-sizing:border-box;margin:0.25em 0;padding:0.5em 0.75em;background:Canvas;' +
     'color:CanvasText;border:1px solid CanvasText;pointer-events:auto;',
+  // ⛔ `pointer-events:auto` is not decoration here: without it the point-to-part
+  // answer (IF-9) never sees this surface, the press falls through to the
+  // schedule underneath, and NT-7's two answers cannot be pressed at all.
+  confirmation: STOPPING_BOX,
+  // NT-7 (MUST): the names of what would go, one element each.
+  confirmationItem: 'display:block;line-height:1.6;',
+  // The two answers, held apart from the names above them so that the choice
+  // does not read as one more thing that would go.
+  confirmationAnswers: 'display:flex;align-items:center;gap:0.5em;margin-top:0.5em;',
   dialogueField:
     'position:absolute;box-sizing:border-box;display:flex;flex-direction:column;' +
     'width:24em;height:14em;padding:0.5em;background:Canvas;color:CanvasText;' +
@@ -369,6 +439,37 @@ const ROW_CONTROL_HOVER_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"]:hover,` +
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"]:hover` +
   '{color:CanvasText !important;}'
+
+/**
+ * The namespace a shape has to be made in.
+ *
+ * ⭐ NOT A VALUE OF THE SPECIFICATION, so rule 03 section 1 has nothing to say
+ * about it: it is the name the SVG standard gives itself, and it is written
+ * here because an element made outside it is an unknown HTML element that draws
+ * nothing at all.
+ */
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
+
+/**
+ * The shapes of figure F-019, by the row of table T-109 printed under each.
+ *
+ * ⭐ WHERE THE SHAPES COME FROM. FR-029 (MUST) makes that figure the authority
+ * for every icon's shape and forbids a third party's set (MUST NOT);
+ * `icon-glyphs.json` beside the roster is that figure generated into `src/` by
+ * `tools/generate_icon_glyphs.py`, which refuses to write at all unless every
+ * row of table T-109 has a shape and every shape has a row. ⛔ So no shape is
+ * drawn here and none is chosen here: the row id arrives on the description and
+ * the figure answers what it looks like.
+ *
+ * ⚠️ Reading it no more makes this unit's builders `semi-pure-a` than reading
+ * `STYLE` does -- it is a module constant compiled into the program, not state
+ * read while running.
+ *
+ * ⭐ A `Map` rather than a scan per entry: a description is built for every
+ * frame, and rule 05 of docs/development-rules forbids a linear search on that
+ * path (NFR-013).
+ */
+const GLYPH_BY_ROW = new Map(iconGlyphs.glyphs.map((one) => [one.rowId, one.elements]))
 
 /**
  * How far a row is set in for each level below the root.
@@ -495,17 +596,87 @@ function part(host: Document, tag: string, role: string, style: string): HTMLEle
 }
 
 /**
+ * One node of a shape, made in the namespace SVG needs.
+ *
+ * ⚠️ `createElementNS` IS ASKED FOR RATHER THAN ASSUMED, the way
+ * `elementFromPoint` is in `readScreenPartAt`. R7.3 hands the host in instead
+ * of reaching for one, and these cases run under Node with no DOM: a host that
+ * lays nothing out has no namespaces either. ⛔ The fallback is NOT a way of
+ * drawing -- an element of the same tag outside the SVG namespace draws nothing
+ * in a browser. It is what lets a host that never paints still be handed the
+ * same tag and the same attributes, and read them back.
+ *
+ * @purity non-pure
+ */
+function shapeNode(host: Document, tag: string): Element {
+  if (typeof (host as Partial<Document>).createElementNS !== 'function') {
+    return host.createElement(tag)
+  }
+  return host.createElementNS(SVG_NAMESPACE, tag)
+}
+
+/**
+ * The body of one entry: the shape figure F-019 draws for its row.
+ *
+ * ⭐ FR-029 (MUST) tells what a menu is for with an icon and not with a word,
+ * and makes that figure the authority for every shape (MUST). Each node is set
+ * with the tag and the attributes `icon-glyphs.json` carries and with nothing
+ * else -- ⛔ no path is re-drawn, re-scaled or tidied here, and no colour is
+ * chosen: the figure paints `currentColor`, so a shape takes the colour of the
+ * entry it sits in (`ButtonText`, FR-029's faint `GrayText`, HF-6's darkening
+ * on hover) and brings no rule of its own.
+ *
+ * ⚠️ THE SHAPE IS HIDDEN FROM THE ACCESSIBILITY TREE. It is an image and not a
+ * word, and the entry's name is `CommandItem.label` -- declared as the
+ * ACCESSIBLE name of the entry -- so `aria-hidden` is what keeps the name
+ * coming from the dictionary. `focusable="false"` beside it is for the hosts
+ * that would otherwise put the shape in the tab order.
+ *
+ * ⛔ THE ROW ID IS STILL THE BODY WHERE THERE IS NO SHAPE, and that branch is
+ * unreachable for a row of table T-109: the generator refuses to write unless
+ * every row has one. It is here because `IconId` is a bare `string`, and an
+ * entry with no body at all collapses to zero height -- unreachable by pointer
+ * and by IF-9's third member alike.
+ *
+ * @purity non-pure
+ */
+function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
+  const drawn = GLYPH_BY_ROW.get(icon)
+  if (drawn === undefined) {
+    entry.replaceChildren(icon)
+    return
+  }
+  const shape = shapeNode(host, 'svg')
+  shape.setAttribute('viewBox', iconGlyphs.viewBox)
+  shape.setAttribute('style', STYLE.glyph)
+  shape.setAttribute('aria-hidden', 'true')
+  shape.setAttribute('focusable', 'false')
+  for (const element of drawn) {
+    const node = shapeNode(host, element.tag)
+    for (const attribute of element.attributes) {
+      node.setAttribute(attribute.name, attribute.value)
+    }
+    shape.append(node)
+  }
+  entry.replaceChildren(shape)
+}
+
+/**
  * One entry a person can press, wherever table T-109 places it.
  *
- * ⛔ THE SHAPE IS NOT REACHABLE FROM `src/`. FR-029 makes figure F-019 the
- * authority for every icon's shape (MUST) and forbids taking one from a
- * third-party set (MUST NOT); that figure is `_assets/fig-icons.svg` and
- * nothing generates it into `src/` the way `icon-roster.json` is generated. So
- * the entry is drawn with the words it was given, and with its row id where
- * there are none -- `CommandItem.label` arrives empty until FR-038's translated
- * strings have a home (the hole `app-header-items.ts` records). ⚠️ Either the
- * figure reaches the code the way the roster does, or a hand-drawn copy goes
- * stale in silence.
+ * ⭐ THE WORD IS THE NAME AND THE SHAPE IS THE BODY. FR-029 (MUST) has the
+ * purpose told by an icon rather than by a word, and `CommandItem.label` is
+ * declared as the ACCESSIBLE name of the entry -- so the word leaves through
+ * `aria-label` and figure F-019 is what is seen. ⚠️ The row id is the name
+ * while the dictionary holds no word (every cell is still empty, PD-160), which
+ * is the same fallback the body took while there were no shapes.
+ *
+ * ⚠️ PD-154 IS STILL OPEN AND ITS MARK STAYS, but not for the reason the row
+ * gives. ⛔ What that row records -- that figure F-019 is not generated into
+ * `src/` -- is no longer so: `icon-glyphs.json` IS that figure, arrived the way
+ * the row itself said would let the drawing side be swapped. What is still
+ * undecided is HOW a shape is drawn: the box `STYLE.glyph` gives it is chosen
+ * here because no table settles one.
  *
  * @provisional PD-154
  * @purity non-pure
@@ -523,8 +694,11 @@ function commandEntry(host: Document, item: CommandItem): HTMLElement {
   // `aria-pressed="false"` on every entry would announce each of them as a
   // toggle -- FR-065's IC-20 and FR-072's IC-17 are the ones that are.
   if (item.isPressed) entry.setAttribute('aria-pressed', 'true')
-  if (item.label !== '') entry.setAttribute('aria-label', item.label)
-  entry.textContent = item.label === '' ? item.icon : item.label
+  // ⛔ WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, the same way UF-65 writes
+  // the fallback it reads out of the dictionary: those two read an empty word
+  // as absent, and PD-160 makes empty the state every cell is in today.
+  entry.setAttribute('aria-label', item.label === '' ? item.icon : item.label)
+  fillEntry(host, entry, item.icon)
   return entry
 }
 
@@ -551,7 +725,10 @@ function fillAppHeader(
   // FR-061 (MUST): the three states are told apart. ⛔ Their icons (which the
   // declaration of `AutosaveStatus` names) cannot be drawn from here -- the
   // value carries a kind and no `IconId`, and the mapping lives in table T-109,
-  // which this folder may not read (Chapter 5.3, MUST NOT).
+  // which this folder may not read (Chapter 5.3, MUST NOT). ⚠️ Having the
+  // SHAPES within reach changes nothing about that: `GLYPH_BY_ROW` answers what
+  // a row id looks like, and what is missing here is WHICH ROW a kind is --
+  // which is the far side's to say, on the description.
   status.setAttribute('data-status', items.autosaveStatus.kind)
   // FR-061 (MUST): the time is shown with the saved state.
   status.textContent = 'at' in items.autosaveStatus ? items.autosaveStatus.at : ''
@@ -619,23 +796,24 @@ function fillScreenFrame(
  * of an opening side and a closing side, and it is `icon` that tells the halves
  * apart.
  *
- * ⛔ THE SHAPE IS NOT REACHABLE FROM `src/`, SO THE ROW ID IS THE BODY. FR-098
- * asks for the `Row Pin` to be DRAWN AS A SHAPE (MUST) and FR-029 makes figure
- * F-019 the one authority for every shape (MUST) while forbidding a third-party
- * set (MUST NOT); that figure is `_assets/fig-icons.svg` and nothing generates
- * it into `src/` the way `icon-roster.json` is generated -- and that roster
- * carries a row id, the surfaces, the group, what the row is an entrance to and
- * the authority, and NO glyph, because table T-109 deliberately holds none.
- * ⛔ So no glyph and no word is invented here: the row id itself is put in as
- * the body, which is the same fallback `commandEntry` already takes, and which
- * the shape replaces on the day F-019 reaches the code the way the roster does.
+ * ⭐ DRAWN AS A SHAPE, WHICH IS WHAT FR-098 ASKS FOR IN AS MANY WORDS (MUST)
+ * for the `Row Pin`, and what FR-029 (MUST) makes figure F-019 the one
+ * authority for while forbidding a third party's set (MUST NOT). The shape
+ * comes from `icon-glyphs.json` through `fillEntry`, the same way an entry of
+ * the header or the palette gets one.
+ *
+ * ⛔ NO WORD IS INVENTED FOR ONE. Table T-109 deliberately has no English
+ * column and the dictionary holds no word for these three rows yet (PD-160), so
+ * the row id is the accessible name -- the only join that table admits, and the
+ * same fallback `commandEntry` takes.
  *
  * ⛔ WITHOUT A BODY THE CONTROL CANNOT BE PRESSED AT ALL. An empty `button`
  * with no length of its own collapses to zero height, so every entrance drawn
- * here was unreachable by pointer and by IF-9's third member alike -- which is
- * the supply that table T-065 promises above, made undeliverable by having
- * nothing to hit. ⚠️ The words are NOT what FR-029 asks the entrance to say;
- * they are what keeps it a target until the shape arrives.
+ * here would be unreachable by pointer and by IF-9's third member alike -- which
+ * is the supply that table T-065 promises above, made undeliverable by having
+ * nothing to hit. ⚠️ That is why the shape carries a box of its own
+ * (`STYLE.glyph`) rather than being left to size itself -- and that box is what
+ * PD-154's mark still stands for here (see `commandEntry`).
  *
  * @provisional PD-154
  * @purity non-pure
@@ -644,7 +822,8 @@ function rowControlElement(host: Document, role: string, icon: string): HTMLElem
   const control = part(host, 'button', role, STYLE.rowControl)
   control.setAttribute('type', 'button')
   control.setAttribute('data-icon', icon)
-  control.textContent = icon
+  control.setAttribute('aria-label', icon)
+  fillEntry(host, control, icon)
   return control
 }
 
@@ -1043,6 +1222,76 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
 }
 
 /**
+ * U-55 `Confirmation` (UF-67), the question NT-7 of table T-037 puts before
+ * something goes ahead.
+ *
+ * ⭐ MODELLED ON THE OPEN SURFACE AND NOT ON A NOTICE. NT-7 (MUST) has the
+ * person CHOOSE between going on and calling it off, so this one stops until it
+ * is answered, while a notice is told and read past -- which is also why it
+ * takes the pointer and a notice's box only happens to.
+ *
+ * ⛔ THE NAMES ARE ONE ELEMENT EACH AND ARE NEVER JOINED INTO ONE STRING, the
+ * same reasoning `modalElement` writes for FR-099's unassigned task names: a
+ * `Task` that carries no name of its own (AT-27) would be lost between two
+ * separators, and losing it turns the list back into a count -- which FR-032 and
+ * FR-099 each forbid in as many words (MUST NOT).
+ *
+ * STOP -- ⛔ NO MARK IS SETTLED FOR 「他の行に表示されているもの」. FR-032 (MUST)
+ * requires a `Task` that goes with a row but is drawn on ANOTHER row to be shown
+ * as such, and nothing says how: no word is settled (`display-words.json` is
+ * keyed by row of table T-109, by surface, by manner of table T-037, by heading
+ * and by row of table T-023, and none of those is a mark on an item -- PD-160),
+ * and no shape is either (table T-109 is the whole of the icons, FR-029 MUST,
+ * and it holds no row for a mark). Searched: FR-032, table T-015a (HM-10), table
+ * T-037, table T-109, figure F-019, `display-words.json` and its manuscript.
+ * ⭐ Carried as an attribute so the flag is not lost and the read-back rule 04
+ * asks for can see it; ⛔ nothing is invented to SHOW it, which leaves that MUST
+ * unmet and says so here rather than settling a mark by drawing one.
+ *
+ * @purity non-pure
+ */
+function confirmationElement(
+  host: Document,
+  confirmation: Confirmation,
+  anchors: Map<string, HTMLElement>,
+): HTMLElement {
+  const drawn = part(host, 'div', ROLE.confirmation, STYLE.confirmation)
+  // ⚠️ `alertdialog` and not `dialog`: it is the one this description matches --
+  // a question that stops the reading until it is answered.
+  drawn.setAttribute('role', 'alertdialog')
+  drawn.setAttribute('aria-modal', 'true')
+  // The join to table T-037, carried the way a notice carries its own.
+  drawn.setAttribute('data-manner', confirmation.manner)
+
+  // NT-7 (MUST): what is about to happen, in words. It arrives already in the
+  // display language -- only the asker knows what it names.
+  const text = made(host, 'div', '')
+  text.textContent = confirmation.text
+
+  const items = confirmation.items.map((item) => {
+    const line = made(host, 'div', STYLE.confirmationItem)
+    line.setAttribute('data-unnamed', String(item.name === null))
+    // See the STOP note above: the flag is kept, and no mark is drawn from it.
+    line.setAttribute('data-shown-on-another-row', String(item.isShownOnAnotherRow))
+    line.textContent = item.name
+    return line
+  })
+
+  // IC-69 and IC-70 of table T-109, in that table's own order, which UF-67 read
+  // out of the generated roster. ⛔ Neither is spent and neither is a toggle:
+  // NT-7 makes the choice between the two the whole of this surface.
+  const answers = made(host, 'div', STYLE.confirmationAnswers)
+  for (const item of confirmation.entries) {
+    const entry = commandEntry(host, item)
+    anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
+    answers.append(entry)
+  }
+
+  drawn.replaceChildren(text, ...items, answers)
+  return drawn
+}
+
+/**
  * The settled utterances, oldest first (UF-68).
  *
  * ⚠️ Ordered by `DialogueMessage.sequence` on the far side (AG-11 makes it an
@@ -1078,7 +1327,17 @@ function fillDialogueMessages(host: Document, box: HTMLElement, field: DialogueF
  * injection and what lets this unit be exercised where there is no DOM.
  */
 export interface ScreenSurfaceWiring {
-  /** The document the nodes are made in. ⛔ Only `createElement` is called on it. */
+  /**
+   * The document the nodes are made in.
+   *
+   * ⛔ Only `createElement`, `createElementNS` and `elementFromPoint` are called
+   * on it, and each is there because nothing else can do its job:
+   * `createElementNS` because FR-029's shapes are SVG and an element made
+   * outside that namespace draws nothing, and `elementFromPoint` because IF-9
+   * of table T-065 has the side that DREW an entrance answer where it is.
+   * ⚠️ Both are asked for rather than assumed, so a host that lays nothing out
+   * still works (`shapeNode`, `readScreenPartAt`).
+   */
   readonly host: Document
   /**
    * Where the screen is put. ⚠️ The surface makes a root of its own inside it
@@ -1172,6 +1431,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const appHeader = part(host, 'div', ROLE.appHeader, STYLE.appHeader)
   const modalLayer = made(host, 'div', STYLE.layer)
   const noticeLayer = part(host, 'div', ROLE.notices, STYLE.layer)
+  // ⛔ NOT itself a part: the `data-role` U-55 answers to is written on the
+  // surface this layer holds, so that a point on the layer's own emptiness is
+  // answered as nothing rather than as the confirmation.
+  const confirmationLayer = made(host, 'div', STYLE.layer)
   const tooltipLayer = part(host, 'div', ROLE.tooltips, STYLE.layer)
 
   dialogueEntry.setAttribute('type', 'text')
@@ -1181,8 +1444,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // The order is the stacking order: the frame and the panels first, the header
   // over them, and what is meant to be read over everything last. ⚠️ The
   // tooltip layer is last because IN-3 lets a person point at a tooltip, which
-  // it cannot do through something drawn on top of it. ⭐ The sheet is not in
-  // that order at all -- it has no box and paints nothing of its own.
+  // it cannot do through something drawn on top of it. ⛔ The confirmation is
+  // second to last, ABOVE the notices and BELOW the tooltips: a notice lying
+  // over the two answers would take away the choice NT-7 (MUST) requires, and
+  // covering a tooltip would take away what IN-3 lets a person point at.
+  // ⭐ The sheet is not in that order at all -- it has no box and paints nothing
+  // of its own.
   root.append(
     rowControlSheet,
     frameLayer,
@@ -1194,6 +1461,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     appHeader,
     modalLayer,
     noticeLayer,
+    confirmationLayer,
     tooltipLayer,
   )
   wiring.mount.append(root)
@@ -1421,15 +1689,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * a focused input takes the focus and the caret with it, and the person would
    * lose the line they are typing every frame.
    *
-   * STOP -- ⛔ ONE MEMBER IS NOT DRAWN: `view.confirmation`, the question NT-7 of
-   * table T-037 puts before something goes ahead. ⭐ It reaches this side now,
-   * which it did not before, and the two things it would need to be DRAWN are
-   * both unsettled: the words on the two choices (FR-038 places no store of
-   * translated strings, the same hole `OpenModal.heading` sits in) and an entry
-   * to press (table T-109 has no row on a confirmation, and table T-103 has
-   * settled no name for one -- so it is not a surface either). ⛔ Nothing is
-   * invented here; `notices.ts` holds the same STOP note on the way back.
-   *
    * @purity non-pure
    */
   function showScreenView(view: ScreenView): void {
@@ -1441,6 +1700,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       commandPalette: described(view.commandPalette),
       openModal: described(view.openModal),
       notices: described(view.notices),
+      confirmation: described(view.confirmation),
       dialogueField: described(view.dialogueField),
       tooltips: described(view.tooltips),
     }
@@ -1484,6 +1744,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (changed('notices')) {
       noticeLayer.replaceChildren(...view.notices.map((one) => noticeElement(host, one)))
     }
+    if (changed('confirmation')) {
+      const asked = view.confirmation
+      const anchors = anchorsOf('confirmation')
+      confirmationLayer.replaceChildren(
+        ...(asked === null ? [] : [confirmationElement(host, asked, anchors)]),
+      )
+    }
     if (changed('dialogueField')) {
       const field = view.dialogueField
       // ⚠️ The entry NODE is kept whether the field is up or not, so that a
@@ -1501,7 +1768,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       noticeLayer.setAttribute('style', STYLE.notices + `top:${headerHeightPx}px;`)
     }
 
-    // The eight above may have moved what a tooltip is anchored to, so the
+    // The nine above may have moved what a tooltip is anchored to, so the
     // tooltips are placed last and whenever anything moved -- which is the same
     // order `screenViewFromRegions` builds in, and for the same reason.
     if (isHeaderMoved || Object.keys(keys).some(changed)) {

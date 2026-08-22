@@ -34,12 +34,12 @@ export interface HistoryLimits {
   /** S-94 of table T-206: how many steps may be kept. */
   readonly maxSteps: number
   /** S-95 of table T-206: the total the kept steps may occupy. */
-  readonly maxTotalSize: number
+  readonly maxTotalSizeBytes: number
 }
 
 interface HeldStep<TStep> {
   readonly step: TStep
-  readonly size: number
+  readonly sizeBytes: number
 }
 
 export interface EditHistory<TStep> {
@@ -63,7 +63,7 @@ export function stepCount<TStep>(history: EditHistory<TStep>): number {
 
 /** @purity pure */
 function totalSize<TStep>(held: readonly HeldStep<TStep>[]): number {
-  return held.reduce((sum, one) => sum + one.size, 0)
+  return held.reduce((sum, one) => sum + one.sizeBytes, 0)
 }
 
 /**
@@ -76,12 +76,12 @@ function totalSize<TStep>(held: readonly HeldStep<TStep>[]): number {
 export function historyWithStep<TStep>(
   history: EditHistory<TStep>,
   step: TStep,
-  size: number,
+  sizeBytes: number,
   limits: HistoryLimits,
 ): EditHistory<TStep> {
-  let done: HeldStep<TStep>[] = [...history.done, { step, size }]
+  let done: HeldStep<TStep>[] = [...history.done, { step, sizeBytes }]
   while (done.length > Math.max(0, limits.maxSteps)) done = done.slice(1)
-  while (done.length > 1 && totalSize(done) > limits.maxTotalSize) done = done.slice(1)
+  while (done.length > 1 && totalSize(done) > limits.maxTotalSizeBytes) done = done.slice(1)
   return { done, undone: [] }
 }
 

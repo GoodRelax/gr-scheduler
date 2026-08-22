@@ -40,28 +40,98 @@
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { CommandItem, ScreenSession, ScreenView, Tooltip } from './screen-renderer'
+import type {
+  CommandItem,
+  DisplayLanguage,
+  ScreenSession,
+  ScreenView,
+  Tooltip,
+} from './screen-renderer'
+import displayWords from './display-words.json'
+
+// ⭐ WHERE THE WORDS COME FROM. FR-038 (MUST) holds every word the screen prints
+// as one dictionary per language, and Chapter 6.2 fixes its manuscript as
+// `_source/display-words.json`; `display-words.json` beside this file is that
+// manuscript generated into `src/`. This unit reads two of its sections: the
+// `hint` of a row of table T-109 -- the explanation EZ-2 of table T-040 shows --
+// and the assignments of table T-023, which is what FR-037 puts on a scrollbar.
+// ⚠️ Every one of the 176 cells is still empty (PD-160), so what reaches the
+// screen today is the stand-in beside each lookup. Reading `displayWords` does
+// not make this unit `semi-pure-a`: it is a module constant compiled into the
+// program, not state read while running. Table T-075 fixes UF-69 as `pure`.
+
+/**
+ * The hints of table T-109's rows, keyed by the row id, and the words of table
+ * T-023's assignments, keyed by theirs.
+ *
+ * ⭐ `Map`s rather than a scan per tooltip: a description is built for every
+ * frame, and rule 05 of docs/development-rules forbids a linear search on that
+ * path (NFR-013).
+ */
+const HINTS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
+const ASSIGNMENTS_BY_ROW = new Map(displayWords.assignments.map((entry) => [entry.rowId, entry]))
 
 /**
  * Which row of table T-023 assigns the faster way of scrolling that axis.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: the WORDS FR-037 puts on the
- * screen. FR-038 requires the display language and names no store of translated
- * strings, and table T-023 -- which owns the assignments themselves -- is not
- * generated into `src/` the way `settings.json` is, so rule 03 section 1
- * forbids re-typing what those rows say as firmly as it forbids inventing
- * words for them. Searched: FR-037, FR-038, table T-023, table T-036,
- * `_assets/tbl-settings.md`, and `ScreenSession`.
- * ⭐ Smallest thing that cannot be wrong: carry the row id of the assignment.
- * It is the join the specification itself prescribes, it cannot go stale when
- * the assignment changes, and ⛔ it cannot be mistaken for a settled English
- * name the glossary has not settled.
- *
- * @provisional PD-3
+ * ⭐ The row id is the join the specification itself prescribes, it cannot go
+ * stale when the assignment changes, and ⛔ it cannot be mistaken for a settled
+ * English name the glossary has not settled -- which is why it is also the key
+ * the dictionary holds the words under, and the stand-in while it holds none.
  */
 const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', string>> = {
   horizontal: 'MK-5',
   vertical: 'MK-1',
+}
+
+/**
+ * The explanation EZ-2 of table T-040 shows against one entry, in the display
+ * language (FR-038).
+ *
+ * ⛔ THE STAND-IN IS THE ENTRY'S OWN LABEL AND NOT THE EMPTY STRING. FR-029
+ * (MUST) makes an entry that cannot be used give its REASON here rather than
+ * going quiet, and an empty tooltip is exactly the silence that requirement
+ * exists to prevent -- so while the dictionary holds no hint, the label stands
+ * in, which is what this file printed before the dictionary was wired.
+ * ⚠️ `hint` is a SECOND word and not a spelling of `label`: `CommandItem.label`
+ * says so in as many words, and UF-62 / UF-65 / UF-66 fill the label without
+ * ever reading this one.
+ *
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
+ * "the dictionary holds no word yet" and "the word is the empty string" as one
+ * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * an instruction to print nothing. The day a word is written this line stops
+ * standing in without being edited.
+ * ⚠️ A row the dictionary does not hold AT ALL is a second condition, answered
+ * separately although with the same stand-in; it cannot happen while
+ * `npm run gen:check` passes.
+ *
+ * @provisional PD-160
+ * @purity pure
+ */
+function entryHint(command: CommandItem, language: DisplayLanguage): string {
+  const word = HINTS_BY_ROW.get(command.icon)?.hint[language]
+  if (word === undefined) return command.label
+  return word === '' ? command.label : word
+}
+
+/**
+ * What FR-037 puts on a scrollbar: the faster way of doing the same thing, in
+ * the display language (FR-038).
+ *
+ * ⛔ THE STAND-IN IS THE ROW ID, for the reason
+ * `FASTER_SCROLL_ASSIGNMENT_ROWS` gives -- it is what this file printed before
+ * the dictionary was wired, and ⚠️ rule 03 section 1 forbids re-typing what
+ * table T-023's assignment column says as firmly as it forbids inventing a word
+ * for it. The fallback is written as `=== ''` for the reason `entryHint` gives.
+ *
+ * @provisional PD-3
+ * @purity pure
+ */
+function assignmentText(row: string, language: DisplayLanguage): string {
+  const word = ASSIGNMENTS_BY_ROW.get(row)?.text[language]
+  if (word === undefined) return row
+  return word === '' ? row : word
 }
 
 /**
@@ -137,16 +207,20 @@ export function tooltipsFromScreenView(
   // show the one under the pointer. Answering none would break EZ-2's MUST, and
   // guessing a rectangle would be an invented layout.
   //
-  // STOP -- ⛔ NOT CARRIED: the REASON FR-029 wants on an entry that cannot be
-  // used. `CommandItem.label` is the accessible name and EZ-2's explanation, and
-  // nothing else on the entry says why it is spent. Searched: FR-029, table
-  // T-109, table T-016. ⭐ The label stands in so the entry is not silent --
-  // FR-029's RATIONALE is that an entry which does nothing reads as a fault.
-  // ⚠️ That is also why a spent entry does not wait for the delay: FR-029 states
-  // no time condition, EZ-2 does.
+  // STOP -- ⛔ STILL NOT CARRIED: the REASON FR-029 wants on an entry that
+  // cannot be used. The dictionary holds a `label` and a `hint` per row of table
+  // T-109, and neither is keyed on the entry being spent -- so nothing says why
+  // THIS entry is. Searched: `display-words.json`, `_source/display-words.json`,
+  // FR-029, table T-109, table T-040 (EZ-2), table T-016. ⭐ The hint stands in
+  // so the entry is not silent -- FR-029's RATIONALE is that an entry which does
+  // nothing reads as a fault. ⚠️ That is also why a spent entry does not wait
+  // for the delay: FR-029 states no time condition, EZ-2 does.
   for (const command of commandsOnScreen(shown)) {
     if (command.isEnabled && !isIconHintDue) continue
-    tooltips.push({ anchor: { kind: 'icon', icon: command.icon }, text: command.label })
+    tooltips.push({
+      anchor: { kind: 'icon', icon: command.icon },
+      text: entryHint(command, session.language),
+    })
   }
 
   // FR-098 lifts the pinned rows out of the list, so they are walked first for
@@ -176,7 +250,7 @@ export function tooltipsFromScreenView(
     if (!rectHoldsPoint(scrollbar.track, pointer.x, pointer.y)) continue
     tooltips.push({
       anchor: { kind: 'scrollbar', axis: scrollbar.axis },
-      text: FASTER_SCROLL_ASSIGNMENT_ROWS[scrollbar.axis],
+      text: assignmentText(FASTER_SCROLL_ASSIGNMENT_ROWS[scrollbar.axis], session.language),
     })
   }
 

@@ -380,7 +380,7 @@ describe('EditDocument (UF-15) -- 表 T-027 の UN-15', () => {
         commands: [command as DocumentCommand],
         moment: CALM,
         history: EMPTY_HISTORY,
-        historyLimits: { maxSteps: 50, maxTotalSize: 64 * 1024 * 1024 },
+        historyLimits: { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 },
         settingsLimits: LIMITS,
         editedBy: 'user',
         updatedUtc: '2026-08-17T01:00:00Z',

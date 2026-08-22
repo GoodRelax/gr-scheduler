@@ -34,9 +34,11 @@
 // ⚠️ The roster keeps table T-016's own printed order, which is NOT the numeric
 // order of its row ids -- PR-17 stands between PR-11 and PR-12, and PR-16 is last.
 //
-// ⚠️ NOTHING HERE IS TRANSLATED. FR-038 leaves the item names of table T-016
-// alone, as it leaves task and row names alone, and that table says why they
-// stay in English.
+// ⚠️ ONLY THE HEADING IS TRANSLATED. FR-038 leaves the item names of table
+// T-016 alone, as it leaves task and row names alone, and that table says why
+// they stay in English; the values are the document's own. What FR-038 does
+// reach on this panel is the three headings FR-072 asks for, which are read
+// from the dictionary below.
 //
 // ⛔ ONE ROW IS READ-ONLY. Table T-016 marks PR-9 alone, because FR-012 derives
 // it. ⚠️ PR-16 is NOT one of them any more: CR-186 gave the assignee a surface,
@@ -78,7 +80,13 @@ import {
   type ItemRef,
   type Selection,
 } from '../../entity/document-model/selection/selection'
-import type { PropertiesPanel, PropertyField, ScreenSession } from './screen-renderer'
+import type {
+  DisplayLanguage,
+  PropertiesPanel,
+  PropertyField,
+  ScreenSession,
+} from './screen-renderer'
+import displayWords from './display-words.json'
 
 // ------------------------------------------------------------- the words ----
 
@@ -99,19 +107,71 @@ const KEY_PATH_SEPARATOR = '.'
 /** What `textOfDay` puts between the day and the time of day (EX-7 of table T-033). */
 const DAY_TIME_SEPARATOR = 'T'
 
-// STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: the words of the heading. FR-072
-// (MUST) requires it to say which of the two is showing, and to say "no
-// selection" once the selection has gone; FR-038 requires panels to be shown in
-// the chosen language. No table holds a translated string -- the same hole
-// `CommandItem.label` records in screen-renderer.ts. Looked in FR-072, FR-038,
-// table T-103 (the names of the surfaces), table T-109 (IC-17 is the entry that
-// opens the settings side) and `_assets/tbl-glossary.md`. Chose three ASCII
-// tokens spelled as the `showing` union the contract already settles: the three
-// states can still be told apart, and no wording is minted here in either
-// language.
-const SELECTION_HEADING = 'selection'
-const SUBJECT_GONE_HEADING = 'selection (none)'
-const DOCUMENT_SETTINGS_HEADING = 'documentSettings'
+// ⭐ WHERE THE HEADINGS COME FROM. FR-072 (MUST) requires the heading to say
+// which of the two is showing, and to say "no selection" once the selection has
+// gone; FR-038 (MUST) requires panels to be shown in the chosen language and
+// holds every word the screen prints as one dictionary per language, whose
+// manuscript Chapter 6.2 fixes as `_source/display-words.json`.
+// `display-words.json` beside this file is that manuscript generated into
+// `src/`, and its `panelHeadings` section is these three.
+// ⚠️ Reading `displayWords` does not make this unit `semi-pure-a`: it is a
+// module constant compiled into the program, the way `DEFAULT_CALENDAR` is in
+// `schedule.ts`, not external state read while running. Table T-075 fixes UF-64
+// as `pure`.
+
+/**
+ * FR-072's three headings: the key the dictionary holds each under, beside what
+ * this panel printed for it before the dictionary was wired.
+ *
+ * ⚠️ THREE HEADINGS OVER TWO SUBJECTS. `noSelection` is a key of the dictionary
+ * and NOT a third value of `PropertiesPanel.showing`: that the selection has
+ * gone is a third thing to SAY, not a third thing to show, and `isSubjectGone`
+ * is where the panel says it.
+ * ⛔ The stand-ins are the three ASCII tokens this file chose while the words
+ * had nowhere to live: they are spelled as the `showing` union the contract
+ * already settles, so the three states can be told apart and no wording is
+ * minted here in either language. Every cell of the dictionary is still empty
+ * (PD-160), so these are what actually reaches the screen today.
+ *
+ * @provisional PD-160
+ */
+const PANEL_HEADINGS = {
+  selection: { key: 'selection', standIn: 'selection' },
+  subjectGone: { key: 'noSelection', standIn: 'selection (none)' },
+  documentSettings: { key: 'documentSettings', standIn: 'documentSettings' },
+} as const
+
+/**
+ * ⭐ A `Map` rather than a scan: a description is built for every frame, and
+ * rule 05 of docs/development-rules forbids a linear search on that path
+ * (NFR-013).
+ */
+const HEADINGS_BY_KEY = new Map(displayWords.panelHeadings.map((entry) => [entry.showing, entry]))
+
+/**
+ * One heading of the panel, in the display language (FR-038).
+ *
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
+ * "the dictionary holds no word yet" and "the word is the empty string" as one
+ * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * an instruction to print nothing -- and FR-072 (MUST) requires this panel to
+ * SAY which of the two it is on, so printing nothing would break it outright.
+ * The day a word is written this line stops standing in without being edited.
+ * ⚠️ A key the dictionary does not hold at all is a second condition, answered
+ * separately although with the same stand-in; it cannot happen while
+ * `npm run gen:check` passes.
+ *
+ * @provisional PD-160
+ * @purity pure
+ */
+function headingOf(
+  heading: (typeof PANEL_HEADINGS)[keyof typeof PANEL_HEADINGS],
+  language: DisplayLanguage,
+): string {
+  const word = HEADINGS_BY_KEY.get(heading.key)?.text[language]
+  if (word === undefined) return heading.standIn
+  return word === '' ? heading.standIn : word
+}
 
 // ------------------------------------------------------- table T-016 --------
 
@@ -173,8 +233,9 @@ const READ_ONLY_ROWS: readonly string[] = ['PR-9']
  * which are read-only, and no spelling), in FR-006, in FR-072 and in
  * `_assets/tbl-settings.md` (no row for the panel's contents). Chose the value's
  * own stored spelling and nothing else: the enumerations already carry the
- * spellings CR-172 settled, and any word added here would be a word FR-038 has
- * nowhere to translate. ⚠️ A column that holds nothing writes nothing -- FR-007
+ * spellings CR-172 settled, and ⚠️ although FR-038's dictionary now exists, it
+ * holds no section for a stored value -- a word added here would be one nobody
+ * could translate. ⚠️ A column that holds nothing writes nothing -- FR-007
  * turns on the difference between a value that was chosen and one that was
  * never set, so a default must not be written in where the document holds none.
  *
@@ -502,7 +563,7 @@ export function propertiesPanelFromSelection(
   if (showing === 'documentSettings') {
     return {
       showing,
-      heading: DOCUMENT_SETTINGS_HEADING,
+      heading: headingOf(PANEL_HEADINGS.documentSettings, session.language),
       // The document is the subject on this side, and a document cannot go away
       // while a panel is describing it.
       isSubjectGone: false,
@@ -520,7 +581,10 @@ export function propertiesPanelFromSelection(
 
   return {
     showing,
-    heading: isSubjectGone ? SUBJECT_GONE_HEADING : SELECTION_HEADING,
+    heading: headingOf(
+      isSubjectGone ? PANEL_HEADINGS.subjectGone : PANEL_HEADINGS.selection,
+      session.language,
+    ),
     isSubjectGone,
     fields: fields ?? [],
   }

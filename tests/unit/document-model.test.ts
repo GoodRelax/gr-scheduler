@@ -83,7 +83,7 @@ describe('Selection (PI-32)', () => {
 })
 
 describe('EditHistory (PI-4)', () => {
-  const limits = { maxSteps: 3, maxTotalSize: 1000 }
+  const limits = { maxSteps: 3, maxTotalSizeBytes: 1000 }
 
   it('FR-031 undoes the previous edit and redoes what was undone', () => {
     let history = emptyHistory<string>()
@@ -107,8 +107,8 @@ describe('EditHistory (PI-4)', () => {
 
   it('FR-031 drops the oldest step once the memory bound is passed', () => {
     let history = emptyHistory<string>()
-    history = historyWithStep(history, 'big', 900, { maxSteps: 9, maxTotalSize: 1000 })
-    history = historyWithStep(history, 'also big', 900, { maxSteps: 9, maxTotalSize: 1000 })
+    history = historyWithStep(history, 'big', 900, { maxSteps: 9, maxTotalSizeBytes: 1000 })
+    history = historyWithStep(history, 'also big', 900, { maxSteps: 9, maxTotalSizeBytes: 1000 })
     expect(history.done.map((held) => held.step)).toEqual(['also big'])
   })
 

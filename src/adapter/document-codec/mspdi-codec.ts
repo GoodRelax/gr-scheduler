@@ -1107,8 +1107,12 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
  * ⚠️ Written as an escape and never as the character itself: rule 03 section 5
  * keeps this source ASCII, and an invisible code point pasted into a file is
  * exactly the accident that rule was written after.
+ *
+ * Exported to the two files beside it, and no further: PI-20 of table T-064
+ * does not name it, so `document-codec.ts` does not pass it on -- the same line
+ * `MSPDI_NAMESPACE` already sits on.
  */
-const BYTE_ORDER_MARK = '\uFEFF'
+export const BYTE_ORDER_MARK = '\uFEFF'
 
 /**
  * FR-023 (MUST): a leading byte order mark is accepted and dropped, and its
@@ -1119,9 +1123,16 @@ const BYTE_ORDER_MARK = '\uFEFF'
  * opposite rule and lives elsewhere: CN-5 of table T-003 forbids writing a
  * mark, and `writtenXml` writes none.
  *
+ * ⭐ ONE drop, shared by the three readers of this folder: `json-codec.ts` for
+ * the other format OP-1 accepts, and `document-codec.ts` for the ordered step
+ * OP-12 puts BEFORE the first character is looked at. It stays here because
+ * this is where it was written and table T-075 gives this component no fourth
+ * unit to move it into; a second copy is what would let two intake paths part
+ * company over the one MUST NOT FR-023 states.
+ *
  * @purity pure
  */
-function withoutLeadingByteOrderMark(text: string): string {
+export function withoutLeadingByteOrderMark(text: string): string {
   return text.startsWith(BYTE_ORDER_MARK) ? text.slice(BYTE_ORDER_MARK.length) : text
 }
 

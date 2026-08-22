@@ -52,12 +52,14 @@ import type { Assignment, Schedule, Task } from '../../entity/document-model/sch
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type {
   CommandItem,
+  DisplayLanguage,
   IconId,
   OpenModal,
   RosterResource,
   ScreenSession,
 } from './screen-renderer'
 import iconRoster from './icon-roster.json'
+import displayWords from './display-words.json'
 
 /**
  * U-30 of table T-103, the half of that row FR-036 opens.
@@ -90,29 +92,87 @@ const DISPLAY_LANGUAGE_ICON: IconId = 'IC-21'
 const RESOURCE_ROSTER = 'Resource Roster'
 
 /**
- * ⛔ NO WORDS HAVE BEEN SETTLED. See the STOP note on the words below: this
- * stands for "nothing to say yet", not for "say nothing".
+ * What an entry or a heading says while the dictionary holds no word for it.
+ *
+ * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
+ * has been SETTLED yet (PD-160), and this is exactly what UF-66 printed before
+ * the dictionary was wired -- so opening the road moved nothing on the screen.
+ *
+ * @provisional PD-160
  */
 const NO_WORDS = ''
 
-// STOP -- ⚠️ NOT DECIDED BY THE SPECIFICATION: the words. `OpenModal.heading`
-// and `CommandItem.label` are both declared to be in the display language, and
-// FR-038 (MUST) requires menus and panels to be shown in the chosen language --
-// but no table holds a translated string. `screen-renderer.ts` records the same
-// hole on `CommandItem.label` and says the words arrive already chosen; none of
-// the three arguments this unit is handed carries any (`ScreenSession` carries
-// `language`, which is the choice, not the text), so here they arrive from
-// nowhere. Searched: FR-038, FR-036, FR-068, FR-074, FR-088, FR-099, table
-// T-103 (a glossary of settled names, whose Japanese column is prose rather
-// than screen text), table T-109 (no English column, in as many words) and
-// `_assets/tbl-settings.md` (no row for any wording). The empty string is
-// chosen because it says no words have been settled, which is what is true of
-// this build; any English or Japanese written here would settle wording the
-// glossary has not, in the one unit that is forbidden to mint names.
-// ⛔ FR-038 also requires the CURRENT language to be readable BEFORE the toggle
-// is pressed (MUST). `CommandItem` has three members and none of them can carry
-// it -- `isPressed` is declared as "a toggle that is on", and a choice between
-// two languages has no off. That MUST is unmet until `OpenModal` is widened.
+// ⭐ WHERE THE WORDS COME FROM. FR-038 (MUST) holds every word the screen prints
+// as one dictionary per language, and Chapter 6.2 fixes its manuscript as
+// `_source/display-words.json`; `display-words.json` beside this file is that
+// manuscript generated into `src/`. ⛔ Entries are keyed by the row of table
+// T-109 and headings by the settled name of the surface, which are the two joins
+// the specification admits -- so nothing here is minted. ⚠️ Every one of the 176
+// cells is still empty (PD-160), so what reaches the screen today is the
+// stand-in. Reading `displayWords` no more makes this unit `semi-pure-a` than
+// reading `iconRoster` does: both are module constants compiled into the
+// program, not state read while running. Table T-075 fixes UF-66 as `pure`.
+//
+// ⛔ FR-038 STILL REQUIRES the CURRENT language to be readable BEFORE the toggle
+// is pressed (MUST), and that is a member rather than a word: `CommandItem` has
+// four and none of them can carry it -- `isPressed` is declared as "a toggle
+// that is on", and a choice between two languages has no off. `HelpModal`
+// declares `language` for it and `ScreenView` now carries the one state FR-038
+// speaks of; ⚠️ this unit does not fill either, because the help arm also asks
+// for `entries`, `licenceText`, `copyrightNotice` and `attributions`, which the
+// STOP note in the body says are not reachable from these three arguments.
+
+/**
+ * The words of table T-109's rows, keyed by the row id, and the headings of the
+ * surfaces table T-103 has settled a name for, keyed by that name.
+ *
+ * ⭐ `Map`s rather than a scan per entry: a description is built for every
+ * frame, and rule 05 of docs/development-rules forbids a linear search on that
+ * path (NFR-013).
+ */
+const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
+const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.name, entry]))
+
+/**
+ * The accessible name of one entry, in the display language (FR-038).
+ *
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
+ * "the dictionary holds no word yet" and "the word is the empty string" as one
+ * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * an instruction to print nothing. The day a word is written this line stops
+ * standing in without being edited.
+ * ⚠️ A row the dictionary does not hold AT ALL is a second condition, answered
+ * separately although with the same stand-in. It cannot happen while
+ * `npm run gen:check` passes -- the generator builds its roster from table T-109
+ * every run -- so what is guarded is a generated file edited by hand.
+ *
+ * @provisional PD-160
+ * @purity pure
+ */
+function entryLabel(icon: IconId, language: DisplayLanguage): string {
+  const word = WORDS_BY_ROW.get(icon)?.label[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
+}
+
+/**
+ * The heading of one open surface, in the display language (FR-038).
+ *
+ * ⚠️ A SURFACE WITH NO HEADING IS NOT A FAULT HERE. The dictionary holds a
+ * heading for each surface table T-103 has settled a name for, and the header of
+ * this file records that FR-074's and FR-088's surfaces have no settled name --
+ * so `ScreenState.surface` carries a spelling those rows cannot be keyed on, and
+ * the stand-in answers. ⛔ Minting a name to key them on is the very thing that
+ * header refuses.
+ *
+ * @provisional PD-160
+ * @purity pure
+ */
+function surfaceHeading(surface: string, language: DisplayLanguage): string {
+  const word = HEADINGS_BY_SURFACE.get(surface)?.heading[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
+}
 
 /**
  * One entry of table T-109 as it stands on an open surface.
@@ -122,12 +182,12 @@ const NO_WORDS = ''
  * be done while the surface is up, so FR-029's faint-and-explained state never
  * applies to them. `isPressed` is false for the same reason it is not read: an
  * open surface has nothing that stays pressed. ⚠️ The language entry is the
- * exception the STOP note above describes, not a case handled here.
+ * exception the note above describes, not a case handled here.
  *
  * @purity pure
  */
-function commandItemFor(icon: IconId): CommandItem {
-  return { icon, isEnabled: true, isPressed: false, label: NO_WORDS }
+function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
+  return { icon, isEnabled: true, isPressed: false, label: entryLabel(icon, language) }
 }
 
 /**
@@ -145,14 +205,14 @@ function commandItemFor(icon: IconId): CommandItem {
  *
  * @purity pure
  */
-function commandsOnSurface(surface: string): readonly CommandItem[] {
+function commandsOnSurface(surface: string, language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
     .filter(
       (row) =>
         row.surfaces.includes(surface) ||
         (row.rowId === DISPLAY_LANGUAGE_ICON && surface === HELP_MODAL),
     )
-    .map((row) => commandItemFor(row.rowId))
+    .map((row) => commandItemFor(row.rowId, language))
 }
 
 /**
@@ -284,14 +344,30 @@ export function openModalFromScreenState(
   const surface = state.surface
   if (surface === null) return null
 
-  const commands = commandsOnSurface(surface)
+  const commands = commandsOnSurface(surface, session.language)
+  const heading = surfaceHeading(surface, session.language)
+
+  // FR-038 (01-04-requirements.md:3807, MUST): the language has to be readable
+  // BEFORE the toggle is pressed, and the same requirement puts the second of
+  // its two entrances inside the help -- so the help is where that reading
+  // happens. `HelpModal.language` is the member declared for it.
+  // ⚠️ The four other members `HelpModal` declares stay unfilled, for the
+  // reasons the STOP note below gives; this one is not among them, because
+  // `ScreenSession.language` (S-99) is already an argument here.
+  // ⛔ Never chosen here: FR-038 (MUST) keeps the state ONE for the whole
+  // screen, so it is carried across, exactly as `screenViewFromRegions` carries
+  // it into `ScreenView.language`. Two places that decide it would be two
+  // states, which the same sentence forbids (MUST NOT).
+  if (surface === HELP_MODAL) {
+    return { surface: HELP_MODAL, heading, commands, language: session.language }
+  }
 
   // FR-099 (MUST): the roster is the list of assignees the DOCUMENT holds, so
   // it is read from `schedule` and never from what happens to be on screen.
   if (surface === RESOURCE_ROSTER) {
     return {
       surface: RESOURCE_ROSTER,
-      heading: NO_WORDS,
+      heading,
       commands,
       resources: rosterResourcesOf(schedule, session),
     }
@@ -331,5 +407,5 @@ export function openModalFromScreenState(
   // Searched: the requirements listed above, tables T-037 / T-103 / T-108 /
   // T-109 / T-224, and `screen-renderer.ts`.
 
-  return { surface, heading: NO_WORDS, commands }
+  return { surface, heading, commands }
 }

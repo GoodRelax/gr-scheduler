@@ -15,7 +15,9 @@
 //   1. every member of `ScreenView` is filled, and filled from its OWN unit --
 //      table T-075 gives the component eleven units, nine of which describe one
 //      part each (UF-61 .. UF-69), and UF-67 fills two members because it
-//      answers to two manners of 表 T-037;
+//      answers to two manners of 表 T-037. ⭐ ONE member is UF-60's own rather
+//      than any part's, because its own cell of that table says so -- see the
+//      note headed WHAT MOVED below;
 //   2. the ORDER. `tooltipsFromScreenView` takes the members already built, so
 //      tooltip that explains a part has to see that part as the units that own
 //      the other members built it -- not as some earlier or emptier value;
@@ -27,6 +29,33 @@
 //      -- comes back `null` without making a neighbour wrong;
 //   5. `dialogueMessageFromInput` refuses what has not been settled. AG-11 of
 //      table T-035 states that as a MUST NOT.
+//
+// ⭐ WHAT MOVED, AND IN WHICH DIRECTION. UF-60's cell of 表 T-075 read
+// 「UI パーツごとの 9 ファイルを束ねて公開する」 when this file was written.
+// Version 0.71 of the specification (CR-194) rewrote it, and it now reads:
+//
+//     | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツ
+//     ごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`）|
+//
+// 「運ぶ」-- to carry -- is put on UF-60 ITSELF, not on one of the nine, and
+// A-appendix.md:99 says why in as many words: 「表 T-075 の `UF-60` を「…束ねて
+// 公開し、画面全体に効く表示言語を運ぶ」に直し、その 1 セルを根拠に `ScreenView`
+// がメンバを 1 つ持つようにした」. Two MUSTs of FR-038 had nothing to stand on
+// while no value carried it -- 「言語の状態は 1 つとし、画面全体に効くこと
+// （MUST）。ヘルプだけを別の言語にできてはならない（MUST NOT）」and 「押す前に
+// 現在どちらの言語かが読めること（MUST）」, whose second entrance is in the
+// header, where nothing could be read.
+//
+// ⛔ THAT IS THE MANUSCRIPT MOVING, NOT THIS FILE'S EXPECTATION BEING BENT TO
+// THE CODE. The copy of 表 T-075 below is the thing that went stale; the claim
+// it drives is unchanged and just as tight -- `ScreenView` describes what that
+// table gives this component AND NOTHING BESIDE, so a member the table names no
+// owner for still fails. The new row is not "whatever the code returns": it is
+// the duty quoted above, and the value's source is settled by the
+// specification too -- FR-038 (MUST NOT) keeps the chosen language out of the
+// document, and LY-5 of 表 T-060 leaves the Framework as the only layer that
+// may hold a current value, which of the seven arguments leaves
+// `ScreenSession.language` (S-99 of `_assets/tbl-settings.md`) alone.
 //
 // ⛔ HOW THE EXPECTED VALUES ARE OBTAINED (docs/development-rules/
 // 04-verification.md, section 1). What was read: docs/spec/ for every rule
@@ -43,8 +72,12 @@
 // whole contract, and it is written from the contract, not from the body.
 //
 // The rules these cases answer to:
-//   表 T-075   UF-60 binds the nine UI-part files and publishes them; UF-61 ..
-//              UF-69 are those nine, and the component is `pure`
+//   表 T-075   UF-60 binds the nine UI-part files, publishes them AND carries
+//              the display language that reaches the whole screen (FR-038);
+//              UF-61 .. UF-69 are those nine, and the component is `pure`
+//   FR-038     one language state, reaching the WHOLE screen (MUST), the help
+//              not excepted (MUST NOT), and never saved in the document
+//              (MUST NOT)
 //   表 T-064   PI-37 publishes `ScreenView`, `screenViewFromRegions` and
 //              `dialogueMessageFromInput`, and points the last one at AG-11
 //   AG-11      表 T-035 (docs/spec/01-04-requirements.md:3491) -- its last
@@ -68,9 +101,13 @@
 //   1. WHAT any part contains. That is the nine units' own contract, and
 //      tests/unit/uf-61.test.ts .. uf-69.test.ts already drive it. Every
 //      assertion here is either "this member equals what its own unit answers"
-//      or "this member is null".
+//      or "this member is null". ⚠️ ONE EXCEPTION, and it is not a part's
+//      contents but a rule ACROSS two members: FR-038 (MUST NOT) forbids the
+//      help standing in a language of its own, and the two values it speaks of
+//      are filled by two units that read none of each other -- so the pair can
+//      only be compared where they meet, which is here.
 //   2. THE KEY ORDER of the returned object. `ScreenView` prints its members in
-//      UF-61 .. UF-69 order, but no requirement makes the enumeration order of
+//      UF-60 .. UF-69 order, but no requirement makes the enumeration order of
 //      a JavaScript object observable, so the cases compare the SET of members.
 //   3. WHETHER AN EMPTY OR BLANK utterance is refused. AG-11 and FR-066 state
 //      no rule on the text and `_assets/tbl-settings.md` holds no dialogue row,
@@ -115,6 +152,8 @@ import {
   dialogueMessageFromInput,
   screenViewFromRegions,
   type DialogueInput,
+  type DisplayLanguage,
+  type HelpModal,
   type ScreenSession,
   type ScreenView,
   type Tooltip,
@@ -150,7 +189,30 @@ const T_075_PARTS = [
   { unit: 'UF-69', file: 'tooltips.ts', member: 'tooltips' },
 ] as const
 
-/** The members UF-69 is handed, which is every one of them but its own. */
+/**
+ * 表 T-075 -- the OTHER half of UF-60's own cell, which owns no file below it.
+ *
+ * ⭐ The cell reads 「UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く
+ * 表示言語を運ぶ（`FR-038`）」. The second clause is a duty of UF-60 itself, so
+ * this member has no owner among UF-61 .. UF-69 and no case below asks a part
+ * for it. What it is compared against is FR-038's own answer: the one language
+ * state, which reaches the composition as `ScreenSession.language` (S-99).
+ */
+const T_075_UF_60_OWN = [
+  { unit: 'UF-60', file: 'screen-renderer.ts', member: 'language' },
+] as const
+
+/**
+ * Every member 表 T-075 gives this component: UF-60's own, then the nine parts'
+ * -- in the table's own printed order of rows.
+ */
+const T_075_MEMBERS = [...T_075_UF_60_OWN, ...T_075_PARTS]
+
+/**
+ * The part members whose owner is compared one by one below -- the nine less
+ * UF-69's own, which is compared against the members built before it instead.
+ * ⚠️ UF-60's own member is not here: no part fills it.
+ */
 const T_075_BEFORE_TOOLTIPS = T_075_PARTS.filter((part) => part.unit !== 'UF-69')
 
 /** 表 T-103 -- the settled name of the surface FR-036 opens, spelling and all. */
@@ -385,8 +447,16 @@ const viewOf = (frame: Frame = FRAME): ScreenView =>
  * declares. ⭐ This -- not a copy of a part's contents -- is what the
  * composition owes: table T-075 makes each member's unit its owner.
  * ⚠️ Nine members, not nine units: UF-67 owns two of them.
+ *
+ * ⚠️ TEN members, because one of them has no part for an owner. UF-60's own
+ * cell of 表 T-075 carries 「画面全体に効く表示言語」, so the oracle for that one
+ * is not a unit's answer but the language the session stands in -- FR-038
+ * (MUST NOT) bars the document from holding it and LY-5 of 表 T-060 leaves the
+ * Framework holding it, so `ScreenSession.language` (S-99) is the only argument
+ * of the seven it can lawfully come from.
  */
 const membersFrom = (frame: Frame): Omit<ScreenView, 'tooltips'> => ({
+  language: frame.session.language,
   frame: screenFrameFromRegions(frame.regions, frame.settings, frame.state),
   appHeaderItems: appHeaderItemsFromDocument(
     frame.schedule,
@@ -447,20 +517,23 @@ const RESTED = sessionWith({
 describe('UF-60 -- the nine parts of table T-075, one member each but UF-67', () => {
   it('describes every one of them, and nothing beside them', () => {
     // 表 T-075 gives `ScreenRenderer` nine units that describe a UI part
-    // (UF-61 .. UF-69); UF-60 binds them and UF-70 declares the seam. A member
-    // beyond the copy above would be a part no unit of that table owns.
+    // (UF-61 .. UF-69); UF-60 binds them, carries the display language its own
+    // cell names, and UF-70 declares the seam. A member beyond the copies above
+    // would be a part no unit of that table owns.
     // ⚠️ UF-67's row reads 「知らせと確認」, so it owns two: NT-1 .. NT-6 are
     // manners of telling and NT-7 is the manner of asking, all of 表 T-037.
+    // ⚠️ `language` is UF-60's own 「画面全体に効く表示言語を運ぶ」, which is why
+    // it is the one member no part below is asked for.
     const members = Object.keys(viewOf()).sort()
-    expect(members).toEqual(T_075_PARTS.map((part) => part.member).slice().sort())
+    expect(members).toEqual(T_075_MEMBERS.map((one) => one.member).slice().sort())
   })
 
   it('leaves no member undefined', () => {
     // ⭐ `null` is an answer four of the nine may give (a part that is not
     // there); `undefined` is a member nobody filled.
     const view = viewOf() as Record<string, unknown>
-    for (const part of T_075_PARTS) {
-      expect(view[part.member], `${part.unit} fills ${part.member}`).not.toBeUndefined()
+    for (const one of T_075_MEMBERS) {
+      expect(view[one.member], `${one.unit} fills ${one.member}`).not.toBeUndefined()
     }
   })
 
@@ -593,6 +666,79 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
       expect(iconsIn(hidden), `${icon} is gone with the palette`).not.toContain(icon)
     }
     expect(iconTooltipsIn(hidden).length).toBeLessThan(iconTooltipsIn(shown).length)
+  })
+})
+
+describe("UF-60 -- 表 T-075: 「画面全体に効く表示言語を運ぶ（FR-038）」, UF-60's own cell", () => {
+  /** The two FR-038 admits: 「対象は `ja` と `en` の 2 言語とする」. */
+  const BOTH_LANGUAGES = ['ja', 'en'] as const satisfies readonly DisplayLanguage[]
+
+  it('GIVEN the session stands in one of the two languages WHEN the frame is described THEN the description carries that very language', () => {
+    // FR-038 (MUST): 「言語の状態は 1 つとし、画面全体に効くこと」. The screen's
+    // description is the whole screen, so the state has to reach it -- and
+    // 表 T-075 puts the carrying on UF-60 rather than on any of the nine.
+    for (const language of BOTH_LANGUAGES) {
+      const view = viewOf(frameWith({ session: sessionWith({ language }) }))
+
+      expect(view.language, `FR-038: the screen stands in ${language}`).toBe(language)
+    }
+  })
+
+  it('GIVEN the help is the open surface WHEN the frame is described THEN the help stands in the same language as the screen (FR-038 MUST NOT)', () => {
+    // FR-038 (docs/spec/01-04-requirements.md:3809): 「言語の状態は 1 つとし、
+    // 画面全体に効くこと（MUST）。ヘルプだけを別の言語にできてはならない
+    // （MUST NOT）」, and :3807: 「押す前に現在どちらの言語かが読めること
+    // （MUST）」-- the second entrance is inside the help, so the help has to
+    // say which language is on before it is pressed.
+    //
+    // ⭐ ONLY THE COMPOSITION CAN BE ASKED THIS, which is why the case stands
+    // in this file rather than in uf-66.test.ts: the two values are filled by
+    // two different units and neither reads the other's member, so "one state"
+    // is a claim about the pair.
+    //
+    // ⛔ KNOWN RED -- A DEFECT IN THE IMPLEMENTATION, NOT IN THIS CASE.
+    // `openModalFromScreenState` (UF-66) answers a `HelpModal` carrying only
+    // `surface`, `heading` and `commands`; `language` is `undefined`, although
+    // `HelpModal` declares it required and its own doc comment calls it
+    // 「FR-038 (MUST): which language is on NOW, readable BEFORE the toggle is
+    // pressed」. ⚠️ Version 0.71 of A-appendix.md records that 「現在の言語を運ぶ
+    // 値がヘルプ側にしか無く」-- the help side was the half that HAD it -- so
+    // this is the header being mended while the help went empty. ⛔ The
+    // expectation is NOT bent to `undefined`: the specification is plain, so
+    // the case stays red until UF-66 fills the member.
+    for (const language of BOTH_LANGUAGES) {
+      const view = viewOf(frameWith({ session: sessionWith({ language }) }))
+      const help = view.openModal as HelpModal | null
+
+      expect(help?.surface, 'U-30 `Help Modal` is the surface FRAME opens').toBe(U_30_HELP)
+      expect(help?.language, 'FR-038 (MUST NOT): one state, the help not excepted').toBe(
+        view.language,
+      )
+    }
+  })
+
+  it('GIVEN another document and other settings WHEN the frame is described THEN the language does not move with them (FR-038 MUST NOT)', () => {
+    // FR-038 (MUST NOT): 「どの言語で開くかは読む人の環境であり、文書に保存しない」
+    // -- so nothing in the document or its settings may decide this member.
+    const other = frameWith({
+      schedule: scheduleOf([groupOf({ id: 'g2', label: 'and another', order: 1 })]),
+      settings: settingsOf({ ...SETTINGS, rowTitlePanelWidth: 320 }),
+    })
+
+    expect(viewOf(other).language).toBe(SESSION.language)
+    expect(viewOf(other).rowTitlePanel, 'the other document really is another one').not.toEqual(
+      viewOf().rowTitlePanel,
+    )
+  })
+
+  it('GIVEN the language is the only thing that changed WHEN two frames are described THEN each answers with its own, and the same one twice (R7.6)', () => {
+    const ja = viewOf(frameWith({ session: sessionWith({ language: 'ja' }) }))
+    const en = viewOf(frameWith({ session: sessionWith({ language: 'en' }) }))
+
+    expect(ja.language).not.toBe(en.language)
+    expect(viewOf(frameWith({ session: sessionWith({ language: 'en' }) })).language).toBe(
+      en.language,
+    )
   })
 })
 

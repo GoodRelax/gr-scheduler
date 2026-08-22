@@ -21,6 +21,32 @@
 //
 // ⚠️ `requestAnimationFrame` does not exist under node. Every case installs its
 // own, so a frame runs when this file says it runs and never otherwise.
+//
+// ⭐ THE MANUSCRIPT MOVED, AND THIS FILE FOLLOWED IT -- NOT THE OTHER WAY ROUND.
+// Table T-230 of Chapter 5.4 (「まるごと差し替えるときの呼び手ごとの扱い」) was
+// written after the first draft of this file, and it says of every whole-document
+// replacement:
+//
+//   「本表の 6 つが、まるごと差し替える呼び手の全数である。呼び手は、自分がどの
+//     行かを名乗ること（MUST）。名乗らない差し替えを受け付けてはならない（MUST
+//     NOT）」
+//
+// and of the two rows this loop may stand in:
+//
+//   | RD-5 | 自動保存からの復帰 | 呼び手が持って来る | 捨てる  | 入ってきたまま | 積まない | `LM-9` |
+//   | RD-6 | 起動時の文書       | 呼び手が持って来る | 空にする | 入ってきたまま | 積まない | `FR-062` ／ 表 T-034 |
+//
+// ⛔ SO THE FOUR CASES BELOW THAT HAND OVER A WHOLE DOCUMENT NAME THEIR ROW, AND
+// THE HISTORY THEY EXPECT AFTERWARDS IS THE TABLE'S 履歴 COLUMN AND NOT WHAT THE
+// LOOP USED TO DO. An expectation was not bent to the code: the specification
+// grew a column, and the column says the previous history does not survive a
+// replacement. The describe 「表 T-230」 near the foot of this file is where that
+// column is read out of the .md and driven.
+// ⚠️ NOT ASSERTED HERE: 「名乗らない差し替え」. `HeldDocumentCall` narrows the
+// argument to the two rows, so a nameless call cannot be written in typed code,
+// and the MUST NOT itself is driven on the road it binds --
+// tests/unit/uf-8-9-replace-document.test.ts, which owns `replaceDocument`
+// (PI-8). ⚠️ Also not asserted here: the four rows this member does not offer.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -41,12 +67,24 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import type {
+  InputModifiers,
+  KeyInput,
+} from '../../src/adapter/input-command-translator/input-command-translator'
 import {
   frameLoop,
   type FrameEnvironment,
+  type FrameLoop,
+  type HeldDocumentCall,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { validateDocument } from '../fixtures/grs-document'
+// ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
+// the copy of a table from the .md at read time, which is what keeps table
+// T-230's 履歴 column below from falling behind the manuscript (Chapter 1.9
+// :275 -- a test of a requirement that points at a table is driven by the
+// table).
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // The document under test
@@ -191,6 +229,102 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
 
 const settingsOf = (document: Document): any => (document as any).documentSettings
 const rowsOf = (document: Document): any[] => (document as any).schedule.taskGroups
+
+// ---------------------------------------------------------------------------
+// Table T-230, read out of the manuscript rather than copied
+// ---------------------------------------------------------------------------
+
+const T_230 = specTable('T-230')
+
+const headingWith = (needle: string): string => {
+  const found = T_230.headings.find((heading) => heading.includes(needle))
+  if (found === undefined) throw new Error(`table T-230 has no column mentioning ${needle}`)
+  return found
+}
+
+/** The four columns these cases read, by the table's own heading text. */
+const COL_WS3 = headingWith('WS-3')
+const COL_HISTORY = headingWith('履歴')
+const COL_STAMP = headingWith('刻印')
+const COL_UNDO_STEP = headingWith('取り消し')
+
+const cellOf = (row: string, column: string): string => {
+  const found = T_230.rows.find((one) => one.id === row)
+  if (found === undefined) throw new Error(`table T-230 has no row ${row}`)
+  return found.by[column] ?? ''
+}
+
+/**
+ * The rows whose `WS-3` column says the caller brings the document, taken from
+ * the table itself.
+ *
+ * ⭐ NOT A LIST OF TWO ROW IDS TYPED HERE. `HeldDocumentCall` is declared as
+ * exactly these rows, so a manuscript that moved a seventh caller into 「呼び手
+ * が持って来る」 has to reach this file rather than slide past it.
+ */
+const HELD_ROWS = T_230.rows
+  .filter((row) => row.by[COL_WS3] === '呼び手が持って来る')
+  .map((row) => row.id)
+
+/** One replacement, named the way table T-230 requires a caller to name itself. */
+const bringing = (row: string, document: Document): HeldDocumentCall =>
+  ({ row, document }) as unknown as HeldDocumentCall
+
+/**
+ * ⭐ The row every case that does not care WHICH row it is stands in: RD-5,
+ * 「自動保存からの復帰」, the one whole-document replacement that happens while a
+ * loop is already running (`LM-9`). RD-6 is 「起動時の文書」; both are driven
+ * side by side by the 表 T-230 describe below.
+ */
+const RESTORED = (document: Document): HeldDocumentCall => bringing('RD-5', document)
+
+// ---------------------------------------------------------------------------
+// The two keys the shell is asked with, spelt by table T-036
+// ---------------------------------------------------------------------------
+
+/**
+ * One row of table T-036, as the manuscript spells its assignment.
+ *
+ * ⭐ Read rather than typed for the reason Chapter 1.9 (:275) gives, and copied
+ * from tests/unit/uf-47-48-history-bytes.test.ts, which drives the same two
+ * keys for the same reason: the shell publishes no history, so pressing a key
+ * is the only currency a test has for asking what the history holds.
+ */
+function keyOf(row: string): KeyInput {
+  const found = specTable('T-036').rows.find((one) => one.id === row)
+  if (found === undefined) throw new Error(`table T-036 has no row ${row}`)
+  const assignment = (found.by['割当'] ?? '').split('/')[0] ?? ''
+  const parts = assignment
+    .replace(/`/g, '')
+    .replace(/＋/g, '+')
+    .split('+')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0)
+  const last = parts[parts.length - 1]
+  if (last === undefined) throw new Error(`table T-036 row ${row} states no assignment`)
+  const named = (name: string): boolean => parts.slice(0, -1).includes(name)
+  return {
+    kind: 'key',
+    key: last,
+    modifiers: {
+      ctrl: named('Ctrl'),
+      shift: named('Shift'),
+      alt: named('Alt'),
+      meta: named('Cmd'),
+    } satisfies InputModifiers,
+  }
+}
+
+/** SK-20 -- 「基準日線を出す / 消す」, which UN-13 of table T-027 makes a 対象. */
+const SK_20 = keyOf('SK-20')
+/** SK-6 -- 「元に戻す」. */
+const SK_6 = keyOf('SK-6')
+
+/** What a case watches to say whether a press moved the current value. */
+const stateOf = (loop: FrameLoop) => ({
+  title: (loop.document() as any).schedule.project.title as string | null,
+  statusDate: (loop.document() as any).schedule.project.statusDate as string | null,
+})
 
 // ---------------------------------------------------------------------------
 // The host UF-48 is given
@@ -542,6 +676,12 @@ describe('table T-078 -- the whole of what may wake a frame', () => {
     // FT-2: "現在値の差し替え（表 T-067 の `WS-6`）". LY-5 makes this layer the
     // only holder of a current value, so after WS-6 the loop answers with the
     // new document.
+    //
+    // ⭐ The call names its row of table T-230 because that table requires it
+    // (MUST) -- and the row is also what makes the second expectation exact:
+    // "「呼び手が持って来る」の行では、呼び手が渡した文書がそのまま `WS-3` の
+    // 答えである" and 「刻印 = 入ってきたまま」, so nothing is rebuilt on the way
+    // through and the very document handed over is the one that lands.
     const pane = host()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
     const before = pane.frames()
@@ -549,7 +689,7 @@ describe('table T-078 -- the whole of what may wake a frame', () => {
       draft.schedule.tasks[1].finish = '2026-05-29'
     })
 
-    loop.replaceDocument(next)
+    loop.holdDocument(RESTORED(next))
     pane.runAnimationFrames()
 
     expect(pane.frames()).toBe(before + 1)
@@ -650,9 +790,13 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     const before = pane.frames()
 
     loop.resize({ ...SCREEN, width: 1400 })
-    loop.replaceDocument(twoRowDocument((draft) => {
-      draft.schedule.tasks[0].name = 'Renamed'
-    }))
+    loop.holdDocument(
+      RESTORED(
+        twoRowDocument((draft) => {
+          draft.schedule.tasks[0].name = 'Renamed'
+        }),
+      ),
+    )
     pane.runAnimationFrames()
 
     expect(pane.frames()).toBe(before + 1)
@@ -802,10 +946,12 @@ describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
 
     loop.resize({ ...SCREEN, width: 1400 })
     pane.runAnimationFrames()
-    loop.replaceDocument(
-      twoRowDocument((draft) => {
-        draft.schedule.tasks[0].name = 'Renamed'
-      }),
+    loop.holdDocument(
+      RESTORED(
+        twoRowDocument((draft) => {
+          draft.schedule.tasks[0].name = 'Renamed'
+        }),
+      ),
     )
     pane.runAnimationFrames()
 
@@ -1155,10 +1301,150 @@ describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS do
     const loop = frameLoop(pane.surface, named('First'), SCREEN, screen.wiring)
     expect(screen.last().appHeaderItems.documentTitle).toBe('First')
 
-    loop.replaceDocument(named('Second'))
+    loop.holdDocument(RESTORED(named('Second')))
     pane.runAnimationFrames()
 
     expect(screen.screens()).toBe(2)
     expect(screen.last().appHeaderItems.documentTitle).toBe('Second')
   })
+})
+
+// ===========================================================================
+// 表 T-230 -- 「まるごと差し替えるときの呼び手ごとの扱い」
+// ===========================================================================
+//
+// ⛔ THE TABLE IS THE AUTHORITY, AND IT IS READ AT LOAD TIME. Chapter 5.4 says
+// 「文書をまるごと差し替える道も、本表の 7 つの順を踏む …… 呼び手ごとに違うのは
+// 履歴・刻印・取り消しの 1 段の 3 つだけであり、それを 表 T-230 に示す」, so
+// those three are what the cases below ask the loop for -- each one after
+// asserting the CELL it is about, so that a manuscript which moves a cell
+// reaches this file rather than sliding past it.
+//
+// ⚠️ THE SHELL PUBLISHES NEITHER THE HISTORY NOR ITS DEPTH, so the only way to
+// ask what it holds is the application's own currency: write, undo, and see
+// whether the current value moved. That is the same road
+// tests/unit/uf-47-48-history-bytes.test.ts takes, and the two keys are read out
+// of table T-036 rather than typed -- SK-20 「基準日線を出す / 消す」, which
+// UN-13 of table T-027 makes a 対象 either way round, and SK-6 「元に戻す」.
+//
+// ⚠️ NOT ASSERTED: the difference between RD-5's 「捨てる」 and RD-6's
+// 「空にする」. Both leave a history with nothing to undo, and that common ground
+// is what is driven; a reading that tells the two words apart is written down
+// nowhere. (tests/unit/uf-8-9-replace-document.test.ts records the same
+// abstention for the same reason, one layer down.)
+
+describe('表 T-230 -- the row the caller names settles the history, the stamp and the undo step', () => {
+  const titled = (title: string) =>
+    twoRowDocument((draft) => {
+      draft.schedule.project.title = title
+    })
+
+  /** Presses SK-20 and refuses to go on if it left no 段 behind. */
+  const writeOneStep = (loop: FrameLoop, what: string): void => {
+    const before = stateOf(loop)
+    loop.receiveInput(SK_20)
+    expect(stateOf(loop), `${what}: SK-20 moved nothing, so it left no 段 to undo`).not.toEqual(
+      before,
+    )
+  }
+
+  it('the rows this member may stand in are the ones whose WS-3 column says the caller brings the document', () => {
+    // 「`WS-3` の位置に立つのは本表がその欄に名指したものである（MUST）…… 「呼び
+    // 手が持って来る」の行では、呼び手が渡した文書がそのまま `WS-3` の答えであ
+    // る。」 `HeldDocumentCall` is declared as exactly these rows, so this is the
+    // case that keeps the declaration and the manuscript pinned to each other.
+    expect(HELD_ROWS).toEqual(['RD-5', 'RD-6'])
+    expect(cellOf('RD-5', COL_WS3)).toBe('呼び手が持って来る')
+    expect(cellOf('RD-6', COL_WS3)).toBe('呼び手が持って来る')
+    // ⛔ And the four this member does NOT offer are not in that column: RD-1
+    // and RD-2 are reached from inside the loop, RD-3 and RD-4 need an
+    // `ImportDocument` call nothing hands it.
+    expect(T_230.rows.map((row) => row.id)).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-5', 'RD-6'])
+  })
+
+  for (const row of HELD_ROWS) {
+    describe(`${row} -- ${cellOf(row, COL_HISTORY)} / ${cellOf(row, COL_STAMP)} / ${cellOf(row, COL_UNDO_STEP)}`, () => {
+      it('履歴: what was there to undo before the replacement is not there after it', () => {
+        // ⛔ THIS IS THE MANUSCRIPT MOVING, NOT AN EXPECTATION BENT TO THE CODE.
+        // RD-5 「自動保存からの復帰 | 呼び手が持って来る | 捨てる | 入ってきた
+        // まま | 積まない | `LM-9`」 and RD-6 「起動時の文書 | 呼び手が持って
+        // 来る | 空にする | 入ってきたまま | 積まない | `FR-062` ／ 表 T-034」.
+        // Neither cell is RD-3's 「いまのものを残す」, so the 段 the write below
+        // leaves cannot survive the replacement.
+        expect(['捨てる', '空にする'], `表 T-230 ${row} の履歴`).toContain(
+          cellOf(row, COL_HISTORY),
+        )
+        expect(cellOf(row, COL_HISTORY)).not.toBe(cellOf('RD-3', COL_HISTORY))
+
+        const pane = host()
+        const loop = frameLoop(pane.surface, titled('Before'), SCREEN)
+        writeOneStep(loop, row)
+
+        loop.holdDocument(bringing(row, titled('Brought')))
+        const landed = stateOf(loop)
+        expect(landed.title).toBe('Brought')
+
+        loop.receiveInput(SK_6)
+
+        expect(stateOf(loop), 'the 段 written before the replacement was still there').toEqual(
+          landed,
+        )
+      })
+
+      it('取り消しの 1 段: the replacement itself is not a step, so one write leaves exactly one', () => {
+        // 「`WS-4` は、本表の欄が「積まない」の行で取り消しの 1 段を積んではなら
+        // ない（MUST NOT）—— 表 T-027 が分類しているのは人が文書に対して行う操作
+        // であり、履歴を歩くこと自体はその対象ではない。」
+        expect(cellOf(row, COL_UNDO_STEP), `表 T-230 ${row} の取り消しの 1 段`).toBe('積まない')
+
+        const pane = host()
+        const loop = frameLoop(pane.surface, titled('Before'), SCREEN)
+        writeOneStep(loop, row)
+
+        loop.holdDocument(bringing(row, titled('Brought')))
+        const landed = stateOf(loop)
+        writeOneStep(loop, row)
+
+        // The one 段 that IS a 対象 comes back...
+        loop.receiveInput(SK_6)
+        expect(stateOf(loop)).toEqual(landed)
+        // ...and there is nothing behind it. ⛔ A replacement that had pushed a
+        // 段 of its own would walk back to 'Before' here, and a history that had
+        // survived would walk back to what the first write left.
+        loop.receiveInput(SK_6)
+        expect(stateOf(loop), 'the replacement left a 段 of its own').toEqual(landed)
+      })
+
+      it('刻印: the stamp that lands is the one the document came in with', () => {
+        // 「`WS-5` は、本表の刻印の欄が「進める」の行でだけ刻印を進めること
+        // （MUST）。「入ってきたまま」の行で進めてはならない（MUST NOT）——
+        // ファイル・自動保存・起動テンプレートから来る文書は、書かれたときの刻印
+        // を持っていなければ `FR-062` の照合が意味を成さない。」
+        expect(cellOf(row, COL_STAMP), `表 T-230 ${row} の刻印`).toBe('入ってきたまま')
+
+        const stamp = {
+          scheduleUpdatedUtc: '2026-01-02T03:04:05Z',
+          settingsUpdatedUtc: '2026-01-02T03:04:05Z',
+          lastEditedBy: 'whoever wrote the file',
+        }
+        const brought = twoRowDocument((draft) => {
+          draft.schedule.project.title = 'Brought'
+          draft.documentStamp = { ...stamp }
+        })
+        expect(validateDocument(brought).valid).toBe(true)
+
+        const pane = host()
+        const loop = frameLoop(pane.surface, titled('Before'), SCREEN)
+        // ⛔ The premise: a write of the loop's own has already moved the stamp,
+        // so a stamp that were advanced again on the way through would differ
+        // from the one handed over in all three of its members.
+        writeOneStep(loop, row)
+        expect((loop.document() as any).documentStamp).not.toEqual(stamp)
+
+        loop.holdDocument(bringing(row, brought))
+
+        expect((loop.document() as any).documentStamp).toEqual(stamp)
+      })
+    })
+  }
 })

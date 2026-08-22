@@ -120,7 +120,7 @@ const TRANSPARENT = 'transparent'
 // annotation. Same shape as tests/unit/use-case.test.ts.
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
-const HISTORY_LIMITS = { maxSteps: 50, maxTotalSize: 64 * 1024 * 1024 }
+const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 
 const planOf = (document: Document, commands: readonly DocumentCommand[]) =>

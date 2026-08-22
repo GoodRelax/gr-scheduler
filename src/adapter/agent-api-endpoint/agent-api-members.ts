@@ -53,6 +53,16 @@
 // are declared, they refuse with a value rather than throwing, and they are
 // reported. ⛔ None of them is faked: answering with an empty string or a
 // document built here would be a wrong answer wearing a right shape.
+//
+// ⚠️ WHY THREE OF THOSE SIX CARRY TWO DIFFERENT PURITY VALUES (R7.6). The
+// tag on a member of `AgentApi` is the contract, and it is the value table
+// T-107 states for that row; the tag on the body below is what that body does
+// today. For AM-8, AM-9 and AM-10 the two differ -- T-107 classifies them
+// `non-pure` because each is a write, while the body only reads a snapshot to
+// build the refusal, which is `semi-pure-b`. ⛔ The body is NOT tagged
+// `non-pure` to make the pair match: a tag is a claim, and claiming a side
+// effect that is not there would be the false comment rule 03 calls a defect.
+// The gap closes when the member is wired. Reported.
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -213,8 +223,8 @@ export type AgentWriteOutcome =
  *
  * ⛔ ONE FIELD, AND NOT BECAUSE ONE IS ENOUGH. An intake needs the merge
  * choices of table T-032a as well, and those are ImportDocument's vocabulary
- * (PI-10); Chapter 5.2 draws this component no edge to it, and the entry that
- * would carry an intake into the one write path does not exist -- see AM-8.
+ * (PI-10); Chapter 5.2 draws this component no edge to it, and this face holds
+ * nothing to carry them in -- see AM-8.
  * The text is here because IO-1 and IO-2 of table T-024 are both text (CN-5 of
  * table T-003), and it is never read: the member refuses.
  */
@@ -271,45 +281,105 @@ export interface AgentApi {
   readonly schemaVersion: string
 
   // ---- AM-3 to AM-6 ---------------------------------------------------------------
-  /** AM-3. A frozen copy of the whole root (AG-4, and DR-1 of table T-052). */
+  /**
+   * AM-3. A frozen copy of the whole root (AG-4, and DR-1 of table T-052).
+   *
+   * @purity semi-pure-b
+   */
   readDocument(): Document
-  /** AM-4. A frozen copy of the stamp, which AG-2's lock is matched against. */
+  /**
+   * AM-4. A frozen copy of the stamp, which AG-2's lock is matched against.
+   *
+   * @purity semi-pure-b
+   */
   readStamp(): DocumentStamp
-  /** AM-5. A frozen copy of what is selected, in the order it was picked (SL-7b). */
+  /**
+   * AM-5. A frozen copy of what is selected, in the order it was picked (SL-7b).
+   *
+   * @purity semi-pure-b
+   */
   readSelection(): Selection
-  /** AM-6. Frozen copies of the settled utterances. AG-11 keeps drafts out. */
+  /**
+   * AM-6. Frozen copies of the settled utterances. AG-11 keeps drafts out.
+   *
+   * @purity semi-pure-b
+   */
   readDialogueMessages(): readonly DialogueMessage[]
 
   // ---- AM-7, AM-8 ---------------------------------------------------------------
-  /** AM-7. One atomic bundle (AG-3), accepted or refused as a value (FR-028). */
+  /**
+   * AM-7. One atomic bundle (AG-3), accepted or refused as a value (FR-028).
+   *
+   * @purity non-pure
+   */
   applyCommands(request: AgentWriteRequest): AgentWriteOutcome
-  /** AM-8. Intake and merge. ⛔ Not wired -- see the member. */
+  /**
+   * AM-8. Intake and merge. ⛔ Not wired -- see the member.
+   *
+   * @purity non-pure
+   */
   importDocument(source: AgentImportSource): AgentWriteOutcome
 
   // ---- AM-9, AM-10 ---------------------------------------------------------------
-  /** AM-9. One step back (FR-031). ⛔ Not wired -- see the member. */
+  /**
+   * AM-9. One step back (FR-031). ⛔ Not wired -- see the member.
+   *
+   * @purity non-pure
+   */
   undoEdit(): AgentWriteOutcome
-  /** AM-10. One step forward (FR-031). ⛔ Not wired -- see the member. */
+  /**
+   * AM-10. One step forward (FR-031). ⛔ Not wired -- see the member.
+   *
+   * @purity non-pure
+   */
   redoEdit(): AgentWriteOutcome
 
   // ---- AM-11 to AM-15 ---------------------------------------------------------------
-  /** AM-11. The GRS JSON as a value, with no download dialogue (AG-7). */
+  /**
+   * AM-11. The GRS JSON as a value, with no download dialogue (AG-7).
+   *
+   * @purity semi-pure-b
+   */
   exportJson(): AgentExport<string>
-  /** AM-12. The exchange format. ⛔ Not wired -- see the member. */
+  /**
+   * AM-12. The exchange format. ⛔ Not wired -- see the member.
+   *
+   * @purity semi-pure-b
+   */
   exportMspdi(): AgentExport<string>
-  /** AM-13. The picture, as a value. */
+  /**
+   * AM-13. The picture, as a value.
+   *
+   * @purity semi-pure-b
+   */
   exportSvg(): AgentExport<string>
-  /** AM-14. The image, failure included (AG-8). ⛔ Not wired -- see the member. */
+  /**
+   * AM-14. The image, failure included (AG-8). ⛔ Not wired -- see the member.
+   *
+   * @purity semi-pure-b
+   */
   exportPng(): AgentExport<never>
-  /** AM-15. Application and document in one .html. ⛔ Not wired -- see the member. */
+  /**
+   * AM-15. Application and document in one .html. ⛔ Not wired -- see the member.
+   *
+   * @purity semi-pure-b
+   */
   exportEmbeddedHtml(): AgentExport<string>
 
   // ---- AM-16 -------------------------------------------------------------
-  /** AM-16. Move the view so the task is in it. Writes S-77 and S-78. */
+  /**
+   * AM-16. Move the view so the task is in it. Writes S-77 and S-78.
+   *
+   * @purity non-pure
+   */
   focusTask(taskUid: number): AgentWriteOutcome
 
   // ---- AM-17 ---------------------------------------------------------------
-  /** AM-17. Wake for what somebody else settled (AG-6 and AG-11). */
+  /**
+   * AM-17. Wake for what somebody else settled (AG-6 and AG-11).
+   *
+   * @purity non-pure
+   */
   watchChanges(receive: AgentChangeReceiver): AgentWatch
 
   // ---- AM-18 ---------------------------------------------------------------
@@ -319,6 +389,8 @@ export interface AgentApi {
    * ⚠️ Answers with the message the log gave a sequence to. FR-063 does NOT
    * move the schedule instant for it (AG-11), so there is no new stamp to
    * answer with and a caller's AG-2 lock stays valid across a post.
+   *
+   * @purity non-pure
    */
   postDialogueMessage(text: string): DialogueMessage
 }
@@ -616,16 +688,19 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     schemaVersion: wiring.schemaVersion,
 
     // ---- AM-3 to AM-6 -------------------------------------------------------------
+    /** @purity semi-pure-b */
     readDocument(): Document {
       // One snapshot per call, at its head (CS-3, R7.4). Every member below
       // does the same, and none reads the outside a second time.
       return frozenCopy(source.readSnapshot().document)
     },
 
+    /** @purity semi-pure-b */
     readStamp(): DocumentStamp {
       return frozenCopy(source.readSnapshot().document.documentStamp)
     },
 
+    /** @purity semi-pure-b */
     readSelection(): Selection {
       // UN-9 of table T-027 keeps the selection out of the undo history, and
       // LY-1 files it as a runtime value the document does not carry -- which
@@ -633,6 +708,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return frozenCopy(source.readSnapshot().selection)
     },
 
+    /** @purity semi-pure-b */
     readDialogueMessages(): readonly DialogueMessage[] {
       // AG-11 (MUST NOT): what a person is still typing is not readable. It
       // never reaches the log -- PI-37 settles an utterance before PI-16
@@ -641,6 +717,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     // ---- AM-7, AM-8 -------------------------------------------------------------
+    /** @purity non-pure */
     applyCommands(request: AgentWriteRequest): AgentWriteOutcome {
       const snapshot = source.readSnapshot()
       return writeThroughTheOnePath(
@@ -652,17 +729,18 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       )
     },
 
+    /** @purity semi-pure-b */
     importDocument(_source: AgentImportSource): AgentWriteOutcome {
-      // ⛔ NOT WIRED, and not to be wired here. Chapter 5.2 draws no edge from
-      // this component to ImportDocument (PI-10); the edge it draws is
+      // ⛔ NOT WIRED, and not to be wired around. Chapter 5.2 draws no edge
+      // from this component to ImportDocument (PI-10); the edge it draws is
       // ApplyDocumentChange -> ImportDocument, so an intake reaches the
-      // document through the one write path (MS-1 of table T-042). PI-8
-      // publishes only `applyDocumentChange`, which takes commands, and table
-      // T-108 has no command that takes a whole document in. ⛔ Calling PI-10
-      // from here and committing the result would be the second entrance MS-1
-      // forbids -- the one that ends up with validation or history the other
-      // does not have. Whoever opens the intake adds it to ApplyDocumentChange.
-      // Reported.
+      // document through the one write path (MS-1 of table T-042). ⭐ That path
+      // now exists: `replaceDocument` (PI-8) carries RD-3 and RD-4 of table
+      // T-230 and asks PI-10 itself at WS-3. ⛔ What is still missing is on THIS
+      // side: `AgentImportSource` holds one text field, while RD-3 and RD-4
+      // want the whole of `ImportRequest` -- the merge choices of table T-032a,
+      // OP-5's verdict, OP-4's confirmation. Widening AM-8's face is a decision
+      // about table T-107, not one to take here. Reported.
       return {
         accepted: false,
         refusal: notAvailable('AM-8', source.readSnapshot(), 'ApplyDocumentChange (PI-8)'),
@@ -670,24 +748,27 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     // ---- AM-9, AM-10 -------------------------------------------------------------
+    /** @purity semi-pure-b */
     undoEdit(): AgentWriteOutcome {
-      // ⛔ NOT WIRED. `undoEdit` (PI-11) is pure and answers with the document
-      // and history the holder should hold next; it does not commit, and its
-      // own file records that PI-8 publishes no entry which commits a document
-      // computed elsewhere. FR-031 requires the undo to take effect and MS-1
-      // forbids it taking effect through a second write path, so the entry
-      // belongs to ApplyDocumentChange. ⚠️ Two things are undecided behind that
-      // entry, both recorded in `undo-edit.ts`: how the computed pair reaches
-      // WS-6, and what stamp the committed document carries. Reported.
+      // ⛔ NOT WIRED. ⭐ THE ENTRY EXISTS NOW: `replaceDocument` (PI-8) takes
+      // RD-1 of table T-230, asks `undoEdit` (PI-11) at WS-3 itself, and leaves
+      // the restored stamp as it came in -- the two points `undo-edit.ts` used
+      // to record as undecided are both settled, and the shell already presses
+      // undo through it. ⛔ What is missing is on THIS side: T-230 has the
+      // caller name its row (MUST) and WS-1 matches the stamp the caller
+      // DECLARES it read, and AM-9 of table T-107 takes no argument at all, so
+      // nothing here declares either. Widening that face is a decision about
+      // table T-107. Reported.
       return {
         accepted: false,
         refusal: notAvailable('AM-9', source.readSnapshot(), 'ApplyDocumentChange (PI-8)'),
       }
     },
 
+    /** @purity semi-pure-b */
     redoEdit(): AgentWriteOutcome {
-      // ⛔ NOT WIRED, for the reason AM-9 gives; `redo-edit.ts` records the same
-      // two undecided points. Reported.
+      // ⛔ NOT WIRED, for the reason AM-9 gives, with RD-2 in place of RD-1.
+      // Reported.
       return {
         accepted: false,
         refusal: notAvailable('AM-10', source.readSnapshot(), 'ApplyDocumentChange (PI-8)'),
@@ -695,6 +776,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     // ---- AM-11 to AM-15 -------------------------------------------------------------
+    /** @purity semi-pure-b */
     exportJson(): AgentExport<string> {
       // AG-7: a value, with no download dialogue in the way. IO-2 of table
       // T-024 is the machine-facing format, and FR-024's rules for writing it
@@ -702,6 +784,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return { ok: true, value: jsonFromDocument(source.readSnapshot().document) }
     },
 
+    /** @purity semi-pure-b */
     exportMspdi(): AgentExport<string> {
       // ⛔ NOT WIRED. PI-20 lists `mspdiFromDocument`, and DocumentCodec's
       // public entry publishes only the GRS JSON pair -- UT-5 of table T-063
@@ -716,6 +799,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       }
     },
 
+    /** @purity semi-pure-b */
     exportSvg(): AgentExport<string> {
       const snapshot = source.readSnapshot()
 
@@ -794,6 +878,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       }
     },
 
+    /** @purity semi-pure-b */
     exportPng(): AgentExport<never> {
       // ⛔ NOT WIRED. PI-21 lists `exportPng` and ImageExporter's public entry
       // publishes only the `Rasterizer` seam, which is empty. ⛔ The answer's
@@ -809,6 +894,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       }
     },
 
+    /** @purity semi-pure-b */
     exportEmbeddedHtml(): AgentExport<string> {
       // ⛔ NOT WIRED. PI-20 lists `exportEmbeddedHtml` as `semi-pure-b`, and it
       // needs the application's own HTML, which arrives over IF-8
@@ -822,6 +908,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     // ---- AM-16 -----------------------------------------------------------
+    /** @purity non-pure */
     focusTask(taskUid: number): AgentWriteOutcome {
       const snapshot = source.readSnapshot()
       const frame = snapshot.frame
@@ -864,6 +951,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     // ---- AM-17 -------------------------------------------------------------
+    /** @purity non-pure */
     watchChanges(receive: AgentChangeReceiver): AgentWatch {
       const snapshot = source.readSnapshot()
       const hasReplacedEarlierWatch = NotifyChangeWatchers.watchChanges({
@@ -893,6 +981,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
       return {
         hasReplacedEarlierWatch,
+        /** @purity non-pure */
         stopWatching(): boolean {
           return NotifyChangeWatchers.unwatchChanges(wiring.writerName)
         },
@@ -900,6 +989,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     // ---- AM-18 -------------------------------------------------------------
+    /** @purity non-pure */
     postDialogueMessage(text: string): DialogueMessage {
       const snapshot = source.readSnapshot()
       const utterance: PostDialogueMessage.SettledUtterance = {

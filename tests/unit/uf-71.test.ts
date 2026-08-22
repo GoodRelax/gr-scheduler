@@ -49,8 +49,9 @@
 //                   frame -- so no timer and no listener that draws
 //   表 T-035 AG-11  what has not been settled MUST NOT be read as an utterance
 //   FR-066          the field is up only while the `Agent API` is on
-//   FR-029          what cannot be used is drawn faint and gives its reason,
-//                   rather than going quiet
+//   FR-029          用途を言葉ではなくアイコンで伝える; 「各アイコンの図形は
+//                   同書の 図 F-019 に従うこと（MUST）」; and what cannot be used
+//                   is drawn faint and gives its reason, rather than going quiet
 //   表 T-028 IN-3   a tooltip can be dismissed, can be pointed at, and does not
 //                   go away by itself
 //   表 T-040 EZ-2   the explanation belongs to the entry the pointer rests on,
@@ -71,6 +72,28 @@
 // be driven by a fixed copy of that table. `T_103_PARTS` and `T_212_S_116` are
 // those copies, and both are checked against the .md at read time so that they
 // cannot fall behind the table.
+//
+// ⭐ THE SHAPES ARRIVED, AND THESE CASES FOLLOWED THE REQUIREMENT RATHER THAN
+// THE CODE. FR-029 (MUST) has this product tell what a menu is for 「言葉では
+// なくアイコンで」 and makes 図 F-019 the authority for every icon's shape
+// (MUST). Until that figure was carried into `src/` there was nothing to draw,
+// and PD-154 wrote down the retreat taken meanwhile: 「行 ID を `data-icon` に
+// 置き、図形は描かない」 -- so an entry printed its ROW ID as its body, three
+// cases below measured that text, and two more counted the members the host was
+// asked for. ⛔ The figure is generated into `src/` now
+// (`tools/generate_icon_glyphs.py`, `npm run gen:check`), the entries draw the
+// shape, and those five cases were false against FR-029 the moment it landed.
+// What replaced them is what the requirement actually asks for:
+//   - the ROW ID stays reachable for the machine, in `data-icon` (EZ-2 of 表
+//     T-040 needs it, and IF-9's `readScreenPartAt` walks it);
+//   - the WORD is the entry's accessible name, which is what
+//     `CommandItem.label` is declared to be, taken from FR-038's per-language
+//     dictionary -- with the row id as the fallback while PD-160 leaves every
+//     cell of that dictionary empty;
+//   - the SHAPE is the figure's, carried and not invented.
+// ⚠️ PD-154 in docs/development-records/pending-decisions.md still records the
+// retreat as its provisional decision. A record is not the specification, and
+// FR-029 is a MUST; where the two disagree the requirement is followed here.
 //
 // ⚠️ SIX THINGS ARE DELIBERATELY NOT ASSERTED, because no requirement decides
 // them. Each is written down where it would otherwise have been tested, so a
@@ -93,6 +116,9 @@
 //     for it. PD-155's fallback (the window's edge and the contents' width) is
 //     a provisional decision, and SC-3 of 表 T-031 speaks of the panel not
 //     scrolling away rather than of a background, so nothing here decides it
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { describe, expect, it, vi } from 'vitest'
 
@@ -179,6 +205,39 @@ function s116(): { readonly value: number; readonly min: number; readonly max: n
 }
 
 const S_116 = s116()
+
+/**
+ * 図 F-019 — the authority FR-029 names for every icon's shape (MUST), as it
+ * reaches `src/`.
+ *
+ * ⭐ READ, NOT COPIED, AND NOT INVENTED HERE. `docs/spec/_assets/fig-icons.svg`
+ * is the figure itself; `tools/generate_icon_glyphs.py` carries it into
+ * `icon-glyphs.json` cross-checked against table T-109, and `npm run gen:check`
+ * is what fails when the figure moves on without it. So a case that compares
+ * what was DRAWN against this file is asking whether the unit put the figure's
+ * shape on the page or one of its own -- which is the MUST -- while the
+ * figure-to-`src/` step stays the generator's to guard.
+ */
+interface GlyphElement {
+  readonly tag: string
+  readonly attributes: readonly { readonly name: string; readonly value: string }[]
+}
+
+const ICON_GLYPHS = JSON.parse(
+  readFileSync(
+    join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-glyphs.json'),
+    'utf8',
+  ),
+) as {
+  readonly viewBox: string
+  readonly glyphs: readonly { readonly rowId: string; readonly elements: readonly GlyphElement[] }[]
+}
+
+const glyphFor = (row: string): readonly GlyphElement[] => {
+  const found = ICON_GLYPHS.glyphs.find((one) => one.rowId === row)
+  if (found === undefined) throw new Error(`図 F-019 draws no shape for ${row}`)
+  return found.elements
+}
 
 // ---------------------------------------------------------------------------
 // The fake browser.
@@ -751,6 +810,22 @@ function serialize(element: FakeElement): string {
 const colourOf = (element: FakeElement): string =>
   (styleMap(element).get('color') ?? '').trim().toLowerCase()
 
+/**
+ * The one shape an entry draws -- FR-029's 「アイコンで伝える」, whose figure is
+ * F-019.
+ *
+ * ⚠️ Found by the tag the figure is drawn in rather than by an attribute of the
+ * unit's choosing: F-019 is an SVG figure, so a carried shape is an `svg`
+ * element or it is not the figure's.
+ */
+function shapeIn(entry: FakeElement): FakeElement {
+  const found = selfAndDescendants(entry).filter((one) => one.tagName === 'SVG')
+  if (found.length !== 1) {
+    throw new Error(`the entry draws ${found.length} shapes, and FR-029 gives it one`)
+  }
+  return found[0] as FakeElement
+}
+
 /** Only what a person can still see: a hidden subtree contributes nothing. */
 function shownText(element: FakeElement): string {
   if (isHiddenHere(element)) return ''
@@ -1197,8 +1272,16 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     surfaceOf(built).showScreenView(RICH_VIEW)
 
     expect(built.world.registrations.map((one) => one.type)).not.toContain('resize')
-    // ⛔ FT-3 is the shell's to observe (表 T-060 LY-5), not this unit's.
-    expect(new Set(built.world.hostMembers)).toEqual(new Set(['createElement']))
+    // ⛔ FT-3 is the shell's to observe (表 T-060 LY-5), not this unit's -- so
+    // the host is asked to MAKE elements and for nothing else. ⚠️ The set grew a
+    // second member when the shapes arrived: FR-029 (MUST) makes 図 F-019 the
+    // authority for every icon, that figure is SVG, and an SVG element made with
+    // `createElement` is an unknown HTML element that draws nothing. Both members
+    // are ways of making a node and neither observes anything, so what the case
+    // is about -- nothing here watches the window -- is unchanged.
+    expect(new Set(built.world.hostMembers)).toEqual(
+      new Set(['createElement', 'createElementNS']),
+    )
   })
 
   it('sets no timer -- FT-4 puts the clock in the shell', () => {
@@ -1364,7 +1447,7 @@ describe('FR-066 -- no dialogue field while the Agent API is off', () => {
   })
 })
 
-describe('FR-029 (MUST) / PD-154 -- what cannot be used is faint, not silent', () => {
+describe('FR-029 (MUST) -- the shape tells, the word names, and what cannot be used is faint rather than silent', () => {
   const disabledView = viewWith({
     appHeaderItems: {
       ...EMPTY_HEADER,
@@ -1383,12 +1466,27 @@ describe('FR-029 (MUST) / PD-154 -- what cannot be used is faint, not silent', (
   }
 
   it('still draws the entry, with its words -- nothing goes quiet', () => {
+    // FR-029's RATIONALE: 「無反応だと故障に見える」, so an entry that cannot be
+    // used is still drawn and still says what it is.
+    //
+    // ⛔ THE WORD IS THE ENTRY'S NAME AND NOT ITS BODY, and that is the
+    // requirement rather than a habit of the code: FR-029 (MUST) has the product
+    // tell what a menu is for 「言葉ではなくアイコンで」, and `CommandItem.label`
+    // is declared as 「The accessible name of the entry, in the display language
+    // already」. ⚠️ This case used to read `entry.textContent`, which was true
+    // only while PD-154's retreat left the row id standing in for a shape.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(disabledView)
 
     const entry = entryFor(built.root(), 'IC-20')
     expect(isShown(entry)).toBe(true)
-    expect(entry.textContent).toContain('CannotBeUsed')
+    expect(entry.getAttribute('aria-label')).toBe('CannotBeUsed')
+    // ⭐ And it is drawn as an icon, which is the other half of the same MUST.
+    expect(isShown(shapeIn(entry))).toBe(true)
+    // ⛔ The shape prints no word of its own: FR-038 (MUST) puts every word the
+    // screen prints in one per-language dictionary, so a word that appeared here
+    // would be one no dictionary holds and no language switch reaches.
+    expect(shapeIn(entry).textContent).toBe('')
   })
 
   it('draws it faint, in the faint colour the reader chose', () => {
@@ -1415,7 +1513,18 @@ describe('FR-029 (MUST) / PD-154 -- what cannot be used is faint, not silent', (
     expect(entryFor(built.root(), 'IC-21').getAttribute('aria-disabled')).not.toBe('true')
   })
 
-  it('PD-154: an entry with no words of its own is drawn with its row of 表 T-109', () => {
+  it('an entry whose dictionary cell is empty is NAMED by its row of 表 T-109', () => {
+    // ⭐ THE FALLBACK MOVED WITH THE WORD, AND ONLY WITH IT. `CommandItem.label`
+    // 「is declared as the accessible name of the entry」 and comes from FR-038's
+    // dictionary, whose every cell is empty today (PD-160) -- so the unit that
+    // fills the member hands over the empty string, and something still has to
+    // name the entry. ⛔ The row id is what names it, in the same place the word
+    // would have gone: an entry with NO accessible name at all is the 「無反応」
+    // FR-029's RATIONALE is about, and printing the id as the body would put a
+    // word where FR-029 (MUST) says a shape goes.
+    // ⚠️ PD-154 said 「行 ID を `data-icon` に置き、図形は描かない」 while there
+    // was no figure in `src/`. There is one now, so the id keeps only the half
+    // FR-029 and EZ-2 need of it.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
@@ -1426,8 +1535,62 @@ describe('FR-029 (MUST) / PD-154 -- what cannot be used is faint, not silent', (
       }),
     )
 
-    expect(entryFor(built.root(), 'IC-7').textContent).toContain('IC-7')
-    expect(entryFor(built.root(), 'IC-20').textContent).toContain('Named')
+    const unnamed = entryFor(built.root(), 'IC-7')
+    const named = entryFor(built.root(), 'IC-20')
+
+    expect(unnamed.getAttribute('aria-label')).toBe('IC-7')
+    expect(named.getAttribute('aria-label')).toBe('Named')
+    // ⛔ The fallback does not eat the word: a unit that always named the entry
+    // after its row would pass the line above and fail this one.
+    expect(named.getAttribute('aria-label')).not.toBe('IC-20')
+    // ⭐ And the row id is still where the machine reads it (EZ-2 of 表 T-040,
+    // and IF-9's `readScreenPartAt`), whether the entry has a word or not.
+    expect(unnamed.getAttribute('data-icon')).toBe('IC-7')
+    expect(named.getAttribute('data-icon')).toBe('IC-20')
+  })
+
+  it('FR-029 (MUST): the shape an entry draws is the one 図 F-019 gives its row', () => {
+    // 「各アイコンの図形は同書の 図 F-019 に従うこと（MUST）」, and 「図 F-019 の
+    // 図形を第三者のアイコン集から差し替えてはならない（MUST NOT）」. What is
+    // compared is the figure as it reaches `src/` -- element for element, in the
+    // order the figure drew them, with the geometry it drew them with -- so a
+    // unit that re-drew, re-scaled or substituted a shape is caught here rather
+    // than only in the generator that carries the figure.
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(
+      viewWith({
+        appHeaderItems: { ...EMPTY_HEADER, commands: [command({ icon: 'IC-7', label: '' })] },
+      }),
+    )
+
+    const shape = shapeIn(entryFor(built.root(), 'IC-7'))
+    const drawn = glyphFor('IC-7')
+
+    expect(shape.getAttribute('viewBox')).toBe(ICON_GLYPHS.viewBox)
+    expect(shape.children.map((one) => one.tagName.toLowerCase())).toEqual(
+      drawn.map((one) => one.tag),
+    )
+    for (const [at, element] of drawn.entries()) {
+      const node = shape.children[at] as FakeElement
+      for (const attribute of element.attributes) {
+        // ⚠️ `style` is compared declaration by declaration, because a browser
+        // is free to respell one and the fake respells them the way a browser
+        // does. Everything else -- the geometry, which is the shape -- is
+        // compared character for character.
+        const said = (text: string | null): string =>
+          attribute.name === 'style'
+            ? (text ?? '')
+                .split(';')
+                .map((one) => one.replace(/\s+/g, ''))
+                .filter((one) => one.length > 0)
+                .sort()
+                .join(';')
+            : (text ?? '')
+        expect(said(node.getAttribute(attribute.name)), `${element.tag} ${attribute.name}`).toBe(
+          said(attribute.value),
+        )
+      }
+    }
   })
 })
 
@@ -1833,13 +1996,32 @@ describe('FR-099 / NT-1 / NT-3 / NT-3a of 表 T-037', () => {
 
 describe('FR-038 -- the words are carried, and the language is readable before the toggle', () => {
   it('draws headings, labels and notice words exactly as they arrived', () => {
+    // What this measures is that every word the description carried reached the
+    // page unaltered -- this unit chooses none of them.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
     const text = built.root().textContent
-    for (const word of ['DocumentTitleHere', 'HeaderCommandOne', 'PropertiesHeading', 'PaletteCommandOne', 'HelpHeading', 'NoticeTextOne']) {
+    for (const word of ['DocumentTitleHere', 'PropertiesHeading', 'HelpHeading', 'NoticeTextOne']) {
       expect(text).toContain(word)
     }
+    // ⛔ AN ENTRY'S WORD IS ITS NAME, NOT ITS BODY. FR-029 (MUST) has an entry
+    // tell what it is for 「言葉ではなくアイコンで」, so the two words below are
+    // the ACCESSIBLE names of the two entries that carry them -- `CommandItem.
+    // label` is declared as exactly that -- and asking `textContent` for them
+    // would be asking FR-029 to be broken. ⚠️ Naming the entry each word belongs
+    // to is stronger than the old blanket text search: a word landing on the
+    // wrong entry used to pass.
+    const commandFor = (icon: string): FakeElement => {
+      const found = selfAndDescendants(built.root()).filter(
+        (one) => one.getAttribute('data-icon') === icon,
+      )
+      const first = found[0]
+      if (first === undefined) throw new Error(`nothing carries data-icon="${icon}"`)
+      return first
+    }
+    expect(commandFor('IC-20').getAttribute('aria-label')).toBe('HeaderCommandOne')
+    expect(commandFor('IC-61').getAttribute('aria-label')).toBe('PaletteCommandOne')
   })
 
   it('makes the language the help surface is in readable without pressing anything', () => {
@@ -2061,12 +2243,24 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
     expect(() => surfaceOf(built).showScreenView(RICH_VIEW)).not.toThrow()
   })
 
-  it('calls only createElement on the host it was handed', () => {
+  it('calls nothing on the host it was handed but the two members that make an element', () => {
+    // R7.3 / LY-5: the browser arrives as an argument. ⛔ The claim is that the
+    // unit asks the handed-in host to MAKE nodes and asks it nothing else -- no
+    // `querySelector`, no `defaultView`, no `body`, no listener on the host --
+    // and the fake's Proxy records every member reached for, so a unit that
+    // reached past these two is visible rather than silent.
+    // ⚠️ `createElementNS` joined `createElement` when the icons started being
+    // drawn as 図 F-019 gives them (FR-029, MUST): the figure is SVG, and an SVG
+    // element made with `createElement` is an unknown HTML element that draws
+    // nothing at all. The set is still closed, which is the whole of the claim.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
     surfaceOf(built).readDialogueInput()
 
-    expect([...new Set(built.world.hostMembers)]).toEqual(['createElement'])
+    expect([...new Set(built.world.hostMembers)].sort()).toEqual([
+      'createElement',
+      'createElementNS',
+    ])
   })
 
   it('never writes on the element it was given to mount in', () => {

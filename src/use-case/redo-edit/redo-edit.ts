@@ -14,23 +14,17 @@
 // ⚠️ This unit decides WHAT the document becomes, and nothing else. Replacing
 // the current value is WS-6 of table T-067 and belongs to ApplyDocumentChange
 // alone (CP-8, and table T-042's MS-1 -- with two entrances "片方にしか掛から
-// ない検証や履歴が生まれる"). So the answer is a value, and the caller joins
-// the two like this:
+// ない検証や履歴が生まれる"). So the answer is a value.
 //
-//     const held = holder.read()        // CS-3: one read of the pair
-//     const outcome = redoEdit(held)    // pure -- this unit
-//     if (outcome.redone) { ...commit outcome.next through the one write path }
+// ⭐ RD-2 OF TABLE T-230 PUTS THIS UNIT IN WS-3's POSITION, so the value is
+// asked for by the one write path rather than committed beside it:
+// `replaceDocument` (PI-8) reads the pair once (CS-3), asks `redoEdit`, and
+// runs WS-4 to WS-7 over the answer. ⭐ RD-2's own three columns are that
+// caller's: the history is the one this unit answered, the stamp is left as it
+// came in, and no undo step is pushed.
 //
 // Judging the moment (WS-2 / AG-9 -- mid-gesture, mid-edit, mid-delivery) and
-// handing out notices (WS-7) belong to that commit, not here.
-//
-// ⛔ STOP -- the specification does not decide HOW `outcome.next` reaches WS-6.
-// `applyDocumentChange` takes `DocumentCommand`s (PI-8) and table T-108 has no
-// command that restores a whole document, so ApplyDocumentChange publishes no
-// entry that commits a document computed elsewhere. FR-031 requires the redo to
-// take effect and MS-1 forbids it taking effect through a second write path.
-// This unit neither chooses an entry nor opens one; whoever closes this adds it
-// to ApplyDocumentChange (CP-8), never here and never in the holder's owner.
+// handing out notices (WS-7) belong to that caller, not here.
 //
 // ⭐ WHAT STAMP THE REPLAYED DOCUMENT CARRIES IS SETTLED, and it is the one the
 // step holds. A step holds a whole `Document`, stamp and all, so replaying it
@@ -77,11 +71,14 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import { nextStep, type EditHistory } from '../../entity/document-model/edit-history/edit-history'
-// LR-2: through the other component's public entry. `ChangeStep` and
-// `HeldDocument` are declared there because WS-4 pushes the one and WS-6
-// replaces the other; naming them here would be a second declaration of the
-// same pair.
-import type { ChangeStep, HeldDocument } from '../apply-document-change/apply-document-change'
+// LR-2: through the other component's public entry. ⭐ UndoEdit, not
+// ApplyDocumentChange: RD-1 and RD-2 of table T-230 make ApplyDocumentChange
+// the importer of both halves of the history walk, so the pair is declared on
+// the called side and taking it from there keeps the layer acyclic (LR-3).
+// ⚠️ The two halves are separate components (CP-11 / CP-12) and the pair is one
+// value, so ONE of them declares it and the other reads it -- a second
+// declaration here would be two types that only look alike.
+import type { ChangeStep, HeldDocument } from '../undo-edit/undo-edit'
 
 /**
  * What one press of redo answers.

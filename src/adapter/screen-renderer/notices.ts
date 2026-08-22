@@ -16,9 +16,9 @@
 // its own member rather than a notice wearing another manner.
 //
 // ⭐ WHAT IS RAISED IS NOT WHAT IS SHOWN. `ScreenSession.notices` is what has
-// been raised; the return value is what is showing and in what order. The same
-// type stands on both sides, so all this unit can do is choose, order and
-// gather -- never compose.
+// been raised; the return value is what is showing and in what order. `Notice`
+// stands on both sides, so for the notices all this unit can do is choose, order
+// and gather -- never compose.
 //
 // ⭐ ONE ROW OF TABLE T-037 IS THE WHOLE UNIT: NT-4. Every other row binds
 // whoever RAISES the notice -- the words NT-1 asks for (MUST; colour or a border
@@ -35,20 +35,38 @@
 // manner is the join, and a raiser that means FR-060's offer, FR-026's recovery,
 // FR-065's enabling or FR-086's watermark name says NT-4.
 //
-// ⛔ NO WORDS ARE WRITTEN HERE. FR-038 requires menus and panels in the chosen
-// language and names no store of translated strings, so `Notice.text` arrives in
-// the display language already -- the way `CommandItem.label` does. The
-// gathering NT-4 asks for may join texts and must keep them all; it may not
-// write so much as a heading over them.
+// ⛔ NO WORDS ARE WRITTEN HERE. `Notice.text` and `RaisedConfirmation.text`
+// arrive in the display language already, because both name the thing at hand
+// and only their raiser knows it. The gathering NT-4 asks for may join texts and
+// must keep them all; it may not write so much as a heading over them. ⚠️ The
+// two answers of NT-7 are the one exception and are still not written here: they
+// are READ, out of the dictionary FR-038 (MUST) makes the one store of
+// translated strings, keyed by their row of table T-109.
+//
+// ⭐ ONE MEMBER IS COMPOSED AND THE OTHER IS NOT. The preamble above table T-109
+// fixes its 面 column as table T-103's settled names, so which entries stand on
+// U-55 `Confirmation` is that table's answer and not the asker's -- which is why
+// `confirmationFromSession` widens what it is given while `noticesFromSession`
+// only chooses, orders and gathers.
 //
 // ⚠️ NOTHING IS DROPPED FOR HAVING RUN OUT OF TIME. NT-2 governs a notice that
 // goes away with time, but FT-4 of table T-078 leaves the reading of the clock
 // to the shell, and CS-1 of table T-066 keeps it away from a `pure` unit. A
 // notice whose time is up is one that is no longer raised.
 //
-// ⛔ Five STOP notes below say what table T-037 leaves open.
+// ⛔ Five STOP notes below. Four say what table T-037 leaves open; the fifth
+// says that nothing in this build raises a question at all.
 
-import type { Confirmation, Notice, ScreenSession } from './screen-renderer'
+import type {
+  CommandItem,
+  Confirmation,
+  DisplayLanguage,
+  IconId,
+  Notice,
+  ScreenSession,
+} from './screen-renderer'
+import iconRoster from './icon-roster.json'
+import displayWords from './display-words.json'
 
 /**
  * The manner NT-4 gathers. ⚠️ A row id appears here as a VALUE, not as a copy of
@@ -56,6 +74,93 @@ import type { Confirmation, Notice, ScreenSession } from './screen-renderer'
  * table T-037, and none of that row's prose or numbers is repeated in this file.
  */
 const STARTUP_PENDING_MANNER = 'NT-4'
+
+/**
+ * U-55 of table T-103, the surface NT-7 puts a question on.
+ *
+ * ⭐ A settled name copied spelling and all (rule 03 section 1), and the same
+ * spelling `icon-roster.json` carries in its 面 column -- which is what makes it
+ * the join, not a label. ⛔ Nothing here mints a name for a surface.
+ */
+const CONFIRMATION_SURFACE = 'Confirmation'
+
+/**
+ * The entries table T-109 places on U-55, in that table's own print order.
+ *
+ * ⭐ ONE PASS OVER THE GENERATED ROSTER rather than a list written here, so the
+ * print order of table T-109 is the order of the two without this file knowing
+ * what that order is, and a row moved in the specification moves here (rule 03
+ * section 1). FR-029 makes both the roster and the placement follow that table
+ * (MUST). ⛔ Read once, at load, because a description is built every frame and
+ * rule 05 of docs/development-rules forbids a scan on that path (NFR-013).
+ *
+ * ⚠️ Reading `iconRoster` does not make this unit `semi-pure-a`: it is a module
+ * constant compiled into the program, not external state read while running.
+ * Table T-075 fixes UF-67 as `pure`.
+ */
+const CONFIRMATION_ANSWER_ROWS: readonly IconId[] = iconRoster.icons
+  .filter((row) => row.surfaces.includes(CONFIRMATION_SURFACE))
+  .map((row) => row.rowId)
+
+/**
+ * The words of table T-109's rows, keyed by the row id -- the same map
+ * `open-modals.ts` and `app-header-items.ts` build, from the same dictionary.
+ *
+ * ⚠️ THE `confirmation` SECTION OF THAT DICTIONARY IS NOT READ. It keys the two
+ * answers on `proceed` and `cancel`, and nothing in the specification joins
+ * those two keys to IC-69 and IC-70 -- table T-109's 何の入口か column is prose,
+ * and the row id is the only join it admits. ⛔ Writing that mapping out here
+ * would be the copy rule 03 section 1 forbids, so the entries are labelled the
+ * way every other entry on the screen is.
+ */
+const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
+
+/**
+ * What an entry says while the dictionary holds no word for it.
+ *
+ * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
+ * has been SETTLED yet, which is what PD-160 records.
+ *
+ * @provisional PD-160
+ */
+const NO_WORDS = ''
+
+/**
+ * The accessible name of one answer, in the display language (FR-038).
+ *
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, for the
+ * reason `open-modals.ts` gives at the same line: those read "the dictionary
+ * holds no word yet" and "the word is the empty string" as one thing, and
+ * PD-160 is precisely the difference.
+ *
+ * @provisional PD-160
+ * @purity pure
+ */
+function answerLabel(icon: IconId, language: DisplayLanguage): string {
+  const word = WORDS_BY_ROW.get(icon)?.label[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
+}
+
+/**
+ * IC-69 and IC-70 as the surface shows them.
+ *
+ * ⭐ NEITHER CAN BE SPENT AND NEITHER IS A TOGGLE. NT-7 (MUST) makes choosing
+ * between going on and calling it off the whole of this surface, so there is no
+ * state in which one of the two may not be pressed -- FR-029's faint-and-
+ * explained state never applies -- and neither stays down: a toggle is one entry
+ * with two states, and this is two entries with one choice.
+ *
+ * @purity pure
+ */
+function confirmationAnswers(language: DisplayLanguage): readonly CommandItem[] {
+  return CONFIRMATION_ANSWER_ROWS.map((icon) => ({
+    icon,
+    isEnabled: true,
+    isPressed: false,
+    label: answerLabel(icon, language),
+  }))
+}
 
 /**
  * What stands between two gathered texts.
@@ -171,14 +276,20 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
 }
 
 /**
- * The question waiting to be answered, or `null` while none is (NT-7).
+ * The question waiting to be answered, on the surface it stands on, or `null`
+ * while none is (NT-7, U-55 of table T-103).
  *
- * ⭐ PASSED THROUGH, NEVER COMPOSED, for the same reason a notice is: everything
- * NT-7 (MUST) asks for -- what is about to happen in words, and the names of
- * what would go -- can only be known where the question is raised. FR-032 asks
- * for the names of the tasks a row takes with it and FR-099 for the names of the
- * tasks an unassignment reaches; neither is derivable from a `Confirmation` that
- * already exists.
+ * ⭐ THE RAISED HALF IS CARRIED AND NEVER COMPOSED, for the same reason a notice
+ * is: everything NT-7 (MUST) asks for in words -- what is about to happen, and
+ * the names of what would go -- can only be known where the question is raised.
+ * FR-032 asks for the names of the tasks a row takes with it and FR-099 for the
+ * names of the tasks an unassignment reaches; neither is derivable from a
+ * `RaisedConfirmation` that already exists.
+ *
+ * ⭐ THE TWO ANSWERS ARE COMPOSED, AND ONLY THEY. The preamble above table T-109
+ * fixes its 面 column as table T-103's settled names, so which entries stand on
+ * U-55 is that table's answer -- read out of the generated roster, never asked
+ * of the raiser and never written out here.
  *
  * ⛔ AT MOST ONE. NT-4 (MUST) is the only row of table T-037 that speaks about
  * several at once and it is about notices, so nothing here gathers or orders
@@ -199,23 +310,21 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * question: a roster of the admitted sites is exactly what that MUST NOT bars,
  * and NT-7's own limit binds the raiser, not this unit.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how the answer travels back, and
- * what the two choices are called. Looked in table T-037 (NT-7 says the person
- * chooses between going on and calling it off, and says nothing about entries or
- * words), in FR-032 and FR-099 (both say 「確認を求める」 and neither names a
- * control), in `_assets/tbl-glossary.md` (table T-109 has no row placed on a
- * confirmation, and table T-103 has settled no name for one -- so it is not a
- * surface `ScreenState.surface` can hold either), and in table T-036 (no
- * shortcut). Nothing is invented here: the words would be `OpenModal.heading`'s
- * problem over again, and an entry would be a row of table T-109 that only a
- * ruling can add.
- * ⚠️ STILL OPEN AFTER TABLE T-227. CR-197 added DI-4, which is a fourth place
- * that asks, and closed nothing about how the answer comes back -- its own
- * closing section records the return path as left open. ⛔ Do not read the new
- * table as having settled this.
+ * STOP -- ⛔ NOTHING RAISES ONE. `ScreenSession.confirmation` is `null` in every
+ * frame this build runs: `frame-loop.ts` says so in as many words, and no member
+ * of table T-064 puts a question there. So the surface below is described and
+ * never seen, and the three places a requirement asks -- FR-032's row with WBS
+ * descendants, FR-099's unassignment, DI-4 of table T-227 -- each still run their
+ * operation unasked, which is what breaks those MUSTs. ⚠️ WHAT IS MISSING IS THE
+ * RAISER, NOT THE ROUTE: table T-109 now places IC-69 and IC-70 on U-55, so a
+ * press on either comes back as `ScreenPart.entry` (IF-9) the way a press on any
+ * other entry does. Searched: table T-037, table T-064 (PI-8, PI-9, PI-18,
+ * PI-37), table T-109, table T-227, FR-031, FR-032, FR-099, `frame-loop.ts`.
  *
  * @purity pure
  */
 export function confirmationFromSession(session: ScreenSession): Confirmation | null {
-  return session.confirmation
+  const raised = session.confirmation
+  if (raised === null) return null
+  return { ...raised, entries: confirmationAnswers(session.language) }
 }

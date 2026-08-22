@@ -75,18 +75,19 @@ import {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   applyDocumentChange,
+  replaceDocument,
   type ChangeAudience,
   type DocumentCommand,
   type DocumentHolder,
   type HeldDocument,
+  type ReplacementCall,
   type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
-import { redoEdit } from '../../use-case/redo-edit/redo-edit'
-import { undoEdit } from '../../use-case/undo-edit/undo-edit'
+import { notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
 import {
   commandFromInput,
   screenStateFromInput,
@@ -127,9 +128,32 @@ export interface FrameValues {
   readonly geometry: ScheduleGeometry
 }
 
+/**
+ * The rows of table T-230 a caller outside this loop may stand in: the two
+ * whose `WS-3` column says the caller brings the document itself.
+ *
+ * ⛔ NARROWED OUT OF `ReplacementCall`, NEVER WRITTEN AGAIN. What each row
+ * carries is PI-8's to say (rule 03 section 1), and the other four rows are not
+ * this member's to offer: RD-1 and RD-2 are reached from inside this file, and
+ * RD-3 and RD-4 need an `ImportDocument` call that nothing hands this loop.
+ */
+export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-5' | 'RD-6' }>
+
 export interface FrameLoop {
-  /** FT-2: the current value was replaced, so a frame is owed. */
-  replaceDocument(next: Document): void
+  /**
+   * FT-2: the current value was replaced, so a frame is owed.
+   *
+   * ⭐ THE CALLER NAMES ITS ROW OF TABLE T-230 AND BRINGS NOTHING ELSE. That
+   * table requires it (MUST) and forbids a replacement that names none (MUST
+   * NOT), so the history, the stamp and the undo step are settled by the row on
+   * the `replaceDocument` road (PI-8) -- the same road RD-1 and RD-2 take -- and
+   * not by any habit of this file's.
+   * ⚠️ The name is not `replaceDocument` because R2.1 asks it to say the role:
+   * `hold` is LY-5's own word for the one thing this layer does that no other
+   * may, and the pair this loop keeps is already `held` (`HeldDocument`).
+   * ⚠️ Nothing in `src/` calls it today.
+   */
+  holdDocument(call: HeldDocumentCall): void
   /** FT-3: the window changed size. */
   resize(env: FrameEnvironment): void
   /**
@@ -214,7 +238,7 @@ const BYTES_PER_MEGABYTE = 1024 * 1024
  */
 const HISTORY_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
-  maxTotalSize: NOT_STORED_LIMITS['S-95'] * BYTES_PER_MEGABYTE,
+  maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * BYTES_PER_MEGABYTE,
 }
 
 /**
@@ -250,46 +274,6 @@ const GUIDE_CURSOR_NONE = 'none'
  * table T-229, so a change to that row has to be brought here by hand.
  */
 const EDITED_BY_SCREEN = 'user'
-
-/**
- * What this side knows about the moment of a write (WS-2 of table T-067).
- *
- * ⭐ `gestureInFlight` is false because of the ORDER `receiveInput` keeps: the
- * press a gesture began with is dropped as soon as the translator has read it
- * and before any write is asked for, so AG-9's 「身振りの最中」 has in fact
- * ended by the time this is handed over.
- * ⚠️ A key or a wheel arriving while a press is still held would say the same
- * and would not be right. Nothing reaches the write path that way today -- the
- * rule under table T-023d refuses a wheel mid-drag -- but the shape of this
- * value is what would have to change if one ever did.
- * ⛔ `editingInPlace` is false for the reason `isTextEntryUnsettled` is: no
- * in-place entry exists in this build.
- * ⚠️ `deliveringNotices` is only what this side knows. WS-7's own window is
- * owned by `applyDocumentChange`, which reads its flag beside this one.
- */
-const WRITE_MOMENT: WriteMoment = {
-  gestureInFlight: false,
-  editingInPlace: false,
-  deliveringNotices: false,
-}
-
-/**
- * WS-7's audience.
- *
- * STOP -- ⛔ THERE IS NOBODY TO TELL IN THIS BUILD. AG-6 of table T-035 hands a
- * settled change to the watchers of the `Agent API`, FR-066 puts that API up
- * only while it is enabled, and the record that enables it (S-99b of table
- * T-206) has no owner anywhere in `src/` --
- * `local-storage-document-store.ts` says so in as many words.
- * ⛔ The member is present and empty rather than absent: WS-7 runs on every
- * accepted write and `applyDocumentChange` opens its refusal window around this
- * call, so leaving it out would change the write path instead of recording an
- * absence.
- */
-const NOBODY_TO_TELL: ChangeAudience = {
-  /** @purity non-pure */
-  deliver(): void {},
-}
 
 /**
  * What the autosave status is before this session has written anything.
@@ -607,6 +591,37 @@ export function frameLoop(
     },
   }
 
+  /**
+   * WS-7 of table T-067 -- who is told once the swap has happened, for every
+   * write this loop makes. Both roads of PI-8 take it: the command road
+   * (`writeDocument`) and the whole-document road of table T-230
+   * (`replaceHeldDocument`), so an undo and an ordinary edit reach the watchers
+   * the same way an `Agent API` write does.
+   *
+   * ⭐ THE SHAPE IS PI-15's AND IS NOT INVENTED HERE. `NotifyChangeWatchers`
+   * names its callers itself and states what the Framework hands over: the
+   * confirmed document, the judgement that travelled with it, and the dialogue
+   * log beside it -- the log because FR-066 keeps it out of the document (MUST
+   * NOT) and LY-5 of table T-060 leaves current values with this layer alone.
+   * ⛔ INSIDE THE LOOP, because `dialogueLog` is. A shared one at module scope
+   * would have no log to hand over and no session to belong to.
+   * ⛔ NOTHING IS DECIDED HERE. `hasMovedSchedule` is WS-5's judgement on the
+   * command road and table T-230's equality of the two `scheduleUpdatedUtc` on
+   * the replacement road; AG-6 of table T-035 requires it to be CARRIED, and
+   * UT-3 of table T-063 puts the choosing in the pure half (UF-25 of table
+   * T-075). This side neither derives it nor filters on it.
+   * ⚠️ THE SCREEN'S OWN WRITES GO THROUGH IT TOO, and AG-6's MUST NOT about a
+   * writer woken by its own write is still kept: this side signs with
+   * `EDITED_BY_SCREEN`, the word table T-229 reserves at ED-1, so a subscriber
+   * of that name is passed over by the selection rather than by a guard here.
+   */
+  const audience: ChangeAudience = {
+    /** @purity non-pure */
+    deliver(document: Document, hasMovedSchedule: boolean): void {
+      notifyChangeWatchers({ document, hasMovedSchedule, dialogue: dialogueLog })
+    },
+  }
+
   // CA-2: invalidation happens at the head of a frame, and nothing is rebuilt
   // again for the rest of it. NFR-010 means a frame with no trigger never runs
   // at all, so there is no idle path to guard against.
@@ -728,6 +743,40 @@ export function frameLoop(
   }
 
   /**
+   * WS-2's three questions, answered from what this loop is holding at the
+   * moment the write is asked for.
+   *
+   * ⛔ NOT A CONSTANT, AND THIS IS WHY. AG-9 of table T-035 makes refusing
+   * mid-gesture a MUST, and the press that answers it is a value this loop
+   * MOVES: `receiveInput` drops it on the release and on IN-1's abort, so a key
+   * happening arriving mid-drag finds it still set. Frozen at false, SK-3 wrote
+   * through the middle of a drag -- `commandFromInput` puts no guard of its own
+   * on that row, because WS-2 is where the guard belongs.
+   * STOP -- ⛔ WIDER THAN AG-9 ASKS, AND NOTHING PUBLISHES THE NARROWING. AG-9
+   * spares the two gestures table T-027 puts outside the undo history (UN-8 and
+   * UN-9), and which of them a press began is table T-023a's decision order --
+   * whose note keeps that order with `commandFromInput`, and PI-18 publishes no
+   * way to ask it. ⛔ So a pan and a marquee are refused with the rest: reading
+   * table T-023a a second time here is the duplication R2.7 refuses, and of the
+   * two errors this is the one that keeps the MUST.
+   * ⛔ `editingInPlace` is false for the reason `isTextEntryUnsettled` is, and
+   * the STOP on that member holds it: no in-place entry exists in this build,
+   * so there is nothing that could be unsettled.
+   * ⚠️ `deliveringNotices` is NOT this side's to answer. WS-7's own window is
+   * owned by `apply-document-change.ts`, which ORs its flag with this one --
+   * answering it here as well would count the same window twice.
+   *
+   * @purity semi-pure-b
+   */
+  function collectWriteMoment(): WriteMoment {
+    return {
+      gestureInFlight: pressed !== null,
+      editingInPlace: false,
+      deliveringNotices: false,
+    }
+  }
+
+  /**
    * WS-6 and WS-7, through the one write path CP-8 allows. ⛔ MS-1 of table
    * T-042 forbids a second entrance -- with two, one of them ends up with
    * validation or history the other does not have.
@@ -754,14 +803,14 @@ export function frameLoop(
         // skipped because AG-2 gives the `Agent API` the same gate through the
         // same argument, and one path may not have a weaker one.
         readStamp: held.document.documentStamp,
-        moment: WRITE_MOMENT,
+        moment: collectWriteMoment(),
         historyLimits: HISTORY_LIMITS,
         settingsLimits,
         editedBy: EDITED_BY_SCREEN,
         updatedUtc: readInstantOfWrite(),
       },
       holder,
-      NOBODY_TO_TELL,
+      audience,
     )
     if (outcome.accepted) return
     // STOP -- ⛔ NOTHING CARRIES A REFUSAL TO THE PERSON. It is neither thrown
@@ -771,6 +820,44 @@ export function frameLoop(
     // no owner in this build (`sessionOf` above records the same absence).
     // ⚠️ Composing a message here would put a second reading of table T-067 on
     // the screen, so the refusal travels no further than this call today.
+  }
+
+  /**
+   * One row of table T-230, taken through the same write path (`replaceDocument`
+   * of PI-8) as any other write.
+   *
+   * ⭐ The shell names the row and brings nothing else. RD-1 and RD-2 ask
+   * UndoEdit and RedoEdit at WS-3, and the history, the stamp and the undo step
+   * are that road's business -- this side is left holding neither a rule of
+   * table T-027 nor a stamp to mint.
+   *
+   * @purity non-pure
+   */
+  function replaceHeldDocument(call: ReplacementCall): void {
+    const outcome = replaceDocument(
+      {
+        // WS-1 matches this against the stamp the document carries now, exactly
+        // as `writeDocument` does and for the same reason: the declaration is
+        // AG-2's gate, and this path may not have a weaker one than the
+        // `Agent API`'s. ⛔ NOT the stamp of the document coming in -- table
+        // T-230 forbids that comparison (MUST NOT) and it would refuse every
+        // replacement there is.
+        readStamp: held.document.documentStamp,
+        moment: collectWriteMoment(),
+        call,
+      },
+      holder,
+      audience,
+    )
+    // FT-2 of table T-078: the current value was replaced, so a frame is owed.
+    // ⚠️ `ask` coalesces with FT-1's, so the press still paints once.
+    if (outcome.accepted) {
+      if (settled(environment)) ask()
+      return
+    }
+    // STOP -- ⛔ THE SAME ABSENCE `writeDocument` records: nothing carries a
+    // refusal to the person, because `ScreenSession.notices` has no owner in
+    // this build.
   }
 
   /**
@@ -786,24 +873,15 @@ export function frameLoop(
       case 'changeDocument':
         writeDocument(action.commands, frame)
         return
-      case 'undoEdit': {
-        // ⛔ NOT THROUGH THE ONE WRITE PATH, and `undo-edit.ts` records why in
-        // its own header: table T-108 holds no command that restores a whole
-        // document, so `applyDocumentChange` (PI-8) publishes no entry that
-        // commits one computed elsewhere. FR-031 still requires the undo to
-        // take effect, so the pair is replaced here -- and MS-1 of table T-042
-        // calls that the second entrance it forbids. ⛔ Closing it is a change
-        // to ApplyDocumentChange, which this change does not make.
-        const outcome = undoEdit(held)
-        if (outcome.undone) held = outcome.next
+      // RD-1 and RD-2 of table T-230. ⭐ The shell asks neither UndoEdit nor
+      // RedoEdit itself: the pair is replaced by the ONE write path, which is
+      // what MS-1 of table T-042 is about.
+      case 'undoEdit':
+        replaceHeldDocument({ row: 'RD-1' })
         return
-      }
-      case 'redoEdit': {
-        // ⛔ The same STOP, recorded in `redo-edit.ts`'s own header.
-        const outcome = redoEdit(held)
-        if (outcome.redone) held = outcome.next
+      case 'redoEdit':
+        replaceHeldDocument({ row: 'RD-2' })
         return
-      }
       case 'copySelection':
       case 'pasteClipboard':
         // STOP -- ⛔ NO CLIPBOARD SEAM IS WIRED. SK-4 and SK-5 belong to
@@ -960,13 +1038,10 @@ export function frameLoop(
 
   return {
     /** @purity non-pure */
-    replaceDocument(next: Document): void {
-      // ⚠️ The history is carried across rather than emptied. FT-2 is the
-      // current value being replaced, and FR-031 gives no rule that a
-      // replacement discards what was undoable; WS-6 is the path that replaces
-      // both together, and this one is not it.
-      held = { document: next, history: held.history }
-      if (settled(environment)) ask()
+    holdDocument(call: HeldDocumentCall): void {
+      // ⭐ Straight onto the one road, carrying the caller's row and nothing
+      // else: FT-2's frame is asked for there, along with WS-1 and WS-2.
+      replaceHeldDocument(call)
     },
     /**
      * ⛔ CHANGES NOTHING, which PI-27's factory argument requires: this is

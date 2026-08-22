@@ -1698,16 +1698,18 @@ function fitCommand(context: InputContext): DocumentCommand {
  *
  * ⚠️ The chain each one drags with it is table T-050's and is applied by the
  * aggregate, not here: CD-1 alone reaches six other rows.
- * ⛔ FR-032's CONFIRMATION IS PUT BUT NOT ANSWERED HERE. It requires a Task with
- * WBS descendants to be confirmed before it is deleted (MUST) and the names of
- * what will vanish to be shown. ⭐ Half of that now has somewhere to go: NT-7 of
- * table T-037 is the manner for ASKING and `ScreenView.confirmation` (PI-37)
- * carries the question and the names to the screen. ⚠️ What is still missing is
- * the way BACK -- no member of table T-064 returns an answer, table T-109 has no
- * row for either choice, and `notices.ts` holds the same STOP note. Searched:
- * table T-064 (PI-8, PI-9, PI-18, PI-37), table T-037, table T-109,
- * `apply-document-change.ts`. A caller that runs these commands unasked breaks
- * that MUST.
+ * STOP -- ⛔ FR-032's CONFIRMATION IS NOT RAISED. It requires a Task with WBS
+ * descendants to be confirmed before it is deleted (MUST) and the names of what
+ * will vanish to be shown, and nothing puts that question anywhere:
+ * `ScreenSession.confirmation` is `null` in every frame this build runs. ⚠️ THE
+ * WAY BACK IS NO LONGER WHAT IS MISSING -- table T-109 places IC-69 and IC-70 on
+ * U-55 `Confirmation`, so a press on either arrives here as `ScreenPart.entry`
+ * (IF-9) the way any other entry does, and `notices.ts` holds the same narrowed
+ * note. ⛔ No case is written for the two below: an answer to a question nobody
+ * asked has nothing to be an answer TO, and inventing one would settle what a
+ * pressed choice DOES. Searched: table T-064 (PI-8, PI-9, PI-18, PI-37), table
+ * T-037, table T-109, `frame-loop.ts`, `apply-document-change.ts`. A caller that
+ * runs these commands unasked breaks that MUST.
  *
  * @purity pure
  */
@@ -1975,15 +1977,20 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 32 ROWS OF TABLE T-109 REACH `commandFromEntry` AND ARE ANSWERED
+// STOP -- ⛔ 38 ROWS OF TABLE T-109 REACH `commandFromEntry` AND ARE ANSWERED
 // WITH NOTHING. Each is missing something different, and none is an oversight.
+// ⚠️ The number is the 70 rows of that table less the 32 this file assigns
+// (`ENTRY` holds 17 and `ARMED_BY_ENTRY` 15), and the groups below add up to it.
 // ⭐ The entries that ARE answered were chosen by a rule rather than one at a
 // time: an entry is answered when this file already answers the same operation
 // for a row of table T-036, or when it opens a surface whose name table T-103
 // has settled -- plus FR-083's arming, which is the whole point of the seam
 // member that brought the press here.
 //
-// ⛔ FOUR OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
+// ⛔ 26 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen. ⚠️ The count
+// was 「FOUR」 while the groups below already held far more than four rows; it is
+// stated here as the rows the groups list, so the two can be held against each
+// other:
 //
 //   IC-17 / IC-18 / IC-20 / IC-21
 //                each writes a value NOTHING published holds. Which of its two
@@ -1995,8 +2002,9 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //   IC-37 / IC-38  FR-034's alignment. ⛔ Table T-108 holds NO command for it,
 //                so there is nothing to plan even with the press in hand.
 //   IC-41        FR-020 asks for the unlock password first, and nothing carries
-//                an ANSWER back from a person -- the same half of the hole
-//                FR-032's confirmation runs into above.
+//                a password back from a person: table T-037 has no row for
+//                asking for one (NT-7 asks only for 続ける / 取りやめる) and
+//                nothing published holds what was typed.
 //   IC-45        `setDualCursor` (CM-60) demands BOTH dates at once (IV-13),
 //                which is the gap PD-2 already records above.
 //   IC-50 / IC-51  the palette's own folding. Nothing holds it: table T-203 and
@@ -2012,8 +2020,16 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //   IC-53 .. IC-57  ⛔ NOT ENTRIES. Table T-109 says so in its own column: two
 //                of them show a drag and a keystroke, and three show the
 //                autosave state (FR-061).
+//   IC-69 / IC-70  the two answers to NT-7's question, on U-55 `Confirmation`.
+//                ⛔ NOTHING RAISES A QUESTION in this build -- `frame-loop.ts`
+//                leaves `ScreenSession.confirmation` null in every frame -- so a
+//                press on either would be an answer to nothing, and what a
+//                pressed choice DOES is the raiser's to say. ⭐ The press does
+//                reach here: table T-109 places both on that surface, so IF-9
+//                answers `ScreenPart` for them like any other entry. ⚠️ A
+//                missing RAISER, not a missing route.
 //
-// ⚠️ THE REST ARE REACHABLE AND ARE STILL NOT WRITTEN -- IC-4, IC-8, IC-9,
+// ⚠️ THE REMAINING 12 ARE REACHABLE AND ARE STILL NOT WRITTEN -- IC-4, IC-8, IC-9,
 // IC-16, IC-39, IC-40, IC-42, IC-43 (the drawing settings, CM-59 / CM-61 /
 // CM-63 / CM-66) and IC-46 .. IC-49 (the guide cursor, whose four values table
 // T-109 spells verbatim). ⛔ They are outside the rule stated above, not

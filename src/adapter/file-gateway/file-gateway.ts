@@ -305,11 +305,13 @@ export interface ChosenFileSaveRequest {
    * document. NT-7 of table T-037 is the manner, and FR-031 (MUST NOT) is why
    * it is not asked more widely than that.
    *
-   * ⚠️ HOW THE PERSON'S ANSWER GETS HERE IS NOT DECIDED BY THE SPECIFICATION --
-   * see the STOP note in `adapter/screen-renderer/notices.ts`, which records
-   * that table T-109 carries no row for either choice. This field states only
-   * that an answer is owed, which NT-7 does fix (MUST): what happens is shown,
-   * and going on or calling off is chosen.
+   * ⚠️ WHERE THE ANSWER COMES FROM IS SETTLED AND NOBODY ASKS YET. Table T-109
+   * places IC-69 and IC-70 on U-55 `Confirmation`, so a press on either arrives
+   * as `ScreenPart.entry` (IF-9); what is missing is the RAISER -- nothing puts
+   * a question into `ScreenSession.confirmation`, which the STOP note in
+   * `adapter/screen-renderer/notices.ts` records. This field states only that an
+   * answer is owed, which NT-7 does fix (MUST): what happens is shown, and going
+   * on or calling off is chosen.
    */
   confirmOverwrite(): Promise<boolean>
 }

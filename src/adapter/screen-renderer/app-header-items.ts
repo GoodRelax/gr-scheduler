@@ -43,8 +43,15 @@
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
-import type { AppHeaderItems, CommandItem, IconId, ScreenSession } from './screen-renderer'
+import type {
+  AppHeaderItems,
+  CommandItem,
+  DisplayLanguage,
+  IconId,
+  ScreenSession,
+} from './screen-renderer'
 import iconRoster from './icon-roster.json'
+import displayWords from './display-words.json'
 
 /**
  * The value table T-109's surface column carries for the `App Header` (U-31 of
@@ -81,25 +88,16 @@ const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 const AGENT_API_ENTRY: IconId = 'IC-20'
 
 /**
- * The words of an entry, which nothing has settled.
+ * What an entry says while the dictionary holds no word for its row.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: where the words come from.
- * FR-038 (MUST) requires menus and panels to be shown in the chosen language
- * and names no store of translated strings; table T-109 refuses an English
- * column and says why; table T-103 is a glossary of settled names whose
- * Japanese column is prose rather than screen text; and none of the four
- * arguments carries any wording (`ScreenSession` carries `language`, which is
- * the choice, not the text). Searched: FR-029, FR-038, tables T-103 / T-109 /
- * T-040 (EZ-2), `_assets/tbl-settings.md` (no row for any wording) and
- * `screen-renderer.ts`, which records the same hole on `CommandItem.label` and
- * says the words arrive already chosen.
- * ⭐ The empty string is what says "no words have been settled", which is what
- * is true of this build; any English written here would mint dozens of settled
- * names in the one component forbidden to mint them. The row id travels in
- * `CommandItem.icon`, which is the only join table T-109 admits, so nothing is
- * lost by leaving this empty. ⚠️ `open-modals.ts` answers the identical hole
- * the identical way -- two units of one folder disagreeing about it would be
- * worse than either answer.
+ * ⛔ NOT "PRINT NOTHING". An empty cell of `display-words.json` says that no
+ * word has been SETTLED for that row yet (PD-160) -- which is true of all 176
+ * of them today -- and this is exactly what UF-62 printed before the dictionary
+ * was wired, so opening the road moved nothing on the screen.
+ * ⚠️ Here the stand-in and an unwritten word are the same string, and that is a
+ * coincidence of this member rather than the rule: `command-palette.ts` stands
+ * in with the roster's own group word and `tooltips.ts` with the label, because
+ * an empty string would be worse than what each printed before.
  *
  * Class C of rule 06: the words are display-only and leave no trace in the
  * saved form -- FR-038 (MUST NOT) keeps even the language out of the document,
@@ -108,6 +106,50 @@ const AGENT_API_ENTRY: IconId = 'IC-20'
  * @provisional PD-4
  */
 const NO_WORDS = ''
+
+/**
+ * The words of table T-109's rows, keyed by the row id.
+ *
+ * ⭐ A `Map` rather than a scan per entry: a description is built for every
+ * frame, and rule 05 of docs/development-rules forbids a linear search on that
+ * path (NFR-013).
+ *
+ * ⚠️ Reading `displayWords` no more makes this unit `semi-pure-a` than reading
+ * `iconRoster` does: both are module constants compiled into the program, the
+ * way `DEFAULT_CALENDAR` is in `schedule.ts`, and not external state read while
+ * running. Table T-075 fixes UF-62 as `pure`.
+ */
+const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
+
+/**
+ * The accessible name of one entry, in the display language (FR-038).
+ *
+ * ⭐ WHERE THE WORD COMES FROM. FR-038 (MUST) holds every word the screen prints
+ * as one dictionary per language, and Chapter 6.2 fixes its manuscript as
+ * `_source/display-words.json`; `display-words.json` beside this file is that
+ * manuscript generated into `src/`. ⛔ It is keyed by the row of table T-109 --
+ * the only join that table admits, because it deliberately has no English
+ * column -- so no name is minted here and none is read off any other column.
+ *
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
+ * "the dictionary holds no word yet" and "the word is the empty string" as one
+ * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
+ * an instruction to print nothing. The day a word is written this line stops
+ * standing in without being edited.
+ * ⚠️ A row the dictionary does not hold AT ALL is a second condition and is
+ * answered separately, although with the same stand-in. It cannot happen while
+ * `npm run gen:check` passes -- the generator builds its roster from table T-109
+ * every run and refuses to write on a mismatch -- so what is guarded is the run
+ * where someone edited the generated file by hand.
+ *
+ * @provisional PD-4
+ * @purity pure
+ */
+function entryLabel(icon: IconId, language: DisplayLanguage): string {
+  const word = WORDS_BY_ROW.get(icon)?.label[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
+}
 
 /** The two members of `CommandItem` this unit works out. */
 interface CommandState {
@@ -244,10 +286,43 @@ function commandStateOf(
       // declared as "a toggle that is on". Neither `light`/`dark` nor `ja`/`en`
       // has an off side, and picking one of the pair to call "on" would settle
       // a reading no requirement states -- so both are reported not pressed.
-      // ⛔ FR-038 also requires (MUST) the CURRENT language to be readable
-      // BEFORE the entry is pressed; `CommandItem` has four members and none
-      // can carry it, so that MUST is unmet here as well as in
-      // `open-modals.ts`, which records it against the help's copy of IC-21.
+      //
+      // STOP -- ⛔ THE HEADER'S HALF OF FR-038 HAS NOWHERE TO STAND, AND WHAT
+      // IS MISSING IS NOT IN THIS FILE. FR-038 (MUST) puts an entrance to the
+      // language in TWO places, the top of the screen and the help, and
+      // requires (MUST) that the CURRENT language be readable BEFORE either is
+      // pressed. Table T-075 gives the header's entrance to UF-62, so the
+      // header's half of that second MUST is owed here.
+      //   AT HAND: `session.language` (S-99) is already an argument, and
+      //     `entryLabel` already reads it for every row.
+      //   MISSING: somewhere to put it. `CommandItem` has four members and none
+      //     can carry it -- `isPressed` is the toggle above; `label` is the
+      //     entry's own name, which is PRINTED in the language rather than
+      //     saying WHICH language is on; `icon` and `isEnabled` say neither.
+      //     `AppHeaderItems` has three members and none can carry it either.
+      //   ⭐ THE SPECIFICATION HAS SETTLED THIS SHAPE ONCE ALREADY, on the
+      //     other entrance: the reading sits on the SURFACE and not on the
+      //     entry -- `HelpModal.language`, which `open-modals.ts` fills from
+      //     this same `ScreenSession.language`. It was declared even though
+      //     that surface's `commands` already carry labels in the language, so
+      //     the label is settled as NOT being the answer. The symmetric repair
+      //     is a `language` member on `AppHeaderItems`. ⛔ REPORTED AND NOT
+      //     MADE: that type stands in `screen-renderer.ts`, which this unit
+      //     does not own.
+      //   ⚠️ It is also what would make the header REDRAW on a switch. The
+      //     screen as a whole already carries the state (`ScreenView.language`,
+      //     UF-60's own cell), but the header is rebuilt from `AppHeaderItems`
+      //     alone and only when THAT member's description changes -- and while
+      //     every word is empty (PD-160) a switch changes no label, so nothing
+      //     in it moves.
+      // ⚠️ STILL UNDECIDED EVEN THEN: how the reading is DRAWN. FR-038
+      // states the MUST and neither a word nor a shape for it -- table T-109
+      // refuses an English column, figure F-019 draws IC-21 as a globe carrying
+      // no language, and every cell of `display-words.json` is empty (PD-160).
+      // ⛔ So no mark, word or shape is invented here.
+      // Searched: FR-038, FR-029, table T-109 (IC-21), figure F-019, table
+      // T-075 (UF-62 and UF-60), table T-206 (S-99), `AppHeaderItems`,
+      // `CommandItem`, `HelpModal.language` and `ScreenView.language`.
       //
       // ⭐ IC-3 (FR-025), IC-10 (FR-055), IC-19 (FR-068) and IC-22 (FR-036)
       // need no case: none is a toggle -- what an open surface closes with is
@@ -279,7 +354,7 @@ function commandItemFor(
     icon,
     isEnabled: commandState.isEnabled,
     isPressed: commandState.isPressed,
-    label: NO_WORDS,
+    label: entryLabel(icon, session.language),
   }
 }
 

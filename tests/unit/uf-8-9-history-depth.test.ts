@@ -33,7 +33,7 @@
 //     it was handed, but hands it `maxSteps: 1` -- a history capped at one step
 //     satisfies that case with or without a memory bound.
 //   - tests/unit/document-model.test.ts drives `EditHistory` at the value level
-//     with `{ maxSteps: 3, maxTotalSize: 1000 }` and never meets a document.
+//     with `{ maxSteps: 3, maxTotalSizeBytes: 1000 }` and never meets a document.
 // Nothing ran N REAL writes with the REAL bounds and then asked whether N undos
 // were there. A shipped defect passed straight through that hole: the shell
 // handed `S-95` over as a bare number, so the bound was 64 BYTES rather than
@@ -267,7 +267,7 @@ const SETTINGS_LIMITS: SettingsLimits = {
 /** S-94 and S-95 as the caller has to state them: steps, and BYTES. */
 const REAL_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
-  maxTotalSize: NOT_STORED_LIMITS['S-95'] * MB_FACTOR,
+  maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * MB_FACTOR,
 }
 
 const WRITER = 'the case at the keyboard'
@@ -467,7 +467,7 @@ describe('FR-031 / S-95 -- 合計メモリの上限は MB で書かれ、バイ�
     // COUNT is in bytes -- it does not say the VALUE is, and S-95's own 既定
     // cell says MB. This case pins the difference so the two can never be
     // confused again silently.
-    const one = bench({ maxSteps: S_94, maxTotalSize: NOT_STORED_LIMITS['S-95'] })
+    const one = bench({ maxSteps: S_94, maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] })
     writeNames(one, S_94 + 3)
     expect(one.depth()).toBeLessThan(S_94)
   })
@@ -479,9 +479,9 @@ describe('FR-031 / S-95 -- 合計メモリの上限は MB で書かれ、バイ�
     // 保存形. What every reading agrees on is the shape: a bound of a few
     // documents keeps a few 段, a wider one keeps more, and neither reaches
     // S-94.
-    const narrow = bench({ maxSteps: S_94, maxTotalSize: STEP_BYTES * 3 })
+    const narrow = bench({ maxSteps: S_94, maxTotalSizeBytes: STEP_BYTES * 3 })
     writeNames(narrow, 20)
-    const wide = bench({ maxSteps: S_94, maxTotalSize: STEP_BYTES * 12 })
+    const wide = bench({ maxSteps: S_94, maxTotalSizeBytes: STEP_BYTES * 12 })
     writeNames(wide, 20)
 
     expect(narrow.depth()).toBeGreaterThan(1)

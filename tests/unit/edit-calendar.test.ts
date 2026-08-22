@@ -142,7 +142,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
 // use-case.test.ts; only the UN-13 case below reads them.
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
-const HISTORY_LIMITS = { maxSteps: 50, maxTotalSize: 64 * 1024 * 1024 }
+const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 
 /** The dayTypes the named calendar works, so a case can name a set, not rows. */

@@ -107,7 +107,7 @@ const titleOf = (document: Document): string | null => document.schedule.project
 
 // S-94 / S-95 of table T-206. Nothing here pushes enough to reach either --
 // the bound is `historyWithStep`'s business (PI-4), not these two units'.
-const HISTORY_LIMITS: HistoryLimits = { maxSteps: 50, maxTotalSize: 64 * 1024 * 1024 }
+const HISTORY_LIMITS: HistoryLimits = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 
 // `HeldStep` (the entry `EditHistory` wraps a step in) is not published by

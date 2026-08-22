@@ -250,7 +250,7 @@ const startingDocument = (): Document =>
 const HISTORY_LIMITS = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
   // S-95 is stated in megabytes; the plan counts bytes.
-  maxTotalSize: NOT_STORED_LIMITS['S-95'] * 1024 * 1024,
+  maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * 1024 * 1024,
 }
 
 const SETTINGS_LIMITS: SettingsLimits = {
@@ -296,7 +296,7 @@ interface Bench {
   isGestureInFlight: boolean
   isEditingInPlace: boolean
   /** S-94 / S-95, which the document does not keep. A case may move them. */
-  historyLimits: { maxSteps: number; maxTotalSize: number }
+  historyLimits: { maxSteps: number; maxTotalSizeBytes: number }
   readAt: string
   /** What a watcher installed through AM-17 was handed. */
   readonly notices: ChangeNotice[]
@@ -429,7 +429,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     get historyLimits() {
       return state.historyLimits
     },
-    set historyLimits(next: { maxSteps: number; maxTotalSize: number }) {
+    set historyLimits(next: { maxSteps: number; maxTotalSizeBytes: number }) {
       state.historyLimits = next
     },
     get readAt() {

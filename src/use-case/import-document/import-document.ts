@@ -58,13 +58,17 @@
 //     baseline -- ⛔ NOT DECIDED. Table T-027 has no row for 重ね at all, so
 //                 `undo` answers `'notDecided'` rather than guess.
 //
+// ⭐ HOW THE ANSWER REACHES THE CURRENT VALUE IS SETTLED, and this unit is on
+// the called side of it: `replaceDocument` (PI-8) reads the pair once, calls
+// this unit at WS-3 for RD-3 and RD-4 of table T-230, and runs WS-4 to WS-7
+// over the answer. The `current` document therefore arrives from that one read.
+// ⚠️ `report.undo` and `report.discardsHistory` still say which case this was;
+// what the caller does with them is T-230's two columns and no longer a habit.
+//
 // ⛔ MISSING, reported rather than chosen:
-//   * How the answer reaches the current value at all. CP-8 is the one write
-//     path (MS-1) but it takes commands, and table T-108's 71 rows hold no
-//     import command -- while table T-107's `AM-8` puts `importDocument` on the
-//     Agent API beside `applyCommands`. Nothing says how a whole replaced
-//     document travels through WS-1 .. WS-7.
-//   * Whether 重ね (OP-9 / FR-015) is undoable -- see `undo` above.
+//   * Whether 重ね (OP-9 / FR-015) is undoable -- see `undo` above. ⚠️ RD-3
+//     delegates that column to table T-027, so the hole is now load-bearing on
+//     the write path: `'notDecided'` pushes no step.
 //   * Whether a REPLACE advances `importSeq` and writes `TaskOrigin`. MG-13
 //     sits in table T-032, which FR-056 scopes to 合流, so the counter is
 //     advanced on the merge path only and a replace keeps what the file held.

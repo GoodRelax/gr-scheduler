@@ -15,8 +15,13 @@
 // another. This file answers one narrower question: is the text a GRS JSON
 // document at all. A caller runs both, in that order, because the validator
 // takes a `Document` and cannot be handed a shape that is not one.
+// ⭐ One of FR-023's own MUSTs lands HERE rather than there, for the reason
+// `mspdi-codec.ts` gives about the same one: a leading byte order mark is
+// accepted and dropped before the text is parsed, which nothing downstream of
+// the parser could still do.
 
 import type { Document } from '../../entity/document-model/document/document'
+import { withoutLeadingByteOrderMark } from './mspdi-codec'
 
 /** Why a text could not be read as a document. */
 export interface JsonFault {
@@ -78,6 +83,14 @@ function isObject(value: unknown): value is Record<string, unknown> {
  * malformed input announces itself, and a caller that had already parsed would
  * have swallowed that. FR-023 calls every intake untrusted.
  *
+ * ⛔ The leading byte order mark goes before `JSON.parse` sees the text. FR-023
+ * states it as a MUST ("accept it and drop it") and a MUST NOT ("never refuse a
+ * file for having one"), and RFC 8259 does not admit one, so a BOM left in
+ * front comes back as "not JSON" -- a spreadsheet tool's export refused for the
+ * one reason FR-023 forbids refusing it for. ⚠️ The drop is `mspdi-codec.ts`'s
+ * one helper rather than a copy: two intake paths that each carry their own
+ * would eventually disagree about a rule that is stated once.
+ *
  * ⚠️ The shape is checked, not the content. See the block at the top.
  *
  * @purity pure
@@ -85,7 +98,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 export function documentFromJson(text: string): JsonDecoding {
   let parsed: unknown
   try {
-    parsed = JSON.parse(text)
+    parsed = JSON.parse(withoutLeadingByteOrderMark(text))
   } catch (why) {
     return {
       ok: false,
