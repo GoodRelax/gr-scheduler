@@ -345,7 +345,7 @@ src/
 | PI-15 | `UseCase` | `NotifyChangeWatchers` | `watchChanges`（`non-pure`）／ `unwatchChanges`（`non-pure`）／ `notifyChangeWatchers`（`non-pure`） |
 | PI-16 | `UseCase` | `PostDialogueMessage` | `postDialogueMessage`（`non-pure`） |
 | PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。既定で公開しない。`FR-065`）／ `SnapshotSource`（表 T-065）。⚠️ **外へ公開する 18 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。本表に書き写さない（MUST NOT）** |
-| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。置き場は `CP-36`） |
+| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `PressRow`（型。表 T-023a の行 ID）／ `pressRowOf`（押下がどの行で始まったかを答える。呼び手が押下の時に解決して `PointerPress` へ載せる）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。置き場は `CP-36`） |
 | PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`） |
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`）／ `formatFromFile`（どちらの形式として読むかを答える。規則は 表 T-024a の `OP-12`） |
 | PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。落とす規則は `FR-080`）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
@@ -381,7 +381,7 @@ src/
 | IF-4 | `DocumentStore` | `AutosaveGateway`（`CP-23`） | `LocalStorageDocumentStore`（`CP-29`） | 自動保存の置き場（表 T-024 の `IO-5`） |
 | IF-5 | `Clipboard` | `ClipboardGateway`（`CP-24`） | `BrowserClipboard`（`CP-30`） | クリップボードへの書き出し（`IO-6`） |
 | IF-6 | `Rasterizer` | `ImageExporter`（`CP-21`） | `CanvasRasterizer`（`CP-31`） | SVG から画像へ（`IO-4`） |
-| IF-7 | `SnapshotSource` | `AgentApiEndpoint`（`CP-17`） | `SingleHtmlShell`（`CP-25`） | 凍結された現在値（表 T-035 の `AG-4`）と、身振りの最中かどうか（`AG-9`） |
+| IF-7 | `SnapshotSource` | `AgentApiEndpoint`（`CP-17`） | `SingleHtmlShell`（`CP-25`） | 凍結された現在値（表 T-035 の `AG-4`）と、**どの身振りの最中か**（`AG-9`。表 T-023a の行 ID を運び、最中でなければ「無し」を運ぶ） |
 | IF-8 | `AppShellSource` | `DocumentCodec`（`CP-20`） | `SingleHtmlShell`（`CP-25`） | アプリ自身の HTML。`IO-7` を作るのに要る |
 | IF-9 | `ScreenSurface` | `ScreenRenderer`（`CP-37`） | `DomScreenSurface`（`CP-38`） | 作った記述を画面に載せ、対話欄で確定した発話を返し、**画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える** |
 
@@ -799,6 +799,36 @@ stateDiagram-v2
 ⚠️ **`xsd:duration` は `NR-4` の外である** —— `XML Schema Part 2` がこの型に標準字句表現を定めていないので、揃える先が無い。**そのため `NR-5` が、字句ではなく量として比べる。** ⭐ **`GRS` がこの型を書き出すときの綴りは 表 T-033 の `EX-9` が持つ。**
 **正は W3C の公式文書であり、事実はローカル複製で確かめる**（`docs/reference/README.md`）。**突き合わせの記録は `docs/review/c14n-vs-fr021-2026-08-22.md` が持つ。**
 
+**書き出した絵を比べる前の正規化と、一致の判定の全数を 表 T-231 に示す。** **双方へ同じ段取りを当てること（MUST）。片側だけに当ててはならない（MUST NOT）。** ⚠️ **本表が持つのは規格に足す分と、判定の境だけである** —— **属性の並びと自己終了タグの綴り方は `NS-1` の規格が既に揃えるので、本表に書いてはならない（MUST NOT）。**
+
+**表 T-231 — 書き出した絵を比べる前の正規化と、一致の判定**
+
+| 行 ID | 段取り | 規則 |
+| --- | --- | --- |
+| NS-1 | 規格を当てる | **W3C Canonical XML 1.1**（`https://www.w3.org/TR/2008/REC-xml-c14n11-20080502/`）を当て、**注釈を含めない形**を用いる。⚠️ **短縮名の URL は版の指定にならない** —— `xml-c14n` は 1.0 ではなく 1.1 を返す |
+| NS-2 | 要素の間の空白を落とす | `NS-1` の**前に**、要素の子を持つ要素の直下にある、空白だけの文字ノードを落とす。⛔ **葉の要素の中の空白は落とさない** —— そちらは値である |
+| NS-3 | 数の綴りを揃える | `NS-1` の**前に**、座標と寸法を **0.01 px の格子**へ丸めた綴りにする。⛔ **書き出す側と写し取った側の両方に当てること（MUST）** —— 片側だけを丸めると、判定に含めない差との境が引けない |
+| NS-4 | `id` を定数に限る | 書き出す `SVG` の `id` は、**成果物の中で不変の定数だけとすること（MUST）。走るたびに変わる値から作ってはならない（MUST NOT）** —— 変えると `NS-1` の出力が毎回変わり、`WY-2` が決して通らない |
+| NS-5 | `WY-2` の相手を定める | **同じ走りの中で 2 回書き出したもの同士**とする。⛔ **版元に置いた見本と比べてはならない（MUST NOT）** —— `WY-2` が測るのは書き出しの経路が決定的かどうかであり、機と版をまたぐ浮動小数の再現性はその射程に無い |
+| NS-6 | `WY-3` の許容差を定める | **双方を `NS-3` の格子へ丸めたうえで、外接矩形の各辺の差の絶対値が `1.0` px 未満であれば一致とする。** ⚠️ **端数が必ず出る理由は 表 T-041 の `WY-3` の欄が持つ** |
+
+⚠️ **本表は 表 T-228 の兄弟である。** ⛔ **あちらを広げてはならない** —— 表 T-228 の親は `FR-021`（交換相手との往復）であり、`NR-4` と `NR-5` は交換相手のスキーマに固有である。⭐ **`NS-1` と `NS-2` が同じ規格と同じ段取りを採るのは、どちらも `XML` だからにすぎない。**
+
+**単一 HTML の内容セキュリティ方針の全数を 表 T-232 に示す。** ⛔ **本表に無い指令を足してはならない（MUST NOT）** —— 開けた取得元は、開けた理由が読めなければならない。
+
+**表 T-232 — 単一 HTML の内容セキュリティ方針**
+
+| 行 ID | 指令 | 値と理由 |
+| --- | --- | --- |
+| PO-1 | `default-src` | `'none'`。**土台を閉じ、要るものだけを個別に開ける。** ⛔ 開けていない取得元は、すべて本行が拒む |
+| PO-2 | `img-src` | `data:`。**値は 表 T-003 の `CN-8` が持つ。** ⛔ `blob:` を足さない —— 絵を `<img>` へ渡す道は `data:` の URL である |
+| PO-3 | `style-src` | `'unsafe-inline'`。⚠️ **成果物は 1 枚なので、様式は要素に直に載る。** ⛔ 外部の様式表は `PO-1` が拒む |
+| PO-4 | `script-src` | **埋め込んだスクリプトの `sha256` を 1 つだけ置くこと（MUST）。`'unsafe-inline'` を書いてはならない（MUST NOT）** —— それでは注入されたスクリプトも走る。⛔ `nonce` は採れない —— サーバーが要り、`NFR-004` はファイルを直接開いた状態での判定を MUST としている |
+| PO-5 | `base-uri` | `'none'`。⚠️ **`PO-1` は本指令に及ばない** —— 足さないと、注入された基底 URL が相対参照の行き先を変えられる |
+| PO-6 | `form-action` | `'none'`。⚠️ **`PO-1` は本指令にも及ばない** |
+
+**ハッシュは、埋め込んだスクリプトの本文そのものから作ること（MUST）。** ⚠️ **本文に制御文字が 1 つ混じるとブラウザの読む字面が変わり、ハッシュが合わずに画面全体が出なくなる。**
+
 #### 目盛の細かい段を間引く
 
 **Type**: SW_SPEC
@@ -889,7 +919,35 @@ stateDiagram-v2
   **ID**: `FR-021`
   **Role**: `Satisfies`
 
-> 未記入。`SW_SPEC` ノード（`SWS-xxx`）を並べる。符号・状態遷移・境界値などの手段を EARS 1 文で書き、`FR-xxx` を親に取る。
+#### 書き出した絵を比べる前の正規化
+
+**Type**: SW_SPEC
+**UID**: SWS-7
+
+**STATEMENT**: 2 つの `SVG` を比べるとき、`GRS` は、表 T-231 に従って双方を正規化してから比べること。
+
+**RATIONALE**: `FR-080` が「正規化と丸めの規則そのものは Chapter 6.1 が持つ」と委任した先である。⚠️ **規格だけでは足りない** —— **W3C の Canonical XML は要素の間の空白を保存し、小数の桁を揃えない。** 表 T-231 が持つのは、その足りない分と、`WY-2` と `WY-3` が「同じ」と言える境である。**正は W3C の公式文書であり、事実はローカル複製**（`docs/reference/w3c/`）**で確かめる**（`docs/reference/README.md`）。⚠️ **本仕様書に原文を写さない** —— 第三者著作物の扱いは 表 T-003 の `CN-7` が持つ。**突き合わせの記録は `docs/review/c14n-vs-fr021-2026-08-22.md` が持つ。**
+
+**Relations**:
+
+- **Type**: `Parent`
+  **ID**: `FR-080`
+  **Role**: `Satisfies`
+
+#### 単一 HTML の内容セキュリティ方針
+
+**Type**: SW_SPEC
+**UID**: SWS-8
+
+**STATEMENT**: 成果物を組み立てるとき、`GRS` は、表 T-232 の指令を持つ内容セキュリティ方針を成果物へ埋め込むこと。
+
+**RATIONALE**: 表 T-003 の `CN-8` が方針を持つことを定め、`NFR-009` がその方針を担保として名指している。⚠️ **`CN-8` が値を持つのは `img-src` だけであり、残りの指令はどこにも無かった。** ⛔ **方針が無いあいだ、成果物に混じった参照は実際に外へ出る。** **裁定の記録は `docs/review/rulings-2026-08-23/RULINGS.md` が持つ。**
+
+**Relations**:
+
+- **Type**: `Parent`
+  **ID**: `NFR-009`
+  **Role**: `Satisfies`
 
 ### 6.2 Data Schema (データスキーマ)
 

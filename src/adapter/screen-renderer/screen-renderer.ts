@@ -218,6 +218,24 @@ export interface AppHeaderItems {
    * count all arrive from where they live and no copy can go stale in silence.
    */
   readonly commands: readonly CommandItem[]
+  /**
+   * FR-038 (MUST): which language is on NOW, readable BEFORE the entry at the
+   * top of the screen is pressed -- the header's half of the same MUST
+   * `HelpModal.language` carries for the help, and declared the same way.
+   *
+   * ⛔ `CommandItem` cannot carry it. `isPressed` is a toggle that is ON, and a
+   * choice between two languages has no off; `label` is the entry's accessible
+   * NAME, printed IN the language rather than saying WHICH one is on. The entry
+   * itself (IC-21) stands in `commands`, which is where FR-038 puts the first of
+   * its two entrances.
+   *
+   * ⚠️ Carried, never chosen here: it arrives in `ScreenSession.language`
+   * (S-99), the same value UF-60 puts in `ScreenView.language`.
+   * ⭐ It is also what makes the header REDRAW on a switch: the header is
+   * rebuilt from this member's description alone, and while every word is empty
+   * (PD-160) a switch moves no label.
+   */
+  readonly language: DisplayLanguage
 }
 
 // ------------------------------------------------------------ UF-63 ---------
@@ -731,6 +749,26 @@ export interface Confirmation extends RaisedConfirmation {
    * `isPressed` is false on both.
    */
   readonly entries: readonly CommandItem[]
+  /**
+   * What an item whose `isShownOnAnotherRow` is true is marked WITH, in the
+   * display language (FR-038), or the empty string while the dictionary holds
+   * no word for it (PD-160).
+   *
+   * ⭐ A WORD, NEVER A SHAPE. FR-032 (MUST) asks for the mark and PD-175 settled
+   * what it is made of: table T-109 is the whole of the icons and RC-13 of table
+   * T-026 keeps a new one the user's own decision, so the mark is read out of
+   * the one dictionary FR-038 names, the way every other word on the screen is.
+   *
+   * ⭐ ONE FOR THE SURFACE AND NOT ONE PER ITEM: `ConfirmationItem` says WHICH
+   * items wear it and they all wear the same word, so a copy on each would be
+   * one string carried as many times as there are items.
+   *
+   * ⛔ Composed on the way to the screen and never asked of the raiser, for the
+   * reason `entries` is: the raiser knows what is about to happen, the
+   * dictionary knows what to call it, and the surface that draws it may write
+   * no word of its own.
+   */
+  readonly shownOnAnotherRowMark: string
 }
 
 /** One thing a confirmation says would go. */

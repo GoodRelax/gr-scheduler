@@ -215,7 +215,9 @@ const run = (document: Document, command: TaskCommand): EditResult => editTask(d
 describe('EditDocument (PI-9) -- CM-6 createTask', () => {
   // A document already holding one task with a far higher UID than the mark,
   // which is what tells the two ways of numbering apart.
-  const drawnOn = (groupId: string): TaskCommand => ({
+  // The CM-6 arm on its own, not the whole of `TaskCommand`: a case below
+  // spreads this and replaces `shapeKind`, which only the create arm carries.
+  const drawnOn = (groupId: string): Extract<TaskCommand, { kind: 'createTask' }> => ({
     kind: 'createTask',
     shapeKind: 'rectangle',
     start: jan(5),

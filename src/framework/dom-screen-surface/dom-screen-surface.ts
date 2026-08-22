@@ -168,6 +168,7 @@ import type {
   Confirmation,
   DialogueField,
   DialogueInput,
+  DisplayLanguage,
   Notice,
   OpenModal,
   PropertiesPanel,
@@ -248,6 +249,18 @@ const ROLE = {
  */
 const HOST_ENTER = 'Enter'
 
+/**
+ * IC-21 of table T-109 -- the entrance FR-038 (MUST) places at the top of the
+ * screen, and the one entry of the header that draws something no other entry
+ * does (`AppHeaderItems.language`).
+ *
+ * ⭐ Carried as a row id, which is the only join table T-109 admits, and named
+ * here for the same reason IC-58 .. IC-60 are named further down: this unit has
+ * to put something on THAT entry and on no other. ⛔ Not a name for the icon --
+ * that table has no English column on purpose.
+ */
+const DISPLAY_LANGUAGE_ENTRY = 'IC-21'
+
 // -------------------------------------------------------------- the styles ---
 
 /**
@@ -324,6 +337,20 @@ const STYLE = {
   // reads back the entry a point is on, and the button is what carried
   // `data-icon` before a shape was inside it.
   glyph: 'display:inline-block;vertical-align:middle;width:1em;height:1em;pointer-events:none;',
+  // The reading FR-038 (MUST) asks to be legible BEFORE the entry is pressed,
+  // set beside the shape and not in place of it: the shape says what the entry
+  // is FOR and the two characters say which value it is ON.
+  //
+  // ⛔ NO COLOUR OF ITS OWN, so it darkens and goes faint with the entry it sits
+  // in (FR-029) instead of carrying a second rule. ⚠️ Smaller than the entry's
+  // own text and set on a line box of its own height, so the header FR-051
+  // measures at BO-1 keeps the height the surrounding text already made.
+  // ⛔ `pointer-events:none` for the same reason the shape has it: IF-9's third
+  // member reads the entry a point is on off the button, and a child that took
+  // the pointer would answer in its place.
+  languageCode:
+    'display:inline-block;vertical-align:middle;margin-left:0.25em;' +
+    'font-family:monospace;font-size:0.8em;line-height:1;pointer-events:none;',
   // EP-9 of table T-076: the boundary is the same one line as `Group Grid
   // Lines`, so the band that is grabbed carries no paint of its own.
   dividerBand: 'cursor:col-resize;pointer-events:auto;',
@@ -386,6 +413,10 @@ const STYLE = {
   confirmation: STOPPING_BOX,
   // NT-7 (MUST): the names of what would go, one element each.
   confirmationItem: 'display:block;line-height:1.6;',
+  // FR-032's mark (PD-175), held off the name it follows. ⛔ Nothing but the gap
+  // is declared here: the word carries the meaning, and NT-1 (MUST NOT) forbids
+  // colour or a border from being what does.
+  confirmationMark: 'margin-left:0.5em;',
   // The two answers, held apart from the names above them so that the choice
   // does not read as one more thing that would go.
   confirmationAnswers: 'display:flex;align-items:center;gap:0.5em;margin-top:0.5em;',
@@ -703,6 +734,37 @@ function commandEntry(host: Document, item: CommandItem): HTMLElement {
 }
 
 /**
+ * The current display language, put ON the entry that switches it (IC-21).
+ *
+ * ⭐ THE SHAPE SAYS WHAT, THE CODE SAYS WHICH. FR-038 (MUST) requires the
+ * language in force to be readable BEFORE this entry is pressed, and FR-029
+ * (MUST) has the entry's purpose told by an icon rather than by a word -- so the
+ * globe figure F-019 already draws for IC-21 stays the body and the two
+ * characters are set beside it. ⛔ No shape is invented for this: table T-109
+ * gives IC-21 one and figure F-019 is its only authority (FR-029, MUST NOT).
+ *
+ * ⭐ THE CODE IS PRINTED AS IT ARRIVES, IN LOWER CASE. `DisplayLanguage` admits
+ * `ja` and `en` and nothing else, and those are the values S-99 of table T-206
+ * holds -- ⛔ not words of the screen, so the dictionary's empty cells (PD-160)
+ * do not reach this and nothing is upper-cased, expanded or translated here.
+ *
+ * ⚠️ THE ACCESSIBLE NAME IS LEFT ALONE. `CommandItem.label` is declared as the
+ * name of the entry and `commandEntry` has already set it, so the code is drawn
+ * as text and the name still comes from the dictionary -- composing one here
+ * would mint a name the description does not carry. `data-language` beside it
+ * is what lets the drawn header be read back against the description, the same
+ * attribute `modalElement` writes for `HelpModal.language`.
+ *
+ * @purity non-pure
+ */
+function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void {
+  entry.setAttribute('data-language', language)
+  const code = made(host, 'span', STYLE.languageCode)
+  code.textContent = language
+  entry.append(code)
+}
+
+/**
  * U-31 `App Header` (UF-62), filled in place.
  *
  * ⚠️ The header ELEMENT is not rebuilt, only its contents: the box whose height
@@ -736,6 +798,13 @@ function fillAppHeader(
   const commands = part(host, 'span', ROLE.headerCommands, STYLE.headerCommands)
   for (const item of items.commands) {
     const entry = commandEntry(host, item)
+    // FR-038 (MUST): the header is the first of the two entrances, and this is
+    // the one entry of table T-109 that has to say which value it is on.
+    // ⚠️ AFTER `commandEntry`, never inside it: `fillEntry` replaces the body
+    // with the shape, so a code added first would be thrown away.
+    if (item.icon === DISPLAY_LANGUAGE_ENTRY) {
+      drawLanguageReading(host, entry, items.language)
+    }
     // EZ-2 of table T-040 (MUST) shows THAT icon's explanation, so the entry
     // that was drawn for it is what the tooltip has to be placed against.
     anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
@@ -1081,8 +1150,10 @@ function modalElement(
 
   if ('entries' in modal) {
     // FR-038 (MUST): which language is on NOW, readable before the toggle is
-    // pressed. ⚠️ The header entry that also toggles it carries no such word --
-    // its label is the one that arrives empty.
+    // pressed. ⚠️ This is the SECOND of the two entrances -- the header's own
+    // entry (IC-21) now draws the same reading beside its shape, out of
+    // `AppHeaderItems.language`, so neither half of that MUST rests on a label
+    // (every cell of the dictionary is still empty, PD-160).
     drawn.setAttribute('data-language', modal.language)
     for (const line of modal.entries) {
       const row = made(host, 'div', STYLE.field)
@@ -1236,17 +1307,13 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
  * separators, and losing it turns the list back into a count -- which FR-032 and
  * FR-099 each forbid in as many words (MUST NOT).
  *
- * STOP -- ⛔ NO MARK IS SETTLED FOR 「他の行に表示されているもの」. FR-032 (MUST)
- * requires a `Task` that goes with a row but is drawn on ANOTHER row to be shown
- * as such, and nothing says how: no word is settled (`display-words.json` is
- * keyed by row of table T-109, by surface, by manner of table T-037, by heading
- * and by row of table T-023, and none of those is a mark on an item -- PD-160),
- * and no shape is either (table T-109 is the whole of the icons, FR-029 MUST,
- * and it holds no row for a mark). Searched: FR-032, table T-015a (HM-10), table
- * T-037, table T-109, figure F-019, `display-words.json` and its manuscript.
- * ⭐ Carried as an attribute so the flag is not lost and the read-back rule 04
- * asks for can see it; ⛔ nothing is invented to SHOW it, which leaves that MUST
- * unmet and says so here rather than settling a mark by drawing one.
+ * ⭐ FR-032's MARK IS A WORD AND IT IS DRAWN. A `Task` that goes with the row
+ * being deleted but is drawn on ANOTHER row -- HM-10 of table T-015a is what
+ * puts it there -- has to be shown as such (MUST), and PD-175 settled that the
+ * showing is a word. ⛔ No shape is raised for it: table T-109 is the whole of
+ * the icons (FR-029 MUST) and RC-13 of table T-026 keeps a new one the user's
+ * decision. The word itself is UF-67's, read out of the one dictionary FR-038
+ * names, so nothing here writes one in either language.
  *
  * @purity non-pure
  */
@@ -1271,9 +1338,21 @@ function confirmationElement(
   const items = confirmation.items.map((item) => {
     const line = made(host, 'div', STYLE.confirmationItem)
     line.setAttribute('data-unnamed', String(item.name === null))
-    // See the STOP note above: the flag is kept, and no mark is drawn from it.
+    // ⛔ THE ATTRIBUTE IS NOT WHAT TELLS THE PERSON -- no reader can see one, the
+    // same reason `noticeElement` gives for NT-3's count. It is kept BESIDE the
+    // word for the read-back rule 04 asks for after anything that draws.
     line.setAttribute('data-shown-on-another-row', String(item.isShownOnAnotherRow))
+    // ⚠️ Set before the mark is appended, not after: the setter replaces every
+    // child, so the other order would drop the mark it had just been given.
     line.textContent = item.name
+    if (item.isShownOnAnotherRow) {
+      // FR-032 (MUST). ⛔ Its own element rather than joined onto the name, for
+      // the reason the names are one element each: a `Task` with no name of its
+      // own (AT-27) would otherwise show the mark as though it were the name.
+      const mark = made(host, 'span', STYLE.confirmationMark)
+      mark.textContent = confirmation.shownOnAnotherRowMark
+      line.append(mark)
+    }
     return line
   })
 

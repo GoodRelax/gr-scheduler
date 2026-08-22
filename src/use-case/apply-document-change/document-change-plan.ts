@@ -130,11 +130,19 @@ function isUndoable(command: DocumentCommand): boolean {
     case 'unpinTaskGroup':
     case 'setExportPngScale':
       return false
-    // UN-8: the zoom and the position. ⚠️ `fitScheduleToScreen` is NOT here --
-    // UN-17 makes the collapse it discards undoable, and FR-031 requires one
-    // press to be one step.
+    // UN-8: the zoom and the position. ⭐ `fitScheduleToScreen` IS here now.
+    // FR-031 (MUST) splits one fit press into two writes: CM-71 puts the zoom
+    // and the place and leaves no step by this row, and CM-72
+    // (`expandAllTaskGroups`) pushes the one step UN-17 asks for -- it falls
+    // through to `default` below. ⛔ The order MUST NOT be swapped: WS-4 pushes
+    // the document as it stood BEFORE that write, so the step CM-72 pushes
+    // already holds the new zoom, and an undo gives back the new zoom with the
+    // old collapses. Written as one command, or as one bundle of the two, that
+    // step would carry the OLD zoom and the undo would rewind it, against this
+    // very row.
     case 'setZoom':
     case 'setScrollPosition':
+    case 'fitScheduleToScreen':
       return false
     // UN-12: where the two measuring lines stand.
     case 'setDualCursor':
@@ -194,10 +202,13 @@ function stepSizeBytes(document: Document): number {
  * group, and MUST NOT move for one that changed the presentation group alone.
  * The other instant and the writer move either way.
  *
- * ⚠️ Read from what actually moved, not from table T-108's group column:
- * `fitScheduleToScreen` is filed under 見せ方の群 and still clears
- * `isCollapsed`, which is a TaskGroup column. Every aggregate rebuilds the
- * schedule only when it touches it, so the reference answers exactly.
+ * ⚠️ Read from what actually moved, not from table T-108's group column. Every
+ * aggregate rebuilds the schedule only when it touches it, so the reference
+ * answers exactly, and no command has to be listed anywhere for it to answer.
+ * ⭐ Since FR-031 split the fit press in two, the two halves land on opposite
+ * answers by themselves: CM-71 writes `documentSettings` alone and moves no
+ * schedule instant, and CM-72 clears `isCollapsed`, a TaskGroup column, and
+ * moves it -- which is why table T-108 files CM-72 under `TaskGroup`.
  *
  * @purity pure
  */

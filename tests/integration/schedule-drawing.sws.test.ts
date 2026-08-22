@@ -396,12 +396,6 @@ const lineOf = (bar: ReturnType<typeof geometryOf>['plan']) => {
   return bar
 }
 
-/** Both coordinates of a point, to the precision floating point leaves. */
-const closeTo = (p: Point, x: number, y: number): void => {
-  expect(p.x).toBeCloseTo(x, 6)
-  expect(p.y).toBeCloseTo(y, 6)
-}
-
 // ===========================================================================
 // SWS-1 -- the tick thinning of the fine steps. FR-017, table T-221 LF-1.
 // ===========================================================================

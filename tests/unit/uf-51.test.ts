@@ -63,6 +63,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import type {
+  ChosenFileWrite,
   FileStore,
   FileStoreFaultReason,
   OpenRoute,
@@ -900,10 +901,18 @@ describe('overwriteOpenedFile -- the round trip closes on one file (FR-060)', ()
 // ---------------------------------------------------------------------------
 
 describe('writeChosenFile -- a file the person points at', () => {
-  const request = (over: Partial<{ suggestedFileName: string; shouldBecomeOpenedFile: boolean }>) => ({
+  // `askToWriteOver` is DI-4 of table T-227: the store puts the question once the
+  // destination is known and the bytes are still unwritten, and writes only on a
+  // `true`. ⛔ The answer is the NEAR side's -- the store does not judge -- so
+  // the stand-in here simply says yes, and the cases below assert what the store
+  // did rather than what it was told.
+  const request = (
+    over: Partial<{ suggestedFileName: string; shouldBecomeOpenedFile: boolean }>,
+  ): ChosenFileWrite => ({
     bytes: GRS_JSON_BYTES,
     suggestedFileName: over.suggestedFileName ?? 'plan.json',
     shouldBecomeOpenedFile: over.shouldBecomeOpenedFile ?? true,
+    askToWriteOver: () => Promise.resolve(true),
   })
 
   it('hands the chooser the suggested name, and nothing else', async () => {
@@ -1057,6 +1066,7 @@ describe('where the API is absent -- CN-2 / LM-14', () => {
       bytes: GRS_JSON_BYTES,
       suggestedFileName: 'plan.json',
       shouldBecomeOpenedFile: true,
+      askToWriteOver: () => Promise.resolve(true),
     })
     expect(writing.ok).toBe(false)
     if (writing.ok) return
@@ -1408,6 +1418,7 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
         bytes: GRS_JSON_BYTES,
         suggestedFileName: 'plan.json',
         shouldBecomeOpenedFile: true,
+        askToWriteOver: () => Promise.resolve(true),
       }),
     ).resolves.toBeDefined()
   })

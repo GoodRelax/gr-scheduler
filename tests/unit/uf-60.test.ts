@@ -288,7 +288,10 @@ const SCREEN = {
  * rectangles are this component's INPUT, and driving the input from another
  * unit's code would make a shared misreading invisible.
  */
-const regionsOf = (part: Partial<typeof SCREEN> = {}): ScreenRegions => {
+// Every key of SCREEN is a measurement in pixels, so the override is typed by
+// its keys rather than by SCREEN's own literal types -- `as const` would
+// otherwise let a case pass only the number it already holds.
+const regionsOf = (part: Partial<Record<keyof typeof SCREEN, number>> = {}): ScreenRegions => {
   const screen = { ...SCREEN, ...part }
   const canvas: ScreenRect = {
     x: 0,
@@ -531,7 +534,7 @@ describe('UF-60 -- the nine parts of table T-075, one member each but UF-67', ()
   it('leaves no member undefined', () => {
     // ⭐ `null` is an answer four of the nine may give (a part that is not
     // there); `undefined` is a member nobody filled.
-    const view = viewOf() as Record<string, unknown>
+    const view: Record<string, unknown> = { ...viewOf() }
     for (const one of T_075_MEMBERS) {
       expect(view[one.member], `${one.unit} fills ${one.member}`).not.toBeUndefined()
     }
@@ -573,7 +576,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // while this one holds the `App Header` entries UF-62 built.
     const view = viewOf(frameWith({ session: RESTED }))
     expect(iconTooltipsIn(view).length).toBeGreaterThan(0)
-    expect(iconsIn(view)).toEqual(expect.arrayContaining(iconTooltipsIn(view)))
+    expect(iconsIn(view)).toEqual(expect.arrayContaining([...iconTooltipsIn(view)]))
   })
 
   it('explains a row name as UF-63 cut it (FR-085)', () => {

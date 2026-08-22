@@ -241,9 +241,9 @@ const FIT_CLIP_ID = 'grs-export-fit'
  * been applied to both sides, so the two halves of one picture may not round
  * differently.
  *
- * ⛔ The 0.01px grid itself is NOT settled. // @provisional PD-162
- * ⚠️ The mark is on both copies on purpose -- marking one would make the other
- * read as decided. Fold them into one place when the ruling lands.
+ * The grid is NS-3 of table T-231. ⚠️ It is stated in both places rather than
+ * shared: `svg-renderer` and `image-exporter` are separate components of table
+ * T-062, and folding them together would be an edge neither declares.
  *
  * @purity pure
  */

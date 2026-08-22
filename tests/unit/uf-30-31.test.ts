@@ -71,6 +71,7 @@ import {
 import type { DocumentCommand } from '../../src/use-case/edit-document/edit-document'
 import {
   commandFromInput,
+  pressRowOf,
   screenStateFromInput,
   selectionFromInput,
   type InputContext,
@@ -521,7 +522,11 @@ function afterGesture(
   hit: Hit | null,
   part: Partial<InputContext> = {},
 ): { readonly answer: TranslatedInput; readonly context: InputContext } {
-  const context = contextOf({ ...part, pressed: { at: from, hit, on: null } })
+  // PI-18 answers which row of table T-023a the press began on, and the caller
+  // puts it on the press -- the same order the shell keeps at `collectPress`.
+  const before = contextOf({ ...part })
+  const pressed = { at: from, hit, on: null, pressRow: pressRowOf({ at: from, hit }, before) }
+  const context = contextOf({ ...part, pressed })
   return { answer: commandFromInput(to, context), context }
 }
 
@@ -538,15 +543,22 @@ function gestureSelection(
   hit: Hit | null,
   part: Partial<InputContext> = {},
 ): Selection {
-  const context = contextOf({ ...part, pressed: { at: from, hit, on: null } })
+  const context = contextOf({ ...part, pressed: { at: from, hit, on: null, pressRow: pressRowOf({ at: from, hit }, contextOf({ ...part })) } })
   return selectionFromInput(to, context)
 }
 
-/** The commands of a `changeDocument`, or an empty list when it is not one. */
+/**
+ * The commands of a `changeDocument`, or an empty list when it is not one.
+ *
+ * ⚠️ One input may owe more than one write -- FR-031 (MUST) makes the fit press
+ * CM-71 then CM-72 -- so the writes are flattened here. The cases below are
+ * about WHICH commands an input asks for; the ORDER of the writes is what
+ * `use-case.test.ts` holds.
+ */
 function commandsOf(answer: TranslatedInput): readonly DocumentCommand[] {
   const action = answer.action
   if (action === null || action.kind !== 'changeDocument') return []
-  return action.commands
+  return action.writes.flat()
 }
 
 const kindsOf = (answer: TranslatedInput): readonly string[] =>
@@ -695,7 +707,7 @@ describe('WS-3 / WS-4 of 表 T-067 and FR-031 -- one write per gesture', () => {
     ]
     for (const answer of answers) {
       if (answer.action !== null && answer.action.kind === 'changeDocument') {
-        expect(answer.action.commands.length).toBeGreaterThan(0)
+        expect(answer.action.writes.flat().length).toBeGreaterThan(0)
       }
     }
   })
@@ -756,7 +768,10 @@ describe('表 T-028 -- the input manners (FR-040)', () => {
       screenStateWithArmed(emptyScreenState(), { kind: 'dependency' }),
       'Help Modal',
     )
-    const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: null }
+    // `on: null` is what admits table T-023a: the press landed on the
+    // schedule's drawing area and on no drawn entry.
+    // PD-2 of table T-023a: in Dual Cursor mode the press hits nothing by rule.
+    const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: null, on: null, pressRow: 'PD-2' as const }
 
     // Level 1 -- the open surface.
     state = screenStateFromInput(keyOf('Esc'), contextOf({ screenState: state, pressed, isDualCursorMode: true }))
@@ -1195,7 +1210,15 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
   })
 
   it('FR-016 (MUST NOT): a wheel during a drag is refused', () => {
-    const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: TASK_1_HIT }
+    // `on: null`: the press that started the drag landed on the drawing area,
+    // not on a drawn entry, which is what puts table T-023a in charge of it.
+    const pressed = {
+      at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
+      hit: TASK_1_HIT,
+      on: null,
+      // PD-3: the press landed on something, so it is an operation on that.
+      pressRow: 'PD-3' as const,
+    }
     for (const mods of [modsOf({ ctrl: true }), modsOf({ shift: true }), modsOf({ alt: true })]) {
       const answer = commandFromInput(wheelOf(X(), Y(), -1, mods), contextOf({ pressed }))
       expect(answer.action, JSON.stringify(mods)).toBeNull()
@@ -1275,7 +1298,8 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
           const armedLine = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
           const context = contextOf({
             screenState: armedLine,
-            pressed: { at: pointerOf('down', from, y3), hit: null, on: null },
+            // PD-4a: the dependency arm on ground that hit nothing.
+            pressed: { at: pointerOf('down', from, y3), hit: null, on: null, pressRow: 'PD-4a' as const },
           })
           const up = pointerOf('up', to, y3)
           expect(commandFromInput(up, context).action, row).toBeNull()
@@ -1451,7 +1475,8 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
   it('AR-4 / PD-4a: the dependency arm on empty ground writes nothing and keeps the arm', () => {
     const context = contextOf({
       screenState: armedWith({ kind: 'dependency' }),
-      pressed: { at: pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')), hit: null, on: null },
+      // PD-4a: the dependency arm on ground that hit nothing.
+      pressed: { at: pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')), hit: null, on: null, pressRow: 'PD-4a' as const },
     })
     const up = pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3'))
     expect(commandFromInput(up, context).action).toBeNull()

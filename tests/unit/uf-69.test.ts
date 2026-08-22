@@ -128,17 +128,27 @@ const commandOf = (part: Partial<CommandItem> = {}): CommandItem => ({
   ...part,
 })
 
-const rowTitleOf = (part: Partial<RowTitle> = {}): RowTitle => ({
-  groupId: 'g1',
-  depth: 1,
-  box: rect(0, 0, 200, 24),
-  label: 'a row name long enough to be cut',
-  isLabelTruncated: false,
-  expander: null,
-  isPinned: false,
-  isSelected: false,
-  ...part,
-})
+const SHOWN_ROW_NAME = 'a row name long enough to be cut'
+
+const rowTitleOf = (part: Partial<RowTitle> = {}): RowTitle => {
+  const label = part.label === undefined ? SHOWN_ROW_NAME : part.label
+  const isLabelTruncated = part.isLabelTruncated ?? false
+  return {
+    groupId: 'g1',
+    depth: 1,
+    box: rect(0, 0, 200, 24),
+    label,
+    // The `RowTitle` contract makes `isLabelTruncated` exactly
+    // `wholeLabel !== null && wholeLabel !== label`, so the whole name follows
+    // from the flag the case asked for rather than being stated twice.
+    wholeLabel: label === null ? null : isLabelTruncated ? `${label}, and the rest of it` : label,
+    isLabelTruncated,
+    expander: null,
+    isPinned: false,
+    isSelected: false,
+    ...part,
+  }
+}
 
 /** A lane with its grip in one corner, so that "in the lane, off the grip" is reachable. */
 const scrollbarOf = (axis: Scrollbar['axis'], track: ScreenRect): Scrollbar => ({
@@ -155,11 +165,17 @@ const BOTH_LANES: readonly Scrollbar[] = [
 ]
 
 const EMPTY_VIEW: Omit<ScreenView, 'tooltips'> = {
+  // S-99. UF-69 reads the language out of `ScreenSession`, never out of the
+  // view it is handed, so this member is inert for every case below.
+  language: 'ja',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
   appHeaderItems: {
     documentTitle: null,
     autosaveStatus: { kind: 'saving' },
     commands: [],
+    // FR-038: the header's half of the language reading, the same value the
+    // view above carries.
+    language: 'ja',
   },
   rowTitlePanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
@@ -187,6 +203,16 @@ const EMPTY_SESSION: ScreenSession = {
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
+  // The four members `ScreenSession` requires that no case here varies:
+  // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
+  // on no icon), `selectedGroupIds` is FR-085's set of rows and
+  // `selectedResourceUids` FR-099's set of resources (both empty -- none
+  // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
+  // no operation has chosen one yet).
+  iconUnderPointer: null,
+  selectedGroupIds: [],
+  selectedResourceUids: [],
+  propertiesSubject: null,
   propertiesShowing: null,
   notices: [],
   confirmation: null,

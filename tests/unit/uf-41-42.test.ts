@@ -250,6 +250,12 @@ const overwriteRequest = (
   content: SaveFileContent,
 ): DocumentFileSaveRequest => ({ destination: 'openedFile', content, form })
 
+// The three members table T-227 hangs off are filled with what a document that
+// has never stood in a file carries: DI-1's identity is all `null`, DI-3 can
+// read no owner out of the destination, and DI-4's question is answered "go
+// ahead". ⚠️ The stand-in store these cases use never calls `askToWriteOver`,
+// so none of the three is reached here; the walk of table T-227 is driven by
+// `chosenSaveOf` further down, which records what each of them was asked.
 const chosenRequest = (
   form: SaveFileForm,
   content: SaveFileContent,
@@ -259,6 +265,9 @@ const chosenRequest = (
   content,
   form,
   suggestedFileName,
+  identity: { projectName: null, projectId: null, fileName: null },
+  projectIdentityFromText: () => null,
+  confirmOverwrite: () => Promise.resolve(true),
 })
 
 // ---------------------------------------------------------------------------
@@ -889,7 +898,13 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
     const bytes = bytesOf([0x89, 0x50, 0x4e, 0x47])
     const before = Uint8Array.from(bytes)
     const request = chosenRequest('png', { bytes }, 'a.png')
-    const frozen = structuredClone(request) as DocumentFileSaveRequest
+    // ⚠️ NOT `structuredClone` of the whole request: two members of
+    // `ChosenFileSaveRequest` are calls -- DI-3's reading of the destination and
+    // DI-4's question -- and a function cannot be cloned. The data half is
+    // copied deeply so a mutation of the bytes would show, and the two calls are
+    // carried by reference, which is what "unchanged" means for a member that is
+    // a call. ⛔ The two assertions below are the ones this case always made.
+    const frozen = { ...request, content: structuredClone(request.content) }
     await saved(storeThat({ chosen: writtenTo({ kind: 'none' }) }).store, request)
     expect(bytes).toEqual(before)
     expect(request).toEqual(frozen)

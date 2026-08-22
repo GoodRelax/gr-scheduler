@@ -53,6 +53,7 @@ import {
   COLUMN_DEFAULTS,
   dateFromWorkingDays,
   dayOf,
+  textOfDay,
   workingCalendarOf,
   type CalendarDay,
   type Schedule,
@@ -181,6 +182,20 @@ export interface ScheduleLayout {
   /** Everything drawn, measured with table T-038's occupancy. FR-055 fits to this. */
   readonly contentWidth: number
   readonly contentHeight: number
+  /**
+   * The left edge of that same extent, and null while nothing was placed.
+   *
+   * ⭐ Published because OP-10 of table T-024a wants a position out of FR-055
+   * as well as a zoom, and the width alone cannot carry it: two documents of
+   * equal width begin on different days. LC-7 already folds this edge to reach
+   * `contentWidth`, so nothing is measured a second time to answer it.
+   *
+   * ⚠️ An x and not a day, because table T-038 measures what is DRAWN and a
+   * label's overhang is not a whole number of days. `fitZoom` is the one place
+   * it turns into S-77's day, which is what the MUST NOT on holding a scroll
+   * position in px (Chapter 1.4) asks for.
+   */
+  readonly contentX0: number | null
 }
 
 /** ST-7 stops the whole layout rather than truncating or overlapping. */
@@ -791,8 +806,9 @@ export function layoutFromSchedule(
   // ⚠️ Measured before the slide: FR-055 fits to the extent of the content,
   // which does not change when the content is scrolled.
   const contentHeight = Math.max(0, y - settings.rowGap - regions.rowArea.y)
-  const contentWidth =
-    leftmost === Number.POSITIVE_INFINITY ? 0 : Math.max(0, widest - leftmost)
+  const nothingPlaced = leftmost === Number.POSITIVE_INFINITY
+  const contentWidth = nothingPlaced ? 0 : Math.max(0, widest - leftmost)
+  const contentX0 = nothingPlaced ? null : leftmost
 
   return {
     pxPerDay,
@@ -804,6 +820,7 @@ export function layoutFromSchedule(
     placements: scrolledPlacements(placements, scrollOffsetY),
     contentWidth,
     contentHeight,
+    contentX0,
   }
 }
 
@@ -837,20 +854,61 @@ export function taskPlacement(layout: ScheduleLayout, taskUid: number): TaskPlac
 }
 
 /**
- * FR-055's candidate zoom for one pass over table T-068.
+ * What FR-055 chooses: two zooms and the two halves of a display position.
+ *
+ * ⭐ FOUR values and not two. OP-10 of table T-024a sends BOTH the zoom and the
+ * position to FR-055 (MUST), so a caller that took only the zoom had to invent
+ * the other half, and the harm FR-055's RATIONALE names -- the left overhang
+ * disappearing behind the Row Title panel -- came straight back.
+ *
+ * ⚠️ The position is a day and a `TaskGroup.id` (S-77, S-78) because Chapter
+ * 1.4 forbids holding a scroll position in px (MUST NOT): the same px means a
+ * different place once the zoom or the screen width moves.
+ */
+export interface FitToScreen {
+  readonly zoomX: number
+  readonly zoomY: number
+  /** S-77. */
+  readonly scrollDate: string | null
+  /** S-78. A `TaskGroup.id`, never a row number. */
+  readonly scrollGroupId: string | null
+}
+
+/**
+ * FR-055's candidate fit for one pass over table T-068.
  *
  * The measurement is the drawn extent (table T-038), not the span of the dates,
  * so a label hanging off the left is counted. Each axis is settled on its own,
  * the zoom being anisotropic. An empty document returns to unity, which is what
- * FR-055 asks when there is no extent to divide by.
+ * FR-055 asks when there is no extent to divide by, and keeps the position the
+ * settings already hold -- which is FR-055's own arm for that case. ⛔ Its MAY
+ * for a held position of null (fall back on the day this runs) is NOT taken:
+ * reading a clock here would break `@purity pure`, and FR-055 warns in the same
+ * breath that the run day must not reach the drawing.
  *
- * ⚠️ It does NOT clamp. FR-016 puts "hold the zoom inside what S-75 and S-76
- * allow (MUST)" on the zoom operation, and zoomMin and zoomMax are marked as
- * values the document does not keep (S-54, S-55), so they never reach this
- * layer. Where the clamp bites, FR-055 leaves that axis to scroll.
+ * The position is the top left of what was measured, never its middle: S-77 and
+ * S-78 can only name an edge, so there is no centred value to hold.
+ *
+ * ⚠️ It does NOT clamp. FR-016 puts holding the zoom inside S-75 and S-76 on the
+ * zoom operation, and zoomMin and zoomMax are marked as values the document does
+ * not keep (S-54, S-55), so they never reach this layer. Where the clamp bites,
+ * FR-055 leaves that axis to scroll.
  *
  * ⚠️ The caller runs this at most twice and takes the smaller zoom, per the rule
- * after table T-068. A third pass is forbidden (MUST NOT).
+ * after table T-068. A third pass is forbidden (MUST NOT). So the day below is
+ * read off the zoom the layout was MEASURED at, not the one being chosen: the
+ * overhang the label contributes shifts a little as the zoom moves, and the pass
+ * that would settle it exactly is the third one that rule forbids. `dateAtX`
+ * floors, so the day named is the one the leftmost px falls in and the content
+ * begins at that day's start or later -- the error is always toward showing
+ * more, never toward cutting the overhang off.
+ *
+ * ⛔ A held `scrollGroupId` that names a row this pass did NOT draw -- FR-018's
+ * level of detail dropped it, or HR-1a collapsed it, or HR-6 hid it -- is
+ * NEITHER of OP-10's two conditions (a null, and an id naming no `TaskGroup`)
+ * and no rule anywhere covers it. Nothing is invented for it here: the id
+ * answered below is one this pass drew, and the empty-document arm hands back
+ * what it was given rather than deciding what such an id ought to become.
  *
  * @purity pure
  */
@@ -858,7 +916,10 @@ export function fitZoom(
   layout: ScheduleLayout,
   settings: DocumentSettings,
   regions: ScreenRegions,
-): { readonly zoomX: number; readonly zoomY: number } {
+): FitToScreen {
+  // The px that LC-7 folded, turned into S-77's day by PI-5's own converter so
+  // the axis is read exactly once and x -> day cannot drift from day -> x.
+  const leftDay = layout.contentX0 === null ? null : dateAtX(layout, layout.contentX0)
   return {
     zoomX:
       layout.contentWidth <= 0 ? 1 : settings.zoomX * (regions.rowArea.width / layout.contentWidth),
@@ -866,5 +927,10 @@ export function fitZoom(
       layout.contentHeight <= 0
         ? 1
         : settings.zoomY * (regions.rowArea.height / layout.contentHeight),
+    scrollDate: leftDay === null ? settings.scrollDate : textOfDay(leftDay),
+    // LC-1 to LC-9 push the rows in the order they are drawn and the S-78 slide
+    // moves them all together, so the first is the top one however far the stack
+    // has been slid.
+    scrollGroupId: layout.rows[0]?.groupId ?? settings.scrollGroupId,
   }
 }

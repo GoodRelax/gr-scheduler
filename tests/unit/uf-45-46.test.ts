@@ -610,11 +610,16 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
 
 /** The base environment of FR-080: the panel and the palette closed, nothing overlaid. */
 const EXPORT_VIEW: ScreenView = {
+  // S-99. Inert here: FR-080's picture carries no word this component chooses.
+  language: 'ja',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
   appHeaderItems: {
     documentTitle: 'a document on its way to the clipboard',
     autosaveStatus: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
     commands: [],
+    // FR-038: the header's half of the language reading, the same value the
+    // view above carries.
+    language: 'ja',
   },
   rowTitlePanel: {
     pinnedTitles: [],
@@ -624,6 +629,9 @@ const EXPORT_VIEW: ScreenView = {
         depth: 1,
         box: { x: 0, y: 120, width: EXPORT_SETTINGS.rowTitlePanelWidth, height: 60 },
         label: 'a row that reaches the picture',
+        // Nothing was cut, which the `RowTitle` contract fixes as
+        // `wholeLabel === label` with `isLabelTruncated` false.
+        wholeLabel: 'a row that reaches the picture',
         isLabelTruncated: false,
         expander: { canOpen: true, canClose: true },
         isPinned: false,

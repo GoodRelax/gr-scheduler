@@ -39,9 +39,11 @@
 // arrive in the display language already, because both name the thing at hand
 // and only their raiser knows it. The gathering NT-4 asks for may join texts and
 // must keep them all; it may not write so much as a heading over them. ⚠️ The
-// two answers of NT-7 are the one exception and are still not written here: they
-// are READ, out of the dictionary FR-038 (MUST) makes the one store of
-// translated strings, keyed by their row of table T-109.
+// two answers of NT-7 and FR-032's mark are the exceptions and are still not
+// written here: they are READ, out of the dictionary FR-038 (MUST) makes the one
+// store of translated strings -- the answers keyed by their row of table T-109,
+// the mark by the manuscript's own key, because FR-038 (MUST NOT) keeps the
+// words out of every requirement and every table and so leaves it no row.
 //
 // ⭐ ONE MEMBER IS COMPOSED AND THE OTHER IS NOT. The preamble above table T-109
 // fixes its 面 column as table T-103's settled names, so which entries stand on
@@ -116,6 +118,27 @@ const CONFIRMATION_ANSWER_ROWS: readonly IconId[] = iconRoster.icons
 const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
 /**
+ * The key the `confirmationMarks` section holds FR-032's mark under.
+ *
+ * ⭐ A KEY OF THE DICTIONARY AND NOT A ROW OF ANY TABLE. FR-038 (MUST NOT)
+ * forbids the words themselves to be written into a requirement or a table, so
+ * this mark has no row to be joined by -- the manuscript's own key is the join,
+ * and it is spelled here exactly as the manuscript spells it (rule 03 section
+ * 1). ⚠️ Without the `is` that `ConfirmationItem.isShownOnAnotherRow` carries:
+ * the key names a word, and R2.1 keeps that prefix for booleans.
+ */
+const SHOWN_ON_ANOTHER_ROW = 'shownOnAnotherRow'
+
+/**
+ * The words of the `confirmationMarks` section, keyed by the mark.
+ *
+ * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * description is built every frame and rule 05 of docs/development-rules
+ * forbids a linear search on that path (NFR-013).
+ */
+const MARKS_BY_KEY = new Map(displayWords.confirmationMarks.map((entry) => [entry.mark, entry]))
+
+/**
  * What an entry says while the dictionary holds no word for it.
  *
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
@@ -138,6 +161,31 @@ const NO_WORDS = ''
  */
 function answerLabel(icon: IconId, language: DisplayLanguage): string {
   const word = WORDS_BY_ROW.get(icon)?.label[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
+}
+
+/**
+ * The mark FR-032 (MUST) asks for, in the display language (FR-038).
+ *
+ * ⭐ WHY THERE IS A WORD TO READ AT ALL. FR-032 requires a `Task` that goes with
+ * the row being deleted but is DRAWN on another row -- HM-10 of table T-015a is
+ * what puts it there -- to be shown as such on the question NT-7 raises, and
+ * PD-175 settled that the showing is a WORD. ⛔ Nothing here may raise a shape
+ * instead: table T-109 is the whole of the icons and RC-13 of table T-026 makes
+ * a new one the user's decision.
+ *
+ * ⛔ THE FALLBACK IS `NO_WORDS`, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
+ * for the reason `answerLabel` gives just above: those read "the dictionary
+ * holds no word yet" and "the word is the empty string" as one thing, and
+ * PD-160 is precisely the difference. ⚠️ No substitute is invented for the empty
+ * case -- U-55 is a surface of words and there is nothing else here to say.
+ *
+ * @provisional PD-160
+ * @purity pure
+ */
+function shownOnAnotherRowMark(language: DisplayLanguage): string {
+  const word = MARKS_BY_KEY.get(SHOWN_ON_ANOTHER_ROW)?.text[language]
   if (word === undefined) return NO_WORDS
   return word === '' ? NO_WORDS : word
 }
@@ -286,10 +334,13 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * names of the tasks an unassignment reaches; neither is derivable from a
  * `RaisedConfirmation` that already exists.
  *
- * ⭐ THE TWO ANSWERS ARE COMPOSED, AND ONLY THEY. The preamble above table T-109
- * fixes its 面 column as table T-103's settled names, so which entries stand on
- * U-55 is that table's answer -- read out of the generated roster, never asked
- * of the raiser and never written out here.
+ * ⭐ THE TWO ANSWERS ARE COMPOSED, AND SO IS FR-032's MARK. The preamble above
+ * table T-109 fixes its 面 column as table T-103's settled names, so which
+ * entries stand on U-55 is that table's answer -- read out of the generated
+ * roster, never asked of the raiser and never written out here. The mark joins
+ * them for the same reason: WHICH items wear it is the raiser's to know
+ * (`ConfirmationItem.isShownOnAnotherRow`), and what it is CALLED is the
+ * dictionary's (PD-175). ⛔ Neither is a word this file writes.
  *
  * ⛔ AT MOST ONE. NT-4 (MUST) is the only row of table T-037 that speaks about
  * several at once and it is about notices, so nothing here gathers or orders
@@ -326,5 +377,12 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
 export function confirmationFromSession(session: ScreenSession): Confirmation | null {
   const raised = session.confirmation
   if (raised === null) return null
-  return { ...raised, entries: confirmationAnswers(session.language) }
+  return {
+    ...raised,
+    entries: confirmationAnswers(session.language),
+    // Carried whether or not any item wears it: the surface is drawn from this
+    // one value, and reading the dictionary per item would be the same lookup
+    // repeated (NFR-013).
+    shownOnAnotherRowMark: shownOnAnotherRowMark(session.language),
+  }
 }

@@ -6,12 +6,13 @@
 //
 // The sixteen commands table T-108 puts in 見せ方の群: CM-56 to CM-71.
 //
-// ⚠️ Fifteen of the sixteen change the presentation group alone, so FR-063
-// forbids them moving the schedule instant. CM-71 is the exception and it is NOT
-// decided by the group column: table T-051's HF-8 has fit discard what people
-// collapsed, and `isCollapsed` is a TaskGroup column -- schedule-group data.
-// The plan therefore reads WHAT CHANGED rather than which group the command
-// was filed under.
+// ⚠️ ALL SIXTEEN change the presentation group alone, so FR-063 forbids every
+// one of them moving the schedule instant -- CM-71 included. Fit used to open
+// the collapsed rows here too, and `isCollapsed` is a TaskGroup column, which
+// made this file the one exception; FR-031 has since split the press into two
+// writes and CM-72 (`expandAllTaskGroups`, in edit-task-group.ts) carries that
+// half. ⚠️ The plan still reads WHAT CHANGED rather than the group column --
+// nothing here relies on the two agreeing.
 //
 // ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
 
@@ -285,30 +286,31 @@ export function editDocumentSettings(
       return put({ exportPngScale: command.scale })
 
     case 'fitScheduleToScreen': { // CM-71
-      // ⭐ The one command of this group that reaches the schedule: HF-8 drops
-      // every collapse a person made. UN-17 makes that half undoable while
-      // UN-8 leaves the zoom and the position outside, and FR-063 therefore
-      // moves the schedule instant for this command and no other one here.
+      // ⭐ HALF OF ONE PRESS, AND THE FIRST HALF. FR-031 (MUST) splits the fit
+      // into two writes whose order MUST NOT be swapped: ① this one puts the
+      // zoom and the place, ② CM-72 opens the collapsed rows. This half touches
+      // the presentation group only, so UN-8 keeps it out of the history and
+      // FR-063 leaves the schedule instant alone.
+      //
+      // ⭐ WHY THE ORDER IS THE RULE AND NOT A HABIT: WS-4 of table T-067
+      // pushes THE DOCUMENT AS IT STOOD BEFORE THAT WRITE. Because ② runs
+      // second, the one step it pushes already holds the NEW zoom, so an undo
+      // gives back the new zoom with the old collapses -- exactly what UN-17
+      // promises. ⛔ Folding the two into one write makes that step carry the
+      // OLD zoom, and the undo then rewinds the zoom too, against UN-8.
+      // ⛔ Two commands in ONE bundle is the same defect: AG-3 makes a bundle
+      // one write, and WS-4 pushes one step from the document before it.
       //
       // ⚠️ The zoom itself arrives as a value. FR-055's two passes need the
       // laid-out extent, which belongs to layoutEngine and to the frame that
       // ran it -- recomputing it here would put a second copy of table T-068
       // in the UseCase layer.
-      const groups = document.schedule.taskGroups
-      const opened = groups.map((one) => (one.isCollapsed === true ? { ...one, isCollapsed: false } : one))
-      const changed = opened.some((one, index) => one !== groups[index])
-      const next = changed
-        ? { ...document, schedule: { ...document.schedule, taskGroups: opened } }
-        : document
-      return edited(
-        withSettings(next, {
-          ...settings,
-          zoomX: command.zoomX,
-          zoomY: command.zoomY,
-          scrollDate: command.scrollDate,
-          scrollGroupId: command.scrollGroupId,
-        }),
-      )
+      return put({
+        zoomX: command.zoomX,
+        zoomY: command.zoomY,
+        scrollDate: command.scrollDate,
+        scrollGroupId: command.scrollGroupId,
+      })
     }
   }
 }

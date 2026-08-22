@@ -15,7 +15,7 @@
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { Ajv2020, type ErrorObject } from 'ajv/dist/2020.js'
+import { Ajv2020, type ErrorObject, type ValidateFunction } from 'ajv/dist/2020.js'
 
 const SCHEMA_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json')
 
@@ -27,8 +27,23 @@ const ajv = new Ajv2020({ allErrors: true, strict: false })
 // by reference instead of compiled a second time.
 const schemaId = (documentSchema as { $id: string }).$id
 ajv.addSchema(documentSchema as object, schemaId)
-const validator = ajv.getSchema(schemaId)
-if (validator === undefined) throw new Error('the GRS JSON schema did not compile')
+
+/**
+ * One compiled check, or a throw naming what did not compile.
+ *
+ * `getSchema` answers `undefined` for a reference it cannot resolve, so the
+ * absence is turned into a failure here rather than being carried into every
+ * call site. The answer is widened to `ValidateFunction` -- the synchronous
+ * half of ajv's pair -- because this schema declares no `$async` keyword, so
+ * the check returns a boolean and not a promise.
+ */
+const compiledSchema = (id: string): ValidateFunction => {
+  const found = ajv.getSchema(id)
+  if (found === undefined) throw new Error(`${id} did not compile`)
+  return found
+}
+
+const validator = compiledSchema(schemaId)
 
 export interface ValidationResult {
   readonly valid: boolean
@@ -49,8 +64,7 @@ export function validateDocument(value: unknown): ValidationResult {
 export function validateEntity(entity: string, value: unknown): ValidationResult {
   const defs = (documentSchema as { $defs?: Record<string, unknown> }).$defs ?? {}
   if (!(entity in defs)) throw new Error(`the schema has no definition for ${entity}`)
-  const check = ajv.getSchema(`${schemaId}#/$defs/${entity}`)
-  if (check === undefined) throw new Error(`${entity} did not compile`)
+  const check = compiledSchema(`${schemaId}#/$defs/${entity}`)
   const valid = check(value)
   const errors = (check.errors ?? []).map(
     (e: ErrorObject) => `${e.instancePath || '/'} ${e.message ?? 'is invalid'}`,

@@ -8,11 +8,11 @@
 // reads none of the others. The signature is the one the "nine unit contracts"
 // section of `screen-renderer.ts` fixes; this file does not own it.
 //
-// ⭐ THREE MEMBERS, THREE OWNERS, AND ONLY ONE OF THEM IS DECIDED HERE.
-// `documentTitle` is the document's own value (AT-3) and `autosaveStatus` is
-// the shell's reading (FR-061); both are carried across untouched. What this
-// unit works out is `commands` -- and of each entry, only whether it can be
-// used and whether it is on.
+// ⭐ FOUR MEMBERS, FOUR OWNERS, AND ONLY ONE OF THEM IS DECIDED HERE.
+// `documentTitle` is the document's own value (AT-3), `autosaveStatus` is the
+// shell's reading (FR-061) and `language` is the session's (S-99); all three
+// are carried across untouched. What this unit works out is `commands` -- and
+// of each entry, only whether it can be used and whether it is on.
 //
 // ⭐ WHY THE ENTRIES ARE READ FROM THE GENERATED ROSTER RATHER THAN LISTED.
 // FR-029 (MUST) makes the roster of icons AND the placement of each follow
@@ -281,48 +281,17 @@ function commandStateOf(
       // `_assets/tbl-settings.md` rows S-54 / S-55 / S-75 / S-76 / S-97 / S-98,
       // both generated NOT_STORED constants, and `ScreenSession`.
       //
-      // STOP -- ⚠️ TWO ENTRIES HAVE NO "OFF": IC-16 (FR-039, S-72) and IC-21
-      // (FR-038, S-99) each choose between two values, and `isPressed` is
-      // declared as "a toggle that is on". Neither `light`/`dark` nor `ja`/`en`
-      // has an off side, and picking one of the pair to call "on" would settle
-      // a reading no requirement states -- so both are reported not pressed.
-      //
-      // STOP -- ⛔ THE HEADER'S HALF OF FR-038 HAS NOWHERE TO STAND, AND WHAT
-      // IS MISSING IS NOT IN THIS FILE. FR-038 (MUST) puts an entrance to the
-      // language in TWO places, the top of the screen and the help, and
-      // requires (MUST) that the CURRENT language be readable BEFORE either is
-      // pressed. Table T-075 gives the header's entrance to UF-62, so the
-      // header's half of that second MUST is owed here.
-      //   AT HAND: `session.language` (S-99) is already an argument, and
-      //     `entryLabel` already reads it for every row.
-      //   MISSING: somewhere to put it. `CommandItem` has four members and none
-      //     can carry it -- `isPressed` is the toggle above; `label` is the
-      //     entry's own name, which is PRINTED in the language rather than
-      //     saying WHICH language is on; `icon` and `isEnabled` say neither.
-      //     `AppHeaderItems` has three members and none can carry it either.
-      //   ⭐ THE SPECIFICATION HAS SETTLED THIS SHAPE ONCE ALREADY, on the
-      //     other entrance: the reading sits on the SURFACE and not on the
-      //     entry -- `HelpModal.language`, which `open-modals.ts` fills from
-      //     this same `ScreenSession.language`. It was declared even though
-      //     that surface's `commands` already carry labels in the language, so
-      //     the label is settled as NOT being the answer. The symmetric repair
-      //     is a `language` member on `AppHeaderItems`. ⛔ REPORTED AND NOT
-      //     MADE: that type stands in `screen-renderer.ts`, which this unit
-      //     does not own.
-      //   ⚠️ It is also what would make the header REDRAW on a switch. The
-      //     screen as a whole already carries the state (`ScreenView.language`,
-      //     UF-60's own cell), but the header is rebuilt from `AppHeaderItems`
-      //     alone and only when THAT member's description changes -- and while
-      //     every word is empty (PD-160) a switch changes no label, so nothing
-      //     in it moves.
-      // ⚠️ STILL UNDECIDED EVEN THEN: how the reading is DRAWN. FR-038
-      // states the MUST and neither a word nor a shape for it -- table T-109
-      // refuses an English column, figure F-019 draws IC-21 as a globe carrying
-      // no language, and every cell of `display-words.json` is empty (PD-160).
-      // ⛔ So no mark, word or shape is invented here.
-      // Searched: FR-038, FR-029, table T-109 (IC-21), figure F-019, table
-      // T-075 (UF-62 and UF-60), table T-206 (S-99), `AppHeaderItems`,
-      // `CommandItem`, `HelpModal.language` and `ScreenView.language`.
+      // STOP -- ⚠️ ONE ENTRY HAS NO "OFF": IC-16 (FR-039, S-72) chooses between
+      // two values, and `isPressed` is declared as "a toggle that is on".
+      // `light`/`dark` has no off side, and picking one of the pair to call
+      // "on" would settle a reading no requirement states -- so it is reported
+      // not pressed.
+      // ⭐ IC-21 (FR-038, S-99) is the same shape of thing and is answered
+      // rather than left open: its reading now leaves through the `language`
+      // member of `AppHeaderItems`, filled below from `session.language`, the
+      // way `HelpModal.language` carries the other entrance's half. ⛔ Which is
+      // why it still reports not pressed here -- the member is the carrier, not
+      // `isPressed`.
       //
       // ⭐ IC-3 (FR-025), IC-10 (FR-055), IC-19 (FR-068) and IC-22 (FR-036)
       // need no case: none is a toggle -- what an open surface closes with is
@@ -418,5 +387,14 @@ export function appHeaderItemsFromDocument(
     autosaveStatus: session.autosave,
 
     commands: headerCommands(settings, state, session),
+
+    // FR-038 (MUST): the entrance at the top of the screen is one of the two,
+    // and which language is on has to be readable BEFORE it is pressed. ⛔ Not
+    // chosen or normalised on the way through: S-99 is the session's, UF-60
+    // puts the same value in `ScreenView.language`, and two places deciding it
+    // would be two answers. ⚠️ The entry itself (IC-21) is already in
+    // `commands` -- this is the reading beside it, not a second entrance, which
+    // FR-029 (MUST NOT) would forbid.
+    language: session.language,
   }
 }

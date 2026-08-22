@@ -81,6 +81,14 @@ CONFIRMATION_ANSWERS = ('proceed', 'cancel')
 # keys, not words, and no table holds them as rows.
 PANEL_HEADINGS = ('selection', 'documentSettings', 'noSelection')
 
+# The caveat FR-032 (MUST) puts on a listed item: a `Task` that goes with the
+# row being deleted but is DRAWN on another row, which HM-10 of table T-015a is
+# what makes possible. FR-032 settles the medium as a WORD and forbids raising a
+# glyph for it, RC-13 of table T-026 keeping shapes as the user's own ruling.
+# ⛔ Held here rather than read from a table for the reason above it: no table
+# holds these as rows. ⚠️ These are KEYS, not words.
+CONFIRMATION_MARKS = ('shownOnAnotherRow',)
+
 LANGUAGES = ('ja', 'en')
 
 # ⛔ NOT DECIDED BY THE USER: the words themselves. Every entry of the
@@ -182,6 +190,7 @@ def roster():
         'notices': [row[0] for row in
                     table_rows(REL_REQUIREMENTS, NOTICE_ROW, NOTICE_TABLE)],
         'confirmation': list(CONFIRMATION_ANSWERS),
+        'confirmationMarks': list(CONFIRMATION_MARKS),
         'panelHeadings': list(PANEL_HEADINGS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
@@ -196,6 +205,7 @@ SHAPE = {
     'surfaces': ('name', ('heading',)),
     'notices': ('rowId', ('manner',)),
     'confirmation': ('answer', ('text',)),
+    'confirmationMarks': ('mark', ('text',)),
     'panelHeadings': ('showing', ('text',)),
     'assignments': ('rowId', ('text',)),
 }
@@ -268,7 +278,8 @@ def build(doc):
     """
     out = {'$comment': BANNER}
     for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
-                    'confirmation', 'panelHeadings', 'assignments'):
+                    'confirmation', 'confirmationMarks', 'panelHeadings',
+                    'assignments'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
@@ -301,7 +312,8 @@ def main():
 
     if '--report' in sys.argv:
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
-                        'confirmation', 'panelHeadings', 'assignments'):
+                        'confirmation', 'confirmationMarks',
+                        'panelHeadings', 'assignments'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),
                    ', '.join(str(e[SHAPE[section][0]]) for e in doc[section])))

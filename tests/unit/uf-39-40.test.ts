@@ -236,6 +236,9 @@ const APP_HEADER_ITEMS: AppHeaderItems = {
   documentTitle: DOCUMENT_TITLE,
   autosaveStatus: { kind: 'saved', at: AUTOSAVE_AT },
   commands: [commandOf(HEADER_COMMAND_LABEL)],
+  // FR-038 (MUST): the header says which language is on. The same value the
+  // view carries -- `ScreenSession.language` (S-99) is where both come from.
+  language: 'ja',
 }
 
 /**
@@ -319,6 +322,9 @@ const rowOf = (
   depth,
   box,
   label,
+  // Nothing is cut here, and the `RowTitle` contract fixes that case as
+  // `wholeLabel === label` with `isLabelTruncated` false.
+  wholeLabel: label,
   isLabelTruncated: false,
   expander: { canOpen: true, canClose: true },
   isPinned: false,
@@ -330,6 +336,9 @@ const viewOf = (
   part: Partial<ScreenView> = {},
   pinnedTitles: readonly RowTitle[] = [],
 ): ScreenView => ({
+  // S-99. UF-39 draws no words of its own, so which of the two it is cannot
+  // reach the picture; the member is filled because `ScreenView` requires it.
+  language: 'ja',
   frame: frameOf(),
   appHeaderItems: APP_HEADER_ITEMS,
   rowTitlePanel: { pinnedTitles, titles },
@@ -347,6 +356,8 @@ const viewOf = (
   },
   openModal: { surface: 'Help Modal', heading: MODAL_HEADING, commands: [] },
   notices: [{ manner: 'NT-3a', text: NOTICE_TEXT, nextSteps: ['retry'], affectedCount: null }],
+  // NT-7 of table T-037: `null` while nothing is waiting to be answered.
+  confirmation: null,
   dialogueField: {
     messages: [
       { sequence: 1, author: 'someone', text: DIALOGUE_TEXT, settledAt: '2026-08-19T09:00:00Z' },
@@ -977,6 +988,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
             documentTitle: DOCUMENT_TITLE,
             autosaveStatus: { kind: 'saving' },
             commands: [],
+            language: 'ja',
           },
         }),
       ),

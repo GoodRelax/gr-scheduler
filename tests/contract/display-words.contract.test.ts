@@ -29,17 +29,30 @@
 //                     whole of table T-109, the generated file matches the
 //                     manuscript cell for cell, no entry is passed over in
 //                     silence, group 1's filled copy really covers every cell,
-//                     and a guard that FALLS the moment one word of the
-//                     manuscript changes (CR-194 section 5 item 2).
+//                     and the claim PD-160's row asks for: 「原稿の 1 語を埋め
+//                     ると画面に届く試験」-- a word that IS written is printed.
+//                     ⚠️ While every cell was empty that claim could only be
+//                     made as a guard that FELL the moment a word appeared
+//                     (CR-194 section 5 item 2). ⛔ One HAS appeared -- FR-032's
+//                     mark, ruled a word on 2026-08-23 (CR-218) -- so the guard
+//                     is now stated as the thing it stood in for, and NOT as
+//                     "no word is written", which would sleep through every
+//                     word the user writes from here on.
 //
 // WRITTEN WITHOUT READING THE UNITS' BODIES (docs/development-rules/
 // 04-verification.md, section 1). What was read: docs/spec (FR-038, FR-072,
-// FR-037, FR-029, tables T-103, T-109, T-023, T-040, T-064 row PI-37, T-075
-// rows UF-60 .. UF-69), docs/review/rulings-2026-08-22/, change-request/
-// CR-194-*.md, the two `display-words.json` AS DATA, and -- in the five owning
-// units and `screen-renderer.ts` -- the head comment, the exported types and
-// the signatures. ⛔ No expected value here was taken from how a unit computes
-// its answer.
+// FR-037, FR-032, FR-029, tables T-103, T-109, T-023, T-040, T-050, T-064 row
+// PI-37, T-075 rows UF-60 .. UF-71, T-015a row HM-10, T-026 row RC-13, T-037
+// row NT-7, Chapter 6.2), docs/review/rulings-2026-08-22/, change-request/
+// CR-194-*.md and CR-218-*.md, docs/development-records/pending-decisions.md
+// (PD-160, PD-175), the two `display-words.json` AS DATA, and -- in the five
+// owning units and `screen-renderer.ts` -- the head comment, the exported types
+// and the signatures (version 0.70 of the appendix says the specification
+// deliberately does not write the confirmation's member names and types, and
+// sends the reader to `src/`'s published entry for them: CR-146). ⛔ No
+// expected value here was taken from how a unit computes its answer, and ⛔ no
+// file that DRAWS the mark was opened -- which is why the mark is never named
+// by member below, only asked for by word.
 //
 // Test placement is TS-6 of table T-218: a contract test lives in
 // tests/contract/. This one is at the contract level because the road it walks
@@ -55,9 +68,14 @@
 //      code rather than the specification, so group 2 asserts only that a
 //      string arrives -- plus FR-072's headings, which the specification does
 //      constrain.
-//   2. THE `notices` AND `confirmation` SECTIONS, and IC-69 / IC-70 with them.
-//      Their places are UF-67's (`notices.ts`), which is not one of the five
-//      units this file may look at.
+//   2. THE `notices`, `confirmation` AND `confirmationMarks` SECTIONS, and
+//      IC-69 / IC-70 with them. Their places are UF-67's (`notices.ts`), which
+//      is not one of the five units this file may look at. ⭐ THAT IS NOT THE
+//      SAME AS LEAVING THEM UNCHECKED: a word cannot be held against a member
+//      this file may not name, but it CAN be held against the whole of what
+//      `screenViewFromRegions` (PI-37) hands out -- which is how the acceptance
+//      group reaches `confirmationMarks`, the one section a word is written in
+//      today (FR-032, MUST).
 //   3. IC-58 / IC-59 / IC-60. Table T-109 stands them on the `Row Title
 //      Panel`, which is UF-63's -- not one of the five either. ⚠️ IC-53 ..
 //      IC-57 are left out for a different reason: table T-109 says in as many
@@ -141,6 +159,11 @@ const readDictionary = (path: string): Dictionary => {
   const raw = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>
   const out: Record<string, readonly Entry[]> = {}
   for (const [section, value] of Object.entries(raw)) {
+    // ⚠️ `$comment` is a string in the generated file and a list of lines in
+    // the manuscript, so dropping it by name is the only way to drop both --
+    // and the section roster below is a list of sections, not of everything
+    // the file happens to hold.
+    if (section.startsWith('$')) continue
     if (Array.isArray(value)) out[section] = value as readonly Entry[]
   }
   return out
@@ -150,10 +173,17 @@ const MANUSCRIPT = readDictionary(MANUSCRIPT_PATH)
 const GENERATED = readDictionary(GENERATED_PATH)
 
 /**
- * Which member of an entry is its key. ⚠️ Not invented here: CR-194 section 0
- * item ⑧ 4 fixes a group's key as the FIRST row of table T-109 that sits in it,
- * and every other key is a row ID, a settled name of table T-103, or the state
- * FR-072 / NT-7 names.
+ * Which member of an entry is its key, in the order the sections are printed.
+ * ⚠️ Not invented here: CR-194 section 0 item ⑧ 4 fixes a group's key as the
+ * FIRST row of table T-109 that sits in it, and every other key is a row ID, a
+ * settled name of table T-103, the state FR-072 / NT-7 names, or the mark
+ * FR-032 asks for (CR-218 section 0 item ⑧ 2).
+ *
+ * ⭐ THIS IS THE ROSTER OF SECTIONS THIS FILE CAN READ, and the acceptance
+ * group holds both files against it slot for slot -- a section the
+ * specification adds (as FR-032 has just added `confirmationMarks`) is a
+ * section every entry of which would otherwise be keyed by the empty string
+ * and pass under one name.
  */
 const KEY_FIELD: Readonly<Record<string, string>> = {
   icons: 'rowId',
@@ -161,6 +191,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   surfaces: 'name',
   notices: 'rowId',
   confirmation: 'answer',
+  confirmationMarks: 'mark',
   panelHeadings: 'showing',
   assignments: 'rowId',
 }
@@ -659,9 +690,14 @@ for (const entry of GENERATED['assignments'] ?? []) {
 
 // -- the sections whose place is not one of the five units this file may read
 
-for (const section of ['notices', 'confirmation']) {
+for (const section of ['notices', 'confirmation', 'confirmationMarks']) {
   for (const entry of GENERATED[section] ?? []) {
-    drop(section, keyOf(section, entry), 'its place is UF-67 (notices.ts), which this file may not read')
+    drop(
+      section,
+      keyOf(section, entry),
+      'its place is UF-67 (notices.ts), which this file may not read, so no member is named for it -- ' +
+        'the acceptance group holds its word against the whole of what PI-37 hands out instead',
+    )
   }
 }
 
@@ -684,11 +720,70 @@ const CASES: readonly Case[] = PLACES.flatMap((at) =>
   LANGUAGES.map((language) => ({ ...at, language, word: wordAt(GENERATED, at, language) ?? '' })),
 )
 
-/** The cells with no word yet -- every one of them today (PD-160). */
+/**
+ * The cells with no word yet -- every cell a place is named for, today
+ * (PD-160). ⚠️ The one written word, FR-032's mark, has no NAMED place: it is
+ * UF-67's, and the acceptance group reaches it without naming a member.
+ */
 const EMPTY = CASES.filter((one) => one.word === '')
 
 const printed = (at: Place, language: string, build: Build = screenViewFromRegions): string | undefined =>
   at.read(viewOf(build, at.frame, language))
+
+// ---------------------------------------------------------------------------
+// Reading a word WITHOUT naming the member that carries it, for the sections
+// whose place is UF-67's (`notices.ts`) -- see the head comment's omission 2.
+// ---------------------------------------------------------------------------
+
+/** Every string the published view carries, wherever in it the string sits. */
+const stringsIn = (value: unknown, found: string[] = [], seen = new Set<unknown>()): readonly string[] => {
+  if (typeof value === 'string') found.push(value)
+  else if (typeof value === 'object' && value !== null && !seen.has(value)) {
+    seen.add(value)
+    for (const one of Object.values(value)) stringsIn(one, found, seen)
+  }
+  return found
+}
+
+/**
+ * The frame FR-032's mark needs in order to be on the screen at all: a row is
+ * about to be deleted, NT-7 (MUST) is asking whether to go on, and one of the
+ * `Task`s that will go is DRAWN ON ANOTHER ROW -- which HM-10 of table T-015a
+ * is what makes possible (a bar moved to another row leaves its WBS children
+ * where they were). FR-032 (MUST) has that one shown as such, and CR-218
+ * settles the medium as a WORD, RC-13 of table T-026 keeping a new SHAPE as the
+ * user's own ruling.
+ *
+ * ⚠️ NOTHING HERE IS ASSERTED and no member of it is read back. The shape is
+ * the published entry's own declaration -- version 0.70 of the appendix records
+ * that the specification deliberately writes no member name or type for the
+ * confirmation and sends the reader to `src/`'s published entry (CR-146) -- and
+ * `isShownOnAnotherRow` is the spelling CR-218 section 0 item ⑧ 2 names. ⛔ The
+ * strings below are ASCII stand-ins for what a caller raises; none of them may
+ * be a word of the dictionary, or a case would find its own input.
+ */
+const CONFIRMING_A_ROW_DELETION: Frame = frameWith({
+  session: sessionWith({
+    confirmation: {
+      manner: 'the manner NT-7 asks for',
+      text: 'a row is about to be deleted',
+      items: [{ name: 'a task', isShownOnAnotherRow: true }],
+    },
+  }),
+})
+
+/** Every frame this file knows how to put on the screen, each named. */
+const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = [
+  ...PLACES.map((at) => ({ what: at.what, frame: at.frame })),
+  { what: 'the confirmation NT-7 raises before a row is deleted (FR-032)', frame: CONFIRMING_A_ROW_DELETION },
+]
+
+/** The frames that print exactly this word when the view is asked for in this language. */
+const framesPrinting = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] =>
+  FRAMES.filter((one) => stringsIn(viewOf(screenViewFromRegions, one.frame, language)).includes(word))
 
 // ---------------------------------------------------------------------------
 // 1. THE CARRIAGE -- what a written word has to satisfy.
@@ -697,15 +792,17 @@ const printed = (at: Place, language: string, build: Build = screenViewFromRegio
 /**
  * The dictionary this group drives the units with: the generated one with a
  * word that names its own cell in place of every cell. ⛔ It is built here and
- * never written to `_source/display-words.json` -- the 172 words are the user's
- * decision (PD-160), and a test that wrote one would be making it for them.
+ * never written to `_source/display-words.json` -- the words the user has still
+ * to write are the user's decision (PD-160), and a test that wrote one would be
+ * making it for them.
  */
 const FILLED = fillEveryWord(GENERATED)
 
 describe('FR-038 -- a word the dictionary holds is the word the screen prints', () => {
   /**
-   * ⭐ WHY THIS GROUP BUILDS ITS OWN DICTIONARY. Every cell of the manuscript
-   * is empty today (PD-160), so a group that stood by until a word was written
+   * ⭐ WHY THIS GROUP BUILDS ITS OWN DICTIONARY. Every cell this group has a
+   * place for is empty today (PD-160 -- the one written word is FR-032's mark,
+   * whose place is UF-67's), so a group that stood by until a word was written
    * asserted nothing at all -- 272 cases that returned on their first line, and
    * three deliberate breaks of the road each turned exactly ONE of them red.
    * The dictionary is data: standing a FILLED copy where the five units import
@@ -776,8 +873,9 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
     '$section $key $field is written in $language -> the view is built from the file -> $what prints exactly it',
     (one: Case) => {
       // ⭐ THE SAME CLAIM AGAINST THE DICTIONARY AS IT STANDS. PD-160 leaves
-      // every cell empty, so this has no case today; the moment the user writes
-      // one it gets a case, and the word comes from the file rather than here.
+      // every cell a place is named for empty, so this has no case today; the
+      // moment the user writes one it gets a case, and the word comes from the
+      // file rather than here.
       expect(
         printed(one, one.language),
         `FR-038 (MUST): ${one.what} is ${one.unit}'s, and the dictionary gives it ${JSON.stringify(one.word)}`,
@@ -843,7 +941,7 @@ describe('PD-160 -- an entry with no word still leaves something at its place', 
 // 3. THE ACCEPTANCE -- CR-194 section 5, which ruling 06 asks for.
 // ---------------------------------------------------------------------------
 
-describe('CR-194 section 5 -- change one word of the manuscript and a case falls', () => {
+describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it reaches the screen', () => {
   it('offers a word per language -> the languages are read from the dictionary -> they are FR-038 s two', () => {
     // FR-038: 「対象は `ja` と `en` の 2 言語とする」.
     expect(new Set(LANGUAGES)).toEqual(new Set(['ja', 'en']))
@@ -859,10 +957,40 @@ describe('CR-194 section 5 -- change one word of the manuscript and a case falls
     )
   })
 
-  it('holds an entry per word the screen needs -> each is looked for -> every one is a place here or a stated omission', () => {
+  it('the specification says which words the screen needs, and FR-032 has just added one -> both files are read section by section and entry by entry -> every section is one this file can key and every entry is a place here or a stated omission', () => {
     // ⛔ Without this an entry could be passed over in silence -- a section
     // added to the dictionary would simply have no case, and the guard below
     // would then say "one word changed" about a word nothing here can read.
+    //
+    // ⚠️ THE SLOT-FOR-SLOT PART COMES FIRST, and it is held against BOTH files.
+    // `keyOf` answers the empty string for a section this file has no key
+    // field for, so a new section does not fail loudly by itself -- every one
+    // of its entries collapses onto one name. FR-032 added `confirmationMarks`
+    // exactly that way (the mark shown against a `Task` that HM-10 of table
+    // T-015a leaves drawn on another row; CR-218 ruled the medium a word). ⛔ A
+    // roster typed twice would go stale in silence, so the check is a walk
+    // section by section, not a count.
+    //
+    // ⚠️ The GENERATED file is walked in its printed order, which the generator
+    // fixes; the MANUSCRIPT is walked by name, because nothing asks a hand-kept
+    // JSON to hold its sections in one order and a false red would teach the
+    // reader to stop believing this case.
+    expect(
+      Object.keys(GENERATED),
+      'the generated dictionary holds a section this file cannot key, or has lost one, or has re-ordered them',
+    ).toEqual(Object.keys(KEY_FIELD))
+    expect(
+      [...Object.keys(MANUSCRIPT)].sort(),
+      'the manuscript holds a section this file cannot key, or has lost one',
+    ).toEqual([...Object.keys(KEY_FIELD)].sort())
+    expect(
+      Object.entries(GENERATED)
+        .flatMap(([section, entries]) => entries.map((entry) => ({ section, key: keyOf(section, entry) })))
+        .filter((one) => one.key === '')
+        .map((one) => one.section),
+      'an entry with no key is an entry this file reads under the same name as its neighbours',
+    ).toEqual([])
+
     const accounted = new Set([
       ...PLACES.map((at) => `${at.section}.${at.key}`),
       ...DROPPED.map((one) => `${one.section}.${one.key}`),
@@ -922,30 +1050,73 @@ describe('CR-194 section 5 -- change one word of the manuscript and a case falls
     )
   })
 
-  it('no word is written in the manuscript yet (PD-160) -> the manuscript is read -> every word that IS written is on the screen, and this guard falls', () => {
-    // ⭐ THE HALF RULING 06 ASKS FOR: 「原稿の語を 1 つ変えると落ちる試験」.
-    // Write one word, run `npm run gen`, and this case falls -- ⛔ if it does
-    // not, that word is reaching nowhere. It checks the arrival FIRST, so a
-    // road that is cut fails on the line above with the place's own name.
+  it('FR-032 (MUST) shows its mark as a word -> the manuscript is read and every frame this file can build is put on the screen -> that word is written, and every word that IS written is printed on one of them in its own language', () => {
+    // ⭐ THE HALF RULING 06 ASKS FOR, and PD-160's row words it: 「原稿の 1 語
+    // を埋めると画面に届く試験」. ⛔ While every cell was empty the only way to
+    // say that was a guard that FELL the moment a word appeared (CR-194 section
+    // 5 item 2). A word has appeared, so the guard is now stated as the claim
+    // it stood in for -- ⛔ NOT as "no word is written", which would sleep
+    // through every word the user writes from here on.
+    //
+    // ⭐ NO MEMBER IS NAMED. FR-032's mark is printed by UF-67 (`notices.ts`),
+    // which this file may not read, so the claim is made against the WHOLE of
+    // what `screenViewFromRegions` (PI-37) hands out: the word has to be
+    // somewhere in it. That is weaker than pointing at one member and far
+    // stronger than nothing -- and ⭐ it cannot be shaped around an
+    // implementation it never reads, which is the point of rule 04 section 1.
+
+    // FR-032 (MUST): a `Task` that goes with the row but is drawn on another
+    // row is SHOWN as such, and CR-218 settles the medium as a word. ⛔ Unlike
+    // the cells PD-160 leaves to the user, an empty cell here leaves that MUST
+    // unmet -- an empty word shows nothing.
+    const mark = MANUSCRIPT_CELLS.filter((cell) => cell.section === 'confirmationMarks')
+    expect(
+      mark.length,
+      'FR-032 (MUST) needs a word per language for the mark, and the manuscript holds no cell for it at all',
+    ).toBe(LANGUAGES.length)
+    expect(
+      mark.filter((cell) => cell.word === '').map((cell) => `${cell.key}.${cell.field}.${cell.language}`),
+      'FR-032 (MUST): the medium is a word (CR-218), so this cell cannot stand empty the way PD-160 leaves the others',
+    ).toEqual([])
+
     const written = MANUSCRIPT_CELLS.filter((cell) => cell.word !== '')
 
     for (const cell of written) {
-      for (const at of PLACES.filter(
-        (one) => one.section === cell.section && one.key === cell.key && one.field === cell.field,
-      )) {
-        expect(
-          printed(at, cell.language),
-          `FR-038 (MUST): ${at.what} has to print the word the manuscript gives it`,
-        ).toBe(cell.word)
+      const at = `${cell.section}.${cell.key}.${cell.field}`
+
+      // ⭐ The arrival itself: one of the frames prints exactly this word.
+      const on = framesPrinting(cell.word, cell.language)
+      expect(
+        on.length,
+        `FR-038 (MUST): ${at} is written in ${cell.language}, and none of the ${FRAMES.length} frames this ` +
+          'file can build prints it -- that word is reaching nowhere (PD-160, CR-194 section 5 item 2). ' +
+          'Run `npm run gen` first; if it still fails, the road from the dictionary to the screen is cut, ' +
+          'or the word is printed by a frame this file does not know how to raise.',
+      ).toBeGreaterThan(0)
+
+      // ⭐ And it arrives BECAUSE of the language, not by luck: FR-038 (MUST)
+      // shows the words in the language the reader chose, so a frame that
+      // prints this one when the other language is asked for is not reading
+      // the dictionary by language at all. ⚠️ Only checked where the entry
+      // really holds two different words -- a repeated word is legitimate.
+      for (const other of LANGUAGES.filter((one) => one !== cell.language)) {
+        const twin = MANUSCRIPT_CELLS.find(
+          (one) =>
+            one.section === cell.section &&
+            one.key === cell.key &&
+            one.field === cell.field &&
+            one.language === other,
+        )
+        if (twin === undefined || twin.word === '' || twin.word === cell.word) continue
+        for (const one of on) {
+          expect(
+            stringsIn(viewOf(screenViewFromRegions, one.frame, other)).includes(cell.word),
+            `FR-038 (MUST): ${at} holds a word of its own per language, so ${one.what} must not print the ` +
+              `${cell.language} one when the view is asked for in ${other}`,
+          ).toBe(false)
+        }
       }
     }
-
-    expect(
-      written.map((cell) => `${cell.section}.${cell.key}.${cell.field}.${cell.language}`),
-      'A word has been written, and the case above has just checked that it reaches the screen. ' +
-        'This guard is CR-194 section 5 item 2 and falls on purpose: re-read the fallback group, ' +
-        'which assumes PD-160 -- that no word is written yet.',
-    ).toEqual([])
   })
 })
 

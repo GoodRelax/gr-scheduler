@@ -53,7 +53,13 @@ import {
   NOT_STORED_LIMITS,
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
-import { textOfDay, type CalendarDay } from '../../entity/document-model/schedule/schedule'
+import type { DocumentStamp } from '../../entity/document-model/document-stamp/document-stamp'
+import {
+  textOfDay,
+  type CalendarDay,
+  type Task,
+  type TaskGroup,
+} from '../../entity/document-model/schedule/schedule'
 import {
   itemAtPointer,
   NOT_STORED_SIZES,
@@ -90,6 +96,7 @@ import {
 import { notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
 import {
   commandFromInput,
+  pressRowOf,
   screenStateFromInput,
   selectionFromInput,
   NOT_STORED_ZOOM_STEP,
@@ -98,16 +105,21 @@ import {
   type InputContext,
   type PointerInput,
   type PointerPress,
+  type PressRow,
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
   screenViewFromRegions,
   type AutosaveStatus,
+  type ConfirmationItem,
   type DisplayLanguage,
+  type IconId,
+  type RaisedConfirmation,
   type ScreenPart,
   type ScreenSession,
   type ScreenSurface,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
+import { WEB_STORAGE_KEY_PREFIX } from '../local-storage-document-store/local-storage-document-store'
 
 /**
  * What the shell measured about the window this frame. `regionsFromScreen`
@@ -276,6 +288,66 @@ const GUIDE_CURSOR_NONE = 'none'
 const EDITED_BY_SCREEN = 'user'
 
 /**
+ * The three rows of table T-109 that only THIS layer can answer.
+ *
+ * ⭐ WHY THE SHELL AND NOT THE TRANSLATOR. `input-command-translator.ts` lists
+ * all three among the rows it answers with nothing, and gives one reason for
+ * each: what a press on them writes is a current value, and LY-5 of table
+ * T-060 leaves those with the Framework alone. IC-21 chooses the display
+ * language (S-99); IC-69 and IC-70 are NT-7's two answers. ⛔ None of them is a
+ * `DocumentCommand`, so there is no road through table T-108 for any of them.
+ * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else.
+ */
+const DISPLAY_LANGUAGE_ENTRY: IconId = 'IC-21'
+const CONFIRMATION_PROCEED_ENTRY: IconId = 'IC-69'
+const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
+
+/** The row of table T-037 a raised question follows -- `NT-7`. */
+const CONFIRMATION_MANNER = 'NT-7'
+
+/**
+ * The rows table T-206 keeps outside the document, in `localStorage`.
+ *
+ * ⭐ THE SET IS THE SPECIFICATION'S AND IS NOT CHOSEN HERE. LM-14 defines it
+ * literally -- the rows of table T-206 marked as kept in `localStorage` -- and
+ * it is exactly these four. ⛔ S-99e / S-99f / S-99g are NOT among them: those
+ * are the screen's own state and `ScreenState` (PI-36) already owns them, which
+ * is why they arrive here through `screenState` rather than through a key.
+ *
+ * ⚠️ THE PREFIX IS SHARED, NOT COPIED. FR-026's RATIONALE requires every key
+ * this tool writes to carry one, because LM-6 says the store is shared by every
+ * local page on the machine -- so the constant is imported from the unit that
+ * already declares it (CP-29) rather than typed a second time (R4).
+ *
+ * ⛔ THE KEY SPELLINGS AFTER THE PREFIX ARE NOT IN THE SPECIFICATION. It names
+ * the rows and the store and stops there, so these are this file's, chosen to
+ * read as the row does. A change request would be needed to publish them.
+ */
+const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
+  'S-99': `${WEB_STORAGE_KEY_PREFIX}language`,
+  'S-99a': `${WEB_STORAGE_KEY_PREFIX}openedBy`,
+  'S-99b': `${WEB_STORAGE_KEY_PREFIX}agentApiDocuments`,
+  'S-99c': `${WEB_STORAGE_KEY_PREFIX}unlockPasswordSha256`,
+}
+
+/**
+ * The four rows of table T-206 LM-14 counts, as a census the compiler keeps.
+ *
+ * STOP -- ⛔ ONLY `S-99` HAS A PRODUCER IN THIS BUILD. The other three are
+ * named so the set is visible and so the next owner has one place to add to,
+ * and nothing reads or writes them: S-99a is the watermark's opened-by name
+ * (`single-html-shell.ts` records that nothing holds it), S-99b is the record
+ * that turns the `Agent API` on per document (`sessionOf` records the same),
+ * and S-99c is the unlock password's digest, which nothing asks a person for --
+ * `input-command-translator.ts` records that table T-037 has no row for asking.
+ * ⚠️ Writing a key nothing ever reads would only make the rule look kept.
+ */
+type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
+
+/** The two `DisplayLanguage` spellings FR-038 admits, as a census. */
+const DISPLAY_LANGUAGES: Readonly<Record<DisplayLanguage, true>> = { ja: true, en: true }
+
+/**
  * What the autosave status is before this session has written anything.
  *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: FR-061 requires three states to
@@ -398,32 +470,38 @@ function viewSettings(
   const placed = stored.scrollDate !== null && groupIds.has(stored.scrollGroupId ?? '')
   if (placed) return stored
 
-  // Where the fit starts from: the earliest planned start, and the first row in
-  // the document's own order. Nothing in table T-064 publishes this, so it is
-  // decided here -- and it is a view, not a stored value.
+  // ⭐ THE POSITION IS NO LONGER DECIDED HERE. OP-10 sends the zoom AND the
+  // position to FR-055, and `fitZoom` (PI-5) now answers all four, so the two
+  // values below are scaffolding rather than an answer: S-77 pins the time axis
+  // and a layout cannot be measured until it is pinned to SOME day. Which day
+  // does not matter -- the extent is a difference of two edges, so it comes out
+  // the same wherever the axis starts, and the fit reads the real place off it.
   //
-  // ⛔ NOT the earliest day anything is drawn on. An `actualStart` before the
-  // plan's start is drawn left of this origin (OC-5 of table T-038 counts it,
-  // and LC-7 now measures it), so FR-055's fit sizes it in but this anchor
-  // leaves it behind the Row Header panel -- the very harm FR-055's RATIONALE
-  // names. ⚠️ Anchoring on the actual instead is not obviously right either:
-  // OC-6 keeps the below-laid actual out of the width, so the zoom half and the
-  // position half of FR-055 would then measure different sets. Settling it
-  // takes a change request, not a guess here.
+  // ⭐ This is what closed the harm FR-055's RATIONALE names: the earliest
+  // planned start is NOT the earliest day anything is drawn on -- OC-5 of table
+  // T-038 counts an `actualStart` that precedes it -- so as an answer it left
+  // the overhang behind the Row Title panel, where no scroll position can
+  // reach it.
   const starts = held.schedule.tasks
     .map((one) => one.start)
     .filter((one): one is string => one !== null)
     .sort()
   const firstRow = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
-  const anchored: DocumentSettings = {
+  const pinned: DocumentSettings = {
     ...stored,
     scrollDate: starts[0] ?? held.schedule.project.startDate,
     scrollGroupId: firstRow === undefined ? stored.scrollGroupId : firstRow.id,
   }
 
-  const measured = layoutFromSchedule(held.schedule, anchored, regions)
-  const fitted = fitZoom(measured, anchored, regions)
-  return { ...anchored, zoomX: fitted.zoomX, zoomY: fitted.zoomY }
+  const measured = layoutFromSchedule(held.schedule, pinned, regions)
+  const fitted = fitZoom(measured, pinned, regions)
+  return {
+    ...pinned,
+    zoomX: fitted.zoomX,
+    zoomY: fitted.zoomY,
+    scrollDate: fitted.scrollDate,
+    scrollGroupId: fitted.scrollGroupId,
+  }
 }
 
 /**
@@ -475,6 +553,53 @@ function escapeLevelOf(input: HumanInput, context: InputContext): EscapeTarget |
 function isSameScreenPart(a: ScreenPart | null, b: ScreenPart | null): boolean {
   if (a === null || b === null) return a === b
   return a.part === b.part && a.entry === b.entry
+}
+
+/**
+ * Whether a press of each row of table T-023a changes the document as it runs.
+ *
+ * ⭐ WHY EXACTLY TWO ARE FALSE. Table T-027 keeps exactly two gestures outside
+ * the undo history -- UN-8 the pan and UN-9 the range selection -- and keeps
+ * them out because neither changes the document. AG-9's refusal is about
+ * writing into a HALF-FINISHED document change, so a gesture with no such state
+ * to be half-way through is one it spares.
+ *
+ * ⭐ A CENSUS THE COMPILER KEEPS, spelled the way `input-command-translator.ts`
+ * spells its own: `Record<PressRow, boolean>` makes a row added to table T-023a
+ * a compile error here, naming the row that has to be judged. ⛔ A bare `string`
+ * key would let a new row default silently into 「spared」 or 「refused」 by
+ * nothing but the shape of this lookup.
+ */
+const PRESS_CHANGES_DOCUMENT: Readonly<Record<PressRow, boolean>> = {
+  // UN-8 -- the pan moves the viewport and no row of the file.
+  'PD-1': false,
+  'PD-2': true,
+  'PD-3': true,
+  'PD-4': true,
+  'PD-4a': true,
+  // UN-9 -- the range selection moves what is chosen, not what is written.
+  'PD-5': false,
+}
+
+/**
+ * Whether a press in flight is one AG-9 of table T-035 refuses a write during.
+ *
+ * ⛔ `on` IS THE FIRST QUESTION AND THE ROW IS THE SECOND. The note under table
+ * T-023a binds that table's decision order to the schedule's drawing area
+ * (MUST), so the row a press on a drawn entry carries says nothing about what
+ * the press is: `commandFromInput` branches to `commandFromEntry` before it
+ * ever looks at the row, and that road CAN change the document. A press the
+ * screen surface answered for is therefore in flight whatever its row is.
+ * ⚠️ A press falling on an entry lands on PD-5 for want of a hit, which is
+ * precisely the row that would otherwise be spared -- so reading the row first
+ * would take AG-9 off every palette press there is.
+ *
+ * @purity pure
+ */
+function isDocumentChangingPress(press: PointerPress | null): boolean {
+  if (press === null) return false
+  if (press.on !== null) return true
+  return PRESS_CHANGES_DOCUMENT[press.pressRow]
 }
 
 // ---- the outside is read from here on (R7.7) ------------------------------
@@ -698,7 +823,13 @@ export function frameLoop(
    * this and FR-048's judgement are settled from that single answer. ⚠️ Asking
    * again here would be a second moment, and CS-2 wants the moment of the press.
    *
-   * @purity pure
+   * ⚠️ `semi-pure-b` AND NOT `pure`, because `pressRow` below reads the two
+   * current values this loop holds (R7.1). They are read HERE rather than taken
+   * as arguments so that all three members of the press are frozen at the one
+   * moment CS-2 names; `collectInputContext` reads the same two right after and
+   * carries the same tag for the same reason.
+   *
+   * @purity semi-pure-b
    */
   function collectPress(at: PointerInput, frame: FrameValues, on: ScreenPart | null): PointerPress {
     // ⭐ NO HIT WHEN THE SURFACE ANSWERED. The note under table T-023a limits
@@ -706,7 +837,15 @@ export function frameLoop(
     // the parts drawn over it hold no rectangle in `ScreenRegions` -- so a
     // press the surface claimed was not a press on the schedule at all.
     const hit = on === null ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP) : null
-    return { at, hit, on }
+    // ⭐ ASKED OF THE SIDE THAT OWNS TABLE T-023a, AND CARRIED FROM HERE ON.
+    // `collectWriteMoment` needs to know a pan (PD-1) from a marquee (PD-5) to
+    // keep AG-9's exemption, and R2.7 forbids it to read that table a second
+    // time -- so the answer rides on the press, exactly as `hit` does.
+    // ⚠️ NARROWED ARGUMENTS ON PURPOSE: this runs BEFORE `collectInputContext`,
+    // and no whole `PointerPress` can exist until this call has answered,
+    // because the row is one of the press's own members.
+    const pressRow = pressRowOf({ at, hit }, { screenState, isDualCursorMode })
+    return { at, hit, on, pressRow }
   }
 
   /**
@@ -752,13 +891,18 @@ export function frameLoop(
    * happening arriving mid-drag finds it still set. Frozen at false, SK-3 wrote
    * through the middle of a drag -- `commandFromInput` puts no guard of its own
    * on that row, because WS-2 is where the guard belongs.
-   * STOP -- ⛔ WIDER THAN AG-9 ASKS, AND NOTHING PUBLISHES THE NARROWING. AG-9
-   * spares the two gestures table T-027 puts outside the undo history (UN-8 and
-   * UN-9), and which of them a press began is table T-023a's decision order --
-   * whose note keeps that order with `commandFromInput`, and PI-18 publishes no
-   * way to ask it. ⛔ So a pan and a marquee are refused with the rest: reading
-   * table T-023a a second time here is the duplication R2.7 refuses, and of the
-   * two errors this is the one that keeps the MUST.
+   * ⭐ NARROWED TO WHAT AG-9 ACTUALLY ASKS. AG-9 refuses a write during a drag
+   * that CHANGES THE DOCUMENT, and spares the two gestures table T-027 puts
+   * outside the undo history because they change none of it -- the pan (UN-8)
+   * and the range selection (UN-9). Those are rows PD-1 and PD-5 of table
+   * T-023a, and the press now CARRIES which row it began (`pressRow`), so the
+   * exemption is kept without reading that table a second time (R2.7).
+   * ⛔ `on` IS READ FIRST, AND THE ROW ONLY WHERE IT IS NULL. The note under
+   * table T-023a binds its decision order to the schedule's drawing area
+   * (MUST), so a press the screen surface answered for is not one of the six
+   * gestures at all -- it is a press on an entry, and `commandFromEntry` may
+   * well change the document. Reading the row first would hand every palette
+   * press PD-5's exemption and take AG-9's MUST off all of them.
    * ⛔ `editingInPlace` is false for the reason `isTextEntryUnsettled` is, and
    * the STOP on that member holds it: no in-place entry exists in this build,
    * so there is nothing that could be unsettled.
@@ -770,7 +914,7 @@ export function frameLoop(
    */
   function collectWriteMoment(): WriteMoment {
     return {
-      gestureInFlight: pressed !== null,
+      gestureInFlight: isDocumentChangingPress(pressed),
       editingInPlace: false,
       deliveringNotices: false,
     }
@@ -871,7 +1015,21 @@ export function frameLoop(
     if (action === null) return
     switch (action.kind) {
       case 'changeDocument':
-        writeDocument(action.commands, frame)
+        // ⭐ ONE PRESS MAY OWE MORE THAN ONE WRITE, AND THE ORDER IS THE
+        // RULE. FR-031 (MUST) splits one fit press into two writes and forbids
+        // swapping them (MUST NOT): CM-71 puts the zoom and the place and
+        // pushes no step (UN-8), then CM-72 opens the collapsed rows and pushes
+        // the one step UN-17 asks for.
+        // ⛔ NOT FLATTENED INTO ONE CALL. WS-4 of table T-067 pushes the
+        // document as it stood BEFORE the write, so a single bundle would push
+        // a step carrying the OLD zoom -- and undoing it would rewind the zoom
+        // that UN-8 keeps out of the history. Two calls leave the second step
+        // already holding the new zoom, so undo brings the collapse back and
+        // leaves the zoom where the fit put it.
+        // ⛔ THIS DOES NOT WEAKEN AG-3's atomicity. Each write below is still
+        // one bundle and one reference swap (WS-6, MUST); what FR-031 permits
+        // is one GESTURE writing twice, not one write landing in halves.
+        for (const bundle of action.writes) writeDocument(bundle, frame)
         return
       // RD-1 and RD-2 of table T-230. ⭐ The shell asks neither UndoEdit nor
       // RedoEdit itself: the pair is replaced by the ONE write path, which is

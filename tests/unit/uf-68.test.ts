@@ -73,6 +73,16 @@ const SESSION: ScreenSession = {
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
+  // The four members `ScreenSession` requires that no case here varies:
+  // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
+  // on no icon), `selectedGroupIds` is FR-085's set of rows and
+  // `selectedResourceUids` FR-099's set of resources (both empty -- none
+  // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
+  // no operation has chosen one yet).
+  iconUnderPointer: null,
+  selectedGroupIds: [],
+  selectedResourceUids: [],
+  propertiesSubject: null,
   propertiesShowing: null,
   notices: [],
   confirmation: null,

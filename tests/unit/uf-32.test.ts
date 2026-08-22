@@ -642,7 +642,7 @@ describe('UF-32 -- FR-019: 注記の固定色', () => {
     expect(at30, 'テーマの色相に追随しない').toBe(at214)
     const svg = withBox(214, null)
     const link = attribute(
-      paintedOf(svg).find((e) => e.tag === 'polyline') as Element,
+      (paintedOf(svg).find((e) => e.tag === 'polyline') as Element).text,
       'stroke',
     ) as string
     expect(at214, '依存線から離した色').not.toBe(link)

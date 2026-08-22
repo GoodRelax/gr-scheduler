@@ -112,6 +112,16 @@ const sessionOf = (notices: readonly Notice[]): ScreenSession => ({
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
+  // The four members `ScreenSession` requires that no case here varies:
+  // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
+  // on no icon), `selectedGroupIds` is FR-085's set of rows and
+  // `selectedResourceUids` FR-099's set of resources (both empty -- none
+  // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
+  // no operation has chosen one yet).
+  iconUnderPointer: null,
+  selectedGroupIds: [],
+  selectedResourceUids: [],
+  propertiesSubject: null,
   propertiesShowing: null,
   notices,
   confirmation: null,
@@ -570,12 +580,30 @@ const T_109_ON_CONFIRMATION_IN_MANUSCRIPT = specTable('T-109')
  * `src/`. ⛔ No word is written here: 「要求にも表にも語そのものを書いてはならない
  * （MUST NOT）」, and the same reason bars a test from minting one.
  */
-const DISPLAY_WORDS = (readJson('display-words.json') as {
+const DICTIONARY = readJson('display-words.json') as {
   readonly icons: readonly {
     readonly rowId: string
     readonly label: Readonly<Record<DisplayLanguage, string>>
   }[]
-}).icons
+  readonly confirmationMarks: readonly {
+    readonly mark: string
+    readonly text: Readonly<Record<DisplayLanguage, string>>
+  }[]
+}
+
+const DISPLAY_WORDS = DICTIONARY.icons
+
+/**
+ * FR-032 (MUST) marks the `Task`s that go with the row but are DRAWN on another
+ * one -- HM-10 of table T-015a is what puts them there. The user ruled the
+ * medium is a WORD (RC-13 keeps shapes to the user), so it lives in the same
+ * dictionary and is read from it here rather than written down.
+ */
+const markFor = (mark: string, language: DisplayLanguage): string => {
+  const word = DICTIONARY.confirmationMarks.find((one) => one.mark === mark)
+  expect(word, `FR-032: the dictionary has no mark for ${mark}`).toBeDefined()
+  return (word as { readonly text: Readonly<Record<DisplayLanguage, string>> }).text[language]
+}
 
 const labelOf = (rowId: string, language: DisplayLanguage): string => {
   const word = DISPLAY_WORDS.find((one) => one.rowId === rowId)
@@ -623,7 +651,11 @@ const confirmationOf = (
 const shownFor = (
   raised: RaisedConfirmation,
   language: DisplayLanguage = 'ja',
-): Confirmation => ({ ...raised, entries: entriesOnConfirmation(language) })
+): Confirmation => ({
+  ...raised,
+  entries: entriesOnConfirmation(language),
+  shownOnAnotherRowMark: markFor('shownOnAnotherRow', language),
+})
 
 const sessionAsking = (
   confirmation: RaisedConfirmation | null,

@@ -81,6 +81,18 @@
 //      become a marquee on the schedule underneath. ⭐ The answer comes from
 //      the side that DREW the entry, which Chapter 5.3 makes a MUST under table
 //      T-065; nothing here recomputes a rectangle it cannot see.
+//   5. Which ROW of table T-023a a press began travels ON the press
+//      (`PointerPress.pressRow`), decided when the press is recorded. AG-9 of
+//      table T-035 refuses an Agent API write while a gesture is in flight but
+//      spares the two gestures table T-027 keeps out of the undo history -- the
+//      pan (UN-8, which is PD-1) and the range selection (UN-9, which is PD-5)
+//      -- and the party that answers AG-9 holds the press and nothing else.
+//      ⛔ That party may not read table T-023a a second time (R2.7), and the
+//      note under the table binds the decision order to the schedule's drawing
+//      area (MUST) besides. So `pressRowOf` is published and its answer is
+//      carried. ⭐ CS-2 of table T-066 is why the answer rides on the press
+//      rather than being asked for later: it makes one gesture the unit of
+//      consistency and the press its moment, so the row's life is the press's.
 //
 // ⛔ WHAT THIS FILE MAY NOT DO. It never invents a value the specification
 // owns: where a row is missing, a STOP note names the row that is missing and
@@ -168,11 +180,21 @@ export type {
 // ---------------------------------------------------------------- context ---
 
 /**
+ * The row of table T-023a a press falls on -- PD-1 the pan, PD-2 the Dual
+ * Cursor's click, PD-3 the grab, PD-4 and PD-4a the armed press, PD-5 the
+ * range selection.
+ *
+ * ⭐ A ROW ID AND NOTHING ELSE. Table T-023a has no English column, so the row
+ * id is the only join to it, the way `ENTRY` below joins table T-109.
+ */
+export type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
+
+/**
  * The press a gesture began with, as the Framework recorded it.
  *
- * ⭐ Both members are the moment of the PRESS. IN-1 settles the operation on
- * release, so the release has to be read against something, and CS-2 makes that
- * something the state at the press.
+ * ⭐ All three members are the moment of the PRESS. IN-1 settles the operation
+ * on release, so the release has to be read against something, and CS-2 makes
+ * that something the state at the press.
  */
 export interface PointerPress {
   /** The `down` happening, unchanged. */
@@ -207,6 +229,34 @@ export interface PointerPress {
    * `regionAtPointer` alone answers `rowArea` for a point on any of them.
    */
   readonly on: ScreenPart | null
+  /**
+   * Which row of table T-023a this press began -- the gesture it is, named by
+   * the only join that table admits.
+   *
+   * ⚠️ Resolved by the CALLER at the moment of the press, for the same reason
+   * `hit` and `on` are, and with `pressRowOf` below rather than by any reading
+   * of its own. CS-2 of table T-066 makes one gesture the unit of consistency
+   * and the press its moment, so the row's life is exactly this value's life;
+   * deciding it on the release would decide it against a screen that has moved
+   * and an arming that may have changed since.
+   *
+   * ⭐ WHY THE PRESS CARRIES IT. AG-9 of table T-035 refuses an Agent API write
+   * while a gesture is in flight, and spares the two gestures table T-027 keeps
+   * out of the undo history because they change no document -- the pan (UN-8,
+   * which is PD-1) and the range selection (UN-9, which is PD-5). The party
+   * that answers AG-9 holds the press and nothing else, so with no row on it
+   * the only thing it can do is refuse all six. ⛔ It may NOT read table T-023a
+   * for itself: that is the duplication R2.7 refuses, and the note under the
+   * table binds the decision order to the schedule's drawing area (MUST).
+   *
+   * ⚠️ READ `on` FIRST, AND THE ROW ONLY AFTER IT IS NULL. The same note keeps
+   * table T-023a off everything the screen surface drew, so a press the surface
+   * answered for is none of the six gestures whatever this row says -- it is a
+   * press on an entry, and `commandFromEntry` may well change the document.
+   * `commandFromInput` takes that branch before it looks at the row; anyone
+   * asking about AG-9 has to take it too.
+   */
+  readonly pressRow: PressRow
 }
 
 /**
@@ -240,11 +290,11 @@ export interface InputContext {
    * The gesture in flight, or null while none is.
    *
    * ⚠️ ON A `down` HAPPENING THIS IS THAT PRESS. The caller records the press --
-   * with its hit and with what the surface had drawn there -- before it asks any
-   * of the three members, because IN-1 settles nothing on the press and the only
-   * thing this file answers for a `down` is whether the tool has taken the
-   * gesture (MK-10). ⛔ A caller that leaves it null on the press leaves every
-   * entry it drew unassigned.
+   * with its hit, with what the surface had drawn there, and with the row of
+   * table T-023a it began -- before it asks any of the three members, because
+   * IN-1 settles nothing on the press and the only thing this file answers for
+   * a `down` is whether the tool has taken the gesture (MK-10). ⛔ A caller that
+   * leaves it null on the press leaves every entry it drew unassigned.
    */
   readonly pressed: PointerPress | null
   /**
@@ -315,11 +365,27 @@ export type InPlaceTarget =
  */
 export type InputAction =
   /**
-   * One write. FR-031 (MUST) makes a document-changing drag ONE undo step, so
-   * the rows of table T-108 that a single gesture asks for travel together and
-   * reach `applyDocumentChange` as one `PlanInput.commands`.
+   * The writes one input asks for, in the order they must land.
+   *
+   * ⭐ Each member is ONE write. FR-031 (MUST) makes a document-changing drag
+   * one undo step, so the rows of table T-108 a single gesture asks for travel
+   * together inside one member and reach `applyDocumentChange` as one
+   * `PlanInput.commands`.
+   *
+   * ⛔ The list exists because ONE input can owe TWO writes: FR-031 requires
+   * the fit press to place CM-71 and then CM-72 separately, and forbids
+   * swapping them. Folding both into one member would be the very defect that
+   * rule exists to stop -- WS-4 pushes the step from the document BEFORE the
+   * write, so a merged write's step carries the old zoom and undo rewinds it,
+   * breaking UN-8.
+   *
+   * ⚠️ Not an optional second field: a caller can silently drop one of those,
+   * and a dropped second write is exactly the same defect wearing a hat.
    */
-  | { readonly kind: 'changeDocument'; readonly commands: readonly DocumentCommand[] }
+  | {
+      readonly kind: 'changeDocument'
+      readonly writes: readonly (readonly DocumentCommand[])[]
+    }
   /** SK-6. */
   | { readonly kind: 'undoEdit' }
   /** SK-7. */
@@ -381,7 +447,39 @@ function acted(action: InputAction): TranslatedInput {
 function changed(commands: readonly DocumentCommand[]): TranslatedInput {
   // ⚠️ An empty bundle is not a write. WS-4 would push an undo step for it, and
   // FR-063 would move the schedule instant behind a gesture that moved nothing.
-  return commands.length === 0 ? CONSUMED_ELSEWHERE : acted({ kind: 'changeDocument', commands })
+  return commands.length === 0
+    ? CONSUMED_ELSEWHERE
+    : acted({ kind: 'changeDocument', writes: [commands] })
+}
+
+/**
+ * An input that owes more than one write, in the order FR-031 fixes.
+ *
+ * ⛔ The only caller is the fit (SK-18 / IC-10): FR-031 (MUST) makes that press
+ * two writes and (MUST NOT) forbids swapping them. Every other input is one
+ * write and goes through `changed`.
+ *
+ * @purity pure
+ */
+function changedInOrder(writes: readonly (readonly DocumentCommand[])[]): TranslatedInput {
+  const owed = writes.filter((one) => one.length > 0)
+  return owed.length === 0 ? CONSUMED_ELSEWHERE : acted({ kind: 'changeDocument', writes: owed })
+}
+
+/**
+ * The two writes one fit press owes, in FR-031's order.
+ *
+ * ① CM-71 places the zoom and the viewport and pushes no step (UN-8).
+ * ② CM-72 opens every collapsed row and pushes the one step (UN-17, HF-8).
+ *
+ * ⭐ Because WS-4 pushes the document as it stood BEFORE its write, ②'s step
+ * already holds the NEW zoom -- so one undo brings the collapse back and leaves
+ * the zoom where the fit put it, which is what UN-17 promises.
+ *
+ * @purity pure
+ */
+function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] {
+  return [[fitCommand(context)], [{ kind: 'expandAllTaskGroups' }]]
 }
 
 /**
@@ -790,8 +888,8 @@ function marqueeRect(from: PointerInput, to: PointerInput): ScreenRect {
 
 // ------------------------------------------------------- table T-023a ------
 
-/** The row of table T-023a a press falls on. */
-type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
+// ⭐ `PressRow` itself is declared with `PointerPress` at the head of this file,
+// because the press now CARRIES the answer (see decision 5 of the overview).
 
 /**
  * Which row of table T-023a decides this press.
@@ -800,9 +898,26 @@ type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
  * order is the table's own and is not rearranged: 「第 1 の分岐は「当たったか」
  * であり、「構えているか」は当たらなかったときにだけ効く」.
  *
+ * ⭐ PUBLISHED SO THE PRESS CAN CARRY THE ANSWER -- not so the row can be asked
+ * for later. `PointerPress.pressRow` is filled with what this returns at the
+ * moment the press is recorded, the way `itemAtPointer` (PI-7) fills `hit`.
+ * Asking again at the write would be a second moment, and CS-2 of table T-066
+ * wants the moment of the press; reading table T-023a on the other side would
+ * be the duplication R2.7 refuses.
+ *
+ * ⚠️ IT TAKES LESS THAN A WHOLE PRESS AND LESS THAN A WHOLE CONTEXT, ON PURPOSE.
+ * The row is one of the press's own members, so no whole `PointerPress` can
+ * exist until this has answered -- and the caller records the press before it
+ * builds the context that would hold it. What the decision reads is only the
+ * button and the modifiers of the `down`, the hit the caller resolved, and the
+ * two current values PD-2 and PD-4 / PD-4a turn on.
+ *
  * @purity pure
  */
-function pressRowOf(press: PointerPress, context: InputContext): PressRow {
+export function pressRowOf(
+  press: Pick<PointerPress, 'at' | 'hit'>,
+  context: Pick<InputContext, 'screenState' | 'isDualCursorMode'>,
+): PressRow {
   const modifiers = press.at.modifiers
   // PD-1: the middle button, or a left drag with Ctrl and nothing else. Beats
   // both the arming and the hit, whatever lies under the pointer.
@@ -1100,7 +1215,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
 
   // SK-18 -- FR-055. The zoom is measured from the layout this frame ran, and
   // the place is handed back to OP-10 (see `fitCommand`).
-  if (plain && key === KEY.f) return changed([fitCommand(context)])
+  if (plain && key === KEY.f) return changedInOrder(fitWrites(context))
 
   // SK-20 -- FR-046: showing the line puts today into `statusDate`, hiding it
   // puts null there. The clock is the shell's (LY-5), so today arrives as a
@@ -1234,6 +1349,16 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   if (press.on !== null) return commandFromEntry(press, context)
   if (!isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
+  // ⭐ ASKED HERE RATHER THAN READ OFF `press.pressRow`, AND IT IS THE SAME
+  // ANSWER. The member is what this very function returned at the press, so
+  // there is one reading of table T-023a either way (R2.7 is about a second
+  // READING, not a second call). ⚠️ And the answer cannot have drifted since:
+  // the button, the modifiers and the hit are frozen on the press, while the
+  // two current values PD-2 and PD-4 / PD-4a turn on hold still for as long as
+  // a press does -- arming moves only on a press of a palette entry, which
+  // REPLACES the press, or on `Esc`, which IN-4 spends at the gesture level
+  // above `armed` while a gesture is in flight and the caller answers by
+  // dropping the press.
   switch (pressRowOf(press, context)) {
     case 'PD-1': {
       // Pan. ⭐ 「パンは等倍とすること（MUST）」 -- the schedule moves exactly
@@ -1305,7 +1430,7 @@ function commandFromEntry(press: PointerPress, context: InputContext): Translate
     case ENTRY.redo:
       return acted({ kind: 'redoEdit' })
     case ENTRY.fitToScreen:
-      return changed([fitCommand(context)])
+      return changedInOrder(fitWrites(context))
     case ENTRY.zoomTimeIn:
     case ENTRY.zoomTimeOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
@@ -1788,6 +1913,9 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
 
   const isAdding = press.at.modifiers.shift // SL-4
 
+  // ⭐ The same answer `press.pressRow` carries, for the reason spelled out at
+  // the other of these two switches: one reading of table T-023a, and nothing
+  // it reads can move while the press is in flight.
   switch (pressRowOf(press, context)) {
     case 'PD-3': {
       const ref = press.hit === null ? null : itemRefOf(context.document.schedule, press.hit.item)

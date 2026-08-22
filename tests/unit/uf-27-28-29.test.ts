@@ -363,8 +363,11 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     // WS-7 of table T-067: the audience is told after the swap. Handing it on to
     // PI-15 is what a running shell does, and it is what lets AM-17 be observed.
     audience: {
-      deliver: (confirmed) => {
-        notifyChangeWatchers({ document: confirmed, dialogue: state.dialogue })
+      // ⚠️ WS-5's judgement is the SECOND argument of `ChangeAudience.deliver`
+      // and has to be carried through: AG-6 of table T-035 selects a live
+      // watcher by it (MUST), and nothing downstream can work it out again.
+      deliver: (document, hasMovedSchedule) => {
+        notifyChangeWatchers({ document, hasMovedSchedule, dialogue: state.dialogue })
       },
     },
     dialogueHolder: {
@@ -376,7 +379,9 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     dialogueAudience: {
       deliver: (log) => {
         state.dialogue = log
-        notifyChangeWatchers({ document: state.document, dialogue: log })
+        // `false` for an utterance: AG-11 is not a schedule change, which is
+        // what `ConfirmedChange.hasMovedSchedule` states for this very case.
+        notifyChangeWatchers({ document: state.document, hasMovedSchedule: false, dialogue: log })
       },
     },
     writerName,

@@ -215,6 +215,16 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
+  // The four members `ScreenSession` requires that no case here varies:
+  // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
+  // on no icon), `selectedGroupIds` is FR-085's set of rows and
+  // `selectedResourceUids` FR-099's set of resources (both empty -- none
+  // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
+  // no operation has chosen one yet).
+  iconUnderPointer: null,
+  selectedGroupIds: [],
+  selectedResourceUids: [],
+  propertiesSubject: null,
   propertiesShowing: null,
   notices: [],
   confirmation: null,
@@ -467,7 +477,7 @@ describe('UF-65 -- FR-029 (MUST): the roster and the placement follow table T-10
   })
 
   it('invents no entry the table does not place here', () => {
-    const placed = new Set(T_109_PALETTE.map((entry) => entry.row))
+    const placed = new Set<string>(T_109_PALETTE.map((entry) => entry.row))
     for (const icon of iconsOf(describedWith())) {
       expect(placed.has(icon), `FR-029 (MUST): ${icon} is not a row of the palette`).toBe(true)
     }

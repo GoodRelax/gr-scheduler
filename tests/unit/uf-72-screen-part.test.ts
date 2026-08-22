@@ -1065,6 +1065,9 @@ const HEADER: AppHeaderItems = {
     command({ icon: 'IC-13', label: 'ZoomTimeIn' }),
     command({ icon: 'IC-12', label: 'ZoomTimeOut' }),
   ],
+  // FR-038 (MUST): the header says which language is on. The same value
+  // `BASE_VIEW` carries -- S-99 is a single state for the whole screen.
+  language: 'ja',
 }
 
 const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => ({
@@ -1116,6 +1119,9 @@ const DIALOGUE: DialogueField = {
 }
 
 const BASE_VIEW: ScreenView = {
+  // S-99. `readScreenPartAt` answers with rectangles and entry ids, never with
+  // a word, so this member is inert for every case below.
+  language: 'ja',
   frame: FRAME,
   appHeaderItems: HEADER,
   rowTitlePanel: {

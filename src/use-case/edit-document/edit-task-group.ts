@@ -4,9 +4,10 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 //
-// The ten commands table T-108 puts in the `TaskGroup` group: CM-26 to CM-35.
+// The eleven commands table T-108 puts in the `TaskGroup` group: CM-26 to
+// CM-35, and CM-72.
 //
-// ⚠️ All ten write a `TaskGroup` column, which is schedule-group data, so each
+// ⚠️ All eleven write a `TaskGroup` column, which is schedule-group data, so each
 // of them rebuilds `document.schedule` and FR-063 moves the schedule instant for it.
 // A command that asks for the value already held rebuilds NOTHING and returns
 // the document untouched -- document-change-plan.ts reads the schedule
@@ -29,6 +30,11 @@
 // commands. They are BUNDLES of CM-33 over the rows they name, and AG-3 of
 // table T-035 already applies a bundle atomically.
 //
+// ⭐ HF-8 of table T-051 is the one that is NOT a bundle: CM-72 gives it a row
+// of its own because FR-031 makes one press of the fit ONE undo step, and a
+// bundle of CM-33 would make the step count depend on how many rows the
+// document holds.
+//
 // ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
 
 import type { Document } from '../../entity/document-model/document/document'
@@ -44,7 +50,7 @@ import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
 
-/** CM-26 to CM-35 of table T-108. */
+/** CM-26 to CM-35 and CM-72 of table T-108. */
 export type TaskGroupCommand =
   | {
       readonly kind: 'createTaskGroup'
@@ -89,6 +95,14 @@ export type TaskGroupCommand =
       /** Every child of that parent, in the order asked for (HM-8). */
       readonly orderedIds: readonly string[]
     }
+  /**
+   * CM-72 -- HF-8's half of one fit press.
+   *
+   * ⚠️ It carries no field. Every collapsed row is the target, so there is no
+   * row to name; the second half of the press, CM-71, carries the zoom and the
+   * place and lives in the presentation aggregate.
+   */
+  | { readonly kind: 'expandAllTaskGroups' }
 
 /** @purity pure */
 function reject(command: string, rule: string, what: string): Refusal {
@@ -674,6 +688,31 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       // in the WBS (HM-10), and the two axes are deliberately independent
       // (HM-3). Nothing here writes `wbsOrder`.
       return edited(withSchedule(document, { taskGroups: ordered }))
+    }
+
+    case 'expandAllTaskGroups': {
+      // HF-8: one press of the fit throws away every collapse a person made,
+      // and it is the only operation that does. ⚠️ The hidden state STAYS --
+      // HF-8 discards the collapse alone, and HR-6 keeps `isHidden` in the
+      // document so a round trip brings it back (WY-1).
+      //
+      // ⭐ ONE command, never a loop of CM-33. FR-031 makes one press one undo
+      // step (UN-17), and pushing one step per row would make the step count
+      // depend on how many rows the document holds.
+      //
+      // ⭐ NOTHING IS REFUSED and no row is named: a document with no collapse
+      // in it comes back untouched, so FR-063 leaves the schedule instant where
+      // it stood (the file note above says why the reference is what answers).
+      //
+      // ⚠️ `null` is not a collapse. AT-56 lets the column be absent, and a row
+      // that never held one is left exactly as it is rather than written to
+      // `false` -- writing it would rebuild the schedule, and move the instant,
+      // for a document nobody had collapsed.
+      const opened = groups.map((one) =>
+        one.isCollapsed === true ? { ...one, isCollapsed: false } : one,
+      )
+      if (opened.every((one, at) => one === groups[at])) return edited(document)
+      return edited(withSchedule(document, { taskGroups: opened }))
     }
   }
 }

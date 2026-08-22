@@ -21,6 +21,9 @@ import {
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { planDocumentChange } from '../../src/use-case/apply-document-change/document-change-plan'
 import { editDocumentSettings, editProject } from '../../src/use-case/edit-document/edit-document'
+// ⭐ RD-1 of table T-230 puts UndoEdit in WS-3's position, so one press of undo
+// is `undoEdit` over the held pair. The pair-of-writes case below needs it.
+import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 // Every key DocumentSettings declares, at the value the manuscript states.
@@ -411,28 +414,153 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     )
   })
 
-  it('WS-5 raises it for fit, because HF-8 discards a TaskGroup column', () => {
-    // ⚠️ The group column of table T-108 files this under 見せ方の群, so
-    // reading THAT would answer no. What changed is what counts.
+  // ---- one fit press, two writes (FR-031) ---------------------------------
+  //
+  // ⛔ FR-031 (MUST / MUST NOT): 「全体表示の 1 回の押下は、2 つの書き込みに
+  // 分けて行うこと（MUST）。順序を入れ替えてはならない（MUST NOT）」 ——
+  // 「① 倍率と表示位置を置く（表 T-108 の `CM-71`。表 T-027 の `UN-8` により段を
+  // 積まない） ② 畳んだ行をすべて開く（同 `CM-72`。`UN-17` により段を 1 つ積む）」.
+  //
+  // The three cases below are that sentence, one half at a time and then the
+  // pair. ⚠️ The two cases they replace read the OLD shape, in which CM-71
+  // did both halves in one write: one of them asserted that a lone fit moved
+  // the schedule instant and pushed a step, which the sentence above now makes
+  // wrong, and the other ("no collapse to discard") had a premise that CM-71
+  // can no longer have at all -- it is folded into the CM-71 case, which now
+  // asserts the stronger thing: the schedule instant stays put even when there
+  // IS a collapsed row sitting in the document.
+
+  it('CM-71 over a document with a collapsed row places zoom and scroll only, pushing no step (UN-8) and leaving the schedule instant (FR-063)', () => {
+    // ⛔ T-108 CM-71 reads 「全体が収まる倍率と表示位置を置く」 -- the collapse
+    // half of the press is CM-72's, so a row that is collapsed stays collapsed
+    // through this write.
     const document = documentOf({
-      schedule: { taskGroups: [{ id: 'g1', isCollapsed: true }] },
+      schedule: { taskGroups: [{ id: 'g1', isCollapsed: true, isHidden: false }] },
     })
     const plan = planOf(document, [
-      { kind: 'fitScheduleToScreen', zoomX: 2, zoomY: 2, scrollDate: null, scrollGroupId: null },
+      {
+        kind: 'fitScheduleToScreen',
+        zoomX: 2,
+        zoomY: 2,
+        scrollDate: '2026-03-01',
+        scrollGroupId: 'g1',
+      },
     ])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
-    expect(plan.hasMovedSchedule).toBe(true)
-    expect(plan.document.schedule.taskGroups[0]!.isCollapsed).toBe(false)
-    // UN-17 makes that half undoable, so the press leaves one step.
-    expect(plan.history.done).toHaveLength(1)
+
+    // 「倍率と表示位置を置く」: S-75 / S-76 and S-77 / S-78.
+    expect(plan.document.documentSettings.zoomX).toBe(2)
+    expect(plan.document.documentSettings.zoomY).toBe(2)
+    expect(plan.document.documentSettings.scrollDate).toBe('2026-03-01')
+    expect(plan.document.documentSettings.scrollGroupId).toBe('g1')
+    // ...and nothing else. The collapse is CM-72's half.
+    expect(plan.document.schedule.taskGroups[0]!.isCollapsed).toBe(true)
+
+    // ⛔ UN-8 of table T-027 lists ズーム・スクロール・パン as 対象外, and WS-4
+    // (MUST NOT) 「本表の欄が『積まない』の行で取り消しの 1 段を積んではならない」.
+    expect(plan.history.done).toHaveLength(0)
+
+    // ⛔ FR-063 (MUST NOT): 「見せ方の群だけを変える更新で、日程データの群の刻を
+    // 動かしてはならない」. CM-71 is filed under 見せ方の群 in T-108's group
+    // column, and this write touches nothing else -- so the answer is no even
+    // with a collapsed row in the document, which is what the case this
+    // replaces was reaching for with its "no collapse to discard" premise.
+    expect(plan.hasMovedSchedule).toBe(false)
+    expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe(
+      document.documentStamp.scheduleUpdatedUtc,
+    )
+    // FR-063 (MUST): 「どちらの群であれ動いた刻と、最後に書いた者は、見せ方の群
+    // だけを変えたときも更新すること」.
+    expect(plan.document.documentStamp.settingsUpdatedUtc).toBe('2026-08-17T01:00:00Z')
   })
 
-  it('leaves the schedule instant alone when fit had no collapse to discard', () => {
-    const plan = planOf(documentOf({ schedule: { taskGroups: [{ id: 'g1', isCollapsed: false }] } }), [
-      { kind: 'fitScheduleToScreen', zoomX: 2, zoomY: 2, scrollDate: null, scrollGroupId: null },
+  it('CM-72 over two collapsed rows opens both in ONE step (UN-17) and moves the schedule instant, leaving the hidden state alone (HF-8)', () => {
+    const document = documentOf({
+      schedule: {
+        taskGroups: [
+          { id: 'g1', isCollapsed: true, isHidden: false },
+          { id: 'g2', isCollapsed: true, isHidden: true },
+          { id: 'g3', isCollapsed: false, isHidden: false },
+        ],
+      },
+    })
+    const plan = planOf(document, [{ kind: 'expandAllTaskGroups' }])
+    expect(plan.ok).toBe(true)
+    if (!plan.ok) return
+
+    // ⛔ T-108 CM-72 reads 「畳んだ行をすべて開く」 and HF-8 (MUST) 「人が全体表示
+    // （`FR-055`）を求めたとき、人が畳んだ状態をすべて捨てること」 -- every row,
+    // not the first one. ⚠️ Whether "discarded" lands on `false` or on `null`
+    // is not settled anywhere: AT-56 makes the column nullable and no rule
+    // picks between the two, so the case asserts what the rule does say (the
+    // row is not collapsed) and refuses a missing key, which FR-024 forbids.
+    for (const group of plan.document.schedule.taskGroups) {
+      expect([false, null]).toContain(group.isCollapsed)
+    }
+    // ⛔ HF-8: 「捨てるのは畳みだけであり、隠した状態は残す」.
+    expect(plan.document.schedule.taskGroups[1]!.isHidden).toBe(true)
+
+    // ⛔ FR-031 (MUST): 「1 回の全体表示（`FR-055`）も 1 段にまとめること」 ——
+    // 「捨てた畳みを 1 行ずつ戻すことになると、積む段数がその文書の行数で決まって
+    // しまう」. Two rows were opened; ONE step is the whole press.
+    expect(plan.history.done).toHaveLength(1)
+
+    // ⛔ UN-17 of table T-027 files 「全体表示が人の畳んだ状態を捨てること」 under
+    // 対象, and `isCollapsed` is a `TaskGroup` column -- the schedule-data
+    // group -- so FR-063 (MUST) 「日程データの群の刻を動かすのは、日程データの群
+    // を変える更新とすること」 applies.
+    expect(plan.hasMovedSchedule).toBe(true)
+    expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe('2026-08-17T01:00:00Z')
+  })
+
+  it('one press written CM-71 then CM-72 and undone once brings the collapse back while the new zoom stays (FR-031, UN-8 + UN-17)', () => {
+    // ⭐ THE ORDER IS THE POINT. FR-031: 「表 T-067 の `WS-4` が積むのは、その
+    // 書き込みの前の文書である。したがって ② が積む段は既に新しい倍率を持って
+    // おり、取り消すと倍率は新しいまま畳みだけが戻る」. ⚠️ And the reason the
+    // reverse is a MUST NOT: 「1 つにまとめて書くと、段が古い倍率ごと持つので、
+    // 取り消しが `UN-8` を破る」.
+    const start = documentOf({
+      schedule: { taskGroups: [{ id: 'g1', isCollapsed: true, isHidden: false }] },
+    })
+
+    // ① CM-71 -- 倍率と表示位置を置く. UN-8: no step.
+    const first = planOf(start, [
+      { kind: 'fitScheduleToScreen', zoomX: 4, zoomY: 4, scrollDate: null, scrollGroupId: null },
     ])
-    expect(plan.ok && plan.hasMovedSchedule).toBe(false)
+    expect(first.ok).toBe(true)
+    if (!first.ok) return
+    expect(first.history.done).toHaveLength(0)
+
+    // ② CM-72 -- 畳んだ行をすべて開く, written against what ① left. A second
+    // WRITE, not a second command in ①'s bundle: FR-031 says 「2 つの書き込みに
+    // 分けて行うこと（MUST）」.
+    const second = planOf(first.document, [{ kind: 'expandAllTaskGroups' }], {
+      history: first.history,
+      updatedUtc: '2026-08-17T02:00:00Z',
+    })
+    expect(second.ok).toBe(true)
+    if (!second.ok) return
+
+    // The whole press left exactly one step (FR-031: 1 段にまとめること).
+    expect(second.history.done).toHaveLength(1)
+    // ⭐ WS-4 pushes the document as it stood BEFORE ②, and ① had already
+    // written the zoom -- so the step carries the NEW zoom, not the old one.
+    // This is the assertion the MUST NOT on the order lives or dies by.
+    expect(second.history.done[0]!.step.document.documentSettings.zoomX).toBe(4)
+
+    // One press of undo (FR-031 / RD-1 of table T-230, whose WS-3 is UndoEdit).
+    const undone = undoEdit({ document: second.document, history: second.history })
+    expect(undone.undone).toBe(true)
+    // ⛔ UN-17: 「全体表示が人の畳んだ状態を捨てること」 is 対象, so the collapse
+    // comes back.
+    expect(undone.next.document.schedule.taskGroups[0]!.isCollapsed).toBe(true)
+    // ⛔ UN-17's own ⚠️ note: 「戻るのは畳みだけであり、倍率と表示位置は `UN-8` の
+    // まま対象外である」. The zoom stays where ① put it.
+    expect(undone.next.document.documentSettings.zoomX).toBe(4)
+    expect(undone.next.document.documentSettings.zoomY).toBe(4)
+    // Nothing is left to undo: the press was one step, not two.
+    expect(undone.next.history.done).toHaveLength(0)
   })
 
   it('WS-7 hands out the notice AFTER the swap, never before', () => {

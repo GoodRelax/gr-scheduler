@@ -22,7 +22,8 @@ import {
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   geometryFromLayout,
-  type Point,
+  type BarGeometry,
+  type Path,
   type ScheduleGeometry,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
@@ -44,6 +45,30 @@ import {
 // stayed green while the fixture quietly disagreed with the specification.
 const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
+
+/**
+ * One generated default, read as the number it is. `SETTINGS_DEFAULTS` is
+ * published as `Record<string, unknown>`, so the kind is checked here rather
+ * than assumed -- a key that stopped being a number would otherwise reach an
+ * arithmetic expression as `NaN` and leave the case green for the wrong reason.
+ */
+const settingNumber = (key: string): number => {
+  const value = SETTINGS_DEFAULTS[key]
+  if (typeof value !== 'number') throw new Error(`SETTINGS_DEFAULTS.${key} is not a number`)
+  return value
+}
+
+/** The four (or six) corners of a bar table T-012 draws as an outline. */
+const outlinePoints = (bar: BarGeometry | null): Path => {
+  if (bar === null || bar.form !== 'outline') throw new Error('this bar is not an outline')
+  return bar.points
+}
+
+/** The `line` arm of `BarGeometry` -- SH-3's head and SH-4's two ends. */
+const lineBar = (bar: BarGeometry | null): Extract<BarGeometry, { form: 'line' }> => {
+  if (bar === null || bar.form !== 'line') throw new Error('this bar is not a line')
+  return bar
+}
 
 /** The five keys regionsFromScreen reads, at values that make the sums easy to check. */
 const SETTINGS = settingsOf({
@@ -507,7 +532,16 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
     // "nothing drawn" means no rows at all, not an empty row.
     const layout = layoutFromSchedule(scheduleOf({}), LAYOUT_SETTINGS, REGIONS)
     expect(layout.contentHeight).toBe(0)
-    expect(fitZoom(layout, LAYOUT_SETTINGS, REGIONS)).toEqual({ zoomX: 1, zoomY: 1 })
+    // OP-10 (MUST) makes the fit answer the position as well as the scale,
+    // so all four of S-75..S-78 are asserted here. With nothing drawn there
+    // is no leftmost edge and no top row, and FR-055's empty-document arm
+    // hands back what the settings already hold rather than inventing one.
+    expect(fitZoom(layout, LAYOUT_SETTINGS, REGIONS)).toEqual({
+      zoomX: 1,
+      zoomY: 1,
+      scrollDate: LAYOUT_SETTINGS.scrollDate,
+      scrollGroupId: LAYOUT_SETTINGS.scrollGroupId,
+    })
   })
 
   it('still has an extent when a row holds no Task, because the band is drawn', () => {
@@ -574,7 +608,7 @@ const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6
 // names, as a square of side `markerSize`, so its CENTRE stands this far past
 // that end. Read from the generated defaults (S-23 = 4, S-22 = 16) rather than
 // re-typed, so moving either value moves these cases with it.
-const MARKER_OFFSET = SETTINGS_DEFAULTS.markerGap + SETTINGS_DEFAULTS.markerSize / 2
+const MARKER_OFFSET = settingNumber('markerGap') + settingNumber('markerSize') / 2
 
 /** One row holding the tasks given, with a shape chosen for each. */
 const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, unknown>[]): Schedule =>
@@ -594,7 +628,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     ])
     const geometry = geometryOf(schedule)
     expect(geometry.tasks).toHaveLength(1)
-    const points = (geometry.tasks[0]!.plan as { points: Point[] }).points
+    const points = outlinePoints(geometry.tasks[0]!.plan)
     expect(points).toHaveLength(4)
     const xs = points.map((p) => p.x)
     expect((Math.min(...xs) + Math.max(...xs)) / 2).toBeCloseTo(xOf(10), 6)
@@ -603,7 +637,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
 
   it('T-012a draws a rectangle as its own four points when no fade is set', () => {
     const geometry = geometryOf(oneRow([spanning(1, '2026-01-01', 20)]))
-    const points = (geometry.tasks[0]!.plan as { points: Point[] }).points
+    const points = outlinePoints(geometry.tasks[0]!.plan)
     expect(points).toHaveLength(4)
     expect(new Set(points.map((p) => p.x))).toEqual(new Set([xOf(0), xOf(20)]))
   })
@@ -612,7 +646,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     const geometry = geometryOf(
       oneRow([spanning(1, '2026-01-01', 20, { fadeInDays: 15, fadeOutDays: 15 })]),
     )
-    const points = (geometry.tasks[0]!.plan as { points: Point[] }).points
+    const points = outlinePoints(geometry.tasks[0]!.plan)
     // Point 2 is end - fadeOut and point 4 is start + fadeIn. fadeIn takes 15
     // of the 20 days, so fadeOut is cut to the 5 that are left and they meet.
     expect(points[1]!.x).toBeCloseTo(xOf(15), 6)
@@ -623,7 +657,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     const schedule = oneRow([
       spanning(1, '2026-01-01', 20, { fadeInDays: 5, actualStart: '2026-01-01', actualDuration: 5 }),
     ])
-    const points = (geometryOf(schedule).tasks[0]!.actual as { points: Point[] }).points
+    const points = outlinePoints(geometryOf(schedule).tasks[0]!.actual)
     // With no fade the trapezoid is a rectangle: two distinct x, not three.
     expect(new Set(points.map((p) => p.x)).size).toBe(2)
   })
@@ -634,8 +668,8 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
       [{ taskUid: 1, shapeKind: 'chevron' }],
     )
     const geometry = geometryOf(schedule)
-    const planX = (geometry.tasks[0]!.plan as { points: Point[] }).points.map((p) => p.x)
-    const actualX = (geometry.tasks[0]!.actual as { points: Point[] }).points.map((p) => p.x)
+    const planX = outlinePoints(geometry.tasks[0]!.plan).map((p) => p.x)
+    const actualX = outlinePoints(geometry.tasks[0]!.actual).map((p) => p.x)
     // The plan notch is min(120 x 0.35, 28 x 0.45) = 12.6. The actual's is that
     // times actualOfPlan -- NOT min(its own width x 0.35, ...), which would be
     // smaller and would tilt the two slopes apart.
@@ -650,12 +684,12 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
         [{ taskUid: 1, shapeKind: kind }],
       )
     const inside = geometryOf(build('rectangle')).tasks[0]!
-    const actualTop = Math.min(...(inside.actual as { points: Point[] }).points.map((p) => p.y))
+    const actualTop = Math.min(...outlinePoints(inside.actual).map((p) => p.y))
     expect(actualTop).toBeCloseTo(REGIONS.rowArea.y + (28 - 28 * 0.73) / 2, 6)
 
     const below = geometryOf(build('arrow')).tasks[0]!
-    const planLine = below.plan as { from: Point }
-    const actualLine = below.actual as { from: Point }
+    const planLine = lineBar(below.plan)
+    const actualLine = lineBar(below.actual)
     // An arrow's plan is 28 x 0.5 = 14 tall, so its line runs at 7 from the
     // top; the actual sits 14 + actualGap below that top, on its own centre.
     const planTop = planLine.from.y - 7
@@ -665,16 +699,10 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
   it('LF-7 gives an arrow a head and a span two dots', () => {
     const build = (kind: string): Schedule =>
       withVisuals([spanning(1, '2026-01-01', 40)], [{ taskUid: 1, shapeKind: kind }])
-    const arrow = geometryOf(build('arrow')).tasks[0]!.plan as {
-      head: Point[] | null
-      dots: unknown[]
-    }
+    const arrow = lineBar(geometryOf(build('arrow')).tasks[0]!.plan)
     expect(arrow.head).toHaveLength(3)
     expect(arrow.dots).toHaveLength(0)
-    const span = geometryOf(build('endpointSpan')).tasks[0]!.plan as {
-      head: null
-      dots: unknown[]
-    }
+    const span = lineBar(geometryOf(build('endpointSpan')).tasks[0]!.plan)
     expect(span.head).toBeNull()
     expect(span.dots).toHaveLength(2)
   })
@@ -736,7 +764,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // LF-11: 縦は予定バーの中心 -- the plan's centre, not the actual's.
     expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + 14, 6)
     // LF-11: markerSize を一辺とする正方形.
-    expect(marker.radius).toBe(SETTINGS_DEFAULTS.markerSize / 2)
+    expect(marker.radius).toBe(settingNumber('markerSize') / 2)
   })
 
   it('FR-013 moves the marker to the plan bar when only the plan is displayed', () => {
@@ -1073,7 +1101,7 @@ describe('ItemHitArea (PI-7)', () => {
     // A whole markerSize further along the same plan body -- clear of the
     // square -- GR-12 answers, which is what makes the line above a real win.
     expect(
-      itemAtPointer(running, xOf(7) + MARKER_OFFSET + SETTINGS_DEFAULTS.markerSize, middleY, SLOP)
+      itemAtPointer(running, xOf(7) + MARKER_OFFSET + settingNumber('markerSize'), middleY, SLOP)
         ?.grab,
     ).toBe('GR-12')
   })

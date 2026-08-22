@@ -913,6 +913,15 @@
    }
   }
  ],
+ "confirmationMarks": [
+  {
+   "mark": "shownOnAnotherRow",
+   "text": {
+    "ja": "別の行に表示中",
+    "en": "shown on another row"
+   }
+  }
+ ],
  "panelHeadings": [
   {
    "showing": "selection",

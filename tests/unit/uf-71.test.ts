@@ -955,12 +955,18 @@ const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
   autosaveStatus: { kind: 'saving' },
   commands: [],
+  // FR-038 (MUST): the header says which language is on. The same value the
+  // view carries -- `ScreenSession.language` (S-99) is where both come from.
+  language: 'ja',
 }
 
 const EMPTY_FRAME: ScreenFrame = { isFullScreen: false, dividers: [], scrollbars: [] }
 
 /** ⭐ Every optional part null and every list empty -- the boundary BO-1 starts from. */
 const EMPTY_VIEW: ScreenView = {
+  // S-99. UF-71 draws what it is handed and chooses no word of its own, so this
+  // member is inert for every case below.
+  language: 'ja',
   frame: EMPTY_FRAME,
   appHeaderItems: EMPTY_HEADER,
   rowTitlePanel: { pinnedTitles: [], titles: [] },
@@ -986,6 +992,9 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
   depth: 1,
   box: rect(0, 0, 170, 24),
   label: patch.groupId,
+  // Nothing is cut here, and the `RowTitle` contract fixes that case as
+  // `wholeLabel === label` with `isLabelTruncated` false.
+  wholeLabel: patch.groupId,
   isLabelTruncated: false,
   expander: null,
   isPinned: false,
@@ -1055,6 +1064,8 @@ const RICH_VIEW: ScreenView = viewWith({
     documentTitle: 'DocumentTitleHere',
     autosaveStatus: { kind: 'saved', at: '2026-08-20T03:04:05Z' },
     commands: [command({ icon: 'IC-20', label: 'HeaderCommandOne' })],
+    // FR-038: the same language the view carries.
+    language: 'ja',
   },
   rowTitlePanel: {
     pinnedTitles: [rowTitle({ groupId: 'g-pinned', label: 'PinnedRowOne', isPinned: true })],
