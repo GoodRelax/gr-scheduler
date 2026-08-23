@@ -1,7 +1,7 @@
 {
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The words the screen prints: every entry of table T-109 and the explanation EZ-2 shows beside it, the group names of the command palette, the headings of the surfaces table T-103 has named, the manner of every row of table T-037, the two answers NT-7 asks for, the three headings FR-072 asks for, and the assignments of table T-023 that FR-037 offers.",
+  "The words the screen prints: every entry of table T-109 and the explanation EZ-2 shows beside it, the group names of the command palette, the headings of the surfaces table T-103 has named, the manner of every row of table T-037, the words and the next step for every reason of table T-233, the two answers NT-7 asks for, the three headings FR-072 asks for, and the assignments of table T-023 that FR-037 offers.",
   "Generated FROM this file: src/adapter/screen-renderer/display-words.json (tools/generate_display_words.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "EVERY ENTRY IS EMPTY ON PURPOSE (ruling 2026-08-21, PD-160). Table T-109 refuses an English column because one would settle dozens of names the glossary has not settled, and a word invented by an agent settles the same names. Fill ja and en here; nothing else has to change for them to appear.",
@@ -594,12 +594,12 @@
   {
    "rowId": "IC-54",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "構えている図形",
+    "en": "Armed glyph"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "いま構えている図形。Esc で解ける",
+    "en": "The glyph now armed; Esc clears it"
    }
   },
   {
@@ -941,6 +941,173 @@
    "manner": {
     "ja": "続けてよいかを問うとき",
     "en": "When asking whether to go on"
+   }
+  }
+ ],
+ "reasons": [
+  {
+   "rowId": "RS-1",
+   "text": {
+    "ja": "このファイルへ書き込む権限が切れています",
+    "en": "Permission to write to this file has lapsed"
+   },
+   "nextStep": {
+    "ja": "もう一度ファイルを選び直すと、書き込めるようになります",
+    "en": "Choose the file again to restore permission"
+   }
+  },
+  {
+   "rowId": "RS-2",
+   "text": {
+    "ja": "開いているファイルが無いので、上書きする先がありません",
+    "en": "No file is open, so there is nothing to overwrite"
+   },
+   "nextStep": {
+    "ja": "保存先を選んで書き出してください",
+    "en": "Choose a destination and write it out"
+   }
+  },
+  {
+   "rowId": "RS-3",
+   "text": {
+    "ja": "この環境ではファイルへの書き込みが行えません",
+    "en": "Writing to a file is not available here"
+   },
+   "nextStep": {
+    "ja": "別の保存先を選んで書き出してください",
+    "en": "Choose another destination and write it out"
+   }
+  },
+  {
+   "rowId": "RS-4",
+   "text": {
+    "ja": "このファイルは UTF-8 ではないので読めません",
+    "en": "This file is not UTF-8, so it cannot be read"
+   },
+   "nextStep": {
+    "ja": "UTF-8 で保存し直してから開いてください",
+    "en": "Save it as UTF-8 and open it again"
+   }
+  },
+  {
+   "rowId": "RS-5",
+   "text": {
+    "ja": "この形式は書き出し専用なので、開いたファイルへは上書きできません",
+    "en": "This format only goes out, so it cannot overwrite the opened file"
+   },
+   "nextStep": {
+    "ja": "保存先を選んで書き出してください",
+    "en": "Choose a destination and write it out"
+   }
+  },
+  {
+   "rowId": "RS-6",
+   "text": {
+    "ja": "文書が別の場所で変わったので、この変更は適用できません",
+    "en": "The document changed elsewhere, so this change was not applied"
+   },
+   "nextStep": {
+    "ja": "いまの文書を読み直してから、もう一度行ってください",
+    "en": "Read the current document again, then try once more"
+   }
+  },
+  {
+   "rowId": "RS-7",
+   "text": {
+    "ja": "ドラッグの最中なので、この変更は適用できません",
+    "en": "A drag is in progress, so this change was not applied"
+   },
+   "nextStep": {
+    "ja": "ドラッグを終えてから、もう一度行ってください",
+    "en": "Finish the drag, then try once more"
+   }
+  },
+  {
+   "rowId": "RS-8",
+   "text": {
+    "ja": "その場の編集が確定していないので、この変更は適用できません",
+    "en": "An in-place edit has not been committed, so this change was not applied"
+   },
+   "nextStep": {
+    "ja": "編集を確定するか取りやめてから、もう一度行ってください",
+    "en": "Commit or cancel the edit, then try once more"
+   }
+  },
+  {
+   "rowId": "RS-9",
+   "text": {
+    "ja": "知らせを配っている最中なので、この変更は適用できません",
+    "en": "Notices are being delivered, so this change was not applied"
+   },
+   "nextStep": {
+    "ja": "少し待ってから、もう一度行ってください",
+    "en": "Wait a moment, then try once more"
+   }
+  },
+  {
+   "rowId": "RS-10",
+   "text": {
+    "ja": "受け付けられない操作が含まれていたので、まとめて取りやめました",
+    "en": "One of the changes was refused, so the whole set was dropped"
+   },
+   "nextStep": {
+    "ja": "受け付けられなかった操作を取り除いて、もう一度行ってください",
+    "en": "Take out the refused change, then try once more"
+   }
+  },
+  {
+   "rowId": "RS-11",
+   "text": {
+    "ja": "拡張子が、読み取れる形式のどれにも当てはまりません",
+    "en": "The file name extension matches no format that can be read"
+   },
+   "nextStep": {
+    "ja": "読み取れる形式のファイルを選んでください",
+    "en": "Choose a file in a format that can be read"
+   }
+  },
+  {
+   "rowId": "RS-12",
+   "text": {
+    "ja": "ファイルの中身が、読み取れる形式のどれにも当てはまりません",
+    "en": "The contents match no format that can be read"
+   },
+   "nextStep": {
+    "ja": "ファイルが壊れていないかを確かめてください",
+    "en": "Check whether the file is intact"
+   }
+  },
+  {
+   "rowId": "RS-13",
+   "text": {
+    "ja": "拡張子と中身が別の形式を指しているので、どちらとしても読めません",
+    "en": "The extension and the contents name different formats, so neither can be read"
+   },
+   "nextStep": {
+    "ja": "ファイル名と中身のどちらが正しいかを確かめてください",
+    "en": "Check which of the name and the contents is right"
+   }
+  },
+  {
+   "rowId": "RS-14",
+   "text": {
+    "ja": "先頭の 1 つだけを開きました。残りは開いていません",
+    "en": "Only the first file was opened; the rest were left"
+   },
+   "nextStep": {
+    "ja": "残りは 1 つずつ開いてください",
+    "en": "Open the rest one at a time"
+   }
+  },
+  {
+   "rowId": "RS-15",
+   "text": {
+    "ja": "操作を終えられませんでした",
+    "en": "The operation could not be completed"
+   },
+   "nextStep": {
+    "ja": "もう一度行ってください。続くときは、直前の操作を控えてください",
+    "en": "Try once more; if it keeps happening, note what you did"
    }
   }
  ],

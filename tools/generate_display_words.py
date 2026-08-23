@@ -11,8 +11,9 @@ is the only way they reach the code.
 
 ⭐ THE MANUSCRIPT HOLDS WORDS AND NO ROSTER. Which words are needed is already
 written down -- table T-109 (every entry and its group), table T-037 (every
-manner of telling and asking), table T-023 (every assignment) and FR-072 (the
-three headings of the properties panel). ⛔ So this script builds that roster
+manner of telling and asking), table T-233 (every reason a telling can carry),
+table T-023 (every assignment) and FR-072 (the three headings of the properties
+panel). ⛔ So this script builds that roster
 from docs/spec every run and holds the manuscript against it: a row added to a
 table and not to the manuscript, or a key in the manuscript that no table has,
 stops the run with exit code 1 and nothing is written. A roster typed twice
@@ -53,11 +54,13 @@ def path_of(rel):
 ICON_ROW = re.compile(r'^\| (IC-\d+[a-z]?) \|')
 NOTICE_ROW = re.compile(r'^\| (NT-\d+[a-z]?) \|')
 ASSIGNMENT_ROW = re.compile(r'^\| (MK-\d+[a-z]?) \|')
+REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 ICON_TABLE = 'T-109'
 NOTICE_TABLE = 'T-037'
 ASSIGNMENT_TABLE = 'T-023'
+REASON_TABLE = 'T-233'
 
 # The surface whose entry closes an open surface. Its 面 column is the roster of
 # surfaces table T-103 has settled a name for -- CR-191 and CR-193 both added a
@@ -195,6 +198,14 @@ def roster():
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
+        # ⛔ The row id IS the key, the move `Notice.manner` already makes with
+        # table T-037: a reason then points at one line of the specification
+        # (1.9, "the first column is the row id"), and no camelCase vocabulary of
+        # the code's is copied into the manuscript. ⚠️ RS-15 is the row a reason
+        # with no row of its own falls to -- without it NT-1 (MUST) and NT-3a
+        # (MUST) cannot be kept for a reason nobody has written down yet.
+        'reasons': [row[0] for row in
+                    table_rows(REL_REQUIREMENTS, REASON_ROW, REASON_TABLE)],
     }
 
 
@@ -208,6 +219,7 @@ SHAPE = {
     'confirmationMarks': ('mark', ('text',)),
     'panelHeadings': ('showing', ('text',)),
     'assignments': ('rowId', ('text',)),
+    'reasons': ('rowId', ('text', 'nextStep')),
 }
 
 
@@ -278,8 +290,8 @@ def build(doc):
     """
     out = {'$comment': BANNER}
     for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
-                    'confirmation', 'confirmationMarks', 'panelHeadings',
-                    'assignments'):
+                    'reasons', 'confirmation', 'confirmationMarks',
+                    'panelHeadings', 'assignments'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
@@ -312,7 +324,7 @@ def main():
 
     if '--report' in sys.argv:
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
-                        'confirmation', 'confirmationMarks',
+                        'reasons', 'confirmation', 'confirmationMarks',
                         'panelHeadings', 'assignments'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),

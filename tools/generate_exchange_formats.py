@@ -33,12 +33,15 @@ where a row id is bound to a name this build already had (`ImportFormat` /
 that has been renumbered and a row that carries half the rule all stop the run
 rather than produce a file.
 
-⚠️ A ROW MAY STAND HERE CARRYING NEITHER VALUE. Table T-024 puts an em dash in
-both columns for the rows that only go out, and says in as many words that the
-two columns belong to the rows `OP-1` accepts on intake -- so an em dash is
-carried across as `null` and NOT as an empty string: a row with an em dash is
-not a format anything may be read AS, and an empty extension would match every
-file name there is. ⛔ Nothing is invented in an em dash's place.
+⚠️ THE TWO COLUMNS ARE NOT THE SAME SET OF ROWS. Table T-024 gives the
+first-non-blank-character column to the rows `OP-1` accepts on intake, and gives
+the extension column to every row that comes out as a FILE -- because FR-096
+(MUST) suggests the document name with that extension, and the clipboard and the
+store have no file to name. So three shapes stand here: both columns (a row
+OP-12 judges), the extension alone (a file format that only goes out), and
+neither. An em dash is carried across as `null` and NOT as an empty string: an
+empty extension is the tail of every file name, so it would match all of them
+rather than none. ⛔ Nothing is invented in an em dash's place.
 
 ⚠️ THE ROW THAT IS NOT WRITTEN OUT AT ALL is the one whose direction column
 marks neither taking in nor writing out. It is not a file this tool exchanges,
@@ -93,10 +96,12 @@ BANNER = (
     'GENERATED -- do not edit by hand. Generated from %s, table %s: every row '
     'that table gives an out direction, which is the set FR-096 (MUST) has the '
     'author choose from, each with the extension and the first non-blank '
-    'character that OP-12 of table T-024a compares. Rebuild: npm run gen -- '
-    'npm run gen:check fails on drift. The generator is %s. Both columns are '
-    'null on a row that only goes out: table %s writes an em dash there, and '
-    'such a row is not a format a file may be read AS. A format is carried by '
+    'character that OP-12 of table T-024a compares, where the row carries them. '
+    'Rebuild: npm run gen -- '
+    'npm run gen:check fails on drift. The generator is %s. The first character '
+    'is null on a row that only goes out, and the extension is null too where '
+    'the row is not a file at all: table %s writes an em dash there, and such a '
+    'row is not a format a file may be read AS. A format is carried by '
     'its row id alone -- the table has no English column, and the names this '
     'build uses for the two readable ones are bound to those row ids in '
     'document-codec.ts.'
@@ -181,21 +186,22 @@ def format_of(row):
     row_id, direction, extension, first = row[0], row[2], row[3], row[4]
     has_extension = extension != EM_DASH
     has_first = first != EM_DASH
-    if has_extension != has_first:
-        sys.exit('generate_exchange_formats: %s of table %s carries one of the '
-                 'two columns OP-12 compares and an em dash in the other'
+    if has_first and not has_extension:
+        sys.exit('generate_exchange_formats: %s of table %s carries the first '
+                 'non-blank character OP-12 compares and an em dash where the '
+                 'extension goes, so that side could never be matched'
                  % (row_id, TABLE))
 
-    # Table T-024 states that the two columns belong to the rows OP-1 accepts
-    # on intake. Held in both directions, so that a row gaining a direction
-    # without the values -- or the other way round -- is a stop and not a
-    # format that silently cannot be opened.
+    # Table T-024 gives the FIRST-CHARACTER column to the rows OP-1 accepts on
+    # intake. Held in both directions, so that a row gaining a direction without
+    # the value -- or the other way round -- is a stop and not a format that
+    # silently cannot be opened.
     on_intake = INTAKE in direction
-    if has_extension != on_intake:
+    if has_first != on_intake:
         sys.exit('generate_exchange_formats: %s of table %s %s accepted on '
-                 'intake, and %s the two columns OP-12 compares'
+                 'intake, and %s the first non-blank character OP-12 compares'
                  % (row_id, TABLE, 'is' if on_intake else 'is not',
-                    'carries' if has_extension else 'does not carry'))
+                    'carries' if has_first else 'does not carry'))
 
     # FR-096's set is the whole of this file, and the rows OP-12 judges are a
     # part of it today.
@@ -203,7 +209,7 @@ def format_of(row):
         # ⛔ A row OP-12 may name that this filter DROPS is a decoder lost in
         # silence, so the two sets parting company stops the run. Nothing here
         # may choose which of the two readers to serve.
-        if has_extension:
+        if has_first:
             sys.exit('generate_exchange_formats: %s of table %s carries the two '
                      'columns OP-12 compares and is not written out, so one '
                      'roster can no longer answer both readers' % (row_id, TABLE))
@@ -216,14 +222,21 @@ def format_of(row):
         return {'rowId': row_id, 'extension': None, 'firstCharacter': None}
 
     extension = only_code_span(extension, row_id, 'extension')
-    first = only_code_span(first, row_id, 'first non-blank character')
     # ⛔ The reader compares the dotted tail of a file name, so an extension
     # written without its dot could never match and would refuse every file in
-    # silence. Refused here instead, where it is one line to fix.
+    # silence. FR-096 would suggest the same dotless name. Refused here instead,
+    # where it is one line to fix.
     if not extension.startswith('.'):
         sys.exit('generate_exchange_formats: %s of table %s writes the '
                  'extension %r, which does not open with a dot'
                  % (row_id, TABLE, extension))
+    if not has_first:
+        # A file format that only goes out. FR-096 (MUST) suggests a name from
+        # this extension; OP-12 never judges the row, so it carries no second
+        # side to be compared against and null is what says so.
+        return {'rowId': row_id, 'extension': extension, 'firstCharacter': None}
+
+    first = only_code_span(first, row_id, 'first non-blank character')
     # The column is named for ONE character. More than one is not something
     # "the first non-blank character" can be compared against.
     if len(first) != 1:
@@ -250,7 +263,7 @@ def build():
     if not formats:
         sys.exit('generate_exchange_formats: no row of table %s is written out, '
                  'so nothing could be chosen' % TABLE)
-    judged = [f for f in formats if f['extension'] is not None]
+    judged = [f for f in formats if f['firstCharacter'] is not None]
     if not judged:
         sys.exit('generate_exchange_formats: no row of table %s carries the two '
                  'columns OP-12 compares, so nothing could be judged' % TABLE)
@@ -265,6 +278,14 @@ def build():
         if len(set(seen)) != len(seen):
             sys.exit('generate_exchange_formats: two rows of table %s share a '
                      '%s, so OP-12 could not name one row' % (TABLE, what))
+    # ⛔ And no two rows may share an extension at all, judged or not: FR-096
+    # (MUST) suggests the document name with the chosen row extension, and two
+    # rows wearing one extension would put the same suggested name on two
+    # different formats.
+    named = [f['extension'] for f in formats if f['extension'] is not None]
+    if len(set(named)) != len(named):
+        sys.exit('generate_exchange_formats: two rows of table %s share an '
+                 'extension, so FR-096 could not suggest one name' % TABLE)
 
     columns = dict(zip(CARRIED, (header[0], header[3], header[4])))
     return {'$comment': BANNER, 'columns': columns, 'formats': formats}
