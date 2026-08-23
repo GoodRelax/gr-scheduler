@@ -116,7 +116,16 @@ import {
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
-import type { OpenChoice } from '../../use-case/import-document/import-document'
+// ⭐ THE ENTRY ITSELF AND NOT ONLY ITS TYPES, which LR-2 admits because this
+// lands on PI-10's own declaring file. ⛔ It is reached for ONE thing -- the
+// `ImportReport` -- and the reason is on the overlay road below: `ReplaceOutcome`
+// (PI-8) carries the document and nothing of what the import had to say, so the
+// road that lands the document cannot also hand back what FR-015 (MUST) has to
+// be told from.
+import {
+  importDocument,
+  type OpenChoice,
+} from '../../use-case/import-document/import-document'
 import { notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
 import {
   validateImportedDocument,
@@ -419,6 +428,7 @@ type NoticeReason =
   | 'RS-12'
   | 'RS-13'
   | 'RS-14'
+  | 'RS-16'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -448,6 +458,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-12': 'NT-1',
   'RS-13': 'NT-1',
   'RS-14': 'NT-5',
+  'RS-16': 'NT-5',
 }
 
 /**
@@ -515,6 +526,17 @@ const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeRe
 
 /** The row of table T-233 OP-11's caution carries. */
 const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
+
+/**
+ * The row of table T-233 FR-015's caution carries -- the overlay's own tasks
+ * that matched no current task and are therefore not drawn.
+ *
+ * ⚠️ ITS MANNER IS `NT-5` AND NOT `NT-1`, which is the whole shape of this
+ * telling: the open was ACCEPTED and the caution rides along with it, so nothing
+ * on this road turns the read away. The census above is where that pairing is
+ * read out of table T-233, not here.
+ */
+const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 
 /**
  * U-56 `Open Chooser` of table T-103 -- the surface OP-3 of table T-024a puts
@@ -2015,9 +2037,15 @@ export function frameLoop(
    * are that road's business -- this side is left holding neither a rule of
    * table T-027 nor a stamp to mint.
    *
+   * ⭐ ANSWERS WHETHER THE ROW LANDED, because one caller has something to do
+   * AFTER it did: FR-015's caution belongs to an overlay that was accepted, and a
+   * row that was refused has already had its own telling raised below. ⛔ The
+   * answer is the acceptance and nothing more -- what the write did is table
+   * T-230's to say, and reading it back off the holder is what CS-3 governs.
+   *
    * @purity non-pure
    */
-  function replaceHeldDocument(call: ReplacementCall): void {
+  function replaceHeldDocument(call: ReplacementCall): boolean {
     const outcome = replaceDocument(
       {
         // WS-1 matches this against the stamp the document carries now, exactly
@@ -2037,7 +2065,7 @@ export function frameLoop(
     // ⚠️ `ask` coalesces with FT-1's, so the press still paints once.
     if (outcome.accepted) {
       if (settled(environment)) ask()
-      return
+      return true
     }
     // FR-076 (MUST): the same road `writeDocument` takes one over.
     // STOP -- ⛔ ONE OF THE SIX REASONS STILL REACHES NOBODY, and it is this
@@ -2045,6 +2073,7 @@ export function frameLoop(
     // WS-3 a row written for a bundle of commands dropped, while WS-3 here is
     // ImportDocument's refusal. ⚠️ The four rows WS-1 and WS-2 carry do travel.
     raiseWriteRefusal(outcome.refusal)
+    return false
   }
 
   /**
@@ -2325,13 +2354,57 @@ export function frameLoop(
     // empty frame and OP-9 is not kept. ⚠️ Nothing this side passes changes
     // that: `current` is CS-3's one read and PI-10 fills it. Which of OP-9's
     // frame and FR-015's pairing is the narrower is not this file's to settle.
-    replaceHeldDocument({
+    //
+    // ⛔ THE DOCUMENT RD-3 IMPORTS AGAINST, TAKEN HERE SO THAT THE TELLING BELOW
+    // IS ABOUT THE SAME IMPORT. `replaceDocument` reads the holder once inside
+    // the write (CS-3), and no `await` stands between this line and that read,
+    // so the two are necessarily the same document. ⚠️ NOT `current`: that one
+    // is CS-4's read from before the two waits, and an edit made while the
+    // question stood would leave it naming a different set of matches.
+    const importedAgainst = held.document
+    const landed = replaceHeldDocument({
       row: 'RD-3',
       importing: { ...importing, choice },
       historyLimits: HISTORY_LIMITS,
       editedBy: EDITED_BY_SCREEN,
       updatedUtc: readInstantOfWrite(),
     })
+
+    // FR-015 (MUST): 「対応するタスクが無い重ねる側のタスクは、描かずに知らせる
+    // こと」, and OP-9 of table T-024a points at this same requirement for the
+    // telling. RS-16 of table T-233 is the row it is carried on, and FR-076
+    // (MUST NOT) is what makes that row the whole of what may be carried.
+    //
+    // ⛔ ONLY THE OVERLAY, AND ONLY ONCE IT LANDED. RD-3 also carries OP-3's
+    // merge, and `ImportReport.baselineTaskUidsNotDrawn` is the overlay side's
+    // member; a refused row is told by `replaceHeldDocument` itself and has
+    // nothing left undrawn to caution about.
+    if (!landed || choice !== 'baseline') return
+
+    // ⚠️ PI-10 IS ASKED A SECOND TIME, AND THAT IS A COST RATHER THAN A CHOICE:
+    // `ReplaceOutcome` (PI-8) answers with the document and WS-5's judgement and
+    // carries no `ImportReport`, so the road that lands the overlay cannot hand
+    // back the tasks it could not pair. ⛔ The alternative is worse -- counting
+    // the frame against the read file HERE would be this file making PI-10's
+    // pairing judgement a second time, which R2.7 refuses. `importDocument` is
+    // pure and the request is the very one RD-3 was given, so the two runs
+    // answer alike.
+    // ⚠️ A member on `ReplaceOutcome` for the report is what is owed.
+    const overlaid = importDocument({ ...importing, choice, current: importedAgainst })
+    // The row landed, so PI-10 accepted it; a refusal here would be the two runs
+    // disagreeing, and there is nothing about THIS requirement to tell then.
+    if (!overlaid.ok) return
+
+    // ⚠️ THE NUMBER RIDES ON `affectedCount`, exactly as OP-11's caution above
+    // has it: that member is documented against NT-3 and this row follows NT-5,
+    // and it is the one place on `RaisedNotice` a number can travel.
+    // ⛔ NOTHING IS WRITTEN HERE. The row id and the count go over and the words
+    // are the dictionary's (FR-038, MUST NOT) -- a sentence composed on this side
+    // would be the second store of translated strings that requirement forbids.
+    // ⛔ NOTHING IS RAISED WHEN EVERY TASK MATCHED: NT-5 is 「受け付けたうえで
+    // 注意を伝えるとき」, and with nothing left undrawn there is no caution.
+    const notDrawn = overlaid.report.baselineTaskUidsNotDrawn.length
+    if (notDrawn > 0) raiseNotice(OVERLAY_NOT_DRAWN_REASON, notDrawn)
   }
 
   /**

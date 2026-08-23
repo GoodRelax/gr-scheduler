@@ -15,8 +15,10 @@
 //   T-065 IF-3   `FileStore`, declared by FileGateway, implemented by
 //                FileSystemAccessFileStore, supplying the reading and writing
 //                of files; the handle is held by the implementation (FR-060)
-//   T-227        DI-1 .. DI-5 -- what makes two documents one and the same, and
-//                when the overwrite question has to be put
+//   T-227        DI-1 .. DI-6 -- what makes two documents one and the same,
+//                when the overwrite question has to be put, and the row that
+//                takes a destination of no bytes out of the table's reach
+//                before any other row of it is read
 //   T-037 NT-7   the manner of that question: what happens is shown, and going
 //                on or calling off is chosen
 //   T-066 CS-4   the consistency unit of one file operation that waits for a
@@ -38,33 +40,21 @@
 // supply arrives through `FileSystemAccessEnvironment`, which the Framework
 // unit declares for exactly this reason, so no DOM is needed.
 //
-// ---- ⛔ SEVEN CASES ARE LEFT FAILING. THEY ARE FINDINGS, NOT CHORES ---------
+// ---- the two findings this file once carried are both closed ---------------
 //
-// Rule 04 section 1 forbids bending an expectation to fit the code. Two gaps on
-// the far side of IF-3 account for all seven, and both are in
+// It reported two, and both were on the far side of IF-3, in
 // `src/framework/file-system-access-file-store/file-system-access-file-store.ts`:
+// `writeChosenFile` went from the chooser straight to the write, so DI-4's MUST
+// was unreachable and six cases stood red; and a drop of several files answered
+// without `ignoredFileCount`, which `FileReading` defines as "none were left",
+// so OP-11's MUST was never said. The store obeys the order IF-3 states now,
+// and reports the count, and every case here is green on the product as it is.
 //
-//   FINDING 1 (six cases -- DI-1, DI-2, DI-3, DI-4, and both CS-4 cases)
-//     `writeChosenFile` goes from the chooser straight to the write. It never
-//     reads what is standing at the destination and never calls
-//     `ChosenFileWrite.askToWriteOver`, so DI-4's MUST is unreachable no matter
-//     what the near side or the shell prepare. `file-gateway.ts` records the
-//     same absence in a STOP note beside the member it offers.
-//
-//   FINDING 2 (one case -- OP-11)
-//     A drop of several files keeps the first, and `firstDroppedFile`'s own
-//     note says the rest are ignored -- but `readDroppedFile` answers without
-//     `ignoredFileCount`, which `FileReading` defines as "none were left". So
-//     the fact OP-11 puts a MUST on saying is never said.
-//
-// ⭐ Both were confirmed to be the product and not this harness: with the store
-// temporarily made to obey the order IF-3 states, and to report the count, all
-// 26 cases pass. The patch was reverted.
-//
-// ⚠️ ONE CASE IS PARTLY VACUOUS WHILE FINDING 1 STANDS. "DI-4 -- has nothing to
-// ask about where nothing was standing" is green because nothing is ever asked
-// at all, not because an empty destination is exempted. Its other assertion
-// (the bytes land) is live. It becomes a real case the moment finding 1 closes.
+// ⭐ That history is kept because it is the argument for this file existing:
+// neither side's own tests could see either gap. The gateway's cases stand a
+// hand-made store in front of it and the store's cases take a hand-made
+// request, so a question one side hands down and the other never puts is
+// invisible to both, and stays invisible until the two are bolted together.
 
 import { describe, expect, it } from 'vitest'
 import { specTable } from './spec-table'
@@ -140,9 +130,11 @@ const joined = (chunks: readonly Uint8Array[]): Uint8Array => {
 /**
  * One place on the stand-in disk, and a record of everything done to it.
  *
- * ⭐ `null` content is a place nothing ever occupied. It is told apart from a
- * file standing empty because DI-3 turns on the destination already BEING
- * there, and both hold zero bytes.
+ * ⭐ `null` content is a place nothing ever occupied, and it is kept apart from
+ * a file standing empty so that both can be handed to the seam. ⚠️ DI-6 of
+ * table T-227 gives the two the SAME answer, and says in its own note that they
+ * cannot be told apart anyway -- so the point of keeping them apart here is to
+ * prove that neither is asked about, not to make the seam distinguish them.
  */
 interface StandInFile {
   readonly handle: FileHandle
@@ -489,9 +481,12 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
   it(
     seamCase(['DI-4'], 'has nothing to ask about where nothing was standing'),
     async () => {
-      // DI-4 asks about "a destination that cannot be called the same
-      // document". FR-096 sends only an EXISTING file to this table, so a place
-      // nothing occupied is past the whole table before any row is read.
+      // DI-4 asks about a destination that cannot be called the same document.
+      // FR-096 sends only an EXISTING file to this table, so a place nothing
+      // occupied is past the whole table before any row is read. ⭐ DI-6 puts a
+      // destination that IS there but holds nothing on the same side of that
+      // line -- the case for it is below, and the two together are why nothing
+      // downstream has to tell the two apart.
       const log: string[] = []
       const destination = standInFile('brand-new.json', null, log)
       const browser = standInBrowser(null, destination, log)
@@ -541,6 +536,90 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
       expect(saving.ok, `DI-5: the overwrite failed (${log.join(', ')})`).toBe(true)
       expect(opened.content()).toEqual(UTF8.encode(MINE))
       expect(log.filter((entry) => entry === 'chooser save')).toEqual([])
+    },
+  )
+
+  it(
+    seamCase(
+      ['DI-6'],
+      'writes over a destination of no bytes in silence, and still asks where one byte stands',
+    ),
+    async () => {
+      // DI-6 (MUST) and the precedence it states over DI-3. The two sides below
+      // differ by ONE byte and by nothing else: the same reader refuses both
+      // (DI-3's answer), the same identity is carried, the same name is chosen.
+      // So the only thing that can move the question count is the byte count,
+      // which is what DI-6 turns on.
+      //
+      // ⭐ Why it has to be measured through the whole seam and not on the near
+      // side alone: no byte count crosses IF-3 as a number. What crosses is the
+      // destination the store reports, and a store may report a file it just
+      // created either way -- IF-3 asks nobody to tell that file from one that
+      // was standing empty. This case is where "the answer is the same on both
+      // arms" stops being a claim in a comment.
+      //
+      // ⛔ The order is load-bearing: DI-3 refuses everything a zero-byte file
+      // could ever be, so a side that lets DI-3 decide reaches DI-4 and puts
+      // the question DI-6 forbids. Measuring the destination before decoding it
+      // is how the precedence DI-6 states becomes a thing code can obey.
+      //
+      // ⚠️ WHERE THIS CASE'S TEETH ACTUALLY ARE, measured rather than assumed:
+      // the store answers DI-6 for a real zero-byte file by reporting the arm
+      // that has nothing to judge, so the near side's own measurement is never
+      // the thing that saves it here. Taking that measurement away leaves this
+      // case green and turns the DI-6 cases in tests/unit/uf-41-42.test.ts red;
+      // those hold the near side, and this holds the pair. Both are needed,
+      // because IF-3 lets a store report EITHER arm for a file with no bytes.
+      const sides = [
+        {
+          why: 'DI-6: the destination holds nothing',
+          standing: new Uint8Array(0),
+          asked: 0,
+          // ⭐ Its own number, not a second use of `asked`: DI-6 taking the
+          // destination out of the table's reach and DI-4's question going
+          // unasked are two different claims, and only one of them is about
+          // the order the rows are read in.
+          decoded: 0,
+        },
+        {
+          why: 'DI-3 then DI-4: one byte is standing there',
+          standing: UTF8.encode('x'),
+          asked: 1,
+          decoded: 1,
+        },
+      ]
+
+      for (const side of sides) {
+        const log: string[] = []
+        const destination = standInFile('standing.json', side.standing, log)
+        const browser = standInBrowser(null, destination, log)
+        const store = fileSystemAccessFileStore(browser.environment)
+        const record = emptyRecord()
+
+        const saving = await saveDocumentFile(
+          store,
+          chosenSave(
+            {
+              text: MINE,
+              form: 'grsJson',
+              identity: MY_IDENTITY,
+              identityOfDestination: () => null,
+              answer: true,
+            },
+            record,
+            log,
+          ),
+        )
+
+        expect(record.questions, `${side.why} (${log.join(', ')})`).toBe(side.asked)
+        // ⛔ Stricter than DI-6's MUST, and the specification is silent on it:
+        // the row fixes that nothing is asked, not that nothing is read. The
+        // same note in tests/unit/uf-41-42.test.ts carries the reason it is
+        // asserted anyway, and says this is the line to drop if it is ruled on.
+        expect(record.identityReads, side.why).toHaveLength(side.decoded)
+        expect(saving.ok, side.why).toBe(true)
+        expect(destination.content(), side.why).toEqual(UTF8.encode(MINE))
+      }
     },
   )
 

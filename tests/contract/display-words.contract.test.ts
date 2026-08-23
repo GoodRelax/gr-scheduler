@@ -6,7 +6,7 @@
 // requirement or a table (MUST NOT). Chapter 6.2 fixes the manuscript as
 // `docs/spec/_source/display-words.json` and says the words reach `src/` as one
 // generated file (MUST). CR-194 built both and left every word empty on
-// purpose; the user has since written all but two of them. Ruling 06 of
+// purpose; the user has since written every one of them. Ruling 06 of
 // docs/review/rulings-2026-08-22 asks for the acceptance case CR-194 section 5
 // defines:
 //
@@ -37,10 +37,10 @@
 //                     ると画面に届く試験」-- a word that IS written is printed.
 //                     ⚠️ While every cell was empty that claim could only be
 //                     made as a guard that FELL the moment a word appeared
-//                     (CR-194 section 5 item 2). ⛔ The words have since been
-//                     written -- all but two -- so the guard is stated as the
-//                     thing it stood in for, and NOT as "no word is written",
-//                     which would sleep through every one of them.
+//                     (CR-194 section 5 item 2). ⛔ Every cell has since been
+//                     written, so the guard is stated as the thing it stood in
+//                     for, and NOT as "no word is written", which would sleep
+//                     through every one of them.
 //
 // WRITTEN WITHOUT READING THE UNITS' BODIES (docs/development-rules/
 // 04-verification.md, section 1). What was read: docs/spec (FR-038, FR-072,
@@ -57,7 +57,7 @@
 // file that DRAWS the mark was opened -- which is why the mark is never named
 // by member below, only asked for by word.
 //
-// Test placement is TS-6 of table T-218: a contract test lives in
+// Test placement is TS-5 of table T-218: a contract test lives in
 // tests/contract/. This one is at the contract level because the road it walks
 // is `screenViewFromRegions`, the published entry of table T-064's PI-37 -- not
 // one unit's function.
@@ -71,20 +71,25 @@
 //      code rather than the specification, so group 2 asserts only that a
 //      string arrives -- plus FR-072's headings, which the specification does
 //      constrain.
-//   2. THE `notices`, `confirmation` AND `confirmationMarks` SECTIONS, and
-//      IC-69 / IC-70 with them. Their places are UF-67's (`notices.ts`), which
-//      is not one of the five units this file may look at. ⭐ THAT IS NOT THE
-//      SAME AS LEAVING THEM UNCHECKED: a word cannot be held against a member
-//      this file may not name, but it CAN be held against the whole of what
-//      `screenViewFromRegions` (PI-37) hands out -- which is how the acceptance
-//      group reaches `confirmationMarks` (FR-032, MUST), the two answers of
-//      `confirmation`, and the words of the entries table T-109 stands on U-55.
-//      ⛔ THE `notices` SECTION IS NOT AMONG THEM: every frame here is raised
-//      with nothing told, so its words have no frame to arrive on and the
-//      acceptance group cannot ask for them. ⚠️ Raising one would put this file
-//      in front of a debt that is the manuscript's, not the road's -- the
-//      dictionary holds a notice's manner and no entry a reason can be looked
-//      up under, which is what tests/unit/uf-67.test.ts stands red on.
+//   2. THE `notices`, `reasons`, `confirmation` AND `confirmationMarks`
+//      SECTIONS, and IC-69 / IC-70 with them. Their places are UF-67's
+//      (`notices.ts`), which is not one of the five units this file may look
+//      at. ⭐ THAT IS NOT THE SAME AS LEAVING THEM UNCHECKED: a word cannot be
+//      held against a member this file may not name, but it CAN be held against
+//      the whole of what `screenViewFromRegions` (PI-37) hands out -- which is
+//      how the acceptance group reaches `confirmationMarks` (FR-032, MUST), the
+//      two answers of `confirmation`, the words of the entries table T-109
+//      stands on U-55, and now every row of `reasons`: FR-076 (MUST) makes a
+//      telling carry a row of table T-233 and the dictionary answers for it, so
+//      this file raises one telling per row of that table and asks whether the
+//      words arrive. ⚠️ That claim was impossible while the dictionary held no
+//      section a reason could be looked up under -- the debt was the
+//      manuscript's, it has been paid, and tests/unit/uf-67.test.ts no longer
+//      stands red on it.
+//      ⛔ THE `notices` SECTION STAYS OUT: what a row of table T-037 is CALLED
+//      is carried by a member of UF-67's that this file may not name, and the
+//      whole-view reading could only reach the three manners table T-233 writes
+//      a row against. `tests/unit/uf-67.test.ts` is where that member is held.
 //   3. IC-58 / IC-59 / IC-60. Table T-109 stands them on the `Row Title
 //      Panel`, which is UF-63's -- not one of the five either. ⚠️ IC-53 ..
 //      IC-57 are left out for a different reason: table T-109 says in as many
@@ -199,6 +204,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   paletteGroups: 'firstRow',
   surfaces: 'name',
   notices: 'rowId',
+  reasons: 'rowId',
   confirmation: 'answer',
   confirmationMarks: 'mark',
   panelHeadings: 'showing',
@@ -263,6 +269,19 @@ const T109 = specTable('T-109')
 
 /** Table T-023 -- what the pointer and the keyboard are assigned to. */
 const T023 = specTable('T-023')
+
+/**
+ * Table T-233 -- every reason a telling may carry (FR-076, MUST), with the row
+ * of table T-037 each one is written against in its 作法 column.
+ *
+ * ⭐ Read from the specification at load time (Chapter 1.9), so a row added or
+ * re-mannered brings its frame with it instead of leaving a word with nowhere
+ * to arrive.
+ */
+const T233 = specTable('T-233').rows.map((row) => ({
+  row: row.id,
+  manner: bare(row.by['作法'] ?? ''),
+}))
 
 const t109Row = (rowId: string) => T109.rows.find((row) => row.id === rowId)
 
@@ -715,7 +734,7 @@ for (const entry of GENERATED['assignments'] ?? []) {
 
 // -- the sections whose place is not one of the five units this file may read
 
-for (const section of ['notices', 'confirmation', 'confirmationMarks']) {
+for (const section of ['notices', 'reasons', 'confirmation', 'confirmationMarks']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(
       section,
@@ -747,10 +766,9 @@ const CASES: readonly Case[] = PLACES.flatMap((at) =>
 
 /**
  * The cells with no word yet. ⚠️ This was every cell a place is named for
- * (PD-160) and is now none of them: the two the user has left empty on purpose
- * are IC-54's, and table T-109 marks that row as not an entry, so no place is
- * named for it. ⭐ The group below therefore has no case today and gets one the
- * moment a cell is emptied or a new roster entry appears unwritten.
+ * (PD-160) and is now none of them -- no cell of the dictionary stands empty at
+ * all. ⭐ The group below therefore has no case today and gets one the moment a
+ * cell is emptied or a new roster entry appears unwritten.
  */
 const EMPTY = CASES.filter((one) => one.word === '')
 
@@ -799,10 +817,32 @@ const CONFIRMING_A_ROW_DELETION: Frame = frameWith({
   }),
 })
 
+/**
+ * One telling raised per row of table T-233 -- the frame the words of the
+ * `reasons` section have to arrive on.
+ *
+ * ⭐ WHAT A RAISER HANDS OVER, and nothing else: the row of table T-037 the
+ * telling follows and the row of table T-233 that is its reason. FR-038 (MUST)
+ * keeps the words on the far side of this seam, so a raiser that supplied one
+ * would be the second store of translated strings the same requirement forbids
+ * (MUST NOT) -- which is why there is no sentence here to be mistaken for the
+ * dictionary's answer. ⚠️ NT-3's count is `null`: table T-233's rows are not
+ * the destructive ones, and a number is not a word.
+ *
+ * ⚠️ NOTHING HERE IS ASSERTED and no member of it is read back. The shape is
+ * the published entry's own declaration of `RaisedNotice` (table T-064, PI-37).
+ */
+const TELLING = (manner: string, reason: string): Frame =>
+  frameWith({ session: sessionWith({ notices: [{ manner, reason, affectedCount: null }] }) })
+
 /** Every frame this file knows how to put on the screen, each named. */
 const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = [
   ...PLACES.map((at) => ({ what: at.what, frame: at.frame })),
   { what: 'the confirmation NT-7 raises before a row is deleted (FR-032)', frame: CONFIRMING_A_ROW_DELETION },
+  ...T233.map((entry) => ({
+    what: `the telling ${entry.row} of table T-233 raises, in the manner of ${entry.manner}`,
+    frame: TELLING(entry.manner, entry.row),
+  })),
 ]
 
 /** The frames that print exactly this word when the view is asked for in this language. */
@@ -819,9 +859,8 @@ const framesPrinting = (
 /**
  * The dictionary this group drives the units with: the generated one with a
  * word that names its own cell in place of every cell. ⛔ It is built here and
- * never written to `_source/display-words.json` -- the words the user has still
- * to write are the user's decision (PD-160), and a test that wrote one would be
- * making it for them.
+ * never written to `_source/display-words.json` -- the words are the user's
+ * decision (PD-160), and a test that wrote one would be making it for them.
  */
 const FILLED = fillEveryWord(GENERATED)
 
@@ -1131,18 +1170,29 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
     // HONEST: an entry that is neither a place nor a stated omission fails
     // there, so nothing can slip out of this loop by being forgotten.
     const stated = new Set(DROPPED.map((one) => `${one.section}.${one.key}`))
-    const onTheConfirmation = (cell: Cell): boolean =>
+    // ⭐ THE STATED OMISSIONS THIS FILE CAN STILL RAISE A FRAME FOR. A cell whose
+    // MEMBER is UF-67's is named nowhere here, but the surface it stands on can
+    // be put on the screen -- NT-7's question for the two answers and FR-032's
+    // mark, and now a telling per row of table T-233 for the words FR-076 (MUST)
+    // makes every reason carry. ⛔ So being dropped for want of a member is not
+    // being let off the arrival claim.
+    const onASurfaceUf67Draws = (cell: Cell): boolean =>
       cell.section === 'confirmation' ||
       cell.section === 'confirmationMarks' ||
+      cell.section === 'reasons' ||
       (cell.section === 'icons' && cell.field === 'label' && ON_U_55.includes(cell.key))
     const owed = written.filter(
-      (cell) => !stated.has(`${cell.section}.${cell.key}`) || onTheConfirmation(cell),
+      (cell) => !stated.has(`${cell.section}.${cell.key}`) || onASurfaceUf67Draws(cell),
     )
 
     expect(
       owed.some((cell) => cell.section === 'confirmationMarks'),
       'FR-032 (MUST): the mark is what this case exists to hold, and it fell out of the loop',
     ).toBe(true)
+    expect(
+      new Set(owed.filter((cell) => cell.section === 'reasons').map((cell) => cell.key)),
+      'FR-076 (MUST): every row of table T-233 owes NT-1 s words and NT-3a s next step',
+    ).toEqual(new Set(T233.map((entry) => entry.row)))
 
     for (const cell of owed) {
       const at = `${cell.section}.${cell.key}.${cell.field}`

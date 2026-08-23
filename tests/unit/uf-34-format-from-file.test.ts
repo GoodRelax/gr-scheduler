@@ -23,11 +23,25 @@
 //                    the first character is looked at (MUST) -- the order is
 //                    part of the rule, not an optimisation
 //   表 T-024a OP-1   the two rows intake accepts: IO-1 and IO-2 of table T-024
-//   表 T-024  IO-1   the values, one row: `.xml` and `<`
-//   表 T-024  IO-2   the values, one row: `.json` and `{`
-//   表 T-024         the note under it -- only the two rows OP-1 accepts carry
-//                    the two columns; the write-only rows write an em dash, so
-//                    an em dash is not a value a file may be read as
+//   表 T-024  IO-1   the MSPDI row. It holds both columns
+//   表 T-024  IO-2   the `GRS JSON` row. It holds both columns
+//   表 T-024         the note under it. ⭐ THE TWO COLUMNS ARE NOT ONE SET:
+//                    「2 つの欄は、要る理由が別であるので別々に埋まる」. The
+//                    first character belongs to the rows OP-1 accepts on
+//                    intake; the extension belongs to every row that comes out
+//                    as a FILE. So the rows fall into THREE shapes -- both
+//                    columns, the extension alone, and neither (the store and
+//                    the clipboard, which are not files) -- and an em dash is
+//                    not a value a file may be read as
+//   表 T-024         ⛔ and the fourth shape the table never writes: no row
+//                    holds the first character alone. That is the invariant
+//                    OP-12 rests on, because OP-12 matches BOTH sides against
+//                    ONE row and could only ever half-judge such a row
+//   FR-096           the name the export chooser suggests is the document name
+//                    plus the extension 表 T-024 defines (MUST), and writing
+//                    that extension into the requirement is forbidden (MUST
+//                    NOT) -- which is why the extension column now reaches
+//                    rows OP-12 must never name
 //   FR-023           「先頭の BOM は受け入れ、捨てること（MUST）。BOM がある
 //                    ことを理由に拒んではならない（MUST NOT）」-- the sentence
 //                    OP-12's ordering exists to protect, tested here twice:
@@ -37,10 +51,14 @@
 // mechanism carrying a manuscript value be accepted by「原稿の値を 1 つ変える
 // と試験が落ちるか」. Every extension and every first character below is READ
 // out of docs/spec/01-04-requirements.md at load time by
-// tests/contract/spec-table.ts -- not one of them is typed here. So changing
-// `.json` to `.grs` in table T-024, or `{` to anything else, makes the cases
-// below build different files and fail against an implementation still bound
-// to the old value. The acceptance comes for free from being table-driven.
+// tests/contract/spec-table.ts -- not one of them is typed here. So editing
+// either cell of a row in table T-024 makes the cases below build different
+// files and fail against an implementation still bound to the old value.
+// ⭐ Which SHAPE each row holds is read the same way, so moving a row between
+// the three shapes moves the cases that walk it. The acceptance comes for free
+// from being table-driven; it was measured, not assumed -- three separate
+// edits to table T-024 were each made and reverted, and each turned the cases
+// they should red.
 // ⚠️ The two column headings and the em dash are the only strings this file
 // copies from the manuscript, and each is asserted to exist before it is used,
 // so a renamed column fails loudly instead of silently matching nothing.
@@ -88,12 +106,12 @@ for (const heading of [EXTENSION, FIRST_CHARACTER, FORM, DIRECTION]) {
   }
 }
 
-interface ReadableRow {
+interface ShapedRow {
   /** The row ID, so a failure names one line of the specification. */
   readonly id: string
-  /** Table T-024's own value. Never typed in this file. */
+  /** Table T-024's own value, or the em dash where the row holds none. */
   readonly extension: string
-  /** Table T-024's own value. Never typed in this file. */
+  /** Table T-024's own value, or the em dash where the row holds none. */
   readonly firstCharacter: string
   /** The 形式 cell, used only to check the row-ID-to-name binding. */
   readonly form: string
@@ -102,26 +120,41 @@ interface ReadableRow {
 const cellOf = (row: (typeof T_024.rows)[number], heading: string): string =>
   bare(row.by[heading] ?? '')
 
-const READABLE: readonly ReadableRow[] = T_024.rows
-  .filter(
-    (row) => cellOf(row, EXTENSION) !== EM_DASH && cellOf(row, FIRST_CHARACTER) !== EM_DASH,
-  )
-  .map((row) => ({
-    id: row.id,
-    extension: cellOf(row, EXTENSION),
-    firstCharacter: cellOf(row, FIRST_CHARACTER),
-    form: cellOf(row, FORM),
-  }))
+const SHAPED: readonly ShapedRow[] = T_024.rows.map((row) => ({
+  id: row.id,
+  extension: cellOf(row, EXTENSION),
+  firstCharacter: cellOf(row, FIRST_CHARACTER),
+  form: cellOf(row, FORM),
+}))
 
-const WRITE_ONLY: readonly { readonly id: string; readonly cells: readonly string[] }[] =
-  T_024.rows
-    .filter(
-      (row) => cellOf(row, EXTENSION) === EM_DASH && cellOf(row, FIRST_CHARACTER) === EM_DASH,
-    )
-    .map((row) => ({
-      id: row.id,
-      cells: [cellOf(row, EXTENSION), cellOf(row, FIRST_CHARACTER)],
-    }))
+/** Whether table T-024 wrote a value in that column, rather than the em dash. */
+const holdsExtension = (row: ShapedRow): boolean => row.extension !== EM_DASH
+const holdsFirstCharacter = (row: ShapedRow): boolean => row.firstCharacter !== EM_DASH
+
+// ⭐ The three shapes table T-024 writes, and the fourth it must never write.
+// Every group below is a FILTER over the table, never a list of row IDs typed
+// here: a row that changes shape in the manuscript changes group here, and the
+// cases keyed off these groups change with it.
+
+/** Shape 1 -- both columns. The rows OP-12 is allowed to name. */
+const READABLE: readonly ShapedRow[] = SHAPED.filter(
+  (row) => holdsExtension(row) && holdsFirstCharacter(row),
+)
+
+/** Shape 2 -- the extension alone. Files `FR-096` must suggest a name for. */
+const EXTENSION_ONLY: readonly ShapedRow[] = SHAPED.filter(
+  (row) => holdsExtension(row) && !holdsFirstCharacter(row),
+)
+
+/** Shape 3 -- neither column, because the row does not come out as a file. */
+const NO_COLUMN: readonly ShapedRow[] = SHAPED.filter(
+  (row) => !holdsExtension(row) && !holdsFirstCharacter(row),
+)
+
+/** ⛔ The fourth shape. Asserted below to be empty; never walked by a case. */
+const FIRST_CHARACTER_ONLY: readonly ShapedRow[] = SHAPED.filter(
+  (row) => !holdsExtension(row) && holdsFirstCharacter(row),
+)
 
 // ⭐ The one thing the table cannot give: table T-024 has no English column, so
 // the join between a row and the name this build uses for it is the row ID
@@ -137,7 +170,7 @@ const FORM_WORD_OF_FORMAT: Readonly<Record<ExchangeFormat, string>> = {
   grsJson: 'GRS JSON',
 }
 
-const formatOf = (row: ReadableRow): ExchangeFormat => {
+const formatOf = (row: ShapedRow): ExchangeFormat => {
   const format = FORMAT_OF_ROW[row.id]
   if (format === undefined) {
     throw new Error(
@@ -182,7 +215,11 @@ const named = (extension: string): string => `document${extension}`
 
 describe('table T-024: the values OP-12 compares against', () => {
   it('the table is read -> exactly the two rows OP-1 accepts on intake carry both columns', () => {
-    // 表 T-024 の注: 「2 つの欄を持つのは、`OP-1` が取込で受け付ける 2 行だけである」
+    // ⚠️ The note under 表 T-024 no longer says this of BOTH columns -- only of
+    // the first character:「先頭の非空白 1 文字の欄を持つのは、`OP-1` が取込で
+    // 受け付ける 2 行だけである」. Holding both columns still selects the same
+    // two rows only because no row holds the first character alone, which the
+    // case below asserts.
     expect(READABLE.map((row) => row.id)).toEqual(['IO-1', 'IO-2'])
   })
 
@@ -197,12 +234,44 @@ describe('table T-024: the values OP-12 compares against', () => {
     }
   })
 
-  it('the table is read -> the remaining rows write an em dash in both columns', () => {
-    expect(WRITE_ONLY.length).toBe(T_024.rows.length - READABLE.length)
-    expect(WRITE_ONLY.length).toBeGreaterThan(0)
-    for (const row of WRITE_ONLY) {
-      expect(row.cells, `table T-024 row ${row.id}`).toEqual([EM_DASH, EM_DASH])
-    }
+  it('the table is read -> every row holds one of three shapes, and all three occur', () => {
+    // 表 T-024 の注:「2 つの欄は、要る理由が別であるので別々に埋まる」-- the two
+    // columns answer different needs, so "not readable" and "an em dash in both
+    // columns" are NOT the same set of rows. A row that comes out as a file but
+    // is never taken in holds the extension and no first character.
+    // ⚠️ This assertion is what an earlier form of this case got wrong: it
+    // counted the rows that are not readable and expected every one of them to
+    // write the em dash twice.
+    const grouped = [...READABLE, ...EXTENSION_ONLY, ...NO_COLUMN].map((row) => row.id)
+    expect(grouped.length).toBe(SHAPED.length)
+    expect([...grouped].sort()).toEqual(SHAPED.map((row) => row.id).sort())
+
+    // ⭐ Each shape must actually occur, or the cases walking it below are
+    // vacuous -- an empty loop is a case with no teeth (rule 04, §2).
+    expect(READABLE.length).toBeGreaterThan(0)
+    expect(EXTENSION_ONLY.length).toBeGreaterThan(0)
+    expect(NO_COLUMN.length).toBeGreaterThan(0)
+  })
+
+  it('the table is read -> a row may hold the extension alone, but none holds the first character alone', () => {
+    // ⛔ THE INVARIANT `OP-12` RESTS ON. 表 T-024a の `OP-12`:「拡張子と先頭の非
+    // 空白 1 文字の両方が 表 T-024 の同じ行に合致したとき、その行の形式として読む
+    // こと（MUST）」-- a rule that matches BOTH sides against ONE row. A row
+    // holding a first character with no extension could only ever be
+    // half-judged, so the table must never write that shape.
+    expect(FIRST_CHARACTER_ONLY.map((row) => row.id)).toEqual([])
+
+    // The same invariant stated as a set equality, so a row gaining a first
+    // character without an extension fails here as well as above: the rows
+    // holding a first character are exactly the rows holding both columns.
+    expect(SHAPED.filter(holdsFirstCharacter).map((row) => row.id)).toEqual(
+      READABLE.map((row) => row.id),
+    )
+
+    // ⚠️ The converse does NOT hold, and this is the half that changed: 表 T-024
+    // の注:「拡張子の欄は、ファイルとして出る行がすべて持つ」-- so rows holding an
+    // extension outnumber the readable ones.
+    expect(SHAPED.filter(holdsExtension).length).toBeGreaterThan(READABLE.length)
   })
 })
 
@@ -369,12 +438,65 @@ describe('OP-12: a file with no first character to compare', () => {
   })
 })
 
+describe('OP-12: a row holding only the extension is never named as a format (MUST NOT)', () => {
+  // ⛔ THE ROWS OP-12 HOLDS ONLY ONE SIDE OF. 表 T-024 の注:「判別（表 T-024a の
+  // `OP-12`）はその 2 行のためにあり、書出だけの形式は判別されない」. The
+  // extension column reaches these rows only because `FR-096` needs a name to
+  // suggest for every file, so a judgement generated from that column alone
+  // would name a row whose other side the table never wrote -- and 表 T-024a の
+  // `OP-12` forbids exactly that:「どちらか一方でも違うファイルを読んではならない
+  // （MUST NOT）」. ⚠️ Two of these extensions belong to formats whose files
+  // really do open with a character a readable row claims, which is what makes
+  // the one-sided judgement look plausible rather than absurd.
+
+  it('the table is read -> no row holding only the extension shares its extension with a readable row', () => {
+    // The guard the cases below rest on: were the two sets to share a value, a
+    // refusal below could not be told from an agreement about the other row.
+    for (const row of EXTENSION_ONLY) {
+      expect(
+        READABLE.some((other) => other.extension === row.extension),
+        `table T-024 row ${row.id}`,
+      ).toBe(false)
+    }
+  })
+
+  for (const row of EXTENSION_ONLY) {
+    for (const readable of READABLE) {
+      it(`the ${row.id} extension over a body opening with the ${readable.id} first character -> no format`, () => {
+        const refusal = refusalOf(named(row.extension), readable.firstCharacter)
+        expect(refusal.extension).toBe(row.extension)
+        expect(refusal.firstCharacter).toBe(readable.firstCharacter)
+        // The first character names a row and the extension names none, so it
+        // is the extension side that did not agree.
+        expect(refusal.mismatch).toBe('extension')
+      })
+    }
+
+    it(`the ${row.id} extension over the em dash the row writes where its first character would be -> no format`, () => {
+      // ⛔ A reader that took the table literally would bind this row's pair as
+      // its extension and the em dash, which is a pair no file can ever be.
+      const refusal = refusalOf(named(row.extension), EM_DASH)
+      expect(refusal.extension).toBe(row.extension)
+      expect(refusal.firstCharacter).toBe(EM_DASH)
+      expect(refusal.mismatch).toBe('both')
+    })
+
+    it(`the ${row.id} extension over an empty file -> no format, and no first character was found`, () => {
+      const refusal = refusalOf(named(row.extension), '')
+      expect(refusal.extension).toBe(row.extension)
+      expect(refusal.firstCharacter).toBe(null)
+      expect(refusal.mismatch).toBe('both')
+    })
+  }
+})
+
 describe("table T-024's em dash is not a value a file may be read as", () => {
-  for (const row of WRITE_ONLY) {
-    it(`row ${row.id} writes an em dash in both columns -> a file spelled with the em dash is never read as a format`, () => {
-      // ⛔ The write-only rows are not formats a file may be read AS: OP-12
-      // exists for the two rows OP-1 accepts on intake. A reader that took the
-      // table literally would bind `.—` and `—` as this row's pair.
+  for (const row of NO_COLUMN) {
+    it(`row ${row.id} holds neither column -> a file spelled with the em dash is never read as a format`, () => {
+      // ⛔ The store and the clipboard are not files, so nothing names them:
+      // OP-12 exists for the two rows OP-1 accepts on intake. A reader that
+      // took the table literally would bind this row's pair from its two em
+      // dashes.
       expect(formatFromFile(named(`.${EM_DASH}`), EM_DASH).ok).toBe(false)
       expect(formatFromFile(named(`.${EM_DASH}`), `${EM_DASH} something`).ok).toBe(false)
     })

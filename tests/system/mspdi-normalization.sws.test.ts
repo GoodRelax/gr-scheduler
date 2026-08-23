@@ -11,18 +11,21 @@
 // `docs/development-records/W5-framework.md`. ⭐ A gap that is written down does
 // not stop a run. A case does.
 //
-// ⛔ BOTH CASES BELOW ARE RED, AND THEY ARE MEANT TO STAY RED. They are not red
-// because the specification is unclear and not because the harness is unfinished
-// -- they are red because the running application offers no format to write out,
-// so the pair of documents `SWS-6` speaks of cannot come into being. Rule 04
-// section 1 of `docs/development-rules/` forbids moving the expectation onto what
-// the code does, so the expectation stays where the specification put it and the
-// run stays red until a format can be chosen.
+// ⭐ THE STEP THAT HELD BOTH CASES RED IS NOW THERE. The surface used to open
+// carrying nothing but its own close entry, so the pair of documents `SWS-6`
+// speaks of could not come into being and the expectation was left standing
+// where the specification put it (rule 04 section 1 forbids moving it onto what
+// the code does). The surface now carries the formats and a press on one reaches
+// the store, so case 1's step is met and case 2 has two documents to set against
+// each other.
 //
-// ⚠️ WHERE IT STOPS, EXACTLY. The entry is there and it does open the surface --
-// the surface then carries nothing but its own close entry. So the failure is not
-// "the feature is missing"; it is one step short of the format list, which is why
-// case 1 asks for that step by itself and says so when it is not met.
+// ⛔ WHAT STILL CANNOT BE ASKED FOR, and it is not this file's to fix. Two of
+// the rows table T-024 gives an out direction are pictures, and `ImageExporter`
+// (PI-21) is a stub in this build -- nothing is handed to the platform for
+// either. ⛔ No rasteriser is stood in for here: a picture written by the
+// harness would be the harness's picture, and `SWS-6` is about what the running
+// application writes. The row this file is about (`IO-1`) is an exchange format
+// and goes out through the same road, so nothing here waits on that stub.
 //
 // WHAT IS HERE.
 //
@@ -155,7 +158,40 @@ function partNameOf(row: SpecRow): string {
   return name
 }
 
+/** Table T-024 prints format, direction, extension, first character -- in that order. */
+const T024_EXTENSION = 2
+const T024_FIRST_CHARACTER = 3
+
+/**
+ * One code span out of one cell of table T-024, or `null` where the cell holds
+ * an em dash instead.
+ *
+ * @purity pure
+ */
+function spanOf(row: SpecRow, at: number): string | null {
+  const found = /`([^`]+)`/.exec(row.cells[at] ?? '')
+  return found === null ? null : (found[1] ?? null)
+}
+
+/**
+ * The extension or the first character table T-024 gives one row, or a failure
+ * saying the row gives none.
+ *
+ * @purity pure
+ */
+function requiredSpanOf(row: SpecRow, at: number, what: string): string {
+  const span = spanOf(row, at)
+  if (span === null) throw new Error(`table T-024 row ${row.id} gives no ${what}`)
+  return span
+}
+
 const FORMAT_NAME = formatNameOf(rowOf(T024, FORMAT_ROW))
+const FORMAT_EXTENSION = requiredSpanOf(rowOf(T024, FORMAT_ROW), T024_EXTENSION, 'extension')
+const FORMAT_FIRST_CHARACTER = requiredSpanOf(
+  rowOf(T024, FORMAT_ROW),
+  T024_FIRST_CHARACTER,
+  'first non-blank character',
+)
 const CHOOSER_NAME = partNameOf(rowOf(T103, CHOOSER_ROW))
 const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
 
@@ -245,6 +281,22 @@ async function watchWrittenFiles(context: BrowserContext): Promise<void> {
         /** @purity non-pure */ async (options?: { suggestedName?: string }) => ({
           kind: 'file',
           name: options?.suggestedName ?? '',
+          // ⛔ NOT OPTIONAL, AND THE ORDER IS THE RULE. Table T-227 row DI-4
+          // (MUST) has the overwrite question put BEFORE the bytes are written,
+          // and a question about what is standing at the destination cannot be
+          // put without reading the destination -- so the store reads it first,
+          // and a handle without this member makes that read throw. ⛔ Do not
+          // answer by taking the read out of the store: that order is what the
+          // row requires, not an implementation detail of it.
+          //
+          // ⭐ AN EMPTY FILE IS THE RIGHT ANSWER FOR A HANDLE A PICKER JUST
+          // MADE. Table T-227 row DI-6 (MUST) settles that a destination of
+          // zero bytes is not one that was already there and is not asked
+          // about, and states its own precedence over DI-3 -- and its note is
+          // that a file the chooser has just created cannot be told apart from
+          // one that was standing empty, which is exactly this handle.
+          /** @purity non-pure */
+          getFile: async () => new File([], options?.suggestedName ?? ''),
           createWritable: async () => ({
             /** @purity non-pure */
             write: async (chunk: unknown): Promise<void> => {
@@ -560,6 +612,33 @@ test(
 
     const first = await writeOutOnce(page)
     const second = await writeOutOnce(page)
+
+    // ⛔ WHICH FORMAT CAME OUT, ASKED BEFORE THE TWO ARE COMPARED. Two documents
+    // of the WRONG format are as equal to each other as two of the right one, so
+    // without this the comparison below is green on a press that wrote something
+    // else -- and the normalization would simply report both as "not xml".
+    //
+    //   * `FR-096` (MUST): 「選択面が提案する名は、文書名（`FR-035`）に 表 T-024
+    //     が定める拡張子を付けたものとすること」 -- the extension is the chosen
+    //     ROW's, so it is what says which row was chosen.
+    //   * `OP-12` of table T-024a (MUST NOT) forbids reading a file whose
+    //     extension and first non-blank character point at different rows, so a
+    //     document `GRS` writes under one row's extension and another row's first
+    //     character is one `GRS` itself would refuse to read back -- and
+    //     `FR-021`'s lossless round trip is stated for this very row.
+    for (const written of [first, second]) {
+      expect(
+        written.suggestedName.endsWith(FORMAT_EXTENSION),
+        `FR-096 (MUST) / table T-024 row ${FORMAT_ROW}: the name proposed for the document ` +
+          `written out was "${written.suggestedName}", which is not ${FORMAT_NAME}'s`,
+      ).toBe(true)
+      expect(
+        written.text.trimStart().slice(0, FORMAT_FIRST_CHARACTER.length),
+        `table T-024a row OP-12 (MUST NOT) / table T-024 row ${FORMAT_ROW}: what was written ` +
+          `under that row's extension does not begin as that row begins, so GRS would refuse ` +
+          'to read its own output back',
+      ).toBe(FORMAT_FIRST_CHARACTER)
+    }
 
     // ⚠️ Recorded so that a pass says how much there was to judge. Two empty
     // documents are the same document, and would say nothing.

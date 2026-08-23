@@ -25,6 +25,12 @@
 //         answer, out of three, and GRS may not settle it (MUST NOT).
 //   U-56  of table T-103: the surface that question stands on.
 //   IC-71 / IC-72 / IC-73 of table T-109: its three entries.
+//   OP-4  of table T-024a: replacing asks before it discards (MUST) and may not
+//         discard in silence (MUST NOT); joining is exempt in as many words.
+//   U-55  of table T-103 and NT-7 of table T-037: the surface that question
+//         stands on, and IC-69 / IC-70 of table T-109, its two answers.
+//   OP-9  of table T-024a: what goes into the overlay frame is only what the
+//         current document has a `UID` for (MUST).
 //   RD-3 / RD-4 of table T-230: where each answer lands, and what becomes of
 //         the undo history on the way.
 //   CS-4  of table T-066: a file operation that waits for a person collects
@@ -35,6 +41,9 @@
 //         still runs a frame.
 //   U-54  of table T-103 and FR-096: the surface a document is written out
 //         through, and the name it proposes.
+//   FR-076 and table T-233: what a notice carries as its reason -- a row of
+//         that table and nothing else (MUST / MUST NOT) -- and table T-037's
+//         row that is its manner.
 //
 // ⚠️ THE LOOP PUBLISHES NEITHER THE HISTORY NOR THE SCREEN STATE, so the only
 // currency these cases have is the application's own: press a key or an entry,
@@ -50,6 +59,7 @@ import type {
   ChosenFileWrite,
   FileReading,
   FileStore,
+  FileStoreFaultReason,
 } from '../../src/adapter/file-gateway/file-gateway'
 import type {
   InputModifiers,
@@ -83,9 +93,11 @@ import { validateDocument } from '../fixtures/grs-document'
 const T_024: SpecTable = specTable('T-024')
 const T_024A: SpecTable = specTable('T-024a')
 const T_036: SpecTable = specTable('T-036')
+const T_037: SpecTable = specTable('T-037')
 const T_103: SpecTable = specTable('T-103')
 const T_109: SpecTable = specTable('T-109')
 const T_230: SpecTable = specTable('T-230')
+const T_233: SpecTable = specTable('T-233')
 
 /**
  * One row of a table, by its ID.
@@ -126,10 +138,14 @@ const T_109_AUTHORITY = 3
 /** Table T-024 prints format, direction, extension -- the last two are read here. */
 const T_024_DIRECTION = 1
 const T_024_EXTENSION = 2
+/** Table T-024 prints the first non-blank character after the extension. */
+const T_024_FIRST_CHARACTER = 3
 /** Table T-230 prints caller, what stands at WS-3, then the history column. */
 const T_230_HISTORY = 2
 /** Table T-036 prints what the shortcut does, then its assignment. */
 const T_036_ASSIGNMENT = 1
+/** Table T-233 prints the situation first, then the row of table T-037 that is its manner. */
+const T_233_MANNER = 1
 
 /**
  * The settled name table T-103 gives one UI part.
@@ -146,6 +162,8 @@ function partNameOf(id: string): string {
 const OPEN_CHOOSER = partNameOf('U-56')
 /** U-54 -- the surface FR-096 writes a document out through. */
 const EXPORT_CHOOSER = partNameOf('U-54')
+/** U-55 -- the surface NT-7's question stands on, which OP-4 (MUST) sends the replacement to. */
+const CONFIRMATION = partNameOf('U-55')
 
 /**
  * The rows of table T-109 that stand on one surface, in that table's own print
@@ -197,6 +215,96 @@ function extensionOf(id: string): string | null {
   const cell = cellOf(T_024, id, T_024_EXTENSION)
   const found = /`([^`]+)`/.exec(cell)
   return found === null ? null : (found[1] ?? null)
+}
+
+/**
+ * The first non-blank character table T-024 gives one row, or `null` where it
+ * gives none -- which is every row OP-1 does not take in.
+ *
+ * @purity pure
+ */
+function firstCharacterOf(id: string): string | null {
+  const cell = cellOf(T_024, id, T_024_FIRST_CHARACTER)
+  const found = /`([^`]+)`/.exec(cell)
+  return found === null ? null : (found[1] ?? null)
+}
+
+/**
+ * The roster the shell reads table T-024's two joining columns out of.
+ *
+ * ⭐ READ, NOT TRUSTED. FR-096 (MUST NOT) forbids an extension being written
+ * anywhere but table T-024, and this file is generated FROM that table -- so a
+ * case that drove the proposed name from it alone would be green on a generator
+ * that had drifted. Every case below that uses a value from here is joined back
+ * to the table by `the roster of formats agrees with table T-024` at the foot of
+ * this file, which is what makes the two one value rather than two.
+ */
+interface ExchangeFormat {
+  readonly rowId: string
+  readonly extension: string | null
+  readonly firstCharacter: string | null
+}
+
+const EXCHANGE_FORMATS: readonly ExchangeFormat[] = (
+  JSON.parse(
+    readFileSync(
+      join(process.cwd(), 'src', 'adapter', 'document-codec', 'exchange-formats.json'),
+      'utf8',
+    ),
+  ) as { formats: ExchangeFormat[] }
+).formats
+
+/**
+ * FR-038's dictionary, as the manuscript keeps it.
+ *
+ * ⭐ THE MANUSCRIPT'S COPY AND NOT THE BUILT ONE. `docs/spec/_source/` is where
+ * the words are written; `src/adapter/screen-renderer/display-words.json` is
+ * printed from it. Rule 04 section 1 has these cases driven from docs/spec, and
+ * the two are held together by `npm run words:check`, not by this file.
+ *
+ * ⚠️ IT IS WHAT LETS A NOTICE BE PINNED TO ONE ROW OF TABLE T-233. `Notice`
+ * carries the manner and the WORDS; only `RaisedNotice` carries the reason, and
+ * the loop publishes neither its session nor its raised half. So a case reads
+ * the row's words out of here and asks whether those are the words that
+ * reached the screen.
+ */
+interface ReasonWords {
+  readonly rowId: string
+  readonly text: Readonly<Record<DisplayLanguage, string>>
+  readonly nextStep: Readonly<Record<DisplayLanguage, string>>
+}
+
+const REASON_WORDS: readonly ReasonWords[] = (
+  JSON.parse(
+    readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
+  ) as { reasons: ReasonWords[] }
+).reasons
+
+/**
+ * The words FR-038's dictionary holds for one row of table T-233.
+ *
+ * @purity pure
+ */
+function wordsFor(rowId: string): ReasonWords {
+  const found = REASON_WORDS.find((one) => one.rowId === rowId)
+  if (found === undefined) {
+    throw new Error(
+      `FR-076 (MUST): table T-233 row ${rowId} has no entry in FR-038's dictionary, so a notice ` +
+        'carrying it cannot be told in words',
+    )
+  }
+  return found
+}
+
+/**
+ * The row of table T-037 that table T-233 makes one reason's manner.
+ *
+ * @purity pure
+ */
+function mannerFor(rowId: string): string {
+  const manner = bare(cellOf(T_233, rowId, T_233_MANNER))
+  if (manner === '') throw new Error(`table T-233 row ${rowId} names no manner`)
+  return manner
 }
 
 /**
@@ -360,6 +468,19 @@ const here = (title: string | null = 'Here'): Document =>
 /** What the file hands over. ⚠️ No uid it carries is one the current document has. */
 const there = (): Document => documentWith('There', THERE_ROW, 'There', [11, 12])
 
+/**
+ * The same file, with ONE `UID` the current document also has.
+ *
+ * ⭐ OP-9 of table T-024a (MUST) makes the overlay frame hold only what matches
+ * by `UID`, so a fixture that matches nothing can only ever show the empty
+ * answer. This one is the other side of that row: exactly one of its two tasks
+ * is a task `here()` has, so the frame's contents are a stated number rather
+ * than "all" or "none".
+ */
+const HERE_AND_THERE = 1
+const overlapping = (): Document =>
+  documentWith('There', THERE_ROW, 'There', [HERE_AND_THERE, 12])
+
 const uidsOf = (document: Document): number[] =>
   (document as any).schedule.tasks.map((one: Task) => one.uid).sort((a: number, b: number) => a - b)
 
@@ -368,6 +489,11 @@ const titleOf = (document: Document): string | null =>
 
 const baselineCountOf = (document: Document): number =>
   ((document as any).schedule.baselineTasks as unknown[]).length
+
+const baselineUidsOf = (document: Document): number[] =>
+  ((document as any).schedule.baselineTasks as { uid: number }[])
+    .map((one) => one.uid)
+    .sort((a, b) => a - b)
 
 // ---------------------------------------------------------------------------
 // The host
@@ -460,6 +586,27 @@ interface StoreProbe {
   pendingOpens(): number
   /** Hand one waiting open the text of a file. */
   handOver(text: string, fileName: string): void
+  /**
+   * Hand one waiting open the BYTES of a file.
+   *
+   * ⭐ RS-4 of table T-233 is about a byte sequence that is not UTF-8, and CN-5
+   * of table T-003 is what makes it one. Text cannot express it: everything
+   * this file encodes is UTF-8 by construction.
+   */
+  handOverBytes(bytes: Uint8Array, fileName: string, ignoredFileCount?: number): void
+  /** Answer one waiting open with a fault of the store's, the way IF-3 reports one. */
+  failOpen(reason: FileStoreFaultReason): void
+}
+
+/**
+ * What one case wants the store to do differently.
+ *
+ * ⛔ The default is a store that works: a case that asks for a fault says so,
+ * so that a fault never rides in unnoticed.
+ */
+interface StoreBehaviour {
+  /** Make every chosen write fail with this reason instead of landing. */
+  readonly chosenWriteFault?: FileStoreFaultReason
 }
 
 /**
@@ -476,7 +623,7 @@ interface StoreProbe {
  *
  * @purity non-pure
  */
-function fileStore(): StoreProbe {
+function fileStore(behaviour: StoreBehaviour = {}): StoreProbe {
   const written: ChosenFileWrite[] = []
   const waiting: ((reading: FileReading) => void)[] = []
   const store: FileStore = {
@@ -492,25 +639,46 @@ function fileStore(): StoreProbe {
     }),
     writeChosenFile: async (write) => {
       written.push(write)
+      if (behaviour.chosenWriteFault !== undefined) {
+        return {
+          ok: false,
+          fault: { reason: behaviour.chosenWriteFault, what: 'the case asked the store to fail' },
+        }
+      }
       return { ok: true, openedFile: { kind: 'writable', fileName: write.suggestedFileName } }
     },
+  }
+  const answerOne = (reading: FileReading): void => {
+    const answer = waiting.shift()
+    if (answer === undefined) {
+      throw new Error(
+        'OP-2 of table T-024a makes SK-10 the one entrance for opening a document, and ' +
+          'taking it asked IF-3 for no file -- so OP-3 has nothing to put a question about',
+      )
+    }
+    answer(reading)
   }
   return {
     store,
     written,
     pendingOpens: () => waiting.length,
     handOver: (text, fileName) => {
-      const answer = waiting.shift()
-      if (answer === undefined) {
-        throw new Error(
-          'OP-2 of table T-024a makes SK-10 the one entrance for opening a document, and ' +
-            'taking it asked IF-3 for no file -- so OP-3 has nothing to put a question about',
-        )
-      }
-      answer({
-        ok: true,
-        file: { bytes: new TextEncoder().encode(text), fileName },
-      })
+      answerOne({ ok: true, file: { bytes: new TextEncoder().encode(text), fileName } })
+    },
+    handOverBytes: (bytes, fileName, ignoredFileCount) => {
+      // ⚠️ THE MEMBER IS LEFT OFF RATHER THAN SET TO NOTHING. `FileReading`
+      // makes the count optional and `openDocumentFile` reads its absence as
+      // `0`, which is what OP-11 calls an ordinary open -- so a case that does
+      // not ask for a caution has to hand over a reading that does not carry
+      // the member at all.
+      answerOne(
+        ignoredFileCount === undefined
+          ? { ok: true, file: { bytes, fileName } }
+          : { ok: true, file: { bytes, fileName }, ignoredFileCount },
+      )
+    },
+    failOpen: (reason) => {
+      answerOne({ ok: false, fault: { reason, what: 'the case asked the store to fail' } })
     },
   }
 }
@@ -554,6 +722,32 @@ function takeEntry(loop: FrameLoop, screen: ScreenPane, surface: string, entry: 
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   screen.drawAt(null)
+}
+
+/**
+ * Press one format of table T-024 on the `Export Chooser`.
+ *
+ * ⭐ A SECOND MEMBER AND NOT AN ENTRY. FR-029 (MUST) makes table T-109 the whole
+ * of the icons and it places nothing but IC-52 on U-54 -- FR-096 (MUST NOT)
+ * forbids an entrance per format -- so what is pressed here is a row of table
+ * T-024, which `ScreenPart.format` is the member for.
+ *
+ * @purity non-pure
+ */
+function takeFormat(loop: FrameLoop, screen: ScreenPane, format: string): void {
+  screen.drawAt({ part: EXPORT_CHOOSER, entry: null, format })
+  loop.receiveInput(pointer('down', 500, 300))
+  loop.receiveInput(pointer('up', 500, 300))
+  screen.drawAt(null)
+}
+
+/**
+ * Answer the question NT-7 put up, with one of table T-109's two entries.
+ *
+ * @purity non-pure
+ */
+function answerQuestion(loop: FrameLoop, screen: ScreenPane, entry: string): void {
+  takeEntry(loop, screen, CONFIRMATION, entry)
 }
 
 /**
@@ -682,10 +876,15 @@ describe('OP-3 -- reading a file puts the three-way question up', () => {
 // ===========================================================================
 
 describe('OP-3 answered -- table T-230 says where each of the three lands', () => {
-  it('IC-71 (RD-4): the read content replaces the current document', async () => {
+  it('IC-71 (RD-4): the read content replaces the current document, once OP-4 has been answered', async () => {
     // 「IC-71 | `Open Chooser` | — | 読んだ内容で現在の文書を置き換える | 表
     //   T-024a の `OP-3`」, and OP-3's first of three is 「置き換える（現在の文書
     //   を捨てて新しい日程を出す）」.
+    //
+    // ⚠️ TWO PRESSES, NOT ONE, and the second is not decoration: OP-4 (MUST)
+    // puts a question between the choice and the discarding, so a case that
+    // takes IC-71 and looks straight at the document is looking one answer too
+    // early. The describe below drives the question itself.
     const pane = host()
     const screen = screenPane()
     const files = fileStore()
@@ -693,6 +892,9 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
 
     await openAFile(loop, pane, files)
     takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
+    await settle()
+    pane.runAnimationFrames()
+    answerQuestion(loop, screen, 'IC-69')
     await settle()
     pane.runAnimationFrames()
 
@@ -722,8 +924,15 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
     await settle()
     pane.runAnimationFrames()
+    // OP-4 (MUST) -- the replacement is owed a question before it discards.
+    answerQuestion(loop, screen, 'IC-69')
+    await settle()
+    pane.runAnimationFrames()
 
     const landed = uidsOf(loop.document())
+    expect(landed, 'the replacement never landed, so there is no history to ask about').toEqual([
+      11, 12,
+    ])
     loop.receiveInput(SK_6)
     pane.runAnimationFrames()
 
@@ -784,9 +993,32 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     expect(titleOf(loop.document())).toBe('Here')
   })
 
-  it('IC-73 (OP-9): what was read goes into the frame kept for it', async () => {
-    // 「重ね専用の枠へ入れること（MUST）—— 枠を分けないと、現在の日程と混ざって
-    //   「どちらが変更前か」が読めなくなる」. FR-015 is what draws it afterwards.
+  it('IC-73 (OP-9): only a task the current document has by `UID` goes into the frame', async () => {
+    // 「その枠へ入れるのは、現在の文書のタスクと `UID` が一致するものだけとする
+    //   （MUST）—— 本行の「入れる」が指すのは重ねて描く対象であって、読んだ
+    //   ファイルの全体ではない」, and FR-015 states the same as a MUST NOT:
+    // 「片側にしか存在しない `Task` は描いてはならない（MUST NOT）」.
+    //
+    // ⚠️ ONE MATCH OUT OF TWO, so that neither "all of them" nor "none of them"
+    // can pass. `overlapping()` shares exactly one uid with `here()`.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    await openAFile(loop, pane, files, overlapping())
+    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-73')
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(baselineUidsOf(loop.document())).toEqual([HERE_AND_THERE])
+  })
+
+  it('IC-73 (OP-9): nothing matching leaves the frame empty, which is not "no overlay"', async () => {
+    // 「⚠️ **一致が 1 つも無いときは枠が空になる** —— 重ねを行わなかったのでは
+    //   ない」. ⭐ THE CASE THIS FILE USED TO GET BACKWARDS: `there()` shares no
+    // uid with `here()`, so the empty frame is what the row now answers, not a
+    // sign the overlay never ran.
     const pane = host()
     const screen = screenPane()
     const files = fileStore()
@@ -797,7 +1029,43 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     await settle()
     pane.runAnimationFrames()
 
-    expect(baselineCountOf(loop.document())).toBe(uidsOf(there()).length)
+    expect(baselineUidsOf(loop.document())).toEqual([])
+  })
+
+  it('FR-015 (MUST): a task the overlay could not match is told, not silently dropped', async () => {
+    // 「対応するタスクが無い重ねる側のタスクは、描かずに知らせること（MUST）」,
+    // and OP-9 points at the same requirement for it: 「一致しなかったタスクを人
+    //   へ知らせる規則も同要求が持つ（MUST）」.
+    //
+    // ⚠️ THE ROW EXISTS NOW AND THIS CASE STILL DOES NOT NAME IT. When this
+    // case was written table T-233 had no situation for "an overlaid task
+    // matched nothing"; it has one since. What is driven here is the MUST
+    // itself -- something was told, in words -- so the case stays true whichever
+    // row carries it. ⭐ A case that pins the row and the words belongs beside
+    // the one that does it for OP-11, and is owed.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    await openAFile(loop, pane, files)
+    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-73')
+    await settle()
+    pane.runAnimationFrames()
+
+    const notices = screen.last().notices
+    expect(
+      notices.length,
+      'FR-015 (MUST): two tasks of the read file matched nothing and nobody was told',
+    ).toBeGreaterThan(0)
+    // ⛔ THE MANNER IS NOT ASSERTED. Which row of table T-037 this telling
+    // follows is not stated anywhere: it is neither a refusal (the open was
+    // accepted) nor a failure, and table T-233 has no situation for it. What
+    // every row of that table does share is that the person is told IN WORDS,
+    // so that much is driven and no more.
+    for (const notice of notices) {
+      expect(notice.text, 'NT-1 (MUST): the notice says nothing in words').not.toBe('')
+    }
   })
 
   it('the question is no longer standing once it has been answered', async () => {
@@ -825,6 +1093,138 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     pane.runAnimationFrames()
 
     expect(screen.last().openModal?.surface).not.toBe(OPEN_CHOOSER)
+  })
+})
+
+// ===========================================================================
+// OP-4 of table T-024a -- the question the replacement is owed
+// ===========================================================================
+//
+// 「OP-4 | 未保存の編集 | **置き換えを選んだときは、捨てる前に確認を求めること
+//   （MUST）。** 黙って捨ててはならない（MUST NOT）。取り消しの履歴は引き継が
+//   ない（`LM-9` と同じ理由）。**合流を選んだときは現在の文書を捨てないので、この
+//   確認は要らない**」
+//
+// U-55 of table T-103 names the surface it stands on and NT-7 of table T-037 is
+// how it is put; IC-69 and IC-70 of table T-109 are its two answers.
+
+describe('OP-4 -- replacing asks before it discards', () => {
+  it('U-55 / NT-7: choosing IC-71 puts the question up and discards nothing yet', async () => {
+    // 「黙って捨ててはならない（MUST NOT）」 -- so at this moment the current
+    // document is still the current document, and something is being asked.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    await openAFile(loop, pane, files)
+    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
+    await settle()
+    pane.runAnimationFrames()
+
+    const question = screen.last().confirmation
+    expect(
+      question,
+      'OP-4 (MUST NOT): IC-71 was taken and nothing was asked, so the document would go in silence',
+    ).not.toBeNull()
+    // 「U-55 | `Confirmation` | 続けてよいかを問う面。問い方は表 T-037 の `NT-7`」
+    expect(question?.manner).toBe('NT-7')
+    expect(uidsOf(loop.document())).toEqual([1, 2])
+    expect(titleOf(loop.document())).toBe('Here')
+  })
+
+  it('IC-69 / IC-70: the question carries the two entries table T-109 places on U-55', async () => {
+    // 「本表がアイコンの全数である」 -- which entries stand on `Confirmation` is
+    // table T-109's answer, read out of it in its own print order.
+    const placed = entriesOn(CONFIRMATION)
+    expect(placed, 'table T-109 places nothing on the surface U-55 names').not.toEqual([])
+
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    await openAFile(loop, pane, files)
+    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
+    await settle()
+    pane.runAnimationFrames()
+
+    const question = screen.last().confirmation
+    expect(question?.entries.map((entry) => entry.icon)).toEqual(placed)
+    // NT-7 (MUST) makes choosing between the two the whole of the surface, so
+    // neither may be spent or held down.
+    for (const entry of question?.entries ?? []) {
+      expect(entry.isEnabled, `${entry.icon} is drawn faint`).toBe(true)
+      expect(entry.isPressed, `${entry.icon} is drawn as held down`).toBe(false)
+    }
+  })
+
+  it('IC-70: calling the question off leaves the current document exactly as it was', async () => {
+    // 「IC-70 | `Confirmation` | — | 問いに「取りやめる」と答える | 表 T-037 の
+    //   `NT-7`」, and NT-7 (MUST) is what makes calling it off one of the two
+    // answers: 「続けるか取りやめるかを選ばせること（MUST）」. ⛔ The MUST NOT
+    // OP-4 states is about discarding in silence; discarding after being told
+    // "no" is the same discarding.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    await openAFile(loop, pane, files)
+    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
+    await settle()
+    pane.runAnimationFrames()
+    answerQuestion(loop, screen, 'IC-70')
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(uidsOf(loop.document())).toEqual([1, 2])
+    expect(titleOf(loop.document())).toBe('Here')
+    expect(baselineCountOf(loop.document())).toBe(0)
+    expect(
+      screen.last().confirmation,
+      'the question was answered and is still standing',
+    ).toBeNull()
+  })
+
+  it('IC-72: joining is exempt, so no question stands', async () => {
+    // 「**合流を選んだときは現在の文書を捨てないので、この確認は要らない**」, and
+    // FR-031 (MUST NOT) is why "not needed" reads as "not asked": it admits
+    // confirmations only where something undo cannot give back would be lost.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    await openAFile(loop, pane, files)
+    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-72')
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(
+      screen.last().confirmation,
+      'OP-4 exempts joining in as many words, and FR-031 (MUST NOT) forbids asking anyway',
+    ).toBeNull()
+    expect(uidsOf(loop.document())).toEqual([1, 2, 11, 12])
+  })
+
+  it('IC-73: overlaying is exempt for the same reason -- nothing of the current document goes', async () => {
+    // ⛔ NOT SPELT BY OP-4, which names only 置き換え and 合流. What settles it
+    // is OP-9 (MUST NOT) -- 「現在の文書を置き換えも合流もしないこと（MUST NOT）」
+    // -- together with FR-031 (MUST NOT), which limits confirmations to losing
+    // what undoing cannot give back. Nothing of the current document is lost, so
+    // there is nothing for the question to be about.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    await openAFile(loop, pane, files, overlapping())
+    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-73')
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(screen.last().confirmation).toBeNull()
   })
 })
 
@@ -929,7 +1329,10 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
     const files = fileStore()
     const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
 
-    await openAFile(loop, pane, files)
+    // ⚠️ THE OVERLAPPING FIXTURE, so that the landing has something in it. OP-9
+    // (MUST) puts only a matching `UID` into the frame, and a frame that came
+    // back empty either way would say nothing about which copy it was built on.
+    await openAFile(loop, pane, files, overlapping())
     loop.receiveInput(SK_20)
     pane.runAnimationFrames()
     const written = (loop.document() as any).documentSettings
@@ -939,7 +1342,7 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
     pane.runAnimationFrames()
 
     expect(uidsOf(loop.document())).toEqual([1, 2])
-    expect(baselineCountOf(loop.document())).toBe(uidsOf(there()).length)
+    expect(baselineUidsOf(loop.document())).toEqual([HERE_AND_THERE])
     expect((loop.document() as any).documentSettings).toEqual(written)
   })
 })
@@ -1092,17 +1495,376 @@ describe('FR-096 -- the name the chooser proposes', () => {
     //   ただ 1 か所である。」 The two cases above read it out of the table for the
     // same reason; this one holds them to it.
     expect(extensionOf('IO-2')).toBe(bare(cellOf(T_024, 'IO-2', T_024_EXTENSION)))
-    // ⛔ AND IT DOES NOT REACH THE OTHER FOUR. Table T-024 writes an em dash in
-    // the extension column for every row that only goes out, so FR-096's
-    // 「表 T-024 が定める拡張子」 has no value for SVG, PNG, the single `.html`
-    // or the clipboard. Nothing is guessed here: this case records that the four
-    // are unanswerable and fails when the manuscript answers one, so that the
-    // cases above can be joined by four more.
+    // ⭐ AND IT NOW REACHES EVERY ROW THAT COMES OUT AS A FILE. Table T-024's
+    // own note says which rows those are -- 「拡張子の欄は、ファイルとして出る行
+    // がすべて持つ」 -- and names the two that do not, because a store key and a
+    // clipboard are not files and have no name to put an extension on. So the
+    // set FR-096 can propose a name for is every out-direction row but those.
     const unnamed = outDirectionRows().filter((id) => extensionOf(id) === null)
     expect(
       unnamed.length,
-      'table T-024 now gives an out-only row an extension, so FR-096 can be driven for it',
-    ).toBe(outDirectionRows().length - 2)
+      'table T-024 leaves a file-bearing out-direction row without an extension, so FR-096 ' +
+        'has no name to propose for it',
+    ).toBe(1)
+  })
+
+  it('FR-096 (MUST): the name proposed for a chosen format is the one that format is given', async () => {
+    // 「選択面が提案する名は、文書名（`FR-035`）に 表 T-024 が定める拡張子を付け
+    //   たものとすること（MUST）」 -- 表 T-024 が定める, which is per ROW, so the
+    // name follows whichever format was chosen and not whichever one SK-11
+    // writes.
+    //
+    // ⛔ TWO OF THE FIVE FILE-BEARING ROWS CANNOT BE DRIVEN HERE. `ImageExporter`
+    // (PI-21) is a stub in this build, so nothing is handed to the store for the
+    // two picture rows, and there is no proposed name to read. ⛔ No rasteriser
+    // is invented to reach them and no expectation is softened -- the rows are
+    // named below, and the case fails if the roster stops carrying one of them
+    // so that this exclusion cannot outlive the stub silently.
+    const cannotBeWritten = ['IO-3', 'IO-4', 'IO-7']
+    for (const id of cannotBeWritten) {
+      expect(
+        EXCHANGE_FORMATS.some((format) => format.rowId === id),
+        `${id} is recorded as unwritable in this build but is no longer a format of table T-024`,
+      ).toBe(true)
+    }
+
+    const drivable = EXCHANGE_FORMATS.filter(
+      (format) => format.extension !== null && !cannotBeWritten.includes(format.rowId),
+    )
+    expect(drivable.length, 'no format of table T-024 can be written in this build').toBeGreaterThan(
+      1,
+    )
+
+    for (const format of drivable) {
+      const pane = host()
+      const screen = screenPane()
+      const files = fileStore()
+      const loop = frameLoop(pane.surface, here('Plan of record'), SCREEN, screen.wiring, files.store)
+
+      loop.receiveInput(SK_12)
+      pane.runAnimationFrames()
+      takeFormat(loop, screen, format.rowId)
+      await settle()
+      pane.runAnimationFrames()
+
+      expect(
+        files.written.length,
+        `FR-096 (MUST): choosing table T-024 row ${format.rowId} handed the store nothing`,
+      ).toBe(1)
+      expect(
+        files.written[0]?.suggestedFileName,
+        `FR-096 (MUST): the name proposed for table T-024 row ${format.rowId}`,
+      ).toBe(`Plan of record${format.extension}`)
+    }
+  })
+
+  it('FR-035 empty: the extension of the chosen format alone is proposed', async () => {
+    // 「文書名が空のときは拡張子だけを提案すること。」 -- again per row, so the
+    // same sweep with no document name.
+    const drivable = EXCHANGE_FORMATS.filter(
+      (format) => format.extension !== null && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
+    )
+
+    for (const format of drivable) {
+      const pane = host()
+      const screen = screenPane()
+      const files = fileStore()
+      const loop = frameLoop(pane.surface, here(null), SCREEN, screen.wiring, files.store)
+
+      loop.receiveInput(SK_12)
+      pane.runAnimationFrames()
+      takeFormat(loop, screen, format.rowId)
+      await settle()
+      pane.runAnimationFrames()
+
+      expect(
+        files.written[0]?.suggestedFileName,
+        `FR-096 (MUST): the name proposed for table T-024 row ${format.rowId} with no document name`,
+      ).toBe(format.extension)
+    }
+  })
+})
+
+// ===========================================================================
+// FR-076 and table T-233 -- what a notice carries as its reason
+// ===========================================================================
+//
+// 「⭐ **知らせが運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運ん
+//   ではならない（MUST NOT）** —— 理由の語は `FR-038` の辞書が持ち、辞書は行 ID で
+//   引く。⚠️ **行の無い理由に落ち先を与えるのが `RS-15` である**」
+//
+// ⚠️ HOW A CASE PINS A ROW WITHOUT BEING ABLE TO READ ONE. `RaisedNotice`
+// carries the reason and the loop publishes neither its session nor its raised
+// half; what reaches the screen is a `Notice`, which carries the manner and the
+// WORDS. So each case below reads the row's words out of FR-038's dictionary
+// and asks whether those are the words that arrived -- which is the same join,
+// taken from the other end.
+//
+// ⛔ SOME ROWS ARE NOT DRIVEN FROM THIS FILE, and none of them is unreachable in
+// principle -- they are reached from roads this file does not drive. RS-1, RS-2
+// and RS-5 are faults of the overwrite road (`FR-060`), which needs an opened
+// file this file's store never has; RS-6 .. RS-10 are the refusals of table
+// T-067, which are raised where a write is refused rather than where a file is
+// chosen; RS-15 is a fallback and has no situation of its own to stage. ⛔ Named
+// rather than counted, so that a row added upstream does not make this note
+// wrong in silence -- and recorded rather than guessed at, because a case driven
+// through a road this file does not own would be asserting somebody else's seam.
+
+describe('FR-076 -- a notice raised while a file is opened carries a row of table T-233', () => {
+  it('RS-4: bytes that are not UTF-8 are told in that row of the table, in its own words', async () => {
+    // 「RS-4 | バイト列が UTF-8 でないので、文字として読めない | `NT-1` | 表
+    //   T-003 の `CN-5`」
+    const words = wordsFor('RS-4')
+    const pane = host()
+    const screen = screenPane('ja')
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_10)
+    pane.runAnimationFrames()
+    await settle()
+    // ⭐ Lone continuation bytes: no UTF-8 sequence may hold one where these
+    // stand, so this is not a byte string that decodes oddly -- it decodes to
+    // nothing at all, which is the situation the row names.
+    files.handOverBytes(new Uint8Array([0x7b, 0xff, 0xfe]), 'there.json')
+    await settle()
+    pane.runAnimationFrames()
+
+    const notices = screen.last().notices
+    expect(
+      notices.length,
+      'FR-076 (MUST): the file could not be read as characters and nobody was told',
+    ).toBe(1)
+    expect(notices[0]?.manner, 'the manner table T-233 gives RS-4').toBe(mannerFor('RS-4'))
+    expect(notices[0]?.text, 'the words FR-038 holds for RS-4').toBe(words.text.ja)
+    expect(notices[0]?.nextSteps, 'NT-3a: the next step FR-038 holds for RS-4').toContain(
+      words.nextStep.ja,
+    )
+    // ⚠️ AND NOTHING WAS READ. OP-5 (MUST) puts the verification before OP-3's
+    // question, and a file that is not characters never got as far as being a
+    // format -- so there is nothing to ask about.
+    expect(screen.last().openModal?.surface).not.toBe(OPEN_CHOOSER)
+  })
+
+  it('RS-4 in the other language: the words come from the dictionary, not from this loop', async () => {
+    // FR-038 (MUST NOT) forbids a second store of translated strings, so the
+    // same reason in the other language is the same row read out of the same
+    // dictionary -- and the two words differ, which is what makes this a test.
+    const words = wordsFor('RS-4')
+    expect(words.text.en, 'FR-038: RS-4 has one word for two languages').not.toBe(words.text.ja)
+
+    const pane = host()
+    const screen = screenPane('en')
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_10)
+    pane.runAnimationFrames()
+    await settle()
+    files.handOverBytes(new Uint8Array([0x7b, 0xff, 0xfe]), 'there.json')
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(screen.last().notices[0]?.text).toBe(words.text.en)
+  })
+
+  it('⛔ cancelled is owed nothing: IF-3 keeps it apart so that it is not reported', async () => {
+    // 「`cancelled` is in the list precisely so that it can be told apart from
+    //   the other three and left un-notified」 -- and table T-233 gives it no
+    // row, which FR-076 (MUST NOT) makes decisive: a reason the table does not
+    // hold may not be carried, and RS-15's fallback is for reasons that OUGHT to
+    // be told.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_10)
+    pane.runAnimationFrames()
+    await settle()
+    files.failOpen('cancelled')
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(
+      screen.last().notices,
+      'the person stopped the chooser and was told they had failed at something',
+    ).toEqual([])
+    expect(screen.last().confirmation).toBeNull()
+    expect(screen.last().openModal).toBeNull()
+    expect(uidsOf(loop.document())).toEqual([1, 2])
+  })
+
+  it('RS-14: several files at once is a caution, and OP-11 (MUST NOT) keeps the first one open', async () => {
+    // 「OP-11 | **一度に 2 つ以上のファイルが渡されたとき** | **先頭の 1 つだけを
+    //   受け入れ、残りを無視したことを告げること（MUST）。** 作法は 表 T-037 の
+    //   `NT-5` …… **1 つは開いているので、受け付けなかったことにしてはならない
+    //   （MUST NOT）。**」
+    const words = wordsFor('RS-14')
+    const pane = host()
+    const screen = screenPane('ja')
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_10)
+    pane.runAnimationFrames()
+    await settle()
+    files.handOverBytes(new TextEncoder().encode(JSON.stringify(there())), 'there.json', 2)
+    await settle()
+    pane.runAnimationFrames()
+
+    const notices = screen.last().notices
+    expect(notices.length, 'OP-11 (MUST): two files were left behind and nobody was told').toBe(1)
+    expect(notices[0]?.manner, 'the manner table T-233 gives RS-14').toBe(mannerFor('RS-14'))
+    expect(notices[0]?.text).toBe(words.text.ja)
+    // 「受け付けなかったことにしてはならない（MUST NOT）」 -- the file that WAS
+    // accepted is open, so OP-3's question stands beside the caution.
+    expect(
+      screen.last().openModal?.surface,
+      'OP-11 (MUST NOT): the caution was raised and the accepted file was not opened',
+    ).toBe(OPEN_CHOOSER)
+  })
+
+  it('⛔ no caution where none is owed: an ordinary open leaves the notices empty', async () => {
+    // 「`0` where none were, which is every ordinary open」. ⭐ The guard that
+    // keeps the case above from being green on a loop that cautions every time.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    await openAFile(loop, pane, files)
+
+    expect(screen.last().notices).toEqual([])
+  })
+})
+
+describe('FR-076 -- OP-12 of table T-024a tells its three refusals apart', () => {
+  /**
+   * The rows of table T-024 a file may be read AS -- the two OP-1 accepts.
+   *
+   * @purity pure
+   */
+  const readableFormats = (): readonly ExchangeFormat[] =>
+    EXCHANGE_FORMATS.filter((one) => one.firstCharacter !== null)
+
+  /**
+   * Open one file and answer with what the screen was told.
+   *
+   * @purity non-pure
+   */
+  const openAndRead = async (text: string, fileName: string): Promise<ScreenView> => {
+    const pane = host()
+    const screen = screenPane('ja')
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_10)
+    pane.runAnimationFrames()
+    await settle()
+    files.handOver(text, fileName)
+    await settle()
+    pane.runAnimationFrames()
+    return screen.last()
+  }
+
+  it('the rows a file may be read as are the two OP-1 accepts', () => {
+    // ⭐ A premise for the three cases below, and read rather than typed:
+    // 「先頭の非空白 1 文字の欄を持つのは、`OP-1` が取込で受け付ける 2 行だけ
+    //   である」.
+    expect(readableFormats().length).toBe(2)
+    for (const format of readableFormats()) {
+      expect(firstCharacterOf(format.rowId), `table T-024 row ${format.rowId}`).not.toBeNull()
+      expect(extensionOf(format.rowId), `table T-024 row ${format.rowId}`).not.toBeNull()
+    }
+  })
+
+  it('RS-11: an extension no row of table T-024 carries', async () => {
+    // 「RS-11 | 拡張子が 表 T-024 のどの行にも当たらない | `NT-1` | 表 T-024a の
+    //   `OP-12`」
+    const words = wordsFor('RS-11')
+    const readable = readableFormats()[0]
+    const view = await openAndRead(`${readable?.firstCharacter ?? ''}}`, 'there.rtf')
+
+    expect(view.notices.length, 'OP-12 (MUST NOT): the file was read anyway').toBe(1)
+    expect(view.notices[0]?.manner).toBe(mannerFor('RS-11'))
+    expect(view.notices[0]?.text).toBe(words.text.ja)
+    expect(view.openModal?.surface).not.toBe(OPEN_CHOOSER)
+  })
+
+  it('RS-12: a first character no row of table T-024 carries', async () => {
+    // 「RS-12 | 先頭の非空白の文字が 表 T-024 のどの行にも当たらない」
+    const words = wordsFor('RS-12')
+    const readable = readableFormats()[0]
+    const view = await openAndRead('zzz', `there${readable?.extension ?? ''}`)
+
+    expect(view.notices.length, 'OP-12 (MUST NOT): the file was read anyway').toBe(1)
+    expect(view.notices[0]?.manner).toBe(mannerFor('RS-12'))
+    expect(view.notices[0]?.text).toBe(words.text.ja)
+    expect(view.openModal?.surface).not.toBe(OPEN_CHOOSER)
+  })
+
+  it('RS-13: the extension and the first character point at different rows', async () => {
+    // 「RS-13 | 拡張子と先頭の文字が別の行を指す」 -- 「どちらか一方でも違うファ
+    //   イルを読んではならない（MUST NOT）—— 片方だけで決めると、壊れた
+    //   `GRS JSON` を MSPDI の誤りとして人に見せることになる」.
+    const words = wordsFor('RS-13')
+    const one = readableFormats()[0]
+    const other = readableFormats()[1]
+    const view = await openAndRead(
+      `${other?.firstCharacter ?? ''}whatever`,
+      `there${one?.extension ?? ''}`,
+    )
+
+    expect(view.notices.length, 'OP-12 (MUST NOT): the file was read anyway').toBe(1)
+    expect(view.notices[0]?.manner).toBe(mannerFor('RS-13'))
+    expect(view.notices[0]?.text).toBe(words.text.ja)
+    expect(view.openModal?.surface).not.toBe(OPEN_CHOOSER)
+  })
+})
+
+describe('FR-076 -- a notice raised while a document is written out', () => {
+  it('RS-3: a write the environment could not do is told with a next step', async () => {
+    // 「RS-3 | 書き込みを試みたが、この環境では行えなかった | `NT-3a` | 表 T-004
+    //   の `LM-14`」, and NT-3a (MUST) is what makes the next step compulsory:
+    // 「失敗したことだけを伝えて手段を示さない通知を出してはならない（MUST NOT）」.
+    const words = wordsFor('RS-3')
+    const pane = host()
+    const screen = screenPane('ja')
+    const files = fileStore({ chosenWriteFault: 'unavailable' })
+    const loop = frameLoop(pane.surface, here('Plan of record'), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_11)
+    pane.runAnimationFrames()
+    await settle()
+    pane.runAnimationFrames()
+
+    const notices = screen.last().notices
+    expect(notices.length, 'FR-076 (MUST): the write failed and nobody was told').toBe(1)
+    expect(notices[0]?.manner, 'the manner table T-233 gives RS-3').toBe(mannerFor('RS-3'))
+    expect(notices[0]?.text).toBe(words.text.ja)
+    expect(
+      notices[0]?.nextSteps,
+      'NT-3a (MUST NOT): told it failed with nothing to do next',
+    ).toContain(words.nextStep.ja)
+  })
+
+  it('⛔ a write that lands tells nobody anything', async () => {
+    // ⭐ The guard for the case above: NT-3a is a FAILURE notice, so a loop that
+    // raised one on the way past would be telling a person that a save they
+    // watched succeed had failed.
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here('Plan of record'), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_11)
+    pane.runAnimationFrames()
+    await settle()
+    pane.runAnimationFrames()
+
+    expect(files.written.length, 'the write never reached the store').toBe(1)
+    expect(screen.last().notices).toEqual([])
   })
 })
 
@@ -1131,6 +1893,51 @@ describe('the tables are read by position, so the positions are pinned', () => {
     expect(T_109.headings.length).toBe(5)
     expect(entriesOn(OPEN_CHOOSER)).toEqual(['IC-52', 'IC-71', 'IC-72', 'IC-73'])
     expect(entriesOn(EXPORT_CHOOSER)).toEqual(['IC-52'])
+    // ⚠️ NO IC-52 ON `Confirmation`: NT-7 (MUST) makes the two answers the whole
+    // of the surface, and calling the question off IS one of them.
+    expect(entriesOn(CONFIRMATION)).toEqual(['IC-69', 'IC-70'])
+  })
+
+  it('table T-233 prints the manner second, and every row of it has words to be told in', () => {
+    // 「⛔ **行を足すときは、辞書の原稿にも項を足すこと（MUST）** —— 生成器が本表
+    //   から名簿を起こすので、片方だけを書けば黙らずに落ちる。」 ⭐ This is that
+    // failure made loud: a row without an entry cannot be told, and NT-1's
+    // 「文字で示すこと（MUST）」 is unkeepable for it.
+    expect(T_233.headings.length).toBe(4)
+    expect(T_233.rows.length).toBe(REASON_WORDS.length)
+    const manners = new Set(T_037.rows.map((row) => row.id))
+    for (const row of T_233.rows) {
+      const words = wordsFor(row.id)
+      for (const language of ['ja', 'en'] as const) {
+        expect(words.text[language], `table T-233 row ${row.id} has no word in ${language}`).not.toBe(
+          '',
+        )
+        expect(
+          words.nextStep[language],
+          `table T-233 row ${row.id} has no next step in ${language}`,
+        ).not.toBe('')
+      }
+      expect(
+        manners.has(mannerFor(row.id)),
+        `table T-233 row ${row.id} names ${mannerFor(row.id)}, which is not a row of table T-037`,
+      ).toBe(true)
+    }
+  })
+
+  it('the roster of formats agrees with table T-024, column for column', () => {
+    // ⛔ 「拡張子を本要求に書き写してはならない（MUST NOT）—— 正は 表 T-024 ただ
+    //   1 か所である」. `exchange-formats.json` is printed FROM that table, and
+    // this is what keeps the cases above from being driven by a copy that has
+    // drifted away from it: a generator that stopped running reaches this line.
+    expect(EXCHANGE_FORMATS.map((one) => one.rowId)).toEqual(outDirectionRows())
+    for (const format of EXCHANGE_FORMATS) {
+      expect(format.extension, `table T-024 row ${format.rowId} extension`).toBe(
+        extensionOf(format.rowId),
+      )
+      expect(format.firstCharacter, `table T-024 row ${format.rowId} first character`).toBe(
+        firstCharacterOf(format.rowId),
+      )
+    }
   })
 
   it('table T-230 prints the history column third', () => {

@@ -15,58 +15,45 @@
 // ⚠️ WHAT MOVED UNDER THESE CASES, AND IN WHICH DIRECTION.
 // `ScreenSession.notices` used to hold the very `Notice` the screen shows, so a
 // raiser handed over the sentence and the next steps and these cases could
-// drive both. It now holds `RaisedNotice` -- the manner, a reason KEY, and
+// drive both. It now holds `RaisedNotice` -- the manner, a reason ROW, and
 // NT-3's count -- and the words are read on this side, out of the one
 // dictionary FR-038 (MUST) keeps them in.
 // ⛔ THAT IS THE SEAM MOVING, NOT THESE EXPECTATIONS BEING BENT TO THE CODE.
-// No MUST below was softened to match what the unit now returns. FOUR cases are
-// RED, and are meant to stay red until the debt named under them is paid.
+// No MUST below was softened to match what the unit returns.
 //
-// ⛔ WHAT IS RED, AND WHY IT MAY NOT BE REWRITTEN.
-//   1. NT-1 of table T-037 (MUST) has a refusal say WHICH item and WHY in
-//      words, and forbids colour or a border alone (MUST NOT).
-//   2. NT-3a (MUST) has a failure carry what can be done next, and forbids a
-//      telling that says only that something failed (MUST NOT). NT-6 sends its
-//      own next step to that same row.
-//   3. FR-038 (MUST) holds every word the screen prints in the per-language
-//      dictionary -- so no surface may print the raiser's key instead.
-//   4. FR-038 again, from the other side: a different dictionary has to be a
-//      different telling, or the words came from somewhere that is not a
-//      dictionary.
-// ⭐ ALL FOUR HAVE ONE CAUSE. A raiser now hands over a KEY and no words, and
-// the generated dictionary holds no entry that a key can be found under -- it
-// has no section keyed by one at all (the tripwire case below asserts exactly
-// that). What the person is shown today is the key itself.
-// ⛔ The debt is the MANUSCRIPT's (`docs/spec/_source/display-words.json`), not
-// this unit's: FR-038 (MUST NOT) bars a second store of translated strings, so
-// UF-67 may not mint a sentence and a test may not accept one it minted. The
-// day the manuscript grows the entries, the tripwire goes red and these four go
-// green -- ⛔ run them again rather than rewriting either side.
+// ⭐ WHAT WAS RED HERE UNTIL 2026-08-23, AND WHY IT IS NOT ANY MORE. Four cases
+// stood red because the raiser handed over a row and the dictionary held no
+// section that row could be found under, so NT-1's words (MUST), NT-3a's next
+// step (MUST) and FR-038's one store of translated strings could none of them be
+// satisfied. ⛔ The debt was the MANUSCRIPT's and it has been PAID: FR-076 now
+// makes table T-233 the whole of the reasons a telling may carry (MUST) and bars
+// any other (MUST NOT), and the dictionary has grown the section that answers
+// for them. ⚠️ The four were re-run, not rewritten -- and the tripwire that was
+// meant to fire the day the section landed did NOT, which is why it now asserts
+// the debt PAID rather than owed (see the case that walks the section).
 //
 // ⭐ WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED:
-//   * ⛔ THE REASON VOCABULARY. No table of docs/spec settles the keys a raiser
-//     may put in `RaisedNotice.reason`; AG-9a of table T-035 requires a kind of
-//     reason on the machine-facing refusal and names no member of the set. The
-//     keys below are this file's own inputs and stand for nothing published.
-//   * ⛔ NT-4's WHOLE-OF-THEM IS NO LONGER OBSERVABLE HERE. The old bench could
-//     watch every gathered item reach the one surface because the raiser gave
-//     words; with the words owed by the dictionary, a case written that way
-//     would be asserting whatever stands in for them, and would go on passing
-//     once real words replaced it. What is asserted instead is the half that
-//     needs no words: how many surfaces the run becomes. ⛔ Do not add a
-//     text-based one until the dictionary can answer for a reason.
 //   * the ORDER several shown notices stand in -- no row of table T-037 ranks
 //     one manner above another, and the note under table T-077 puts the
 //     gathered surface outside the boot order. Membership and counts only.
 //   * WHAT COUNT the gathered surface carries -- NT-3 asks a count of a
 //     destructive result and NT-4 asks for none, so `affectedCount` on the
 //     gathered surface is asserted nowhere.
-//   * WHAT BECOMES OF A REASON THE DICTIONARY DOES NOT HOLD. Nothing in
-//     docs/spec settles a fallback, so no case fixes one; the shape case only
-//     holds the unit to the type its own public entry declares.
+//   * ⛔ HOW the gathered surface JOINS what it gathered. NT-4 (MUST) asks for
+//     one surface carrying the whole of them and fixes no separator, no order
+//     and no shape, so the cases below ask only that every text and every next
+//     step of the gathered run is still carried -- never how they are strung
+//     together.
+//   * ⛔ WHAT STANDS IN FOR A ROW THAT IS PRESENT BUT WHOSE CELL IS EMPTY. The
+//     specification settles the ABSENT row (FR-076 sends it to the fallback row)
+//     and says nothing about a written row whose word was emptied. PD-160 is
+//     what makes the two different cases at all. So the case below asks only
+//     what NT-1 (MUST) and NT-3a (MUST) ask -- that words and a next step still
+//     arrive -- and fixes no wording.
 //
 // The rules these cases answer to:
-//   FR-076   every telling follows table T-037
+//   FR-076   every telling follows table T-037, and every reason it carries is
+//            a row of table T-233 (MUST); no other may be carried (MUST NOT)
 //   FR-028   a refusal is a value the caller receives, never an exception --
 //            which is why the shell can hold one long enough to raise it
 //   FR-038   one store of translated strings, and this component holds it
@@ -87,7 +74,8 @@
 //
 // ⭐ Chapter 1.9 asks a test of a requirement that points at a table to be
 // driven by a fixed copy of the table, with one test walking every row. T_037
-// below is that copy.
+// and T_233 below are those copies, and both are read from the specification at
+// load time rather than typed here.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -111,7 +99,43 @@ import {
 import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
-// The fixed copy of the table these cases are driven by.
+// The one dictionary FR-038 (MUST) keeps every printed word in, read as DATA.
+// ⛔ No word is written in this file: FR-038 (MUST NOT) bars the words from a
+// requirement and from a table, and the same reason bars a test from minting
+// one. What is read here is the generated file Chapter 6.2 fixes as the one
+// road into `src/`.
+// ---------------------------------------------------------------------------
+
+const SRC_SCREEN_RENDERER = join(process.cwd(), 'src', 'adapter', 'screen-renderer')
+
+const readJson = (file: string): unknown =>
+  JSON.parse(readFileSync(join(SRC_SCREEN_RENDERER, file), 'utf8')) as unknown
+
+/** One entry's word per language -- the `{ ja, en }` pair Chapter 6.2 generates. */
+type Words = Readonly<Record<DisplayLanguage, string>>
+
+/**
+ * The sections of that dictionary these cases read. ⚠️ Only the ones UF-67
+ * answers for: the manner of each row of table T-037, the text and the next
+ * step of each row of table T-233, the label of each row of table T-109, and
+ * the mark FR-032 asks for.
+ */
+const DICTIONARY = readJson('display-words.json') as {
+  readonly icons: readonly { readonly rowId: string; readonly label: Words }[]
+  readonly notices: readonly { readonly rowId: string; readonly manner: Words }[]
+  readonly reasons: readonly {
+    readonly rowId: string
+    readonly text: Words
+    readonly nextStep: Words
+  }[]
+  readonly confirmationMarks: readonly { readonly mark: string; readonly text: Words }[]
+}
+
+/** FR-038: 「対象は `ja` と `en` の 2 言語とする」. */
+const LANGUAGES = ['ja', 'en'] as const satisfies readonly DisplayLanguage[]
+
+// ---------------------------------------------------------------------------
+// The fixed copies of the tables these cases are driven by.
 // ---------------------------------------------------------------------------
 
 /**
@@ -151,6 +175,30 @@ const STARTUP_PENDING = (T_037.find((entry) => entry.binds === 'shown') as { row
 
 const OTHER_ROWS = T_037.filter((entry) => entry.binds === 'raiser')
 
+/**
+ * Table T-233, in the order that table prints its rows -- the whole of what
+ * FR-076 (MUST) lets a telling carry as its reason, and (MUST NOT) the whole of
+ * it. `manner` is the row of table T-037 the reason is written against, read
+ * out of the table's own column rather than paired here.
+ *
+ * ⭐ Read from the specification at load time (Chapter 1.9), so a row added,
+ * renumbered or re-mannered moves these cases with it.
+ */
+const T_233 = specTable('T-233').rows.map((row) => ({
+  row: row.id,
+  manner: bare(row.by['作法'] ?? ''),
+}))
+
+/**
+ * The row FR-076 gives a reason that has no row of its own to fall to, so that
+ * NT-1's words (MUST) and NT-3a's next step (MUST) are still met.
+ *
+ * ⭐ A row ID, which is the join and not a word -- the same move `ASKING` makes
+ * for table T-037. The case below holds it against the fixed copy, so a
+ * renumbering fails loudly instead of silently testing nothing.
+ */
+const FALLBACK_REASON = 'RS-15'
+
 // ---------------------------------------------------------------------------
 // Inputs. A case pins the notices it means; every other member of the session
 // is inert here, because UF-67 fills one member of `ScreenView` and reads none
@@ -159,15 +207,29 @@ const OTHER_ROWS = T_037.filter((entry) => entry.binds === 'raiser')
 // ---------------------------------------------------------------------------
 
 /**
- * A reason as a raiser hands it over.
+ * A reason as a raiser hands it over: a row of table T-233, taken from the
+ * fixed copy in the order that table prints them.
  *
- * ⛔ ASCII, and this file's own. The specification settles no vocabulary for
- * `RaisedNotice.reason` (see the STOP note at the head of the file), so these
- * keys stand for nothing published and no case reads one back out.
- * ⚠️ ASCII rather than anything else because a control character in a string
- * key has stopped the whole build before now (04-verification.md, 3.).
+ * ⛔ NEVER A KEY OF THIS FILE'S OWN. FR-076 (MUST NOT) bars a telling from
+ * carrying a reason table T-233 does not hold, so a bench that invented one
+ * would be handing the unit an input the product cannot produce. ⚠️ The one
+ * case that DOES hand over an outsider is the fallback case, and it says so.
+ * ⭐ `at` wraps, so a case may ask for as many distinct reasons as it likes
+ * without counting the rows of the table.
  */
-const reasonKey = (site: string): string => `uf-67-bench/${site}`
+const reasonRow = (at: number): string =>
+  (T_233[at % T_233.length] as { readonly row: string }).row
+
+/**
+ * The row of table T-233 whose manner is this row of table T-037, or the
+ * fallback row where the table writes none against it.
+ *
+ * ⭐ WHY A PAIRING IS NEEDED AT ALL. Table T-233's 作法 column says which manner
+ * each reason is written against, so a case that varies the manner and keeps one
+ * reason would be handing over a pair the table does not print.
+ */
+const reasonWrittenAgainst = (manner: string): string =>
+  T_233.find((entry) => entry.manner === manner)?.row ?? FALLBACK_REASON
 
 const raisedOf = (
   manner: string,
@@ -202,16 +264,23 @@ const sessionOf = (notices: readonly RaisedNotice[]): ScreenSession => ({
 // the recovery question, turning the `Agent API` on, and the watermark name of
 // FR-086. Each is a raiser of its own so that the gathering can be watched
 // across as many as the row admits.
-const PENDING_RESTORE = raisedOf(STARTUP_PENDING, reasonKey('pending/restore'))
-const PENDING_RECOVERY = raisedOf(STARTUP_PENDING, reasonKey('pending/recovery'))
-const PENDING_AGENT_API = raisedOf(STARTUP_PENDING, reasonKey('pending/agent-api'))
-const PENDING_WATERMARK = raisedOf(STARTUP_PENDING, reasonKey('pending/watermark-name'))
+//
+// ⛔ TABLE T-233 WRITES NO ROW AGAINST NT-4. Its 作法 column reaches NT-1, NT-3a
+// and NT-5 only, so none of the four things NT-4 gathers has a reason of its
+// own and the rows below are this bench's own pairing -- taken from the table in
+// its print order, and distinct so that the gathered surface can be watched
+// carrying the whole of them. ⚠️ Reported rather than invented: a reason for
+// each of the four is the manuscript's to add, not this file's.
+const PENDING_RESTORE = raisedOf(STARTUP_PENDING, reasonRow(0))
+const PENDING_RECOVERY = raisedOf(STARTUP_PENDING, reasonRow(1))
+const PENDING_AGENT_API = raisedOf(STARTUP_PENDING, reasonRow(2))
+const PENDING_WATERMARK = raisedOf(STARTUP_PENDING, reasonRow(3))
 
-const REFUSAL = raisedOf('NT-1', reasonKey('refusal/finish-before-start'))
-const WARNING = raisedOf('NT-5', reasonKey('warning/assignee-spread'), 3)
-const DESTRUCTIVE = raisedOf('NT-3', reasonKey('destructive/cascade-delete'), 12)
-const FAILURE = raisedOf('NT-3a', reasonKey('failure/autosave-did-not-finish'))
-const AT_LIMIT = raisedOf('NT-6', reasonKey('limit/no-more-pinned-rows'))
+const REFUSAL = raisedOf('NT-1', reasonWrittenAgainst('NT-1'))
+const WARNING = raisedOf('NT-5', reasonWrittenAgainst('NT-5'), 3)
+const DESTRUCTIVE = raisedOf('NT-3', reasonWrittenAgainst('NT-3'), 12)
+const FAILURE = raisedOf('NT-3a', reasonWrittenAgainst('NT-3a'))
+const AT_LIMIT = raisedOf('NT-6', reasonWrittenAgainst('NT-6'))
 
 /**
  * The three sites the shell holds a value nobody has told yet, and the manner
@@ -227,19 +296,24 @@ const AT_LIMIT = raisedOf('NT-6', reasonKey('limit/no-more-pinned-rows'))
  * guessed from the code: those two are the only rows of table T-037 whose
  * situation column reaches these three.
  *
+ * ⭐ WHY THE REASON IS THE ONE NAMED. Table T-233's 正 column says where each
+ * row's situation is defined, and that is what pairs these three: a write the
+ * document refused is `WS-1` of table T-067, an edit not yet committed is
+ * `WS-2`, and a write that could not be carried out at all is `FR-060`'s lost
+ * permission. ⛔ Not guessed from the code, and not invented: FR-076 (MUST NOT)
+ * bars a telling from carrying a reason table T-233 does not hold.
+ *
  * ⚠️ These are INPUTS. What the shell actually raises is the shell's own case
  * to answer (tests/system, and the STOP notes in `frame-loop.ts`); what this
  * file settles is what UF-67 owes once one of them arrives.
  */
 const SHELL_HELD = [
-  { site: 'a write the document refused', manner: 'NT-1' },
-  { site: 'an edit the document refused', manner: 'NT-1' },
-  { site: 'a file operation that faulted', manner: 'NT-3a' },
+  { site: 'a write the document refused', manner: 'NT-1', reason: 'RS-6' },
+  { site: 'an edit the document refused', manner: 'NT-1', reason: 'RS-8' },
+  { site: 'a file operation that faulted', manner: 'NT-3a', reason: 'RS-1' },
 ] as const
 
-const SHELL_RAISED = SHELL_HELD.map((held) =>
-  raisedOf(held.manner, reasonKey(`shell/${held.site.replace(/ /g, '-')}`)),
-)
+const SHELL_RAISED = SHELL_HELD.map((held) => raisedOf(held.manner, held.reason))
 
 // ---------------------------------------------------------------------------
 // Reading the answer.
@@ -294,7 +368,7 @@ describe('UF-67 -- NT-4 (MUST): the pending items at startup arrive as ONE surfa
     // `_assets/tbl-settings.md` names a number of notices, so the whole of them
     // is the whole of them.
     const many = Array.from({ length: 12 }, (_, index) =>
-      raisedOf(STARTUP_PENDING, reasonKey(`pending/number-${index}`)),
+      raisedOf(STARTUP_PENDING, reasonRow(index)),
     )
     const shown = noticesFromSession(sessionOf(many))
 
@@ -328,7 +402,7 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     // NT-6's what-can-be-done-now. Merging any of them into another surface
     // discharges none of them.
     for (const entry of OTHER_ROWS) {
-      const one = raisedOf(entry.row, reasonKey(`row/${entry.row}`), 4)
+      const one = raisedOf(entry.row, reasonWrittenAgainst(entry.row), 4)
       const shown = noticesFromSession(
         sessionOf([PENDING_RESTORE, one, PENDING_RECOVERY, PENDING_AGENT_API]),
       )
@@ -341,11 +415,12 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
   })
 
   it('never merges two notices that follow one and the same other row', () => {
-    // ⭐ The two are told apart by NT-3's count, which is the only member of the
-    // raised half that this bench can vary while the words are owed.
+    // ⭐ The two are told apart by NT-3's count, which is the member of the
+    // raised half that carries no word -- so a unit that merged two tellings of
+    // one row is named without any reading of the dictionary.
     for (const entry of OTHER_ROWS) {
-      const first = raisedOf(entry.row, reasonKey(`row/${entry.row}/first`), 1)
-      const second = raisedOf(entry.row, reasonKey(`row/${entry.row}/second`), 2)
+      const first = raisedOf(entry.row, reasonWrittenAgainst(entry.row), 1)
+      const second = raisedOf(entry.row, reasonWrittenAgainst(entry.row), 2)
       const shown = noticesFromSession(sessionOf([first, PENDING_RESTORE, second, PENDING_RECOVERY]))
       const both = withManner(shown, entry.row)
 
@@ -367,7 +442,7 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     // NT-3 asks a destructive telling for the count of what it reaches.
     // `affectedCount` is `null` where the row asks for none, so both values
     // have to survive as they are -- and zero is a count, not an absence.
-    const none = raisedOf('NT-3', reasonKey('destructive/reaches-nothing'), 0)
+    const none = raisedOf('NT-3', reasonWrittenAgainst('NT-3'), 0)
     const shown = noticesFromSession(sessionOf([DESTRUCTIVE, none, REFUSAL, PENDING_RESTORE]))
 
     expect(withManner(shown, 'NT-3').map((notice) => notice.affectedCount).sort()).toEqual([0, 12])
@@ -390,7 +465,7 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     // and CS-1 of table T-066 keeps it out of a `pure` unit. A notice that
     // follows NT-2 is therefore shown like any other while it is raised: one
     // whose time is up is one that is no longer raised.
-    const fading = raisedOf('NT-2', reasonKey('fading/export-finished'))
+    const fading = raisedOf('NT-2', reasonWrittenAgainst('NT-2'))
     const shown = noticesFromSession(sessionOf([fading]))
 
     expect(shown.length).toBe(1)
@@ -431,24 +506,20 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
   })
 
   it('gives a refusal words to be read (NT-1 MUST; colour alone is forbidden)', () => {
-    // ⛔ RED ON PURPOSE. NT-1 (MUST) has the telling say WHICH item and WHY in
-    // words, and (MUST NOT) forbids colour or a border alone -- so an empty
-    // sentence keeps neither half.
-    // ⛔ AND THE KEY IS NOT THOSE WORDS. FR-038 (MUST) holds every word the
-    // screen prints in the per-language dictionary, and the case below proves
-    // that dictionary has nothing a reason can be looked up under -- so a text
-    // that is the caller's own key came from somewhere else. It is also the
-    // same string in both display languages, which is the one thing FR-038
-    // exists to prevent.
-    // ⛔ Do not soften either half to match what the unit returns: the words
-    // are owed by `docs/spec/_source/display-words.json`, and paying that debt
-    // is what turns this case green.
+    // NT-1 (MUST) has the telling say WHICH item and WHY in words, and (MUST
+    // NOT) forbids colour or a border alone -- so an empty sentence keeps
+    // neither half.
+    // ⛔ AND THE ROW IS NOT THOSE WORDS. FR-038 (MUST) holds every word the
+    // screen prints in the per-language dictionary, so a text that is the
+    // raiser's own row of table T-233 came from somewhere that is not one.
+    // ⚠️ This case stood red while the dictionary held no section a reason could
+    // be looked up under; it was re-run, not rewritten.
     // ⭐ Driven by the copy of the table AND by the two sites the shell holds:
     // the rows that owe words are the table's answer, and a refused write and a
     // refused edit are two of them arriving for real.
     const mustBeToldInWords = [
       ...T_037.filter((row) => row.owesWords).map((row) =>
-        raisedOf(row.row, reasonKey(`owes-words/${row.row}`)),
+        raisedOf(row.row, reasonWrittenAgainst(row.row)),
       ),
       ...SHELL_RAISED.filter((raised) => raised.manner === 'NT-1'),
     ]
@@ -465,12 +536,13 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
   })
 
   it('gives every row that owes a next step one (NT-3a MUST; NT-6 follows it)', () => {
-    // ⛔ RED ON PURPOSE. NT-3a (MUST) has a failure carry what can be done next
-    // and (MUST NOT) forbids a telling that says only that something failed;
-    // NT-6 sends its own next step to that same row. Both are owed by the
-    // dictionary. ⛔ Do not soften this either.
+    // NT-3a (MUST) has a failure carry what can be done next and (MUST NOT)
+    // forbids a telling that says only that something failed; NT-6 sends its own
+    // next step to that same row. Both are read out of the row of table T-233
+    // the raiser hands over. ⛔ Do not soften this to match what the unit
+    // returns -- an empty list of steps breaks the MUST NOT outright.
     for (const entry of T_037.filter((row) => row.owesNextStep)) {
-      const raised = raisedOf(entry.row, reasonKey(`owes-next-step/${entry.row}`))
+      const raised = raisedOf(entry.row, reasonWrittenAgainst(entry.row))
       const shown = noticesFromSession(sessionOf([raised]))
 
       expect((shown[0] as Notice).nextSteps.length, `${entry.row} (MUST)`).toBeGreaterThan(0)
@@ -478,11 +550,11 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
   })
 
   it('prints no reason key on any surface, gathered or not (FR-038 MUST)', () => {
-    // ⛔ RED ON PURPOSE. FR-038 (MUST) keeps every word the screen prints in the
-    // per-language dictionary, and the case below proves that dictionary holds
-    // no entry a reason can be found under -- so a text still carrying the key
-    // is a word from nowhere. ⚠️ NT-4's one surface is where several of them
-    // land at once, which is why the gathered surface is walked here too.
+    // FR-038 (MUST) keeps every word the screen prints in the per-language
+    // dictionary, and a row ID is not a word -- so a text still carrying the row
+    // the raiser handed over is a word from nowhere. ⚠️ NT-4's one surface is
+    // where several of them land at once, which is why the gathered surface is
+    // walked here too.
     const raised = [...SHELL_RAISED, DESTRUCTIVE, AT_LIMIT, PENDING_RESTORE, PENDING_RECOVERY]
     const keysHandedIn = raised.map((one) => one.reason)
     const shown = noticesFromSession(sessionOf(raised))
@@ -497,30 +569,187 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
     }
   })
 
-  it('still owes those words: the dictionary holds no entry a reason can be found under', () => {
-    // ⭐ THE TRIPWIRE FOR THE THREE RED CASES ABOVE. FR-038 (MUST) puts every word
-    // the screen prints in one dictionary and (MUST NOT) forbids a second, so
-    // UF-67 may not mint what is missing and this bench may not accept a minted
-    // word. This case names the debt so that the reds cannot be read as a fault
-    // of the unit -- and so that they cannot be forgotten: the day the
-    // manuscript grows an entry keyed by a reason, this case goes red and the
-    // two above are to be run again rather than rewritten.
-    const dictionary = JSON.parse(
-      readFileSync(
-        join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
-        'utf8',
-      ),
-    ) as Record<string, unknown>
+  it('owes those words no longer: one section is keyed on the rows of table T-233 and holds both of their words', () => {
+    // ⭐ THE SAME TRIPWIRE, TURNED THE OTHER WAY UP. It was written to go red the
+    // day the manuscript grew a section a reason could be looked up under, so
+    // that the reds above could not be forgotten. ⛔ IT DID NOT FIRE: it looked
+    // for an entry with a member literally named `reason`, and the section that
+    // landed is keyed `rowId` -- the row of table T-233, the same move
+    // `Notice.manner` makes with table T-037 -- so it stayed green against a debt
+    // that had been PAID. It now asserts the debt paid, and goes red if the
+    // section is taken away, re-keyed, loses a row, or loses either of the two
+    // words a row owes.
+    // ⛔ Driven by the file and by the fixed copy of the table, never by a list
+    // written here: which rows exist is table T-233's answer (FR-076 MUST /
+    // MUST NOT), and which section answers for them is the dictionary's.
+    const dictionary = readJson('display-words.json') as Record<string, unknown>
     const sections = Object.entries(dictionary).filter(([, value]) => Array.isArray(value))
-    const keyedByReason = sections.filter(([, value]) =>
-      (value as readonly unknown[]).some(
-        (entry) => typeof entry === 'object' && entry !== null && 'reason' in entry,
-      ),
-    )
 
-    expect(keyedByReason.map(([name]) => name), 'FR-038: no section is keyed by a reason').toEqual(
-      [],
-    )
+    const isWordPair = (value: unknown): boolean =>
+      typeof value === 'object' &&
+      value !== null &&
+      !Array.isArray(value) &&
+      Object.values(value as Record<string, unknown>).every((word) => typeof word === 'string')
+
+    const entriesOf = (value: unknown): readonly Record<string, unknown>[] =>
+      (value as readonly unknown[]).filter(
+        (entry): entry is Record<string, unknown> => typeof entry === 'object' && entry !== null,
+      )
+
+    const answersForAReason = (value: unknown): boolean => {
+      const entries = entriesOf(value)
+      return (
+        entries.length > 0 &&
+        entries.every(
+          (entry) =>
+            typeof entry['rowId'] === 'string' &&
+            isWordPair(entry['text']) &&
+            isWordPair(entry['nextStep']),
+        )
+      )
+    }
+
+    const answering = sections.filter(([, value]) => answersForAReason(value))
+
+    expect(
+      answering.map(([name]) => name),
+      'FR-076 / FR-038: exactly one section holds NT-1 s words and NT-3a s next step per reason',
+    ).toHaveLength(1)
+    expect(
+      entriesOf((answering[0] as readonly [string, unknown])[1]).map((entry) => entry['rowId']),
+      'FR-076 (MUST): every row of 表 T-233, and (MUST NOT) nothing that is not one',
+    ).toEqual(T_233.map((entry) => entry.row))
+    expect(
+      T_233.map((entry) => entry.row),
+      'FR-076: the row a reason with no row of its own falls to has to be one of them',
+    ).toContain(FALLBACK_REASON)
+  })
+})
+
+describe('UF-67 -- FR-076 and 表 T-233: the words a reason carries are READ, row by row', () => {
+  it('tells every row of 表 T-233 in that row s own words, in the display language (one case, every row)', () => {
+    // Chapter 1.9: one test walks every row of the table it is driven by.
+    // NT-1 (MUST) and NT-3a (MUST) are the two things a row of table T-233 has
+    // to answer for, and FR-038 (MUST) puts the words in the dictionary, keyed
+    // by the row.
+    // ⭐ The manner comes from the table's own 作法 column, so no pair is
+    // invented here.
+    // ⛔ EXPECTED VALUES ARE READ, NEVER WRITTEN: FR-038 (MUST NOT) bars the
+    // words from a requirement and from a table, and the same reason bars a
+    // bench from minting one.
+    for (const language of LANGUAGES) {
+      for (const entry of T_233) {
+        const words = reasonWordsFor(entry.row, language)
+        const shown = noticesFromSession({
+          ...sessionOf([raisedOf(entry.manner, entry.row)]),
+          language,
+        })
+        const told = shown[0] as Notice
+
+        expect(told.text, `${entry.row} in ${language}`).toBe(words.text)
+        expect(told.nextSteps, `${entry.row} in ${language}: ONE step per row`).toEqual([
+          words.nextStep,
+        ])
+      }
+    }
+  })
+
+  it('tells a row of 表 T-037 by the word the dictionary holds for it, in the display language', () => {
+    // ⭐ THE OTHER HALF OF THE SAME JOIN. `Notice.manner` is the row and
+    // `Notice.mannerText` is what that row is CALLED -- FR-038 (MUST) puts the
+    // second in the dictionary, and NT-5 (MUST) needs the accepted-with-a-caution
+    // telling to read unlike NT-1's refusal.
+    for (const language of LANGUAGES) {
+      for (const entry of OTHER_ROWS) {
+        const raised = raisedOf(entry.row, reasonWrittenAgainst(entry.row))
+        const shown = noticesFromSession({ ...sessionOf([raised]), language })
+
+        expect((shown[0] as Notice).mannerText, `${entry.row} in ${language}`).toBe(
+          mannerTextFor(entry.row, language),
+        )
+      }
+    }
+  })
+
+  it('falls to the row FR-076 names when the reason has no row of its own', () => {
+    // FR-076 gives a reason with no row of its own somewhere to fall to, and
+    // says why: without it, a telling reaches the person that meets neither
+    // NT-1's MUST nor NT-3a's.
+    // ⛔ THE ONE INPUT THIS FILE MAKES THAT A RAISER MAY NOT. FR-076 (MUST NOT)
+    // bars a telling from carrying a reason table T-233 does not hold, so this
+    // reason cannot arrive from the product -- and the fallback row exists for
+    // exactly the case where one does anyway.
+    // ⚠️ ASCII, because a control character in a string key has stopped the whole
+    // build before now (04-verification.md, 3.).
+    const outsider = 'RS-no-row-of-its-own'
+
+    for (const language of LANGUAGES) {
+      const fallback = reasonWordsFor(FALLBACK_REASON, language)
+      const shown = noticesFromSession({
+        ...sessionOf([raisedOf('NT-1', outsider)]),
+        language,
+      })
+      const told = shown[0] as Notice
+
+      expect(told.text, `the fallback text in ${language}`).toBe(fallback.text)
+      expect(told.nextSteps, `the fallback next step in ${language}`).toEqual([fallback.nextStep])
+      expect(told.text, 'FR-038 (MUST): a row ID is not a word').not.toContain(outsider)
+      for (const step of told.nextSteps) {
+        expect(step, 'FR-038 (MUST): a row ID is not a word').not.toContain(outsider)
+      }
+    }
+  })
+
+  it('carries every text and every next step of what NT-4 gathered', () => {
+    // NT-4 (MUST) has the pending run arrive as ONE surface carrying the whole
+    // of it, so nothing of what was gathered may be left behind. NT-3a (MUST
+    // NOT) forbids a telling that says only that something failed, so a next
+    // step dropped on the way into the gathering would break that row on
+    // arrival.
+    // ⛔ HOW they are joined is NOT asserted: the specification fixes no
+    // separator, no order and no shape for the gathered surface.
+    const gathered = [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API, PENDING_WATERMARK]
+
+    for (const language of LANGUAGES) {
+      const shown = noticesFromSession({ ...sessionOf(gathered), language })
+      const surface = gatheredOf(shown)
+
+      for (const raised of gathered) {
+        const words = reasonWordsFor(raised.reason, language)
+
+        expect(surface.text, `${raised.reason} in ${language}`).toContain(words.text)
+        expect(surface.nextSteps, `${raised.reason} in ${language}`).toContain(words.nextStep)
+      }
+    }
+  })
+
+  it('still tells words and a next step when the dictionary holds the row but its cell is empty', async () => {
+    // ⛔ NT-1 (MUST) and NT-3a (MUST) do not stop being MUSTs because a cell of
+    // the generated file was emptied: an empty sentence shows nothing and an
+    // empty next step is no step at all.
+    // ⚠️ NO CELL IS EMPTY TODAY, so this stands guard over a generated file
+    // someone has edited by hand -- which Chapter 6.2 forbids (MUST NOT) and
+    // cannot prevent. It is also what tells an ABSENT row apart from a PRESENT
+    // but empty one, which is the difference PD-160 records.
+    // ⛔ WHAT the stand-in says is not asserted: FR-076 settles where an ABSENT
+    // row falls and says nothing about a present row whose word was emptied, so
+    // only what NT-1 and NT-3a demand is asked for here.
+    const emptied = (T_233[0] as { readonly row: string; readonly manner: string })
+
+    for (const language of LANGUAGES) {
+      const shown = await noticesWithDictionary(
+        dictionaryWithReasonEmptied(emptied.row),
+        [raisedOf(emptied.manner, emptied.row)],
+        language,
+      )
+      const told = shown[0] as Notice
+
+      expect(told.text.length, `NT-1 (MUST) in ${language}`).toBeGreaterThan(0)
+      expect(told.nextSteps.length, `NT-3a (MUST) in ${language}`).toBeGreaterThan(0)
+      for (const step of told.nextSteps) {
+        expect(step.length, `NT-3a (MUST) in ${language}`).toBeGreaterThan(0)
+      }
+    }
   })
 })
 
@@ -592,10 +821,13 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
 //   FR-038   「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと（MUST）」--
 //             so an entry's word is the dictionary's, keyed by its row id, and
 //             「対象は `ja` と `en` の 2 言語とする」. ⚠️ Every word in that
-//             dictionary is empty today (PD-160), so a case that read it and
-//             compared could not fail -- see the block above the cases: they
-//             hand the unit a dictionary this file BUILDS, whose words differ by
-//             row and by language, and ask which one came out
+//             dictionary WAS empty when these cases were written (PD-160), so a
+//             case that read it and compared could not fail. The words have
+//             since been written, and the built dictionary is kept because it
+//             is still the only thing that tells a word READ from a word MINTED
+//             -- see the block above the cases: they hand the unit a dictionary
+//             this file BUILDS, whose words differ by row and by language, and
+//             ask which one came out
 //   NT-7   「何が起きるかを示したうえで、続けるか取りやめるかを選ばせること
 //          （MUST）」／「消えるもの・解かれるものがあるときは、その名前を挙げる
 //          こと（MUST）」／「問うてよいのは、要求が確認を求めると定めた場面だけ
@@ -654,11 +886,6 @@ const ASKING = 'NT-7'
 /** U-55 of 表 T-103 -- the settled name of the surface a question stands on. */
 const U_55_CONFIRMATION = 'Confirmation'
 
-const SRC_SCREEN_RENDERER = join(process.cwd(), 'src', 'adapter', 'screen-renderer')
-
-const readJson = (file: string): unknown =>
-  JSON.parse(readFileSync(join(SRC_SCREEN_RENDERER, file), 'utf8')) as unknown
-
 /**
  * 表 T-109 as it reaches `src/`, read at load time rather than copied by hand.
  *
@@ -694,22 +921,9 @@ const T_109_ON_CONFIRMATION_IN_MANUSCRIPT = specTable('T-109')
   .map((row) => row.id)
 
 /**
- * The one dictionary FR-038 (MUST) puts every printed word in, keyed by the row
- * of 表 T-109 -- `_source/display-words.json` as Chapter 6.2 generates it into
- * `src/`. ⛔ No word is written here: 「要求にも表にも語そのものを書いてはならない
- * （MUST NOT）」, and the same reason bars a test from minting one.
+ * The `icons` section of that same dictionary, keyed by the row of 表 T-109 --
+ * where FR-038 (MUST) puts the word an entry of a surface prints.
  */
-const DICTIONARY = readJson('display-words.json') as {
-  readonly icons: readonly {
-    readonly rowId: string
-    readonly label: Readonly<Record<DisplayLanguage, string>>
-  }[]
-  readonly confirmationMarks: readonly {
-    readonly mark: string
-    readonly text: Readonly<Record<DisplayLanguage, string>>
-  }[]
-}
-
 const DISPLAY_WORDS = DICTIONARY.icons
 
 /**
@@ -721,13 +935,46 @@ const DISPLAY_WORDS = DICTIONARY.icons
 const markFor = (mark: string, language: DisplayLanguage): string => {
   const word = DICTIONARY.confirmationMarks.find((one) => one.mark === mark)
   expect(word, `FR-032: the dictionary has no mark for ${mark}`).toBeDefined()
-  return (word as { readonly text: Readonly<Record<DisplayLanguage, string>> }).text[language]
+  return (word as { readonly text: Words }).text[language]
 }
 
 const labelOf = (rowId: string, language: DisplayLanguage): string => {
   const word = DISPLAY_WORDS.find((one) => one.rowId === rowId)
   expect(word, `FR-038: the dictionary has no row for ${rowId}`).toBeDefined()
-  return (word as { readonly label: Readonly<Record<DisplayLanguage, string>> }).label[language]
+  return (word as { readonly label: Words }).label[language]
+}
+
+/**
+ * What a row of 表 T-037 is CALLED, in the display language.
+ *
+ * ⭐ READ, NEVER WRITTEN, the move `markFor` above already makes: FR-038 (MUST)
+ * keeps every printed word in the one dictionary and the join is the row ID.
+ * ⚠️ `shownFor` below WROTE the empty string in place of this while the
+ * dictionary held no word for NT-7, and went on writing it after the word was
+ * written -- four cases went red on that, and on nothing the unit did.
+ */
+const mannerTextFor = (manner: string, language: DisplayLanguage): string => {
+  const word = DICTIONARY.notices.find((one) => one.rowId === manner)
+  expect(word, `FR-038: the dictionary has no row of 表 T-037 for ${manner}`).toBeDefined()
+  return (word as { readonly manner: Words }).manner[language]
+}
+
+/**
+ * The text NT-1 (MUST) asks for and the next step NT-3a (MUST) asks for, for one
+ * row of 表 T-233, in the display language.
+ *
+ * ⭐ ONE STEP PER ROW: the dictionary holds `nextStep`, singular, because a row
+ * of that table names one situation. `Notice.nextSteps` is a list for NT-4's
+ * sake, not because a row has several.
+ */
+const reasonWordsFor = (
+  reason: string,
+  language: DisplayLanguage,
+): { readonly text: string; readonly nextStep: string } => {
+  const word = DICTIONARY.reasons.find((one) => one.rowId === reason)
+  expect(word, `FR-076: the dictionary has no row of 表 T-233 for ${reason}`).toBeDefined()
+  const held = word as { readonly text: Words; readonly nextStep: Words }
+  return { text: held.text[language], nextStep: held.nextStep[language] }
 }
 
 /**
@@ -772,7 +1019,13 @@ const shownFor = (
   language: DisplayLanguage = 'ja',
 ): Confirmation => ({
   ...raised,
-  mannerText: '',
+  // ⛔ READ from the dictionary and never written here, exactly as
+  // `shownOnAnotherRowMark` below already is: FR-038 (MUST) keeps the one store
+  // of translated strings, and the join is the row of 表 T-037 the question
+  // follows. ⚠️ This line held `''` while the dictionary had no word for NT-7,
+  // and four cases went red the day the word was written -- the bench's own
+  // fault, not the unit's.
+  mannerText: mannerTextFor(raised.manner, language),
   entries: entriesOnConfirmation(language),
   shownOnAnotherRowMark: markFor('shownOnAnotherRow', language),
 })
@@ -786,31 +1039,29 @@ const sessionAsking = (
  * OP-11 of table T-024a as it reaches this unit -- accepted, with a warning
  * (NT-5), carrying NT-3's count for what was left out of the hand-over.
  */
-const OP_11_TELLING = raisedOf('NT-5', reasonKey('op-11/rest-of-hand-over-ignored'), 2)
+const OP_11_TELLING = raisedOf('NT-5', reasonWrittenAgainst('NT-5'), 2)
 
 // ---------------------------------------------------------------------------
 // A dictionary this file BUILDS, and the way it is put in front of the unit.
 // ---------------------------------------------------------------------------
 
-/** FR-038: 「対象は `ja` と `en` の 2 言語とする」. */
-const LANGUAGES = ['ja', 'en'] as const satisfies readonly DisplayLanguage[]
-
 /**
- * ⛔ WHY A DICTIONARY IS BUILT AT ALL. Every word in the one FR-038 names is the
- * empty string today (PD-160: the manuscript is unwritten and an agent may not
- * invent a word), so a case that READ that dictionary and held the answer
- * against it would be holding '' against '' -- which is equally true of a unit
- * that keys by the wrong row, of one that never looks at the display language,
- * and of one that writes a constant. Such a case cannot fail, whatever its title
- * says. So these cases hand the unit a dictionary whose every word is DISTINCT
- * by row and by language, and then ask WHICH word came out.
+ * ⛔ WHY A DICTIONARY IS BUILT AT ALL. Every word in the one FR-038 names WAS the
+ * empty string when these cases were written (PD-160: the manuscript was
+ * unwritten and an agent may not invent a word), so a case that READ that
+ * dictionary and held the answer against it would have been holding '' against
+ * '' -- which is equally true of a unit that keys by the wrong row, of one that
+ * never looks at the display language, and of one that writes a constant. So
+ * these cases hand the unit a dictionary whose every word is DISTINCT by row and
+ * by language, and then ask WHICH word came out.
+ * ⭐ THE WORDS HAVE SINCE BEEN WRITTEN and the built dictionary is kept: which
+ * entry an answer was READ from is still the one thing a dictionary of the real
+ * words cannot show, because both sides of such a case read the same file.
  *
  * ⛔ NO WORD OF EITHER LANGUAGE IS MINTED HERE. FR-038's MUST NOT bars writing
  * the word itself into a requirement or a table, and a test may not settle one
  * either. What is below is not a word: it is the row id and the language spelled
- * back, made to be told apart. Which entry of the dictionary an entry of the
- * screen was read from is the whole of what FR-038 fixes while every word is
- * empty, and it is exactly what a mark can measure.
+ * back, made to be told apart.
  */
 const markForRow = (rowId: string, language: DisplayLanguage): string =>
   `<${language}/${rowId}/label>`
@@ -911,6 +1162,44 @@ function dictionaryOfMarksEverywhere(): unknown {
     )
   }
   return walk(readJson('display-words.json'), '')
+}
+
+/**
+ * What UF-67 tells when the dictionary in front of it is the one given here.
+ *
+ * ⚠️ The unit reads the dictionary as a MODULE, so the module is what is stood
+ * in, and only for the length of one case.
+ */
+async function noticesWithDictionary(
+  dictionary: unknown,
+  raised: readonly RaisedNotice[],
+  language: DisplayLanguage = 'ja',
+): Promise<readonly Notice[]> {
+  vi.resetModules()
+  vi.doMock(DISPLAY_WORDS_MODULE, () => ({ default: dictionary }))
+  try {
+    const fresh = await import('../../src/adapter/screen-renderer/notices')
+    return fresh.noticesFromSession({ ...sessionOf(raised), language })
+  } finally {
+    vi.doUnmock(DISPLAY_WORDS_MODULE)
+    vi.resetModules()
+  }
+}
+
+/**
+ * The generated dictionary with ONE row of 表 T-233 emptied and nothing else
+ * moved -- the row is still there, and both of its words are gone.
+ *
+ * ⛔ The shape is the real file's, read off the disk rather than typed, so the
+ * unit is handed the very keys it always gets.
+ */
+function dictionaryWithReasonEmptied(reason: string): unknown {
+  const onDisk = readJson('display-words.json') as Record<string, unknown>
+  const blank: Words = { ja: '', en: '' }
+  const emptied = (onDisk['reasons'] as readonly Record<string, unknown>[]).map((entry) =>
+    entry['rowId'] === reason ? { ...entry, text: blank, nextStep: blank } : entry,
+  )
+  return { ...onDisk, reasons: emptied }
 }
 
 /** What UF-67 tells when the dictionary in front of it is that marked one. */
@@ -1074,13 +1363,13 @@ describe('UF-67 -- 表 T-109: the answers the roster places on the `Confirmation
 
   it('GIVEN the dictionary on disk WHEN the entries are shown THEN each carries the word it holds for that row and language, whatever it is', () => {
     // FR-038 (MUST): 「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと」.
-    // ⚠️ WHAT THIS CASE CAN AND CANNOT CATCH. It reads the generated dictionary
-    // and every word in it is '' (PD-160), so while the manuscript is unwritten
-    // the two languages have the same answer and a unit that wrote a constant
-    // '' would pass. It is kept because it is the only case that watches the
-    // REAL file -- the moment a word is written into the manuscript it starts
-    // telling. The two cases that follow are the ones with teeth: they hand the
-    // unit a dictionary this file built, so they can fail today.
+    // ⚠️ WHAT THIS CASE CAN AND CANNOT CATCH. It reads the generated dictionary,
+    // which is also where the unit reads -- so it can tell a word that went
+    // astray on the way, but it cannot tell a word READ from a word MINTED, and
+    // it went vacuous whenever a cell was empty (PD-160). It is kept because it
+    // is the only case that watches the REAL file. The two cases that follow are
+    // the ones that tell reading from minting: they hand the unit a dictionary
+    // this file built.
     for (const language of LANGUAGES) {
       const session: ScreenSession = {
         ...sessionAsking(confirmationOf('two tasks would go', [])),
@@ -1178,7 +1467,7 @@ describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
   })
 
   it('GIVEN nothing was left behind WHEN a count of zero is told THEN zero survives as zero, not as absent', () => {
-    const none = raisedOf('NT-5', reasonKey('op-11/nothing-left-behind'), 0)
+    const none = raisedOf('NT-5', reasonWrittenAgainst('NT-5'), 0)
     const shown = noticesFromSession(sessionOf([none]))
 
     expect((shown[0] as Notice).affectedCount).toBe(0)
@@ -1221,17 +1510,16 @@ describe('UF-67 -- confirmationFromSession is @purity pure (table T-075, R7.1)',
 
 describe('UF-67 -- FR-038: the words are READ from the dictionary, never minted', () => {
   it('answers differently when the dictionary is different, because that is where the words are', async () => {
-    // ⛔ RED ON PURPOSE, and the only case here that can tell a word READ
-    // from a word MINTED. FR-038 (MUST) holds every word the screen prints in
-    // the per-language dictionary and (MUST NOT) forbids a second store of
-    // them; so if one and the same session is answered identically with the
-    // generated dictionary and with one whose every word has been replaced,
-    // then no word of that answer came from a dictionary at all.
-    // ⚠️ It is red for the same one debt as the three above: the
-    // dictionary has no entry a reason can be found under, so replacing its
-    // words changes nothing. ⛔ Do not weaken it into a case that a unit
-    // writing its own sentence would pass -- that unit is exactly what FR-038
-    // forbids, and this is the case that names it.
+    // ⭐ THE ONE CASE HERE THAT CAN TELL A WORD READ FROM A WORD MINTED. FR-038
+    // (MUST) holds every word the screen prints in the per-language dictionary
+    // and (MUST NOT) forbids a second store of them; so if one and the same
+    // session is answered identically with the generated dictionary and with one
+    // whose every word has been replaced, then no word of that answer came from
+    // a dictionary at all.
+    // ⚠️ It stood red while the dictionary held no section a reason could be
+    // looked up under -- replacing its words changed nothing. ⛔ Do not weaken
+    // it into a case that a unit writing its own sentence would pass -- that
+    // unit is exactly what FR-038 forbids, and this is the case that names it.
     const asGenerated = noticesFromSession(sessionOf(SHELL_RAISED)).map((one) => one.text)
     const asMarked = (await noticesWithMarkedDictionary(SHELL_RAISED)).map((one) => one.text)
 

@@ -1093,6 +1093,17 @@
    }
   },
   {
+   "rowId": "RS-16",
+   "text": {
+    "ja": "重ねたファイルの一部のタスクは、現在の文書に対応するものが無いので描いていません",
+    "en": "Some tasks of the overlaid file have no counterpart in this document, so they are not drawn"
+   },
+   "nextStep": {
+    "ja": "対応するタスクを持つ文書へ重ねると描かれます",
+    "en": "Overlay it on a document that holds the matching tasks and they will be drawn"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

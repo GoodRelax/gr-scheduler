@@ -940,7 +940,7 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
 })
 
 // ===========================================================================
-// Added for table T-227 (DI-1 .. DI-5), OP-11 of table T-024a and FR-061's
+// Added for table T-227 (DI-1 .. DI-6), OP-11 of table T-024a and FR-061's
 // MUST NOT. Written against docs/spec only; the unit's body was not read.
 //
 // The rows these cases answer to:
@@ -953,6 +953,9 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
 //   DI-4   a destination that cannot be called the same -- ask whether it may
 //          be written over (MUST). The manner is NT-7 of table T-037
 //   DI-5   FR-060's route asks nothing (MUST)
+//   DI-6   a destination of zero bytes: not counted as already being there,
+//          and not asked about (MUST). The row states its own precedence over
+//          DI-3, and gives FR-031 as the ground
 //   FR-031 asking anywhere a requirement did not ask for it is forbidden
 //          (MUST NOT), so a destination table T-227 calls the same is written
 //          over in silence
@@ -967,13 +970,14 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
 // Fixed copies of table T-227, of OP-11 and of the identity they compare.
 // ---------------------------------------------------------------------------
 
-/** Table T-227, its five rows and the subject of each. */
+/** Table T-227, its rows and the subject of each. */
 const T_227_ROWS = [
   { row: 'DI-1', subject: 'how the same document is recognised' },
   { row: 'DI-2', subject: 'what null means' },
   { row: 'DI-3', subject: 'a destination that cannot be read' },
   { row: 'DI-4', subject: 'the overwrite question' },
   { row: 'DI-5', subject: 'overwrite-saving the file that was opened' },
+  { row: 'DI-6', subject: 'a destination of zero bytes' },
 ] as const
 
 /** The document being written, with all three of DI-1's values present. */
@@ -1236,9 +1240,16 @@ const readingWithIgnored = (
 // ---------------------------------------------------------------------------
 
 describe('the rosters for table T-227 and for OP-11 are the ones the tables state', () => {
-  it('GIVEN table T-227 WHEN its rows are counted THEN there are five, DI-1 .. DI-5', () => {
-    expect(T_227_ROWS).toHaveLength(5)
-    expect(T_227_ROWS.map((entry) => entry.row)).toEqual(['DI-1', 'DI-2', 'DI-3', 'DI-4', 'DI-5'])
+  it('GIVEN table T-227 WHEN its rows are counted THEN there are six, DI-1 .. DI-6', () => {
+    expect(T_227_ROWS).toHaveLength(6)
+    expect(T_227_ROWS.map((entry) => entry.row)).toEqual([
+      'DI-1',
+      'DI-2',
+      'DI-3',
+      'DI-4',
+      'DI-5',
+      'DI-6',
+    ])
   })
 
   it('GIVEN the sameness roster WHEN it is counted THEN one row is the same document and eleven are not', () => {
@@ -1292,20 +1303,6 @@ describe('table T-227 DI-1 / DI-2 / DI-3 -- when a destination is this same docu
     expect(save.textsRead).toEqual([DESTINATION_TEXT])
   })
 
-  it('GIVEN a destination that is there but holds no bytes at all WHEN DI-3 judges it THEN it is read as empty text and the question is put (the empty case)', async () => {
-    // `ChosenWriteDestination` keeps `empty` and `occupied` apart precisely
-    // because a file standing there with nothing in it is still a file that is
-    // there. Empty text is not `GRS JSON`, so DI-3 applies (MUST NOT).
-    const save = chosenSaveOf(THIS_DOCUMENT, null, true)
-    const stand = storeAt(occupiedBy('plan-a.json', ''))
-
-    const result = await saveDocumentFile(stand.store, save.request)
-
-    expect(save.textsRead).toEqual([''])
-    expect(save.timesAsked()).toBe(1)
-    expect(result.ok).toBe(true)
-  })
-
   it('GIVEN nothing at the destination WHEN a chosen write happens THEN no question is put (table T-227 has none to ask; FR-031 MUST NOT)', async () => {
     const save = chosenSaveOf(THIS_DOCUMENT, SAME_PROJECT, false)
     const stand = storeAt(NOTHING_THERE)
@@ -1343,6 +1340,80 @@ describe('table T-227 DI-1 / DI-2 / DI-3 -- when a destination is this same docu
 
     expect(save.timesAsked()).toBe(1)
     expect(result.ok).toBe(true)
+  })
+})
+
+describe('table T-227 DI-6 -- a destination of zero bytes, and the row it outranks', () => {
+  it('GIVEN a destination the store calls occupied but holding no bytes WHEN table T-227 is applied THEN nothing is asked and the bytes go down (DI-6 MUST, over DI-3)', async () => {
+    // ⭐ THE ORDER IS THE WHOLE CASE. DI-6 states its own precedence over DI-3,
+    // and DI-3 is the row that refuses a destination it cannot read as
+    // `GRS JSON`. No bytes decode as that, so DI-3 would refuse every zero-byte
+    // destination and DI-4 would then put the question DI-6 forbids. The row
+    // can therefore only be obeyed by measuring the destination BEFORE trying
+    // to decode it, and this case is what holds the code to that order.
+    //
+    // ⚠️ The stand-in reports `occupied`, not `empty`, on purpose: that is the
+    // arm on which the two rows collide, and the only arm a near side can get
+    // wrong. The other arm is `NOTHING_THERE` in the block above, and neither
+    // store is wrong -- IF-3 asks no store to tell a file a save chooser just
+    // created from one that was already standing empty, which is exactly the
+    // pair DI-6 says cannot be told apart.
+    //
+    // The reader is set to refuse (DI-3's answer) and the person's answer is
+    // "call it off", so a question that WAS put would show in every assertion
+    // below rather than in one.
+    const save = chosenSaveOf(THIS_DOCUMENT, null, false)
+    const stand = storeAt(occupiedBy('plan-a.json', ''))
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    // This one is DI-6's own MUST, and nothing else in the case is.
+    expect(save.timesAsked()).toBe(0)
+    // ⛔ STRICTER THAN THE ROW, DELIBERATELY, AND THE SPECIFICATION IS SILENT
+    // ON IT. DI-6 fixes the OUTCOME -- not counted as already being there, not
+    // asked about -- and no MUST forbids reading the destination anyway and
+    // then discarding what came back. So an implementation that decoded first
+    // and let DI-6 win afterwards would satisfy the row and fail this line.
+    // ⭐ It is asserted regardless because the outcome alone cannot tell "DI-6
+    // was read first" from "DI-3 was read and then overruled", and DI-6 states
+    // a PRECEDENCE, which is a claim about order that has no other observable.
+    // If a ruling says a pointless read is admissible, this line is the one to
+    // drop -- not the one above it.
+    expect(save.textsRead).toEqual([])
+    expect(stand.permissions).toEqual([true])
+    expect(stand.calls.map((call) => call.member)).toEqual(['writeChosenFile', 'putTheBytesDown'])
+    expect(result.ok).toBe(true)
+  })
+
+  it('GIVEN a destination holding one single byte that is not GRS JSON WHEN it is judged THEN the question is put (DI-3 did not change; DI-6 turns on the count, not on being unreadable)', async () => {
+    // The sibling of the case above, one byte away from it. DI-6 turns on the
+    // byte count alone; being unreadable is DI-3's condition and still reaches
+    // DI-4's MUST. A code path that read DI-6 as "unreadable means let it
+    // through" would pass the case above and fail this one.
+    const save = chosenSaveOf(THIS_DOCUMENT, null, true)
+    const stand = storeAt(occupiedBy('plan-a.json', 'x'))
+
+    const result = await saveDocumentFile(stand.store, save.request)
+
+    expect(save.textsRead).toEqual(['x'])
+    expect(save.timesAsked()).toBe(1)
+    expect(stand.permissions).toEqual([true])
+    expect(result.ok).toBe(true)
+  })
+
+  it('GIVEN destinations of zero and of one byte WHEN each is written THEN the boundary DI-6 draws sits at zero (one case walks both sides)', async () => {
+    for (const side of [
+      { why: 'zero bytes -- DI-6 applies', text: '', asked: 0 },
+      { why: 'one byte -- DI-3 applies', text: 'x', asked: 1 },
+    ]) {
+      const save = chosenSaveOf(THIS_DOCUMENT, null, true)
+      const stand = storeAt(occupiedBy('plan-a.json', side.text))
+
+      const result = await saveDocumentFile(stand.store, save.request)
+
+      expect(save.timesAsked(), side.why).toBe(side.asked)
+      expect(result.ok, side.why).toBe(true)
+    }
   })
 })
 
