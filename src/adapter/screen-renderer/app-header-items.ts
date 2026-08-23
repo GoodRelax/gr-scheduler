@@ -102,8 +102,6 @@ const AGENT_API_ENTRY: IconId = 'IC-20'
  * Class C of rule 06: the words are display-only and leave no trace in the
  * saved form -- FR-038 (MUST NOT) keeps even the language out of the document,
  * so reversing this costs the one place that draws them.
- *
- * @provisional PD-4
  */
 const NO_WORDS = ''
 
@@ -142,7 +140,6 @@ const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, ent
  * every run and refuses to write on a mismatch -- so what is guarded is the run
  * where someone edited the generated file by hand.
  *
- * @provisional PD-4
  * @purity pure
  */
 function entryLabel(icon: IconId, language: DisplayLanguage): string {

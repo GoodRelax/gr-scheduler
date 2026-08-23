@@ -473,7 +473,8 @@
     "Help Modal",
     "AI Export Modal",
     "Resource Roster",
-    "Export Chooser"
+    "Export Chooser",
+    "Open Chooser"
    ],
    "group": null,
    "entryTo": "開いている面を閉じる",

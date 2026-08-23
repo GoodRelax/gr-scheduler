@@ -111,8 +111,6 @@ const RESOURCE_ROSTER = 'Resource Roster'
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
  * has been SETTLED yet (PD-160), and this is exactly what UF-66 printed before
  * the dictionary was wired -- so opening the road moved nothing on the screen.
- *
- * @provisional PD-160
  */
 const NO_WORDS = ''
 
@@ -160,7 +158,6 @@ const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.
  * `npm run gen:check` passes -- the generator builds its roster from table T-109
  * every run -- so what is guarded is a generated file edited by hand.
  *
- * @provisional PD-160
  * @purity pure
  */
 function entryLabel(icon: IconId, language: DisplayLanguage): string {
@@ -188,7 +185,6 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
  * edited by hand (`npm run gen:check` fails on drift), so the row is owed by
  * the manuscript and not by this unit.
  *
- * @provisional PD-160
  * @purity pure
  */
 function surfaceHeading(surface: string, language: DisplayLanguage): string {

@@ -104,8 +104,6 @@ const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
  * has been SETTLED for that row yet (PD-160), and this is exactly what UF-65
  * printed before the dictionary was wired.
- *
- * @provisional PD-4
  */
 const NO_WORDS = ''
 
@@ -147,7 +145,6 @@ const GROUP_NAMES_BY_FIRST_ROW = new Map(
  * `npm run gen:check` passes -- the generator builds its roster from table T-109
  * every run -- so what is guarded is a generated file edited by hand.
  *
- * @provisional PD-4
  * @purity pure
  */
 function entryLabel(icon: IconId, language: DisplayLanguage): string {
@@ -176,7 +173,6 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
  * That is the roster carrying a fact this file cannot read (see the STOP note on
  * those rows), not a lookup gone missing.
  *
- * @provisional PD-4
  * @purity pure
  */
 function groupName(groupCell: string, firstRow: string, language: DisplayLanguage): string {
@@ -271,7 +267,6 @@ function commandItemFor(
  * constant compiled into the program, not state read while running. Table T-075
  * fixes UF-65 as `pure`.
  *
- * @provisional PD-4
  * @purity pure
  */
 function paletteGroups(selection: Selection, language: DisplayLanguage): readonly PaletteGroup[] {
@@ -330,7 +325,6 @@ function paletteGroups(selection: Selection, language: DisplayLanguage): readonl
  * does not tell them apart either -- its rows are the kinds of arm, not the
  * shapes -- and the spellings `Armed` carries for them are unsettled (CR-172).
  *
- * @provisional PD-4
  * @purity pure
  */
 function armedRow(armed: ScreenState['armed']): string {

@@ -106,7 +106,6 @@ const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', 
  * separately although with the same stand-in; it cannot happen while
  * `npm run gen:check` passes.
  *
- * @provisional PD-160
  * @purity pure
  */
 function entryHint(command: CommandItem, language: DisplayLanguage): string {
@@ -125,7 +124,6 @@ function entryHint(command: CommandItem, language: DisplayLanguage): string {
  * table T-023's assignment column says as firmly as it forbids inventing a word
  * for it. The fallback is written as `=== ''` for the reason `entryHint` gives.
  *
- * @provisional PD-3
  * @purity pure
  */
 function assignmentText(row: string, language: DisplayLanguage): string {

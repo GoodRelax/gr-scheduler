@@ -154,8 +154,6 @@ const MARKS_BY_KEY = new Map(displayWords.confirmationMarks.map((entry) => [entr
  *
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
  * has been SETTLED yet, which is what PD-160 records.
- *
- * @provisional PD-160
  */
 const NO_WORDS = ''
 
@@ -167,7 +165,6 @@ const NO_WORDS = ''
  * holds no word yet" and "the word is the empty string" as one thing, and
  * PD-160 is precisely the difference.
  *
- * @provisional PD-160
  * @purity pure
  */
 function answerLabel(icon: IconId, language: DisplayLanguage): string {
@@ -192,7 +189,6 @@ function answerLabel(icon: IconId, language: DisplayLanguage): string {
  * PD-160 is precisely the difference. ⚠️ No substitute is invented for the empty
  * case -- U-55 is a surface of words and there is nothing else here to say.
  *
- * @provisional PD-160
  * @purity pure
  */
 function shownOnAnotherRowMark(language: DisplayLanguage): string {
@@ -241,8 +237,6 @@ const GATHERED_TEXT_SEPARATOR = '\n'
  *
  * ⛔ NOT "NOTHING CAN BE DONE". It says that no next step has been SETTLED yet,
  * which is the same thing an empty cell of `display-words.json` says (PD-160).
- *
- * @provisional PD-160
  */
 const NO_NEXT_STEPS: readonly string[] = []
 
@@ -285,7 +279,6 @@ function isStartupPending(notice: Notice): boolean {
  * apart precisely so that it is not reported), so it is the raiser's not to
  * raise; nothing here can tell it from the reasons that are owed a step.
  *
- * @provisional PD-160
  * @purity pure
  */
 function toldNotice(raised: RaisedNotice): Notice {

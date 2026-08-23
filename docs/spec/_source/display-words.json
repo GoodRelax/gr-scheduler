@@ -11,584 +11,584 @@
   {
    "rowId": "IC-1",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "開く",
+    "en": "Open"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ファイルを開く。読んだ内容の扱いは開いたあとで選ぶ",
+    "en": "Open a file; how its contents are used is chosen after reading"
    }
   },
   {
    "rowId": "IC-2",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "上書き保存",
+    "en": "Save"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "開いたファイルへ上書きして保存する",
+    "en": "Save over the file that was opened"
    }
   },
   {
    "rowId": "IC-3",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出し",
+    "en": "Export"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出す形式を選ぶ",
+    "en": "Choose a format to export"
    }
   },
   {
    "rowId": "IC-4",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "変更前の予定",
+    "en": "Baseline"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "変更前の予定を重ねて出す。もう一度押すとしまう",
+    "en": "Overlay the baseline; press again to hide it"
    }
   },
   {
    "rowId": "IC-5",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "取り消す",
+    "en": "Undo"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "直前の編集を取り消す",
+    "en": "Undo the last edit"
    }
   },
   {
    "rowId": "IC-6",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "やり直す",
+    "en": "Redo"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "取り消した編集をやり直す",
+    "en": "Redo the edit that was undone"
    }
   },
   {
    "rowId": "IC-7",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "コマンドパレット",
+    "en": "Command Palette"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "コマンドパレットを出す。もう一度押すとしまう",
+    "en": "Show the Command Palette; press again to hide it"
    }
   },
   {
    "rowId": "IC-8",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "予定バー",
+    "en": "Plan Bar"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "予定バーを出す。もう一度押すとしまう。予定と実績の両方をしまうことはできない",
+    "en": "Show the Plan Bar; press again to hide it — plan and actual cannot both be hidden"
    }
   },
   {
    "rowId": "IC-9",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "実績バー",
+    "en": "Actual Bar"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "実績バーを出す。もう一度押すとしまう。予定と実績の両方をしまうことはできない",
+    "en": "Show the Actual Bar; press again to hide it — plan and actual cannot both be hidden"
    }
   },
   {
    "rowId": "IC-10",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "全体を収める",
+    "en": "Fit"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "日程の全体が 1 画面に収まる倍率と位置にする",
+    "en": "Set the zoom and position that fit the whole schedule on one screen"
    }
   },
   {
    "rowId": "IC-11",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "全画面表示",
+    "en": "Full screen"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "全画面表示にする。もう一度押すと戻る",
+    "en": "Enter full screen; press again to leave"
    }
   },
   {
    "rowId": "IC-12",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "横に縮小",
+    "en": "Zoom out horizontally"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "時間軸（横）を縮小する",
+    "en": "Zoom the time axis out"
    }
   },
   {
    "rowId": "IC-13",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "横に拡大",
+    "en": "Zoom in horizontally"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "時間軸（横）を拡大する",
+    "en": "Zoom the time axis in"
    }
   },
   {
    "rowId": "IC-14",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "縦に縮小",
+    "en": "Zoom out vertically"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "行軸（縦）を縮小する",
+    "en": "Zoom the row axis out"
    }
   },
   {
    "rowId": "IC-15",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "縦に拡大",
+    "en": "Zoom in vertically"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "行軸（縦）を拡大する",
+    "en": "Zoom the row axis in"
    }
   },
   {
    "rowId": "IC-16",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "明暗テーマ",
+    "en": "Light / dark"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ライトモードかダークモードの選択",
+    "en": "Choose the light or the dark theme"
    }
   },
   {
    "rowId": "IC-17",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "文書の設定",
+    "en": "Document settings"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "文書の描画設定をプロパティパネルに出す",
+    "en": "Show the document's drawing settings in the Properties Panel"
    }
   },
   {
    "rowId": "IC-18",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "対話欄",
+    "en": "Dialogue Field"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "AI との対話欄を出す。もう一度押すとしまう",
+    "en": "Show the Dialogue Field for talking with the AI; press again to hide it"
    }
   },
   {
    "rowId": "IC-19",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "AI 出力",
+    "en": "AI Export"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "AI へ渡す文書を画面で確かめて写す",
+    "en": "Check the document to hand to the AI on screen, then copy it"
    }
   },
   {
    "rowId": "IC-20",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "Agent API",
+    "en": "Agent API"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "Agent API を有効にする。もう一度押すと無効にする",
+    "en": "Enable the Agent API; press again to disable it"
    }
   },
   {
    "rowId": "IC-21",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "表示言語",
+    "en": "Language"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "画面とヘルプの表示言語を選ぶ。いまの言語は入口に出る",
+    "en": "Choose the display language for the screen and the help; the current one shows on the entry"
    }
   },
   {
    "rowId": "IC-22",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "ヘルプ",
+    "en": "Help"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "打鍵とポインタの操作の一覧を開く",
+    "en": "Open the list of keyboard and pointer operations"
    }
   },
   {
    "rowId": "IC-23",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "矩形",
+    "en": "Rectangle"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "矩形を構える。何にも当たらない場所をドラッグすると矩形のタスクを作る",
+    "en": "Arm the rectangle; drag on empty space to create a rectangle task"
    }
   },
   {
    "rowId": "IC-24",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "矢羽根",
+    "en": "Chevron"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "矢羽根を構える。何にも当たらない場所をドラッグすると矢羽根のタスクを作る",
+    "en": "Arm the chevron; drag on empty space to create a chevron task"
    }
   },
   {
    "rowId": "IC-25",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "矢印",
+    "en": "Arrow"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "矢印を構える。何にも当たらない場所をドラッグすると矢印のタスクを作る",
+    "en": "Arm the arrow; drag on empty space to create an arrow task"
    }
   },
   {
    "rowId": "IC-26",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "端点スパン",
+    "en": "Endpoint span"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "端点スパンを構える。何にも当たらない場所をドラッグすると端点スパンのタスクを作る",
+    "en": "Arm the endpoint span; drag on empty space to create an endpoint span task"
    }
   },
   {
    "rowId": "IC-27",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン（〇）",
+    "en": "Milestone (circle)"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "〇 のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a circle milestone; drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-28",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン（六角形）",
+    "en": "Milestone (hexagon)"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "六角形のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a hexagon milestone; drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-29",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン（五角形）",
+    "en": "Milestone (pentagon)"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "五角形のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a pentagon milestone; drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-30",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン（◇）",
+    "en": "Milestone (diamond)"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "◇ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a diamond milestone; drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-31",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン（□）",
+    "en": "Milestone (square)"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "□ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a square milestone; drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-32",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン（☆）",
+    "en": "Milestone (star)"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "☆ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a star milestone; drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-33",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン（△）",
+    "en": "Milestone (triangle up)"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "△ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm an upward triangle milestone; drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-34",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン（▽）",
+    "en": "Milestone (triangle down)"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "▽ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a downward triangle milestone; drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-35",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "コメントボックス",
+    "en": "Comment Box"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "コメントボックスを構える。置きたい位置をドラッグすると置く",
+    "en": "Arm a Comment Box; drag where it should stand to place one"
    }
   },
   {
    "rowId": "IC-36",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "ハイライトボックス",
+    "en": "Highlight Box"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ハイライトボックスを構える。囲みたい範囲をドラッグする",
+    "en": "Arm a Highlight Box; drag over the range to enclose"
    }
   },
   {
    "rowId": "IC-37",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "開始日で揃える",
+    "en": "Align to start"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "選んだものを開始日で揃える",
+    "en": "Align the selected items to their start"
    }
   },
   {
    "rowId": "IC-38",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "終了日で揃える",
+    "en": "Align to finish"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "選んだものを終了日で揃える",
+    "en": "Align the selected items to their finish"
    }
   },
   {
    "rowId": "IC-39",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "イナズマ線",
+    "en": "Progress Line"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "イナズマ線を出す。もう一度押すとしまう",
+    "en": "Show the Progress Line; press again to hide it"
    }
   },
   {
    "rowId": "IC-40",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "進捗マーカー",
+    "en": "Progress Marker"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "進捗マーカーと再開アイコンを出す。もう一度押すとしまう",
+    "en": "Show the Progress Marker and the Resume Icon; press again to hide them"
    }
   },
   {
    "rowId": "IC-41",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "透かし",
+    "en": "Watermark"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "透かしをしまう。透かし解除パスワードを求める",
+    "en": "Hide the Watermark; the watermark unlock password is asked for"
    }
   },
   {
    "rowId": "IC-42",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "日付罫線",
+    "en": "Date Grid Lines"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "日付罫線を出す。もう一度押すとしまう",
+    "en": "Show the Date Grid Lines; press again to hide them"
    }
   },
   {
    "rowId": "IC-43",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "グループ罫線",
+    "en": "Group Grid Lines"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "グループ罫線を出す。もう一度押すとしまう",
+    "en": "Show the Group Grid Lines; press again to hide them"
    }
   },
   {
    "rowId": "IC-44",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "基準日",
+    "en": "Status date"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "基準日を置く・動かす・消す。基準日線はその位置に引く",
+    "en": "Place, move or clear the status date; the Status Line is drawn there"
    }
   },
   {
    "rowId": "IC-45",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "デュアルカーソル",
+    "en": "Dual Cursor"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "デュアルカーソルの 2 本を置く",
+    "en": "Place the two Dual Cursor lines"
    }
   },
   {
    "rowId": "IC-46",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "ガイドなし",
+    "en": "None"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ガイドカーソルを出さない",
+    "en": "Show no Guide Cursor"
    }
   },
   {
    "rowId": "IC-47",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "十字",
+    "en": "Crosshair"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ガイドカーソルを十字にする",
+    "en": "Make the Guide Cursor a crosshair"
    }
   },
   {
    "rowId": "IC-48",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "縦 1 本",
+    "en": "Single vertical"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ガイドカーソルを縦 1 本にする",
+    "en": "Make the Guide Cursor a single vertical line"
    }
   },
   {
    "rowId": "IC-49",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "縦 2 本",
+    "en": "Double vertical"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ガイドカーソルを縦 2 本にする",
+    "en": "Make the Guide Cursor two vertical lines"
    }
   },
   {
    "rowId": "IC-50",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン形状を開く",
+    "en": "Open milestone glyphs"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン形状の一覧を開く",
+    "en": "Open the list of milestone glyphs"
    }
   },
   {
    "rowId": "IC-51",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン形状を畳む",
+    "en": "Collapse milestone glyphs"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーン形状の一覧を畳む",
+    "en": "Collapse the list of milestone glyphs"
    }
   },
   {
    "rowId": "IC-52",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "閉じる",
+    "en": "Close"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "開いている面を閉じる。Esc でも閉じる",
+    "en": "Close the open surface; Esc closes it too"
    }
   },
   {
    "rowId": "IC-53",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "掴んで動かす",
+    "en": "Drag to move"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ここを掴むとコマンドパレットを動かせる",
+    "en": "Grab here to move the Command Palette"
    }
   },
   {
@@ -605,210 +605,210 @@
   {
    "rowId": "IC-55",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "保存済み",
+    "en": "Saved"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "自動保存が済んでいる",
+    "en": "The autosave has been written"
    }
   },
   {
    "rowId": "IC-56",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "保存中",
+    "en": "Saving"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "自動保存を書いている",
+    "en": "The autosave is being written"
    }
   },
   {
    "rowId": "IC-57",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "保存に失敗",
+    "en": "Save failed"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "自動保存に失敗した。次に取れる手段は通知が示す",
+    "en": "The autosave failed; the notification says what can be done next"
    }
   },
   {
    "rowId": "IC-58",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "配下を 1 段開く",
+    "en": "Expand one level"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "この行の配下を 1 段だけ開く",
+    "en": "Open one level of what is under this row"
    }
   },
   {
    "rowId": "IC-59",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "配下をすべて閉じる",
+    "en": "Collapse all below"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "この行の配下をすべて閉じる",
+    "en": "Close everything under this row"
    }
   },
   {
    "rowId": "IC-60",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "ピン止め",
+    "en": "Pin"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "行をピン止めして画面に残す。もう一度押すと外す",
+    "en": "Pin the row so it stays on screen; press again to unpin it"
    }
   },
   {
    "rowId": "IC-61",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "依存線",
+    "en": "Dependency Line"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "依存線を構える。タスクからタスクへ引く",
+    "en": "Arm a Dependency Line; draw it from one task to another"
    }
   },
   {
    "rowId": "IC-62",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "名簿",
+    "en": "Resource Roster"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "文書が持つ担当者の一覧を出す",
+    "en": "Show the list of resources the document holds"
    }
   },
   {
    "rowId": "IC-63",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "すべて選ぶ",
+    "en": "Select all"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "名簿のすべての担当者を選ぶ",
+    "en": "Select every resource in the Resource Roster"
    }
   },
   {
    "rowId": "IC-64",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "選択をすべて解く",
+    "en": "Deselect all"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "名簿の選択をすべて解く",
+    "en": "Deselect every resource in the Resource Roster"
    }
   },
   {
    "rowId": "IC-65",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "未参照を選ぶ",
+    "en": "Select unreferenced"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "どの割当からも参照されていない担当者を選ぶ",
+    "en": "Select the resources no Assignment refers to"
    }
   },
   {
    "rowId": "IC-66",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "消す",
+    "en": "Delete"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "選んだ担当者を消す。割当が解かれるタスクの名前を問いが示す",
+    "en": "Delete the selected resources; the question names the tasks whose Assignment would be released"
    }
   },
   {
    "rowId": "IC-67",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "選択中",
+    "en": "Selected"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "この担当者は選ばれている。押すと解く",
+    "en": "This resource is selected; press to deselect it"
    }
   },
   {
    "rowId": "IC-68",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "未選択",
+    "en": "Not selected"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "この担当者は選ばれていない。押すと選ぶ",
+    "en": "This resource is not selected; press to select it"
    }
   },
   {
    "rowId": "IC-69",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "続ける",
+    "en": "Proceed"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "問いに続けると答える",
+    "en": "Answer the question by going ahead"
    }
   },
   {
    "rowId": "IC-70",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "取りやめる",
+    "en": "Cancel"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "問いに取りやめると答える",
+    "en": "Answer the question by calling it off"
    }
   },
   {
    "rowId": "IC-71",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "置き換える",
+    "en": "Replace"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "読んだ内容で現在の文書を置き換える",
+    "en": "Replace the current document with what was read"
    }
   },
   {
    "rowId": "IC-72",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "合流させる",
+    "en": "Merge"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "読んだ内容を現在の文書へ足す",
+    "en": "Add what was read to the current document"
    }
   },
   {
    "rowId": "IC-73",
    "label": {
-    "ja": "",
-    "en": ""
+    "ja": "重ねる",
+    "en": "Baseline"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "読んだ内容を変更前の予定として重ねる",
+    "en": "Overlay what was read as the baseline"
    }
   }
  ],
@@ -816,36 +816,36 @@
   {
    "firstRow": "IC-23",
    "name": {
-    "ja": "",
-    "en": ""
+    "ja": "置く",
+    "en": "Place"
    }
   },
   {
    "firstRow": "IC-37",
    "name": {
-    "ja": "",
-    "en": ""
+    "ja": "揃える",
+    "en": "Align"
    }
   },
   {
    "firstRow": "IC-39",
    "name": {
-    "ja": "",
-    "en": ""
+    "ja": "表示",
+    "en": "Display"
    }
   },
   {
    "firstRow": "IC-44",
    "name": {
-    "ja": "",
-    "en": ""
+    "ja": "カーソル",
+    "en": "Cursors"
    }
   },
   {
    "firstRow": "IC-54",
    "name": {
-    "ja": "",
-    "en": ""
+    "ja": "構え",
+    "en": "Armed Shape"
    }
   }
  ],
@@ -853,29 +853,36 @@
   {
    "name": "Help Modal",
    "heading": {
-    "ja": "",
-    "en": ""
+    "ja": "ヘルプ",
+    "en": "Help Modal"
    }
   },
   {
    "name": "AI Export Modal",
    "heading": {
-    "ja": "",
-    "en": ""
+    "ja": "AI 出力",
+    "en": "AI Export Modal"
    }
   },
   {
    "name": "Resource Roster",
    "heading": {
-    "ja": "",
-    "en": ""
+    "ja": "名簿",
+    "en": "Resource Roster"
    }
   },
   {
    "name": "Export Chooser",
    "heading": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出し",
+    "en": "Export Chooser"
+   }
+  },
+  {
+   "name": "Open Chooser",
+   "heading": {
+    "ja": "開き方",
+    "en": "Open Chooser"
    }
   }
  ],
@@ -883,57 +890,57 @@
   {
    "rowId": "NT-1",
    "manner": {
-    "ja": "",
-    "en": ""
+    "ja": "入力を受け付けないとき",
+    "en": "When input is not accepted"
    }
   },
   {
    "rowId": "NT-2",
    "manner": {
-    "ja": "",
-    "en": ""
+    "ja": "時間で消える通知",
+    "en": "A notification that goes away with time"
    }
   },
   {
    "rowId": "NT-3",
    "manner": {
-    "ja": "",
-    "en": ""
+    "ja": "破壊的な結果を伴うとき",
+    "en": "When the result is destructive"
    }
   },
   {
    "rowId": "NT-3a",
    "manner": {
-    "ja": "",
-    "en": ""
+    "ja": "失敗の通知",
+    "en": "A notification of failure"
    }
   },
   {
    "rowId": "NT-4",
    "manner": {
-    "ja": "",
-    "en": ""
+    "ja": "起動時の保留中の用件",
+    "en": "Matters pending at startup"
    }
   },
   {
    "rowId": "NT-6",
    "manner": {
-    "ja": "",
-    "en": ""
+    "ja": "資源の上限に達したとき",
+    "en": "When the limit is reached"
    }
   },
   {
    "rowId": "NT-5",
    "manner": {
-    "ja": "",
-    "en": ""
+    "ja": "受け付けたうえで注意を伝えるとき",
+    "en": "When a caution accompanies acceptance"
    }
   },
   {
    "rowId": "NT-7",
    "manner": {
-    "ja": "",
-    "en": ""
+    "ja": "続けてよいかを問うとき",
+    "en": "When asking whether to go on"
    }
   }
  ],
@@ -941,15 +948,15 @@
   {
    "answer": "proceed",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "続ける",
+    "en": "Proceed"
    }
   },
   {
    "answer": "cancel",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "取りやめる",
+    "en": "Cancel"
    }
   }
  ],
@@ -966,22 +973,22 @@
   {
    "showing": "selection",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "選択",
+    "en": "Selection"
    }
   },
   {
    "showing": "documentSettings",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "文書の設定",
+    "en": "Document settings"
    }
   },
   {
    "showing": "noSelection",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "選択なし",
+    "en": "No selection"
    }
   }
  ],
@@ -989,99 +996,99 @@
   {
    "rowId": "MK-1",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "ホイール → 縦にスクロール",
+    "en": "Wheel → scroll vertically"
    }
   },
   {
    "rowId": "MK-2",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "Ctrl ＋ ホイール → ポインタを中心に両軸ズーム",
+    "en": "Ctrl + wheel → zoom both axes, centred on the pointer"
    }
   },
   {
    "rowId": "MK-3",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "Shift ＋ ホイール → 時間軸（横）だけズーム",
+    "en": "Shift + wheel → zoom the time axis only"
    }
   },
   {
    "rowId": "MK-4",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "Alt ＋ ホイール → 行軸（縦）だけズーム",
+    "en": "Alt + wheel → zoom the row axis only"
    }
   },
   {
    "rowId": "MK-5",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "Ctrl ＋ Shift ＋ ホイール → 横にスクロール",
+    "en": "Ctrl + Shift + wheel → scroll horizontally"
    }
   },
   {
    "rowId": "MK-6",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "何も無い場所を素でドラッグすると範囲選択（Shift 併用で選択に足す）",
+    "en": "A plain drag on empty space is a Marquee; hold Shift to add to the Selection"
    }
   },
   {
    "rowId": "MK-7",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "Ctrl だけを伴うドラッグ、または中ボタンドラッグでパン",
+    "en": "A drag with Ctrl alone, or a middle-button drag, pans"
    }
   },
   {
    "rowId": "MK-8",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "アイテムの上を素でドラッグするとそのものへの操作。選択に含まれるものはまとめて動く",
+    "en": "A plain drag on an Item acts on that Item; whatever is in the Selection moves with it"
    }
   },
   {
    "rowId": "MK-9",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "ホイールが無いときは画面上のボタンで拡大・縮小できる",
+    "en": "Without a wheel, zoom with the on-screen buttons"
    }
   },
   {
    "rowId": "MK-9a",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "掴む対象が重なったときは決まった順で掴む",
+    "en": "Where grabbable things overlap, a fixed order decides which is grabbed"
    }
   },
   {
    "rowId": "MK-10",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "割当のある修飾キー付きの操作は、ブラウザの既定動作を止める",
+    "en": "Where this tool assigns a modifier combination, the browser's default is held back"
    }
   },
   {
    "rowId": "MK-11",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "何も無い場所を素でクリックすると選択を解く",
+    "en": "A plain click on empty space clears the Selection"
    }
   },
   {
    "rowId": "MK-12",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "割当の無い修飾キー付きのドラッグはブラウザに委ねる",
+    "en": "A modifier drag this tool does not assign is left to the browser"
    }
   },
   {
    "rowId": "MK-13",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "ダブルクリックの意味は対象で決まる。コメントボックス＝本文、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネル、行見出し＝行名",
+    "en": "What a double click does depends on what it lands on — Comment Box: its text; Name Label: its name; Assignee Label: the resource name; task: the Properties Panel; row title: the row name"
    }
   }
  ]

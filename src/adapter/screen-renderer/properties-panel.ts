@@ -132,8 +132,6 @@ const DAY_TIME_SEPARATOR = 'T'
  * already settles, so the three states can be told apart and no wording is
  * minted here in either language. Every cell of the dictionary is still empty
  * (PD-160), so these are what actually reaches the screen today.
- *
- * @provisional PD-160
  */
 const PANEL_HEADINGS = {
   selection: { key: 'selection', standIn: 'selection' },
@@ -161,7 +159,6 @@ const HEADINGS_BY_KEY = new Map(displayWords.panelHeadings.map((entry) => [entry
  * separately although with the same stand-in; it cannot happen while
  * `npm run gen:check` passes.
  *
- * @provisional PD-160
  * @purity pure
  */
 function headingOf(
