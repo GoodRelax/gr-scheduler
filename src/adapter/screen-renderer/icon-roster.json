@@ -640,6 +640,33 @@
    "group": null,
    "entryTo": "問いに「取りやめる」と答える",
    "authority": "表 T-037 の `NT-7`"
+  },
+  {
+   "rowId": "IC-71",
+   "surfaces": [
+    "Open Chooser"
+   ],
+   "group": null,
+   "entryTo": "読んだ内容で現在の文書を置き換える",
+   "authority": "表 T-024a の `OP-3`"
+  },
+  {
+   "rowId": "IC-72",
+   "surfaces": [
+    "Open Chooser"
+   ],
+   "group": null,
+   "entryTo": "読んだ内容を現在の文書へ合流させる",
+   "authority": "表 T-024a の `OP-3`"
+  },
+  {
+   "rowId": "IC-73",
+   "surfaces": [
+    "Open Chooser"
+   ],
+   "group": null,
+   "entryTo": "読んだ内容を変更前の予定として重ねる",
+   "authority": "表 T-024a の `OP-3`"
   }
  ]
 }

@@ -31,3 +31,4 @@ tbl-glossary.md/T:T-109 IC-35 + tbl-glossary.md/T:T-109 IC-61
 tbl-glossary.md/T:T-109 IC-58 + tbl-glossary.md/T:T-109 IC-59
 tbl-glossary.md/T:T-109 IC-67 + tbl-glossary.md/T:T-109 IC-68
 tbl-glossary.md/T:T-109 IC-69 + tbl-glossary.md/T:T-109 IC-70
+tbl-glossary.md/T:T-109 IC-71 + tbl-glossary.md/T:T-109 IC-72

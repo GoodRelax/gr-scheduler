@@ -3445,6 +3445,322 @@
      ]
     }
    ]
+  },
+  {
+   "rowId": "IC-71",
+   "elements": [
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M3.1 5.5 H6.9 L9.5 8.1 V17.4 a1.1 1.1 0 0 1 -1.1 1.1 H3.1 a1.1 1.1 0 0 1 -1.1 -1.1 V6.6 a1.1 1.1 0 0 1 1.1 -1.1 Z"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 3 2.4"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M6.9 5.5 V8.1 H9.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 3 2.4"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M15.6 5.5 H19.4 L22 8.1 V17.4 a1.1 1.1 0 0 1 -1.1 1.1 H15.6 a1.1 1.1 0 0 1 -1.1 -1.1 V6.6 a1.1 1.1 0 0 1 1.1 -1.1 Z"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M19.4 5.5 V8.1 H22"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M10.2 12 H13.4"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M12.1 10.7 L13.6 12 L12.1 13.3"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rowId": "IC-72",
+   "elements": [
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "2"
+      },
+      {
+       "name": "y",
+       "value": "2.5"
+      },
+      {
+       "name": "width",
+       "value": "7"
+      },
+      {
+       "name": "height",
+       "value": "6"
+      },
+      {
+       "name": "rx",
+       "value": "1.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "2"
+      },
+      {
+       "name": "y",
+       "value": "15.5"
+      },
+      {
+       "name": "width",
+       "value": "7"
+      },
+      {
+       "name": "height",
+       "value": "6"
+      },
+      {
+       "name": "rx",
+       "value": "1.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "15"
+      },
+      {
+       "name": "y",
+       "value": "8"
+      },
+      {
+       "name": "width",
+       "value": "7"
+      },
+      {
+       "name": "height",
+       "value": "8"
+      },
+      {
+       "name": "rx",
+       "value": "1.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M9.6 5.5 L14.4 10.2"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M12.07 9.44 L14.4 10.2 L13.61 7.88"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M9.6 18.5 L14.4 13.8"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M13.61 16.12 L14.4 13.8 L12.07 14.56"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rowId": "IC-73",
+   "elements": [
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "8.5"
+      },
+      {
+       "name": "y",
+       "value": "4"
+      },
+      {
+       "name": "width",
+       "value": "12"
+      },
+      {
+       "name": "height",
+       "value": "6.2"
+      },
+      {
+       "name": "rx",
+       "value": "2"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 3 2.4"
+      }
+     ]
+    },
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "5"
+      },
+      {
+       "name": "y",
+       "value": "13.5"
+      },
+      {
+       "name": "width",
+       "value": "12"
+      },
+      {
+       "name": "height",
+       "value": "6.2"
+      },
+      {
+       "name": "rx",
+       "value": "2"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M1.8 7.1 H6"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M4.4 5.5 L6.2 7.1 L4.4 8.7"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
   }
  ]
 }
