@@ -98,26 +98,26 @@ CONFIRMATION_MARKS = ('shownOnAnotherRow',)
 
 LANGUAGES = ('ja', 'en')
 
-# ⛔ NOT DECIDED BY THE USER: the words themselves. Every entry of the
-# manuscript is empty, and whoever prints one falls back to what it printed
-# before -- an empty label, a row id, the group word table T-109 itself uses.
-# The ruling of 2026-08-21 built the place and left the filling to the user,
-# because table T-109 refuses an English column in as many words and a word
-# written by an agent settles the very names that refusal protects.
+# ⭐ THE WORDS ARE THE USER'S, AND THEY ARE NOW WRITTEN. The ruling of
+# 2026-08-21 built the place and left the filling to the user, because table
+# T-109 refuses an English column in as many words and a word written by an
+# agent settles the very names that refusal protects. ⛔ THIS NOTE USED TO SAY
+# "every entry of the manuscript is empty" and went on saying it after the
+# filling; the count below is printed on every run so the claim cannot rot
+# again.
 #
-# Class C of rule 06: the words are display only, and FR-038 (MUST NOT) keeps
-# even the CHOICE of language out of the document -- so reversing this costs the
-# manuscript's cells and nothing else.
-#
-# @provisional PD-160
+# ⚠️ The fallbacks each printing side keeps -- an empty label, a row id, the
+# group word table T-109 itself uses -- are NOT dead. They are what an entry
+# added to a table before its word is written falls back to, which is the state
+# every one of these was in until recently.
 BANNER = (
     'GENERATED -- do not edit by hand. Generated from %s (the words the screen '
     'prints, FR-038). Rebuild: npm run gen -- npm run gen:check fails on drift. '
-    'The generator is %s. Every entry is empty until the user fills the '
-    'manuscript: table %s refuses an English column because one would settle '
-    'dozens of names the glossary has not settled, and an invented word settles '
-    'the same names. Whoever prints one of these falls back to what it printed '
-    'before while the entry is empty.' % (REL_SOURCE, REL_SELF, ICON_TABLE))
+    'The generator is %s. The words belong to the user: table %s refuses '
+    'an English column because one would settle dozens of names the glossary '
+    'has not settled, and an invented word settles the same names. Whoever '
+    'prints one of these falls back to what it printed before -- a row id, an '
+    'empty label -- while its entry is still unwritten.' % (REL_SOURCE, REL_SELF, ICON_TABLE))
 
 
 def say(message):

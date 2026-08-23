@@ -1,5 +1,5 @@
 {
- "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/display-words.json (the words the screen prints, FR-038). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_display_words.py. Every entry is empty until the user fills the manuscript: table T-109 refuses an English column because one would settle dozens of names the glossary has not settled, and an invented word settles the same names. Whoever prints one of these falls back to what it printed before while the entry is empty.",
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/display-words.json (the words the screen prints, FR-038). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_display_words.py. The words belong to the user: table T-109 refuses an English column because one would settle dozens of names the glossary has not settled, and an invented word settles the same names. Whoever prints one of these falls back to what it printed before -- a row id, an empty label -- while its entry is still unwritten.",
  "icons": [
   {
    "rowId": "IC-1",
