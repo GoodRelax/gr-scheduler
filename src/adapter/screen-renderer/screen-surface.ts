@@ -94,6 +94,46 @@ export interface ScreenPart {
    * arrive at all.
    */
   readonly format: ExportFormatId | null
+  /**
+   * The row the point is on -- `TaskGroup.id` (AT-51) -- or `null` where the
+   * point is on no row.
+   *
+   * ⛔ WITHOUT IT, THREE ENTRANCES ARE DRAWN AND NONE OF THEM CAN ACT. Table
+   * T-109 puts IC-58, IC-59 and IC-60 on the `Row Title Panel`, and HF-1 of
+   * table T-051 (with FR-098 for the pin) draws them ONCE PER ROW -- so
+   * `entry` alone says which KIND of control was pressed and never WHICH row's.
+   * The commands they plan are keyed by the row (`setTaskGroupCollapsed`,
+   * `pinTaskGroup`, `unpinTaskGroup`), so a press without this member cannot be
+   * turned into one at all: FR-004's folding and FR-098's pinning were
+   * unreachable by pointer while it was absent.
+   *
+   * ⛔ A THIRD MEMBER AND NOT A SPELLING OF `entry`, for the reason `format`
+   * gives above: these are two different questions about one point, and one
+   * member carrying both would leave the reading side unable to say which it
+   * had been handed. ⚠️ Here the two are not even the same KIND of answer --
+   * `entry` names a row of a table in the specification, this names a row of
+   * the person's own document.
+   *
+   * ⚠️ `null` WHEREVER THE POINT IS NOT ON A ROW, including on an entrance of
+   * the header or the palette. It does not stand in for "this document has no
+   * rows".
+   */
+  readonly rowGroupId: string | null
+  /**
+   * The resource the point is on -- `Resource.uid` (AT-85) -- or `null` where
+   * the point is on no resource.
+   *
+   * ⛔ THE SAME ABSENCE AS `rowGroupId`, one surface further out: table T-109
+   * puts IC-67 and IC-68 on the `Resource Roster` (U-49) and FR-099 draws them
+   * against a named person, so a press has to say WHICH.
+   *
+   * ⚠️ IT IS NOT NEEDED BY ALL SIX OF THAT SURFACE'S ROWS, and the count was
+   * measured rather than assumed: IC-63, IC-64, IC-65 and IC-66 are drawn ONCE
+   * in the roster's header, not once per person, so `entry` alone answers them.
+   * Only IC-67 and IC-68 are per-person. ⛔ An earlier note claimed all six
+   * needed a key; it was wrong.
+   */
+  readonly resourceUid: number | null
 }
 
 /**
