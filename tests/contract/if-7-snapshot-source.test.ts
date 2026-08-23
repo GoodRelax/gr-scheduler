@@ -120,6 +120,32 @@ const NO_WINDOW: FrameEnvironment = { ...WINDOW, width: 0, height: 0 }
 
 const documentOf = (): Document => structuredClone(startupTemplate) as unknown as Document
 
+/**
+ * How wide the one case below holds the properties panel OPEN.
+ *
+ * ⛔ NOT A VALUE OF THE SPECIFICATION. S-80 of table T-204 states that no row
+ * fixes what an open panel takes, so this number is this file's own and nothing
+ * asserts it is anyone else's. What the case claims is the DIFFERENCE it makes,
+ * which FR-080 does fix.
+ */
+const PROPERTY_PANEL_OPEN = 300
+
+/**
+ * The starting document with the properties panel open.
+ *
+ * ⚠️ S-80's default is the CLOSED panel -- `0` is what closed means -- so the
+ * document this file starts from has nothing for FR-080 to close. A document
+ * that carries an open one is a real one to be handed: FR-024 writes every
+ * setting out, so a file read back in can carry any width S-80's range admits.
+ */
+const documentWithPanelOpen = (): Document => {
+  const one = documentOf()
+  return {
+    ...one,
+    documentSettings: { ...one.documentSettings, propertyPanelWidth: PROPERTY_PANEL_OPEN },
+  }
+}
+
 /** The Framework side, with the one surface it paints through recorded. */
 interface Shell {
   readonly loop: FrameLoop
@@ -276,8 +302,34 @@ describe(`IF-7 ${bare(IF_7['インターフェース'] ?? '')} -- the picture th
 describe('IF-7 -- the environment the picture is built in is not the one on the screen', () => {
   it('the shell closes the properties panel and gives its room to the schedule (FR-080, MUST)', () => {
     // FR-080 (MUST) writes the properties panel as closed for the export and
-    // (MUST NOT) leaves its place blank, and the document this file starts from
-    // carries a panel wide enough for the difference to be visible.
+    // (MUST NOT) leaves its place blank: 「閉じたぶんの場所は日程に使う —— 画面で
+    // 閉じたときと同じ絵になる」.
+    //
+    // ⚠️ ASKED OF A DOCUMENT THAT HAS THE PANEL OPEN, WHICH THE DEFAULT NO
+    // LONGER IS. S-80 now defaults to the closed panel, so a shell built from
+    // the starting document has a screen that already agrees with the export --
+    // and a screen that agrees says nothing about whether the export ran the
+    // second environment at all. The claim only has teeth where the two differ.
+    const one = shell(WINDOW, documentWithPanelOpen())
+    const frame = one.loop.current()
+    const scene = one.loop.exportScene()
+
+    expect(frame).not.toBeNull()
+    expect(scene).not.toBeNull()
+    if (frame === null || scene === null) return
+
+    expect(frame.regions.propertiesPanel.width).toBe(PROPERTY_PANEL_OPEN)
+    expect(scene.regions.propertiesPanel.width).toBe(0)
+    // ⛔ EXACTLY the closed panel's room, and not merely more: room that went
+    // anywhere else would leave the picture a different one from the screen
+    // with the panel shut, which is the whole of what FR-080 asks for.
+    expect(scene.regions.rowArea.width - frame.regions.rowArea.width).toBe(PROPERTY_PANEL_OPEN)
+  })
+
+  it('leaves the schedule alone when the screen already has the panel closed', () => {
+    // The other side of the same MUST, at S-80's own default. FR-080 closes the
+    // panel for the export; closing what is already closed may not move the
+    // schedule, or the picture would stop being the screen's own.
     const one = shell()
     const frame = one.loop.current()
     const scene = one.loop.exportScene()
@@ -286,10 +338,8 @@ describe('IF-7 -- the environment the picture is built in is not the one on the 
     expect(scene).not.toBeNull()
     if (frame === null || scene === null) return
 
-    expect(one.loop.document().documentSettings.propertyPanelWidth).toBeGreaterThan(0)
-    expect(frame.regions.propertiesPanel.width).toBeGreaterThan(0)
-    expect(scene.regions.propertiesPanel.width).toBe(0)
-    expect(scene.regions.rowArea.width).toBeGreaterThan(frame.regions.rowArea.width)
+    expect(one.loop.document().documentSettings.propertyPanelWidth).toBe(0)
+    expect(scene.regions.rowArea.width).toBe(frame.regions.rowArea.width)
   })
 
   it('the picture that goes out is not the picture that was painted', () => {

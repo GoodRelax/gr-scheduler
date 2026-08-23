@@ -407,8 +407,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
       viewOf({
         appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN })]),
         commandPalette: {
-          box: rect(300, 300, 200, 400),
-          isPointerOver: false,
+          // ⭐ A CORNER, NOT A RECTANGLE (FR-053, MUST / MUST NOT).
+          at: { x: 300, y: 300 },
           groups: [{ name: '表示', commands: [commandOf({ icon: ICON_PALETTE })] }],
           armedText: 'なし',
         },
@@ -430,8 +430,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     const shown = tooltipsFromScreenView(
       viewOf({
         commandPalette: {
-          box: rect(300, 300, 200, 400),
-          isPointerOver: false,
+          // ⭐ A CORNER, NOT A RECTANGLE (FR-053, MUST / MUST NOT).
+          at: { x: 300, y: 300 },
           groups: [],
           armedText: 'なし',
         },

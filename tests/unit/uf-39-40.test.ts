@@ -349,8 +349,9 @@ const viewOf = (
     fields: [{ row: 'PR-1', name: 'name', text: PROPERTY_FIELD_TEXT, isEditable: true }],
   },
   commandPalette: {
-    box: { x: 300, y: 300, width: 240, height: 320 },
-    isPointerOver: false,
+    // ⭐ A CORNER, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size
+    // follow its contents and (MUST NOT) lets the settings table hold one.
+    at: { x: 300, y: 300 },
     groups: [{ name: PALETTE_GROUP_NAME, commands: [commandOf('EP-11 palette command')] }],
     armedText: PALETTE_ARMED_TEXT,
   },

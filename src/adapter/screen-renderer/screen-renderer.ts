@@ -425,19 +425,36 @@ export interface PropertyField {
 
 // ------------------------------------------------------------ UF-65 ---------
 
-/** U-26 `Command Palette` (UF-65). `null` in `ScreenView` while S-99e says it is hidden. */
+/**
+ * U-26 `Command Palette` (UF-65). `null` in `ScreenView` while S-99e says it is
+ * hidden.
+ *
+ * ⛔ NO MEMBER SAYS WHETHER THE POINTER IS ON IT, and that absence is the
+ * answer rather than a gap. FR-053 (MUST) has the faintness judged by WHICH
+ * PART the pointer is on, and IF-9's third member is where that is answered --
+ * on the far side of this seam, by the side that drew the parts (Chapter 5.3,
+ * MUST, under table T-065). A member here would be a second answer to the same
+ * question, computed by a unit that has no rectangle to compute it from.
+ */
 export interface CommandPalette {
   /**
-   * Where it floats. FR-053 has the person drag it, so its place is not one of
-   * ScreenRegions' rectangles.
+   * The CORNER it floats at. FR-053 has the person drag it, so its place is not
+   * one of ScreenRegions' rectangles.
    *
-   * ⛔ NOTHING HOLDS THAT PLACE. Table T-206 has no row for it and neither does
-   * table T-203, so it arrives in `ScreenSession` and is lost when the page is
-   * left. That is a gap in the specification, not a decision made here.
+   * ⭐ A POINT AND NOT A RECTANGLE. FR-053 (MUST) makes the palette's size
+   * follow its contents and (MUST NOT) forbids the settings from holding one,
+   * so no unit on this side of IF-9 has an extent to put in one: what the
+   * entries measure out to is known only where they are laid out, which is past
+   * this seam. ⚠️ A rectangle whose last two numbers were always zero was worse
+   * than no rectangle -- it read as an extent that had been measured, and the
+   * surface drew a box of that size.
+   *
+   * ⛔ NOTHING HOLDS THE CORNER. Table T-206 has no row for it and neither does
+   * table T-203, so it arrives in `ScreenSession.commandPaletteAt` and is lost
+   * when the page is left. That is a gap in the specification, not a decision
+   * made here.
    */
-  readonly box: ScreenRect
-  /** FR-053: drawn faintly while the pointer is off it. */
-  readonly isPointerOver: boolean
+  readonly at: { readonly x: number; readonly y: number }
   /** U-34 `Palette Groups`. FR-029 groups them because the number of choices sets the time to decide. */
   readonly groups: readonly PaletteGroup[]
   /**
@@ -1073,7 +1090,13 @@ export interface ScreenSession {
   readonly isAgentApiEnabled: boolean
   /**
    * U-42 `Pointer`, or `null` while it is outside the window. Read by FR-037's
-   * hint, HF-6's controls and FR-053's faint palette.
+   * hint and by EZ-2's wait (table T-040).
+   *
+   * ⛔ NOT BY FR-053'S FAINT PALETTE, which used to be the third reader. That
+   * requirement (MUST) judges the faintness by which PART the pointer is on,
+   * and a point alone cannot answer that -- see `CommandPalette`. ⚠️ HF-6's
+   * controls of table T-051 are answered the same way, by the side that drew
+   * them.
    */
   readonly pointer: { readonly x: number; readonly y: number } | null
   /**
@@ -1109,7 +1132,7 @@ export interface ScreenSession {
    * @provisional PD-141
    */
   readonly iconUnderPointer: IconId | null
-  /** Where the person dragged the palette to (FR-053). See `CommandPalette.box`. */
+  /** Where the person dragged the palette to (FR-053). See `CommandPalette.at`. */
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   /**
    * FR-085 (MUST): the rows selected in the `Row Title Panel`, by
@@ -1277,7 +1300,11 @@ export interface ScreenSession {
 //     ): CommandPalette | null
 //     ⚠️ Table T-023c's SL-1 does not admit the palette, so FR-053 warns against
 //     writing its faintness as a selection -- there would be no state that
-//     clears it. `isPointerOver` is the condition it does state.
+//     clears it.
+//     ⛔ NOR IS THE FAINTNESS ANSWERED HERE AT ALL. FR-053 (MUST) judges it by
+//     which PART the pointer is on, and the only side that can say is the one
+//     that drew the parts (IF-9's third member). So `CommandPalette` carries a
+//     corner and no extent, and this unit never asks where the pointer is.
 //
 //   UF-66  open-modals.ts
 //     export function openModalFromScreenState(

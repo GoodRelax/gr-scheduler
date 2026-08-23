@@ -1102,8 +1102,13 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
 })
 
 const PALETTE: CommandPalette = {
-  box: rect(400, 300, 220, 180),
-  isPointerOver: false,
+  // ⭐ A CORNER, NOT A RECTANGLE. FR-053 (MUST) makes the palette's size follow
+  // its contents and (MUST NOT) bars the settings table from holding one, so
+  // the description says only where it floats. Its EXTENT is the fake browser's
+  // answer -- `LAYOUT` above registers it, corner for corner with this member --
+  // which is the whole reason IF-9 asks the drawing side which part a point is
+  // on.
+  at: { x: 400, y: 300 },
   groups: [
     {
       name: 'PlaceGroup',

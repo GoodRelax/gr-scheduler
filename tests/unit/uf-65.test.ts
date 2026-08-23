@@ -14,14 +14,17 @@
 // value below comes from what the unit happens to produce.
 //
 // WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED. Three questions
-// were searched for; two still have no answer in docs/spec, so no case invents
-// one, and the third is kept below with the answer it has since been given:
-//   * HOW BIG THE PALETTE IS. `CommandPalette.box` is a rectangle and only its
-//     corner arrives (`ScreenSession.commandPaletteAt`). Searched: FR-053,
-//     FR-051, table T-206 (S-90..S-99g), table T-212, table T-203 and the whole
-//     of `_assets/tbl-settings.md`, whose only palette row is S-99e. So the
-//     pointer cases below assert the RELATION FR-053 states -- faint while the
-//     pointer is off `box` -- computed from `box` itself, and never a width.
+// were searched for; one still has no answer in docs/spec, so no case invents
+// one, and the other two are kept below with the answers they have since been
+// given:
+//   * HOW BIG THE PALETTE IS -- ⚠️ ANSWERED SINCE, AND THE ANSWER IS "NOBODY
+//     HOLDS IT". This file once recorded the extent as a gap and asserted the
+//     relation FR-053 stated against the rectangle that arrived. FR-053 (MUST)
+//     now has the size follow the contents and (MUST NOT) bars the settings
+//     table from holding one, so the rectangle is gone and only the corner
+//     remains. ⛔ The faintness went with it: the same paragraph (MUST) has that
+//     judged by WHICH PART the pointer is on, which IF-9 of table T-065 answers
+//     from the side that drew the parts. See the note where those cases stood.
 //   * THE WORDS -- ⚠️ ANSWERED SINCE, AND THE CASES BELOW MOVED WITH IT. When
 //     this file was written FR-038 named no store of translated strings, so a
 //     case asserted that none had been minted. Its fifth paragraph (MUST) now
@@ -41,9 +44,11 @@
 // The rules these cases answer to:
 //   S-99e        the palette is showing or hidden, defaulting to showing
 //                (table T-206); EP-11 of table T-076 exports it closed
-//   FR-053       it floats and is dragged; faint while the pointer is off it;
-//                (MUST) what is armed is readable; (MUST) the show/hide
-//                entrance is OUTSIDE the palette
+//   FR-053       it floats and is dragged; (MUST) the size follows the contents
+//                and (MUST NOT) the settings table holds none; (MUST) what is
+//                armed is readable; (MUST) the show/hide entrance is OUTSIDE
+//                the palette. ⛔ The faintness is judged elsewhere -- see above
+//   T-065 IF-9   where the faintness IS judged: the side that drew the parts
 //   T-023b       AR-1 .. AR-6, the whole of what can be armed
 //   T-023c       SL-1 does not admit the palette; SL-7b (MUST NOT) refuses
 //                FR-034 an unordered selection
@@ -85,7 +90,6 @@ import {
   type ItemRef,
   type Selection,
 } from '../../src/entity/document-model/selection/selection'
-import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type {
   CommandItem,
   CommandPalette,
@@ -346,10 +350,6 @@ const iconsOf = (palette: CommandPalette): readonly string[] =>
 const entryFor = (palette: CommandPalette, icon: string): CommandItem | undefined =>
   entriesOf(palette).find((entry) => entry.icon === icon)
 
-/** R3.4: half-open on both axes, so an edge point belongs to one side only. */
-const rectHolds = (box: ScreenRect, x: number, y: number): boolean =>
-  x >= box.x && x < box.x + box.width && y >= box.y && y < box.y + box.height
-
 /** A word carries a letter or a digit; a separator or an empty string does not. */
 const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text)
 
@@ -393,19 +393,32 @@ describe('UF-65 -- S-99e: described only while the palette is showing', () => {
 })
 
 describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
-  it('puts the corner of `box` where `ScreenSession.commandPaletteAt` says', () => {
+  it('puts the corner it floats at where `ScreenSession.commandPaletteAt` says', () => {
     // FR-053 has the person drag the palette, so its place is not one of
     // ScreenRegions' rectangles -- and no rectangle of the layout is an
     // argument here at all.
+    // ⭐ A CORNER AND NOTHING MORE. FR-053 (MUST) makes the size follow the
+    // contents and (MUST NOT) bars the settings table from holding one, so the
+    // place is the whole of the geometry this unit can answer for.
     for (const at of [
       { x: 0, y: 0 },
       { x: 12, y: 340 },
       { x: -40, y: -1 },
       { x: 1919.5, y: 1079.5 },
     ]) {
-      const box = describedWith(emptySelection(), sessionOf({ commandPaletteAt: at })).box
-      expect({ x: box.x, y: box.y }, JSON.stringify(at)).toEqual(at)
+      const corner = describedWith(emptySelection(), sessionOf({ commandPaletteAt: at })).at
+      expect(corner, JSON.stringify(at)).toEqual(at)
     }
+  })
+
+  it('carries a place and no extent, because FR-053 forbids one being held', () => {
+    // ⛔ FR-053 (MUST NOT): 「大きさを設定値の表に持ってはならない」. No unit on
+    // this side of IF-9 measures anything (LR-6), so a width or a height
+    // appearing here would be a number nobody had measured -- which is what
+    // this case exists to catch.
+    const palette = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 12, y: 34 } }))
+    expect(Object.keys(palette.at).sort()).toEqual(['x', 'y'])
+    expect(Object.keys(palette).sort()).toEqual(['armedText', 'at', 'groups'])
   })
 
   it('moves only the place when the person drags it', () => {
@@ -414,60 +427,23 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
     // that is described.
     const here = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 0, y: 0 } }))
     const there = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 300, y: 90 } }))
-    expect({ ...there, box: here.box }).toEqual(here)
+    expect({ ...there, at: here.at }).toEqual(here)
   })
 })
 
-describe('UF-65 -- FR-053: faint while the pointer is off it', () => {
-  it('reports the pointer as off it while the pointer is outside the window', () => {
-    // `ScreenSession.pointer` is `null` for exactly that, and FR-053 draws the
-    // palette faint whenever the pointer is not on it.
-    expect(describedWith(emptySelection(), sessionOf({ pointer: null })).isPointerOver).toBe(false)
-  })
-
-  it('agrees with `box` about every point, half-open on both axes (R3.4)', () => {
-    // The specification fixes no extent for the palette, so this asserts the
-    // RELATION FR-053 states rather than a size: the pointer is on the palette
-    // exactly when `box` holds it.
-    // ⚠️ HOW MUCH THIS CATCHES DEPENDS ON THAT MISSING EXTENT. While `box` has
-    // none, no point is inside it and the case can only catch an answer that is
-    // wrongly true; it starts catching a wrongly faint palette the day a width
-    // and a height arrive. That is the cost of the gap, recorded rather than
-    // papered over with a guessed size.
-    const at = { x: 100, y: 50 }
-    const session = (pointer: { x: number; y: number } | null): ScreenSession =>
-      sessionOf({ commandPaletteAt: at, pointer })
-    const palette = describedWith(emptySelection(), session(null))
-    const box = palette.box
-    const probes = [
-      { x: box.x, y: box.y },
-      { x: box.x - 1, y: box.y },
-      { x: box.x + box.width, y: box.y },
-      { x: box.x, y: box.y + box.height },
-      { x: box.x + box.width / 2, y: box.y + box.height / 2 },
-      { x: box.x + box.width - 0.5, y: box.y + box.height - 0.5 },
-      { x: 10000, y: 10000 },
-    ]
-    for (const pointer of probes) {
-      const answer = describedWith(emptySelection(), session(pointer)).isPointerOver
-      expect(answer, `FR-053: the pointer at ${JSON.stringify(pointer)}`).toBe(
-        rectHolds(box, pointer.x, pointer.y),
-      )
-    }
-  })
-
-  it('never reads the faintness off a selection', () => {
-    // FR-053 warns against writing this as a selection in as many words: SL-1
-    // of table T-023c does not admit the palette, so a selection-worded
-    // condition would have no state that ever clears it.
-    for (const pointer of [null, { x: 0, y: 0 }, { x: 100, y: 50 }]) {
-      const answers = SELECTIONS.map(
-        ({ selection }) => describedWith(selection, sessionOf({ pointer })).isPointerOver,
-      )
-      expect(new Set(answers).size, JSON.stringify(pointer)).toBe(1)
-    }
-  })
-})
+// ⛔ THREE CASES ABOUT THE FAINTNESS STOOD HERE AND HAVE BEEN DELETED, NOT
+// WEAKENED. FR-053 (MUST) now reads 「上の「薄く透明に描く」の判定は、ポインタが
+// どの部品の上にあるかで行うこと（MUST）—— 大きさを持たない以上、矩形の内外では
+// 判じられない。」 The judgement is therefore no longer this unit's: a `pure`
+// unit (UF-65 of table T-075) handed a point and no rectangle cannot say which
+// part the pointer is on. IF-9 of table T-065 supplies that answer from the
+// side that DREW the parts, so the case is owed by the bench of the unit that
+// implements it -- UF-72, `tests/unit/uf-72-screen-part.test.ts`.
+// ⚠️ The third of them ('never reads the faintness off a selection') was still
+// GREEN when the other two went red, because every answer it compared had
+// become `undefined`. A case that passes by comparing absences is the "green
+// proves nothing" of docs/development-rules/04-verification.md section 2, so it
+// goes with them rather than staying as cover.
 
 describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () => {
   it('says something for every arm of table T-023b', () => {
@@ -750,16 +726,20 @@ describe('UF-65 -- boundaries the specification admits', () => {
   })
 
   it('describes the palette while the pointer is outside the window', () => {
+    // `ScreenSession.pointer` is `null` for exactly that. ⚠️ What the absent
+    // pointer USED to be asked here -- whether the palette is drawn faint --
+    // left with the three cases FR-053 moved across IF-9; what is left is that
+    // a pointer nowhere at all takes nothing off the description.
     const palette = describedWith(emptySelection(), sessionOf({ pointer: null }))
-    expect(palette.isPointerOver).toBe(false)
     expect(iconsOf(palette).length).toBe(PALETTE_ENTRY_ROWS.length)
   })
 
   it('takes a corner outside the screen without changing what it holds', () => {
     // Nothing clamps `commandPaletteAt`: table T-206 holds no row for the
     // palette's place, so there is no bound to apply here.
-    const offScreen = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: -500, y: -500 } }))
+    const at = { x: -500, y: -500 }
+    const offScreen = describedWith(emptySelection(), sessionOf({ commandPaletteAt: at }))
     expect(iconsOf(offScreen)).toEqual(PALETTE_ENTRY_ROWS_GROUPED)
-    expect(offScreen.isPointerOver).toBe(false)
+    expect(offScreen.at).toEqual(at)
   })
 })

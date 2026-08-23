@@ -70,9 +70,22 @@ const lineBar = (bar: BarGeometry | null): Extract<BarGeometry, { form: 'line' }
   return bar
 }
 
+/**
+ * How wide these cases hold the properties panel OPEN.
+ *
+ * ⚠️ STATED HERE, NOT INHERITED. S-80's default is the CLOSED panel, and a
+ * panel of no width leaves FR-052 with nothing to subtract for it and
+ * `regionAtPointer` with no properties panel any point can land on -- so these
+ * cases open it. ⛔ Not a value of the specification: S-80 says in as many words that
+ * no row fixes the width an open panel takes, so this number is this file's own
+ * and is never asserted as anyone else's.
+ */
+const PROPERTY_PANEL_OPEN = 300
+
 /** The five keys regionsFromScreen reads, at values that make the sums easy to check. */
 const SETTINGS = settingsOf({
   rulerHeight: 48, // S-2
+  propertyPanelWidth: PROPERTY_PANEL_OPEN, // S-80, open -- see above
 })
 
 const ENV: ScreenEnvironment = {
@@ -97,8 +110,19 @@ describe('ScreenRegions (PI-35)', () => {
   })
 
   it('FR-052 takes the padding, both panels and the vertical scrollbar off the Row Area width', () => {
-    // 1000 - 10 padding - 170 titles - 280 properties - 8 scrollbar.
-    expect(regionsFromScreen(ENV, SETTINGS).rowArea.width).toBe(532)
+    // ⛔ THE SUM IS WRITTEN OUT, NOT ANSWERED WITH A NUMBER. FR-052 names the
+    // four things taken off the Schedule Canvas' width -- `canvasPadding`, the
+    // two panel widths and the vertical scrollbar -- and two of the four reach
+    // this case as generated defaults. A typed total would say nothing about
+    // which of the four is missing when it moved, and would go stale the day
+    // the manuscript moves one, as this line's did.
+    expect(regionsFromScreen(ENV, SETTINGS).rowArea.width).toBe(
+      ENV.width -
+        settingNumber('canvasPadding') -
+        settingNumber('rowTitlePanelWidth') -
+        PROPERTY_PANEL_OPEN -
+        ENV.scrollbarThickness,
+    )
   })
 
   it('U-50 puts the Row Area inside the Row Title Panel and below the ruler band', () => {
@@ -128,8 +152,22 @@ describe('ScreenRegions (PI-35)', () => {
   })
 
   it('SC-2 spans the Time Ruler across the Row Area, not across the panels', () => {
+    // SC-2 of table T-031: the ruler follows the schedule sideways, so its
+    // horizontal span IS the Row Area's -- written as that relation rather than
+    // as a total, which is what left this case holding a stale one. Vertically
+    // it stands in the band under the App Header, and the two numbers that fix
+    // that are the ones ENV and SETTINGS state above.
     const r = regionsFromScreen(ENV, SETTINGS)
-    expect(r.timeRuler).toEqual({ x: 170, y: 56, width: 532, height: 48 })
+    expect(r.timeRuler).toEqual({
+      x: r.rowArea.x,
+      y: ENV.appHeaderHeight,
+      width: r.rowArea.width,
+      height: 48,
+    })
+    // ⛔ "not across the panels" is the half the relation alone cannot make: a
+    // ruler spanning the whole window would agree with a Row Area that did too.
+    expect(r.timeRuler.width).toBeLessThan(ENV.width)
+    expect(r.timeRuler.x).toBeGreaterThan(0)
   })
 
   it('FR-052 reports a width of zero or less rather than clamping it', () => {
@@ -150,14 +188,22 @@ describe('ScreenRegions (PI-35)', () => {
   it('treats every region as half-open, so an edge belongs to what comes next', () => {
     const r = regionsFromScreen(ENV, SETTINGS)
     // The Row Area's own corner is inside it.
-    expect(regionAtPointer(r, 170, 104)).toBe('rowArea')
-    // Its right edge is not: 170 + 532 = 702 falls into the scrollbar lane.
-    expect(regionAtPointer(r, 702, 200)).toBe('scheduleCanvas')
+    expect(regionAtPointer(r, r.rowArea.x, r.rowArea.y)).toBe('rowArea')
+    // ⛔ Its right edge is NOT, and the edge is asked for by name rather than
+    // by a sum: the lane past it belongs to the padding and the scrollbar,
+    // which fall through to the canvas.
+    expect(regionAtPointer(r, r.rowArea.x + r.rowArea.width, r.rowArea.y)).toBe('scheduleCanvas')
+    // The same on the other axis, so half-open is claimed of both.
+    expect(regionAtPointer(r, r.rowArea.x, r.rowArea.y + r.rowArea.height)).toBe('scheduleCanvas')
   })
 
   it('falls through to the canvas in the padding and the scrollbar lanes', () => {
     const r = regionsFromScreen(ENV, SETTINGS)
-    expect(regionAtPointer(r, 710, 200)).toBe('scheduleCanvas')
+    // The middle of the lane FR-052 leaves between the Row Area and the panel
+    // that follows it -- `canvasPadding` plus the vertical scrollbar, neither
+    // of which is a region of its own.
+    const rightLane = (r.rowArea.x + r.rowArea.width + r.propertiesPanel.x) / 2
+    expect(regionAtPointer(r, rightLane, 200)).toBe('scheduleCanvas')
     expect(regionAtPointer(r, 400, 690)).toBe('scheduleCanvas')
   })
 

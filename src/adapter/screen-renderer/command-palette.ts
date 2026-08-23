@@ -15,10 +15,21 @@
 // It comes in `ScreenSession.commandPaletteAt`, whose note records that nothing
 // keeps it -- neither table T-206 nor table T-203 has a row for it.
 //
-// ⭐ WHY FAINTNESS IS NOT WRITTEN AS A SELECTION. FR-053 warns against exactly
-// that, in as many words: SL-1 of table T-023c does not admit the palette, so a
-// condition written on the selection would have no state that ever clears it.
-// `isPointerOver` is the condition FR-053 does state.
+// ⭐ WHY A CORNER AND NO EXTENT LEAVES HERE. FR-053 (MUST) has the palette's
+// size follow its contents and (MUST NOT) forbids the settings from holding
+// one, so there is no extent for this unit to carry and none to look for: how
+// wide the entries came out is known only where they were laid out, which is
+// past IF-9. ⚠️ This unit never judged a size and still does not; what changed
+// is that `CommandPalette` stopped declaring a member for one.
+//
+// ⭐ WHY FAINTNESS IS NOT ANSWERED HERE. FR-053 (MUST) judges 「薄く透明に描く」
+// by which PART the pointer is on, and the side that drew the parts is the only
+// side that can say (Chapter 5.3, MUST, under table T-065; IF-9's third
+// member). ⚠️ FR-053 also warns, in as many words, against writing the
+// condition as a selection: SL-1 of table T-023c does not admit the palette, so
+// such a condition would have no state that ever clears it. Neither reading is
+// available to a `pure` unit that is handed a point and no rectangles, which is
+// why `session.pointer` is not read below.
 //
 // ⭐ WHY THE ENTRIES ARE READ FROM THE GENERATED ROSTER RATHER THAN LISTED.
 // FR-029 makes the roster of icons AND where each one is placed follow table
@@ -41,7 +52,7 @@
 // other shows the keystroke that places what is armed -- and
 // `screen-renderer.ts` names the same rows for the same reason on
 // `CommandItem`. Both reach the screen as something other than a button: the
-// first as `box`, which is what a drag moves, and the second as `armedText`.
+// first as `at`, which is what a drag moves, and the second as `armedText`.
 // The STOP note by `NOT_BUTTON_ROWS` says what the roster cannot carry.
 //
 // ⚠️ NOTHING HERE JUDGES A WIDTH, so FR-093's estimate is never called -- the
@@ -49,7 +60,6 @@
 
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
-import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type {
   CommandItem,
   CommandPalette,
@@ -179,21 +189,6 @@ function groupName(groupCell: string, firstRow: string, language: DisplayLanguag
   const word = GROUP_NAMES_BY_FIRST_ROW.get(firstRow)?.name[language]
   if (word === undefined) return groupCell
   return word === '' ? groupCell : word
-}
-
-/**
- * Half-open on both axes, as R3.4 of the review standard asks: a point on the
- * right or bottom edge belongs to whatever comes next.
- *
- * ⚠️ `screen-regions.ts` holds the same three lines and keeps them private --
- * PI-35 declares four members and this is not one of them, and Chapter 5.3 lets
- * nothing outside a folder read past its public entry. The copy is forced
- * rather than chosen; R3.4 is what keeps the two from drifting apart in meaning.
- *
- * @purity pure
- */
-function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
-  return x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
 }
 
 /**
@@ -363,32 +358,15 @@ export function commandPaletteFromScreenState(
 ): CommandPalette | null {
   if (!state.paletteShown) return null
 
-  // STOP -- ⛔ NOT HELD ANYWHERE: how big the palette is. `CommandPalette.box`
-  // is a rectangle and only its corner arrives, in `ScreenSession`, whose own
-  // note records that table T-206 and table T-203 have no row for even that
-  // much. Searched: FR-053, FR-029, tables T-202 / T-203 / T-206 and the whole
-  // of `_assets/tbl-settings.md` (its only palette row is S-99e, the showing
-  // state), table T-103 and table T-109.
-  // ⭐ Smallest thing that cannot be wrong: no extent at all. ⚠️ It costs the
-  // member below with it -- a rectangle of no extent holds no point, so
-  // `isPointerOver` stays false while the size is missing, and the palette is
-  // drawn faint. That is the state FR-053 names for the pointer being off it,
-  // so what is lost is the brightening and never the requirement. ⛔ A guessed
-  // width and height would be worse: they would brighten it in the wrong places
-  // and read as a measurement.
-  const NO_EXTENT = 0
-
-  const box: ScreenRect = {
-    x: session.commandPaletteAt.x,
-    y: session.commandPaletteAt.y,
-    width: NO_EXTENT,
-    height: NO_EXTENT,
-  }
-  const pointer = session.pointer
-
+  // ⭐ THE CORNER IS THE WHOLE OF THE PLACE, AND THAT IS SETTLED RATHER THAN
+  // MISSING. What used to stand here was a STOP note looking for the palette's
+  // size in tables T-202 / T-203 / T-206 and finding no row: FR-053 now says
+  // (MUST) that the size follows the contents and (MUST NOT) that no table may
+  // hold one, so there is nothing left to look for. ⚠️ The corner itself is
+  // still unheld -- `ScreenSession.commandPaletteAt` records that absence -- and
+  // it is passed through untouched, so nothing about the place is decided here.
   return {
-    box,
-    isPointerOver: pointer !== null && rectHoldsPoint(box, pointer.x, pointer.y),
+    at: session.commandPaletteAt,
     groups: paletteGroups(selection, session.language),
     armedText: armedRow(state.armed),
   }

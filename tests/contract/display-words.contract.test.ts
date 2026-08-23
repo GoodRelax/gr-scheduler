@@ -337,7 +337,23 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
   height,
 })
 
-const SETTINGS = { ...SETTINGS_DEFAULTS, rowTitlePanelWidth: 400 } as unknown as DocumentSettings
+/** The middle of a region, so a pointer put there is on it however it is cut. */
+const centreOf = (region: ScreenRect): { readonly x: number; readonly y: number } => ({
+  x: region.x + region.width / 2,
+  y: region.y + region.height / 2,
+})
+
+/**
+ * ⚠️ BOTH PANEL WIDTHS ARE STATED HERE, not inherited from the generated
+ * defaults. S-80's default is the CLOSED properties panel, and a panel of no
+ * width is a part of table T-103 that no printed word can stand on -- so this
+ * frame opens it, the way a person who is editing has it open.
+ */
+const SETTINGS = {
+  ...SETTINGS_DEFAULTS,
+  rowTitlePanelWidth: 400,
+  propertyPanelWidth: 300,
+} as unknown as DocumentSettings
 
 /** The screen cut into table T-103's parts by FR-052's own expression. */
 const REGIONS: ScreenRegions = (() => {
@@ -345,8 +361,10 @@ const REGIONS: ScreenRegions = (() => {
   const height = 800
   const headerHeight = 56
   const rulerHeight = 48
-  const titleWidth = 400
-  const propertiesWidth = 280
+  // ⛔ Read off the settings above rather than re-typed: the cut and the
+  // settings the same frame carries have to be the same screen.
+  const titleWidth = SETTINGS.rowTitlePanelWidth
+  const propertiesWidth = SETTINGS.propertyPanelWidth
   const padding = SETTINGS_DEFAULTS['canvasPadding'] as number
   const barThickness = 8
   const canvas = rect(0, headerHeight, width, height - headerHeight)
@@ -505,9 +523,16 @@ const iconTooltip = (view: ScreenView, icon: string): string | undefined =>
 const scrollbarTooltip = (view: ScreenView, axis: string): string | undefined =>
   view.tooltips.find((tip) => tip.anchor.kind === 'scrollbar' && tip.anchor.axis === axis)?.text
 
-/** Where the palette floats this frame (FR-053 has the person drag it there). */
-const PALETTE_BOX: ScreenRect =
-  viewOf(screenViewFromRegions, PALETTE_SHOWN, 'ja').commandPalette?.box ?? REGIONS.scheduleCanvas
+/**
+ * Where the palette floats this frame (FR-053 has the person drag it there).
+ *
+ * ⭐ A POINT, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size follow its
+ * contents, so no description carries an extent to take a centre of. Nothing
+ * below needs one -- the pointer only has to be somewhere on the palette for
+ * EZ-2 to be asked, and which entry it rests on is `iconUnderPointer`'s answer.
+ */
+const PALETTE_AT: { readonly x: number; readonly y: number } =
+  viewOf(screenViewFromRegions, PALETTE_SHOWN, 'ja').commandPalette?.at ?? { x: 0, y: 0 }
 
 /** The middle of a scrollbar lane, so that FR-037's pointer is on it. */
 const scrollbarPointer = (axis: 'horizontal' | 'vertical'): { x: number; y: number } => {
@@ -582,7 +607,10 @@ for (const entry of GENERATED['icons'] ?? []) {
     what: string,
     unit: string,
     frame: Frame,
-    within: ScreenRect,
+    // ⚠️ A POINT rather than a rectangle: the palette has no extent to take a
+    // centre of (FR-053, MUST NOT), so each caller hands over the point it
+    // means directly.
+    pointer: { readonly x: number; readonly y: number },
     read: (view: ScreenView) => string | undefined,
   ): void => {
     place({ section: 'icons', key: rowId, field: 'label', unit, what, frame, read })
@@ -591,7 +619,7 @@ for (const entry of GENERATED['icons'] ?? []) {
         ...frame,
         session: {
           ...frame.session,
-          pointer: { x: within.x + within.width / 2, y: within.y + within.height / 2 },
+          pointer,
           iconUnderPointer: rowId,
           pointerRestedMs: ICON_HINT_MS + 1,
         },
@@ -600,17 +628,17 @@ for (const entry of GENERATED['icons'] ?? []) {
   }
 
   if (surfaces.includes('App Header')) {
-    on(`the App Header entry ${rowId}`, 'UF-62', BASE, REGIONS.appHeader, (view) =>
+    on(`the App Header entry ${rowId}`, 'UF-62', BASE, centreOf(REGIONS.appHeader), (view) =>
       labelIn(view.appHeaderItems.commands, rowId),
     )
   }
   if (surfaces.includes('Command Palette')) {
-    on(`the Command Palette entry ${rowId}`, 'UF-65', PALETTE_SHOWN, PALETTE_BOX, (view) =>
+    on(`the Command Palette entry ${rowId}`, 'UF-65', PALETTE_SHOWN, PALETTE_AT, (view) =>
       labelIn(paletteCommands(view), rowId),
     )
   }
   for (const surface of surfaces.filter((name) => SURFACE_NAMES.includes(name))) {
-    on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceOpen(surface), REGIONS.scheduleCanvas, (view) =>
+    on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceOpen(surface), centreOf(REGIONS.scheduleCanvas), (view) =>
       labelIn(view.openModal?.commands, rowId),
     )
   }

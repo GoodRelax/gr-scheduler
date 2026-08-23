@@ -150,12 +150,21 @@
 //     with the same tag and the same attributes is enough for it to be read
 //     back.
 //
-// ⭐ ONE THING IS NOT AN INLINE DECLARATION, AND ONLY ONE. HF-6's second half
-// -- 「ポインタが乗っているあいだだけ濃くする」 -- cannot be stated in a `style`
-// attribute, so the unit hangs ONE `style` element off its own root
-// (`ROW_CONTROL_HOVER_CSS`), scoped by the root's `data-unit`. ⛔ It is built
-// from constants and never from a description, it paints nothing itself, and
-// nothing else in this file is placed or painted by a sheet.
+// ⭐ TWO THINGS ARE NOT INLINE DECLARATIONS, AND ONLY TWO. Both are rules about
+// where the pointer is, and a `style` attribute can state neither: HF-6's second
+// half -- 「ポインタが乗っているあいだだけ濃くする」 -- and FR-053's
+// 「ポインタが乗っていないあいだは薄く透明に描く」. So the unit hangs ONE `style`
+// element off its own root (`HOVER_CSS`), scoped by the root's `data-unit`.
+// ⛔ It is built from constants and never from a description, it paints nothing
+// itself, and nothing else in this file is placed or painted by a sheet.
+//   - ⭐ `:hover` IS THE PART UNDER THE POINTER, WHICH IS WHAT FR-053 (MUST)
+//     ASKS THE JUDGEMENT BE MADE ON. It is the environment's own hit test --
+//     the same one `elementFromPoint` answers `readScreenPartAt` with, obeying
+//     the same `pointer-events` -- so nothing here tests a point against a
+//     rectangle, and ⛔ there is no second hit test to disagree with the first.
+//     ⚠️ It matches an ANCESTOR of the node under the pointer too, which is
+//     what makes `Palette Groups` and `Palette Commands` (U-34) count as the
+//     palette: a pointer on either is a pointer on the part that holds them.
 //
 // ⛔ WHAT THE CALLER MUST SUPPLY is `ScreenSurfaceWiring` below: the document
 // the nodes are made in, the element they are mounted in, who is speaking, the
@@ -195,7 +204,7 @@ import iconGlyphs from '../../adapter/screen-renderer/icon-glyphs.json'
 
 /**
  * This unit's own row of table T-075, which the root carries and which scopes
- * `ROW_CONTROL_HOVER_CSS` to the tree this unit built.
+ * `HOVER_CSS` to the tree this unit built.
  *
  * ⚠️ Not a name for a part: table T-103 has no row for the whole screen.
  */
@@ -400,9 +409,31 @@ const STYLE = {
   heading: 'font-weight:600;margin:0 0 0.5em 0;',
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: 'color:GrayText;min-width:9em;',
+  // ⛔ NO WIDTH AND NO HEIGHT, AND NOT BECAUSE NONE ARRIVED. FR-053 (MUST) has
+  // the palette's size follow its contents and (MUST NOT) forbids a settings row
+  // from holding one, so `cornerStyle` places it and stops -- an absolutely
+  // placed box with neither extent nor a facing edge takes the size of what is
+  // inside it, which is the requirement itself and not a rule invented here.
+  //
+  // ⛔ `overflow:auto` IS GONE, AND IT IS WHAT CLIPPED THE PALETTE. It made a
+  // scroll box out of the extent the placing declaration gave -- so while that
+  // extent was nothing, everything inside was scrolled out of an empty box.
+  // ⚠️ It does not belong back now that the extent follows the contents: SC-6 of
+  // table T-031 is the palette's own row, and it grants the palette no scrolling
+  // of its own, where SC-5 grants exactly that to the properties panel in as
+  // many words. A box that is as big as its contents has nothing to overflow.
+  //
+  // STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what a palette does when its
+  // contents come out bigger than the window. FR-053 (MUST) makes the size
+  // follow the contents and (MUST NOT) forbids a held one, SC-6 grants no
+  // scrolling, and nothing bounds where a drag may leave the corner. Searched:
+  // FR-053, FR-029, table T-031, table T-103 and table T-109.
+  // ⭐ Nothing is done about it, which is the only reading that breaks no rule:
+  // the part that ran past the edge is what a person would then drag into view.
+  // ⚠️ A scroll box or a bound would each answer a question no requirement asks.
   commandPalette:
     'box-sizing:border-box;padding:0.5em;background:Canvas;color:CanvasText;' +
-    'border:1px solid GrayText;border-radius:0.25em;overflow:auto;pointer-events:auto;',
+    'border:1px solid GrayText;border-radius:0.25em;pointer-events:auto;',
   paletteGroup: 'margin-bottom:0.5em;',
   paletteGroupName: 'color:GrayText;',
   paletteCommands: 'display:flex;flex-wrap:wrap;gap:0.25em;',
@@ -483,6 +514,64 @@ const ROW_CONTROL_HOVER_CSS =
   '{color:CanvasText !important;}'
 
 /**
+ * How faint the palette stands while the pointer is not on it.
+ *
+ * STOP -- ⛔ NOT HELD ANYWHERE: how faint 「薄く透明に」 is. FR-053 states the
+ * state and no degree of it, and no settings row carries one -- S-131's
+ * `dummyOpacity` is FR-013's and FR-043's value for the schedule's own faint
+ * marks and belongs to the surface that draws those, so borrowing it here would
+ * give this unit a number its requirement does not have. Searched: FR-053,
+ * FR-029, table T-031, table T-051 (HF-6) and `_assets/tbl-settings.md`.
+ * ⭐ Carried over unchanged from the inline declaration this rule replaces, so
+ * that moving WHERE the judgement is made changes nothing about how it looks.
+ * ⚠️ It is a transparency and not a colour, which is where FR-053 parts company
+ * with FR-029's 「薄く描く」 and HF-6's 「薄く描き」: those two take this unit's
+ * `GrayText`, which follows the reader's own contrast settings, and FR-053 asks
+ * for something a colour cannot state.
+ */
+const PALETTE_FAINTNESS = '0.6'
+
+/**
+ * FR-053 (MUST): 「ポインタが乗っていないあいだは薄く透明に描く」.
+ *
+ * ⭐ WHY THIS IS A RULE AND NOT A MEMBER OF THE DESCRIPTION. FR-053 (MUST)
+ * requires the judgement to be made on WHICH PART the pointer is on, and this
+ * unit is the side that drew the parts -- Chapter 5.3 states under table T-065
+ * (MUST) that no one else may work out where a part is. `:hover` is the
+ * environment's own answer to that, resolved against the very boxes that were
+ * laid out and obeying the same `pointer-events` as `elementFromPoint`, so
+ * ⛔ nothing is measured twice and no rectangle is tested. That matters more
+ * here than it did for HF-6: FR-053 (MUST) now has the palette's size follow
+ * its contents, so there is no rectangle for anyone to test against.
+ *
+ * ⚠️ THE PARTS INSIDE THE PALETTE COUNT AS THE PALETTE. `:hover` matches an
+ * ancestor of the node under the pointer, so a pointer on `Palette Groups` or
+ * `Palette Commands` (U-34) -- or on an entry inside them -- keeps the palette
+ * bright, which is what 「乗っている」 means for a part that holds other parts.
+ *
+ * ⛔ WHY NO `!important` HERE, unlike the rule above. Nothing paints the
+ * palette's transparency inline any more, so there is no inline declaration for
+ * a selector to be outranked by.
+ *
+ * ⚠️ It wakes nothing. NFR-010 (MUST NOT) forbids running a frame on a trigger
+ * table T-078 does not name; FR-048 names FR-053 among the four it excuses from
+ * its own MUST NOT, and this side does not have to spend that excuse either --
+ * the pointer moving on or off the palette runs no frame at all.
+ */
+const PALETTE_FAINT_CSS =
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.commandPalette}"]:not(:hover)` +
+  `{opacity:${PALETTE_FAINTNESS};}`
+
+/**
+ * Everything this unit states as a rule rather than as an inline declaration --
+ * two halves of two requirements, and nothing else.
+ *
+ * ⛔ BUILT FROM CONSTANTS AND NEVER FROM A DESCRIPTION, so the sheet is written
+ * once and never rewritten: neither rule depends on what is on the screen.
+ */
+const HOVER_CSS = ROW_CONTROL_HOVER_CSS + PALETTE_FAINT_CSS
+
+/**
  * The namespace a shape has to be made in.
  *
  * ⭐ NOT A VALUE OF THE SPECIFICATION, so rule 03 section 1 has nothing to say
@@ -547,6 +636,28 @@ function boxStyle(box: ScreenRect): string {
     `position:absolute;left:${box.x}px;top:${box.y}px;` +
     `width:${box.width}px;height:${box.height}px;`
   )
+}
+
+/**
+ * The two numbers of a corner, as a place on the screen -- and NO size.
+ *
+ * ⭐ WHY A SECOND PLACING FUNCTION. `boxStyle` above states an extent, which is
+ * the whole of what FR-053 (MUST NOT) keeps the palette from having: its size
+ * is to follow its contents (MUST). An absolutely placed box given one corner
+ * and neither a size nor the facing edge takes the size of what is inside it,
+ * so the requirement is met by what is NOT written here.
+ * ⚠️ `position:absolute` is not optional decoration: FR-053 (MUST) floats the
+ * palette and lets the person drag it, and SC-6 of table T-031 keeps it still
+ * against the screen while the schedule scrolls under it.
+ *
+ * ⚠️ Window coordinates, like `boxStyle` and for the same reason: every layer
+ * these are put into spans the whole root, and the root is pinned to the
+ * viewport.
+ *
+ * @purity pure
+ */
+function cornerStyle(at: { readonly x: number; readonly y: number }): string {
+  return `position:absolute;left:${at.x}px;top:${at.y}px;`
 }
 
 /**
@@ -1084,9 +1195,17 @@ function fillPropertiesPanel(
 /**
  * U-26 `Command Palette` (UF-65).
  *
- * ⚠️ FR-053 draws it faintly while the pointer is off it, and that is the
- * condition the requirement states -- ⛔ not a selection: table T-023c's SL-1
- * does not admit the palette, so there would be no state to clear.
+ * ⭐ PLACED AND NOT SIZED. The description carries a corner and no extent,
+ * because FR-053 (MUST) has the size follow the contents and (MUST NOT) keeps
+ * any table from holding one -- so `cornerStyle` writes where it stands and the
+ * entries below decide how big it comes out. ⛔ No number is added on the way.
+ *
+ * ⚠️ FR-053 also draws it faintly while the pointer is off it, and ⛔ nothing
+ * here says whether it is: that MUST is judged on which PART the pointer is on,
+ * which is `PALETTE_FAINT_CSS` -- see its note for why the answer is the
+ * environment's and not a member of the description. It is also ⛔ not a
+ * selection: table T-023c's SL-1 does not admit the palette, so there would be
+ * no state to clear.
  *
  * @purity non-pure
  */
@@ -1099,9 +1218,8 @@ function paletteElement(
     host,
     'div',
     ROLE.commandPalette,
-    boxStyle(palette.box) + STYLE.commandPalette + (palette.isPointerOver ? '' : 'opacity:0.6;'),
+    cornerStyle(palette.at) + STYLE.commandPalette,
   )
-  drawn.setAttribute('data-pointer-over', String(palette.isPointerOver))
   const groups: HTMLElement[] = []
   for (const group of palette.groups) {
     const box = part(host, 'div', ROLE.paletteGroups, STYLE.paletteGroup)
@@ -1551,14 +1669,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const root = made(host, 'div', STYLE.root)
   // ⚠️ Not a name for a part: table T-103 has no row for the whole screen, so
   // the root carries the unit's own row of table T-075 instead of a minted one.
-  // ⭐ It is also what scopes `ROW_CONTROL_HOVER_CSS` to this tree.
+  // ⭐ It is also what scopes `HOVER_CSS` to this tree.
   root.setAttribute('data-unit', UNIT_ROW)
 
-  // The second half of HF-6, which no inline declaration can state. ⭐ Hung off
-  // the root so that it lives and dies with the tree this unit built, and it is
-  // never rewritten: the rule does not depend on any description.
-  const rowControlSheet = host.createElement('style')
-  rowControlSheet.textContent = ROW_CONTROL_HOVER_CSS
+  // The second half of HF-6 and the faint half of FR-053, neither of which an
+  // inline declaration can state. ⭐ Hung off the root so that it lives and dies
+  // with the tree this unit built, and it is never rewritten: neither rule
+  // depends on any description.
+  const hoverSheet = host.createElement('style')
+  hoverSheet.textContent = HOVER_CSS
 
   const frameLayer = made(host, 'div', STYLE.layer)
   const rowTitlePanel = part(host, 'div', ROLE.rowTitlePanel, STYLE.hidden)
@@ -1591,7 +1710,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // ⭐ The sheet is not in that order at all -- it has no box and paints nothing
   // of its own.
   root.append(
-    rowControlSheet,
+    hoverSheet,
     frameLayer,
     rowTitlePanel,
     rowTitleTree,
