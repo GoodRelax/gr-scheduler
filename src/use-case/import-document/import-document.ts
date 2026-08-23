@@ -597,12 +597,18 @@ function replacedDocument(request: ImportRequest): ImportOutcome {
  * `Schedule.baselineTasks` (`ET-18`), five columns holding no dependency, no
  * calendar, no resource and no assignment -- exactly what FR-015 allows.
  *
- * ⚠️ Only the tasks that match a current one by `UID` are kept. FR-015 pairs by
- * `UID` (MUST), forbids drawing a task that exists on one side only (MUST NOT)
- * and requires telling about it (MUST); holding one that can never be drawn
- * would also work against the reason the requirement gives for five columns
- * instead of a whole schedule (成果物の大きさ). ⚠️ That the unmatched ones are
- * dropped rather than held and skipped is this file's decision.
+ * ⭐ WHAT GOES INTO THE FRAME IS OP-9'S RULE, NOT THIS FILE'S CHOICE: only the
+ * tasks whose `UID` matches one of the current document's (MUST). An earlier
+ * note here claimed the choice, and it was true only until the row said it.
+ * OP-9 then hands the other half to FR-015, which pairs by `UID` (MUST),
+ * forbids drawing a task that exists on one side only (MUST NOT) and requires
+ * telling about it (MUST). The telling is `report.baselineTaskUidsNotDrawn`,
+ * and it carries EVERY unmatched `UID` -- that half is the one a person reads,
+ * so a task the frame cannot hold is never silently gone.
+ *
+ * ⚠️ An empty frame is an overlay that found nothing, NOT an overlay that did
+ * not happen: OP-9 says so for the case where no `UID` matches, so this answers
+ * with the document rather than with a refusal, and the report says why.
  *
  * ⚠️ The frame is replaced, not added to: FR-015 speaks of 重ねる相手 in the
  * singular -- one 別ファイル at a time.

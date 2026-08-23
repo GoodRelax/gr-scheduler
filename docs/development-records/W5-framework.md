@@ -86,16 +86,68 @@ uf-47-48 の FR-096 1 件    選択面が名を提案できるようになった
 `RS-11` と `RS-12`（`OP-12` の 2 つの側）。⚠️ **意図した並行であり、基準線へ入れた** ——
 表 T-104 の `K-28` ／ `K-29` が既に同じ形で入っている。
 
+### ⭐ 実装の段を 4 体で回し、合流した（**同日**）
+
+```
+台本      .claude/workflows/land-the-reason-rows.js（2 段・所有はフォルダ単位で排他）
+所有      screen-renderer / single-html-shell / file-gateway / import-document ＋ document-codec
+実測      typecheck 0 ／ layers OK ／ gen:check 12/12 ／ check.sh ALL GREEN ／ audit PASS
+          precheck OK（生成物の告知も 0）／ build 921.66 kB（899 → 921）
+          test 3418 通過 / 14 赤（17 から）／ e2e 16 通過 / 1 赤
+```
+
+⛔ **4 体とも所有の外へ出ていない** —— 8 ファイル、重なり 0。**パッチは 4 本とも素直に当たった。**
+
+### ⚠️ 「他の worktree も古い」という誤報が、**また**出た
+
+1 体が「自分の木が `30ddd78` から切られていた。他の 3 木もそうだ」と報告した。
+⭐ **前半は本当で、その体は自分で `git reset --hard` して直した。** ⛔ **後半は偽である** ——
+自分で `git -C <worktree> rev-parse HEAD` を 4 本とも見たら、**全部 `52a0592` に立っていた。**
+⚠️ **引継書が「1 度誤っていた」と書いていた、まさに同じ形の誤報である。**
+
+### ⛔ 引継書の見立てが、また 1 つ違っていた
+
+引継書は 穴 2 を「`OP-4` の着地が無い」と書いていた。⭐ **`OP-4` の確認は `8ca9078` で既に入っている** ——
+`IC-71` を取ると `NT-7` が立ち、「続ける」を取るまで置き換えは着地しない。
+⛔ **`IC-71` と `CS-4` の赤は、試験台が問いに答えずに文書の変化を主張していたからである。**
+⚠️ **体が自分でそれを見つけて「前提が古い」と報告した。**
+
+### ⛔ 体が見つけた、まだ埋まっていない穴（**次の巡**）
+
+```
+importRefused         表 T-230 の置き換えの道の WS-3。RS-10 は「命令の束を落とした」
+                      であり、こちらは ImportDocument の拒否。⭐ 別の行が要る
+EX-3 / EX-6           MSPDI の書き手が出す知らせに 表 T-233 の行が無い
+SvgExport.droppedGroupIds  FR-025（MUST）が「描かなかった件数を知らせる」と定めるのに行が無い
+                      ⛔ これがあるので IO-3（SVG）を配線すると MUST が 1 本新しく破れる
+IO-4 / IO-7 / IO-6    Rasterizer と AppShellSource の実装が無い（PI-21 は stub）
+```
+
+⭐ **どれも体が発明せずに `⛔` を付けて報告した** —— 規則 02 の 3. がそのとおり働いている。
+
+### ⭐ 残る赤 14 件は**全部が試験台**である（自分で 1 件ずつ判じた）
+
+```
+display-words の契約 3   reasons 節を知らない
+if-3-file-store 1       DI-6 を歩く case が無い
+uf-41-42 1              DI-6 が覆した答えを主張している
+uf-34-format-from-file 1 表 T-024 の旧不変条件を主張している
+uf-47-48 4              OP-4 の問いに答えていない ／ OP-9 の新しい 1 文 ／ FR-096 の提案名
+uf-67 4                 shownFor が mannerText: '' を打ち直している
+e2e 1                   showSaveFilePicker の模擬が getFile を持たない（製品ではない）
+```
+
+⛔ **`uf-67` の見張りが鳴らなかった** —— 「辞書に理由で引ける項目が無い」を
+`'reason' in entry` で探しており、**実際に入った節は `rowId` で引く。** ⭐ **借金は返したのに、見張りは緑のままである。**
+
 ### ⛔ 次の一手
 
 ```
 1. コミットする（利用者が行う）—— worktree は HEAD から切られる
-2. Workflow implement 段（所有は排他）
-     A  notices.ts が reasons 節を読み、RS-15 へ落とす   src/adapter/screen-renderer/**
-     B  OP-4 の着地と、シェルの 5 か所の STOP        src/framework/single-html-shell/**
-     C  DI-6（0 バイト）                            src/adapter/file-gateway/**
-     D  OP-9 と 表 T-024 を引く注記                   src/use-case/import-document/** ＋ document-codec/**
-3. 合流 → 検証 → Workflow test 段 → 合流 → 検証 → 記録 → コミットの推奨
+2. Workflow test 段（試験台 4 本。仕様だけを読む別の者が書く）
+3. 合流 → 検証 → 記録 → コミットの推奨
+4. その次: 体が見つけた 3 つの穴（importRefused / EX-3・EX-6 / droppedGroupIds）を
+   表 T-233 に足す変更要求
 ```
 
 ---

@@ -29,7 +29,7 @@
 //      what decides it; see `isRoundTripForm` below.
 //   4. WHETHER TWO DOCUMENTS ARE ONE AND THE SAME, and therefore whether a
 //      write over an existing file has to be asked about. Table T-227 is the
-//      whole rule (DI-1 .. DI-5); `isSameDocument` and `askToWriteOver` below
+//      whole rule (DI-1 .. DI-6); `isSameDocument` and `askToWriteOver` below
 //      are the whole of its implementation. ⛔ FR-061 forbids the autosave key
 //      being built out of DI-1 (MUST NOT), so `DocumentIdentity` never leaves
 //      this act -- see the type's own note.
@@ -446,6 +446,31 @@ function isSameDocument(here: DocumentIdentity, there: DocumentIdentity): boolea
 }
 
 /**
+ * DI-6 of table T-227 (MUST): whether what the person pointed at counts as a
+ * destination that was already there.
+ *
+ * ⛔ MEASURED, NOT TAKEN ON THE STORE'S WORD. The judgement follows the bytes
+ * that came back rather than which arm of `ChosenWriteDestination` they came
+ * back in, because DI-6's own note is that a file a save chooser has just
+ * created cannot be told apart from one that was standing empty. A judgement
+ * resting on that difference is one some store must get wrong; this one rests
+ * on nothing but the count, so both arms reach the same answer.
+ *
+ * ⭐ READ BEFORE ANYTHING IS DECODED, and the order is load-bearing. DI-6 says
+ * in so many words that it takes precedence over DI-3, and a destination with
+ * no bytes is exactly one DI-3 cannot read as `GRS JSON`. Let DI-3 have it
+ * first and it would be called not-this-document and sent on to DI-4's
+ * question -- the question DI-6's MUST keeps from being put at all, and that
+ * FR-031 (MUST NOT) keeps out too: there is nothing there for undo to fail to
+ * give back.
+ *
+ * @purity pure
+ */
+function isDestinationAlreadyThere(destination: ChosenWriteDestination): boolean {
+  return destination.kind === 'occupied' && destination.bytes.byteLength > 0
+}
+
+/**
  * DI-3 of table T-227: who the destination belongs to, or `null` where that
  * cannot be read.
  *
@@ -458,6 +483,10 @@ function isSameDocument(here: DocumentIdentity, there: DocumentIdentity): boolea
  * ⭐ The file name comes from the DESTINATION, never from inside its content.
  * DI-1 compares the name of the file being written over, and a name carried in
  * the bytes would be the name of wherever those bytes were written before.
+ *
+ * ⚠️ A destination holding no bytes never reaches here: DI-6 outranks this row
+ * and is read first, in `askToWriteOver`. So `null` from this function is
+ * always DI-3's own case, and always leaves DI-4's question owed.
  *
  * @purity pure
  */
@@ -534,8 +563,9 @@ export async function openDocumentFile(
  * Table T-227's answer for one destination: may this write go over what is
  * standing there?
  *
- * ⭐ THE ROWS, IN THE ORDER THEY DECIDE. FR-096 sends only an EXISTING file to
- * this table, so an empty destination is past before any row is read. Then
+ * ⭐ THE ROWS, IN THE ORDER THEY DECIDE. DI-6 (MUST) first, because that row
+ * states its own precedence over DI-3: a destination with nothing standing in
+ * it is not one that was already there, and nothing about it is asked. Then
  * DI-1 .. DI-3 settle whether the destination IS this document -- if it is,
  * writing over it is what saving means and there is nothing to ask. Only what
  * is left over reaches DI-4 (MUST), and that is exactly what FR-031 (MUST NOT)
@@ -552,7 +582,7 @@ async function askToWriteOver(
   request: ChosenFileSaveRequest,
   destination: ChosenWriteDestination,
 ): Promise<boolean> {
-  if (destination.kind === 'empty') return true
+  if (!isDestinationAlreadyThere(destination)) return true
 
   const there = destinationIdentity(destination, request.projectIdentityFromText)
   if (there !== null && isSameDocument(request.identity, there)) return true

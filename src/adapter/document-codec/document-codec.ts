@@ -172,11 +172,17 @@ interface ReadableFormat {
  * section 1 forbids spelling `.json` or `{` here.
  *
  * ⚠️ THE ARTIFACT CARRIES MORE ROWS THAN THIS ROSTER WANTS. It used to hold only
- * the rows with both columns; `FR-096` needs every row with an out direction, so
- * the generator now writes the write-only ones too and leaves their two columns
- * `null`. ⛔ Those are not formats a file may be read AS -- OP-12 names a format
- * a reading is judged against -- so they are dropped here, by the absence of the
- * columns rather than by a second list of row ids that would go stale.
+ * the rows a file may be read AS; `FR-096` needs every row with an out
+ * direction, so the generator writes the write-only ones too.
+ * ⛔ AN EXTENSION DOES NOT MEAN OP-12 JUDGES THAT ROW. Table T-024 fills the
+ * extension column for every row that leaves as a FILE, so `IO-3` / `IO-4` /
+ * `IO-7` arrive here with an extension and no first character, and only the row
+ * that is no file at all is empty in both columns. ⚠️ An earlier note here said
+ * the write-only rows came with both columns empty; that shape is what broke,
+ * and reading either column alone as "this row is readable" is what would break
+ * next. OP-12 judges a READING, which has two sides -- so the roster keeps a row
+ * only where BOTH columns are there, by the test below rather than by a second
+ * list of row ids that would go stale.
  */
 const READABLE_FORMATS: readonly ReadableFormat[] = (
   // `Object.keys` widens to `string[]`; the declaration above already fixes

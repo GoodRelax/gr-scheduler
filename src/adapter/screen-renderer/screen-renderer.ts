@@ -715,13 +715,15 @@ export interface RaisedNotice {
    */
   readonly manner: string
   /**
-   * WHY, as the one key FR-038's dictionary can be asked on and never as a
-   * sentence -- the reason a write was turned away, or the reason a file
-   * operation faulted.
+   * WHY, as a row of table T-233 and never as a sentence, e.g. `RS-4`. FR-076
+   * (MUST) makes every reason a row of that table and (MUST NOT) bars one from
+   * outside it.
    *
-   * ⛔ A KEY, NOT PROSE. It joins this notice to the dictionary the way
-   * `Notice.manner` joins it to table T-037, and `notices.ts` says what the
-   * dictionary still owes against it.
+   * ⛔ A ROW ID, NOT PROSE. It joins this notice to FR-038's dictionary the way
+   * `manner` above joins it to table T-037, and UF-67 reads NT-1's words and
+   * NT-3a's next step out of it. ⚠️ A reason the table does not hold is not a
+   * licence to write one here: that case has a row of its own, and UF-67 falls
+   * to it.
    */
   readonly reason: string
   /**
@@ -770,7 +772,12 @@ export interface Notice {
   readonly text: string
   /**
    * NT-3a (MUST): what can be done next. ⛔ A failure told without one of these
-   * is forbidden (MUST NOT). Empty for the rows that do not ask for it.
+   * is forbidden (MUST NOT).
+   *
+   * ⚠️ A LIST BECAUSE NT-4 GATHERS, not because one reason has several steps:
+   * table T-233 gives a row one, so a notice standing on its own carries one and
+   * the gathered surface carries what it gathered. Empty only while the
+   * dictionary holds no step to read (PD-160).
    */
   readonly nextSteps: readonly string[]
   /**

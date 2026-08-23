@@ -107,7 +107,9 @@ import {
   type DocumentCommand,
   type DocumentHolder,
   type HeldDocument,
+  type PlanRefusal,
   type ReplacementCall,
+  type ReplacementRefusal,
   type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
@@ -125,7 +127,9 @@ import {
   documentFromMspdi,
   formatFromFile,
   jsonFromDocument,
+  mspdiFromDocument,
   type ExchangeFormat,
+  type FormatMismatch,
 } from '../../adapter/document-codec/document-codec'
 // ⭐ TABLE T-024's EXTENSION COLUMN, AND NOTHING ELSE, reached the way
 // `dom-screen-surface.ts` reaches `icon-glyphs.json`: a generated roster is
@@ -140,6 +144,8 @@ import {
   openDocumentFile,
   saveDocumentFile,
   type ChosenFileSaveRequest,
+  type DocumentFileFault,
+  type DocumentFileFaultReason,
   type DocumentFileSaving,
   type FileStore,
   type OpenRoute,
@@ -169,8 +175,10 @@ import {
   type AutosaveStatus,
   type ConfirmationItem,
   type DisplayLanguage,
+  type ExportFormatId,
   type IconId,
   type RaisedConfirmation,
+  type RaisedNotice,
   type ScreenPart,
   type ScreenSession,
   type ScreenSurface,
@@ -380,6 +388,135 @@ const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
 const CONFIRMATION_MANNER = 'NT-7'
 
 /**
+ * The rows of table T-233 this file can raise, spelled as that table spells
+ * them.
+ *
+ * ⭐ THE ROW ID IS THE KEY, the move `Notice.manner` already makes with table
+ * T-037. FR-076 (MUST) has a telling carry a row of that table as its reason and
+ * forbids carrying any reason it does not hold (MUST NOT), and FR-038's one
+ * dictionary is what turns the row into the words NT-1 asks for and the next
+ * step NT-3a asks for. ⛔ So nothing here composes a sentence: a raiser that
+ * supplied one would be the second store of translated strings FR-038 forbids
+ * (MUST NOT).
+ *
+ * ⚠️ `RS-15` IS DELIBERATELY ABSENT. It is where the DICTIONARY lands when it is
+ * asked for a key it does not hold, and every reason this file has is a row of
+ * its own -- handing that row over would say something untrue about the reason
+ * at hand.
+ */
+type NoticeReason =
+  | 'RS-1'
+  | 'RS-2'
+  | 'RS-3'
+  | 'RS-4'
+  | 'RS-5'
+  | 'RS-6'
+  | 'RS-7'
+  | 'RS-8'
+  | 'RS-9'
+  | 'RS-10'
+  | 'RS-11'
+  | 'RS-12'
+  | 'RS-13'
+  | 'RS-14'
+
+/**
+ * Which row of table T-037 each of those rows is written against.
+ *
+ * ⭐ A CENSUS THE COMPILER KEEPS, the move `PRESS_CHANGES_DOCUMENT` makes for
+ * table T-023a: a row added to `NoticeReason` is a compile error here, naming
+ * the reason whose manner has to be read out of table T-233.
+ * ⛔ CARRIED RATHER THAN WORKED OUT ON THE FAR SIDE. `RaisedNotice.manner` says
+ * why: NT-5 (MUST) makes an accepted-with-a-caution telling have to look unlike
+ * NT-1's refusal, and only the raiser knows which of the two happened.
+ * ⚠️ NOTHING GENERATES THE PAIR. No target of `tools/generate_entity_types.py`
+ * carries table T-233, so a manner moved in that table has to be brought here by
+ * hand -- the same standing cost `EDITED_BY_SCREEN` records for table T-229.
+ */
+const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
+  'RS-1': 'NT-3a',
+  'RS-2': 'NT-3a',
+  'RS-3': 'NT-3a',
+  'RS-4': 'NT-1',
+  'RS-5': 'NT-1',
+  'RS-6': 'NT-1',
+  'RS-7': 'NT-1',
+  'RS-8': 'NT-1',
+  'RS-9': 'NT-1',
+  'RS-10': 'NT-1',
+  'RS-11': 'NT-1',
+  'RS-12': 'NT-1',
+  'RS-13': 'NT-1',
+  'RS-14': 'NT-5',
+}
+
+/**
+ * Which row of table T-233 each reason a file operation can fault with is, or
+ * `null` for the one reason that is owed nothing.
+ *
+ * ⛔ `cancelled` HAS NO ROW AND IS OWED NONE. IF-3 keeps it apart from the
+ * failures precisely so that it is not reported -- the person called the write
+ * off -- so it is the raiser's not to raise, and table T-233 gives it nothing to
+ * raise it with.
+ * ⭐ A census the compiler keeps: a reason added to `DocumentFileFaultReason` is
+ * a compile error here rather than a fault that quietly reaches nobody.
+ */
+const NOTICE_REASON_OF_FILE_FAULT: Readonly<
+  Record<DocumentFileFaultReason, NoticeReason | null>
+> = {
+  cancelled: null,
+  permissionLost: 'RS-1',
+  noOpenedFile: 'RS-2',
+  unavailable: 'RS-3',
+  notUtf8: 'RS-4',
+  notAnOverwriteTarget: 'RS-5',
+}
+
+/**
+ * Which row of table T-233 each refusal of table T-067 is, or `null` where that
+ * table names none.
+ *
+ * ⭐ KEYED ON THE REASON ALONE, AND THAT IS ENOUGH: the two roads' refusals
+ * spell six reasons between them and no two of them are the same word, so the
+ * step rides on the reason and a census on it stays a census. A row added to
+ * either union is a compile error here.
+ * ⛔ `importRefused` HAS NO ROW. Table T-233's `WS-3` row is written for a
+ * bundle of commands dropped, and `WS-3` on the replacement road is
+ * ImportDocument's -- whose refusal is, in four of its shapes, a question to put
+ * to a person rather than GRS turning the write away. Telling one as the other
+ * would say which item is wrong and be wrong about it, which is the half of NT-1
+ * (MUST) that matters. ⚠️ A row of table T-233 for it is what is owed.
+ */
+const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
+  Record<PlanRefusal['reason'] | ReplacementRefusal['reason'], NoticeReason | null>
+> = {
+  staleStamp: 'RS-6',
+  gestureInFlight: 'RS-7',
+  editingInPlace: 'RS-8',
+  deliveringNotices: 'RS-9',
+  refused: 'RS-10',
+  importRefused: null,
+}
+
+/**
+ * Which row of table T-233 each answer OP-12 can give is.
+ *
+ * ⚠️ `both` IS ONE VALUE FOR TWO SITUATIONS -- `FormatMismatch` says which two
+ * -- and table T-233 has a row for one of them. The other is two rows at once,
+ * and `RaisedNotice.reason` carries one; nothing on `FormatReading` tells the
+ * two apart without reading table T-024's roster a second time, which is the
+ * duplication R2.7 refuses.
+ */
+const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeReason>> = {
+  extension: 'RS-11',
+  firstCharacter: 'RS-12',
+  both: 'RS-13',
+}
+
+/** The row of table T-233 OP-11's caution carries. */
+const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
+
+/**
  * U-56 `Open Chooser` of table T-103 -- the surface OP-3 of table T-024a puts
  * its three-way question on.
  *
@@ -437,31 +574,66 @@ const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 const SAVE_FORM: SaveFileForm = 'grsJson'
 
 /**
- * The row of table T-024 that `SAVE_FORM` is, which is the join that table
- * admits and the only one it has.
+ * The row of table T-024 each form of a written file stands at, which is the
+ * join that table admits and the only one it has.
  *
- * ⭐ ONE FACT STATED ONCE: the form `file-gateway.ts` spells and the row the
- * manuscript prints it at are the same format, and the pair stands here so that
- * the extension below is looked up rather than typed. Table T-024 carries no
- * English column, so nothing else could join the two.
- * ⚠️ `document-codec.ts` binds the same row to the same spelling for its own
- * `ExchangeFormat`. That map is private to that component and answers a
+ * ⭐ ONE FACT STATED ONCE PER ROW: the form `file-gateway.ts` spells and the row
+ * the manuscript prints it at are the same format, and the pairs stand here so
+ * that the extension below is looked up rather than typed. Table T-024 carries
+ * no English column, so nothing else could join the two.
+ * ⭐ A CENSUS THE COMPILER KEEPS: a form added to `SaveFileForm` is a compile
+ * error here, naming the row of table T-024 that has to be found for it. That
+ * matters now that FR-096's chooser reaches every one of them -- a form with no
+ * row would suggest a name with no extension and nothing would say so.
+ * ⚠️ `document-codec.ts` binds two of these rows to the same spellings for its
+ * own `ExchangeFormat`. That map is private to that component and answers a
  * different question -- which decoder a file goes to (OP-12) -- so it cannot be
  * asked from here (LR-2).
  */
-const SAVE_FORM_ROW = 'IO-2'
+const TABLE_ROW_OF_SAVE_FORM: Readonly<Record<SaveFileForm, string>> = {
+  mspdi: 'IO-1',
+  grsJson: 'IO-2',
+  svg: 'IO-3',
+  png: 'IO-4',
+  singleHtml: 'IO-7',
+}
 
 /**
- * The extension table T-024 gives that row.
+ * The extension table T-024 gives the row one form stands at.
  *
  * ⛔ READ, NEVER TYPED. FR-096 (MUST NOT) fixes the extension's one source as
  * table T-024, and `tools/generate_exchange_formats.py` is how that column
  * reaches `src/`; `npm run gen:check` is what fails when the two drift apart.
  * ⚠️ An empty answer means the roster no longer carries the row, and empty is
  * then the whole of what is known -- nothing is invented in its place.
+ *
+ * @purity pure
  */
-const SAVE_FORM_EXTENSION: string =
-  exchangeFormats.formats.find((one) => one.rowId === SAVE_FORM_ROW)?.extension ?? ''
+function extensionOfForm(form: SaveFileForm): string {
+  const row = TABLE_ROW_OF_SAVE_FORM[form]
+  return exchangeFormats.formats.find((one) => one.rowId === row)?.extension ?? ''
+}
+
+/**
+ * Which form of a written file one row of table T-024 is, or `null` where that
+ * row is not a file at all.
+ *
+ * ⭐ THE CENSUS READ BACKWARDS rather than a second list that would go stale
+ * against it (R4): `SaveFileForm` is FileGateway's own roster of the rows whose
+ * output is a file, so a row it does not name is a row nothing can be written
+ * to.
+ * ⛔ IO-6 IS THE ROW THAT LANDS HERE, and table T-024 gives it no extension for
+ * the same reason: the clipboard is not a file. No clipboard seam is wired in
+ * this build either -- `carryOutAction` records that absence for SK-4 and SK-5.
+ *
+ * @purity pure
+ */
+function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
+  for (const form of Object.keys(TABLE_ROW_OF_SAVE_FORM) as readonly SaveFileForm[]) {
+    if (TABLE_ROW_OF_SAVE_FORM[form] === format) return form
+  }
+  return null
+}
 
 /**
  * The rows table T-206 keeps outside the document, in `localStorage`.
@@ -564,11 +736,59 @@ const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
  * by itself rather than a name that begins with a dot.
  * ⚠️ A SUGGESTION AND NOT A DECISION, which FR-096 says and
  * `ChosenFileWrite.suggestedFileName` repeats from the store's side.
+ * ⭐ THE FORM IS AN ARGUMENT because FR-096's chooser now reaches every row of
+ * table T-024 that goes out as a file, so which extension is suggested follows
+ * the row that was CHOSEN. ⛔ Not a constant of this file and not spelled here
+ * -- that requirement fixes table T-024 as the extension's one place (MUST NOT).
  *
  * @purity pure
  */
-function suggestedFileNameOf(project: Project): string {
-  return `${project.title ?? ''}${SAVE_FORM_EXTENSION}`
+function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
+  return `${project.title ?? ''}${extensionOfForm(form)}`
+}
+
+/**
+ * FR-096: the document written in the convention of the chosen form, or `null`
+ * where this build can write no file of it.
+ *
+ * ⭐ A CENSUS THE COMPILER KEEPS, spelled as a `switch` over `SaveFileForm`: a
+ * form added to that union is a compile error here, naming the row of table
+ * T-024 whose convention has to be written.
+ *
+ * ⛔ THE MSPDI WRITER'S OWN NOTICES ARE DROPPED, and that is an absence rather
+ * than a decision. `mspdiFromDocument` answers with notices beside the text --
+ * EX-3 and EX-6 of table T-033 each require the person to be told at the moment
+ * of writing -- and table T-233 holds no row for either, which FR-076 (MUST NOT)
+ * makes the whole of what a telling may carry. ⚠️ A row for them is what is
+ * owed; nothing here may compose the sentence in its place (FR-038, MUST NOT).
+ *
+ * STOP -- ⛔ THREE OF THE FIVE FORMS CANNOT BE WRITTEN IN THIS BUILD, each for
+ * its own reason, and none of them is a rasteriser this file could supply:
+ *   `png` -- nothing implements `Rasterizer`. PI-21 publishes no member that
+ *     answers with a painted picture, so there is nothing to hand a store.
+ *   `svg` -- `exportSvg` (PI-21) IS written and `exportScene` below is the
+ *     argument it takes, so the picture can be assembled. What is missing is
+ *     FR-025's telling of how many `TaskGroup`s and `Task`s went undrawn (MUST):
+ *     `SvgExport` answers with the rows it dropped, and table T-233 holds no row
+ *     that telling could be carried on.
+ *   `singleHtml` -- `exportEmbeddedHtml` takes an `AppShellSource`, and nothing
+ *     in `src/` implements that seam or hands one to this loop.
+ * ⚠️ Answering `null` writes nothing, which is the absence of the behaviour and
+ * not the behaviour.
+ *
+ * @purity pure
+ */
+function exportedText(form: SaveFileForm, document: Document): string | null {
+  switch (form) {
+    case 'grsJson':
+      return jsonFromDocument(document)
+    case 'mspdi':
+      return mspdiFromDocument(document).text
+    case 'svg':
+    case 'png':
+    case 'singleHtml':
+      return null
+  }
 }
 
 /**
@@ -582,11 +802,13 @@ function suggestedFileNameOf(project: Project): string {
  * format version -- and states that nothing of that document's SCHEDULE is
  * merged in, which is FR-056's business inside ImportDocument.
  *
- * ⛔ THE FAULTS ARE DROPPED HERE AND THAT IS THE ABSENCE `writeDocument`
- * RECORDS, not a decision: NT-1 of table T-037 (MUST) wants the item and the
- * reason said in words, FR-038 (MUST) keeps every such word in the one
- * generated dictionary, and it holds no row for a codec's fault.
- * ⚠️ The MSPDI road's notices (EX-3, EX-6) are dropped for the same reason.
+ * STOP -- ⛔ THE FAULTS ARE DROPPED HERE, and the absence has MOVED rather than
+ * closed: FR-076 (MUST) now has a telling carry a row of table T-233 as its
+ * reason and forbids carrying one that table does not hold (MUST NOT), and that
+ * table holds no row for a codec's fault -- `JsonFault` and `MspdiFault` each
+ * name the place and the reason, and neither is one of its fifteen.
+ * ⚠️ The MSPDI road's notices (EX-3, EX-6) are dropped for the same reason, which
+ * `exportedText` above records from the writing side.
  *
  * @purity pure
  */
@@ -653,6 +875,7 @@ function sessionOf(
   language: DisplayLanguage,
   pointer: { readonly x: number; readonly y: number } | null,
   confirmation: RaisedConfirmation | null,
+  notices: readonly RaisedNotice[],
 ): ScreenSession {
   return {
     language,
@@ -677,9 +900,12 @@ function sessionOf(
     selectedResourceUids: [],
     propertiesShowing: null,
     propertiesSubject: null,
-    // FR-076's notices are raised by the paths that would report a fault, and
-    // none of those paths runs in this build.
-    notices: [],
+    // FR-076 (MUST): what has been raised to tell, each carrying a row of table
+    // T-233 and no words at all.
+    // ⭐ Held by the loop, not built here -- the same reason the question below
+    // is handed in: LY-5 of table T-060 leaves a current value with this layer,
+    // and this function is handed it.
+    notices,
     // FR-032 (MUST): the question standing in front of a delete, or none.
     // ⭐ Held by the loop, not built here -- LY-5 of table T-060 leaves a
     // current value with this layer and this function is handed it.
@@ -881,6 +1107,31 @@ function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId
   const press = context.pressed
   if (press === null || press.on === null) return null
   return press.on.entry
+}
+
+/**
+ * Which row of table T-024 this happening settled on, or null for one that
+ * settled on none.
+ *
+ * ⭐ THE SECOND MEMBER OF `ScreenPart` AND NOT THE FIRST. FR-096 (MUST NOT)
+ * forbids an entrance per format, so table T-109 places nothing but IC-52 on
+ * U-54 and what a person presses there is a row of table T-024 -- which `entry`
+ * cannot report, because the two tables number their rows independently.
+ * `screen-surface.ts` states the same division from the seam's side.
+ * ⚠️ Read exactly as `entrySettledOnRelease` reads its own member, and for the
+ * same reasons: IN-1 settles on the release and CS-2 of table T-066 makes the
+ * press its moment.
+ *
+ * @purity pure
+ */
+function formatSettledOnRelease(
+  input: HumanInput,
+  context: InputContext,
+): ExportFormatId | null {
+  if (input.kind !== 'pointer' || input.phase !== 'up') return null
+  const press = context.pressed
+  if (press === null || press.on === null) return null
+  return press.on.format
 }
 
 /**
@@ -1123,8 +1374,11 @@ function readBrowserStored(row: BrowserStoredRow): string | null {
  * ⚠️ A REFUSAL IS NOT A FAULT TO REPORT. LM-14 already places these rows outside
  * what NFR-004 counts as 「全機能が動く」 for a page opened over `file://`, so a
  * store that will not take them is a known environment and not a failure of
- * this tool. ⛔ Nothing is told: FR-076's notices have no owner in this build,
- * which `writeDocument` records for refusals that matter more than this one.
+ * this tool. ⛔ Nothing is told, and now for a narrower reason than before: table
+ * T-233 holds no row for a store that would not take a row of table T-206, and
+ * FR-076 (MUST NOT) makes that table the whole of what a telling may carry.
+ * ⚠️ No row is owed either, on LM-14's own ground -- a known environment is not
+ * a failure of this tool.
  *
  * @purity non-pure
  */
@@ -1211,6 +1465,25 @@ export function frameLoop(
   // paths that need no screen -- so FR-038's own rule answers when there is
   // none, rather than a second default being written here.
   let language: DisplayLanguage = screen?.language ?? startupDisplayLanguage()
+  // FR-076 (MUST) -- what has been raised to tell, in the order it was raised.
+  //
+  // ⭐ HELD BY THIS LAYER AND BY NO OTHER. LY-5 of table T-060 leaves the
+  // Framework as the only layer that may hold a current value, and FR-028 (MUST
+  // NOT) makes a refusal a value the caller RECEIVES rather than something
+  // thrown -- so the side that received it is the side that holds it until it
+  // has been told. `ScreenSession.notices` says the same from the far side.
+  // ⛔ THE RAISED HALF ONLY. Each entry carries a row of table T-037 and a row of
+  // table T-233 and not one word: FR-038 (MUST) keeps every word the screen
+  // prints in the one generated dictionary, which ScreenRenderer holds and this
+  // file does not.
+  //
+  // STOP -- ⛔ NOTHING TAKES ONE OFF AGAIN. NT-2 governs a telling that goes away
+  // with time, and the clock it would need is FT-4 of table T-078, which nothing
+  // in this build reads (`sessionOf` records the same absence for the two
+  // members that wait on it); table T-109 places no entry that dismisses one
+  // either. ⚠️ So a telling stands for the rest of the session, which is the
+  // half of NT-2 that is kept -- it does not go before it has been read.
+  let raisedNotices: readonly RaisedNotice[] = []
   // FR-032 (MUST) -- the question NT-7 puts, and the writes it stands in front
   // of, until IC-69 or IC-70 answers it.
   //
@@ -1392,7 +1665,15 @@ export function frameLoop(
         selection,
         screenState,
         dialogueLog,
-        sessionOf(document, regions, layout, language, pointerAt, asking?.question ?? null),
+        sessionOf(
+          document,
+          regions,
+          layout,
+          language,
+          pointerAt,
+          asking?.question ?? null,
+          raisedNotices,
+        ),
       ),
     )
   }
@@ -1418,6 +1699,72 @@ export function frameLoop(
    */
   function settled(env: FrameEnvironment): boolean {
     return env.width > 0 && env.height > 0
+  }
+
+  // ---- FR-076: what is raised to be told ----------------------------------
+
+  /**
+   * Put one thing on `ScreenSession.notices` (FR-076).
+   *
+   * ⭐ THE MANNER IS READ OFF THE REASON, because table T-233 pairs them: every
+   * raiser below names the situation it is in and the row of table T-037 comes
+   * with it, so no caller of this can put a telling into the wrong manner.
+   * ⛔ NO WORDS, AND NO COUNT INVENTED. `affectedCount` is what the raiser
+   * MEASURED or `null`, and the words are read on the far side out of the one
+   * dictionary FR-038 names.
+   *
+   * ⭐ WHICH TRIGGER PAINTS IT IS FT-1 OF TABLE T-078, the road
+   * `askToWriteOverDestination` takes and for the same reason: that row covers
+   * the continuation of one input across the wait CS-4 of table T-066 governs,
+   * and its note leaves raising the continuation to the shell. So nothing here
+   * mints a trigger (NFR-010, MUST NOT). ⚠️ `ask` coalesces, so a telling raised
+   * inside a frame's own handling still paints once.
+   *
+   * @purity non-pure
+   */
+  function raiseNotice(reason: NoticeReason, affectedCount: number | null): void {
+    raisedNotices = [
+      ...raisedNotices,
+      { manner: NOTICE_MANNER_OF_REASON[reason], reason, affectedCount },
+    ]
+    if (settled(environment)) ask()
+  }
+
+  /**
+   * One file operation's fault, RAISED (FR-076), or let go where table T-233
+   * owes it nothing. ⚠️ Raised and not told: telling is UF-67's half of the seam,
+   * and this side hands over a row.
+   *
+   * ⚠️ `fault.what` IS DROPPED, and it has nowhere to go: `RaisedNotice` carries
+   * a row and a count, and a detail string put on the screen beside them would be
+   * a word this side wrote -- the second store of translated strings FR-038
+   * forbids (MUST NOT). ⛔ Which item is wrong is what NT-1 (MUST) asks for, and
+   * the row of table T-233 is what says it.
+   *
+   * @purity non-pure
+   */
+  function raiseFileFault(fault: DocumentFileFault): void {
+    const reason = NOTICE_REASON_OF_FILE_FAULT[fault.reason]
+    // See the census: `cancelled` is the one reason owed nothing.
+    if (reason === null) return
+    raiseNotice(reason, null)
+  }
+
+  /**
+   * One refused write, raised (FR-076), for both roads of PI-8.
+   *
+   * ⚠️ NO COUNT. Every row table T-233 gives a refusal follows NT-1, and that
+   * row asks for words rather than for the number NT-3 asks a destructive result
+   * for.
+   *
+   * @purity non-pure
+   */
+  function raiseWriteRefusal(refusal: PlanRefusal | ReplacementRefusal): void {
+    const reason = NOTICE_REASON_OF_WRITE_REFUSAL[refusal.reason]
+    // See the census: the replacement road's WS-3 is the one refusal table T-233
+    // names no row for.
+    if (reason === null) return
+    raiseNotice(reason, null)
   }
 
   // ---- The export's own environment ---------------------------------------
@@ -1496,9 +1843,12 @@ export function frameLoop(
         nothingSelected,
         stateForExport,
         dialogueLog,
-        // ⛔ No pointer and no question: an export has no hand over it, and
-        // FR-032's question stands in front of a write rather than a picture.
-        sessionOf(document, regions, layout, language, null, null),
+        // ⛔ No pointer, no question and nothing raised to tell: an export has no
+        // hand over it, FR-032's question stands in front of a write rather than
+        // a picture, and EP-11's reason -- a tool's own surfaces are not the
+        // schedule -- reaches the tellings, which `image-exporter.ts` records
+        // from its own side.
+        sessionOf(document, regions, layout, language, null, null, []),
       ),
       settings,
     }
@@ -1648,13 +1998,12 @@ export function frameLoop(
       audience,
     )
     if (outcome.accepted) return
-    // STOP -- ⛔ NOTHING CARRIES A REFUSAL TO THE PERSON. It is neither thrown
-    // nor swallowed: FR-028 makes a refusal a VALUE, and `outcome.refusal`
-    // names the step of table T-067 that turned the write away. Where it
-    // should surface is FR-076's notices -- `ScreenSession.notices`, which has
-    // no owner in this build (`sessionOf` above records the same absence).
-    // ⚠️ Composing a message here would put a second reading of table T-067 on
-    // the screen, so the refusal travels no further than this call today.
+    // FR-076 (MUST): the refusal is raised. It was never thrown nor swallowed --
+    // FR-028 makes it a VALUE, and `outcome.refusal` names the step of table
+    // T-067 that turned the write away, which is what table T-233 gives a row
+    // per reason for. ⛔ Nothing is composed here: the row goes over and the
+    // words are the dictionary's (FR-038, MUST NOT).
+    raiseWriteRefusal(outcome.refusal)
   }
 
   /**
@@ -1690,9 +2039,12 @@ export function frameLoop(
       if (settled(environment)) ask()
       return
     }
-    // STOP -- ⛔ THE SAME ABSENCE `writeDocument` records: nothing carries a
-    // refusal to the person, because `ScreenSession.notices` has no owner in
-    // this build.
+    // FR-076 (MUST): the same road `writeDocument` takes one over.
+    // STOP -- ⛔ ONE OF THE SIX REASONS STILL REACHES NOBODY, and it is this
+    // road's own: `NOTICE_REASON_OF_WRITE_REFUSAL` records that table T-233 gives
+    // WS-3 a row written for a bundle of commands dropped, while WS-3 here is
+    // ImportDocument's refusal. ⚠️ The four rows WS-1 and WS-2 carry do travel.
+    raiseWriteRefusal(outcome.refusal)
   }
 
   /**
@@ -1842,19 +2194,20 @@ export function frameLoop(
 
     const opening = await openDocumentFile(store, route)
     if (!opening.ok) {
-      // STOP -- ⛔ NOTHING CARRIES THE FAULT TO THE PERSON, which is the same
-      // absence `saveHeldDocumentToFile` records one road over: NT-1 of table
-      // T-037 (MUST) wants the item and the reason in words, and the one
-      // dictionary FR-038 names holds no row for any reason
-      // `DocumentFileFaultReason` gives.
+      // FR-076 (MUST): the same road `saveHeldDocumentToFile` takes one over.
+      raiseFileFault(opening.fault)
       return
     }
-    // STOP -- ⛔ OP-11's TELLING HAS NOWHERE TO GO. `opening.ignoredFileCount`
-    // is the number that row (MUST) has said in the manner of NT-5, and
-    // `ScreenSession.notices` has no owner in this build (`sessionOf` records
-    // the same absence). ⚠️ The row is still KEPT in the half that matters most:
-    // it forbids the act reading as refused (MUST NOT), and the first file goes
-    // on being opened below.
+    // OP-11 (MUST): the rest were left behind and the person is told so, in the
+    // manner NT-5 that table T-233 pairs with this row -- which is why the open
+    // goes on below rather than reading as refused (MUST NOT).
+    // ⚠️ THE NUMBER RIDES ON `affectedCount`. That member is documented against
+    // NT-3 and this row follows NT-5, and it is the one place on `RaisedNotice`
+    // a number can travel -- so the count is carried rather than dropped, and no
+    // word of it is written here (FR-038, MUST NOT).
+    if (opening.ignoredFileCount > 0) {
+      raiseNotice(IGNORED_FILES_REASON, opening.ignoredFileCount)
+    }
     const file = opening.file
 
     // OP-12 (MUST): both the extension and the first non-blank character have
@@ -1862,12 +2215,16 @@ export function frameLoop(
     // not read at all (MUST NOT).
     const reading = formatFromFile(file.fileName, file.text)
     if (!reading.ok) {
-      // STOP -- ⛔ WHICH SIDE DISAGREED REACHES NOBODY. `reading.mismatch` is
-      // carried precisely so NT-1 can say which item is wrong, and there is no
-      // owner for that notice here.
+      // FR-076 (MUST): which side disagreed is told. `reading.mismatch` is
+      // carried precisely so NT-1 can say WHICH item is wrong, and table T-233
+      // gives OP-12 a row per answer.
+      raiseNotice(NOTICE_REASON_OF_FORMAT_MISMATCH[reading.mismatch], null)
       return
     }
     const incoming = decodedDocument(reading.format, file.text, current)
+    // STOP -- ⛔ A CODEC'S FAULT REACHES NOBODY. `decodedDocument` above records
+    // why: table T-233 holds no row for one, and FR-076 (MUST NOT) makes that
+    // table the whole of what a telling may carry.
     if (incoming === null) return
 
     // OP-5 (MUST): FR-023's validation runs whatever the route, and BEFORE OP-3
@@ -1889,12 +2246,15 @@ export function frameLoop(
       bounds,
     )
     if (!verdict.ok) {
-      // STOP -- ⛔ THE REFUSALS REACH NOBODY. Each one names the rule, the place
-      // and whether NT-1 or NT-6 is its manner, which is exactly what a notice
-      // needs -- and `ScreenSession.notices` has no owner. ⚠️ FR-023's other
-      // half is missing with it: that requirement lets a person drop the rows a
-      // date refusal names and take the rest, and there is no surface to offer
-      // the choice on.
+      // STOP -- ⛔ THE REFUSALS REACH NOBODY, and the reason is no longer that
+      // nothing holds a telling: it is that none of them can be KEYED. Each names
+      // the rule, the place and whether NT-1 or NT-6 is its manner, and table
+      // T-233 says in as many words that FR-023's refusals are not among its rows
+      // because the rows of table T-220 already carry ids of their own -- while
+      // `display-words.json` has no section keyed on those, so there is nothing
+      // for the words to be read out of. ⚠️ FR-023's other half is missing with
+      // it: that requirement lets a person drop the rows a date refusal names and
+      // take the rest, and there is no surface to offer the choice on.
       return
     }
 
@@ -2016,7 +2376,7 @@ export function frameLoop(
     const openedFile = await store.readOpenedFileState()
     const saving: DocumentFileSaving =
       openedFile.kind === 'none'
-        ? await saveDocumentFile(store, chosenFileSave(text, project))
+        ? await saveDocumentFile(store, chosenFileSave(text, project, SAVE_FORM))
         : await saveDocumentFile(store, {
             destination: 'openedFile',
             content: { text },
@@ -2024,36 +2384,89 @@ export function frameLoop(
           })
 
     if (saving.ok) return
-    // STOP -- ⛔ NOTHING CARRIES THE FAULT TO THE PERSON, which is the same
-    // absence `writeDocument` records one road over. NT-3a of table T-037
-    // (MUST) wants the next step said in words and NT-1 forbids saying it with
-    // anything but words (MUST NOT); FR-038 (MUST) keeps every such word in the
-    // one generated dictionary, and it holds no row for any of the six reasons
-    // `DocumentFileFaultReason` names. ⚠️ `cancelled` is owed nothing anyway --
-    // IF-3 keeps it apart precisely so that it is not reported -- but the other
-    // five are, and composing their sentences here would be the second
-    // dictionary FR-038 forbids.
+    // FR-076 (MUST): the fault is raised, carrying the row of table T-233 its
+    // reason is and the manner that table pairs with the row.
+    // ⚠️ `cancelled` is let go inside `raiseFileFault`, which is where IF-3's
+    // reason for keeping it apart is recorded.
+    raiseFileFault(saving.fault)
+  }
+
+  /**
+   * FR-096 and SK-12 of table T-036 -- write the document that is held out in
+   * the format chosen on the `Export Chooser` (U-54).
+   *
+   * ⭐ THE ROAD SK-11 ALREADY TAKES, and only its chosen-destination half.
+   * FR-096 (MUST) has the chooser suggest a name, which is a question only the
+   * chosen-file arm of `DocumentFileSaveRequest` asks; DI-5 of table T-227
+   * exempts FR-060's overwrite alone, and this is not that route. ⛔ So an export
+   * never lands on the opened file, whatever form it is in -- which is also the
+   * reason `notAnOverwriteTarget` cannot arise on this road.
+   *
+   * ⭐ CS-4 OF TABLE T-066 IS THE SHAPE OF THIS FUNCTION, the same shape
+   * `saveHeldDocumentToFile` has: the document is taken before the first
+   * `await`, and nothing after it reads `held` again while the person is
+   * pointing at a destination or answering DI-4's question (MUST NOT).
+   *
+   * ⚠️ Nothing lands in the document, so CS-4's landing clause has nothing to do
+   * here -- an export writes a file and leaves the current value alone.
+   * ⚠️ Nothing is caught, for the reason `saveHeldDocumentToFile` gives: FR-028
+   * (MUST NOT) forbids throwing and IF-3 states that a store which throws has
+   * broken its contract.
+   *
+   * @purity non-pure
+   */
+  async function exportHeldDocumentToFile(
+    store: FileStore,
+    format: ExportFormatId,
+  ): Promise<void> {
+    // ⛔ A ROW THAT IS NOT A FILE WRITES NOTHING. `saveFormOfExportFormat` says
+    // which row lands here and why; doing nothing then is the absence of the
+    // behaviour and not the behaviour.
+    const form = saveFormOfExportFormat(format)
+    if (form === null) return
+    // CS-4: collected at the moment the operation begins, and not read again.
+    const written = held.document
+    // ⛔ THE THREE FORMS THIS BUILD CANNOT WRITE STOP HERE. `exportedText` names
+    // what each of them is missing.
+    const text = exportedText(form, written)
+    if (text === null) return
+
+    const saving = await saveDocumentFile(
+      store,
+      chosenFileSave(text, written.schedule.project, form),
+    )
+    if (saving.ok) return
+    // FR-076 (MUST): the same raising SK-11's road makes, over the same seam.
+    raiseFileFault(saving.fault)
   }
 
   /**
    * FR-096's road: the file the person is about to point at.
    *
-   * ⭐ DI-1's three columns, gathered where the document is. ⚠️ The file name is
-   * `null` on this road and cannot be anything else: this road is taken only
-   * when the store holds no opened file, so the document stands in no file yet.
-   * By DI-2 and DI-1 that makes it match no destination, and DI-4's question is
-   * therefore owed for every existing file -- which is the direction table
-   * T-227 chooses throughout, an extra question against a file that cannot be
-   * got back.
+   * ⭐ DI-1's three columns, gathered where the document is. ⚠️ TWO ROADS REACH
+   * THIS NOW: SK-11's, which is taken only when the store holds no opened file,
+   * and FR-096's export, which is taken whether one is held or not.
+   * ⚠️ The file name is `null` on both, and that is a choice rather than a fact
+   * on the second: the name of the opened file is the store's to answer, and
+   * asking it here would be a second external read inside the one consistency
+   * unit R7.4 keeps whole. By DI-1 and DI-2 a `null` name matches no
+   * destination, so DI-4's question is owed for every existing file -- which is
+   * the direction table T-227 chooses throughout, an extra question against a
+   * file that cannot be got back. ⛔ It can only ask MORE often than DI-1 would,
+   * never overwrite one in silence.
    *
    * @purity pure
    */
-  function chosenFileSave(text: string, project: Project): ChosenFileSaveRequest {
+  function chosenFileSave(
+    text: string,
+    project: Project,
+    form: SaveFileForm,
+  ): ChosenFileSaveRequest {
     return {
       destination: 'chosenFile',
       content: { text },
-      form: SAVE_FORM,
-      suggestedFileName: suggestedFileNameOf(project),
+      form,
+      suggestedFileName: suggestedFileNameOf(project, form),
       identity: { fileName: null, projectName: project.name, projectId: project.id },
       projectIdentityFromText,
       confirmOverwrite: askToWriteOverDestination,
@@ -2120,6 +2533,49 @@ export function frameLoop(
       return true
     }
     return false
+  }
+
+  /**
+   * FR-096 and SK-12: the format chosen on U-54, spent. Returns whether it was
+   * spent here.
+   *
+   * ⭐ THE SHELL'S OWN, for the reason the six entries beside it are: writing a
+   * file is FileGateway's (IF-3) and the document written is a current value,
+   * which LY-5 of table T-060 leaves with this layer. Table T-108 has no command
+   * for it, and `input-command-translator.ts` reads no format at all.
+   *
+   * ⛔ NOT DECIDED BY THE SPECIFICATION: whether U-54 stays up once a format has
+   * been taken. Looked in FR-096 (one entry, one chooser, and nothing about what
+   * becomes of the surface), in table T-024a, in table T-103's U-54 and in IN-4
+   * of table T-028, which settles only how a surface is CLOSED and not when one
+   * closes itself. ⭐ Chose to close it, the same choice `answerSettledEntry`
+   * makes for U-56 and for the same reason: this press IS the surface's answer,
+   * and leaving it standing would leave a surface over the document with its
+   * question already settled. ⚠️ Recoverable in one line if the manuscript says
+   * otherwise -- IC-52 and `Esc` both still close it either way.
+   *
+   * @purity non-pure
+   */
+  function answerSettledFormat(format: ExportFormatId): boolean {
+    // S-99g: the surface has answered its question, so it is no longer open.
+    screenState = screenStateWithSurface(screenState, null)
+    // ⛔ NO STORE WAS HANDED IN, so there is nothing to write to. Doing nothing
+    // then is the absence of the behaviour and not the behaviour.
+    const store = files
+    if (store === undefined) return true
+    // ⛔ ONE AT A TIME, the same guard the save and the open paths keep: CS-4 of
+    // table T-066 collects at the moment the operation begins, and a second one
+    // begun mid-wait would take the one question the screen can hold away from
+    // the first.
+    if (isFileOperationWaiting || asking !== null || openChoosing !== null) return true
+    isFileOperationWaiting = true
+    // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the shape the save path
+    // has, and for the reason CS-4 gives: the operation spans frames, and the
+    // flag above is what keeps the next press from starting a second one.
+    void exportHeldDocumentToFile(store, format).finally(() => {
+      isFileOperationWaiting = false
+    })
+    return true
   }
 
   function carryOutAction(action: InputAction | null, frame: FrameValues): void {
@@ -2323,9 +2779,9 @@ export function frameLoop(
     // answering about different moments.
     const context = collectInputContext(frame)
     selection = selectionFromInput(input, context)
-    // ⚠️ SK-12 opens the `Export Chooser` (U-54) here, and nothing carries the
-    // export out: ImageExporter (PI-21) is not built in this build either. The
-    // surface going up is the whole of what happens.
+    // ⚠️ SK-12 opens the `Export Chooser` (U-54) here and nothing more: what a
+    // person then takes on it is a row of table T-024, which this member does
+    // not read -- `answerSettledFormat` below is where the choice is spent.
     screenState = screenStateFromInput(input, context)
     const translated = commandFromInput(input, context)
 
@@ -2350,14 +2806,20 @@ export function frameLoop(
     // FR-071's way out of full screen would be unreachable.
     if (hasEndedGesture(input) || escapeLevel === 'gesture') pressed = null
 
-    // FR-032 / FR-038 / OP-3: the six entries this loop answers for itself,
-    // read off the press this release settled from (CS-2 of table T-066).
-    // ⛔ BEFORE `carryOutAction`: an entry spent here is not also an edit, and
+    // FR-032 / FR-038 / OP-3: the six entries this loop answers for itself, and
+    // FR-096's format beside them, both read off the press this release settled
+    // from (CS-2 of table T-066).
+    // ⛔ BEFORE `carryOutAction`: a press spent here is not also an edit, and
     // asking the other way round would let one press do both.
-    const settled = entrySettledOnRelease(input, context)
-    if (settled === null || !answerSettledEntry(settled, frame)) {
-      carryOutAction(translated.action, frame)
-    }
+    // ⚠️ NEVER BOTH. A press lands on a row of table T-109 or on a row of table
+    // T-024 and not on one of each -- FR-096 (MUST NOT) keeps U-54 free of an
+    // entry per format, which is why `ScreenPart` reports the two separately.
+    const settledEntry = entrySettledOnRelease(input, context)
+    const settledFormat = formatSettledOnRelease(input, context)
+    const spent =
+      (settledEntry !== null && answerSettledEntry(settledEntry, frame)) ||
+      (settledFormat !== null && answerSettledFormat(settledFormat))
+    if (!spent) carryOutAction(translated.action, frame)
 
     // OP-3 (MUST NOT): the `Open Chooser` went away without one of its three
     // being taken, so the choice was never made and the read is abandoned.

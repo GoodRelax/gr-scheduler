@@ -507,11 +507,11 @@ export function openModalFromScreenState(
   // ⚠️ FR-068's copy control is still owed one: table T-109 places nothing but
   // IC-52 on the `AI Export Modal`, and FR-029 (MUST) forbids minting a row.
   // STOP -- ⛔ THE FORMATS ABOVE GO OUT WITH NO WORDS. `display-words.json` has
-  // eight sections -- one per row of table T-109, the palette groups, the
-  // surfaces table T-103 has named, one per row of table T-037, the two answers
-  // of NT-7, FR-032's mark, FR-072's panel headings and one per row of table
-  // T-023 -- and none keyed on a row of table T-024. So a person is offered
-  // six row ids and
+  // nine sections -- one per row of table T-109, the palette groups, the
+  // surfaces table T-103 has named, one per row of table T-037, one per row of
+  // table T-233, the two answers of NT-7, FR-032's mark, FR-072's panel headings
+  // and one per row of table T-023 -- and none keyed on a row of table T-024. So
+  // a person is offered six row ids and
   // FR-038 (MUST NOT) forbids this unit to write the six words itself. ⛔ What is
   // owed is a section of the manuscript keyed on those rows; the report names
   // them. ⚠️ The heading is not among what is missing -- U-54 has one.

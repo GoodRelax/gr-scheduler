@@ -20,14 +20,16 @@
 // value is what is showing, in what order and in what words. So this unit
 // chooses, orders, gathers AND reads the words, and mints none of them.
 //
-// ⭐ ONE ROW OF TABLE T-037 IS THE WHOLE UNIT: NT-4. Every other row binds
-// whoever RAISES the notice -- the words NT-1 asks for (MUST; colour or a border
-// alone is forbidden, MUST NOT), the next step NT-3a asks for (MUST), the count
-// NT-3 asks for, the look NT-5 asks to keep apart from NT-1's refusal (MUST),
-// the "what can be done now" NT-6 asks for. Not one of them can be decided from
-// a Notice that already exists, and this unit may not invent what a raiser left
-// out. NT-4 is the only row that speaks about SEVERAL notices at once, which is
-// why it is the only row with work to do here.
+// ⭐ WHICH ROW APPLIES IS THE RAISER'S; WHAT IT SAYS IS THIS UNIT'S. The count
+// NT-3 asks for, the look NT-5 asks to keep apart from NT-1's refusal (MUST) and
+// which row of table T-037 is being followed at all cannot be decided from a
+// Notice that already exists, so all three arrive already chosen. What NT-1 asks
+// to be said in words (MUST; colour or a border alone is forbidden, MUST NOT),
+// the next step NT-3a asks for (MUST) and the "what can be done now" NT-6 sends
+// to that same row are READ here instead, out of the row of table T-233 the
+// raiser hands over as its reason. ⛔ Nothing is invented either way: a row is
+// the join on both halves. NT-4 is the only row that speaks about SEVERAL
+// notices at once, which is why it is the only row that re-orders anything here.
 //
 // ⭐ HOW A PENDING-AT-STARTUP NOTICE IS RECOGNISED. `Notice` carries no mark of
 // when it was raised, and none is needed: `manner` is the row of table T-037 the
@@ -38,19 +40,19 @@
 // ⛔ NO WORDS ARE WRITTEN HERE, and none are asked of a raiser either. FR-038
 // (MUST) makes one generated dictionary the whole store of translated strings,
 // and this component is where it lives -- so everything printed is READ out of
-// it: what each row of table T-037 is CALLED keyed by that row, the two answers
-// of NT-7 keyed by their row of table T-109, FR-032's mark by the manuscript's
-// own key (FR-038 (MUST NOT) keeps the words out of every requirement and every
+// it: what each row of table T-037 is CALLED keyed by that row, the text and the
+// next step of each row of table T-233 keyed by that row, the two answers of
+// NT-7 keyed by their row of table T-109, FR-032's mark by the manuscript's own
+// key (FR-038 (MUST NOT) keeps the words out of every requirement and every
 // table, so the mark has no row to be keyed by).
 //
-// ⛔ ONE OF THE TWO THINGS A RAISER HANDS OVER CAN BE LOOKED UP AND THE OTHER
-// CANNOT, and that is the whole shape of what is still missing here. The manner
-// is a row of table T-037 and the dictionary has a section keyed on those rows,
-// so it is read. The REASON is a key of the raiser's own, and the dictionary has
-// no section keyed on one -- so NT-1's words (MUST) and NT-3a's next step (MUST)
-// have nothing to be read out of. The two STOP notes on `toldNotice` say what is
-// owed and what stands in meanwhile. ⛔ Writing either sentence here would be the
-// second store of translated strings FR-038 forbids (MUST NOT).
+// ⭐ BOTH OF THE TWO THINGS A RAISER HANDS OVER ARE ROWS, AND BOTH ARE READ. The
+// manner is a row of table T-037; FR-076 (MUST) makes the reason a row of table
+// T-233 and (MUST NOT) bars a reason from outside it, and the dictionary holds a
+// section keyed on each -- so NT-1's words (MUST) and NT-3a's next step (MUST)
+// have somewhere to be read out of. ⛔ THE REASON ROW ITSELF NEVER REACHES THE
+// SCREEN: FR-038 (MUST) keeps every printed word in the dictionary, and a row id
+// is not a word.
 // ⚠️ `RaisedConfirmation.text` is the one text that still arrives written,
 // because NT-7 (MUST) has it name what is about to happen and the names of what
 // would go -- neither of which any dictionary can hold.
@@ -62,7 +64,8 @@
 // two exported functions WIDENS what it is given.
 //
 // ⭐ WHAT THE SHELL HANDS OVER, per notice: the row of table T-037 it is
-// following and the reason. Nothing else is receivable -- FR-028 (MUST) makes a
+// following and the row of table T-233 that is its reason. Nothing else is
+// receivable -- FR-028 (MUST) makes a
 // refusal a value the caller gets back rather than an exception, so the side
 // that received the value is the side that knows which reason happened, and
 // `file-store.ts` states the same boundary from the other end.
@@ -72,9 +75,8 @@
 // to the shell, and CS-1 of table T-066 keeps it away from a `pure` unit. A
 // notice whose time is up is one that is no longer raised.
 //
-// ⛔ Six STOP notes below. Three say what table T-037 leaves open, two say what
-// FR-038's dictionary does not hold yet, and the sixth says that nothing in this
-// build raises a question at all.
+// ⛔ Four STOP notes below. Three say what table T-037 leaves open, and the
+// fourth says that one of the three sites that must ask still does not.
 
 import type {
   CommandItem,
@@ -150,6 +152,40 @@ const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, ent
 const MANNERS_BY_ROW = new Map(displayWords.notices.map((entry) => [entry.rowId, entry]))
 
 /**
+ * The words of table T-233's rows, keyed by the row id.
+ *
+ * ⭐ THE ROW ID IS THE JOIN HERE TOO. FR-076 (MUST) makes `RaisedNotice.reason` a
+ * row of that table and (MUST NOT) bars any reason outside it, so the reason is
+ * asked on a row exactly as the manner is -- and neither the situation the row
+ * names nor the words it holds are repeated in this file.
+ *
+ * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * description is built every frame and rule 05 of docs/development-rules forbids
+ * a linear search on that path (NFR-013).
+ */
+const REASONS_BY_ROW = new Map(displayWords.reasons.map((entry) => [entry.rowId, entry]))
+
+/**
+ * Which of the two words table T-233 gives a row is wanted.
+ *
+ * ⚠️ Spelled the way the dictionary spells the two members, so that the pick IS
+ * the lookup and no table of names stands between them (rule 03 section 1).
+ */
+type ReasonCell = 'text' | 'nextStep'
+
+/**
+ * The row of table T-233 a reason with no row of its own falls to.
+ *
+ * ⭐ A ROW ID AS A VALUE, the way `STARTUP_PENDING_MANNER` is one: FR-076 names
+ * this row as where such a reason goes, so the id is the join and none of that
+ * row's prose is repeated here (rule 03 section 1).
+ * ⛔ NOT AN EMPTY STRING. A telling with no text breaks NT-1 (MUST) and one with
+ * no next step breaks NT-3a (MUST), which is why the specification gives the
+ * unlisted reason a row instead of leaving it to say nothing.
+ */
+const UNLISTED_REASON_ROW = 'RS-15'
+
+/**
  * The key the `confirmationMarks` section holds FR-032's mark under.
  *
  * ⭐ A KEY OF THE DICTIONARY AND NOT A ROW OF ANY TABLE. FR-038 (MUST NOT)
@@ -197,12 +233,11 @@ function answerLabel(icon: IconId, language: DisplayLanguage): string {
 /**
  * What one row of table T-037 is called, in the display language (FR-038).
  *
- * ⭐ THE ONE THING THIS UNIT COULD START READING. `RaisedNotice` and
- * `RaisedConfirmation` each carry the row and no words, and this section is the
- * only one of the dictionary's eight that is keyed on that row -- so it is the
- * only one a raised thing can be looked up in. ⚠️ The two STOP notes on
- * `toldNotice` say what the raiser's OTHER value, the reason, still cannot be
- * looked up in.
+ * ⭐ WHAT A RAISED THING IS LOOKED UP BY. `RaisedNotice` and
+ * `RaisedConfirmation` each carry the row and no words, and this section is
+ * keyed on that row -- so the row it declares is the whole of the question asked
+ * here. ⚠️ The raiser's OTHER value, the reason, is read the same way out of the
+ * section keyed on table T-233's rows.
  *
  * ⛔ THE FALLBACK IS `NO_WORDS`, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
  * for the reason `answerLabel` gives above. ⚠️ A row the dictionary does not hold
@@ -217,6 +252,50 @@ function mannerText(manner: string, language: DisplayLanguage): string {
   const word = MANNERS_BY_ROW.get(manner)?.manner[language]
   if (word === undefined) return NO_WORDS
   return word === '' ? NO_WORDS : word
+}
+
+/**
+ * One cell of one row of table T-233 as the dictionary holds it, or `undefined`
+ * where it holds no word there.
+ *
+ * ⛔ TWO CONDITIONS AND NOT ONE, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
+ * for the reason `answerLabel` gives above: a row the dictionary does not hold
+ * at all and a cell it holds empty are different things, and PD-160 is precisely
+ * that difference. ⚠️ Neither can happen while `npm run gen:check` passes -- the
+ * generator builds its roster from table T-233 every run and every cell of it is
+ * written -- so what both branches guard is a generated file edited by hand.
+ *
+ * @purity pure
+ */
+function reasonCell(row: string, cell: ReasonCell, language: DisplayLanguage): string | undefined {
+  const word = REASONS_BY_ROW.get(row)?.[cell][language]
+  if (word === undefined) return undefined
+  return word === '' ? undefined : word
+}
+
+/**
+ * What one reason says, in the display language (FR-038) -- the text NT-1 (MUST)
+ * asks for, or the next step NT-3a (MUST) asks for.
+ *
+ * ⛔ A REASON THE DICTIONARY CANNOT ANSWER FOR FALLS TO A ROW, never to nothing.
+ * FR-076 names the row an unlisted reason goes to, because a telling with no
+ * text keeps neither half of NT-1 -- which asks for the words (MUST) and forbids
+ * colour or a border to stand in for them (MUST NOT) -- and one with no next
+ * step is the bare failure NT-3a refuses (MUST NOT).
+ * ⛔ AND NEVER TO THE KEY ITSELF. Printing the row id would put on the screen a
+ * string FR-038 (MUST) does not hold, the same in both display languages, which
+ * is the one thing that requirement exists to prevent.
+ * ⚠️ `NO_WORDS` is reached only when that fall-back row is itself missing from a
+ * hand-edited dictionary, because there is then nothing further to fall to.
+ *
+ * @purity pure
+ */
+function reasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage): string {
+  const word = reasonCell(reason, cell, language)
+  if (word !== undefined) return word
+  const unlisted = reasonCell(UNLISTED_REASON_ROW, cell, language)
+  if (unlisted !== undefined) return unlisted
+  return NO_WORDS
 }
 
 /**
@@ -279,10 +358,13 @@ const GATHERED_TEXT_SEPARATOR = '\n'
 
 /**
  * What a failure says can be done next while the dictionary holds no next step
- * for its reason.
+ * at all -- neither for its own reason nor for the row FR-076 sends an unlisted
+ * reason to.
  *
  * ⛔ NOT "NOTHING CAN BE DONE". It says that no next step has been SETTLED yet,
  * which is the same thing an empty cell of `display-words.json` says (PD-160).
+ * ⚠️ Out of reach while `npm run gen:check` passes: every row of table T-233 is
+ * written, and a reason outside that table falls to one of them.
  */
 const NO_NEXT_STEPS: readonly string[] = []
 
@@ -299,54 +381,29 @@ function isStartupPending(notice: Notice): boolean {
  * One raised notice as the screen tells it -- the half of UF-67's work that is
  * reading rather than choosing.
  *
- * STOP -- ⛔ THE DICTIONARY HOLDS NO WORD FOR A REASON. `display-words.json`
- * has eight sections -- one per row of table T-109, the palette groups, the
- * surfaces table T-103 has named, the manner of every row of table T-037, the
- * two answers of NT-7, FR-032's mark, FR-072's panel headings and one per row of
- * table T-023 -- and none keyed on why a write was turned away or why a file
- * operation faulted, which is what NT-1 (MUST) asks to be said. ⭐ The manner
- * beside it IS read now, because that section is keyed on the row this notice
- * already carries; the reason is the half with nowhere to be looked up. ⛔ A
- * sentence written here would be the second store of translated strings FR-038
- * forbids (MUST NOT), so the key itself is carried through to the screen: it is
- * characters, which is the whole of what NT-1 (MUST NOT) refuses to let colour
- * or a border stand in for, and it names exactly one thing on the raiser's
- * side. ⚠️ The same stand-in the help makes for a table row it has no word for.
- * ⛔ It is NOT in the display language, and cannot be until the dictionary holds
- * the rows -- see the report for which ones it owes.
+ * ⭐ TWO ROWS IN, THREE READINGS OUT. The manner is a row of table T-037 and the
+ * reason a row of table T-233, and the dictionary is keyed on both -- so what
+ * NT-1 (MUST) has the telling say in words, and what NT-3a (MUST) has it add as
+ * the next step, are read here rather than asked of the raiser or written in
+ * this file (FR-038, MUST NOT).
  *
- * STOP -- ⛔ THE DICTIONARY HOLDS NO NEXT STEP EITHER, so every failure is told
- * without the one NT-3a makes mandatory (MUST). ⚠️ This is the note that used to
- * ask what becomes of a failure RAISED with no next step: the raiser no longer
- * carries one, so the question is settled and the hole has moved to the
- * dictionary. Chose to tell it bare rather than to withhold it, for the reason
- * that note gave -- a failure nobody is told about is further from what NT-3a
- * asks for than one told without its next step -- and `file-store.ts` names the
- * side that can decide the step: the reasons are told apart by what can be done
- * next, so one dictionary row per reason is what is owed.
- * ⚠️ `cancelled` is owed nothing and is not a failure at all (IF-3 keeps it
- * apart precisely so that it is not reported), so it is the raiser's not to
- * raise; nothing here can tell it from the reasons that are owed a step.
- * ⭐ WHICH KEYS, EXACTLY. `DocumentFileFaultReason` in `file-gateway.ts` is the
- * whole vocabulary a raiser can hand over today -- the four of
- * `FileStoreFaultReason` plus two of its own -- so the rows owed are
- * `permissionLost`, `noOpenedFile`, `unavailable`, `notUtf8` and
- * `notAnOverwriteTarget`, each needing BOTH the words NT-1 asks for and the next
- * step NT-3a asks for, and `cancelled` needing neither. ⛔ Nothing here may add
- * them: `_source/display-words.json` is the manuscript and this file is not it.
- * ⚠️ The roster grows with that type and not with this one, so a reason added
- * there arrives here with no word and no next step and nothing says so.
+ * ⚠️ ONE STEP PER ROW. Table T-233 gives a row a single next step, and
+ * `Notice.nextSteps` is a list because NT-4 gathers several notices onto one
+ * surface -- not because one reason has several steps.
  *
  * @purity pure
  */
 function toldNotice(raised: RaisedNotice, language: DisplayLanguage): Notice {
+  const nextStep = reasonWord(raised.reason, 'nextStep', language)
   return {
     manner: raised.manner,
-    // ⭐ The half of the reading that IS possible: the row the raiser carries is
-    // a key of the dictionary, unlike the reason beside it.
     mannerText: mannerText(raised.manner, language),
-    text: raised.reason,
-    nextSteps: NO_NEXT_STEPS,
+    text: reasonWord(raised.reason, 'text', language),
+    // ⛔ A step that is no word is not listed at all: an entry holding the empty
+    // string would draw a place for a step with nothing in it, which tells a
+    // reader no more than the bare failure NT-3a (MUST NOT) refuses. ⚠️ Told
+    // apart from a step that IS a word, never merged with it (PD-160).
+    nextSteps: nextStep === NO_WORDS ? NO_NEXT_STEPS : [nextStep],
     affectedCount: raised.affectedCount,
   }
 }
@@ -411,10 +468,9 @@ function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLang
  * which is defensible from NT-4 because collapsing its run in place is the only
  * re-ordering any row of the table asks for.
  *
- * ⭐ THE WORDS ARE READ BEFORE THE GATHERING, not after: NT-4 joins the TEXTS of
- * what is pending, so each one has to be a told notice before there is anything
- * to join. `toldNotice` carries the two STOP notes that says what the dictionary
- * still owes each of them.
+ * ⭐ THE WORDS ARE READ BEFORE THE GATHERING, not after: NT-4 joins the TEXTS and
+ * the next steps of what is pending, so each one has to be a told notice before
+ * there is anything to join.
  *
  * @purity pure
  */

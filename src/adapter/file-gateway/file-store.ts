@@ -163,34 +163,41 @@ export type FileWriting =
 /**
  * What already sits where a chosen write would land.
  *
- * ⭐ Two states rather than a nullable byte string, because DI-3 of table T-227
- * turns on whether the destination was ALREADY THERE, and a file the chooser
- * has just created carries the same zero bytes as one that was standing empty.
- * A boolean beside the bytes would leave "empty but occupied" and "occupied
- * with nothing in it" spelled the same way.
+ * ⭐ Two states rather than a nullable byte string, because table T-227 turns
+ * on what is standing at the destination and DI-1 has a file name to compare
+ * only where something is. A boolean beside the bytes would leave "nothing is
+ * there" and "something is there holding nothing" spelled the same way.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: which of the two a store must
- * report when it cannot tell them apart. Looked in table T-227 (DI-3 turns on
- * the destination "already being there" and rules on nothing else), in FR-096,
- * in table T-024a (OP-1 .. OP-11 are all about the way IN), and in table T-024.
- * ⚠️ The case is real, not hypothetical: a chooser that creates the file it
- * names hands back the same zero bytes either way. ⭐ `empty` is the side it
- * falls to, and PI-28 reports it that way. ⚠️ THE OTHER SIDE WAS TRIED FIRST and
- * this note used to record it: `occupied` looks safer -- an extra question costs
- * one gesture and a file overwritten in silence cannot be got back -- but it
- * makes the gateway judge a file the chooser has just created against the
- * document being saved, and ask about a destination where nothing was standing.
- * ⛔ The choice is still this file's and not the specification's; a row saying
- * which side it falls to would let this note go.
+ * ⭐ DI-6 OF TABLE T-227 (MUST) DECIDES IT, and it is the row a note here once
+ * waited for: a destination holding no bytes is not one that was already
+ * there, and nothing is asked about it. The row states its own precedence over
+ * DI-3 and gives FR-031 (MUST NOT) as the ground -- the class FR-031 admits a
+ * question in is losing something undo cannot give back, and a destination with
+ * nothing in it has nothing to lose.
+ *
+ * ⚠️ SO NO STORE IS ASKED TO TELL THE TWO APART. A save chooser creates the
+ * file it names, and DI-6's own note is that such a file and one that was
+ * standing empty cannot be told apart; the row answers both the same way, so
+ * which arm a store reports for a destination with no bytes changes nothing.
+ * `file-gateway.ts` measures what came back and reads DI-6 before any other
+ * row of the table -- that side owns the table, not this seam.
  */
 export type ChosenWriteDestination =
-  /** Nothing was there before this write. Table T-227 has no question to ask. */
+  /**
+   * Nothing for table T-227 to ask about. ⭐ By DI-6, a destination that IS
+   * there but holds no bytes belongs here too -- see the note above.
+   */
   | { readonly kind: 'empty' }
   | {
       readonly kind: 'occupied'
       /** The name the person actually chose, which DI-1 compares. */
       readonly fileName: string
-      /** ⭐ Bytes, for the same reason `OpenedFileContent` carries bytes. */
+      /**
+       * ⭐ Bytes, for the same reason `OpenedFileContent` carries bytes.
+       * ⚠️ A store that reports this arm carrying none of them is not wrong:
+       * DI-6 is judged on the near side by measuring, exactly so that no store
+       * is made to answer a row of a table it does not judge.
+       */
       readonly bytes: Uint8Array
     }
 
