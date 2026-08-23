@@ -1,5 +1,6 @@
 // The running application, as a System case of table T-218 (row TS-3) reaches
-// it: which browser it is judged in, and how the drawing is got hold of.
+// it: which browser and which screen it is judged in, and how the drawing is got
+// hold of.
 //
 // ⭐ WHY THE LIVE DOM AND NOT THE MARKUP. Rule 04 section 3 of
 // `docs/development-rules/` says a green test is not a working application and
@@ -9,6 +10,7 @@
 // are visible one second after a browser opens the page.
 
 import { chromium, type Browser, type Page } from '@playwright/test'
+import type { SpecRow } from '../contract/spec-table'
 
 /**
  * The browser every case here is judged in.
@@ -24,6 +26,38 @@ import { chromium, type Browser, type Page } from '@playwright/test'
  * was judged in rather than inherit it silently.
  */
 const REFERENCE_CHANNEL = 'msedge'
+
+/**
+ * The screen of the base environment, read off the row that states it.
+ *
+ * ⭐ Shared rather than written down twice: `FR-080` defines the base
+ * environment an export is judged in as `MC-5`'s browser together with
+ * `MC-6`'s screen, so every System case that judges something written out
+ * needs the same pair, and a second reader of one row is a second thing to
+ * keep in step.
+ *
+ * ⚠️ `MC-6` settles two more things a driven browser has no answer for -- a
+ * browser at full screen, and the host's own scaling. Neither is reproduced by
+ * a viewport, and neither has to be: what these cases judge is whether two
+ * productions of one run agree, not how many pixels either of them covered.
+ *
+ * ⭐ Takes the row rather than reading the manuscript itself, so it stays
+ * `pure` (R7.3).
+ *
+ * @purity pure
+ */
+export function screenOf(row: SpecRow): { width: number; height: number } {
+  // The manuscript writes a multiplication sign between the two numbers.
+  // ⚠️ Given as an escape rather than as the character itself: rule 03 section
+  // 5 keeps code ASCII, and a literal here would be invisible in a diff.
+  const found = /(\d+)\s*[x\u00d7]\s*(\d+)/.exec(row.cells[row.cells.length - 1] ?? '')
+  const width = Number(found?.[1] ?? '')
+  const height = Number(found?.[2] ?? '')
+  if (!Number.isInteger(width) || !Number.isInteger(height)) {
+    throw new Error(`table T-025 row ${row.id} states no screen size this file can read`)
+  }
+  return { width, height }
+}
 
 /**
  * ⛔ NOT DECIDED BY THE SPECIFICATION: nothing says how a UI part is marked in

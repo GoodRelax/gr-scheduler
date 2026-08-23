@@ -46,6 +46,10 @@ temp/
 
 # ---- Local tooling state ----
 .claude/settings.local.json
+# Workflow subagent worktrees. Untracked scratch, but tools/precheck.py reads
+# git status and would otherwise count every file inside them as a trap while
+# a workflow is still running.
+.claude/worktrees/
 
 # ---- Editor / OS / scratch ----
 .vscode/*

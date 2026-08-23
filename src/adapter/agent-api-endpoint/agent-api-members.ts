@@ -92,7 +92,11 @@ import { jsonFromDocument } from '../document-codec/document-codec'
 // of table T-107 are both spelled `exportSvg`, and rule 03 forbids giving
 // either side a second name.
 import * as ImageExporter from '../image-exporter/image-exporter'
-import { svgFromSchedule } from '../svg-renderer/svg-renderer'
+// ⛔ SvgRenderer is NOT imported here any more, and the edge Chapter 5.2 draws
+// this component to it has not gone: `snapshot-source.ts` still names PI-19 to
+// reach the two types IF-7 carries. What went is a SECOND road to a picture --
+// this component drew one at the screen's own size while no export environment
+// had arrived, and IO-3 of table T-024 admits one size only.
 import type { AgentSnapshot, FrameSnapshot, SnapshotSource } from './snapshot-source'
 
 /**
@@ -825,12 +829,18 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
 
-      const frame = snapshot.frame
-      if (frame === null) {
+      const scene = snapshot.exportScene
+      if (scene === null) {
         // BO-1 of table T-077 (MUST, NFR-011): nothing is drawn until the
         // window's dimensions have settled, and a host can hand over a window
         // of no size. There is no picture to answer with, and inventing a size
         // to draw at would answer with one the screen never showed.
+        //
+        // ⛔ THE SCENE IS ASKED, NOT `frame`. The two absences travel together
+        // -- an implementor of IF-7 that has settled no size has neither -- but
+        // it is the scene this member needs, and a picture built from the frame
+        // instead would be at the screen's size, which is not the size IO-3 of
+        // table T-024 fixes.
         return {
           ok: false,
           refusal: agentRefusal('AM-13', 'notDrawnYet', snapshot, 'BO-1: no frame yet', []),
@@ -846,36 +856,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // panels, empties the selection and takes the pointer away, and all three
       // are judgements about a frame -- ADR-001 leaves a frame to the side that
       // computes one, which is why the scene arrives over IF-7 whole.
-      const scene = snapshot.exportScene
-      if (scene !== undefined) return { ok: true, value: ImageExporter.exportSvg(scene).svg }
-
-      // ⛔ STOP -- THE SCENE DID NOT ARRIVE, SO THIS IS NOT THE PICTURE FR-080
-      // DEFINES. UF-29 carries the field; an implementor of IF-7 that has built
-      // no export environment leaves it absent, and the note there says why the
-      // absence is allowed. ⛔ It may not be filled in from this side: two of
-      // PI-21's four values are out of reach -- the description of the parts
-      // around the picture belongs to a component Chapter 5.2 draws this one no
-      // edge to, and the picture itself has to be rendered FOR the export
-      // rather than for the screen a person is looking at.
-      //
-      // ⚠️ MEANWHILE this member answers with SvgRenderer's schedule drawing at
-      // the frame's own scale. It is a picture, which is what the row requires
-      // and what BO-1's refusal above exists to distinguish from no picture at
-      // all -- but it is NOT the size IO-3 of table T-024 fixes, and WY-2 and
-      // WY-3 of table T-041 do not hold of it. Reported: the shell has to hand
-      // the scene over before this branch stops being reachable in a real run.
-      const { document } = snapshot
-      return {
-        ok: true,
-        value: svgFromSchedule(
-          document.schedule,
-          document.documentSettings,
-          frame.layout,
-          frame.geometry,
-          frame.regions,
-          snapshot.selection,
-        ),
-      }
+      return { ok: true, value: ImageExporter.exportSvg(scene).svg }
     },
 
     /** @purity semi-pure-b */

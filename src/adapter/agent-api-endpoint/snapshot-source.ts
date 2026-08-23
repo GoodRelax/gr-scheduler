@@ -144,18 +144,17 @@ export interface AgentSnapshot {
    * scene arrives whole, why it is built on the far side of the seam, and why
    * it is a value here rather than a member to call.
    *
-   * ⚠️ THE ONE MEMBER OF THIS SEAM THAT MAY BE ABSENT, and absent is a state
-   * with a meaning: the implementing layer has not built an export environment.
-   * ⛔ It is not written as `| null` beside `frame`, because the two absences
-   * are different -- `frame` is `null` while BO-1 has not settled a size, which
-   * every implementor passes through, whereas an implementor may run for its
-   * whole life without one Agent API caller ever asking for a picture.
-   * ⚠️ What a caller sees while it is absent is stated at AM-13 itself.
-   * ⚠️ `| undefined` as well as `?`, so that an implementor which asks its own
-   * side for a scene and is told there is none may write that answer down
-   * plainly instead of having to leave the key out of the object it builds.
+   * ⛔ EVERY IMPLEMENTOR ANSWERS THIS, AND `null` IS THE ONLY OTHER ANSWER --
+   * the same absence `frame` above has, for the same reason: BO-1 of table
+   * T-077 (MUST, NFR-011) forbids drawing before a size has settled, and a host
+   * really can hand over a window of no size. ⚠️ It was optional once, and the
+   * key being omissible is what let AM-13 keep a second road: while no scene
+   * arrived it answered with the SCREEN's picture, which is a size IO-3 of
+   * table T-024 does not admit and which WY-2 and WY-3 of table T-041 do not
+   * hold of. An implementor that has built no export environment now has to say
+   * so in the value, where AM-13 can tell it apart from a picture.
    */
-  readonly exportScene?: ExportArguments[0] | undefined
+  readonly exportScene: ExportArguments[0] | null
   /**
    * AG-9: a person is part way through a drag that changes the document.
    *

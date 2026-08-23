@@ -49,7 +49,7 @@
 
 import { expect, test, type Browser } from '@playwright/test'
 import { specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
-import { DRAWN_SVG, launchReferenceBrowser, readSettledDrawnSvg } from './live-app'
+import { DRAWN_SVG, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { expectDeclarationsUsable, lastCellOf, rowOf, swsRegistry } from './sws-case'
 
 const registry = swsRegistry()
@@ -89,33 +89,6 @@ function fractionDigitsOf(row: SpecRow): number {
   const grid = found[1] ?? ''
   const point = grid.indexOf('.')
   return point < 0 ? 0 : grid.length - point - 1
-}
-
-/**
- * The screen the base environment is judged on.
- *
- * ⭐ Read from table T-025 because `FR-080` (`:3096`) defines the base
- * environment for an export as `MC-5`'s browser together with `MC-6`'s screen,
- * and `NS-5` fixes the pair compared inside one run of it.
- *
- * ⚠️ `MC-6` settles two more things a headless context has no answer for -- a
- * browser at full screen, and the host's own scaling. Neither is reproduced
- * here, and neither has to be: this case judges whether two runs agree, not how
- * many pixels either of them covered.
- *
- * @purity pure
- */
-function screenOf(row: SpecRow): { width: number; height: number } {
-  // The manuscript writes a multiplication sign between the two numbers.
-  // ⚠️ Given as an escape rather than as the character itself: rule 03 section
-  // 5 keeps code ASCII, and a literal here would be invisible in a diff.
-  const found = /(\d+)\s*[x\u00d7]\s*(\d+)/.exec(lastCellOf(row))
-  const width = Number(found?.[1] ?? '')
-  const height = Number(found?.[2] ?? '')
-  if (!Number.isInteger(width) || !Number.isInteger(height)) {
-    throw new Error(`table T-025 row ${row.id} states no screen size this file can read`)
-  }
-  return { width, height }
 }
 
 const FRACTION_DIGITS = fractionDigitsOf(rowOf(T231, GRID_ROW))

@@ -157,7 +157,7 @@
 | S-77 | `scrollDate` | 日付 / `null` | `null` | — | — | 表示の左端が指す日付。`null` は「人がまだ場所を決めていない」を表す。読み込む側の規則は表 T-024a の `OP-10` |
 | S-78 | `scrollGroupId` | `TaskGroup.id`（UUID 文字列）/ `null` | `null` | — | — | 表示の上端が指す行。⚠️ **整数ではない。** 存在しない id を指していたときの規則は表 T-024a の `OP-10` |
 | S-79 | `rowTitlePanelWidth` | px | `170` 🔎 | `rowTitleIndent` × `maxGroupDepth` | `Row Area` の幅 > 0 に従う | 行見出しパネルの幅。下限が 0 にならない理由は `FR-052`。範囲としては `S-125` の深さぶんのインデントが入る幅を要する |
-| S-80 | `propertyPanelWidth` | px | `280` 🔎 | 0 | 同上 | プロパティパネルの幅 |
+| S-80 | `propertyPanelWidth` | px | `280` 🔎 | 0 | 同上 | プロパティパネルの幅。⭐ **本値は面が開いているときの幅である。閉じているときは `0` とする** —— `FR-080` の基準環境が「面は閉じている」「その場所は日程へ渡る」と定める |
 | S-126 | `pinnedGroupIds` | `TaskGroup.id` の配列 | `[]` | 0 件 | `pinnedRowMax` | ピン止めしている行。上限は `S-127`。指す行を消したときの規則は表 T-050 の `CD-2` |
 | S-127 | `pinnedRowMax` | 整数 | `5` 🔎 | 1 | 8 | 同時にピン止めできる行の数の上限 |
 

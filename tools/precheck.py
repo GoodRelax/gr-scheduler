@@ -114,10 +114,17 @@ def trap_double_blank(relative, lines):
         return []
     found = []
     inside_fence = False
+    # ⚠️ A file that ends with a newline splits into a final '' that is not a
+    # blank LINE, it is the end of the file. StrictDoc accepts it -- every
+    # manuscript in docs/spec has ended that way for the whole project -- so
+    # pairing it with the blank above it reported a trap that was not there.
+    last = len(lines) - 1
     for index in range(len(lines) - 1):
         if lines[index].startswith('```'):
             inside_fence = not inside_fence
         if inside_fence:
+            continue
+        if index + 1 == last and lines[last] == '':
             continue
         if lines[index] == '' and lines[index + 1] == '':
             found.append(

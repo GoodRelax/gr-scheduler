@@ -494,8 +494,8 @@
     "Command Palette"
    ],
    "group": "構え",
-   "entryTo": "構えた図形を置く打鍵を示す。**ボタンではない**",
-   "authority": "表 T-036 の `SK-19`"
+   "entryTo": "いま構えている図形を示す。**ボタンではない**",
+   "authority": "表 T-023b"
   },
   {
    "rowId": "IC-55",

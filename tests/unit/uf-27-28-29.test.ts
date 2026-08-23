@@ -56,6 +56,7 @@ import {
   type FrameSnapshot,
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
+import type { ExportScene } from '../../src/adapter/image-exporter/image-exporter'
 import {
   emptyDialogueLog,
   type DialogueLog,
@@ -88,6 +89,11 @@ import {
   type ChangeNotice,
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { postDialogueMessage } from '../../src/use-case/post-dialogue-message/post-dialogue-message'
+// ⚠️ The one reach into `Framework` this file makes, and it stands in for the
+// implementor of IF-7: FR-080's export environment is the shell's to build
+// (LY-5 of table T-060, MN-6 of table T-070), so the bench asks the shell for
+// one instead of deciding "closed" a second time. See `exportSceneOf`.
+import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -278,6 +284,23 @@ function frameOf(document: Document): FrameSnapshot {
   return { layout, geometry, regions }
 }
 
+/**
+ * The other half of what IF-7 hands over: the environment FR-080 builds an
+ * export in, which is NOT the frame above -- the two panels that requirement
+ * names are closed there, so it is a second run of table T-068.
+ *
+ * ⭐ ASKED OF THE REAL IMPLEMENTOR rather than assembled here. FR-080's
+ * "closed" is decided in ONE place (the shell, MN-6 of table T-070 and
+ * ADR-001), and a second copy of that decision living in a test would be a
+ * second place for the specification to have to reach. ⚠️ The loop is built
+ * per reading because this bench's document is replaced by the writes the
+ * cases make, and an environment built from an older one would answer AM-13
+ * with a picture of a document no read of this API can return.
+ */
+function exportSceneOf(document: Document): ExportScene | null {
+  return frameLoop({ showSvg: () => undefined }, document, SCREEN).exportScene()
+}
+
 // ---------------------------------------------------------------------------
 // One running application, small enough to hold in a test.
 // ---------------------------------------------------------------------------
@@ -343,6 +366,11 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       selection: state.selection,
       dialogue: state.dialogue,
       frame: state.frame,
+      // ⚠️ The two absences travel together: an implementor that has settled no
+      // size (BO-1 of table T-077) has neither a frame nor an environment to
+      // export from, and a bench that had one without the other would be a
+      // state no implementor can be in.
+      exportScene: state.frame === null ? null : exportSceneOf(state.document),
       isGestureInFlight: state.isGestureInFlight,
       isEditingInPlace: state.isEditingInPlace,
       historyLimits: state.historyLimits,
