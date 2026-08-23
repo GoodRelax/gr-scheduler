@@ -1072,14 +1072,13 @@ describe('MK-10 / MK-12 of 表 T-023 -- the browser keeps what this tool did not
     }
   })
 
-  // ⛔ DELIBERATELY LEFT FAILING -- the specification is clear and the answer
-  // is not. MK-12 of 表 T-023 names these two combinations and says
-  // 「この組合せに本ツールの割当を与えない。ブラウザの既定動作はそのまま委ねる
-  // —— `MK-10` が、割り当てていない組合せを止めることを禁じている」
-  // (docs/spec/01-04-requirements.md:2290), and MK-10 states the prohibition
-  // itself: 「割り当てていない組合せを止めてはならない（MUST NOT）」
-  // (docs/spec/01-04-requirements.md:2288). `isBrowserDefaultStopped` comes
-  // back true for both.
+  // ⚠️ CORRECTED 2026-08-23: this case carried a header calling itself
+  // deliberately failing, and it is green. What it holds is MK-12's own
+  // sentence, 「この組合せに本ツールの割当を与えない。ブラウザの既定動作はその
+  // まま委ねる —— `MK-10` が、割り当てていない組合せを止めることを禁じている」
+  // (docs/spec/01-04-requirements.md:2295), against the prohibition MK-10
+  // states: 「割り当てていない組合せを止めてはならない（MUST NOT）」
+  // (docs/spec/01-04-requirements.md:2293).
   it('MK-12 (MUST NOT): an unassigned modified drag does not silence the browser', () => {
     for (const mods of [modsOf({ alt: true }), modsOf({ ctrl: true, shift: true })]) {
       const from = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { modifiers: mods })
@@ -1110,6 +1109,68 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
     scrollPx: { x: px, y: px },
   })
 
+  /**
+   * How far one detent of an input device carries.
+   *
+   * ⚠️ NOT a figure any table holds, and deliberately so: `S-96` of
+   * `_assets/tbl-settings.md` leaves the distance of one notch to the input
+   * device, so a case that wants a device has to bring one rather than read
+   * one. Everything below asserts WHICH axis moved and WHETHER it moved --
+   * never how far, because no row turns a distance into a number of rows.
+   */
+  const NOTCH_PX = 100
+
+  /** The nth row the layout drew, in the order it drew them. */
+  const nthRow = (layout: InputContext['layout'], index: number) => {
+    const row = layout.rows[index]
+    if (row === undefined) throw new Error(`no row ${index} in the layout`)
+    return row
+  }
+
+  /**
+   * A frame drawn from `settings`, the way ADR-001 has the shell draw one.
+   *
+   * ⚠️ Redrawn rather than reused: `S-78` is an argument to the layout, so a
+   * case that feeds one answer back in has to draw the frame that answer would
+   * have produced, or it goes on asking about a frame nobody would ever see.
+   */
+  function frameOf(settings: DocumentSettings): InputContext {
+    const regions = regionsFromScreen(ENV, settings)
+    const layout = layoutFromSchedule(SCHEDULE, settings, regions)
+    return contextOf({
+      document: documentOf(SCHEDULE, settings),
+      layout,
+      geometry: geometryFromLayout(SCHEDULE, settings, layout, regions),
+      regions,
+    })
+  }
+
+  /**
+   * A bare wheel turned `notches` detents, spelled the way a wheel with no
+   * tilt reports itself: the whole distance on the vertical axis, nothing on
+   * the horizontal one. Negative is away from the person, which reads a
+   * document further up.
+   */
+  const bareWheel = (context: InputContext, notches: number): WheelInput => ({
+    kind: 'wheel',
+    x: context.regions.rowArea.x + 40,
+    y: context.regions.rowArea.y + 40,
+    modifiers: NO_MODS,
+    notches,
+    scrollPx: { x: 0, y: notches * NOTCH_PX },
+  })
+
+  /**
+   * The same schedule drawn with rows TALLER than one notch, which the row
+   * axis zoom (`S-76` of table T-203) is what makes them.
+   * ⚠️ The fixture the rest of this file uses
+   * draws rows SHORTER than one notch, and over those a turn of any length
+   * lands past a row boundary whatever it does -- so it cannot tell a vertical
+   * scroll from doing nothing. The case below asserts the height it actually
+   * got, never the setting it asked for.
+   */
+  const TALL_SETTINGS = settingsOf({ ...SETTINGS, zoomY: 5 })
+
   it('MK-1: a bare wheel scrolls, and is not a zoom', () => {
     const answer = commandFromInput(wheelDown(120), contextOf())
     expect(kindsOf(answer)).toContain('setScrollPosition')
@@ -1122,16 +1183,16 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
     expect(moved['scrollGroupId']).not.toBe(SETTINGS.scrollGroupId)
   })
 
-  // ⛔ DELIBERATELY LEFT FAILING. MK-1 of 表 T-023 assigns a bare wheel to
-  // 「**縦スクロール**（ズームではない）」
-  // (docs/spec/01-04-requirements.md:2278), and FR-016's STATEMENT makes
-  // accepting that assignment the requirement:
-  // 「`GRS` は、ポインタとキーボードの操作を**表 T-023 の割当**で受け付けること」
-  // (docs/spec/01-04-requirements.md:2226). Turns of 100px and 250px come back
-  // with the row the view already sat on -- the distances whose landing point
-  // falls in the gap between two rows (`rowGap`, S-59) rather than on one. A
-  // device whose notch is one of those distances never scrolls the schedule
-  // vertically at all, though every one of them is longer than a whole row.
+  // ⚠️ CORRECTED 2026-08-23. This case carried a header calling itself
+  // deliberately failing and blaming the gap between two rows (`S-12`). It is
+  // green, and that diagnosis was wrong twice over: the distances it named are
+  // longer than a whole row of THIS fixture, so they clear a row whatever the
+  // gap does, and the row it cited for the gap is not the gap's row at all.
+  // ⛔ What the case actually holds is the WEAKER half of MK-1: over rows
+  // shorter than one turn, a turn moves the row at the top. That is why the
+  // bench could not see the running application's `MK-1` break -- the next
+  // case is the one that can, and this one is kept because it pins the answer
+  // for a schedule whose rows are small.
   it('MK-1: every turn longer than one row moves the row at the top', () => {
     const pitch = rowOf('g2').y - rowOf('g1').y
     for (const px of [36, 100, 120, 200, 250, 300]) {
@@ -1139,6 +1200,98 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
       const moved = oneCommand(commandFromInput(wheelDown(px), contextOf()), 'setScrollPosition')
       expect(moved['scrollGroupId'], `${px}px`).not.toBe(SETTINGS.scrollGroupId)
     }
+  })
+
+  it('MK-1: a turn moves the row at the top even where one row is taller than the turn', () => {
+    // ⛔ The case MK-1 earns, and the one the fixture above cannot make.
+    // `S-78` pins the top of the `Row Area` to a WHOLE row and table T-206 has
+    // nowhere to keep part of one, so a turn whose landing point stays inside
+    // the row already at the top can only answer that same row. MK-1 assigns a
+    // bare wheel to 「**縦スクロール**（ズームではない）」
+    // (docs/spec/01-04-requirements.md:2283), and a turn that carries the view
+    // nowhere is not a vertical scroll; FR-016's STATEMENT makes taking the
+    // assignment the requirement:
+    // 「`GRS` は、ポインタとキーボードの操作を**表 T-023 の割当**で受け付けること」
+    // (docs/spec/01-04-requirements.md:2231).
+    // ⚠️ HOW FAR one turn carries is not asserted -- `S-96` leaves that to the
+    // device, and no row anywhere turns a distance into a count of rows.
+    const context = frameOf(TALL_SETTINGS)
+    const pitch = nthRow(context.layout, 1).y - nthRow(context.layout, 0).y
+    expect(pitch, 'the case only means a row taller than one notch').toBeGreaterThan(NOTCH_PX)
+    // MK-1 needs somewhere to scroll to here as well.
+    expect(context.layout.contentHeight).toBeGreaterThan(context.regions.rowArea.height)
+
+    const answer = commandFromInput(bareWheel(context, 1), context)
+    expect(kindsOf(answer)).not.toContain('setZoom')
+    const moved = oneCommand(answer, 'setScrollPosition')
+    expect(moved['scrollGroupId']).not.toBe(TALL_SETTINGS.scrollGroupId)
+    // The row axis alone: the day at the left edge (`S-77`) stays where it was.
+    expect(String(moved['scrollDate']).slice(0, 10)).toBe(TALL_SETTINGS.scrollDate)
+  })
+
+  it('MK-1: a turn that runs off the top reaches the first row and settles there', () => {
+    // ⛔ Above the first row there is no row: `S-78` anchors the top of the
+    // `Row Area` to a row of the document, and the first one is the top of the
+    // stack. So a turn upward long enough to pass it has to answer either a row
+    // that exists further up or the one the view already sat on -- and MK-1
+    // assigns the bare wheel to 「**縦スクロール**（ズームではない）」
+    // (docs/spec/01-04-requirements.md:2283), which the second is not. That
+    // second answer is exactly the shape of the break: a schedule whose head
+    // can never be brought back into view.
+    // ⚠️ HOW FAR one turn carries is still not asserted -- `S-96` leaves that
+    // to the device. The walk only has to ARRIVE and then stop moving, so any
+    // rate satisfies it. Neither is it asserted that the first row is reached
+    // in one turn: that would pin an answer the specification does not fix.
+    const drawn = frameOf(TALL_SETTINGS).layout.rows
+    const orderOf = (groupId: unknown): number =>
+      drawn.findIndex((one) => one.groupId === groupId)
+
+    /**
+     * Turned far enough that the whole stack passes the top edge, so that the
+     * turn really does ask for a place above the first row. ⚠️ The premise is
+     * asserted below rather than trusted.
+     */
+    const FAR = -2 * ROW_COUNT
+
+    /** The anchor after one such turn; the same anchor when none was written. */
+    const afterTurnUp = (anchor: unknown): unknown => {
+      const context = frameOf(settingsOf({ ...TALL_SETTINGS, scrollGroupId: anchor }))
+      const answer = commandFromInput(bareWheel(context, FAR), context)
+      const written = commandsOf(answer).filter((one) => one.kind === 'setScrollPosition')
+      // WS-3 / WS-4 of 表 T-067: a turn with nowhere to go may ask for no write
+      // at all, but no input may ask for two positions at once.
+      expect(written.length, 'one turn owes at most one position').toBeLessThanOrEqual(1)
+      if (written[0] === undefined) return anchor
+      const moved = written[0] as unknown as Record<string, unknown>
+      // Still the row axis alone: the day at the left edge (`S-77`) holds.
+      expect(String(moved['scrollDate']).slice(0, 10)).toBe(TALL_SETTINGS.scrollDate)
+      return moved['scrollGroupId']
+    }
+
+    const layout = frameOf(TALL_SETTINGS).layout
+    const pitch = nthRow(layout, 1).y - nthRow(layout, 0).y
+    expect(
+      Math.abs(FAR) * NOTCH_PX,
+      'the turn only means one that runs past every row there is',
+    ).toBeGreaterThan(ROW_COUNT * pitch)
+
+    const startedAt = 3
+    let anchor: unknown = afterTurnUp(nthRow(layout, startedAt).groupId)
+    // ⛔ The turn has to MOVE, and upward: the walk starts on a row that is not
+    // the first, so 「縦スクロール」 has somewhere to go.
+    expect(orderOf(anchor), 'a turn upward must name a row that exists').toBeGreaterThanOrEqual(0)
+    expect(orderOf(anchor), 'a turn upward must not stick').toBeLessThan(startedAt)
+
+    // One turn per row is more than enough to bring the head into view.
+    for (let turn = 0; turn < ROW_COUNT; turn += 1) {
+      anchor = afterTurnUp(anchor)
+      expect(orderOf(anchor), `turn ${turn}`).toBeGreaterThanOrEqual(0)
+    }
+    expect(anchor, 'the walk must arrive at the head of the schedule').toBe(
+      nthRow(layout, 0).groupId,
+    )
+    // And stay: the first row is not a place to slip past.
+    expect(afterTurnUp(anchor)).toBe(anchor)
   })
 
   it('MK-5: Ctrl+Shift+wheel scrolls sideways', () => {
@@ -1149,6 +1302,44 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
     const moved = oneCommand(answer, 'setScrollPosition')
     expect(String(moved['scrollDate']).slice(0, 10)).not.toBe(SETTINGS.scrollDate)
     expect(moved['scrollGroupId']).toBe(SETTINGS.scrollGroupId)
+  })
+
+  /**
+   * The two ways one device may report the turn MK-5 is assigned to.
+   *
+   * ⚠️ A wheel held with the two keys down reports its turn on the VERTICAL
+   * axis and leaves the horizontal one at zero -- the axis the DEVICE reports
+   * on is not the axis the row scrolls. A tilt wheel spells the same row the
+   * other way round. Both are MK-5, so both owe the same answer.
+   */
+  const MK_5_SPELLINGS = [
+    { how: 'the turn reported on the vertical axis', px: { x: 0, y: NOTCH_PX } },
+    { how: 'the turn reported on the horizontal axis', px: { x: NOTCH_PX, y: 0 } },
+  ] as const
+
+  it('MK-5: either spelling of the turn moves the time axis and leaves the row axis alone', () => {
+    // MK-5 assigns `Ctrl` ＋ `Shift` ＋ wheel to 「横スクロール」
+    // (docs/spec/01-04-requirements.md:2287). The row fixes the AXIS, so the
+    // case asks which axis moved, never how far along it.
+    for (const spelling of MK_5_SPELLINGS) {
+      const answer = commandFromInput(
+        {
+          kind: 'wheel',
+          x: X(),
+          y: Y(),
+          modifiers: modsOf({ ctrl: true, shift: true }),
+          notches: 1,
+          scrollPx: spelling.px,
+        },
+        contextOf(),
+      )
+      expect(kindsOf(answer), spelling.how).not.toContain('setZoom')
+      const moved = oneCommand(answer, 'setScrollPosition')
+      expect(String(moved['scrollDate']).slice(0, 10), spelling.how).not.toBe(SETTINGS.scrollDate)
+      expect(moved['scrollGroupId'], spelling.how).toBe(SETTINGS.scrollGroupId)
+      // MK-10 (MUST): this tool assigned the combination, so it takes it.
+      expect(answer.isBrowserDefaultStopped, spelling.how).toBe(true)
+    }
   })
 
   it('MK-2: Ctrl+wheel zooms both axes by the same factor', () => {

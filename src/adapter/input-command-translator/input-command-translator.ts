@@ -724,18 +724,31 @@ function rowAtY(layout: ScheduleLayout, y: number): RowPlacement | null {
  * takes the trailing `rowGap` back off the content height: past that there is
  * no row to name, which is the null `scrolledAnchor` reads as "ran off the end".
  *
+ * ⚠️ The ORDINAL is what this answers, because the two callers want different
+ * halves of it: `rowAtTopEdge` wants the row, and `rowTurnedTo` wants the place
+ * in the stack, so that it can name the row one step along.
+ *
  * @purity pure
  */
-function rowAtTopEdge(layout: ScheduleLayout, y: number): RowPlacement | null {
-  const rows = layout.rows
+function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | null {
   for (let at = 0; at < rows.length; at++) {
     const row = rows[at]
     if (row === undefined) continue
     const next = rows[at + 1]
     const end = next === undefined ? row.y + row.height : next.y
-    if (y >= row.y && y < end) return row
+    if (y >= row.y && y < end) return at
   }
   return null
+}
+
+/**
+ * The same question, answered with the row rather than with its place.
+ *
+ * @purity pure
+ */
+function rowAtTopEdge(layout: ScheduleLayout, y: number): RowPlacement | null {
+  const at = rowIndexAtTopEdge(layout.rows, y)
+  return at === null ? null : (layout.rows[at] ?? null)
 }
 
 /**
@@ -753,6 +766,9 @@ function rowAtTopEdge(layout: ScheduleLayout, y: number): RowPlacement | null {
  * as the value already in force rather than as "no chosen place": OP-10 of
  * table T-024a reads a null `scrollDate` as 「人がまだ場所を決めていない」, and
  * a scroll that ran off the end has not un-decided anything.
+ * ⛔ MK-1 DOES NOT TAKE THE VERTICAL HALF FROM HERE -- `rowTurnedTo` below says
+ * why, and the short answer is that this member is PD-1's, whose pan MK-7 holds
+ * to the distance the pointer itself went (MUST).
  *
  * @purity pure
  */
@@ -769,6 +785,67 @@ function scrolledAnchor(
     scrollDate: day === null ? settings.scrollDate : textOfDay(day),
     scrollGroupId: row === null ? settings.scrollGroupId : row.groupId,
   }
+}
+
+/**
+ * Where MK-1's turn leaves the row at the top edge.
+ *
+ * ⛔ `scrolledAnchor` IS NOT THE WHOLE OF MK-1, and the difference is not an
+ * error in its arithmetic: it answers the row the moved top edge LANDS IN,
+ * which is exactly what PD-1 needs: MK-7 makes the pan move the schedule exactly
+ * as far as the pointer went (MUST), so a pan has to keep answering the row the
+ * pointer really reached.
+ * ⚠️ S-78 anchors the display to a WHOLE row and table T-206 has nowhere to
+ * keep part of one, so a turn shorter than the row standing at the top edge
+ * lands back inside that same row and the answer equals the value already in
+ * force. Measured on the template FR-027 starts a reader with, most of the
+ * bands drawn are TALLER than the distance a common wheel reports for one
+ * detent, so turn after turn moved nothing at all and MK-1's
+ * 「**縦スクロール**」 did not scroll.
+ *
+ * ⛔ NOTHING SETTLES WHAT A TURN SHORTER THAN ITS ROW DOES. S-96 leaves the
+ * distance to the device -- 「1 ノッチで何倍動くかは入力装置に依存する」 -- and
+ * no row anywhere turns a distance into a count of rows. Searched: table T-023
+ * MK-1 and MK-5, table T-023a and its note, S-4, S-12, S-77, S-78, S-96, FR-016,
+ * FR-051, FR-017, OP-10 of table T-024a.
+ * ⭐ ZERO IS THE ONE ANSWER THE ROW RULES OUT, so the choice that cannot be
+ * wrong is the SMALLEST movement S-78 can express: one row, in the direction
+ * turned, and only when the device asked for a distance at all. ⚠️ This invents
+ * no rows-per-notch figure -- it is a floor under a distance the device still
+ * supplies, and every turn long enough to reach a further row still reaches it.
+ * ⛔ The cost is that a row taller than the Row Area cannot be read to its
+ * foot: no anchor value can name a place inside a row, so the pan cannot reach
+ * it either.
+ *
+ * @provisional PD-176
+ * @provisional PD-177
+ *
+ * ⚠️ THE TWO ENDS ARE NOT ALIKE, and the difference is what each one can be
+ * known to mean. Above the first row there is provably nothing -- S-78 anchors
+ * the edge to a row and the first one is the top of the stack -- so a turn that
+ * runs off that end is answered by the first row, without which the top of a
+ * schedule cannot be reached again at all. Past the LAST row, whether there is
+ * anywhere left to go depends on how much of the stack the Row Area already
+ * shows, which no row settles; so that end keeps the value in force, which is
+ * what this file already did.
+ *
+ * @purity pure
+ */
+function rowTurnedTo(context: InputContext, dy: number): string | null {
+  const settings = context.document.documentSettings
+  const rows = context.layout.rows
+  const area = context.regions.rowArea
+  const standing = rowIndexAtTopEdge(rows, area.y)
+  if (dy === 0 || standing === null) return settings.scrollGroupId
+  const landed = rowIndexAtTopEdge(rows, area.y + dy)
+  // Ran off the top: the first row is the whole of what was asked for.
+  if (landed === null) return dy < 0 ? (rows[0]?.groupId ?? null) : settings.scrollGroupId
+  // ⚠️ `rows[0]` above cannot be missing -- an empty stack left through the
+  // guard -- and the `null` is the type's, not a case.
+  // Landed back inside the row it began on, so the turn moved nothing yet.
+  const at = landed === standing ? standing + (dy > 0 ? 1 : -1) : landed
+  const held = Math.min(rows.length - 1, Math.max(0, at))
+  return rows[held]?.groupId ?? settings.scrollGroupId
 }
 
 /** @purity pure */
@@ -1274,11 +1351,32 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
 
   // MK-1 / MK-5 -- the wheel's own distance, because no row says how far one
   // detent scrolls and S-96 says the device is what knows.
+  //
+  // ⛔ MK-5's DISTANCE IS NOT ALWAYS ON THE HORIZONTAL AXIS. A person has one
+  // wheel and turns it; the host reports that turn on the VERTICAL axis however
+  // many modifiers are held, and leaves the horizontal one at zero. Read off
+  // the horizontal axis alone, MK-5's 「横スクロール」 therefore measured zero
+  // and the schedule never moved. ⚠️ The seam keeps the two axes literal on
+  // purpose, so the join is made HERE, where the combination is what says the
+  // movement is sideways -- the same fallback `wheelTurn` (PI-27) already makes
+  // for the detent count, and for the same reason. ⭐ A device that really does
+  // report a sideways turn -- a tilt wheel, a trackpad -- is believed first.
+  // ⛔ MK-1 gets NO such fallback: a plain sideways turn is a combination table
+  // T-023 has no row for, and reading it as MK-1 would assign it here.
+  const sideways = input.scrollPx.x !== 0 ? input.scrollPx.x : input.scrollPx.y
   const moved = plain
     ? scrolledAnchor(context, 0, input.scrollPx.y)
-    : scrolledAnchor(context, input.scrollPx.x, 0)
+    : scrolledAnchor(context, sideways, 0)
   return changed([
-    { kind: 'setScrollPosition', scrollDate: moved.scrollDate, scrollGroupId: moved.scrollGroupId },
+    {
+      kind: 'setScrollPosition',
+      scrollDate: moved.scrollDate,
+      // MK-1 -- see `rowTurnedTo`, which is `scrolledAnchor`'s vertical half
+      // plus the one thing S-78 cannot express. ⚠️ MK-5 keeps the plain answer:
+      // it decides no vertical place, and the row standing at the top edge is
+      // the one already in force.
+      scrollGroupId: plain ? rowTurnedTo(context, input.scrollPx.y) : moved.scrollGroupId,
+    },
   ])
 }
 
