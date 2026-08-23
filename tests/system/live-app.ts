@@ -1,0 +1,98 @@
+// The running application, as a System case of table T-218 (row TS-3) reaches
+// it: which browser it is judged in, and how the drawing is got hold of.
+//
+// ⭐ WHY THE LIVE DOM AND NOT THE MARKUP. Rule 04 section 3 of
+// `docs/development-rules/` says a green test is not a working application and
+// names the traps this project has actually hit -- a first frame that never
+// paints, and a control character that makes the deliverable's own hash stop
+// matching so that nothing loads at all. Neither is visible in a string. Both
+// are visible one second after a browser opens the page.
+
+import { chromium, type Browser, type Page } from '@playwright/test'
+
+/**
+ * The browser every case here is judged in.
+ *
+ * ⭐ `CN-2` of table T-003 settles the family, and `MC-5` of table T-025 names
+ * the member this project measures on together with the member that may stand
+ * in for it. The channel below is that stand-in. It is already installed on the
+ * machine table T-025 describes, so a System case costs no browser download.
+ *
+ * ⭐ Named here, next to the cases, rather than as `use.channel` in
+ * `playwright.config.ts`: table T-025 (MUST) has a measured value recorded
+ * together with the browser it was measured in, so a case should say what it
+ * was judged in rather than inherit it silently.
+ */
+const REFERENCE_CHANNEL = 'msedge'
+
+/**
+ * ⛔ NOT DECIDED BY THE SPECIFICATION: nothing says how a UI part is marked in
+ * the page, so there is no agreed handle for reaching one from outside. The
+ * specification settles the part's NAME (`U-32`, spelled as
+ * `_assets/tbl-glossary.md` spells it) and Chapter 5 settles which unit draws
+ * it, and the shell marks the part with that name -- which is what the selector
+ * below leans on. A change to that marking breaks every case here, and it
+ * should: at that point the tool and the tests disagree about how the part is
+ * found, and the specification cannot settle the argument.
+ */
+export const DRAWN_SVG = '[data-role="Schedule Canvas"] svg'
+
+/**
+ * Open the reference browser.
+ *
+ * ⚠️ The default failure says only that an executable is missing, which reads
+ * as "run the installer for the bundled browser" -- the wrong fix. Name the
+ * channel and the row that chose it instead.
+ *
+ * @purity non-pure
+ */
+export async function launchReferenceBrowser(): Promise<Browser> {
+  try {
+    return await chromium.launch({ channel: REFERENCE_CHANNEL })
+  } catch (cause) {
+    throw new Error(
+      `the browser channel ${JSON.stringify(REFERENCE_CHANNEL)} that table T-025 row MC-5 ` +
+        'allows as the reference could not be started on this machine',
+      { cause },
+    )
+  }
+}
+
+/**
+ * The drawing that is on the page right now, or `null` while there is none.
+ *
+ * @purity semi-pure-b
+ */
+export async function readDrawnSvg(page: Page): Promise<string | null> {
+  return page.evaluate(
+    /** @purity semi-pure-b */
+    (selector: string) => document.querySelector(selector)?.outerHTML ?? null,
+    DRAWN_SVG,
+  )
+}
+
+/**
+ * The drawing, once it has stopped changing.
+ *
+ * ⚠️ Waiting for the element to exist is not enough. The shell settles the
+ * screen's size before the first frame and observes the host for a size it was
+ * given late, so a page can legitimately draw twice on the way up -- and a case
+ * that read between the two would compare one run's first frame against
+ * another run's second. What is waited for is therefore two identical readings
+ * in a row, not a fixed delay.
+ *
+ * @purity semi-pure-b
+ */
+export async function readSettledDrawnSvg(page: Page): Promise<string> {
+  const quietMs = 250
+  const deadline = Date.now() + 30_000
+  await page.waitForSelector(DRAWN_SVG, { state: 'attached' })
+  let previous = await readDrawnSvg(page)
+  while (Date.now() < deadline) {
+    await page.waitForTimeout(quietMs)
+    const current = await readDrawnSvg(page)
+    if (current !== null && current === previous) return current
+    previous = current
+  }
+  throw new Error(`the drawing at ${DRAWN_SVG} was still changing after 30s`)
+}

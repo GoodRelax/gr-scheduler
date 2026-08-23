@@ -1,10 +1,7 @@
 export const meta = {
   name: 'wire-the-remaining-seams',
   description: 'Wire the four seams the shell still has a STOP for, each in its own worktree',
-  whenToUse:
-    'The round after 2026-08-23. Four independent pieces of work that touch disjoint files: '
-    + 'FileGateway into the shell, scheduleViolations, AM-13 export picture, and opening tests/system. '
-    + 'Read previous-project-result/temp/handoff-DESIGN-28.md first -- it holds what each one is blocked on.',
+  whenToUse: 'The round after 2026-08-23. Four independent pieces of work that touch disjoint files: FileGateway into the shell, scheduleViolations, AM-13 export picture, and opening tests/system. Read previous-project-result/temp/handoff-DESIGN-28.md first -- it holds what each one is blocked on. Pass { stage: "implement" } first, then { stage: "test" } after the merge point.',
   phases: [
     { title: 'Implement', detail: 'one worktree per seam, no verification inside' },
     { title: 'Test', detail: 'a second agent per seam, reading docs/spec only' },

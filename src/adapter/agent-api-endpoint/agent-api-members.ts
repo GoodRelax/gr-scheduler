@@ -88,6 +88,10 @@ import {
 import * as NotifyChangeWatchers from '../../use-case/notify-change-watchers/notify-change-watchers'
 import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-dialogue-message'
 import { jsonFromDocument } from '../document-codec/document-codec'
+// ⭐ A namespace for the same reason as the two above: PI-21's entry and AM-13
+// of table T-107 are both spelled `exportSvg`, and rule 03 forbids giving
+// either side a second name.
+import * as ImageExporter from '../image-exporter/image-exporter'
 import { svgFromSchedule } from '../svg-renderer/svg-renderer'
 import type { AgentSnapshot, FrameSnapshot, SnapshotSource } from './snapshot-source'
 
@@ -348,7 +352,7 @@ export interface AgentApi {
    */
   exportMspdi(): AgentExport<string>
   /**
-   * AM-13. The picture, as a value.
+   * AM-13. The picture, as a value -- the one IO-3 of table T-024 sizes.
    *
    * @purity semi-pure-b
    */
@@ -833,37 +837,33 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
 
-      // ⛔ STOP -- NOT THE PICTURE FR-080 DEFINES, AND THE REASON HAS MOVED.
-      // CR-196 gave PI-21 the member that assembles one: `exportSvg` lays
-      // table T-076's parts over the screen shrunk by the ratio S-81's width
-      // bears to the screen's, and applies FR-025's cut. D5b settled that this
-      // member answers with THAT picture, so the wiring this row wants is a
-      // call to `exportSvg` and nothing else. ⛔ What stops the call is that
-      // its `ExportScene` cannot be built from what IF-7 supplies. Two of the
-      // four values are reachable here (`regions` and `settings`); the other
-      // two are not:
-      //   screenView  PI-37's `ScreenView`. Chapter 5.2 draws this component
-      //               no edge to ScreenRenderer, and that component's entry
-      //               takes a `ScreenState` and a session which `AgentSnapshot`
-      //               does not carry either. ⛔ Building the row names here
-      //               instead would put FR-085's cut in a second component.
-      //   svg         one rendered FOR the export. FR-080 (MUST) fixes that
-      //               base environment -- MC-6 of table T-025 with the
-      //               properties panel and the command palette CLOSED, and
-      //               CU-3 of table T-029 has no pointer to follow -- and the
-      //               frame in the snapshot is the one a person is looking at.
-      //               Its regions and its picture are a different environment.
-      // ⭐ Both belong to the side that computes a frame (ADR-001): the shell
-      // (CP-25) can run table T-068 once for the export's environment and hand
-      // the result over, which is what IF-7 exists to do -- `FrameSnapshot`
-      // already carries what one frame computed. ⛔ Widening that seam is
-      // UF-29's to do, not this file's. Reported.
+      // ⭐ THE PICTURE IS PI-21's, AND THIS IS THE WHOLE OF THE WIRING D5b
+      // ASKED FOR. CR-196 gave PI-21 the member that assembles one, and every
+      // route that sends the screen out ends there -- so the ratio, table
+      // T-076's parts and FR-025's cut are applied where they are stated, and
+      // this row neither repeats nor re-decides any of them. ⛔ Nothing about
+      // the scene is chosen here either: FR-080's base environment closes two
+      // panels, empties the selection and takes the pointer away, and all three
+      // are judgements about a frame -- ADR-001 leaves a frame to the side that
+      // computes one, which is why the scene arrives over IF-7 whole.
+      const scene = snapshot.exportScene
+      if (scene !== undefined) return { ok: true, value: ImageExporter.exportSvg(scene).svg }
+
+      // ⛔ STOP -- THE SCENE DID NOT ARRIVE, SO THIS IS NOT THE PICTURE FR-080
+      // DEFINES. UF-29 carries the field; an implementor of IF-7 that has built
+      // no export environment leaves it absent, and the note there says why the
+      // absence is allowed. ⛔ It may not be filled in from this side: two of
+      // PI-21's four values are out of reach -- the description of the parts
+      // around the picture belongs to a component Chapter 5.2 draws this one no
+      // edge to, and the picture itself has to be rendered FOR the export
+      // rather than for the screen a person is looking at.
       //
       // ⚠️ MEANWHILE this member answers with SvgRenderer's schedule drawing at
       // the frame's own scale. It is a picture, which is what the row requires
       // and what BO-1's refusal above exists to distinguish from no picture at
-      // all -- but WY-2 and WY-3 of table T-041 do not hold of it until the
-      // scene arrives.
+      // all -- but it is NOT the size IO-3 of table T-024 fixes, and WY-2 and
+      // WY-3 of table T-041 do not hold of it. Reported: the shell has to hand
+      // the scene over before this branch stops being reachable in a real run.
       const { document } = snapshot
       return {
         ok: true,

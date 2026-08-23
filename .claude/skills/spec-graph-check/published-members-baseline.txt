@@ -23,6 +23,3 @@
 #     why: one line, ASCII, saying why it is not closed and where the work
 #          belongs. It is printed on every green run, so keep it readable.
 # Blank lines and lines opening with "#" are ignored.
-
-PI-1 | Schedule | scheduleViolations | src/entity/document-model/schedule/schedule.ts
-why: not written yet -- schedule.ts:474 says so in as many words and calls it a unit of work of its own; it is the one place the 17 document invariants of table T-220 are answered, driven by that table rather than written out row by row (Chapter 6.1, MUST), and validate-imported-document.ts:34,47,308 and edit-document/edit-annotation.ts:151 already write as if it existed.

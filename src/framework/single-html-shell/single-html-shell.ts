@@ -47,6 +47,13 @@
 // slop of table T-023d (S-90 .. S-93 and S-137) and the history bounds (S-94 /
 // S-95) all reach the loop through NOT_STORED_* constants that
 // `tools/generate_entity_types.py` prints from the manuscript.
+//
+// ⭐ IF-3 IS BUILT HERE AND USED IN THE LOOP. This file is the only one that
+// may touch the host, so it is where the two pickers and the drop surface are
+// gathered into `FileSystemAccessEnvironment` (PI-28) -- and the store then
+// goes straight to the loop, because SK-11 writes out the current value LY-5 of
+// table T-060 leaves with the loop alone. ⛔ This file keeps no copy of it: two
+// holders of one store is two answers to 「which file is open」.
 
 import { chooseStartupDocument } from '../../use-case/choose-startup-document/choose-startup-document'
 import type { Document } from '../../entity/document-model/document/document'
@@ -55,6 +62,14 @@ import type { DisplayLanguage } from '../../adapter/screen-renderer/screen-rende
 import { domInputSource } from '../dom-input-source/dom-input-source'
 import { domScreenSurface } from '../dom-screen-surface/dom-screen-surface'
 import { domSvgSurface } from '../dom-svg-surface/dom-svg-surface'
+import {
+  fileSystemAccessFileStore,
+  type DropEvent,
+  type DropSurface,
+  type FileSystemAccessEnvironment,
+  type OpenFilePicker,
+  type SaveFilePicker,
+} from '../file-system-access-file-store/file-system-access-file-store'
 import {
   frameLoop,
   startupDisplayLanguage,
@@ -183,6 +198,62 @@ function displayLanguage(): DisplayLanguage {
 }
 
 /**
+ * Where a drop lands (`DropSurface` of PI-28) -- the window, which is what OP-2
+ * of table T-024a asks for: it treats a drop as ONE surface that does not apply
+ * the schedule's hit-test order, and the window is the only surface the whole
+ * app sits on.
+ *
+ * ⛔ CAST RATHER THAN HANDED OVER DIRECTLY. PI-28 declares the happening as
+ * plain data so that the unit runs under Node (its own header says so, and
+ * LR-6 is the same rule read from the other side), and the host's `DragEvent`
+ * is a different type carrying the same members. ⚠️ Nothing is narrowed by the
+ * cast -- the store reads only `preventDefault`, `dataTransfer.types` and
+ * `dataTransfer.items`, and a real drag event has every one.
+ */
+const DROP_SURFACE: DropSurface = {
+  /** @purity non-pure */
+  addEventListener(type, listener, options): void {
+    window.addEventListener(type, (event) => listener(event as unknown as DropEvent), options)
+  },
+}
+
+/**
+ * What the host offers of the API PI-28 is built on.
+ *
+ * ⛔ THE HOST'S OWN DECLARATIONS DO NOT CARRY THESE TWO. `lib.dom` has the
+ * handle types and not the two functions that hand one over, so the members are
+ * read off the window as unknown values and admitted only where the host really
+ * has a function there -- which is also exactly the question CN-2 of table
+ * T-003 and LM-14 of table T-004 leave open: Chromium is the baseline, Firefox
+ * is checked only, and Safari is out of scope.
+ * ⚠️ `undefined` is 「this browser has none」, and the store turns it into
+ * LM-14's `unavailable` rather than throwing.
+ * ⛔ `bind` is not decoration: both are methods of the window and lose their
+ * receiver the moment they are passed as values.
+ *
+ * ⚠️ REQUIRED KEYS HOLDING A POSSIBLY-MISSING VALUE, which is what
+ * `FileSystemAccessEnvironment` asks for in as many words -- a shell that left
+ * the key out would read as a browser that has the API.
+ *
+ * @purity semi-pure-b
+ */
+function fileSystemAccessEnvironment(): FileSystemAccessEnvironment {
+  const host = window as unknown as {
+    readonly showOpenFilePicker?: unknown
+    readonly showSaveFilePicker?: unknown
+  }
+  const opener = host.showOpenFilePicker
+  const saver = host.showSaveFilePicker
+  return {
+    openFilePicker:
+      typeof opener === 'function' ? (opener as OpenFilePicker).bind(window) : undefined,
+    saveFilePicker:
+      typeof saver === 'function' ? (saver as SaveFilePicker).bind(window) : undefined,
+    dropSurface: DROP_SURFACE,
+  }
+}
+
+/**
  * What BO-1 has to settle before anything is drawn.
  *
  * ⚠️ The last two are MEASURED and may not be held as a setting (FR-051, MUST
@@ -240,12 +311,30 @@ function boot(): void {
     },
   })
 
+  // ---- IF-3, BEFORE BO-2 --------------------------------------------------
+  // ⭐ BUILT THIS EARLY BECAUSE OF WHAT IT LISTENS FOR, not because BO-2 needs
+  // it. PI-28 declares this surface a drop target in its constructor, and
+  // without that the browser leaves the page on the first dropped file and
+  // takes the document with it -- which is precisely the silent discard OP-4 of
+  // table T-024a forbids (MUST NOT). ⚠️ The listeners live as long as the page,
+  // the same lifetime FT-1's watcher below takes.
+  const fileStore = fileSystemAccessFileStore(fileSystemAccessEnvironment())
+
   // ---- BO-2 ---------------------------------------------------------------
-  // Table T-034's order. Only BT-4 can yield anything yet: the three ahead of
-  // it are read by DocumentCodec, FileGateway and AutosaveGateway, and none of
-  // those is wired. ⛔ Saying `none` is not a stand-in; it is what is true of
-  // this build, and FR-067 already says a rank that yields nothing descends
-  // rather than starting empty.
+  // Table T-034's order. Only BT-4 can yield anything yet, and the three ahead
+  // of it are each missing something different:
+  //
+  //   BT-1  DocumentCodec's embedded document (FR-067) is not read here yet.
+  //   BT-2  ⛔ IF-3 HAS NO MEMBER FOR IT AND CANNOT. Table T-034 sends this
+  //         rank to R-1 of table T-008 -- a file chooser or a drop -- and
+  //         neither has happened at the moment BO-2 runs. `readFileToOpen`
+  //         answers for a gesture the person has just made; nothing on that
+  //         seam answers for a file the host handed the page as it started.
+  //   BT-3  AutosaveGateway (IF-4) is not built in this build.
+  //
+  // ⛔ Saying `none` is not a stand-in; it is what is true of this build, and
+  // FR-067 already says a rank that yields nothing descends rather than
+  // starting empty.
   const chosen = chooseStartupDocument({
     embedded: { kind: 'none' },
     handed: { kind: 'none' },
@@ -253,15 +342,32 @@ function boot(): void {
     template: startupTemplateDocument(),
   })
 
+  // STOP -- ⛔ FR-060's SECOND MUST IS NOT KEPT, and the piece that is missing
+  // is not on this side. That MUST is the startup offer to win back a lost
+  // permission, and it needs the store to still know WHICH file was open --
+  // but PI-28 holds its handle in a value that dies with the page: nothing puts
+  // one away and nothing brings one back, so `readOpenedFileState` answers
+  // `none` on the first press of every run and there is nothing to offer.
+  // ⚠️ NT-4 of table T-037 is where the offer would stand, and table T-077
+  // already puts it outside the boot order, so no step of that table is being
+  // skipped here.
+
   // ---- BO-3, BO-4, BO-5 ---------------------------------------------------
   // BO-3 is inside the document: zoomX / zoomY and scrollDate / scrollGroupId
   // are stored (FR-024 keeps all four, WY-1 needs them), so the loop reads
   // them off documentSettings rather than being told. BO-4 and BO-5 are the
   // first frame, which the loop runs as soon as BO-1's size is settled.
-  loop = frameLoop(domSvgSurface(scheduleCanvas), chosen.document, nowEnvironment(), {
-    surface: screenSurface,
-    language: displayLanguage(),
-  })
+  // ⚠️ IF-3 IS HANDED OVER, NOT REACHED FOR. SK-11 writes out a value the loop
+  // holds, and LY-5 of table T-060 leaves that value with the loop -- so the
+  // store goes to the party that has the document rather than the boot file
+  // keeping it and asking for the document back.
+  loop = frameLoop(
+    domSvgSurface(scheduleCanvas),
+    chosen.document,
+    nowEnvironment(),
+    { surface: screenSurface, language: displayLanguage() },
+    fileStore,
+  )
 
   // FT-1 of table T-078 -- the person operating the tool.
   // ⭐ `window` is what `InputHost` asks for: the seam names the five members

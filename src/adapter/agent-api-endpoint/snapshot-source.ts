@@ -42,6 +42,23 @@
 // them is held yet. Reported rather than worked around: this file must not
 // narrow the seam to what the shell happens to hold today, because every
 // narrowing would land on a member of table T-107 that then could not answer.
+//
+// ⭐ WHY A SECOND ENVIRONMENT TRAVELS OVER THIS SEAM (`exportScene` below).
+// AM-13 of table T-107 answers with the picture IO-3 of table T-024 sizes, and
+// D5b settled that it does so by calling PI-21 and nothing else. Three of the
+// four values PI-21's scene is made of cannot be reached from this layer:
+// FR-080's base environment is not the one a person is looking at -- the two
+// panels it names are closed there -- so its rectangles, its picture and its
+// description of the parts around that picture are a SECOND run of table T-068,
+// and Chapter 5.2 draws this component no edge to the component that describes
+// those parts. ⛔ The second run belongs to the side ADR-001 already has run
+// the first (MN-6 of table T-070), and it must NOT be run at the head of every
+// frame to fill this field -- NFR-002 and NFR-003 are what MN-6 was weighed
+// against, and a second pass per frame is the cost that decision refused.
+// ⛔ It is also NOT a member of its own on the seam below: R7.4 (MUST) ends the
+// collecting before the work starts, and a member that fetched the scene after
+// the snapshot had been read would be a second reading of the outside inside
+// one Agent API call -- exactly what CS-3 of table T-066 names as the unit.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
@@ -58,9 +75,17 @@ import type { PlanInput, SettingsLimits } from '../../use-case/apply-document-ch
 // and none to either of those two -- and PI-19 is the edge that carries the
 // picture. Adding an edge is a change request, not an implementation choice.
 import type { svgFromSchedule } from '../svg-renderer/svg-renderer'
+// ⛔ Named through PI-21's own signature below, for the same reason: Chapter
+// 5.2 draws this component one edge to ImageExporter and none to the component
+// that describes the parts around the picture, so the scene is reached through
+// the entry that takes it and never assembled from its parts here.
+import type { exportSvg } from '../image-exporter/image-exporter'
 
 /** PI-19's parameter list, which is the one route to the two types below. */
 type PictureArguments = Parameters<typeof svgFromSchedule>
+
+/** PI-21's parameter list, which is the one route to the scene below. */
+type ExportArguments = Parameters<typeof exportSvg>
 
 /**
  * What the last frame computed, handed over rather than computed again.
@@ -109,6 +134,28 @@ export interface AgentSnapshot {
   readonly dialogue: DialogueLog
   /** `null` until BO-1 has settled the dimensions. See `FrameSnapshot`. */
   readonly frame: FrameSnapshot | null
+  /**
+   * What one export is assembled from (`ExportScene`, PI-21), for the base
+   * environment FR-080 names -- which is NOT the frame above.
+   *
+   * ⭐ AM-13 of table T-107 hands this to PI-21 and answers with what comes
+   * back, so IO-3's output size and FR-025's cut are decided where they are
+   * stated and nowhere else. See the note at the top of this file for why the
+   * scene arrives whole, why it is built on the far side of the seam, and why
+   * it is a value here rather than a member to call.
+   *
+   * ⚠️ THE ONE MEMBER OF THIS SEAM THAT MAY BE ABSENT, and absent is a state
+   * with a meaning: the implementing layer has not built an export environment.
+   * ⛔ It is not written as `| null` beside `frame`, because the two absences
+   * are different -- `frame` is `null` while BO-1 has not settled a size, which
+   * every implementor passes through, whereas an implementor may run for its
+   * whole life without one Agent API caller ever asking for a picture.
+   * ⚠️ What a caller sees while it is absent is stated at AM-13 itself.
+   * ⚠️ `| undefined` as well as `?`, so that an implementor which asks its own
+   * side for a scene and is told there is none may write that answer down
+   * plainly instead of having to leave the key out of the object it builds.
+   */
+  readonly exportScene?: ExportArguments[0] | undefined
   /**
    * AG-9: a person is part way through a drag that changes the document.
    *

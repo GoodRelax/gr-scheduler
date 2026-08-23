@@ -16,7 +16,11 @@
 // (Chapter 5.3, MUST NOT), so every name the component publishes
 // leaves through here.
 
-export {}
+// The presentation group, reached through ITS public entry, which is the only
+// route Chapter 5.3 leaves open. `scheduleViolations` needs it because five
+// rows of table T-220 are judged partly by a settings row; nothing else here
+// reads it, and it is a type-only import, so no value crosses.
+import type { DocumentSettings } from '../document-settings/document-settings'
 
 // <generated -- do not edit by hand>
 // Single source of truth:
@@ -438,6 +442,8 @@ export const DEFAULT_CALENDAR_VALUES: {
 }
 // </generated>
 
+
+
 /**
  * The five states of table T-019a. The spellings are this file's own: the
  * state is derived, never stored and never exchanged, so no table names it.
@@ -471,11 +477,10 @@ export function taskByUid(schedule: Schedule, uid: number): Task | null {
   return schedule.tasks.find((task) => task.uid === uid) ?? null
 }
 
-// ⛔ `scheduleViolations` is MISSING. Table T-064 lists it among the members
-// `PI-1` publishes, Chapter 6.1 requires it to be driven by table T-220 rather
-// than written out row by row (MUST), and `edit-annotation.ts` already names it
-// as the one place that check lives. Nothing decides it -- it is simply not
-// written yet, and it is a unit of work of its own, not part of this change.
+// `scheduleViolations` is at the FOOT of this file, under "document
+// invariants". It is last because it is the one member that reads every other
+// one -- the days, the calendar and the resolution FR-054 states -- and putting
+// it there keeps the roster it walks next to nothing it has to be read against.
 
 // ---------------------------------------------------------------- dates ----
 //
@@ -892,3 +897,727 @@ export function delayWorkingDays(within: WorkingCalendar, task: Task,
   return workingDaysBetween(within, from, statusDate)
 }
 
+// ------------------------------------------------- document invariants ----
+//
+// Table T-220 is the whole census of the document's invariants, and Chapter 6.1
+// requires `scheduleViolations` to be DRIVEN by that table (MUST) rather than to
+// write its rows out one condition at a time (MUST NOT). So the table is
+// transcribed below as fixed data -- one entry per row, carrying that row's ID
+// and its kind column -- and `scheduleViolations` is a single walk over the
+// roster. 1.9 asks for the same shape of a test that verifies a requirement
+// pointing at a table: one walk over every row, never one branch per row.
+//
+// ⚠️ The table holds only the conditions the generated schema CANNOT hold.
+// Chapter 6.1 keeps every single-column condition out of it -- type,
+// nullability, string length, numeric range and a spelled enumeration are
+// already forced by `_source/grs-document.schema.json` -- so none is repeated
+// here either.
+//
+// ⛔ Three of the seventeen rows cannot be answered yet. Each carries its own ⛔
+// below naming exactly what is missing. None is guessed at and none is dropped:
+// they stay in the roster, so the walk still covers the whole table and a reader
+// counting the entries against T-220 finds the same census.
+
+/**
+ * The kind column of table T-220, romanised.
+ *
+ * ⚠️ The table spells these five in Japanese and code is ASCII (rule 03
+ * section 5), so the spellings below are this file's. The table stays the
+ * source: every entry of the roster names its row ID beside its kind, so the
+ * two can be lined up without reading any of the code between them.
+ */
+export type InvariantKind =
+  | 'unique'
+  | 'reference'
+  | 'structure'
+  | 'combination'
+  | 'range'
+
+/**
+ * One place a document breaks one invariant.
+ *
+ * ⚠️ The same three fields `DocumentViolation` (PI-34) carries, plus the kind,
+ * so that a caller holding both lists reads them the same way. `at` points into
+ * the DOCUMENT and not into either group: IV-3, IV-13 and IV-14 can all break
+ * inside `/documentSettings`, which a pointer rooted at the schedule could not
+ * say.
+ */
+export interface ScheduleViolation {
+  /** The row of table T-220 that is broken, e.g. `IV-1`. */
+  readonly row: string
+  /** That row's kind column. */
+  readonly kind: InvariantKind
+  /** Where it is broken, as a JSON pointer into the document. */
+  readonly at: string
+  readonly what: string
+}
+
+/**
+ * What every invariant is judged against.
+ *
+ * ⚠️ The two groups arrive separately rather than as one `Document`. DR-1 of
+ * table T-052 binds the three groups and `Document` (PI-34) is what holds them
+ * -- but that component already reaches THIS one, so taking a `Document` here
+ * would close a cycle inside the layer, which LR-3 of table T-061 forbids.
+ *
+ * ⚠️ The presentation group is needed all the same: IV-3, IV-5, IV-13, IV-14
+ * and IV-16 each state a settings row among what they are judged by.
+ */
+interface DocumentUnderTest {
+  readonly schedule: Schedule
+  readonly settings: DocumentSettings
+}
+
+/**
+ * Where one invariant is broken, before the row it belongs to is stamped on.
+ *
+ * ⚠️ A finder does NOT name its own row. The roster entry already carries it
+ * and the walk copies it onto every breach, so an entry cannot disagree with
+ * itself about which row of table T-220 it is answering for.
+ */
+interface Breach {
+  readonly at: string
+  readonly what: string
+}
+
+/** One allocation for every invariant that finds nothing, which is the usual case. */
+const NONE: readonly Breach[] = []
+
+/** One row of table T-220. */
+interface Invariant {
+  /** The row ID, the first column of the table. */
+  readonly row: string
+  /** The kind column. */
+  readonly kind: InvariantKind
+  /** Every place this row is broken. */
+  readonly find: (subject: DocumentUnderTest) => readonly Breach[]
+}
+
+/** P-19 of table T-102 -- the one palette value the specification spells. */
+const TRANSPARENT = 'transparent'
+
+/** The two ends of table T-214, once each has been read as a day. */
+interface AcceptedDays {
+  /** S-119. */
+  readonly min: CalendarDay
+  /** S-120. */
+  readonly max: CalendarDay
+}
+
+/** How deep each row of a self-nesting entity sits, and the rings that stop one. */
+interface Nesting<TKey> {
+  /** Every row whose depth is settled. A row whose parent is absent is at 1. */
+  readonly depthByKey: ReadonlyMap<TKey, number>
+  /** One entry per ring, holding the keys that close it. */
+  readonly rings: readonly (readonly TKey[])[]
+}
+
+/**
+ * The depth of every row under its own parent column, and the rings that stop a
+ * depth being settled. Both come out of one climb because neither can be had
+ * without the other: a walk that did not watch for a ring would never return.
+ *
+ * ⚠️ Written once over any key type because IV-4 and IV-5 climb the same shape
+ * -- `Task` by `wbsParentUid`, `TaskGroup` by `parentId` -- and S-115 and S-125
+ * both start their count at 1 for a row whose parent is absent. Two copies of
+ * this walk would be two chances to count the root differently.
+ *
+ * ⭐ Indexed once with a `Map` (R5 / NFR-013). A search inside the climb would
+ * make this quadratic over an array S-114 still lets reach six figures. Each row
+ * is climbed past once and answered from the memo after that.
+ *
+ * ⚠️ A parent naming no row ends the climb as though the row were a root. That
+ * dangling reference is IV-2's to report, and inventing a second answer for it
+ * here would put one rule in two places.
+ *
+ * @purity pure
+ */
+function nestingOf<TKey, TRow>(
+  rows: readonly TRow[],
+  keyOf: (row: TRow) => TKey,
+  parentOf: (row: TRow) => TKey | null,
+): Nesting<TKey> {
+  const byKey = new Map<TKey, TRow>()
+  for (const row of rows) byKey.set(keyOf(row), row)
+
+  const depthByKey = new Map<TKey, number>()
+  /** Keys whose depth cannot be settled: on a ring, or hanging under one. */
+  const unsettled = new Set<TKey>()
+  const rings: (readonly TKey[])[] = []
+
+  for (const row of rows) {
+    const from = keyOf(row)
+    if (depthByKey.has(from) || unsettled.has(from)) continue
+
+    // Deepest first: `chain[0]` is where this climb started.
+    const chain: TKey[] = []
+    const positionOnChain = new Map<TKey, number>()
+    let base = 0
+    let ring: readonly TKey[] | null = null
+    let underRing = false
+    let at: TRow | undefined = row
+
+    while (at !== undefined) {
+      const key = keyOf(at)
+      if (unsettled.has(key)) {
+        underRing = true
+        break
+      }
+      const repeated = positionOnChain.get(key)
+      if (repeated !== undefined) {
+        ring = chain.slice(repeated)
+        break
+      }
+      const settled = depthByKey.get(key)
+      if (settled !== undefined) {
+        base = settled
+        break
+      }
+      positionOnChain.set(key, chain.length)
+      chain.push(key)
+      const parent = parentOf(at)
+      at = parent === null ? undefined : byKey.get(parent)
+    }
+
+    if (ring !== null) {
+      rings.push(ring)
+      for (const key of chain) unsettled.add(key)
+    } else if (underRing) {
+      // The ring itself is reported where it was found. A row hanging under it
+      // closes no second ring and still has no depth to settle.
+      for (const key of chain) unsettled.add(key)
+    } else {
+      // `base` is where the climb stopped: 0 for a root, otherwise the depth
+      // already settled for that ancestor.
+      let depth = base + chain.length
+      for (const key of chain) {
+        depthByKey.set(key, depth)
+        depth -= 1
+      }
+    }
+  }
+
+  return { depthByKey, rings }
+}
+
+/**
+ * Every date column of one row that IV-14 turns down.
+ *
+ * ⚠️ It ANSWERS with the breaches rather than writing into an array it was
+ * handed. Rewriting an argument is an effect, so a helper that did it could not
+ * call itself pure below and be telling the truth -- and the tag has to be
+ * true, not merely present. The array is built only once there is something to
+ * put in it, so a row entirely inside the range costs nothing over the walk it
+ * already needs.
+ *
+ * @purity pure
+ */
+function dateBreaches<TRow extends object>(
+  row: TRow,
+  columns: readonly (keyof TRow & string)[],
+  at: string,
+  accepted: AcceptedDays | null,
+): readonly Breach[] {
+  let found: Breach[] | null = null
+  for (const column of columns) {
+    const value: unknown = row[column]
+    // `null` is every one of these columns' own value for absence and carries
+    // no day to judge.
+    if (typeof value !== 'string') continue
+    const day = dayOf(value)
+    if (day === null) {
+      // ⚠️ The empty string is HERE and not waved through as absence. IV-14's
+      // own remark puts it on the unreadable side, because a column that admits
+      // absence spells it `null`.
+      found ??= []
+      found.push({ at: `${at}/${column}`, what: `${JSON.stringify(value)} names no day` })
+      continue
+    }
+    // Nothing to measure against when the two ends of table T-214 could not be
+    // read. That is said once by the entry below, not once per row here.
+    if (accepted === null) continue
+    if (compareDays(day, accepted.min) < 0) {
+      found ??= []
+      found.push({ at: `${at}/${column}`, what: `${value} is before importMinDate` })
+    } else if (compareDays(day, accepted.max) > 0) {
+      found ??= []
+      found.push({ at: `${at}/${column}`, what: `${value} is after importMaxDate` })
+    }
+  }
+  return found ?? NONE
+}
+
+/**
+ * Table T-220, as fixed data. One entry per row, in the order the table prints
+ * them -- which is why IV-17 stands between IV-7 and IV-8.
+ *
+ * ⛔ An entry that answers nothing yet says why in its own comment. It is left
+ * in place rather than removed, so that the roster stays as long as the table
+ * and whoever closes the gap has the row waiting for them.
+ */
+const INVARIANTS: readonly Invariant[] = [
+  {
+    row: 'IV-1',
+    kind: 'unique',
+    // ⛔ NOT ANSWERABLE YET. The row is judged against the columns whose key
+    // column in table T-058 marks them a primary key, and nothing in this tree
+    // holds that roster. `DATE_COLUMNS` above exists precisely because erd.json
+    // marks the date columns and tools/generate_entity_types.py emits the marks;
+    // the key column sits in the same manuscript, on the same columns, and is
+    // not emitted. Writing the roster out by hand here would re-commit F-3 -- a
+    // copy that goes stale the moment a column is added, with nothing to say so
+    // -- and T-220's own closing remark refuses to list the columns for that
+    // same reason. What is missing is the generated roster, not a decision.
+    // Reported.
+    find: () => NONE,
+  },
+  {
+    row: 'IV-2',
+    kind: 'reference',
+    // ⛔ NOT ANSWERABLE YET, and it needs one thing more than IV-1 does. Besides
+    // the foreign-key columns -- the same ungenerated key column -- it is judged
+    // against the target table T-057 states for each of them, and erd.json's
+    // relations carry two entity names and a prose label only. Neither the
+    // column that holds the reference nor the column it lands on is in machine
+    // form anywhere, so no roster can be generated from the manuscript as it
+    // stands. Reading the target off the column's spelling would be a guess.
+    // Reported.
+    find: () => NONE,
+  },
+  {
+    row: 'IV-3',
+    kind: 'reference',
+    /**
+     * ⚠️ Only that the pinned row EXISTS. Where a pinned row is drawn is
+     * OP-10's, which the row says in as many words.
+     *
+     * @purity pure
+     */
+    find: ({ schedule, settings }) => {
+      const rows = new Set(schedule.taskGroups.map((one) => one.id))
+      const found: Breach[] = []
+      for (const [index, id] of settings.pinnedGroupIds.entries()) {
+        if (!rows.has(id)) {
+          found.push({
+            at: `/documentSettings/pinnedGroupIds/${index}`,
+            what: `no TaskGroup is here with id ${id}`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-4',
+    kind: 'structure',
+    /** @purity pure */
+    find: ({ schedule }) => {
+      const nesting = nestingOf(
+        schedule.tasks,
+        (task) => task.uid,
+        (task) => task.wbsParentUid,
+      )
+      return nesting.rings.map((ring) => ({
+        at: '/schedule/tasks',
+        what: `wbsParentUid closes a ring over Task uids ${ring.join(', ')}`,
+      }))
+    },
+  },
+  {
+    row: 'IV-5',
+    kind: 'structure',
+    /**
+     * ⚠️ The WBS is outside this one, which the row says: its depth has no
+     * bound at all, and S-115 bounds it only at the moment an import is judged.
+     *
+     * ⛔ A ring in `parentId` is reported by NOTHING. IV-4 names `wbsParentUid`
+     * alone, HM-4 forbids the move that would close one on the WBS alone, and no
+     * row of table T-220 covers this second tree -- so a row sitting on such a
+     * ring has no settled depth, is not past the bound, and goes unmentioned.
+     * Not reported as a breach of THIS row, which states a depth and not a
+     * shape. Reported.
+     *
+     * @purity pure
+     */
+    find: ({ schedule, settings }) => {
+      const nesting = nestingOf(
+        schedule.taskGroups,
+        (group) => group.id,
+        (group) => group.parentId,
+      )
+      const found: Breach[] = []
+      for (const [index, group] of schedule.taskGroups.entries()) {
+        const depth = nesting.depthByKey.get(group.id)
+        if (depth !== undefined && depth > settings.maxGroupDepth) {
+          found.push({
+            at: `/schedule/taskGroups/${index}`,
+            what: `row ${group.id} sits at depth ${depth}, past maxGroupDepth `
+              + `(${settings.maxGroupDepth})`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-6',
+    kind: 'structure',
+    /**
+     * ⚠️ Both ways of missing "exactly one" are reported, and the count is said
+     * out loud. Two rows naming the same `Task` is IV-1's business as well --
+     * the key column makes `TaskGroupMember.taskUid` a primary key -- but one
+     * cannot stand in for the other while IV-1 answers nothing.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const namedBy = new Map<number, number>()
+      for (const member of schedule.taskGroupMembers) {
+        namedBy.set(member.taskUid, (namedBy.get(member.taskUid) ?? 0) + 1)
+      }
+      const found: Breach[] = []
+      for (const [index, task] of schedule.tasks.entries()) {
+        const count = namedBy.get(task.uid) ?? 0
+        if (count !== 1) {
+          found.push({
+            at: `/schedule/tasks/${index}`,
+            what: `Task uid ${task.uid} is named by ${count} TaskGroupMember rows`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-7',
+    kind: 'structure',
+    /** @purity pure */
+    find: ({ schedule }) => {
+      if (schedule.calendars.length > 0) return NONE
+      return [{ at: '/schedule/calendars', what: 'the document holds no Calendar' }]
+    },
+  },
+  {
+    row: 'IV-17',
+    kind: 'structure',
+    /**
+     * ⚠️ Only the calendar FR-054 resolves, which the row says: a calendar the
+     * document carries but never counts by may work no day at all.
+     * `workingCalendarOf` IS that resolution, so asking it is what keeps this
+     * row and FR-054 from disagreeing about which calendar is meant.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const within = workingCalendarOf(schedule)
+      if (within.weekDays.some((one) => one.dayWorking === true)) return NONE
+      return [{
+        at: '/schedule/calendars',
+        what: `the resolved calendar ${within.calendar.uid} works no weekday`,
+      }]
+    },
+  },
+  {
+    row: 'IV-8',
+    kind: 'combination',
+    /** @purity pure */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      for (const [index, group] of schedule.taskGroups.entries()) {
+        if (group.label === null && group.derivedFromTaskUid === null) {
+          found.push({
+            at: `/schedule/taskGroups/${index}`,
+            what: `row ${group.id} has neither a label nor a Task to take its name from`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-9',
+    kind: 'combination',
+    /**
+     * ⚠️ `null` is not transparent. P-19 keeps the two apart -- one is a chosen
+     * value, the other is nothing chosen -- so a row holding `null` in both
+     * columns does not break this.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      for (const [index, visual] of schedule.taskVisuals.entries()) {
+        if (visual.fillColor === TRANSPARENT && visual.strokeColor === TRANSPARENT) {
+          found.push({
+            at: `/schedule/taskVisuals/${index}`,
+            what: `Task uid ${visual.taskUid} is drawn with nothing at all`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-10',
+    kind: 'combination',
+    /**
+     * ⚠️ Both ends have to be readable days before there is an order to check.
+     * A column holding a string that names no day is IV-14's, and a `Task`
+     * missing one end is FR-012's at the moment an input is judged.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      for (const [index, task] of schedule.tasks.entries()) {
+        const start = dayOf(task.start)
+        const finish = dayOf(task.finish)
+        if (start === null || finish === null) continue
+        if (compareDays(finish, start) < 0) {
+          found.push({
+            at: `/schedule/tasks/${index}`,
+            what: `Task uid ${task.uid} finishes before it starts`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-11',
+    kind: 'combination',
+    /**
+     * ⚠️ Either column is enough to require the third. AT-40 and AT-41 keep
+     * `null` and `0` apart, so a fade of zero days is still a fade somebody put
+     * there, and it still needs an end to be measured from.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      for (const [index, task] of schedule.tasks.entries()) {
+        const faded = task.fadeInDays !== null || task.fadeOutDays !== null
+        if (faded && task.finish === null) {
+          found.push({
+            at: `/schedule/tasks/${index}`,
+            what: `Task uid ${task.uid} fades but has no finish`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-12',
+    kind: 'combination',
+    /**
+     * ⚠️ The span is the DIFFERENCE between the two days, never the count of
+     * days with both ends included. FR-012 states which of the two it is and
+     * what breaks when they are swapped, so a `Task` whose start and finish name
+     * the same day has a span of zero and may carry no fade at all.
+     *
+     * ⚠️ A missing or unreadable end is passed over rather than counted as a
+     * span of zero. IV-11 and IV-14 report those, and reading an absent end as
+     * zero would report one document twice under a row that is about the sum,
+     * not about the ends.
+     *
+     * ⚠️ A `Task` carrying NEITHER column is passed over as well, and not read
+     * as a sum of zero. A span can come out negative -- that is IV-10's to
+     * report -- and a sum of zero is over a negative span, so counting one here
+     * would put every task IV-10 already names under this row too.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      for (const [index, task] of schedule.tasks.entries()) {
+        if (task.fadeInDays === null && task.fadeOutDays === null) continue
+        const fade = (task.fadeInDays ?? 0) + (task.fadeOutDays ?? 0)
+        const start = dayOf(task.start)
+        const finish = dayOf(task.finish)
+        if (start === null || finish === null) continue
+        const span = serial(finish) - serial(start)
+        if (fade > span) {
+          found.push({
+            at: `/schedule/tasks/${index}`,
+            what: `Task uid ${task.uid} fades ${fade} days over a span of ${span}`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-13',
+    kind: 'combination',
+    /**
+     * S-65 spells the two columns the dual cursor holds.
+     *
+     * ⛔ They are read off an `object` instead of through the type, because the
+     * generated `DocumentSettings.dualCursor` is `object | null`: the type comes
+     * from the generated schema and the two members S-65 states did not survive
+     * the crossing. Reported -- once they are in the type this reads them
+     * straight and the narrowing goes.
+     *
+     * @purity pure
+     */
+    find: ({ settings }) => {
+      const cursor: unknown = settings.dualCursor
+      if (cursor === null || typeof cursor !== 'object') return NONE
+      const held = cursor as { readonly date1?: unknown; readonly date2?: unknown }
+      const found: Breach[] = []
+      for (const column of ['date1', 'date2'] as const) {
+        if (held[column] === null || held[column] === undefined) {
+          found.push({
+            at: `/documentSettings/dualCursor/${column}`,
+            what: 'is absent while the dual cursor is set',
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-14',
+    kind: 'range',
+    /**
+     * ⭐ Driven by `DATE_COLUMNS`, which is generated from the same marks in the
+     * manuscript that print the type column. The row reaches its columns by
+     * pointing at that column instead of naming them, and this reaches them the
+     * same way -- so a column added to the manuscript is judged here without
+     * anybody remembering to add it.
+     *
+     * ⚠️ What is walked below is the ENTITIES, not their columns. The six arrays
+     * are where the document puts its rows; which of their columns hold a day is
+     * `DATE_COLUMNS`'s answer, not this file's.
+     *
+     * ⚠️ The two ends come from the settings in force, never from a constant
+     * here. They are per-document values (S-119, S-120), and judging by a copy
+     * would let this row and the import disagree about one range.
+     *
+     * @purity pure
+     */
+    find: ({ schedule, settings }) => {
+      const min = dayOf(settings.importMinDate)
+      const max = dayOf(settings.importMaxDate)
+      const accepted: AcceptedDays | null =
+        min !== null && max !== null ? { min, max } : null
+
+      const found: Breach[] = []
+      // Said once, not once per row: a range that cannot be read leaves every
+      // column below judged for BEING a day and none of them for being inside it.
+      if (min === null) {
+        found.push({
+          at: '/documentSettings/importMinDate',
+          what: `${JSON.stringify(settings.importMinDate)} names no day, `
+            + 'so the accepted range cannot be applied',
+        })
+      }
+      if (max === null) {
+        found.push({
+          at: '/documentSettings/importMaxDate',
+          what: `${JSON.stringify(settings.importMaxDate)} names no day, `
+            + 'so the accepted range cannot be applied',
+        })
+      }
+
+      found.push(...dateBreaches(
+        schedule.project, DATE_COLUMNS.Project, '/schedule/project', accepted))
+      for (const [index, task] of schedule.tasks.entries()) {
+        found.push(...dateBreaches(
+          task, DATE_COLUMNS.Task, `/schedule/tasks/${index}`, accepted))
+      }
+      for (const [calendarIndex, calendar] of schedule.calendars.entries()) {
+        for (const [index, exception] of calendar.exceptions.entries()) {
+          found.push(...dateBreaches(
+            exception,
+            DATE_COLUMNS.Exception,
+            `/schedule/calendars/${calendarIndex}/exceptions/${index}`,
+            accepted,
+          ))
+        }
+      }
+      for (const [index, box] of schedule.commentBoxes.entries()) {
+        found.push(...dateBreaches(
+          box, DATE_COLUMNS.CommentBox, `/schedule/commentBoxes/${index}`, accepted))
+      }
+      for (const [index, box] of schedule.highlightBoxes.entries()) {
+        found.push(...dateBreaches(
+          box, DATE_COLUMNS.HighlightBox, `/schedule/highlightBoxes/${index}`, accepted))
+      }
+      for (const [index, baseline] of schedule.baselineTasks.entries()) {
+        found.push(...dateBreaches(
+          baseline, DATE_COLUMNS.BaselineTask, `/schedule/baselineTasks/${index}`, accepted))
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-15',
+    kind: 'range',
+    /** @purity pure */
+    find: ({ schedule }) => {
+      const ceiling = schedule.project.importSeq
+      const found: Breach[] = []
+      for (const [index, origin] of schedule.taskOrigins.entries()) {
+        if (origin.lastSeenImportSeq > ceiling) {
+          found.push({
+            at: `/schedule/taskOrigins/${index}`,
+            what: `Task uid ${origin.taskUid} was last seen at import `
+              + `${origin.lastSeenImportSeq}, past the project's ${ceiling}`,
+          })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-16',
+    kind: 'range',
+    // ⛔ NOT ANSWERABLE YET. The row is judged against the lower- and upper-bound
+    // columns of the settings manuscript, but only where such a column names
+    // ANOTHER settings row instead of a number. `SETTINGS_BOUNDS` (PI-2) is the
+    // generated roster of those columns and it carries the numeric ones alone --
+    // `clampedSettings` says as much where it declines the bounds that hold
+    // between two keys. So the expressions live in the manuscript and reach no
+    // generated artifact. Two of the operands they use are not numbers a reader
+    // can supply either: one bound is written as an epsilon that no row gives a
+    // value to, and another names a screen dimension, which this row puts
+    // outside its own scope in as many words. What is missing is the generated
+    // roster plus a value for the epsilon, neither of which is settled here.
+    // Reported.
+    find: () => NONE,
+  },
+]
+
+/**
+ * Every place the document breaks an invariant of table T-220, in the order the
+ * table lists its rows.
+ *
+ * ⚠️ It ANSWERS, and refuses nothing: a violation is a value, never a throw
+ * (AG-8 of table T-035, R7.10). Whether one stops a load, a save or an edit is
+ * the caller's to decide, and the three moments decide it differently.
+ *
+ * ⚠️ It is NOT the import check. `validateImportedDocument` (PI-13) judges
+ * untrusted input while the current document is still standing (OP-5), and
+ * three of its refusals restate a condition this holds too. The rule is one;
+ * the moment is two.
+ *
+ * ⚠️ An empty answer does NOT mean the document is sound. Three rows of the
+ * table answer nothing yet, and each says above what it is waiting for.
+ *
+ * @purity pure
+ */
+export function scheduleViolations(
+  schedule: Schedule,
+  settings: DocumentSettings,
+): readonly ScheduleViolation[] {
+  const subject: DocumentUnderTest = { schedule, settings }
+  const found: ScheduleViolation[] = []
+  for (const invariant of INVARIANTS) {
+    for (const breach of invariant.find(subject)) {
+      found.push({ row: invariant.row, kind: invariant.kind, at: breach.at, what: breach.what })
+    }
+  }
+  return found
+}

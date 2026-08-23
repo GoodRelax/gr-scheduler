@@ -35,6 +35,14 @@
 // different moments -- and on a `down` the second one sees a press the first
 // one could not: recording the press is a change, and MK-10's question must
 // change nothing.
+//
+// ⭐ CS-4 OF TABLE T-066 LIVES HERE TOO, and it is the one unit of consistency
+// that is not nested inside a frame. `saveHeldDocumentToFile` is its whole
+// shape: what the operation needs from the current values is taken before the
+// first `await`, nothing reads them again while the person is answering (MUST
+// NOT), and frames keep running throughout -- FT-3 in particular, which
+// NFR-011 will not let stop. ⛔ Nothing is drawn to say that a wait is on: CS-4
+// forbids it (MUST NOT) and table T-078 has no trigger for it.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
@@ -43,6 +51,7 @@ import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialo
 import {
   emptyScreenState,
   escapeTarget,
+  screenStateWithPalette,
   type EscapeTarget,
   type ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
@@ -56,6 +65,7 @@ import {
 import {
   textOfDay,
   type CalendarDay,
+  type Project,
   type Task,
   type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
@@ -93,6 +103,20 @@ import {
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
 import { notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
+import { documentFromJson, jsonFromDocument } from '../../adapter/document-codec/document-codec'
+import {
+  saveDocumentFile,
+  type ChosenFileSaveRequest,
+  type DocumentFileSaving,
+  type FileStore,
+  type ProjectIdentity,
+  type SaveFileForm,
+} from '../../adapter/file-gateway/file-gateway'
+// ⭐ The type only. What an export IS belongs to PI-21 (CP-21), and this file
+// hands that component the four values it says a scene is made of -- ADR-001
+// has the side that computes a frame do the computing, and none of the four can
+// be measured from inside an Adapter.
+import type { ExportScene } from '../../adapter/image-exporter/image-exporter'
 import {
   commandFromInput,
   pressRowOf,
@@ -188,6 +212,20 @@ export interface FrameLoop {
   /** What the last frame computed, for a caller that needs to ask. */
   current(): FrameValues | null
   document(): Document
+  /**
+   * What one export is assembled from (PI-21), for the base environment FR-080
+   * names -- or `null` while BO-1 has settled no size.
+   *
+   * ⭐ THE ONE PLACE THE PANELS ARE CLOSED. FR-080's environment is not the one
+   * a person is looking at, and the difference is a whole run of table T-068,
+   * so this is the loop's to answer and nobody else's (LY-5 of table T-060,
+   * ADR-001). ⛔ It is NOT run at the head of a frame -- see the member.
+   * ⚠️ This is what an implementor of IF-7 puts in `AgentSnapshot.exportScene`,
+   * and it is also the road IO-3 of table T-024 takes for a person.
+   *
+   * @purity semi-pure-b
+   */
+  exportScene(): ExportScene | null
 }
 
 /**
@@ -303,6 +341,36 @@ const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
 
 /** The row of table T-037 a raised question follows -- `NT-7`. */
 const CONFIRMATION_MANNER = 'NT-7'
+
+/**
+ * What SK-11 of table T-036 writes, whatever the document was opened from.
+ *
+ * ⭐ FR-096 (MUST) settles it and leaves the caller no choice, and carries a
+ * MUST NOT against this route writing an MSPDI-opened document back as MSPDI.
+ * ⛔ So the form is a constant of the SAVE path rather than something read off
+ * the file that was opened -- reading it there is what that MUST NOT forbids,
+ * and it is also why nothing here asks the store what it is holding.
+ * ⚠️ The spelling is `SaveFileForm`'s, which `file-gateway.ts` owns (CR-146),
+ * so a renamed member fails type checking here rather than comparing false.
+ */
+const SAVE_FORM: SaveFileForm = 'grsJson'
+
+/**
+ * What the save chooser is offered as a name.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what FR-096's chooser suggests.
+ * Looked in FR-096, FR-060, table T-227, table T-024 (its extension column
+ * reaches `src/` only through DocumentCodec's generated `exchange-formats.json`,
+ * which Chapter 5.3 keeps inside that folder), table T-024a and
+ * `_assets/tbl-settings.md` -- none of them names a file name, a stem or an
+ * extension for the way OUT.
+ * ⚠️ Empty is 「no name is suggested」, the same answer `AUTHOR_NOT_HELD` and
+ * `RaisedConfirmation.text` give for a word that has no owner: the person names
+ * the file. ⛔ Typing an extension here would be a second copy of table T-024's
+ * column, which rule 03 section 1 forbids, and the chooser is the one place a
+ * wrong suggestion cannot be taken back from once the file exists.
+ */
+const NO_SUGGESTED_FILE_NAME = ''
 
 /**
  * The rows table T-206 keeps outside the document, in `localStorage`.
@@ -768,6 +836,34 @@ function isDisplayLanguage(value: string): value is DisplayLanguage {
   return Object.prototype.hasOwnProperty.call(DISPLAY_LANGUAGES, value)
 }
 
+/**
+ * DI-3 of table T-227, as `ChosenFileSaveRequest` asks for it: who owns the
+ * characters already standing where a chosen write would land.
+ *
+ * ⭐ THE CODEC IS WIRED HERE BECAUSE ONLY THE CALLER MAY WIRE IT. FileGateway
+ * (PI-22) takes this as a function and says why in as many words -- UT-5 of
+ * table T-063 keeps each format in a codec of its own, and a gateway that
+ * parsed `GRS JSON` would hold an authority FR-024 already owns.
+ *
+ * ⛔ `null` FOR EVERY WAY OF NOT KNOWING, which is the whole of DI-3 (MUST
+ * NOT): characters that are not `GRS JSON` name no owner, and an unreadable
+ * destination may not be called this same document. ⚠️ A destination that
+ * decodes is NOT thereby accepted as intake -- nothing here is opened, and
+ * FR-023's validation is not this act's.
+ *
+ * ⚠️ Only the two columns DI-1 compares leave this function. The document that
+ * was decoded is dropped: it is somebody else's file, and nothing in this build
+ * may show it or write from it.
+ *
+ * @purity pure
+ */
+function projectIdentityFromText(text: string): ProjectIdentity | null {
+  const read = documentFromJson(text)
+  if (!read.ok) return null
+  const project = read.document.schedule.project
+  return { projectName: project.name, projectId: project.id }
+}
+
 // ---- the outside is read from here on (R7.7) ------------------------------
 
 /**
@@ -885,6 +981,13 @@ export function startupDisplayLanguage(): DisplayLanguage {
  * table T-068's eleven stages run four times for one pointer move, which does
  * not fit the budget NFR-002 and NFR-003 set.
  *
+ * ⭐ `files` IS IF-3's IMPLEMENTATION (PI-28), HANDED IN AND NOT REACHED FOR,
+ * for the reason `screen` is: the loop is what holds the current values SK-11
+ * writes out, and R7.3 wants the browser side injected so a test can stand in
+ * for it. ⚠️ Optional on the same terms as `screen` -- the loop runs for the
+ * paths that touch no file, and the entries that would touch one answer with
+ * nothing when there is none.
+ *
  * @purity non-pure
  */
 export function frameLoop(
@@ -892,6 +995,7 @@ export function frameLoop(
   first: Document,
   env: FrameEnvironment,
   screen?: ScreenWiring,
+  files?: FileStore,
 ): FrameLoop {
   // ⭐ ONE PAIR, not a document beside a history. WS-6 of table T-067 is one
   // reference assignment (MUST), and `HeldDocument` says why: a document paired
@@ -932,10 +1036,30 @@ export function frameLoop(
   // beside IC-70. Table T-109's 面 column does not name `Confirmation` and
   // S-99g defines a 面 as what `Esc` closes, so the specification says neither.
   // Nothing is decided here: `Esc` is left alone.
+  //
+  // ⭐ WHAT THE ANSWER DOES IS CARRIED WITH THE QUESTION, and is not a second
+  // field the answering side has to know how to read. Two requirements raise
+  // one now -- FR-032's delete and DI-4 of table T-227 -- and NT-7 gives both
+  // the same two answers (IC-69 / IC-70), so `answerSettledEntry` spends the
+  // entry and this settles what the entry meant. ⛔ A union of payloads would
+  // put the deciding in the answering side, and FR-031 (MUST NOT) keeps the
+  // places that may ask from growing: each raiser stating its own landing is
+  // what makes a new one impossible to add by accident.
   let asking: {
     readonly question: RaisedConfirmation
-    readonly writes: readonly (readonly DocumentCommand[])[]
+    /** @purity non-pure */
+    settle(isProceeding: boolean, frame: FrameValues): void
   } | null = null
+  // Whether a file operation that waits for the person is running (CS-4 of
+  // table T-066).
+  //
+  // ⛔ NOT OP-8 OF TABLE T-024a. That row is about an import or another open
+  // being in flight, and this is the shell's own: `ScreenSession.confirmation`
+  // holds ONE question, so a second operation that raised one would leave the
+  // first waiting on an answer nobody can give any more. ⚠️ The store keeps a
+  // guard of its own for the same shape of reason, and refuses with a fault;
+  // this one stops the operation before it can take the question away.
+  let isFileOperationWaiting = false
   // U-42 `Pointer` -- where one was last reported from.
   // ⛔ NEVER null again once one happening has arrived. IF-2 supplies 「ポインタ
   // とキーの出来事」 and has no happening for the pointer LEAVING the window,
@@ -1072,6 +1196,90 @@ export function frameLoop(
    */
   function settled(env: FrameEnvironment): boolean {
     return env.width > 0 && env.height > 0
+  }
+
+  // ---- The export's own environment ---------------------------------------
+
+  /**
+   * The scene PI-21 assembles an export from, for the base environment FR-080
+   * names -- or `null` while BO-1 has settled no size to shrink from.
+   *
+   * ⭐ WHY IT IS A SECOND RUN OF TABLE T-068 AND NOT THE FRAME ON THE SCREEN.
+   * FR-080's base environment closes two of the parts a person may have open,
+   * and closing them gives their room to the schedule -- so the rectangles
+   * change, and everything measured from them changes with. ⛔ Reusing the
+   * frame the person is looking at would answer with a different picture from
+   * the one that requirement defines, which is the very drift WY-2 and WY-3 of
+   * table T-041 are there to catch.
+   *
+   * ⛔ NOT AT THE HEAD OF A FRAME. `runFrame` does not call this and must not:
+   * MN-6 of table T-070 chose to run table T-068 once per frame and hand the
+   * result round, and it chose that against NFR-002 and NFR-003. A second pass
+   * on every frame is exactly the cost that decision refused. ⭐ This runs when
+   * somebody asks for a picture, which is as often as an export is made.
+   *
+   * ⚠️ WHAT AN IF-7 IMPLEMENTOR DOES WITH IT. `AgentSnapshot.exportScene` is
+   * where the answer goes, collected with the rest of the snapshot before the
+   * Agent API member starts its work (R7.4, MUST). ⛔ Not handed over as
+   * something for that member to call afterwards -- CS-3 of table T-066 makes
+   * the whole call one consistency unit.
+   *
+   * @purity semi-pure-b
+   */
+  function exportScene(): ExportScene | null {
+    if (!settled(environment)) return null
+    const document = held.document
+    // ⚠️ The width a closed panel takes is nothing, and taking nothing is the
+    // only way PI-35 can be told a panel is not there: its rectangle is cut
+    // from the stored width alone. ⛔ If the specification ever spells "closed"
+    // some other way, this line is the one place that has to learn it.
+    const withPanelsClosed: DocumentSettings = {
+      ...document.documentSettings,
+      propertyPanelWidth: 0,
+    }
+    const environmentForRegions: ScreenEnvironment = {
+      width: environment.width,
+      height: environment.height,
+      appHeaderHeight: environment.appHeaderHeight,
+      scrollbarThickness: environment.scrollbarThickness,
+    }
+    // The same three stages, in the same order table T-077 fixes for a frame.
+    const regions = regionsFromScreen(environmentForRegions, withPanelsClosed)
+    const settings = viewSettings(document, withPanelsClosed, regions)
+    const layout = layoutFromSchedule(document.schedule, settings, regions)
+    const geometry = geometryFromLayout(document.schedule, settings, layout, regions)
+    // EP-12 of table T-076 keeps what is selected and what is armed out of an
+    // export, and CU-3 of table T-029 has the guide cursor follow a pointer
+    // that an export does not have -- so the picture is rendered with none of
+    // the three rather than having them removed from a finished string.
+    const nothingSelected = emptySelection()
+    // S-99e says the palette shows by default; the export's environment is the
+    // one where it does not. ⚠️ Started from an empty state rather than from
+    // the session's, so nothing a person left open (S-99g) reaches the picture.
+    const stateForExport = screenStateWithPalette(emptyScreenState(), false)
+    return {
+      svg: svgFromSchedule(
+        document.schedule,
+        settings,
+        layout,
+        geometry,
+        regions,
+        nothingSelected,
+      ),
+      regions,
+      screenView: screenViewFromRegions(
+        regions,
+        document.schedule,
+        settings,
+        nothingSelected,
+        stateForExport,
+        dialogueLog,
+        // ⛔ No pointer and no question: an export has no hand over it, and
+        // FR-032's question stands in front of a write rather than a picture.
+        sessionOf(document, regions, layout, language, null, null),
+      ),
+      settings,
+    }
   }
 
   // ---- FT-1 of table T-078 ------------------------------------------------
@@ -1266,6 +1474,131 @@ export function frameLoop(
   }
 
   /**
+   * DI-4 of table T-227 (MUST): the overwrite question, put up and waited on.
+   *
+   * ⭐ NT-7's TWO ANSWERS AND NOTHING ELSE, which is the whole reason this
+   * question can be asked at all where OP-3's cannot: `Confirmation` (U-55 of
+   * table T-103) stands on IC-69 and IC-70 and holds no third entry.
+   *
+   * ⭐ THE LIST OF WHAT WOULD GO IS EMPTY, AND THAT IS AN ANSWER. DI-4 states
+   * in as many words that the duty to name what disappears is not on this row,
+   * and `RaisedConfirmation.items` records the same ruling from the other side.
+   *
+   * ⛔ THE SENTENCE IS LEFT EMPTY for the reason `confirmationOwedBy` gives:
+   * FR-038 (MUST) keeps every word the screen prints in the one generated
+   * dictionary, and that dictionary holds no row for a question's own text. A
+   * sentence typed here would be the second dictionary FR-038 forbids.
+   *
+   * ⛔ WHICH TRIGGER PAINTS IT IS NOT SETTLED BY TABLE T-078. That table is the
+   * whole of what may wake a frame (MUST NOT) and has no row for a question
+   * raised after the wait CS-4 of table T-066 governs -- CR-210 reasoned only
+   * about the LANDING, which FT-2 already covers. ⚠️ The frame is asked for as
+   * the deferred rest of the FT-1 press that began the save, not as a trigger
+   * of its own: without it the question is never drawn, and NT-7's MUST cannot
+   * be kept by a question nobody can see. ⛔ A row of table T-078 is owed.
+   *
+   * @purity non-pure
+   */
+  function askToWriteOverDestination(): Promise<boolean> {
+    return new Promise<boolean>((answer) => {
+      asking = {
+        question: { manner: CONFIRMATION_MANNER, text: '', items: [] },
+        /** @purity non-pure */
+        settle(isProceeding) {
+          answer(isProceeding)
+        },
+      }
+      if (settled(environment)) ask()
+    })
+  }
+
+  /**
+   * SK-11 of table T-036 and IC-2 of table T-109 -- write the document that is
+   * held out to a file.
+   *
+   * ⭐ CS-4 OF TABLE T-066 IS THE SHAPE OF THIS FUNCTION. Everything the
+   * operation needs from the current values is taken before the first `await`,
+   * and nothing after it reads `held` a second time (MUST NOT), so
+   * what lands in the file is the document the person asked to save and not
+   * whichever one the wait left behind.
+   *
+   * ⭐ WHICH OF THE TWO DESTINATIONS IS SETTLED BY THE STORE, NOT CHOSEN HERE.
+   * FR-060 is the overwrite, and the same requirement's note on SK-11 in FR-096
+   * says a document with no overwrite target is asked for a destination instead
+   * -- so the state is asked for once and the road follows the answer. ⛔ This
+   * is not the fallback `saveDocumentFile` refuses to make: that one would turn
+   * a FAILED overwrite into a chooser, and this asks BEFORE anything starts.
+   * ⚠️ `permissionLost` goes to the overwrite road on purpose -- FR-060's file
+   * is still that file, and asking for the permission back is what
+   * `overwriteOpenedFile` does.
+   *
+   * ⭐ DI-5 of table T-227 (MUST) is why only one road carries an identity: the
+   * opened file is by definition this document's own, and nothing is asked.
+   *
+   * ⚠️ NOTHING LANDS IN THE DOCUMENT, so CS-4's landing clause has nothing to
+   * do here: a save writes a file and leaves the current value alone. ⛔ Not an
+   * omission -- no requirement makes SK-11 change the document it wrote.
+   *
+   * ⚠️ Nothing is caught. FR-028 (MUST NOT) forbids throwing and IF-3 states
+   * that a store which throws has broken its contract, so a rejection here is a
+   * broken store rather than a case to handle.
+   *
+   * @purity non-pure
+   */
+  async function saveHeldDocumentToFile(store: FileStore): Promise<void> {
+    // CS-4: collected at the moment the operation begins, and not read again.
+    const saved = held.document
+    const text = jsonFromDocument(saved)
+    const project = saved.schedule.project
+
+    const openedFile = await store.readOpenedFileState()
+    const saving: DocumentFileSaving =
+      openedFile.kind === 'none'
+        ? await saveDocumentFile(store, chosenFileSave(text, project))
+        : await saveDocumentFile(store, {
+            destination: 'openedFile',
+            content: { text },
+            form: SAVE_FORM,
+          })
+
+    if (saving.ok) return
+    // STOP -- ⛔ NOTHING CARRIES THE FAULT TO THE PERSON, which is the same
+    // absence `writeDocument` records one road over. NT-3a of table T-037
+    // (MUST) wants the next step said in words and NT-1 forbids saying it with
+    // anything but words (MUST NOT); FR-038 (MUST) keeps every such word in the
+    // one generated dictionary, and it holds no row for any of the six reasons
+    // `DocumentFileFaultReason` names. ⚠️ `cancelled` is owed nothing anyway --
+    // IF-3 keeps it apart precisely so that it is not reported -- but the other
+    // five are, and composing their sentences here would be the second
+    // dictionary FR-038 forbids.
+  }
+
+  /**
+   * FR-096's road: the file the person is about to point at.
+   *
+   * ⭐ DI-1's three columns, gathered where the document is. ⚠️ The file name is
+   * `null` on this road and cannot be anything else: this road is taken only
+   * when the store holds no opened file, so the document stands in no file yet.
+   * By DI-2 and DI-1 that makes it match no destination, and DI-4's question is
+   * therefore owed for every existing file -- which is the direction table
+   * T-227 chooses throughout, an extra question against a file that cannot be
+   * got back.
+   *
+   * @purity pure
+   */
+  function chosenFileSave(text: string, project: Project): ChosenFileSaveRequest {
+    return {
+      destination: 'chosenFile',
+      content: { text },
+      form: SAVE_FORM,
+      suggestedFileName: NO_SUGGESTED_FILE_NAME,
+      identity: { fileName: null, projectName: project.name, projectId: project.id },
+      projectIdentityFromText,
+      confirmOverwrite: askToWriteOverDestination,
+    }
+  }
+
+  /**
    * What one happening was assigned to (table T-023 and table T-036, read by
    * `commandFromInput`).
    *
@@ -1294,21 +1627,14 @@ export function frameLoop(
       writeBrowserStored('S-99', language)
       return true
     }
-    if (entry === CONFIRMATION_PROCEED_ENTRY) {
+    if (entry === CONFIRMATION_PROCEED_ENTRY || entry === CONFIRMATION_CANCEL_ENTRY) {
       const asked = asking
       if (asked === null) return false
-      // ⛔ Cleared BEFORE the writes, not after: `carryOutAction` refuses to
-      // start a write while a question stands, and these writes are the answer
-      // to it rather than a new request.
+      // ⛔ Cleared BEFORE the answer is carried out, not after: `carryOutAction`
+      // refuses to start anything while a question stands, and what follows is
+      // the answer to this one rather than a new request.
       asking = null
-      for (const bundle of asked.writes) writeDocument(bundle, frame)
-      return true
-    }
-    if (entry === CONFIRMATION_CANCEL_ENTRY) {
-      // FR-032 (MUST) -- 「取りやめる」 leaves the document untouched. Nothing
-      // was written, so there is nothing to undo either.
-      if (asking === null) return false
-      asking = null
+      asked.settle(entry === CONFIRMATION_PROCEED_ENTRY, frame)
       return true
     }
     return false
@@ -1329,7 +1655,17 @@ export function frameLoop(
         if (asking !== null) return
         const owedQuestion = confirmationOwedBy(action.writes.flat(), held.document)
         if (owedQuestion !== null) {
-          asking = { question: owedQuestion, writes: action.writes }
+          const owedWrites = action.writes
+          asking = {
+            question: owedQuestion,
+            /** @purity non-pure */
+            settle(isProceeding, answeringFrame) {
+              // FR-032 (MUST) -- 「取りやめる」 leaves the document untouched.
+              // Nothing was written, so there is nothing to undo either.
+              if (!isProceeding) return
+              for (const bundle of owedWrites) writeDocument(bundle, answeringFrame)
+            },
+          }
           return
         }
         // ⭐ ONE PRESS MAY OWE MORE THAN ONE WRITE, AND THE ORDER IS THE
@@ -1366,12 +1702,43 @@ export function frameLoop(
         // the behaviour: it is the absence of it.
         return
       case 'openDocumentFile':
-      case 'saveDocumentFile':
-        // STOP -- ⛔ NO FILE GATEWAY IS WIRED. SK-10 and SK-11 belong to
-        // FileGateway (PI-22), which nothing in this build constructs -- the
-        // same absence BO-2 already records, where `chooseStartupDocument` is
-        // handed 「none」 for the three ranks a gateway would fill.
+        // STOP -- ⛔ OP-3 OF TABLE T-024a CANNOT BE PUT TO ANYBODY. That row is
+        // a MUST that the person choose one of three -- `OpenChoice` of PI-10
+        // spells them `replace`, `merge` and `baseline` -- and a MUST NOT
+        // against GRS settling it by itself, so an open that reached the file
+        // and then chose for the person would break the very row it is
+        // carrying out. ⛔ There is nowhere to ask: table T-103 is the whole of
+        // the UI parts and names no surface for a three-way choice, and table
+        // T-109 is exhaustive by its own caption and holds no entry for any of
+        // the three -- `Confirmation` (U-55) stands on IC-69 and IC-70, which
+        // NT-7 makes two answers by construction.
+        // ⚠️ Reading the file first and stopping there is worse than not
+        // starting: OP-8 would then be true of an open that can never finish,
+        // and the store would have adopted a handle for a document nobody can
+        // see. ⛔ Everything downstream of the choice IS ready -- `importDocument`
+        // (PI-10) takes OP-3's answer as an argument and RD-3 / RD-4 of table
+        // T-230 carry it home -- so a surface and its entries are the whole of
+        // what is owed.
         return
+      case 'saveDocumentFile': {
+        // ⛔ NO STORE WAS HANDED IN, so there is nothing to write to. Doing
+        // nothing then is the absence of the behaviour and not the behaviour.
+        const store = files
+        if (store === undefined) return
+        // ⛔ ONE AT A TIME. CS-4 of table T-066 collects at the moment the
+        // operation begins, and a second one begun mid-wait would take the one
+        // question the screen can hold away from the first.
+        if (isFileOperationWaiting || asking !== null) return
+        isFileOperationWaiting = true
+        // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS. The rest of this
+        // happening is settled before the chooser has even opened -- CS-4 says
+        // in as many words that the operation spans frames -- and the flag
+        // above is what keeps the next press from starting a second one.
+        void saveHeldDocumentToFile(store).finally(() => {
+          isFileOperationWaiting = false
+        })
+        return
+      }
       case 'settleTextEntry':
       case 'editInPlace':
         // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS. SK-19, SK-9 and MK-13 open or
@@ -1569,5 +1936,6 @@ export function frameLoop(
     current: () => values,
     /** @purity semi-pure-b */
     document: () => held.document,
+    exportScene,
   }
 }
