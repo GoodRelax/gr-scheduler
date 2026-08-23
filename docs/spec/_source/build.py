@@ -20,6 +20,7 @@ import json
 import math
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -38,7 +39,12 @@ ASSETS = os.path.abspath(os.path.join(HERE, "..", "_assets"))
 TABLE = os.path.abspath(os.path.join(HERE, "..", "..",
                                      "review", "components", "components.md"))
 SKILL = os.path.expanduser(r"~\.claude\skills\drawio-uml\scripts")
-DRAWIO = r"C:\Program Files\draw.io\draw.io.exe"
+# ⛔ The one thing here that cannot be a path relative to anything: an installed
+# executable. ⭐ So it is asked of the environment first and only falls back to
+# where the Windows installer puts it -- a hard-coded absolute path names one
+# machine, and this file is published (user's ruling, 2026-08-24).
+DRAWIO = os.environ.get("DRAWIO_EXE") or shutil.which("draw.io") \
+    or os.path.join(os.environ.get("ProgramFiles", ""), "draw.io", "draw.io.exe")
 
 # The only hand-written part: what each collapsed arrow means. Every entry must
 # be backed by node-level edges in components.json, and every backed pair must have

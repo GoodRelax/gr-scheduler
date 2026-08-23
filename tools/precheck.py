@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Catch the four traps that only the after-the-fact checks catch today.
+"""Catch the six traps that only the after-the-fact checks catch today.
 
     python tools/precheck.py              # whatever git reports as changed
     python tools/precheck.py <path> ...   # those files
@@ -20,6 +20,7 @@ miss, it may not invent. `check.sh` stays the authority.
 request naming a challenge of table T-054 with the wrong goal beside it.
 Check 22 asks only whether SOME `CH-` and `GL-` are named.
 """
+import getpass
 import io
 import os
 import re
@@ -92,6 +93,87 @@ def is_generated(relative, lines):
 # ⚠️ PD-1 .. PD-5 ARE rows -- table T-023a's press decision order -- so only
 # three digits and up is the pending-decision namespace that collides.
 BACKTICKED_ID = re.compile(r'`(CR-\d+|PD-\d{3,})`')
+
+
+# ⛔ A path that starts at a drive letter or at a home folder is a path that
+# only exists on one machine, and when it holds a user name it publishes whose
+# machine it was. Measured 2026-08-24, before a merge to a PUBLIC repository:
+# 22 sites across two tracked files carried this machine's user name, and one
+# of them was a file this session had itself recommended committing a round
+# earlier. ⭐ The user's ruling that day: every path is relative from now on.
+#
+# ⚠️ Deliberately narrow, because a noisy gate gets legitimate text "fixed":
+#   - a URL scheme is not a path (http://, file://, and the rest)
+#   - `C:\...\` with the middle elided is already anonymous -- it is an
+#     illustration of a message, not a path anybody follows
+#   - docs/reference/ is vendored from the exchange partner and is not ours
+#   - a leading ~ is NOT flagged: `~/...` is already relative to the home
+#     folder, which is the form this rule asks for when a path genuinely sits
+#     outside the repository. ⚠️ Flagging it also matched `/~/g` inside a
+#     regular expression, and a gate that cries at a regex gets turned off
+ABSOLUTE_PATH = re.compile(
+    r'''(?<![A-Za-z0-9/])(?:[A-Za-z]:[\\/]|/home/|/Users/)''')
+ANONYMISED = re.compile(r'''[A-Za-z]:[\\/]\.\.\.''')
+SCHEME = re.compile(r'''[A-Za-z][A-Za-z0-9+.-]*://''')
+
+
+def trap_absolute_path(relative, lines):
+    # ⛔ This file is the one that cannot obey its own rule: the pattern above
+    # spells `/home/` and `/Users/` out, so it matches itself. Naming the
+    # exemption keeps it visible instead of weakening the pattern for everyone.
+    if relative == 'tools/precheck.py' or relative.startswith('docs/reference/'):
+        return []
+    found = []
+    for number, line in enumerate(lines, start=1):
+        bare = SCHEME.sub('', ANONYMISED.sub('', line))
+        if ABSOLUTE_PATH.search(bare):
+            found.append(
+                '%s:%d  an absolute path -- write it relative to the repository '
+                'root, or to ~ when it genuinely sits outside. A path that '
+                'starts at a drive letter names one machine, and publishes '
+                'whose it is' % (relative, number))
+    return found
+
+
+# ⛔ Personal information, held against a PUBLIC repository. Trap 5 above
+# catches the shape a leak took on 2026-08-24 -- an absolute path -- but a bare
+# user name, an address or a credential would have walked straight past it.
+#
+# ⭐ THE USER NAME IS NEVER SPELLED OUT HERE. Writing it down to forbid it
+# would put it in the very file that is published. It is asked of the operating
+# system at run time instead, so this check works on any machine and names
+# nobody. ⚠️ Under three characters it is not distinctive enough to search for.
+ACCOUNT = getpass.getuser()
+EMAIL = re.compile(r'''[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}''')
+EMAIL_FINE = ('noreply', 'example.com', 'example.org', '@example', 'localhost')
+# High-signal prefixes only. A gate that guesses at "password" in prose gets
+# turned off, and the review standard's own text is full of the word.
+SECRET = re.compile(
+    r'''ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}'''
+    r'''|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}'''
+    r'''|sk-[A-Za-z0-9]{32,}|BEGIN [A-Z ]*PRIVATE KEY''')
+
+
+def trap_personal_information(relative, lines):
+    if relative.startswith('docs/reference/') or relative == 'LICENSE':
+        return []
+    found = []
+    for number, line in enumerate(lines, start=1):
+        if len(ACCOUNT) >= 3 and ACCOUNT in line:
+            found.append(
+                '%s:%d  the account name of the machine this ran on -- the '
+                'repository is public, so take it out' % (relative, number))
+        for hit in EMAIL.findall(line):
+            if not any(one in hit for one in EMAIL_FINE):
+                found.append(
+                    '%s:%d  an address -- publishing one is the user\'s call, '
+                    'never a side effect of a commit' % (relative, number))
+        if SECRET.search(line):
+            found.append(
+                '%s:%d  what looks like a credential -- do not commit it, and '
+                'treat it as already compromised if it ever was'
+                % (relative, number))
+    return found
 
 
 def trap_backticked_ids(relative, lines):
@@ -193,6 +275,8 @@ TRAPS = (
     ('backticked change-request or pending-decision id in docs/spec', trap_backticked_ids),
     ('two blank lines in a row', trap_double_blank),
     ('a generated artifact edited by hand', trap_generated_edit),
+    ('an absolute path, which names one machine', trap_absolute_path),
+    ('personal information in a public repository', trap_personal_information),
 )
 
 

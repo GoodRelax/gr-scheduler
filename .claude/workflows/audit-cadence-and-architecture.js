@@ -15,7 +15,8 @@ export const meta = {
 
 const GROUND = `
 # The repository
-C:\\Users\\good_\\OneDrive\\Documents\\GitHub\\gr-scheduler , branch \`restart\`.
+The repository is the current working directory, on branch \`restart\`.
+⛔ Every path below is relative to it -- never write an absolute one.
 
 # What is where
 - \`docs/spec/\` -- the specification. \`01-04-requirements.md\` (requirements and
@@ -66,7 +67,7 @@ name the bottlenecks with numbers.
    (test counts, red counts, build size, check results). Extract the series:
    how did the red count move round over round? How many rounds ended green?
 3. **Where the agent time went.** The workflow transcripts sit under
-   \`C:\\Users\\good_\\.claude\\projects\\C--Users-good--OneDrive-Documents-GitHub-gr-scheduler\\\`
+   \`~/.claude/projects/<the folder named after this repository path>/\`
    -- look for \`subagents/workflows/*/journal.jsonl\` and any
    \`*.output\` files under \`AppData\\Local\\Temp\\claude\\...\\tasks\\\`. Each agent
    result records tokens, tool calls and duration. Total them per round and per
