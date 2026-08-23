@@ -636,6 +636,9 @@ const EXPORT_VIEW: ScreenView = {
         expander: { canOpen: true, canClose: true },
         isPinned: false,
         isSelected: false,
+        // S-139 of table T-206 (0.25) times this row's name size. That size is
+        // S-36 of table T-201 (13px) times S-38 (1.3), the row being depth 1.
+        controlTopOffsetPx: 13 * 1.3 * 0.25,
       },
     ],
   },

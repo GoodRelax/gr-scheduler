@@ -92,8 +92,12 @@
 //   FR-085     a row name that does not fit is cut and shown whole in a tooltip
 //   FR-037     the faster assignment is shown while the pointer rests on a
 //              scrollbar, and taken away when it leaves
-//   EZ-2       表 T-040: an icon explains itself once the pointer has rested on
-//              it longer than `iconHintDelayMs` (S-124)
+//   EZ-2       table T-040 (MUST): an icon explains itself under TWO
+//              conditions, the PLACE and the TIME -- the pointer is ON that
+//              icon, and it has rested there longer than `iconHintDelayMs`
+//              (S-124). ⭐ The row promises the explanation OF THAT ICON, so an
+//              entry the pointer is not on explains nothing however long the
+//              rest has run
 //   R7.1/R7.6  `pure` in table T-075: what was handed over comes back untouched
 //              and the same frame answers the same way twice
 //
@@ -508,12 +512,25 @@ const iconTooltipsIn = (view: ScreenView): readonly string[] =>
     .filter((one) => one.anchor.kind === 'icon')
     .map((one) => (one.anchor as { icon: string }).icon)
 
-/** A pointer resting on an icon for longer than EZ-2 asks (S-124). */
-const RESTED = sessionWith({
-  pointer: { x: 5, y: 5 },
-  pointerRestedMs: ICON_HINT_MS + 1,
-  iconUnderPointer: IC_COMMAND_PALETTE,
-})
+/**
+ * A pointer satisfying BOTH conditions EZ-2 of table T-040 puts on an explanation:
+ * the PLACE -- it is on the named entry -- and the TIME -- it has rested there
+ * longer than `iconHintDelayMs` (S-124).
+ *
+ * ⚠️ The place is answered by `ScreenSession.iconUnderPointer`, not by the
+ * coordinate: IF-9 of table T-065 puts answering where an entry is on the side
+ * that DREW it, and none of `ScreenView`'s parts carries an entry's rectangle.
+ */
+const restedOn = (icon: string, part: Partial<ScreenSession> = {}): ScreenSession =>
+  sessionWith({
+    pointer: { x: 5, y: 5 },
+    pointerRestedMs: ICON_HINT_MS + 1,
+    iconUnderPointer: icon,
+    ...part,
+  })
+
+/** The pointer resting on IC-7, which the `App Header` draws whatever else is. */
+const RESTED = restedOn(IC_COMMAND_PALETTE)
 
 // ---------------------------------------------------------------------------
 
@@ -637,38 +654,102 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
   })
 
   it('explains the entries of the surface UF-66 opened, and none once it is closed', () => {
-    const opened = viewOf(frameWith({ session: RESTED }))
+    // ⭐ EZ-2 of table T-040 puts TWO conditions on an explanation, not one,
+    // and both are read off that row: the PLACE -- the pointer is placed on an
+    // icon, and what is explained is THAT icon and no other -- and the TIME --
+    // a set span has passed, the span being `iconHintDelayMs` (S-124).
+    //
+    // ⚠️ THE PLACE IS THE CONDITION THIS CASE USED TO LEAVE OUT. It rested the
+    // pointer on IC-7 and then asked for an explanation of EVERY entry UF-66
+    // drew. Under EZ-2 an entry the pointer is not on explains nothing, however
+    // long the pointer has rested, so the old claim asked for a rule the
+    // specification does not state.
+    const opened = viewOf(frameWith({ session: restedOn(IC_CLOSE_SURFACE) }))
     expect(opened.openModal).not.toBeNull()
     const surfaceIcons = opened.openModal?.commands.map((one) => one.icon) ?? []
     expect(surfaceIcons, 'IC-52 closes an open surface').toContain(IC_CLOSE_SURFACE)
-    expect(iconTooltipsIn(opened)).toEqual(expect.arrayContaining(surfaceIcons))
 
-    // S-99g: none open. The entry goes, and so does the explanation of it.
+    // The place: the entry under the pointer explains itself, and no other
+    // entry the composition drew does -- neither its neighbours on the surface
+    // nor IC-7, which the `App Header` draws all the while.
+    expect(iconTooltipsIn(opened)).toContain(IC_CLOSE_SURFACE)
+    for (const other of [
+      ...surfaceIcons.filter((icon) => icon !== IC_CLOSE_SURFACE),
+      IC_COMMAND_PALETTE,
+    ]) {
+      expect(iconsIn(opened), `${other} is drawn`).toContain(other)
+      expect(iconTooltipsIn(opened), `EZ-2: the pointer is not on ${other}`).not.toContain(other)
+    }
+
+    // The time: the same place, the wait not yet over, and that entry explains
+    // nothing either.
+    const tooSoon = viewOf(
+      frameWith({ session: restedOn(IC_CLOSE_SURFACE, { pointerRestedMs: ICON_HINT_MS - 1 }) }),
+    )
+    expect(iconTooltipsIn(tooSoon), 'S-124: the wait is not over').not.toContain(IC_CLOSE_SURFACE)
+
+    // S-99g: none open. The entry goes, and so does the explanation of it --
+    // with the pointer now on IC-7, which the closing did not take away.
     const closed = viewOf(
-      frameWith({ state: screenStateWithSurface(emptyScreenState(), null), session: RESTED }),
+      frameWith({
+        state: screenStateWithSurface(emptyScreenState(), null),
+        session: RESTED,
+      }),
     )
     expect(closed.openModal).toBeNull()
     expect(iconsIn(closed)).not.toContain(IC_CLOSE_SURFACE)
     expect(iconTooltipsIn(closed)).not.toContain(IC_CLOSE_SURFACE)
-    expect(iconTooltipsIn(closed).length).toBeLessThan(iconTooltipsIn(opened).length)
+    expect(iconTooltipsIn(closed), 'IC-7 is still drawn, so it still explains itself').toContain(
+      IC_COMMAND_PALETTE,
+    )
   })
 
   it('explains the entries of the palette UF-65 built, and none once S-99e hides it', () => {
+    // The same two conditions of EZ-2. ⚠️ THE PLACE IS AGAIN WHAT THIS CASE
+    // USED TO LEAVE OUT: it rested the pointer on IC-7 -- an `App Header` entry
+    // -- and then asked for an explanation of every entry the palette built.
     const shown = viewOf(frameWith({ session: RESTED }))
     expect(shown.commandPalette).not.toBeNull()
     const paletteIcons =
       shown.commandPalette?.groups.flatMap((group) => group.commands.map((one) => one.icon)) ?? []
     expect(paletteIcons.length, 'U-34 `Palette Commands`').toBeGreaterThan(0)
-    expect(iconTooltipsIn(shown)).toEqual(expect.arrayContaining(paletteIcons))
 
+    // The pointer is on IC-7, so IC-7 is what explains itself and not one entry
+    // of the palette does.
+    expect(iconTooltipsIn(shown)).toContain(IC_COMMAND_PALETTE)
+    for (const icon of paletteIcons) {
+      expect(iconTooltipsIn(shown), `EZ-2: the pointer is not on ${icon}`).not.toContain(icon)
+    }
+
+    // Move it onto one entry of the palette: that one explains itself, and the
+    // entries beside it in the same palette still do not.
+    const first = paletteIcons[0] as string
+    const onEntry = viewOf(frameWith({ session: restedOn(first) }))
+    expect(iconTooltipsIn(onEntry)).toContain(first)
+    for (const other of [
+      ...paletteIcons.filter((icon) => icon !== first),
+      IC_COMMAND_PALETTE,
+    ]) {
+      expect(iconTooltipsIn(onEntry), `EZ-2: the pointer is not on ${other}`).not.toContain(other)
+    }
+
+    // The time (S-124): the same entry, the wait not over, nothing explained.
+    const tooSoon = viewOf(
+      frameWith({ session: restedOn(first, { pointerRestedMs: ICON_HINT_MS - 1 }) }),
+    )
+    expect(iconTooltipsIn(tooSoon), 'S-124: the wait is not over').not.toContain(first)
+
+    // S-99e hides it. ⭐ The member goes null -- what the palette held is
+    // UF-65's contract and not re-tested here -- and with the pointer back on
+    // IC-7 the explanation that stands is IC-7's, none of the palette's.
     const hidden = viewOf(
       frameWith({ state: screenStateWithPalette(STATE, false), session: RESTED }),
     )
     expect(hidden.commandPalette).toBeNull()
     for (const icon of paletteIcons) {
-      expect(iconsIn(hidden), `${icon} is gone with the palette`).not.toContain(icon)
+      expect(iconTooltipsIn(hidden), `${icon} is gone with the palette`).not.toContain(icon)
     }
-    expect(iconTooltipsIn(hidden).length).toBeLessThan(iconTooltipsIn(shown).length)
+    expect(iconTooltipsIn(hidden)).toContain(IC_COMMAND_PALETTE)
   })
 })
 

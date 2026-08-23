@@ -225,6 +225,31 @@ function s116(): { readonly value: number; readonly min: number; readonly max: n
 const S_116 = s116()
 
 /**
+ * `S-138` of 表 T-206 -- the side of the box FR-029 (MUST) draws an entry's
+ * shape in.
+ *
+ * ⭐ READ FROM THE MANUSCRIPT AT READ TIME, not typed here. FR-029 points at a
+ * table for this number （「図形を描く箱の一辺は `_assets/tbl-settings.md` の
+ * 表 T-206 の `S-138` に従うこと（MUST）」）, and Chapter 1.9 (:275) asks a case
+ * that drives such a requirement to be driven by a copy of that table. Taking
+ * the copy out of the .md is that rule read as strictly as it can be: move the
+ * row and every case below moves with it.
+ *
+ * ⚠️ 表 T-206's columns are 行 ID | 値 | 既定 | 保存しない理由, so the number is
+ * in 既定 and NOT in 値 -- that column holds the row's description.
+ */
+function s138(): { readonly px: number; readonly cell: string } {
+  const row = specTable('T-206').rows.find((one) => one.id === 'S-138')
+  if (row === undefined) throw new Error('表 T-206 no longer holds S-138')
+  const cell = row.by['既定'] ?? ''
+  const found = /(\d+(?:\.\d+)?)\s*px/.exec(cell)
+  if (found === null) throw new Error(`S-138 states no px value in its 既定 column: ${cell}`)
+  return { px: Number(found[1]), cell }
+}
+
+const S_138 = s138()
+
+/**
  * 図 F-019 — the authority FR-029 names for every icon's shape (MUST), as it
  * reaches `src/`.
  *
@@ -1017,6 +1042,12 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
   expander: null,
   isPinned: false,
   isSelected: false,
+  // HF-5 of 表 T-051 (MUST): how far BELOW the top of the name the controls are
+  // set. ⚠️ Zero is the neutral value for a case that is not about the offset --
+  // HF-5's MUST bites 「名前が操作子より大きいとき」, and a row that says the
+  // name is not bigger sets its controls down by nothing. The cases that ARE
+  // about the offset hand their own number in.
+  controlTopOffsetPx: 0,
   ...patch,
 })
 
@@ -2333,6 +2364,321 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
 
     expect(surfaceOf(other).readDialogueInput()).toBeNull()
     expect(surfaceOf(one).readDialogueInput()?.isSettled).toBe(true)
+  })
+})
+
+// ===========================================================================
+// FR-029 (MUST) -- the box a shape is drawn in, and the MUST NOT that keeps it
+// the same on every surface.
+//
+// docs/spec/01-04-requirements.md:3699 (FR-029 STATEMENT):
+//   「図形を描く箱の一辺は `_assets/tbl-settings.md` の 表 T-206 の `S-138` に
+//    従うこと（MUST）。載る面によって変えてはならない（MUST NOT）」
+//   —— 同じ図形が面ごとに違う大きさで出ると、同じものだと読めなくなる。
+//   ⚠️ 「一辺が定めるのは図形の箱であって、それを載せる入口の外形ではない」
+//      —— 枠と余白と行送りは入口の側が決める。
+//
+// So the cases below read the SHAPE's box and never the entry's outline: an
+// entry that measures more than the box because of its border, its padding and
+// the line it sits on is not a fault, and asserting otherwise would test the
+// sentence the requirement wrote down to exclude.
+//
+// docs/spec/_assets/tbl-settings.md:245 (表 T-206, S-138):
+//   | S-138 | 入口の図形を描く箱の一辺（`FR-029`） | 12px 🔎 | ... |
+//   ⛔ 「閲覧者の文字サイズに追随させない」 -- which is why a box stated in `em`
+//      is a failure here and not a difference of spelling.
+//   ⭐ Why the row is in 表 T-206 at all: 「書き出す絵に入口は出ない（表 T-076
+//      の `EP-1` と `EP-4`）ので、渡した相手の絵はこの値で変わらない」. EP-1
+//      draws the header's band and its `Document Title` and nothing else of it;
+//      EP-4 draws no row control at all. So this number is a dimension of the
+//      screen's tools and never of the document. ⛔ Nothing below asks this unit
+//      about the export: 表 T-076 belongs to ImageExporter (CP-21) and UF-71
+//      draws the screen.
+//
+// ⭐ MEASURED, NOT ASSUMED. `S-138` was changed in the manuscript
+// (`docs/spec/_source/settings.json`, 12 -> 21) and `npm run gen:settings` was
+// re-run: 8 of the cases below turned red and 82 stayed green, each failure
+// naming the row and the surface it was drawn on and reporting the 12px the
+// unit had drawn. Putting the 12 back and re-running the generator restored
+// both files byte for byte (sha256 unchanged; 78,301 and 37,581 bytes). So the
+// expectations here really are the manuscript's, and not a number typed twice.
+// ===========================================================================
+
+/** 表 T-051 HF-5's first MUST, copied from docs/spec/01-04-requirements.md:1312. */
+const T_051_HF5_SAME_SIZE_HERE = '操作子を同じ大きさで描くこと（MUST）'
+
+/** FR-029's two sentences about the box, copied from docs/spec/01-04-requirements.md:3699. */
+const FR_029_THE_BOX = '図形を描く箱の一辺は'
+const FR_029_NOT_BY_SURFACE = '載る面によって変えてはならない（MUST NOT）'
+
+/**
+ * One entry per surface a shape is drawn on, each with the row of 表 T-109 that
+ * names it and the 面 that table puts it on.
+ *
+ * ⭐ 表 T-109 (docs/spec/_assets/tbl-glossary.md:465, 497, 503-506):
+ *   | IC-20 | `App Header`       | ... | `Agent API` を有効にする・無効にする |
+ *   | IC-52 | `Help Modal` / ... | ... | 開いている面を閉じる |
+ *   | IC-58 | `Row Title Panel`  | ... | 行の配下を 1 段開く |
+ *   | IC-59 | `Row Title Panel`  | ... | 行の配下をすべて閉じる |
+ *   | IC-60 | `Row Title Panel`  | ... | 行をピン止めし、同じ入口で外す |
+ *   | IC-61 | `Command Palette`  | ... | 依存線を構える |
+ * ⛔ Four different 面 on purpose: the header, the floating palette, a surface
+ * opened OVER the screen, and the controls on a row. That is the whole of what
+ * FR-029's MUST NOT is about, and one surface would not test it.
+ */
+const T_109_ONE_PER_SURFACE = [
+  { row: 'IC-20', surface: 'App Header' },
+  { row: 'IC-61', surface: 'Command Palette' },
+  { row: 'IC-52', surface: 'Help Modal' },
+  { row: 'IC-58', surface: 'Row Title Panel' },
+  { row: 'IC-59', surface: 'Row Title Panel' },
+  { row: 'IC-60', surface: 'Row Title Panel' },
+] as const
+
+/** A description that puts an entry on each of the four surfaces above at once. */
+const EVERY_SURFACE_VIEW: ScreenView = viewWith({
+  appHeaderItems: {
+    ...EMPTY_HEADER,
+    commands: [command({ icon: 'IC-20', label: 'AgentApiOnOff' })],
+  },
+  commandPalette: PALETTE,
+  openModal: HELP_MODAL,
+  rowTitlePanel: {
+    pinnedTitles: [],
+    titles: [
+      rowTitle({
+        groupId: 'g-1',
+        label: 'RowOne',
+        expander: { canOpen: true, canClose: true },
+      }),
+    ],
+  },
+})
+
+/** The one node carrying a row of 表 T-109, anywhere under the node given. */
+function iconEntry(root: FakeElement, icon: string): FakeElement {
+  const found = selfAndDescendants(root).filter((one) => one.getAttribute('data-icon') === icon)
+  const first = found[0]
+  if (first === undefined) throw new Error(`nothing carries data-icon="${icon}"`)
+  return first
+}
+
+/**
+ * What the shape's box measures on one axis, as the node states it.
+ *
+ * ⚠️ Read off the SVG element itself, which is the box FR-029 means -- 「一辺が
+ * 定めるのは図形の箱であって、それを載せる入口の外形ではない」. Either spelling
+ * counts, because no table settles one: SVG carries `width` / `height` as
+ * presentation attributes and a declaration overrides them, so the declaration
+ * is read first and the attribute behind it.
+ */
+function glyphSide(shape: FakeElement, axis: 'width' | 'height'): string {
+  const declared = styleMap(shape).get(axis)
+  if (declared !== undefined && declared.trim() !== '') return declared.trim().toLowerCase()
+  const attribute = shape.getAttribute(axis)
+  if (attribute !== null && attribute.trim() !== '') return attribute.trim().toLowerCase()
+  throw new Error(`the shape states no ${axis} at all: ${serialize(shape)}`)
+}
+
+/**
+ * That length in CSS pixels, or `null` where it is stated in anything else.
+ *
+ * ⛔ `null` for `em`, `rem`, `%` and `ex` is the point rather than a limitation:
+ * S-138's cell says 「閲覧者の文字サイズに追随させない」, so a box that follows
+ * the reader's text size is the failure that sentence names.
+ */
+function pixelsOf(value: string): number | null {
+  const found = /^(-?\d+(?:\.\d+)?)(?:px)?$/.exec(value.trim())
+  return found === null ? null : Number(found[1])
+}
+
+/** Both sides of one entry's box, for a comparison across surfaces. */
+const glyphBoxOf = (entry: FakeElement): { readonly width: string; readonly height: string } => {
+  const shape = shapeIn(entry)
+  return { width: glyphSide(shape, 'width'), height: glyphSide(shape, 'height') }
+}
+
+describe('the manuscript still says what the S-138 cases copy', () => {
+  it('表 T-206 still holds S-138 as the side of the box, in px', () => {
+    // ⭐ THE CASE THAT MAKES THE OTHERS HONEST. Every expectation below is
+    // `S_138.px`, read out of 表 T-206 when this file is read. If the row ever
+    // stops stating a px length the reader throws, and this case says so in one
+    // line instead of six failing somewhere else.
+    expect(S_138.px).toBeGreaterThan(0)
+    expect(S_138.cell).toContain('px')
+    // ⛔ 表 T-206 is 「保存しないもの」 -- the row is there BECAUSE the export
+    // draws no entrance (EP-1 / EP-4 of 表 T-076), so the picture a reader was
+    // handed cannot differ by this number.
+    expect(specTable('T-206').caption).toContain('保存しないもの')
+    const row = specTable('T-206').rows.find((one) => one.id === 'S-138')
+    expect(row?.by['値']).toContain('FR-029')
+    expect(row?.by['保存しない理由']).toContain('EP-1')
+    expect(row?.by['保存しない理由']).toContain('EP-4')
+  })
+
+  it('FR-029 still points at S-138 and still forbids the surface to change it', () => {
+    const requirements = readFileSync(
+      join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+      'utf8',
+    )
+    expect(requirements).toContain(FR_029_THE_BOX)
+    expect(requirements).toContain('S-138')
+    expect(requirements).toContain(FR_029_NOT_BY_SURFACE)
+    // ⚠️ And the sentence that keeps these cases off the entry's outline.
+    expect(requirements).toContain('一辺が定めるのは図形の箱であって')
+  })
+
+  it('表 T-051 HF-5 still asks for one size whatever the name is', () => {
+    const hf5 = specTable('T-051').rows.find((one) => one.id === 'HF-5')
+    expect(hf5, '表 T-051 no longer holds HF-5').toBeDefined()
+    expect(hf5?.cells.join(' ')).toContain(T_051_HF5_SAME_SIZE_HERE)
+  })
+
+  it('表 T-109 still puts each of these entries on the surface its case expects', () => {
+    const rows = specTable('T-109').rows
+    for (const one of T_109_ONE_PER_SURFACE) {
+      const row = rows.find((held) => held.id === one.row)
+      expect(row, `表 T-109 no longer holds ${one.row}`).toBeDefined()
+      expect(row?.by['面'], `${one.row} left the ${one.surface}`).toContain(one.surface)
+    }
+    // ⛔ Four different 面, or the MUST NOT below is not being tested.
+    expect(new Set(T_109_ONE_PER_SURFACE.map((one) => one.surface)).size).toBe(4)
+  })
+})
+
+describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever surface it sits', () => {
+  const drawEverySurface = (): Stage => {
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(EVERY_SURFACE_VIEW)
+    return built
+  }
+
+  it.each(T_109_ONE_PER_SURFACE)(
+    '⭐ GIVEN $row is drawn on the $surface WHEN the box its shape is drawn in is read THEN both sides are S-138 (FR-029 MUST, 表 T-206 S-138) -- $row',
+    ({ row, surface }) => {
+      const built = drawEverySurface()
+      const box = glyphBoxOf(iconEntry(built.root(), row))
+
+      expect(pixelsOf(box.width), `${row} on the ${surface} draws its shape ${box.width} wide`).toBe(
+        S_138.px,
+      )
+      expect(
+        pixelsOf(box.height),
+        `${row} on the ${surface} draws its shape ${box.height} tall`,
+      ).toBe(S_138.px)
+    },
+  )
+
+  it('⛔ GIVEN entries on the header, the palette, an open surface and a row WHEN their boxes are compared THEN not one of them differs (FR-029: 載る面によって変えてはならない -- MUST NOT)', () => {
+    // ⛔ THE MUST NOT, TESTED AS ONE COMPARISON RATHER THAN AS FOUR EQUALITIES
+    // AGAINST A NUMBER. 「同じ図形が面ごとに違う大きさで出ると、同じものだと読め
+    // なくなる」 is about the four being the SAME, so a drawing side that had
+    // settled on one WRONG number everywhere is caught by the case above while
+    // this one stays true -- which is the honest division between the two rules.
+    const built = drawEverySurface()
+    const boxes = T_109_ONE_PER_SURFACE.map((one) => ({
+      row: one.row,
+      surface: one.surface,
+      ...glyphBoxOf(iconEntry(built.root(), one.row)),
+    }))
+
+    const spelled = boxes.map((one) => `${one.width} x ${one.height}`)
+    expect(
+      new Set(spelled).size,
+      `the surfaces draw different boxes: ${boxes
+        .map((one) => `${one.row} on the ${one.surface} = ${one.width} x ${one.height}`)
+        .join(' | ')}`,
+    ).toBe(1)
+  })
+
+  it("⛔ GIVEN a box is read WHEN its unit is examined THEN it is stated in px and not in the reader's own text size (表 T-206 S-138: 閲覧者の文字サイズに追随させない)", () => {
+    const built = drawEverySurface()
+
+    for (const one of T_109_ONE_PER_SURFACE) {
+      const box = glyphBoxOf(iconEntry(built.root(), one.row))
+      for (const [axis, stated] of Object.entries(box)) {
+        // ⚠️ `pixelsOf` answers null for `em` / `rem` / `%` / `ex`, which is the
+        // whole of this case: a shape sized in `em` grows with the machine's
+        // text size, and the row says in as many words that it must not.
+        expect(
+          pixelsOf(stated),
+          `${one.row} states its ${axis} as "${stated}", which follows the reader's text size`,
+        ).not.toBeNull()
+      }
+    }
+  })
+
+  it('⭐ GIVEN two rows at different depths, set down by different amounts WHEN their controls are read THEN the box is the same on both (表 T-051 HF-5 MUST: 行の名前の文字サイズにかかわらず、操作子を同じ大きさで描くこと)', () => {
+    // ⚠️ WHAT THIS UNIT CAN BE ASKED. `RowTitle` carries no text size -- the
+    // name's size follows the depth through S-36 and S-38, which live on the far
+    // side of IF-9 -- so what reaches here is the DEPTH and the amount the
+    // controls are set down by (`controlTopOffsetPx`, which HF-5 makes
+    // proportional to that size). If either of those moved the box, HF-5's first
+    // MUST would be broken on this side of the seam.
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [],
+          titles: [
+            rowTitle({
+              groupId: 'g-shallow',
+              label: 'ShallowRow',
+              depth: 1,
+              box: rect(0, 40, 170, 40),
+              controlTopOffsetPx: 6,
+              expander: { canOpen: true, canClose: true },
+            }),
+            rowTitle({
+              groupId: 'g-deep',
+              label: 'DeepRow',
+              depth: 5,
+              box: rect(0, 80, 170, 18),
+              controlTopOffsetPx: 2,
+              expander: { canOpen: true, canClose: true },
+            }),
+          ],
+        },
+      }),
+    )
+
+    const rows = selfAndDescendants(built.root()).filter((one) => one.hasAttribute('data-group-id'))
+    expect(rows, 'the panel did not draw two rows').toHaveLength(2)
+
+    for (const icon of ['IC-58', 'IC-59', 'IC-60']) {
+      const boxes = rows.map((one) => glyphBoxOf(iconEntry(one, icon)))
+      expect(boxes[0], `${icon} is drawn in two different boxes`).toEqual(boxes[1])
+      expect(pixelsOf(boxes[0]?.width ?? ''), `${icon} is not S-138 wide`).toBe(S_138.px)
+      expect(pixelsOf(boxes[0]?.height ?? ''), `${icon} is not S-138 tall`).toBe(S_138.px)
+    }
+  })
+
+  it('GIVEN the same entry drawn on two different 面 WHEN both are read THEN neither scales it (FR-029 MUST NOT) -- IC-52', () => {
+    // ⚠️ 表 T-109 puts IC-52 on FIVE surfaces at once（`Help Modal` / `AI Export
+    // Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser`）, so it is
+    // the one row that can be drawn on two different 面 and compared without a
+    // second row entering the comparison.
+    const built = wire({ 'App Header': 37 })
+    const surface = surfaceOf(built)
+
+    surface.showScreenView(viewWith({ openModal: HELP_MODAL }))
+    const onHelp = glyphBoxOf(iconEntry(built.root(), 'IC-52'))
+
+    surface.showScreenView(
+      viewWith({
+        openModal: {
+          surface: 'Resource Roster',
+          heading: 'RosterHeading',
+          commands: [command({ icon: 'IC-52', label: 'CloseRoster' })],
+          resources: [],
+        },
+      }),
+    )
+    const onRoster = glyphBoxOf(iconEntry(built.root(), 'IC-52'))
+
+    expect(onRoster).toEqual(onHelp)
+    expect(pixelsOf(onRoster.width)).toBe(S_138.px)
+    expect(pixelsOf(onRoster.height)).toBe(S_138.px)
   })
 })
 

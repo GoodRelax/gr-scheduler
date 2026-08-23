@@ -244,17 +244,26 @@ export function tooltipsFromScreenView(
   // the same reason `RowTitlePanel` prints them first.
   const rowTitles = [...shown.rowTitlePanel.pinnedTitles, ...shown.rowTitlePanel.titles]
 
-  // STOP -- ⛔ NOT REACHABLE: the whole of the name FR-085 asks to be shown.
-  // `RowTitle.label` is the name AFTER the cut, and `Schedule`, which holds
-  // `TaskGroup.label` (AT-53), is not an argument of this unit. Searched:
-  // FR-085, the `RowTitle` contract and the nine unit contracts in
-  // `screen-renderer.ts`. ⭐ What is carried stands in: the anchor -- WHICH row
-  // was cut -- is right either way, and that is what the surface needs to place
-  // the explanation. ⚠️ A row with no name has nothing to cut, so a truncation
-  // claimed on a null label is dropped rather than shown as an empty tooltip.
+  // FR-085 (MUST): a name too long for the panel is cut, and the WHOLE of it is
+  // what the tooltip shows -- `wholeLabel`, never `label`.
+  //
+  // ⛔ THIS READ `label` UNTIL A SPEC-DRIVEN CASE CAUGHT IT, and the STOP note
+  // that stood here argued the whole name was unreachable because `Schedule`
+  // (which holds AT-53) is not an argument of this unit. That was true when it
+  // was written and stopped being true when `RowTitle.wholeLabel` arrived: its
+  // contract resolves the name ONCE, on the side that cut it, precisely so this
+  // unit does not resolve FR-058's substitution a second time. ⚠️ The bug was
+  // invisible because the tooltip was raised on the right question -- a reader
+  // hovered a cut name and was shown the same cut name, so FR-085 bought
+  // nothing.
+  //
+  // ⚠️ A row with no name has nothing to cut, so a truncation claimed on a null
+  // name is dropped rather than shown as an empty tooltip. The contract makes
+  // `isLabelTruncated` exactly `wholeLabel !== null && wholeLabel !== label`,
+  // so the guard below cannot drop a row that really was cut.
   for (const title of rowTitles) {
-    if (!title.isLabelTruncated || title.label === null) continue
-    tooltips.push({ anchor: { kind: 'rowTitle', groupId: title.groupId }, text: title.label })
+    if (!title.isLabelTruncated || title.wholeLabel === null) continue
+    tooltips.push({ anchor: { kind: 'rowTitle', groupId: title.groupId }, text: title.wholeLabel })
   }
 
   if (pointer === null) return tooltips

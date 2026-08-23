@@ -329,6 +329,9 @@ const rowOf = (
   expander: { canOpen: true, canClose: true },
   isPinned: false,
   isSelected: false,
+  // S-139 of table T-206 (0.25) times this row's name size. That size is S-36
+  // of table T-201 (13px), taken times S-38 (1.3) on a root row -- depth 1.
+  controlTopOffsetPx: (depth === 1 ? 13 * 1.3 : 13) * 0.25,
 })
 
 const viewOf = (

@@ -39,13 +39,21 @@
 // questions were searched for; three still have no answer in docs/spec, and no
 // case here invents one. The third is kept with the answer it has since been
 // given:
-//   * WHICH icon the pointer rests on. EZ-2 asks for the explanation of THAT
-//     icon, and no `CommandItem` carries a rectangle -- so a case here never
-//     asserts that ONLY one icon answers, only that the icon it names does.
+//   * WHICH icon the pointer rests on -- ⚠️ ANSWERED SINCE, and the cases below
+//     were rewritten for it. `ScreenSession.iconUnderPointer` (PD-141) now
+//     carries the row of 表 T-109 the pointer is resting on, which is EZ-2's
+//     PLACE condition, so a case may and does assert that the icons the pointer
+//     is NOT on are left unexplained.
 //   * WHETHER resting for EXACTLY `iconHintDelayMs` is already "after" it.
-//     S-124 gives the wait and EZ-2 gives no boundary, and `iconHintDelayMs` is
-//     none of the three pairs rule 03 section 2 settles (min/max, begin/end,
-//     first/last). Every case below rests strictly under or strictly over it.
+//     ⚠️ S-124 gives the wait and EZ-2 gives no boundary in as many words, and
+//     `iconHintDelayMs` is none of the three pairs rule 03 section 2 settles
+//     (min/max, begin/end, first/last). The endpoint is nonetheless asserted to
+//     be INSIDE the wait, on the plain reading of 「待ち時間」 ＝ 3000 ms: once
+//     3000 ms have been waited, the wait asked for has been served. ⚠️ A case is
+//     marked below so that a ruling the other way is a one-line change.
+//   * WHETHER two entries carrying the SAME row of 表 T-109 answer once or
+//     twice, now that the place condition is an `IconId` and not an entry.
+//     Nothing decides it, so the case asks only that the row is explained.
 //   * THE WORDS FR-037 puts on the screen -- ⚠️ ANSWERED SINCE. FR-038's fifth
 //     paragraph (MUST) now holds every printed word in one per-language
 //     dictionary, and Chapter 6.2 (MUST) fixes the manuscript and the one
@@ -75,6 +83,7 @@ import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/s
 import type {
   CommandItem,
   DisplayLanguage,
+  IconId,
   RowTitle,
   Scrollbar,
   ScreenSession,
@@ -178,6 +187,10 @@ const DICTIONARY = JSON.parse(
     readonly rowId: string
     readonly hint: Readonly<Record<DisplayLanguage, string>>
   }[]
+  readonly assignments: readonly {
+    readonly rowId: string
+    readonly text: Readonly<Record<DisplayLanguage, string>>
+  }[]
 }
 
 /** The explanation EZ-2 shows for one row of 表 T-109, in one display language. */
@@ -185,6 +198,13 @@ const hintWordOf = (row: string, language: DisplayLanguage): string => {
   const held = DICTIONARY.icons.find((one) => one.rowId === row)
   expect(held, `FR-038: the dictionary holds no explanation for ${row}`).toBeDefined()
   return (held as { readonly hint: Readonly<Record<DisplayLanguage, string>> }).hint[language]
+}
+
+/** The words FR-037 shows for one row of 表 T-023, in one display language. */
+const assignmentWordOf = (row: string, language: DisplayLanguage): string => {
+  const held = DICTIONARY.assignments.find((one) => one.rowId === row)
+  expect(held, `FR-038: the dictionary holds no assignment for ${row}`).toBeDefined()
+  return (held as { readonly text: Readonly<Record<DisplayLanguage, string>> }).text[language]
 }
 
 const SHOWN_ROW_NAME = 'a row name long enough to be cut'
@@ -205,6 +225,10 @@ const rowTitleOf = (part: Partial<RowTitle> = {}): RowTitle => {
     expander: null,
     isPinned: false,
     isSelected: false,
+    // HF-5 of table T-051 sets the row's controls down by this much. ⭐ Zero
+    // because UF-69 never reads it: what this unit answers about a row is
+    // FR-085's whole name, and no case here would move if the number did.
+    controlTopOffsetPx: 0,
     ...part,
   }
 }
@@ -283,8 +307,21 @@ const sessionOf = (part: Partial<ScreenSession>): ScreenSession => ({
   ...part,
 })
 
-/** A pointer that is in the window and has waited longer than EZ-2 asks. */
+/**
+ * A pointer that is in the window and has waited longer than EZ-2 asks, resting
+ * on NO icon. ⚠️ EZ-2's place condition is therefore unmet: this is the session
+ * FR-085 and FR-037 are asked with, and the one that shows an icon is never
+ * explained by the wait alone.
+ */
 const RESTED = sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS + 1 })
+
+/**
+ * A pointer resting ON one row of 表 T-109 -- EZ-2's PLACE condition, which
+ * `ScreenSession.iconUnderPointer` (PD-141) carries -- for a rest of `restedMs`,
+ * which is its TIME condition.
+ */
+const restingOn = (icon: IconId, restedMs: number = WAIT_MS + 1): ScreenSession =>
+  sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: restedMs, iconUnderPointer: icon })
 
 // ---------------------------------------------------------------------------
 // Reading the answer.
@@ -344,11 +381,11 @@ describe('UF-69 — nothing to explain', () => {
 })
 
 describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
-  it('shows it once the pointer is in the window and has rested longer than the wait', () => {
+  it('shows it once the pointer has rested ON an icon longer than the wait', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_PALETTE })]) }),
       SETTINGS,
-      RESTED,
+      restingOn(ICON_PALETTE),
     )
 
     expect(shown).toHaveLength(1)
@@ -371,7 +408,12 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
       const shown = tooltipsFromScreenView(
         viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_PALETTE })]) }),
         SETTINGS,
-        sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS + 1, language }),
+        sessionOf({
+          pointer: { x: 5, y: 5 },
+          pointerRestedMs: WAIT_MS + 1,
+          iconUnderPointer: ICON_PALETTE,
+          language,
+        }),
       )
       expect(shown[0]?.text, language).toBe(hintWordOf(ICON_PALETTE, language))
     }
@@ -385,9 +427,23 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ appHeaderItems: headerWith([commandOf()]) }),
       SETTINGS,
-      sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS - 1 }),
+      restingOn(ICON_OPEN, WAIT_MS - 1),
     )
     expect(shown).toEqual([])
+  })
+
+  it('shows it once the rest reaches the wait exactly', () => {
+    // ⚠️ THE ONE BOUNDARY EZ-2 DOES NOT SPELL OUT. S-124 is 「アイコンの説明を
+    // 出すまでの待ち時間」, and a wait of that many milliseconds has been served
+    // once that many have passed -- so the endpoint is inside. ⛔ Should the
+    // manuscript ever say otherwise, this case is the one line to move, and the
+    // two beside it (`WAIT_MS - 1`, `WAIT_MS + 1`) stand either way.
+    const shown = tooltipsFromScreenView(
+      viewOf({ appHeaderItems: headerWith([commandOf()]) }),
+      SETTINGS,
+      restingOn(ICON_OPEN, WAIT_MS),
+    )
+    expect(iconsOf(shown)).toEqual([ICON_OPEN])
   })
 
   it('shows nothing while the pointer is outside the window, however long the rest', () => {
@@ -396,7 +452,7 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ appHeaderItems: headerWith([commandOf()]) }),
       SETTINGS,
-      sessionOf({ pointer: null, pointerRestedMs: WAIT_MS * 10 }),
+      sessionOf({ pointer: null, pointerRestedMs: WAIT_MS * 10, iconUnderPointer: ICON_OPEN }),
     )
     expect(shown).toEqual([])
   })
@@ -404,9 +460,10 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
   it('takes the wait from the settings and not from a number of its own', () => {
     // ⭐ 04-verification.md 2.: a value only reaches the code if changing it
     // changes the answer. One rest, under the manuscript's wait and over a
-    // shorter one.
+    // shorter one. ⛔ `WAIT_MS` itself is read from the generated defaults, so a
+    // manuscript that moved S-124 moves both halves of this case together.
     const view = viewOf({ appHeaderItems: headerWith([commandOf()]) })
-    const resting = sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS - 1 })
+    const resting = restingOn(ICON_OPEN, WAIT_MS - 1)
 
     expect(tooltipsFromScreenView(view, SETTINGS, resting)).toEqual([])
     expect(
@@ -414,32 +471,32 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     ).toHaveLength(1)
   })
 
-  it('reaches every part of the frame that holds entries a person can press', () => {
+  it('reaches an icon on any part of the frame that holds entries a person can press', () => {
     // 表 T-109 places its rows on several surfaces at once: the `App Header`,
     // the `Command Palette`, and the surface a person opened (IC-52 closes it).
-    const shown = tooltipsFromScreenView(
-      viewOf({
-        appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN })]),
-        commandPalette: {
-          // ⭐ A CORNER, NOT A RECTANGLE (FR-053, MUST / MUST NOT).
-          at: { x: 300, y: 300 },
-          // ⚠️ INERT HERE -- see the note by the other palette in this file.
-          grabBandHeight: BAND_HEIGHT_NO_CASE_MEANS,
-          groups: [{ name: '表示', commands: [commandOf({ icon: ICON_PALETTE })] }],
-          armedText: 'なし',
-        },
-        openModal: {
-          surface: 'Help Modal',
-          heading: 'ヘルプ',
-          commands: [commandOf({ icon: ICON_CLOSE })],
-        },
-      }),
-      SETTINGS,
-      RESTED,
-    )
+    // EZ-2 names no surface, so resting on any of the three is explained.
+    const view = viewOf({
+      appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN })]),
+      commandPalette: {
+        // ⭐ A CORNER, NOT A RECTANGLE (FR-053, MUST / MUST NOT).
+        at: { x: 300, y: 300 },
+        // ⚠️ INERT HERE -- see the note by the other palette in this file.
+        grabBandHeight: BAND_HEIGHT_NO_CASE_MEANS,
+        groups: [{ name: '表示', commands: [commandOf({ icon: ICON_PALETTE })] }],
+        armedText: 'なし',
+      },
+      openModal: {
+        surface: 'Help Modal',
+        heading: 'ヘルプ',
+        commands: [commandOf({ icon: ICON_CLOSE })],
+      },
+    })
 
-    expect(iconsOf(shown)).toEqual(expect.arrayContaining([ICON_OPEN, ICON_PALETTE, ICON_CLOSE]))
-    expect(shown).toHaveLength(3)
+    for (const icon of [ICON_OPEN, ICON_PALETTE, ICON_CLOSE]) {
+      const shown = tooltipsFromScreenView(view, SETTINGS, restingOn(icon))
+      expect(iconsOf(shown), icon).toEqual([icon])
+      expect(shown[0]?.text, icon).toBe(hintWordOf(icon, EMPTY_SESSION.language))
+    }
   })
 
   it('answers for a palette that holds no group and a surface that holds no entry', () => {
@@ -462,23 +519,66 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
   })
 })
 
+describe('EZ-2 (表 T-040, FR-092) — THAT icon, and no other', () => {
+  /** Three entries a person can press, one on each surface EZ-2 can reach. */
+  const THREE_ICONS = viewOf({
+    appHeaderItems: headerWith([
+      commandOf({ icon: ICON_OPEN }),
+      commandOf({ icon: ICON_PALETTE }),
+      commandOf({ icon: ICON_CLOSE }),
+    ]),
+  })
+
+  it('explains only the icon the pointer is on, however many are drawn', () => {
+    // 「そのアイコンの説明を出すこと」-- THAT icon's. The other two are on the
+    // screen and the wait has passed for all of them alike, so an answer wider
+    // than one row is EZ-2's place condition going unread.
+    const shown = tooltipsFromScreenView(THREE_ICONS, SETTINGS, restingOn(ICON_PALETTE))
+
+    expect(iconsOf(shown)).toEqual([ICON_PALETTE])
+    expect(shown[0]?.text).toBe(hintWordOf(ICON_PALETTE, EMPTY_SESSION.language))
+  })
+
+  it('explains none of them while the pointer rests on no icon, however long', () => {
+    // 「アイコンにポインタを合わせて」-- a pointer that is on no icon has been
+    // put on none of these, and time does not supply the place.
+    const shown = tooltipsFromScreenView(
+      THREE_ICONS,
+      SETTINGS,
+      sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS * 10 }),
+    )
+    expect(shown).toEqual([])
+  })
+
+  it('moves the explanation with the pointer, one icon at a time', () => {
+    for (const icon of [ICON_OPEN, ICON_PALETTE, ICON_CLOSE]) {
+      expect(iconsOf(tooltipsFromScreenView(THREE_ICONS, SETTINGS, restingOn(icon))), icon).toEqual([
+        icon,
+      ])
+    }
+  })
+})
+
 describe('FR-029 — an entry that cannot be used, and the same entry twice', () => {
+  const DISABLED_ONLY = viewOf({
+    appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN, isEnabled: false })]),
+  })
+
   it('explains an entry that cannot be used', () => {
     // FR-029's RATIONALE: 「無反応だと故障に見える…操作できないものがその理由を
     // 示すこと」. ⛔ The REASON itself is not asserted: no member of
     // `CommandItem` carries one, so the seam cannot express what FR-029 asks
     // for -- only that the entry is not left silent.
-    const shown = tooltipsFromScreenView(
-      viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN, isEnabled: false })]) }),
-      SETTINGS,
-      RESTED,
-    )
+    const shown = tooltipsFromScreenView(DISABLED_ONLY, SETTINGS, restingOn(ICON_OPEN))
 
     expect(iconsOf(shown)).toContain(ICON_OPEN)
     expect(shown[0]?.text.length).toBeGreaterThan(0)
   })
 
-  it('explains what can be used and what cannot, side by side', () => {
+  it('does not let an entry that cannot be used escape EZ-2 place condition', () => {
+    // ⭐ FR-029 adds a REASON to show; it does not add a second way of raising
+    // one. EZ-2 is still 「そのアイコンの」, so an entry the pointer is not on is
+    // not explained just because it cannot be pressed.
     const shown = tooltipsFromScreenView(
       viewOf({
         appHeaderItems: headerWith([
@@ -487,15 +587,42 @@ describe('FR-029 — an entry that cannot be used, and the same entry twice', ()
         ]),
       }),
       SETTINGS,
-      RESTED,
+      restingOn(ICON_PALETTE),
     )
-    expect(iconsOf(shown)).toEqual(expect.arrayContaining([ICON_OPEN, ICON_PALETTE]))
+    expect(iconsOf(shown)).toEqual([ICON_PALETTE])
   })
 
-  it('does not fold two entries that carry the same icon into one', () => {
+  it('does not let an entry that cannot be used escape EZ-2 wait either', () => {
+    const shown = tooltipsFromScreenView(
+      DISABLED_ONLY,
+      SETTINGS,
+      restingOn(ICON_OPEN, WAIT_MS - 1),
+    )
+    expect(shown).toEqual([])
+  })
+
+  it('explains what can be used and what cannot with the same words per row', () => {
+    // 表 T-109 keys the explanation by the ROW, and neither FR-029 nor FR-038
+    // gives an entry that cannot be used a second word -- so what is shown does
+    // not turn on `isEnabled`.
+    const disabled = tooltipsFromScreenView(DISABLED_ONLY, SETTINGS, restingOn(ICON_OPEN))
+    const enabled = tooltipsFromScreenView(
+      viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN, isEnabled: true })]) }),
+      SETTINGS,
+      restingOn(ICON_OPEN),
+    )
+
+    expect(iconsOf(disabled)).toEqual([ICON_OPEN])
+    expect(iconsOf(enabled)).toEqual([ICON_OPEN])
+    expect(disabled[0]?.text).toBe(hintWordOf(ICON_OPEN, EMPTY_SESSION.language))
+    expect(enabled[0]?.text).toBe(hintWordOf(ICON_OPEN, EMPTY_SESSION.language))
+  })
+
+  it('still explains the row when the same icon stands in two places', () => {
     // 「同じ機能の入口を画面上の 2 か所に置いてはならない（MUST NOT）」-- the
-    // repeat is a fault where the entry is HELD. Folding it away here would
-    // hide the very thing FR-029 forbids, and no rule asks this unit to.
+    // repeat is a fault where the entry is HELD, not here. ⛔ HOW MANY times the
+    // row answers is NOT asserted: EZ-2's place condition is a row of 表 T-109
+    // and not an entry, so nothing decides between one answer and two.
     const shown = tooltipsFromScreenView(
       viewOf({
         appHeaderItems: headerWith([commandOf({ icon: ICON_PALETTE })]),
@@ -506,9 +633,10 @@ describe('FR-029 — an entry that cannot be used, and the same entry twice', ()
         },
       }),
       SETTINGS,
-      RESTED,
+      restingOn(ICON_PALETTE),
     )
-    expect(iconsOf(shown)).toEqual([ICON_PALETTE, ICON_PALETTE])
+    expect(iconsOf(shown)).toContain(ICON_PALETTE)
+    expect(new Set(iconsOf(shown))).toEqual(new Set([ICON_PALETTE]))
   })
 })
 
@@ -527,7 +655,10 @@ describe('FR-085 — the whole of a row name that was cut', () => {
 
     expect(shown).toHaveLength(1)
     expect(shown[0]?.anchor).toEqual({ kind: 'rowTitle', groupId: 'g7' })
-    expect(shown[0]?.text.length).toBeGreaterThan(0)
+    // 「末尾を打ち切り、全文をツールチップで出すこと（MUST）」-- the WHOLE name,
+    // which is `RowTitle.wholeLabel`, and not the leading part left on the panel.
+    expect(shown[0]?.text).toBe(title.wholeLabel)
+    expect(shown[0]?.text).not.toBe(title.label)
   })
 
   it('explains nothing for a row whose name was not cut', () => {
@@ -611,6 +742,23 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
     expect(textAt(onVertical, 'vertical')).not.toBe(textAt(onHorizontal, 'horizontal'))
   })
 
+  it('shows the words FR-038 holds for the row of 表 T-023 each axis is faster by', () => {
+    // ⚠️ ANSWERED SINCE the note at the head of this file was written. FR-038's
+    // fifth paragraph (MUST) now holds every printed word in one per-language
+    // dictionary, keyed by the row -- so which row each lane teaches can be
+    // asserted, and T_023_FASTER above is the fixed copy it is asserted from.
+    const view = viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES } })
+    const onVertical = tooltipsFromScreenView(view, SETTINGS, at(VERTICAL_TRACK.x + 5, 300))
+    const onHorizontal = tooltipsFromScreenView(view, SETTINGS, at(50, HORIZONTAL_TRACK.y + 5))
+
+    expect(textAt(onVertical, T_023_FASTER[0].axis)).toBe(
+      assignmentWordOf(T_023_FASTER[0].row, EMPTY_SESSION.language),
+    )
+    expect(textAt(onHorizontal, T_023_FASTER[1].axis)).toBe(
+      assignmentWordOf(T_023_FASTER[1].row, EMPTY_SESSION.language),
+    )
+  })
+
   it('takes it away when the pointer leaves', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES } }),
@@ -670,6 +818,79 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
   })
 })
 
+describe('IN-3 (表 T-028) — the three raisers each keep their own conditions', () => {
+  const CUT_ROW = rowTitleOf({ groupId: 'g7', box: rect(0, 0, 200, 24), isLabelTruncated: true })
+
+  /** A frame that holds all three of IN-3's raisers at once. */
+  const ALL_THREE = viewOf({
+    frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES },
+    appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN })]),
+    rowTitlePanel: { pinnedTitles: [], titles: [CUT_ROW] },
+  })
+
+  /** On the vertical lane, and resting on the header's icon for `restedMs`. */
+  const onLaneAndIcon = (restedMs: number): ScreenSession =>
+    sessionOf({
+      pointer: { x: VERTICAL_TRACK.x + 5, y: 300 },
+      pointerRestedMs: restedMs,
+      iconUnderPointer: ICON_OPEN,
+    })
+
+  it('raises all three when each of their own conditions is met', () => {
+    // IN-3's last line: 「出す引き金は `FR-092` の `EZ-2` ／ `FR-085` ／ `FR-037`
+    // が持つ」-- three triggers, not one, so a frame may carry all three at once.
+    const shown = tooltipsFromScreenView(ALL_THREE, SETTINGS, onLaneAndIcon(WAIT_MS + 1))
+
+    expect(iconsOf(shown)).toEqual([ICON_OPEN])
+    expect(rowsOf(shown)).toEqual(['g7'])
+    expect(axesOf(shown)).toEqual(['vertical'])
+  })
+
+  it('leaves the other two standing while EZ-2 wait has not passed', () => {
+    // ⭐ S-124 is EZ-2's wait and EZ-2's alone. FR-085 turns on a name that was
+    // cut and FR-037 on a pointer that is on the lane; neither names a wait, so
+    // holding them back for `iconHintDelayMs` would be a condition invented here.
+    const shown = tooltipsFromScreenView(ALL_THREE, SETTINGS, onLaneAndIcon(0))
+
+    expect(iconsOf(shown)).toEqual([])
+    expect(rowsOf(shown)).toEqual(['g7'])
+    expect(axesOf(shown)).toEqual(['vertical'])
+  })
+
+  it('leaves the other two standing while the pointer rests on no icon', () => {
+    const shown = tooltipsFromScreenView(
+      ALL_THREE,
+      SETTINGS,
+      sessionOf({ pointer: { x: VERTICAL_TRACK.x + 5, y: 300 }, pointerRestedMs: WAIT_MS * 10 }),
+    )
+
+    expect(iconsOf(shown)).toEqual([])
+    expect(rowsOf(shown)).toEqual(['g7'])
+    expect(axesOf(shown)).toEqual(['vertical'])
+  })
+
+  it('raises EZ-2 alone when only its two conditions are met', () => {
+    // The pointer is off both lanes and the panel holds no cut name, so the icon
+    // answers by itself -- the other two are not carried along by it.
+    const shown = tooltipsFromScreenView(
+      viewOf({
+        frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES },
+        appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN })]),
+        rowTitlePanel: {
+          pinnedTitles: [],
+          titles: [rowTitleOf({ groupId: 'g7', isLabelTruncated: false })],
+        },
+      }),
+      SETTINGS,
+      restingOn(ICON_OPEN),
+    )
+
+    expect(iconsOf(shown)).toEqual([ICON_OPEN])
+    expect(rowsOf(shown)).toEqual([])
+    expect(axesOf(shown)).toEqual([])
+  })
+})
+
 describe('IN-3 (表 T-028) and R7.1 — what every tooltip is', () => {
   /** One frame that earns all three kinds at once. */
   const CROWDED = viewOf({
@@ -683,6 +904,7 @@ describe('IN-3 (表 T-028) and R7.1 — what every tooltip is', () => {
   const CROWDED_SESSION = sessionOf({
     pointer: { x: VERTICAL_TRACK.x + 5, y: 300 },
     pointerRestedMs: WAIT_MS + 1,
+    iconUnderPointer: ICON_OPEN,
   })
 
   it('carries what it explains and the words, and nothing else', () => {

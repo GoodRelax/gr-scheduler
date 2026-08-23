@@ -50,8 +50,10 @@
 //   table T-227 DI-5  (MUST) FR-060's path does NOT ask -- so a surface that
 //                  stands whenever a file is written would break this row; the
 //                  surface stands only where a question was raised
-//   table T-028 IN-3  the tooltip's manner -- quoted only to keep it OFF this
-//                  surface: a confirmation is answered, not dismissed by time
+//   table T-028 IN-3  the tooltip's manner -- three conditions (MUST), of which
+//                  the third stands only 「引き金が外れるまで」. Quoted only to
+//                  keep it OFF this surface: a tooltip may go once its trigger
+//                  comes off, while a confirmation goes only when ANSWERED
 //   table T-023a   (MUST) the decision order is applied to the schedule's
 //                  drawing area ALONE -- the confirmation is drawn OVER that
 //                  area and holds no `ScreenRegions` rectangle, so a non-null
@@ -1350,10 +1352,28 @@ describe('the specification still says what these cases copy', () => {
 
   it('GIVEN table T-028 IN-3 WHEN it is read THEN it governs the tooltip, which is not this surface', () => {
     // ⚠️ Quoted to keep IN-3 OFF the confirmation: a tooltip goes away when it
-    // is dismissed, and NT-7 (MUST) has this one wait until it is ANSWERED.
+    // is dismissed AND when its trigger comes off, while NT-7 (MUST) has this
+    // one wait until it is ANSWERED.
+    //
+    // ⭐ THE ROW WAS REWRITTEN, AND SO IS THE MIRROR. IN-3 used to read
+    // 「勝手に消えないこと」 -- absolutely, with no end named. Version 1.05 of
+    // A-appendix.md (CR-240) records why that went: SC 1.4.13 of
+    // `docs/reference/wcag/` limits its third condition to 「引き金が外れるまで」
+    // and the specification 「その限りを落として絶対化していた」. The row now
+    // names three conditions and counts them, so the mirror names all three and
+    // the count with them -- a mirror that could still pass on the old wording,
+    // or on any wording, would not be one.
     const manner = specTable('T-028').rows.find((one) => one.id === 'IN-3')?.cells.join(' ') ?? ''
     expect(manner).toContain('ツールチップ')
-    expect(manner).toContain('勝手に消えないこと')
+    expect(manner).toContain('次の 3 つをすべて満たすこと（MUST）')
+    // Dismissible, Hoverable, Persistent -- the three, in the row's own words.
+    expect(manner).toContain('消せること')
+    expect(manner).toContain('ポインタを乗せられること')
+    expect(manner).toContain('引き金が外れるまで出ていること')
+    // ⭐ And the clause that keeps the row off THIS surface: the tooltip is let
+    // go once its trigger comes off. Nothing takes a confirmation away but an
+    // answer, so a rule with an end of its own cannot be this one's.
+    expect(manner).toContain('引き金が外れたら消してよい')
   })
 })
 
