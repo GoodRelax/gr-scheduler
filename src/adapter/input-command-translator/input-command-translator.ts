@@ -1093,9 +1093,11 @@ function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
 // assignment column and the rows below are matched one by one.
 //
 // ⛔ NOT A ROSTER, and not a count. Table T-109 counts itself (FR-029 forbids
-// the requirement to state the number) and 32 of its rows are absent here on
-// purpose -- the STOP note at the foot of this file says what each of them is
-// missing. ⚠️ `screen-renderer.ts` reads the generated `icon-roster.json`;
+// the requirement to state the number) and the rest of its rows are absent here
+// on purpose -- the STOP note at the foot of this file says what each of them is
+// missing, and holds the ONE count, because a number written twice is a number
+// that goes stale in one of the two places (it had, by eight).
+// ⚠️ `screen-renderer.ts` reads the generated `icon-roster.json`;
 // this component has no edge to that file and must not grow one, so what
 // crosses is the row id alone.
 
@@ -1138,6 +1140,25 @@ const ENTRY = {
    * still LANDS on it -- what it is assigned to is a drag, not a press.
    */
   paletteGrabBand: 'IC-53',
+  /**
+   * IC-58 / IC-59 -- the two halves of U-47 `Row Expander`, spelled from the
+   * name table T-103 settles for it.
+   *
+   * ⛔ TWO CONTROLS, NOT ONE CONTROL IN TWO STATES. HF-1 of table T-051 puts one
+   * of each on every row, and the two are not inverses: HF-2 opens ONE level
+   * (MUST) while HF-3 closes the whole subtree. Reading them as one toggle would
+   * lose HF-2's limit, which is the one thing that row states as a MUST.
+   */
+  rowExpanderOpen: 'IC-58',
+  rowExpanderClose: 'IC-59',
+  /**
+   * IC-60 -- FR-098. U-48 `Row Pin` of table T-103.
+   *
+   * ⭐ ONE ENTRANCE FOR BOTH DIRECTIONS. FR-098 (MUST) has this same control
+   * take the pin off again and gives the reason -- one per row is settled, so a
+   * second entrance for the undoing would be the duplication FR-029 refuses.
+   */
+  rowPin: 'IC-60',
   /** IC-62 -- FR-099. U-49 `Resource Roster` of table T-103. */
   resourceRoster: 'IC-62',
 } as const
@@ -1577,11 +1598,12 @@ function commandFromEntry(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  const entry = press.on === null ? null : press.on.entry
+  const on = press.on
   // On the part but on no entry -- the palette's own body, a surface's
   // background, a notice. The press is this tool's (the browser must not act
   // under it) and writes nothing.
-  if (entry === null) return CONSUMED_ELSEWHERE
+  if (on === null || on.entry === null) return CONSUMED_ELSEWHERE
+  const entry = on.entry
 
   switch (entry) {
     case ENTRY.openDocument:
@@ -1632,9 +1654,144 @@ function commandFromEntry(
         kind: 'moveCommandPalette',
         by: { dx: release.x - press.at.x, dy: release.y - press.at.y },
       })
+    case ENTRY.rowExpanderOpen:
+    case ENTRY.rowExpanderClose:
+    case ENTRY.rowPin:
+      return commandFromRowEntry(entry, on.rowGroupId, context)
     default:
       return commandFromArmingEntry(entry, context)
   }
+}
+
+/**
+ * The three entrances table T-109 draws once per ROW -- IC-58 and IC-59 on
+ * U-47 `Row Expander`, IC-60 on U-48 `Row Pin`.
+ *
+ * ⭐ WHICH ROW IS `ScreenPart.rowGroupId`, AND IT COULD COME FROM NOWHERE ELSE.
+ * HF-1 of table T-051 and FR-098 (MUST) each draw their control once per row,
+ * so the entry says which KIND of control was pressed and never whose row --
+ * and the side that DREW the row is the only one that may answer where it
+ * stands, which is Chapter 5.3's rule under table T-065 (MUST NOT). ⚠️ It is
+ * read off the PRESS for the reason `PointerPress.on` gives: CS-2 of table
+ * T-066 freezes the gesture's screen at the press, so a panel scrolled since
+ * must not move the answer to another row.
+ *
+ * ⛔ ONLY TWO OF TABLE T-015's SIX OPERATIONS HAVE AN ENTRANCE AT ALL. Table
+ * T-109 places nothing on HR-1, HR-2, HR-3, HR-5 or HR-6, and this file may not
+ * invent one -- so IC-58 is HF-2 and IC-59 is HR-4, each exactly as its row
+ * words it, and neither is widened to reach an operation the specification has
+ * given no entrance.
+ *
+ * @purity pure
+ */
+function commandFromRowEntry(
+  entry: string,
+  rowGroupId: string | null,
+  context: InputContext,
+): TranslatedInput {
+  // The point was on the `Row Title Panel` but on no row of it -- the panel's
+  // empty tail below the last row. The press is still this tool's (MK-10 keeps
+  // the browser out from under what this tool drew) and writes nothing.
+  if (rowGroupId === null) return CONSUMED_ELSEWHERE
+
+  if (entry === ENTRY.rowPin) {
+    // FR-098: the same control pins and unpins, so which of CM-68 and CM-69 a
+    // press means is decided by whether the row is pinned NOW.
+    //
+    // ⛔ READ FROM THE DOCUMENT, NEVER FROM THE DRAWN ROW. S-126 keeps the pins
+    // in the presentation group (`pinnedGroupIds`), and `context.document` is
+    // the copy CS-1 froze at the head of THIS frame -- while a drawn row is as
+    // old as the last paint, and FR-048 lets a paint be skipped altogether. A
+    // press read against a stale picture would plan CM-68 for a row that is
+    // already pinned, which CM-68 answers by doing nothing, so the pin would
+    // simply refuse to come off.
+    //
+    // ⚠️ THE CAP IS NOT TESTED HERE. FR-098 (MUST) refuses a pin past `S-127`
+    // and requires a notice; `editDocumentSettings` is where CM-68 answers that
+    // and where the refusal is worded, and a second test here would be the same
+    // rule in two places (R2.7).
+    const isPinned = context.document.documentSettings.pinnedGroupIds.includes(rowGroupId)
+    return changed([
+      isPinned
+        ? { kind: 'unpinTaskGroup', groupId: rowGroupId }
+        : { kind: 'pinTaskGroup', groupId: rowGroupId },
+    ])
+  }
+
+  if (entry === ENTRY.rowExpanderOpen) {
+    // HF-2 (MUST): ONE level, which is this row's own fold and nothing below
+    // it -- HR-1a hides the rows under a collapsed row, so opening this one is
+    // exactly what makes its children appear and leaves each of them folded as
+    // it was. ⛔ Opening the whole subtree is HR-3, and HF-2 names that row to
+    // say it is NOT this control.
+    const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
+    // ⚠️ Already open, or gone: no write. `changed` says why an empty bundle is
+    // not one -- WS-4 would push an undo step for a press that moved nothing.
+    if (row === undefined || row.isCollapsed !== true) return CONSUMED_ELSEWHERE
+    return changed([{ kind: 'setTaskGroupCollapsed', groupId: rowGroupId, collapsed: false }])
+  }
+
+  // IC-59 -- HF-3, whose wording is HR-4 of table T-015 word for word: every row
+  // BELOW this one, and the descendants are what both rows name.
+  // ⛔ THE ROW ITSELF IS NOT FOLDED. Table T-015 keeps folding the row itself as
+  // a separate operation (HR-5) and table T-109 gives THAT one no entry, so
+  // folding this row here would answer an operation the specification has placed
+  // no entrance for. ⚠️ It is a gap in table T-109 and not a choice made here:
+  // HR-1, HR-2, HR-3, HR-5 and HR-6 are all without an entry.
+  // ⚠️ ONE BUNDLE. FR-031 (MUST) makes one gesture one undo step, so every row
+  // that folds folds in the same write.
+  return changed(foldsUnderRow(context.document.schedule, rowGroupId))
+}
+
+/**
+ * One `setTaskGroupCollapsed` per row under `ancestorId` that is not folded
+ * already, in the order the document prints them.
+ *
+ * ⚠️ The already-folded rows are left out rather than written again: CM-33
+ * answers an unchanged fold by returning the document untouched, so writing
+ * them would cost an undo step for a subtree that is already shut.
+ *
+ * @purity pure
+ */
+function foldsUnderRow(schedule: Schedule, ancestorId: string): readonly DocumentCommand[] {
+  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
+  const commands: DocumentCommand[] = []
+  for (const row of schedule.taskGroups) {
+    if (row.isCollapsed === true) continue
+    if (!isRowUnder(parentOf, row.parentId, ancestorId)) continue
+    commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: true })
+  }
+  return commands
+}
+
+/**
+ * Whether a row whose parent is `parentId` sits anywhere under `ancestorId`,
+ * climbing `TaskGroup.parentId` (AT-52).
+ *
+ * ⚠️ The map carries the parent alone rather than the whole row, so that this
+ * file reaches for no name beyond `Schedule` -- which is the one PI-1 of table
+ * T-064 publishes, and the row's own type is not on that list.
+ *
+ * ⛔ THE CLIMB GUARDS AGAINST A RING, and that is not caution for its own sake:
+ * `schedule.ts` REPORTS a ring in `parentId` as a violation rather than refusing
+ * the document, and this member is handed whatever the frame froze. Without the
+ * guard a ringed document would spin here for ever, inside a frame.
+ *
+ * @purity pure
+ */
+function isRowUnder(
+  parentOf: ReadonlyMap<string, string | null>,
+  parentId: string | null,
+  ancestorId: string,
+): boolean {
+  const climbed = new Set<string>()
+  let at = parentId
+  while (at !== null && !climbed.has(at)) {
+    if (at === ancestorId) return true
+    climbed.add(at)
+    at = parentOf.get(at) ?? null
+  }
+  return false
 }
 
 /**
@@ -2005,18 +2162,18 @@ function fitCommand(context: InputContext): DocumentCommand {
  *
  * ⚠️ The chain each one drags with it is table T-050's and is applied by the
  * aggregate, not here: CD-1 alone reaches six other rows.
- * STOP -- ⛔ FR-032's CONFIRMATION IS NOT RAISED. It requires a Task with WBS
- * descendants to be confirmed before it is deleted (MUST) and the names of what
- * will vanish to be shown, and nothing puts that question anywhere:
- * `ScreenSession.confirmation` is `null` in every frame this build runs. ⚠️ THE
- * WAY BACK IS NO LONGER WHAT IS MISSING -- table T-109 places IC-69 and IC-70 on
- * U-55 `Confirmation`, so a press on either arrives here as `ScreenPart.entry`
- * (IF-9) the way any other entry does, and `notices.ts` holds the same narrowed
- * note. ⛔ No case is written for the two below: an answer to a question nobody
- * asked has nothing to be an answer TO, and inventing one would settle what a
- * pressed choice DOES. Searched: table T-064 (PI-8, PI-9, PI-18, PI-37), table
- * T-037, table T-109, `frame-loop.ts`, `apply-document-change.ts`. A caller that
- * runs these commands unasked breaks that MUST.
+ * ⛔ THE BUNDLE IS PLANNED UNASKED, AND FR-032's CONFIRMATION IS SOMEONE ELSE'S.
+ * That requirement (MUST) has a `Task` with WBS descendants confirmed before it
+ * is deleted, with the names of what will vanish shown -- and the question IS
+ * raised: `confirmationOwedBy` in `frame-loop.ts` reads this very bundle before
+ * it is written, fills `ScreenSession.confirmation`, and holds the writes until
+ * IC-69 or IC-70 answers. ⭐ WHY THE TEST IS THERE AND NOT HERE: NT-7 asks about
+ * what is going to happen, so it has to be asked of the WHOLE action -- a
+ * gesture can owe two writes (`InputAction.writes`) and a person answering once
+ * per bundle is not what 「続けるか取りやめるかを選ばせること」 means. ⚠️ So a
+ * caller that runs what this member plans without asking breaks that MUST.
+ * Searched: table T-064 (PI-8, PI-9, PI-18, PI-37), table T-037, table T-109,
+ * `frame-loop.ts`, `apply-document-change.ts`.
  *
  * @purity pure
  */
@@ -2287,20 +2444,39 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 40 ROWS OF TABLE T-109 REACH `commandFromEntry` AND ARE ANSWERED
-// WITH NOTHING. Each is missing something different, and none is an oversight.
-// ⚠️ The number is the 73 rows of that table less the 33 this file assigns
-// (`ENTRY` holds 18 and `ARMED_BY_ENTRY` 15), and the groups below add up to it.
+// STOP -- ⛔ 37 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
+// ANSWERS NONE OF THEM. ⚠️ The number is the 73 rows of that table less the 36
+// this file assigns (`ENTRY` holds 21 and `ARMED_BY_ENTRY` 15), and the three
+// groups below add up to it: 5 + 20 + 12.
 // ⭐ The entries that ARE answered were chosen by a rule rather than one at a
 // time: an entry is answered when this file already answers the same operation
 // for a row of table T-036, or when it opens a surface whose name table T-103
 // has settled -- plus FR-083's arming, which is the whole point of the seam
-// member that brought the press here.
+// member that brought the press here, and plus the three entrances table T-109
+// draws once per ROW, which `ScreenPart.rowGroupId` made reachable.
 //
-// ⛔ 25 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen. ⚠️ The count
-// was 「FOUR」 while the groups below already held far more than four rows; it is
-// stated here as the rows the groups list, so the two can be held against each
-// other:
+// ⚠️ EVERY COUNT BELOW WAS MEASURED AGAINST THE TREE, not carried forward. The
+// note said 「25」 while its own groups listed 28, and called three of its rows a
+// missing route that another unit had already written end to end.
+//
+// ⭐ 5 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- none of the five is a
+// `DocumentCommand`, and LY-5 of table T-060 leaves a current value with the
+// Framework, so `frame-loop.ts` spends them in `answerSettledEntry`:
+//
+//   IC-69 / IC-70  NT-7's two answers, on U-55 `Confirmation`. ⭐ THE QUESTION
+//                IS RAISED: three places fill `ScreenSession.confirmation` --
+//                DI-4's overwrite, OP-4's discard, and FR-032's delete through
+//                `confirmationOwedBy`. A press on either arrives as
+//                `ScreenPart.entry` (IF-9) and settles the raiser's own promise,
+//                which is why what the choice DOES stays with the raiser.
+//   IC-71 .. IC-73  OP-3's three answers, on U-56 `Open Chooser`.
+//                `OPEN_CHOICE_OF_ENTRY` in the same file maps each row to its
+//                `OpenChoice` and closes the surface with the answer.
+//                ⛔ NOTHING OPENS U-56 BY ENTRY, and no entrance is owed: OP-3
+//                has the READ raise the choice, so an entry that opened it
+//                would be one the specification does not place.
+//
+// ⛔ 20 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
 //
 //   IC-17 / IC-18 / IC-20 / IC-21
 //                each writes a value NOTHING published holds. Which of its two
@@ -2319,32 +2495,21 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                which is the gap PD-2 already records above.
 //   IC-50 / IC-51  the palette's own folding. Nothing holds it: table T-203 and
 //                table T-206 have no row and `ScreenState` has no member.
-//   IC-58 / IC-59 / IC-60 / IC-63 .. IC-68
-//                drawn once per ROW or once per RESOURCE, so a press has to say
-//                WHICH -- and `ScreenPart` (IF-9) carries the part and the entry
-//                and no key. ⭐ It carries none because nothing here consumes
-//                one yet (R4's YAGNI); the change that answers these adds it.
-//                ⚠️ IC-63 / IC-64 / IC-67 / IC-68 also write
+//   IC-63 .. IC-68  the `Resource Roster`'s six. ⚠️ WHICH person is no longer
+//                the gap -- `ScreenPart.resourceUid` carries it, and four of the
+//                six do not even need it (IC-63 .. IC-66 are drawn once in the
+//                roster's header, not once per person). ⛔ WHAT IS MISSING IS
+//                THE ROSTER'S SELECTION: five of them move
 //                `ScreenSession.selectedResourceUids`, which is the shell's
-//                (PD-143) and not a `DocumentCommand` at all.
+//                (PD-143) and not a `DocumentCommand` at all, and the sixth is
+//                `deleteResource` (CM-42), which is handed the `uid`s that
+//                selection holds -- and `InputContext` carries none of it.
 //   IC-54 .. IC-57  ⛔ NOT ENTRIES. Table T-109 says so in its own column: one
-//                of them shows a keystroke and three show the autosave state
-//                (FR-061). ⚠️ IC-53 stood here until GR-19 of table T-023d gave
-//                the band it marks a gesture. It is still not a button -- what
-//                answers it is a drag, settled on the release.
-//   IC-69 / IC-70  the two answers to NT-7's question, on U-55 `Confirmation`.
-//                ⭐ A QUESTION IS RAISED NOW -- `frame-loop.ts` puts DI-4's
-//                overwrite question and FR-032's delete question into
-//                `ScreenSession.confirmation`, and PI-28 actually asks it on
-//                every chosen write over an occupied destination. ⚠️ What a
-//                pressed choice DOES is still the raiser's to say, and the
-//                raiser settles it: this file answers neither press.
-//   IC-71 .. IC-73  the three answers to OP-3's question, on U-56 `Open Chooser`.
-//                ⛔ THIS FILE ASSIGNS NONE OF THEM. `frame-loop.ts` puts the
-//                question up, but a press has to close the surface and carry the
-//                `OpenChoice` back, and that needs an `OPEN_CHOOSER` beside
-//                `EXPORT_CHOOSER` here. ⚠️ A missing ROUTE, not a missing raiser --
-//                the opposite of the two rows above.
+//                shows the figure the palette is holding (table T-023b) and
+//                three show the autosave state (FR-061). ⚠️ IC-53 stood here
+//                until GR-19 of table T-023d gave the band it marks a gesture.
+//                It is still not a button -- what answers it is a drag, settled
+//                on the release.
 //
 // ⚠️ THE REMAINING 12 ARE REACHABLE AND ARE STILL NOT WRITTEN -- IC-4, IC-8, IC-9,
 // IC-16, IC-39, IC-40, IC-42, IC-43 (the drawing settings, CM-59 / CM-61 /
@@ -2354,7 +2519,8 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // choice: each is a toggle, and which of S-59's or S-72's values a press moves
 // to is not stated by table T-109 for any of them.
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-203,
-// table T-206, `screen-renderer.ts`, `edit-document-settings.ts`.
+// table T-206, `screen-renderer.ts`, `edit-document-settings.ts`,
+// `screen-surface.ts`, `frame-loop.ts`.
 
 // <generated -- do not edit by hand>
 // Single source of truth:

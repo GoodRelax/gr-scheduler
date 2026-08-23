@@ -41,13 +41,16 @@
 // repeats that this is its single exception. So the roster settles the
 // placement of every row but that one, and FR-038 settles that one.
 //
-// ⭐ TWO SURFACES NOW HAVE SOMEWHERE TO PUT WHAT THEY SHOW. `OpenModal` is a
+// ⭐ TWO SURFACES HAVE SOMEWHERE TO PUT WHAT THEY SHOW. `OpenModal` is a
 // union discriminated on `surface`: the `Resource Roster` (U-49) member carries
 // the roster FR-099 asks for and the `Export Chooser` (U-54) member carries the
-// formats FR-096 asks for, and this unit fills both below. The four other
-// surfaces still come back with the three members every surface has; the STOP
-// note in the body says what each of them would need, and what FR-099 asks for
-// that even the widened type cannot hold.
+// formats FR-096 asks for, and this unit fills both below.
+// ⚠️ The help (U-30 `Help Modal`) comes back with one member beyond the three
+// every surface has -- `language`, which FR-038 (MUST) makes readable before the
+// toggle is pressed -- but not with the four `HelpModal` also declares, so what
+// it returns still lands in the union's catch-all member rather than in
+// `HelpModal`. The three remaining surfaces come back with the three alone. The
+// STOP note in the body says what each of them would need.
 //
 // ⭐ THIS UNIT IS WHERE THE ROSTER OF SURFACES LIVES. `ScreenState` says so in
 // as many words on `OpenSurface`: S-99g carries the name and leaves which ones
@@ -163,8 +166,12 @@ const EXPORT_FORMAT_ROWS: readonly ExportFormatId[] = [
  * What an entry or a heading says while the dictionary holds no word for it.
  *
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
- * has been SETTLED yet (PD-160), and this is exactly what UF-66 printed before
- * the dictionary was wired -- so opening the road moved nothing on the screen.
+ * has been SETTLED yet (PD-160), which is a different thing from a settled word
+ * that happens to be empty.
+ * ⚠️ NOTHING FALLS BACK TO IT TODAY -- the manuscript is filled and no cell the
+ * sections below are keyed on is empty. It stays because a row added to table
+ * T-109 or T-103 ahead of its word empties a cell again, and because that is
+ * exactly what UF-66 printed for every entry while the dictionary was unfilled.
  */
 const NO_WORDS = ''
 
@@ -173,20 +180,22 @@ const NO_WORDS = ''
 // `_source/display-words.json`; `display-words.json` beside this file is that
 // manuscript generated into `src/`. ⛔ Entries are keyed by the row of table
 // T-109 and headings by the settled name of the surface, which are the two joins
-// the specification admits -- so nothing here is minted. ⚠️ Every one of the 176
-// cells is still empty (PD-160), so what reaches the screen today is the
-// stand-in. Reading `displayWords` no more makes this unit `semi-pure-a` than
-// reading `iconRoster` does: both are module constants compiled into the
-// program, not state read while running. Table T-075 fixes UF-66 as `pure`.
+// the specification admits -- so nothing here is minted. ⭐ The manuscript is
+// filled, so the words this unit reads reach the screen and the stand-in below
+// no longer answers for any of them (PD-160 is settled). Reading `displayWords`
+// no more makes this unit `semi-pure-a` than reading `iconRoster` does: both are
+// module constants compiled into the program, not state read while running.
+// Table T-075 fixes UF-66 as `pure`.
 //
-// ⛔ FR-038 STILL REQUIRES the CURRENT language to be readable BEFORE the toggle
-// is pressed (MUST), and that is a member rather than a word: `CommandItem` has
+// ⛔ FR-038 REQUIRES the CURRENT language to be readable BEFORE the toggle is
+// pressed (MUST), and that is a member rather than a word: `CommandItem` has
 // four and none of them can carry it -- `isPressed` is declared as "a toggle
 // that is on", and a choice between two languages has no off. `HelpModal`
-// declares `language` for it and `ScreenView` now carries the one state FR-038
-// speaks of; ⚠️ this unit does not fill either, because the help arm also asks
-// for `entries`, `licenceText`, `copyrightNotice` and `attributions`, which the
-// STOP note in the body says are not reachable from these three arguments.
+// declares `language` for it, and the help arm below fills it from
+// `ScreenSession.language` (S-99). ⚠️ The help arm still asks for `entries`,
+// `licenceText`, `copyrightNotice` and `attributions`, which the STOP note in
+// the body says are not reachable from these three arguments -- so what that arm
+// returns is not yet a `HelpModal`.
 
 /**
  * The words of table T-109's rows, keyed by the row id, and the headings of the
@@ -205,8 +214,9 @@ const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
  * "the dictionary holds no word yet" and "the word is the empty string" as one
  * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
- * an instruction to print nothing. The day a word is written this line stops
- * standing in without being edited.
+ * an instruction to print nothing. ⭐ The words are written now, so this line
+ * hands the dictionary's own word on and stands in for nothing -- which is what
+ * it did the day they were written, with no edit here.
  * ⚠️ A row the dictionary does not hold AT ALL is a second condition, answered
  * separately although with the same stand-in. It cannot happen while
  * `npm run gen:check` passes -- the generator builds its roster from table T-109
@@ -229,15 +239,12 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
  * stand-in answers. ⛔ Minting a name to key them on is the very thing that
  * header refuses.
  *
- * STOP -- ⛔ THE DICTIONARY HAS NO ROW FOR U-56 `Open Chooser`. Its `surfaces`
- * section holds one entry per surface table T-103 had named when it was last
- * generated, and U-56 is newer than that, so the surface OP-3 (MUST) makes a
- * person choose on opens with no heading at all -- not an unsettled word, which
- * is what PD-160 is about, but no cell to settle. ⚠️ Nothing here may key it on
- * anything else: FR-038 (MUST) makes that dictionary the one store, and its
- * manuscript is `_source/display-words.json`. ⛔ The generated file is not
- * edited by hand (`npm run gen:check` fails on drift), so the row is owed by
- * the manuscript and not by this unit.
+ * ⭐ EVERY SURFACE TABLE T-103 HAS NAMED HAS A HEADING HERE, U-56 `Open Chooser`
+ * among them: the `surfaces` section is generated from that table every run, so
+ * a surface it names cannot be missing while `npm run gen:check` passes. ⛔ The
+ * generated file is never edited by hand for the same reason -- a heading owed
+ * for a new surface is owed by `_source/display-words.json`, which FR-038 (MUST)
+ * makes the one store, and never by this unit.
  *
  * @purity pure
  */
@@ -262,11 +269,11 @@ function surfaceHeading(surface: string, language: DisplayLanguage): string {
  * STOP -- ⛔ NOT REACHABLE FROM THESE ARGUMENTS: whether IC-63 .. IC-68 may be
  * pressed. Table T-109 places FR-099's six on U-49, and FR-029 (MUST) asks an
  * entry that cannot be used now to be faint AND to say why -- but whether one
- * of the six can be used now is a judgement about an operation, and the STOP
- * note in the body of this file says that no member of `RosterResource` and no
- * argument here carries the state those six read. Searched: FR-029, FR-099,
- * table T-108 (CM-42, CM-43) and table T-109. ⚠️ True is what this unit printed
- * before those rows existed, so this note moves nothing on the screen.
+ * of the six can be used now is a judgement about an operation, and neither
+ * `state`, `schedule` nor `session` carries the state those six read. Searched:
+ * FR-029, FR-099, table T-108 (CM-42, CM-43) and table T-109. ⚠️ True is what
+ * this unit printed before those rows existed, so this note moves nothing on the
+ * screen.
  *
  * @purity pure
  */
@@ -420,9 +427,9 @@ function rosterResourcesOf(schedule: Schedule, session: ScreenSession): readonly
  * ⭐ U-56 `Open Chooser` NEEDS NO BRANCH OF ITS OWN: table T-109 places IC-71 /
  * IC-72 / IC-73 on it, so reading the generated roster IS drawing them, and
  * OP-3 of table T-024a asks for nothing on that surface but the three.
- * ⛔ It is the one named surface table T-109 places no IC-52 on, so the first
- * level of Esc is its only way out that is not an answer -- which is what OP-3
- * (MUST NOT) wants, GRS settling none of the three by itself.
+ * ⭐ The same table places IC-52 on it as on every other named surface, so
+ * closing without answering is a way out beside the first level of Esc (IN-4) --
+ * which is what OP-3 (MUST NOT) wants, GRS settling none of the three by itself.
  *
  * ⭐ TWO OF THE SIX CARRY MORE THAN THEIR ENTRIES: the `Resource Roster` (U-49)
  * carries what FR-099 shows on it, and the `Export Chooser` (U-54) carries the
@@ -441,10 +448,10 @@ export function openModalFromScreenState(
   const commands = commandsOnSurface(surface, session.language)
   const heading = surfaceHeading(surface, session.language)
 
-  // FR-038 (01-04-requirements.md:3807, MUST): the language has to be readable
-  // BEFORE the toggle is pressed, and the same requirement puts the second of
-  // its two entrances inside the help -- so the help is where that reading
-  // happens. `HelpModal.language` is the member declared for it.
+  // FR-038 (MUST): the language has to be readable BEFORE the toggle is pressed,
+  // and the same requirement puts the second of its two entrances inside the
+  // help -- so the help is where that reading happens. `HelpModal.language` is
+  // the member declared for it.
   // ⚠️ The four other members `HelpModal` declares stay unfilled, for the
   // reasons the STOP note below gives; this one is not among them, because
   // `ScreenSession.language` (S-99) is already an argument here.
@@ -507,14 +514,14 @@ export function openModalFromScreenState(
   // ⚠️ FR-068's copy control is still owed one: table T-109 places nothing but
   // IC-52 on the `AI Export Modal`, and FR-029 (MUST) forbids minting a row.
   // STOP -- ⛔ THE FORMATS ABOVE GO OUT WITH NO WORDS. `display-words.json` has
-  // nine sections -- one per row of table T-109, the palette groups, the
-  // surfaces table T-103 has named, one per row of table T-037, one per row of
-  // table T-233, the two answers of NT-7, FR-032's mark, FR-072's panel headings
-  // and one per row of table T-023 -- and none keyed on a row of table T-024. So
-  // a person is offered six row ids and
-  // FR-038 (MUST NOT) forbids this unit to write the six words itself. ⛔ What is
-  // owed is a section of the manuscript keyed on those rows; the report names
-  // them. ⚠️ The heading is not among what is missing -- U-54 has one.
+  // a section per roster the specification already keeps -- one per row of table
+  // T-109, the palette groups, the surfaces table T-103 has named, one per row
+  // of tables T-037, T-233, T-234 and T-023, the two answers of NT-7, FR-032's
+  // mark and FR-072's panel headings -- and NONE keyed on a row of table T-024.
+  // So a person is offered six row ids and FR-038 (MUST NOT) forbids this unit
+  // to write the six words itself. ⛔ What is owed is a section of the manuscript
+  // keyed on those rows; the report names them. ⚠️ The heading is not among what
+  // is missing -- U-54 has one, and it is filled.
   // ⚠️ The confirmation FR-099 requires before a deletion is NT-7 of table
   // T-037 and U-55 of table T-103, which are UF-67's; ⭐ the task names it must
   // show ARE carried here, on each roster entry, which is this unit's half of

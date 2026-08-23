@@ -835,7 +835,7 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
 
     // IC-7 -- the entry FR-053 gives S-99e, which SK-14 shares.
-    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null })
+    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null, rowGroupId: null, resourceUid: null })
     loop.receiveInput(pointer('down', 500, 20))
     // The surface is redrawn and no longer has that entry under the pointer.
     screen.drawAt(null)
@@ -856,7 +856,7 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
 
     screen.drawAt(null)
     loop.receiveInput(pointer('down', 500, 20))
-    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null })
+    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null, rowGroupId: null, resourceUid: null })
     loop.receiveInput(pointer('move', 520, 24))
     loop.receiveInput(pointer('up', 520, 24))
     pane.runAnimationFrames()
@@ -973,7 +973,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
 
   /** Aim the next press at GR-19's band. CS-2 freezes it at the press. */
   const aimAtTheBand = (screen: ScreenPane): void => {
-    screen.drawAt({ part: U_26_PART, entry: T_109_GRAB_BAND, format: null })
+    screen.drawAt({ part: U_26_PART, entry: T_109_GRAB_BAND, format: null, rowGroupId: null, resourceUid: null })
   }
 
   it('FR-053 (MUST): the palette ends up the distance the pointer travelled away', () => {

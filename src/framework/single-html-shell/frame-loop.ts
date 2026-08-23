@@ -1173,22 +1173,33 @@ function hasEndedGesture(input: HumanInput): boolean {
  * happening that is not one and for one with nothing left to consume (IN-4a).
  *
  * ⛔ ASKED AGAINST THE STATE THE THREE MEMBERS WERE HANDED, never against what
- * they answered. `screenStateFromInput` has already consumed the two levels
- * that are ITS to consume -- the open surface and what is armed -- so a second
- * reckoning off the new state would take two levels for one press, and IN-4
- * allows 1 阶層 (MUST).
- * ⭐ THE OTHER TWO LEVELS ARE THE SHELL'S, because both are current values the
- * Framework holds (LY-5 of table T-060): the press in flight and the Dual
- * Cursor mode. `screen-state.ts` says so where `EscapeContext` is declared, and
- * that is the whole reason the seam takes one.
+ * they answered. `screenStateFromInput` consumes the two levels that are ITS to
+ * consume -- the open surface and what is armed -- so a reckoning off the state
+ * it returned would take two levels for one press, and IN-4 allows 1 階層
+ * (MUST). ⚠️ The caller reads this BEFORE that member runs, because the level
+ * this answers may be one the caller consumes itself, and then that member must
+ * not be asked to move the state at all.
+ * ⭐ THE OTHER THREE LEVELS ARE THE SHELL'S, because all three are current
+ * values the Framework holds (LY-5 of table T-060): the press in flight, the
+ * Dual Cursor mode, and the `Confirmation` (U-55) this file raises.
+ * `screen-state.ts` says so where `EscapeContext` is declared, and that is the
+ * whole reason the seam takes one.
+ * ⛔ THE QUESTION IS HANDED IN RATHER THAN READ OFF `InputContext`: that value
+ * is PI-18's and carries only what the pure members may see, and the question
+ * is not among them. So the caller -- which holds it -- states it.
  *
  * @purity pure
  */
-function escapeLevelOf(input: HumanInput, context: InputContext): EscapeTarget | null {
+function escapeLevelOf(
+  input: HumanInput,
+  context: InputContext,
+  isConfirmationStanding: boolean,
+): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
   return escapeTarget(context.screenState, {
     gestureInFlight: context.pressed !== null,
     dualCursorMode: context.isDualCursorMode,
+    isConfirmationStanding,
   })
 }
 
@@ -1690,18 +1701,21 @@ export function frameLoop(
   // carries over is the part that matters: nothing is read again while the
   // answer is awaited, so the writes below are the ones the question was asked
   // about and not a later document's.
-  // ⛔ `Esc` DOES NOT REACH THIS ONE, AND THE MANUSCRIPT NOW SAYS IT SHOULD.
-  // U-55 of table T-103 settles the name and table T-109 prints it in the
-  // surface column of IC-69 and IC-70, so S-99g's own definition of a surface
-  // -- what the first level of IN-4 (table T-028) closes -- covers it.
-  // ⚠️ This build holds the question here and not in `ScreenState.surface`,
-  // which is the only value IN-4 spends that level on, so the first `Esc`
-  // passes it by.
-  // ⛔ MOVING IT THERE IS NOT DONE HERE, because it would raise TWO surfaces for
-  // one question: `openModalFromScreenState` draws whatever stands in S-99g,
-  // and `confirmationFromSession` already draws this one from
-  // `ScreenSession.confirmation`. Which of the two carries it is a ruling
-  // nobody has made.
+  // ⭐ `Esc` REACHES IT, AND NOT BY WAY OF S-99g. U-55 of table T-103 settles
+  // the name and table T-109 prints it in the surface column of IC-69 and
+  // IC-70, so S-99g's own definition of a surface -- what the first level of
+  // IN-4 (table T-028) closes -- covers it. `escapeTarget` spends that level on
+  // the question because `escapeLevelOf` tells it one stands: the ladder lives
+  // in `screen-state.ts` and the question lives here, which is the same split
+  // the press in flight and the Dual Cursor mode already take.
+  // ⛔ NOT MOVED INTO `ScreenState.surface`, AND THE REASON IS MEASURED RATHER
+  // THAN DEFERRED. `openModalFromScreenState` (UF-66) turns ANY name standing
+  // in S-99g into a modal, and table T-109 places IC-69 and IC-70 on the
+  // `Confirmation` surface -- so a name there would raise a SECOND dialog
+  // carrying a second copy of NT-7's two answers, over the one
+  // `confirmationFromSession` already draws from `ScreenSession.confirmation`.
+  // ⚠️ `display-words.json` holds a heading for five surfaces and not for this
+  // one, so that second dialog would also be headless.
   //
   // ⭐ WHAT THE ANSWER DOES IS CARRIED WITH THE QUESTION, and is not a second
   // field the answering side has to know how to read. Three requirements raise
@@ -1724,11 +1738,12 @@ export function frameLoop(
   // two-answer manner and `ScreenSession.confirmation` carries exactly that;
   // U-56 says of itself that it is not `Confirmation` because OP-3 has three.
   // So the two cannot share a holder, and the surface is not the same surface.
-  // ⚠️ WHICH IS ALSO WHY `Esc` REACHES THIS ONE AND NOT THE OTHER: this
-  // question lives in `ScreenState.surface` (S-99g), and S-99g is what IN-4 of
-  // table T-028 spends its first level on, whether this file wants it to or
-  // not. `Confirmation` is not held there, which is the difference the note
-  // beside `asking` records.
+  // ⚠️ THE DIFFERENCE IS THE ROAD `Esc` TAKES, NOT WHETHER IT ARRIVES: this
+  // question lives in `ScreenState.surface` (S-99g), so IN-4 of table T-028
+  // spends its first level on it without this file saying anything, while the
+  // `Confirmation` is spent from the flag `escapeLevelOf` sets. ⛔ Both are the
+  // FIRST level and only one may go per press, which is why nothing here reads
+  // `escapeTarget` a second time.
   // ⛔ NOTHING IS CHOSEN WHILE IT STANDS. OP-3 (MUST NOT) forbids GRS settling
   // the three-way question by itself, so a surface that goes away unanswered
   // abandons the open -- `null` is what the waiter is handed then, and an
@@ -3199,20 +3214,45 @@ export function frameLoop(
     // read the clock again (`semi-pure-b`), and the three would then be
     // answering about different moments.
     const context = collectInputContext(frame)
+    // IN-4 of table T-028 -- the three levels of the `Esc` ladder that are the
+    // shell's, because LY-5 of table T-060 leaves it holding all three: the
+    // press in flight, the Dual Cursor mode and the question below.
+    // ⛔ ASKED OFF `context` AND BEFORE THE THREE MEMBERS RUN. The other two
+    // levels are `screenStateFromInput`'s, so asking after it had moved the
+    // state would reckon against a state that has just lost a level and spend
+    // two on one press -- and IN-4 allows 1 階層 (MUST).
+    const escapeLevel = escapeLevelOf(input, context, asking !== null)
     selection = selectionFromInput(input, context)
     // ⚠️ SK-12 opens the `Export Chooser` (U-54) here and nothing more: what a
     // person then takes on it is a row of table T-024, which this member does
     // not read -- `answerSettledFormat` below is where the choice is spent.
-    screenState = screenStateFromInput(input, context)
+    // ⛔ NOT ASKED AT ALL WHEN THIS PRESS TOOK THE FIRST LEVEL HERE. That member
+    // cannot see the question -- `EscapeContext` says why the flag is optional
+    // -- so it would answer for the NEXT level down and disarm, or close the
+    // surface behind the question, on the same press that dismissed it.
+    screenState =
+      escapeLevel === 'confirmation' ? screenState : screenStateFromInput(input, context)
     const translated = commandFromInput(input, context)
 
-    // IN-4 of table T-028 -- the two levels of the `Esc` ladder that are the
-    // shell's, because LY-5 of table T-060 leaves it holding both of them.
-    // ⛔ Read off `context`, which is the state the three members were handed:
-    // the two levels above these are `screenStateFromInput`'s and it may have
-    // just consumed one, so asking again off the new state would spend two
-    // levels on one press.
-    const escapeLevel = escapeLevelOf(input, context)
+    // IN-4's FIRST level, spent on the surface U-55 names.
+    //
+    // ⭐ WHAT AN ABANDONED QUESTION DOES TO THE WRITE IS NOT INVENTED HERE, IT
+    // IS WHAT IS LEFT once NT-7 of table T-037 has been read: that row gives
+    // the person 「続けるか取りやめるかを選ばせること」 (MUST), so 続ける is
+    // something a person CHOOSES, and a press that chose neither cannot be read
+    // as having chosen it. ⛔ The write therefore does not land, which is the
+    // landing IC-70 already produces -- and the alternative would be a delete
+    // carried out on a press that asked for the question to go away.
+    // ⚠️ NO ROW SAYS 「`Esc` は取りやめると同じ」 IN AS MANY WORDS. It is the one
+    // of NT-7's two answers this press can be, and nothing further is read into
+    // it; a ruling that says otherwise moves the `false` below and no more.
+    // ⛔ Cleared BEFORE the landing runs, the same order `answerSettledEntry`
+    // keeps and for the same reason.
+    if (escapeLevel === 'confirmation' && asking !== null) {
+      const abandoned = asking
+      asking = null
+      abandoned.settle(false, frame)
+    }
     // DC-4: `Esc` is one of the two ways out of the mode.
     if (escapeLevel === 'dualCursorMode') isDualCursorMode = false
 
@@ -3288,7 +3328,16 @@ export function frameLoop(
       // stopping the browser for a happening the tool did not assign (MUST
       // NOT), and with no frame of reference nothing can be assigned.
       if (frame === null) return false
-      return commandFromInput(input, collectInputContext(frame)).isBrowserDefaultStopped
+      const context = collectInputContext(frame)
+      // ⛔ ASKED SEPARATELY BECAUSE `commandFromInput` CANNOT SEE THE QUESTION,
+      // and this press IS assigned: `receiveInput` dismisses the `Confirmation`
+      // with it.
+      // ⚠️ Without this the tool would take the press AND leave the browser its
+      // default, so an `Esc` that declined a question would ALSO leave full
+      // screen -- IN-4a hands the key on only when NOTHING is consumed, and
+      // FR-071's way out is the browser's own behaviour.
+      if (escapeLevelOf(input, context, asking !== null) === 'confirmation') return true
+      return commandFromInput(input, context).isBrowserDefaultStopped
     },
     receiveInput,
     /** @purity non-pure */

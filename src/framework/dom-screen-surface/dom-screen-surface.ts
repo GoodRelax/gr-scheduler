@@ -88,12 +88,17 @@
 // (IC-58 / IC-59; see `rowTitleElement`). That is not decoration:
 //
 //   - `readScreenPartAt` reads them back. It is the third member of IF-9, and
-//     `data-role` / `data-icon` / `data-format` are what it walks: the entry a
-//     point is on, the format choice a point is on, and the part either was
-//     drawn in. ⭐ Chapter 5.3 states under table T-065 (MUST) that the side
-//     which DREW an entry is the side that answers where it is -- which is this
-//     unit, and is why the answer leaves through the seam rather than being read
-//     out of this markup by whoever holds the page.
+//     `data-role` / `data-icon` / `data-format` / `data-group-id` / `data-uid`
+//     are what it walks: the entry a point is on, the format choice a point is
+//     on, the row and the person it is on, and the part all four were drawn in.
+//     ⚠️ The last two are read off the ROW and the roster LINE, neither of
+//     which is an entry -- the entrances HF-1 and FR-099 draw once per row and
+//     once per person sit INSIDE them, so one walk answers both WHICH KIND of
+//     control was pressed and WHOSE.
+//     ⭐ Chapter 5.3 states under table T-065 (MUST) that the side which DREW an
+//     entry is the side that answers where it is -- which is this unit, and is
+//     why the answer leaves through the seam rather than being read out of this
+//     markup by whoever holds the page.
 //     `ScreenSession.iconUnderPointer` (PD-141) is the shell's, and the shell
 //     fills it from this member.
 //   - ⚠️ `data-format` IS NOT A THIRD SPELLING OF `data-icon`. FR-096 (MUST)
@@ -288,6 +293,21 @@ const DISPLAY_LANGUAGE_ENTRY = 'IC-21'
  * member is the row a point is ON and not the entry that can be pressed.
  */
 const PALETTE_GRAB_BAND_ENTRY = 'IC-53'
+
+/**
+ * IC-67 and IC-68 of table T-109 -- the ONE entrance FR-099 draws against each
+ * person in U-49, in the two states that table gives it. IC-67 says the person
+ * is chosen and lets go by the same entrance; IC-68 says the person is not and
+ * takes hold by it.
+ *
+ * ⭐ Carried as row ids, for the reason `DISPLAY_LANGUAGE_ENTRY` is: a row id is
+ * the only join table T-109 admits, and this unit has to put something on THOSE
+ * rows and on no others. ⚠️ Only one of the two stands against a person at a
+ * time -- `RosterResource.isSelected` is which -- because both rows are written
+ * 「同じ入口で」 and drawing the pair would offer two.
+ */
+const ROSTER_CHOSEN_ENTRY = 'IC-67'
+const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
 
 // -------------------------------------------------------------- the styles ---
 
@@ -1217,11 +1237,12 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // ⚠️ This is where U-47 above differs: HF-1 counts TWO controls there, so one
   // node could never have stated it.
   //
-  // ⚠️ The KEY of the row it pins is deliberately not on this seam (`ScreenPart`
-  // carries the part and the entry and no key, R4's YAGNI), which is why
-  // `input-command-translator.ts` still lists IC-60 among the entries it cannot
-  // act on. ⭐ That is a different question from whether the entry can be NAMED,
-  // and table T-109 is 「アイコンの全数」 that FR-029 (MUST) joins on.
+  // ⭐ THE KEY OF THE ROW IT PINS NOW CROSSES THE SEAM, on `ScreenPart.rowGroupId`
+  // -- so a press says both which KIND of control it was and WHICH row's, which
+  // is what `pinTaskGroup` / `unpinTaskGroup` are keyed by.
+  // ⛔ IT IS NOT WRITTEN ON THIS CONTROL. `readScreenPartAt` takes the innermost
+  // `data-group-id` on the way up and the row this sits in already carries one,
+  // so a copy here would state one row's key in two places.
   const pin = rowControlElement(host, ROLE.rowPin, 'IC-60', title.controlTopOffsetPx)
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
@@ -1437,6 +1458,48 @@ function paletteElement(
 }
 
 /**
+ * IC-67 / IC-68 of table T-109 -- the entrance FR-099 draws against ONE person
+ * in U-49, which is the only entrance of that surface that is not drawn once in
+ * its header.
+ *
+ * ⛔ UNTIL THIS EXISTED THE TWO ROWS WERE ON NO ELEMENT AT ALL, so a press on a
+ * person could not be reported: `readScreenPartAt` answers `entry` out of
+ * `data-icon`, the roster's line carried the person's key and no icon, and the
+ * one entrance table T-109 gives a person had nowhere to arrive.
+ *
+ * ⭐ ONE ENTRANCE AND NOT TWO. Both rows are written 「同じ入口で」, so which of
+ * the two a person is looking at is `RosterResource.isSelected` and never both
+ * at once -- and the STATE is told by WHICH row is drawn, which is the half of
+ * each row that begins 「選ばれていることを示し」. ⛔ So no second mark is
+ * invented for the state and no `aria-pressed` is set: the shape figure F-019
+ * draws for the row differs, and the row id is the accessible name.
+ *
+ * ⭐ THE ROW ID IS THAT NAME, the same fallback `rowControlElement` takes and for
+ * the same reason: an entrance drawn once per person is reached by no
+ * `CommandItem`, so no word of the dictionary reaches it either (PD-160).
+ *
+ * ⛔ NOT DECIDED BY THE SPECIFICATION: where on the line it stands. HF-4 of
+ * table T-051 fixes the edge for the row title controls and reaches nothing on
+ * U-49, and FR-099 says nothing of placement -- so it is appended after the
+ * name, in the line's own order, and no alignment is invented.
+ *
+ * ⚠️ THE PERSON IS NOT WRITTEN ON IT. The walk takes the innermost `data-uid`
+ * on the way up and the line already carries one, so a copy here would state
+ * one person's key in two places.
+ *
+ * @purity non-pure
+ */
+function rosterSelectionEntry(host: Document, isSelected: boolean): HTMLElement {
+  const icon = isSelected ? ROSTER_CHOSEN_ENTRY : ROSTER_UNCHOSEN_ENTRY
+  const entry = made(host, 'button', STYLE.entry)
+  entry.setAttribute('type', 'button')
+  entry.setAttribute('data-icon', icon)
+  entry.setAttribute('aria-label', icon)
+  fillEntry(host, entry, icon)
+  return entry
+}
+
+/**
  * The surface open over the screen (UF-66).
  *
  * ⭐ NARROWED BY WHAT A MEMBER CARRIES, never by comparing the name -- the
@@ -1566,7 +1629,7 @@ function modalElement(
       line.setAttribute('data-selected', String(resource.isSelected))
       const name = made(host, 'span', STYLE.fieldName)
       name.textContent = resource.name
-      line.append(name)
+      line.append(name, rosterSelectionEntry(host, resource.isSelected))
       // FR-099 (MUST NOT): what a deletion would unassign is shown BY NAME, and
       // reducing it to a count is forbidden in as many words. ⛔ One element
       // each, not one joined line: a `Task` that carries no name of its own
@@ -2314,6 +2377,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * point on this surface is a point table T-023a's decision order may not
    * reach.
    *
+   * ⭐ THE ROW AND THE PERSON ARE READ ON THE SAME WALK, and that is R7.4 rather
+   * than thrift: the reading is finished before the deciding starts, so one
+   * element chain is inspected once and every member of the answer comes out of
+   * it. ⛔ A second query would ask a screen that had had time to move, and the
+   * two answers would then be about different frames. ⚠️ Neither is an entry:
+   * the row of the `Row Title Panel` and the roster's line each carry the key
+   * and no `data-icon`, and it is the entrances INSIDE them (IC-58 .. IC-60,
+   * IC-67 / IC-68) that carry the row of table T-109.
+   *
    * @purity semi-pure-b
    */
   function readScreenPartAt(x: number, y: number): ScreenPart | null {
@@ -2323,17 +2395,28 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     let node: Element | null = ask.call(host, x, y)
     let entry: string | null = null
     let format: string | null = null
+    let group: string | null = null
+    let uid: string | null = null
     let part: string | null = null
-    // ⭐ The innermost `data-icon` and `data-format`, and the OUTERMOST
-    // `data-role`: an entry sits inside its part, and table T-109's surface
-    // column names the containing surface rather than the grouping inside it
-    // (U-34 / U-35). So the icon and the format are each taken once and the role
-    // keeps being replaced on the way up.
+    // ⭐ The innermost `data-icon`, `data-format`, `data-group-id` and
+    // `data-uid`, and the OUTERMOST `data-role`: an entry sits inside its part,
+    // and table T-109's surface column names the containing surface rather than
+    // the grouping inside it (U-34 / U-35). So the four are each taken once and
+    // the role keeps being replaced on the way up.
+    // ⚠️ INNERMOST FOR THE KEYS TOO, and not merely by symmetry: a row of the
+    // `Row Title Panel` is drawn inside the panel and a roster line inside the
+    // surface, so the nearest one on the way up is the one the point is on. A
+    // key taken from further out would name whatever container happened to
+    // carry one.
     while (node !== null && node !== root) {
       const icon = node.getAttribute('data-icon')
       if (icon !== null && entry === null) entry = icon
       const chosen = node.getAttribute('data-format')
       if (chosen !== null && format === null) format = chosen
+      const groupId = node.getAttribute('data-group-id')
+      if (groupId !== null && group === null) group = groupId
+      const resource = node.getAttribute('data-uid')
+      if (resource !== null && uid === null) uid = resource
       const role = node.getAttribute('data-role')
       if (role !== null) part = role
       node = node.parentElement
@@ -2343,7 +2426,17 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (node !== root || part === null) return null
     // U-23 (MUST): an entrance for an operation is named by the panel, not by
     // the tree inside it. Table T-109 puts IC-58 .. IC-60 on the panel too.
-    return { part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part, entry, format }
+    // ⚠️ `Resource.uid` (AT-85) is a number and an attribute is text, so the one
+    // conversion on this seam happens here rather than on the reading side --
+    // the side that WROTE the attribute is the side that knows what it wrote
+    // (`String(resource.uid)` in `modalElement`).
+    return {
+      part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part,
+      entry,
+      format,
+      rowGroupId: group,
+      resourceUid: uid === null ? null : Number(uid),
+    }
   }
 
   // BO-1: settled before the first frame, and before this factory returns.
