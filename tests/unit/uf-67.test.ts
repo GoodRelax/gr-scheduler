@@ -772,6 +772,7 @@ const shownFor = (
   language: DisplayLanguage = 'ja',
 ): Confirmation => ({
   ...raised,
+  mannerText: '',
   entries: entriesOnConfirmation(language),
   shownOnAnotherRowMark: markFor('shownOnAnotherRow', language),
 })

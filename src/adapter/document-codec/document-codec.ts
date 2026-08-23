@@ -169,9 +169,14 @@ interface ReadableFormat {
  *
  * ⛔ The two values arrive from `exchange-formats.json`, which
  * `tools/generate_exchange_formats.py` writes out of table T-024. Rule 03
- * section 1 forbids spelling `.json` or `{` here, and the roster holds only the
- * rows carrying both columns -- table T-024's write-only rows write an em dash
- * and are not formats a file may be read AS.
+ * section 1 forbids spelling `.json` or `{` here.
+ *
+ * ⚠️ THE ARTIFACT CARRIES MORE ROWS THAN THIS ROSTER WANTS. It used to hold only
+ * the rows with both columns; `FR-096` needs every row with an out direction, so
+ * the generator now writes the write-only ones too and leaves their two columns
+ * `null`. ⛔ Those are not formats a file may be read AS -- OP-12 names a format
+ * a reading is judged against -- so they are dropped here, by the absence of the
+ * columns rather than by a second list of row ids that would go stale.
  */
 const READABLE_FORMATS: readonly ReadableFormat[] = (
   // `Object.keys` widens to `string[]`; the declaration above already fixes
@@ -179,9 +184,10 @@ const READABLE_FORMATS: readonly ReadableFormat[] = (
   Object.keys(ROW_OF_FORMAT) as readonly ExchangeFormat[]
 ).flatMap((format) => {
   const row = exchangeFormats.formats.find((one) => one.rowId === ROW_OF_FORMAT[format])
-  return row === undefined
-    ? []
-    : [{ format, extension: row.extension, firstCharacter: row.firstCharacter }]
+  if (row === undefined) return []
+  const { extension, firstCharacter } = row
+  if (extension === null || firstCharacter === null) return []
+  return [{ format, extension, firstCharacter }]
 })
 
 /**

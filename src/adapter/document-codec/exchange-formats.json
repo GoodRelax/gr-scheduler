@@ -1,5 +1,5 @@
 {
- "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/01-04-requirements.md, table T-024 (the extension and the first non-blank character, which OP-12 of table T-024a compares). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_exchange_formats.py. Only the rows carrying BOTH values are here: table T-024 writes an em dash for the write-only rows, and those are not formats a file may be read AS. A format is carried by its row id alone -- the table has no English column, and the names this build uses for the two are bound to these row ids in document-codec.ts.",
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/01-04-requirements.md, table T-024: every row that table gives an out direction, which is the set FR-096 (MUST) has the author choose from, each with the extension and the first non-blank character that OP-12 of table T-024a compares. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_exchange_formats.py. Both columns are null on a row that only goes out: table T-024 writes an em dash there, and such a row is not a format a file may be read AS. A format is carried by its row id alone -- the table has no English column, and the names this build uses for the two readable ones are bound to those row ids in document-codec.ts.",
  "columns": {
   "rowId": "行 ID",
   "extension": "拡張子",
@@ -15,6 +15,26 @@
    "rowId": "IO-2",
    "extension": ".json",
    "firstCharacter": "{"
+  },
+  {
+   "rowId": "IO-3",
+   "extension": null,
+   "firstCharacter": null
+  },
+  {
+   "rowId": "IO-4",
+   "extension": null,
+   "firstCharacter": null
+  },
+  {
+   "rowId": "IO-7",
+   "extension": null,
+   "firstCharacter": null
+  },
+  {
+   "rowId": "IO-6",
+   "extension": null,
+   "firstCharacter": null
   }
  ]
 }

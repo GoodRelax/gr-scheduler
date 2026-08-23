@@ -15,7 +15,7 @@
 // `ScreenView` instead: table T-075 fixes this folder at eleven units, and the
 // one that binds the nine descriptions together is UF-60.
 
-import type { IconId, ScreenView } from './screen-renderer'
+import type { ExportFormatId, IconId, ScreenView } from './screen-renderer'
 
 /**
  * What this surface has drawn at one point on the screen.
@@ -27,7 +27,7 @@ import type { IconId, ScreenView } from './screen-renderer'
  * nothing in `ScreenView` carries a rectangle for an entry -- the nine units
  * that build it have no way to measure one (LR-6 keeps the browser out of them).
  *
- * ⚠️ ONE ANSWER AND NOT TWO MEMBERS. The part and the entry are read at the
+ * ⚠️ ONE ANSWER AND NOT ONE CALL PER MEMBER. Everything below is read at the
  * same instant because the screen can move between two calls (R7.4: the reading
  * is finished before the deciding starts).
  */
@@ -58,6 +58,31 @@ export interface ScreenPart {
    * marquee on the schedule underneath.
    */
   readonly entry: IconId | null
+  /**
+   * The export format the point is on -- a row of table T-024, e.g. `IO-2` --
+   * or `null` where the point is on none.
+   *
+   * ⛔ A SECOND MEMBER AND NOT A SECOND SPELLING OF `entry`. FR-096 (MUST) makes
+   * the chooser offer every format table T-024 gives an out direction, and
+   * FR-029 (MUST) makes table T-109 the whole of the icons -- which places
+   * nothing but IC-52 on U-54, because FR-096 (MUST NOT) forbids an entrance per
+   * format. So what a person presses there is a row of table T-024 and `entry`
+   * cannot report it: that member is a row of table T-109, the two tables number
+   * their rows independently, and one member carrying both would leave the
+   * reading side unable to say which table it had been handed.
+   *
+   * ⚠️ `null` ON EVERY OTHER PART, including while a format is on screen but the
+   * point is elsewhere on the chooser. ⛔ It does not stand in for "no format
+   * exists": `ExportChooser.formats` is where that is answered.
+   *
+   * ⛔ HOW THE DRAWING SIDE MARKS A FORMAT IS NOT IN THE SPECIFICATION. Table
+   * T-006a fixes `data-role` (W-4 / W-6) and the surface writes `data-icon` for
+   * an entry, and neither row reaches a format. Searched: tables T-006a, T-024,
+   * T-065, T-103 and T-109, and FR-029 / FR-096. The seam is declared all the
+   * same, because the alternative is a press FR-096 requires that has no way to
+   * arrive at all.
+   */
+  readonly format: ExportFormatId | null
 }
 
 /**

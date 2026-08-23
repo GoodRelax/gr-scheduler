@@ -41,22 +41,28 @@
 // repeats that this is its single exception. So the roster settles the
 // placement of every row but that one, and FR-038 settles that one.
 //
-// ⭐ ONE SURFACE NOW HAS SOMEWHERE TO PUT WHAT IT SHOWS. `OpenModal` has become
-// a union discriminated on `surface`, and the `Resource Roster` (U-49) member
-// carries the roster FR-099 asks for, which this unit fills below. The four
-// other surfaces still come back with the three members every surface has; the
-// STOP note in the body says what each of them would need, and what FR-099
-// asks for that even the widened type cannot hold.
+// ⭐ TWO SURFACES NOW HAVE SOMEWHERE TO PUT WHAT THEY SHOW. `OpenModal` is a
+// union discriminated on `surface`: the `Resource Roster` (U-49) member carries
+// the roster FR-099 asks for and the `Export Chooser` (U-54) member carries the
+// formats FR-096 asks for, and this unit fills both below. The four other
+// surfaces still come back with the three members every surface has; the STOP
+// note in the body says what each of them would need, and what FR-099 asks for
+// that even the widened type cannot hold.
 //
 // ⭐ THIS UNIT IS WHERE THE ROSTER OF SURFACES LIVES. `ScreenState` says so in
 // as many words on `OpenSurface`: S-99g carries the name and leaves which ones
 // there are to UF-66. So a surface table T-103 has settled a name for is named
 // below, and one it has not is carried through as it arrived.
 //
-// ⭐ TWO OF THEM NEED NO PAYLOAD AT ALL, and they are a pair: `Export Chooser`
-// (U-54) and `Open Chooser` (U-56). Everything each of them shows is entries,
-// which table T-109 places by its own 面 column, so `commandsOnSurface` below
-// already answers them in full and neither needs a member of its own.
+// ⭐ THE PAIR OF CHOOSERS IS NOT A PAIR IN WHAT IT CARRIES, although the
+// glossary calls U-54 `Export Chooser` and U-56 `Open Chooser` each other's
+// opposite. ⭐ U-56 needs no payload: OP-3 of table T-024a is answered by three
+// entries and table T-109 places all three on it, so `commandsOnSurface` below
+// answers that surface in full. ⛔ U-54 IS NOT ANSWERED THAT WAY: the same
+// table places nothing but IC-52 on it, because FR-096 gives the whole act one
+// entrance (MUST) and forbids one per format (MUST NOT) -- so the things a
+// person chooses between there are rows of table T-024, not rows of table
+// T-109, and they need a member of their own.
 // ⚠️ U-56 is NOT a `Confirmation` (U-55) and its glossary row says so: NT-7 of
 // table T-037 makes that surface two answers by construction, and OP-3 of table
 // T-024a (MUST) is three. ⛔ So nothing here routes OP-3's question through
@@ -67,6 +73,7 @@ import type { ScreenState } from '../../entity/document-model/screen-state/scree
 import type {
   CommandItem,
   DisplayLanguage,
+  ExportFormatId,
   IconId,
   OpenModal,
   RosterResource,
@@ -104,6 +111,53 @@ const DISPLAY_LANGUAGE_ICON: IconId = 'IC-21'
  * roster is the one payload this unit can fill.
  */
 const RESOURCE_ROSTER = 'Resource Roster'
+
+/**
+ * U-54 of table T-103, the surface FR-096 opens.
+ *
+ * ⭐ A settled name copied spelling and all (rule 03 section 1), and the literal
+ * `OpenModal` discriminates its format member on. The same spelling
+ * `icon-roster.json` carries in its surface column for IC-52.
+ */
+const EXPORT_CHOOSER = 'Export Chooser'
+
+/**
+ * FR-096 (MUST): the rows of table T-024 whose direction column gives them an
+ * out direction, in that table's own print order (rule 03 section 4).
+ *
+ * ⛔ RE-TYPED, WHICH RULE 03 SECTION 1 FORBIDS FOR ANYTHING THE SPECIFICATION
+ * HOLDS, and written all the same because the alternative breaks a MUST outright
+ * rather than risking it. Table T-024 IS read by a generator --
+ * `tools/generate_exchange_formats.py` -- but that one keeps only the two rows
+ * OP-1 of table T-024a accepts on intake, and writes them into
+ * `src/adapter/document-codec/exchange-formats.json`, which is another
+ * component's file that `_source/components.json` gives this one no edge to. So
+ * neither the direction column nor a roster built from it reaches this folder,
+ * and an empty roster here would say the table gives no format an out direction,
+ * which is a different untruth from a stale one.
+ *
+ * ⭐ THE DRIFT IS MACHINE-CHECKED MEANWHILE, which is what makes the risk
+ * bearable: `tests/unit/uf-47-48-choosers.test.ts` reads the direction column
+ * out of the manuscript every run and fails when a row it names is missing from
+ * the description this unit builds. ⛔ What is owed is still a generated roster
+ * beside `icon-roster.json`, so that the row ids below stop being a copy.
+ *
+ * ⛔ ONLY THE ROW IDS ARE HERE. No format name, no extension and no direction
+ * word is written out -- FR-096 (MUST NOT) puts the extensions in table T-024
+ * alone, and a row id is a join rather than a value (the move
+ * `DISPLAY_LANGUAGE_ICON` above makes with IC-21).
+ * ⚠️ IO-5 IS LEFT OUT ON PURPOSE and is not an oversight: its direction column
+ * is the pair table T-024 gives the automatic save and the recovery from it, and
+ * neither is a direction FR-096 offers.
+ */
+const EXPORT_FORMAT_ROWS: readonly ExportFormatId[] = [
+  'IO-1',
+  'IO-2',
+  'IO-3',
+  'IO-4',
+  'IO-7',
+  'IO-6',
+]
 
 /**
  * What an entry or a heading says while the dictionary holds no word for it.
@@ -363,16 +417,16 @@ function rosterResourcesOf(schedule: Schedule, session: ScreenSession): readonly
  * placed on. Esc still closes them (IN-4 of table T-028), so none of them traps
  * a reader.
  *
- * ⭐ U-56 `Open Chooser` NEEDS NO BRANCH OF ITS OWN, and neither does U-54
- * `Export Chooser`: table T-109 places IC-71 / IC-72 / IC-73 on the first and
- * IC-52 on the second, so reading the generated roster IS drawing them, and
+ * ⭐ U-56 `Open Chooser` NEEDS NO BRANCH OF ITS OWN: table T-109 places IC-71 /
+ * IC-72 / IC-73 on it, so reading the generated roster IS drawing them, and
  * OP-3 of table T-024a asks for nothing on that surface but the three.
  * ⛔ It is the one named surface table T-109 places no IC-52 on, so the first
  * level of Esc is its only way out that is not an answer -- which is what OP-3
  * (MUST NOT) wants, GRS settling none of the three by itself.
  *
- * ⭐ The `Resource Roster` (U-49) also carries what FR-099 shows on it. It is
- * the only one of the five that does; the STOP note below says why.
+ * ⭐ TWO OF THE SIX CARRY MORE THAN THEIR ENTRIES: the `Resource Roster` (U-49)
+ * carries what FR-099 shows on it, and the `Export Chooser` (U-54) carries the
+ * formats FR-096 offers. The STOP note below says why the four others do not.
  *
  * @purity pure
  */
@@ -413,6 +467,17 @@ export function openModalFromScreenState(
     }
   }
 
+  // FR-096 (MUST): every format table T-024 gives an out direction is offered
+  // here, because table T-109 places no entrance for one and FR-096 (MUST NOT)
+  // forbids adding one per format. ⛔ The formats do not depend on the document,
+  // so nothing is read from `schedule`: which formats exist is the table's
+  // answer, and which of them can be used now is a judgement no argument here
+  // carries -- ⛔ nor does the specification state one. Searched: FR-096, table
+  // T-024, table T-024a and table T-109.
+  if (surface === EXPORT_CHOOSER) {
+    return { surface: EXPORT_CHOOSER, heading, commands, formats: EXPORT_FORMAT_ROWS }
+  }
+
   // STOP -- ⛔ NOT MODELLED, AND THIS UNIT MAY NOT ADD IT: what the four other
   // surfaces show. `OpenModal` declares a payload for each of them, and
   // `screen-renderer.ts` is where they stand; none is filled here, so a
@@ -441,6 +506,15 @@ export function openModalFromScreenState(
   // said they could not exist is gone because the rows now do.
   // ⚠️ FR-068's copy control is still owed one: table T-109 places nothing but
   // IC-52 on the `AI Export Modal`, and FR-029 (MUST) forbids minting a row.
+  // STOP -- ⛔ THE FORMATS ABOVE GO OUT WITH NO WORDS. `display-words.json` has
+  // eight sections -- one per row of table T-109, the palette groups, the
+  // surfaces table T-103 has named, one per row of table T-037, the two answers
+  // of NT-7, FR-032's mark, FR-072's panel headings and one per row of table
+  // T-023 -- and none keyed on a row of table T-024. So a person is offered
+  // six row ids and
+  // FR-038 (MUST NOT) forbids this unit to write the six words itself. ⛔ What is
+  // owed is a section of the manuscript keyed on those rows; the report names
+  // them. ⚠️ The heading is not among what is missing -- U-54 has one.
   // ⚠️ The confirmation FR-099 requires before a deletion is NT-7 of table
   // T-037 and U-55 of table T-103, which are UF-67's; ⭐ the task names it must
   // show ARE carried here, on each roster entry, which is this unit's half of

@@ -956,10 +956,10 @@ function tasksLostWith(tasks: readonly Task[], seeds: Iterable<number>): Readonl
  * screen prints in ONE per-language dictionary and forbids writing one anywhere
  * else (MUST NOT). That dictionary -- `display-words.json`, generated from the
  * manuscript Chapter 6.2 owns -- holds rows for NT-7's two answers and for the
- * `別の行` mark, and NO row for the question itself. ⚠️ Empty is the same answer
- * `shownOnAnotherRowMark` gives while its own row is unwritten (PD-160): a
- * missing word, not an invented one. A sentence typed here would be the second
- * dictionary FR-038 forbids.
+ * `shownOnAnotherRow` mark, and NO row for the question itself. ⚠️ Those three
+ * rows are written now, so the emptiness below is no longer PD-160 waiting: it
+ * is the one row the dictionary does not have. A sentence typed here would be
+ * the second dictionary FR-038 forbids.
  *
  * @purity pure
  */
@@ -1220,20 +1220,28 @@ export function frameLoop(
   // carries over is the part that matters: nothing is read again while the
   // answer is awaited, so the writes below are the ones the question was asked
   // about and not a later document's.
-  // ⛔ WHETHER THIS SURFACE IS A 「面」 IS NOT SETTLED. If it were, IN-4 of table
-  // T-028 would spend `Esc` on it and that would be a second way to cancel
-  // beside IC-70. Table T-109's 面 column does not name `Confirmation` and
-  // S-99g defines a 面 as what `Esc` closes, so the specification says neither.
-  // Nothing is decided here: `Esc` is left alone.
+  // ⛔ `Esc` DOES NOT REACH THIS ONE, AND THE MANUSCRIPT NOW SAYS IT SHOULD.
+  // U-55 of table T-103 settles the name and table T-109 prints it in the
+  // surface column of IC-69 and IC-70, so S-99g's own definition of a surface
+  // -- what the first level of IN-4 (table T-028) closes -- covers it.
+  // ⚠️ This build holds the question here and not in `ScreenState.surface`,
+  // which is the only value IN-4 spends that level on, so the first `Esc`
+  // passes it by.
+  // ⛔ MOVING IT THERE IS NOT DONE HERE, because it would raise TWO surfaces for
+  // one question: `openModalFromScreenState` draws whatever stands in S-99g,
+  // and `confirmationFromSession` already draws this one from
+  // `ScreenSession.confirmation`. Which of the two carries it is a ruling
+  // nobody has made.
   //
   // ⭐ WHAT THE ANSWER DOES IS CARRIED WITH THE QUESTION, and is not a second
-  // field the answering side has to know how to read. Two requirements raise
-  // one now -- FR-032's delete and DI-4 of table T-227 -- and NT-7 gives both
-  // the same two answers (IC-69 / IC-70), so `answerSettledEntry` spends the
-  // entry and this settles what the entry meant. ⛔ A union of payloads would
-  // put the deciding in the answering side, and FR-031 (MUST NOT) keeps the
-  // places that may ask from growing: each raiser stating its own landing is
-  // what makes a new one impossible to add by accident.
+  // field the answering side has to know how to read. Three requirements raise
+  // one now -- FR-032's delete, DI-4 of table T-227 and OP-4 of table T-024a --
+  // and NT-7 gives all three the same two answers (IC-69 / IC-70), so
+  // `answerSettledEntry` spends the entry and this settles what the entry
+  // meant. ⛔ A union of payloads would put the deciding in the answering side,
+  // and FR-031 (MUST NOT) keeps the places that may ask from growing: each
+  // raiser stating its own landing is what makes a new one impossible to add by
+  // accident.
   let asking: {
     readonly question: RaisedConfirmation
     /** @purity non-pure */
@@ -1737,7 +1745,7 @@ export function frameLoop(
    * entries appear without this file listing one.
    * ⛔ NO WORDS ARE WRITTEN HERE. FR-038 (MUST) keeps every word the screen
    * prints in the one generated dictionary; the heading and the three labels
-   * are its rows, empty today (PD-160), and a sentence typed here would be the
+   * are its rows and are written there, so a word typed here would be the
    * second dictionary that requirement forbids.
    * ⚠️ S-99g HOLDS ONE SURFACE, so whatever stood open gives way to this one.
    * That is the value's own rule and not a choice made here.
@@ -1900,6 +1908,15 @@ export function frameLoop(
     // OP-4 (MUST): the replace is the one choice that throws the current
     // document away, so it is the one choice that asks first. That row exempts
     // the other two in as many words, because neither discards anything.
+    // ⛔ ASKED ON EVERY REPLACE, BECAUSE NOTHING SAYS WHEN AN EDIT IS UNSAVED.
+    // OP-4's rule sentence carries no condition, and no row anywhere says when
+    // a document counts as holding one -- there is no saved-state value to
+    // read, and the undo history counts steps since this document became
+    // current, which a save does not clear.
+    // ⚠️ So the question stands even where nothing could be lost, which keeps
+    // that row's MUST NOT and costs a press. ⛔ Skipping it would also make
+    // PI-10's `unsavedEditsDiscardConfirmed` say a person confirmed who was
+    // never asked. Narrowing it needs the manuscript, not this file.
     const isDiscardConfirmed =
       choice === 'replace' ? await askToDiscardCurrentDocument(current) : false
     if (choice === 'replace' && !isDiscardConfirmed) return
@@ -1941,6 +1958,13 @@ export function frameLoop(
     // RD-3 -- the merge and the overlay. It is the one row of table T-230 whose
     // stamp advances and whose WS-4 can owe a step, so it is the one row that
     // needs the two bounds and the two stamp fields.
+    // STOP -- ⛔ OP-9's MUST DOES NOT ARRIVE FOR EVERY FILE ON THIS ROW. That
+    // row has what was read put into the frame kept for the overlay, and
+    // `baselinedDocument` (PI-10) keeps only the tasks whose `UID` a current
+    // task carries -- so a file that shares no `UID` with the document lands an
+    // empty frame and OP-9 is not kept. ⚠️ Nothing this side passes changes
+    // that: `current` is CS-3's one read and PI-10 fills it. Which of OP-9's
+    // frame and FR-015's pairing is the narrower is not this file's to settle.
     replaceHeldDocument({
       row: 'RD-3',
       importing: { ...importing, choice },
@@ -2084,10 +2108,13 @@ export function frameLoop(
       if (choosing === null) return false
       openChoosing = null
       // S-99g: the surface has answered its question, so it is no longer open.
-      // ⛔ Closed HERE and not by `screenStateFromEntry`: table T-109 gives that
-      // job to IC-52, and IC-52 is not placed on this surface -- so leaving it
-      // to the translator would leave the surface standing over the document
-      // with its question already answered.
+      // ⛔ Closed HERE and not by `screenStateFromEntry`, even though table
+      // T-109 now places IC-52 on this surface too: that entry is IN-4's way
+      // OFF a surface without answering it, which OP-3 (MUST NOT) makes an
+      // abandoned read and not one of the three. These three ARE the answer, so
+      // the closing belongs beside the answering -- leaving it to the
+      // translator would leave the surface standing over the document with its
+      // question already settled.
       screenState = screenStateWithSurface(screenState, null)
       choosing.settle(openChoice)
       return true

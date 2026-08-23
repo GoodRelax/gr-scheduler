@@ -88,13 +88,19 @@
 // (IC-58 / IC-59; see `rowTitleElement`). That is not decoration:
 //
 //   - `readScreenPartAt` reads them back. It is the third member of IF-9, and
-//     `data-role` / `data-icon` are what it walks: the entry a point is on, and
-//     the part that entry was drawn in. ⭐ Chapter 5.3 states under table T-065
-//     (MUST) that the side which DREW an entry is the side that answers where it
-//     is -- which is this unit, and is why the answer leaves through the seam
-//     rather than being read out of this markup by whoever holds the page.
+//     `data-role` / `data-icon` / `data-format` are what it walks: the entry a
+//     point is on, the format choice a point is on, and the part either was
+//     drawn in. ⭐ Chapter 5.3 states under table T-065 (MUST) that the side
+//     which DREW an entry is the side that answers where it is -- which is this
+//     unit, and is why the answer leaves through the seam rather than being read
+//     out of this markup by whoever holds the page.
 //     `ScreenSession.iconUnderPointer` (PD-141) is the shell's, and the shell
 //     fills it from this member.
+//   - ⚠️ `data-format` IS NOT A THIRD SPELLING OF `data-icon`. FR-096 (MUST)
+//     allows the whole act of writing a document out ONE entrance and forbids
+//     one per format (MUST NOT), so the choices on `Export Chooser` (U-54) are
+//     not rows of table T-109 and cannot travel as ones. They carry the row of
+//     table T-024 instead, which is the only join that table admits.
 //   - IN-5a's 「文字入力を確定していない間」 is answerable the same way: the
 //     entry is the only `input` inside `[data-role="Dialogue Field"]`, so the
 //     shell can tell from `activeElement` that text is being entered.
@@ -403,6 +409,11 @@ const STYLE = {
   armedText: 'color:CanvasText;',
   modal: STOPPING_BOX,
   modalHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
+  // The choices FR-096 (MUST) has the author pick one of, held together and
+  // apart from the heading above them. ⛔ Nothing here says which order they
+  // stand in: they are drawn in the order the description carries, which is
+  // table T-024's own.
+  formatChoices: 'display:flex;flex-wrap:wrap;gap:0.25em;margin-top:0.5em;',
   notices: 'position:absolute;left:50%;transform:translateX(-50%);max-width:60%;',
   notice:
     'box-sizing:border-box;margin:0.25em 0;padding:0.5em 0.75em;background:Canvas;' +
@@ -1121,9 +1132,14 @@ function paletteElement(
  * TypeScript would keep that member in every comparison.
  *
  * ⚠️ `data-role` takes the surface's own name, which is either one of table
- * T-103's four settled spellings or the UID of the requirement that opens it
+ * T-103's settled spellings or the UID of the requirement that opens it
  * (FR-074, FR-088) -- both are the specification's own joins, and no name is
  * minted here for the two it has not named.
+ * ⛔ AND IT IS NOT KEBAB-CASED ON THE WAY. `W-4` of table T-006a sends a
+ * `data-role` that carries a UI part's settled name to `W-6` instead, in as many
+ * words, because translating one would give the same thing a second spelling.
+ * So the name arrives from `ScreenState.surface` (S-99g) and is written down
+ * unchanged.
  *
  * @purity non-pure
  */
@@ -1182,6 +1198,51 @@ function modalElement(
     const text = made(host, 'pre', 'white-space:pre-wrap;overflow:auto;')
     text.textContent = modal.documentText
     body.push(text)
+  }
+
+  if ('formats' in modal) {
+    // FR-096 (MUST): the author picks one of the rows table T-024 gives an out
+    // direction, and U-54 is the surface that asks.
+    //
+    // ⛔ THESE ARE NOT ENTRIES OF TABLE T-109 AND MAY NOT BE DRAWN AS ONES. The
+    // same requirement allows the whole act one entrance (MUST) and forbids one
+    // per format (MUST NOT) -- IC-3 is that entrance, and it is what OPENED this
+    // surface. So a choice here carries no row of table T-109, no shape of
+    // figure F-019 and no `data-icon`; drawing one would be the second entrance
+    // that MUST NOT forbids.
+    //
+    // ⛔ THE NAME FR-096 (MUST) HAS THIS SURFACE PROPOSE IS NOT DRAWN HERE,
+    // because the description carries none: no member of `OpenModal` holds it,
+    // and table T-024 leaves most of these rows without the extension one would
+    // be built from. ⛔ Nothing is composed in its place -- what the platform's
+    // own picker is handed is the shell's, and a second proposal drawn here
+    // would be a second answer to the same MUST.
+    const choices = made(host, 'div', STYLE.formatChoices)
+    for (const format of modal.formats) {
+      // ⛔ NOT DECIDED BY THE SPECIFICATION: nothing says how a format is marked
+      // in the page. What IS settled is that a format is carried by its row id
+      // and by nothing else -- table T-024 has no English column -- so the row
+      // id is the marking, which is the same bargain `data-icon` keeps for an
+      // entry of table T-109 and `exchange-formats.json` for a format.
+      //
+      // ⛔ AND THE DICTIONARY HAS NO WORD FOR ONE. FR-038 (MUST) keeps every
+      // word of the screen in the one generated dictionary, which holds no group
+      // for these, so the row id is the body and the accessible name alike --
+      // the same fallback `commandEntry` takes for a cell PD-160 left empty.
+      // ⛔ The format column of table T-024 is NOT read in its place: that
+      // column is the manuscript's own wording, in one language, and printing it
+      // would be the second store of translated words FR-038 forbids (MUST NOT).
+      //
+      // ⚠️ Painted as an entry is painted, because this unit paints everything
+      // that can be pressed that way (R4) -- it is not a claim that this is one.
+      const choice = made(host, 'button', STYLE.entry)
+      choice.setAttribute('type', 'button')
+      choice.setAttribute('data-format', format)
+      choice.setAttribute('aria-label', format)
+      choice.textContent = format
+      choices.append(choice)
+    }
+    body.push(choices)
   }
 
   if ('resources' in modal) {
@@ -1931,6 +1992,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * lays nothing out has nothing at any point. Absent is answered as `null`,
    * which is the same answer as "nothing of mine is there".
    *
+   * ⭐ THE FORMAT IS THE THIRD THING READ BACK, AND IT IS NOT AN ENTRY. FR-096
+   * (MUST NOT) forbids a second entrance per format, so a choice on U-54 has no
+   * row of table T-109 to be answered as -- it carries a row of table T-024, and
+   * that is what leaves here. ⚠️ The two never stand on one element, so a press
+   * settles at most one of them; the surface still comes back on both, because a
+   * point on this surface is a point table T-023a's decision order may not
+   * reach.
+   *
    * @purity semi-pure-b
    */
   function readScreenPartAt(x: number, y: number): ScreenPart | null {
@@ -1939,14 +2008,18 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
     let node: Element | null = ask.call(host, x, y)
     let entry: string | null = null
+    let format: string | null = null
     let part: string | null = null
-    // ⭐ The innermost `data-icon` and the OUTERMOST `data-role`: an entry sits
-    // inside its part, and table T-109's surface column names the containing
-    // surface rather than the grouping inside it (U-34 / U-35). So the icon is
-    // taken once and the role keeps being replaced on the way up.
+    // ⭐ The innermost `data-icon` and `data-format`, and the OUTERMOST
+    // `data-role`: an entry sits inside its part, and table T-109's surface
+    // column names the containing surface rather than the grouping inside it
+    // (U-34 / U-35). So the icon and the format are each taken once and the role
+    // keeps being replaced on the way up.
     while (node !== null && node !== root) {
       const icon = node.getAttribute('data-icon')
       if (icon !== null && entry === null) entry = icon
+      const chosen = node.getAttribute('data-format')
+      if (chosen !== null && format === null) format = chosen
       const role = node.getAttribute('data-role')
       if (role !== null) part = role
       node = node.parentElement
@@ -1956,7 +2029,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (node !== root || part === null) return null
     // U-23 (MUST): an entrance for an operation is named by the panel, not by
     // the tree inside it. Table T-109 puts IC-58 .. IC-60 on the panel too.
-    return { part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part, entry }
+    return { part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part, entry, format }
   }
 
   // BO-1: settled before the first frame, and before this factory returns.

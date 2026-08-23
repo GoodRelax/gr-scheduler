@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Write the two exchange formats of table T-024 into src/.
+"""Write into src/ the formats of table T-024 that go out.
 
     python tools/generate_exchange_formats.py
     python tools/generate_exchange_formats.py --check
+
+TWO READERS ASK THIS ROSTER TWO DIFFERENT QUESTIONS, AND THEY ARE NOT THE SAME
+SET OF ROWS.
 
 OP-12 of table T-024a decides which decoder a file is sent to, and it decides
 it from two values table T-024 holds in columns of its own: the extension and
@@ -10,6 +13,12 @@ the first non-blank character. Rule 03 of docs/development-rules forbids
 re-typing a value the specification holds, so `document-codec.ts` may not spell
 `.json` or `<` itself. This script is the way those two columns arrive, and
 `npm run gen:check` is what fails when the manuscript moves on without them.
+
+FR-096 (MUST) has the author choose among the rows table T-024 marks with an
+out direction, and the same requirement forbids one entrance per format (MUST
+NOT) -- so the surface that asks needs the WHOLE of that set, including the
+rows OP-12 never judges. ⛔ Those rows may not be typed on the drawing side
+either: table T-024 is the one place that says which formats there are.
 
 CR-214 is why the values are in columns at all: they used to sit inside a
 sentence of the note column, where no generator could reach them -- every
@@ -24,10 +33,16 @@ where a row id is bound to a name this build already had (`ImportFormat` /
 that has been renumbered and a row that carries half the rule all stop the run
 rather than produce a file.
 
-⚠️ Only the rows carrying BOTH values are written out. Table T-024 puts an em
-dash in both columns for the five write-only rows, and says in as many words
-that the two columns belong to the two rows `OP-1` accepts on intake -- so a
-row with an em dash is not a format anything may be read AS.
+⚠️ A ROW MAY STAND HERE CARRYING NEITHER VALUE. Table T-024 puts an em dash in
+both columns for the rows that only go out, and says in as many words that the
+two columns belong to the rows `OP-1` accepts on intake -- so an em dash is
+carried across as `null` and NOT as an empty string: a row with an em dash is
+not a format anything may be read AS, and an empty extension would match every
+file name there is. ⛔ Nothing is invented in an em dash's place.
+
+⚠️ THE ROW THAT IS NOT WRITTEN OUT AT ALL is the one whose direction column
+marks neither taking in nor writing out. It is not a file this tool exchanges,
+so neither reader has a question about it.
 
 Run with PYTHONIOENCODING=utf-8.
 """
@@ -62,25 +77,29 @@ FIELDS = ('rowId', 'format', 'direction', 'extension', 'firstCharacter',
           'purpose', 'note')
 CARRIED = ('rowId', 'extension', 'firstCharacter')
 
-# ⚠️ Two Japanese needles, and rule 03 section 5 allows them because the thing
+# ⚠️ Three Japanese needles, and rule 03 section 5 allows them because the thing
 # being parsed IS Japanese. The em dash is how table T-024 writes "this row has
 # no such value" (tools/generate_icon_roster.py reads the same dash the same
-# way). The direction word is how the same table says a row is accepted on
-# intake, which is the property the two columns belong to.
-# ⛔ Neither is ever printed: every message this script writes is ASCII, so a
-# console that cannot encode them still shows the reason.
+# way). The two direction words are how the same table says a row is accepted on
+# intake -- which is the property the two columns belong to -- and how it says a
+# row is written out, which is the set FR-096 has the author choose from.
+# ⛔ None of them is ever printed: every message this script writes is ASCII, so
+# a console that cannot encode them still shows the reason.
 EM_DASH = u'—'
 INTAKE = u'取込'
+OUTWARD = u'書出'
 
 BANNER = (
-    'GENERATED -- do not edit by hand. Generated from %s, table %s (the '
-    'extension and the first non-blank character, which OP-12 of table T-024a '
-    'compares). Rebuild: npm run gen -- npm run gen:check fails on drift. The '
-    'generator is %s. Only the rows carrying BOTH values are here: table %s '
-    'writes an em dash for the write-only rows, and those are not formats a '
-    'file may be read AS. A format is carried by its row id alone -- the '
-    'table has no English column, and the names this build uses for the two '
-    'are bound to these row ids in document-codec.ts.'
+    'GENERATED -- do not edit by hand. Generated from %s, table %s: every row '
+    'that table gives an out direction, which is the set FR-096 (MUST) has the '
+    'author choose from, each with the extension and the first non-blank '
+    'character that OP-12 of table T-024a compares. Rebuild: npm run gen -- '
+    'npm run gen:check fails on drift. The generator is %s. Both columns are '
+    'null on a row that only goes out: table %s writes an em dash there, and '
+    'such a row is not a format a file may be read AS. A format is carried by '
+    'its row id alone -- the table has no English column, and the names this '
+    'build uses for the two readable ones are bound to those row ids in '
+    'document-codec.ts.'
     % (REL_SOURCE, TABLE, REL_SELF, TABLE))
 
 
@@ -151,7 +170,7 @@ def only_code_span(cell, row_id, column):
 
 
 def format_of(row):
-    """One row of table T-024, or None where the row carries no format.
+    """One row of table T-024 that goes out, or None where the row does not.
 
     ⛔ The two columns are read together. A row with one of them and an em dash
     in the other is half a rule, and OP-12 needs both sides to agree before a
@@ -177,8 +196,24 @@ def format_of(row):
                  'intake, and %s the two columns OP-12 compares'
                  % (row_id, TABLE, 'is' if on_intake else 'is not',
                     'carries' if has_extension else 'does not carry'))
-    if not has_extension:
+
+    # FR-096's set is the whole of this file, and the rows OP-12 judges are a
+    # part of it today.
+    if OUTWARD not in direction:
+        # ⛔ A row OP-12 may name that this filter DROPS is a decoder lost in
+        # silence, so the two sets parting company stops the run. Nothing here
+        # may choose which of the two readers to serve.
+        if has_extension:
+            sys.exit('generate_exchange_formats: %s of table %s carries the two '
+                     'columns OP-12 compares and is not written out, so one '
+                     'roster can no longer answer both readers' % (row_id, TABLE))
         return None
+
+    if not has_extension:
+        # ⛔ The em dash crosses as null and never as an empty string: an empty
+        # extension is the tail of every file name, so it would match files
+        # rather than none of them.
+        return {'rowId': row_id, 'extension': None, 'firstCharacter': None}
 
     extension = only_code_span(extension, row_id, 'extension')
     first = only_code_span(first, row_id, 'first non-blank character')
@@ -213,14 +248,20 @@ def build():
 
     formats = [f for f in (format_of(row) for row in rows) if f is not None]
     if not formats:
+        sys.exit('generate_exchange_formats: no row of table %s is written out, '
+                 'so nothing could be chosen' % TABLE)
+    judged = [f for f in formats if f['extension'] is not None]
+    if not judged:
         sys.exit('generate_exchange_formats: no row of table %s carries the two '
                  'columns OP-12 compares, so nothing could be judged' % TABLE)
     # ⛔ OP-12 reads a file as the row BOTH sides match. Two rows sharing a
     # side would make that row ambiguous, and the ambiguity would show up as a
-    # file opened as the wrong format rather than as a failure.
+    # file opened as the wrong format rather than as a failure. ⚠️ Asked of the
+    # rows that carry values only: the rows that only go out are all null on
+    # both sides, and null is not a side anything is compared against.
     for key, what in (('extension', 'extension'),
                       ('firstCharacter', 'first non-blank character')):
-        seen = [f[key] for f in formats]
+        seen = [f[key] for f in judged]
         if len(set(seen)) != len(seen):
             sys.exit('generate_exchange_formats: two rows of table %s share a '
                      '%s, so OP-12 could not name one row' % (TABLE, what))

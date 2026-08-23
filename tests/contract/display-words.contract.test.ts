@@ -6,8 +6,9 @@
 // requirement or a table (MUST NOT). Chapter 6.2 fixes the manuscript as
 // `docs/spec/_source/display-words.json` and says the words reach `src/` as one
 // generated file (MUST). CR-194 built both and left every word empty on
-// purpose; ruling 06 of docs/review/rulings-2026-08-22 asks for the acceptance
-// case CR-194 section 5 defines:
+// purpose; the user has since written all but two of them. Ruling 06 of
+// docs/review/rulings-2026-08-22 asks for the acceptance case CR-194 section 5
+// defines:
 //
 //   "the manuscript's word is changed by one -> does a test fall?
 //    ⛔ if none falls, that word is reaching nowhere"
@@ -19,9 +20,12 @@
 //                     place prints exactly it, in both languages. ⭐ DRIVEN BY
 //                     A FILLED DICTIONARY THIS FILE BUILDS, stood where the
 //                     five units import theirs from, so every case really runs
-//                     while the manuscript is empty (PD-160). ⛔ No word is
-//                     written into the manuscript to achieve that -- the words
-//                     are the user's decision.
+//                     whatever the manuscript holds. ⛔ No word is written into
+//                     the manuscript to achieve that -- the words are the
+//                     user's decision. ⚠️ It was built when the manuscript was
+//                     empty and every case would otherwise have been vacuous;
+//                     it earns its keep still, because a cell the user has yet
+//                     to write would go vacuous again.
 //   2. THE FALLBACK   every entry that is EMPTY: the place still prints a
 //                     string, and where a requirement forbids emptiness the
 //                     stand-in is not the empty string (FR-072).
@@ -33,11 +37,10 @@
 //                     ると画面に届く試験」-- a word that IS written is printed.
 //                     ⚠️ While every cell was empty that claim could only be
 //                     made as a guard that FELL the moment a word appeared
-//                     (CR-194 section 5 item 2). ⛔ One HAS appeared -- FR-032's
-//                     mark, ruled a word on 2026-08-23 (CR-218) -- so the guard
-//                     is now stated as the thing it stood in for, and NOT as
-//                     "no word is written", which would sleep through every
-//                     word the user writes from here on.
+//                     (CR-194 section 5 item 2). ⛔ The words have since been
+//                     written -- all but two -- so the guard is stated as the
+//                     thing it stood in for, and NOT as "no word is written",
+//                     which would sleep through every one of them.
 //
 // WRITTEN WITHOUT READING THE UNITS' BODIES (docs/development-rules/
 // 04-verification.md, section 1). What was read: docs/spec (FR-038, FR-072,
@@ -74,8 +77,14 @@
 //      SAME AS LEAVING THEM UNCHECKED: a word cannot be held against a member
 //      this file may not name, but it CAN be held against the whole of what
 //      `screenViewFromRegions` (PI-37) hands out -- which is how the acceptance
-//      group reaches `confirmationMarks`, the one section a word is written in
-//      today (FR-032, MUST).
+//      group reaches `confirmationMarks` (FR-032, MUST), the two answers of
+//      `confirmation`, and the words of the entries table T-109 stands on U-55.
+//      ⛔ THE `notices` SECTION IS NOT AMONG THEM: every frame here is raised
+//      with nothing told, so its words have no frame to arrive on and the
+//      acceptance group cannot ask for them. ⚠️ Raising one would put this file
+//      in front of a debt that is the manuscript's, not the road's -- the
+//      dictionary holds a notice's manner and no entry a reason can be looked
+//      up under, which is what tests/unit/uf-67.test.ts stands red on.
 //   3. IC-58 / IC-59 / IC-60. Table T-109 stands them on the `Row Title
 //      Panel`, which is UF-63's -- not one of the five either. ⚠️ IC-53 ..
 //      IC-57 are left out for a different reason: table T-109 says in as many
@@ -271,8 +280,24 @@ const groupOf = (rowId: string): string => bare(t109Row(rowId)?.by['群'] ?? '')
 const isEntry = (rowId: string): boolean =>
   !/ボタンではない/.test(t109Row(rowId)?.by['何の入口か'] ?? '')
 
-/** Table T-103's four surfaces, as IC-52's 面 column lists them. */
+/** The surfaces IC-52's 面 column lists, each a settled name of table T-103. */
 const SURFACE_NAMES = surfacesOf('IC-52')
+
+/** Table T-103 -- the settled names, of which U-55 is the one NT-7 asks on. */
+const T103 = specTable('T-103')
+
+/** U-55's settled name, read out of table T-103 rather than spelt here. */
+const U_55_CONFIRMATION = bare(T103.rows.find((row) => row.id === 'U-55')?.cells[0] ?? '')
+
+/**
+ * The rows table T-109 stands on U-55 -- IC-69 and IC-70, the two answers NT-7
+ * of table T-037 asks for. ⚠️ Their words have no NAMED place here (UF-67 owns
+ * the member), but the acceptance group's frame raises that surface, so they
+ * ARE held to the arrival claim.
+ */
+const ON_U_55: readonly string[] = T109.rows
+  .filter((row) => surfacesOf(row.id).includes(U_55_CONFIRMATION))
+  .map((row) => row.id)
 
 /** The row of table T-023 whose 動作 is the scrolling a scrollbar does slowly (FR-037). */
 const assignmentForAxis = (axis: 'horizontal' | 'vertical'): string | undefined =>
@@ -721,9 +746,11 @@ const CASES: readonly Case[] = PLACES.flatMap((at) =>
 )
 
 /**
- * The cells with no word yet -- every cell a place is named for, today
- * (PD-160). ⚠️ The one written word, FR-032's mark, has no NAMED place: it is
- * UF-67's, and the acceptance group reaches it without naming a member.
+ * The cells with no word yet. ⚠️ This was every cell a place is named for
+ * (PD-160) and is now none of them: the two the user has left empty on purpose
+ * are IC-54's, and table T-109 marks that row as not an entry, so no place is
+ * named for it. ⭐ The group below therefore has no case today and gets one the
+ * moment a cell is emptied or a new roster entry appears unwritten.
  */
 const EMPTY = CASES.filter((one) => one.word === '')
 
@@ -800,14 +827,17 @@ const FILLED = fillEveryWord(GENERATED)
 
 describe('FR-038 -- a word the dictionary holds is the word the screen prints', () => {
   /**
-   * ⭐ WHY THIS GROUP BUILDS ITS OWN DICTIONARY. Every cell this group has a
-   * place for is empty today (PD-160 -- the one written word is FR-032's mark,
-   * whose place is UF-67's), so a group that stood by until a word was written
-   * asserted nothing at all -- 272 cases that returned on their first line, and
-   * three deliberate breaks of the road each turned exactly ONE of them red.
-   * The dictionary is data: standing a FILLED copy where the five units import
-   * theirs from drives the carriage for every place a word is owed, now, and
-   * leaves the manuscript untouched.
+   * ⭐ WHY THIS GROUP BUILDS ITS OWN DICTIONARY. It was built when every cell
+   * this group has a place for was empty (PD-160), so a group that stood by
+   * until a word was written asserted nothing at all -- 272 cases that returned
+   * on their first line, and three deliberate breaks of the road each turned
+   * exactly ONE of them red. ⚠️ THE WORDS HAVE SINCE BEEN WRITTEN, and the
+   * filled copy is kept rather than retired: the third case below is the same
+   * claim against the dictionary AS IT STANDS, and it is the one that goes
+   * vacuous again for any cell the user empties or has yet to write. The
+   * dictionary is data: standing a FILLED copy where the five units import
+   * theirs from drives the carriage for every place a word is owed, whatever
+   * the manuscript holds, and leaves the manuscript untouched.
    *
    * ⭐ WHY THE FILLED WORDS CANNOT PASS BY ACCIDENT. Each names its own cell
    * -- section, key, field and language -- and appears nowhere else in the
@@ -872,10 +902,13 @@ describe('FR-038 -- a word the dictionary holds is the word the screen prints', 
   it.each(CASES.filter((one) => one.word !== ''))(
     '$section $key $field is written in $language -> the view is built from the file -> $what prints exactly it',
     (one: Case) => {
-      // ⭐ THE SAME CLAIM AGAINST THE DICTIONARY AS IT STANDS. PD-160 leaves
-      // every cell a place is named for empty, so this has no case today; the
-      // moment the user writes one it gets a case, and the word comes from the
-      // file rather than here.
+      // ⭐ THE SAME CLAIM AGAINST THE DICTIONARY AS IT STANDS, and the word
+      // comes from the file rather than from here. ⚠️ It had no case at all
+      // while PD-160 left every cell empty; it now has one per written cell,
+      // and each is asked in EACH language -- which is what makes it, and not
+      // the acceptance group, the place a placed cell's language claim is made.
+      // ⛔ A cell the user leaves empty drops out here and is picked up by the
+      // fallback group instead.
       expect(
         printed(one, one.language),
         `FR-038 (MUST): ${one.what} is ${one.unit}'s, and the dictionary gives it ${JSON.stringify(one.word)}`,
@@ -1081,7 +1114,37 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
 
     const written = MANUSCRIPT_CELLS.filter((cell) => cell.word !== '')
 
-    for (const cell of written) {
+    // ⭐ WHICH WRITTEN CELLS THIS CASE CAN HOLD TO A FRAME, now that the
+    // manuscript is nearly full rather than nearly empty. Every cell this file
+    // NAMES A PLACE FOR -- and, for the sections whose member it may not name
+    // (omission 2 of the head comment), the cells NT-7's own surface prints:
+    // the two answers, FR-032's mark, and the words of the entries table T-109
+    // stands on U-55.
+    //
+    // ⛔ A STATED OMISSION IS OUT, AND OUT BY NAME. `DROPPED` is this file's
+    // own record of the cells it can raise no frame for -- an entry table T-109
+    // says is not pressed, one whose surface belongs to a unit this file may
+    // not read, a row of table T-023 whose surface is not assembled yet. Asking
+    // arrival of those would be asking this file to disprove the scope it
+    // declared, and the answer would be "no frame prints it" for a reason that
+    // is nothing to do with the road. ⚠️ THE CASE ABOVE IS WHAT KEEPS THAT LIST
+    // HONEST: an entry that is neither a place nor a stated omission fails
+    // there, so nothing can slip out of this loop by being forgotten.
+    const stated = new Set(DROPPED.map((one) => `${one.section}.${one.key}`))
+    const onTheConfirmation = (cell: Cell): boolean =>
+      cell.section === 'confirmation' ||
+      cell.section === 'confirmationMarks' ||
+      (cell.section === 'icons' && cell.field === 'label' && ON_U_55.includes(cell.key))
+    const owed = written.filter(
+      (cell) => !stated.has(`${cell.section}.${cell.key}`) || onTheConfirmation(cell),
+    )
+
+    expect(
+      owed.some((cell) => cell.section === 'confirmationMarks'),
+      'FR-032 (MUST): the mark is what this case exists to hold, and it fell out of the loop',
+    ).toBe(true)
+
+    for (const cell of owed) {
       const at = `${cell.section}.${cell.key}.${cell.field}`
 
       // ⭐ The arrival itself: one of the frames prints exactly this word.
@@ -1099,6 +1162,18 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
       // prints this one when the other language is asked for is not reading
       // the dictionary by language at all. ⚠️ Only checked where the entry
       // really holds two different words -- a repeated word is legitimate.
+      //
+      // ⛔ AND ONLY FOR THE CELLS WITH NO NAMED PLACE. For a cell this file
+      // names a place for, the carriage group's third case already holds that
+      // place to the written word in EACH language, which is the same claim
+      // made against ONE member instead of against every string in the view.
+      // ⚠️ Made here too, the whole-view reading turns false the moment a word
+      // is spelt like something the view carries untranslated: the settled
+      // names of table T-103 travel on `openModal.surface` in either language,
+      // and one entry's English word is spelt exactly like the surface it
+      // opens. That is FR-038 working, not failing -- table T-103 holds names,
+      // not screen text.
+      if (PLACES.some((one) => one.section === cell.section && one.key === cell.key)) continue
       for (const other of LANGUAGES.filter((one) => one !== cell.language)) {
         const twin = MANUSCRIPT_CELLS.find(
           (one) =>

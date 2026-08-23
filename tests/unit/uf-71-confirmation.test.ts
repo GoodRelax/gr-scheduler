@@ -1576,13 +1576,13 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
     // or the press falls through and drags a marquee across the schedule.
     const built = drawn(asking('the edits that were never saved would go'))
 
-    expect(ask(built, AT.surfaceOnly)).toEqual({ part: CONFIRMATION, entry: null })
+    expect(ask(built, AT.surfaceOnly)).toEqual({ part: CONFIRMATION, entry: null, format: null })
   })
 
   it('GIVEN the confirmation stands WHEN the bare strip between the two answers is pressed THEN the surface is still named', () => {
     const built = drawn(asking('the edits that were never saved would go'))
 
-    expect(ask(built, AT.betweenTheEntries)).toEqual({ part: CONFIRMATION, entry: null })
+    expect(ask(built, AT.betweenTheEntries)).toEqual({ part: CONFIRMATION, entry: null, format: null })
   })
 
   it('GIVEN the confirmation stands WHEN a point where the schedule is exposed is pressed THEN nothing is on it and PD-5 may run', () => {
@@ -1607,7 +1607,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     const built = drawn(asking('this row and everything under it would go'))
 
     ENTRY_ROWS.forEach((row, index) => {
-      expect(ask(built, midOfEntry(index)), row).toEqual({ part: CONFIRMATION, entry: row })
+      expect(ask(built, midOfEntry(index)), row).toEqual({ part: CONFIRMATION, entry: row, format: null })
     })
   })
 
@@ -1707,7 +1707,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     const answer = ask(built, midOfEntry(0))
 
     expect(answer).not.toBeNull()
-    expect(Object.keys(answer ?? {}).sort()).toEqual(['entry', 'part'])
+    expect(Object.keys(answer ?? {}).sort()).toEqual(['entry', 'format', 'part'])
   })
 
   it('GIVEN the question is taken away WHEN the same point is pressed again THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {

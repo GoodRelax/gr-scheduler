@@ -1107,6 +1107,7 @@ const HELP_MODAL: OpenModal = {
 
 const NOTICE: Notice = {
   manner: 'NT-3',
+  mannerText: '',
   text: 'NoticeTextOne',
   nextSteps: ['NextStepOne'],
   affectedCount: 3,
@@ -1292,6 +1293,7 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
     expect(ask(built, AT.entryIc7.x, AT.entryIc7.y)).toEqual({
       part: 'App Header',
       entry: 'IC-7',
+      format: null,
     })
   })
 
@@ -1328,7 +1330,7 @@ describe('IF-9 of 表 T-065 -- three supplies, three members', () => {
 
     const answer = ask(built, AT.entryIc7.x, AT.entryIc7.y)
     expect(answer).not.toBeNull()
-    expect(Object.keys(answer ?? {}).sort()).toEqual(['entry', 'part'])
+    expect(Object.keys(answer ?? {}).sort()).toEqual(['entry', 'format', 'part'])
   })
 })
 
@@ -1363,6 +1365,7 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
     expect(ask(built, AT.paletteNoEntry.x, AT.paletteNoEntry.y)).toEqual({
       part: 'Command Palette',
       entry: null,
+      format: null,
     })
   })
 
@@ -1384,6 +1387,7 @@ describe('FR-029 -- a disabled entry answers; it does not go quiet', () => {
     expect(ask(built, AT.entryIc5.x, AT.entryIc5.y)).toEqual({
       part: 'App Header',
       entry: 'IC-5',
+      format: null,
     })
   })
 
@@ -1419,7 +1423,7 @@ describe('FR-053 / 表 T-023b -- the palette can be armed from (SP-1 .. SP-4)', 
     const box = LAYOUT.get(`icon:${row}`)
     expect(box, `this file has no place for ${row}`).toBeDefined()
     const at = box ?? ZERO
-    expect(ask(built, at.x + 2, at.y + 2)).toEqual({ part: 'Command Palette', entry: row })
+    expect(ask(built, at.x + 2, at.y + 2)).toEqual({ part: 'Command Palette', entry: row, format: null })
   })
 
   it('names the containing surface, not the grouping inside it (U-34)', () => {
@@ -1476,6 +1480,7 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
     expect(ask(built, AT.headerNoEntry.x, AT.headerNoEntry.y)).toEqual({
       part: 'App Header',
       entry: null,
+      format: null,
     })
   })
 })
@@ -1490,7 +1495,7 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
     const built = drawn(viewWith({}))
 
     expect(ask(built, 180, 8)?.entry).toBe('IC-13')
-    expect(ask(built, 0, 0)).toEqual({ part: 'App Header', entry: null })
+    expect(ask(built, 0, 0)).toEqual({ part: 'App Header', entry: null, format: null })
   })
 
   it('lets go of its right and bottom edge', () => {
@@ -1498,7 +1503,7 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
 
     // The last point inside the entry on each axis, then the first point outside.
     expect(ask(built, 203, 31)?.entry).toBe('IC-13')
-    expect(ask(built, 180, 32)).toEqual({ part: 'App Header', entry: null })
+    expect(ask(built, 180, 32)).toEqual({ part: 'App Header', entry: null, format: null })
   })
 
   it("hands the App Header's bottom edge to the part that begins there", () => {
@@ -1567,6 +1572,7 @@ describe('overlapping parts', () => {
     expect(ask(built, AT.modalEntry.x, AT.modalEntry.y)).toEqual({
       part: 'Help Modal',
       entry: 'IC-52',
+      format: null,
     })
   })
 })
@@ -1626,7 +1632,7 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
       viewWith({ appHeaderItems: { ...HEADER, commands: [command({ icon: 'IC-13' })] } }),
     )
 
-    expect(ask(built, AT.entryIc7.x, AT.entryIc7.y)).toEqual({ part: 'App Header', entry: null })
+    expect(ask(built, AT.entryIc7.x, AT.entryIc7.y)).toEqual({ part: 'App Header', entry: null, format: null })
     expect(ask(built, AT.entryIc13.x, AT.entryIc13.y)?.entry).toBe('IC-13')
   })
 })
@@ -1674,6 +1680,7 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
     expect(ask(built, AT.rowPin.x, AT.rowPin.y)).toEqual({
       part: 'Row Title Panel',
       entry: 'IC-60',
+      format: null,
     })
   })
 })
@@ -1803,6 +1810,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
       expect(ask(built, at?.x ?? -1, at?.y ?? -1)).toEqual({
         part: 'Row Title Panel',
         entry: row,
+        format: null,
       })
     },
   )
@@ -1839,6 +1847,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
       expect(ask(built, at?.x ?? -1, at?.y ?? -1)).toEqual({
         part: 'Row Title Panel',
         entry: one.row,
+        format: null,
       })
     }
   })
@@ -1893,10 +1902,12 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
     expect(ask(built, 132, 64)).toEqual({
       part: 'Row Title Panel',
       entry: null,
+      format: null,
     })
     expect(ask(built, AT.rowExpanderGap.x, AT.rowExpanderGap.y)).toEqual({
       part: 'Row Title Panel',
       entry: null,
+      format: null,
     })
   })
 
@@ -1906,6 +1917,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
     expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)).toEqual({
       part: 'Row Title Panel',
       entry: null,
+      format: null,
     })
   })
 
@@ -2243,6 +2255,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
     expect(ask(built, AT.rowPin.x, AT.rowPin.y)).toEqual({
       part: 'Row Title Panel',
       entry: null,
+      format: null,
     })
   })
 })

@@ -151,8 +151,9 @@ const EXPORT_CHOOSER = partNameOf('U-54')
  * The rows of table T-109 that stand on one surface, in that table's own print
  * order (rule 03 section 4 keeps the manuscript's order).
  *
- * ⚠️ A row may name several surfaces -- IC-52 stands on four -- so every code
- * span in the cell is read rather than the cell as a whole.
+ * ⚠️ A row may name several surfaces -- IC-52 names every surface IN-4 of table
+ * T-028 closes -- so every code span in the cell is read rather than the cell
+ * as a whole.
  *
  * @purity pure
  */
@@ -549,7 +550,7 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
  * @purity non-pure
  */
 function takeEntry(loop: FrameLoop, screen: ScreenPane, surface: string, entry: string): void {
-  screen.drawAt({ part: surface, entry })
+  screen.drawAt({ part: surface, entry, format: null })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   screen.drawAt(null)
@@ -801,12 +802,18 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
 
   it('the question is no longer standing once it has been answered', async () => {
     // ⛔ NOT SPELT BY ANY ROW: no line of docs/spec says the surface closes when
-    // one of the three is taken. What IS stated is that table T-109 gives U-56
-    // no closing entry (IC-52 stands on four surfaces and this is not one of
-    // them) and that OP-8 refuses a second open 「取込または別の開く操作が進行中
-    // のあいだ」 -- so a question that stayed up after its answer would be the
-    // only surface in the tool with no way off it. This case drives that
-    // reading; if it is wrong, the row that says so is missing.
+    // one of the three is taken. What IS stated is that OP-3 of table T-024a
+    // (MUST) has a person choose one of three, and that OP-8 (MUST NOT) refuses
+    // another open while one is in progress -- so a question still standing
+    // after its answer would hold that refusal open with nothing left to ask.
+    // This case drives that reading; if it is wrong, the row that says so is
+    // missing.
+    //
+    // ⚠️ THE OLD READING IS GONE. This case used to argue from U-56 having no
+    // way off it, and asserted that IC-52 did not stand there. CR-226 put U-56
+    // on IC-52's row of table T-109, so the surface now has one. ⛔ Taking
+    // IC-52 is IN-4 of table T-028 closing a surface, which is not an answer to
+    // OP-3 -- what this case drives is the answer, not the closing.
     const pane = host()
     const screen = screenPane()
     const files = fileStore()
@@ -817,7 +824,6 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     await settle()
     pane.runAnimationFrames()
 
-    expect(entriesOn(OPEN_CHOOSER)).not.toContain('IC-52')
     expect(screen.last().openModal?.surface).not.toBe(OPEN_CHOOSER)
   })
 })
@@ -991,8 +997,8 @@ describe('FR-096 -- the Export Chooser', () => {
   })
 
   it('IC-52: an entry taken on an open surface reaches the loop, and IN-4 closes it', () => {
-    // 「IC-52 | `Help Modal` / `AI Export Modal` / `Resource Roster` / `Export
-    //   Chooser` | — | 開いている面を閉じる | 表 T-028 の `IN-4`」.
+    // IC-52 of table T-109 is the way off whichever surface is open, and IN-4
+    // of table T-028 is the authority its last column names.
     //
     // ⭐ THE ONE CASE HERE THAT IS ABOUT THE ROAD RATHER THAN THE RULE. Every
     // case above that answers OP-3 presses an entry drawn on an open surface, so
@@ -1119,8 +1125,11 @@ describe('the tables are read by position, so the positions are pinned', () => {
   })
 
   it('table T-109 prints the surface an entry stands on first', () => {
+    // ⚠️ IC-52 LEADS BOTH ROSTERS because `entriesOn` keeps the table's print
+    // order and that row comes before IC-71. ⭐ It reaches U-56 by CR-226,
+    // which is the cell that gave the surface OP-3 asks on a way off it.
     expect(T_109.headings.length).toBe(5)
-    expect(entriesOn(OPEN_CHOOSER)).toEqual(['IC-71', 'IC-72', 'IC-73'])
+    expect(entriesOn(OPEN_CHOOSER)).toEqual(['IC-52', 'IC-71', 'IC-72', 'IC-73'])
     expect(entriesOn(EXPORT_CHOOSER)).toEqual(['IC-52'])
   })
 

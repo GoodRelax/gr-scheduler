@@ -383,7 +383,7 @@ src/
 | IF-6 | `Rasterizer` | `ImageExporter`（`CP-21`） | `CanvasRasterizer`（`CP-31`） | SVG から画像へ（`IO-4`） |
 | IF-7 | `SnapshotSource` | `AgentApiEndpoint`（`CP-17`） | `SingleHtmlShell`（`CP-25`） | 凍結された現在値（表 T-035 の `AG-4`）と、**どの身振りの最中か**（`AG-9`。表 T-023a の行 ID を運び、最中でなければ「無し」を運ぶ） |
 | IF-8 | `AppShellSource` | `DocumentCodec`（`CP-20`） | `SingleHtmlShell`（`CP-25`） | アプリ自身の HTML。`IO-7` を作るのに要る |
-| IF-9 | `ScreenSurface` | `ScreenRenderer`（`CP-37`） | `DomScreenSurface`（`CP-38`） | 作った記述を画面に載せ、対話欄で確定した発話を返し、**画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える** |
+| IF-9 | `ScreenSurface` | `ScreenRenderer`（`CP-37`） | `DomScreenSurface`（`CP-38`） | 作った記述を画面に載せ、対話欄で確定した発話を返し、**画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上か、および書き出しの選択面では 表 T-024 のどの形式の上かを答える** —— ⚠️ **入口と形式は別の表の行であり、一方の上にあるとき他方は `null` である** |
 
 **`SvgRenderer` が SVG の文字列を作り、`DomSvgSurface` がそれを画面に載せる** —— 名前が近い 2 つを別のフォルダへ分けたのは、**前者が `pure` で後者が `non-pure` だからである。**
 

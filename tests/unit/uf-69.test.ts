@@ -36,7 +36,9 @@
 //             same frame answers the same way twice
 //
 // ⭐ WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED. Four
-// questions have no answer in docs/spec, and no case here invents one:
+// questions were searched for; three still have no answer in docs/spec, and no
+// case here invents one. The third is kept with the answer it has since been
+// given:
 //   * WHICH icon the pointer rests on. EZ-2 asks for the explanation of THAT
 //     icon, and no `CommandItem` carries a rectangle -- so a case here never
 //     asserts that ONLY one icon answers, only that the icon it names does.
@@ -44,10 +46,13 @@
 //     S-124 gives the wait and EZ-2 gives no boundary, and `iconHintDelayMs` is
 //     none of the three pairs rule 03 section 2 settles (min/max, begin/end,
 //     first/last). Every case below rests strictly under or strictly over it.
-//   * THE WORDS FR-037 puts on the screen. FR-038 names no store of translated
-//     strings, so a case asks that the two lanes say DIFFERENT things -- which
-//     is what 表 T-023 decides by giving each axis its own row -- and never
-//     what either one says.
+//   * THE WORDS FR-037 puts on the screen -- ⚠️ ANSWERED SINCE. FR-038's fifth
+//     paragraph (MUST) now holds every printed word in one per-language
+//     dictionary, and Chapter 6.2 (MUST) fixes the manuscript and the one
+//     generated file it reaches `src/` by, keyed there by the row of 表 T-023.
+//     ⚠️ The case that asks only that the two lanes say DIFFERENT things is
+//     kept as it stands: it is the claim 表 T-023 makes by giving each axis its
+//     own row, and it holds whatever the dictionary comes to say.
 //   * WHEN FR-029's reason and FR-085's whole name appear. Neither states a
 //     pointer condition and neither states a MUST NOT against standing there
 //     always. So every case of those two puts the pointer where both readings
@@ -56,6 +61,9 @@
 // ⭐ Chapter 1.9 asks a test of a requirement that points at a table to be
 // driven by a fixed copy of the table. T_023_FASTER and T_040_EZ2 below are
 // those copies.
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -66,6 +74,7 @@ import {
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type {
   CommandItem,
+  DisplayLanguage,
   RowTitle,
   Scrollbar,
   ScreenSession,
@@ -120,13 +129,49 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
   height,
 })
 
+/**
+ * ⚠️ `label` is a stand-in this file never reads back. The published contract
+ * declares it the entry's own accessible name and says in as many words that
+ * EZ-2's explanation is a SECOND word of the dictionary, which this unit raises
+ * for itself -- so a case that compared the explanation with this string would
+ * be asserting the wrong member.
+ */
 const commandOf = (part: Partial<CommandItem> = {}): CommandItem => ({
   icon: ICON_OPEN,
   isEnabled: true,
   isPressed: false,
-  label: `explanation of ${part.icon ?? ICON_OPEN}`,
+  label: `the name of ${part.icon ?? ICON_OPEN}`,
   ...part,
 })
+
+/**
+ * The one dictionary FR-038's fifth paragraph (MUST) holds the printed words
+ * in, as Chapter 6.2 (MUST) generates it into `src/`.
+ *
+ * ⛔ Read, never re-typed: the same MUST NOT that keeps the words out of a
+ * requirement and a table keeps a bench from spelling one. ⚠️ It is also the
+ * file the unit reads, so agreement here is not agreement with the manuscript
+ * -- `tests/contract/display-words.contract.test.ts` holds the two together
+ * cell for cell, and `npm run gen:check` falls on drift.
+ */
+const DICTIONARY = JSON.parse(
+  readFileSync(
+    join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
+    'utf8',
+  ),
+) as {
+  readonly icons: readonly {
+    readonly rowId: string
+    readonly hint: Readonly<Record<DisplayLanguage, string>>
+  }[]
+}
+
+/** The explanation EZ-2 shows for one row of 表 T-109, in one display language. */
+const hintWordOf = (row: string, language: DisplayLanguage): string => {
+  const held = DICTIONARY.icons.find((one) => one.rowId === row)
+  expect(held, `FR-038: the dictionary holds no explanation for ${row}`).toBeDefined()
+  return (held as { readonly hint: Readonly<Record<DisplayLanguage, string>> }).hint[language]
+}
 
 const SHOWN_ROW_NAME = 'a row name long enough to be cut'
 
@@ -269,7 +314,7 @@ describe('UF-69 — nothing to explain', () => {
           fields: [{ row: 'PR-1', name: 'name', text: 'a task', isEditable: true }],
         },
         notices: [
-          { manner: 'NT-1', text: 'finish stands before start', nextSteps: [], affectedCount: null },
+          { manner: 'NT-1', mannerText: '', text: 'finish stands before start', nextSteps: [], affectedCount: null },
         ],
         dialogueField: {
           messages: [
@@ -286,18 +331,40 @@ describe('UF-69 — nothing to explain', () => {
 
 describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
   it('shows it once the pointer is in the window and has rested longer than the wait', () => {
-    const command = commandOf({ icon: ICON_PALETTE })
     const shown = tooltipsFromScreenView(
-      viewOf({ appHeaderItems: headerWith([command]) }),
+      viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_PALETTE })]) }),
       SETTINGS,
       RESTED,
     )
 
     expect(shown).toHaveLength(1)
     expect(shown[0]?.anchor).toEqual({ kind: 'icon', icon: ICON_PALETTE })
-    // `CommandItem.label` is declared as the words of the explanation EZ-2
-    // shows, already in the display language.
-    expect(shown[0]?.text).toBe(command.label)
+    // ⚠️ WAS HELD AGAINST `CommandItem.label`, on a reading of that member that
+    // the published contract has since denied: it declares `label` the entry's
+    // own accessible name and EZ-2's explanation a SECOND word this unit raises.
+    // EZ-2 (MUST) shows the explanation OF THAT ICON, and FR-038's fifth
+    // paragraph (MUST) is where that word is held -- keyed by the row of 表
+    // T-109, in the language `ScreenSession.language` carries.
+    expect(shown[0]?.text).toBe(hintWordOf(ICON_PALETTE, EMPTY_SESSION.language))
+  })
+
+  it('shows the explanation in the language the reader chose (FR-038 MUST)', () => {
+    // FR-038 (MUST) shows the menus and the panels in the chosen language, and
+    // its fifth paragraph (MUST) holds one word per language. ⚠️ Asked only of
+    // an icon whose two words really differ: a row whose two agree is the
+    // dictionary's own answer, not a fault of the unit.
+    for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
+      const shown = tooltipsFromScreenView(
+        viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_PALETTE })]) }),
+        SETTINGS,
+        sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS + 1, language }),
+      )
+      expect(shown[0]?.text, language).toBe(hintWordOf(ICON_PALETTE, language))
+    }
+    expect(
+      hintWordOf(ICON_PALETTE, 'ja'),
+      'FR-038: the dictionary holds one word for both languages, so the case above proves nothing',
+    ).not.toBe(hintWordOf(ICON_PALETTE, 'en'))
   })
 
   it('shows nothing while the pointer has rested less than the wait', () => {

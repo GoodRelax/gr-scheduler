@@ -805,7 +805,7 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
 
     // IC-7 -- the entry FR-053 gives S-99e, which SK-14 shares.
-    screen.drawAt({ part: 'App Header', entry: 'IC-7' })
+    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null })
     loop.receiveInput(pointer('down', 500, 20))
     // The surface is redrawn and no longer has that entry under the pointer.
     screen.drawAt(null)
@@ -826,7 +826,7 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
 
     screen.drawAt(null)
     loop.receiveInput(pointer('down', 500, 20))
-    screen.drawAt({ part: 'App Header', entry: 'IC-7' })
+    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null })
     loop.receiveInput(pointer('move', 520, 24))
     loop.receiveInput(pointer('up', 520, 24))
     pane.runAnimationFrames()

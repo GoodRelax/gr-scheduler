@@ -14,13 +14,20 @@
 // what the unit happens to produce.
 //
 // WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED. Four questions
-// have no answer in docs/spec, and no case here invents one:
-//   * THE WORDS. FR-038 (MUST) shows menus and panels in the chosen language
-//     and names no store of translated strings; table T-103 holds names, not
-//     screen text, and section 8 of `_assets/tbl-glossary.md` refuses table
-//     T-109 an English column because it would mint settled names the glossary
-//     has not settled. So no case asserts a word -- one case asserts instead
-//     that none was minted.
+// were searched for; three still have no answer in docs/spec, and no case here
+// invents one. The first is kept with the answer it has since been given:
+//   * THE WORDS -- ⚠️ ANSWERED SINCE, AND ONE CASE MOVED WITH IT. When this
+//     file was written FR-038 named no store of translated strings, so a case
+//     asserted that none had been minted. Its fifth paragraph (MUST) now puts
+//     every printed word in one per-language dictionary and (MUST NOT) bars
+//     requirements and tables from holding the words; Chapter 6.2 (MUST) fixes
+//     the manuscript and the one generated file it reaches `src/` by. That
+//     case therefore READS the heading and the entry words out of the
+//     dictionary. ⛔ No word is written here, and table T-103 still holds
+//     names rather than screen text. ⚠️ THE TWO SURFACES WITH NO SETTLED NAME
+//     ARE STILL UNANSWERED: the dictionary is keyed by table T-103's names, so
+//     it holds nothing for them, and CR-194 settled the stand-in's WORDING
+//     without asking -- so only the arrival of a string is asked of those.
 //   * THE ORDER two entries stand in on one surface. FR-029 (MUST) binds the
 //     roster and the placement to table T-109 and says nothing of the order
 //     within one surface, so every case below compares SETS of row ids.
@@ -52,6 +59,9 @@
 // by a fixed copy of that table. T_109_MODAL_PLACEMENTS and
 // FR_038_SECOND_ENTRY below are that copy.
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import type { Resource, Schedule } from '../../src/entity/document-model/schedule/schedule'
@@ -76,32 +86,50 @@ import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open
 
 /**
  * Table T-103 -- the settled surface names, spelling and all (rule 03 section
- * 1). U-30 settles two of them, U-49 a third and U-54 a fourth; the surfaces
- * FR-074 and FR-088 open have no row, which is why neither appears below.
+ * 1). U-30 settles two of them, U-49 a third, U-54 a fourth and U-56 a fifth;
+ * the surfaces FR-074 and FR-088 open have no row, which is why neither
+ * appears below.
  *
- * ⭐ U-54 was settled on 2026-08-21. Until then the surface FR-096 opens had no
- * name `ScreenState.surface` could hold, so IN-4's first level could not close
- * it -- and IC-52's surface column could not name it either.
+ * ⭐ U-54 and U-56 were settled on 2026-08-21. Until then the surfaces FR-096
+ * and OP-3 of table T-024a open had no name `ScreenState.surface` could hold,
+ * so IN-4's first level could not close them -- and IC-52's surface column
+ * could not name them either. ⚠️ U-56 reached that column later still, by
+ * CR-226; while it was missing, the surface OP-3 asks on had no way off it.
  */
 const U_30_HELP = 'Help Modal'
 const U_30_AI_EXPORT = 'AI Export Modal'
 const U_49_ROSTER = 'Resource Roster'
 const U_54_EXPORT_CHOOSER = 'Export Chooser'
+/** ⭐ U-56 was settled on 2026-08-21 too, and CR-226 put it on IC-52's row. */
+const U_56_OPEN_CHOOSER = 'Open Chooser'
 
 /**
  * Table T-109 -- every row whose surface column names a surface UF-66
  * describes. Section 8 of `_assets/tbl-glossary.md` makes that column table
- * T-103's settled names. IC-52 closes whichever of them is open, and the
- * roster FR-099 asks for carries six entries of its own.
+ * T-103's settled names. IC-52 closes whichever of them is open, the roster
+ * FR-099 asks for carries six entries of its own, and U-56 carries the three
+ * answers OP-3 of table T-024a makes a person choose between.
  */
 const T_109_MODAL_PLACEMENTS = [
-  { row: 'IC-52', surfaces: [U_30_HELP, U_30_AI_EXPORT, U_49_ROSTER, U_54_EXPORT_CHOOSER] },
+  {
+    row: 'IC-52',
+    surfaces: [
+      U_30_HELP,
+      U_30_AI_EXPORT,
+      U_49_ROSTER,
+      U_54_EXPORT_CHOOSER,
+      U_56_OPEN_CHOOSER,
+    ],
+  },
   { row: 'IC-63', surfaces: [U_49_ROSTER] },
   { row: 'IC-64', surfaces: [U_49_ROSTER] },
   { row: 'IC-65', surfaces: [U_49_ROSTER] },
   { row: 'IC-66', surfaces: [U_49_ROSTER] },
   { row: 'IC-67', surfaces: [U_49_ROSTER] },
   { row: 'IC-68', surfaces: [U_49_ROSTER] },
+  { row: 'IC-71', surfaces: [U_56_OPEN_CHOOSER] },
+  { row: 'IC-72', surfaces: [U_56_OPEN_CHOOSER] },
+  { row: 'IC-73', surfaces: [U_56_OPEN_CHOOSER] },
 ] as const
 
 /**
@@ -136,6 +164,7 @@ const SURFACES_ASKED = [
   U_30_AI_EXPORT,
   U_49_ROSTER,
   U_54_EXPORT_CHOOSER,
+  U_56_OPEN_CHOOSER,
   'a surface with no settled name',
   '',
 ]
@@ -241,6 +270,46 @@ const iconsOf = (modal: OpenModal): string[] => modal.commands.map((entry) => en
 
 /** A word carries a letter or a digit; a separator or an empty string does not. */
 const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text)
+
+/**
+ * The one dictionary FR-038's fifth paragraph (MUST) holds the printed words
+ * in, as Chapter 6.2 (MUST) generates it into `src/`.
+ *
+ * ⛔ Read, never re-typed: the same MUST NOT that keeps the words out of a
+ * requirement and a table keeps a bench from spelling one. ⚠️ It is also the
+ * file the unit reads, so agreement here is not agreement with the manuscript
+ * -- `tests/contract/display-words.contract.test.ts` holds the two together
+ * cell for cell, and `npm run gen:check` falls on drift.
+ */
+const DICTIONARY = JSON.parse(
+  readFileSync(
+    join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
+    'utf8',
+  ),
+) as {
+  readonly icons: readonly {
+    readonly rowId: string
+    readonly label: Readonly<Record<DisplayLanguage, string>>
+  }[]
+  readonly surfaces: readonly {
+    readonly name: string
+    readonly heading: Readonly<Record<DisplayLanguage, string>>
+  }[]
+}
+
+/** The word held for one entry of table T-109, in one display language. */
+const labelWordOf = (row: string, language: DisplayLanguage): string => {
+  const held = DICTIONARY.icons.find((one) => one.rowId === row)
+  expect(held, `FR-038: the dictionary holds no entry for ${row}`).toBeDefined()
+  return (held as { readonly label: Readonly<Record<DisplayLanguage, string>> }).label[language]
+}
+
+/**
+ * The heading held for one surface, or `undefined` where the dictionary holds
+ * none -- which is the answer for the two surfaces table T-103 has not named.
+ */
+const headingWordOf = (surface: string, language: DisplayLanguage): string | undefined =>
+  DICTIONARY.surfaces.find((one) => one.name === surface)?.heading[language]
 
 /** Every string the description carries, whatever member it sits in. */
 const wordsOf = (modal: OpenModal): string[] => [
@@ -398,20 +467,57 @@ describe('UF-66 -- FR-038: the display language', () => {
     }
   })
 
-  it('mints no word, because no table settles one', () => {
-    // FR-038 (MUST) shows menus and panels in the chosen language and names no
-    // store of translated strings; section 8 of `_assets/tbl-glossary.md`
-    // refuses table T-109 an English column for exactly this reason. So a word
-    // written here would settle wording the glossary has not.
-    for (const language of ['ja', 'en'] as const) {
+  it('takes the heading and the entry words from the dictionary, in that language', () => {
+    // ⚠️ WAS "mints no word, because no table settles one". FR-038's fifth
+    // paragraph (MUST) settled the store that case stood in for, so the claim
+    // is now the one that MUST states: what the surface prints is what the
+    // dictionary holds for it in the language the reader chose. ⛔ Not
+    // "whatever the unit answers" -- every expected value is read out of the
+    // dictionary, keyed by table T-103's name for the surface and by the row
+    // of table T-109 for an entry.
+    for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
       for (const surface of SURFACES_ASKED) {
         const modal = openModalFromScreenState(
           surfaceState(surface),
           EMPTY_DOCUMENT,
           sessionOf(language),
         ) as OpenModal
+        const heading = headingWordOf(surface, language)
+
+        // ⛔ THE TWO WITH NO SETTLED NAME ARE NOT ASSERTED ON. The dictionary
+        // is keyed by table T-103's names and holds nothing for them, and no
+        // line of docs/spec fixes what a stand-in says; only its arrival is
+        // asked for, so an empty member could not pass unnoticed.
+        if (heading === undefined) expect(typeof modal.heading, `${language}: "${surface}"`).toBe('string')
+        else expect(modal.heading, `${language}: "${surface}"`).toBe(heading)
+
+        for (const entry of modal.commands) {
+          expect(entry.label, `${language}: ${entry.icon} on "${surface}"`).toBe(
+            labelWordOf(entry.icon, language),
+          )
+        }
+      }
+    }
+  })
+
+  it('leaves nothing a person has to read empty on a surface the tables name', () => {
+    // ⚠️ The half the case above cannot make: a dictionary gone empty would
+    // satisfy it in both languages. FR-029 (MUST) has an entry give its reason
+    // when it cannot be used, and IN-4 of table T-028 has a person find the way
+    // off a surface -- neither is readable on an entry printed with nothing.
+    for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
+      for (const surface of SURFACES_ASKED.filter(
+        (name) => headingWordOf(name, language) !== undefined,
+      )) {
+        const modal = openModalFromScreenState(
+          surfaceState(surface),
+          EMPTY_DOCUMENT,
+          sessionOf(language),
+        ) as OpenModal
         for (const text of wordsOf(modal)) {
-          expect(hasWord(text), `${language}: a word was minted on "${surface}"`).toBe(false)
+          expect(hasWord(text), `${language}: "${surface}" prints something with no word in it`).toBe(
+            true,
+          )
         }
       }
     }

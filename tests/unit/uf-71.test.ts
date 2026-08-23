@@ -1003,6 +1003,8 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
 })
 
 const notice = (patch: Partial<Notice> & { manner: string; text: string }): Notice => ({
+  // `mannerText` is the word UF-67 reads for the manner; no case here varies it.
+  mannerText: '',
   nextSteps: [],
   affectedCount: null,
   ...patch,

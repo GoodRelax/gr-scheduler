@@ -14,18 +14,24 @@
 // value below comes from what the unit happens to produce.
 //
 // WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED. Three questions
-// were searched for and have no answer in docs/spec, so no case invents one:
+// were searched for; two still have no answer in docs/spec, so no case invents
+// one, and the third is kept below with the answer it has since been given:
 //   * HOW BIG THE PALETTE IS. `CommandPalette.box` is a rectangle and only its
 //     corner arrives (`ScreenSession.commandPaletteAt`). Searched: FR-053,
 //     FR-051, table T-206 (S-90..S-99g), table T-212, table T-203 and the whole
 //     of `_assets/tbl-settings.md`, whose only palette row is S-99e. So the
 //     pointer cases below assert the RELATION FR-053 states -- faint while the
 //     pointer is off `box` -- computed from `box` itself, and never a width.
-//   * THE WORDS. FR-038 (MUST) shows menus in the chosen language and names no
-//     store of translated strings; section 8 of `_assets/tbl-glossary.md`
-//     refuses table T-109 an English column because it would mint settled names
-//     the glossary has not settled. One case asserts instead that none was
-//     minted.
+//   * THE WORDS -- ⚠️ ANSWERED SINCE, AND THE CASES BELOW MOVED WITH IT. When
+//     this file was written FR-038 named no store of translated strings, so a
+//     case asserted that none had been minted. Its fifth paragraph (MUST) now
+//     puts every printed word in one per-language dictionary and (MUST NOT)
+//     bars requirements and tables from holding the words; Chapter 6.2 (MUST)
+//     fixes the manuscript and the one generated file it reaches `src/` by. So
+//     the cases below READ the word out of that dictionary. ⛔ No word is written
+//     here -- the same MUST NOT that keeps them out of a table keeps a bench
+//     from minting one, and section 8 of `_assets/tbl-glossary.md` still
+//     refuses table T-109 an English column of its own.
 //   * WHETHER AN ENTRY IS A TOGGLE THAT IS ON. `CommandItem.isPressed` is shown
 //     by FR-065 of IC-20 and by FR-072 of IC-17, both `App Header` rows. What
 //     the palette's toggling entries reflect lives in `DocumentSettings`, which
@@ -56,6 +62,12 @@
 // by a fixed copy of that table. T_109_PALETTE and T_023b below are that copy;
 // nothing here re-reads `icon-roster.json`, because a copy read from the same
 // generated file as the unit could not tell drift from agreement.
+// ⚠️ THE DICTIONARY IS THE ONE THING READ RATHER THAN COPIED, and FR-038's own
+// MUST NOT is why: a word copied into this file would be the second store of
+// the words that sentence forbids.
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -199,6 +211,64 @@ const PALETTE_ENTRY_ROWS_GROUPED: readonly string[] = PALETTE_GROUP_NAMES.flatMa
 const ALIGN_ROWS: readonly string[] = PALETTE_ENTRY_ROWS.filter(
   (entry) => entry.authority === ALIGN_REQUIREMENT,
 ).map((entry) => entry.row)
+
+/**
+ * The row of table T-109 each group is first met at. CR-194 section 0 item ⑧ 4
+ * makes that row the key a group's word is held under, so it -- and not the 群
+ * cell -- is what survives a change of display language.
+ */
+const FIRST_ROW_OF_GROUP: readonly string[] = PALETTE_GROUP_NAMES.map(
+  (group) => rowsOfGroup(group)[0] as string,
+)
+
+// ---------------------------------------------------------------------------
+// The one dictionary FR-038 (MUST) holds the printed words in.
+// ---------------------------------------------------------------------------
+
+/**
+ * Chapter 6.2 (MUST) puts the manuscript at `_source/display-words.json` and
+ * (MUST) lets it reach `src/` as one generated file; this is that file.
+ *
+ * ⛔ Read, never re-typed: FR-038 (MUST NOT) bars the words from a requirement
+ * or a table, and a bench that spelled one would be the second store the same
+ * sentence forbids. ⚠️ It is also the file the unit reads, so agreement here
+ * is not agreement with the manuscript -- `tests/contract/
+ * display-words.contract.test.ts` is what holds the two together cell for
+ * cell, and `npm run gen:check` falls on drift.
+ */
+const DICTIONARY = JSON.parse(
+  readFileSync(
+    join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
+    'utf8',
+  ),
+) as {
+  readonly icons: readonly {
+    readonly rowId: string
+    readonly label: Readonly<Record<DisplayLanguage, string>>
+  }[]
+  readonly paletteGroups: readonly {
+    readonly firstRow: string
+    readonly name: Readonly<Record<DisplayLanguage, string>>
+  }[]
+}
+
+/** The word held for one entry of table T-109, in one display language. */
+const labelWordOf = (row: string, language: DisplayLanguage): string => {
+  const held = DICTIONARY.icons.find((one) => one.rowId === row)
+  expect(held, `FR-038: the dictionary holds no entry for ${row}`).toBeDefined()
+  return (held as { readonly label: Readonly<Record<DisplayLanguage, string>> }).label[language]
+}
+
+/** The word held for the group opened at one row, in one display language. */
+const groupWordOf = (firstRow: string, language: DisplayLanguage): string => {
+  const held = DICTIONARY.paletteGroups.find((one) => one.firstRow === firstRow)
+  expect(held, `FR-038: the dictionary holds no group opened at ${firstRow}`).toBeDefined()
+  return (held as { readonly name: Readonly<Record<DisplayLanguage, string>> }).name[language]
+}
+
+/** The group words in the order the table first meets each group. */
+const groupWordsIn = (language: DisplayLanguage): readonly string[] =>
+  FIRST_ROW_OF_GROUP.map((row) => groupWordOf(row, language))
 
 // ---------------------------------------------------------------------------
 // Inputs. UF-65 fills one member of `ScreenView` and reads none of the others,
@@ -489,31 +559,66 @@ describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
     // FR-029's RATIONALE is why the palette is grouped at all. Re-sorting by
     // anything else would move entries out of the group it puts them in: the
     // table returns to an earlier group three times near its end.
-    expect(describedWith().groups.map((group) => group.name)).toEqual(PALETTE_GROUP_NAMES)
+    // ⚠️ The ORDER is the claim, so the groups are named by the word the
+    // dictionary holds for the row each is opened at -- the 群 cell is the
+    // key's origin, not the printed word (FR-038).
+    expect(describedWith().groups.map((group) => group.name)).toEqual(groupWordsIn('ja'))
   })
 
   it('keeps the table print order inside each group', () => {
-    for (const group of describedWith().groups) {
-      expect(group.commands.map((entry) => entry.icon), group.name).toEqual(rowsOfGroup(group.name))
-    }
+    // ⚠️ Walked by position rather than by name: the case above pins the order,
+    // so the nth group described is the nth group of the table, whichever word
+    // FR-038 has that group printed under.
+    const groups = describedWith().groups
+    groups.forEach((group, at) => {
+      expect(group.commands.map((entry) => entry.icon), group.name).toEqual(
+        rowsOfGroup(PALETTE_GROUP_NAMES[at] as string),
+      )
+    })
+    expect(groups.length).toBe(PALETTE_GROUP_NAMES.length)
   })
 
   it('opens no group for a row that is not an entry', () => {
     // One of the two rows that are not buttons carries a 群 of its own. A group
-    // standing empty would be a heading with nothing under it.
-    const names = describedWith().groups.map((group) => group.name)
-    expect(names).not.toContain('構え')
-    for (const group of describedWith().groups) expect(group.commands.length).toBeGreaterThan(0)
+    // standing empty would be a heading with nothing under it -- and the
+    // dictionary does hold a word for it, so its absence is a real answer.
+    const notAnEntry = T_109_PALETTE.find((entry) => !entry.isButton && entry.group !== '')
+    expect(notAnEntry, 'table T-109 no longer puts a 群 on a row that is not an entry').toBeDefined()
+    for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
+      const palette = describedWith(emptySelection(), sessionOf({ language }))
+      expect(palette.groups.map((group) => group.name), language).not.toContain(
+        groupWordOf((notAnEntry as { readonly row: string }).row, language),
+      )
+      for (const group of palette.groups) expect(group.commands.length).toBeGreaterThan(0)
+    }
   })
 
-  it('mints no group name of its own', () => {
-    // Table T-109 has no English column, and section 8 of the glossary refuses
-    // it one. So the 群 column travels as the manuscript wrote it, in either
-    // display language.
-    for (const language of ['ja', 'en'] as const) {
+  it('takes each group name from the dictionary, in the display language', () => {
+    // ⚠️ WAS "mints no group name of its own", from the days when no store of
+    // translated strings existed. FR-038's fifth paragraph (MUST) settled one,
+    // so the claim is now the one that MUST states: the word printed over a
+    // group is the word the dictionary holds for it in the language the reader
+    // chose. ⛔ Not "whatever the unit answers" -- the expected value is read
+    // out of the dictionary, keyed by the row the group opens at.
+    for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
       const palette = describedWith(emptySelection(), sessionOf({ language }))
-      expect(palette.groups.map((group) => group.name), language).toEqual(PALETTE_GROUP_NAMES)
+      expect(palette.groups.map((group) => group.name), language).toEqual(groupWordsIn(language))
     }
+  })
+
+  it('answers a different name per language, because the words are per language', () => {
+    // FR-038 (MUST) shows the menus in the language the reader chose. ⚠️ Only
+    // asked of the groups the dictionary really holds two different words for:
+    // a group whose two words agree is the dictionary's answer, not a fault.
+    const inJapanese = describedWith(emptySelection(), sessionOf({ language: 'ja' })).groups
+    const inEnglish = describedWith(emptySelection(), sessionOf({ language: 'en' })).groups
+
+    FIRST_ROW_OF_GROUP.forEach((row, at) => {
+      if (groupWordOf(row, 'ja') === groupWordOf(row, 'en')) return
+      expect(inEnglish[at]?.name, `FR-038 (MUST): the group opened at ${row}`).not.toBe(
+        inJapanese[at]?.name,
+      )
+    })
   })
 })
 
@@ -569,15 +674,28 @@ describe('UF-65 -- FR-029 (MUST) with SL-7b (MUST NOT): what cannot be used is f
 })
 
 describe('UF-65 -- FR-038: the display language', () => {
-  it('mints no word, because no table settles one', () => {
-    // FR-038 (MUST) shows menus in the chosen language and names no store of
-    // translated strings; section 8 of `_assets/tbl-glossary.md` refuses table
-    // T-109 an English column for exactly this reason. A word written into
-    // `CommandItem.label` would settle wording the glossary has not.
-    // WHEN A STORE OF WORDS IS SETTLED, THIS CASE IS THE ONE TO REVISIT.
+  it('takes each entry word from the dictionary, in the display language', () => {
+    // ⚠️ WAS "mints no word, because no table settles one". That case was the
+    // stand-in for the store FR-038 did not yet have; its fifth paragraph
+    // (MUST) now has one, so the claim is the one that MUST states -- the word
+    // on an entry is the dictionary's word for that row of table T-109 in the
+    // language the reader chose. ⛔ The expected value is read out of the
+    // dictionary, not off what the unit answers.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
       for (const entry of entriesOf(describedWith(emptySelection(), sessionOf({ language })))) {
-        expect(hasWord(entry.label), `${language}: a word was minted on ${entry.icon}`).toBe(false)
+        expect(entry.label, `${language}: ${entry.icon}`).toBe(labelWordOf(entry.icon, language))
+      }
+    }
+  })
+
+  it('leaves no entry without a word to read (FR-029 MUST)', () => {
+    // FR-029 (MUST) has an entry that cannot be used give its reason, which
+    // presumes an entry can be read at all; an entry printed with nothing on
+    // it is an entry a person cannot name. ⚠️ This is the half the case above
+    // cannot make: a dictionary gone empty would satisfy it in both languages.
+    for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
+      for (const entry of entriesOf(describedWith(emptySelection(), sessionOf({ language })))) {
+        expect(hasWord(entry.label), `${language}: ${entry.icon} carries no word`).toBe(true)
       }
     }
   })

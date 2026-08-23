@@ -91,6 +91,22 @@ export type { DialogueInput, ScreenPart, ScreenSurface } from './screen-surface'
  */
 export type IconId = string
 
+/**
+ * A row of table T-024, e.g. `IO-2`.
+ *
+ * ⭐ THE ROW ID IS THE ONLY JOIN THAT TABLE ADMITS EITHER, for the reason
+ * `IconId` is a row id: table T-024 has no English column, so a format named
+ * here would settle a name the glossary has not.
+ * `src/adapter/document-codec/exchange-formats.json` -- that table generated
+ * into `src/` -- keeps the same bargain, and its banner says so.
+ *
+ * ⛔ NOT A ROSTER, and NOT `IconId` under a second name. An entry is a row of
+ * table T-109 and a format is a row of table T-024; the two tables number their
+ * rows independently, so one type for both would let `IO-1` be passed where a
+ * table T-109 row is meant and neither side could tell.
+ */
+export type ExportFormatId = string
+
 /** `language` (S-99). FR-038 keeps it out of the document and admits two. */
 export type DisplayLanguage = 'ja' | 'en'
 
@@ -561,6 +577,34 @@ export interface RosterResource {
   readonly unassignedTaskNames: readonly (string | null)[]
 }
 
+/** U-54 `Export Chooser` of table T-103, the surface FR-096 opens. */
+export interface ExportChooser extends OpenSurface {
+  readonly surface: 'Export Chooser'
+  /**
+   * FR-096 (MUST): every format table T-024 gives an out direction, in that
+   * table's own print order.
+   *
+   * ⭐ WHY THIS MEMBER HAS TO EXIST AT ALL, when U-56 `Open Chooser` needs
+   * nothing but `commands`: FR-029 (MUST) makes table T-109 the whole of the
+   * icons, and that table places nothing but IC-52 on this surface. IC-3 is the
+   * one entrance the table gives FR-096, and it stands on the `App Header` and
+   * OPENS the chooser -- an entrance per format is what the same requirement
+   * forbids (MUST NOT). So the formats cannot arrive as `CommandItem`s without
+   * minting rows, and they arrive as the rows table T-024 gives them instead.
+   *
+   * ⛔ NO WORDS TRAVEL WITH THEM. `display-words.json` has no section keyed on a
+   * row of table T-024, so there is nothing to read and FR-038 (MUST NOT)
+   * forbids writing one here.
+   * ⛔ NO PROPOSED NAME TRAVELS WITH THEM EITHER, although FR-096 makes the name
+   * the chooser proposes a MUST: it is the document name with the extension
+   * table T-024 gives the chosen row, and that column reaches
+   * `src/adapter/document-codec/exchange-formats.json` -- another component's,
+   * which `_source/components.json` gives this one no edge to. So the name is
+   * built where the file is written and never here.
+   */
+  readonly formats: readonly ExportFormatId[]
+}
+
 /**
  * The surface open over the screen, described as the requirement that opens it
  * asks for (UF-66).
@@ -570,17 +614,25 @@ export interface RosterResource {
  * FR-068, the UF-66 row of table T-075 -- and the name of each is what
  * `ScreenState.surface` carries (S-99g).
  *
- * ⛔ THREE NAMES ARE SETTLED AND TWO ARE NOT. Table T-103 spells `Help Modal`
- * and `AI Export Modal` (U-30) and `Resource Roster` (U-49), copied here
- * spelling and all. FR-074's surface and FR-088's have no row in that table, so
+ * ⛔ THE UF-66 ROW OF TABLE T-075 IS SHORT BY TWO, and the two are named
+ * surfaces: FR-096 opens U-54 `Export Chooser` and OP-3 of table T-024a opens
+ * U-56 `Open Chooser`, both of which S-99g holds and IN-4's first level closes.
+ * The row's roster of requirements has not been widened to say so. ⛔ Nothing
+ * here reads that row, so the omission costs this file nothing; it is recorded
+ * because the row is what a reader counts the surfaces from.
+ *
+ * ⛔ FOUR NAMES ARE SETTLED AND TWO ARE NOT. Table T-103 spells `Help Modal`
+ * and `AI Export Modal` (U-30), `Resource Roster` (U-49) and `Export Chooser`
+ * (U-54), copied here spelling and all. FR-074's surface and FR-088's have no
+ * row in that table, so
  * ⛔ no name is minted for either: each is carried by the one thing the
  * specification does give it, its requirement's own UID -- the move `IconId`
  * makes with `IC-7` and `Notice.manner` with `NT-1`.
  *
  * ⚠️ THE LAST MEMBER TAKES ANY OTHER NAME, and it is not a spare shape: S-99g
- * holds a name rather than a choice among five, so a name outside the five has
+ * holds a name rather than a choice among six, so a name outside the six has
  * to stay describable. ⛔ It is also why this type cannot by itself force the
- * five payloads to be filled -- a bare `{ surface, heading, commands }` lands
+ * six payloads to be filled -- a bare `{ surface, heading, commands }` lands
  * there whatever its name. What requires them is the requirement, not the type.
  * ⚠️ For the same reason, a caller narrows by what a member carries
  * (`'resources' in modal`) rather than by comparing the name: a `string`
@@ -593,6 +645,7 @@ export type OpenModal =
   | HelpModal
   | AiExportModal
   | ResourceRoster
+  | ExportChooser
   // FR-074's surface, which table T-103 has not named.
   | (OpenSurface & {
       readonly surface: 'FR-074'
@@ -696,6 +749,21 @@ export interface Notice {
    */
   readonly manner: string
   /**
+   * What that row of table T-037 is CALLED, in the display language (FR-038),
+   * or the empty string while the dictionary holds no word for it (PD-160).
+   *
+   * ⛔ NOT A SECOND SPELLING OF `manner`, and it does not replace it. That
+   * member is the row id, which is the join and what NT-5 (MUST) is told apart
+   * from NT-1 by; this is the word `display-words.json` holds under that row,
+   * and a word cannot be a join -- FR-038 gives every row two of them.
+   *
+   * ⛔ COMPOSED ON THE WAY TO THE SCREEN AND NEVER ASKED OF THE RAISER, the move
+   * `Confirmation.entries` makes: `RaisedNotice` carries no words at all,
+   * because FR-038 (MUST NOT) makes a second store of translated strings out of
+   * any raiser that supplied one.
+   */
+  readonly mannerText: string
+  /**
    * NT-1 (MUST): which item, and why, in words. ⛔ Colour or a border alone is
    * forbidden (MUST NOT), so the words are not optional.
    */
@@ -781,6 +849,20 @@ export interface RaisedConfirmation {
  * added on the way to the screen.
  */
 export interface Confirmation extends RaisedConfirmation {
+  /**
+   * What NT-7 is CALLED, in the display language (FR-038), or the empty string
+   * while the dictionary holds no word for it (PD-160).
+   *
+   * ⭐ THE ONE WORD THAT NAMES THIS SURFACE. U-55 is a row of table T-103, but
+   * the `surfaces` section of `display-words.json` holds no heading for it --
+   * the `notices` section holds a word per row of table T-037 instead, and NT-7
+   * is the row this surface follows. So the manner is where its name comes from.
+   *
+   * ⛔ Read here and never asked of the raiser, the move `entries` and
+   * `shownOnAnotherRowMark` both make: FR-038 (MUST) keeps the one store of
+   * translated strings in this component.
+   */
+  readonly mannerText: string
   /**
    * IC-69 and IC-70 of table T-109, in that table's own print order.
    *
