@@ -55,12 +55,16 @@ ICON_ROW = re.compile(r'^\| (IC-\d+[a-z]?) \|')
 NOTICE_ROW = re.compile(r'^\| (NT-\d+[a-z]?) \|')
 ASSIGNMENT_ROW = re.compile(r'^\| (MK-\d+[a-z]?) \|')
 REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
+QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 ICON_TABLE = 'T-109'
 NOTICE_TABLE = 'T-037'
 ASSIGNMENT_TABLE = 'T-023'
 REASON_TABLE = 'T-233'
+# ⛔ The sentence a question shows. Table T-234 is the whole count of the
+# places NT-7 lets GRS ask, so a question with no row here cannot be raised.
+QUESTION_TABLE = 'T-234'
 
 # The surface whose entry closes an open surface. Its 面 column is the roster of
 # surfaces table T-103 has settled a name for -- CR-191 and CR-193 both added a
@@ -206,6 +210,12 @@ def roster():
         # (MUST) cannot be kept for a reason nobody has written down yet.
         'reasons': [row[0] for row in
                     table_rows(REL_REQUIREMENTS, REASON_ROW, REASON_TABLE)],
+        # ⛔ The same move for the question a confirmation shows. ⚠️ No
+        # nextStep: what to do next is NT-3a's clause, and a question already
+        # offers the two answers table T-037's NT-7 settles.
+        'questions': [row[0] for row in
+                      table_rows(REL_REQUIREMENTS, QUESTION_ROW,
+                                 QUESTION_TABLE)],
     }
 
 
@@ -220,6 +230,7 @@ SHAPE = {
     'panelHeadings': ('showing', ('text',)),
     'assignments': ('rowId', ('text',)),
     'reasons': ('rowId', ('text', 'nextStep')),
+    'questions': ('rowId', ('text',)),
 }
 
 
@@ -290,7 +301,7 @@ def build(doc):
     """
     out = {'$comment': BANNER}
     for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
-                    'reasons', 'confirmation', 'confirmationMarks',
+                    'reasons', 'questions', 'confirmation', 'confirmationMarks',
                     'panelHeadings', 'assignments'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
@@ -324,7 +335,7 @@ def main():
 
     if '--report' in sys.argv:
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
-                        'reasons', 'confirmation', 'confirmationMarks',
+                        'reasons', 'questions', 'confirmation', 'confirmationMarks',
                         'panelHeadings', 'assignments'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),

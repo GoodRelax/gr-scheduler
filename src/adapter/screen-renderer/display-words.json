@@ -1104,6 +1104,105 @@
    }
   },
   {
+   "rowId": "RS-17",
+   "text": {
+    "ja": "自動保存した内容が壊れていたので、復旧できません",
+    "en": "The autosaved contents are damaged, so they cannot be restored"
+   },
+   "nextStep": {
+    "ja": "そのまま編集を続けてください。壊れた内容は使われません",
+    "en": "Carry on editing; the damaged contents are not used"
+   }
+  },
+  {
+   "rowId": "RS-18",
+   "text": {
+    "ja": "自動保存から復旧しました。取り消しの履歴は戻っていません",
+    "en": "Restored from the autosave; the undo history did not come back"
+   },
+   "nextStep": {
+    "ja": "戻したい編集があるときは、手で直してください",
+    "en": "If an edit needs undoing, change it by hand"
+   }
+  },
+  {
+   "rowId": "RS-19",
+   "text": {
+    "ja": "透かしに出す名前が、まだ設定されていません",
+    "en": "The name the watermark prints has not been set"
+   },
+   "nextStep": {
+    "ja": "名前を設定すると、透かしにその名前が出ます",
+    "en": "Set a name and the watermark prints it"
+   }
+  },
+  {
+   "rowId": "RS-20",
+   "text": {
+    "ja": "無効にしても、既に渡した参照は取り消せません",
+    "en": "Disabling it does not take back references already handed out"
+   },
+   "nextStep": {
+    "ja": "いま有効かどうかは、画面上の表示で確かめてください",
+    "en": "Check the on-screen indicator for whether it is enabled now"
+   }
+  },
+  {
+   "rowId": "RS-21",
+   "text": {
+    "ja": "稼働する曜日が 1 つも無い暦なので、この文書の暦にできません",
+    "en": "This calendar has no working weekday, so it cannot be the calendar of this document"
+   },
+   "nextStep": {
+    "ja": "稼働する曜日を 1 つ以上選んでください",
+    "en": "Choose at least one working weekday"
+   }
+  },
+  {
+   "rowId": "RS-22",
+   "text": {
+    "ja": "収まらないタスクがあるので、一部を描いていません",
+    "en": "Some tasks did not fit, so they are not drawn"
+   },
+   "nextStep": {
+    "ja": "倍率を上げるか、出力の大きさを変えると描かれます",
+    "en": "Raise the zoom or change the output size and they will be drawn"
+   }
+  },
+  {
+   "rowId": "RS-23",
+   "text": {
+    "ja": "変更の知らせを配れなかった相手があります",
+    "en": "A change notice could not be delivered to one of the watchers"
+   },
+   "nextStep": {
+    "ja": "相手が受け取れる状態か確かめて、もう一度編集してください",
+    "en": "Check that the watcher can receive, then edit once more"
+   }
+  },
+  {
+   "rowId": "RS-24",
+   "text": {
+    "ja": "1 つの行に重なるタスクが多すぎるので、これ以上積めません",
+    "en": "Too many tasks overlap on one row, so no more can be stacked"
+   },
+   "nextStep": {
+    "ja": "重なっているタスクを別の行へ移すか、日付をずらしてください",
+    "en": "Move some of the overlapping tasks to another row, or shift their dates"
+   }
+  },
+  {
+   "rowId": "RS-25",
+   "text": {
+    "ja": "読み込んだファイルの中身が、決められた形に合いません",
+    "en": "The contents of the file that was read do not match the settled shape"
+   },
+   "nextStep": {
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file as it was written out"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -1112,6 +1211,64 @@
    "nextStep": {
     "ja": "もう一度行ってください。続くときは、直前の操作を控えてください",
     "en": "Try once more; if it keeps happening, note what you did"
+   }
+  }
+ ],
+ "questions": [
+  {
+   "rowId": "QN-1",
+   "text": {
+    "ja": "この行と、行に載っているタスクを削除します。取り消しで戻せません",
+    "en": "This row and the tasks on it will be deleted, and undo will not bring them back"
+   }
+  },
+  {
+   "rowId": "QN-2",
+   "text": {
+    "ja": "このタスクと、その配下のタスクを削除します。取り消しで戻せません",
+    "en": "This task and the tasks under it will be deleted, and undo will not bring them back"
+   }
+  },
+  {
+   "rowId": "QN-3",
+   "text": {
+    "ja": "この担当者を削除すると、下のタスクの割り当てが外れます",
+    "en": "Deleting this resource unassigns it from the tasks below"
+   }
+  },
+  {
+   "rowId": "QN-4",
+   "text": {
+    "ja": "開いたときと同じ文書ではありません。上書きすると、その間の変更が失われます",
+    "en": "This is not the document that was opened; overwriting it loses the changes made since"
+   }
+  },
+  {
+   "rowId": "QN-5",
+   "text": {
+    "ja": "保存していない編集があります。置き換えると失われます",
+    "en": "There are unsaved edits, and replacing the document loses them"
+   }
+  },
+  {
+   "rowId": "QN-6",
+   "text": {
+    "ja": "開いた文書と内容の違う自動保存が残っています。捨てると元に戻せません",
+    "en": "An autosave that differs from the opened document remains, and discarding it cannot be undone"
+   }
+  },
+  {
+   "rowId": "QN-7",
+   "text": {
+    "ja": "前回の終了が正常でなかったため、保存されていない編集が残っています",
+    "en": "The last session did not end normally, and unsaved edits remain"
+   }
+  },
+  {
+   "rowId": "QN-8",
+   "text": {
+    "ja": "この操作を続けると、取り消しで戻せない変更が起きます",
+    "en": "Going on makes a change that undo cannot bring back"
    }
   }
  ],
