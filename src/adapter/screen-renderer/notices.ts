@@ -41,21 +41,25 @@
 // (MUST) makes one generated dictionary the whole store of translated strings,
 // and this component is where it lives -- so everything printed is READ out of
 // it: what each row of table T-037 is CALLED keyed by that row, the text and the
-// next step of each row of table T-233 keyed by that row, the two answers of
+// next step of each row of table T-233 keyed by that row, the sentence of each
+// row of table T-234 keyed by that row, the two answers of
 // NT-7 keyed by their row of table T-109, FR-032's mark by the manuscript's own
 // key (FR-038 (MUST NOT) keeps the words out of every requirement and every
 // table, so the mark has no row to be keyed by).
 //
-// ⭐ BOTH OF THE TWO THINGS A RAISER HANDS OVER ARE ROWS, AND BOTH ARE READ. The
+// ⭐ EVERYTHING A RAISER HANDS OVER IS A ROW, AND EVERY ROW IS READ. The
 // manner is a row of table T-037; FR-076 (MUST) makes the reason a row of table
-// T-233 and (MUST NOT) bars a reason from outside it, and the dictionary holds a
-// section keyed on each -- so NT-1's words (MUST) and NT-3a's next step (MUST)
-// have somewhere to be read out of. ⛔ THE REASON ROW ITSELF NEVER REACHES THE
+// T-233 and (MUST NOT) bars a reason from outside it, and the same requirement
+// makes what a question shows a row of table T-234 under the same two rules.
+// The dictionary holds a section keyed on each -- so NT-1's words (MUST),
+// NT-3a's next step (MUST) and NT-7's 「何が起きるかを示す」 (MUST) have
+// somewhere to be read out of. ⛔ THE ROW ITSELF NEVER REACHES THE
 // SCREEN: FR-038 (MUST) keeps every printed word in the dictionary, and a row id
 // is not a word.
-// ⚠️ `RaisedConfirmation.text` is the one text that still arrives written,
-// because NT-7 (MUST) has it name what is about to happen and the names of what
-// would go -- neither of which any dictionary can hold.
+// ⚠️ WHAT WOULD GO IS STILL CARRIED WRITTEN, and it is not a word of the
+// screen: `RaisedConfirmation.items` holds NAMES, which are values of the
+// document, and table T-234 says in as many words that they are not in the
+// dictionary.
 //
 // ⭐ BOTH MEMBERS ARE COMPOSED. The preamble above table T-109 fixes its 面
 // column as table T-103's settled names, so which entries stand on U-55
@@ -166,6 +170,25 @@ const MANNERS_BY_ROW = new Map(displayWords.notices.map((entry) => [entry.rowId,
 const REASONS_BY_ROW = new Map(displayWords.reasons.map((entry) => [entry.rowId, entry]))
 
 /**
+ * The words of table T-234's rows, keyed by the row id.
+ *
+ * ⭐ THE ROW ID IS THE JOIN HERE TOO, and for the same reason `REASONS_BY_ROW`
+ * is keyed that way: FR-076 (MUST) makes `RaisedConfirmation.question` a row of
+ * that table and (MUST NOT) bars any question outside it, so the sentence NT-7
+ * asks for is asked on a row exactly as a reason is -- and neither the
+ * situation the row names nor the words it holds are repeated in this file.
+ *
+ * ⚠️ ONE CELL PER ROW, not two. Table T-233 gives a reason both a text and a
+ * next step because NT-3a asks for the second; table T-234 gives a question one
+ * sentence, and the names of what would go ride on `items` instead.
+ *
+ * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * description is built every frame and rule 05 of docs/development-rules
+ * forbids a linear search on that path (NFR-013).
+ */
+const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.rowId, entry]))
+
+/**
  * Which of the two words table T-233 gives a row is wanted.
  *
  * ⚠️ Spelled the way the dictionary spells the two members, so that the pick IS
@@ -184,6 +207,18 @@ type ReasonCell = 'text' | 'nextStep'
  * unlisted reason a row instead of leaving it to say nothing.
  */
 const UNLISTED_REASON_ROW = 'RS-15'
+
+/**
+ * The row of table T-234 a question with no row of its own falls to.
+ *
+ * ⭐ THE SAME MOVE `UNLISTED_REASON_ROW` MAKES, and FR-076 states it as the
+ * same rule: the way the words are held, the way a row is added and the reason
+ * a fall-back row exists at all are 「表 T-233 について述べたものと同じ」.
+ * ⛔ NOT AN EMPTY STRING. A question that shows no sentence fails NT-7's
+ * 「何が起きるかを示すこと（MUST）」, which is why the specification gives the
+ * unlisted question a row instead of leaving it to say nothing.
+ */
+const UNLISTED_QUESTION_ROW = 'QN-8'
 
 /**
  * The key the `confirmationMarks` section holds FR-032's mark under.
@@ -294,6 +329,49 @@ function reasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage)
   const word = reasonCell(reason, cell, language)
   if (word !== undefined) return word
   const unlisted = reasonCell(UNLISTED_REASON_ROW, cell, language)
+  if (unlisted !== undefined) return unlisted
+  return NO_WORDS
+}
+
+/**
+ * The sentence one row of table T-234 holds, or `undefined` where the
+ * dictionary holds no word there.
+ *
+ * ⛔ TWO CONDITIONS AND NOT ONE, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
+ * for the reason `reasonCell` gives just above: a row the dictionary does not
+ * hold at all and a cell it holds empty are different things, and PD-160 is
+ * precisely that difference. ⚠️ Neither can happen while `npm run gen:check`
+ * passes -- the generator builds its roster from table T-234 every run -- so
+ * what both branches guard is a generated file edited by hand.
+ *
+ * @purity pure
+ */
+function questionCell(row: string, language: DisplayLanguage): string | undefined {
+  const word = QUESTIONS_BY_ROW.get(row)?.text[language]
+  if (word === undefined) return undefined
+  return word === '' ? undefined : word
+}
+
+/**
+ * What one question says, in the display language (FR-038) -- what NT-7 (MUST)
+ * has shown before continuing or calling it off is chosen.
+ *
+ * ⛔ A QUESTION THE DICTIONARY CANNOT ANSWER FOR FALLS TO A ROW, never to
+ * nothing, the way `reasonWord` falls to one. FR-076 names the row an unlisted
+ * question goes to, because a question that shows no sentence is one NT-7's
+ * 「何が起きるかを示すこと（MUST）」 cannot be kept for.
+ * ⛔ AND NEVER TO THE KEY ITSELF. Printing the row id would put on the screen a
+ * string FR-038 (MUST) does not hold, the same in both display languages, which
+ * is the one thing that requirement exists to prevent.
+ * ⚠️ `NO_WORDS` is reached only when that fall-back row is itself missing from a
+ * hand-edited dictionary, because there is then nothing further to fall to.
+ *
+ * @purity pure
+ */
+function questionText(question: string, language: DisplayLanguage): string {
+  const word = questionCell(question, language)
+  if (word !== undefined) return word
+  const unlisted = questionCell(UNLISTED_QUESTION_ROW, language)
   if (unlisted !== undefined) return unlisted
   return NO_WORDS
 }
@@ -504,12 +582,18 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * The question waiting to be answered, on the surface it stands on, or `null`
  * while none is (NT-7, U-55 of table T-103).
  *
- * ⭐ THE RAISED HALF IS CARRIED AND NEVER COMPOSED, for the same reason a notice
- * is: everything NT-7 (MUST) asks for in words -- what is about to happen, and
- * the names of what would go -- can only be known where the question is raised.
- * FR-032 asks for the names of the tasks a row takes with it and FR-099 for the
- * names of the tasks an unassignment reaches; neither is derivable from a
- * `RaisedConfirmation` that already exists.
+ * ⭐ THE NAMES ARE CARRIED AND NEVER COMPOSED, for the same reason a notice's
+ * count is: FR-032 asks for the names of the tasks a row takes with it and
+ * FR-099 for the names of the tasks an unassignment reaches, and neither is
+ * derivable from a `RaisedConfirmation` that already exists. ⚠️ They are values
+ * of the DOCUMENT, which is why FR-038's dictionary does not hold them and
+ * table T-234 says so itself.
+ *
+ * ⭐ THE SENTENCE IS COMPOSED, and it stopped being carried when table T-234
+ * was written: FR-076 (MUST) makes what a question shows a row of that table,
+ * so NT-7's 「何が起きるかを示す」 is now READ here out of the one dictionary
+ * FR-038 names -- the move `mannerText`, `entries` and `shownOnAnotherRowMark`
+ * were already making.
  *
  * ⭐ THE TWO ANSWERS ARE COMPOSED, AND SO IS FR-032's MARK. The preamble above
  * table T-109 fixes its 面 column as table T-103's settled names, so which
@@ -545,7 +629,9 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * table T-109 does place IC-66 on U-49, so there IS an entrance to press, and
  * what is missing is the same thing `frame-loop.ts` supplies for the other two
  * -- a raiser that puts the question up and spends the answer. Until then that
- * deletion runs unasked, which is what breaks that MUST. Searched: table T-037,
+ * deletion runs unasked, which is what breaks that MUST. ⚠️ Table T-234 has the
+ * row that question would show -- `QN-3`, whose 正 is FR-099 -- so what is
+ * missing is the road and not the words. Searched: table T-037,
  * table T-064 (PI-8, PI-9,
  * PI-18, PI-37), table T-109, table T-227, FR-031, FR-032, FR-099,
  * `frame-loop.ts`.
@@ -564,6 +650,11 @@ export function confirmationFromSession(session: ScreenSession): Confirmation | 
     // declares which row it is following, and a second place deciding it would
     // be a second answer.
     mannerText: mannerText(raised.manner, session.language),
+    // ⭐ NT-7's OWN SENTENCE, READ AND NEVER ASKED OF THE RAISER. FR-076 (MUST)
+    // makes what a question shows a row of table T-234, and the `questions`
+    // section is keyed on exactly that -- so this is the same move `mannerText`
+    // above makes and the same one `Notice.text` makes for a reason.
+    text: questionText(raised.question, session.language),
     entries: confirmationAnswers(session.language),
     // Carried whether or not any item wears it: the surface is drawn from this
     // one value, and reading the dictionary per item would be the same lookup

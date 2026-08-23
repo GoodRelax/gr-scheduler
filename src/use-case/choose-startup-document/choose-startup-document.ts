@@ -27,11 +27,15 @@
 //
 // ⚠️ The figure source (docs/spec/_source/components.json) draws an edge
 // ChooseStartupDocument -> ValidateImportedDocument, "checks each candidate".
-// That call is NOT made here: `validateImportedDocument` (PI-13, UF-22) has no
-// signature yet, and a pure unit cannot depend on one it cannot see. The
-// candidate shapes below already carry the outcome that check produces, so
-// moving the call inside later changes this file only. ⚠️ It is a decision of
-// this file, not of the specification.
+// That call is NOT made here, although `validateImportedDocument` (PI-13,
+// UF-22) is written now and its signature could be reached: the candidate
+// shapes below already carry the outcome that check produces, so the caller
+// that decodes a candidate is where the check belongs, and moving it inside
+// later changes this file only. ⚠️ It is a decision of this file, not of the
+// specification. ⛔ THE CALLER OWES IT TODAY: `single-html-shell.ts` hands
+// `none` for the three untrusted ranks, and its own STOP note records what
+// each of them needs -- this check and FR-088's IV-17 gate -- before it may
+// hand over anything else.
 //
 // ⚠️ Failure is a value. This function never throws: AG-8 wants the caller told,
 // and R7.10 wants it told by the return value. Everything FR-067, FR-026 and

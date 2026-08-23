@@ -46,10 +46,15 @@
 //   - The other fourteen invariants of table T-220 (IV-1 to IV-3, IV-5 to IV-9,
 //     IV-11 to IV-13, IV-15 to IV-17). `scheduleViolations` (PI-1) owns them and
 //     Chapter 6.1 requires it to be driven by the table rather than written out
-//     row by row (MUST). ⛔ It is not written yet -- schedule.ts says so in as
-//     many words -- so nothing runs them today. Whoever imports must run it
-//     beside this call; folding it into this unit is a change to CP-13's scope,
-//     not an implementation choice. Reported.
+//     row by row (MUST). ⭐ It IS written, and the import road runs it beside
+//     this call: `frame-loop.ts` asks it of the arriving document right after
+//     this verdict and turns the open away on IV-17, which is the one row a
+//     requirement (FR-088) says refuses an input. ⛔ THE OTHER SEVENTEEN STILL
+//     STOP NOBODY on that road, and the reason is not that they go unasked --
+//     it is that table T-233 gives them no row to be told on, which that table
+//     states on purpose (the rows of table T-220 already carry ids of their
+//     own). ⚠️ Folding the call into this unit would still be a change to
+//     CP-13's scope, not an implementation choice.
 //   - `TaskGroup` depth (S-125 / IV-5). FR-058: "取り込みでは `TaskGroup` の深さ
 //     上限で受け付けを拒んではならない（MUST NOT）". S-115 bounds the WBS depth
 //     and S-125 is a different value for a different tree.

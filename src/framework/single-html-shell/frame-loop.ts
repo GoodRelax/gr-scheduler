@@ -75,6 +75,7 @@ import {
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
 import {
+  scheduleViolations,
   textOfDay,
   type CalendarDay,
   type Project,
@@ -397,6 +398,51 @@ const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
 const CONFIRMATION_MANNER = 'NT-7'
 
 /**
+ * The rows of table T-234 this file can ask on, spelled as that table spells
+ * them.
+ *
+ * ⭐ THE ROW ID IS THE KEY, the move `NoticeReason` already makes with table
+ * T-233. FR-076 (MUST) has a question show a row of table T-234 and forbids
+ * showing one it does not hold (MUST NOT), and FR-038's one dictionary is what
+ * turns the row into the sentence NT-7 asks for. ⛔ So nothing here composes
+ * one: a raiser that supplied a sentence would be the second store of
+ * translated strings FR-038 forbids (MUST NOT).
+ *
+ * ⛔ THREE ROWS OF THAT TABLE ARE MISSING FROM THIS UNION, and each is missing
+ * because no road in this build reaches the moment it names:
+ *
+ *   QN-3  FR-099's unassignment. `notices.ts` records the same gap from the
+ *         other end -- table T-109 places IC-66 on U-49, so there is an
+ *         entrance, and what is absent is a raiser that puts the question up
+ *         and spends the answer.
+ *   QN-6  FR-062's autosave with a different stamp. AutosaveGateway (IF-4) is
+ *         not built into the shell, which `single-html-shell.ts` states at
+ *         BT-3 of table T-034.
+ *   QN-7  FR-026's offer to recover. Same missing gateway, same BT-3.
+ *
+ * ⛔ NO CALLER IS INVENTED FOR ANY OF THE THREE. A question raised from a road
+ * that does not exist would be asked about nothing.
+ *
+ * ⚠️ `QN-8` IS DELIBERATELY ABSENT, exactly as `RS-15` is absent from
+ * `NoticeReason`: it is where the DICTIONARY lands when it is asked for a key
+ * it does not hold, and every question this file asks is a row of its own --
+ * handing that row over would say something untrue about the question at hand.
+ */
+type ConfirmationQuestion = 'QN-1' | 'QN-2' | 'QN-4' | 'QN-5'
+
+/**
+ * The row of table T-234 DI-4's overwrite question shows.
+ *
+ * ⚠️ THE ONE ROW OF THE FOUR THAT NAMES NOTHING, and the table says why in its
+ * own 名前を挙げるか column: 「正の行が自らそう定めている」 -- DI-4 of table
+ * T-227 states that the naming clause does not reach it.
+ */
+const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
+
+/** The row of table T-234 OP-4's replace question shows. */
+const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
+
+/**
  * The rows of table T-233 this file can raise, spelled as that table spells
  * them.
  *
@@ -429,6 +475,8 @@ type NoticeReason =
   | 'RS-13'
   | 'RS-14'
   | 'RS-16'
+  | 'RS-21'
+  | 'RS-23'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -459,6 +507,8 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-13': 'NT-1',
   'RS-14': 'NT-5',
   'RS-16': 'NT-5',
+  'RS-21': 'NT-1',
+  'RS-23': 'NT-3a',
 }
 
 /**
@@ -537,6 +587,44 @@ const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
  * read out of table T-233, not here.
  */
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
+
+/**
+ * The row of table T-233 FR-088's refusal carries -- a calendar that works no
+ * weekday cannot become the document's.
+ *
+ * ⭐ THE CONDITION IS NOT REPEATED HERE. FR-088 sends it to IV-17 of table
+ * T-220 in as many words, and `scheduleViolations` (PI-1) is what answers that
+ * table -- so this side asks the invariant and carries the row, and neither the
+ * rule nor its wording is written twice.
+ * ⚠️ ITS MANNER IS `NT-1`, which FR-088 states itself (「受け付けずに通知する
+ * こと（MUST）…作法は `FR-076` の `NT-1`」). The census above is where that
+ * pairing is read out of table T-233.
+ */
+const NO_WORKING_WEEKDAY_REASON: NoticeReason = 'RS-21'
+
+/**
+ * The row of table T-233 a change watcher that did not answer is told on.
+ *
+ * ⚠️ ITS MANNER IS `NT-3a`, so the telling owes a next step -- which is the
+ * whole reason the outcome of `notifyChangeWatchers` may not be dropped: AG-6
+ * of table T-035 is the row table T-233 names as its 正, and a delivery that
+ * failed in silence leaves nobody able to act on it.
+ */
+const WATCHER_SILENT_REASON: NoticeReason = 'RS-23'
+
+/**
+ * The row of table T-220 FR-088 refuses on.
+ *
+ * ⭐ A ROW ID AS A VALUE, the way a reason is one: FR-088 points at this row
+ * and `ScheduleViolation.row` carries it, so the id is the join and none of the
+ * row's prose is repeated here (rule 03 section 1).
+ * ⛔ ONLY THIS ROW STOPS AN OPEN. `scheduleViolations` answers eighteen rows and
+ * refuses nothing itself -- 「Whether one stops a load, a save or an edit is the
+ * caller's to decide」 -- and FR-088 is the one requirement that says a row of
+ * that table turns an input away. The other seventeen have no row of table
+ * T-233 to be told on, which is the same gap the OP-5 verdict already records.
+ */
+const NO_WORKING_WEEKDAY_INVARIANT = 'IV-17'
 
 /**
  * U-56 `Open Chooser` of table T-103 -- the surface OP-3 of table T-024a puts
@@ -1258,15 +1346,22 @@ function tasksLostWith(tasks: readonly Task[], seeds: Iterable<number>): Readonl
  * through, and undo is the only thing standing behind it, which is what
  * FR-031's RATIONALE intends.
  *
- * ⛔ THE SENTENCE CANNOT BE WRITTEN HERE, AND IS LEFT EMPTY. NT-7 (MUST) wants
- * what is about to happen said in words, and FR-038 (MUST) keeps every word the
- * screen prints in ONE per-language dictionary and forbids writing one anywhere
- * else (MUST NOT). That dictionary -- `display-words.json`, generated from the
- * manuscript Chapter 6.2 owns -- holds rows for NT-7's two answers and for the
- * `shownOnAnotherRow` mark, and NO row for the question itself. ⚠️ Those three
- * rows are written now, so the emptiness below is no longer PD-160 waiting: it
- * is the one row the dictionary does not have. A sentence typed here would be
- * the second dictionary FR-038 forbids.
+ * ⭐ THE SENTENCE IS A ROW OF TABLE T-234 AND NOT A STRING. FR-076 (MUST) makes
+ * what a question shows a row of that table and (MUST NOT) bars one from
+ * outside it, and FR-038's one dictionary is what turns the row into words --
+ * so this side names the SITUATION and nothing else, the way `raiseNotice`
+ * names a reason.
+ *
+ * ⛔ WHICH OF THE TWO ROWS ONE WRITE SHOWS, when the write does both. Table
+ * T-234's 場面 column tells QN-1 (「行を削除する前」) from QN-2 (「WBS の子孫を
+ * 持つ `Task` を削除する前」), and one `RaisedConfirmation` shows ONE sentence --
+ * but a bundle of commands may carry a row deletion and a leading `Task`'s
+ * deletion at once, and nothing in table T-234, FR-032 or FR-031 says which
+ * sentence such a write shows. Chosen: the row's, whenever a row is going.
+ * ⚠️ Defensible from the table itself -- CD-2 seeds CD-1 with every `Task` the
+ * going rows carry, so the row deletion is the wider scene and the tasks named
+ * below are already gathered under it -- and the narrower reading would tell a
+ * person their row survives. ⛔ Not settled by the specification all the same.
  *
  * @purity pure
  */
@@ -1316,7 +1411,9 @@ function confirmationOwedBy(
       isShownOnAnotherRow: drawnOn !== undefined && lostRows.size > 0 && !lostRows.has(drawnOn),
     })
   }
-  return { manner: CONFIRMATION_MANNER, text: '', items }
+  // See the head note on which row a write that does both shows.
+  const question: ConfirmationQuestion = lostRows.size > 0 ? 'QN-1' : 'QN-2'
+  return { manner: CONFIRMATION_MANNER, question, items }
 }
 
 /**
@@ -1684,7 +1781,24 @@ export function frameLoop(
   const audience: ChangeAudience = {
     /** @purity non-pure */
     deliver(document: Document, hasMovedSchedule: boolean): void {
-      notifyChangeWatchers({ document, hasMovedSchedule, dialogue: dialogueLog })
+      const outcome = notifyChangeWatchers({ document, hasMovedSchedule, dialogue: dialogueLog })
+      // ⭐ THE ANSWER IS READ, AND IT IS THIS SIDE'S TO READ. `NotifyOutcome`
+      // says why in as many words: PI-15 hands the failures back BECAUSE
+      // swallowing them was the one thing it could not do, and this is the only
+      // caller. RS-23 of table T-233 is the row they are carried on, and its
+      // manner NT-3a (MUST) is what a delivery that failed silently could never
+      // keep -- there would be no next step for a person who never heard.
+      // ⚠️ WHAT FAILED IS NOT NAMED. `DeliveryFailure` carries the watcher's
+      // name and what it threw, and neither is a word of the screen -- FR-038
+      // (MUST NOT) forbids a second store of translated strings, and NT-1's
+      // 「どの項目か」 is what the row of table T-233 says.
+      // ⚠️ NO COUNT. `affectedCount` is NT-3's, which table T-037 asks of a
+      // DESTRUCTIVE result; nothing was destroyed here, the write already
+      // landed, and how many subscribers went unanswered is not that number.
+      if (outcome.failures.length > 0) raiseNotice(WATCHER_SILENT_REASON, null)
+      // ⛔ `outcome.notified` IS NOT READ, and nothing is owed for it: table
+      // T-233 has no row for a delivery that worked, and NT-1 .. NT-7 have no
+      // manner for telling a person that nothing went wrong.
     },
   }
 
@@ -2132,10 +2246,11 @@ export function frameLoop(
    * in as many words that the duty to name what disappears is not on this row,
    * and `RaisedConfirmation.items` records the same ruling from the other side.
    *
-   * ⛔ THE SENTENCE IS LEFT EMPTY for the reason `confirmationOwedBy` gives:
-   * FR-038 (MUST) keeps every word the screen prints in the one generated
-   * dictionary, and that dictionary holds no row for a question's own text. A
-   * sentence typed here would be the second dictionary FR-038 forbids.
+   * ⭐ THE SENTENCE IS QN-4 OF TABLE T-234, named and not written, for the
+   * reason `confirmationOwedBy` gives: FR-038 (MUST) keeps every word the
+   * screen prints in the one generated dictionary, and FR-076 (MUST) makes the
+   * row the whole of what this side hands over. ⚠️ That row and DI-4 agree
+   * about the empty list above -- 「挙げない —— 正の行が自らそう定めている」.
    *
    * ⭐ WHICH TRIGGER PAINTS IT IS FT-1 OF TABLE T-078, and that row says so
    * itself: it covers the continuation of one input across the wait CS-4 of
@@ -2149,7 +2264,7 @@ export function frameLoop(
   function askToWriteOverDestination(): Promise<boolean> {
     return new Promise<boolean>((answer) => {
       asking = {
-        question: { manner: CONFIRMATION_MANNER, text: '', items: [] },
+        question: { manner: CONFIRMATION_MANNER, question: OVERWRITE_QUESTION, items: [] },
         /** @purity non-pure */
         settle(isProceeding) {
           answer(isProceeding)
@@ -2203,8 +2318,9 @@ export function frameLoop(
    * carried at all -- FR-038 leaves a document's values untranslated.
    * ⚠️ `isShownOnAnotherRow` is false because FR-032's row half is not what is
    * asking; the member says the same from `ConfirmationItem`'s side.
-   * ⛔ THE SENTENCE IS LEFT EMPTY for the reason every other raiser leaves it
-   * empty: the dictionary FR-038 names holds no row for a question's own text.
+   * ⭐ THE SENTENCE IS QN-5 OF TABLE T-234, whose 場面 is 「未保存の編集を捨てて
+   * 置き換えるとき」 and whose 正 is OP-4 itself -- so naming the row is naming
+   * this moment, and no word of it is written here (FR-038, MUST NOT).
    * ⚠️ ASKED ABOUT THE DOCUMENT CS-4 COLLECTED, not about whatever the wait left
    * behind -- which is why the document is an argument rather than read here.
    *
@@ -2215,7 +2331,7 @@ export function frameLoop(
       asking = {
         question: {
           manner: CONFIRMATION_MANNER,
-          text: '',
+          question: DISCARD_QUESTION,
           items: [{ name: discarded.schedule.project.title, isShownOnAnotherRow: false }],
         },
         /** @purity non-pure */
@@ -2328,6 +2444,50 @@ export function frameLoop(
       // for the words to be read out of. ⚠️ FR-023's other half is missing with
       // it: that requirement lets a person drop the rows a date refusal names and
       // take the rest, and there is no surface to offer the choice on.
+      return
+    }
+
+    // FR-088 (MUST NOT / MUST): 「稼働する曜日を 1 つも持たない暦を、文書の暦
+    // （`FR-054`）にしてはならない…受け付けずに通知すること」. IV-17 of table
+    // T-220 is the condition and `scheduleViolations` (PI-1) is what answers
+    // that table, so the rule is asked for rather than restated here.
+    //
+    // ⭐ WHY THE ANSWER HAS TO BE ASKED FOR AT ALL, and why an open is where.
+    // Every count of working days climbs the calendar FR-054 resolves, and a
+    // calendar that works no weekday leaves that climb with no day to reach --
+    // `schedule.ts` throws `NoWorkingDayReached` rather than answer, and this
+    // loop draws from a document it has already taken. So an input carrying
+    // one has to be turned away BEFORE it becomes the current document; after
+    // that there is no road left that does not end in the drawing.
+    //
+    // ⭐ BEFORE OP-3 IS ASKED, for the reason OP-5 states in as many words: a
+    // question put first would have the current document thrown away for an
+    // input that is then refused.
+    //
+    // ⚠️ ASKED OF THE ARRIVING DOCUMENT AND ITS OWN SETTINGS. IV-17 reads only
+    // the schedule -- the row is about the calendar FR-054 resolves -- and
+    // `scheduleViolations` takes the pair because other rows of table T-220 are
+    // judged against the presentation group. ⛔ NOT `bounds`: those are the
+    // ceilings in force, which OP-5 is judged against and this row is not.
+    //
+    // ⚠️ ONLY THIS ONE ROW TURNS THE OPEN AWAY. See the note on
+    // `NO_WORKING_WEEKDAY_INVARIANT`: FR-088 is the requirement that says so,
+    // and the other rows of table T-220 have no row of table T-233 to be told
+    // on -- the same gap the OP-5 verdict above records.
+    //
+    // ⚠️ THE ARRIVING DOCUMENT IS JUDGED ON ALL THREE OF OP-3's ANSWERS, and on
+    // the two that do not replace this is the stricter reading: which calendar
+    // a merge lands is PI-10's, so an input refused here might have landed
+    // sound. ⛔ Narrowing it would need the landed document judged INSTEAD, and
+    // the landing is the write -- there is no moment after it at which FR-088's
+    // 「受け付けず」 is still available. Chosen the reading that cannot let a
+    // calendar with no working weekday become the document's.
+    if (
+      scheduleViolations(incoming.schedule, incoming.documentSettings).some(
+        (one) => one.row === NO_WORKING_WEEKDAY_INVARIANT,
+      )
+    ) {
+      raiseNotice(NO_WORKING_WEEKDAY_REASON, null)
       return
     }
 
@@ -2689,6 +2849,15 @@ export function frameLoop(
     // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the shape the save path
     // has, and for the reason CS-4 gives: the operation spans frames, and the
     // flag above is what keeps the next press from starting a second one.
+    // ⛔ WAITING ON PD-187, and so are the other two of this shape below. That
+    // record states the gap exactly: `.finally` does not consume a rejection,
+    // and all three of these declare a rejection to be a breach of IF-3's
+    // contract -- so a rejected one is neither swallowed on purpose nor told.
+    // ⛔ NOT SETTLED HERE. The three answers PD-187 weighs (swallow it, leave
+    // it, give it a row of table T-233) are a ruling, and a row invented in
+    // this file would be the reason FR-076 (MUST NOT) bars from outside that
+    // table. ⚠️ Not the same question as LM-14 of table T-004, which is a write
+    // the environment could not perform and already has RS-3.
     void exportHeldDocumentToFile(store, format).finally(() => {
       isFileOperationWaiting = false
     })
@@ -2772,6 +2941,8 @@ export function frameLoop(
         // save path has, and for the same reason CS-4 gives: the operation
         // spans frames, and the flag above is what keeps the next press from
         // starting a second one.
+        // ⛔ WAITING ON PD-187, the second of the three: see the note on the
+        // export path above for what is undecided.
         void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(() => {
           isFileOperationWaiting = false
         })
@@ -2791,6 +2962,8 @@ export function frameLoop(
         // happening is settled before the chooser has even opened -- CS-4 says
         // in as many words that the operation spans frames -- and the flag
         // above is what keeps the next press from starting a second one.
+        // ⛔ WAITING ON PD-187, the third of the three: see the note on the
+        // export path above for what is undecided.
         void saveHeldDocumentToFile(store).finally(() => {
           isFileOperationWaiting = false
         })

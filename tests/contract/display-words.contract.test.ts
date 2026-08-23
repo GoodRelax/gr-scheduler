@@ -71,8 +71,8 @@
 //      code rather than the specification, so group 2 asserts only that a
 //      string arrives -- plus FR-072's headings, which the specification does
 //      constrain.
-//   2. THE `notices`, `reasons`, `confirmation` AND `confirmationMarks`
-//      SECTIONS, and IC-69 / IC-70 with them. Their places are UF-67's
+//   2. THE `notices`, `reasons`, `questions`, `confirmation` AND
+//      `confirmationMarks` SECTIONS, and IC-69 / IC-70 with them. Their places are UF-67's
 //      (`notices.ts`), which is not one of the five units this file may look
 //      at. ⭐ THAT IS NOT THE SAME AS LEAVING THEM UNCHECKED: a word cannot be
 //      held against a member this file may not name, but it CAN be held against
@@ -86,6 +86,13 @@
 //      section a reason could be looked up under -- the debt was the
 //      manuscript's, it has been paid, and tests/unit/uf-67.test.ts no longer
 //      stands red on it.
+//      ⭐ THE SAME NOW HOLDS OF THE QUESTIONS. FR-076 (MUST) makes what a
+//      question shows a row of table T-234 and bars a question it does not hold
+//      (MUST NOT), so this file raises one question per row of that table too.
+//      ⚠️ The `questions` section arrived KEYED but UNREAD here: `KEY_FIELD`
+//      had no field for it, so every one of its entries collapsed onto the
+//      empty key and the filled copy the carriage group drives held one word
+//      for all of them (484 cells, 470 distinct).
 //      ⛔ THE `notices` SECTION STAYS OUT: what a row of table T-037 is CALLED
 //      is carried by a member of UF-67's that this file may not name, and the
 //      whole-view reading could only reach the three manners table T-233 writes
@@ -205,6 +212,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   surfaces: 'name',
   notices: 'rowId',
   reasons: 'rowId',
+  questions: 'rowId',
   confirmation: 'answer',
   confirmationMarks: 'mark',
   panelHeadings: 'showing',
@@ -281,6 +289,21 @@ const T023 = specTable('T-023')
 const T233 = specTable('T-233').rows.map((row) => ({
   row: row.id,
   manner: bare(row.by['作法'] ?? ''),
+}))
+
+/**
+ * Table T-234 -- every question a confirmation may show (FR-076, MUST), with
+ * that table's own answer to whether the question names what would go.
+ *
+ * ⭐ The same move `T233` above makes, for the same reason: FR-076 says in as
+ * many words that the way the words are held and the way a row is added are the
+ * ones it has just stated for table T-233. ⚠️ The 名前を挙げるか column is read
+ * raw rather than through `bare`, because its cells carry a code span
+ * (`Task`) that `bare` would return in place of the answer.
+ */
+const T234 = specTable('T-234').rows.map((row) => ({
+  row: row.id,
+  namesWhatGoes: (row.by['名前を挙げるか'] ?? '').trim().startsWith('挙げる'),
 }))
 
 const t109Row = (rowId: string) => T109.rows.find((row) => row.id === rowId)
@@ -762,7 +785,7 @@ for (const entry of GENERATED['assignments'] ?? []) {
 
 // -- the sections whose place is not one of the five units this file may read
 
-for (const section of ['notices', 'reasons', 'confirmation', 'confirmationMarks']) {
+for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'confirmationMarks']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(
       section,
@@ -819,31 +842,41 @@ const stringsIn = (value: unknown, found: string[] = [], seen = new Set<unknown>
 }
 
 /**
- * The frame FR-032's mark needs in order to be on the screen at all: a row is
- * about to be deleted, NT-7 (MUST) is asking whether to go on, and one of the
- * `Task`s that will go is DRAWN ON ANOTHER ROW -- which HM-10 of table T-015a
- * is what makes possible (a bar moved to another row leaves its WBS children
- * where they were). FR-032 (MUST) has that one shown as such, and CR-218
- * settles the medium as a WORD, RC-13 of table T-026 keeping a new SHAPE as the
- * user's own ruling.
+ * One question raised per row of table T-234 -- the frame the words of the
+ * `questions` section have to arrive on, and the one FR-032's mark needs in
+ * order to be on the screen at all.
+ *
+ * ⭐ WHAT AN ASKER HANDS OVER, and nothing else: the row of table T-037 the
+ * question follows, the row of table T-234 that says WHICH question it is, and
+ * the things that would go. FR-038 (MUST) keeps the sentence on the far side of
+ * this seam, exactly as it keeps a telling's -- so there is no prose here to be
+ * mistaken for the dictionary's answer.
+ *
+ * ⭐ WHETHER ANYTHING GOES IS THE TABLE'S ANSWER, read from its 名前を挙げるか
+ * column rather than decided here. A row that names what goes is what puts
+ * FR-032's mark on the screen at all: HM-10 of table T-015a leaves a `Task`
+ * drawn on another row, FR-032 (MUST) has that one shown as such, and CR-218
+ * settles the medium as a WORD (RC-13 of table T-026 keeps a new SHAPE the
+ * user's own ruling).
  *
  * ⚠️ NOTHING HERE IS ASSERTED and no member of it is read back. The shape is
- * the published entry's own declaration -- version 0.70 of the appendix records
- * that the specification deliberately writes no member name or type for the
- * confirmation and sends the reader to `src/`'s published entry (CR-146) -- and
- * `isShownOnAnotherRow` is the spelling CR-218 section 0 item ⑧ 2 names. ⛔ The
- * strings below are ASCII stand-ins for what a caller raises; none of them may
- * be a word of the dictionary, or a case would find its own input.
+ * the published entry's own declaration of `RaisedConfirmation` -- version 0.70
+ * of the appendix records that the specification deliberately writes no member
+ * name or type for it and sends the reader to `src/`'s published entry
+ * (CR-146). ⛔ The strings that are not row ids are ASCII stand-ins for what a
+ * caller raises; none of them may be a word of the dictionary, or a case would
+ * find its own input.
  */
-const CONFIRMING_A_ROW_DELETION: Frame = frameWith({
-  session: sessionWith({
-    confirmation: {
-      manner: 'the manner NT-7 asks for',
-      text: 'a row is about to be deleted',
-      items: [{ name: 'a task', isShownOnAnotherRow: true }],
-    },
-  }),
-})
+const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
+  frameWith({
+    session: sessionWith({
+      confirmation: {
+        manner: 'the manner NT-7 asks for',
+        question,
+        items: namesWhatGoes ? [{ name: 'a task', isShownOnAnotherRow: true }] : [],
+      },
+    }),
+  })
 
 /**
  * One telling raised per row of table T-233 -- the frame the words of the
@@ -866,7 +899,10 @@ const TELLING = (manner: string, reason: string): Frame =>
 /** Every frame this file knows how to put on the screen, each named. */
 const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = [
   ...PLACES.map((at) => ({ what: at.what, frame: at.frame })),
-  { what: 'the confirmation NT-7 raises before a row is deleted (FR-032)', frame: CONFIRMING_A_ROW_DELETION },
+  ...T234.map((entry) => ({
+    what: `the question ${entry.row} of table T-234 raises`,
+    frame: ASKING(entry.row, entry.namesWhatGoes),
+  })),
   ...T233.map((entry) => ({
     what: `the telling ${entry.row} of table T-233 raises, in the manner of ${entry.manner}`,
     frame: TELLING(entry.manner, entry.row),
@@ -1208,6 +1244,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
       cell.section === 'confirmation' ||
       cell.section === 'confirmationMarks' ||
       cell.section === 'reasons' ||
+      cell.section === 'questions' ||
       (cell.section === 'icons' && cell.field === 'label' && ON_U_55.includes(cell.key))
     const owed = written.filter(
       (cell) => !stated.has(`${cell.section}.${cell.key}`) || onASurfaceUf67Draws(cell),
@@ -1221,6 +1258,10 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
       new Set(owed.filter((cell) => cell.section === 'reasons').map((cell) => cell.key)),
       'FR-076 (MUST): every row of table T-233 owes NT-1 s words and NT-3a s next step',
     ).toEqual(new Set(T233.map((entry) => entry.row)))
+    expect(
+      new Set(owed.filter((cell) => cell.section === 'questions').map((cell) => cell.key)),
+      'FR-076 (MUST): every row of table T-234 owes NT-7 s sentence -- what is about to happen, in words',
+    ).toEqual(new Set(T234.map((entry) => entry.row)))
 
     for (const cell of owed) {
       const at = `${cell.section}.${cell.key}.${cell.field}`

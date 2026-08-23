@@ -84,23 +84,21 @@
 // ⚠️ FIVE THINGS ARE DELIBERATELY NOT ASSERTED, because no requirement decides
 // them:
 //   - the WORDS on the two entries. FR-038 (MUST) makes `display-words.json` the
-//     one store of translated strings and PD-160 records that they are not
-//     written yet -- every entry in it is the empty string. A case that asked
-//     for a word would be asking for a decision nobody has taken.
-//   - whether a PERSON can READ that a thing which goes is drawn on another row.
-//     FR-032 (MUST) asks for the fact to be SHOWN, and gives its reason as
-//     "it is not visible on that row on the screen" -- so the mark is owed to
-//     the reader and
-//     not only to the markup. ⛔ But FR-038 (MUST) makes `display-words.json`
-//     the ONE store of translated strings and that file holds no entry for this
-//     mark at all -- its `confirmation` section holds two, one per answer -- so
-//     the surface has no word to draw and may not invent one. ⛔ SO THAT MUST IS
-//     UNMET, and the unit says so itself in the STOP note above
-//     `confirmationElement` in
-//     src/framework/dom-screen-surface/dom-screen-surface.ts. The case below
-//     asks only that the flag REACHED the drawn surface and reached the ITEM it
-//     belongs to, and its title says that much and no more; what a person reads
-//     waits on a word being added to the manuscript.
+//     one store of translated strings, and which word an entry of table T-109
+//     carries is UF-67's to read -- tests/unit/uf-67.test.ts holds it. ⚠️ TWO
+//     WORDS ARE NOW ASSERTED HERE, and both are READ out of that file rather
+//     than written: the sentence NT-7 (MUST) shows, which FR-076 (MUST) makes a
+//     row of table T-234 so that the drawn surface can be held to the row that
+//     was RAISED, and FR-032's mark below.
+//   - ⚠️ NO LONGER ON THIS LIST: whether a PERSON can READ that a thing which
+//     goes is drawn on another row. FR-032 (MUST) asks for the fact to be SHOWN,
+//     its reason being "it is not visible on that row on the screen", so the
+//     mark is owed to the reader and not only to the markup. That was recorded
+//     here as UNMET while the dictionary held no entry a mark on an item could
+//     be read from (PD-160). ⛔ The manuscript has since grown one, CR-218
+//     having settled the medium as a WORD, so the case below reads that word and
+//     asks whether it is on the surface -- and asks that nothing wears it where
+//     the flag is not set.
 //   - which of the two answers stands FIRST on the screen. table T-109 has a print
 //     order and this file holds the entries to it, but nothing says the drawn
 //     surface may not lay them out right-to-left; what is asserted is the order
@@ -161,6 +159,77 @@ const U_55 = 'U-55'
 
 /** The row of table T-037 whose manner this surface follows. */
 const ASKING = 'NT-7'
+
+/** The display language every case below asks the screen for. */
+const LANGUAGE = 'en'
+
+/**
+ * Table T-234 -- the whole of what FR-076 (MUST) lets a question show, and
+ * (MUST NOT) the whole of it. `namesWhatGoes` is that table's own
+ * 名前を挙げるか column, so no case here decides for a row whether NT-7's names
+ * are owed on it.
+ *
+ * ⭐ Read from the .md at load time, the move every roster in this file makes.
+ * ⚠️ The 名前を挙げるか column is read raw rather than through `bare`: its cells
+ * carry a code span (`Task`) that `bare` would hand back in place of the answer.
+ */
+const T_234 = specTable('T-234').rows.map((row) => ({
+  row: row.id,
+  namesWhatGoes: (row.by['名前を挙げるか'] ?? '').trim().startsWith('挙げる'),
+  by: (row.by['正'] ?? '').trim(),
+}))
+
+/** A row of table T-234, taken from the fixed copy in its print order; `at` wraps. */
+const questionRow = (at: number): string =>
+  (T_234[at % T_234.length] as { readonly row: string }).row
+
+/**
+ * The sentence FR-038's one dictionary holds for a row of table T-234, in the
+ * language these cases ask the screen for.
+ *
+ * ⭐ WHY THIS FILE READS A WORD AT ALL, having read none before. What a question
+ * SHOWS is no longer something an asker hands over: FR-076 (MUST) makes it a row
+ * of that table and FR-038 (MUST) keeps the sentence in the generated
+ * dictionary, so the sentence NT-7 (MUST) has on the screen can only be named
+ * by reading it. ⛔ It is READ, never written here -- FR-038's MUST NOT bars the
+ * words from a requirement and from a table, and a bench may not mint one either.
+ */
+const DISPLAY_WORDS = JSON.parse(
+  readFileSync(
+    join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
+    'utf8',
+  ),
+) as {
+  readonly questions: readonly { readonly rowId: string; readonly text: Record<string, string> }[]
+  readonly confirmationMarks: readonly {
+    readonly mark: string
+    readonly text: Record<string, string>
+  }[]
+}
+
+const QUESTION_WORDS = DISPLAY_WORDS.questions
+
+/** The `confirmationMarks` section -- the word an item wears when FR-032 asks for one. */
+const MARK_WORDS = DISPLAY_WORDS.confirmationMarks
+
+/**
+ * The word FR-032's mark is made of, in the language these cases ask for.
+ *
+ * ⛔ READ, NEVER WRITTEN, for the reason `sentenceFor` is: CR-218 settles the
+ * medium as a word and FR-038 (MUST) keeps it in the one dictionary. ⚠️ Which
+ * mark it is, is the dictionary's own key -- this file names no mark of its own.
+ */
+const SHOWN_ON_ANOTHER_ROW_MARK: string = (() => {
+  const held = MARK_WORDS[0]
+  if (held === undefined) throw new Error('FR-032: the dictionary holds no mark for an item')
+  return held.text[LANGUAGE] ?? ''
+})()
+
+const sentenceFor = (question: string): string => {
+  const held = QUESTION_WORDS.find((one) => one.rowId === question)
+  if (held === undefined) throw new Error(`the dictionary holds no row of table T-234 for ${question}`)
+  return held.text[LANGUAGE] ?? ''
+}
 
 /**
  * The settled name of U-55, spelled as table T-103 spells it.
@@ -1108,7 +1177,7 @@ const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...BASE_VIEW, ..
 // ---------------------------------------------------------------------------
 
 const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
-  language: 'en',
+  language: LANGUAGE,
   autosave: { kind: 'saved', at: '2026-08-22T03:04:05Z' },
   isAgentApiEnabled: false,
   pointer: null,
@@ -1124,9 +1193,18 @@ const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
   rowBoxes: [],
 })
 
-const raise = (text: string, items: readonly ConfirmationItem[] = []): RaisedConfirmation => ({
+/**
+ * A question as an asker hands it over: the manner, a ROW of table T-234, and
+ * what would go.
+ *
+ * ⛔ NOT A SENTENCE. FR-076 (MUST) makes what a question shows a row of that
+ * table and (MUST NOT) bars a question it does not hold; FR-038 (MUST) keeps the
+ * sentence itself in the one dictionary. An asker that supplied one would be the
+ * second store of translated strings the same requirement forbids.
+ */
+const raise = (question: string, items: readonly ConfirmationItem[] = []): RaisedConfirmation => ({
   manner: ASKING,
-  text,
+  question,
   items,
 })
 
@@ -1148,35 +1226,30 @@ function composed(raised: RaisedConfirmation): Confirmation {
   return shown
 }
 
-const asking = (text: string, items: readonly ConfirmationItem[] = []): ScreenView =>
-  viewWith({ confirmation: composed(raise(text, items)) })
+const asking = (question: string, items: readonly ConfirmationItem[] = []): ScreenView =>
+  viewWith({ confirmation: composed(raise(question, items)) })
 
 /**
- * The three places a requirement says a confirmation is asked for.
+ * Every place a requirement says a confirmation is asked for -- which is table
+ * T-234, walked row by row (Chapter 1.9 :275).
  *
  * ⛔ A roster of INPUTS, never of what may be shown: FR-031 forbids enumerating
  * the places that may ask (MUST NOT). They stand here only so that one case can
- * show the same surface answering for each -- OP-4 of table T-024a (throwing
- * away the unsaved edits), FR-032 (a row and its WBS descendants), and DI-4 of
- * table T-227 (writing over a file, which owes no names at all).
+ * show the same surface answering for each. ⭐ WHICH ROWS EXIST IS THE TABLE'S
+ * ANSWER, and so is whether NT-7's names are owed on one -- `items` follows the
+ * 名前を挙げるか column instead of a pairing this file would have to invent. The
+ * names themselves are the document's values and never the dictionary's, so
+ * they are this file's own ASCII stand-ins.
  */
-const ASKING_SITES = [
-  {
-    by: 'table T-024a OP-4',
-    text: 'the edits that were never saved would go',
-    items: [],
-  },
-  {
-    by: 'FR-032',
-    text: 'this row and everything under it would go',
-    items: [named('foundation work'), named('steel delivery', true)],
-  },
-  {
-    by: 'table T-227 DI-4',
-    text: 'the file at that place is not this document and would be written over',
-    items: [],
-  },
-] as const
+const ASKING_SITES: readonly {
+  readonly by: string
+  readonly question: string
+  readonly items: readonly ConfirmationItem[]
+}[] = T_234.map((entry) => ({
+  by: `${entry.row} (${entry.by})`,
+  question: entry.row,
+  items: entry.namesWhatGoes ? [named('foundation work'), named('steel delivery', true)] : [],
+}))
 
 // ===========================================================================
 // 0. The specification still says what these cases copy.
@@ -1298,19 +1371,22 @@ describe('table T-109 filtered on its surface column -- what stands on the surfa
   })
 
   it('GIVEN a question was raised WHEN it is composed THEN it carries every entry the roster puts on the surface, in the roster order', () => {
-    const shown = composed(raise('the edits that were never saved would go'))
+    const shown = composed(raise(questionRow(0)))
 
     expect(shown.entries.map((entry) => entry.icon)).toEqual(ENTRY_ROWS)
   })
 
   it('GIVEN a question was raised WHEN it is composed THEN the raised half survives beside the entries the roster added', () => {
-    const raised = raise('this row and everything under it would go', [named('foundation work')])
+    const raised = raise(questionRow(1), [named('foundation work')])
 
     const shown = composed(raised)
 
     expect(shown.manner).toBe(raised.manner)
-    expect(shown.text).toBe(raised.text)
+    expect(shown.question).toBe(raised.question)
     expect(shown.items).toEqual(raised.items)
+    // ⭐ AND THE HALF THAT WAS NOT RAISED IS ADDED: the sentence is the
+    // dictionary's answer for that row (FR-076, FR-038), never the asker's.
+    expect(shown.text).toBe(sentenceFor(raised.question))
   })
 
   it('GIVEN no question was raised WHEN the view is filled THEN there is nothing to answer', () => {
@@ -1320,7 +1396,7 @@ describe('table T-109 filtered on its surface column -- what stands on the surfa
 
   it('GIVEN each place a requirement asks WHEN each is composed THEN the same two entries stand on all of them (FR-031 MUST NOT: the places are not enumerated)', () => {
     for (const site of ASKING_SITES) {
-      const shown = composed(raise(site.text, site.items))
+      const shown = composed(raise(site.question, site.items))
 
       expect(shown.entries.map((entry) => entry.icon), site.by).toEqual(ENTRY_ROWS)
     }
@@ -1338,7 +1414,7 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
     // entry that cannot be used would leave the person unable to answer at all.
     // FR-029's faint-and-explained entry belongs where an operation is
     // unavailable; here neither ever is.
-    const shown = composed(raise('the edits that were never saved would go'))
+    const shown = composed(raise(questionRow(0)))
 
     for (const entry of shown.entries) {
       expect(entry.isEnabled, `${entry.icon} may not be spent`).toBe(true)
@@ -1353,23 +1429,31 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
       expect(one.entryTo, `${one.rowId} is not written as a toggle`).not.toContain('同じ入口で')
     }
 
-    const shown = composed(raise('that file would be written over'))
+    const shown = composed(raise(questionRow(2)))
 
     for (const entry of shown.entries) {
       expect(entry.isPressed, `${entry.icon} is not a state that is on`).toBe(false)
     }
   })
 
-  it('GIVEN a question stands WHEN the screen is drawn THEN what is about to happen is on it, in words', () => {
-    const text = 'the edits that were never saved would go'
+  it('GIVEN a question stands WHEN the screen is drawn THEN what is about to happen is on it, in words -- one case walks every row of table T-234', () => {
+    // NT-7 (MUST): what is about to happen is shown. ⭐ WHAT the sentence says is not
+    // this file's to settle: FR-076 (MUST) makes it a row of table T-234 and
+    // FR-038 (MUST) keeps the sentence in the one dictionary, so what is asked
+    // here is that the sentence held for the row that was RAISED is the one the
+    // drawn surface carries. ⛔ Chapter 1.9 (:275): one case walks every row.
+    for (const entry of T_234) {
+      const built = drawn(asking(entry.row, []))
 
-    const built = drawn(asking(text))
-
-    expect(shownText(confirmationPartOf(built))).toContain(text)
+      expect(shownText(confirmationPartOf(built)), entry.by).toContain(sentenceFor(entry.row))
+      // ⛔ AND THE ROW ITSELF IS NOT ON THE SCREEN: the row is the join, and
+      // FR-038 (MUST) makes the printed thing a word.
+      expect(shownText(confirmationPartOf(built)), entry.by).not.toContain(entry.row)
+    }
   })
 
   it('GIVEN a question stands WHEN the screen is drawn THEN every entry of the roster is drawn on that surface, in the roster order', () => {
-    const built = drawn(asking('this row and everything under it would go'))
+    const built = drawn(asking(questionRow(1)))
 
     expect(entryRowsIn(confirmationPartOf(built))).toEqual(ENTRY_ROWS)
   })
@@ -1381,7 +1465,7 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
     // ⚠️ The last of the three is the one with teeth -- a spent entry is still
     // drawn and still pointable (FR-029), so the DOM's silence about `disabled`
     // proves nothing on its own. See the control case below.
-    const built = drawn(asking('that file would be written over'))
+    const built = drawn(asking(questionRow(2)))
     const part = confirmationPartOf(built)
 
     ENTRY_ROWS.forEach((row, index) => {
@@ -1399,7 +1483,7 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
     // built here only to show that the surface DOES carry `isEnabled` to the
     // screen. Without this, "neither is disabled" could hold of a surface that
     // never says anything about it either way.
-    const live = composed(raise('that file would be written over'))
+    const live = composed(raise(questionRow(2)))
     const spent: Confirmation = {
       ...live,
       entries: live.entries.map((entry) => ({ ...entry, isEnabled: false })),
@@ -1413,10 +1497,10 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
 
   it('GIVEN each place a requirement asks WHEN the screen is drawn THEN the surface stands with both answers on it every time', () => {
     for (const site of ASKING_SITES) {
-      const built = drawn(asking(site.text, site.items))
+      const built = drawn(asking(site.question, site.items))
       const part = confirmationPartOf(built)
 
-      expect(shownText(part), site.by).toContain(site.text)
+      expect(shownText(part), site.by).toContain(sentenceFor(site.question))
       expect(entryRowsIn(part), site.by).toEqual(ENTRY_ROWS)
     }
   })
@@ -1443,7 +1527,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     // ⭐ "given by name" is a list, not a sentence. FR-032 turns the same duty
     // into a
     // MUST for the row case and forbids a count in its place (MUST NOT).
-    const built = drawn(asking('this row and everything under it would go', NAMES.map((name) => named(name))))
+    const built = drawn(asking(questionRow(1), NAMES.map((name) => named(name))))
     const part = confirmationPartOf(built)
 
     for (const name of NAMES) {
@@ -1473,7 +1557,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
   })
 
   it('GIVEN three things would go WHEN the question is drawn THEN no name is missing from the surface', () => {
-    const built = drawn(asking('this row and everything under it would go', NAMES.map((name) => named(name))))
+    const built = drawn(asking(questionRow(1), NAMES.map((name) => named(name))))
     const text = shownText(confirmationPartOf(built))
 
     for (const name of NAMES) {
@@ -1484,7 +1568,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
   it("GIVEN three things would go WHEN the question is drawn THEN a count does not stand in for them (NT-3's count sits beside the names, never instead of them)", () => {
     // ⛔ The count is allowed BESIDE the names and never instead of them, so the
     // case that matters is that the names survive a surface that also counts.
-    const built = drawn(asking('three tasks would go', NAMES.map((name) => named(name))))
+    const built = drawn(asking(questionRow(3), NAMES.map((name) => named(name))))
     const part = confirmationPartOf(built)
 
     const eachHasItsOwn = NAMES.every((name) => nodesReadingExactly(part, name).length > 0)
@@ -1494,7 +1578,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
   it('GIVEN twelve things would go WHEN the question is drawn THEN every one of them reaches the surface (there is no cap)', () => {
     const many = Array.from({ length: 12 }, (_unused, index) => named(`task number ${index}`))
 
-    const built = drawn(asking('twelve tasks would go', many))
+    const built = drawn(asking(questionRow(4), many))
     const part = confirmationPartOf(built)
 
     for (const item of many) {
@@ -1506,32 +1590,25 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     }
   })
 
-  it('GIVEN a thing that goes is drawn on ANOTHER row WHEN the question is drawn THEN the flag reaches the drawn surface, on the item it belongs to -- ⚠️ NOT that a person can read it: FR-032 の MUST は未達である', () => {
-    // ⛔ WHAT THIS CASE DOES NOT GUARD, SAID FIRST. FR-032 (MUST):
-    // 「消える `Task` のうち他の行に表示されているものには、その旨を示すこと
-    // （MUST）」-- 示す is owed to the READER (its reason: 「画面上その行に見えて
-    // いないためである」), and that MUST IS UNMET in this build. Nothing settles
-    // a mark: no word (`display-words.json` is keyed by row of table T-109, by
-    // surface, by manner of table T-037, by heading and by row of table T-023,
-    // and none of those is a mark on an item -- PD-160) and no shape (table
-    // T-109 is the whole of the icons, FR-029 MUST, and it holds no row for
-    // one). The unit says so itself: the STOP note above `confirmationElement`
-    // in src/framework/dom-screen-surface/dom-screen-surface.ts. ⛔ NOTHING IS
-    // INVENTED HERE TO MAKE IT PASS -- a mark minted by a test would settle the
-    // same name FR-038's MUST NOT and PD-160 keep open, and a green case under
-    // the old title ("it is marked as such (FR-032 MUST)") read as compliance
-    // with a MUST that no one has met.
-    // ⭐ WHAT IT DOES GUARD: the flag survives the whole way to the drawn
+  it('GIVEN a thing that goes is drawn on ANOTHER row WHEN the question is drawn THEN the flag reaches the drawn surface, on the item it belongs to', () => {
+    // ⭐ WHAT THIS CASE GUARDS: the flag survives the whole way to the drawn
     // surface, ON the item that carries it -- which is the half that has to be
     // in place before any mark can be drawn, and the half that would rot
-    // silently while the other half waits on a ruling.
-    const text = 'this row and everything under it would go'
+    // silently while the mark itself was still waiting on a word.
+    // ⚠️ WHAT IT NO LONGER SAYS. Its title used to end by calling FR-032's MUST
+    // unmet, on the ground that the dictionary held no entry a mark on
+    // an item could be read from (PD-160). ⛔ THAT GROUND IS GONE: the
+    // manuscript has since grown the section that answers for it, and the case
+    // below reads the word out of that section and finds it on the drawn
+    // surface. ⛔ NOTHING IS INVENTED HERE EITHER WAY -- the word is READ, and
+    // FR-038's MUST NOT still bars a bench from minting one.
+    const question = questionRow(1)
     const here = 'foundation work'
     const elsewhere = 'steel delivery'
 
     // 1. The flag reaches the surface at all: the same question, drawn twice.
-    const unmarked = serialize(confirmationPartOf(drawn(asking(text, [named(elsewhere, false)]))))
-    const marked = serialize(confirmationPartOf(drawn(asking(text, [named(elsewhere, true)]))))
+    const unmarked = serialize(confirmationPartOf(drawn(asking(question, [named(elsewhere, false)]))))
+    const marked = serialize(confirmationPartOf(drawn(asking(question, [named(elsewhere, true)]))))
     expect(marked, 'FR-032: the flag reached the drawn surface').not.toBe(unmarked)
 
     // 2. And it reaches the ITEM it belongs to, not the surface as a whole: two
@@ -1539,13 +1616,42 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     // the flag once, over the list, comes out identical both ways -- and could
     // never grow into 「その `Task` に示す」.
     const onTheFirst = serialize(
-      confirmationPartOf(drawn(asking(text, [named(here, true), named(elsewhere, false)]))),
+      confirmationPartOf(drawn(asking(question, [named(here, true), named(elsewhere, false)]))),
     )
     const onTheSecond = serialize(
-      confirmationPartOf(drawn(asking(text, [named(here, false), named(elsewhere, true)]))),
+      confirmationPartOf(drawn(asking(question, [named(here, false), named(elsewhere, true)]))),
     )
     expect(onTheSecond, 'FR-032: the flag belongs to the item, not to the list').not.toBe(
       onTheFirst,
+    )
+  })
+
+  it('GIVEN a thing that goes is drawn on ANOTHER row WHEN the question is drawn THEN the WORD the dictionary holds for that mark is on the surface (FR-032 MUST)', () => {
+    // FR-032 (MUST): a `Task` that goes with the row but is DRAWN on another
+    // one is shown as such, and the requirement gives its reason -- that one is
+    // not visible on the row being deleted. So the mark is owed to the READER,
+    // and the flag reaching the markup is
+    // not yet the duty met. ⭐ CR-218 settles the medium as a WORD (RC-13 of
+    // table T-026 keeps a new SHAPE the user's own ruling), and FR-038 (MUST)
+    // puts that word in the one dictionary -- which is why it is READ here and
+    // not written.
+    // ⛔ AND IT IS OWED ONLY WHERE THE FLAG IS: a surface that printed the word
+    // over an item drawn on the row being deleted would be marking what needs no
+    // mark, so the unmarked twin is asked for too.
+    const question = questionRow(1)
+
+    const marked = shownText(
+      confirmationPartOf(drawn(asking(question, [named('steel delivery', true)]))),
+    )
+    const unmarked = shownText(
+      confirmationPartOf(drawn(asking(question, [named('steel delivery', false)]))),
+    )
+
+    expect(marked, 'FR-032 (MUST): the mark is a word, and it reached the reader').toContain(
+      SHOWN_ON_ANOTHER_ROW_MARK,
+    )
+    expect(unmarked, 'FR-032: nothing is marked where the flag is not set').not.toContain(
+      SHOWN_ON_ANOTHER_ROW_MARK,
     )
   })
 
@@ -1553,12 +1659,12 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     // ⚠️ DI-4 owes no names at all. An empty list is a
     // real answer, so dropping the surface for having no names would silence the
     // one MUST of that table.
-    const text = 'the file at that place is not this document and would be written over'
+    const question = questionRow(5)
 
-    const built = drawn(asking(text, []))
+    const built = drawn(asking(question, []))
     const part = confirmationPartOf(built)
 
-    expect(shownText(part)).toContain(text)
+    expect(shownText(part)).toContain(sentenceFor(question))
     expect(entryRowsIn(part)).toEqual(ENTRY_ROWS)
   })
 })
@@ -1574,19 +1680,19 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
     // rectangle for this surface -- so "on the surface, off every entry" has to
     // be an answer,
     // or the press falls through and drags a marquee across the schedule.
-    const built = drawn(asking('the edits that were never saved would go'))
+    const built = drawn(asking(questionRow(0)))
 
     expect(ask(built, AT.surfaceOnly)).toEqual({ part: CONFIRMATION, entry: null, format: null })
   })
 
   it('GIVEN the confirmation stands WHEN the bare strip between the two answers is pressed THEN the surface is still named', () => {
-    const built = drawn(asking('the edits that were never saved would go'))
+    const built = drawn(asking(questionRow(0)))
 
     expect(ask(built, AT.betweenTheEntries)).toEqual({ part: CONFIRMATION, entry: null, format: null })
   })
 
   it('GIVEN the confirmation stands WHEN a point where the schedule is exposed is pressed THEN nothing is on it and PD-5 may run', () => {
-    const built = drawn(asking('the edits that were never saved would go'))
+    const built = drawn(asking(questionRow(0)))
 
     expect(ask(built, AT.scheduleExposed)).toBeNull()
   })
@@ -1604,7 +1710,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
 
 describe('table T-065 IF-9 -- which UI part and which entry the point is on', () => {
   it('GIVEN both answers are drawn WHEN each is pressed THEN the part is the settled name of U-55 and the entry is that row of table T-109', () => {
-    const built = drawn(asking('this row and everything under it would go'))
+    const built = drawn(asking(questionRow(1)))
 
     ENTRY_ROWS.forEach((row, index) => {
       expect(ask(built, midOfEntry(index)), row).toEqual({ part: CONFIRMATION, entry: row, format: null })
@@ -1615,7 +1721,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     // ⭐ table T-109 gives the surface TWO rows and not one row in two states, so a
     // shell hanging "proceed" and "cancel" on one entry has nothing to
     // tell them apart by.
-    const built = drawn(asking('this row and everything under it would go'))
+    const built = drawn(asking(questionRow(1)))
 
     const answered = ENTRY_ROWS.map((_unused, index) => ask(built, midOfEntry(index))?.entry ?? null)
 
@@ -1624,7 +1730,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
   })
 
   it('GIVEN both answers are drawn WHEN what was answered is held against the tree THEN the unit answers only what it itself drew (the MUST under table T-065)', () => {
-    const built = drawn(asking('this row and everything under it would go'))
+    const built = drawn(asking(questionRow(1)))
     const part = confirmationPartOf(built)
 
     const answered = ENTRY_ROWS.map((_unused, index) => ask(built, midOfEntry(index))?.entry ?? null)
@@ -1647,7 +1753,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     // ⭐ What IS this unit's, and is asserted here: the point reaches the host
     // exactly as it was given, and nothing on this path measures a box -- which
     // is what leaves the edge to the party R3.4 actually binds.
-    const built = drawn(asking('this row and everything under it would go'))
+    const built = drawn(asking(questionRow(1)))
     const box = ENTRY_BOXES[0]
     if (box === undefined) throw new Error('the roster placed no entry')
 
@@ -1676,7 +1782,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     // moves the expectation with the answer and proves nothing either way, while
     // a unit that walked up to the wrong node, that widened a bare strip into an
     // entry, or that hit-tested with a rectangle of its own goes red.
-    const built = drawn(asking('this row and everything under it would go'))
+    const built = drawn(asking(questionRow(1)))
     const box = ENTRY_BOXES[0]
     if (box === undefined) throw new Error('the roster placed no entry')
 
@@ -1702,7 +1808,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
   })
 
   it('GIVEN the answer is read WHEN it is inspected THEN it carries the two members `ScreenPart` declares and nothing else', () => {
-    const built = drawn(asking('this row and everything under it would go'))
+    const built = drawn(asking(questionRow(1)))
 
     const answer = ask(built, midOfEntry(0))
 
@@ -1712,7 +1818,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
 
   it('GIVEN the question is taken away WHEN the same point is pressed again THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {
     const built = wire()
-    surfaceOf(built).showScreenView(asking('the edits that were never saved would go'))
+    surfaceOf(built).showScreenView(asking(questionRow(0)))
     expect(ask(built, midOfEntry(0))?.part).toBe(CONFIRMATION)
 
     surfaceOf(built).showScreenView(viewWith({ confirmation: null }))
@@ -1727,7 +1833,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
   })
 
   it('GIVEN a point is asked about WHEN the tree is compared before and after THEN nothing was written (reading a point is not a redraw)', () => {
-    const built = drawn(asking('this row and everything under it would go'))
+    const built = drawn(asking(questionRow(1)))
     const before = serialize(built.root())
 
     ask(built, midOfEntry(0))

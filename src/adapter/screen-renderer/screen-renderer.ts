@@ -877,15 +877,19 @@ export interface RaisedConfirmation {
    */
   readonly manner: string
   /**
-   * NT-7 (MUST): what is about to happen, in words, in the display language.
+   * WHICH QUESTION THIS IS, as a row of table T-234 and never as a sentence,
+   * e.g. `QN-1`. FR-076 (MUST) makes what a question shows a row of that table
+   * and (MUST NOT) bars a question it does not hold.
    *
-   * ⛔ Written by whoever asks, never here. ⚠️ FR-038 (MUST) names ONE store of
-   * translated strings -- `display-words.json` beside this file -- but it holds
-   * no sentence saying WHAT is about to happen: that names the thing at hand,
-   * which only the asker knows. So this member arrives already in the language,
-   * the move `Notice.text` makes and `CommandItem.label` no longer needs.
+   * ⛔ A ROW ID, NOT PROSE, exactly as `RaisedNotice.reason` is one. It joins
+   * this question to FR-038's dictionary the way `manner` above joins it to
+   * table T-037, and UF-67 reads NT-7's sentence out of it -- so a raiser that
+   * supplied the sentence would be the second store of translated strings
+   * FR-038 forbids (MUST NOT). ⚠️ A question the table does not hold is not a
+   * licence to write one here: that case has a row of its own, and UF-67 falls
+   * to it.
    */
-  readonly text: string
+  readonly question: string
   /**
    * NT-7 (MUST): what would go, BY NAME. Empty where nothing goes.
    *
@@ -929,6 +933,23 @@ export interface Confirmation extends RaisedConfirmation {
    * translated strings in this component.
    */
   readonly mannerText: string
+  /**
+   * NT-7 (MUST): what is about to happen, in words, in the display language
+   * (FR-038) -- or the empty string while the dictionary holds no word for the
+   * row (PD-160).
+   *
+   * ⭐ THE SHOWN HALF OF `question`, the way `Notice.text` is the shown half of
+   * `RaisedNotice.reason` -- and named the same, because it is the same thing:
+   * the sentence read out of the one dictionary FR-038 names, keyed by the row
+   * the raiser carried. ⛔ NOT A SECOND SPELLING OF `question`: that member is
+   * the row id, which is the join; this is a word, and a word cannot be a join
+   * -- FR-038 gives every row two of them.
+   *
+   * ⚠️ THE NAMES OF WHAT WOULD GO ARE NOT IN HERE. NT-7 (MUST) asks for them
+   * too, and they are `items` -- values of the document rather than words of
+   * the screen, which is why the dictionary holds a sentence and not a name.
+   */
+  readonly text: string
   /**
    * IC-69 and IC-70 of table T-109, in that table's own print order.
    *

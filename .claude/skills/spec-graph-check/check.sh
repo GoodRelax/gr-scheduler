@@ -55,10 +55,10 @@
 #          directions. A class the rule says to wait for may not carry a mark
 #          at all, and a class that cannot be reversed may not be left open
 #          behind a finished wave
-#   27     the six generated artifacts this file used to leave to `npm run
-#          gen:check` alone -- the startup template, the icon roster, the icon
-#          glyphs, the display words, the MSPDI custom fields, the exchange
-#          formats. ⛔ Added 2026-08-23: `gen:check` holds eleven generators
+#   27     the generated artifacts this file used to leave to `npm run
+#          gen:check` alone -- the GRS JSON validator, the startup template, the
+#          icon roster, the icon glyphs, the display words, the MSPDI custom
+#          fields, the exchange formats. ⛔ Added 2026-08-23: `gen:check` holds eleven generators
 #          and this file called five, so for every round "ALL GREEN" proved
 #          nothing whatever about six artifacts inside src/. A suite that is
 #          quoted as the word on the tree has to run everything that holds the
@@ -211,7 +211,8 @@ echo "===== 20  the generated entity types still match erd.json ====="
 PYTHONIOENCODING=utf-8 python tools/generate_entity_types.py --check || fail=1
 
 echo ""
-echo "===== 27  the six other generated artifacts still match their manuscripts ====="
+echo "===== 27  the seven other generated artifacts still match their manuscripts ====="
+PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_icon_glyphs.py --check || fail=1

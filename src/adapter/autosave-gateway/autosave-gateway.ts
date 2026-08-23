@@ -41,10 +41,13 @@
 // the intake paths cannot differ in strictness -- IO-5's "treat it as untrusted
 // too" points at that same shared check. This file answers the narrower
 // question `documentFromJson` answers: is the text a document at all.
-// ⚠️ `validateImportedDocument` (PI-13) has no signature yet, so the call is not
-// made here; the outcome below already carries the shape a later caller needs,
-// the same way ChooseStartupDocument (UF-23) left it. ⚠️ That is a decision of
-// this file, not of the specification.
+// ⚠️ `validateImportedDocument` (PI-13) is written now and its signature could
+// be reached, and the call is still not made here: the outcome below already
+// carries the shape a later caller needs, the same way ChooseStartupDocument
+// (UF-23) left it. ⚠️ That is a decision of this file, not of the
+// specification. ⛔ THE CALLER OWES IT, AND FR-088's GATE WITH IT: a restored
+// snapshot is BT-3 of table T-034, which `single-html-shell.ts` hands over as
+// `none` today -- its STOP note is where both are recorded.
 //
 // ⛔ WHAT THIS COMPONENT DOES NOT DECIDE EITHER: which edits are worth a
 // snapshot. FR-026 draws that line (a gesture is not an edit, but it does

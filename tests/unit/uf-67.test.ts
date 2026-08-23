@@ -21,6 +21,15 @@
 // ⛔ THAT IS THE SEAM MOVING, NOT THESE EXPECTATIONS BEING BENT TO THE CODE.
 // No MUST below was softened to match what the unit returns.
 //
+// ⚠️ THE ASKING SIDE HAS NOW MADE THE SAME MOVE, and the specification made it
+// first. `RaisedConfirmation` used to carry the SENTENCE a question shows; it
+// now carries a row of table T-234, and `Confirmation.text` is that row read out
+// of the dictionary -- which is exactly the pair `RaisedNotice.reason` and
+// `Notice.text` already were. FR-076 (MUST) makes what a question shows a row of
+// that table and (MUST NOT) bars a question it does not hold. ⛔ So no case
+// below writes a sentence for a question either: what it hands over is a row,
+// and what it expects is what the dictionary holds under that row.
+//
 // ⭐ WHAT WAS RED HERE UNTIL 2026-08-23, AND WHY IT IS NOT ANY MORE. Four cases
 // stood red because the raiser handed over a row and the dictionary held no
 // section that row could be found under, so NT-1's words (MUST), NT-3a's next
@@ -73,9 +82,9 @@
 // of those two units.
 //
 // ⭐ Chapter 1.9 asks a test of a requirement that points at a table to be
-// driven by a fixed copy of the table, with one test walking every row. T_037
-// and T_233 below are those copies, and both are read from the specification at
-// load time rather than typed here.
+// driven by a fixed copy of the table, with one test walking every row. T_037,
+// T_233 and T_234 below are those copies, and the last two are read from the
+// specification at load time rather than typed here.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -128,6 +137,7 @@ const DICTIONARY = readJson('display-words.json') as {
     readonly text: Words
     readonly nextStep: Words
   }[]
+  readonly questions: readonly { readonly rowId: string; readonly text: Words }[]
   readonly confirmationMarks: readonly { readonly mark: string; readonly text: Words }[]
 }
 
@@ -198,6 +208,46 @@ const T_233 = specTable('T-233').rows.map((row) => ({
  * renumbering fails loudly instead of silently testing nothing.
  */
 const FALLBACK_REASON = 'RS-15'
+
+/**
+ * Table T-234, in the order that table prints its rows -- the whole of what
+ * FR-076 (MUST) lets a question show, and (MUST NOT) the whole of it.
+ * `namesWhatGoes` is that table's own 名前を挙げるか column, so no case decides
+ * for a row whether NT-7's names are owed on it.
+ *
+ * ⭐ Read from the specification at load time (Chapter 1.9), the same move
+ * `T_233` makes -- FR-076 says in as many words that the way the words are held
+ * and the way a row is added are the ones it has just stated for table T-233.
+ * ⚠️ The 名前を挙げるか column is read raw rather than through `bare`: its cells
+ * carry a code span (`Task`) that `bare` would hand back in place of the answer.
+ */
+const T_234 = specTable('T-234').rows.map((row) => ({
+  row: row.id,
+  namesWhatGoes: (row.by['名前を挙げるか'] ?? '').trim().startsWith('挙げる'),
+  by: (row.by['正'] ?? '').trim(),
+}))
+
+/**
+ * The row FR-076 gives a question that has no row of its own to fall to, so
+ * that NT-7's first MUST -- what is about to happen, shown -- is still met.
+ *
+ * ⭐ The same shape as `FALLBACK_REASON`, and for the same sentence of FR-076:
+ * a row ID, which is the join and not a word. The case below holds it against
+ * the fixed copy, so a renumbering fails loudly instead of silently testing
+ * nothing.
+ */
+const FALLBACK_QUESTION = 'QN-8'
+
+/**
+ * A question as an asker hands it over: a row of table T-234, taken from the
+ * fixed copy in the order that table prints them.
+ *
+ * ⛔ NEVER A KEY OF THIS FILE'S OWN, for the reason `reasonRow` is not: FR-076
+ * (MUST NOT) bars a question table T-234 does not hold. ⭐ `at` wraps, so a case
+ * may ask for as many distinct questions as it likes without counting the rows.
+ */
+const questionRow = (at: number): string =>
+  (T_234[at % T_234.length] as { readonly row: string }).row
 
 // ---------------------------------------------------------------------------
 // Inputs. A case pins the notices it means; every other member of the session
@@ -846,39 +896,33 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
 // ===========================================================================
 
 /**
- * The three places a requirement says 確認を求める, as of table T-227.
+ * Every place a requirement asks for a confirmation -- which is table T-234, walked
+ * row by row (Chapter 1.9: one test walks every row of the table it is driven
+ * by).
  *
  * ⛔ A roster of INPUTS, never of what may be shown: FR-031 forbids enumerating
- * the places that may ask (MUST NOT), so these cases prove that each of the
- * three comes back UNCHANGED -- which is what a unit that does not know the
- * roster does. `items` is copied from what each requirement asks for by name:
- * FR-032 the row and its WBS descendants, FR-099 the tasks an unassignment
- * reaches, and DI-4 nothing at all.
+ * the places that may ask (MUST NOT), so these cases prove that each row comes
+ * back UNCHANGED -- which is what a unit that does not know the roster does.
+ * ⭐ WHICH ROWS EXIST IS THE TABLE'S ANSWER, and so is whether NT-7's names are
+ * owed on one: `items` follows the 名前を挙げるか column instead of a pairing
+ * this file would otherwise have to invent. The names themselves are the
+ * document's values (FR-076 says the dictionary does not hold them), so they
+ * are this file's own ASCII stand-ins.
  */
-const NT_7_ASKING_SITES = [
-  {
-    by: 'FR-032',
-    text: 'this row and its WBS descendants would go',
-    items: [
-      { name: 'foundation work', isShownOnAnotherRow: false },
-      { name: 'steel delivery', isShownOnAnotherRow: true },
-    ],
-  },
-  {
-    by: 'FR-099',
-    text: 'the assignments on these tasks would be released',
-    items: [{ name: 'painting', isShownOnAnotherRow: false }],
-  },
-  {
-    by: 'DI-4',
-    text: 'the file at that place is not this document and would be written over',
-    items: [],
-  },
-] as const satisfies readonly {
+const NT_7_ASKING_SITES: readonly {
   readonly by: string
-  readonly text: string
+  readonly question: string
   readonly items: readonly ConfirmationItem[]
-}[]
+}[] = T_234.map((entry) => ({
+  by: `${entry.row} (${entry.by})`,
+  question: entry.row,
+  items: entry.namesWhatGoes
+    ? [
+        { name: 'foundation work', isShownOnAnotherRow: false },
+        { name: 'steel delivery', isShownOnAnotherRow: true },
+      ]
+    : [],
+}))
 
 /** The row of table T-037 a question follows. */
 const ASKING = 'NT-7'
@@ -978,6 +1022,23 @@ const reasonWordsFor = (
 }
 
 /**
+ * The sentence NT-7 (MUST) asks for -- what is about to happen, in words -- for one row of
+ * 表 T-234, in the display language.
+ *
+ * ⭐ THE OTHER HALF OF THE PAIR `reasonWordsFor` reads. FR-076 makes a question
+ * carry a row of that table and (MUST NOT) bars one it does not hold, and
+ * FR-038 (MUST) keeps the sentence in the one dictionary, keyed by the row.
+ * ⛔ READ, NEVER WRITTEN: a bench that minted the sentence would be the second
+ * store of translated strings FR-038 forbids, exactly as a raiser that supplied
+ * one would be.
+ */
+const questionTextFor = (question: string, language: DisplayLanguage): string => {
+  const word = DICTIONARY.questions.find((one) => one.rowId === question)
+  expect(word, `FR-076: the dictionary has no row of 表 T-234 for ${question}`).toBeDefined()
+  return (word as { readonly text: Words }).text[language]
+}
+
+/**
  * The entries 表 T-109 places on U-55, as `CommandItem`s, in that table's order.
  *
  * ⭐ `isEnabled` is true on both. NT-7 (MUST) 「続けるか取りやめるかを選ばせる
@@ -1000,15 +1061,21 @@ const entriesOnConfirmation = (language: DisplayLanguage): readonly CommandItem[
   }))
 
 /**
- * The raised half -- what an asker can know. ⛔ It carries no entries: the two
- * answers are 表 T-109's, so an asker naming them would be writing the roster's
- * answer.
+ * The raised half -- what an asker can know: WHICH question this is, as a row of
+ * 表 T-234, and what would go.
+ *
+ * ⛔ It carries no entries: the two answers are 表 T-109's, so an asker naming
+ * them would be writing the roster's answer. ⛔ AND IT CARRIES NO SENTENCE: the
+ * row is the join, FR-038 (MUST) keeps the words on the far side of this seam,
+ * and an asker that supplied one would be the second store of translated strings
+ * the same requirement forbids (MUST NOT) -- the very move
+ * `RaisedNotice.reason` already makes against 表 T-233.
  */
 const confirmationOf = (
-  text: string,
+  question: string,
   items: readonly ConfirmationItem[],
   manner: string = ASKING,
-): RaisedConfirmation => ({ manner, text, items })
+): RaisedConfirmation => ({ manner, question, items })
 
 /**
  * What the screen owes for a question that was raised: what was raised, plus
@@ -1026,6 +1093,10 @@ const shownFor = (
   // and four cases went red the day the word was written -- the bench's own
   // fault, not the unit's.
   mannerText: mannerTextFor(raised.manner, language),
+  // ⛔ READ from the dictionary too, and keyed by the row of 表 T-234 the asker
+  // carried: NT-7 (MUST) has what is about to happen shown, and FR-038 (MUST) puts
+  // that sentence in the one store of translated strings.
+  text: questionTextFor(raised.question, language),
   entries: entriesOnConfirmation(language),
   shownOnAnotherRowMark: markFor('shownOnAnotherRow', language),
 })
@@ -1079,11 +1150,22 @@ const markForRow = (rowId: string, language: DisplayLanguage): string =>
 const markForAnswer = (answer: string, language: DisplayLanguage): string =>
   `<${language}/${answer}/text>`
 
+/**
+ * A mark for one row of 表 T-234 -- the sentence NT-7 (MUST) shows, keyed by the
+ * row FR-076 makes the join.
+ *
+ * ⛔ NO WORD IS MINTED HERE either: what is below is the row id and the language
+ * spelled back, made to be told apart from the sentence on disk.
+ */
+const markForQuestion = (rowId: string, language: DisplayLanguage): string =>
+  `<${language}/${rowId}/question>`
+
 /** The module the unit reads its words from -- Chapter 6.2's generated file. */
 const DISPLAY_WORDS_MODULE = '../../src/adapter/screen-renderer/display-words.json'
 
 interface DictionaryShape {
   readonly icons: readonly { readonly rowId: string }[]
+  readonly questions: readonly { readonly rowId: string }[]
   readonly confirmation: readonly { readonly answer: string }[]
 }
 
@@ -1107,6 +1189,10 @@ function dictionaryOfMarks(): unknown {
       label: inBothLanguages((language) => markForRow(entry.rowId, language)),
       hint: inBothLanguages((language) => `<${language}/${entry.rowId}/hint>`),
     })),
+    questions: onDisk.questions.map((entry) => ({
+      ...entry,
+      text: inBothLanguages((language) => markForQuestion(entry.rowId, language)),
+    })),
     confirmation: onDisk.confirmation.map((entry) => ({
       ...entry,
       text: inBothLanguages((language) => markForAnswer(entry.answer, language)),
@@ -1123,12 +1209,15 @@ function dictionaryOfMarks(): unknown {
  * against the REAL dictionary (`shownFor`) go on reading the file on disk and
  * are untouched by this.
  */
-async function shownWithMarkedDictionary(language: DisplayLanguage): Promise<Confirmation> {
+async function shownWithMarkedDictionary(
+  language: DisplayLanguage,
+  question: string = questionRow(0),
+): Promise<Confirmation> {
   vi.resetModules()
   vi.doMock(DISPLAY_WORDS_MODULE, () => ({ default: dictionaryOfMarks() }))
   try {
     const fresh = await import('../../src/adapter/screen-renderer/notices')
-    const asked = confirmationOf('two tasks would go', [])
+    const asked = confirmationOf(question, [])
     const shown = fresh.confirmationFromSession({ ...sessionAsking(asked), language })
     expect(shown, 'a raised question came back as none').not.toBeNull()
     return shown as Confirmation
@@ -1227,7 +1316,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
   it('GIVEN a question was raised WHEN the view is filled THEN it comes back exactly as it was raised', () => {
     // NT-7 asks for 何が起きるか in words and for the names of what would go,
     // and neither can be known anywhere but where the question is raised.
-    const asked = confirmationOf('twelve rows would go', [
+    const asked = confirmationOf(questionRow(0), [
       { name: 'foundation work', isShownOnAnotherRow: false },
     ])
 
@@ -1238,28 +1327,35 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
     // FR-031 no longer counts the places that may ask, so filtering by WHICH
     // requirement raised the question is exactly what its MUST NOT bars.
     for (const site of NT_7_ASKING_SITES) {
-      const asked = confirmationOf(site.text, site.items)
+      const asked = confirmationOf(site.question, site.items)
 
       expect(confirmationFromSession(sessionAsking(asked)), site.by).toEqual(shownFor(asked))
     }
   })
 
-  it('GIVEN DI-4 question, which takes nothing with it WHEN the view is filled THEN it is still asked (empty items is an answer, not a missing one)', () => {
+  it('GIVEN a question that takes nothing with it WHEN the view is filled THEN it is still asked (empty items is an answer, not a missing one)', () => {
     // 表 T-227 DI-4:「消えるものの名前を挙げる義務はここには無い」。Dropping a
     // question for having no names would silence the one MUST of that table.
-    const asked = confirmationOf('that file is not this document', [])
+    // ⭐ WHICH ROWS THOSE ARE IS 表 T-234's ANSWER, read from its 名前を挙げるか
+    // column -- DI-4 is one of them and this file no longer says which.
+    const takingNothing = T_234.filter((entry) => !entry.namesWhatGoes)
+    expect(takingNothing.length, '表 T-234: at least one row names nothing').toBeGreaterThan(0)
 
-    const shown = confirmationFromSession(sessionAsking(asked))
+    for (const entry of takingNothing) {
+      const asked = confirmationOf(entry.row, [])
 
-    expect(shown).not.toBeNull()
-    expect((shown as Confirmation).items).toEqual([])
-    expect((shown as Confirmation).text).toBe('that file is not this document')
+      const shown = confirmationFromSession(sessionAsking(asked))
+
+      expect(shown, entry.by).not.toBeNull()
+      expect((shown as Confirmation).items, entry.by).toEqual([])
+      expect((shown as Confirmation).text, entry.by).toBe(questionTextFor(entry.row, 'ja'))
+    }
   })
 
   it('GIVEN a thing that carries no name WHEN the question is shown THEN the null name survives rather than the item being dropped', () => {
     // `Task.name` is optional in the document, so a nameless task has to stay
     // describable. A count may not stand in for the names (FR-032, FR-099).
-    const asked = confirmationOf('two tasks would go', [
+    const asked = confirmationOf(questionRow(2), [
       { name: null, isShownOnAnotherRow: false },
       { name: 'painting', isShownOnAnotherRow: true },
     ])
@@ -1276,7 +1372,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
       name: `task number ${index}`,
       isShownOnAnotherRow: index % 2 === 0,
     }))
-    const asked = confirmationOf('twelve tasks would go', many)
+    const asked = confirmationOf(questionRow(3), many)
 
     expect((confirmationFromSession(sessionAsking(asked)) as Confirmation).items).toEqual(many)
   })
@@ -1284,7 +1380,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
   it('GIVEN a question raised WHEN it is shown THEN the row of table T-037 it follows travels with it', () => {
     // `Confirmation.manner` is the join to the table, carried rather than
     // assumed -- the same move `Notice.manner` makes for NT-5 against NT-1.
-    const asked = confirmationOf('that file would be written over', [])
+    const asked = confirmationOf(questionRow(4), [])
 
     expect((confirmationFromSession(sessionAsking(asked)) as Confirmation).manner).toBe(ASKING)
   })
@@ -1292,20 +1388,24 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
   it('GIVEN notices raised beside the question WHEN both members are filled THEN neither becomes the other (a question is not a notice)', () => {
     // NT-7 stops until it is answered and NT-1 .. NT-6 do not, so a question
     // wearing a notice's shape would let a caller show one nobody can answer.
-    const asked = confirmationOf('that file would be written over', [])
+    const asked = confirmationOf(questionRow(4), [])
     const session = sessionAsking(asked, [REFUSAL, PENDING_RESTORE, WARNING])
 
     const shown = noticesFromSession(session)
 
     expect(shown.map((notice) => notice.manner).sort()).toEqual(['NT-1', 'NT-4', 'NT-5'])
-    expect(shown.some((notice) => notice.text === asked.text)).toBe(false)
+    // ⭐ The question's own sentence -- the one 表 T-234 holds for the row that
+    // was raised -- may not turn up on a telling: a notice asks for no answer.
+    expect(
+      shown.some((notice) => notice.text === questionTextFor(asked.question, 'ja')),
+    ).toBe(false)
     expect(confirmationFromSession(session)).toEqual(shownFor(asked))
   })
 
   it('GIVEN pending startup items being gathered WHEN a question stands beside them THEN NT-4 gathering does not reach it', () => {
     // NT-4 (MUST) is the only row that speaks about several at once, and it is
     // about notices. Nothing here gathers or orders questions.
-    const asked = confirmationOf('a newer autosave would be discarded', [
+    const asked = confirmationOf(questionRow(5), [
       { name: 'the autosave of 09:00', isShownOnAnotherRow: false },
     ])
     const session = sessionAsking(asked, [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API])
@@ -1319,6 +1419,108 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
 
     expect(noticesFromSession(session)).toEqual([])
     expect(confirmationFromSession(session)).toBeNull()
+  })
+})
+
+describe('UF-67 -- FR-076 and 表 T-234: the sentence a question shows is READ, row by row', () => {
+  it('shows every row of 表 T-234 in that row s own sentence, in the display language (one case, every row)', () => {
+    // ⭐ THE TWIN OF THE 表 T-233 CASE ABOVE. NT-7 (MUST) has what is about to
+    // happen shown before the choice is offered, and FR-076 (MUST) makes what
+    // a question shows a row of 表 T-234 while (MUST NOT) barring any other --
+    // so the sentence is the dictionary's, keyed by the row the asker carried.
+    // ⛔ EXPECTED VALUES ARE READ, NEVER WRITTEN: FR-038 (MUST NOT) bars the
+    // words from a requirement and from a table, and the same reason bars a
+    // bench from minting one.
+    for (const language of LANGUAGES) {
+      for (const entry of T_234) {
+        const asked = confirmationOf(entry.row, [])
+        const shown = confirmationFromSession({ ...sessionAsking(asked), language })
+
+        expect(shown, `${entry.row} in ${language}`).not.toBeNull()
+        expect((shown as Confirmation).text, `${entry.row} in ${language}`).toBe(
+          questionTextFor(entry.row, language),
+        )
+      }
+    }
+  })
+
+  it('prints no question key on the surface (FR-038 MUST: a row ID is not a word)', () => {
+    // The row of 表 T-234 is the JOIN and the sentence is the word; a surface
+    // still carrying the row the asker handed over is a word from nowhere.
+    for (const entry of T_234) {
+      const shown = confirmationFromSession(
+        sessionAsking(confirmationOf(entry.row, [])),
+      ) as Confirmation
+
+      expect(shown.text, `${entry.row} is a key, not a sentence`).not.toContain(entry.row)
+    }
+  })
+
+  it('falls to the row FR-076 names when the question has no row of its own', () => {
+    // FR-076 gives a question with no row of its own somewhere to fall to, and
+    // says why: without it, a question reaches the person that cannot meet
+    // NT-7's first MUST -- what is about to happen, shown.
+    // ⛔ THE ONE INPUT THIS FILE MAKES THAT AN ASKER MAY NOT: FR-076 (MUST NOT)
+    // bars a question 表 T-234 does not hold, so this row cannot arrive from the
+    // product -- and the fallback row exists for exactly the case where one does.
+    // ⚠️ ASCII, because a control character in a string key has stopped the whole
+    // build before now (04-verification.md, 3.).
+    expect(
+      T_234.map((entry) => entry.row),
+      'FR-076: the row a question with no row of its own falls to has to be one of them',
+    ).toContain(FALLBACK_QUESTION)
+
+    const outsider = 'QN-no-row-of-its-own'
+
+    for (const language of LANGUAGES) {
+      const shown = confirmationFromSession({
+        ...sessionAsking(confirmationOf(outsider, [])),
+        language,
+      }) as Confirmation
+
+      expect(shown.text, `the fallback sentence in ${language}`).toBe(
+        questionTextFor(FALLBACK_QUESTION, language),
+      )
+      expect(shown.text, 'FR-038 (MUST): a row ID is not a word').not.toContain(outsider)
+    }
+  })
+
+  it('one section of the dictionary is keyed on the rows of 表 T-234 and holds the sentence each of them owes', () => {
+    // ⭐ THE SAME TRIPWIRE THE 表 T-233 SECTION HAS, turned the same way up: it
+    // goes red if the section is taken away, re-keyed, loses a row, or gains one
+    // the table does not print.
+    // ⛔ Driven by the file and by the fixed copy of the table, never by a list
+    // written here: which rows exist is 表 T-234's answer (FR-076 MUST / MUST
+    // NOT), and which section answers for them is the dictionary's.
+    const dictionary = readJson('display-words.json') as Record<string, unknown>
+    const sections = Object.entries(dictionary).filter(([, value]) => Array.isArray(value))
+
+    const isWordPair = (value: unknown): boolean =>
+      typeof value === 'object' &&
+      value !== null &&
+      !Array.isArray(value) &&
+      Object.values(value as Record<string, unknown>).every((word) => typeof word === 'string')
+
+    const entriesOf = (value: unknown): readonly Record<string, unknown>[] =>
+      (value as readonly unknown[]).filter(
+        (entry): entry is Record<string, unknown> => typeof entry === 'object' && entry !== null,
+      )
+
+    const keysOfSection = (value: unknown): readonly string[] =>
+      entriesOf(value)
+        .filter((entry) => typeof entry['rowId'] === 'string' && isWordPair(entry['text']))
+        .map((entry) => entry['rowId'] as string)
+
+    const answering = sections.filter(
+      ([, value]) =>
+        keysOfSection(value).length > 0 &&
+        keysOfSection(value).join(' ') === T_234.map((entry) => entry.row).join(' '),
+    )
+
+    expect(
+      answering.map(([name]) => name),
+      'FR-076 / FR-038: exactly one section is keyed on the rows of 表 T-234 and holds a sentence for each',
+    ).toHaveLength(1)
   })
 })
 
@@ -1339,7 +1541,7 @@ describe('UF-67 -- 表 T-109: the answers the roster places on the `Confirmation
   it('GIVEN a question raised with no entries of its own WHEN it is shown THEN it carries the entries table T-109 places on U-55, in that table order', () => {
     // The asker cannot know them: 表 T-109 decides which entries stand on a
     // surface, so composing them onto the raised half is the unit's work.
-    const asked = confirmationOf('that file would be written over', [])
+    const asked = confirmationOf(questionRow(4), [])
 
     const shown = confirmationFromSession(sessionAsking(asked)) as Confirmation
 
@@ -1352,7 +1554,7 @@ describe('UF-67 -- 表 T-109: the answers the roster places on the `Confirmation
     // keeps the faint drawing for what cannot be used. 表 T-109 marks a toggle
     // with 「出す・しまう」; these two are answers, given once, with no off.
     const shown = confirmationFromSession(
-      sessionAsking(confirmationOf('twelve rows would go', [])),
+      sessionAsking(confirmationOf(questionRow(0), [])),
     ) as Confirmation
 
     for (const entry of shown.entries) {
@@ -1372,7 +1574,7 @@ describe('UF-67 -- 表 T-109: the answers the roster places on the `Confirmation
     // this file built.
     for (const language of LANGUAGES) {
       const session: ScreenSession = {
-        ...sessionAsking(confirmationOf('two tasks would go', [])),
+        ...sessionAsking(confirmationOf(questionRow(2), [])),
         language,
       }
 
@@ -1432,7 +1634,7 @@ describe('UF-67 -- 表 T-109: the answers the roster places on the `Confirmation
   it('GIVEN a question is shown WHEN the raised half is looked at again THEN the entries were added on the way, not to what the asker holds', () => {
     // ⛔ `ScreenSession.confirmation` is the RAISED half. Widening it in place
     // would let a caller settle a placement 表 T-109 settles.
-    const asked = confirmationOf('a newer autosave would be discarded', [])
+    const asked = confirmationOf(questionRow(5), [])
     const session = sessionAsking(asked)
 
     expect((confirmationFromSession(session) as Confirmation).entries.length).toBeGreaterThan(0)
@@ -1487,7 +1689,7 @@ describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
 
 describe('UF-67 -- confirmationFromSession is @purity pure (table T-075, R7.1)', () => {
   it('GIVEN a question and its items WHEN the view is filled THEN nothing it was given is rewritten', () => {
-    const asked = confirmationOf('two tasks would go', [
+    const asked = confirmationOf(questionRow(2), [
       { name: 'foundation work', isShownOnAnotherRow: false },
       { name: null, isShownOnAnotherRow: true },
     ])
@@ -1501,7 +1703,7 @@ describe('UF-67 -- confirmationFromSession is @purity pure (table T-075, R7.1)',
   })
 
   it('GIVEN the same session WHEN it is asked twice THEN it answers the same way both times', () => {
-    const session = sessionAsking(confirmationOf('that file would be written over', []), [REFUSAL])
+    const session = sessionAsking(confirmationOf(questionRow(4), []), [REFUSAL])
 
     expect(confirmationFromSession(session)).toEqual(confirmationFromSession(session))
   })
@@ -1524,5 +1726,29 @@ describe('UF-67 -- FR-038: the words are READ from the dictionary, never minted'
     const asMarked = (await noticesWithMarkedDictionary(SHELL_RAISED)).map((one) => one.text)
 
     expect(asMarked, 'FR-038 (MUST): the words follow the dictionary').not.toEqual(asGenerated)
+  })
+
+  it('reads a question s sentence from the dictionary too, keyed by its row of 表 T-234 and by the language', async () => {
+    // ⭐ THE SAME CLAIM FOR THE ASKING SIDE. The dictionary handed over below
+    // holds a sentence that differs by ROW and by LANGUAGE, so a unit that keyed
+    // by the wrong row, never looked at `ScreenSession.language`, or wrote a
+    // sentence of its own answers with something this case can name.
+    const byLanguage = new Map<DisplayLanguage, readonly string[]>()
+
+    for (const language of LANGUAGES) {
+      const shownPerRow: string[] = []
+      for (const entry of T_234) {
+        const shown = await shownWithMarkedDictionary(language, entry.row)
+
+        expect(shown.text, `${entry.row} in ${language}`).toBe(
+          markForQuestion(entry.row, language),
+        )
+        shownPerRow.push(shown.text)
+      }
+      byLanguage.set(language, shownPerRow)
+    }
+
+    // FR-038 (MUST): the words are shown in the language the reader chose.
+    expect(byLanguage.get('ja')).not.toEqual(byLanguage.get('en'))
   })
 })

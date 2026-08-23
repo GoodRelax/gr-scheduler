@@ -342,6 +342,32 @@ function boot(): void {
     template: startupTemplateDocument(),
   })
 
+  // STOP -- ⛔ FR-088's GATE IS NOT ON THIS ROAD, and it is left off on purpose.
+  // `frame-loop.ts` runs `scheduleViolations` (PI-1) over an ARRIVING document
+  // and turns away one whose resolved calendar works no weekday (IV-17 of table
+  // T-220), because FR-088 says 「受け付けずに通知すること（MUST）」. Neither
+  // half of that sentence can be kept here:
+  //
+  //   受け付けず   BO-2 has to yield a document. FR-067 lets a rank that yields
+  //                nothing descend, and BT-4 is the bottom -- so refusing it
+  //                leaves the boot with no document at all, which no row of
+  //                table T-034 or table T-077 provides for.
+  //   通知する     There is nothing to tell it on. The loop that holds
+  //                `ScreenSession.notices` is built below this line, and BO-1's
+  //                size is not settled either, so a telling raised now would
+  //                reach no frame.
+  //
+  // ⭐ AND THE ONE CANDIDATE THIS BUILD HAS IS NOT UNTRUSTED INTAKE.
+  // `startupTemplateDocument` records the same judgement for the same file: the
+  // template is BUNDLED, so a fault in it is a build that shipped broken, and
+  // `npm run gen:check` is where that is caught rather than at boot.
+  // ⛔ WHAT IS OWED WHEN THE OTHER THREE RANKS GAIN PRODUCERS. BT-1's embedded
+  // document, BT-2's handed file and BT-3's autosave are each R-1 / R-3 of
+  // table T-008 -- untrusted -- and each of them needs this gate and a place to
+  // tell on before it is wired. ⚠️ Passing the gate is not enough on its own:
+  // FR-067's descent means a refused candidate has to fall to the next rank,
+  // and `chooseStartupDocument` (UF-23) is where that choosing lives.
+
   // STOP -- ⛔ FR-060's SECOND MUST IS NOT KEPT, and the piece that is missing
   // is not on this side. That MUST is the startup offer to win back a lost
   // permission, and it needs the store to still know WHICH file was open --

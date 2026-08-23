@@ -34,6 +34,27 @@
 //              the tool's own format and 表 T-003 CN-5 makes it UTF-8, no BOM
 //   FR-027     the bundled template (BT-4 of 表 T-034) is a real `GRS JSON`
 //              document, so it is the input data these cases are driven by
+//   表 T-220   its PREAMBLE, in Chapter 6.1 -- the five rules it gained on
+//              2026-08-24. The generated schema is to be RUN on the road that
+//              reads `GRS JSON` (MUST) and run by the side that assembles the
+//              document, `CP-20` (MUST); the `documentSettings` group may not
+//              be held to an unknown-key or a missing-key condition (MUST
+//              NOT); that group takes only the per-key type and the enum the
+//              manuscript spells (MUST) and may not be refused for breaking a
+//              bound (MUST NOT); and the MSPDI road is left alone
+//   表 T-233   RS-25, the row this refusal carries, manner `NT-1`. FR-076 has
+//              a telling carry a row of that table and forbids carrying one
+//              the table does not hold (MUST NOT)
+//   表 T-024a  OP-6 -- what a reader owes a presentation group that is short a
+//              key or carries one nobody knows. The MUST NOT above and this
+//              row are the same rule seen from its two sides
+//
+// ⭐ WHAT DRIVES THE SETTINGS CASES. Not a copy of tbl-settings.md: which keys
+// carry an enum, which carry a bound, and what each one's default is are read
+// out of the GENERATED artifacts -- `documentSchema` (the fixture's copy of
+// `_source/grs-document.schema.json`) and `SETTINGS_DEFAULTS` / `SETTINGS_BOUNDS`,
+// which `tools/generate_entity_types.py` writes out of `_source/settings.json`.
+// A key added to the manuscript therefore walks into these cases on its own.
 //
 // ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to
 // be driven by a fixed copy of that table, one test walking every row. T_052_ROOT,
@@ -52,7 +73,11 @@ import {
   type JsonFault,
 } from '../../src/adapter/document-codec/document-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { validateDocument } from '../fixtures/grs-document'
+import {
+  SETTINGS_BOUNDS,
+  SETTINGS_DEFAULTS,
+} from '../../src/entity/document-model/document-settings/document-settings'
+import { documentSchema, validateDocument } from '../fixtures/grs-document'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -111,6 +136,71 @@ const T_FR073_ORDER = [
   '2026-08-19',
   '2027-01-01',
 ] as const
+
+// ---------------------------------------------------------------------------
+// What the GENERATED schema says. Read out of it, never copied beside it.
+// ---------------------------------------------------------------------------
+
+/** As much of a JSON Schema node as these cases look at. */
+interface SchemaNode {
+  readonly type?: string | readonly string[]
+  readonly enum?: readonly unknown[]
+  readonly properties?: Readonly<Record<string, SchemaNode>>
+  readonly $defs?: Readonly<Record<string, SchemaNode>>
+}
+
+const SCHEMA = documentSchema as SchemaNode
+const SETTINGS_SCHEMA = SCHEMA.properties?.['documentSettings']
+const TASK_SCHEMA = SCHEMA.$defs?.['Task']
+
+/** The JSON types a node admits, always as a list. */
+function typesOf(node: SchemaNode | undefined): readonly string[] {
+  const held = node?.type
+  if (held === undefined) return []
+  return typeof held === 'string' ? [held] : held
+}
+
+/**
+ * A value whose JSON type the node does NOT admit, or `undefined` where the
+ * node states no type at all (a row that is an enum and nothing else).
+ *
+ * ⭐ Worked out FROM the node, so a column whose manuscript type changes gets
+ * a different wrong value with no edit here. ⚠️ `null` is never the candidate:
+ * a nullable column admits it, and DR-2's whole point is that it is a value.
+ */
+function ofTheWrongType(node: SchemaNode | undefined): unknown {
+  const admits = typesOf(node)
+  if (admits.length === 0) return undefined
+  const candidates: readonly (readonly [unknown, string])[] = [
+    ['not a value of this column', 'string'],
+    [true, 'boolean'],
+    [{}, 'object'],
+  ]
+  return candidates.find(([, name]) => !admits.includes(name))?.[0]
+}
+
+/**
+ * A value of the enum's OWN type that the enum does not hold, or `undefined`
+ * where the node spells no enum.
+ *
+ * ⭐ Of the enum's own type on purpose: a string handed to a numeric enum
+ * would be refused by the type alone, which would prove nothing about the
+ * enum. The preamble of 表 T-220 admits an enum only where the manuscript
+ * spells the values, so what has to be shown is that a well-typed stranger is
+ * turned away.
+ */
+function outsideTheEnum(node: SchemaNode | undefined): unknown {
+  const held = node?.enum
+  if (held === undefined || held.length === 0) return undefined
+  const candidates: readonly unknown[] =
+    typeof held[0] === 'number' ? [0, -1, 99] : ['aValueNoRowSpells', 'x']
+  return candidates.find((candidate) => !held.includes(candidate))
+}
+
+/** The `documentSettings` keys the generated schema spells an enum for. */
+const SETTINGS_ENUM_KEYS: readonly string[] = Object.keys(SETTINGS_SCHEMA?.properties ?? {}).filter(
+  (key) => SETTINGS_SCHEMA?.properties?.[key]?.enum !== undefined,
+)
 
 // ---------------------------------------------------------------------------
 // The document these cases are driven by.
@@ -186,10 +276,19 @@ function accepted(text: string): Document {
   return read.document
 }
 
-function refused(text: string): readonly JsonFault[] {
+/**
+ * The whole refusal, so that the reason it carries can be read beside the
+ * faults. ⭐ 表 T-233 makes the reason a row id and FR-076 forbids carrying
+ * one the table does not hold, so the row is part of what a refusal IS.
+ */
+function refusal(text: string): { readonly reason: string; readonly faults: readonly JsonFault[] } {
   const read: JsonDecoding = documentFromJson(text)
   if (read.ok) throw new Error('expected a refusal, was accepted')
-  return read.faults
+  return { reason: read.reason, faults: read.faults }
+}
+
+function refused(text: string): readonly JsonFault[] {
+  return refusal(text).faults
 }
 
 /** Every text below that the specification says is not a `GRS JSON` document. */
@@ -384,10 +483,21 @@ describe('FR-024 -- every key of the presentation group is written', () => {
     expect(Object.keys(settings).length).toBe(Object.keys(templateSettings).length)
   })
 
+  // ⭐ THIS CASE WAS THE ONE RED, AND THE DEBT WAS ITS OWN. It used to set
+  // EVERY number key to 0, `exportPngScale` among them -- and that key is one
+  // of the six the manuscript spells the values of, so 0 is not a number below
+  // a bound but a value no row holds. The preamble of 表 T-220 admits the
+  // enum as one of the two conditions this group may be held to, so refusing
+  // it is the rule being kept, not broken. ⛔ Not a defect in the unit: the enum keys are
+  // taken out of the walk, read from the generated schema so the roster
+  // follows the manuscript. The bound keys STAY in -- 0 below a minimum is
+  // exactly what may not be refused, and the case below says so on its own.
   it('writes a settings key whose value is `false` or `0` rather than dropping it', () => {
     const zeroed: Group = { ...templateSettings }
     const falseKeys = Object.keys(zeroed).filter((k) => typeof zeroed[k] === 'boolean')
-    const numberKeys = Object.keys(zeroed).filter((k) => typeof zeroed[k] === 'number')
+    const numberKeys = Object.keys(zeroed).filter(
+      (k) => typeof zeroed[k] === 'number' && !SETTINGS_ENUM_KEYS.includes(k),
+    )
     expect(falseKeys.length, 'the presentation group has a boolean').toBeGreaterThan(0)
     expect(numberKeys.length, 'the presentation group has a number').toBeGreaterThan(0)
     for (const key of falseKeys) zeroed[key] = false
@@ -449,6 +559,153 @@ describe('FR-024 -- every key of the presentation group is written', () => {
     const settings = written['documentSettings'] as Group
     expect(typeof project['themeHue']).toBe('number')
     expect(Object.hasOwn(settings, 'themeHue')).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 表 T-220 の前文 -- the generated schema is RUN, here, and held back from
+// the presentation group's key set and bounds
+// ---------------------------------------------------------------------------
+
+/**
+ * One `Task` column per row, each with a value of a type the manuscript does
+ * not admit for it. Driven by the generated schema, so the roster follows
+ * `_source/erd.json` rather than a copy of it.
+ */
+function everyTaskColumnOfTheWrongType(): readonly {
+  readonly column: string
+  readonly text: string
+}[] {
+  const tasks = (SMALL['schedule'] as Group)['tasks'] as Group[]
+  const first = tasks[0] as Group
+  return Object.keys(TASK_SCHEMA?.properties ?? {}).flatMap((column) => {
+    if (!Object.hasOwn(first, column)) return []
+    const wrong = ofTheWrongType(TASK_SCHEMA?.properties?.[column])
+    if (wrong === undefined) return []
+    const schedule = {
+      ...(SMALL['schedule'] as Group),
+      tasks: [{ ...first, [column]: wrong }, ...tasks.slice(1)],
+    }
+    return [{ column, text: rootWith(SMALL, 'schedule', schedule) }]
+  })
+}
+
+/** The presentation group with one key moved to a value the schema forbids. */
+function settingsWith(key: string, value: unknown): string {
+  return rootWith(SMALL, 'documentSettings', { ...templateSettings, [key]: value })
+}
+
+describe('表 T-220 の前文 -- the schema runs on the `GRS JSON` road, in CP-20', () => {
+  it('walks a roster the generated schema fills, not an empty one', () => {
+    // ⛔ Same guard as the three above: a walk over nothing goes green.
+    expect(Object.keys(TASK_SCHEMA?.properties ?? {}).length).toBeGreaterThan(0)
+    expect(Object.keys(SETTINGS_SCHEMA?.properties ?? {}).length).toBeGreaterThan(0)
+    expect(everyTaskColumnOfTheWrongType().length).toBeGreaterThan(0)
+    expect(SETTINGS_ENUM_KEYS.length).toBeGreaterThan(0)
+  })
+
+  it('refuses a column whose type the manuscript does not admit, and names it', () => {
+    // The preamble of 表 T-220 turns the schema from a claim into a duty: it
+    // is to be RUN on this road (MUST). If it is not, every one of these is
+    // quietly accepted and the exemption that table claims has nobody behind
+    // it -- the column is enforced by no one.
+    for (const { column, text } of everyTaskColumnOfTheWrongType()) {
+      const faults = refused(text)
+      expect(faults.map((f) => f.at), `a Task whose ${column} is of another type`).toContain(
+        `/schedule/tasks/0/${column}`,
+      )
+    }
+  })
+
+  it('carries RS-25 as the reason of every refusal (FR-076: 同表に無い理由を運ばない)', () => {
+    const texts = [
+      ...everyRefusalText().map((one) => one.text),
+      ...everyTaskColumnOfTheWrongType().map((one) => one.text),
+    ]
+    expect(texts.length).toBeGreaterThan(0)
+    for (const text of texts) {
+      // 表 T-233 の `RS-25` is the row written for this refusal.
+      expect(refusal(text).reason, text.slice(0, 60)).toBe('RS-25')
+    }
+  })
+
+  it('refuses a presentation value whose type is wrong (鍵ごとの型を当てる)', () => {
+    let walked = 0
+    for (const key of Object.keys(SETTINGS_SCHEMA?.properties ?? {})) {
+      const wrong = ofTheWrongType(SETTINGS_SCHEMA?.properties?.[key])
+      if (wrong === undefined) continue
+      walked += 1
+      const faults = refused(settingsWith(key, wrong))
+      expect(faults.map((f) => f.at), `${key} of another type`).toContain(`/documentSettings/${key}`)
+    }
+    expect(walked).toBeGreaterThan(0)
+  })
+
+  it('refuses a presentation value no row of the manuscript enum spells (列挙を当てる)', () => {
+    for (const key of SETTINGS_ENUM_KEYS) {
+      const stranger = outsideTheEnum(SETTINGS_SCHEMA?.properties?.[key])
+      expect(stranger, `a well-typed stranger for ${key}`).toBeDefined()
+      const faults = refused(settingsWith(key, stranger))
+      expect(faults.map((f) => f.at), `${key} outside its enum`).toContain(
+        `/documentSettings/${key}`,
+      )
+    }
+  })
+
+  it('does NOT refuse a presentation value below its lower bound (MUST NOT)', () => {
+    // The preamble of 表 T-220 forbids holding this group to a bound (MUST
+    // NOT): `clampedSettings` (表 T-064 の `PI-2`) moves such a value inside
+    // instead. ⚠️ Refusing would shut the whole document over one key of the
+    // way it is shown, which is the opposite of the give `OP-6` asks for.
+    let walked = 0
+    for (const [key, bound] of Object.entries(SETTINGS_BOUNDS)) {
+      // A dotted key sits inside a group; a key with an enum has no bound to
+      // break. Neither is what this rule is about.
+      if (key.includes('.') || SETTINGS_ENUM_KEYS.includes(key)) continue
+      const floor = bound.min ?? bound.exclusiveMin
+      if (floor === undefined) continue
+      walked += 1
+      expect(documentFromJson(settingsWith(key, floor - 1)).ok, `${key} below its floor`).toBe(true)
+    }
+    expect(walked).toBeGreaterThan(0)
+  })
+
+  it('does NOT refuse a presentation value above its upper bound (MUST NOT)', () => {
+    let walked = 0
+    for (const [key, bound] of Object.entries(SETTINGS_BOUNDS)) {
+      if (key.includes('.') || SETTINGS_ENUM_KEYS.includes(key)) continue
+      const ceiling = bound.max ?? bound.exclusiveMax
+      if (ceiling === undefined) continue
+      walked += 1
+      expect(documentFromJson(settingsWith(key, ceiling + 1)).ok, `${key} above its ceiling`).toBe(
+        true,
+      )
+    }
+    expect(walked).toBeGreaterThan(0)
+  })
+
+  // ⛔ THE FILL ITSELF IS NOT THIS UNIT'S, AND THIS CASE DOES NOT ASK FOR IT.
+  // 表 T-024a の `OP-6` -- which is where the filling-in is required -- hangs
+  // from `FR-087`, and 表 T-062 gives `FR-087` to `CP-10` (UF-19),
+  // a UseCase. What 表 T-220's preamble binds `CP-20` to is the other half:
+  // NOT to refuse the short group (MUST NOT), so that the fill still has
+  // something to run on. ⭐ So what is checked here is that the group arrives
+  // at `CP-10` whole enough to fill -- every key the text carried, value for
+  // value -- and the roster of defaults is walked only to name the keys.
+  it('hands a short presentation group on with every key it did carry (OP-6 の受け皿)', () => {
+    let walked = 0
+    for (const key of Object.keys(SETTINGS_DEFAULTS)) {
+      if (key.includes('.') || !Object.hasOwn(templateSettings, key)) continue
+      walked += 1
+      const short = groupWithout(templateSettings, key)
+      const settings = accepted(
+        rootWith(SMALL, 'documentSettings', short),
+      ) as unknown as { readonly documentSettings: Group }
+      for (const kept of Object.keys(short)) {
+        expect(settings.documentSettings[kept], `${kept}, with ${key} away`).toEqual(short[kept])
+      }
+    }
+    expect(walked).toBeGreaterThan(0)
   })
 })
 
