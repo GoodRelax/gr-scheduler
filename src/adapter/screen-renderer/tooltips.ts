@@ -14,10 +14,17 @@
 // member last.
 //
 // ⭐ WHY NOTHING HERE SAYS "CAN BE DISMISSED". IN-3 of table T-028 grants that
-// to every tooltip, along with being pointed at and not going away by itself.
-// A member per tooltip would let a caller describe one that IN-3 forbids.
+// to every tooltip, along with being pointed at and with standing until its
+// trigger is removed. A member per tooltip would let a caller describe one that
+// IN-3 forbids.
+// ⚠️ THAT THIRD CONDITION IS NOT "NEVER GOES AWAY BY ITSELF". IN-3 holds a
+// tooltip until the pointer or the focus leaves what it explains, the person
+// dismisses it, or its content stops being valid -- so a trigger that has left
+// may take the tooltip with it. Nothing needs doing about that here: this unit
+// describes ONE frame from the session, so a trigger that has left is simply an
+// explanation the next frame does not carry.
 //
-// ⭐ WHY ONE ANCHOR IS TESTED AGAINST THE POINTER AND TWO ARE NOT. The three do
+// ⭐ WHY TWO ANCHORS ARE TESTED AGAINST THE POINTER AND ONE IS NOT. The three do
 // not share a trigger, and the difference is the specification's rather than a
 // simplification made here:
 //   scrollbar  FR-037 states the pointer condition in as many words and adds a
@@ -27,9 +34,11 @@
 //              that the name was cut, which `RowTitle.isLabelTruncated` answers.
 //              ⚠️ FR-048's roster of what redraws on a pointer move names EZ-2
 //              and does not name this one, which reads the same way.
-//   icon       EZ-2 of table T-040 states a TIME condition, which the session
-//              can answer, and a PLACE condition, which nothing reachable from
-//              here can -- see the first STOP note below.
+//   icon       EZ-2 of table T-040 states a TIME condition and a PLACE
+//              condition, and the session answers both: `pointerRestedMs` for
+//              the wait, `iconUnderPointer` (PD-141) for which entry is under
+//              the pointer. ⚠️ The place is READ and not measured -- no entry
+//              carries a rectangle, so the side that drew them answers.
 //
 // ⛔ FR-029 ALSO PUTS A TOOLTIP ON AN ENDPOINT THAT CANNOT BE GRABBED. That
 // endpoint lives inside the `Row Area`, which this component does not describe,
@@ -193,17 +202,23 @@ export function tooltipsFromScreenView(
 
   const tooltips: Tooltip[] = []
 
-  // STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: which icon the pointer is
-  // resting on. EZ-2 asks for the explanation of THAT icon, but no
-  // `CommandItem` carries a rectangle and `ScreenRegions` is not an argument of
-  // this unit, so the join from a point to an icon does not exist on this side
-  // of the seam. Searched: FR-092 (table T-040), FR-029, table T-109 and figure
-  // F-019 in `_assets/tbl-glossary.md`, table T-206, and `ScreenSession`.
-  // ⭐ Smallest thing that cannot be wrong: answer the half that IS decidable --
-  // the wait -- and offer every entry whose explanation has come due, leaving
-  // the surface (PI-38), which drew them and therefore knows where they are, to
-  // show the one under the pointer. Answering none would break EZ-2's MUST, and
-  // guessing a rectangle would be an invented layout.
+  // ⭐ EZ-2'S PLACE CONDITION IS ANSWERED OFF-SEAM, NOT MEASURED HERE. Which
+  // entry the pointer rests on arrives as `ScreenSession.iconUnderPointer`
+  // (PD-141): no `CommandItem` carries a rectangle and `ScreenRegions` is not an
+  // argument of this unit, so the side that DREW the entries (PI-38) is the one
+  // side that can say, and it hands the answer over in the session. ⛔ Guessing
+  // a rectangle here would be an invented layout, which is what that member
+  // exists to prevent.
+  // ⚠️ WHILE NO ANSWER WAS CARRIED, this file offered EVERY entry whose wait had
+  // come due and left the surface to pick -- one explanation per entry per
+  // frame, for a MUST that EZ-2 puts on ONE entry.
+  //
+  // ⛔ `isEnabled` IS NOT A CONDITION HERE. FR-029's tooltip MUST is about an
+  // endpoint that cannot be grabbed, and it states no time condition and no
+  // place condition anywhere -- so an entry that cannot be used is explained
+  // under EZ-2's two conditions exactly like a usable one. ⚠️ An exemption that
+  // put every spent entry up every frame, pointed at or not, was invented here
+  // and is what the person using it reported.
   //
   // STOP -- ⛔ STILL NOT CARRIED: the REASON FR-029 wants on an entry that
   // cannot be used. The dictionary holds a `label` and a `hint` per row of table
@@ -211,10 +226,14 @@ export function tooltipsFromScreenView(
   // THIS entry is. Searched: `display-words.json`, `_source/display-words.json`,
   // FR-029, table T-109, table T-040 (EZ-2), table T-016. ⭐ The hint stands in
   // so the entry is not silent -- FR-029's RATIONALE is that an entry which does
-  // nothing reads as a fault. ⚠️ That is also why a spent entry does not wait
-  // for the delay: FR-029 states no time condition, EZ-2 does.
+  // nothing reads as a fault.
+  //
+  // ⭐ Both of EZ-2's conditions belong to the session rather than to any one
+  // entry, so they are met once and the walk only has to name the entry.
+  const iconWithHintDue = isIconHintDue ? session.iconUnderPointer : null
+
   for (const command of commandsOnScreen(shown)) {
-    if (command.isEnabled && !isIconHintDue) continue
+    if (command.icon !== iconWithHintDue) continue
     tooltips.push({
       anchor: { kind: 'icon', icon: command.icon },
       text: entryHint(command, session.language),

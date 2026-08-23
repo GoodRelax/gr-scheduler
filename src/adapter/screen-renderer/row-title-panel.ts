@@ -278,16 +278,15 @@ function rowTitleOf(
   settings: DocumentSettings,
 ): RowTitle {
   const depth = rowDepth(group, index.groupsById, settings)
+  // ⚠️ Resolved once because two answers below need it, and a row whose name is
+  // `null` still owes `controlTopOffsetPx`: HF-5 sets the controls down by the
+  // size the name WOULD be drawn at, not by anything the name itself carries.
+  const fontSizePx = rowTitleFontPx(depth, settings)
   const wholeLabel = rowNameOf(group, index)
   const shownLabel =
     wholeLabel === null
       ? null
-      : labelCutToFit(
-          wholeLabel,
-          availableLabelWidthPx(depth, settings),
-          rowTitleFontPx(depth, settings),
-          settings,
-        )
+      : labelCutToFit(wholeLabel, availableLabelWidthPx(depth, settings), fontSizePx, settings)
 
   return {
     groupId: group.id,
@@ -313,6 +312,14 @@ function rowTitleOf(
     // STOP -- ⛔ see the note at the head of this file: no argument carries
     // FR-085's set of selected rows, and nothing in the specification holds it.
     isSelected: false,
+    // HF-5 of table T-051 (MUST): a ratio of THIS row's name size, never an
+    // absolute drop -- S-36 and S-38 move that size with the depth, so one
+    // number of pixels would align the controls differently on every level.
+    //
+    // ⚠️ Answered for every row alike, the pinned ones included: FR-098 gives a
+    // pinned row the same `Row Pin` and the same placement rules (HF-4 .. HF-6),
+    // and the two lists are one row's two possible places, not two kinds of row.
+    controlTopOffsetPx: fontSizePx * NOT_STORED_ROW_CONTROL_SIZES['S-139'],
   }
 }
 

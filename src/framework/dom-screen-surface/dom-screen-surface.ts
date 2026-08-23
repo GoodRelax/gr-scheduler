@@ -353,18 +353,9 @@ const STYLE = {
   entryFaint:
     'font:inherit;background:ButtonFace;color:GrayText;border:1px solid GrayText;' +
     'border-radius:0.25em;padding:0 0.375em;line-height:1.5;cursor:default;',
-  // The box one shape of figure F-019 is drawn in, and the whole of what this
-  // unit decides about a shape -- the paint is the figure's own.
-  //
-  // ⛔ NO TABLE SETTLES A SIZE, so this is the same frame of reference every
-  // other length here uses: the environment's own text size, which is exactly
-  // the height the row id took while it stood in for the shape. ⚠️ It is
-  // `inline-block` and not `block` so that the line box, and with it the header
-  // FR-051 measures at BO-1, is the one the surrounding text already made.
-  // ⛔ `pointer-events:none` so the ANSWER does not move: IF-9's third member
-  // reads back the entry a point is on, and the button is what carried
-  // `data-icon` before a shape was inside it.
-  glyph: 'display:inline-block;vertical-align:middle;width:1em;height:1em;pointer-events:none;',
+  // ⚠️ The box a shape of figure F-019 is drawn in is NOT a member here:
+  // `glyphStyle` below states it, and says why it cannot stand in this object.
+
   // The reading FR-038 (MUST) asks to be legible BEFORE the entry is pressed,
   // set beside the shape and not in place of it: the shape says what the entry
   // is FOR and the two characters say which value it is ON.
@@ -386,8 +377,22 @@ const STYLE = {
   scrollbarTrack: 'background:ButtonFace;pointer-events:auto;',
   scrollbarThumb: 'position:absolute;background:GrayText;border-radius:0.25em;',
   rowTitlePanel: 'position:absolute;background:Canvas;',
+  // HF-5 of table T-051 (MUST NOT): the row's controls are not levelled with the
+  // middle of the name. ⛔ `align-items:center` is what that row forbids in as
+  // many words, and it is answered on the row rather than on each control
+  // because HF-5 measures the set-down FROM THE TOP OF THE NAME -- so the name's
+  // top has to be a place this unit can name, and the top of the band is the
+  // only one it has. The set-down itself is `RowTitle.controlTopOffsetPx`, put
+  // on each control by `rowControlElement`.
+  //
+  // ⚠️ WHAT THIS MOVES. In a band taller than one line of the name -- which is
+  // every band with a bar in it, since a plan bar's own height (S-4) already
+  // exceeds a line of it -- the name stood in the middle and now stands at the
+  // top. ⛔ That is not a choice made freely: nothing on IF-9 carries how tall
+  // the name is drawn or where in the band it sits, so a set-down measured from
+  // a name held in the middle is a length this side cannot state at all.
   rowTitle:
-    'box-sizing:border-box;display:flex;align-items:center;gap:0.25em;' +
+    'box-sizing:border-box;display:flex;align-items:flex-start;gap:0.25em;' +
     'overflow:hidden;white-space:nowrap;background:Canvas;color:CanvasText;' +
     'pointer-events:auto;',
   // HF-4 of table T-051 (MUST): the controls keep the panel's right edge
@@ -530,6 +535,39 @@ const STYLE = {
     'font:inherit;background:transparent;color:CanvasText;border:none;cursor:pointer;',
   hidden: 'display:none;',
 } as const
+
+/**
+ * The box one shape of figure F-019 is drawn in, and the whole of what this
+ * unit decides about a shape -- the paint is the figure's own.
+ *
+ * ⭐ FR-029 (MUST) names the side of that box: S-138 of table T-206. ⛔ The
+ * same requirement forbids it to differ with the surface the shape sits on
+ * (MUST NOT), and this is the one declaration there is -- every entrance
+ * reaches it through `fillEntry`, so the header, the palette, a surface open
+ * over the screen and a row's controls take the same box. ⚠️ It states the
+ * SHAPE's box and not the entrance's outline, which FR-029 says in as many
+ * words: the border, the padding and the line box stay the entrance's own, so
+ * the height FR-051 measures at BO-1 is unchanged by this.
+ *
+ * ⛔ A FUNCTION, AND NOT A MEMBER OF `STYLE`, for two reasons: the value arrives
+ * in the generated block at the foot of this file, which a `const` declared
+ * above it cannot read while the module is being evaluated; and `STYLE` states
+ * that every length in it is relative, which this one is not.
+ *
+ * ⚠️ `inline-block` and not `block` so that the line box is the one the
+ * surrounding text already made. ⛔ `pointer-events:none` so the ANSWER does not
+ * move: IF-9's third member reads back the entry a point is on, and the button
+ * is what carries `data-icon`.
+ *
+ * @purity pure
+ */
+function glyphStyle(): string {
+  const side = NOT_STORED_ICON_SIZES['S-138']
+  return (
+    'display:inline-block;vertical-align:middle;' +
+    `width:${side}px;height:${side}px;pointer-events:none;`
+  )
+}
 
 /**
  * The other half of HF-6 of table T-051: 「ポインタが乗っているあいだだけ濃く
@@ -852,7 +890,7 @@ function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
   }
   const shape = shapeNode(host, 'svg')
   shape.setAttribute('viewBox', iconGlyphs.viewBox)
-  shape.setAttribute('style', STYLE.glyph)
+  shape.setAttribute('style', glyphStyle())
   shape.setAttribute('aria-hidden', 'true')
   shape.setAttribute('focusable', 'false')
   for (const element of drawn) {
@@ -875,14 +913,14 @@ function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
  * while the dictionary holds no word (every cell is still empty, PD-160), which
  * is the same fallback the body took while there were no shapes.
  *
- * ⚠️ PD-154 IS STILL OPEN AND ITS MARK STAYS, but not for the reason the row
- * gives. ⛔ What that row records -- that figure F-019 is not generated into
- * `src/` -- is no longer so: `icon-glyphs.json` IS that figure, arrived the way
- * the row itself said would let the drawing side be swapped. What is still
- * undecided is HOW a shape is drawn: the box `STYLE.glyph` gives it is chosen
- * here because no table settles one.
+ * ⭐ PD-154'S MARK IS GONE FROM THIS FILE, because both halves of what held it
+ * here are answered. ⛔ What the row itself records -- that figure F-019 is not
+ * generated into `src/` -- stopped being so when `icon-glyphs.json` arrived, the
+ * way that row said would let the drawing side be swapped; and the box a shape
+ * is drawn in, chosen here while no table settled one, is now S-138 of table
+ * T-206 (`glyphStyle`). ⚠️ The state of the decision itself is kept where the
+ * decision is written down, not here.
  *
- * @provisional PD-154
  * @purity non-pure
  */
 function commandEntry(host: Document, item: CommandItem): HTMLElement {
@@ -1054,14 +1092,33 @@ function fillScreenFrame(
  * here would be unreachable by pointer and by IF-9's third member alike -- which
  * is the supply that table T-065 promises above, made undeliverable by having
  * nothing to hit. ⚠️ That is why the shape carries a box of its own
- * (`STYLE.glyph`) rather than being left to size itself -- and that box is what
- * PD-154's mark still stands for here (see `commandEntry`).
+ * (`glyphStyle`) rather than being left to size itself, and that box is the one
+ * every other surface draws in (FR-029, MUST NOT).
  *
- * @provisional PD-154
+ * ⭐ SET DOWN FROM THE TOP OF THE NAME, WHICH IS HF-5 OF TABLE T-051 (MUST).
+ * The amount is `RowTitle.controlTopOffsetPx` and arrives per row, because HF-5
+ * has it follow THAT row's name size and the sizes S-36 and S-38 give a name do
+ * not cross IF-9 -- the same absence `ROW_INDENT_EM` records for the indent.
+ * ⛔ A margin and not a padding: HF-6's faint control is what a person aims at,
+ * and padding would grow the target while moving it.
+ *
+ * STOP -- ⛔ THE SET-DOWN IS IN PROPORTION TO A SIZE THE DRAWN NAME DOES NOT
+ * HAVE. HF-5 has the amount follow the name's own size, and it was resolved
+ * against S-36 and S-38; but `STYLE.rowLabel` sets no size, so a name is drawn
+ * in the environment's text size here. ⚠️ The two are not the same size and
+ * nothing makes them so: one follows the reader's machine and the other follows
+ * the document. Nothing is invented in place of the missing one -- the seam that
+ * withholds the indent (PD-152) withholds this for the same reason.
+ *
  * @purity non-pure
  */
-function rowControlElement(host: Document, role: string, icon: string): HTMLElement {
-  const control = part(host, 'button', role, STYLE.rowControl)
+function rowControlElement(
+  host: Document,
+  role: string,
+  icon: string,
+  topOffsetPx: number,
+): HTMLElement {
+  const control = part(host, 'button', role, STYLE.rowControl + `margin-top:${topOffsetPx}px;`)
   control.setAttribute('type', 'button')
   control.setAttribute('data-icon', icon)
   control.setAttribute('aria-label', icon)
@@ -1141,11 +1198,11 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // the two flags are put on the DOM under their own names, and whoever settles
   // the look reads them back.
   if (title.expander !== null) {
-    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58')
+    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58', title.controlTopOffsetPx)
     open.setAttribute('data-can-open', String(title.expander.canOpen))
     row.append(open)
 
-    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59')
+    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59', title.controlTopOffsetPx)
     close.setAttribute('data-can-close', String(title.expander.canClose))
     row.append(close)
   }
@@ -1165,7 +1222,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // `input-command-translator.ts` still lists IC-60 among the entries it cannot
   // act on. ⭐ That is a different question from whether the entry can be NAMED,
   // and table T-109 is 「アイコンの全数」 that FR-029 (MUST) joins on.
-  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60')
+  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60', title.controlTopOffsetPx)
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
   row.append(pin)

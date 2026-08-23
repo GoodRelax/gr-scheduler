@@ -28,6 +28,13 @@
 // is the file that holds every one of those. `DomInputSource` (PI-27) supplies
 // the happening over IF-2, and `single-html-shell.ts` starts it.
 //
+// ⭐ ONE THIRD OF FT-4 IS WIRED HERE TOO, and this is the layer that row of
+// table T-078 names: 「時間が来たこと」 is the shell's to MEASURE. Of the three
+// waits it counts, only EZ-2's -- the rest before an icon's explanation -- is
+// measured in this build, by `beginPointerRest` and the two current values
+// beside it. ⛔ NT-2's deadline and FR-061's autosave are still uncounted, and
+// each keeps its note where it is answered.
+//
 // ⚠️ ONE HAPPENING BUILDS THE CONTEXT TWICE, and the two cannot be shared.
 // MK-10 is asked BEFORE the watcher hears the happening
 // (`isBrowserDefaultStopped`, which PI-27 takes as a factory argument) and the
@@ -995,13 +1002,16 @@ function paletteCornerOf(
  * table T-206 keeps out of the document, which is why LY-5 of table T-060
  * leaves them here.
  *
- * ⛔ TWO OF THEM WAIT ON FT-4 of table T-078 -- 「時間が来たこと」, which that
- * table leaves to the shell to measure and which this change does not wire.
- * `pointerRestedMs` is an elapsed time, and `iconUnderPointer` is what EZ-2 of
- * table T-040 shows once that time has passed, so neither can be answered until
- * there is a clock: 0 and `null` say that no rest has been measured.
- * ⚠️ `pointer` no longer waits on anything -- FT-1 is wired, and the caller
- * hands in the place the last pointer happening was reported from.
+ * ⭐ TWO OF THEM ARE FT-4's, AND BOTH ARE NOW HANDED IN. That row of table
+ * T-078 -- 「時間が来たこと」 -- has the shell measure the time ITSELF, so the loop
+ * counts the rest against a monotonic clock (R3.6) and asks IF-9 which entry
+ * the pointer is on; this function decides neither.
+ * ⚠️ ONLY THE FIRST OF FT-4's THREE COUNTS IS WIRED -- the wait EZ-2 of table
+ * T-040 puts before an icon's explanation. NT-2's deadline and FR-061's
+ * autosave still have none, and each keeps its own note where it is answered
+ * (`raisedNotices` and `autosaveAtStartup`).
+ * ⚠️ `pointer` waits on nothing either -- FT-1 is wired, and the caller hands in
+ * the place the last pointer happening was reported from.
  *
  * ⛔ `selectedGroupIds` (PD-142) and `selectedResourceUids` (PD-143) stay empty
  * for a different reason: FR-085's row selection is made in the `Row Title
@@ -1019,6 +1029,8 @@ function sessionOf(
   layout: ScheduleLayout,
   language: DisplayLanguage,
   pointer: { readonly x: number; readonly y: number } | null,
+  pointerRestedMs: number,
+  iconUnderPointer: IconId | null,
   commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null,
   confirmation: RaisedConfirmation | null,
   notices: readonly RaisedNotice[],
@@ -1032,8 +1044,17 @@ function sessionOf(
     // is 「not enabled」, which is the truth about this build.
     isAgentApiEnabled: false,
     pointer,
-    pointerRestedMs: 0,
-    iconUnderPointer: null,
+    // EZ-2 of table T-040 -- the two halves of its condition, both measured by
+    // the loop and neither of them decidable here.
+    // ⭐ THE PLACE IS IF-9's OWN ANSWER, not a rectangle worked out a second
+    // time: the rule Chapter 5.3 states under table T-065 is that the side
+    // which DREW an entry is the side that answers where it is, and PD-141
+    // recommends exactly this road. ⚠️ So it carries whatever
+    // `readScreenPartAt` reports, IC-53 included -- `ScreenPart.entry` says why
+    // that row is answered although table T-109 calls it no button, and no
+    // requirement takes it back out again.
+    pointerRestedMs,
+    iconUnderPointer,
     // FR-053: where the drag left it, or the `Row Area`'s corner while nobody
     // has dragged it. ⭐ Handed in rather than decided here -- it is a current
     // value and LY-5 of table T-060 leaves those with the loop, which is the
@@ -1498,6 +1519,23 @@ function readInstantOfWrite(): string {
 }
 
 /**
+ * The monotonic clock, in ms, for the one elapsed time FT-4 of table T-078 has
+ * this build measure -- the rest EZ-2 of table T-040 waits out.
+ *
+ * ⚠️ NOT THE WALL CLOCK, and for the reason `readInstantOfWrite` above states
+ * from the other side: R3.6 (MUST) sends an elapsed time to a monotonic clock
+ * because a wall clock steps backwards over an NTP correction or a DST change,
+ * and a rest that had already come due would then read as one that never began.
+ * ⛔ THE NUMBER MEANS NOTHING ON ITS OWN -- the host picks what it counts from
+ * -- so only a difference of two readings may ever be used.
+ *
+ * @purity semi-pure-b
+ */
+function readMonotonicMs(): number {
+  return performance.now()
+}
+
+/**
  * One row of table T-206's `localStorage` set, as the store has it, or null
  * where it has none and where the store cannot be reached at all.
  *
@@ -1636,11 +1674,12 @@ export function frameLoop(
   // file does not.
   //
   // STOP -- ⛔ NOTHING TAKES ONE OFF AGAIN. NT-2 governs a telling that goes away
-  // with time, and the clock it would need is FT-4 of table T-078, which nothing
-  // in this build reads (`sessionOf` records the same absence for the two
-  // members that wait on it); table T-109 places no entry that dismisses one
-  // either. ⚠️ So a telling stands for the rest of the session, which is the
-  // half of NT-2 that is kept -- it does not go before it has been read.
+  // with time, and the clock it would need is FT-4 of table T-078 -- which this
+  // build now reads for the icon hint alone (`beginPointerRest`) and for
+  // neither of that row's other two counts, so ⛔ NO DEADLINE IS COUNTED HERE;
+  // table T-109 places no entry that dismisses one either. ⚠️ So a telling
+  // stands for the rest of the session, which is the half of NT-2 that is kept
+  // -- it does not go before it has been read.
   let raisedNotices: readonly RaisedNotice[] = []
   // FR-032 (MUST) -- the question NT-7 puts, and the writes it stands in front
   // of, until IC-69 or IC-70 answers it.
@@ -1724,6 +1763,20 @@ export function frameLoop(
   // the same part draws the same picture, and only the previous answer can say
   // whether this one is a different one.
   let partUnderPointer: ScreenPart | null = null
+  // FT-4 of table T-078 -- when the rest EZ-2 of table T-040 waits on began,
+  // read off the monotonic clock R3.6 requires for an elapsed time, or `null`
+  // while the pointer has never yet been reported to stand anywhere.
+  // ⛔ MOVING IS THE ONLY THING THAT ENDS A REST. A frame that redraws leaves
+  // the pointer where it was, and EZ-2 asks only that it be ON the icon.
+  let pointerRestingSince: number | null = null
+  // How to call off the frame FT-4 owes at the end of that rest, or `null`
+  // while none is standing.
+  // ⚠️ THE WAY TO CANCEL IT RATHER THAN THE HOST'S HANDLE: a browser answers
+  // with a number and a host outside one answers with an object, and nothing
+  // here has any reason to know which it was given.
+  // ⚠️ R5.3 -- exactly one stands at a time, because the one below is called
+  // off before the next is set, and the loop lives as long as the page.
+  let callOffIconHintWait: (() => void) | null = null
   // STOP -- ⛔ NOTHING TURNS THIS ON. Table T-029a's Dual Cursor mode is
   // written by `setDualCursor` (CM-60), whose one entrance is IC-45 of table
   // T-109 -- and `input-command-translator.ts` records that IC-45 cannot be
@@ -1812,6 +1865,13 @@ export function frameLoop(
     // CS-1 of table T-066: the frozen copy this frame is drawn from, taken
     // once at its head.
     const document = held.document
+    // FT-4 of table T-078 -- how long the pointer has rested, in ms, read ONCE
+    // and here so that everything this frame draws is about one instant.
+    // ⚠️ BESIDE THE FROZEN COPY AND NOT INSIDE IT: the note under table T-078
+    // keeps the clock out of what CS-1 collects, and warns in as many words
+    // against confusing it with the status date.
+    const pointerRestedMs =
+      pointerRestingSince === null ? 0 : readMonotonicMs() - pointerRestingSince
     const stored = document.documentSettings
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
@@ -1846,6 +1906,12 @@ export function frameLoop(
           layout,
           language,
           pointerAt,
+          pointerRestedMs,
+          // ⭐ THE ANSWER THE SURFACE ALREADY GAVE, taken from where
+          // `receiveInput` put it rather than asked for again: IF-9 reads the
+          // page as it stands (`readScreenPartAt` says so), and a second read
+          // inside the frame would be a second moment for one drawing.
+          partUnderPointer?.entry ?? null,
           commandPaletteDraggedTo,
           asking?.question ?? null,
           raisedNotices,
@@ -1863,6 +1929,43 @@ export function frameLoop(
     const raf = globalThis.requestAnimationFrame
     if (typeof raf === 'function') raf(() => runFrame())
     else runFrame()
+  }
+
+  /**
+   * FT-4 of table T-078 -- the pointer has moved, so the rest EZ-2 of table
+   * T-040 waits out begins again from here.
+   *
+   * ⭐ WHY A WAKE IS SET AND NOT ONLY A NUMBER. Every other trigger that table
+   * lists is something that HAPPENS, and a person who has stopped moving makes
+   * nothing happen -- so with no wake the wait would pass unwitnessed and the
+   * explanation could never be drawn at all. FT-4 has the shell measure the
+   * time ITSELF, which is the whole of what this is, so nothing is minted that
+   * NFR-010 forbids (MUST NOT).
+   * ⛔ THIS IS THE ONLY THING IN THIS BUILD THAT COUNTS FT-4. The other two
+   * waits that row names keep their own notes where they are answered.
+   *
+   * ⭐ THE WAIT IS S-124's, read off the document held at this moment
+   * (`iconHintDelayMs`) rather than out of a number written here (rule 03).
+   * ⚠️ A wake already standing keeps the length it was set with: no row says
+   * what a wait in flight does when the setting is edited under it, and the
+   * frame decides on the elapsed time in any case.
+   *
+   * ⛔ NOTHING IS WOKEN WHERE NO EXPLANATION COULD BE DRAWN. EZ-2's tooltip
+   * (U-53) is one of the parts `ScreenSurface` draws, so with no `ScreenWiring`
+   * the frame would redraw the identical schedule for nothing.
+   *
+   * @purity non-pure
+   */
+  function beginPointerRest(): void {
+    pointerRestingSince = readMonotonicMs()
+    callOffIconHintWait?.()
+    callOffIconHintWait = null
+    if (screen === undefined) return
+    const wake = setTimeout(() => {
+      callOffIconHintWait = null
+      ask()
+    }, held.document.documentSettings.iconHintDelayMs)
+    callOffIconHintWait = () => clearTimeout(wake)
   }
 
   /**
@@ -2028,7 +2131,10 @@ export function frameLoop(
         // `stateForExport` above are built fresh: EP-12 of table T-076 keeps this
         // session's state out of the picture, and the palette is closed in this
         // environment, so no corner is drawn from it.
-        sessionOf(document, regions, layout, language, null, null, null, []),
+        // ⚠️ NO REST AND NO ICON UNDER IT, which follows from the same absence:
+        // EZ-2 of table T-040 waits on a pointer resting on an entry, and an
+        // export has neither the pointer nor the moment.
+        sessionOf(document, regions, layout, language, null, 0, null, null, null, []),
       ),
       settings,
     }
@@ -3011,7 +3117,8 @@ export function frameLoop(
    * names still owes a frame unconditionally; NFR-010 forbids widening the
    * triggers, and this narrows one rather than adding any.
    * ⚠️ NOT DRAWING IS NOT THE SAME AS NOT KNOWING: every move is still heard and
-   * `pointerAt` still follows it, because FT-4's icon hint will need them.
+   * `pointerAt` still follows it, and so does the rest FT-4's icon hint waits
+   * out -- `beginPointerRest` runs on the move whether or not this owes a frame.
    *
    * @purity semi-pure-b
    */
@@ -3065,7 +3172,17 @@ export function frameLoop(
     // a second read further down would be a second moment.
     const partBefore = partUnderPointer
     if (input.kind === 'pointer') {
+      // FT-4 of table T-078 -- the rest starts over wherever the pointer has
+      // MOVED to.
+      // ⛔ JUDGED ON THE POINT AND NOT ON THE KIND OF HAPPENING: EZ-2 of table
+      // T-040 asks only that the pointer be ON the icon for the wait, so a
+      // press or a release that leaves it exactly where it stood has not
+      // interrupted anything. ⚠️ A host reports a `move` for a pointer that has
+      // not left its pixel, and reading every one of those as a move would hold
+      // the wait open for ever.
+      const hasMoved = pointerAt === null || pointerAt.x !== input.x || pointerAt.y !== input.y
       pointerAt = { x: input.x, y: input.y }
+      if (hasMoved) beginPointerRest()
       partUnderPointer =
         screen === undefined ? null : screen.surface.readScreenPartAt(input.x, input.y)
       // ⭐ RECORDED BEFORE ANY OF THE THREE MEMBERS IS ASKED. IN-1 settles
