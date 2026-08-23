@@ -1,2 +1,10 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Auto detect text files and perform LF normalization.
+#
+# ⛔ eol=lf is not a preference. The generators write their artifacts with
+# newline='\n' and `--check` compares the BYTES, so a working tree checked out
+# with CRLF makes every generated artifact read as DRIFTED. Git for Windows
+# ships core.autocrlf=true in its SYSTEM config, so without eol=lf a fresh
+# clone on Windows fails `npm run gen:check` on nine files before anyone has
+# touched anything -- measured 2026-08-23. Nothing in this repository is a
+# script that needs CRLF to run.
+* text=auto eol=lf

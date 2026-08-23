@@ -52,6 +52,22 @@ that was paid must leave the file, or the baseline rots into permission.
 ⛔ A baselined gap is still a defect. The line is a debt, not a licence, and
 closing it means deleting the line in the change that writes the member.
 
+⭐ THE REVERSE DIRECTION, added 2026-08-23. Everything above walks the table
+into `src/`, which means it can only ever confirm names the table already
+holds -- it is blind by construction to the failure the table's own claim
+forbids: a name that leaves a component folder without a row. So a second walk
+collects every name that actually crosses a folder boundary in `src/` and asks
+the table about it. The audit of 2026-08-23 measured that first: 226 names
+cross, and 142 of them are in no row of a table that calls itself the full
+count. Those 142 are held in `crossing-names-baseline.txt` -- one line each,
+the shape check 11 uses, with the single shared reason written once in that
+file's header -- so the run starts at "new 0" and a NEW unlisted crossing is
+red the day it appears.
+
+⚠️ A namespace import (`import * as X from ...`) takes a component's whole
+surface and writes down none of the names it uses, so it is counted as a skip,
+never guessed at. There are three, all in `agent-api-members.ts`.
+
     python check-published-members.py
     python check-published-members.py --skips    list what is NOT covered
 
@@ -76,6 +92,8 @@ import generate_unit_tree as tree                    # noqa: E402
 
 TABLE = 'T-064'
 BASELINE = os.path.join(HERE, 'published-members-baseline.txt')
+CROSSING_BASELINE = os.path.join(HERE, 'crossing-names-baseline.txt')
+SRC = os.path.join(ROOT, 'src')
 SOLIDUS = u'／'                 # the separator between members in the cell
 PAREN = u'（'                   # what a note about a member opens with
 
@@ -138,6 +156,91 @@ def exports_of(text):
             unreadable.append(line.strip())
         i += 1
     return names, unreadable
+
+
+# ⭐ The reverse direction. The forward one walks table T-064 into src/ and can
+# only find members the table already names; it is blind by construction to a
+# name that crosses a folder boundary without being in the table, which is what
+# the table claims cannot exist. The import clause is read the same way
+# check_layer_rules.py reads it -- no `(`, `=`, `:` or `.` in the clause, so it
+# cannot run out of the import and into the code below it.
+CLAUSE = (r'''(?:[A-Za-z_$][\w$]*\s*,\s*)?'''
+          r'''(?:\*\s+as\s+[A-Za-z_$][\w$]*|\{[^{}]*\}|[A-Za-z_$][\w$]*)''')
+CROSSING = re.compile(r'''(?:^|\n)[ \t]*(?:import|export)\b(?:[ \t]+type)?[ \t]*'''
+                      r'''(''' + CLAUSE + r'''|\*)?\s*from\s*['"]([^'"]+)['"]''')
+
+
+def crossings_of_src(units):
+    """Every (component, name) that actually leaves a component folder.
+
+    Returns (crossings, opaque) where crossings maps the pair to the files that
+    import it and opaque lists the clauses whose names cannot be enumerated --
+    a namespace import takes the whole surface and writes down none of it, so
+    it is reported as uncovered rather than guessed at.
+    """
+    by_path = {}
+    for unit in units:
+        by_path[os.path.normpath(os.path.join(ROOT, unit['path']))] = \
+            unit['component']
+
+    crossings, opaque = {}, []
+    for base, _dirs, names in os.walk(SRC):
+        for name in sorted(names):
+            if not name.endswith('.ts'):
+                continue
+            path = os.path.join(base, name)
+            mine = by_path.get(os.path.normpath(path))
+            here = os.path.relpath(path, ROOT).replace(os.sep, '/')
+            text = io.open(path, encoding='utf-8', errors='replace').read()
+            # A specifier inside a line comment is not an import.
+            text = re.sub(r'(?m)^\s*//.*$', '', text)
+            for clause, spec in CROSSING.findall(text):
+                if not spec.startswith('.'):
+                    continue        # a package, not a unit of this tree
+                target = os.path.normpath(
+                    os.path.join(os.path.dirname(path), spec))
+                if not target.endswith('.ts'):
+                    target += '.ts'
+                theirs = by_path.get(target)
+                if theirs is None or theirs == mine:
+                    continue        # inside one component, or not a unit
+                clause = clause.strip()
+                if not clause.startswith('{'):
+                    opaque.append((here, clause, theirs))
+                    continue
+                for item in clause.strip('{}').split(','):
+                    word = item.split()
+                    if not word:
+                        continue
+                    # "type A" imports A; "a as b" imports a.
+                    got = word[1] if word[0] == 'type' and len(word) > 1 \
+                        else word[0]
+                    crossings.setdefault((theirs, got), set()).add(here)
+    return crossings, opaque
+
+
+def load_crossing_baseline():
+    """The crossings already weighed, as {(component, name)}, plus complaints.
+
+    One line per record, the shape check 11 uses for its 29 standing
+    duplications: the reason is the same for every line and is written once in
+    the file's own header, so it is not repeated 142 times.
+    """
+    held, malformed = set(), []
+    if not os.path.exists(CROSSING_BASELINE):
+        return held, ['it does not exist -- check 26b holds its known unlisted '
+                      'crossings there, so without it every one reads as new']
+    for lineno, raw in enumerate(io.open(CROSSING_BASELINE, encoding='utf-8'), 1):
+        line = raw.strip()
+        if not line or line.startswith('#'):
+            continue
+        cells = [c.strip() for c in line.split('|')]
+        if len(cells) != 2 or not all(cells):
+            malformed.append('line %d is not "<component> | <name>": %s'
+                             % (lineno, line[:70]))
+            continue
+        held.add(tuple(cells))
+    return held, malformed
 
 
 def rows_of_table(idx):
@@ -213,6 +316,7 @@ def main():
     problems, skips, checked = [], [], 0
     gaps = {}                    # (row, component, member, entry) -> message
     seen = set()
+    listed = set()               # (component, member) -- what T-064 says exists
 
     for rid, cells in rows_of_table(idx):
         if len(cells) < 4:
@@ -223,6 +327,11 @@ def main():
         component = cells[2].strip('`* ')
         pieces = [p.strip() for p in cells[3].split(SOLIDUS) if p.strip()]
         members = [MEMBER.match(p) for p in pieces]
+        # ⛔ Gathered before the entry is resolved: the reverse direction below
+        # asks what the TABLE names, which does not depend on src/ answering.
+        for found in members:
+            if found:
+                listed.add((component, found.group(1)))
 
         entry = entries.get(component)
         if entry is None:
@@ -283,11 +392,51 @@ def main():
                             'paid must leave the file, or the baseline rots'
                             % ((where,) + key))
 
+    # ⭐ THE REVERSE DIRECTION. Table T-064 calls itself the full count of the
+    # names callable from outside a component, and the walk above can only ever
+    # confirm the names it already holds. This walk asks the other question:
+    # which names actually leave a component folder in src/, and is each one in
+    # the table? On 2026-08-23 an audit measured 226 crossing pairs against 100
+    # rows -- 142 of them were nowhere in the table that claims to count them.
+    crossings, opaque = crossings_of_src(units)
+    for here, clause, theirs in opaque:
+        skips.append('%s takes %s whole as `%s`, so the names it uses cannot '
+                     'be read one by one and none of them is covered'
+                     % (here, theirs, clause))
+    unlisted = {k: v for k, v in crossings.items() if k not in listed}
+
+    crossing_held, crossing_bad = load_crossing_baseline()
+    crossing_where = os.path.relpath(CROSSING_BASELINE, ROOT).replace(os.sep, '/')
+    for bad in crossing_bad:
+        problems.append('the baseline %s cannot be read: %s'
+                        % (crossing_where, bad))
+
+    for key in sorted(unlisted):
+        if key not in crossing_held:
+            problems.append('%s.`%s` crosses out of its folder -- %s imports '
+                            'it -- and table %s does not name it, though the '
+                            'table calls itself the full count. It is NOT held '
+                            'in %s: add the row, stop crossing, or put the debt '
+                            'there' % (key[0], key[1],
+                                       sorted(unlisted[key])[0], TABLE,
+                                       crossing_where))
+    for key in sorted(crossing_held):
+        if key not in unlisted:
+            problems.append('%s still holds %s `%s` as a name that crosses '
+                            'without a row, and that is no longer true -- the '
+                            'row exists now, or the name stopped crossing. A '
+                            'debt that was paid must leave the file, or the '
+                            'baseline rots into permission'
+                            % ((crossing_where,) + key))
+
     # ⭐ Printed on every run, green or red: a check that does not say what it
     # left out gets read as covering the whole table.
     sys.stdout.write('NOTE     %d member(s) read from table %s, %d piece(s) not '
                      'covered -- a skip is never a failure (--skips lists them)\n'
                      % (checked, TABLE, len(skips)))
+    sys.stdout.write('NOTE     %d name(s) cross a component folder in src/; %d '
+                     'of them table %s does not name\n'
+                     % (len(crossings), len(unlisted), TABLE))
     if show_skips:
         for skip in skips:
             sys.stdout.write('SKIPPED  %s\n' % skip)
@@ -307,6 +456,9 @@ def main():
                      'through their entry; %d known gap(s) held against the '
                      'baseline (new 0), %d piece(s) not covered\n'
                      % (checked, TABLE, len(matched), len(skips)))
+    sys.stdout.write('OK       %d name(s) cross a component folder in src/; %d '
+                     'unlisted crossing(s) held against %s (new 0)\n'
+                     % (len(crossings), len(unlisted), crossing_where))
     return 0
 
 

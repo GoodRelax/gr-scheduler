@@ -19,6 +19,12 @@ requirement with a test. Nothing said who runs that look. This does.
         DOM library, so touching a browser type is a type error rather than a
         name this script could only guess at.
 
+⛔ The first line of every run is the coverage: how many of the import
+specifiers present in src/ this script actually read. A shortfall is a
+violation, not a note. ⚠️ This is not decoration -- the regex here could not
+cross a newline until 2026-08-23, so 79 of 275 edges were never read and every
+"OK" printed for six rounds was an OK about 71.3% of the tree.
+
   python tools/check_layer_rules.py            report violations, non-zero if any
   python tools/check_layer_rules.py --report   print the component graph it read
 
@@ -43,9 +49,26 @@ LAYER_RANK = {
     'framework': 4,
 }
 
+# What may stand between the keyword and `from`: a default name, a namespace
+# alias, or a braced list -- and the braced list is routinely written over
+# several lines. ⚠️ The clause deliberately admits no `(`, `=`, `:` or `.`, so
+# it cannot run out of an import and into the code that follows it.
+CLAUSE = (r'''(?:[A-Za-z_$][\w$]*\s*,\s*)?'''
+          r'''(?:\*\s+as\s+[A-Za-z_$][\w$]*|\{[^{}]*\}|[A-Za-z_$][\w$]*)''')
+
 IMPORT = re.compile(
-    r'''(?:^|\n)\s*(?:import|export)\b[^;\n]*?from\s*['"]([^'"]+)['"]'''
-    r'''|(?:^|\n)\s*import\s*['"]([^'"]+)['"]''')
+    r'''(?:^|\n)[ \t]*(?:import|export)\b(?:[ \t]+type)?\s*'''
+    r'''(?:''' + CLAUSE + r'''|\*)?\s*from\s*['"]([^'"]+)['"]'''
+    r'''|(?:^|\n)[ \t]*import\s*['"]([^'"]+)['"]''')
+
+# ⛔ The independent count this script is held against. `from` followed
+# straight by a quote is an import specifier and nothing else -- an object
+# field is `from:`, an assignment is `from =`, a call is `from(`. Counting the
+# edges twice, once loosely and once precisely, is what makes the coverage line
+# below mean something: a regex that measures only itself always reads 100%.
+SPECIFIER = re.compile(
+    r'''(?<![\w$])from\s*['"]([^'"]+)['"]'''
+    r'''|(?:^|\n)[ \t]*import\s*['"]([^'"]+)['"]''')
 
 say = lambda m: sys.stdout.write(m + '\n')
 
@@ -62,19 +85,34 @@ def unit_key(path):
 
 
 def read_imports():
-    """Every import edge in src/, as (from unit, to path)."""
+    """Every import edge in src/, plus what this script could not read.
+
+    Returns (edges, coverage) where edges is [(file, specifier)] and coverage
+    is (files, specifiers read, specifiers present, [files that fell short]).
+    """
     edges = []
-    for base, _dirs, files in os.walk(SRC):
-        for name in sorted(files):
+    files_read = 0
+    present = 0
+    short = []
+    for base, _dirs, names in os.walk(SRC):
+        for name in sorted(names):
             if not name.endswith('.ts'):
                 continue
+            files_read += 1
             path = os.path.join(base, name)
             text = io.open(path, encoding='utf-8').read()
             # A specifier inside a line comment is not an import.
             text = re.sub(r'(?m)^\s*//.*$', '', text)
+            here = len(edges)
             for hit in IMPORT.finditer(text):
                 edges.append((path, hit.group(1) or hit.group(2)))
-    return edges
+            mine = len(edges) - here
+            theirs = len(SPECIFIER.findall(text))
+            present += theirs
+            if mine < theirs:
+                short.append((os.path.relpath(path, ROOT).replace('\\', '/'),
+                              mine, theirs))
+    return edges, (files_read, len(edges), present, short)
 
 
 def main():
@@ -85,7 +123,18 @@ def main():
     violations = []
     graph = {}                       # (layer, component) -> set of the same
 
-    for path, spec in read_imports():
+    edges, (files_read, read, present, short) = read_imports()
+
+    # ⛔ First line, always. A gate that says OK without saying what it looked
+    # at reads as OK about everything -- this one said it for six rounds while
+    # a newline in an import block hid 79 of 275 edges from it.
+    say('COVERAGE %d of %d import specifier(s) in %d file(s) of src/ read (%.1f%%)'
+        % (read, present, files_read, 100.0 * read / present if present else 100.0))
+    for name, mine, theirs in short:
+        violations.append('%s: read %d of its %d import specifier(s)'
+                          % (name, mine, theirs))
+
+    for path, spec in edges:
         from_layer, from_component, _stem = unit_key(path)
         here = os.path.relpath(path, ROOT).replace('\\', '/')
         if from_layer is None:
@@ -175,7 +224,8 @@ def main():
         say('VIOLATION  %s' % line)
     if violations:
         return 1
-    say('OK       src/ obeys table T-061 (LR-1 / LR-2 / LR-3 / LR-4 / LR-5)')
+    say('OK       src/ obeys table T-061 (LR-1 / LR-2 / LR-3 / LR-4 / LR-5) '
+        'over all %d import specifier(s)' % read)
     return 0
 
 

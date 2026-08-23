@@ -1,0 +1,197 @@
+# Known unlisted crossings of check 26b -- names that leave a component folder
+# in src/ while table T-064, which calls itself the full count of the names
+# callable from outside a component, does not name them.
+#
+# Measured 2026-08-23 by the audit in
+# docs/review/audit-cadence-and-architecture-2026-08-23.md: 226 names cross a
+# folder boundary, and 142 of them are in no row of the table. The forward walk
+# of check 26b could never see this -- it starts from the table, so it can only
+# ever confirm names the table already holds.
+#
+# A line here is a DEBT, not a permission, and every line has the SAME reason,
+# which is why it is written once here instead of 142 times below: the name
+# crosses today, the table does not account for it, and nobody has yet decided
+# whether the row should be added or the crossing should stop. Closing one means
+# DELETING its line, in the same change that adds the row to table T-064 or
+# stops the import. The check goes red when a line no longer matches a real
+# crossing, so a debt that was paid cannot sit here pretending to still be owed.
+#
+# ⛔ Adding a line is not a way to make the suite green. A new crossing that is
+# in no row is a defect found: it means something outside a component reached
+# for a name the specification does not publish.
+#
+# FORMAT -- one record is one line, the shape check 11 uses for its standing
+# duplications:
+#     <component> | <name>
+# Blank lines and lines opening with "#" are ignored.
+
+ApplyDocumentChange | ChangeAudience
+ApplyDocumentChange | DocumentHolder
+ApplyDocumentChange | HeldDocument
+ApplyDocumentChange | PlanInput
+ApplyDocumentChange | PlanRefusal
+ApplyDocumentChange | Refusal
+ApplyDocumentChange | ReplacementCall
+ApplyDocumentChange | ReplacementRefusal
+ApplyDocumentChange | SettingsLimits
+ApplyDocumentChange | WriteMoment
+
+AutosaveGateway | SnapshotReadOutcome
+AutosaveGateway | SnapshotWriteOutcome
+AutosaveGateway | StoreFaultCode
+AutosaveGateway | StoredSnapshot
+
+ClipboardGateway | ClipboardContent
+ClipboardGateway | ClipboardFault
+
+DialogueLog | DialogueMessage
+DialogueLog | emptyDialogueLog
+DialogueLog | latestSequence
+
+DocumentCodec | ExchangeFormat
+DocumentCodec | FormatMismatch
+DocumentCodec | JsonFault
+
+DocumentSettings | SETTINGS_BOUNDS
+DocumentSettings | SETTINGS_DEFAULTS
+DocumentSettings | SETTINGS_DERIVED
+DocumentSettings | SettingsBoundToken
+
+DocumentStamp | ChangeLogEntry
+
+DomInputSource | domInputSource
+
+DomScreenSurface | domScreenSurface
+
+DomSvgSurface | domSvgSurface
+
+EditDocument | DocumentCommand
+EditDocument | NOT_STORED_ZOOM_BOUNDS
+EditDocument | TaskMilestoneGlyph
+EditDocument | TaskShapeKind
+
+EditHistory | HistoryLimits
+EditHistory | NOT_STORED_LIMITS
+EditHistory | emptyHistory
+
+FileGateway | ChosenFileSaveRequest
+FileGateway | ChosenFileWrite
+FileGateway | ChosenWriteDestination
+FileGateway | DocumentFileFault
+FileGateway | DocumentFileFaultReason
+FileGateway | DocumentFileSaving
+FileGateway | FileReading
+FileGateway | FileStoreFault
+FileGateway | FileStoreFaultReason
+FileGateway | FileWriting
+FileGateway | OpenRoute
+FileGateway | OpenedFileState
+FileGateway | ProjectIdentity
+FileGateway | SaveFileForm
+
+FileSystemAccessFileStore | DropEvent
+FileSystemAccessFileStore | DropSurface
+FileSystemAccessFileStore | FileSystemAccessEnvironment
+FileSystemAccessFileStore | OpenFilePicker
+FileSystemAccessFileStore | SaveFilePicker
+FileSystemAccessFileStore | fileSystemAccessFileStore
+
+ImageExporter | ExportScene
+ImageExporter | RasterFaultReason
+ImageExporter | RasterSizePx
+ImageExporter | Rastering
+
+ImportDocument | ImportRefusal
+ImportDocument | ImportRequest
+ImportDocument | OpenChoice
+
+InputCommandTranslator | HumanInput
+InputCommandTranslator | InputAction
+InputCommandTranslator | InputContext
+InputCommandTranslator | InputModifiers
+InputCommandTranslator | InputWatcher
+InputCommandTranslator | NOT_STORED_ZOOM_STEP
+InputCommandTranslator | PointerButton
+InputCommandTranslator | PointerInput
+InputCommandTranslator | PointerPress
+
+ItemHitArea | Hit
+ItemHitArea | Item
+ItemHitArea | NOT_STORED_SIZES
+ItemHitArea | PointerSlop
+
+LocalStorageDocumentStore | WEB_STORAGE_KEY_PREFIX
+
+PostDialogueMessage | SettledUtterance
+
+Schedule | Assignment
+Schedule | BaselineTask
+Schedule | COLUMN_DEFAULTS
+Schedule | Calendar
+Schedule | CalendarDay
+Schedule | CarryElement
+Schedule | CommentBox
+Schedule | DEFAULT_CALENDAR_VALUES
+Schedule | Dependency
+Schedule | Exception
+Schedule | HighlightBox
+Schedule | Project
+Schedule | Resource
+Schedule | Task
+Schedule | TaskGroup
+Schedule | TaskGroupMember
+Schedule | TaskOrigin
+Schedule | TaskVisual
+Schedule | WeekDay
+Schedule | WorkingCalendar
+
+ScheduleGeometry | BarGeometry
+ScheduleGeometry | MarkerGeometry
+ScheduleGeometry | Path
+ScheduleGeometry | Point
+ScheduleGeometry | TaskGeometry
+
+ScheduleLayout | MilestoneGlyph
+ScheduleLayout | RowPlacement
+ScheduleLayout | ShapeKind
+ScheduleLayout | TaskPlacement
+
+ScreenRegions | ScreenEnvironment
+
+ScreenRenderer | AppHeaderItems
+ScreenRenderer | AutosaveStatus
+ScreenRenderer | CommandItem
+ScreenRenderer | CommandPalette
+ScreenRenderer | Confirmation
+ScreenRenderer | ConfirmationItem
+ScreenRenderer | DialogueField
+ScreenRenderer | DialogueInput
+ScreenRenderer | DisplayLanguage
+ScreenRenderer | ExportFormatId
+ScreenRenderer | IconId
+ScreenRenderer | Notice
+ScreenRenderer | OpenModal
+ScreenRenderer | PropertiesPanel
+ScreenRenderer | PropertyField
+ScreenRenderer | RaisedConfirmation
+ScreenRenderer | RaisedNotice
+ScreenRenderer | RowTitle
+ScreenRenderer | RowTitlePanel
+ScreenRenderer | ScreenFrame
+ScreenRenderer | ScreenPart
+ScreenRenderer | ScreenSession
+ScreenRenderer | Tooltip
+ScreenRenderer | TooltipAnchor
+
+ScreenState | Armed
+ScreenState | EscapeContext
+ScreenState | EscapeTarget
+
+Selection | ItemRef
+Selection | lastPicked
+Selection | selectionOfAll
+
+UndoEdit | ChangeStep
+UndoEdit | HeldDocument
+
+ValidateImportedDocument | ImportBounds

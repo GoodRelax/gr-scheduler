@@ -453,8 +453,6 @@ export const SETTINGS_DERIVED = {
 } as const
 // </generated>
 
-
-
 /** One value that had to be moved to get inside the bounds. */
 export interface ClampedValue {
   /** The dotted key, as tbl-settings.md writes it. */

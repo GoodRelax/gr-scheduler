@@ -2385,5 +2385,3 @@ export const NOT_STORED_ZOOM_STEP: {
   'S-96': 1.1,
 }
 // </generated>
-
-

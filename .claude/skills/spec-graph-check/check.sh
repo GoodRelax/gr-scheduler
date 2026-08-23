@@ -55,6 +55,14 @@
 #          directions. A class the rule says to wait for may not carry a mark
 #          at all, and a class that cannot be reversed may not be left open
 #          behind a finished wave
+#   27     the six generated artifacts this file used to leave to `npm run
+#          gen:check` alone -- the startup template, the icon roster, the icon
+#          glyphs, the display words, the MSPDI custom fields, the exchange
+#          formats. ⛔ Added 2026-08-23: `gen:check` holds eleven generators
+#          and this file called five, so for every round "ALL GREEN" proved
+#          nothing whatever about six artifacts inside src/. A suite that is
+#          quoted as the word on the tree has to run everything that holds the
+#          tree to its manuscript
 #   26b    check-published-members.py : every member table T-064 publishes is
 #          exported by its component's public entry, the one way out of the
 #          folder Chapter 5.3 allows. The "b" is deliberate -- audit-ch5.py
@@ -66,7 +74,14 @@
 #          the whole table. Its two known gaps are held in
 #          published-members-baseline.txt (the shape of 11): green when the
 #          gaps found are exactly those, red on a new one and red on a held
-#          line that is no longer a gap. A held gap is a debt, not a permission
+#          line that is no longer a gap. A held gap is a debt, not a permission.
+#          ⭐ It also walks the OTHER way, added 2026-08-23: every name that
+#          actually leaves a component folder in src/ is held against the
+#          table, because a walk that starts at the table can only confirm
+#          names the table already has. 226 names cross and 142 are in no row,
+#          which is the failure the table's own claim says cannot happen; those
+#          142 are held in crossing-names-baseline.txt so the run starts at
+#          new 0 and a NEW unlisted crossing is red the day it appears
 #
 # Green does NOT prove the specification is sound: every Critical defect of
 # the last eight rounds appeared while all of these were green. They stop
@@ -196,13 +211,36 @@ echo "===== 20  the generated entity types still match erd.json ====="
 PYTHONIOENCODING=utf-8 python tools/generate_entity_types.py --check || fail=1
 
 echo ""
-echo "===== 26b every member of table T-064 leaves through its entry ====="
+echo "===== 27  the six other generated artifacts still match their manuscripts ====="
+PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/generate_icon_glyphs.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/generate_display_words.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/generate_mspdi_custom_fields.py --check || fail=1
+PYTHONIOENCODING=utf-8 python tools/generate_exchange_formats.py --check || fail=1
+
+echo ""
+echo "===== 26b table T-064 and src/ hold each other, both directions ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-published-members.py || fail=1
+
+echo ""
+echo "===== NOT COVERED  what this run did not look at ====="
+# ⛔ Printed on every run, green or red. A suite that names only what it
+# checked gets read as having checked everything, which is how a gate that saw
+# 71.3% of the import edges said "OK" for six rounds (2026-08-23 audit).
+echo "   docs/spec/_source/build.py writes 11 artifacts -- fig-components and"
+echo "   the four views, each a .drawio and an .svg, plus"
+echo "   docs/review/components/components.md -- and has no --check. It drives"
+echo "   draw.io through an installed executable, so nothing here can rebuild"
+echo "   them to compare. ⛔ A stale component figure passes this whole suite."
+echo "   Provenance only (check 21) says where they came from, never that they"
+echo "   are current."
 
 echo ""
 if [ "$fail" -eq 0 ]; then
     echo "ALL GREEN -- which proves references resolve, not that the"
-    echo "specification agrees with itself."
+    echo "specification agrees with itself, and not that anything under"
+    echo "NOT COVERED above is current."
 else
     echo "FAILURES ABOVE"
 fi
