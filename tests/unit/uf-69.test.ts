@@ -110,6 +110,20 @@ const ICON_OPEN = 'IC-1'
 const ICON_PALETTE = 'IC-7'
 const ICON_CLOSE = 'IC-52'
 
+/**
+ * What the palettes below carry for the band GR-19 of 表 T-023d lays along the
+ * palette's top edge.
+ *
+ * ⚠️ INERT, AND NAMED SO THAT IT READS AS INERT. This unit answers explanations
+ * for entries (EZ-2 of 表 T-040), and 表 T-109 says of the band's row 「掴んで
+ * 動かせることを示す。**ボタンではない**」 -- so it is not an entry and no case
+ * here means the number. ⛔ The value 表 T-206 holds at `S-135a` is deliberately
+ * NOT copied here: rule 03 section 1 keeps it in one place, and
+ * `tests/unit/uf-65.test.ts` is the bench that holds a described band to the
+ * manuscript.
+ */
+const BAND_HEIGHT_NO_CASE_MEANS = 7
+
 // ---------------------------------------------------------------------------
 // Inputs. ⛔ The wait is read from the generated defaults, never typed here:
 // rule 03 section 1 forbids re-typing a value the manuscript holds.
@@ -409,6 +423,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
         commandPalette: {
           // ⭐ A CORNER, NOT A RECTANGLE (FR-053, MUST / MUST NOT).
           at: { x: 300, y: 300 },
+          // ⚠️ INERT HERE -- see the note by the other palette in this file.
+          grabBandHeight: BAND_HEIGHT_NO_CASE_MEANS,
           groups: [{ name: '表示', commands: [commandOf({ icon: ICON_PALETTE })] }],
           armedText: 'なし',
         },
@@ -432,6 +448,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
         commandPalette: {
           // ⭐ A CORNER, NOT A RECTANGLE (FR-053, MUST / MUST NOT).
           at: { x: 300, y: 300 },
+          // ⚠️ INERT HERE -- see the note by the other palette in this file.
+          grabBandHeight: BAND_HEIGHT_NO_CASE_MEANS,
           groups: [],
           armedText: 'なし',
         },

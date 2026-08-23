@@ -1034,6 +1034,13 @@ const PALETTE: CommandPalette = {
   // the description carries the place it floats at and nothing else; what it
   // measures out to is this unit's own answer.
   at: { x: 400, y: 300 },
+  // GR-19 of 表 T-023d -- how far down the band along the palette's top edge
+  // reaches. ⚠️ THE NUMBER IS THIS FILE'S OWN and no case here means it: 表
+  // T-206 states the height at `S-135a`, and rule 03 section 1 keeps that value
+  // in one place -- `tests/unit/uf-65.test.ts` is the bench that holds a
+  // described band to the manuscript. What THIS unit owes the band is where it
+  // is drawn and what it is marked with, not how tall the description says it is.
+  grabBandHeight: 10,
   groups: [
     {
       name: 'PaletteGroupOne',

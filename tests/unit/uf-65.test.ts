@@ -48,6 +48,13 @@
 //                and (MUST NOT) the settings table holds none; (MUST) what is
 //                armed is readable; (MUST) the show/hide entrance is OUTSIDE
 //                the palette. ⛔ The faintness is judged elsewhere -- see above
+//   T-023d GR-19 the band FR-053's drag is grabbed by -- 「パレットの上端に敷く
+//                帯」 -- and the row that stands FIRST under the table's
+//                preamble 「上の行ほど優先すること（MUST）」
+//   T-206 S-135a the band's height, and the only number that row fixes: its own
+//                note says 「パレットの大きさは中身が決める（`FR-053`）ので、
+//                本値が定めるのは帯の高さだけである」
+//   T-109 IC-53  「掴んで動かせることを示す。**ボタンではない**」
 //   T-065 IF-9   where the faintness IS judged: the side that drew the parts
 //   T-023b       AR-1 .. AR-6, the whole of what can be armed
 //   T-023c       SL-1 does not admit the palette; SL-7b (MUST NOT) refuses
@@ -275,6 +282,58 @@ const groupWordsIn = (language: DisplayLanguage): readonly string[] =>
   FIRST_ROW_OF_GROUP.map((row) => groupWordOf(row, language))
 
 // ---------------------------------------------------------------------------
+// The manuscript table T-206 is printed from.
+// ---------------------------------------------------------------------------
+
+/**
+ * `docs/spec/_source/settings.json` -- the manuscript Chapter 6.2 makes the one
+ * place a setting is decided, and the file `npm run gen` prints both
+ * `_assets/tbl-settings.md` and the generated constants of `src/` out of.
+ *
+ * ⭐ THE MANUSCRIPT AND NOT THE GENERATED CONSTANT, which is the whole of why
+ * this reader exists. 04-verification.md §2 asks an acceptance case for a value
+ * that travels from a manuscript to be 「原稿の値を 1 つ変えると試験が落ちるか」;
+ * a case that read the same generated file the unit reads would agree with it
+ * whatever either of them said, and could not tell drift from agreement.
+ * ⛔ No number is written in this file -- rule 03 section 1 forbids re-typing a
+ * value the specification holds, and a copy here would be the second store.
+ */
+const SETTINGS_MANUSCRIPT = JSON.parse(
+  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
+) as {
+  readonly blocks: readonly {
+    readonly id?: string
+    readonly rows?: readonly {
+      readonly id?: string
+      readonly default?: { readonly num?: string; readonly suffix?: string }
+    }[]
+  }[]
+}
+
+/** The 既定 column of one row of one settings table, as the number it prints. */
+function settingDefaultNumber(table: string, row: string): number {
+  const block = SETTINGS_MANUSCRIPT.blocks.find((one) => one.id === table)
+  if (block === undefined) throw new Error(`the settings manuscript has no table ${table}`)
+  const held = block.rows?.find((one) => one.id === row)
+  if (held === undefined) throw new Error(`table ${table} of the manuscript has no row ${row}`)
+  const num = held.default?.num
+  if (num === undefined) throw new Error(`row ${row} of table ${table} prints no default number`)
+  const value = Number(num)
+  if (!Number.isFinite(value)) throw new Error(`row ${row} of table ${table} prints no number`)
+  return value
+}
+
+/**
+ * S-135a of table T-206 -- how far down the band GR-19 lays along the palette's
+ * top edge reaches.
+ *
+ * ⚠️ THE HEIGHT AND NOT A SIZE. The row's own note says so: 「パレットの大きさは
+ * 中身が決める（`FR-053`）ので、本値が定めるのは帯の高さだけである」, which is
+ * why reading it here does not put the palette's extent on this side of IF-9.
+ */
+const GRAB_BAND_HEIGHT = settingDefaultNumber('T-206', 'S-135a')
+
+// ---------------------------------------------------------------------------
 // Inputs. UF-65 fills one member of `ScreenView` and reads none of the others,
 // so every member below that a case does not mean is inert.
 // ---------------------------------------------------------------------------
@@ -413,12 +472,25 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
 
   it('carries a place and no extent, because FR-053 forbids one being held', () => {
     // ⛔ FR-053 (MUST NOT): 「大きさを設定値の表に持ってはならない」. No unit on
-    // this side of IF-9 measures anything (LR-6), so a width or a height
-    // appearing here would be a number nobody had measured -- which is what
-    // this case exists to catch.
+    // this side of IF-9 measures anything (LR-6), so a width or a height OF THE
+    // PALETTE appearing here would be a number nobody had measured -- which is
+    // what this case exists to catch, and the exact key set is how it catches
+    // it: a `width`, a `size`, a `box` or a rectangle would fail here.
+    //
+    // ⚠️ `grabBandHeight` DOES NOT WEAKEN THAT MUST NOT, and the reason is that
+    // a height is not an extent. GR-19 of table T-023d states WHERE the band
+    // goes -- 「パレットの上端に敷く帯」 -- and `at` is already that edge's
+    // corner, so the band's width is the palette's own and stays on the side
+    // that laid the contents out. S-135a fixes the one number GR-19 leaves
+    // open, and its note in table T-206 says in as many words that this is all
+    // it fixes: 「パレットの大きさは中身が決める（`FR-053`）ので、本値が定める
+    // のは帯の高さだけである」. ⛔ The two numbers a rectangle would need are
+    // still absent, and the case below pins that this member is one number and
+    // not a pair.
     const palette = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 12, y: 34 } }))
     expect(Object.keys(palette.at).sort()).toEqual(['x', 'y'])
-    expect(Object.keys(palette).sort()).toEqual(['armedText', 'at', 'groups'])
+    expect(Object.keys(palette).sort()).toEqual(['armedText', 'at', 'grabBandHeight', 'groups'])
+    expect(typeof palette.grabBandHeight, 'a pair here would be an extent again').toBe('number')
   })
 
   it('moves only the place when the person drags it', () => {
@@ -428,6 +500,63 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
     const here = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 0, y: 0 } }))
     const there = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 300, y: 90 } }))
     expect({ ...there, at: here.at }).toEqual(here)
+  })
+})
+
+describe('UF-65 -- GR-19 of table T-023d: the band FR-053 is dragged by', () => {
+  it('lays a band whenever it describes a palette, however the palette is asked for', () => {
+    // ⛔ GR-19 is a MUST -- it stands under 「上の行ほど優先すること（MUST）」 --
+    // and a palette drawn without a band is a palette that row cannot be
+    // obeyed for. So there is no state of the arm, the selection, the corner or
+    // the display language in which this member has nothing to say, and the
+    // walk below is over every input this unit takes.
+    for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
+      for (const { what, selection } of SELECTIONS) {
+        for (const { row, armed } of T_023b) {
+          const palette = describedWith(
+            selection,
+            sessionOf({ language, commandPaletteAt: { x: -12, y: 900 } }),
+            screenStateWithArmed(SHOWN, armed),
+          )
+          expect(palette.grabBandHeight, `${language} / ${what} / ${row}`).toBe(GRAB_BAND_HEIGHT)
+        }
+      }
+    }
+  })
+
+  it('takes the height from the manuscript S-135a rather than from a number of its own', () => {
+    // ⭐ 04-verification.md §2: 「原稿の値を 1 つ変えると試験が落ちるか」,
+    // 「落ちなければ、その値はどこにも届いていない」. The expected value is read out
+    // of `docs/spec/_source/settings.json` at read time, so re-deciding that row
+    // fails this case instead of leaving a stale literal behind.
+    // ⚠️ GR-19 delegates the number and states nothing else about it: 「高さは
+    // `_assets/tbl-settings.md` の `S-135a`」.
+    expect(describedWith().grabBandHeight).toBe(GRAB_BAND_HEIGHT)
+  })
+
+  it('never answers a band nobody could grab', () => {
+    // ⛔ GR-19's own warning is what a zero band would cost: 「パレットは日程の
+    // 上へ浮くので、掴めない位置へ置けてしまうと二度と動かせなくなる」. A band
+    // of no height is the same accident reached by another road -- the palette
+    // is on the screen and there is nothing on it to take hold of.
+    // ⚠️ Not a bound of this file's invention: the claim is only that whatever
+    // S-135a says is a band a hand can land on.
+    expect(describedWith().grabBandHeight).toBeGreaterThan(0)
+  })
+
+  it('reaches the screen as the band and never as an entry (IC-53 of table T-109)', () => {
+    // ⛔ Table T-109 of IC-53: 「掴んで動かせることを示す。**ボタンではない**」.
+    // A `CommandItem` for it would say the opposite -- an entry is a thing to
+    // press, and pressing this one does not run a command, it begins FR-053's
+    // drag. So the row reaches the description as the band's height and in no
+    // other way, and both halves are pinned together here: finding it among the
+    // entries is the failure, and so is losing the band that stands in its place.
+    const palette = describedWith()
+    const notAButton = T_109_PALETTE.find((entry) => entry.authority === 'FR-053')
+    expect(notAButton, 'table T-109 no longer places a row of FR-053 on the palette').toBeDefined()
+    expect(notAButton?.isButton, 'table T-109 calls that row no button').toBe(false)
+    expect(iconsOf(palette)).not.toContain((notAButton as { readonly row: string }).row)
+    expect(palette.grabBandHeight).toBe(GRAB_BAND_HEIGHT)
   })
 })
 

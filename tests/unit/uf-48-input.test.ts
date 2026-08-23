@@ -61,6 +61,16 @@
 //                   `Ctrl+P` and `Ctrl+F` as two it must not take
 //   表 T-036        the whole roster of shortcut assignments; the row says so
 //                   itself: 「本表がショートカットキーの割当の全数である」
+//   表 T-023d GR-19 「`Command Palette` の掴み帯 ... 掴めばパレットを動かす
+//                   （`FR-053`）」 -- the FIRST row of that table, under the
+//                   preamble 「上の行ほど優先すること（MUST）」
+//   FR-053          「作成者がドラッグで動かせるようにすること」 (MUST), whose
+//                   corner no row of 表 T-203 or 表 T-206 holds -- so LY-5 of
+//                   表 T-060 leaves this loop as the only layer that may keep it
+//   表 T-109 IC-53  「掴んで動かせることを示す。**ボタンではない**」 -- the row
+//                   a press on the band arrives as, and never an entry
+//   表 T-023 MK-7   「パンは等倍とすること（MUST）」 -- the shape the palette's
+//                   travel takes too: what the pointer went, not scaled
 //   表 T-028 IN-1   「ポインタ操作は押した時点で実行せず、離した時点で確定
 //                   すること」
 //   表 T-028 IN-1a  「ボタンを離す前に窓の外でポインタが失われたときは、
@@ -178,6 +188,26 @@ const rowOf = (table: string, id: string) => {
  * `npm run gen`, but table T-229 does not.
  */
 const ED_1_WORD = bare(rowOf('T-229', 'ED-1').by['書く語'] ?? '')
+
+/**
+ * 表 T-103 U-26 -- the settled name IF-9 answers the floating palette by.
+ *
+ * ⭐ Read out of the table for the same reason ED-1's word is: W-4 of 表 T-006a
+ * makes a settled name the join, and a spelling typed here would go stale in
+ * silence if the row were re-worded.
+ */
+const U_26_PART = bare(rowOf('T-103', 'U-26').by['確定名（英）'] ?? '')
+
+/**
+ * 表 T-109's row for the palette's grab band -- what the surface answers for a
+ * point on the band GR-19 of 表 T-023d lays along the palette's top edge.
+ *
+ * ⛔ A ROW ID AND NOT A BUTTON. 表 T-109 says of it 「掴んで動かせることを示す。
+ * **ボタンではない**」, so a press on it does not run an entry: it begins the
+ * drag FR-053 (MUST) requires. The last describe in this file holds the row to
+ * the table.
+ */
+const T_109_GRAB_BAND = 'IC-53'
 
 /** `Ctrl` ＋ `Shift` ＋ `D` and `Ctrl+Shift+D` are the same assignment. */
 const sameSpelling = (cell: string): string =>
@@ -921,6 +951,132 @@ describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', 
   })
 })
 
+describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette`', () => {
+  // ⭐ FR-053 (MUST): 「作成者がドラッグで動かせるようにすること」, and GR-19 is
+  // where that drag is grabbed. ⛔ THE PLACE IS THIS LOOP'S AND NOBODY ELSE'S:
+  // no row of 表 T-203 or 表 T-206 holds the palette's corner, so LY-5 of 表
+  // T-060 leaves the Framework as the only layer that may keep it -- which is
+  // why these cases read the corner back off the description the surface was
+  // given rather than off any document.
+  //
+  // ⚠️ A DISTANCE AND NOT A PLACE. A press may begin anywhere on the band, so a
+  // corner that jumped to where the finger let go would move the palette by an
+  // amount nobody asked for. MK-7 states the shape of it for the pan: 「パンは
+  // 等倍とすること（MUST）」.
+
+  /** Where the palette floats now, as the surface was last told. */
+  function paletteCorner(screen: ScreenPane): { readonly x: number; readonly y: number } {
+    const palette = screen.last().commandPalette
+    if (palette === null) throw new Error('S-99e says it is showing, so one is described')
+    return palette.at
+  }
+
+  /** Aim the next press at GR-19's band. CS-2 freezes it at the press. */
+  const aimAtTheBand = (screen: ScreenPane): void => {
+    screen.drawAt({ part: U_26_PART, entry: T_109_GRAB_BAND, format: null })
+  }
+
+  it('FR-053 (MUST): the palette ends up the distance the pointer travelled away', () => {
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const before = paletteCorner(screen)
+
+    aimAtTheBand(screen)
+    loop.receiveInput(pointer('down', 500, 320))
+    loop.receiveInput(pointer('move', 560, 360))
+    loop.receiveInput(pointer('up', 560, 360))
+    pane.runAnimationFrames()
+
+    // ⛔ THE PLACE AND NOT THE ACTION. That an action was answered proves the
+    // press was read; only the corner proves the palette moved.
+    expect(paletteCorner(screen)).toEqual({ x: before.x + 60, y: before.y + 40 })
+  })
+
+  it('FR-053: a second drag moves it again, by ITS travel and not to its pointer', () => {
+    // ⛔ The case that tells a distance from a place. The second press begins
+    // far from where the first ended, so a loop that put the corner where the
+    // finger let go would answer the pointer's own coordinates here.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const before = paletteCorner(screen)
+
+    aimAtTheBand(screen)
+    loop.receiveInput(pointer('down', 500, 320))
+    loop.receiveInput(pointer('move', 560, 360))
+    loop.receiveInput(pointer('up', 560, 360))
+    pane.runAnimationFrames()
+
+    aimAtTheBand(screen)
+    loop.receiveInput(pointer('down', 200, 120))
+    loop.receiveInput(pointer('move', 175, 135))
+    loop.receiveInput(pointer('up', 175, 135))
+    pane.runAnimationFrames()
+
+    expect(paletteCorner(screen)).toEqual({ x: before.x + 60 - 25, y: before.y + 40 + 15 })
+  })
+
+  it('IN-1a (MUST): a pointer lost outside the window leaves the palette where it was', () => {
+    // 「ボタンを離す前に窓の外でポインタが失われたときは、ドラッグを中断として
+    // 終わらせること（MUST）」. 中断 is not a release, and IN-1 settles a pointer
+    // operation only on the release -- so the palette stays put.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const before = paletteCorner(screen)
+
+    aimAtTheBand(screen)
+    loop.receiveInput(pointer('down', 500, 320))
+    loop.receiveInput(pointer('move', 560, 360))
+    loop.receiveInput(pointer('lost', 560, 360))
+    pane.runAnimationFrames()
+
+    expect(paletteCorner(screen)).toEqual(before)
+  })
+
+  it('IN-4 (MUST): `Esc` takes the drag in flight, so the palette does not move', () => {
+    // IN-4's second level is 「進行中のドラッグ・引きかけの矢印」, consumed one
+    // level per press. ⚠️ The release that follows must not settle it either:
+    // the gesture the release would have belonged to is already gone.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const before = paletteCorner(screen)
+
+    aimAtTheBand(screen)
+    loop.receiveInput(pointer('down', 500, 320))
+    loop.receiveInput(pointer('move', 560, 360))
+    loop.receiveInput(key('Esc'))
+    pane.runAnimationFrames()
+    expect(paletteCorner(screen), 'Esc consumed the drag, so nothing moved').toEqual(before)
+
+    loop.receiveInput(pointer('up', 560, 360))
+    pane.runAnimationFrames()
+    expect(paletteCorner(screen), 'the release of an aborted drag settles nothing').toEqual(before)
+  })
+
+  it('CS-2: a press that landed on nothing does not move the palette, however it is redrawn', () => {
+    // ⛔ The other half of the claim: the corner moves BECAUSE the press was on
+    // GR-19's band, not because a drag happened over the palette. CS-2 of 表
+    // T-066 fixes what the gesture is about at the press, and the surface is
+    // told about the band only after the button is already down.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const before = paletteCorner(screen)
+
+    screen.drawAt(null)
+    loop.receiveInput(pointer('down', 500, 320))
+    aimAtTheBand(screen)
+    loop.receiveInput(pointer('move', 560, 360))
+    loop.receiveInput(pointer('up', 560, 360))
+    pane.runAnimationFrames()
+
+    expect(paletteCorner(screen)).toEqual(before)
+  })
+})
+
 describe('FR-046 and SK-20 -- the day written into statusDate is the LOCAL calendar day', () => {
   // ⭐ Each case freezes the clock at an instant where the reader's calendar day
   // and UTC's differ, in both directions, so a loop that read the UTC day
@@ -1121,6 +1277,33 @@ describe('the specification still says what these cases copy', () => {
     expect(rowOf('T-028', 'IN-1').cells.join(' ')).toContain(
       'ポインタが描画領域の外へ出たことを中断としてはならない（MUST NOT）',
     )
+  })
+
+  it('GR-19 still stands FIRST in table T-023d, and still moves the palette', () => {
+    // ⛔ Read out of the table, never assumed: the preamble makes the upper row
+    // win, so the claim the drag cases rest on is that this row is the upper
+    // one. A re-ordering of that table lands here.
+    const t023d = specTable('T-023d')
+    expect(t023d.rows[0]?.id, 'table T-023d no longer opens with the palette band').toBe('GR-19')
+    expect(REQUIREMENTS).toContain('上の行ほど優先すること（MUST）')
+
+    const gr19 = t023d.rows[0]?.cells.join(' ') ?? ''
+    expect(gr19).toContain(U_26_PART)
+    expect(gr19).toContain('掴めばパレットを動かす')
+    expect(gr19).toContain('FR-053')
+  })
+
+  it('FR-053 still makes the palette something the person drags', () => {
+    expect(REQUIREMENTS).toContain('作成者がドラッグで動かせるようにすること')
+  })
+
+  it('table T-109 still answers the band by a row that is NOT a button', () => {
+    // The row is what a press on the band arrives as; the sentence is why no
+    // `CommandItem` may stand for it.
+    const ic53 = rowOf('T-109', T_109_GRAB_BAND)
+    expect(bare(ic53.by['面'] ?? '')).toBe(U_26_PART)
+    expect(ic53.by['何の入口か']).toContain('ボタンではない')
+    expect(ic53.by['正']).toContain('FR-053')
   })
 
   it('CS-2 of table T-066 still freezes the gesture at the press', () => {

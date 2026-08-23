@@ -53,6 +53,14 @@
 //                   answer over them is what stops a press from becoming PD-5's
 //                   marquee underneath
 //   表 T-023b       the arms, and the entries of 表 T-109 that set them
+//   表 T-023d GR-19 「`Command Palette` の掴み帯 | **パレットの上端に敷く帯**
+//                   （高さは `_assets/tbl-settings.md` の `S-135a`）| 掴めば
+//                   パレットを動かす（`FR-053`）。⚠️ **帯の下に何が描かれていて
+//                   も帯が勝つ**」, standing FIRST under that table's preamble
+//                   「上の行ほど優先すること（MUST）」
+//   表 T-109 IC-53  「掴んで動かせることを示す。**ボタンではない**」 -- the row
+//                   the band is answered by, and the row no `CommandItem` may
+//                   stand for
 //   FR-053 / FR-083 SP-1 .. SP-4 -- a press on a palette shape arms or changes a
 //                   shape, so the press has to reach the entry at all
 //   FR-029          what cannot be used is drawn faint and gives its reason
@@ -174,6 +182,44 @@ const T_109_ELSEWHERE = [
   { row: 'IC-59', surface: 'Row Title Panel' },
   { row: 'IC-60', surface: 'Row Title Panel' },
 ] as const
+
+/**
+ * 表 T-109's row for the palette's grab band, copied by row id.
+ *
+ * ⛔ NOT AN ENTRY, AND THE COPY SAYS SO. The 何の入口か column reads 「掴んで
+ * 動かせることを示す。**ボタンではない**」, so `isButton` is false and no case
+ * below may look for it among the things a press runs. `ScreenPart.entry` still
+ * answers it, because that member is the ROW a point is on and not the entry
+ * that can be pressed -- the band carries no name of its own to be answered by.
+ */
+const T_109_GRAB_BAND = {
+  row: 'IC-53',
+  surface: 'Command Palette',
+  authority: 'FR-053',
+  isButton: false,
+} as const
+
+/**
+ * 表 T-023d, read out of the .md at read time.
+ *
+ * ⭐ Chapter 1.9 (:275) asks for a fixed copy; taking it from the file is that
+ * copy, and it is the only form that can NOTICE the table being re-ordered.
+ * The preamble the cases lean on is checked below, out of the same file.
+ */
+const T_023D = specTable('T-023d')
+
+/**
+ * The row that WINS a point when two grab regions overlap.
+ *
+ * ⛔ Taken from the table's first row and never named here, because the whole
+ * claim is about the ORDER: 「上の行ほど優先すること（MUST）」. A case that wrote
+ * the row id down instead would go on passing after that row had been pushed
+ * further down the table.
+ */
+const T_023D_TOP_ROW = T_023D.rows[0]
+
+/** The preamble of 表 T-023d, which is what makes the first row the winner. */
+const T_023D_PRIORITY_PREAMBLE = '上の行ほど優先すること（MUST）'
 
 /** 表 T-103 — the settled names these cases look for. */
 const T_103_PARTS = [
@@ -992,6 +1038,35 @@ const paletteEntryBox = (index: number): ScreenRect =>
   rect(410 + (index % 6) * 30, 310 + Math.floor(index / 6) * 30, ENTRY, ENTRY)
 
 /**
+ * Where the `Command Palette` floats. ⭐ Named rather than written twice: the
+ * band GR-19 lays on it is placed FROM this box, so the two cannot drift apart.
+ */
+const PALETTE_BOX = rect(400, 300, 220, 180)
+
+/**
+ * How far down the grab band reaches.
+ *
+ * ⚠️ THE NUMBER IS THIS FILE'S OWN, and 表 T-206 states the real one at
+ * `S-135a`. Rule 03 section 1 keeps that value in one place and
+ * `tests/unit/uf-65.test.ts` is the bench that holds a described band to the
+ * manuscript; what THIS unit owes GR-19 is that a point on the band answers the
+ * band, whatever height the description carries. ⭐ Chosen to stop exactly where
+ * the first row of entries begins, so R3.4 has one edge to resolve between them.
+ */
+const GRAB_BAND_HEIGHT = 10
+
+/**
+ * The band GR-19 of 表 T-023d lays 「パレットの上端に敷く」 -- the palette's own
+ * width, the palette's own top corner, and S-135a's height.
+ *
+ * ⛔ UNLIKE EVERY OTHER BOX IN `LAYOUT`, THIS ONE IS NOT THIS FILE'S INVENTION:
+ * GR-19 fixes where the band goes and 表 T-206 how far down it reaches, so a
+ * browser laying the palette out has no freedom here. That is why it is derived
+ * from `PALETTE_BOX` rather than typed.
+ */
+const GRAB_BAND_BOX = rect(PALETTE_BOX.x, PALETTE_BOX.y, PALETTE_BOX.width, GRAB_BAND_HEIGHT)
+
+/**
  * ⭐ Chosen so that every relation a case needs is present exactly once: the
  * `Help Modal` overlaps the palette WITHOUT covering it, the `Notification
  * Area` begins on the `App Header`'s bottom edge, and the `Row Title Tree` sits
@@ -1023,7 +1098,10 @@ const LAYOUT = new Map<string, ScreenRect>([
   ['icon:IC-58', rect(100, 60, 16, 16)],
   ['icon:IC-59', rect(116, 60, 16, 16)],
   ['icon:IC-60', rect(140, 60, 16, 16)],
-  ['role:Command Palette', rect(400, 300, 220, 180)],
+  ['role:Command Palette', PALETTE_BOX],
+  // GR-19 of 表 T-023d, marked with the row 表 T-109 gives it (IC-53) the way an
+  // entry is marked -- which is what `ScreenPart.entry` declares it answers by.
+  [`icon:${T_109_GRAB_BAND.row}`, GRAB_BAND_BOX],
   ['role:Help Modal', rect(500, 380, 400, 300)],
   [`role:${partName('U-57')}`, rect(700, 40, 280, 80)],
   ['role:Dialogue Field', rect(200, 700, 600, 60)],
@@ -1046,6 +1124,14 @@ const AT = {
   noticesFirstRow: { x: 750, y: 40 },
   paletteNoEntry: { x: 600, y: 320 },
   paletteUnderModal: { x: 550, y: 400 },
+  /**
+   * On GR-19's band, over the bare schedule -- 「帯の下に何が描かれていても帯が
+   * 勝つ」. ⭐ Above the first row of entries on purpose, so the claim is the
+   * band's own claim and not a question about which of two siblings paints last.
+   */
+  paletteGrabBand: { x: 500, y: 304 },
+  /** The band's bottom edge, which R3.4 gives to the entry that starts there. */
+  paletteBelowTheBand: { x: 412, y: PALETTE_BOX.y + GRAB_BAND_HEIGHT },
   modalOnly: { x: 520, y: 650 },
   modalEntry: { x: 870, y: 400 },
   notices: { x: 900, y: 100 },
@@ -1108,7 +1194,12 @@ const PALETTE: CommandPalette = {
   // answer -- `LAYOUT` above registers it, corner for corner with this member --
   // which is the whole reason IF-9 asks the drawing side which part a point is
   // on.
-  at: { x: 400, y: 300 },
+  at: { x: PALETTE_BOX.x, y: PALETTE_BOX.y },
+  // GR-19 of 表 T-023d: 「パレットの上端に敷く帯」, whose height 表 T-206 states
+  // at `S-135a`. ⭐ A HEIGHT AND NOT A RECTANGLE -- the corner above is already
+  // the edge the band is laid along, and the band's width is the palette's own.
+  // ⚠️ The number is this file's own; see `GRAB_BAND_HEIGHT`.
+  grabBandHeight: GRAB_BAND_HEIGHT,
   groups: [
     {
       name: 'PlaceGroup',
@@ -1477,6 +1568,113 @@ describe('FR-053 / 表 T-023b -- the palette can be armed from (SP-1 .. SP-4)', 
     // use for IC-58 .. IC-60 either.
     expect(byRole(built.root(), 'Row Title Tree').length).toBeGreaterThan(0)
     expect(ask(built, AT.rowTreeNoEntry.x, AT.rowTreeNoEntry.y)?.part).toBe('Row Title Panel')
+  })
+})
+
+describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has', () => {
+  // ⭐ WHY THIS UNIT AT ALL. `ScreenPart.entry` declares it: the band carries no
+  // name of its own to be answered by, 表 T-109 gives it IC-53, and GR-19 gives
+  // it 「帯の下に何が描かれていても帯が勝つ」 -- which, for a palette floating
+  // over the schedule, is what the topmost drawn node at that point answers.
+  // ⛔ So a press on it has somewhere to arrive; without this answer, FR-053's
+  // drag has no entrance at all and GR-19 -- a MUST standing first in its table
+  // -- cannot be obeyed.
+
+  it('表 T-023d still puts the palette band FIRST, which is what makes it win', () => {
+    // ⛔ The premise of every case below, read out of the .md rather than
+    // assumed: the preamble makes the upper row win, and the upper row is this
+    // one. A re-ordering of that table lands HERE and not silently.
+    expect(T_023D.rows.length, '表 T-023d has no rows').toBeGreaterThan(1)
+    expect(T_023D_TOP_ROW?.id, '表 T-023d no longer opens with the palette band').toBe('GR-19')
+
+    const requirements = readFileSync(
+      join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+      'utf8',
+    )
+    expect(requirements, '表 T-023d no longer says the upper row wins').toContain(
+      T_023D_PRIORITY_PREAMBLE,
+    )
+    // The row names the part it is laid on and the requirement that drags it.
+    expect(T_023D_TOP_ROW?.cells.join(' ')).toContain(T_109_GRAB_BAND.surface)
+    expect(T_023D_TOP_ROW?.cells.join(' ')).toContain(T_109_GRAB_BAND.authority)
+  })
+
+  it('answers the band for a point on it, so FR-053 has an entrance to drag by', () => {
+    const built = drawn(PALETTE_VIEW)
+
+    expect(ask(built, AT.paletteGrabBand.x, AT.paletteGrabBand.y)).toEqual({
+      part: 'Command Palette',
+      entry: T_109_GRAB_BAND.row,
+      format: null,
+    })
+  })
+
+  it('⛔ the band beats what is drawn under it -- the schedule below it never answers', () => {
+    // GR-19: 「帯の下に何が描かれていても帯が勝つ —— パレットは日程の上へ浮くの
+    // で、掴めない位置へ置けてしまうと二度と動かせなくなる」. The same point with
+    // NO palette drawn is bare schedule, and 表 T-023a would let PD-5 start a
+    // marquee there; with the palette drawn it is the band's, first row of its
+    // table.
+    const bare = drawn(viewWith({}))
+    expect(
+      ask(bare, AT.paletteGrabBand.x, AT.paletteGrabBand.y),
+      'the point has to be over the bare schedule, or the case proves nothing',
+    ).toBeNull()
+
+    const built = drawn(PALETTE_VIEW)
+    expect(ask(built, AT.paletteGrabBand.x, AT.paletteGrabBand.y)?.entry).toBe(
+      T_109_GRAB_BAND.row,
+    )
+  })
+
+  it('R3.4 -- the band ends where the first entry begins, and neither claims both', () => {
+    // GR-19 lays the band 「パレットの上端に敷く」 and 表 T-206 gives it a height,
+    // so the band and what it stands above share an edge. ⛔ The point asked
+    // about is the point handed in: a margin of the unit's own would slide this
+    // edge and hand one press to the wrong row -- either FR-083's SP-1 .. SP-4
+    // to the drag, or FR-053's drag to a shape.
+    const built = drawn(PALETTE_VIEW)
+    const firstEntry = T_109_ARMING[0].row
+
+    expect(ask(built, AT.paletteBelowTheBand.x, AT.paletteBelowTheBand.y - 1)?.entry).toBe(
+      T_109_GRAB_BAND.row,
+    )
+    expect(ask(built, AT.paletteBelowTheBand.x, AT.paletteBelowTheBand.y)?.entry).toBe(firstEntry)
+  })
+
+  it('⛔ lays the band on a palette that holds no entry at all', () => {
+    // GR-19 states a PLACE and not a state -- 「パレットの上端」 -- so there is no
+    // condition of the palette's contents under which the band is absent. ⚠️ A
+    // palette can hold nothing: FR-053 (MUST) has the size follow the contents,
+    // and 表 T-023c admits no selection that empties the roster, but the empty
+    // description is a value this seam is handed all the same. ⛔ A palette drawn
+    // without a band is a palette that can never be moved again, which is the
+    // accident GR-19's own warning names.
+    const built = drawn(viewWith({ commandPalette: { ...PALETTE, groups: [] } }))
+
+    expect(ask(built, AT.paletteGrabBand.x, AT.paletteGrabBand.y)).toEqual({
+      part: 'Command Palette',
+      entry: T_109_GRAB_BAND.row,
+      format: null,
+    })
+  })
+
+  it('⛔ answers the band even though 表 T-109 calls that row no button', () => {
+    // 表 T-109: 「掴んで動かせることを示す。**ボタンではない**」. `ScreenPart`
+    // declares the distinction this case holds: this member is the ROW a point
+    // is ON, which is not the same question as which entry can be pressed. ⛔ So
+    // the answer is owed even though `CommandPalette.groups` rightly holds no
+    // `CommandItem` for it -- and the palette drawn here carries none.
+    const built = drawn(PALETTE_VIEW)
+
+    expect(T_109_GRAB_BAND.isButton).toBe(false)
+    expect(
+      PALETTE.groups.flatMap((group) => group.commands).map((one) => one.icon),
+      '表 T-109 says the band is not a button, so no entry may stand for it',
+    ).not.toContain(T_109_GRAB_BAND.row)
+    expect(ask(built, AT.paletteGrabBand.x, AT.paletteGrabBand.y)?.entry).toBe(
+      T_109_GRAB_BAND.row,
+    )
   })
 })
 

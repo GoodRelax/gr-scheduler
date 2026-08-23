@@ -22,6 +22,14 @@
 // past IF-9. ⚠️ This unit never judged a size and still does not; what changed
 // is that `CommandPalette` stopped declaring a member for one.
 //
+// ⭐ WHY A BAND HEIGHT LEAVES BESIDE THE CORNER AND IS NOT AN EXTENT EITHER.
+// GR-19 of table T-023d -- the FIRST row of that table, which its preamble
+// (MUST) makes the highest priority -- lays a grab band along the palette's top
+// edge, and S-135a states its height and nothing else. A height is not a size:
+// it says how far down the band reaches from the corner that already arrives,
+// and says nothing about how wide the palette came out. ⭐ The value arrives
+// generated from S-135a, the way rule 03 section 1 requires.
+//
 // ⭐ WHY FAINTNESS IS NOT ANSWERED HERE. FR-053 (MUST) judges 「薄く透明に描く」
 // by which PART the pointer is on, and the side that drew the parts is the only
 // side that can say (Chapter 5.3, MUST, under table T-065; IF-9's third
@@ -52,7 +60,8 @@
 // other shows the keystroke that places what is armed -- and
 // `screen-renderer.ts` names the same rows for the same reason on
 // `CommandItem`. Both reach the screen as something other than a button: the
-// first as `at`, which is what a drag moves, and the second as `armedText`.
+// first as the grab band GR-19 puts along the top edge -- `grabBandHeight`,
+// with `at` for the corner a drag moves -- and the second as `armedText`.
 // The STOP note by `NOT_BUTTON_ROWS` says what the roster cannot carry.
 //
 // ⚠️ NOTHING HERE JUDGES A WIDTH, so FR-093's estimate is never called -- the
@@ -107,7 +116,6 @@ const ALIGN_REQUIREMENT = 'FR-034'
 // palette row marked the same way in future has to be added here by hand until
 // the roster carries the fact as a field.
 const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
-
 /**
  * What an entry says while the dictionary holds no word for its row.
  *
@@ -365,9 +373,43 @@ export function commandPaletteFromScreenState(
   // hold one, so there is nothing left to look for. ⚠️ The corner itself is
   // still unheld -- `ScreenSession.commandPaletteAt` records that absence -- and
   // it is passed through untouched, so nothing about the place is decided here.
+  // ⭐ THE BAND IS DESCRIBED WHENEVER THE PALETTE IS. GR-19 puts no condition on
+  // it -- it is the palette's top edge, not a state -- so it leaves here on the
+  // same frames the palette does and disappears with it. ⚠️ Its height is the
+  // one thing that is still missing; `GRAB_BAND_HEIGHT` says why and where from.
   return {
     at: session.commandPaletteAt,
+    // GR-19 of table T-023d, whose height S-135a states. ⭐ Read where the
+    // generated block stands, at the foot of this file, rather than into a
+    // module constant above it -- that would read it before it is assigned.
+    grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
     groups: paletteGroups(selection, session.language),
     armedText: armedRow(state.armed),
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands instead of being handed
+ * it: the contract in screen-renderer.ts fixes UF-61 at three
+ * arguments, and FR-051 (MUST NOT) forbids a setting to hold the
+ * value either -- so there is no door to pass it through. ⛔ It is
+ * still not a document setting and must not become one.
+ */
+export const NOT_STORED_COMMAND_PALETTE_SIZES: {
+  /** S-135a, in px */
+  readonly 'S-135a': number
+} = {
+  'S-135a': 24,
+}
+// </generated>

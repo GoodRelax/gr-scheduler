@@ -866,6 +866,41 @@ function autosaveAtStartup(held: Document): AutosaveStatus {
 }
 
 /**
+ * Where the `Command Palette` floats -- `ScreenSession.commandPaletteAt`.
+ *
+ * ⭐ THE PLACE IS NOT REMEMBERED, AND THAT IS SETTLED RATHER THAN MISSING.
+ * FR-053 has the person drag the palette, and neither table T-203 nor table
+ * T-206 has a row for where it ends up: the ruling `CR-236` records is that
+ * the place is not kept. So it is a current value, which LY-5 of table T-060
+ * leaves with this layer alone, and it is lost with the page. ⛔ Nothing is
+ * to be stored for it -- not a key in either table, not a browser record.
+ *
+ * ⛔ NO ROW STATES A STARTING CORNER, so `null` -- nobody has dragged it yet
+ * -- is answered with the `Row Area`'s own corner rather than with a pair of
+ * numbers written here: U-50 is a rectangle the specification does hold, and
+ * SC-6 keeps the palette off the schedule's scrolling anyway. ⚠️ Which is
+ * also why the default is resolved every frame instead of being frozen at
+ * startup: until it has been dragged, the palette follows the `Row Area`
+ * through a resize.
+ *
+ * ⛔ NOTHING CLAMPS IT TO THE WINDOW, because no row states a bound to clamp
+ * it by. ⚠️ GR-19 of table T-023d names the harm in as many words --
+ * 「掴めない位置へ置けてしまうと二度と動かせなくなる」 -- and answers it by giving
+ * the band priority over what is under it, not by bounding the corner. So a
+ * drag that ends past the edge of the window leaves it past the edge.
+ * Searched: FR-053, table T-023a, table T-023d, table T-203, table T-206 and
+ * `_assets/tbl-settings.md`.
+ *
+ * @purity pure
+ */
+function paletteCornerOf(
+  draggedTo: { readonly x: number; readonly y: number } | null,
+  regions: ScreenRegions,
+): { readonly x: number; readonly y: number } {
+  return draggedTo ?? { x: regions.rowArea.x, y: regions.rowArea.y }
+}
+
+/**
  * What the shell answers about this reading session (`ScreenSession`, PI-37).
  *
  * ⭐ Every member is either a measurement only this layer can make or a value
@@ -896,6 +931,7 @@ function sessionOf(
   layout: ScheduleLayout,
   language: DisplayLanguage,
   pointer: { readonly x: number; readonly y: number } | null,
+  commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null,
   confirmation: RaisedConfirmation | null,
   notices: readonly RaisedNotice[],
 ): ScreenSession {
@@ -910,14 +946,12 @@ function sessionOf(
     pointer,
     pointerRestedMs: 0,
     iconUnderPointer: null,
-    // STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: where the floating palette
-    // stands before anyone has dragged it (FR-053). `command-palette.ts`
-    // records the same absence -- neither table T-203 nor table T-206 has a row
-    // for the place. ⚠️ The `Row Area`'s own corner is used rather than a pair
-    // of numbers written here, so nothing is invented: U-50 is a rectangle the
-    // specification does hold, and SC-6 keeps the palette off the schedule's
-    // scrolling anyway.
-    commandPaletteAt: { x: regions.rowArea.x, y: regions.rowArea.y },
+    // FR-053: where the drag left it, or the `Row Area`'s corner while nobody
+    // has dragged it. ⭐ Handed in rather than decided here -- it is a current
+    // value and LY-5 of table T-060 leaves those with the loop, which is the
+    // same reason `notices` and `confirmation` below are handed in.
+    // ⛔ `paletteCornerOf` carries what is missing and what is settled.
+    commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
     selectedGroupIds: [],
     selectedResourceUids: [],
     propertiesShowing: null,
@@ -1479,6 +1513,11 @@ export function frameLoop(
   // CS-2 of table T-066 -- the press a gesture began with, kept until the
   // gesture ends, because IN-1 decides the whole gesture from it on release.
   let pressed: PointerPress | null = null
+  // FR-053 -- where GR-19's drag has left the `Command Palette`, and `null`
+  // while nobody has dragged it. ⛔ Held and nothing more: see
+  // `paletteCornerOf` for why no table keeps it and why it starts at no
+  // corner of its own.
+  let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   // FR-038 (MUST): one language for the whole screen. `ScreenWiring` carries
   // what startup settled on -- S-99 if the store had it, the host otherwise --
   // and this carries what the person has chosen since.
@@ -1693,6 +1732,7 @@ export function frameLoop(
           layout,
           language,
           pointerAt,
+          commandPaletteDraggedTo,
           asking?.question ?? null,
           raisedNotices,
         ),
@@ -1870,7 +1910,11 @@ export function frameLoop(
         // a picture, and EP-11's reason -- a tool's own surfaces are not the
         // schedule -- reaches the tellings, which `image-exporter.ts` records
         // from its own side.
-        sessionOf(document, regions, layout, language, null, null, []),
+        // ⚠️ No dragged corner either, for the reason `nothingSelected` and
+        // `stateForExport` above are built fresh: EP-12 of table T-076 keeps this
+        // session's state out of the picture, and the palette is closed in this
+        // environment, so no corner is drawn from it.
+        sessionOf(document, regions, layout, language, null, null, null, []),
       ),
       settings,
     }
@@ -2764,6 +2808,20 @@ export function frameLoop(
         // and `screen-renderer.ts` records that FR-072's rule -- which of the
         // two things the panel shows -- has no owner in any table.
         return
+      case 'moveCommandPalette': {
+        // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
+        // moves by the travel `commandFromEntry` measured on the release.
+        // ⭐ WRITTEN HERE AND NOWHERE ELSE, because it is a current value and
+        // LY-5 of table T-060 leaves those with this layer: table T-108 has no
+        // command for it, so `writeDocument` is not the road and no step of the
+        // undo history is pushed.
+        // ⚠️ Added to where the palette actually STOOD, which is the same
+        // resolution the frame drew with -- so a first drag moves it from the
+        // `Row Area`'s corner and not from the window's origin.
+        const from = paletteCornerOf(commandPaletteDraggedTo, frame.regions)
+        commandPaletteDraggedTo = { x: from.x + action.by.dx, y: from.y + action.by.dy }
+        return
+      }
     }
   }
 

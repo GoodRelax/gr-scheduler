@@ -352,6 +352,13 @@ const viewOf = (
     // ⭐ A CORNER, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size
     // follow its contents and (MUST NOT) lets the settings table hold one.
     at: { x: 300, y: 300 },
+    // ⚠️ INERT HERE. GR-19 of table T-023d lays a band along the palette's top
+    // edge and table T-206 states how far down it reaches; EP-11 of table T-076
+    // drops the whole palette from the picture, so no case in this file means
+    // the number. ⛔ The value that row holds is deliberately NOT copied here --
+    // rule 03 section 1 keeps it in one place, and `tests/unit/uf-65.test.ts` is
+    // the bench that holds the described band to the manuscript.
+    grabBandHeight: 7,
     groups: [{ name: PALETTE_GROUP_NAME, commands: [commandOf('EP-11 palette command')] }],
     armedText: PALETTE_ARMED_TEXT,
   },

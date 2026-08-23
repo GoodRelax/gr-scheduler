@@ -412,6 +412,30 @@ export type InputAction =
    * sibling returns.
    */
   | { readonly kind: 'openPropertiesPanel'; readonly uid: number }
+  /**
+   * GR-19 of table T-023d -- the band on top of the `Command Palette` was
+   * dragged, so FR-053's palette moves by what the pointer travelled.
+   *
+   * ⭐ A DISTANCE AND NOT A PLACE. Where the palette stands is
+   * `ScreenSession.commandPaletteAt`, which the shell holds because no row of
+   * table T-203 or table T-206 keeps it -- so this file has no corner to add
+   * to, and answering with the travel alone leaves the one holder holding it.
+   *
+   * ⚠️ THE SHAPE IS MK-7's PAN AND THE ROAD IS NOT. That row's rule reads
+   * 「パンは等倍とすること（MUST）」, which is why nothing is scaled here
+   * either. ⛔ But `scrolledAnchor` is not reused: it answers a date and a
+   * row, because S-77 / S-78 hold the schedule's place as an anchor in the
+   * document, and the palette's place is a pair of screen numbers that no
+   * document row holds at all.
+   *
+   * ⛔ NOT A DOCUMENT CHANGE, which is why it is a kind of its own rather
+   * than a `DocumentCommand`: table T-108 has no row for it and table T-203
+   * no key, so `applyDocumentChange` (PI-8) has nothing to plan.
+   */
+  | {
+      readonly kind: 'moveCommandPalette'
+      readonly by: { readonly dx: number; readonly dy: number }
+    }
 
 /** What `commandFromInput` answers. */
 export interface TranslatedInput {
@@ -1105,9 +1129,46 @@ const ENTRY = {
   statusLine: 'IC-44',
   /** IC-52 -- the first level of IN-4 (table T-028). */
   closeSurface: 'IC-52',
+  /**
+   * IC-53 -- GR-19 of table T-023d, the band FR-053's drag is taken on.
+   *
+   * ⚠️ THE ONE ROW HERE THAT IS NOT A BUTTON. Table T-109 says so in its
+   * own entry column, and `command-palette.ts` keeps it out of what it
+   * publishes as entries for that reason. It is in this map because a press
+   * still LANDS on it -- what it is assigned to is a drag, not a press.
+   */
+  paletteGrabBand: 'IC-53',
   /** IC-62 -- FR-099. U-49 `Resource Roster` of table T-103. */
   resourceRoster: 'IC-62',
 } as const
+
+// STOP -- ⛔ THE BAND GR-19 PUTS ON THE PALETTE IS NOT DRAWN, so `IC-53` is
+// never reported and the assignment above is never reached. Two things are
+// owed, both on the far side of IF-9 and neither writable from this file:
+//
+//   1. `dom-screen-surface.ts` (PI-38) must lay a band across the top edge of
+//      the palette and mark it with `data-icon` for IC-53, so that
+//      `readScreenPartAt` answers `{ part: 'Command Palette', entry: 'IC-53' }`
+//      for a point on it. ⭐ IT IS THE ONLY UNIT THAT CAN: the band is as
+//      wide as the palette, and FR-053 (MUST) makes the palette's size follow
+//      its contents while (MUST NOT) forbidding any table to hold one -- so
+//      the side that laid the entries out is the only side that knows the
+//      width, which is the same rule Chapter 5.3 states under table T-065.
+//      ⛔ Laid OVER whatever it covers, for the reason `commandFromEntry`
+//      gives where it reads the row.
+//   2. The band's HEIGHT is `S-135a` of table T-206, and no generated constant
+//      carries it into `src/` yet. ⛔ It must not be typed anywhere (rule 03
+//      section 1): `tools/generate_entity_types.py` already emits
+//      `NOT_STORED_PANEL_DIVIDER_SIZES` from `S-134` for the `Panel Divider`'s
+//      band, and `S-135a` wants that same shape -- a `NOT_STORED_` block
+//      landing in `dom-screen-surface.ts`, the unit that lays the band.
+//      ⚠️ NOT in `screen-frame.ts` beside `S-134`: that unit builds the
+//      divider's band as a RECTANGLE, and it has no width to build this one
+//      with.
+//
+// ⚠️ EVERYTHING ON THIS SIDE IS WRITTEN. The row is named above and
+// assigned in `commandFromEntry`, and `frame-loop.ts` holds
+// `ScreenSession.commandPaletteAt` and moves it.
 
 /**
  * The palette entries that arm, and what each one arms -- table T-023b through
@@ -1444,7 +1505,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // ⭐ FIRST, because table T-023a's own note limits its decision order to the
   // schedule's drawing area (MUST): a press the surface answered for was not on
   // the schedule at all, whatever `regionAtPointer` says about the point.
-  if (press.on !== null) return commandFromEntry(press, context)
+  if (press.on !== null) return commandFromEntry(input, press, context)
   if (!isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
   // ⭐ ASKED HERE RATHER THAN READ OFF `press.pressRow`, AND IT IS THE SAME
@@ -1511,7 +1572,11 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
  *
  * @purity pure
  */
-function commandFromEntry(press: PointerPress, context: InputContext): TranslatedInput {
+function commandFromEntry(
+  release: PointerInput,
+  press: PointerPress,
+  context: InputContext,
+): TranslatedInput {
   const entry = press.on === null ? null : press.on.entry
   // On the part but on no entry -- the palette's own body, a surface's
   // background, a notice. The press is this tool's (the browser must not act
@@ -1548,6 +1613,25 @@ function commandFromEntry(press: PointerPress, context: InputContext): Translate
           ? { kind: 'setStatusDate', date: context.today }
           : { kind: 'clearStatusDate' },
       ])
+    case ENTRY.paletteGrabBand:
+      // GR-19 of table T-023d -- FR-053's drag, settled on the release like
+      // every other one here (IN-1 of table T-028).
+      //
+      // ⭐ NOTHING HAS TO ENFORCE THE PRIORITY. GR-19 is the FIRST row of that
+      // table and its preamble reads 「上の行ほど優先すること（MUST）」, so a press
+      // that lands on the band is the band's whatever is drawn under it --
+      // and `press.on` is the drawing side's own answer, taken once at the
+      // moment of the press (CS-2 of table T-066). ⛔ That only holds while
+      // the band is laid OVER what it covers; the STOP note by `ENTRY` says so
+      // to the side that lays it.
+      //
+      // ⚠️ The pointer's travel and not its place: a press may begin anywhere
+      // on the band, so the corner has to move by the difference rather than
+      // jump to where the finger let go.
+      return acted({
+        kind: 'moveCommandPalette',
+        by: { dx: release.x - press.at.x, dy: release.y - press.at.y },
+      })
     default:
       return commandFromArmingEntry(entry, context)
   }
@@ -2203,17 +2287,17 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 41 ROWS OF TABLE T-109 REACH `commandFromEntry` AND ARE ANSWERED
+// STOP -- ⛔ 40 ROWS OF TABLE T-109 REACH `commandFromEntry` AND ARE ANSWERED
 // WITH NOTHING. Each is missing something different, and none is an oversight.
-// ⚠️ The number is the 73 rows of that table less the 32 this file assigns
-// (`ENTRY` holds 17 and `ARMED_BY_ENTRY` 15), and the groups below add up to it.
+// ⚠️ The number is the 73 rows of that table less the 33 this file assigns
+// (`ENTRY` holds 18 and `ARMED_BY_ENTRY` 15), and the groups below add up to it.
 // ⭐ The entries that ARE answered were chosen by a rule rather than one at a
 // time: an entry is answered when this file already answers the same operation
 // for a row of table T-036, or when it opens a surface whose name table T-103
 // has settled -- plus FR-083's arming, which is the whole point of the seam
 // member that brought the press here.
 //
-// ⛔ 26 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen. ⚠️ The count
+// ⛔ 25 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen. ⚠️ The count
 // was 「FOUR」 while the groups below already held far more than four rows; it is
 // stated here as the rows the groups list, so the two can be held against each
 // other:
@@ -2243,9 +2327,11 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                ⚠️ IC-63 / IC-64 / IC-67 / IC-68 also write
 //                `ScreenSession.selectedResourceUids`, which is the shell's
 //                (PD-143) and not a `DocumentCommand` at all.
-//   IC-53 .. IC-57  ⛔ NOT ENTRIES. Table T-109 says so in its own column: two
-//                of them show a drag and a keystroke, and three show the
-//                autosave state (FR-061).
+//   IC-54 .. IC-57  ⛔ NOT ENTRIES. Table T-109 says so in its own column: one
+//                of them shows a keystroke and three show the autosave state
+//                (FR-061). ⚠️ IC-53 stood here until GR-19 of table T-023d gave
+//                the band it marks a gesture. It is still not a button -- what
+//                answers it is a drag, settled on the release.
 //   IC-69 / IC-70  the two answers to NT-7's question, on U-55 `Confirmation`.
 //                ⭐ A QUESTION IS RAISED NOW -- `frame-loop.ts` puts DI-4's
 //                overwrite question and FR-032's delete question into
@@ -2299,3 +2385,5 @@ export const NOT_STORED_ZOOM_STEP: {
   'S-96': 1.1,
 }
 // </generated>
+
+

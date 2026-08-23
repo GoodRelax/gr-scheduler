@@ -868,6 +868,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-93', 'S-137'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
+    'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
@@ -1266,6 +1267,13 @@ TARGETS = [
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(ADAPTER, 'screen-renderer', 'screen-frame.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PANEL_DIVIDER_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ⛔ ONE CONSTANT PER CONSUMING UNIT, the same split the note above states:
+    # S-134 is UF-61's band and stands in `screen-frame.ts`; S-135a is UF-65's
+    # and stands here. One shared constant would hand each unit the other's
+    # value.
+    (os.path.join(ADAPTER, 'screen-renderer', 'command-palette.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_COMMAND_PALETTE_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The zoom trio, split by consuming unit the way the note above requires:
     # `InputContext.zoomStep` is read by the translator, `SettingsLimits`

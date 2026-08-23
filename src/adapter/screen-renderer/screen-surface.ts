@@ -56,6 +56,17 @@ export interface ScreenPart {
    * `ScreenRegions` (PI-35) holds a rectangle for none of them. So "on a part,
    * on no entry" is what stops a press on one of them from being read as a
    * marquee on the schedule underneath.
+   *
+   * ⚠️ IC-53 IS ANSWERED HERE TOO, ALTHOUGH TABLE T-109 CALLS IT NO BUTTON. This
+   * member is the row of that table the point is ON, which is not the same
+   * question as which entry can be pressed: GR-19 of table T-023d gives the
+   * palette's grab band a claim on a point ahead of everything under it, and the
+   * band carries no name of its own to be answered by -- IC-53 is what table
+   * T-109 gives it. `CommandPalette.grabBandHeight` is the band this answer
+   * belongs to. ⛔ It is still not a `CommandItem`: UF-65 keeps the row out of
+   * `groups`, so a reader may not take this answer as an entry that was pressed
+   * -- what a press on the band does is FR-053's drag, and the corner it moves is
+   * `ScreenSession.commandPaletteAt`, which is the shell's.
    */
   readonly entry: IconId | null
   /**

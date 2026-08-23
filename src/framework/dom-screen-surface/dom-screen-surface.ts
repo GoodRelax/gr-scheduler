@@ -276,6 +276,19 @@ const HOST_ENTER = 'Enter'
  */
 const DISPLAY_LANGUAGE_ENTRY = 'IC-21'
 
+/**
+ * IC-53 of table T-109 -- the row GR-19 of table T-023d lays along the top edge
+ * of U-26, and the one row this unit draws that is NOT an entry: that table says
+ * of it 「掴んで動かせることを示す。ボタンではない」.
+ *
+ * ⭐ Carried as a row id, which is the only join table T-109 admits, and named
+ * here for the same reason `DISPLAY_LANGUAGE_ENTRY` is: this unit has to put
+ * something on THAT row and on no other. ⚠️ It is a row of that table all the
+ * same, which is why `readScreenPartAt` answers it on `ScreenPart.entry` -- that
+ * member is the row a point is ON and not the entry that can be pressed.
+ */
+const PALETTE_GRAB_BAND_ENTRY = 'IC-53'
+
 // -------------------------------------------------------------- the styles ---
 
 /**
@@ -431,9 +444,47 @@ const STYLE = {
   // ⭐ Nothing is done about it, which is the only reading that breaks no rule:
   // the part that ran past the edge is what a person would then drag into view.
   // ⚠️ A scroll box or a bound would each answer a question no requirement asks.
+  //
+  // ⛔ NO PADDING ON THIS BOX EITHER, AND THAT ONE IS GR-19 OF TABLE T-023d.
+  // The grab band is 「パレットの上端に敷く帯」, and a padding here would inset it
+  // on three sides -- a strip floating inside the palette rather than a band
+  // along its edge. So the room the entries sit in moved one box further in
+  // (`paletteContents`), where it still counts towards the size FR-053 (MUST)
+  // makes follow the contents.
   commandPalette:
-    'box-sizing:border-box;padding:0.5em;background:Canvas;color:CanvasText;' +
+    'box-sizing:border-box;background:Canvas;color:CanvasText;' +
     'border:1px solid GrayText;border-radius:0.25em;pointer-events:auto;',
+  // GR-19 of table T-023d, which stands FIRST in that table under a preamble
+  // reading 「上の行ほど優先すること（MUST）」. Laid as the palette's first child,
+  // so its width is whatever the entries measured out to and no width is
+  // written -- FR-053 (MUST) makes the size follow the contents and (MUST NOT)
+  // keeps any table from holding one. ⛔ Its HEIGHT is not here either: it
+  // arrives on the description and is written per frame, because rule 03
+  // section 1 forbids that number being typed in `src/`.
+  //
+  // STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how the band is PAINTED. GR-19
+  // states where it goes and what grabbing it does, table T-206 states its
+  // height and says in as many words that the height is the only thing it
+  // states, and no row gives the band a colour, a background or a boundary.
+  // Searched: GR-19 and the preamble of table T-023d, FR-053, FR-029, table
+  // T-051 (HF-6), table T-076 (EP-9) and `_assets/tbl-settings.md`.
+  // ⭐ So it carries NO paint of its own, which is the answer EP-9's band gets
+  // a few rows above (`dividerBand`). What tells a person it can be grabbed is
+  // instead two things the specification already holds: the shape table T-109
+  // gives IC-53 (drawn by `grabBandElement`) and the environment's own cursor
+  // for 掴む. ⚠️ A tint or a hairline would each be a look that reads as
+  // measured, and neither was measured.
+  // ⚠️ `cursor:grab` and not `move`: what the band offers is being HELD, which
+  // is the state that keyword names -- the same distinction `col-resize` makes
+  // for the band FR-052 has a person drag.
+  paletteGrabBand:
+    'display:flex;align-items:center;justify-content:center;' +
+    'cursor:grab;pointer-events:auto;',
+  // Where the palette's own room went, so that the band above can reach its
+  // edges. ⛔ NOT A PART: table T-103 has no row for it and it carries no
+  // `data-role`, so `readScreenPartAt` walks straight past it to the palette --
+  // it is the box the entries always sat in, one level down.
+  paletteContents: 'padding:0.5em;',
   paletteGroup: 'margin-bottom:0.5em;',
   paletteGroupName: 'color:GrayText;',
   paletteCommands: 'display:flex;flex-wrap:wrap;gap:0.25em;',
@@ -1193,12 +1244,81 @@ function fillPropertiesPanel(
 }
 
 /**
+ * GR-19 of table T-023d -- the band a person grabs to move U-26.
+ *
+ * ⭐ WHY IT IS DRAWN HERE AND NOWHERE ELSE. `CommandPalette` carries the band's
+ * HEIGHT and nothing more, because FR-053 (MUST) makes the palette's size follow
+ * its contents: how wide the entries came out is known only where they were laid
+ * out, which is this unit, and Chapter 5.3 states under table T-065 (MUST) that
+ * the side which drew a part is the side that answers for it. So the height is
+ * taken as it arrives -- ⛔ no number is written and none is adjusted -- and the
+ * width is nothing at all: a block box inside the palette already spreads to
+ * whatever the palette came out as.
+ *
+ * ⭐ INSIDE THE PART THAT CARRIES THE PALETTE'S ROLE, NEVER BESIDE IT.
+ * `PALETTE_FAINT_CSS` reads FR-053's 「ポインタが乗っていないあいだは薄く透明に
+ * 描く」 off that very element, so a band drawn as a sibling would leave the
+ * palette faint at the one moment a person has hold of it. ⚠️ Drawn inside, the
+ * same rule works the other way round: `:hover` matches an ancestor of the node
+ * under the pointer, so a pointer on the band IS a pointer on the palette.
+ *
+ * ⛔ NOT A BUTTON, WHICH TABLE T-109 SAYS OF IC-53 IN AS MANY WORDS
+ * (「掴んで動かせることを示す。ボタンではない」). So it is a plain box: UF-65 keeps
+ * the row out of `CommandPalette.groups` and this side mints no entry for it
+ * either. `data-icon` is what lets it be reached all the same -- the walk in
+ * `readScreenPartAt` takes the innermost `data-icon` and the OUTERMOST
+ * `data-role`, so a point on the band answers `{ part: 'Command Palette', entry:
+ * 'IC-53' }` without this band having to be a part or an entry, and the press
+ * `input-command-translator.ts` assigns to that row has somewhere to arrive.
+ * ⚠️ GR-19's 「帯の下に何が描かれていても帯が勝つ」 needs nothing more here: the
+ * palette floats over the schedule, and the topmost drawn node at a point is
+ * what `elementFromPoint` already answers with.
+ *
+ * ⭐ HOW IT READS AS GRABBABLE, WHICH IS THE 「示す」 HALF OF THE ROW. Two
+ * answers, both of them the specification's own or the environment's:
+ *   - THE SHAPE. FR-029 (MUST) has this product say what something is for with
+ *     an icon rather than with a word and makes figure F-019 the one authority
+ *     for it (MUST NOT for a third party's set), and that figure draws IC-53.
+ *     It arrives through `fillEntry`, the same road every other shape takes, and
+ *     is centred because a band is wider than a shape and no row says where in
+ *     it the shape stands.
+ *   - THE CURSOR (`STYLE.paletteGrabBand`), which is the environment's own way
+ *     of saying 掴める and the same road the other draggable band takes.
+ *   - ⛔ AND NOTHING ELSE: the STOP note on that style says what the
+ *     specification does not decide, and why no paint is invented in its place.
+ *
+ * ⛔ THE BAND HAS NO ACCESSIBLE NAME, AND WHAT IS MISSING IS ON THE SEAM RATHER
+ * THAN IN THE SPECIFICATION. `CommandItem.label` is how a word reaches a drawn
+ * row of table T-109, and the band is not a `CommandItem` -- `CommandPalette`
+ * carries the height and no word, so there is nothing here to name it with. ⛔ A
+ * word is NOT invented: the shape is hidden from the accessibility tree by
+ * `fillEntry` like every other shape, so the band is a silent box to a reader
+ * who cannot see it, and FR-053's drag is out of that reader's reach.
+ * ⚠️ The dictionary DOES hold a word for IC-53, so what is owed is a member on
+ * `CommandPalette` to carry it across IF-9, not a ruling. Searched: FR-053,
+ * FR-029, GR-19 of table T-023d, table T-109 and `CommandPalette`.
+ *
+ * @purity non-pure
+ */
+function grabBandElement(host: Document, heightPx: number): HTMLElement {
+  const band = made(host, 'div', STYLE.paletteGrabBand + `height:${heightPx}px;`)
+  band.setAttribute('data-icon', PALETTE_GRAB_BAND_ENTRY)
+  fillEntry(host, band, PALETTE_GRAB_BAND_ENTRY)
+  return band
+}
+
+/**
  * U-26 `Command Palette` (UF-65).
  *
  * ⭐ PLACED AND NOT SIZED. The description carries a corner and no extent,
  * because FR-053 (MUST) has the size follow the contents and (MUST NOT) keeps
  * any table from holding one -- so `cornerStyle` writes where it stands and the
  * entries below decide how big it comes out. ⛔ No number is added on the way.
+ *
+ * ⭐ TWO CHILDREN AND IN THIS ORDER. The band GR-19 of table T-023d lays along
+ * the top edge comes first because that is where the row puts it, and the
+ * entries follow inside the box that carries the room the palette itself no
+ * longer has -- `grabBandElement` says why the band cannot be a sibling.
  *
  * ⚠️ FR-053 also draws it faintly while the pointer is off it, and ⛔ nothing
  * here says whether it is: that MUST is judged on which PART the pointer is on,
@@ -1237,7 +1357,25 @@ function paletteElement(
   // FR-053 (MUST): what is armed has to be readable on the screen.
   const armed = made(host, 'div', STYLE.armedText)
   armed.textContent = palette.armedText
-  drawn.replaceChildren(...groups, armed)
+
+  // GR-19 of table T-023d, FIRST because the band is the palette's top edge and
+  // FIRST because that row stands first in its table -- see `grabBandElement`.
+  // ⚠️ Drawn on every frame the palette is, and on no condition of its own: the
+  // row states a place and not a state, so `CommandPalette` carries the height
+  // whenever it carries anything at all.
+  const band = grabBandElement(host, palette.grabBandHeight)
+  // EZ-2 of table T-040 (MUST) shows THAT icon's explanation, and IC-53 is now a
+  // row the pointer can rest on -- `readScreenPartAt` answers it, so PD-141
+  // reports it and a tooltip raised for it has to be placed against the node it
+  // was drawn on, exactly as an entry's is.
+  anchors.set(anchorKey({ kind: 'icon', icon: PALETTE_GRAB_BAND_ENTRY }), band)
+
+  // The room that used to be the palette's own padding, one box further in, so
+  // that the band above reaches the palette's edges (`STYLE.paletteContents`).
+  const contents = made(host, 'div', STYLE.paletteContents)
+  contents.replaceChildren(...groups, armed)
+
+  drawn.replaceChildren(band, contents)
   return drawn
 }
 

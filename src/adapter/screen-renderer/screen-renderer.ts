@@ -455,6 +455,48 @@ export interface CommandPalette {
    * made here.
    */
   readonly at: { readonly x: number; readonly y: number }
+  /**
+   * How far down the grab band reaches -- the band GR-19 of table T-023d lays
+   * along the palette's TOP EDGE, whose height is S-135a of table T-206. `null`
+   * while that value has not reached `src/`.
+   *
+   * ⭐ A HEIGHT AND NOT A RECTANGLE, which is the whole of the shape decision.
+   * GR-19 states WHERE the band goes -- along the top edge, and `at` is already
+   * that edge's corner -- and S-135a states the one number GR-19 does not: how
+   * far down it reaches. The remaining two numbers of a rectangle cannot be
+   * stated on this side at all, because FR-053 (MUST) has the palette's size
+   * follow its contents: how wide the entries came out is known only where they
+   * were laid out, past IF-9. ⛔ So the band's WIDTH is the palette's own,
+   * spread by the side that laid the contents out. A rectangle here would be
+   * the second lie CR-235 took out of this very type -- the surface read the
+   * zero extent it used to carry as an extent someone had measured, and drew a
+   * box of that size.
+   *
+   * ⛔ NOT AN ENTRY, AND SO NOT IN `groups`. Table T-109 says of IC-53
+   * 「掴んで動かせることを示す。ボタンではない」, which is why UF-65 keeps that
+   * row out of the `CommandItem`s. It is a thing to SHOW and a thing to GRAB,
+   * and this member is how both reach the screen.
+   *
+   * ⛔ ALWAYS A NUMBER, AND NEVER ONE TYPED HERE. GR-19 is a MUST and stands
+   * FIRST in table T-023d, so a palette drawn without a band breaks that row --
+   * there is no state in which this member has nothing to say. Table T-206
+   * states the height at S-135a and it arrives generated, which is the road rule
+   * 03 section 1 requires; ⛔ zero is not a value it may take, being a band no
+   * one can grab, and GR-19 says in as many words that a palette that cannot be
+   * grabbed can never be moved again.
+   *
+   * ⭐ WHAT THE DRAWING SIDE OWES IT. The band is drawn INSIDE the part that
+   * carries the palette's own role and never beside it: FR-053 (MUST) judges
+   * the faintness by which PART the pointer is on, and the band IS part of the
+   * palette -- drawn as a sibling it would leave the palette faint at the very
+   * moment it is being grabbed. And it is marked with IC-53 the way an entry is
+   * marked, so that `ScreenSurface.readScreenPartAt` answers `IC-53` for a point
+   * on it (see `ScreenPart.entry`) and a press on it has somewhere to arrive.
+   * ⚠️ GR-19 also gives the band the topmost claim on a point 「帯の下に何が描か
+   * れていても帯が勝つ」, which for a palette floating over the schedule is what
+   * the topmost drawn node at that point already answers.
+   */
+  readonly grabBandHeight: number
   /** U-34 `Palette Groups`. FR-029 groups them because the number of choices sets the time to decide. */
   readonly groups: readonly PaletteGroup[]
   /**
