@@ -1702,13 +1702,28 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
     // or the press falls through and drags a marquee across the schedule.
     const built = drawn(asking(questionRow(0)))
 
-    expect(ask(built, AT.surfaceOnly)).toEqual({ part: CONFIRMATION, entry: null, format: null })
+    expect(ask(built, AT.surfaceOnly)).toEqual({
+      part: CONFIRMATION,
+      entry: null,
+      format: null,
+      // ⚠️ The confirmation stands OVER the schedule and against no row and no
+      // person, which is what `ScreenPart` states for both keys: neither stands
+      // in for "the document holds none".
+      rowGroupId: null,
+      resourceUid: null,
+    })
   })
 
   it('GIVEN the confirmation stands WHEN the bare strip between the two answers is pressed THEN the surface is still named', () => {
     const built = drawn(asking(questionRow(0)))
 
-    expect(ask(built, AT.betweenTheEntries)).toEqual({ part: CONFIRMATION, entry: null, format: null })
+    expect(ask(built, AT.betweenTheEntries)).toEqual({
+      part: CONFIRMATION,
+      entry: null,
+      format: null,
+      rowGroupId: null,
+      resourceUid: null,
+    })
   })
 
   it('GIVEN the confirmation stands WHEN a point where the schedule is exposed is pressed THEN nothing is on it and PD-5 may run', () => {
@@ -1733,7 +1748,16 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     const built = drawn(asking(questionRow(1)))
 
     ENTRY_ROWS.forEach((row, index) => {
-      expect(ask(built, midOfEntry(index)), row).toEqual({ part: CONFIRMATION, entry: row, format: null })
+      expect(ask(built, midOfEntry(index)), row).toEqual({
+        part: CONFIRMATION,
+        entry: row,
+        format: null,
+        // ⛔ The two answers are the question's own and are keyed by nothing
+        // else: what the telling carries is already in the description, so
+        // neither key is the way this press is turned into a command.
+        rowGroupId: null,
+        resourceUid: null,
+      })
     })
   })
 
@@ -1827,13 +1851,24 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     }
   })
 
-  it('GIVEN the answer is read WHEN it is inspected THEN it carries the two members `ScreenPart` declares and nothing else', () => {
+  it('GIVEN the answer is read WHEN it is inspected THEN it carries every member `ScreenPart` declares and nothing else', () => {
     const built = drawn(asking(questionRow(1)))
 
     const answer = ask(built, midOfEntry(0))
 
     expect(answer).not.toBeNull()
-    expect(Object.keys(answer ?? {}).sort()).toEqual(['entry', 'format', 'part'])
+    // ⛔ THE ROSTER IS WRITTEN DOWN AND NOT DERIVED. `ScreenPart` is a type and
+    // leaves nothing behind at run time, so a list kept here is the only thing
+    // that can notice a member being DROPPED -- reading the keys off the very
+    // answer being checked would agree with any answer at all. ⚠️ Each name is
+    // one the seam declares in src/adapter/screen-renderer/screen-surface.ts.
+    expect(Object.keys(answer ?? {}).sort()).toEqual([
+      'entry',
+      'format',
+      'part',
+      'resourceUid',
+      'rowGroupId',
+    ])
   })
 
   it('GIVEN the question is taken away WHEN the same point is pressed again THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {

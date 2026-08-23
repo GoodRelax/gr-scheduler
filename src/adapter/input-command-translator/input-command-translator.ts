@@ -1109,11 +1109,24 @@ const ENTRY = {
   saveDocument: 'IC-2',
   /** IC-3 -- FR-096, which SK-12 begins with the choice of a format. */
   exportChooser: 'IC-3',
+  /** IC-4 -- S-69, the overlay FR-015 draws. One of FR-049's toggles. */
+  baselineVisible: 'IC-4',
   /** IC-5 / IC-6 -- FR-031. SK-6 / SK-7. */
   undo: 'IC-5',
   redo: 'IC-6',
   /** IC-7 -- FR-053, S-99e. SK-14. */
   palette: 'IC-7',
+  /**
+   * IC-8 / IC-9 -- the plan half and the actual half of S-59.
+   *
+   * ⛔ TWO ENTRIES OVER THREE VALUES, WHICH IS NOT TWO BOOLEANS. FR-049 (MUST)
+   * makes the plan/actual display a three-valued enumeration and (MUST NOT)
+   * refuses the fourth combination -- both hidden. `planActualDisplayFrom`
+   * answers what each press moves to, including the press that asks for the
+   * refused one.
+   */
+  planDisplay: 'IC-8',
+  actualDisplay: 'IC-9',
   /** IC-10 -- FR-055. SK-18. */
   fitToScreen: 'IC-10',
   /** IC-11 -- FR-071, S-99f. SK-15. */
@@ -1123,12 +1136,41 @@ const ENTRY = {
   zoomTimeIn: 'IC-13',
   zoomRowOut: 'IC-14',
   zoomRowIn: 'IC-15',
+  /**
+   * IC-16 -- S-72, the light/dark theme FR-039 lets the reader choose.
+   *
+   * ⭐ ONE ENTRANCE OVER TWO VALUES, so a press moves to the other one. S-72
+   * holds exactly two, and FR-029 (MUST NOT) forbids a second entrance for the
+   * same function -- so an entry per value, the shape IC-46 .. IC-49 have, is
+   * not open here.
+   */
+  themePreference: 'IC-16',
   /** IC-19 -- FR-068. U-30 `AI Export Modal` of table T-103. */
   aiExportModal: 'IC-19',
   /** IC-22 -- FR-036. SK-13. */
   help: 'IC-22',
+  /**
+   * IC-39 / IC-40 / IC-42 / IC-43 -- the four toggles the palette carries.
+   * S-64, S-63, S-67 and S-68, all of them boolean rows of table T-202.
+   */
+  progressLineVisible: 'IC-39',
+  progressMarkerVisible: 'IC-40',
+  dateGridLinesVisible: 'IC-42',
+  groupGridLinesVisible: 'IC-43',
   /** IC-44 -- FR-046. SK-20. */
   statusLine: 'IC-44',
+  /**
+   * IC-46 .. IC-49 -- one entry for each value of S-66.
+   *
+   * ⭐ NOT A TOGGLE AND NOT A CYCLE. CU-3 of table T-029 calls the guide cursor
+   * 4 モード排他 and requires (MUST) that the reader choose among them, and
+   * table T-109 draws an entry per value -- so a press names its value outright
+   * and what the value was before does not enter into it.
+   */
+  guideCursorNone: 'IC-46',
+  guideCursorCrosshair: 'IC-47',
+  guideCursorSingleVertical: 'IC-48',
+  guideCursorDoubleVertical: 'IC-49',
   /** IC-52 -- the first level of IN-4 (table T-028). */
   closeSurface: 'IC-52',
   /**
@@ -1190,6 +1232,116 @@ const ENTRY = {
 // ⚠️ EVERYTHING ON THIS SIDE IS WRITTEN. The row is named above and
 // assigned in `commandFromEntry`, and `frame-loop.ts` holds
 // `ScreenSession.commandPaletteAt` and moves it.
+
+/**
+ * The entries that flip ONE boolean row of table T-202, and which row each one
+ * flips.
+ *
+ * ⭐ THE SET IS FR-049's, NARROWED BY TABLE T-109. FR-049 (MUST) limits the
+ * toggles to the rows 型が真偽である and (MUST NOT) forbids treating every row
+ * of that table as one, which is exactly the eight `VisibleElement` names --
+ * and table T-109 draws an entrance for only these five. The other three have
+ * no row there and none is invented, the way `commandFromRowEntry` leaves
+ * table T-015's entrance-less operations alone.
+ *
+ * ⚠️ IC-4 IS ON THE HEADER AND THE OTHER FOUR ON THE PALETTE, which is why
+ * they are one map and not two: what a press does is the same rule for all
+ * five, and the surface an entry is drawn on is table T-109's business rather
+ * than this file's.
+ */
+/**
+ * What FR-049's toggles name, taken off the command rather than imported.
+ *
+ * ⛔ IT WAS IMPORTED, AND CHECK 26b REFUSED IT. `VisibleElement` is published by
+ * `EditDocument`, and table T-064 -- which calls itself the full count of what
+ * may be reached across a component folder -- does not name it. Naming it there
+ * would widen LR-2's fence by one for a type this file never needs by NAME: it
+ * only ever names the `element` member of one `DocumentCommand` variant, and
+ * that command already crosses as `PI-8`.
+ *
+ * ⭐ So it is derived, the way `GuideCursorMode` and `PlanActualDisplay` below
+ * are. Deriving cannot drift: rename or re-spell a member over in
+ * `edit-document-settings.ts` and this stops compiling.
+ */
+type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['element']
+
+const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, VisibleElement>> = {
+  'IC-4': 'baselineVisible',
+  'IC-39': 'progressLineVisible',
+  'IC-40': 'progressMarkerVisible',
+  'IC-42': 'dateGridLinesVisible',
+  'IC-43': 'groupGridLinesVisible',
+}
+
+/** @purity pure */
+function visibleElementOfEntry(entry: string): VisibleElement | null {
+  return Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, entry)
+    ? (VISIBLE_ELEMENT_BY_ENTRY[entry] as VisibleElement)
+    : null
+}
+
+/** The four values S-66 admits, taken from the command rather than restated. */
+type GuideCursorMode = Extract<DocumentCommand, { kind: 'setGuideCursorMode' }>['mode']
+
+/**
+ * The value each of IC-46 .. IC-49 puts into S-66.
+ *
+ * ⭐ THE SPELLINGS ARE COPIED, THE SET IS NOT INVENTED. Table T-109 prints the
+ * four values verbatim in these four rows and S-66 holds the same four, so
+ * this is the join between a row id and a value both documents already spell
+ * (rule 03 section 1). The type above is the compiler's check that no fifth
+ * spelling can be written here.
+ */
+const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, GuideCursorMode>> = {
+  'IC-46': 'none',
+  'IC-47': 'crosshair',
+  'IC-48': 'single-vertical',
+  'IC-49': 'double-vertical',
+}
+
+/** @purity pure */
+function guideCursorModeOfEntry(entry: string): GuideCursorMode | null {
+  return Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, entry)
+    ? (GUIDE_CURSOR_MODE_BY_ENTRY[entry] as GuideCursorMode)
+    : null
+}
+
+/** The three values S-59 admits, taken from the command rather than restated. */
+type PlanActualDisplay = Extract<DocumentCommand, { kind: 'setPlanActualDisplay' }>['display']
+
+/**
+ * What S-59 becomes when the plan half (IC-8) or the actual half (IC-9) is
+ * pressed, or `null` when the press asks for the state FR-049 refuses.
+ *
+ * ⭐ TWO ENTRANCES OVER THREE VALUES. Each entry is worded 「出す・しまう」, so a
+ * press flips the half it names and leaves the other half as it stands -- which
+ * is a full pair of booleans everywhere except one corner: hiding the only half
+ * still showing would leave neither, and FR-049 states (MUST NOT) that both
+ * MUST NOT be hidden. That corner is the whole reason S-59 is an enumeration of
+ * three rather than two independent toggles, and it is why this answers `null`
+ * rather than a value: there is no value to move to.
+ *
+ * ⛔ THE REFUSED PRESS DOES NOT FALL THROUGH TO THE OTHER HALF. Reading 「予定
+ * をしまう」 from `'plan-only'` as `'actual-only'` would obey the letter and
+ * show the actual, which is not what was asked for -- and FR-049's reason for
+ * the rule is that a screen with no bars looks broken, not that some bar must
+ * be swapped in.
+ * ⚠️ NOTHING IS SAID TO THE PERSON HERE. Table T-037 places no notice on this
+ * refusal, and this file may not mint one.
+ *
+ * @purity pure
+ */
+function planActualDisplayFrom(
+  display: PlanActualDisplay,
+  isPlanHalf: boolean,
+): PlanActualDisplay | null {
+  const isShownNow = display === 'both' || display === (isPlanHalf ? 'plan-only' : 'actual-only')
+  if (!isShownNow) return 'both'
+  // The half pressed is showing, so the press hides it and the other half is
+  // what is left -- unless the other half is not showing either.
+  if (display !== 'both') return null
+  return isPlanHalf ? 'actual-only' : 'plan-only'
+}
 
 /**
  * The palette entries that arm, and what each one arms -- table T-023b through
@@ -1583,9 +1735,11 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
  *
  * ⭐ IN-1: settled on the RELEASE, and read against the PRESS -- which is why
  * `PointerPress.on` is what is looked at rather than where the pointer ended up.
- * ⚠️ Every row below is an operation this file already answers for a row of
- * table T-036, or a surface whose name table T-103 has settled; nothing new is
- * invented for an entry (see the STOP note at the foot of this file).
+ * ⚠️ No row below invents anything for an entry. Each is either an operation
+ * this file already answers for a row of table T-036, or a surface whose name
+ * table T-103 has settled, or a row whose own text names the value the press
+ * writes and the setting it writes it into. The STOP note at the foot of this
+ * file states the rule in full and says what every unanswered row is missing.
  *
  * ⛔ THE ARMING ENTRIES ANSWER NOTHING HERE except SP-2 and SP-3's shape change.
  * What is armed lives in `ScreenState` (UN-11 keeps it out of the undo record),
@@ -1626,6 +1780,34 @@ function commandFromEntry(
       const factor = keyZoomFactor(context, entry === ENTRY.zoomRowIn)
       return changed([zoomCommand(context, null, zoomTimes(context, factor, 'y'))])
     }
+    case ENTRY.baselineVisible:
+    case ENTRY.progressLineVisible:
+    case ENTRY.progressMarkerVisible:
+    case ENTRY.dateGridLinesVisible:
+    case ENTRY.groupGridLinesVisible:
+      return commandFromVisibleElementEntry(entry, context)
+    case ENTRY.planDisplay:
+    case ENTRY.actualDisplay: {
+      // CM-57 -- FR-049's three values. `planActualDisplayFrom` holds the rule
+      // and says why a press can have nowhere to go.
+      const display = planActualDisplayFrom(
+        context.document.documentSettings.planActualDisplay,
+        entry === ENTRY.planDisplay,
+      )
+      // ⚠️ The press is still this tool's although it writes nothing: MK-10
+      // (MUST) keeps the browser out from under an entry this tool drew.
+      if (display === null) return CONSUMED_ELSEWHERE
+      return changed([{ kind: 'setPlanActualDisplay', display }])
+    }
+    case ENTRY.themePreference: {
+      // CM-63 -- FR-039's light/dark, which S-72 holds two values for. ⚠️ The
+      // saved value is a STARTING value and not a binding one (FR-039, MUST
+      // NOT), and this press is how the reader moves off it -- FR-039's own
+      // RATIONALE calls the result an edit of the document, which is why it is
+      // a `DocumentCommand` and not the shell's.
+      const isDarkNow = context.document.documentSettings.themePreference === 'dark'
+      return changed([{ kind: 'setThemePreference', preference: isDarkNow ? 'light' : 'dark' }])
+    }
     case ENTRY.statusLine:
       // FR-046, as SK-20 states it: showing the line puts today into
       // `statusDate` and hiding it puts null there. ⚠️ Table T-109 also says
@@ -1635,6 +1817,11 @@ function commandFromEntry(
           ? { kind: 'setStatusDate', date: context.today }
           : { kind: 'clearStatusDate' },
       ])
+    case ENTRY.guideCursorNone:
+    case ENTRY.guideCursorCrosshair:
+    case ENTRY.guideCursorSingleVertical:
+    case ENTRY.guideCursorDoubleVertical:
+      return commandFromGuideCursorEntry(entry)
     case ENTRY.paletteGrabBand:
       // GR-19 of table T-023d -- FR-053's drag, settled on the release like
       // every other one here (IN-1 of table T-028).
@@ -1661,6 +1848,48 @@ function commandFromEntry(
     default:
       return commandFromArmingEntry(entry, context)
   }
+}
+
+/**
+ * One press on one of FR-049's five toggles (CM-58).
+ *
+ * ⛔ READ FROM THE DOCUMENT, NEVER FROM THE DRAWN ENTRY, for the reason
+ * `commandFromRowEntry` gives at the pin: a drawn screen is as old as the last
+ * paint and FR-048 lets a paint be skipped altogether, so a press read against
+ * the picture could write the value that is already there. ⚠️ CM-58 does not
+ * catch that -- it puts whatever it is given -- so the toggle would simply
+ * refuse to move, the way a pin read against a stale picture refuses to come
+ * off. ⭐ No undo step is at stake here: UN-7 keeps these five out of the
+ * history altogether, which is why `isUndoable` names CM-58.
+ *
+ * @purity pure
+ */
+function commandFromVisibleElementEntry(entry: string, context: InputContext): TranslatedInput {
+  const element = visibleElementOfEntry(entry)
+  // Not one of the five. ⛔ Still this tool's press (MK-10).
+  if (element === null) return CONSUMED_ELSEWHERE
+  const isVisibleNow = context.document.documentSettings[element]
+  return changed([{ kind: 'setElementVisible', element, visible: !isVisibleNow }])
+}
+
+/**
+ * One press on one of the guide cursor's four entrances (CM-59).
+ *
+ * ⭐ NOTHING IS READ FROM THE DOCUMENT. CU-3 of table T-029 has the reader
+ * CHOOSE among four exclusive modes and table T-109 gives each mode its own
+ * entry, so the value the press writes is the row's own and does not depend on
+ * the value it replaces. ⚠️ Pressing the entry for the mode already set writes
+ * that mode again and costs one undo step (UN-13 keeps S-66 in the history);
+ * no row makes a second press on the same entry mean "switch the cursor off"
+ * -- IC-46 is the entrance table T-109 places for that, and reading it as an
+ * off switch would give one function two entrances (FR-029, MUST NOT).
+ *
+ * @purity pure
+ */
+function commandFromGuideCursorEntry(entry: string): TranslatedInput {
+  const mode = guideCursorModeOfEntry(entry)
+  if (mode === null) return CONSUMED_ELSEWHERE
+  return changed([{ kind: 'setGuideCursorMode', mode }])
 }
 
 /**
@@ -2414,14 +2643,23 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
         return screenStateWithArmed(state, { kind: 'none' })
       case 'gesture':
       case 'dualCursorMode':
+      case 'confirmation':
       case null:
       default:
-        // ⛔ Neither of those two levels is in this value. A gesture in flight
-        // and the Dual Cursor mode are current values the Framework holds
-        // (LY-5), which is why `EscapeContext` exists at all -- the shell drops
-        // the press, or leaves the mode, when `escapeTarget` names its level.
+        // ⛔ NONE OF THOSE THREE LEVELS IS IN THIS VALUE. A gesture in flight,
+        // the Dual Cursor mode and a standing `Confirmation` are all current
+        // values the Framework holds (LY-5), which is why `EscapeContext`
+        // exists at all -- the shell drops the press, leaves the mode, or
+        // settles the question, when `escapeTarget` names its level.
         // Answering with the state unchanged is not "nothing happened": the
         // level WAS consumed, by a holder this function cannot reach.
+        //
+        // ⚠️ `'confirmation'` CANNOT ARRIVE HERE TODAY, and the case is listed
+        // rather than left to `default:` because it is one of the five values
+        // the type admits. `escapeContextOf` leaves `isConfirmationStanding`
+        // unset on purpose: this member is pure and cannot see the question,
+        // and `EscapeContext` (MUST) has a press at that level reckoned by ONE
+        // caller, or IN-4's 1 階層 per press would be spent twice.
         return state
     }
   }
@@ -2444,20 +2682,30 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 37 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
-// ANSWERS NONE OF THEM. ⚠️ The number is the 73 rows of that table less the 36
-// this file assigns (`ENTRY` holds 21 and `ARMED_BY_ENTRY` 15), and the three
-// groups below add up to it: 5 + 20 + 12.
+// STOP -- ⛔ 25 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
+// ANSWERS NONE OF THEM. ⚠️ The number is the 73 rows of that table less the 48
+// this file assigns (`ENTRY` holds 33 and `ARMED_BY_ENTRY` 15), and the two
+// groups below add up to it: 5 + 20.
 // ⭐ The entries that ARE answered were chosen by a rule rather than one at a
-// time: an entry is answered when this file already answers the same operation
-// for a row of table T-036, or when it opens a surface whose name table T-103
-// has settled -- plus FR-083's arming, which is the whole point of the seam
-// member that brought the press here, and plus the three entrances table T-109
-// draws once per ROW, which `ScreenPart.rowGroupId` made reachable.
+// time. An entry is answered when
+//   ① this file already answers the same operation for a row of table T-036, or
+//   ② it opens a surface whose name table T-103 has settled, or
+//   ③ its own row names the value the press writes and the setting it goes into
+//      -- FR-049's five toggles and S-59's two halves, FR-039's two-valued
+//      theme, and FR-048's four exclusive modes, none of which needs a decision
+//      this file would have to make up
+// -- plus FR-083's arming, which is the whole point of the seam member that
+// brought the press here, and plus the three entrances table T-109 draws once
+// per ROW, which `ScreenPart.rowGroupId` made reachable.
 //
-// ⚠️ EVERY COUNT BELOW WAS MEASURED AGAINST THE TREE, not carried forward. The
-// note said 「25」 while its own groups listed 28, and called three of its rows a
-// missing route that another unit had already written end to end.
+// ⚠️ EVERY COUNT ABOVE WAS MEASURED AGAINST THE TREE, not carried forward, and
+// this note has been wrong twice before. Once its headline number disagreed
+// with its own groups, and it called three rows a missing route that another
+// unit had already written end to end. Then its closing paragraph called twelve
+// rows undecidable and named CM-61 and CM-66 as the commands they wanted --
+// neither of which has anything to do with a display setting (they clear the
+// Dual Cursor and move the scroll position). The twelve wanted CM-57, CM-58,
+// CM-59 and CM-63, and all four are now written above.
 //
 // ⭐ 5 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- none of the five is a
 // `DocumentCommand`, and LY-5 of table T-060 leaves a current value with the
@@ -2511,13 +2759,6 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                It is still not a button -- what answers it is a drag, settled
 //                on the release.
 //
-// ⚠️ THE REMAINING 12 ARE REACHABLE AND ARE STILL NOT WRITTEN -- IC-4, IC-8, IC-9,
-// IC-16, IC-39, IC-40, IC-42, IC-43 (the drawing settings, CM-59 / CM-61 /
-// CM-63 / CM-66) and IC-46 .. IC-49 (the guide cursor, whose four values table
-// T-109 spells verbatim). ⛔ They are outside the rule stated above, not
-// impossible, and leaving them here rather than half-writing them is the
-// choice: each is a toggle, and which of S-59's or S-72's values a press moves
-// to is not stated by table T-109 for any of them.
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-203,
 // table T-206, `screen-renderer.ts`, `edit-document-settings.ts`,
 // `screen-surface.ts`, `frame-loop.ts`.

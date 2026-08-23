@@ -96,7 +96,8 @@
 // them:
 //   - what a disabled entry's REASON is carried as ON THIS SEAM. FR-029 (MUST)
 //     asks for the reason to be given rather than the entry going quiet, and
-//     `ScreenPart` carries `part` and `entry` and nothing else -- so what is
+//     every member `ScreenPart` declares says WHERE a point is and none says
+//     WHY an entry is spent -- so what is
 //     checked here is that the entry still answers, which is the half of FR-029
 //     this member can carry. The words ride `CommandItem.label` and
 //     `Tooltip.text`, which are UF-62's and UF-69's and are uf-71's to cover.
@@ -1415,6 +1416,10 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
       part: 'App Header',
       entry: 'IC-7',
       format: null,
+      // ⚠️ An entrance of the `App Header` stands on no row and against no
+      // person, which `ScreenPart` states for both keys in as many words.
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 
@@ -1446,12 +1451,24 @@ describe('IF-9 of 表 T-065 -- three supplies, three members', () => {
     expect(typeof surface.readScreenPartAt).toBe('function')
   })
 
-  it('answers with the two members ScreenPart declares and nothing else', () => {
+  it('answers with every member ScreenPart declares and nothing else', () => {
     const built = drawn(OVER_THE_SCHEDULE)
 
     const answer = ask(built, AT.entryIc7.x, AT.entryIc7.y)
     expect(answer).not.toBeNull()
-    expect(Object.keys(answer ?? {}).sort()).toEqual(['entry', 'format', 'part'])
+    // ⛔ THE ROSTER IS WRITTEN DOWN AND NOT DERIVED. `ScreenPart` is a type and
+    // leaves nothing behind at run time, so a list kept here is the only thing
+    // that can notice a member being DROPPED -- reading the keys off the very
+    // answer being checked would agree with any answer at all. ⚠️ Each name is
+    // one the seam declares in src/adapter/screen-renderer/screen-surface.ts;
+    // adding one there is meant to land here.
+    expect(Object.keys(answer ?? {}).sort()).toEqual([
+      'entry',
+      'format',
+      'part',
+      'resourceUid',
+      'rowGroupId',
+    ])
   })
 })
 
@@ -1489,6 +1506,10 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
       part: 'Command Palette',
       entry: null,
       format: null,
+      // ⚠️ The palette floats over the schedule and stands on no row of the
+      // person's document, so neither key has anything to name.
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 
@@ -1511,6 +1532,8 @@ describe('FR-029 -- a disabled entry answers; it does not go quiet', () => {
       part: 'App Header',
       entry: 'IC-5',
       format: null,
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 
@@ -1546,7 +1569,13 @@ describe('FR-053 / 表 T-023b -- the palette can be armed from (SP-1 .. SP-4)', 
     const box = LAYOUT.get(`icon:${row}`)
     expect(box, `this file has no place for ${row}`).toBeDefined()
     const at = box ?? ZERO
-    expect(ask(built, at.x + 2, at.y + 2)).toEqual({ part: 'Command Palette', entry: row, format: null })
+    expect(ask(built, at.x + 2, at.y + 2)).toEqual({
+      part: 'Command Palette',
+      entry: row,
+      format: null,
+      rowGroupId: null,
+      resourceUid: null,
+    })
   })
 
   it('names the containing surface, not the grouping inside it (U-34)', () => {
@@ -1612,6 +1641,10 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
       part: 'Command Palette',
       entry: T_109_GRAB_BAND.row,
       format: null,
+      // ⛔ The band moves `ScreenSession.commandPaletteAt` (FR-053) and nothing
+      // in the person's document, so it names neither a row nor a resource.
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 
@@ -1662,6 +1695,10 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
       part: 'Command Palette',
       entry: T_109_GRAB_BAND.row,
       format: null,
+      // ⛔ The band moves `ScreenSession.commandPaletteAt` (FR-053) and nothing
+      // in the person's document, so it names neither a row nor a resource.
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 
@@ -1711,6 +1748,8 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
       part: 'App Header',
       entry: null,
       format: null,
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 })
@@ -1725,7 +1764,13 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
     const built = drawn(viewWith({}))
 
     expect(ask(built, 180, 8)?.entry).toBe('IC-13')
-    expect(ask(built, 0, 0)).toEqual({ part: 'App Header', entry: null, format: null })
+    expect(ask(built, 0, 0)).toEqual({
+      part: 'App Header',
+      entry: null,
+      format: null,
+      rowGroupId: null,
+      resourceUid: null,
+    })
   })
 
   it('lets go of its right and bottom edge', () => {
@@ -1733,7 +1778,13 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
 
     // The last point inside the entry on each axis, then the first point outside.
     expect(ask(built, 203, 31)?.entry).toBe('IC-13')
-    expect(ask(built, 180, 32)).toEqual({ part: 'App Header', entry: null, format: null })
+    expect(ask(built, 180, 32)).toEqual({
+      part: 'App Header',
+      entry: null,
+      format: null,
+      rowGroupId: null,
+      resourceUid: null,
+    })
   })
 
   it("hands the App Header's bottom edge to the part that begins there", () => {
@@ -1804,6 +1855,10 @@ describe('overlapping parts', () => {
       part: 'Help Modal',
       entry: 'IC-52',
       format: null,
+      // ⚠️ S-99g's surface is opened OVER the screen and names no row of the
+      // document underneath it, however far the point is down the panel.
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 })
@@ -1863,7 +1918,13 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
       viewWith({ appHeaderItems: { ...HEADER, commands: [command({ icon: 'IC-13' })] } }),
     )
 
-    expect(ask(built, AT.entryIc7.x, AT.entryIc7.y)).toEqual({ part: 'App Header', entry: null, format: null })
+    expect(ask(built, AT.entryIc7.x, AT.entryIc7.y)).toEqual({
+      part: 'App Header',
+      entry: null,
+      format: null,
+      rowGroupId: null,
+      resourceUid: null,
+    })
     expect(ask(built, AT.entryIc13.x, AT.entryIc13.y)?.entry).toBe('IC-13')
   })
 })
@@ -1894,16 +1955,17 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
   //   IC-59  行の配下をすべて閉じる          表 T-051 の HF-3
   //   IC-60  行をピン止めし、同じ入口で外す   FR-098
   //
-  // ⛔ IC-58 / IC-59 REMAIN UNANSWERED -- the unit draws the `Row Expander`
-  // (U-47) as one control and does not mark it, because 表 T-109 gives the pair
-  // two rows and the note at dom-screen-surface.ts:85 records the hole. 表 T-109
-  // is 「アイコンの全数」 (FR-029, MUST), so that is still a supply IF-9 promises
-  // and does not yet deliver -- but it belongs to the unit, and no case here
-  // pretends otherwise.
+  // ⭐ IC-58 / IC-59 ARE ANSWERED TOO, and the block below asks for both. The
+  // note that used to stand here said they were not: it read that the unit drew
+  // the `Row Expander` (U-47) as ONE unmarked control, and the pair is now drawn
+  // and marked, which is what 表 T-109's two rows and FR-029 (MUST) ask for.
   //
-  // ⚠️ CR-192 §0 ⑧-5 leaves IC-58 .. IC-60 out of what the TRANSLATOR consumes,
-  // for want of the row key (`TaskGroup.id`) -- a different question from whether
-  // the entry can be NAMED. The key is left off `ScreenPart` by design (R2.9).
+  // ⭐ AND THE ROW KEY NOW TRAVELS. `ScreenPart.rowGroupId` carries
+  // `TaskGroup.id` (AT-51), so a press on one of the three entries the panel
+  // holds says which KIND of control it was AND which row's -- which is what
+  // CR-192 §0 ⑧-5 left the TRANSLATOR short of. ⛔ The note that used to stand
+  // here said the key was left off by design; that stopped being true when the
+  // member was declared.
   it('answers IC-60 for a press on the Row Pin (FR-098, 表 T-109 IC-60)', () => {
     const built = drawn(viewWith({}))
 
@@ -1912,6 +1974,11 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
       part: 'Row Title Panel',
       entry: 'IC-60',
       format: null,
+      // ⛔ FR-098 pins ONE row, and `BASE_VIEW` draws exactly one -- so the
+      // press has to come back naming it. A `null` here is the state that left
+      // the pinning unreachable by pointer.
+      rowGroupId: 'g-1',
+      resourceUid: null,
     })
   })
 })
@@ -2042,6 +2109,11 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         part: 'Row Title Panel',
         entry: row,
         format: null,
+        // ⛔ HF-2 opens THE ROW'S subtree and HF-3 closes THE ROW'S, so the
+        // entry alone -- which of the two controls -- cannot become either
+        // command. `withExpander` draws one row and this is its `TaskGroup.id`.
+        rowGroupId: 'g-1',
+        resourceUid: null,
       })
     },
   )
@@ -2079,6 +2151,10 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         part: 'Row Title Panel',
         entry: one.row,
         format: null,
+        // ⭐ A spent control is drawn faint and still stands ON its row, so the
+        // row it names does not go away with the two halves being spent.
+        rowGroupId: 'g-1',
+        resourceUid: null,
       })
     }
   })
@@ -2130,15 +2206,22 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
     // ⭐ 表 T-023a: the panel holds no `ScreenRegions` rectangle, so the answer
     // is the part and never nothing -- but 「入口の上」 has to stay tellable
     // from 「面の上・入口の外」 for EZ-2 to know which explanation to raise.
+    // ⭐ THE TWO ANSWERS COME APART HERE, which is the point of the pair being
+    // separate members: the point is on NO entry and still on THAT row, so the
+    // entry is none while the row is named.
     expect(ask(built, 132, 64)).toEqual({
       part: 'Row Title Panel',
       entry: null,
       format: null,
+      rowGroupId: 'g-1',
+      resourceUid: null,
     })
     expect(ask(built, AT.rowExpanderGap.x, AT.rowExpanderGap.y)).toEqual({
       part: 'Row Title Panel',
       entry: null,
       format: null,
+      rowGroupId: 'g-1',
+      resourceUid: null,
     })
   })
 
@@ -2149,6 +2232,14 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
       part: 'Row Title Panel',
       entry: null,
       format: null,
+      // ⚠️ THE ROW KEY IS NONE HERE BECAUSE OF THIS FILE'S OWN GEOMETRY, not
+      // because a row without an expander stops being a row: `laidOut` gives a
+      // node the union of the children it PLACED, and with no expander drawn
+      // the row reaches no further left than its pin. ⛔ A browser would spread
+      // the row across the panel and answer it; what the case pins is that the
+      // key follows the node the point landed on and is not widened to the part.
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 
@@ -2487,6 +2578,11 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
       part: 'Row Title Panel',
       entry: null,
       format: null,
+      // ⛔ An empty panel holds no row, so there is nothing for the key to name.
+      // ⚠️ It does not stand for "this document has no rows" -- that is what
+      // the description carries; this says the POINT is on none.
+      rowGroupId: null,
+      resourceUid: null,
     })
   })
 })
