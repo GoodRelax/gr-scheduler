@@ -1331,7 +1331,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
   const missingSinceLastImport: number[] = []
   for (const task of current.tasks) {
     if (touched.has(task.uid)) continue
-    // MG-7: 消さずに残し、そのことを知らせるだけにする. FR-022 states the same
+    // MG-7: 消さずに残し、そのことを通知するだけにする. FR-022 states the same
     // as a MUST NOT, so nothing above removes them.
     onlyInCurrent.push(task.uid)
     // MG-11: 前回は届いていて、今回届かなかったタスク. 前回 is the round MG-13's

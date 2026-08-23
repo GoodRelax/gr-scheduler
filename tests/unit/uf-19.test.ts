@@ -508,7 +508,7 @@ describe('ImportDocument (UF-19) -- OP-9 重ね', () => {
 
   it('FR-015 does not draw an overlay task with no counterpart, and says so', () => {
     // 「現在の文書のタスクとの対応づけは `UID` の一致で行うこと（MUST）。対応
-    // するタスクが無い重ねる側のタスクは、描かずに知らせること（MUST）」, and
+    // するタスクが無い重ねる側のタスクは、描かずに通知すること（MUST）」, and
     // 「片側にしか存在しない `Task` は描いてはならない（MUST NOT）」.
     const { report } = accepted(
       importDocument(
@@ -760,7 +760,7 @@ describe('ImportDocument (UF-19) -- FR-022 and table T-032a', () => {
 
 describe('ImportDocument (UF-19) -- table T-032, the rules of 合流', () => {
   it('MG-7 / FR-022 keeps a task the read file did not have, and says so', () => {
-    // MG-7: 「消さずに残し、そのことを知らせるだけにする」. FR-022 states the
+    // MG-7: 「消さずに残し、そのことを通知するだけにする」. FR-022 states the
     // prohibition: 「取込側に無かったタスクを消してはならない（MUST NOT）」.
     const { document, report } = accepted(
       importDocument(

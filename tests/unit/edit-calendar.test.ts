@@ -260,7 +260,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
 
   it('FR-088 refuses a calendar that works no weekday at all, and resets nothing', () => {
     // FR-088 (MUST NOT / MUST): 「稼働する曜日を 1 つも持たない暦を、文書の暦
-    // にしてはならない（MUST NOT）。受け付けずに知らせること（MUST）」。The
+    // にしてはならない（MUST NOT）。受け付けずに通知すること（MUST）」。The
     // condition is IV-17 of table T-220; the refusal is this requirement's.
     const document = documentOf()
     const result = editCalendar(document, { kind: 'setCalendar', workingDayTypes: [] })

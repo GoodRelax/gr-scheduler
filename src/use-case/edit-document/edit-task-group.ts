@@ -450,7 +450,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (refusals.length > 0) return refused(refusals)
 
       // ⚠️ ST-7's safety valve (FR-033: "段が表 T-014 の `ST-7` の安全弁に達した
-      // ときは、貼り付けを受け付けずに知らせること") cannot be reached by THIS
+      // ときは、貼り付けを受け付けずに通知すること") cannot be reached by THIS
       // command, so nothing counts stacks here -- which matters, because the
       // count is made of drawn occupancy (table T-038) and belongs to the
       // layout. That MUST sits in the paragraph about a copied Task landing on

@@ -2370,7 +2370,7 @@ export function frameLoop(
       updatedUtc: readInstantOfWrite(),
     })
 
-    // FR-015 (MUST): 「対応するタスクが無い重ねる側のタスクは、描かずに知らせる
+    // FR-015 (MUST): 「対応するタスクが無い重ねる側のタスクは、描かずに通知する
     // こと」, and OP-9 of table T-024a points at this same requirement for the
     // telling. RS-16 of table T-233 is the row it is carried on, and FR-076
     // (MUST NOT) is what makes that row the whole of what may be carried.

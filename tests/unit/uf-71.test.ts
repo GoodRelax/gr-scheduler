@@ -183,7 +183,25 @@ const T_103_PARTS = [
   { row: 'U-48', name: 'Row Pin' },
   { row: 'U-49', name: 'Resource Roster' },
   { row: 'U-53', name: 'Tooltip' },
+  { row: 'U-57', name: 'Notification Area' },
 ] as const
+
+/**
+ * The settled name 表 T-103 gives one row, out of the copy above.
+ *
+ * ⭐ W-4 of 表 T-006a (MUST) has a `data-role` that carries a settled name carry
+ * it in `W-6`'s form, so a case looks a part up by its ROW and never by a
+ * spelling typed into the case itself. `readsFromTable` checks the copy against
+ * the .md, so a name that moves in the table moves here too.
+ *
+ * ⚠️ `U-30` / `U-34` / `U-35` spell two names in one cell; this returns the
+ * first of them, so it is for the rows that name exactly one part.
+ */
+function partName(row: string): string {
+  const found = T_103_PARTS.find((one) => one.row === row)
+  if (found === undefined) throw new Error(`the copy of 表 T-103 no longer holds ${row}`)
+  return found.name
+}
 
 /**
  * `S-116` of 表 T-212, read from the .md.
@@ -1794,15 +1812,24 @@ describe('表 T-103 -- the settled names reach the DOM so the parts can be found
     expect(byRole(built.root(), 'FR-074').length).toBeGreaterThan(0)
   })
 
-  it('names the ONE member PI-37 publishes that 表 T-103 still has no row for', () => {
-    // ⚠️ It was two. 表 T-103 settled `Tooltip` (U-53) on 2026-08-21, so that
-    // member now carries the glossary's spelling and is checked with the rest of
-    // T_103_PARTS above. Notices are the one left with no row, and the member
-    // name PI-37 publishes is what stands in for it.
+  it('names U-57 by 表 T-103, which no longer leaves that part unnamed', () => {
+    // ⚠️ THIS CASE ONCE RECORDED AN ABSENCE. 表 T-103 had no row for the part
+    // the notices stand in, so the member name PI-37 publishes stood in for it
+    // and the DOM carried a lowercase spelling that no table had settled. The
+    // row landed, so the absence is filled and what is owed is W-4 of 表 T-006a
+    // (MUST): a `data-role` that carries a settled name carries it in `W-6`'s
+    // form. The name is read out of the copy above rather than typed here.
+    //
+    // ⛔ U-57 also says what the part is NOT: it is not a `Confirmation`, and it
+    // is not a 「面」 in the sense `S-99g` gives that word -- so it is not
+    // something opened over the screen. The view below opens nothing (`viewWith`
+    // leaves `openModal` null) and the part is drawn all the same.
     const built = wire({ 'App Header': 37 })
-    surfaceOf(built).showScreenView(RICH_VIEW)
+    surfaceOf(built).showScreenView(
+      viewWith({ notices: [notice({ manner: 'NT-6', text: 'NoticeTextOne' })] }),
+    )
 
-    expect(byRole(built.root(), 'notices').length).toBeGreaterThan(0)
+    expect(byRole(built.root(), partName('U-57')).length).toBeGreaterThan(0)
   })
 })
 
@@ -1980,7 +2007,7 @@ describe('FR-099 / NT-1 / NT-3 / NT-3a of 表 T-037', () => {
       }),
     )
 
-    const box = oneByRole(built.root(), 'notices')
+    const box = oneByRole(built.root(), partName('U-57'))
     expect(box.textContent).toContain('NoticeWordsHere')
     expect(box.textContent).toContain('NextStepOne')
     expect(box.textContent).toContain('NextStepTwo')
@@ -2001,7 +2028,7 @@ describe('FR-099 / NT-1 / NT-3 / NT-3a of 表 T-037', () => {
       viewWith({ notices: [notice({ manner: 'NT-6', text: 'NoticeWordsHere' })] }),
     )
 
-    const box = oneByRole(built.root(), 'notices')
+    const box = oneByRole(built.root(), partName('U-57'))
     expect(box.textContent).not.toContain('null')
     expect(box.textContent).not.toContain('NaN')
   })
@@ -2196,7 +2223,7 @@ describe('boundaries', () => {
     expect(() => surfaceOf(built).showScreenView(EMPTY_VIEW)).not.toThrow()
 
     expect(isShown(built.root())).toBe(true)
-    expect(byRole(built.root(), 'notices').every((one) => one.textContent === '')).toBe(true)
+    expect(byRole(built.root(), partName('U-57')).every((one) => one.textContent === '')).toBe(true)
     expect(byRole(built.root(), 'Tooltip').every((one) => one.textContent === '')).toBe(true)
   })
 

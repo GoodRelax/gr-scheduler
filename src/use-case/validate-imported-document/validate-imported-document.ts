@@ -13,7 +13,7 @@
 // that document away for an input that is then refused, which is the partial
 // application FR-023 forbids.
 //
-// ⭐ ALL OR NOTHING. FR-023: "超えた入力は取り込まずに知らせること（MUST）。部分的
+// ⭐ ALL OR NOTHING. FR-023: "超えた入力は取り込まずに通知すること（MUST）。部分的
 // に適用してはならない（MUST NOT）". This unit only ever answers yes or no about
 // the WHOLE candidate. It never edits, drops or clamps a row to make one fit,
 // and it returns nothing that could be mistaken for a repaired document.

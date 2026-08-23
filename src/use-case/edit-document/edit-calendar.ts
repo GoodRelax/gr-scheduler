@@ -110,14 +110,14 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
         }
 
         // FR-088 (MUST NOT, then MUST): 「稼働する曜日を 1 つも持たない暦を、
-        // 文書の暦（`FR-054`）にしてはならない（MUST NOT）。受け付けずに知らせ
+        // 文書の暦（`FR-054`）にしてはならない（MUST NOT）。受け付けずに通知す
         // ること（MUST）」。 The condition is IV-17 of table T-220 -- the
         // calendar FR-054 resolves works at least one weekday -- and this list
         // is the WHOLE answer, so a list naming no weekday of AT-73's range
         // leaves that calendar working none.
         //
         // ⚠️ Refused here rather than thrown where the days are counted: FR-088
-        // sets this beside FR-085 and FR-098 ("受け付けずに知らせる") and apart
+        // sets this beside FR-085 and FR-098 ("受け付けずに通知する") and apart
         // from `ST-7` of table T-014, because a person taking all seven
         // weekdays off reaches it in the ordinary way.
         //

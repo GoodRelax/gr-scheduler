@@ -313,7 +313,7 @@ src/
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） |
 | UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` / `FR-068` |
-| UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 知らせと確認（`FR-076`。作法は 表 T-037） |
+| UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 通知と確認（`FR-076`。作法は 表 T-037） |
 | UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。順序は 表 T-035 の `AG-11`） |
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） |

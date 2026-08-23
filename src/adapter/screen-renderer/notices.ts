@@ -9,7 +9,7 @@
 // telling, and the signatures published here are the ones the "nine unit
 // contracts" section of screen-renderer.ts fixes.
 //
-// ⭐ TWO MEMBERS, ONE TABLE. The UF-67 row of table T-075 reads 「知らせと確認
+// ⭐ TWO MEMBERS, ONE TABLE. The UF-67 row of table T-075 reads 「通知と確認
 // （FR-076。作法は 表 T-037）」: NT-1 .. NT-6 are manners of TELLING and NT-7 is
 // the manner of ASKING, and both are rows of the one table this unit answers to.
 // ⛔ A confirmation is not a notice -- it stops until it is answered -- so it is

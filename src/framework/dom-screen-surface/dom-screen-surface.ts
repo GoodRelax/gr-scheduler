@@ -235,7 +235,7 @@ const ROLE = {
   paletteGroups: 'Palette Groups',
   paletteCommands: 'Palette Commands',
   dialogueField: 'Dialogue Field',
-  notices: 'notices',
+  notices: 'Notification Area',
   confirmation: 'Confirmation',
   tooltips: 'Tooltip',
 } as const

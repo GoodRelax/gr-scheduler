@@ -1029,7 +1029,7 @@
   {
    "rowId": "RS-9",
    "text": {
-    "ja": "知らせを配っている最中なので、この変更は適用できません",
+    "ja": "通知を配っている最中なので、この変更は適用できません",
     "en": "Notices are being delivered, so this change was not applied"
    },
    "nextStep": {

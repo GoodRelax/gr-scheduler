@@ -985,7 +985,7 @@ export type TooltipAnchor =
  * first. Each of the nine units reads none of the others' members, which is the
  * whole reason the shape is what it is: the nine can be written at once.
  *
- * ⚠️ WHY UF-67 FILLS TWO. Its row of table T-075 reads 「知らせと確認（FR-076。
+ * ⚠️ WHY UF-67 FILLS TWO. Its row of table T-075 reads 「通知と確認（FR-076。
  * 作法は 表 T-037）」, and NT-7 -- the row that says how a question is put -- is
  * a row of that same table. ⛔ A tenth FILE would need a tenth row in table
  * T-075 (check 18 holds `src/` against it); one more manner asked for one more
@@ -1292,7 +1292,7 @@ export interface ScreenSession {
 //     ⚠️ NT-4 (MUST) gathers what is pending at startup into ONE surface rather
 //     than showing them one after another, so this is where several become one.
 //     ⭐ The second member is NT-7's -- the manner for ASKING, which table T-037
-//     gained on 2026-08-21. Table T-075 gives this unit 「知らせと確認」, so both
+//     gained on 2026-08-21. Table T-075 gives this unit 「通知と確認」, so both
 //     manners are one unit's, and neither reads the other's member.
 //     ⚠️ BOTH WIDEN what they are given. The session holds a `RaisedNotice` and
 //     a `RaisedConfirmation`; the answers are a `Notice` and a `Confirmation`,

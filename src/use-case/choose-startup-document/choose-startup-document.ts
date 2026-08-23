@@ -83,7 +83,7 @@ export type HandedCandidate =
  * BT-3 -- the autosaved document (FR-026).
  *
  * `broken` is FR-026's "保存された内容が壊れているとき、黙って破棄してはならない"
- * and table T-034's "壊れていれば知らせたうえで退避する": it is told AND set
+ * and table T-034's "壊れていれば通知したうえで退避する": it is told AND set
  * aside, and it can never win, so a broken autosave is always a losing one.
  */
 export type AutosaveCandidate =
@@ -129,7 +129,7 @@ export type AutosaveDisposition =
    * storage (R7.4: the collecting is over before the deciding starts).
    */
   | { readonly kind: 'askToRecover'; readonly document: Document }
-  /** "壊れていれば知らせたうえで退避する" -- the notice is in `notices`. */
+  /** "壊れていれば通知したうえで退避する" -- the notice is in `notices`. */
   | { readonly kind: 'quarantine' }
 
 /** One thing the startup MUST tell the person about (FR-076, table T-037). */
@@ -230,7 +230,7 @@ function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNot
   const notices: StartupNotice[] = []
 
   // FR-067: "埋め込まれた文書が読み取れないとき、または入れ口が 1 つでないときは、
-  // 黙って捨てずに知らせること（MUST）."
+  // 黙って捨てずに通知すること（MUST）."
   if (candidates.embedded.kind === 'unreadable') {
     notices.push({ row: 'BT-1', rule: 'FR-067', code: 'embeddedUnreadable' })
   }
@@ -243,7 +243,7 @@ function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNot
     notices.push({ row: 'BT-2', rule: 'FR-076', code: 'handedUnreadable' })
   }
 
-  // FR-026: "復旧できないことを人に知らせること." Table T-034 adds the setting
+  // FR-026: "復旧できないことを人に通知すること." Table T-034 adds the setting
   // aside, which travels as `quarantine` rather than as a notice.
   if (candidates.autosave.kind === 'broken') {
     notices.push({ row: 'BT-3', rule: 'FR-026', code: 'autosaveBroken' })

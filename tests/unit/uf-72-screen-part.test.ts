@@ -48,9 +48,10 @@
 //                   entry is the side that answers where it is
 //   表 T-023a       (MUST, 01-04-requirements.md:2251) 判定順序を適用するのは
 //                   日程の描画領域だけとすること -- the floating palette, the
-//                   open surface, the notices and the dialogue field hold no
-//                   `ScreenRegions` rectangle, so a non-null answer over them is
-//                   what stops a press from becoming PD-5's marquee underneath
+//                   open surface, the `Notification Area` and the dialogue
+//                   field hold no `ScreenRegions` rectangle, so a non-null
+//                   answer over them is what stops a press from becoming PD-5's
+//                   marquee underneath
 //   表 T-023b       the arms, and the entries of 表 T-109 that set them
 //   FR-053 / FR-083 SP-1 .. SP-4 -- a press on a palette shape arms or changes a
 //                   shape, so the press has to reach the entry at all
@@ -185,7 +186,25 @@ const T_103_PARTS = [
   { row: 'U-35', name: 'Header Commands' },
   { row: 'U-44', name: 'Dialogue Field' },
   { row: 'U-47', name: 'Row Expander' },
+  { row: 'U-57', name: 'Notification Area' },
 ] as const
+
+/**
+ * The settled name 表 T-103 gives one row, out of the copy above.
+ *
+ * ⭐ W-4 of 表 T-006a (MUST) has a `data-role` that carries a settled name carry
+ * it in `W-6`'s form, so a case looks a part up by its ROW rather than by a
+ * spelling typed into the case. The copy is checked against the .md below, so a
+ * name that moves in the table moves here too.
+ *
+ * ⚠️ `U-30` / `U-34` / `U-35` spell two names in one cell; this returns the
+ * first, so it is for the rows that name exactly one part.
+ */
+function partName(row: string): string {
+  const found = T_103_PARTS.find((one) => one.row === row)
+  if (found === undefined) throw new Error(`the copy of 表 T-103 no longer holds ${row}`)
+  return found.name
+}
 
 /**
  * The two entries of 表 T-109 that the `Row Expander` (U-47) is made of, each
@@ -974,9 +993,9 @@ const paletteEntryBox = (index: number): ScreenRect =>
 
 /**
  * ⭐ Chosen so that every relation a case needs is present exactly once: the
- * `Help Modal` overlaps the palette WITHOUT covering it, the notices box begins
- * on the `App Header`'s bottom edge, and the `Row Title Tree` sits on the `Row
- * Title Panel`.
+ * `Help Modal` overlaps the palette WITHOUT covering it, the `Notification
+ * Area` begins on the `App Header`'s bottom edge, and the `Row Title Tree` sits
+ * on the `Row Title Panel`.
  */
 const LAYOUT = new Map<string, ScreenRect>([
   ['role:App Header', rect(0, 0, WINDOW.width, HEADER_HEIGHT)],
@@ -1006,7 +1025,7 @@ const LAYOUT = new Map<string, ScreenRect>([
   ['icon:IC-60', rect(140, 60, 16, 16)],
   ['role:Command Palette', rect(400, 300, 220, 180)],
   ['role:Help Modal', rect(500, 380, 400, 300)],
-  ['role:notices', rect(700, 40, 280, 80)],
+  [`role:${partName('U-57')}`, rect(700, 40, 280, 80)],
   ['role:Dialogue Field', rect(200, 700, 600, 60)],
   ['icon:IC-52', rect(860, 390, ENTRY, ENTRY)],
   ...Object.entries(HEADER_ENTRY_X).map(
@@ -1142,7 +1161,7 @@ const BASE_VIEW: ScreenView = {
   notices: [],
   // ⚠️ MENDED BY THE RECONCILER, NOT BY THIS FILE'S AUTHOR, and no assertion
   // moved: `ScreenView` gained this member when 表 T-075's UF-67 cell became
-  // 「知らせと確認」, so a base view built without it is no longer a
+  // 「通知と確認」, so a base view built without it is no longer a
   // `ScreenView` at all and `showScreenView` read `undefined.manner`. `null` is
   // what every other absent surface here already carries.
   // ⛔ THIS FILE STILL HAS NO CASE FOR THE CONFIRMATION -- see the report.
@@ -1343,7 +1362,9 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
   const overTheSchedule = [
     { part: 'Command Palette', at: AT.paletteNoEntry, why: 'FR-053 floats it' },
     { part: 'Help Modal', at: AT.modalOnly, why: 'S-99g opens it over the screen' },
-    { part: 'notices', at: AT.notices, why: 'FR-076 raises it over the screen' },
+    // ⭐ U-57 of 表 T-103 settled the name of the part the notices stand in, so
+    // the case's own title now quotes the table instead of an invented spelling.
+    { part: partName('U-57'), at: AT.notices, why: 'FR-076 raises it over the screen' },
     { part: 'Dialogue Field', at: AT.dialogue, why: 'FR-066 puts it up' },
   ] as const
 
@@ -1509,9 +1530,10 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
   it("hands the App Header's bottom edge to the part that begins there", () => {
     const built = drawn(OVER_THE_SCHEDULE)
 
-    // The `App Header` is y 0..40 and the notices box begins at y 40.
+    // The `App Header` is y 0..40 and U-57's box begins at y 40 -- both boxes
+    // are this file's own (LAYOUT), because nothing in docs/spec fixes them.
     expect(ask(built, AT.headerLastRow.x, AT.headerLastRow.y)?.part).toBe('App Header')
-    expect(ask(built, AT.noticesFirstRow.x, AT.noticesFirstRow.y)?.part).toBe('notices')
+    expect(ask(built, AT.noticesFirstRow.x, AT.noticesFirstRow.y)?.part).toBe(partName('U-57'))
   })
 })
 

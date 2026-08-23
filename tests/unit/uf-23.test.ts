@@ -113,7 +113,7 @@ describe('ChooseStartupDocument (UF-23) -- the order of table T-034', () => {
 
 describe('ChooseStartupDocument (UF-23) -- BT-1, the embedded document (FR-067)', () => {
   // FR-067: 「埋め込まれた文書が読み取れないとき、または入れ口が 1 つでない
-  // ときは、黙って捨てずに知らせること（MUST）。そのうえで表 T-034 の次の順位
+  // ときは、黙って捨てずに通知すること（MUST）。そのうえで表 T-034 の次の順位
   // へ降りる —— 空で起動するのではない。」 Two failures, one rule, one
   // treatment: tell, then descend.
   const belowBt1 = {
@@ -172,7 +172,7 @@ describe('ChooseStartupDocument (UF-23) -- the losing autosave, table T-034 note
   // 「負けた自動保存の扱い: 同じ文書で、自動保存の刻印が開いた文書のそれと 1 つ
   // でも違えば確認を求めること（MUST）。⛔ どちらが新しいかで判定してはならない
   // （MUST NOT）—— 壁時計は逆行しうるうえ、取り消しで戻った文書は「新しくない」
-  // ので黙って捨てられる（`FR-063`）。別の文書なら触らない。壊れていれば知らせた
+  // ので黙って捨てられる（`FR-063`）。別の文書なら触らない。壊れていれば通知した
   // うえで退避する。」
   // FR-062 adds the MUST NOT that guards all three: 「負けた自動保存を黙って
   // 捨ててはならない」.
@@ -255,9 +255,9 @@ describe('ChooseStartupDocument (UF-23) -- the losing autosave, table T-034 note
   })
 
   it('T-034 and FR-026 tell about a broken autosave and set it aside', () => {
-    // 「壊れていれば知らせたうえで退避する」, and FR-026: 「保存された内容が
+    // 「壊れていれば通知したうえで退避する」, and FR-026: 「保存された内容が
     // 壊れているとき、黙って破棄してはならない（MUST NOT）—— 復旧できないこと
-    // を人に知らせること」. A broken autosave can never win, so BT-4 opens.
+    // を人に通知すること」. A broken autosave can never win, so BT-4 opens.
     const template = documentOf('template')
     const choice = chooseStartupDocument({
       embedded: { kind: 'none' },
@@ -269,7 +269,7 @@ describe('ChooseStartupDocument (UF-23) -- the losing autosave, table T-034 note
     expect(choice.document).toBe(template)
     expect(choice.autosave).toEqual({ kind: 'quarantine' })
     // ⚠️ The rule is not asserted to a single UID: the specification names two
-    // for this telling -- FR-026 (「壊れているとき…知らせること」) and table
+    // for this telling -- FR-026 (「壊れているとき…通知すること」) and table
     // T-034's own note under FR-062 -- and neither is the lesser one.
     const notice = noticeFor(choice, 'autosaveBroken')
     expect(notice?.row).toBe('BT-3')

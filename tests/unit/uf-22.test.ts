@@ -334,7 +334,7 @@ describe('ValidateImportedDocument (UF-22) -- a sound candidate', () => {
 describe('ValidateImportedDocument (UF-22) -- table T-211, the resource ceilings', () => {
   it('S-113 refuses a source past `importMaxBytes` and accepts one well inside it', () => {
     // FR-023: 「資源の上限（ファイルサイズ・件数・ネストの深さ）を…表 T-211 に
-    // 従って持ち、超えた入力は取り込まずに知らせること（MUST）」.
+    // 従って持ち、超えた入力は取り込まずに通知すること（MUST）」.
     const document = documentOf({ tasks: [plainTask(1)] })
     expect(validateImportedDocument(candidateOf(document), BOUNDS).ok).toBe(true)
 
@@ -766,7 +766,7 @@ describe('ValidateImportedDocument (UF-22) -- what FR-023 does not refuse', () =
   })
 
   it('FR-023 answers about the WHOLE candidate -- refused means nothing to adopt', () => {
-    // 「超えた入力は取り込まずに知らせること（MUST）。部分的に適用してはならない
+    // 「超えた入力は取り込まずに通知すること（MUST）。部分的に適用してはならない
     // （MUST NOT）」——「途中まで取り込んだ状態は、利用者から見て「壊れた文書」と
     // 区別がつかない」. The refusal names items so a person can fix the file
     // (NT-1), and carries no repaired document a caller could adopt in part.

@@ -1033,9 +1033,9 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
   })
 
   it('FR-015 (MUST): a task the overlay could not match is told, not silently dropped', async () => {
-    // 「対応するタスクが無い重ねる側のタスクは、描かずに知らせること（MUST）」,
+    // 「対応するタスクが無い重ねる側のタスクは、描かずに通知すること（MUST）」,
     // and OP-9 points at the same requirement for it: 「一致しなかったタスクを人
-    //   へ知らせる規則も同要求が持つ（MUST）」.
+    //   へ通知する規則も同要求が持つ（MUST）」.
     //
     // ⚠️ THE ROW EXISTS NOW AND THIS CASE STILL DOES NOT NAME IT. When this
     // case was written table T-233 had no situation for "an overlaid task
@@ -1589,7 +1589,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
 // FR-076 and table T-233 -- what a notice carries as its reason
 // ===========================================================================
 //
-// 「⭐ **知らせが運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運ん
+// 「⭐ **通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運ん
 //   ではならない（MUST NOT）** —— 理由の語は `FR-038` の辞書が持ち、辞書は行 ID で
 //   引く。⚠️ **行の無い理由に落ち先を与えるのが `RS-15` である**」
 //

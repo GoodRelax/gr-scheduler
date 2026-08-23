@@ -180,7 +180,7 @@ const T_075_PARTS = [
   { unit: 'UF-65', file: 'command-palette.ts', member: 'commandPalette' },
   { unit: 'UF-66', file: 'open-modals.ts', member: 'openModal' },
   { unit: 'UF-67', file: 'notices.ts', member: 'notices' },
-  // ⭐ UF-67 twice. Its row of 表 T-075 reads 「知らせと確認（FR-076。作法は
+  // ⭐ UF-67 twice. Its row of 表 T-075 reads 「通知と確認（FR-076。作法は
   // 表 T-037）」, and NT-7 -- the manner for ASKING, which that table gained on
   // 2026-08-21 -- is a row of the same table. One more manner, not one more unit:
   // a tenth FILE would need a tenth row in 表 T-075.
@@ -523,7 +523,7 @@ describe('UF-60 -- the nine parts of table T-075, one member each but UF-67', ()
     // (UF-61 .. UF-69); UF-60 binds them, carries the display language its own
     // cell names, and UF-70 declares the seam. A member beyond the copies above
     // would be a part no unit of that table owns.
-    // ⚠️ UF-67's row reads 「知らせと確認」, so it owns two: NT-1 .. NT-6 are
+    // ⚠️ UF-67's row reads 「通知と確認」, so it owns two: NT-1 .. NT-6 are
     // manners of telling and NT-7 is the manner of asking, all of 表 T-037.
     // ⚠️ `language` is UF-60's own 「画面全体に効く表示言語を運ぶ」, which is why
     // it is the one member no part below is asked for.
