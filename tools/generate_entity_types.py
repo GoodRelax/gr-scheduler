@@ -45,6 +45,12 @@ LAYOUT = os.path.join(ROOT, 'src', 'entity', 'layout-engine')
 # see the note on NOT_STORED_TARGETS.
 ADAPTER = os.path.join(ROOT, 'src', 'adapter')
 USECASE = os.path.join(ROOT, 'src', 'use-case')
+# ⚠️ AND ONE LANDS IN FRAMEWORK. S-138 is the box a glyph of figure F-019 is
+# drawn in, and the only unit that draws one is DomScreenSurface -- the same
+# rule as above, followed one layer further out. ⛔ No import crosses for it:
+# the constant STANDS in its consumer, so table T-064 gains no member and no new
+# name crosses a component folder.
+FRAMEWORK = os.path.join(ROOT, 'src', 'framework')
 
 # ⚠️ The marker carries NO path. It used to read "<generated from
 # docs/spec/_assets/source/erd.json …>", and when CR-175 moved the manuscript
@@ -841,6 +847,19 @@ ARRIVES_AS_ARGUMENT = [
     ' * document on purpose (the environment may hold a larger one). This',
     ' * is what a caller passes when it has nothing better.',
 ]
+# ⛔ A THIRD SEAM: no door AND no caller. S-138 and S-139 are read by the unit
+# that draws with them, and neither crosses a contract -- S-139 is already
+# resolved into `RowTitle.controlTopOffsetPx` before it would have to, and S-138
+# is a constant of the drawing itself rather than of any one item.
+DRAWN_WITH_WHERE_IT_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a',
+    ' * document setting and neither may become one: table T-206 is where',
+    ' * the specification records that the document does not keep them,',
+    ' * and the export draws no entrance at all (EP-1 and EP-4 of table',
+    ' * T-076), so a reader handed this document sees the same picture',
+    ' * whatever this value is.',
+]
+
 READ_WHERE_IT_STANDS = [
     ' * ⚠️ This unit reads the row where it stands instead of being handed',
     ' * it: the contract in screen-renderer.ts fixes UF-61 at three',
@@ -869,6 +888,8 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
     'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a'], READ_WHERE_IT_STANDS),
+    'NOT_STORED_ROW_CONTROL_SIZES': (['S-139'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_ICON_SIZES': (['S-138'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
@@ -1274,6 +1295,18 @@ TARGETS = [
     # value.
     (os.path.join(ADAPTER, 'screen-renderer', 'command-palette.ts'),
      lambda _erd: not_stored_block('NOT_STORED_COMMAND_PALETTE_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ HF-5's set-down, resolved on the side that can resolve it. S-139 is a
+    # RATIO and what it multiplies is the row's own name size, which only this
+    # side knows -- `DocumentSettings` does not cross IF-9.
+    (os.path.join(ADAPTER, 'screen-renderer', 'row-title-panel.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_ROW_CONTROL_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ The only generated region that lands in Framework, for the reason the
+    # note on FRAMEWORK above gives: FR-029 (MUST) makes one box the authority
+    # for every entrance, and one unit draws all of them.
+    (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The zoom trio, split by consuming unit the way the note above requires:
     # `InputContext.zoomStep` is read by the translator, `SettingsLimits`

@@ -2294,3 +2294,30 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   return { showScreenView, readDialogueInput, readScreenPartAt }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a
+ * document setting and neither may become one: table T-206 is where
+ * the specification records that the document does not keep them,
+ * and the export draws no entrance at all (EP-1 and EP-4 of table
+ * T-076), so a reader handed this document sees the same picture
+ * whatever this value is.
+ */
+export const NOT_STORED_ICON_SIZES: {
+  /** S-138, in px */
+  readonly 'S-138': number
+} = {
+  'S-138': 12,
+}
+// </generated>
