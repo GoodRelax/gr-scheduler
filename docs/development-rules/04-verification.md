@@ -63,6 +63,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 
 | | |
 |---|---|
+| ⭐ **事前チェッカー** | `PYTHONIOENCODING=utf-8 python tools/precheck.py`（`npm run precheck`）。⛔ **編集の「前」に走らせる。** 差分に対して 1 秒で、往復を生んでいた 4 つの罠を落とす —— `docs/spec` の中のバッククォート付き `CR-nnn` / `PD-nnn`、空行 2 連続、生成物への直接編集、変更要求の `CH-` と `GL-` の対応違い。⚠️ **最後の 1 つは、ほかのどの検査も捕まえない** |
 | **機械検査（26 本）** | `bash .claude/skills/spec-graph-check/check.sh`。⭐ **検査 0 が最初に走り、`docs/development-rules/` の索引を刷る** —— この規則が読まれるのは、読めと書いたからではなく、**最初の命令が出すから**である |
 | Chapter 5 の自己検算 | `PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/audit-ch5.py` |
 | 刊行物の描画 | ⚠️ **先に** `strictdoc export docs/spec --formats=html --output-dir scratch/spec-html-probe`、その後 `check-render.py` |

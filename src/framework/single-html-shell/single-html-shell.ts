@@ -55,7 +55,12 @@ import type { DisplayLanguage } from '../../adapter/screen-renderer/screen-rende
 import { domInputSource } from '../dom-input-source/dom-input-source'
 import { domScreenSurface } from '../dom-screen-surface/dom-screen-surface'
 import { domSvgSurface } from '../dom-svg-surface/dom-svg-surface'
-import { frameLoop, type FrameEnvironment, type FrameLoop } from './frame-loop'
+import {
+  frameLoop,
+  startupDisplayLanguage,
+  type FrameEnvironment,
+  type FrameLoop,
+} from './frame-loop'
 import startupTemplate from './startup-template.json'
 
 /**
@@ -160,21 +165,21 @@ function measuredScrollbarThickness(): number {
  * FR-038 (MUST): 「起動したときは前回選ばれた言語で開き、それを読み出せないとき
  * はブラウザの言語設定に従うこと」.
  *
- * STOP -- ⛔ ONLY THE SECOND HALF CAN RUN, and the first half is missing an
- * owner rather than a rule. The chosen language is S-99, one of the four rows
- * table T-206 keeps in `localStorage`, and NOTHING in `src/` reads or writes
- * one of those four -- `local-storage-document-store.ts` says they share the
- * place and the prefix but not its seam. So there is no previous choice to read
- * back, and reading a key nothing ever writes would only make it look as though
- * the rule were kept.
+ * ⭐ BOTH HALVES RUN NOW. The stored choice is S-99, one of the four rows table
+ * T-206 keeps in `localStorage`, and the loop holds those keys because they are
+ * current values LY-5 leaves to this layer -- so the answer is asked for rather
+ * than the keys being typed a second time here (R4).
  *
- * ⚠️ A host set to neither language is answered `en`: FR-038 admits exactly two,
- * so the one that is not `ja` is the only other.
+ * ⛔ STILL HALF DONE, AND ON THE OTHER SIDE: nothing WRITES S-99 back, because
+ * no path settles a new display language yet -- `input-command-translator.ts`
+ * records IC-21's press among the entries it cannot answer for. So a first run
+ * follows the host, and a later run will follow the person only once that path
+ * exists (PD-173).
  *
  * @purity semi-pure-b
  */
 function displayLanguage(): DisplayLanguage {
-  return navigator.language.toLowerCase().startsWith('ja') ? 'ja' : 'en'
+  return startupDisplayLanguage()
 }
 
 /**

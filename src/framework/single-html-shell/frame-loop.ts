@@ -53,7 +53,6 @@ import {
   NOT_STORED_LIMITS,
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
-import type { DocumentStamp } from '../../entity/document-model/document-stamp/document-stamp'
 import {
   textOfDay,
   type CalendarDay,
@@ -396,6 +395,7 @@ function sessionOf(
   layout: ScheduleLayout,
   language: DisplayLanguage,
   pointer: { readonly x: number; readonly y: number } | null,
+  confirmation: RaisedConfirmation | null,
 ): ScreenSession {
   return {
     language,
@@ -420,10 +420,13 @@ function sessionOf(
     selectedResourceUids: [],
     propertiesShowing: null,
     propertiesSubject: null,
-    // FR-076's notices and NT-7's question are raised by the paths that would
-    // report a fault, and none of those paths runs in this build.
+    // FR-076's notices are raised by the paths that would report a fault, and
+    // none of those paths runs in this build.
     notices: [],
-    confirmation: null,
+    // FR-032 (MUST): the question standing in front of a delete, or none.
+    // ⭐ Held by the loop, not built here -- LY-5 of table T-060 leaves a
+    // current value with this layer and this function is handed it.
+    confirmation,
     // SC-1 (MUST): the row titles keep step with the body vertically and do not
     // move sideways, so each row's band is this frame's own `RowPlacement`
     // taken across the width `regionsFromScreen` gave the panel. ⛔ Not
@@ -602,6 +605,169 @@ function isDocumentChangingPress(press: PointerPress | null): boolean {
   return PRESS_CHANGES_DOCUMENT[press.pressRow]
 }
 
+/**
+ * Which entry of table T-109 this happening settled on, or null for one that
+ * settled on none.
+ *
+ * ⭐ THE RELEASE, AND FROM THE PRESS. IN-1 settles a pointer operation on the
+ * release (MUST) and CS-2 of table T-066 makes the press its moment, which is
+ * exactly the pair `commandFromEntry` is asked with -- so the shell's own three
+ * entries are read the same way rather than on a rule of this file's.
+ * ⛔ Read off the CONTEXT's press and not the loop's: the loop drops its press
+ * before the action is carried out, and the context is the value the three
+ * members of PI-18 were handed for this same happening.
+ *
+ * @purity pure
+ */
+function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId | null {
+  if (input.kind !== 'pointer' || input.phase !== 'up') return null
+  const press = context.pressed
+  if (press === null || press.on === null) return null
+  return press.on.entry
+}
+
+/**
+ * The rows CD-2 of table T-050 takes with one row -- it and everything below
+ * it.
+ *
+ * ⛔ A SECOND READING OF TABLE T-050, AND IT IS ONE THIS FILE WOULD RATHER NOT
+ * MAKE. FR-032 (MUST) requires the confirmation to name the `Task`s that would
+ * go, so whoever raises the question has to know the chain -- and NOTHING
+ * published answers 「what would this command take away」: `editTaskGroup`
+ * computes the same set on the far side of a write that has already happened,
+ * and `applyDocumentChange` (PI-8) publishes no way to ask without landing.
+ * ⚠️ What would close it is a query on PI-8 that plans a command and answers
+ * what it would remove; until then this is the duplication R2.7 warns about,
+ * written here because the alternative is not asking at all.
+ * ⚠️ `seen` is what stops a broken `parentId` (IV-5) from looping, the same
+ * guard the aggregate's own walk keeps.
+ *
+ * @purity pure
+ */
+function rowsLostWith(groups: readonly TaskGroup[], rootId: string): ReadonlySet<string> | null {
+  if (!groups.some((one) => one.id === rootId)) return null
+  const seen = new Set<string>([rootId])
+  for (let grew = true; grew; ) {
+    grew = false
+    for (const one of groups) {
+      if (seen.has(one.id) || one.parentId === null) continue
+      if (seen.has(one.parentId)) {
+        seen.add(one.id)
+        grew = true
+      }
+    }
+  }
+  return seen
+}
+
+/**
+ * The seeds and every WBS descendant of them -- what CD-1 of table T-050
+ * reaches from each `Task`.
+ *
+ * ⛔ The second reading `rowsLostWith` records; the same note covers this one.
+ *
+ * @purity pure
+ */
+function tasksLostWith(tasks: readonly Task[], seeds: Iterable<number>): ReadonlySet<number> {
+  const held = new Set<number>(seeds)
+  for (let grew = true; grew; ) {
+    grew = false
+    for (const task of tasks) {
+      if (task.wbsParentUid === null || held.has(task.uid)) continue
+      if (held.has(task.wbsParentUid)) {
+        held.add(task.uid)
+        grew = true
+      }
+    }
+  }
+  return held
+}
+
+/**
+ * The question FR-032 owes for one write, or null where it owes none.
+ *
+ * ⭐ THE TWO PLACES AND NO OTHERS. FR-032 (MUST) asks for a confirmation when a
+ * ROW is deleted and when a `Task` WITH WBS DESCENDANTS is deleted, and FR-031
+ * forbids adding a third place (MUST NOT) -- 「問うてよいのは、要求が確認を
+ * 求めると定めた場面だけ」 is NT-7's own limit. ⛔ So the two `kind`s below are
+ * the whole test: a delete of a `Task` that leads nothing is written straight
+ * through, and undo is the only thing standing behind it, which is what
+ * FR-031's RATIONALE intends.
+ *
+ * ⛔ THE SENTENCE CANNOT BE WRITTEN HERE, AND IS LEFT EMPTY. NT-7 (MUST) wants
+ * what is about to happen said in words, and FR-038 (MUST) keeps every word the
+ * screen prints in ONE per-language dictionary and forbids writing one anywhere
+ * else (MUST NOT). That dictionary -- `display-words.json`, generated from the
+ * manuscript Chapter 6.2 owns -- holds rows for NT-7's two answers and for the
+ * `別の行` mark, and NO row for the question itself. ⚠️ Empty is the same answer
+ * `shownOnAnotherRowMark` gives while its own row is unwritten (PD-160): a
+ * missing word, not an invented one. A sentence typed here would be the second
+ * dictionary FR-038 forbids.
+ *
+ * @purity pure
+ */
+function confirmationOwedBy(
+  commands: readonly DocumentCommand[],
+  held: Document,
+): RaisedConfirmation | null {
+  const schedule = held.schedule
+  const lostRows = new Set<string>()
+  const seeds = new Set<number>()
+  let owed = false
+  for (const command of commands) {
+    if (command.kind === 'deleteTaskGroup') {
+      const rows = rowsLostWith(schedule.taskGroups, command.groupId)
+      // ⚠️ A row that is not there takes nothing with it, and CM-27 refuses the
+      // command on its own account -- so there is nothing to ask about.
+      if (rows === null) continue
+      for (const id of rows) lostRows.add(id)
+      owed = true
+      continue
+    }
+    if (command.kind !== 'deleteTask') continue
+    // FR-032 asks about a `Task` only where it LEADS something. A direct child
+    // is what makes it so: descendants are reached through the same column.
+    if (!schedule.tasks.some((one) => one.wbsParentUid === command.uid)) continue
+    seeds.add(command.uid)
+    owed = true
+  }
+  if (!owed) return null
+  // CD-2 seeds CD-1 with every `Task` carried on any row that is going.
+  for (const member of schedule.taskGroupMembers) {
+    if (lostRows.has(member.groupId)) seeds.add(member.taskUid)
+  }
+  const lostTasks = tasksLostWith(schedule.tasks, seeds)
+  const rowOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
+  const items: ConfirmationItem[] = []
+  for (const task of schedule.tasks) {
+    if (!lostTasks.has(task.uid)) continue
+    const drawnOn = rowOfTask.get(task.uid)
+    items.push({
+      name: task.name,
+      // FR-032 (MUST): a `Task` that goes with a row but is DRAWN elsewhere is
+      // shown as such, because it is not visible on the row being deleted --
+      // HM-10 of table T-015a leaves the WBS children behind when a bar moves.
+      // ⚠️ False where no row is going at all: 「another row」 means nothing when
+      // FR-032's row half is not the one asking.
+      isShownOnAnotherRow: drawnOn !== undefined && lostRows.size > 0 && !lostRows.has(drawnOn),
+    })
+  }
+  return { manner: CONFIRMATION_MANNER, text: '', items }
+}
+
+/**
+ * Whether a string is one of the two languages FR-038 admits.
+ *
+ * ⭐ A STORED VALUE IS UNTRUSTED INTAKE. FR-023 calls every intake untrusted,
+ * and `localStorage` is shared by every local page on the machine (LM-6), so
+ * what comes back is a string and nothing more until this has said otherwise.
+ *
+ * @purity pure
+ */
+function isDisplayLanguage(value: string): value is DisplayLanguage {
+  return Object.prototype.hasOwnProperty.call(DISPLAY_LANGUAGES, value)
+}
+
 // ---- the outside is read from here on (R7.7) ------------------------------
 
 /**
@@ -643,6 +809,75 @@ function readInstantOfWrite(): string {
 }
 
 /**
+ * One row of table T-206's `localStorage` set, as the store has it, or null
+ * where it has none and where the store cannot be reached at all.
+ *
+ * ⛔ EVERY READ SURVIVES A STORE THAT REFUSES. LM-14 says so in as many words:
+ * a page opened over `file://` may have the store refused outright, and it is
+ * for that case that FR-038 (MUST) carries a second half -- 「それを読み出せない
+ * ときはブラウザの言語設定に従う」. ⚠️ A host refuses by THROWING on the
+ * property itself, not by answering null, so the access is inside the guard and
+ * not only the call.
+ * ⚠️ NULL IS ONE ANSWER FOR TWO THINGS -- nothing stored, and no store -- and
+ * that is enough: FR-038 gives both the same fallback, and no requirement tells
+ * them apart.
+ *
+ * @purity semi-pure-b
+ */
+function readBrowserStored(row: BrowserStoredRow): string | null {
+  try {
+    return globalThis.localStorage?.getItem(BROWSER_STORED_KEY[row]) ?? null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Put one row of that set back, or let it go where the store refuses.
+ *
+ * ⚠️ A REFUSAL IS NOT A FAULT TO REPORT. LM-14 already places these rows outside
+ * what NFR-004 counts as 「全機能が動く」 for a page opened over `file://`, so a
+ * store that will not take them is a known environment and not a failure of
+ * this tool. ⛔ Nothing is told: FR-076's notices have no owner in this build,
+ * which `writeDocument` records for refusals that matter more than this one.
+ *
+ * @purity non-pure
+ */
+function writeBrowserStored(row: BrowserStoredRow, value: string): void {
+  try {
+    globalThis.localStorage?.setItem(BROWSER_STORED_KEY[row], value)
+  } catch {
+    // See above: the store refusing is one of LM-14's environments.
+  }
+}
+
+/**
+ * FR-038 (MUST): 「起動したときは前回選ばれた言語で開き、それを読み出せないとき
+ * はブラウザの言語設定に従うこと」 -- both halves, in that order.
+ *
+ * ⭐ S-99 FIRST AND THE HOST SECOND. The stored choice is the person's own and
+ * the host's setting is only what to do without one, so a store that answers
+ * is never overridden by the environment.
+ * ⚠️ A stored value that is neither spelling is treated as no value: FR-023
+ * calls every intake untrusted, and the fallback is already the rule for having
+ * nothing to read.
+ * ⚠️ A host set to neither language is answered `en`: FR-038 admits exactly
+ * two, so the one that is not `ja` is the only other.
+ *
+ * ⭐ PUBLISHED FOR THE BOOT FILE. 「起動したとき」 is table T-077's business and
+ * `single-html-shell.ts` is the file that runs it, while the key and the store
+ * belong with the current value this loop holds -- so the answer is computed
+ * here and asked for there, rather than the keys being typed twice (R4).
+ *
+ * @purity semi-pure-b
+ */
+export function startupDisplayLanguage(): DisplayLanguage {
+  const stored = readBrowserStored('S-99')
+  if (stored !== null && isDisplayLanguage(stored)) return stored
+  return globalThis.navigator?.language?.toLowerCase().startsWith('ja') === true ? 'ja' : 'en'
+}
+
+/**
  * ADR-001 -- the screen rectangles, the layout and the geometry are computed
  * ONCE at the head of a frame and handed out.
  *
@@ -675,6 +910,32 @@ export function frameLoop(
   // CS-2 of table T-066 -- the press a gesture began with, kept until the
   // gesture ends, because IN-1 decides the whole gesture from it on release.
   let pressed: PointerPress | null = null
+  // FR-038 (MUST): one language for the whole screen. `ScreenWiring` carries
+  // what startup settled on -- S-99 if the store had it, the host otherwise --
+  // and this carries what the person has chosen since.
+  // ⛔ Never the document's: FR-038 keeps the choice out of it (MUST NOT).
+  // ⚠️ `screen` is optional -- the loop runs without a `ScreenWiring` for the
+  // paths that need no screen -- so FR-038's own rule answers when there is
+  // none, rather than a second default being written here.
+  let language: DisplayLanguage = screen?.language ?? startupDisplayLanguage()
+  // FR-032 (MUST) -- the question NT-7 puts, and the writes it stands in front
+  // of, until IC-69 or IC-70 answers it.
+  //
+  // ⭐ CS-4's DISCIPLINE, NOT ITS LANDING. Table T-066 wrote that row for a
+  // file operation and its landing clause names `replaceDocument`, which is
+  // wrong for a delete -- a delete lands through `applyDocumentChange`. What
+  // carries over is the part that matters: nothing is read again while the
+  // answer is awaited, so the writes below are the ones the question was asked
+  // about and not a later document's.
+  // ⛔ WHETHER THIS SURFACE IS A 「面」 IS NOT SETTLED. If it were, IN-4 of table
+  // T-028 would spend `Esc` on it and that would be a second way to cancel
+  // beside IC-70. Table T-109's 面 column does not name `Confirmation` and
+  // S-99g defines a 面 as what `Esc` closes, so the specification says neither.
+  // Nothing is decided here: `Esc` is left alone.
+  let asking: {
+    readonly question: RaisedConfirmation
+    readonly writes: readonly (readonly DocumentCommand[])[]
+  } | null = null
   // U-42 `Pointer` -- where one was last reported from.
   // ⛔ NEVER null again once one happening has arrived. IF-2 supplies 「ポインタ
   // とキーの出来事」 and has no happening for the pointer LEAVING the window,
@@ -785,7 +1046,7 @@ export function frameLoop(
         selection,
         screenState,
         dialogueLog,
-        sessionOf(document, regions, layout, screen.language, pointerAt),
+        sessionOf(document, regions, layout, language, pointerAt, asking?.question ?? null),
       ),
     )
   }
@@ -1010,11 +1271,67 @@ export function frameLoop(
    *
    * @purity non-pure
    */
+  /**
+   * The three entries of table T-109 this loop answers for, on the release that
+   * settled on one. Returns whether the entry was spent here.
+   *
+   * ⭐ THE SHELL'S OWN, BECAUSE NONE OF THEM IS A `DocumentCommand`. IC-21
+   * chooses the display language (S-99) and IC-69 / IC-70 are NT-7's two
+   * answers; table T-108 has no row for any of the three, and LY-5 of table
+   * T-060 leaves a current value with this layer.
+   *
+   * ⚠️ IC-69 writes what was HELD, not what the document says now: CS-4's
+   * discipline is that the answer lands on the operation that was begun.
+   *
+   * @purity non-pure
+   */
+  function answerSettledEntry(entry: IconId, frame: FrameValues): boolean {
+    if (entry === DISPLAY_LANGUAGE_ENTRY) {
+      // FR-038 (MUST): exactly two languages, so one entry that shows the
+      // current one is the whole switch (the header's half of the two entrances
+      // the same requirement asks for).
+      language = language === 'ja' ? 'en' : 'ja'
+      writeBrowserStored('S-99', language)
+      return true
+    }
+    if (entry === CONFIRMATION_PROCEED_ENTRY) {
+      const asked = asking
+      if (asked === null) return false
+      // ⛔ Cleared BEFORE the writes, not after: `carryOutAction` refuses to
+      // start a write while a question stands, and these writes are the answer
+      // to it rather than a new request.
+      asking = null
+      for (const bundle of asked.writes) writeDocument(bundle, frame)
+      return true
+    }
+    if (entry === CONFIRMATION_CANCEL_ENTRY) {
+      // FR-032 (MUST) -- 「取りやめる」 leaves the document untouched. Nothing
+      // was written, so there is nothing to undo either.
+      if (asking === null) return false
+      asking = null
+      return true
+    }
+    return false
+  }
+
   function carryOutAction(action: InputAction | null, frame: FrameValues): void {
     // MK-12: a combination this tool assigns nothing to produces nothing.
     if (action === null) return
     switch (action.kind) {
-      case 'changeDocument':
+      case 'changeDocument': {
+        // FR-032 (MUST): a row deletion, and a `Task` deletion that leads WBS
+        // descendants, are asked about before they land. ⛔ The question is put
+        // in front of the WHOLE action and not each bundle: NT-7 asks once
+        // about what is going to happen, and a person answering twice for one
+        // press is not what 「続けるか取りやめるかを選ばせること」 means.
+        // ⚠️ While one question stands, a second write is not started -- the
+        // answer would otherwise land on a document the question never saw.
+        if (asking !== null) return
+        const owedQuestion = confirmationOwedBy(action.writes.flat(), held.document)
+        if (owedQuestion !== null) {
+          asking = { question: owedQuestion, writes: action.writes }
+          return
+        }
         // ⭐ ONE PRESS MAY OWE MORE THAN ONE WRITE, AND THE ORDER IS THE
         // RULE. FR-031 (MUST) splits one fit press into two writes and forbids
         // swapping them (MUST NOT): CM-71 puts the zoom and the place and
@@ -1031,6 +1348,7 @@ export function frameLoop(
         // is one GESTURE writing twice, not one write landing in halves.
         for (const bundle of action.writes) writeDocument(bundle, frame)
         return
+      }
       // RD-1 and RD-2 of table T-230. ⭐ The shell asks neither UndoEdit nor
       // RedoEdit itself: the pair is replaced by the ONE write path, which is
       // what MS-1 of table T-042 is about.
@@ -1181,7 +1499,14 @@ export function frameLoop(
     // FR-071's way out of full screen would be unreachable.
     if (hasEndedGesture(input) || escapeLevel === 'gesture') pressed = null
 
-    carryOutAction(translated.action, frame)
+    // FR-032 / FR-038: the three entries this loop answers for itself, read
+    // off the press this release settled from (CS-2 of table T-066).
+    // ⛔ BEFORE `carryOutAction`: an entry spent here is not also an edit, and
+    // asking the other way round would let one press do both.
+    const settled = entrySettledOnRelease(input, context)
+    if (settled === null || !answerSettledEntry(settled, frame)) {
+      carryOutAction(translated.action, frame)
+    }
 
     // FT-1 owes a frame for every happening the row names, save the one FR-048
     // takes back. ⚠️ `ask` coalesces, so two triggers in one task still paint

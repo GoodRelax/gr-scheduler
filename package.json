@@ -28,6 +28,7 @@
     "tree:check": "python tools/generate_unit_tree.py --check",
     "types": "python tools/generate_entity_types.py",
     "types:check": "python tools/generate_entity_types.py --check",
+    "precheck": "python tools/precheck.py",
     "layers": "python tools/check_layer_rules.py",
     "startup": "python tools/generate_startup_template.py",
     "startup:check": "python tools/generate_startup_template.py --check",
