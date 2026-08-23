@@ -72,7 +72,7 @@ def weekdays(value, roster):
     return roster['separator'][LANG].join(days)
 
 
-def text(value):
+def text(value, field=None):
     """One cell, in the language being printed.
 
     A cell is one of three things:
@@ -112,6 +112,12 @@ def text(value):
         if 'prefix' in value:
             out = text(value['prefix']) + out
         out += value.get('suffix', '')
+        # ⭐ An OPEN bound. The value itself is not allowed, and the printed
+        # table has to say so -- these rows used to read `1 − ε`, which named a
+        # quantity the specification never gave a value to. The word is derived
+        # from which column the cell is in, so it cannot disagree with the flag.
+        if value.get('exclusive'):
+            out += {'max': ' 未満', 'min': ' 超'}[field]
         if value.get('mark'):
             out += ' ' + value['mark']
         return out
@@ -135,7 +141,7 @@ def markdown_row(cells):
 
 
 def row_line(fields, row):
-    return markdown_row([text(row[f]) for f in fields])
+    return markdown_row([text(row[f], f) for f in fields])
 
 
 def table(block):

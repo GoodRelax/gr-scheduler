@@ -28,7 +28,10 @@
 //              routes, chooser and drop, and NO second entry (MUST NOT);
 //              OP-3 the person is asked one question about one read content;
 //              OP-4 unsaved edits are confirmed before being discarded (MUST),
-//              never dropped silently (MUST NOT)
+//              never dropped silently (MUST NOT); OP-11 several files handed
+//              over in one act -- the first is kept and the rest are reported
+//              as left behind (MUST), and the act may not be made to read as
+//              refused (MUST NOT), because one file IS open
 //   表 T-024   (:2828) IO-1 MSPDI XML and IO-2 `GRS JSON` go both ways, and
 //              (:2836) an implementation that adds a BOM is forbidden
 //              (MUST NOT)
@@ -1040,6 +1043,134 @@ describe('writeChosenFile -- a file the person points at', () => {
     expect(writing.fault.reason).toBe('unavailable')
     expect(writing.fault.what.length).toBeGreaterThan(0)
   })
+
+  // -------------------------------------------------------------------------
+  // DI-4 of 表 T-227 -- the question, and the order it has to be put in.
+  //
+  // ⭐ The cases above hand the store a stand-in that always says yes, so none
+  // of them can tell a store that ASKS from a store that never asks at all.
+  // These three close that gap on this side of IF-3. What each holds the unit
+  // to comes from DI-4 (the question is put before the write, MUST), from NT-7
+  // of 表 T-037 (going on or calling off is CHOSEN, so a "call off" that still
+  // wrote would make the choice mean nothing), and from the seam declaration
+  // `src/adapter/file-gateway/file-store.ts`, which fixes the order of the four
+  // steps and names a `false` answer `cancelled` rather than a failure.
+  //
+  // ⛔ NOT DECIDED BY THE SPECIFICATION, and therefore not held here: which of
+  // the two `ChosenWriteDestination` states a store must report when it cannot
+  // tell a file the chooser has just created from one that was standing empty.
+  // Both hold zero bytes. The seam declaration records the same silence in a
+  // STOP note of its own and makes a choice there; no case below turns on it,
+  // so the cases stay true whichever way the silence is later settled.
+  // -------------------------------------------------------------------------
+
+  /** One request that records the question, and answers it the given way. */
+  const asking = (
+    answer: boolean,
+  ): { readonly write: ChosenFileWrite; readonly asked: unknown[] } => {
+    const asked: unknown[] = []
+    return {
+      asked,
+      write: {
+        bytes: GRS_JSON_BYTES,
+        suggestedFileName: 'plan.json',
+        shouldBecomeOpenedFile: true,
+        askToWriteOver: (destination) => {
+          asked.push(destination)
+          log.push('asked')
+          return Promise.resolve(answer)
+        },
+      },
+    }
+  }
+
+  it('reads the destination once and asks before a byte is written (DI-4)', async () => {
+    // ⭐ The destination is given bytes that are not the ones being written, so
+    // that "what was standing there" and "what is going down" cannot be
+    // confused for one another in the record below.
+    const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
+    const store = fileSystemAccessFileStore(
+      browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
+    )
+    log.length = 0
+    const question = asking(true)
+
+    const writing = await store.writeChosenFile(question.write)
+
+    expect(writing.ok, `the write failed (${log.join(', ')})`).toBe(true)
+    const askedAt = log.indexOf('asked')
+    expect(askedAt, `DI-4: the question was never put (${log.join(', ')})`).toBeGreaterThan(-1)
+    // ⛔ Nothing that could destroy the destination may come first: a stream
+    // opened on the handle truncates the file in a real browser, so the ask has
+    // to precede `createWritable`, not merely `write`.
+    const touched = log.findIndex((one) => /\.createWritable|\.write|\.close/.test(one))
+    expect(touched, `DI-4: the destination was touched first (${log.join(', ')})`)
+      .toBeGreaterThan(askedAt)
+    // R7.4 / CS-4 of 表 T-066: one reading, and the answer is about that one.
+    expect(log.filter((one) => one === 'their-name.json.getFile')).toHaveLength(1)
+    expect(log.indexOf('their-name.json.getFile')).toBeLessThan(askedAt)
+  })
+
+  it('hands the question what is standing at the destination (DI-1 / DI-3)', async () => {
+    // DI-1 compares the file NAME and DI-3 turns on whether the characters
+    // standing there read as this document's format, so the near side cannot
+    // answer either without both. ⚠️ The name is the handle's -- the person may
+    // have overruled the suggestion -- and the bytes are the ones on the disk.
+    const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
+    const store = fileSystemAccessFileStore(
+      browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
+    )
+    const question = asking(true)
+
+    await store.writeChosenFile(question.write)
+
+    expect(question.asked).toEqual([
+      { kind: 'occupied', fileName: 'their-name.json', bytes: MSPDI_BYTES },
+    ])
+  })
+
+  it('writes nothing and calls a refusal cancelled (DI-4 / NT-7)', async () => {
+    // NT-7 of 表 T-037 makes calling off a CHOICE, so a store that wrote anyway
+    // would leave the person a question that decided nothing. IF-3 keeps
+    // `cancelled` apart from the three failures for exactly this: the person
+    // who called the write off has not been failed and is owed no next step
+    // (NT-3a of the same table applies to the other three).
+    const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
+    const store = fileSystemAccessFileStore(
+      browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
+    )
+    log.length = 0
+    const question = asking(false)
+
+    const writing = await store.writeChosenFile(question.write)
+
+    expect(question.asked, `DI-4: the question was never put (${log.join(', ')})`).toHaveLength(1)
+    expect(log.filter((one) => /\.createWritable|\.write|\.close/.test(one))).toEqual([])
+    expect(chosen.written).toEqual([])
+    expect(writing.ok).toBe(false)
+    if (writing.ok) return
+    expect(writing.fault.reason).toBe('cancelled')
+  })
+
+  it('leaves the opened file untouched when the write was called off', async () => {
+    // ⭐ `shouldBecomeOpenedFile` is about a write that HAPPENED. A refusal that
+    // still moved FR-060's target would point the next overwrite at a file this
+    // document was never written to.
+    const alreadyOpen = fileHandle({ name: 'plan.json' })
+    const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
+    const store = fileSystemAccessFileStore(
+      browser({ opens: { handles: [alreadyOpen.handle] }, saves: { handle: chosen.handle } })
+        .environment,
+    )
+    await store.readFileToOpen('chooser')
+
+    await store.writeChosenFile(asking(false).write)
+
+    await expect(store.readOpenedFileState()).resolves.toEqual({
+      kind: 'writable',
+      fileName: 'plan.json',
+    })
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -1130,7 +1261,18 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
     })
   })
 
-  it('takes only the first of a multi-file drop (OP-3)', async () => {
+  it('takes only the first of a multi-file drop, and says how many were left (OP-11)', async () => {
+    // ⭐ OP-11 of 表 T-024a is the row that rules this case, not OP-3: OP-3 is
+    // about the question put to the person over ONE read content, while OP-11
+    // is the case of several files arriving in the same act. It keeps the first
+    // and puts a MUST on saying that the rest were left behind, and a MUST NOT
+    // on letting the act read as refused -- so the number rides beside the file
+    // on the SUCCESS. `FileReading.ignoredFileCount` of the seam declaration
+    // (`src/adapter/file-gateway/file-store.ts`) is where it rides, and an
+    // absent one there asserts that none were left. A reading that dropped a
+    // file and stated nothing would therefore be exactly the silence OP-11's
+    // MUST NOT forbids, which is why this is asserted with the whole reading
+    // rather than on the member alone.
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     const store = fileSystemAccessFileStore(fake.environment)
     const first = fileHandle({ name: 'first.json' })
@@ -1151,6 +1293,9 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
     await expect(store.readFileToOpen('drop')).resolves.toEqual({
       ok: true,
       file: { bytes: GRS_JSON_BYTES, fileName: 'first.json' },
+      // ⭐ Two were handed over and one was kept, so one was left. The number
+      // comes from this case's own hand-over, not from the specification.
+      ignoredFileCount: 1,
     })
   })
 

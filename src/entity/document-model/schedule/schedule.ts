@@ -16,11 +16,16 @@
 // (Chapter 5.3, MUST NOT), so every name the component publishes
 // leaves through here.
 
-// The presentation group, reached through ITS public entry, which is the only
-// route Chapter 5.3 leaves open. `scheduleViolations` needs it because five
-// rows of table T-220 are judged partly by a settings row; nothing else here
-// reads it, and it is a type-only import, so no value crosses.
-import type { DocumentSettings } from '../document-settings/document-settings'
+// The presentation group through ITS public entry, the only route Chapter 5.3
+// leaves open. `scheduleViolations` needs it: five rows of table T-220 are
+// judged partly by a settings row, and IV-16 needs the bounds roster itself,
+// so a value crosses here as well as a type. ⚠️ Not a cycle inside the layer
+// (LR-3 of table T-061): document-settings.ts imports nothing at all.
+import {
+  SETTINGS_BOUNDS,
+  type DocumentSettings,
+  type SettingsBoundToken,
+} from '../document-settings/document-settings'
 
 // <generated -- do not edit by hand>
 // Single source of truth:
@@ -393,6 +398,206 @@ export const DATE_COLUMNS: {
   BaselineTask: ['start', 'finish'],
 }
 
+/** One foreign key of an entity, and the row of table T-057 it lands on. */
+export interface ForeignKeyColumn {
+  /** The column of this entity that holds the reference. */
+  readonly fromColumn: string
+  /** The entity whose rows it names. */
+  readonly child: string
+  /** The column of that entity it lands on. */
+  readonly toColumn: string
+}
+
+/** One column of a row that holds rows of another entity. */
+export interface NestedRows {
+  readonly column: string
+  readonly entity: string
+}
+
+/** One entity of table T-056, as IV-1 and IV-2 need it. */
+export interface EntityRows {
+  readonly entity: string
+  /** The key of `Schedule` its rows sit in, or `null` when they sit in a row. */
+  readonly scheduleKey: string | null
+  /** Whether that key holds many rows or one. */
+  readonly many: boolean
+  /** The columns the key column of table T-058 marks a primary key. */
+  readonly primaryKey: readonly string[]
+  /** The columns it marks a foreign key, each with where it lands. */
+  readonly foreignKeys: readonly ForeignKeyColumn[]
+  /** The columns of one row that hold rows of another entity. */
+  readonly nested: readonly NestedRows[]
+}
+
+/**
+ * Where the schedule group puts the rows of each entity, and what the key
+ * column of table T-058 and the relations of table T-057 say about them.
+ *
+ * ⭐ IV-1 and IV-2 reach their columns by pointing at those two columns of
+ * the manuscript rather than by naming them, and the closing remark of
+ * table T-220 refuses to list the columns for exactly that reason. So this
+ * is the roster, generated the way DATE_COLUMNS is, and not a second copy
+ * of it that would go stale the moment a column is added (F-3).
+ *
+ * ⚠️ The entity and column names are strings and not `keyof`, because the
+ * walk that reads them is driven by the roster itself. What keeps them
+ * honest is the manuscript: every name below is spelled by erd.json, and
+ * the generator refuses to write a foreign key whose target is not a
+ * column of the entity it lands on.
+ */
+export const ENTITY_ROWS: readonly EntityRows[] = [
+  {
+    entity: 'Project',
+    scheduleKey: 'project',
+    many: false,
+    primaryKey: [],
+    foreignKeys: [{ fromColumn: 'calendarUid', child: 'Calendar', toColumn: 'uid' }],
+    nested: [{ column: 'carryElements', entity: 'CarryElement' }],
+  },
+  {
+    entity: 'Task',
+    scheduleKey: 'tasks',
+    many: true,
+    primaryKey: ['uid'],
+    foreignKeys: [
+      { fromColumn: 'wbsParentUid', child: 'Task', toColumn: 'uid' },
+      { fromColumn: 'calendarUid', child: 'Calendar', toColumn: 'uid' },
+    ],
+    nested: [
+      { column: 'dependencies', entity: 'Dependency' },
+      { column: 'carryElements', entity: 'CarryElement' },
+    ],
+  },
+  {
+    entity: 'Dependency',
+    scheduleKey: null,
+    many: false,
+    primaryKey: [],
+    foreignKeys: [{ fromColumn: 'predecessorUid', child: 'Task', toColumn: 'uid' }],
+    nested: [{ column: 'carryElements', entity: 'CarryElement' }],
+  },
+  {
+    entity: 'TaskGroup',
+    scheduleKey: 'taskGroups',
+    many: true,
+    primaryKey: ['id'],
+    foreignKeys: [
+      { fromColumn: 'parentId', child: 'TaskGroup', toColumn: 'id' },
+      { fromColumn: 'derivedFromTaskUid', child: 'Task', toColumn: 'uid' },
+    ],
+    nested: [],
+  },
+  {
+    entity: 'TaskGroupMember',
+    scheduleKey: 'taskGroupMembers',
+    many: true,
+    primaryKey: ['taskUid'],
+    foreignKeys: [
+      { fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' },
+      { fromColumn: 'groupId', child: 'TaskGroup', toColumn: 'id' },
+    ],
+    nested: [],
+  },
+  {
+    entity: 'Calendar',
+    scheduleKey: 'calendars',
+    many: true,
+    primaryKey: ['uid'],
+    foreignKeys: [{ fromColumn: 'baseCalendarUid', child: 'Calendar', toColumn: 'uid' }],
+    nested: [
+      { column: 'carryElements', entity: 'CarryElement' },
+      { column: 'weekDays', entity: 'WeekDay' },
+      { column: 'exceptions', entity: 'Exception' },
+    ],
+  },
+  {
+    entity: 'WeekDay',
+    scheduleKey: null,
+    many: false,
+    primaryKey: ['ordinal'],
+    foreignKeys: [],
+    nested: [{ column: 'carryElements', entity: 'CarryElement' }],
+  },
+  {
+    entity: 'Exception',
+    scheduleKey: null,
+    many: false,
+    primaryKey: ['ordinal'],
+    foreignKeys: [],
+    nested: [{ column: 'carryElements', entity: 'CarryElement' }],
+  },
+  {
+    entity: 'Resource',
+    scheduleKey: 'resources',
+    many: true,
+    primaryKey: ['uid'],
+    foreignKeys: [{ fromColumn: 'calendarUid', child: 'Calendar', toColumn: 'uid' }],
+    nested: [{ column: 'carryElements', entity: 'CarryElement' }],
+  },
+  {
+    entity: 'Assignment',
+    scheduleKey: 'assignments',
+    many: true,
+    primaryKey: ['uid'],
+    foreignKeys: [
+      { fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' },
+      { fromColumn: 'resourceUid', child: 'Resource', toColumn: 'uid' },
+    ],
+    nested: [{ column: 'carryElements', entity: 'CarryElement' }],
+  },
+  {
+    entity: 'TaskVisual',
+    scheduleKey: 'taskVisuals',
+    many: true,
+    primaryKey: ['taskUid'],
+    foreignKeys: [{ fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' }],
+    nested: [],
+  },
+  {
+    entity: 'TaskOrigin',
+    scheduleKey: 'taskOrigins',
+    many: true,
+    primaryKey: ['taskUid'],
+    foreignKeys: [{ fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' }],
+    nested: [],
+  },
+  {
+    entity: 'CommentBox',
+    scheduleKey: 'commentBoxes',
+    many: true,
+    primaryKey: ['id'],
+    foreignKeys: [{ fromColumn: 'anchorGroupId', child: 'TaskGroup', toColumn: 'id' }],
+    nested: [],
+  },
+  {
+    entity: 'HighlightBox',
+    scheduleKey: 'highlightBoxes',
+    many: true,
+    primaryKey: ['id'],
+    foreignKeys: [
+      { fromColumn: 'topGroupId', child: 'TaskGroup', toColumn: 'id' },
+      { fromColumn: 'bottomGroupId', child: 'TaskGroup', toColumn: 'id' },
+    ],
+    nested: [],
+  },
+  {
+    entity: 'CarryElement',
+    scheduleKey: null,
+    many: false,
+    primaryKey: ['ordinal'],
+    foreignKeys: [],
+    nested: [{ column: 'children', entity: 'CarryElement' }],
+  },
+  {
+    entity: 'BaselineTask',
+    scheduleKey: 'baselineTasks',
+    many: true,
+    primaryKey: ['uid'],
+    foreignKeys: [],
+    nested: [],
+  },
+]
+
 /**
  * Every column the specification gives a default, by entity.
  *
@@ -441,8 +646,6 @@ export const DEFAULT_CALENDAR_VALUES: {
   'S-128': 480,
 }
 // </generated>
-
-
 
 /**
  * The five states of table T-019a. The spellings are this file's own: the
@@ -913,10 +1116,15 @@ export function delayWorkingDays(within: WorkingCalendar, task: Task,
 // already forced by `_source/grs-document.schema.json` -- so none is repeated
 // here either.
 //
-// ⛔ Three of the seventeen rows cannot be answered yet. Each carries its own ⛔
-// below naming exactly what is missing. None is guessed at and none is dropped:
-// they stay in the roster, so the walk still covers the whole table and a reader
-// counting the entries against T-220 finds the same census.
+// ⭐ Every row of the table is answered. IV-1, IV-2 and IV-16 used to answer
+// nothing because the columns they are judged against reached no generated
+// artifact; `ENTITY_ROWS` and `SETTINGS_BOUNDS` are now those rosters, so the
+// three are driven the same way IV-14 is driven by `DATE_COLUMNS`.
+//
+// ⛔ Where a row is answered only in part, its own entry says so. `ENTITY_ROWS`
+// is the only census of them, and a row that reaches past it -- IV-16's bounds
+// over a value the presentation group does not hold -- is listed there, not
+// guessed at here.
 
 /**
  * The kind column of table T-220, romanised.
@@ -1017,10 +1225,11 @@ interface Nesting<TKey> {
  * depth being settled. Both come out of one climb because neither can be had
  * without the other: a walk that did not watch for a ring would never return.
  *
- * ⚠️ Written once over any key type because IV-4 and IV-5 climb the same shape
- * -- `Task` by `wbsParentUid`, `TaskGroup` by `parentId` -- and S-115 and S-125
- * both start their count at 1 for a row whose parent is absent. Two copies of
- * this walk would be two chances to count the root differently.
+ * ⚠️ Written once over any key type because IV-4, IV-5 and IV-18 climb the same
+ * shape -- `Task` by `wbsParentUid`, `TaskGroup` by `parentId` -- and S-115 and
+ * S-125 both start their count at 1 for a row whose parent is absent. Two
+ * copies of this walk would be two chances to count the root differently, and
+ * two answers to what a ring is.
  *
  * ⭐ Indexed once with a `Map` (R5 / NFR-013). A search inside the climb would
  * make this quadratic over an array S-114 still lets reach six figures. Each row
@@ -1147,42 +1356,273 @@ function dateBreaches<TRow extends object>(
   return found ?? NONE
 }
 
+/** One row of the document, with the entity it is a row of and where it sits. */
+interface DocumentRow {
+  readonly entity: string
+  /** A JSON pointer into the document. */
+  readonly at: string
+  readonly held: Readonly<Record<string, unknown>>
+}
+
+/** One array of rows. IV-1 judges each of these on its own. */
+interface RowArray {
+  readonly entity: string
+  readonly at: string
+  readonly rows: readonly DocumentRow[]
+}
+
+/** The rows of the schedule group, read the two ways the key rows need them. */
+interface DocumentRows {
+  /** Every array of rows, which is the span IV-1's uniqueness holds over. */
+  readonly arrays: readonly RowArray[]
+  /** Every row, arrays and the single `project` alike, for IV-2 to look up. */
+  readonly all: readonly DocumentRow[]
+}
+
+/** `ENTITY_ROWS` by the entity it speaks for. */
+const ROWS_OF_ENTITY: ReadonlyMap<string, EntityRows> =
+  new Map(ENTITY_ROWS.map((one) => [one.entity, one]))
+
+/**
+ * One row, as the bag of columns a roster-driven walk can read, or `null` when
+ * what the document holds there is not one.
+ *
+ * @purity pure
+ */
+function rowOf(held: unknown): Readonly<Record<string, unknown>> | null {
+  if (held === null || typeof held !== 'object' || Array.isArray(held)) return null
+  return held as Readonly<Record<string, unknown>>
+}
+
+/**
+ * The rows one array of the document holds, or `null` when it holds no array.
+ *
+ * ⚠️ A member that is not a row is skipped rather than reported. Shape is what
+ * the generated schema forces, and Chapter 6.1 keeps every condition one column
+ * settles on its own out of table T-220.
+ *
+ * @purity pure
+ */
+function rowsIn(held: unknown, entity: string, at: string): readonly DocumentRow[] | null {
+  if (!Array.isArray(held)) return null
+  const rows: DocumentRow[] = []
+  for (const [index, one] of (held as readonly unknown[]).entries()) {
+    const bag = rowOf(one)
+    if (bag !== null) rows.push({ entity, at: `${at}/${index}`, held: bag })
+  }
+  return rows
+}
+
+/**
+ * Every row the schedule group holds, walked through `ENTITY_ROWS`.
+ *
+ * ⭐ Driven by the roster, not by the keys of `Schedule` written out here: a
+ * key added to DR-2 of table T-052, or a column that starts holding rows of
+ * another entity, is walked without anybody remembering to add it. IV-1 and
+ * IV-2 both reach every row of the document this way, nested rows included.
+ *
+ * ⚠️ The walk is a growing list read with a cursor, not a recursion. A row
+ * appended below is reached in its turn, so a `CarryElement` tree as deep as
+ * S-133 allows costs no stack -- and pushing one row at a time rather than
+ * spreading an array keeps an array as long as S-114 allows from blowing the
+ * argument limit.
+ *
+ * @purity pure
+ */
+function documentRowsOf(schedule: Schedule): DocumentRows {
+  const arrays: RowArray[] = []
+  const all: DocumentRow[] = []
+  const group = schedule as unknown as Readonly<Record<string, unknown>>
+
+  for (const entry of ENTITY_ROWS) {
+    if (entry.scheduleKey === null) continue
+    const at = `/schedule/${entry.scheduleKey}`
+    if (entry.many) {
+      const rows = rowsIn(group[entry.scheduleKey], entry.entity, at)
+      if (rows === null) continue
+      arrays.push({ entity: entry.entity, at, rows })
+      for (const row of rows) all.push(row)
+      continue
+    }
+    const bag = rowOf(group[entry.scheduleKey])
+    if (bag !== null) all.push({ entity: entry.entity, at, held: bag })
+  }
+
+  for (let cursor = 0; cursor < all.length; cursor += 1) {
+    const row = all[cursor]
+    if (row === undefined) continue
+    for (const nest of ROWS_OF_ENTITY.get(row.entity)?.nested ?? []) {
+      const at = `${row.at}/${nest.column}`
+      const rows = rowsIn(row.held[nest.column], nest.entity, at)
+      if (rows === null) continue
+      arrays.push({ entity: nest.entity, at, rows })
+      for (const one of rows) all.push(one)
+    }
+  }
+  return { arrays, all }
+}
+
+/**
+ * One value of a settings key, as the number IV-16 weighs.
+ *
+ * ⚠️ A list is read as HOW MANY it holds. S-126 is the one bounded key that
+ * holds a list, its ceiling names S-127, and its floor is written as a count --
+ * so the count is what its bound bounds. The same reading is taken where the
+ * startup document is written (tools/generate_startup_template.py).
+ *
+ * @purity pure
+ */
+function settingNumberOf(settings: DocumentSettings, key: string): number | null {
+  let at: unknown = settings
+  for (const step of key.split('.')) {
+    const bag = rowOf(at)
+    if (bag === null) return null
+    at = bag[step]
+  }
+  if (Array.isArray(at)) return (at as readonly unknown[]).length
+  return typeof at === 'number' && Number.isFinite(at) ? at : null
+}
+
+/**
+ * What a bound stated over other keys comes to, for this document.
+ *
+ * ⚠️ Postfix, so the operands are already in the order the manuscript wrote
+ * them and nothing here has to know the precedence of × over +. `null` when a
+ * key it names holds no number, which is a document this row cannot judge
+ * rather than one that breaks it.
+ *
+ * @purity pure
+ */
+function boundValueOf(
+  expression: readonly SettingsBoundToken[],
+  settings: DocumentSettings,
+): number | null {
+  const stack: number[] = []
+  for (const token of expression) {
+    if ('key' in token) {
+      const held = settingNumberOf(settings, token.key)
+      if (held === null) return null
+      stack.push(held)
+      continue
+    }
+    if ('num' in token) {
+      stack.push(token.num)
+      continue
+    }
+    const right = stack.pop()
+    const left = stack.pop()
+    if (left === undefined || right === undefined) return null
+    stack.push(token.op === '+' ? left + right
+      : token.op === '-' ? left - right
+        : token.op === '*' ? left * right
+          : left / right)
+  }
+  const answer = stack.length === 1 ? stack[0] : undefined
+  return answer === undefined || !Number.isFinite(answer) ? null : answer
+}
+
 /**
  * Table T-220, as fixed data. One entry per row, in the order the table prints
- * them -- which is why IV-17 stands between IV-7 and IV-8.
- *
- * ⛔ An entry that answers nothing yet says why in its own comment. It is left
- * in place rather than removed, so that the roster stays as long as the table
- * and whoever closes the gap has the row waiting for them.
+ * them -- which is why IV-17 stands between IV-7 and IV-8 and IV-18 last.
  */
 const INVARIANTS: readonly Invariant[] = [
   {
     row: 'IV-1',
     kind: 'unique',
-    // ⛔ NOT ANSWERABLE YET. The row is judged against the columns whose key
-    // column in table T-058 marks them a primary key, and nothing in this tree
-    // holds that roster. `DATE_COLUMNS` above exists precisely because erd.json
-    // marks the date columns and tools/generate_entity_types.py emits the marks;
-    // the key column sits in the same manuscript, on the same columns, and is
-    // not emitted. Writing the roster out by hand here would re-commit F-3 -- a
-    // copy that goes stale the moment a column is added, with nothing to say so
-    // -- and T-220's own closing remark refuses to list the columns for that
-    // same reason. What is missing is the generated roster, not a decision.
-    // Reported.
-    find: () => NONE,
+    /**
+     * ⭐ Driven by `ENTITY_ROWS`, which carries the columns the key column of
+     * table T-058 marks a primary key. The row reaches them by pointing at that
+     * column instead of naming them, and the closing remark of table T-220
+     * refuses to list them for the same reason -- so this reaches them the same
+     * way, and a column the manuscript marks tomorrow is judged without anybody
+     * remembering it here.
+     *
+     * ⚠️ The span is ONE ARRAY, which the row says: a value has to be unique
+     * where it is listed, not across the document. Two `WeekDay` rows in two
+     * different calendars may hold the same ordinal.
+     *
+     * ⚠️ The whole tuple is compared, not a single column, because the key
+     * column of table T-058 may mark more than one column of one entity. The
+     * roster carries however many there are, so nothing here has to change if
+     * a second one appears.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      for (const array of documentRowsOf(schedule).arrays) {
+        const columns = ROWS_OF_ENTITY.get(array.entity)?.primaryKey ?? []
+        if (columns.length === 0) continue
+        const seen = new Set<string>()
+        for (const row of array.rows) {
+          // ⚠️ Stamped rather than compared row by row (R5 / NFR-013). A search
+          // inside the loop would be quadratic over an array S-114 still lets
+          // reach six figures.
+          const stamp = JSON.stringify(columns.map((column) => row.held[column] ?? null))
+          if (seen.has(stamp)) {
+            found.push({
+              at: row.at,
+              what: `${array.entity} repeats the key ${stamp} inside ${array.at}`,
+            })
+          }
+          seen.add(stamp)
+        }
+      }
+      return found
+    },
   },
   {
     row: 'IV-2',
     kind: 'reference',
-    // ⛔ NOT ANSWERABLE YET, and it needs one thing more than IV-1 does. Besides
-    // the foreign-key columns -- the same ungenerated key column -- it is judged
-    // against the target table T-057 states for each of them, and erd.json's
-    // relations carry two entity names and a prose label only. Neither the
-    // column that holds the reference nor the column it lands on is in machine
-    // form anywhere, so no roster can be generated from the manuscript as it
-    // stands. Reading the target off the column's spelling would be a guess.
-    // Reported.
-    find: () => NONE,
+    /**
+     * ⭐ Driven by `ENTITY_ROWS` as well: the key column of table T-058 says
+     * which columns hold a reference and the relations of table T-057 say where
+     * each lands, and the generator refuses to emit one without the other. So
+     * neither the column nor its target is read off a spelling here.
+     *
+     * ⚠️ Only a non-`null` reference is judged, which the row says. A column the
+     * document does not carry at all is passed over too -- a missing column is
+     * what the generated schema refuses, not this.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const rows = documentRowsOf(schedule)
+      // ⭐ Indexed once (R5 / NFR-013): a search per reference would be
+      // quadratic over arrays S-114 still lets reach six figures.
+      /** The columns of one entity that some reference lands on. */
+      const landedOn = new Map<string, string[]>()
+      /** Every value held there, by `entity/column`. */
+      const landings = new Map<string, Set<unknown>>()
+      for (const entry of ENTITY_ROWS) {
+        for (const key of entry.foreignKeys) {
+          const columns = landedOn.get(key.child) ?? []
+          if (!columns.includes(key.toColumn)) columns.push(key.toColumn)
+          landedOn.set(key.child, columns)
+          landings.set(`${key.child}/${key.toColumn}`, new Set())
+        }
+      }
+      for (const row of rows.all) {
+        for (const column of landedOn.get(row.entity) ?? []) {
+          landings.get(`${row.entity}/${column}`)?.add(row.held[column])
+        }
+      }
+
+      const found: Breach[] = []
+      for (const row of rows.all) {
+        for (const key of ROWS_OF_ENTITY.get(row.entity)?.foreignKeys ?? []) {
+          const value = row.held[key.fromColumn]
+          if (value === null || value === undefined) continue
+          if (landings.get(`${key.child}/${key.toColumn}`)?.has(value) === true) continue
+          found.push({
+            at: `${row.at}/${key.fromColumn}`,
+            what: `no ${key.child} of this document holds ${key.toColumn} `
+              + `${JSON.stringify(value)}`,
+          })
+        }
+      }
+      return found
+    },
   },
   {
     row: 'IV-3',
@@ -1230,12 +1670,9 @@ const INVARIANTS: readonly Invariant[] = [
      * ⚠️ The WBS is outside this one, which the row says: its depth has no
      * bound at all, and S-115 bounds it only at the moment an import is judged.
      *
-     * ⛔ A ring in `parentId` is reported by NOTHING. IV-4 names `wbsParentUid`
-     * alone, HM-4 forbids the move that would close one on the WBS alone, and no
-     * row of table T-220 covers this second tree -- so a row sitting on such a
-     * ring has no settled depth, is not past the bound, and goes unmentioned.
-     * Not reported as a breach of THIS row, which states a depth and not a
-     * shape. Reported.
+     * ⚠️ A row sitting ON a ring in `parentId` has no settled depth, so it is
+     * not reported here: this row states a depth and not a shape. IV-18 is the
+     * row that covers that ring, and it does.
      *
      * @purity pure
      */
@@ -1574,19 +2011,70 @@ const INVARIANTS: readonly Invariant[] = [
   {
     row: 'IV-16',
     kind: 'range',
-    // ⛔ NOT ANSWERABLE YET. The row is judged against the lower- and upper-bound
-    // columns of the settings manuscript, but only where such a column names
-    // ANOTHER settings row instead of a number. `SETTINGS_BOUNDS` (PI-2) is the
-    // generated roster of those columns and it carries the numeric ones alone --
-    // `clampedSettings` says as much where it declines the bounds that hold
-    // between two keys. So the expressions live in the manuscript and reach no
-    // generated artifact. Two of the operands they use are not numbers a reader
-    // can supply either: one bound is written as an epsilon that no row gives a
-    // value to, and another names a screen dimension, which this row puts
-    // outside its own scope in as many words. What is missing is the generated
-    // roster plus a value for the epsilon, neither of which is settled here.
-    // Reported.
-    find: () => NONE,
+    /**
+     * ⭐ Driven by `SETTINGS_BOUNDS` (PI-2), which now carries a bound stated
+     * over other keys as its expression. Only those are judged, which the row
+     * says: a bound that is a number of its own settles on one column, and the
+     * preamble of table T-220 keeps those out of the table entirely because the
+     * generated schema already forces them.
+     *
+     * ⚠️ What is outside this row is decided in the roster, not here. A field
+     * pointing at a screen dimension is prose in the manuscript and reaches no
+     * expression at all, and a field naming a key the presentation group does
+     * not hold is left out and listed with its reason beside the roster -- a
+     * document at rest carries neither operand. So this file states no
+     * exclusion of its own and cannot come to hold a second list of them.
+     *
+     * ⚠️ Sitting exactly ON the bound is not a breach. The field states a floor
+     * or a ceiling, and the two keys of a pair name each other, so a document
+     * that sets them equal satisfies both.
+     *
+     * @purity pure
+     */
+    find: ({ settings }) => {
+      const found: Breach[] = []
+      for (const key of Object.keys(SETTINGS_BOUNDS)) {
+        const bound = SETTINGS_BOUNDS[key]
+        if (bound === undefined) continue
+        const value = settingNumberOf(settings, key)
+        if (value === null) continue
+        const at = `/documentSettings/${key.split('.').join('/')}`
+        const floor = bound.minExpression === undefined
+          ? null : boundValueOf(bound.minExpression, settings)
+        if (floor !== null && value < floor) {
+          found.push({ at, what: `${key} is ${value}, under the floor its own row states (${floor})` })
+        }
+        const ceiling = bound.maxExpression === undefined
+          ? null : boundValueOf(bound.maxExpression, settings)
+        if (ceiling !== null && value > ceiling) {
+          found.push({ at, what: `${key} is ${value}, over the ceiling its own row states (${ceiling})` })
+        }
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-18',
+    kind: 'structure',
+    /**
+     * ⚠️ The second tree, and only it. IV-4 climbs `Task.wbsParentUid`; this
+     * one climbs `TaskGroup.parentId`, and the row says why neither HM-4 nor
+     * FR-023 already catches it. `nestingOf` is the one climb both use, so the
+     * two rows cannot come to disagree about what a ring is.
+     *
+     * @purity pure
+     */
+    find: ({ schedule }) => {
+      const nesting = nestingOf(
+        schedule.taskGroups,
+        (group) => group.id,
+        (group) => group.parentId,
+      )
+      return nesting.rings.map((ring) => ({
+        at: '/schedule/taskGroups',
+        what: `parentId closes a ring over TaskGroup ids ${ring.join(', ')}`,
+      }))
+    },
   },
 ]
 
@@ -1603,8 +2091,10 @@ const INVARIANTS: readonly Invariant[] = [
  * three of its refusals restate a condition this holds too. The rule is one;
  * the moment is two.
  *
- * ⚠️ An empty answer does NOT mean the document is sound. Three rows of the
- * table answer nothing yet, and each says above what it is waiting for.
+ * ⚠️ An empty answer means every row of table T-220 was asked and none of them
+ * answered -- not that nothing about the document could be wrong. What one row
+ * leaves outside itself, it says so above; the generated rosters list what the
+ * manuscript does not reach.
  *
  * @purity pure
  */

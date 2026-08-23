@@ -2105,9 +2105,9 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 38 ROWS OF TABLE T-109 REACH `commandFromEntry` AND ARE ANSWERED
+// STOP -- ⛔ 41 ROWS OF TABLE T-109 REACH `commandFromEntry` AND ARE ANSWERED
 // WITH NOTHING. Each is missing something different, and none is an oversight.
-// ⚠️ The number is the 70 rows of that table less the 32 this file assigns
+// ⚠️ The number is the 73 rows of that table less the 32 this file assigns
 // (`ENTRY` holds 17 and `ARMED_BY_ENTRY` 15), and the groups below add up to it.
 // ⭐ The entries that ARE answered were chosen by a rule rather than one at a
 // time: an entry is answered when this file already answers the same operation
@@ -2149,13 +2149,18 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                of them show a drag and a keystroke, and three show the
 //                autosave state (FR-061).
 //   IC-69 / IC-70  the two answers to NT-7's question, on U-55 `Confirmation`.
-//                ⛔ NOTHING RAISES A QUESTION in this build -- `frame-loop.ts`
-//                leaves `ScreenSession.confirmation` null in every frame -- so a
-//                press on either would be an answer to nothing, and what a
-//                pressed choice DOES is the raiser's to say. ⭐ The press does
-//                reach here: table T-109 places both on that surface, so IF-9
-//                answers `ScreenPart` for them like any other entry. ⚠️ A
-//                missing RAISER, not a missing route.
+//                ⭐ A QUESTION IS RAISED NOW -- `frame-loop.ts` puts DI-4's
+//                overwrite question and FR-032's delete question into
+//                `ScreenSession.confirmation`, and PI-28 actually asks it on
+//                every chosen write over an occupied destination. ⚠️ What a
+//                pressed choice DOES is still the raiser's to say, and the
+//                raiser settles it: this file answers neither press.
+//   IC-71 .. IC-73  the three answers to OP-3's question, on U-56 `Open Chooser`.
+//                ⛔ THIS FILE ASSIGNS NONE OF THEM. `frame-loop.ts` puts the
+//                question up, but a press has to close the surface and carry the
+//                `OpenChoice` back, and that needs an `OPEN_CHOOSER` beside
+//                `EXPORT_CHOOSER` here. ⚠️ A missing ROUTE, not a missing raiser --
+//                the opposite of the two rows above.
 //
 // ⚠️ THE REMAINING 12 ARE REACHABLE AND ARE STILL NOT WRITTEN -- IC-4, IC-8, IC-9,
 // IC-16, IC-39, IC-40, IC-42, IC-43 (the drawing settings, CM-59 / CM-61 /

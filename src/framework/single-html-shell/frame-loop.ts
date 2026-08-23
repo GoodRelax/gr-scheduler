@@ -37,21 +37,33 @@
 // change nothing.
 //
 // ⭐ CS-4 OF TABLE T-066 LIVES HERE TOO, and it is the one unit of consistency
-// that is not nested inside a frame. `saveHeldDocumentToFile` is its whole
-// shape: what the operation needs from the current values is taken before the
-// first `await`, nothing reads them again while the person is answering (MUST
-// NOT), and frames keep running throughout -- FT-3 in particular, which
-// NFR-011 will not let stop. ⛔ Nothing is drawn to say that a wait is on: CS-4
-// forbids it (MUST NOT) and table T-078 has no trigger for it.
+// that is not nested inside a frame. `saveHeldDocumentToFile` and
+// `openDocumentIntoHold` are its whole shape: what the operation needs from the
+// current values is taken before the first `await`, nothing reads them again
+// while the person is answering (MUST NOT), and frames keep running throughout
+// -- FT-3 in particular, which NFR-011 will not let stop. ⛔ Nothing is drawn
+// to say that a wait is on: CS-4 forbids it (MUST NOT) and table T-078 has no
+// trigger for it.
+//
+// ⭐ THE FRAME THAT PAINTS A QUESTION RAISED AFTER A WAIT IS FT-1's, and the
+// table says so itself: FT-1 now covers the continuation of one input across a
+// wait, and its own note leaves raising that continuation to the shell while
+// keeping IF-2's supply as narrow as it was. So `askHowToOpen` and the two
+// confirmations ask for a frame without any trigger of their own being minted
+// (NFR-010, MUST NOT).
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import { emptyDialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import {
   emptyScreenState,
   escapeTarget,
   screenStateWithPalette,
+  screenStateWithSurface,
   type EscapeTarget,
   type ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
@@ -102,13 +114,35 @@ import {
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
+import type { OpenChoice } from '../../use-case/import-document/import-document'
 import { notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
-import { documentFromJson, jsonFromDocument } from '../../adapter/document-codec/document-codec'
 import {
+  validateImportedDocument,
+  type ImportBounds,
+} from '../../use-case/validate-imported-document/validate-imported-document'
+import {
+  documentFromJson,
+  documentFromMspdi,
+  formatFromFile,
+  jsonFromDocument,
+  type ExchangeFormat,
+} from '../../adapter/document-codec/document-codec'
+// ⭐ TABLE T-024's EXTENSION COLUMN, AND NOTHING ELSE, reached the way
+// `dom-screen-surface.ts` reaches `icon-glyphs.json`: a generated roster is
+// data compiled into the program, not a reach into the component whose folder
+// it sits in, which is the reading `tools/check_layer_rules.py` states in as
+// many words. ⛔ It is read here because PI-20 of table T-064 -- the whole of
+// what DocumentCodec may be asked for -- publishes no name that answers which
+// extension table T-024 gives a form, and FR-096 (MUST NOT) forbids the value
+// being written anywhere but that table.
+import exchangeFormats from '../../adapter/document-codec/exchange-formats.json'
+import {
+  openDocumentFile,
   saveDocumentFile,
   type ChosenFileSaveRequest,
   type DocumentFileSaving,
   type FileStore,
+  type OpenRoute,
   type ProjectIdentity,
   type SaveFileForm,
 } from '../../adapter/file-gateway/file-gateway'
@@ -169,8 +203,9 @@ export interface FrameValues {
  *
  * ⛔ NARROWED OUT OF `ReplacementCall`, NEVER WRITTEN AGAIN. What each row
  * carries is PI-8's to say (rule 03 section 1), and the other four rows are not
- * this member's to offer: RD-1 and RD-2 are reached from inside this file, and
- * RD-3 and RD-4 need an `ImportDocument` call that nothing hands this loop.
+ * this member's to offer: all four are reached from inside this file -- RD-1
+ * and RD-2 from the undo entries, RD-3 and RD-4 from the read OP-2 begins, and
+ * an outside caller has no `ImportDocument` call to bring.
  */
 export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-5' | 'RD-6' }>
 
@@ -325,13 +360,15 @@ const GUIDE_CURSOR_NONE = 'none'
 const EDITED_BY_SCREEN = 'user'
 
 /**
- * The three rows of table T-109 that only THIS layer can answer.
+ * The rows of table T-109 that only THIS layer can answer.
  *
  * ⭐ WHY THE SHELL AND NOT THE TRANSLATOR. `input-command-translator.ts` lists
- * all three among the rows it answers with nothing, and gives one reason for
- * each: what a press on them writes is a current value, and LY-5 of table
- * T-060 leaves those with the Framework alone. IC-21 chooses the display
- * language (S-99); IC-69 and IC-70 are NT-7's two answers. ⛔ None of them is a
+ * them among the rows it answers with nothing, and gives one reason for each:
+ * what a press on them writes is a current value, and LY-5 of table T-060
+ * leaves those with the Framework alone. IC-21 chooses the display language
+ * (S-99); IC-69 and IC-70 are NT-7's two answers; IC-71 .. IC-73 are OP-3's
+ * three, and what each of them settles is a whole-document replacement the
+ * Framework is the only layer that may hold. ⛔ None of them is a
  * `DocumentCommand`, so there is no road through table T-108 for any of them.
  * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else.
  */
@@ -341,6 +378,50 @@ const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
 
 /** The row of table T-037 a raised question follows -- `NT-7`. */
 const CONFIRMATION_MANNER = 'NT-7'
+
+/**
+ * U-56 `Open Chooser` of table T-103 -- the surface OP-3 of table T-024a puts
+ * its three-way question on.
+ *
+ * ⭐ A SETTLED NAME COPIED SPELLING AND ALL (rule 03 section 1), because three
+ * sides have to agree on it: `ScreenState.surface` (S-99g) carries it,
+ * `icon-roster.json` places IC-71 .. IC-73 on it out of table T-109's own
+ * surface column, and `readScreenPartAt` answers with it. ⛔ Not minted here --
+ * U-56 is what made this question askable at all.
+ * ⚠️ NOT `Confirmation` (U-55): that surface is NT-7's two answers and holds no
+ * third entry, which is what U-56's own remark says it is not.
+ */
+const OPEN_CHOOSER_SURFACE = 'Open Chooser'
+
+/**
+ * The three entries table T-109 places on that surface, each bound to the
+ * answer `OpenChoice` (PI-10) spells for it.
+ *
+ * ⭐ A JOIN, NOT A TRANSLATION. Table T-109 has no English column on purpose,
+ * so a row id is the only handle it admits; the three spellings on the right
+ * are `import-document.ts`'s, and this states which row means which. ⛔ Nothing
+ * of either side's wording is copied.
+ * ⚠️ OP-9 is why the third one is not an entry of its own kind: that row says
+ * the way to the overlay IS OP-3's third choice, and IC-4 of table T-109 warns
+ * in as many words that its own entry is not a way of reading a file.
+ */
+const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
+  'IC-71': 'replace',
+  'IC-72': 'merge',
+  'IC-73': 'baseline',
+}
+
+/**
+ * OP-2 of table T-024a -- which of its two routes this loop takes.
+ *
+ * STOP -- ⛔ THE OTHER ROUTE HAS NO TRIGGER. A drop is watched by the store
+ * itself (PI-28 says why: the handle does not survive the event), so
+ * `readFileToOpen('drop')` reads what it already took -- and table T-078 names
+ * no happening for a file arriving that way, which NFR-010 (MUST NOT) forbids
+ * this file from adding. ⚠️ The store therefore holds dropped files that
+ * nothing asks it for.
+ */
+const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
 /**
  * What SK-11 of table T-036 writes, whatever the document was opened from.
@@ -356,21 +437,31 @@ const CONFIRMATION_MANNER = 'NT-7'
 const SAVE_FORM: SaveFileForm = 'grsJson'
 
 /**
- * What the save chooser is offered as a name.
+ * The row of table T-024 that `SAVE_FORM` is, which is the join that table
+ * admits and the only one it has.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what FR-096's chooser suggests.
- * Looked in FR-096, FR-060, table T-227, table T-024 (its extension column
- * reaches `src/` only through DocumentCodec's generated `exchange-formats.json`,
- * which Chapter 5.3 keeps inside that folder), table T-024a and
- * `_assets/tbl-settings.md` -- none of them names a file name, a stem or an
- * extension for the way OUT.
- * ⚠️ Empty is 「no name is suggested」, the same answer `AUTHOR_NOT_HELD` and
- * `RaisedConfirmation.text` give for a word that has no owner: the person names
- * the file. ⛔ Typing an extension here would be a second copy of table T-024's
- * column, which rule 03 section 1 forbids, and the chooser is the one place a
- * wrong suggestion cannot be taken back from once the file exists.
+ * ⭐ ONE FACT STATED ONCE: the form `file-gateway.ts` spells and the row the
+ * manuscript prints it at are the same format, and the pair stands here so that
+ * the extension below is looked up rather than typed. Table T-024 carries no
+ * English column, so nothing else could join the two.
+ * ⚠️ `document-codec.ts` binds the same row to the same spelling for its own
+ * `ExchangeFormat`. That map is private to that component and answers a
+ * different question -- which decoder a file goes to (OP-12) -- so it cannot be
+ * asked from here (LR-2).
  */
-const NO_SUGGESTED_FILE_NAME = ''
+const SAVE_FORM_ROW = 'IO-2'
+
+/**
+ * The extension table T-024 gives that row.
+ *
+ * ⛔ READ, NEVER TYPED. FR-096 (MUST NOT) fixes the extension's one source as
+ * table T-024, and `tools/generate_exchange_formats.py` is how that column
+ * reaches `src/`; `npm run gen:check` is what fails when the two drift apart.
+ * ⚠️ An empty answer means the roster no longer carries the row, and empty is
+ * then the whole of what is known -- nothing is invented in its place.
+ */
+const SAVE_FORM_EXTENSION: string =
+  exchangeFormats.formats.find((one) => one.rowId === SAVE_FORM_ROW)?.extension ?? ''
 
 /**
  * The rows table T-206 keeps outside the document, in `localStorage`.
@@ -413,6 +504,104 @@ type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
 
 /** The two `DisplayLanguage` spellings FR-038 admits, as a census. */
 const DISPLAY_LANGUAGES: Readonly<Record<DisplayLanguage, true>> = { ja: true, en: true }
+
+/**
+ * OP-6 of table T-024a asks for the defaults, and this is them: the value the
+ * settings manuscript states for every key of the presentation group.
+ *
+ * ⛔ NOT ONE VALUE IS TYPED HERE. `SETTINGS_DEFAULTS` (PI-2 of table T-064) is
+ * what `tools/generate_entity_types.py` prints out of that manuscript, keyed by
+ * the dotted key the published table prints; all this does is put the dots back
+ * into objects so that the shape is the one `DocumentSettings` declares.
+ * ⚠️ THE CAST IS WHERE TWO GENERATED SHAPES MEET, and it is the same move
+ * `documentFromJson` makes for the same reason. Both the record and the type
+ * come out of ONE generator run, so a key in one and not the other is a
+ * generator that has drifted from itself -- `npm run gen:check` is what says so,
+ * and the only thing this function could do instead is invent a value.
+ *
+ * @purity pure
+ */
+function defaultDocumentSettings(): DocumentSettings {
+  const built: Record<string, unknown> = {}
+  for (const [dotted, value] of Object.entries(SETTINGS_DEFAULTS)) {
+    const path = dotted.split('.')
+    const leaf = path.pop()
+    if (leaf === undefined) continue
+    let at = built
+    for (const step of path) {
+      const standing = at[step]
+      const group =
+        typeof standing === 'object' && standing !== null
+          ? (standing as Record<string, unknown>)
+          : {}
+      at[step] = group
+      at = group
+    }
+    at[leaf] = value
+  }
+  return built as unknown as DocumentSettings
+}
+
+/**
+ * ⭐ Built once. It never changes, and OP-6 asks the same question of every
+ * import.
+ */
+const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
+
+/**
+ * FR-096 (MUST): what the chooser is offered as a name -- the document name
+ * with the extension table T-024 gives, and the extension alone where the
+ * document carries no name.
+ *
+ * ⭐ AT-3 IS THE DOCUMENT NAME. That column and U-27 of table T-103 are the
+ * same value, and FR-074 states in as many words that `title` is the one
+ * FR-035 owns -- so the name is read off the DOCUMENT and never off the file it
+ * may happen to stand in.
+ * ⚠️ `null` and an empty string reach the same answer, which is the case FR-096
+ * writes out: FR-035 (MUST NOT) keeps `title` from ever holding an empty string,
+ * so `null` is the only spelling of "no name" a document this build wrote can
+ * carry -- and one that arrived carrying the other still suggests the extension
+ * by itself rather than a name that begins with a dot.
+ * ⚠️ A SUGGESTION AND NOT A DECISION, which FR-096 says and
+ * `ChosenFileWrite.suggestedFileName` repeats from the store's side.
+ *
+ * @purity pure
+ */
+function suggestedFileNameOf(project: Project): string {
+  return `${project.title ?? ''}${SAVE_FORM_EXTENSION}`
+}
+
+/**
+ * OP-12's answer turned into a document, or `null` where the decoder refused.
+ *
+ * ⭐ UT-5 of table T-063 KEEPS EACH FORMAT IN A CODEC OF ITS OWN, so the answer
+ * OP-12 gave is what picks one; nothing here reads the text a second time to
+ * guess.
+ * ⭐ `current` IS WHAT MSPDI DOES NOT CARRY. `documentFromMspdi` names the parts
+ * it takes from there -- the presentation group, the stamp, the change log, the
+ * format version -- and states that nothing of that document's SCHEDULE is
+ * merged in, which is FR-056's business inside ImportDocument.
+ *
+ * ⛔ THE FAULTS ARE DROPPED HERE AND THAT IS THE ABSENCE `writeDocument`
+ * RECORDS, not a decision: NT-1 of table T-037 (MUST) wants the item and the
+ * reason said in words, FR-038 (MUST) keeps every such word in the one
+ * generated dictionary, and it holds no row for a codec's fault.
+ * ⚠️ The MSPDI road's notices (EX-3, EX-6) are dropped for the same reason.
+ *
+ * @purity pure
+ */
+function decodedDocument(
+  format: ExchangeFormat,
+  text: string,
+  current: Document,
+): Document | null {
+  if (format === 'grsJson') {
+    const read = documentFromJson(text)
+    return read.ok ? read.document : null
+  }
+  const read = documentFromMspdi(text, current)
+  return read.ok ? read.document : null
+}
 
 /**
  * What the autosave status is before this session has written anything.
@@ -1050,15 +1239,40 @@ export function frameLoop(
     /** @purity non-pure */
     settle(isProceeding: boolean, frame: FrameValues): void
   } | null = null
+  // OP-3 of table T-024a (MUST) -- the road back to the read that put the
+  // `Open Chooser` (U-56) up, until one of IC-71 .. IC-73 answers it.
+  //
+  // ⛔ HELD BESIDE `asking` AND NOT INSIDE IT. NT-7 of table T-037 is a
+  // two-answer manner and `ScreenSession.confirmation` carries exactly that;
+  // U-56 says of itself that it is not `Confirmation` because OP-3 has three.
+  // So the two cannot share a holder, and the surface is not the same surface.
+  // ⚠️ WHICH IS ALSO WHY `Esc` REACHES THIS ONE AND NOT THE OTHER: this
+  // question lives in `ScreenState.surface` (S-99g), and S-99g is what IN-4 of
+  // table T-028 spends its first level on, whether this file wants it to or
+  // not. `Confirmation` is not held there, which is the difference the note
+  // beside `asking` records.
+  // ⛔ NOTHING IS CHOSEN WHILE IT STANDS. OP-3 (MUST NOT) forbids GRS settling
+  // the three-way question by itself, so a surface that goes away unanswered
+  // abandons the open -- `null` is what the waiter is handed then, and an
+  // abandoned open changes no document.
+  let openChoosing: {
+    /** @purity non-pure */
+    settle(choice: OpenChoice | null): void
+  } | null = null
   // Whether a file operation that waits for the person is running (CS-4 of
   // table T-066).
   //
-  // ⛔ NOT OP-8 OF TABLE T-024a. That row is about an import or another open
-  // being in flight, and this is the shell's own: `ScreenSession.confirmation`
-  // holds ONE question, so a second operation that raised one would leave the
-  // first waiting on an answer nobody can give any more. ⚠️ The store keeps a
-  // guard of its own for the same shape of reason, and refuses with a fault;
-  // this one stops the operation before it can take the question away.
+  // ⭐ IT NOW ANSWERS OP-8 OF TABLE T-024a AS WELL, and the two reasons are
+  // different. The shell's own: `ScreenSession.confirmation` and
+  // `ScreenState.surface` each hold ONE, so a second operation that raised a
+  // question would leave the first waiting on an answer nobody can give any
+  // more. OP-8's (MUST NOT): while one open is running, a second one may not be
+  // taken at all -- which is why the open path refuses at the entrance rather
+  // than declaring the row true to `importDocument` and being refused there,
+  // where nothing carries the refusal to anyone.
+  // ⚠️ The store keeps a guard of its own for the first shape of reason, and
+  // refuses with a fault; this one stops the operation before it can take the
+  // question away.
   let isFileOperationWaiting = false
   // U-42 `Pointer` -- where one was last reported from.
   // ⛔ NEVER null again once one happening has arrived. IF-2 supplies 「ポインタ
@@ -1476,9 +1690,10 @@ export function frameLoop(
   /**
    * DI-4 of table T-227 (MUST): the overwrite question, put up and waited on.
    *
-   * ⭐ NT-7's TWO ANSWERS AND NOTHING ELSE, which is the whole reason this
-   * question can be asked at all where OP-3's cannot: `Confirmation` (U-55 of
-   * table T-103) stands on IC-69 and IC-70 and holds no third entry.
+   * ⭐ NT-7's TWO ANSWERS AND NOTHING ELSE: `Confirmation` (U-55 of table
+   * T-103) stands on IC-69 and IC-70 and holds no third entry, which is exactly
+   * what this row needs and exactly what OP-3 could not use -- OP-3's three
+   * have a surface of their own now (U-56).
    *
    * ⭐ THE LIST OF WHAT WOULD GO IS EMPTY, AND THAT IS AN ANSWER. DI-4 states
    * in as many words that the duty to name what disappears is not on this row,
@@ -1489,13 +1704,12 @@ export function frameLoop(
    * dictionary, and that dictionary holds no row for a question's own text. A
    * sentence typed here would be the second dictionary FR-038 forbids.
    *
-   * ⛔ WHICH TRIGGER PAINTS IT IS NOT SETTLED BY TABLE T-078. That table is the
-   * whole of what may wake a frame (MUST NOT) and has no row for a question
-   * raised after the wait CS-4 of table T-066 governs -- CR-210 reasoned only
-   * about the LANDING, which FT-2 already covers. ⚠️ The frame is asked for as
-   * the deferred rest of the FT-1 press that began the save, not as a trigger
-   * of its own: without it the question is never drawn, and NT-7's MUST cannot
-   * be kept by a question nobody can see. ⛔ A row of table T-078 is owed.
+   * ⭐ WHICH TRIGGER PAINTS IT IS FT-1 OF TABLE T-078, and that row says so
+   * itself: it covers the continuation of one input across the wait CS-4 of
+   * table T-066 governs, and its note leaves raising that continuation to the
+   * shell. So the frame asked for below is the deferred rest of the press that
+   * began the save, and NFR-010's MUST NOT is kept without a trigger of this
+   * file's being minted.
    *
    * @purity non-pure
    */
@@ -1509,6 +1723,230 @@ export function frameLoop(
         },
       }
       if (settled(environment)) ask()
+    })
+  }
+
+  /**
+   * OP-3 of table T-024a (MUST): put the three-way question up and wait for one
+   * of the three to be taken.
+   *
+   * ⭐ THE SURFACE IS U-56 AND THE THREE ANSWERS ARE THE ROSTER'S. This side
+   * names the surface and nothing else: table T-109's own surface column is
+   * what places IC-71 .. IC-73 on it, `icon-roster.json` is that column
+   * generated into `src/`, and UF-66 reads the placement off it -- so the three
+   * entries appear without this file listing one.
+   * ⛔ NO WORDS ARE WRITTEN HERE. FR-038 (MUST) keeps every word the screen
+   * prints in the one generated dictionary; the heading and the three labels
+   * are its rows, empty today (PD-160), and a sentence typed here would be the
+   * second dictionary that requirement forbids.
+   * ⚠️ S-99g HOLDS ONE SURFACE, so whatever stood open gives way to this one.
+   * That is the value's own rule and not a choice made here.
+   * ⭐ The frame is FT-1's continuation across the wait, the same road
+   * `askToWriteOverDestination` takes.
+   *
+   * @purity non-pure
+   */
+  function askHowToOpen(): Promise<OpenChoice | null> {
+    return new Promise<OpenChoice | null>((answer) => {
+      openChoosing = {
+        /** @purity non-pure */
+        settle(choice) {
+          answer(choice)
+        },
+      }
+      screenState = screenStateWithSurface(screenState, OPEN_CHOOSER_SURFACE)
+      if (settled(environment)) ask()
+    })
+  }
+
+  /**
+   * OP-4 of table T-024a (MUST): the confirmation owed before a replace throws
+   * the current document away.
+   *
+   * ⭐ NT-7's MANNER, AND THE ONE THING THAT GOES IS NAMED. That row asks for
+   * the names of what disappears where there is something that disappears, and
+   * here there is exactly one: the document standing now. Its name is its own
+   * value (AT-3) rather than a word of the screen's, which is why it can be
+   * carried at all -- FR-038 leaves a document's values untranslated.
+   * ⚠️ `isShownOnAnotherRow` is false because FR-032's row half is not what is
+   * asking; the member says the same from `ConfirmationItem`'s side.
+   * ⛔ THE SENTENCE IS LEFT EMPTY for the reason every other raiser leaves it
+   * empty: the dictionary FR-038 names holds no row for a question's own text.
+   * ⚠️ ASKED ABOUT THE DOCUMENT CS-4 COLLECTED, not about whatever the wait left
+   * behind -- which is why the document is an argument rather than read here.
+   *
+   * @purity non-pure
+   */
+  function askToDiscardCurrentDocument(discarded: Document): Promise<boolean> {
+    return new Promise<boolean>((answer) => {
+      asking = {
+        question: {
+          manner: CONFIRMATION_MANNER,
+          text: '',
+          items: [{ name: discarded.schedule.project.title, isShownOnAnotherRow: false }],
+        },
+        /** @purity non-pure */
+        settle(isProceeding) {
+          answer(isProceeding)
+        },
+      }
+      if (settled(environment)) ask()
+    })
+  }
+
+  /**
+   * OP-2 of table T-024a -- one file, taken along the road that table lays out:
+   * OP-12 picks the decoder, OP-5 validates, OP-3 asks, OP-4 confirms a
+   * replace, and table T-230 lands the answer.
+   *
+   * ⭐ CS-4 OF TABLE T-066 IS THE SHAPE OF THIS FUNCTION, the same shape
+   * `saveHeldDocumentToFile` has: what the operation needs from the current
+   * values is taken before the first `await`, and nothing after it reads `held`
+   * again while the person is answering (MUST NOT). The bounds OP-5 judges
+   * against and the document MSPDI borrows its presentation group from are
+   * therefore the ones in force when the person asked to open, and not
+   * whichever ones the two waits left behind.
+   * ⛔ THE LANDING READS THE PAIR AGAIN, AND THAT IS CS-3 RATHER THAN A BREACH
+   * OF CS-4: table T-230 puts `current` in `replaceDocument`'s hands, which
+   * reads the holder ONCE inside the write -- a merge built on a document read
+   * before the question would silently drop whatever was edited while it stood.
+   *
+   * ⭐ EVERY STEP THAT CANNOT GO ON RETURNS WITHOUT TOUCHING THE DOCUMENT, which
+   * OP-5 requires in as many words: an input that is turned away must not have
+   * been applied even in part, and the reading side is where that is cheapest to
+   * keep -- nothing has been adopted until the last line.
+   *
+   * ⚠️ Nothing is caught. FR-028 (MUST NOT) forbids throwing, and IF-3 states
+   * that a store which throws has broken its contract.
+   *
+   * @purity non-pure
+   */
+  async function openDocumentIntoHold(store: FileStore, route: OpenRoute): Promise<void> {
+    // CS-4: collected at the moment the operation begins, and not read again.
+    const current = held.document
+    // ⛔ THE BOUNDS ARE THE ONES IN FORCE, NEVER THE ARRIVING FILE'S.
+    // `ImportBounds` states the rule and the reason: OP-5 runs before OP-3, and
+    // OP-6 restores an arriving presentation group only after a replace has
+    // been chosen, so the settings in force are necessarily this document's --
+    // and reading the input's own would let an untrusted file raise its own
+    // ceiling, which empties NFR-009.
+    const bounds: ImportBounds = current.documentSettings
+
+    const opening = await openDocumentFile(store, route)
+    if (!opening.ok) {
+      // STOP -- ⛔ NOTHING CARRIES THE FAULT TO THE PERSON, which is the same
+      // absence `saveHeldDocumentToFile` records one road over: NT-1 of table
+      // T-037 (MUST) wants the item and the reason in words, and the one
+      // dictionary FR-038 names holds no row for any reason
+      // `DocumentFileFaultReason` gives.
+      return
+    }
+    // STOP -- ⛔ OP-11's TELLING HAS NOWHERE TO GO. `opening.ignoredFileCount`
+    // is the number that row (MUST) has said in the manner of NT-5, and
+    // `ScreenSession.notices` has no owner in this build (`sessionOf` records
+    // the same absence). ⚠️ The row is still KEPT in the half that matters most:
+    // it forbids the act reading as refused (MUST NOT), and the first file goes
+    // on being opened below.
+    const file = opening.file
+
+    // OP-12 (MUST): both the extension and the first non-blank character have
+    // to name the same row of table T-024, and a file where either disagrees is
+    // not read at all (MUST NOT).
+    const reading = formatFromFile(file.fileName, file.text)
+    if (!reading.ok) {
+      // STOP -- ⛔ WHICH SIDE DISAGREED REACHES NOBODY. `reading.mismatch` is
+      // carried precisely so NT-1 can say which item is wrong, and there is no
+      // owner for that notice here.
+      return
+    }
+    const incoming = decodedDocument(reading.format, file.text, current)
+    if (incoming === null) return
+
+    // OP-5 (MUST): FR-023's validation runs whatever the route, and BEFORE OP-3
+    // is asked -- the row states the reason itself, that asking first would
+    // have the current document thrown away for an input that is then refused.
+    const verdict = validateImportedDocument(
+      {
+        document: incoming,
+        // S-113 is stated in megabytes and measured in bytes, which is why the
+        // gateway carries the file's byte length beside the decoded text.
+        byteLength: file.byteLength,
+        // STOP -- ⛔ NO CODEC ANSWERS THIS. `ImportCandidate.emptyRowTaskUids`
+        // records that docs/spec says neither how such a row is recognised nor
+        // where it is held, and PI-20 of table T-064 publishes nothing that
+        // reports one -- so this build knows of none, which is a fact about the
+        // build rather than a value guessed at here.
+        emptyRowTaskUids: [],
+      },
+      bounds,
+    )
+    if (!verdict.ok) {
+      // STOP -- ⛔ THE REFUSALS REACH NOBODY. Each one names the rule, the place
+      // and whether NT-1 or NT-6 is its manner, which is exactly what a notice
+      // needs -- and `ScreenSession.notices` has no owner. ⚠️ FR-023's other
+      // half is missing with it: that requirement lets a person drop the rows a
+      // date refusal names and take the rest, and there is no surface to offer
+      // the choice on.
+      return
+    }
+
+    const choice = await askHowToOpen()
+    // ⛔ OP-3 (MUST NOT): nothing is chosen here. A question that went away
+    // unanswered leaves the read where it was, and an abandoned open changes
+    // no document -- which is the only outcome that does not decide for the
+    // person.
+    if (choice === null) return
+
+    // OP-4 (MUST): the replace is the one choice that throws the current
+    // document away, so it is the one choice that asks first. That row exempts
+    // the other two in as many words, because neither discards anything.
+    const isDiscardConfirmed =
+      choice === 'replace' ? await askToDiscardCurrentDocument(current) : false
+    if (choice === 'replace' && !isDiscardConfirmed) return
+
+    // ⭐ WHAT PI-10 IS BROUGHT, minus the two fields table T-230 fills in for
+    // this side: `current` is CS-3's one read, and the row fixes the choice.
+    const importing = {
+      incoming,
+      format: reading.format,
+      // OP-5 passed above, and this side never claims it did not run.
+      validationPassed: true,
+      // OP-8 (MUST NOT) is kept at the ENTRANCE, where a second open is refused
+      // before it can begin, so by construction none is running but this one.
+      // ⛔ Declaring the flag true here would refuse this very open.
+      anotherOpenInProgress: false,
+      unsavedEditsDiscardConfirmed: isDiscardConfirmed,
+      // STOP -- ⛔ NOTHING PUTS FR-022's, MG-4's OR MG-12's QUESTION. Table
+      // T-032a's four answers, the project profile's three and the presentation
+      // group's three each need a surface, and table T-103 names none for any
+      // of them -- table T-109 places no entry for one either. `null` is "not
+      // answered", which `MergeChoices` declares as its own meaning, so a merge
+      // that has candidates is refused by PI-10 rather than being decided here
+      // (FR-022 MUST NOT). ⚠️ The refusal that comes back carries the
+      // candidates, and it reaches nobody for the reason above.
+      merge: null,
+      defaultSettings: DEFAULT_DOCUMENT_SETTINGS,
+      // AT-109 -- one per import, and minting one is not a pure act, which is
+      // why PI-10 takes it rather than making it. ⚠️ The same member the
+      // context mints `newGroupId` with, for the same reason.
+      importSessionId: crypto.randomUUID(),
+    }
+
+    // RD-4 of table T-230 -- OP-3's replace. The history is dropped and the
+    // stamp comes through as the file wrote it, and both are that row's to say.
+    if (choice === 'replace') {
+      replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
+      return
+    }
+    // RD-3 -- the merge and the overlay. It is the one row of table T-230 whose
+    // stamp advances and whose WS-4 can owe a step, so it is the one row that
+    // needs the two bounds and the two stamp fields.
+    replaceHeldDocument({
+      row: 'RD-3',
+      importing: { ...importing, choice },
+      historyLimits: HISTORY_LIMITS,
+      editedBy: EDITED_BY_SCREEN,
+      updatedUtc: readInstantOfWrite(),
     })
   }
 
@@ -1591,7 +2029,7 @@ export function frameLoop(
       destination: 'chosenFile',
       content: { text },
       form: SAVE_FORM,
-      suggestedFileName: NO_SUGGESTED_FILE_NAME,
+      suggestedFileName: suggestedFileNameOf(project),
       identity: { fileName: null, projectName: project.name, projectId: project.id },
       projectIdentityFromText,
       confirmOverwrite: askToWriteOverDestination,
@@ -1605,13 +2043,13 @@ export function frameLoop(
    * @purity non-pure
    */
   /**
-   * The three entries of table T-109 this loop answers for, on the release that
+   * The six entries of table T-109 this loop answers for, on the release that
    * settled on one. Returns whether the entry was spent here.
    *
    * ⭐ THE SHELL'S OWN, BECAUSE NONE OF THEM IS A `DocumentCommand`. IC-21
-   * chooses the display language (S-99) and IC-69 / IC-70 are NT-7's two
-   * answers; table T-108 has no row for any of the three, and LY-5 of table
-   * T-060 leaves a current value with this layer.
+   * chooses the display language (S-99), IC-69 / IC-70 are NT-7's two answers,
+   * and IC-71 .. IC-73 are OP-3's three; table T-108 has no row for any of the
+   * six, and LY-5 of table T-060 leaves a current value with this layer.
    *
    * ⚠️ IC-69 writes what was HELD, not what the document says now: CS-4's
    * discipline is that the answer lands on the operation that was begun.
@@ -1635,6 +2073,23 @@ export function frameLoop(
       // the answer to this one rather than a new request.
       asking = null
       asked.settle(entry === CONFIRMATION_PROCEED_ENTRY, frame)
+      return true
+    }
+    const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
+    if (openChoice !== undefined) {
+      const choosing = openChoosing
+      // ⚠️ Not spent when nothing is waiting: the three entries exist only while
+      // the surface holding them is up, and a press that reached one with no
+      // read behind it is a press this loop has no answer for.
+      if (choosing === null) return false
+      openChoosing = null
+      // S-99g: the surface has answered its question, so it is no longer open.
+      // ⛔ Closed HERE and not by `screenStateFromEntry`: table T-109 gives that
+      // job to IC-52, and IC-52 is not placed on this surface -- so leaving it
+      // to the translator would leave the surface standing over the document
+      // with its question already answered.
+      screenState = screenStateWithSurface(screenState, null)
+      choosing.settle(openChoice)
       return true
     }
     return false
@@ -1701,25 +2156,27 @@ export function frameLoop(
         // builds one or hands it to this loop. ⚠️ Doing nothing here is not
         // the behaviour: it is the absence of it.
         return
-      case 'openDocumentFile':
-        // STOP -- ⛔ OP-3 OF TABLE T-024a CANNOT BE PUT TO ANYBODY. That row is
-        // a MUST that the person choose one of three -- `OpenChoice` of PI-10
-        // spells them `replace`, `merge` and `baseline` -- and a MUST NOT
-        // against GRS settling it by itself, so an open that reached the file
-        // and then chose for the person would break the very row it is
-        // carrying out. ⛔ There is nowhere to ask: table T-103 is the whole of
-        // the UI parts and names no surface for a three-way choice, and table
-        // T-109 is exhaustive by its own caption and holds no entry for any of
-        // the three -- `Confirmation` (U-55) stands on IC-69 and IC-70, which
-        // NT-7 makes two answers by construction.
-        // ⚠️ Reading the file first and stopping there is worse than not
-        // starting: OP-8 would then be true of an open that can never finish,
-        // and the store would have adopted a handle for a document nobody can
-        // see. ⛔ Everything downstream of the choice IS ready -- `importDocument`
-        // (PI-10) takes OP-3's answer as an argument and RD-3 / RD-4 of table
-        // T-230 carry it home -- so a surface and its entries are the whole of
-        // what is owed.
+      case 'openDocumentFile': {
+        // SK-10 of table T-036 and IC-1 of table T-109 -- OP-2's one entry,
+        // which that row forbids import having a door beside (MUST NOT).
+        // ⛔ NO STORE WAS HANDED IN, so there is no file to read. Doing nothing
+        // then is the absence of the behaviour and not the behaviour.
+        const store = files
+        if (store === undefined) return
+        // OP-8 (MUST NOT) and CS-4's one-at-a-time, which is the same guard the
+        // save path keeps: a second read begun mid-wait would take away the one
+        // question the screen can hold, and OP-8 refuses it on its own account.
+        if (isFileOperationWaiting || asking !== null || openChoosing !== null) return
+        isFileOperationWaiting = true
+        // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS -- the same shape the
+        // save path has, and for the same reason CS-4 gives: the operation
+        // spans frames, and the flag above is what keeps the next press from
+        // starting a second one.
+        void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(() => {
+          isFileOperationWaiting = false
+        })
         return
+      }
       case 'saveDocumentFile': {
         // ⛔ NO STORE WAS HANDED IN, so there is nothing to write to. Doing
         // nothing then is the absence of the behaviour and not the behaviour.
@@ -1728,7 +2185,7 @@ export function frameLoop(
         // ⛔ ONE AT A TIME. CS-4 of table T-066 collects at the moment the
         // operation begins, and a second one begun mid-wait would take the one
         // question the screen can hold away from the first.
-        if (isFileOperationWaiting || asking !== null) return
+        if (isFileOperationWaiting || asking !== null || openChoosing !== null) return
         isFileOperationWaiting = true
         // ⚠️ NOT AWAITED, AND NOTHING IS OWED TO THE PRESS. The rest of this
         // happening is settled before the chooser has even opened -- CS-4 says
@@ -1866,13 +2323,27 @@ export function frameLoop(
     // FR-071's way out of full screen would be unreachable.
     if (hasEndedGesture(input) || escapeLevel === 'gesture') pressed = null
 
-    // FR-032 / FR-038: the three entries this loop answers for itself, read
-    // off the press this release settled from (CS-2 of table T-066).
+    // FR-032 / FR-038 / OP-3: the six entries this loop answers for itself,
+    // read off the press this release settled from (CS-2 of table T-066).
     // ⛔ BEFORE `carryOutAction`: an entry spent here is not also an edit, and
     // asking the other way round would let one press do both.
     const settled = entrySettledOnRelease(input, context)
     if (settled === null || !answerSettledEntry(settled, frame)) {
       carryOutAction(translated.action, frame)
+    }
+
+    // OP-3 (MUST NOT): the `Open Chooser` went away without one of its three
+    // being taken, so the choice was never made and the read is abandoned.
+    // ⛔ THIS IS THE ONLY WAY THE WAIT CAN END WITH NO ANSWER, and it exists
+    // because the question stands in S-99g: that row holds one open surface and
+    // IN-4 of table T-028 spends the first level of `Esc` on whatever it is
+    // holding, so `screenStateFromInput` can close this one without asking.
+    // ⚠️ Read AFTER the entry above, which clears both together on a real
+    // answer.
+    if (openChoosing !== null && screenState.surface !== OPEN_CHOOSER_SURFACE) {
+      const abandoned = openChoosing
+      openChoosing = null
+      abandoned.settle(null)
     }
 
     // FT-1 owes a frame for every happening the row names, save the one FR-048

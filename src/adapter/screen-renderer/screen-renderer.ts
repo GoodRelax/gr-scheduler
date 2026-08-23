@@ -638,13 +638,53 @@ export type OpenModal =
 // ------------------------------------------------------------ UF-67 ---------
 
 /**
+ * One thing RAISED to be told, before the words it is told in are read (UF-67).
+ *
+ * ⭐ NOT A `Notice`, for the reason `RaisedConfirmation` is not a
+ * `Confirmation`: what the raiser knows is WHICH manner of table T-037 it is
+ * following and WHY, and FR-038 (MUST) keeps the words themselves in the one
+ * generated dictionary that this component -- and no raiser -- holds. A raiser
+ * that had to supply the sentence would be the second store of translated
+ * strings that same requirement forbids (MUST NOT).
+ *
+ * ⭐ WHY THE RAISER IS THE ONLY SIDE THAT CAN SAY `reason`. `file-store.ts`
+ * writes the same boundary from the other end: the reasons are told apart by
+ * what can be done next, only that side knows which one happened, and UF-67 is
+ * where the reason becomes NT-3a's next step.
+ */
+export interface RaisedNotice {
+  /**
+   * The row of table T-037 this one follows, e.g. `NT-1`.
+   *
+   * ⭐ Carried rather than worked out here, for the reason `Notice.manner` is
+   * carried: NT-5 (MUST) makes the accepted-with-a-warning row have to look
+   * unlike NT-1's refusal, and only the raiser knows which of the two happened.
+   */
+  readonly manner: string
+  /**
+   * WHY, as the one key FR-038's dictionary can be asked on and never as a
+   * sentence -- the reason a write was turned away, or the reason a file
+   * operation faulted.
+   *
+   * ⛔ A KEY, NOT PROSE. It joins this notice to the dictionary the way
+   * `Notice.manner` joins it to table T-037, and `notices.ts` says what the
+   * dictionary still owes against it.
+   */
+  readonly reason: string
+  /**
+   * NT-3: how many things a destructive result reaches. `null` where the row
+   * does not ask for a count.
+   */
+  readonly affectedCount: number | null
+}
+
+/**
  * One thing told to the person (UF-67). The manner is table T-037's, which
  * FR-076 turns into a MUST.
  *
- * ⚠️ The same type stands on both sides: `ScreenSession.notices` is what has
- * been raised, and `ScreenView.notices` is what is showing and in what order.
- * ⭐ One type rather than two, because the difference between them is which
- * ones and in which order -- not what a notice is.
+ * ⚠️ THE SHOWN HALF, not the raised one. `ScreenSession.notices` holds
+ * `RaisedNotice`, and UF-67 reads the words out of the dictionary on the way
+ * here -- so a member below that carries words is one no raiser filled in.
  */
 export interface Notice {
   /**
@@ -1042,8 +1082,22 @@ export interface ScreenSession {
    * @provisional PD-144
    */
   readonly propertiesSubject: PropertiesSubject | null
-  /** What has been raised to tell (FR-076). UF-67 decides which are shown, and in what order. */
-  readonly notices: readonly Notice[]
+  /**
+   * What has been raised to tell (FR-076). UF-67 decides which are shown, in
+   * what order, and in what words.
+   *
+   * ⭐ HELD BY THE SHELL, like the question beside it: LY-5 of table T-060
+   * leaves the Framework as the only layer that may hold a current value, and
+   * FR-028 (MUST NOT) makes a refusal a value the caller receives rather than
+   * something thrown -- so the side that received it is the side that holds it
+   * until it has been told.
+   *
+   * ⛔ THE RAISED HALF ONLY. FR-038 (MUST) keeps every word the screen prints
+   * in the one generated dictionary, which this component holds and the shell
+   * does not, so a raiser hands over the manner and the reason and nothing that
+   * reads as a sentence.
+   */
+  readonly notices: readonly RaisedNotice[]
   /**
    * The question waiting to be answered (NT-7 of table T-037), or `null` while
    * none is.
@@ -1057,7 +1111,8 @@ export interface ScreenSession {
    * and UF-67 reads them out of the roster, so a shell that had to name them
    * here would be settling the placement that table already settles.
    *
-   * ⚠️ NOTHING IN THIS BUILD RAISES ONE. See the STOP note in `notices.ts`.
+   * ⚠️ TWO OF THE THREE ASKING SITES RAISE ONE. See the STOP note in
+   * `notices.ts` for the third.
    */
   readonly confirmation: RaisedConfirmation | null
   /**
@@ -1150,9 +1205,11 @@ export interface ScreenSession {
 //     ⭐ The second member is NT-7's -- the manner for ASKING, which table T-037
 //     gained on 2026-08-21. Table T-075 gives this unit 「知らせと確認」, so both
 //     manners are one unit's, and neither reads the other's member.
-//     ⚠️ It WIDENS what it is given, which the first does not: the session holds
-//     a `RaisedConfirmation` and the answer is a `Confirmation`, because IC-69
-//     and IC-70 stand on U-55 by table T-109 and not by the asker's choice.
+//     ⚠️ BOTH WIDEN what they are given. The session holds a `RaisedNotice` and
+//     a `RaisedConfirmation`; the answers are a `Notice` and a `Confirmation`,
+//     because the words FR-038 (MUST) keeps in the one dictionary and the
+//     entries table T-109 places on U-55 are both this component's to read and
+//     neither is the raiser's to supply.
 //
 //   UF-68  dialogue-field.ts
 //     export function dialogueFieldFromLog(

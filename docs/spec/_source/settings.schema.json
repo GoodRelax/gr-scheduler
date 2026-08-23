@@ -347,6 +347,10 @@
       "type": "string",
       "minLength": 1
      }
+    },
+    "exclusive": {
+     "type": "boolean",
+     "description": "The bound is OPEN: the value itself is not allowed. Written on a `min` or a `max` only. ⭐ This replaced writing `1 − ε`, which named a quantity the specification never gave a value to -- what those rows meant was 'below 1', not a particular number."
     }
    }
   },

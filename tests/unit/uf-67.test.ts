@@ -2,42 +2,88 @@
 // CP-37 of table T-062, which table T-064 publishes as PI-37).
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
+// the specification. Table T-218 of Chapter 7 gives them their place: row TS-6
+// -- tests/unit/, Vitest -- and forbids any other (MUST NOT).
 //
 // ⛔ WRITTEN AGAINST THE SPECIFICATION (docs/development-rules/
-// 04-verification.md, 1.). Every expected value below comes from a requirement
-// or a table, never from what the unit happens to produce.
+// 04-verification.md, 1.). `notices.ts` was not opened. What was read is the
+// public entry `screen-renderer.ts`, which table T-064 makes the contract, for
+// the declarations of `RaisedNotice`, `Notice` and `ScreenSession`. Every
+// expected value below is argued from a requirement or a table row named
+// beside it -- never from what the unit happens to produce.
 //
-// ⭐ WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED. Three
-// questions have no answer in docs/spec, and no case here invents one:
+// ⚠️ WHAT MOVED UNDER THESE CASES, AND IN WHICH DIRECTION.
+// `ScreenSession.notices` used to hold the very `Notice` the screen shows, so a
+// raiser handed over the sentence and the next steps and these cases could
+// drive both. It now holds `RaisedNotice` -- the manner, a reason KEY, and
+// NT-3's count -- and the words are read on this side, out of the one
+// dictionary FR-038 (MUST) keeps them in.
+// ⛔ THAT IS THE SEAM MOVING, NOT THESE EXPECTATIONS BEING BENT TO THE CODE.
+// No MUST below was softened to match what the unit now returns. FOUR cases are
+// RED, and are meant to stay red until the debt named under them is paid.
+//
+// ⛔ WHAT IS RED, AND WHY IT MAY NOT BE REWRITTEN.
+//   1. NT-1 of table T-037 (MUST) has a refusal say WHICH item and WHY in
+//      words, and forbids colour or a border alone (MUST NOT).
+//   2. NT-3a (MUST) has a failure carry what can be done next, and forbids a
+//      telling that says only that something failed (MUST NOT). NT-6 sends its
+//      own next step to that same row.
+//   3. FR-038 (MUST) holds every word the screen prints in the per-language
+//      dictionary -- so no surface may print the raiser's key instead.
+//   4. FR-038 again, from the other side: a different dictionary has to be a
+//      different telling, or the words came from somewhere that is not a
+//      dictionary.
+// ⭐ ALL FOUR HAVE ONE CAUSE. A raiser now hands over a KEY and no words, and
+// the generated dictionary holds no entry that a key can be found under -- it
+// has no section keyed by one at all (the tripwire case below asserts exactly
+// that). What the person is shown today is the key itself.
+// ⛔ The debt is the MANUSCRIPT's (`docs/spec/_source/display-words.json`), not
+// this unit's: FR-038 (MUST NOT) bars a second store of translated strings, so
+// UF-67 may not mint a sentence and a test may not accept one it minted. The
+// day the manuscript grows the entries, the tripwire goes red and these four go
+// green -- ⛔ run them again rather than rewriting either side.
+//
+// ⭐ WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED:
+//   * ⛔ THE REASON VOCABULARY. No table of docs/spec settles the keys a raiser
+//     may put in `RaisedNotice.reason`; AG-9a of table T-035 requires a kind of
+//     reason on the machine-facing refusal and names no member of the set. The
+//     keys below are this file's own inputs and stand for nothing published.
+//   * ⛔ NT-4's WHOLE-OF-THEM IS NO LONGER OBSERVABLE HERE. The old bench could
+//     watch every gathered item reach the one surface because the raiser gave
+//     words; with the words owed by the dictionary, a case written that way
+//     would be asserting whatever stands in for them, and would go on passing
+//     once real words replaced it. What is asserted instead is the half that
+//     needs no words: how many surfaces the run becomes. ⛔ Do not add a
+//     text-based one until the dictionary can answer for a reason.
 //   * the ORDER several shown notices stand in -- no row of table T-037 ranks
 //     one manner above another, and the note under table T-077 puts the
-//     gathered surface outside the boot order. So the cases below assert
-//     membership and counts, never a position.
-//   * WHAT STANDS BETWEEN two gathered texts -- NT-4 fixes that all of them go
-//     and fixes nothing about the writing, and `_assets/tbl-settings.md` holds
-//     no notice row at all. A case therefore asks that each text is THERE and
-//     that no WORD was added, not what the joiner is.
+//     gathered surface outside the boot order. Membership and counts only.
 //   * WHAT COUNT the gathered surface carries -- NT-3 asks a count of a
 //     destructive result and NT-4 asks for none, so `affectedCount` on the
 //     gathered surface is asserted nowhere.
+//   * WHAT BECOMES OF A REASON THE DICTIONARY DOES NOT HOLD. Nothing in
+//     docs/spec settles a fallback, so no case fixes one; the shape case only
+//     holds the unit to the type its own public entry declares.
 //
 // The rules these cases answer to:
-//   FR-076    「表 T-037 の作法に従うこと」-- the table binds every telling
-//   NT-4      「1 枚に集約して出すこと（全数）」／「別々の面で順に出さない」
-//   NT-1      「どの項目が、なぜ誤りかを文字で示すこと（MUST）」-- a joined
-//             text stops naming WHICH item is wrong, so nothing but NT-4's own
-//             run may ever be collapsed
-//   NT-3      「対象の件数を添えること」
-//   NT-3a     「次に取れる手段を添えること（MUST）」
-//   NT-5      「`NT-1`（受け付けないとき）と見分けがつく形にすること（MUST）」
-//   NT-6      「続けられないことと、いま何ができるかを示すこと（MUST）」
-//   FR-038    the display language, with no store of translated strings named
-//             anywhere -- so no word may be written here
-//   NT-2/FT-4 a notice that goes away with time is the shell's (table T-078),
-//             and CS-1 of table T-066 keeps the clock away from a `pure` unit
-//   R7.1      `pure` in table T-075. 引数の書き換え is a non-pure effect
+//   FR-076   every telling follows table T-037
+//   FR-028   a refusal is a value the caller receives, never an exception --
+//            which is why the shell can hold one long enough to raise it
+//   FR-038   one store of translated strings, and this component holds it
+//   NT-1 / NT-3 / NT-3a / NT-4 / NT-5 / NT-6 / NT-7 of table T-037
+//   FT-4 of table T-078 and CS-1 of table T-066 -- the clock is the shell's, so
+//            a notice that goes away with time is not this unit's to drop
+//   R7.1     `pure` in table T-075
+//
+// ⛔ WHAT IS DELIBERATELY NOT HERE. U-56 `Open Chooser` of table T-103 and the
+// three entries table T-109 places on it (IC-71 / IC-72 / IC-73, the three
+// answers OP-3 of table T-024a makes the person choose between) are NOT this
+// unit's. Table T-075 gives UF-67 the tellings and the question of table T-037;
+// a surface that is opened over the screen is UF-66's (`open-modals.ts`, the
+// surfaces IN-4 of table T-028 defines), and the `data-role` such a surface
+// carries -- its settled name from table T-103, which W-4 of table T-006a now
+// says in as many words -- is drawn by UF-71. Their cases belong in the benches
+// of those two units.
 //
 // ⭐ Chapter 1.9 asks a test of a requirement that points at a table to be
 // driven by a fixed copy of the table, with one test walking every row. T_037
@@ -55,6 +101,7 @@ import type {
   DisplayLanguage,
   Notice,
   RaisedConfirmation,
+  RaisedNotice,
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
@@ -68,44 +115,67 @@ import { bare, specTable } from '../contract/spec-table'
 // ---------------------------------------------------------------------------
 
 /**
- * 表 T-037 — 知らせるときの作法, in the order the table prints its rows.
+ * Table T-037, in the order the table prints its rows.
  *
  * `binds` says whose duty the row is. Every row but one can only be satisfied
- * where the notice is MADE -- the words, the next step, the count, the look --
- * and none of them can be decided from a notice that already exists. NT-4 is
- * the only row that speaks about SEVERAL notices at once, so it is the only row
- * with work to do where they are chosen.
+ * where the notice is MADE -- which manner it is, why, how many things it
+ * reaches -- and none of that can be decided from a notice that already exists.
+ * NT-4 is the only row that speaks about SEVERAL notices at once, so it is the
+ * only row with work to do where they are chosen.
+ *
+ * `owesWords` marks the row that requires the telling to be readable as words.
+ * `owesNextStep` marks the rows that require a next step: NT-3a states it, and
+ * NT-6 sends its own next step to NT-3a rather than restating it.
+ * ⛔ No other row is marked. A row that only says something is shown fixes no
+ * medium, and guessing one here would put a demand in the bench that no
+ * sentence of docs/spec makes.
  */
 const T_037 = [
-  { row: 'NT-1', when: '入力を受け付けないとき', binds: 'raiser' },
-  { row: 'NT-2', when: '時間で消える通知', binds: 'raiser' },
-  { row: 'NT-3', when: '破壊的な結果を伴うとき', binds: 'raiser' },
-  { row: 'NT-3a', when: '失敗の通知', binds: 'raiser' },
-  { row: 'NT-4', when: '起動時の保留中の用件', binds: 'shown' },
-  { row: 'NT-6', when: '資源の上限に達したとき', binds: 'raiser' },
-  { row: 'NT-5', when: '受け付けたうえで注意を伝えるとき', binds: 'raiser' },
-  { row: 'NT-7', when: '続けてよいかを問うとき', binds: 'raiser' },
+  { row: 'NT-1', binds: 'raiser', owesWords: true, owesNextStep: false },
+  { row: 'NT-2', binds: 'raiser', owesWords: false, owesNextStep: false },
+  { row: 'NT-3', binds: 'raiser', owesWords: false, owesNextStep: false },
+  { row: 'NT-3a', binds: 'raiser', owesWords: false, owesNextStep: true },
+  { row: 'NT-4', binds: 'shown', owesWords: false, owesNextStep: false },
+  { row: 'NT-6', binds: 'raiser', owesWords: false, owesNextStep: true },
+  { row: 'NT-5', binds: 'raiser', owesWords: false, owesNextStep: false },
+  { row: 'NT-7', binds: 'raiser', owesWords: false, owesNextStep: false },
 ] as const
 
-/** The row of table T-037 whose several notices become one surface. */
-const STARTUP_PENDING = 'NT-4'
+/**
+ * The row of table T-037 whose several notices become one surface.
+ *
+ * ⭐ Read out of the copy rather than written twice: a column no case reads is
+ * a column that can go stale without anything saying so.
+ */
+const STARTUP_PENDING = (T_037.find((entry) => entry.binds === 'shown') as { row: string }).row
 
-const OTHER_ROWS = T_037.filter((entry) => entry.row !== STARTUP_PENDING)
+const OTHER_ROWS = T_037.filter((entry) => entry.binds === 'raiser')
 
 // ---------------------------------------------------------------------------
-// Inputs. `Notice` has four members and `ScreenSession` has nine; a case pins
-// the notices it means and every other member of the session is inert here,
-// because UF-67 fills one member of `ScreenView` and reads none of the others.
+// Inputs. A case pins the notices it means; every other member of the session
+// is inert here, because UF-67 fills one member of `ScreenView` and reads none
+// of the others. ⛔ No member count is written down -- a copied number goes
+// stale in silence, and the public entry is where the members are declared.
 // ---------------------------------------------------------------------------
 
-const noticeOf = (
+/**
+ * A reason as a raiser hands it over.
+ *
+ * ⛔ ASCII, and this file's own. The specification settles no vocabulary for
+ * `RaisedNotice.reason` (see the STOP note at the head of the file), so these
+ * keys stand for nothing published and no case reads one back out.
+ * ⚠️ ASCII rather than anything else because a control character in a string
+ * key has stopped the whole build before now (04-verification.md, 3.).
+ */
+const reasonKey = (site: string): string => `uf-67-bench/${site}`
+
+const raisedOf = (
   manner: string,
-  text: string,
-  nextSteps: readonly string[] = [],
+  reason: string,
   affectedCount: number | null = null,
-): Notice => ({ manner, text, nextSteps, affectedCount })
+): RaisedNotice => ({ manner, reason, affectedCount })
 
-const sessionOf = (notices: readonly Notice[]): ScreenSession => ({
+const sessionOf = (notices: readonly RaisedNotice[]): ScreenSession => ({
   language: 'ja',
   autosave: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
   isAgentApiEnabled: false,
@@ -128,22 +198,48 @@ const sessionOf = (notices: readonly Notice[]): ScreenSession => ({
   rowBoxes: [],
 })
 
-// The four raisers NT-4 names by hand: 復帰・復旧の確認・`Agent API` の有効化・
-// 透かしに出す名前の設定（FR-086）. Each carries a next step of its own so that
-// NT-3a's MUST can be watched across the gathering.
-const PENDING_RESTORE = noticeOf(STARTUP_PENDING, 'the file permission was lost', ['grant it again'])
-const PENDING_RECOVERY = noticeOf(STARTUP_PENDING, 'a newer autosave was found', [
-  'open the autosave',
-  'discard the autosave',
-])
-const PENDING_AGENT_API = noticeOf(STARTUP_PENDING, 'the Agent API is off', ['turn the API on'])
-const PENDING_WATERMARK = noticeOf(STARTUP_PENDING, 'the watermark has no name', ['type a name'])
+// The four raisers NT-4 names by hand -- coming back from a lost permission,
+// the recovery question, turning the `Agent API` on, and the watermark name of
+// FR-086. Each is a raiser of its own so that the gathering can be watched
+// across as many as the row admits.
+const PENDING_RESTORE = raisedOf(STARTUP_PENDING, reasonKey('pending/restore'))
+const PENDING_RECOVERY = raisedOf(STARTUP_PENDING, reasonKey('pending/recovery'))
+const PENDING_AGENT_API = raisedOf(STARTUP_PENDING, reasonKey('pending/agent-api'))
+const PENDING_WATERMARK = raisedOf(STARTUP_PENDING, reasonKey('pending/watermark-name'))
 
-const REFUSAL = noticeOf('NT-1', 'finish stands before start', ['put finish after start'])
-const WARNING = noticeOf('NT-5', 'the assignee name spread to three tasks', ['undo the spread'], 3)
-const DESTRUCTIVE = noticeOf('NT-3', 'deleting this reaches twelve rows', ['undo the delete'], 12)
-const FAILURE = noticeOf('NT-3a', 'the autosave did not finish', ['save the file by hand'])
-const AT_LIMIT = noticeOf('NT-6', 'no more rows can be pinned', ['unpin a row first'])
+const REFUSAL = raisedOf('NT-1', reasonKey('refusal/finish-before-start'))
+const WARNING = raisedOf('NT-5', reasonKey('warning/assignee-spread'), 3)
+const DESTRUCTIVE = raisedOf('NT-3', reasonKey('destructive/cascade-delete'), 12)
+const FAILURE = raisedOf('NT-3a', reasonKey('failure/autosave-did-not-finish'))
+const AT_LIMIT = raisedOf('NT-6', reasonKey('limit/no-more-pinned-rows'))
+
+/**
+ * The three sites the shell holds a value nobody has told yet, and the manner
+ * table T-037 settles for each.
+ *
+ * ⭐ WHY THE SHELL IS THE ONE THAT RAISES THESE. FR-028 (MUST NOT) makes a
+ * refusal a value the caller receives rather than something thrown, so the side
+ * that received it is the side still holding it -- and LY-5 of table T-060
+ * leaves the Framework as the only layer that may hold a current value.
+ * ⭐ WHY THE MANNER IS THE ONE NAMED. A write or an edit that was not taken is
+ * the situation NT-1 names -- input that was not accepted. A file operation
+ * that faulted is the one NT-3a names -- a failure. ⛔ Neither manner is
+ * guessed from the code: those two are the only rows of table T-037 whose
+ * situation column reaches these three.
+ *
+ * ⚠️ These are INPUTS. What the shell actually raises is the shell's own case
+ * to answer (tests/system, and the STOP notes in `frame-loop.ts`); what this
+ * file settles is what UF-67 owes once one of them arrives.
+ */
+const SHELL_HELD = [
+  { site: 'a write the document refused', manner: 'NT-1' },
+  { site: 'an edit the document refused', manner: 'NT-1' },
+  { site: 'a file operation that faulted', manner: 'NT-3a' },
+] as const
+
+const SHELL_RAISED = SHELL_HELD.map((held) =>
+  raisedOf(held.manner, reasonKey(`shell/${held.site.replace(/ /g, '-')}`)),
+)
 
 // ---------------------------------------------------------------------------
 // Reading the answer.
@@ -154,262 +250,285 @@ const isStartupPending = (notice: Notice): boolean => notice.manner === STARTUP_
 /** The one surface NT-4 asks for. Fails the case when there is not exactly one. */
 const gatheredOf = (shown: readonly Notice[]): Notice => {
   const pending = shown.filter(isStartupPending)
-  expect(pending.length, 'NT-4: 保留中の用件は 1 枚に集約して出す').toBe(1)
+  expect(pending.length, 'NT-4: the pending run is ONE surface').toBe(1)
   return pending[0] as Notice
 }
 
-/**
- * What is left of `whole` once each of `parts` has been taken out of it once.
- *
- * ⭐ This is how a case can ask FR-038's question -- "was a word written here?"
- * -- without knowing what the specification leaves open, namely what stands
- * between two texts. A separator carries no letter and no digit; a heading,
- * a bullet's label or a count would, in either display language.
- */
-const residueAfterRemoving = (whole: string, parts: readonly string[]): string => {
-  let rest = whole
-  for (const part of parts) {
-    const at = rest.indexOf(part)
-    expect(at, `NT-4（全数）: 「${part}」が 1 枚の上に無い`).toBeGreaterThanOrEqual(0)
-    rest = rest.slice(0, at) + rest.slice(at + part.length)
-  }
-  return rest
-}
+const mannersOf = (shown: readonly Notice[]): readonly string[] =>
+  shown.map((notice) => notice.manner).sort()
 
-const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text)
+const withManner = (shown: readonly Notice[], manner: string): readonly Notice[] =>
+  shown.filter((notice) => notice.manner === manner)
 
 // ---------------------------------------------------------------------------
 
-describe('UF-67 -- NT-4 (MUST): 起動時の保留中の用件を 1 枚に集約して出す（全数）', () => {
-  it('shows the several pending items as ONE surface, keeping the other rows apart', () => {
-    // NT-4: 「1 枚に集約して出すこと（全数）」。The two notices that follow
-    // other rows are not part of that run and stay two.
+describe('UF-67 -- NT-4 (MUST): the pending items at startup arrive as ONE surface', () => {
+  it('gathers the pending run into one surface and leaves the other rows standing apart', () => {
+    // NT-4 speaks about its own run only. A telling of another row is not part
+    // of it, and folding one in would put it under another row's manner.
     const shown = noticesFromSession(
       sessionOf([REFUSAL, PENDING_RESTORE, WARNING, PENDING_RECOVERY, PENDING_AGENT_API]),
     )
 
-    expect(shown.filter(isStartupPending).length).toBe(1)
-    expect(shown.length, 'NT-1 と NT-5 の 2 つに、集約した 1 枚を足した数').toBe(3)
+    expect(withManner(shown, STARTUP_PENDING).length).toBe(1)
+    expect(mannersOf(shown), 'NT-1 and NT-5, plus the one gathered surface').toEqual([
+      'NT-1',
+      'NT-4',
+      'NT-5',
+    ])
   })
 
-  it('never shows the pending items 別々の面で順に, however many were raised', () => {
-    // NT-4: 「復帰・復旧の確認・`Agent API` の有効化・透かしに出す名前の設定
-    // （`FR-086`）を別々の面で順に出さない」。
+  it('never lets the pending items arrive as several surfaces, however many were raised', () => {
+    // NT-4 (MUST NOT) forbids the four raisers it names arriving one surface
+    // after another.
     const raisers = [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API, PENDING_WATERMARK]
     for (let count = 2; count <= raisers.length; count += 1) {
       const shown = noticesFromSession(sessionOf(raisers.slice(0, count)))
-      expect(shown.filter(isStartupPending).length, `保留中 ${count} 件でも面は 1 つ`).toBe(1)
-      expect(shown.length, `保留中 ${count} 件のほかに知らせは無い`).toBe(1)
-    }
-  })
-
-  it('puts the text of every pending item on that one surface', () => {
-    const raised = [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API, PENDING_WATERMARK]
-    const gathered = gatheredOf(noticesFromSession(sessionOf(raised)))
-    for (const pending of raised) {
-      expect(gathered.text, `NT-4（全数）: ${pending.text}`).toContain(pending.text)
+      expect(withManner(shown, STARTUP_PENDING).length, `raised ${count}`).toBe(1)
+      expect(shown.length, `raised ${count}, and nothing else was`).toBe(1)
     }
   })
 
   it('has no cap on how many pending items reach the one surface', () => {
     // ⛔ No row of table T-037, no line of FR-076 and no key of
-    // `_assets/tbl-settings.md` names a number of notices, so 全数 is 全数.
+    // `_assets/tbl-settings.md` names a number of notices, so the whole of them
+    // is the whole of them.
     const many = Array.from({ length: 12 }, (_, index) =>
-      noticeOf(STARTUP_PENDING, `pending item number ${index}`, [`step number ${index}`]),
+      raisedOf(STARTUP_PENDING, reasonKey(`pending/number-${index}`)),
     )
-    const gathered = gatheredOf(noticesFromSession(sessionOf(many)))
+    const shown = noticesFromSession(sessionOf(many))
 
-    for (const pending of many) expect(gathered.text).toContain(pending.text)
-    expect([...gathered.nextSteps].sort()).toEqual([...many.flatMap((n) => n.nextSteps)].sort())
+    expect(shown.length).toBe(1)
+    expect(gatheredOf(shown).manner).toBe(STARTUP_PENDING)
   })
 
-  it('loses no next step on the way onto the one surface (NT-3a, MUST NOT)', () => {
-    // NT-3a: 「失敗したことだけを伝えて手段を示さない通知を出してはならない
-    // （MUST NOT）」。Every next step raised is distinct here, so nothing about
-    // duplicates is being asked.
-    const raised = [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API]
-    const gathered = gatheredOf(noticesFromSession(sessionOf(raised)))
+  it('leaves a lone pending item as the one surface it already is', () => {
+    // NT-4 asks for one surface; with one raiser there is nothing to gather,
+    // and dropping it would tell nobody about the pending item.
+    const shown = noticesFromSession(sessionOf([PENDING_RECOVERY]))
 
-    expect([...gathered.nextSteps].sort()).toEqual([...raised.flatMap((n) => n.nextSteps)].sort())
+    expect(shown.length).toBe(1)
+    expect((shown[0] as Notice).manner).toBe(STARTUP_PENDING)
   })
 
-  it('writes no word of its own onto the one surface (FR-038)', () => {
-    // FR-038 names no store of translated strings, so a heading, a label or a
-    // number written here would be a word in one language only. What may stand
-    // between two texts is left open; what may NOT stand there is a word.
-    const raised = [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API]
-    const gathered = gatheredOf(noticesFromSession(sessionOf(raised)))
+  it('leaves the lone pending item alone while other rows stand beside it', () => {
+    const shown = noticesFromSession(sessionOf([REFUSAL, PENDING_WATERMARK, AT_LIMIT]))
 
-    const residue = residueAfterRemoving(
-      gathered.text,
-      raised.map((notice) => notice.text),
-    )
-    expect(hasWord(residue), `1 枚の上に足された語: ${JSON.stringify(residue)}`).toBe(false)
-  })
-
-  it('gives the one surface words to be read (NT-1 forbids colour alone)', () => {
-    const gathered = gatheredOf(noticesFromSession(sessionOf([PENDING_RESTORE, PENDING_RECOVERY])))
-    expect(gathered.text.length).toBeGreaterThan(0)
-    expect(gathered.manner, '集約した 1 枚が従う行は 起動時の保留中の用件').toBe(STARTUP_PENDING)
-  })
-
-  it('gathers a pending item that arrived with no next step, rather than dropping it', () => {
-    // NT-4 asks for 全数. A pending item without a next step is still one of
-    // them, so its text goes on. ⚠️ What becomes of a FAILURE raised with no
-    // next step at all is a separate question the specification does not
-    // answer, and no case here asserts it.
-    const bare = noticeOf(STARTUP_PENDING, 'the watermark has no name', [])
-    const gathered = gatheredOf(noticesFromSession(sessionOf([PENDING_RESTORE, bare])))
-
-    expect(gathered.text).toContain(bare.text)
-    expect(gathered.text).toContain(PENDING_RESTORE.text)
+    expect(shown.length).toBe(3)
+    expect(withManner(shown, STARTUP_PENDING).length).toBe(1)
+    expect(mannersOf(shown)).toEqual(['NT-1', 'NT-4', 'NT-6'])
   })
 })
 
-describe('UF-67 -- 表 T-037: 集約するのは NT-4 の run だけである', () => {
-  it('carries a notice of every other row through untouched (one case, every row)', () => {
+describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
+  it('carries a notice of every other row through as one notice (one case, every row)', () => {
     // Chapter 1.9: one test walks every row of the table it is driven by.
-    // NT-1 (MUST) has to say WHICH item is wrong, NT-5 (MUST) has to stay
-    // distinguishable from NT-1, NT-3 carries a count and NT-6 carries what can
-    // be done now -- none of which survives being rewritten here.
+    // Each of these rows states a duty that only survives while the telling
+    // does -- NT-1's words, NT-5's being tellable from NT-1, NT-3's count,
+    // NT-6's what-can-be-done-now. Merging any of them into another surface
+    // discharges none of them.
     for (const entry of OTHER_ROWS) {
-      const one = noticeOf(entry.row, `${entry.row}: ${entry.when}`, [`${entry.row} の次の手`], 4)
+      const one = raisedOf(entry.row, reasonKey(`row/${entry.row}`), 4)
       const shown = noticesFromSession(
         sessionOf([PENDING_RESTORE, one, PENDING_RECOVERY, PENDING_AGENT_API]),
       )
-      const carried = shown.filter((notice) => notice.manner === entry.row)
+      const carried = withManner(shown, entry.row)
 
-      expect(carried.length, `${entry.row} は 1 つのまま出る`).toBe(1)
-      expect(carried[0], `${entry.row} は書き換えられずに出る`).toEqual(one)
+      expect(carried.length, `${entry.row} stays one`).toBe(1)
+      expect((carried[0] as Notice).affectedCount, `${entry.row} keeps its count`).toBe(4)
+      expect(shown.length, `${entry.row}, plus the one gathered surface`).toBe(2)
     }
   })
 
   it('never merges two notices that follow one and the same other row', () => {
+    // ⭐ The two are told apart by NT-3's count, which is the only member of the
+    // raised half that this bench can vary while the words are owed.
     for (const entry of OTHER_ROWS) {
-      const first = noticeOf(entry.row, `${entry.row} the first item`, ['the first step'])
-      const second = noticeOf(entry.row, `${entry.row} the second item`, ['the second step'])
-      const shown = noticesFromSession(
-        sessionOf([first, PENDING_RESTORE, second, PENDING_RECOVERY]),
-      )
-      const both = shown.filter((notice) => notice.manner === entry.row)
+      const first = raisedOf(entry.row, reasonKey(`row/${entry.row}/first`), 1)
+      const second = raisedOf(entry.row, reasonKey(`row/${entry.row}/second`), 2)
+      const shown = noticesFromSession(sessionOf([first, PENDING_RESTORE, second, PENDING_RECOVERY]))
+      const both = withManner(shown, entry.row)
 
-      expect(both.length, `${entry.row} の 2 つは 2 つのまま`).toBe(2)
-      expect(both.map((notice) => notice.text).sort()).toEqual(
-        [first.text, second.text].sort(),
-      )
+      expect(both.length, `two of ${entry.row} stay two`).toBe(2)
+      expect(both.map((notice) => notice.affectedCount).sort()).toEqual([1, 2])
     }
   })
 
-  it('keeps NT-5 telling apart from NT-1 (NT-5, MUST)', () => {
-    // NT-5: 「受け付けた事実と注意を同じ面で示し、`NT-1`（受け付けないとき）と
-    // 見分けがつく形にすること（MUST）」。The manner is what tells the two
-    // apart, so neither may end up wearing the other's.
+  it('keeps an NT-5 telling apart from an NT-1 refusal (NT-5 MUST)', () => {
+    // NT-5 (MUST) requires the accepted-with-a-warning telling to be tellable
+    // from NT-1's refusal. The manner is what carries that difference, so
+    // neither may come back wearing the other's.
     const shown = noticesFromSession(sessionOf([REFUSAL, WARNING, PENDING_RESTORE]))
-    const manners = shown.map((notice) => notice.manner).sort()
 
-    expect(manners).toEqual(['NT-1', 'NT-4', 'NT-5'])
+    expect(mannersOf(shown)).toEqual(['NT-1', 'NT-4', 'NT-5'])
   })
 
   it('carries the count NT-3 added, and the absence of one, untouched', () => {
-    // NT-3: 「対象の件数を添えること」。`Notice.affectedCount` is `null` where
-    // the row asks for no count, so both values have to survive as they are.
-    const none = noticeOf('NT-3', 'nothing is reached', ['undo it'], 0)
-    const shown = noticesFromSession(
-      sessionOf([DESTRUCTIVE, none, REFUSAL, PENDING_RESTORE, PENDING_RECOVERY]),
-    )
-    const countOf = (text: string): number | null =>
-      (shown.find((notice) => notice.text === text) as Notice).affectedCount
+    // NT-3 asks a destructive telling for the count of what it reaches.
+    // `affectedCount` is `null` where the row asks for none, so both values
+    // have to survive as they are -- and zero is a count, not an absence.
+    const none = raisedOf('NT-3', reasonKey('destructive/reaches-nothing'), 0)
+    const shown = noticesFromSession(sessionOf([DESTRUCTIVE, none, REFUSAL, PENDING_RESTORE]))
 
-    expect(countOf(DESTRUCTIVE.text)).toBe(12)
-    expect(countOf(none.text)).toBe(0)
-    expect(countOf(REFUSAL.text)).toBeNull()
+    expect(withManner(shown, 'NT-3').map((notice) => notice.affectedCount).sort()).toEqual([0, 12])
+    expect((withManner(shown, 'NT-1')[0] as Notice).affectedCount).toBeNull()
   })
 
   it('withholds nothing that was raised', () => {
     // Every row of table T-037 states its duty as something GRS shows the
     // person; a raised notice that is never shown discharges none of them. The
-    // one change NT-4 asks for is that its own run arrives as one surface, so
-    // each of those texts is looked for there instead.
+    // one change NT-4 asks for is that its own run arrives as one surface.
     const raised = [REFUSAL, FAILURE, PENDING_RESTORE, AT_LIMIT, PENDING_RECOVERY, DESTRUCTIVE]
     const shown = noticesFromSession(sessionOf(raised))
-    const gathered = gatheredOf(shown)
 
-    for (const notice of raised) {
-      const told = isStartupPending(notice)
-        ? gathered.text.includes(notice.text)
-        : shown.some((one) => one.manner === notice.manner && one.text === notice.text)
-      expect(told, `raised but never told: ${notice.manner} / ${notice.text}`).toBe(true)
-    }
-    expect(shown.length, '集約した 1 枚と、集約しない 4 つ').toBe(5)
+    expect(mannersOf(shown)).toEqual(['NT-1', 'NT-3', 'NT-3a', 'NT-4', 'NT-6'])
+    expect(shown.length, 'the gathered surface, and the four that are not gathered').toBe(5)
   })
 
-  it('drops nothing for having run out of time (NT-2 belongs to the shell)', () => {
+  it('drops nothing for having run out of time -- the clock belongs to the shell', () => {
     // FT-4 of table T-078 leaves the reading of the clock to `SingleHtmlShell`,
-    // and CS-1 of table T-066 keeps it out of a `pure` unit. So a notice that
-    // follows NT-2 is shown exactly like any other while it is raised.
-    const fading = noticeOf('NT-2', 'the export finished', ['dismiss it'])
+    // and CS-1 of table T-066 keeps it out of a `pure` unit. A notice that
+    // follows NT-2 is therefore shown like any other while it is raised: one
+    // whose time is up is one that is no longer raised.
+    const fading = raisedOf('NT-2', reasonKey('fading/export-finished'))
     const shown = noticesFromSession(sessionOf([fading]))
 
-    expect(shown).toEqual([fading])
+    expect(shown.length).toBe(1)
+    expect((shown[0] as Notice).manner).toBe('NT-2')
   })
-})
 
-describe('UF-67 -- boundaries', () => {
   it('tells nothing when nothing was raised', () => {
     expect(noticesFromSession(sessionOf([]))).toEqual([])
   })
+})
 
-  it('tells one notice that follows no gathering row exactly as it was raised', () => {
-    expect(noticesFromSession(sessionOf([REFUSAL]))).toEqual([REFUSAL])
+describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
+  it('shows all three, so none of them ends as a value nobody sees', () => {
+    // FR-028 (MUST NOT) makes a refusal a value rather than an exception, which
+    // is what lets the shell still be holding one; FR-076 then binds it to
+    // table T-037. A value that is received and never told satisfies neither.
+    const shown = noticesFromSession(sessionOf(SHELL_RAISED))
+
+    expect(shown.length).toBe(SHELL_RAISED.length)
+    expect(mannersOf(shown)).toEqual(['NT-1', 'NT-1', 'NT-3a'])
   })
 
-  it('leaves a LONE pending item as the one surface it already is', () => {
-    // NT-4 asks for 1 枚; with one pending item there is nothing to gather.
-    // ⚠️ Whether its own count would survive being rebuilt is a question the
-    // specification does not answer, so only the text, the manner and the next
-    // steps -- all of which NT-4 and NT-3a do fix -- are asserted.
-    const shown = noticesFromSession(sessionOf([PENDING_RECOVERY]))
+  it('answers with the shape its own public entry declares for every row', () => {
+    // `Notice` declares `text: string` and `nextSteps: readonly string[]` on
+    // the file table T-064 makes the contract. ⚠️ A member that comes back
+    // `undefined` is not a milder version of an empty one: every reader of a
+    // `Notice` is entitled to the declared type, and `tsc` cannot see a value
+    // that only exists at run time.
+    const shown = noticesFromSession(
+      sessionOf([...SHELL_RAISED, PENDING_RESTORE, WARNING, DESTRUCTIVE, AT_LIMIT]),
+    )
 
-    expect(shown.length).toBe(1)
-    const only = shown[0] as Notice
-    expect(only.manner).toBe(STARTUP_PENDING)
-    expect(only.text).toBe(PENDING_RECOVERY.text)
-    expect([...only.nextSteps].sort()).toEqual([...PENDING_RECOVERY.nextSteps].sort())
+    for (const notice of shown) {
+      expect(typeof notice.text, `${notice.manner}: text`).toBe('string')
+      expect(Array.isArray(notice.nextSteps), `${notice.manner}: nextSteps`).toBe(true)
+      for (const step of notice.nextSteps) expect(typeof step, notice.manner).toBe('string')
+    }
   })
 
-  it('leaves a lone pending item alone while other rows stand beside it', () => {
-    const shown = noticesFromSession(sessionOf([REFUSAL, PENDING_WATERMARK, AT_LIMIT]))
+  it('gives a refusal words to be read (NT-1 MUST; colour alone is forbidden)', () => {
+    // ⛔ RED ON PURPOSE. NT-1 (MUST) has the telling say WHICH item and WHY in
+    // words, and (MUST NOT) forbids colour or a border alone -- so an empty
+    // sentence keeps neither half.
+    // ⛔ AND THE KEY IS NOT THOSE WORDS. FR-038 (MUST) holds every word the
+    // screen prints in the per-language dictionary, and the case below proves
+    // that dictionary has nothing a reason can be looked up under -- so a text
+    // that is the caller's own key came from somewhere else. It is also the
+    // same string in both display languages, which is the one thing FR-038
+    // exists to prevent.
+    // ⛔ Do not soften either half to match what the unit returns: the words
+    // are owed by `docs/spec/_source/display-words.json`, and paying that debt
+    // is what turns this case green.
+    // ⭐ Driven by the copy of the table AND by the two sites the shell holds:
+    // the rows that owe words are the table's answer, and a refused write and a
+    // refused edit are two of them arriving for real.
+    const mustBeToldInWords = [
+      ...T_037.filter((row) => row.owesWords).map((row) =>
+        raisedOf(row.row, reasonKey(`owes-words/${row.row}`)),
+      ),
+      ...SHELL_RAISED.filter((raised) => raised.manner === 'NT-1'),
+    ]
 
-    expect(shown.length).toBe(3)
-    expect(shown.filter(isStartupPending).length).toBe(1)
-    expect(shown.map((notice) => notice.manner).sort()).toEqual(['NT-1', 'NT-4', 'NT-6'])
+    for (const raised of mustBeToldInWords) {
+      const told = noticesFromSession(sessionOf([raised]))[0] as Notice
+
+      expect(told.text.length, `${raised.manner} (MUST): told in words`).toBeGreaterThan(0)
+      expect(
+        told.text,
+        `${raised.manner}: FR-038 (MUST) puts the printed words in the dictionary, not in a key`,
+      ).not.toBe(raised.reason)
+    }
   })
 
-  it('keeps an empty next-step list empty', () => {
-    // ⛔ FR-038 puts no words anywhere this unit could reach, so a missing next
-    // step cannot be manufactured -- it may only stay missing.
-    const bare = noticeOf('NT-5', 'accepted, with a warning', [])
-    const shown = noticesFromSession(sessionOf([bare]))
+  it('gives every row that owes a next step one (NT-3a MUST; NT-6 follows it)', () => {
+    // ⛔ RED ON PURPOSE. NT-3a (MUST) has a failure carry what can be done next
+    // and (MUST NOT) forbids a telling that says only that something failed;
+    // NT-6 sends its own next step to that same row. Both are owed by the
+    // dictionary. ⛔ Do not soften this either.
+    for (const entry of T_037.filter((row) => row.owesNextStep)) {
+      const raised = raisedOf(entry.row, reasonKey(`owes-next-step/${entry.row}`))
+      const shown = noticesFromSession(sessionOf([raised]))
 
-    expect((shown[0] as Notice).nextSteps).toEqual([])
+      expect((shown[0] as Notice).nextSteps.length, `${entry.row} (MUST)`).toBeGreaterThan(0)
+    }
   })
 
-  it('gathers pending items that carry no next step at all into an empty list', () => {
-    const first = noticeOf(STARTUP_PENDING, 'the first pending item', [])
-    const second = noticeOf(STARTUP_PENDING, 'the second pending item', [])
-    const gathered = gatheredOf(noticesFromSession(sessionOf([first, second])))
+  it('prints no reason key on any surface, gathered or not (FR-038 MUST)', () => {
+    // ⛔ RED ON PURPOSE. FR-038 (MUST) keeps every word the screen prints in the
+    // per-language dictionary, and the case below proves that dictionary holds
+    // no entry a reason can be found under -- so a text still carrying the key
+    // is a word from nowhere. ⚠️ NT-4's one surface is where several of them
+    // land at once, which is why the gathered surface is walked here too.
+    const raised = [...SHELL_RAISED, DESTRUCTIVE, AT_LIMIT, PENDING_RESTORE, PENDING_RECOVERY]
+    const keysHandedIn = raised.map((one) => one.reason)
+    const shown = noticesFromSession(sessionOf(raised))
 
-    expect(gathered.nextSteps).toEqual([])
-    expect(gathered.text).toContain(first.text)
-    expect(gathered.text).toContain(second.text)
+    for (const notice of shown) {
+      for (const key of keysHandedIn) {
+        expect(notice.text, `${notice.manner} carries the key ${key}`).not.toContain(key)
+        for (const step of notice.nextSteps) {
+          expect(step, `${notice.manner} carries the key ${key} as a next step`).not.toContain(key)
+        }
+      }
+    }
+  })
+
+  it('still owes those words: the dictionary holds no entry a reason can be found under', () => {
+    // ⭐ THE TRIPWIRE FOR THE THREE RED CASES ABOVE. FR-038 (MUST) puts every word
+    // the screen prints in one dictionary and (MUST NOT) forbids a second, so
+    // UF-67 may not mint what is missing and this bench may not accept a minted
+    // word. This case names the debt so that the reds cannot be read as a fault
+    // of the unit -- and so that they cannot be forgotten: the day the
+    // manuscript grows an entry keyed by a reason, this case goes red and the
+    // two above are to be run again rather than rewritten.
+    const dictionary = JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
+        'utf8',
+      ),
+    ) as Record<string, unknown>
+    const sections = Object.entries(dictionary).filter(([, value]) => Array.isArray(value))
+    const keyedByReason = sections.filter(([, value]) =>
+      (value as readonly unknown[]).some(
+        (entry) => typeof entry === 'object' && entry !== null && 'reason' in entry,
+      ),
+    )
+
+    expect(keyedByReason.map(([name]) => name), 'FR-038: no section is keyed by a reason').toEqual(
+      [],
+    )
   })
 })
 
 describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
   it('rewrites none of what it was given', () => {
-    // R7.1 counts 引数の書き換え among the non-pure effects, and table T-075
-    // makes UF-67 `pure`.
-    const raised: Notice[] = [REFUSAL, PENDING_RESTORE, WARNING, PENDING_RECOVERY]
+    // R7.1 counts rewriting an argument among the non-pure effects, and table
+    // T-075 makes UF-67 `pure`.
+    const raised: RaisedNotice[] = [REFUSAL, PENDING_RESTORE, WARNING, PENDING_RECOVERY]
     const before = structuredClone(raised)
     const session = sessionOf(raised)
 
@@ -419,7 +538,7 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
     expect(session.notices).toEqual(before)
   })
 
-  it('answers the same session the same way twice (参照透過)', () => {
+  it('answers the same session the same way twice', () => {
     const session = sessionOf([REFUSAL, PENDING_RESTORE, DESTRUCTIVE, PENDING_AGENT_API])
 
     expect(noticesFromSession(session)).toEqual(noticesFromSession(session))
@@ -659,19 +778,14 @@ const shownFor = (
 
 const sessionAsking = (
   confirmation: RaisedConfirmation | null,
-  notices: readonly Notice[] = [],
+  notices: readonly RaisedNotice[] = [],
 ): ScreenSession => ({ ...sessionOf(notices), confirmation })
 
 /**
- * OP-11 of table T-024a as it reaches this unit: 受け付けたうえで注意を伝える
- * (NT-5), with 表 T-037 の NT-3 の件数 standing for 無視した残りの数.
+ * OP-11 of table T-024a as it reaches this unit -- accepted, with a warning
+ * (NT-5), carrying NT-3's count for what was left out of the hand-over.
  */
-const OP_11_TELLING = noticeOf(
-  'NT-5',
-  'the first file was opened; the rest of the hand-over was ignored',
-  ['hand the others over one at a time'],
-  2,
-)
+const OP_11_TELLING = raisedOf('NT-5', reasonKey('op-11/rest-of-hand-over-ignored'), 2)
 
 // ---------------------------------------------------------------------------
 // A dictionary this file BUILDS, and the way it is put in front of the unit.
@@ -766,6 +880,47 @@ async function shownWithMarkedDictionary(language: DisplayLanguage): Promise<Con
     const shown = fresh.confirmationFromSession({ ...sessionAsking(asked), language })
     expect(shown, 'a raised question came back as none').not.toBeNull()
     return shown as Confirmation
+  } finally {
+    vi.doUnmock(DISPLAY_WORDS_MODULE)
+    vi.resetModules()
+  }
+}
+
+/**
+ * The generated dictionary with every WORD replaced by a distinct mark, and
+ * every key left exactly as it stands.
+ *
+ * ⭐ A word is the `{ ja, en }` pair, which is the shape Chapter 6.2 generates
+ * for one; a `rowId`, an `answer` or a surface `name` is a key and is not
+ * touched, so the unit is handed the very joins it always gets.
+ * ⛔ NO WORD IS MINTED HERE, and no key is invented: what goes in is the row's
+ * own path spelled back, made to be told apart from the words on disk.
+ */
+function dictionaryOfMarksEverywhere(): unknown {
+  const isWordPair = (node: object): boolean => {
+    const keys = Object.keys(node)
+    return keys.length === 2 && keys.includes('ja') && keys.includes('en')
+  }
+  const walk = (node: unknown, path: string): unknown => {
+    if (Array.isArray(node)) return node.map((item, index) => walk(item, `${path}/${index}`))
+    if (typeof node !== 'object' || node === null) return node
+    if (isWordPair(node)) return { ja: `<ja${path}>`, en: `<en${path}>` }
+    return Object.fromEntries(
+      Object.entries(node).map(([key, value]) => [key, walk(value, `${path}/${key}`)]),
+    )
+  }
+  return walk(readJson('display-words.json'), '')
+}
+
+/** What UF-67 tells when the dictionary in front of it is that marked one. */
+async function noticesWithMarkedDictionary(
+  raised: readonly RaisedNotice[],
+): Promise<readonly Notice[]> {
+  vi.resetModules()
+  vi.doMock(DISPLAY_WORDS_MODULE, () => ({ default: dictionaryOfMarksEverywhere() }))
+  try {
+    const fresh = await import('../../src/adapter/screen-renderer/notices')
+    return fresh.noticesFromSession(sessionOf(raised))
   } finally {
     vi.doUnmock(DISPLAY_WORDS_MODULE)
     vi.resetModules()
@@ -1004,15 +1159,15 @@ describe('UF-67 -- 表 T-109: the answers the roster places on the `Confirmation
 
 describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
   it('GIVEN files were left out of a hand-over WHEN the telling is shown THEN it stands apart from NT-1 refusal (NT-5 MUST)', () => {
-    // OP-11:「先頭の 1 つだけを受け入れ、残りを無視したことを告げること
-    // （MUST）。作法は 表 T-037 の `NT-5`」／「受け付けなかったことにしては
-    // ならない（MUST NOT）」。
+    // OP-11 of table T-024a (MUST) takes the first file and tells that the rest
+    // were ignored, in NT-5's manner, and (MUST NOT) forbids showing that as
+    // not having been accepted -- one of them WAS opened.
     const shown = noticesFromSession(sessionOf([REFUSAL, OP_11_TELLING]))
 
     expect(shown).toHaveLength(2)
     expect(shown.map((notice) => notice.manner).sort()).toEqual(['NT-1', 'NT-5'])
     const told = shown.find((notice) => notice.manner === 'NT-5') as Notice
-    expect(told).toEqual(OP_11_TELLING)
+    expect(told.affectedCount, 'NT-3: the count OP-11 carries').toBe(OP_11_TELLING.affectedCount)
   })
 
   it('GIVEN the count of what was ignored WHEN the telling is shown THEN the count survives (NT-3)', () => {
@@ -1022,7 +1177,7 @@ describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
   })
 
   it('GIVEN nothing was left behind WHEN a count of zero is told THEN zero survives as zero, not as absent', () => {
-    const none = noticeOf('NT-5', 'the whole hand-over was accepted', ['carry on'], 0)
+    const none = raisedOf('NT-5', reasonKey('op-11/nothing-left-behind'), 0)
     const shown = noticesFromSession(sessionOf([none]))
 
     expect((shown[0] as Notice).affectedCount).toBe(0)
@@ -1032,9 +1187,11 @@ describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
     // Merging it would put it under another row's manner, and NT-5 (MUST) has
     // to stay tellable apart from NT-1's refusal.
     const shown = noticesFromSession(sessionOf([PENDING_RESTORE, OP_11_TELLING, PENDING_RECOVERY]))
+    const told = shown.filter((notice) => notice.manner === 'NT-5')
 
     expect(shown).toHaveLength(2)
-    expect(shown.filter((notice) => notice.manner === 'NT-5')).toEqual([OP_11_TELLING])
+    expect(told).toHaveLength(1)
+    expect((told[0] as Notice).affectedCount).toBe(OP_11_TELLING.affectedCount)
   })
 })
 
@@ -1057,5 +1214,26 @@ describe('UF-67 -- confirmationFromSession is @purity pure (table T-075, R7.1)',
     const session = sessionAsking(confirmationOf('that file would be written over', []), [REFUSAL])
 
     expect(confirmationFromSession(session)).toEqual(confirmationFromSession(session))
+  })
+})
+
+
+describe('UF-67 -- FR-038: the words are READ from the dictionary, never minted', () => {
+  it('answers differently when the dictionary is different, because that is where the words are', async () => {
+    // ⛔ RED ON PURPOSE, and the only case here that can tell a word READ
+    // from a word MINTED. FR-038 (MUST) holds every word the screen prints in
+    // the per-language dictionary and (MUST NOT) forbids a second store of
+    // them; so if one and the same session is answered identically with the
+    // generated dictionary and with one whose every word has been replaced,
+    // then no word of that answer came from a dictionary at all.
+    // ⚠️ It is red for the same one debt as the three above: the
+    // dictionary has no entry a reason can be found under, so replacing its
+    // words changes nothing. ⛔ Do not weaken it into a case that a unit
+    // writing its own sentence would pass -- that unit is exactly what FR-038
+    // forbids, and this is the case that names it.
+    const asGenerated = noticesFromSession(sessionOf(SHELL_RAISED)).map((one) => one.text)
+    const asMarked = (await noticesWithMarkedDictionary(SHELL_RAISED)).map((one) => one.text)
+
+    expect(asMarked, 'FR-038 (MUST): the words follow the dictionary').not.toEqual(asGenerated)
   })
 })

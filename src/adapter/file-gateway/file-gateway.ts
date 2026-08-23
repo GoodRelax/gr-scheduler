@@ -604,16 +604,14 @@ export async function saveDocumentFile(
       // destination is known and the bytes are still unwritten; the answer is
       // this side's, and `askToWriteOver` is the whole of the table.
       //
-      // STOP -- ⛔ NO STORE CALLS IT IN THIS BUILD, so DI-4's MUST is not being
-      // kept and the gap is on the far side of IF-3. `ChosenFileWrite` fixes
-      // the order the store owes -- point at the destination, read what is
-      // already there, ask, and write only on a `true` -- and PI-28 goes
-      // straight from the chooser to the write without the middle two. ⚠️ This
-      // side is complete: the question is offered on every chosen write, and a
-      // store that starts calling it needs no change here. ⛔ Do not answer it
-      // from this file instead: only the side that opened the destination can
-      // read what is standing in it, and reading it here would be the second
-      // external read R7.4 keeps out of one consistency unit.
+      // ⭐ PI-28 NOW WALKS ALL THREE STEPS `ChosenFileWrite` fixes -- point at
+      // the destination, read what is already standing there, ask, and write
+      // only on a `true`. ⚠️ It did not until 2026-08-23, and a contract case
+      // written from the specification is what proved DI-4's MUST was going
+      // unkept. ⛔ Do not answer the question from this file instead: only the
+      // side that opened the destination can read what is standing in it, and
+      // reading it here would be the second external read R7.4 keeps out of one
+      // consistency unit.
       askToWriteOver: (destination) => askToWriteOver(request, destination),
     }
     return savingOfWriting(await store.writeChosenFile(write))

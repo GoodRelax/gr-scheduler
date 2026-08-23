@@ -47,6 +47,20 @@
 // other surfaces still come back with the three members every surface has; the
 // STOP note in the body says what each of them would need, and what FR-099
 // asks for that even the widened type cannot hold.
+//
+// ⭐ THIS UNIT IS WHERE THE ROSTER OF SURFACES LIVES. `ScreenState` says so in
+// as many words on `OpenSurface`: S-99g carries the name and leaves which ones
+// there are to UF-66. So a surface table T-103 has settled a name for is named
+// below, and one it has not is carried through as it arrived.
+//
+// ⭐ TWO OF THEM NEED NO PAYLOAD AT ALL, and they are a pair: `Export Chooser`
+// (U-54) and `Open Chooser` (U-56). Everything each of them shows is entries,
+// which table T-109 places by its own 面 column, so `commandsOnSurface` below
+// already answers them in full and neither needs a member of its own.
+// ⚠️ U-56 is NOT a `Confirmation` (U-55) and its glossary row says so: NT-7 of
+// table T-037 makes that surface two answers by construction, and OP-3 of table
+// T-024a (MUST) is three. ⛔ So nothing here routes OP-3's question through
+// UF-67 -- a third entry on U-55 would break NT-7.
 
 import type { Assignment, Schedule, Task } from '../../entity/document-model/schedule/schedule'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
@@ -158,12 +172,21 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
 /**
  * The heading of one open surface, in the display language (FR-038).
  *
- * ⚠️ A SURFACE WITH NO HEADING IS NOT A FAULT HERE. The dictionary holds a
- * heading for each surface table T-103 has settled a name for, and the header of
- * this file records that FR-074's and FR-088's surfaces have no settled name --
- * so `ScreenState.surface` carries a spelling those rows cannot be keyed on, and
- * the stand-in answers. ⛔ Minting a name to key them on is the very thing that
+ * ⚠️ A SURFACE WITH NO SETTLED NAME IS NOT A FAULT HERE. The header of this file
+ * records that FR-074's and FR-088's surfaces have no row of table T-103 -- so
+ * `ScreenState.surface` carries a spelling nothing can be keyed on, and the
+ * stand-in answers. ⛔ Minting a name to key them on is the very thing that
  * header refuses.
+ *
+ * STOP -- ⛔ THE DICTIONARY HAS NO ROW FOR U-56 `Open Chooser`. Its `surfaces`
+ * section holds one entry per surface table T-103 had named when it was last
+ * generated, and U-56 is newer than that, so the surface OP-3 (MUST) makes a
+ * person choose on opens with no heading at all -- not an unsettled word, which
+ * is what PD-160 is about, but no cell to settle. ⚠️ Nothing here may key it on
+ * anything else: FR-038 (MUST) makes that dictionary the one store, and its
+ * manuscript is `_source/display-words.json`. ⛔ The generated file is not
+ * edited by hand (`npm run gen:check` fails on drift), so the row is owed by
+ * the manuscript and not by this unit.
  *
  * @provisional PD-160
  * @purity pure
@@ -177,12 +200,23 @@ function surfaceHeading(surface: string, language: DisplayLanguage): string {
 /**
  * One entry of table T-109 as it stands on an open surface.
  *
- * `isEnabled` is true for every entry this unit emits: both of them -- closing
- * the surface (IC-52) and choosing the display language (IC-21) -- can always
- * be done while the surface is up, so FR-029's faint-and-explained state never
- * applies to them. `isPressed` is false for the same reason it is not read: an
- * open surface has nothing that stays pressed. ⚠️ The language entry is the
- * exception the note above describes, not a case handled here.
+ * `isEnabled` is true for every entry this unit emits. Closing the surface
+ * (IC-52) and choosing the display language (IC-21) can always be done while
+ * the surface is up, so FR-029's faint-and-explained state never applies to
+ * them; and OP-3 of table T-024a (MUST NOT) forbids GRS settling the three-way
+ * choice by itself, which an entry a person cannot press would be one half of.
+ * `isPressed` is false because an open surface has nothing that stays pressed.
+ * ⚠️ The language entry is the exception the note above describes, not a case
+ * handled here.
+ *
+ * STOP -- ⛔ NOT REACHABLE FROM THESE ARGUMENTS: whether IC-63 .. IC-68 may be
+ * pressed. Table T-109 places FR-099's six on U-49, and FR-029 (MUST) asks an
+ * entry that cannot be used now to be faint AND to say why -- but whether one
+ * of the six can be used now is a judgement about an operation, and the STOP
+ * note in the body of this file says that no member of `RosterResource` and no
+ * argument here carries the state those six read. Searched: FR-029, FR-099,
+ * table T-108 (CM-42, CM-43) and table T-109. ⚠️ True is what this unit printed
+ * before those rows existed, so this note moves nothing on the screen.
  *
  * @purity pure
  */
@@ -326,10 +360,20 @@ function rosterResourcesOf(schedule: Schedule, session: ScreenSession): readonly
  * entries table T-109 places on that surface, plus the display-language entry
  * FR-038 (MUST) puts inside the help.
  *
- * ⚠️ Every surface but the two U-30 names comes back with no commands at all,
- * and that is what the specification says rather than an omission: table T-109
- * places IC-52 on those two and FR-029 forbids minting a row for the rest. Esc
- * still closes them (IN-4 of table T-028), so none of them traps a reader.
+ * ⚠️ A surface table T-103 has NOT named comes back with no commands at all, and
+ * that is what the specification says rather than an omission: FR-029 (MUST)
+ * makes table T-109's surface column the whole of the placement and forbids
+ * minting a row, and a name that table cannot spell is a name nothing can be
+ * placed on. Esc still closes them (IN-4 of table T-028), so none of them traps
+ * a reader.
+ *
+ * ⭐ U-56 `Open Chooser` NEEDS NO BRANCH OF ITS OWN, and neither does U-54
+ * `Export Chooser`: table T-109 places IC-71 / IC-72 / IC-73 on the first and
+ * IC-52 on the second, so reading the generated roster IS drawing them, and
+ * OP-3 of table T-024a asks for nothing on that surface but the three.
+ * ⛔ It is the one named surface table T-109 places no IC-52 on, so the first
+ * level of Esc is its only way out that is not an answer -- which is what OP-3
+ * (MUST NOT) wants, GRS settling none of the three by itself.
  *
  * ⭐ The `Resource Roster` (U-49) also carries what FR-099 shows on it. It is
  * the only one of the five that does; the STOP note below says why.
@@ -375,10 +419,10 @@ export function openModalFromScreenState(
 
   // STOP -- ⛔ NOT MODELLED, AND THIS UNIT MAY NOT ADD IT: what the four other
   // surfaces show. `OpenModal` declares a payload for each of them, and
-  // `screen-renderer.ts` (which siblings are writing, so it is not edited from
-  // here) is where they stand; none is filled here, so a description of one of
-  // them lands in the union's catch-all member. Each line below is what a
-  // requirement asks for and what would have to exist before it could be built:
+  // `screen-renderer.ts` is where they stand; none is filled here, so a
+  // description of one of them lands in the union's catch-all member. Each line
+  // below is what a requirement asks for and what would have to exist before it
+  // could be built:
   //   FR-036, `Help Modal` (U-30): the whole of tables T-023a / T-023b /
   //     T-023c / T-023d / T-023 / T-036 and every command palette entry (MUST),
   //     laid out to need no scrolling at table T-025's MC-6. FR-069 adds the
@@ -394,18 +438,19 @@ export function openModalFromScreenState(
   //     document, and nothing in this component resolves one.
   //   FR-068, `AI Export Modal` (U-30): the document that would be handed to an
   //     AI, which is built outside this component and does not arrive here.
-  // ⛔ WHAT FR-099 STILL ASKS FOR AND NO MEMBER CAN HOLD: its four operations --
-  // select all, clear the selection, delete the resources no assignment refers
-  // to (CM-43 of table T-108), delete the selected ones (CM-42) -- and the
-  // command palette entry FR-099 fixes as the way in (MUST). None can be a
-  // `CommandItem`: table T-109 is the whole of the icons (FR-029, MUST) and
-  // holds no row for any of the five, so emitting one would mint an icon. The
-  // same holds for FR-068's copy control. ⚠️ The confirmation FR-099 requires
-  // before a deletion has no member either; table T-037 has no row for asking,
-  // only for telling. ⭐ The task names that confirmation must show ARE carried,
-  // on each roster entry, which is the half of that MUST NOT this unit can meet.
-  // Searched: the requirements listed above, tables T-037 / T-103 / T-108 /
-  // T-109 / T-224, and `screen-renderer.ts`.
+  // ⭐ WHAT FR-099 ASKS FOR NOW HAS ENTRIES, and they arrive by the road every
+  // other entry does: table T-109 places IC-63 .. IC-68 on U-49 and IC-62 in
+  // the `Command Palette`, so `commandsOnSurface` above emits the six without
+  // this file naming one. ⛔ So none of them is minted here, and the note that
+  // said they could not exist is gone because the rows now do.
+  // ⚠️ FR-068's copy control is still owed one: table T-109 places nothing but
+  // IC-52 on the `AI Export Modal`, and FR-029 (MUST) forbids minting a row.
+  // ⚠️ The confirmation FR-099 requires before a deletion is NT-7 of table
+  // T-037 and U-55 of table T-103, which are UF-67's; ⭐ the task names it must
+  // show ARE carried here, on each roster entry, which is this unit's half of
+  // that MUST. ⛔ What is still missing is the raiser, which `notices.ts`
+  // records. Searched: the requirements listed above, tables T-037 / T-103 /
+  // T-108 / T-109 / T-224, `icon-roster.json` and `screen-renderer.ts`.
 
   return { surface, heading, commands }
 }

@@ -264,39 +264,86 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'zoomY': 1,
 }
 
+/** One piece of a bound stated as an expression, in postfix order. */
+export type SettingsBoundToken =
+  | { readonly key: string }
+  | { readonly num: number }
+  | { readonly op: '+' | '-' | '*' | '/' }
+
+/** What the lower- and upper-bound columns of one settings row state. */
+export interface SettingsBound {
+  /** A floor the value may sit on. */
+  readonly min?: number
+  /** A ceiling the value may sit on. */
+  readonly max?: number
+  /** A floor the value must stay ABOVE. Never equal to it. */
+  readonly exclusiveMin?: number
+  /** A ceiling the value must stay BELOW. Never equal to it. */
+  readonly exclusiveMax?: number
+  /** A floor stated over other keys, which IV-16 judges. */
+  readonly minExpression?: readonly SettingsBoundToken[]
+  /** A ceiling stated over other keys, which IV-16 judges. */
+  readonly maxExpression?: readonly SettingsBoundToken[]
+}
+
 /**
- * The bounds tbl-settings.md states for one key on its own.
- * A bound written as another key rather than a number is NOT here: those
- * hold BETWEEN two keys -- FR-052 is the one with a rule of its own -- and
- * no per-key clamp can decide them.
+ * The bounds the settings manuscript states for each key.
+ *
+ * ⚠️ An open bound is kept APART from a closed one rather than written
+ * into the same field. A reader that clamps has no value to clamp an open
+ * bound to -- the nearest allowed number does not exist -- so folding the
+ * two together would quietly turn a bound the manuscript marks open into
+ * one a value is allowed to sit on.
+ *
+ * ⭐ A bound that names ANOTHER key is here as its expression, in postfix
+ * order. It holds BETWEEN keys, so no per-key clamp can decide it; IV-16
+ * of table T-220 is what judges it, and it needs the whole document.
  */
-export const SETTINGS_BOUNDS: Readonly<
-  Record<string, { readonly min?: number; readonly max?: number }>
-> = {
+export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'actualGap': { min: 0, max: 20 },
   'actualInitialDuration': { min: 0, max: 1 },
-  'actualMin': { max: 80 },
-  'actualOfPlan': { min: 0.05 },
+  'actualMin': {
+    max: 80,
+    minExpression: [{ key: 'fontMin' }, { key: 'fontOfActual' }, { op: '/' }],
+  },
+  'actualOfPlan': { min: 0.05, exclusiveMax: 1 },
   'appHeaderMaxHeight': { min: 32, max: 96 },
   'arrowHeadOfSpan': { min: 0.1, max: 1 },
   'arrowHeadOfStroke': { min: 1.5, max: 8 },
   'autosaveIdleMs': { min: 300, max: 10000 },
-  'basePlanHeight': { max: 200 },
+  'basePlanHeight': {
+    max: 200,
+    minExpression: [{ key: 'actualMin' }, { key: 'actualOfPlan' }, { op: '/' }],
+  },
   'canvasPadding': { min: 0, max: 60 },
   'carryMaxDepth': { min: 4, max: 64 },
   'chevronNotchOfHeight': { min: 0.05, max: 1 },
   'chevronNotchOfWidth': { min: 0.05, max: 0.5 },
-  'dependencyArrowLength': { max: 40 },
-  'dependencyRunOfArrow': { max: 6 },
-  'dependencyWidth': { min: 0.5 },
+  'dependencyArrowLength': {
+    max: 40,
+    minExpression: [{ key: 'dependencyWidth' }, { num: 2 }, { op: '*' }],
+  },
+  'dependencyRunOfArrow': { exclusiveMin: 1, max: 6 },
+  'dependencyWidth': {
+    min: 0.5,
+    maxExpression: [{ key: 'stackGap' }, { num: 2 }, { op: '/' }],
+  },
   'dummyOpacity': { min: 0.05, max: 0.5 },
   'fadeHandleHalfPx': { min: 3, max: 8 },
   'fadeHandleStrokePx': { min: 1, max: 3 },
   'fontMin': { min: 12, max: 40 },
-  'fontOfActual': { min: 0.05 },
-  'fontScaleSizes.L': { max: 40 },
+  'fontOfActual': { min: 0.05, exclusiveMax: 1 },
+  'fontScaleSizes.L': { max: 40, minExpression: [{ key: 'fontScaleSizes.M' }] },
+  'fontScaleSizes.M': {
+    minExpression: [{ key: 'fontScaleSizes.S' }],
+    maxExpression: [{ key: 'fontScaleSizes.L' }],
+  },
+  'fontScaleSizes.S': {
+    minExpression: [{ key: 'fontMin' }],
+    maxExpression: [{ key: 'fontScaleSizes.M' }],
+  },
   'groupLevelOfDetailBase': { min: 0.01, max: 2 },
-  'groupLevelOfDetailRatio': { max: 4 },
+  'groupLevelOfDetailRatio': { exclusiveMin: 1, max: 4 },
   'iconHintDelayMs': { min: 500, max: 10000 },
   'importMaxBytes': { min: 1, max: 256 },
   'importMaxDepth': { min: 8, max: 256 },
@@ -307,43 +354,74 @@ export const SETTINGS_BOUNDS: Readonly<
   'labelHaloOfFont': { min: 0, max: 0.3 },
   'labelPad': { min: 0, max: 30 },
   'markerGap': { min: 4, max: 4 },
+  'markerSize': {
+    minExpression: [{ key: 'fontMin' }],
+    maxExpression: [{ key: 'actualMin' }],
+  },
   'markerStroke': { min: 0.5, max: 4 },
   'maxGroupDepth': { min: 3, max: 8 },
   'milestoneActualDuration': { min: 0, max: 0 },
   'minShapeWidth': { min: 1, max: 20 },
+  'pinnedGroupIds': { maxExpression: [{ key: 'pinnedRowMax' }] },
   'planActualGuideWeight': { min: 0.5, max: 2 },
   'planStroke': { min: 0, max: 4 },
   'progressLineOverhang': { min: 0, max: 40 },
   'progressLineWidth': { min: 0.5, max: 8 },
   'pxPerDayAt1x': { min: 0.5, max: 60 },
-  'resumeArmOfMarker': { min: 0.2 },
+  'resumeArmOfMarker': {
+    min: 0.2,
+    maxExpression: [{ num: 1 }, { key: 'resumeHeadOfMarker' }, { op: '-' }],
+  },
   'resumeDashOff': { min: 1, max: 12 },
   'resumeDashOn': { min: 1, max: 12 },
   'resumeHeadOfMarker': { min: 0.05, max: 0.5 },
   'resumeScaleInvalid': { min: 0.3, max: 1 },
   'rowGap': { min: 0, max: 60 },
-  'rowTitleFont': { max: 40 },
+  'rowTitleFont': { max: 40, minExpression: [{ key: 'fontMin' }] },
   'rowTitleIndent': { min: 0, max: 60 },
+  'rowTitlePanelWidth': {
+    minExpression: [{ key: 'rowTitleIndent' }, { key: 'maxGroupDepth' }, { op: '*' }],
+  },
   'rowTitleTopScale': { min: 1, max: 2 },
-  'rulerHeight': { max: 150 },
+  'rulerFont': {
+    minExpression: [{ key: 'fontMin' }],
+    maxExpression: [{ key: 'rulerHeight' }, { key: 'rulerLabelPad' }, { num: 3 }, { op: '*' }, { op: '-' }, { num: 3 }, { op: '/' }],
+  },
+  'rulerHeight': {
+    max: 150,
+    minExpression: [{ key: 'rulerFont' }, { num: 3 }, { op: '*' }, { key: 'rulerLabelPad' }, { num: 3 }, { op: '*' }, { op: '+' }],
+  },
   'rulerLabelGap': { min: 0, max: 30 },
   'rulerLabelPad': { min: 0, max: 20 },
-  'rulerTierPxPerDayDay': { max: 60 },
-  'rulerTierPxPerDayMonth': { min: 0.1 },
-  'shapeHeightOf.arrow': { min: 0.1 },
+  'rulerTierPxPerDayDay': { max: 60, minExpression: [{ key: 'rulerTierPxPerDayWeek' }] },
+  'rulerTierPxPerDayMonth': { min: 0.1, maxExpression: [{ key: 'rulerTierPxPerDayWeek' }] },
+  'rulerTierPxPerDayWeek': {
+    minExpression: [{ key: 'rulerTierPxPerDayMonth' }],
+    maxExpression: [{ key: 'rulerTierPxPerDayDay' }],
+  },
+  'shapeHeightOf.arrow': { min: 0.1, exclusiveMax: 1 },
   'shapeHeightOf.chevron': { min: 0.2, max: 3 },
-  'shapeHeightOf.endpointSpan': { min: 0.1 },
-  'shapeHeightOf.milestone': { max: 4 },
+  'shapeHeightOf.endpointSpan': { min: 0.1, exclusiveMax: 1 },
+  'shapeHeightOf.milestone': { exclusiveMin: 1, max: 4 },
   'shapeHeightOf.rectangle': { min: 1, max: 1 },
   'spanDotOfStroke': { min: 0.5, max: 4 },
-  'stackGap': { max: 60 },
+  'stackGap': {
+    max: 60,
+    minExpression: [{ key: 'dependencyWidth' }, { num: 2 }, { op: '*' }],
+  },
   'starInnerOfOuter': { min: 0.2, max: 0.8 },
-  'taskLevelOfDetailReadablePx': { max: 200 },
+  'taskLevelOfDetailReadablePx': { max: 200, minExpression: [{ key: 'fontMin' }] },
   'thinFontScale': { min: 0.3, max: 1 },
-  'thinStrokeMax': { max: 20 },
-  'thinStrokeMin': { min: 0.5 },
+  'thinStrokeMax': { max: 20, minExpression: [{ key: 'thinStrokeMin' }] },
+  'thinStrokeMin': { min: 0.5, maxExpression: [{ key: 'thinStrokeMax' }] },
   'thinStrokeOfPlan': { min: 0.05, max: 0.6 },
   'truncateUnits': { min: 4, max: 120 },
+  // ⛔ A bound that names a key the presentation group does
+  // not hold, so IV-16 cannot judge it on a document alone:
+  //   zoomX (S-75) min names zoomMin
+  //   zoomX (S-75) max names zoomMax
+  //   zoomY (S-76) min names zoomMin
+  //   zoomY (S-76) max names zoomMax
 }
 
 /**
@@ -374,6 +452,8 @@ export const SETTINGS_DERIVED = {
   'rulerHeight': { from: 'rulerFont', times: 3, plus: 0, plusFrom: 'rulerLabelPad', plusTimes: 3 },
 } as const
 // </generated>
+
+
 
 /** One value that had to be moved to get inside the bounds. */
 export interface ClampedValue {

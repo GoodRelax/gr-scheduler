@@ -68,6 +68,7 @@
 
 import type {
   ChosenFileWrite,
+  ChosenWriteDestination,
   FileReading,
   FileStore,
   FileStoreFault,
@@ -189,9 +190,9 @@ export interface FileSystemAccessEnvironment {
 
 // ------------------------------------------------------------------ pure ----
 //
-// R7.7's order: everything down to `firstDroppedFile` is `pure`, the two
-// permission readers after it are not, and the factory at the bottom is where
-// the state lives.
+// R7.7's order: everything down to `firstDroppedFile` is `pure`, the three
+// readers after it are not, and the factory at the bottom is where the state
+// lives.
 
 /** @purity pure */
 function fault(reason: FileStoreFaultReason, what: string): FileStoreFault {
@@ -251,13 +252,35 @@ function openedStateOf(fileName: string, permission: FilePermissionState): Opene
 }
 
 /**
+ * How many of the things dropped were offered as files at all.
+ *
+ * ⭐ Counted while the drop is being handled rather than when somebody asks
+ * for the file, for the same reason the file itself is taken there -- see
+ * `takeDroppedFile`. What OP-11 of table T-024a puts a MUST on telling cannot
+ * be worked out once the drop is over.
+ *
+ * ⚠️ Only the ones the browser calls files. A drag carries other kinds
+ * beside them, and something never offered as a file was not left behind.
+ *
+ * @purity pure
+ */
+function countDroppedFiles(items: DroppedItems): number {
+  let count = 0
+  for (let index = 0; index < items.length; index += 1) {
+    if (items[index]?.kind === 'file') count += 1
+  }
+  return count
+}
+
+/**
  * The first file among the things dropped, or none. ⚠️ A folder is one of
  * these as far as the browser is concerned -- see `readDroppedFile`.
  *
  * ⛔ The rest are ignored rather than opened. OP-3 of table T-024a asks the
  * person one question about one read content and OP-8 forbids a second open
- * while one is running, so five files dropped at once are not five opens, and
- * there is no row that says which of them would win.
+ * while one is running, so five files dropped at once are not five opens.
+ * OP-11 is the row that settles which of them wins, and it is also why the
+ * others are counted rather than merely passed over -- see `countDroppedFiles`.
  *
  * @purity pure
  */
@@ -313,6 +336,39 @@ async function readWritePermission(handle: FileHandle): Promise<FilePermissionSt
 async function readOpenedState(handle: FileHandle | null): Promise<OpenedFileState> {
   if (handle === null) return { kind: 'none' }
   return openedStateOf(handle.name, await readWritePermission(handle))
+}
+
+/**
+ * What is standing where a chosen write is about to land.
+ *
+ * ⭐ Read here and nowhere else, because only the side that opened the
+ * destination can look into it. FR-096 sends what is standing there to table
+ * T-227, and CS-4 of table T-066 makes this ONE reading the whole of what the
+ * question is afterwards answered about -- see `writeChosenFile`.
+ *
+ * ⚠️ The name comes off the file that was read, not off the name that was
+ * suggested to the chooser: DI-1 of table T-227 compares the name of the file
+ * being written over, and the person may have overruled the suggestion.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how a store is to tell a
+ * place nothing ever occupied from a file that was standing there holding
+ * nothing. A save chooser CREATES the file it names, so both hand back zero
+ * bytes and the browser offers nothing else to tell them apart. Looked in
+ * table T-227 (DI-3 turns on the destination already being there and rules on
+ * nothing else), in FR-096, in table T-024a and in table T-024. ⚠️ Fell to
+ * `empty`, because FR-096 sends only a file that is already there to table
+ * T-227 at all -- but the choice is this file's, not the specification's.
+ * ⛔ The seam declaration `adapter/file-gateway/file-store.ts` records the
+ * OPPOSITE choice in its own STOP note on `ChosenWriteDestination`. The two
+ * cannot both stand, and which of them goes is not this file's to settle.
+ *
+ * @purity semi-pure-b
+ */
+async function readWriteDestination(handle: FileHandle): Promise<ChosenWriteDestination> {
+  const file = await handle.getFile()
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  if (bytes.byteLength === 0) return { kind: 'empty' }
+  return { kind: 'occupied', fileName: file.name, bytes }
 }
 
 // -------------------------------------------------------------- non-pure ----
@@ -410,7 +466,7 @@ export function fileSystemAccessFileStore(
   /**
    * What the last drop left, waiting to be asked for.
    *
-   * ⚠️ Both parts are taken while the drop event is being handled, because
+   * ⚠️ All three are taken while the drop event is being handled, because
    * that is the only moment they exist. The handle is a promise on purpose:
    * `getAsFileSystemHandle` must be CALLED during the event but may be awaited
    * afterwards.
@@ -418,6 +474,8 @@ export function fileSystemAccessFileStore(
   let droppedFile: {
     readonly file: ReadableFile | null
     readonly handle: Promise<DroppedHandle | null> | null
+    /** OP-11 of table T-024a: how many arrived together and were not taken. */
+    readonly ignoredFileCount: number
   } | null = null
 
   /**
@@ -476,7 +534,13 @@ export function fileSystemAccessFileStore(
     const item = firstDroppedFile(transfer.items)
     if (item === null) return
     const handle = item.getAsFileSystemHandle?.().catch(() => null) ?? null
-    droppedFile = { file: item.getAsFile(), handle }
+    droppedFile = {
+      file: item.getAsFile(),
+      handle,
+      // OP-11 of table T-024a: the one kept is the first, so every other file
+      // in the same hand-over is one that was left.
+      ignoredFileCount: countDroppedFiles(transfer.items) - 1,
+    }
   }
 
   // ⭐ The capture phase, so that the file is already taken by the time
@@ -579,7 +643,14 @@ export function fileSystemAccessFileStore(
       }
       const bytes = new Uint8Array(await file.arrayBuffer())
       openedHandle = handle
-      return { ok: true, file: { bytes, fileName: file.name } }
+      const opened = { bytes, fileName: file.name }
+      // OP-11 of table T-024a (MUST): what was left behind is told, and its
+      // MUST NOT keeps this a success -- one file IS open, so the count rides
+      // beside it rather than turning the act into a refusal. ⛔ Omitted
+      // rather than sent as a zero: `FileReading` gives the absence exactly
+      // that meaning, and a drop that left nothing has nothing to tell.
+      if (drop.ignoredFileCount === 0) return { ok: true, file: opened }
+      return { ok: true, file: opened, ignoredFileCount: drop.ignoredFileCount }
     } catch (thrown) {
       return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
     }
@@ -723,6 +794,13 @@ export function fileSystemAccessFileStore(
      * `file-gateway.ts` decides it from table T-024's direction column, and
      * this side must not second-guess it.
      *
+     * ⛔ NEITHER DOES THIS SIDE JUDGE THE DESTINATION. Whether what is
+     * standing there is this same document is DI-1 .. DI-3 of table T-227 and
+     * belongs to the near side; all this member owes is the chance to answer,
+     * at the one moment when the destination and the unwritten bytes both
+     * exist. R7.4's consistency unit is this one call, and CS-4 of table
+     * T-066 is why the destination is read once and not looked at again.
+     *
      * @purity non-pure
      */
     async writeChosenFile(write: ChosenFileWrite): Promise<FileWriting> {
@@ -736,13 +814,49 @@ export function fileSystemAccessFileStore(
       if (isBusy) return { ok: false, fault: busyFault() }
       isBusy = true
       try {
-        const handle = await picker({ suggestedName: write.suggestedFileName })
+        let handle: FileHandle
+        try {
+          handle = await picker({ suggestedName: write.suggestedFileName })
+        } catch (thrown) {
+          if (isDismissal(thrown)) {
+            return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
+          }
+          // ⚠️ A refused gesture lands here with nothing remembered to call
+          // `permissionLost` about. See PD-102.
+          return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
+        }
+
+        // ⭐ THE ORDER IS THE RULE. IF-3 fixes it and table T-227 has no
+        // meaning in any other: the person points at the destination, what is
+        // standing there is read, the question is put, and only a `true`
+        // reaches the write. ⛔ No step may be skipped -- DI-4's MUST cannot
+        // be kept by the near side alone, and going straight from the chooser
+        // to the write is what leaves it unkept.
+        let mayWriteOver: boolean
+        try {
+          const destination = await readWriteDestination(handle)
+          mayWriteOver = await write.askToWriteOver(destination)
+        } catch (thrown) {
+          // ⚠️ A destination nobody could look into is not written over. The
+          // other way out is overwriting a file whose owner was never read,
+          // and DI-2's reasoning turns exactly on that being unrecoverable
+          // while one more question is not. NT-1 wants the name, so it is here.
+          return {
+            ok: false,
+            fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`),
+          }
+        }
+        if (!mayWriteOver) {
+          // ⚠️ `cancelled`, not a failure: the person called the write off,
+          // as they may close the chooser, and IF-3 keeps that reason apart so
+          // that nothing is told to somebody who is owed nothing.
+          return {
+            ok: false,
+            fault: fault('cancelled', `${handle.name}: the overwrite was not agreed to`),
+          }
+        }
+
         return await saveToFile(handle, write.bytes, write.shouldBecomeOpenedFile)
-      } catch (thrown) {
-        if (isDismissal(thrown)) return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
-        // ⚠️ A refused gesture lands here with nothing remembered to call
-        // `permissionLost` about. See PD-102.
-        return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
       } finally {
         isBusy = false
       }

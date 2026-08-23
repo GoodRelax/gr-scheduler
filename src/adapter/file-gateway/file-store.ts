@@ -174,10 +174,14 @@ export type FileWriting =
  * the destination "already being there" and rules on nothing else), in FR-096,
  * in table T-024a (OP-1 .. OP-11 are all about the way IN), and in table T-024.
  * ⚠️ The case is real, not hypothetical: a chooser that creates the file it
- * names hands back the same zero bytes either way. Chose `occupied`, which is
- * the side every other row of this table falls to -- an extra question costs one
- * gesture and a file overwritten in silence cannot be got back -- but the
- * choice is this file's, not the specification's.
+ * names hands back the same zero bytes either way. ⭐ `empty` is the side it
+ * falls to, and PI-28 reports it that way. ⚠️ THE OTHER SIDE WAS TRIED FIRST and
+ * this note used to record it: `occupied` looks safer -- an extra question costs
+ * one gesture and a file overwritten in silence cannot be got back -- but it
+ * makes the gateway judge a file the chooser has just created against the
+ * document being saved, and ask about a destination where nothing was standing.
+ * ⛔ The choice is still this file's and not the specification's; a row saying
+ * which side it falls to would let this note go.
  */
 export type ChosenWriteDestination =
   /** Nothing was there before this write. Table T-227 has no question to ask. */

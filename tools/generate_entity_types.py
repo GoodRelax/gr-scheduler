@@ -160,6 +160,236 @@ def date_columns_block(erd):
     return '\n'.join(out)
 
 
+# The marks the 鍵の欄 of table T-058 puts on a column. ⚠️ Written as a
+# MAPPING of every mark this generator understands, so that a mark the
+# manuscript grows raises key_marks() below instead of dropping the column out
+# of both rosters in silence -- which is how IV-1 and IV-2 would quietly stop
+# judging a whole entity.
+KEY_MARK_IS_PRIMARY = {'': False, 'PK': True, 'FK': False, 'PK/FK': True}
+KEY_MARK_IS_FOREIGN = {'': False, 'PK': False, 'FK': True, 'PK/FK': True}
+
+
+def key_marks(erd):
+    """Which columns the key column of table T-058 makes a key, by entity.
+
+    ⛔ An unknown mark is an error, not a shrug: IV-1 and IV-2 reach their
+    columns through this roster and nothing else would say a column had gone
+    missing from it.
+    """
+    primary, foreign = {}, {}
+    for entity in erd['entities']:
+        got_primary, got_foreign = [], []
+        for column in entity['columns']:
+            mark = column.get('key', '')
+            if mark not in KEY_MARK_IS_PRIMARY:
+                raise SystemExit(
+                    'erd.json marks %s.%s with %r, which this generator does '
+                    'not know. Add it to KEY_MARK_IS_PRIMARY and '
+                    'KEY_MARK_IS_FOREIGN.' % (entity['name'], column['name'], mark))
+            if KEY_MARK_IS_PRIMARY[mark]:
+                got_primary.append(column['name'])
+            if KEY_MARK_IS_FOREIGN[mark]:
+                got_foreign.append(column['name'])
+        primary[entity['name']] = got_primary
+        foreign[entity['name']] = got_foreign
+    return primary, foreign
+
+
+def reference_targets(erd):
+    """Where each foreign key lands, from the relations of table T-057.
+
+    ⭐ A relation states the column that holds the reference and the column it
+    lands on, so the target is read rather than guessed from the spelling of
+    the column. A relation that holds no column at all says so with a
+    `noReference` note, and is passed over here.
+    """
+    out = {}
+    for relation in erd['relations']:
+        column = relation.get('fromColumn')
+        if column is None:
+            if 'noReference' not in relation:
+                raise SystemExit(
+                    'erd.json relates %s to %s with no fromColumn and no '
+                    'noReference note, so this generator cannot tell a missing '
+                    'column from one that does not exist'
+                    % (relation['parent'], relation['child']))
+            continue
+        seat = (relation['parent'], column)
+        if seat in out:
+            raise SystemExit(
+                'erd.json gives %s.%s two relations, so IV-2 would have two '
+                'answers for one column' % seat)
+        out[seat] = (relation['child'], relation['toColumn'])
+    return out
+
+
+def foreign_key_block_rows(erd, foreign, primary):
+    """One (entity, column, child, toColumn) per foreign key, cross-checked.
+
+    ⭐ Two independent halves of the manuscript have to agree: the key column
+    of table T-058 says WHICH columns hold a reference, and the relations of
+    table T-057 say where each lands. A column marked in one and absent from
+    the other is a hole in IV-2, so it is an error here rather than a row the
+    walk never reaches.
+    """
+    targets = reference_targets(erd)
+    columns = {e['name']: set(c['name'] for c in e['columns'])
+               for e in erd['entities']}
+    out = {}
+    for entity in erd['entities']:
+        got = []
+        for column in foreign[entity['name']]:
+            seat = (entity['name'], column)
+            if seat not in targets:
+                raise SystemExit(
+                    'table T-058 marks %s.%s a foreign key but no relation of '
+                    'table T-057 carries it, so IV-2 has nowhere to land it'
+                    % seat)
+            child, to_column = targets[seat]
+            if to_column not in columns.get(child, ()):
+                raise SystemExit(
+                    'erd.json lands %s.%s on %s.%s, which is not a column of '
+                    'that entity' % (entity['name'], column, child, to_column))
+            if to_column not in primary[child]:
+                raise SystemExit(
+                    'erd.json lands %s.%s on %s.%s, which the key column of '
+                    'table T-058 does not make a primary key'
+                    % (entity['name'], column, child, to_column))
+            got.append((column, child, to_column))
+        out[entity['name']] = got
+    for seat in targets:
+        if seat[1] not in foreign.get(seat[0], ()):
+            raise SystemExit(
+                'a relation of table T-057 carries %s.%s but the key column of '
+                'table T-058 does not mark it a foreign key' % seat)
+    return out
+
+
+def nested_rows(entity):
+    """The columns of one row that hold rows of another entity.
+
+    ⭐ Read off the same "json" key the interfaces above are written from: a
+    column holding an array of a named entity IS where those rows sit. IV-1
+    judges each such array on its own and IV-2 looks a reference up across all
+    of them, and neither can reach a row it cannot walk to.
+    """
+    got = []
+    for column in entity['columns']:
+        spec = column['json']
+        if spec.get('kind') == 'array' and spec.get('of', {}).get('kind') == 'ref':
+            got.append((column['name'], spec['of']['entity']))
+    return got
+
+
+ENTITY_ROWS_NOTE = [
+    '/**',
+    ' * Where the schedule group puts the rows of each entity, and what the key',
+    ' * column of table T-058 and the relations of table T-057 say about them.',
+    ' *',
+    ' * ⭐ IV-1 and IV-2 reach their columns by pointing at those two columns of',
+    ' * the manuscript rather than by naming them, and the closing remark of',
+    ' * table T-220 refuses to list the columns for exactly that reason. So this',
+    ' * is the roster, generated the way DATE_COLUMNS is, and not a second copy',
+    ' * of it that would go stale the moment a column is added (F-3).',
+    ' *',
+    ' * ⚠️ The entity and column names are strings and not `keyof`, because the',
+    ' * walk that reads them is driven by the roster itself. What keeps them',
+    ' * honest is the manuscript: every name below is spelled by erd.json, and',
+    ' * the generator refuses to write a foreign key whose target is not a',
+    ' * column of the entity it lands on.',
+    ' */',
+]
+
+
+def holds_many(shape):
+    """Whether one row of the container box holds an array or a single row.
+
+    ⚠️ A Japanese literal, and the one exception rule 03 section 5 names: the
+    shape column of the container is written in Japanese and something has to
+    read it. It is read HERE and nowhere else, so the word sits in one place --
+    the `Schedule` interface and the roster below both ask this.
+    """
+    return shape == '配列'
+
+
+def ts_array_field(name, members, indent=4):
+    """One array field of a roster entry, broken up when the line grows long."""
+    pad = ' ' * indent
+    one_line = '%s%s: [%s],' % (pad, name, ', '.join(members))
+    if len(one_line) <= 92:
+        return [one_line]
+    return ([('%s%s: [' % (pad, name))]
+            + ['%s  %s,' % (pad, member) for member in members]
+            + ['%s],' % pad])
+
+
+def entity_rows_block(erd):
+    """The roster IV-1 and IV-2 are driven by."""
+    primary, foreign = key_marks(erd)
+    references = foreign_key_block_rows(erd, foreign, primary)
+    box = [b for b in erd['container']['boxes'] if b['id'] == 'schedule'][0]
+    seat_of = {}
+    for shape, key, entity in box['entity_rows']:
+        seat_of[entity] = (key, holds_many(shape))
+
+    out = [
+        '/** One foreign key of an entity, and the row of table T-057 it lands on. */',
+        'export interface ForeignKeyColumn {',
+        '  /** The column of this entity that holds the reference. */',
+        '  readonly fromColumn: string',
+        '  /** The entity whose rows it names. */',
+        '  readonly child: string',
+        '  /** The column of that entity it lands on. */',
+        '  readonly toColumn: string',
+        '}',
+        '',
+        '/** One column of a row that holds rows of another entity. */',
+        'export interface NestedRows {',
+        '  readonly column: string',
+        '  readonly entity: string',
+        '}',
+        '',
+        '/** One entity of table T-056, as IV-1 and IV-2 need it. */',
+        'export interface EntityRows {',
+        '  readonly entity: string',
+        '  /** The key of `Schedule` its rows sit in, or `null` when they sit in a row. */',
+        '  readonly scheduleKey: string | null',
+        '  /** Whether that key holds many rows or one. */',
+        '  readonly many: boolean',
+        '  /** The columns the key column of table T-058 marks a primary key. */',
+        '  readonly primaryKey: readonly string[]',
+        '  /** The columns it marks a foreign key, each with where it lands. */',
+        '  readonly foreignKeys: readonly ForeignKeyColumn[]',
+        '  /** The columns of one row that hold rows of another entity. */',
+        '  readonly nested: readonly NestedRows[]',
+        '}',
+        '',
+    ] + list(ENTITY_ROWS_NOTE) + ['export const ENTITY_ROWS: readonly EntityRows[] = [']
+
+    for entity in erd['entities']:
+        name = entity['name']
+        if name in STAMP_ENTITIES:
+            continue
+        key, many = seat_of.get(name, (None, False))
+        out.append('  {')
+        out.append("    entity: '%s'," % name)
+        out.append('    scheduleKey: %s,' % (("'%s'" % key) if key else 'null'))
+        out.append('    many: %s,' % ('true' if many else 'false'))
+        out.append('    primaryKey: [%s],'
+                   % ', '.join("'%s'" % c for c in primary[name]))
+        out.extend(ts_array_field(
+            'foreignKeys',
+            ["{ fromColumn: '%s', child: '%s', toColumn: '%s' }" % one
+             for one in references[name]]))
+        out.extend(ts_array_field(
+            'nested',
+            ["{ column: '%s', entity: '%s' }" % one
+             for one in nested_rows(entity)]))
+        out.append('  },')
+    out.append(']')
+    return '\n'.join(out)
+
+
 COLUMN_DEFAULTS_NOTE = [
     '/**',
     ' * Every column the specification gives a default, by entity.',
@@ -227,10 +457,11 @@ def schedule_block(erd):
     keys = []
     for shape, key, entity in box['entity_rows']:
         keys.append('  readonly %s: %s' % (key, ('readonly %s[]' % entity)
-                                           if shape == '配列' else entity))
+                                           if holds_many(shape) else entity))
     out.append('/** The schedule group. Its keys are DR-2 of table T-052. */\n'
                'export interface Schedule {\n%s\n}' % '\n'.join(keys))
     out.append(date_columns_block(erd))
+    out.append(entity_rows_block(erd))
     defaults = column_defaults_block(erd)
     if defaults:
         out.append(defaults)
@@ -304,6 +535,95 @@ def bounds_of(node, prefix, found):
         elif 'minimum' in child or 'maximum' in child:
             found.append((path, child.get('minimum'), child.get('maximum')))
     return found
+
+
+# ⚠️ The manuscript writes its arithmetic with the typographic signs, not the
+# ASCII ones. ⛔ Named by code point rather than typed, so this file stays ASCII
+# (rule 03 section 5): multiply, divide, minus.
+MANUSCRIPT_SIGNS = ((chr(0x00D7), '*'), (chr(0x00F7), '/'), (chr(0x2212), '-'))
+
+BOUND_PIECE = re.compile(r'`([^`]+)`|(\d+(?:\.\d+)?)|([-+*/()])|(\s+)')
+
+# Left-associative, and the only two levels the manuscript's bound fields use.
+BOUND_PRECEDENCE = {'+': 1, '-': 1, '*': 2, '/': 2}
+
+
+def bound_pieces(text):
+    """One bound field, cut into keys, numbers and operators.
+
+    Answers `None` when a character this generator does not read turns up, so
+    that a field which is prose rather than arithmetic is passed over instead
+    of half-read.
+    """
+    for sign, plain in MANUSCRIPT_SIGNS:
+        text = text.replace(sign, plain)
+    out, at = [], 0
+    while at < len(text):
+        piece = BOUND_PIECE.match(text, at)
+        if piece is None:
+            return None
+        at = piece.end()
+        if piece.group(1) is not None:
+            out.append(('key', piece.group(1)))
+        elif piece.group(2) is not None:
+            out.append(('num', piece.group(2)))
+        elif piece.group(3) is not None:
+            out.append(('op', piece.group(3)))
+    return out
+
+
+def bound_expression(pieces):
+    """The same field in postfix order, so the reader needs no parser.
+
+    ⭐ Postfix rather than the field's own spelling: evaluating it where the
+    bound is judged means the expression is applied to the settings the
+    DOCUMENT holds, which is what IV-16 asks for. A number worked out here
+    would be the answer for the defaults and for nothing else.
+    """
+    out, ops = [], []
+    for kind, held in pieces:
+        if kind in ('key', 'num'):
+            out.append((kind, held))
+        elif held == '(':
+            ops.append(held)
+        elif held == ')':
+            while ops and ops[-1] != '(':
+                out.append(('op', ops.pop()))
+            if not ops:
+                return None
+            ops.pop()
+        elif held in BOUND_PRECEDENCE:
+            while (ops and ops[-1] != '('
+                   and BOUND_PRECEDENCE[ops[-1]] >= BOUND_PRECEDENCE[held]):
+                out.append(('op', ops.pop()))
+            ops.append(held)
+        else:
+            return None
+    while ops:
+        held = ops.pop()
+        if held == '(':
+            return None
+        out.append(('op', held))
+    # A well-formed expression leaves exactly one value on the stack.
+    depth = 0
+    for kind, _held in out:
+        depth += -1 if kind == 'op' else 1
+        if depth < 1:
+            return None
+    return out if depth == 1 else None
+
+
+def ts_bound_expression(expression):
+    """The postfix field as the array the generated reader walks."""
+    spelled = []
+    for kind, held in expression:
+        if kind == 'key':
+            spelled.append("{ key: '%s' }" % held)
+        elif kind == 'num':
+            spelled.append('{ num: %s }' % held)
+        else:
+            spelled.append("{ op: '%s' }" % held)
+    return '[%s]' % ', '.join(spelled)
 
 
 def settings_manuscript():
@@ -672,15 +992,42 @@ DEFAULTS_NOTE = [
 
 
 BOUNDS_NOTE = [
+    '/** One piece of a bound stated as an expression, in postfix order. */',
+    'export type SettingsBoundToken =',
+    '  | { readonly key: string }',
+    '  | { readonly num: number }',
+    "  | { readonly op: '+' | '-' | '*' | '/' }",
+    '',
+    '/** What the lower- and upper-bound columns of one settings row state. */',
+    'export interface SettingsBound {',
+    '  /** A floor the value may sit on. */',
+    '  readonly min?: number',
+    '  /** A ceiling the value may sit on. */',
+    '  readonly max?: number',
+    '  /** A floor the value must stay ABOVE. Never equal to it. */',
+    '  readonly exclusiveMin?: number',
+    '  /** A ceiling the value must stay BELOW. Never equal to it. */',
+    '  readonly exclusiveMax?: number',
+    '  /** A floor stated over other keys, which IV-16 judges. */',
+    '  readonly minExpression?: readonly SettingsBoundToken[]',
+    '  /** A ceiling stated over other keys, which IV-16 judges. */',
+    '  readonly maxExpression?: readonly SettingsBoundToken[]',
+    '}',
+    '',
     '/**',
-    ' * The bounds tbl-settings.md states for one key on its own.',
-    ' * A bound written as another key rather than a number is NOT here: those',
-    ' * hold BETWEEN two keys -- FR-052 is the one with a rule of its own -- and',
-    ' * no per-key clamp can decide them.',
+    ' * The bounds the settings manuscript states for each key.',
+    ' *',
+    ' * ⚠️ An open bound is kept APART from a closed one rather than written',
+    ' * into the same field. A reader that clamps has no value to clamp an open',
+    ' * bound to -- the nearest allowed number does not exist -- so folding the',
+    ' * two together would quietly turn a bound the manuscript marks open into',
+    ' * one a value is allowed to sit on.',
+    ' *',
+    ' * ⭐ A bound that names ANOTHER key is here as its expression, in postfix',
+    ' * order. It holds BETWEEN keys, so no per-key clamp can decide it; IV-16',
+    ' * of table T-220 is what judges it, and it needs the whole document.',
     ' */',
-    'export const SETTINGS_BOUNDS: Readonly<',
-    '  Record<string, { readonly min?: number; readonly max?: number }>',
-    '> = {',
+    'export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {',
 ]
 
 
@@ -744,28 +1091,88 @@ def settings_block(_erd):
 
     manuscript = settings_manuscript()
 
-    rows = []
-    for path, low, high in bounds_of(node, '', []):
-        parts = []
-        if low is not None:
-            parts.append('min: %s' % low)
-        if high is not None:
-            parts.append('max: %s' % high)
-        rows.append("  '%s': { %s }," % (path, ', '.join(parts)))
-        # ⭐ Two independent readers of the same manuscript have to agree: this
-        # bound came from grs-document.schema.json, which erd_json_to_schema.py
-        # built by parsing the printed document, while the manuscript is read
-        # here directly. A disagreement means one of the two is misreading a
-        # cell, which is exactly the failure the whole change request is about.
-        said = manuscript.get(path.split('.')[-1] if path not in manuscript else path)
-        if said is not None:
+    stored = set(flat_keys(node, ''))
+    schema_bounds = dict((path, (low, high))
+                         for path, low, high in bounds_of(node, '', []))
+    rows, unreachable = [], []
+    for path in flat_keys(node, ''):
+        low, high = schema_bounds.get(path, (None, None))
+        # ⭐ Two independent readers of the same manuscript have to agree: the
+        # closed bounds come from grs-document.schema.json, which
+        # erd_json_to_schema.py built by parsing the printed document, while
+        # the manuscript is read here directly. A disagreement means one of the
+        # two is misreading a cell, which is exactly the failure the whole
+        # change request is about.
+        checked = manuscript.get(path.split('.')[-1] if path not in manuscript else path)
+        if checked is not None:
             for edge, want in (('min', low), ('max', high)):
-                got = number_of(said[edge])
+                got = number_of(checked[edge])
                 if want is not None and got is not None and float(want) != got:
                     raise SystemExit(
                         'generate_entity_types: %s (%s) states %s %s in '
                         'settings.json but %s in the generated schema'
-                        % (path, said['row'], edge, got, want))
+                        % (path, checked['row'], edge, got, want))
+        parts = []
+        # ⛔ Only an exact key is read for what follows. The lookup above falls
+        # back to the last piece of a dotted path, which is enough to notice a
+        # disagreement but would attach one row's OPEN bound or expression to
+        # another row's key.
+        said = manuscript.get(path)
+        for edge, want, closed, opened in (('min', low, 'min', 'exclusiveMin'),
+                                           ('max', high, 'max', 'exclusiveMax')):
+            cell = said[edge] if said is not None else None
+            open_bound = isinstance(cell, dict) and cell.get('exclusive') is True
+            if open_bound and want is not None:
+                raise SystemExit(
+                    'generate_entity_types: %s (%s) marks its %s open in '
+                    'settings.json but the generated schema states it closed'
+                    % (path, said['row'], edge))
+            if open_bound:
+                parts.append('%s: %s' % (opened, cell['num']))
+            elif want is not None:
+                parts.append('%s: %s' % (closed, want))
+        for edge, field in (('min', 'minExpression'), ('max', 'maxExpression')):
+            cell = said[edge] if said is not None else None
+            if not isinstance(cell, str):
+                continue
+            named = re.findall(r'`([^`]+)`', cell)
+            if not named:
+                # A field that names no key states no bound between keys. "—"
+                # and the prose fields land here.
+                continue
+            outside = [one for one in named if one not in stored]
+            if outside:
+                # ⛔ Left out, and said so below rather than dropped in silence.
+                # IV-16 is judged over a document at rest, and a key the
+                # presentation group does not hold is not in one.
+                unreachable.append((path, said['row'], edge, sorted(set(outside))))
+                continue
+            pieces = bound_pieces(cell)
+            expression = bound_expression(pieces) if pieces is not None else None
+            if expression is None:
+                raise SystemExit(
+                    'generate_entity_types: the %s field of %s (%s) names a '
+                    'settings key but is not arithmetic this generator reads, '
+                    'so IV-16 would stop judging that row without saying so'
+                    % (edge, path, said['row']))
+            parts.append('%s: %s' % (field, ts_bound_expression(expression)))
+        if not parts:
+            continue
+        one_line = "  '%s': { %s }," % (path, ', '.join(parts))
+        # An expression makes a long line; the fields go one to a line so the
+        # roster stays readable rather than needing a sideways scroll.
+        if len(one_line) <= 92:
+            rows.append(one_line)
+        else:
+            rows.append("  '%s': {" % path)
+            rows.extend('    %s,' % part for part in parts)
+            rows.append('  },')
+    if unreachable:
+        rows.append('  // ⛔ A bound that names a key the presentation group does')
+        rows.append('  // not hold, so IV-16 cannot judge it on a document alone:')
+        for path, row_id, edge, outside in unreachable:
+            rows.append('  //   %s (%s) %s names %s'
+                        % (path, row_id, edge, ', '.join(outside)))
 
     # The defaults, for every stored key the schema names. A key the schema
     # holds but the manuscript cannot state a machine value for is reported

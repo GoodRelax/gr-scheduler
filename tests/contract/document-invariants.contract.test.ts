@@ -50,15 +50,32 @@
 //     span is counted in calendar days or working days, nor whether both ends
 //     count. The case below overshoots by two orders of magnitude so that every
 //     reading of the row is broken.
+//   - `changeLog.ordinal`, though table T-058 marks it a primary key and IV-1
+//     therefore reaches it. ⛔ Missing: any way for this seam to be shown it.
+//     DR-4 of table T-052 puts that array at the document root, outside both
+//     groups the signature takes, so `scheduleViolations` is never handed the
+//     column it is asked to judge. The sweep below files it as out of reach
+//     rather than dropping it, so the roster still fails when table T-058
+//     grows or loses a key column.
+//   - Every settings row whose bound names another settings row. ⛔ Missing: a
+//     grammar for that column. Some of its cells hold one key and some hold
+//     arithmetic over several keys, and docs/spec nowhere says how the second
+//     sort is to be read -- so IV-16 is probed from the cells that hold one
+//     key and nothing else, and the arithmetic ones are left alone.
 
 import { describe, expect, it } from 'vitest'
 
-import { specTable } from './spec-table'
+import { bare, specTable, type SpecRow } from './spec-table'
 import {
   DEFAULT_CALENDAR_VALUES,
   scheduleViolations,
   type Assignment,
+  type BaselineTask,
   type Calendar,
+  type CarryElement,
+  type CommentBox,
+  type Exception,
+  type HighlightBox,
   type InvariantKind,
   type Project,
   type Resource,
@@ -134,6 +151,52 @@ const KIND_BY_ROW: Readonly<Record<string, InvariantKind>> = INVARIANTS.reduce<
   return all
 }, {})
 
+/**
+ * The columns table T-058 marks, read rather than copied.
+ *
+ * ⭐ IV-1 and IV-2 reach their material through the key column of that table
+ * instead of naming columns, so a case that breaks one column proves only that
+ * column. The two sweeps below break every column the table marks, which is
+ * what makes them able to fail an answer that was written out by hand.
+ */
+const T058 = specTable('T-058')
+
+/**
+ * The headings of table T-058 this file reads.
+ *
+ * ⚠️ Japanese literals, for the reason KIND_BY_COLUMN gives above: the headings
+ * being matched are written in Japanese, and rule 03 section 5 admits exactly
+ * this case -- code whose subject is the Japanese itself.
+ */
+const HEADING_ENTITY = 'エンティティ'
+const HEADING_COLUMN = '列'
+const HEADING_KEY = '鍵'
+
+/** One row of table T-058 as `Entity.column`, which is W-7's form. @purity pure */
+const memberOf = (row: SpecRow): string =>
+  `${bare(row.by[HEADING_ENTITY] ?? '')}.${bare(row.by[HEADING_COLUMN] ?? '')}`
+
+/**
+ * The marks one row of table T-058 carries in its key column.
+ *
+ * ⚠️ Two separators are accepted. Table T-220 and table T-058 punctuate the
+ * compound key differently, and which of the two spellings a row happens to use
+ * must not decide whether this file sees it.
+ *
+ * @purity pure
+ */
+const keyMarksOf = (row: SpecRow): readonly string[] =>
+  bare(row.by[HEADING_KEY] ?? '')
+    .split(/[,/]/)
+    .map((mark) => mark.trim())
+
+/** Every column of table T-058 whose key column carries one mark. @purity pure */
+const columnsMarked = (mark: string): readonly string[] =>
+  T058.rows.filter((row) => keyMarksOf(row).includes(mark)).map(memberOf)
+
+const PRIMARY_KEY_COLUMNS = columnsMarked('PK')
+const FOREIGN_KEY_COLUMNS = columnsMarked('FK')
+
 // ---------------------------------------------------------------------------
 // A document that breaks nothing, and the pieces every breach starts from
 // ---------------------------------------------------------------------------
@@ -180,6 +243,24 @@ const settingNumber = (key: keyof DocumentSettings): number => {
   const value = SETTINGS[key]
   if (typeof value !== 'number') throw new Error(`the settings group has no number ${key}`)
   return value
+}
+
+/**
+ * The same, for a key the manuscript writes with a dot in it.
+ *
+ * The dotted spelling is the one `SETTINGS_DEFAULTS` and the settings tables
+ * both use, so a case can name the row the way the manuscript does instead of
+ * walking into the nested shape by hand.
+ *
+ * @purity pure
+ */
+const settingNumberAt = (key: string): number => {
+  let here: unknown = SETTINGS
+  for (const step of key.split('.')) {
+    here = (here as Record<string, unknown>)[step]
+  }
+  if (typeof here !== 'number') throw new Error(`the settings group has no number ${key}`)
+  return here
 }
 
 /**
@@ -425,6 +506,63 @@ const overDeepGroups = (): readonly TaskGroup[] => {
 }
 
 // ---------------------------------------------------------------------------
+// Rows the sound document does not need, but the sweeps below do
+// ---------------------------------------------------------------------------
+//
+// Four arrays of the schedule group are empty in the sound document because no
+// row of table T-220 needs them there. Table T-058 marks a key column inside
+// each of them all the same, so the sweeps have to put a row in.
+
+const EXCEPTION_ONE: Exception = {
+  ordinal: 1,
+  name: null,
+  fromDate: null,
+  toDate: null,
+  dayWorking: null,
+  recurrenceKind: null,
+  carry: {},
+  carryElements: [],
+}
+
+const COMMENT_BOX_ONE: CommentBox = {
+  id: uuidOf(11),
+  leaderShapeKind: null,
+  text: null,
+  anchorDate: null,
+  anchorGroupId: null,
+  bodyOffsetPx: null,
+}
+
+const HIGHLIGHT_BOX_ONE: HighlightBox = {
+  id: uuidOf(21),
+  startDate: null,
+  endDate: null,
+  topGroupId: null,
+  bottomGroupId: null,
+  strokeColor: null,
+  cornerRadiusPx: null,
+}
+
+// ⛔ W-9 keeps the exchange partner's spelling inside `carryElements`, so the
+// name is one of theirs and not a word coined here. Nothing in table T-220
+// weighs it; only the ordinal beside it is judged.
+const CARRY_ONE: CarryElement = { ordinal: 1, name: 'Cost', fields: {}, children: [] }
+
+const BASELINE_ONE: BaselineTask = {
+  uid: TASK_A_UID,
+  name: null,
+  start: null,
+  finish: null,
+  milestone: null,
+}
+
+/** An integer key no row of the sound document carries. */
+const MISSING_UID = 999
+
+/** A UUID key no row of the sound document carries. */
+const MISSING_GROUP_ID = uuidOf(999)
+
+// ---------------------------------------------------------------------------
 // One breach per row of the table
 // ---------------------------------------------------------------------------
 
@@ -454,6 +592,18 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
 
   // A chain of rows nested past S-125.
   'IV-5': () => withSchedule({ taskGroups: [GROUP_ONE, GROUP_TWO, ...overDeepGroups()] }),
+
+  // The row parents close a ring: each of the two names the other. The same
+  // shape as the IV-4 case, one axis over.
+  //
+  // ⚠️ IV-5 may be answered alongside it and that is not a fault of the case:
+  // a ring has no depth to compare against S-125, so whichever way an answer
+  // counts one, it will not stop. The assertion below asks only that IV-18 is
+  // among the answers.
+  'IV-18': () =>
+    withSchedule({
+      taskGroups: [{ ...GROUP_ONE, parentId: GROUP_TWO_ID }, GROUP_TWO],
+    }),
 
   // A `Task` no `TaskGroupMember` names.
   'IV-6': () => withSchedule({ taskGroupMembers: [MEMBER_A] }),
@@ -536,6 +686,196 @@ const listed = (found: readonly ScheduleViolation[]): string =>
   found.length === 0 ? 'nothing' : found.map((one) => `${one.row}/${one.kind}`).join(', ')
 
 // ---------------------------------------------------------------------------
+// The three rows that are judged over a whole column of another table
+// ---------------------------------------------------------------------------
+//
+// IV-1, IV-2 and IV-16 do not name their material: the first two point at the
+// key column of table T-058 and the third at the bound columns of
+// _assets/tbl-settings.md. One case each proves one column, which an answer
+// that hard-codes that column also passes. These sweeps break every column the
+// pointed-at table marks, and the rosters are read from it, so an answer that
+// covers only what somebody thought of fails here.
+
+/** One document that must draw one row of table T-220. */
+interface Probe {
+  /** The row of table T-220 the answer must hold. */
+  readonly row: string
+  /** What is broken, as `Entity.column` (W-7) or a settings key. */
+  readonly member: string
+  readonly document: () => DocumentUnderTest
+}
+
+/**
+ * Primary key columns of table T-058 that this seam is never handed.
+ *
+ * ⛔ See the head of this file: DR-4 of table T-052 puts this array at the
+ * document root and the signature takes two groups, neither of which holds it.
+ * It is listed rather than dropped so that the roster below still counts.
+ */
+const OUT_OF_REACH: readonly string[] = ['changeLog.ordinal']
+
+/**
+ * One document per primary key column of table T-058, each holding two rows of
+ * the same key in one array. Keyed the way `memberOf` spells the table's rows,
+ * so the roster is checked against the table and not against itself.
+ */
+const REPEATED: Readonly<Record<string, () => DocumentUnderTest>> = {
+  'Task.uid': () => withSchedule({ tasks: [TASK_A, TASK_B, { ...TASK_B, name: 'copy' }] }),
+
+  'TaskGroup.id': () =>
+    withSchedule({ taskGroups: [GROUP_ONE, GROUP_TWO, { ...GROUP_TWO, order: 3 }] }),
+
+  'TaskGroupMember.taskUid': () =>
+    withSchedule({ taskGroupMembers: [MEMBER_A, MEMBER_B, { ...MEMBER_B, stackOrder: 2 }] }),
+
+  'Calendar.uid': () =>
+    withSchedule({ calendars: [CALENDAR, { ...CALENDAR, ordinal: 2, isBaseCalendar: false }] }),
+
+  // The weak entities of RL-12 and RL-13 sit inside the calendar, so the two
+  // rows of the same key are put in the array that holds them.
+  'WeekDay.ordinal': () =>
+    withSchedule({
+      calendars: [{ ...CALENDAR, weekDays: [...workedWeekDays(), ...workedWeekDays().slice(0, 1)] }],
+    }),
+
+  'Exception.ordinal': () =>
+    withSchedule({
+      calendars: [{ ...CALENDAR, exceptions: [EXCEPTION_ONE, { ...EXCEPTION_ONE }] }],
+    }),
+
+  'Resource.uid': () => withSchedule({ resources: [RESOURCE, { ...RESOURCE, name: 'another' }] }),
+
+  'Assignment.uid': () =>
+    withSchedule({ assignments: [ASSIGNMENT, { ...ASSIGNMENT, taskUid: TASK_B_UID }] }),
+
+  'TaskVisual.taskUid': () => withSchedule({ taskVisuals: [VISUAL, { ...VISUAL }] }),
+
+  'TaskOrigin.taskUid': () => withSchedule({ taskOrigins: [ORIGIN, { ...ORIGIN, sourceUid: 8 }] }),
+
+  'CommentBox.id': () =>
+    withSchedule({ commentBoxes: [COMMENT_BOX_ONE, { ...COMMENT_BOX_ONE }] }),
+
+  'HighlightBox.id': () =>
+    withSchedule({ highlightBoxes: [HIGHLIGHT_BOX_ONE, { ...HIGHLIGHT_BOX_ONE }] }),
+
+  // AT-123 says the owner and the ordinal together are what identify one of
+  // these, so both rows are put under the same owner.
+  'CarryElement.ordinal': () =>
+    withSchedule({
+      project: { ...PROJECT, carryElements: [CARRY_ONE, { ...CARRY_ONE, name: 'Other' }] },
+    }),
+
+  'BaselineTask.uid': () =>
+    withSchedule({ baselineTasks: [BASELINE_ONE, { ...BASELINE_ONE, name: 'copy' }] }),
+}
+
+/**
+ * One document per foreign key column of table T-058, each holding a non-null
+ * value in that column that names no row of the document.
+ */
+const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
+  'Project.calendarUid': () => withSchedule({ project: { ...PROJECT, calendarUid: MISSING_UID } }),
+
+  'Task.wbsParentUid': () =>
+    withSchedule({ tasks: [TASK_A, { ...TASK_B, wbsParentUid: MISSING_UID }] }),
+
+  'Task.calendarUid': () =>
+    withSchedule({ tasks: [{ ...TASK_A, calendarUid: MISSING_UID }, TASK_B] }),
+
+  // The dependency is nested under its successor (DF-4 of table T-053), so the
+  // one the sound document already carries is the one bent.
+  'Dependency.predecessorUid': () =>
+    withSchedule({
+      tasks: [
+        TASK_A,
+        {
+          ...TASK_B,
+          dependencies: TASK_B.dependencies.map((one) => ({
+            ...one,
+            predecessorUid: MISSING_UID,
+          })),
+        },
+      ],
+    }),
+
+  'TaskGroup.parentId': () =>
+    withSchedule({ taskGroups: [GROUP_ONE, { ...GROUP_TWO, parentId: MISSING_GROUP_ID }] }),
+
+  'TaskGroup.derivedFromTaskUid': () =>
+    withSchedule({
+      taskGroups: [{ ...GROUP_ONE, derivedFromTaskUid: MISSING_UID }, GROUP_TWO],
+    }),
+
+  'TaskGroupMember.taskUid': () =>
+    withSchedule({ taskGroupMembers: [MEMBER_A, { ...MEMBER_B, taskUid: MISSING_UID }] }),
+
+  'TaskGroupMember.groupId': () =>
+    withSchedule({ taskGroupMembers: [MEMBER_A, { ...MEMBER_B, groupId: MISSING_GROUP_ID }] }),
+
+  'Calendar.baseCalendarUid': () =>
+    withSchedule({ calendars: [{ ...CALENDAR, baseCalendarUid: MISSING_UID }] }),
+
+  'Resource.calendarUid': () =>
+    withSchedule({ resources: [{ ...RESOURCE, calendarUid: MISSING_UID }] }),
+
+  'Assignment.taskUid': () =>
+    withSchedule({ assignments: [{ ...ASSIGNMENT, taskUid: MISSING_UID }] }),
+
+  'Assignment.resourceUid': () =>
+    withSchedule({ assignments: [{ ...ASSIGNMENT, resourceUid: MISSING_UID }] }),
+
+  'TaskVisual.taskUid': () => withSchedule({ taskVisuals: [{ ...VISUAL, taskUid: MISSING_UID }] }),
+
+  'TaskOrigin.taskUid': () => withSchedule({ taskOrigins: [{ ...ORIGIN, taskUid: MISSING_UID }] }),
+
+  'CommentBox.anchorGroupId': () =>
+    withSchedule({ commentBoxes: [{ ...COMMENT_BOX_ONE, anchorGroupId: MISSING_GROUP_ID }] }),
+
+  'HighlightBox.topGroupId': () =>
+    withSchedule({ highlightBoxes: [{ ...HIGHLIGHT_BOX_ONE, topGroupId: MISSING_GROUP_ID }] }),
+
+  'HighlightBox.bottomGroupId': () =>
+    withSchedule({ highlightBoxes: [{ ...HIGHLIGHT_BOX_ONE, bottomGroupId: MISSING_GROUP_ID }] }),
+}
+
+/**
+ * Settings rows whose bound is one other settings key and nothing else, each
+ * put on the wrong side of that key.
+ *
+ * ⛔ Not a sweep of the bound columns: the head of this file records what is
+ * missing before one can be written. These are the rows whose bound cell holds
+ * a single key, so no reading of an expression is involved -- the four pairs
+ * are S-121 / S-122, S-83 / S-84, S-22 with S-6, and the S-41 / S-42 pair the
+ * case in BREACH already carries.
+ *
+ * ⚠️ Each is moved one whole unit past the key it is bounded by, so the case
+ * breaks whether the bound is read as open or as closed. If the manuscript ever
+ * writes one of these bounds as exclusive, the case still breaks it.
+ */
+const OFF_BOUND: Readonly<Record<string, () => DocumentUnderTest>> = {
+  'fontScaleSizes.S': () =>
+    withSettings({ 'fontScaleSizes.S': settingNumberAt('fontScaleSizes.M') + 1 }),
+
+  'rulerTierPxPerDayMonth': () =>
+    withSettings({ rulerTierPxPerDayMonth: settingNumber('rulerTierPxPerDayWeek') + 1 }),
+
+  'markerSize': () => withSettings({ markerSize: settingNumber('fontMin') - 1 }),
+}
+
+/** Every probe, with the row of table T-220 each one must draw. @purity pure */
+const probesOf = (
+  row: string,
+  built: Readonly<Record<string, () => DocumentUnderTest>>,
+): readonly Probe[] =>
+  Object.entries(built).map(([member, document]) => ({ row, member, document }))
+
+const PROBES: readonly Probe[] = [
+  ...probesOf('IV-1', REPEATED),
+  ...probesOf('IV-2', DANGLING),
+  ...probesOf('IV-16', OFF_BOUND),
+]
+
+// ---------------------------------------------------------------------------
 // The walk
 // ---------------------------------------------------------------------------
 
@@ -561,14 +901,40 @@ describe('table T-220 -- the document invariants, through scheduleViolations (PI
   })
 
   it('names no row outside the table, and gives no row a kind the table does not', () => {
-    for (const invariant of INVARIANTS) {
-      const broken = breachOf(invariant.id)
+    const all = [
+      ...INVARIANTS.map((invariant) => ({ named: invariant.id, built: () => breachOf(invariant.id) })),
+      ...PROBES.map((probe) => ({ named: `${probe.row} over ${probe.member}`, built: probe.document })),
+    ]
+    for (const { named, built } of all) {
+      const broken = built()
       for (const one of scheduleViolations(broken.schedule, broken.settings)) {
         expect(
           KIND_BY_ROW[one.row],
-          `the case for ${invariant.id} answered ${one.row}/${one.kind}`,
+          `the case for ${named} answered ${one.row}/${one.kind}`,
         ).toBe(one.kind)
       }
     }
+  })
+
+  it('breaks every primary key column table T-058 marks, and no column it does not', () => {
+    // ⭐ Both directions again, and the same reason: IV-1 is judged over the
+    // key column of that table, so a column added there has to reach this file.
+    expect([...Object.keys(REPEATED), ...OUT_OF_REACH].sort()).toEqual([...PRIMARY_KEY_COLUMNS].sort())
+  })
+
+  it('breaks every foreign key column table T-058 marks, and no column it does not', () => {
+    expect(Object.keys(DANGLING).sort()).toEqual([...FOREIGN_KEY_COLUMNS].sort())
+  })
+
+  it.each(PROBES)('$row is reported for $member too', ({ row, member, document }) => {
+    const broken = document()
+    const found = scheduleViolations(broken.schedule, broken.settings)
+    const mine = found.filter((one) => one.row === row)
+
+    expect(
+      mine.length,
+      `${row} was not reported for ${member}; the answer held ${listed(found)}`,
+    ).toBeGreaterThan(0)
+    for (const one of mine) expect(one.kind).toBe(KIND_BY_ROW[row])
   })
 })

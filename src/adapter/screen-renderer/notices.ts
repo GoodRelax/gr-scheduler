@@ -15,10 +15,10 @@
 // ⛔ A confirmation is not a notice -- it stops until it is answered -- so it is
 // its own member rather than a notice wearing another manner.
 //
-// ⭐ WHAT IS RAISED IS NOT WHAT IS SHOWN. `ScreenSession.notices` is what has
-// been raised; the return value is what is showing and in what order. `Notice`
-// stands on both sides, so for the notices all this unit can do is choose, order
-// and gather -- never compose.
+// ⭐ WHAT IS RAISED IS NOT WHAT IS SHOWN. `ScreenSession.notices` holds
+// `RaisedNotice` -- the manner and the reason, and no words at all; the return
+// value is what is showing, in what order and in what words. So this unit
+// chooses, orders, gathers AND reads the words, and mints none of them.
 //
 // ⭐ ONE ROW OF TABLE T-037 IS THE WHOLE UNIT: NT-4. Every other row binds
 // whoever RAISES the notice -- the words NT-1 asks for (MUST; colour or a border
@@ -35,29 +35,39 @@
 // manner is the join, and a raiser that means FR-060's offer, FR-026's recovery,
 // FR-065's enabling or FR-086's watermark name says NT-4.
 //
-// ⛔ NO WORDS ARE WRITTEN HERE. `Notice.text` and `RaisedConfirmation.text`
-// arrive in the display language already, because both name the thing at hand
-// and only their raiser knows it. The gathering NT-4 asks for may join texts and
-// must keep them all; it may not write so much as a heading over them. ⚠️ The
-// two answers of NT-7 and FR-032's mark are the exceptions and are still not
-// written here: they are READ, out of the dictionary FR-038 (MUST) makes the one
-// store of translated strings -- the answers keyed by their row of table T-109,
-// the mark by the manuscript's own key, because FR-038 (MUST NOT) keeps the
-// words out of every requirement and every table and so leaves it no row.
+// ⛔ NO WORDS ARE WRITTEN HERE, and none are asked of a raiser either. FR-038
+// (MUST) makes one generated dictionary the whole store of translated strings,
+// and this component is where it lives -- so everything printed is READ out of
+// it: the two answers of NT-7 keyed by their row of table T-109, FR-032's mark
+// by the manuscript's own key (FR-038 (MUST NOT) keeps the words out of every
+// requirement and every table, so the mark has no row to be keyed by). ⛔ A
+// notice's own words would be read the same way, by the reason its raiser
+// handed over, and that section of the dictionary does not exist yet: the two
+// STOP notes on `toldNotice` say what is owed and what stands in meanwhile. ⚠️
+// `RaisedConfirmation.text` is the one text that still arrives written, because
+// NT-7 (MUST) has it name what is about to happen and the names of what would
+// go -- neither of which any dictionary can hold.
 //
-// ⭐ ONE MEMBER IS COMPOSED AND THE OTHER IS NOT. The preamble above table T-109
-// fixes its 面 column as table T-103's settled names, so which entries stand on
-// U-55 `Confirmation` is that table's answer and not the asker's -- which is why
-// `confirmationFromSession` widens what it is given while `noticesFromSession`
-// only chooses, orders and gathers.
+// ⭐ BOTH MEMBERS ARE COMPOSED. The preamble above table T-109 fixes its 面
+// column as table T-103's settled names, so which entries stand on U-55
+// `Confirmation` is that table's answer and not the asker's; and FR-038 puts
+// the words on this side of the seam rather than the raiser's. So each of the
+// two exported functions WIDENS what it is given.
+//
+// ⭐ WHAT THE SHELL HANDS OVER, per notice: the row of table T-037 it is
+// following and the reason. Nothing else is receivable -- FR-028 (MUST) makes a
+// refusal a value the caller gets back rather than an exception, so the side
+// that received the value is the side that knows which reason happened, and
+// `file-store.ts` states the same boundary from the other end.
 //
 // ⚠️ NOTHING IS DROPPED FOR HAVING RUN OUT OF TIME. NT-2 governs a notice that
 // goes away with time, but FT-4 of table T-078 leaves the reading of the clock
 // to the shell, and CS-1 of table T-066 keeps it away from a `pure` unit. A
 // notice whose time is up is one that is no longer raised.
 //
-// ⛔ Five STOP notes below. Four say what table T-037 leaves open; the fifth
-// says that nothing in this build raises a question at all.
+// ⛔ Six STOP notes below. Three say what table T-037 leaves open, two say what
+// FR-038's dictionary does not hold yet, and the sixth says that nothing in this
+// build raises a question at all.
 
 import type {
   CommandItem,
@@ -65,6 +75,7 @@ import type {
   DisplayLanguage,
   IconId,
   Notice,
+  RaisedNotice,
   ScreenSession,
 } from './screen-renderer'
 import iconRoster from './icon-roster.json'
@@ -225,12 +236,65 @@ function confirmationAnswers(language: DisplayLanguage): readonly CommandItem[] 
 const GATHERED_TEXT_SEPARATOR = '\n'
 
 /**
+ * What a failure says can be done next while the dictionary holds no next step
+ * for its reason.
+ *
+ * ⛔ NOT "NOTHING CAN BE DONE". It says that no next step has been SETTLED yet,
+ * which is the same thing an empty cell of `display-words.json` says (PD-160).
+ *
+ * @provisional PD-160
+ */
+const NO_NEXT_STEPS: readonly string[] = []
+
+/**
  * ⚠️ Reads `manner` and nothing else: see the header on why that is the join.
  *
  * @purity pure
  */
 function isStartupPending(notice: Notice): boolean {
   return notice.manner === STARTUP_PENDING_MANNER
+}
+
+/**
+ * One raised notice as the screen tells it -- the half of UF-67's work that is
+ * reading rather than choosing.
+ *
+ * STOP -- ⛔ THE DICTIONARY HOLDS NO WORD FOR A REASON. `display-words.json`
+ * has a section for the manner of every row of table T-037, one for the two
+ * answers of NT-7, one for FR-032's mark, one per row of table T-109 and one
+ * per row of table T-023 -- and none keyed on why a write was turned away or
+ * why a file operation faulted, which is what NT-1 (MUST) asks to be said. ⛔ A
+ * sentence written here would be the second store of translated strings FR-038
+ * forbids (MUST NOT), so the key itself is carried through to the screen: it is
+ * characters, which is the whole of what NT-1 (MUST NOT) refuses to let colour
+ * or a border stand in for, and it names exactly one thing on the raiser's
+ * side. ⚠️ The same stand-in the help makes for a table row it has no word for.
+ * ⛔ It is NOT in the display language, and cannot be until the dictionary holds
+ * the rows -- see the report for which ones it owes.
+ *
+ * STOP -- ⛔ THE DICTIONARY HOLDS NO NEXT STEP EITHER, so every failure is told
+ * without the one NT-3a makes mandatory (MUST). ⚠️ This is the note that used to
+ * ask what becomes of a failure RAISED with no next step: the raiser no longer
+ * carries one, so the question is settled and the hole has moved to the
+ * dictionary. Chose to tell it bare rather than to withhold it, for the reason
+ * that note gave -- a failure nobody is told about is further from what NT-3a
+ * asks for than one told without its next step -- and `file-store.ts` names the
+ * side that can decide the step: the reasons are told apart by what can be done
+ * next, so one dictionary row per reason is what is owed.
+ * ⚠️ `cancelled` is owed nothing and is not a failure at all (IF-3 keeps it
+ * apart precisely so that it is not reported), so it is the raiser's not to
+ * raise; nothing here can tell it from the reasons that are owed a step.
+ *
+ * @provisional PD-160
+ * @purity pure
+ */
+function toldNotice(raised: RaisedNotice): Notice {
+  return {
+    manner: raised.manner,
+    text: raised.reason,
+    nextSteps: NO_NEXT_STEPS,
+    affectedCount: raised.affectedCount,
+  }
 }
 
 /**
@@ -263,7 +327,7 @@ function gatheredStartupNotice(pending: readonly Notice[]): Notice {
 }
 
 /**
- * Which of the raised notices are shown, and in what order.
+ * Which of the raised notices are shown, in what order, and in what words.
  *
  * ⭐ All of them are shown. Nothing in table T-037 or FR-076 withholds a notice
  * that has been raised, and a `pure` unit has no clock with which to retire one
@@ -288,28 +352,26 @@ function gatheredStartupNotice(pending: readonly Notice[]): Notice {
  * which is defensible from NT-4 because collapsing its run in place is the only
  * re-ordering any row of the table asks for.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what becomes of a failure raised
- * with no next step. NT-3a (MUST NOT) forbids issuing one, and looking through
- * table T-037 and FR-076 finds no rule for the one that arrives here anyway.
- * Chose to carry it: this unit cannot make a next step without minting words
- * FR-038 places nowhere, and dropping the notice would leave the failure untold,
- * which is further from what NT-3a asks for than telling it bare. ⚠️ The row it
- * belongs to is the raiser's to get right.
+ * ⭐ THE WORDS ARE READ BEFORE THE GATHERING, not after: NT-4 joins the TEXTS of
+ * what is pending, so each one has to be a told notice before there is anything
+ * to join. `toldNotice` carries the two STOP notes that says what the dictionary
+ * still owes each of them.
  *
  * @purity pure
  */
 export function noticesFromSession(session: ScreenSession): readonly Notice[] {
-  const startupPending = session.notices.filter(isStartupPending)
+  const told = session.notices.map(toldNotice)
+  const startupPending = told.filter(isStartupPending)
 
   // One pending item is already the one surface NT-4 asks for, and none needs
   // nothing done at all.
-  if (startupPending.length < 2) return session.notices
+  if (startupPending.length < 2) return told
 
   const gathered = gatheredStartupNotice(startupPending)
   const shown: Notice[] = []
   let isGatheredShown = false
 
-  for (const notice of session.notices) {
+  for (const notice of told) {
     if (!isStartupPending(notice)) {
       shown.push(notice)
       continue
@@ -361,16 +423,17 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * question: a roster of the admitted sites is exactly what that MUST NOT bars,
  * and NT-7's own limit binds the raiser, not this unit.
  *
- * STOP -- ⛔ NOTHING RAISES ONE. `ScreenSession.confirmation` is `null` in every
- * frame this build runs: `frame-loop.ts` says so in as many words, and no member
- * of table T-064 puts a question there. So the surface below is described and
- * never seen, and the three places a requirement asks -- FR-032's row with WBS
- * descendants, FR-099's unassignment, DI-4 of table T-227 -- each still run their
- * operation unasked, which is what breaks those MUSTs. ⚠️ WHAT IS MISSING IS THE
- * RAISER, NOT THE ROUTE: table T-109 now places IC-69 and IC-70 on U-55, so a
- * press on either comes back as `ScreenPart.entry` (IF-9) the way a press on any
- * other entry does. Searched: table T-037, table T-064 (PI-8, PI-9, PI-18,
- * PI-37), table T-109, table T-227, FR-031, FR-032, FR-099, `frame-loop.ts`.
+ * STOP -- ⛔ ONE OF THE THREE ASKING SITES STILL DOES NOT ASK. Two of them do
+ * now: `frame-loop.ts` puts FR-032's row deletion and DI-4 of table T-227 into
+ * `ScreenSession.confirmation` and spends the answer on IC-69 / IC-70, so the
+ * surface below is described and seen. FR-099's unassignment is the one left:
+ * table T-109 does place IC-66 on U-49, so there IS an entrance to press, and
+ * what is missing is the same thing `frame-loop.ts` supplies for the other two
+ * -- a raiser that puts the question up and spends the answer. Until then that
+ * deletion runs unasked, which is what breaks that MUST. Searched: table T-037,
+ * table T-064 (PI-8, PI-9,
+ * PI-18, PI-37), table T-109, table T-227, FR-031, FR-032, FR-099,
+ * `frame-loop.ts`.
  *
  * @purity pure
  */

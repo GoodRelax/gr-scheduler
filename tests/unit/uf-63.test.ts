@@ -777,7 +777,7 @@ describe('UF-63 -- table T-075: the unit is `pure`', () => {
       pointerRestedMs: 4000,
       commandPaletteAt: { x: 80, y: 90 },
       propertiesShowing: 'documentSettings',
-      notices: [{ manner: 'NT-1', text: 'refused', nextSteps: ['widen it'], affectedCount: 2 }],
+      notices: [{ manner: 'NT-1', reason: 'refused', affectedCount: 2 }],
     }
 
     expect(panelOf(schedule, other)).toEqual(panelOf(schedule, plain))

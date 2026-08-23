@@ -512,7 +512,9 @@
     "parent",
     "child",
     "multiplicity",
-    "label"
+    "label",
+    "fromColumn",
+    "toColumn"
    ],
    "additionalProperties": false,
    "properties": {
@@ -542,6 +544,26 @@
     "label": {
      "$ref": "#/$defs/prose",
      "description": "What the edge means. The multiplicity is NOT repeated here: the figure draws it as crow's foot notation."
+    },
+    "fromColumn": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "The column on `parent` that holds the reference, or null when the relation holds no column at all -- nesting, or a correspondence that is not a reference. IV-2 of table T-220 walks this. When null, `noReference` says why."
+    },
+    "toColumn": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "The column on `child` the reference lands on -- its primary key. Null exactly when `fromColumn` is null."
+    },
+    "noReference": {
+     "$ref": "#/$defs/prose",
+     "description": "Why this relation holds no column. Written only when `fromColumn` is null."
     }
    }
   },

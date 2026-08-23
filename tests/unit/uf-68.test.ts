@@ -339,7 +339,7 @@ describe('UF-68 -- table T-075: the unit is `pure`', () => {
       pointerRestedMs: 4000,
       commandPaletteAt: { x: 80, y: 90 },
       propertiesShowing: 'documentSettings',
-      notices: [{ manner: 'NT-1', text: 'refused', nextSteps: ['try again'], affectedCount: 2 }],
+      notices: [{ manner: 'NT-1', reason: 'refused', affectedCount: 2 }],
       rowBoxes: [{ groupId: 'g1', box: { x: 0, y: 0, width: 100, height: 20 } }],
     })
 

@@ -816,7 +816,7 @@ describe('UF-60 -- the arguments each unit receives', () => {
     // that the composition does not route the raised notices anywhere else.
     const raised = frameWith({
       session: sessionWith({
-        notices: [{ manner: 'NT-1', text: 'that day is not a day', nextSteps: [], affectedCount: null }],
+        notices: [{ manner: 'NT-1', reason: 'that day is not a day', affectedCount: null }],
       }),
     })
     expect(viewOf(raised).notices).toEqual(noticesFromSession(raised.session))
