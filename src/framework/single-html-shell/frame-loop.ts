@@ -484,15 +484,42 @@ const EDITED_BY_SCREEN = 'user'
  * them among the rows it answers with nothing, and gives one reason for each:
  * what a press on them writes is a current value, and LY-5 of table T-060
  * leaves those with the Framework alone. IC-21 chooses the display language
- * (S-99); IC-69 and IC-70 are NT-7's two answers; IC-71 .. IC-73 are OP-3's
+ * (S-99); IC-50 and IC-51 open and fold FR-053's milestone glyph list (S-142);
+ * IC-69 and IC-70 are NT-7's two answers; IC-71 .. IC-73 are OP-3's
  * three, and what each of them settles is a whole-document replacement the
  * Framework is the only layer that may hold. ⛔ None of them is a
  * `DocumentCommand`, so there is no road through table T-108 for any of them.
  * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else.
  */
 const DISPLAY_LANGUAGE_ENTRY: IconId = 'IC-21'
+/**
+ * The pair that turns S-142 of table T-206.
+ *
+ * ⛔ TWO ENTRIES AND NOT ONE IN TWO STATES, which is what table T-109 draws:
+ * IC-50 opens the list and IC-51 folds it, each with a glyph of its own. ⚠️ The
+ * `Resource Roster`'s IC-67 / IC-68 are the other shape -- those two rows say
+ * of themselves that one entrance reverses the other, and these two do not --
+ * so they are judged apart here the way `expanderOf` judges HF-2 and HF-3
+ * apart.
+ */
+const MILESTONE_LIST_OPEN_ENTRY: IconId = 'IC-50'
+const MILESTONE_LIST_FOLD_ENTRY: IconId = 'IC-51'
 const CONFIRMATION_PROCEED_ENTRY: IconId = 'IC-69'
 const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
+
+/**
+ * GR-19 of table T-023d -- the band FR-053's palette is dragged by.
+ *
+ * ⛔ NOT ONE OF THE ROWS ABOVE, and it is here for the opposite reason: table
+ * T-109 states in IC-53's own row that it is not a button, so nothing is ever
+ * SETTLED on it and `answerSettledEntry` never sees it. What this file needs it
+ * for is the other
+ * half of IN-1 -- knowing that the press in flight is the palette's drag, so
+ * that the `Esc` beside it can put the corner back.
+ * ⚠️ Read off the press's own `ScreenPart` and not off the action, because an
+ * interrupted drag produces no action at all.
+ */
+const PALETTE_GRAB_BAND_ENTRY: IconId = 'IC-53'
 
 /** The row of table T-037 a raised question follows -- `NT-7`. */
 const CONFIRMATION_MANNER = 'NT-7'
@@ -1181,6 +1208,8 @@ interface SessionHeld {
   readonly iconUnderPointer: IconId | null
   /** FR-053 -- where GR-19's drag left the palette, `null` while nobody has. */
   readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
+  /** S-142 of table T-206 -- whether FR-053's milestone glyph list is open. */
+  readonly isMilestoneListOpen: boolean
   /** FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by AT-51. */
   readonly selectedGroupIds: readonly string[]
   /** FR-099 (MUST) -- who is chosen in the `Resource Roster`, by AT-85. */
@@ -1236,6 +1265,7 @@ function sessionOf(
     pointerRestedMs,
     iconUnderPointer,
     commandPaletteDraggedTo,
+    isMilestoneListOpen,
     selectedGroupIds,
     selectedResourceUids,
     propertiesShowing,
@@ -1278,6 +1308,19 @@ function sessionOf(
     // same reason `notices` and `confirmation` below are handed in.
     // ⛔ `paletteCornerOf` carries what is missing and what is settled.
     commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
+    // FR-041 (MUST): the theme has to CROSS to the side that paints. S-72 is
+    // the reader's light/dark and S-73 is the document's hue -- the number
+    // table T-236 writes as `H` wherever a colour follows the theme.
+    // ⛔ Neither crossed until 2026-08-25, which is exactly why choosing dark
+    // left the screen light: every piece of chrome fell back to the
+    // environment's own system colours, and those follow the OPERATING SYSTEM.
+    themePreference: held.documentSettings.themePreference,
+    themeHue: held.schedule.project.themeHue,
+    // S-142 of table T-206: whether FR-053's milestone glyph list is open.
+    // ⭐ Handed in for the reason the corner above is -- table T-206 is where
+    // the specification records that the document does not keep it, so it is a
+    // current value and LY-5 of table T-060 leaves those with the loop.
+    isMilestoneListOpen,
     // FR-085 (MUST) and FR-099 (MUST): the two sets of chosen things that are
     // NOT the drawing area's selection -- SL-1 of table T-023c leaves rows out
     // of that one and admits no resource at all, so `Selection` (PI-32) can hold
@@ -1895,6 +1938,40 @@ export function frameLoop(
   // `paletteCornerOf` for why no table keeps it and why it starts at no
   // corner of its own.
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
+  // FR-053 -- where the palette's corner stood when the band was pressed, and
+  // `null` while no band drag is in flight.
+  //
+  // ⭐ WHAT FR-053's LAST SENTENCE ON THE DRAG NEEDS AND NOTHING MORE -- that
+  // an interrupted one (IN-1 of table T-028) puts the corner back.
+  // The palette is moved by a travel (`moveCommandPalette`), so once a travel
+  // has been added the corner it was added to is gone -- and an interrupted
+  // drag has to be put back rather than left where the finger reached.
+  // ⚠️ IT COSTS NOTHING WHILE THE CORNER IS DECIDED ON THE RELEASE ALONE, which
+  // is what that requirement asks for: the travel never arrives, so this
+  // restores the corner the palette already had. ⛔ It is not the follow FR-053
+  // makes a MUST -- that requirement says in as many words that following is a
+  // matter of the PICTURE and does not bring the deciding moment forward, so
+  // the follow reaches the screen through what is DRAWN and not through this.
+  // ⛔ NOT A MEMBER OF ANYTHING PUBLISHED, and it must not become one from here:
+  // no row of table T-203 or table T-206 holds the corner itself
+  // (`paletteCornerOf` says so), let alone where a drag began.
+  let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
+  // S-142 of table T-206 -- whether FR-053's milestone glyph list is open.
+  //
+  // ⛔ STARTS CLOSED, which is that row's own default: FR-053 keeps the eight
+  // milestone shapes out of the palette until a person asks for them, so that
+  // the entrances they rarely use do not hide the schedule (GL-002).
+  // ⛔ `Esc` MUST NOT CLOSE IT (FR-053, and S-142 says the same). Nothing here
+  // is reached by the ladder: IN-4 of table T-028 spends its first level on the
+  // surface `ScreenState.surface` holds (S-99g), and S-142's own row says this
+  // is not one of those -- the palette's own list simply grows.
+  // ⚠️ Which is why it is held HERE rather than on
+  // `ScreenState`: a member of that value would be inside `escapeTarget`'s
+  // reach.
+  // ⚠️ Lost with the page, the same as the corner above and for the same
+  // reason: table T-206 is where the specification records that the document
+  // does not keep it.
+  let isMilestoneListOpen = false
   // FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by `TaskGroup.id`
   // (AT-51). ⛔ A SECOND SET AND NOT THE SELECTION: SL-1 of table T-023c leaves
   // rows out of the drawing area's selection in as many words, and FR-085 says
@@ -2202,6 +2279,7 @@ export function frameLoop(
           // inside the frame would be a second moment for one drawing.
           iconUnderPointer: partUnderPointer?.entry ?? null,
           commandPaletteDraggedTo,
+          isMilestoneListOpen,
           selectedGroupIds,
           selectedResourceUids,
           propertiesShowing,
@@ -2441,6 +2519,11 @@ export function frameLoop(
           pointerRestedMs: 0,
           iconUnderPointer: null,
           commandPaletteDraggedTo: null,
+          // ⚠️ Closed here whatever the reader left it at, for the reason the
+          // corner above is at none: EP-12 of table T-076 keeps this session's
+          // state out of the picture, and S-142 is as much this session's as the
+          // corner is.
+          isMilestoneListOpen: false,
           selectedGroupIds: [],
           selectedResourceUids: [],
           propertiesShowing: null,
@@ -3339,6 +3422,18 @@ export function frameLoop(
       writeBrowserStored('S-99', language)
       return true
     }
+    if (entry === MILESTONE_LIST_OPEN_ENTRY || entry === MILESTONE_LIST_FOLD_ENTRY) {
+      // S-142 of table T-206, turned the way the language above is: the press
+      // writes a current value LY-5 of table T-060 leaves with this layer, and
+      // `input-command-translator.ts` answers both rows with nothing.
+      // ⛔ WRITTEN FROM THE ENTRY AND NOT FROM WHAT IS HELD, which is the
+      // opposite of `chooseRow` and `toggleChosenResource` -- those two are one
+      // control that reverses, and these are two controls that each say which
+      // way they go. A press on IC-50 with the list already open leaves it
+      // open, which is what that row means.
+      isMilestoneListOpen = entry === MILESTONE_LIST_OPEN_ENTRY
+      return true
+    }
     if (entry === CONFIRMATION_PROCEED_ENTRY || entry === CONFIRMATION_CANCEL_ENTRY) {
       const asked = asking
       if (asked === null) return false
@@ -3549,7 +3644,7 @@ export function frameLoop(
         return
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
-        // moves by the travel `commandFromEntry` measured on the release.
+        // moves by the travel the translator measured.
         // ⭐ WRITTEN HERE AND NOWHERE ELSE, because it is a current value and
         // LY-5 of table T-060 leaves those with this layer: table T-108 has no
         // command for it, so `writeDocument` is not the road and no step of the
@@ -3557,6 +3652,20 @@ export function frameLoop(
         // ⚠️ Added to where the palette actually STOOD, which is the same
         // resolution the frame drew with -- so a first drag moves it from the
         // `Row Area`'s corner and not from the window's origin.
+        //
+        // ⛔ ONE TRAVEL PER DRAG IS WHAT FR-053 ASKS FOR. That requirement makes
+        // the palette FOLLOW the pointer while the band is held (MUST) and then
+        // says of that very same drag that the corner is decided at the
+        // moment it is let go -- the following is a matter of the picture and
+        // does not bring the deciding moment forward -- so the corner is written
+        // once, from the release IN-1 of table T-028 settles it on.
+        // ⚠️ IF A TRAVEL EVER ARRIVES WHILE THE FINGER IS STILL DOWN, IT MUST BE
+        // AN INCREMENT AND NEVER A TOTAL, because each one is added to the
+        // corner the previous one left: a travel measured from the PRESS would
+        // be right only for the first piece and would then overshoot by more the
+        // more pieces one drag was reported in. ⛔ Nothing here can tell the two
+        // apart -- a travel is a pair of numbers either way -- so this states
+        // what it relies on and the emitting side keeps it.
         const from = paletteCornerOf(commandPaletteDraggedTo, frame.regions)
         commandPaletteDraggedTo = { x: from.x + action.by.dx, y: from.y + action.by.dy }
         return
@@ -3755,7 +3864,20 @@ export function frameLoop(
       // `InputContext.pressed` says in as many words that a caller which
       // leaves it null on the press leaves every entry the surface drew
       // unassigned.
-      if (input.phase === 'down') pressed = collectPress(input, frame, partUnderPointer)
+      if (input.phase === 'down') {
+        pressed = collectPress(input, frame, partUnderPointer)
+        // FR-053: a press on GR-19's band begins a drag, so the corner the
+        // palette stands at now is the one an interruption (IN-1) has to put
+        // back.
+        // ⛔ TAKEN ON THE PRESS AND NOWHERE ELSE. `paletteCornerOf` resolves the
+        // default off THIS frame's `Row Area`, so a corner read after the window
+        // has moved under an undragged palette would restore a place it never
+        // stood at.
+        commandPaletteCornerAtPress =
+          partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
+            ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
+            : null
+      }
     }
 
     // ⭐ R7.4: collected first, then processed. ONE context is built and the
@@ -3815,6 +3937,27 @@ export function frameLoop(
     // after, so IN-4a's MUST could never hand `Esc` back to the browser and
     // FR-071's way out of full screen would be unreachable.
     if (hasEndedGesture(input) || escapeLevel === 'gesture') pressed = null
+
+    // FR-053's last sentence on the drag -- an interrupted one (IN-1 of table
+    // T-028) puts the palette back where the drag began.
+    // ⭐ WRITTEN RATHER THAN LEFT TO THE LINE ABOVE. Ending the gesture is the
+    // whole of the interruption for a drag whose value is settled on the
+    // release: with no press there is no release to settle from, so nothing was
+    // ever written and the corner still stands where it stood. ⛔ That is an
+    // accident of WHEN the travel arrives, and the requirement is about the
+    // corner -- so the corner is stated here, and a travel that reached
+    // `carryOutAction` while the finger was still down is undone instead of
+    // being kept.
+    // ⚠️ BEFORE `carryOutAction`, WHICH COSTS NOTHING: `escapeLevelOf` answers
+    // for a key happening alone, and a travel is measured from a pointer one --
+    // so no travel can arrive on the happening that interrupts.
+    if (escapeLevel === 'gesture' && commandPaletteCornerAtPress !== null) {
+      commandPaletteDraggedTo = commandPaletteCornerAtPress
+    }
+    // ⚠️ Cleared on the same two happenings the press is, and never on its own:
+    // a corner kept past the gesture would be spent by the NEXT `Esc`, which is
+    // a level IN-4 of table T-028 does not give it.
+    if (hasEndedGesture(input) || escapeLevel === 'gesture') commandPaletteCornerAtPress = null
 
     // FR-032 / FR-038 / OP-3: the six entries this loop answers for itself, and
     // FR-096's format beside them, both read off the press this release settled

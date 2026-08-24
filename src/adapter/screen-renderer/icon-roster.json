@@ -531,7 +531,7 @@
     "Row Title Panel"
    ],
    "group": null,
-   "entryTo": "行の配下を 1 段開く",
+   "entryTo": "行の配下をすべて開く",
    "authority": "表 T-051 の `HF-2`"
   },
   {
@@ -540,7 +540,7 @@
     "Row Title Panel"
    ],
    "group": null,
-   "entryTo": "行の配下をすべて閉じる",
+   "entryTo": "その行自身を畳む",
    "authority": "表 T-051 の `HF-3`"
   },
   {

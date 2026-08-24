@@ -631,23 +631,23 @@
   {
    "rowId": "IC-58",
    "label": {
-    "ja": "配下を 1 段開く",
-    "en": "Expand one level"
+    "ja": "すべて開く",
+    "en": "Expand"
    },
    "hint": {
-    "ja": "この行の配下を 1 段だけ開く",
-    "en": "Open one level of what is under this row"
+    "ja": "この行の配下をすべて開く",
+    "en": "Open every row below this one"
    }
   },
   {
    "rowId": "IC-59",
    "label": {
-    "ja": "配下をすべて閉じる",
-    "en": "Collapse all below"
+    "ja": "畳む",
+    "en": "Collapse"
    },
    "hint": {
-    "ja": "この行の配下をすべて閉じる",
-    "en": "Close everything under this row"
+    "ja": "この行自身を畳む",
+    "en": "Collapse this row itself"
    }
   },
   {

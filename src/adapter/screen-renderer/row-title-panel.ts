@@ -34,14 +34,15 @@
 // public entry, so the duplication is the boundary's price, not an oversight.
 // ⛔ Both sides must move together if FR-093's estimate ever changes.
 //
-// STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what the panel shows as selected.
-// FR-085 (MUST) has rows selected in this panel and says in as many words that
-// this is NOT the set table T-023c governs, because SL-1 leaves rows out of the
-// drawing area's selection. Searched: `Selection` (PI-32, whose `SelectableKind`
-// is T-023c's five and admits no row), `ScreenState` (S-99e / S-99f / S-99g),
-// `ScreenSession`, table T-203 and table T-206 -- nothing holds that set, and
-// the four arguments this unit is given cannot carry it. Every row is therefore
-// described as not selected, which is the only answer that invents nothing.
+// ⭐ WHAT THE PANEL SHOWS AS CHOSEN IS `ScreenSession.selectedGroupIds`, NOT
+// `Selection`. FR-085 (MUST) has rows chosen in this panel and says in as many
+// words that this is NOT the set table T-023c governs, because SL-1 leaves rows
+// out of the drawing area's selection -- and `Selection` (PI-32) could not hold
+// them anyway, its `SelectableKind` being T-023c's five. ⚠️ A STOP stood here
+// saying no argument carried the set and that every row was therefore described
+// as not chosen; the shell holds it now and `isSelected` below reads it, so
+// that note had become the reason a chosen row was drawn as unchosen.
+// ⛔ Still nothing STORES it (PD-142) -- it is lost with the page.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule, TaskGroup } from '../../entity/document-model/schedule/schedule'
@@ -55,17 +56,27 @@ import type { RowExpander, RowTitle, RowTitlePanel, ScreenSession } from './scre
  *
  * ⭐ A constant on purpose. FR-085 forbids the room to change with whether the
  * controls are drawn (MUST NOT): the export draws none of them (EP-4 of table
- * T-076), so a room that followed them would cut the same name in two places.
+ * T-076), and HF-6 of table T-051 now draws them only while the pointer is on
+ * the row's name -- so a room that followed them would put the cut in a
+ * different place in each of those three, and would move it under the reader's
+ * own hand.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how wide that room is. FR-085
- * makes subtracting it a MUST, and HF-4 / HF-5 of table T-051 put the pair at
- * the panel's right edge at a size that does not follow the row's font -- but no
- * row holds the size. Searched `_assets/tbl-settings.md` tables T-201, T-203,
- * T-206, T-211 and T-212, table T-051, FR-098's own paragraph on the `Row Pin`,
- * and table T-109, whose IC-58 .. IC-61 have no figure drawn at all (RC-13 of
- * table T-026). Zero is taken because it is the one value that mints nothing: a
- * made-up number would move every cut in the panel and would read afterwards as
- * though some table had decided it.
+ * STOP -- ⛔ THE VALUE HAS NOT REACHED `src/`, AND ZERO IS THE ABSENCE OF IT
+ * RATHER THAN AN ANSWER. ⚠️ WHAT WAS WRITTEN HERE BEFORE IS NO LONGER TRUE: it
+ * said no row of the specification held the size, and S-140 of table T-206 now
+ * does -- FR-085 was given a sentence naming it on 2026-08-25, and CR-245
+ * records that this very zero is what made the controls collide with the row's
+ * name.
+ * ⛔ WHAT BLOCKS IT IS THE ROAD AND NOT THE RULING. Rule 03 section 1 requires
+ * a value of the specification to arrive GENERATED, and the generated block at
+ * the foot of this file carries S-139 alone: `NOT_STORED_TARGETS` in
+ * `tools/generate_entity_types.py` is where a row of table T-206 is given the
+ * unit that reads it, and S-140 is in no entry of it. That file is not this
+ * unit's to change, and typing the number here is the very thing that rule
+ * forbids -- so the room stays at nothing until the generator carries it.
+ * ⭐ ONE LINE CLOSES IT once `NOT_STORED_ROW_CONTROL_SIZES` holds the row:
+ * `NOT_STORED_ROW_CONTROL_SIZES['S-140']` in place of this constant, read the
+ * way `controlTopOffsetPx` already reads S-139.
  */
 const CONTROLS_ROOM_PX = 0
 
@@ -447,7 +458,10 @@ export function rowTitlePanelFromSchedule(
 export const NOT_STORED_ROW_CONTROL_SIZES: {
   /** S-139 */
   readonly 'S-139': number
+  /** S-140, in px */
+  readonly 'S-140': number
 } = {
   'S-139': 0.25,
+  'S-140': 56,
 }
 // </generated>

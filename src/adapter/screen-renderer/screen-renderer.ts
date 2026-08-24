@@ -1214,6 +1214,24 @@ export interface ScreenSession {
   /** Where the person dragged the palette to (FR-053). See `CommandPalette.at`. */
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   /**
+   * The light/dark the reader chose (S-72), and the hue the document carries
+   * (S-73, held at `Project` by DR-5 of table T-052).
+   *
+   * ⛔ WITHOUT THESE THE THEME CANNOT BE PAINTED AT ALL. FR-041 (MUST) has the
+   * ground painted and forbids (MUST NOT) leaving it to the environment's own
+   * system colours, which follow the OPERATING SYSTEM rather than the reader's
+   * choice -- and the side that paints is across IF-9 from every unit that can
+   * read a setting. Measured 2026-08-25: nothing carried either number across,
+   * which is the whole reason a reader could choose dark and stay light.
+   *
+   * ⭐ THE HUE TRAVELS AS A NUMBER, ONCE. Table T-236 writes `H` wherever a
+   * colour follows the theme, so the painting side substitutes this one value
+   * rather than each row restating it.
+   */
+  readonly themePreference: 'light' | 'dark'
+  /** See `themePreference`. S-73, and the value table T-236's `H` stands for. */
+  readonly themeHue: number
+  /**
    * Whether the milestone glyph list is open (S-142 of table T-206).
    *
    * ⛔ FR-053 (MUST) keeps the eight milestone shapes out of the palette until

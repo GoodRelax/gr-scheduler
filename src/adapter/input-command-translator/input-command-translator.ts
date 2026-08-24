@@ -257,6 +257,30 @@ export interface PointerPress {
    * asking about AG-9 has to take it too.
    */
   readonly pressRow: PressRow
+  /**
+   * Where the pointer stood when the caller last APPLIED a
+   * `moveCommandPalette` this file answered for THIS gesture -- the following
+   * FR-053 asks for, measured so far.
+   *
+   * ⭐ WHY A TRAVEL NEEDS A SECOND POINT AT ALL. FR-053 (MUST) has the palette
+   * follow the pointer while GR-19's band is held, and `moveCommandPalette`
+   * answers with a DISTANCE rather than a corner, so a report on every move
+   * has to be the distance since the report before it -- add up distances all
+   * measured from the press instead and the palette runs away by the sum.
+   * ⛔ It cannot be worked out here: UF-30 is `pure` in table T-075 and LY-5 of
+   * table T-060 leaves a current value with the Framework, so the party that
+   * applied the travel is the party that knows where the pointer was.
+   *
+   * ⚠️ ABSENT MEANS THE CALLER DOES NOT FOLLOW, and the answer changes with
+   * it: with nothing here a move reports NOTHING and the release reports the
+   * whole travel from the press, which is what a caller that only settles on
+   * the release wants (IN-1). A caller that fills it -- with the press's own
+   * point until it has applied one, and with the pointer of each travel it
+   * applies after that -- gets the picture following, and the same total,
+   * because the parts telescope. ⛔ It is NOT optional so that it may be
+   * forgotten: the STOP note by `ENTRY` names what the shell still owes.
+   */
+  readonly followedTo?: { readonly x: number; readonly y: number }
 }
 
 /**
@@ -417,6 +441,16 @@ export type InputAction =
    * GR-19 of table T-023d -- the band on top of the `Command Palette` was
    * dragged, so FR-053's palette moves by what the pointer travelled.
    *
+   * ⭐ ANSWERED ON EVERY MOVE AND NOT ONLY ON THE RELEASE. FR-053 (MUST) has
+   * the palette follow the pointer while the band is held and says why -- a
+   * palette that does not move is indistinguishable from one not caught. Each
+   * answer is the travel SINCE THE ONE BEFORE IT (`PointerPress.followedTo`),
+   * so a caller that keeps applying them ends where a caller that only read
+   * the release would have put it. ⚠️ THE PICTURE, NOT THE MOMENT THE VALUE IS
+   * SETTLED: FR-053 names IN-1 of table T-028 in the same breath, so an
+   * interrupted drag still owes the corner it started from -- see the STOP note
+   * by `ENTRY`, which names who has to hold that corner.
+   *
    * ⭐ A DISTANCE AND NOT A PLACE. Where the palette stands is
    * `ScreenSession.commandPaletteAt`, which the shell holds because no row of
    * table T-203 or table T-206 keeps it -- so this file has no corner to add
@@ -521,6 +555,27 @@ export type InputAction =
    * ない」 -- so table T-108 has no row for it and there is nothing to plan.
    */
   | { readonly kind: 'toggleAgentApi' }
+  /**
+   * IC-50 / IC-51 -- FR-053 (MUST) keeps the milestone glyph entrances off the
+   * palette until the list is opened, so `ScreenSession.isMilestoneListOpen`
+   * moves.
+   *
+   * ⭐ THE DIRECTION IS THE ROW'S OWN AND IS NOT A TOGGLE. Table T-109 gives
+   * the opening and the folding a row EACH -- the shape IC-58 / IC-59 have and
+   * the opposite of the one IC-67 / IC-68 have -- so a press names the value it
+   * writes and what the value was before does not enter into it. ⚠️ Two rows
+   * are not the second entrance FR-029 (MUST NOT) refuses: they are two
+   * operations, the way HF-1 of table T-051 puts an opening control and a
+   * closing control on every row.
+   *
+   * ⛔ NOT A DOCUMENT CHANGE. S-142 of table T-206 keeps the state out of the
+   * document -- that row is where the specification says so -- and table T-108
+   * has no row, so `applyDocumentChange` (PI-8) has nothing to plan.
+   * ⛔ AND NOT A SURFACE. FR-053 (MUST NOT) refuses to let `Esc` close it, and
+   * nothing here has to enforce that: `screenStateFromInput` can only reach
+   * what `ScreenState` holds, and S-99g's `surface` is not this.
+   */
+  | { readonly kind: 'setMilestoneListOpen'; readonly isOpen: boolean }
 
 /** What `commandFromInput` answers. */
 export interface TranslatedInput {
@@ -1273,6 +1328,12 @@ const ENTRY = {
   guideCursorCrosshair: 'IC-47',
   guideCursorSingleVertical: 'IC-48',
   guideCursorDoubleVertical: 'IC-49',
+  /**
+   * IC-50 / IC-51 -- FR-053's milestone glyph list, opened and folded. The
+   * state is S-142 of table T-206, which the shell holds.
+   */
+  milestoneListOpen: 'IC-50',
+  milestoneListClose: 'IC-51',
   /** IC-52 -- the first level of IN-4 (table T-028). */
   closeSurface: 'IC-52',
   /**
@@ -1289,12 +1350,30 @@ const ENTRY = {
    * name table T-103 settles for it.
    *
    * ⛔ TWO CONTROLS, NOT ONE CONTROL IN TWO STATES. HF-1 of table T-051 puts one
-   * of each on every row, and the two are not inverses: HF-2 opens ONE level
-   * (MUST) while HF-3 closes the whole subtree. Reading them as one toggle would
-   * lose HF-2's limit, which is the one thing that row states as a MUST.
+   * of each on every row, and the two are not inverses: HF-2 opens everything
+   * BELOW the row (HR-3 of table T-015) while HF-3 folds the row ITSELF (HR-5).
+   * Reading them as one toggle would lose that difference, and the difference is
+   * the whole of how a folded row is reopened -- HF-3 says so: the open control
+   * of the row one above is what opens it.
+   * ⚠️ THE TWO USED TO MEAN THE OTHER THING, and this is not a re-reading: HF-2
+   * records that it once opened one level and HF-3 that it once closed the
+   * subtree, and both rows carry the ruling that changed them (2026-08-25),
+   * because the pair left no way to reopen what had been folded.
    */
   rowExpanderOpen: 'IC-58',
   rowExpanderClose: 'IC-59',
+  /**
+   * IC-74 -- HF-10 of table T-051, which is HR-1 of table T-015: every row in
+   * the document opens.
+   *
+   * ⛔ NOT ONE OF THE THREE DRAWN PER ROW, although it sits on the same panel.
+   * HF-10 (MUST) puts ONE of it at the top of the `Row Title Panel`, so no row
+   * of the panel is its subject and `ScreenPart.rowGroupId` is null under it --
+   * which is why it is answered beside `commandFromRowEntry` and not inside it.
+   * ⭐ IT IS WHAT SAVES A TOP-LEVEL ROW: HF-3 lets such a row fold itself, and
+   * HF-3's own note records that there is then no row above to open it.
+   */
+  rowExpanderOpenAll: 'IC-74',
   /**
    * IC-60 -- FR-098. U-48 `Row Pin` of table T-103.
    *
@@ -1365,22 +1444,50 @@ const ENTRY = {
 // ⚠️ EVERYTHING ON THIS SIDE IS WRITTEN. The row is named above and
 // assigned in `commandFromEntry`, and `frame-loop.ts` holds
 // `ScreenSession.commandPaletteAt` and moves it.
+//
+// STOP -- ⛔ FR-053's FOLLOWING PALETTE (MUST) NEEDS TWO THINGS OF THE CALLER,
+// and neither is writable from this file. Until both are there the picture does
+// not follow, and the drag lands on the release exactly as it did before:
+//
+//   3. `PointerPress.followedTo` must be FILLED -- with the press's own point
+//      when the press is recorded, and with the pointer of every travel the
+//      caller applies after that. ⛔ That member says why this file cannot do
+//      it: UF-30 is `pure` (table T-075) and LY-5 of table T-060 leaves a
+//      current value with the Framework. ⚠️ While it is absent `paletteFollow`
+//      reports NOTHING rather than a travel measured from the press, because a
+//      caller that keeps adding travels all measured from the press would send
+//      the palette running by their sum.
+//   4. ⛔ THE CORNER THE DRAG BEGAN AT IS HELD BY NOBODY, and following makes
+//      that a defect rather than a gap. FR-053 names IN-1 of table T-028 in the
+//      same breath, and that requirement's last sentence owes the original
+//      corner back on an interruption -- so an aborted drag
+//      (`Esc`, or IN-1a's lost pointer) owes the corner it started from, and
+//      `frame-loop.ts` keeps one corner and no record of where it stood at the
+//      press. ⚠️ Reporting only on the release hid this: there was nothing to
+//      undo, because nothing had moved yet. Searched: FR-053, table T-028
+//      (IN-1 / IN-1a / IN-4), table T-023d GR-19, table T-203, table T-206.
 
 /**
  * The entries that flip ONE boolean row of table T-202, and which row each one
  * flips.
  *
- * ⭐ THE SET IS FR-049's, NARROWED BY TABLE T-109. FR-049 (MUST) limits the
- * toggles to the rows 型が真偽である and (MUST NOT) forbids treating every row
- * of that table as one, which is exactly the eight `VisibleElement` names --
- * and table T-109 draws an entrance for only these five. The other three have
- * no row there and none is invented, the way `commandFromRowEntry` leaves
- * table T-015's entrance-less operations alone.
+ * ⭐ THE SET IS FR-049's, NARROWED TWICE. FR-049 (MUST) limits the toggles to
+ * the rows of table T-202 whose type is boolean and (MUST NOT) forbids
+ * treating every row of that table as one; `VisibleElement` is what those rows are called, and
+ * table T-109 draws an entrance for only some of them. ⛔ NO COUNT IS WRITTEN
+ * HERE: FR-049 states none, table T-202 has grown a boolean row since this note
+ * first named a number, and the number went stale in the same breath.
+ * The rows with no entrance are left alone rather than given one, the way
+ * `commandFromRowEntry` leaves table T-015's entrance-less operations alone.
  *
- * ⚠️ IC-4 IS ON THE HEADER AND THE OTHER FOUR ON THE PALETTE, which is why
- * they are one map and not two: what a press does is the same rule for all
- * five, and the surface an entry is drawn on is table T-109's business rather
- * than this file's.
+ * ⚠️ ONE ROW OF TABLE T-109 IS MISSING FROM THIS MAP AND IS NOT AN OVERSIGHT:
+ * IC-41 draws an entrance for `watermarkVisible`, and the STOP note at the foot
+ * of this file says what stands between the press and the write.
+ *
+ * ⚠️ IC-4 IS ON THE HEADER AND THE REST ON THE PALETTE, which is why they are
+ * one map and not two: what a press does is the same rule for all of them, and
+ * the surface an entry is drawn on is table T-109's business rather than this
+ * file's.
  */
 /**
  * What FR-049's toggles name, taken off the command rather than imported.
@@ -1797,10 +1904,16 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     if (press !== null && press.on !== null) return CONSUMED_ELSEWHERE
     return isOnRowArea(context, input.x, input.y) ? CONSUMED_ELSEWHERE : UNASSIGNED
   }
-  // ⚠️ A move carries no action either. What a drag will do is decided once, on
-  // release, from the press -- and the picture drawn WHILE dragging is the
-  // renderer's, not a change to the document.
-  if (input.phase === 'move') return UNASSIGNED
+  // ⚠️ A move carries no action either, with ONE exception below. What a drag
+  // will do is decided once, on release, from the press -- and the picture
+  // drawn WHILE dragging is the renderer's, not a change to the document.
+  //
+  // ⭐ THE EXCEPTION IS FR-053's FOLLOWING PALETTE (MUST), and it is an
+  // exception to the sentence above rather than to IN-1: the palette is not
+  // drawn from the document, so what a move reports for it settles no value of
+  // the schedule and pushes no undo step. Every other gesture's picture is the
+  // renderer's to draw from the press it can see.
+  if (input.phase === 'move') return paletteFollow(input, context)
   // IN-1a: the pointer was lost outside the window, so the drag ends as an
   // abort (MUST) -- nothing is written. ⭐ Saying so is what keeps AG-9 from
   // refusing every later write: the shell drops the press it is holding.
@@ -1861,6 +1974,51 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       // (SL-3 / MK-11), and `selectionFromInput` answers it.
       return CONSUMED_ELSEWHERE
   }
+}
+
+/**
+ * How far the palette still owes, for the happening now in hand -- the pointer
+ * against the last point the caller followed it to, or against the press while
+ * it has followed it nowhere.
+ *
+ * ⭐ ONE READING FOR THE MOVE AND THE RELEASE. Both owe the same distance and
+ * the sum of every answer over one gesture is `release - press`, whichever way
+ * the caller reports: written twice, the two would drift apart the first time
+ * `followedTo` changed meaning.
+ *
+ * @purity pure
+ */
+function paletteTravel(
+  at: PointerInput,
+  press: PointerPress,
+): { readonly dx: number; readonly dy: number } {
+  const from = press.followedTo ?? press.at
+  return { dx: at.x - from.x, dy: at.y - from.y }
+}
+
+/**
+ * FR-053 (MUST): while GR-19's band is held, the palette follows the pointer.
+ *
+ * ⛔ GR-19 IS THE ONLY GESTURE THAT REPORTS ON A MOVE. Table T-023a's other
+ * five settle on the release (IN-1) and their pictures are the renderer's, so
+ * this asks what the press landed ON rather than which row of that table it
+ * began: the note under table T-023a keeps its decision order off everything
+ * the screen surface drew, and the band is one of those things.
+ *
+ * ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`. That member
+ * says why: a caller that does not record what it applied would add up travels
+ * all measured from the press and send the palette running. ⭐ Answering
+ * `UNASSIGNED` is what a move has always answered, so such a caller is left
+ * exactly where it was rather than half moved.
+ *
+ * @purity pure
+ */
+function paletteFollow(input: PointerInput, context: InputContext): TranslatedInput {
+  const press = context.pressed
+  if (press === null || press.on === null) return UNASSIGNED
+  if (press.on.entry !== ENTRY.paletteGrabBand) return UNASSIGNED
+  if (press.followedTo === undefined) return UNASSIGNED
+  return acted({ kind: 'moveCommandPalette', by: paletteTravel(input, press) })
 }
 
 /**
@@ -1989,6 +2147,11 @@ function commandFromEntry(
     case ENTRY.guideCursorSingleVertical:
     case ENTRY.guideCursorDoubleVertical:
       return commandFromGuideCursorEntry(entry)
+    case ENTRY.milestoneListOpen:
+    case ENTRY.milestoneListClose:
+      // FR-053 -- S-142, which the shell holds. Each row names its own
+      // direction; the action's note says why this is not a toggle.
+      return acted({ kind: 'setMilestoneListOpen', isOpen: entry === ENTRY.milestoneListOpen })
     case ENTRY.paletteGrabBand:
       // GR-19 of table T-023d -- FR-053's drag, settled on the release like
       // every other one here (IN-1 of table T-028).
@@ -2004,14 +2167,31 @@ function commandFromEntry(
       // ⚠️ The pointer's travel and not its place: a press may begin anywhere
       // on the band, so the corner has to move by the difference rather than
       // jump to where the finger let go.
-      return acted({
-        kind: 'moveCommandPalette',
-        by: { dx: release.x - press.at.x, dy: release.y - press.at.y },
-      })
+      //
+      // ⭐ WHAT IS LEFT OF IT, WHICH IS THE WHOLE TRAVEL WHEN NOTHING FOLLOWED.
+      // FR-053 (MUST) has the palette follow while the band is held, so the
+      // moves before this one may already have been reported and applied;
+      // `paletteTravel` is where the two readings are settled, once.
+      return acted({ kind: 'moveCommandPalette', by: paletteTravel(release, press) })
     case ENTRY.rowExpanderOpen:
     case ENTRY.rowExpanderClose:
     case ENTRY.rowPin:
       return commandFromRowEntry(entry, on.rowGroupId, context)
+    case ENTRY.rowExpanderOpenAll:
+      // HF-10 of table T-051, which is HR-1 of table T-015.
+      //
+      // ⭐ CM-72 IS ALREADY THAT OPERATION. Its row in table T-108 asks for
+      // every folded row to open, which is HR-1 exactly; that row's authority
+      // column names FR-055 because that is the requirement the command was
+      // raised for, and a command is not narrowed to the one that raised it.
+      // ⚠️ `edit-task-group.ts` still calls the fit the only operation that
+      // opens them all -- see the report for this unit.
+      // ⛔ No loop of CM-33 is built instead: FR-031 (MUST) makes one press one
+      // undo step, and a step per row would count the document's rows.
+      // ⚠️ NEITHER THE ZOOM NOR THE VIEWPORT MOVES. HF-10 says so, and that is
+      // the whole of what separates this press from the fit (FR-055), which
+      // owes CM-71 first -- so `fitWrites` is not reached and this is one write.
+      return changed([{ kind: 'expandAllTaskGroups' }])
     case ENTRY.documentSettingsProperties:
       // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
       // the action's own note.
@@ -2041,7 +2221,7 @@ function commandFromEntry(
 }
 
 /**
- * One press on one of FR-049's five toggles (CM-58).
+ * One press on one of FR-049's toggles (CM-58).
  *
  * ⛔ READ FROM THE DOCUMENT, NEVER FROM THE DRAWN ENTRY, for the reason
  * `commandFromRowEntry` gives at the pin: a drawn screen is as old as the last
@@ -2049,14 +2229,14 @@ function commandFromEntry(
  * the picture could write the value that is already there. ⚠️ CM-58 does not
  * catch that -- it puts whatever it is given -- so the toggle would simply
  * refuse to move, the way a pin read against a stale picture refuses to come
- * off. ⭐ No undo step is at stake here: UN-7 keeps these five out of the
+ * off. ⭐ No undo step is at stake here: UN-7 keeps the toggles out of the
  * history altogether, which is why `isUndoable` names CM-58.
  *
  * @purity pure
  */
 function commandFromVisibleElementEntry(entry: string, context: InputContext): TranslatedInput {
   const element = visibleElementOfEntry(entry)
-  // Not one of the five. ⛔ Still this tool's press (MK-10).
+  // Not a toggle's entrance. ⛔ Still this tool's press (MK-10).
   if (element === null) return CONSUMED_ELSEWHERE
   const isVisibleNow = context.document.documentSettings[element]
   return changed([{ kind: 'setElementVisible', element, visible: !isVisibleNow }])
@@ -2095,11 +2275,12 @@ function commandFromGuideCursorEntry(entry: string): TranslatedInput {
  * T-066 freezes the gesture's screen at the press, so a panel scrolled since
  * must not move the answer to another row.
  *
- * ⛔ ONLY TWO OF TABLE T-015's SIX OPERATIONS HAVE AN ENTRANCE AT ALL. Table
- * T-109 places nothing on HR-1, HR-2, HR-3, HR-5 or HR-6, and this file may not
- * invent one -- so IC-58 is HF-2 and IC-59 is HR-4, each exactly as its row
- * words it, and neither is widened to reach an operation the specification has
- * given no entrance.
+ * ⛔ THREE OF TABLE T-015's SIX OPERATIONS HAVE AN ENTRANCE, AND ONE OF THE
+ * THREE IS NOT HERE. HF-2 is HR-3 and HF-3 is HR-5, both drawn per row; HF-10
+ * is HR-1 and is drawn ONCE at the top of the panel, so `commandFromEntry`
+ * answers it directly. Table T-109 places nothing on HR-2, HR-4 or HR-6, and
+ * this file may not invent one -- neither control below is widened to reach an
+ * operation the specification has given no entrance.
  *
  * @purity pure
  */
@@ -2138,28 +2319,28 @@ function commandFromRowEntry(
   }
 
   if (entry === ENTRY.rowExpanderOpen) {
-    // HF-2 (MUST): ONE level, which is this row's own fold and nothing below
-    // it -- HR-1a hides the rows under a collapsed row, so opening this one is
-    // exactly what makes its children appear and leaves each of them folded as
-    // it was. ⛔ Opening the whole subtree is HR-3, and HF-2 names that row to
-    // say it is NOT this control.
-    const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
-    // ⚠️ Already open, or gone: no write. `changed` says why an empty bundle is
-    // not one -- WS-4 would push an undo step for a press that moved nothing.
-    if (row === undefined || row.isCollapsed !== true) return CONSUMED_ELSEWHERE
-    return changed([{ kind: 'setTaskGroupCollapsed', groupId: rowGroupId, collapsed: false }])
+    // IC-58 -- HF-2 (MUST), which names HR-3 of table T-015: everything BELOW
+    // this row opens, however deep, and however each of those rows was left.
+    // ⛔ THE ROW ITSELF IS NOT OPENED, and that is the pair HF-3 describes: a
+    // row that folded itself is opened by the control of the row ONE ABOVE it,
+    // so this control reaching its own row would give that operation two
+    // entrances and leave the one above with nothing to do.
+    // ⚠️ ONE BUNDLE. FR-031 (MUST) makes one gesture one undo step, so every
+    // row that opens opens in the same write.
+    return changed(opensUnderRow(context.document.schedule, rowGroupId))
   }
 
-  // IC-59 -- HF-3, whose wording is HR-4 of table T-015 word for word: every row
-  // BELOW this one, and the descendants are what both rows name.
-  // ⛔ THE ROW ITSELF IS NOT FOLDED. Table T-015 keeps folding the row itself as
-  // a separate operation (HR-5) and table T-109 gives THAT one no entry, so
-  // folding this row here would answer an operation the specification has placed
-  // no entrance for. ⚠️ It is a gap in table T-109 and not a choice made here:
-  // HR-1, HR-2, HR-3, HR-5 and HR-6 are all without an entry.
-  // ⚠️ ONE BUNDLE. FR-031 (MUST) makes one gesture one undo step, so every row
-  // that folds folds in the same write.
-  return changed(foldsUnderRow(context.document.schedule, rowGroupId))
+  // IC-59 -- HF-3 (MUST), which names HR-5 of table T-015: THIS row folds, and
+  // nothing below it is written.
+  // ⛔ THE SUBTREE IS NOT FOLDED. Folding the descendants as well is HR-4, and
+  // table T-109 gives that operation no entry -- while HR-1a already hides
+  // every row under this one, so the extra writes would change no picture and
+  // would cost one command per hidden row.
+  const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
+  // ⚠️ Already folded, or gone: no write. `changed` says why an empty bundle is
+  // not one -- WS-4 would push an undo step for a press that moved nothing.
+  if (row === undefined || row.isCollapsed === true) return CONSUMED_ELSEWHERE
+  return changed([{ kind: 'setTaskGroupCollapsed', groupId: rowGroupId, collapsed: true }])
 }
 
 /**
@@ -2199,22 +2380,27 @@ function rosterChoiceOfEntry(entry: string, schedule: Schedule): readonly number
 }
 
 /**
- * One `setTaskGroupCollapsed` per row under `ancestorId` that is not folded
- * already, in the order the document prints them.
+ * One `setTaskGroupCollapsed` per row under `ancestorId` that is folded, in the
+ * order the document prints them -- HR-3 of table T-015, which HF-2 names.
  *
- * ⚠️ The already-folded rows are left out rather than written again: CM-33
- * answers an unchanged fold by returning the document untouched, so writing
- * them would cost an undo step for a subtree that is already shut.
+ * ⚠️ The rows that are already open are left out rather than written again:
+ * CM-33 answers an unchanged fold by returning the document untouched, so
+ * writing them would cost an undo step for a subtree that is already open.
+ *
+ * ⛔ NOT WHAT THE WHOLE-DOCUMENT CONTROL DOES. IC-74 is HR-1 and reaches rows
+ * that are under no ancestor at all, so it answers with CM-72 rather than with
+ * this -- and a version of this taking `null` for "everywhere" would be the
+ * same operation written twice (R2.7).
  *
  * @purity pure
  */
-function foldsUnderRow(schedule: Schedule, ancestorId: string): readonly DocumentCommand[] {
+function opensUnderRow(schedule: Schedule, ancestorId: string): readonly DocumentCommand[] {
   const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
   const commands: DocumentCommand[] = []
   for (const row of schedule.taskGroups) {
-    if (row.isCollapsed === true) continue
+    if (row.isCollapsed !== true) continue
     if (!isRowUnder(parentOf, row.parentId, ancestorId)) continue
-    commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: true })
+    commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: false })
   }
   return commands
 }
@@ -2908,10 +3094,10 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 18 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
-// ANSWERS NONE OF THEM. ⚠️ The number is the 73 rows of that table less the 55
-// this file assigns (`ENTRY` holds 40 and `ARMED_BY_ENTRY` 15), and the two
-// groups below add up to it: 6 + 12.
+// STOP -- ⛔ 16 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
+// ANSWERS NONE OF THEM. ⚠️ The number is the 74 rows of that table less the 58
+// this file assigns (`ENTRY` holds 43 and `ARMED_BY_ENTRY` 15), and the two
+// groups below add up to it: 6 + 10.
 // ⭐ The entries that ARE answered were chosen by a rule rather than one at a
 // time. An entry is answered when
 //   ① this file already answers the same operation for a row of table T-036, or
@@ -2931,6 +3117,9 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // already had and for the same reason: table T-108 has no row, so
 // `applyDocumentChange` (PI-8) has nothing to plan, and LY-5 of table T-060
 // leaves a current value with the Framework.
+// ⭐ ④ IS WHAT LET IC-50 AND IC-51 OUT OF THE LIST BELOW, where they stood as
+// undecidable: S-142 of table T-206 and `ScreenSession.isMilestoneListOpen`
+// have given the palette's own folding somewhere to be held.
 //
 // ⚠️ EVERY COUNT ABOVE WAS MEASURED AGAINST THE TREE, not carried forward, and
 // this note has been wrong twice before. Once its headline number disagreed
@@ -2963,7 +3152,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                has the READ raise the choice, so an entry that opened it
 //                would be one the specification does not place.
 //
-// ⛔ 12 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
+// ⛔ 10 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
 //
 //   IC-18        FR-066's dialogue field, 「出す・しまう」. ⛔ NOTHING HOLDS THAT
 //                SWITCH: `ScreenState` has no member for it, `ScreenSession` has
@@ -2978,14 +3167,33 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                place to land.
 //   IC-37 / IC-38  FR-034's alignment. ⛔ Table T-108 holds NO command for it,
 //                so there is nothing to plan even with the press in hand.
-//   IC-41        FR-020 asks for the unlock password first, and nothing carries
-//                a password back from a person: table T-037 has no row for
-//                asking for one (NT-7 asks only for 続ける / 取りやめる) and
-//                nothing published holds what was typed.
+//   IC-41        ⭐ IT NOW HAS SOMEWHERE TO WRITE AND STILL CANNOT BE PRESSED.
+//                `watermarkVisible` is a boolean row of table T-202, so FR-049's
+//                toggle rule covers it and `commandFromVisibleElementEntry` is
+//                the shape it wants. TWO things stand in the way, and neither is
+//                this file's to move:
+//                ⛔ FR-020 asks for the unlock password before the watermark may
+//                be hidden and matches it as a SHA-256, and nothing carries a
+//                password back from a person: table T-037 has no row for asking
+//                for one (NT-7 asks only for the two answers IC-69 and IC-70
+//                carry), `ScreenPart`
+//                (IF-9) reports an entry and never what was typed into one, and
+//                `frame-loop.ts` records at S-99c that nothing asks for it.
+//                ⚠️ It is only the HIDING half that FR-020 gates, so a rule that
+//                turned the row round both ways would let the watermark be put
+//                back unasked -- which is right -- and taken away unasked, which
+//                is the MUST. A toggle cannot tell the two apart.
+//                ⛔ `VisibleElement` does not name `watermarkVisible`.
+//                `edit-document-settings.ts` still calls them the eight boolean
+//                rows of table T-202 and lists eight, and that table now holds
+//                nine (S-144, added 2026-08-25) -- so `setElementVisible` has no
+//                value to carry even once the password has a road. ⚠️ NOT
+//                WORKED AROUND HERE: the type is derived from the command on
+//                purpose (see `VisibleElement` above), and re-declaring the
+//                ninth name in this file would be the drift that deriving
+//                exists to stop.
 //   IC-45        `setDualCursor` (CM-60) demands BOTH dates at once (IV-13),
 //                which is the gap PD-2 already records above.
-//   IC-50 / IC-51  the palette's own folding. Nothing holds it: table T-203 and
-//                table T-206 have no row and `ScreenState` has no member.
 //   IC-66        the `Resource Roster`'s delete, and the ONE of that surface's
 //                six still unanswered. ⚠️ Its five neighbours are answered above:
 //                they move `ScreenSession.selectedResourceUids` (PD-143), which
@@ -3006,9 +3214,10 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                It is still not a button -- what answers it is a drag, settled
 //                on the release.
 //
-// Searched: table T-109, table T-108, table T-036, table T-023b, table T-203,
-// table T-206, table T-234, FR-065, FR-066, FR-072, FR-085, FR-099,
-// `screen-renderer.ts`, `edit-document-settings.ts`, `screen-surface.ts`,
+// Searched: table T-109, table T-108, table T-036, table T-023b, table T-202,
+// table T-203, table T-206, table T-234, table T-037, FR-020, FR-049, FR-053,
+// FR-065, FR-066, FR-072, FR-085, FR-099, `screen-renderer.ts`,
+// `edit-document-settings.ts`, `document-settings.ts`, `screen-surface.ts`,
 // `dialogue-field.ts`, `open-modals.ts`, `notices.ts`, `frame-loop.ts`.
 
 // <generated -- do not edit by hand>

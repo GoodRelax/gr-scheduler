@@ -500,8 +500,8 @@
 | IC-55 | `Autosave Status` | — | 保存済みであることを示す。**ボタンではない** | `FR-061` |
 | IC-56 | `Autosave Status` | — | 保存中であることを示す。**ボタンではない。回さない** | `FR-061` |
 | IC-57 | `Autosave Status` | — | 保存に失敗したことを示す。**ボタンではない**（通知は 表 T-037 の `NT-3a`）| `FR-061` |
-| IC-58 | `Row Title Panel` | — | 行の配下を 1 段開く | 表 T-051 の `HF-2` |
-| IC-59 | `Row Title Panel` | — | 行の配下をすべて閉じる | 表 T-051 の `HF-3` |
+| IC-58 | `Row Title Panel` | — | 行の配下をすべて開く | 表 T-051 の `HF-2` |
+| IC-59 | `Row Title Panel` | — | その行自身を畳む | 表 T-051 の `HF-3` |
 | IC-60 | `Row Title Panel` | — | 行をピン止めし、同じ入口で外す | `FR-098` |
 | IC-61 | `Command Palette` | 置く | 依存線を構える（表 T-023b の `AR-4`）| `FR-009` |
 | IC-62 | `Command Palette` | 表示 | 担当者の名簿を出す | `FR-099` |

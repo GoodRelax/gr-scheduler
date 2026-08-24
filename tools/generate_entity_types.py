@@ -888,8 +888,8 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
     'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a'], READ_WHERE_IT_STANDS),
-    'NOT_STORED_ROW_CONTROL_SIZES': (['S-139'], DRAWN_WITH_WHERE_IT_STANDS),
-    'NOT_STORED_ICON_SIZES': (['S-138'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_ROW_CONTROL_SIZES': (['S-139', 'S-140'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
@@ -948,12 +948,16 @@ NEWLINE = chr(10)
 COLOUR_TARGETS = {
     # The chrome: the ground, the ink, the panels, the shadow. Only this unit
     # can paint them, and only this unit can set `color-scheme` (FR-041).
-    'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151',
-                       'S-152', 'S-153', 'S-154', 'S-168', 'S-169', 'S-170'],
+    # ⛔ S-151 (selection), S-168 and S-169 (the ink and halo of a label ON A
+    # BAR) were here and are not the chrome's: this unit draws no bar, so they
+    # went to a unit that could never use them. Measured by the agent that owns
+    # the drawing side.
+    'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150',
+                       'S-152', 'S-153', 'S-154', 'S-170'],
     # The schedule itself: bars, the two lines, markers, bands.
-    'SCHEDULE_COLOURS': ['S-155', 'S-156', 'S-157', 'S-158', 'S-159', 'S-160',
-                         'S-161', 'S-162', 'S-163', 'S-164', 'S-165', 'S-166',
-                         'S-167'],
+    'SCHEDULE_COLOURS': ['S-151', 'S-155', 'S-156', 'S-157', 'S-158', 'S-159',
+                         'S-160', 'S-161', 'S-162', 'S-163', 'S-164', 'S-165',
+                         'S-166', 'S-167', 'S-168', 'S-169'],
 }
 
 COLOUR_NOTE = [

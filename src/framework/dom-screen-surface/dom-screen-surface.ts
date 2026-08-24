@@ -118,13 +118,32 @@
 // FR-023 calls everything that arrived from outside untrusted, and a task name
 // is one of those things.
 //
-// ⭐ NO COLOUR IS INVENTED. The specification's colours (`themeHue` and S-73's
-// family) belong to the schedule and none of them crosses this seam, so the
-// parts are painted in the environment's own system colours -- `Canvas`,
-// `CanvasText`, `GrayText`, `Highlight`. ⚠️ `GrayText` is also what FR-029's
-// 「薄く描く」 asks for, and what HF-6 of table T-051 asks of the row controls,
-// and it is the one faint colour that follows the reader's own contrast
-// settings instead of guessing at them.
+// ⭐ NO COLOUR IS INVENTED, AND THE SYSTEM COLOURS ARE NO LONGER THE ANSWER.
+// FR-041 (MUST) has this product paint its own ground and chrome and (MUST NOT)
+// forbids leaving them to the viewing environment, because a system colour
+// follows the OPERATING SYSTEM and not the reader's `themePreference` (S-72) --
+// so a dark theme chosen in the document came out light. Table T-236 holds the
+// colours in both renderings and reaches this file generated (`SCREEN_COLOURS`
+// at the foot); `PAINT` below names which row paints what, and `themeStyle`
+// resolves one rendering onto the root as custom properties, together with the
+// `color-scheme` the same requirement (MUST) has told to the environment.
+//
+// ⛔ TWO THINGS THIS UNIT STILL CANNOT DO, AND NEITHER IS A CHOICE MADE HERE:
+//   - WHICH RENDERING IS CHOSEN DOES NOT CROSS IF-9. `themePreference` (S-72)
+//     and `themeHue` (S-73) are the document's, and no member of `ScreenView`,
+//     `ScreenFrame` or `AppHeaderItems` carries either -- `isPressed` is
+//     declared 「a toggle that is on」 and UF-62 says in as many words that a
+//     choice between two values has no off side to report IC-16 by. So the
+//     wiring below takes an OPTIONAL reader, and while nothing supplies it the
+//     custom properties are unset and each declaration falls back to the system
+//     colour it used before. ⚠️ That fallback is the state FR-041 forbids; it
+//     is what the seam leaves, not what this unit prefers.
+//   - THE GROUND (S-146) IS NOT THIS UNIT'S TO PAINT. This root is
+//     `position:fixed` over the whole viewport and the schedule is drawn by
+//     another surface UNDERNEATH it, so a background on anything this unit owns
+//     would hide the schedule. The ground belongs to the page element, which is
+//     the shell's. ⭐ What is done here instead is `color-scheme`, which is the
+//     half of FR-041 that reaches the environment's own painting.
 //
 // ⭐ THE ENTRIES ARE DRAWN AS SHAPES, AND THE SHAPES ARRIVE THE WAY THE ROSTER
 // DOES. FR-029 (MUST) has this product tell what a menu is for with an icon
@@ -144,9 +163,9 @@
 //     leave in use today.
 //   - THE COLOUR IS THE APP'S. The figure paints `currentColor` and switches its
 //     own `color` on the viewer's light / dark preference; ⛔ that media query
-//     is NOT carried (FR-041 leaves the theme to this product), so a shape takes
-//     the colour of the entry it sits in -- `ButtonText`, FR-029's faint
-//     `GrayText`, and HF-6's darkening on hover, with no rule of its own.
+//     is NOT carried -- FR-041 (MUST NOT) forbids the environment to decide the
+//     theme -- so a shape takes the colour of the entry it sits in (S-147 of
+//     table T-236, or FR-029's faint S-148), with no rule of its own.
 //   - ⚠️ `createElementNS` IS THE ONE MEMBER BESIDES `createElement`. A shape
 //     made with `createElement` would be an unknown HTML element and would draw
 //     nothing at all, so there is no doing this without it. It is asked for
@@ -156,8 +175,8 @@
 //     back.
 //
 // ⭐ TWO THINGS ARE NOT INLINE DECLARATIONS, AND ONLY TWO. Both are rules about
-// where the pointer is, and a `style` attribute can state neither: HF-6's second
-// half -- 「ポインタが乗っているあいだだけ濃くする」 -- and FR-053's
+// where the pointer is, and a `style` attribute can state neither: HF-6's
+// 「その行の名前にポインタが乗っているあいだだけ描く」 and FR-053's
 // 「ポインタが乗っていないあいだは薄く透明に描く」. So the unit hangs ONE `style`
 // element off its own root (`HOVER_CSS`), scoped by the root's `data-unit`.
 // ⛔ It is built from constants and never from a description, it paints nothing
@@ -309,6 +328,125 @@ const PALETTE_GRAB_BAND_ENTRY = 'IC-53'
 const ROSTER_CHOSEN_ENTRY = 'IC-67'
 const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
 
+/**
+ * IC-74 of table T-109 -- the ONE entrance HF-10 of table T-051 (MUST) puts at
+ * the top right of the `Row Title Panel`, which opens every row (HR-1 of table
+ * T-015).
+ *
+ * ⭐ Carried as a row id, for the reason `DISPLAY_LANGUAGE_ENTRY` is: a row id
+ * is the only join table T-109 admits, and this unit has to put something on
+ * THAT row and on no other. ⚠️ It is drawn once per PANEL and not once per row,
+ * which is why it is named here beside the other panel-wide entrances instead of
+ * standing in `rowTitleElement` with IC-58 .. IC-60.
+ */
+const OPEN_EVERY_ROW_ENTRY = 'IC-74'
+
+// -------------------------------------------------------------- the paint ---
+
+/**
+ * Which row of table T-236 paints what, and the custom property that carries
+ * it.
+ *
+ * ⭐ THE ROW ID IS THE JOIN, exactly as `data-icon` is for table T-109: the
+ * value itself is generated into `SCREEN_COLOURS` at the foot of this file, so
+ * ⛔ no colour is written here and none can go stale. The mapping IS a judgement
+ * and is declared as one -- table T-236 names what each colour is FOR in prose
+ * (「地」「主たる文字」「区切りの線」「行見出しパネル・プロパティパネル・パレットの地」
+ * 「パレットと面」) and no table joins a row of T-236 to a row of table T-103.
+ *
+ * ⛔ SIX ROWS OF `SCREEN_COLOURS` ARE NOT USED HERE, AND THAT IS NOT AN
+ * OVERSIGHT. S-151 (強調) is 「選択と現在位置」 and nothing on this side draws
+ * either -- a row's `data-selected` is written for whoever settles the look, and
+ * ⛔ inventing one would settle a reading FR-085 does not state. S-152 / S-153 /
+ * S-154 (良 / 注意 / 不良) reach no part this unit
+ * draws -- nothing on this side reports a state in colour, and NT-1 (MUST NOT)
+ * forbids colour alone from carrying a meaning. S-168 and S-169 are 「バーの上の
+ * 文字」 by table T-236's own note, which is the schedule's label and not chrome
+ * at all; they are generated into this file rather than into the one that draws
+ * bars.
+ *
+ * ⚠️ S-170 IS A COLOUR AND NOT A SHADOW. Table T-236 gives 「浮いた層の影」 its
+ * paint and 「パレットと面」 as where it falls, and no row anywhere states an
+ * offset, a blur or a spread -- so those are this unit's, under the same
+ * `@provisional` mark the rest of its placing carries, and only the colour comes
+ * from the specification. Searched: table T-236, table T-201, table T-206 and
+ * FR-041.
+ *
+ * ⚠️ THE FALLBACK IN EACH `var()` IS THE SYSTEM COLOUR THIS FILE USED BEFORE,
+ * and it stands for exactly one state: nothing has told this unit which
+ * rendering the reader chose (see the head of this file). ⛔ It is not a second
+ * palette -- the moment `themeStyle` writes the properties on the root, every
+ * declaration below takes table T-236's colour instead.
+ */
+const PAINT_ROW = {
+  ground: 'S-146',
+  ink: 'S-147',
+  quiet: 'S-148',
+  rule: 'S-149',
+  panel: 'S-150',
+  shadow: 'S-170',
+} as const
+
+/** How a declaration names one of them. @purity pure */
+function painted(name: keyof typeof PAINT_ROW, whileUnknown: string): string {
+  return `var(--gr-${name}, ${whileUnknown})`
+}
+
+const PAINT = {
+  ground: painted('ground', 'Canvas'),
+  ink: painted('ink', 'CanvasText'),
+  quiet: painted('quiet', 'GrayText'),
+  rule: painted('rule', 'GrayText'),
+  panel: painted('panel', 'Canvas'),
+  shadow: painted('shadow', 'transparent'),
+  // ⚠️ S-150 AGAIN, WITH THE OTHER FALLBACK. An entrance and a panel take the
+  // same row of table T-236 -- that table has no row of its own for the ground
+  // of something that can be pressed -- but the system colour each stood in
+  // before is not the same one, and the fallback's whole job is to leave the
+  // unknown state looking exactly as it did.
+  entryFace: painted('panel', 'ButtonFace'),
+  // ⚠️ S-147 AGAIN, FOR THE SAME REASON: an entrance's word was `ButtonText`
+  // and a panel's was `CanvasText`, and table T-236 has one 文字の色.
+  entryInk: painted('ink', 'ButtonText'),
+} as const
+
+/**
+ * The room one entrance keeps around the shape it holds.
+ *
+ * ⭐ WHAT THIS IS FOR. FR-029 (MUST) asks for a minimum gap between the shape
+ * and the ENTRANCE'S FRAME, and S-141 of table T-206 says of that gap 「枠の側は
+ * 動かさない —— 定めるのは隙間だけである」: the row settles the clearance and not
+ * the outline. ⛔ The way an entrance was built before could not keep either
+ * promise. The shape is an `inline-block` of S-138 on a side sitting in the
+ * entrance's LINE BOX, so the line box grows to hold it as soon as the reader's
+ * text gets small -- the frame moves, which is the one thing S-141 says does
+ * not happen -- and until it does the clearance is whatever the leading happens
+ * to leave, which is not a minimum at all.
+ *
+ * ⭐ SO THE SHAPE IS TAKEN OUT OF THE LINE BOX AND CENTRED, AND THE FRAME IS
+ * PINNED WHERE THE LINE BOX HAD IT. `min-height:1.5em` beside this reproduces
+ * exactly the height `line-height:1.5` used to make, so the entrance measures
+ * what it measured before at the size it is read at; the shape now sits inside
+ * that box instead of setting it, so it can no longer push the frame outwards.
+ * ⚠️ The row controls have no `line-height` of their own and take no
+ * `min-height` either -- their frame is their own box, and this only stops the
+ * shape from driving it.
+ *
+ * STOP -- ⛔ THE GAP ITSELF CANNOT BE STATED: S-141 REACHES NO FILE IN `src/`.
+ * Table T-206 holds it (2px, 「図形と入口の枠の最低隙間」) and `settings.json`
+ * carries the row, but `NOT_STORED_TARGETS` in `tools/generate_entity_types.py`
+ * routes only S-138 to this unit, so `NOT_STORED_ICON_SIZES` has one member and
+ * the number has no way in. ⛔ Rule 03 section 1 forbids typing it here, and a
+ * gap invented in its place would be exactly the copied value that rule exists
+ * to stop. Searched: FR-029, S-138 / S-141 of table T-206, the generated block
+ * at the foot of this file, and every `NOT_STORED_*` constant in `src/`.
+ * ⭐ What is owed is one row id in that generator's table; the moment it lands,
+ * this declaration takes `padding:0 max(<the em>, S-141px)` and
+ * `min-height:max(1.5em, calc(S-138px + S-141px * 2))`, and the minimum is
+ * stated in the one place the room is stated.
+ */
+const ENTRY_GLYPH_ROOM = 'display:inline-flex;align-items:center;justify-content:center;'
+
 // -------------------------------------------------------------- the styles ---
 
 /**
@@ -326,7 +464,8 @@ const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
 const STOPPING_BOX =
   'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
   'box-sizing:border-box;max-width:92%;max-height:92%;overflow:auto;padding:1em;' +
-  'background:Canvas;color:CanvasText;border:1px solid CanvasText;pointer-events:auto;'
+  `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};` +
+  `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`
 
 /**
  * How the parts are placed and painted.
@@ -344,12 +483,12 @@ const STOPPING_BOX =
 const STYLE = {
   root:
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
-    'visibility:hidden;font:inherit;color:CanvasText;',
+    `visibility:hidden;font:inherit;color:${PAINT.ink};`,
   // The same box once a description has arrived. ⛔ BO-1 of table T-077 is the
   // whole difference between the two: 「寸法が確定するまで 1 枚も描かない」.
   rootShown:
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
-    'font:inherit;color:CanvasText;',
+    `font:inherit;color:${PAINT.ink};`,
   layer: 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;',
   // The height this box measures to is the whole point (FR-051): 1.5 line plus
   // 0.75em of padding, in the machine's own text size, and nothing inside can
@@ -357,10 +496,10 @@ const STYLE = {
   appHeader:
     'position:absolute;left:0;top:0;right:0;box-sizing:border-box;display:flex;' +
     'align-items:center;gap:0.75em;padding:0.375em 0.75em;line-height:1.5;' +
-    'overflow:hidden;white-space:nowrap;background:Canvas;color:CanvasText;' +
-    'border-bottom:1px solid GrayText;pointer-events:auto;',
+    `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
+    `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
   documentTitle: 'font-weight:600;overflow:hidden;text-overflow:ellipsis;',
-  autosaveStatus: 'margin-left:auto;color:GrayText;',
+  autosaveStatus: `margin-left:auto;color:${PAINT.quiet};`,
   headerCommands: 'display:flex;align-items:center;gap:0.25em;',
   // FR-029 (MUST): what cannot be used is drawn faint and keeps its reason
   // reachable. ⛔ `aria-disabled` and not `disabled`: a disabled control leaves
@@ -368,11 +507,15 @@ const STYLE = {
   // both the tooltip IN-3 lets a person point at and the answer PD-141 reads
   // out of `data-icon`.
   entry:
-    'font:inherit;background:ButtonFace;color:ButtonText;border:1px solid GrayText;' +
-    'border-radius:0.25em;padding:0 0.375em;line-height:1.5;cursor:pointer;',
+    `font:inherit;background:${PAINT.entryFace};color:${PAINT.entryInk};` +
+    `border:1px solid ${PAINT.rule};border-radius:0.25em;padding:0 0.375em;` +
+    'min-height:1.5em;cursor:pointer;' +
+    ENTRY_GLYPH_ROOM,
   entryFaint:
-    'font:inherit;background:ButtonFace;color:GrayText;border:1px solid GrayText;' +
-    'border-radius:0.25em;padding:0 0.375em;line-height:1.5;cursor:default;',
+    `font:inherit;background:${PAINT.entryFace};color:${PAINT.quiet};` +
+    `border:1px solid ${PAINT.rule};border-radius:0.25em;padding:0 0.375em;` +
+    'min-height:1.5em;cursor:default;' +
+    ENTRY_GLYPH_ROOM,
   // ⚠️ The box a shape of figure F-019 is drawn in is NOT a member here:
   // `glyphStyle` below states it, and says why it cannot stand in this object.
 
@@ -393,10 +536,19 @@ const STYLE = {
   // EP-9 of table T-076: the boundary is the same one line as `Group Grid
   // Lines`, so the band that is grabbed carries no paint of its own.
   dividerBand: 'cursor:col-resize;pointer-events:auto;',
-  dividerLine: 'background:GrayText;pointer-events:none;',
-  scrollbarTrack: 'background:ButtonFace;pointer-events:auto;',
-  scrollbarThumb: 'position:absolute;background:GrayText;border-radius:0.25em;',
-  rowTitlePanel: 'position:absolute;background:Canvas;',
+  dividerLine: `background:${PAINT.rule};pointer-events:none;`,
+  scrollbarTrack: `background:${PAINT.panel};pointer-events:auto;`,
+  scrollbarThumb: `position:absolute;background:${PAINT.quiet};border-radius:0.25em;`,
+  rowTitlePanel: `position:absolute;background:${PAINT.panel};`,
+  // HF-10 of table T-051 (MUST): 「行見出しパネルの最上部の右端」. ⛔ The two
+  // edges are the whole of what that row states about the place, and nothing is
+  // added: no inset, no margin, no size.
+  //
+  // ⛔ `pointer-events:auto` IS NOT DECORATION. The root is `pointer-events:none`
+  // and the panel does not take the pointer back -- only the rows do
+  // (`STYLE.rowTitle`) -- so without this the one entrance HF-10 requires could
+  // be neither pressed nor answered by IF-9's third member.
+  panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
   // HF-5 of table T-051 (MUST NOT): the row's controls are not levelled with the
   // middle of the name. ⛔ `align-items:center` is what that row forbids in as
   // many words, and it is answered on the row rather than on each control
@@ -413,7 +565,7 @@ const STYLE = {
   // a name held in the middle is a length this side cannot state at all.
   rowTitle:
     'box-sizing:border-box;display:flex;align-items:flex-start;gap:0.25em;' +
-    'overflow:hidden;white-space:nowrap;background:Canvas;color:CanvasText;' +
+    `overflow:hidden;white-space:nowrap;background:${PAINT.panel};color:${PAINT.ink};` +
     'pointer-events:auto;',
   // HF-4 of table T-051 (MUST): the controls keep the panel's right edge
   // whatever the name's length, so the NAME is what takes every pixel left over
@@ -423,30 +575,34 @@ const STYLE = {
   // controls, which is what HF-4's 「名前ごとに位置が変わると狙えない」 asks for
   // on the other axis.
   rowLabel: 'flex:1;overflow:hidden;text-overflow:ellipsis;',
-  // HF-6 of table T-051: 「操作子は薄く描き、ポインタが乗っているあいだだけ濃く
-  // すること」. This is the FAINT half; the darkening is `ROW_CONTROL_HOVER_CSS`
-  // below, because ⛔ an inline declaration cannot state a hover state at all.
-  // FR-098 sends the `Row Pin`'s 濃さ to this same row rather than restating it,
-  // so one declaration covers all three controls.
+  // HF-6 of table T-051, AS THAT ROW NOW READS: 「操作子は、その行の名前にポインタ
+  // が乗っているあいだだけ描くこと（MUST）」. ⚠️ It used to read 「薄く描き、乗って
+  // いるあいだだけ濃く」 and the row records the change itself (利用者の裁定,
+  // 2026-08-25) -- so this declaration no longer paints anything faint, and the
+  // control takes the ordinary ink like the rest of the panel. WHETHER it is
+  // drawn is `ROW_CONTROL_SHOWN_CSS` below, because ⛔ an inline declaration
+  // cannot state a rule about where the pointer is. FR-098 sends the `Row Pin`
+  // to this same row rather than restating it, so one declaration covers all
+  // three controls.
   //
-  // ⚠️ NO NUMBER IS COPIED, BECAUSE HF-6 NAMES NONE. `dummyOpacity` (S-131) is
-  // FR-013's and FR-043's value for the schedule's own faint marks and belongs
-  // to the surface that draws them; borrowing it here would give this unit a
-  // value the row it cites does not have. `GrayText` is this unit's settled
-  // vocabulary for 薄く (see the head of this file) and follows the reader's own
-  // contrast settings instead of guessing at them.
+  // ⛔ `ENTRY_GLYPH_ROOM` IS NOT ADDED HERE, AND THE REASON IS THE FRAME. FR-029
+  // fixes a gap 「図形と入口の枠のあいだ」 and this control has no frame at all
+  // (`border:none`), so there is no edge for the shape to be held off. ⚠️ It is
+  // also the one entrance HF-5 (MUST NOT) forbids to be centred, and a box that
+  // centres its own content reads as exactly that to anyone holding the drawn
+  // control against that row.
   rowControl:
-    'font:inherit;background:transparent;color:GrayText;border:none;' +
+    `font:inherit;background:transparent;color:${PAINT.ink};border:none;` +
     'padding:0 0.125em;cursor:pointer;',
   // SC-5 of table T-031: only the contents scroll, and never in step with the
   // drawing area.
   propertiesPanel:
     'position:absolute;box-sizing:border-box;overflow-y:auto;padding:0.5em;' +
-    'background:Canvas;color:CanvasText;border-left:1px solid GrayText;' +
+    `background:${PAINT.panel};color:${PAINT.ink};border-left:1px solid ${PAINT.rule};` +
     'pointer-events:auto;',
   heading: 'font-weight:600;margin:0 0 0.5em 0;',
   field: 'display:flex;gap:0.5em;line-height:1.6;',
-  fieldName: 'color:GrayText;min-width:9em;',
+  fieldName: `color:${PAINT.quiet};min-width:9em;`,
   // ⛔ NO WIDTH AND NO HEIGHT, AND NOT BECAUSE NONE ARRIVED. FR-053 (MUST) has
   // the palette's size follow its contents and (MUST NOT) forbids a settings row
   // from holding one, so `cornerStyle` places it and stops -- an absolutely
@@ -477,8 +633,9 @@ const STYLE = {
   // (`paletteContents`), where it still counts towards the size FR-053 (MUST)
   // makes follow the contents.
   commandPalette:
-    'box-sizing:border-box;background:Canvas;color:CanvasText;' +
-    'border:1px solid GrayText;border-radius:0.25em;pointer-events:auto;',
+    `box-sizing:border-box;background:${PAINT.panel};color:${PAINT.ink};` +
+    `border:1px solid ${PAINT.rule};border-radius:0.25em;` +
+    `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`,
   // GR-19 of table T-023d, which stands FIRST in that table under a preamble
   // reading 「上の行ほど優先すること（MUST）」. Laid as the palette's first child,
   // so its width is whatever the entries measured out to and no width is
@@ -511,9 +668,13 @@ const STYLE = {
   // it is the box the entries always sat in, one level down.
   paletteContents: 'padding:0.5em;',
   paletteGroup: 'margin-bottom:0.5em;',
-  paletteGroupName: 'color:GrayText;',
+  paletteGroupName: `color:${PAINT.quiet};`,
   paletteCommands: 'display:flex;flex-wrap:wrap;gap:0.25em;',
-  armedText: 'color:CanvasText;',
+  // ⚠️ S-147 AND NOT S-151. 強調の色 is 「選択と現在位置」 by table T-236's own
+  // note, and what is armed is neither -- FR-053 (MUST) asks only that it be
+  // readable. ⛔ Nothing is emphasised here that the requirement did not ask to
+  // be emphasised.
+  armedText: `color:${PAINT.ink};`,
   modal: STOPPING_BOX,
   modalHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
   // The choices FR-096 (MUST) has the author pick one of, held together and
@@ -523,8 +684,8 @@ const STYLE = {
   formatChoices: 'display:flex;flex-wrap:wrap;gap:0.25em;margin-top:0.5em;',
   notices: 'position:absolute;left:50%;transform:translateX(-50%);max-width:60%;',
   notice:
-    'box-sizing:border-box;margin:0.25em 0;padding:0.5em 0.75em;background:Canvas;' +
-    'color:CanvasText;border:1px solid CanvasText;pointer-events:auto;',
+    `box-sizing:border-box;margin:0.25em 0;padding:0.5em 0.75em;background:${PAINT.ground};` +
+    `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
   // ⛔ `pointer-events:auto` is not decoration here: without it the point-to-part
   // answer (IF-9) never sees this surface, the press falls through to the
   // schedule underneath, and NT-7's two answers cannot be pressed at all.
@@ -540,19 +701,19 @@ const STYLE = {
   confirmationAnswers: 'display:flex;align-items:center;gap:0.5em;margin-top:0.5em;',
   dialogueField:
     'position:absolute;box-sizing:border-box;display:flex;flex-direction:column;' +
-    'width:24em;height:14em;padding:0.5em;background:Canvas;color:CanvasText;' +
-    'border:1px solid GrayText;pointer-events:auto;',
+    `width:24em;height:14em;padding:0.5em;background:${PAINT.ground};color:${PAINT.ink};` +
+    `border:1px solid ${PAINT.rule};pointer-events:auto;`,
   dialogueMessages: 'flex:1;overflow-y:auto;',
   dialogueMessage: 'line-height:1.5;',
-  dialogueAuthor: 'color:GrayText;margin-right:0.5em;',
+  dialogueAuthor: `color:${PAINT.quiet};margin-right:0.5em;`,
   dialogueEntry: 'font:inherit;margin-top:0.25em;',
   // IN-3 of table T-028: it can be pointed at, so it takes the pointer.
   tooltip:
-    'position:absolute;max-width:24em;padding:0.25em 0.5em;background:Canvas;' +
-    'color:CanvasText;border:1px solid CanvasText;pointer-events:auto;' +
+    `position:absolute;max-width:24em;padding:0.25em 0.5em;background:${PAINT.ground};` +
+    `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;` +
     'display:flex;gap:0.5em;align-items:flex-start;',
   tooltipDismiss:
-    'font:inherit;background:transparent;color:CanvasText;border:none;cursor:pointer;',
+    `font:inherit;background:transparent;color:${PAINT.ink};border:none;cursor:pointer;`,
   hidden: 'display:none;',
 } as const
 
@@ -574,10 +735,13 @@ const STYLE = {
  * above it cannot read while the module is being evaluated; and `STYLE` states
  * that every length in it is relative, which this one is not.
  *
- * ⚠️ `inline-block` and not `block` so that the line box is the one the
- * surrounding text already made. ⛔ `pointer-events:none` so the ANSWER does not
- * move: IF-9's third member reads back the entry a point is on, and the button
- * is what carries `data-icon`.
+ * ⚠️ `inline-block` and `vertical-align` are for the ONE place a shape is still
+ * laid out on a line: the palette's grab band and any host that does not lay a
+ * flex box out. Inside an entrance the box `ENTRY_GLYPH_ROOM` makes, the shape
+ * is a flex item and is centred by that box instead -- which is what keeps it
+ * from setting the entrance's height (FR-029, S-141). ⛔ `pointer-events:none`
+ * so the ANSWER does not move: IF-9's third member reads back the entry a point
+ * is on, and the button is what carries `data-icon`.
  *
  * @purity pure
  */
@@ -590,24 +754,130 @@ function glyphStyle(): string {
 }
 
 /**
- * The other half of HF-6 of table T-051: 「ポインタが乗っているあいだだけ濃く
- * すること」, which FR-098 binds the `Row Pin` to as well.
+ * Which of table T-236's two renderings the reader chose, and the hue the rows
+ * that follow it are to be solved with.
+ *
+ * ⭐ BOTH ARE THE DOCUMENT'S, NOT THIS UNIT'S. `themePreference` is S-72 and
+ * `themeHue` is S-73 (AT-19), and FR-041 keeps exactly those two saved and
+ * forbids a derived colour to be saved beside them (MUST NOT). ⛔ The names are
+ * the specification's own spellings, which rule 03 section 1 requires; the
+ * VALUES are never written here.
+ *
+ * ⚠️ `preference` IS AN ENUMERATION AND NOT A NUMBER. S-72 admits `light` and
+ * `dark` and nothing else, so the two words are names of the specification and
+ * not values copied out of it -- the same bargain `DisplayLanguage` keeps for
+ * `ja` / `en`.
+ */
+export interface ScreenTheme {
+  /** S-72. */
+  readonly preference: 'light' | 'dark'
+  /** S-73, 0..359. */
+  readonly hue: number
+}
+
+/**
+ * The letter `H` a row of table T-236 writes, solved.
+ *
+ * ⭐ THE MANUSCRIPT WRITES A LETTER ON PURPOSE, and the generated block at the
+ * foot of this file says so in as many words: a row whose `followsHue` is true
+ * states its hue as `H` so that S-73's value is written ONCE instead of being
+ * copied into every row, and the consumer substitutes. ⛔ A row with
+ * `followsHue` false states its own hue and is used exactly as written.
+ *
+ * ⚠️ ONE OCCURRENCE AND NOT A GLOBAL REPLACE. Every row that follows the hue
+ * writes `hsl(H ...)`, where `H` stands alone as the first component; the
+ * function names are lower case and no other capital `H` appears in any cell,
+ * so replacing the first is replacing the hue.
+ *
+ * @purity pure
+ */
+function hued(written: string, followsHue: boolean, hue: number): string {
+  return followsHue ? written.replace('H', String(hue)) : written
+}
+
+/**
+ * FR-041 (MUST), both halves, as one declaration for the root.
+ *
+ * ⭐ WHAT IT WRITES. Every row of `PAINT_ROW` in the rendering the reader chose,
+ * as the custom property each `PAINT` member reads -- so one declaration repaints
+ * every part this unit drew, and ⛔ no part carries a colour of its own to be
+ * kept in step. Beside them, the `color-scheme` the same requirement (MUST) has
+ * told to the environment: without it the scrollbars of the properties panel,
+ * the palette and the open surface stay light while everything around them goes
+ * dark, and FR-041 says in as many words that painting alone is not enough.
+ *
+ * ⛔ S-146 IS RESOLVED AND NOT PAINTED ON THE ROOT. The root is
+ * `position:fixed` over the whole viewport with the schedule drawn UNDER it, so
+ * a background here would hide the schedule; the property is still written, and
+ * the parts that ARE this unit's grounds (the header, the notices, the tooltips,
+ * the dialogue field, the surfaces that stop the reading) take it. ⚠️ The page's
+ * own ground is the shell's element and is named in the head of this file.
+ *
+ * @purity pure
+ */
+function themeStyle(theme: ScreenTheme): string {
+  let written = `color-scheme:${theme.preference};`
+  for (const [name, rowId] of Object.entries(PAINT_ROW)) {
+    const row = SCREEN_COLOURS[rowId]
+    if (row === undefined) continue
+    const chosen = theme.preference === 'dark' ? row.dark : row.light
+    written += `--gr-${name}:${hued(chosen, row.followsHue, theme.hue)};`
+  }
+  return written
+}
+
+/**
+ * What the root carries for the theme this frame, or nothing at all.
+ *
+ * ⛔ NOTHING IS SUBSTITUTED FOR AN ABSENT READER. With no theme in hand every
+ * `var()` in this file falls back to the system colour it used before, which is
+ * this unit standing exactly where it stood -- ⚠️ a state FR-041 (MUST NOT)
+ * forbids, and the wiring member is where it is recorded and why. ⭐ Choosing a
+ * rendering here instead would hide that, and the hue could not be invented in
+ * any case (rule 03 section 1).
+ *
+ * @purity semi-pure-b
+ */
+function themeDeclaration(readTheme: (() => ScreenTheme) | undefined): string {
+  return readTheme === undefined ? '' : themeStyle(readTheme())
+}
+
+/**
+ * HF-6 of table T-051 (MUST): 「操作子は、その行の名前にポインタが乗っている
+ * あいだだけ描くこと」, which FR-098 binds the `Row Pin` to as well.
+ *
+ * ⭐ `visibility` AND NOT `display`, WHICH IS THE MUST NOT OF THE SAME ROW.
+ * 「描かないあいだも、確保する場所を変えてはならない」, and FR-085 holds the rule
+ * and the reason: the room kept for the controls (S-140) is what the row's name
+ * was cut against, so a control that stopped taking up room would move the cut
+ * every time the pointer crossed a row. ⛔ `display:none` takes the room away;
+ * `visibility:hidden` keeps the box and draws nothing in it. ⚠️ It also stops
+ * the control taking the pointer, which is right: an undrawn control is not one
+ * a person can press, and IF-9's third member answers what `elementFromPoint`
+ * answers.
+ *
+ * ⛔ THE ROW AND NOT THE NAME'S OWN BOX IS WHAT IS TESTED, and the difference
+ * matters. HF-4 (MUST) holds the controls at the panel's RIGHT EDGE whatever the
+ * name's length, so they stand outside the name's box -- a rule keyed on the
+ * name alone would take the control away at the instant the pointer reached it,
+ * and HF-1 .. HF-3 (MUST) all require it to be pressable. `[data-group-id]` is
+ * the row, which is the band that name is drawn in and the smallest thing this
+ * unit draws that holds both the name and its controls.
  *
  * ⛔ WHY A RULE AND NOT A LISTENER. A `pointerover` / `pointerout` pair would
- * paint the node under the pointer, not the CONTROL under it: a row is rebuilt
+ * answer for the node under the pointer, not the ROW under it: a row is rebuilt
  * whenever `RowTitlePanel`'s description changed, and the press that opens a
- * level changes it -- so the fresh node would stand faint under a pointer that
- * never moved, which is the one state HF-6's second half is about. ⭐ `:hover`
- * is the environment's own answer to 「乗っているあいだ」 and survives the
- * rebuild. ⚠️ It also wakes nothing: NFR-010 (MUST NOT) forbids running a frame
- * on a trigger table T-078 does not name, and FR-048 names HF-6 among the four
- * it excuses from its own MUST NOT -- an excuse this side does not have to
- * spend, because no frame is run at all.
+ * level changes it -- so the fresh node would stand undrawn under a pointer that
+ * never moved, which is the one state HF-6 is about. ⭐ `:hover` is the
+ * environment's own answer to 「乗っているあいだ」 and survives the rebuild.
+ * ⚠️ It also wakes nothing: NFR-010 (MUST NOT) forbids running a frame on a
+ * trigger table T-078 does not name, and FR-048 names HF-6 among the four it
+ * excuses from its own MUST NOT -- an excuse this side does not have to spend,
+ * because no frame is run at all.
  *
- * ⛔ WHY `!important`. The faint paint is an INLINE declaration (`STYLE.rowControl`,
- * like every other paint in this unit) and no selector outranks one -- so this
- * is the only way a rule can state the second half while the first stays where
- * the rest of this file's paint lives.
+ * ⛔ NO `!important` IS NEEDED. `STYLE.rowControl` states no `visibility` of its
+ * own, so there is no inline declaration for either selector to be outranked by
+ * -- which is the same reason `PALETTE_FAINT_CSS` needs none.
  *
  * ⛔ NOTHING IS FETCHED AND NOTHING IS INVENTED. The sheet is built from the
  * names of tables T-103 and T-075 that this unit already writes, and it is put
@@ -617,10 +887,13 @@ function glyphStyle(): string {
  * ⭐ It draws nothing: a `style` element has no box, so table T-076's EP-4 --
  * an export draws no row control -- has nothing more to answer for here.
  */
-const ROW_CONTROL_HOVER_CSS =
-  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"]:hover,` +
-  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"]:hover` +
-  '{color:CanvasText !important;}'
+const ROW_CONTROL_SHOWN_CSS =
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"],` +
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"]` +
+  '{visibility:hidden;}' +
+  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowExpander}"],` +
+  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowPin}"]` +
+  '{visibility:visible;}'
 
 /**
  * How faint the palette stands while the pointer is not on it.
@@ -634,8 +907,8 @@ const ROW_CONTROL_HOVER_CSS =
  * ⭐ Carried over unchanged from the inline declaration this rule replaces, so
  * that moving WHERE the judgement is made changes nothing about how it looks.
  * ⚠️ It is a transparency and not a colour, which is where FR-053 parts company
- * with FR-029's 「薄く描く」 and HF-6's 「薄く描き」: those two take this unit's
- * `GrayText`, which follows the reader's own contrast settings, and FR-053 asks
+ * with FR-029's 「薄く描く」: that one takes table T-236's 控えめな文字の色
+ * (S-148, `PAINT.quiet`), and FR-053 asks
  * for something a colour cannot state.
  */
 const PALETTE_FAINTNESS = '0.6'
@@ -658,9 +931,9 @@ const PALETTE_FAINTNESS = '0.6'
  * `Palette Commands` (U-34) -- or on an entry inside them -- keeps the palette
  * bright, which is what 「乗っている」 means for a part that holds other parts.
  *
- * ⛔ WHY NO `!important` HERE, unlike the rule above. Nothing paints the
- * palette's transparency inline any more, so there is no inline declaration for
- * a selector to be outranked by.
+ * ⛔ NO `!important` HERE EITHER. Nothing paints the palette's transparency
+ * inline, so there is no inline declaration for a selector to be outranked by --
+ * the same reason `ROW_CONTROL_SHOWN_CSS` needs none.
  *
  * ⚠️ It wakes nothing. NFR-010 (MUST NOT) forbids running a frame on a trigger
  * table T-078 does not name; FR-048 names FR-053 among the four it excuses from
@@ -673,12 +946,12 @@ const PALETTE_FAINT_CSS =
 
 /**
  * Everything this unit states as a rule rather than as an inline declaration --
- * two halves of two requirements, and nothing else.
+ * two requirements about where the pointer is, and nothing else.
  *
  * ⛔ BUILT FROM CONSTANTS AND NEVER FROM A DESCRIPTION, so the sheet is written
  * once and never rewritten: neither rule depends on what is on the screen.
  */
-const HOVER_CSS = ROW_CONTROL_HOVER_CSS + PALETTE_FAINT_CSS
+const HOVER_CSS = ROW_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS
 
 /**
  * The namespace a shape has to be made in.
@@ -885,8 +1158,8 @@ function shapeNode(host: Document, tag: string): Element {
  * with the tag and the attributes `icon-glyphs.json` carries and with nothing
  * else -- ⛔ no path is re-drawn, re-scaled or tidied here, and no colour is
  * chosen: the figure paints `currentColor`, so a shape takes the colour of the
- * entry it sits in (`ButtonText`, FR-029's faint `GrayText`, HF-6's darkening
- * on hover) and brings no rule of its own.
+ * entry it sits in (S-147 of table T-236, or FR-029's faint S-148) and brings no
+ * rule of its own.
  *
  * ⚠️ THE SHAPE IS HIDDEN FROM THE ACCESSIBILITY TREE. It is an image and not a
  * word, and the entry's name is `CommandItem.label` -- declared as the
@@ -1119,8 +1392,9 @@ function fillScreenFrame(
  * The amount is `RowTitle.controlTopOffsetPx` and arrives per row, because HF-5
  * has it follow THAT row's name size and the sizes S-36 and S-38 give a name do
  * not cross IF-9 -- the same absence `ROW_INDENT_EM` records for the indent.
- * ⛔ A margin and not a padding: HF-6's faint control is what a person aims at,
- * and padding would grow the target while moving it.
+ * ⛔ A margin and not a padding: what a person aims at is the control HF-6 draws
+ * while the pointer is on the row, and padding would grow the target while
+ * moving it.
  *
  * STOP -- ⛔ THE SET-DOWN IS IN PROPORTION TO A SIZE THE DRAWN NAME DOES NOT
  * HAVE. HF-5 has the amount follow the name's own size, and it was resolved
@@ -1210,8 +1484,8 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   //
   // STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how a SPENT half is drawn.
   // `canOpen` / `canClose` are false when that half has nothing left to reach,
-  // and no row says what then. HF-6 of table T-051 governs the faintness of the
-  // controls as such and turns on the POINTER, not on reach; FR-029 asks for
+  // and no row says what then. HF-6 of table T-051 governs WHETHER the controls
+  // are drawn at all and turns on the POINTER, not on reach; FR-029 asks for
   // faintness of an endpoint that cannot be grabbed, and the palette's answer
   // (`commandEntry`: faint plus `aria-disabled`) is FR-029's `isEnabled` and not
   // this. ⛔ So neither half is dimmed or disabled here and nothing is invented:
@@ -1248,6 +1522,73 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   pin.setAttribute('aria-pressed', String(title.isPinned))
   row.append(pin)
   return row
+}
+
+/**
+ * The one entrance HF-10 of table T-051 (MUST) puts at the top right of the
+ * `Row Title Panel`, which opens every row -- HR-1 of table T-015.
+ *
+ * ⭐ WHY IT EXISTS AT ALL, IN THE ROW'S OWN WORDS: 「最上位の行が自分を畳むと、
+ * それを開く操作子がどこにも無くなる」. HF-3 (MUST) has the closing control fold
+ * the row ITSELF, and HF-2's opening control belongs to the row above -- which a
+ * top-level row does not have. ⚠️ It moves neither the zoom nor the view
+ * position; HF-8's whole-view is a different operation and HF-10 says so.
+ *
+ * ⭐ ONCE PER PANEL AND NOT ONCE PER ROW, which is why it is built here and not
+ * in `rowTitleElement`: IC-58 .. IC-60 are drawn against a row and this one is
+ * drawn against the panel, so it carries no `data-group-id` and IF-9 answers it
+ * with `rowGroupId: null` -- an operation on every row needs no row named.
+ *
+ * ⛔ IT CARRIES NO `data-role` OF ITS OWN. Table T-103 has no row for it, and
+ * U-23 (MUST) has an entrance for an operation named by the PANEL -- so the walk
+ * in `readScreenPartAt` takes `data-icon` from here and `data-role` from the
+ * panel it sits in, and answers `{ part: 'Row Title Panel', entry: 'IC-74' }`.
+ *
+ * ⛔ NO WORD IS INVENTED FOR IT, the same bargain the row controls keep: table
+ * T-109 has no English column, the dictionary's cell is empty (PD-160), and the
+ * row id is the accessible name until a word crosses the seam.
+ *
+ * @purity non-pure
+ */
+function openEveryRowElement(host: Document): HTMLElement {
+  const entry = made(host, 'button', STYLE.entry + STYLE.panelCornerEntry)
+  entry.setAttribute('type', 'button')
+  entry.setAttribute('data-icon', OPEN_EVERY_ROW_ENTRY)
+  entry.setAttribute('aria-label', OPEN_EVERY_ROW_ENTRY)
+  fillEntry(host, entry, OPEN_EVERY_ROW_ENTRY)
+  return entry
+}
+
+/**
+ * The top of the topmost row the panel draws, or `null` when it draws none.
+ *
+ * ⭐ WHAT IT IS FOR: HF-10 (MUST NOT) forbids the entrance above to overlap the
+ * pinned rows' controls, and FR-098 puts the pinned rows at the top of the panel
+ * while HF-4 (MUST) holds their controls at its right edge -- so the two want
+ * the same corner. ⚠️ The rows arrive placed (`RowTitle.box`), so where they
+ * begin is a number this side has, and the band above the first of them is the
+ * room the entrance stands in.
+ *
+ * STOP -- ⛔ THE BAND ITSELF IS NOT ON THE SEAM. `ScreenRegions` records that
+ * this panel runs the full height of the canvas and that a corner block sits
+ * above the row area, but `ScreenFrame` carries neither that rectangle nor the
+ * ruler's height, so the band can only be INFERRED from where the rows were
+ * put. Searched: `ScreenView`, `ScreenFrame`, `RowTitlePanel`, `RowTitle` and
+ * table T-051. ⭐ Nothing is invented in its place: the inferred band is written
+ * on the DOM as `data-corner-band`, so what this unit believed can be read back
+ * and held against the description (rule 04).
+ *
+ * @purity pure
+ */
+function rowsTopPx(panel: RowTitlePanel): number | null {
+  let top: number | null = null
+  for (const title of panel.pinnedTitles) {
+    if (top === null || title.box.y < top) top = title.box.y
+  }
+  for (const title of panel.titles) {
+    if (top === null || title.box.y < top) top = title.box.y
+  }
+  return top
 }
 
 /**
@@ -1895,6 +2236,29 @@ export interface ScreenSurfaceWiring {
    * resize path, because NFR-010 forbids waking a frame on anything else.
    */
   readonly onAppHeaderHeightPx: (heightPx: number) => void
+  /**
+   * FR-041 (MUST): which of table T-236's two renderings to paint in, and the
+   * hue the rows that follow the theme are solved with.
+   *
+   * ⭐ READ EACH FRAME AND NEVER TAKEN ONCE, like `readAuthor`: IC-16 switches
+   * S-72 while the document is open, so a value taken at wiring time would be
+   * the one the document was opened with for ever.
+   *
+   * STOP -- ⛔ OPTIONAL, AND THAT IS THE WHOLE OF WHY A DARK THEME STILL COMES
+   * OUT LIGHT. Neither S-72 nor S-73 crosses IF-9: `ScreenView`, `ScreenFrame`
+   * and `AppHeaderItems` carry no member for either, and UF-62 states in as many
+   * words that IC-16's `isPressed` cannot report a choice between two values.
+   * The shell holds both -- `document.documentSettings.themePreference` and
+   * `document.schedule.project.themeHue` are in hand at the head of every frame
+   * -- so what is owed is the shell passing this reader, or a member on
+   * `ScreenView` carrying the pair. Searched: FR-041, S-72 / S-73, `ScreenView`,
+   * `ScreenFrame`, `AppHeaderItems`, `ScreenSession` and table T-064.
+   * ⚠️ While it is absent every declaration falls back to the system colour it
+   * used before, which is the state FR-041 (MUST NOT) forbids -- ⛔ but a
+   * rendering picked here without the reader would be that same defect with the
+   * evidence hidden, and the hue cannot be invented at all (rule 03 section 1).
+   */
+  readonly readTheme?: () => ScreenTheme
 }
 
 /** What the person settled, until the draw that follows takes it away. */
@@ -1919,7 +2283,7 @@ interface Settlement {
  * @purity non-pure
  */
 export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
-  const { host, readAuthor, readClockMs, onAppHeaderHeightPx } = wiring
+  const { host, readAuthor, readClockMs, onAppHeaderHeightPx, readTheme } = wiring
 
   // ⛔ LY-5 of table T-060 puts these here because there is nowhere further in
   // they are allowed: the tree that has been built, what has been drawn into
@@ -1930,8 +2294,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // ⭐ It is also what scopes `HOVER_CSS` to this tree.
   root.setAttribute('data-unit', UNIT_ROW)
 
-  // The second half of HF-6 and the faint half of FR-053, neither of which an
-  // inline declaration can state. ⭐ Hung off the root so that it lives and dies
+  // HF-6's 「乗っているあいだだけ描く」 and the faint half of FR-053, neither of
+  // which an inline declaration can state. ⭐ Hung off the root so that it lives and dies
   // with the tree this unit built, and it is never rewritten: neither rule
   // depends on any description.
   const hoverSheet = host.createElement('style')
@@ -1953,6 +2317,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // answered as nothing rather than as the confirmation.
   const confirmationLayer = made(host, 'div', STYLE.layer)
   const tooltipLayer = part(host, 'div', ROLE.tooltips, STYLE.layer)
+
+  // HF-10 of table T-051 (MUST): one entrance, and it lives as long as the panel
+  // does. ⛔ Built once and never rebuilt -- it takes nothing from a description,
+  // so rebuilding it with the tree would throw away the browser's work on it for
+  // no gain, and it would leave the panel for a frame in which the tree changed.
+  const openEveryRow = openEveryRowElement(host)
+  rowTitlePanel.append(openEveryRow)
 
   dialogueEntry.setAttribute('type', 'text')
   dialogueEntry.setAttribute('style', STYLE.dialogueEntry)
@@ -2242,6 +2613,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (changed('rowTitlePanel')) {
       fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))
+      // HF-10 (MUST NOT): the entrance may not overlap the pinned rows' controls,
+      // and the band above the topmost row is where it does not. ⚠️ Recorded and
+      // not enforced: the entrance stays where HF-10 (MUST) puts it, and this
+      // says how much room was there -- `rowsTopPx` holds why the band cannot be
+      // asked for outright. ⛔ Absent when the panel draws no row, because then
+      // there is nothing for it to overlap and no first row to measure from.
+      const rowsTop = rowsTopPx(view.rowTitlePanel)
+      if (rowsTop === null) openEveryRow.removeAttribute('data-corner-band')
+      else openEveryRow.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
     }
     if (changed('propertiesPanel') && view.propertiesPanel !== null) {
       fillPropertiesPanel(host, propertiesPanel, view.propertiesPanel)
@@ -2304,7 +2684,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // arrived. ⚠️ Made visible synchronously, never inside a frame callback: a
     // first paint that waits for one leaves a white screen until an input
     // arrives.
-    root.setAttribute('style', STYLE.rootShown)
+    // FR-041 (MUST), both halves, on the one element every part of this unit
+    // hangs off. ⛔ Written with the root's own placement and not on a second
+    // element: a custom property is inherited, so one declaration reaches every
+    // part, and `color-scheme` reaches the scrollbars the environment paints
+    // inside them. ⚠️ Empty while nothing supplies `readTheme`, which is the
+    // state the wiring member records -- each declaration then keeps the system
+    // colour it fell back on.
+    root.setAttribute('style', STYLE.rootShown + themeDeclaration(readTheme))
 
     // ⭐ THE SETTLED LINE IS TAKEN AWAY HERE, and this is the only member that
     // may take it: `readDialogueInput` is `semi-pure-b` on the declaration, so
@@ -2467,8 +2854,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 export const NOT_STORED_ICON_SIZES: {
   /** S-138, in px */
   readonly 'S-138': number
+  /** S-141, in px */
+  readonly 'S-141': number
 } = {
   'S-138': 12,
+  'S-141': 2,
 }
 
 /**
@@ -2502,18 +2892,12 @@ export const SCREEN_COLOURS: {
   'S-149': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
   /* S-150 */
   'S-150': { light: 'hsl(H 20% 97%)', dark: 'hsl(H 14% 13%)', followsHue: true },
-  /* S-151 */
-  'S-151': { light: 'hsl(H 59% 42%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   /* S-152 */
   'S-152': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   /* S-153 */
   'S-153': { light: '#a8600f', dark: '#e0a353', followsHue: false },
   /* S-154 */
   'S-154': { light: '#a02b2b', dark: '#e07a7a', followsHue: false },
-  /* S-168 */
-  'S-168': { light: '#000000', dark: '#ffffff', followsHue: false },
-  /* S-169 */
-  'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   /* S-170 */
   'S-170': { light: 'rgba(0,0,0,0.28)', dark: 'rgba(0,0,0,0.6)', followsHue: false },
 }

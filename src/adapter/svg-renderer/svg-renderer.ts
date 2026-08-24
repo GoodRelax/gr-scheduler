@@ -15,6 +15,14 @@
 // it. 5.1 puts drawing on this side of the line -- "layoutEngine holds nothing
 // past coordinates".
 //
+// ⭐ FR-042's band is drawn HERE and nowhere else, and that is not a choice
+// this file made. `_source/components.json` gives this component the edge to
+// ScheduleLayout ("the ruler and the row placement") and the edge to Schedule
+// that names "the row colour"; ScreenRenderer's own head note says in as many
+// words that it may reach neither layout nor geometry, and that `Rows` (U-1)
+// and everything in them are absent from it. ⛔ Until this round nothing drew
+// a band at all -- `layout.rows` reached no renderer.
+//
 // Nothing outside this folder may import any other file in it
 // (Chapter 5.3, MUST NOT), so every name the component publishes
 // leaves through here.
@@ -48,42 +56,36 @@ interface Paint {
 }
 
 /**
- * The saturation, and the plan and actual lightness, per theme.
+ * The one colour FR-019 (MUST) asks for that no table holds: the line an
+ * annotation takes when the author named none.
  *
- * ⛔ The NUMBERS are not in the specification: `_assets/tbl-settings.md` §5
- * states the rule in words -- "for each hue, a ground as dark as it goes
- * before the contrast rule breaks" -- and FR-041 forbids storing what is
- * derived. ⭐ But the CONSTRAINT is: table T-017a's CT-3 makes 実績 ÷ 予定 at
- * least 3 : 1, and FR-007 turns that table into a MUST.
+ * ⛔ NOT IN TABLE T-236. That table settles S-146 .. S-170, and the annotation
+ * is not among them although FR-041 names it in the same breath as the two
+ * lines it does settle. This is the last colour typed in this file; every
+ * other one arrives generated.
  *
- * ⭐ These pairs were chosen by measuring: each meets CT-3 at every hue (worst
- * 3.94 : 1 light, 3.42 : 1 dark), and each lands on the ratio §5 records as
- * measured at hue 214 -- 4.81 : 1 light, 3.74 : 1 dark.
- *
- * ⚠️ The first pair written here did NOT meet CT-3 (1.79 : 1). It was caught by
- * a test written from the specification alone, which is what rule 04 of
- * docs/development-rules exists for.
- *
- * ⭐ Class C of 06-pending-decisions.md: display only, no trace in the saved
- * form, so the cost of overturning it is this one file.
+ * ⛔ AND THIS VALUE IS MEASURABLY WRONG. FR-019 wants it kept away from the
+ * theme hue, the dependency line AND the progress line. It is hue 26, which is
+ * the hue S-159 gives the dependency line in the light theme. Correcting it
+ * means choosing a colour, which this unit may not do -- so it stands, and the
+ * gap is reported instead of papered over.
  *
  * @provisional PD-1
  */
-const PLAN_SATURATION = 62
-const THEME_LIGHTNESS = {
-  light: { plan: 72, actual: 27 },
-  dark: { plan: 60, actual: 23 },
-} as const
+const ANNOTATION_COLOUR = '#b45309'
 
 /**
- * The colours FR-041 fixes and forbids the document to hold: a dependency and
- * a progress line share one, and an annotation takes another that is kept away
- * from the hue, so the two never read as schedule content (FR-019).
+ * The dashes a selected Task gains, so FR-030 is met without colour carrying
+ * the meaning alone (SL-8 of table T-023c).
+ *
+ * ⛔ S-151 is the row this wants -- table T-236 gives it selection as its very
+ * use -- but `tools/generate_entity_types.py` sends S-151 to SCREEN_COLOURS,
+ * which lands in the unit that may not reach the schedule. Nothing carries it
+ * here, so the colour stays typed.
  *
  * @provisional PD-1
  */
-const LINK_COLOUR = '#6b7280'
-const ANNOTATION_COLOUR = '#b45309'
+const SELECTION_OUTLINE_COLOUR = '#6b7280'
 
 /** @purity pure */
 function escaped(text: string): string {
@@ -108,24 +110,76 @@ function pointsOf(path: Path): string {
 }
 
 /**
- * Grey of the same lightness, for FR-041's monochrome. Applied when drawing
- * and never to the stored value -- `themeMonochrome` "does not change what is
- * saved" (tbl-settings.md §5).
+ * The same colour with the hue taken out, for FR-041's monochrome. Applied
+ * when drawing and never to the stored value -- `themeMonochrome` "does not
+ * change what is saved" (tbl-settings.md §5).
+ *
+ * ⚠️ What survives is HSL's lightness, not WCAG's luminance. Monochrome shows
+ * the same picture without hue, so the value kept is the one the colour was
+ * WRITTEN with; luminance is the measure NFR-007 judges by, which is a
+ * different question from how to draw.
+ *
+ * ⛔ A colour this cannot read comes back unchanged. Guessing at one would be
+ * worse than leaving a single shape coloured, which a reader can see and say.
  *
  * @purity pure
  */
-function greyOf(lightness: number): string {
-  return `hsl(0 0% ${lightness}%)`
+function achromatic(colour: string): string {
+  const asHsl = /^hsla?\(\s*[\d.]+\s*[, ]\s*[\d.]+%\s*[, ]\s*([\d.]+)%/.exec(colour.trim())
+  if (asHsl !== null) return `hsl(0 0% ${asHsl[1] as string}%)`
+  const asHex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(colour.trim())
+  if (asHex === null) return colour
+  const digits = asHex[1] as string
+  const wide = digits.length === 3 ? digits.replace(/./g, (one) => one + one) : digits
+  const channels = [0, 2, 4].map((at) => parseInt(wide.slice(at, at + 2), 16) / 255)
+  const lightness = (Math.max(...channels) + Math.min(...channels)) / 2
+  return `hsl(0 0% ${rounded(lightness * 100)}%)`
 }
 
-/** @purity pure */
-function hueColour(hue: number, lightness: number, monochrome: boolean): string {
-  return monochrome ? greyOf(lightness) : `hsl(${hue} ${PLAN_SATURATION}% ${lightness}%)`
+/**
+ * One row of table T-236, resolved for the theme in force.
+ *
+ * ⭐ The `H` is substituted here rather than in the manuscript, for the reason
+ * the generated block at the foot of this file states: S-73 holds themeHue
+ * once, so the rows name it instead of repeating it.
+ *
+ * ⛔ Monochrome reaches only the rows that follow the theme. A row with
+ * `followsHue` false is used exactly as written, and FR-041 (MUST NOT) is why:
+ * the two lines are held off the theme, so letting the theme's own monochrome
+ * switch move them would be following it after all.
+ *
+ * @purity pure
+ */
+function colourOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
+  const row = SCHEDULE_COLOURS[rowId]
+  // The generator raises on a row table T-236 has not, so this can only fire
+  // when a row ID typed here is not one the block was asked for.
+  if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
+  const written = dark ? row.dark : row.light
+  if (!row.followsHue) return written
+  const substituted = written.replace(/\bH\b/g, rounded(hue))
+  return monochrome ? achromatic(substituted) : substituted
 }
 
-/** The lightness pair the saved theme asks for. @purity pure */
-function lightnessOf(settings: DocumentSettings): { plan: number; actual: number } {
-  return THEME_LIGHTNESS[settings.themePreference === 'dark' ? 'dark' : 'light']
+/** Which column of table T-236 the saved theme asks for (S-72). @purity pure */
+function isDarkTheme(settings: DocumentSettings): boolean {
+  return settings.themePreference === 'dark'
+}
+
+/**
+ * FR-042's band colour for a row the author gave none: S-166 at depth 1,
+ * S-164 and S-167 alternating below it.
+ *
+ * ⛔ The stripe is counted by the row's POSITION, never by whether the rows
+ * above carried an override -- FR-042 says so in as many words, because
+ * counting only un-overridden rows flips every stripe below the moment one row
+ * is given a colour.
+ *
+ * @purity pure
+ */
+function bandRowOf(depth: number, position: number): string {
+  if (depth === 1) return 'S-166'
+  return position % 2 === 0 ? 'S-164' : 'S-167'
 }
 
 /**
@@ -138,17 +192,20 @@ function lightnessOf(settings: DocumentSettings): { plan: number; actual: number
 function paintOf(
   chosenStroke: string | null,
   chosenFill: string | null,
-  hue: number,
-  lightness: number,
+  themedStroke: string,
+  themedFill: string,
   monochrome: boolean,
   strokeWidth: number,
 ): Paint {
-  const themed = hueColour(hue, lightness, monochrome)
-  const stroke = chosenStroke === null ? themed : chosenStroke
-  const fill = chosenFill === null ? themed : chosenFill
+  const stroke = chosenStroke === null ? themedStroke : chosenStroke
+  const fill = chosenFill === null ? themedFill : chosenFill
+  // ⭐ One call for both halves. A themed colour arrives achromatic already
+  // and `achromatic` is idempotent, so the chosen colour needs no branch of
+  // its own -- which is what the earlier two-branch form got wrong: it threw
+  // the author's colour away instead of draining it.
   return {
-    stroke: monochrome && chosenStroke !== null ? greyOf(lightness) : stroke,
-    fill: monochrome && chosenFill !== null ? greyOf(lightness) : fill,
+    stroke: monochrome ? achromatic(stroke) : stroke,
+    fill: monochrome ? achromatic(fill) : fill,
     strokeWidth,
   }
 }
@@ -156,7 +213,9 @@ function paintOf(
 /**
  * ZO-3's marker. ⭐ Table T-020 says it carries an opaque backing, so the
  * circle is filled rather than hollow -- it sits over the bars and a hollow
- * one would read as part of whatever shows through.
+ * one would read as part of whatever shows through. S-162 is that backing and
+ * S-161 the ink; S-162 inherits S-146 in the manuscript, which is why the
+ * marker keeps reading as something floating on the ground.
  *
  * ⚠️ The five symbols of table T-021 are drawn as strokes inside that circle.
  * ⛔ Their exact figures are not in the specification, the way the milestone
@@ -164,11 +223,11 @@ function paintOf(
  *
  * @purity pure
  */
-function markerSvg(marker: MarkerGeometry, ink: string): string {
+function markerSvg(marker: MarkerGeometry, ink: string, backing: string): string {
   const { centre, radius } = marker
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
-    ` fill="#ffffff" stroke="${ink}" stroke-width="1"/>`
+    ` fill="${backing}" stroke="${ink}" stroke-width="1"/>`
   const r = radius * 0.5
   const mark =
     marker.symbol === 'PM-1a'
@@ -201,6 +260,13 @@ function markerSvg(marker: MarkerGeometry, ink: string): string {
  * ⚠️ `labelHaloOfFont` is the outline table T-017a's note reaches for when a
  * hue cannot meet CT-1 and CT-2. It is drawn always, which is the safe side of
  * that note rather than a reading of it.
+ *
+ * ⛔ THE TWO COLOURS BELOW ARE STILL TYPED, and table T-236 already holds
+ * them: S-168 is the ink on a bar and S-169 the halo. They do not reach this
+ * unit -- `tools/generate_entity_types.py` puts both in SCREEN_COLOURS, which
+ * goes to DomScreenSurface, and that unit draws no bar to put a label on.
+ * ⛔ Not typed in from the table here: a copied colour goes stale in silence,
+ * which is the whole reason the table is generated.
  *
  * @purity pure
  */
@@ -251,9 +317,13 @@ function barSvg(bar: BarGeometry, paint: Paint): string {
  *
  * ⭐ Every coordinate arrives already computed: ADR-001 has the shell run
  * table T-068 once per frame and hand the result to everyone who needs it, so
- * this unit measures nothing. ⚠️ That is why the layout itself is not an
- * argument -- everything this file draws is a vertex ScheduleGeometry made,
- * and the only size it needs is the screen's.
+ * this unit measures nothing of its own.
+ *
+ * ⛔ THE NOTE THAT STOOD HERE WAS FALSE. It said the layout "is not an
+ * argument"; `layout` has been the third parameter all along, and the label
+ * has always read its placements. FR-042's band now reads `layout.rows` as
+ * well, which is the edge `_source/components.json` draws from this component
+ * to ScheduleLayout and calls "the ruler and the row placement".
  *
  * @purity pure
  */
@@ -267,7 +337,9 @@ export function svgFromSchedule(
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
-  const lightness = lightnessOf(settings)
+  const dark = isDarkTheme(settings)
+  /** One row of table T-236, under the theme this frame is drawn in. */
+  const themed = (rowId: string): string => colourOf(rowId, hue, dark, monochrome)
   // ZO-5's label needs the string and the size LC-5 measured it at, and both
   // travel with the placement rather than the geometry.
   const placedOf = new Map(layout.placements.map((one) => [one.taskUid, one]))
@@ -276,6 +348,8 @@ export function svgFromSchedule(
   const strokeOfBox = new Map(
     schedule.highlightBoxes.map((one) => [one.id, one.strokeColor]),
   )
+  // FR-042's other half: the colour the author put on the row itself (AT-58).
+  const colourOfGroup = new Map(schedule.taskGroups.map((one) => [one.id, one.color]))
   const selected = new Set(
     selection.items.filter((one) => one.kind === 'task').map((one) => one.uid),
   )
@@ -285,6 +359,9 @@ export function svgFromSchedule(
   // ZO-3 進捗マーカー, ZO-4 依存線, ZO-5 名称ラベル. ⚠️ The first version of
   // this file wrote the dependencies FIRST, which put them at the back -- the
   // one arrangement the table's prose forbids in as many words.
+  // ⭐ The bands are not a row of that table. They are the ground the table's
+  // six elements are painted on, so they go behind all of it (FR-042).
+  const bandParts: string[] = []
   const planParts: string[] = []
   const guideParts: string[] = []
   const actualParts: string[] = []
@@ -292,28 +369,59 @@ export function svgFromSchedule(
   const linkParts: string[] = []
   const labelParts: string[] = []
 
+  // FR-042 (MUST): one band per drawn row, and a group grid line on its
+  // boundary. ⛔ Clipped to the Row Area rather than drawn wherever the row
+  // sits: S-78 slides the whole stack, so a scrolled row's band would
+  // otherwise be painted over the Time Ruler and the app header above it.
+  const area = regions.rowArea
+  const areaBottom = area.y + area.height
+  for (const [position, row] of layout.rows.entries()) {
+    const top = Math.max(row.y, area.y)
+    const bottom = Math.min(row.y + row.height, areaBottom)
+    if (bottom <= top) continue
+    const chosen = colourOfGroup.get(row.groupId) ?? null
+    const band = chosen === null ? themed(bandRowOf(row.depth, position)) : chosen
+    bandParts.push(
+      `<rect x="${rounded(area.x)}" y="${rounded(top)}"` +
+        ` width="${rounded(area.width)}" height="${rounded(bottom - top)}"` +
+        ` fill="${monochrome ? achromatic(band) : band}"/>`,
+    )
+    // S-68 is whether the group grid line is drawn at all; S-165 is its
+    // colour. FR-042's RATIONALE makes the line itself a MUST -- one row is
+    // one target, and an invisible boundary leaves that unreadable.
+    if (!settings.groupGridLinesVisible) continue
+    bandParts.push(
+      `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
+        ` x2="${rounded(area.x + area.width)}" y2="${rounded(bottom)}"` +
+        ` stroke="${themed('S-165')}" stroke-width="1"/>`,
+    )
+  }
+
   for (const task of geometry.tasks) {
     const visual = visualOf.get(task.taskUid)
     const plan = paintOf(
       visual?.strokeColor ?? null,
       visual?.fillColor ?? null,
-      hue,
-      lightness.plan,
+      themed('S-156'),
+      themed('S-155'),
       monochrome,
       settings.planStroke,
     )
     const actual = paintOf(
       visual?.strokeColor ?? null,
       visual?.fillColor ?? null,
-      hue,
-      lightness.actual,
+      themed('S-158'),
+      themed('S-157'),
       monochrome,
       settings.planStroke,
     )
     if (task.plan !== null) planParts.push(barSvg(task.plan, plan))
     for (const guide of task.guides) {
+      // S-105: the guide takes the ACTUAL bar's colour, because it is the line
+      // that leaves the actual bar. ⛔ No key of its own -- FR-041 forbids
+      // storing a derived colour, and a second constant would be one.
       guideParts.push(
-        `<polyline points="${pointsOf(guide)}" fill="none" stroke="${LINK_COLOUR}"` +
+        `<polyline points="${pointsOf(guide)}" fill="none" stroke="${actual.stroke}"` +
           ` stroke-width="${rounded(settings.planActualGuideWeight)}"` +
           ` stroke-dasharray="${rounded(settings.planActualGuidePattern.on)}` +
           ` ${rounded(settings.planActualGuidePattern.off)}"/>`,
@@ -325,11 +433,11 @@ export function svgFromSchedule(
       // gains an outline of its own rather than a different fill.
       actualParts.push(
         `<polygon points="${pointsOf(task.plan.points)}" fill="none"` +
-          ` stroke="${LINK_COLOUR}" stroke-width="2" stroke-dasharray="3 2"/>`,
+          ` stroke="${SELECTION_OUTLINE_COLOUR}" stroke-width="2" stroke-dasharray="3 2"/>`,
       )
     }
     if (task.marker !== null && settings.progressMarkerVisible) {
-      markerParts.push(markerSvg(task.marker, plan.stroke))
+      markerParts.push(markerSvg(task.marker, themed('S-161'), themed('S-162')))
     }
     const placed = placedOf.get(task.taskUid)
     if (task.label !== null && placed !== undefined && placed.label !== '') {
@@ -337,27 +445,32 @@ export function svgFromSchedule(
     }
   }
 
+  // ⛔ S-159 AND S-160 ARE TWO DIFFERENT COLOURS, and neither follows the
+  // theme (FR-041, MUST NOT, rewritten 2026-08-25). ⚠️ They shared one grey
+  // here until that day, because the earlier wording said "the same fixed
+  // colour" in the very sentence that also listed both as following the theme.
   for (const link of geometry.dependencies) {
     if (!settings.dependencyVisible) break
     linkParts.push(
       `<polyline points="${pointsOf(link.points)}" fill="none"` +
-        ` stroke="${LINK_COLOUR}" stroke-width="${rounded(settings.dependencyWidth)}"/>`,
+        ` stroke="${themed('S-159')}" stroke-width="${rounded(settings.dependencyWidth)}"/>`,
     )
   }
 
   if (geometry.progressLine.length > 0 && settings.progressLineVisible) {
     linkParts.push(
       `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
-        ` stroke="${LINK_COLOUR}" stroke-width="${rounded(settings.progressLineWidth)}"/>`,
+        ` stroke="${themed('S-160')}" stroke-width="${rounded(settings.progressLineWidth)}"/>`,
     )
   }
 
   const status = geometry.statusLine
   if (status !== null) {
+    // CU-1's line. S-163 is its colour, and it names no hue of its own.
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
         ` x2="${rounded(status.x)}" y2="${rounded(status.bottom)}"` +
-        ` stroke="${LINK_COLOUR}" stroke-width="1"/>`,
+        ` stroke="${themed('S-163')}" stroke-width="1"/>`,
     )
   }
 
@@ -373,6 +486,7 @@ export function svgFromSchedule(
   }
 
   const parts = [
+    ...bandParts,
     ...planParts,
     ...guideParts,
     ...actualParts,
@@ -417,6 +531,8 @@ export const SCHEDULE_COLOURS: {
     readonly followsHue: boolean
   }
 } = {
+  /* S-151 */
+  'S-151': { light: 'hsl(H 59% 42%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   /* S-155 */
   'S-155': { light: 'hsl(H 46% 80%)', dark: 'hsl(H 32% 26%)', followsHue: true },
   /* S-156 */
@@ -443,5 +559,9 @@ export const SCHEDULE_COLOURS: {
   'S-166': { light: 'hsl(H 40% 97%)', dark: 'hsl(H 20% 17%)', followsHue: true },
   /* S-167 */
   'S-167': { light: 'hsl(H 20% 99%)', dark: 'hsl(H 14% 11%)', followsHue: true },
+  /* S-168 */
+  'S-168': { light: '#000000', dark: '#ffffff', followsHue: false },
+  /* S-169 */
+  'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
 }
 // </generated>
