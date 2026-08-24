@@ -96,14 +96,14 @@ def text(value, field=None):
             raise SystemExit('a weekday cell was printed before the roster was read')
         out = weekdays(value, ROSTER)
         return out + (' ' + value['mark'] if value.get('mark') else '')
-    if 'num' in value or 'lit' in value or 'pair' in value:
+    if 'num' in value or 'lit' in value or 'pair' in value or 'colour' in value:
         if 'pair' in value:
             # `sep` is for the pairs the specification does NOT write as
             # width by height -- S-104's dash pattern is 「2,2」, and printing
             # it with the default separator would rewrite the document.
             body = value.get('sep', PAIR_SEPARATOR).join(value['pair'])
         else:
-            body = value.get('num', value.get('lit'))
+            body = value.get('num', value.get('lit', value.get('colour')))
         out = '`%s`' % body if value.get('code') else body
         # A word that WRAPS the value belongs to a language, so it is a
         # dictionary of its own -- and the number inside it is not written a

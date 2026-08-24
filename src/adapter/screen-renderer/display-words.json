@@ -803,6 +803,17 @@
     "ja": "読んだ内容を変更前の予定として重ねる",
     "en": "Overlay what was read as the baseline"
    }
+  },
+  {
+   "rowId": "IC-74",
+   "label": {
+    "ja": "すべて展開する",
+    "en": "Expand All"
+   },
+   "hint": {
+    "ja": "畳んだ行をすべて開く",
+    "en": "Open every row that was collapsed"
+   }
   }
  ],
  "paletteGroups": [

@@ -668,6 +668,15 @@
    "group": null,
    "entryTo": "読んだ内容を変更前の予定として重ねる",
    "authority": "表 T-024a の `OP-3`"
+  },
+  {
+   "rowId": "IC-74",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "すべての行を開く",
+   "authority": "表 T-051 の `HF-10`"
   }
  ]
 }

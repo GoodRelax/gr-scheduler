@@ -208,6 +208,7 @@
     "thinStrokeMin",
     "thinStrokeOfPlan",
     "truncateUnits",
+    "watermarkVisible",
     "zoomX",
     "zoomY"
    ],
@@ -746,6 +747,9 @@
      "type": "integer",
      "minimum": 4,
      "maximum": 120
+    },
+    "watermarkVisible": {
+     "type": "boolean"
     },
     "zoomX": {
      "type": "number"

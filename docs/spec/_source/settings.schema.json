@@ -250,6 +250,11 @@
       "encoding",
       "form"
      ]
+    },
+    {
+     "required": [
+      "colour"
+     ]
     }
    ],
    "properties": {
@@ -351,6 +356,11 @@
     "exclusive": {
      "type": "boolean",
      "description": "The bound is OPEN: the value itself is not allowed. Written on a `min` or a `max` only. ⭐ This replaced writing `1 − ε`, which named a quantity the specification never gave a value to -- what those rows meant was 'below 1', not a particular number."
+    },
+    "colour": {
+     "description": "A colour, in one of the two forms table T-236 uses: a hex triple, or an hsl() whose hue is either a number or the letter H. ⛔ H means the row FOLLOWS themeHue (S-73) and the letter is substituted when the colour is solved -- writing 214 here would copy S-73's value into 20 rows, and rule 03 forbids copying a value the specification already holds once. A row whose hue column says it does not follow states a number instead.",
+     "type": "string",
+     "pattern": "^(?:#[0-9a-f]{6}|hsl\\((?:H|[0-9]{1,3}) [0-9]{1,3}% [0-9]{1,3}%\\)|rgba\\(0,0,0,0\\.[0-9]{1,2}\\))$"
     }
    }
   },
@@ -432,7 +442,7 @@
       "additionalProperties": false,
       "properties": {
        "field": {
-        "description": "The English name the cells of this column are keyed by. 値 is one field even though table T-206 uses that column for what the value IS while the T-211 shape uses it for the value itself; telling those apart is a promotion, not a rename.",
+        "description": "The English name the cells of this column are keyed by. 値 is one field even though table T-206 uses that column for what the value IS while the T-211 shape uses it for the value itself; telling those apart is a promotion, not a rename. light / dark / hue belong to table T-236 alone: a colour is ONE decision with two renderings, so the pair is one ROW with two cells rather than two tables whose rows could silently drift apart, and hue says whether the row follows themeHue (S-73) or is fixed.",
         "enum": [
          "id",
          "group",
@@ -444,7 +454,10 @@
          "value",
          "min",
          "max",
-         "note"
+         "note",
+         "light",
+         "dark",
+         "hue"
         ]
        },
        "ja": {
@@ -506,6 +519,15 @@
         "$ref": "#/$defs/cell"
        },
        "note": {
+        "$ref": "#/$defs/cell"
+       },
+       "light": {
+        "$ref": "#/$defs/cell"
+       },
+       "dark": {
+        "$ref": "#/$defs/cell"
+       },
+       "hue": {
         "$ref": "#/$defs/cell"
        },
        "json": {

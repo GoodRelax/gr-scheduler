@@ -41021,6 +41021,7 @@
   "thinStrokeMin": 1.2,
   "thinStrokeOfPlan": 0.2,
   "truncateUnits": 24,
+  "watermarkVisible": true,
   "zoomX": 1,
   "zoomY": 1
  },

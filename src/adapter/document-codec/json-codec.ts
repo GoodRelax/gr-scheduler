@@ -1212,6 +1212,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         truncateUnits: {
           type: ['integer'],
         },
+        watermarkVisible: {
+          type: ['boolean'],
+        },
         zoomX: {
           type: ['number'],
         },

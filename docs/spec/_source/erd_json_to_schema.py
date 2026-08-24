@@ -61,6 +61,10 @@ TABLE_GROUP = {
     'T-217': ('schedule', '本表の値は日程データの群に入る'),
     'T-206': ('notStored', '保存しないもの'),
     'T-207': ('notStored', '文書には保存しない'),
+    # ⭐ The screen's colours (CR-243). Like T-207 they are constants baked
+    # into the artifact: FR-041 (MUST NOT) forbids saving a derived colour,
+    # so none of these may reach documentSettings.
+    'T-236': ('notStored', '文書には保存しない'),
 }
 
 def manuscript_types():
