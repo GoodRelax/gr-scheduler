@@ -335,8 +335,15 @@ export interface RowTitle {
   readonly wholeLabel: string | null
   /**
    * FR-085 (MUST): a name that did not fit is cut, and shown whole in a tooltip.
-   * This is the question that tooltip is raised on -- FR-085 states no pointer
-   * condition -- and `wholeLabel` above is what it shows.
+   * This is HALF of what that tooltip is raised on and `wholeLabel` above is
+   * what it shows. ⛔ THE OTHER HALF IS THE POINTER. FR-085 now states the
+   * condition in as many words -- the explanation stands only while the pointer
+   * is on that row's name or the row has focus (MUST), and never merely because
+   * the name was cut (MUST NOT) -- so a caller reading this member alone would
+   * raise one per truncated row on the frame the document opens on, which is
+   * exactly what was measured before that condition existed. UF-69 answers the
+   * pointer half; the focus half has no member to read yet and carries a STOP
+   * there.
    */
   readonly isLabelTruncated: boolean
   /** U-47 `Row Expander`. `null` where nothing sits under the row. */
