@@ -116,9 +116,20 @@ const SCROLLBAR_PROBE_PX = 100
  * table T-206 kept in `localStorage` with no owner anywhere in `src/`
  * (`local-storage-document-store.ts` records that); AG-6 of table T-035 selects
  * on 「自分以外の書き手」 and never says where this side's name comes from.
- * ⚠️ Empty is 「no name is held」 rather than a name invented here. ⛔ It is not
- * read in this build: FR-066 puts the field up only while the `Agent API` is
- * on, and the record that would turn it on (S-99b) has no owner either.
+ * ⚠️ Empty is 「no name is held」 rather than a name invented here.
+ *
+ * ⛔ IT IS READ IN THIS BUILD, WHICH IT WAS NOT BEFORE IC-20 LANDED. The note
+ * here used to say the opposite and gave S-99b as the reason; that reason is
+ * gone. FR-066 puts the field up while the `Agent API` is on, `dialogue-field.ts`
+ * gates on `ScreenSession.isAgentApiEnabled`, and IC-20 turns that on -- so
+ * every line a person settles now carries this empty name.
+ * ⚠️ WHAT THAT COSTS, stated rather than papered over: AG-6 of table T-035
+ * tells writers apart by the name alone, so a subscriber installed under an
+ * equally empty name would be woken by the person's own utterances, which that
+ * row forbids (MUST NOT). ⛔ Nothing installs a subscriber yet -- see the STOP
+ * in `boot` -- so the two cannot collide today. Table T-229 does not settle
+ * this name either: it governs `lastEditedBy`, and an utterance is not a write
+ * to the document (FR-066, MUST NOT).
  */
 const AUTHOR_NOT_HELD = ''
 
@@ -394,6 +405,54 @@ function boot(): void {
     { surface: screenSurface, language: displayLanguage() },
     fileStore,
   )
+
+  // STOP -- ⛔ FR-065'S FIRST MUST IS UNMET, AND THE PIECE THAT IS MISSING IS
+  // NOT IN THIS FILE. `installAgentApi` (PI-17) has no caller anywhere in
+  // `src/`, so a person can press IC-20 and no entrance appears.
+  //
+  // ⭐ TWO THINGS THAT ARE NOT WHAT IS BLOCKING IT, both measured rather than
+  // assumed, because both have been offered as the reason before:
+  //
+  //   * FR-028's 「既定では公開しないこと（MUST）」 does NOT need a flag on the
+  //     launching side. Its RATIONALE offers that flag OR a person's enabling
+  //     on screen, joined by 「か」, so the on-screen path alone satisfies it.
+  //   * FR-065's second MUST -- that the screen shows the API is on while it
+  //     is -- is ALREADY DRAWN. UF-62 of table T-075 owns it and
+  //     `app-header-items.ts` reports IC-20 pressed while
+  //     `ScreenSession.isAgentApiEnabled` is true. Nothing is owed there.
+  //
+  // ⛔ WHAT IS ACTUALLY BLOCKING IT IS ON THE OTHER SIDE OF UT-6 OF TABLE
+  // T-063. Placing the public point is this unit's (UF-47 of table T-075), and
+  // the identifier it goes under is settled -- `_assets/tbl-glossary.md`
+  // section 3 spells it `grSchedulerAgentApi`, on `globalThis`, and forbids
+  // minting another. What cannot be placed is the VALUE. `installAgentApi`
+  // takes an `AgentApiWiring` whose `source` is IF-7 of table T-065, and UF-48
+  // gives IF-7's implementation to `frame-loop.ts` -- which does not have one.
+  // `FrameLoop` publishes `current`, `document` and `exportScene` and no more,
+  // so the selection, the dialogue log, AG-9's two in-flight flags and the two
+  // limit sets an `AgentSnapshot` names cannot be reached from here. ⛔ Neither
+  // can the toggle itself: `isAgentApiEnabled` is a local of `frameLoop` that
+  // is reported to nobody, so this file cannot even see it turn.
+  // ⚠️ Building a second `DocumentHolder` here instead is not the way round it
+  // -- two holders of one document is two answers to 「which document is open」,
+  // the same objection this file's header already makes about IF-3's store.
+  //
+  // ⭐ WHAT IS OWED, so that the next owner has it in one place: `frame-loop.ts`
+  // gains the `SnapshotSource` UF-48 already assigns it and hands out the
+  // `DocumentHolder`, the `ChangeAudience` and PI-16's two dialogue seams it
+  // already builds, plus a way to hear `isAgentApiEnabled` turn. THEN this file
+  // installs on the turn to true, drops its reference on the turn to false, and
+  // raises RS-20 of table T-233 in NT-5's manner, which is how FR-065's third
+  // MUST is kept: disabling cannot take back a reference already handed over,
+  // and `installAgentApi`'s own note says the same from the far side.
+  //
+  // ⛔ S-99b STAYS SHORT OF HALF ITS KEY, and it is not this file's to invent.
+  // FR-065 makes the enabling a per-document memory (MUST) and S-99b keys the
+  // record by the document; `frame-loop.ts` records that nothing in this build
+  // derives a document identifier. ⭐ Until one exists the enabling lasts as
+  // long as the page, which is the smallest honest behaviour -- a record filed
+  // under a made-up key would be remembered for the wrong document, which is
+  // the one outcome that MUST forbids.
 
   // FT-1 of table T-078 -- the person operating the tool.
   // ⭐ `window` is what `InputHost` asks for: the seam names the five members

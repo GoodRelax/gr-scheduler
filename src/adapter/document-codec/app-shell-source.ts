@@ -35,16 +35,42 @@
 // ⚠️ The element that carries the embedded document belongs to the SHELL, not
 // to this component. CP-25's responsibility column says the shell "holds the
 // embedding container", and BT-1 of table T-034 -- the first place startup
-// looks for a document -- is that container being read. The reader names it;
-// this seam carries the name inward so the writer can aim at it.
+// looks for a document -- is that container being read. The shell supplies the
+// name across this seam so that the writer aims at the element the reader will
+// open.
 //
-// ⛔ Do not replace this with a constant exported from DocumentCodec. The
-// shell would then import a value across a layer boundary in order to find its
-// own container, and table T-064's PI-20 fixes what this component publishes
-// -- six members, none of them such a constant.
+// ⛔ THE SHELL DOES NOT INVENT THE NAME, and that missing half is why BT-1 sat
+// unread. The id is `embedded-document`, and it is fixed by a contract with
+// writers outside this build rather than left to taste: the single .html is
+// meant to be assembled by an agent too -- it takes a copy of the artifact and
+// replaces the container in it -- so a name only this build knew would make
+// every file anyone else assembled unreadable at BT-1. The value, the "exactly
+// one" and the container's type are stated together in section 5-1 of
+// previous-project-result/10-agent-interface/agent-interface-spec-ja.md, which
+// section 6 of docs/development-rules/03-implementation.md puts at rank 3 of
+// what to consult. ⭐ Two things were held against it here: that id passes
+// `isUsableElementId` in embedded-html-codec.ts, and the element type that file
+// writes is the one the contract names.
+//
+// ⛔ Do not turn that into a constant exported from DocumentCodec. The shell
+// would then import a value across a layer boundary in order to find its own
+// container; table T-064's PI-20 fixes what this component publishes -- six
+// members, none of them such a constant -- and the reverse walk of check 26b
+// refuses a name that crosses a folder boundary without a row. ⭐ It costs the
+// shell one constant of its own and nothing more: the id reaches no stored
+// file. IO-7 of table T-024 is write-only, and what reads an embedded document
+// is BT-1 rather than the opening road, so a later change to it is one line and
+// not a migration.
+//
+// ⛔ index.html CARRIES NO CONTAINER IN THIS BUILD. Two consequences, and
+// neither is this file's to fix: the first export takes the writer's "there is
+// none yet, add one" branch, and BT-1 has to read a MISSING element as "nobody
+// embedded a document" and not only an empty one. ⚠️ The contract above ships
+// the artifact with the container already in place holding `null`, so that
+// emptiness is the only question BT-1 has to ask.
 //
 // ⭐ The division that follows, and the one thing an implementer must not get
-// wrong: the shell owns the container's ID, this component owns its MARKUP
+// wrong: the shell supplies the container's id, this component owns its MARKUP
 // (see embedded-html-codec.ts). The reader needs only the id. The writer needs
 // the markup to be an element whose content is neither rendered nor executed,
 // and that is FR-067's business rather than something the shell may vary.
@@ -75,7 +101,16 @@ export interface AppShell {
   /**
    * The `id` attribute of the element BT-1 reads the embedded document out of.
    *
-   * ⭐ The shell chooses it because the shell is what reads it.
+   * ⭐ `embedded-document`. The shell supplies it because the shell is what
+   * reads it, but it does not get to pick it -- the header comment carries the
+   * contract that fixes the value and why it is not free.
+   *
+   * ⛔ The type stays `string` and is not narrowed to that one literal. PD-71
+   * -- what shape of id this seam admits -- is recorded as undecided in
+   * docs/development-records/pending-decisions.md, and a literal would settle
+   * it in the type system without a ruling. ⚠️ It would also leave
+   * `unusableElementId` unreachable, and that refusal has to go on working for
+   * HTML this build did not assemble.
    *
    * ⛔ Plain ASCII, and nothing that could end an attribute or a tag: this
    * value is written into a start tag and thereby into the artifact, where a

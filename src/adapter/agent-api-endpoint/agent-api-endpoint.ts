@@ -30,8 +30,14 @@
 //     enabling is the reader's judgement, not the document's content. That is
 //     the Framework's to hold (LY-5), and the startup flag FR-028's RATIONALE
 //     admits is the shell's too.
-//   * THAT it is on has to be visible while it is on (FR-065, MUST), and UF-62
-//     of table T-075 gives that indicator to ScreenRenderer.
+//     ⚠️ THE TURNING ON NOW EXISTS AND THE INSTALLING STILL DOES NOT. IC-20 of
+//     table T-109 moves `ScreenSession.isAgentApiEnabled`, but no caller of
+//     `installAgentApi` reads it, so pressing IC-20 opens no entrance and the
+//     memory S-99b asks for is not written either -- `single-html-shell.ts`
+//     carries the STOP that says what each of the two is waiting on.
+//   * THAT it is on has to be visible while it is on (FR-065, MUST). UF-62 of
+//     table T-075 owns that indicator and `app-header-items.ts` draws it, so
+//     this half is kept.
 //
 // ⭐ THE THREE FILES, and why they are three. Table T-063's UT-4 says the split
 // is NOT by purity -- table T-075 marks both of the two non-declaring units
