@@ -255,6 +255,11 @@
      "required": [
       "colour"
      ]
+    },
+    {
+     "required": [
+      "sameAs"
+     ]
     }
    ],
    "properties": {
@@ -361,6 +366,11 @@
      "description": "A colour, in one of the two forms table T-236 uses: a hex triple, or an hsl() whose hue is either a number or the letter H. ⛔ H means the row FOLLOWS themeHue (S-73) and the letter is substituted when the colour is solved -- writing 214 here would copy S-73's value into 20 rows, and rule 03 forbids copying a value the specification already holds once. A row whose hue column says it does not follow states a number instead.",
      "type": "string",
      "pattern": "^(?:#[0-9a-f]{6}|hsl\\((?:H|[0-9]{1,3}) [0-9]{1,3}% [0-9]{1,3}%\\)|rgba\\(0,0,0,0\\.[0-9]{1,2}\\))$"
+    },
+    "sameAs": {
+     "description": "This cell IS another row's cell. ⛔ The value is not restated: rule 03 forbids copying a value the specification already holds once, and a copy would let the two drift. The printed cell names the row it follows.",
+     "type": "string",
+     "pattern": "^S-[0-9]+[a-z]?$"
     }
    }
   },

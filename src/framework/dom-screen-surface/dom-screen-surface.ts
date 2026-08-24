@@ -2447,7 +2447,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (table T-206)
+//   docs/spec/_source/settings.json (tables T-206 and T-236)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 /**
  * The values table T-206 states that this unit needs, by row ID.
@@ -2469,5 +2469,52 @@ export const NOT_STORED_ICON_SIZES: {
   readonly 'S-138': number
 } = {
   'S-138': 12,
+}
+
+/**
+ * The colours of table T-236, by row ID, in both renderings.
+ *
+ * ⭐ Table T-236 holds constants baked into the artifact. FR-041 (MUST
+ * NOT) forbids saving a derived colour, so none of these is a document
+ * setting and none may become one.
+ *
+ * ⛔ `H` IN A HUE IS NOT A TYPO. Where `followsHue` is true the row
+ * follows themeHue (S-73), and the manuscript writes the letter so that
+ * S-73's value is stated once rather than copied into every row. Solve it
+ * by putting the hue in before use. A row with `followsHue` false states
+ * its own hue and is used exactly as written -- the dependency and
+ * progress lines are the two of those (FR-041).
+ */
+export const SCREEN_COLOURS: {
+  readonly [rowId: string]: {
+    readonly light: string
+    readonly dark: string
+    readonly followsHue: boolean
+  }
+} = {
+  /* S-146 */
+  'S-146': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
+  /* S-147 */
+  'S-147': { light: '#16181d', dark: '#e8eaee', followsHue: false },
+  /* S-148 */
+  'S-148': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
+  /* S-149 */
+  'S-149': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
+  /* S-150 */
+  'S-150': { light: 'hsl(H 20% 97%)', dark: 'hsl(H 14% 13%)', followsHue: true },
+  /* S-151 */
+  'S-151': { light: 'hsl(H 59% 42%)', dark: 'hsl(H 62% 68%)', followsHue: true },
+  /* S-152 */
+  'S-152': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
+  /* S-153 */
+  'S-153': { light: '#a8600f', dark: '#e0a353', followsHue: false },
+  /* S-154 */
+  'S-154': { light: '#a02b2b', dark: '#e07a7a', followsHue: false },
+  /* S-168 */
+  'S-168': { light: '#000000', dark: '#ffffff', followsHue: false },
+  /* S-169 */
+  'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
+  /* S-170 */
+  'S-170': { light: 'rgba(0,0,0,0.28)', dark: 'rgba(0,0,0,0.6)', followsHue: false },
 }
 // </generated>

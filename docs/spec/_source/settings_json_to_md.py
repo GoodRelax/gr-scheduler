@@ -96,6 +96,9 @@ def text(value, field=None):
             raise SystemExit('a weekday cell was printed before the roster was read')
         out = weekdays(value, ROSTER)
         return out + (' ' + value['mark'] if value.get('mark') else '')
+    if 'sameAs' in value:
+        # ⛔ The value is NOT restated here; the cell names the row it follows.
+        return '`%s` に同じ' % value['sameAs']
     if 'num' in value or 'lit' in value or 'pair' in value or 'colour' in value:
         if 'pair' in value:
             # `sep` is for the pairs the specification does NOT write as

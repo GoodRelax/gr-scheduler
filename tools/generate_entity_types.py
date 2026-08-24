@@ -931,6 +931,98 @@ def pointed_row(cell, everywhere):
     return named, row.get('default')
 
 
+NEWLINE = chr(10)
+
+# ---- table T-236: the screen's colours ------------------------------------
+#
+# ⛔ ONE ROW, TWO CELLS. A colour is one decision with two renderings, so the
+# light and the dark cell are carried out of the SAME row. Two tables, or two
+# constants, could drift apart without anything noticing.
+#
+# ⭐ THE HUE IS A LETTER, NOT A NUMBER, wherever the row follows the theme.
+# S-73 holds themeHue once, and writing 214 into twenty rows is the copied
+# value rule 03 forbids -- so the manuscript writes `H` and the consumer
+# substitutes. A row whose 色相追随 column is not ○ states its own number and
+# is left exactly as written (FR-041: the dependency and progress lines do NOT
+# follow the theme).
+COLOUR_TARGETS = {
+    # The chrome: the ground, the ink, the panels, the shadow. Only this unit
+    # can paint them, and only this unit can set `color-scheme` (FR-041).
+    'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151',
+                       'S-152', 'S-153', 'S-154', 'S-168', 'S-169', 'S-170'],
+    # The schedule itself: bars, the two lines, markers, bands.
+    'SCHEDULE_COLOURS': ['S-155', 'S-156', 'S-157', 'S-158', 'S-159', 'S-160',
+                         'S-161', 'S-162', 'S-163', 'S-164', 'S-165', 'S-166',
+                         'S-167'],
+}
+
+COLOUR_NOTE = [
+    ' * The colours of table T-236, by row ID, in both renderings.',
+    ' *',
+    ' * ⭐ Table T-236 holds constants baked into the artifact. FR-041 (MUST',
+    ' * NOT) forbids saving a derived colour, so none of these is a document',
+    ' * setting and none may become one.',
+    ' *',
+    " * ⛔ `H` IN A HUE IS NOT A TYPO. Where `followsHue` is true the row",
+    ' * follows themeHue (S-73), and the manuscript writes the letter so that',
+    " * S-73's value is stated once rather than copied into every row. Solve it",
+    ' * by putting the hue in before use. A row with `followsHue` false states',
+    ' * its own hue and is used exactly as written -- the dependency and',
+    ' * progress lines are the two of those (FR-041).',
+]
+
+
+def colour_block(name):
+    """The rows of table T-236 one unit needs, by row ID."""
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-236']
+    if not block:
+        raise SystemExit('settings.json holds no table T-236')
+    by_id = {r['id']: r for r in block[0]['rows']}
+    out = ['/**'] + COLOUR_NOTE + [' */',
+           'export const %s: {' % name,
+           '  readonly [rowId: string]: {',
+           '    readonly light: string',
+           '    readonly dark: string',
+           '    readonly followsHue: boolean',
+           '  }',
+           '} = {']
+    for row_id in COLOUR_TARGETS[name]:
+        if row_id not in by_id:
+            raise SystemExit('table T-236 has no row %s' % row_id)
+        row = by_id[row_id]
+        cells = {}
+        for side in ('light', 'dark'):
+            cell = row.get(side)
+            # ⛔ A cell may NAME another row rather than restate its colour, so
+            # that one value is stated once. Follow it before reading.
+            seen = set()
+            while isinstance(cell, dict) and 'sameAs' in cell:
+                named = cell['sameAs']
+                if named in seen:
+                    raise SystemExit('table T-236 row %s follows a ring through %s'
+                                     % (row_id, named))
+                seen.add(named)
+                if named not in by_id:
+                    raise SystemExit('table T-236 row %s names %s, which the table '
+                                     'has not' % (row_id, named))
+                cell = by_id[named].get(side)
+            if not isinstance(cell, dict) or 'colour' not in cell:
+                raise SystemExit(
+                    'table T-236 row %s states no colour for its %s cell, so '
+                    '%s cannot be generated. A row that inherits another names '
+                    'it in prose and cannot be carried by this constant.'
+                    % (row_id, side, name))
+            cells[side] = cell['colour']
+        follows = 'H' in cells['light'] or 'H' in cells['dark']
+        out.append("  /* %s */" % row_id)
+        out.append("  '%s': { light: '%s', dark: '%s', followsHue: %s },"
+                   % (row_id, cells['light'], cells['dark'],
+                      'true' if follows else 'false'))
+    out.append('}')
+    return NEWLINE.join(out)
+
+
 def not_stored_block(name):
     """The rows of table T-206 one unit needs, by row ID.
 
@@ -1305,9 +1397,6 @@ TARGETS = [
     # ⭐ The only generated region that lands in Framework, for the reason the
     # note on FRAMEWORK above gives: FR-029 (MUST) makes one box the authority
     # for every entrance, and one unit draws all of them.
-    (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES'),
-     ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The zoom trio, split by consuming unit the way the note above requires:
     # `InputContext.zoomStep` is read by the translator, `SettingsLimits`
     # zoomMin / zoomMax by the edit path. ⛔ One shared constant would hand each
@@ -1318,6 +1407,16 @@ TARGETS = [
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
+    # ⭐ The colours, split by who paints what. The chrome and `color-scheme`
+    # are the surface's alone (FR-041); the schedule's own colours belong to
+    # whoever draws the picture.
+    (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
+     + colour_block('SCREEN_COLOURS'),
+     ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
+    (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
+     lambda _erd: colour_block('SCHEDULE_COLOURS'),
+     ['docs/spec/_source/settings.json (table T-236)']),
 ]
 
 

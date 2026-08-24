@@ -391,3 +391,57 @@ export function svgFromSchedule(
     '</svg>'
   )
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-236)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The colours of table T-236, by row ID, in both renderings.
+ *
+ * ⭐ Table T-236 holds constants baked into the artifact. FR-041 (MUST
+ * NOT) forbids saving a derived colour, so none of these is a document
+ * setting and none may become one.
+ *
+ * ⛔ `H` IN A HUE IS NOT A TYPO. Where `followsHue` is true the row
+ * follows themeHue (S-73), and the manuscript writes the letter so that
+ * S-73's value is stated once rather than copied into every row. Solve it
+ * by putting the hue in before use. A row with `followsHue` false states
+ * its own hue and is used exactly as written -- the dependency and
+ * progress lines are the two of those (FR-041).
+ */
+export const SCHEDULE_COLOURS: {
+  readonly [rowId: string]: {
+    readonly light: string
+    readonly dark: string
+    readonly followsHue: boolean
+  }
+} = {
+  /* S-155 */
+  'S-155': { light: 'hsl(H 46% 80%)', dark: 'hsl(H 32% 26%)', followsHue: true },
+  /* S-156 */
+  'S-156': { light: 'hsl(H 44% 46%)', dark: 'hsl(H 46% 66%)', followsHue: true },
+  /* S-157 */
+  'S-157': { light: 'hsl(H 62% 34%)', dark: 'hsl(H 62% 64%)', followsHue: true },
+  /* S-158 */
+  'S-158': { light: 'hsl(H 66% 22%)', dark: 'hsl(H 70% 80%)', followsHue: true },
+  /* S-159 */
+  'S-159': { light: 'hsl(26 88% 44%)', dark: 'hsl(30 92% 60%)', followsHue: false },
+  /* S-160 */
+  'S-160': { light: 'hsl(354 62% 42%)', dark: 'hsl(354 70% 64%)', followsHue: false },
+  /* S-161 */
+  'S-161': { light: '#16181d', dark: '#e8eaee', followsHue: false },
+  /* S-162 */
+  'S-162': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
+  /* S-163 */
+  'S-163': { light: '#8b9099', dark: '#767c86', followsHue: false },
+  /* S-164 */
+  'S-164': { light: 'hsl(H 42% 96%)', dark: 'hsl(H 18% 20%)', followsHue: true },
+  /* S-165 */
+  'S-165': { light: 'hsl(H 34% 88%)', dark: 'hsl(H 16% 28%)', followsHue: true },
+  /* S-166 */
+  'S-166': { light: 'hsl(H 40% 97%)', dark: 'hsl(H 20% 17%)', followsHue: true },
+  /* S-167 */
+  'S-167': { light: 'hsl(H 20% 99%)', dark: 'hsl(H 14% 11%)', followsHue: true },
+}
+// </generated>
