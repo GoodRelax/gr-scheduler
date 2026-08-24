@@ -276,6 +276,7 @@ function rowTitleOf(
   isPinned: boolean,
   index: PanelIndex,
   settings: DocumentSettings,
+  chosenGroupIds: ReadonlySet<string>,
 ): RowTitle {
   const depth = rowDepth(group, index.groupsById, settings)
   // ⚠️ Resolved once because two answers below need it, and a row whose name is
@@ -309,9 +310,20 @@ function rowTitleOf(
     isLabelTruncated: shownLabel !== null && shownLabel !== wholeLabel,
     expander: expanderOf(group, index),
     isPinned,
-    // STOP -- ⛔ see the note at the head of this file: no argument carries
-    // FR-085's set of selected rows, and nothing in the specification holds it.
-    isSelected: false,
+    // FR-085 (MUST): rows are chosen in this panel, and the set is
+    // `ScreenSession.selectedGroupIds` (PD-142).
+    //
+    // ⛔ THIS READ `false` UNCONDITIONALLY, behind a STOP saying no argument
+    // carried the set. That was true when written; the shell began holding the
+    // set on 2026-08-24 and the argument this unit already takes carries it, so
+    // the note had quietly become the reason a chosen row would not be drawn as
+    // chosen.
+    //
+    // ⚠️ A `Set` and not a scan: this runs once per row on every frame, and
+    // rule 04 section 5 forbids a linear search on that path (NFR-013).
+    //
+    // @provisional PD-142
+    isSelected: chosenGroupIds.has(group.id),
     // HF-5 of table T-051 (MUST): a ratio of THIS row's name size, never an
     // absolute drop -- S-36 and S-38 move that size with the depth, so one
     // number of pixels would align the controls differently on every level.
@@ -389,13 +401,15 @@ export function rowTitlePanelFromSchedule(
 ): RowTitlePanel {
   const index = panelIndexOf(schedule, session)
   const pinnedGroupIds = new Set(settings.pinnedGroupIds)
+  // Built once for the whole panel rather than per row -- see `isSelected`.
+  const chosenGroupIds: ReadonlySet<string> = new Set(session.selectedGroupIds)
 
   const pinnedTitles: RowTitle[] = []
   for (const groupId of pinnedGroupIds) {
     const group = index.groupsById.get(groupId)
     const box = index.boxByGroupId.get(groupId)
     if (group === undefined || box === undefined) continue
-    pinnedTitles.push(rowTitleOf(group, box, true, index, settings))
+    pinnedTitles.push(rowTitleOf(group, box, true, index, settings, chosenGroupIds))
   }
 
   const describedGroupIds = new Set(pinnedGroupIds)
@@ -405,7 +419,7 @@ export function rowTitlePanelFromSchedule(
     const group = index.groupsById.get(placed.groupId)
     if (group === undefined) continue
     describedGroupIds.add(placed.groupId)
-    titles.push(rowTitleOf(group, placed.box, false, index, settings))
+    titles.push(rowTitleOf(group, placed.box, false, index, settings, chosenGroupIds))
   }
 
   return { pinnedTitles, titles }

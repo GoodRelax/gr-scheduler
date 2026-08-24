@@ -405,11 +405,12 @@ export type InputAction =
   /**
    * MK-13 「タスク本体 ＝ プロパティパネルを開く」.
    *
-   * ⚠️ Which of the two things the panel then shows is FR-072's rule, and
-   * `screen-renderer.ts` records that NOTHING holds the answer -- neither table
-   * T-203 nor table T-206 has a key for it. So this says only that the panel
-   * was asked for, about a Task that is already in the selection this member's
-   * sibling returns.
+   * ⚠️ Which of the two things the panel then shows is FR-072's rule, and NO
+   * TABLE holds the answer -- neither table T-203 nor table T-206 has a key for
+   * it, which `screen-renderer.ts` records where it declares the two members
+   * that do. Those are `ScreenSession`'s, so the shell answers; this says only
+   * that the panel was asked for, about a Task that is already in the selection
+   * this member's sibling returns.
    */
   | { readonly kind: 'openPropertiesPanel'; readonly uid: number }
   /**
@@ -436,6 +437,90 @@ export type InputAction =
       readonly kind: 'moveCommandPalette'
       readonly by: { readonly dx: number; readonly dy: number }
     }
+  /**
+   * FR-085 (MUST): a row was chosen in the `Row Title Panel`, so
+   * `ScreenSession.selectedGroupIds` moves.
+   *
+   * ⭐ THE ROW AND THE MODIFIER, NOT THE RESULTING SET. What is chosen now is
+   * the shell's (LY-5 of table T-060) and no member of `InputContext` carries
+   * it, so the set cannot be worked out here -- this says which row the press
+   * was on and whether it was an extending one, and the holder answers. It is
+   * the same division `moveCommandPalette` makes with a travel rather than a
+   * corner.
+   *
+   * ⛔ NOT THE SELECTION TABLE T-023c GOVERNS. SL-1 leaves rows out of the
+   * drawing area's selection in as many words and FR-085 says the two are
+   * separate sets, so `selectionFromInput` may not answer this and `Selection`
+   * may not hold it.
+   *
+   * ⚠️ `isExtending` IS `Shift`, WHICH FR-085 LEAVES OPEN AND SL-4 ALREADY
+   * SPELLS. That requirement asks for several rows at once and for letting one
+   * go (MUST) and states that the order and the range are the implementation's
+   * (実装の裁量); the modifier is not named anywhere. SL-4 of table T-023c is
+   * the product's own convention for 「広げる」 -- 「クリックなら 1 つずつ増減
+   * し」 -- so it is followed rather than a second convention invented, which is
+   * what R4's POLA asks for. ⛔ SL-3's range is NOT answered: FR-085 leaves the
+   * range undefined, and a drag across the panel is not one of table T-023a's
+   * six gestures either.
+   *
+   * @provisional PD-142
+   */
+  | {
+      readonly kind: 'chooseRow'
+      readonly groupId: string
+      readonly isExtending: boolean
+    }
+  /**
+   * IC-63 / IC-64 / IC-65 -- who is chosen in the `Resource Roster` is REPLACED
+   * by these, so `ScreenSession.selectedResourceUids` becomes exactly `uids`.
+   *
+   * ⭐ REPLACED AND NEVER ADDED TO, and IC-65 is what settles that. FR-099 (MUST)
+   * has 「まとめて消す」 reached by choosing the unreferenced and then deleting
+   * what is chosen; if this entrance added to a standing choice, that second
+   * move would delete people the person never picked out.
+   * ⭐ THE LIST IS COMPUTED HERE because all three read the DOCUMENT and nothing
+   * else -- every resource, none, or the ones no `Assignment` refers to -- and
+   * `InputContext.document` is the copy CS-1 froze at the head of this frame.
+   *
+   * ⛔ BY `uid` (AT-85) AND NEVER BY NAME. AS-6 of table T-225 (MUST) makes the
+   * name what a person is shown and the `uid` what the document writes, and AS-8
+   * (MUST NOT) forbids two same-named resources being made one -- so a list of
+   * names could not tell a referenced person from an unreferenced twin.
+   *
+   * @provisional PD-143
+   */
+  | { readonly kind: 'chooseResources'; readonly uids: readonly number[] }
+  /**
+   * IC-67 / IC-68 -- one person in the `Resource Roster` was pressed, so that
+   * person joins or leaves `ScreenSession.selectedResourceUids`.
+   *
+   * ⭐ WHICH WAY ROUND IS THE HOLDER'S, not this file's and not the drawn
+   * entry's. See the two rows in `ENTRY` for why the picture may not be read.
+   *
+   * @provisional PD-143
+   */
+  | { readonly kind: 'toggleChosenResource'; readonly uid: number }
+  /**
+   * IC-17 -- FR-072's settings entrance, so `ScreenSession.propertiesShowing`
+   * moves between the document's drawing settings and the last chosen subject.
+   *
+   * ⛔ NOT AN OPENING AND NOT A CLOSING. FR-072 has this same entrance bring the
+   * panel back to 「直前の選択物」 on a second press, so which way this one goes
+   * depends on what the panel is showing NOW -- a current value LY-5 of table
+   * T-060 leaves with the Framework, which is why this says only that the
+   * entrance was pressed.
+   *
+   * @provisional PD-144
+   */
+  | { readonly kind: 'toggleDocumentSettingsProperties' }
+  /**
+   * IC-20 -- FR-065, so `ScreenSession.isAgentApiEnabled` turns round.
+   *
+   * ⛔ NOT A DOCUMENT CHANGE. S-99b of table T-206 keeps the record OUT of the
+   * document in as many words -- 「有効化は読む人の判断であって文書の内容では
+   * ない」 -- so table T-108 has no row for it and there is nothing to plan.
+   */
+  | { readonly kind: 'toggleAgentApi' }
 
 /** What `commandFromInput` answers. */
 export interface TranslatedInput {
@@ -1145,6 +1230,23 @@ const ENTRY = {
    * not open here.
    */
   themePreference: 'IC-16',
+  /**
+   * IC-17 -- FR-072, the settings entrance that requirement names beside the
+   * selection.
+   *
+   * ⚠️ NOT AN OPEN-AND-CLOSE. Table T-109 words it 「文書の描画設定をプロパティ
+   * パネルに出す」 and FR-072 has a second press on the SAME entrance go back to
+   * the last chosen subject, not shut the panel -- so what moves is which of the
+   * two the panel is showing.
+   */
+  documentSettingsProperties: 'IC-17',
+  /**
+   * IC-20 -- FR-065, S-99b.
+   *
+   * ⭐ ONE ENTRANCE FOR BOTH DIRECTIONS, which is that row's own wording
+   * 「有効にする・無効にする」 and what FR-029 (MUST NOT) leaves as the only shape.
+   */
+  agentApi: 'IC-20',
   /** IC-19 -- FR-068. U-30 `AI Export Modal` of table T-103. */
   aiExportModal: 'IC-19',
   /** IC-22 -- FR-036. SK-13. */
@@ -1203,6 +1305,37 @@ const ENTRY = {
   rowPin: 'IC-60',
   /** IC-62 -- FR-099. U-49 `Resource Roster` of table T-103. */
   resourceRoster: 'IC-62',
+  /**
+   * IC-63 / IC-64 / IC-65 -- the three entrances table T-109 draws ONCE in the
+   * roster's header, each of which REPLACES who is chosen there.
+   *
+   * ⭐ THE NAMES ARE THE TABLE'S SENSE AND NOT ITS WORDS. IC-63 is 「一覧のすべて
+   * を選ぶ」 and IC-64 「一覧の選択をすべて解く」, which FR-099 (MUST) requires the
+   * choosing surface to carry. ⛔ IC-65 SELECTS and does not delete, although
+   * table T-109 names CM-43 beside it: FR-099's ⭐ paragraph settles that
+   * 「まとめて消す」 is done in TWO moves -- choose them all, then delete what is
+   * chosen -- so that the deleting entrance is exactly one (FR-029).
+   */
+  rosterChooseAll: 'IC-63',
+  rosterClearChosen: 'IC-64',
+  rosterChooseUnreferenced: 'IC-65',
+  /**
+   * IC-67 / IC-68 -- the entrance FR-099 draws against ONE person, in the two
+   * states table T-109 gives it: IC-67 says this person is chosen and lets go by
+   * the same entrance, IC-68 says this person is not and takes them by it.
+   *
+   * ⭐ ONE CONTROL IN TWO STATES, which is the opposite of what IC-58 / IC-59
+   * are, and the table says so itself in both rows -- 「同じ入口で解く」 and
+   * 「同じ入口で選ぶ」. So a press on either means the same thing: turn this
+   * person's membership round.
+   * ⚠️ WHICH WAY ROUND IS NOT READ OFF THE DRAWN ENTRY, for the reason
+   * `commandFromRowEntry` gives at the pin -- a drawn screen is as old as the
+   * last paint and FR-048 lets a paint be skipped. The set itself is
+   * `ScreenSession.selectedResourceUids`, which the shell holds, so the shell is
+   * the side that can answer which way this press goes.
+   */
+  rosterChosen: 'IC-67',
+  rosterUnchosen: 'IC-68',
 } as const
 
 // STOP -- ⛔ THE BAND GR-19 PUTS ON THE PALETTE IS NOT DRAWN, so `IC-53` is
@@ -1745,6 +1878,12 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
  * What is armed lives in `ScreenState` (UN-11 keeps it out of the undo record),
  * so `screenStateFromInput` is the member that answers SP-1 and SP-4.
  *
+ * ⭐ ONE PRESS ANSWERED HERE IS ON NO ENTRY AT ALL -- FR-085's choosing of a row
+ * in the `Row Title Panel`. It is answered in this function because this is
+ * where a press the SURFACE claimed arrives: the note under table T-023a keeps
+ * that table's decision order off the panel, so there is no other road, and
+ * `ScreenPart.rowGroupId` is what says which row.
+ *
  * @purity pure
  */
 function commandFromEntry(
@@ -1753,10 +1892,38 @@ function commandFromEntry(
   context: InputContext,
 ): TranslatedInput {
   const on = press.on
-  // On the part but on no entry -- the palette's own body, a surface's
-  // background, a notice. The press is this tool's (the browser must not act
-  // under it) and writes nothing.
-  if (on === null || on.entry === null) return CONSUMED_ELSEWHERE
+  if (on === null) return CONSUMED_ELSEWHERE
+  if (on.entry === null) {
+    // FR-085 (MUST): the row itself was pressed rather than one of the three
+    // controls table T-051 and FR-098 draw on it.
+    //
+    // ⭐ THIS IS THE ROAD THE NOTE UNDER TABLE T-023a LEAVES OPEN. That note
+    // limits its decision order to the schedule's drawing area (MUST), so no
+    // row of that table ever names a press on the panel -- and `ScreenPart`
+    // answers for the panel because the surface DREW it, which is how the
+    // press arrives here at all. ⚠️ `rowGroupId` is set by nothing else: the
+    // surface writes the key on a row of the `Row Title Panel` and on a roster
+    // line, and a roster line carries `entry` as well.
+    if (on.rowGroupId !== null) {
+      return acted({
+        kind: 'chooseRow',
+        groupId: on.rowGroupId,
+        // ⚠️ THE PRESS'S KEYS AND NOT THE RELEASE'S, which is CS-2 of table
+        // T-066 -- the gesture is about the moment it began, and the same rule
+        // `gestureModifiers` states for every other pointer row.
+        isExtending: press.at.modifiers.shift,
+      })
+    }
+    // On the part but on no entry and on no row -- the palette's own body, a
+    // surface's background, a notice, the panel's empty tail below the last
+    // row. The press is this tool's (the browser must not act under it) and
+    // writes nothing.
+    // ⛔ THE EMPTY TAIL DOES NOT LET GO OF THE CHOSEN ROWS. MK-11 of table
+    // T-023 does that for the drawing area, and the note under table T-023a
+    // keeps that table off this panel; FR-085 states no such rule of its own,
+    // and letting go is reached by pressing a chosen row again with `Shift`.
+    return CONSUMED_ELSEWHERE
+  }
   const entry = on.entry
 
   switch (entry) {
@@ -1845,6 +2012,29 @@ function commandFromEntry(
     case ENTRY.rowExpanderClose:
     case ENTRY.rowPin:
       return commandFromRowEntry(entry, on.rowGroupId, context)
+    case ENTRY.documentSettingsProperties:
+      // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
+      // the action's own note.
+      return acted({ kind: 'toggleDocumentSettingsProperties' })
+    case ENTRY.agentApi:
+      // FR-065 -- S-99b keeps the record out of the document, so this changes
+      // nothing the document holds.
+      return acted({ kind: 'toggleAgentApi' })
+    case ENTRY.rosterChooseAll:
+    case ENTRY.rosterClearChosen:
+    case ENTRY.rosterChooseUnreferenced:
+      return acted({
+        kind: 'chooseResources',
+        uids: rosterChoiceOfEntry(entry, context.document.schedule),
+      })
+    case ENTRY.rosterChosen:
+    case ENTRY.rosterUnchosen: {
+      // ⚠️ A roster entry drawn with no person on it cannot be acted on: AS-6
+      // of table T-225 (MUST) writes the `uid`, and there is none to write.
+      // ⛔ Still this tool's press (MK-10).
+      if (on.resourceUid === null) return CONSUMED_ELSEWHERE
+      return acted({ kind: 'toggleChosenResource', uid: on.resourceUid })
+    }
     default:
       return commandFromArmingEntry(entry, context)
   }
@@ -1970,6 +2160,42 @@ function commandFromRowEntry(
   // ⚠️ ONE BUNDLE. FR-031 (MUST) makes one gesture one undo step, so every row
   // that folds folds in the same write.
   return changed(foldsUnderRow(context.document.schedule, rowGroupId))
+}
+
+/**
+ * Who the three header entrances of the `Resource Roster` leave chosen -- every
+ * resource (IC-63), none (IC-64), or the ones no `Assignment` refers to
+ * (IC-65).
+ *
+ * ⭐ READ FROM THE DOCUMENT AND NOT FROM THE DRAWN ROSTER, the same discipline
+ * `commandFromRowEntry` keeps at the pin: a drawn screen is as old as the last
+ * paint and FR-048 lets a paint be skipped altogether, while `document` is the
+ * copy CS-1 of table T-066 froze at the head of this frame. ⚠️ It answers a
+ * CHOICE and not a deletion -- FR-099 (MUST) has 「まとめて消す」 done in two
+ * moves so that the deleting entrance stays exactly one (FR-029).
+ *
+ * ⛔ REFERRED-TO MEANS AN `Assignment` NAMES THE `uid`, whether or not that
+ * assignment reaches a task. It refers to the person, which is the whole of what
+ * 「どの割当からも参照されていない」 asks -- the same reading `open-modals.ts`
+ * makes on the drawing side, and AT-94 is nullable, so an assignment naming
+ * nobody marks nobody.
+ * ⚠️ SAME-NAMED RESOURCES STAY TWO PEOPLE. AS-8 of table T-225 (MUST NOT)
+ * forbids making them one, so the join is `uid` (AT-85) throughout and a
+ * referenced person cannot hide an unreferenced twin from IC-65.
+ *
+ * ⭐ ONE PASS AND A `Set`: NFR-013 forbids a linear search per resource on a
+ * path a person waits on, and a roster is as long as the document's people.
+ *
+ * @purity pure
+ */
+function rosterChoiceOfEntry(entry: string, schedule: Schedule): readonly number[] {
+  if (entry === ENTRY.rosterClearChosen) return []
+  if (entry === ENTRY.rosterChooseAll) return schedule.resources.map((one) => one.uid)
+  const referred = new Set<number>()
+  for (const assignment of schedule.assignments) {
+    if (assignment.resourceUid !== null) referred.add(assignment.resourceUid)
+  }
+  return schedule.resources.filter((one) => !referred.has(one.uid)).map((one) => one.uid)
 }
 
 /**
@@ -2682,10 +2908,10 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 25 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
-// ANSWERS NONE OF THEM. ⚠️ The number is the 73 rows of that table less the 48
-// this file assigns (`ENTRY` holds 33 and `ARMED_BY_ENTRY` 15), and the two
-// groups below add up to it: 5 + 20.
+// STOP -- ⛔ 18 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
+// ANSWERS NONE OF THEM. ⚠️ The number is the 73 rows of that table less the 55
+// this file assigns (`ENTRY` holds 40 and `ARMED_BY_ENTRY` 15), and the two
+// groups below add up to it: 6 + 12.
 // ⭐ The entries that ARE answered were chosen by a rule rather than one at a
 // time. An entry is answered when
 //   ① this file already answers the same operation for a row of table T-036, or
@@ -2697,6 +2923,14 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // -- plus FR-083's arming, which is the whole point of the seam member that
 // brought the press here, and plus the three entrances table T-109 draws once
 // per ROW, which `ScreenPart.rowGroupId` made reachable.
+// ⭐ ④ WAS ADDED WHEN THE SHELL BEGAN TO HOLD WHAT THEY MOVE: an entry is
+// answered when its whole effect is one value of `ScreenSession` that no table
+// keeps -- IC-17's panel subject, IC-20's `Agent API` record, and the five of
+// U-49 that move who is chosen there. Each answers with an `InputAction` of its
+// own kind rather than a `DocumentCommand`, which is the shape `moveCommandPalette`
+// already had and for the same reason: table T-108 has no row, so
+// `applyDocumentChange` (PI-8) has nothing to plan, and LY-5 of table T-060
+// leaves a current value with the Framework.
 //
 // ⚠️ EVERY COUNT ABOVE WAS MEASURED AGAINST THE TREE, not carried forward, and
 // this note has been wrong twice before. Once its headline number disagreed
@@ -2707,10 +2941,15 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // Dual Cursor and move the scroll position). The twelve wanted CM-57, CM-58,
 // CM-59 and CM-63, and all four are now written above.
 //
-// ⭐ 5 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- none of the five is a
+// ⭐ 6 OF THEM ARE ANSWERED, AND DELIBERATELY NOT HERE -- none of the six is a
 // `DocumentCommand`, and LY-5 of table T-060 leaves a current value with the
 // Framework, so `frame-loop.ts` spends them in `answerSettledEntry`:
 //
+//   IC-21        FR-038's display language (S-99). ⚠️ It looks like one of ④'s
+//                rows and differs in ONE way, which is why it is spent there
+//                rather than answered here: S-99 is written back to
+//                `localStorage`, so the press is an ACT and not only a value,
+//                and LR-6 keeps the browser out of this layer.
 //   IC-69 / IC-70  NT-7's two answers, on U-55 `Confirmation`. ⭐ THE QUESTION
 //                IS RAISED: three places fill `ScreenSession.confirmation` --
 //                DI-4's overwrite, OP-4's discard, and FR-032's delete through
@@ -2724,15 +2963,19 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                has the READ raise the choice, so an entry that opened it
 //                would be one the specification does not place.
 //
-// ⛔ 20 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
+// ⛔ 12 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
 //
-//   IC-17 / IC-18 / IC-20 / IC-21
-//                each writes a value NOTHING published holds. Which of its two
-//                contents the properties panel shows (FR-072), whether the
-//                dialogue field is up and whether the `Agent API` is on
-//                (S-99b), and the display language (S-99) all live in
-//                `ScreenSession` -- the shell's, and not any of the three
-//                answers this file returns. `screen-renderer.ts` records each.
+//   IC-18        FR-066's dialogue field, 「出す・しまう」. ⛔ NOTHING HOLDS THAT
+//                SWITCH: `ScreenState` has no member for it, `ScreenSession` has
+//                none, and table T-203 and table T-206 hold no key. ⚠️ What
+//                decides whether the field is drawn today is
+//                `ScreenSession.isAgentApiEnabled` -- `dialogue-field.ts` puts
+//                the field up only while the `Agent API` is on -- so an entry
+//                answered here would be a SECOND way to take the same field
+//                away, which FR-029 (MUST NOT) refuses. ⚠️ IC-17 and IC-20 stood
+//                beside this row until `ScreenSession` grew the members FR-072
+//                and FR-065 need; this is the one of the three still without a
+//                place to land.
 //   IC-37 / IC-38  FR-034's alignment. ⛔ Table T-108 holds NO command for it,
 //                so there is nothing to plan even with the press in hand.
 //   IC-41        FR-020 asks for the unlock password first, and nothing carries
@@ -2743,15 +2986,19 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                which is the gap PD-2 already records above.
 //   IC-50 / IC-51  the palette's own folding. Nothing holds it: table T-203 and
 //                table T-206 have no row and `ScreenState` has no member.
-//   IC-63 .. IC-68  the `Resource Roster`'s six. ⚠️ WHICH person is no longer
-//                the gap -- `ScreenPart.resourceUid` carries it, and four of the
-//                six do not even need it (IC-63 .. IC-66 are drawn once in the
-//                roster's header, not once per person). ⛔ WHAT IS MISSING IS
-//                THE ROSTER'S SELECTION: five of them move
-//                `ScreenSession.selectedResourceUids`, which is the shell's
-//                (PD-143) and not a `DocumentCommand` at all, and the sixth is
-//                `deleteResource` (CM-42), which is handed the `uid`s that
-//                selection holds -- and `InputContext` carries none of it.
+//   IC-66        the `Resource Roster`'s delete, and the ONE of that surface's
+//                six still unanswered. ⚠️ Its five neighbours are answered above:
+//                they move `ScreenSession.selectedResourceUids` (PD-143), which
+//                is the shell's and no `DocumentCommand` at all. ⛔ THIS ONE IS
+//                A WRITE -- `deleteResource` (CM-42), handed the `uid`s that
+//                choice holds -- and what stops it is not the `uid`s: FR-099
+//                (MUST) requires the names of the tasks it would unassign to be
+//                shown and confirmed first (QN-3 of table T-234, NT-7 of table
+//                T-037), and no road in this build raises that question.
+//                `frame-loop.ts` records the same gap at `ConfirmationQuestion`
+//                and `notices.ts` from the drawing side. ⚠️ Answering the press
+//                without it would run the deletion unasked, which is the very
+//                MUST that half of FR-099 is.
 //   IC-54 .. IC-57  ⛔ NOT ENTRIES. Table T-109 says so in its own column: one
 //                shows the figure the palette is holding (table T-023b) and
 //                three show the autosave state (FR-061). ⚠️ IC-53 stood here
@@ -2760,8 +3007,9 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                on the release.
 //
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-203,
-// table T-206, `screen-renderer.ts`, `edit-document-settings.ts`,
-// `screen-surface.ts`, `frame-loop.ts`.
+// table T-206, table T-234, FR-065, FR-066, FR-072, FR-085, FR-099,
+// `screen-renderer.ts`, `edit-document-settings.ts`, `screen-surface.ts`,
+// `dialogue-field.ts`, `open-modals.ts`, `notices.ts`, `frame-loop.ts`.
 
 // <generated -- do not edit by hand>
 // Single source of truth:

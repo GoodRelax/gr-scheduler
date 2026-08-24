@@ -21,15 +21,22 @@
 // is held, and the one picked last otherwise -- `lastPicked` answers `null` for
 // a marquee, and then the panel describes nothing.
 //
+// ⭐ THE SUBJECT HAS TWO HALVES, because a row is picked apart from everything
+// else: SL-1 of table T-023c leaves `TaskGroup` out of the drawing area's
+// selection and FR-085 gives rows their own set. `PropertiesSubject` is that
+// pair, and FR-042 (MUST) puts the picked row's colour and height on this same
+// panel -- both halves are described, and both are `showing: 'selection'`.
+//
 // ⭐ A FIELD PER ROW OF TABLE T-016, NOT PER COLUMN. Four rows hold several
 // columns, and the table writes their item names into ONE cell with " / "
 // between them. A field carries one name, one text and one `isEditable`, and the
 // table's read-only mark is per row -- so the row is the field, and its value is
 // written with the same separator the name cell uses, part answering part.
 //
-// ⛔ THE ITEM NAMES ARE NOT TYPED OUT. Every one but the assignee's is a column
-// of `Task` or of `TaskVisual`, so the roster below holds `keyof` those types and
-// builds the name from them: a column the specification renames stops compiling
+// ⛔ THE ITEM NAMES ARE NOT TYPED OUT. Every item of table T-016 but the
+// assignee's is a column of `Task` or of `TaskVisual`, and the dependency and
+// row rosters are columns too, so each holds `keyof` the type that owns it and
+// builds the name from that: a column the specification renames stops compiling
 // here instead of going stale in silence (rule 03 of docs/development-rules).
 // ⚠️ The roster keeps table T-016's own printed order, which is NOT the numeric
 // order of its row ids -- PR-17 stands between PR-11 and PR-12, and PR-16 is last.
@@ -83,6 +90,7 @@ import {
 import type {
   DisplayLanguage,
   PropertiesPanel,
+  PropertiesSubject,
   PropertyField,
   ScreenSession,
 } from './screen-renderer'
@@ -130,8 +138,11 @@ const DAY_TIME_SEPARATOR = 'T'
  * ⛔ The stand-ins are the three ASCII tokens this file chose while the words
  * had nowhere to live: they are spelled as the `showing` union the contract
  * already settles, so the three states can be told apart and no wording is
- * minted here in either language. Every cell of the dictionary is still empty
- * (PD-160), so these are what actually reaches the screen today.
+ * minted here in either language.
+ * ⚠️ THEY NO LONGER REACH THE SCREEN. PD-160 is settled and all three cells
+ * carry a word in both languages, so what prints is the dictionary's. They stay
+ * because that ruling has the printing side fall back whenever a cell is empty,
+ * which is a state the manuscript can return to.
  */
 const PANEL_HEADINGS = {
   selection: { key: 'selection', standIn: 'selection' },
@@ -151,10 +162,12 @@ const HEADINGS_BY_KEY = new Map(displayWords.panelHeadings.map((entry) => [entry
  *
  * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
  * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing, and PD-160 is precisely the difference: an empty cell is UNSETTLED, not
- * an instruction to print nothing -- and FR-072 (MUST) requires this panel to
- * SAY which of the two it is on, so printing nothing would break it outright.
- * The day a word is written this line stops standing in without being edited.
+ * thing, and PD-160's ruling turns on the difference: an empty cell means the
+ * word has not been written, not an instruction to print nothing -- and FR-072
+ * (MUST) requires this panel to SAY which of the two it is on, so printing
+ * nothing would break it outright.
+ * ⚠️ All three words are written today, so this line stands in for nothing; it
+ * is what that ruling has the printing side do if a cell is ever emptied again.
  * ⚠️ A key the dictionary does not hold at all is a second condition, answered
  * separately although with the same stand-in; it cannot happen while
  * `npm run gen:check` passes.
@@ -366,16 +379,27 @@ function taskFields(schedule: Schedule, task: Task): readonly PropertyField[] {
   }))
 }
 
-// STOP -- ⛔ NO ROW HOLDS THESE FOUR. FR-009 (MUST) fixes what the panel shows
-// for a dependency line -- the kind, the lag and both ends -- and states in as
-// many words that table T-016 is the `Task` attribute table and carries no row
-// for a dependency, which is why FR-072 resolves to that requirement. So the
-// field names the requirement that holds it: `PropertyField.row` admits `PR-n`
-// and `K-n`, and neither exists for these. ⚠️ The kind is written as the stored
-// code, because the four spellings live in table T-018 and nothing generates
-// that table into `src/` either.
-const DEPENDENCY_ROW = 'FR-009'
-const DEPENDENCY_COLUMNS: readonly (keyof Dependency)[] = ['linkType', 'lag', 'predecessorUid']
+// ⭐ FR-009 (MUST) fixes what the panel shows for a dependency line -- the kind,
+// the lag and both ends -- and states in as many words that table T-016 is the
+// `Task` attribute table and carries no row for a dependency, which is why
+// FR-072 resolves to that requirement. ⭐ So the three that ARE columns name
+// their row of table T-058, which is the form `PropertyField.row` already fixes
+// for an item table T-016 has no row for (FR-042's two are named the same way).
+// ⚠️ The kind is written as the stored code, because the four spellings live in
+// table T-018 and nothing generates that table into `src/`.
+const DEPENDENCY_ITEMS: readonly { readonly row: string; readonly column: keyof Dependency }[] = [
+  { row: 'AT-46', column: 'linkType' },
+  { row: 'AT-47', column: 'lag' },
+  { row: 'AT-45', column: 'predecessorUid' },
+]
+
+// STOP -- ⛔ NO ROW HOLDS THE FAR END. The other three are columns of
+// `Dependency` and table T-058 has a row for each, but the successor is not a
+// column at all: table T-058's own note for AT-45 says the successor is what
+// the nesting position expresses. Looked in table T-058, table T-016, FR-009
+// and table T-023c. Chose to name the field by the requirement that puts it on
+// the panel, there being no attribute row to name.
+const SUCCESSOR_ROW = 'FR-009'
 
 /** ⚠️ Spelled the way `ItemRef` spells it, so the far end has one name in both files. */
 const SUCCESSOR_NAME: keyof Extract<ItemRef, { kind: 'dependency' }> = 'successorUid'
@@ -388,17 +412,17 @@ const SUCCESSOR_NAME: keyof Extract<ItemRef, { kind: 'dependency' }> = 'successo
  * @purity pure
  */
 function dependencyFields(dependency: Dependency, successorUid: number): readonly PropertyField[] {
-  const columnFields: readonly PropertyField[] = DEPENDENCY_COLUMNS.map((column) => ({
-    row: DEPENDENCY_ROW,
-    name: column,
-    text: textOfValue(dependency[column]),
+  const columnFields: readonly PropertyField[] = DEPENDENCY_ITEMS.map((item) => ({
+    row: item.row,
+    name: item.column,
+    text: textOfValue(dependency[item.column]),
     isEditable: true,
   }))
 
   return [
     ...columnFields,
     {
-      row: DEPENDENCY_ROW,
+      row: SUCCESSOR_ROW,
       name: SUCCESSOR_NAME,
       text: textOfValue(successorUid),
       isEditable: true,
@@ -425,8 +449,8 @@ function subjectOf(selection: Selection): ItemRef | null {
 }
 
 /**
- * The fields of one subject, or `null` when the subject is no longer in the
- * document -- which is the state FR-072 calls the selection having gone.
+ * The fields of one picked item, or `null` when it is no longer in the document
+ * -- which is one of the two states FR-072 calls the selection having gone.
  *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what this panel shows for a
  * highlight box, a comment box or the status line. Table T-016 is the `Task`
@@ -435,15 +459,9 @@ function subjectOf(selection: Selection): ItemRef | null {
  * FR-006, FR-009, table T-016 and table T-023c. Chose no fields, so that the
  * panel says nothing rather than an item roster invented here.
  *
- * STOP -- ⛔ CANNOT BE ANSWERED HERE AT ALL: FR-042 puts a row's colour and
- * height into this panel when a row is picked in the `Row Title Panel`, and no
- * argument this unit is handed can carry a row -- SL-1 keeps rows out of
- * `Selection` on purpose, and the flag that marks a picked row lives in UF-63's
- * `RowTitle`. The requirement stands; the channel for it does not.
- *
  * @purity pure
  */
-function fieldsOfSubject(schedule: Schedule, subject: ItemRef): readonly PropertyField[] | null {
+function fieldsOfItem(schedule: Schedule, subject: ItemRef): readonly PropertyField[] | null {
   switch (subject.kind) {
     case 'task': {
       const task = taskByUid(schedule, subject.uid)
@@ -460,6 +478,101 @@ function fieldsOfSubject(schedule: Schedule, subject: ItemRef): readonly Propert
     case 'statusLine':
       return []
   }
+}
+
+// -------------------------------------------------------- the picked row ----
+
+/**
+ * ⚠️ Derived from `Schedule` rather than imported under its own name: `PI-1` of
+ * table T-064 publishes the type and not the entities beneath it, and every
+ * column this panel needs is reachable through it.
+ */
+type TaskGroup = Schedule['taskGroups'][number]
+
+/**
+ * FR-042's two items, each named by its row of table T-058 for the reason
+ * `PropertyField.row` gives: table T-016 is the `Task` table and holds neither.
+ *
+ * ⚠️ The row's NAME is deliberately absent. FR-042 says in as many words that
+ * the name is not handled here, and FR-029 leaves the `Row Title Panel` of
+ * FR-085 as its one entry.
+ */
+const GROUP_ITEMS: readonly { readonly row: string; readonly column: keyof TaskGroup }[] = [
+  { row: 'AT-58', column: 'color' },
+  { row: 'AT-59', column: 'height' },
+]
+
+/**
+ * The colour and height of the row FR-042 (MUST) puts on this panel, both
+ * editable because the same requirement (MUST) asks for them to be edited here.
+ *
+ * ⚠️ A row that specifies neither writes neither: AT-58's `null` means the band
+ * colour is resolved from the theme and AT-59's means the height follows the
+ * number of stacked bars, and writing the resolved answer in would offer the
+ * reader a derived value to edit.
+ *
+ * @purity pure
+ */
+function groupFields(group: TaskGroup): readonly PropertyField[] {
+  return GROUP_ITEMS.map((item) => ({
+    row: item.row,
+    name: item.column,
+    text: textOfValue(group[item.column]),
+    isEditable: true,
+  }))
+}
+
+/**
+ * The one row the panel describes, or `null` while it is not exactly one.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: which of several picked rows the
+ * panel describes. FR-085 (MUST) lets several be picked at once while FR-042
+ * speaks of the colour and height of THE row, and the two cannot both be met
+ * without a rule for choosing. ⚠️ SL-7b's kept order cannot be borrowed: it
+ * governs table T-023c's selection, and FR-085 states that the row set is a
+ * separate one -- which is why it arrives as a plain set with no order at all.
+ * Looked in FR-042, FR-085, table T-023c and table T-015. Chose to describe a
+ * row only while exactly one is picked, which is the same shape `subjectOf`
+ * already takes when no order is available.
+ *
+ * @purity pure
+ */
+function onlyGroupId(groupIds: readonly string[]): string | null {
+  const [only] = groupIds
+  if (groupIds.length === 1 && only !== undefined) return only
+  return null
+}
+
+/**
+ * Both halves of one subject: the item picked in the drawing area, and the row
+ * picked in the `Row Title Panel`. `null` when either names something the
+ * document no longer holds.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: the order of the two halves when
+ * an item and a row are picked at once. FR-072 decides between the SELECTION
+ * and the SETTINGS and says nothing about two rosters inside the selection
+ * side; FR-042 and FR-006 each describe their own without mentioning the other.
+ * Looked in FR-072, FR-042, FR-006, table T-016 and table T-023c. Chose the
+ * item's fields first, table T-016 being the roster FR-072 resolves to for a
+ * selection, with FR-042's two appended.
+ *
+ * @provisional PD-142
+ * @purity pure
+ */
+function fieldsOfSubject(
+  schedule: Schedule,
+  subject: PropertiesSubject,
+): readonly PropertyField[] | null {
+  const item = subjectOf(subject.selection)
+  const itemFields = item === null ? [] : fieldsOfItem(schedule, item)
+  if (itemFields === null) return null
+
+  const groupId = onlyGroupId(subject.groupIds)
+  if (groupId === null) return itemFields
+
+  const group = schedule.taskGroups.find((held) => held.id === groupId)
+  if (group === undefined) return null
+  return [...itemFields, ...groupFields(group)]
 }
 
 // ---------------------------------------------------------- the settings ----
@@ -534,18 +647,16 @@ function settingsFields(settings: DocumentSettings): readonly PropertyField[] {
  * ⭐ `showing` is carried, never decided: see the header on why that is what
  * keeps FR-072's MUST NOT.
  *
- * STOP -- ⛔ NOWHERE TO KEEP THEM: FR-072 (MUST) has the panel keep the fields it
- * was showing when the selection is cleared. Nothing this unit is handed
- * remembers them -- `ScreenSession` carries `propertiesShowing` for the other
- * half of this very requirement and carries no fields, the selection is empty by
- * then, and a `pure` unit holds nothing from one frame to the next. Looked in
- * screen-renderer.ts (`ScreenSession`), in table T-203 and table T-206 (no row
- * for what the panel is showing; S-80 keeps only its width) and in FR-072
- * itself. Chose to describe no fields and to raise `isSubjectGone`, so the panel
- * says the subject has gone without standing values in that it cannot know were
- * there. ⚠️ The fields would have to arrive beside `propertiesShowing`, which is
- * where the specification's own answer is already missing.
+ * ⭐ WHAT IS KEPT IS THE SUBJECT, NOT THE FIELDS. FR-072 (MUST) has the panel go
+ * on showing what it had once the selection is cleared, and also has a second
+ * press of the same entry return to what was selected before -- so what must be
+ * remembered is the thing, and `ScreenSession.propertiesSubject` remembers it.
+ * ⚠️ Keeping the drawn fields instead would go on showing values an edit had
+ * already made untrue, and a `pure` unit holds nothing between frames anyway.
+ * ⛔ The memory is still the shell's, not the document's: table T-203 keeps only
+ * this panel's width (S-80) and table T-206 has no row for its subject.
  *
+ * @provisional PD-144
  * @purity pure
  */
 export function propertiesPanelFromSelection(
@@ -568,13 +679,20 @@ export function propertiesPanelFromSelection(
     }
   }
 
-  const subject = subjectOf(selection)
+  // Nothing picked in either of the two sets SL-1 and FR-085 keep apart. That is
+  // FR-072's "the selection was cleared", and it is when the remembered subject
+  // takes over.
+  const isNothingPicked = selection.items.length === 0 && session.selectedGroupIds.length === 0
+  const subject = isNothingPicked
+    ? session.propertiesSubject
+    : { selection, groupIds: session.selectedGroupIds }
   const fields = subject === null ? null : fieldsOfSubject(schedule, subject)
 
-  // Two ways for the subject to have gone: the selection was cleared, or what it
-  // still names is no longer in the document. ⚠️ A selection made all at once
-  // has no subject either, and that is NOT one of them -- nothing went away.
-  const isSubjectGone = subject === null ? selection.items.length === 0 : fields === null
+  // Two ways for the subject to have gone: nothing is picked any more, or what
+  // is picked is no longer in the document. ⚠️ A selection made all at once is
+  // NOT one of them -- it describes nothing because no rule names one of its
+  // members, and nothing went away.
+  const isSubjectGone = isNothingPicked || fields === null
 
   return {
     showing,

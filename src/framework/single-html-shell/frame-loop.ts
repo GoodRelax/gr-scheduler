@@ -784,10 +784,15 @@ const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
  * named so the set is visible and so the next owner has one place to add to,
  * and nothing reads or writes them: S-99a is the watermark's opened-by name
  * (`single-html-shell.ts` records that nothing holds it), S-99b is the record
- * that turns the `Agent API` on per document (`sessionOf` records the same),
- * and S-99c is the unlock password's digest, which nothing asks a person for --
+ * that turns the `Agent API` on PER DOCUMENT, and S-99c is the unlock
+ * password's digest, which nothing asks a person for --
  * `input-command-translator.ts` records that table T-037 has no row for asking.
  * ⚠️ Writing a key nothing ever reads would only make the rule look kept.
+ * ⛔ S-99b IS NOT WAITING ON A PRODUCER, WHICH IS WHY IT IS STILL HERE. IC-20
+ * now turns the `Agent API` on and `ScreenSession.isAgentApiEnabled` carries it
+ * -- what is missing is the KEY's other half, 「文書の識別子」, which S-99b names
+ * and does not define and which nothing in this build derives. `sessionOf`
+ * carries the STOP and says where the same line was stopped at before.
  */
 type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
 
@@ -996,6 +1001,53 @@ function paletteCornerOf(
 }
 
 /**
+ * Which of FR-072's two the properties panel is showing, and what it was last
+ * shown about.
+ *
+ * ⛔ DERIVED FROM `ScreenSession` AND NEVER DECLARED A SECOND TIME. What these
+ * mean is ScreenRenderer's to say (CR-146), table T-064 already carries PI-37
+ * across, and a fresh name for either would be a second declaration of one
+ * shape -- which is R4's DRY and the fence LR-2 draws.
+ */
+type PropertiesShowing = ScreenSession['propertiesShowing']
+type PropertiesSubject = NonNullable<ScreenSession['propertiesSubject']>
+
+/**
+ * What this loop holds for the reading session, as `sessionOf` is handed it.
+ *
+ * ⭐ ONE ARGUMENT AND NOT TWELVE. Every member is a current value LY-5 of table
+ * T-060 leaves with this layer, so they travel together and the call site reads
+ * as a list of names rather than as a row of positions nobody can check
+ * (rule 03 section 4).
+ */
+interface SessionHeld {
+  /** S-99. */
+  readonly language: DisplayLanguage
+  /** FR-065. */
+  readonly isAgentApiEnabled: boolean
+  /** U-42 `Pointer`, or `null` while it is outside the window. */
+  readonly pointer: { readonly x: number; readonly y: number } | null
+  /** FT-4 of table T-078, for EZ-2's wait. */
+  readonly pointerRestedMs: number
+  /** EZ-2's other half -- what IF-9 answered for that point. */
+  readonly iconUnderPointer: IconId | null
+  /** FR-053 -- where GR-19's drag left the palette, `null` while nobody has. */
+  readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
+  /** FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by AT-51. */
+  readonly selectedGroupIds: readonly string[]
+  /** FR-099 (MUST) -- who is chosen in the `Resource Roster`, by AT-85. */
+  readonly selectedResourceUids: readonly number[]
+  /** FR-072 -- which of the two the last operation chose. */
+  readonly propertiesShowing: PropertiesShowing
+  /** FR-072 (MUST) -- what it was chosen about. */
+  readonly propertiesSubject: PropertiesSubject | null
+  /** NT-7 of table T-037 -- the question standing, or none. */
+  readonly confirmation: RaisedConfirmation | null
+  /** FR-076 (MUST) -- what has been raised to tell. */
+  readonly notices: readonly RaisedNotice[]
+}
+
+/**
  * What the shell answers about this reading session (`ScreenSession`, PI-37).
  *
  * ⭐ Every member is either a measurement only this layer can make or a value
@@ -1013,13 +1065,13 @@ function paletteCornerOf(
  * ⚠️ `pointer` waits on nothing either -- FT-1 is wired, and the caller hands in
  * the place the last pointer happening was reported from.
  *
- * ⛔ `selectedGroupIds` (PD-142) and `selectedResourceUids` (PD-143) stay empty
- * for a different reason: FR-085's row selection is made in the `Row Title
- * Panel`, which the note under table T-023a puts outside the decision order
- * `commandFromInput` applies, so no happening it reads names one.
- * `propertiesShowing` and `propertiesSubject` (PD-144) stay null because
- * nothing holds the panel's state -- `screen-renderer.ts` records that FR-072's
- * rule has no owner, which is why `openPropertiesPanel` reaches a STOP below.
+ * ⭐ NOTHING IS DECIDED HERE ANY MORE except the palette's corner, which
+ * `paletteCornerOf` answers because its default is a rectangle of THIS frame.
+ * The five members that used to be frozen at empty -- `isAgentApiEnabled`,
+ * `selectedGroupIds` (PD-142), `selectedResourceUids` (PD-143),
+ * `propertiesShowing` and `propertiesSubject` (PD-144) -- are values the loop
+ * moves as presses arrive, so they are handed in like the notices and the
+ * question beside them.
  *
  * @purity pure
  */
@@ -1027,22 +1079,39 @@ function sessionOf(
   held: Document,
   regions: ScreenRegions,
   layout: ScheduleLayout,
-  language: DisplayLanguage,
-  pointer: { readonly x: number; readonly y: number } | null,
-  pointerRestedMs: number,
-  iconUnderPointer: IconId | null,
-  commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null,
-  confirmation: RaisedConfirmation | null,
-  notices: readonly RaisedNotice[],
+  session: SessionHeld,
 ): ScreenSession {
+  const {
+    language,
+    isAgentApiEnabled,
+    pointer,
+    pointerRestedMs,
+    iconUnderPointer,
+    commandPaletteDraggedTo,
+    selectedGroupIds,
+    selectedResourceUids,
+    propertiesShowing,
+    propertiesSubject,
+    confirmation,
+    notices,
+  } = session
   return {
     language,
     autosave: autosaveAtStartup(held),
-    // FR-065 / S-99b: the record that turns the `Agent API` on is kept per
-    // document in `localStorage`, and ⛔ nothing in `src/` owns those rows yet
-    // (`local-storage-document-store.ts` says so in as many words). No record
-    // is 「not enabled」, which is the truth about this build.
-    isAgentApiEnabled: false,
+    // FR-065: the person turned the `Agent API` on or off with IC-20, and this
+    // is what they left it at.
+    // STOP -- ⛔ NOT REMEMBERED PER DOCUMENT, WHICH IS HALF OF THAT REQUIREMENT.
+    // FR-065 (MUST) has the enabling remembered per document and S-99b of table
+    // T-206 puts that record in `localStorage` keyed by 「文書の識別子」 -- and
+    // ⛔ NOTHING DERIVES ONE. `autosave-gateway.ts` stops at the same line in as
+    // many words (`DocumentSnapshot.documentKey`), S-99b names an identifier
+    // without defining one, and `Project.id` is not it (AT-1 is nullable and is
+    // marked as no primary key). ⚠️ So no key is invented and `BROWSER_STORED_KEY`
+    // stays unwritten. ⭐ The MUST NOT beside it IS kept: `replaceHeldDocument`
+    // puts this back to false on the three rows of table T-230 that do not carry
+    // the history forward, so what was opened for one document is not still in
+    // force for the next.
+    isAgentApiEnabled,
     pointer,
     // EZ-2 of table T-040 -- the two halves of its condition, both measured by
     // the loop and neither of them decidable here.
@@ -1061,10 +1130,24 @@ function sessionOf(
     // same reason `notices` and `confirmation` below are handed in.
     // ⛔ `paletteCornerOf` carries what is missing and what is settled.
     commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
-    selectedGroupIds: [],
-    selectedResourceUids: [],
-    propertiesShowing: null,
-    propertiesSubject: null,
+    // FR-085 (MUST) and FR-099 (MUST): the two sets of chosen things that are
+    // NOT the drawing area's selection -- SL-1 of table T-023c leaves rows out
+    // of that one and admits no resource at all, so `Selection` (PI-32) can hold
+    // neither. ⭐ Both are moved by presses `commandFromEntry` answers with an
+    // `InputAction` of its own kind; `carryOutAction` is where they land.
+    // @provisional PD-142
+    selectedGroupIds,
+    // @provisional PD-143
+    selectedResourceUids,
+    // FR-072: which of the two the LAST operation chose, and what it chose.
+    // ⭐ THE SUBJECT AND NOT THE DRAWN FIELDS, which is the whole of PD-144:
+    // that requirement has a second press of IC-17 return the panel to
+    // 「直前の選択物」, so what has to be kept is what was chosen -- keeping the
+    // fields would go on showing values an edit has already made untrue.
+    // @provisional PD-144
+    propertiesShowing,
+    // @provisional PD-144
+    propertiesSubject,
     // FR-076 (MUST): what has been raised to tell, each carrying a row of table
     // T-233 and no words at all.
     // ⭐ Held by the loop, not built here -- the same reason the question below
@@ -1664,6 +1747,35 @@ export function frameLoop(
   // `paletteCornerOf` for why no table keeps it and why it starts at no
   // corner of its own.
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
+  // FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by `TaskGroup.id`
+  // (AT-51). ⛔ A SECOND SET AND NOT THE SELECTION: SL-1 of table T-023c leaves
+  // rows out of the drawing area's selection in as many words, and FR-085 says
+  // the two are separate, so `selection` above may not carry them.
+  // ⚠️ Lost with the page, because nothing keeps it: table T-203 has no key and
+  // table T-206 no row, which is what leaves it a current value LY-5 of table
+  // T-060 puts here.
+  // @provisional PD-142
+  let selectedGroupIds: readonly string[] = []
+  // FR-099 (MUST) -- who is chosen in the `Resource Roster` (U-49), by
+  // `Resource.uid` (AT-85), which AS-6 of table T-225 makes the key a document
+  // writes while a person is shown the name. ⛔ SL-1 admits no resource either.
+  // @provisional PD-143
+  let selectedResourceUids: readonly number[] = []
+  // FR-072 -- which of the two the last operation chose, and what it chose.
+  //
+  // ⭐ `null` IS "NO OPERATION HAS CHOSEN YET" and not a fourth state: FR-072
+  // decides the panel's contents by 「最後に行われた操作」, and before the first
+  // one there is no last. ⚠️ Nothing else moves it back to `null` -- that
+  // requirement (MUST) keeps the previous contents standing when a selection
+  // goes away, and says the heading is what tells the person so.
+  // @provisional PD-144
+  let propertiesShowing: PropertiesShowing = null
+  let propertiesSubject: PropertiesSubject | null = null
+  // FR-065 -- whether the person has turned the `Agent API` on for the document
+  // being read. ⛔ Starts off, which is the judgement FR-065's RATIONALE calls
+  // 「既定で公開しない」. What is NOT kept, and why no key is written for it, is
+  // in `sessionOf`.
+  let isAgentApiEnabled = false
   // FR-038 (MUST): one language for the whole screen. `ScreenWiring` carries
   // what startup settled on -- S-99 if the store had it, the host otherwise --
   // and this carries what the person has chosen since.
@@ -1915,22 +2027,24 @@ export function frameLoop(
         selection,
         screenState,
         dialogueLog,
-        sessionOf(
-          document,
-          regions,
-          layout,
+        sessionOf(document, regions, layout, {
           language,
-          pointerAt,
+          isAgentApiEnabled,
+          pointer: pointerAt,
           pointerRestedMs,
           // ⭐ THE ANSWER THE SURFACE ALREADY GAVE, taken from where
           // `receiveInput` put it rather than asked for again: IF-9 reads the
           // page as it stands (`readScreenPartAt` says so), and a second read
           // inside the frame would be a second moment for one drawing.
-          partUnderPointer?.entry ?? null,
+          iconUnderPointer: partUnderPointer?.entry ?? null,
           commandPaletteDraggedTo,
-          asking?.question ?? null,
-          raisedNotices,
-        ),
+          selectedGroupIds,
+          selectedResourceUids,
+          propertiesShowing,
+          propertiesSubject,
+          confirmation: asking?.question ?? null,
+          notices: raisedNotices,
+        }),
       ),
     )
   }
@@ -2149,7 +2263,27 @@ export function frameLoop(
         // ⚠️ NO REST AND NO ICON UNDER IT, which follows from the same absence:
         // EZ-2 of table T-040 waits on a pointer resting on an entry, and an
         // export has neither the pointer nor the moment.
-        sessionOf(document, regions, layout, language, null, 0, null, null, null, []),
+        // ⛔ NOTHING CHOSEN AND NOTHING SHOWN IN THE PROPERTIES PANEL EITHER,
+        // for the reason `nothingSelected` above is built fresh: EP-12 of table
+        // T-076 keeps this session's state out of the picture, and FR-085's
+        // chosen rows, FR-099's chosen people and FR-072's panel are as much
+        // this session's as the selection is. ⚠️ The `Agent API` is off here for
+        // the same reason and not because of FR-065: nothing of the reader's is
+        // in an exported picture.
+        sessionOf(document, regions, layout, {
+          language,
+          isAgentApiEnabled: false,
+          pointer: null,
+          pointerRestedMs: 0,
+          iconUnderPointer: null,
+          commandPaletteDraggedTo: null,
+          selectedGroupIds: [],
+          selectedResourceUids: [],
+          propertiesShowing: null,
+          propertiesSubject: null,
+          confirmation: null,
+          notices: [],
+        }),
       ),
       settings,
     }
@@ -2343,6 +2477,22 @@ export function frameLoop(
     // FT-2 of table T-078: the current value was replaced, so a frame is owed.
     // ⚠️ `ask` coalesces with FT-1's, so the press still paints once.
     if (outcome.accepted) {
+      // FR-065 (MUST): 「1 つの文書で開いたことが、別の文書を開いたときにも効いて
+      // いてはならない」.
+      //
+      // ⭐ WHICH ROWS ARE 「別の文書」 IS TABLE T-230's OWN ANSWER, read off its
+      // 履歴 column rather than judged here: RD-4, RD-5 and RD-6 say 「捨てる」 or
+      // 「空にする」, which is that table saying the document now current is not a
+      // continuation of the one that was. ⚠️ The other three carry it forward --
+      // RD-1 and RD-2 restore an earlier state of the SAME document and RD-3
+      // merges into the one being read (「いまのものを残す」) -- so turning the
+      // `Agent API` off on an undo would take a person's choice away for nothing.
+      // ⛔ THIS IS THE HALF OF FR-065 THAT CAN BE KEPT WITHOUT AN IDENTIFIER.
+      // The remembering half needs one and nothing derives one; `sessionOf`
+      // carries that STOP.
+      if (call.row === 'RD-4' || call.row === 'RD-5' || call.row === 'RD-6') {
+        isAgentApiEnabled = false
+      }
       if (settled(environment)) ask()
       return true
     }
@@ -3097,10 +3247,16 @@ export function frameLoop(
         // absence `isTextEntryUnsettled` records above.
         return
       case 'openPropertiesPanel':
-        // STOP -- ⛔ NOTHING HOLDS THE PANEL'S STATE. `ScreenSession`'s
-        // `propertiesShowing` and `propertiesSubject` are the shell's (PD-144)
-        // and `screen-renderer.ts` records that FR-072's rule -- which of the
-        // two things the panel shows -- has no owner in any table.
+        // MK-13 「タスク本体 ＝ プロパティパネルを開く」, and FR-072 decides what
+        // it then shows by 「最後に行われた操作」 -- this press IS that operation,
+        // and it is one of the selection's, so the panel turns to the selection.
+        // ⚠️ The `Task` this action names is already in the selection
+        // `selectionFromInput` answered for the same happening, which is why
+        // nothing here reads the uid: the subject is the WHOLE of what is
+        // chosen, and a panel built from one item would disagree with the
+        // marquee that took five.
+        // @provisional PD-144
+        showPropertiesOfChoice()
         return
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
@@ -3116,7 +3272,103 @@ export function frameLoop(
         commandPaletteDraggedTo = { x: from.x + action.by.dx, y: from.y + action.by.dy }
         return
       }
+      case 'chooseRow': {
+        // FR-085 (MUST): a row of the `Row Title Panel` was chosen. ⭐ WRITTEN
+        // HERE AND NOWHERE ELSE, the same road `moveCommandPalette` takes and
+        // for the same reason -- table T-108 has no command, no undo step is
+        // pushed, and LY-5 of table T-060 leaves a current value with this
+        // layer.
+        // ⚠️ WHICH WAY AN EXTENDING PRESS GOES IS READ OFF WHAT IS HELD, never
+        // off the drawn row: FR-048 lets a paint be skipped, so a picture is as
+        // old as the last one drawn while this value is now.
+        const chosen = selectedGroupIds
+        if (!action.isExtending) {
+          // The plain press, which replaces what was chosen -- SL-2's shape.
+          selectedGroupIds = [action.groupId]
+        } else if (chosen.includes(action.groupId)) {
+          // SL-4's 「1 つずつ増減し」, the letting-go half FR-085 asks for.
+          selectedGroupIds = chosen.filter((one) => one !== action.groupId)
+        } else {
+          selectedGroupIds = [...chosen, action.groupId]
+        }
+        // FR-042 (MUST) reads this same set -- the band colour (AT-58) and
+        // height (AT-59) it puts up are the chosen row's -- and FR-072 decides
+        // the panel by the last operation, which this is.
+        // @provisional PD-142
+        showPropertiesOfChoice()
+        return
+      }
+      case 'chooseResources':
+        // IC-63 / IC-64 / IC-65 of table T-109. ⭐ REPLACED WHOLE, which is what
+        // 「一覧のすべてを選ぶ」 and 「一覧の選択をすべて解く」 are and what makes
+        // FR-099's two-move deletion mean what it says.
+        // ⛔ NOT SHOWN IN THE PROPERTIES PANEL: FR-072 speaks of 「選択」, and
+        // SL-1 of table T-023c does not admit a resource -- so a roster press is
+        // not one of the operations that requirement decides the panel by.
+        // @provisional PD-143
+        selectedResourceUids = action.uids
+        return
+      case 'toggleChosenResource': {
+        // IC-67 / IC-68 -- one control in two states, which those two rows say
+        // themselves (「同じ入口で解く」 / 「同じ入口で選ぶ」). ⚠️ Which way it
+        // goes is decided from what is HELD and never from the entry that was
+        // drawn, for the reason `chooseRow` gives above.
+        // @provisional PD-143
+        const chosen = selectedResourceUids
+        selectedResourceUids = chosen.includes(action.uid)
+          ? chosen.filter((one) => one !== action.uid)
+          : [...chosen, action.uid]
+        return
+      }
+      case 'toggleDocumentSettingsProperties':
+        // FR-072: the settings entrance. ⭐ 「もう一度同じ入口を押したら直前の
+        // 選択物へ戻す」 is the whole of this branch -- pressed while the settings
+        // are up it goes back to the subject, and pressed at any other time it
+        // brings the settings up.
+        // ⛔ THE SUBJECT IS NOT CLEARED ON THE WAY: that requirement (MUST) says
+        // 「設定を開いても選択を解除せず」, and `selection` is not touched here
+        // either.
+        // @provisional PD-144
+        propertiesShowing =
+          propertiesShowing === 'documentSettings' ? 'selection' : 'documentSettings'
+        return
+      case 'toggleAgentApi':
+        // IC-20 -- FR-065. ⭐ ONE ENTRANCE BOTH WAYS, which that row words
+        // itself. ⚠️ What is shown while it is on is FR-065's other MUST and is
+        // the renderer's; this side holds the fact.
+        // ⛔ NOT WRITTEN TO `localStorage`: see `sessionOf` for the identifier
+        // that is missing and why no key is invented for it.
+        isAgentApiEnabled = !isAgentApiEnabled
+        return
     }
+  }
+
+  /**
+   * FR-072: an operation chose something, so the properties panel turns to it
+   * and remembers what it was about.
+   *
+   * ⭐ THE SUBJECT AND NOT THE FIELDS (PD-144). FR-072 (MUST) keeps the previous
+   * contents standing when the selection goes away and has a second press of
+   * IC-17 return to 「直前の選択物」, so what is kept is WHAT was chosen -- kept
+   * fields would go on showing values an edit had already made untrue, and
+   * `PropertyField` carries no way to say a value has stopped being current.
+   *
+   * ⛔ AN EMPTYING CHANGES NEITHER MEMBER, and that is FR-072's own sentence
+   * rather than a shortcut: 「選択が解除されたときは、直前に出していた中身を残し、
+   * 見出しで『選択なし』と示すこと（MUST）」. Both halves follow from leaving them
+   * alone -- the subject standing here IS the 「直前」 that MUST names, and the
+   * heading reads 「選択なし」 off a `Selection` that is now empty.
+   * ⚠️ WHICH ALSO KEEPS THE MUST NOT BESIDE IT. 「選択を解除しても設定へは移らな
+   * いこと（MUST NOT）」: with the settings up, an emptying leaves them up, and
+   * nothing here can move to them either.
+   *
+   * @provisional PD-144
+   * @purity non-pure
+   */
+  function showPropertiesOfChoice(): void {
+    if (selection.items.length === 0 && selectedGroupIds.length === 0) return
+    propertiesShowing = 'selection'
+    propertiesSubject = { selection, groupIds: selectedGroupIds }
   }
 
   /**
@@ -3281,6 +3533,19 @@ export function frameLoop(
       (settledEntry !== null && answerSettledEntry(settledEntry, frame)) ||
       (settledFormat !== null && answerSettledFormat(settledFormat))
     if (!spent) carryOutAction(translated.action, frame)
+
+    // FR-072: 「利用者が選択または設定の入口を操作したとき ... 最後に行われた操作
+    // で決める」. A press that moved the drawing area's selection IS one of those
+    // operations, and it is the commonest -- SL-2 replaces the selection with
+    // one thing and SL-3 takes a rectangle of them, and neither asks for an
+    // action of its own, so `carryOutAction` above never hears about them.
+    // ⛔ COMPARED BY IDENTITY, which is the comparison PI-18 declares for this
+    // member: `selectionFromInput` answers the SAME value it was handed when
+    // nothing moved, so a press that changed nothing does not count as an
+    // operation here. ⚠️ `context.selection` is what was held before the three
+    // members ran, and `owesFrame` compares the same pair for the same reason.
+    // @provisional PD-144
+    if (selection !== context.selection) showPropertiesOfChoice()
 
     // OP-3 (MUST NOT): the `Open Chooser` went away without one of its three
     // being taken, so the choice was never made and the read is abandoned.
