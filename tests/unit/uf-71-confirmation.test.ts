@@ -1178,6 +1178,15 @@ const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...BASE_VIEW, ..
 // Raising a question, and composing it into the surface.
 // ---------------------------------------------------------------------------
 
+/**
+ * S-73's default hue, read out of table T-216 the way the other tables here
+ * are read. DR-5 of table T-052 keeps the hue on `Project` rather than in the
+ * settings, so no generated constant carries it.
+ */
+const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
+if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
+const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
+
 const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
   language: LANGUAGE,
   autosave: { kind: 'saved', at: '2026-08-22T03:04:05Z' },
@@ -1186,6 +1195,12 @@ const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
   pointerRestedMs: 0,
   iconUnderPointer: null,
   commandPaletteAt: { x: 0, y: 0 },
+  // No case here reads the theme or the milestone glyph list: a question is
+  // words and two answers, and neither S-72 nor S-142 reaches it. Both take
+  // the manuscript's default; S-73 is read above.
+  themePreference: 'light',
+  themeHue: THEME_HUE,
+  isMilestoneListOpen: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesShowing: null,

@@ -393,6 +393,13 @@ const SESSION: ScreenSession = {
   pointerRestedMs: 0,
   iconUnderPointer: null,
   commandPaletteAt: { x: 500, y: 300 },
+  // No case here reads the theme or the milestone glyph list. S-72 takes the
+  // manuscript's default and S-142 stays closed; S-73 is read off the very
+  // document this frame draws, which is where the shell gets it from too
+  // (DR-5 of table T-052 keeps the hue on `Project`, not in the settings).
+  themePreference: 'light',
+  themeHue: SCHEDULE.project.themeHue,
+  isMilestoneListOpen: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesShowing: 'selection',

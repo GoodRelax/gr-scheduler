@@ -118,32 +118,48 @@
 // FR-023 calls everything that arrived from outside untrusted, and a task name
 // is one of those things.
 //
-// ⭐ NO COLOUR IS INVENTED, AND THE SYSTEM COLOURS ARE NO LONGER THE ANSWER.
-// FR-041 (MUST) has this product paint its own ground and chrome and (MUST NOT)
-// forbids leaving them to the viewing environment, because a system colour
-// follows the OPERATING SYSTEM and not the reader's `themePreference` (S-72) --
-// so a dark theme chosen in the document came out light. Table T-236 holds the
-// colours in both renderings and reaches this file generated (`SCREEN_COLOURS`
-// at the foot); `PAINT` below names which row paints what, and `themeStyle`
-// resolves one rendering onto the root as custom properties, together with the
+// ⭐ NO COLOUR IS INVENTED, AND NO SYSTEM COLOUR IS LEFT ANYWHERE. FR-041
+// (MUST) has this product paint its own ground and chrome and (MUST NOT) forbids
+// leaving them to the viewing environment, because a system colour follows the
+// OPERATING SYSTEM and not the reader's `themePreference` (S-72) -- so a dark
+// theme chosen in the document came out light. Table T-236 holds the colours in
+// both renderings and reaches this file generated (`SCREEN_COLOURS` at the
+// foot); `PAINT` below names which row paints what, and `themeStyle` resolves
+// one rendering onto the root as custom properties, together with the
 // `color-scheme` the same requirement (MUST) has told to the environment.
 //
-// ⛔ TWO THINGS THIS UNIT STILL CANNOT DO, AND NEITHER IS A CHOICE MADE HERE:
-//   - WHICH RENDERING IS CHOSEN DOES NOT CROSS IF-9. `themePreference` (S-72)
-//     and `themeHue` (S-73) are the document's, and no member of `ScreenView`,
-//     `ScreenFrame` or `AppHeaderItems` carries either -- `isPressed` is
-//     declared 「a toggle that is on」 and UF-62 says in as many words that a
-//     choice between two values has no off side to report IC-16 by. So the
-//     wiring below takes an OPTIONAL reader, and while nothing supplies it the
-//     custom properties are unset and each declaration falls back to the system
-//     colour it used before. ⚠️ That fallback is the state FR-041 forbids; it
-//     is what the seam leaves, not what this unit prefers.
-//   - THE GROUND (S-146) IS NOT THIS UNIT'S TO PAINT. This root is
-//     `position:fixed` over the whole viewport and the schedule is drawn by
-//     another surface UNDERNEATH it, so a background on anything this unit owns
-//     would hide the schedule. The ground belongs to the page element, which is
-//     the shell's. ⭐ What is done here instead is `color-scheme`, which is the
-//     half of FR-041 that reaches the environment's own painting.
+// ⭐ SO THE THEME IS PART OF THE WIRING AND NOT AN EXTRA. `readTheme` is a
+// REQUIRED member of `ScreenSurfaceWiring`, and the declaration is written on
+// the root both when the tree is built and on every frame after. ⛔ The
+// alternative -- an optional reader with a system colour behind each `var()` --
+// IS the defect: a unit that can be built without knowing the rendering cannot
+// obey FR-041 at all, and every fallback it keeps is the environment deciding.
+// ⚠️ A rendering chosen here instead would be that same defect with the evidence
+// hidden, and S-73's hue could not be invented in any case (rule 03 section 1).
+//
+// ⛔ WHAT IS STILL OWED, AND IT IS NOT A CHOICE MADE HERE:
+//   - NEITHER VALUE CROSSES IF-9, WHICH IS WHY THEY ARRIVE THROUGH THE WIRING.
+//     `themePreference` (S-72) and `themeHue` (S-73) are the document's, and no
+//     member of `ScreenView`, `ScreenFrame` or `AppHeaderItems` carries either
+//     -- `isPressed` is declared 「a toggle that is on」 and UF-62 says in as many
+//     words that a choice between two values has no off side to report IC-16 by.
+//     ⚠️ `ScreenSession` DOES hold the pair now, and it is not a way in: that
+//     type is ScreenRenderer's ARGUMENT, filled by the shell on the way to UF-60,
+//     and what comes back out of UF-60 is `ScreenView`. So the shell hands this
+//     unit the same two values it already reads for the session.
+//   - THE GROUND (S-146) IS NOT THIS UNIT'S TO PAINT, AND NAMING THE OWNER IS
+//     NOT DECLINING IT. This root is `position:fixed` over the whole viewport
+//     and the schedule is drawn by another surface UNDERNEATH it, so a
+//     background on anything this unit owns would hide the schedule.
+//     ⭐ THE GROUND BELONGS ON THE PAGE ELEMENT -- the shell's own
+//     `documentElement` -- which is the one box behind the schedule rather than
+//     over it. This unit paints S-146 on every ground it does own (the header,
+//     the notices, the tooltips, the dialogue field, the surfaces that stop the
+//     reading), writes the property so the value is stated once and inherits
+//     down, and tells the environment the `color-scheme`. ⛔ The page's own
+//     ground is painted by nobody -- measured 2026-08-25: no file in `src/`
+//     writes a background on `documentElement` or on `body` -- and FR-041 makes
+//     painting it a MUST.
 //
 // ⭐ THE ENTRIES ARE DRAWN AS SHAPES, AND THE SHAPES ARRIVE THE WAY THE ROSTER
 // DOES. FR-029 (MUST) has this product tell what a menu is for with an icon
@@ -354,16 +370,16 @@ const OPEN_EVERY_ROW_ENTRY = 'IC-74'
  * (「地」「主たる文字」「区切りの線」「行見出しパネル・プロパティパネル・パレットの地」
  * 「パレットと面」) and no table joins a row of T-236 to a row of table T-103.
  *
- * ⛔ SIX ROWS OF `SCREEN_COLOURS` ARE NOT USED HERE, AND THAT IS NOT AN
- * OVERSIGHT. S-151 (強調) is 「選択と現在位置」 and nothing on this side draws
- * either -- a row's `data-selected` is written for whoever settles the look, and
- * ⛔ inventing one would settle a reading FR-085 does not state. S-152 / S-153 /
- * S-154 (良 / 注意 / 不良) reach no part this unit
+ * ⛔ THREE ROWS OF `SCREEN_COLOURS` ARE NOT USED HERE, AND THAT IS NOT AN
+ * OVERSIGHT. S-152 / S-153 / S-154 (良 / 注意 / 不良) reach no part this unit
  * draws -- nothing on this side reports a state in colour, and NT-1 (MUST NOT)
- * forbids colour alone from carrying a meaning. S-168 and S-169 are 「バーの上の
- * 文字」 by table T-236's own note, which is the schedule's label and not chrome
- * at all; they are generated into this file rather than into the one that draws
- * bars.
+ * forbids colour alone from carrying a meaning.
+ *
+ * ⚠️ AN EARLIER NOTE HERE COUNTED SIX AND PUT S-151, S-168 AND S-169 AMONG
+ * THEM. It was wrong, and the generated block at the foot of this file is what
+ * refutes it: nine rows stand there and none of those three is one of them --
+ * `tools/generate_entity_types.py` routes all three to SvgRenderer instead.
+ * ⛔ Counted against that block, not assumed.
  *
  * ⚠️ S-170 IS A COLOUR AND NOT A SHADOW. Table T-236 gives 「浮いた層の影」 its
  * paint and 「パレットと面」 as where it falls, and no row anywhere states an
@@ -372,11 +388,14 @@ const OPEN_EVERY_ROW_ENTRY = 'IC-74'
  * from the specification. Searched: table T-236, table T-201, table T-206 and
  * FR-041.
  *
- * ⚠️ THE FALLBACK IN EACH `var()` IS THE SYSTEM COLOUR THIS FILE USED BEFORE,
- * and it stands for exactly one state: nothing has told this unit which
- * rendering the reader chose (see the head of this file). ⛔ It is not a second
- * palette -- the moment `themeStyle` writes the properties on the root, every
- * declaration below takes table T-236's colour instead.
+ * ⛔ NO `var()` HERE CARRIES A FALLBACK, AND THE ABSENCE IS THE REQUIREMENT.
+ * Each one used to name the system colour this file painted with before
+ * (`Canvas` / `CanvasText` / `GrayText` / `ButtonFace` / `ButtonText`), and a
+ * system colour follows the OPERATING SYSTEM rather than S-72 -- which is what
+ * FR-041 (MUST NOT) forbids in as many words, and why a reader who chose dark
+ * stayed light. ⭐ They can go because the properties are now always written:
+ * `readTheme` is required and the root carries the declaration from the moment
+ * it is made.
  */
 const PAINT_ROW = {
   ground: 'S-146',
@@ -388,27 +407,36 @@ const PAINT_ROW = {
 } as const
 
 /** How a declaration names one of them. @purity pure */
-function painted(name: keyof typeof PAINT_ROW, whileUnknown: string): string {
-  return `var(--gr-${name}, ${whileUnknown})`
+function painted(name: keyof typeof PAINT_ROW): string {
+  return `var(--gr-${name})`
 }
 
+/**
+ * ⚠️ SIX NAMES AND NOT EIGHT. An entrance's ground and an entrance's word used
+ * to stand as members of their own, because table T-236 has one 地 and one
+ * 文字の色 while the system colours had a separate pair for a button
+ * (`ButtonFace` / `ButtonText`). ⛔ With the fallbacks gone the two pairs are
+ * the same string, and rule 03 section 1 forbids one concept two names.
+ */
 const PAINT = {
-  ground: painted('ground', 'Canvas'),
-  ink: painted('ink', 'CanvasText'),
-  quiet: painted('quiet', 'GrayText'),
-  rule: painted('rule', 'GrayText'),
-  panel: painted('panel', 'Canvas'),
-  shadow: painted('shadow', 'transparent'),
-  // ⚠️ S-150 AGAIN, WITH THE OTHER FALLBACK. An entrance and a panel take the
-  // same row of table T-236 -- that table has no row of its own for the ground
-  // of something that can be pressed -- but the system colour each stood in
-  // before is not the same one, and the fallback's whole job is to leave the
-  // unknown state looking exactly as it did.
-  entryFace: painted('panel', 'ButtonFace'),
-  // ⚠️ S-147 AGAIN, FOR THE SAME REASON: an entrance's word was `ButtonText`
-  // and a panel's was `CanvasText`, and table T-236 has one 文字の色.
-  entryInk: painted('ink', 'ButtonText'),
+  ground: painted('ground'),
+  ink: painted('ink'),
+  quiet: painted('quiet'),
+  rule: painted('rule'),
+  panel: painted('panel'),
+  shadow: painted('shadow'),
 } as const
+
+/**
+ * The room an entrance keeps at its sides, in the reader's own text size.
+ *
+ * ⛔ NOT A VALUE OF THE SPECIFICATION: no table states an entrance's padding,
+ * and `STYLE` says of every length in it why it is relative. It is named here
+ * only because `entryGlyphRoom` has to hold S-141 against it.
+ *
+ * @provisional PD-151
+ */
+const ENTRY_SIDE_ROOM = '0.375em'
 
 /**
  * The room one entrance keeps around the shape it holds.
@@ -424,28 +452,73 @@ const PAINT = {
  * to leave, which is not a minimum at all.
  *
  * ⭐ SO THE SHAPE IS TAKEN OUT OF THE LINE BOX AND CENTRED, AND THE FRAME IS
- * PINNED WHERE THE LINE BOX HAD IT. `min-height:1.5em` beside this reproduces
- * exactly the height `line-height:1.5` used to make, so the entrance measures
- * what it measured before at the size it is read at; the shape now sits inside
- * that box instead of setting it, so it can no longer push the frame outwards.
- * ⚠️ The row controls have no `line-height` of their own and take no
- * `min-height` either -- their frame is their own box, and this only stops the
- * shape from driving it.
+ * PINNED WHERE THE LINE BOX HAD IT. The `1.5em` floor reproduces exactly the
+ * height `line-height:1.5` used to make, so the entrance measures what it
+ * measured before at the size it is read at; the shape now sits inside that box
+ * instead of setting it, so it can no longer push the frame outwards.
+ * ⚠️ The row controls take neither of these -- their frame is their own box,
+ * and this only stops the shape from driving it.
  *
- * STOP -- ⛔ THE GAP ITSELF CANNOT BE STATED: S-141 REACHES NO FILE IN `src/`.
- * Table T-206 holds it (2px, 「図形と入口の枠の最低隙間」) and `settings.json`
- * carries the row, but `NOT_STORED_TARGETS` in `tools/generate_entity_types.py`
- * routes only S-138 to this unit, so `NOT_STORED_ICON_SIZES` has one member and
- * the number has no way in. ⛔ Rule 03 section 1 forbids typing it here, and a
- * gap invented in its place would be exactly the copied value that rule exists
- * to stop. Searched: FR-029, S-138 / S-141 of table T-206, the generated block
- * at the foot of this file, and every `NOT_STORED_*` constant in `src/`.
- * ⭐ What is owed is one row id in that generator's table; the moment it lands,
- * this declaration takes `padding:0 max(<the em>, S-141px)` and
- * `min-height:max(1.5em, calc(S-138px + S-141px * 2))`, and the minimum is
- * stated in the one place the room is stated.
+ * ⭐ AND THE GAP IS NOW STATED, WHICH IT COULD NOT BE BEFORE. S-141 reaches this
+ * file generated (`NOT_STORED_ICON_SIZES` at the foot), so each axis is written
+ * as a `max()` of the room the entrance already kept against that row: the
+ * relative room wins wherever it is the larger, and S-141 is the floor under it.
+ * ⛔ The doubling is left to `calc()` rather than done here -- the gap falls on
+ * both sides of the shape, and a `4` written in this file would be a value the
+ * specification never printed.
+ *
+ * ⛔ A FUNCTION AND NOT A `const`, for the first of the two reasons `glyphStyle`
+ * gives: the value arrives in the generated block at the foot of this file,
+ * which a `const` evaluated above it cannot read.
+ *
+ * @purity pure
  */
-const ENTRY_GLYPH_ROOM = 'display:inline-flex;align-items:center;justify-content:center;'
+function entryGlyphRoom(): string {
+  const side = NOT_STORED_ICON_SIZES['S-138']
+  const gap = NOT_STORED_ICON_SIZES['S-141']
+  return (
+    'display:inline-flex;align-items:center;justify-content:center;' +
+    `padding:0 max(${ENTRY_SIDE_ROOM}, ${gap}px);` +
+    `min-height:max(1.5em, calc(${side}px + ${gap}px * 2));`
+  )
+}
+
+/**
+ * One entrance's frame, in the state FR-029 (MUST) draws what CAN be used.
+ *
+ * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for both of the reasons
+ * `glyphStyle` gives: it reaches the generated block through `entryGlyphRoom`,
+ * and `STYLE` states that every length in it is relative, which S-138 and S-141
+ * are not.
+ *
+ * @purity pure
+ */
+function entryStyle(): string {
+  return (
+    `font:inherit;background:${PAINT.panel};color:${PAINT.ink};` +
+    `border:1px solid ${PAINT.rule};border-radius:0.25em;cursor:pointer;` +
+    entryGlyphRoom()
+  )
+}
+
+/**
+ * The same frame for an entrance FR-029 (MUST) draws faint, which is the one
+ * declaration that differs.
+ *
+ * ⛔ `aria-disabled` AND NOT `disabled` is what `commandEntry` writes beside
+ * this: a disabled control leaves the accessibility tree and stops taking the
+ * pointer, which would take away both the tooltip IN-3 lets a person point at
+ * and the answer PD-141 reads out of `data-icon`.
+ *
+ * @purity pure
+ */
+function entryFaintStyle(): string {
+  return (
+    `font:inherit;background:${PAINT.panel};color:${PAINT.quiet};` +
+    `border:1px solid ${PAINT.rule};border-radius:0.25em;cursor:default;` +
+    entryGlyphRoom()
+  )
+}
 
 // -------------------------------------------------------------- the styles ---
 
@@ -501,23 +574,9 @@ const STYLE = {
   documentTitle: 'font-weight:600;overflow:hidden;text-overflow:ellipsis;',
   autosaveStatus: `margin-left:auto;color:${PAINT.quiet};`,
   headerCommands: 'display:flex;align-items:center;gap:0.25em;',
-  // FR-029 (MUST): what cannot be used is drawn faint and keeps its reason
-  // reachable. ⛔ `aria-disabled` and not `disabled`: a disabled control leaves
-  // the accessibility tree and stops taking the pointer, which would take away
-  // both the tooltip IN-3 lets a person point at and the answer PD-141 reads
-  // out of `data-icon`.
-  entry:
-    `font:inherit;background:${PAINT.entryFace};color:${PAINT.entryInk};` +
-    `border:1px solid ${PAINT.rule};border-radius:0.25em;padding:0 0.375em;` +
-    'min-height:1.5em;cursor:pointer;' +
-    ENTRY_GLYPH_ROOM,
-  entryFaint:
-    `font:inherit;background:${PAINT.entryFace};color:${PAINT.quiet};` +
-    `border:1px solid ${PAINT.rule};border-radius:0.25em;padding:0 0.375em;` +
-    'min-height:1.5em;cursor:default;' +
-    ENTRY_GLYPH_ROOM,
-  // ⚠️ The box a shape of figure F-019 is drawn in is NOT a member here:
-  // `glyphStyle` below states it, and says why it cannot stand in this object.
+  // ⚠️ NEITHER AN ENTRANCE'S FRAME NOR THE BOX ITS SHAPE IS DRAWN IN IS A
+  // MEMBER HERE: `entryStyle`, `entryFaintStyle` and `glyphStyle` state them,
+  // and each says why it cannot stand in this object.
 
   // The reading FR-038 (MUST) asks to be legible BEFORE the entry is pressed,
   // set beside the shape and not in place of it: the shape says what the entry
@@ -585,7 +644,7 @@ const STYLE = {
   // to this same row rather than restating it, so one declaration covers all
   // three controls.
   //
-  // ⛔ `ENTRY_GLYPH_ROOM` IS NOT ADDED HERE, AND THE REASON IS THE FRAME. FR-029
+  // ⛔ `entryGlyphRoom` IS NOT ADDED HERE, AND THE REASON IS THE FRAME. FR-029
   // fixes a gap 「図形と入口の枠のあいだ」 and this control has no frame at all
   // (`border:none`), so there is no edge for the shape to be held off. ⚠️ It is
   // also the one entrance HF-5 (MUST NOT) forbids to be centred, and a box that
@@ -737,7 +796,7 @@ const STYLE = {
  *
  * ⚠️ `inline-block` and `vertical-align` are for the ONE place a shape is still
  * laid out on a line: the palette's grab band and any host that does not lay a
- * flex box out. Inside an entrance the box `ENTRY_GLYPH_ROOM` makes, the shape
+ * flex box out. Inside an entrance the box `entryGlyphRoom` makes, the shape
  * is a flex item and is centred by that box instead -- which is what keeps it
  * from setting the entrance's height (FR-029, S-141). ⛔ `pointer-events:none`
  * so the ANSWER does not move: IF-9's third member reads back the entry a point
@@ -810,8 +869,12 @@ function hued(written: string, followsHue: boolean, hue: number): string {
  * `position:fixed` over the whole viewport with the schedule drawn UNDER it, so
  * a background here would hide the schedule; the property is still written, and
  * the parts that ARE this unit's grounds (the header, the notices, the tooltips,
- * the dialogue field, the surfaces that stop the reading) take it. ⚠️ The page's
- * own ground is the shell's element and is named in the head of this file.
+ * the dialogue field, the surfaces that stop the reading) take it.
+ * ⭐ WHERE THE PAGE'S OWN GROUND BELONGS, since FR-041 (MUST) leaves it nowhere
+ * else: on the shell's `documentElement`, which is the one box behind the
+ * schedule instead of over it. ⛔ Not this unit's to write -- it never touches an
+ * element it was not given (`mount`'s own note says so) -- and it is unpainted
+ * today, which the head of this file records as measured.
  *
  * @purity pure
  */
@@ -824,22 +887,6 @@ function themeStyle(theme: ScreenTheme): string {
     written += `--gr-${name}:${hued(chosen, row.followsHue, theme.hue)};`
   }
   return written
-}
-
-/**
- * What the root carries for the theme this frame, or nothing at all.
- *
- * ⛔ NOTHING IS SUBSTITUTED FOR AN ABSENT READER. With no theme in hand every
- * `var()` in this file falls back to the system colour it used before, which is
- * this unit standing exactly where it stood -- ⚠️ a state FR-041 (MUST NOT)
- * forbids, and the wiring member is where it is recorded and why. ⭐ Choosing a
- * rendering here instead would hide that, and the hue could not be invented in
- * any case (rule 03 section 1).
- *
- * @purity semi-pure-b
- */
-function themeDeclaration(readTheme: (() => ScreenTheme) | undefined): string {
-  return readTheme === undefined ? '' : themeStyle(readTheme())
 }
 
 /**
@@ -1217,7 +1264,7 @@ function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
  * @purity non-pure
  */
 function commandEntry(host: Document, item: CommandItem): HTMLElement {
-  const entry = made(host, 'button', item.isEnabled ? STYLE.entry : STYLE.entryFaint)
+  const entry = made(host, 'button', item.isEnabled ? entryStyle() : entryFaintStyle())
   entry.setAttribute('type', 'button')
   // The join table T-109 admits, and what PD-141 has the shell read back.
   entry.setAttribute('data-icon', item.icon)
@@ -1551,7 +1598,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
  * @purity non-pure
  */
 function openEveryRowElement(host: Document): HTMLElement {
-  const entry = made(host, 'button', STYLE.entry + STYLE.panelCornerEntry)
+  const entry = made(host, 'button', entryStyle() + STYLE.panelCornerEntry)
   entry.setAttribute('type', 'button')
   entry.setAttribute('data-icon', OPEN_EVERY_ROW_ENTRY)
   entry.setAttribute('aria-label', OPEN_EVERY_ROW_ENTRY)
@@ -1832,7 +1879,7 @@ function paletteElement(
  */
 function rosterSelectionEntry(host: Document, isSelected: boolean): HTMLElement {
   const icon = isSelected ? ROSTER_CHOSEN_ENTRY : ROSTER_UNCHOSEN_ENTRY
-  const entry = made(host, 'button', STYLE.entry)
+  const entry = made(host, 'button', entryStyle())
   entry.setAttribute('type', 'button')
   entry.setAttribute('data-icon', icon)
   entry.setAttribute('aria-label', icon)
@@ -1952,7 +1999,7 @@ function modalElement(
       //
       // ⚠️ Painted as an entry is painted, because this unit paints everything
       // that can be pressed that way (R4) -- it is not a claim that this is one.
-      const choice = made(host, 'button', STYLE.entry)
+      const choice = made(host, 'button', entryStyle())
       choice.setAttribute('type', 'button')
       choice.setAttribute('data-format', format)
       choice.setAttribute('aria-label', format)
@@ -2242,23 +2289,35 @@ export interface ScreenSurfaceWiring {
    *
    * ⭐ READ EACH FRAME AND NEVER TAKEN ONCE, like `readAuthor`: IC-16 switches
    * S-72 while the document is open, so a value taken at wiring time would be
-   * the one the document was opened with for ever.
+   * the one the document was opened with for ever. ⚠️ It IS also read once while
+   * this factory runs, because the header is built and measured there and a box
+   * that has never been painted would be painted for the first time one frame
+   * later.
    *
-   * STOP -- ⛔ OPTIONAL, AND THAT IS THE WHOLE OF WHY A DARK THEME STILL COMES
-   * OUT LIGHT. Neither S-72 nor S-73 crosses IF-9: `ScreenView`, `ScreenFrame`
-   * and `AppHeaderItems` carry no member for either, and UF-62 states in as many
-   * words that IC-16's `isPressed` cannot report a choice between two values.
-   * The shell holds both -- `document.documentSettings.themePreference` and
-   * `document.schedule.project.themeHue` are in hand at the head of every frame
-   * -- so what is owed is the shell passing this reader, or a member on
-   * `ScreenView` carrying the pair. Searched: FR-041, S-72 / S-73, `ScreenView`,
-   * `ScreenFrame`, `AppHeaderItems`, `ScreenSession` and table T-064.
-   * ⚠️ While it is absent every declaration falls back to the system colour it
-   * used before, which is the state FR-041 (MUST NOT) forbids -- ⛔ but a
-   * rendering picked here without the reader would be that same defect with the
-   * evidence hidden, and the hue cannot be invented at all (rule 03 section 1).
+   * ⛔ REQUIRED, AND THE OPTIONALITY IS WHAT THE DEFECT WAS. Neither S-72 nor
+   * S-73 crosses IF-9 -- `ScreenView`, `ScreenFrame` and `AppHeaderItems` carry
+   * no member for either, and UF-62 states in as many words that IC-16's
+   * `isPressed` cannot report a choice between two values -- so while this
+   * member could be left out, every `var()` in the file kept a system colour
+   * behind it and a reader who chose dark stayed light. ⭐ Requiring it is what
+   * lets those fallbacks go: FR-041 (MUST NOT) forbids the environment to decide
+   * the theme, and a surface that can be built without the theme has no other
+   * answer to give.
+   *
+   * ⭐ THE CALLER ALREADY HOLDS BOTH VALUES. `documentSettings.themePreference`
+   * and `schedule.project.themeHue` are what the shell reads at the head of
+   * every frame for `ScreenSession`; this member takes the same pair. ⚠️ The
+   * session is NOT a way in -- it is ScreenRenderer's argument, and what comes
+   * back across IF-9 is `ScreenView`. Searched: FR-041, S-72 / S-73,
+   * `ScreenView`, `ScreenFrame`, `AppHeaderItems`, `ScreenSession`, table T-064.
+   *
+   * ⚠️ MAKING IT REQUIRED BREAKS EVERY CALLER UNTIL EACH ADDS ONE LINE, and the
+   * compiler names them rather than leaving it to be found. ⛔ That is the
+   * cheaper of the two failures: the other one is a screen whose chrome has no
+   * colour at all, shipped quietly, because a `var()` with nothing behind it
+   * resolves to `unset` and a background then falls to `transparent`.
    */
-  readonly readTheme?: () => ScreenTheme
+  readonly readTheme: () => ScreenTheme
 }
 
 /** What the person settled, until the draw that follows takes it away. */
@@ -2288,7 +2347,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // ⛔ LY-5 of table T-060 puts these here because there is nowhere further in
   // they are allowed: the tree that has been built, what has been drawn into
   // it, what the person settled, and what they dismissed.
-  const root = made(host, 'div', STYLE.root)
+  // FR-041 (MUST), from the first moment there is a root to carry it: the
+  // header is built and measured inside this factory, so a theme written only
+  // on the first frame would leave that one box unpainted until then.
+  const root = made(host, 'div', STYLE.root + themeStyle(readTheme()))
   // ⚠️ Not a name for a part: table T-103 has no row for the whole screen, so
   // the root carries the unit's own row of table T-075 instead of a minted one.
   // ⭐ It is also what scopes `HOVER_CSS` to this tree.
@@ -2688,10 +2750,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // hangs off. ⛔ Written with the root's own placement and not on a second
     // element: a custom property is inherited, so one declaration reaches every
     // part, and `color-scheme` reaches the scrollbars the environment paints
-    // inside them. ⚠️ Empty while nothing supplies `readTheme`, which is the
-    // state the wiring member records -- each declaration then keeps the system
-    // colour it fell back on.
-    root.setAttribute('style', STYLE.rootShown + themeDeclaration(readTheme))
+    // inside them. ⚠️ Read again here and not carried over from the factory:
+    // IC-16 switches S-72 while the document is open.
+    root.setAttribute('style', STYLE.rootShown + themeStyle(readTheme()))
 
     // ⭐ THE SETTLED LINE IS TAKEN AWAY HERE, and this is the only member that
     // may take it: `readDialogueInput` is `semi-pure-b` on the declaration, so

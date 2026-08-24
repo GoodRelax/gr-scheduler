@@ -333,6 +333,15 @@ function settingDefaultNumber(table: string, row: string): number {
  */
 const GRAB_BAND_HEIGHT = settingDefaultNumber('T-206', 'S-135a')
 
+/**
+ * S-73 of table T-216 -- the theme hue the session carries.
+ *
+ * ⚠️ READ, NOT WRITTEN, for the same reason the band height above is: DR-5 of
+ * table T-052 keeps the hue on `Project` rather than in the settings, so no
+ * generated constant holds it and a number typed here would be the only copy.
+ */
+const THEME_HUE = settingDefaultNumber('T-216', 'S-73')
+
 // ---------------------------------------------------------------------------
 // Inputs. UF-65 fills one member of `ScreenView` and reads none of the others,
 // so every member below that a case does not mean is inert.
@@ -348,13 +357,24 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The four members `ScreenSession` requires that no case here varies:
+  // The seven members `ScreenSession` requires that no case here varies:
   // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
-  // on no icon), `selectedGroupIds` is FR-085's set of rows and
-  // `selectedResourceUids` FR-099's set of resources (both empty -- none
-  // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
-  // no operation has chosen one yet).
+  // on no icon), `themePreference` is S-72 and `themeHue` S-73 (the roster is
+  // table T-109's, which no theme moves), `selectedGroupIds` is FR-085's set of
+  // rows and `selectedResourceUids` FR-099's set of resources (both empty --
+  // none chosen), and `propertiesSubject` is FR-072's remembered subject
+  // (`null` -- no operation has chosen one yet).
   iconUnderPointer: null,
+  themePreference: 'light',
+  themeHue: THEME_HUE,
+  // ⛔ OPEN, NOT S-142'S DEFAULT, and the roster above is why. FR-053 (MUST)
+  // keeps the eight milestone entrances IC-27 .. IC-34 out of the palette
+  // until the list is opened; `PALETTE_ENTRY_ROWS` holds all eight, so a
+  // session saying the list is shut would state a condition under which this
+  // file's own expectation is wrong. ⚠️ NOTHING READS THIS YET -- no case here
+  // varies it, and the closed palette is untested. Whoever wires FR-053's
+  // condition owns that second case.
+  isMilestoneListOpen: true,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

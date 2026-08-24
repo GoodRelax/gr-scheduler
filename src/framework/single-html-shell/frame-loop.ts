@@ -512,10 +512,14 @@ const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
  *
  * ⛔ NOT ONE OF THE ROWS ABOVE, and it is here for the opposite reason: table
  * T-109 states in IC-53's own row that it is not a button, so nothing is ever
- * SETTLED on it and `answerSettledEntry` never sees it. What this file needs it
- * for is the other
- * half of IN-1 -- knowing that the press in flight is the palette's drag, so
- * that the `Esc` beside it can put the corner back.
+ * SETTLED on it. ⚠️ `answerSettledEntry` IS STILL ASKED ABOUT IT, because
+ * `entrySettledOnRelease` reports whatever entry the press landed on -- it
+ * answers `false`, which is what leaves the release's own travel to
+ * `carryOutAction`. A row answered there would swallow the last piece of the
+ * drag. What this file needs the id for is the other half of IN-1 -- knowing
+ * that the press in flight is the palette's drag, so that an interruption
+ * beside it can put the corner back, whether that is `Esc` (IN-1) or IN-1a's
+ * lost pointer.
  * ⚠️ Read off the press's own `ScreenPart` and not off the action, because an
  * interrupted drag produces no action at all.
  */
@@ -1946,12 +1950,15 @@ export function frameLoop(
   // The palette is moved by a travel (`moveCommandPalette`), so once a travel
   // has been added the corner it was added to is gone -- and an interrupted
   // drag has to be put back rather than left where the finger reached.
-  // ⚠️ IT COSTS NOTHING WHILE THE CORNER IS DECIDED ON THE RELEASE ALONE, which
-  // is what that requirement asks for: the travel never arrives, so this
-  // restores the corner the palette already had. ⛔ It is not the follow FR-053
-  // makes a MUST -- that requirement says in as many words that following is a
-  // matter of the PICTURE and does not bring the deciding moment forward, so
-  // the follow reaches the screen through what is DRAWN and not through this.
+  // ⛔ IT IS WHAT THE FOLLOWING COSTS, AND IT USED TO COST NOTHING. While the
+  // travel arrived only on the release there was never anything to put back,
+  // because nothing had moved yet -- so the requirement's last sentence was
+  // met by an accident of WHEN the travel came. Now that every move applies
+  // one, an interrupted drag would otherwise be left wherever the finger
+  // reached.
+  // ⚠️ THE ONLY ROAD TO THE PICTURE RUNS THROUGH THE CORNER: the palette is
+  // drawn at `ScreenSession.commandPaletteAt` and at nothing else, so a follow
+  // that did not move the corner would not be a follow at all.
   // ⛔ NOT A MEMBER OF ANYTHING PUBLISHED, and it must not become one from here:
   // no row of table T-203 or table T-206 holds the corner itself
   // (`paletteCornerOf` says so), let alone where a drag began.
@@ -2700,7 +2707,18 @@ export function frameLoop(
     // and no whole `PointerPress` can exist until this call has answered,
     // because the row is one of the press's own members.
     const pressRow = pressRowOf({ at, hit }, { screenState, isDualCursorMode })
-    return { at, hit, on, pressRow }
+    // FR-053 (MUST) -- this shell FOLLOWS, so the member that says so starts at
+    // the press's own point. ⭐ Its own note gives the rule: a travel is
+    // measured from here and never from the press once one has been applied, so
+    // the parts telescope and the sum over a drag is still `release - press`.
+    // ⛔ FILLED FOR EVERY PRESS AND NOT ONLY THE BAND'S, because the member is
+    // a statement about the CALLER rather than about the gesture: a shell that
+    // filled it only sometimes would be a shell that follows only sometimes,
+    // and `paletteFollow` is the only member that reads it.
+    // ⚠️ THE ONE PART OF THE PRESS CS-2 DOES NOT FREEZE, and that member says
+    // why -- the other four are the moment of the press, this one is how far
+    // the picture has been carried since.
+    return { at, hit, on, pressRow, followedTo: { x: at.x, y: at.y } }
   }
 
   /**
@@ -3653,21 +3671,41 @@ export function frameLoop(
         // resolution the frame drew with -- so a first drag moves it from the
         // `Row Area`'s corner and not from the window's origin.
         //
-        // ⛔ ONE TRAVEL PER DRAG IS WHAT FR-053 ASKS FOR. That requirement makes
-        // the palette FOLLOW the pointer while the band is held (MUST) and then
-        // says of that very same drag that the corner is decided at the
-        // moment it is let go -- the following is a matter of the picture and
-        // does not bring the deciding moment forward -- so the corner is written
-        // once, from the release IN-1 of table T-028 settles it on.
-        // ⚠️ IF A TRAVEL EVER ARRIVES WHILE THE FINGER IS STILL DOWN, IT MUST BE
-        // AN INCREMENT AND NEVER A TOTAL, because each one is added to the
-        // corner the previous one left: a travel measured from the PRESS would
-        // be right only for the first piece and would then overshoot by more the
-        // more pieces one drag was reported in. ⛔ Nothing here can tell the two
-        // apart -- a travel is a pair of numbers either way -- so this states
-        // what it relies on and the emitting side keeps it.
+        // ⛔ ONE TRAVEL PER MOVE AND ONE MORE ON THE RELEASE, WHICH IS WHAT
+        // FR-053's MUST COSTS. That requirement makes the palette FOLLOW the
+        // pointer while the band is held and then says of that very same drag
+        // that the corner is decided at the moment it is let go -- 「追従は絵の
+        // 話であって、値が決まる時点を早めるものではない」. ⭐ THE TWO ARE NOT IN
+        // CONFLICT HERE, and the reason is what table T-206 does NOT hold: no
+        // row of it or of table T-203 keeps this corner, so there is no saved
+        // form for a travel to reach and nothing settles when one arrives --
+        // `paletteCornerOf` records that ruling. What IN-1 protects is the
+        // moment a value is DECIDED, and a value the document never keeps is
+        // decided nowhere; what moves here is the picture FR-053 asks for.
+        // ⚠️ EACH TRAVEL IS AN INCREMENT AND NEVER A TOTAL, because each is
+        // added to the corner the previous one left: a travel measured from the
+        // PRESS would be right only for the first piece and would then overshoot
+        // by more the more pieces one drag was reported in. ⛔ Nothing here can
+        // tell the two apart -- a travel is a pair of numbers either way -- so
+        // the increment is kept by advancing the point the emitting side
+        // measures from, below.
         const from = paletteCornerOf(commandPaletteDraggedTo, frame.regions)
         commandPaletteDraggedTo = { x: from.x + action.by.dx, y: from.y + action.by.dy }
+        // ⭐ WHAT MAKES THE PARTS TELESCOPE. `PointerPress.followedTo` is where
+        // the emitting side measures the NEXT travel from, and this is the one
+        // place that knows a travel was in fact applied.
+        // ⛔ ADVANCED BY THE TRAVEL RATHER THAN SET TO THE POINTER, which is the
+        // same point and one fewer reading of the outside (R7.4): the travel is
+        // the pointer less this member, so adding it back lands exactly on the
+        // pointer that produced it -- while reading `pointerAt` here would be a
+        // second moment, and a release has already dropped the press.
+        if (pressed !== null && pressed.followedTo !== undefined) {
+          const followed = pressed.followedTo
+          pressed = {
+            ...pressed,
+            followedTo: { x: followed.x + action.by.dx, y: followed.y + action.by.dy },
+          }
+        }
         return
       }
       case 'chooseRow': {
@@ -3940,18 +3978,21 @@ export function frameLoop(
 
     // FR-053's last sentence on the drag -- an interrupted one (IN-1 of table
     // T-028) puts the palette back where the drag began.
-    // ⭐ WRITTEN RATHER THAN LEFT TO THE LINE ABOVE. Ending the gesture is the
-    // whole of the interruption for a drag whose value is settled on the
-    // release: with no press there is no release to settle from, so nothing was
-    // ever written and the corner still stands where it stood. ⛔ That is an
-    // accident of WHEN the travel arrives, and the requirement is about the
-    // corner -- so the corner is stated here, and a travel that reached
-    // `carryOutAction` while the finger was still down is undone instead of
-    // being kept.
+    // ⭐ WRITTEN RATHER THAN LEFT TO THE LINE ABOVE. Dropping the press ends the
+    // gesture and nothing more: the travels already applied stand, and the
+    // palette would keep the place the finger reached. ⛔ The requirement is
+    // about the CORNER, so the corner is stated here.
+    // ⭐ TWO HAPPENINGS ARE THE ONE INTERRUPTION, and table T-028 names both:
+    // IN-1 gives `Esc` and (MUST NOT) refuses to read leaving the drawing area
+    // as one, and IN-1a (MUST) ends a drag whose pointer was lost outside the
+    // window AS an interruption -- 「中断として終わらせること」. ⛔ A release is
+    // neither: `up` is the moment IN-1 settles the drag ON.
     // ⚠️ BEFORE `carryOutAction`, WHICH COSTS NOTHING: `escapeLevelOf` answers
-    // for a key happening alone, and a travel is measured from a pointer one --
-    // so no travel can arrive on the happening that interrupts.
-    if (escapeLevel === 'gesture' && commandPaletteCornerAtPress !== null) {
+    // for a key happening alone, and `commandFromInput` answers a lost pointer
+    // with no action at all -- so no travel can arrive on either happening.
+    const isDragInterrupted =
+      escapeLevel === 'gesture' || (input.kind === 'pointer' && input.phase === 'lost')
+    if (isDragInterrupted && commandPaletteCornerAtPress !== null) {
       commandPaletteDraggedTo = commandPaletteCornerAtPress
     }
     // ⚠️ Cleared on the same two happenings the press is, and never on its own:

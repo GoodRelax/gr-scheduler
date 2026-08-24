@@ -513,6 +513,30 @@ function boot(): void {
     // person settled a line, not an elapsed time (R3.6 sends only elapsed time
     // to a monotonic clock).
     readClockMs: () => Date.now(),
+    // FR-041 (MUST): the theme has to reach the side that paints, and this is
+    // the one road -- `ScreenView` carries no theme member, so the session
+    // cannot bring it across IF-9.
+    //
+    // ⛔ THE READER'S CHOICE, NOT THE ENVIRONMENT'S. S-72 is what the person
+    // picked and S-73 is the hue the document carries; the environment's own
+    // system colours follow the OPERATING SYSTEM, which is exactly why picking
+    // dark used to leave the screen light.
+    // ⚠️ Read at each call rather than captured: both move while the page is
+    // open, and a captured pair would paint yesterday's theme for ever.
+    // ⚠️ `loop` is null only until it is built, and BO-1 draws no frame before
+    // the size settles, so no paint can reach this before there is a loop. The
+    // manuscript's own defaults answer that window rather than a typed pair.
+    readTheme: () => {
+      // ⚠️ `loop` is null only between this call being declared and the loop
+      // being built, and BO-1 draws no frame before the size settles, so a
+      // paint cannot arrive in that window. The document chosen at startup
+      // answers it anyway, so no value is typed here.
+      const held = loop === null ? chosen.document : loop.document()
+      return {
+        preference: held.documentSettings.themePreference,
+        hue: held.schedule.project.themeHue,
+      }
+    },
     /** @purity non-pure */
     onAppHeaderHeightPx: (heightPx) => {
       appHeaderHeightPx = heightPx

@@ -192,9 +192,11 @@ export type PressRow = 'PD-1' | 'PD-2' | 'PD-3' | 'PD-4' | 'PD-4a' | 'PD-5'
 /**
  * The press a gesture began with, as the Framework recorded it.
  *
- * ⭐ All three members are the moment of the PRESS. IN-1 settles the operation
- * on release, so the release has to be read against something, and CS-2 makes
- * that something the state at the press.
+ * ⭐ EVERY MEMBER BUT THE LAST IS THE MOMENT OF THE PRESS. IN-1 settles the
+ * operation on release, so the release has to be read against something, and
+ * CS-2 makes that something the state at the press. ⚠️ `followedTo` is the one
+ * exception and says so itself: it is how far the picture has been carried
+ * since, which is a thing that can only move while the press is held.
  */
 export interface PointerPress {
   /** The `down` happening, unchanged. */
@@ -277,8 +279,17 @@ export interface PointerPress {
    * the release wants (IN-1). A caller that fills it -- with the press's own
    * point until it has applied one, and with the pointer of each travel it
    * applies after that -- gets the picture following, and the same total,
-   * because the parts telescope. ⛔ It is NOT optional so that it may be
-   * forgotten: the STOP note by `ENTRY` names what the shell still owes.
+   * because the parts telescope.
+   * ⭐ `frame-loop.ts` FILLS IT ON EVERY PRESS, which is what makes FR-053's
+   * MUST reached on the one road this build has: `collectPress` puts the
+   * press's own point here, and the travel each applied `moveCommandPalette`
+   * carries advances it.
+   * ⛔ STILL OPTIONAL, AND THAT IS THE WHOLE OF WHAT IS LEFT OF THE SEAM.
+   * Required is the honest shape and costs one character here; what holds it
+   * open is that presses built outside the shell do not carry the member yet,
+   * and until they do the meaning above is what an absent one means -- never a
+   * silent zero, which would report the whole travel from the press on every
+   * move and send the palette running by the sum.
    */
   readonly followedTo?: { readonly x: number; readonly y: number }
 }
@@ -448,8 +459,9 @@ export type InputAction =
    * so a caller that keeps applying them ends where a caller that only read
    * the release would have put it. ⚠️ THE PICTURE, NOT THE MOMENT THE VALUE IS
    * SETTLED: FR-053 names IN-1 of table T-028 in the same breath, so an
-   * interrupted drag still owes the corner it started from -- see the STOP note
-   * by `ENTRY`, which names who has to hold that corner.
+   * interrupted drag still owes the corner it started from, and the party that
+   * APPLIES these is the party that can keep it -- `frame-loop.ts` takes the
+   * corner on the press and puts it back on an `Esc` or a lost pointer.
    *
    * ⭐ A DISTANCE AND NOT A PLACE. Where the palette stands is
    * `ScreenSession.commandPaletteAt`, which the shell holds because no row of
@@ -1417,55 +1429,34 @@ const ENTRY = {
   rosterUnchosen: 'IC-68',
 } as const
 
-// STOP -- ⛔ THE BAND GR-19 PUTS ON THE PALETTE IS NOT DRAWN, so `IC-53` is
-// never reported and the assignment above is never reached. Two things are
-// owed, both on the far side of IF-9 and neither writable from this file:
+// ⭐ IC-53's ROAD IS COMPLETE, AND IT RUNS THROUGH THREE UNITS. A STOP note
+// stood here while it did not, naming what each side owed; all of it has since
+// been written, so what is left is the map:
 //
-//   1. `dom-screen-surface.ts` (PI-38) must lay a band across the top edge of
-//      the palette and mark it with `data-icon` for IC-53, so that
-//      `readScreenPartAt` answers `{ part: 'Command Palette', entry: 'IC-53' }`
-//      for a point on it. ⭐ IT IS THE ONLY UNIT THAT CAN: the band is as
-//      wide as the palette, and FR-053 (MUST) makes the palette's size follow
-//      its contents while (MUST NOT) forbidding any table to hold one -- so
-//      the side that laid the entries out is the only side that knows the
-//      width, which is the same rule Chapter 5.3 states under table T-065.
-//      ⛔ Laid OVER whatever it covers, for the reason `commandFromEntry`
-//      gives where it reads the row.
-//   2. The band's HEIGHT is `S-135a` of table T-206, and no generated constant
-//      carries it into `src/` yet. ⛔ It must not be typed anywhere (rule 03
-//      section 1): `tools/generate_entity_types.py` already emits
-//      `NOT_STORED_PANEL_DIVIDER_SIZES` from `S-134` for the `Panel Divider`'s
-//      band, and `S-135a` wants that same shape -- a `NOT_STORED_` block
-//      landing in `dom-screen-surface.ts`, the unit that lays the band.
-//      ⚠️ NOT in `screen-frame.ts` beside `S-134`: that unit builds the
-//      divider's band as a RECTANGLE, and it has no width to build this one
-//      with.
+//   1. `dom-screen-surface.ts` (PI-38) lays the band across the palette's TOP
+//      EDGE and marks it with `data-icon`, so `readScreenPartAt` (IF-9)
+//      answers `{ part: 'Command Palette', entry: 'IC-53' }` for a point on it
+//      and the assignment above is reached. ⭐ IT IS THE ONLY UNIT THAT CAN:
+//      the band is as wide as the palette, and FR-053 (MUST) makes the size
+//      follow the contents while (MUST NOT) forbidding any table to hold one,
+//      so the side that laid the entries out is the only side that knows the
+//      width -- the rule Chapter 5.3 states under table T-065.
+//   2. The band's HEIGHT is `S-135a` of table T-206, and it reaches `src/` as
+//      a generated `NOT_STORED_` block in `command-palette.ts` rather than as
+//      a number typed anywhere (rule 03 section 1).
+//   3. `frame-loop.ts` records the press, fills `PointerPress.followedTo` so
+//      that `paletteFollow` below reports FR-053's following, holds
+//      `ScreenSession.commandPaletteAt` and moves it by each travel.
+//   4. That same file keeps the corner the drag BEGAN at, because FR-053 names
+//      IN-1 of table T-028 in the same breath and owes the original corner
+//      back on an interruption -- `Esc`, or IN-1a's lost pointer.
 //
-// ⚠️ EVERYTHING ON THIS SIDE IS WRITTEN. The row is named above and
-// assigned in `commandFromEntry`, and `frame-loop.ts` holds
-// `ScreenSession.commandPaletteAt` and moves it.
-//
-// STOP -- ⛔ FR-053's FOLLOWING PALETTE (MUST) NEEDS TWO THINGS OF THE CALLER,
-// and neither is writable from this file. Until both are there the picture does
-// not follow, and the drag lands on the release exactly as it did before:
-//
-//   3. `PointerPress.followedTo` must be FILLED -- with the press's own point
-//      when the press is recorded, and with the pointer of every travel the
-//      caller applies after that. ⛔ That member says why this file cannot do
-//      it: UF-30 is `pure` (table T-075) and LY-5 of table T-060 leaves a
-//      current value with the Framework. ⚠️ While it is absent `paletteFollow`
-//      reports NOTHING rather than a travel measured from the press, because a
-//      caller that keeps adding travels all measured from the press would send
-//      the palette running by their sum.
-//   4. ⛔ THE CORNER THE DRAG BEGAN AT IS HELD BY NOBODY, and following makes
-//      that a defect rather than a gap. FR-053 names IN-1 of table T-028 in the
-//      same breath, and that requirement's last sentence owes the original
-//      corner back on an interruption -- so an aborted drag
-//      (`Esc`, or IN-1a's lost pointer) owes the corner it started from, and
-//      `frame-loop.ts` keeps one corner and no record of where it stood at the
-//      press. ⚠️ Reporting only on the release hid this: there was nothing to
-//      undo, because nothing had moved yet. Searched: FR-053, table T-028
-//      (IN-1 / IN-1a / IN-4), table T-023d GR-19, table T-203, table T-206.
+// ⚠️ THE BAND MUST STAY LAID OVER WHAT IT COVERS. GR-19 stands first in table
+// T-023d and that table's preamble makes the first row win (MUST), and
+// `press.on` is the drawing side's own answer -- so the priority is kept by
+// what is DRAWN over what, and nothing here enforces it.
+// Searched: FR-053, table T-028 (IN-1 / IN-1a / IN-4), table T-023d GR-19,
+// table T-109, table T-203, table T-206.
 
 /**
  * The entries that flip ONE boolean row of table T-202, and which row each one
@@ -2161,8 +2152,8 @@ function commandFromEntry(
       // that lands on the band is the band's whatever is drawn under it --
       // and `press.on` is the drawing side's own answer, taken once at the
       // moment of the press (CS-2 of table T-066). ⛔ That only holds while
-      // the band is laid OVER what it covers; the STOP note by `ENTRY` says so
-      // to the side that lays it.
+      // the band is laid OVER what it covers; the note by `ENTRY` says so to
+      // the side that lays it.
       //
       // ⚠️ The pointer's travel and not its place: a press may begin anywhere
       // on the band, so the corner has to move by the difference rather than
@@ -3187,7 +3178,14 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                `edit-document-settings.ts` still calls them the eight boolean
 //                rows of table T-202 and lists eight, and that table now holds
 //                nine (S-144, added 2026-08-25) -- so `setElementVisible` has no
-//                value to carry even once the password has a road. ⚠️ NOT
+//                value to carry even once the password has a road.
+//                ⚠️ NO GENERATOR WILL BRING THE NINTH NAME, AND THAT WAS
+//                MEASURED: `npm run gen:check` passes 13 of 13, and
+//                `edit-document-settings.ts` is not one of the targets
+//                `tools/generate_entity_types.py` lists -- the union is
+//                HAND-WRITTEN there, so only a hand adds the row. ⭐ The
+//                generated side already has it: `DocumentSettings` carries
+//                `watermarkVisible` from `_source/settings.json`. ⚠️ NOT
 //                WORKED AROUND HERE: the type is derived from the command on
 //                purpose (see `VisibleElement` above), and re-declaring the
 //                ninth name in this file would be the drift that deriving

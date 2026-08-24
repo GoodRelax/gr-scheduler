@@ -107,10 +107,22 @@ import type {
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
+import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the specification the cases are driven by (Chapter 1.9).
 // ---------------------------------------------------------------------------
+
+/**
+ * S-73's default hue, read out of table T-216 rather than written here.
+ *
+ * DR-5 of table T-052 keeps the hue on `Project`, so `SETTINGS_DEFAULTS` --
+ * which is what every other manuscript value in this file comes from -- does
+ * not carry it, and this file's own `Project` fixture does not set it either.
+ */
+const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
+if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
+const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
 /**
  * Table T-109 -- every row whose surface column reads `App Header`, in the table's
@@ -284,13 +296,19 @@ const SESSION: ScreenSession = {
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The four members `ScreenSession` requires that no case here varies:
+  // The seven members `ScreenSession` requires that no case here varies:
   // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
-  // on no icon), `selectedGroupIds` is FR-085's set of rows and
-  // `selectedResourceUids` FR-099's set of resources (both empty -- none
-  // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
-  // no operation has chosen one yet).
+  // on no icon), `themePreference` is S-72 and `isMilestoneListOpen` S-142
+  // (both the manuscript's default -- note 2 above says why the light/dark
+  // entry is not asserted here), `themeHue` is S-73 read from the manuscript,
+  // `selectedGroupIds` is FR-085's set of rows and `selectedResourceUids`
+  // FR-099's set of resources (both empty -- none chosen), and
+  // `propertiesSubject` is FR-072's remembered subject (`null` -- no operation
+  // has chosen one yet).
   iconUnderPointer: null,
+  themePreference: 'light',
+  themeHue: THEME_HUE,
+  isMilestoneListOpen: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

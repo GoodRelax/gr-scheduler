@@ -287,6 +287,15 @@ const raisedOf = (
   affectedCount: number | null = null,
 ): RaisedNotice => ({ manner, reason, affectedCount })
 
+/**
+ * S-73's default hue, read out of table T-216 the way the tables above are
+ * read. DR-5 of table T-052 keeps the hue on `Project` rather than in the
+ * settings, so no generated constant carries it.
+ */
+const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
+if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
+const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
+
 const sessionOf = (notices: readonly RaisedNotice[]): ScreenSession => ({
   language: 'ja',
   autosave: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
@@ -294,13 +303,18 @@ const sessionOf = (notices: readonly RaisedNotice[]): ScreenSession => ({
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The four members `ScreenSession` requires that no case here varies:
+  // The seven members `ScreenSession` requires that no case here varies:
   // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
-  // on no icon), `selectedGroupIds` is FR-085's set of rows and
-  // `selectedResourceUids` FR-099's set of resources (both empty -- none
-  // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
-  // no operation has chosen one yet).
+  // on no icon), `themePreference` is S-72 and `isMilestoneListOpen` S-142
+  // (both the manuscript's default -- a telling carries neither), `themeHue`
+  // is S-73 read from the manuscript, `selectedGroupIds` is FR-085's set of
+  // rows and `selectedResourceUids` FR-099's set of resources (both empty --
+  // none chosen), and `propertiesSubject` is FR-072's remembered subject
+  // (`null` -- no operation has chosen one yet).
   iconUnderPointer: null,
+  themePreference: 'light',
+  themeHue: THEME_HUE,
+  isMilestoneListOpen: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

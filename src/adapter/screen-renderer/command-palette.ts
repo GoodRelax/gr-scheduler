@@ -55,6 +55,34 @@
 // the table returns to an earlier group three times near its end, so sorting by
 // anything else would move entries out of the group FR-029 puts them in.
 //
+// ⛔ THE GROUP'S CAPTION IS NOT PRINTED ON THE PALETTE (FR-053, MUST NOT), AND
+// THE BOUNDARY IS A RULE INSTEAD (MUST). ⚠️ WHAT STOPS IS THE PRINTING AND
+// NOTHING ELSE: table T-109's group column still decides the ORDER above, the
+// dictionary still holds the words because the help (FR-036) lists the
+// entrances by word, and `PaletteGroup.name` is still filled below.
+//
+// ⭐ THE RULE IS DRAWN BY THE SURFACE, NOT DESCRIBED HERE, and that is the
+// judgement this unit made rather than a rule it was handed. S-143 of table
+// T-206 states the rule's thickness and its side gaps, and its own note says
+// the rule is 「線であって文字ではない」 and 「図形でもない」 -- so it carries no
+// word to translate, no row of table T-109 and no shape of figure F-019.
+// Nothing can rest on it, be armed by it or be reported for it, which is what
+// parts it from `grabBandHeight`: GR-19's band is described here because a
+// press and a tooltip land ON it (`ScreenPart.entry`), and a decoration that
+// nothing points at is the drawing side's alone (Chapter 5.3, under table
+// T-065). ⭐ The surface needs nothing new from this unit to place it: `groups`
+// below already IS the boundary list, one element per group.
+// ⛔ TWO THINGS OUTSIDE THIS FOLDER ARE WHAT THE MUST NOT ACTUALLY WAITS ON --
+// `dom-screen-surface.ts` still prints `PaletteGroup.name` into a node of its
+// own, and S-143 reaches no file in `src/` at all, being in no entry of
+// `NOT_STORED_TARGETS` in `tools/generate_entity_types.py`.
+//
+// ⛔ THE EIGHT MILESTONE SHAPES ARE NOT OFFERED UNTIL THE LIST IS OPEN
+// (FR-053, MUST). `ScreenSession.isMilestoneListOpen` is that state, which
+// S-142 of table T-206 records the document does not keep and the shell holds.
+// ⚠️ Folding them changes WHICH ENTRIES a group holds and never which groups
+// there are or what a group is called -- see `paletteGroups`.
+//
 // ⛔ TWO OF ITS `Command Palette` ROWS ARE NOT ENTRIES. Table T-109 says so in
 // its own entry column -- one row shows that the palette can be dragged, the
 // other shows the keystroke that places what is armed -- and
@@ -116,6 +144,36 @@ const ALIGN_REQUIREMENT = 'FR-034'
 // palette row marked the same way in future has to be added here by hand until
 // the roster carries the fact as a field.
 const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
+
+/**
+ * `FR-078`, as the authority column of table T-109 writes it -- the requirement
+ * that owns the milestone glyph entrances FR-053 folds away.
+ *
+ * ⭐ THE JOIN IS THAT COLUMN, for the reason `ALIGN_REQUIREMENT` gives: it is
+ * the table's own statement of which requirement owns an entry, so a ninth
+ * shape added to SH-5 of table T-012 and to table T-109 folds with the eight
+ * without this file being touched. ⛔ Eight row ids typed here would go stale in
+ * silence, and `input-command-translator.ts` already carries a list of exactly
+ * those eight for a purpose this unit does not share (what each one arms).
+ */
+const MILESTONE_GLYPH_REQUIREMENT = 'FR-078'
+
+// STOP -- ⛔ NOT CARRIED BY THE GENERATED ROSTER: which rows of table T-109 work
+// the list rather than sit in it. The table states it in the entry column as
+// prose (「マイルストーンの図形の一覧を開く」 / 「同・畳む」) rather than as a
+// column of its own, so `icon-roster.json` has no field for it -- the same shape
+// of gap as `NOT_BUTTON_ROWS`, and searched in the same places: table T-109,
+// FR-053, FR-078, `tools/generate_icon_roster.py` and `icon-roster.json`.
+// ⚠️ The authority column cannot tell them apart: table T-109 gives IC-50 and
+// IC-51 `FR-078` too, so the join above reaches all ten rows.
+// ⭐ Smallest thing that cannot be wrong: name the two by row id -- the only
+// join that table admits.
+// ⛔ BOTH ARE OFFERED ON EVERY FRAME, open or folded. Table T-109 carries them
+// as two rows rather than one control in two states, and neither that table nor
+// FR-053 says to withdraw either one -- so withdrawing the opener while the list
+// is open, or the folder while it is closed, would be a rule invented here.
+const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50', 'IC-51']
+
 /**
  * What an entry says while the dictionary holds no word for its row.
  *
@@ -176,10 +234,19 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
  *
  * ⛔ THE STAND-IN IS NOT THE EMPTY STRING HERE, which is where this member parts
  * company with `CommandItem.label`: table T-109's group column DOES hold a word,
- * and falling back to nothing would hide a group that has a name. So an unwritten
+ * and the empty string would throw away the one word there is. So an unwritten
  * cell falls back to that column as the roster carries it -- what UF-65 printed
  * before the dictionary was wired. ⚠️ For a reader on `en` it is the Japanese
  * cell, which is the hole PD-160 closes and not a translation claimed here.
+ *
+ * ⚠️ WHY A WORD IS STILL RESOLVED FOR A CAPTION NOBODY PRINTS. What used to
+ * stand here said that falling back to nothing would HIDE a group that has a
+ * name; FR-053 (MUST NOT) stopped the palette printing the caption at all on
+ * 2026-08-25, so that reason is gone and the note was the false kind. ⛔ The
+ * word itself is not: FR-053 says in as many words that the group's word stays,
+ * because the help (FR-036) lists the entrances by word, and `PaletteGroup.name`
+ * is the member that carries it. ⚠️ Nothing in `src/` reads it for the help
+ * yet -- `HelpModal.entries` records that gap on its own side.
  *
  * ⛔ THE KEY IS DERIVED, NEVER WRITTEN DOWN. The specification gives a group no
  * id of its own, so the dictionary keys one by the first row of table T-109 that
@@ -250,12 +317,39 @@ function commandItemFor(
 }
 
 /**
+ * One of the eight milestone shapes FR-053 (MUST) keeps off the palette until
+ * the list is open -- IC-27 to IC-34 as table T-109 stands, reached by the
+ * requirement that owns them rather than by their row ids.
+ *
+ * ⚠️ The two rows that WORK the list carry the same requirement and are not
+ * shapes, which is the whole of what `MILESTONE_LIST_CONTROL_ROWS` subtracts.
+ *
+ * @purity pure
+ */
+function isMilestoneGlyphEntry(row: IconRosterRow): boolean {
+  if (!row.authority.includes(MILESTONE_GLYPH_REQUIREMENT)) return false
+  return !MILESTONE_LIST_CONTROL_ROWS.includes(row.rowId)
+}
+
+/**
  * The groups table T-109 places on the palette, in that table's own order.
  *
  * ⭐ A group is opened where its name is first met and appended to afterwards,
  * so the groups come out in the order the table first names them and the
  * entries inside one come out in the order the table prints them -- without
  * this file knowing what either order is.
+ *
+ * ⛔ A GROUP IS OPENED BY A ROW THAT IS FOLDED AWAY, AND THAT IS DELIBERATE. The
+ * key a group's word is held under is the FIRST palette row of table T-109 that
+ * sits in it (`groupName`), and that row is the table's fact -- not the drawing's
+ * -- so opening the group only on rows that survive the fold would move the key
+ * whenever a milestone shape happened to stand first, and the lookup would miss
+ * in one of the two states and not the other.
+ * ⚠️ Which is why a group can now come out empty where it never could before,
+ * and empty groups are dropped at the end: an empty one is a boundary with
+ * nothing on one side of it, and the surface draws a rule per boundary (S-143).
+ * ⭐ Unreachable while the group the shapes sit in also holds IC-23 -- a guard
+ * against a hole this walk opened, not a case the table produces today.
  *
  * ⛔ THE GROUPS ARE GATHERED ON THE TABLE'S OWN CELL AND NAMED ONLY AT THE END.
  * The cell is what says two entries are in one group; the word printed for it is
@@ -272,7 +366,11 @@ function commandItemFor(
  *
  * @purity pure
  */
-function paletteGroups(selection: Selection, language: DisplayLanguage): readonly PaletteGroup[] {
+function paletteGroups(
+  selection: Selection,
+  language: DisplayLanguage,
+  isMilestoneListOpen: boolean,
+): readonly PaletteGroup[] {
   const groups: {
     readonly cell: string
     readonly firstRow: IconId
@@ -289,16 +387,20 @@ function paletteGroups(selection: Selection, language: DisplayLanguage): readonl
     const cell = row.group
     if (cell === null) continue
 
-    const command = commandItemFor(row, selection, language)
     const opened = groups.find((group) => group.cell === cell)
-    if (opened === undefined) groups.push({ cell, firstRow: row.rowId, commands: [command] })
-    else opened.commands.push(command)
+    const group = opened ?? { cell, firstRow: row.rowId, commands: [] }
+    if (opened === undefined) groups.push(group)
+
+    if (isMilestoneGlyphEntry(row) && !isMilestoneListOpen) continue
+    group.commands.push(commandItemFor(row, selection, language))
   }
 
-  return groups.map((group) => ({
-    name: groupName(group.cell, group.firstRow, language),
-    commands: group.commands,
-  }))
+  return groups
+    .filter((group) => group.commands.length > 0)
+    .map((group) => ({
+      name: groupName(group.cell, group.firstRow, language),
+      commands: group.commands,
+    }))
 }
 
 /**
@@ -375,15 +477,19 @@ export function commandPaletteFromScreenState(
   // it is passed through untouched, so nothing about the place is decided here.
   // ⭐ THE BAND IS DESCRIBED WHENEVER THE PALETTE IS. GR-19 puts no condition on
   // it -- it is the palette's top edge, not a state -- so it leaves here on the
-  // same frames the palette does and disappears with it. ⚠️ Its height is the
-  // one thing that is still missing; `GRAB_BAND_HEIGHT` says why and where from.
+  // same frames the palette does and disappears with it. ⚠️ What stood here said
+  // its height was the one thing still missing and named a `GRAB_BAND_HEIGHT`
+  // that this file has never held: S-135a arrives generated at the foot of the
+  // file and is read two lines below.
   return {
     at: session.commandPaletteAt,
     // GR-19 of table T-023d, whose height S-135a states. ⭐ Read where the
     // generated block stands, at the foot of this file, rather than into a
     // module constant above it -- that would read it before it is assigned.
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
-    groups: paletteGroups(selection, session.language),
+    // FR-053 (MUST): the eight milestone shapes stay out until the list is
+    // open. S-142 of table T-206 is the state, and the shell holds it.
+    groups: paletteGroups(selection, session.language, session.isMilestoneListOpen),
     armedText: armedRow(state.armed),
   }
 }
@@ -409,7 +515,10 @@ export function commandPaletteFromScreenState(
 export const NOT_STORED_COMMAND_PALETTE_SIZES: {
   /** S-135a, in px */
   readonly 'S-135a': number
+  /** S-143, in px */
+  readonly 'S-143': readonly [number, number]
 } = {
   'S-135a': 24,
+  'S-143': [1, 6],
 }
 // </generated>

@@ -79,10 +79,22 @@ import type {
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
 // ---------------------------------------------------------------------------
+
+/**
+ * S-73's default hue, read out of table T-216 rather than written here.
+ *
+ * DR-5 of table T-052 keeps the hue on `Project` rather than in the settings,
+ * so no generated constant carries it and a number typed here would be the
+ * only copy in this file.
+ */
+const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
+if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
+const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
 /**
  * Table T-103 -- the settled surface names, spelling and all (rule 03 section
@@ -184,13 +196,19 @@ const sessionOf = (language: DisplayLanguage = 'ja'): ScreenSession => ({
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The four members `ScreenSession` requires that no case here varies:
+  // The seven members `ScreenSession` requires that no case here varies:
   // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
-  // on no icon), `selectedGroupIds` is FR-085's set of rows and
+  // on no icon), `themePreference` is S-72 and `isMilestoneListOpen` S-142
+  // (both the manuscript's default -- ⛔ S-142 is NOT one of the surfaces this
+  // unit opens, FR-053 says so in as many words), `themeHue` is S-73 read from
+  // the manuscript, `selectedGroupIds` is FR-085's set of rows and
   // `selectedResourceUids` FR-099's set of resources (both empty -- none
   // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
   // no operation has chosen one yet).
   iconUnderPointer: null,
+  themePreference: 'light',
+  themeHue: THEME_HUE,
+  isMilestoneListOpen: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

@@ -51,36 +51,6 @@ import type { ScreenRect } from '../../entity/layout-engine/screen-regions/scree
 import type { RowExpander, RowTitle, RowTitlePanel, ScreenSession } from './screen-renderer'
 
 /**
- * The room FR-085 keeps at the panel's edge for the row's controls -- U-47
- * `Row Expander` and U-48 `Row Pin`.
- *
- * ⭐ A constant on purpose. FR-085 forbids the room to change with whether the
- * controls are drawn (MUST NOT): the export draws none of them (EP-4 of table
- * T-076), and HF-6 of table T-051 now draws them only while the pointer is on
- * the row's name -- so a room that followed them would put the cut in a
- * different place in each of those three, and would move it under the reader's
- * own hand.
- *
- * STOP -- ⛔ THE VALUE HAS NOT REACHED `src/`, AND ZERO IS THE ABSENCE OF IT
- * RATHER THAN AN ANSWER. ⚠️ WHAT WAS WRITTEN HERE BEFORE IS NO LONGER TRUE: it
- * said no row of the specification held the size, and S-140 of table T-206 now
- * does -- FR-085 was given a sentence naming it on 2026-08-25, and CR-245
- * records that this very zero is what made the controls collide with the row's
- * name.
- * ⛔ WHAT BLOCKS IT IS THE ROAD AND NOT THE RULING. Rule 03 section 1 requires
- * a value of the specification to arrive GENERATED, and the generated block at
- * the foot of this file carries S-139 alone: `NOT_STORED_TARGETS` in
- * `tools/generate_entity_types.py` is where a row of table T-206 is given the
- * unit that reads it, and S-140 is in no entry of it. That file is not this
- * unit's to change, and typing the number here is the very thing that rule
- * forbids -- so the room stays at nothing until the generator carries it.
- * ⭐ ONE LINE CLOSES IT once `NOT_STORED_ROW_CONTROL_SIZES` holds the row:
- * `NOT_STORED_ROW_CONTROL_SIZES['S-140']` in place of this constant, read the
- * way `controlTopOffsetPx` already reads S-139.
- */
-const CONTROLS_ROOM_PX = 0
-
-/**
  * What one frame is read through, built once before any row is described.
  *
  * ⭐ `boxByGroupId` answers two questions with one map: where a row sits, and
@@ -133,16 +103,32 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
 
 /**
  * The width FR-085 leaves the name: `rowTitlePanelWidth` (S-79) less the indent
- * for the row's depth (`rowTitleIndent`, S-37) less the controls' room.
+ * for the row's depth (`rowTitleIndent`, S-37) less the room the row's controls
+ * keep -- U-47 `Row Expander` and U-48 `Row Pin`, whose amount FR-085 puts at
+ * S-140 of table T-206.
+ *
+ * ⛔ THE ROOM DOES NOT FOLLOW WHETHER THE CONTROLS ARE DRAWN (FR-085, MUST
+ * NOT). The export draws none of them (EP-4 of table T-076) and HF-6 of table
+ * T-051 draws them only while the pointer is on the row's name, so a room that
+ * followed them would cut the name in a different place in each of those three
+ * -- and would move the cut under the reader's own hand.
+ * ⚠️ This subtracted a zero behind a STOP until S-140 reached `src/`, and
+ * CR-245 records that the zero is what made the controls collide with the name.
  *
  * ⚠️ The indent is the depth's own multiple, not one step fewer. S-79's lower
  * bound is `rowTitleIndent` x `maxGroupDepth` -- the deepest row's indent -- so
  * a root row pays one indent rather than none.
  *
+ * ⚠️ Read where the generated block stands, at the foot of this file, rather
+ * than into a module constant above it -- that would read it before it is
+ * assigned.
+ *
  * @purity pure
  */
 function availableLabelWidthPx(depth: number, settings: DocumentSettings): number {
-  const available = settings.rowTitlePanelWidth - depth * settings.rowTitleIndent - CONTROLS_ROOM_PX
+  const roomForControlsPx = NOT_STORED_ROW_CONTROL_SIZES['S-140']
+  const available =
+    settings.rowTitlePanelWidth - depth * settings.rowTitleIndent - roomForControlsPx
   return Math.max(0, available)
 }
 
@@ -223,9 +209,25 @@ function rowDepth(
 
 /**
  * HF-1 of table T-051: a row with something under it carries an opening control
- * AND a closing one. ⚠️ They are not one control in two states -- HF-2 opens ONE
- * level and HF-3 closes ALL of them -- so the two are judged apart and one can
- * be spent while the other is not.
+ * AND a closing one. ⚠️ They are not one control in two states -- HF-2 opens the
+ * row's WHOLE subtree (HR-3 of table T-015) and HF-3 collapses the row ITSELF
+ * (HR-5) -- so the two are judged apart and one can be spent while the other is
+ * not.
+ *
+ * ⛔ `canOpen` STILL ANSWERS THE READING BOTH ROWS HAD BEFORE 2026-08-25, when
+ * HF-2 opened one level: a row all of whose visible children are drawn answers
+ * `false` here even where a GRANDCHILD is folded away, and HF-2 would now open
+ * that grandchild. ⚠️ It is not a dead end -- the drawn child is itself
+ * collapsed, so its own opening control reaches the grandchild -- and it is not
+ * this unit's to settle alone: `RowExpander` in screen-renderer.ts spells
+ * `canOpen` as "there is a level below that is not open" and repeats the old
+ * reading of HF-2 / HF-3 above it, and Chapter 5.3 fixes that contract outside
+ * this folder. ⛔ Both sides must move together, or the seam means two things.
+ *
+ * ⭐ `canClose` needed no change: HF-3 now collapses the row itself, and a row
+ * is showing its children exactly when one of them was drawn this frame -- so
+ * "something below is drawn" is still the answer to "collapsing does
+ * something".
  *
  * ⚠️ A hidden child is not counted as a level the opening control could reach:
  * HR-6 of table T-015 brings a hidden row back through the parent's hidden group

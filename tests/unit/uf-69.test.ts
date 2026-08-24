@@ -91,6 +91,7 @@ import type {
   Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -139,6 +140,16 @@ const BAND_HEIGHT_NO_CASE_MEANS = 7
 // ---------------------------------------------------------------------------
 
 const WAIT_MS = SETTINGS_DEFAULTS[T_040_EZ2.wait] as number
+
+/**
+ * S-73's default hue. ⛔ Read from table T-216 rather than typed, for the same
+ * reason the wait above is read: DR-5 of table T-052 keeps the hue on
+ * `Project` rather than in the settings, so `SETTINGS_DEFAULTS` cannot answer
+ * for it and this is the only machine-readable place it stands.
+ */
+const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
+if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
+const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
 const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
@@ -293,6 +304,12 @@ const EMPTY_SESSION: ScreenSession = {
   // chosen), and `propertiesSubject` is FR-072's remembered subject (`null` --
   // no operation has chosen one yet).
   iconUnderPointer: null,
+  // No case here reads the theme or the milestone glyph list: a tooltip is
+  // words and a place, and neither S-72 nor S-142 reaches either. Both take
+  // the manuscript's default; S-73 is read above.
+  themePreference: 'light',
+  themeHue: THEME_HUE,
+  isMilestoneListOpen: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,
