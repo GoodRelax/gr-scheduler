@@ -1214,6 +1214,20 @@ export interface ScreenSession {
   /** Where the person dragged the palette to (FR-053). See `CommandPalette.at`. */
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   /**
+   * Whether the milestone glyph list is open (S-142 of table T-206).
+   *
+   * ⛔ FR-053 (MUST) keeps the eight milestone shapes out of the palette until
+   * this is on, so that the entrances a person rarely uses do not hide the
+   * schedule underneath (GL-002). IC-50 opens it and IC-51 closes it.
+   *
+   * ⭐ HELD BY THE SHELL, like every other member here: it is the way the
+   * screen is being used and not part of the document, which is why table
+   * T-206 is where the specification records it (LY-5 of table T-060).
+   * ⛔ NOT a 面 -- `Esc` must not close it (FR-053), because nothing is drawn
+   * over anything: the palette's own list simply grows.
+   */
+  readonly isMilestoneListOpen: boolean
+  /**
    * FR-085 (MUST): the rows selected in the `Row Title Panel`, by
    * `TaskGroup.id` (AT-51). FR-042 reads the same set -- the row whose band
    * colour (AT-58) and height (AT-59) the properties panel puts up is the row
