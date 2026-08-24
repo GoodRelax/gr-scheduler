@@ -567,12 +567,22 @@ describe('UF-32 -- FR-041: テーマ追随', () => {
     expect(coloursOf(back)).toContain('#c62828')
   })
 
-  it('keeps 依存線 and イナズマ線 on one fixed colour that themeHue does not move', () => {
-    // FR-041: 「依存線とイナズマ線は同じ固定色とし、文書に保存しないこと
-    // （MUST NOT）」。FR-014 owns the イナズマ線; S-102 の progressLineVisible
-    // is what puts it on the screen.
+  it('keeps 依存線 and イナズマ線 on TWO different fixed colours that themeHue does not move', () => {
+    // FR-041: 「依存線とイナズマ線も追随させないこと（MUST NOT）。両者は別の
+    // 固定色とし、どちらも文書に保存しないこと（MUST NOT）」。
+    // ⚠️ 「同じ固定色」 was the rule until 2026-08-25. FR-041 itself records why
+    // it went: the one sentence also listed both among what DOES follow the
+    // theme, so it contradicted itself. `_assets/tbl-settings.md` の 表 T-236
+    // now gives them a row each -- `S-159` for the 依存線, `S-160` for the
+    // イナズマ線 -- and both carry 「—」 in the 色相追随 column.
+    // FR-014 owns the イナズマ線; S-64 の progressLineVisible puts it on screen.
     const showing = settingsOf({ ...SETTINGS, progressLineVisible: true })
-    const linesOf = (hue: number): { dependency: string; progress: string } => {
+
+    // ⛔ READ AS A SET, NOT BY PAINT ORDER. 表 T-020 ranks the 依存線 (`ZO-4`)
+    // and prints no row at all for the イナズマ線, so which of the two is drawn
+    // first is nothing the specification fixes -- and a case that took
+    // `strokes[0]` for one of them would be asserting an order no row states.
+    const strokesAt = (hue: number): readonly string[] => {
       const svg = drawn(
         scene({
           project: { calendarUid: null, statusDate: '2026-01-15', themeHue: hue, title: null },
@@ -581,16 +591,19 @@ describe('UF-32 -- FR-041: テーマ追随', () => {
       )
       const polylines = paintedOf(svg).filter((e) => e.tag === 'polyline')
       expect(polylines.length, 'both the 依存線 and the イナズマ線 are drawn').toBe(2)
-      const strokes = polylines.map((e) => attribute(e.text, 'stroke') as string)
-      return { dependency: strokes[0] as string, progress: strokes[1] as string }
+      return polylines.map((e) => attribute(e.text, 'stroke') as string)
     }
-    const at214 = linesOf(214)
-    const at30 = linesOf(30)
-    expect(at214.dependency, '同じ固定色').toBe(at214.progress)
-    expect(at30.dependency, '同じ固定色').toBe(at30.progress)
-    expect(at30.dependency, 'themeHue does not move it').toBe(at214.dependency)
-    // 固定色 means it is not the hue's own colour either.
-    expect(at214.dependency).not.toBe(themeBars(drawn(scene(), showing)).plan)
+    const at214 = strokesAt(214)
+    const at30 = strokesAt(30)
+
+    // 「両者は別の固定色とし」-- two colours, so the pair holds two values.
+    expect(new Set(at214).size, '別の固定色').toBe(2)
+    // 「追随させないこと（MUST NOT）」-- moving the hue by 184 degrees moves
+    // neither of them, so the same two values come back.
+    expect([...at30].sort(), 'themeHue moves neither').toEqual([...at214].sort())
+    // 固定色 means neither is the hue's own colour either.
+    const plan = themeBars(drawn(scene(), showing)).plan
+    for (const stroke of at214) expect(stroke, 'not the theme colour').not.toBe(plan)
   })
 
   it('writes no derived colour back into the values it was handed', () => {
@@ -626,10 +639,23 @@ describe('UF-32 -- FR-019: 注記の固定色', () => {
       }),
     )
 
+  /**
+   * ⛔ NOT THE FIRST `rect`. A row band is a `rect` too -- `S-166` of 表 T-236
+   * gives 最上位の行の地の色 -- and it is painted behind the annotation, so the
+   * first `rect` of the picture is the band and not the box. This helper took
+   * it, and every value it returned was the band's missing `stroke`.
+   *
+   * What tells them apart is what each row of the table asks for: the band is a
+   * 地の色 (a fill, `S-166`), while FR-019 gives the HighlightBox a 線色 -- so
+   * the box is the `rect` that carries a `stroke`. The case asserts there is
+   * exactly one, so a second stroked `rect` cannot silently take its place.
+   */
   const boxStroke = (svg: string): string => {
-    const box = paintedOf(svg).find((e) => e.tag === 'rect')
-    expect(box, 'the HighlightBox is drawn').toBeDefined()
-    return attribute((box as Element).text, 'stroke') as string
+    const stroked = paintedOf(svg).filter(
+      (e) => e.tag === 'rect' && attribute(e.text, 'stroke') !== null,
+    )
+    expect(stroked.length, 'exactly one stroked rect -- the HighlightBox').toBe(1)
+    return attribute((stroked[0] as Element).text, 'stroke') as string
   }
 
   it('draws a box with no 線色 in a fixed colour kept away from the hue and the 依存線', () => {
@@ -768,7 +794,24 @@ describe('UF-32 -- 表 T-075: the unit is `pure`', () => {
   it('draws an empty schedule without inventing anything', () => {
     // FR-025 says the same thing of the export: 「行を足して埋めてはならない
     // （MUST NOT）」-- 画面に無いものが出る。
-    const svg = drawn(oneRow([]))
-    expect(paintedOf(svg)).toHaveLength(0)
+    // ⛔ A SCHEDULE WITH NO `TaskGroup` IS THE ONE THAT PAINTS NOTHING. This
+    // case used `oneRow([])`, which declares one row and no `Task`, and read
+    // its emptiness as the whole picture's. That row is not invented: it is in
+    // the values handed in, and drawing it is required -- `S-166` of 表 T-236
+    // gives 最上位の行の地の色 and FR-042 RATIONALE makes the group grid line a
+    // MUST（「`TaskGroup` の境界にはグループ罫線を描くこと」）。
+    expect(paintedOf(drawn(scheduleOf({})))).toHaveLength(0)
+  })
+
+  it('draws no Task element for a row that carries no Task', () => {
+    // The other half of 「行を足して埋めてはならない」: the row is drawn because
+    // it was handed in, but nothing is put ON it. 表 T-076 の EP-5 names what a
+    // row would carry -- 予定バー・実績バー・進捗マーカー・名称ラベル -- and a
+    // row with no `Task` has none of them to carry.
+    const painted = paintedOf(drawn(oneRow([])))
+    expect(painted.length, 'the row itself is drawn').toBeGreaterThan(0)
+    expect(painted.filter((e) => e.tag === 'polygon'), 'no バー').toHaveLength(0)
+    expect(painted.filter((e) => e.tag === 'text'), 'no 名称ラベル').toHaveLength(0)
+    expect(painted.filter((e) => e.tag === 'polyline'), 'no 依存線').toHaveLength(0)
   })
 })

@@ -137,15 +137,17 @@ import {
   type ScreenView,
   type Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   domScreenSurface,
   type ScreenSurfaceWiring,
+  type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that
 // takes the copy from the .md at read time, which is what keeps the two rosters
 // below from falling behind a row.
-import { specTable } from '../contract/spec-table'
+import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -737,6 +739,28 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
   return made
 }
 
+/**
+ * The rendering and hue every case below wires the surface with.
+ *
+ * ⛔ NEITHER VALUE IS TYPED HERE. Rule 03 section 1 keeps a value the manuscript
+ * holds in one place: S-72's default arrives through the generated
+ * `SETTINGS_DEFAULTS`, and S-73's is read out of table T-216 at load time,
+ * because DR-5 of table T-052 keeps the hue on `Project` rather than in the
+ * settings and no generated constant carries it.
+ *
+ * ⭐ THE DEFAULT RENDERING IS THE HONEST NEUTRAL HERE. No case in this file
+ * reads a colour back: `readTheme` is a REQUIRED member of
+ * `ScreenSurfaceWiring` (FR-041 MUST NOT leaves the environment no say), so the
+ * cases need a theme to build the surface at all, not a particular one. A file
+ * that meant dark would say dark.
+ */
+const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
+if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
+const THEME: ScreenTheme = {
+  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  hue: Number(bare(S_73.by['既定'] ?? '')),
+}
+
 function wiringOf(built: Stage): ScreenSurfaceWiring {
   return {
     host: built.host,
@@ -750,6 +774,7 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
       built.reportedHeights.push(heightPx)
       built.reportedBeforeFactoryReturned.push(built.surface === undefined)
     },
+    readTheme: (): ScreenTheme => THEME,
   }
 }
 
@@ -849,7 +874,13 @@ function serialize(element: FakeElement): string {
   return `<${element.tagName.toLowerCase()}${attributes}${style === '' ? '' : ` style="${style}"`}>${inside}</${element.tagName.toLowerCase()}>`
 }
 
-/** The colour the words of this node are drawn in, lower case. FR-029's 「薄く描く」. */
+/**
+ * What this node's `color` was WRITTEN as, lower case.
+ *
+ * ⚠️ Written and not resolved: FR-041 (MUST) has one declaration on the root
+ * carry 表 T-236 for the whole tree, so a part states which colour it takes and
+ * this answers that name. `paintedColour` below resolves it.
+ */
 const colourOf = (element: FakeElement): string =>
   (styleMap(element).get('color') ?? '').trim().toLowerCase()
 
@@ -1519,6 +1550,52 @@ describe('FR-066 -- no dialogue field while the Agent API is off', () => {
   })
 })
 
+/**
+ * 表 T-236 — the colours the screen is painted in, in the rendering `THEME`
+ * wired, read from the manuscript at load time.
+ *
+ * ⛔ NO COLOUR IS TYPED HERE, for the reason rule 03 section 1 gives. The rows
+ * that follow the hue write it as the letter `H`, which the table's own 色相追随
+ * column marks and which S-73 fills in -- so the hue read for `THEME` is
+ * substituted the once, exactly as the manuscript writes it.
+ *
+ * ⚠️ TWO ROWS STATE ANOTHER ROW INSTEAD OF A COLOUR (`S-146` に同じ) and are
+ * left out: they are not a second colour, and resolving them here would be this
+ * file deciding what a cell means. That only ever makes the set SMALLER, which
+ * is the safe direction for a membership check.
+ */
+const T_236_AS_WIRED = new Set(
+  specTable('T-236')
+    .rows.map((row) =>
+      bare(row.by[THEME.preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? ''),
+    )
+    .filter((written) => /^(#|hsl\(|rgba?\()/.test(written))
+    .map((written) => written.replace('H', String(THEME.hue)).replace(/\s+/g, '').toLowerCase()),
+)
+
+/**
+ * The colour a node is painted, resolved through the theme declaration the unit
+ * wrote on its own root.
+ *
+ * ⭐ WHY IT HAS TO BE RESOLVED. FR-041 (MUST) has one declaration carry 表 T-236
+ * for the whole tree, so a part states which colour it takes and not what that
+ * colour is. Reading the part alone would compare a NAME with a colour and fail
+ * whatever the unit painted.
+ *
+ * ⚠️ No fallback is honoured (`var(--x, y)` is left unresolved and will not be
+ * found in the table). FR-041 (MUST NOT) is what forbids one, so a case that
+ * quietly accepted it would sleep through the very defect the requirement names.
+ */
+function paintedColour(built: Stage, element: FakeElement): string {
+  const written = colourOf(element)
+  const named = /^var\((--[a-z0-9-]+)\)$/.exec(written)
+  if (named === null) return written.replace(/\s+/g, '')
+  const property = named[1] as string
+  return (styleMap(built.root()).get(property) ?? `(the root declares no ${property})`)
+    .replace(/\s+/g, '')
+    .toLowerCase()
+}
+
 describe('FR-029 (MUST) -- the shape tells, the word names, and what cannot be used is faint rather than silent', () => {
   const disabledView = viewWith({
     appHeaderItems: {
@@ -1561,15 +1638,28 @@ describe('FR-029 (MUST) -- the shape tells, the word names, and what cannot be u
     expect(shapeIn(entry).textContent).toBe('')
   })
 
-  it('draws it faint, in the faint colour the reader chose', () => {
+  it('draws it faint -- a colour of its own, and one 表 T-236 states for the rendering that was wired', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(disabledView)
 
     // ⚠️ The COLOUR the words are drawn in, not any use of the value: an entry
-    // that can be used may still be bordered in `GrayText`, and a border is not
-    // 「薄く描く」.
-    expect(colourOf(entryFor(built.root(), 'IC-20'))).toBe('graytext')
-    expect(colourOf(entryFor(built.root(), 'IC-21'))).not.toBe('graytext')
+    // that can be used may still be BORDERED in a subdued colour, and a border
+    // is not 「薄く描く」.
+    const cannot = paintedColour(built, entryFor(built.root(), 'IC-20'))
+    const can = paintedColour(built, entryFor(built.root(), 'IC-21'))
+
+    // ⛔ FR-029 (MUST): 「使えないものは薄く描く」. Two entries painted alike are
+    // one of them told apart from nothing.
+    expect(cannot, 'the entry that cannot be used is painted like the one that can').not.toBe(can)
+    // ⛔ FR-041 (MUST): 「画面の色は `_assets/tbl-settings.md` の 表 T-236 に従う
+    // こと」, and (MUST NOT) 「閲覧環境のシステム色に委ねてはならない」. 表 T-236
+    // holds no system colour, so membership IS that MUST NOT: a `GrayText` here
+    // would follow the OPERATING SYSTEM's light or dark and not the
+    // `themePreference` the reader chose.
+    expect(
+      T_236_AS_WIRED.has(cannot),
+      `${cannot} is not a colour 表 T-236 states for the rendering ${THEME.preference}`,
+    ).toBe(true)
   })
 
   it('⛔ says WHY with aria-disabled and never with the disabled attribute', () => {
@@ -2418,8 +2508,8 @@ const FR_029_NOT_BY_SURFACE = '載る面によって変えてはならない（M
  * ⭐ 表 T-109 (docs/spec/_assets/tbl-glossary.md:465, 497, 503-506):
  *   | IC-20 | `App Header`       | ... | `Agent API` を有効にする・無効にする |
  *   | IC-52 | `Help Modal` / ... | ... | 開いている面を閉じる |
- *   | IC-58 | `Row Title Panel`  | ... | 行の配下を 1 段開く |
- *   | IC-59 | `Row Title Panel`  | ... | 行の配下をすべて閉じる |
+ *   | IC-58 | `Row Title Panel`  | ... | 行の配下をすべて開く |
+ *   | IC-59 | `Row Title Panel`  | ... | その行自身を畳む |
  *   | IC-60 | `Row Title Panel`  | ... | 行をピン止めし、同じ入口で外す |
  *   | IC-61 | `Command Palette`  | ... | 依存線を構える |
  * ⛔ Four different 面 on purpose: the header, the floating palette, a surface

@@ -147,19 +147,22 @@
 //     type is ScreenRenderer's ARGUMENT, filled by the shell on the way to UF-60,
 //     and what comes back out of UF-60 is `ScreenView`. So the shell hands this
 //     unit the same two values it already reads for the session.
-//   - THE GROUND (S-146) IS NOT THIS UNIT'S TO PAINT, AND NAMING THE OWNER IS
-//     NOT DECLINING IT. This root is `position:fixed` over the whole viewport
-//     and the schedule is drawn by another surface UNDERNEATH it, so a
-//     background on anything this unit owns would hide the schedule.
+//   - THE GROUND (S-146) IS NOT PAINTED ON THIS UNIT'S OWN ROOT, AND THAT IS
+//     GEOMETRY RATHER THAN A DECLINING. This root is `position:fixed` over the
+//     whole viewport and the schedule is drawn by another surface UNDERNEATH
+//     it, so a background here would hide the schedule.
 //     ⭐ THE GROUND BELONGS ON THE PAGE ELEMENT -- the shell's own
 //     `documentElement` -- which is the one box behind the schedule rather than
 //     over it. This unit paints S-146 on every ground it does own (the header,
 //     the notices, the tooltips, the dialogue field, the surfaces that stop the
 //     reading), writes the property so the value is stated once and inherits
-//     down, and tells the environment the `color-scheme`. ⛔ The page's own
-//     ground is painted by nobody -- measured 2026-08-25: no file in `src/`
-//     writes a background on `documentElement` or on `body` -- and FR-041 makes
-//     painting it a MUST.
+//     down, and tells the environment the `color-scheme`.
+//     ⭐ AND IT RESOLVES THE PAGE'S GROUND FOR THE ONE UNIT THAT MAY WRITE IT:
+//     `pageGroundStyle` below is exported for SingleHtmlShell, so the row and
+//     the rendering are read in ONE place while the element is written by the
+//     party that owns it. ⛔ It was painted by nobody until 2026-08-25 -- no
+//     file in `src/` wrote a background on `documentElement` or on `body` --
+//     and FR-041 makes painting it a MUST.
 //
 // ⭐ THE ENTRIES ARE DRAWN AS SHAPES, AND THE SHAPES ARRIVE THE WAY THE ROSTER
 // DOES. FR-029 (MUST) has this product tell what a menu is for with an icon
@@ -726,8 +729,12 @@ const STYLE = {
   // `data-role`, so `readScreenPartAt` walks straight past it to the palette --
   // it is the box the entries always sat in, one level down.
   paletteContents: 'padding:0.5em;',
+  // ⛔ THE GROUP'S CAPTION HAD A DECLARATION HERE AND NO LONGER DOES. FR-053
+  // (MUST NOT) stopped the caption being printed, and a style kept for a node
+  // nothing makes is a rule that reads as in force. ⚠️ The gap below is what
+  // parts two groups until S-143's line can be drawn -- `paletteElement`'s STOP
+  // says what that waits on.
   paletteGroup: 'margin-bottom:0.5em;',
-  paletteGroupName: `color:${PAINT.quiet};`,
   paletteCommands: 'display:flex;flex-wrap:wrap;gap:0.25em;',
   // ⚠️ S-147 AND NOT S-151. 強調の色 is 「選択と現在位置」 by table T-236's own
   // note, and what is armed is neither -- FR-053 (MUST) asks only that it be
@@ -872,9 +879,9 @@ function hued(written: string, followsHue: boolean, hue: number): string {
  * the dialogue field, the surfaces that stop the reading) take it.
  * ⭐ WHERE THE PAGE'S OWN GROUND BELONGS, since FR-041 (MUST) leaves it nowhere
  * else: on the shell's `documentElement`, which is the one box behind the
- * schedule instead of over it. ⛔ Not this unit's to write -- it never touches an
- * element it was not given (`mount`'s own note says so) -- and it is unpainted
- * today, which the head of this file records as measured.
+ * schedule instead of over it -- and `pageGroundStyle` below is what the shell
+ * writes there. ⛔ Still not this unit's to WRITE: it never touches an element
+ * it was not given (`mount`'s own note says so).
  *
  * @purity pure
  */
@@ -887,6 +894,45 @@ function themeStyle(theme: ScreenTheme): string {
     written += `--gr-${name}:${hued(chosen, row.followsHue, theme.hue)};`
   }
   return written
+}
+
+/**
+ * FR-041 (MUST): 「地の色を自分で塗ること（MUST）。閲覧環境のシステム色に委ねては
+ * ならない（MUST NOT）」 and 「選んだ明暗を `color-scheme` として閲覧環境へ伝える
+ * こと（MUST）」, for the one box that lies BEHIND the schedule.
+ *
+ * ⭐ RESOLVED HERE AND WRITTEN BY THE SHELL, which is the only split that keeps
+ * both rules. The row and the two renderings are table T-236's and reach `src/`
+ * through `SCREEN_COLOURS` alone, so stating them anywhere else would be a
+ * second copy to keep in step (rule 03 section 1); the page element belongs to
+ * SingleHtmlShell, and this unit writes on nothing it was not given. ⛔ So the
+ * value crosses and the element does not.
+ *
+ * ⚠️ `color-scheme` IS WRITTEN AGAIN HERE, and it is not the same declaration
+ * twice over. `themeStyle` tells it to this unit's own subtree so that the
+ * surface stands up wherever it is mounted; the page element is where the
+ * environment paints the window's own scrollbars and its default canvas, and
+ * neither of those is inside this unit's root.
+ *
+ * ⛔ NO ANSWER IS KEPT FOR A MISSING ROW. Every other reader of
+ * `SCREEN_COLOURS` may skip a row it cannot find and leave that one part
+ * unpainted, but the ground has no such second best: FR-041 (MUST NOT) names
+ * the environment's own colour as the thing that may not decide it, and a
+ * `background` left off falls to exactly that. A generated block without S-146
+ * is a build that shipped broken, which `npm run gen:check` is where to catch.
+ *
+ * @purity pure
+ */
+export function pageGroundStyle(theme: ScreenTheme): string {
+  const ground = SCREEN_COLOURS[PAINT_ROW.ground]
+  if (ground === undefined) {
+    throw new Error(`table T-236 has no ${PAINT_ROW.ground}: rebuild with npm run gen`)
+  }
+  const chosen = theme.preference === 'dark' ? ground.dark : ground.light
+  return (
+    `color-scheme:${theme.preference};` +
+    `background:${hued(chosen, ground.followsHue, theme.hue)};`
+  )
 }
 
 /**
@@ -1793,6 +1839,33 @@ function grabBandElement(host: Document, heightPx: number): HTMLElement {
  * selection: table T-023c's SL-1 does not admit the palette, so there would be
  * no state to clear.
  *
+ * ⛔ THE GROUP'S CAPTION IS NOT PRINTED (FR-053, MUST NOT). It used to be, in a
+ * node of its own above each group's entries; the requirement forbids it as of
+ * 2026-08-25 because FR-029 tells a person what an entrance is for with a shape
+ * and a caption is a word -- a word that FR-038 would then have to hold per
+ * language. ⚠️ WHAT STOPS IS THE PRINTING AND NOTHING ELSE: `PaletteGroup.name`
+ * still arrives and is still filled in by UF-65, because table T-109's 群 column
+ * decides the ORDER of the groups and the help (FR-036) lists the entrances by
+ * word. ⛔ So the member is not read here rather than being removed.
+ *
+ * STOP -- ⛔ THE RULE THAT REPLACES THE CAPTION IS NOT DRAWN, AND WHAT BLOCKS IT
+ * IS WHERE THE VALUE LANDED. FR-053 (MUST) has the boundary between groups shown
+ * as a line and sends its thickness and side gaps to S-143 of table T-206.
+ * ⚠️ Measured 2026-08-25: `tools/generate_entity_types.py` routes S-143 into
+ * `NOT_STORED_COMMAND_PALETTE_SIZES`, which it writes into
+ * `src/adapter/screen-renderer/command-palette.ts` -- the unit that DESCRIBES
+ * the palette, whose own note says the rule is drawn by the surface rather than
+ * described there, and which therefore reads the row nowhere. ⛔ That file is not
+ * ScreenRenderer's public entry, so Chapter 5.3 (MUST NOT) forbids this unit to
+ * read it, and `tools/check_layer_rules.py` fails the import as LR-2. ⛔ Typing
+ * `1` and `6` here is what rule 03 section 1 forbids, so the absence is reported
+ * instead of being filled in. ⭐ WHAT CLOSES IT: one row moved in that
+ * generator, to a constant written into this file the way `NOT_STORED_ICON_SIZES`
+ * already is (S-143 is `DRAWN_WITH_WHERE_IT_STANDS`, not `READ_WHERE_IT_STANDS`).
+ * ⚠️ The description needs nothing new -- `palette.groups` already IS the
+ * boundary list, one element per group. Searched: FR-053, S-143 of table T-206,
+ * `NOT_STORED_TARGETS`, `CommandPalette` and `PaletteGroup`.
+ *
  * @purity non-pure
  */
 function paletteElement(
@@ -1809,15 +1882,13 @@ function paletteElement(
   const groups: HTMLElement[] = []
   for (const group of palette.groups) {
     const box = part(host, 'div', ROLE.paletteGroups, STYLE.paletteGroup)
-    const name = made(host, 'div', STYLE.paletteGroupName)
-    name.textContent = group.name
     const commands = part(host, 'div', ROLE.paletteCommands, STYLE.paletteCommands)
     for (const item of group.commands) {
       const entry = commandEntry(host, item)
       anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
       commands.append(entry)
     }
-    box.append(name, commands)
+    box.append(commands)
     groups.push(box)
   }
   // FR-053 (MUST): what is armed has to be readable on the screen.

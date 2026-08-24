@@ -139,10 +139,12 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   domScreenSurface,
   type ScreenSurfaceWiring,
+  type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // the copy from the .md at read time, which is what keeps the rosters below from
@@ -892,6 +894,11 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
     onAppHeaderHeightPx: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
     },
+    // ⭐ `THEME` is the same pair the session below carries, and it is declared
+    // beside it: a question is words and two answers, so no case here reads a
+    // colour back. The member is REQUIRED all the same -- FR-041 (MUST NOT)
+    // leaves the environment no say -- so the bench has to state one.
+    readTheme: (): ScreenTheme => THEME,
   }
 }
 
@@ -1187,6 +1194,18 @@ const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
+/**
+ * The same pair as one value, for `ScreenSurfaceWiring.readTheme`.
+ *
+ * ⛔ S-72's default is read from the generated `SETTINGS_DEFAULTS` rather than
+ * typed, for the reason rule 03 section 1 gives: a value the manuscript holds
+ * goes stale the moment it is copied.
+ */
+const THEME: ScreenTheme = {
+  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  hue: THEME_HUE,
+}
+
 const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
   language: LANGUAGE,
   autosave: { kind: 'saved', at: '2026-08-22T03:04:05Z' },
@@ -1198,8 +1217,8 @@ const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
   // No case here reads the theme or the milestone glyph list: a question is
   // words and two answers, and neither S-72 nor S-142 reaches it. Both take
   // the manuscript's default; S-73 is read above.
-  themePreference: 'light',
-  themeHue: THEME_HUE,
+  themePreference: THEME.preference,
+  themeHue: THEME.hue,
   isMilestoneListOpen: false,
   selectedGroupIds: [],
   selectedResourceUids: [],

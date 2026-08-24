@@ -24,12 +24,26 @@
 // measured before the thing that has them exists, so:
 //
 //   1. the scrollbar probe is measured (it needs no part of this tool),
-//   2. DomScreenSurface (PI-38) is built, which mounts the header and hands its
+//   2. BT-4 is read and the page's ground is painted (see the next paragraph),
+//   3. DomScreenSurface (PI-38) is built, which mounts the header and hands its
 //      measured height back BEFORE its factory returns,
-//   3. only then is BO-1's `ScreenRegions` asked for.
+//   4. only then is BO-1's `ScreenRegions` asked for.
 //
-// ⛔ Nothing is SHOWN by step 2: PI-38 keeps its root out of sight until the
+// ⛔ Nothing is SHOWN by step 3: PI-38 keeps its root out of sight until the
 // first `showScreenView`, which is BO-1's 「寸法が確定するまで 1 枚も描かない」.
+//
+// ⭐ WHY STEP 2 IS A STEP AT ALL. FR-041 (MUST) has this product paint the
+// page's own ground and (MUST NOT) forbids leaving it to the viewing
+// environment, whose colours follow the OPERATING SYSTEM and not the reader's
+// `themePreference` (S-72) -- and the page element is this unit's, because both
+// drawn layers stand `position:fixed` over it. So the ground is painted from
+// the earliest moment the two values can be read, which is as soon as BT-4's
+// bundled template is a `Document`, and again the moment BO-2 has chosen one.
+// ⛔ THE VALUE IS NOT THIS FILE'S: `pageGroundStyle` (DomScreenSurface) resolves
+// S-146 of table T-236 out of the one generated block that table reaches, so
+// nothing of the colour is typed here.
+// ⚠️ BT-4 BEING READ AT STEP 2 IS NOT BO-2 RUNNING EARLY -- BO-2 is the
+// choosing, and it still stands where table T-077 puts it.
 //
 // ⭐ FT-1 OF TABLE T-078 IS WIRED HERE, in two statements and no more.
 // DomInputSource (PI-27) watches the window and hands each happening over; the
@@ -78,9 +92,22 @@ import type { Document } from '../../entity/document-model/document/document'
 // that table T-064 has no row for.
 import { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 import { documentFromJson } from '../../adapter/document-codec/document-codec'
-import type { DisplayLanguage } from '../../adapter/screen-renderer/screen-renderer'
+import type {
+  DisplayLanguage,
+  ScreenSurface,
+} from '../../adapter/screen-renderer/screen-renderer'
 import { domInputSource } from '../dom-input-source/dom-input-source'
-import { domScreenSurface } from '../dom-screen-surface/dom-screen-surface'
+// ⭐ TWO NAMES FROM ONE COMPONENT, AND THE SECOND IS THE COLOUR AND NOT THE
+// ELEMENT. FR-041 (MUST) has this product paint the page's own ground, table
+// T-236 holds it, and `SCREEN_COLOURS` is the one place that table reaches
+// `src/` -- so the row is RESOLVED by the unit that holds it and WRITTEN by this
+// one, which is the only unit that may touch the page element. ⛔ Neither half
+// is copied to the other side (rule 03 section 1).
+import {
+  domScreenSurface,
+  pageGroundStyle,
+  type ScreenTheme,
+} from '../dom-screen-surface/dom-screen-surface'
 import { domSvgSurface } from '../dom-svg-surface/dom-svg-surface'
 import {
   fileSystemAccessFileStore,
@@ -505,6 +532,86 @@ function boot(): void {
   const nowEnvironment = (): FrameEnvironment =>
     environmentOf(appHeaderHeightPx, scrollbarThickness)
 
+  // ⭐ BT-4 IS READ HERE, ABOVE BO-2, AND THAT IS NOT BO-2 HAPPENING EARLY.
+  // Table T-077's BO-2 is the CHOOSING, and that still stands below; this only
+  // turns the bundled `GRS JSON` into a `Document`, which needs no part of the
+  // screen. ⛔ IT HAS TO BE READABLE BY NOW because `readTheme` is asked for
+  // WHILE the surface is being built -- the header is made and measured inside
+  // that factory -- and until 2026-08-25 the answer named `chosen`, which is
+  // not initialised until BO-2. ⚠️ Measured, not reasoned about: the page threw
+  // `ReferenceError: Cannot access 'chosen' before initialization` at the first
+  // statement of `boot`, so NOTHING of this tool started at all.
+  // ⛔ A typed pair is what rule 03 section 1 forbids; the template carries
+  // S-72's and S-73's defaults because its own generator wrote them there.
+  const template = startupTemplateDocument()
+
+  /**
+   * The document FR-041's two values are read off while there is no loop to
+   * ask -- BT-4 until BO-2 has chosen, and BO-2's answer after that.
+   *
+   * ⛔ NOT A SECOND HOLDER OF THE CURRENT DOCUMENT, which this file refuses
+   * elsewhere for IF-3 and for the same reason. It is read ONLY while `loop`
+   * is null: the moment the loop exists it is the one answer, because LY-5 of
+   * table T-060 leaves the current value with it.
+   */
+  let themeDocument: Document = template
+
+  /**
+   * FR-041 (MUST): S-72 and S-73 as they stand at the moment of asking.
+   *
+   * ⛔ THE READER'S CHOICE, NOT THE ENVIRONMENT'S. S-72 is what the person
+   * picked and S-73 is the hue the document carries; the environment's own
+   * system colours follow the OPERATING SYSTEM, which is exactly why picking
+   * dark used to leave the screen light.
+   * ⚠️ Read at each call rather than captured: both move while the page is
+   * open (IC-16 switches S-72 with the document open), and a captured pair
+   * would paint the theme the document was opened with for ever.
+   *
+   * @purity semi-pure-b
+   */
+  function heldTheme(): ScreenTheme {
+    const held = loop === null ? themeDocument : loop.document()
+    return {
+      preference: held.documentSettings.themePreference,
+      hue: held.schedule.project.themeHue,
+    }
+  }
+
+  /** What the page element already carries, so an unchanged frame writes nothing. */
+  let pageGroundWritten = ''
+
+  /**
+   * FR-041 (MUST): 「地の色を自分で塗ること」, on the one box that lies behind the
+   * schedule instead of over it.
+   *
+   * ⭐ THE PAGE ELEMENT IS THIS UNIT'S AND THE COLOUR IS NOT. Both drawn layers
+   * are `position:fixed` at the window's origin (`AT_WINDOW_ORIGIN`), so a
+   * background on either would hide what is under it -- DomScreenSurface says
+   * the same from its side and hands the resolved declaration over instead.
+   * ⚠️ `color-scheme` rides along because FR-041 (MUST) says painting alone is
+   * not enough: the window's own scrollbars and the environment's default
+   * canvas are the page element's, not the surface's.
+   *
+   * ⚠️ WRITTEN ONLY WHEN IT CHANGED, the same bargain `onAppHeaderHeightPx`
+   * keeps in the other direction: this runs at the head of every frame, and
+   * NFR-010's care about the per-frame path is as good a reason here as R5's.
+   *
+   * @purity non-pure
+   */
+  function paintPageGround(): void {
+    const written = pageGroundStyle(heldTheme())
+    if (written === pageGroundWritten) return
+    pageGroundWritten = written
+    document.documentElement.setAttribute('style', written)
+  }
+
+  // ⭐ THE FIRST PAINT IS HERE, BEFORE ANYTHING IS BUILT. FR-041 (MUST) forbids
+  // the environment's colour to stand in, and every moment before this one is a
+  // moment it does -- BO-1 deliberately holds the first frame back until the
+  // size settles (NFR-011), so a ground painted only from the first frame is a
+  // page that opens in the OS's colour and changes under the reader.
+  paintPageGround()
+
   const screenSurface = domScreenSurface({
     host: document,
     mount: screenParts,
@@ -516,27 +623,12 @@ function boot(): void {
     // FR-041 (MUST): the theme has to reach the side that paints, and this is
     // the one road -- `ScreenView` carries no theme member, so the session
     // cannot bring it across IF-9.
-    //
-    // ⛔ THE READER'S CHOICE, NOT THE ENVIRONMENT'S. S-72 is what the person
-    // picked and S-73 is the hue the document carries; the environment's own
-    // system colours follow the OPERATING SYSTEM, which is exactly why picking
-    // dark used to leave the screen light.
-    // ⚠️ Read at each call rather than captured: both move while the page is
-    // open, and a captured pair would paint yesterday's theme for ever.
-    // ⚠️ `loop` is null only until it is built, and BO-1 draws no frame before
-    // the size settles, so no paint can reach this before there is a loop. The
-    // manuscript's own defaults answer that window rather than a typed pair.
-    readTheme: () => {
-      // ⚠️ `loop` is null only between this call being declared and the loop
-      // being built, and BO-1 draws no frame before the size settles, so a
-      // paint cannot arrive in that window. The document chosen at startup
-      // answers it anyway, so no value is typed here.
-      const held = loop === null ? chosen.document : loop.document()
-      return {
-        preference: held.documentSettings.themePreference,
-        hue: held.schedule.project.themeHue,
-      }
-    },
+    // ⛔ ASKED WHILE THIS FACTORY RUNS, which is why `heldTheme` may not depend
+    // on anything BO-2 settles: the surface builds and measures the header
+    // inside the call below and paints it in the rendering it is told. ⚠️ An
+    // earlier note here claimed the opposite -- 「no paint can reach this before
+    // there is a loop」 -- and the page threw on that claim.
+    readTheme: heldTheme,
     /** @purity non-pure */
     onAppHeaderHeightPx: (heightPx) => {
       appHeaderHeightPx = heightPx
@@ -572,11 +664,12 @@ function boot(): void {
   // ⛔ Saying `none` for those two is what is true of this build, and FR-067
   // already says a rank that yields nothing descends rather than starting empty.
   //
-  // ⚠️ THE TEMPLATE IS BUILT ONCE AND HELD, because two things read it: BT-4 is
-  // one, and AM-2's `schemaVersion` below is the other -- the greatest document
+  // ⚠️ THE TEMPLATE IS BUILT ONCE AND HELD, because three things read it: BT-4
+  // is one, AM-2's `schemaVersion` below is another -- the greatest document
   // format version this build knows is the one its own generator wrote into the
-  // bundled template, and rule 03 forbids typing a generated value again.
-  const template = startupTemplateDocument()
+  // bundled template, and rule 03 forbids typing a generated value again -- and
+  // FR-041's theme is the third, which is why it is read above BO-1 rather than
+  // here.
   const embedded = embeddedStartupDocument()
   const chosen = chooseStartupDocument({
     embedded: embedded.candidate,
@@ -584,6 +677,11 @@ function boot(): void {
     autosave: { kind: 'none' },
     template,
   })
+  // FR-041 (MUST): BO-2 may have chosen a document that carries a different
+  // S-72 or S-73 from BT-4's, so the ground is settled again the moment there
+  // is an answer -- and before the first frame, which BO-5 has not reached.
+  themeDocument = chosen.document
+  paintPageGround()
 
   // ⭐ FR-088's GATE IS ON THIS ROAD NOW, and both halves of 「受け付けずに通知
   // すること（MUST）」 are kept for the one rank that has a producer. The note
@@ -624,11 +722,28 @@ function boot(): void {
   // holds, and LY-5 of table T-060 leaves that value with the loop -- so the
   // store goes to the party that has the document rather than the boot file
   // keeping it and asking for the document back.
+  //
+  // ⭐ FR-041 (MUST) RIDES ON THE DRAWING AND NOT ON A TRIGGER OF ITS OWN, which
+  // is the only place it can: the loop is what runs a frame when IC-16 switches
+  // S-72, and table T-078 names no trigger for a theme. ⛔ So the surface is
+  // handed over WRAPPED rather than a second listener being added -- one more
+  // watcher would be one more party deciding when a frame happened, which is
+  // exactly what NFR-010 keeps to the loop. ⚠️ The ground is painted BEFORE the
+  // frame it belongs to, so no frame is ever drawn over the previous theme's
+  // ground, and `paintPageGround` writes nothing when the pair did not move.
+  const painting: ScreenSurface = {
+    ...screenSurface,
+    /** @purity non-pure */
+    showScreenView: (view) => {
+      paintPageGround()
+      screenSurface.showScreenView(view)
+    },
+  }
   const running = frameLoop(
     domSvgSurface(scheduleCanvas),
     chosen.document,
     nowEnvironment(),
-    { surface: screenSurface, language: displayLanguage() },
+    { surface: painting, language: displayLanguage() },
     fileStore,
   )
   loop = running

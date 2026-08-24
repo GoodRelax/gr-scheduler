@@ -85,12 +85,16 @@
 // `T_103_PARTS` are those copies, and each is checked against the .md at read
 // time so it cannot fall behind a row.
 //
-// ⭐ THE CASE THAT WAS LEFT FAILING (表 T-051 HF-6, the controls drawn faint) IS
-// NOW GREEN -- the finding it reported was fixed rather than the expectation
-// bent. The two blocks after it were added by the same reading: HF-6's SECOND
-// half (「あいだだけ濃く」) and HF-4 (the right edge, whatever the name and
-// whatever the depth). ⛔ They were written by someone who did not write the
-// unit and did not read its body, exactly as the first pass was.
+// ⚠️ 表 T-051 HF-6 WAS REWRITTEN ON 2026-08-25 AND THIS FILE FOLLOWED IT. The
+// row used to ask for the controls to be drawn 薄く and darkened while the
+// pointer was on them; it now asks for them to be DRAWN AT ALL only while the
+// pointer is on the row's name, and for the room they take up not to move while
+// they are not. ⛔ The blocks that mirrored the old sentence were rewritten to
+// the new one rather than deleted, and they hold the same three controls to the
+// same two halves. Where they sit is marked at both ends of the file.
+// ⭐ HF-4 (the right edge, whatever the name and whatever the depth) is
+// untouched by that ruling. ⛔ Every block here was written by someone who did
+// not write the unit and did not read its body.
 //
 // ⚠️ THREE THINGS ARE DELIBERATELY NOT ASSERTED, because no requirement decides
 // them:
@@ -126,15 +130,17 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   domScreenSurface,
   type ScreenSurfaceWiring,
+  type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // the copy from the .md at read time, which is what keeps the rosters below from
 // falling behind a row.
-import { specTable } from '../contract/spec-table'
+import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -257,18 +263,25 @@ function partName(row: string): string {
  * The two entries of 表 T-109 that the `Row Expander` (U-47) is made of, each
  * with the row of 表 T-051 that is its 正.
  *
- * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:499-500:
- *   | IC-58 | `Row Title Panel` | — | 行の配下を 1 段開く       | 表 T-051 の `HF-2` |
- *   | IC-59 | `Row Title Panel` | — | 行の配下をすべて閉じる     | 表 T-051 の `HF-3` |
+ * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:503-504:
+ *   | IC-58 | `Row Title Panel` | — | 行の配下をすべて開く | 表 T-051 の `HF-2` |
+ *   | IC-59 | `Row Title Panel` | — | その行自身を畳む    | 表 T-051 の `HF-3` |
  * ⛔ The pair is TWO rows of the roster and not one row in two states, which is
  * exactly what U-47 says out loud: 「開く側と閉じる側の 2 つで 1 組」.
+ *
+ * ⚠️ WHAT THE TWO MEAN WAS SWAPPED ON 2026-08-25 (利用者の裁定, recorded in
+ * HF-2's own cell). The opening side used to open ONE level and the closing side
+ * used to close the WHOLE subtree, which left 「閉じる操作子が畳むものと対に
+ * ならず、畳んだものを開く組み合わせが存在しなかった」. ⛔ It is the MEANING
+ * that moved and not the roster: there are still two rows, and this unit still
+ * owes them nothing but telling a press on one from a press on the other.
  */
 const T_109_ROW_EXPANDER = [
-  { row: 'IC-58', rule: 'HF-2', gist: '行の配下を 1 段開く', side: 'opening' },
+  { row: 'IC-58', rule: 'HF-2', gist: '行の配下をすべて開く', side: 'opening' },
   {
     row: 'IC-59',
     rule: 'HF-3',
-    gist: '行の配下をすべて閉じる',
+    gist: 'その行自身を畳む',
     side: 'closing',
   },
 ] as const
@@ -284,8 +297,8 @@ const T_109_ROW_EXPANDER = [
  */
 const T_051_EXPANDER = [
   { row: 'HF-1', gist: '開く操作子と閉じる操作子を 1 つずつ' },
-  { row: 'HF-2', gist: 'その行の配下を 1 段だけ開く（MUST）' },
-  { row: 'HF-3', gist: 'その行の配下をすべて閉じる' },
+  { row: 'HF-2', gist: '開く操作子は、その行の配下をすべて開くこと（MUST）' },
+  { row: 'HF-3', gist: '閉じる操作子は、その行自身を畳むこと（MUST）' },
 ] as const
 
 /** 表 T-103's U-47 — one part, two controls. */
@@ -876,6 +889,27 @@ function stage(layout: Map<string, ScreenRect>): Stage {
   }
 }
 
+/**
+ * The rendering and hue every case below wires the surface with.
+ *
+ * ⛔ NEITHER VALUE IS TYPED HERE. S-72's default arrives through the generated
+ * `SETTINGS_DEFAULTS`, and S-73's is read out of table T-216 at load time --
+ * DR-5 of table T-052 keeps the hue on `Project` rather than in the settings, so
+ * no generated constant carries it. Rule 03 section 1 forbids re-typing either.
+ *
+ * ⭐ WHY THE BENCH HAS TO STATE ONE. `readTheme` is a REQUIRED member of
+ * `ScreenSurfaceWiring` because FR-041 (MUST NOT) leaves the viewing environment
+ * no say over the rendering. ⚠️ No case in this file reads a colour back -- the
+ * cases here are about which parts are drawn and where -- so the manuscript's
+ * default is the honest neutral; a case that meant dark would say dark.
+ */
+const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
+if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
+const THEME: ScreenTheme = {
+  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  hue: Number(bare(S_73.by['既定'] ?? '')),
+}
+
 function wiringOf(built: Stage): ScreenSurfaceWiring {
   return {
     host: built.host,
@@ -885,6 +919,7 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
     onAppHeaderHeightPx: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
     },
+    readTheme: (): ScreenTheme => THEME,
   }
 }
 
@@ -1949,10 +1984,10 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
   //   「画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上かを答える」
   //   「点がどの入口の上かは、その入口を描いた側が答えること（MUST）」
   //
-  // 表 T-109, docs/spec/_assets/tbl-glossary.md:497-499, holds three entries on
+  // 表 T-109, docs/spec/_assets/tbl-glossary.md:503-505, holds three entries on
   // the `Row Title Panel`:
-  //   IC-58  行の配下を 1 段開く            表 T-051 の HF-2
-  //   IC-59  行の配下をすべて閉じる          表 T-051 の HF-3
+  //   IC-58  行の配下をすべて開く            表 T-051 の HF-2
+  //   IC-59  その行自身を畳む               表 T-051 の HF-3
   //   IC-60  行をピン止めし、同じ入口で外す   FR-098
   //
   // ⭐ IC-58 / IC-59 ARE ANSWERED TOO, and the block below asks for both. The
@@ -1987,8 +2022,8 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
 // U-47 `Row Expander` -- the pair of entries 表 T-109 gives the panel.
 //
 // ⭐ WHAT IS BEING PINNED HERE, AND WHAT IS NOT. 表 T-051 says what the two
-// controls DO (`HF-2` opens one level, `HF-3` closes all of them); carrying that
-// out is the use case's. What IF-9 owes, and all these cases ask for, is that a
+// controls DO (`HF-2` opens the row's whole subtree, `HF-3` collapses the row
+// itself -- 表 T-015's `HR-3` and `HR-5`); carrying that out is the use case's. What IF-9 owes, and all these cases ask for, is that a
 // press on one can be told from a press on the other -- 「点がどの入口の上かは、
 // その入口を描いた側が答えること（MUST）」 (docs/spec/05-07-design.md:390). ⛔ A
 // unit that drew one control, or that drew two and named neither, would leave
@@ -2109,8 +2144,8 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         part: 'Row Title Panel',
         entry: row,
         format: null,
-        // ⛔ HF-2 opens THE ROW'S subtree and HF-3 closes THE ROW'S, so the
-        // entry alone -- which of the two controls -- cannot become either
+        // ⛔ HF-2 opens THE ROW'S subtree and HF-3 collapses THE ROW itself, so
+        // the entry alone -- which of the two controls -- cannot become either
         // command. `withExpander` draws one row and this is its `TaskGroup.id`.
         rowGroupId: 'g-1',
         resourceUid: null,
@@ -2124,9 +2159,9 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
     const opening = ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)
     const closing = ask(built, AT.rowExpanderClose.x, AT.rowExpanderClose.y)
 
-    // ⛔ If one control answered for both, HF-2 (1 段だけ開く) and HF-3 (すべて
-    // 閉じる) would have to be told apart by something other than the press --
-    // and 表 T-109 gives them two rows precisely so they need not be.
+    // ⛔ If one control answered for both, HF-2 (その行の配下をすべて開く) and
+    // HF-3 (その行自身を畳む) would have to be told apart by something other than
+    // the press -- and 表 T-109 gives them two rows precisely so they need not be.
     expect(opening?.entry).not.toBe(closing?.entry)
     expect([opening?.entry, closing?.entry]).toEqual(['IC-58', 'IC-59'])
   })
@@ -2171,7 +2206,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
     }
   })
 
-  it('GIVEN the pair is drawn WHEN canOpen and canClose differ THEN each side records its own half (HF-6 / FR-029 need the spent one tellable)', () => {
+  it('GIVEN the pair is drawn WHEN canOpen and canClose differ THEN each side records its own half (FR-029 needs the spent one tellable)', () => {
     // ⚠️ The attribute NAMES below are the seam's published DOM contract, not
     // the specification's -- docs/spec fixes no attribute. What IS spec-driven
     // is that `RowExpander.canOpen` (HF-2) and `.canClose` (HF-3) must ARRIVE
@@ -2633,69 +2668,30 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
 })
 
 // ===========================================================================
-// ⭐ THE CASE BELOW WAS LEFT FAILING ON PURPOSE AND IS NOW GREEN. It was found
-// while reading these three controls' declarations for the block above -- the
-// same nodes, the same inline style, a different rule -- and the unit was
-// changed to satisfy it. ⛔ The expectation is untouched: what moved was the
-// paint on the controls, which now carry the faint colour this file already
-// named. The second half of HF-6 has its own block further down.
+// ⚠️ THE BLOCK THAT STOOD HERE PINNED A RULE THAT HAS BEEN WITHDRAWN.
 //
-// 表 T-051 HF-6 (docs/spec/01-04-requirements.md:1312):
-//   「操作子は薄く描き、ポインタが乗っているあいだだけ濃くすること
-//     —— 常に濃いと、日程より操作子が目立つ」
-// FR-098 (docs/spec/01-04-requirements.md:2594) binds the `Row Pin` to the same
-// rule rather than restating it:
+// Until 2026-08-25, 表 T-051 HF-6 read 「操作子は薄く描き、ポインタが乗っている
+// あいだだけ濃くすること」, and two blocks of this file held the unit to the two
+// halves of that sentence: one read the controls' paint, the other read the
+// sheet for a rule that darkened them. The row now reads 「操作子は、その行の
+// 名前にポインタが乗っているあいだだけ描くこと（MUST）」 and records the change
+// in its own cell (利用者の裁定, 2026-08-25).
+//
+// ⛔ SO 薄く AND 濃く ARE NOT RULES ANY MORE, and cases asserting them were
+// mirroring a sentence the specification no longer holds. They are not weakened
+// into something that would pass either wording: the block at the END of this
+// file asks the same two questions of HF-6 as it NOW stands -- whether the
+// controls are kept from being drawn while nothing points at them, and whether
+// a pointer draws them -- and asks them of the same three controls.
+//
+// FR-098 (docs/spec/01-04-requirements.md:2610) binds the `Row Pin` to that row
+// rather than restating it, which is why all three answer to it:
 //   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折り畳みの
 //     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
-//
-// ⚠️ The expectation is NOT bent to match the code
-// (docs/development-rules/04-verification.md §1).
 // ===========================================================================
 
-/** 表 T-051 HF-6, copied from docs/spec/01-04-requirements.md:1312. */
-const T_051_HF6_DRAW_FAINT = '操作子は薄く描き、ポインタが乗っているあいだだけ濃くすること'
-
-/** FR-098's referral of 濃さ to HF-6, copied from docs/spec/01-04-requirements.md:2594. */
+/** FR-098's referral of 置き方 to HF-4 .. HF-6, copied from docs/spec/01-04-requirements.md:2610. */
 const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
-
-/**
- * Whether this node is painted faint.
- *
- * ⭐ The unit's own vocabulary for 「薄く」 is the environment's `GrayText`, which
- * is what its head comment names and what `uf-71.test.ts` already pins for a
- * disabled header entry. An `opacity` below 1 would do as well; either is 薄く,
- * and `CanvasText` with no opacity is the full-strength foreground, which is 濃い.
- */
-function isDrawnFaint(element: FakeElement): boolean {
-  const declared = styleMap(element)
-  const colour = (declared.get('color') ?? '').trim().toLowerCase()
-  const opacity = Number.parseFloat(declared.get('opacity') ?? '1')
-  return colour === 'graytext' || (Number.isFinite(opacity) && opacity < 1)
-}
-
-describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn faint', () => {
-  it('⛔ GIVEN IC-58 / IC-59 / IC-60 are drawn WHEN their paint is read THEN each is faint, not the full-strength foreground (表 T-051 HF-6, referred to by FR-098)', () => {
-    const requirements = specText('01-04-requirements.md')
-    expect(requirements).toContain(T_051_HF6_DRAW_FAINT)
-    expect(requirements).toContain(FR_098_SAME_AS_THE_EXPANDER)
-
-    const built = drawn(oneLiveRow())
-    const notFaint = T_109_ON_THE_ROW.map((one) => ({
-      row: one.row,
-      paint: styleMap(entryFor(built.root(), one.row)).get('color') ?? '(none declared)',
-    })).filter((one) => !isDrawnFaint(entryFor(built.root(), one.row)))
-
-    // ⚠️ HF-6 has two halves and this checks the FIRST one only. The second --
-    // 「ポインタが乗っているあいだだけ濃くする」 -- has its own block at the end
-    // of this file, which could only be written once this one landed: a control
-    // that is never faint has nothing to darken FROM, and the two would have
-    // failed as one finding.
-    expect(
-      notFaint,
-      'HF-6 「常に濃いと、日程より操作子が目立つ」 -- these are painted at full strength',
-    ).toEqual([])
-  })
-})
 
 // ===========================================================================
 // 表 T-051 HF-4 -- THE CONTROLS HOLD THE RIGHT EDGE, WHATEVER THE NAME IS AND
@@ -3094,37 +3090,40 @@ describe('表 T-051 HF-4 / FR-085 -- the row depth moves the name, never the rig
 })
 
 // ===========================================================================
-// 表 T-051 HF-6, THE SECOND HALF -- 「ポインタが乗っているあいだだけ濃くする
-// こと」. The block above pins the first half (the controls are drawn faint);
-// this one pins the other, which that block had to leave alone because a control
-// that is never faint has nothing to darken FROM.
+// 表 T-051 HF-6 -- 「その行の名前にポインタが乗っているあいだだけ描くこと」, AND
+// THE ROOM THAT MAY NOT MOVE WHILE THEY ARE NOT DRAWN.
 //
-// 表 T-051 HF-6 (docs/spec/01-04-requirements.md:1312):
-//   「操作子は薄く描き、ポインタが乗っているあいだだけ濃くすること
-//     —— 常に濃いと、日程より操作子が目立つ」
-// FR-098 (:2594) refers the 濃さ of the `Row Pin` to the same row.
+// 表 T-051 HF-6 (docs/spec/01-04-requirements.md:1312, MUST):
+//   「操作子は、その行の名前にポインタが乗っているあいだだけ描くこと（MUST）」
+//     —— 常に描くと、日程より操作子が目立ち、行の名前ともぶつかる
+//   「描かないあいだも、確保する場所を変えてはならない（MUST NOT）」
+//     —— 規則と理由は `FR-085` が持つ
+// FR-098 (:2610) refers the 置き方 of the `Row Pin` to the same row.
 //
 // ⚠️ WHAT THE HARNESS CAN AND CANNOT SEE. There is no pointer here and no style
 // resolution: the fake records the declarations a node was given and nothing
 // else, so 「乗っているあいだ」 cannot be entered and then measured. ⛔ A case
-// that dispatched a made-up `pointerover` and then read a colour would be
+// that dispatched a made-up `pointerover` and then read the tree would be
 // checking a listener this file invented, not the rule.
 // ⭐ WHAT IS CHECKED INSTEAD is the sheet the unit put on the page: whether a
-// rule keyed on the pointer resting on the control exists, whether it reaches
-// THAT control, and whether it can win. The last is the part that decides
-// whether the rule does anything at all -- the faint half is an inline
-// declaration, and an inline declaration beats a sheet unless the sheet's is
-// `!important`. A rule without it would look right in the file and paint
-// nothing in the browser.
-// ⚠️ 「あいだ・だけ」 is the other half, and it is read the same way: no rule of
-// the unit's own sheet may paint these controls at full strength with NO pointer
-// condition on it, because that would undo the 薄く the block above pins.
+// rule with NO pointer condition keeps the control from being drawn, whether a
+// rule keyed on a pointer draws it, and -- the part that decides whether either
+// does anything -- whether the property they use is one that KEEPS the control's
+// room. `display:none` takes the box out of the layout, which is precisely the
+// MUST NOT of this row; `visibility` and `opacity` do not.
 //
-// ⛔ NOT ASSERTED, because no requirement decides it: WHICH mechanism carries
-// 「乗っているあいだ」. FR-048's MUST NOT (:2705) names HF-6 as one of the four
-// things it does NOT cover, so a listener would be admissible too; the cases
-// below read whichever of the two the unit chose to declare, and only a unit
-// that declared NEITHER fails them.
+// ⛔ TWO THINGS ARE NOT ASSERTED, AND NEITHER IS AN OVERSIGHT:
+//   1. WHICH mechanism carries 「乗っているあいだ」. FR-048's MUST NOT (:2721)
+//      names HF-6 as one of the things it does NOT cover, so a listener would be
+//      admissible too; the cases below read whichever the unit declared, and
+//      only a unit that declared NEITHER fails them.
+//   2. THAT THE POINTER CONDITION NAMES THE ROW'S **NAME** rather than the whole
+//      row. HF-6 says 「その行の名前に」 -- but the name has no settled name to
+//      key a selector on: 表 T-103 has no row for the cell a row's name sits in,
+//      which is why `nameCellOf` above finds it BY POSITION. ⚠️ So a case
+//      demanding a selector for it would be demanding a `data-role` the
+//      specification never minted, and this file cannot tell a rule keyed on the
+//      name from one keyed on the row. **The gap belongs to 表 T-103.**
 // ===========================================================================
 
 /** One declaration of a rule in the unit's own sheet. */
@@ -3176,8 +3175,15 @@ const sheetRulesOf = (root: FakeElement): SheetRule[] =>
     .flatMap((one) => parseCss(one.textContent))
 
 /**
- * What a rule set would paint on this node WHILE the pointer rests on it, or
- * `null` where nothing would. The last matching rule wins, as in a browser.
+ * What a rule set would declare on this node WHILE the pointer rests somewhere
+ * the selector names, or `null` where nothing would. The last matching rule
+ * wins, as in a browser.
+ *
+ * ⭐ THE `:hover` MAY SIT ON ANY PART OF THE SELECTOR, NOT ONLY THE LAST. HF-6
+ * keys the drawing on the pointer being on the row's NAME, and the control is
+ * not the name -- so a rule for these controls has its condition on an ANCESTOR
+ * and its subject at the end. The condition is stripped wherever it stands and
+ * the rest is matched as a plain descendant selector.
  */
 function hoverDeclaration(
   rules: readonly SheetRule[],
@@ -3186,8 +3192,8 @@ function hoverDeclaration(
 ): SheetDeclaration | null {
   let found: SheetDeclaration | null = null
   for (const rule of rules) {
-    if (!rule.selector.endsWith(':hover')) continue
-    if (!matches(node, rule.selector.slice(0, -':hover'.length))) continue
+    if (!rule.selector.includes(':hover')) continue
+    if (!matches(node, rule.selector.split(':hover').join(''))) continue
     found = rule.declarations.get(property) ?? found
   }
   return found
@@ -3214,76 +3220,127 @@ function restingDeclaration(
   return found
 }
 
-/** The one colour this unit already uses for 薄く (see `isDrawnFaint` above). */
-const isFaintColour = (value: string): boolean => value.trim().toLowerCase() === 'graytext'
+/** 表 T-051 HF-6's two rules, copied from docs/spec/01-04-requirements.md:1312. */
+const T_051_HF6_ONLY_WHILE_POINTED =
+  '操作子は、その行の名前にポインタが乗っているあいだだけ描くこと（MUST）'
+const T_051_HF6_ROOM_UNCHANGED = '描かないあいだも、確保する場所を変えてはならない（MUST NOT）'
 
-describe('表 T-051 HF-6 / FR-098 -- the row controls darken while the pointer rests on them', () => {
+/**
+ * One way of stopping a node being drawn, and whether it leaves the room the
+ * node took up alone.
+ *
+ * ⭐ WHY THE ROOM IS PART OF THE SAME READING. HF-6 states two rules, and the
+ * second is about the first one's mechanism: 「描かないあいだも、確保する場所を
+ * 変えてはならない（MUST NOT）」. FR-085 (:1274) holds the reason -- the room kept
+ * for the controls (S-140) is what the row's name was cut against, so a control
+ * that stopped taking up room would move the cut every time the pointer crossed
+ * a row, and 表 T-076's EP-4 draws no control at all in an export.
+ * ⛔ `display:none` and `content-visibility:hidden` take the box out of the
+ * layout. `visibility:hidden` and `opacity:0` do not.
+ * ⚠️ WHICH of the four is used is not the specification's to say, so the cases
+ * below read whichever the unit declared -- and fail on one that moves the room.
+ */
+interface Hiding {
+  readonly property: string
+  /** The value that stops the node being drawn. */
+  readonly hidden: string
+  /** Whether the node still takes up the room it was given. */
+  readonly keepsRoom: boolean
+}
+
+const HIDING_DECLARATIONS: readonly Hiding[] = [
+  { property: 'visibility', hidden: 'hidden', keepsRoom: true },
+  { property: 'opacity', hidden: '0', keepsRoom: true },
+  { property: 'display', hidden: 'none', keepsRoom: false },
+  { property: 'content-visibility', hidden: 'hidden', keepsRoom: false },
+]
+
+/** Whichever of `HIDING_DECLARATIONS` a rule set applies to this node with NO pointer condition. */
+function hiddenWhileResting(rules: readonly SheetRule[], node: FakeElement): Hiding | null {
+  for (const one of HIDING_DECLARATIONS) {
+    const declared = restingDeclaration(rules, node, one.property)
+    if (declared === null) continue
+    if (declared.value.trim().toLowerCase() === one.hidden) return one
+  }
+  return null
+}
+
+describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a pointer is there', () => {
   it.each(T_109_ON_THE_ROW)(
-    '⭐ GIVEN $row is drawn WHEN the sheet the unit put on the page is read THEN a rule keyed on the pointer resting there paints it at full strength, and can beat the faint inline declaration (表 T-051 HF-6 second half, referred to by FR-098) -- $row',
+    '⭐ GIVEN $row is drawn WHEN the rules with NO pointer condition are read THEN one of them keeps it from being drawn, and it is not one that takes its room away (表 T-051 HF-6 MUST and MUST NOT, referred to by FR-098) -- $row',
     ({ row }) => {
       const built = drawn(oneLiveRow())
       const node = entryFor(built.root(), row)
       const rules = sheetRulesOf(built.root())
-      const painted = hoverDeclaration(rules, node, 'color')
+      const hiding = hiddenWhileResting(rules, node)
 
-      // ⛔ 表 T-051 HF-6: 「操作子は薄く描き、ポインタが乗っているあいだだけ濃く
-      // すること」. Faint with nothing to darken it is half a rule.
+      // ⛔ 表 T-051 HF-6 (MUST): 「操作子は、その行の名前にポインタが乗っている
+      // あいだだけ描くこと」. A control that is drawn with nothing pointing at it
+      // is 常に描く, which the row's own reason forbids in as many words.
       expect(
-        painted,
-        `${row} has no rule for the pointer resting on it: ${rules.map((one) => one.selector).join(' | ')}`,
+        hiding,
+        `${row} is drawn with no pointer condition on any rule: ${rules.map((one) => one.selector).join(' | ')}`,
       ).not.toBeNull()
-      const declaration = painted as SheetDeclaration
+      // ⛔ And the MUST NOT of the same row, which is what decides whether the
+      // rule above is admissible at all.
       expect(
-        isFaintColour(declaration.value),
-        `${row} is repainted ${declaration.value} while the pointer is on it -- that is not 濃く`,
-      ).toBe(false)
-      // ⛔ THE PART THAT DECIDES WHETHER THE RULE DOES ANYTHING. 薄く is written
-      // inline on the control (`color:GrayText`), and an inline declaration wins
-      // over a sheet. Without `!important` the sheet is dead text and the
-      // control stays faint under the pointer.
-      expect(
-        declaration.isImportant,
-        `${row}'s rule is not !important, so the inline faint declaration wins and nothing darkens`,
+        (hiding as Hiding).keepsRoom,
+        `${row} is kept from being drawn with ${(hiding as Hiding).property}, which takes its room away`,
       ).toBe(true)
     },
   )
 
   it.each(T_109_ON_THE_ROW)(
-    '⭐ GIVEN $row is drawn WHEN the rules with NO pointer condition are read THEN none of them paints it at full strength -- 「あいだ・だけ」 (表 T-051 HF-6: 常に濃いと、日程より操作子が目立つ) -- $row',
+    '⭐ GIVEN $row is drawn WHEN the sheet the unit put on the page is read THEN a rule keyed on the pointer draws it again, on the same property that hid it (表 T-051 HF-6 「乗っているあいだだけ」) -- $row',
     ({ row }) => {
       const built = drawn(oneLiveRow())
       const node = entryFor(built.root(), row)
-      const resting = restingDeclaration(sheetRulesOf(built.root()), node, 'color')
+      const rules = sheetRulesOf(built.root())
+      const hiding = hiddenWhileResting(rules, node)
+      expect(hiding, `${row} is never hidden, so there is nothing for a pointer to undo`).not.toBeNull()
 
-      // ⚠️ The first half is pinned above by reading the node's own inline
-      // declaration; a sheet rule with no pointer condition would undo it
-      // without touching that declaration at all.
+      const pointed = hoverDeclaration(rules, node, (hiding as Hiding).property)
+
+      // ⛔ Hidden with nothing to bring it back is half a rule, and the half
+      // that is missing is the one the reader needs: the controls would never
+      // be reachable at all.
       expect(
-        resting === null || isFaintColour(resting.value),
-        `${row} is painted ${resting?.value ?? ''} with no pointer condition on the rule`,
-      ).toBe(true)
+        pointed,
+        `${row} has no rule keyed on a pointer: ${rules.map((one) => one.selector).join(' | ')}`,
+      ).not.toBeNull()
+      expect(
+        (pointed as SheetDeclaration).value.trim().toLowerCase(),
+        `${row} is left hidden while the pointer is there`,
+      ).not.toBe((hiding as Hiding).hidden)
     },
   )
 
-  it('⛔ GIVEN the same rule written WITHOUT !important, and one with no pointer condition at all WHEN each is read through the predicates above THEN neither counts -- so the two cases above are not greens that prove nothing (04-verification.md §2)', () => {
+  it('⛔ GIVEN a rule that hides with display, one that never hides, and one written for somebody else WHEN each is read through the predicates above THEN none of them passes -- so the cases above are not greens that prove nothing (04-verification.md §2)', () => {
     const built = drawn(oneLiveRow())
     const node = entryFor(built.root(), 'IC-58')
     const base = '[data-unit="UF-71"] [data-role="Row Expander"]'
 
-    const weak = parseCss(`${base}:hover{color:CanvasText;}`)
-    expect(hoverDeclaration(weak, node, 'color')?.isImportant).toBe(false)
+    // ⛔ The MUST NOT itself: a sheet that hides the control by taking its box
+    // out of the layout is READ, and read as the wrong mechanism.
+    const takesTheRoom = parseCss(`${base}{display:none;}${base}:hover{display:inline-block;}`)
+    expect(hiddenWhileResting(takesTheRoom, node)?.keepsRoom).toBe(false)
 
-    const always = parseCss(`${base}{color:CanvasText !important;}`)
-    expect(hoverDeclaration(always, node, 'color')).toBeNull()
-    expect(restingDeclaration(always, node, 'color')?.value).toBe('CanvasText')
+    // ⭐ A sheet that never hides it answers `null`, which is what makes the
+    // first case above fail rather than pass on a unit that draws it always.
+    const never = parseCss(`${base}:hover{visibility:visible;}`)
+    expect(hiddenWhileResting(never, node)).toBeNull()
 
-    // ⭐ And a rule for somebody else does not reach this control either, which
-    // is what stops the reading above from passing on any `:hover` rule at all.
-    const elsewhere = parseCss('[data-role="Header Commands"] button:hover{color:CanvasText;}')
-    expect(hoverDeclaration(elsewhere, node, 'color')).toBeNull()
+    // ⭐ And a rule for somebody else reaches neither reading, which is what
+    // stops them from passing on any rule of the sheet at all.
+    const elsewhere = parseCss(
+      '[data-role="Header Commands"] button{visibility:hidden;}' +
+        '[data-role="Header Commands"] button:hover{visibility:visible;}',
+    )
+    expect(hiddenWhileResting(elsewhere, node)).toBeNull()
+    expect(hoverDeclaration(elsewhere, node, 'visibility')).toBeNull()
   })
 
-  it('GIVEN a PINNED row WHEN its controls are read THEN the same rule reaches them (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
+  it('GIVEN a PINNED row WHEN its controls are read THEN the same pair of rules reaches them (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
     const built = drawn(
       viewWith({
         rowTitlePanel: {
@@ -3301,34 +3358,43 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls darken while the pointer r
     const rules = sheetRulesOf(built.root())
 
     for (const one of T_109_ON_THE_ROW) {
-      const painted = hoverDeclaration(rules, entryFor(built.root(), one.row), 'color')
-      expect(painted, `${one.row} on a pinned row has no rule for the pointer`).not.toBeNull()
-      expect((painted as SheetDeclaration).isImportant).toBe(true)
+      const node = entryFor(built.root(), one.row)
+      const hiding = hiddenWhileResting(rules, node)
+      expect(hiding, `${one.row} on a pinned row is drawn with nothing pointing at it`).not.toBeNull()
+      expect((hiding as Hiding).keepsRoom).toBe(true)
+      expect(
+        hoverDeclaration(rules, node, (hiding as Hiding).property),
+        `${one.row} on a pinned row has no rule keyed on a pointer`,
+      ).not.toBeNull()
     }
   })
 
-  it('GIVEN nothing has been drawn yet WHEN the sheet is read THEN it paints nothing at full strength on its own (BO-1 of 表 T-077, the empty case)', () => {
+  it('GIVEN nothing has been drawn yet WHEN the sheet is read THEN no rule of it draws these controls on its own (BO-1 of 表 T-077, the empty case)', () => {
     const built = wire()
 
     // ⚠️ The boundary the sheet has to survive: it is put on the page once, not
-    // per row, so it exists before any row does. It may say nothing about a
-    // node that is not there -- but it must not paint the page dark either.
+    // per row, so it exists before any row does. It may say nothing about a node
+    // that is not there -- but a rule with no pointer condition that BROUGHT one
+    // of these back would undo HF-6 for every row at once.
     for (const rule of sheetRulesOf(built.root())) {
-      const colour = rule.declarations.get('color')
-      if (colour === undefined) continue
-      expect(
-        rule.selector.includes(':hover') || isFaintColour(colour.value),
-        `a rule with no pointer condition paints ${colour.value}: ${rule.selector}`,
-      ).toBe(true)
+      if (rule.selector.includes(':')) continue
+      for (const one of HIDING_DECLARATIONS) {
+        const declared = rule.declarations.get(one.property)
+        if (declared === undefined) continue
+        expect(
+          declared.value.trim().toLowerCase(),
+          `${rule.selector} declares ${one.property}:${declared.value} with no pointer condition`,
+        ).toBe(one.hidden)
+      }
     }
   })
 
-  it('GIVEN the specification is re-read WHEN 表 T-051 HF-6 is looked up THEN it still asks for both halves (Chapter 1.9: the case is driven by the table)', () => {
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-6 is looked up THEN it still asks for both rules (Chapter 1.9: the case is driven by the table)', () => {
     const hf6 = specTable('T-051').rows.find((one) => one.id === 'HF-6')
     expect(hf6, '表 T-051 no longer holds HF-6').toBeDefined()
-    expect(hf6?.cells.join(' ')).toContain('薄く描き')
-    expect(hf6?.cells.join(' ')).toContain('ポインタが乗っているあいだだけ濃くすること')
-    expect(specText('01-04-requirements.md')).toContain(T_051_HF6_DRAW_FAINT)
+    expect(hf6?.cells.join(' ')).toContain(T_051_HF6_ONLY_WHILE_POINTED)
+    expect(hf6?.cells.join(' ')).toContain(T_051_HF6_ROOM_UNCHANGED)
+    expect(specText('01-04-requirements.md')).toContain(T_051_HF6_ONLY_WHILE_POINTED)
   })
 })
 

@@ -877,7 +877,13 @@ const DEFAULT_OF = new Map(
   ]),
 )
 
-/** The eight keys table T-202 gives a boolean type, spelled out. */
+/**
+ * The nine keys table T-202 gives a boolean type, spelled out.
+ *
+ * ⚠️ `watermarkVisible` is `S-144`, the row table T-202 gained on 2026-08-25.
+ * Its entrance is `IC-41` of table T-109, and it is a boolean like the other
+ * eight, so `FR-049`'s MUST reaches it: this list is the copy that says so.
+ */
 const EXPECTED_BOOLEAN_KEYS = [
   'assigneeVisible',
   'percentCompleteVisible',
@@ -887,6 +893,7 @@ const EXPECTED_BOOLEAN_KEYS = [
   'dateGridLinesVisible',
   'groupGridLinesVisible',
   'baselineVisible',
+  'watermarkVisible',
 ]
 
 /** S-59's three values, read out of its type cell. */
@@ -1128,11 +1135,14 @@ describe('the tables these twelve entrances are driven by', () => {
     expect(specTable('T-103').headings.length).toBe(3)
   })
 
-  it('table T-202 gives exactly eight of its thirteen rows a boolean type', () => {
+  it('table T-202 gives exactly nine of its fourteen rows a boolean type', () => {
     // FR-049 (MUST): the set the requirement names is this one, so a row added
-    // or retyped upstream has to reach this file.
+    // or retyped upstream has to reach this file. `S-144` (`watermarkVisible`)
+    // is the row that arrived on 2026-08-25, taking the booleans 8 -> 9 and the
+    // table 13 -> 14; the five that are not booleans are S-58, S-59, S-65,
+    // S-66 and S-70.
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
-    expect(T_202_KEYS.length).toBe(13)
+    expect(T_202_KEYS.length).toBe(14)
   })
 
   it('the multi-valued rows spell the values these cases drive', () => {

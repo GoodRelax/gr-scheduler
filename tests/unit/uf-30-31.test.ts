@@ -2346,40 +2346,59 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     expect(rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length).toBeGreaterThan(0)
   })
 
-  it('HF-2: the opening side opens ONE level -- HR-3 of table T-015 is the other operation', () => {
-    // The whole chain is shut, so "one level" is well defined: unfolding the
-    // pressed row alone puts its children on screen and stops there.
+  it('HF-2: the opening side opens the WHOLE subtree -- HR-3 of table T-015', () => {
+    // HF-2 (MUST): 「開く操作子は、その行の配下をすべて開くこと」—— 表 T-015 の
+    // `HR-3`（「選択した `TaskGroup` の配下をすべて開く」）である。
+    // ⚠️ 「1 段だけ開く」 was the rule until 2026-08-25; HF-2 itself records
+    // that it was retired because nothing then re-opened what HF-3 folded.
     const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
     const answer = pressPanelEntry('IC-58', 'n1', shut)
 
-    expect(rowsFolded(answer, false)).toEqual(['n1'])
-    // HR-3 reaches the whole subtree under the row; HF-2 must not.
-    expect(rowsFolded(answer, false)).not.toContain('n1a')
-    expect(rowsFolded(answer, false)).not.toContain('n1a1')
+    // 配下 is every row under it, however deep -- not one level.
+    expect(rowsFolded(answer, false)).toContain('n1a')
+    expect(rowsFolded(answer, false)).toContain('n1a1')
+    // ⛔ THE PRESSED ROW IS NOT ITSELF OPENED. HF-3 says the pair plainly:
+    // 「畳んだ行は、1 つ上の行の開く操作子が開く」, and HF-10 exists only
+    // because 「最上位の行が自分を畳むと、それを開く操作子がどこにも無くなる」
+    // -- which is false if a row's own opening control reaches itself.
+    expect(rowsFolded(answer, false)).not.toContain('n1')
+    // A second root is under no part of the pressed row.
+    expect(rowsFolded(answer, false)).not.toContain('n2')
+    expect(rowsFolded(answer, false)).not.toContain('n2a')
   })
 
-  it("HF-3: the closing side closes ALL of them, and only this row's subtree", () => {
+  it('HF-3: the closing side folds THIS row alone -- HR-5 of table T-015', () => {
+    // HF-3 (MUST): 「閉じる操作子は、その行自身を畳むこと」—— 表 T-015 の
+    // `HR-5`（「選択した `TaskGroup` を閉じる」）である。
+    // ⚠️ 「配下をすべて閉じる」 is HR-4, and table T-109 gives HR-4 no entrance.
     const open = panelContextOf()
     const answer = pressPanelEntry('IC-59', 'n1', open)
     const closed = rowsFolded(answer, true)
 
-    // HR-4 of table T-015 -- everything under the row, however deep.
-    expect(closed).toContain('n1a')
-    expect(closed).toContain('n1a1')
+    expect(closed).toEqual(['n1'])
+    // ⛔ THE SUBTREE IS NOT FOLDED -- that would be HR-4. HR-1a already hides
+    // 「畳んだ `TaskGroup` の配下の行」, so folding them too changes no picture.
+    expect(closed).not.toContain('n1a')
+    expect(closed).not.toContain('n1a1')
     // A second root and its child are under no part of the pressed row.
     expect(closed).not.toContain('n2')
-    expect(closed).not.toContain('n2a')
 
-    // THE TWO SIDES CANNOT BE TOLD APART BY DIRECTION ALONE. HF-2 names one row
-    // and HF-3 names the whole depth, so the counts must differ too.
+    // THE TWO SIDES CANNOT BE TOLD APART BY DIRECTION ALONE. HF-3 names one row
+    // and HF-2 names the whole depth, so the counts must differ too -- and it
+    // is now the OPENING side that carries the larger list.
     const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
-    expect(closed.length).toBeGreaterThan(
-      rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length,
+    expect(rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length).toBeGreaterThan(
+      closed.length,
     )
   })
 
-  it('FR-031: what HF-3 asks for arrives as ONE undo step, not one per row', () => {
-    const answer = pressPanelEntry('IC-59', 'n1', panelContextOf())
+  it('FR-031: what HF-2 asks for arrives as ONE undo step, not one per row', () => {
+    // ⚠️ THE MANY-ROW SIDE IS NOW HF-2. Until 2026-08-25 the closing control
+    // was HR-4 and this case pressed IC-59; HF-3 is HR-5 and writes exactly one
+    // row, so it can no longer tell one step from one step per row. HF-2 is
+    // HR-3 and reaches the whole subtree, so the question lives here.
+    const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
+    const answer = pressPanelEntry('IC-58', 'n1', shut)
     const action = answer.action
     expect(action?.kind).toBe('changeDocument')
     if (action === null || action.kind !== 'changeDocument') throw new Error('not a change')
@@ -2387,7 +2406,7 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     // WS-4 of table T-067 pushes one step per write, so one step is one write.
     expect(action.writes).toHaveLength(1)
     // Not enough on its own: one write carrying one row would pass that and
-    // still be one step per row. The fold really does reach several rows.
+    // still be one step per row. The unfold really does reach several rows.
     expect(action.writes[0]?.length).toBeGreaterThan(1)
   })
 
@@ -2417,7 +2436,11 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     // Each of the three is assigned here -- the row is named and the document
     // says which way it goes -- so the browser's own behaviour is stopped.
     const cases = [
-      pressPanelEntry('IC-58', 'n1', panelContextOf({ n1: true })),
+      // ⚠️ THE ROW ITSELF IS NOT WHAT IC-58 OPENS -- HF-2 is HR-3 and reaches
+      // 配下 only, so the state that gives it work is a folded DESCENDANT.
+      // `{ n1: true }` left it nothing to do and the press stopped being one
+      // this tool answered.
+      pressPanelEntry('IC-58', 'n1', panelContextOf({ n1a: true })),
       pressPanelEntry('IC-59', 'n1', panelContextOf()),
       pressPanelEntry('IC-60', 'n1', panelContextOf({}, [])),
       pressPanelEntry('IC-60', 'n1', panelContextOf({}, ['n1'])),

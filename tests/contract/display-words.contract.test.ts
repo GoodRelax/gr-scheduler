@@ -476,10 +476,10 @@ const SESSION: ScreenSession = {
   pointerRestedMs: 0,
   iconUnderPointer: null,
   commandPaletteAt: { x: 500, y: 300 },
-  // No case here reads the theme or the milestone glyph list. S-72 takes the
-  // manuscript's default and S-142 stays closed; S-73 is read off the very
-  // document this frame draws, which is where the shell gets it from too
-  // (DR-5 of table T-052 keeps the hue on `Project`, not in the settings).
+  // No case here reads the theme. S-72 takes the manuscript's default; S-73 is
+  // read off the very document this frame draws, which is where the shell gets
+  // it from too (DR-5 of table T-052 keeps the hue on `Project`, not in the
+  // settings). S-142 is the palette's, and `PALETTE_SHOWN` states it.
   themePreference: 'light',
   themeHue: SCHEDULE.project.themeHue,
   isMilestoneListOpen: false,
@@ -517,8 +517,32 @@ const frameWith = (part: Partial<Frame>): Frame => ({ ...BASE, ...part })
 
 const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
 
-/** S-99e says the palette is shown (FR-053). */
-const PALETTE_SHOWN = frameWith({ state: screenStateWithPalette(emptyScreenState(), true) })
+/**
+ * S-99e says the palette is shown (FR-053), and S-142 says its list of
+ * milestone figures is open.
+ *
+ * ⛔ THE SECOND HALF IS WHY EIGHT ENTRIES OF TABLE T-109 CAN BE ASKED FOR AT
+ * ALL. FR-053 (MUST, docs/spec/01-04-requirements.md:2426):
+ * 「マイルストーンの図形の入口は、一覧を開くまで出さないこと（MUST）。開閉の
+ * 状態は 表 T-206 の `S-142` が持ち、既定は閉じている」-- so on a frame that
+ * leaves S-142 at its default those entrances are not on the palette, their
+ * words are printed nowhere, and the acceptance case below is right to say the
+ * words reach nothing.
+ * ⭐ OPENING IT HIDES NOTHING. FR-053 states one condition on one set of
+ * entrances and no requirement makes any other entry depend on S-142, so what
+ * the open list shows is what the closed one shows and eight rows besides --
+ * which is what lets the whole of the palette's roster stand on this one frame
+ * rather than on two that would have to be told apart by a rule this file
+ * invented.
+ * ⚠️ Whether the palette hides IC-50 once the list is open is NOT decided here
+ * and is not decided by the specification either; table T-109 gives the opening
+ * and the folding two rows and says nothing about showing one at a time. If
+ * that is ever settled, this frame is where it lands.
+ */
+const PALETTE_SHOWN = frameWith({
+  state: screenStateWithPalette(emptyScreenState(), true),
+  session: sessionWith({ isMilestoneListOpen: true }),
+})
 
 /** S-99g says which surface is open (IN-4 of table T-028). */
 const surfaceOpen = (surface: string): Frame =>
