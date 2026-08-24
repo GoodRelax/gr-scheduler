@@ -800,137 +800,29 @@ describe('UF-63 -- table T-075: the unit is `pure`', () => {
   })
 })
 
-describe('UF-63 -- HF-5 of table T-051: the controls are set DOWN from the name', () => {
-  // FIXED DATA, copied from the tables (specification section 1.9):
-  //   S-139 (table T-206)  the set-down is `0.25` times the row's name size --
-  //                        a RATIO, never an absolute number of pixels
-  //   S-36  (table T-201)  `rowTitleFont`, the row name's size
-  //   S-38  (table T-201)  `rowTitleTopScale`, which multiplies it at depth 1
+describe('UF-63 -- HF-5 of table T-051: the controls are LEVEL with the top of the name', () => {
+  // HF-5 (MUST): 「名前が操作子より大きいときは、名前の上端に揃えること」. It
+  // forbids centring them (MUST NOT) and ⛔ forbids setting them down from that
+  // edge (MUST NOT), so there is no amount left for a row to state -- S-139 of
+  // table T-206, which held one, is retired (利用者の裁定, 2026-08-25).
   //
-  // So the name size is S-36 x S-38 on a root row and S-36 anywhere below it,
-  // and HF-5's set-down is 0.25 of THAT row's own number. HF-5 spells out why
-  // it is a ratio: the name's size changes with depth (S-36 and S-38), so an
-  // absolute set-down would look different at every depth.
-  const S_139 = 0.25
+  // ⚠️ WHERE the controls are drawn is the surface's answer and not this
+  // unit's; what this unit must not do is hand a set-down down to it. So the
+  // one case here is that no row carries one, whatever the name's size --
+  // S-36 and S-38 of table T-201 are set apart below precisely so that a
+  // set-down proportional to the name size would show up if one were made.
+  it('hands no set-down down: no row carries one, pinned or not', () => {
+    const hf5 = panelWith({ rowTitleFont: 20, rowTitleTopScale: 1.5, pinnedGroupIds: ['g2'] })
+    const panel = chainPanel(5, 'a', hf5)
 
-  /** Name 30px at depth 1 (20 x 1.5) and 20px below it -- two sizes, one panel. */
-  const HF5 = panelWith({ rowTitleFont: 20, rowTitleTopScale: 1.5 })
-  /** The same shape with S-36 doubled: 60px at depth 1, 40px below. */
-  const HF5_DOUBLE_FONT = panelWith({ rowTitleFont: 40, rowTitleTopScale: 1.5 })
-
-  /** A root row and its child, both drawn, for the pinned cases. */
-  const twoDeep = scheduleOf([
-    groupOf({ id: 'g1', parentId: null, label: 'a', order: 0 }),
-    groupOf({ id: 'g2', parentId: 'g1', label: 'b', order: 1 }),
-  ])
-
-  it('sets a root row down by S-139 of its own name size (S-36 x S-38)', () => {
-    expect(deepestTitle(1, 'a', HF5).controlTopOffsetPx).toBe(20 * 1.5 * S_139)
+    expect(panel.titles.length + panel.pinnedTitles.length).toBe(5)
+    for (const title of [...panel.titles, ...panel.pinnedTitles]) {
+      expect(title).not.toHaveProperty('controlTopOffsetPx')
+    }
   })
 
-  it('sets a row below the root down by S-139 of S-36, which S-38 does not touch', () => {
-    expect(deepestTitle(3, 'a', HF5).controlTopOffsetPx).toBe(20 * S_139)
-  })
-
-  it('MUST give a root row and a deep row different numbers while S-38 is not 1', () => {
-    // The whole point of HF-5's ratio: the two rows carry different name sizes,
-    // so one set-down cannot serve both.
-    const root = deepestTitle(1, 'a', HF5).controlTopOffsetPx
-    const deep = deepestTitle(4, 'a', HF5).controlTopOffsetPx
-
-    expect(root).toBe(7.5)
-    expect(deep).toBe(5)
-    expect(root).not.toBe(deep)
-  })
-
-  it('gives every row below the root the same number, since S-38 reaches none of them', () => {
-    const below = chainPanel(5, 'a', HF5)
-      .titles.filter((t) => t.depth > 1)
-      .map((t) => t.controlTopOffsetPx)
-
-    expect(below).toEqual([5, 5, 5, 5])
-  })
-
-  it('is PROPORTIONAL to the name size: doubling S-36 doubles it at both depths', () => {
-    expect(deepestTitle(1, 'a', HF5_DOUBLE_FONT).controlTopOffsetPx).toBe(40 * 1.5 * S_139)
-    expect(deepestTitle(3, 'a', HF5_DOUBLE_FONT).controlTopOffsetPx).toBe(40 * S_139)
-  })
-
-  it('moves with S-38 at depth 1 and nowhere else', () => {
-    const doubledScale = panelWith({ rowTitleFont: 20, rowTitleTopScale: 2 })
-
-    expect(deepestTitle(1, 'a', doubledScale).controlTopOffsetPx).toBe(20 * 2 * S_139)
-    expect(deepestTitle(3, 'a', doubledScale).controlTopOffsetPx).toBe(20 * S_139)
-  })
-
-  it('leaves both depths level when S-38 is 1, its own lower bound', () => {
-    const flat = panelWith({ rowTitleFont: 20, rowTitleTopScale: 1 })
-
-    expect(deepestTitle(1, 'a', flat).controlTopOffsetPx).toBe(5)
-    expect(deepestTitle(3, 'a', flat).controlTopOffsetPx).toBe(5)
-  })
-
-  it('MUST NOT centre: the ratio to the name size is the same at every depth', () => {
-    // Centring would put the controls at (nameSize - controlSize) / 2, which is
-    // affine in the name size rather than proportional to it -- so the two
-    // ratios below would differ for any control size but zero. HF-5 forbids
-    // centring (MUST NOT) because it moves the controls whenever the name's
-    // size moves, which is what HF-4 forbids on the horizontal axis.
-    expect(deepestTitle(1, 'a', HF5).controlTopOffsetPx / 30).toBe(S_139)
-    expect(deepestTitle(3, 'a', HF5).controlTopOffsetPx / 20).toBe(S_139)
-  })
-
-  it('sets them DOWN, so the number is above zero on every row', () => {
-    // HF-5 (MUST): not level with the name's top edge -- below it.
-    const offsets = chainPanel(5, 'a', HF5).titles.map((t) => t.controlTopOffsetPx)
-
-    expect(offsets.length).toBe(5)
-    for (const offset of offsets) expect(offset).toBeGreaterThan(0)
-  })
-
-  it('carries the set-down on a PINNED row too (FR-098 sends it to HF-5)', () => {
-    // FR-098: the `Row Pin` is placed, sized and shaded as the folding control
-    // is -- HF-4 .. HF-6 and HF-9 of table T-051. A pinned row is lifted out of
-    // the scrolling list, not out of HF-5.
-    const pinned = panelOf(
-      twoDeep,
-      drawn('g1', 'g2'),
-      settingsOf({ ...HF5, pinnedGroupIds: ['g1', 'g2'] }),
-    )
-
-    expect(idsOf(pinned.pinnedTitles)).toEqual(['g1', 'g2'])
-    expect(titleOf(pinned, 'g1').controlTopOffsetPx).toBe(7.5)
-    expect(titleOf(pinned, 'g2').controlTopOffsetPx).toBe(5)
-  })
-
-  it('gives a pinned row the same number it had at its natural place', () => {
-    // Pinning changes which list holds the row, never the row's name size.
-    const loose = panelOf(twoDeep, drawn('g1', 'g2'), HF5)
-    const pinned = panelOf(
-      twoDeep,
-      drawn('g1', 'g2'),
-      settingsOf({ ...HF5, pinnedGroupIds: ['g2'] }),
-    )
-
-    expect(titleOf(pinned, 'g2').controlTopOffsetPx).toBe(titleOf(loose, 'g2').controlTopOffsetPx)
-  })
-
-  it('does not follow the row name it was given: a long name and a short one agree', () => {
-    // HF-5 ties the set-down to the name's SIZE, not to its length. HF-4 has
-    // already forbidden the row's name to move the controls on the other axis.
-    expect(deepestTitle(2, LONG, HF5).controlTopOffsetPx).toBe(
-      deepestTitle(2, 'a', HF5).controlTopOffsetPx,
-    )
-  })
-
-  it('does not follow whether an expander is drawn at all', () => {
-    // FR-085 forbids the room kept for the controls to change with whether they
-    // are drawn (MUST NOT); the set-down is of the same kind -- a leaf row
-    // carries no `RowExpander` and still carries the number.
-    const leaf = deepestTitle(2, 'a', HF5)
-
-    expect(leaf.expander).toBe(null)
-    expect(leaf.controlTopOffsetPx).toBe(5)
+  it('S-139 of table T-206, which held the set-down, is retired', () => {
+    expect(specTable('T-206').rows.find((row) => row.id === 'S-139')).toBeUndefined()
   })
 })
 

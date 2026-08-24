@@ -1220,12 +1220,6 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
   expander: null,
   isPinned: false,
   isSelected: false,
-  // HF-5 of 表 T-051 (MUST): how far BELOW the top of the name the controls are
-  // set. ⚠️ Zero is the neutral value for a case that is not about the offset --
-  // HF-5's second MUST bites 「名前が操作子より大きいとき」, and a row that says
-  // the name is not bigger sets its controls down by nothing. The cases that ARE
-  // about the offset hand their own number in.
-  controlTopOffsetPx: 0,
   ...patch,
 })
 
@@ -3402,33 +3396,33 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
 // 表 T-051 HF-5 -- the OTHER axis. HF-4 fixes where the controls sit across the
 // row and is tested above; this is where they sit DOWN it.
 //
-// docs/spec/01-04-requirements.md:1312 (表 T-051, HF-5):
+// docs/spec/01-04-requirements.md (表 T-051, HF-5), AS THAT ROW NOW READS:
 //   「行の名前の文字サイズにかかわらず、操作子を同じ大きさで描くこと（MUST）。
-//    名前が操作子より大きいときは、名前の上端に揃えず、そこから下げて揃えること
-//    （MUST）。中央で揃えてはならない（MUST NOT）」
+//    名前が操作子より大きいときは、名前の上端に揃えること（MUST）。中央で揃えて
+//    はならない（MUST NOT）」
 //   —— 中央にすると名前の文字サイズが変わるたびに操作子の位置が動き、`HF-4` が
 //      横で禁じたことを縦で許すことになる。
-//   「下げる量は `_assets/tbl-settings.md` の表 T-206 の `S-139` が持ち、その行の
-//    名前の文字サイズに比例させること（MUST）」
+//   「⛔ 上端から下げてはならない（MUST NOT）」
+//   —— 名前の大きさは深さで変わるので、下げると行ごとに操作子の高さが食い違って
+//      見える。
 //
-// ⚠️ WHAT IS THIS UNIT'S SHARE AND WHAT IS NOT. The AMOUNT is resolved on the
-// far side of IF-9 -- `RowTitle.controlTopOffsetPx` is declared as 「the amount
-// is S-139 of table T-206 times THIS row's name size」, and the name's size
-// follows the depth through S-36 / S-38, neither of which crosses the seam. So
-// what UF-71 owes HF-5 is exactly two things, and the cases below ask only
-// those: the amount the description carries REACHES the drawn control, and
-// nothing centres the control on the row.
+// ⚠️ THE ROW WAS REVERTED, AND THIS BLOCK WITH IT (利用者の裁定, 2026-08-25).
+// It briefly asked for a set-down proportional to the row's name size, held by
+// S-139 of 表 T-206; that row is RETIRED and `RowTitle` carries no amount any
+// more. So the cases that drove an amount across IF-9 are gone -- there is no
+// number left to drive -- and what stands is what HF-5 now states outright:
+// nothing centres the control (MUST NOT), nothing sets it down (MUST NOT), and
+// the line the controls sit in starts them at its top (MUST).
 //
-// ⭐ WHICH PROPERTY CARRIES IT IS NOT ASSERTED. PD-151 records the choice of CSS
-// property as display only, and this file's sibling states the same rule for
-// every placed number -- so a case reads that the NUMBER reached the node and
-// never which declaration spells it. What IS asserted is the forbidden shape,
-// because HF-5 names it: 中央.
+// ⭐ WHICH PROPERTY CARRIES A PLACEMENT IS STILL NOT ASSERTED -- PD-151 records
+// the choice of CSS property as display only. What IS asserted is the forbidden
+// shape and the asked-for one, because HF-5 names both: 中央 and 名前の上端.
 // ===========================================================================
 
-/** 表 T-051 HF-5's second and third rules, copied from docs/spec/01-04-requirements.md:1312. */
-const T_051_HF5_SET_DOWN = '名前の上端に揃えず、そこから下げて揃えること（MUST）'
+/** 表 T-051 HF-5's three placement rules, copied from docs/spec/01-04-requirements.md. */
+const T_051_HF5_LEVEL_WITH_TOP = '名前が操作子より大きいときは、名前の上端に揃えること（MUST）'
 const T_051_HF5_NOT_CENTRED = '中央で揃えてはならない（MUST NOT）'
+const T_051_HF5_NOT_SET_DOWN = '上端から下げてはならない（MUST NOT）'
 
 /** The declarations that would centre a control on the line it sits in. */
 const CENTRING_PROPERTIES = [
@@ -3440,19 +3434,6 @@ const CENTRING_PROPERTIES = [
   'place-content',
   'vertical-align',
 ] as const
-
-/** Every declaration on one node, flattened, for a reading that names no property. */
-const declarationsOf = (element: FakeElement): string =>
-  [...styleMap(element)].map(([property, value]) => `${property}:${value}`).join(';')
-
-/**
- * Whether this node states that number as a length in CSS pixels.
- *
- * ⚠️ The boundary is there so that `7px` is not found inside `17px`; a case that
- * hands in 7 and reads 17 back would be green for the wrong reason.
- */
-const statesPixels = (element: FakeElement, px: number): boolean =>
-  new RegExp(`(^|[^0-9.])${px}px`).test(declarationsOf(element))
 
 /**
  * The centring declarations this node carries, if any.
@@ -3480,8 +3461,30 @@ function centringOn(element: FakeElement): string[] {
   return found
 }
 
-/** The row drawn with its controls set down by exactly this many pixels. */
-const rowSetDownBy = (controlTopOffsetPx: number): ScreenView =>
+/**
+ * The declarations that would set this control DOWN from the top of the line it
+ * sits in, if any -- which HF-5 now forbids (MUST NOT).
+ *
+ * ⚠️ A zero is not a set-down and is not reported: the row control states
+ * `padding: 0 0.125em`, whose top side is a real declaration saying 「なし」.
+ * ⛔ `auto` IS reported, unlike in `isZeroLength` above -- a single auto margin
+ * on the block axis pushes a flex item down the line it sits in, which is the
+ * very thing HF-5 forbids, while `isZeroLength` reads it as no length at all.
+ */
+function setDownOn(element: FakeElement): string[] {
+  const pushesDown = (value: string): boolean => value !== '' && !/^0(?:[a-z%]+)?$/.test(value)
+  const found: string[] = []
+  for (const property of ['margin', 'padding'] as const) {
+    const value = insetOf(element, property, 'top').trim().toLowerCase()
+    if (pushesDown(value)) found.push(`${property}-top:${value}`)
+  }
+  const inset = (styleMap(element).get('top') ?? '').trim().toLowerCase()
+  if (pushesDown(inset)) found.push(`top:${inset}`)
+  return found
+}
+
+/** The row drawn with its two controls, for the placement cases below. */
+const rowWithControls = (): ScreenView =>
   viewWith({
     rowTitlePanel: {
       pinnedTitles: [],
@@ -3489,26 +3492,24 @@ const rowSetDownBy = (controlTopOffsetPx: number): ScreenView =>
         rowTitle({
           groupId: 'g-1',
           label: 'RowOne',
-          controlTopOffsetPx,
           expander: { canOpen: true, canClose: true },
         }),
       ],
     },
   })
 
-describe('表 T-051 HF-5 / FR-098 -- the controls are set DOWN from the name, and never centred on the row', () => {
-  it('GIVEN the specification is re-read WHEN 表 T-051 HF-5 is looked up THEN it still forbids the centre in as many words (Chapter 1.9: the case is driven by the table)', () => {
+describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the name, never centred and never set down', () => {
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-5 is looked up THEN it asks for the top edge and forbids both the centre and the set-down in as many words (Chapter 1.9: the case is driven by the table)', () => {
     const hf5 = specTable('T-051').rows.find((one) => one.id === 'HF-5')
     expect(hf5, '表 T-051 no longer holds HF-5').toBeDefined()
-    expect(hf5?.cells.join(' ')).toContain(T_051_HF5_SET_DOWN)
+    expect(hf5?.cells.join(' ')).toContain(T_051_HF5_LEVEL_WITH_TOP)
     expect(hf5?.cells.join(' ')).toContain(T_051_HF5_NOT_CENTRED)
-    // ⭐ And the amount is still a row of the settings table rather than a number
-    // written into the requirement -- which is what makes the cases below drive
-    // on `controlTopOffsetPx` instead of on a constant of their own.
-    expect(hf5?.cells.join(' ')).toContain('S-139')
-    const s139 = specTable('T-206').rows.find((one) => one.id === 'S-139')
-    expect(s139, '表 T-206 no longer holds S-139').toBeDefined()
-    expect(s139?.by['値']).toContain('HF-5')
+    expect(hf5?.cells.join(' ')).toContain(T_051_HF5_NOT_SET_DOWN)
+    // ⛔ AND NO AMOUNT IS HELD ANYWHERE. S-139 of 表 T-206 carried the set-down
+    // for one day and is retired -- were it ever to come back, the cases below
+    // would be asserting the absence of something the specification asks for.
+    expect(hf5?.cells.join(' ')).not.toContain('S-139')
+    expect(specTable('T-206').rows.find((one) => one.id === 'S-139')).toBeUndefined()
     expect(specText('01-04-requirements.md')).toContain(T_051_HF5_NOT_CENTRED)
     // ⛔ FR-098 does not restate the rule; it refers the 置き方 to HF-4 .. HF-6,
     // so the pin answers to this case for the same reason the expander does.
@@ -3518,7 +3519,7 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are set DOWN from the name, an
   it.each(T_109_ON_THE_ROW)(
     '⛔ GIVEN $row is drawn WHEN the control and the line it sits in are read THEN neither centres it (表 T-051 HF-5 MUST NOT: 中央で揃えてはならない) -- $row',
     ({ row }) => {
-      const built = drawn(rowSetDownBy(7))
+      const built = drawn(rowWithControls())
       const control = entryFor(built.root(), row)
       const line = control.parentNode
 
@@ -3535,49 +3536,43 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are set DOWN from the name, an
   )
 
   it.each(T_109_ON_THE_ROW)(
-    '⭐ GIVEN the description sets $row down by 7px WHEN the drawn control is read THEN that number reached it (表 T-051 HF-5 MUST: 名前の上端に揃えず、そこから下げて揃えること) -- $row',
+    '⛔ GIVEN $row is drawn WHEN the drawn control is read THEN it carries no top offset at all (表 T-051 HF-5 MUST NOT: 上端から下げてはならない) -- $row',
     ({ row }) => {
-      // ⚠️ The number and not the property. The amount is S-139 times the row's
-      // own name size and is resolved before it crosses IF-9, so what this unit
-      // owes HF-5 is that it does not drop it on the floor.
-      const built = drawn(rowSetDownBy(7))
+      const built = drawn(rowWithControls())
       const control = entryFor(built.root(), row)
 
       expect(
-        statesPixels(control, 7),
-        `${row} was set down by 7px in the description and the drawn control does not state it: ${inlineStyle(control)}`,
-      ).toBe(true)
+        setDownOn(control),
+        `${row} is set down from the top of the name: ${inlineStyle(control)}`,
+      ).toEqual([])
     },
   )
 
   it.each(T_109_ON_THE_ROW)(
-    '⭐ GIVEN the same row drawn set down by 7px and by 23px WHEN the two controls are compared THEN they differ, and each states its own amount (表 T-051 HF-5: 名前の大きさは深さで変わる) -- $row',
+    '⭐ GIVEN $row is drawn WHEN the line it sits in is read THEN that line starts its items at its top (表 T-051 HF-5 MUST: 名前の上端に揃えること) -- $row',
     ({ row }) => {
-      // ⛔ THE CASE THAT STOPS A CONSTANT FROM PASSING. A unit that had written
-      // one number of its own into the control would satisfy the case above for
-      // whichever number it chose; it cannot satisfy this one, which asks the
-      // SAME row drawn twice to move by exactly what the description said.
-      const near = drawn(rowSetDownBy(7))
-      const far = drawn(rowSetDownBy(23))
-      const nearControl = entryFor(near.root(), row)
-      const farControl = entryFor(far.root(), row)
+      // ⭐ THE POSITIVE HALF OF THE RULE. Forbidding the centre and the set-down
+      // still leaves 「どこにも揃えない」 open, so one case reads the placement
+      // itself: the row lays its name and its controls out in one line box, and
+      // where that box starts its items IS where the controls sit against the
+      // top edge of the name.
+      const built = drawn(rowWithControls())
+      const line = entryFor(built.root(), row).parentNode as FakeElement
 
+      expect(line, `${row} is not inside anything`).not.toBeNull()
       expect(
-        differingProperties(nearControl, farControl),
-        `${row} is drawn identically whether it is set down by 7px or by 23px`,
-      ).not.toEqual([])
-      expect(statesPixels(nearControl, 7), inlineStyle(nearControl)).toBe(true)
-      expect(statesPixels(farControl, 23), inlineStyle(farControl)).toBe(true)
-      expect(statesPixels(nearControl, 23), '7px and 23px are drawn the same').toBe(false)
+        (styleMap(line).get('align-items') ?? '').trim().toLowerCase(),
+        `the row does not start its controls at its top: ${inlineStyle(line)}`,
+      ).toBe('flex-start')
     },
   )
 
-  it('⛔ GIVEN a control declared `align-self:center`, one declared `vertical-align:middle` and one with auto margins on both ends WHEN each is read through the predicate above THEN all three are caught -- so the cases above are not greens that prove nothing (04-verification.md §2)', () => {
-    const built = drawn(rowSetDownBy(7))
+  it('⛔ GIVEN a control declared `align-self:center`, one declared `vertical-align:middle`, one with auto margins on both ends and one set down by 7px WHEN each is read through the predicates above THEN all four are caught -- so the cases above are not greens that prove nothing (04-verification.md §2)', () => {
+    const built = drawn(rowWithControls())
 
-    // ⚠️ Built by hand rather than drawn: the point is the PREDICATE, and a
-    // predicate that could not name a centred control would pass every case
-    // above no matter what the unit did.
+    // ⚠️ Built by hand rather than drawn: the point is the PREDICATES, and a
+    // predicate that could not name a centred or a set-down control would pass
+    // every case above no matter what the unit did.
     const make = (css: string): FakeElement => {
       const node = new FakeElement('button', built.world)
       node.setAttribute('style', css)
@@ -3588,15 +3583,18 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are set DOWN from the name, an
     expect(centringOn(make('vertical-align:middle'))).toEqual(['vertical-align:middle'])
     expect(centringOn(make('align-items:center'))).toEqual(['align-items:center'])
     expect(centringOn(make('margin:auto 0'))).toEqual(['margin-top:auto;margin-bottom:auto'])
+    expect(setDownOn(make('margin-top:7px'))).toEqual(['margin-top:7px'])
+    expect(setDownOn(make('padding:7px 0 0 0'))).toEqual(['padding-top:7px'])
+    expect(setDownOn(make('position:relative;top:0.5em'))).toEqual(['top:0.5em'])
     // ⭐ And what HF-5 ALLOWS is not caught, or the cases above would be
     // unpassable rather than true.
-    expect(centringOn(make('align-self:flex-start;margin-top:7px'))).toEqual([])
+    expect(centringOn(make('align-self:flex-start'))).toEqual([])
     expect(centringOn(make('text-align:center'))).toEqual([])
-    expect(statesPixels(make('margin-top:17px'), 7)).toBe(false)
-    expect(statesPixels(make('margin-top:7px'), 7)).toBe(true)
+    expect(setDownOn(make('padding:0 0.125em'))).toEqual([])
+    expect(setDownOn(make('margin-top:0'))).toEqual([])
   })
 
-  it('GIVEN a PINNED row set down by 7px WHEN its controls are read THEN the same two rules hold there (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
+  it('GIVEN a PINNED row WHEN its controls are read THEN the same three rules hold there (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
     const built = drawn(
       viewWith({
         rowTitlePanel: {
@@ -3604,7 +3602,6 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are set DOWN from the name, an
             rowTitle({
               groupId: 'g-pinned',
               isPinned: true,
-              controlTopOffsetPx: 7,
               expander: { canOpen: true, canClose: true },
             }),
           ],
@@ -3615,11 +3612,16 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are set DOWN from the name, an
 
     for (const one of T_109_ON_THE_ROW) {
       const control = entryFor(built.root(), one.row)
+      const line = control.parentNode as FakeElement
       expect(centringOn(control), `${one.row} on a pinned row centres itself`).toEqual([])
       expect(
-        statesPixels(control, 7),
-        `${one.row} on a pinned row was not set down: ${inlineStyle(control)}`,
-      ).toBe(true)
+        setDownOn(control),
+        `${one.row} on a pinned row is set down: ${inlineStyle(control)}`,
+      ).toEqual([])
+      expect(
+        (styleMap(line).get('align-items') ?? '').trim().toLowerCase(),
+        `the pinned row does not start ${one.row} at its top`,
+      ).toBe('flex-start')
     }
   })
 })

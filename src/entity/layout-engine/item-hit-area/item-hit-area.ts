@@ -524,7 +524,7 @@ export const NOT_STORED_SIZES: {
   readonly 'S-137': number
 } = {
   'S-90': 6,
-  'S-91': 6,
+  'S-91': 12,
   'S-92': [15, 15],
   'S-93': [30, 20],
   'S-137': 6,

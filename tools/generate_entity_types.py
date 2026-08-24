@@ -847,10 +847,10 @@ ARRIVES_AS_ARGUMENT = [
     ' * document on purpose (the environment may hold a larger one). This',
     ' * is what a caller passes when it has nothing better.',
 ]
-# ⛔ A THIRD SEAM: no door AND no caller. S-138 and S-139 are read by the unit
-# that draws with them, and neither crosses a contract -- S-139 is already
-# resolved into `RowTitle.controlTopOffsetPx` before it would have to, and S-138
-# is a constant of the drawing itself rather than of any one item.
+# ⛔ A THIRD SEAM: no door AND no caller. S-138 and S-140 are read by the unit
+# that draws with them, and neither crosses a contract -- S-140 is the room the
+# row control keeps, which only the side that lays the panel out can subtract,
+# and S-138 is a constant of the drawing itself rather than of any one item.
 DRAWN_WITH_WHERE_IT_STANDS = [
     ' * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a',
     ' * document setting and neither may become one: table T-206 is where',
@@ -888,7 +888,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
     'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a', 'S-143'], READ_WHERE_IT_STANDS),
-    'NOT_STORED_ROW_CONTROL_SIZES': (['S-139', 'S-140'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
@@ -1392,9 +1392,10 @@ TARGETS = [
     (os.path.join(ADAPTER, 'screen-renderer', 'command-palette.ts'),
      lambda _erd: not_stored_block('NOT_STORED_COMMAND_PALETTE_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
-    # ⭐ HF-5's set-down, resolved on the side that can resolve it. S-139 is a
-    # RATIO and what it multiplies is the row's own name size, which only this
-    # side knows -- `DocumentSettings` does not cross IF-9.
+    # ⭐ HF-5's room, resolved on the side that can resolve it. S-140 is the
+    # room the row controls keep, and what it is subtracted from is the row's
+    # own name width, which only this side knows -- `DocumentSettings` does not
+    # cross IF-9.
     (os.path.join(ADAPTER, 'screen-renderer', 'row-title-panel.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ROW_CONTROL_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),

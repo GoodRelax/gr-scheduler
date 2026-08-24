@@ -236,10 +236,6 @@ const rowTitleOf = (part: Partial<RowTitle> = {}): RowTitle => {
     expander: null,
     isPinned: false,
     isSelected: false,
-    // HF-5 of table T-051 sets the row's controls down by this much. ⭐ Zero
-    // because UF-69 never reads it: what this unit answers about a row is
-    // FR-085's whole name, and no case here would move if the number did.
-    controlTopOffsetPx: 0,
     ...part,
   }
 }

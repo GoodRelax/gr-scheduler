@@ -613,11 +613,10 @@ const STYLE = {
   panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
   // HF-5 of table T-051 (MUST NOT): the row's controls are not levelled with the
   // middle of the name. ⛔ `align-items:center` is what that row forbids in as
-  // many words, and it is answered on the row rather than on each control
-  // because HF-5 measures the set-down FROM THE TOP OF THE NAME -- so the name's
-  // top has to be a place this unit can name, and the top of the band is the
-  // only one it has. The set-down itself is `RowTitle.controlTopOffsetPx`, put
-  // on each control by `rowControlElement`.
+  // many words, and `flex-start` is the whole of what it asks for instead --
+  // that row now LEVELS the controls with the top of the name (MUST) and
+  // forbids setting them down from it (MUST NOT), so no control carries an
+  // offset of its own.
   //
   // ⚠️ WHAT THIS MOVES. In a band taller than one line of the name -- which is
   // every band with a bar in it, since a plan bar's own height (S-4) already
@@ -1481,31 +1480,20 @@ function fillScreenFrame(
  * (`glyphStyle`) rather than being left to size itself, and that box is the one
  * every other surface draws in (FR-029, MUST NOT).
  *
- * ⭐ SET DOWN FROM THE TOP OF THE NAME, WHICH IS HF-5 OF TABLE T-051 (MUST).
- * The amount is `RowTitle.controlTopOffsetPx` and arrives per row, because HF-5
- * has it follow THAT row's name size and the sizes S-36 and S-38 give a name do
- * not cross IF-9 -- the same absence `ROW_INDENT_EM` records for the indent.
- * ⛔ A margin and not a padding: what a person aims at is the control HF-6 draws
- * while the pointer is on the row, and padding would grow the target while
- * moving it.
- *
- * STOP -- ⛔ THE SET-DOWN IS IN PROPORTION TO A SIZE THE DRAWN NAME DOES NOT
- * HAVE. HF-5 has the amount follow the name's own size, and it was resolved
- * against S-36 and S-38; but `STYLE.rowLabel` sets no size, so a name is drawn
- * in the environment's text size here. ⚠️ The two are not the same size and
- * nothing makes them so: one follows the reader's machine and the other follows
- * the document. Nothing is invented in place of the missing one -- the seam that
- * withholds the indent (PD-152) withholds this for the same reason.
+ * ⭐ LEVEL WITH THE TOP OF THE NAME, WHICH IS HF-5 OF TABLE T-051 (MUST). That
+ * row levels the controls with the name's top edge and forbids both centring
+ * them and setting them down from it (MUST NOT), so nothing is added here: the
+ * row's own `align-items:flex-start` is the whole of the placement.
+ * ⛔ THE SET-DOWN THIS FUNCTION USED TO TAKE IS GONE, and the STOP that stood
+ * here with it. That amount was a proportion of a size the drawn name does not
+ * have -- `STYLE.rowLabel` sets none, so a name is drawn in the environment's
+ * text size -- and the row it came from (S-139) is retired (利用者の裁定,
+ * 2026-08-25).
  *
  * @purity non-pure
  */
-function rowControlElement(
-  host: Document,
-  role: string,
-  icon: string,
-  topOffsetPx: number,
-): HTMLElement {
-  const control = part(host, 'button', role, STYLE.rowControl + `margin-top:${topOffsetPx}px;`)
+function rowControlElement(host: Document, role: string, icon: string): HTMLElement {
+  const control = part(host, 'button', role, STYLE.rowControl)
   control.setAttribute('type', 'button')
   control.setAttribute('data-icon', icon)
   control.setAttribute('aria-label', icon)
@@ -1585,11 +1573,11 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // the two flags are put on the DOM under their own names, and whoever settles
   // the look reads them back.
   if (title.expander !== null) {
-    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58', title.controlTopOffsetPx)
+    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58')
     open.setAttribute('data-can-open', String(title.expander.canOpen))
     row.append(open)
 
-    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59', title.controlTopOffsetPx)
+    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59')
     close.setAttribute('data-can-close', String(title.expander.canClose))
     row.append(close)
   }
@@ -1610,7 +1598,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // ⛔ IT IS NOT WRITTEN ON THIS CONTROL. `readScreenPartAt` takes the innermost
   // `data-group-id` on the way up and the row this sits in already carries one,
   // so a copy here would state one row's key in two places.
-  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60', title.controlTopOffsetPx)
+  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60')
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
   row.append(pin)
@@ -2990,7 +2978,7 @@ export const NOT_STORED_ICON_SIZES: {
   readonly 'S-141': number
 } = {
   'S-138': 12,
-  'S-141': 2,
+  'S-141': 6,
 }
 
 /**

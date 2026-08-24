@@ -1073,12 +1073,6 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
   expander: null,
   isPinned: false,
   isSelected: false,
-  // HF-5 of 表 T-051 (MUST): how far BELOW the top of the name the controls are
-  // set. ⚠️ Zero is the neutral value for a case that is not about the offset --
-  // HF-5's MUST bites 「名前が操作子より大きいとき」, and a row that says the
-  // name is not bigger sets its controls down by nothing. The cases that ARE
-  // about the offset hand their own number in.
-  controlTopOffsetPx: 0,
   ...patch,
 })
 
@@ -2698,13 +2692,19 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     }
   })
 
-  it('⭐ GIVEN two rows at different depths, set down by different amounts WHEN their controls are read THEN the box is the same on both (表 T-051 HF-5 MUST: 行の名前の文字サイズにかかわらず、操作子を同じ大きさで描くこと)', () => {
+  it('⭐ GIVEN two rows at different depths WHEN their controls are read THEN the box is the same on both, and neither is set down (表 T-051 HF-5 MUST: 行の名前の文字サイズにかかわらず、操作子を同じ大きさで描くこと)', () => {
     // ⚠️ WHAT THIS UNIT CAN BE ASKED. `RowTitle` carries no text size -- the
     // name's size follows the depth through S-36 and S-38, which live on the far
-    // side of IF-9 -- so what reaches here is the DEPTH and the amount the
-    // controls are set down by (`controlTopOffsetPx`, which HF-5 makes
-    // proportional to that size). If either of those moved the box, HF-5's first
-    // MUST would be broken on this side of the seam.
+    // side of IF-9 -- so the only thing about the name's size that reaches here
+    // is the DEPTH. If that moved the box, HF-5's first MUST would be broken on
+    // this side of the seam.
+    //
+    // ⭐ AND HF-5 (MUST) NOW LEVELS THE CONTROLS WITH THE TOP OF THE NAME,
+    // forbidding both centring them and setting them down from it (MUST NOT).
+    // Nothing on IF-9 carries a set-down any more (S-139 of 表 T-206 is
+    // retired), so the two things this side can be held to are asserted below:
+    // no control carries a top offset of its own, and the row that holds them
+    // starts them at its top rather than centring them.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
@@ -2716,7 +2716,6 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
               label: 'ShallowRow',
               depth: 1,
               box: rect(0, 40, 170, 40),
-              controlTopOffsetPx: 6,
               expander: { canOpen: true, canClose: true },
             }),
             rowTitle({
@@ -2724,7 +2723,6 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
               label: 'DeepRow',
               depth: 5,
               box: rect(0, 80, 170, 18),
-              controlTopOffsetPx: 2,
               expander: { canOpen: true, canClose: true },
             }),
           ],
@@ -2740,6 +2738,23 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
       expect(boxes[0], `${icon} is drawn in two different boxes`).toEqual(boxes[1])
       expect(pixelsOf(boxes[0]?.width ?? ''), `${icon} is not S-138 wide`).toBe(S_138.px)
       expect(pixelsOf(boxes[0]?.height ?? ''), `${icon} is not S-138 tall`).toBe(S_138.px)
+      // HF-5 (MUST NOT): 上端から下げてはならない. A control that carried a top
+      // offset of its own would be set down from the name's top edge, which is
+      // exactly what that row forbids.
+      for (const row of rows) {
+        const control = iconEntry(row, icon)
+        expect(styleMap(control).get('margin-top'), `${icon} is set down`).toBeUndefined()
+        expect(styleMap(control).get('padding-top'), `${icon} is set down`).toBeUndefined()
+      }
+    }
+
+    // HF-5 (MUST): 名前の上端に揃えること, and (MUST NOT) 中央で揃えてはならない.
+    // The row lays its name and its controls out in one line box, so where that
+    // box starts its items IS where the controls sit against the name's top
+    // edge -- `center` is what HF-5 forbids in as many words.
+    for (const row of rows) {
+      expect(styleMap(row).get('align-items'), 'the row does not start its controls at the top')
+        .toBe('flex-start')
     }
   })
 

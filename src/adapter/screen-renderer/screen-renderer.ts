@@ -349,23 +349,14 @@ export interface RowTitle {
    * purpose, so the two sets are separate.
    */
   readonly isSelected: boolean
-  /**
-   * How far below the top of the name the row's controls are set, in pixels.
-   *
-   * ⭐ HF-5 of table T-051 (MUST) sets the controls down from the name's top
-   * edge rather than level with it, and forbids centring them (MUST NOT) --
-   * centring moves them whenever the name's size does, which is what HF-4
-   * forbids on the other axis. The amount is S-139 of table T-206 times THIS
-   * row's name size, which changes with depth (S-36 and S-38).
-   *
-   * ⛔ RESOLVED HERE AND NOT BY WHOEVER DRAWS IT. `DocumentSettings` does not
-   * cross IF-9, so the drawing side can reach neither S-36 nor S-38 -- the same
-   * absence `ROW_INDENT_EM` records for the indent on the far side of the seam
-   * (PD-152). A ratio handed across would be a number the receiver could not
-   * multiply.
-   */
-  readonly controlTopOffsetPx: number
 }
+
+/*
+ * ⛔ NO MEMBER CARRIES A SET-DOWN, and none may be added. HF-5 of table T-051
+ * (MUST) levels a row's controls WITH THE TOP OF ITS NAME and forbids both
+ * centring them and setting them down (MUST NOT), so there is no amount left
+ * for a row to state. ⚠️ S-139 held that amount and is retired.
+ */
 
 /**
  * HF-1 of table T-051: every row that has something under it carries an opening
