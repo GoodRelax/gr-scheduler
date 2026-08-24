@@ -52,6 +52,14 @@
 // to say that a wait is on: CS-4 forbids it (MUST NOT) and table T-078 has no
 // trigger for it.
 //
+// ⭐ IF-7 OF TABLE T-065 IS IMPLEMENTED HERE, which table T-075 gives UF-48 and
+// which is why the `Agent API` reaches a document at all: an `AgentSnapshot` is
+// made of values LY-5 leaves with this layer and of the frame ADR-001 has this
+// file compute, so nowhere else could answer it. ⛔ NOTHING IS EXPOSED FROM
+// HERE. Placing the public point is UF-47's, and this file only hands over the
+// seams and reports when a person turns FR-065's enabling -- `agentApiSeams`
+// and `watchAgentApiEnabling` are the whole of that.
+//
 // ⭐ THE FRAME THAT PAINTS A QUESTION RAISED AFTER A WAIT IS FT-1's, and the
 // table says so itself: FT-1 now covers the continuation of one input across a
 // wait, and its own note leaves raising that continuation to the shell while
@@ -139,6 +147,17 @@ import {
   validateImportedDocument,
   type ImportBounds,
 } from '../../use-case/validate-imported-document/validate-imported-document'
+// ⭐ THE ENTRY, FOR ITS SIGNATURE ALONE. `installAgentApi` is the one name
+// PI-17 of table T-064 publishes beside the seam, and every type this file
+// needs from that component -- IF-7's implementation and the four seams PI-8
+// and PI-16 declare for it -- is reachable through it. ⛔ Reached this way
+// rather than by importing those types one at a time: `AgentApiWiring`,
+// `DialogueLogHolder` and `DialogueAudience` are names no row of table T-064
+// carries, and a name that crosses a component folder without a row is what the
+// reverse walk of check 26b refuses.
+// ⛔ NOTHING IS INSTALLED HERE. Placing the public point is UF-47's (table
+// T-075), and `single-html-shell.ts` does it; this file supplies the values.
+import type { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 import {
   documentFromJson,
   documentFromMspdi,
@@ -234,6 +253,38 @@ export interface FrameValues {
  */
 export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-5' | 'RD-6' }>
 
+/** PI-17's argument list, which is the one route to the five types below. */
+type AgentApiWiring = Parameters<typeof installAgentApi>[0]
+
+/**
+ * The members of PI-17's wiring that are current values LY-5 of table T-060
+ * leaves with this layer, gathered so that the file which PLACES the public
+ * point can hand them over without holding any of them itself.
+ *
+ * ⛔ THE TWO THAT ARE MISSING ARE MISSING BECAUSE THIS FILE CANNOT ANSWER THEM.
+ * `writerName` is ED-2 of table T-229 -- 「呼び手が申告した名」 -- and
+ * `schemaVersion` is AM-2, which the startup template carries; both belong to
+ * the side that installs, and its own notes say what each is settled from.
+ * ⚠️ Derived from the wiring rather than listed member by member, so a member
+ * added on that side lands here as a type error instead of being forgotten.
+ */
+export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
+
+/**
+ * The rows of table T-233 BO-2 of table T-077 can be told on.
+ *
+ * ⭐ WHY BO-2 NEEDS A ROAD OF ITS OWN. FR-067 (MUST) and FR-062 (MUST NOT) both
+ * have a startup candidate that could not be taken TOLD rather than dropped,
+ * and `chooseStartupDocument` (PI-14) answers with what has to be told -- but
+ * BO-2 runs before this loop exists, so the raiser it needs cannot be reached
+ * at the moment it decides. ⛔ Nothing is queued here instead: the caller keeps
+ * what it has to say until it has a loop, which is the only order table T-077
+ * admits.
+ * ⚠️ `RS-15` IS AMONG THEM, and it is the one place in this file that raises it
+ * -- see `NoticeReason` for what that row is and why nothing else uses it.
+ */
+export type StartupNoticeReason = Extract<NoticeReason, 'RS-15' | 'RS-17' | 'RS-21' | 'RS-25'>
+
 export interface FrameLoop {
   /**
    * FT-2: the current value was replaced, so a frame is owed.
@@ -286,6 +337,48 @@ export interface FrameLoop {
    * @purity semi-pure-b
    */
   exportScene(): ExportScene | null
+  /**
+   * The seams `installAgentApi` (PI-17) is wired from, all of them values this
+   * layer alone may hold (LY-5 of table T-060).
+   *
+   * ⭐ ANSWERED WHOLE AND ONCE. The five are built with the loop and never
+   * replaced, so a caller that installed twice would install against the same
+   * seams -- which is what FR-065's third MUST already says of a reference
+   * handed out: it goes on working.
+   *
+   * @purity semi-pure-b
+   */
+  agentApiSeams(): AgentApiSeams
+  /**
+   * Hear FR-065's enabling turn, so that the side which places the public point
+   * can put it there and take it away again.
+   *
+   * ⛔ WHY THIS EXISTS AT ALL. FR-028 (MUST) keeps the `Agent API` unexposed by
+   * default and FR-065 (MUST) lets a person turn it on, and IC-20 of table
+   * T-109 lands on a current value this loop holds -- so the only party that
+   * can see it turn is this one, while the only party that may place a public
+   * name is UF-47 of table T-075.
+   * ⚠️ ONE WATCHER, REPLACED BY THE NEXT. Nothing in table T-078 makes this a
+   * trigger and no requirement asks for more than one listener; a second caller
+   * would be a second holder of the public point.
+   * ⚠️ NOT CALLED BACK FOR THE STATE IT IS IN when it is set: it starts off,
+   * which FR-028 requires, so there is nothing to report until it moves.
+   *
+   * @purity non-pure
+   */
+  watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void
+  /**
+   * FR-076 (MUST): raise what BO-2 of table T-077 had to tell but had no loop
+   * to tell it on.
+   *
+   * ⚠️ RAISED AND NOT TOLD, exactly as every other reason this loop raises is:
+   * the row goes onto `ScreenSession.notices` and the words are the
+   * dictionary's (FR-038, MUST NOT). ⭐ NT-4 of table T-037 -- 「起動時の保留中
+   * の用件を 1 枚に集約」 -- is kept by that list being one list.
+   *
+   * @purity non-pure
+   */
+  raiseStartupNotice(reason: StartupNoticeReason): void
 }
 
 /**
@@ -461,10 +554,14 @@ const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
  * supplied one would be the second store of translated strings FR-038 forbids
  * (MUST NOT).
  *
- * ⚠️ `RS-15` IS DELIBERATELY ABSENT. It is where the DICTIONARY lands when it is
- * asked for a key it does not hold, and every reason this file has is a row of
- * its own -- handing that row over would say something untrue about the reason
- * at hand.
+ * ⚠️ `RS-15` IS HERE FOR ONE RAISER AND NO OTHER. FR-076 says in as many words
+ * that it is 「行の無い理由に落ち先を与える」 row, and BT-1's second failure is
+ * the first reason in this file that has no row of its own: FR-067 (MUST) makes
+ * 「入れ口が 1 つでない」 a thing to be told, and table T-233 holds nothing for
+ * it. ⛔ Every other reason below is a row of its own, and handing RS-15 over
+ * for one of those would say something untrue about the reason at hand. ⚠️ It
+ * is also where the DICTIONARY lands when it is asked for a key it does not
+ * hold, which is why a raiser may not reach for it out of convenience.
  */
 type NoticeReason =
   | 'RS-1'
@@ -481,9 +578,13 @@ type NoticeReason =
   | 'RS-12'
   | 'RS-13'
   | 'RS-14'
+  | 'RS-15'
   | 'RS-16'
+  | 'RS-17'
+  | 'RS-20'
   | 'RS-21'
   | 'RS-23'
+  | 'RS-25'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -513,9 +614,13 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-12': 'NT-1',
   'RS-13': 'NT-1',
   'RS-14': 'NT-5',
+  'RS-15': 'NT-3a',
   'RS-16': 'NT-5',
+  'RS-17': 'NT-3a',
+  'RS-20': 'NT-5',
   'RS-21': 'NT-1',
   'RS-23': 'NT-3a',
+  'RS-25': 'NT-1',
 }
 
 /**
@@ -606,8 +711,11 @@ const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
  * ⚠️ ITS MANNER IS `NT-1`, which FR-088 states itself (「受け付けずに通知する
  * こと（MUST）…作法は `FR-076` の `NT-1`」). The census above is where that
  * pairing is read out of table T-233.
+ * ⚠️ NARROWED TO THE ONE ROW rather than typed as the whole union, because BO-2
+ * of table T-077 raises it as well and `StartupNoticeReason` admits only the
+ * three rows that road can carry.
  */
-const NO_WORKING_WEEKDAY_REASON: NoticeReason = 'RS-21'
+const NO_WORKING_WEEKDAY_REASON: Extract<NoticeReason, 'RS-21'> = 'RS-21'
 
 /**
  * The row of table T-233 a change watcher that did not answer is told on.
@@ -618,6 +726,22 @@ const NO_WORKING_WEEKDAY_REASON: NoticeReason = 'RS-21'
  * failed in silence leaves nobody able to act on it.
  */
 const WATCHER_SILENT_REASON: NoticeReason = 'RS-23'
+
+/**
+ * The row of table T-233 FR-065's third MUST is kept with -- 「無効にしても、
+ * 既に渡した参照は取り消せないことを利用者に示すこと」.
+ *
+ * ⭐ RAISED ON THE TURN TO OFF, which is the moment that sentence is about: a
+ * person who has just disabled the `Agent API` is the person who might read the
+ * disabling as taking a reference back. ⚠️ ITS MANNER IS `NT-5`, and NT-5's own
+ * roster in table T-037 names 「`FR-065` の渡した参照」 among what it covers --
+ * the disabling was ACCEPTED and the caution rides along with it, so nothing
+ * about the press is turned away.
+ * ⛔ IT IS NOT A GUESS ABOUT WHETHER A REFERENCE WAS EVER TAKEN. `installAgentApi`
+ * answers with a value the caller keeps, and no member of table T-107 reports
+ * that one was handed on -- so the telling is owed whenever the API was on.
+ */
+const HANDED_REFERENCE_STANDS_REASON: NoticeReason = 'RS-20'
 
 /**
  * The row of table T-220 FR-088 refuses on.
@@ -632,6 +756,30 @@ const WATCHER_SILENT_REASON: NoticeReason = 'RS-23'
  * T-233 to be told on, which is the same gap the OP-5 verdict already records.
  */
 const NO_WORKING_WEEKDAY_INVARIANT = 'IV-17'
+
+/**
+ * FR-088's gate, asked of one document: the row it has to be turned away on, or
+ * `null` when it passes.
+ *
+ * ⭐ WHY IT IS A FUNCTION OF THIS FILE AND NOT OF THE BOOT FILE. The row id
+ * above and the reason below are the join between table T-220 and table T-233,
+ * and rule 03 section 3 forbids a second copy of either; BO-2 of table T-077
+ * needs the same gate for BT-1 of table T-034, so the two roads ask one
+ * question rather than spelling two ids twice.
+ * ⛔ WHY BT-1 NEEDS IT AT ALL. A calendar that works no weekday leaves every
+ * count of working days with no day to reach, and `schedule.ts` throws rather
+ * than answer -- so a document carrying one has to be refused BEFORE it becomes
+ * the current document, and after BO-2 there is no road left that does not end
+ * in the drawing.
+ *
+ * @purity pure
+ */
+export function noWorkingWeekdayReason(document: Document): StartupNoticeReason | null {
+  const violated = scheduleViolations(document.schedule, document.documentSettings).some(
+    (one) => one.row === NO_WORKING_WEEKDAY_INVARIANT,
+  )
+  return violated ? NO_WORKING_WEEKDAY_REASON : null
+}
 
 /**
  * U-56 `Open Chooser` of table T-103 -- the surface OP-3 of table T-024a puts
@@ -1776,6 +1924,11 @@ export function frameLoop(
   // 「既定で公開しない」. What is NOT kept, and why no key is written for it, is
   // in `sessionOf`.
   let isAgentApiEnabled = false
+  // Who to tell when that turns, or `null` while nobody has asked.
+  // ⛔ NOT A LIST. FR-065's public point is one name in one place, so one
+  // listener is all there is to be; `watchAgentApiEnabling` says the same from
+  // the far side.
+  let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
   // FR-038 (MUST): one language for the whole screen. `ScreenWiring` carries
   // what startup settled on -- S-99 if the store had it, the host otherwise --
   // and this carries what the person has chosen since.
@@ -1912,10 +2065,21 @@ export function frameLoop(
   // literal where the context is built, so that whoever closes IC-45 has the
   // one place to set it from.
   let isDualCursorMode = false
-  // ⛔ Cannot change in this build, and is held for the same reason
-  // `screenState` is: the only thing that moves it is `logWithMessage` (PI-33),
-  // which sits behind FT-5 of table T-078 and is not wired.
-  const dialogueLog: DialogueLog = emptyDialogueLog()
+  // FR-066 -- the conversation, which is NOT in the document (that MUST NOT)
+  // and is therefore a current value LY-5 of table T-060 leaves here.
+  //
+  // ⭐ IT MOVES IN THIS BUILD, WHICH IT DID NOT BEFORE. `postDialogueMessage`
+  // (PI-16) is what appends, and AM-18 of table T-107 reaches it now that the
+  // `Agent API` is installed -- `agentApiSeams` below hands over the two seams
+  // that road needs, and `dialogueSeams` is where the replacing and FT-5's
+  // frame happen.
+  // STOP -- ⛔ THE PERSON'S OWN SIDE IS STILL NOT WIRED, and it is a different
+  // seam from this one. `ScreenSurface.readDialogueInput` (IF-9) and
+  // `dialogueMessageFromInput` (PI-37) both exist and `screen-surface.ts`
+  // states the caller's half of that contract -- read the settled line BEFORE
+  // the draw that takes it away -- but nothing in `src/` asks for it, so every
+  // message in this log arrives from the API's end today.
+  let dialogueLog: DialogueLog = emptyDialogueLog()
 
   /**
    * What table T-060's LY-5 lets `applyDocumentChange` replace.
@@ -2289,6 +2453,138 @@ export function frameLoop(
     }
   }
 
+  // ---- FR-065: the Agent API ----------------------------------------------
+
+  /**
+   * The bounds a settings write is judged against that the document does not
+   * keep: the zoom's two (S-97 / S-98) and the width FR-052 measures a panel
+   * against.
+   *
+   * ⭐ ONE PLACE FOR THE SUM FR-052 IS MEASURED AGAINST, because two roads need
+   * it now: the screen's own writes and the snapshot an `Agent API` call is
+   * answered from. `SettingsLimits` states the sum itself and forbids rebuilding
+   * it from a window width -- the copy that did dropped the scrollbar term.
+   *
+   * ⛔ WITH NO FRAME THERE IS NO WIDTH, AND `0` IS WHAT THAT SAYS. BO-1 of table
+   * T-077 (NFR-011, MUST) forbids a frame before the dimensions have settled, so
+   * before the first one there is no `Row Area` to measure and nothing here may
+   * invent one. ⚠️ Reachable only from the snapshot, and only in a state the
+   * `Agent API` cannot be installed in -- IC-20 of table T-109 is a press on a
+   * header that has been drawn.
+   *
+   * @purity semi-pure-b
+   */
+  function settingsLimitsOf(frame: FrameValues | null): SettingsLimits {
+    const stored = held.document.documentSettings
+    return {
+      zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
+      zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
+      rowAreaWidthWithoutPanels:
+        frame === null
+          ? 0
+          : frame.regions.rowArea.width + stored.rowTitlePanelWidth + stored.propertyPanelWidth,
+    }
+  }
+
+  /**
+   * FR-065 -- the enabling moved, so whoever places the public point is told.
+   *
+   * ⭐ ONE DOOR FOR BOTH WAYS AND FOR BOTH REASONS. A person moves it with IC-20
+   * and a whole-document replacement puts it back to false, and the party that
+   * has to install or uninstall may not learn about one of those and not the
+   * other. ⛔ Nothing is told when it did not move: FR-028's exposure is a state,
+   * not an event, and telling twice would have the installer place the name over
+   * a reference it had already handed out.
+   *
+   * @purity non-pure
+   */
+  function setAgentApiEnabled(next: boolean): void {
+    if (next === isAgentApiEnabled) return
+    isAgentApiEnabled = next
+    agentApiEnablingWatch?.(next)
+  }
+
+  /**
+   * IF-7 of table T-065, which UF-48 of table T-075 gives this file.
+   *
+   * ⭐ EVERYTHING AT ONCE, which is the whole of what that seam asks for: CS-3 of
+   * table T-066 makes one `Agent API` call one consistency unit, and AG-4 of
+   * table T-035 forbids a caller to be handed a document from before a release
+   * beside a selection from after it. Every member below is read from what this
+   * loop holds at this instant and nothing is computed twice.
+   *
+   * ⚠️ THE FREEZING IS NOT DONE HERE. `snapshot-source.ts` says so from the far
+   * side: the copy AG-4 asks for is made by the component that answers a caller,
+   * and freezing the values where they are held would freeze the ones this loop
+   * is about to replace.
+   */
+  const snapshotSource: AgentApiSeams['source'] = {
+    /** @purity semi-pure-b */
+    readSnapshot() {
+      // ⭐ READ ONCE INTO A LOCAL so that the frame the picture came from and
+      // the frame the bounds were measured against are the same frame.
+      const frame = values
+      return {
+        document: held.document,
+        selection,
+        dialogue: dialogueLog,
+        // `FrameValues` and `FrameSnapshot` are the same three members; ADR-001
+        // computed them at the head of this frame and this hands them on rather
+        // than running table T-068 again for one call.
+        frame,
+        exportScene: exportScene(),
+        isGestureInFlight: isDocumentChangingPress(pressed),
+        // ⛔ FALSE BECAUSE NOTHING CAN BE UNSETTLED, not because AG-9's second
+        // half is being skipped: `collectInputContext` records that no in-place
+        // entry exists in this build, and `collectWriteMoment` answers the same
+        // for WS-2 of table T-067. ⚠️ One of the two turns true the day that
+        // entry lands, and both of them have to.
+        isEditingInPlace: false,
+        historyLimits: HISTORY_LIMITS,
+        settingsLimits: settingsLimitsOf(frame),
+        // ⚠️ The wall clock, and rightly so: AT-129 spells a MOMENT, and R3.6
+        // sends only an elapsed time to a monotonic one.
+        readAt: readInstantOfWrite(),
+      }
+    },
+  }
+
+  /**
+   * PI-16's two seams, which `postDialogueMessage` needs and which LY-5 of table
+   * T-060 leaves with this layer because FR-066 (MUST NOT) keeps the log out of
+   * the document.
+   *
+   * ⭐ FT-5 OF TABLE T-078 IS THE FRAME THIS ASKS FOR, and it is that row and
+   * not a trigger minted here: 「日程データの群の刻を動かさずに届いた発話」 is
+   * delivered by CP-16, which reaches this side through `deliver`.
+   * ⛔ THE WATCHERS ARE WOKEN THROUGH THE ONE AUDIENCE THIS LOOP ALREADY HAS.
+   * `notifyChangeWatchers` (PI-15) takes the document, the judgement and the log
+   * together, and AG-11 of table T-035 counts an utterance in an order of its
+   * own -- so the schedule is declared unmoved and the log it carries is the one
+   * the append just left behind.
+   */
+  const dialogueSeams: Pick<AgentApiSeams, 'dialogueHolder' | 'dialogueAudience'> = {
+    dialogueHolder: {
+      /** @purity semi-pure-b */
+      read: () => dialogueLog,
+      /** @purity non-pure */
+      replace(next: DialogueLog): void {
+        dialogueLog = next
+      },
+    },
+    dialogueAudience: {
+      /** @purity non-pure */
+      deliver(): void {
+        // ⚠️ THE ARGUMENT IS NOT READ, and it is the same log: the holder above
+        // was replaced before this ran (CP-16 fixes that word order), so the
+        // audience below takes what this loop now holds and the two cannot
+        // disagree.
+        audience.deliver(held.document, false)
+        if (settled(environment)) ask()
+      },
+    },
+  }
+
   // ---- FT-1 of table T-078 ------------------------------------------------
 
   /**
@@ -2404,17 +2700,10 @@ export function frameLoop(
    * @purity non-pure
    */
   function writeDocument(commands: readonly DocumentCommand[], frame: FrameValues): void {
-    const stored = held.document.documentSettings
-    const settingsLimits: SettingsLimits = {
-      zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
-      zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
-      // ⭐ The sum `edit-document-settings.ts` spells on this member: this
-      // frame's own `Row Area` with the two panel widths added back on.
-      // ⛔ NOT rebuilt from a window width -- the copy that did dropped
-      // FR-052's scrollbar term, and FR-052 counts it.
-      rowAreaWidthWithoutPanels:
-        frame.regions.rowArea.width + stored.rowTitlePanelWidth + stored.propertyPanelWidth,
-    }
+    // ⭐ The sum `edit-document-settings.ts` spells on that member, worked out
+    // in the one place that works it out (`settingsLimitsOf`) -- this frame's
+    // own `Row Area` with the two panel widths added back on.
+    const settingsLimits = settingsLimitsOf(frame)
     const outcome = applyDocumentChange(
       {
         commands,
@@ -2490,8 +2779,11 @@ export function frameLoop(
       // ⛔ THIS IS THE HALF OF FR-065 THAT CAN BE KEPT WITHOUT AN IDENTIFIER.
       // The remembering half needs one and nothing derives one; `sessionOf`
       // carries that STOP.
+      // ⭐ THROUGH THE ONE DOOR, so the side that placed the public point hears
+      // this turn as well as IC-20's -- an entrance left standing over a
+      // document the person never opened it for is the exposure FR-028 forbids.
       if (call.row === 'RD-4' || call.row === 'RD-5' || call.row === 'RD-6') {
-        isAgentApiEnabled = false
+        setAgentApiEnabled(false)
       }
       if (settled(environment)) ask()
       return true
@@ -2753,12 +3045,9 @@ export function frameLoop(
     // the landing is the write -- there is no moment after it at which FR-088's
     // 「受け付けず」 is still available. Chosen the reading that cannot let a
     // calendar with no working weekday become the document's.
-    if (
-      scheduleViolations(incoming.schedule, incoming.documentSettings).some(
-        (one) => one.row === NO_WORKING_WEEKDAY_INVARIANT,
-      )
-    ) {
-      raiseNotice(NO_WORKING_WEEKDAY_REASON, null)
+    const noWorkingWeekday = noWorkingWeekdayReason(incoming)
+    if (noWorkingWeekday !== null) {
+      raiseNotice(noWorkingWeekday, null)
       return
     }
 
@@ -3338,7 +3627,15 @@ export function frameLoop(
         // the renderer's; this side holds the fact.
         // ⛔ NOT WRITTEN TO `localStorage`: see `sessionOf` for the identifier
         // that is missing and why no key is invented for it.
-        isAgentApiEnabled = !isAgentApiEnabled
+        // ⭐ THE PUBLIC POINT FOLLOWS THIS, and not the other way round: the
+        // watcher `setAgentApiEnabled` wakes is what places the name and takes
+        // it away again, which is how FR-028's 「既定では公開しない」 stays true
+        // from the second press on.
+        setAgentApiEnabled(!isAgentApiEnabled)
+        // FR-065 (MUST): 「無効にしても、既に渡した参照は取り消せないことを利用者
+        // に示すこと」. ⛔ Raised on the way OFF only -- that sentence is about
+        // what disabling does not do, and NT-5 keeps the press itself accepted.
+        if (!isAgentApiEnabled) raiseNotice(HANDED_REFERENCE_STANDS_REASON, null)
         return
     }
   }
@@ -3632,5 +3929,20 @@ export function frameLoop(
     /** @purity semi-pure-b */
     document: () => held.document,
     exportScene,
+    /** @purity semi-pure-b */
+    agentApiSeams: () => ({
+      source: snapshotSource,
+      holder,
+      audience,
+      ...dialogueSeams,
+    }),
+    /** @purity non-pure */
+    watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void {
+      agentApiEnablingWatch = watch
+    },
+    /** @purity non-pure */
+    raiseStartupNotice(reason: StartupNoticeReason): void {
+      raiseNotice(reason, null)
+    },
   }
 }

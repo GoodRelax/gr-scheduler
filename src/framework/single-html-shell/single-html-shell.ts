@@ -48,6 +48,20 @@
 // S-95) all reach the loop through NOT_STORED_* constants that
 // `tools/generate_entity_types.py` prints from the manuscript.
 //
+// ⭐ BT-1 OF TABLE T-034 IS READ HERE, out of the container CP-25's own
+// responsibility column says this component holds. FR-067's exactly-one check
+// and its notify-then-descend are `embeddedStartupDocument`'s, and the id it
+// looks for is fixed by the contract `app-shell-source.ts` carries.
+// ⛔ The counterpart is still owed: UF-47 also owes `AppShellSource`'s
+// implementation (IF-8), and nothing in `src/` implements it -- so this build
+// can READ an embedded document and cannot WRITE one, and index.html ships no
+// container for a writer to find.
+//
+// ⭐ THE PUBLIC POINT IS PLACED HERE, which is the other half of UF-47's row:
+// `installAgentApi` (PI-17) builds the surface and refuses to place it, and
+// FR-065 / FR-028 decide when the name is there and when it is gone. The
+// section near the end of `boot` carries the whole of that reasoning.
+//
 // ⭐ IF-3 IS BUILT HERE AND USED IN THE LOOP. This file is the only one that
 // may touch the host, so it is where the two pickers and the drop surface are
 // gathered into `FileSystemAccessEnvironment` (PI-28) -- and the store then
@@ -57,6 +71,12 @@
 
 import { chooseStartupDocument } from '../../use-case/choose-startup-document/choose-startup-document'
 import type { Document } from '../../entity/document-model/document/document'
+// ⭐ THE ENTRY ITSELF, because this file CALLS it: PI-17 of table T-064
+// publishes `installAgentApi`, and UF-47 of table T-075 gives 「公開点を置くこと」
+// to this unit. ⛔ Nothing else of that component is imported -- the wiring's
+// own shape is derived from this signature below, so no name crosses the folder
+// that table T-064 has no row for.
+import { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 import { documentFromJson } from '../../adapter/document-codec/document-codec'
 import type { DisplayLanguage } from '../../adapter/screen-renderer/screen-renderer'
 import { domInputSource } from '../dom-input-source/dom-input-source'
@@ -72,9 +92,11 @@ import {
 } from '../file-system-access-file-store/file-system-access-file-store'
 import {
   frameLoop,
+  noWorkingWeekdayReason,
   startupDisplayLanguage,
   type FrameEnvironment,
   type FrameLoop,
+  type StartupNoticeReason,
 } from './frame-loop'
 import startupTemplate from './startup-template.json'
 
@@ -126,12 +148,94 @@ const SCROLLBAR_PROBE_PX = 100
  * ⚠️ WHAT THAT COSTS, stated rather than papered over: AG-6 of table T-035
  * tells writers apart by the name alone, so a subscriber installed under an
  * equally empty name would be woken by the person's own utterances, which that
- * row forbids (MUST NOT). ⛔ Nothing installs a subscriber yet -- see the STOP
- * in `boot` -- so the two cannot collide today. Table T-229 does not settle
- * this name either: it governs `lastEditedBy`, and an utterance is not a write
- * to the document (FR-066, MUST NOT).
+ * row forbids (MUST NOT). ⭐ A SUBSCRIBER CAN NOW BE INSTALLED -- AM-17 of table
+ * T-107 is reachable the moment `installAgentApi` runs below -- and the two
+ * still cannot collide, because it subscribes under `AGENT_API_WRITER` and that
+ * name is not empty. Table T-229 does not settle this one either: it governs
+ * `lastEditedBy`, and an utterance is not a write to the document (FR-066,
+ * MUST NOT).
  */
 const AUTHOR_NOT_HELD = ''
+
+/**
+ * BT-1 of table T-034 -- the `id` of the element the embedded document is read
+ * out of, which the shell owns because CP-25's own responsibility column says
+ * it holds the embedding container.
+ *
+ * ⭐ NOT MINTED HERE. The header of `app-shell-source.ts` carries the contract
+ * that fixes this value, why it is not free to vary, and why it may not be a
+ * constant exported from DocumentCodec instead -- section 5-1 of
+ * previous-project-result/10-agent-interface/agent-interface-spec-ja.md is the
+ * document it comes from, at rank 3 of section 6 of
+ * docs/development-rules/03-implementation.md.
+ * ⚠️ Written here rather than only being handed across IF-8, because BT-1 READS
+ * it and IF-8 is the writing seam; the same spelling is what makes the writer
+ * aim at the element the reader opens.
+ */
+const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document'
+
+/**
+ * What that container holds when nobody has embedded a document.
+ *
+ * ⭐ THE CONTRACT'S OWN DEFAULT, not a convenience: the same section 5-1 ships
+ * the artifact with the container in place holding the JSON literal `null`, and
+ * its rule 7 makes 「入れ口が空かどうか」 the ONE test for 「誰かが意図して文書を
+ * 入れた」. ⛔ So it may not be read as an unreadable document: `documentFromJson`
+ * would refuse it (a `null` is not a `Document`) and FR-067's telling would then
+ * fire on every ordinary run of an untouched artifact, which is a telling about
+ * nothing.
+ */
+const EMBEDDED_DOCUMENT_ABSENT = 'null'
+
+/**
+ * Where the `Agent API` appears while it is on.
+ *
+ * ⭐ THE SETTLED IDENTIFIER, COPIED SPELLING AND ALL (rule 03 section 1):
+ * section 3 of `_assets/tbl-glossary.md` fixes `grSchedulerAgentApi` on
+ * `globalThis`, gives the reason for the product prefix, and forbids minting
+ * another. ⛔ `installAgentApi` deliberately does not place it -- its own note
+ * says choosing a place would be inventing a public name -- so the choosing is
+ * this file's and the name is the glossary's.
+ * ⚠️ `globalThis` and NOT `window`: the glossary says so, and a name bound to a
+ * browser's own object would be a lie in any host that has no window.
+ */
+const AGENT_API_IDENTIFIER = 'grSchedulerAgentApi'
+
+/**
+ * The name every write and every utterance from the `Agent API` is recorded
+ * under.
+ *
+ * STOP -- ⛔ ED-2 OF TABLE T-229 GIVES THIS NAME TO THE CALLER, and no member of
+ * table T-107 lets a caller declare one: `installAgentApi` takes it once, at
+ * install, and the eighteen members carry no place to say who is speaking. So
+ * every caller of this build's API shares one name.
+ * ⚠️ THE CONSEQUENCE IS ALREADY WRITTEN DOWN rather than being new here: LM-16
+ * of table T-004 says two callers naming themselves alike cannot be told apart
+ * and are woken by each other's writes, and records that closing it means
+ * carrying an identity on the watching seam -- 「それは別の裁定である」.
+ * ⛔ WHAT IS KEPT MEANWHILE. FR-063 (MUST) sends the word to table T-229, and
+ * that table's MUST NOT forbids a caller to take the two words it reserves --
+ * `user` for the screen (ED-1) and `template` for the shipped template (ED-3).
+ * This is neither, so AG-6 tells this writer from both.
+ */
+const AGENT_API_WRITER = 'agent'
+
+/**
+ * The key BT-1's document would be filed under if anything filed it.
+ *
+ * STOP -- ⛔ NOTHING IN THIS BUILD DERIVES A DOCUMENT IDENTIFIER, and this file
+ * does not invent one. `choose-startup-document.ts` carries the same STOP from
+ * the far side: no requirement says what makes two documents the same one,
+ * `Project.id` is not it (AT-1 is nullable and is marked as no primary key), and
+ * S-99b of table T-206 names an identifier without defining one.
+ * ⭐ IT IS COMPARED AGAINST NOTHING TODAY. UF-23 reads a key only to tell a
+ * losing autosave's document from the winner's, and BT-3 hands `none` in this
+ * build -- so the empty string travels and is never looked at.
+ * ⛔ THE DAY BT-3 GAINS A PRODUCER THIS LINE HAS TO GAIN A KEY FIRST: two
+ * documents filed under one empty key would read as the same document, which is
+ * exactly the confusion FR-061 forbids (MUST NOT).
+ */
+const DOCUMENT_KEY_NOT_DERIVED = ''
 
 /**
  * BT-4 of table T-034 -- the template FR-027 keeps exactly one of.
@@ -158,6 +262,105 @@ function startupTemplateDocument(): Document {
     )
   }
   return read.document
+}
+
+/** UF-23's argument list, which is the one route to the candidate below. */
+type StartupCandidates = Parameters<typeof chooseStartupDocument>[0]
+
+/** BT-1's candidate, as UF-23 declares it (PI-14 publishes no name for it). */
+type EmbeddedCandidate = StartupCandidates['embedded']
+
+/** The codes UF-23 answers with, named through its own answer for the same reason. */
+type StartupNoticeCode = ReturnType<typeof chooseStartupDocument>['notices'][number]['code']
+
+/**
+ * Which row of table T-233 each thing BO-2 has to tell is told on.
+ *
+ * ⭐ A CENSUS THE COMPILER KEEPS, the move `frame-loop.ts` makes for every other
+ * reason it raises: a code added on UF-23's side is a compile error here rather
+ * than a startup that decides in silence.
+ * ⛔ TWO OF THE FOUR FALL TO `RS-15`, and that is the row FR-076 provides for
+ * exactly this -- 「行の無い理由に落ち先を与えるのが `RS-15` である」. Table T-233
+ * holds nothing for 「入れ口が 1 つでない」 and nothing for a file handed at
+ * startup that could not be read: RS-4 and RS-11 .. RS-13 belong to OP-12's
+ * dispatch of table T-024a, which BT-2 has not been through. ⚠️ A row of that
+ * table for either is what is owed.
+ * ⭐ The other two ARE rows of their own: RS-25 is 「読んだ `GRS JSON` の列が、
+ * 決められた形に合わない」, which is what BT-1's container holds, and RS-17 is
+ * FR-026's own 「自動保存した内容が壊れていて、復旧できない」.
+ */
+const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeReason>> = {
+  embeddedUnreadable: 'RS-25',
+  embeddedEntryCountNotOne: 'RS-15',
+  handedUnreadable: 'RS-15',
+  autosaveBroken: 'RS-17',
+}
+
+/**
+ * BT-1 of table T-034 -- the document embedded in this file, read out of its
+ * container, with FR-088's gate held against it before it can win.
+ *
+ * ⭐ WHY ZERO CONTAINERS IS `none` AND NOT 「1 つでない」. FR-067's telling is
+ * about a file whose embedding is ambiguous, and index.html in this repository
+ * ships no container at all -- so zero is the ordinary first run of an ordinary
+ * build, and reporting it as a fault would raise FR-067's notice on every one of
+ * them. ⛔ TWO OR MORE IS THE REAL CASE that requirement names, and it descends
+ * with a telling rather than picking a winner: the writer's side refuses the
+ * same file for the same reason (`moreThanOneEntry` in `embedded-html-codec.ts`).
+ *
+ * ⭐ FR-088's GATE IS HELD HERE AND NOWHERE LATER. BT-1 is untrusted intake --
+ * R-1 and R-3 of table T-008 -- and a calendar that works no weekday leaves
+ * every count of working days with no day to reach, so the document has to be
+ * turned away BEFORE it becomes the current one. `noWorkingWeekdayReason` is
+ * where the invariant row and the notice row are joined, so neither is spelled
+ * twice.
+ *
+ * STOP -- ⛔ FR-023's VALIDATION IS NOT RUN OVER IT, and that is not this
+ * function's to fix. `validateImportedDocument` (PI-13) exists, but
+ * `frame-loop.ts` records from the open path that its refusals reach nobody:
+ * each names a row of table T-220, and `display-words.json` has no section keyed
+ * on those, so there is nothing for the words to be read out of. ⚠️ The gate
+ * above is the one check of the two that CAN be told.
+ *
+ * @purity semi-pure-b
+ */
+function embeddedStartupDocument(): {
+  readonly candidate: EmbeddedCandidate
+  /** FR-088's row when the gate turned BT-1 away, `null` otherwise. */
+  readonly refusal: StartupNoticeReason | null
+} {
+  const containers = document.querySelectorAll(`#${EMBEDDED_DOCUMENT_ELEMENT_ID}`)
+  if (containers.length === 0) return { candidate: { kind: 'none' }, refusal: null }
+  if (containers.length > 1) {
+    return {
+      candidate: { kind: 'entryCountNotOne', entryCount: containers.length },
+      refusal: null,
+    }
+  }
+  const embedded = containers[0]?.textContent?.trim() ?? ''
+  if (embedded === '' || embedded === EMBEDDED_DOCUMENT_ABSENT) {
+    return { candidate: { kind: 'none' }, refusal: null }
+  }
+  // ⛔ Through the same reader every other intake takes (FR-023 calls every one
+  // untrusted). ⚠️ NOTHING IS UN-ESCAPED FIRST: what the writer put in the
+  // container is still JSON -- `embeddedJson` replaces each `<` with that
+  // character's own JSON escape so that no `</script>` can end the tag early --
+  // so the reader below gives the character back and a step here would corrupt
+  // it.
+  const read = documentFromJson(embedded)
+  if (!read.ok) return { candidate: { kind: 'unreadable' }, refusal: null }
+  const refusal = noWorkingWeekdayReason(read.document)
+  // FR-067: a rank that yields nothing descends rather than starting empty, so
+  // a refused BT-1 hands `none` and the telling travels beside it.
+  if (refusal !== null) return { candidate: { kind: 'none' }, refusal }
+  return {
+    candidate: {
+      kind: 'read',
+      document: read.document,
+      documentKey: DOCUMENT_KEY_NOT_DERIVED,
+    },
+    refusal: null,
+  }
 }
 
 /**
@@ -332,10 +535,9 @@ function boot(): void {
   const fileStore = fileSystemAccessFileStore(fileSystemAccessEnvironment())
 
   // ---- BO-2 ---------------------------------------------------------------
-  // Table T-034's order. Only BT-4 can yield anything yet, and the three ahead
-  // of it are each missing something different:
+  // Table T-034's order. BT-1 IS READ NOW; the two after it are still missing
+  // something different, and neither absence is a stand-in:
   //
-  //   BT-1  DocumentCodec's embedded document (FR-067) is not read here yet.
   //   BT-2  ⛔ IF-3 HAS NO MEMBER FOR IT AND CANNOT. Table T-034 sends this
   //         rank to R-1 of table T-008 -- a file chooser or a drop -- and
   //         neither has happened at the moment BO-2 runs. `readFileToOpen`
@@ -343,41 +545,41 @@ function boot(): void {
   //         seam answers for a file the host handed the page as it started.
   //   BT-3  AutosaveGateway (IF-4) is not built in this build.
   //
-  // ⛔ Saying `none` is not a stand-in; it is what is true of this build, and
-  // FR-067 already says a rank that yields nothing descends rather than
-  // starting empty.
+  // ⛔ Saying `none` for those two is what is true of this build, and FR-067
+  // already says a rank that yields nothing descends rather than starting empty.
+  //
+  // ⚠️ THE TEMPLATE IS BUILT ONCE AND HELD, because two things read it: BT-4 is
+  // one, and AM-2's `schemaVersion` below is the other -- the greatest document
+  // format version this build knows is the one its own generator wrote into the
+  // bundled template, and rule 03 forbids typing a generated value again.
+  const template = startupTemplateDocument()
+  const embedded = embeddedStartupDocument()
   const chosen = chooseStartupDocument({
-    embedded: { kind: 'none' },
+    embedded: embedded.candidate,
     handed: { kind: 'none' },
     autosave: { kind: 'none' },
-    template: startupTemplateDocument(),
+    template,
   })
 
-  // STOP -- ⛔ FR-088's GATE IS NOT ON THIS ROAD, and it is left off on purpose.
-  // `frame-loop.ts` runs `scheduleViolations` (PI-1) over an ARRIVING document
-  // and turns away one whose resolved calendar works no weekday (IV-17 of table
-  // T-220), because FR-088 says 「受け付けずに通知すること（MUST）」. Neither
-  // half of that sentence can be kept here:
+  // ⭐ FR-088's GATE IS ON THIS ROAD NOW, and both halves of 「受け付けずに通知
+  // すること（MUST）」 are kept for the one rank that has a producer. The note
+  // here used to say neither could be, and gave a reason for each; both reasons
+  // are gone:
   //
-  //   受け付けず   BO-2 has to yield a document. FR-067 lets a rank that yields
-  //                nothing descend, and BT-4 is the bottom -- so refusing it
-  //                leaves the boot with no document at all, which no row of
-  //                table T-034 or table T-077 provides for.
-  //   通知する     There is nothing to tell it on. The loop that holds
-  //                `ScreenSession.notices` is built below this line, and BO-1's
-  //                size is not settled either, so a telling raised now would
-  //                reach no frame.
+  //   受け付けず   `embeddedStartupDocument` hands `none` for a refused BT-1, so
+  //                FR-067's descent carries the boot to the next rank instead of
+  //                the gate leaving it with no document at all.
+  //   通知する     the telling waits for the loop and is raised below, which is
+  //                the only order table T-077 admits -- BO-1's size is not
+  //                settled here and nothing holds `ScreenSession.notices` yet.
   //
-  // ⭐ AND THE ONE CANDIDATE THIS BUILD HAS IS NOT UNTRUSTED INTAKE.
-  // `startupTemplateDocument` records the same judgement for the same file: the
-  // template is BUNDLED, so a fault in it is a build that shipped broken, and
+  // ⭐ BT-4 IS STILL NOT PUT THROUGH IT, and that is the judgement
+  // `startupTemplateDocument` records for the same file: the template is
+  // BUNDLED, so a fault in it is a build that shipped broken, and
   // `npm run gen:check` is where that is caught rather than at boot.
-  // ⛔ WHAT IS OWED WHEN THE OTHER THREE RANKS GAIN PRODUCERS. BT-1's embedded
-  // document, BT-2's handed file and BT-3's autosave are each R-1 / R-3 of
-  // table T-008 -- untrusted -- and each of them needs this gate and a place to
-  // tell on before it is wired. ⚠️ Passing the gate is not enough on its own:
-  // FR-067's descent means a refused candidate has to fall to the next rank,
-  // and `chooseStartupDocument` (UF-23) is where that choosing lives.
+  // ⛔ WHAT IS OWED WHEN THE OTHER TWO RANKS GAIN PRODUCERS. BT-2's handed file
+  // and BT-3's autosave are each R-1 / R-3 of table T-008 -- untrusted -- and
+  // each of them needs this same gate before it may be handed over as `read`.
 
   // STOP -- ⛔ FR-060's SECOND MUST IS NOT KEPT, and the piece that is missing
   // is not on this side. That MUST is the startup offer to win back a lost
@@ -398,61 +600,78 @@ function boot(): void {
   // holds, and LY-5 of table T-060 leaves that value with the loop -- so the
   // store goes to the party that has the document rather than the boot file
   // keeping it and asking for the document back.
-  loop = frameLoop(
+  const running = frameLoop(
     domSvgSurface(scheduleCanvas),
     chosen.document,
     nowEnvironment(),
     { surface: screenSurface, language: displayLanguage() },
     fileStore,
   )
+  loop = running
 
-  // STOP -- ⛔ FR-065'S FIRST MUST IS UNMET, AND THE PIECE THAT IS MISSING IS
-  // NOT IN THIS FILE. `installAgentApi` (PI-17) has no caller anywhere in
-  // `src/`, so a person can press IC-20 and no entrance appears.
+  // FR-076 (MUST): what BO-2 decided and could not tell, told now that there is
+  // somewhere to put it.
+  // ⭐ UF-23's ANSWER FIRST, THEN THIS FILE'S, which is table T-034's own order:
+  // a rank that could not be read is reported before the gate that turned a rank
+  // away, and only one of the two can be about BT-1 in any one run.
+  // ⚠️ NT-4 of table T-037 -- 「起動時の保留中の用件を 1 枚に集約」 -- is kept by
+  // there being one list of raised tellings and one place that draws it.
+  for (const notice of chosen.notices) {
+    running.raiseStartupNotice(STARTUP_NOTICE_REASON[notice.code])
+  }
+  if (embedded.refusal !== null) running.raiseStartupNotice(embedded.refusal)
+
+  // ---- FR-065 and FR-028: the public point --------------------------------
   //
-  // ⭐ TWO THINGS THAT ARE NOT WHAT IS BLOCKING IT, both measured rather than
-  // assumed, because both have been offered as the reason before:
+  // ⭐ UF-47 OF TABLE T-075 GIVES THE PLACING TO THIS UNIT, and `installAgentApi`
+  // deliberately does not place what it builds: its own note says that choosing
+  // a global's name would be inventing a public name, so the component builds
+  // the surface and the shell that turned it on decides where the reference
+  // goes. Section 3 of `_assets/tbl-glossary.md` is what decided the name.
   //
-  //   * FR-028's 「既定では公開しないこと（MUST）」 does NOT need a flag on the
-  //     launching side. Its RATIONALE offers that flag OR a person's enabling
-  //     on screen, joined by 「か」, so the on-screen path alone satisfies it.
-  //   * FR-065's second MUST -- that the screen shows the API is on while it
-  //     is -- is ALREADY DRAWN. UF-62 of table T-075 owns it and
-  //     `app-header-items.ts` reports IC-20 pressed while
-  //     `ScreenSession.isAgentApiEnabled` is true. Nothing is owed there.
+  // ⛔ FR-028 (MUST): 「既定では公開しない」. The loop starts with the enabling
+  // off and this watcher is set before any input can arrive, so the name is
+  // absent until a person presses IC-20 -- and it is REMOVED again on the way
+  // back, which is the half a toggle that installed and never uninstalled would
+  // fail from the second press on.
+  // ⚠️ REMOVING THE NAME IS NOT TAKING THE API BACK, and FR-065 (MUST) has that
+  // said out loud rather than papered over: a reference already handed out goes
+  // on working, `installAgentApi` says the same from its side, and the loop
+  // raises RS-20 of table T-233 in NT-5's manner as the press is accepted.
   //
-  // ⛔ WHAT IS ACTUALLY BLOCKING IT IS ON THE OTHER SIDE OF UT-6 OF TABLE
-  // T-063. Placing the public point is this unit's (UF-47 of table T-075), and
-  // the identifier it goes under is settled -- `_assets/tbl-glossary.md`
-  // section 3 spells it `grSchedulerAgentApi`, on `globalThis`, and forbids
-  // minting another. What cannot be placed is the VALUE. `installAgentApi`
-  // takes an `AgentApiWiring` whose `source` is IF-7 of table T-065, and UF-48
-  // gives IF-7's implementation to `frame-loop.ts` -- which does not have one.
-  // `FrameLoop` publishes `current`, `document` and `exportScene` and no more,
-  // so the selection, the dialogue log, AG-9's two in-flight flags and the two
-  // limit sets an `AgentSnapshot` names cannot be reached from here. ⛔ Neither
-  // can the toggle itself: `isAgentApiEnabled` is a local of `frameLoop` that
-  // is reported to nobody, so this file cannot even see it turn.
-  // ⚠️ Building a second `DocumentHolder` here instead is not the way round it
-  // -- two holders of one document is two answers to 「which document is open」,
-  // the same objection this file's header already makes about IF-3's store.
+  // ⛔ NOT REMEMBERED PER DOCUMENT, which is FR-065's other MUST and the one
+  // thing here that is NOT kept. S-99b of table T-206 keys that record by
+  // 「文書の識別子」 and nothing in this build derives one -- `frame-loop.ts`
+  // (`sessionOf`) and `choose-startup-document.ts` both carry the same STOP, and
+  // `DOCUMENT_KEY_NOT_DERIVED` above says why this file does not invent one.
+  // ⭐ So the enabling lasts as long as the page, which is the smallest honest
+  // behaviour: a record filed under a made-up key would be remembered for the
+  // WRONG document, and that is the outcome the MUST exists to forbid.
+  // ⭐ THE MUST NOT BESIDE IT IS KEPT ALREADY -- `replaceHeldDocument` turns the
+  // enabling off on the three rows of table T-230 that do not carry the history
+  // forward, and this watcher hears that turn like any other.
   //
-  // ⭐ WHAT IS OWED, so that the next owner has it in one place: `frame-loop.ts`
-  // gains the `SnapshotSource` UF-48 already assigns it and hands out the
-  // `DocumentHolder`, the `ChangeAudience` and PI-16's two dialogue seams it
-  // already builds, plus a way to hear `isAgentApiEnabled` turn. THEN this file
-  // installs on the turn to true, drops its reference on the turn to false, and
-  // raises RS-20 of table T-233 in NT-5's manner, which is how FR-065's third
-  // MUST is kept: disabling cannot take back a reference already handed over,
-  // and `installAgentApi`'s own note says the same from the far side.
-  //
-  // ⛔ S-99b STAYS SHORT OF HALF ITS KEY, and it is not this file's to invent.
-  // FR-065 makes the enabling a per-document memory (MUST) and S-99b keys the
-  // record by the document; `frame-loop.ts` records that nothing in this build
-  // derives a document identifier. ⭐ Until one exists the enabling lasts as
-  // long as the page, which is the smallest honest behaviour -- a record filed
-  // under a made-up key would be remembered for the wrong document, which is
-  // the one outcome that MUST forbids.
+  // ⚠️ `globalThis` IS REACHED THROUGH ONE INDEX, because the host's own
+  // declarations carry no such member and there is nothing to narrow: what goes
+  // there is `installAgentApi`'s answer, whatever that is, and what is taken
+  // away is the same key.
+  const host = globalThis as unknown as Record<string, unknown>
+  running.watchAgentApiEnabling((isEnabled) => {
+    if (!isEnabled) {
+      delete host[AGENT_API_IDENTIFIER]
+      return
+    }
+    host[AGENT_API_IDENTIFIER] = installAgentApi({
+      // IF-7 and the four seams PI-8 and PI-16 declare, all of them current
+      // values LY-5 of table T-060 leaves with the loop -- so they are asked
+      // for rather than a second holder of any of them being built here.
+      ...running.agentApiSeams(),
+      writerName: AGENT_API_WRITER,
+      // AM-2 of table T-107. ⭐ Read off the bundled template rather than typed,
+      // because its generator is what holds this value (rule 03 section 1).
+      schemaVersion: template.schemaVersion,
+    })
+  })
 
   // FT-1 of table T-078 -- the person operating the tool.
   // ⭐ `window` is what `InputHost` asks for: the seam names the five members
