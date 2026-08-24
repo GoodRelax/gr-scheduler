@@ -2195,4 +2195,247 @@ describe('DC-5 of 表 T-029a / PD-2 -- the Dual Cursor mode is exclusive', () =>
   })
 })
 
+// ---------------------------------------------------------------------------
+// The three entrances of the `Row Title Panel` (U-22) -- IC-58 / IC-59 / IC-60
+// of table T-109, whose rules are HF-1 / HF-2 / HF-3 of table T-051 and FR-098.
+//
+// The note under table T-023a keeps the press decision order off this panel, so
+// none of these cases is about one of the six gestures: what the surface drew
+// is read first (`PointerPress.on`), and the row it drew the control against
+// arrives as `ScreenPart.rowGroupId`.
+// ---------------------------------------------------------------------------
+
+/** table T-109 -- the three rows that table stands on the `Row Title Panel`. */
+const T_109_ROW_PANEL = [
+  { row: 'IC-58', rule: 'HF-2' },
+  { row: 'IC-59', rule: 'HF-3' },
+  { row: 'IC-60', rule: 'FR-098' },
+] as const
+
+/** table T-051 -- the rows about the two folding controls. */
+const T_051_CONTROLS = ['HF-1', 'HF-2', 'HF-3'] as const
+
+/** table T-015 -- the folding operations HF-2 and HF-3 are measured against. */
+const T_015_FOLDS = ['HR-2', 'HR-3', 'HR-4', 'HR-5'] as const
+
+/**
+ * A chain three deep beside a second root, so that "one level" and "all of
+ * them" cannot answer the same list, and so that a subtree which is NOT the
+ * pressed row's has something in it to be left alone.
+ */
+const NEST_ROWS = [
+  { id: 'n1', parentId: null as string | null, order: 0 },
+  { id: 'n1a', parentId: 'n1' as string | null, order: 1 },
+  { id: 'n1a1', parentId: 'n1a' as string | null, order: 2 },
+  { id: 'n2', parentId: null as string | null, order: 3 },
+  { id: 'n2a', parentId: 'n2' as string | null, order: 4 },
+] as const
+
+const nestedScheduleOf = (collapsed: Readonly<Record<string, boolean>>): Schedule =>
+  scheduleOf({
+    tasks: [TASK_1],
+    taskGroups: NEST_ROWS.map((one) => ({
+      id: one.id,
+      parentId: one.parentId,
+      label: one.id,
+      derivedFromTaskUid: null,
+      order: one.order,
+      isCollapsed: collapsed[one.id] ?? false,
+      isHidden: null,
+      color: null,
+      height: null,
+    })),
+    taskGroupMembers: [{ groupId: 'n1a1', taskUid: 1 }],
+  })
+
+/** S-126 is where FR-098 keeps what is pinned, so a case sets it there. */
+const nestedSettingsOf = (pinned: readonly string[]): DocumentSettings =>
+  settingsOf({
+    scrollDate: '2026-01-01',
+    scrollGroupId: 'n1',
+    stackDirection: 'down',
+    rulerHeight: 48,
+    rulerFont: 12,
+    pinnedGroupIds: pinned,
+  })
+
+function panelContextOf(
+  collapsed: Readonly<Record<string, boolean>> = {},
+  pinned: readonly string[] = [],
+): InputContext {
+  const schedule = nestedScheduleOf(collapsed)
+  const settings = nestedSettingsOf(pinned)
+  const regions = regionsFromScreen(ENV, settings)
+  const layout = layoutFromSchedule(schedule, settings, regions)
+  return contextOf({
+    document: documentOf(schedule, settings),
+    layout,
+    geometry: geometryFromLayout(schedule, settings, layout, regions),
+    regions,
+  })
+}
+
+/** A point on the panel. The surface answered for it, so no coordinate decides. */
+const PANEL_AT = { x: 20, y: 200 }
+
+/** IN-1 settles a pointer operation on release, so a press is down then up. */
+function pressPanelEntry(
+  entry: string,
+  rowGroupId: string | null,
+  context: InputContext,
+): TranslatedInput {
+  const down = pointerOf('down', PANEL_AT.x, PANEL_AT.y)
+  const pressed = {
+    at: down,
+    hit: null,
+    on: {
+      // U-23 (MUST): an entrance for an operation is named by the panel.
+      part: 'Row Title Panel',
+      entry,
+      format: null,
+      rowGroupId,
+      resourceUid: null,
+    },
+    pressRow: pressRowOf({ at: down, hit: null }, context),
+  }
+  return commandFromInput(
+    pointerOf('up', PANEL_AT.x, PANEL_AT.y),
+    contextOf({ ...context, pressed }),
+  )
+}
+
+type FoldCommand = Extract<DocumentCommand, { kind: 'setTaskGroupCollapsed' }>
+
+const foldsOf = (answer: TranslatedInput): readonly FoldCommand[] =>
+  commandsOf(answer).filter((one): one is FoldCommand => one.kind === 'setTaskGroupCollapsed')
+
+/** The rows one press asks to be folded the given way. */
+const rowsFolded = (answer: TranslatedInput, collapsed: boolean): readonly string[] =>
+  foldsOf(answer)
+    .filter((one) => one.collapsed === collapsed)
+    .map((one) => one.groupId)
+
+describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel entrances', () => {
+  it('walks the rows these cases are driven by, with no repeats', () => {
+    expect(T_109_ROW_PANEL).toHaveLength(3)
+    expect(new Set(T_109_ROW_PANEL.map((one) => one.row)).size).toBe(3)
+    expect(T_051_CONTROLS).toHaveLength(3)
+    expect(T_015_FOLDS).toHaveLength(4)
+    expect(NEST_ROWS).toHaveLength(5)
+  })
+
+  it('HF-1: the opening side and the closing side are two controls, not one in two states', () => {
+    // Same row, same document, two entrances: the answers differ. One control
+    // in two states could only ever give one answer here.
+    const open = panelContextOf()
+    expect(commandsOf(pressPanelEntry('IC-58', 'n1', open))).not.toEqual(
+      commandsOf(pressPanelEntry('IC-59', 'n1', open)),
+    )
+
+    // ONE MAY BE SPENT WHILE THE OTHER IS NOT. However the rows stand, the
+    // opening side never asks for a fold and the closing side never asks for an
+    // unfold -- so on a subtree already open the closer has work and the opener
+    // has none, and on one already shut it is the other way round.
+    const shut = panelContextOf({ n1: true, n1a: true })
+    expect(rowsFolded(pressPanelEntry('IC-58', 'n1', open), true)).toEqual([])
+    expect(rowsFolded(pressPanelEntry('IC-58', 'n1', shut), true)).toEqual([])
+    expect(rowsFolded(pressPanelEntry('IC-59', 'n1', open), false)).toEqual([])
+    expect(rowsFolded(pressPanelEntry('IC-59', 'n1', shut), false)).toEqual([])
+
+    expect(rowsFolded(pressPanelEntry('IC-59', 'n1', open), true).length).toBeGreaterThan(0)
+    expect(rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length).toBeGreaterThan(0)
+  })
+
+  it('HF-2: the opening side opens ONE level -- HR-3 of table T-015 is the other operation', () => {
+    // The whole chain is shut, so "one level" is well defined: unfolding the
+    // pressed row alone puts its children on screen and stops there.
+    const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
+    const answer = pressPanelEntry('IC-58', 'n1', shut)
+
+    expect(rowsFolded(answer, false)).toEqual(['n1'])
+    // HR-3 reaches the whole subtree under the row; HF-2 must not.
+    expect(rowsFolded(answer, false)).not.toContain('n1a')
+    expect(rowsFolded(answer, false)).not.toContain('n1a1')
+  })
+
+  it("HF-3: the closing side closes ALL of them, and only this row's subtree", () => {
+    const open = panelContextOf()
+    const answer = pressPanelEntry('IC-59', 'n1', open)
+    const closed = rowsFolded(answer, true)
+
+    // HR-4 of table T-015 -- everything under the row, however deep.
+    expect(closed).toContain('n1a')
+    expect(closed).toContain('n1a1')
+    // A second root and its child are under no part of the pressed row.
+    expect(closed).not.toContain('n2')
+    expect(closed).not.toContain('n2a')
+
+    // THE TWO SIDES CANNOT BE TOLD APART BY DIRECTION ALONE. HF-2 names one row
+    // and HF-3 names the whole depth, so the counts must differ too.
+    const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
+    expect(closed.length).toBeGreaterThan(
+      rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length,
+    )
+  })
+
+  it('FR-031: what HF-3 asks for arrives as ONE undo step, not one per row', () => {
+    const answer = pressPanelEntry('IC-59', 'n1', panelContextOf())
+    const action = answer.action
+    expect(action?.kind).toBe('changeDocument')
+    if (action === null || action.kind !== 'changeDocument') throw new Error('not a change')
+
+    // WS-4 of table T-067 pushes one step per write, so one step is one write.
+    expect(action.writes).toHaveLength(1)
+    // Not enough on its own: one write carrying one row would pass that and
+    // still be one step per row. The fold really does reach several rows.
+    expect(action.writes[0]?.length).toBeGreaterThan(1)
+  })
+
+  it('FR-098: the SAME entrance pins and unpins, read from the document', () => {
+    const notPinned = panelContextOf({}, [])
+    const pinned = panelContextOf({}, ['n1'])
+
+    expect(kindsOf(pressPanelEntry('IC-60', 'n1', notPinned))).toEqual(['pinTaskGroup'])
+    expect(oneCommand(pressPanelEntry('IC-60', 'n1', notPinned), 'pinTaskGroup').groupId).toBe('n1')
+
+    expect(kindsOf(pressPanelEntry('IC-60', 'n1', pinned))).toEqual(['unpinTaskGroup'])
+    expect(oneCommand(pressPanelEntry('IC-60', 'n1', pinned), 'unpinTaskGroup').groupId).toBe('n1')
+  })
+
+  it('FR-098: which way it goes is read from S-126, so a stale frame cannot pin twice', () => {
+    // A picture drawn before the row was pinned would send the same entrance
+    // again; the document says the row is already there, so the answer is the
+    // release and never a second pinTaskGroup.
+    const alreadyPinned = panelContextOf({}, ['n2', 'n1'])
+    expect(kindsOf(pressPanelEntry('IC-60', 'n1', alreadyPinned))).toEqual(['unpinTaskGroup'])
+
+    // The same document, a row that is not in S-126: that one pins.
+    expect(kindsOf(pressPanelEntry('IC-60', 'n1a', alreadyPinned))).toEqual(['pinTaskGroup'])
+  })
+
+  it('MK-10: a press these entrances answered keeps the browser out of it (MUST)', () => {
+    // Each of the three is assigned here -- the row is named and the document
+    // says which way it goes -- so the browser's own behaviour is stopped.
+    const cases = [
+      pressPanelEntry('IC-58', 'n1', panelContextOf({ n1: true })),
+      pressPanelEntry('IC-59', 'n1', panelContextOf()),
+      pressPanelEntry('IC-60', 'n1', panelContextOf({}, [])),
+      pressPanelEntry('IC-60', 'n1', panelContextOf({}, ['n1'])),
+    ]
+    for (const answer of cases) {
+      expect(answer.action, JSON.stringify(kindsOf(answer))).not.toBeNull()
+      expect(answer.isBrowserDefaultStopped, JSON.stringify(kindsOf(answer))).toBe(true)
+    }
+  })
+
+  it('a press carrying no row answers nothing at all', () => {
+    // `rowGroupId` is null wherever the point is on no row. All three commands
+    // are keyed by the row, so there is nothing to plan.
+    const context = panelContextOf()
+    for (const one of T_109_ROW_PANEL) {
+      expect(pressPanelEntry(one.row, null, context).action, one.row).toBeNull()
+    }
+  })
+})
+
 

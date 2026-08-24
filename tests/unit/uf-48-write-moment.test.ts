@@ -115,6 +115,11 @@ import type {
   PointerInput,
   PointerPhase,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import type {
+  DisplayLanguage,
+  ScreenPart,
+  ScreenSurface,
+} from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import type {
@@ -125,8 +130,9 @@ import {
   frameLoop,
   type FrameEnvironment,
   type FrameLoop,
+  type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { specTable } from '../contract/spec-table'
+import { bare, specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 // ---------------------------------------------------------------------------
@@ -755,4 +761,626 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
     ).not.toBeNull()
     pane.runAnimationFrames()
   })
+})
+
+// ===========================================================================
+// THE TWELVE ENTRANCES OF TABLE T-109 THAT SET A DISPLAY VALUE
+// ===========================================================================
+//
+// A SECOND SUBJECT, AND IT IS HERE BECAUSE THE CURRENCY IS THE SAME: take an
+// entry, then read `loop.document()`. Nothing else about the shell is publicly
+// readable, and every one of these twelve writes a settings row.
+//
+// ⛔ WRITTEN WITHOUT READING THE BODY OF THE TRANSLATOR OR OF THE LOOP
+// (docs/development-rules/04-verification.md section 1). What was read of
+// `input-command-translator.ts`: its exported declarations alone -- `PressRow`,
+// `PointerPress`, `InputContext`, `InPlaceTarget`, `InputAction`,
+// `TranslatedInput` and the four signatures. What was read of
+// `screen-surface.ts`: the members of `ScreenPart` and `ScreenSurface`. No
+// function body was read, and no expected value below was taken from one.
+//
+// THE ROWS THESE CASES ANSWER TO.
+//
+//   FR-049 (MUST)     every row of table T-202 that carries a show/hide can be
+//                     switched, and the plan/actual row (S-59) can be chosen
+//                     from three values.
+//   FR-049 (MUST NOT) not every row of table T-202 is a toggle -- only the rows
+//                     whose type is boolean are. The multi-valued rows (S-59,
+//                     S-66) and the rows holding a value of their own (S-58
+//                     stackDirection, S-70 fontScale, S-65 dualCursor) are
+//                     outside it.
+//   FR-049 (MUST NOT) the plan and the actual may not BOTH be hidden -- a screen
+//                     with not one bar on it looks broken.
+//   FR-048            the guide cursor is one of S-66's four values, exclusive,
+//                     and IC-46 .. IC-49 are the four entrances to it. Table
+//                     T-109 spells WHICH value each of the four sets.
+//   FR-039 (MUST NOT) a value saved in the document may not force the reader's
+//                     choice, so IC-16 has to be able to leave a document saved
+//                     as `dark` as well as one saved as `light`.
+//   T-109 IC-4        S-69, on the `App Header`.
+//   T-109 IC-8/IC-9   S-59, on the `App Header` -- show and hide the plan, and
+//                     the actual. Table T-109 writes IC-9's setting as a
+//                     reference back to IC-8 rather than repeating the row id.
+//   T-109 IC-16       S-72, on the `App Header`.
+//   T-109 IC-39/IC-40 S-64 / S-63, on the `Command Palette`.
+//   T-109 IC-42/IC-43 S-67 / S-68, on the `Command Palette`.
+//   T-109 IC-46 .. 49 S-66, on the `Command Palette`, one entrance per value.
+//   T-103 U-31 / U-26 the settled names of the two surfaces they stand on.
+//
+// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, because docs/spec does not decide it:
+//   - what IC-8 does when the plan is the only thing showing (and IC-9 when the
+//     actual is). FR-049 forbids the RESULT and names no substitute, so those
+//     cases hold the MUST NOT and nothing more.
+//   - whether these presses leave an undo step. UN-7 and UN-13 of table T-027
+//     divide the rows between them, and no member of `FrameLoop` publishes the
+//     history to read it from.
+
+// ---------------------------------------------------------------------------
+// Tables T-202, T-203, T-109 and T-103, read at read time rather than copied
+// ---------------------------------------------------------------------------
+
+/** Both settings tables print the key first, then the type, then the default. */
+const SETTING_KEY = 0
+const SETTING_TYPE = 1
+const SETTING_DEFAULT = 2
+/** Table T-109 prints the surface first, then the group, then what it is for. */
+const T_109_SURFACE = 0
+const T_109_ENTRANCE = 2
+/** Table T-103 prints the settled English name first. */
+const T_103_NAME = 0
+
+/**
+ * One cell of one row, by the position the table prints it in.
+ *
+ * ⭐ BY POSITION AND NOT BY HEADING: every heading in these four tables is
+ * Japanese prose, which rule 03 section 5 keeps out of the tree. A guard case
+ * below pins each table's column count, so a column inserted upstream reaches
+ * this file rather than quietly shifting what is read.
+ *
+ * @purity pure
+ */
+const cellAt = (table: string, id: string, at: number): string => {
+  const cell = rowOf(table, id).cells[at]
+  if (cell === undefined) throw new Error(`table ${table} row ${id} has no cell ${at}`)
+  return cell
+}
+
+/** Every `'value'` a cell spells inside a code span, in the order it spells them. */
+const enumeratedValues = (cell: string): string[] =>
+  [...cell.matchAll(/`'([^']+)'`/g)].map((found) => found[1] as string)
+
+/** Table T-202's keys, in the order the manuscript prints them. */
+const T_202_KEYS: readonly string[] = specTable('T-202').rows.map((row) =>
+  bare(row.cells[SETTING_KEY] ?? ''),
+)
+
+/**
+ * The type cell table T-202 gives a boolean row.
+ *
+ * ⭐ Taken from S-62 rather than typed out, so that the boolean rows are found
+ * by comparing the manuscript with itself. Chapter 1.9 (:275) asks a test of a
+ * requirement that points at a table to be driven by that table's own data, and
+ * FR-049's MUST turns on exactly this column.
+ */
+const BOOLEAN_TYPE = cellAt('T-202', 'S-62', SETTING_TYPE)
+
+/** The keys of table T-202 whose type is that one. */
+const BOOLEAN_KEYS: readonly string[] = specTable('T-202')
+  .rows.filter((row) => row.cells[SETTING_TYPE] === BOOLEAN_TYPE)
+  .map((row) => bare(row.cells[SETTING_KEY] ?? ''))
+
+/** What table T-202 prints in the default column, by key. */
+const DEFAULT_OF = new Map(
+  specTable('T-202').rows.map((row) => [
+    bare(row.cells[SETTING_KEY] ?? ''),
+    bare(row.cells[SETTING_DEFAULT] ?? ''),
+  ]),
+)
+
+/** The eight keys table T-202 gives a boolean type, spelled out. */
+const EXPECTED_BOOLEAN_KEYS = [
+  'assigneeVisible',
+  'percentCompleteVisible',
+  'dependencyVisible',
+  'progressMarkerVisible',
+  'progressLineVisible',
+  'dateGridLinesVisible',
+  'groupGridLinesVisible',
+  'baselineVisible',
+]
+
+/** S-59's three values, read out of its type cell. */
+const PLAN_ACTUAL_VALUES = enumeratedValues(cellAt('T-202', 'S-59', SETTING_TYPE))
+/** S-66's four, read out of its type cell -- FR-048 makes them exclusive. */
+const GUIDE_VALUES = enumeratedValues(cellAt('T-202', 'S-66', SETTING_TYPE))
+/** S-72's two, read out of its type cell in table T-203. */
+const THEME_VALUES = enumeratedValues(cellAt('T-203', 'S-72', SETTING_TYPE))
+
+/** The two surfaces of table T-103 these twelve stand on. */
+const APP_HEADER = bare(cellAt('T-103', 'U-31', T_103_NAME))
+const COMMAND_PALETTE = bare(cellAt('T-103', 'U-26', T_103_NAME))
+
+/**
+ * Whether S-59's value leaves the plan drawn, and whether it leaves the actual
+ * drawn.
+ *
+ * ⭐ READ OFF THE VALUE NAMES THEMSELVES, which is where table T-202 puts the
+ * meaning: `plan-only` is the plan alone, `actual-only` the actual alone. A
+ * guard case below pins that those are still the two names.
+ *
+ * @purity pure
+ */
+const planIsShown = (value: string): boolean => value !== 'actual-only'
+/** @purity pure */
+const actualIsShown = (value: string): boolean => value !== 'plan-only'
+
+// ---------------------------------------------------------------------------
+// The twelve, as fixed data
+// ---------------------------------------------------------------------------
+
+interface Entrance {
+  /** The row of table T-109. */
+  readonly entry: string
+  /** The surface it stands on, in table T-103's settled spelling. */
+  readonly part: string
+  /** The table that holds the row it moves. */
+  readonly table: string
+  /** The row of that table. */
+  readonly row: string
+  /** That row's key. */
+  readonly key: string
+}
+
+const ENTRANCES: readonly Entrance[] = [
+  { entry: 'IC-4', part: APP_HEADER, table: 'T-202', row: 'S-69', key: 'baselineVisible' },
+  { entry: 'IC-8', part: APP_HEADER, table: 'T-202', row: 'S-59', key: 'planActualDisplay' },
+  { entry: 'IC-9', part: APP_HEADER, table: 'T-202', row: 'S-59', key: 'planActualDisplay' },
+  { entry: 'IC-16', part: APP_HEADER, table: 'T-203', row: 'S-72', key: 'themePreference' },
+  {
+    entry: 'IC-39',
+    part: COMMAND_PALETTE,
+    table: 'T-202',
+    row: 'S-64',
+    key: 'progressLineVisible',
+  },
+  {
+    entry: 'IC-40',
+    part: COMMAND_PALETTE,
+    table: 'T-202',
+    row: 'S-63',
+    key: 'progressMarkerVisible',
+  },
+  {
+    entry: 'IC-42',
+    part: COMMAND_PALETTE,
+    table: 'T-202',
+    row: 'S-67',
+    key: 'dateGridLinesVisible',
+  },
+  {
+    entry: 'IC-43',
+    part: COMMAND_PALETTE,
+    table: 'T-202',
+    row: 'S-68',
+    key: 'groupGridLinesVisible',
+  },
+  { entry: 'IC-46', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
+  { entry: 'IC-47', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
+  { entry: 'IC-48', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
+  { entry: 'IC-49', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
+]
+
+/**
+ * The eight of the twelve whose own cell in table T-109 names the settings row.
+ *
+ * ⚠️ The other four do not name one: IC-9 refers back to IC-8, and IC-47 ..
+ * IC-49 refer back to IC-46. A guard case pins that, so that a manuscript which
+ * starts spelling them out reaches this file rather than being inferred past.
+ */
+const NAMES_ITS_OWN_ROW = new Set([
+  'IC-4',
+  'IC-8',
+  'IC-16',
+  'IC-39',
+  'IC-40',
+  'IC-42',
+  'IC-43',
+  'IC-46',
+])
+
+/** The five entrances whose row is one of table T-202's boolean ones. */
+const BOOLEAN_ENTRANCES = ENTRANCES.filter((one) => BOOLEAN_KEYS.includes(one.key))
+
+/**
+ * The four guide-cursor entrances, each with the value table T-109 spells for
+ * it -- the first `'value'` in its own cell.
+ */
+const GUIDE_ENTRANCES = ENTRANCES.filter((one) => one.row === 'S-66').map((one) => ({
+  ...one,
+  value: enumeratedValues(cellAt('T-109', one.entry, T_109_ENTRANCE))[0] ?? '',
+}))
+
+// ---------------------------------------------------------------------------
+// The document these cases drive, and the screen they are taken on
+// ---------------------------------------------------------------------------
+
+/**
+ * The two-row document with some of its settings put somewhere else.
+ *
+ * @purity pure
+ */
+function documentWithSettings(overrides: Record<string, unknown>): Document {
+  const draft = twoRowDocument() as any
+  return {
+    ...draft,
+    documentSettings: { ...draft.documentSettings, ...overrides },
+  } as unknown as Document
+}
+
+/**
+ * Every display row put somewhere OTHER than where the manuscript defaults it.
+ *
+ * ⛔ THE STARTING VALUES ARE THE POINT OF IT. FR-049's toggles are read off the
+ * DOCUMENT, so a shell that kept a switch of its own -- starting at the default
+ * and flipping from there -- would answer every case correctly on a document
+ * that begins at the default and wrongly on one that does not. FR-039 states the
+ * same thing for the sibling row S-72 in as many words: the saved value is the
+ * STARTING value.
+ *
+ * ⚠️ S-59 is left where the template put it. The cases that drive it set it
+ * themselves, one value at a time.
+ */
+const CONTRARY: Record<string, unknown> = {
+  ...Object.fromEntries(BOOLEAN_KEYS.map((key) => [key, DEFAULT_OF.get(key) !== 'true'])),
+  stackDirection: 'down',
+  guideCursorMode: GUIDE_VALUES[1] ?? '',
+  fontScale: 'L',
+  themePreference: THEME_VALUES[1] ?? '',
+}
+
+interface Pane {
+  readonly wiring: ScreenWiring
+  /** What `readScreenPartAt` answers from now on. The case decides; the fake does not. */
+  drawAt(part: ScreenPart | null): void
+}
+
+/**
+ * IF-9's far side, stood in for.
+ *
+ * ⚠️ THE FAKE IS NOT THE TEST (R6.3). Chapter 5.3 states under table T-065 that
+ * the side which DREW an entry is the side that says where it is, and no one
+ * else may compute the same rectangle -- so a case that wants a press to land on
+ * an entry says so here rather than aiming at a pixel.
+ *
+ * @purity non-pure
+ */
+function screenPane(language: DisplayLanguage = 'ja'): Pane {
+  let part: ScreenPart | null = null
+  const surface: ScreenSurface = {
+    showScreenView: () => undefined,
+    readDialogueInput: () => null,
+    readScreenPartAt: () => part,
+  }
+  return {
+    wiring: { surface, language },
+    drawAt: (next) => {
+      part = next
+    },
+  }
+}
+
+/**
+ * Take one entry of table T-109.
+ *
+ * ⚠️ CS-2 of table T-066 settles a gesture on what was drawn AT THE PRESS, so
+ * the surface is told what it has drawn before the button goes down, and IN-1 of
+ * table T-028 makes the release the moment the operation is settled.
+ *
+ * @purity non-pure
+ */
+function takeEntry(loop: FrameLoop, pane: Pane, part: string, entry: string): void {
+  pane.drawAt({ part, entry, format: null, rowGroupId: null, resourceUid: null })
+  loop.receiveInput(pointer('down', 500, 300))
+  loop.receiveInput(pointer('up', 500, 300))
+  pane.drawAt(null)
+}
+
+interface Standing {
+  readonly frames: Host
+  readonly screen: Pane
+  readonly loop: FrameLoop
+}
+
+/** @purity non-pure */
+function standing(overrides: Record<string, unknown>): Standing {
+  const frames = host()
+  const screen = screenPane()
+  const loop = frameLoop(frames.surface, documentWithSettings(overrides), SCREEN, screen.wiring)
+  frames.runAnimationFrames()
+  return { frames, screen, loop }
+}
+
+const settingsOf = (loop: FrameLoop): any => (loop.document() as any).documentSettings
+
+/** Every row of table T-202 except one, as the document holds them now. */
+const displayRowsExcept = (loop: FrameLoop, key: string): Record<string, unknown> => {
+  const settings = settingsOf(loop)
+  return Object.fromEntries(
+    T_202_KEYS.filter((one) => one !== key).map((one) => [one, settings[one]]),
+  )
+}
+
+/** Every key of the presentation group except one. */
+const settingsExcept = (loop: FrameLoop, key: string): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(settingsOf(loop) as Record<string, unknown>).filter(([one]) => one !== key),
+  )
+
+// ===========================================================================
+
+describe('the tables these twelve entrances are driven by', () => {
+  it('the four tables print the columns this file reads by position', () => {
+    expect(specTable('T-202').headings.length).toBe(5)
+    expect(bare(cellAt('T-202', 'S-62', SETTING_KEY))).toBe('dependencyVisible')
+    expect(specTable('T-203').headings.length).toBe(7)
+    expect(bare(cellAt('T-203', 'S-72', SETTING_KEY))).toBe('themePreference')
+    expect(specTable('T-109').headings.length).toBe(5)
+    expect(specTable('T-103').headings.length).toBe(3)
+  })
+
+  it('table T-202 gives exactly eight of its thirteen rows a boolean type', () => {
+    // FR-049 (MUST): the set the requirement names is this one, so a row added
+    // or retyped upstream has to reach this file.
+    expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
+    expect(T_202_KEYS.length).toBe(13)
+  })
+
+  it('the multi-valued rows spell the values these cases drive', () => {
+    expect(PLAN_ACTUAL_VALUES).toEqual(['both', 'plan-only', 'actual-only'])
+    expect(GUIDE_VALUES).toEqual(['none', 'crosshair', 'single-vertical', 'double-vertical'])
+    expect(THEME_VALUES).toEqual(['light', 'dark'])
+  })
+
+  it('each of the twelve stands on the surface table T-109 puts it on', () => {
+    expect(APP_HEADER).toBe('App Header')
+    expect(COMMAND_PALETTE).toBe('Command Palette')
+    for (const one of ENTRANCES) {
+      expect(bare(cellAt('T-109', one.entry, T_109_SURFACE)), one.entry).toBe(one.part)
+    }
+  })
+
+  it('each of the twelve is joined to the settings row this file pairs it with', () => {
+    for (const one of ENTRANCES) {
+      const cell = cellAt('T-109', one.entry, T_109_ENTRANCE)
+      if (NAMES_ITS_OWN_ROW.has(one.entry)) {
+        expect(cell, `${one.entry} no longer names ${one.row}`).toContain('`' + one.row + '`')
+      } else {
+        expect(
+          /`S-\d+`/.test(cell),
+          `${one.entry} now names a settings row of its own, so this file may not infer it`,
+        ).toBe(false)
+      }
+      expect(bare(cellAt(one.table, one.row, SETTING_KEY)), one.row).toBe(one.key)
+    }
+  })
+
+  it('the four guide-cursor entrances spell the four values of S-66, one each', () => {
+    // FR-048 makes S-66 exclusive and table T-109 gives it one entrance per
+    // value, so the four entrances and the four values are the same set.
+    expect(GUIDE_ENTRANCES.map((one) => one.value)).toEqual(GUIDE_VALUES)
+  })
+
+  it('the contrary document is a valid GRS JSON document', () => {
+    const report = validateDocument(documentWithSettings(CONTRARY))
+    expect(report.errors).toEqual([])
+    expect(report.valid).toBe(true)
+  })
+
+  it('the contrary document really does begin away from every default', () => {
+    // ⛔ A premise of every case below. If a starting value happened to equal
+    // the manuscript's default, the case resting on it would stop telling a
+    // value read from the document from a value the shell held itself.
+    const run = standing(CONTRARY)
+    const settings = settingsOf(run.loop)
+    for (const key of BOOLEAN_KEYS) {
+      expect(String(settings[key]), key).not.toBe(DEFAULT_OF.get(key))
+    }
+    expect(settings.guideCursorMode).not.toBe(GUIDE_VALUES[0])
+    expect(settings.themePreference).not.toBe(THEME_VALUES[0])
+    run.frames.runAnimationFrames()
+  })
+})
+
+describe('IC-46 .. IC-49 -- each guide-cursor entrance sets the value table T-109 spells', () => {
+  // FR-048 makes S-66 one of four, exclusive. Table T-109 gives each value an
+  // entrance of its own, so an entrance SETS a value: it does not cycle, and
+  // where the row stood before does not change where it lands.
+  for (const entrance of GUIDE_ENTRANCES) {
+    for (const from of GUIDE_VALUES) {
+      it(`${entrance.entry} puts guideCursorMode at ${entrance.value}, starting from ${from}`, () => {
+        const run = standing({ ...CONTRARY, guideCursorMode: from })
+        expect(settingsOf(run.loop).guideCursorMode, 'the premise').toBe(from)
+
+        takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
+
+        expect(
+          settingsOf(run.loop).guideCursorMode,
+          `table T-109 ${entrance.entry}: this entrance sets ${entrance.value}`,
+        ).toBe(entrance.value)
+        run.frames.runAnimationFrames()
+      })
+    }
+  }
+})
+
+describe('IC-4 / IC-39 / IC-40 / IC-42 / IC-43 -- the boolean entrances flip the DOCUMENT value', () => {
+  // FR-049 (MUST): the rows of table T-202 whose type is boolean can be
+  // switched, and table T-109 says of each of these five that it shows and
+  // hides. FR-039 states the principle these cases turn on for the sibling row
+  // S-72: the saved value is the STARTING value -- so what a press flips is what
+  // the DOCUMENT holds, never a value the shell began at.
+  for (const entrance of BOOLEAN_ENTRANCES) {
+    for (const from of [false, true]) {
+      it(`${entrance.entry} turns ${entrance.key} to ${!from} when the document holds ${from}`, () => {
+        const run = standing({ ...CONTRARY, [entrance.key]: from })
+        expect(settingsOf(run.loop)[entrance.key], 'the premise').toBe(from)
+
+        takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
+
+        expect(
+          settingsOf(run.loop)[entrance.key],
+          `table T-109 ${entrance.entry} shows and hides ${entrance.row}, read from the document`,
+        ).toBe(!from)
+        run.frames.runAnimationFrames()
+      })
+    }
+
+    it(`${entrance.entry} taken twice leaves ${entrance.key} where it began`, () => {
+      const run = standing(CONTRARY)
+      const began = settingsOf(run.loop)[entrance.key]
+
+      takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
+      takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
+
+      expect(settingsOf(run.loop)[entrance.key], 'a switch is its own inverse').toBe(began)
+      run.frames.runAnimationFrames()
+    })
+  }
+})
+
+describe('IC-16 -- the theme entrance leaves a document saved either way (FR-039)', () => {
+  // FR-039 (MUST NOT): a value saved in the document may not force the reader's
+  // choice. S-72 has two values, table T-109 gives it ONE entrance, and no
+  // surface of table T-103 offers a choice between them -- so a document saved
+  // as `dark` whose one entrance could not reach `light` would be exactly the
+  // saved value forcing the reader's that the MUST NOT forbids.
+  for (const [index, from] of THEME_VALUES.entries()) {
+    const to = THEME_VALUES[1 - index] as string
+    it(`takes a document saved as ${from} to ${to}`, () => {
+      const run = standing({ ...CONTRARY, themePreference: from })
+      expect(settingsOf(run.loop).themePreference, 'the premise').toBe(from)
+
+      takeEntry(run.loop, run.screen, APP_HEADER, 'IC-16')
+
+      expect(
+        settingsOf(run.loop).themePreference,
+        'FR-039 (MUST NOT): the saved value is the starting value, not a cage',
+      ).toBe(to)
+      run.frames.runAnimationFrames()
+    })
+  }
+})
+
+describe('IC-8 / IC-9 -- the four transitions of S-59 that table T-109 spells', () => {
+  // FR-049 (MUST): S-59 can be chosen from three values. Table T-109 divides the
+  // choosing between two entrances -- IC-8 shows and hides the PLAN, IC-9 the
+  // ACTUAL -- so from the value that shows both, each of them hides its own
+  // half, and from the value that has its own half hidden, each shows it again.
+  const [BOTH, PLAN_ONLY, ACTUAL_ONLY] = PLAN_ACTUAL_VALUES as [string, string, string]
+
+  const spelled: readonly (readonly [string, string, string])[] = [
+    [BOTH, 'IC-8', ACTUAL_ONLY],
+    [BOTH, 'IC-9', PLAN_ONLY],
+    [ACTUAL_ONLY, 'IC-8', BOTH],
+    [PLAN_ONLY, 'IC-9', BOTH],
+  ]
+
+  for (const [from, entry, to] of spelled) {
+    it(`${entry} takes ${from} to ${to}`, () => {
+      const run = standing({ ...CONTRARY, planActualDisplay: from })
+      expect(settingsOf(run.loop).planActualDisplay, 'the premise').toBe(from)
+
+      takeEntry(run.loop, run.screen, APP_HEADER, entry)
+
+      expect(
+        settingsOf(run.loop).planActualDisplay,
+        `table T-109 ${entry} shows and hides its own half of S-59`,
+      ).toBe(to)
+      run.frames.runAnimationFrames()
+    })
+  }
+})
+
+describe('FR-049 (MUST NOT) -- the plan and the actual are never both hidden', () => {
+  // ⛔ EVERY ONE OF S-59's THREE VALUES THROUGH BOTH ENTRANCES. Two of the six
+  // are the transition the MUST NOT is about: IC-8 hiding the plan while the
+  // plan is the only thing showing, and IC-9 hiding the actual while the actual
+  // is. What GRS does INSTEAD is not decided anywhere in docs/spec, so these
+  // cases hold the forbidden result and nothing else -- including that the
+  // document is still one the schema admits, which is what catches a value
+  // outside the three being written to mean "neither".
+  for (const from of PLAN_ACTUAL_VALUES) {
+    for (const entry of ['IC-8', 'IC-9']) {
+      it(`${entry} taken while S-59 holds ${from} leaves at least one of the two drawn`, () => {
+        const run = standing({ ...CONTRARY, planActualDisplay: from })
+        expect(settingsOf(run.loop).planActualDisplay, 'the premise').toBe(from)
+
+        takeEntry(run.loop, run.screen, APP_HEADER, entry)
+
+        const after = settingsOf(run.loop).planActualDisplay
+        expect(
+          PLAN_ACTUAL_VALUES,
+          `FR-049: S-59 is an enumeration of three, and ${entry} wrote ${String(after)}`,
+        ).toContain(after)
+        expect(
+          planIsShown(after) || actualIsShown(after),
+          'FR-049 (MUST NOT): a screen with not one bar on it looks broken',
+        ).toBe(true)
+        expect(
+          validateDocument(run.loop.document()).valid,
+          'the document the press left is still one the schema admits',
+        ).toBe(true)
+        run.frames.runAnimationFrames()
+      })
+    }
+  }
+})
+
+describe('FR-049 (MUST) -- only a boolean row is a toggle, so nothing else in T-202 moves', () => {
+  // FR-049 (MUST NOT): not every row of table T-202 may be treated as a toggle;
+  // (MUST): the rows whose type is boolean are the whole of the target. The
+  // multi-valued rows and the rows that hold a value of their own are outside
+  // it.
+  //
+  // ⭐ THE ROW EACH ENTRANCE NAMES IS LEFT OUT of the comparison and every other
+  // row of table T-202 is in it -- so S-58 (stackDirection), S-65 (dualCursor)
+  // and S-70 (fontScale) are compared for all twelve, and IC-16 is compared on
+  // ALL THIRTEEN rows because S-72 is not a row of table T-202 at all.
+  for (const entrance of ENTRANCES) {
+    const spared = entrance.table === 'T-202' ? entrance.key : ''
+    it(`${entrance.entry} moves no row of table T-202 other than ${entrance.row}`, () => {
+      const run = standing(CONTRARY)
+      const before = displayRowsExcept(run.loop, spared)
+
+      takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
+
+      expect(
+        displayRowsExcept(run.loop, spared),
+        `FR-049 (MUST): ${entrance.entry} is an entrance to ${entrance.row} alone`,
+      ).toEqual(before)
+      run.frames.runAnimationFrames()
+    })
+  }
+})
+
+describe('an entrance moves its own key and no other key of the presentation group', () => {
+  // ⭐ THE SAME MUST, ASKED OF THE WHOLE GROUP rather than of table T-202's
+  // thirteen rows. FR-049 makes the boolean rows the whole of what a toggle may
+  // reach, and FR-041 (MUST NOT) forbids a solved colour from being saved at
+  // all -- 派生する色を保存してはならない -- so IC-16 in particular may move
+  // S-72 and nothing beside it. DR-3 of table T-052 is the group being compared.
+  for (const entrance of ENTRANCES) {
+    it(`${entrance.entry} leaves every settings key but ${entrance.key} where it stood`, () => {
+      const run = standing(CONTRARY)
+      const before = settingsExcept(run.loop, entrance.key)
+
+      takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
+
+      expect(
+        settingsExcept(run.loop, entrance.key),
+        `${entrance.entry} wrote a key that is not ${entrance.key}`,
+      ).toEqual(before)
+      run.frames.runAnimationFrames()
+    })
+  }
 })

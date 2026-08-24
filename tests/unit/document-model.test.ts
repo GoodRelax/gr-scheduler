@@ -642,6 +642,107 @@ describe('ScreenState (PI-36)', () => {
   })
 })
 
+// The Esc ladder of IN-4 when a question stands over it. IN-4 fixes four
+// levels; S-99g of tbl-settings.md defines a surface as WHAT THE FIRST LEVEL OF
+// ESC CLOSES, and U-55 of tbl-glossary.md calls a `Confirmation` a surface, so a
+// standing question belongs to that first level -- ahead of whatever surface it
+// was raised over. Fixed data: the ladder exactly as IN-4 writes it.
+describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', () => {
+  const quiet = { gestureInFlight: false, dualCursorMode: false }
+  const everything = {
+    isConfirmationStanding: true,
+    gestureInFlight: true,
+    dualCursorMode: true,
+  }
+  // A surface open and something armed, with no question raised. S-99g holds
+  // exactly ONE open surface, so this value never carries a second one; the
+  // question is raised outside it.
+  const loaded = screenStateWithSurface(
+    screenStateWithArmed(emptyScreenState(), { kind: 'dependency' }),
+    'help',
+  )
+  // The same, with no surface -- so the question is the only first-level thing.
+  const armedOnly = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
+
+  it('IN-4: a standing question is spent first, above every level below it', () => {
+    // S-99g: a surface is what the FIRST level closes; U-55: a `Confirmation` is
+    // a surface. So the question outranks the gesture, the armed palette and the
+    // Dual Cursor mode, which IN-4 puts at levels 2, 3 and 4.
+    expect(escapeTarget(armedOnly, everything)).toBe('confirmation')
+  })
+
+  it('IN-4: one press spends exactly ONE level, in the order the row states', () => {
+    // IN-4 spends one level per press, never two. Walking the ladder press by
+    // press is what catches a press that skips a level: each step below removes
+    // only what the previous answer named.
+    const walked: Array<string | null> = []
+    let state = armedOnly
+    let context = { ...everything }
+    for (let press = 0; press < 5; press += 1) {
+      const target = escapeTarget(state, context)
+      walked.push(target)
+      if (target === 'confirmation') context = { ...context, isConfirmationStanding: false }
+      else if (target === 'gesture') context = { ...context, gestureInFlight: false }
+      else if (target === 'armed') state = screenStateWithArmed(state, { kind: 'none' })
+      else if (target === 'dualCursorMode') context = { ...context, dualCursorMode: false }
+    }
+    expect(walked).toEqual([
+      'confirmation',
+      'gesture',
+      'armed',
+      'dualCursorMode',
+      null,
+    ])
+  })
+
+  it('IN-4: the question outranks a gesture in flight even with no surface open', () => {
+    expect(
+      escapeTarget(emptyScreenState(), {
+        isConfirmationStanding: true,
+        gestureInFlight: true,
+        dualCursorMode: false,
+      }),
+    ).toBe('confirmation')
+  })
+
+  it('IN-4a: a question standing alone consumes, so the key does not reach the browser', () => {
+    expect(escapeTarget(emptyScreenState(), { ...quiet, isConfirmationStanding: true }))
+      .toBe('confirmation')
+  })
+
+  it('IN-4a: with nothing at all to spend the press goes to the browser (MUST)', () => {
+    expect(escapeTarget(emptyScreenState(), { ...quiet, isConfirmationStanding: false }))
+      .toBeNull()
+  })
+
+  it('IN-4a: full screen changes neither answer -- FR-071 needs the browser press', () => {
+    // FR-071 leaves full screen by the browser's own Esc, which is why IN-4a is
+    // a MUST. A question standing is still something to spend, so that press is
+    // taken; with nothing standing the same full-screen view must hand it over.
+    const full = screenStateWithFullScreen(emptyScreenState(), true)
+    expect(escapeTarget(full, { ...quiet, isConfirmationStanding: true })).toBe('confirmation')
+    expect(escapeTarget(full, { ...quiet, isConfirmationStanding: false })).toBeNull()
+  })
+
+  it('IN-4a: a caller that cannot see the question omits it, and absence is no level', () => {
+    // The field is optional because PI-18's screenStateFromInput holds nothing
+    // and reports only the levels it can see. Absent must read as "not
+    // standing", never as a level of its own.
+    expect(escapeTarget(emptyScreenState(), quiet)).toBeNull()
+    expect(escapeTarget(loaded, quiet)).toBe('surface')
+  })
+
+  it('IN-4: reckoning the level does not spend it -- the same input answers the same', () => {
+    // IN-4 allows one level per press, so the level is reckoned once by the
+    // holder of the question; the reckoning itself may consume nothing.
+    const context = { ...everything }
+    expect(escapeTarget(armedOnly, context)).toBe('confirmation')
+    expect(escapeTarget(armedOnly, context)).toBe('confirmation')
+    expect(context.isConfirmationStanding).toBe(true)
+    expect(armedOnly.armed.kind).toBe('dependency')
+  })
+})
+
 describe('Document (PI-34) -- table T-052', () => {
   const sound = {
     schemaVersion: '1',

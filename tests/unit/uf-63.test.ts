@@ -917,3 +917,238 @@ describe('UF-63 -- HF-5 of table T-051: the controls are set DOWN from the name'
     expect(leaf.controlTopOffsetPx).toBe(5)
   })
 })
+
+// ---------------------------------------------------------------------------
+// Round 2. `ScreenSession.selectedGroupIds` now holds the set FR-085 (MUST)
+// gives the panel, so the "nothing holds that set" note at the head of this
+// file no longer describes the session. The cases in the block above --
+// "FR-085 (a): the drawing area does not select a row" -- still stand: they say
+// `Selection` may not reach a row, which SL-1 of table T-023c still forbids.
+//
+// The rules these cases answer to:
+//   FR-085  the panel selects rows (MUST); SEVERAL at once, and the set can be
+//           cleared. The set is NOT table T-023c's.
+//   FR-098  a pinned row is the SAME row at another place -- the pin lifts it
+//           out of the scrolling list, it does not make a second kind of row --
+//           so whatever FR-085 says about a row holds for a pinned one.
+//   FR-042  what a chosen row is chosen FOR: its colour and height go to the
+//           properties panel. Read here only for the reason the set exists;
+//           that panel itself is UF-64's answer.
+//   FR-072  the same, on the other side of that seam.
+// ---------------------------------------------------------------------------
+
+/** The session of `drawn(...)`, with the rows FR-085 says a person chose. */
+const chose = (session: ScreenSession, ...groupIds: readonly string[]): ScreenSession => ({
+  ...session,
+  selectedGroupIds: groupIds,
+})
+
+/**
+ * Everything about a title except whether it was chosen.
+ *
+ * A case that means "choosing a row disturbs nothing else" has to compare all
+ * of the rest, not the members it names: naming them is how such a case goes
+ * green over a member added later.
+ */
+const exceptSelected = (title: RowTitle): Record<string, unknown> => {
+  const rest: Record<string, unknown> = { ...(title as unknown as Record<string, unknown>) }
+  delete rest.isSelected
+  return rest
+}
+
+const restOf = (panel: RowTitlePanel): Record<string, unknown> => ({
+  pinnedTitles: panel.pinnedTitles.map(exceptSelected),
+  titles: panel.titles.map(exceptSelected),
+})
+
+describe('UF-63 -- FR-085 (b): the rows a person chose', () => {
+  const schedule = scheduleOf([
+    groupOf({ id: 'g1', label: 'first', order: 0 }),
+    groupOf({ id: 'g2', label: 'second', order: 1 }),
+    groupOf({ id: 'g3', label: 'third', order: 2 }),
+  ])
+  const session = drawn('g1', 'g2', 'g3')
+
+  it('describes a row named in `selectedGroupIds` as chosen', () => {
+    const panel = panelOf(schedule, chose(session, 'g2'))
+
+    expect(titleOf(panel, 'g2').isSelected).toBe(true)
+  })
+
+  it('leaves a row that was not named unchosen', () => {
+    const panel = panelOf(schedule, chose(session, 'g2'))
+
+    expect(titleOf(panel, 'g1').isSelected).toBe(false)
+    expect(titleOf(panel, 'g3').isSelected).toBe(false)
+  })
+
+  it('chooses SEVERAL rows at once (FR-085, MUST)', () => {
+    const panel = panelOf(schedule, chose(session, 'g1', 'g3'))
+
+    expect(panel.titles.map((t) => t.isSelected)).toEqual([true, false, true])
+  })
+
+  it('chooses every drawn row when every one of them was named', () => {
+    const panel = panelOf(schedule, chose(session, 'g1', 'g2', 'g3'))
+
+    expect(panel.titles.map((t) => t.isSelected)).toEqual([true, true, true])
+  })
+
+  it('clears the set: an empty `selectedGroupIds` chooses no row (FR-085)', () => {
+    const panel = panelOf(schedule, chose(session))
+
+    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, false, false])
+  })
+
+  it('does not follow the order the ids arrived in', () => {
+    const forwards = panelOf(schedule, chose(session, 'g1', 'g3'))
+    const backwards = panelOf(schedule, chose(session, 'g3', 'g1'))
+
+    expect(backwards).toEqual(forwards)
+  })
+
+  it('matches a row by its whole id and not by a leading part of it', () => {
+    // `g1` and `g10` are two rows. Choosing the first must not choose the
+    // second: FR-085 chooses ROWS, and AT-51 makes `TaskGroup.id` the name of
+    // one of them.
+    const two = scheduleOf([
+      groupOf({ id: 'g1', label: 'first', order: 0 }),
+      groupOf({ id: 'g10', label: 'tenth', order: 1 }),
+    ])
+    const panel = panelOf(two, chose(drawn('g1', 'g10'), 'g1'))
+
+    expect(titleOf(panel, 'g1').isSelected).toBe(true)
+    expect(titleOf(panel, 'g10').isSelected).toBe(false)
+  })
+
+  it('ignores an id that names no drawn row', () => {
+    const panel = panelOf(schedule, chose(session, 'g9', 'g2'))
+
+    expect(idsOf(panel.titles)).toEqual(['g1', 'g2', 'g3'])
+    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, true, false])
+  })
+
+  it('describes a row once when the set happens to hold its id twice', () => {
+    // The shape S-126 is already tested for above: a set that names one row
+    // twice still names one row.
+    const panel = panelOf(schedule, chose(session, 'g2', 'g2'))
+
+    expect(idsOf(panel.titles)).toEqual(['g1', 'g2', 'g3'])
+    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, true, false])
+  })
+
+  it('says chosen with a boolean, not with something merely truthy', () => {
+    const panel = panelOf(schedule, chose(session, 'g2'))
+
+    expect(typeof titleOf(panel, 'g2').isSelected).toBe('boolean')
+    expect(typeof titleOf(panel, 'g1').isSelected).toBe('boolean')
+  })
+})
+
+describe('UF-63 -- FR-098 with FR-085: a pinned row is chosen the same way', () => {
+  // FR-098 lifts a pinned row out of the scrolling list and holds it at the
+  // top. It is one row's other PLACE, not a second kind of row, so FR-085's
+  // rule about choosing has to reach it there.
+  const schedule = scheduleOf([
+    groupOf({ id: 'g1', label: 'first', order: 0 }),
+    groupOf({ id: 'g2', label: 'second', order: 1 }),
+    groupOf({ id: 'g3', label: 'third', order: 2 }),
+  ])
+  const session = drawn('g1', 'g2', 'g3')
+  const pinned = panelWith({ pinnedGroupIds: ['g2'] })
+
+  it('describes a pinned row named in `selectedGroupIds` as chosen', () => {
+    const panel = panelOf(schedule, chose(session, 'g2'), pinned)
+
+    expect(idsOf(panel.pinnedTitles)).toEqual(['g2'])
+    expect(titleOf(panel, 'g2').isSelected).toBe(true)
+  })
+
+  it('leaves a pinned row that was not named unchosen', () => {
+    const panel = panelOf(schedule, chose(session, 'g1'), pinned)
+
+    expect(titleOf(panel, 'g2').isSelected).toBe(false)
+    expect(titleOf(panel, 'g1').isSelected).toBe(true)
+  })
+
+  it('chooses a pinned row and an unpinned one together', () => {
+    const panel = panelOf(schedule, chose(session, 'g2', 'g3'), pinned)
+
+    expect(panel.pinnedTitles.map((t) => t.isSelected)).toEqual([true])
+    expect(idsOf(panel.titles)).toEqual(['g1', 'g3'])
+    expect(panel.titles.map((t) => t.isSelected)).toEqual([false, true])
+  })
+
+  it('still draws the chosen pinned row once (FR-098, MUST NOT draw it twice)', () => {
+    const panel = panelOf(schedule, chose(session, 'g2'), pinned)
+
+    expect(idsOf(panel.titles)).toEqual(['g1', 'g3'])
+  })
+
+  it('answers the same for a chosen row whether or not it is pinned', () => {
+    const asPinned = titleOf(panelOf(schedule, chose(session, 'g2'), pinned), 'g2')
+    const asPlain = titleOf(panelOf(schedule, chose(session, 'g2'), PANEL), 'g2')
+
+    expect(asPinned.isSelected).toBe(asPlain.isSelected)
+  })
+})
+
+describe('UF-63 -- FR-085 (c): choosing rows disturbs nothing else', () => {
+  // A scene with something of every answer in it: three depths, a name too
+  // long to fit, a leaf, a pin, and a hidden row.
+  const scene = scheduleOf([
+    groupOf({ id: 'g1', label: LONG, order: 0 }),
+    groupOf({ id: 'g2', parentId: 'g1', label: 'second', order: 1 }),
+    groupOf({ id: 'g3', parentId: 'g2', label: 'third', order: 2 }),
+    groupOf({ id: 'g4', label: 'fourth', order: 3 }),
+    groupOf({ id: 'g5', parentId: 'g4', label: 'hidden', order: 4, isHidden: true }),
+  ])
+  const session = drawn('g1', 'g2', 'g3', 'g4')
+  const settings = panelWith({ pinnedGroupIds: ['g3'] })
+
+  it('leaves every other member of every title alone', () => {
+    const none = panelOf(scene, chose(session), settings)
+    const some = panelOf(scene, chose(session, 'g1', 'g3'), settings)
+
+    expect(restOf(some)).toEqual(restOf(none))
+  })
+
+  it('leaves which rows are drawn, and where, alone', () => {
+    const none = panelOf(scene, chose(session), settings)
+    const some = panelOf(scene, chose(session, 'g2'), settings)
+
+    expect(idsOf(some.titles)).toEqual(idsOf(none.titles))
+    expect(idsOf(some.pinnedTitles)).toEqual(idsOf(none.pinnedTitles))
+  })
+
+  it('leaves the cut of a name that did not fit where it was', () => {
+    const none = titleOf(panelOf(scene, chose(session), settings), 'g1')
+    const some = titleOf(panelOf(scene, chose(session, 'g1'), settings), 'g1')
+
+    expect(some.isLabelTruncated).toBe(true)
+    expect(some.label).toBe(none.label)
+    expect(some.wholeLabel).toBe(none.wholeLabel)
+  })
+
+  it('does not make a chosen row pinned, nor a pinned row chosen', () => {
+    const panel = panelOf(scene, chose(session, 'g1'), settings)
+
+    expect(titleOf(panel, 'g1').isPinned).toBe(false)
+    expect(titleOf(panel, 'g3').isSelected).toBe(false)
+  })
+
+  it('writes to nothing it was handed while rows are chosen (R7.1)', () => {
+    const chosen = chose(session, 'g1', 'g3')
+    const before = JSON.stringify({ scene, settings, chosen })
+
+    panelOf(scene, chosen, settings)
+
+    expect(JSON.stringify({ scene, settings, chosen })).toBe(before)
+  })
+
+  it('answers the same value for the same chosen set', () => {
+    expect(panelOf(scene, chose(session, 'g2', 'g4'), settings)).toEqual(
+      panelOf(scene, chose(session, 'g2', 'g4'), settings),
+    )
+  })
+})
