@@ -888,6 +888,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
     'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a', 'S-143'], READ_WHERE_IT_STANDS),
+    'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
@@ -1422,6 +1423,14 @@ TARGETS = [
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
      lambda _erd: colour_block('SCHEDULE_COLOURS'),
      ['docs/spec/_source/settings.json (table T-236)']),
+    # ⭐ The width the properties panel opens to, which only the shell can put
+    # into force: S-80 is what the DOCUMENT keeps and 0 is what "closed" means
+    # there, so the open width has to be laid over the settings for the frame
+    # that draws the panel and nowhere else. ⛔ It is not a document setting and
+    # must not become one -- FR-052's drag is what writes S-80.
+    (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-loop.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
 ]
 
 

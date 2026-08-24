@@ -4130,3 +4130,29 @@ export function frameLoop(
     },
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands instead of being handed
+ * it: the contract in screen-renderer.ts fixes UF-61 at three
+ * arguments, and FR-051 (MUST NOT) forbids a setting to hold the
+ * value either -- so there is no door to pass it through. ⛔ It is
+ * still not a document setting and must not become one.
+ */
+export const NOT_STORED_PROPERTIES_PANEL_SIZES: {
+  /** S-171, in px */
+  readonly 'S-171': number
+} = {
+  'S-171': 280,
+}
+// </generated>
