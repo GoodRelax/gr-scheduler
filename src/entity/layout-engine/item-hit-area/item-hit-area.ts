@@ -275,6 +275,15 @@ type TaskRow = {
 const TASK_ROWS: readonly TaskRow[] = [
   // GR-1 / GR-2 -- the fade handles, at the plan bar's top-left and
   // bottom-right corners. FD-5 gives them to the two shapes with thickness.
+  //
+  // ⚠️ THE SELECTION IS NOT TESTED HERE, and must not be: FR-075's MUST is
+  // already spent where `fadeHandles` is built, so an unselected Task arrives
+  // with an empty list and these two rows pass it by. ⛔ Repeating the test
+  // here would need this file to be handed a `Selection` it has no other use
+  // for, and would put the condition of S-111 in two places -- the second of
+  // which nothing would keep honest. ⭐ The rule this file does keep is the
+  // one table T-023d states: GR-1 and GR-2 are asked of EVERY Task before
+  // GR-3 is asked of any, so the picture is what has to be narrow.
   {
     grab: 'GR-1',
     /** @purity pure */

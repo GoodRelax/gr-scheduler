@@ -362,10 +362,10 @@ const RICH_SCHEDULE = scheduleOf({
 /** ADR-001 has the shell compute these once a frame and hand them round. */
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
-const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS)
+const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection())
 
 const RICH_LAYOUT = layoutFromSchedule(RICH_SCHEDULE, SETTINGS, REGIONS)
-const RICH_GEOMETRY = geometryFromLayout(RICH_SCHEDULE, SETTINGS, RICH_LAYOUT, REGIONS)
+const RICH_GEOMETRY = geometryFromLayout(RICH_SCHEDULE, SETTINGS, RICH_LAYOUT, REGIONS, emptySelection())
 
 const documentOf = (schedule: Schedule, settings: DocumentSettings = SETTINGS): Document =>
   ({
@@ -673,7 +673,7 @@ describe('FR-028 -- every answer is a value; nothing is thrown', () => {
     const context = contextOf({
       document: documentOf(bare),
       layout,
-      geometry: geometryFromLayout(bare, SETTINGS, layout, regions),
+      geometry: geometryFromLayout(bare, SETTINGS, layout, regions, emptySelection()),
       regions,
     })
     for (const input of [
@@ -1140,7 +1140,7 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
     return contextOf({
       document: documentOf(SCHEDULE, settings),
       layout,
-      geometry: geometryFromLayout(SCHEDULE, settings, layout, regions),
+      geometry: geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection()),
       regions,
     })
   }
@@ -1751,7 +1751,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
         document: documentOf(bare),
         layout,
         regions,
-        geometry: geometryFromLayout(bare, SETTINGS, layout, regions),
+        geometry: geometryFromLayout(bare, SETTINGS, layout, regions, emptySelection()),
         screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
       },
     )
@@ -2383,7 +2383,7 @@ function panelContextOf(
   return contextOf({
     document: documentOf(schedule, settings),
     layout,
-    geometry: geometryFromLayout(schedule, settings, layout, regions),
+    geometry: geometryFromLayout(schedule, settings, layout, regions, emptySelection()),
     regions,
   })
 }

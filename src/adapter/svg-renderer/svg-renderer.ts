@@ -355,9 +355,43 @@ function paintOf(
  * ⛔ Their exact figures are not in the specification, the way the milestone
  * figures are not; PD-2 covers the same kind of gap.
  *
+ * ⭐ PM-1a IS DRAWN FAINT, and only PM-1a. FR-013 carries a MUST that the
+ * not-started marker and FR-043's dummies are drawn faint and darkened only
+ * while the pointer is on them, and names S-131 as the degree; the same
+ * sentence holds the late marker OUT of it in as many words, and PM-4 wins
+ * over PM-1a whenever it holds (table T-021), so keying on the symbol is what
+ * that exemption reduces to. ⛔ PM-1, PM-2 and PM-3 are not faint: the MUST
+ * names the not-started marker and no other, and FR-013's own (MUST NOT) --
+ * faintness may not be what tells started from not started, the shape carries
+ * that (FR-030) -- is met because PM-1a's own figure is what says it.
+ *
+ * ⭐ ONE GROUP RATHER THAN AN ATTRIBUTE ON EACH SHAPE. The backing and the ink
+ * overlap, and two translucent shapes composite to a third value where they
+ * meet -- so per-shape opacity would draw the symbol darker than its own disc
+ * and S-131 would no longer be the degree of anything. ⚠️ The backing goes
+ * translucent with the rest, which is a real loss against table T-020's opaque
+ * backing; the MUST that says to draw it faint is the one that decides.
+ *
+ * ⛔ STOP -- THE HOVER HALF IS NOT DRAWN. The same MUST darkens the marker
+ * while the pointer is on it, and this unit is handed no pointer: PI-19 of
+ * table T-064 publishes `svgFromSchedule` over
+ * (schedule, settings, layout, geometry, regions, selection) and none of the
+ * six carries one. ⭐ The value EXISTS already: the Framework holds it and IF-2
+ * of table T-065 carries it into this layer for InputCommandTranslator, so
+ * what would have to move is PI-19's own signature and nothing else.
+ * ⚠️ Being `pure` (table T-062) is no obstacle -- a pointer handed IN is an
+ * argument like the other six. ⛔ Drawing it constantly faint is the safe half
+ * of the MUST, not a reading of it: the mark is visible and legible, and only
+ * the response to the hand is absent.
+ *
  * @purity pure
  */
-function markerSvg(marker: MarkerGeometry, ink: string, backing: string): string {
+function markerSvg(
+  marker: MarkerGeometry,
+  ink: string,
+  backing: string,
+  faintness: number,
+): string {
   const { centre, radius } = marker
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
@@ -382,7 +416,9 @@ function markerSvg(marker: MarkerGeometry, ink: string, backing: string): string
               `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y + r * 0.8)}"` +
               ` r="${rounded(radius * 0.12)}" fill="${ink}"/>`
             : ''
-  return disc + mark
+  const drawn = disc + mark
+  if (marker.symbol !== 'PM-1a') return drawn
+  return `<g opacity="${rounded(faintness)}">${drawn}</g>`
 }
 
 /**
@@ -620,6 +656,26 @@ function ticksOfRow(
  * LF-1's arithmetic and nothing else) and S-136 is the vertical pad, so the
  * label starts on its own rule until a row says otherwise.
  *
+ * ⛔ STOP -- ⛔ NO GROUND IS PAINTED UNDER THE BAND, AND FR-041 IS NOT THE
+ * AUTHORITY TO PAINT ONE. The rectangle in question is `regions.timeRuler` and
+ * nothing else -- the Row Area's own x and width, the canvas's own top, and
+ * the height S-2 gives. ⭐ What shows through it today is the PAGE element's
+ * ground: `pageGroundStyle` resolves S-146 and SingleHtmlShell writes it on
+ * `documentElement`, which is the one box lying behind both drawn layers. So
+ * FR-041's MUST -- paint the ground yourself, do not leave it to the viewing
+ * environment's system colours -- is already discharged, and S-146's own
+ * remark, that an unpainted ground shows the OS default, cannot fire here.
+ *
+ * ⛔ A RECT HERE WOULD BE ABOUT OCCLUSION, WHICH NO ROW SETTLES. Its only
+ * effect would be to hide what the Row Area lets past its own top edge --
+ * LF-12's overhang, and a first-row label -- and that is a different question
+ * from the ground colour. No requirement says the Time Ruler is opaque, and
+ * table T-236 holds no ruler ground: S-150 is the panel ground and its use
+ * column names the Row Title Panel, the Properties Panel and the palette, not
+ * U-19. ⚠️ The row that would be needed is one saying that U-19's band is
+ * painted, in which colour, and over which rectangle. Until it exists the band
+ * stays unpainted rather than being given an extent this file chose.
+ *
  * @purity pure
  */
 function rulerSvg(
@@ -796,6 +852,37 @@ export function svgFromSchedule(
   // the drawn box, the way `highlightBoxes` does.
   const selectionParts: string[] = []
 
+  // ⛔ STOP -- ⛔ THERE IS NO DUMMY CATEGORY, AND FR-043's MUST IS UNMET.
+  // FR-043 shows two faint grab handles on a Task not started (one point on a
+  // milestone), and FR-013 adds that they are drawn faint at S-131 and take the
+  // actual bar's own paint (FR-041). ⭐ THE GEOMETRY IS ALREADY HERE AND GOES
+  // UNREAD: `TaskGeometry.dummies` carries GR-9 at the plan start day, GR-17 at
+  // S-129 worked days along and GR-18 on a milestone, and empties itself once
+  // the Task is started. `item-hit-area.ts` already answers all three, so a
+  // person has a live hit target with nothing under the pointer to see -- which
+  // is the reported symptom and is why this is recorded rather than left.
+  //
+  // ⛔ WHAT IS MISSING IS THE DRAWN FIGURE. Every mark this file draws takes
+  // its size from a row -- the fade grab point from S-109 and S-110, the
+  // marker's disc from the geometry, SH-4's ends from their own radius -- and
+  // `DummyGeometry` carries a POINT and nothing else. The whole specification
+  // gives the dummy four rows: S-129 and S-130 are durations, S-131 is the
+  // faintness, and S-93 is the HIT AREA. ⛔ S-93 MAY NOT STAND IN FOR THE
+  // DRAWN SIZE: its own table records it as a reader's accessibility value the
+  // document may not force, and rule 03 section 1 routes S-90 to S-93 into
+  // `item-hit-area.ts` alone so that no second unit carries them.
+  // ⚠️ A row would have to say what figure U-52 is drawn as and how large --
+  // whether GR-9 and GR-17 are two points or the two ends of one faint span,
+  // and what GR-18's single point is drawn as. Table T-210 is where it would
+  // sit, beside S-109 and S-110.
+  //
+  // ⚠️ AND EP-14 OF TABLE T-076 WOULD NEED A WAY IN AT THE SAME TIME. The
+  // export MUST NOT draw the dummy, and this unit cannot tell an export frame
+  // from a screen one; the empty selection the export hands in already erases
+  // the frames and the fade grab points (EP-12), but the dummy hangs on the
+  // Task being unstarted rather than on the selection, so it would reach the
+  // exported picture too.
+
   // FR-042 (MUST): one band per drawn row, and a group grid line on its
   // boundary. ⛔ Clipped to the Row Area rather than drawn wherever the row
   // sits: S-78 slides the whole stack, so a scrolled row's band would
@@ -890,7 +977,12 @@ export function svgFromSchedule(
       }
     }
     if (task.marker !== null && settings.progressMarkerVisible) {
-      markerParts.push(markerSvg(task.marker, themed('S-161'), themed('S-162')))
+      // S-131 is the degree FR-013's MUST names, and `markerSvg` is where the
+      // one symbol it reaches is decided -- PM-4 wins over PM-1a and is
+      // exempted there rather than by a second test on this side.
+      markerParts.push(
+        markerSvg(task.marker, themed('S-161'), themed('S-162'), settings.dummyOpacity),
+      )
     }
     const placed = placedOf.get(task.taskUid)
     if (task.label !== null && placed !== undefined && placed.label !== '') {

@@ -54,6 +54,10 @@ import {
   type Task,
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
+// PI-32 of table T-064. ⭐ Only the type: what this file needs from a selection
+// is the set of Task uids, which it builds once per call, and `isSelected`
+// walks the list for every question asked of it.
+import type { Selection } from '../../document-model/selection/selection'
 import {
   // PI-5's own member (table T-064). ⛔ Not written a second time here: two
   // copies of the axis part company the moment S-77 or FR-017 moves, and this
@@ -141,8 +145,10 @@ export interface TaskGeometry {
   readonly dummies: readonly DummyGeometry[]
   /**
    * GR-1 then GR-2. Empty unless the shape has thickness (FD-5) AND the Task
-   * holds a fade day (FR-075). ⛔ The selection half of FR-075 is still open;
-   * the STOP that says why is where these are built.
+   * is the selected one (FR-075, MUST -- the condition is S-111 of table
+   * T-210). ⭐ The hit test reads this list and nothing else, so the scope of
+   * the grab area is the scope of the picture. The reasoning is where they
+   * are built.
    */
   readonly fadeHandles: readonly Point[]
   /** GR-10's target: where LC-6 put the name. Null when the Task has no name. */
@@ -197,6 +203,15 @@ interface GeometryInputs {
   readonly statusDate: CalendarDay | null
   readonly showPlan: boolean
   readonly showActual: boolean
+  /**
+   * The uids SL-1 of table T-023c has selected, and nothing else from the
+   * selection. FR-075 (MUST) shows the fade grab points on the selected Task
+   * alone; S-111 of table T-210 is the row that records the condition.
+   *
+   * ⭐ A set, gathered once per call: this is asked per Task per frame, and
+   * `isSelected` answers by walking the selected list each time.
+   */
+  readonly selectedTaskUids: ReadonlySet<number>
 }
 
 // ---------------------------------------------------------------- shapes ----
@@ -870,35 +885,30 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     resume: marker !== null && suspended ? resumeOf(task, marker, settings) : null,
     dummies,
     // GR-1 then GR-2, at the plan bar's top-left and bottom-right corners.
-    // Two conditions gate them, and only one of the two can be answered here.
+    // Two conditions gate them, and both are answered here.
     //
     // FD-5 of table T-012a gives them to the two shapes with thickness (SH-1 /
     // SH-2), which is exactly the set `actualPlacementOf` calls 'inside'.
     //
-    // FR-075 adds the Task's own: its statement opens with the fade days being
-    // set, and S-111 of table T-210 records the condition it states. The reason
+    // FR-075 (MUST) adds the second: the points show on the SELECTED Task and
+    // on no other, and S-111 of table T-210 records that condition. The reason
     // FR-075 gives is that handles left out at all times put a row of dots on
-    // tasks that use no fade. So a Task holding neither fade day gets no pair.
-    // ⚠️ WHY IT MATTERS: `itemAtPointer` gives GR-1 / GR-2 the TOP of table
-    // T-023d and asks every Task for them before it asks any Task for GR-3 /
-    // GR-4. Emitted unconditionally, one Task's handle therefore swallows
-    // another Task's plan-bar end and no bar can be resized by its edge.
-    // Measured on `startup-template.json`: 997 of its 1000 tasks hold
-    // `fadeInDays: null`, and 4 hold either day.
+    // tasks that use no fade -- selecting one is what asks for them.
     //
-    // ⛔ STOP -- ⛔ THE SELECTION HALF OF FR-075 IS NOT CLOSED HERE.
-    // FR-075's MUST is about the SELECTED Task, and this file cannot see the
-    // selection: `geometryFromLayout(schedule, settings, layout, regions)` is
-    // handed no `Selection` (the type is `entity/document-model/selection`),
-    // and neither is `itemAtPointer(geometry, x, y, slop)`, which is the reader
-    // that decides whether a press lands on GR-1. Guessing one here would be
-    // inventing a seam. ⭐ THE SEAM THAT WOULD HAVE TO CARRY IT is
-    // `geometryFromLayout`'s signature -- add the `Selection` there and pass it
-    // into `GeometryInputs`, since the hit test reads only what this file
-    // emitted. Until that is decided, a Task WITH fade days shows its two
-    // handles whether or not it is selected, which is wider than FR-075 allows.
+    // ⛔ NOT ALSO GATED ON THE TASK ALREADY HOLDING A FADE DAY. It was, for one
+    // round, and PD-191 is the ruling that took it out: a Task with no fade yet
+    // then had nothing to drag, so a fade could never be CREATED -- and FR-075
+    // hands the author these two points precisely to set the days with.
+    //
+    // ⚠️ WHY THE SELECTION HAS TO BE THE GATE AND NOT THE DRAWING'S ALONE.
+    // `itemAtPointer` gives GR-1 / GR-2 the TOP of table T-023d and asks every
+    // Task for them before it asks any Task for GR-3 / GR-4. The hit test reads
+    // only what this file emitted, so a pair emitted for an unselected Task
+    // swallows a neighbour's plan-bar end and no bar can be resized by its
+    // edge -- which is what a person met in the running app. Narrowing the
+    // picture in the renderer would not have moved the hit area an inch.
     fadeHandles:
-      placed.actualPlacement === 'inside' && (task.fadeInDays !== null || task.fadeOutDays !== null)
+      placed.actualPlacement === 'inside' && inputs.selectedTaskUids.has(placed.taskUid)
         ? [point(placed.x, planTop), point(placed.x + placed.width, planTop + placed.planHeight)]
         : [],
     label: labelBoxOf(inputs, placed),
@@ -1035,6 +1045,14 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
 /**
  * Everything drawn, from what LC-1 to LC-9 already settled.
  *
+ * ⚠️ `selection` is required and has no default. FR-075 (MUST) shows the fade
+ * grab points on the selected Task alone, and the hit test can only be as
+ * narrow as what this file emitted -- so a caller that forgot to say what is
+ * selected would hand `itemAtPointer` a GR-1 on every Task, which is the very
+ * occlusion PD-191 was raised for. ⭐ A caller that draws no selection says so
+ * with `emptySelection()`: the export does exactly that, because EP-12 of
+ * table T-076 keeps the selection out of an exported picture.
+ *
  * @purity pure
  */
 export function geometryFromLayout(
@@ -1042,6 +1060,7 @@ export function geometryFromLayout(
   settings: DocumentSettings,
   layout: ScheduleLayout,
   regions: ScreenRegions,
+  selection: Selection,
 ): ScheduleGeometry {
   const inputs: GeometryInputs = {
     settings,
@@ -1051,6 +1070,10 @@ export function geometryFromLayout(
     statusDate: dayOf(schedule.project.statusDate),
     showPlan: settings.planActualDisplay !== 'actual-only',
     showActual: settings.planActualDisplay !== 'plan-only',
+    // SL-1 admits five kinds and only the Task ones can carry a fade handle.
+    selectedTaskUids: new Set(
+      selection.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : [])),
+    ),
   }
 
   const tasks: TaskGeometry[] = []

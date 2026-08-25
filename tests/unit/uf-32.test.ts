@@ -196,7 +196,7 @@ const drawn = (
 ): string => {
   const regions = regionsFromScreen(env, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions)
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
   return svgFromSchedule(schedule, settings, layout, geometry, regions, selection)
 }
 

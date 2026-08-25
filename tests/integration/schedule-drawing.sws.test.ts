@@ -364,7 +364,7 @@ const draw = (
   const settings = settingsOf({ zoomX: 10, scrollDate: day(1), stackDirection: 'down', ...over })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions)
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
   return { schedule, settings, regions, layout, geometry }
 }
 

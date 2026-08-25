@@ -11,6 +11,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
+import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import {
   dateAtX,
   fitZoom,
@@ -770,7 +771,7 @@ const geometryOf = (
   schedule: Schedule,
   settings: DocumentSettings = GEOM_SETTINGS,
 ): ScheduleGeometry =>
-  geometryFromLayout(schedule, settings, layoutFromSchedule(schedule, settings, REGIONS), REGIONS)
+  geometryFromLayout(schedule, settings, layoutFromSchedule(schedule, settings, REGIONS), REGIONS, emptySelection())
 
 /** The x of a day index, at pxPerDay 6 from a Row Area starting at 170. */
 const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6

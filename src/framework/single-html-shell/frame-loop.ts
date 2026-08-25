@@ -2439,7 +2439,12 @@ export function frameLoop(
     const regions = regionsFromScreen(environmentForRegions, withPanelShown)
     const settings = viewSettings(document, withPanelShown, regions)
     const layout = layoutFromSchedule(document.schedule, settings, regions)
-    const geometry = geometryFromLayout(document.schedule, settings, layout, regions)
+    // ⭐ THE SAME `selection` THE RENDERER IS ABOUT TO BE HANDED, and for the
+    // same requirement: FR-075 (MUST) puts the fade grab points on the selected
+    // Task alone, and `itemAtPointer` can only be as narrow as the geometry it
+    // reads. Two different answers here would put a grab where no point is
+    // drawn (PD-191).
+    const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
     values = { regions, layout, geometry }
     surface.showSvg(
       svgFromSchedule(document.schedule, settings, layout, geometry, regions, selection),
@@ -2654,12 +2659,21 @@ export function frameLoop(
     const regions = regionsFromScreen(environmentForRegions, withPanelsClosed)
     const settings = viewSettings(document, withPanelsClosed, regions)
     const layout = layoutFromSchedule(document.schedule, settings, regions)
-    const geometry = geometryFromLayout(document.schedule, settings, layout, regions)
     // EP-12 of table T-076 keeps what is selected and what is armed out of an
     // export, and CU-3 of table T-029 has the guide cursor follow a pointer
     // that an export does not have -- so the picture is rendered with none of
     // the three rather than having them removed from a finished string.
+    // ⭐ THE GEOMETRY IS BUILT FROM IT TOO, not only the rendering: FR-075's
+    // fade grab points are vertices, so an export told nothing about the
+    // selection is the only way EP-12 keeps them out of the picture.
     const nothingSelected = emptySelection()
+    const geometry = geometryFromLayout(
+      document.schedule,
+      settings,
+      layout,
+      regions,
+      nothingSelected,
+    )
     // S-99e says the palette shows by default; the export's environment is the
     // one where it does not. ⚠️ Started from an empty state rather than from
     // the session's, so nothing a person left open (S-99g) reaches the picture.

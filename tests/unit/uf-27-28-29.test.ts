@@ -280,7 +280,7 @@ function frameOf(document: Document): FrameSnapshot {
   const settings = document.documentSettings
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(document.schedule, settings, regions)
-  const geometry = geometryFromLayout(document.schedule, settings, layout, regions)
+  const geometry = geometryFromLayout(document.schedule, settings, layout, regions, emptySelection())
   return { layout, geometry, regions }
 }
 
