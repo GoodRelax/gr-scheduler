@@ -37,7 +37,21 @@ SETTINGS_BOUNDS                 その下限・上限
 SETTINGS_DERIVED                他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
 NOT_STORED_ZOOM_STEP            1 ノッチの倍率（表 T-206 の `S-96`）
 NOT_STORED_ZOOM_BOUNDS          倍率の下限・上限（`S-97` / `S-98`）
+NOT_STORED_COMMAND_PALETTE_SIZES  `Command Palette` の掴み帯と群（`S-135a` / `S-143`）
+NOT_STORED_PROPERTIES_PANEL_SIZES `Properties Panel` が開く幅（`S-171`）
+NOT_STORED_ROW_CONTROL_SIZES    行の操作子の大きさ（`S-140`）
+NOT_STORED_ICON_SIZES           アイコンの箱と隔たり（`S-138` / `S-141`）
+NOT_STORED_SELECTION_SIZES      選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
+NOT_STORED_REPEAT_TIMES         長押しの待ちと刻み（`S-172` / `S-173`）
+SCREEN_COLOURS                  画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
+SCHEDULE_COLOURS                日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
+ENTITY_ROWS                     実体の行（`erd.json`）
 ```
+
+⚠️ **この一覧は 2026-08-26 に 9 本足して受け皿を合わせた。**
+⛔ **内訳は「今回増やした 1 本」と「先に足し忘れていた 8 本」である。**
+⭐ **数え方**: `src/` の生成領域の中の `export const` を全部拾うと 20 本ある。
+⚠️ **「増えたらここに足す」と書いてあっても、機械が見ていない規則はこうなる。**
 
 ⚠️ **下の 2 つは、表 T-206 の行が値を持たず 表 T-201 の行を名指している初めての例である**（`S-96` → `S-53`）。
 ⛔ **これを運ぶ道が無いあいだ、ズームの 3 値は `src/` のどこにも届いておらず、`InputContext.zoomStep` が作れないために `FT-1`（ポインタと打鍵の経路）が丸ごと塞がっていた。**

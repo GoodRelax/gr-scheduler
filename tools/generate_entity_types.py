@@ -879,6 +879,23 @@ READ_WHERE_IT_STANDS = [
     ' * value either -- so there is no door to pass it through. ⛔ It is',
     ' * still not a document setting and must not become one.',
 ]
+# ⛔ A FOURTH SEAM: no door AND no caller, because the clock is the shell's
+# own. FT-4 of table T-078 puts time arriving among the triggers a frame runs
+# on and gives it to SingleHtmlShell (CP-25) to count for itself, and the note
+# under that table refuses to widen what IF-2 supplies (table T-065) on the
+# ground that a time is the host's value rather than an input device's event.
+# So no argument may be added to hand these in through, and the unit that
+# measures the wait is the unit that reads the rows.
+TIMED_WHERE_IT_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands because the clock is its',
+    ' * own to read: FT-4 of table T-078 counts time arriving as a trigger',
+    ' * the shell measures for itself, and the note under that table refuses',
+    ' * to widen what IF-2 supplies (table T-065) -- so there is no argument',
+    ' * to be handed these through and none may be added. ⛔ Neither row is a',
+    ' * document setting and neither may become one: the note on S-173 puts',
+    ' * the speed of a repeat with the reader rather than with the document,',
+    ' * which is the same ground the grab rows stand on.',
+]
 # ⭐ Three rows of table T-206 hold no value of their own: their 値 column NAMES
 # a row of table T-201 instead (S-96 -> S-53, S-97 -> S-54, S-98 -> S-55). The
 # zoom trio is stated once, among the drawing settings, and table T-206 records
@@ -904,6 +921,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
@@ -1458,8 +1476,15 @@ TARGETS = [
     # there, so the open width has to be laid over the settings for the frame
     # that draws the panel and nowhere else. ⛔ It is not a document setting and
     # must not become one -- FR-052's drag is what writes S-80.
+    # ⭐ The two lengths FR-018 measures a held entrance with land beside it,
+    # in their own constant rather than in that one: they are times and it is a
+    # width, and the seam differs -- S-171 is laid over the settings of the
+    # frame being drawn, while S-172 and S-173 are counted off the clock FT-4
+    # of table T-078 gives the shell. ⛔ One shared constant would say the two
+    # arrive the same way, and the paragraph above each is what says how.
     (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-loop.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_REPEAT_TIMES'),
      ['docs/spec/_source/settings.json (table T-206)']),
 ]
 

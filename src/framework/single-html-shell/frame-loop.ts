@@ -2008,30 +2008,27 @@ interface RepeatTimes {
 }
 
 /**
- * What table T-206 states for the two, or null while neither reaches `src/`.
+ * What table T-206 states for the two, under the names FR-018 uses them by.
  *
- * STOP -- ⛔ NEITHER ROW IS CARRIED INTO `src/` BY ANYTHING, so this answers
- * null and the repeat below never starts. The rows exist and state machine
- * values: S-172 is the wait and S-173 the gap, both in table T-206 because
- * CR-255 kept them out of table T-212 on purpose (a saved row would let one
- * author's document decide how the press feels in the hands of whoever was
- * handed it). What is missing is the CARRIER: table T-206's values are
- * generated into the unit that consumes them (rule 03 section 1), and
- * `tools/generate_entity_types.py` has no target holding these two --
- * `NOT_STORED_TARGETS` gives this file S-171 and nothing else.
- * ⛔ WRITING THE TWO FIGURES HERE IS NOT THE ANSWER. That is the copied value
- * the same rule forbids: a manuscript edit would leave this line saying the old
- * thing and nothing would fail. ⚠️ The generator is not this unit's to change.
- * Searched: `tools/generate_entity_types.py` (NOT_STORED_TARGETS and its
- * destination list), `docs/spec/_source/settings.json` table T-206,
- * `document-settings.ts` SETTINGS_DEFAULTS, and `src/` for either row ID.
- * ⭐ Nothing else is missing: FR-018 states the rule, both rows state a value,
- * and the whole of the repeat below is wired and turns on with the constant.
+ * ⭐ THE ROW IDS BECOME NAMES HERE AND NOWHERE ELSE, so the repeat below reads
+ * `delayMs` and `intervalMs` and no call site has to remember which of the two
+ * rows is the wait and which the gap.
+ * ⛔ THE TWO FIGURES ARE NOT WRITTEN HERE. Both are carried in by the generated
+ * constant, because a value the specification holds is generated and never
+ * copied (rule 03 section 1) -- typed out, this line would go on saying the old
+ * thing after a manuscript edit and nothing would fail.
+ * ⚠️ THAT THE WAIT IS THE LONGER OF THE TWO IS NOT CHECKED HERE. FR-018 (MUST)
+ * asks it of the rows, not of this: it is a fact about what table T-206 states,
+ * and a guard here would answer a manuscript defect by silently doing something
+ * FR-018 does not describe either.
  *
  * @purity pure
  */
-function repeatTimesOfHeldEntry(): RepeatTimes | null {
-  return null
+function repeatTimesOfHeldEntry(): RepeatTimes {
+  return {
+    delayMs: NOT_STORED_REPEAT_TIMES['S-172'],
+    intervalMs: NOT_STORED_REPEAT_TIMES['S-173'],
+  }
 }
 
 /**
@@ -2699,7 +2696,6 @@ export function frameLoop(
     endEntryRepeat()
     if (pressHeldOnRepeatingEntry() === null) return
     const times = repeatTimesOfHeldEntry()
-    if (times === null) return
     // ⚠️ ONE WAKE CHAINED AFTER THE LAST, RATHER THAN A REPEATING TIMER. It is
     // the shape `beginPointerRest` above already has, so both waits this loop
     // measures are called off the same way; and a tick that ran late cannot
@@ -4738,5 +4734,32 @@ export const NOT_STORED_PROPERTIES_PANEL_SIZES: {
   readonly 'S-171': number
 } = {
   'S-171': 280,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands because the clock is its
+ * own to read: FT-4 of table T-078 counts time arriving as a trigger
+ * the shell measures for itself, and the note under that table refuses
+ * to widen what IF-2 supplies (table T-065) -- so there is no argument
+ * to be handed these through and none may be added. ⛔ Neither row is a
+ * document setting and neither may become one: the note on S-173 puts
+ * the speed of a repeat with the reader rather than with the document,
+ * which is the same ground the grab rows stand on.
+ */
+export const NOT_STORED_REPEAT_TIMES: {
+  /** S-172, in ms */
+  readonly 'S-172': number
+  /** S-173, in ms */
+  readonly 'S-173': number
+} = {
+  'S-172': 1000,
+  'S-173': 120,
 }
 // </generated>

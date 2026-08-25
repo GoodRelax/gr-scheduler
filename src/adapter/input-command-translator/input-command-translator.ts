@@ -2736,6 +2736,47 @@ function commandFromGrab(
       // FR-013: the marker cycles the state. ⚠️ Not a drag -- the cycle is one
       // step per release, whatever distance the pointer covered.
       return changed([{ kind: 'cycleTaskPlanActualState', uid }])
+    case 'GR-1':
+    case 'GR-2': {
+      // Table T-023d, the closing rule three paragraphs under the table (MUST):
+      // the days of GR-1 and GR-2 are taken FROM THE DAY UNDER THE POINTER --
+      // GR-1 the days from `start`, GR-2 the days back from the plan's end --
+      // rounded to whole days, and the result cut down by FD-6 of table T-012a
+      // (MUST).
+      //
+      // ⭐ THE DAY IS ASKED FOR THE ONE WAY THIS FILE ALREADY ASKS. `dayAtX` is
+      // the same road GR-3 / GR-4 below and GR-5 / GR-6 after them take, and it
+      // floors to the day DRAWN at that x -- so the count between two days is a
+      // whole number before anything rounds it, and the rounding that row asks
+      // for has nothing left to round. ⚠️ NO SECOND ROAD IS OPENED: the closing
+      // rule says the grab point IS a day on the time axis (which is also why
+      // it forbids a drag threshold), so a pixel distance divided by `pxPerDay`
+      // would be a second, disagreeing answer to the same question.
+      //
+      // ⚠️ SL-7a (MUST) as for GR-3 / GR-4: a corner drag is about the one Task
+      // grabbed, whatever else is selected.
+      // ⚠️ Neither FD-5's two shapes nor FR-075's MUST (handles only on the
+      // selected Task) is judged here: `item-hit-area.ts` spends both where the
+      // fade handles are built, and a Task that has none never arrives as GR-1
+      // or GR-2 at all.
+      const task = taskByUid(context.document.schedule, uid)
+      const start = dayOf(task === null ? null : task.start)
+      const finish = dayOf(task === null ? null : task.finish)
+      const day = dayAtX(context.layout, release.x)
+      if (task === null || start === null || finish === null || day === null) {
+        return CONSUMED_ELSEWHERE
+      }
+      const pulled =
+        hit.grab === 'GR-1'
+          ? serialOfDay(day) - serialOfDay(start)
+          : serialOfDay(finish) - serialOfDay(day)
+      const days = clampedFadeDays(task, hit.grab, pulled, serialOfDay(finish) - serialOfDay(start))
+      return changed([
+        hit.grab === 'GR-1'
+          ? { kind: 'setTaskFadeInDays', uid, days }
+          : { kind: 'setTaskFadeOutDays', uid, days },
+      ])
+    }
     case 'GR-3':
     case 'GR-4': {
       // SL-7a (MUST): an END drag narrows to the ONE task grabbed, whatever
@@ -2839,11 +2880,6 @@ function commandFromGrab(
     default:
       // STOP -- ⛔ THE REMAINING ROWS OF TABLE T-023d ARE NOT WRITTEN, and each
       // is missing something different rather than being an oversight:
-      //   GR-1 / GR-2  `fadeInDays` / `fadeOutDays` are dragged at a bar's
-      //                corner, and the geometry that says how many days a
-      //                corner has been pulled by is not in any table of the
-      //                specification (it is recovered in docs/review, not
-      //                here).
       //   GR-8         `resume`, whose rule is FR-044 and whose valid / invalid
       //                pair (AT-38) has no row saying which a drag produces.
       //   GR-11 / GR-13 / GR-14 / GR-15  no target exists to be grabbed:
@@ -2851,6 +2887,15 @@ function commandFromGrab(
       //                half of GR-14 as undrawn, and a dependency (GR-13) or a
       //                highlight box (GR-14) is SELECTED by a press rather than
       //                changed by one.
+      // ⚠️ GR-1 AND GR-2 WERE ON THIS LIST AND ARE NOT ANY MORE, and nothing in
+      // the specification moved -- the note said the geometry of a pulled corner
+      // was in no table of the specification, while table T-023d's closing rule
+      // states the derivation in as many words, three paragraphs under the very
+      // table the note named among what it had searched: the days come from the
+      // day under the pointer (MUST), GR-1 counting from `start` and GR-2 back
+      // from the plan's end, and FD-6
+      // of table T-012a cuts them down (MUST). CM-16 and CM-17 were already
+      // published by `edit-task.ts` to carry them. See the case above.
       // ⚠️ GR-9 / GR-17 / GR-18 WERE ON THIS LIST AND ARE NOT ANY MORE, and
       // nothing in the specification moved -- the note misread it twice. It
       // said the phase was unstated, but table T-023d's closing rule already
@@ -2868,6 +2913,38 @@ function commandFromGrab(
       // table T-206, `edit-task.ts`, `edit-annotation.ts`.
       return CONSUMED_ELSEWHERE
   }
+}
+
+/**
+ * FD-6 of table T-012a, in days: `fadeIn` is cut down to [0, the plan's span]
+ * and `fadeOut` to [0, the span less the `fadeIn` that stands] -- `fadeIn` wins.
+ *
+ * ⭐ THE SPAN IS THE ONE THE AXIS DRAWS, which is what makes this the same rule
+ * `schedule-geometry.ts` already applies in pixels: that file hands its own FD-6
+ * the bar's drawn width, and `schedule-layout.ts` builds that width as the days
+ * between `start` and `finish` times `pxPerDay`. Table T-012a spells its four
+ * points as days on the horizontal axis (`start + fadeIn`, `end - fadeOut`), so
+ * a day counted any other way would draw the corner somewhere other than under
+ * the hand that let go of it.
+ *
+ * ⛔ ONE ROW'S DAYS AND NOT THE PAIR. The closing rule under table T-023d cuts
+ * down the days THIS grab obtained, so the other column is read and never
+ * written -- a second write would be an entrance no row gives this grab, which
+ * is the reading GR-6 takes of `actualFinish` as well.
+ *
+ * ⚠️ IV-12 MEASURES THE SAME SPAN IN WORKED DAYS (`edit-task.ts`, at CM-16 /
+ * CM-17 and again at CM-11), so on a plan that covers non-working days a pair
+ * FD-6 allows can still be refused there. ⛔ Neither table says which of the two
+ * counts a fade day is, and nothing here picks one for them.
+ *
+ * @purity pure
+ */
+function clampedFadeDays(task: Task, grab: 'GR-1' | 'GR-2', pulled: number, span: number): number {
+  // ⚠️ The room can come out negative -- a fade already stands that is longer
+  // than the plan is now -- and an empty range is read as the 0 both ends of it
+  // then hold, never as "no limit".
+  const room = grab === 'GR-1' ? span : span - (task.fadeInDays ?? 0)
+  return Math.min(Math.max(0, pulled), Math.max(0, room))
 }
 
 /**
@@ -3614,3 +3691,5 @@ export const NOT_STORED_ZOOM_STEP: {
   'S-96': 1.1,
 }
 // </generated>
+
+
