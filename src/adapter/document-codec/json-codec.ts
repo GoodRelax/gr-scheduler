@@ -908,6 +908,12 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         chevronNotchOfWidth: {
           type: ['number'],
         },
+        commentBoxPad: {
+          type: ['integer'],
+        },
+        commentBoxWrapUnits: {
+          type: ['integer'],
+        },
         dateGridLinesVisible: {
           type: ['boolean'],
         },

@@ -40922,6 +40922,8 @@
   "carryMaxDepth": 16,
   "chevronNotchOfHeight": 0.45,
   "chevronNotchOfWidth": 0.35,
+  "commentBoxPad": 3,
+  "commentBoxWrapUnits": 128,
   "dateGridLinesVisible": false,
   "dependencyArrowLength": 10,
   "dependencyLagDefault": 0,

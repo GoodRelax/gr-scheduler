@@ -42,6 +42,8 @@ export interface DocumentSettings {
   readonly carryMaxDepth: number
   readonly chevronNotchOfHeight: number
   readonly chevronNotchOfWidth: number
+  readonly commentBoxPad: number
+  readonly commentBoxWrapUnits: number
   readonly dateGridLinesVisible: boolean
   readonly dependencyArrowLength: number
   readonly dependencyLagDefault: number
@@ -176,6 +178,8 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'carryMaxDepth': 16,
   'chevronNotchOfHeight': 0.45,
   'chevronNotchOfWidth': 0.35,
+  'commentBoxPad': 3,
+  'commentBoxWrapUnits': 128,
   'dateGridLinesVisible': false,
   'dependencyArrowLength': 10,
   'dependencyLagDefault': 0,
@@ -330,6 +334,8 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'carryMaxDepth': { min: 4, max: 64 },
   'chevronNotchOfHeight': { min: 0.05, max: 1 },
   'chevronNotchOfWidth': { min: 0.05, max: 0.5 },
+  'commentBoxPad': { min: 0, max: 30 },
+  'commentBoxWrapUnits': { min: 4, max: 240 },
   'dependencyArrowLength': {
     max: 40,
     minExpression: [{ key: 'dependencyWidth' }, { num: 2 }, { op: '*' }],

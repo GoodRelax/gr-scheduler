@@ -125,6 +125,8 @@
     "carryMaxDepth",
     "chevronNotchOfHeight",
     "chevronNotchOfWidth",
+    "commentBoxPad",
+    "commentBoxWrapUnits",
     "dateGridLinesVisible",
     "dependencyArrowLength",
     "dependencyLagDefault",
@@ -284,6 +286,16 @@
      "type": "number",
      "minimum": 0.05,
      "maximum": 0.5
+    },
+    "commentBoxPad": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 30
+    },
+    "commentBoxWrapUnits": {
+     "type": "integer",
+     "minimum": 4,
+     "maximum": 240
     },
     "dateGridLinesVisible": {
      "type": "boolean"
