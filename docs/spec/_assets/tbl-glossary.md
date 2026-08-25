@@ -494,7 +494,7 @@
 | IC-49 | `Command Palette` | カーソル | 同・`'double-vertical'` | `FR-048` |
 | IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を開く | `FR-078` |
 | IC-51 | `Command Palette` | 置く | 同・畳む | `FR-078` |
-| IC-52 | `Help Modal` / `AI Export Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` | — | 開いている面を閉じる | 表 T-028 の `IN-4` |
+| IC-52 | `Help Modal` / `AI Export Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` | — | 開いている面を閉じる | 表 T-028 の `IN-4` |
 | IC-53 | `Command Palette` | — | 掴んで動かせることを示す。**ボタンではない** | `FR-053` |
 | IC-54 | `Command Palette` | 構え | いま構えている図形を示す。**ボタンではない** | 表 T-023b |
 | IC-55 | `Autosave Status` | — | 保存済みであることを示す。**ボタンではない** | `FR-061` |

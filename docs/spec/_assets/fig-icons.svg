@@ -293,11 +293,15 @@
   </g>
   <text class="lbl" x="28" y="222">IC-49</text>
   <g transform="translate(52 188)">
-    <path class="f" d="M6 9 H18 L12 16 Z"/>
+    <circle class="f" cx="7" cy="12" r="1.6"/>
+    <circle class="f" cx="12" cy="12" r="1.6"/>
+    <circle class="f" cx="17" cy="12" r="1.6"/>
   </g>
   <text class="lbl" x="64" y="222">IC-50</text>
   <g transform="translate(88 188)">
-    <path class="f" d="M6 15 H18 L12 8 Z"/>
+    <circle class="f" cx="7" cy="12" r="1.6"/>
+    <circle class="f" cx="12" cy="12" r="1.6"/>
+    <circle class="f" cx="17" cy="12" r="1.6"/>
   </g>
   <text class="lbl" x="100" y="222">IC-51</text>
   <g transform="translate(124 188)">

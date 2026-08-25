@@ -474,7 +474,8 @@
     "AI Export Modal",
     "Resource Roster",
     "Export Chooser",
-    "Open Chooser"
+    "Open Chooser",
+    "Properties Panel"
    ],
    "group": null,
    "entryTo": "開いている面を閉じる",

@@ -888,6 +888,13 @@
     "ja": "開き方",
     "en": "Open Chooser"
    }
+  },
+  {
+   "name": "Properties Panel",
+   "heading": {
+    "ja": "プロパティパネル",
+    "en": "Properties Panel"
+   }
   }
  ],
  "notices": [
