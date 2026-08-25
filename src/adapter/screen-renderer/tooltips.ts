@@ -24,21 +24,35 @@
 // describes ONE frame from the session, so a trigger that has left is simply an
 // explanation the next frame does not carry.
 //
-// ⭐ WHY TWO ANCHORS ARE TESTED AGAINST THE POINTER AND ONE IS NOT. The three do
-// not share a trigger, and the difference is the specification's rather than a
-// simplification made here:
+// ⭐ WHY ALL THREE ANCHORS ARE NOW ANSWERED AGAINST THE POINTER, AND WHY NOT IN
+// THE SAME WAY. The three do not share a trigger, and the difference is the
+// specification's rather than a simplification made here:
 //   scrollbar  FR-037 states the pointer condition in as many words and adds a
 //              MUST NOT against showing it all the time, and `Scrollbar.track`
 //              is a rectangle -- so the test is made in this file.
-//   rowTitle   FR-085 states no pointer condition at all. What turns it on is
-//              that the name was cut, which `RowTitle.isLabelTruncated` answers.
-//              ⚠️ FR-048's roster of what redraws on a pointer move names EZ-2
-//              and does not name this one, which reads the same way.
+//   rowTitle   FR-085 (MUST) states two conditions of its own, the pointer and
+//              the focus, and a MUST NOT against standing on the cut alone --
+//              so `RowTitle.isLabelTruncated` is no longer the whole trigger.
+//              `RowTitle.box` is a rectangle, so the pointer half is tested in
+//              this file beside the scrollbar's; the focus half has no member
+//              to read and carries a STOP at the loop.
+//              ⚠️ THE NOTE THAT STOOD HERE SAID FR-085 HELD NO POINTER
+//              CONDITION AT ALL, and it was true of the requirement as written.
+//              CR-252 ended that, on a measurement of six explanations standing
+//              over an untouched screen.
 //   icon       EZ-2 of table T-040 states a TIME condition and a PLACE
 //              condition, and the session answers both: `pointerRestedMs` for
 //              the wait, `iconUnderPointer` (PD-141) for which entry is under
 //              the pointer. ⚠️ The place is READ and not measured -- no entry
 //              carries a rectangle, so the side that drew them answers.
+//
+// ⭐ FR-048'S ROSTER OF WHAT COUNTS AS "THE DRAWN CONTENT CHANGED" ON A POINTER
+// MOVE NAMES BOTH OF THEM. It did not until CR-254: both hints are raised and
+// dropped purely by where the pointer is, so while they were off that roster a
+// frame need never have been asked for on a move and either one could stand
+// after its trigger had left -- the very thing CR-252 was written against.
+// ⚠️ Nothing is done about it here all the same: this unit describes ONE frame
+// and does not decide when a frame is asked for.
 //
 // ⛔ FR-029 ALSO PUTS A TOOLTIP ON AN ENDPOINT THAT CANNOT BE GRABBED. That
 // endpoint lives inside the `Row Area`, which this component does not describe,
@@ -261,8 +275,38 @@ export function tooltipsFromScreenView(
   // name is dropped rather than shown as an empty tooltip. The contract makes
   // `isLabelTruncated` exactly `wholeLabel !== null && wholeLabel !== label`,
   // so the guard below cannot drop a row that really was cut.
+  // ⛔ THE CUT IS NOT THE TRIGGER, ONLY THE CONTENT. FR-085 (MUST NOT) forbids
+  // standing on the cut alone, and its MUST puts the explanation up while the
+  // pointer is on the name or the focus is on the row. ⚠️ Measured before that
+  // condition existed: six explanations stood over an untouched screen, each
+  // over the row BELOW its own, each swallowing the presses meant for the row
+  // controls underneath (CR-252).
+  //
+  // ⚠️ `RowTitle.box` IS THE ROW'S BAND, NOT THE NAME'S OWN EXTENT. It is the
+  // whole width the panel was given (SC-1), so it also covers the indent (S-37)
+  // and the room kept for the controls (S-140), on which no name is drawn.
+  // ⛔ Nothing carries the drawn name's rectangle -- `RowTitle` states a name
+  // and a band and no extent between them -- so the pointer half is answered at
+  // the row's granularity rather than measured a second time here, which is the
+  // rule that put `box` on this member in the first place.
+  //
+  // STOP -- ⛔ THE FOCUS HALF IS NOT IMPLEMENTED: nothing says which row has
+  // the focus. ⚠️ `ScreenSession.selectedGroupIds` (PD-142) is NOT it -- FR-085
+  // states selecting rows and this explanation's condition as separate rules,
+  // and many rows can be selected while the keyboard is on none of them.
+  // Searched: `ScreenSession`, `ScreenState` (S-99e / S-99f / S-99g),
+  // `Selection` (PI-32), table T-203, table T-206, FR-085, NFR-008.
+  // ⭐ WHAT WOULD HAVE TO CARRY IT: one new row of table T-206, beside S-99e /
+  // S-99f / S-99g, holding the `TaskGroup.id` (AT-51) of the row with the focus
+  // or none -- that table because a focus is the way the screen is being used
+  // and not part of the document (LY-5 of table T-060) -- and a member on
+  // `ScreenSession` reading it, filled by the side that owns the focus (PI-38),
+  // for the reason `iconUnderPointer` gives.
+  // ⚠️ Until that row exists, a reader who reaches a row by keyboard cannot see
+  // the whole of its name at all, which is half of a MUST.
   for (const title of rowTitles) {
     if (!title.isLabelTruncated || title.wholeLabel === null) continue
+    if (pointer === null || !rectHoldsPoint(title.box, pointer.x, pointer.y)) continue
     tooltips.push({ anchor: { kind: 'rowTitle', groupId: title.groupId }, text: title.wholeLabel })
   }
 

@@ -32,7 +32,11 @@
 // (Chapter 5.3, MUST).
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { Schedule } from '../../entity/document-model/schedule/schedule'
+import {
+  DEFAULT_CALENDAR_VALUES,
+  type CalendarDay,
+  type Schedule,
+} from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
   BarGeometry,
@@ -40,7 +44,12 @@ import type {
   Path,
   ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
-import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  dateAtX,
+  tickStrideOf,
+  xFromDay,
+  type ScheduleLayout,
+} from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
 
 export type { SvgSurface } from './svg-surface'
@@ -74,18 +83,23 @@ interface Paint {
  */
 const ANNOTATION_COLOUR = '#b45309'
 
+
+
 /**
- * The dashes a selected Task gains, so FR-030 is met without colour carrying
- * the meaning alone (SL-8 of table T-023c).
+ * The square FR-075 (MUST) shows on the selected Task, and its outline.
  *
- * ⛔ S-151 is the row this wants -- table T-236 gives it selection as its very
- * use -- but `tools/generate_entity_types.py` sends S-151 to SCREEN_COLOURS,
- * which lands in the unit that may not reach the schedule. Nothing carries it
- * here, so the colour stays typed.
+ * ⛔ STOP -- ⛔ NOT IN TABLE T-236. That table settles S-146 .. S-170 and no
+ * row among them is the fade grab point: table T-210 gives the point its
+ * half-side (S-109), its stroke (S-110) and the condition for showing it
+ * (S-111), and stops there. Table T-236 is the table that would have to hold
+ * the row -- one for the face and one for the outline, the way S-161 and
+ * S-162 split the Progress Marker's ink from its backing.
  *
  * @provisional PD-1
  */
-const SELECTION_OUTLINE_COLOUR = '#6b7280'
+const FADE_HANDLE_FILL_COLOUR = '#ffffff'
+/** The other half of the same missing row. See `FADE_HANDLE_FILL_COLOUR`. @provisional PD-1 */
+const FADE_HANDLE_STROKE_COLOUR = '#374151'
 
 /** @purity pure */
 function escaped(text: string): string {
@@ -313,6 +327,246 @@ function barSvg(bar: BarGeometry, paint: Paint): string {
 }
 
 /**
+ * GD-6 of table T-020a (MUST): the dependency line is solid AND carries an
+ * arrowhead, while the guide (補助線) is dotted and carries none. The line
+ * itself already ends on the successor's edge -- LF-4 of table T-221 has the
+ * geometry finish every route with a straight entry run -- so the head only
+ * has to be put at the last vertex.
+ *
+ * ⭐ `markerUnits="userSpaceOnUse"` rather than the default `strokeWidth`,
+ * because FR-094 (MUST NOT) keeps the dependency line's dimensions off the
+ * zoom: the default would size the head by `dependencyWidth` instead of by
+ * S-19, and the two are different keys.
+ *
+ * ⛔ STOP -- ⛔ THE HEAD'S BASE WIDTH IS IN NO ROW. The 依存線 group of
+ * `_assets/tbl-settings.md` gives the head one figure, S-19, and the remark
+ * column calls it a length; LF-7 of table T-221 sizes the arrow SHAPE's head
+ * from `arrowHeadOfStroke` and `arrowHeadOfSpan` and does not reach this line.
+ * The base is drawn at S-19 as well, so the head is isosceles and no second
+ * number is invented -- table T-201 is the table that would have to hold that
+ * row before the base can be anything else.
+ *
+ * @purity pure
+ */
+function dependencyArrowSvg(id: string, length: number, colour: string): string {
+  const half = length / 2
+  return (
+    `<defs><marker id="${id}" viewBox="0 0 ${rounded(length)} ${rounded(length)}"` +
+    ` refX="${rounded(length)}" refY="${rounded(half)}"` +
+    ` markerWidth="${rounded(length)}" markerHeight="${rounded(length)}"` +
+    ` markerUnits="userSpaceOnUse" orient="auto">` +
+    `<path d="M0,0 L${rounded(length)},${rounded(half)} L0,${rounded(length)} Z"` +
+    ` fill="${colour}"/></marker></defs>`
+  )
+}
+
+/**
+ * A name for one emitted picture, so two pictures on the same page do not
+ * share a marker ID -- the export path (EP-12 of table T-076) draws a second
+ * one into the document the screen is already showing, and an SVG ID is
+ * document-wide.
+ *
+ * ⚠️ Derived from what the picture IS rather than from a counter, because this
+ * unit is `pure` (table T-062) and a counter would make two calls with equal
+ * arguments answer differently. Two pictures that agree on every part of the
+ * seed are the same picture, and their markers would be identical.
+ *
+ * @purity pure
+ */
+function pictureId(seed: string): string {
+  // FNV-1a over the seed. Any spread would do; this one is short and has no
+  // dependency, and the value is a name, never a measurement.
+  let hash = 0x811c9dc5
+  for (const ch of seed) {
+    hash ^= ch.charCodeAt(0)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return (hash >>> 0).toString(36)
+}
+
+/** Which row of the Time Ruler's band prints what -- table T-006b's ⑤. */
+type RulerRow = 'year' | 'month' | 'week' | 'dayWeekday'
+
+/**
+ * L-1 of table T-005a spells the four steps 年 → 年 ＋ 月 → 年 ＋ 月 ＋ 週 →
+ * 年 ＋ 月 ＋ 日 ＋ 曜日.
+ *
+ * ⚠️ The last step is THREE rows in the band, not four: S-2's remark says
+ * 段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）, so the day and the weekday share one
+ * of table T-006b's ⑤. ⛔ The PoC splits them into four rows and grows the
+ * band to fit -- the specification wins, and FR-017 (MUST) forbids the band's
+ * height moving with the tier at all.
+ */
+const ROWS_OF_TIER: { readonly [tier in ScheduleLayout['tier']]: readonly RulerRow[] } = {
+  year: ['year'],
+  yearMonth: ['year', 'month'],
+  yearMonthWeek: ['year', 'month', 'week'],
+  yearMonthDayWeekday: ['year', 'month', 'dayWeekday'],
+}
+
+const MS_PER_DAY = 86400000
+
+/** @purity pure */
+function serialOf(day: CalendarDay): number {
+  return Math.floor(Date.UTC(day.year, day.month - 1, day.day) / MS_PER_DAY)
+}
+
+/** @purity pure */
+function dayOfSerial(serial: number): CalendarDay {
+  const at = new Date(serial * MS_PER_DAY)
+  return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
+}
+
+/** 0 is Sunday, the numbering `Project.weekStartDay` uses (AT-17 / S-108). @purity pure */
+function weekdayOf(day: CalendarDay): number {
+  return new Date(Date.UTC(day.year, day.month - 1, day.day)).getUTCDay()
+}
+
+/**
+ * The days one row of the band puts a label on, left to right.
+ *
+ * ⛔ Only the day row is thinned, and the thinning is `tickStrideOf`'s (LF-1
+ * of table T-221) -- FR-017 (MUST NOT) forbids thinning the year, month and
+ * week rows, so those three walk their own unit and stop at the band's right
+ * edge. ⚠️ The day row's stride is anchored on the day serial rather than on
+ * whichever day the left edge happens to fall on, or every label would jump
+ * one place to the side each time the view is panned by a day.
+ *
+ * @purity pure
+ */
+function ticksOfRow(
+  row: RulerRow,
+  layout: ScheduleLayout,
+  stride: number,
+  weekStart: number,
+  from: CalendarDay,
+  right: number,
+  cap: number,
+): readonly CalendarDay[] {
+  const out: CalendarDay[] = []
+  const firstSerial = serialOf(from)
+  /** The day this row's first tick sits on, at or before the band's left edge. */
+  let at: CalendarDay =
+    row === 'year'
+      ? { year: from.year, month: 1, day: 1 }
+      : row === 'month'
+        ? { year: from.year, month: from.month, day: 1 }
+        : row === 'week'
+          ? dayOfSerial(firstSerial - ((weekdayOf(from) - weekStart + 7) % 7))
+          : dayOfSerial(Math.floor(firstSerial / stride) * stride)
+  for (let step = 0; step <= cap; step++) {
+    if (xFromDay(layout, at) >= right) break
+    out.push(at)
+    at =
+      row === 'year'
+        ? { year: at.year + 1, month: 1, day: 1 }
+        : row === 'month'
+          ? { year: at.month === 12 ? at.year + 1 : at.year, month: (at.month % 12) + 1, day: 1 }
+          : dayOfSerial(serialOf(at) + (row === 'week' ? 7 : stride))
+  }
+  return out
+}
+
+/**
+ * FR-017's band, drawn. The band `regions.timeRuler` reserves is S-2 tall and
+ * is where the year, month, week and day rows go; until this round nothing put
+ * a glyph in it and nothing in `src/` read that member at all -- EP-2 of table
+ * T-076 calls the Time Ruler a MUST for the export, and a schedule whose dates
+ * cannot be read is not a schedule.
+ *
+ * ⭐ The grain is `layout.tier`, which is what `rulerTierOf` already answered
+ * for this frame, and the thinning is `tickStrideOf`. Neither is worked out a
+ * second time here: FR-017 fixes one test and one arithmetic, and a copy of
+ * either would part company with the layout the bars were placed by.
+ *
+ * ⛔ STOP -- ⛔ NOTHING SETTLES WHAT THE LABELS SAY. The rows print bare
+ * numbers -- the year, the month, and the day of the month for the week and
+ * day rows -- because no table and no dictionary holds a ruler label's
+ * wording: `_source/display-words.json`, which FR-038 makes the source of
+ * every word on screen, has no month name, no weekday name and no date
+ * format in it. ⛔ SO THE WEEKDAY HALF OF THE FOURTH TIER IS NOT DRAWN: L-1
+ * asks for 日 ＋ 曜日 and the seven weekday words are exactly what that
+ * dictionary would have to gain a group for. ⛔ Nor is there a horizontal
+ * inset between a tick and its label: S-135 is the gap BETWEEN labels (it is
+ * LF-1's arithmetic and nothing else) and S-136 is the vertical pad, so the
+ * label starts on its own rule until a row says otherwise.
+ *
+ * @purity pure
+ */
+function rulerSvg(
+  layout: ScheduleLayout,
+  settings: DocumentSettings,
+  band: ScreenRect,
+  weekStart: number,
+  ink: string,
+  rule: string,
+): readonly string[] {
+  if (band.width <= 0 || band.height <= 0) return []
+  const from = dateAtX(layout, band.x)
+  // No origin day means no axis to put a tick on -- OP-10 has FR-055 choose one.
+  if (from === null) return []
+
+  const rows = ROWS_OF_TIER[layout.tier]
+  // ⛔ The band's height does NOT move with the tier (FR-017, MUST): the rows
+  // share whatever S-2 gave the band, so a coarse tier gets taller rows rather
+  // than a shorter band. S-2's own remark sizes the band for three of them.
+  const rowHeight = band.height / rows.length
+  const right = band.x + band.width
+  const stride = tickStrideOf(layout, settings)
+  // Every tick of every row sits at least one day after the one before it, so
+  // the days the band spans bound the walk. ⚠️ This thins nothing -- it only
+  // keeps the loop finite when pxPerDay is small enough to put thousands of
+  // years behind one band.
+  const cap = Math.ceil(band.width / Math.max(0.001, layout.pxPerDay)) + 1
+  const out: string[] = []
+
+  for (const [index, row] of rows.entries()) {
+    const top = band.y + index * rowHeight
+    // S-136 is the pad between the rule and the label, measured downwards.
+    const baseline = top + settings.rulerLabelPad + settings.rulerFont
+    if (index > 0) {
+      out.push(
+        `<line x1="${rounded(band.x)}" y1="${rounded(top)}"` +
+          ` x2="${rounded(right)}" y2="${rounded(top)}"` +
+          ` stroke="${rule}" stroke-width="1"/>`,
+      )
+    }
+    for (const day of ticksOfRow(row, layout, stride, weekStart, from, right, cap)) {
+      const x = xFromDay(layout, day)
+      // ⭐ The rule is drawn only where the boundary really falls, but the
+      // label is held at the band's edge when its boundary is off to the left.
+      // ⚠️ Exactly one tick per row can be left of the edge -- every row starts
+      // at the tick containing `from` -- so no two labels are pinned together.
+      // ⛔ Dropping it instead leaves the year row EMPTY at most positions:
+      // S-1's remark measures a year at roughly a screen width and a half at
+      // 1x, so its boundary is off to the left nearly always, and "which year
+      // is this" stops being answerable.
+      if (x >= band.x) {
+        out.push(
+          `<line x1="${rounded(x)}" y1="${rounded(top)}"` +
+            ` x2="${rounded(x)}" y2="${rounded(top + rowHeight)}"` +
+            ` stroke="${rule}" stroke-width="1"/>`,
+        )
+      }
+      const label = row === 'year' ? day.year : row === 'month' ? day.month : day.day
+      out.push(
+        `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
+          ` font-size="${rounded(settings.rulerFont)}" fill="${ink}"` +
+          ` xml:space="preserve">${escaped(String(label))}</text>`,
+      )
+    }
+  }
+  // U-50 starts where the band ends, so the band's foot is the one rule that
+  // separates the ruler from the Rows.
+  out.push(
+    `<line x1="${rounded(band.x)}" y1="${rounded(band.y + band.height)}"` +
+      ` x2="${rounded(right)}" y2="${rounded(band.y + band.height)}"` +
+      ` stroke="${rule}" stroke-width="1"/>`,
+  )
+  return out
+}
+
+/**
  * The SVG for one frame (FR-080).
  *
  * ⭐ Every coordinate arrives already computed: ADR-001 has the shell run
@@ -368,6 +622,11 @@ export function svgFromSchedule(
   const markerParts: string[] = []
   const linkParts: string[] = []
   const labelParts: string[] = []
+  // ⭐ Neither of these is a row of table T-020, and neither is an omission
+  // from it: the fade grab points are an overlay FR-075 puts on the SELECTED
+  // Task, and the ruler is a different UI part (U-19, not U-50). Both go over
+  // the table's six so that nothing painted in the Row Area can cover them.
+  const handleParts: string[] = []
 
   // FR-042 (MUST): one band per drawn row, and a group grid line on its
   // boundary. ⛔ Clipped to the Row Area rather than drawn wherever the row
@@ -430,11 +689,42 @@ export function svgFromSchedule(
     if (task.actual !== null) actualParts.push(barSvg(task.actual, actual))
     if (selected.has(task.taskUid) && task.plan?.form === 'outline') {
       // FR-030: never carry meaning by colour alone, so the selected task
-      // gains an outline of its own rather than a different fill.
+      // gains an outline of its own rather than a different fill. The colour is
+      // S-151, whose own use column in table T-236 reads 「選択と現在位置」.
+      //
+      // STOP -- ⛔ SL-8 OF TABLE T-023c IS NOT MET FOR EVERY SELECTED THING.
+      // That row asks (MUST) that being selected show by something other than
+      // colour, and SL-1 makes the selectable set タスク・依存線・ハイライト
+      // ボックス・コメントボックス・基準日線. What is drawn here is the plan
+      // bar's own polygon re-stroked dashed, so it reaches only the three
+      // shapes with an area (SH-1 / SH-2 / SH-5, which is what `form` calls
+      // 'outline'): a thin-line task (SH-3 / SH-4), a dependency line, a
+      // highlight box, a comment box and the status line all show selection by
+      // nothing at all.
+      // ⛔ NOTHING IS INVENTED FOR THEM HERE. What a selected line or box
+      // should look like is a shape, and table T-026's RC-13 makes a new shape
+      // the author's ruling; the width (2) and the dash (3 2) below are not in
+      // any table either and stand under PD-1 with the rest.
       actualParts.push(
         `<polygon points="${pointsOf(task.plan.points)}" fill="none"` +
-          ` stroke="${SELECTION_OUTLINE_COLOUR}" stroke-width="2" stroke-dasharray="3 2"/>`,
+          ` stroke="${themed('S-151')}" stroke-width="2" stroke-dasharray="3 2"/>`,
       )
+    }
+    if (selected.has(task.taskUid)) {
+      // FR-075 (MUST): the grab points show on the SELECTED Task and on no
+      // other. S-92's hit area is already live in ItemHitArea, so until this
+      // round a person could catch a point that was never drawn. S-109 is the
+      // half-side of the square and S-110 its stroke; FD-5 already decided
+      // which shapes get handles at all, so an empty list draws nothing.
+      const half = settings.fadeHandleHalfPx
+      for (const at of task.fadeHandles) {
+        handleParts.push(
+          `<rect x="${rounded(at.x - half)}" y="${rounded(at.y - half)}"` +
+            ` width="${rounded(half * 2)}" height="${rounded(half * 2)}"` +
+            ` fill="${FADE_HANDLE_FILL_COLOUR}" stroke="${FADE_HANDLE_STROKE_COLOUR}"` +
+            ` stroke-width="${rounded(settings.fadeHandleStrokePx)}"/>`,
+        )
+      }
     }
     if (task.marker !== null && settings.progressMarkerVisible) {
       markerParts.push(markerSvg(task.marker, themed('S-161'), themed('S-162')))
@@ -449,11 +739,27 @@ export function svgFromSchedule(
   // theme (FR-041, MUST NOT, rewritten 2026-08-25). ⚠️ They shared one grey
   // here until that day, because the earlier wording said "the same fixed
   // colour" in the very sentence that also listed both as following the theme.
+  const width = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
+  const height = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
+  const arrowId = `grs-dependency-arrow-${pictureId(
+    `${rounded(width)}x${rounded(height)}|${geometry.tasks.length}` +
+      `|${geometry.dependencies.length}|${selected.size}|${schedule.project.title ?? ''}`,
+  )}`
+  const defsParts: string[] = []
+
+  // ⛔ GD-6 of table T-020a (MUST) asks for the head here and NOT on the guide
+  // above: 「依存線は実線で矢じりを持ち、補助線は点線で矢じりを持たない」.
   for (const link of geometry.dependencies) {
     if (!settings.dependencyVisible) break
+    if (defsParts.length === 0) {
+      defsParts.push(
+        dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159')),
+      )
+    }
     linkParts.push(
       `<polyline points="${pointsOf(link.points)}" fill="none"` +
-        ` stroke="${themed('S-159')}" stroke-width="${rounded(settings.dependencyWidth)}"/>`,
+        ` stroke="${themed('S-159')}" stroke-width="${rounded(settings.dependencyWidth)}"` +
+        ` marker-end="url(#${arrowId})"/>`,
     )
   }
 
@@ -486,6 +792,7 @@ export function svgFromSchedule(
   }
 
   const parts = [
+    ...defsParts,
     ...bandParts,
     ...planParts,
     ...guideParts,
@@ -493,10 +800,28 @@ export function svgFromSchedule(
     ...markerParts,
     ...linkParts,
     ...labelParts,
+    ...handleParts,
+    // FR-017's band last of all. The Row Area's own paint is clipped to it,
+    // but FR-014's overhang (LF-12) and a label that runs past the first row
+    // are not, and the Time Ruler does not scroll down (SC-2) -- so it is
+    // drawn over everything rather than trusting the rows to stay below it.
+    ...rulerSvg(
+      layout,
+      settings,
+      regions.timeRuler,
+      // S-108 is the day the week starts on when the document names none.
+      schedule.project.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108'],
+      // ⭐ S-147 and S-149, the ink and the rule, now that the generator sends
+      // both to SCHEDULE_COLOURS as well as to the chrome's roster. ⛔ They are
+      // handed IN rather than read here: `themed` is `svgFromSchedule`'s own
+      // closure over the hue and the two flags, and reading table T-236 a
+      // second time in this file is the drift the generated block exists to
+      // stop.
+      themed('S-147'),
+      themed('S-149'),
+    ),
   ]
 
-  const width = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
-  const height = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${rounded(width)}"` +
     ` height="${rounded(height)}" viewBox="0 0 ${rounded(width)} ${rounded(height)}"` +
@@ -531,6 +856,10 @@ export const SCHEDULE_COLOURS: {
     readonly followsHue: boolean
   }
 } = {
+  /* S-147 */
+  'S-147': { light: '#16181d', dark: '#e8eaee', followsHue: false },
+  /* S-149 */
+  'S-149': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
   /* S-151 */
   'S-151': { light: 'hsl(H 59% 42%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   /* S-155 */

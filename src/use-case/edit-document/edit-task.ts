@@ -365,20 +365,36 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
   // ない（MUST NOT）", naming this aggregate as one of the three callers.
   const within = workingCalendarOf(schedule)
 
-  // Nineteen of the twenty commands name a task that has to be there already;
-  // CM-6 is the one that makes one. IV-2 is the row refused, because every one
-  // of those nineteen would otherwise write a key pointing at nothing.
+  // Eighteen of the twenty commands name a task that has to be there already.
+  // CM-6 is the one that makes one, and CM-7 is exempted just below. IV-2 is
+  // the row refused, because every one of those eighteen would otherwise write
+  // a key pointing at nothing.
   const named =
     command.kind === 'createTask'
       ? null
       : taskByUid(schedule, command.kind === 'pasteTaskSubtree' ? command.sourceUid : command.uid)
-  if (command.kind !== 'createTask' && named === null) {
+  // ⭐ CM-7 IS EXEMPT, AND ONLY CM-7. IV-2 is a FOREIGN-KEY invariant (table
+  // T-220, of kind 'reference'): it asks that a non-null key point at a row of
+  // the same document. Deleting a Task that is not there writes no key at all,
+  // so it cannot break IV-2 -- the state CM-7 asks for already holds, which
+  // makes the missing target a no-op rather than a refusal.
+  // ⚠️ WHY IT HAD TO BE: FR-032 deletes every selected Task, and select-all
+  // then delete plans one CM-7 per selected Task in ONE bundle. CD-1 of table
+  // T-050 has the first of them carry off the whole WBS subtree of its target,
+  // so every later command in the same bundle names a Task the cascade has
+  // already removed. Refusing one throws the entire bundle away (AG-3), and
+  // nothing at all is deleted. Measured on `startup-template.json`: 993 of its
+  // 1000 tasks hang off a `wbsParentUid`, so all but a handful of the commands
+  // in that bundle were being refused.
+  const missingTargetIsRefused = command.kind !== 'createTask' && command.kind !== 'deleteTask'
+  if (missingTargetIsRefused && named === null) {
     const uid = command.kind === 'pasteTaskSubtree' ? command.sourceUid : command.uid
     return refused([reject(TABLE_T108_ROWS[command.kind], 'IV-2', `no Task with uid ${uid}`)])
   }
   // Looked up once so the arms below do not each repeat the guard. The cast is
-  // sound because the branch above returned for every kind but `createTask`,
-  // and that arm reads nothing from here.
+  // sound for the eighteen the branch above guards; `createTask` reads nothing
+  // from here, and `deleteTask` reads `command.uid` rather than this row --
+  // which is what lets its arm fall through to a no-op when the row is gone.
   const task = named as Task
 
   switch (command.kind) {
@@ -489,6 +505,11 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'deleteTask': { // CM-7
+      // ⚠️ `named` MAY BE null HERE, and that is the whole point: the guard
+      // above exempts CM-7 so that deleting a Task another command's CD-1
+      // cascade already took is a no-op. Nothing below reads `named`; the sweep
+      // starts from `command.uid`, finds no row and no descendant of one, and
+      // every filter keeps what it was given.
       // CD-1 of table T-050 names what goes with a `Task`: その `Task` の WBS の
       // 子孫、`TaskVisual`、`TaskOrigin`、`TaskGroupMember`、その `Task` を端点と
       // する依存、その `Task` を指す割当.

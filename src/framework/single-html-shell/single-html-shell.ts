@@ -123,6 +123,7 @@ import {
   startupDisplayLanguage,
   type FrameEnvironment,
   type FrameLoop,
+  type PointerShape,
   type StartupNoticeReason,
 } from './frame-loop'
 import startupTemplate from './startup-template.json'
@@ -739,12 +740,35 @@ function boot(): void {
       screenSurface.showScreenView(view)
     },
   }
+  // IN-2 of table T-028 (MUST): the shape goes on the element that IS the
+  // `Schedule Canvas`, which is the element made at the head of this function.
+  //
+  // ⭐ THIS UNIT IS THE ONE THAT MAY TOUCH IT, the same rule `pageGroundStyle`
+  // above follows: the loop decides WHICH shape (it holds the frame, the press
+  // and the arming) and this side writes it, so neither half is duplicated.
+  // ⛔ NOT A MEMBER OF `SvgSurface`. IF-1 of table T-065 carries the picture and
+  // nothing else, and that table is a contract.
+  // ⚠️ Written only when it MOVED. A style write on every pointer move costs a
+  // style recalculation for a value that is the same as the one already there,
+  // and the pointer rests on one place for most of its moves.
+  let pointerShapeShown = ''
+  const showPointerShape = (shape: PointerShape | null): void => {
+    // ⛔ The empty string is how the element is given the shape BACK to the
+    // host, which is what `null` means: IN-2 leaves a place it does not name
+    // alone, and removing the declaration is what leaving it alone is.
+    const spelling = shape ?? ''
+    if (spelling === pointerShapeShown) return
+    pointerShapeShown = spelling
+    scheduleCanvas.style.cursor = spelling
+  }
+
   const running = frameLoop(
     domSvgSurface(scheduleCanvas),
     chosen.document,
     nowEnvironment(),
     { surface: painting, language: displayLanguage() },
     fileStore,
+    showPointerShape,
   )
   loop = running
 

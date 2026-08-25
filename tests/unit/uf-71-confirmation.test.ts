@@ -1745,6 +1745,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
       // in for "the document holds none".
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1757,6 +1758,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
       format: null,
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1791,6 +1793,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
         // neither key is the way this press is turned into a command.
         rowGroupId: null,
         resourceUid: null,
+        dividerPanel: null,
       })
     })
   })
@@ -1897,6 +1900,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
     // answer being checked would agree with any answer at all. ⚠️ Each name is
     // one the seam declares in src/adapter/screen-renderer/screen-surface.ts.
     expect(Object.keys(answer ?? {}).sort()).toEqual([
+      'dividerPanel',
       'entry',
       'format',
       'part',

@@ -112,6 +112,7 @@ import {
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
+  regionAtPointer,
   regionsFromScreen,
   type ScreenEnvironment,
   type ScreenRegions,
@@ -398,6 +399,67 @@ export interface ScreenWiring {
    */
   readonly language: DisplayLanguage
 }
+
+/**
+ * IN-2 of table T-028 -- the four meanings that row gives a place, spelled the
+ * way the host spells them.
+ *
+ * ⭐ THE SPELLING IS THE HOST'S AND THE MEANING IS THE ROW'S, which is what
+ * IN-2's own ⚠️ says in as many words: 「形の綴りそのものは閲覧環境が持つ ——
+ * 本行が定めるのはどの場所がどの意味を担うかだけである」. So the four names below are
+ * standard keywords of the viewing environment, chosen against their own
+ * published meanings, and no fifth is minted.
+ *
+ * ⚠️ TWO OF THE FOUR ARE A JUDGEMENT AND NOT A READING, because the environment
+ * has no keyword that means 「作図」. `crosshair` is published as the shape for
+ * selecting a region, so it takes IN-2's 範囲選択; `copy` is published as "a new
+ * thing will be made here", which is the nearest published meaning to arming a
+ * figure and placing it. ⛔ A ruling that disagrees moves these two names and
+ * nothing else.
+ */
+export type PointerShape =
+  /** 何にも当たらない場所 -- PD-5 of table T-023a. */
+  | 'crosshair'
+  /** 構えているとき -- PD-4 of table T-023a. */
+  | 'copy'
+  /** `Ctrl` 併用と中ボタンのパン中 -- PD-1 of table T-023a. */
+  | 'grabbing'
+  /** 予定バーと実績バーの端点の上 -- GR-3 .. GR-6 of table T-023d. */
+  | 'ew-resize'
+
+/**
+ * Where IN-2's shape is put, or nothing when the caller drew no schedule to
+ * put it on.
+ *
+ * ⭐ A FUNCTION AND NOT A MEMBER OF A PUBLISHED INTERFACE. The element that IS
+ * the `Schedule Canvas` is made by `single-html-shell.ts`, which is the same
+ * component as this file (CP-25), so the two halves reach each other without
+ * touching table T-065 -- `SvgSurface` (IF-1) carries the picture and nothing
+ * else, and widening it would change a contract this round is not about.
+ * ⛔ `null` means "leave the pointer alone", which is what IN-2 leaves a place
+ * it does not name.
+ */
+export type ShowPointerShape = (shape: PointerShape | null) => void
+
+/**
+ * The four rows of table T-023d that are 「予定バーと実績バーの端点」.
+ *
+ * ⚠️ The plan's two ends and the actual's two ends, and no other row: GR-1 and
+ * GR-2 are the fade handles, GR-15 is a milestone's whole figure, and IN-2
+ * names none of them.
+ */
+// ⭐ DERIVED FROM WHAT `itemAtPointer` ANSWERS, not imported by name. Table
+// T-064 is the full count of what may cross a component folder, and
+// `GrabArea` is not on it -- a derivation states the same set without
+// minting a crossing the table does not hold (check 26b).
+type GrabbedArea = NonNullable<ReturnType<typeof itemAtPointer>>['grab']
+
+const BAR_ENDPOINT_GRABS: ReadonlySet<GrabbedArea> = new Set<GrabbedArea>([
+  'GR-3',
+  'GR-4',
+  'GR-5',
+  'GR-6',
+])
 
 /**
  * The reach table T-023d's rows are grabbed by (`itemAtPointer`, PI-7).
@@ -1358,15 +1420,34 @@ function sessionOf(
     // taken across the width `regionsFromScreen` gave the panel. ⛔ Not
     // measured a second time -- ADR-001 has the layout computed once, and SC-1
     // means the panel has to use those very numbers.
-    rowBoxes: layout.rows.map((row) => ({
-      groupId: row.groupId,
-      box: {
-        x: regions.rowTitlePanel.x,
-        y: row.y,
-        width: regions.rowTitlePanel.width,
-        height: row.height,
-      },
-    })),
+    // ⛔ CLIPPED TO THE `Row Area`, AND A ROW THE CLIP EMPTIES IS DROPPED --
+    // this is what makes the two sides hold the SAME rows, which is the whole
+    // of what SC-1 asks. `svg-renderer.ts` cuts every band against that same
+    // rectangle and skips the row when nothing is left, so a panel that took
+    // `row.y` and `row.height` whole disagreed with the bands by exactly that
+    // cut. ⚠️ It agreed only while the stack sat at the top, because the first
+    // row's `y` IS `rowArea.y` there: the moment S-78 slid the stack, every row
+    // above the anchor had `row.y < rowArea.y`, its band was gone, and its
+    // title was still painted -- up in the Time Ruler and over the corner
+    // HF-10's control needs.
+    // ⚠️ ONLY THE VERTICAL PAIR IS CLIPPED. SC-1 forbids the panel to follow
+    // the body sideways, so `x` and `width` stay the panel's own.
+    rowBoxes: layout.rows.flatMap((row) => {
+      const top = Math.max(row.y, regions.rowArea.y)
+      const bottom = Math.min(row.y + row.height, regions.rowArea.y + regions.rowArea.height)
+      if (bottom <= top) return []
+      return [
+        {
+          groupId: row.groupId,
+          box: {
+            x: regions.rowTitlePanel.x,
+            y: top,
+            width: regions.rowTitlePanel.width,
+            height: bottom - top,
+          },
+        },
+      ]
+    }),
   }
 }
 
@@ -1919,6 +2000,7 @@ export function frameLoop(
   env: FrameEnvironment,
   screen?: ScreenWiring,
   files?: FileStore,
+  showPointerShape?: ShowPointerShape,
 ): FrameLoop {
   // ⭐ ONE PAIR, not a document beside a history. WS-6 of table T-067 is one
   // reference assignment (MUST), and `HeldDocument` says why: a document paired
@@ -2230,6 +2312,33 @@ export function frameLoop(
     },
   }
 
+  /**
+   * The width the properties panel takes on THIS frame -- S-80 as the document
+   * keeps it, or S-171 of table T-206 while FR-072 has the panel showing and
+   * the document keeps no width of its own.
+   *
+   * ⭐ THE MIRROR OF `exportScene`'s `withPanelsClosed`, and it is laid over the
+   * settings handed to `regionsFromScreen` for the same reason that one is: a
+   * panel's rectangle is cut from that single width, so the width is the only
+   * thing that can say whether the panel is there at all. S-80's own row says
+   * `0` IS 「閉じている」, which is why a showing panel with nothing stored was
+   * placed at the window's right edge with no width to draw into.
+   * ⛔ LAID OVER A COPY AND NEVER WRITTEN BACK. S-171 is not a document setting
+   * (table T-206 holds what the document does not keep), and a stored `S-80`
+   * above zero is what a person left behind after dragging the boundary --
+   * FR-052 makes that width win, so it is tested first.
+   *
+   * @purity semi-pure-b
+   */
+  function withPropertiesPanelShown(stored: DocumentSettings): DocumentSettings {
+    if (propertiesShowing === null) return stored
+    if (stored.propertyPanelWidth > 0) return stored
+    return {
+      ...stored,
+      propertyPanelWidth: NOT_STORED_PROPERTIES_PANEL_SIZES['S-171'],
+    }
+  }
+
   // CA-2: invalidation happens at the head of a frame, and nothing is rebuilt
   // again for the rest of it. NFR-010 means a frame with no trigger never runs
   // at all, so there is no idle path to guard against.
@@ -2247,7 +2356,11 @@ export function frameLoop(
     // against confusing it with the status date.
     const pointerRestedMs =
       pointerRestingSince === null ? 0 : readMonotonicMs() - pointerRestingSince
-    const stored = document.documentSettings
+    // ⚠️ NOT `documentSettings` ITSELF, and the name says so: FR-072's panel
+    // takes S-171's width while it is showing, and the width is the only thing
+    // that can say it is there. `withPropertiesPanelShown` holds the whole rule
+    // -- this is the mirror of `exportScene`'s `withPanelsClosed`.
+    const withPanelShown = withPropertiesPanelShown(document.documentSettings)
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
       height: environment.height,
@@ -2255,8 +2368,8 @@ export function frameLoop(
       scrollbarThickness: environment.scrollbarThickness,
     }
     // BO-1, then BO-3, then BO-4, in the order table T-077 fixes (MUST).
-    const regions = regionsFromScreen(environmentForRegions, stored)
-    const settings = viewSettings(document, stored, regions)
+    const regions = regionsFromScreen(environmentForRegions, withPanelShown)
+    const settings = viewSettings(document, withPanelShown, regions)
     const layout = layoutFromSchedule(document.schedule, settings, regions)
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions)
     values = { regions, layout, geometry }
@@ -2565,14 +2678,20 @@ export function frameLoop(
    * @purity semi-pure-b
    */
   function settingsLimitsOf(frame: FrameValues | null): SettingsLimits {
-    const stored = held.document.documentSettings
+    // ⛔ THE SAME OVERLAY THE FRAME WAS MEASURED WITH, or the sum below is
+    // short by exactly S-171: `frame.regions.rowArea` was cut with the panel
+    // showing, and adding a stored `0` back would not return the width the
+    // panel is occupying. FR-052 is judged against this sum.
+    const withPanelShown = withPropertiesPanelShown(held.document.documentSettings)
     return {
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
       rowAreaWidthWithoutPanels:
         frame === null
           ? 0
-          : frame.regions.rowArea.width + stored.rowTitlePanelWidth + stored.propertyPanelWidth,
+          : frame.regions.rowArea.width +
+            withPanelShown.rowTitlePanelWidth +
+            withPanelShown.propertyPanelWidth,
     }
   }
 
@@ -2719,6 +2838,67 @@ export function frameLoop(
     // why -- the other four are the moment of the press, this one is how far
     // the picture has been carried since.
     return { at, hit, on, pressRow, followedTo: { x: at.x, y: at.y } }
+  }
+
+  /**
+   * IN-2 of table T-028 -- what the pointer can do where it now stands, as a
+   * shape, or `null` for a place that row does not name.
+   *
+   * ⭐ THE ORDER IS TABLE T-023a's OWN, top row first, because IN-2 is a
+   * statement ABOUT that table's answer: the shape has to say what a press
+   * here would do, and that is decided nowhere else. ⛔ Rearranging it would
+   * make the shape promise one thing and the press do another.
+   *
+   * ⚠️ THIS IS THE ONLY PLACE THE HIT TEST IS ASKED WITHOUT A PRESS, and the
+   * cost is why the two cheap refusals stand in front of it. `itemAtPointer`
+   * (PI-7) is a LINEAR SCAN: it builds one bounding-box pair per drawn `Task`
+   * and then walks table T-023d's rows as the outer loop over those, so a
+   * pointer resting on empty canvas pays O(n) per move at MC-7's 1000 `Task`.
+   * ⭐ NFR-013 IS KEPT -- that requirement bounds hit testing at `O(n log n)`
+   * and forbids `O(n²)`, and linear is inside it -- but it is not free, so
+   * `regionAtPointer` turns away every point outside the `Row Area` first and
+   * the surface's own answer turns away every point on a drawn entry. Both are
+   * constant time.
+   * ⚠️ NO FRAME IS ASKED FOR. FR-048 (MUST NOT) forbids a redraw on a bare
+   * move, and the shape is not drawn content -- the host paints the pointer --
+   * so it is written straight out rather than through `ScreenSession`.
+   *
+   * @purity semi-pure-b
+   */
+  function pointerShapeAt(
+    frame: FrameValues,
+    x: number,
+    y: number,
+    on: ScreenPart | null,
+  ): PointerShape | null {
+    // PD-1, and IN-2 asks for it 「パン中」 -- so the press in flight is what is
+    // read, not the modifiers of a move that presses nothing.
+    if (pressed !== null && pressed.pressRow === 'PD-1') return 'grabbing'
+    // STOP -- ⛔ IN-2 NAMES NO SHAPE FOR AN ENTRY. The note under table T-023a
+    // binds that table to the schedule's drawing area (MUST), and a point the
+    // screen surface answered for is on a part drawn OVER it.
+    if (on !== null) return null
+    // STOP -- ⛔ AND NONE FOR THE RULER, THE PANELS OR THE PADDING either. The
+    // `Schedule Canvas` is wider than the `Row Area`, and IN-2's four places are
+    // all inside the latter.
+    if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
+    // STOP -- ⛔ PD-2 TURNS HIT TESTING OFF, and IN-2 names no shape for the
+    // `Dual Cursor` mode, so nothing is invented for it.
+    if (isDualCursorMode) return null
+    const hit = itemAtPointer(frame.geometry, x, y, POINTER_SLOP)
+    // PD-3. ⛔ STOP for every other row of table T-023d: IN-2 names the two
+    // bars' ENDPOINTS and nothing else, and a shape for the bar's middle or for
+    // a fade handle would be one this build made up.
+    if (hit !== null) return BAR_ENDPOINT_GRABS.has(hit.grab) ? 'ew-resize' : null
+    const armed = screenState.armed
+    // PD-5 -- nothing hit and nothing armed.
+    if (armed.kind === 'none') return 'crosshair'
+    // STOP -- ⛔ PD-4a DOES NOTHING HERE, so 「作図の合図」 would be a lie. An
+    // armed dependency on empty canvas draws nothing and does not even disarm,
+    // and IN-2 names no shape for that.
+    if (armed.kind === 'dependency') return null
+    // PD-4 -- a figure or an annotation is armed, and a press would make it.
+    return 'copy'
   }
 
   /**
@@ -4040,6 +4220,22 @@ export function frameLoop(
       const abandoned = openChoosing
       openChoosing = null
       abandoned.settle(null)
+    }
+
+    // IN-2 of table T-028 -- the shape the pointer now stands on.
+    //
+    // ⭐ LAST, AND AFTER THE PRESS HAS BEEN DROPPED, because IN-2 asks for the
+    // hand 「パン中」 and a release has ended the pan: read any earlier, the
+    // release would still find PD-1 in flight and leave the hand behind.
+    // ⭐ ASKED FOR EVERY HAPPENING AND NOT ONLY FOR A MOVE -- 「構えているとき」
+    // is a state a key press moves (SK-1 of table T-036) while the pointer
+    // stands still, and a shape that only followed moves would go on promising
+    // the range selection until the person twitched.
+    // ⛔ Nothing is asked while no pointer has been heard of: `pointerAt` is
+    // null until the first pointer happening, and there is no place to answer
+    // about.
+    if (pointerAt !== null) {
+      showPointerShape?.(pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer))
     }
 
     // FT-1 owes a frame for every happening the row names, save the one FR-048

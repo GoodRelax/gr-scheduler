@@ -252,6 +252,25 @@ function s138(): { readonly px: number; readonly cell: string } {
 const S_138 = s138()
 
 /**
+ * `S-141` of 表 T-206 -- the LEAST gap FR-029 (MUST) keeps between an entry's
+ * shape and the entrance's frame.
+ *
+ * ⭐ READ FROM THE MANUSCRIPT for the reason `s138` gives: FR-029 points at the
+ * table for this number too （「図形と入口の枠のあいだに、… 表 T-206 の
+ * `S-141` が定める隙間を最低限あけること（MUST）」）.
+ */
+function s141(): { readonly px: number; readonly cell: string } {
+  const row = specTable('T-206').rows.find((one) => one.id === 'S-141')
+  if (row === undefined) throw new Error('表 T-206 no longer holds S-141')
+  const cell = row.by['既定'] ?? ''
+  const found = /(\d+(?:\.\d+)?)\s*px/.exec(cell)
+  if (found === null) throw new Error(`S-141 states no px value in its 既定 column: ${cell}`)
+  return { px: Number(found[1]), cell }
+}
+
+const S_141 = s141()
+
+/**
  * 図 F-019 — the authority FR-029 names for every icon's shape (MUST), as it
  * reaches `src/`.
  *
@@ -955,23 +974,6 @@ function keyPress(
   return event
 }
 
-function click(target: FakeElement): void {
-  target.dispatchEvent({
-    type: 'click',
-    key: '',
-    isComposing: false,
-    shiftKey: false,
-    ctrlKey: false,
-    altKey: false,
-    metaKey: false,
-    target: null,
-    currentTarget: null,
-    defaultPrevented: false,
-    preventDefault(): void {},
-    stopPropagation(): void {},
-  })
-}
-
 /**
  * A tiny selector engine: enough for `[attr]`, `[attr="value"]`, a tag name and
  * a descendant combinator. ⭐ It exists so that a unit which DID query is not
@@ -1349,18 +1351,22 @@ describe('FR-051 (MUST / MUST NOT) -- the App Header height is measured, not hel
 })
 
 describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame', () => {
-  it('registers only the two listeners the head comment names, and nowhere else', () => {
+  it('registers only the listener the head comment names, and nowhere else', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
     const types = [...new Set(built.world.registrations.map((one) => one.type))].sort()
-    expect(types).toEqual(['click', 'keydown'])
+    // ⚠ THERE WERE TWO. The second sat on a control inside a tooltip that put
+    // the tooltip away, and `IN-4` of 表 T-028 (MUST) has since taken that job:
+    // its ladder ends 「出ている説明」 and says why -- 「説明を最後に置くのは、
+    // `IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである」.
+    // A press is on the side that reads keys, not here.
+    expect(types).toEqual(['keydown'])
 
     const root = built.root()
     const field = oneByRole(root, 'Dialogue Field')
     for (const one of built.world.registrations) {
       if (one.type === 'keydown') expect(field.contains(one.node)).toBe(true)
-      if (one.type === 'click') expect(root.contains(one.node)).toBe(true)
     }
   })
 
@@ -1787,27 +1793,10 @@ describe('EZ-2 of 表 T-040 -- the entry the pointer rests on can be found', () 
   })
 })
 
-describe('IN-3 of 表 T-028 -- a tooltip is pointable, dismissible, and does not go by itself', () => {
+describe('IN-3 of 表 T-028 -- a tooltip is pointable and does not go by itself', () => {
   const tooltipView = viewWith({ tooltips: [iconTooltip('IC-20', 'TooltipTextOne')] })
 
   const tooltipsBox = (root: FakeElement): FakeElement => oneByRole(root, 'Tooltip')
-
-  /**
-   * The one node inside a tooltip that answers a press. IN-3 asks a tooltip to
-   * be dismissible, and the press is how it is found -- not a glyph, so that
-   * the case does not depend on PD-153's choice of letter.
-   */
-  function dismissControl(built: Stage): FakeElement {
-    const box = tooltipsBox(built.root())
-    const clickable = selfAndDescendants(box).filter((one) =>
-      built.world.registrations.some(
-        (registration) => registration.type === 'click' && registration.node === one,
-      ),
-    )
-    const first = clickable[0]
-    if (first === undefined) throw new Error('the tooltip carries no dismiss control')
-    return first
-  }
 
   function draw(view: ScreenView = tooltipView): { built: Stage; surface: ScreenSurface } {
     const built = wire({ 'App Header': 37 })
@@ -1839,34 +1828,24 @@ describe('IN-3 of 表 T-028 -- a tooltip is pointable, dismissible, and does not
     }
   })
 
-  it('PD-153: the dismiss control reads `x`, and pressing it takes the tooltip off', () => {
+  it('⛔ carries no on-screen control that puts it away, and no `x` to press', () => {
+    // `IN-3` (MUST) asks 「消せること —— ポインタもフォーカスも動かさずに消す手立てが
+    // あること」, and a mark drawn inside the tooltip cannot answer it: reaching
+    // the mark IS moving the pointer. ⛔ `IN-4` (MUST) is where the dismissal
+    // lives now -- its ladder ends 「出ている説明」 -- so a second entrance drawn
+    // here would also be a second entrance to one operation, which FR-029
+    // forbids (MUST NOT).
     const { built } = draw()
-    const control = dismissControl(built)
+    const box = tooltipsBox(built.root())
 
-    expect(control.textContent).toBe('x')
-
-    click(control)
-
-    expect(tooltipsBox(built.root()).textContent).not.toContain('TooltipTextOne')
-  })
-
-  it('stays dismissed while the same anchor is still explained', () => {
-    const { built, surface } = draw()
-    click(dismissControl(built))
-
-    surface.showScreenView(tooltipView)
-
-    expect(tooltipsBox(built.root()).textContent).not.toContain('TooltipTextOne')
-  })
-
-  it('comes back once the anchor stopped being explained and is explained again', () => {
-    const { built, surface } = draw()
-    click(dismissControl(built))
-
-    surface.showScreenView(EMPTY_VIEW)
-    surface.showScreenView(tooltipView)
-
-    expect(tooltipsBox(built.root()).textContent).toContain('TooltipTextOne')
+    const pressable = selfAndDescendants(box).filter((one) =>
+      built.world.registrations.some(
+        (registration) => registration.type === 'click' && registration.node === one,
+      ),
+    )
+    expect(pressable).toEqual([])
+    // Nothing but the explanation's own words stands in the box.
+    expect(box.textContent).toBe('TooltipTextOne')
   })
 
   it('⛔ never uses the title attribute the browser owns, which breaks IN-3 twice', () => {
@@ -2612,6 +2591,25 @@ describe('the manuscript still says what the S-138 cases copy', () => {
     expect(requirements).toContain('一辺が定めるのは図形の箱であって')
   })
 
+  it('表 T-206 still holds S-141 as the least gap, in px', () => {
+    // The twin of the case above, for the number the gap cases below copy.
+    expect(S_141.px).toBeGreaterThan(0)
+    expect(S_141.cell).toContain('px')
+    const row = specTable('T-206').rows.find((one) => one.id === 'S-141')
+    expect(row?.by['値']).toContain('FR-029')
+  })
+
+  it("FR-029 still forbids the gap to follow the reader's text size", () => {
+    const requirements = readFileSync(
+      join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+      'utf8',
+    )
+    expect(requirements).toContain('S-141')
+    expect(requirements).toContain(
+      'その隙間を読む人の文字サイズに追随させてはならない（MUST NOT）',
+    )
+  })
+
   it('表 T-051 HF-5 still asks for one size whatever the name is', () => {
     const hf5 = specTable('T-051').rows.find((one) => one.id === 'HF-5')
     expect(hf5, '表 T-051 no longer holds HF-5').toBeDefined()
@@ -2627,6 +2625,123 @@ describe('the manuscript still says what the S-138 cases copy', () => {
     }
     // ⛔ Four different 面, or the MUST NOT below is not being tested.
     expect(new Set(T_109_ONE_PER_SURFACE.map((one) => one.surface)).size).toBe(4)
+  })
+})
+
+/**
+ * The lengths a CSS declaration states, in px, with `calc()` worked out.
+ *
+ * \u26a0 ONLY ARITHMETIC AND `px` ARE ADMITTED. Anything else in the expression --
+ * `em`, `rem`, `%`, `ex`, `ch`, a viewport unit, a custom property -- comes back
+ * as `null`, which is precisely the answer FR-029's MUST NOT wants: a length the
+ * reader's own text size can move is not a length this rule allows.
+ */
+function pxExpression(value: string): number | null {
+  const bare = value.trim().toLowerCase().replace(/\bcalc\b/g, '').replace(/px\b/g, '')
+  if (bare.trim() === '') return null
+  if (!/^[\d\s+*/.()-]+$/.test(bare)) return null
+  try {
+    // eslint-disable-next-line no-new-func
+    const answer: unknown = new Function(`return (${bare});`)()
+    return typeof answer === 'number' && Number.isFinite(answer) ? answer : null
+  } catch {
+    return null
+  }
+}
+
+/** The four sides a `padding` shorthand states, top / right / bottom / left. */
+function paddingSides(value: string): readonly string[] {
+  const parts = value.trim().split(/\s+/)
+  const [one, two, three, four] = parts
+  if (parts.length === 1) return [one as string, one as string, one as string, one as string]
+  if (parts.length === 2) return [one as string, two as string, one as string, two as string]
+  if (parts.length === 3)
+    return [one as string, two as string, three as string, two as string]
+  return [one as string, two as string, three as string, four as string]
+}
+
+describe("FR-029 (MUST) -- S-141's least gap between a shape and its entrance's frame", () => {
+  /**
+   * \u26a0 THE RULE NAMES A FRAME, so the entrances it reaches are the ones that
+   * DREW one: FR-029 fixes the gap \u300c\u56f3\u5f62\u3068\u5165\u53e3\u306e\u67a0\u306e\u3042\u3044\u3060\u300d and S-141's cell
+   * adds \u300c\u67a0\u306e\u5074\u306f\u52d5\u304b\u3055\u306a\u3044 \u2014\u2014 \u5b9a\u3081\u308b\u306e\u306f\u9699\u9593\u3060\u3051\u3067\u3042\u308b\u300d. \u8868 T-109 settles
+   * which entry sits on which \u9762 and never which of them carries an outline, so
+   * that is read off the drawn entry rather than listed here.
+   */
+  const framed = (): readonly { row: string; surface: string; entry: FakeElement }[] => {
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(EVERY_SURFACE_VIEW)
+    return T_109_ONE_PER_SURFACE.map((one) => ({
+      row: one.row,
+      surface: one.surface,
+      entry: iconEntry(built.root(), one.row),
+    })).filter((one) => {
+      const border = styleMap(one.entry).get('border') ?? 'none'
+      return border.trim() !== 'none' && border.trim() !== '0'
+    })
+  }
+
+  it('at least one entrance carries a frame, or the rule below is asked of nothing', () => {
+    expect(framed().length).toBeGreaterThan(0)
+  })
+
+  it('\u2b50 keeps at least S-141 between the shape and the frame, on both axes', () => {
+    // \u300c\u56f3\u5f62\u3068\u5165\u53e3\u306e\u67a0\u306e\u3042\u3044\u3060\u306b\u3001\u2026 `S-141` \u304c\u5b9a\u3081\u308b\u9699\u9593\u3092\u6700\u4f4e\u9650\u3042\u3051\u308b\u3053\u3068
+    // \uff08MUST\uff09\u300d. Sideways the entrance's own padding is the gap; downwards the
+    // room it reserves has to hold the shape (S-138) with the gap on each side,
+    // which is what S-138's side plus twice S-141 comes to.
+    for (const one of framed()) {
+      const held = styleMap(one.entry)
+      const sides = paddingSides(held.get('padding') ?? '0')
+      const where = `${one.row} on the ${one.surface}`
+      expect(pxExpression(sides[1] as string), `${where}: right of the shape`).toBeGreaterThanOrEqual(
+        S_141.px,
+      )
+      expect(pxExpression(sides[3] as string), `${where}: left of the shape`).toBeGreaterThanOrEqual(
+        S_141.px,
+      )
+
+      const room = held.get('min-height') ?? held.get('height')
+      expect(room, `${where}: the entrance reserves no room downwards`).toBeDefined()
+      expect(
+        pxExpression(room as string),
+        `${where}: the room downwards is "${room ?? ''}"`,
+      ).toBeGreaterThanOrEqual(S_138.px + S_141.px * 2)
+    }
+  })
+
+  it("\u26d4 states that room in px alone, so the gap cannot follow the reader's text size (FR-029 MUST NOT)", () => {
+    // \u300c\u305d\u306e\u9699\u9593\u3092\u8aad\u3080\u4eba\u306e\u6587\u5b57\u30b5\u30a4\u30ba\u306b\u8ffd\u968f\u3055\u305b\u3066\u306f\u306a\u3089\u306a\u3044\uff08MUST NOT\uff09\u300d, and the
+    // reason the row gives is measurable: \u300c\u56f3\u5f62\u306e\u4e00\u8fba\u306f `S-138` \u3067\u56fa\u5b9a\u3067\u3042\u308a\u3001
+    // \u8ffd\u968f\u3055\u305b\u308b\u3068\u6587\u5b57\u3092\u5927\u304d\u304f\u3057\u305f\u4eba\u306e\u753b\u9762\u3067\u3060\u3051\u5165\u53e3\u304c\u9593\u5ef6\u3073\u3059\u308b\u300d.
+    // \u26a0 `pxExpression` answers null for every relative unit, so a gap written
+    // in `em` fails here whatever number it holds.
+    for (const one of framed()) {
+      const held = styleMap(one.entry)
+      const where = `${one.row} on the ${one.surface}`
+      for (const property of ['padding', 'padding-left', 'padding-right', 'padding-top',
+        'padding-bottom', 'min-height', 'height']) {
+        const stated = held.get(property)
+        if (stated === undefined) continue
+        for (const side of property === 'padding' ? paddingSides(stated) : [stated]) {
+          expect(
+            pxExpression(side),
+            `${where}: ${property} states "${side}", which follows the reader's text size`,
+          ).not.toBeNull()
+        }
+      }
+    }
+  })
+
+  it('\u2b50 the gap is the same on every 面 the entry is drawn on', () => {
+    // The same reading FR-029 gives the box (\u300c\u8f09\u308b\u9762\u306b\u3088\u3063\u3066\u5909\u3048\u3066\u306f\u306a\u3089\u306a\u3044\u300d):
+    // a clearance that differed by surface would make one shape sit tighter in
+    // its entrance than the same shape elsewhere.
+    const spelled = framed().map((one) => {
+      const held = styleMap(one.entry)
+      return `${held.get('padding') ?? ''}|${held.get('min-height') ?? ''}`
+    })
+    expect(new Set(spelled).size, spelled.join(' / ')).toBe(1)
   })
 })
 
@@ -2755,6 +2870,62 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     for (const row of rows) {
       expect(styleMap(row).get('align-items'), 'the row does not start its controls at the top')
         .toBe('flex-start')
+    }
+  })
+
+  it("⭐ GIVEN a row whose name is far bigger than its controls WHEN the row is read THEN the controls are LEVEL with the name's top and are neither centred nor set down (表 T-051 HF-5)", () => {
+    // HF-5 states the condition in as many words -- 「名前が操作子より大きいとき
+    // は、名前の上端に揃えること（MUST）」 -- so the row here is drawn far
+    // taller than S-138, which is the case the row is about.
+    // ⛔ 「中央で揃えてはならない（MUST NOT）」 and ⛔ 「上端から下げては
+    // ならない（MUST NOT）」 are the two ways of failing it, and both are
+    // asked below: nothing may pull the trio down the band, and nothing may
+    // centre it in one.
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView(
+      viewWith({
+        rowTitlePanel: {
+          pinnedTitles: [],
+          titles: [
+            rowTitle({
+              groupId: 'g-tall',
+              label: 'A row whose name is drawn much larger than the controls beside it',
+              depth: 1,
+              // Six times S-138 tall, so a centred trio would sit a long way
+              // from the top and a set-down one a long way from where it does.
+              box: rect(0, 0, 170, S_138.px * 6),
+              expander: { canOpen: true, canClose: true },
+            }),
+          ],
+        },
+      }),
+    )
+
+    const rows = selfAndDescendants(built.root()).filter((one) => one.hasAttribute('data-group-id'))
+    expect(rows, 'the panel drew no row').toHaveLength(1)
+    const row = rows[0] as FakeElement
+
+    // ⛔ THE MUST NOT AGAINST CENTRING, read on the box that lays the name and
+    // the controls out together: whatever spelling it takes, it is not a middle
+    // one and not a bottom one.
+    const alignment = styleMap(row).get('align-items')
+    expect(alignment, 'the row states no cross-axis alignment at all').toBeDefined()
+    expect(['center', 'baseline', 'last baseline', 'flex-end', 'end'], `align-items:${alignment ?? ''}`)
+      .not.toContain(alignment)
+
+    // ⛔ THE MUST NOT AGAINST SETTING THEM DOWN: no control carries room or a
+    // shift of its own above it, and none aligns itself away from the start.
+    for (const icon of ['IC-58', 'IC-59', 'IC-60']) {
+      const control = styleMap(iconEntry(row, icon))
+      for (const property of ['margin-top', 'padding-top', 'top', 'transform']) {
+        expect(control.get(property), `${icon} states ${property}`).toBeUndefined()
+      }
+      const self = control.get('align-self')
+      if (self !== undefined) {
+        expect(['center', 'baseline', 'flex-end', 'end'], `${icon} align-self:${self}`).not.toContain(
+          self,
+        )
+      }
     }
   })
 

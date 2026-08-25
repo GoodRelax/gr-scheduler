@@ -1086,7 +1086,7 @@ function screenPane(language: DisplayLanguage = 'ja'): Pane {
  * @purity non-pure
  */
 function takeEntry(loop: FrameLoop, pane: Pane, part: string, entry: string): void {
-  pane.drawAt({ part, entry, format: null, rowGroupId: null, resourceUid: null })
+  pane.drawAt({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   pane.drawAt(null)
@@ -1124,6 +1124,58 @@ const settingsExcept = (loop: FrameLoop, key: string): Record<string, unknown> =
   )
 
 // ===========================================================================
+
+describe('FR-018 -- holding a zoom entrance down', () => {
+  /** The ms figure a row of 表 T-206 states in its 既定 column. */
+  const msOf = (id: string): number => {
+    const cell = rowOf('T-206', id).by['既定'] ?? ''
+    const found = /(\d+(?:\.\d+)?)\s*ms/.exec(cell)
+    if (found === null) throw new Error(`表 T-206 row ${id} states no ms value: ${cell}`)
+    return Number(found[1])
+  }
+
+  it('表 T-206 holds the wait and the tick, and the wait is the longer of the two', () => {
+    // FR-018 (MUST): 「待ち時間は刻みより長いこと（MUST）」 —— 「逆にすると
+    // 最初の 1 回が連続の一部に見える」. ⛔ This is the one half of the rule
+    // that can be settled without pressing anything, and it is settled here.
+    expect(msOf('S-172')).toBeGreaterThan(msOf('S-173'))
+  })
+
+  it('⛔ the pair is kept OUT of the document, in 表 T-206 and not 表 T-212', () => {
+    // 表 T-206 is 「保存しないもの」. A saved wait would let one author's
+    // document decide how the press feels in the hands of whoever was handed it.
+    expect(specTable('T-206').caption).toContain('保存しないもの')
+    expect(specTable('T-212').rows.map((row) => row.id)).not.toContain('S-172')
+    expect(specTable('T-212').rows.map((row) => row.id)).not.toContain('S-173')
+  })
+
+  it('the requirement names the four entrances that repeat, and no others', () => {
+    // FR-018 (MUST): 「繰り返す入口は … 表 T-109 の `IC-12` 〜 `IC-15` に限ること
+    // （MUST）」 —— 「`IC-10`（全体表示）と `IC-11`（全画面）は繰り返しても
+    // 同じ結果にしかならない」.
+    const requirements = readFileSync(
+      join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+      'utf8',
+    )
+    expect(requirements).toContain('繰り返す入口は')
+    expect(requirements).toContain('S-172')
+    expect(requirements).toContain('S-173')
+    for (const row of ['IC-12', 'IC-13', 'IC-14', 'IC-15']) {
+      expect(specTable('T-109').rows.map((one) => one.id)).toContain(row)
+    }
+  })
+
+  // ⛔ NOT IMPLEMENTED, AND SKIPPED RATHER THAN LEFT RED. FR-018 (MUST) asks
+  // that holding one of IC-12 .. IC-15 keep stepping the zoom after S-172 at
+  // S-173, and (MUST NOT) forbids the shape that steps once. Nothing in `src/`
+  // repeats a press: `receiveInput` sees a down and an up and nothing between
+  // them, and no clock in this layer counts a hold. ⚠ This case is here so the
+  // gap is named where the entrances are driven, not so it can pass today --
+  // unskip it when the repeat lands.
+  it.skip('FR-018 (MUST): holding IC-13 keeps stepping the zoom after S-172, at S-173', () => {
+    expect.unreachable('FR-018 -- the press that repeats is not implemented')
+  })
+})
 
 describe('the tables these twelve entrances are driven by', () => {
   it('the four tables print the columns this file reads by position', () => {

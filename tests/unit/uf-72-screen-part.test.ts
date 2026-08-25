@@ -1449,6 +1449,7 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
       // person, which `ScreenPart` states for both keys in as many words.
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1492,6 +1493,7 @@ describe('IF-9 of 表 T-065 -- three supplies, three members', () => {
     // one the seam declares in src/adapter/screen-renderer/screen-surface.ts;
     // adding one there is meant to land here.
     expect(Object.keys(answer ?? {}).sort()).toEqual([
+      'dividerPanel',
       'entry',
       'format',
       'part',
@@ -1539,6 +1541,7 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
       // person's document, so neither key has anything to name.
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1563,6 +1566,7 @@ describe('FR-029 -- a disabled entry answers; it does not go quiet', () => {
       format: null,
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1604,6 +1608,7 @@ describe('FR-053 / 表 T-023b -- the palette can be armed from (SP-1 .. SP-4)', 
       format: null,
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1674,6 +1679,7 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
       // in the person's document, so it names neither a row nor a resource.
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1728,6 +1734,7 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
       // in the person's document, so it names neither a row nor a resource.
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1779,6 +1786,7 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
       format: null,
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 })
@@ -1799,6 +1807,7 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
       format: null,
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1813,6 +1822,7 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
       format: null,
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -1888,6 +1898,7 @@ describe('overlapping parts', () => {
       // document underneath it, however far the point is down the panel.
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 })
@@ -1953,6 +1964,7 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
       format: null,
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
     expect(ask(built, AT.entryIc13.x, AT.entryIc13.y)?.entry).toBe('IC-13')
   })
@@ -2008,6 +2020,7 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
       // the pinning unreachable by pointer.
       rowGroupId: 'g-1',
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 })
@@ -2143,6 +2156,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         // command. `withExpander` draws one row and this is its `TaskGroup.id`.
         rowGroupId: 'g-1',
         resourceUid: null,
+        dividerPanel: null,
       })
     },
   )
@@ -2184,6 +2198,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         // row it names does not go away with the two halves being spent.
         rowGroupId: 'g-1',
         resourceUid: null,
+        dividerPanel: null,
       })
     }
   })
@@ -2244,6 +2259,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
       format: null,
       rowGroupId: 'g-1',
       resourceUid: null,
+      dividerPanel: null,
     })
     expect(ask(built, AT.rowExpanderGap.x, AT.rowExpanderGap.y)).toEqual({
       part: 'Row Title Panel',
@@ -2251,6 +2267,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
       format: null,
       rowGroupId: 'g-1',
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -2269,6 +2286,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
       // key follows the node the point landed on and is not widened to the part.
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 
@@ -2612,6 +2630,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
       // the description carries; this says the POINT is on none.
       rowGroupId: null,
       resourceUid: null,
+      dividerPanel: null,
     })
   })
 })

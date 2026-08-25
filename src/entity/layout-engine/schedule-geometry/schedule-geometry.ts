@@ -139,7 +139,11 @@ export interface TaskGeometry {
   readonly marker: MarkerGeometry | null
   readonly resume: ResumeGeometry | null
   readonly dummies: readonly DummyGeometry[]
-  /** GR-1 then GR-2. Empty unless the shape has thickness (FD-5). */
+  /**
+   * GR-1 then GR-2. Empty unless the shape has thickness (FD-5) AND the Task
+   * holds a fade day (FR-075). ⛔ The selection half of FR-075 is still open;
+   * the STOP that says why is where these are built.
+   */
   readonly fadeHandles: readonly Point[]
   /** GR-10's target: where LC-6 put the name. Null when the Task has no name. */
   readonly label: ScreenRect | null
@@ -865,10 +869,36 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     // is also late shows (!) and must still say that it is suspended.
     resume: marker !== null && suspended ? resumeOf(task, marker, settings) : null,
     dummies,
-    // FD-5 gives the handles to the two shapes with thickness only. FR-075
-    // then shows them on the selected Task alone, which the renderer decides.
+    // GR-1 then GR-2, at the plan bar's top-left and bottom-right corners.
+    // Two conditions gate them, and only one of the two can be answered here.
+    //
+    // FD-5 of table T-012a gives them to the two shapes with thickness (SH-1 /
+    // SH-2), which is exactly the set `actualPlacementOf` calls 'inside'.
+    //
+    // FR-075 adds the Task's own: its statement opens with the fade days being
+    // set, and S-111 of table T-210 records the condition it states. The reason
+    // FR-075 gives is that handles left out at all times put a row of dots on
+    // tasks that use no fade. So a Task holding neither fade day gets no pair.
+    // ⚠️ WHY IT MATTERS: `itemAtPointer` gives GR-1 / GR-2 the TOP of table
+    // T-023d and asks every Task for them before it asks any Task for GR-3 /
+    // GR-4. Emitted unconditionally, one Task's handle therefore swallows
+    // another Task's plan-bar end and no bar can be resized by its edge.
+    // Measured on `startup-template.json`: 997 of its 1000 tasks hold
+    // `fadeInDays: null`, and 4 hold either day.
+    //
+    // ⛔ STOP -- ⛔ THE SELECTION HALF OF FR-075 IS NOT CLOSED HERE.
+    // FR-075's MUST is about the SELECTED Task, and this file cannot see the
+    // selection: `geometryFromLayout(schedule, settings, layout, regions)` is
+    // handed no `Selection` (the type is `entity/document-model/selection`),
+    // and neither is `itemAtPointer(geometry, x, y, slop)`, which is the reader
+    // that decides whether a press lands on GR-1. Guessing one here would be
+    // inventing a seam. ⭐ THE SEAM THAT WOULD HAVE TO CARRY IT is
+    // `geometryFromLayout`'s signature -- add the `Selection` there and pass it
+    // into `GeometryInputs`, since the hit test reads only what this file
+    // emitted. Until that is decided, a Task WITH fade days shows its two
+    // handles whether or not it is selected, which is wider than FR-075 allows.
     fadeHandles:
-      placed.actualPlacement === 'inside'
+      placed.actualPlacement === 'inside' && (task.fadeInDays !== null || task.fadeOutDays !== null)
         ? [point(placed.x, planTop), point(placed.x + placed.width, planTop + placed.planHeight)]
         : [],
     label: labelBoxOf(inputs, placed),

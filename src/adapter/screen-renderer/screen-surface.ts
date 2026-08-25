@@ -15,7 +15,7 @@
 // `ScreenView` instead: table T-075 fixes this folder at eleven units, and the
 // one that binds the nine descriptions together is UF-60.
 
-import type { ExportFormatId, IconId, ScreenView } from './screen-renderer'
+import type { ExportFormatId, IconId, PanelDivider, ScreenView } from './screen-renderer'
 
 /**
  * What this surface has drawn at one point on the screen.
@@ -134,6 +134,37 @@ export interface ScreenPart {
    * needed a key; it was wrong.
    */
   readonly resourceUid: number | null
+  /**
+   * Which panel a press on a `Panel Divider` would resize (FR-052), or `null`.
+   *
+   * ⛔ WITHOUT IT, FR-052's DRAG HAS NO ROAD IN. The note under table T-023a
+   * hands the boundary between the row title panel and the canvas to FR-052 and
+   * keeps its own decision order off it (MUST), so no row of that table ever
+   * names a press on the band -- the press reaches the reading side only
+   * because this surface DREW the band and answers for the point. ⚠️ U-24 is
+   * not in table T-109 either, so the band carries no `IconId` and `entry` is
+   * `null` on it: with nothing else to go on, a press on the band fell through
+   * as "on a part, on no entry" and the widths were never written.
+   *
+   * ⛔ A MEMBER OF ITS OWN, for the reason `format` and `rowGroupId` give above:
+   * these are different questions about one point, and one member carrying two
+   * of them leaves the reading side unable to say which it was handed. ⚠️ WHICH
+   * band is what has to be answered rather than merely THAT one was pressed --
+   * `setPanelWidths` (CM-67) takes both widths at once, so the reading side
+   * cannot leave the other panel where it was without knowing which panel the
+   * hand is on.
+   *
+   * ⭐ DERIVED FROM `PanelDivider['panel']`, NOT SPELLED AGAIN. That member is
+   * where the two panels are named, and a second union written here would be a
+   * second place the same pair is decided (rule 03 section 1).
+   *
+   * ⚠️ `null` WHEREVER THE POINT IS NOT ON A BAND, the panels' own bodies
+   * included -- the band is only S-134 wide and FR-051 (MUST NOT) keeps it from
+   * taking any of the `Row Area`. ⛔ It does not stand in for "this screen has
+   * no dividers": `ScreenFrame.dividers` describes both boundaries every frame,
+   * the properties panel's while that panel is closed.
+   */
+  readonly dividerPanel: PanelDivider['panel'] | null
 }
 
 /**

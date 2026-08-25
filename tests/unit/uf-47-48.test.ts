@@ -1117,6 +1117,102 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
   })
 })
 
+describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () => {
+  /**
+   * A document with enough rows that the stack is taller than the `Row Area`,
+   * anchored at a row well down the stack so the ones above it are off the top.
+   * ⚠ S-78 is 「人が決めた表示位置」 and OP-10 reads it, so this is the
+   * ordinary way a person leaves the schedule -- not a contrived frame.
+   */
+  const manyRows = (anchorAt: number): Document =>
+    twoRowDocument((draft) => {
+      const rows: unknown[] = []
+      const members: unknown[] = []
+      const tasks = [...draft.schedule.tasks]
+      for (let index = 0; index < 24; index += 1) {
+        const id = `row-${index}`
+        rows.push({
+          id,
+          parentId: null,
+          label: `Row ${index}`,
+          derivedFromTaskUid: null,
+          order: index,
+          isCollapsed: false,
+          isHidden: false,
+          color: null,
+          height: null,
+        })
+        members.push({ taskUid: 1, groupId: id, stackOrder: null })
+      }
+      draft.schedule.tasks = tasks.slice(0, 1)
+      draft.schedule.taskGroups = rows
+      draft.schedule.taskGroupMembers = members
+      draft.documentSettings.scrollGroupId = `row-${anchorAt}`
+    })
+
+  it('GIVEN the stack is anchored below its top THEN some rows really do fall outside the Row Area', () => {
+    // ⛔ THE PREMISE OF THE CASE BELOW, ASSERTED RATHER THAN ASSUMED. With
+    // nothing clipped, an equality of counts says nothing at all.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, manyRows(12), SCREEN, screen.wiring)
+    const values = loop.current()!
+    const area = values.regions.rowArea
+
+    const outside = values.layout.rows.filter(
+      (row) =>
+        Math.min(row.y + row.height, area.y + area.height) <= Math.max(row.y, area.y),
+    )
+    expect(outside.length, 'no row is off the Row Area, so nothing is being clipped').toBeGreaterThan(
+      0,
+    )
+  })
+
+  it('GIVEN rows fall outside the Row Area THEN the panel holds exactly the rows the body draws', () => {
+    // SC-1: 「縦は本体と連動する」. A row the body has no band for is a row the
+    // panel has no line for -- a title painted where no band is stands up in
+    // the Time Ruler, over the corner HF-10's control needs.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, manyRows(12), SCREEN, screen.wiring)
+    const values = loop.current()!
+    const area = values.regions.rowArea
+
+    const showing = values.layout.rows.filter(
+      (row) => Math.min(row.y + row.height, area.y + area.height) > Math.max(row.y, area.y),
+    )
+    const titles = titlesOf(screen.last())
+
+    expect(titles.map((title) => title.groupId)).toEqual(showing.map((row) => row.groupId))
+    expect(titles.length).toBe(showing.length)
+  })
+
+  it('GIVEN a title is drawn THEN its band lies inside the Row Area, cut the same way the body is', () => {
+    // The other half of 「連動する」: a title that kept its whole height while
+    // the band beside it was cut stands taller than the row it names.
+    const pane = host()
+    const screen = screenPane()
+    const loop = frameLoop(pane.surface, manyRows(12), SCREEN, screen.wiring)
+    const values = loop.current()!
+    const area = values.regions.rowArea
+
+    for (const title of titlesOf(screen.last())) {
+      const row = values.layout.rows.find((one) => one.groupId === title.groupId)!
+      expect(title.box.y, `${title.groupId} starts above the Row Area`).toBeGreaterThanOrEqual(area.y)
+      expect(
+        title.box.y + title.box.height,
+        `${title.groupId} runs past the foot of the Row Area`,
+      ).toBeLessThanOrEqual(area.y + area.height)
+      expect(title.box.y, `${title.groupId} is not the body's own top`).toBe(
+        Math.max(row.y, area.y),
+      )
+      expect(title.box.height, `${title.groupId} is not the body's own height`).toBe(
+        Math.min(row.y + row.height, area.y + area.height) - Math.max(row.y, area.y),
+      )
+    }
+  })
+})
+
 describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled', () => {
   it('GIVEN FT-3 WHEN the frame runs THEN the description is built on the regions of THAT frame', () => {
     // CA-4 (MUST NOT): "1 つだけが古いという状態を作ってはならない". The parts

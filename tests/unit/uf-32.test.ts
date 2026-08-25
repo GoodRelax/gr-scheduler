@@ -101,6 +101,10 @@ const SETTINGS = settingsOf({
   scrollDate: '2026-01-01', // S-77
   stackDirection: 'down', // S-58 -- pinned so every y reads from the top
   shapeHeightOf: { rectangle: 1, chevron: 1, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
+  // ⚠ THE SAME SPELLING-OUT, for the same reason: `planActualGuidePattern`
+  // (S-104) is carried under `planActualGuidePattern.on` / `.off`, and the
+  // 補助線 reads the nested pair. S-104's own figure is `2,2`.
+  planActualGuidePattern: { on: 2, off: 2 },
 })
 
 const ENV: ScreenEnvironment = {
@@ -620,6 +624,96 @@ describe('UF-32 -- FR-041: テーマ追随', () => {
   })
 })
 
+describe('UF-32 -- 表 T-020a の GD-6: 依存線と補助線の見分け', () => {
+  /**
+   * A scene whose one `Task` has its 実績 nowhere near its 予定, so GD-1's
+   * condition holds -- 「予定と実績が時間軸上で重ならないとき」 -- and a second
+   * `Task` depending on it, so the picture carries a 依存線 as well.
+   */
+  const APART = spanning(1, '2026-02-01', 10, {
+    name: 'alpha',
+    percentComplete: 40,
+    actualStart: '2026-01-01',
+    actualDuration: 5,
+  })
+  const FOLLOWER = spanning(2, '2026-03-01', 10, {
+    name: 'beta',
+    dependencies: [{ predecessorUid: 1, type: 1, lag: 0 }],
+  })
+  const APART_SCENE = oneRow([APART, FOLLOWER], {
+    project: { calendarUid: null, statusDate: '2026-02-15', themeHue: 214, title: null },
+  })
+
+  // S-64 keeps the イナズマ線 off, so every `polyline` in these pictures is
+  // either a 依存線 or a 補助線.
+  const SHOWN = settingsOf({ ...SETTINGS, progressLineVisible: false })
+  const WITHOUT_LINKS = settingsOf({ ...SHOWN, dependencyVisible: false })
+
+  const polylinesOf = (svg: string): readonly Element[] =>
+    paintedOf(svg).filter((e) => e.tag === 'polyline')
+
+  /**
+   * ⛔ THE TWO ARE TOLD APART BY 表 T-202, NOT BY GD-6. GD-6 is what is being
+   * checked, so using its own words (実線 / 点線) to find each line would make
+   * the case agree with any picture at all. `dependencyVisible` (S-62) is the
+   * independent handle: EP-5 of 表 T-076 says 「個々を描くかどうかは表 T-202 の
+   * 表示の切り替えに従う」, so the lines that appear only when it is on
+   * are the 依存線, and the ones drawn either way are the 補助線.
+   */
+  const withLinks = (): { links: readonly Element[]; guides: readonly Element[] } => {
+    const guides = polylinesOf(drawn(APART_SCENE, WITHOUT_LINKS))
+    const all = polylinesOf(drawn(APART_SCENE, SHOWN))
+    const links = all.filter((e) => !guides.some((g) => g.text === e.text))
+    return { links, guides }
+  }
+
+  it('draws both kinds at once, so the pair can be compared', () => {
+    // GD-1 (引く条件) and FR-009's 依存線 both hold in this scene.
+    const { links, guides } = withLinks()
+    expect(guides.length, 'GD-1: the 予定 and the 実績 do not overlap').toBeGreaterThan(0)
+    expect(links.length, 'FR-009: the second Task depends on the first').toBeGreaterThan(0)
+  })
+
+  it('GD-6 (MUST): the 依存線 carries an arrowhead', () => {
+    // 「依存線は実線で矢じりを持ち」.
+    const { links } = withLinks()
+    for (const link of links) {
+      expect(attribute(link.text, 'marker-end'), '矢じりを持つ').not.toBeNull()
+      expect(attribute(link.text, 'stroke-dasharray'), '実線').toBeNull()
+    }
+    // The head it points at is really in the picture and not a dangling name.
+    const svg = drawn(APART_SCENE, SHOWN)
+    const id = /url\(#([^)]+)\)/.exec((links[0] as Element).text)?.[1] as string
+    expect(svg, 'the arrowhead is defined').toContain(`id="${id}"`)
+    expect(elementsOf(svg).some((e) => e.tag === 'marker')).toBe(true)
+  })
+
+  it('GD-6 (MUST): the 補助線 carries none', () => {
+    // 「補助線は点線で矢じりを持たない」.
+    const { guides } = withLinks()
+    for (const guide of guides) {
+      expect(attribute(guide.text, 'marker-end'), '矢じりを持たない').toBeNull()
+      expect(attribute(guide.text, 'stroke-dasharray'), '点線').not.toBeNull()
+    }
+  })
+
+  it('GD-6 (MUST NOT): neither the thickness nor the dash follows the zoom', () => {
+    // 「太さと刻みをズームに追随させてはならない（MUST NOT）」.
+    const readAt = (zoomX: number): readonly string[] => {
+      const at = settingsOf({ ...SHOWN, zoomX })
+      return polylinesOf(drawn(APART_SCENE, at))
+        .filter((e) => attribute(e.text, 'stroke-dasharray') !== null)
+        .map(
+          (e) =>
+            `${attribute(e.text, 'stroke-width') ?? ''}|${attribute(e.text, 'stroke-dasharray') ?? ''}`,
+        )
+    }
+    const near = readAt(1)
+    expect(near.length).toBeGreaterThan(0)
+    expect(readAt(4), '拡大しても同じ').toEqual(near)
+  })
+})
+
 describe('UF-32 -- FR-019: 注記の固定色', () => {
   const withBox = (hue: number, strokeColor: string | null): string =>
     drawn(
@@ -794,13 +888,23 @@ describe('UF-32 -- 表 T-075: the unit is `pure`', () => {
   it('draws an empty schedule without inventing anything', () => {
     // FR-025 says the same thing of the export: 「行を足して埋めてはならない
     // （MUST NOT）」-- 画面に無いものが出る。
-    // ⛔ A SCHEDULE WITH NO `TaskGroup` IS THE ONE THAT PAINTS NOTHING. This
+    // ⛔ A SCHEDULE WITH NO `TaskGroup` IS THE ONE THAT INVENTS NO ROW. This
     // case used `oneRow([])`, which declares one row and no `Task`, and read
     // its emptiness as the whole picture's. That row is not invented: it is in
     // the values handed in, and drawing it is required -- `S-166` of 表 T-236
     // gives 最上位の行の地の色 and FR-042 RATIONALE makes the group grid line a
     // MUST（「`TaskGroup` の境界にはグループ罫線を描くこと」）。
-    expect(paintedOf(drawn(scheduleOf({})))).toHaveLength(0)
+    // ⚠ 「INVENTS NOTHING」 IS NOT 「PAINTS NOTHING」. FR-017 makes the
+    // タイムルーラー a picture of the TIME AXIS -- 「目盛の粒度を 1 日あたりの表示幅
+    // から決まる 4 段階へ切り替えること」 says nothing about how many rows the
+    // schedule holds -- and 表 T-076 の EP-2 carries `Time Ruler`（`U-19`）into
+    // the picture with 「描く」 and the reason 「日付が読めないと日程表として
+    // 成り立たない」. What must be absent is everything a ROW carries.
+    const painted = paintedOf(drawn(scheduleOf({})))
+    expect(painted.filter((e) => e.tag === 'rect'), 'no 行の帯').toHaveLength(0)
+    expect(painted.filter((e) => e.tag === 'polygon'), 'no バー').toHaveLength(0)
+    expect(painted.filter((e) => e.tag === 'polyline'), 'no 依存線').toHaveLength(0)
+    expect(painted.length, '表 T-076 EP-2: the Time Ruler is drawn all the same').toBeGreaterThan(0)
   })
 
   it('draws no Task element for a row that carries no Task', () => {
@@ -808,7 +912,13 @@ describe('UF-32 -- 表 T-075: the unit is `pure`', () => {
     // it was handed in, but nothing is put ON it. 表 T-076 の EP-5 names what a
     // row would carry -- 予定バー・実績バー・進捗マーカー・名称ラベル -- and a
     // row with no `Task` has none of them to carry.
-    const painted = paintedOf(drawn(oneRow([])))
+    // ⚠ READ AS A DIFFERENCE against a schedule holding no row at all, so the
+    // タイムルーラー -- drawn either way (FR-017, 表 T-076 の EP-2) and
+    // carrying date text of its own -- is not mistaken for a 名称ラベル.
+    const bare = paintedOf(drawn(scheduleOf({})))
+    const painted = paintedOf(drawn(oneRow([]))).filter(
+      (e) => !bare.some((b) => b.text === e.text),
+    )
     expect(painted.length, 'the row itself is drawn').toBeGreaterThan(0)
     expect(painted.filter((e) => e.tag === 'polygon'), 'no バー').toHaveLength(0)
     expect(painted.filter((e) => e.tag === 'text'), 'no 名称ラベル').toHaveLength(0)

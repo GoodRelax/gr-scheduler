@@ -674,6 +674,48 @@ describe('FR-085 — the whole of a row name that was cut', () => {
     expect(shown[0]?.text).not.toBe(title.label)
   })
 
+  it('⛔ explains nothing while the pointer is away from that row, though it was cut', () => {
+    // FR-085 (MUST NOT): 「打ち切られているというだけで常に出してはならない」.
+    // The cut is the CONTENT of the explanation, never the reason it stands.
+    const title = rowTitleOf({ groupId: 'g7', box: rect(0, 0, 200, 24), isLabelTruncated: true })
+    const shown = tooltipsFromScreenView(
+      viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
+      SETTINGS,
+      sessionOf({ pointer: { x: 400, y: 400 }, pointerRestedMs: WAIT_MS * 10 }),
+    )
+    expect(shown).toEqual([])
+  })
+
+  it('⛔ explains nothing while there is no pointer in the window at all', () => {
+    // The other half of the same MUST: 「その行の名前にポインタが乗っている
+    // あいだ、またはその行にフォーカスがあるあいだだけ出すこと」. A pointer that
+    // left the window is on no row's name, and no wait stands in for it.
+    const title = rowTitleOf({ groupId: 'g7', isLabelTruncated: true })
+    const shown = tooltipsFromScreenView(
+      viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
+      SETTINGS,
+      sessionOf({ pointer: null, pointerRestedMs: WAIT_MS * 10 }),
+    )
+    expect(shown).toEqual([])
+  })
+
+  it('explains a row again once the pointer comes onto its name', () => {
+    // The MUST's positive half, read as a pair against the case above: the ONLY
+    // thing that changed between the two answers is where the pointer is.
+    const title = rowTitleOf({ groupId: 'g7', box: rect(0, 0, 200, 24), isLabelTruncated: true })
+    const panel = viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } })
+
+    const away = tooltipsFromScreenView(
+      panel,
+      SETTINGS,
+      sessionOf({ pointer: { x: 400, y: 400 } }),
+    )
+    const onIt = tooltipsFromScreenView(panel, SETTINGS, overRow(title.box))
+
+    expect(rowsOf(away)).toEqual([])
+    expect(rowsOf(onIt)).toEqual(['g7'])
+  })
+
   it('explains nothing for a row whose name was not cut', () => {
     // 「収まらないときは」-- a name that fits is not cut, and no whole name is
     // being kept from the reader.
@@ -832,7 +874,15 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
 })
 
 describe('IN-3 (表 T-028) — the three raisers each keep their own conditions', () => {
-  const CUT_ROW = rowTitleOf({ groupId: 'g7', box: rect(0, 0, 200, 24), isLabelTruncated: true })
+  // ⚠ THE BAND IS PUT UNDER THE POINTER ON PURPOSE. FR-085 (MUST) now holds
+  // the explanation up only 「その行の名前にポインタが乗っているあいだ、またはその行に
+  // フォーカスがあるあいだだけ」, so a band away from the pointer would make the
+  // frame carry TWO of IN-3's raisers rather than three.
+  const CUT_ROW = rowTitleOf({
+    groupId: 'g7',
+    box: rect(0, 288, 200, 24),
+    isLabelTruncated: true,
+  })
 
   /** A frame that holds all three of IN-3's raisers at once. */
   const ALL_THREE = viewOf({

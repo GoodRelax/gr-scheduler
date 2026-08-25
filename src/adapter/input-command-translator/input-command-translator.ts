@@ -120,10 +120,14 @@ import {
 } from '../../entity/document-model/screen-state/screen-state'
 import {
   dayOf,
+  planActualState,
   taskByUid,
   textOfDay,
+  workingCalendarOf,
+  workingDaysBetween,
   type CalendarDay,
   type Schedule,
+  type Task,
 } from '../../entity/document-model/schedule/schedule'
 import {
   selectionOfAll,
@@ -942,9 +946,11 @@ function rowAtTopEdge(layout: ScheduleLayout, y: number): RowPlacement | null {
  * as the value already in force rather than as "no chosen place": OP-10 of
  * table T-024a reads a null `scrollDate` as 「人がまだ場所を決めていない」, and
  * a scroll that ran off the end has not un-decided anything.
- * ⛔ MK-1 DOES NOT TAKE THE VERTICAL HALF FROM HERE -- `rowTurnedTo` below says
- * why, and the short answer is that this member is PD-1's, whose pan MK-7 holds
- * to the distance the pointer itself went (MUST).
+ * ⛔ NEITHER MK-1 NOR PD-1 TAKES THE VERTICAL HALF FROM HERE -- `rowTurnedTo`
+ * below says why, and the short answer is that this half answers the row the
+ * moved top edge LANDS IN, which for a distance shorter than that row is the row
+ * already in force. ⚠️ MK-5 still takes it: a sideways turn decides no vertical
+ * place, so the value in force is exactly the right answer there.
  *
  * @purity pure
  */
@@ -964,31 +970,36 @@ function scrolledAnchor(
 }
 
 /**
- * Where MK-1's turn leaves the row at the top edge.
+ * Where MK-1's turn -- or PD-1's pan -- leaves the row at the top edge.
  *
- * ⛔ `scrolledAnchor` IS NOT THE WHOLE OF MK-1, and the difference is not an
- * error in its arithmetic: it answers the row the moved top edge LANDS IN,
- * which is exactly what PD-1 needs: MK-7 makes the pan move the schedule exactly
- * as far as the pointer went (MUST), so a pan has to keep answering the row the
- * pointer really reached.
+ * ⛔ `scrolledAnchor` IS NOT THE WHOLE OF EITHER, and the difference is not an
+ * error in its arithmetic: it answers the row the moved top edge LANDS IN.
  * ⚠️ S-78 anchors the display to a WHOLE row and table T-206 has nowhere to
- * keep part of one, so a turn shorter than the row standing at the top edge
+ * keep part of one, so a movement shorter than the row standing at the top edge
  * lands back inside that same row and the answer equals the value already in
  * force. Measured on the template FR-027 starts a reader with, most of the
  * bands drawn are TALLER than the distance a common wheel reports for one
  * detent, so turn after turn moved nothing at all and MK-1's
- * 「**縦スクロール**」 did not scroll.
+ * 「**縦スクロール**」 did not scroll. ⚠️ PD-1's DRAG FAILS THE SAME WAY and for
+ * the same reason, so it is answered here too -- MK-7 holds the pan to the
+ * distance the pointer went (MUST), and no value S-78 admits can express a
+ * distance shorter than a row, so 等倍 is out of reach whichever answer is
+ * given and only one of the two moves the picture at all.
  *
- * ⛔ NOTHING SETTLES WHAT A TURN SHORTER THAN ITS ROW DOES. S-96 leaves the
+ * ⛔ NOTHING SETTLES WHAT A MOVEMENT SHORTER THAN ITS ROW DOES. S-96 leaves the
  * distance to the device -- 「1 ノッチで何倍動くかは入力装置に依存する」 -- and
  * no row anywhere turns a distance into a count of rows. Searched: table T-023
- * MK-1 and MK-5, table T-023a and its note, S-4, S-12, S-77, S-78, S-96, FR-016,
- * FR-051, FR-017, OP-10 of table T-024a.
- * ⭐ ZERO IS THE ONE ANSWER THE ROW RULES OUT, so the choice that cannot be
+ * MK-1, MK-5 and MK-7, table T-023a and its note and PD-1, S-4, S-12, S-77,
+ * S-78, S-96, FR-016, FR-051, FR-017, OP-10 of table T-024a.
+ * ⭐ ZERO IS THE ONE ANSWER THE ROWS RULE OUT, so the choice that cannot be
  * wrong is the SMALLEST movement S-78 can express: one row, in the direction
- * turned, and only when the device asked for a distance at all. ⚠️ This invents
- * no rows-per-notch figure -- it is a floor under a distance the device still
- * supplies, and every turn long enough to reach a further row still reaches it.
+ * asked for, and only when a distance was asked for at all. ⚠️ This invents
+ * no rows-per-notch and no rows-per-pixel figure -- it is a floor under a
+ * distance that still comes from the device or the hand, and every movement long
+ * enough to reach a further row still reaches it.
+ * ⛔ PD-176's TEXT NAMES THE NOTCH ONLY. The pan leans on the same undecided
+ * floor and the record has not been widened to say so, which is a thing to
+ * settle rather than a second choice made here.
  * ⛔ The cost is that a row taller than the Row Area cannot be read to its
  * foot: no anchor value can name a place inside a row, so the pan cannot reach
  * it either.
@@ -998,8 +1009,8 @@ function scrolledAnchor(
  *
  * ⚠️ THE TWO ENDS ARE NOT ALIKE, and the difference is what each one can be
  * known to mean. Above the first row there is provably nothing -- S-78 anchors
- * the edge to a row and the first one is the top of the stack -- so a turn that
- * runs off that end is answered by the first row, without which the top of a
+ * the edge to a row and the first one is the top of the stack -- so a movement
+ * that runs off that end is answered by the first row, without which the top of a
  * schedule cannot be reached again at all. Past the LAST row, whether there is
  * anywhere left to go depends on how much of the stack the Row Area already
  * shows, which no row settles; so that end keeps the value in force, which is
@@ -1933,12 +1944,23 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       // Pan. ⭐ 「パンは等倍とすること（MUST）」 -- the schedule moves exactly
       // as far as the pointer did, so the anchor moves the opposite way by the
       // same number of pixels.
-      const moved = scrolledAnchor(context, press.at.x - input.x, press.at.y - input.y)
+      const dy = press.at.y - input.y
+      const moved = scrolledAnchor(context, press.at.x - input.x, dy)
       return changed([
         {
           kind: 'setScrollPosition',
           scrollDate: moved.scrollDate,
-          scrollGroupId: moved.scrollGroupId,
+          // ⛔ THE VERTICAL HALF TAKES `rowTurnedTo`'s FLOOR, and it is the same
+          // defect MK-1 had. S-78 anchors the top edge to a WHOLE row, so a drag
+          // that ends inside the band it began in lands back on the row already
+          // in force and the picture does not move at all.
+          // ⚠️ 等倍 CANNOT BE HONOURED EXACTLY EITHER WAY: no value S-78 admits
+          // can name a place inside a row, so the two answers open to this file
+          // are a whole row or nothing, and nothing is the one that makes
+          // 「パン」 not pan. ⛔ PD-176 IS WORDED FOR THE WHEEL'S NOTCH and has
+          // not been widened to the pan -- the choice here is the same one,
+          // taken for the same reason, and stays provisional with it.
+          scrollGroupId: rowTurnedTo(context, dy),
         },
       ])
     }
@@ -2042,6 +2064,10 @@ function commandFromEntry(
 ): TranslatedInput {
   const on = press.on
   if (on === null) return CONSUMED_ELSEWHERE
+  // ⭐ BEFORE THE ENTRY IS READ, because a `Panel Divider` carries none: U-24
+  // has no row in table T-109, so `entry` is null on the band and the press
+  // would otherwise fall through as "on a part, on no entry" and write nothing.
+  if (on.dividerPanel !== null) return commandFromPanelDivider(on.dividerPanel, release, press, context)
   if (on.entry === null) {
     // FR-085 (MUST): the row itself was pressed rather than one of the three
     // controls table T-051 and FR-098 draw on it.
@@ -2209,6 +2235,53 @@ function commandFromEntry(
     default:
       return commandFromArmingEntry(entry, context)
   }
+}
+
+/**
+ * FR-052: a drag on a `Panel Divider` (U-24) becomes the pair of panel widths.
+ *
+ * ⭐ THE TRAVEL AND NOT THE PLACE. A press may begin anywhere across the band's
+ * S-134 width, so the boundary moves by the difference between the two points;
+ * jumping the boundary to where the finger let go would shift it by however far
+ * off centre the press had landed.
+ *
+ * ⚠️ THE TWO BANDS FACE OPPOSITE WAYS, which is why one width grows where the
+ * other shrinks. `screenFrameFromRegions` (UF-61) lays the row title panel's
+ * band on that panel's RIGHT edge and the properties panel's on its LEFT, so
+ * the same rightward travel widens the first and narrows the second.
+ *
+ * ⭐ CM-67 TAKES BOTH WIDTHS AT ONCE and this changes only the one the band
+ * names -- FR-052 (MUST NOT) forbids judging either width on its own, so the
+ * command is stated as a pair and the other half of the pair is the value in
+ * force. ⛔ The judging itself is NOT repeated here: FR-052's test is that the
+ * `Row Area` stays wider than zero, `edit-document-settings.ts` holds it because
+ * that is where the width the pair is measured against arrives, and a translator
+ * that clamped as well would give one drag two answers depending on who ran it
+ * -- the same reason GR-3 and GR-4 leave IV-2 to the aggregate.
+ *
+ * @purity pure
+ */
+function commandFromPanelDivider(
+  panel: NonNullable<ScreenPart['dividerPanel']>,
+  release: PointerInput,
+  press: PointerPress,
+  context: InputContext,
+): TranslatedInput {
+  const settings = context.document.documentSettings
+  const travelled = release.x - press.at.x
+  return changed([
+    {
+      kind: 'setPanelWidths',
+      rowTitlePanelWidth:
+        panel === 'rowTitlePanel'
+          ? settings.rowTitlePanelWidth + travelled
+          : settings.rowTitlePanelWidth,
+      propertyPanelWidth:
+        panel === 'propertiesPanel'
+          ? settings.propertyPanelWidth - travelled
+          : settings.propertyPanelWidth,
+    },
+  ])
 }
 
 /**
@@ -2546,6 +2619,22 @@ function commandFromGrab(
         },
       ])
     }
+    case 'GR-5':
+    case 'GR-6': {
+      // Table T-023d: GR-5 changes `actualStart`, GR-6 changes
+      // `actualDuration`. Like GR-3 and GR-4 this narrows to the one Task
+      // grabbed (SL-7a, MUST) -- stretching several actuals at once has no
+      // meaning either.
+      const task = taskByUid(context.document.schedule, uid)
+      const dropped = dayAtX(context.layout, release.x)
+      if (task === null || dropped === null) return CONSUMED_ELSEWHERE
+      const place = actualEndPlacement(context.document.schedule, task, hit.grab, dropped)
+      // ⚠️ `null` where the Task holds no actual to move an end of, or where the
+      // row it stands at wants a column it does not carry. ⛔ Still this tool's
+      // press: MK-10 keeps the browser out from under a grab it took.
+      if (place === null) return CONSUMED_ELSEWHERE
+      return changed([{ kind: 'setTaskPlanActualState', uid, place }])
+    }
     case 'GR-12': {
       // FR-011 and HM-3 of table T-015a: the body moves sideways by whole days
       // and, when it went up or down, changes the row it is drawn on.
@@ -2587,11 +2676,6 @@ function commandFromGrab(
       //                corner has been pulled by is not in any table of the
       //                specification (it is recovered in docs/review, not
       //                here).
-      //   GR-5 / GR-6  the actual's ends. GR-6 says the duration is counted in
-      //                WORKED days from the day dropped on, which needs
-      //                `workingDaysBetween` against the document's calendar and
-      //                a decision about a drop onto a non-working day that
-      //                FR-043 does not make.
       //   GR-8         `resume`, whose rule is FR-044 and whose valid / invalid
       //                pair (AT-38) has no row saying which a drag produces.
       //   GR-9 / GR-17 / GR-18  the dummies. FR-043 gives the VALUES (S-129,
@@ -2605,9 +2689,96 @@ function commandFromGrab(
       //                half of GR-14 as undrawn, and a dependency (GR-13) or a
       //                highlight box (GR-14) is SELECTED by a press rather than
       //                changed by one.
+      // ⚠️ GR-5 AND GR-6 WERE ON THIS LIST AND ARE NOT ANY MORE. What held them
+      // was named as the counting and a ruling about a drop onto a non-working
+      // day; `workingDaysBetween` and `workingCalendarOf` are published by
+      // `schedule.ts` (PI-1) and the rule under table T-023d now forbids the
+      // dropped day to be moved to a working one at all (MUST NOT), so neither
+      // is missing. See `actualEndPlacement`.
       // Searched: table T-023d, FR-011, FR-013, FR-043, FR-044, FR-045, FR-046,
       // table T-206, `edit-task.ts`, `edit-annotation.ts`.
       return CONSUMED_ELSEWHERE
+  }
+}
+
+/**
+ * The whole of what CM-13 is handed, taken from the command rather than
+ * imported by name.
+ *
+ * ⭐ A DERIVATION AND NOT A CROSSING. Table T-064 is the full count of what
+ * may cross a component folder and `PlanActualPlacement` is not on it, so the
+ * shape is read off `DocumentCommand`, which this file already carries
+ * (check 26b).
+ */
+type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState' }>['place']
+
+/**
+ * Where GR-5 or GR-6 leaves the actual, stated as the row of table T-019 the
+ * Task ALREADY stands at.
+ *
+ * ⛔ NO STATE IS CHOSEN HERE. CM-13 places a whole row of table T-019 while
+ * table T-023d gives these two grabs one column each -- `actualStart` and
+ * `actualDuration` -- so the row is read back with `planActualState` (table
+ * T-019a) and written again with the one value the grab moves. Choosing a row
+ * instead would let a drag on an end silently suspend or finish a Task. ⚠️ The
+ * join between the two tables is the STATE both of them print and not their
+ * numbering: PS-1 and PA-1 are both 未着手, PS-5 and PA-2 both 進行中.
+ *
+ * ⭐ GR-6's COUNT IS THE INVERSE OF FR-011's PICTURE. That requirement (MUST)
+ * puts the actual bar's right end at 「`actualStart` に `actualDuration` を稼働日
+ * で加えた日」, which is `dateFromWorkingDays`; so the duration that a day
+ * dropped on asks for is `workingDaysBetween` from the actual's start to that
+ * day. Both count a half-open span, which is what makes them a pair.
+ *
+ * ⛔ THE DROPPED DAY IS NOT MOVED TO A WORKING ONE. The rule under table T-023d
+ * forbids it outright (MUST NOT) -- people work on days off, and moving it would
+ * store a day other than the one the hand chose. ⚠️ Nothing is clamped either:
+ * an end dragged past the other one is the aggregate's to judge, which is the
+ * same reading GR-3 and GR-4 take of IV-2.
+ *
+ * ⚠️ `null` WHERE THERE IS NOTHING TO MOVE, OR NOTHING TO WRITE THE ROW WITH.
+ *
+ * @purity pure
+ */
+function actualEndPlacement(
+  schedule: Schedule,
+  task: Task,
+  grab: 'GR-5' | 'GR-6',
+  dropped: CalendarDay,
+): PlacedPlanActual | null {
+  const held = dayOf(task.actualStart)
+  if (held === null) return null
+  const actualStart = grab === 'GR-5' ? textOfDay(dropped) : textOfDay(held)
+  const actualDuration =
+    grab === 'GR-5'
+      ? task.actualDuration
+      : workingDaysBetween(workingCalendarOf(schedule), held, dropped)
+  if (actualDuration === null) return null
+
+  switch (planActualState(task)) {
+    case 'notStarted':
+      // Unreachable past the guard above -- PS-1 IS `actualStart` being empty,
+      // and a Task with no actual has no bar for either end to be grabbed on.
+      // Answered rather than assumed away, because PA-1 carries neither of the
+      // two values this drag moves and CM-13 would clear all four.
+      return null
+    case 'inProgress':
+      return { row: 'PA-2', actualStart, actualDuration }
+    case 'suspendedResumePlanned':
+      // PS-4 IS `resume` holding a date, so the column is there to be carried;
+      // the second read is the type's price, not a second rule.
+      return task.resume === null
+        ? null
+        : { row: 'PA-3', actualStart, actualDuration, resume: task.resume }
+    case 'suspendedResumeUnknown':
+      return { row: 'PA-4', actualStart, actualDuration }
+    case 'finished':
+      // ⚠️ `actualFinish` IS CARRIED, NOT RECOMPUTED. Table T-023d gives GR-6
+      // the duration alone; taking the finish day from the day dropped on as
+      // well would be a second entrance to a column no row gives this grab.
+      return task.actualFinish === null
+        ? null
+        : { row: 'PA-5', actualStart, actualDuration, actualFinish: task.actualFinish }
   }
 }
 

@@ -2295,6 +2295,7 @@ function pressPanelEntry(
       format: null,
       rowGroupId,
       resourceUid: null,
+      dividerPanel: null,
     },
     pressRow: pressRowOf({ at: down, hit: null }, context),
   }

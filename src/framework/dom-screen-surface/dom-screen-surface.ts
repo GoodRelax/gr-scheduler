@@ -67,14 +67,16 @@
 //      NFR-010's MUST NOT.
 //
 // ⛔ WHAT MAY WAKE A FRAME, AND WHY NOTHING HERE DOES. NFR-010 forbids running
-// a frame on a trigger table T-078 does not name (MUST NOT). Two listeners are
-// registered below and NEITHER schedules anything:
+// a frame on a trigger table T-078 does not name (MUST NOT). ONE listener is
+// registered below and it schedules nothing:
 //
 //   - `keydown` on the dialogue entry only REMEMBERS that the person settled a
 //     line. The frame that carries it away is FT-1's: the same press reaches
 //     DomInputSource on the window.
-//   - the press on a tooltip's dismiss control only takes that tooltip off the
-//     screen and remembers the dismissal. The same press is FT-1 as well.
+//
+// ⚠️ There WAS a second, on the control that put a tooltip away, and it is gone
+// with that control -- `tooltipElement` carries the STOP that says why, and
+// where IN-3's 「消せること」 belongs now.
 //
 // ⛔ There is no timer here. FT-4 counts three waits -- `iconHintDelayMs`
 // (S-124) for EZ-2, NT-2's expiry and the autosave's -- and the note under table
@@ -88,9 +90,10 @@
 // (IC-58 / IC-59; see `rowTitleElement`). That is not decoration:
 //
 //   - `readScreenPartAt` reads them back. It is the third member of IF-9, and
-//     `data-role` / `data-icon` / `data-format` / `data-group-id` / `data-uid`
-//     are what it walks: the entry a point is on, the format choice a point is
-//     on, the row and the person it is on, and the part all four were drawn in.
+//     `data-role` / `data-icon` / `data-format` / `data-group-id` / `data-uid` /
+//     `data-panel` are what it walks: the entry a point is on, the format choice
+//     a point is on, the row and the person it is on, the panel a press on a
+//     boundary would resize (FR-052), and the part they were all drawn in.
 //     ⚠️ The last two are read off the ROW and the roster LINE, neither of
 //     which is an entry -- the entrances HF-1 and FR-099 draw once per row and
 //     once per person sit INSIDE them, so one walk answers both WHICH KIND of
@@ -431,17 +434,6 @@ const PAINT = {
 } as const
 
 /**
- * The room an entrance keeps at its sides, in the reader's own text size.
- *
- * ⛔ NOT A VALUE OF THE SPECIFICATION: no table states an entrance's padding,
- * and `STYLE` says of every length in it why it is relative. It is named here
- * only because `entryGlyphRoom` has to hold S-141 against it.
- *
- * @provisional PD-151
- */
-const ENTRY_SIDE_ROOM = '0.375em'
-
-/**
  * The room one entrance keeps around the shape it holds.
  *
  * ⭐ WHAT THIS IS FOR. FR-029 (MUST) asks for a minimum gap between the shape
@@ -454,21 +446,27 @@ const ENTRY_SIDE_ROOM = '0.375em'
  * not happen -- and until it does the clearance is whatever the leading happens
  * to leave, which is not a minimum at all.
  *
- * ⭐ SO THE SHAPE IS TAKEN OUT OF THE LINE BOX AND CENTRED, AND THE FRAME IS
- * PINNED WHERE THE LINE BOX HAD IT. The `1.5em` floor reproduces exactly the
- * height `line-height:1.5` used to make, so the entrance measures what it
- * measured before at the size it is read at; the shape now sits inside that box
- * instead of setting it, so it can no longer push the frame outwards.
+ * ⭐ SO THE SHAPE IS TAKEN OUT OF THE LINE BOX AND CENTRED, and the box the
+ * entrance keeps around it is S-138 with S-141 on each side of it, on both axes
+ * and in no other unit. ⛔ NOTHING RELATIVE IS LEFT IN EITHER LENGTH, and that
+ * is the whole of what FR-029 (MUST NOT) added: the shape's side is fixed at
+ * S-138, so a gap stated in the reader's own text size is the only thing left
+ * that can grow, and it grew alone -- ⚠️ measured in the live tree, a reader at
+ * twice the machine's text size had twice the gap the row states while the
+ * shape stayed the size it is. Both lengths now come from the generated block
+ * at the foot of this file, so the entrance measures the same whatever text the
+ * page is read at.
+ * ⚠️ THE FRAME IS NOT TOUCHED HERE, which S-141 requires: its border and its
+ * corner stay `entryStyle`'s, and an entrance is a `button`, whose box the
+ * environment measures border-and-all -- so the height below is the frame's
+ * outer edge while the sides are its inner one. ⛔ Not corrected by adding the
+ * frame's own thickness to the height: that thickness is not a value of the
+ * specification, and adding it would move the frame.
  * ⚠️ The row controls take neither of these -- their frame is their own box,
  * and this only stops the shape from driving it.
- *
- * ⭐ AND THE GAP IS NOW STATED, WHICH IT COULD NOT BE BEFORE. S-141 reaches this
- * file generated (`NOT_STORED_ICON_SIZES` at the foot), so each axis is written
- * as a `max()` of the room the entrance already kept against that row: the
- * relative room wins wherever it is the larger, and S-141 is the floor under it.
  * ⛔ The doubling is left to `calc()` rather than done here -- the gap falls on
- * both sides of the shape, and a `4` written in this file would be a value the
- * specification never printed.
+ * both sides of the shape, and a doubled number written in this file would be a
+ * value the specification never printed.
  *
  * ⛔ A FUNCTION AND NOT A `const`, for the first of the two reasons `glyphStyle`
  * gives: the value arrives in the generated block at the foot of this file,
@@ -481,8 +479,8 @@ function entryGlyphRoom(): string {
   const gap = NOT_STORED_ICON_SIZES['S-141']
   return (
     'display:inline-flex;align-items:center;justify-content:center;' +
-    `padding:0 max(${ENTRY_SIDE_ROOM}, ${gap}px);` +
-    `min-height:max(1.5em, calc(${side}px + ${gap}px * 2));`
+    `padding:0 ${gap}px;` +
+    `min-height:calc(${side}px + ${gap}px * 2);`
   )
 }
 
@@ -773,12 +771,12 @@ const STYLE = {
   dialogueAuthor: `color:${PAINT.quiet};margin-right:0.5em;`,
   dialogueEntry: 'font:inherit;margin-top:0.25em;',
   // IN-3 of table T-028: it can be pointed at, so it takes the pointer.
+  // ⚠️ NOTHING LAYS TWO THINGS OUT SIDE BY SIDE HERE ANY MORE -- the flex row
+  // was for the control that used to sit beside the reading, and `tooltipElement`
+  // says why that control is gone.
   tooltip:
     `position:absolute;max-width:24em;padding:0.25em 0.5em;background:${PAINT.ground};` +
-    `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;` +
-    'display:flex;gap:0.5em;align-items:flex-start;',
-  tooltipDismiss:
-    `font:inherit;background:transparent;color:${PAINT.ink};border:none;cursor:pointer;`,
+    `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
   hidden: 'display:none;',
 } as const
 
@@ -1091,9 +1089,6 @@ const GLYPH_BY_ROW = new Map(iconGlyphs.glyphs.map((one) => [one.rowId, one.elem
  */
 const ROW_INDENT_EM = 1
 
-/** What a tooltip's dismiss control shows while no word for it is settled. @provisional PD-153 */
-const DISMISS_TEXT = 'x'
-
 // --------------------------------------------------------------------- pure --
 
 /**
@@ -1138,8 +1133,8 @@ function cornerStyle(at: { readonly x: number; readonly y: number }): string {
  * What a tooltip is anchored to, as one comparable string.
  *
  * ⭐ Built out of the row id or the id the anchor already carries, which is the
- * join the specification admits -- so a dismissal remembered under this key
- * survives a redraw and is forgotten the moment the anchor changes.
+ * join the specification admits -- so the element an explanation is placed
+ * against is found again after a redraw, and only while the anchor is the same.
  *
  * @purity pure
  */
@@ -2405,7 +2400,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   // ⛔ LY-5 of table T-060 puts these here because there is nowhere further in
   // they are allowed: the tree that has been built, what has been drawn into
-  // it, what the person settled, and what they dismissed.
+  // it, and what the person settled.
   // FR-041 (MUST), from the first moment there is a root to carry it: the
   // header is built and measured inside this factory, so a theme written only
   // on the first frame would leave that one box unpainted until then.
@@ -2484,7 +2479,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   let isHeaderHeightSettled = false
   let settled: Settlement | null = null
   let isFieldUp = false
-  let dismissedAnchor: string | null = null
 
   /**
    * What each part's tooltips are anchored to, kept one map per part.
@@ -2574,28 +2568,25 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   dialogueEntry.addEventListener('keydown', onEntryKeyDown)
 
   /**
-   * IN-3 of table T-028: a tooltip can be DISMISSED.
-   *
-   * ⭐ Remembered on this side because there is nowhere else for it to live: no
-   * member of `ScreenView` says a tooltip was dismissed, and LY-5 makes this the
-   * layer that may hold a current value. ⚠️ The node is taken off at once
-   * rather than at the next frame -- the frame the same press wakes (FT-1) would
-   * otherwise draw it again for the length of that frame.
-   *
-   * @purity non-pure
-   */
-  function dismissTooltip(key: string, drawn: HTMLElement): void {
-    dismissedAnchor = key
-    drawn.remove()
-  }
-
-  /**
    * One explanation shown against something (UF-69).
    *
    * ⚠️ IN-3 governs all of them: it can be dismissed, it can be pointed at, and
    * ⛔ it does not go away by itself -- which is why the browser's own `title`
    * attribute is nowhere in this file. That tooltip cannot be pointed at and
    * does go away by itself, so using it would break the row twice over.
+   *
+   * STOP -- ⛔ IN-3'S 「消せること」 HAS NO IMPLEMENTATION, HERE OR ANYWHERE.
+   * A control inside the tooltip used to carry it, and the user ruled that
+   * pressing a mark to put an explanation away is the wrong answer -- so the
+   * control, the letter it showed and the anchor this side remembered are all
+   * gone, and nothing took their place.
+   * ⛔ NOTHING HERE MAY INVENT ONE. IN-4 of table T-028 (MUST) ends its ladder
+   * of what `Esc` consumes with the explanation that is showing, and says in as
+   * many words that it is placed last because it is the only means IN-3's
+   * 「消せること」 has -- so that key is where the dismissal belongs, on the side
+   * that reads keys, and it is not built this round. ⚠️ A second way of putting
+   * a tooltip away, added here, would be a second entrance to one operation,
+   * which FR-029 forbids (MUST NOT).
    *
    * @purity non-pure
    */
@@ -2604,13 +2595,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const drawn = made(host, 'div', STYLE.tooltip)
     drawn.setAttribute('role', 'tooltip')
     drawn.setAttribute('data-anchor', key)
-    const text = made(host, 'span', '')
-    text.textContent = tip.text
-    const dismiss = made(host, 'button', STYLE.tooltipDismiss)
-    dismiss.setAttribute('type', 'button')
-    dismiss.textContent = DISMISS_TEXT
-    dismiss.addEventListener('click', () => dismissTooltip(key, drawn))
-    drawn.append(text, dismiss)
+    drawn.textContent = tip.text
 
     // Placed against the very element that carries the anchor -- the entry that
     // was drawn for EZ-2's icon, the row FR-085 cut, or the lane FR-037's hint
@@ -2790,12 +2775,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // tooltips are placed last and whenever anything moved -- which is the same
     // order `screenViewFromRegions` builds in, and for the same reason.
     if (isHeaderMoved || Object.keys(keys).some(changed)) {
-      const shown = view.tooltips.filter((one) => anchorKey(one.anchor) !== dismissedAnchor)
-      // The dismissal is forgotten the moment its anchor stops being explained:
-      // IN-3 keeps the tooltip a person put away from coming back, not the
-      // next explanation of something else.
-      if (shown.length === view.tooltips.length) dismissedAnchor = null
-      tooltipLayer.replaceChildren(...shown.map((one) => tooltipElement(one)))
+      // ⛔ NOTHING IS HELD BACK: what is drawn is what the description holds.
+      // A tooltip a person had put away used to be filtered out here, and
+      // `tooltipElement` carries the STOP that says why that is gone and where
+      // IN-3's 「消せること」 belongs instead.
+      tooltipLayer.replaceChildren(...view.tooltips.map((one) => tooltipElement(one)))
     }
 
     lastKeys = keys
@@ -2893,6 +2877,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * and no `data-icon`, and it is the entrances INSIDE them (IC-58 .. IC-60,
    * IC-67 / IC-68) that carry the row of table T-109.
    *
+   * ⭐ AND THE BOUNDARY IS READ ON THAT SAME WALK. Every `Panel Divider` is one
+   * part under table T-103, so `part` alone says a press was on A boundary and
+   * never WHICH -- and FR-052 has a drag on it change THAT panel's width, so
+   * the caller cannot act on the press without knowing the panel. The band was
+   * already drawn with it (`fillScreenFrame`); ⛔ the answer simply did not
+   * carry it, which left the two boundaries indistinguishable to everyone
+   * outside this unit.
+   *
    * @purity semi-pure-b
    */
   function readScreenPartAt(x: number, y: number): ScreenPart | null {
@@ -2904,12 +2896,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     let format: string | null = null
     let group: string | null = null
     let uid: string | null = null
+    let panel: string | null = null
     let part: string | null = null
-    // ⭐ The innermost `data-icon`, `data-format`, `data-group-id` and
-    // `data-uid`, and the OUTERMOST `data-role`: an entry sits inside its part,
-    // and table T-109's surface column names the containing surface rather than
-    // the grouping inside it (U-34 / U-35). So the four are each taken once and
-    // the role keeps being replaced on the way up.
+    // ⭐ The innermost `data-icon`, `data-format`, `data-group-id`, `data-uid`
+    // and `data-panel`, and the OUTERMOST `data-role`: an entry sits inside its
+    // part, and table T-109's surface column names the containing surface rather
+    // than the grouping inside it (U-34 / U-35). So the five are each taken once
+    // and the role keeps being replaced on the way up.
     // ⚠️ INNERMOST FOR THE KEYS TOO, and not merely by symmetry: a row of the
     // `Row Title Panel` is drawn inside the panel and a roster line inside the
     // surface, so the nearest one on the way up is the one the point is on. A
@@ -2924,6 +2917,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       if (groupId !== null && group === null) group = groupId
       const resource = node.getAttribute('data-uid')
       if (resource !== null && uid === null) uid = resource
+      const resized = node.getAttribute('data-panel')
+      if (resized !== null && panel === null) panel = resized
       const role = node.getAttribute('data-role')
       if (role !== null) part = role
       node = node.parentElement
@@ -2937,12 +2932,18 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // conversion on this seam happens here rather than on the reading side --
     // the side that WROTE the attribute is the side that knows what it wrote
     // (`String(resource.uid)` in `modalElement`).
+    // ⭐ THE SAME BARGAIN IS WHAT LETS THE PANEL BE NARROWED: `fillScreenFrame`
+    // in this file writes `PanelDivider.panel` and nothing else onto
+    // `data-panel`, so the two spellings FR-052 resizes are the only ones this
+    // can come back as -- ⛔ and they are NOT written out here, because a value
+    // typed into this file is a value that stops following its declaration.
     return {
       part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part,
       entry,
       format,
       rowGroupId: group,
       resourceUid: uid === null ? null : Number(uid),
+      dividerPanel: panel === null ? null : (panel as ScreenPart['dividerPanel']),
     }
   }
 

@@ -955,10 +955,17 @@ COLOUR_TARGETS = {
     # the drawing side.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150',
                        'S-152', 'S-153', 'S-154', 'S-170'],
-    # The schedule itself: bars, the two lines, markers, bands.
-    'SCHEDULE_COLOURS': ['S-151', 'S-155', 'S-156', 'S-157', 'S-158', 'S-159',
-                         'S-160', 'S-161', 'S-162', 'S-163', 'S-164', 'S-165',
-                         'S-166', 'S-167', 'S-168', 'S-169'],
+    # The schedule itself: bars, the two lines, markers, bands -- and the time
+    # ruler, which is drawn on this side too (`_source/components.json` gives
+    # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no
+    # edge to ScheduleLayout at all).
+    # ⭐ S-147 AND S-149 STAND IN BOTH ROSTERS ON PURPOSE. They are the ink and
+    # the rule, and both units draw with them: the chrome paints its own panels
+    # and the ruler prints its tiers. ⛔ Two rows would be the drift the note
+    # above forbids; ONE row read by two units is not.
+    'SCHEDULE_COLOURS': ['S-147', 'S-149', 'S-151', 'S-155', 'S-156', 'S-157',
+                         'S-158', 'S-159', 'S-160', 'S-161', 'S-162', 'S-163',
+                         'S-164', 'S-165', 'S-166', 'S-167', 'S-168', 'S-169'],
 }
 
 COLOUR_NOTE = [

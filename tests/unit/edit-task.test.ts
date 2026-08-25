@@ -374,6 +374,77 @@ describe('EditDocument (PI-9) -- CM-7 deleteTask', () => {
 })
 
 // ---------------------------------------------------------------------------
+// FR-032 -- select every Task, then delete
+// ---------------------------------------------------------------------------
+
+describe('EditDocument (PI-9) -- FR-032: select-all, then delete', () => {
+  // The same three Tasks the CM-7 cases above use: 1 is the root, 2 its WBS
+  // child, 3 unrelated and depending on 2.
+  const before = documentOf({
+    tasks: [
+      taskOf({ uid: 1, name: 'Design', start: jan(5), finish: jan(9) }),
+      taskOf({ uid: 2, wbsParentUid: 1, name: 'Draft', start: jan(5), finish: jan(9) }),
+      taskOf({ uid: 3, name: 'Review', start: jan(5), finish: jan(9) }),
+    ],
+    taskGroups: [groupOf({ id: 'g1' })],
+    taskGroupMembers: [1, 2, 3].map((taskUid) => ({ taskUid, groupId: 'g1', stackOrder: null })),
+  })
+
+  it('⛔ does not refuse a delete whose target an earlier CD-1 cascade already took', () => {
+    // ⛔ IV-2 IS A REFERENCE INVARIANT AND NOTHING ELSE. Table T-220 states
+    // it as 「外部キーが非 `null` のとき、それが指す先の行が同じ文書にある
+    // こと」, of kind 参照. Deleting a `Task` that is not in the document
+    // writes no key at all, so the state the command asks for already holds --
+    // there is no key left over to point at nothing.
+    const after = accepted(run(before, { kind: 'deleteTask', uid: 1 }))
+    // CD-1 of table T-050 took 2 with 1: 「その `Task` の WBS の子孫」.
+    expect(after.schedule.tasks.map((task) => task.uid)).toEqual([3])
+
+    const again = run(after, { kind: 'deleteTask', uid: 2 })
+    expect(again.ok, 'the second delete of the selection was refused').toBe(true)
+  })
+
+  it('deletes every selected Task when the whole schedule was selected', () => {
+    // FR-032: 「作成者が削除を求めたとき、`GRS` は、選ばれたタスク・依存線・
+    // 注記・行を削除し」. Selecting all of them and asking once plans
+    // one delete per selected `Task`, and CD-1 makes all but the first name a
+    // `Task` the cascade has already carried off.
+    let document = before
+    for (const uid of [1, 2, 3]) {
+      const answer = run(document, { kind: 'deleteTask', uid })
+      expect(answer.ok, `the delete of ${uid} was refused`).toBe(true)
+      document = accepted(answer)
+    }
+    expect(document.schedule.tasks, 'a selected Task survived the delete').toEqual([])
+    // CD-1 also names the `TaskGroupMember`, so nothing is left pointing at a
+    // `Task` that is gone.
+    expect(document.schedule.taskGroupMembers).toEqual([])
+    // FR-032 (MUST NOT): 「行そのものは消さない」.
+    expect(document.schedule.taskGroups.map((group) => group.id)).toEqual(['g1'])
+  })
+
+  it('the order the selection is walked in does not change what is left', () => {
+    // 「`CD-2` が消す範囲は、その行に載る各 `Task` に `CD-1` を適用した和と
+    // 一致すること（MUST）」 —— 「経路によって結果が変わってはならない」. The child
+    // before the parent reaches the same document as the parent before the
+    // child, and a refusal on either path would break that equality.
+    const walk = (order: readonly number[]): Document => {
+      let document = before
+      for (const uid of order) document = accepted(run(document, { kind: 'deleteTask', uid }))
+      return document
+    }
+    expect(walk([2, 1, 3])).toEqual(walk([1, 2, 3]))
+  })
+
+  it('still refuses the other commands against a Task that is not there (IV-2)', () => {
+    // ⚠ THE EXEMPTION IS CM-7'S ALONE. Every other command WRITES against the
+    // row it names, so a missing target would leave a key pointing at nothing --
+    // which is the very state IV-2 forbids.
+    expectRefusal(run(before, { kind: 'setTaskName', uid: 99, name: 'Build' }), 'IV-2')
+  })
+})
+
+// ---------------------------------------------------------------------------
 // CM-8 pasteTaskSubtree -- FR-033 and table T-223's DU-1
 // ---------------------------------------------------------------------------
 
