@@ -147,7 +147,6 @@ import type { ScheduleGeometry } from '../../entity/layout-engine/schedule-geome
 import {
   dateAtX,
   fitZoom,
-  layoutFromSchedule,
   xFromDay,
   type RowPlacement,
   type ScheduleLayout,
@@ -327,6 +326,17 @@ export interface InputContext {
    * section 1).
    */
   readonly zoomStep: number
+  /**
+   * S-54 and S-55, reaching here through S-97 and S-98. ⛔ NOT numbers written
+   * here, for the reason `zoomStep` above gives: table T-206 keeps all three
+   * out of the document on purpose, so they travel as values.
+   *
+   * ⚠️ Needed because FR-055's fit measures the horizontal at the zoom it is
+   * about to answer, and CM-71 clamps what it writes -- so the fit has to see
+   * FR-016's range or it draws a picture it never measured.
+   */
+  readonly zoomMin: number
+  readonly zoomMax: number
   /**
    * The gesture in flight, or null while none is.
    *
@@ -3227,51 +3237,44 @@ function collapsesDiscarded(schedule: Schedule): Schedule {
  * for -- so nulls say it once, in the place the rule already lives, instead of
  * a second copy of the anchor arithmetic that `frame-loop.ts` runs.
  *
- * ⭐ PASS 1 OF THE RULE PRINTED AFTER TABLE T-068 IS RUN HERE, AND NOT READ OFF
- * THE FRAME. That pass discards every collapse (HF-8 of table T-051), runs LC-1
- * to LC-9 at the display quantity in force, and takes the candidate zoom from
- * table T-038's drawn extent. ⛔ The frame's own layout cannot serve: LC-1 drops
- * every descendant of a collapsed row, so measuring it divides by the FOLDED
- * picture and answers a zoom for a document nobody asked to fit. FR-055's
- * RATIONALE names that harm outright -- what "the whole" means would then move
- * with what the reader had folded.
+ * ⭐ BOTH PASSES OF THE RULE PRINTED AFTER TABLE T-068 ARE RUN INSIDE
+ * `fitZoom`, AND NEITHER IS READ OFF THE FRAME. ⛔ The frame's own layout
+ * cannot serve for two reasons. LC-1 drops every descendant of a collapsed row,
+ * so measuring it divides by the FOLDED picture and answers a zoom for a
+ * document nobody asked to fit -- FR-055's RATIONALE names that harm outright,
+ * what "the whole" means would move with what the reader had folded. And the
+ * frame is laid out at the zoom IN FORCE, which is the value the fit is about
+ * to overwrite; a fit that read it would be a recurrence rather than an answer.
  * ⚠️ THIS IS A MEASUREMENT AND NOT A WRITE. FR-031's MUST NOT on the order of
  * the two writes is untouched: the copy measured here never leaves this
  * function, and CM-72 is still the only thing that opens a row.
- *
- * ⭐ THE LAYOUT AND THE MULTIPLIER COME FROM ONE OBJECT. `fitZoom` answers the
- * settings' zoom times a ratio of the measured extent, so a layout laid out at
- * one zoom and multiplied by another answers neither. ⚠️ They DO differ on the
- * frame: OP-10 substitutes a fitted zoom whenever `scrollDate` is null, which
- * is the state this very command writes -- so the pair is read once, below, and
- * the fit stays a function of the stored document alone. That is what makes it
- * idempotent, which FR-018 relies on when it excludes IC-10 from the repeat.
  *
  * ⛔ THE DISCARD MUST NOT BE MOVED INTO `fitZoom`. `viewSettings` in
  * `src/framework/single-html-shell/frame-loop.ts` shares that member for OP-10
  * of table T-024a, and HF-8 forbids the discard at startup (MUST NOT) -- OP-10
  * gives the reason in its own words: doing it there would throw away, on every
- * open, the state HR-6 has the document save so WY-1 can return it.
+ * open, the state HR-6 has the document save so WY-1 can return it. ⭐ THAT is
+ * the whole of what this file still owes the fit; the depth sweep and the two
+ * passes are the layout engine's (CP-5).
  *
  * ⚠️ COST: MN-6 of Chapter 5.6 exists to stop table T-068 being run again, and
- * this runs it again. It is authorised -- the rule after that table lets the
- * fit, and only the fit, take a further run -- and it happens once per PRESS
- * rather than once per frame. The copy above is O(rows) and the run is the same
- * table the frame already takes once, so NFR-013's growth is unchanged.
- *
- * ⚠️ Pass 2 is still nobody's: the rule allows a second run at the chosen zoom
- * when the display quantity moved, and no row says which component owns it.
+ * this runs it several times -- once per group depth the document holds, plus
+ * the horizontal run and at most one second pass. It is authorised: the rule
+ * after that table lets the fit, and only the fit, take further runs, and it
+ * counts PASSES rather than runs (pass 1 is 「その文書が持つすべての深さを通し
+ * て」 in as many words). S-125 caps the sweep, so NFR-013's growth is unchanged
+ * and this happens once per PRESS rather than once per frame.
  *
  * @purity pure
  */
 function fitCommand(context: InputContext): DocumentCommand {
   const settings = context.document.documentSettings
-  const measured = layoutFromSchedule(
+  const fitted = fitZoom(
     collapsesDiscarded(context.document.schedule),
     settings,
     context.regions,
+    { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax },
   )
-  const fitted = fitZoom(measured, settings, context.regions)
   return {
     kind: 'fitScheduleToScreen',
     zoomX: fitted.zoomX,

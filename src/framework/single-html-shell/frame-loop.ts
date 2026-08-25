@@ -1502,10 +1502,9 @@ function sessionOf(
  * は表 T-024a の `OP-10` が持つ", FR-051), so the stored settings keep saying
  * `null` and every frame decides again.
  *
- * ⚠️ Runs table T-068 at most twice, which is what the rule after that table
- * allows: once to measure, once at the chosen zoom. ⛔ A third pass is
- * forbidden -- the level of detail can oscillate and the loop would not be
- * guaranteed to end.
+ * ⚠️ Runs the two passes the rule after table T-068 allows, and runs them
+ * inside `fitZoom` (PI-5) rather than here. ⛔ A third pass is forbidden -- the
+ * level of detail can oscillate and the loop would not be guaranteed to end.
  *
  * @purity pure
  */
@@ -1524,6 +1523,10 @@ function viewSettings(
   // and a layout cannot be measured until it is pinned to SOME day. Which day
   // does not matter -- the extent is a difference of two edges, so it comes out
   // the same wherever the axis starts, and the fit reads the real place off it.
+  // ⛔ IT CANNOT BE DROPPED. `dateAtX` answers null while no origin day is set,
+  // and the fit then has no day to name and hands back the null it was given --
+  // so OP-10's condition would still hold on the next frame and the fit would
+  // be asked again for ever.
   //
   // ⭐ This is what closed the harm FR-055's RATIONALE names: the earliest
   // planned start is NOT the earliest day anything is drawn on -- OC-5 of table
@@ -1541,14 +1544,28 @@ function viewSettings(
     scrollGroupId: firstRow === undefined ? stored.scrollGroupId : firstRow.id,
   }
 
-  const measured = layoutFromSchedule(held.schedule, pinned, regions)
-  const fitted = fitZoom(measured, pinned, regions)
+  // ⛔ `held.schedule` AND NOT A COPY WITH THE COLLAPSES DISCARDED. OP-10
+  // forbids HF-8 here in as many words (MUST NOT), because throwing the
+  // collapses away on every open would lose the state HR-6 has the document
+  // save for WY-1. ⭐ The press path does discard them, in `fitCommand`.
+  const fitted = fitZoom(held.schedule, pinned, regions, {
+    step: NOT_STORED_ZOOM_STEP['S-96'],
+    min: NOT_STORED_ZOOM_BOUNDS['S-97'],
+    max: NOT_STORED_ZOOM_BOUNDS['S-98'],
+  })
   return {
     ...pinned,
     zoomX: fitted.zoomX,
     zoomY: fitted.zoomY,
     scrollDate: fitted.scrollDate,
     scrollGroupId: fitted.scrollGroupId,
+    // ⛔ CLEARED WITH THE ANCHORS THEY BELONG TO, exactly as `fitCommand`
+    // clears them for the press. The fit puts the content's top left corner on
+    // the Row Area's corner, so S-176 and S-177 are both zero here; a fraction
+    // left standing from an earlier pan slid FR-055's answer by up to one row
+    // and one day, which is the one thing a fit must not do.
+    scrollDayOffset: 0,
+    scrollGroupOffset: 0,
   }
 }
 
@@ -3236,6 +3253,8 @@ export function frameLoop(
       screenState,
       selection,
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
+      zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
+      zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
       pressed,
       // STOP -- ⛔ NO IN-PLACE ENTRY EXISTS IN THIS BUILD. IN-5a's state is
       // 「編集入力の確定前」, which only the field `editInPlace` opens can be

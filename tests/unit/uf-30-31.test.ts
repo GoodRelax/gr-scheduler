@@ -72,7 +72,10 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import type { DocumentCommand } from '../../src/use-case/edit-document/edit-document'
+import {
+  NOT_STORED_ZOOM_BOUNDS,
+  type DocumentCommand,
+} from '../../src/use-case/edit-document/edit-document'
 import {
   commandFromInput,
   pressRowOf,
@@ -402,6 +405,10 @@ const BASE: InputContext = {
   screenState: emptyScreenState(),
   selection: emptySelection(),
   zoomStep: ZOOM_STEP,
+  // S-54 / S-55, travelling as values the way S-53 does. The range CM-71
+  // clamps its write into; no case in this file reads either figure.
+  zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
+  zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
   pressed: null,
   isTextEntryUnsettled: false,
   isDualCursorMode: false,

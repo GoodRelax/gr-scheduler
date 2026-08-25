@@ -52,7 +52,10 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import type { DocumentCommand } from '../../src/use-case/edit-document/edit-document'
+import {
+  NOT_STORED_ZOOM_BOUNDS,
+  type DocumentCommand,
+} from '../../src/use-case/edit-document/edit-document'
 import {
   commandFromInput,
   type InputContext,
@@ -248,6 +251,10 @@ const frameOf = (schedule: Schedule): Frame => {
       // S-53 arrives as a value. Deliberately not the figure the manuscript
       // prints: no case here reads it.
       zoomStep: 3,
+      // S-54 / S-55 arrive as values for the same reason. No case here reads
+      // them either: they are the range CM-71 clamps its write into.
+      zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
+      zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
       pressed: null,
       isTextEntryUnsettled: false,
       isDualCursorMode: false,

@@ -291,6 +291,36 @@ function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways
 }
 
 /**
+ * FR-094's floor on the plan bar, before the shape ratio.
+ *
+ * ⭐ Written ONCE because `zoomYAtPlanHeightFloor` below solves this very
+ * expression for the zoom, and FR-055's fit lands on that zoom. Two spellings
+ * of the same floor can differ by an ulp, and then the fit measures at a zoom
+ * that is a hair under the floor it meant to sit on.
+ *
+ * @purity pure
+ */
+function planHeightFloor(settings: DocumentSettings): number {
+  return settings.actualMin / settings.actualOfPlan
+}
+
+/**
+ * The zoomY at which the bands REACH FR-094's floor -- 「帯の高さが `FR-094`
+ * の床に達する倍率」, the zoom the first of the two passes printed after table
+ * T-068 measures every depth at.
+ *
+ * ⭐ WHY IT IS THE RIGHT ZOOM TO MEASURE AT: at and below it the `Math.max`
+ * in `planHeightOf` answers the floor whatever the zoom is, so no band, no
+ * label font and no milestone figure moves. That is what lets the table's own
+ * note say the heights of the depths inside the floor come out of ONE run.
+ *
+ * @purity pure
+ */
+function zoomYAtPlanHeightFloor(settings: DocumentSettings): number {
+  return planHeightFloor(settings) / settings.basePlanHeight
+}
+
+/**
  * The plan bar's own height. FR-094 puts the floor on it ONCE, before the
  * shape ratio, and forbids a second floor on the actual.
  *
@@ -298,8 +328,7 @@ function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways
  */
 function planHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
   const ratio = settings.shapeHeightOf[shapeKind]
-  const floor = settings.actualMin / settings.actualOfPlan
-  return Math.max(floor, settings.basePlanHeight * settings.zoomY) * ratio
+  return Math.max(planHeightFloor(settings), settings.basePlanHeight * settings.zoomY) * ratio
 }
 
 /**
@@ -431,11 +460,29 @@ function drawnGroups(schedule: Schedule, settings: DocumentSettings): readonly (
 export function groupDepthLimit(settings: DocumentSettings): number {
   let limit = 1
   for (let depth = 2; depth <= settings.maxGroupDepth; depth++) {
-    const threshold =
-      settings.groupLevelOfDetailBase * Math.pow(settings.groupLevelOfDetailRatio, depth - 2)
-    if (settings.zoomY >= threshold) limit = depth
+    if (settings.zoomY >= groupDepthThresholdOf(depth, settings)) limit = depth
   }
   return limit
+}
+
+/**
+ * FR-018's threshold for one depth. Values are S-87 and S-88 of table T-205.
+ *
+ * ⛔ THE EXPRESSION MUST NOT BE TYPED TWICE. FR-055's fit lands the vertical
+ * zoom ON the threshold of the depth it chose, and `groupDepthLimit` above is
+ * what then reads that zoom back as a depth. Computed by any other route the
+ * two can differ by one ulp, and the fit draws a picture one depth shallower
+ * than the zoom it wrote -- which is exactly the silent disagreement FR-055's
+ * MUST NOT is about.
+ *
+ * ⚠️ The domain starts at two: FR-018 forbids depth 1 from being a candidate
+ * (MUST NOT), so this is not asked about it. `landingZoomY` says what the fit
+ * does there instead.
+ *
+ * @purity pure
+ */
+function groupDepthThresholdOf(depth: number, settings: DocumentSettings): number {
+  return settings.groupLevelOfDetailBase * Math.pow(settings.groupLevelOfDetailRatio, depth - 2)
 }
 
 /**
@@ -561,12 +608,24 @@ function actualSpanOf(
 /**
  * Runs LC-1 to LC-9 of table T-068, in that order, once.
  *
+ * ⛔ `groupDepthCap` EXISTS FOR FR-055 ALONE, and nothing else may pass it.
+ * The first of the two passes printed after table T-068 has to measure 「その
+ * 文書が持つすべての深さ」 at ONE zoom -- the one where the bands reach
+ * FR-094's floor -- and at that zoom `groupDepthLimit` answers a fixed depth,
+ * so the deeper ones cannot be asked for through `zoomY` at all. Every other
+ * caller wants the depth FR-018 derives from the zoom in force, which is what
+ * leaving it out gives.
+ * ⚠️ Adding it moves no published member: table T-064's own header leaves
+ * arguments and return values to `src/` and keeps only the names.
+ * @provisional PD-206
+ *
  * @purity pure
  */
 export function layoutFromSchedule(
   schedule: Schedule,
   settings: DocumentSettings,
   regions: ScreenRegions,
+  groupDepthCap?: number,
 ): ScheduleLayout {
   // ---- LC-3 first, because LC-2's task half needs the width of one day -----
   const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
@@ -591,7 +650,10 @@ export function layoutFromSchedule(
   const originX = regions.rowArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
 
   // ---- LC-1, then LC-2's group half ---------------------------------------
-  const depthLimit = groupDepthLimit(settings)
+  // ⚠️ The cap only ever takes depth AWAY: `groupDepthLimit` is already capped
+  // at `maxGroupDepth` (S-125), so leaving the argument out is the same as
+  // asking for that depth.
+  const depthLimit = Math.min(groupDepthLimit(settings), groupDepthCap ?? settings.maxGroupDepth)
   const rows = drawnGroups(schedule, settings).filter((g) => g.depth <= depthLimit)
 
   // Three indexes, built once, before the row loop opens. Scanning
@@ -925,17 +987,20 @@ export function taskPlacement(layout: ScheduleLayout, taskUid: number): TaskPlac
  * 1.4 forbids holding a scroll position in px (MUST NOT): the same px means a
  * different place once the zoom or the screen width moves.
  *
- * STOP -- ⛔ THE TWO FRACTIONS ARE NOT ANSWERED HERE. S-176 and S-177 now sit
- * beside the two anchors, and the fit puts the content's top left corner on the
- * Row Area's corner, so both of them ought to come back as part of the chosen
- * position. `fitScheduleToScreen` (CM-71) carries the anchors only, so a fit
- * that answered the fractions would have nowhere to put them and the values in
- * force would go on shifting the fitted picture by up to one row and one day.
- * ⚠️ THIS IS A LIVE DEFECT and not a case no rule covers: FR-055 chooses a
- * 表示位置, and after CR-260 a 表示位置 is four values. Widening that command --
- * and `setScrollPosition` (CM-66) with it -- is the seam this file cannot
- * reach. Searched: `edit-document-settings.ts` (CM-66, CM-71), table T-108,
- * table T-203 S-176 / S-177, OP-10 and OP-10a of table T-024a.
+ * ⭐ THE TWO FRACTIONS ARE NOT MEMBERS HERE BECAUSE THE FIT'S ANSWER FOR BOTH
+ * IS ZERO. S-176 and S-177 say how far INTO the anchor row and the anchor day
+ * the top left corner of the view stands, and this fit puts that corner on the
+ * content's own corner: `scrollDate` below is the day the leftmost drawn px
+ * falls in (`dateAtX` floors, so the content begins at that day's start or
+ * later) and `scrollGroupId` is the top row itself. A constant is not worth a
+ * member, so both CALLERS write the zero -- `fitCommand` for the press and
+ * `viewSettings` for OP-10 of table T-024a -- and a fraction left standing
+ * from the pan before cannot slide the fitted picture by up to one row and one
+ * day.
+ * ⚠️ `fitScheduleToScreen` (CM-71) DOES carry the pair; the note that once
+ * stood here saying it carried the anchors only was written before CR-260 and
+ * was stale. Searched: `edit-document-settings.ts` (CM-66, CM-71), table
+ * T-108, table T-203 S-176 / S-177, OP-10 and OP-10a of table T-024a.
  */
 export interface FitToScreen {
   readonly zoomX: number
@@ -947,62 +1012,219 @@ export interface FitToScreen {
 }
 
 /**
- * FR-055's candidate fit for one pass over table T-068.
+ * The three zoom values table T-206 keeps OUT of the document -- S-96, S-97 and
+ * S-98, each of which states its value by naming a row of table T-201.
  *
- * The measurement is the drawn extent (table T-038), not the span of the dates,
- * so a label hanging off the left is counted. Each axis is settled on its own,
- * the zoom being anisotropic. An empty document returns to unity, which is what
- * FR-055 asks when there is no extent to divide by, and keeps the position the
- * settings already hold -- which is FR-055's own arm for that case. ⛔ Its MAY
- * for a held position of null (fall back on the day this runs) is NOT taken:
- * reading a clock here would break `@purity pure`, and FR-055 warns in the same
- * breath that the run day must not reach the drawing.
+ * ⭐ They arrive as an argument rather than being typed here, which is the
+ * precedent `InputContext.zoomStep` already set: LY-5 of table T-060 leaves the
+ * Framework as the only layer that may hold a current value, and a number
+ * written in this file would be a second copy of the manuscript (rule 03).
  *
- * The position is the top left of what was measured, never its middle: S-77 and
- * S-78 can only name an edge, so there is no centred value to hold.
+ * ⚠️ Not a row of table T-064. That table holds the NAMES a component
+ * publishes and leaves arguments and return values to `src/`; this type exists
+ * only to give `fitZoom` its signature, exactly as `FitToScreen` does.
+ */
+export interface NotStoredZoom {
+  /** S-96, stated at S-53. One notch of the zoom controls. */
+  readonly step: number
+  /** S-97, stated at S-54. */
+  readonly min: number
+  /** S-98, stated at S-55. */
+  readonly max: number
+}
+
+/**
+ * The smallest zoomY that draws a given group depth and nothing deeper -- the
+ * zoom FR-055 lands on once it has chosen the depth.
  *
- * ⚠️ It does NOT clamp. FR-016 puts holding the zoom inside S-75 and S-76 on the
- * zoom operation, and zoomMin and zoomMax are marked as values the document does
- * not keep (S-54, S-55), so they never reach this layer. Where the clamp bites,
- * FR-055 leaves that axis to scroll.
+ * ⛔ FR-055's MUST NOT is 「採った段を描ける最小の倍率より下へ下げてはならない」,
+ * and `groupDepthThresholdOf` is that smallest zoom for every depth FR-018's
+ * domain covers. Reading it back through `groupDepthLimit` answers the same
+ * depth, because both sides go through the one expression.
  *
- * ⚠️ The caller runs this at most twice and takes the smaller zoom, per the rule
- * after table T-068. A third pass is forbidden (MUST NOT). So the day below is
- * read off the zoom the layout was MEASURED at, not the one being chosen: the
- * overhang the label contributes shifts a little as the zoom moves, and the pass
- * that would settle it exactly is the third one that rule forbids. `dateAtX`
- * floors, so the day named is the one the leftmost px falls in and the content
- * begins at that day's start or later -- the error is always toward showing
- * more, never toward cutting the overhang off.
+ * ⛔ DEPTH 1 IS OUTSIDE FR-018's DOMAIN, so it has no smallest zoom and the
+ * MUST NOT is vacuous there. One S-53 notch below the depth-2 threshold is
+ * taken instead: it is the largest zoom that draws depth 1 and nothing more,
+ * which is what FR-055's 「無用に縦幅を増やすな」 reading asks, and it puts ONE
+ * press of the vertical zoom-in control exactly on depth 2 rather than a hair
+ * under it. ⛔ FR-055's RATIONALE does not say this; it is a choice.
+ * @provisional PD-204
  *
- * ⛔ A held `scrollGroupId` that names a row this pass did NOT draw -- FR-018's
- * level of detail dropped it, or HR-1a collapsed it, or HR-6 hid it -- is
- * NEITHER of OP-10's two conditions (a null, and an id naming no `TaskGroup`)
- * and no rule anywhere covers it. Nothing is invented for it here: the id
- * answered below is one this pass drew, and the empty-document arm hands back
- * what it was given rather than deciding what such an id ought to become.
+ * @purity pure
+ */
+function landingZoomY(depth: number, settings: DocumentSettings, step: number): number {
+  if (depth <= 1) return groupDepthThresholdOf(2, settings) / step
+  return groupDepthThresholdOf(depth, settings)
+}
+
+/**
+ * How deep the sweep below has to go: the deepest row this schedule draws at
+ * all, never deeper than S-125.
+ *
+ * ⚠️ Capped because `groupDepthLimit` will never answer more than
+ * `maxGroupDepth`, so a row below that is not drawable at any zoom and asking
+ * for it would only make the sweep longer.
+ *
+ * @purity pure
+ */
+function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings): number {
+  let deepest = 0
+  for (const row of drawnGroups(schedule, settings)) {
+    if (row.depth > deepest) deepest = row.depth
+  }
+  return Math.min(deepest, settings.maxGroupDepth)
+}
+
+/** FR-016's range, applied to one measured zoom. @purity pure */
+function clampedZoom(value: number, zoom: NotStoredZoom): number {
+  return Math.min(zoom.max, Math.max(zoom.min, value))
+}
+
+/**
+ * FR-055's fit: the two zooms and the two halves of a display position.
+ *
+ * ⭐ IT TAKES THE `Schedule` AND RUNS ITS OWN LAYOUTS. While it was handed one
+ * finished `ScheduleLayout` it could only answer the zoom that layout was laid
+ * out at times a ratio -- and below FR-094's floor the drawn height does not
+ * depend on zoomY at all, so that ratio was a constant and pressing fit walked
+ * the zoom down by the same factor every time while the picture never lost a
+ * pixel of height. What it DID lose was rows, because `groupDepthLimit` reads
+ * the same collapsing zoom. That is the mechanism FR-055's MUST NOT forbids.
+ *
+ * ⭐ NOTHING BELOW READS THE ZOOM IN FORCE. Every input is the schedule, the
+ * regions, or a setting this function does not itself write, so the answer is a
+ * constant function of the state it does not touch: asking twice returns the
+ * same four values exactly, which is the idempotence FR-018 leans on when it
+ * excludes IC-10 from the press-and-hold repeat.
+ *
+ * ⭐ The vertical CHOOSES A DEPTH, following FR-055's 「表示量（グループ LOD の
+ * 深さ）を選んで合わせること（MUST）」 and the two passes printed after table
+ * T-068:
+ *   (a) one run at unity settles the horizontal;
+ *   (b) pass 1 runs every depth the document has at the floor zoom and takes
+ *       the deepest whose drawn height fits the Row Area, or depth 1;
+ *   (c) the vertical lands on the smallest zoom that draws that depth;
+ *   (d) pass 2 runs only when that zoom is above the floor -- which is the only
+ *       case where the picture can still grow -- and retreats one depth if it
+ *       does not fit. ⛔ No third pass (MUST NOT).
+ *
+ * ⚠️ THE HORIZONTAL IS MEASURED AT UNITY AND NOT AT THE STORED zoomX. The
+ * vertical answer rides on the horizontal -- S-86 thins the picture at a low
+ * zoomX and wide spans stop overlapping at a high one, so the lane count, and
+ * with it the drawn height, moves with zoomX at a FIXED depth. Measuring at a
+ * zoom the fit itself writes would make the answer a recurrence again. Unity is
+ * also the conservative base: nothing is dropped by S-86 there, so the extent
+ * fitted to is the fullest one. ⛔ No row names the base.
+ * @provisional PD-203
+ *
+ * ⚠️ IT CLAMPS THE HORIZONTAL. FR-016 puts the range on the zoom operation and
+ * CM-71 applies it, but a fit that measured the vertical at a zoomX the write
+ * then clamped would draw a picture it never measured. ⛔ The vertical is not
+ * clamped and must not be: every landing zoom lies strictly inside S-97 and
+ * S-98, and moving one off its threshold would answer a different depth.
+ * @provisional PD-205
+ *
+ * ⛔ Its MAY for a held position of null (fall back on the day this runs) is
+ * NOT taken: reading a clock here would break `@purity pure`, and FR-055 warns
+ * in the same breath that the run day must not reach the drawing.
+ *
+ * ⛔ A held `scrollGroupId` that names a row no pass DREW -- FR-018's level of
+ * detail dropped it, or HR-1a collapsed it, or HR-6 hid it -- is NEITHER of
+ * OP-10's two conditions (a null, and an id naming no `TaskGroup`) and no rule
+ * anywhere covers it. Nothing is invented for it here: the id answered below is
+ * one the chosen run drew, and the empty-document arm hands back what it was
+ * given rather than deciding what such an id ought to become.
  *
  * @purity pure
  */
 export function fitZoom(
-  layout: ScheduleLayout,
+  schedule: Schedule,
   settings: DocumentSettings,
   regions: ScreenRegions,
+  zoom: NotStoredZoom,
 ): FitToScreen {
+  const floorZoomY = zoomYAtPlanHeightFloor(settings)
+  const deepest = deepestDrawnDepth(schedule, settings)
+  const runAt = (zoomX: number, zoomY: number, cap: number): ScheduleLayout =>
+    layoutFromSchedule(schedule, { ...settings, zoomX, zoomY }, regions, cap)
+
+  // ---- (a) the horizontal, measured once at unity --------------------------
+  const atUnity = runAt(1, floorZoomY, deepest)
+  // FR-055's empty-document arm (MUST). ⚠️ 「描くものが 1 つも無い」 is no ROW
+  // at all: LF-2 gives a row holding no Task one rectangle's band, so an empty
+  // row still has an extent and is fitted like any other.
+  if (atUnity.rows.length === 0) {
+    return {
+      zoomX: 1,
+      zoomY: 1,
+      scrollDate: settings.scrollDate,
+      scrollGroupId: settings.scrollGroupId,
+    }
+  }
+  // Rows but no drawn Task leaves nothing to divide by on this axis alone.
+  const zoomX =
+    atUnity.contentWidth <= 0
+      ? 1
+      : clampedZoom(regions.rowArea.width / atUnity.contentWidth, zoom)
+
+  // ---- (b) pass 1: every depth the document has, at the floor zoom ---------
+  // ⚠️ EVERY depth, not just down to the first that fits, because the retreat
+  // in (d) needs the shallower one already measured and a run for it then
+  // would be the third pass the rule after table T-068 forbids. The sweep is
+  // capped at S-125, so it is at most that many runs of a table the frame
+  // takes once -- NFR-013's growth is unchanged and this happens per press.
+  const atFloor: ScheduleLayout[] = []
+  for (let cap = 1; cap <= deepest; cap++) atFloor.push(runAt(zoomX, floorZoomY, cap))
+  const fits = (run: ScheduleLayout): boolean => run.contentHeight <= regions.rowArea.height
+  // 「その文書が持つ最も深い段から順に見て、描くものが Row Area に収まる最も深
+  // い段を採る」. Depth 1 when none of them does -- FR-055 leaves the vertical
+  // scroll standing rather than shrinking further.
+  let depth = 1
+  for (let candidate = deepest; candidate >= 1; candidate--) {
+    if (fits(atFloor[candidate - 1]!)) {
+      depth = candidate
+      break
+    }
+  }
+  let chosen = atFloor[depth - 1]!
+
+  // ---- (c) and (d) --------------------------------------------------------
+  let zoomY = landingZoomY(depth, settings, zoom.step)
+  if (zoomY > floorZoomY) {
+    // Only the depths whose threshold sits above FR-094's floor reach here, and
+    // only there can the picture still grow with the zoom -- which is why the
+    // rule after table T-068 makes this pass conditional.
+    const atLanding = runAt(zoomX, zoomY, depth)
+    if (fits(atLanding) || depth === 1) {
+      chosen = atLanding
+    } else {
+      depth -= 1
+      zoomY = landingZoomY(depth, settings, zoom.step)
+      // ⚠️ The position then comes off the retreated depth's FLOOR run, which
+      // is the only measurement of that depth in hand -- the run that would
+      // settle it exactly is the third pass the rule after table T-068 forbids.
+      // ⭐ `scrollGroupId` is exact either way: the same depth cap draws the
+      // same rows in the same order. ⛔ `scrollDate` can be a hair late, and
+      // only ever by half a milestone figure: LC-6 never puts a label on the
+      // LEFT, so the leftmost edge moves with zoomY solely through LF-10's
+      // figure, which is half a plan height wide. ⛔ No row says which run
+      // answers it.
+      // @provisional PD-207
+      chosen = atFloor[depth - 1]!
+    }
+  }
+
+  // ---- (e) the position, off the run that was chosen -----------------------
   // The px that LC-7 folded, turned into S-77's day by PI-5's own converter so
   // the axis is read exactly once and x -> day cannot drift from day -> x.
-  const leftDay = layout.contentX0 === null ? null : dateAtX(layout, layout.contentX0)
+  const leftDay = chosen.contentX0 === null ? null : dateAtX(chosen, chosen.contentX0)
   return {
-    zoomX:
-      layout.contentWidth <= 0 ? 1 : settings.zoomX * (regions.rowArea.width / layout.contentWidth),
-    zoomY:
-      layout.contentHeight <= 0
-        ? 1
-        : settings.zoomY * (regions.rowArea.height / layout.contentHeight),
+    zoomX,
+    zoomY,
     scrollDate: leftDay === null ? settings.scrollDate : textOfDay(leftDay),
     // LC-1 to LC-9 push the rows in the order they are drawn and the S-78 slide
     // moves them all together, so the first is the top one however far the stack
     // has been slid.
-    scrollGroupId: layout.rows[0]?.groupId ?? settings.scrollGroupId,
+    scrollGroupId: chosen.rows[0]?.groupId ?? settings.scrollGroupId,
   }
 }
