@@ -34,8 +34,42 @@ const HOUSE = [
 const PROPOSAL = {
   type: 'object',
   additionalProperties: false,
-  required: ['summary', 'mechanism', 'measured', 'rowsTouched', 'steps', 'specHoles', 'risks', 'testable'],
+  required: ['summary', 'mechanism', 'measured', 'rowsTouched', 'steps', 'openValues', 'specHoles', 'risks', 'testable'],
   properties: {
+    openValues: {
+      type: 'array',
+      description:
+        'EVERY value the specification does not settle that this change needs. Classify each ' +
+        'per docs/development-rules/06-pending-decisions.md. Only D-H may stop the work: for ' +
+        'A-C you MUST supply a provisional value and carry on.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['what', 'oneComponent', 'movesPublishedApi', 'reversibilityClass', 'provisionalValue', 'ground'],
+        properties: {
+          what: { type: 'string' },
+          oneComponent: {
+            type: 'boolean',
+            description: 'Reversing it touches only one component of table T-062',
+          },
+          movesPublishedApi: {
+            type: 'boolean',
+            description: 'Reversing it moves a member of table T-064 or a seam of table T-065',
+          },
+          reversibilityClass: {
+            type: 'string',
+            description: 'A-H, with the one-line ground for the classification',
+          },
+          provisionalValue: {
+            type: 'string',
+            description:
+              'Required for A-C: the value you are proceeding with, and the mark it carries. ' +
+              'For D-H write "BLOCKED" and say what the user must settle.',
+          },
+          ground: { type: 'string' },
+        },
+      },
+    },
     summary: { type: 'string' },
     mechanism: {
       type: 'string',
@@ -109,8 +143,17 @@ const proposals = await parallel(
         ' - the MECHANISM: why it behaves as it does, with file:line and a number. Not the symptom.',
         ' - MEASURED: numbers you produced yourself. Say how. Do not quote another report.',
         ' - the row IDs your change reaches, and the steps you would take.',
-        ' - anything the specification does not say that the change would need -- STOP rather than invent.',
         ' - what a tester who may read ONLY docs/spec could assert, and which row authorises it.',
+        '',
+        '⛔ OPEN VALUES -- the part that most often goes wrong. For EVERY value the specification does',
+        'not settle, read docs/development-rules/06-pending-decisions.md and classify it. Ask its two',
+        'questions first: does reversing it touch only ONE component of table T-062, and does it move a',
+        'published member of table T-064 or a seam of table T-065? If one component and no API moves,',
+        'it is almost always A-C.',
+        '⛔ FOR CLASS A-C YOU MUST NOT STOP. Choose a provisional value, say what it is and why, and',
+        'carry on -- the user has ruled that work must not wait on a value that is cheap to reverse.',
+        '⛔ ONLY CLASS D-H MAY BLOCK. Write BLOCKED for those and say exactly what must be settled.',
+        'A proposal that blocks on an A-C value will be sent back.',
       ].join('\n'),
       { label: 'propose:' + it.key, phase: 'Propose', schema: PROPOSAL },
     ).then((p) => ({ key: it.key, item: it, proposal: p })),
