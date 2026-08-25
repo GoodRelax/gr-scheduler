@@ -40994,6 +40994,7 @@
   "rowTitleTopScale": 1.3,
   "rulerFont": 14,
   "rulerHeight": 48,
+  "rulerLabelBottomPad": 3,
   "rulerLabelGap": 8,
   "rulerLabelPad": 2,
   "rulerTierPxPerDayDay": 8,

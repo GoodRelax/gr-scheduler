@@ -1260,8 +1260,20 @@ describe('UF-32 -- 表 T-075: the unit is `pure`', () => {
     // schedule holds -- and 表 T-076 の EP-2 carries `Time Ruler`（`U-19`）into
     // the picture with 「描く」 and the reason 「日付が読めないと日程表として
     // 成り立たない」. What must be absent is everything a ROW carries.
+    // ⚠ THE `Time Ruler`'s OWN GROUND IS NOT A 行の帯, so it is taken out
+    // before the count. FR-041 (MUST) is 「地の色を自分で塗ること」 and 表 T-236
+    // の `S-146` is that colour; a `rect` lying exactly over `regions.timeRuler`
+    // belongs to `U-19`. Its own cases live in `uf-32-ruler-band.test.ts`.
+    const band = regionsFromScreen(ENV, SETTINGS).timeRuler
+    const onTheBand = (e: Element, name: string, is: number): boolean => {
+      const value = attribute(e.text, name)
+      return value !== null && Math.abs(Number(value) - is) < 0.02
+    }
     const painted = paintedOf(drawn(scheduleOf({})))
-    expect(painted.filter((e) => e.tag === 'rect'), 'no 行の帯').toHaveLength(0)
+    const rowBands = painted.filter(
+      (e) => e.tag === 'rect' && !(onTheBand(e, 'y', band.y) && onTheBand(e, 'height', band.height)),
+    )
+    expect(rowBands, 'no 行の帯').toHaveLength(0)
     expect(painted.filter((e) => e.tag === 'polygon'), 'no バー').toHaveLength(0)
     expect(painted.filter((e) => e.tag === 'polyline'), 'no 依存線').toHaveLength(0)
     expect(painted.length, '表 T-076 EP-2: the Time Ruler is drawn all the same').toBeGreaterThan(0)

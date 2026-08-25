@@ -156,6 +156,24 @@ export function editDocumentSettings(
   const settings = document.documentSettings
   const put = (part: Partial<DocumentSettings>): EditResult =>
     edited(withSettings(document, { ...settings, ...part }))
+  // FR-016: hold the zoom inside what S-75 and S-76 allow (MUST). This is a
+  // CLAMP, not a refusal -- the requirement says 収める, and a wheel notch past
+  // the end is an ordinary thing to do, not an error.
+  //
+  // ⭐ IT STANDS BESIDE `put` BECAUSE TWO ARMS WRITE A ZOOM, NOT ONE. CM-65 is
+  // the wheel and the buttons; CM-71 is the whole-view fit, and FR-016 names
+  // the QUANTITY rather than an entrance, so the fit is inside the same MUST --
+  // SK-18 of table T-036 puts the fit on a shortcut and IC-10 of table T-109
+  // gives it a control, and both are assignments that sentence governs.
+  // ⛔ Do not write a second copy of this expression in either arm. One reading
+  // of S-75 / S-76 per file, or a later change to the bound moves only half of
+  // them.
+  //
+  // ⚠️ The pair is not the document's to give: S-97 and S-98 of table T-206
+  // keep `zoomMin` / `zoomMax` out of it, which is why they arrive through
+  // `SettingsLimits` instead of off `settings`.
+  const clamp = (value: number): number =>
+    Math.max(limits.zoomMin, Math.min(limits.zoomMax, value))
 
   switch (command.kind) {
     case 'setStackDirection': // CM-56
@@ -223,11 +241,9 @@ export function editDocumentSettings(
       return put({ themeMonochrome: command.monochrome })
 
     case 'setZoom': { // CM-65
-      // FR-016: hold the zoom inside what S-75 and S-76 allow (MUST). This is
-      // a CLAMP, not a refusal -- the requirement says 収める, and a wheel
-      // notch past the end is an ordinary thing to do, not an error.
-      const clamp = (value: number): number =>
-        Math.max(limits.zoomMin, Math.min(limits.zoomMax, value))
+      // FR-016. ⚠️ A value that is not a number is REFUSED and not clamped:
+      // NaN answers false to both comparisons, so a clamp alone would let it
+      // through and S-75 / S-76 would then hold something outside themselves.
       if (!Number.isFinite(command.zoomX) || !Number.isFinite(command.zoomY)) {
         return refused([reject('CM-65', 'FR-016', 'zoom must be a finite number')])
       }
@@ -332,10 +348,18 @@ export function editDocumentSettings(
       // ⚠️ The zoom itself arrives as a value. FR-055's two passes need the
       // laid-out extent, which belongs to layoutEngine and to the frame that
       // ran it -- recomputing it here would put a second copy of table T-068
-      // in the UseCase layer.
+      // in the UseCase layer. ⭐ THAT IS ABOUT THE EXTENT, NOT ABOUT THE RANGE:
+      // the extent is layoutEngine's to measure, the range is FR-016's, and
+      // this arm owes the second. A measured zoom is still a zoom S-75 / S-76
+      // hold, so it is clamped here exactly as CM-65's is -- see `clamp`.
+      // ⚠️ Where the clamp bites, FR-055 leaves that axis to scroll; it does
+      // not promise every document fits.
+      if (!Number.isFinite(command.zoomX) || !Number.isFinite(command.zoomY)) {
+        return refused([reject('CM-71', 'FR-016', 'zoom must be a finite number')])
+      }
       return put({
-        zoomX: command.zoomX,
-        zoomY: command.zoomY,
+        zoomX: clamp(command.zoomX),
+        zoomY: clamp(command.zoomY),
         scrollDate: command.scrollDate,
         scrollGroupId: command.scrollGroupId,
         scrollDayOffset: command.scrollDayOffset,

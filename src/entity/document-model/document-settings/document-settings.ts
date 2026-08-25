@@ -117,6 +117,7 @@ export interface DocumentSettings {
   readonly rowTitleTopScale: number
   readonly rulerFont: number
   readonly rulerHeight: number
+  readonly rulerLabelBottomPad: number
   readonly rulerLabelGap: number
   readonly rulerLabelPad: number
   readonly rulerTierPxPerDayDay: number
@@ -241,6 +242,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'rowTitleTopScale': 1.3,
   'rulerFont': 14,
   'rulerHeight': 48,
+  'rulerLabelBottomPad': 3,
   'rulerLabelGap': 8,
   'rulerLabelPad': 2,
   'rulerTierPxPerDayDay': 8,
@@ -400,6 +402,7 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
     max: 150,
     minExpression: [{ key: 'rulerFont' }, { num: 3 }, { op: '*' }, { key: 'rulerLabelPad' }, { num: 3 }, { op: '*' }, { op: '+' }],
   },
+  'rulerLabelBottomPad': { min: 0, maxExpression: [{ key: 'rulerFont' }] },
   'rulerLabelGap': { min: 0, max: 30 },
   'rulerLabelPad': { min: 0, max: 20 },
   'rulerTierPxPerDayDay': { max: 60, minExpression: [{ key: 'rulerTierPxPerDayWeek' }] },

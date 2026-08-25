@@ -287,6 +287,24 @@
      }
     },
     {
+     "id": "S-179",
+     "group": {
+      "ja": "タイムルーラ"
+     },
+     "key": "`rulerLabelBottomPad`",
+     "unit": "px",
+     "default": {
+      "num": "3"
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": "`rulerFont`",
+     "note": {
+      "ja": "目盛ラベルの下側の余白（縦）。⛔ **帯の高さ（`S-2`）はこれを含まない** —— 段の高さは `rulerFont` と `rulerLabelPad` のままで、この余白は文字の箱の中から取る。上限が `rulerFont` なのは、超えるとベースラインが段の上の罫線より上へ出るためである"
+     }
+    },
+    {
      "id": "S-4",
      "group": {
       "ja": "縦の寸法"

@@ -1132,6 +1132,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         rulerHeight: {
           type: ['number'],
         },
+        rulerLabelBottomPad: {
+          type: ['integer'],
+        },
         rulerLabelGap: {
           type: ['integer'],
         },

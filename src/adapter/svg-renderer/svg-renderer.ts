@@ -656,25 +656,17 @@ function ticksOfRow(
  * LF-1's arithmetic and nothing else) and S-136 is the vertical pad, so the
  * label starts on its own rule until a row says otherwise.
  *
- * ⛔ STOP -- ⛔ NO GROUND IS PAINTED UNDER THE BAND, AND FR-041 IS NOT THE
- * AUTHORITY TO PAINT ONE. The rectangle in question is `regions.timeRuler` and
- * nothing else -- the Row Area's own x and width, the canvas's own top, and
- * the height S-2 gives. ⭐ What shows through it today is the PAGE element's
- * ground: `pageGroundStyle` resolves S-146 and SingleHtmlShell writes it on
- * `documentElement`, which is the one box lying behind both drawn layers. So
- * FR-041's MUST -- paint the ground yourself, do not leave it to the viewing
- * environment's system colours -- is already discharged, and S-146's own
- * remark, that an unpainted ground shows the OS default, cannot fire here.
- *
- * ⛔ A RECT HERE WOULD BE ABOUT OCCLUSION, WHICH NO ROW SETTLES. Its only
- * effect would be to hide what the Row Area lets past its own top edge --
- * LF-12's overhang, and a first-row label -- and that is a different question
- * from the ground colour. No requirement says the Time Ruler is opaque, and
- * table T-236 holds no ruler ground: S-150 is the panel ground and its use
- * column names the Row Title Panel, the Properties Panel and the palette, not
- * U-19. ⚠️ The row that would be needed is one saying that U-19's band is
- * painted, in which colour, and over which rectangle. Until it exists the band
- * stays unpainted rather than being given an extent this file chose.
+ * ⭐ THE BAND PAINTS ITS OWN GROUND, and FR-041's MUST -- paint the ground
+ * yourself, do not leave it to the viewing environment's system colours -- is
+ * the authority the ruling names, no row of its own being added for it. The
+ * colour is S-146 of table T-236, reaching this file through the generated
+ * SCHEDULE_COLOURS block, which is the same one row the chrome reads on its
+ * own side. The rectangle is the `band` argument as handed in: the Row Area
+ * and S-2 already fixed it (U-19 / U-50 / SC-2), so this file chooses no
+ * extent of its own. ⛔ It goes FIRST so the rules, the ticks, the labels and
+ * the foot rule all sit on it, and so what the Row Area lets past its own top
+ * edge -- LF-12's overhang, a first-row label -- is covered rather than
+ * showing through the band.
  *
  * @purity pure
  */
@@ -683,6 +675,7 @@ function rulerSvg(
   settings: DocumentSettings,
   band: ScreenRect,
   weekStart: number,
+  ground: string,
   ink: string,
   rule: string,
 ): readonly string[] {
@@ -704,10 +697,29 @@ function rulerSvg(
   // years behind one band.
   const cap = Math.ceil(band.width / Math.max(0.001, layout.pxPerDay)) + 1
   const out: string[] = []
+  // FR-041's ground, in S-146, over the rectangle handed in. Fill only: the
+  // band's rules are the `<line>` templates below and the foot rule after
+  // them, so a stroke here would draw the foot rule twice.
+  out.push(
+    `<rect x="${rounded(band.x)}" y="${rounded(band.y)}"` +
+      ` width="${rounded(band.width)}" height="${rounded(band.height)}"` +
+      ` fill="${ground}"/>`,
+  )
 
   for (const [index, row] of rows.entries()) {
     const top = band.y + index * rowHeight
     // S-136 is the pad between the rule and the label, measured downwards.
+    // ⛔ STOP -- ⛔ NOTHING PADS THE LABEL FROM BELOW, so at the two tiers
+    // ROWS_OF_TIER gives three rows the baseline lands exactly on the rule
+    // that opens the next row: S-2 makes the band `rulerFont` * 3 +
+    // `rulerLabelPad` * 3 tall, `rowHeight` divides that by three, and this
+    // sum is `rulerFont` + `rulerLabelPad`. The clearance is nil at every
+    // fontScale of S-3, and the glyph's descenders cross the rule.
+    // ⛔ THE ROW THAT WOULD CLOSE THIS DOES NOT EXIST: table T-201 needs a
+    // pad-below-the-label key beside S-136, and it must say that S-2's height
+    // does NOT include it -- the pad comes out of the glyph box, so neither
+    // the band nor a row grows. Until that row is written and generated, the
+    // term is not subtracted here: the value would be invented.
     const baseline = top + settings.rulerLabelPad + settings.rulerFont
     if (index > 0) {
       out.push(
@@ -1096,12 +1108,16 @@ export function svgFromSchedule(
       regions.timeRuler,
       // S-108 is the day the week starts on when the document names none.
       schedule.project.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108'],
-      // ⭐ S-147 and S-149, the ink and the rule, now that the generator sends
-      // both to SCHEDULE_COLOURS as well as to the chrome's roster. ⛔ They are
-      // handed IN rather than read here: `themed` is `svgFromSchedule`'s own
-      // closure over the hue and the two flags, and reading table T-236 a
-      // second time in this file is the drift the generated block exists to
-      // stop.
+      // ⭐ S-146, S-147 and S-149 -- the ground, the ink and the rule, back to
+      // front -- now that the generator sends all three to SCHEDULE_COLOURS as
+      // well as to the chrome's roster. ⛔ They are handed IN rather than read
+      // here: `themed` is `svgFromSchedule`'s own closure over the hue and the
+      // two flags, and reading table T-236 a second time in this file is the
+      // drift the generated block exists to stop. ⚠️ No `achromatic` wrapper
+      // around S-146, unlike the row bands above: `colourOf` already applies
+      // monochrome inside its `followsHue` branch, and S-146 follows the hue.
+      // The bands need the wrapper because theirs may be an AUTHOR colour.
+      themed('S-146'),
       themed('S-147'),
       themed('S-149'),
     ),

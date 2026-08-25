@@ -187,6 +187,7 @@
     "rowTitleTopScale",
     "rulerFont",
     "rulerHeight",
+    "rulerLabelBottomPad",
     "rulerLabelGap",
     "rulerLabelPad",
     "rulerTierPxPerDayDay",
@@ -621,6 +622,10 @@
     "rulerHeight": {
      "type": "number",
      "maximum": 150
+    },
+    "rulerLabelBottomPad": {
+     "type": "integer",
+     "minimum": 0
     },
     "rulerLabelGap": {
      "type": "integer",
