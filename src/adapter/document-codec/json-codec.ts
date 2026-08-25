@@ -1150,8 +1150,14 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         scrollDate: {
           type: ['string', 'null'],
         },
+        scrollDayOffset: {
+          type: ['number'],
+        },
         scrollGroupId: {
           type: ['string', 'null'],
+        },
+        scrollGroupOffset: {
+          type: ['number'],
         },
         shapeHeightOf: {
           type: ['object'],

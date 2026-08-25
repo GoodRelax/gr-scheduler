@@ -41000,7 +41000,9 @@
   "rulerTierPxPerDayMonth": 1.4,
   "rulerTierPxPerDayWeek": 4.3,
   "scrollDate": null,
+  "scrollDayOffset": 0,
   "scrollGroupId": null,
+  "scrollGroupOffset": 0,
   "shapeHeightOf": {
    "arrow": 0.5,
    "chevron": 1.0,

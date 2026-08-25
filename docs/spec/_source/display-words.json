@@ -953,6 +953,13 @@
     "ja": "続けてよいかを問うとき",
     "en": "When asking whether to go on"
    }
+  },
+  {
+   "rowId": "NT-8",
+   "manner": {
+    "ja": "告げた通知を消すとき",
+    "en": "When a told notification is dismissed"
+   }
   }
  ],
  "reasons": [
@@ -1303,6 +1310,15 @@
    "text": {
     "ja": "取りやめる",
     "en": "Cancel"
+   }
+  }
+ ],
+ "noticeDismiss": [
+  {
+   "answer": "dismiss",
+   "text": {
+    "ja": "OK",
+    "en": "OK"
    }
   }
  ],

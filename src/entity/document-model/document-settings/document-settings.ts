@@ -120,7 +120,9 @@ export interface DocumentSettings {
   readonly rulerTierPxPerDayMonth: number
   readonly rulerTierPxPerDayWeek: number
   readonly scrollDate: string | null
+  readonly scrollDayOffset: number
   readonly scrollGroupId: string | null
+  readonly scrollGroupOffset: number
   readonly shapeHeightOf: {
     readonly arrow: number
     readonly chevron: number
@@ -242,7 +244,9 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'rulerTierPxPerDayMonth': 1.4,
   'rulerTierPxPerDayWeek': 4.3,
   'scrollDate': null,
+  'scrollDayOffset': 0,
   'scrollGroupId': null,
+  'scrollGroupOffset': 0,
   'shapeHeightOf.arrow': 0.5,
   'shapeHeightOf.chevron': 1.0,
   'shapeHeightOf.endpointSpan': 0.5,

@@ -83,6 +83,15 @@ COMMAND_PALETTE = 'Command Palette'
 # live and this file exists. ⚠️ These are KEYS, not words.
 CONFIRMATION_ANSWERS = ('proceed', 'cancel')
 
+# The one entrance NT-8 (MUST) puts on a told notification. ⛔ Fixed here for the
+# same reason as the two above: table T-037 states it in prose and no table holds
+# it as a row. ⚠️ A KEY, not a word -- NT-8 settles the word itself as `OK` in
+# both languages (利用者の裁定, 2026-08-25), and the manuscript is where it is
+# written. ⛔ It is deliberately NOT a row of table T-109: that table is the roster
+# of ENTRANCES DRAWN AS SHAPES (FR-029), and this one is a word, the way NT-7's
+# two answers are.
+NOTICE_DISMISS = ('dismiss',)
+
 # The three headings FR-072 (MUST) makes the properties panel show: which of the
 # two subjects it is on, and that the selection has gone. Same note as above --
 # keys, not words, and no table holds them as rows.
@@ -197,6 +206,7 @@ def roster():
         'notices': [row[0] for row in
                     table_rows(REL_REQUIREMENTS, NOTICE_ROW, NOTICE_TABLE)],
         'confirmation': list(CONFIRMATION_ANSWERS),
+        'noticeDismiss': list(NOTICE_DISMISS),
         'confirmationMarks': list(CONFIRMATION_MARKS),
         'panelHeadings': list(PANEL_HEADINGS),
         'assignments': [row[0] for row in
@@ -226,6 +236,7 @@ SHAPE = {
     'surfaces': ('name', ('heading',)),
     'notices': ('rowId', ('manner',)),
     'confirmation': ('answer', ('text',)),
+    'noticeDismiss': ('answer', ('text',)),
     'confirmationMarks': ('mark', ('text',)),
     'panelHeadings': ('showing', ('text',)),
     'assignments': ('rowId', ('text',)),
@@ -301,7 +312,8 @@ def build(doc):
     """
     out = {'$comment': BANNER}
     for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
-                    'reasons', 'questions', 'confirmation', 'confirmationMarks',
+                    'reasons', 'questions', 'confirmation', 'noticeDismiss',
+                    'confirmationMarks',
                     'panelHeadings', 'assignments'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
@@ -335,7 +347,8 @@ def main():
 
     if '--report' in sys.argv:
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
-                        'reasons', 'questions', 'confirmation', 'confirmationMarks',
+                        'reasons', 'questions', 'confirmation', 'noticeDismiss',
+                        'confirmationMarks',
                         'panelHeadings', 'assignments'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),

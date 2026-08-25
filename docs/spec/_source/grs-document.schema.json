@@ -193,7 +193,9 @@
     "rulerTierPxPerDayMonth",
     "rulerTierPxPerDayWeek",
     "scrollDate",
+    "scrollDayOffset",
     "scrollGroupId",
+    "scrollGroupOffset",
     "shapeHeightOf",
     "spanDotOfStroke",
     "stackDirection",
@@ -647,12 +649,18 @@
       "null"
      ]
     },
+    "scrollDayOffset": {
+     "type": "number"
+    },
     "scrollGroupId": {
      "type": [
       "string",
       "null"
      ],
      "format": "uuid"
+    },
+    "scrollGroupOffset": {
+     "type": "number"
     },
     "shapeHeightOf": {
      "type": "object",
