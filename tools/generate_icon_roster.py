@@ -57,11 +57,19 @@ CODE_SPAN = re.compile(r'`([^`]+)`')
 # ⛔ Writing the number here instead is the drift this script exists to stop.
 STATED_COUNT = re.compile(r'(\d+)\s*行ある')
 
-# The keys this file gives the five columns, in the manuscript's own order.
+# The keys this file gives the six columns, in the manuscript's own order.
 # ⭐ Their Japanese headings travel with the artifact (see `columns` below),
 # read from the table rather than typed out, so no key here has to explain
 # itself in a second language.
-FIELDS = ('rowId', 'surfaces', 'group', 'entryTo', 'authority')
+FIELDS = ('rowId', 'surfaces', 'group', 'entryTo', 'authority', 'arms')
+
+# ⛔ THE ARM COLUMN EXISTS FOR LR-3. Which entry arms which row of table
+# T-023b is stated in the glossary and nowhere the renderer may import: the
+# one map that held it sits in another component, and table T-061's LR-3
+# forbids reaching for it. Carrying the column in this roster is the only
+# road the layering leaves, which is why FR-053 can ask the screen to show
+# what is armed at all. ⚠️ An entry that arms nothing writes the em dash,
+# and becomes None here the way `group` already does.
 
 # Table T-109 writes an em dash in the group column for a row that belongs to
 # no group. ⭐ JSON has a word for absent, so the roster uses it, the way
@@ -186,6 +194,7 @@ def icon_of(row, surfaces):
         'group': None if group == EM_DASH else group,
         'entryTo': row[3],
         'authority': row[4],
+        'arms': None if row[5] == EM_DASH else code_spans(row[5])[0],
     }
 
 

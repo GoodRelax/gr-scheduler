@@ -5,7 +5,8 @@
   "surfaces": "面",
   "group": "群",
   "entryTo": "何の入口か",
-  "authority": "正"
+  "authority": "正",
+  "arms": "構え"
  },
  "icons": [
   {
@@ -15,7 +16,8 @@
    ],
    "group": "文書",
    "entryTo": "文書を開く",
-   "authority": "`FR-087`（表 T-024a の `OP-2`）"
+   "authority": "`FR-087`（表 T-024a の `OP-2`）",
+   "arms": null
   },
   {
    "rowId": "IC-2",
@@ -24,7 +26,8 @@
    ],
    "group": "文書",
    "entryTo": "開いたファイルへ上書き保存する",
-   "authority": "`FR-060`"
+   "authority": "`FR-060`",
+   "arms": null
   },
   {
    "rowId": "IC-3",
@@ -33,7 +36,8 @@
    ],
    "group": "文書",
    "entryTo": "書き出す形式を選ぶ",
-   "authority": "`FR-096`（表 T-036 の `SK-12`）"
+   "authority": "`FR-096`（表 T-036 の `SK-12`）",
+   "arms": null
   },
   {
    "rowId": "IC-4",
@@ -42,7 +46,8 @@
    ],
    "group": "文書",
    "entryTo": "変更前の予定の重ねを出す・しまう（`S-69`）。⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
-   "authority": "`FR-049`（`FR-015`）"
+   "authority": "`FR-049`（`FR-015`）",
+   "arms": null
   },
   {
    "rowId": "IC-5",
@@ -51,7 +56,8 @@
    ],
    "group": "履歴",
    "entryTo": "編集を取り消す",
-   "authority": "`FR-031`"
+   "authority": "`FR-031`",
+   "arms": null
   },
   {
    "rowId": "IC-6",
@@ -60,7 +66,8 @@
    ],
    "group": "履歴",
    "entryTo": "取り消した編集をやり直す",
-   "authority": "`FR-031`"
+   "authority": "`FR-031`",
+   "arms": null
   },
   {
    "rowId": "IC-7",
@@ -69,7 +76,8 @@
    ],
    "group": "表示",
    "entryTo": "コマンドパレットを出す・しまう（`S-99e`）",
-   "authority": "`FR-053`"
+   "authority": "`FR-053`",
+   "arms": null
   },
   {
    "rowId": "IC-8",
@@ -78,7 +86,8 @@
    ],
    "group": "表示",
    "entryTo": "予定を出す・しまう（`S-59` の 3 値のうち）",
-   "authority": "`FR-049`"
+   "authority": "`FR-049`",
+   "arms": null
   },
   {
    "rowId": "IC-9",
@@ -87,7 +96,8 @@
    ],
    "group": "表示",
    "entryTo": "実績を出す・しまう（同上）",
-   "authority": "`FR-049`"
+   "authority": "`FR-049`",
+   "arms": null
   },
   {
    "rowId": "IC-10",
@@ -96,7 +106,8 @@
    ],
    "group": "表示",
    "entryTo": "全体を 1 画面に収める",
-   "authority": "`FR-055`"
+   "authority": "`FR-055`",
+   "arms": null
   },
   {
    "rowId": "IC-11",
@@ -105,7 +116,8 @@
    ],
    "group": "表示",
    "entryTo": "全画面表示に入り、同じ入口で出る（`S-99f`）",
-   "authority": "`FR-071`"
+   "authority": "`FR-071`",
+   "arms": null
   },
   {
    "rowId": "IC-12",
@@ -114,7 +126,8 @@
    ],
    "group": "表示",
    "entryTo": "時間軸を縮小する（`S-75`）",
-   "authority": "`FR-018`"
+   "authority": "`FR-018`",
+   "arms": null
   },
   {
    "rowId": "IC-13",
@@ -123,7 +136,8 @@
    ],
    "group": "表示",
    "entryTo": "時間軸を拡大する（`S-75`）",
-   "authority": "`FR-018`"
+   "authority": "`FR-018`",
+   "arms": null
   },
   {
    "rowId": "IC-14",
@@ -132,7 +146,8 @@
    ],
    "group": "表示",
    "entryTo": "行軸を縮小する（`S-76`）",
-   "authority": "`FR-018`"
+   "authority": "`FR-018`",
+   "arms": null
   },
   {
    "rowId": "IC-15",
@@ -141,7 +156,8 @@
    ],
    "group": "表示",
    "entryTo": "行軸を拡大する（`S-76`）",
-   "authority": "`FR-018`"
+   "authority": "`FR-018`",
+   "arms": null
   },
   {
    "rowId": "IC-16",
@@ -150,7 +166,8 @@
    ],
    "group": "表示",
    "entryTo": "明暗テーマを選ぶ（`S-72`）",
-   "authority": "`FR-039`"
+   "authority": "`FR-039`",
+   "arms": null
   },
   {
    "rowId": "IC-17",
@@ -159,7 +176,8 @@
    ],
    "group": "表示",
    "entryTo": "文書の描画設定をプロパティパネルに出す",
-   "authority": "`FR-072`"
+   "authority": "`FR-072`",
+   "arms": null
   },
   {
    "rowId": "IC-18",
@@ -168,7 +186,8 @@
    ],
    "group": "AI",
    "entryTo": "AI との対話欄を出す・しまう",
-   "authority": "`FR-066`"
+   "authority": "`FR-066`",
+   "arms": null
   },
   {
    "rowId": "IC-19",
@@ -177,7 +196,8 @@
    ],
    "group": "AI",
    "entryTo": "AI へ渡す文書を画面で確かめて写す",
-   "authority": "`FR-068`"
+   "authority": "`FR-068`",
+   "arms": null
   },
   {
    "rowId": "IC-20",
@@ -186,7 +206,8 @@
    ],
    "group": "AI",
    "entryTo": "`Agent API` を有効にする・無効にする",
-   "authority": "`FR-065`"
+   "authority": "`FR-065`",
+   "arms": null
   },
   {
    "rowId": "IC-21",
@@ -195,7 +216,8 @@
    ],
    "group": "補助",
    "entryTo": "表示言語を選ぶ（`S-99`）。⚠️ **入口を 2 か所に置く唯一の例外である**（`FR-029`）",
-   "authority": "`FR-038`"
+   "authority": "`FR-038`",
+   "arms": null
   },
   {
    "rowId": "IC-22",
@@ -204,7 +226,8 @@
    ],
    "group": "補助",
    "entryTo": "ヘルプを開く",
-   "authority": "`FR-036`"
+   "authority": "`FR-036`",
+   "arms": null
   },
   {
    "rowId": "IC-23",
@@ -213,7 +236,8 @@
    ],
    "group": "置く",
    "entryTo": "矩形を構える（表 T-012 の `SH-1`）",
-   "authority": "`FR-083`"
+   "authority": "`FR-083`",
+   "arms": "AR-2"
   },
   {
    "rowId": "IC-24",
@@ -222,7 +246,8 @@
    ],
    "group": "置く",
    "entryTo": "矢羽根を構える（`SH-2`）",
-   "authority": "`FR-083`"
+   "authority": "`FR-083`",
+   "arms": "AR-2"
   },
   {
    "rowId": "IC-25",
@@ -231,7 +256,8 @@
    ],
    "group": "置く",
    "entryTo": "矢印を構える（`SH-3`）",
-   "authority": "`FR-083`"
+   "authority": "`FR-083`",
+   "arms": "AR-2"
   },
   {
    "rowId": "IC-26",
@@ -240,7 +266,8 @@
    ],
    "group": "置く",
    "entryTo": "端点スパンを構える（`SH-4`）",
-   "authority": "`FR-083`"
+   "authority": "`FR-083`",
+   "arms": "AR-2"
   },
   {
    "rowId": "IC-27",
@@ -249,7 +276,8 @@
    ],
    "group": "置く",
    "entryTo": "マイルストーンを 〇 で構える（表 T-012 の `SH-5`）",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": "AR-3"
   },
   {
    "rowId": "IC-28",
@@ -258,7 +286,8 @@
    ],
    "group": "置く",
    "entryTo": "同・六角形",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": "AR-3"
   },
   {
    "rowId": "IC-29",
@@ -267,7 +296,8 @@
    ],
    "group": "置く",
    "entryTo": "同・五角形",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": "AR-3"
   },
   {
    "rowId": "IC-30",
@@ -276,7 +306,8 @@
    ],
    "group": "置く",
    "entryTo": "同・◇",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": "AR-3"
   },
   {
    "rowId": "IC-31",
@@ -285,7 +316,8 @@
    ],
    "group": "置く",
    "entryTo": "同・□",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": "AR-3"
   },
   {
    "rowId": "IC-32",
@@ -294,7 +326,8 @@
    ],
    "group": "置く",
    "entryTo": "同・☆（内外比は `S-48`）",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": "AR-3"
   },
   {
    "rowId": "IC-33",
@@ -303,7 +336,8 @@
    ],
    "group": "置く",
    "entryTo": "同・△",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": "AR-3"
   },
   {
    "rowId": "IC-34",
@@ -312,7 +346,8 @@
    ],
    "group": "置く",
    "entryTo": "同・▽",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": "AR-3"
   },
   {
    "rowId": "IC-35",
@@ -321,7 +356,8 @@
    ],
    "group": "置く",
    "entryTo": "コメントボックスを構える（表 T-023b の `AR-5`）",
-   "authority": "`FR-019`"
+   "authority": "`FR-019`",
+   "arms": "AR-5"
   },
   {
    "rowId": "IC-36",
@@ -330,7 +366,8 @@
    ],
    "group": "置く",
    "entryTo": "ハイライトボックスを構える（`AR-6`）",
-   "authority": "`FR-019`"
+   "authority": "`FR-019`",
+   "arms": "AR-6"
   },
   {
    "rowId": "IC-37",
@@ -339,7 +376,8 @@
    ],
    "group": "揃える",
    "entryTo": "選んだものを開始日で揃える",
-   "authority": "`FR-034`"
+   "authority": "`FR-034`",
+   "arms": null
   },
   {
    "rowId": "IC-38",
@@ -348,7 +386,8 @@
    ],
    "group": "揃える",
    "entryTo": "選んだものを終了日で揃える",
-   "authority": "`FR-034`"
+   "authority": "`FR-034`",
+   "arms": null
   },
   {
    "rowId": "IC-39",
@@ -357,7 +396,8 @@
    ],
    "group": "表示",
    "entryTo": "イナズマ線を出す・しまう（`S-64`）",
-   "authority": "`FR-049`（`FR-014`）"
+   "authority": "`FR-049`（`FR-014`）",
+   "arms": null
   },
   {
    "rowId": "IC-40",
@@ -366,7 +406,8 @@
    ],
    "group": "表示",
    "entryTo": "進捗マーカーを出す・しまう（`S-63`）",
-   "authority": "`FR-049`（`FR-013`）"
+   "authority": "`FR-049`（`FR-013`）",
+   "arms": null
   },
   {
    "rowId": "IC-41",
@@ -375,7 +416,8 @@
    ],
    "group": "表示",
    "entryTo": "透かしをしまう（解除パスワードを求める）",
-   "authority": "`FR-020`"
+   "authority": "`FR-020`",
+   "arms": null
   },
   {
    "rowId": "IC-42",
@@ -384,7 +426,8 @@
    ],
    "group": "表示",
    "entryTo": "日付罫線を出す・しまう（`S-67`）",
-   "authority": "`FR-049`（`FR-089`）"
+   "authority": "`FR-049`（`FR-089`）",
+   "arms": null
   },
   {
    "rowId": "IC-43",
@@ -393,7 +436,8 @@
    ],
    "group": "表示",
    "entryTo": "グループ罫線を出す・しまう（`S-68`）",
-   "authority": "`FR-049`（`FR-042`）"
+   "authority": "`FR-049`（`FR-042`）",
+   "arms": null
   },
   {
    "rowId": "IC-44",
@@ -402,7 +446,8 @@
    ],
    "group": "カーソル",
    "entryTo": "基準日を置く・動かす・消す。⚠️ **「本日線」と呼んではならない**（表 T-103 の `U-11`）",
-   "authority": "`FR-046`"
+   "authority": "`FR-046`",
+   "arms": null
   },
   {
    "rowId": "IC-45",
@@ -411,7 +456,8 @@
    ],
    "group": "カーソル",
    "entryTo": "デュアルカーソルの 2 本を置く（`S-65`）",
-   "authority": "`FR-082`"
+   "authority": "`FR-082`",
+   "arms": null
   },
   {
    "rowId": "IC-46",
@@ -420,7 +466,8 @@
    ],
    "group": "カーソル",
    "entryTo": "ガイドカーソルを `'none'` にする（`S-66`。4 値排他）",
-   "authority": "`FR-048`"
+   "authority": "`FR-048`",
+   "arms": null
   },
   {
    "rowId": "IC-47",
@@ -429,7 +476,8 @@
    ],
    "group": "カーソル",
    "entryTo": "同・`'crosshair'`",
-   "authority": "`FR-048`"
+   "authority": "`FR-048`",
+   "arms": null
   },
   {
    "rowId": "IC-48",
@@ -438,7 +486,8 @@
    ],
    "group": "カーソル",
    "entryTo": "同・`'single-vertical'`",
-   "authority": "`FR-048`"
+   "authority": "`FR-048`",
+   "arms": null
   },
   {
    "rowId": "IC-49",
@@ -447,7 +496,8 @@
    ],
    "group": "カーソル",
    "entryTo": "同・`'double-vertical'`",
-   "authority": "`FR-048`"
+   "authority": "`FR-048`",
+   "arms": null
   },
   {
    "rowId": "IC-50",
@@ -456,7 +506,8 @@
    ],
    "group": "置く",
    "entryTo": "マイルストーンの図形の一覧を開く",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": null
   },
   {
    "rowId": "IC-51",
@@ -465,7 +516,8 @@
    ],
    "group": "置く",
    "entryTo": "同・畳む",
-   "authority": "`FR-078`"
+   "authority": "`FR-078`",
+   "arms": null
   },
   {
    "rowId": "IC-52",
@@ -479,7 +531,8 @@
    ],
    "group": null,
    "entryTo": "開いている面を閉じる",
-   "authority": "表 T-028 の `IN-4`"
+   "authority": "表 T-028 の `IN-4`",
+   "arms": null
   },
   {
    "rowId": "IC-53",
@@ -488,7 +541,8 @@
    ],
    "group": null,
    "entryTo": "掴んで動かせることを示す。**ボタンではない**",
-   "authority": "`FR-053`"
+   "authority": "`FR-053`",
+   "arms": null
   },
   {
    "rowId": "IC-54",
@@ -497,7 +551,8 @@
    ],
    "group": "構え",
    "entryTo": "いま構えている図形を示す。**ボタンではない**",
-   "authority": "表 T-023b"
+   "authority": "表 T-023b",
+   "arms": null
   },
   {
    "rowId": "IC-55",
@@ -506,7 +561,8 @@
    ],
    "group": null,
    "entryTo": "保存済みであることを示す。**ボタンではない**",
-   "authority": "`FR-061`"
+   "authority": "`FR-061`",
+   "arms": null
   },
   {
    "rowId": "IC-56",
@@ -515,7 +571,8 @@
    ],
    "group": null,
    "entryTo": "保存中であることを示す。**ボタンではない。回さない**",
-   "authority": "`FR-061`"
+   "authority": "`FR-061`",
+   "arms": null
   },
   {
    "rowId": "IC-57",
@@ -524,7 +581,8 @@
    ],
    "group": null,
    "entryTo": "保存に失敗したことを示す。**ボタンではない**（通知は 表 T-037 の `NT-3a`）",
-   "authority": "`FR-061`"
+   "authority": "`FR-061`",
+   "arms": null
   },
   {
    "rowId": "IC-58",
@@ -533,7 +591,8 @@
    ],
    "group": null,
    "entryTo": "行の配下をすべて開く",
-   "authority": "表 T-051 の `HF-2`"
+   "authority": "表 T-051 の `HF-2`",
+   "arms": null
   },
   {
    "rowId": "IC-59",
@@ -542,7 +601,8 @@
    ],
    "group": null,
    "entryTo": "その行自身を畳む",
-   "authority": "表 T-051 の `HF-3`"
+   "authority": "表 T-051 の `HF-3`",
+   "arms": null
   },
   {
    "rowId": "IC-60",
@@ -551,7 +611,8 @@
    ],
    "group": null,
    "entryTo": "行をピン止めし、同じ入口で外す",
-   "authority": "`FR-098`"
+   "authority": "`FR-098`",
+   "arms": null
   },
   {
    "rowId": "IC-61",
@@ -560,7 +621,8 @@
    ],
    "group": "置く",
    "entryTo": "依存線を構える（表 T-023b の `AR-4`）",
-   "authority": "`FR-009`"
+   "authority": "`FR-009`",
+   "arms": "AR-4"
   },
   {
    "rowId": "IC-62",
@@ -569,7 +631,8 @@
    ],
    "group": "表示",
    "entryTo": "担当者の名簿を出す",
-   "authority": "`FR-099`"
+   "authority": "`FR-099`",
+   "arms": null
   },
   {
    "rowId": "IC-63",
@@ -578,7 +641,8 @@
    ],
    "group": null,
    "entryTo": "一覧のすべてを選ぶ",
-   "authority": "`FR-099`"
+   "authority": "`FR-099`",
+   "arms": null
   },
   {
    "rowId": "IC-64",
@@ -587,7 +651,8 @@
    ],
    "group": null,
    "entryTo": "一覧の選択をすべて解く",
-   "authority": "`FR-099`"
+   "authority": "`FR-099`",
+   "arms": null
   },
   {
    "rowId": "IC-65",
@@ -596,7 +661,8 @@
    ],
    "group": null,
    "entryTo": "どの割当からも参照されていない担当者を選ぶ",
-   "authority": "`FR-099`（表 T-108 の `CM-43`）"
+   "authority": "`FR-099`（表 T-108 の `CM-43`）",
+   "arms": null
   },
   {
    "rowId": "IC-66",
@@ -605,7 +671,8 @@
    ],
    "group": null,
    "entryTo": "選んだ担当者を消す",
-   "authority": "`FR-099`（表 T-108 の `CM-42`）"
+   "authority": "`FR-099`（表 T-108 の `CM-42`）",
+   "arms": null
   },
   {
    "rowId": "IC-67",
@@ -614,7 +681,8 @@
    ],
    "group": null,
    "entryTo": "選ばれていることを示し、同じ入口で解く",
-   "authority": "`FR-099`"
+   "authority": "`FR-099`",
+   "arms": null
   },
   {
    "rowId": "IC-68",
@@ -623,7 +691,8 @@
    ],
    "group": null,
    "entryTo": "選ばれていないことを示し、同じ入口で選ぶ",
-   "authority": "`FR-099`"
+   "authority": "`FR-099`",
+   "arms": null
   },
   {
    "rowId": "IC-69",
@@ -632,7 +701,8 @@
    ],
    "group": null,
    "entryTo": "問いに「続ける」と答える",
-   "authority": "表 T-037 の `NT-7`"
+   "authority": "表 T-037 の `NT-7`",
+   "arms": null
   },
   {
    "rowId": "IC-70",
@@ -641,7 +711,8 @@
    ],
    "group": null,
    "entryTo": "問いに「取りやめる」と答える",
-   "authority": "表 T-037 の `NT-7`"
+   "authority": "表 T-037 の `NT-7`",
+   "arms": null
   },
   {
    "rowId": "IC-71",
@@ -650,7 +721,8 @@
    ],
    "group": null,
    "entryTo": "読んだ内容で現在の文書を置き換える",
-   "authority": "表 T-024a の `OP-3`"
+   "authority": "表 T-024a の `OP-3`",
+   "arms": null
   },
   {
    "rowId": "IC-72",
@@ -659,7 +731,8 @@
    ],
    "group": null,
    "entryTo": "読んだ内容を現在の文書へ合流させる",
-   "authority": "表 T-024a の `OP-3`"
+   "authority": "表 T-024a の `OP-3`",
+   "arms": null
   },
   {
    "rowId": "IC-73",
@@ -668,7 +741,8 @@
    ],
    "group": null,
    "entryTo": "読んだ内容を変更前の予定として重ねる",
-   "authority": "表 T-024a の `OP-3`"
+   "authority": "表 T-024a の `OP-3`",
+   "arms": null
   },
   {
    "rowId": "IC-74",
@@ -677,7 +751,8 @@
    ],
    "group": null,
    "entryTo": "すべての行を開く",
-   "authority": "表 T-051 の `HF-10`"
+   "authority": "表 T-051 の `HF-10`",
+   "arms": null
   }
  ]
 }

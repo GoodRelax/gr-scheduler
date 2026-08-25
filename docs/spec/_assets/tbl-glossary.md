@@ -440,84 +440,86 @@
 ⚠️ **本表は英名の欄を持たない** —— 持つと 74 個の確定名を新たに作ることになる。**表 T-012 の `SH-5` が既に書いている表記だけを使う。** ⭐ **`milestoneGlyph` の 8 つの綴りは CR-172（版 0.53）が決めており、`_source/erd.json` が持つ** —— 本表に写さない。
 ⚠️ **`図形` の欄を持たないのも同じ理由である。** ⭐ **図形を持たない行は無い** —— 全 74 行が 図 F-019 に図形を持つ。**新しく起こした図形を実物と見比べて選び直す義務は 表 T-026 の `RC-13` が持つ。**
 
+⭐ **`構え` の欄は、その入口が押されたときポインタが入る 表 T-023b の行である。**構えを持たない入口の欄は `—` である。**構えていることを画面でどう示すかは `FR-053` が持つ。**⚠️ **同欄は `LR-3` のためにある** —— どの入口がどの構えかを述べた対応表は別のコンポーネントに在り、そちらを import することを 表 T-061 が禁じているので、**名簿として運ぶほかに届ける道が無い。**
+
 **表 T-109 — アイコンの全数**
 
-| 行 ID | 面 | 群 | 何の入口か | 正 |
-| --- | --- | --- | --- | --- |
-| IC-1 | `App Header` | 文書 | 文書を開く | `FR-087`（表 T-024a の `OP-2`）|
-| IC-2 | `App Header` | 文書 | 開いたファイルへ上書き保存する | `FR-060` |
-| IC-3 | `App Header` | 文書 | 書き出す形式を選ぶ | `FR-096`（表 T-036 の `SK-12`）|
-| IC-4 | `App Header` | 文書 | 変更前の予定の重ねを出す・しまう（`S-69`）。⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）| `FR-049`（`FR-015`）|
-| IC-5 | `App Header` | 履歴 | 編集を取り消す | `FR-031` |
-| IC-6 | `App Header` | 履歴 | 取り消した編集をやり直す | `FR-031` |
-| IC-7 | `App Header` | 表示 | コマンドパレットを出す・しまう（`S-99e`）| `FR-053` |
-| IC-8 | `App Header` | 表示 | 予定を出す・しまう（`S-59` の 3 値のうち）| `FR-049` |
-| IC-9 | `App Header` | 表示 | 実績を出す・しまう（同上）| `FR-049` |
-| IC-10 | `App Header` | 表示 | 全体を 1 画面に収める | `FR-055` |
-| IC-11 | `App Header` | 表示 | 全画面表示に入り、同じ入口で出る（`S-99f`）| `FR-071` |
-| IC-12 | `App Header` | 表示 | 時間軸を縮小する（`S-75`）| `FR-018` |
-| IC-13 | `App Header` | 表示 | 時間軸を拡大する（`S-75`）| `FR-018` |
-| IC-14 | `App Header` | 表示 | 行軸を縮小する（`S-76`）| `FR-018` |
-| IC-15 | `App Header` | 表示 | 行軸を拡大する（`S-76`）| `FR-018` |
-| IC-16 | `App Header` | 表示 | 明暗テーマを選ぶ（`S-72`）| `FR-039` |
-| IC-17 | `App Header` | 表示 | 文書の描画設定をプロパティパネルに出す | `FR-072` |
-| IC-18 | `App Header` | AI | AI との対話欄を出す・しまう | `FR-066` |
-| IC-19 | `App Header` | AI | AI へ渡す文書を画面で確かめて写す | `FR-068` |
-| IC-20 | `App Header` | AI | `Agent API` を有効にする・無効にする | `FR-065` |
-| IC-21 | `App Header` | 補助 | 表示言語を選ぶ（`S-99`）。⚠️ **入口を 2 か所に置く唯一の例外である**（`FR-029`）| `FR-038` |
-| IC-22 | `App Header` | 補助 | ヘルプを開く | `FR-036` |
-| IC-23 | `Command Palette` | 置く | 矩形を構える（表 T-012 の `SH-1`）| `FR-083` |
-| IC-24 | `Command Palette` | 置く | 矢羽根を構える（`SH-2`）| `FR-083` |
-| IC-25 | `Command Palette` | 置く | 矢印を構える（`SH-3`）| `FR-083` |
-| IC-26 | `Command Palette` | 置く | 端点スパンを構える（`SH-4`）| `FR-083` |
-| IC-27 | `Command Palette` | 置く | マイルストーンを 〇 で構える（表 T-012 の `SH-5`）| `FR-078` |
-| IC-28 | `Command Palette` | 置く | 同・六角形 | `FR-078` |
-| IC-29 | `Command Palette` | 置く | 同・五角形 | `FR-078` |
-| IC-30 | `Command Palette` | 置く | 同・◇ | `FR-078` |
-| IC-31 | `Command Palette` | 置く | 同・□ | `FR-078` |
-| IC-32 | `Command Palette` | 置く | 同・☆（内外比は `S-48`）| `FR-078` |
-| IC-33 | `Command Palette` | 置く | 同・△ | `FR-078` |
-| IC-34 | `Command Palette` | 置く | 同・▽ | `FR-078` |
-| IC-35 | `Command Palette` | 置く | コメントボックスを構える（表 T-023b の `AR-5`）| `FR-019` |
-| IC-36 | `Command Palette` | 置く | ハイライトボックスを構える（`AR-6`）| `FR-019` |
-| IC-37 | `Command Palette` | 揃える | 選んだものを開始日で揃える | `FR-034` |
-| IC-38 | `Command Palette` | 揃える | 選んだものを終了日で揃える | `FR-034` |
-| IC-39 | `Command Palette` | 表示 | イナズマ線を出す・しまう（`S-64`）| `FR-049`（`FR-014`）|
-| IC-40 | `Command Palette` | 表示 | 進捗マーカーを出す・しまう（`S-63`）| `FR-049`（`FR-013`）|
-| IC-41 | `Command Palette` | 表示 | 透かしをしまう（解除パスワードを求める）| `FR-020` |
-| IC-42 | `Command Palette` | 表示 | 日付罫線を出す・しまう（`S-67`）| `FR-049`（`FR-089`）|
-| IC-43 | `Command Palette` | 表示 | グループ罫線を出す・しまう（`S-68`）| `FR-049`（`FR-042`）|
-| IC-44 | `Command Palette` | カーソル | 基準日を置く・動かす・消す。⚠️ **「本日線」と呼んではならない**（表 T-103 の `U-11`）| `FR-046` |
-| IC-45 | `Command Palette` | カーソル | デュアルカーソルの 2 本を置く（`S-65`）| `FR-082` |
-| IC-46 | `Command Palette` | カーソル | ガイドカーソルを `'none'` にする（`S-66`。4 値排他）| `FR-048` |
-| IC-47 | `Command Palette` | カーソル | 同・`'crosshair'` | `FR-048` |
-| IC-48 | `Command Palette` | カーソル | 同・`'single-vertical'` | `FR-048` |
-| IC-49 | `Command Palette` | カーソル | 同・`'double-vertical'` | `FR-048` |
-| IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を開く | `FR-078` |
-| IC-51 | `Command Palette` | 置く | 同・畳む | `FR-078` |
-| IC-52 | `Help Modal` / `AI Export Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` | — | 開いている面を閉じる | 表 T-028 の `IN-4` |
-| IC-53 | `Command Palette` | — | 掴んで動かせることを示す。**ボタンではない** | `FR-053` |
-| IC-54 | `Command Palette` | 構え | いま構えている図形を示す。**ボタンではない** | 表 T-023b |
-| IC-55 | `Autosave Status` | — | 保存済みであることを示す。**ボタンではない** | `FR-061` |
-| IC-56 | `Autosave Status` | — | 保存中であることを示す。**ボタンではない。回さない** | `FR-061` |
-| IC-57 | `Autosave Status` | — | 保存に失敗したことを示す。**ボタンではない**（通知は 表 T-037 の `NT-3a`）| `FR-061` |
-| IC-58 | `Row Title Panel` | — | 行の配下をすべて開く | 表 T-051 の `HF-2` |
-| IC-59 | `Row Title Panel` | — | その行自身を畳む | 表 T-051 の `HF-3` |
-| IC-60 | `Row Title Panel` | — | 行をピン止めし、同じ入口で外す | `FR-098` |
-| IC-61 | `Command Palette` | 置く | 依存線を構える（表 T-023b の `AR-4`）| `FR-009` |
-| IC-62 | `Command Palette` | 表示 | 担当者の名簿を出す | `FR-099` |
-| IC-63 | `Resource Roster` | — | 一覧のすべてを選ぶ | `FR-099` |
-| IC-64 | `Resource Roster` | — | 一覧の選択をすべて解く | `FR-099` |
-| IC-65 | `Resource Roster` | — | どの割当からも参照されていない担当者を選ぶ | `FR-099`（表 T-108 の `CM-43`）|
-| IC-66 | `Resource Roster` | — | 選んだ担当者を消す | `FR-099`（表 T-108 の `CM-42`）|
-| IC-67 | `Resource Roster` | — | 選ばれていることを示し、同じ入口で解く | `FR-099` |
-| IC-68 | `Resource Roster` | — | 選ばれていないことを示し、同じ入口で選ぶ | `FR-099` |
-| IC-69 | `Confirmation` | — | 問いに「続ける」と答える | 表 T-037 の `NT-7` |
-| IC-70 | `Confirmation` | — | 問いに「取りやめる」と答える | 表 T-037 の `NT-7` |
-| IC-71 | `Open Chooser` | — | 読んだ内容で現在の文書を置き換える | 表 T-024a の `OP-3` |
-| IC-72 | `Open Chooser` | — | 読んだ内容を現在の文書へ合流させる | 表 T-024a の `OP-3` |
-| IC-73 | `Open Chooser` | — | 読んだ内容を変更前の予定として重ねる | 表 T-024a の `OP-3` |
-| IC-74 | `Row Title Panel` | — | すべての行を開く | 表 T-051 の `HF-10` |
+| 行 ID | 面 | 群 | 何の入口か | 正 | 構え |
+| --- | --- | --- | --- | --- | --- |
+| IC-1 | `App Header` | 文書 | 文書を開く | `FR-087`（表 T-024a の `OP-2`）| — |
+| IC-2 | `App Header` | 文書 | 開いたファイルへ上書き保存する | `FR-060` | — |
+| IC-3 | `App Header` | 文書 | 書き出す形式を選ぶ | `FR-096`（表 T-036 の `SK-12`）| — |
+| IC-4 | `App Header` | 文書 | 変更前の予定の重ねを出す・しまう（`S-69`）。⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）| `FR-049`（`FR-015`）| — |
+| IC-5 | `App Header` | 履歴 | 編集を取り消す | `FR-031` | — |
+| IC-6 | `App Header` | 履歴 | 取り消した編集をやり直す | `FR-031` | — |
+| IC-7 | `App Header` | 表示 | コマンドパレットを出す・しまう（`S-99e`）| `FR-053` | — |
+| IC-8 | `App Header` | 表示 | 予定を出す・しまう（`S-59` の 3 値のうち）| `FR-049` | — |
+| IC-9 | `App Header` | 表示 | 実績を出す・しまう（同上）| `FR-049` | — |
+| IC-10 | `App Header` | 表示 | 全体を 1 画面に収める | `FR-055` | — |
+| IC-11 | `App Header` | 表示 | 全画面表示に入り、同じ入口で出る（`S-99f`）| `FR-071` | — |
+| IC-12 | `App Header` | 表示 | 時間軸を縮小する（`S-75`）| `FR-018` | — |
+| IC-13 | `App Header` | 表示 | 時間軸を拡大する（`S-75`）| `FR-018` | — |
+| IC-14 | `App Header` | 表示 | 行軸を縮小する（`S-76`）| `FR-018` | — |
+| IC-15 | `App Header` | 表示 | 行軸を拡大する（`S-76`）| `FR-018` | — |
+| IC-16 | `App Header` | 表示 | 明暗テーマを選ぶ（`S-72`）| `FR-039` | — |
+| IC-17 | `App Header` | 表示 | 文書の描画設定をプロパティパネルに出す | `FR-072` | — |
+| IC-18 | `App Header` | AI | AI との対話欄を出す・しまう | `FR-066` | — |
+| IC-19 | `App Header` | AI | AI へ渡す文書を画面で確かめて写す | `FR-068` | — |
+| IC-20 | `App Header` | AI | `Agent API` を有効にする・無効にする | `FR-065` | — |
+| IC-21 | `App Header` | 補助 | 表示言語を選ぶ（`S-99`）。⚠️ **入口を 2 か所に置く唯一の例外である**（`FR-029`）| `FR-038` | — |
+| IC-22 | `App Header` | 補助 | ヘルプを開く | `FR-036` | — |
+| IC-23 | `Command Palette` | 置く | 矩形を構える（表 T-012 の `SH-1`）| `FR-083` | `AR-2` |
+| IC-24 | `Command Palette` | 置く | 矢羽根を構える（`SH-2`）| `FR-083` | `AR-2` |
+| IC-25 | `Command Palette` | 置く | 矢印を構える（`SH-3`）| `FR-083` | `AR-2` |
+| IC-26 | `Command Palette` | 置く | 端点スパンを構える（`SH-4`）| `FR-083` | `AR-2` |
+| IC-27 | `Command Palette` | 置く | マイルストーンを 〇 で構える（表 T-012 の `SH-5`）| `FR-078` | `AR-3` |
+| IC-28 | `Command Palette` | 置く | 同・六角形 | `FR-078` | `AR-3` |
+| IC-29 | `Command Palette` | 置く | 同・五角形 | `FR-078` | `AR-3` |
+| IC-30 | `Command Palette` | 置く | 同・◇ | `FR-078` | `AR-3` |
+| IC-31 | `Command Palette` | 置く | 同・□ | `FR-078` | `AR-3` |
+| IC-32 | `Command Palette` | 置く | 同・☆（内外比は `S-48`）| `FR-078` | `AR-3` |
+| IC-33 | `Command Palette` | 置く | 同・△ | `FR-078` | `AR-3` |
+| IC-34 | `Command Palette` | 置く | 同・▽ | `FR-078` | `AR-3` |
+| IC-35 | `Command Palette` | 置く | コメントボックスを構える（表 T-023b の `AR-5`）| `FR-019` | `AR-5` |
+| IC-36 | `Command Palette` | 置く | ハイライトボックスを構える（`AR-6`）| `FR-019` | `AR-6` |
+| IC-37 | `Command Palette` | 揃える | 選んだものを開始日で揃える | `FR-034` | — |
+| IC-38 | `Command Palette` | 揃える | 選んだものを終了日で揃える | `FR-034` | — |
+| IC-39 | `Command Palette` | 表示 | イナズマ線を出す・しまう（`S-64`）| `FR-049`（`FR-014`）| — |
+| IC-40 | `Command Palette` | 表示 | 進捗マーカーを出す・しまう（`S-63`）| `FR-049`（`FR-013`）| — |
+| IC-41 | `Command Palette` | 表示 | 透かしをしまう（解除パスワードを求める）| `FR-020` | — |
+| IC-42 | `Command Palette` | 表示 | 日付罫線を出す・しまう（`S-67`）| `FR-049`（`FR-089`）| — |
+| IC-43 | `Command Palette` | 表示 | グループ罫線を出す・しまう（`S-68`）| `FR-049`（`FR-042`）| — |
+| IC-44 | `Command Palette` | カーソル | 基準日を置く・動かす・消す。⚠️ **「本日線」と呼んではならない**（表 T-103 の `U-11`）| `FR-046` | — |
+| IC-45 | `Command Palette` | カーソル | デュアルカーソルの 2 本を置く（`S-65`）| `FR-082` | — |
+| IC-46 | `Command Palette` | カーソル | ガイドカーソルを `'none'` にする（`S-66`。4 値排他）| `FR-048` | — |
+| IC-47 | `Command Palette` | カーソル | 同・`'crosshair'` | `FR-048` | — |
+| IC-48 | `Command Palette` | カーソル | 同・`'single-vertical'` | `FR-048` | — |
+| IC-49 | `Command Palette` | カーソル | 同・`'double-vertical'` | `FR-048` | — |
+| IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を開く | `FR-078` | — |
+| IC-51 | `Command Palette` | 置く | 同・畳む | `FR-078` | — |
+| IC-52 | `Help Modal` / `AI Export Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` | — | 開いている面を閉じる | 表 T-028 の `IN-4` | — |
+| IC-53 | `Command Palette` | — | 掴んで動かせることを示す。**ボタンではない** | `FR-053` | — |
+| IC-54 | `Command Palette` | 構え | いま構えている図形を示す。**ボタンではない** | 表 T-023b | — |
+| IC-55 | `Autosave Status` | — | 保存済みであることを示す。**ボタンではない** | `FR-061` | — |
+| IC-56 | `Autosave Status` | — | 保存中であることを示す。**ボタンではない。回さない** | `FR-061` | — |
+| IC-57 | `Autosave Status` | — | 保存に失敗したことを示す。**ボタンではない**（通知は 表 T-037 の `NT-3a`）| `FR-061` | — |
+| IC-58 | `Row Title Panel` | — | 行の配下をすべて開く | 表 T-051 の `HF-2` | — |
+| IC-59 | `Row Title Panel` | — | その行自身を畳む | 表 T-051 の `HF-3` | — |
+| IC-60 | `Row Title Panel` | — | 行をピン止めし、同じ入口で外す | `FR-098` | — |
+| IC-61 | `Command Palette` | 置く | 依存線を構える（表 T-023b の `AR-4`）| `FR-009` | `AR-4` |
+| IC-62 | `Command Palette` | 表示 | 担当者の名簿を出す | `FR-099` | — |
+| IC-63 | `Resource Roster` | — | 一覧のすべてを選ぶ | `FR-099` | — |
+| IC-64 | `Resource Roster` | — | 一覧の選択をすべて解く | `FR-099` | — |
+| IC-65 | `Resource Roster` | — | どの割当からも参照されていない担当者を選ぶ | `FR-099`（表 T-108 の `CM-43`）| — |
+| IC-66 | `Resource Roster` | — | 選んだ担当者を消す | `FR-099`（表 T-108 の `CM-42`）| — |
+| IC-67 | `Resource Roster` | — | 選ばれていることを示し、同じ入口で解く | `FR-099` | — |
+| IC-68 | `Resource Roster` | — | 選ばれていないことを示し、同じ入口で選ぶ | `FR-099` | — |
+| IC-69 | `Confirmation` | — | 問いに「続ける」と答える | 表 T-037 の `NT-7` | — |
+| IC-70 | `Confirmation` | — | 問いに「取りやめる」と答える | 表 T-037 の `NT-7` | — |
+| IC-71 | `Open Chooser` | — | 読んだ内容で現在の文書を置き換える | 表 T-024a の `OP-3` | — |
+| IC-72 | `Open Chooser` | — | 読んだ内容を現在の文書へ合流させる | 表 T-024a の `OP-3` | — |
+| IC-73 | `Open Chooser` | — | 読んだ内容を変更前の予定として重ねる | 表 T-024a の `OP-3` | — |
+| IC-74 | `Row Title Panel` | — | すべての行を開く | 表 T-051 の `HF-10` | — |
 
 **図 F-019 — アイコンの図形**
 
