@@ -70,8 +70,9 @@ interface Paint {
  *
  * ⛔ NOT IN TABLE T-236. That table settles S-146 .. S-170, and the annotation
  * is not among them although FR-041 names it in the same breath as the two
- * lines it does settle. This is the last colour typed in this file; every
- * other one arrives generated.
+ * lines it does settle. ⚠️ It is not the only colour still typed here -- the
+ * fade grab point's pair below is the other, and for the same reason. Every
+ * colour a row DOES hold arrives generated.
  *
  * ⛔ AND THIS VALUE IS MEASURABLY WRONG. FR-019 wants it kept away from the
  * theme hue, the dependency line AND the progress line. It is hue 26, which is
@@ -394,12 +395,19 @@ function markerSvg(marker: MarkerGeometry, ink: string, backing: string): string
  * hue cannot meet CT-1 and CT-2. It is drawn always, which is the safe side of
  * that note rather than a reading of it.
  *
- * ⛔ THE TWO COLOURS BELOW ARE STILL TYPED, and table T-236 already holds
- * them: S-168 is the ink on a bar and S-169 the halo. They do not reach this
- * unit -- `tools/generate_entity_types.py` puts both in SCREEN_COLOURS, which
- * goes to DomScreenSurface, and that unit draws no bar to put a label on.
- * ⛔ Not typed in from the table here: a copied colour goes stale in silence,
- * which is the whole reason the table is generated.
+ * ⭐ S-168 is the ink and S-169 the halo, both of table T-236. ⚠️ Until this
+ * round the pair was typed in as a black glyph on a white outline, which is
+ * the LIGHT rendering -- so the dark theme drew black text on the dark ground
+ * and only the halo kept it readable. Reading the theme fixes both at once.
+ *
+ * ⛔ The two are handed IN rather than read here, for the reason `rulerSvg`'s
+ * call site states: `themed` is `svgFromSchedule`'s own closure over the hue
+ * and the two flags, and reaching table T-236 a second time in this file is
+ * the drift the generated block exists to stop.
+ *
+ * ⚠️ `paint-order="stroke"` puts the stroke UNDER the fill, so the fill is the
+ * glyph (S-168) and the stroke is the halo behind it (S-169). Swapping the two
+ * attributes paints the label in its own outline.
  *
  * @purity pure
  */
@@ -408,13 +416,15 @@ function labelSvg(
   text: string,
   fontSize: number,
   settings: DocumentSettings,
+  ink: string,
+  halo: string,
 ): string {
   const x = box.x + settings.labelPad
   const y = box.y + box.height * settings.labelBaseline
-  const halo = fontSize * settings.labelHaloOfFont
+  const haloWidth = fontSize * settings.labelHaloOfFont
   return (
     `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSize)}"` +
-    ` fill="#111111" stroke="#ffffff" stroke-width="${rounded(halo)}"` +
+    ` fill="${ink}" stroke="${halo}" stroke-width="${rounded(haloWidth)}"` +
     ` paint-order="stroke" xml:space="preserve">${escaped(text)}</text>`
   )
 }
@@ -884,7 +894,16 @@ export function svgFromSchedule(
     }
     const placed = placedOf.get(task.taskUid)
     if (task.label !== null && placed !== undefined && placed.label !== '') {
-      labelParts.push(labelSvg(task.label, placed.label, placed.labelFontSize, settings))
+      labelParts.push(
+        labelSvg(
+          task.label,
+          placed.label,
+          placed.labelFontSize,
+          settings,
+          themed('S-168'),
+          themed('S-169'),
+        ),
+      )
     }
   }
 
