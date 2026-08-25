@@ -66,6 +66,19 @@
 // keeping IF-2's supply as narrow as it was. So `askHowToOpen` and the two
 // confirmations ask for a frame without any trigger of their own being minted
 // (NFR-010, MUST NOT).
+//
+// ⭐ FR-018's REPEAT IS THE SAME ROW READ THE SAME WAY. A held entrance that
+// goes on stepping after S-172 is 「その入力の、待ちをまたいだ続き」 and nothing
+// else: one human input, still in flight, whose continuation the shell raises
+// itself. `beginEntryRepeat` and the two members beside it are the whole of it.
+// ⚠️ THE PARENTHESIS IN THAT ROW NAMES ONE WAIT AND NOT THIS ONE. FT-1 spells
+// the wait it covers as 「表 T-066 の `CS-4`」, which is the file operation that
+// waits on a person, while this wait is S-172; and FT-4's own note says in as
+// many words that it counts 3 things, none of them a repeat. ⛔ CR-255 put the
+// repeat into FR-018 as a MUST and left table T-078 untouched, so the trigger
+// this needs is covered by FT-1's opening clause 「人の入力（ポインタとキー）」 and
+// by neither row's later wording. ⚠️ Reported rather than settled here: which
+// of the two rows should say so is the specification's to decide.
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -594,6 +607,23 @@ const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
  * interrupted drag produces no action at all.
  */
 const PALETTE_GRAB_BAND_ENTRY: IconId = 'IC-53'
+
+/**
+ * The entrances a held press repeats on -- FR-018 (MUST).
+ *
+ * ⛔ FOUR AND NOT SIX, WHICH IS THE REQUIREMENT'S OWN LIMIT (MUST):
+ * 「繰り返す入口は ... 表 T-109 の `IC-12` 〜 `IC-15` に限ること」. It gives its
+ * reason for keeping IC-10 and IC-11 out where they stand -- 「繰り返しても同じ
+ * 結果にしかならない」 -- the fit and the full screen answer the same picture
+ * however many times they are asked, so a repeat on either would be presses
+ * spent for nothing.
+ * ⚠️ The ids are the join to table T-109, the way `IconId` is everywhere else
+ * in this file; `PALETTE_GRAB_BAND_ENTRY` above names its row the same way.
+ * ⛔ NOT A SECOND ROSTER OF WHAT THE PRESSES DO. What each of the four writes
+ * is `commandFromEntry`'s (PI-18), and the repeat asks that same member again
+ * rather than working the zoom out here.
+ */
+const REPEATING_ENTRIES: readonly IconId[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15']
 
 /** The row of table T-037 a raised question follows -- `NT-7`. */
 const CONFIRMATION_MANNER = 'NT-7'
@@ -1965,6 +1995,46 @@ function readMonotonicMs(): number {
 }
 
 /**
+ * The two lengths FR-018 measures a held entrance with.
+ *
+ * ⚠️ Named in the shape rule 03 asks for -- the unit is in the name, because
+ * both are times and neither carries one anywhere else.
+ */
+interface RepeatTimes {
+  /** S-172 -- the wait a press serves before it begins to repeat. */
+  readonly delayMs: number
+  /** S-173 -- the gap between one repeat and the next. */
+  readonly intervalMs: number
+}
+
+/**
+ * What table T-206 states for the two, or null while neither reaches `src/`.
+ *
+ * STOP -- ⛔ NEITHER ROW IS CARRIED INTO `src/` BY ANYTHING, so this answers
+ * null and the repeat below never starts. The rows exist and state machine
+ * values: S-172 is the wait and S-173 the gap, both in table T-206 because
+ * CR-255 kept them out of table T-212 on purpose (a saved row would let one
+ * author's document decide how the press feels in the hands of whoever was
+ * handed it). What is missing is the CARRIER: table T-206's values are
+ * generated into the unit that consumes them (rule 03 section 1), and
+ * `tools/generate_entity_types.py` has no target holding these two --
+ * `NOT_STORED_TARGETS` gives this file S-171 and nothing else.
+ * ⛔ WRITING THE TWO FIGURES HERE IS NOT THE ANSWER. That is the copied value
+ * the same rule forbids: a manuscript edit would leave this line saying the old
+ * thing and nothing would fail. ⚠️ The generator is not this unit's to change.
+ * Searched: `tools/generate_entity_types.py` (NOT_STORED_TARGETS and its
+ * destination list), `docs/spec/_source/settings.json` table T-206,
+ * `document-settings.ts` SETTINGS_DEFAULTS, and `src/` for either row ID.
+ * ⭐ Nothing else is missing: FR-018 states the rule, both rows state a value,
+ * and the whole of the repeat below is wired and turns on with the constant.
+ *
+ * @purity pure
+ */
+function repeatTimesOfHeldEntry(): RepeatTimes | null {
+  return null
+}
+
+/**
  * One row of table T-206's `localStorage` set, as the store has it, or null
  * where it has none and where the store cannot be reached at all.
  *
@@ -2291,6 +2361,16 @@ export function frameLoop(
   // ⚠️ R5.3 -- exactly one stands at a time, because the one below is called
   // off before the next is set, and the loop lives as long as the page.
   let callOffIconHintWait: (() => void) | null = null
+  // How to call off whichever half of FR-018's repeat is standing -- the wait
+  // S-172 serves first, or the ticking S-173 keeps up after it -- or `null`
+  // while the press in flight is on none of `REPEATING_ENTRIES` and while no
+  // press is in flight at all.
+  // ⚠️ ONE HANDLE OVER BOTH HALVES, because they are never both standing: the
+  // wait replaces itself with the ticking, and `endEntryRepeat` is the one way
+  // out of either. ⚠️ The way to cancel rather than the host's handle, which is
+  // the reason `callOffIconHintWait` above gives -- a browser answers with a
+  // number and a host outside one answers with an object.
+  let callOffEntryRepeat: (() => void) | null = null
   // STOP -- ⛔ NOTHING TURNS THIS ON. Table T-029a's Dual Cursor mode is
   // written by `setDualCursor` (CM-60), whose one entrance is IC-45 of table
   // T-109 -- and `input-command-translator.ts` records that IC-45 cannot be
@@ -2530,6 +2610,132 @@ export function frameLoop(
       ask()
     }, held.document.documentSettings.iconHintDelayMs)
     callOffIconHintWait = () => clearTimeout(wake)
+  }
+
+  /**
+   * The press in flight when it stands on one of the four entrances FR-018
+   * lets a hold repeat, or null when it stands anywhere else and when no press
+   * is in flight at all.
+   *
+   * ⭐ ASKED OF THE PRESS AND NEVER OF WHERE THE POINTER IS NOW. CS-2 of table
+   * T-066 freezes a gesture's screen at the press, and `commandFromEntry`
+   * settles the release from `press.on` alone -- so a repeat judged on the
+   * pointer would stop the moment the hand drifted a pixel off the entrance
+   * while the same press was still deciding the same thing.
+   *
+   * @purity semi-pure-b
+   */
+  function pressHeldOnRepeatingEntry(): PointerPress | null {
+    const press = pressed
+    const entry = press?.on?.entry ?? null
+    if (press === null || entry === null) return null
+    return REPEATING_ENTRIES.includes(entry) ? press : null
+  }
+
+  /**
+   * Ask `commandFromEntry` for the held entrance once more -- one tick of
+   * FR-018's repeat.
+   *
+   * ⭐ THE SAME PRESS AND THE SAME MEMBER, WHICH IS WHY THE STEP CANNOT DRIFT.
+   * FR-018 (MUST) keeps the step at S-53 through a repeat -- 「連続のあいだだけ
+   * 別の幅にすると、同じ入口が 2 つの意味を持つ」 -- and the surest way to obey
+   * that is to work nothing out here: `commandFromInput` (PI-18) is handed the
+   * press this gesture began with and answers exactly what the release would.
+   * ⚠️ It compounds rather than repeating one answer, and that is the rule
+   * rather than a side effect: the context is collected afresh, so each tick
+   * multiplies the zoom now in force by the same S-53.
+   * ⛔ THE HAPPENING IS SPELLED, NOT INVENTED. FT-1 of table T-078 covers 「その
+   * 入力の、待ちをまたいだ続き」 and its own note leaves raising that continuation
+   * to the shell while keeping IF-2's supply as narrow as it was -- so the
+   * continuation is spelled in IF-2's existing vocabulary, out of the `down`
+   * this gesture began with, and no member is added to that seam.
+   * ⚠️ NOT PUT THROUGH `receiveInput`. That would drop the press (IN-1 settles
+   * on the release and this is not one), move the selection and spend a level
+   * of `Esc` -- a repeat is one entrance answering again, not a release.
+   * ⭐ NO UNDO STEP IS PUSHED, AND NONE IS SUPPRESSED HERE EITHER. All four of
+   * these write `setZoom`, which UN-8 of table T-027 keeps out of the history
+   * outright, so a hold of any length leaves the history where it was.
+   *
+   * @purity non-pure
+   */
+  function repeatHeldEntry(): void {
+    const frame = values
+    const press = pressHeldOnRepeatingEntry()
+    if (frame === null || press === null) {
+      endEntryRepeat()
+      return
+    }
+    // ⚠️ THE PRESS ITSELF WITH ONE MEMBER MOVED, so the point, the button and
+    // the modifiers are the ones CS-2 froze -- the same values the release will
+    // be read with. ⛔ `phase` has to move: `pointerAssignment` answers a `down`
+    // with nothing but MK-10's question, and IN-1 is the reason it does.
+    const continuation: PointerInput = { ...press.at, phase: 'up' }
+    const context = collectInputContext(frame)
+    carryOutAction(commandFromInput(continuation, context).action, frame)
+    ask()
+  }
+
+  /**
+   * FR-018 (MUST) -- 「入口を押し続けたときは、... `S-172` が定める待ち時間の
+   * のち、同表の `S-173` が定める間隔で倍率を刻み続けること」.
+   *
+   * ⭐ WHY A WAKE AND NOT A COUNT, which is `beginPointerRest`'s reason word for
+   * word: a person who goes on holding a button makes nothing happen, so with
+   * no wake the wait would pass unwitnessed and the second step could never be
+   * taken at all.
+   * ⛔ THE FIRST TICK LANDS AT S-172 AND THE REST AT S-173. The requirement puts
+   * the wait BEFORE the stepping (「待ち時間ののち ... 刻み続ける」), and it asks
+   * for the wait to be the longer of the two (MUST) so that the first of the
+   * run is not mistaken for part of it.
+   * ⚠️ THE ORDINARY RELEASE IS UNTOUCHED. IN-1 of table T-028 (MUST) settles a
+   * pointer operation on the release, so a tap still steps once when the button
+   * comes up and a hold steps once more on top of what it repeated. ⛔ Nothing
+   * says a repeat spends the release, and reading it that way would break the
+   * MUST that is written.
+   *
+   * @purity non-pure
+   */
+  function beginEntryRepeat(): void {
+    endEntryRepeat()
+    if (pressHeldOnRepeatingEntry() === null) return
+    const times = repeatTimesOfHeldEntry()
+    if (times === null) return
+    // ⚠️ ONE WAKE CHAINED AFTER THE LAST, RATHER THAN A REPEATING TIMER. It is
+    // the shape `beginPointerRest` above already has, so both waits this loop
+    // measures are called off the same way; and a tick that ran late cannot
+    // pile the next one on top of itself.
+    const tickAfter = (afterMs: number): void => {
+      const wake = setTimeout(() => {
+        callOffEntryRepeat = null
+        // ⛔ THE HOLD IS ASKED ABOUT AGAIN AT EVERY TICK. The three ends below
+        // all call this off, but a host may still run a wake that was already
+        // in flight when the button came up.
+        if (pressHeldOnRepeatingEntry() === null) return
+        repeatHeldEntry()
+        tickAfter(times.intervalMs)
+      }, afterMs)
+      callOffEntryRepeat = () => clearTimeout(wake)
+    }
+    tickAfter(times.delayMs)
+  }
+
+  /**
+   * Stop repeating, whichever half was standing.
+   *
+   * ⭐ THE THREE ENDS ARE TABLE T-028's OWN. IN-1 settles the operation on the
+   * release and gives `Esc` as the way to interrupt one; IN-1a (MUST) ends a
+   * drag whose pointer was lost outside the window. ⛔ Leaving the entrance --
+   * or the drawing area -- is NOT one of them: IN-1 forbids reading that as an
+   * interruption (MUST NOT), and `pressHeldOnRepeatingEntry` says the same from
+   * the other side by asking the press rather than the pointer.
+   * ⚠️ A repeat still ticking after the pointer was lost would be the defect
+   * IN-1a exists to prevent, one frame per S-173 for as long as the page lives.
+   *
+   * @purity non-pure
+   */
+  function endEntryRepeat(): void {
+    callOffEntryRepeat?.()
+    callOffEntryRepeat = null
   }
 
   /**
@@ -4197,6 +4403,15 @@ export function frameLoop(
     // different row of table T-023d as well.
     const grabBefore = grabUnderPointer
     if (input.kind === 'pointer') {
+      // FR-018's repeat ends where table T-028 ends the gesture: IN-1 on the
+      // release, IN-1a on the pointer lost outside the window.
+      // ⛔ FIRST IN THIS BLOCK, AND BEFORE ANY WAY OUT OF IT. NT-8's dismissal
+      // below returns early on a release that landed on a telling, and a repeat
+      // called off after that line would go on ticking for ever when the hand
+      // drifted onto one while the button was still down.
+      // ⚠️ The `Esc` of IN-1 is a key happening and cannot arrive here; it is
+      // called off beside the press it interrupts, further down.
+      if (input.phase === 'up' || input.phase === 'lost') endEntryRepeat()
       // FT-4 of table T-078 -- the rest starts over wherever the pointer has
       // MOVED to.
       // ⛔ JUDGED ON THE POINT AND NOT ON THE KIND OF HAPPENING: EZ-2 of table
@@ -4229,6 +4444,14 @@ export function frameLoop(
           partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
             ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
             : null
+        // FR-018 (MUST): the hold begins to be measured from the press.
+        // ⛔ AFTER `collectPress`, because the entrance this asks about is the
+        // one that press recorded -- `pressHeldOnRepeatingEntry` reads no
+        // pointer position of its own (CS-2 of table T-066).
+        // ⚠️ ASKED FOR EVERY PRESS AND NOT ONLY FOR THE FOUR: the member
+        // answers null for every other entrance, so there is one place that
+        // knows which four repeat rather than a test spelled here as well.
+        beginEntryRepeat()
       }
       // NT-8 of table T-037 (MUST): 「告げた通知を、人がその場で消せること」.
       //
@@ -4307,6 +4530,12 @@ export function frameLoop(
     // after, so IN-4a's MUST could never hand `Esc` back to the browser and
     // FR-071's way out of full screen would be unreachable.
     if (hasEndedGesture(input) || escapeLevel === 'gesture') pressed = null
+    // IN-1's 「中断は `Esc` で行い」 -- the third of the three ends FR-018's
+    // repeat has, and the only one that arrives on a key rather than a pointer.
+    // ⛔ AFTER the press is dropped and not before: `endEntryRepeat` is written
+    // to be safe either way, but a repeat outliving the press it is about is
+    // the one state this must never be left in.
+    if (escapeLevel === 'gesture') endEntryRepeat()
 
     // FR-053's last sentence on the drag -- an interrupted one (IN-1 of table
     // T-028) puts the palette back where the drag began.

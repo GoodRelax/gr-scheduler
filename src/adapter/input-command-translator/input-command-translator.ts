@@ -2234,6 +2234,26 @@ function commandFromEntry(
       return acted({ kind: 'redoEdit' })
     case ENTRY.fitToScreen:
       return changedInOrder(fitWrites(context))
+    // ⭐ THESE FOUR ARE ASKED AGAIN WHILE THE BUTTON IS STILL DOWN. FR-018
+    // (MUST) has a held IC-12 .. IC-15 go on stepping after the wait S-172
+    // states, at the interval S-173 states, and the shell raises each of those
+    // continuations by handing this member the SAME press a second time and a
+    // third (`frame-loop.ts`, `repeatHeldEntry`). ⛔ SO NOTHING IN THESE FOUR
+    // BRANCHES MAY READ THE RELEASE. They are decided from `press` and
+    // `context` alone today, which is CS-2 of table T-066 in any case, and a
+    // branch that started reading `release` would answer one thing on the
+    // release and another on every repeat.
+    // ⛔ AND THE STEP STAYS S-53 THROUGHOUT, which is the same requirement's
+    // own MUST -- 「刻む幅は `S-53` のままとする」, because 「連続のあいだだけ別の
+    // 幅にすると、同じ入口が 2 つの意味を持つ」. ⚠️ A repeat that felt too slow is
+    // S-173's to answer and never `keyZoomFactor`'s.
+    // ⭐ WHAT COMPOUNDS IS THE READING, NOT THE STEP. `zoomTimes` multiplies
+    // the zoom now in force, so a fresh context each time is what makes a hold
+    // travel; the factor it is multiplied by is the same one every time.
+    // ⛔ IC-10 AND IC-11 ARE NOT IN THAT SET and must not be added to it: the
+    // requirement limits the repeat to these four (MUST) and gives its reason
+    // where it stands -- the fit and the full screen 「繰り返しても同じ結果にしか
+    // ならない」.
     case ENTRY.zoomTimeIn:
     case ENTRY.zoomTimeOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
@@ -3053,7 +3073,19 @@ function keyZoomFactor(context: InputContext, isIn: boolean): number {
   return isIn ? step : 1 / step
 }
 
-/** @purity pure */
+/**
+ * The zoom now in force, stepped once.
+ *
+ * ⛔ NOTHING IS ROUNDED HERE AND NOTHING MAY BE. FR-018 (MUST NOT) names the
+ * three places a zoom is stepped -- the wheel, the button and the rounding of a
+ * saved value -- and forbids all three from rounding towards the side that
+ * crosses a level-of-detail threshold, because 「1 刻みで表示量が跳ねる」. Two of
+ * the three come through here. ⚠️ A tidying `Math.round` would be that
+ * MUST NOT broken silently: the requirement measured one notch taking the rows
+ * from 9 to 21.
+ *
+ * @purity pure
+ */
 function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): number {
   const settings = context.document.documentSettings
   return (axis === 'x' ? settings.zoomX : settings.zoomY) * factor

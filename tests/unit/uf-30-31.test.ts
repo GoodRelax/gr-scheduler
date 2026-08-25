@@ -33,6 +33,10 @@
 // Chapter 1.9 (:275) asks a test of a requirement that points at a table to be
 // driven by a fixed copy of that table, one case walking every row. T_023,
 // T_023A, T_023B, T_023C, T_023D, T_036 and T_028 below are those copies.
+//
+// ONE CASE IS LEFT FAILING. It is a finding, not a chore (04-verification
+// section 1): the expected value states what the specification says and the
+// requirement is quoted in the case. Search for `FINDING` below.
 
 import { describe, expect, it } from 'vitest'
 
@@ -117,8 +121,16 @@ const T_023C = [
  */
 const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusLine'] as const
 
-/** 表 T-023d -- the grab areas, most-preferred first, in the table's own order. */
+/**
+ * 表 T-023d -- the grab areas, most-preferred first, in the table's own order.
+ *
+ * ⚠️ GR-19 stands at the HEAD of that table -- 「帯の下に何が描かれていても帯が
+ * 勝つ」 -- and was missing from this copy, which asserted 18 where the table
+ * prints 19. Its target is the `Command Palette`'s band and not one of SL-1's
+ * five kinds, so the walk below steps over it and says why.
+ */
 const T_023D = [
+  'GR-19',
   'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8', 'GR-9', 'GR-17',
   'GR-10', 'GR-11', 'GR-15', 'GR-18', 'GR-12', 'GR-13', 'GR-14', 'GR-16',
 ] as const
@@ -591,11 +603,13 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_023B).toHaveLength(6)
     expect(T_023).toHaveLength(14)
     expect(T_023C).toHaveLength(10)
-    expect(T_023D).toHaveLength(18)
+    expect(T_023D).toHaveLength(19)
     expect(T_028).toHaveLength(8)
     expect(T_036).toHaveLength(22)
     expect(new Set(T_036.map((one) => one.row)).size).toBe(22)
-    expect(new Set(T_023D).size).toBe(18)
+    expect(new Set(T_023D).size).toBe(19)
+    // 「上の行ほど優先すること（MUST）」 and GR-19 is the row printed first.
+    expect(T_023D[0]).toBe('GR-19')
     expect(SL_1_KINDS).toHaveLength(5)
     expect(IN_4_LEVELS).toHaveLength(4)
     expect(T_027_HERE).toHaveLength(4)
@@ -2054,6 +2068,12 @@ describe('表 T-023d -- what a grab does', () => {
     'GR-3': 'setTaskPlanDates',
     'GR-4': 'setTaskPlanDates',
     'GR-7': 'cycleTaskPlanActualState',
+    // FR-043's three faint dummies all place the same three columns, so all
+    // three rows route to CM-14. TASK_1 carries no actual, which is the state
+    // 「`Task` が未着手であるあいだ」 names.
+    'GR-9': 'beginTaskActual',
+    'GR-17': 'beginTaskActual',
+    'GR-18': 'beginTaskActual',
     'GR-12': 'setTaskPlanDates',
     'GR-16': 'setStatusDate',
   }
@@ -2069,6 +2089,10 @@ describe('表 T-023d -- what a grab does', () => {
 
   it('walks 表 T-023d: every row answers with a value, and the routed ones name their command', () => {
     for (const row of T_023D) {
+      // GR-19 grabs the `Command Palette`'s band, which is no `Item` of table
+      // T-023c's SL-1 and so cannot arrive as a `Hit` at all. FR-053's drag is
+      // covered by its own cases; what this walk is about is the schedule.
+      if (row === 'GR-19') continue
       const hit = hitOf(itemFor(row), row as Hit['grab'])
       const from = pointerOf('down', xOfDay('2026-01-07'), midYOfRow('g1'))
       const to = pointerOf('up', xOfDay('2026-01-14'), midYOfRow('g1'))
@@ -2082,6 +2106,68 @@ describe('表 T-023d -- what a grab does', () => {
         expect(kindsOf(answer as unknown as TranslatedInput), row).toContain(routed)
       }
     }
+  })
+
+  it('GR-9 / GR-17 / GR-18 (FR-043): a release on any dummy asks for exactly one CM-14', () => {
+    // FR-043 (MUST): 「実績の入力を始める掴みシロを 2 つ…実績の開始点と終了点と
+    // して薄くタスクの上に示し、どちらが掴まれたときも実績開始日と実績期間
+    // （`actualDuration`）と `resumeValid`（`true`）を置くこと」。One placement
+    // whichever handle was taken, so ONE command -- and it carries no day:
+    // 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点
+    // を予定の開始日で確定させること（MUST）」 fixes both ends from the plan and
+    // `S-129` / `S-130`, never from where the pointer was let go.
+    // ⚠️ Table T-028's IN-1 settles a pointer operation on the release, so the
+    // gesture below is press then up.
+    for (const row of ['GR-9', 'GR-17', 'GR-18'] as const) {
+      const answer = gestureAction(
+        pointerOf('down', xOfDay('2026-01-05'), midYOfRow('g1')),
+        // Let go on a different day from the press, so a translator that read
+        // the drop day into the command would be seen doing it.
+        pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1')),
+        hitOf({ kind: 'task', taskUid: 1 }, row),
+      )
+      const commands = commandsOf(answer)
+      expect(commands, row).toHaveLength(1)
+      expect(commands[0], row).toEqual({ kind: 'beginTaskActual', uid: 1 })
+    }
+  })
+
+  // FINDING (left failing). The unit answers nothing for GR-1 and GR-2, and
+  // the note that records why says the derivation 「is not in any table of the
+  // specification」. ⛔ IT IS, in table T-023d's own closing rules, three
+  // paragraphs under the table the note names among what it searched:
+  //
+  //   「**`GR-1` / `GR-2` の日数は、ポインタの下の日から求めること（MUST）。**
+  //     `GR-1` は `start` からの日数、`GR-2` は `end` までの日数とし、**いずれも
+  //     1 日単位に四捨五入する。** **得た日数は 表 T-012a の `FD-6` で切り詰める
+  //     こと（MUST）。**」
+  //
+  // And the vocabulary is already there: `edit-task.ts` publishes CM-16
+  // `setTaskFadeInDays` and CM-17 `setTaskFadeOutDays`, both taking a number of
+  // days. FR-075 (MUST) hands the author these two points 「作成者がその日数を…
+  // 編集できるようにすること」, so a release that produces no command leaves the
+  // one path to a fade shut -- which is the same shape of defect PD-191 was
+  // raised for, one step further along.
+  //
+  // ⚠️ The sample keeps to one week (Monday 2026-01-05 to Wednesday 2026-01-07)
+  // so that 「日数」 is 2 whether the count is calendar days or worked days --
+  // the two readings are not separated anywhere, and this case does not need
+  // them to be.
+  it('GR-1 / GR-2 (FR-075, MUST): a corner dragged two days along sets the fade days', () => {
+    const twoDaysIn = xOfDay('2026-01-07')
+    const fadeIn = gestureAction(
+      pointerOf('down', xOfDay('2026-01-05'), midYOfRow('g1')),
+      pointerOf('up', twoDaysIn, midYOfRow('g1')),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GR-1'),
+    )
+    expect(commandsOf(fadeIn)).toEqual([{ kind: 'setTaskFadeInDays', uid: 1, days: 2 }])
+
+    const fadeOut = gestureAction(
+      pointerOf('down', xOfDay('2026-01-09'), midYOfRow('g1')),
+      pointerOf('up', twoDaysIn, midYOfRow('g1')),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GR-2'),
+    )
+    expect(commandsOf(fadeOut)).toEqual([{ kind: 'setTaskFadeOutDays', uid: 1, days: 2 }])
   })
 
   it('GR-3: dragging the left end moves `start` to the day it was dropped on', () => {

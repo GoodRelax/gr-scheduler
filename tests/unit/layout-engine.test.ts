@@ -11,7 +11,11 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import { emptySelection } from '../../src/entity/document-model/selection/selection'
+import {
+  emptySelection,
+  selectionWith,
+  type Selection,
+} from '../../src/entity/document-model/selection/selection'
 import {
   dateAtX,
   fitZoom,
@@ -289,19 +293,56 @@ describe('ScheduleLayout (PI-5) -- the time axis', () => {
     expect(layoutFromSchedule(oneRow([]), zoomed, REGIONS).pxPerDay).toBe(18)
   })
 
+  // FR-017: 「しきい値は表 T-205 のしきい値の行（`S-83` 〜 `S-85`）に従うこと」。
+  // The three arrive through SETTINGS_DEFAULTS, which `npm run gen` prints from
+  // the manuscript, so a re-ruled threshold moves the two cases below with it.
+  // ⚠️ The figures were typed in here until 2026-08-26, and re-ruling `S-85`
+  // from 30 to 8 left one of them asserting a number that had stopped being a
+  // boundary at all -- green, and no longer testing what its name claimed.
+  const T_205_TIERS = [
+    { row: 'S-83', key: 'rulerTierPxPerDayMonth', tier: 'yearMonth', below: 'year' },
+    { row: 'S-84', key: 'rulerTierPxPerDayWeek', tier: 'yearMonthWeek', below: 'yearMonth' },
+    { row: 'S-85', key: 'rulerTierPxPerDayDay', tier: 'yearMonthDayWeekday', below: 'yearMonthWeek' },
+  ] as const
+
+  /** The four steps, coarsest first, so a case can say "no finer than". */
+  const TIER_ORDER: readonly string[] = ['year', 'yearMonth', 'yearMonthWeek', 'yearMonthDayWeekday']
+
   it('FR-017 steps the ruler through its four tiers', () => {
-    expect(rulerTierOf(1.0, LAYOUT_SETTINGS)).toBe('year')
-    expect(rulerTierOf(1.4, LAYOUT_SETTINGS)).toBe('yearMonth')
-    expect(rulerTierOf(4.3, LAYOUT_SETTINGS)).toBe('yearMonthWeek')
-    expect(rulerTierOf(30, LAYOUT_SETTINGS)).toBe('yearMonthDayWeekday')
+    // FR-017: 判定式は 「`pxPerDay ÷ (実効フォントサイズ ÷ `S-8`) ≧ しきい値`」。
+    // LAYOUT_SETTINGS pins `rulerFont` at S-8's own figure, so the ratio is one
+    // here and a px/day stands for its own scaled value.
+    const scale = LAYOUT_SETTINGS.rulerFont / settingNumber('fontMin')
+    expect(rulerTierOf(0, LAYOUT_SETTINGS)).toBe('year')
+    for (const step of T_205_TIERS) {
+      const threshold = settingNumber(step.key) * scale
+      // 「≧ しきい値」 -- the step is reached AT its own threshold ...
+      expect(rulerTierOf(threshold, LAYOUT_SETTINGS), step.row).toBe(step.tier)
+      // ... and 「単調であること（MUST）」 keeps the coarser step just below it.
+      expect(rulerTierOf(threshold * 0.999, LAYOUT_SETTINGS), step.row).toBe(step.below)
+    }
   })
 
   it('FR-017 cancels the text scale first, so the three thresholds stay fixed', () => {
-    // At rulerFont 24 the effective scale is 2, so 12px a day only counts as 6,
-    // which is short of S-85 and lands on the week step instead of the day one.
-    const larger = settingsOf({ ...LAYOUT_SETTINGS, rulerFont: 24 })
-    expect(rulerTierOf(12, larger)).toBe('yearMonthWeek')
-    expect(rulerTierOf(16, larger)).toBe('yearMonthDayWeekday')
+    // FR-017: 「しきい値は目盛のフォントが 12px であるときの px/day であり、判定は
+    // 実効フォントサイズを 12 で割った比で行うこと（MUST）」, and 「しきい値の 3 本は
+    // 固定値とし、実行時に導出してはならない（MUST NOT）」. So doubling the ruler
+    // font doubles the px/day at which each of the three is reached, while
+    // S-83 〜 S-85 themselves do not move.
+    const rulerFont = settingNumber('fontMin') * 2
+    const larger = settingsOf({ ...LAYOUT_SETTINGS, rulerFont })
+    const scale = rulerFont / settingNumber('fontMin')
+    for (const step of T_205_TIERS) {
+      const threshold = settingNumber(step.key) * scale
+      expect(rulerTierOf(threshold, larger), step.row).toBe(step.tier)
+      expect(rulerTierOf(threshold * 0.999, larger), step.row).toBe(step.below)
+      // The very same px/day under the smaller text is never COARSER: that is
+      // the division happening, and not some second set of thresholds.
+      expect(
+        TIER_ORDER.indexOf(rulerTierOf(threshold, LAYOUT_SETTINGS)),
+        step.row,
+      ).toBeGreaterThanOrEqual(TIER_ORDER.indexOf(rulerTierOf(threshold, larger)))
+    }
   })
 
   it('S-77 pins the left edge of the Row Area to scrollDate', () => {
@@ -767,11 +808,16 @@ const GEOM_SETTINGS = settingsOf({
   progressLineVisible: true, // S-64
 })
 
+// ⚠️ `selection` is PI-6's fifth argument and has no default of its own:
+// FR-075 (MUST) shows the fade grab points on the selected Task alone, so what
+// is selected decides what GR-1 and GR-2 have to be hit. Drawing nothing
+// selected is the ordinary case here, which is why the default is stated once.
 const geometryOf = (
   schedule: Schedule,
   settings: DocumentSettings = GEOM_SETTINGS,
+  selection: Selection = emptySelection(),
 ): ScheduleGeometry =>
-  geometryFromLayout(schedule, settings, layoutFromSchedule(schedule, settings, REGIONS), REGIONS, emptySelection())
+  geometryFromLayout(schedule, settings, layoutFromSchedule(schedule, settings, REGIONS), REGIONS, selection)
 
 /** The x of a day index, at pxPerDay 6 from a Row Area starting at 170. */
 const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6
@@ -1240,6 +1286,75 @@ describe('ItemHitArea (PI-7)', () => {
       item: { kind: 'task', taskUid: 1 },
       grab: 'GR-12',
     })
+  })
+
+  // -------------------------------------------------------------------------
+  // PD-191 -- FR-075's MUST, read as a hit test.
+  //
+  // ⭐ WRITTEN FROM docs/spec, NOT FROM THE UNIT (04-verification.md, 1.). What
+  // was read of `src/`: the published signatures of PI-6 and PI-7 and the
+  // declaration of `TaskGeometry`. The two corners come from table T-012a's own
+  // four points, not from the list the unit builds.
+  // -------------------------------------------------------------------------
+
+  /** The plan bar's top-left and bottom-right, where GR-1 and GR-2 stand. */
+  const planCornersOf = (geometry: ScheduleGeometry, uid: number) => {
+    const found = geometry.tasks.find((one) => one.taskUid === uid)
+    if (found === undefined) throw new Error(`no geometry for task ${uid}`)
+    const points = outlinePoints(found.plan)
+    const xs = points.map((one) => one.x)
+    const ys = points.map((one) => one.y)
+    return {
+      topLeft: { x: Math.min(...xs), y: Math.min(...ys) },
+      bottomRight: { x: Math.max(...xs), y: Math.max(...ys) },
+    }
+  }
+
+  const SELECTED_TASK_1 = selectionWith(emptySelection(), { kind: 'task', uid: 1 })
+
+  it('FR-075 (MUST): the fade corners answer GR-1 / GR-2 on the SELECTED Task', () => {
+    // FR-075: 「掴み点は選択しているタスクにだけ出すこと（MUST）」, and S-111 of
+    // table T-210 states the condition as 「選択中のタスクだけ」. Table T-023d
+    // places GR-1 at 「予定バーの左上の角」 and GR-2 at 「右下の角」, above
+    // GR-3 and GR-4 -- so the two corners are where the priority can be read.
+    const schedule = oneRow([spanning(1, '2026-01-01', 20)])
+    const corners = planCornersOf(geometryOf(schedule), 1)
+    const selected = geometryOf(schedule, GEOM_SETTINGS, SELECTED_TASK_1)
+    // The picture the hit test reads IS table T-012a's two corners.
+    expect(selected.tasks[0]!.fadeHandles).toEqual([corners.topLeft, corners.bottomRight])
+    expect(itemAtPointer(selected, corners.topLeft.x, corners.topLeft.y, SLOP)).toEqual({
+      item: { kind: 'task', taskUid: 1 },
+      grab: 'GR-1',
+    })
+    expect(
+      itemAtPointer(selected, corners.bottomRight.x, corners.bottomRight.y, SLOP)?.grab,
+    ).toBe('GR-2')
+  })
+
+  it('PD-191: pressing the corner of a Task that is NOT selected does not answer GR-1', () => {
+    // Same corner, nothing selected. FR-075 forbids the point being there at
+    // all, so the next row of table T-023d that claims it wins: GR-3 at 「予定
+    // バーの左端」 and GR-4 at 「右端」. ⛔ An answer of GR-1 here is the defect
+    // PD-191 was raised for -- GR-1 and GR-2 are asked of EVERY Task before
+    // GR-3 is asked of any, so one stray pair takes a neighbour's end away.
+    const schedule = oneRow([spanning(1, '2026-01-01', 20)])
+    const bare = geometryOf(schedule)
+    const corners = planCornersOf(bare, 1)
+    expect(bare.tasks[0]!.fadeHandles).toHaveLength(0)
+    expect(itemAtPointer(bare, corners.topLeft.x, corners.topLeft.y, SLOP)?.grab).toBe('GR-3')
+    expect(
+      itemAtPointer(bare, corners.bottomRight.x, corners.bottomRight.y, SLOP)?.grab,
+    ).toBe('GR-4')
+  })
+
+  it('FR-075 (MUST): selecting ONE Task does not put a corner on its neighbour', () => {
+    // 「選択しているタスクにだけ」 is per Task, not per frame. Two Tasks on one
+    // row, one selected: the other one's own corner still answers GR-3.
+    const schedule = oneRow([spanning(1, '2026-01-01', 10), spanning(2, '2026-02-01', 10)])
+    const geometry = geometryOf(schedule, GEOM_SETTINGS, SELECTED_TASK_1)
+    const other = planCornersOf(geometry, 2)
+    expect(geometry.tasks.find((one) => one.taskUid === 2)!.fadeHandles).toHaveLength(0)
+    expect(itemAtPointer(geometry, other.topLeft.x, other.topLeft.y, SLOP)?.grab).toBe('GR-3')
   })
 
   it('GR-3 and GR-4 beat GR-12 at the two ends', () => {

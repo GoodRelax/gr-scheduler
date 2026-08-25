@@ -421,6 +421,25 @@ const lineOf = (bar: ReturnType<typeof geometryOf>['plan']) => {
 const DAY_STEP_FLOOR = SETTINGS_DEFAULTS['rulerTierPxPerDayWeek'] as number
 const FONT_MIN = SETTINGS_DEFAULTS['fontMin'] as number
 
+/**
+ * The zoom at which the day step is first reached, at the settings' own font.
+ *
+ * FR-017: 「しきい値は目盛のフォントが 12px であるときの px/day であり、判定は
+ * 実効フォントサイズを 12 で割った比で行うこと（MUST）」, and 「1 日あたりの表示幅
+ * は…`S-1` に `zoomX` を掛けた値とすること（MUST）」. So the widest day that still
+ * misses the day step is `S-85` × `rulerFont` ÷ `S-8`, and the zoom that draws it
+ * is that over `S-1`.
+ *
+ * ⚠️ TYPED IN AS 1.3 FOR ONE ROUND, which is `S-85` ÷ `S-1` with the font
+ * compensation this very requirement demands left out. The sample still landed
+ * inside the week step, so nothing went red -- it had simply stopped being the
+ * edge its own comment claimed it was.
+ */
+const DAY_STEP_ZOOM =
+  ((SETTINGS_DEFAULTS['rulerTierPxPerDayDay'] as number) *
+    (SETTINGS_DEFAULTS['rulerFont'] as number)) /
+  (FONT_MIN * (SETTINGS_DEFAULTS['pxPerDayAt1x'] as number))
+
 /** The narrowest day that still shows the day step, once S-85 is at its floor. */
 const dayStepFrom = (rulerFont: number): number => (DAY_STEP_FLOOR * rulerFont) / FONT_MIN
 
@@ -495,23 +514,31 @@ describe('SWS-1 -- thin out the fine steps of the ruler (FR-017)', () => {
       // LF-1: "the year, month and week steps are NOT thinned -- FR-017 forbids
       // it". So the answer is one on every step but the fourth.
       mentions(T221, 'LF-1', 'FR-017')
+      const tierAt = (zoomX: number) => {
+        const settings = settingsOf({ zoomX, labelCoef: 1, scrollDate: day(1) })
+        const regions = regionsFromScreen(SCREEN, settings)
+        return { settings, layout: layoutFromSchedule(ONE_TASK_SCHEDULE, settings, regions) }
+      }
       const coarse: ReadonlyArray<readonly [number, string]> = [
         [0.1, 'year'],
         [0.5, 'yearMonth'],
         [1, 'yearMonthWeek'],
-        // S-85's threshold is measured at a 12 px ruler font, so 1.3 * S-1 is
-        // the widest day that still misses the day step at the default font.
-        [1.3, 'yearMonthWeek'],
+        // The widest day the week step still covers, one part in a thousand
+        // inside the boundary DAY_STEP_ZOOM computes from S-85, S-1 and S-8.
+        [DAY_STEP_ZOOM * 0.999, 'yearMonthWeek'],
       ]
       for (const [zoomX, tier] of coarse) {
         // labelCoef at its ceiling (S-30) is the most expensive label allowed,
         // so if anything could thin a coarse step it would be this.
-        const settings = settingsOf({ zoomX, labelCoef: 1, scrollDate: day(1) })
-        const regions = regionsFromScreen(SCREEN, settings)
-        const layout = layoutFromSchedule(ONE_TASK_SCHEDULE, settings, regions)
+        const { settings, layout } = tierAt(zoomX)
         expect(layout.tier, `zoomX ${zoomX}`).toBe(tier)
         expect(tickStrideOf(layout, settings), `zoomX ${zoomX}`).toBe(1)
       }
+      // ⭐ The guard that the last sample really is the edge: one part in a
+      // thousand the OTHER side of it, the day step holds. Without this the
+      // sample could drift far below the boundary and stay green, which is
+      // exactly what happened to it.
+      expect(tierAt(DAY_STEP_ZOOM * 1.001).layout.tier).toBe('yearMonthDayWeekday')
     },
   )
 

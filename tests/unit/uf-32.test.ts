@@ -188,6 +188,11 @@ const oneRow = (tasks: readonly Task[], rest: Record<string, unknown> = {}): Sch
  * once a frame and hand them round, so a case builds them the same way rather
  * than inventing vertices the unit would then be measured against.
  */
+// ⛔ ONE selection, handed to BOTH. PI-6 grew a fifth argument on 2026-08-26
+// because FR-075 (MUST) draws the fade grab points on the selected Task alone,
+// and a case that told the geometry 「nothing is selected」 while telling the
+// renderer otherwise would describe a frame the shell never builds -- and would
+// silently take every FR-075 case out of this file's reach.
 const drawn = (
   schedule: Schedule,
   settings: DocumentSettings = SETTINGS,
@@ -196,7 +201,7 @@ const drawn = (
 ): string => {
   const regions = regionsFromScreen(env, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, selection)
   return svgFromSchedule(schedule, settings, layout, geometry, regions, selection)
 }
 
@@ -1074,6 +1079,164 @@ describe('UF-32 -- 表 T-076 の EP-5: `Row Area` の中身を描く', () => {
     expect(T_076_EP5).toContain('Name Label (U-7)')
     const svg = drawn(scene())
     expect(svg, "the Task's name reaches the picture").toContain('alpha')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// ⭐ WRITTEN FROM docs/spec BY SOMEONE WHO DID NOT WRITE THE UNIT
+// (docs/development-rules/04-verification.md, 1.). What was read of the unit:
+// the signature of `svgFromSchedule` and nothing below it. The two blocks that
+// follow are the rules that landed on 2026-08-26 -- FR-013's faintness and the
+// two label rows of 表 T-236.
+// ---------------------------------------------------------------------------
+
+describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
+  /**
+   * Every 濃さ the picture states, in the order it states them.
+   *
+   * ⚠️ The leading `\s` is not decoration: it keeps `fill-opacity` and
+   * `stroke-opacity` out, which are a different thing from the element's own.
+   */
+  const faintnessOf = (svg: string): readonly number[] =>
+    [...svg.matchAll(/\sopacity="([^"]*)"/g)].map((hit) => Number(hit[1]))
+
+  /** S-131. 濃さの値 FR-013 names, printed from the manuscript by `npm run gen`. */
+  const S_131 = SETTINGS_DEFAULTS['dummyOpacity'] as number
+
+  it('draws the not-started marker at S-131, and nothing else faint', () => {
+    // FR-013 (MUST): 「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く
+    // 描き、ポインタが乗っているあいだだけ濃くすること（MUST）…濃さの値は
+    // `S-131`」。表 T-021 の `PM-1a` is the 未着手 symbol.
+    // ⛔ ONE 濃さ, not two: 「薄さで進行中と区別してはならない（MUST NOT）」 puts
+    // no faintness on any other symbol, so the whole picture states it once.
+    const svg = drawn(oneRow([spanning(1, '2026-01-05', 5, { name: 'idle' })]))
+    const faint = faintnessOf(svg)
+    expect(faint, 'the not-started marker states its 濃さ once').toHaveLength(1)
+    expect(faint[0]!).toBeCloseTo(S_131, 6)
+  })
+
+  it('does not thin a Task that is under way', () => {
+    // FR-013 names 未着手 and no other state; 表 T-021 の `PM-1` is 進行中.
+    const running = oneRow([
+      spanning(1, '2026-01-05', 5, { name: 'running', actualStart: '2026-01-05', actualDuration: 2 }),
+    ])
+    expect(faintnessOf(drawn(running))).toEqual([])
+  })
+
+  it('does not thin the late mark, which wins over 未着手', () => {
+    // FR-013: 「遅れの `(!)` は薄くしない —— `PM-4` が勝つ状態であり、`UC-006` が
+    // 最も見つけたい対象だからである」, and 「未着手のタスクでも `PM-4` は進捗
+    // マーカーの場所に出る」 -- so a Task that is BOTH not started and late
+    // states no 濃さ at all.
+    const late = oneRow([spanning(1, '2026-01-05', 5, { name: 'late' })], {
+      project: { calendarUid: null, statusDate: '2026-02-01', themeHue: 214, title: null },
+    })
+    expect(faintnessOf(drawn(late))).toEqual([])
+  })
+})
+
+describe('UF-32 -- FR-075 / S-111: 掴み点は選択しているタスクにだけ', () => {
+  /** S-109 -- 「掴み点の半辺。正方形 9 × 9px を点の中心に置く」. */
+  const S_109 = SETTINGS_DEFAULTS['fadeHandleHalfPx'] as number
+
+  /** The squares S-109 gives the two grab points, told apart by their side. */
+  const grabPointsOf = (svg: string): readonly Element[] =>
+    paintedOf(svg).filter(
+      (one) =>
+        one.tag === 'rect' &&
+        Number(attribute(one.text, 'width')) === S_109 * 2 &&
+        Number(attribute(one.text, 'height')) === S_109 * 2,
+    )
+
+  it('draws the two points on the selected Task and on no other', () => {
+    // FR-075 (MUST): 「掴み点は選択しているタスクにだけ出すこと（MUST）—— 常時
+    // 出すと、フェードを使っていないタスクにも点が並ぶ」。S-111 of 表 T-210
+    // records the condition; 表 T-023d gives them the two corners of the plan.
+    // ⚠️ Neither Task of the scene holds a fade day. That is deliberate:
+    // PD-191 ruled the points are how a fade is CREATED, so gating them on a
+    // fade already being there leaves nothing to drag.
+    expect(grabPointsOf(drawn(scene())), 'nothing selected, no point').toHaveLength(0)
+    const picked = drawn(scene(), SETTINGS, selectionWith(emptySelection(), { kind: 'task', uid: 2 }))
+    expect(grabPointsOf(picked), 'GR-1 and GR-2, for the one Task').toHaveLength(2)
+  })
+
+  it('gives each point the stroke S-110 states', () => {
+    const picked = drawn(scene(), SETTINGS, selectionWith(emptySelection(), { kind: 'task', uid: 2 }))
+    for (const point of grabPointsOf(picked)) {
+      expect(Number(attribute(point.text, 'stroke-width'))).toBeCloseTo(
+        SETTINGS_DEFAULTS['fadeHandleStrokePx'] as number,
+        6,
+      )
+    }
+  })
+})
+
+describe('UF-32 -- 表 T-236 の S-168 / S-169: ラベルの文字色と縁取り', () => {
+  /**
+   * 表 T-236's two label rows, copied from the manuscript.
+   *
+   * ⚠️ S-169 states its value as 「`S-146` に同じ」, so the ground's own cells
+   * are what stand here. `H` is the letter the manuscript writes for
+   * `themeHue`, which is why the scene's hue goes in before the comparison.
+   */
+  const T_236_LABEL = {
+    'S-168': { light: '#000000', dark: '#ffffff' },
+    'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)' },
+  } as const
+
+  /** The `<text>` the name label is drawn as, found by the name it carries. */
+  const nameLabelOf = (svg: string, name: string): string => {
+    for (const hit of svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/g)) {
+      if (hit[1] === name) return hit[0] as string
+    }
+    throw new Error(`no name label carrying ${name}`)
+  }
+
+  const sameColour = (drawnColour: string | null, stated: string, why: string): void => {
+    const one = rgbOf(drawnColour as string)
+    const other = rgbOf(stated)
+    expect(one.r, why).toBeCloseTo(other.r, 4)
+    expect(one.g, why).toBeCloseTo(other.g, 4)
+    expect(one.b, why).toBeCloseTo(other.b, 4)
+  }
+
+  const HUE = 214
+
+  it('takes the ink from S-168 and the halo from S-169, in both themes', () => {
+    // FR-041 (MUST): 「画面の色は `_assets/tbl-settings.md` の 表 T-236 に従う
+    // こと（MUST）」, and the table gives the 文字色 on a bar to S-168 and its
+    // 縁取りの色 to S-169. ⚠️ Both columns are read, because a picture that
+    // typed in the LIGHT pair drew black text on the dark ground.
+    for (const preference of ['light', 'dark'] as const) {
+      const settings = settingsOf({ ...SETTINGS, themePreference: preference })
+      const label = nameLabelOf(drawn(scene(), settings), 'alpha')
+      sameColour(
+        attribute(label, 'fill'),
+        T_236_LABEL['S-168'][preference],
+        `S-168 in the ${preference} theme`,
+      )
+      sameColour(
+        attribute(label, 'stroke'),
+        T_236_LABEL['S-169'][preference].replace(/\bH\b/, String(HUE)),
+        `S-169 in the ${preference} theme`,
+      )
+    }
+  })
+
+  it('gives the halo S-34 of the font, and paints it BEHIND the glyph', () => {
+    // S-169: 「太さは 表 T-201 の `S-34`」 -- `labelHaloOfFont`, a ratio of the
+    // font. ⛔ And the halo has to sit UNDER the ink: 「縁取りはバーの色から
+    // 文字を切り離すためのもの」, which an outline painted OVER the glyph does
+    // not do -- SVG's own default paints the stroke last, so the picture has to
+    // say otherwise.
+    const label = nameLabelOf(drawn(scene()), 'alpha')
+    const fontSize = Number(attribute(label, 'font-size'))
+    expect(fontSize).toBeGreaterThan(0)
+    expect(Number(attribute(label, 'stroke-width'))).toBeCloseTo(
+      fontSize * (SETTINGS_DEFAULTS['labelHaloOfFont'] as number),
+      1,
+    )
+    expect(attribute(label, 'paint-order')).toBe('stroke')
   })
 })
 
