@@ -2757,6 +2757,32 @@ function commandFromGrab(
       if (place === null) return CONSUMED_ELSEWHERE
       return changed([{ kind: 'setTaskPlanActualState', uid, place }])
     }
+    case 'GR-9':
+    case 'GR-17':
+    case 'GR-18':
+      // FR-043's faint dummies. ⭐ ONE COMMAND FOR ALL THREE, AND IT TAKES NO
+      // DAY. FR-043 (MUST) places the same three columns whichever handle was
+      // grabbed and fixes whichever end was not, so neither end can be a
+      // parameter; CM-14 already reads the shape to choose between S-129 and
+      // S-130, so GR-18 needs no separate answer here.
+      //
+      // ⭐ THE RELEASE IS THE ONLY PHASE THAT REACHES THIS FUNCTION, which is
+      // what table T-023d's grab means: the table's closing rule sends the
+      // moment of decision to table T-028's IN-1, and `pointerAssignment`
+      // above answers `down`, `move` and `lost` without ever calling here.
+      // ⭐ IN-1a follows from the same shape -- a pointer lost mid-gesture
+      // writes nothing, which is the abort that row demands.
+      //
+      // ⚠️ GR-9's MUST NOT (no state cycled by a press) is kept by the hit
+      // test, not here: a point GR-9 claims never arrives as GR-7, so the
+      // cycle above is unreachable from a dummy. ⚠️ The row was narrowed to
+      // that wording by CR-198; it does not refuse the press itself.
+      //
+      // ⛔ STILL MISSING AND NOT THIS UNIT'S: table T-023d also requires the
+      // actual about to be placed to be DRAWN while one of the three is held
+      // (MUST). That picture is the renderer's, from the press it can see --
+      // IN-1 keeps a move from carrying an action.
+      return changed([{ kind: 'beginTaskActual', uid }])
     case 'GR-12': {
       // FR-011 and HM-3 of table T-015a: the body moves sideways by whole days
       // and, when it went up or down, changes the row it is drawn on.
@@ -2800,17 +2826,18 @@ function commandFromGrab(
       //                here).
       //   GR-8         `resume`, whose rule is FR-044 and whose valid / invalid
       //                pair (AT-38) has no row saying which a drag produces.
-      //   GR-9 / GR-17 / GR-18  the dummies. FR-043 gives the VALUES (S-129,
-      //                S-130) and `beginTaskActual` is the command, but the two
-      //                dummies differ in what they set and table T-023d says
-      //                「掴めば」 -- press, drag or release is not stated, and
-      //                GR-9 adds 「押しは受けない」 which contradicts reading it
-      //                as a click.
       //   GR-11 / GR-13 / GR-14 / GR-15  no target exists to be grabbed:
       //                `item-hit-area.ts` records GR-11 and the comment-box
       //                half of GR-14 as undrawn, and a dependency (GR-13) or a
       //                highlight box (GR-14) is SELECTED by a press rather than
       //                changed by one.
+      // ⚠️ GR-9 / GR-17 / GR-18 WERE ON THIS LIST AND ARE NOT ANY MORE, and
+      // nothing in the specification moved -- the note misread it twice. It
+      // said the phase was unstated, but table T-023d's closing rule already
+      // sends these three to table T-028's IN-1; and it quoted a GR-9 clause
+      // that CR-198 had already narrowed to forbidding a CYCLE rather than the
+      // press. FR-043's MUST leaves neither end a parameter, so one CM-14
+      // answers all three. See the case above.
       // ⚠️ GR-5 AND GR-6 WERE ON THIS LIST AND ARE NOT ANY MORE. What held them
       // was named as the counting and a ruling about a drop onto a non-working
       // day; `workingDaysBetween` and `workingCalendarOf` are published by

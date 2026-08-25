@@ -443,17 +443,24 @@ export type PointerShape =
 export type ShowPointerShape = (shape: PointerShape | null) => void
 
 /**
+ * What `itemAtPointer` (PI-7) answers where a row of table T-023d claims the
+ * point.
+ *
+ * ⭐ DERIVED FROM WHAT THAT FUNCTION ANSWERS, not imported by name. Table T-064
+ * is the full count of what may cross a component folder, and neither the
+ * answer's type nor its `grab` is on it -- a derivation states the same types
+ * without minting a crossing the table does not hold (check 26b).
+ */
+type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>>
+
+/**
  * The four rows of table T-023d that are 「予定バーと実績バーの端点」.
  *
  * ⚠️ The plan's two ends and the actual's two ends, and no other row: GR-1 and
  * GR-2 are the fade handles, GR-15 is a milestone's whole figure, and IN-2
  * names none of them.
  */
-// ⭐ DERIVED FROM WHAT `itemAtPointer` ANSWERS, not imported by name. Table
-// T-064 is the full count of what may cross a component folder, and
-// `GrabArea` is not on it -- a derivation states the same set without
-// minting a crossing the table does not hold (check 26b).
-type GrabbedArea = NonNullable<ReturnType<typeof itemAtPointer>>['grab']
+type GrabbedArea = Grabbed['grab']
 
 const BAR_ENDPOINT_GRABS: ReadonlySet<GrabbedArea> = new Set<GrabbedArea>([
   'GR-3',
@@ -1578,6 +1585,57 @@ function isSameScreenPart(a: ScreenPart | null, b: ScreenPart | null): boolean {
 }
 
 /**
+ * Whether two answers of `itemAtPointer` name the same grab on the same thing.
+ *
+ * ⭐ Compared by value and not by identity, for the reason `isSameScreenPart`
+ * gives: PI-7 builds its answer at the moment it is asked as well.
+ *
+ * ⭐ THE THING IS COMPARED AS WELL AS THE ROW. Table T-023d's rows repeat on
+ * every drawn `Task`, so a pointer that crossed from one bar's end to the next
+ * is answered the same row about a different `Task` -- and what FR-048's roster
+ * of pointer-answering parts names is drawn ON the thing, so the picture is a
+ * different one.
+ *
+ * @purity pure
+ */
+function isSameGrab(a: Grabbed | null, b: Grabbed | null): boolean {
+  if (a === null || b === null) return a === b
+  return a.grab === b.grab && isSameGrabbedItem(a.item, b.item)
+}
+
+/**
+ * Whether two targets of table T-023c's SL-1 are the same one.
+ *
+ * ⭐ A CENSUS THE COMPILER KEEPS, the same bargain `PRESS_CHANGES_DOCUMENT`
+ * strikes below: with every branch returning, a target added to that table is a
+ * missing return here and names itself. ⛔ A default arm would let a new kind
+ * compare equal to every other of its own kind, which is a frame never asked
+ * for and nothing to show for it.
+ *
+ * @purity pure
+ */
+function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
+  switch (a.kind) {
+    case 'task':
+      return b.kind === 'task' && a.taskUid === b.taskUid
+    case 'dependency':
+      return (
+        b.kind === 'dependency' &&
+        a.predecessorUid === b.predecessorUid &&
+        a.successorUid === b.successorUid
+      )
+    case 'highlightBox':
+      return b.kind === 'highlightBox' && a.id === b.id
+    case 'commentBox':
+      return b.kind === 'commentBox' && a.id === b.id
+    // ⭐ NOTHING TELLS TWO APART, because there are never two: FR-046 gives the
+    // document one `statusDate`, so the kind IS the identity.
+    case 'statusLine':
+      return b.kind === 'statusLine'
+  }
+}
+
+/**
  * Whether a press of each row of table T-023a changes the document as it runs.
  *
  * ⭐ WHY EXACTLY TWO ARE FALSE. Table T-027 keeps exactly two gestures outside
@@ -2210,6 +2268,15 @@ export function frameLoop(
   // the same part draws the same picture, and only the previous answer can say
   // whether this one is a different one.
   let partUnderPointer: ScreenPart | null = null
+  // What table T-023d answered where the pointer last was, or `null` where no
+  // row of it claimed the point.
+  // ⭐ HELD BESIDE `partUnderPointer` AND FOR THE SAME REASON, because the two
+  // together are the whole of where the pointer stood: IF-9 answers for the
+  // parts drawn OVER the schedule and this one for the schedule itself, and
+  // FR-048's exemption is about a CHANGE in either.
+  // ⛔ NOT A SECOND HIT TEST. `grabAtPointer` is asked once per happening and
+  // its one answer is what both IN-2's shape and FR-048's judgement read.
+  let grabUnderPointer: Grabbed | null = null
   // FT-4 of table T-078 -- when the rest EZ-2 of table T-040 waits on began,
   // read off the monotonic clock R3.6 requires for an elapsed time, or `null`
   // while the pointer has never yet been reported to stand anywhere.
@@ -2842,6 +2909,46 @@ export function frameLoop(
   }
 
   /**
+   * What table T-023d claims where the pointer now stands (`itemAtPointer`,
+   * PI-7), or `null` where no row of it does.
+   *
+   * ⭐ ASKED ONCE PER HAPPENING AND READ BY BOTH SIDES (R7.4). IN-2's shape and
+   * FR-048's judgement are two questions about ONE answer, and asking twice
+   * would be a second moment as well as a second walk of the geometry.
+   *
+   * ⚠️ THIS IS THE ONLY PLACE THE HIT TEST IS ASKED WITHOUT A PRESS, and the
+   * cost is why the cheap refusals stand in front of it. `itemAtPointer` is a
+   * LINEAR SCAN: it builds one bounding-box pair per drawn `Task` and then
+   * walks table T-023d's rows as the outer loop over those, so a pointer
+   * resting on empty canvas pays O(n) per move at MC-7's 1000 `Task`.
+   * ⭐ NFR-013 IS KEPT -- that requirement bounds hit testing at `O(n log n)`
+   * and forbids `O(n²)`, and linear is inside it -- but it is not free, so
+   * `regionAtPointer` turns away every point outside the `Row Area` and the
+   * surface's own answer turns away every point on a drawn entry. Both are
+   * constant time.
+   *
+   * @purity semi-pure-b
+   */
+  function grabAtPointer(
+    frame: FrameValues,
+    x: number,
+    y: number,
+    on: ScreenPart | null,
+  ): Grabbed | null {
+    // ⛔ The note under table T-023a binds that table's decision order to the
+    // schedule's drawing area (MUST), and a point the screen surface answered
+    // for is on a part drawn OVER it.
+    if (on !== null) return null
+    // ⛔ The `Schedule Canvas` is wider than the `Row Area`, and every target
+    // of table T-023d is drawn inside the latter.
+    if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
+    // ⛔ PD-2 TURNS HIT TESTING OFF while the `Dual Cursor` is up, so the table
+    // is not asked at all rather than asked and its answer thrown away.
+    if (isDualCursorMode) return null
+    return itemAtPointer(frame.geometry, x, y, POINTER_SLOP)
+  }
+
+  /**
    * IN-2 of table T-028 -- what the pointer can do where it now stands, as a
    * shape, or `null` for a place that row does not name.
    *
@@ -2850,19 +2957,14 @@ export function frameLoop(
    * here would do, and that is decided nowhere else. ⛔ Rearranging it would
    * make the shape promise one thing and the press do another.
    *
-   * ⚠️ THIS IS THE ONLY PLACE THE HIT TEST IS ASKED WITHOUT A PRESS, and the
-   * cost is why the two cheap refusals stand in front of it. `itemAtPointer`
-   * (PI-7) is a LINEAR SCAN: it builds one bounding-box pair per drawn `Task`
-   * and then walks table T-023d's rows as the outer loop over those, so a
-   * pointer resting on empty canvas pays O(n) per move at MC-7's 1000 `Task`.
-   * ⭐ NFR-013 IS KEPT -- that requirement bounds hit testing at `O(n log n)`
-   * and forbids `O(n²)`, and linear is inside it -- but it is not free, so
-   * `regionAtPointer` turns away every point outside the `Row Area` first and
-   * the surface's own answer turns away every point on a drawn entry. Both are
-   * constant time.
-   * ⚠️ NO FRAME IS ASKED FOR. FR-048 (MUST NOT) forbids a redraw on a bare
-   * move, and the shape is not drawn content -- the host paints the pointer --
-   * so it is written straight out rather than through `ScreenSession`.
+   * ⚠️ THE LAST THREE REFUSALS BELOW ARE `grabAtPointer`'s AS WELL, and they
+   * are restated rather than left to it: that function answers `null` for a
+   * point it turned away, and `null` is also its answer for empty canvas, where
+   * PD-5 gives a shape. ⛔ A shape read off the hit alone would put PD-5's
+   * crosshair on the time ruler.
+   * ⚠️ NO FRAME IS ASKED FOR HERE. The shape is not drawn content -- the host
+   * paints the pointer -- so it is written straight out rather than through
+   * `ScreenSession`.
    *
    * @purity semi-pure-b
    */
@@ -2871,6 +2973,7 @@ export function frameLoop(
     x: number,
     y: number,
     on: ScreenPart | null,
+    hit: Grabbed | null,
   ): PointerShape | null {
     // PD-1, and IN-2 asks for it 「パン中」 -- so the press in flight is what is
     // read, not the modifiers of a move that presses nothing.
@@ -2886,7 +2989,6 @@ export function frameLoop(
     // STOP -- ⛔ PD-2 TURNS HIT TESTING OFF, and IN-2 names no shape for the
     // `Dual Cursor` mode, so nothing is invented for it.
     if (isDualCursorMode) return null
-    const hit = itemAtPointer(frame.geometry, x, y, POINTER_SLOP)
     // PD-3. ⛔ STOP for every other row of table T-023d: IN-2 names the two
     // bars' ENDPOINTS and nothing else, and a shape for the bar's middle or for
     // a fade handle would be one this build made up.
@@ -4018,6 +4120,7 @@ export function frameLoop(
     input: HumanInput,
     before: InputContext,
     partBefore: ScreenPart | null,
+    grabBefore: Grabbed | null,
   ): boolean {
     if (input.kind !== 'pointer' || input.phase !== 'move') return true
     // 1. A gesture in flight. The drag, the pan and the marquee all draw
@@ -4038,12 +4141,24 @@ export function frameLoop(
     if (held.document !== before.document) return true
     // 4. FR-048's ⚠️ exemption, which is not a hole in the MUST NOT but a list
     //    of things that DO change what is drawn: HF-6's row controls, FR-053's
-    //    palette, FR-043's grab slop and EZ-2's icon hint all answer to the
-    //    pointer. ⭐ Which part it is on may be asked only of the side that drew
-    //    it (Chapter 5.3, under table T-065). ⚠️ With no `ScreenWiring` there
-    //    are no parts at all, so both sides are null and this is false -- which
-    //    is what makes a hover over a bare schedule draw nothing.
-    return !isSameScreenPart(partUnderPointer, partBefore)
+    //    palette, FR-043's grab slop and the marker FR-013 gives it, EZ-2's
+    //    icon hint and FR-037's scrollbar hint all answer to the pointer.
+    //    ⭐ Which part it is on may be asked only of the side that drew it
+    //    (Chapter 5.3, under table T-065). ⚠️ With no `ScreenWiring` there are
+    //    no parts at all, so both sides are null and this one is false.
+    if (!isSameScreenPart(partUnderPointer, partBefore)) return true
+    // 5. ⭐ AND THE SAME QUESTION ASKED OF THE SCHEDULE ITSELF, which is where
+    //    FR-043's grab slop and FR-013's marker are drawn -- two of that same
+    //    list. ⛔ IF-9 CANNOT ANSWER FOR THEM: the schedule goes up whole over
+    //    IF-1 and nothing in it is an entry the other surface drew, so
+    //    `readScreenPartAt` answers `null` at every point of the drawing area
+    //    and the comparison above sees no difference anywhere across it.
+    //    Table T-023d is the side that can tell one place from another there,
+    //    and `grabAtPointer` is where it is asked.
+    //    ⛔ NOT A WIDENING OF THE ROSTER. A move that stays on one row of that
+    //    table still owes nothing, which is FR-048's MUST NOT; it is the move
+    //    that ENTERS a different one that changes what is drawn.
+    return !isSameGrab(grabUnderPointer, grabBefore)
   }
 
   /**
@@ -4063,6 +4178,10 @@ export function frameLoop(
     // press, and FR-048 asks whether the pointer entered a different part -- and
     // a second read further down would be a second moment.
     const partBefore = partUnderPointer
+    // ⭐ AND WHERE THE POINTER STOOD ON THE SCHEDULE, taken at the same moment
+    // and for the same one reader: FR-048 asks whether the pointer entered a
+    // different row of table T-023d as well.
+    const grabBefore = grabUnderPointer
     if (input.kind === 'pointer') {
       // FT-4 of table T-078 -- the rest starts over wherever the pointer has
       // MOVED to.
@@ -4253,14 +4372,21 @@ export function frameLoop(
     // ⛔ Nothing is asked while no pointer has been heard of: `pointerAt` is
     // null until the first pointer happening, and there is no place to answer
     // about.
+    // ⭐ THE HIT TEST IS ASKED HERE, AT THE SAME LATE MOMENT AND FOR THE SAME
+    // REASON: the two readers below want the answer for the schedule as it
+    // stands once this happening has been spent, and one ask is what R7.4
+    // allows them.
     if (pointerAt !== null) {
-      showPointerShape?.(pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer))
+      grabUnderPointer = grabAtPointer(frame, pointerAt.x, pointerAt.y, partUnderPointer)
+      showPointerShape?.(
+        pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer, grabUnderPointer),
+      )
     }
 
     // FT-1 owes a frame for every happening the row names, save the one FR-048
     // takes back. ⚠️ `ask` coalesces, so two triggers in one task still paint
     // once.
-    if (owesFrame(input, context, partBefore)) ask()
+    if (owesFrame(input, context, partBefore, grabBefore)) ask()
   }
 
   // BO-5 -- the first frame, which table T-078's note excludes from FT-1.
