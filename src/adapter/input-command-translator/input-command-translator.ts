@@ -147,6 +147,7 @@ import type { ScheduleGeometry } from '../../entity/layout-engine/schedule-geome
 import {
   dateAtX,
   fitZoom,
+  xFromDay,
   type RowPlacement,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -474,10 +475,10 @@ export type InputAction =
    *
    * ⚠️ THE SHAPE IS MK-7's PAN AND THE ROAD IS NOT. That row's rule reads
    * 「パンは等倍とすること（MUST）」, which is why nothing is scaled here
-   * either. ⛔ But `scrolledAnchor` is not reused: it answers a date and a
-   * row, because S-77 / S-78 hold the schedule's place as an anchor in the
-   * document, and the palette's place is a pair of screen numbers that no
-   * document row holds at all.
+   * either. ⛔ But `scrolledAnchor` is not reused: it answers a day and a row
+   * with a fraction of each, because S-77 / S-78 / S-176 / S-177 hold the
+   * schedule's place as an anchor in the document, and the palette's place is
+   * a pair of screen numbers that no document row holds at all.
    *
    * ⛔ NOT A DOCUMENT CHANGE, which is why it is a kind of its own rather
    * than a `DocumentCommand`: table T-108 has no row for it and table T-203
@@ -904,9 +905,10 @@ function rowAtY(layout: ScheduleLayout, y: number): RowPlacement | null {
  * takes the trailing `rowGap` back off the content height: past that there is
  * no row to name, which is the null `scrolledAnchor` reads as "ran off the end".
  *
- * ⚠️ The ORDINAL is what this answers, because the two callers want different
- * halves of it: `rowAtTopEdge` wants the row, and `rowTurnedTo` wants the place
- * in the stack, so that it can name the row one step along.
+ * ⚠️ The ORDINAL is what this answers, because the callers want different
+ * halves of it: `rowAnchorAt` wants the row AND the one below it (S-176 cannot
+ * spell a top edge standing in the gap), and `rowTurnedTo` wants the place in
+ * the stack, so that it can name the row one step along.
  *
  * @purity pure
  */
@@ -922,87 +924,187 @@ function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | n
 }
 
 /**
- * The same question, answered with the row rather than with its place.
+ * A display position: the two anchors of S-77 / S-78 and the two fractions of
+ * S-176 / S-177 that say where inside each anchor the edge stands.
  *
- * @purity pure
+ * ⭐ FOUR VALUES AND NOT TWO. The anchors alone can only name the start of a
+ * day and the top of a band, so a movement shorter than either had nowhere to
+ * be written at all.
+ *
+ * STOP -- ⛔ `setScrollPosition` (CM-66) CARRIES ONLY THE TWO ANCHORS. All four
+ * are written into that command below, because a pan that does not carry the
+ * fractions cannot be 等倍, but the command's own type in
+ * `edit-document-settings.ts` has no member for either and its CM-66 branch
+ * puts only `scrollDate` and `scrollGroupId`. Until that use-case type gains
+ * `scrollDayOffset` and `scrollGroupOffset` -- and `fitScheduleToScreen`
+ * (CM-71) with it -- this file does not compile and nothing reaches S-176 or
+ * S-177. ⛔ NOT A CASE THE ROWS LEAVE OPEN: the paragraph under table T-023d
+ * states the MUST and table T-203 states the two keys; the seam is simply in
+ * another unit.
  */
-function rowAtTopEdge(layout: ScheduleLayout, y: number): RowPlacement | null {
-  const at = rowIndexAtTopEdge(layout.rows, y)
-  return at === null ? null : (layout.rows[at] ?? null)
+interface ScrollAnchor {
+  /** S-77. */
+  readonly scrollDate: string | null
+  /** S-177, a fraction of that day's own width. In [0, 1). */
+  readonly scrollDayOffset: number
+  /** S-78. A `TaskGroup.id`, never a row number. */
+  readonly scrollGroupId: string | null
+  /** S-176, a fraction of that row's own height. In [0, 1). */
+  readonly scrollGroupOffset: number
 }
 
 /**
- * Where the scroll anchor lands when the schedule is moved by this many pixels.
+ * OP-10a's range, [0, 1), reached the way that row reaches it: drop the whole
+ * part rather than refuse the value (MUST NOT refuse).
  *
- * ⭐ S-77 pins the LEFT edge of the Row Area to `scrollDate` and S-78 pins the
- * top of it to a row, so a scroll is expressed by naming what stands at those
- * two edges afterwards -- there is nowhere to keep a part of a row.
- * ⛔ The vertical half asks `rowAtTopEdge` and NOT `rowAtY`: a landing point in
- * the `rowGap` is on no row's band, and reading that as "the axis cannot say"
- * left the anchor where it was -- so MK-1's vertical scroll was refused for
- * every turn whose distance happened to end in a gap, however many rows long
- * the turn was.
- * ⚠️ Either half answers null when the axis cannot say, and a null is passed on
- * as the value already in force rather than as "no chosen place": OP-10 of
- * table T-024a reads a null `scrollDate` as 「人がまだ場所を決めていない」, and
- * a scroll that ran off the end has not un-decided anything.
- * ⛔ NEITHER MK-1 NOR PD-1 TAKES THE VERTICAL HALF FROM HERE -- `rowTurnedTo`
- * below says why, and the short answer is that this half answers the row the
- * moved top edge LANDS IN, which for a distance shorter than that row is the row
- * already in force. ⚠️ MK-5 still takes it: a sideways turn decides no vertical
- * place, so the value in force is exactly the right answer there.
+ * ⚠️ Callers hand this a value already known to be in range; the guard is for
+ * the rounding of the division that produced it, so that a distance a hair
+ * short of the anchor's own extent cannot divide to exactly 1 and spell one
+ * position two ways -- which is what NS-4's round-trip comparison would catch.
  *
  * @purity pure
  */
-function scrolledAnchor(
+function unitFraction(value: number): number {
+  if (!Number.isFinite(value)) return 0
+  const dropped = value - Math.floor(value)
+  return dropped < 1 ? dropped : 0
+}
+
+/**
+ * S-77 with S-177: the day the left edge lands in, and how far into that day.
+ *
+ * ⭐ The axis is read through the two published converters, one each way, so
+ * `x -> day` and `day -> x` cannot drift apart -- which is the same reason
+ * `schedule-layout.ts` gives for keeping one formula.
+ * ⚠️ `dateAtX` floors, so the distance measured back from the day it names is
+ * always at least zero and shorter than one day's width. That IS the fraction.
+ *
+ * @purity pure
+ */
+function dayAnchorAt(
   context: InputContext,
-  dx: number,
-  dy: number,
-): { readonly scrollDate: string | null; readonly scrollGroupId: string | null } {
+  x: number,
+): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> {
   const settings = context.document.documentSettings
-  const area = context.regions.rowArea
-  const day = dayAtX(context.layout, area.x + dx)
-  const row = rowAtTopEdge(context.layout, area.y + dy)
+  const layout = context.layout
+  const day = dayAtX(layout, x)
+  // A null is passed on as the value already in force rather than as "no
+  // chosen place": OP-10 of table T-024a reads a null `scrollDate` as
+  // 「人がまだ場所を決めていない」, and a scroll has not un-decided anything.
+  if (day === null || !(layout.pxPerDay > 0)) {
+    return { scrollDate: settings.scrollDate, scrollDayOffset: settings.scrollDayOffset }
+  }
   return {
-    scrollDate: day === null ? settings.scrollDate : textOfDay(day),
-    scrollGroupId: row === null ? settings.scrollGroupId : row.groupId,
+    scrollDate: textOfDay(day),
+    scrollDayOffset: unitFraction((x - xFromDay(layout, day)) / layout.pxPerDay),
   }
 }
 
 /**
- * Where MK-1's turn -- or PD-1's pan -- leaves the row at the top edge.
+ * S-78 with S-176: the row the top edge lands in, and how far into that row.
  *
- * ⛔ `scrolledAnchor` IS NOT THE WHOLE OF EITHER, and the difference is not an
- * error in its arithmetic: it answers the row the moved top edge LANDS IN.
- * ⚠️ S-78 anchors the display to a WHOLE row and table T-206 has nowhere to
- * keep part of one, so a movement shorter than the row standing at the top edge
- * lands back inside that same row and the answer equals the value already in
- * force. Measured on the template FR-027 starts a reader with, most of the
- * bands drawn are TALLER than the distance a common wheel reports for one
- * detent, so turn after turn moved nothing at all and MK-1's
- * 「**縦スクロール**」 did not scroll. ⚠️ PD-1's DRAG FAILS THE SAME WAY and for
- * the same reason, so it is answered here too -- MK-7 holds the pan to the
- * distance the pointer went (MUST), and no value S-78 admits can express a
- * distance shorter than a row, so 等倍 is out of reach whichever answer is
- * given and only one of the two moves the picture at all.
+ * ⛔ Asks `rowIndexAtTopEdge` and NOT `rowAtY`: a landing point in the `rowGap`
+ * is on no row's band, and reading that as "the axis cannot say" left the
+ * anchor where it was -- so a scroll was refused for every distance that
+ * happened to end in a gap, however many rows long it was.
+ * ⚠️ THE GAP HAS NO SPELLING OF ITS OWN. The slab that member reads runs to the
+ * next band, so it takes in the `rowGap` LF-3 of table T-221 draws between two
+ * bands, while S-176 is a fraction of the row's own HEIGHT -- a top edge
+ * standing in the gap would need a fraction of 1 or more, which S-176's range
+ * excludes. The nearest place that can be written is the top of the row below,
+ * and it is at most one `rowGap` away.
+ * ⚠️ A null is passed on as the value in force, for the reason `dayAnchorAt`
+ * gives.
  *
- * ⛔ NOTHING SETTLES WHAT A MOVEMENT SHORTER THAN ITS ROW DOES. S-96 leaves the
- * distance to the device -- 「1 ノッチで何倍動くかは入力装置に依存する」 -- and
- * no row anywhere turns a distance into a count of rows. Searched: table T-023
- * MK-1, MK-5 and MK-7, table T-023a and its note and PD-1, S-4, S-12, S-77,
- * S-78, S-96, FR-016, FR-051, FR-017, OP-10 of table T-024a.
- * ⭐ ZERO IS THE ONE ANSWER THE ROWS RULE OUT, so the choice that cannot be
- * wrong is the SMALLEST movement S-78 can express: one row, in the direction
- * asked for, and only when a distance was asked for at all. ⚠️ This invents
- * no rows-per-notch and no rows-per-pixel figure -- it is a floor under a
- * distance that still comes from the device or the hand, and every movement long
+ * @purity pure
+ */
+function rowAnchorAt(
+  context: InputContext,
+  y: number,
+): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
+  const settings = context.document.documentSettings
+  const rows = context.layout.rows
+  const held = {
+    scrollGroupId: settings.scrollGroupId,
+    scrollGroupOffset: settings.scrollGroupOffset,
+  }
+  const at = rowIndexAtTopEdge(rows, y)
+  if (at === null) return held
+  const row = rows[at]
+  if (row === undefined || row.height <= 0) return held
+  const into = y - row.y
+  if (into >= row.height) {
+    const below = rows[at + 1]
+    // ⚠️ The last row's slab ends at its own band, so a gap always has a row
+    // below it and this is never the whole answer for the foot of the stack.
+    if (below !== undefined) return { scrollGroupId: below.groupId, scrollGroupOffset: 0 }
+  }
+  return { scrollGroupId: row.groupId, scrollGroupOffset: unitFraction(into / row.height) }
+}
+
+/**
+ * Where the display position lands when the schedule is moved by this many
+ * pixels.
+ *
+ * ⭐ S-77 pins the LEFT edge of the Row Area to a day and S-78 pins the top of
+ * it to a row, so a scroll is expressed by naming what stands at those two
+ * edges afterwards -- and since CR-260, by how far INTO each of them the edge
+ * stands (S-176 / S-177). ⛔ Those two fractions are what make 表 T-023d's
+ * 「パンは等倍とすること（MUST）」 reachable at all: without them the smallest
+ * movement that could be written was a whole row, so a pan either did nothing
+ * or jumped further than the pointer went.
+ * ⚠️ Neither fraction is a px count. FR-080 forbids holding a scroll position
+ * in px (MUST NOT) because a zoom or a window width then makes the same number
+ * point somewhere else, and a fraction of the anchor's OWN extent does not.
+ *
+ * ⚠️ The distances are measured against `context.layout`, which was built with
+ * the position already in force applied, so passing zero on an axis answers
+ * exactly the values that axis already holds. That is what lets MK-5 take the
+ * vertical half from here unchanged.
+ *
+ * @purity pure
+ */
+function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAnchor {
+  const area = context.regions.rowArea
+  return {
+    ...dayAnchorAt(context, area.x + dx),
+    ...rowAnchorAt(context, area.y + dy),
+  }
+}
+
+/**
+ * Where MK-1's turn leaves the row at the top edge. ⭐ THE WHEEL ONLY.
+ *
+ * ⛔ `scrolledAnchor` IS NOT THE WHOLE OF MK-1, and the difference is not an
+ * error in its arithmetic: it answers the place the moved top edge LANDS IN,
+ * which for a distance shorter than the row standing there is a place inside
+ * that same row. Measured on the template FR-027 starts a reader with, most of
+ * the bands drawn are TALLER than the distance a common wheel reports for one
+ * detent, so before CR-260 turn after turn moved nothing at all and MK-1's
+ * 「**縦スクロール**」 did not scroll.
+ *
+ * ⚠️ WHY THE FLOOR STAYS HERE AND WAS TAKEN OFF PD-1. The two are held to
+ * different rules. 表 T-023d states 「パンは等倍とすること（MUST）」 of the pan
+ * and of nothing else, so PD-1 must move the picture exactly as far as the
+ * pointer went -- which S-176 and S-177 now let it write, so the floor there
+ * was a defect the moment those two rows existed. MK-1 carries no such MUST:
+ * table T-023 gives it 「縦スクロール（ズームではない）」 and no distance at
+ * all, and a wheel is a detent rather than a hand.
+ * ⛔ BUT THE FLOOR IS NO LONGER FORCED, AND SAYING OTHERWISE WOULD BE FALSE.
+ * PD-176 was decided on the ground that ZERO is the one answer 「縦スクロール」
+ * rules out and one row was the smallest movement S-78 could express. ⚠️ The
+ * second half of that ground is now gone: S-176 can express any part of a row,
+ * so scrolling the wheel by the distance the device reported is open too, and
+ * the user's ruling behind CR-260 -- 「飛び飛びだと UI 上気持ち悪くて『ぬるサク』
+ * を達成できない」 -- speaks against a detent as much as against a jump. The
+ * floor is kept because it is what the record holds and no row forbids it;
+ * ⛔ it is a choice awaiting adjudication, not a forced answer.
+ * Searched: table T-023 MK-1, MK-5 and MK-7, table T-023a and its note and
+ * PD-1, the paragraph under table T-023d, S-4, S-12, S-77, S-78, S-96, S-176,
+ * S-177, FR-016, FR-051, FR-017, FR-080, OP-10 and OP-10a of table T-024a.
+ * ⚠️ This invents no rows-per-notch and no rows-per-pixel figure -- it is a
+ * floor under a distance that still comes from the device, and every turn long
  * enough to reach a further row still reaches it.
- * ⛔ PD-176's TEXT NAMES THE NOTCH ONLY. The pan leans on the same undecided
- * floor and the record has not been widened to say so, which is a thing to
- * settle rather than a second choice made here.
- * ⛔ The cost is that a row taller than the Row Area cannot be read to its
- * foot: no anchor value can name a place inside a row, so the pan cannot reach
- * it either.
  *
  * @provisional PD-176
  * @provisional PD-177
@@ -1847,23 +1949,40 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
     {
       kind: 'setScrollPosition',
       scrollDate: moved.scrollDate,
+      // ⭐ MK-5's sideways turn is continuous: the device reports a distance in
+      // px and S-177 can hold any part of a day, so the schedule moves by the
+      // distance turned rather than by whole days. ⚠️ MK-1 passes zero on this
+      // axis, so both members answer the values already in force.
+      scrollDayOffset: moved.scrollDayOffset,
       // MK-1 -- see `rowTurnedTo`, which is `scrolledAnchor`'s vertical half
-      // plus the one thing S-78 cannot express. ⚠️ MK-5 keeps the plain answer:
-      // it decides no vertical place, and the row standing at the top edge is
+      // with a one-row floor under it. ⚠️ MK-5 keeps the plain answer: it
+      // decides no vertical place, and the place standing at the top edge is
       // the one already in force.
       scrollGroupId: plain ? rowTurnedTo(context, input.scrollPx.y) : moved.scrollGroupId,
+      // ⭐ A detent lands ON a row, so the fraction it leaves behind is zero.
+      // ⛔ Writing `moved.scrollGroupOffset` beside a floored id would spell a
+      // place neither the floor nor the distance asked for.
+      scrollGroupOffset: plain ? 0 : moved.scrollGroupOffset,
     },
   ])
 }
 
-// STOP -- ⛔ HALF OF THE ZOOM RULE CANNOT BE WRITTEN YET. FR-016 requires the
-// day and the row under the pointer to stand still through a zoom (MUST), and
-// for a pointer-less route the centre of the `Row Area` instead. Holding a day
-// still means naming the day that will stand at the LEFT EDGE afterwards, which
-// is the inverse of `dateAtX` -- x from a day -- and PI-5 publishes no such
-// member (`schedule-layout.ts` keeps `xOfDay` private). Searched: table T-064
-// PI-5 and PI-6, `schedule-layout.ts`, `schedule-geometry.ts`, FR-016, FR-017,
-// FR-055. Until that member exists, a zoom moves the scale and leaves the
+// STOP -- ⛔ HALF OF THE ZOOM RULE IS STILL UNWRITTEN. FR-016 requires the day
+// and the row under the pointer to stand still through a zoom (MUST), and for a
+// pointer-less route the centre of the `Row Area` instead.
+// ⚠️ THE REASON THIS STOP USED TO GIVE IS NO LONGER TRUE and is corrected here
+// rather than repeated: it said PI-5 published no way to go from a day back to
+// an x, and `xFromDay` is exported and imported by this very file. ⛔ What
+// blocks the rule now is the WRITING side, not the reading side. Holding a
+// point still through a zoom lands the edge partway into a day and partway into
+// a row -- S-176 and S-177 can hold exactly that since CR-260 -- but
+// `setScrollPosition` (CM-66) carries no member for either, and the zoom
+// commands (CM-65) carry no position at all, so a zoom that held the point
+// still would have nowhere to write where it moved the edge to.
+// Searched: table T-064 PI-5 and PI-6, `schedule-layout.ts`,
+// `schedule-geometry.ts`, `edit-document-settings.ts` CM-65 / CM-66, FR-016,
+// FR-017, FR-055, table T-203 S-176 / S-177.
+// Until those commands carry a position, a zoom moves the scale and leaves the
 // anchor where it was, and the MUST is unmet rather than guessed at.
 
 /**
@@ -1942,25 +2061,28 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   switch (pressRowOf(press, context)) {
     case 'PD-1': {
       // Pan. ⭐ 「パンは等倍とすること（MUST）」 -- the schedule moves exactly
-      // as far as the pointer did, so the anchor moves the opposite way by the
-      // same number of pixels.
-      const dy = press.at.y - input.y
-      const moved = scrolledAnchor(context, press.at.x - input.x, dy)
+      // as far as the pointer did, so the display position moves the opposite
+      // way by the same number of pixels.
+      //
+      // ⭐ ALL FOUR MEMBERS COME FROM THE ONE READING, and that is what makes
+      // 等倍 exact. S-176 and S-177 hold the part of a row and the part of a
+      // day the anchors cannot name, so a movement of any distance -- shorter
+      // than a row, shorter than a day -- is written as the distance it was.
+      // ⛔ NO FLOOR IS TAKEN HERE ANY MORE. `rowTurnedTo`'s one-row floor used
+      // to answer the vertical half, and it made the picture jump a whole row
+      // for a drag of a few px, which is the very thing that paragraph forbids
+      // (「倍率を掛けない」). The floor existed only because nothing finer could
+      // be expressed; S-176 expresses it, so the floor is a defect rather than
+      // a choice. ⚠️ MK-1 keeps it -- see `rowTurnedTo` for why the wheel and
+      // the hand are held to different rules.
+      const moved = scrolledAnchor(context, press.at.x - input.x, press.at.y - input.y)
       return changed([
         {
           kind: 'setScrollPosition',
           scrollDate: moved.scrollDate,
-          // ⛔ THE VERTICAL HALF TAKES `rowTurnedTo`'s FLOOR, and it is the same
-          // defect MK-1 had. S-78 anchors the top edge to a WHOLE row, so a drag
-          // that ends inside the band it began in lands back on the row already
-          // in force and the picture does not move at all.
-          // ⚠️ 等倍 CANNOT BE HONOURED EXACTLY EITHER WAY: no value S-78 admits
-          // can name a place inside a row, so the two answers open to this file
-          // are a whole row or nothing, and nothing is the one that makes
-          // 「パン」 not pan. ⛔ PD-176 IS WORDED FOR THE WHEEL'S NOTCH and has
-          // not been widened to the pan -- the choice here is the same one,
-          // taken for the same reason, and stays provisional with it.
-          scrollGroupId: rowTurnedTo(context, dy),
+          scrollDayOffset: moved.scrollDayOffset,
+          scrollGroupId: moved.scrollGroupId,
+          scrollGroupOffset: moved.scrollGroupOffset,
         },
       ])
     }
@@ -2947,6 +3069,15 @@ function zoomCommand(
  * T-068 allows a second pass at the chosen zoom and forbids a third; the second
  * belongs to the frame that follows this command.
  *
+ * STOP -- ⛔ THE TWO FRACTIONS ARE NOT CLEARED WITH THE ANCHORS. Nulling the
+ * anchors is enough for THIS layer -- `layoutFromSchedule` reads no fraction
+ * when its anchor is null -- but OP-10 has the shell replace those nulls with
+ * FR-055's chosen anchors in the settings, and S-176 / S-177 keep whatever they
+ * held, so the fitted picture is then shifted by up to one row and one day.
+ * `fitScheduleToScreen` (CM-71) has no member for either, so the pair cannot be
+ * carried from here. Searched: `edit-document-settings.ts` CM-71,
+ * `schedule-layout.ts` `fitZoom`, FR-055, OP-10 and OP-10a of table T-024a.
+ *
  * @purity pure
  */
 function fitCommand(context: InputContext): DocumentCommand {
@@ -2957,6 +3088,12 @@ function fitCommand(context: InputContext): DocumentCommand {
     zoomY: fitted.zoomY,
     scrollDate: null,
     scrollGroupId: null,
+    // ⭐ CLEARED WITH THE ANCHORS THEY BELONG TO. A `null` anchor is OP-10's
+    // 「人がまだ場所を決めていない」, and a fraction left standing from the pan
+    // before would slide FR-055's fitted answer by up to one row and one day --
+    // which is the one thing a fit must not do.
+    scrollDayOffset: 0,
+    scrollGroupOffset: 0,
   }
 }
 

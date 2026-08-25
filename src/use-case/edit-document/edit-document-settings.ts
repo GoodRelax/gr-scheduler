@@ -97,6 +97,19 @@ export type DocumentSettingsCommand =
       readonly kind: 'setScrollPosition'
       readonly scrollDate: string | null
       readonly scrollGroupId: string | null
+      /**
+       * S-176 / S-177: how far into the anchor row and the anchor day the top
+       * left corner of the view sits, each as a fraction of that anchor's OWN
+       * extent.
+       *
+       * ⭐ CARRIED WITH THE ANCHORS AND NEVER APART FROM THEM. A position is
+       * the pair, and a command that moved one without the other would name a
+       * place nobody asked for -- which is why they join this command rather
+       * than getting one of their own. ⛔ NOT px: FR-080 (MUST NOT) forbids
+       * that, because zoom and window width would make a pixel point elsewhere.
+       */
+      readonly scrollDayOffset: number
+      readonly scrollGroupOffset: number
     }
   | { readonly kind: 'setPanelWidths'; readonly rowTitlePanelWidth: number; readonly propertyPanelWidth: number }
   | { readonly kind: 'pinTaskGroup'; readonly groupId: string }
@@ -108,6 +121,16 @@ export type DocumentSettingsCommand =
       readonly zoomY: number
       readonly scrollDate: string | null
       readonly scrollGroupId: string | null
+      /**
+       * The same pair CM-66 carries, for the same reason.
+       *
+       * ⛔ WITHOUT THEM THE FIT DOES NOT FIT. FR-055 works out an anchor that
+       * puts the whole schedule on screen, and a fraction left in force from
+       * the pan before it would slide that answer by up to one row and one day
+       * -- so the two would have to be written to be believed.
+       */
+      readonly scrollDayOffset: number
+      readonly scrollGroupOffset: number
     }
 
 /** @purity pure */
@@ -215,7 +238,12 @@ export function editDocumentSettings(
       if (command.scrollDate !== null && dayOf(command.scrollDate) === null) {
         return refused([reject('CM-66', 'S-77', `not a date: ${command.scrollDate}`)])
       }
-      return put({ scrollDate: command.scrollDate, scrollGroupId: command.scrollGroupId })
+      return put({
+        scrollDate: command.scrollDate,
+        scrollGroupId: command.scrollGroupId,
+        scrollDayOffset: command.scrollDayOffset,
+        scrollGroupOffset: command.scrollGroupOffset,
+      })
     }
 
     case 'setPanelWidths': { // CM-67
@@ -310,6 +338,8 @@ export function editDocumentSettings(
         zoomY: command.zoomY,
         scrollDate: command.scrollDate,
         scrollGroupId: command.scrollGroupId,
+        scrollDayOffset: command.scrollDayOffset,
+        scrollGroupOffset: command.scrollGroupOffset,
       })
     }
   }

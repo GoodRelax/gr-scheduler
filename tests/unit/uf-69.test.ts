@@ -21,8 +21,12 @@
 //   FR-029    「操作できないものがその理由を示すこと」(RATIONALE) and, in the
 //             STATEMENT, 「同じ機能の入口を画面上の 2 か所に置いてはならない
 //             （MUST NOT）」
-//   FR-085    「行の名前が…収まらないときは、末尾を打ち切り、全文をツールチップ
-//             で出すこと（MUST）」
+//   FR-085    「行の名前が…収まらないときは、末尾を打ち切り、`…` を置くこと
+//             （MUST）。その全文を説明として出してはならない（MUST NOT）」--
+//             ⛔ A REQUIREMENT THIS UNIT MUST NOT ANSWER any more (CR-257). The
+//             cut is UF-63's and the mark closes it; a reader who wants the
+//             whole name widens the panel (`FR-052`). `IN-3` no longer names
+//             FR-085 among the triggers it governs either
 //   FR-098    ピン止めした行は「スクロールする領域から抜いて画面の上端へ固定
 //             すること（MUST）」なので、行見出しパネルの並びはピン止めが先である
 //   FR-037    「スクロールバーへポインタを乗せたとき…その場に示し、ポインタが
@@ -378,7 +382,15 @@ describe('UF-69 — nothing to explain', () => {
           fields: [{ row: 'PR-1', name: 'name', text: 'a task', isEditable: true }],
         },
         notices: [
-          { manner: 'NT-1', mannerText: '', text: 'finish stands before start', nextSteps: [], affectedCount: null },
+          {
+            manner: 'NT-1',
+            mannerText: '',
+            text: 'finish stands before start',
+            nextSteps: [],
+            affectedCount: null,
+            dismissText: 'OK',
+            dismissKey: 'NT-1',
+          },
         ],
         dialogueField: {
           messages: [
@@ -653,12 +665,18 @@ describe('FR-029 — an entry that cannot be used, and the same entry twice', ()
   })
 })
 
-describe('FR-085 — the whole of a row name that was cut', () => {
-  /** The pointer inside the row's own box: both readings of FR-085 agree there. */
+describe('⛔ FR-085 (MUST NOT) — a cut row name is explained by nothing', () => {
+  // 「その全文を説明として出してはならない（MUST NOT）」. UF-63 cuts the tail and
+  // closes it with `…`, and 全文を見たい者はパネルを広げる（`FR-052`）-- so this
+  // unit raises nothing at all for a row, whatever the pointer is doing.
+  // ⚠️ `IN-3` of 表 T-028 says the same from the other side: 「`FR-085` は引き金
+  // ではなくなった」, and the triggers it governs are `EZ-2` and `FR-037` alone.
+
+  /** The pointer inside the row's own box -- the closest thing to a trigger there is. */
   const overRow = (box: ScreenRect): ScreenSession =>
     sessionOf({ pointer: { x: box.x + 1, y: box.y + 1 }, pointerRestedMs: 0 })
 
-  it('explains a row whose name was cut', () => {
+  it('⛔ explains nothing while the pointer rests on the name of a row that WAS cut', () => {
     const title = rowTitleOf({ groupId: 'g7', isLabelTruncated: true })
     const shown = tooltipsFromScreenView(
       viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
@@ -666,83 +684,28 @@ describe('FR-085 — the whole of a row name that was cut', () => {
       overRow(title.box),
     )
 
-    expect(shown).toHaveLength(1)
-    expect(shown[0]?.anchor).toEqual({ kind: 'rowTitle', groupId: 'g7' })
-    // 「末尾を打ち切り、全文をツールチップで出すこと（MUST）」-- the WHOLE name,
-    // which is `RowTitle.wholeLabel`, and not the leading part left on the panel.
-    expect(shown[0]?.text).toBe(title.wholeLabel)
-    expect(shown[0]?.text).not.toBe(title.label)
+    expect(shown).toEqual([])
   })
 
-  it('⛔ explains nothing while the pointer is away from that row, though it was cut', () => {
-    // FR-085 (MUST NOT): 「打ち切られているというだけで常に出してはならない」.
-    // The cut is the CONTENT of the explanation, never the reason it stands.
+  it('⛔ explains nothing however long the pointer has rested there', () => {
+    // The wait belongs to `EZ-2` and to `EZ-2` alone (`S-124`). A row that
+    // answered after it would be raising FR-085's explanation on EZ-2's clock.
     const title = rowTitleOf({ groupId: 'g7', box: rect(0, 0, 200, 24), isLabelTruncated: true })
-    const shown = tooltipsFromScreenView(
-      viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
-      SETTINGS,
-      sessionOf({ pointer: { x: 400, y: 400 }, pointerRestedMs: WAIT_MS * 10 }),
-    )
-    expect(shown).toEqual([])
+    const view = viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } })
+
+    for (const restedMs of [0, WAIT_MS, WAIT_MS * 10]) {
+      const shown = tooltipsFromScreenView(
+        view,
+        SETTINGS,
+        sessionOf({ pointer: { x: 1, y: 1 }, pointerRestedMs: restedMs }),
+      )
+      expect(shown, `after resting ${restedMs} ms`).toEqual([])
+    }
   })
 
-  it('⛔ explains nothing while there is no pointer in the window at all', () => {
-    // The other half of the same MUST: 「その行の名前にポインタが乗っている
-    // あいだ、またはその行にフォーカスがあるあいだだけ出すこと」. A pointer that
-    // left the window is on no row's name, and no wait stands in for it.
-    const title = rowTitleOf({ groupId: 'g7', isLabelTruncated: true })
-    const shown = tooltipsFromScreenView(
-      viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
-      SETTINGS,
-      sessionOf({ pointer: null, pointerRestedMs: WAIT_MS * 10 }),
-    )
-    expect(shown).toEqual([])
-  })
-
-  it('explains a row again once the pointer comes onto its name', () => {
-    // The MUST's positive half, read as a pair against the case above: the ONLY
-    // thing that changed between the two answers is where the pointer is.
-    const title = rowTitleOf({ groupId: 'g7', box: rect(0, 0, 200, 24), isLabelTruncated: true })
-    const panel = viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } })
-
-    const away = tooltipsFromScreenView(
-      panel,
-      SETTINGS,
-      sessionOf({ pointer: { x: 400, y: 400 } }),
-    )
-    const onIt = tooltipsFromScreenView(panel, SETTINGS, overRow(title.box))
-
-    expect(rowsOf(away)).toEqual([])
-    expect(rowsOf(onIt)).toEqual(['g7'])
-  })
-
-  it('explains nothing for a row whose name was not cut', () => {
-    // 「収まらないときは」-- a name that fits is not cut, and no whole name is
-    // being kept from the reader.
-    const title = rowTitleOf({ groupId: 'g7', isLabelTruncated: false })
-    const shown = tooltipsFromScreenView(
-      viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
-      SETTINGS,
-      overRow(title.box),
-    )
-    expect(shown).toEqual([])
-  })
-
-  it('explains nothing for a row that carries no name at all', () => {
-    // FR-085 shows 全文 -- the WHOLE name. A row whose `label` is `null` has
-    // none, so there is nothing whole to show.
-    const title = rowTitleOf({ groupId: 'g7', label: null, isLabelTruncated: true })
-    const shown = tooltipsFromScreenView(
-      viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
-      SETTINGS,
-      overRow(title.box),
-    )
-    expect(shown).toEqual([])
-  })
-
-  it('explains every cut row, pinned ones first', () => {
-    // FR-098 (MUST) lifts a pinned row out of the scrolling list and holds it
-    // at the top, so the panel prints the pinned rows before the rest.
+  it('⛔ explains nothing for a whole panel of cut rows, pinned ones included', () => {
+    // FR-098 (MUST) lifts a pinned row out of the scrolling list, so the panel
+    // holds two rosters. Neither of them raises anything.
     const pinned = rowTitleOf({ groupId: 'g-pin', isPinned: true, isLabelTruncated: true })
     const first = rowTitleOf({ groupId: 'g1', isLabelTruncated: true })
     const second = rowTitleOf({ groupId: 'g2', isLabelTruncated: true })
@@ -752,7 +715,18 @@ describe('FR-085 — the whole of a row name that was cut', () => {
       overRow(first.box),
     )
 
-    expect(rowsOf(shown)).toEqual(['g-pin', 'g1', 'g2'])
+    expect(rowsOf(shown)).toEqual([])
+    expect(shown).toEqual([])
+  })
+
+  it('⛔ explains nothing for a row whose name was not cut either', () => {
+    const title = rowTitleOf({ groupId: 'g7', isLabelTruncated: false })
+    const shown = tooltipsFromScreenView(
+      viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
+      SETTINGS,
+      overRow(title.box),
+    )
+    expect(shown).toEqual([])
   })
 
   it('explains nothing when the panel holds no row', () => {
@@ -873,19 +847,19 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
   })
 })
 
-describe('IN-3 (表 T-028) — the three raisers each keep their own conditions', () => {
-  // ⚠ THE BAND IS PUT UNDER THE POINTER ON PURPOSE. FR-085 (MUST) now holds
-  // the explanation up only 「その行の名前にポインタが乗っているあいだ、またはその行に
-  // フォーカスがあるあいだだけ」, so a band away from the pointer would make the
-  // frame carry TWO of IN-3's raisers rather than three.
+describe('IN-3 (表 T-028) — the two raisers each keep their own conditions', () => {
+  // ⛔ TWO AND NOT THREE (CR-257). IN-3's last line reads 「出す引き金は `FR-092`
+  // の `EZ-2` と `FR-037` が持つ」 and adds 「`FR-085` は引き金ではなくなった」, so a
+  // panel of cut names is carried through every case below to show that it
+  // raises nothing whatever the other two are doing.
   const CUT_ROW = rowTitleOf({
     groupId: 'g7',
     box: rect(0, 288, 200, 24),
     isLabelTruncated: true,
   })
 
-  /** A frame that holds all three of IN-3's raisers at once. */
-  const ALL_THREE = viewOf({
+  /** A frame that holds both of IN-3's raisers at once, and a cut name besides. */
+  const BOTH = viewOf({
     frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES },
     appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN })]),
     rowTitlePanel: { pinnedTitles: [], titles: [CUT_ROW] },
@@ -899,50 +873,47 @@ describe('IN-3 (表 T-028) — the three raisers each keep their own conditions'
       iconUnderPointer: ICON_OPEN,
     })
 
-  it('raises all three when each of their own conditions is met', () => {
-    // IN-3's last line: 「出す引き金は `FR-092` の `EZ-2` ／ `FR-085` ／ `FR-037`
-    // が持つ」-- three triggers, not one, so a frame may carry all three at once.
-    const shown = tooltipsFromScreenView(ALL_THREE, SETTINGS, onLaneAndIcon(WAIT_MS + 1))
+  it('raises both when each of their own conditions is met, and no third', () => {
+    // Two triggers, not one, so a frame may carry both at once -- and ⛔ not
+    // three: the cut row in this very frame raises nothing (FR-085, MUST NOT).
+    const shown = tooltipsFromScreenView(BOTH, SETTINGS, onLaneAndIcon(WAIT_MS + 1))
 
     expect(iconsOf(shown)).toEqual([ICON_OPEN])
-    expect(rowsOf(shown)).toEqual(['g7'])
     expect(axesOf(shown)).toEqual(['vertical'])
+    expect(rowsOf(shown)).toEqual([])
   })
 
-  it('leaves the other two standing while EZ-2 wait has not passed', () => {
-    // ⭐ S-124 is EZ-2's wait and EZ-2's alone. FR-085 turns on a name that was
-    // cut and FR-037 on a pointer that is on the lane; neither names a wait, so
-    // holding them back for `iconHintDelayMs` would be a condition invented here.
-    const shown = tooltipsFromScreenView(ALL_THREE, SETTINGS, onLaneAndIcon(0))
+  it('leaves the other standing while EZ-2 wait has not passed', () => {
+    // ⭐ S-124 is EZ-2's wait and EZ-2's alone. FR-037 turns on a pointer that
+    // is on the lane and names no wait, so holding it back for
+    // `iconHintDelayMs` would be a condition invented here.
+    const shown = tooltipsFromScreenView(BOTH, SETTINGS, onLaneAndIcon(0))
 
     expect(iconsOf(shown)).toEqual([])
-    expect(rowsOf(shown)).toEqual(['g7'])
     expect(axesOf(shown)).toEqual(['vertical'])
+    expect(rowsOf(shown)).toEqual([])
   })
 
-  it('leaves the other two standing while the pointer rests on no icon', () => {
+  it('leaves the other standing while the pointer rests on no icon', () => {
     const shown = tooltipsFromScreenView(
-      ALL_THREE,
+      BOTH,
       SETTINGS,
       sessionOf({ pointer: { x: VERTICAL_TRACK.x + 5, y: 300 }, pointerRestedMs: WAIT_MS * 10 }),
     )
 
     expect(iconsOf(shown)).toEqual([])
-    expect(rowsOf(shown)).toEqual(['g7'])
     expect(axesOf(shown)).toEqual(['vertical'])
+    expect(rowsOf(shown)).toEqual([])
   })
 
   it('raises EZ-2 alone when only its two conditions are met', () => {
-    // The pointer is off both lanes and the panel holds no cut name, so the icon
-    // answers by itself -- the other two are not carried along by it.
+    // The pointer is off both lanes, so the icon answers by itself -- the other
+    // is not carried along by it.
     const shown = tooltipsFromScreenView(
       viewOf({
         frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES },
         appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN })]),
-        rowTitlePanel: {
-          pinnedTitles: [],
-          titles: [rowTitleOf({ groupId: 'g7', isLabelTruncated: false })],
-        },
+        rowTitlePanel: { pinnedTitles: [], titles: [CUT_ROW] },
       }),
       SETTINGS,
       restingOn(ICON_OPEN),

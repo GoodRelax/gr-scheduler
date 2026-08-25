@@ -803,6 +803,203 @@ describe('UF-32 -- FR-030 / SL-8: 色だけで伝えない', () => {
   })
 })
 
+describe('UF-32 -- SL-8 of 表 T-023c: the sign splits by the kind of the target', () => {
+  // 表 T-023c の `SL-8`: 「手掛かりは対象の種類で 2 つに分けること（MUST）。
+  // タスク・ハイライトボックス・コメントボックスは、外接矩形に沿った破線の枠で
+  // 囲むこと（MUST）…⛔ 対象自身の輪郭をなぞってはならない（MUST NOT）。
+  // 依存線と基準日線は、その線自身の太さに 表 T-206 の `S-178` を掛けて太く描く
+  // こと（MUST）。この 2 種を枠で囲んではならない（MUST NOT）…どちらも倍率に
+  // 追随させてはならない（MUST NOT）」
+  //
+  // ⭐ Chapter 1.9 asks a case driven by a table to be driven by a FIXED COPY of
+  // it. `T_206_SELECTION` below is that copy of the three rows 表 T-206 holds
+  // for the sign; ⛔ no value here is read out of `src/`.
+
+  /** 表 T-206 — the sizes of the selection sign. Not stored in the document. */
+  const T_206_SELECTION = {
+    /** S-174 -- 選択の枠の太さ, px */
+    'S-174': 2,
+    /** S-175 -- 選択の枠の破線の刻み: 描く長さと空ける長さ, px */
+    'S-175': [2, 2],
+    /** S-178 -- 選択された線の太さの倍率, × */
+    'S-178': 2,
+  } as const
+
+  const HIGHLIGHT = {
+    id: 'h1',
+    startDate: '2026-01-02',
+    endDate: '2026-01-08',
+    topGroupId: 'g1',
+    bottomGroupId: 'g1',
+    strokeColor: '#4527a0',
+    cornerRadiusPx: null,
+  }
+
+  const COMMENT = {
+    id: 'c1',
+    leaderShapeKind: 'calloutBox',
+    text: 'a remark',
+    anchorDate: '2026-01-05',
+    anchorGroupId: 'g1',
+    bodyOffsetPx: { dx: 20, dy: -20 },
+  }
+
+  /** The scene every case here selects out of: two Tasks, a link, both boxes, a 基準日. */
+  const ALL_KINDS = (): Schedule => scene({ highlightBoxes: [HIGHLIGHT], commentBoxes: [COMMENT] })
+
+  type Ref = Parameters<typeof selectionWith>[1]
+
+  const pictureOf = (ref: Ref | null, settings: DocumentSettings = SETTINGS): string =>
+    drawn(ALL_KINDS(), settings, ref === null ? emptySelection() : selectionWith(emptySelection(), ref))
+
+  /**
+   * One element, with anything a SECOND drawing of the same picture may spell
+   * differently taken out.
+   *
+   * ⚠️ The `marker` GD-6 (MUST) puts on the arrow end of a 依存線 has to carry an
+   * `id`, and an SVG that is put on a page beside another one cannot share it --
+   * so the id differs between two drawings of the SAME picture, and two pictures
+   * cannot be told apart by their text until it is taken out. ⛔ It is the only
+   * thing normalised: everything else that differs is a difference of the sign.
+   */
+  const settledText = (element: Element): string =>
+    element.text.replace(/(id="|url\(#)[^"')]*/g, '$1')
+
+  /** The elements a selection ADDS to the picture. */
+  const addedBy = (ref: Ref, settings: DocumentSettings = SETTINGS): readonly Element[] => {
+    const plain = paintedOf(pictureOf(null, settings)).map(settledText)
+    return paintedOf(pictureOf(ref, settings)).filter((e) => !plain.includes(settledText(e)))
+  }
+
+  /** A frame is a `rect` carrying the dash 表 T-206 gives the sign. */
+  const framesIn = (elements: readonly Element[]): readonly Element[] =>
+    elements.filter((e) => e.tag === 'rect' && attribute(e.text, 'stroke-dasharray') !== null)
+
+  const strokeWidthOf = (element: Element): number => Number(attribute(element.text, 'stroke-width'))
+
+  // -- the half that IS framed ---------------------------------------------
+
+  // ⛔ コメントボックス IS THE THIRD KIND SL-8 FRAMES and it is not here. This
+  // unit draws no comment box at all -- the scene above carries one, and no
+  // element of the picture answers to it -- so there is nothing for a frame to
+  // go round and the case would be measuring 表 T-076 の `EP-5`（`Annotations`
+  // を描く）rather than `SL-8`. ⚠️ REPORTED rather than asserted here: the gap
+  // is older than `SL-8`'s split and belongs to whoever draws the annotation.
+  const FRAMED: readonly { readonly what: string; readonly ref: Ref }[] = [
+    { what: 'タスク', ref: { kind: 'task', uid: 2 } },
+    { what: 'ハイライトボックス', ref: { kind: 'highlightBox', id: HIGHLIGHT.id } },
+  ]
+
+  for (const one of FRAMED) {
+    it(`frames ${one.what} with a dashed rectangle at S-174 / S-175 (SL-8, MUST)`, () => {
+      const frames = framesIn(addedBy(one.ref))
+
+      expect(frames.length, '外接矩形に沿った破線の枠が 1 つ').toBe(1)
+      const frame = frames[0] as Element
+      expect(strokeWidthOf(frame), 'S-174 -- 枠の太さ').toBe(T_206_SELECTION['S-174'])
+      expect(attribute(frame.text, 'stroke-dasharray'), 'S-175 -- 破線の刻み').toBe(
+        `${T_206_SELECTION['S-175'][0]} ${T_206_SELECTION['S-175'][1]}`,
+      )
+      // 外接矩形に沿った枠なので面は塗らない -- a filled one would hide what it marks.
+      expect(attribute(frame.text, 'fill')).toBe('none')
+      expect(attribute(frame.text, 'stroke')).not.toBe('none')
+    })
+
+    it(`⛔ leaves ${one.what}'s own outline exactly as it was (SL-8, MUST NOT)`, () => {
+      // 「対象自身の輪郭をなぞってはならない（MUST NOT）」-- the sign is a
+      // SEPARATE rectangle, so nothing already in the picture is redrawn.
+      const plain = paintedOf(pictureOf(null)).map(settledText)
+      const picked = paintedOf(pictureOf(one.ref)).map(settledText)
+
+      expect(picked.filter((text) => !plain.includes(text)).length).toBeGreaterThan(0)
+      expect(
+        plain.filter((text) => !picked.includes(text)),
+        '元からある要素は 1 つも描き替えられない',
+      ).toEqual([])
+    })
+  }
+
+  it('gives all three framed kinds the ONE colour SL-8 names (S-151 of 表 T-236)', () => {
+    // 「色は同書の 表 T-236 の `S-151` が持つ」-- one row, so one colour; and
+    // 表 T-236 writes it `hsl(H …)`, so its 色相 is `themeHue`. ⛔ Neither the
+    // saturation nor the lightness is asserted: this file's head note records
+    // that the specification states those in words and gives no number.
+    const colours = FRAMED.map(
+      (one) => attribute((framesIn(addedBy(one.ref))[0] as Element).text, 'stroke') as string,
+    )
+
+    expect(new Set(colours).size, '枠を持つ種はどれも 1 色').toBe(1)
+    expect(Math.round(hueOf(colours[0] as string)), 'S-151 は `hsl(H …)`、H は themeHue').toBe(214)
+  })
+
+  // -- the half that is THICKENED ------------------------------------------
+
+  const LINES: readonly {
+    readonly what: string
+    readonly ref: Ref
+    readonly find: (svg: string) => Element
+  }[] = [
+    {
+      what: '依存線',
+      ref: { kind: 'dependency', successorUid: 2, ordinal: 0 },
+      find: (svg) => paintedOf(svg).find((e) => e.tag === 'polyline') as Element,
+    },
+    {
+      what: '基準日線',
+      ref: { kind: 'statusLine' },
+      // `CU-1` of 表 T-029 draws ONE vertical line at `Project.statusDate`, and
+      // `SL-8` itself says how far it runs: 「`Row Area` の高さいっぱい」. So among
+      // the picture's straight lines it is the tallest, and no ruler tick or row
+      // separator reaches as far.
+      find: (svg) => {
+        const heightOf = (e: Element): number =>
+          Math.abs(Number(attribute(e.text, 'y2')) - Number(attribute(e.text, 'y1')))
+        const lines = paintedOf(svg).filter((e) => e.tag === 'line')
+        return lines.reduce((tallest, e) => (heightOf(e) > heightOf(tallest) ? e : tallest))
+      },
+    },
+  ]
+
+  for (const one of LINES) {
+    it(`draws ${one.what} at S-178 times its own width and puts no frame on it (SL-8)`, () => {
+      const before = one.find(pictureOf(null))
+      const after = one.find(pictureOf(one.ref))
+
+      expect(before, `${one.what} は選択していないときも描かれる`).toBeDefined()
+      expect(strokeWidthOf(before), 'その線は自分の太さを持つ').toBeGreaterThan(0)
+      expect(strokeWidthOf(after), 'その線自身の太さに S-178 を掛けた太さ').toBeCloseTo(
+        strokeWidthOf(before) * T_206_SELECTION['S-178'],
+        6,
+      )
+      // ⛔ 「この 2 種を枠で囲んではならない（MUST NOT）」
+      expect(framesIn(addedBy(one.ref)), '枠で囲まない').toEqual([])
+    })
+  }
+
+  // -- neither half follows the zoom ---------------------------------------
+
+  it('⛔ follows the zoom with neither half (SL-8, MUST NOT)', () => {
+    // 「どちらも倍率に追随させてはならない（MUST NOT）」-- the sign is for the
+    // reader's eye, and the eye does not zoom with the schedule.
+    const zoomed = settingsOf({ ...SETTINGS, zoomX: 4, zoomY: 4 })
+    const task: Ref = { kind: 'task', uid: 2 }
+
+    const frameAt1 = framesIn(addedBy(task))[0] as Element
+    const frameAt4 = framesIn(addedBy(task, zoomed))[0] as Element
+    expect(strokeWidthOf(frameAt4)).toBe(strokeWidthOf(frameAt1))
+    expect(attribute(frameAt4.text, 'stroke-dasharray')).toBe(
+      attribute(frameAt1.text, 'stroke-dasharray'),
+    )
+
+    const line = LINES[0] as (typeof LINES)[number]
+    const ratioAt = (settings: DocumentSettings): number =>
+      strokeWidthOf(line.find(pictureOf(line.ref, settings))) /
+      strokeWidthOf(line.find(pictureOf(null, settings)))
+    expect(ratioAt(zoomed)).toBeCloseTo(ratioAt(SETTINGS), 6)
+    expect(ratioAt(zoomed)).toBeCloseTo(T_206_SELECTION['S-178'], 6)
+  })
+})
+
 describe('UF-32 -- 表 T-020: 重ね順（背面から前面へ）', () => {
   it('paints 予定バー, then 実績バー, then 依存線', () => {
     // 表 T-020 puts 依存線 at ZO-4 and the two bars at ZO-1 and ZO-2, and

@@ -927,7 +927,19 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // could have read a version of. The signature therefore asks for no
       // stamp, and a person's concurrent edit does not turn this away.
       return writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, [
-        { kind: 'setScrollPosition', scrollDate: view.scrollDate, scrollGroupId: view.scrollGroupId },
+        {
+          kind: 'setScrollPosition',
+          scrollDate: view.scrollDate,
+          scrollGroupId: view.scrollGroupId,
+          // ⭐ THE TOP LEFT CORNER OF THE ANCHOR, WHICH IS `0` ON BOTH AXES.
+          // AM-16 puts a task IN the view and says nothing finer, so the whole
+          // of what it decides is the anchor pair (S-77 / S-78). ⛔ Carrying
+          // some other fraction here would be this member choosing a place the
+          // table does not give it -- and the pair may not be left out, since
+          // a position is the anchor AND its fraction together (S-176 / S-177).
+          scrollDayOffset: 0,
+          scrollGroupOffset: 0,
+        },
       ])
     },
 

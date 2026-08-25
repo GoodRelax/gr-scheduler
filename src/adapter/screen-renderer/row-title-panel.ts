@@ -70,6 +70,20 @@ interface PanelIndex {
 }
 
 /**
+ * The mark FR-085 (MUST) leaves where the tail was cut: U+2026 HORIZONTAL
+ * ELLIPSIS.
+ *
+ * ⛔ NOT A DISPLAY WORD. FR-038 holds one dictionary per language, and this mark
+ * is the same one character in every one of them -- an entry there would invite
+ * a second answer per language to a question that has one.
+ * ⚠️ Written as a code point rather than typed, which is what rule 03 section 5
+ * of docs/development-rules asks of a string the program prints;
+ * `BYTE_ORDER_MARK` of `mspdi-codec.ts` is the same choice. ⭐ It also cannot be
+ * read as three periods in a diff, which the typed character can.
+ */
+const TRUNCATION_MARK = '\u2026'
+
+/**
  * Full-width counts two, half-width counts one (FR-093).
  *
  * ⚠️ WHERE THE TWO PART is not something FR-093 spells out. The boundary below
@@ -149,15 +163,25 @@ function rowTitleFontPx(depth: number, settings: DocumentSettings): number {
 }
 
 /**
- * The name cut to what fits, tail first (FR-085, MUST).
+ * The name cut to what fits, tail first, closing with `TRUNCATION_MARK`
+ * (FR-085, MUST).
  *
  * ⛔ `truncateUnits` (S-35) is NOT the bound: FR-085 says so in as many words,
  * because that value is FR-002's preparation for a name that will not fit a
  * task's own width, and this cut is decided by the panel's width instead.
  *
- * ⛔ Nothing is appended in place of what went. FR-085 says to cut the tail and
- * to show the whole of it in a tooltip, and no row anywhere spells a mark for
- * the cut -- adding one would spend width the requirement did not budget.
+ * ⭐ THE MARK IS PAID FOR OUT OF THE SAME WIDTH. FR-085 sends the judgement to
+ * FR-093's estimate, under which the mark counts like any other character, so
+ * the kept part is measured against the width LESS the mark. ⛔ Appending it
+ * after a cut judged on the full width would overflow the panel S-79 sizes by
+ * exactly the mark -- and S-79 is stored in the document, so the reader handed
+ * it would see the same overflow.
+ * ⚠️ A width too small to hold even the mark still gets the mark and no
+ * characters: FR-085 states no exception, and dropping it there would hide the
+ * cut precisely on the narrowest panels, where cutting is likeliest.
+ * ⚠️ THE NOTE THAT STOOD HERE SAID NOTHING WAS APPENDED, on the reading that no
+ * row spelled a mark and the whole name was reachable in a tooltip instead.
+ * CR-257 took that tooltip away and spelled the mark into FR-085 itself.
  *
  * @purity pure
  */
@@ -170,15 +194,16 @@ function labelCutToFit(
   if (labelWidthPx(text, fontSizePx, settings) <= availableWidthPx) return text
 
   const unitWidthPx = fontSizePx * settings.labelCoef
+  const widthForKeptPx = availableWidthPx - labelWidthPx(TRUNCATION_MARK, fontSizePx, settings)
   let units = 0
   let kept = ''
   for (const ch of text) {
     const grown = units + charUnits(ch)
-    if (grown * unitWidthPx > availableWidthPx) return kept
+    if (grown * unitWidthPx > widthForKeptPx) break
     units = grown
     kept += ch
   }
-  return kept
+  return kept + TRUNCATION_MARK
 }
 
 /**
@@ -307,19 +332,25 @@ function rowTitleOf(
     depth,
     box,
     label: shownLabel,
-    // ⭐ WHY THE UNCUT NAME LEAVES THIS UNIT AT ALL. FR-085 (MUST) shows it whole
-    // in a tooltip, and UF-69 -- which raises that tooltip -- is handed no
-    // `Schedule`, so it can neither read AT-53 nor redo FR-058's substitution
-    // without holding a second copy of that rule. `rowNameOf` above answered it
-    // one line ago; the answer is carried rather than worked out twice.
+    // ⛔ NO READER IN `src/` IS LEFT FOR THIS. The uncut name left this unit so
+    // that UF-69 could put it in a tooltip without a `Schedule` to redo AT-53
+    // and FR-058's substitution against; FR-085 (MUST NOT) ended that tooltip
+    // (CR-257), and a reader who wants the rest widens the panel (FR-052).
+    // ⛔ Still answered rather than dropped: `RowTitle` is declared in
+    // screen-renderer.ts and Chapter 5.3 fixes that contract outside this
+    // folder, so a member it states cannot stop being filled from here.
+    // Retiring the member is that file's decision, not this one's.
     //
     // ⚠️ Carried whether or not the cut happened, which is what the contract on
     // `RowTitle.wholeLabel` states: a name that fit is its own whole, and a row
     // that resolved no name has no whole either.
     wholeLabel,
-    // The cut takes a suffix and appends nothing, so the two strings differ
-    // exactly when the name did not fit -- no second measurement is made to
-    // answer this.
+    // The fitting branch of the cut returns the name unchanged and every other
+    // path appends the mark, so the two strings differ exactly when the name
+    // did not fit -- no second measurement is made to answer this.
+    // ⚠️ A name that itself ENDS in the mark cannot collide with its own cut:
+    // a cut result is short enough to fit WITH the mark, and a name that
+    // reached the cut at all was not.
     isLabelTruncated: shownLabel !== null && shownLabel !== wholeLabel,
     expander: expanderOf(group, index),
     isPinned,

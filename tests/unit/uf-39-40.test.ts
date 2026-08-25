@@ -363,7 +363,18 @@ const viewOf = (
     armedText: PALETTE_ARMED_TEXT,
   },
   openModal: { surface: 'Help Modal', heading: MODAL_HEADING, commands: [] },
-  notices: [{ manner: 'NT-3a', mannerText: '', text: NOTICE_TEXT, nextSteps: ['retry'], affectedCount: null }],
+  notices: [
+    {
+      manner: 'NT-3a',
+      mannerText: '',
+      text: NOTICE_TEXT,
+      nextSteps: ['retry'],
+      affectedCount: null,
+      // NT-8 (MUST): the entrance a person puts this telling away by.
+      dismissText: 'OK',
+      dismissKey: 'NT-3a',
+    },
+  ],
   // NT-7 of table T-037: `null` while nothing is waiting to be answered.
   confirmation: null,
   dialogueField: {

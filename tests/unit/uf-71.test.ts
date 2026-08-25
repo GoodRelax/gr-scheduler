@@ -1083,6 +1083,11 @@ const notice = (patch: Partial<Notice> & { manner: string; text: string }): Noti
   mannerText: '',
   nextSteps: [],
   affectedCount: null,
+  // NT-8 (MUST): every telling carries the entrance that puts it away, and the
+  // key that says WHICH telling a press on it put away. Cases that mean them
+  // hand over their own.
+  dismissText: 'OK',
+  dismissKey: patch.manner,
   ...patch,
 })
 

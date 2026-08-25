@@ -1086,7 +1086,7 @@ function screenPane(language: DisplayLanguage = 'ja'): Pane {
  * @purity non-pure
  */
 function takeEntry(loop: FrameLoop, pane: Pane, part: string, entry: string): void {
-  pane.drawAt({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null })
+  pane.drawAt({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   pane.drawAt(null)

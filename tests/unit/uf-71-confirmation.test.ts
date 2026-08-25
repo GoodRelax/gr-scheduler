@@ -1746,6 +1746,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1759,6 +1760,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1794,6 +1796,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
         rowGroupId: null,
         resourceUid: null,
         dividerPanel: null,
+        noticeDismissKey: null,
       })
     })
   })
@@ -1903,6 +1906,7 @@ describe('table T-065 IF-9 -- which UI part and which entry the point is on', ()
       'dividerPanel',
       'entry',
       'format',
+      'noticeDismissKey',
       'part',
       'resourceUid',
       'rowGroupId',

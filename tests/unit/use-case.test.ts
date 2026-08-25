@@ -444,6 +444,11 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         zoomY: 2,
         scrollDate: '2026-03-01',
         scrollGroupId: 'g1',
+        // FR-080 (MUST): the anchors carry a fraction of their own extent as
+        // well, so 表示位置 is four values and not two. A whole-view fit lands
+        // on the top-left of the anchors it chose, so both fractions are 0.
+        scrollDayOffset: 0,
+        scrollGroupOffset: 0,
       },
     ])
     expect(plan.ok).toBe(true)
@@ -526,7 +531,15 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     // ① CM-71 -- 倍率と表示位置を置く. UN-8: no step.
     const first = planOf(start, [
-      { kind: 'fitScheduleToScreen', zoomX: 4, zoomY: 4, scrollDate: null, scrollGroupId: null },
+      {
+        kind: 'fitScheduleToScreen',
+        zoomX: 4,
+        zoomY: 4,
+        scrollDate: null,
+        scrollGroupId: null,
+        scrollDayOffset: 0,
+        scrollGroupOffset: 0,
+      },
     ])
     expect(first.ok).toBe(true)
     if (!first.ok) return

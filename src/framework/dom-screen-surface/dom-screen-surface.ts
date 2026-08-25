@@ -109,6 +109,15 @@
 //     one per format (MUST NOT), so the choices on `Export Chooser` (U-54) are
 //     not rows of table T-109 and cannot travel as ones. They carry the row of
 //     table T-024 instead, which is the only join that table admits.
+//   - ⚠️ `data-notice` IS NOT A FOURTH SPELLING OF IT EITHER, and for the same
+//     reason: NT-8 of table T-037 (MUST) has a person put a telling away where
+//     it stands, CR-259 settled that its entrance is a WORD and gets no row of
+//     table T-109, so what a press there says is WHICH telling
+//     (`Notice.dismissKey`) and not which entry. ⛔ THE WALK DOES NOT READ IT
+//     BACK YET -- `ScreenPart` holds a member for each of the five above and
+//     none for this one, and that declaration is `screen-surface.ts`'s. The
+//     entrance is drawn and marked all the same, because the alternative is a
+//     MUST with no entrance at all; `frame-loop.ts` is where the press is spent.
 //   - IN-5a's 「文字入力を確定していない間」 is answerable the same way: the
 //     entry is the only `input` inside `[data-role="Dialogue Field"]`, so the
 //     shell can tell from `activeElement` that text is being entered.
@@ -362,6 +371,32 @@ const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
  * standing in `rowTitleElement` with IC-58 .. IC-60.
  */
 const OPEN_EVERY_ROW_ENTRY = 'IC-74'
+
+/**
+ * What the entrance NT-8 of table T-037 (MUST) requires carries the telling it
+ * puts away -- `Notice.dismissKey`.
+ *
+ * ⛔ NOT `data-icon`, AND FOR THE REASON `data-format` IS NOT EITHER. That
+ * attribute carries a row of table T-109, FR-029 (MUST) makes that table the
+ * whole of the icons, and CR-259 settled that NT-8's entrance gets NO row of it
+ * -- it is a word, exactly as NT-7's two answers are answered in words. So this
+ * entrance is not a row of that table and cannot travel as one: a reading side
+ * handed both on one attribute could not say which table it had been given.
+ *
+ * ⛔ NOR IS IT `data-group-id`, `data-uid` OR `data-panel`. Each of those names
+ * a thing of the person's document or of the frame; this names one telling in
+ * `ScreenView.notices`, which is neither.
+ *
+ * ⚠️ THE WALK IN `readScreenPartAt` DOES NOT YET CARRY IT ACROSS, and it cannot
+ * from inside this unit: `ScreenPart` is declared in
+ * `src/adapter/screen-renderer/screen-surface.ts` and has a member for each of
+ * the five attributes the walk reads. ⛔ So this is drawn and answerable, and
+ * the loop is closed by two files that are not this one -- that declaration
+ * gains the sixth member, and `src/framework/single-html-shell/frame-loop.ts`
+ * spends it by taking the named notices off `raisedNotices`, which is the list
+ * its own STOP note records as one nothing shortens.
+ */
+const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
 
 // -------------------------------------------------------------- the paint ---
 
@@ -749,6 +784,12 @@ const STYLE = {
   notice:
     `box-sizing:border-box;margin:0.25em 0;padding:0.5em 0.75em;background:${PAINT.ground};` +
     `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
+  // NT-8's entrance, held under the words it puts away so that it does not read
+  // as one more thing being said -- the placement `confirmationAnswers` below
+  // gives NT-7's two answers, for the same reason. ⚠️ ONLY THE GAP IS DECLARED:
+  // the frame is `entryStyle`'s, so this entrance stands like every other one
+  // and no second look is invented for it.
+  noticeDismiss: 'margin-top:0.5em;',
   // ⛔ `pointer-events:auto` is not decoration here: without it the point-to-part
   // answer (IF-9) never sees this surface, the press falls through to the
   // schedule underneath, and NT-7's two answers cannot be pressed at all.
@@ -2137,6 +2178,13 @@ function modalElement(
  * the read-back rule 04 asks for after anything that draws, and it is NOT what
  * tells the person.
  *
+ * ⭐ AND IT CAN BE PUT AWAY. NT-8 (MUST) is the row that says so, and it is the
+ * one row of table T-037 that asks this unit for an ENTRANCE rather than for
+ * something said. ⛔ It is drawn on the telling and never on the question:
+ * `confirmationElement` below builds no such entrance, because NT-8 (MUST NOT)
+ * forbids one there -- a question is answered by IC-69 or IC-70, and a third way
+ * out would be 「どちらでもない」.
+ *
  * @purity non-pure
  */
 function noticeElement(host: Document, notice: Notice): HTMLElement {
@@ -2168,6 +2216,30 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
     line.textContent = step
     drawn.append(line)
   }
+  // NT-8 (MUST): the person can put this telling away where it stands. Drawn
+  // LAST, under everything the telling says, because it is what is done about
+  // the telling rather than part of it -- the place `confirmationElement` gives
+  // NT-7's two answers.
+  //
+  // ⛔ A WORD IS THE BODY, AND NO SHAPE IS DRAWN. `fillEntry` is not called and
+  // no `data-icon` is set: table T-109 is the whole of the icons (FR-029, MUST)
+  // and CR-259 added no row to it, so there is no figure F-019 shape to draw and
+  // minting one would be RC-13 of table T-026's decision to make, not this
+  // unit's. ⚠️ The word itself is UF-67's, read out of the one dictionary FR-038
+  // names -- ⛔ nothing here writes one in either language, and NT-8 (MUST) has
+  // it spelled the same in both.
+  const dismiss = made(host, 'button', entryStyle() + STYLE.noticeDismiss)
+  dismiss.setAttribute('type', 'button')
+  // WHICH telling a press here put away, and the whole of what this unit
+  // reports about it: `NOTICE_DISMISS_KEY_ATTRIBUTE` says why it is on an
+  // attribute of its own and which file closes the loop.
+  dismiss.setAttribute(NOTICE_DISMISS_KEY_ATTRIBUTE, notice.dismissKey)
+  // ⚠️ Empty only while the dictionary holds no word (PD-160), and ⛔ the key is
+  // NOT printed in its place: a row id on the screen is a string FR-038 (MUST)
+  // does not hold, the same in both display languages. The frame `entryStyle`
+  // gives keeps the entrance pressable meanwhile.
+  dismiss.textContent = notice.dismissText
+  drawn.append(dismiss)
   return drawn
 }
 
@@ -2193,6 +2265,12 @@ function noticeElement(host: Document, notice: Notice): HTMLElement {
  * the icons (FR-029 MUST) and RC-13 of table T-026 keeps a new one the user's
  * decision. The word itself is UF-67's, read out of the one dictionary FR-038
  * names, so nothing here writes one in either language.
+ *
+ * ⛔ AND NT-8's ENTRANCE IS NOT DRAWN HERE (MUST NOT). `noticeElement` above puts
+ * one on every telling; this surface gets none, because it asks for an answer
+ * and the two `entries` are the whole of it. ⚠️ `Confirmation` carries neither
+ * `dismissText` nor `dismissKey`, so there is nothing here to draw one from --
+ * the type is where that MUST NOT is kept, and this is only where it shows.
  *
  * @purity non-pure
  */
@@ -2898,11 +2976,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     let uid: string | null = null
     let panel: string | null = null
     let part: string | null = null
-    // ⭐ The innermost `data-icon`, `data-format`, `data-group-id`, `data-uid`
-    // and `data-panel`, and the OUTERMOST `data-role`: an entry sits inside its
-    // part, and table T-109's surface column names the containing surface rather
-    // than the grouping inside it (U-34 / U-35). So the five are each taken once
-    // and the role keeps being replaced on the way up.
+    let dismissKey: string | null = null
+    // ⭐ The innermost `data-icon`, `data-format`, `data-group-id`, `data-uid`,
+    // `data-panel` and `data-notice`, and the OUTERMOST `data-role`: an entry
+    // sits inside its part, and table T-109's surface column names the
+    // containing surface rather than the grouping inside it (U-34 / U-35). So
+    // the six are each taken once and the role keeps being replaced on the way
+    // up.
     // ⚠️ INNERMOST FOR THE KEYS TOO, and not merely by symmetry: a row of the
     // `Row Title Panel` is drawn inside the panel and a roster line inside the
     // surface, so the nearest one on the way up is the one the point is on. A
@@ -2919,6 +2999,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       if (resource !== null && uid === null) uid = resource
       const resized = node.getAttribute('data-panel')
       if (resized !== null && panel === null) panel = resized
+      // NT-8 of table T-037: which telling this entrance puts away. ⛔ Read
+      // back here and not as an entry -- that row of table T-037 has no row of
+      // table T-109, because its entrance is a word (CR-259).
+      const told = node.getAttribute(NOTICE_DISMISS_KEY_ATTRIBUTE)
+      if (told !== null && dismissKey === null) dismissKey = told
       const role = node.getAttribute('data-role')
       if (role !== null) part = role
       node = node.parentElement
@@ -2944,6 +3029,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       rowGroupId: group,
       resourceUid: uid === null ? null : Number(uid),
       dividerPanel: panel === null ? null : (panel as ScreenPart['dividerPanel']),
+      noticeDismissKey: dismissKey,
     }
   }
 

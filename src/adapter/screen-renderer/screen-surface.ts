@@ -165,6 +165,22 @@ export interface ScreenPart {
    * the properties panel's while that panel is closed.
    */
   readonly dividerPanel: PanelDivider['panel'] | null
+  /**
+   * The telling a press would put away -- `Notice.dismissKey` -- or `null`
+   * where the point is on no such entrance.
+   *
+   * ⛔ A SIXTH MEMBER AND NOT A SPELLING OF `entry`, for the reason `format`
+   * and `rowGroupId` both give: these are different questions about one point,
+   * and one member carrying both would leave the reading side unable to say
+   * which it had been handed. ⚠️ Here the difference is sharper still --
+   * `entry` names a row of table T-109, and NT-8 of table T-037 deliberately
+   * has NO row there: its entrance is a WORD, the way NT-7's two answers are,
+   * so answering it as an `IconId` would name a row that does not exist.
+   *
+   * ⚠️ `null` ON EVERY OTHER PART, a confirmation included -- NT-8 (MUST NOT)
+   * keeps the way out off `NT-7`, whose two answers are pressed as entries.
+   */
+  readonly noticeDismissKey: string | null
 }
 
 /**

@@ -93,6 +93,11 @@
 //      had no field for it, so every one of its entries collapsed onto the
 //      empty key and the filled copy the carriage group drives held one word
 //      for all of them (484 cells, 470 distinct).
+//      ⭐ AND OF `noticeDismiss` (CR-259). NT-8 of table T-037 (MUST) lets a
+//      person put a told notice away and puts the word of that entrance in
+//      FR-038's dictionary, so the word rides on a member of UF-67's that this
+//      file may not name -- and the whole-view reading reaches it on every
+//      telling this file already raises.
 //      ⛔ THE `notices` SECTION STAYS OUT: what a row of table T-037 is CALLED
 //      is carried by a member of UF-67's that this file may not name, and the
 //      whole-view reading could only reach the three manners table T-233 writes
@@ -214,6 +219,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   reasons: 'rowId',
   questions: 'rowId',
   confirmation: 'answer',
+  noticeDismiss: 'answer',
   confirmationMarks: 'mark',
   panelHeadings: 'showing',
   assignments: 'rowId',
@@ -816,7 +822,7 @@ for (const entry of GENERATED['assignments'] ?? []) {
 
 // -- the sections whose place is not one of the five units this file may read
 
-for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'confirmationMarks']) {
+for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'noticeDismiss', 'confirmationMarks']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(
       section,

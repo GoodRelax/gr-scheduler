@@ -63,7 +63,17 @@ import type { SettledUtterance } from '../../use-case/post-dialogue-message/post
 import { appHeaderItemsFromDocument } from './app-header-items'
 import { commandPaletteFromScreenState } from './command-palette'
 import { dialogueFieldFromLog } from './dialogue-field'
-import { confirmationFromSession, noticesFromSession } from './notices'
+import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './notices'
+
+// ⭐ NT-8's KEY CROSSES HERE AND NOWHERE ELSE. Table T-037 (MUST) lets a person
+// put a telling away, and the side that OWNS the list of raised tellings is the
+// shell (LY-5 of table T-060) -- so the shell has to be able to say which raised
+// telling the key on the pressed entrance names. ⛔ It may not rebuild the key
+// itself: that would be the same arithmetic in two places (rule 03 section 4),
+// and the two spellings would drift the day NT-4's gathering changes.
+// ⚠️ Published through this entry rather than reached into `notices.ts`, and
+// named by table T-064's PI-37 accordingly.
+export { dismissKeyOf }
 import { openModalFromScreenState } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule } from './row-title-panel'
@@ -858,6 +868,53 @@ export interface Notice {
    * does not ask for a count.
    */
   readonly affectedCount: number | null
+  /**
+   * NT-8 (MUST): what the entrance that puts this telling away is CALLED, in
+   * the display language (FR-038), or the empty string while the dictionary
+   * holds no word for it (PD-160).
+   *
+   * ⭐ A WORD AND NEVER A SHAPE, the bargain `Confirmation.shownOnAnotherRowMark`
+   * already keeps: FR-029 (MUST) makes table T-109 the whole of the icons and
+   * RC-13 of table T-026 keeps a new one the user's own decision, so nothing
+   * here may raise one. ⚠️ NT-8 (MUST) has this one word spelled the same in
+   * BOTH display languages, which is the user's ruling of 2026-08-25 and not a
+   * translation this side may skip: the dictionary still holds a cell per
+   * language, and both cells hold it.
+   *
+   * ⛔ READ ON THE WAY TO THE SCREEN AND NEVER ASKED OF THE RAISER, the move
+   * `mannerText` makes above: `RaisedNotice` carries no words at all, because
+   * FR-038 (MUST NOT) makes a second store of translated strings out of any
+   * raiser that supplied one.
+   */
+  readonly dismissText: string
+  /**
+   * NT-8 (MUST): WHICH telling a press on that entrance put away.
+   *
+   * ⛔ A KIND CANNOT SAY WHICH. `ScreenView.notices` is a list, so several
+   * tellings stand at once and `manner` is a row of table T-037 that any number
+   * of them may wear -- a press answered by the manner alone would put away
+   * every telling wearing it. This member is what tells one of the list from
+   * the next, which is the whole of what NT-8's 「その場で消せること」 needs
+   * from the description.
+   *
+   * ⭐ MADE OF THE ROWS THE TELLING ALREADY CARRIES, and of nothing minted:
+   * `RaisedNotice` hands over a row of table T-037 and a row of table T-233, so
+   * a key can be built for a telling that already exists without either side of
+   * the seam keeping a counter. ⚠️ It names MORE THAN ONE reason where NT-4
+   * gathered several raised notices into one telling -- what a press puts away
+   * is what was shown, and what was shown there is all of them.
+   *
+   * ⛔ NOT A POSITION IN THE LIST. The description is rebuilt every frame and
+   * NT-4 collapses a run of it, so the shown position matches no raised one --
+   * and a number that means "the third" names a different telling as soon as
+   * the second is put away.
+   *
+   * ⚠️ TWO TELLINGS THAT MATCH IN BOTH ROWS SHARE A KEY, and they are put away
+   * together. They carry one manner, one reason and therefore one set of words
+   * (`text`, `nextSteps`), so nothing on the screen tells them apart; leaving
+   * one of them standing would look to the person like the press did nothing.
+   */
+  readonly dismissKey: string
 }
 
 /**
@@ -931,6 +988,14 @@ export interface RaisedConfirmation {
  * `icon-roster.json`. ⛔ That is why this type is not what a caller raises:
  * `ScreenSession.confirmation` takes `RaisedConfirmation`, and the entries are
  * added on the way to the screen.
+ *
+ * ⛔ NT-8's ENTRANCE MAY NOT STAND HERE (MUST NOT), which is why this type does
+ * not extend `Notice` and carries neither `dismissText` nor `dismissKey`. That
+ * row lets a person put a TELLING away; this surface asks a question, and a
+ * third way out of it would be an answer that is neither of `entries` -- the
+ * two NT-7 (MUST) makes the whole of the choice. ⚠️ The reading `Esc` gives is
+ * not a third one either: IN-4 of table T-028 spends it as calling the question
+ * off, which is IC-70's answer arriving by another road.
  */
 export interface Confirmation extends RaisedConfirmation {
   /**

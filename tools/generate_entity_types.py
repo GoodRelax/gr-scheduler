@@ -891,6 +891,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
@@ -1427,9 +1428,12 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
+    # ⭐ The selection frame's own two lengths land beside the colours, in the
+    # one unit that draws the picture SL-8 puts the frame on.
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
-     lambda _erd: colour_block('SCHEDULE_COLOURS'),
-     ['docs/spec/_source/settings.json (table T-236)']),
+     lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
+     + colour_block('SCHEDULE_COLOURS'),
+     ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The width the properties panel opens to, which only the shell can put
     # into force: S-80 is what the DOCUMENT keeps and 0 is what "closed" means
     # there, so the open width has to be laid over the settings for the frame

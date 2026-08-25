@@ -89,7 +89,9 @@
 //              session names neither
 //   S-99e      the palette's shown-or-hidden state, kept out of the document
 //   S-99g      the one open surface, and none open by default
-//   FR-085     a row name that does not fit is cut and shown whole in a tooltip
+//   FR-085     a row name that does not fit is cut and closed with `…`; ⛔ the
+//              whole of it may NOT be shown as an explanation (MUST NOT), and
+//              whoever wants it widens the panel (FR-052)
 //   FR-037     the faster assignment is shown while the pointer rests on a
 //              scrollbar, and taken away when it leaves
 //   EZ-2       table T-040 (MUST): an icon explains itself under TWO
@@ -603,10 +605,11 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     expect(iconsIn(view)).toEqual(expect.arrayContaining([...iconTooltipsIn(view)]))
   })
 
-  it('explains a row name as UF-63 cut it (FR-085)', () => {
-    // FR-085 (MUST): a row name that does not fit is cut and the whole of it is
-    // shown in a tooltip. The cut is UF-63's answer and the tooltip is UF-69's,
-    // so the two agreeing is the composition's doing.
+  it('⛔ cuts a row name and explains it nowhere (FR-085, MUST + MUST NOT)', () => {
+    // FR-085 (MUST): a row name that does not fit is cut and closed with `…`.
+    // ⛔ 「その全文を説明として出してはならない（MUST NOT）」-- so the composition
+    // has to show BOTH answers at once: UF-63 cut the name, and UF-69 raised
+    // nothing for it. 全文を見たい者はパネルを広げる（`FR-052`）.
     const view = viewOf(
       frameWith({
         schedule: scheduleOf([groupOf({ id: 'g1', label: NAME_TOO_LONG, order: 0 })]),
@@ -614,18 +617,20 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
       }),
     )
 
-    const cut = [...view.rowTitlePanel.pinnedTitles, ...view.rowTitlePanel.titles].filter(
-      (title) => title.isLabelTruncated,
-    )
+    const titles = [...view.rowTitlePanel.pinnedTitles, ...view.rowTitlePanel.titles]
+    const cut = titles.filter((title) => title.isLabelTruncated)
     expect(cut.map((title) => title.groupId)).toEqual(['g1'])
-    expect(anchorsOf(view.tooltips, 'rowTitle')).toEqual([
-      JSON.stringify({ kind: 'rowTitle', groupId: 'g1' }),
-    ])
+    expect(cut[0]?.label ?? '').toMatch(/…$/)
+    expect(cut[0]?.label).not.toBe(NAME_TOO_LONG)
+    expect(anchorsOf(view.tooltips, 'rowTitle')).toEqual([])
+    // ⛔ AND NOT UNDER ANOTHER KIND EITHER: the ban is on showing the whole name
+    // as an explanation, whatever the explanation says it is anchored to.
+    expect(view.tooltips.map((tip) => tip.text)).not.toContain(NAME_TOO_LONG)
   })
 
-  it('explains no row when UF-63 had nothing to cut', () => {
-    // The same frame with a name that fits: UF-63 says nothing was cut, and the
-    // tooltip has to follow that answer rather than the schedule.
+  it('explains no row when UF-63 had nothing to cut either', () => {
+    // The same frame with a name that fits: nothing was cut, and nothing is
+    // explained -- the two frames answer alike, which is what the MUST NOT asks.
     const view = viewOf(
       frameWith({ session: sessionWith({ pointer: { x: ROW_BOX.x + 1, y: ROW_BOX.y + 1 } }) }),
     )

@@ -332,6 +332,130 @@ describe('ScheduleLayout (PI-5) -- the time axis', () => {
   })
 })
 
+describe('ScheduleLayout (PI-5) -- FR-080 / OP-10a: 錠が持つ端数', () => {
+  // FR-080: 「⛐ その 2 つだけでは 1 日・1 行より短い位置を指せないので、端数を
+  // `S-176` と `S-177` で持ち…端数は錠自身の大きさに対する比とし、px で持っては
+  // ならない（MUST NOT）」
+  // 表 T-024a の `OP-10a`: 「端数（`S-176` ／ `S-177`）が 0 以上 1 未満の外に
+  // あるとき…錠をその分だけ隣へ送って、端数を範囲に戻すこと（MUST）。拒んでは
+  // ならない（MUST NOT）」
+
+  /** A stack of rows that all carry the same height, so 隣へ送る has one reading. */
+  const STACK = scheduleOf({
+    tasks: [],
+    taskGroups: Array.from({ length: 6 }, (_unused, index) => ({
+      id: `g${index + 1}`,
+      parentId: null,
+      order: index,
+      height: null,
+    })),
+    taskGroupMembers: [],
+  })
+
+  const anchored = (part: Record<string, unknown>): DocumentSettings =>
+    settingsOf({
+      ...LAYOUT_SETTINGS,
+      scrollGroupId: 'g1',
+      scrollGroupOffset: 0,
+      scrollDayOffset: 0,
+      ...part,
+    })
+
+  const drawn = (part: Record<string, unknown>): ReturnType<typeof layoutFromSchedule> =>
+    layoutFromSchedule(STACK, anchored(part), REGIONS)
+
+  const topOf = (part: Record<string, unknown>): number => {
+    const first = drawn(part).rows[0]
+    if (first === undefined) throw new Error('the stack drew no row')
+    return first.y
+  }
+
+  it('S-176 moves the picture by LESS than a whole row, and by that fraction of the row itself', () => {
+    // 「表示の上端が、`scrollGroupId` が指す行のどこにあるか。その行自身の高さに
+    // 対する比であり、px ではない」-- so half a row of offset moves the stack by
+    // half of THAT row's height, and nothing about a whole row is involved.
+    const row = drawn({}).rows[0]
+    if (row === undefined) throw new Error('the stack drew no row')
+
+    const moved = topOf({}) - topOf({ scrollGroupOffset: 0.5 })
+
+    expect(moved, '端数は動かす').toBeGreaterThan(0)
+    expect(moved, '1 行より短い移動').toBeLessThan(row.height)
+    expect(moved, '行自身の高さに対する比').toBeCloseTo(row.height / 2, 6)
+  })
+
+  it('S-176 is a RATIO, so the same fraction moves further once the row is taller', () => {
+    // ⛔ The half FR-080's MUST NOT is about: a px count would move the picture
+    // the same distance at either zoom and point somewhere else on the schedule.
+    const taller = { zoomY: 3, scrollGroupOffset: 0.5 }
+    const tallRow = drawn({ zoomY: 3 }).rows[0]
+    const plainRow = drawn({}).rows[0]
+    if (tallRow === undefined || plainRow === undefined) throw new Error('the stack drew no row')
+    expect(tallRow.height, 'the case only means a row that really grew').toBeGreaterThan(
+      plainRow.height,
+    )
+
+    expect(topOf({ zoomY: 3 }) - topOf(taller)).toBeCloseTo(tallRow.height / 2, 6)
+  })
+
+  it('S-177 moves the picture by LESS than a whole day, and by that fraction of the day itself', () => {
+    // 「表示の左端が、`scrollDate` が指す日のどこにあるか。⭐ 横の軸の `S-176`
+    // である」. The left edge of the Row Area is where `scrollDate` starts, so a
+    // third of a day of offset carries that day's start a third of a day left.
+    const plain = drawn({})
+    const moved = plain.originX - drawn({ scrollDayOffset: 1 / 3 }).originX
+
+    expect(moved, '端数は動かす').toBeGreaterThan(0)
+    expect(moved, '1 日より短い移動').toBeLessThan(plain.pxPerDay)
+    expect(moved, '日自身の幅に対する比').toBeCloseTo(plain.pxPerDay / 3, 6)
+  })
+
+  it('OP-10a (MUST): a fraction of 1 or more carries the row anchor along and comes back into range', () => {
+    // 「錠をその分だけ隣へ送って、端数を範囲に戻すこと（MUST）」-- so the two
+    // spellings of one position draw ONE picture. ⚠️ 「同じ位置を 2 通りに書ける
+    // ことを防ぐ規則であり」 is the reason the row gives itself.
+    const carried = drawn({ scrollGroupId: 'g1', scrollGroupOffset: 1.5 })
+    const inRange = drawn({ scrollGroupId: 'g2', scrollGroupOffset: 0.5 })
+
+    expect(carried.rows.map((row) => row.groupId)).toEqual(inRange.rows.map((row) => row.groupId))
+    expect(carried.rows.map((row) => row.y)).toEqual(inRange.rows.map((row) => row.y))
+    // ⛔ 「拒んではならない（MUST NOT）」: the picture still holds every row the
+    // in-range spelling holds, so nothing was dropped or fallen back on.
+    expect(carried.rows.length).toBe(drawn({}).rows.length)
+  })
+
+  it('OP-10a (MUST): the same of the day anchor', () => {
+    const carried = drawn({ scrollDate: '2026-01-01', scrollDayOffset: 1.5 })
+    const inRange = drawn({ scrollDate: '2026-01-02', scrollDayOffset: 0.5 })
+
+    // ⛔ NOT `originX`: that is where the day each spelling NAMES begins, and the
+    // two name different days on purpose. What has to agree is the PICTURE --
+    // which day is drawn at each place across the band.
+    for (let at = REGIONS.rowArea.x; at < REGIONS.rowArea.x + REGIONS.rowArea.width; at += 7) {
+      expect(dateAtX(carried, at), `at x ${at}`).toEqual(dateAtX(inRange, at))
+    }
+    expect(dateAtX(carried, REGIONS.rowArea.x), '端数を範囲に戻した先の日').not.toBeNull()
+  })
+
+  it('OP-10a (MUST NOT): a fraction below 0 is carried the other way and not refused either', () => {
+    // 「0 以上 1 未満の外にあるとき」 covers both sides of the range.
+    const carried = drawn({ scrollGroupId: 'g3', scrollGroupOffset: -0.5 })
+    const inRange = drawn({ scrollGroupId: 'g2', scrollGroupOffset: 0.5 })
+
+    expect(carried.rows.map((row) => row.y)).toEqual(inRange.rows.map((row) => row.y))
+    expect(carried.rows.length).toBe(drawn({}).rows.length)
+  })
+
+  it('OP-10a: normalising the value first and not normalising it draw the same picture', () => {
+    // The rule has to be idempotent, or a reader that tidied the document on the
+    // way in and one that did not would show two things.
+    const once = drawn({ scrollGroupId: 'g1', scrollGroupOffset: 2.25 })
+    const twice = drawn({ scrollGroupId: 'g3', scrollGroupOffset: 0.25 })
+
+    expect(once.rows.map((row) => row.y)).toEqual(twice.rows.map((row) => row.y))
+  })
+})
+
 describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
   const hierarchy = (part: Record<string, unknown>): Schedule =>
     scheduleOf({

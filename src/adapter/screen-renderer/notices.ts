@@ -43,9 +43,9 @@
 // it: what each row of table T-037 is CALLED keyed by that row, the text and the
 // next step of each row of table T-233 keyed by that row, the sentence of each
 // row of table T-234 keyed by that row, the two answers of
-// NT-7 keyed by their row of table T-109, FR-032's mark by the manuscript's own
-// key (FR-038 (MUST NOT) keeps the words out of every requirement and every
-// table, so the mark has no row to be keyed by).
+// NT-7 keyed by their row of table T-109, FR-032's mark and NT-8's entrance by
+// the manuscript's own key (FR-038 (MUST NOT) keeps the words out of every
+// requirement and every table, so neither has a row to be keyed by).
 //
 // ⭐ EVERYTHING A RAISER HANDS OVER IS A ROW, AND EVERY ROW IS READ. The
 // manner is a row of table T-037; FR-076 (MUST) makes the reason a row of table
@@ -242,6 +242,45 @@ const SHOWN_ON_ANOTHER_ROW = 'shownOnAnotherRow'
 const MARKS_BY_KEY = new Map(displayWords.confirmationMarks.map((entry) => [entry.mark, entry]))
 
 /**
+ * The key the `noticeDismiss` section holds NT-8's word under.
+ *
+ * ⭐ A KEY OF THE DICTIONARY AND NOT A ROW OF ANY TABLE, exactly as
+ * `SHOWN_ON_ANOTHER_ROW` is one. CR-259 settled that NT-8's entrance gets no row
+ * of table T-109 -- it is a word, the way NT-7's two answers are answered in
+ * words -- so there is no row to key it by, and the manuscript's own key is the
+ * join, spelled here as the manuscript spells it (rule 03 section 1).
+ * ⚠️ Unlike the `confirmation` section named above, this one is READ: that
+ * section's two keys have rows of table T-109 standing beside them and no join
+ * between the two, and this one has no rows at all to be in doubt about.
+ */
+const NOTICE_DISMISS_ANSWER = 'dismiss'
+
+/**
+ * The words of the `noticeDismiss` section, keyed by the answer.
+ *
+ * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * description is built every frame and rule 05 of docs/development-rules
+ * forbids a linear search on that path (NFR-013).
+ */
+const DISMISS_BY_ANSWER = new Map(displayWords.noticeDismiss.map((entry) => [entry.answer, entry]))
+
+/**
+ * What stands between the two rows one telling is keyed by.
+ *
+ * ⛔ NEITHER SEPARATOR MAY APPEAR IN A ROW ID, which is the whole of what makes
+ * the key splittable again on the far side: the rows of table T-037 and table
+ * T-233 are spelled with letters, digits and a hyphen (`NT-3a`, `RS-15`), so
+ * these two characters cannot occur inside one.
+ * ⛔ NOT A WORD OF THE SCREEN. `Notice.dismissKey` is read by the side that
+ * spends a press and never printed, so FR-038 does not reach it -- the word this
+ * telling's entrance shows is `dismissText`.
+ */
+const DISMISS_KEY_ROW_SEPARATOR = '/'
+
+/** What stands between two tellings NT-4 gathered into one. See above. */
+const DISMISS_KEY_NOTICE_SEPARATOR = '+'
+
+/**
  * What an entry says while the dictionary holds no word for it.
  *
  * ⛔ NOT "SAY NOTHING". An empty cell of `display-words.json` says that no word
@@ -401,6 +440,52 @@ function shownOnAnotherRowMark(language: DisplayLanguage): string {
 }
 
 /**
+ * The word on the entrance NT-8 (MUST) requires, in the display language
+ * (FR-038).
+ *
+ * ⭐ WHY THERE IS A WORD TO READ AT ALL. NT-8 requires a told notice to be one
+ * the person can put away where it stands, and states in as many words that the
+ * word of that entrance is the dictionary's -- so nothing here writes one. ⛔ No
+ * shape is raised for it either: table T-109 is the whole of the icons (FR-029,
+ * MUST) and CR-259 added no row to it, which is the same bargain
+ * `shownOnAnotherRowMark` keeps just above.
+ *
+ * ⚠️ READ ONCE FOR THE WHOLE FRAME'S WORTH OF NOTICES, not once per notice: it
+ * takes no argument but the language, so every telling shows the one word NT-8
+ * settled and the lookup is not repeated down the list (NFR-013).
+ *
+ * ⛔ THE FALLBACK IS `NO_WORDS`, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
+ * for the reason `answerLabel` gives above. ⚠️ Neither branch can be reached
+ * while `npm run gen:check` passes: the generator writes this section from the
+ * manuscript, and NT-8 (MUST) fills both language cells with the same spelling.
+ *
+ * @purity pure
+ */
+function dismissText(language: DisplayLanguage): string {
+  const word = DISMISS_BY_ANSWER.get(NOTICE_DISMISS_ANSWER)?.text[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
+}
+
+/**
+ * What names ONE raised telling to the side that spends a press on its
+ * entrance (NT-8).
+ *
+ * ⭐ BUILT FROM THE TWO ROWS THE RAISER ALREADY HANDED OVER, and from nothing
+ * minted here: a `pure` unit has neither a counter nor a clock to number a
+ * telling with (CS-1 of table T-066), and both rows are already the joins this
+ * file reads everything else by. ⛔ Which is also why the key is not an index
+ * into `ScreenSession.notices`: the description is rebuilt every frame, NT-4
+ * collapses a run of it, and a number that means 「the third」 names a different
+ * telling the moment the second is put away.
+ *
+ * @purity pure
+ */
+export function dismissKeyOf(raised: RaisedNotice): string {
+  return raised.manner + DISMISS_KEY_ROW_SEPARATOR + raised.reason
+}
+
+/**
  * IC-69 and IC-70 as the surface shows them.
  *
  * ⭐ NEITHER CAN BE SPENT AND NEITHER IS A TOGGLE. NT-7 (MUST) makes choosing
@@ -483,6 +568,12 @@ function toldNotice(raised: RaisedNotice, language: DisplayLanguage): Notice {
     // apart from a step that IS a word, never merged with it (PD-160).
     nextSteps: nextStep === NO_WORDS ? NO_NEXT_STEPS : [nextStep],
     affectedCount: raised.affectedCount,
+    // NT-8 (MUST): every told notice can be put away where it stands, so the
+    // word and the key are filled for all of them and for none of the
+    // confirmations -- `confirmationFromSession` below builds no such member,
+    // and NT-8 (MUST NOT) is why.
+    dismissText: dismissText(language),
+    dismissKey: dismissKeyOf(raised),
   }
 }
 
@@ -517,6 +608,16 @@ function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLang
     text: pending.map((notice) => notice.text).join(GATHERED_TEXT_SEPARATOR),
     nextSteps: pending.flatMap((notice) => notice.nextSteps),
     affectedCount: null,
+    // ⚠️ One word for the one surface, read the way `mannerText` above is read
+    // rather than taken off the first of them: NT-4 gathered these into a single
+    // telling, and a single telling carries a single entrance.
+    dismissText: dismissText(language),
+    // ⛔ THE KEYS OF ALL OF THEM, JOINED THE WAY THE TEXTS ARE JOINED, because
+    // this ONE entrance puts away every raised notice NT-4 gathered here. A key
+    // naming only the first would leave the rest standing with nothing on the
+    // screen to press -- NT-4 (MUST) has already taken their separate surfaces
+    // away.
+    dismissKey: pending.map((notice) => notice.dismissKey).join(DISMISS_KEY_NOTICE_SEPARATOR),
   }
 }
 
@@ -602,6 +703,13 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
  * them for the same reason: WHICH items wear it is the raiser's to know
  * (`ConfirmationItem.isShownOnAnotherRow`), and what it is CALLED is the
  * dictionary's (PD-175). ⛔ Neither is a word this file writes.
+ *
+ * ⛔ AND NO ENTRANCE TO PUT IT AWAY, which NT-8 states as a MUST NOT. A telling
+ * is read past and this one waits for an answer, so a third way out would be an
+ * answer that is neither of `entries` -- 「どちらでもない」 in that row's own
+ * words. ⚠️ That is why `Confirmation` carries neither of the two members
+ * `toldNotice` fills for NT-8: the type has them absent, and this is the one
+ * place that could have added them.
  *
  * ⛔ AT MOST ONE. NT-4 (MUST) is the only row of table T-037 that speaks about
  * several at once and it is about notices, so nothing here gathers or orders

@@ -1535,6 +1535,119 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
     expect(Math.abs(serialOf(landed) - ORIGIN_SERIAL)).toBe(days)
   })
 
+  // -- 「パンは等倍とすること（MUST）」 for a drag SHORTER than one row / one day --
+  //
+  // 表 T-023d: 「パンは等倍とすること（MUST）—— ポインタが動いた距離だけ日程表が
+  // 動く。倍率を掛けない。⛔ 錠の上にしか着地できない形にしてはならない
+  // （MUST NOT）—— …`S-77` と `S-78` は日付と行の識別子しか持てないので、それだけ
+  // では 1 日・1 行より短い移動が何も起こさず、等倍が成り立たない。端数は同表の
+  // `S-176` と `S-177` が持つ（MUST）」
+
+  /**
+   * Where the top edge of the `Row Area` sits, in the schedule's own pixels,
+   * for a written position.
+   *
+   * ⭐ Read off the layout the shell built, never computed from a setting: the
+   * anchor names a row and the fraction is 「その行自身の高さに対する比」
+   * (`S-176`), so the two together are one distance only once the row's own
+   * height is known. ⚠️ Distances between rows are the same whichever row the
+   * band is anchored to, so ONE layout answers for both readings.
+   */
+  const topEdgeOf = (position: Record<string, unknown>): number => {
+    const row = rowOf(String(position['scrollGroupId']))
+    return row.y + Number(position['scrollGroupOffset']) * row.height
+  }
+
+  /** The same, along the time axis: 「横の軸の `S-176` である」(`S-177`). */
+  const leftEdgeOf = (position: Record<string, unknown>): number =>
+    xOfDay(String(position['scrollDate']).slice(0, 10)) +
+    Number(position['scrollDayOffset']) * LAYOUT.pxPerDay
+
+  const WHERE_IT_STARTED = {
+    scrollGroupId: SETTINGS.scrollGroupId,
+    scrollGroupOffset: SETTINGS.scrollGroupOffset,
+    scrollDate: SETTINGS.scrollDate,
+    scrollDayOffset: SETTINGS.scrollDayOffset,
+  }
+
+  /** `Ctrl` + drag is the pan of PD-1 / MK-7; `from` and `to` are the pointer. */
+  const pannedBy = (dx: number, dy: number): Record<string, unknown> => {
+    const mods = modsOf({ ctrl: true })
+    const from = { x: xOfDay('2026-01-06'), y: midYOfRow('g3') }
+    return oneCommand(
+      gestureAction(
+        pointerOf('down', from.x, from.y, { modifiers: mods }),
+        pointerOf('up', from.x + dx, from.y + dy, { modifiers: mods }),
+        null,
+      ),
+      'setScrollPosition',
+    )
+  }
+
+  it('⛔ MUST NOT land only on an anchor: a drag shorter than one row still moves the picture, by that same distance', () => {
+    // ⭐ The whole of the MUST NOT in one case. A drag of a few pixels is shorter
+    // than a row, so a position that could only name a row would answer 「動かない」
+    // -- and 等倍 would be broken exactly where it is easiest to see.
+    const row = rowOf('g1')
+    const dy = Math.round(row.height / 3)
+    expect(dy, 'the case only means a drag SHORTER than one row').toBeLessThan(row.height)
+    expect(dy, 'and a drag that really is a drag').toBeGreaterThan(0)
+
+    // Dragging the pointer UP carries the schedule up with it (等倍), which is
+    // the direction there is room in: the view starts at the first row.
+    const moved = pannedBy(0, -dy)
+
+    expect(topEdgeOf(moved) - topEdgeOf(WHERE_IT_STARTED), 'ポインタが動いた距離だけ動く').toBeCloseTo(
+      dy,
+      6,
+    )
+  })
+
+  it('⛔ the same along the time axis: a drag shorter than one day moves the picture by that distance', () => {
+    const dx = Math.round(LAYOUT.pxPerDay / 3)
+    expect(dx, 'the case only means a drag SHORTER than one day').toBeLessThan(LAYOUT.pxPerDay)
+    expect(dx, 'and a drag that really is a drag').toBeGreaterThan(0)
+
+    const moved = pannedBy(-dx, 0)
+
+    expect(leftEdgeOf(moved) - leftEdgeOf(WHERE_IT_STARTED), 'ポインタが動いた距離だけ動く').toBeCloseTo(
+      dx,
+      6,
+    )
+  })
+
+  it('MUST: 等倍 -- twice the drag is twice the distance, and no factor is applied to either', () => {
+    // 「倍率を掛けない」. Two drags of the same axis, one twice the other: a pan
+    // that multiplied by anything at all would keep the ratio and miss the
+    // distance, so both are held against the pointer itself.
+    const row = rowOf('g1')
+    const dy = Math.round(row.height / 4)
+    const near = topEdgeOf(pannedBy(0, -dy)) - topEdgeOf(WHERE_IT_STARTED)
+    const far = topEdgeOf(pannedBy(0, -2 * dy)) - topEdgeOf(WHERE_IT_STARTED)
+
+    expect(near).toBeCloseTo(dy, 6)
+    expect(far).toBeCloseTo(2 * dy, 6)
+  })
+
+  it('MUST: the fraction the pan writes stays inside its own range (S-176 / S-177)', () => {
+    // 「⚠️ 上限の 1 は含まない。1 以上になったら錠を 1 つ隣へ送る」-- the writer's
+    // half of what OP-10a forgives on the reading side, so that one position has
+    // one spelling and NS-4's round trip stays true.
+    const row = rowOf('g1')
+    for (const dy of [-3, -row.height, -2 * row.height, -3 * row.height - 5]) {
+      const moved = pannedBy(0, dy)
+      const held = Number(moved['scrollGroupOffset'])
+      expect(held, `${dy}px`).toBeGreaterThanOrEqual(0)
+      expect(held, `${dy}px`).toBeLessThan(1)
+    }
+    for (const dx of [-2, -LAYOUT.pxPerDay, -5 * LAYOUT.pxPerDay - 1]) {
+      const moved = pannedBy(dx, 0)
+      const held = Number(moved['scrollDayOffset'])
+      expect(held, `${dx}px`).toBeGreaterThanOrEqual(0)
+      expect(held, `${dx}px`).toBeLessThan(1)
+    }
+  })
+
   it('第 1 の分岐 (MUST): what was hit decides before what is armed', () => {
     // PD-3 comes before PD-4, so an armed shape does not make a new Task on
     // top of an existing one.
@@ -2296,6 +2409,7 @@ function pressPanelEntry(
       rowGroupId,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     },
     pressRow: pressRowOf({ at: down, hit: null }, context),
   }

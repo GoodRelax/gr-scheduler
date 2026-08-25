@@ -1262,6 +1262,10 @@ const NOTICE: Notice = {
   text: 'NoticeTextOne',
   nextSteps: ['NextStepOne'],
   affectedCount: 3,
+  // NT-8 (MUST): a told notice carries the entrance a person puts it away by,
+  // and the key that names WHICH telling that press puts away.
+  dismissText: 'DismissWordOne',
+  dismissKey: 'NT-3|RE-1',
 }
 
 const DIALOGUE: DialogueField = {
@@ -1450,6 +1454,7 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1496,6 +1501,7 @@ describe('IF-9 of 表 T-065 -- three supplies, three members', () => {
       'dividerPanel',
       'entry',
       'format',
+      'noticeDismissKey',
       'part',
       'resourceUid',
       'rowGroupId',
@@ -1542,6 +1548,7 @@ describe("表 T-023a (MUST) -- the decision order is the drawing area's alone", 
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1567,6 +1574,7 @@ describe('FR-029 -- a disabled entry answers; it does not go quiet', () => {
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1609,6 +1617,7 @@ describe('FR-053 / 表 T-023b -- the palette can be armed from (SP-1 .. SP-4)', 
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1680,6 +1689,7 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1735,6 +1745,7 @@ describe('GR-19 of 表 T-023d -- the band on the palette, and the claim it has',
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1787,6 +1798,7 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 })
@@ -1808,6 +1820,7 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1823,6 +1836,7 @@ describe('R3.4 -- half-open, the way the rest of src/ resolves an edge', () => {
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -1899,6 +1913,7 @@ describe('overlapping parts', () => {
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 })
@@ -1965,6 +1980,7 @@ describe('⛔ R6.3 -- what the unit actually did to the fake', () => {
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
     expect(ask(built, AT.entryIc13.x, AT.entryIc13.y)?.entry).toBe('IC-13')
   })
@@ -2021,6 +2037,7 @@ describe('the entries of 表 T-109 on the `Row Title Panel`', () => {
       rowGroupId: 'g-1',
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 })
@@ -2157,6 +2174,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         rowGroupId: 'g-1',
         resourceUid: null,
         dividerPanel: null,
+        noticeDismissKey: null,
       })
     },
   )
@@ -2199,6 +2217,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
         rowGroupId: 'g-1',
         resourceUid: null,
         dividerPanel: null,
+        noticeDismissKey: null,
       })
     }
   })
@@ -2260,6 +2279,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
       rowGroupId: 'g-1',
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
     expect(ask(built, AT.rowExpanderGap.x, AT.rowExpanderGap.y)).toEqual({
       part: 'Row Title Panel',
@@ -2268,6 +2288,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
       rowGroupId: 'g-1',
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -2287,6 +2308,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 
@@ -2631,6 +2653,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
       rowGroupId: null,
       resourceUid: null,
       dividerPanel: null,
+      noticeDismissKey: null,
     })
   })
 })

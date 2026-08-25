@@ -138,6 +138,8 @@ const DICTIONARY = readJson('display-words.json') as {
     readonly nextStep: Words
   }[]
   readonly questions: readonly { readonly rowId: string; readonly text: Words }[]
+  /** NT-8 (MUST): what the entrance that puts a telling away is CALLED. */
+  readonly noticeDismiss: readonly { readonly answer: string; readonly text: Words }[]
   readonly confirmationMarks: readonly { readonly mark: string; readonly text: Words }[]
 }
 
@@ -1053,6 +1055,21 @@ const questionTextFor = (question: string, language: DisplayLanguage): string =>
 }
 
 /**
+ * The word NT-8 (MUST) gives the entrance that puts a told notice away.
+ *
+ * ⭐ READ, NEVER WRITTEN, the move `mannerTextFor` and `questionTextFor` already
+ * make: 「その入口の語は `FR-038` の辞書が持ち」, so the bench looks it up rather
+ * than spelling it. ⚠️ The section holds ONE entry: NT-8 names one entrance, and
+ * the case below asserts the section is exactly that.
+ */
+const dismissTextFor = (language: DisplayLanguage): string => {
+  const held = DICTIONARY.noticeDismiss
+  expect(held, 'FR-038: the dictionary has no section for NT-8 s entrance').toBeDefined()
+  expect(held.length, 'NT-8 names ONE entrance, so the section holds one entry').toBe(1)
+  return (held[0] as { readonly text: Words }).text[language]
+}
+
+/**
  * The entries 表 T-109 places on U-55, as `CommandItem`s, in that table's order.
  *
  * ⭐ `isEnabled` is true on both. NT-7 (MUST) 「続けるか取りやめるかを選ばせる
@@ -1321,6 +1338,108 @@ async function noticesWithMarkedDictionary(
 }
 
 // ---------------------------------------------------------------------------
+
+describe('UF-67 -- NT-8 (MUST): 告げた通知は人がその場で消せる', () => {
+  // 表 T-037 の `NT-8`: 「人がその場で消せること（MUST）—— 消す道が無ければ、
+  // 告げたものは日程の上に永久に残る。その入口の語は `FR-038` の辞書が持ち、
+  // どの表示言語でも `OK` と綴ること（MUST）…⛔ `NT-7` の確認に置いてはならない
+  // （MUST NOT）—— あちらは答えを求めるものであり、消す入口を置くと「どちらでも
+  // ない」が生まれる」
+
+  /** Every telling this file can raise for real, one per row of 表 T-037 that tells. */
+  const EVERY_TELLING: readonly RaisedNotice[] = [
+    REFUSAL,
+    WARNING,
+    DESTRUCTIVE,
+    FAILURE,
+    AT_LIMIT,
+    PENDING_RESTORE,
+  ]
+
+  it('GIVEN a telling of any manner WHEN it is shown THEN it carries the way out (MUST)', () => {
+    // 「人がその場で消せること（MUST）」-- a telling with no entrance is one that
+    // stays on the schedule for ever, which is the reason the row gives itself.
+    for (const raised of EVERY_TELLING) {
+      const told = noticesFromSession(sessionOf([raised]))[0] as Notice
+
+      expect(told.dismissText.length, `${raised.manner}: 消す入口の語`).toBeGreaterThan(0)
+      expect(told.dismissKey.length, `${raised.manner}: どの通知を消すのか`).toBeGreaterThan(0)
+    }
+  })
+
+  it('GIVEN either display language WHEN a telling is shown THEN the word is the dictionary s, and it is `OK` in both (MUST)', () => {
+    // 「その入口の語は `FR-038` の辞書が持ち、どの表示言語でも `OK` と綴ること
+    // （MUST）」. ⭐ Both halves: the word is READ from the dictionary, and the
+    // dictionary's own two cells hold the one spelling the user ruled on.
+    for (const language of LANGUAGES) {
+      const told = noticesFromSession({ ...sessionOf([REFUSAL]), language })[0] as Notice
+
+      expect(told.dismissText, language).toBe(dismissTextFor(language))
+      expect(told.dismissText, `NT-8 (MUST): ${language} でも OK と綴る`).toBe('OK')
+    }
+  })
+
+  it('GIVEN a dictionary of marks WHEN a telling is shown THEN the word came from it and is no literal of the unit s', async () => {
+    // ⛔ THE HALF A DICTIONARY OF THE REAL WORDS CANNOT SHOW. `OK` is short
+    // enough for a unit to spell for itself and pass the case above, so the
+    // dictionary is stood in with one whose every word names its own cell: a
+    // unit that wrote its own `OK` hands back `OK` here and goes red.
+    const told = (await noticesWithMarkedDictionary([REFUSAL]))[0] as Notice
+
+    expect(told.dismissText).not.toBe('OK')
+    expect(told.dismissText).toMatch(/^<ja\//)
+    expect(told.dismissText).toContain('noticeDismiss')
+  })
+
+  it('⛔ GIVEN a question WHEN it is shown THEN it carries no way out at all (MUST NOT)', () => {
+    // 「`NT-7` の確認に置いてはならない（MUST NOT）—— …消す入口を置くと
+    // 「どちらでもない」が生まれる」. The whole of the choice is the two answers
+    // `NT-7` (MUST) asks for, so a third road off the surface is exactly what
+    // the row bars.
+    const shown = confirmationFromSession(sessionAsking(confirmationOf(questionRow(0), []))) as Confirmation
+    const carried = shown as unknown as Record<string, unknown>
+
+    expect(Object.keys(carried)).not.toContain('dismissText')
+    expect(Object.keys(carried)).not.toContain('dismissKey')
+    // ⚠️ And the word itself reaches no member of the surface either -- a
+    // question that printed it somewhere would be offering the same third road.
+    expect(JSON.stringify(shown)).not.toContain(dismissTextFor('ja'))
+  })
+
+  it('GIVEN two tellings that differ WHEN both stand THEN a press puts away one of them and not the other', () => {
+    // 「WHICH telling a press on that entrance put away」-- `manner` cannot say
+    // it, because 表 T-037 lets any number of tellings wear one row. So two
+    // tellings that are not the same telling may not answer to one key.
+    const shown = noticesFromSession(sessionOf([REFUSAL, FAILURE]))
+
+    expect(shown.length).toBe(2)
+    expect((shown[0] as Notice).dismissKey).not.toBe((shown[1] as Notice).dismissKey)
+  })
+
+  it('GIVEN two tellings raised alike WHEN both stand THEN they answer to one key (nothing on the screen tells them apart)', () => {
+    // The other side of the same rule: two tellings carrying one manner and one
+    // reason carry one set of words, so leaving one standing after a press would
+    // look to the person like the press did nothing.
+    const shown = noticesFromSession(sessionOf([REFUSAL, REFUSAL]))
+
+    expect(shown.length).toBeGreaterThan(0)
+    const keys = new Set(shown.map((one) => one.dismissKey))
+    expect(keys.size).toBe(1)
+  })
+
+  it('GIVEN the run NT-4 gathers WHEN the one surface stands THEN it too carries a way out', () => {
+    // NT-4 (MUST) makes one surface out of several raised notices, and NT-8 is
+    // written of 「告げた通知」 without exception -- so the gathered one is a
+    // telling like any other and may not be the one thing that cannot be put away.
+    const gathered = noticesFromSession(
+      sessionOf([PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API, PENDING_WATERMARK]),
+    )
+
+    expect(gathered.length).toBe(1)
+    expect((gathered[0] as Notice).dismissText).toBe(dismissTextFor('ja'))
+    expect((gathered[0] as Notice).dismissKey.length).toBeGreaterThan(0)
+  })
+})
 
 describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
   it('GIVEN no question was raised WHEN the view is filled THEN there is none to answer (the empty case)', () => {

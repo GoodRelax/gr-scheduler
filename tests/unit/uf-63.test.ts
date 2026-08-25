@@ -119,6 +119,15 @@ const panelWith = (part: Record<string, unknown>): DocumentSettings =>
 /** One half-width character costs 10px under PANEL, so 400 of them never fit. */
 const LONG = 'x'.repeat(400)
 
+/**
+ * The mark FR-085 (MUST) closes a cut name with, written as its code point.
+ *
+ * ⚠️ 「末尾を打ち切り、`…` を置くこと（MUST）」 spells the character itself, so it is
+ * a value of the specification and not of `src/`. Written as `…` because a
+ * typed one reads as three periods in a diff.
+ */
+const MARK = '…'
+
 const SESSION: ScreenSession = {
   language: 'ja',
   autosave: { kind: 'saving' },
@@ -254,17 +263,28 @@ const chainPanelWithSelection = (
 }
 
 /**
- * How many half-width characters of a name survive at this depth.
+ * The longest half-width name this depth shows WHOLE.
  *
  * This is the panel's own answer to "how much room is there for a name", read
  * back through the only thing the specification makes observable: where the cut
  * lands. Every width case compares two of these rather than naming a number,
  * because the room FR-085 keeps for the row controls has no row anywhere.
+ *
+ * ⛔ NOT the length of what is left of a name that WAS cut. FR-085 (MUST) closes
+ * a cut name with `…`, so the shown string of a cut row is not made of the given
+ * name alone and its length would answer a second question at the same time.
+ * ⚠️ `isLabelTruncated` is the panel's own statement that the name it shows is
+ * not the name it was given, which is what "fits whole" means here.
  */
 const keptOf = (settings: DocumentSettings, depth: number): number => {
-  const title = deepestTitle(depth, LONG, settings)
-  expect(title.isLabelTruncated, 'a 400-character name cannot fit any panel used here').toBe(true)
-  return (title.label ?? '').length
+  expect(
+    deepestTitle(depth, LONG, settings).isLabelTruncated,
+    'a 400-character name cannot fit any panel used here',
+  ).toBe(true)
+  for (let length = 1; length <= LONG.length; length += 1) {
+    if (deepestTitle(depth, 'x'.repeat(length), settings).isLabelTruncated) return length - 1
+  }
+  throw new Error('no half-width name of any length was cut by this panel')
 }
 
 // ---------------------------------------------------------------------------
@@ -542,11 +562,35 @@ describe('UF-63 -- FR-085: the name is cut to the width the panel leaves', () =>
     expect(title.isLabelTruncated).toBe(false)
   })
 
-  it('cuts the TAIL, so what is left is the front of the name', () => {
+  it('cuts the TAIL and closes it with `…` (FR-085, MUST)', () => {
+    // 「末尾を打ち切り、`…` を置くこと（MUST）」. The mark is the requirement's
+    // own character, so it is written here rather than named from `src/`. What
+    // stands before it is the FRONT of the name -- the tail is what went.
+    const title = deepestTitle(1, LONG)
+    const shown = title.label ?? ''
+
+    expect(shown.endsWith(MARK)).toBe(true)
+    expect(LONG.startsWith(shown.slice(0, -MARK.length))).toBe(true)
+    expect(shown).not.toBe(LONG)
+    expect(title.isLabelTruncated).toBe(true)
+  })
+
+  it('⛔ shows no whole name anywhere on the row (FR-085, MUST NOT)', () => {
+    // 「その全文を説明として出してはならない（MUST NOT）」. The whole name is on
+    // the title as `wholeLabel` -- it has to be, or the panel could not tell
+    // whether it cut -- but nothing the row shows may carry it. The one thing a
+    // row shows is `label`, and after a cut that is not the whole name.
     const title = deepestTitle(1, LONG)
 
-    expect(LONG.startsWith(title.label ?? '')).toBe(true)
+    expect(title.wholeLabel).toBe(LONG)
     expect(title.label).not.toBe(LONG)
+    expect(title.label ?? '').not.toContain(LONG)
+    // 全文を見たい者はパネルを広げる（`FR-052`）-- and widening it is the ONLY
+    // thing that brings the whole name back, so the same name against a panel
+    // wide enough is shown whole and unmarked.
+    const widened = deepestTitle(1, LONG, panelWith({ rowTitlePanelWidth: 100000 }))
+    expect(widened.label).toBe(LONG)
+    expect(widened.isLabelTruncated).toBe(false)
   })
 
   it('keeps the longest name that fits and cuts the next one', () => {
@@ -559,8 +603,11 @@ describe('UF-63 -- FR-085: the name is cut to the width the panel leaves', () =>
 
     expect(atFit.label).toBe(fits)
     expect(atFit.isLabelTruncated).toBe(false)
-    expect(over.label).toBe(fits)
     expect(over.isLabelTruncated).toBe(true)
+    expect(over.label ?? '').toMatch(/^x*…$/)
+    // ⛔ The cut name may not be WIDER than the name that only just fits: the
+    // width FR-085 fixes is the panel's, and the mark is shown inside it.
+    expect((over.label ?? '').length).toBeLessThanOrEqual(fits.length)
   })
 
   it('marks the cut exactly when the name it shows is not the name it was given', () => {
@@ -622,9 +669,14 @@ describe('UF-63 -- FR-085: the name is cut to the width the panel leaves', () =>
     // without one of each -- this is rule 03's stated exception, code that
     // handles Japanese itself.
     const inHalf = keptOf(PANEL, 1)
-    const wide = deepestTitle(1, '字'.repeat(400))
+    const inFull = (() => {
+      for (let length = 1; length <= 400; length += 1) {
+        if (deepestTitle(1, '字'.repeat(length)).isLabelTruncated) return length - 1
+      }
+      throw new Error('no full-width name of any length was cut by this panel')
+    })()
 
-    expect((wide.label ?? '').length).toBe(Math.floor(inHalf / 2))
+    expect(inFull).toBe(Math.floor(inHalf / 2))
   })
 
   it('MUST NOT measure a glyph: two half-width names of one length cut alike', () => {

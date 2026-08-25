@@ -168,7 +168,15 @@ export interface ScheduleLayout {
   readonly tier: RulerTier
   /** The day the left edge of the Row Area points at (S-77). */
   readonly originDay: CalendarDay | null
-  /** The x that day sits at, so a caller need not re-derive the axis. */
+  /**
+   * The x that day sits at, so a caller need not re-derive the axis.
+   *
+   * ⚠️ NOT the left edge of the Row Area. S-177 puts the edge a fraction of
+   * one day's width INTO `originDay`, so the day itself begins that far to the
+   * left of the edge. Every reader of the time axis goes through this member
+   * (`dateAtX`, `xFromDay`, `xOnTimeAxis`), so the fraction is applied once,
+   * here, and no caller adds it a second time.
+   */
   readonly originX: number
   /**
    * What a rectangle's plan bar is tall at this zoom. LF-2 and LF-3 give it to
@@ -564,7 +572,23 @@ export function layoutFromSchedule(
   const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
   const originDay = dayOf(settings.scrollDate)
   const originSerial = originDay === null ? 0 : serialOf(originDay)
-  const originX = regions.rowArea.x
+  // ---- S-177: the left edge stands this far INTO `scrollDate`'s own day ----
+  // ⭐ A fraction of that day's own width and never a px count -- FR-080
+  // forbids holding a scroll position in px (MUST NOT) because a zoom or a
+  // window width then makes the same number point somewhere else, and a
+  // fraction of the anchor's own extent survives both.
+  // ⚠️ OP-10a of table T-024a asks for a fraction outside [0, 1) to send the
+  // anchor along and come back into range (MUST) and forbids refusing it
+  // (MUST NOT) -- and on THIS axis the two spellings are the same place, so
+  // the value is applied as it stands rather than walked: every day is
+  // `pxPerDay` wide, so 1.3 days past `originDay` IS the next day plus 0.3.
+  // ⛔ The vertical axis is not like this and does walk; `scrollOffsetOf`
+  // says why.
+  // ⛔ Left where it was when no day is named: the fraction is a part of
+  // `scrollDate`'s day, and there is no day to take a part of. OP-10 sends
+  // that case to FR-055's fit before this ever runs.
+  const dayOffset = Number.isFinite(settings.scrollDayOffset) ? settings.scrollDayOffset : 0
+  const originX = regions.rowArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
 
   // ---- LC-1, then LC-2's group half ---------------------------------------
   const depthLimit = groupDepthLimit(settings)
@@ -596,7 +620,6 @@ export function layoutFromSchedule(
   // the row S-78 names cannot be put at the top before the rows above it have
   // been measured.
   let y = regions.rowArea.y
-  let topOfScrollRow: number | null = null
   // Both sentinels are replaced together by the first placement, so the one
   // test at the end settles "nothing was placed at all". Seeding `widest` at 0
   // instead measured from the leftmost occupied edge all the way to x = 0
@@ -608,9 +631,6 @@ export function layoutFromSchedule(
   const emptyLane = reservedHeight('rectangle', settings)
 
   for (const row of rows) {
-    // S-78 names the row the top of the display points at, so this band's own
-    // top is the distance the whole stack has to move.
-    if (row.id === settings.scrollGroupId) topOfScrollRow = y
     // ---- LC-2, the task half: CR-163 measures the shape, not the depth -----
     // The kind, the span and the drawn width are resolved ONCE per Task here.
     // S-86's filter and the measuring below both want all three, and asking
@@ -790,19 +810,8 @@ export function layoutFromSchedule(
     y += height + settings.rowGap
   }
 
-  // ---- S-78: put the row the display points at at the top of the Row Area --
-  // ⭐ The vertical counterpart of S-77, which the origin above already
-  // applies to the horizontal. Without it the wheel writes a new
-  // `scrollGroupId` every turn and every turn draws the same rows.
-  // ⚠️ FR-051 sends the READING side to OP-10 of table T-024a, and the shell
-  // answers OP-10's two cases -- a null, and an id naming no `TaskGroup` --
-  // by handing FR-055's fit down in the settings, so neither is decided a
-  // second time here.
-  // ⛔ An id naming a row this pass did NOT draw (FR-018 dropped it, or HR-1a
-  // collapsed something above it) is neither of OP-10's cases and no rule
-  // covers it. The stack then stays where it was measured rather than being
-  // slid to a row that is not on screen.
-  const scrollOffsetY = topOfScrollRow === null ? 0 : topOfScrollRow - regions.rowArea.y
+  // ---- S-78 with S-176: put the place the display points at at the top -----
+  const scrollOffsetY = scrollOffsetOf(rowPlacements, settings, regions.rowArea.y)
   // ⚠️ Measured before the slide: FR-055 fits to the extent of the content,
   // which does not change when the content is scrolled.
   const contentHeight = Math.max(0, y - settings.rowGap - regions.rowArea.y)
@@ -822,6 +831,57 @@ export function layoutFromSchedule(
     contentHeight,
     contentX0,
   }
+}
+
+/**
+ * How far the whole stack has to slide so that the top edge of the Row Area
+ * stands where S-78 and S-176 put it.
+ *
+ * ⭐ The vertical counterpart of S-77 and S-177, which `originX` above already
+ * applies to the horizontal. Without it the wheel writes a new `scrollGroupId`
+ * every turn and every turn draws the same rows.
+ * ⭐ S-176 IS WHAT LETS THE PICTURE REST BETWEEN TWO ROWS. The anchor alone
+ * can only name a band's top edge, so a movement shorter than the row standing
+ * at the top edge had nowhere to be written and 表 T-023d's 「パンは等倍とす
+ * ること（MUST）」 was out of reach. The fraction is of that row's OWN height
+ * and never a px count -- FR-080 forbids px (MUST NOT) because a zoom or a
+ * window width makes the same number point somewhere else.
+ *
+ * ⚠️ OP-10a of table T-024a: a fraction outside [0, 1) sends the anchor that
+ * many rows along and comes back into range (MUST), and refusing it is
+ * forbidden (MUST NOT) -- two spellings of one position would make NS-4's
+ * round-trip comparison false. ⛔ The walk is NOT distance-preserving and is
+ * not meant to be: rows differ in height, so 「その分だけ隣へ送る」 can only
+ * mean the whole part of the fraction counted in rows. It is idempotent, so a
+ * reader that normalised the value first and one that did not draw the same
+ * picture.
+ * ⚠️ 「送った先に行が無いとき」 falls to OP-10, which the shell answers by
+ * handing FR-055's fit down in the settings; there is nothing left to do here,
+ * so the walk simply stops at the end of the stack.
+ *
+ * ⚠️ FR-051 sends the READING side to OP-10 as well, and the shell answers its
+ * two cases -- a null, and an id naming no `TaskGroup` -- the same way, so
+ * neither is decided a second time here.
+ * ⛔ An id naming a row this pass did NOT draw (FR-018 dropped it, or HR-1a
+ * collapsed something above it) is neither of OP-10's cases and no rule covers
+ * it. The stack then stays where it was measured rather than being slid to a
+ * row that is not on screen.
+ *
+ * @purity pure
+ */
+function scrollOffsetOf(
+  rows: readonly RowPlacement[],
+  settings: DocumentSettings,
+  rowAreaY: number,
+): number {
+  const anchoredAt = rows.findIndex((row) => row.groupId === settings.scrollGroupId)
+  if (anchoredAt < 0) return 0
+  const held = Number.isFinite(settings.scrollGroupOffset) ? settings.scrollGroupOffset : 0
+  const carriedRows = Math.floor(held)
+  const landedAt = Math.min(rows.length - 1, Math.max(0, anchoredAt + carriedRows))
+  const row = rows[landedAt]
+  if (row === undefined) return 0
+  return row.y + (held - carriedRows) * row.height - rowAreaY
 }
 
 /**
@@ -864,6 +924,18 @@ export function taskPlacement(layout: ScheduleLayout, taskUid: number): TaskPlac
  * ⚠️ The position is a day and a `TaskGroup.id` (S-77, S-78) because Chapter
  * 1.4 forbids holding a scroll position in px (MUST NOT): the same px means a
  * different place once the zoom or the screen width moves.
+ *
+ * STOP -- ⛔ THE TWO FRACTIONS ARE NOT ANSWERED HERE. S-176 and S-177 now sit
+ * beside the two anchors, and the fit puts the content's top left corner on the
+ * Row Area's corner, so both of them ought to come back as part of the chosen
+ * position. `fitScheduleToScreen` (CM-71) carries the anchors only, so a fit
+ * that answered the fractions would have nowhere to put them and the values in
+ * force would go on shifting the fitted picture by up to one row and one day.
+ * ⚠️ THIS IS A LIVE DEFECT and not a case no rule covers: FR-055 chooses a
+ * 表示位置, and after CR-260 a 表示位置 is four values. Widening that command --
+ * and `setScrollPosition` (CM-66) with it -- is the seam this file cannot
+ * reach. Searched: `edit-document-settings.ts` (CM-66, CM-71), table T-108,
+ * table T-203 S-176 / S-177, OP-10 and OP-10a of table T-024a.
  */
 export interface FitToScreen {
   readonly zoomX: number

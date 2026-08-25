@@ -124,6 +124,125 @@ function pointsOf(path: Path): string {
 }
 
 /**
+ * The rectangle a run of vertices occupies.
+ *
+ * ⚠️ `ScreenRect` rather than a shape of this file's own: `HighlightGeometry`
+ * already carries one of these for a drawn thing, and two names for the same
+ * four numbers would only make them harder to put side by side.
+ *
+ * @purity pure
+ */
+function boxOfPoints(path: Path): ScreenRect | null {
+  const first = path[0]
+  if (first === undefined) return null
+  let left = first.x
+  let right = first.x
+  let top = first.y
+  let bottom = first.y
+  for (const one of path) {
+    left = Math.min(left, one.x)
+    right = Math.max(right, one.x)
+    top = Math.min(top, one.y)
+    bottom = Math.max(bottom, one.y)
+  }
+  return { x: left, y: top, width: right - left, height: bottom - top }
+}
+
+/**
+ * Every point one bar reaches, in whichever of table T-012's two forms it
+ * takes.
+ *
+ * ⛔ Nothing is measured again here. SH-3's head is a path the geometry made
+ * and SH-4's dots carry their own radius, and both reach past `from` and `to`
+ * -- reading only the two ends would put the frame inside the figure.
+ *
+ * @purity pure
+ */
+function cornersOfBar(bar: BarGeometry): Path {
+  if (bar.form === 'outline') return bar.points
+  const out = [bar.from, bar.to, ...(bar.head ?? [])]
+  for (const dot of bar.dots) {
+    out.push({ x: dot.at.x - dot.radius, y: dot.at.y - dot.radius })
+    out.push({ x: dot.at.x + dot.radius, y: dot.at.y + dot.radius })
+  }
+  return out
+}
+
+/**
+ * SL-8 of table T-023c (MUST), the FRAMED half: a dashed rectangle on the
+ * target's BOUNDING RECTANGLE.
+ *
+ * ⭐ SL-8 splits SL-1's five kinds in two. This is the half with an area to
+ * enclose -- Task (both the shapes with a face and the thin-line ones),
+ * highlight box, comment box. ⛔ 依存線 and 基準日線 are the other half and
+ * MUST NOT be framed; `selectedLineWidth` is theirs.
+ *
+ * ⭐ FR-030 is why it is a dash and not a tint -- being selected may not be
+ * carried by colour alone -- and S-151 is the colour table T-236 gives, whose
+ * own use column reads 「選択と現在位置」.
+ *
+ * ⛔ The frame does NOT trace the target's own outline (SL-8, MUST NOT).
+ * Drawing per shape is how the earlier code came to show the sign on the three
+ * shapes with a face and on nothing else.
+ *
+ * ⛔ Neither the width nor the dash follows the zoom (SL-8, MUST NOT), which is
+ * why S-174 and S-175 are read as they stand and no value off `layout` touches
+ * them.
+ *
+ * ⚠️ A target with no extent in one axis gets that side widened to S-174, the
+ * frame's own width. ⛔ A rectangle of zero height draws no outline at all, so
+ * a figure that collapsed to a single run -- a zero-span SH-3, whose head
+ * shrinks with the span, or a milestone drawn at side 0 -- would carry no sign
+ * rather than a thin one.
+ *
+ * @purity pure
+ */
+function selectionFrameSvg(box: ScreenRect, colour: string): string {
+  const stroke = NOT_STORED_SELECTION_SIZES['S-174']
+  const [on, off] = NOT_STORED_SELECTION_SIZES['S-175']
+  const width = Math.max(box.width, stroke)
+  const height = Math.max(box.height, stroke)
+  return (
+    `<rect x="${rounded(box.x - (width - box.width) / 2)}"` +
+    ` y="${rounded(box.y - (height - box.height) / 2)}"` +
+    ` width="${rounded(width)}" height="${rounded(height)}"` +
+    ` fill="none" stroke="${colour}" stroke-width="${rounded(stroke)}"` +
+    ` stroke-dasharray="${rounded(on)} ${rounded(off)}"/>`
+  )
+}
+
+/**
+ * SL-8's OTHER half: 依存線 and 基準日線 are shown as selected by being drawn
+ * at S-178 times their own width, and MUST NOT be framed.
+ *
+ * ⭐ The row records why. A dependency route bends, so a rectangle around it
+ * looks nothing like the line and is only harder to read; the status line runs
+ * the height of the Row Area, so its rectangle is a tall thin frame that
+ * strikes through every bar and milestone behind it.
+ *
+ * ⭐ The line is drawn thicker IN PLACE rather than over-painted. GD-6 (MUST)
+ * keeps the arrowhead on the dependency line, and a second polyline laid on top
+ * would leave that head at the thin line's weight.
+ *
+ * ⛔ THE COLOUR IS NOT CHANGED. SL-8 gives this half one value and it is a
+ * multiplier; the thickness is already a sign that is not colour, which is all
+ * FR-030 asks. ⚠️ Recolouring the dependency line would also need a SECOND
+ * arrowhead marker in the selection colour, and no table holds it.
+ *
+ * ⛔ STOP -- ⛔ THE DUAL CURSOR'S FOLLOWING SIDE IS NOT COVERED HERE. Table
+ * T-029a asks for the same treatment, but this unit cannot see the cursor:
+ * `ScheduleGeometry` has no member for it, and its own head note says why --
+ * `dualCursor`'s two dates hold `unknown` in the source, so there is nothing to
+ * place. What this file would need is a member on `ScheduleGeometry` carrying
+ * the two lines and which of them follows.
+ *
+ * @purity pure
+ */
+function selectedLineWidth(own: number, selected: boolean): number {
+  return selected ? own * NOT_STORED_SELECTION_SIZES['S-178'] : own
+}
+
+/**
  * The same colour with the hue taken out, for FR-041's monochrome. Applied
  * when drawing and never to the stored value -- `themeMonochrome` "does not
  * change what is saved" (tbl-settings.md §5).
@@ -607,6 +726,29 @@ export function svgFromSchedule(
   const selected = new Set(
     selection.items.filter((one) => one.kind === 'task').map((one) => one.uid),
   )
+  const selectedBoxes = new Set(
+    selection.items.filter((one) => one.kind === 'highlightBox').map((one) => one.id),
+  )
+  const selectedStatusLine = selection.items.some((one) => one.kind === 'statusLine')
+  /**
+   * The dependency routes SL-1 has selected, keyed by both ends.
+   *
+   * ⚠️ The two sides name a dependency differently: `ItemRef` names it by its
+   * successor and its ORDINAL among that Task's links, while
+   * `DependencyGeometry` names it by both UIDs. `Task.dependencies` is the only
+   * place the two meet, and `input-command-translator.ts` resolves the same
+   * mapping in the same direction when it makes the ref.
+   * ⛔ The ordinal is NOT the route's index in `geometry.dependencies`: RT-4a
+   * drops a link whose predecessor this zoom did not draw, so the two runs part
+   * company the moment one is dropped.
+   */
+  const selectedLinks = new Set<string>()
+  const linksOfTask = new Map(schedule.tasks.map((one) => [one.uid, one.dependencies]))
+  for (const item of selection.items) {
+    if (item.kind !== 'dependency') continue
+    const link = linksOfTask.get(item.successorUid)?.[item.ordinal]
+    if (link !== undefined) selectedLinks.add(`${link.predecessorUid}>${item.successorUid}`)
+  }
 
   // ⛔ Table T-020 is the paint order, back to front, and in an SVG the
   // document order IS that order. ZO-1 予定バー, ZO-1a 補助線, ZO-2 実績バー,
@@ -627,6 +769,22 @@ export function svgFromSchedule(
   // Task, and the ruler is a different UI part (U-19, not U-50). Both go over
   // the table's six so that nothing painted in the Row Area can cover them.
   const handleParts: string[] = []
+  // SL-8's frames, for the same reason: the sign that a thing is selected is
+  // not one of the table's six elements, and a bar painted after it would hide
+  // the sign on whatever sits underneath.
+  //
+  // ⭐ ONLY THE FRAMED HALF OF SL-1 ARRIVES HERE. 依存線 and 基準日線 MUST NOT
+  // be framed; both are thickened where they are drawn, by `selectedLineWidth`,
+  // and so stay in `linkParts` with their own paint order.
+  //
+  // ⛔ STOP -- ⛔ SL-1's COMMENT BOX GETS NO FRAME, because this unit cannot
+  // see one. `ScheduleGeometry` has no member for comment boxes at all: its own
+  // head note records that the source has no column for the box's size and
+  // FR-093 forbids measuring the text, so nothing here has a rectangle to frame.
+  // `item-hit-area.ts` and `everythingSelectable` record the same gap on their
+  // side. What this file would need is a member on `ScheduleGeometry` carrying
+  // the drawn box, the way `highlightBoxes` does.
+  const selectionParts: string[] = []
 
   // FR-042 (MUST): one band per drawn row, and a group grid line on its
   // boundary. ⛔ Clipped to the Row Area rather than drawn wherever the row
@@ -687,30 +845,25 @@ export function svgFromSchedule(
       )
     }
     if (task.actual !== null) actualParts.push(barSvg(task.actual, actual))
-    if (selected.has(task.taskUid) && task.plan?.form === 'outline') {
-      // FR-030: never carry meaning by colour alone, so the selected task
-      // gains an outline of its own rather than a different fill. The colour is
-      // S-151, whose own use column in table T-236 reads 「選択と現在位置」.
-      //
-      // STOP -- ⛔ SL-8 OF TABLE T-023c IS NOT MET FOR EVERY SELECTED THING.
-      // That row asks (MUST) that being selected show by something other than
-      // colour, and SL-1 makes the selectable set タスク・依存線・ハイライト
-      // ボックス・コメントボックス・基準日線. What is drawn here is the plan
-      // bar's own polygon re-stroked dashed, so it reaches only the three
-      // shapes with an area (SH-1 / SH-2 / SH-5, which is what `form` calls
-      // 'outline'): a thin-line task (SH-3 / SH-4), a dependency line, a
-      // highlight box, a comment box and the status line all show selection by
-      // nothing at all.
-      // ⛔ NOTHING IS INVENTED FOR THEM HERE. What a selected line or box
-      // should look like is a shape, and table T-026's RC-13 makes a new shape
-      // the author's ruling; the width (2) and the dash (3 2) below are not in
-      // any table either and stand under PD-1 with the rest.
-      actualParts.push(
-        `<polygon points="${pointsOf(task.plan.points)}" fill="none"` +
-          ` stroke="${themed('S-151')}" stroke-width="2" stroke-dasharray="3 2"/>`,
-      )
-    }
     if (selected.has(task.taskUid)) {
+      // SL-8 (MUST): the frame goes on the Task's bounding rectangle, so all
+      // five shapes of table T-012 get it and not only the three with an area.
+      //
+      // ⭐ The box is the BARS' extent -- what SL-2 clicks and SL-7 drags. ⛔
+      // The name label is deliberately left out: LC-6 places it outside the bar
+      // and FR-014's overhang runs it further still, so a frame that swallowed
+      // it would stop reading as this Task's own extent and would overlap the
+      // neighbouring rows'. ⚠️ The progress marker and the fade handles are
+      // left out for the other reason -- neither is the thing SL-1 names, so
+      // neither may decide how far the Task's own frame reaches.
+      const box = boxOfPoints([
+        ...(task.plan === null ? [] : cornersOfBar(task.plan)),
+        ...(task.actual === null ? [] : cornersOfBar(task.actual)),
+      ])
+      // A Task neither half of which was drawn (S-59's plan-only / actual-only)
+      // has no extent, and a frame around nothing would sit at the origin.
+      if (box !== null) selectionParts.push(selectionFrameSvg(box, themed('S-151')))
+
       // FR-075 (MUST): the grab points show on the SELECTED Task and on no
       // other. S-92's hit area is already live in ItemHitArea, so until this
       // round a person could catch a point that was never drawn. S-109 is the
@@ -756,9 +909,15 @@ export function svgFromSchedule(
         dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159')),
       )
     }
+    // SL-8 (MUST NOT): a selected dependency is NOT framed. It is the same
+    // polyline at S-178 times `dependencyWidth`.
+    const linkWidth = selectedLineWidth(
+      settings.dependencyWidth,
+      selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
+    )
     linkParts.push(
       `<polyline points="${pointsOf(link.points)}" fill="none"` +
-        ` stroke="${themed('S-159')}" stroke-width="${rounded(settings.dependencyWidth)}"` +
+        ` stroke="${themed('S-159')}" stroke-width="${rounded(linkWidth)}"` +
         ` marker-end="url(#${arrowId})"/>`,
     )
   }
@@ -773,10 +932,17 @@ export function svgFromSchedule(
   const status = geometry.statusLine
   if (status !== null) {
     // CU-1's line. S-163 is its colour, and it names no hue of its own.
+    // ⛔ SL-8 (MUST NOT): a selected status line is NOT framed either -- its
+    // bounding rectangle runs the height of the Row Area and would strike
+    // through everything behind it. It is drawn at S-178 times its own width.
+    // ⛔ THAT OWN WIDTH IS THE TYPED 1, and it is in no row. It stood before
+    // this change and is left where it stands rather than being made to look
+    // like a value the specification holds.
+    const statusWidth = selectedLineWidth(1, selectedStatusLine)
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
         ` x2="${rounded(status.x)}" y2="${rounded(status.bottom)}"` +
-        ` stroke="${themed('S-163')}" stroke-width="1"/>`,
+        ` stroke="${themed('S-163')}" stroke-width="${rounded(statusWidth)}"/>`,
     )
   }
 
@@ -789,6 +955,13 @@ export function svgFromSchedule(
         ` fill="none" stroke="${strokeOfBox.get(box.id) ?? ANNOTATION_COLOUR}"` +
         ' stroke-width="1"/>',
     )
+    // SL-8. ⭐ The rectangle IS the bounding box here, so the frame lands on
+    // the same four numbers the box was drawn from -- and it is still a
+    // separate rect, because SL-8 (MUST NOT) forbids re-stroking the target's
+    // own outline and the dash has to survive the author's own line colour.
+    if (selectedBoxes.has(box.id)) {
+      selectionParts.push(selectionFrameSvg(box.box, themed('S-151')))
+    }
   }
 
   const parts = [
@@ -800,6 +973,7 @@ export function svgFromSchedule(
     ...markerParts,
     ...linkParts,
     ...labelParts,
+    ...selectionParts,
     ...handleParts,
     // FR-017's band last of all. The Row Area's own paint is clipped to it,
     // but FR-014's overhang (LF-12) and a label that runs past the first row
@@ -833,8 +1007,36 @@ export function svgFromSchedule(
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (table T-236)
+//   docs/spec/_source/settings.json (tables T-206 and T-236)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a
+ * document setting and neither may become one: table T-206 is where
+ * the specification records that the document does not keep them,
+ * and the export draws no entrance at all (EP-1 and EP-4 of table
+ * T-076), so a reader handed this document sees the same picture
+ * whatever this value is.
+ */
+export const NOT_STORED_SELECTION_SIZES: {
+  /** S-174, in px */
+  readonly 'S-174': number
+  /** S-175, in px */
+  readonly 'S-175': readonly [number, number]
+  /** S-178, in × */
+  readonly 'S-178': number
+} = {
+  'S-174': 2,
+  'S-175': [2, 2],
+  'S-178': 2,
+}
+
 /**
  * The colours of table T-236, by row ID, in both renderings.
  *

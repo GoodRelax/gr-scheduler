@@ -208,6 +208,7 @@ import {
   type PressRow,
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
+  dismissKeyOf,
   screenViewFromRegions,
   type AutosaveStatus,
   type ConfirmationItem,
@@ -4095,6 +4096,24 @@ export function frameLoop(
           partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
             ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
             : null
+      }
+      // NT-8 of table T-037 (MUST): 「告げた通知を、人がその場で消せること」.
+      //
+      // ⭐ ANSWERED HERE AND NOT BY THE TRANSLATOR. What a press on this
+      // entrance changes is `raisedNotices`, which LY-5 of table T-060 leaves
+      // to the shell alone: it is neither a document command nor a screen
+      // state the translator holds, and `UF-67` raises into this very list.
+      // ⛔ ON THE RELEASE, WHICH IS IN-1 OF TABLE T-028 -- a pointer operation
+      // is settled when the button comes up, never when it goes down.
+      // ⚠️ THE KEY AND NOT AN INDEX. `Notice.dismissKey` names the telling by
+      // its manner and its reason, so a list that has grown or shrunk between
+      // the frame drawn and the press cannot put away a different telling than
+      // the one under the pointer.
+      if (input.phase === 'up' && partUnderPointer?.noticeDismissKey != null) {
+        const answered = partUnderPointer.noticeDismissKey
+        raisedNotices = raisedNotices.filter((one) => dismissKeyOf(one) !== answered)
+        ask()
+        return
       }
     }
 

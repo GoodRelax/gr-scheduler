@@ -718,7 +718,7 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
  * @purity non-pure
  */
 function takeEntry(loop: FrameLoop, screen: ScreenPane, surface: string, entry: string): void {
-  screen.drawAt({ part: surface, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null })
+  screen.drawAt({ part: surface, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   screen.drawAt(null)
@@ -735,7 +735,7 @@ function takeEntry(loop: FrameLoop, screen: ScreenPane, surface: string, entry: 
  * @purity non-pure
  */
 function takeFormat(loop: FrameLoop, screen: ScreenPane, format: string): void {
-  screen.drawAt({ part: EXPORT_CHOOSER, entry: null, format, rowGroupId: null, resourceUid: null, dividerPanel: null })
+  screen.drawAt({ part: EXPORT_CHOOSER, entry: null, format, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   screen.drawAt(null)
