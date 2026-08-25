@@ -70,9 +70,13 @@ def main():
 
     problems, checked = [], 0
     for name in sorted(os.listdir(RECORDS)):
-        # ⚠️ Not every file here is a wave record. The index and the
-        # pending-decision list live beside them and answer to check 25.
-        if not name.endswith('.md') or name in ('README.md', 'pending-decisions.md'):
+        # ⚠️ Not every file here is a wave record. The index, the
+        # pending-decision list and the defect ledger live beside them: the
+        # first answers to nothing, the second to check 25, and the third is
+        # keyed by the user's report rather than by a folder of units.
+        if not name.endswith('.md') or name in (
+            'README.md', 'pending-decisions.md', 'defects.md'
+        ):
             continue
         path = os.path.join(RECORDS, name)
         body = io.open(path, encoding='utf-8').read()
