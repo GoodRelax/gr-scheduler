@@ -872,6 +872,23 @@ DRAWN_WITH_WHERE_IT_STANDS = [
     ' * whatever this value is.',
 ]
 
+# ⛔ THE SAME THIRD SEAM, WITH A DIFFERENT GROUND. S-180 is read by the unit
+# that draws with it, exactly as S-138 and S-140 are -- but the sentence that
+# tells a reader their picture does not change is NOT the same sentence. The
+# entrance is absent from an export because EP-1 and EP-4 draw no entrance at
+# all; the dummy is absent because EP-14 says so of U-52 alone, and that row
+# adds that no place is reserved for it (it lies over the task bar). ⛔ Sharing
+# one paragraph would print the wrong row ID in the one place a reader looks
+# for it, which is the copied-value defect rule 03 section 3 names.
+DRAWN_FOR_THE_SCREEN_ALONE = [
+    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
+    ' * setting and may not become one: table T-206 is where the',
+    ' * specification records that the document does not keep it, and EP-14',
+    ' * of table T-076 keeps the dummy out of the exported picture without',
+    ' * reserving its place -- so a reader handed this document sees the',
+    ' * same picture whatever this value is.',
+]
+
 READ_WHERE_IT_STANDS = [
     ' * ⚠️ This unit reads the row where it stands instead of being handed',
     ' * it: the contract in screen-renderer.ts fixes UF-61 at three',
@@ -921,6 +938,11 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
+    # one constant per consuming SUBJECT, not per file. S-174 to S-178 are the
+    # selection frame's and S-180 is the dummy's, and the two paragraphs state
+    # different grounds -- a shared constant would make one of them a lie.
+    'NOT_STORED_DUMMY_SIZES': (['S-180'], DRAWN_FOR_THE_SCREEN_ALONE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
@@ -1467,8 +1489,14 @@ TARGETS = [
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The selection frame's own two lengths land beside the colours, in the
     # one unit that draws the picture SL-8 puts the frame on.
+    # ⭐ The dummy's drawn width joins them, in its own constant: FR-043's three
+    # grab handles are drawn by this unit and by no other, and S-180 is the only
+    # row that gives U-52 a drawn dimension (S-129 and S-130 are durations,
+    # S-131 is the faintness, and S-93 is the reader's hit area, which table
+    # T-206 routes to item-hit-area.ts alone).
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + colour_block('SCHEDULE_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The width the properties panel opens to, which only the shell can put

@@ -525,8 +525,13 @@ export interface CommandPalette {
   readonly groups: readonly PaletteGroup[]
   /**
    * FR-053 (MUST): what is armed has to be readable on the screen. Table T-023b
-   * counts the arms. ⚠️ Words rather than a figure, because AR-4 (a dependency)
-   * is not a shape and IC-61 has no figure drawn yet.
+   * counts the arms, and its closing rule (MUST NOT) keeps their row ids off
+   * the screen -- so this carries the word FR-038's dictionary holds for the
+   * armed row, in the display language.
+   * ⚠️ Words rather than a figure, because AR-4 (a dependency) is not a shape.
+   * ⚠️ WHAT USED TO STAND HERE ALSO SAID IC-61 HAS NO FIGURE DRAWN YET. That
+   * became false when RC-13's icons were raised: `icon-glyphs.json` draws that
+   * row like every other one.
    */
   readonly armedText: string
 }

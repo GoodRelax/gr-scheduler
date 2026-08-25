@@ -130,6 +130,19 @@ export interface DummyGeometry {
   /** The row of table T-023d this one answers to. */
   readonly grab: 'GR-9' | 'GR-17' | 'GR-18'
   readonly at: Point
+  /**
+   * How tall the mark drawn on this point is: the ACTUAL bar's own band.
+   *
+   * ⭐ S-180 IS A WIDTH AND SAYS SO. Its note settles the horizontal alone and
+   * sends the vertical to the actual bar's band -- the same split S-91 makes
+   * for the actual endpoint's grab allowance. So the two are stated in two
+   * places on purpose, and this member is the second one.
+   *
+   * ⚠️ It is carried on the geometry rather than recomputed by the renderer so
+   * that the band's height stays written in ONE place. `taskGeometryOf` has
+   * already solved it for the bar itself.
+   */
+  readonly height: number
 }
 
 export interface TaskGeometry {
@@ -791,21 +804,25 @@ function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
  * so it is counted through the calendar rather than multiplied out -- stepping
  * by calendar days would land it on a day nobody works.
  *
+ * ⚠️ `actualHeight` is HANDED IN, the way `guidesOf` is handed the same value:
+ * the actual bar's band is one expression and `taskGeometryOf` has already
+ * solved it. Recomputing it here would put it in two places.
+ *
  * @purity pure
  */
-function dummiesOf(inputs: GeometryInputs, task: Task,
-                   placed: TaskPlacement): readonly DummyGeometry[] {
+function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
+                   actualHeight: number): readonly DummyGeometry[] {
   if (placed.actualX !== null) return []
   const middle = placed.y + placed.planHeight / 2
   if (placed.actualPlacement === 'sideways') {
-    return [{ grab: 'GR-18', at: point(placed.x + placed.width / 2, middle) }]
+    return [{ grab: 'GR-18', at: point(placed.x + placed.width / 2, middle), height: actualHeight }]
   }
   const start = dayOf(task.start)
   if (start === null) return []
   const end = dateFromWorkingDays(inputs.within, start, inputs.settings.actualInitialDuration)
   return [
-    { grab: 'GR-9', at: point(xFromDay(inputs.layout, start), middle) },
-    { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle) },
+    { grab: 'GR-9', at: point(xFromDay(inputs.layout, start), middle), height: actualHeight },
+    { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), height: actualHeight },
   ]
 }
 
@@ -868,7 +885,7 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
 
   // GR-7 reads the dummies (its 未着手 clause hangs the marker off GR-17), so
   // they are settled once here rather than counted through the calendar twice.
-  const dummies = dummiesOf(inputs, task, placed)
+  const dummies = dummiesOf(inputs, task, placed, actualHeight)
   const marker = markerOf(inputs, task, placed, dummies)
   const state = planActualState(task)
   const suspended = state === 'suspendedResumePlanned' || state === 'suspendedResumeUnknown'

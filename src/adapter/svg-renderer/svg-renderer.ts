@@ -42,6 +42,7 @@ import type {
   BarGeometry,
   MarkerGeometry,
   Path,
+  Point,
   ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
@@ -53,6 +54,36 @@ import {
 import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
 
 export type { SvgSurface } from './svg-surface'
+
+/**
+ * Which of table T-076's two pictures this frame is.
+ *
+ * ⛔ THE ONE THING IN THIS FILE THAT IS NOT A PROPERTY OF THE DOCUMENT. Every
+ * other input describes what is drawn; this one says who it is drawn for.
+ *
+ * ⭐ WHY IT HAD TO BE ADDED. Table T-076 leaves several UI parts out of the
+ * exported picture, and until now every one of them was expressible through a
+ * value already arriving: EP-12 drops the selection frames and the fade grab
+ * points because the export hands in an empty `Selection`, and the geometry
+ * itself is built from that same empty selection. ⛔ EP-14 cannot be reached
+ * that way. FR-043's dummies hang on the Task being unstarted -- a property of
+ * the DOCUMENT -- so no value the export is free to choose can suppress them.
+ *
+ * ⛔ AND THE OBVIOUS SHORTCUT IS A DEFECT, not a style choice: emptying
+ * `TaskGeometry.dummies` for the export does not merely move the not-started
+ * progress marker, it DELETES it. GR-7 hangs that marker off GR-17, and
+ * `markerAnchorX` answers with nothing once the dummy list is empty -- which
+ * breaks EP-5 (the Progress Marker IS drawn in the export) and is measured by
+ * WY-3 of table T-041.
+ *
+ * ⚠️ IT IS DELIBERATELY NARROW. Resist widening it into a general "export
+ * mode" that other rows of table T-076 are folded into: EP-12 is already
+ * honoured by the empty `Selection`, and two mechanisms for one table would be
+ * the duplication rule 03 section 1 forbids.
+ *
+ * @provisional PD-210
+ */
+export type SchedulePicture = 'screen' | 'export'
 
 /**
  * How one bar is painted, once every override and the theme have been
@@ -167,6 +198,27 @@ function cornersOfBar(bar: BarGeometry): Path {
     out.push({ x: dot.at.x + dot.radius, y: dot.at.y + dot.radius })
   }
   return out
+}
+
+/**
+ * The four corners of a rectangle CENTRED on one point.
+ *
+ * ⭐ Centred rather than anchored at a corner because that is where the point
+ * already stands for its reader: `item-hit-area.ts` centres S-93's box on the
+ * same point (`isNearPoint` with half of each side), so the drawn mark and the
+ * target it belongs to share a middle whatever the two sizes are.
+ *
+ * @purity pure
+ */
+function cornersAround(centre: Point, width: number, height: number): Path {
+  const halfWidth = width / 2
+  const halfHeight = height / 2
+  return [
+    { x: centre.x - halfWidth, y: centre.y - halfHeight },
+    { x: centre.x + halfWidth, y: centre.y - halfHeight },
+    { x: centre.x + halfWidth, y: centre.y + halfHeight },
+    { x: centre.x - halfWidth, y: centre.y + halfHeight },
+  ]
 }
 
 /**
@@ -373,10 +425,11 @@ function paintOf(
  * backing; the MUST that says to draw it faint is the one that decides.
  *
  * ⛔ STOP -- THE HOVER HALF IS NOT DRAWN. The same MUST darkens the marker
- * while the pointer is on it, and this unit is handed no pointer: PI-19 of
- * table T-064 publishes `svgFromSchedule` over
- * (schedule, settings, layout, geometry, regions, selection) and none of the
- * six carries one. ⭐ The value EXISTS already: the Framework holds it and IF-2
+ * while the pointer is on it, and this unit is handed no pointer:
+ * `svgFromSchedule` takes (schedule, settings, layout, geometry, regions,
+ * selection, picture) and none of the seven carries one. ⚠️ `picture` is not a
+ * near miss -- it says which of table T-076's two pictures is being made, not
+ * where a hand is. ⭐ The value EXISTS already: the Framework holds it and IF-2
  * of table T-065 carries it into this layer for InputCommandTranslator, so
  * what would have to move is PI-19's own signature and nothing else.
  * ⚠️ Being `pure` (table T-062) is no obstacle -- a pointer handed IN is an
@@ -778,6 +831,20 @@ function rulerSvg(
  * well, which is the edge `_source/components.json` draws from this component
  * to ScheduleLayout and calls "the ruler and the row placement".
  *
+ * ⭐ `picture` IS REQUIRED AND HAS NO DEFAULT. Two call sites in `src/` is a
+ * small enough cost that a new caller should have to decide which picture it
+ * is asking for, and a default would let a forgotten export draw FR-043's
+ * dummies into a reader's file in silence -- which is the very thing EP-14
+ * exists to prevent. ⚠️ It is the LAST parameter, and that is forced rather
+ * than chosen: `snapshot-source.ts` reads this list positionally as
+ * `Parameters<typeof svgFromSchedule>[3]` and `[4]`, so a parameter inserted
+ * before index 5 would silently re-point both to the wrong type.
+ *
+ * ⚠️ The argument list is `src/`'s to settle: table T-064's own heading assigns
+ * arguments and return values to the public entry in `src/`, on the ground that
+ * this is the only place a signature is type-checked. PI-19's published MEMBER
+ * does not move.
+ *
  * @purity pure
  */
 export function svgFromSchedule(
@@ -787,6 +854,7 @@ export function svgFromSchedule(
   geometry: ScheduleGeometry,
   regions: ScreenRegions,
   selection: Selection,
+  picture: SchedulePicture,
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
@@ -866,36 +934,21 @@ export function svgFromSchedule(
   // the drawn box, the way `highlightBoxes` does.
   const selectionParts: string[] = []
 
-  // ⛔ STOP -- ⛔ THERE IS NO DUMMY CATEGORY, AND FR-043's MUST IS UNMET.
-  // FR-043 shows two faint grab handles on a Task not started (one point on a
-  // milestone), and FR-013 adds that they are drawn faint at S-131 and take the
-  // actual bar's own paint (FR-041). ⭐ THE GEOMETRY IS ALREADY HERE AND GOES
-  // UNREAD: `TaskGeometry.dummies` carries GR-9 at the plan start day, GR-17 at
-  // S-129 worked days along and GR-18 on a milestone, and empties itself once
-  // the Task is started. `item-hit-area.ts` already answers all three, so a
-  // person has a live hit target with nothing under the pointer to see -- which
-  // is the reported symptom and is why this is recorded rather than left.
+  // ⭐ FR-043's dummies GET NO ARRAY OF THEIR OWN. Table T-020 holds no row for
+  // U-52, and the dummies stand in for the ends of the actual bar a Task not
+  // started does not have yet -- the same reading GR-7 takes when it hangs the
+  // not-started marker off GR-17 -- so they are painted at ZO-2, into
+  // `actualParts`. That keeps them behind ZO-3's progress marker and behind
+  // ZO-5's name label, which are the two orderings the table does state.
+  // ⛔ A Task has dummies exactly when it has NO actual bar, so the one array
+  // never has to hold both. @provisional PD-209
   //
-  // ⛔ WHAT IS MISSING IS THE DRAWN FIGURE. Every mark this file draws takes
-  // its size from a row -- the fade grab point from S-109 and S-110, the
-  // marker's disc from the geometry, SH-4's ends from their own radius -- and
-  // `DummyGeometry` carries a POINT and nothing else. The whole specification
-  // gives the dummy four rows: S-129 and S-130 are durations, S-131 is the
-  // faintness, and S-93 is the HIT AREA. ⛔ S-93 MAY NOT STAND IN FOR THE
-  // DRAWN SIZE: its own table records it as a reader's accessibility value the
-  // document may not force, and rule 03 section 1 routes S-90 to S-93 into
-  // `item-hit-area.ts` alone so that no second unit carries them.
-  // ⚠️ A row would have to say what figure U-52 is drawn as and how large --
-  // whether GR-9 and GR-17 are two points or the two ends of one faint span,
-  // and what GR-18's single point is drawn as. Table T-210 is where it would
-  // sit, beside S-109 and S-110.
-  //
-  // ⚠️ AND EP-14 OF TABLE T-076 WOULD NEED A WAY IN AT THE SAME TIME. The
-  // export MUST NOT draw the dummy, and this unit cannot tell an export frame
-  // from a screen one; the empty selection the export hands in already erases
-  // the frames and the fade grab points (EP-12), but the dummy hangs on the
-  // Task being unstarted rather than on the selection, so it would reach the
-  // exported picture too.
+  // ⛔ STOP -- THE HOVER HALF OF FR-013 IS STILL NOT DRAWN, and neither is the
+  // actual the author is about to place. FR-013's MUST darkens these marks
+  // while the pointer is on them, and FR-043 draws the actual about to be
+  // placed while one of the three handles is held; both need a pointer or a
+  // press handed to this unit, which is the same missing argument `markerSvg`'s
+  // note records. ⛔ Drawing the marks does not close either of those.
 
   // FR-042 (MUST): one band per drawn row, and a group grid line on its
   // boundary. ⛔ Clipped to the Row Area rather than drawn wherever the row
@@ -956,6 +1009,39 @@ export function svgFromSchedule(
       )
     }
     if (task.actual !== null) actualParts.push(barSvg(task.actual, actual))
+    // FR-043 (MUST): two faint grab handles on a Task not started, one on a
+    // milestone. ⛔ EP-14 of table T-076 keeps them out of the exported
+    // picture, and this is the only place that can obey it -- the geometry may
+    // NOT be stripped instead, because GR-7 hangs the not-started progress
+    // marker off GR-17 and dropping the dummies would take EP-5's marker with
+    // them (WY-3 of table T-041 measures it).
+    if (picture === 'screen' && task.dummies.length > 0) {
+      // ⭐ ONE GROUP RATHER THAN AN OPACITY PER SHAPE, for the reason
+      // `markerSvg`'s note already records: two translucent shapes composite to
+      // a third value where they meet, and at a low zoom S-129 can be narrower
+      // than S-180, so GR-9 and GR-17 do overlap. S-131 would stop being the
+      // degree of anything.
+      // ⭐ `actual` is the paint the actual bar would have taken: FR-013 has
+      // the dummy inherit the actual bar's colour and FR-041 (MUST NOT) forbids
+      // storing a derived one, so there is no second formula and no key here.
+      // ⭐ GR-18 is drawn as the SAME figure as GR-9 and GR-17, not as a
+      // milestone's own diamond (SH-5 governs the milestone, not a handle):
+      // FR-043 calls all three the same thing and S-93 gives all three ONE hit
+      // box, so one drawn figure keeps the picture and the target the same
+      // shape. @provisional PD-208
+      // ⛔ `drawnWidth`, never `dummyWidth`: `item-hit-area.ts` spells S-93's
+      // HIT width that way, and S-180's own note is that the two differ.
+      const drawnWidth = NOT_STORED_DUMMY_SIZES['S-180']
+      const marks = task.dummies
+        .map((one) =>
+          barSvg(
+            { form: 'outline', points: cornersAround(one.at, drawnWidth, one.height) },
+            actual,
+          ),
+        )
+        .join('')
+      actualParts.push(`<g opacity="${rounded(settings.dummyOpacity)}">${marks}</g>`)
+    }
     if (selected.has(task.taskUid)) {
       // SL-8 (MUST): the frame goes on the Task's bounding rectangle, so all
       // five shapes of table T-012 get it and not only the three with an area.
@@ -1164,6 +1250,28 @@ export const NOT_STORED_SELECTION_SIZES: {
   'S-174': 2,
   'S-175': [2, 2],
   'S-178': 2,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it, and EP-14
+ * of table T-076 keeps the dummy out of the exported picture without
+ * reserving its place -- so a reader handed this document sees the
+ * same picture whatever this value is.
+ */
+export const NOT_STORED_DUMMY_SIZES: {
+  /** S-180, in px */
+  readonly 'S-180': number
+} = {
+  'S-180': 12,
 }
 
 /**

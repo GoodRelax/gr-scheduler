@@ -202,7 +202,9 @@ const drawn = (
   const regions = regionsFromScreen(env, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   const geometry = geometryFromLayout(schedule, settings, layout, regions, selection)
-  return svgFromSchedule(schedule, settings, layout, geometry, regions, selection)
+  // 'screen' is EP-14's other arm: the export draws no dummy. These cases
+  // are about what a reader sees, so they ask for the screen's picture.
+  return svgFromSchedule(schedule, settings, layout, geometry, regions, selection, 'screen')
 }
 
 // ---------------------------------------------------------------------------

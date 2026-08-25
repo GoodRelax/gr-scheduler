@@ -186,11 +186,17 @@ const NO_WORDS = ''
 // ⭐ WHERE THE WORDS COME FROM. FR-038 (MUST) holds every word the screen prints
 // as one dictionary per language, and Chapter 6.2 fixes its manuscript as
 // `_source/display-words.json`; `display-words.json` beside this file is that
-// manuscript generated into `src/`. ⛔ Its entries are keyed by the row of table
-// T-109 -- the only join that table admits, since it deliberately has no English
-// column -- so nothing here is minted and nothing is read off another column.
-// ⚠️ Every one of the 176 cells is still empty (PD-160), so what actually
-// reaches the screen today is the stand-in beside each lookup below. Reading
+// manuscript generated into `src/`. ⛔ Its entries are keyed by the row of the
+// table that names them -- table T-109 for the entries and the groups, table
+// T-023b for the arms -- which is the only join those tables admit, since they
+// deliberately have no English column. So nothing here is minted and nothing is
+// read off another column.
+// ⚠️ WHAT USED TO STAND HERE SAID ALL 176 CELLS WERE STILL EMPTY. PD-160
+// records that the count and the claim both went stale: the manuscript now
+// holds a word in both languages for every row these three lookups ask for, so
+// the stand-ins beside them are reached only by a generated file edited by
+// hand. ⛔ No count is written here, for the reason the same row gives -- a
+// number copied out of the generator goes stale in silence. Reading
 // `displayWords` no more makes this unit `semi-pure-a` than reading `iconRoster`
 // does: both are module constants compiled into the program, not state read
 // while running. Table T-075 fixes UF-65 as `pure`.
@@ -207,6 +213,20 @@ const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, ent
 const GROUP_NAMES_BY_FIRST_ROW = new Map(
   displayWords.paletteGroups.map((entry) => [entry.firstRow, entry]),
 )
+
+/**
+ * The words of table T-023b's rows, keyed by the row id.
+ *
+ * ⭐ THE ROW ID IS THE JOIN HERE TOO, and the table says so itself: its closing
+ * rule holds the arm's word the way table T-233's closing rule holds a reason's
+ * -- the dictionary keeps it and it is looked up by row. ⛔ So the words of the
+ * six arms are not repeated in this file.
+ *
+ * ⭐ A `Map` rather than a scan, for the reason `WORDS_BY_ROW` is one: a
+ * description is built for every frame and rule 05 of docs/development-rules
+ * forbids a linear search on that path (NFR-013).
+ */
+const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.rowId, entry]))
 
 /**
  * The accessible name of one entry, in the display language (FR-038).
@@ -404,28 +424,18 @@ function paletteGroups(
 }
 
 /**
- * The row of table T-023b the palette has armed. FR-053 (MUST) requires this to
- * be readable on the screen.
+ * The row of table T-023b the palette has armed -- the KEY the word is looked
+ * up by, and never itself a thing the screen prints.
  *
- * STOP -- ⛔ THE DICTIONARY HAS NO SECTION FOR TABLE T-023b. FR-038's store
- * holds the entries of table T-109, the palette's group names, the headings of
- * the surfaces table T-103 names, the manners of table T-037, the two answers
- * NT-7 asks for, FR-072's three headings and the assignments of table T-023 --
- * and no arm of table T-023b is any of those. Searched: `display-words.json`
- * beside this file, `_source/display-words.json`, Chapter 6.2, FR-053 and table
- * T-023b. ⚠️ Widening the manuscript is a change to what FR-038 stores, which
- * this unit may not make.
- * ⭐ WHY A ROW ID STANDS IN. `armedText` is words rather than a figure because
- * AR-4 is not a shape and its entry has no figure drawn yet. The row id is the
- * join the specification itself prescribes, it names exactly the arms table
- * T-023b counts, and ⛔ it cannot be mistaken for a settled name the glossary
- * has not settled. UF-69 stands in the same way where its own row is unwritten.
- * ⛔ THE EMPTY STRING IS NOT AVAILABLE HERE, which is where this member parts
- * company with `CommandItem.label`: FR-053 (MUST) requires what is armed to be
- * READABLE, and an empty string would answer nothing at all. So the same
- * pending decision is answered with the strongest thing that exists.
+ * ⭐ WHY A ROW ID AT ALL. The closing rule of table T-023b holds the arm's word
+ * the way table T-233's closing rule holds a reason's: the dictionary keeps it
+ * and it is drawn out by row. So the row is what this unit resolves, and
+ * `armedWord` below turns it into words -- ⛔ the row id itself must not reach
+ * the screen (table T-023b, MUST NOT), which is what UF-65 printed until the
+ * manuscript grew a section for these six rows.
  * ⭐ WHY A SWITCH AND NOT A TABLE. An arm added to table T-023b reaches
- * `ScreenState.armed`, and an exhaustive switch stops compiling when it does.
+ * `ScreenState.armed`, and an exhaustive switch stops compiling when it does --
+ * whereas a lookup keyed on `kind` would go on answering for five of six.
  * ⚠️ The shape or glyph inside two of these arms is not appended: table T-023b
  * does not tell them apart either -- its rows are the kinds of arm, not the
  * shapes -- and the spellings `Armed` carries for them are unsettled (CR-172).
@@ -447,6 +457,39 @@ function armedRow(armed: ScreenState['armed']): string {
     case 'highlightBox':
       return 'AR-6'
   }
+}
+
+/**
+ * What the palette has armed, in words, in the display language (FR-038).
+ * FR-053 (MUST) requires this to be readable on the screen.
+ *
+ * ⛔ THE ROW ID IS NOT THE FALL-BACK, which is where this member parts company
+ * with `assignmentText` in `tooltips.ts`: table T-023 lets its row id stand in
+ * for an assignment, and the closing rule of table T-023b forbids the row id to
+ * be printed at all (MUST NOT). So the key cannot double as the stand-in here
+ * the way it does there.
+ * ⛔ TWO CONDITIONS AND NOT ONE, WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`,
+ * for the reason `entryLabel` gives above: a row the dictionary does not hold
+ * at all and a cell it holds empty are different things.
+ * ⚠️ Neither can happen while `npm run gen:check` passes -- the generator builds
+ * its roster from table T-023b every run and every cell of it is written -- so
+ * what both branches guard is a generated file edited by hand.
+ * ⛔ NO FALL-BACK ROW EXISTS TO GO TO. Table T-233 gives an unanswerable reason
+ * RS-15 and table T-234 gives a question QN-8; table T-023b gives an arm
+ * nothing of the kind, and inventing a seventh row here would be the mint rule
+ * 03 section 1 forbids.
+ * ⛔ SO WHAT AN ARM WITH NO WORD SAYS IS NOT SETTLED. FR-053 (MUST) wants
+ * words, table T-023b (MUST NOT) refuses the row id, and no third string is
+ * named anywhere -- the empty string stands in as the one thing neither rule
+ * forbids, and it is the same stand-in `entryLabel` makes.
+ *
+ * @provisional PD-221
+ * @purity pure
+ */
+function armedWord(armed: ScreenState['armed'], language: DisplayLanguage): string {
+  const word = ARM_WORDS_BY_ROW.get(armedRow(armed))?.text[language]
+  if (word === undefined) return NO_WORDS
+  return word === '' ? NO_WORDS : word
 }
 
 /**
@@ -490,7 +533,10 @@ export function commandPaletteFromScreenState(
     // FR-053 (MUST): the eight milestone shapes stay out until the list is
     // open. S-142 of table T-206 is the state, and the shell holds it.
     groups: paletteGroups(selection, session.language, session.isMilestoneListOpen),
-    armedText: armedRow(state.armed),
+    // FR-053 (MUST): what is armed has to be readable. The words come from
+    // FR-038's dictionary, keyed by the row of table T-023b -- ⛔ never the row
+    // id, which that table's closing rule forbids the screen to carry.
+    armedText: armedWord(state.armed, session.language),
   }
 }
 

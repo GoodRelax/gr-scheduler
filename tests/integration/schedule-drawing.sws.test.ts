@@ -1617,6 +1617,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         drawn.geometry,
         drawn.regions,
         emptySelection(),
+        // EP-14's other arm. This case is about the shape a reader sees.
+        'screen',
       )
       const drawnPoints = points.map((p) => `${p.x},${p.y}`).join(' ')
       expect(svg).toContain(`points="${drawnPoints}"`)

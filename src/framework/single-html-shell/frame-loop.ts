@@ -2541,7 +2541,9 @@ export function frameLoop(
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
     values = { regions, layout, geometry }
     surface.showSvg(
-      svgFromSchedule(document.schedule, settings, layout, geometry, regions, selection),
+      // 'screen' is the picture a person is looking at, so table T-076's
+      // omissions do not apply: FR-043's dummies are drawn here and only here.
+      svgFromSchedule(document.schedule, settings, layout, geometry, regions, selection, 'screen'),
     )
     if (screen === undefined) return
     // ⛔ AFTER the schedule, because the parts outside it are drawn OVER the
@@ -2885,6 +2887,16 @@ export function frameLoop(
     // ⭐ THE GEOMETRY IS BUILT FROM IT TOO, not only the rendering: FR-075's
     // fade grab points are vertices, so an export told nothing about the
     // selection is the only way EP-12 keeps them out of the picture.
+    //
+    // ⛔ EP-14 CANNOT BE REACHED THAT WAY, and its route is the 'export'
+    // argument below rather than anything done to the geometry. FR-043's
+    // dummies hang on the Task being unstarted, which is a property of the
+    // DOCUMENT and identical on both paths, so no value this function is free
+    // to choose can suppress them. ⛔ AND THE GEOMETRY MUST NOT BE STRIPPED
+    // INSTEAD: GR-7 hangs the not-started progress marker off GR-17, so a
+    // geometry with its dummies emptied answers with no anchor at all and the
+    // marker EP-5 requires vanishes from the export -- which WY-3 of table
+    // T-041 measures against the screen's own picture.
     const nothingSelected = emptySelection()
     const geometry = geometryFromLayout(
       document.schedule,
@@ -2905,6 +2917,7 @@ export function frameLoop(
         geometry,
         regions,
         nothingSelected,
+        'export',
       ),
       regions,
       screenView: screenViewFromRegions(
