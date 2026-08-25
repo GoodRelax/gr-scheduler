@@ -48,7 +48,10 @@ export interface DocumentSettings {
   readonly dependencyRunOfArrow: number
   readonly dependencyVisible: boolean
   readonly dependencyWidth: number
-  readonly dualCursor: object | null
+  readonly dualCursor: {
+    readonly date1: string
+    readonly date2: string
+  } | null
   readonly dummyOpacity: number
   readonly exportCanvas: {
     readonly width: number

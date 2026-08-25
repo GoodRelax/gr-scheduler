@@ -1077,6 +1077,8 @@ export const SCHEDULE_COLOURS: {
     readonly followsHue: boolean
   }
 } = {
+  /* S-146 */
+  'S-146': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   /* S-147 */
   'S-147': { light: '#16181d', dark: '#e8eaee', followsHue: false },
   /* S-149 */

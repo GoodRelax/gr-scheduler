@@ -505,15 +505,27 @@ def settings_property(name, node, indent):
         # that rather than guessing, and so does the type.
         return ['%s  /** the source does not say what this holds */' % pad,
                 '%s  readonly %s: unknown' % (pad, name)]
-    if isinstance(kinds, list):
-        base = ' | '.join('null' if k == 'null' else TS_OF[k] for k in kinds)
-        return ['%s  readonly %s: %s' % (pad, name, base)]
-    if kinds == 'object' and 'properties' in node:
+    # ⛔ THE SHAPE IS READ BEFORE THE TYPE LIST. A node may state its kind as a
+    # list AND still carry `properties`, and then the list is not a union of
+    # names -- it says "this shape, or null". Reading the names alone printed
+    # the bare `object` below and threw the fields away.
+    # ⚠️ S-65 is the one key written that way (its `json` block gives date1 and
+    # date2 and sets `null`), and DC-7 is what the `| null` is for: clearing the
+    # two cursors puts the key back to null. ⛔ Losing either half is a defect:
+    # without the fields nothing can read the dates, without the null DC-7
+    # cannot be expressed.
+    names = kinds if isinstance(kinds, list) else [kinds]
+    if 'object' in names and 'properties' in node:
         out = ['%s  readonly %s: {' % (pad, name)]
         for key, child in node['properties'].items():
             out.extend(settings_property(key, child, indent + 1))
-        out.append('%s  }' % pad)
+        beside = ['null' if k == 'null' else TS_OF[k]
+                  for k in names if k != 'object']
+        out.append('%s  }%s' % (pad, ''.join(' | ' + k for k in beside)))
         return out
+    if isinstance(kinds, list):
+        base = ' | '.join('null' if k == 'null' else TS_OF[k] for k in kinds)
+        return ['%s  readonly %s: %s' % (pad, name, base)]
     if kinds == 'array':
         return ['%s  readonly %s: readonly %s[]'
                 % (pad, name, TS_OF[node['items'].get('type', 'string')])]
@@ -960,13 +972,20 @@ COLOUR_TARGETS = {
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no
     # edge to ScheduleLayout at all).
-    # ⭐ S-147 AND S-149 STAND IN BOTH ROSTERS ON PURPOSE. They are the ink and
-    # the rule, and both units draw with them: the chrome paints its own panels
-    # and the ruler prints its tiers. ⛔ Two rows would be the drift the note
-    # above forbids; ONE row read by two units is not.
-    'SCHEDULE_COLOURS': ['S-147', 'S-149', 'S-151', 'S-155', 'S-156', 'S-157',
-                         'S-158', 'S-159', 'S-160', 'S-161', 'S-162', 'S-163',
-                         'S-164', 'S-165', 'S-166', 'S-167', 'S-168', 'S-169'],
+    # ⭐ S-146, S-147 AND S-149 STAND IN BOTH ROSTERS ON PURPOSE. They are the
+    # ground, the ink and the rule, and both units draw with them: the chrome
+    # paints its own panels and the ruler prints its tiers on a ground of its
+    # own. ⛔ Without S-146 on this side the ruler has lines and text and
+    # nothing under them, so whatever lies behind the band shows through --
+    # and the row's own note in table T-236 says an unpainted ground falls back
+    # to the OS default. ⚠️ S-162 and S-169 already carry this colour into this
+    # constant, but only as their own cells' `sameAs`; nothing here could name
+    # the ground itself. ⛔ Two rows would be the drift the note above forbids;
+    # ONE row read by two units is not.
+    'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-149', 'S-151', 'S-155', 'S-156',
+                         'S-157', 'S-158', 'S-159', 'S-160', 'S-161', 'S-162',
+                         'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
+                         'S-169'],
 }
 
 COLOUR_NOTE = [
