@@ -17,6 +17,25 @@ export const meta = {
 const items = (args && args.items) || []
 if (items.length === 0) throw new Error('five-stage: args.items is empty')
 
+// ⛔ A worktree is cut at the SESSION's starting commit, not at HEAD. Measured
+// 2026-08-26: a settings row written and not yet committed did not exist for
+// the agent, which refused to invent it and stopped -- correctly. The front
+// session must commit first and pass the sha, and the body heals to it.
+const baseCommit = args && args.baseCommit
+if (!baseCommit) {
+  throw new Error(
+    'five-stage: args.baseCommit is required. Commit your work first, then pass the sha ' +
+      'so each worktree can heal to it -- otherwise a body cannot see rows you just wrote.',
+  )
+}
+const HEAL = [
+  'FIRST, BEFORE ANYTHING ELSE, bring your worktree up to date and report what it prints:',
+  '    git merge --ff-only ' + baseCommit,
+  'If it refuses, STOP and report that. Do not force it and do not work on a stale tree --',
+  'a row written moments ago will be missing and you will wrongly conclude it does not exist.',
+  '',
+].join('\n')
+
 const HOUSE = [
   'RULES (the project own rules, in docs/development-rules/ -- read 03-implementation.md first):',
   ' - src/ is English and ASCII prose, apart from the project own comment marks the neighbours use.',
@@ -175,6 +194,7 @@ const built = await parallel(
       () =>
         agent(
           [
+            HEAL,
             'Implement the approach below. It was proposed by another agent from the specification and',
             'accepted by the front session. ⚠️ If implementing it shows the proposal to be wrong, STOP',
             'and report that rather than improvising a different design.',
@@ -191,6 +211,7 @@ const built = await parallel(
       () =>
         agent(
           [
+            HEAL,
             'You are the independent tester. ⛔ YOUR ORACLE IS docs/spec. Read src/ only far enough to',
             'learn the public signatures you must call -- never to learn what the answer should be.',
             'If the specification and the implementation disagree, THE SPECIFICATION WINS and you write',
