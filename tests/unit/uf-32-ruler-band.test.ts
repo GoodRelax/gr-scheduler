@@ -27,17 +27,22 @@
 //   表 T-031  `SC-2`（タイムルーラー ——「横は本体と連動する。縦には流れない」）
 //   `U-19` / `U-50` of `_assets/tbl-glossary.md`
 //
-// ⛔ STOP -- ⛔ NO ROW SETTLES A CLEARANCE UNDER THE 目盛ラベル, so the second
-// half of what this file was asked to cover is not written. 表 T-201 holds
-// `S-136`（`rulerLabelPad`）and calls it 「罫線と目盛ラベルの余白（縦）」, and
-// `S-2` spends exactly three of them --「`rulerFont` × 3 + `rulerLabelPad` × 3」
-// -- one per 段（表 T-006b の `A-1` の ⑤）. So a 段 is `rulerFont` +
-// `rulerLabelPad` tall and that pad is already spent ABOVE the glyph; nothing
-// in `docs/spec` gives the glyph any room BELOW it. A case asserting a gap
-// would have to choose its size, and choosing it here would make this file the
-// place a decision was taken. ⭐ What IS written instead: the invariants such a
-// row must leave standing -- the band's height, the height of one 段, and the
-// label's size at every 段階.
+// ⭐ THE CLEARANCE UNDER THE 目盛ラベル IS SETTLED NOW. 表 T-201 の `S-179`
+// (`rulerLabelBottomPad`; its name is `K-114` of 表 T-104) states it --
+// 「目盛ラベルの下側の余白（縦）」-- with ⛔「帯の高さ（`S-2`）はこれを含まない
+// —— 段の高さは `rulerFont` と `rulerLabelPad` のままで、この余白は文字の箱の
+// 中から取る」。Read beside `S-136`, which is the pad ABOVE the label, that pins
+// the baseline's offset inside its 段（表 T-006b の `A-1` の ⑤）to
+// `rulerLabelPad` + `rulerFont` - `rulerLabelBottomPad`. The third describe
+// below asserts exactly that, and nothing more.
+//
+// ⚠️ AN EARLIER REVISION OF THIS FILE CARRIED A STOP SAYING NO ROW SETTLED IT.
+// The row exists, so the STOP was struck rather than left standing:
+// docs/development-rules/03-implementation.md, 3., forbids a comment that lies.
+//
+// ⛔ STILL NOT ASSERTED -- THE GLYPH'S INK. No row gives a 目盛ラベル a height,
+// so a case demanding that the drawn ink clear the 罫線 would be this file
+// choosing a value. Every case below measures baselines only.
 //
 // ⭐ ONE PICTURE, NOT TWO. 表 T-076 の `EP-2` carries the `Time Ruler` into the
 // exported picture as well as the screen's, and `PI-19` publishes exactly one
@@ -46,6 +51,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  SETTINGS_BOUNDS,
   SETTINGS_DEFAULTS,
   SETTINGS_DERIVED,
   type DocumentSettings,
@@ -75,6 +81,40 @@ const RULER_FONT = SETTINGS_DEFAULTS['fontMin'] as number
 
 /** `S-136`（`rulerLabelPad`）——「罫線と目盛ラベルの余白（縦）」. */
 const RULER_LABEL_PAD = SETTINGS_DEFAULTS['rulerLabelPad'] as number
+
+/** `S-179`（`rulerLabelBottomPad`）——「目盛ラベルの下側の余白（縦）」. */
+const RULER_LABEL_BOTTOM_PAD = SETTINGS_DEFAULTS['rulerLabelBottomPad'] as number
+
+/**
+ * 表 T-215 —— the px each 段（表 T-006b の `A-1` の ⑦）of `fontScale` names.
+ * `S-3` の 既定値 is `fontScaleSizes[fontScale]`, so a case that wants the ruler
+ * drawn at a 段 reads the size from here rather than typing 12 / 14 / 16 in.
+ */
+const FONT_SCALE_SIZES = {
+  S: SETTINGS_DEFAULTS['fontScaleSizes.S'] as number,
+  M: SETTINGS_DEFAULTS['fontScaleSizes.M'] as number,
+  L: SETTINGS_DEFAULTS['fontScaleSizes.L'] as number,
+} as const
+
+/**
+ * 表 T-201 の `S-179` の 下限 and 上限, read off the manuscript rather than typed
+ * in. ⛔ The 上限 is stated as ANOTHER KEY（「上限が `rulerFont` なのは、超えると
+ * ベースラインが段の上の罫線より上へ出るためである」）, so this keeps the key's
+ * name and resolves it against whatever settings a case is drawing with. It
+ * throws rather than guessing, so a manuscript that restates the bound in some
+ * other shape stops the sweep instead of silently narrowing it.
+ */
+const BOTTOM_PAD_BOUND = ((): { readonly min: number; readonly maxKey: string } => {
+  const bound = SETTINGS_BOUNDS['rulerLabelBottomPad']
+  if (bound === undefined) throw new Error('表 T-201 no longer holds S-179')
+  if (bound.min === undefined) throw new Error('S-179 no longer states a closed 下限')
+  const ceiling = bound.maxExpression
+  const first = ceiling?.[0]
+  if (ceiling === undefined || ceiling.length !== 1 || first === undefined || !('key' in first)) {
+    throw new Error('S-179 no longer states its 上限 as one other key')
+  }
+  return { min: bound.min, maxKey: first.key }
+})()
 
 /** `S-1`（`pxPerDayAt1x`）. FR-017: 1 日あたりの表示幅 = `S-1` × `zoomX`. */
 const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
@@ -110,6 +150,14 @@ const TIER_THRESHOLD = {
 
 /** The `zoomX` that puts `S-1` × `zoomX` at the px/day asked for. */
 const zoomFor = (pxPerDay: number): number => pxPerDay / PX_PER_DAY_AT_1X
+
+/**
+ * The same, for a ruler drawn at some font other than `S-8`. FR-017 judges the
+ * 段階 on「`pxPerDay` ÷ (実効フォントサイズ ÷ `S-8`) ≧ しきい値」, so a case that
+ * changes `fontScale` has to put that divisor back to reach the same 段階.
+ */
+const zoomForAtFont = (pxPerDay: number, rulerFont: number): number =>
+  zoomFor(pxPerDay * (rulerFont / (SETTINGS_DEFAULTS['fontMin'] as number)))
 
 /**
  * One `zoomX` per 段階 of `L-1`（表 T-005a）——「年 → 年 ＋ 月 → 年 ＋ 月 ＋ 週 →
@@ -151,6 +199,7 @@ const SETTINGS = settingsOf({
   rulerHeight: RULER_HEIGHT, // S-2
   rulerFont: RULER_FONT, // S-3
   rulerLabelPad: RULER_LABEL_PAD, // S-136
+  rulerLabelBottomPad: RULER_LABEL_BOTTOM_PAD, // S-179
   // `S-77`. Chosen so that the window crosses a year boundary -- and therefore
   // a month boundary and a week boundary too -- at every one of the four
   // 段階 below, which is what makes each 段 carry a label to read.
@@ -472,9 +521,8 @@ describe('UF-32 -- FR-041: the Time Ruler band paints its own ground', () => {
 })
 
 // ---------------------------------------------------------------------------
-// The 段 the labels sit in. ⛔ The clearance under a label is NOT asserted --
-// see the STOP at the head of this file. These are the invariants the row that
-// settles it must leave standing.
+// The 段 the labels sit in. ⭐ These are the invariants `S-179` must leave
+// standing; the clearance `S-179` itself buys is the describe after this one.
 // ---------------------------------------------------------------------------
 
 describe('UF-32 -- 表 T-201: the 段 of the band', () => {
@@ -534,6 +582,236 @@ describe('UF-32 -- 表 T-201: the 段 of the band', () => {
           (baselines[at] as number) - (baselines[at - 1] as number),
           `${tier.name}: 段の高さ`,
         ).toBeCloseTo(SEGMENT_HEIGHT, 2)
+      }
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// `S-179` -- the room the 目盛ラベル is given under itself.
+//
+// 表 T-201 の `S-179`:「目盛ラベルの下側の余白（縦）。⛔ 帯の高さ（`S-2`）は
+// これを含まない —— 段の高さは `rulerFont` と `rulerLabelPad` のままで、この
+// 余白は文字の箱の中から取る。上限が `rulerFont` なのは、超えるとベースライン
+// が段の上の罫線より上へ出るためである」。
+//
+// `S-136` is the pad ABOVE the label（「罫線と目盛ラベルの余白（縦）」）and `S-2`
+// spends three of it, one per 段. The two together leave the baseline at
+// `rulerLabelPad` + `rulerFont` - `rulerLabelBottomPad` inside its 段, and
+// therefore `rulerLabelBottomPad` clear of the 罫線 that closes it.
+// ---------------------------------------------------------------------------
+
+/** `S-2` solved for a `rulerFont` other than the default -- FR-039's 追随. */
+const bandHeightAt = (rulerFont: number): number => {
+  const s2 = SETTINGS_DERIVED['rulerHeight']
+  return rulerFont * s2.times + s2.plus + RULER_LABEL_PAD * s2.plusTimes
+}
+
+/** The 段階 of `L-1` that fills the band with three 段, at the font handed in. */
+const threeSegmentZoom = (rulerFont: number): number =>
+  zoomForAtFont(TIER_THRESHOLD.day * 2, rulerFont)
+
+interface MeasuredBand {
+  readonly rulerFont: number
+  readonly band: ScreenRect
+  readonly baselines: readonly number[]
+}
+
+/**
+ * One picture drawn at a 段 of `fontScale`（表 T-006b の `A-1` の ⑦）, with `S-3`
+ * and `S-2` following it. FR-039 (MUST):「文字サイズの変更は目盛にも及ぶこと ——
+ * 目盛の文字と目盛の帯の高さがこれに追随し、その保存値が書き換わる（値は `S-3`
+ * / `S-2`）」, so a case that changes 文字サイズ writes all three keys, not one.
+ */
+const bandAtFontScale = (scale: 'S' | 'M' | 'L'): MeasuredBand => {
+  const rulerFont = FONT_SCALE_SIZES[scale]
+  const settings = settingsOf({
+    ...SETTINGS,
+    fontScale: scale,
+    rulerFont,
+    rulerHeight: bandHeightAt(rulerFont),
+    zoomX: threeSegmentZoom(rulerFont),
+  })
+  const band = bandOf(settings)
+  return { rulerFont, band, baselines: baselinesOf(drawn(EMPTY, settings), band) }
+}
+
+/** `S-179` の 上限, resolved through the key the manuscript states it with. */
+const bottomPadCeiling = (rulerFont: number): number => {
+  const source = { ...SETTINGS, rulerFont } as unknown as Record<string, number>
+  const ceiling = source[BOTTOM_PAD_BOUND.maxKey]
+  if (typeof ceiling !== 'number') {
+    throw new Error(`S-179's 上限 names ${BOTTOM_PAD_BOUND.maxKey}, which carries no number`)
+  }
+  return ceiling
+}
+
+/** 下限 to 上限 in even steps, both endpoints included. */
+const legalBottomPads = (rulerFont: number): readonly number[] => {
+  const low = BOTTOM_PAD_BOUND.min
+  const high = bottomPadCeiling(rulerFont)
+  const steps = 8
+  return Array.from({ length: steps + 1 }, (_, at) => low + ((high - low) * at) / steps)
+}
+
+/** The band and its 目盛ラベル at 段階 4, for the settings handed in. */
+const threeSegmentBand = (part: Record<string, unknown>): MeasuredBand => {
+  const settings = settingsOf({ ...SETTINGS, ...part })
+  const band = bandOf(settings)
+  return {
+    rulerFont: RULER_FONT,
+    band,
+    baselines: baselinesOf(drawn(EMPTY, settings), band),
+  }
+}
+
+describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule below it', () => {
+  it('leaves `rulerLabelBottomPad` between a baseline and the rule closing its 段', () => {
+    // `S-179`:「目盛ラベルの下側の余白（縦）」. A 段 of the band is `rulerFont` +
+    // `rulerLabelPad` tall (`S-2` with `S-136`), the pad ABOVE the glyph is
+    // `rulerLabelPad`, and `S-179` takes its room「文字の箱の中から」-- so what
+    // is left under the baseline is `S-179` itself.
+    // ⛔ WITHOUT THE LIFT THIS IS ZERO: `rulerLabelPad` + `rulerFont` is the
+    // whole 段, and the baseline lands ON the 罫線 that opens the next one.
+    for (const tier of TIERS.filter((one) => one.segments === SEGMENTS_IN_THE_BAND)) {
+      const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
+      expect(baselines.length, `${tier.name}: 3 段`).toBe(SEGMENTS_IN_THE_BAND)
+      for (let at = 0; at < baselines.length; at += 1) {
+        expect(
+          band.y + (at + 1) * SEGMENT_HEIGHT - (baselines[at] as number),
+          `${tier.name}: 段 ${at + 1} -- 下の罫線まで S-179 のぶん空く`,
+        ).toBeCloseTo(RULER_LABEL_BOTTOM_PAD, 2)
+      }
+    }
+  })
+
+  it('clears the band foot rule by the same amount as any other 段', () => {
+    // `S-2` spends the band on three 段 and FR-017 (MUST) holds the band's
+    // height still across 段階（「目盛の帯の高さは、目盛の段階が変わっても動かさ
+    // ないこと」）, so the third 段's closing 罫線 IS the band's foot. No row
+    // states the foot separately, and none needs to.
+    for (const tier of TIERS.filter((one) => one.segments === SEGMENTS_IN_THE_BAND)) {
+      const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
+      expect(
+        band.y + SEGMENTS_IN_THE_BAND * SEGMENT_HEIGHT,
+        `${tier.name}: 3 段目の罫線は帯の下端そのものである`,
+      ).toBeCloseTo(band.y + band.height, 6)
+      const last = baselines[baselines.length - 1] as number
+      expect(
+        band.y + band.height - last,
+        `${tier.name}: 帯の下端の罫線も S-179 のぶん空く`,
+      ).toBeCloseTo(RULER_LABEL_BOTTOM_PAD, 2)
+    }
+  })
+
+  it('sets the baseline `rulerLabelPad` + `rulerFont` - `rulerLabelBottomPad` into its 段', () => {
+    // The offset `S-136` and `S-179` pin between them, read from the 罫線 that
+    // OPENS the 段 rather than the one that closes it. ⭐ Put this way the case
+    // never names what the three values are, so it survives an edit to any.
+    const expected = RULER_LABEL_PAD + RULER_FONT - RULER_LABEL_BOTTOM_PAD
+    for (const tier of TIERS.filter((one) => one.segments === SEGMENTS_IN_THE_BAND)) {
+      const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
+      for (let at = 0; at < baselines.length; at += 1) {
+        expect(
+          (baselines[at] as number) - (band.y + at * SEGMENT_HEIGHT),
+          `${tier.name}: 段 ${at + 1} の中でのベースラインの位置`,
+        ).toBeCloseTo(expected, 2)
+      }
+    }
+  })
+
+  it('sets the FIRST baseline that far below the band top edge, at every 段階', () => {
+    // ⭐ THE ONE FORM THAT HOLDS AT ALL FOUR 段階. 段 1 opens on the band's own
+    // top edge whatever `L-1`（表 T-005a）is showing, so its offset can be read
+    // without knowing how many 段 the band was divided into. ⚠️ THE CLEARANCE
+    // UNDER A BASELINE CANNOT: it equals `S-179` only where a 段 is `rulerFont`
+    // + `rulerLabelPad` tall, which is 段階 3 and 段階 4. At 段階 1 and 2 the
+    // band is spent on fewer 段, each of them taller, and the room below is
+    // larger -- so the cases above are restricted to the 3 段 段階 on purpose.
+    // ⚠️ WHAT THIS ONE ASSUMES: that the pad ABOVE a label is `S-136` whatever
+    // the 段 is tall. `S-136` is「罫線と目盛ラベルの余白（縦）」 and names no
+    // dependence on the 段's height, so a lone 段 does not centre its label in
+    // the band. ⛔ If the drawing ever does centre it, the disagreement is with
+    // `S-136`, not with this case.
+    const expected = RULER_LABEL_PAD + RULER_FONT - RULER_LABEL_BOTTOM_PAD
+    for (const tier of TIERS) {
+      const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
+      expect(baselines.length, `${tier.name}: 目盛ラベルがある`).toBeGreaterThan(0)
+      expect(
+        (baselines[0] as number) - band.y,
+        `${tier.name}: 段 1 のベースラインは帯の上端からこの位置`,
+      ).toBeCloseTo(expected, 2)
+    }
+  })
+
+  it('leaves the SAME clearance at every 文字サイズ, because `S-179` is stated in px', () => {
+    // FR-039 (MUST) carries 文字サイズ into the ruler and 表 T-215 gives the
+    // three 段 their px. ⭐ `S-179` の 既定値 is a plain px value rather than an
+    // expression over `rulerFont`, so the room under the label does NOT scale
+    // with the glyph -- it is the same number at S, M and L.
+    for (const scale of ['S', 'M', 'L'] as const) {
+      const at = bandAtFontScale(scale)
+      expect(at.band.height, `${scale}: 帯の高さは S-2 が S-3 に追随した値`).toBeCloseTo(
+        bandHeightAt(at.rulerFont),
+        2,
+      )
+      expect(at.baselines.length, `${scale}: 3 段`).toBe(SEGMENTS_IN_THE_BAND)
+      const last = at.baselines[at.baselines.length - 1] as number
+      expect(at.band.y + at.band.height - last, `${scale}: 罫線までの空き`).toBeCloseTo(
+        RULER_LABEL_BOTTOM_PAD,
+        2,
+      )
+    }
+  })
+
+  it('never lifts a baseline above the rule that OPENS its 段, at any legal value', () => {
+    // `S-179` の 上限 の理由:「超えるとベースラインが段の上の罫線より上へ出る
+    // ためである」. At the 上限 the offset left is `rulerLabelPad`, which `S-136`
+    // の 下限 keeps at 0 or above -- so no legal value puts a baseline over the
+    // 罫線 above it. ⚠️ 段 1's opening 罫線 is the band's own top edge, which is
+    // where the ground of 表 T-236 の `S-146` starts, so this is also what keeps
+    // the first label off the ground rect's edge.
+    for (const bottomPad of legalBottomPads(RULER_FONT)) {
+      const { band, baselines } = threeSegmentBand({
+        zoomX: threeSegmentZoom(RULER_FONT),
+        rulerLabelBottomPad: bottomPad,
+      })
+      expect(baselines.length, `rulerLabelBottomPad = ${bottomPad}: 3 段`).toBe(
+        SEGMENTS_IN_THE_BAND,
+      )
+      for (let at = 0; at < baselines.length; at += 1) {
+        expect(
+          (baselines[at] as number) - (band.y + at * SEGMENT_HEIGHT),
+          `rulerLabelBottomPad = ${bottomPad}: 段 ${at + 1} は上の罫線を越えない`,
+        ).toBeGreaterThanOrEqual(0)
+      }
+    }
+  })
+
+  it('spends no band height on `S-179`, at any legal value', () => {
+    // ⛔ THE GUARD AGAINST 'FIXING' THIS BY GROWING THE BAND. `S-179` の 備考:
+    // ⛔「帯の高さ（`S-2`）はこれを含まない —— 段の高さは `rulerFont` と
+    // `rulerLabelPad` のままで、この余白は文字の箱の中から取る」, and `S-2` の
+    // 既定値 spends three of `S-136` and none of `S-179`. Spending six pads
+    // instead would put `S-2`'s own 下限 above its own 上限.
+    expect(
+      SETTINGS_DERIVED['rulerHeight'].plusTimes,
+      'S-2 spends `rulerLabelPad` three times, not six',
+    ).toBe(SEGMENTS_IN_THE_BAND)
+    for (const bottomPad of legalBottomPads(RULER_FONT)) {
+      const { band, baselines } = threeSegmentBand({
+        zoomX: threeSegmentZoom(RULER_FONT),
+        rulerLabelBottomPad: bottomPad,
+      })
+      expect(band.height, `rulerLabelBottomPad = ${bottomPad}: 帯の高さは S-2 のまま`).toBeCloseTo(
+        RULER_HEIGHT,
+        2,
+      )
+      for (let at = 1; at < baselines.length; at += 1) {
+        expect(
+          (baselines[at] as number) - (baselines[at - 1] as number),
+          `rulerLabelBottomPad = ${bottomPad}: 段の高さは rulerFont + rulerLabelPad`,
+        ).toBeCloseTo(RULER_FONT + RULER_LABEL_PAD, 2)
       }
     }
   })

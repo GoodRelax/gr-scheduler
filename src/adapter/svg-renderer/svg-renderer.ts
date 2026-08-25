@@ -708,19 +708,21 @@ function rulerSvg(
 
   for (const [index, row] of rows.entries()) {
     const top = band.y + index * rowHeight
-    // S-136 is the pad between the rule and the label, measured downwards.
-    // ⛔ STOP -- ⛔ NOTHING PADS THE LABEL FROM BELOW, so at the two tiers
-    // ROWS_OF_TIER gives three rows the baseline lands exactly on the rule
-    // that opens the next row: S-2 makes the band `rulerFont` * 3 +
-    // `rulerLabelPad` * 3 tall, `rowHeight` divides that by three, and this
-    // sum is `rulerFont` + `rulerLabelPad`. The clearance is nil at every
-    // fontScale of S-3, and the glyph's descenders cross the rule.
-    // ⛔ THE ROW THAT WOULD CLOSE THIS DOES NOT EXIST: table T-201 needs a
-    // pad-below-the-label key beside S-136, and it must say that S-2's height
-    // does NOT include it -- the pad comes out of the glyph box, so neither
-    // the band nor a row grows. Until that row is written and generated, the
-    // term is not subtracted here: the value would be invented.
-    const baseline = top + settings.rulerLabelPad + settings.rulerFont
+    // S-136 is the pad between the rule and the label, measured downwards;
+    // S-179 is the pad below the label.
+    // ⭐ S-179's remark is what makes this a SUBTRACTION rather than a taller
+    // row: it says S-2's band height does NOT include the pad, and that a row
+    // keeps the height it already had, so the baseline's offset inside the
+    // glyph box is the only term left to move.
+    // ⚠️ WITHOUT IT THE CLEARANCE IS NIL at the two tiers ROWS_OF_TIER gives
+    // three rows: the baseline sat on the rule that opens the next row, and on
+    // the band's foot rule for the last one, at every fontScale of S-3.
+    // ⛔ It is not closed by growing the band -- FR-017 (MUST) forbids the
+    // band's height moving, and S-179 is written so that nothing grows.
+    // ⚠️ The lift is bounded by S-179's own max, so the baseline cannot rise
+    // past the rule that opens its own row.
+    const baseline =
+      top + settings.rulerLabelPad + settings.rulerFont - settings.rulerLabelBottomPad
     if (index > 0) {
       out.push(
         `<line x1="${rounded(band.x)}" y1="${rounded(top)}"` +
