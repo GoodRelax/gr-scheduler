@@ -2,9 +2,7 @@ export const meta = {
   name: 'five-stage',
   description: 'Propose from the specification, then implement and test in parallel (rule 05 section 7)',
   whenToUse:
-    'Every piece of work big enough to hand to a subagent. Pass args as ' +
-    '{ items: [{ key, brief, files }], stopAfterProposal?: true }. ' +
-    'The brief may be rough -- stage 2 is where the detail is worked out.',
+    'Every piece of work big enough to hand to a subagent. Pass args as { items: [{ key, brief, files }], stopAfterProposal: true }. The brief may be rough -- stage 2 is where the detail is worked out.',
   phases: [
     { title: 'Propose', detail: 'read the specification, propose an approach, write no code' },
     { title: 'Build', detail: 'implementer and spec-only tester run side by side' },
