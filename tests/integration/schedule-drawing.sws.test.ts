@@ -499,10 +499,9 @@ describe('SWS-1 -- thin out the fine steps of the ruler (FR-017)', () => {
         [0.1, 'year'],
         [0.5, 'yearMonth'],
         [1, 'yearMonthWeek'],
-        [4, 'yearMonthWeek'],
-        // S-85's threshold is measured at a 12 px ruler font, so 5.8 * S-1 is
+        // S-85's threshold is measured at a 12 px ruler font, so 1.3 * S-1 is
         // the widest day that still misses the day step at the default font.
-        [5.8, 'yearMonthWeek'],
+        [1.3, 'yearMonthWeek'],
       ]
       for (const [zoomX, tier] of coarse) {
         // labelCoef at its ceiling (S-30) is the most expensive label allowed,

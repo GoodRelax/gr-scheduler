@@ -240,7 +240,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'rulerHeight': 48,
   'rulerLabelGap': 8,
   'rulerLabelPad': 2,
-  'rulerTierPxPerDayDay': 30,
+  'rulerTierPxPerDayDay': 8,
   'rulerTierPxPerDayMonth': 1.4,
   'rulerTierPxPerDayWeek': 4.3,
   'scrollDate': null,

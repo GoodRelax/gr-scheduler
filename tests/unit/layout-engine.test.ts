@@ -296,10 +296,11 @@ describe('ScheduleLayout (PI-5) -- the time axis', () => {
   })
 
   it('FR-017 cancels the text scale first, so the three thresholds stay fixed', () => {
-    // At rulerFont 24 the effective scale is 2, so 30px a day only counts as 15.
+    // At rulerFont 24 the effective scale is 2, so 12px a day only counts as 6,
+    // which is short of S-85 and lands on the week step instead of the day one.
     const larger = settingsOf({ ...LAYOUT_SETTINGS, rulerFont: 24 })
-    expect(rulerTierOf(30, larger)).toBe('yearMonthWeek')
-    expect(rulerTierOf(60, larger)).toBe('yearMonthDayWeekday')
+    expect(rulerTierOf(12, larger)).toBe('yearMonthWeek')
+    expect(rulerTierOf(16, larger)).toBe('yearMonthDayWeekday')
   })
 
   it('S-77 pins the left edge of the Row Area to scrollDate', () => {
