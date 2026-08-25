@@ -56,11 +56,17 @@ NOTICE_ROW = re.compile(r'^\| (NT-\d+[a-z]?) \|')
 ASSIGNMENT_ROW = re.compile(r'^\| (MK-\d+[a-z]?) \|')
 REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
 QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
+ARM_ROW = re.compile(r'^\| (AR-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 ICON_TABLE = 'T-109'
 NOTICE_TABLE = 'T-037'
 ASSIGNMENT_TABLE = 'T-023'
+# ⛔ What the pointer is armed with. Table T-023b is the whole count of the
+# arms FR-053's palette can put the pointer in, so an arm with no row here
+# cannot be armed -- and until this section existed the screen printed the
+# row id itself (D-10).
+ARM_TABLE = 'T-023b'
 REASON_TABLE = 'T-233'
 # ⛔ The sentence a question shows. Table T-234 is the whole count of the
 # places NT-7 lets GRS ask, so a question with no row here cannot be raised.
@@ -212,6 +218,11 @@ def roster():
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
+        # ⛔ The same move again, for table T-023b. ⚠️ AR-1 is the arm that is
+        # NO arm -- 「なし（既定）」 -- and it still needs a word, because the
+        # palette shows what is armed and 「nothing」 is one of the answers.
+        'arms': [row[0] for row in
+                 table_rows(REL_REQUIREMENTS, ARM_ROW, ARM_TABLE)],
         # ⛔ The row id IS the key, the move `Notice.manner` already makes with
         # table T-037: a reason then points at one line of the specification
         # (1.9, "the first column is the row id"), and no camelCase vocabulary of
@@ -240,6 +251,7 @@ SHAPE = {
     'confirmationMarks': ('mark', ('text',)),
     'panelHeadings': ('showing', ('text',)),
     'assignments': ('rowId', ('text',)),
+    'arms': ('rowId', ('text',)),
     'reasons': ('rowId', ('text', 'nextStep')),
     'questions': ('rowId', ('text',)),
 }
@@ -314,7 +326,7 @@ def build(doc):
     for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
                     'confirmationMarks',
-                    'panelHeadings', 'assignments'):
+                    'panelHeadings', 'assignments', 'arms'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
@@ -349,7 +361,7 @@ def main():
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
                         'reasons', 'questions', 'confirmation', 'noticeDismiss',
                         'confirmationMarks',
-                        'panelHeadings', 'assignments'):
+                        'panelHeadings', 'assignments', 'arms'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),
                    ', '.join(str(e[SHAPE[section][0]]) for e in doc[section])))

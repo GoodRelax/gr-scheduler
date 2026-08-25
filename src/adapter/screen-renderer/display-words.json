@@ -1453,5 +1453,49 @@
     "en": "What a double click does depends on what it lands on — Comment Box: its text; Name Label: its name; Assignee Label: the resource name; task: the Properties Panel; row title: the row name"
    }
   }
+ ],
+ "arms": [
+  {
+   "rowId": "AR-1",
+   "text": {
+    "ja": "なし（既定）",
+    "en": "None (default)"
+   }
+  },
+  {
+   "rowId": "AR-2",
+   "text": {
+    "ja": "タスク形状",
+    "en": "Task shape"
+   }
+  },
+  {
+   "rowId": "AR-3",
+   "text": {
+    "ja": "マイルストーン形状",
+    "en": "Milestone shape"
+   }
+  },
+  {
+   "rowId": "AR-4",
+   "text": {
+    "ja": "依存線",
+    "en": "Dependency line"
+   }
+  },
+  {
+   "rowId": "AR-5",
+   "text": {
+    "ja": "コメントボックス",
+    "en": "Comment box"
+   }
+  },
+  {
+   "rowId": "AR-6",
+   "text": {
+    "ja": "ハイライトボックス",
+    "en": "Highlight box"
+   }
+  }
  ]
 }

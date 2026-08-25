@@ -1,11 +1,11 @@
 {
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The words the screen prints: every entry of table T-109 and the explanation EZ-2 shows beside it, the group names of the command palette, the headings of the surfaces table T-103 has named, the manner of every row of table T-037, the words and the next step for every reason of table T-233, the sentence every question of table T-234 shows, the two answers NT-7 asks for, the three headings FR-072 asks for, and the assignments of table T-023 that FR-037 offers.",
+  "The words the screen prints: every entry of table T-109 and the explanation EZ-2 shows beside it, the group names of the command palette, the headings of the surfaces table T-103 has named, the manner of every row of table T-037, the words and the next step for every reason of table T-233, the sentence every question of table T-234 shows, the two answers NT-7 asks for, the three headings FR-072 asks for, and the assignments of table T-023 that FR-037 offers, and the word for every arm of table T-023b that FR-053 lets the palette put the pointer in.",
   "Generated FROM this file: src/adapter/screen-renderer/display-words.json (tools/generate_display_words.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "EVERY ENTRY IS NOW WRITTEN, and this line used to say the opposite. The ruling of 2026-08-21 (PD-160) built the place and left the filling to the user, because table T-109 refuses an English column in as many words and a word invented by an agent would settle the very names that refusal protects. The user has since written them. Fill ja and en here for anything added; nothing else has to change for a word to appear, and the generator counts the written cells on every run.",
-  "THIS FILE HOLDS NO ROSTER. Which entries exist is read from docs/spec every run -- table T-109, table T-037, table T-023 and FR-072 -- and the generator refuses to write if this file and those tables disagree. Read those tables to know which entry a key stands for; a group is keyed by the first row of table T-109 that sits in it."
+  "THIS FILE HOLDS NO ROSTER. Which entries exist is read from docs/spec every run -- table T-109, table T-037, table T-023, table T-023b and FR-072 -- and the generator refuses to write if this file and those tables disagree. Read those tables to know which entry a key stands for; a group is keyed by the first row of table T-109 that sits in it."
  ],
  "icons": [
   {
@@ -1361,6 +1361,50 @@
    }
   }
  ],
+  "arms": [
+    {
+      "rowId": "AR-1",
+      "text": {
+        "ja": "なし（既定）",
+        "en": "None (default)"
+      }
+    },
+    {
+      "rowId": "AR-2",
+      "text": {
+        "ja": "タスク形状",
+        "en": "Task shape"
+      }
+    },
+    {
+      "rowId": "AR-3",
+      "text": {
+        "ja": "マイルストーン形状",
+        "en": "Milestone shape"
+      }
+    },
+    {
+      "rowId": "AR-4",
+      "text": {
+        "ja": "依存線",
+        "en": "Dependency line"
+      }
+    },
+    {
+      "rowId": "AR-5",
+      "text": {
+        "ja": "コメントボックス",
+        "en": "Comment box"
+      }
+    },
+    {
+      "rowId": "AR-6",
+      "text": {
+        "ja": "ハイライトボックス",
+        "en": "Highlight box"
+      }
+    }
+  ],
  "assignments": [
   {
    "rowId": "MK-1",
