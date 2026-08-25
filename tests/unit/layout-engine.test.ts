@@ -41,6 +41,8 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
+import { NOT_STORED_ZOOM_STEP } from '../../src/adapter/input-command-translator/input-command-translator'
 
 // A whole DocumentSettings is 97 keys. A case states the ones it deliberately
 // pins -- values chosen to make the sums easy to check -- and every other key
@@ -235,6 +237,15 @@ const LAYOUT_SETTINGS = settingsOf({
 })
 
 const REGIONS = regionsFromScreen(ENV, LAYOUT_SETTINGS)
+
+// The three zoom values table T-206 keeps out of the document (S-96 / S-97 /
+// S-98), which `fitZoom` now takes as an argument rather than typing them
+// itself. Read from the generated constants, never re-typed (rule 03).
+const NOT_STORED_ZOOM = {
+  step: NOT_STORED_ZOOM_STEP['S-96'],
+  min: NOT_STORED_ZOOM_BOUNDS['S-97'],
+  max: NOT_STORED_ZOOM_BOUNDS['S-98'],
+}
 
 // ⚠️ Every nullable column table T-019a reads has to be spelled `null` here.
 // Leaving one `undefined` reads as "set" -- `actualFinish` undefined made
@@ -729,27 +740,37 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
     expect(asBar.placements[0]!.height).toBe(28)
   })
 
-  it('FR-055 scales each axis on its own from the drawn extent', () => {
-    const layout = layoutFromSchedule(
-      oneRow([spanning(1, '2026-01-01', 20, { name: '' })]),
-      LAYOUT_SETTINGS,
-      REGIONS,
-    )
-    const fit = fitZoom(layout, LAYOUT_SETTINGS, REGIONS)
+  it('FR-055 scales the HORIZONTAL from the drawn extent', () => {
+    const schedule = oneRow([spanning(1, '2026-01-01', 20, { name: '' })])
+    const layout = layoutFromSchedule(schedule, LAYOUT_SETTINGS, REGIONS)
+    const fit = fitZoom(schedule, LAYOUT_SETTINGS, REGIONS, NOT_STORED_ZOOM)
+    // FR-055: 「⭐ 横はこの限りではない —— 横に床は無く、段階は `FR-017` が
+    // 1 日あたりの幅で定める」. Stated as the relation, not as a figure.
     expect(fit.zoomX).toBeCloseTo(REGIONS.rowArea.width / layout.contentWidth, 6)
-    expect(fit.zoomY).toBeCloseTo(REGIONS.rowArea.height / layout.contentHeight, 6)
+    // ⛔ THE VERTICAL HALF OF THIS CASE WAS RETIRED, not adapted. It asserted
+    // `rowArea.height / contentHeight`, and FR-055 now says the opposite:
+    // 「縦は、倍率を縮めて合わせるのではなく、表示量（グループ LOD の深さ）を
+    // 選んで合わせること（MUST）」, with 「⚠️ 画面の下に隙間が残ることは許す
+    // —— 本要求は収めることを求めており、埋めることを求めていない」. A one-row
+    // document has only depth 1, which FR-018 (MUST NOT) keeps out of the
+    // ladder's domain, so no row states the zoom it lands on. What the vertical
+    // does owe is asserted in tests/unit/fr-055-vertical-lod-fit.test.ts; all
+    // this case may still say is FR-016's range (S-97 / S-98 of table T-206).
+    expect(fit.zoomY).toBeGreaterThanOrEqual(NOT_STORED_ZOOM.min)
+    expect(fit.zoomY).toBeLessThanOrEqual(NOT_STORED_ZOOM.max)
   })
 
   it('FR-055 returns to unity when there is no extent to divide by', () => {
     // ⚠️ A row with no Task still draws: LF-2 gives it one rectangle lane. So
     // "nothing drawn" means no rows at all, not an empty row.
-    const layout = layoutFromSchedule(scheduleOf({}), LAYOUT_SETTINGS, REGIONS)
+    const empty = scheduleOf({})
+    const layout = layoutFromSchedule(empty, LAYOUT_SETTINGS, REGIONS)
     expect(layout.contentHeight).toBe(0)
     // OP-10 (MUST) makes the fit answer the position as well as the scale,
     // so all four of S-75..S-78 are asserted here. With nothing drawn there
     // is no leftmost edge and no top row, and FR-055's empty-document arm
     // hands back what the settings already hold rather than inventing one.
-    expect(fitZoom(layout, LAYOUT_SETTINGS, REGIONS)).toEqual({
+    expect(fitZoom(empty, LAYOUT_SETTINGS, REGIONS, NOT_STORED_ZOOM)).toEqual({
       zoomX: 1,
       zoomY: 1,
       scrollDate: LAYOUT_SETTINGS.scrollDate,

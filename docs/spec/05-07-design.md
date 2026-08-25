@@ -328,7 +328,7 @@ src/
 
 | 行 ID | 層 | コンポーネント | 公開するメンバ |
 | --- | --- | --- | --- |
-| PI-1 | `documentModel` | `Schedule` | `Schedule`（型。12 の鍵は 表 T-052 の `DR-2`）／ `DATE_COLUMNS`（表 T-058 の型の欄が日付とする列の全数。`IV-14` が名指さずに指すので、写しではなく生成する）／ `scheduleViolations`（不変条件に反する箇所）／ `taskByUid`（`uid` で引く。`FR-022` の照合が使う）／ `planActualState`（表 T-019a の判別）／ `isDelayed`（表 T-021b の 3 条件）／ `delayWorkingDays`（表 T-021b の起点と終点）／ `workingDaysBetween`（2 つの日付のあいだの稼働日数。暦は `FR-054`）／ `dateFromWorkingDays`（起点の日付に稼働日を加えた日）／ `workingCalendarOf`（文書の暦を解く。順は `FR-054`）／ `dayOf`（日付の字面を日にする。規則は `FR-054`）／ `textOfDay`（日を日付の字面に戻す）／ `compareDays`（2 つの日の前後） |
+| PI-1 | `documentModel` | `Schedule` | `Schedule`（型。12 の鍵は 表 T-052 の `DR-2`）／ `DATE_COLUMNS`（表 T-058 の型の欄が日付とする列の全数。`IV-14` が名指さずに指すので、写しではなく生成する）／ `scheduleViolations`（不変条件に反する箇所）／ `taskByUid`（`uid` で引く。`FR-022` の照合が使う）／ `planActualState`（表 T-019a の判別）／ `isDelayed`（表 T-021b の 3 条件）／ `delayWorkingDays`（表 T-021b の起点と終点）／ `workingDaysBetween`（2 つの日付のあいだの稼働日数。暦は `FR-054`）／ `calendarDaysBetween`（2 つの日付のあいだの**暦日**数。表 T-012a の `FD-6` がフェードの単位として定め、`IV-12` が同じ数え方に従う）／ `dateFromWorkingDays`（起点の日付に稼働日を加えた日）／ `workingCalendarOf`（文書の暦を解く。順は `FR-054`）／ `dayOf`（日付の字面を日にする。規則は `FR-054`）／ `textOfDay`（日を日付の字面に戻す）／ `compareDays`（2 つの日の前後） |
 | PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める）／ 原稿を刷った 3 つの定数（既定値・単独の下限と上限・他の鍵の式で書かれた既定値） |
 | PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`） |
 | PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
@@ -731,7 +731,7 @@ stateDiagram-v2
 | IV-9 | `TaskVisual` の `fillColor` と `strokeColor` が同時に透明でないこと | その 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） | 組合せ |
 | IV-10 | `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと | その 2 列 | 組合せ |
 | IV-11 | `fadeInDays` または `fadeOutDays` を持つ `Task` が、`finish` を持つこと | その 3 列 | 組合せ |
-| IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと | その 2 列と `start` ／ `finish` | 組合せ |
+| IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。⛔ **ここでいう「期間」は、表 T-012a の `FD-6` と同じく暦日で数えること（MUST）** | その 2 列と `start` ／ `finish` | 組合せ |
 | IV-13 | デュアルカーソルが非 `null` のとき、2 つの日付がどちらも非 `null` であること | `_assets/tbl-settings.md` の `S-65` | 組合せ |
 | IV-14 | 日付の列が、日として読め、受け入れる日付の範囲に収まること。⚠️ **空文字は「読めない」側である** —— 空を許す列の空は `null` である | 表 T-058 の型の欄が日付または日時とする列と、表 T-214 | 範囲 |
 | IV-15 | `TaskOrigin.lastSeenImportSeq` が `Project.importSeq` を超えないこと | その 2 列 | 範囲 |

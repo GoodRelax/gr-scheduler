@@ -756,6 +756,22 @@ function serial(day: CalendarDay): number {
   return Date.UTC(day.year, day.month - 1, day.day) / 86400000
 }
 
+/**
+ * The span between two days in CALENDAR days, half-open the way
+ * `workingDaysBetween` is -- so a plan that starts and finishes on one day
+ * spans 0, and the two counts can be compared against the same figure.
+ *
+ * ⭐ FD-6 of table T-012a fixes this as the unit a fade is measured in
+ * (本表の「期間」は暦日で数えること（MUST）), and the same row binds IV-12 of
+ * table T-220 to it. ⛔ It is NOT FR-012's span, which is worked days and
+ * answers a different requirement.
+ *
+ * @purity pure
+ */
+export function calendarDaysBetween(from: CalendarDay, to: CalendarDay): number {
+  return serial(to) - serial(from)
+}
+
 /** @purity pure */
 function dayFromSerial(value: number): CalendarDay {
   const at = new Date(value * 86400000)

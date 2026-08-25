@@ -24,6 +24,7 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
+  calendarDaysBetween,
   compareDays,
   dateFromWorkingDays,
   dayOf,
@@ -292,6 +293,27 @@ function planSpanOf(within: WorkingCalendar, task: Task): number | null {
   const finish = dayOf(task.finish)
   if (start === null || finish === null) return null
   return workingDaysBetween(within, start, finish)
+}
+
+/**
+ * The planned span in CALENDAR days, which is the unit a fade is measured in.
+ *
+ * ⛔ NOT `planSpanOf`. FD-6 of table T-012a says 本表の「期間」は暦日で数える
+ * こと（MUST）。稼働日で数えてはならない（MUST NOT）, and IV-12 was told to
+ * follow the same counting -- 一方が暦日、他方が稼働日だと、`FR-016` の掴み点
+ * が許した日数を不変条件が拒む. FR-012's span is a different quantity for a
+ * different requirement and stays where it is.
+ *
+ * ⚠️ Half-open, like `workingDaysBetween`, so a one-day plan spans 0 -- FD-7
+ * rejects rather than rounds, and a fade of 0 has to remain expressible.
+ *
+ * @purity pure
+ */
+function fadeSpanOf(task: Task): number | null {
+  const start = dayOf(task.start)
+  const finish = dayOf(task.finish)
+  if (start === null || finish === null) return null
+  return calendarDaysBetween(start, finish)
 }
 
 /**
@@ -672,10 +694,13 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       // こと. Shortening the plan is the other way to break it, so the pair is
       // measured against the span this command is about to write.
       const fade = (task.fadeInDays ?? 0) + (task.fadeOutDays ?? 0)
-      const span = workingDaysBetween(within, start.day, finish.day)
+      // ⛔ CALENDAR days, per FD-6 of table T-012a and the sentence IV-12 now
+      // carries. Counting these in worked days refused fades that FR-016's
+      // grab handle had just allowed, on every plan crossing a non-working day.
+      const span = calendarDaysBetween(start.day, finish.day)
       if (fade > span) {
         return refused([
-          reject('CM-11', 'IV-12', `fade of ${fade} worked days does not fit a plan of ${span}`),
+          reject('CM-11', 'IV-12', `fade of ${fade} days does not fit a plan of ${span}`),
         ])
       }
       const moved = { ...task, start: command.start, finish: command.finish }
@@ -894,14 +919,15 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         if (task.finish === null) {
           return refused([reject(row, 'IV-11', 'a task with a fade must have a finish')])
         }
-        const span = planSpanOf(within, task)
+        // ⛔ `fadeSpanOf`, not `planSpanOf`: FD-6 counts this one in calendar days.
+        const span = fadeSpanOf(task)
         const other = command.kind === 'setTaskFadeInDays' ? task.fadeOutDays : task.fadeInDays
         // ⚠️ When `start` is missing the span cannot be measured, so IV-12 is not
         // judged rather than judged on a guess. IV-11 has already refused the
         // case the requirement actually names.
         if (span !== null && days + (other ?? 0) > span) {
           return refused([
-            reject(row, 'IV-12', `fade of ${days + (other ?? 0)} worked days does not fit a plan of ${span}`),
+            reject(row, 'IV-12', `fade of ${days + (other ?? 0)} days does not fit a plan of ${span}`),
           ])
         }
       }

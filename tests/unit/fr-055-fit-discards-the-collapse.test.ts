@@ -26,11 +26,12 @@
 //   T-108    CM-71 `fitScheduleToScreen` / CM-72 `expandAllTaskGroups`
 //   T-036    SK-18 (`F`) -- the entrance these cases press
 //
-// ⛔ TWO CASES ARE LEFT FAILING, and both for the one reason: the fit measures
-// the picture the author folded instead of the whole. They are findings, not
-// chores (04-verification.md section 1) -- the expected values state what
-// FR-055 and HF-8 say and both are quoted where they stand. Search for
-// `FINDING`.
+// ⭐ THE TWO `FINDING` CASES NOW PASS. They were left failing because the fit
+// measured the picture the author had folded instead of the whole; the wave
+// that gave `fitZoom` its `Schedule` argument closed that, and the press now
+// discards the fold (HF-8) before it measures. The word FINDING is kept in
+// their names only so the history reads straight -- ⚠️ they are ordinary green
+// cases now, and the next hand may rename them.
 
 import { describe, expect, it } from 'vitest'
 
@@ -57,6 +58,7 @@ import {
   type DocumentCommand,
 } from '../../src/use-case/edit-document/edit-document'
 import {
+  NOT_STORED_ZOOM_STEP,
   commandFromInput,
   type InputContext,
   type InputModifiers,
@@ -235,12 +237,18 @@ const documentOf = (schedule: Schedule): Document =>
 const NO_MODS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
 const keyOf = (key: string): KeyInput => ({ kind: 'key', key, modifiers: NO_MODS })
 
-type Frame = { readonly context: InputContext; readonly layout: ScheduleLayout }
+type Frame = {
+  readonly context: InputContext
+  readonly layout: ScheduleLayout
+  /** ⚠️ `fitZoom` takes the `Schedule`, not the layout, since CR-264. */
+  readonly schedule: Schedule
+}
 
 const frameOf = (schedule: Schedule): Frame => {
   const layout = layoutFromSchedule(schedule, SETTINGS, REGIONS)
   return {
     layout,
+    schedule,
     context: {
       document: documentOf(schedule),
       layout,
@@ -347,7 +355,18 @@ describe('FR-055 -- what the fit measures', () => {
 
     // ...and hiding a branch DOES change the whole being fitted, which is what
     // makes the equality above a statement about the fold alone.
-    expect(hidden.zoomY).not.toBeCloseTo(fittedZoom(PLAIN).zoomY, 6)
+    //
+    // ⛔ WITNESSED ON THE EXTENT, NOT ON THE ZOOM, since CR-264. This read
+    // 「hidden.zoomY is not plain.zoomY」 and FR-055 now forbids that reading:
+    // 「縦は、倍率を縮めて合わせるのではなく、表示量（グループ LOD の深さ）を
+    // 選んで合わせること（MUST）」. `HIDDEN` and `PLAIN` both settle on the same
+    // depth, so they MUST settle on the same `zoomY` however much each of them
+    // draws -- that equality is asserted as a requirement in
+    // tests/unit/fr-055-vertical-lod-fit.test.ts, `both land on depth 2, so
+    // both are fitted to the same zoomY`. What HR-6 still moves is the 全体
+    // table T-038 measures, and that is what this guard now names.
+    expect(HIDDEN.layout.rows.length).toBeLessThan(PLAIN.layout.rows.length)
+    expect(HIDDEN.layout.contentHeight).toBeLessThan(PLAIN.layout.contentHeight)
   })
 
   it('FR-031 keeps the press two writes, CM-71 first, so the fix above cannot be made by reordering them', () => {
@@ -363,7 +382,17 @@ describe('FR-055 -- what the fit measures', () => {
   })
 })
 
-describe('PI-5 `fitZoom` -- the measurement itself stays a function of the layout it is handed', () => {
+/**
+ * The three zoom values table T-206 keeps out of the document (S-96 / S-97 /
+ * S-98). `fitZoom` takes them as an argument, so no figure is re-typed here.
+ */
+const NOT_STORED_ZOOM = {
+  step: NOT_STORED_ZOOM_STEP['S-96'],
+  min: NOT_STORED_ZOOM_BOUNDS['S-97'],
+  max: NOT_STORED_ZOOM_BOUNDS['S-98'],
+}
+
+describe('PI-5 `fitZoom` -- the measurement itself stays a function of the document it is handed', () => {
   // ⛔ OP-10 OF TABLE T-024a IS WHY THIS MATTERS. On startup with a null or
   // dangling position the reader must show 「`FR-055` の全体表示が選ぶ倍率と
   // 表示位置」 and 「このとき `HF-8` を働かせてはならない（MUST NOT）」, because
@@ -375,24 +404,40 @@ describe('PI-5 `fitZoom` -- the measurement itself stays a function of the layou
   // never to the measurement both callers share. A fix that moved HF-8 inside
   // this function would fit the startup picture to a whole the startup screen
   // is not drawing.
-  it('answers from the layout given, so a folded layout and an unfolded one differ here', () => {
-    const plain = fitZoom(PLAIN.layout, SETTINGS, REGIONS)
-    const folded = fitZoom(FOLDED.layout, SETTINGS, REGIONS)
+  // ⚠️ SINCE CR-264 THE ARGUMENT IS THE `Schedule`, not the layout: FR-055's
+  // vertical now chooses a depth, and the rule after table T-068 has that
+  // choice run LC-1..LC-9 itself, over more than one depth and more than one
+  // zoom. So the seam is handed the document and re-lays it out. The claim this
+  // block makes is unchanged by that -- what it names is the seam's INPUT, and
+  // the input still carries the fold.
+  it('answers from the document given, so a folded document and an unfolded one differ here', () => {
+    const plain = fitZoom(PLAIN.schedule, SETTINGS, REGIONS, NOT_STORED_ZOOM)
+    const folded = fitZoom(FOLDED.schedule, SETTINGS, REGIONS, NOT_STORED_ZOOM)
     expect(folded.zoomY).not.toBeCloseTo(plain.zoomY, 6)
   })
 
-  it('fills the Row Area with what it was handed, on both axes', () => {
-    // FR-055: 「縦横の倍率と表示位置を全体が収まる側へ合わせる」, each axis on
-    // its own. Stated as the relation rather than as a figure, so re-ruling the
-    // screen or the fixture moves the case with it.
-    const fit = fitZoom(PLAIN.layout, SETTINGS, REGIONS)
+  it('divides the Row Area by the drawn width, and leaves the vertical its gap', () => {
+    // FR-055 on the horizontal: 「⭐ 横はこの限りではない —— 横に床は無く、
+    // 段階は `FR-017` が 1 日あたりの幅で定める」. Stated as the relation rather
+    // than as a figure, so re-ruling the screen or the fixture moves it.
+    const fit = fitZoom(PLAIN.schedule, SETTINGS, REGIONS, NOT_STORED_ZOOM)
     expect((fit.zoomX / SETTINGS.zoomX) * PLAIN.layout.contentWidth).toBeCloseTo(
       REGIONS.rowArea.width,
       6,
     )
-    expect((fit.zoomY / SETTINGS.zoomY) * PLAIN.layout.contentHeight).toBeCloseTo(
-      REGIONS.rowArea.height,
-      6,
+    // ⛔ THE VERTICAL HALF OF THIS CASE ASSERTED THE OPPOSITE OF THE REQUIREMENT
+    // and was replaced. It read `zoomY × contentHeight ≈ rowArea.height` -- the
+    // continuous ratio -- and FR-055 now says 「縦は、倍率を縮めて合わせるので
+    // はなく、表示量（グループ LOD の深さ）を選んで合わせること（MUST）」 and
+    // 「⚠️ 画面の下に隙間が残ることは許す —— 本要求は収めることを求めており、
+    // 埋めることを求めていない」. All the vertical owes here is that what gets
+    // drawn at the answered zoom does fit. Which depth it lands on, and the
+    // rung it lands at, are asserted in tests/unit/fr-055-vertical-lod-fit.test.ts.
+    const drawn = layoutFromSchedule(
+      PLAIN.schedule,
+      settingsOf({ ...SETTINGS, zoomX: fit.zoomX, zoomY: fit.zoomY }),
+      REGIONS,
     )
+    expect(drawn.contentHeight).toBeLessThanOrEqual(REGIONS.rowArea.height)
   })
 })

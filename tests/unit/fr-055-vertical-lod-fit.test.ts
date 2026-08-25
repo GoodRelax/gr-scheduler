@@ -392,12 +392,23 @@ function depthTheFitOwes(shape: TreeShape, regions: ScreenRegions = REGIONS): nu
 // each case re-derives that answer from the rule rather than trusting the name.
 // ---------------------------------------------------------------------------
 
+// ⚠️ HOW MANY ROWS FIT. Under FR-094's floor every one-lane row is the same
+// height, so the extent is arithmetic in the row count and the shapes below can
+// be chosen rather than guessed: LF-2 gives a row holding one `Task` at one
+// lane the plan height, FR-094 pins that at `actualMin` ÷ `actualOfPlan`
+// (S-6 ÷ S-5) once the zoom is under the floor, and LF-3 adds `rowGap` (S-12)
+// between rows. So `n` rows take `n × h + (n − 1) × rowGap`, and on the Row Area
+// this file's ENV yields that stops fitting a little short of twenty rows.
+// ⭐ The case `the fixtures really do exercise all three answers` is the guard:
+// re-rule any of those settings, or the screen, and it fails rather than
+// letting the cases below go quietly vacuous.
+
 /** Six rows across three depths -- the whole document fits. */
 const ALL_THREE_DEPTHS_FIT: TreeShape = { roots: 2, depths: 3, fanOut: 1 }
-/** Depth 2 fits; depth 3 is four times as many rows and does not. */
-const DEPTH_2_FITS: TreeShape = { roots: 6, depths: 3, fanOut: 4 }
-/** Same, one third wider, so the depth-2 extent differs from the one above. */
-const DEPTH_2_FITS_WIDER: TreeShape = { roots: 8, depths: 3, fanOut: 4 }
+/** Depth 2 is fifteen rows and fits; depth 3 is sixty-three and does not. */
+const DEPTH_2_FITS: TreeShape = { roots: 3, depths: 3, fanOut: 4 }
+/** Same answer on eighteen rows, so the depth-2 extent differs from the above. */
+const DEPTH_2_FITS_WIDER: TreeShape = { roots: 3, depths: 3, fanOut: 5 }
 /** Depth 1 fits with room to spare; depth 2 is six times as many rows. */
 const DEPTH_1_FITS: TreeShape = { roots: 6, depths: 2, fanOut: 5 }
 /** Same, so the depth-1 extent differs while the chosen depth does not. */
@@ -438,9 +449,23 @@ describe('the premise the closed form rests on -- FR-094 pins the picture under 
     const schedule = scheduleOf(DEPTH_2_FITS)
     for (const depth of [1, 2, 3]) {
       const low = drawingZoomOf(depth)
-      // Just under the next rung: the same depth limit, a different zoom.
-      const high = thresholdOf(depth + 1) * (1 - 1e-9)
+      // Still under the next rung, so the same depth limit at a different zoom
+      // -- but never above FR-094's floor.
+      //
+      // ⚠️ NARROWED. It first read `thresholdOf(depth + 1)` alone, which said
+      // the picture is invariant across the WHOLE of a rung's band. The rule
+      // after table T-068 does not say that; it makes the invariance
+      // conditional on one thing only: 「その床より下では絵が倍率に依らないので、
+      // 1 回測れば床の内側に収まる段の縦幅は算術で出る」. Depth 3's band runs
+      // from its own rung up to depth 4's, and the case above proves depth 4's
+      // rung stands ABOVE the floor -- so the floor falls inside that band and
+      // is the end this premise may reach. Above it the plan height is no
+      // longer pinned (FR-094) and the drawing does move with `zoomY`.
+      const high = Math.min(thresholdOf(depth + 1), FLOOR_BINDS_BELOW) * (1 - 1e-9)
       expect(high).toBeLessThan(FLOOR_BINDS_BELOW)
+      // ...and the narrowing did not collapse the interval to a point, which
+      // would make the comparison below a tautology.
+      expect(high).toBeGreaterThan(low)
       const a = layoutFromSchedule(schedule, settingsOf({ ...SETTINGS, zoomY: low }), REGIONS)
       const b = layoutFromSchedule(schedule, settingsOf({ ...SETTINGS, zoomY: high }), REGIONS)
       expect(deepestDrawnDepth(b)).toBe(deepestDrawnDepth(a))
