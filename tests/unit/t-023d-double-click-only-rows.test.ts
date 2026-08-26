@@ -677,8 +677,12 @@ describe('表 T-023d closing rule -- a plain press does not land on GR-10', () =
 
     const write = oneCommand(answer, 'setTaskPlanDates')
     expect(write.uid).toBe(1)
-    expect(write.start).toBe('2026-01-15')
-    expect(write.finish).toBe('2026-02-15')
+    // ⚠️ AT-28 and AT-29 make `start` / `finish` 日時, not dates, and EX-7 of
+    // table T-033 has GRS write a day it decided itself AT MIDNIGHT -- so the
+    // stored text carries the time part. This assertion first read a bare date;
+    // corrected against those two rows (2026-08-27).
+    expect(write.start).toBe('2026-01-15T00:00:00')
+    expect(write.finish).toBe('2026-02-15T00:00:00')
   })
 
   it('GR-10 -- even handed the row itself, a plain drag never moves the label', () => {

@@ -3424,11 +3424,18 @@ function commandFromGrab(
       ])
     }
     case 'GR-5':
+    case 'GR-15':
     case 'GR-6': {
       // Table T-023d: GR-5 changes `actualStart`, GR-6 changes
       // `actualDuration`. Like GR-3 and GR-4 this narrows to the one Task
       // grabbed (SL-7a, MUST) -- stretching several actuals at once has no
       // meaning either.
+      // ⭐ GR-15 RIDES WITH GR-5 rather than taking an arm of its own: its row
+      // moves the same column, and `actualEndPlacement` says why the two are
+      // one answer. ⛔ It used to fall to the `default:` below, whose census
+      // called it a row with no target to grab -- which was never true, since
+      // `item-hit-area.ts` claims the milestone's actual figure and the
+      // geometry builds it. Only the write was missing.
       const task = taskByUid(context.document.schedule, uid)
       const dropped = dayAtX(context.layout, release.x)
       if (task === null || dropped === null) return CONSUMED_ELSEWHERE
@@ -3508,12 +3515,6 @@ function commandFromGrab(
       //                half of GR-14 as undrawn, and a dependency (GR-13) or a
       //                highlight box (GR-14) is SELECTED by a press rather than
       //                changed by one.
-      //   GR-15        moving a milestone's `actualStart`, which HAS a
-      //                target -- `item-hit-area.ts` claims the actual figure --
-      //                and simply is not written. ⚠️ It used to be listed with
-      //                the row above as having no target, and that was never
-      //                true of it. Its double click is answered before the
-      //                switch; only the drag is missing.
       //   GR-10        cannot arrive by a plain press at all: table T-023d's
       //                closing rule (MUST NOT) takes it out of that reading, so
       //                `item-hit-area.ts` never answers it here. Its double
@@ -3620,16 +3621,22 @@ type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState
 function actualEndPlacement(
   schedule: Schedule,
   task: Task,
-  grab: 'GR-5' | 'GR-6',
+  grab: 'GR-5' | 'GR-6' | 'GR-15',
   dropped: CalendarDay,
 ): PlacedPlanActual | null {
   const held = dayOf(task.actualStart)
   if (held === null) return null
-  const actualStart = grab === 'GR-5' ? textOfDay(dropped) : textOfDay(held)
+  // ⭐ GR-15 IS GR-5, AND ITS OWN ROW SAYS SO. Table T-023d gives GR-15
+  // 「`actualStart` を動かす」 and adds that a milestone holds no actual BAR, so
+  // GR-5 / GR-6 / GR-17 cannot reach it -- the figure is the whole of what
+  // there is to grab. ⛔ So the column it moves is the one GR-5 moves, and the
+  // duration is carried rather than measured: a milestone's is FR-043's S-130
+  // and no row of table T-023d asks this drag to change it.
+  const actualStart = grab === 'GR-6' ? textOfDay(held) : textOfDay(dropped)
   const actualDuration =
-    grab === 'GR-5'
-      ? task.actualDuration
-      : workingDaysBetween(workingCalendarOf(schedule), held, dropped)
+    grab === 'GR-6'
+      ? workingDaysBetween(workingCalendarOf(schedule), held, dropped)
+      : task.actualDuration
   if (actualDuration === null) return null
 
   switch (planActualState(task)) {
