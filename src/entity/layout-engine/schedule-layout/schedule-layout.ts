@@ -650,10 +650,22 @@ export function layoutFromSchedule(
   const originX = regions.rowArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
 
   // ---- LC-1, then LC-2's group half ---------------------------------------
-  // ⚠️ The cap only ever takes depth AWAY: `groupDepthLimit` is already capped
-  // at `maxGroupDepth` (S-125), so leaving the argument out is the same as
-  // asking for that depth.
-  const depthLimit = Math.min(groupDepthLimit(settings), groupDepthCap ?? settings.maxGroupDepth)
+  // ⛔ THE CAP REPLACES THE ZOOM-DERIVED LIMIT; it does not bound it. Pass 1
+  // of the two-run table printed after table T-068 has to run LC-1 to LC-9
+  // through EVERY depth the document has at ONE zoom, and FR-055's vertical
+  // paragraph settles the axis by CHOOSING a depth rather than by shrinking
+  // the zoom. A cap that could only take depth away cannot reach a depth
+  // whose FR-018 rung (S-87 / S-88) stands above that one zoom: pass 1 then
+  // measured the same rows for every deeper candidate, and pass 2 -- the arm
+  // that exists for exactly those depths -- was unreachable.
+  // ⚠️ FR-018 is untouched. Its zoom-to-depth direction still holds for every
+  // caller that leaves the argument out, and for the state the fit lands in:
+  // `landingZoomY` puts zoomY on the chosen depth's own rung, and
+  // `groupDepthLimit` reads that zoom back as that same depth.
+  // ⭐ S-125 stays on whichever arm answered. FR-018 lets the level-of-detail
+  // judgement cap the depth there (MAY), and it is what stops a caller asking
+  // for a depth no zoom could draw.
+  const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
   const rows = drawnGroups(schedule, settings).filter((g) => g.depth <= depthLimit)
 
   // Three indexes, built once, before the row loop opens. Scanning
