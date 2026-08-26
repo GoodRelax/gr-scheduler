@@ -1118,6 +1118,57 @@ export function svgFromSchedule(
     )
   }
 
+  // FR-089 -- the date grid lines. ⛔ THIS WAS DRAWN NOWHERE AT ALL until
+  // 2026-08-27: IC-42 toggled `dateGridLinesVisible`, S-67 held the value and
+  // table T-202 carried the row, and no path in this file put a line down. A
+  // spec-only test caught it (D-53).
+  //
+  // ⭐ THE INTERVAL IS NOT WORKED OUT HERE. FR-089 (MUST) says 「間隔は 表 T-221
+  // の `LF-1` が段階ごとに持つ 1 つの値とすること」 and `tickStrideOf` is that
+  // value, already read above for the ruler -- so the lines stand exactly where
+  // the finest row of the band ticks, which is the whole of what FR-089 asks.
+  // ⛔ A second arithmetic here would part company with the band the moment a
+  // tier boundary moved (R2.7).
+  //
+  // ⚠️ THE FINEST ROW, NOT THE DAY ROW. `ROWS_OF_TIER` ends every tier with its
+  // own finest row -- the year tier has only a year row -- and FR-089's own
+  // example walks the same ladder (「「年 ＋ 月」を出しているなら月の変わり目に」).
+  //
+  // ⛔ COLOUR: S-149, the rule colour of table T-236 (「区切りの線」), which the
+  // ruler's own rules already take. No row of that table names the date grid
+  // line, and this is display only with no trace in the saved form.
+  // @provisional PD-315
+  if (settings.dateGridLinesVisible) {
+    const gridFrom = dateAtX(layout, area.x)
+    if (gridFrom !== null) {
+      const finest = ROWS_OF_TIER[layout.tier][ROWS_OF_TIER[layout.tier].length - 1]
+      const gridCap = Math.ceil(area.width / Math.max(0.001, layout.pxPerDay)) + 1
+      // The same value the band takes, asked of the same member (LF-1).
+      const stride = tickStrideOf(layout, settings)
+      const weekStart = schedule.project.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108']
+      for (const day of ticksOfRow(
+        finest ?? 'year',
+        layout,
+        stride,
+        weekStart,
+        gridFrom,
+        area.x + area.width,
+        gridCap,
+      )) {
+        const x = xFromDay(layout, day)
+        // ⚠️ Held to the area, unlike the band's labels: a rule drawn left of
+        // the Row Area would cross the row title panel, which SC-1 of table
+        // T-031 gives its own scroll.
+        if (x < area.x) continue
+        bandParts.push(
+          `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
+            ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
+            ` stroke="${themed('S-149')}" stroke-width="1"/>`,
+        )
+      }
+    }
+  }
+
   for (const task of geometry.tasks) {
     const visual = visualOf.get(task.taskUid)
     const plan = paintOf(
