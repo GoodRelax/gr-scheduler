@@ -449,12 +449,16 @@ export interface ScreenWiring {
  * standard keywords of the viewing environment, chosen against their own
  * published meanings, and no fifth is minted.
  *
- * ⚠️ TWO OF THE FOUR ARE A JUDGEMENT AND NOT A READING, because the environment
+ * ⚠️ TWO OF THE FIVE ARE A JUDGEMENT AND NOT A READING, because the environment
  * has no keyword that means 「作図」. `crosshair` is published as the shape for
  * selecting a region, so it takes IN-2's 範囲選択; `copy` is published as "a new
  * thing will be made here", which is the nearest published meaning to arming a
  * figure and placing it. ⛔ A ruling that disagrees moves these two names and
  * nothing else.
+ * ⭐ `grab` IS A READING RATHER THAN A JUDGEMENT: the environment publishes it
+ * as "the thing under the pointer can be moved", which is 「掴めることの合図」
+ * word for word. ⚠️ It is the RESTING shape and not `grabbing`, which IN-2
+ * already spends on PD-1's pan; the two are the environment's own pair.
  */
 export type PointerShape =
   /** 何にも当たらない場所 -- PD-5 of table T-023a. */
@@ -465,6 +469,8 @@ export type PointerShape =
   | 'grabbing'
   /** 予定バーと実績バーの端点の上 -- GR-3 .. GR-6 of table T-023d. */
   | 'ew-resize'
+  /** タスクの本体とマイルストーンの図形の上 -- GR-12 / GR-15 of table T-023d. */
+  | 'grab'
 
 /**
  * Where IN-2's shape is put, or nothing when the caller drew no schedule to
@@ -500,24 +506,66 @@ type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>>
  */
 type GrabbedArea = Grabbed['grab']
 
-const BAR_ENDPOINT_GRABS: ReadonlySet<GrabbedArea> = new Set<GrabbedArea>([
-  'GR-3',
-  'GR-4',
-  'GR-5',
-  'GR-6',
-])
+/**
+ * Which shape IN-2 of table T-028 gives each row of table T-023d, or `null`
+ * for a row it names no shape for.
+ *
+ * ⭐ A CENSUS THE COMPILER KEEPS, for the reason `PREVIEWED_GRABS` gives below:
+ * `Record<GrabbedArea, ...>` makes a row added to table T-023d a compile error
+ * that names itself, where the `ReadonlySet` this replaced let a new row
+ * default silently into 「no shape」.
+ * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row names four
+ * places and no more; the fade handles, the progress marker, the resume icon,
+ * the dummies, the labels, a dependency line, the boxes, the status line and
+ * the palette band are all pressable and IN-2 gives none of them a shape. ⚠️ A
+ * shape invented for one of them would be this build writing a requirement.
+ */
+const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> = {
+  // IN-2:「予定バーと実績バーの端点の上は横方向の伸縮の合図」.
+  'GR-3': 'ew-resize',
+  'GR-4': 'ew-resize',
+  'GR-5': 'ew-resize',
+  'GR-6': 'ew-resize',
+  // IN-2:「タスクの本体とマイルストーンの図形の上は掴めることの合図」(利用者の
+  // 裁定 2026-08-27). ⚠️ GR-12 IS ALSO A MILESTONE'S PLAN FIGURE, because a
+  // milestone has no plan ENDS for GR-3 / GR-4 to claim; GR-15 is its ACTUAL.
+  'GR-12': 'grab',
+  'GR-15': 'grab',
+  'GR-1': null,
+  'GR-2': null,
+  'GR-7': null,
+  'GR-8': null,
+  'GR-9': null,
+  'GR-10': null,
+  'GR-13': null,
+  'GR-14': null,
+  'GR-16': null,
+  'GR-17': null,
+  'GR-18': null,
+}
 
 /**
  * Which rows of table T-023d draw, while held, the thing they would write on
  * the release.
  *
- * ⭐ WHAT THE TABLE ITSELF ASKS FOR, ROW BY ROW. Two of its closing rules are
+ * ⭐ WHAT THE TABLE ITSELF ASKS FOR, ROW BY ROW. THREE of its closing rules are
  * MUSTs about the picture during the drag: one gives it to `GR-9` / `GR-17` /
- * `GR-18` and one to `GR-1` / `GR-2` -- and both add that 確定 still follows
- * IN-1 of table T-028, so a `true` here settles nothing and only draws.
- * ⛔ THE OTHER ROWS ARE FALSE BECAUSE NO ROW ASKS YET, not because they could
- * not: the rest of the table has no such closing rule, and turning one on would
- * be this file inventing a requirement (rule 03 section 1).
+ * `GR-18`, one to `GR-1` / `GR-2`, and one -- added 2026-08-27 on the user's
+ * ruling -- to `GR-3` / `GR-4` / `GR-5` / `GR-6` / `GR-8` / `GR-12` / `GR-14` /
+ * `GR-15` / `GR-16`. All three add that 確定 still follows IN-1 of table T-028,
+ * so a `true` here settles nothing and only draws.
+ *
+ * ⛔ TWO ROWS THE THIRD RULE NAMES ARE STILL FALSE, AND NOT BECAUSE THE RULE
+ * EXEMPTS THEM: `GR-8` and `GR-14` have no release write at all -- their entry
+ * in `commandFromGrab`'s closing census says what each is missing -- and
+ * `previewOfHeldPress` draws by folding the write this gesture WOULD make, so a
+ * `true` on a row with nothing to fold would cost a walk and paint the same
+ * picture. ⚠️ They turn true in the same change that gives them their write,
+ * and this note is what says so.
+ * ⛔ THE REST ARE FALSE BECAUSE NO CLOSING RULE ASKS: `GR-7` is a press that
+ * cycles rather than a drag, `GR-10` cannot arrive by a plain press at all, and
+ * `GR-13` selects. Turning one on would be this file inventing a requirement
+ * (rule 03 section 1).
  *
  * ⭐ A CENSUS THE COMPILER KEEPS, the bargain `PRESS_CHANGES_DOCUMENT` strikes:
  * `Record<GrabbedArea, boolean>` makes a row added to table T-023d a compile
@@ -528,19 +576,19 @@ const BAR_ENDPOINT_GRABS: ReadonlySet<GrabbedArea> = new Set<GrabbedArea>([
 const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-1': true,
   'GR-2': true,
-  'GR-3': false,
-  'GR-4': false,
-  'GR-5': false,
-  'GR-6': false,
+  'GR-3': true,
+  'GR-4': true,
+  'GR-5': true,
+  'GR-6': true,
   'GR-7': false,
   'GR-8': false,
   'GR-9': true,
   'GR-10': false,
-  'GR-12': false,
+  'GR-12': true,
   'GR-13': false,
   'GR-14': false,
-  'GR-15': false,
-  'GR-16': false,
+  'GR-15': true,
+  'GR-16': true,
   'GR-17': true,
   'GR-18': true,
 }
@@ -3441,10 +3489,10 @@ export function frameLoop(
     // STOP -- ⛔ PD-2 TURNS HIT TESTING OFF, and IN-2 names no shape for the
     // `Dual Cursor` mode, so nothing is invented for it.
     if (dualCursorFollowing !== null) return null
-    // PD-3. ⛔ STOP for every other row of table T-023d: IN-2 names the two
-    // bars' ENDPOINTS and nothing else, and a shape for the bar's middle or for
-    // a fade handle would be one this build made up.
-    if (hit !== null) return BAR_ENDPOINT_GRABS.has(hit.grab) ? 'ew-resize' : null
+    // PD-3. ⭐ WHICH SHAPE IS THE TABLE'S ABOVE, not a test written here: IN-2
+    // now names the bar's middle and a milestone's figure as well as the two
+    // bars' ends, and the rows it still names nothing for answer `null` there.
+    if (hit !== null) return POINTER_SHAPE_BY_GRAB[hit.grab]
     const armed = screenState.armed
     // PD-5 -- nothing hit and nothing armed.
     if (armed.kind === 'none') return 'crosshair'
