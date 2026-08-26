@@ -365,17 +365,44 @@ export function rulerTierOf(pxPerDay: number, settings: DocumentSettings): Ruler
 }
 
 /**
- * LF-1 of table T-221: how many days one tick stands for once the day and
- * weekday rows would collide. FR-089 makes the grid lines thin by the same
- * number. Coarser rows are never thinned (FR-017 forbids it), so this answers
- * one for them.
+ * The seven days LF-1 gives the week tier. ⛔ NOT A SETTING AND NOT A ROW: a
+ * week is seven days by definition, and `S-108` (`Project.weekStartDay`) holds
+ * WHICH day it starts on, never how many it has.
+ */
+const DAYS_PER_WEEK = 7
+
+/**
+ * LF-1 of table T-221: how many days one tick of the CURRENT tier stands for.
+ * FR-089 stands its grid lines at the same interval.
+ *
+ * ⛔ THE INTERVAL IS THE TIER'S OWN AND IS NOT COMPUTED FROM ANY WIDTH. LF-1
+ * fixes one per tier -- a year, a month, seven days, a day -- and FR-017 (MUST
+ * NOT) forbids thinning any of them. ⚠️ THIS FUNCTION USED TO DIVIDE the label's
+ * estimated width by `pxPerDay` and keep one tick every ceil of that, which is
+ * what LF-1 asked for until 2026-08-27; the user ruled that a stride of two or
+ * three days makes a reader count the unit afresh at every zoom. Measured
+ * before the change: a two-day stride held from zoomX 1.667 to 3.333.
+ *
+ * ⭐ WHERE A WHOLE DAY'S LABEL WILL NOT FIT, THE TIER ITSELF STEPS COARSER --
+ * FR-017 says so, and `rulerTierOf` above is where that happens, because the
+ * threshold IS that boundary. `S-85` is derived from the widest of the two
+ * languages plus `rulerLabelGap` for exactly this reason (table T-205's note).
+ * ⛔ So no width is consulted here and none should be: a second width test
+ * would re-open the thinning the ruling closed.
+ *
+ * ⚠️ THE DAY COUNT OF THE COARSE TIERS IS NOT CONSTANT, which is why they are
+ * not answered with a number of days. A month is 28 to 31 days and a year 365
+ * or 366; the caller walks the calendar for those and asks this only for the
+ * two tiers whose interval IS a fixed number of days.
  *
  * @purity pure
  */
-export function tickStrideOf(layout: ScheduleLayout, settings: DocumentSettings): number {
-  if (layout.tier !== 'yearMonthDayWeekday') return 1
-  const needed = labelWidth('00', settings.rulerFont, settings) + settings.rulerLabelGap
-  return Math.max(1, Math.ceil(needed / Math.max(0.001, layout.pxPerDay)))
+export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings): number {
+  // LF-1: the week tier ticks every seven days, the day tier every day. The
+  // year and month tiers do not measure in days at all -- their interval is a
+  // calendar step -- and one is the answer that leaves the caller's own walk
+  // over the calendar undisturbed.
+  return layout.tier === 'yearMonthWeek' ? DAYS_PER_WEEK : 1
 }
 
 /**
