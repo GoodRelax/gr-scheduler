@@ -1197,7 +1197,7 @@
   {
    "rowId": "RS-23",
    "text": {
-    "ja": "変更の知らせを配れなかった相手があります",
+    "ja": "変更の通知を配れなかった相手があります",
     "en": "A change notice could not be delivered to one of the watchers"
    },
    "nextStep": {
