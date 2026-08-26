@@ -1122,6 +1122,7 @@ const PROPERTIES: PropertiesPanel = {
   heading: 'PropertiesHeading',
   isSubjectGone: false,
   fields: [{ row: 'PR-3', name: 'start', text: '2026-08-20', isEditable: true, controls: [] }],
+  commands: [],
 }
 
 const DIALOGUE: DialogueField = {

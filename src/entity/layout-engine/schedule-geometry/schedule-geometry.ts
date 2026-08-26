@@ -168,7 +168,12 @@ export interface TaskGeometry {
    * are built.
    */
   readonly fadeHandles: readonly Point[]
-  /** GR-10's target: where LC-6 put the name. Null when the Task has no name. */
+  /**
+   * GR-10's target: where LC-6 put the name across, and where table T-012's
+   * 「名称ラベルの縦位置」 column put it down the band. ⭐ It is the LABEL's
+   * own box -- one line of type high -- and not the band the shape stands in.
+   * Null when the Task has no name.
+   */
   readonly label: ScreenRect | null
 }
 
@@ -915,7 +920,59 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 }
 
 /**
- * GR-10's box. LC-6 already chose inside or right.
+ * The top of the label's own box: table T-012's 「名称ラベルの縦位置」 column
+ * (MUST), which is a column of that table and not a rule of table T-013.
+ *
+ * ⭐ THE TWO ANSWERS ARE KEYED ON `shapeKind` AND NOT ON `actualPlacement`.
+ * The two columns agree on which shapes they name, and the closing paragraph
+ * of table T-012 says in as many words that they are 「別の話である」: the
+ * actual's column says where the actual BAR goes, this one where the LABEL
+ * goes. Reading one off the other would make a later change to either quietly
+ * move the other.
+ *
+ * ⭐ WHY SH-3 / SH-4 LIFT IT. A line has no inside, so a label centred on the
+ * band lands on the plan line and on the actual line both. Lifting it leaves
+ * the plan line between the label and the actual, and the three do not meet.
+ *
+ * ⭐ `placed.height` IS 「予定と実績を合わせた高さ」, ALREADY RESOLVED, and is
+ * what the centred arm takes the middle of. `reservedHeight` answered it from
+ * the very column of table T-012 that says where the actual goes: the plan
+ * alone where the actual is laid inside it or shifted sideways, the plan plus
+ * `actualGap` plus the actual where it is pushed below. ⛔ Summing those three
+ * here instead would be a second spelling of that sum, and the two would part
+ * company the first time `actualOfPlan` or `actualGap` moved.
+ *
+ * ⛔ S-196 IS READ FROM THE GENERATED BLOCK, never typed in. ⭐ AND IT IS
+ * MEASURED FROM THE LINE, NOT FROM THE BAND: the row says it is the gap
+ * between 「予定の線の上端」 and the label's BOTTOM edge, and for these two
+ * shapes the plan is a LINE that LF-7 lays down the middle of the band it
+ * reserved -- so the band's own top is a good half plan height above the line
+ * and is not what the row names. The label's height comes off the font, which
+ * is why the row holds the gap alone.
+ *
+ * ⚠️ THE HEAD AND THE END DOTS REACH HIGHER THAN THE LINE'S TOP EDGE. SH-3's
+ * head is `arrowHeadOfStroke` times the stroke tall and SH-4's dots have
+ * `spanDotOfStroke` for a radius, so a label long enough to run over either
+ * end can come nearer to it than S-196. ⛔ No row measures the gap from those,
+ * and inventing a second measurement here would be a value the specification
+ * does not hold. Reported.
+ *
+ * @purity pure
+ */
+function labelTopOf(settings: DocumentSettings, placed: TaskPlacement, height: number): number {
+  const liftedByShape = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
+  if (!liftedByShape) return placed.y + (placed.height - height) / 2
+  // LF-7 and LF-8: the line runs down the middle of the plan's band at the
+  // weight `thinStroke` answers, so its top edge is half that weight above the
+  // middle -- the same two values `barOf` draws it from.
+  const lineTop =
+    placed.y + placed.planHeight / 2 - thinStroke(placed.planHeight, settings) / 2
+  return lineTop - NOT_STORED_LABEL_SIZES['S-196'] - height
+}
+
+/**
+ * GR-10's box. LC-6 already chose inside or right; table T-012 decides the
+ * vertical, through `labelTopOf`.
  *
  * ⚠️ The type size is READ, never re-derived. FR-094 applies the text floor
  * (S-8) separately from the height floor and has `thinFontScale` (S-9)
@@ -923,22 +980,33 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
  * not the answer -- and LC-5 measured the label with the value LC-6 stored,
  * so a second formula here would size the box against glyphs of another size.
  *
+ * ⛔ THE HORIZONTAL OF BOTH ARMS IS UNTOUCHED BY TABLE T-012's column, which
+ * says so itself (MUST NOT): `NL-1` and `NL-3` decide inside or right, and
+ * that decision stands for SH-3 / SH-4 as well -- 「形状の中に書く」 there
+ * means the label fits the width, since a line has no inside to write in.
+ *
+ * ⭐ THE BOX IS THE LABEL'S OWN, ON BOTH ARMS. It was the plan bar's whole
+ * band on the inside arm, which is what put ZO-5's glyphs a fraction of a BAR
+ * below its top rather than at the centre table T-012 asks for -- and the same
+ * band is what GR-10 was double-clicking.
+ *
  * @purity pure
  */
 function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect | null {
   if (placed.label === '') return null
   const settings = inputs.settings
   const height = placed.labelFontSize
+  const y = labelTopOf(settings, placed, height)
   return placed.labelPlacement === 'inside'
     ? {
         x: placed.x + settings.labelPad,
-        y: placed.y,
+        y,
         width: Math.max(0, placed.width - settings.labelPad * 2),
-        height: placed.planHeight,
+        height,
       }
     : {
         x: placed.x + placed.width + settings.labelGap,
-        y: placed.y + (placed.planHeight - height) / 2,
+        y,
         width: Math.max(0, placed.occupiedX1 - (placed.x + placed.width) - settings.labelGap),
         height,
       }

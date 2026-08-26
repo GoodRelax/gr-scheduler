@@ -553,15 +553,22 @@ function entryGlyphRoom(): string {
 }
 
 /**
- * The eight lengths FR-006's property fields are drawn at, each named once so
- * that the declarations below read as what they are rather than as row ids.
+ * The eight lengths and two ratios FR-006's property fields are drawn at, each
+ * named once so that the declarations below read as what they are rather than
+ * as row ids.
  *
  * ⛔ NO NUMBER IS WRITTEN HERE. Every one is a row of table T-206 reaching this
  * file through `NOT_STORED_PROPERTY_FIELD_SIZES`, which `npm run gen` builds
  * from `_source/settings.json` -- rule 03 section 1 forbids re-typing a value
- * the specification holds, and the manuscript is where all eight would move.
- * ⚠️ All eight are marked 🔎 in that table: they are the reference
+ * the specification holds, and the manuscript is where all ten would move.
+ * ⚠️ All ten are marked 🔎 in that table: they are the reference
  * implementation's measured values, and nothing has ruled on them.
+ *
+ * ⛔ THE LAST TWO ARE RATIOS AND NOT LENGTHS, which is why they leave this
+ * function as bare numbers and are written into a declaration with `em` after
+ * them. FR-006 (MUST NOT) forbids the panel's text size to be held as a px
+ * constant, because a reader who makes the browser's text bigger would then have
+ * this one panel left behind (WCAG 2.1's 1.4.4, which NFR-007 carries).
  *
  * ⛔ A FUNCTION AND NOT A `const`, for the reason `entryGlyphRoom` gives: the
  * values arrive in the generated block at the foot of this file, which a `const`
@@ -580,6 +587,8 @@ function fieldSizes(): {
   readonly panelPadY: number
   readonly panelPadX: number
   readonly multilineRows: number
+  readonly textScale: number
+  readonly nameTextScale: number
 } {
   const [swatchSide, swatchGap] = NOT_STORED_PROPERTY_FIELD_SIZES['S-188']
   const [panelPadY, panelPadX] = NOT_STORED_PROPERTY_FIELD_SIZES['S-192']
@@ -602,21 +611,74 @@ function fieldSizes(): {
     panelPadX,
     /** S-193: how many lines a multi-line control shows. */
     multilineRows: NOT_STORED_PROPERTY_FIELD_SIZES['S-193'],
+    /** S-197: what the host's own base text size is multiplied by. */
+    textScale: NOT_STORED_PROPERTY_FIELD_SIZES['S-197'],
+    /** S-198: what an item name is multiplied by ON TOP of S-197. */
+    nameTextScale: NOT_STORED_PROPERTY_FIELD_SIZES['S-198'],
   }
 }
 
 /**
- * U-25's own box, padded by S-192 of table T-206.
+ * U-25's own box, padded by S-192 of table T-206 and lettered by S-197.
+ *
+ * ⭐ THIS IS THE ONE DECLARATION THAT CARRIES THE PANEL'S TEXT SIZE, and it is
+ * on the panel's own box because `font-size` is an inherited property: every
+ * descendant that states none of its own computes from this one. FR-006 (MUST)
+ * has the size be S-197 times 「宿主が与える地の文字の大きさ」, and `em` on this
+ * box is exactly that -- it resolves against the box's parent, which states no
+ * size of its own, so what it multiplies IS the host's base.
+ * ⛔ NOT `fontScaleSizes[fontScale]` OF TABLE T-215, which FR-006 rules out in
+ * as many words: `fontScale` sizes the SCHEDULE's letters (S-3's `rulerFont` and
+ * the labels of table T-201), and this panel is the frame around the schedule
+ * rather than part of it. Multiplied by that roster the largest step would come
+ * out at 11.2px and the smallest at 8.4px.
+ * ⛔ AND NOT A PX CONSTANT (MUST NOT), which is why the ratio is written with
+ * `em` after it rather than solved here: a reader who makes the browser's text
+ * bigger has to take this panel with them (WCAG 2.1's 1.4.4, carried by
+ * NFR-007). Nothing on this side may know what the host's base actually is.
+ *
+ * ⚠️ THREE KINDS OF DESCENDANT REACH IT, AND NONE OF THEM BY ACCIDENT:
+ *   - the plain value span of a field, which states no font at all and so
+ *     inherits;
+ *   - every control, because `propertyControlStyle`, `propertyColorStyle` and
+ *     `propertyCheckStyle` each open with `font:inherit` -- a form control does
+ *     NOT inherit by default, the host gives it a font of its own, and that
+ *     declaration is what takes this one instead;
+ *   - the heading, whose own declaration puts `font-size:inherit` back over the
+ *     `1.5em` the host gives an `h2` -- ⛔ without it the heading would compute
+ *     to 1.05 times the host's base, which is bigger than the very default this
+ *     requirement (MUST NOT) forbids the panel to be drawn at.
  *
  * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for both of the reasons
- * `entryStyle` gives: the value arrives in the generated block, and `STYLE`
+ * `entryStyle` gives: the values arrive in the generated block, and `STYLE`
  * states that every length in it is relative, which S-192 is not.
  *
  * @purity pure
  */
 function propertiesPanelStyle(): string {
   const size = fieldSizes()
-  return `${STYLE.propertiesPanel}padding:${size.panelPadY}px ${size.panelPadX}px;`
+  return (
+    `${STYLE.propertiesPanel}padding:${size.panelPadY}px ${size.panelPadX}px;` +
+    `font-size:${size.textScale}em;`
+  )
+}
+
+/**
+ * The panel's heading, which is the one part of it the host would otherwise
+ * letter for itself.
+ *
+ * ⭐ `font-size:inherit` AND NOTHING ELSE ADDED. `STYLE.heading` is shared with
+ * the surfaces table T-103 names, whose headings are not FR-006's to shrink, so
+ * the panel states the difference here rather than in the shared declaration.
+ * The ground is under `propertiesPanelStyle`: an `h2` carries the host's own
+ * `1.5em`, and 1.5 times S-197 is above 1, which would draw this panel's
+ * loudest line bigger than the host's default -- the state FR-006 (MUST NOT)
+ * names outright.
+ *
+ * @purity pure
+ */
+function propertiesHeadingStyle(): string {
+  return `${STYLE.heading}font-size:inherit;`
 }
 
 /**
@@ -646,10 +708,28 @@ function propertyFieldStyle(): string {
  * person drag this panel wider (S-80), so a name column held in px would leave
  * every pixel gained to the controls.
  *
+ * ⭐ RIGHT-ALIGNED, WHICH FR-006 (MUST) ASKS FOR IN AS MANY WORDS 「項目名は値の
+ * 欄の左に置き、右詰めにすること」 (利用者の裁定 2026-08-27). Where the name STANDS
+ * needs nothing here -- `fieldElement` appends it before the controls -- so what
+ * was missing was only the alignment, and the requirement's ground is that a
+ * border between name and value which is not straight makes the eye hunt for it
+ * once per field.
+ *
+ * ⭐ S-198 IS MULTIPLIED ON TOP OF S-197, NOT INSTEAD OF IT, which that row
+ * states: 「掛ける相手は `S-197` を適用したあとの大きさであって、`fontScaleSizes`
+ * ではない」. `em` here resolves against the panel's own computed size, which
+ * `propertiesPanelStyle` has already set to S-197 of the host's base -- so the
+ * two ratios compound exactly as the two rows describe, and neither is solved
+ * into a px number this side has no right to know.
+ *
  * @purity pure
  */
 function propertyFieldNameStyle(): string {
-  return `color:${PAINT.quiet};flex:0 0 ${fieldSizes().namePercent}%;`
+  const size = fieldSizes()
+  return (
+    `color:${PAINT.quiet};flex:0 0 ${size.namePercent}%;` +
+    `text-align:right;font-size:${size.nameTextScale}em;`
+  )
 }
 
 /** What the controls of one field stand in -- a row of table T-016 can hold three. @purity pure */
@@ -1042,7 +1122,14 @@ const STYLE = {
   // be emphasised.
   armedText: `color:${PAINT.ink};`,
   modal: STOPPING_BOX,
-  modalHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
+  // A heading with the entries table T-109 places on that surface beside it.
+  // ⚠️ NOT `modalHeader` ANY MORE, AND THE RENAME IS THE POINT: the same row is
+  // drawn by `modalElement` and by `fillPropertiesPanel`, and U-25 is a panel
+  // rather than a modal. ⛔ ONE declaration and not two, because FR-006 gives
+  // this panel lengths for its FIELDS (S-186 .. S-193) and none at all for its
+  // header -- so there is nothing of FR-006's here to be kept apart, which is
+  // the very thing `field` below IS kept apart for.
+  surfaceHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
   // The choices FR-096 (MUST) has the author pick one of, held together and
   // apart from the heading above them. ⛔ Nothing here says which order they
   // stand in: they are drawn in the order the description carries, which is
@@ -2196,11 +2283,46 @@ function fieldElement(host: Document, field: PropertyField): HTMLElement {
 }
 
 /**
+ * Which of FR-072's two the panel is on, written whether or not its contents are
+ * being redrawn this frame.
+ *
+ * ⭐ APART FROM `fillPropertiesPanel` FOR EXACTLY THAT REASON. No control holds
+ * either of these two facts, so a frame that leaves the drawn fields alone
+ * (because a person has hold of one) still has to say them, and a check reads
+ * them back off the panel.
+ *
+ * @purity non-pure
+ */
+function markPropertiesPanel(panel: HTMLElement, description: PropertiesPanel): void {
+  panel.setAttribute('data-showing', description.showing)
+  panel.setAttribute('data-subject-gone', String(description.isSubjectGone))
+}
+
+/**
  * U-25 `Properties Panel` (UF-64), contents and all.
  *
  * ⚠️ FR-072 (MUST): when the subject went away the panel KEEPS its fields and
  * says so in the heading. The heading is the description's, so nothing is added
- * to it here; `data-subject-gone` is what makes that state readable back.
+ * to it here; `data-subject-gone` is what `markPropertiesPanel` writes to make
+ * that state readable back.
+ *
+ * ⭐ THE WAY OUT IS DRAWN BESIDE THE HEADING, THE SAME SHAPE `modalElement`
+ * TAKES. Table T-109 stands one entry on this surface -- closing an open surface,
+ * on the authority of IN-4 of table T-028 -- and FR-029 (MUST) makes that table's
+ * 面 column the whole of the placement. ⛔ It arrives in `PropertiesPanel.commands`
+ * already chosen: which row it is, whether it may be pressed and what it is
+ * called are UF-64's answers, and this side draws them through `commandEntry`
+ * like every other entry on the screen.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: WHERE ON THE PANEL IT SITS. No
+ * table holds a rectangle for an entry -- `ScreenSession.iconUnderPointer`
+ * records that gap (PD-141) -- so "at the top right" is not a claim any row can
+ * be quoted for. Searched: FR-006, FR-029, FR-072, table T-109, table T-103 and
+ * the S-186 .. S-198 run of table T-206, which gives the panel's fields their
+ * lengths and gives its header none. ⭐ What is done instead is to follow the
+ * neighbour that already has this entry: `modalElement` puts it in a row with
+ * the heading, so a reader who has closed one surface knows where to look on the
+ * next. ⚠️ Nothing is invented beyond that -- no offset and no corner.
  *
  * @provisional PD-271
  * @purity non-pure
@@ -2209,29 +2331,19 @@ function fillPropertiesPanel(
   host: Document,
   panel: HTMLElement,
   description: PropertiesPanel,
-  isFieldHeld: boolean,
+  anchors: Map<string, HTMLElement>,
 ): void {
-  panel.setAttribute('data-showing', description.showing)
-  panel.setAttribute('data-subject-gone', String(description.isSubjectGone))
-
-  // ⛔ A REDRAW MAY NOT TAKE WHAT IS BEING TYPED. Table T-078 runs a frame on
-  // every happening, and `replaceChildren` throws away the very control the
-  // person has hold of -- so half a name would be swept away between two
-  // letters, and the caret with it. While a control of this panel is held the
-  // fields it drew are left exactly as they stand; the frame after the person
-  // leaves the control draws them again from the description.
-  // ⚠️ The two attributes above are still written: they say which of FR-072's
-  // two the panel is on, which no control holds and which a check reads back.
-  // ⛔ THE ANSWER IS THE CALLER'S AND IS NOT READ OFF THE HOST.
-  // `ScreenSurfaceWiring` says only `createElement` is called on the host, and
-  // asking it for `activeElement` would break that promise for a fact the panel
-  // can watch for itself -- `focusin` and `focusout` bubble to it.
-  if (isFieldHeld) return
-
-  const heading = made(host, 'h2', STYLE.heading)
+  const header = made(host, 'div', STYLE.surfaceHeader)
+  const heading = made(host, 'h2', propertiesHeadingStyle())
   heading.textContent = description.heading
+  header.append(heading)
+  for (const item of description.commands) {
+    const entry = commandEntry(host, item)
+    anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
+    header.append(entry)
+  }
   const fields = description.fields.map((field) => fieldElement(host, field))
-  panel.replaceChildren(heading, ...fields)
+  panel.replaceChildren(header, ...fields)
 }
 
 /**
@@ -2466,7 +2578,7 @@ function modalElement(
   drawn.setAttribute('role', 'dialog')
   drawn.setAttribute('aria-modal', 'true')
 
-  const header = made(host, 'div', STYLE.modalHeader)
+  const header = made(host, 'div', STYLE.surfaceHeader)
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = modal.heading
   header.append(heading)
@@ -3269,7 +3381,31 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       else openEveryRow.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
     }
     if (changed('propertiesPanel') && view.propertiesPanel !== null) {
-      fillPropertiesPanel(host, propertiesPanel, view.propertiesPanel, isFieldHeld)
+      markPropertiesPanel(propertiesPanel, view.propertiesPanel)
+      // ⛔ A REDRAW MAY NOT TAKE WHAT IS BEING TYPED. Table T-078 runs a frame on
+      // every happening, and `replaceChildren` throws away the very control the
+      // person has hold of -- so half a name would be swept away between two
+      // letters, and the caret with it. While a control of this panel is held the
+      // fields it drew are left exactly as they stand; the frame after the person
+      // leaves the control draws them again from the description.
+      // ⚠️ The two attributes above are still written: they say which of FR-072's
+      // two the panel is on, which no control holds and which a check reads back.
+      // ⛔ THE ANSWER IS NOT READ OFF THE HOST. `ScreenSurfaceWiring` says only
+      // `createElement` is called on it, and asking for `activeElement` would
+      // break that promise for a fact the panel watches for itself -- `focusin`
+      // and `focusout` bubble to it.
+      // ⛔ `anchorsOf` IS ASKED FOR ONLY ON THE FRAMES THAT REALLY REDRAW, and
+      // that is why the test stands out here rather than inside: it EMPTIES the
+      // map, and a frame that leaves the drawn header alone would then have
+      // thrown away the anchor of an entry still on the screen.
+      if (!isFieldHeld) {
+        fillPropertiesPanel(
+          host,
+          propertiesPanel,
+          view.propertiesPanel,
+          anchorsOf('propertiesPanel'),
+        )
+      }
     }
     if (changed('commandPalette')) {
       const palette = view.commandPalette

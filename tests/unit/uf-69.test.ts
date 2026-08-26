@@ -384,6 +384,10 @@ describe('UF-69 — nothing to explain', () => {
           heading: 'Selection',
           isSubjectGone: false,
           fields: [{ row: 'PR-1', name: 'name', text: 'a task', isEditable: true, controls: [] }],
+          // ⚠️ EMPTY ON PURPOSE: this bench is about another subject, and the
+          // entrance table T-109 places on the panel (IC-52) is asserted in
+          // tests/unit/fr-006-panel-close-entrance.test.ts.
+          commands: [],
         },
         notices: [
           {

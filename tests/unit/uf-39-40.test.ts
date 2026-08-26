@@ -351,6 +351,10 @@ const viewOf = (
     heading: PROPERTIES_HEADING,
     isSubjectGone: false,
     fields: [{ row: 'PR-1', name: 'name', text: PROPERTY_FIELD_TEXT, isEditable: true, controls: [] }],
+    // ⚠️ EMPTY ON PURPOSE: this bench is about another subject, and the
+    // entrance table T-109 places on the panel (IC-52) is asserted in
+    // tests/unit/fr-006-panel-close-entrance.test.ts.
+    commands: [],
   },
   commandPalette: {
     // ⭐ A CORNER, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size

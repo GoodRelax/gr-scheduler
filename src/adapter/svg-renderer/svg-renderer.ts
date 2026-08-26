@@ -37,7 +37,7 @@ import {
   type CalendarDay,
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
-import type { Selection } from '../../entity/document-model/selection/selection'
+import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
 import type {
   BarGeometry,
   MarkerGeometry,
@@ -62,12 +62,9 @@ export type { SvgSurface } from './svg-surface'
  * other input describes what is drawn; this one says who it is drawn for.
  *
  * ⭐ WHY IT HAD TO BE ADDED. Table T-076 leaves several UI parts out of the
- * exported picture, and until now every one of them was expressible through a
- * value already arriving: EP-12 drops the selection frames and the fade grab
- * points because the export hands in an empty `Selection`, and the geometry
- * itself is built from that same empty selection. ⛔ EP-14 cannot be reached
- * that way. FR-043's dummies hang on the Task being unstarted -- a property of
- * the DOCUMENT -- so no value the export is free to choose can suppress them.
+ * exported picture, and EP-14 is the row that no other argument can reach:
+ * FR-043's dummies hang on the Task being unstarted -- a property of the
+ * DOCUMENT -- so no value the export is free to choose can suppress them.
  *
  * ⛔ AND THE OBVIOUS SHORTCUT IS A DEFECT, not a style choice: emptying
  * `TaskGeometry.dummies` for the export does not merely move the not-started
@@ -76,10 +73,19 @@ export type { SvgSurface } from './svg-surface'
  * breaks EP-5 (the Progress Marker IS drawn in the export) and is measured by
  * WY-3 of table T-041.
  *
- * ⚠️ IT IS DELIBERATELY NARROW. Resist widening it into a general "export
- * mode" that other rows of table T-076 are folded into: EP-12 is already
- * honoured by the empty `Selection`, and two mechanisms for one table would be
- * the duplication rule 03 section 1 forbids.
+ * ⭐ EP-12 IS THE SECOND ROW IT ANSWERS, and one line answers all of it --
+ * `drawsOperationState` in `svgFromSchedule`. ⚠️ It was left to the caller
+ * while `frame-loop.ts` was the only one, on the reading that an export hands
+ * in an empty `Selection` and says nothing about which side follows. That is
+ * true of that caller and is NOT a property of this unit: told it was the
+ * export and handed a selection anyway, the picture carried a dependency line
+ * at S-178 times its width and a thickened `Dual Cursor` line -- two marks
+ * EP-12 says 描かない. A row of table T-076 is a rule about the PICTURE, so
+ * the picture is where it is spent (D-52).
+ *
+ * ⚠️ STILL DELIBERATELY NARROW. Two rows of table T-076 reach this argument,
+ * each once and for a stated reason; it is not a general "export mode" that a
+ * third row may be folded into without one.
  *
  * @provisional PD-210
  */
@@ -93,10 +99,11 @@ export type SchedulePicture = 'screen' | 'export'
  * a current value, and LY-5 of table T-060 leaves those with the Framework;
  * DC-8 of table T-029a (MUST NOT) keeps the mark for it out of an export while
  * EP-6 still draws the two lines. So the PLACEMENT travels in the geometry,
- * where the document put it, and the MARK travels here -- and an export that
- * says nothing gets the two lines and no mark, which is DC-8 obeyed by
- * omission rather than by a second mechanism (`SchedulePicture` states why one
- * table may not have two).
+ * where the document put it, and the MARK travels here -- and an export gets
+ * the two lines and no mark whether or not it says anything, because
+ * `drawsOperationState` drops this argument on that picture. ⚠️ Saying nothing
+ * was the WHOLE of DC-8 until D-52: an export that named a following side was
+ * drawn with the mark.
  *
  * ⛔ `'date1' | 'date2'` IS WRITTEN OUT RATHER THAN IMPORTED. It is declared as
  * `DualCursorSide` in `screen-state.ts`, and `_source/components.json` gives
@@ -334,6 +341,13 @@ function selectionFrameSvg(box: ScreenRect, colour: string): string {
  * FOLLOWING. The rule being spent is the same one; only the question that
  * turns it on differs.
  *
+ * ⛔ NO PICTURE TEST HERE, AND NONE IS MISSING. EP-12 keeps every one of these
+ * marks out of an export, and `drawsOperationState` spends that row ONCE, at
+ * the head of `svgFromSchedule`: a picture that says it is the export reaches
+ * all three call sites below with `selected` already false. A second test here
+ * would be the same rule in two places, and the one that was forgotten would
+ * be the one that leaked.
+ *
  * @purity pure
  */
 function selectedLineWidth(own: number, selected: boolean): number {
@@ -520,10 +534,11 @@ function markerSvg(
 }
 
 /**
- * ZO-5's name label, at the rectangle LC-6 placed and the size LC-5 measured
- * it with. ⭐ The size is read off the placement rather than derived again:
- * writing FR-077's formula a second time is how the measured width stops
- * matching the glyphs.
+ * ZO-5's name label, at the rectangle the geometry placed -- LC-6 across and
+ * table T-012's 「名称ラベルの縦位置」 column down -- and the size LC-5
+ * measured it with. ⭐ The size is read off the placement rather than derived
+ * again: writing FR-077's formula a second time is how the measured width
+ * stops matching the glyphs.
  *
  * ⚠️ `labelHaloOfFont` is the outline table T-017a's note reaches for when a
  * hue cannot meet CT-1 and CT-2. It is drawn always, which is the safe side of
@@ -554,7 +569,17 @@ function labelSvg(
   halo: string,
 ): string {
   const x = box.x + settings.labelPad
-  const y = box.y + box.height * settings.labelBaseline
+  // ⭐ S-33 MULTIPLIES THE FONT, NOT THE BOX. Table T-012's closing paragraph
+  // calls it 「字形の中でのずれ」 -- a shift inside the glyph, down from the
+  // middle of the type to the baseline SVG measures `y` from -- and says in
+  // the same breath that it is a different thing from the shape-to-label gap
+  // S-196 holds. Taken against the box instead, the drop grew with whatever
+  // band the box happened to be, so the wider the bar the further the glyphs
+  // sat from where table T-012 puts them.
+  // ⭐ The box's own middle is where the label goes; the geometry has already
+  // answered table T-012's column there, so this side only turns the middle
+  // into a baseline and never asks which shape it is drawing.
+  const y = box.y + box.height / 2 + fontSize * settings.labelBaseline
   const haloWidth = fontSize * settings.labelHaloOfFont
   return (
     `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSize)}"` +
@@ -880,7 +905,8 @@ function rulerSvg(
  * small enough cost that a new caller should have to decide which picture it
  * is asking for, and a default would let a forgotten export draw FR-043's
  * dummies into a reader's file in silence -- which is the very thing EP-14
- * exists to prevent.
+ * exists to prevent. ⭐ It now answers EP-12 as well: an export is drawn with
+ * no mark of the operation state, whatever `selection` and `follow` say.
  *
  * ⭐ `follow` DOES HAVE ONE, AND THE GROUND IS THE OPPOSITE. Saying nothing
  * means "no side is following", which is both what a caller outside the Dual
@@ -924,16 +950,42 @@ export function svgFromSchedule(
   )
   // FR-042's other half: the colour the author put on the row itself (AT-58).
   const colourOfGroup = new Map(schedule.taskGroups.map((one) => [one.id, one.color]))
-  const selected = new Set(
-    selection.items.filter((one) => one.kind === 'task').map((one) => one.uid),
-  )
+  /**
+   * EP-12 of table T-076, in ONE place: 「操作の状態 …『Selection』（`U-39`）…
+   * 描かない」. An export carries no sign of what a person has picked, and
+   * `DC-8` of table T-029a (MUST NOT) sends the `Dual Cursor`'s following mark
+   * out by the same row -- which side follows is operation state too.
+   *
+   * ⭐ WHY THE REFUSAL IS ONE LINE AND NOT ONE PER KIND. EP-12 is one rule.
+   * The marks it bars are spelled six different ways below -- the dashed frame
+   * on a Task, on a highlight box and on a comment box, `S-178` on the
+   * dependency line and on the status line, `FR-075`'s grab points, and DC-8's
+   * width on a cursor line -- and every one of them is read from these two
+   * arguments and from nowhere else. Emptied here, the rule cannot be obeyed
+   * in five places and forgotten in the sixth.
+   *
+   * ⛔ IT MAY NOT BE LEFT TO THE CALLER. `frame-loop.ts` does hand the export
+   * an empty `Selection` and no following side, and while it was the only
+   * caller nothing leaked -- but a picture that has been TOLD it is the export
+   * states the rule itself, and this file's own head comment had already
+   * recorded the two marks that survived when it did not.
+   *
+   * ⚠️ NOT THE SAME THING AS EP-14's `picture` test further down. That one
+   * turns off something the DOCUMENT asks for (`FR-043`'s dummies hang on the
+   * Task being unstarted), which no argument here could suppress; this one
+   * turns off what the SESSION asks for.
+   */
+  const drawsOperationState = picture === 'screen'
+  const marks: readonly ItemRef[] = drawsOperationState ? selection.items : []
+  const following = drawsOperationState ? follow : null
+  const selected = new Set(marks.filter((one) => one.kind === 'task').map((one) => one.uid))
   const selectedBoxes = new Set(
-    selection.items.filter((one) => one.kind === 'highlightBox').map((one) => one.id),
+    marks.filter((one) => one.kind === 'highlightBox').map((one) => one.id),
   )
   const selectedComments = new Set(
-    selection.items.filter((one) => one.kind === 'commentBox').map((one) => one.id),
+    marks.filter((one) => one.kind === 'commentBox').map((one) => one.id),
   )
-  const selectedStatusLine = selection.items.some((one) => one.kind === 'statusLine')
+  const selectedStatusLine = marks.some((one) => one.kind === 'statusLine')
   /**
    * The dependency routes SL-1 has selected, keyed by both ends.
    *
@@ -948,7 +1000,7 @@ export function svgFromSchedule(
    */
   const selectedLinks = new Set<string>()
   const linksOfTask = new Map(schedule.tasks.map((one) => [one.uid, one.dependencies]))
-  for (const item of selection.items) {
+  for (const item of marks) {
     if (item.kind !== 'dependency') continue
     const link = linksOfTask.get(item.successorUid)?.[item.ordinal]
     if (link !== undefined) selectedLinks.add(`${link.predecessorUid}>${item.successorUid}`)
@@ -1233,10 +1285,11 @@ export function svgFromSchedule(
     // DC-1: the following side is drawn at the day under the pointer, which is
     // the reading the click will fix. The other stands where the document put
     // it. See `DualCursorFollow` for PD-310 and PD-311.
-    const followedDay = follow === null || follow.x === null ? null : dateAtX(layout, follow.x)
+    const followedDay =
+      following === null || following.x === null ? null : dateAtX(layout, following.x)
     const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
     for (const side of ['date1', 'date2'] as const) {
-      const isFollowing = follow !== null && follow.side === side
+      const isFollowing = following !== null && following.side === side
       const standing = side === 'date1' ? cursors.date1X : cursors.date2X
       const x = isFollowing && followedX !== null ? followedX : standing
       // DC-8 borrows SL-8's rule for a line: S-194 is this line's own width and

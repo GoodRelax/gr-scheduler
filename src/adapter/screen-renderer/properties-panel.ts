@@ -76,6 +76,14 @@
 // the whole product. The spelling is the date part of what `textOfDay` writes
 // (EX-7 of table T-033), so no second date format is minted here.
 //
+// ⭐ THE WAY OUT IS READ FROM THE GENERATED ROSTER, NOT LISTED HERE. FR-029
+// (MUST) makes the roster of icons AND where each one is placed follow table
+// T-109, and that table's 面 column IS the placement -- it stands one row on
+// this panel, among six surfaces, on the authority of IN-4 of table T-028.
+// `icon-roster.json` is that table generated into `src/`, so `panelCommands`
+// below reads the placement where it lives instead of naming a row here, which
+// is the shape `app-header-items.ts` and `open-modals.ts` already take.
+//
 // ⛔ Every STOP note below says what the specification leaves open. The loudest
 // is the settings side, which has no row ids to name.
 
@@ -100,7 +108,9 @@ import {
   type Selection,
 } from '../../entity/document-model/selection/selection'
 import type {
+  CommandItem,
   DisplayLanguage,
+  IconId,
   PropertiesPanel,
   PropertiesSubject,
   PropertyControl,
@@ -110,6 +120,7 @@ import type {
   ScreenSession,
 } from './screen-renderer'
 import displayWords from './display-words.json'
+import iconRoster from './icon-roster.json'
 
 // ------------------------------------------------------------- the words ----
 
@@ -196,6 +207,90 @@ function headingOf(
   const word = HEADINGS_BY_KEY.get(heading.key)?.text[language]
   if (word === undefined) return heading.standIn
   return word === '' ? heading.standIn : word
+}
+
+// ------------------------------------------------ the way out (table T-109) --
+
+/**
+ * The value table T-109's 面 column carries for this panel -- U-25 of table
+ * T-103.
+ *
+ * ⭐ A settled name copied spelling and all (rule 03 section 1), not a value
+ * invented here: it is the join between this unit and the generated roster, and
+ * the same spelling `icon-roster.json` prints in that column.
+ */
+const PROPERTIES_PANEL = 'Properties Panel'
+
+/**
+ * The words of table T-109's rows, keyed by the row id.
+ *
+ * ⭐ A `Map` rather than a scan per entry, for the reason `HEADINGS_BY_KEY`
+ * gives: a description is built for every frame and rule 05 forbids a linear
+ * search on that path (NFR-013).
+ */
+const ENTRY_WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
+
+/** What an entry says while the dictionary holds no word for its row (PD-160). */
+const NO_ENTRY_WORDS = ''
+
+/**
+ * The accessible name of one entry, in the display language (FR-038).
+ *
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, for the
+ * reason `headingOf` gives above: an empty cell means the word has not been
+ * settled (PD-160), which is a different thing from a settled empty word.
+ * ⚠️ The cell is written today, so this stands in for nothing.
+ *
+ * @purity pure
+ */
+function entryLabel(icon: IconId, language: DisplayLanguage): string {
+  const word = ENTRY_WORDS_BY_ROW.get(icon)?.label[language]
+  if (word === undefined) return NO_ENTRY_WORDS
+  return word === '' ? NO_ENTRY_WORDS : word
+}
+
+/**
+ * The entries table T-109 places on this panel, in that table's own order.
+ *
+ * ⭐ ONE PASS OVER THE GENERATED ROSTER RATHER THAN A LIST WRITTEN HERE, which
+ * is the shape the two units that already draw a surface's entries take --
+ * `headerCommands` in `app-header-items.ts` and `commandsOnSurface` in
+ * `open-modals.ts`. FR-029 (MUST) makes both the roster and the
+ * placement follow table T-109, and its 面 column IS the placement -- so
+ * membership, print order and count all come from the table and rule 03 section
+ * 1's ban on re-typing a value the specification holds is kept.
+ *
+ * ⛔ NO ROW ID IS NAMED. The one row the column places here today closes an open
+ * surface on IN-4's authority, and naming it would be the copy that goes stale
+ * when the table is renumbered.
+ *
+ * ⭐ `isEnabled` IS TRUE. FR-029 draws faint what cannot be used NOW, and a
+ * surface that is being described is a surface that is open -- closing it is
+ * always something a person may do. ⚠️ That is also why nothing here reads
+ * `showing`: FR-072 turns the panel between two contents and neither is a
+ * reason to take away the way out.
+ * ⛔ `isPressed` IS FALSE: nothing on this panel is a toggle that stays down.
+ * ⛔ `isArmed` IS FALSE AND IS NOT A GAP: the 構え column -- which FR-053 makes
+ * the authority for which entrance is which arm -- holds an em dash for every
+ * row of every surface but the `Command Palette`.
+ *
+ * ⚠️ Reading `iconRoster` does not make this unit `semi-pure-a`: it is a module
+ * constant compiled into the program, the way `DEFAULT_CALENDAR` is in
+ * `schedule.ts`, not external state read while running. Table T-075 fixes UF-64
+ * as `pure`.
+ *
+ * @purity pure
+ */
+function panelCommands(language: DisplayLanguage): readonly CommandItem[] {
+  return iconRoster.icons
+    .filter((row) => row.surfaces.includes(PROPERTIES_PANEL))
+    .map((row) => ({
+      icon: row.rowId,
+      isEnabled: true,
+      isPressed: false,
+      isArmed: false,
+      label: entryLabel(row.rowId, language),
+    }))
 }
 
 // ------------------------------------------------------- table T-016 --------
@@ -935,6 +1030,11 @@ export function propertiesPanelFromSelection(
       // while a panel is describing it.
       isSubjectGone: false,
       fields: settingsFields(settings),
+      // ⭐ THE SAME ENTRANCE ON BOTH ARMS. Table T-109 places its row on the
+      // SURFACE, and FR-072's two contents are one surface -- a panel that lost
+      // its way out when the settings came up would be a surface a reader
+      // cannot put away.
+      commands: panelCommands(session.language),
     }
   }
 
@@ -961,5 +1061,6 @@ export function propertiesPanelFromSelection(
     ),
     isSubjectGone,
     fields: fields ?? [],
+    commands: panelCommands(session.language),
   }
 }

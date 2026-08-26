@@ -452,6 +452,21 @@ export interface PropertiesPanel {
    * 'selection'` except the last -- FR-072 knows only two panels.
    */
   readonly fields: readonly PropertyField[]
+  /**
+   * The entries table T-109 places on this surface, in that table's own order.
+   *
+   * ⭐ THE SAME MEMBER NAME `AppHeaderItems` AND `OpenModal` CARRY, and filled
+   * the same way: FR-029 (MUST) makes that table's 面 column the whole of the
+   * placement, so the roster generated into `src/` is read and no row is minted.
+   * ⚠️ Today the column places exactly one row here -- the one that closes an
+   * open surface, on IN-4's authority (table T-028) -- but the count is the
+   * table's to change and nothing here holds it.
+   *
+   * ⛔ NOT A SECOND WAY TO CLOSE THE PANEL. FR-029 (MUST NOT) forbids one
+   * operation two entrances on the screen, and `Esc` is a keystroke rather than
+   * an entrance -- IN-4 is the authority BOTH of them answer to.
+   */
+  readonly commands: readonly CommandItem[]
 }
 
 export interface PropertyField {

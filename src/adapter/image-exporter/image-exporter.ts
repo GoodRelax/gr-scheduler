@@ -52,21 +52,21 @@
 // the dummies (EP-14) and the `Guide Cursor` (EP-6). ⭐ Every one of those that
 // reaches this file inside `ScreenView` is left out below -- that IS the
 // assembly. ⚠️ But the received SVG is one opaque string: what SvgRenderer
-// already drew into it cannot be taken out again. Today that file draws the
-// selection outline (FR-030) and, when it is told one, DC-8's mark for the side
-// of the `Dual Cursor` that is following -- which EP-12 keeps out, being
-// operation state. ⚠️ ScheduleGeometry now carries CU-2's two lines, which is a
-// gain rather than a loss: EP-6 (MUST) wants them IN the export. CU-3's guide
+// already drew into it cannot be taken out again. ⭐ EP-12's own marks are no
+// longer among the things that could arrive: told which picture it is making,
+// that file now refuses both the selection outline (FR-030) and DC-8's mark
+// for the side of the `Dual Cursor` that is following, whatever it is handed
+// (D-52). ⚠️ ScheduleGeometry now carries CU-2's two lines, which is a gain
+// rather than a loss: EP-6 (MUST) wants them IN the export. CU-3's guide
 // cursor is still not carried at all.
-// ⛔ So the picture handed to an export MUST be one rendered for the export:
-// the base environment FR-080 defines (table T-025's MC-6 with the properties
-// panel and the command palette closed), an empty `Selection`, no pointer
-// -- CU-3 of table T-029 has the `Guide Cursor` follow the pointer, and an
-// export has none -- nothing said about which side is following, and
-// SvgRenderer told which picture it is making, since
-// EP-14's dummies hang on the Task being unstarted and no other argument can
-// suppress them. That is a fact about the caller. It is reported, not
-// checked here, because nothing in a finished string says how it was made.
+// ⛔ So the picture handed to an export MUST STILL be one rendered for the
+// export: the base environment FR-080 defines (table T-025's MC-6 with the
+// properties panel and the command palette closed), no pointer -- CU-3 of
+// table T-029 has the `Guide Cursor` follow the pointer, and an export has
+// none -- and SvgRenderer told which picture it is making, since EP-14's
+// dummies hang on the Task being unstarted and no other argument can suppress
+// them. That is a fact about the caller. It is reported, not checked here,
+// because nothing in a finished string says how it was made.
 //
 // ⚠️ TWO IMPORTS THE MANUSCRIPT DRAWS NO EDGE FOR: `ScreenRegions` (PI-35) and
 // `DocumentSettings` (PI-2). EP-1 needs the `App Header` band's rectangle and
@@ -336,8 +336,14 @@ function appHeaderSvg(
   if (documentTitle === null || documentTitle === '') return ground
   const fontSizePx = band.height * TITLE_FONT_OF_BAND * ratio
   const x = (band.x + band.height * TITLE_INSET_OF_BAND) * ratio
-  // S-33's baseline correction, applied to the band exactly as
-  // `svg-renderer.ts` applies it to a one-line label box.
+  // S-33's baseline correction, taken against the BAND. ⚠️ No longer the way
+  // `svg-renderer.ts` anchors a name label: table T-012's closing paragraph
+  // calls S-33 「字形の中でのずれ」, so that file now multiplies the FONT by it
+  // and measures from the middle of a box one line high. ⛔ The same reading
+  // is not carried over here on its own, because no requirement says where in
+  // this band the title stands -- the case that measures it asserts only that
+  // it is inside the band, and says in as many words that the specification
+  // fixes no offset. Changing it would be a value invented here. Reported.
   const y = (band.y + band.height * settings.labelBaseline) * ratio
   return ground + textSvg(x, y, fontSizePx, documentTitle)
 }
