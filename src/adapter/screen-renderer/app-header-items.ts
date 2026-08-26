@@ -320,6 +320,10 @@ function commandItemFor(
     icon,
     isEnabled: commandState.isEnabled,
     isPressed: commandState.isPressed,
+    // ⛔ NOT A GAP: table T-109's 構え column, which FR-053 makes the authority
+    // for which entrance is which arm, holds an em dash for every `App Header`
+    // row. Nothing on this surface arms anything.
+    isArmed: false,
     label: entryLabel(icon, session.language),
   }
 }

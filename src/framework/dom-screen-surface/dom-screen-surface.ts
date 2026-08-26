@@ -413,8 +413,16 @@ const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
  *
  * ⛔ THREE ROWS OF `SCREEN_COLOURS` ARE NOT USED HERE, AND THAT IS NOT AN
  * OVERSIGHT. S-152 / S-153 / S-154 (良 / 注意 / 不良) reach no part this unit
- * draws -- nothing on this side reports a state in colour, and NT-1 (MUST NOT)
+ * draws -- no part of it reports a SCHEDULE'S state, and NT-1 (MUST NOT)
  * forbids colour alone from carrying a meaning.
+ * ⚠️ WHAT USED TO STAND HERE SAID NOTHING ON THIS SIDE REPORTS A STATE IN
+ * COLOUR AT ALL, and S-183 made that false: FR-053 (MUST) has the armed
+ * entrance drawn apart from the others and names S-183 for its rim. ⛔ It is
+ * not the counter-example NT-1 refuses either -- the same requirement (MUST
+ * NOT) forbids colour ALONE and states S-185 for the rim's thickness, which is
+ * why `entryArmedRim` writes a width beside the colour and never the colour by
+ * itself. ⚠️ S-183 borrows S-152's pair and is still its own row, so the count
+ * above did not change.
  *
  * ⚠️ AN EARLIER NOTE HERE COUNTED SIX AND PUT S-151, S-168 AND S-169 AMONG
  * THEM. It was wrong, and the generated block at the foot of this file is what
@@ -445,6 +453,11 @@ const PAINT_ROW = {
   rule: 'S-149',
   panel: 'S-150',
   shadow: 'S-170',
+  // ⭐ NOT A JUDGEMENT MADE HERE, WHICH IS WHAT PARTS IT FROM THE SIX ABOVE.
+  // Table T-236 names S-183 「構えている入口の縁の色」 and FR-053 (MUST) says in
+  // as many words that the armed entrance's colour IS S-183 -- so the row and
+  // the part it paints are joined by the specification, not by this file.
+  armed: 'S-183',
 } as const
 
 /** How a declaration names one of them. @purity pure */
@@ -453,11 +466,15 @@ function painted(name: keyof typeof PAINT_ROW): string {
 }
 
 /**
- * ⚠️ SIX NAMES AND NOT EIGHT. An entrance's ground and an entrance's word used
- * to stand as members of their own, because table T-236 has one 地 and one
+ * ⚠️ SIX OF THESE ARE NOT EIGHT. An entrance's ground and an entrance's word
+ * used to stand as members of their own, because table T-236 has one 地 and one
  * 文字の色 while the system colours had a separate pair for a button
  * (`ButtonFace` / `ButtonText`). ⛔ With the fallbacks gone the two pairs are
  * the same string, and rule 03 section 1 forbids one concept two names.
+ *
+ * ⭐ `armed` IS THE SEVENTH AND JOINED THEM ON 2026-08-26, when FR-053 (MUST)
+ * gave the armed entrance a rim of its own. It reads a row like the rest, so
+ * `themeStyle` repaints it in both renderings without a second path.
  */
 const PAINT = {
   ground: painted('ground'),
@@ -466,6 +483,7 @@ const PAINT = {
   rule: painted('rule'),
   panel: painted('panel'),
   shadow: painted('shadow'),
+  armed: painted('armed'),
 } as const
 
 /**
@@ -553,6 +571,54 @@ function entryFaintStyle(): string {
     `font:inherit;background:${PAINT.panel};color:${PAINT.quiet};` +
     `border:1px solid ${PAINT.rule};border-radius:0.25em;cursor:default;` +
     entryGlyphRoom()
+  )
+}
+
+/**
+ * What FR-053 (MUST) draws on the entrance that is ARMED, so that it can be
+ * told from the entrances that are not.
+ *
+ * ⛔ AN ATTRIBUTE PAINTS NOTHING, WHICH IS WHY THIS EXISTS. `data-pressed` and
+ * `data-armed` are written beside every entry for the shell to read back, and
+ * there is no `.css` file anywhere under `src/` for a selector to live in --
+ * every rule this unit draws is an inline declaration. So a state that is only
+ * an attribute is a state nobody can see.
+ *
+ * ⛔ TWO DECLARATIONS AND NEVER ONE. FR-053 (MUST NOT) forbids showing it 「色
+ * だけで」 -- the ground it gives is that the difference in colour is not
+ * readable by everyone -- so the thickness carries it as well, and the two
+ * values are the specification's own: S-183 is the colour and S-185 the width.
+ * ⚠️ Dropping either one leaves a rule that is stated as a MUST unmet, not a
+ * rim that is merely plainer.
+ *
+ * ⛔ THE LONGHANDS AND NOT THE `border` SHORTHAND, so that the style stays the
+ * frame `entryStyle` made and only what FR-053 states is taken over. The
+ * shorthand would re-state `solid` here, and no row anywhere says a rim is
+ * solid -- that is `entryStyle`'s own choice and belongs to it alone.
+ *
+ * ⛔ AND NEVER `aria-pressed`, WHICH IS THE SAME MUST NOT IN THE OTHER TREE.
+ * `commandEntry` writes that from `isPressed` and from nothing else: table
+ * T-109 says of IC-54 「ボタンではない」, and an arm announced as a pressed
+ * toggle is exactly the 「押されている形」 the requirement refuses.
+ *
+ * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryStyle` gives:
+ * it reads the generated block at the foot of this file, which a `const`
+ * evaluated above it cannot.
+ *
+ * ⚠️ THE ENTRANCE GROWS BY THE 1px THE RIM GAINED, and nothing states a
+ * compensation. S-185 is a thickness and table T-206 holds no second row to
+ * take it back out of the box, so an entrance measures 2px wider and taller
+ * while it is armed; FR-053 (MUST) has the palette's size follow its contents,
+ * so the palette follows it. ⛔ Not corrected by a number invented here, which
+ * is what rule 03 section 1 forbids.
+ *
+ * @provisional PD-290
+ * @purity pure
+ */
+function entryArmedRim(): string {
+  return (
+    `border-width:${NOT_STORED_ARMED_ENTRY_SIZES['S-185']}px;` +
+    `border-color:${PAINT.armed};`
   )
 }
 
@@ -1345,12 +1411,22 @@ function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
  * @purity non-pure
  */
 function commandEntry(host: Document, item: CommandItem): HTMLElement {
-  const entry = made(host, 'button', item.isEnabled ? entryStyle() : entryFaintStyle())
+  // ⭐ THE RIM IS APPENDED AND NEVER A THIRD WHOLE STYLE. FR-053's rim and
+  // FR-029's faint state are two different facts about one entrance -- an
+  // entry can be armed whether or not it can be used now -- so a style per
+  // combination would be four where two and an override do.
+  const base = item.isEnabled ? entryStyle() : entryFaintStyle()
+  const entry = made(host, 'button', item.isArmed ? base + entryArmedRim() : base)
   entry.setAttribute('type', 'button')
   // The join table T-109 admits, and what PD-141 has the shell read back.
   entry.setAttribute('data-icon', item.icon)
   entry.setAttribute('data-enabled', String(item.isEnabled))
   entry.setAttribute('data-pressed', String(item.isPressed))
+  // ⭐ WRITTEN FOR EVERY ENTRY, unlike `aria-pressed` below: this one is not an
+  // announcement but the same read-back path `data-enabled` and `data-pressed`
+  // are on, and an attribute only the armed entry carried could not be told
+  // from an entry the description never reached.
+  entry.setAttribute('data-armed', String(item.isArmed))
   // FR-029 (MUST): faint and still reachable, never quiet.
   if (!item.isEnabled) entry.setAttribute('aria-disabled', 'true')
   // ⚠️ Only when it IS on: `isPressed` is a toggle that is on, and writing
@@ -3069,6 +3145,27 @@ export const NOT_STORED_ICON_SIZES: {
 }
 
 /**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: what the rim reports is what
+ * `ScreenState` has armed (CP-36 and table T-023b), and that value is
+ * itself outside the document -- so a thickness that told it apart
+ * could not be inside one either.
+ */
+export const NOT_STORED_ARMED_ENTRY_SIZES: {
+  /** S-185, in px */
+  readonly 'S-185': number
+} = {
+  'S-185': 2,
+}
+
+/**
  * The colours of table T-236, by row ID, in both renderings.
  *
  * ⭐ Table T-236 holds constants baked into the artifact. FR-041 (MUST
@@ -3101,6 +3198,8 @@ export const SCREEN_COLOURS: {
   'S-150': { light: 'hsl(H 20% 97%)', dark: 'hsl(H 14% 13%)', followsHue: true },
   /* S-152 */
   'S-152': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
+  /* S-183 */
+  'S-183': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   /* S-153 */
   'S-153': { light: '#a8600f', dark: '#e0a353', followsHue: false },
   /* S-154 */

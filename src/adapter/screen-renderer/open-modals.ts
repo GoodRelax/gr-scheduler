@@ -278,7 +278,16 @@ function surfaceHeading(surface: string, language: DisplayLanguage): string {
  * @purity pure
  */
 function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
-  return { icon, isEnabled: true, isPressed: false, label: entryLabel(icon, language) }
+  // ⛔ `isArmed` IS FALSE AND IS NOT A GAP: the 構え column of table T-109 --
+  // which FR-053 makes the authority for which entrance is which arm -- holds
+  // an em dash for every row of every surface but the `Command Palette`.
+  return {
+    icon,
+    isEnabled: true,
+    isPressed: false,
+    isArmed: false,
+    label: entryLabel(icon, language),
+  }
 }
 
 /**

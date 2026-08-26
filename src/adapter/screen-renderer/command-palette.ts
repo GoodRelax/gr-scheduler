@@ -84,13 +84,23 @@
 // there are or what a group is called -- see `paletteGroups`.
 //
 // ⛔ TWO OF ITS `Command Palette` ROWS ARE NOT ENTRIES. Table T-109 says so in
-// its own entry column -- one row shows that the palette can be dragged, the
-// other shows the keystroke that places what is armed -- and
-// `screen-renderer.ts` names the same rows for the same reason on
-// `CommandItem`. Both reach the screen as something other than a button: the
-// first as the grab band GR-19 puts along the top edge -- `grabBandHeight`,
-// with `at` for the corner a drag moves -- and the second as `armedText`.
+// its own entry column -- one row shows that the palette can be dragged
+// (IC-53), the other shows what is armed (IC-54) -- and `screen-renderer.ts`
+// names the same rows for the same reason on `CommandItem`. Both reach the
+// screen as something other than a button: the first as the grab band GR-19
+// puts along the top edge -- `grabBandHeight`, with `at` for the corner a drag
+// moves -- and the second as `armedText`.
+// ⚠️ WHAT USED TO STAND HERE CALLED IC-54 「the keystroke that places what is
+// armed」, which table T-109 does not say and table T-036 refutes: SK-1 states
+// in as many words that there is no keyboard path to placing a shape.
 // The STOP note by `NOT_BUTTON_ROWS` says what the roster cannot carry.
+//
+// ⭐ IC-54 IS NOT THE WHOLE OF WHAT FR-053 ASKS FOR, and the other half is on
+// the ENTRIES. That requirement (MUST) also has the armed entrance told apart
+// from the ones that are not, and says which entrance is which arm is held by
+// table T-109's 構え column -- `arms` in the generated roster. `isArmed` below
+// is that join. ⛔ Not `isPressed`: the same requirement (MUST NOT) refuses to
+// have it drawn as a pressed button, on the ground that IC-54 says it is none.
 //
 // ⚠️ NOTHING HERE JUDGES A WIDTH, so FR-093's estimate is never called -- the
 // MUST FR-085 puts on whichever side does judge one does not reach this file.
@@ -311,15 +321,12 @@ function isEntryUsable(row: IconRosterRow, selection: Selection): boolean {
  *
  * ⛔ `isPressed` IS FALSE FOR EVERY ENTRY, AND THAT IS A GAP RATHER THAN AN
  * ANSWER. What the toggling entries reflect is the drawing settings of table
- * T-202, which live in `DocumentSettings` -- not an argument of this unit. And
- * the arming entries cannot be matched against `ScreenState.armed`: table T-109
- * gives most of the milestone entries no row id to join on (they name the
- * previous row instead), and the spellings `Armed` carries for a shape and a
- * glyph are themselves unsettled (CR-172), so a join would compare against
- * values that do not exist yet.
- * ⚠️ Nothing requires the palette to show either of those states. FR-053's MUST
- * is that what is ARMED be readable, and `CommandPalette.armedText` is where
- * that is answered.
+ * T-202, which live in `DocumentSettings` -- not an argument of this unit.
+ * ⚠️ WHAT USED TO STAND HERE PUT THE ARMING ENTRIES IN THE SAME SENTENCE, and
+ * that half went false on 2026-08-26: table T-109 grew a 構え column, so the
+ * entry no longer has to be recognised by its row id, and `isArmed` below is
+ * where the join lands. ⛔ `isPressed` did NOT become the place for it --
+ * FR-053 (MUST NOT) forbids the armed entrance to be drawn as pressed.
  *
  * @purity pure
  */
@@ -327,11 +334,17 @@ function commandItemFor(
   row: IconRosterRow,
   selection: Selection,
   language: DisplayLanguage,
+  armed: string,
 ): CommandItem {
   return {
     icon: row.rowId,
     isEnabled: isEntryUsable(row, selection),
     isPressed: false,
+    // FR-053 (MUST): 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」.
+    // ⛔ Never `row.arms === null` folded in as a second condition: `armedRow`
+    // answers AR-1 while nothing is armed, and no row of the roster carries
+    // that -- so the one comparison is already the whole rule.
+    isArmed: row.arms === armed,
     label: entryLabel(row.rowId, language),
   }
 }
@@ -390,6 +403,7 @@ function paletteGroups(
   selection: Selection,
   language: DisplayLanguage,
   isMilestoneListOpen: boolean,
+  armed: string,
 ): readonly PaletteGroup[] {
   const groups: {
     readonly cell: string
@@ -412,7 +426,7 @@ function paletteGroups(
     if (opened === undefined) groups.push(group)
 
     if (isMilestoneGlyphEntry(row) && !isMilestoneListOpen) continue
-    group.commands.push(commandItemFor(row, selection, language))
+    group.commands.push(commandItemFor(row, selection, language, armed))
   }
 
   return groups
@@ -532,7 +546,15 @@ export function commandPaletteFromScreenState(
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
     // FR-053 (MUST): the eight milestone shapes stay out until the list is
     // open. S-142 of table T-206 is the state, and the shell holds it.
-    groups: paletteGroups(selection, session.language, session.isMilestoneListOpen),
+    // ⭐ The armed ROW goes down with them, not the words: FR-053 (MUST) also
+    // has the armed ENTRANCE told apart from the others, and the roster's
+    // `arms` field is what each entry is compared against (`isArmed`).
+    groups: paletteGroups(
+      selection,
+      session.language,
+      session.isMilestoneListOpen,
+      armedRow(state.armed),
+    ),
     // FR-053 (MUST): what is armed has to be readable. The words come from
     // FR-038's dictionary, keyed by the row of table T-023b -- ⛔ never the row
     // id, which that table's closing rule forbids the screen to carry.

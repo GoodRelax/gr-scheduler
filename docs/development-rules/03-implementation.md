@@ -43,6 +43,7 @@ NOT_STORED_ROW_CONTROL_SIZES    行の操作子の大きさ（`S-140`）
 NOT_STORED_ICON_SIZES           アイコンの箱と隔たり（`S-138` / `S-141`）
 NOT_STORED_SELECTION_SIZES      選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
 NOT_STORED_REPEAT_TIMES         長押しの待ちと刻み（`S-172` / `S-173`）
+NOT_STORED_ARMED_ENTRY_SIZES         長押しの待ちと刻み（`S-172` / `S-173`）
 SCREEN_COLOURS                  画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
 SCHEDULE_COLOURS                日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 ENTITY_ROWS                     実体の行（`erd.json`）

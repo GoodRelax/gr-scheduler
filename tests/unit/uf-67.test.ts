@@ -1088,6 +1088,10 @@ const entriesOnConfirmation = (language: DisplayLanguage): readonly CommandItem[
     icon: rowId,
     isEnabled: true,
     isPressed: false,
+    // FR-053: the entrance is not armed. ⛔ A separate member from `isPressed`,
+    // because IC-54 says the palette entry is not a button and FR-053 (MUST NOT)
+    // bars the pressed form -- so an arm may not travel on the toggle.
+    isArmed: false,
     label: labelOf(rowId, language),
   }))
 

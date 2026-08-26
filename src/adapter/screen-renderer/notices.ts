@@ -501,6 +501,10 @@ function confirmationAnswers(language: DisplayLanguage): readonly CommandItem[] 
     icon,
     isEnabled: true,
     isPressed: false,
+    // ⛔ NOT A GAP: the 構え column of table T-109 -- which FR-053 makes the
+    // authority for which entrance is which arm -- holds an em dash for both
+    // of these rows. An answer to a question arms nothing.
+    isArmed: false,
     label: answerLabel(icon, language),
   }))
 }

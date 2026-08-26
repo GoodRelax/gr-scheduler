@@ -155,6 +155,36 @@ export interface CommandItem {
    */
   readonly isPressed: boolean
   /**
+   * Whether this entry is the one that is ARMED. FR-053 (MUST) requires the
+   * armed entrance to be told apart from the entrances that are not.
+   *
+   * ⛔ A MEMBER OF ITS OWN AND NEVER `isPressed`, which FR-053 (MUST NOT)
+   * refuses in as many words 「押されている形にしてはならない」 -- its ground is
+   * that table T-109 says of IC-54 「ボタンではない」. `isPressed` is a toggle
+   * that is on, and it is what writes `aria-pressed`; an arm announced through
+   * it would be announced as a pressed button, which is the very thing the
+   * requirement forbids.
+   *
+   * ⭐ WHICH ENTRY IS WHICH ARM IS TABLE T-109'S OWN FACT. FR-053 says so:
+   * 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」. That column reaches
+   * `src/` as the `arms` field of `icon-roster.json`, so the join is the
+   * generated roster and nothing is minted here.
+   *
+   * ⚠️ ONLY A PALETTE ENTRY CAN EVER BE ARMED, and that is the table's fact
+   * too -- its 構え column holds an em dash for every row of every other
+   * surface. The entries the other builders describe carry `false`.
+   *
+   * ⛔ WHAT THE COLUMN CANNOT TELL APART, WHICH IS NOT A CHOICE MADE HERE. The
+   * column names a ROW of table T-023b, and AR-2 stands against four entries
+   * (IC-23 .. IC-26) and AR-3 against eight (IC-27 .. IC-34) -- so arming one
+   * task shape marks all four, and one milestone glyph all eight. Table
+   * T-023b's rows are the KINDS of arm rather than the shapes, and the
+   * spellings `Armed` carries for a shape and a glyph are unsettled (CR-172),
+   * so no finer join exists to be made. ⚠️ `CommandPalette.armedText` is no
+   * finer either, for the same reason its own note gives.
+   */
+  readonly isArmed: boolean
+  /**
    * The accessible name of the entry, in the display language already.
    *
    * ⭐ WHERE THE WORD COMES FROM. FR-038 (MUST) now puts every word the screen

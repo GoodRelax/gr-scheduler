@@ -889,6 +889,20 @@ DRAWN_FOR_THE_SCREEN_ALONE = [
     ' * same picture whatever this value is.',
 ]
 
+# ⛔ THE SAME THIRD SEAM AGAIN, AND A THIRD GROUND. S-185 is read by the unit
+# that draws with it, as S-138 and S-180 are -- but neither of their closing
+# sentences fits. The entrance is absent from an export because EP-1 and EP-4
+# draw no entrance at all; what makes S-185 the reader's own is that FR-053
+# (MUST) states the rim to tell an ARMED entrance apart, and what is armed
+# lives in ScreenState (CP-36), which table T-203 keeps out of the document.
+DRAWN_FOR_THE_ARMED_ENTRANCE = [
+    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
+    ' * setting and may not become one: what the rim reports is what',
+    ' * `ScreenState` has armed (CP-36 and table T-023b), and that value is',
+    ' * itself outside the document -- so a thickness that told it apart',
+    ' * could not be inside one either.',
+]
+
 READ_WHERE_IT_STANDS = [
     ' * ⚠️ This unit reads the row where it stands instead of being handed',
     ' * it: the contract in screen-renderer.ts fixes UF-61 at three',
@@ -937,6 +951,12 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
+    # dom-screen-surface.ts: one constant per consuming SUBJECT, the same split
+    # the selection frame and the dummy are given below. S-138 and S-141 are the
+    # box every entrance keeps around its shape, drawn the same whatever is
+    # armed; S-185 is the rim that tells ONE entrance from the others (FR-053).
+    'NOT_STORED_ARMED_ENTRY_SIZES': (['S-185'], DRAWN_FOR_THE_ARMED_ENTRANCE),
     'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
     # one constant per consuming SUBJECT, not per file. S-174 to S-178 are the
@@ -1006,8 +1026,12 @@ COLOUR_TARGETS = {
     # BAR) were here and are not the chrome's: this unit draws no bar, so they
     # went to a unit that could never use them. Measured by the agent that owns
     # the drawing side.
+    # ⭐ S-183 STANDS WHERE TABLE T-236 PRINTS IT -- right after S-152, whose
+    # pair it takes. The row's own note says the green is the one the table
+    # already holds for 「いま効いている」, and FR-053 (MUST) has this unit draw
+    # the armed entrance's rim with it, so it is the chrome's after all.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150',
-                       'S-152', 'S-153', 'S-154', 'S-170'],
+                       'S-152', 'S-183', 'S-153', 'S-154', 'S-170'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no
@@ -1485,6 +1509,7 @@ TARGETS = [
     # whoever draws the picture.
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ARMED_ENTRY_SIZES') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The selection frame's own two lengths land beside the colours, in the
