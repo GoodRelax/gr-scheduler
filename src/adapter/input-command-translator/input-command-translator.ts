@@ -2050,13 +2050,13 @@ const PLAN_ACTUAL_COLUMNS: readonly (keyof Task)[] = [
  * task as it stands -- which is also what keeps FR-006's 「片方だけが動く状態を
  * 作らない」.
  *
- * STOP -- ⛔ TWO ITEMS OF TABLE T-016 HAVE NO ROW OF TABLE T-108 TO BECOME.
+ * STOP -- ⛔ ONE ITEM OF TABLE T-016 HAS NO ROW OF TABLE T-108 TO BECOME.
  * `PR-18` (`milestone`) is written out to the exchange partner and the roster
- * holds no `setTaskMilestone`; `PR-16` (the assignee) is CM-44 / CM-45, which
- * take a resource uid where this surface has only names and which AS-5 of table
- * T-225 (MUST) asks for a searchable chooser that does not exist -- so the panel
- * draws no control for it either (properties-panel.ts says so where the field is
- * built). Looked in table T-108, table T-016, table T-225 and FR-008.
+ * holds no `setTaskMilestone`. Looked in table T-108, table T-016, table T-225
+ * and FR-008. ⚠️ `PR-16` (the assignee) WAS the second of these and is not any
+ * more: it is CM-40 / CM-44 / CM-45, and `commandsFromAssignee` below is where
+ * it goes -- it never reaches this function, because that item is not a column
+ * of `Task` and is dispatched on its row id instead.
  *
  * @purity pure
  */
@@ -2238,6 +2238,126 @@ function commandFromDependencyColumn(
 }
 
 /**
+ * The row of table T-016 the assignee stands on.
+ *
+ * ⭐ THE ONE ITEM DISPATCHED BY ROW ID RATHER THAN BY COLUMN, and it has to be:
+ * PR-16's own cell says the item is not a column of `Task`, so no arm of
+ * `PropertyFieldKey` can name it, while IF-9 (「その欄が名乗る行 ID とともに
+ * 返し」) fixes the row id as what comes back beside the key.
+ * `properties-panel.ts` records the same join where it draws the control.
+ */
+const ASSIGNEE_ROW = 'PR-16'
+
+/**
+ * AS-3's signal: 「`-` を確定した」 unassigns.
+ *
+ * ⚠️ A SPELLING THE SPECIFICATION FIXES, not a token minted here: AS-2 (MUST)
+ * puts this one character where a name would stand, AS-3 (MUST) makes settling
+ * it 解除, and AS-4 (MUST NOT) forbids a `Resource` ever to be made of it -- so
+ * it can never collide with somebody's name.
+ */
+const UNASSIGN_TOKEN = '-'
+
+/**
+ * Every resource of the roster that carries one name, smallest uid first.
+ *
+ * ⭐ AS-8 (MUST) settles what a name means when several people carry it: the
+ * smaller uid, and (MUST NOT) no merging. ⚠️ The roster is scanned rather than
+ * indexed because this runs once for one settled value, not once a frame.
+ *
+ * @purity pure
+ */
+function resourceUidOfName(schedule: Schedule, name: string): number | null {
+  let found: number | null = null
+  for (const resource of schedule.resources) {
+    if (resource.name !== name) continue
+    if (found === null || resource.uid < found) found = resource.uid
+  }
+  return found
+}
+
+/**
+ * AS-3's 解除, for the one assignment it can name.
+ *
+ * ⛔ SEVERAL ASSIGNEES ARE LEFT ALONE, AND THAT IS A GAP RATHER THAN A RULING.
+ * AS-3 (MUST) unassigns 「その割当」-- one of them -- and PR-16's control carries
+ * one settled value with no way to say WHICH of several people it is about
+ * (AS-6 (MUST NOT) keeps the uid that would say so off the screen). Looked in
+ * table T-225 (AS-3 / AS-5 / AS-6 / AS-9), FR-008 and table T-016. Nothing is
+ * written where the task holds more than one, rather than taking off a person
+ * the settler did not name.
+ *
+ * @purity pure
+ */
+function commandsFromUnassign(schedule: Schedule, taskUid: number): readonly DocumentCommand[] {
+  const held = new Set<number>()
+  for (const assignment of schedule.assignments) {
+    if (assignment.taskUid !== taskUid || assignment.resourceUid === null) continue
+    held.add(assignment.resourceUid)
+  }
+  if (held.size !== 1) return []
+  const [resourceUid] = [...held]
+  if (resourceUid === undefined) return []
+  return [{ kind: 'unassignResource', taskUid, resourceUid }]
+}
+
+/**
+ * A name settled on PR-16, as the rows of table T-108 that put it in the
+ * document.
+ *
+ * ⭐ WHAT A NAME MEANS IS 割り当てる AND NEVER 置き換える. AS-7 (MUST) makes a
+ * `Resource` of a name the roster does not hold 「から割り当てること」, AS-10
+ * (MUST) forbids only a SECOND assignment of somebody already on the task, and
+ * 解除 has a row and a signal of its own (AS-3) -- so nothing here takes a
+ * person off a task, and a task that already carries one keeps them.
+ *
+ * ⭐ AS-7 (MUST) ASKS FOR TWO COMMANDS IN ONE CALL AND THIS IS WHERE IT APPLIES:
+ * 「別々に走らせると、担当者だけができて割当ができていない状態が履歴に残る」.
+ * The answer is a LIST the caller writes as one bundle, AG-3 of table T-035
+ * makes that bundle atomic, and FR-031 makes it one undo step -- which UN-15 of
+ * table T-027 names for the assignee.
+ * ⚠️ THE MADE RESOURCE'S UID IS THE ONE FR-008 (MUST) MAKES IT. That requirement
+ * numbers a new `Resource` from `Project.uidHighWaterMark`, and the bundle runs
+ * in order against the document each command leaves behind -- so the resource
+ * CM-40 makes is the mark plus one, which is what CM-44 is then handed. ⛔ Not a
+ * number invented here: it is read from the document the same way the write side
+ * reads it.
+ *
+ * @purity pure
+ */
+function commandsFromAssignee(
+  schedule: Schedule,
+  taskUid: number,
+  text: string,
+): readonly DocumentCommand[] {
+  const settled = settledText(text)
+  // ⚠️ A cleared field is not 解除 here. AS-3 names ONE signal for that and it
+  // is the `-`; an empty chooser is a person who settled on nobody, and FR-008
+  // (MUST) keeps an assignment until somebody says to take it off.
+  if (settled === null) return []
+  if (settled === UNASSIGN_TOKEN) return commandsFromUnassign(schedule, taskUid)
+
+  const held = resourceUidOfName(schedule, settled)
+  if (held !== null) {
+    // AS-10 (MUST): a name already on this task adds nothing. Writing it anyway
+    // would be refused by CM-44 on FR-008's ban and throw the whole bundle away.
+    const already = schedule.assignments.some(
+      (one) => one.taskUid === taskUid && one.resourceUid === held,
+    )
+    return already ? [] : [{ kind: 'createAssignment', taskUid, resourceUid: held }]
+  }
+
+  return [
+    { kind: 'createResource', name: settled },
+    {
+      kind: 'createAssignment',
+      taskUid,
+      resourceUid: schedule.project.uidHighWaterMark + 1,
+    },
+  ]
+}
+
+/**
  * PI-18's fourth member: the value a person settled in one field of the
  * `Properties Panel`, as the rows of table T-108 that put it in the document.
  *
@@ -2252,6 +2372,17 @@ export function commandFromFieldCommit(
 ): readonly DocumentCommand[] {
   const schedule = context.document.schedule
   const key = commit.key
+
+  // ⭐ THE ROW IS READ BEFORE THE HOLDER, FOR THE ONE ITEM THAT IS NOT A COLUMN.
+  // PR-16's cell of table T-016 says the assignee's substance is `Assignment`,
+  // so the key can only carry WHOSE panel this is; the row id says WHAT.
+  // ⚠️ The task the field was drawn for may have gone between the frame that
+  // drew it and the frame that collects this, as it may for every other item.
+  if (commit.row === ASSIGNEE_ROW && key.holder === 'task') {
+    return taskByUid(schedule, key.uid) === null
+      ? []
+      : commandsFromAssignee(schedule, key.uid, commit.text)
+  }
 
   switch (key.holder) {
     case 'task': {

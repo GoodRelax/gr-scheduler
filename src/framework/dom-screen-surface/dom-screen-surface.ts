@@ -2262,6 +2262,21 @@ function fieldElement(host: Document, field: PropertyField): HTMLElement {
   }
 
   const controls = made(host, 'div', propertyControlsStyle())
+  // ⭐ A CONTROL THAT CARRIES NO VALUE OF ITS OWN DOES NOT HIDE THE FIELD'S.
+  // Every other control of table T-016 holds the item's value as its own text,
+  // so drawing the control drew the value. PR-16 does not: AS-6 of table T-225
+  // (MUST) shows the assignee NAMES while AS-9 has the chooser answer a person,
+  // and a task may carry several -- so the field's text is the several names and
+  // the control's is what one press of it would settle. ⛔ Dropping the text
+  // here would leave a reader unable to see who is on the task at all, which is
+  // FR-006's STATEMENT (MUST) and AS-6 together.
+  // ⚠️ Keyed on the CONTROL having no text rather than on the row id: a row id
+  // here would be this file holding a copy of table T-016.
+  if (field.text !== '' && field.controls.every((one) => one.text === '')) {
+    const shown = made(host, 'span', '')
+    shown.textContent = field.text
+    controls.append(shown)
+  }
   for (const control of field.controls) {
     // ⭐ FR-006's colour items get a swatch BESIDE the control and not instead
     // of it: S-188 gives the swatch a side and a gap, and S-187 keeps the

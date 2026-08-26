@@ -67,9 +67,26 @@
 // assignments reach through `Resource` -- which is also the lookup AS-9 requires
 // -- and never a uid.
 //
-// ⛔ AS-2's `-` DOES NOT REACH THIS PANEL. That row belongs to the assignee
-// LABEL, and AS-3 makes `-` the signal that CLEARS an assignment: writing it into
-// this panel's value would spell "clear me" at the very surface that edits it.
+// ⭐ AND IT NOW CARRIES THE FORM THE TABLE NAMES FOR IT. Table T-016 writes
+// PR-16's 入力の型 as 選択 and the paragraph under it (MUST) has the form follow
+// that column, so the field offers one `choice` control over the roster --
+// `assigneeChoices` walks the document's own `Resource` rows the way `choicesOf`
+// walks its tasks for PR-15. ⛔ WHAT IS STILL MISSING IS THE SEARCH HALF OF AS-5
+// (MUST): `PropertyControl` has no member for a partial-match filter and IF-9
+// puts the drawn chooser past this seam, so nothing on this side can state it.
+// A control that is only a dropdown meets the 名簿から選ばせる half and leaves
+// the 部分一致の検索 half unmet, where no control at all left FR-006's own MUST
+// unmet as well -- which is why the earlier refusal to invent one is not kept.
+// ⛔ AS-9 IS ALSO STILL OPEN: choosing a `uid` needs the uid on the screen, and
+// AS-6 (MUST NOT) forbids that, so two people of one name cannot be told apart
+// here. AS-8's tie-break is what the write side resolves such a name to.
+//
+// ⛔ AS-2's `-` DOES NOT REACH THIS PANEL'S VALUE. That row belongs to the
+// assignee LABEL, and AS-3 makes `-` the signal that CLEARS an assignment:
+// writing it into this panel's value would spell "clear me" at the very surface
+// that edits it. ⚠️ It is not among the candidates either -- AS-4 (MUST NOT)
+// keeps `-` out of the roster -- but the write side still reads it as AS-3's
+// signal, because AS-5's search box is a place a person can type it.
 //
 // ⭐ HOW A DATE IS WRITTEN. FR-054 (MUST) takes the lexical date part of a date
 // column and (MUST NOT) converts no zone; `dayOf` is where that happens once for
@@ -465,6 +482,52 @@ function assigneeText(schedule: Schedule, taskUid: number): string {
   return assignees.map((assignee) => assignee.name).join(PART_SEPARATOR)
 }
 
+/**
+ * Two names in the order the specification puts assignees in, without the uid
+ * `compareAssignees` needs -- one name stands for everyone who carries it.
+ *
+ * @purity pure
+ */
+function compareNames(a: string, b: string): number {
+  if (a === b) return 0
+  return a < b ? -1 : 1
+}
+
+/**
+ * The candidates AS-5 (MUST) has PR-16 choose from -- 名簿から選ばせる形.
+ *
+ * ⭐ THE ROSTER IS WALKED, NOT WRITTEN OUT, which is the shape `choicesOf`
+ * already takes for PR-15: the candidates are the `Resource` rows this document
+ * holds, so no list here can disagree with the document, and the paragraph under
+ * table T-016 (MUST NOT) forbids a roster of choices to be stated a second time.
+ *
+ * ⚠️ ONE ENTRY PER NAME. AS-8 (MUST) admits several people of one name and (MUST
+ * NOT) forbids merging them, while AS-6 (MUST NOT) keeps the uid off the screen
+ * -- so a second entry spelled exactly like the first would be a candidate
+ * nobody could tell from it. The name stands once, and AS-8's own tie-break --
+ * the smaller uid -- is what the write side resolves it to.
+ * ⚠️ A resource with no name is left out for the reason `assigneeText` gives:
+ * there is no name to show and AS-6 forbids the uid in its place.
+ * ⛔ FR-059's work-resource filter is NOT borrowed, for the reason `assigneeText`
+ * gives as well: it keeps materials and costs off the DRAWING, and this is the
+ * surface that edits the assignment.
+ * ⚠️ The order of two unlike names is by code unit, as it is in `assigneeText`:
+ * no row fixes a collation, and a locale-dependent one would order the same
+ * document differently on two machines.
+ *
+ * @purity pure
+ */
+function assigneeChoices(schedule: Schedule): readonly string[] {
+  // ⭐ A `Set` rather than a scan per resource: a description is built for every
+  // frame, and rule 05 of docs/development-rules forbids a linear search on that
+  // path (NFR-013).
+  const names = new Set<string>()
+  for (const resource of schedule.resources) {
+    if (resource.name !== null) names.add(resource.name)
+  }
+  return [...names].sort(compareNames)
+}
+
 // --------------------------------------------------------- the controls ----
 
 /**
@@ -610,21 +673,53 @@ function controlOf(
 }
 
 /**
+ * PR-16's one control: the 選択 table T-016 writes in its 入力の型 column.
+ *
+ * ⛔ THE KEY NAMES THE TASK AND CANNOT NAME THE ITEM. `PropertyFieldKey` has one
+ * arm per HOLDER OF A COLUMN, and PR-16 is the one row of table T-016 whose
+ * substance is not a column -- that row says so in as many words. What names it
+ * is `PropertyField.row`, which IF-9 (「その欄が名乗る行 ID とともに返し」) fixes
+ * as coming back BESIDE the key, so the side that turns a commit into a command
+ * reads `PR-16` there and never reaches for a column.
+ * ⚠️ `uid` IS THE COLUMN BECAUSE IT IS THE ONE THAT WRITES NOTHING. No row of
+ * table T-108 sets a task's uid, so a commit that somehow arrived without its
+ * row id names a column the write side answers with no command at all, rather
+ * than one that would change a value the person never touched.
+ *
+ * ⭐ THE CONTROL STANDS EMPTY WHILE THE FIELD LISTS THE PEOPLE. A task may carry
+ * several assignments, so the ROW's text is the several names joined and this
+ * one control is where ONE name is settled. What a settled name does is
+ * 割り当てる: AS-7 (MUST) creates the person and assigns, AS-10 (MUST) only
+ * forbids a second assignment of someone already on the task, and no row of
+ * table T-225 speaks of replacing -- 解除 has its own row and its own signal
+ * (AS-3). ⛔ NOT the joined text: a chooser that handed several names back
+ * untouched would be a name nobody is called, and AS-7 would make a `Resource`
+ * of it.
+ *
+ * ⛔ SO THE ROW'S OWN TEXT IS THE ONLY PLACE THE PEOPLE ARE NAMED, and it has to
+ * be drawn. FR-006 (MUST) puts the item on the panel and AS-6 (MUST) makes what
+ * is shown a name -- a surface that draws a control INSTEAD of
+ * `PropertyField.text` stops naming anybody on this one row, where every other
+ * row's control carries its own value.
+ *
+ * @purity pure
+ */
+function assigneeControl(schedule: Schedule, taskUid: number): PropertyControl {
+  return {
+    key: { holder: 'task', uid: taskUid, column: 'uid' },
+    kind: 'choice',
+    text: '',
+    choices: assigneeChoices(schedule),
+    min: null,
+    max: null,
+  }
+}
+
+/**
  * The controls of one row of table T-016.
  *
- * STOP -- ⛔ `PR-16` GETS NONE, AND THE GAP IS A SURFACE RATHER THAN A ROW.
- * AS-5 of table T-225 (MUST) has the assignee edited here and (MUST) asks for a
- * dropdown WITH a partial-match search over the roster; AS-6 shows names and
- * writes uids, and a task may carry several assignments, which is why this
- * field's text joins several names. None of `PropertyControl`'s seven kinds is
- * that control, and table T-016's 選択 does not describe it either. Looked in
- * table T-225 (AS-5 / AS-6 / AS-8 / AS-9), FR-008, FR-059 and table T-016.
- * Chose no control, so the panel writes the names out as text as it did before
- * -- rather than a plain dropdown, which would meet neither the search half of
- * AS-5 nor a task with two people on it.
- *
- * ⛔ `PR-9` GETS NONE EITHER, and that one is the table's own mark: it is the
- * one row table T-016 calls read-only, because FR-012 derives it.
+ * ⛔ `PR-9` GETS NONE, and that one is the table's own mark: it is the one row
+ * table T-016 calls read-only, because FR-012 derives it.
  *
  * @purity pure
  */
@@ -633,8 +728,8 @@ function controlsOfItem(
   task: Task,
   item: PropertyItem,
 ): readonly PropertyControl[] {
-  if (item.heldBy === 'assignment') return []
   if (READ_ONLY_ROWS.includes(item.row)) return []
+  if (item.heldBy === 'assignment') return [assigneeControl(schedule, task.uid)]
 
   const entity: ShapedEntity = item.heldBy === 'task' ? 'Task' : 'TaskVisual'
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
