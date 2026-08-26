@@ -67,12 +67,20 @@
 //
 // ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
 //
-//   * ⛔ THE SIZE OF A BOX WITH NO BODY (`text` = null, AT-112 being nullable).
-//     FR-097 is triggered 「本文を入力または変更したとき」, which a box nobody
-//     has typed into has not reached, and no row of T-201, T-206, T-215 or
-//     T-217 gives such a box a width or a height. ⛔ NO CASE BELOW STATES ONE.
-//     ⚠️ The emptied body (`text` = '') is a different state -- the author DID
-//     change the body -- and has its own case at the end of this file.
+//   * ⛔ THE SIZE OF A BOX WITH NO BODY -- still not stated, though its FLOOR now
+//     is. FR-097 gained 「本文が空、または `null` のときも、全角 1 文字ぶんの幅
+//     と 1 行ぶんの高さを下回ってはならない（MUST NOT）」, which reaches both the
+//     emptied body and the never-typed one (AT-112 being nullable) and is the
+//     subject of the last three cases in this file. ⛔ IT IS A FLOOR AND NOT A
+//     SIZE -- the clause says so itself -- so no case states what either box
+//     actually measures, and no row bounds them from above.
+//   * ⚠️ 「全角 1 文字ぶん」 AND 「表 T-215 の文字の大きさ」 ARE NOT ALWAYS THE
+//     SAME NUMBER, though FR-097's ⚠️ equates them. `S-30`'s own note reads
+//     「全角 1 文字 = フォント × 2 × 係数」, so the two coincide only while
+//     `labelCoef` is 0.5. `S-30` admits 0.3 to 1, and a document at 1 makes 全角
+//     1 文字 twice table T-215's size. ⛔ The floor below is read from T-215,
+//     because that is the value the clause names outright; nothing here varies
+//     `labelCoef` to force the question.
 //   * ⛔ THE PAINT ORDER. Table T-020 runs ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4, ZO-5
 //     -- plan bar, guide, actual bar, progress marker, dependency, name label
 //     -- AND NOT ONE ROW NAMES AN ANNOTATION. A comment box floats over the
@@ -935,36 +943,80 @@ describe('UC-008 extension 2a -- a box on a row that is not drawn is not drawn',
 })
 
 // ---------------------------------------------------------------------------
-// ⛔ THE EMPTIED BODY
+// ⛔ THE BOX WITH NO BODY -- FR-097's floor
 //
-// ⚠️ THIS CASE IS EXPECTED TO BE RED, AND IS LEFT RED ON PURPOSE.
+// The clause FR-097's STATEMENT carries after the newline sentence:
 //
-// FR-097 is triggered 「作成者がコメントボックスの本文を入力または変更したとき」,
-// and an author who selects the body and deletes it HAS changed it. The rule
-// that then applies is 「**本文の箱の大きさは本文に合わせること（MUST）。**幅は
-// `FR-093` の概算で求め」, and FR-093's estimate is 「単位数 × フォントサイズ ×
-// `labelCoef`」 -- which for a body of no units is zero. With S-181 on both
-// sides that is `PAD * 2` and nothing else.
+//   ⛔ **本文が空、または `null` のときも、全角 1 文字ぶんの幅と 1 行ぶんの高さ
+//   を下回ってはならない（MUST NOT）** —— `FR-093` の概算は単位数が 0 なら 0 を
+//   返すので、**余白だけの箱になり、置いた本人にも掴めず消せもしない。**
+//   ⚠️ **`null` を含めるのは、`CM-46` が作る箱がすべてその状態だからである**
+//   —— 含めないと、最も普通の場合に大きさを述べた行が 1 つも無いことになる。
+//   ⛔ **下限であって大きさではない** —— 本文を持つ箱は概算のままとし、下限を
+//   全部の箱に掛けてはならない（MUST NOT）。⚠️ **新しい値は要らない** ——
+//   全角 1 文字ぶんは表 T-215 の文字の大きさそのものである。
 //
-// ⚠️ The height of the same box IS right: an emptied body carries no newline, so
-// it is one line, and 「1 行の高さは文字の大きさに等しい」 gives `fontSize +
-// PAD * 2`. Only the width is in dispute, which is why the case asserts both --
-// a repair must not lose the half that already holds.
+// ⭐ THREE THINGS THE SENTENCE SETTLES. The three cases below are those three.
 //
-// ⛔ THIS FILE DOES NOT SAY THE REPAIR IS IN `src/`. A minimum size for a box
-// with no body would be a perfectly good rule; there is simply no row that
-// states one, and 04-verification.md section 1 forbids writing the expectation
-// to match what the code happens to do. See the head of this file for the
-// never-typed box (`text` = null), which FR-097's trigger does not reach at all
-// and which therefore has no case here.
+//   1. 「本文が空、**または `null`** のときも」 -- BOTH states are named, so the
+//      never-typed box is now reached and the case `PD-236` asks for (「`text`
+//      が `null` の箱が描かれ、掴める試験」) belongs here. ⚠️ It did not belong
+//      before: what changed is the sentence, not the reasoning that kept it out.
+//   2. 「下回ってはならない（MUST NOT）」 -- a FLOOR. ⛔ SO EVERY CASE BELOW
+//      ASSERTS `>=`, NEVER `===`. The clause says outright 「下限であって大きさ
+//      ではない」, so pinning an exact width here would be inventing the size the
+//      specification declined to state -- the same fault as reading one out of
+//      `src/`.
+//   3. 「下限を全部の箱に掛けてはならない（MUST NOT）」 -- the third case proves
+//      it was not, by finding a body-bearing box legitimately BELOW the floor
+//      that is still exactly FR-093's estimate.
+//
+// ⭐ WHAT 「全角 1 文字ぶん」 IS. The clause settles its own value: 「全角 1 文字
+// ぶんは表 T-215 の文字の大きさそのものである」. ⛔ So the floor below is read
+// from table T-215 and is NOT recomputed through FR-093. ⚠️ Those are the same
+// number only while `labelCoef` is at its default -- see the gap note at the head
+// of this file.
+//
+// ⛔ WHAT THE SENTENCE STILL DOES NOT SETTLE, and why no case states it: whether
+// 「全角 1 文字ぶんの幅」 is measured on the TEXT, with S-181 then added outside
+// it, or on the BOX ITSELF. The two readings differ by `PAD * 2` and both satisfy
+// 「下回ってはならない」, so the cases below pass under either and name neither.
+// ⚠️ Nor does any row bound these two states from ABOVE, so no case can.
+//
+// ⛔ AND THE OTHER HALF OF `PD-236`'S TEST -- 「掴める」 -- IS STILL NOT REACHABLE.
+// GR-14's grab region is on no surface `PI-6` or `PI-19` publishes (see the head
+// of this file). What stands in for it is the floor itself, which is the clause's
+// own reason for existing: 「置いた本人にも掴めず消せもしない」.
 // ---------------------------------------------------------------------------
 
-describe('FR-097 -- a body the author emptied', () => {
-  it('is sized by FR-093\'s estimate of no units at all', () => {
-    const box = boxOf(drawBody(''))
-    expect({ width: box.body.width, height: box.body.height }).toEqual({
-      width: estimatedWidth('', FONT_SIZE_OF.M) + PAD * 2,
-      height: FONT_SIZE_OF.M + PAD * 2,
-    })
+describe('FR-097 -- a box with no body does not fall below its floor', () => {
+  const SCALES = ['S', 'M', 'L'] as const
+
+  /** 「全角 1 文字ぶんは表 T-215 の文字の大きさそのものである」. */
+  const floorOf = (fontScale: (typeof SCALES)[number]): number => FONT_SIZE_OF[fontScale]
+
+  it.each(SCALES)('at fontScale %s an emptied body keeps one 全角 and one line', (fontScale) => {
+    const box = boxOf(drawBody('', { fontScale }))
+    expect(box.body.width).toBeGreaterThanOrEqual(floorOf(fontScale))
+    expect(box.body.height).toBeGreaterThanOrEqual(floorOf(fontScale))
+  })
+
+  it.each(SCALES)('at fontScale %s a never-typed body is drawn and keeps the same floor', (fontScale) => {
+    // AT-112 is nullable and CM-46 makes every box in this state.
+    const box = boxOf(drawBody(null, { fontScale }))
+    expect(box.body.width).toBeGreaterThanOrEqual(floorOf(fontScale))
+    expect(box.body.height).toBeGreaterThanOrEqual(floorOf(fontScale))
+    // 「描かれ」 -- the picture carries it, not merely the geometry.
+    expect(annotationFiguresOf(null, { fontScale }).length).toBeGreaterThan(0)
+  })
+
+  it('does not lay the floor on a box that has a body (MUST NOT)', () => {
+    // 'a' is one 半角 unit, so FR-093's estimate is half a 全角 -- legitimately
+    // under the floor. Had the floor been laid on every box, this would have
+    // been lifted to it. ⭐ Compared against the SMALLER of the two readings of
+    // 「全角 1 文字ぶんの幅」, so the case holds under both.
+    const box = boxOf(drawBody('a'))
+    expect(box.body.width).toBe(estimatedWidth('a', FONT_SIZE_OF.M) + PAD * 2)
+    expect(box.body.width).toBeLessThan(FONT_SIZE_OF.M)
   })
 })
