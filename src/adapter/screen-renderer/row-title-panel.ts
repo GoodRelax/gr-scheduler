@@ -484,6 +484,6 @@ export const NOT_STORED_ROW_CONTROL_SIZES: {
   /** S-140, in px */
   readonly 'S-140': number
 } = {
-  'S-140': 56,
+  'S-140': 0,
 }
 // </generated>
