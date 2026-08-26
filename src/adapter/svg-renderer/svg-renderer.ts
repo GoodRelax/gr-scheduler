@@ -877,6 +877,9 @@ export function svgFromSchedule(
   const selectedBoxes = new Set(
     selection.items.filter((one) => one.kind === 'highlightBox').map((one) => one.id),
   )
+  const selectedComments = new Set(
+    selection.items.filter((one) => one.kind === 'commentBox').map((one) => one.id),
+  )
   const selectedStatusLine = selection.items.some((one) => one.kind === 'statusLine')
   /**
    * The dependency routes SL-1 has selected, keyed by both ends.
@@ -912,6 +915,13 @@ export function svgFromSchedule(
   const markerParts: string[] = []
   const linkParts: string[] = []
   const labelParts: string[] = []
+  // ⛔ TABLE T-020 HAS NO ROW FOR AN ANNOTATION, so where a comment box sits
+  // among the six is decided here rather than read. It goes OVER ZO-5's name
+  // labels: NFR-007 makes 4.5:1 a MUST for the comment box's own text, and a
+  // label painted across the body would put unmeasured ink on the ground that
+  // MUST is met against. The same reading `handleParts` and the ruler take.
+  // @provisional PD-238
+  const annotationParts: string[] = []
   // ⭐ Neither of these is a row of table T-020, and neither is an omission
   // from it: the fade grab points are an overlay FR-075 puts on the SELECTED
   // Task, and the ruler is a different UI part (U-19, not U-50). Both go over
@@ -925,13 +935,9 @@ export function svgFromSchedule(
   // be framed; both are thickened where they are drawn, by `selectedLineWidth`,
   // and so stay in `linkParts` with their own paint order.
   //
-  // ⛔ STOP -- ⛔ SL-1's COMMENT BOX GETS NO FRAME, because this unit cannot
-  // see one. `ScheduleGeometry` has no member for comment boxes at all: its own
-  // head note records that the source has no column for the box's size and
-  // FR-093 forbids measuring the text, so nothing here has a rectangle to frame.
-  // `item-hit-area.ts` and `everythingSelectable` record the same gap on their
-  // side. What this file would need is a member on `ScheduleGeometry` carrying
-  // the drawn box, the way `highlightBoxes` does.
+  // ⭐ SL-1's comment box is framed here too, now that `ScheduleGeometry` gives
+  // it a rectangle: its body IS its bounding rectangle, the same way the
+  // highlight box's is.
   const selectionParts: string[] = []
 
   // ⭐ FR-043's dummies GET NO ARRAY OF THEIR OWN. Table T-020 holds no row for
@@ -1175,6 +1181,52 @@ export function svgFromSchedule(
     }
   }
 
+  for (const box of geometry.commentBoxes) {
+    // ⛔ STOP -- THE LEADER IS NOT DRAWN. AT-111 gives a comment box two leader
+    // kinds, `calloutBox` and `polyline`, and FR-019 makes the author's choice
+    // between them a MUST -- but NO ROW IN ANY TABLE says what either one is
+    // drawn AS, and RC-13 of table T-026 reserves a new figure to the user.
+    // Drawing a segment here would be this unit minting the figure. ⚠️ The
+    // visible consequence while it stands: the choice changes nothing on
+    // screen, and a body dragged off its anchor is joined to it by nothing.
+    //
+    // ⭐ The body is FILLED rather than left open. NFR-007 makes 4.5:1 a MUST
+    // for the comment box's own text in as many words, and text laid over an
+    // arbitrary bar has no known ground to meet that against. S-162 is the
+    // precedent for taking S-146 to float a mark clear of what is behind it.
+    // ⚠️ Measured against WCAG 2.1: S-147 on S-146 is 17.76:1 light and 14.94:1
+    // dark, while ANNOTATION_COLOUR as INK is 3.58:1 on the dark ground and
+    // FAILS -- so it is the outline alone, where 1.4.11's 3:1 is what applies.
+    // ⚠️ The fill hides whatever is behind the body. That is the price of the
+    // MUST, not an oversight. @provisional PD-231
+    annotationParts.push(
+      `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
+        ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
+        ` fill="${themed('S-146')}" stroke="${ANNOTATION_COLOUR}" stroke-width="1"/>`,
+    )
+    for (const [index, line] of box.lines.entries()) {
+      // ⛔ The baseline sits at the FOOT of each em box. FR-097 makes one line
+      // as tall as the type and stops there; no row says where inside that box
+      // the baseline falls. `rulerSvg` computes the same foot with a lift of
+      // its own, and S-179 is the RULER's row -- rule 03 forbids borrowing it.
+      // ⚠️ The last line's descenders eat into S-181's padding. That is the
+      // honest consequence of the foot and is worth a row of its own.
+      // @provisional PD-230
+      annotationParts.push(
+        `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
+          ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
+          ` font-size="${rounded(box.fontSize)}" fill="${themed('S-147')}"` +
+          ` xml:space="preserve">${escaped(line)}</text>`,
+      )
+    }
+    // SL-8, the framed half. ⭐ The body IS the bounding rectangle, and the
+    // frame is still a separate rect: SL-8 (MUST NOT) forbids re-stroking the
+    // target's own outline, and the dash has to survive the annotation colour.
+    if (selectedComments.has(box.id)) {
+      selectionParts.push(selectionFrameSvg(box.body, themed('S-151')))
+    }
+  }
+
   const parts = [
     ...defsParts,
     ...bandParts,
@@ -1184,6 +1236,7 @@ export function svgFromSchedule(
     ...markerParts,
     ...linkParts,
     ...labelParts,
+    ...annotationParts,
     ...selectionParts,
     ...handleParts,
     // FR-017's band last of all. The Row Area's own paint is clipped to it,

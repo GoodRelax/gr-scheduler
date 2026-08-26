@@ -133,7 +133,13 @@ function cellOf(table: SpecTable, id: string, at: number): string {
 const T_103_NAME = 0
 /** Table T-109 prints the surface an entry stands on first, after the row ID. */
 const T_109_SURFACE = 0
-/** Table T-109 prints the requirement that is the authority for an entry last. */
+/**
+ * Table T-109 prints the requirement that is the authority for an entry fourth,
+ * after the surface, the group and what the entrance is for.
+ * ⚠️ NO LONGER LAST: 構え (the row of table T-023b the entrance arms) now stands
+ * after it, so the guard describe at the foot of this file pins position 3 by
+ * what stands in it rather than by counting from the end.
+ */
 const T_109_AUTHORITY = 3
 /** Table T-024 prints format, direction, extension -- the last two are read here. */
 const T_024_DIRECTION = 1
@@ -1890,7 +1896,16 @@ describe('the tables are read by position, so the positions are pinned', () => {
     // ⚠️ IC-52 LEADS BOTH ROSTERS because `entriesOn` keeps the table's print
     // order and that row comes before IC-71. ⭐ It reaches U-56 by CR-226,
     // which is the cell that gave the surface OP-3 asks on a way off it.
-    expect(T_109.headings.length).toBe(5)
+    // ⚠️ SIX, NOT FIVE, SINCE 構え WAS APPENDED AFTER 正. Table T-109's preamble
+    // states it: 「⭐ **`構え` の欄は、その入口が押されたときポインタが入る 表
+    // T-023b の行である。**」 -- appended, so neither position read below moved.
+    expect(T_109.headings.length).toBe(6)
+    // ⛔ THE COUNT ALONE IS NOT THE GUARD `cellOf` ASKS FOR. A column inserted
+    // in the middle while another is dropped leaves the count where it was and
+    // shifts every reading by one, so the two positions this file reads are
+    // pinned by what stands in them: IC-1 stands on U-31 and rests on FR-087.
+    expect(cellOf(T_109, 'IC-1', T_109_SURFACE)).toContain('`' + partNameOf('U-31') + '`')
+    expect(cellOf(T_109, 'IC-1', T_109_AUTHORITY)).toContain('`FR-087`')
     expect(entriesOn(OPEN_CHOOSER)).toEqual(['IC-52', 'IC-71', 'IC-72', 'IC-73'])
     expect(entriesOn(EXPORT_CHOOSER)).toEqual(['IC-52'])
     // ⚠️ NO IC-52 ON `Confirmation`: NT-7 (MUST) makes the two answers the whole

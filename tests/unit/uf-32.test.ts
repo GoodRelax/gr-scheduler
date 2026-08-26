@@ -44,7 +44,10 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import {
+  svgFromSchedule,
+  NOT_STORED_DUMMY_SIZES,
+} from '../../src/adapter/svg-renderer/svg-renderer'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -105,6 +108,10 @@ const SETTINGS = settingsOf({
   // (S-104) is carried under `planActualGuidePattern.on` / `.off`, and the
   // 補助線 reads the nested pair. S-104's own figure is `2,2`.
   planActualGuidePattern: { on: 2, off: 2 },
+  // ⚠ AND ONCE MORE, for the third time and the same reason: `fontScaleSizes`
+  // (S-121 〜 S-123) is carried under its dotted keys, and the comment box's
+  // AutoFit (FR-097) reads the nested object.
+  fontScaleSizes: { S: 12, M: 14, L: 16 },
 })
 
 const ENV: ScreenEnvironment = {
@@ -250,6 +257,40 @@ const coloursOf = (svg: string): readonly string[] => {
 const paintedOf = (svg: string): readonly Element[] =>
   elementsOf(svg).filter((e) => e.tag !== 'svg')
 
+/**
+ * The elements the picture draws 薄く, by the offset `elementsOf` gives them --
+ * a figure that either states a 濃さ itself or stands inside something that
+ * states one.
+ *
+ * ⭐ WHY THE PICTURE HAS TO BE READ AS A TREE HERE, and not scanned flat. Since
+ * 2026-08-26 the 実績入力のダミー is drawn, and FR-013 (MUST) puts it in the
+ * 実績バー's own clothes: 「未着手のマーカーと、実績入力のダミー（`FR-043`）は
+ * 薄く描き、ポインタが乗っているあいだだけ濃くすること（MUST）…濃さの値は
+ * `S-131`。**色は実績バーの色を継ぎ、独立した色を保存しない**（`FR-041`）」。
+ * ⛔ SO NEITHER COLOUR NOR SHAPE TELLS A ダミー FROM AN 実績バー -- the one thing
+ * that does is the 濃さ that same MUST gives it, and the 濃さ may be stated on a
+ * group that encloses the figure rather than on the figure itself.
+ * ⚠️ The leading `\s` keeps `fill-opacity` and `stroke-opacity` out, which are a
+ * different thing from the element's own 濃さ.
+ */
+const faintlyDrawn = (svg: string): ReadonlySet<number> => {
+  const out = new Set<number>()
+  const ancestors: boolean[] = []
+  const scan = /<(\/?)([a-zA-Z][\w-]*)\b([^>]*)>/g
+  let hit: RegExpExecArray | null = scan.exec(svg)
+  while (hit !== null) {
+    const body = hit[3] as string
+    const statesOne = /\sopacity="/.test(hit[0])
+    if (hit[1] === '/') ancestors.pop()
+    else {
+      if (statesOne || ancestors.includes(true)) out.add(hit.index)
+      if (!body.trimEnd().endsWith('/')) ancestors.push(statesOne)
+    }
+    hit = scan.exec(svg)
+  }
+  return out
+}
+
 // --- colour arithmetic, so a case can state a condition of table T-017a -----
 
 interface Rgb {
@@ -375,9 +416,24 @@ const spanOf = (bar: Element): { readonly from: number; readonly to: number } =>
  * 予定（2026-01-20〜）shares no day with it. So exactly one bar has its span
  * inside another bar's span: that inner one is the 実績バー, and the bar around
  * it is the 予定バー of the same `Task`.
+ *
+ * ⛔ NESTING ALONE STOPPED BEING ENOUGH ON 2026-08-26, and what replaces it is
+ * a row, not a looser reading. `AFTER` is 未着手, so FR-043 (MUST) now owes it
+ * 「実績の入力を始める掴みシロを**2 つ**…**薄く**タスクの上に示し」, and `GR-17` of
+ * 表 T-023d puts the second of them 「未着手のタスクの上、`S-129` ぶん進んだ
+ * 稼働日」 -- which is inside `AFTER`'s own 予定バー. A second figure therefore
+ * nests, and FR-013 (MUST) has already said that neither its colour nor its band
+ * can be told from the 実績バー's: 「色は実績バーの色を継ぎ、独立した色を保存
+ * しない」（`FR-041`）.
+ * ⭐ THE ROW THAT TELLS THEM APART IS THE ONE THAT MADE THEM ALIKE. The same MUST
+ * draws the ダミー 薄く -- 「濃さの値は `S-131`」 -- and no requirement draws an
+ * 実績バー 薄く, so a figure the picture states a 濃さ for is a ダミー and not a
+ * bar. ⚠️ NOT S-180's width: that row settles how wide a ダミー is DRAWN, and a
+ * short enough 実績バー could be drawn exactly as wide.
  */
 const themeBars = (svg: string): { plan: string; actual: string } => {
-  const bars = paintedOf(svg).filter((e) => e.tag === 'polygon')
+  const faint = faintlyDrawn(svg)
+  const bars = paintedOf(svg).filter((e) => e.tag === 'polygon' && !faint.has(e.at))
   const spans = bars.map(spanOf)
   const nested: { readonly plan: Element; readonly actual: Element }[] = []
   for (let outer = 0; outer < bars.length; outer += 1) {
@@ -1105,16 +1161,63 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   /** S-131. 濃さの値 FR-013 names, printed from the manuscript by `npm run gen`. */
   const S_131 = SETTINGS_DEFAULTS['dummyOpacity'] as number
 
-  it('draws the not-started marker at S-131, and nothing else faint', () => {
+  /** S-180 -- 「実績のダミーを描く幅（表 T-023d の `GR-9` / `GR-17` / `GR-18`）」. */
+  const S_180 = NOT_STORED_DUMMY_SIZES['S-180']
+
+  /** The figures the picture draws 薄く, whatever kind of element they are. */
+  const faintFiguresOf = (svg: string): readonly Element[] => {
+    const faint = faintlyDrawn(svg)
+    return paintedOf(svg).filter((e) => faint.has(e.at))
+  }
+
+  it('draws the not-started marker AND both 掴みシロ at S-131, and nothing else faint', () => {
     // FR-013 (MUST): 「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く
     // 描き、ポインタが乗っているあいだだけ濃くすること（MUST）…濃さの値は
     // `S-131`」。表 T-021 の `PM-1a` is the 未着手 symbol.
-    // ⛔ ONE 濃さ, not two: 「薄さで進行中と区別してはならない（MUST NOT）」 puts
-    // no faintness on any other symbol, so the whole picture states it once.
+    //
+    // ⛔ THAT SENTENCE NAMES TWO THINGS, AND THIS CASE USED TO ASK FOR ONE. It
+    // read 「薄さで進行中と区別してはならない（MUST NOT）」 as a licence to
+    // demand a single 濃さ in the whole picture; that MUST NOT is about the
+    // MARKER's five symbols -- 「形が意味を担う」（`FR-030`）, 表 T-021 -- and
+    // says nothing about how many figures may be drawn 薄く. ⚠️ The old reading
+    // was green only for as long as nothing drew the ダミー.
     const svg = drawn(oneRow([spanning(1, '2026-01-05', 5, { name: 'idle' })]))
-    const faint = faintnessOf(svg)
-    expect(faint, 'the not-started marker states its 濃さ once').toHaveLength(1)
-    expect(faint[0]!).toBeCloseTo(S_131, 6)
+    expect(
+      new Set(faintnessOf(svg)),
+      'every 濃さ the picture states is `S-131`, and it states no other',
+    ).toEqual(new Set([S_131]))
+
+    // FR-043 (MUST): 「`Task` が未着手であるあいだ、`GRS` は、実績の入力を始める
+    // 掴みシロを**2 つ**（マイルストーンは例外とする）、実績の開始点と終了点と
+    // して**薄く**タスクの上に示し」 -- two of them, and drawn 薄く.
+    const faint = faintFiguresOf(svg)
+    const dummies = faint.filter((e) => e.tag === 'polygon')
+    expect(dummies, 'FR-043 (MUST): 未着手 owes 掴みシロ を 2 つ').toHaveLength(2)
+    for (const one of dummies) {
+      const span = spanOf(one)
+      // S-180: 「実績のダミーを描く幅…12px」。⛔ 「**`S-93` とは別の値である**
+      // —— あちらは読む人の当たり判定であって、環境が大きく取ってよい」.
+      expect(span.to - span.from, 'the ダミー is drawn at the width `S-180` states').toBeCloseTo(
+        S_180,
+        6,
+      )
+    }
+
+    // 表 T-021 の `PM-1a` (`( · )`) is the 未着手 marker, and FR-013 draws it
+    // 薄く beside the 掴みシロ. ⚠️ HOW MANY FIGURES THE SYMBOL TAKES IS NOT
+    // ASSERTED -- 表 T-021 prints `( · )` and no row of docs/spec says whether a
+    // ring and a point are one element or two.
+    expect(
+      faint.filter((e) => e.tag !== 'polygon' && e.tag !== 'g').length,
+      'FR-013 (MUST): the 未着手 marker is drawn 薄く too',
+    ).toBeGreaterThan(0)
+
+    // ⛔ AND THE 予定バー IS NOT AMONG THEM. FR-013 names the marker and the
+    // ダミー and nothing else, so the one bar of this scene is at full 濃さ.
+    const bars = paintedOf(svg).filter(
+      (e) => e.tag === 'polygon' && !dummies.some((one) => one.at === e.at),
+    )
+    expect(bars, 'the 予定バー is drawn at full 濃さ').toHaveLength(1)
   })
 
   it('does not thin a Task that is under way', () => {
@@ -1125,15 +1228,35 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     expect(faintnessOf(drawn(running))).toEqual([])
   })
 
-  it('does not thin the late mark, which wins over 未着手', () => {
-    // FR-013: 「遅れの `(!)` は薄くしない —— `PM-4` が勝つ状態であり、`UC-006` が
-    // 最も見つけたい対象だからである」, and 「未着手のタスクでも `PM-4` は進捗
-    // マーカーの場所に出る」 -- so a Task that is BOTH not started and late
-    // states no 濃さ at all.
+  it('does not thin the late mark, which wins over 未着手 -- but still thins the 掴みシロ', () => {
+    // FR-013: 「⚠️ **遅れの `(!)` は薄くしない** —— `PM-4` が勝つ状態であり、
+    // `UC-006` が最も見つけたい対象だからである」, and 「⚠️ **未着手のタスクでも
+    // `PM-4` は進捗マーカーの場所に出る**（表 T-023d の `GR-7`）—— **未着手で
+    // あることは実績バーの有無が担う**（`FR-043`）」.
+    //
+    // ⛔ THIS CASE USED TO ASK FOR NO 濃さ AT ALL, AND THAT READING TAKES THE
+    // 掴みシロ AWAY WITH THE MARKER. FR-043 (MUST) shows them 「`Task` が未着手
+    // であるあいだ」 -- being late is not being started, and the requirement
+    // exempts nothing for it -- so the two 掴みシロ are still owed and FR-013
+    // still draws them 薄く. What the 遅れ takes away is the marker's own
+    // faintness, not the picture's.
     const late = oneRow([spanning(1, '2026-01-05', 5, { name: 'late' })], {
       project: { calendarUid: null, statusDate: '2026-02-01', themeHue: 214, title: null },
     })
-    expect(faintnessOf(drawn(late))).toEqual([])
+    const svg = drawn(late)
+    expect(new Set(faintnessOf(svg)), 'the only 濃さ stated is `S-131`').toEqual(new Set([S_131]))
+    expect(
+      faintFiguresOf(svg).filter((e) => e.tag === 'polygon'),
+      'FR-043 (MUST): a late Task that has not started still shows its two 掴みシロ',
+    ).toHaveLength(2)
+
+    // 表 T-021 の `PM-4` is `(!)`, drawn where `GR-7` puts the marker. ⛔ None of
+    // its figures is 薄く -- and no `line` of the picture is, which is the same
+    // claim made against every figure that is not a bar or a 掴みシロ.
+    expect(
+      faintFiguresOf(svg).filter((e) => e.tag !== 'polygon' && e.tag !== 'g'),
+      'FR-013: 遅れの `(!)` は薄くしない',
+    ).toEqual([])
   })
 })
 

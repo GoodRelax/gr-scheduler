@@ -142,7 +142,15 @@ import {
   type ReplacementRefusal,
   type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
+// ⭐ `editDocument` IS PI-9 OF TABLE T-064 AND IS REACHED FOR THE PICTURE ALONE.
+// The drag preview below folds a release's writes onto a COPY of the held
+// document with it, and PI-9 is pure -- so no stamp is advanced (`advancedStamp`
+// is called nowhere in this component's folder), no undo step is pushed (WS-4
+// pushes on `applyDocumentChange`'s road only) and nothing is autosaved. That
+// FR-031's 「身振り 1 つ ＝ 取り消し 1 段」 survives a mid-drag picture is
+// therefore true by construction rather than by care.
 import {
+  editDocument,
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
@@ -254,6 +262,21 @@ export interface FrameValues {
   readonly regions: ScreenRegions
   readonly layout: ScheduleLayout
   readonly geometry: ScheduleGeometry
+  /**
+   * The settings the three above were measured with -- the document this frame
+   * DREW, under `withPropertiesPanelShown`.
+   *
+   * ⛔ NOT ALWAYS THE HELD DOCUMENT'S. FR-052 has the divider's picture follow
+   * the pointer while it is held, and that picture is drawn from a preview whose
+   * two panel widths are not the stored ones -- so `settingsLimitsOf` adding the
+   * HELD widths back to a `Row Area` cut with the PREVIEW's would report a sum
+   * that drifts by exactly the travel, and FR-052's own test is judged on that
+   * sum. ⭐ Carried beside the three rather than read again for the same reason
+   * `readSnapshot` reads `values` into a local: the frame the picture came from
+   * and the frame the bounds are measured against have to be one frame.
+   * @provisional PD-254
+   */
+  readonly settingsMeasuredWith: DocumentSettings
 }
 
 /**
@@ -481,6 +504,62 @@ const BAR_ENDPOINT_GRABS: ReadonlySet<GrabbedArea> = new Set<GrabbedArea>([
   'GR-5',
   'GR-6',
 ])
+
+/**
+ * Which rows of table T-023d draw, while held, the thing they would write on
+ * the release.
+ *
+ * ⭐ WHAT THE TABLE ITSELF ASKS FOR, ROW BY ROW. Two of its closing rules are
+ * MUSTs about the picture during the drag: one gives it to `GR-9` / `GR-17` /
+ * `GR-18` and one to `GR-1` / `GR-2` -- and both add that 確定 still follows
+ * IN-1 of table T-028, so a `true` here settles nothing and only draws.
+ * ⛔ THE OTHER ROWS ARE FALSE BECAUSE NO ROW ASKS YET, not because they could
+ * not: the rest of the table has no such closing rule, and turning one on would
+ * be this file inventing a requirement (rule 03 section 1).
+ *
+ * ⭐ A CENSUS THE COMPILER KEEPS, the bargain `PRESS_CHANGES_DOCUMENT` strikes:
+ * `Record<GrabbedArea, boolean>` makes a row added to table T-023d a compile
+ * error here that names itself, where the `ReadonlySet` above would let it
+ * default silently into 「no picture」.
+ * @provisional PD-250
+ */
+const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
+  'GR-1': true,
+  'GR-2': true,
+  'GR-3': false,
+  'GR-4': false,
+  'GR-5': false,
+  'GR-6': false,
+  'GR-7': false,
+  'GR-8': false,
+  'GR-9': true,
+  'GR-10': false,
+  'GR-12': false,
+  'GR-13': false,
+  'GR-14': false,
+  'GR-15': false,
+  'GR-16': false,
+  'GR-17': true,
+  'GR-18': true,
+}
+
+/**
+ * Whether a press in flight owes a picture of what it would write.
+ *
+ * ⛔ `on` IS THE FIRST QUESTION, exactly as it is in `isDocumentChangingPress`
+ * and for the same reason: the note under table T-023a limits that table to the
+ * schedule's drawing area (MUST), so a press the screen surface answered for
+ * carries no row of table T-023d at all. FR-052's `Panel Divider` is one of
+ * those -- U-24 has no entry in table T-109, which is why `commandFromEntry`
+ * tests `dividerPanel` before it reads `entry`.
+ *
+ * @purity pure
+ */
+function isPreviewedPress(press: PointerPress | null): boolean {
+  if (press === null) return false
+  if (press.on !== null) return press.on.dividerPanel !== null
+  return press.hit !== null && PREVIEWED_GRABS[press.hit.grab]
+}
 
 /**
  * The reach table T-023d's rows are grabbed by (`itemAtPointer`, PI-7).
@@ -2162,6 +2241,18 @@ export function frameLoop(
   // CS-2 of table T-066 -- the press a gesture began with, kept until the
   // gesture ends, because IN-1 decides the whole gesture from it on release.
   let pressed: PointerPress | null = null
+  // The picture a held press owes -- FR-052's two widths and the fade table
+  // T-023d's closing rule asks for -- and `null` whenever no press owes one.
+  //
+  // ⛔ THE PICTURE, NEVER THE VALUE. Every write this loop makes is measured
+  // against `held.document`, and nothing ever folds this back onto it: IN-1 of
+  // table T-028 settles a pointer operation on the release, and both closing
+  // rules say the following is 「絵の話であって、値が決まる時点を早めるものではない」.
+  // ⚠️ NOR IS IT EVER FOLDED ONTO ITSELF. `previewOfHeldPress` starts every
+  // fold at `held.document`, so this is a pure function of (held document,
+  // press, pointer now) -- the trap `PointerPress.followedTo` had to be written
+  // around, where a travel applied to what a travel already moved compounds.
+  let previewDocument: Document | null = null
   // FR-053 -- where GR-19's drag has left the `Command Palette`, and `null`
   // while nobody has dragged it. ⛔ Held and nothing more: see
   // `paletteCornerOf` for why no table keeps it and why it starts at no
@@ -2510,7 +2601,13 @@ export function frameLoop(
     owed = false
     // CS-1 of table T-066: the frozen copy this frame is drawn from, taken
     // once at its head.
-    const document = held.document
+    // ⭐ ONE DOCUMENT PER FRAME STILL, WHICH IS THE WHOLE OF CS-1: a held press
+    // that owes a picture substitutes the copy at this one line, and everything
+    // below -- regions, settings, layout, geometry, both surfaces -- reads that
+    // one binding. ⛔ `exportScene` keeps `held.document` unchanged: EP-12 of
+    // table T-076 keeps this session's state out of an export, and a drag in
+    // flight is as much this session's as the selection is.
+    const document = previewDocument ?? held.document
     // FT-4 of table T-078 -- how long the pointer has rested, in ms, read ONCE
     // and here so that everything this frame draws is about one instant.
     // ⚠️ BESIDE THE FROZEN COPY AND NOT INSIDE IT: the note under table T-078
@@ -2539,7 +2636,7 @@ export function frameLoop(
     // reads. Two different answers here would put a grab where no point is
     // drawn (PD-191).
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
-    values = { regions, layout, geometry }
+    values = { regions, layout, geometry, settingsMeasuredWith: withPanelShown }
     surface.showSvg(
       // 'screen' is the picture a person is looking at, so table T-076's
       // omissions do not apply: FR-043's dummies are drawn here and only here.
@@ -2996,7 +3093,12 @@ export function frameLoop(
     // short by exactly S-171: `frame.regions.rowArea` was cut with the panel
     // showing, and adding a stored `0` back would not return the width the
     // panel is occupying. FR-052 is judged against this sum.
-    const withPanelShown = withPropertiesPanelShown(held.document.documentSettings)
+    // ⛔ CARRIED BY THE FRAME AND NO LONGER READ OFF `held.document`. While
+    // FR-052's divider is held the frame is measured from a preview whose two
+    // widths are not the stored ones, and the held widths added back to a
+    // `Row Area` cut with the preview's would make this sum drift by exactly
+    // the travel -- so the width the release is judged against would depend on
+    // how far the finger had already gone. See `FrameValues`.
     return {
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
@@ -3004,9 +3106,64 @@ export function frameLoop(
         frame === null
           ? 0
           : frame.regions.rowArea.width +
-            withPanelShown.rowTitlePanelWidth +
-            withPanelShown.propertyPanelWidth,
+            frame.settingsMeasuredWith.rowTitlePanelWidth +
+            frame.settingsMeasuredWith.propertyPanelWidth,
     }
+  }
+
+  /**
+   * The document a held press would leave behind if the button came up now, or
+   * `null` where nothing is held that owes a picture.
+   *
+   * ⭐ NOTHING NEW IS WORKED OUT HERE, WHICH IS THE POINT. FR-052's two widths
+   * and table T-023d's fade days are decided in exactly one place -- the
+   * release road of `commandFromInput` (PI-18) -- so the picture asks that same
+   * member with a release shaped from where the pointer stands now, and folds
+   * what it answers onto a COPY with `editDocument` (PI-9). ⛔ A second reading
+   * of either rule here would be a picture that could disagree with the write it
+   * is a picture OF, which is the whole defect this closes.
+   *
+   * ⭐ THE SYNTHETIC RELEASE IS HONEST. `gestureModifiers` reads the PRESS's
+   * modifiers for every phase but `down`, and CS-2 of table T-066 freezes the
+   * button, the hit and the part on the press as well -- so the only thing this
+   * supplies is the point, which is what the person is choosing.
+   *
+   * ⛔ AND IT SETTLES NOTHING. `applyDocumentChange` (PI-8) is not on this road,
+   * so WS-4 pushes no undo step, `advancedStamp` moves no stamp, no watcher is
+   * notified and nothing is autosaved. FR-031's 「身振り 1 つ ＝ 取り消し 1 段」
+   * therefore survives however many frames a drag lasts.
+   *
+   * ⛔ A REFUSED WRITE DRAWS THE HELD DOCUMENT. WS-3 of table T-067 throws a
+   * whole bundle away when one command comes back refused, so a release from
+   * here would write nothing at all -- and the picture that matches THAT is the
+   * unchanged one. ⚠️ Keeping the last accepted preview instead would break the
+   * property the note on `previewDocument` leans on and would show a width the
+   * release will not produce.
+   * @provisional PD-253
+   *
+   * @purity semi-pure-b
+   */
+  function previewOfHeldPress(
+    press: PointerPress | null,
+    at: { readonly x: number; readonly y: number } | null,
+    context: InputContext,
+    frame: FrameValues,
+  ): Document | null {
+    if (press === null || at === null || !isPreviewedPress(press)) return null
+    const release: PointerInput = { ...press.at, phase: 'up', x: at.x, y: at.y }
+    const action = commandFromInput(release, context).action
+    if (action === null || action.kind !== 'changeDocument') return null
+    const limits = settingsLimitsOf(frame)
+    // ⭐ THE FOLD STARTS AT THE HELD DOCUMENT AND NEVER AT THE LAST PICTURE.
+    let drawn = held.document
+    for (const commands of action.writes) {
+      for (const command of commands) {
+        const result = editDocument(drawn, command, limits)
+        if (!result.ok) return null
+        drawn = result.document
+      }
+    }
+    return drawn
   }
 
   /**
@@ -3051,9 +3208,13 @@ export function frameLoop(
         document: held.document,
         selection,
         dialogue: dialogueLog,
-        // `FrameValues` and `FrameSnapshot` are the same three members; ADR-001
-        // computed them at the head of this frame and this hands them on rather
-        // than running table T-068 again for one call.
+        // `FrameSnapshot` is the three members of `FrameValues` a caller may
+        // read; ADR-001 computed them at the head of this frame and this hands
+        // them on rather than running table T-068 again for one call.
+        // ⚠️ THE FOURTH IS NOT ON PI-19 AND IS NOT MEANT TO BE. What a frame was
+        // measured WITH is this loop's own bookkeeping for `settingsLimitsOf`,
+        // and the settings a caller wants are the document's, which AM-3 already
+        // answers with.
         frame,
         exportScene: exportScene(),
         isGestureInFlight: isDocumentChangingPress(pressed),
@@ -3398,6 +3559,14 @@ export function frameLoop(
     // FT-2 of table T-078: the current value was replaced, so a frame is owed.
     // ⚠️ `ask` coalesces with FT-1's, so the press still paints once.
     if (outcome.accepted) {
+      // ⛔ THE PICTURE IS ABOUT THE DOCUMENT IT WAS FOLDED ONTO, and that
+      // document has just been replaced. This road is the one that reaches here
+      // from OUTSIDE a happening -- IF-7's `holdDocument` and OP-2's read -- so
+      // the frame asked for below would otherwise paint a preview of a document
+      // that is gone. ⚠️ A replacement that arrived on a happening (SK-6's undo)
+      // has the preview worked out again at the end of `receiveInput`, from the
+      // document this call just put in place.
+      previewDocument = null
       // FR-065 (MUST): 「1 つの文書で開いたことが、別の文書を開いたときにも効いて
       // いてはならない」.
       //
@@ -4653,6 +4822,29 @@ export function frameLoop(
         pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer, grabUnderPointer),
       )
     }
+
+    // FR-052 (MUST) and table T-023d's closing rule for GR-1 / GR-2 -- the
+    // picture the held press owes, worked out once this happening has been
+    // spent.
+    //
+    // ⭐ ONE ASSIGNMENT SETS IT AND CLEARS IT, and `pressed` is what decides
+    // which: the press has already been dropped above on IN-1's release, on
+    // IN-1a's lost pointer and on IN-4's `Esc`, so an interrupted drag loses its
+    // picture on the very happening it loses its gesture, and a release loses it
+    // on the happening that writes the value for real. ⛔ A second place to
+    // clear this would be a second rule about when a gesture ends.
+    // ⚠️ FROM `pointerAt` AND NOT FROM `input`: a key happening arriving
+    // mid-drag would otherwise blank the picture and put the bar back where the
+    // pointer no longer is.
+    // ⭐ AFTER `carryOutAction` for the same reason it is after the drop -- the
+    // release's write has landed, so the fold below starts at what it wrote.
+    // ⚠️ `context` AND `frame` ARE AS OLD AS THIS HAPPENING'S START, the same
+    // age `grabAtPointer` above reads them at. One happening can both write and
+    // leave a press held -- a wheel zoom mid-drag is the only one that does --
+    // and the day this then names is read off the layout from before that zoom.
+    // ⭐ It costs one frame and cannot reach the document: the release asks
+    // `commandFromInput` again against the context of its own moment.
+    previewDocument = previewOfHeldPress(pressed, pointerAt, context, frame)
 
     // FT-1 owes a frame for every happening the row names, save the one FR-048
     // takes back. ⚠️ `ask` coalesces, so two triggers in one task still paint

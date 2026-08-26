@@ -20,9 +20,11 @@
 //   - the assignee and percent labels (OC-2 of table T-038), the deadline mark
 //     (FR-045) and the days-late label (FR-047). Table T-042 puts them at M3
 //     and M4, and ScheduleLayout carries the matching gap in its occupancy.
-//   - the comment box body. The source has no column for its size and FR-093
-//     forbids measuring the text, so there is nothing to derive one from. M4
-//     decides it together with the column.
+//   - the comment box's LEADER, AT-111's `calloutBox` and `polyline`. The body
+//     is drawn now that FR-097 states the sizing rule and S-181 / S-182 hold
+//     the padding and the wrap, but no row anywhere says what either leader
+//     kind is drawn AS, and RC-13 of table T-026 reserves a new figure to the
+//     user. `commentGeometry` carries the anchor for whoever draws it.
 //   - the guide and dual cursors. `dualCursor`'s two dates hold `unknown` in
 //     the source, so there is no value to read.
 //   - the watermark (FR-020) and the baseline overlay (FR-015). M4 and M5.
@@ -186,6 +188,27 @@ export interface HighlightGeometry {
   readonly box: ScreenRect
 }
 
+/**
+ * FR-019's CommentBox: the BODY alone, sized to its own text by FR-097.
+ *
+ * ⛔ NO LEADER. AT-111 gives the box two leader kinds and FR-019 makes choosing
+ * between them a MUST, but no table says what either kind is drawn as. `anchor`
+ * is the point on the schedule the box is pinned to -- where the leader would
+ * start -- and is carried so that the hit test, the eventual leader and any
+ * later drag all read one answer rather than three.
+ */
+export interface CommentGeometry {
+  readonly id: string
+  /** AT-113's date on the time axis, AT-114's row on the vertical one. */
+  readonly anchor: Point
+  /** What is drawn, and what GR-14 grabs. */
+  readonly body: ScreenRect
+  /** The body already broken into lines (FR-097). One entry is one line. */
+  readonly lines: readonly string[]
+  /** FR-039's fontScale through table T-215. FR-097 makes one line this tall. */
+  readonly fontSize: number
+}
+
 export interface ScheduleGeometry {
   readonly tasks: readonly TaskGeometry[]
   readonly dependencies: readonly DependencyGeometry[]
@@ -194,6 +217,8 @@ export interface ScheduleGeometry {
   /** CU-1. Null when `Project.statusDate` holds nothing. */
   readonly statusLine: { readonly x: number; readonly top: number; readonly bottom: number } | null
   readonly highlightBoxes: readonly HighlightGeometry[]
+  /** FR-019's CommentBox, body only. See `CommentGeometry`. */
+  readonly commentBoxes: readonly CommentGeometry[]
 }
 
 /** @purity pure */
@@ -273,6 +298,41 @@ function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number
   }
   const fadeIn = Math.min(rawIn, span)
   return { fadeIn, fadeOut: Math.min(rawOut, span - fadeIn) }
+}
+
+/**
+ * GR-1 and GR-2 of table T-023d, on the two points its 場所 column names --
+ * table T-012a's point 4 and point 2.
+ *
+ * ⛔ NOT THE BOUNDING RECTANGLE'S CORNERS, WHICH IS WHAT THIS WAS. FD-4 has the
+ * polygon REPLACE the rectangle once a fade stands, so 「予定バーの左上の角」 IS
+ * point 4 -- and a handle left at the placement's own `x` marks a vertex the
+ * drawn bar no longer has. ⚠️ The two readings agree exactly while both fades
+ * are zero, which is why the old expression looked right on every Task that
+ * used none.
+ *
+ * ⭐ THE OUTLINE'S OWN CLAMP AND NOT A SECOND ONE. `barOf` draws point 4 and
+ * point 2 through `clampedFade`, so calling the same function here keeps FD-6
+ * and FD-6b from drifting between the drawn vertex and the □ that marks it.
+ * ⭐ `item-hit-area.ts` reads these very points, so the grab follows the
+ * drawing without a second edit -- the property PD-191's note already leans on.
+ *
+ * ⚠️ ON THE TIME AXIS, NEVER ON A CHEVRON'S DRAWN NOTCH VERTEX. Table T-023d's
+ * closing rule takes the days from the day under the pointer and says the grab
+ * point IS 「時間軸の上の『ある日』そのもの」, and FD-5 lets the fade replace the
+ * notch depth with `max(fadeIn, fadeOut)` -- so on a chevron whose two fades
+ * differ the notch stands at a day this handle must not report.
+ * @provisional PD-252
+ *
+ * @purity pure
+ */
+function fadeHandlePoints(task: Task, placed: TaskPlacement, planTop: number,
+                          pxPerDay: number): readonly Point[] {
+  const fade = clampedFade(task, placed.shapeKind, placed.width, pxPerDay)
+  return [
+    point(placed.x + fade.fadeIn, planTop),
+    point(placed.x + placed.width - fade.fadeOut, planTop + placed.planHeight),
+  ]
 }
 
 /** LF-6, plan side. @purity pure */
@@ -926,7 +986,7 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     // picture in the renderer would not have moved the hit area an inch.
     fadeHandles:
       placed.actualPlacement === 'inside' && inputs.selectedTaskUids.has(placed.taskUid)
-        ? [point(placed.x, planTop), point(placed.x + placed.width, planTop + placed.planHeight)]
+        ? fadeHandlePoints(task, placed, planTop, inputs.layout.pxPerDay)
         : [],
     label: labelBoxOf(inputs, placed),
   }
@@ -1060,6 +1120,151 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
 }
 
 /**
+ * Full-width counts two, half-width counts one. FR-093 forbids measuring the
+ * glyphs (MUST NOT) and forbids keeping what a measurement returned (MUST NOT).
+ *
+ * ⚠️ THE THIRD COPY of this two-line rule. `schedule-layout.ts` holds one for
+ * LC-5 and `row-title-panel.ts` holds the other for FR-085, and that one's note
+ * gives the reason: one rule must keep one answer.
+ * ⛔ Not imported. Neither copy is on its component's published member list in
+ * table T-064 -- PI-5 does not publish `labelUnits` -- and Chapter 5.3 forbids
+ * reaching past a folder's public entry, so importing it would mean widening a
+ * published table for two lines. Rule 03's DRY points the other way; the copy
+ * is the smaller wrong, and a fourth would mean the rule has earned a home.
+ *
+ * @purity pure
+ */
+function charUnits(ch: string): number {
+  return ch.charCodeAt(0) < 0x100 ? 1 : 2
+}
+
+/** @purity pure */
+function labelUnits(text: string): number {
+  let units = 0
+  for (const ch of text) units += charUnits(ch)
+  return units
+}
+
+/**
+ * FR-097's two breaks: the body's OWN newlines are line breaks whatever their
+ * width, and what is left over is filled to S-182 units.
+ *
+ * ⚠️ A carriage return is folded into the newline first. An imported document
+ * can carry CRLF, and FR-097 speaks of the break the author put in, not of the
+ * bytes it arrived as.
+ *
+ * ⛔ A fill break may fall between ANY two characters. FR-097 sends the wrap to
+ * S-182 and says nothing about word boundaries -- and S-182's own note, which
+ * leaves an over-long word to the author, reads the other way. Breaking
+ * anywhere is the reading that makes the count mean the same thing in a script
+ * with no spaces, which is the case S-182's default (全角 64) is stated for.
+ * @provisional PD-237
+ *
+ * @purity pure
+ */
+function wrappedLines(text: string, limit: number): readonly string[] {
+  const out: string[] = []
+  for (const paragraph of text.replace(/\r\n?/g, '\n').split('\n')) {
+    let line = ''
+    let units = 0
+    for (const ch of paragraph) {
+      const width = charUnits(ch)
+      if (units + width > limit && line !== '') {
+        out.push(line)
+        line = ''
+        units = 0
+      }
+      line += ch
+      units += width
+    }
+    out.push(line)
+  }
+  return out
+}
+
+/**
+ * FR-019's CommentBox, sized to its own text.
+ *
+ * ⭐ FR-097 states the whole sizing rule and this function does nothing beyond
+ * it: the width is FR-093's estimate (units x font size x labelCoef, S-30) and
+ * never a measurement, the wrap is S-182, the padding is S-181, the type size
+ * is FR-039's fontScale through table T-215, and one line is as tall as the
+ * type. Nothing here reads a glyph and nothing here keeps a measurement.
+ *
+ * ⛔ THE LEADER IS NOT BUILT -- see `CommentGeometry` and the head note.
+ *
+ * @purity pure
+ */
+function commentGeometry(
+  schedule: Schedule,
+  settings: DocumentSettings,
+  layout: ScheduleLayout,
+): readonly CommentGeometry[] {
+  // One index for the whole pass, for the reason `highlightGeometry` states.
+  // ⭐ Built from `layout` alone, so an absent setting cannot reach it.
+  const rowById = new Map(layout.rows.map((row) => [row.groupId, row]))
+  const out: CommentGeometry[] = []
+  // ⛔ NO SETTING IS READ BEFORE THE LOOP, and none may be. ⚠️ Hoisting
+  // `fontScaleSizes[fontScale]` to the head threw on EVERY schedule holding no
+  // comment box: this runs once a frame for every document, and a document that
+  // draws no box must not have to carry the value that would size one.
+  // ⭐ The rule is not about cost -- a value a frame does not use is a value
+  // that frame must not require. `highlightGeometry` takes no settings at all
+  // and never had the fault.
+  for (const box of schedule.commentBoxes) {
+    const day = dayOf(box.anchorDate)
+    const row = box.anchorGroupId === null ? undefined : rowById.get(box.anchorGroupId)
+    // ⛔ NOT `highlightGeometry`'s fallback to the drawn extent. That one exists
+    // because UC-008 extension 4a asks a RANGE to shrink to the rows still
+    // drawn; extension 2a asks a comment box whose row is collapsed or hidden
+    // to be HIDDEN, and the note under table T-023a then keeps what was not
+    // drawn out of the hit test as well.
+    // ⚠️ AT-114 admits a null row and AT-113 a null date, so a box with either
+    // becomes invisible and therefore unselectable -- a value in the document
+    // with no way left to reach it. That is the honest consequence of the same
+    // rule, and it is reported rather than papered over. @provisional PD-234
+    if (day === null || row === undefined) continue
+    const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
+    let widest = 0
+    for (const line of lines) widest = Math.max(widest, labelUnits(line))
+    // ⛔ An empty body is the state CM-46 creates EVERY box in, and it has no
+    // width of its own: 2 x S-181 alone is a box too small to aim at, which
+    // would leave the commonest case unreachable. One full-width character is
+    // the smallest extent FR-093's own count can name. @provisional PD-236
+    if (widest === 0) widest = 2
+    // FR-019 holds the offset in SCREEN px, so it is added after the axis and
+    // never scaled -- the distance stays the same at every zoom.
+    // ⭐ A box never dragged has no distance, which is why the fallback is zero
+    // rather than a gap: any other default would put the body somewhere the
+    // author did not. @provisional PD-232
+    const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
+    // ⭐ FR-019 pins the box to a date and a ROW; a row is a band, and its
+    // centre is the only point in it no other rule has already spoken for.
+    // ⛔ Not the band's edges -- `highlightGeometry` takes those because FR-019
+    // asks a highlight to ENCLOSE a range, which is a different rule.
+    // @provisional PD-233
+    const anchor = point(xFromDay(layout, day), row.y + row.height / 2)
+    // FR-039's fontScale through table T-215, and S-181. Read here rather than
+    // at the head, for the reason the loop's own note gives.
+    const fontSize = settings.fontScaleSizes[settings.fontScale]
+    const pad = settings.commentBoxPad
+    out.push({
+      id: box.id,
+      anchor,
+      body: {
+        x: anchor.x + offset.dx,
+        y: anchor.y + offset.dy,
+        width: widest * fontSize * settings.labelCoef + 2 * pad,
+        height: lines.length * fontSize + 2 * pad,
+      },
+      lines,
+      fontSize,
+    })
+  }
+  return out
+}
+
+/**
  * Everything drawn, from what LC-1 to LC-9 already settled.
  *
  * ⚠️ `selection` is required and has no default. FR-075 (MUST) shows the fade
@@ -1126,5 +1331,6 @@ export function geometryFromLayout(
             bottom: regions.rowArea.y + regions.rowArea.height,
           },
     highlightBoxes: highlightGeometry(schedule, layout),
+    commentBoxes: commentGeometry(schedule, settings, layout),
   }
 }

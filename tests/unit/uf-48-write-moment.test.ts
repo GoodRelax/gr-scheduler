@@ -1183,7 +1183,16 @@ describe('the tables these twelve entrances are driven by', () => {
     expect(bare(cellAt('T-202', 'S-62', SETTING_KEY))).toBe('dependencyVisible')
     expect(specTable('T-203').headings.length).toBe(7)
     expect(bare(cellAt('T-203', 'S-72', SETTING_KEY))).toBe('themePreference')
-    expect(specTable('T-109').headings.length).toBe(5)
+    // ⚠️ SIX, NOT FIVE, SINCE 構え WAS APPENDED AFTER 正. Table T-109's preamble
+    // states the new column and why it stands in the table at all:
+    // 「⭐ **`構え` の欄は、その入口が押されたときポインタが入る 表 T-023b の行
+    // である。**」 ⛔ The count alone would sleep through a column inserted in
+    // the middle while another is dropped -- which is the one shift `cellAt`
+    // read by position cannot survive -- so both positions this file reads are
+    // pinned by what stands in them, the way T-202 and T-203 are above.
+    expect(specTable('T-109').headings.length).toBe(6)
+    expect(bare(cellAt('T-109', 'IC-16', T_109_SURFACE))).toBe(APP_HEADER)
+    expect(cellAt('T-109', 'IC-16', T_109_ENTRANCE)).toContain('`S-72`')
     expect(specTable('T-103').headings.length).toBe(3)
   })
 

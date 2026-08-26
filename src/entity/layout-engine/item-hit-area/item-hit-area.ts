@@ -39,10 +39,15 @@
 // contents and a collapsed row's annotations are already absent -- there is
 // nothing here to filter out again.
 //
-// ⛔ Two rows of table T-023d have no target yet, because ScheduleGeometry does
-// not draw their subjects at this milestone: GR-11 (the assignee label, OC-2 of
-// table T-038) and the comment box half of GR-14 (whose size column does not
-// exist). Both slots are marked below, in the order they belong.
+// ⛔ ONE row of table T-023d has no target yet, because ScheduleGeometry does
+// not draw its subject at this milestone: GR-11 (the assignee label, OC-2 of
+// table T-038). Its slot is marked below, in the order it belongs.
+//
+// ⛔ GR-14 answers with the BODY of either annotation and with nothing else.
+// The row reads 本体・アンカー・四隅, and neither the anchor nor the corners has
+// a figure or a grab allowance in any table -- so 「大きさを変える」 has no
+// target for the comment box OR for the highlight box. That stood before the
+// comment box arrived and it stands after it.
 //
 // ⛔ One value this file needs has no row anywhere: how near the pointer counts
 // as on a LINE (GR-13's dependency line, GR-16's status line). Table T-023d
@@ -430,7 +435,16 @@ export function itemAtPointer(
     }
   }
 
-  // GR-14 -- the annotations. ⛔ The comment box half waits on its size column.
+  // GR-14 -- the annotations. ⭐ The comment box is asked FIRST: it can sit
+  // inside a highlight box's range, and if the enclosing box won, the inner one
+  // could never be grabbed -- the very trap GR-19's own remark spells out
+  // (「掴めない位置へ置けてしまうと二度と動かせなくなる」). Table T-023d gives
+  // both kinds one row and states no order between them. @provisional PD-235
+  for (const box of geometry.commentBoxes) {
+    if (isInsideBoxInclusive(x, y, box.body)) {
+      return { item: { kind: 'commentBox', id: box.id }, grab: 'GR-14' }
+    }
+  }
   for (const box of geometry.highlightBoxes) {
     if (isInsideBoxInclusive(x, y, box.box)) {
       return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14' }
@@ -496,6 +510,12 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
         successorUid: line.successorUid,
       })
     }
+  }
+  // ⭐ Same order as `itemAtPointer`'s GR-14, though SL-7b says a marquee makes
+  // no order at all: two loops over the same two kinds are easier to read as
+  // one rule when they are written the same way (rule 03).
+  for (const box of geometry.commentBoxes) {
+    if (isEnclosedInclusive(box.body, marquee)) out.push({ kind: 'commentBox', id: box.id })
   }
   for (const box of geometry.highlightBoxes) {
     if (isEnclosedInclusive(box.box, marquee)) out.push({ kind: 'highlightBox', id: box.id })

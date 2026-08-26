@@ -393,14 +393,20 @@ export type InPlaceTarget =
   /** MK-13 「名称ラベル ＝ 名称の編集」, reached through GR-10. */
   | { readonly kind: 'taskName'; readonly uid: number }
 
-// STOP -- ⛔ THREE OF MK-13's FIVE ENTRANCES CANNOT BE REACHED, and not because
-// they were left out here. 「担当ラベル」 is GR-11 and 「コメントボックス」 is
-// half of GR-14, and `item-hit-area.ts` records in its own header that neither
-// has a target at this milestone -- ScheduleGeometry draws no assignee label
-// and no comment box, so no `Hit` can ever name one. 「行見出し」 is in the Row
-// Title Panel, which the note under table T-023a puts outside this decision
-// order altogether (FR-085 owns it). Adding kinds for them here would declare a
-// vocabulary nothing can produce, which is the guess R4's YAGNI forbids.
+// STOP -- ⛔ TWO OF MK-13's FIVE ENTRANCES CANNOT BE REACHED, and not because
+// they were left out here. 「担当ラベル」 is GR-11, and `item-hit-area.ts`
+// records in its own header that it has no target at this milestone --
+// ScheduleGeometry draws no assignee label, so no `Hit` can ever name one.
+// 「行見出し」 is in the Row Title Panel, which the note under table T-023a puts
+// outside this decision order altogether (FR-085 owns it). Adding kinds for
+// them here would declare a vocabulary nothing can produce, which is the guess
+// R4's YAGNI forbids.
+//
+// ⚠️ 「コメントボックス ＝ 本文の編集」 IS NO LONGER ONE OF THEM. GR-14 now
+// answers with a comment box, so a `Hit` can name one and the reason this STOP
+// used to give for it has expired. FR-097 owns that entrance and wiring it to
+// CM-48 is its own piece of work; the kind is left out until that work is
+// asked for, for the same YAGNI reason and not for the old one.
 
 /**
  * What one happening is assigned to.
@@ -1218,8 +1224,9 @@ function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
  * SL-1's exclusion names SL-3 and SL-7 and no other row, and the reason it
  * gives -- a marquee dragging the status date about -- does not apply to a key
  * that asks for everything.
- * ⛔ Comment boxes are absent because none is drawn: `ScheduleGeometry` has no
- * member for them, which `item-hit-area.ts` records as the same gap.
+ * ⚠️ A comment box the geometry dropped -- its row collapsed or hidden, or its
+ * anchor naming neither -- is absent for the same reason a Task the zoom did
+ * not draw is: only what was drawn can be taken.
  *
  * @purity pure
  */
@@ -1237,6 +1244,9 @@ function everythingSelectable(context: InputContext): readonly ItemRef[] {
       successorUid: line.successorUid,
     })
     if (ref !== null) all.push(ref)
+  }
+  for (const box of geometry.commentBoxes) {
+    all.push({ kind: 'commentBox', id: box.id })
   }
   for (const box of geometry.highlightBoxes) {
     all.push({ kind: 'highlightBox', id: box.id })

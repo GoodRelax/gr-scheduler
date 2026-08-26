@@ -280,6 +280,7 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
     taskGroupMembers: [],
     taskVisuals: [],
     highlightBoxes: [],
+    commentBoxes: [],
     ...part,
   }) as unknown as Schedule
 

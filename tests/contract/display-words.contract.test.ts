@@ -110,7 +110,14 @@
 //   4. THE `構え` GROUP OF THE COMMAND PALETTE (keyed `IC-54`). Table T-109
 //      marks IC-54 「ボタンではない」 and no other row sits in that group, so the
 //      group holds no entry and `CommandPalette` publishes no member that
-//      would carry its name -- `armedText` is FR-053's own text, not a heading.
+//      would carry the GROUP's name.
+//      ⭐ THAT IS NOT THE `arms` SECTION, WHICH IS HELD. Table T-023b's closing
+//      rule (MUST) now puts the word of each arm in this dictionary 「辞書が持
+//      ち、行 ID で引き」 and bars the row id from the screen (MUST NOT), and
+//      FR-053 (MUST) has what is armed readable on the screen -- so each of
+//      AR-1 .. AR-6 is a place here, on the palette, read off
+//      `CommandPalette.armedText`. ⚠️ `armedText` is not the group heading, and
+//      one carrying the other would be this omission and that place at once.
 //   5. TWELVE OF THE FOURTEEN `assignments`. FR-037 shows an assignment where a
 //      person reaches for the slower way, and the only slower ways this
 //      component describes are the two scrollbars -- MK-1 (縦スクロール) and
@@ -135,8 +142,10 @@ import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-mo
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
   emptyScreenState,
+  screenStateWithArmed,
   screenStateWithPalette,
   screenStateWithSurface,
+  type Armed,
   type ScreenState,
 } from '../../src/entity/document-model/screen-state/screen-state'
 import {
@@ -223,6 +232,15 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   confirmationMarks: 'mark',
   panelHeadings: 'showing',
   assignments: 'rowId',
+  // ⭐ THE ROW OF TABLE T-023b THE PALETTE HAS ARMED. Its closing rule (MUST)
+  // 「⭐ **構えの語は 表 T-233 の結びが理由の語について定めるのと同じ扱いとする
+  // こと（MUST）** —— 辞書が持ち、行 ID で引き、行を足すなら原稿にも項を足す。」
+  // -- so the key is the row id, exactly as `reasons` is keyed. ⚠️ It stands
+  // LAST here because this roster is the GENERATED file's printed order and the
+  // generator prints it after `assignments`; the manuscript keeps it between
+  // `panelHeadings` and `assignments`, and no row of docs/spec asks the two
+  // files to agree on the order of their sections.
+  arms: 'rowId',
 }
 
 const isWords = (value: unknown): value is Words =>
@@ -820,6 +838,59 @@ for (const entry of GENERATED['assignments'] ?? []) {
   })
 }
 
+// -- arms: the row of table T-023b the palette has armed, read off the palette
+
+/**
+ * The rows of table T-023b, each with the `Armed` value that IS that row.
+ *
+ * ⛔ THE PAIRING IS NOT INVENTED HERE. `Armed` is the published type of UF-59
+ * (table T-064, PI-36) and its own declaration marks each member with the row
+ * it stands for -- 「/** AR-1 *\/ | { readonly kind: 'none' }」 and so on down to
+ * AR-6 -- which is the only thing read out of `src/` for it (rule 04 section 1
+ * allows the head, the published types and the signatures). ⚠️ The two values
+ * that carry a further choice take one the specification spells: `'rectangle'`
+ * is SH-1 of table T-012, and `'diamond'` is the default `_source/erd.json`
+ * gives `milestoneGlyph`. Neither reaches the word -- table T-023b gives AR-2
+ * and AR-3 one row each, whatever shape is on them.
+ */
+const ARMED_BY_ROW: Readonly<Record<string, Armed>> = {
+  'AR-1': { kind: 'none' },
+  'AR-2': { kind: 'taskShape', shapeKind: 'rectangle' },
+  'AR-3': { kind: 'milestoneShape', glyph: 'diamond' },
+  'AR-4': { kind: 'dependency' },
+  'AR-5': { kind: 'commentBox' },
+  'AR-6': { kind: 'highlightBox' },
+}
+
+for (const entry of GENERATED['arms'] ?? []) {
+  const rowId = keyOf('arms', entry)
+  const armed = ARMED_BY_ROW[rowId]
+  if (armed === undefined) {
+    drop('arms', rowId, 'table T-023b has no such row, so nothing can be armed with it')
+    continue
+  }
+  // FR-053 (MUST, docs/spec/01-04-requirements.md:2423):
+  // 「**いま構えているものが画面上で読めること（MUST）。** 構えの全数は表 T-023b
+  //   が持ち、**依存線は図形ではない。**」 -- and the closing rule of table T-023b
+  // (MUST NOT) bars the row id itself from the screen, so what is read here is
+  // the WORD the dictionary holds for the armed row.
+  // ⭐ ON THE PALETTE, because FR-053 is the requirement that says it and the
+  // palette is the surface FR-053 governs; `CommandPalette.armedText` is the
+  // member UF-65 publishes for it.
+  place({
+    section: 'arms',
+    key: rowId,
+    field: 'text',
+    unit: 'UF-65',
+    what: `what the palette says it has armed while ${rowId} is armed`,
+    frame: {
+      ...PALETTE_SHOWN,
+      state: screenStateWithArmed(PALETTE_SHOWN.state, armed),
+    },
+    read: (view) => view.commandPalette?.armedText,
+  })
+}
+
 // -- the sections whose place is not one of the five units this file may read
 
 for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'noticeDismiss', 'confirmationMarks']) {
@@ -1123,11 +1194,29 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
   it('the manuscript is the source -> both files are read -> the generated dictionary matches it cell for cell', () => {
     // ⛔ Without this the guard below would be blind: a manuscript that changed
     // without `npm run gen` leaves the screen reading the old words.
-    expect(
-      GENERATED_CELLS.map((cell) => `${cell.section}.${cell.key}.${cell.field}.${cell.language}=${cell.word}`),
-    ).toEqual(
-      MANUSCRIPT_CELLS.map((cell) => `${cell.section}.${cell.key}.${cell.field}.${cell.language}=${cell.word}`),
-    )
+    //
+    // ⚠️ SECTION BY SECTION, AND NOT AS ONE LIST, for the reason the case below
+    // states in as many words: the generated file is printed in the order its
+    // generator fixes, and nothing in docs/spec asks a hand-kept JSON to hold
+    // its sections in that same order. Chapter 6.2 (MUST) asks only 「生成物は、
+    // 原稿から作り直した結果と一致すること（MUST）」, which is about the words,
+    // not about where a section is printed. ⭐ THE CONTENT CLAIM IS UNWEAKENED:
+    // every section of either file is walked, and within a section the entries,
+    // the fields and the languages are still held in order -- so a word that
+    // differs, an entry that is missing, an entry that has moved inside its
+    // section, and a section one file holds and the other does not all fail
+    // here. ⚠️ `arms` is what made the difference visible: the manuscript keeps
+    // it between `panelHeadings` and `assignments` and the generator prints it
+    // last.
+    const held = (cells: readonly Cell[], section: string): readonly string[] =>
+      cells
+        .filter((cell) => cell.section === section)
+        .map((cell) => `${cell.section}.${cell.key}.${cell.field}.${cell.language}=${cell.word}`)
+
+    const sections = [...new Set([...Object.keys(GENERATED), ...Object.keys(MANUSCRIPT)])].sort()
+    for (const section of sections) {
+      expect(held(GENERATED_CELLS, section), `section ${section}`).toEqual(held(MANUSCRIPT_CELLS, section))
+    }
   })
 
   it('the specification says which words the screen needs, and FR-032 has just added one -> both files are read section by section and entry by entry -> every section is one this file can key and every entry is a place here or a stated omission', () => {
