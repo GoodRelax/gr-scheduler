@@ -19,9 +19,16 @@
 // are the other file's, in that order, and the order is a MUST: a notice sent
 // before the swap reaches subscribers that then read the OLD document.
 //
+// ⭐ THIS FILE IS THE ONE PLACE TABLE T-027 IS READ, and it reads it twice:
+// `isUndoable` for the writes that leave no step, and `columnsOutsideHistory`
+// for the columns those writes own -- which RD-1 and RD-2 keep through a
+// restore instead of rewinding. UndoEdit and RedoEdit say in their own headers
+// that they never read that table, so both readings have to live together here.
+//
 // ⚠️ It is not the public entry of its component (Chapter 5.3, MUST NOT).
 
 import type { Document } from '../../entity/document-model/document/document'
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   advancedStamp,
   isStampMatched,
@@ -149,6 +156,123 @@ function isUndoable(command: DocumentCommand): boolean {
       return false
     default:
       return true
+  }
+}
+
+/**
+ * The current value of every settings column table T-027 keeps OUTSIDE the
+ * history -- what a restore has to KEEP rather than rewind.
+ *
+ * ⭐ THE CENSUS HAS ONE HOME AND IT IS HERE, beside `isUndoable`, because the
+ * two read the same table from opposite ends: that one says which WRITES leave
+ * no step, this one says which COLUMNS those writes own. ⛔ UndoEdit and
+ * RedoEdit MUST NOT grow a second one -- both headers state that they never
+ * read table T-027, and that is exactly why the keeping happens on this side of
+ * the seam.
+ *
+ * ⚠️ WHY A RESTORE NEEDS THIS AT ALL. WS-4 of table T-067 pushes the document
+ * as it stood BEFORE a write, so a step pushed by an unrelated edit made AFTER
+ * one of these writes carries the column as it stood at that earlier moment.
+ * Restoring that step verbatim hands the old value back -- the panel width
+ * (FR-052) walks backwards on a Ctrl+Z although the drag pushed no step of its
+ * own. ⭐ It is the trap the order of CM-71 and CM-72 already dodges for the
+ * zoom (see `isUndoable`): ordering answers it for ONE press, this answers it
+ * for every step already on the stack.
+ *
+ * ⭐ Read command by command off the arms of `editDocumentSettings`: one entry
+ * per column the commands `isUndoable` refuses actually write. ⛔ A column no
+ * row of table T-027 excludes MUST NOT be listed -- keeping one the history
+ * owns would silently un-do the undo.
+ *
+ * @purity pure
+ */
+function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSettings> {
+  return {
+    // UN-7 -- the eight boolean rows of table T-202, every one of them written
+    // by `setElementVisible` (CM-58) and by nothing else.
+    // ⚠️ THE MULTI-VALUED ROWS OF THAT TABLE STAY INSIDE THE HISTORY (UN-13,
+    // which FR-049 narrows UN-7 to booleans for), so `stackDirection` (S-58),
+    // `planActualDisplay` (S-59), `guideCursorMode` (S-66) and `fontScale`
+    // (S-70) are absent by ruling and not by omission.
+    // ⚠️ `watermarkVisible` (S-144) is the ninth boolean row of that table and
+    // is absent for a different reason: `VisibleElement` does not name it
+    // (FR-020 gates the hiding half), so no write outside the history moves it.
+    assigneeVisible: current.assigneeVisible,
+    percentCompleteVisible: current.percentCompleteVisible,
+    dependencyVisible: current.dependencyVisible,
+    progressMarkerVisible: current.progressMarkerVisible,
+    progressLineVisible: current.progressLineVisible,
+    dateGridLinesVisible: current.dateGridLinesVisible,
+    groupGridLinesVisible: current.groupGridLinesVisible,
+    baselineVisible: current.baselineVisible,
+
+    // UN-16 -- where you look and what you export. `setPanelWidths` (CM-67)
+    // writes the pair, `setExportPngScale` (CM-70) writes the scale.
+    rowTitlePanelWidth: current.rowTitlePanelWidth,
+    propertyPanelWidth: current.propertyPanelWidth,
+    exportPngScale: current.exportPngScale,
+    // ⛔ STOP -- `pinnedGroupIds` (S-126) IS UN-16's THIRD NAME AND IS NOT KEPT.
+    // `pinTaskGroup` / `unpinTaskGroup` (CM-68 / CM-69) write it and leave no
+    // step, so UN-16 alone would put it in this list -- but IV-3 of table T-220
+    // requires every pinned id to name a `TaskGroup` THAT EXISTS, and a
+    // restored document is precisely where a kept id need not: pin a row, undo
+    // the write that created it, and the kept ids point at a row that is gone.
+    // ⛔ No row rules on that meeting. Table T-027 does not, and CD-2 of table
+    // T-050 rules only on deletion (S-126 sent after the row). Keeping the ids
+    // would break an invariant; sweeping them against the restored document
+    // would be a rule invented here. ⚠️ So an undo still rewinds the pins,
+    // against UN-16. Reported, not decided here.
+
+    // UN-8 -- the zoom and the place. `setZoom` (CM-65) writes the first pair,
+    // `setScrollPosition` (CM-66) the four anchors, `fitScheduleToScreen`
+    // (CM-71) all six.
+    // ⚠️ `scrollGroupId` (S-78) is ALSO written by `deleteTaskGroup` (CM-27),
+    // which is undoable (UN-14) and sends the anchor to `null` behind the row
+    // it deletes (CD-2). Keeping the current `null` through an undo is what
+    // UN-8 asks for -- where the view sits is not the schedule -- so the two
+    // rows agree here and nothing is owed.
+    zoomX: current.zoomX,
+    zoomY: current.zoomY,
+    scrollDate: current.scrollDate,
+    scrollGroupId: current.scrollGroupId,
+    scrollDayOffset: current.scrollDayOffset,
+    scrollGroupOffset: current.scrollGroupOffset,
+
+    // UN-12 -- where the two measuring lines stand (`setDualCursor`, CM-60).
+    // ⚠️ `clearDualCursor` (CM-61) writes the SAME column and IS undoable --
+    // `isUndoable` does not name it -- so DC-7's clearing pushes a step, and
+    // keeping this column means undoing that step no longer brings the two
+    // lines back. ⛔ Table T-027 rules on the POSITION (UN-12) and nowhere on
+    // the clearing, and UN-13's own note sweeps every multi-valued row of table
+    // T-202 -- S-65 among them -- INSIDE the history, which UN-12 contradicts
+    // by name. The row that names this column is UN-12, so the column is kept.
+    // Reported.
+    dualCursor: current.dualCursor,
+  }
+}
+
+/**
+ * `restored` with every column of `columnsOutsideHistory` taken from the
+ * document being left behind, so that one press of undo or redo gives back the
+ * schedule and not the reader's view of it.
+ *
+ * ⚠️ THE HISTORY IS NOT TOUCHED. Only the document a restore lands on is, and
+ * the entry the walk moved across already carries the document being left
+ * behind (UndoEdit / RedoEdit both put it there), so the next press keeps these
+ * columns from whatever is current THEN.
+ *
+ * @purity pure
+ */
+function keepingColumnsOutsideHistory(restored: HeldDocument, leaving: Document): HeldDocument {
+  return {
+    document: {
+      ...restored.document,
+      documentSettings: {
+        ...restored.document.documentSettings,
+        ...columnsOutsideHistory(leaving.documentSettings),
+      },
+    },
+    history: restored.history,
   }
 }
 
@@ -461,12 +585,36 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
     // ⚠️ Committed whether or not a step actually moved: `undone: false` hands
     // back the very pair it was given (FR-031 calls that an answer, not an
     // error), so one commit is right either way.
-    case 'RD-1':
-      return replacementSettled(held, undoEdit(held).next)
+    // ⚠️ THE DOCUMENT IS NOT COMMITTED VERBATIM, and only here: the columns
+    // table T-027 keeps outside the history are taken from the document being
+    // left behind (see `columnsOutsideHistory`). The three columns T-230 gives
+    // this row are untouched by that -- the history is still the answered one,
+    // the stamp is still the restored one, and still no step is pushed.
+    case 'RD-1': {
+      const outcome = undoEdit(held)
+      // ⛔ NOTHING MOVED, SO NOTHING IS BUILT. `undone: false` hands the very
+      // pair back, and WS-6 replaces ONE reference (MUST) -- a document that
+      // did not move has to stay the same value, which a fresh object built
+      // out of the columns of itself would not be.
+      if (!outcome.undone) return replacementSettled(held, outcome.next)
+      return replacementSettled(
+        held,
+        keepingColumnsOutsideHistory(outcome.next, held.document),
+      )
+    }
 
-    // RD-2 -- the same three columns, walking the other way.
-    case 'RD-2':
-      return replacementSettled(held, redoEdit(held).next)
+    // RD-2 -- the same three columns, walking the other way. ⚠️ And the same
+    // keeping: a redo replays a write, which is no more a reason to move the
+    // panel width or the zoom than an undo is.
+    case 'RD-2': {
+      const outcome = redoEdit(held)
+      // The same short circuit, for the same MUST.
+      if (!outcome.redone) return replacementSettled(held, outcome.next)
+      return replacementSettled(
+        held,
+        keepingColumnsOutsideHistory(outcome.next, held.document),
+      )
+    }
 
     // RD-3 -- the row that carries the current history forward, and the only
     // one of the six whose stamp advances and whose WS-4 can owe a step.

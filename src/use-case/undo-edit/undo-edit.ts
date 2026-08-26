@@ -46,6 +46,21 @@
 // then lands on precisely the two documents that were current before and after
 // that write.
 //
+// ⛔ THAT ANSWER IS NOT WHAT IS COMMITTED, AND THE DIFFERENCE IS TABLE T-027's.
+// A step holds a WHOLE document, so it also holds the columns that table keeps
+// OUTSIDE the history -- the panel width (UN-16), the zoom and the place
+// (UN-8), the eight toggles (UN-7), the two measuring lines (UN-12) -- as they
+// stood before the write that pushed it. Those writes push no step of their
+// own, so a step pushed later by an unrelated edit is where their values get
+// caught, and answering the step verbatim would rewind them: widen a panel,
+// edit anything, press undo once, and the panel narrows again.
+// ⭐ The caller keeps them from the document being left behind
+// (`columnsOutsideHistory` in
+// src/use-case/apply-document-change/document-change-plan.ts, on RD-1 and RD-2
+// alike). ⛔ THE CENSUS MUST NOT BE COPIED HERE: this unit
+// reads table T-027 nowhere, which is what lets the same reading serve both
+// directions and stay next to `isUndoable`, the other reading of that table.
+//
 // ⭐ What an entry of the history holds depends on which side it is on:
 //
 //     done    the document as it stood BEFORE that write  -- what undo restores
