@@ -306,13 +306,15 @@
 | W-2 | 関数・変数・JSON プロパティ | camelCase | `stackOrder` |
 | W-3 | 定数 | SCREAMING_SNAKE_CASE | `MAX_GROUP_DEPTH` |
 | W-4 | 文字列判別値・`data-role`・CSS クラス | kebab-case。⚠️ **ただし UI パーツの確定名を運ぶ `data-role` は `W-6` の形とする** —— 表 T-103 の名をそのまま書く。訳すと同じものに 2 つ目の綴りができる | `toggle-plan` ／ `Schedule Canvas` |
-| W-5 | i18n キー・プロパティパネルの項目名 | snake_case | `stack_order` |
+| W-5 | i18n キー | snake_case | `stack_order` |
 | W-6 | UI パーツ（散文で指すとき） | PascalCase の複合語（空白あり） | `Row Title Panel` |
 | W-7 | データの属性（散文で指すとき） | `Entity.field` 形式 | `TaskGroupMember.stackOrder` |
 | W-8 | 交換相手に由来する列 | **語幹は相手のまま、記法は `W-2` に従う** | `StatusDate` → `statusDate` |
 | W-9 | `carry` / `carryElements` の中身 | **相手の綴りをそのまま保つ** | `Cost` / `SaveVersion` |
 | W-10 | 真偽値 | **本ソフトウェア固有のものは `is` / `has` / `can` で始める。交換相手に由来するものは語幹を変えない** | `isCollapsed` / `milestone` |
 | W-11 | ファイル名・ディレクトリ名 | kebab-case（`W-4` と同じ記法）。語幹は中身の型名・層名と一致する | `ScheduleLayout` → `schedule-layout.ts` ／ `UseCase` → `use-case/` |
+
+⛔ **プロパティパネルの項目名は `W-2` に従うこと（MUST）** —— 利用者の裁定 2026-08-26。**表 T-016 の「項目名（英語・画面表示）」の綴りがそのまま画面に出る。**⚠️ **本行は 2026-08-26 まで `W-5` が snake_case と定めていたが、その綴りはデータモデルの列名でもあり、`W-2` が JSON のプロパティを camelCase と定めるため両立しない。**⭐ **`W-5` は i18n キーだけを受け持つ。**
 
 > **`W-8` で相手の名前が禁止語（`type` `data` `info` `value`）になるときは、意味を足した複合語にすること（MUST）。** 交換相手には `Type` という名の要素が複数あり、そのまま写すと何の種別かが読めなくなる。
 >
