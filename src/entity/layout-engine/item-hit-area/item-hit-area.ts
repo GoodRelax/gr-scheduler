@@ -22,7 +22,10 @@
 //     highlight box, comment box and the status line. A row is NOT among them
 //     -- FR-085 owns selecting rows, and says in as many words that it is a
 //     different set.
-//   - table T-023d fixes WHERE and IN WHICH ORDER, top row first (MUST).
+//   - table T-023d fixes WHERE and IN WHICH ORDER, top row first (MUST), and
+//     its closing rule keeps a row whose only operation is a double click out
+//     of the plain press (MUST NOT). That is `PointerResolution` below, and
+//     which rows it removes is stated on the rows.
 //
 // ⚠️ The order is the table's PRINTED order, which is not the numeric order of
 // its row IDs: GR-17 sits under GR-9, and GR-15 and GR-18 sit above GR-12.
@@ -89,6 +92,19 @@ export interface Hit {
   /** Which row of table T-023d claimed the point. */
   readonly grab: GrabArea
 }
+
+/**
+ * Which reading of the pointer the caller is resolving.
+ *
+ * ⛔ Table T-023d's closing rule (MUST NOT) refuses a row whose only operation
+ * is a double click to the plain press. ⚠️ Its own ⚠️ keeps the DOUBLE CLICK on
+ * the table's order unchanged, so the two readings walk the same rows in the
+ * same order and differ only in which are asked at all.
+ *
+ * ⚠️ NOT A SECOND TABLE. The rows themselves carry which reading reaches them
+ * (`TaskRow.reach`), so nothing here restates the list the table prints.
+ */
+export type PointerResolution = 'press' | 'doubleClick'
 
 /**
  * How far past the drawn edge a grab still counts.
@@ -263,9 +279,27 @@ function boxedTasksOf(geometry: ScheduleGeometry): readonly BoxedTask[] {
 
 // ------------------------------------------------------- the eighteen rows ----
 
+/**
+ * Which readings of the pointer reach a row -- the row's operation column, read
+ * as table T-023d's closing rule (MUST NOT) reads it.
+ *
+ * ⭐ `doubleClickOnly` is the fact the closing rule turns on, and it is stated
+ * ON THE ROW so that the rule stays one field per row instead of a second copy
+ * of the table's membership. ⛔ A list of row IDs written beside the loop would
+ * be exactly that copy, and nothing would keep it in step when a row's
+ * operation column changes.
+ */
+type RowReach = 'anyPress' | 'doubleClickOnly'
+
 /** One row of table T-023d, as the test it applies to one Task. */
 type TaskRow = {
   readonly grab: GrabArea
+  /**
+   * REQUIRED, and not an optional flag defaulting to `anyPress`: a row added
+   * below has to say which reading reaches it, and a double-click-only row
+   * that forgot to would silently take the plain press back off `GR-12`.
+   */
+  readonly reach: RowReach
   /** @purity pure */
   readonly isClaimedBy: (boxed: BoxedTask, x: number, y: number, slop: PointerSlop) => boolean
 }
@@ -275,7 +309,8 @@ type TaskRow = {
  * claims the point wins, and no row below it is asked.
  *
  * ⛔ GR-11 belongs between GR-10 and GR-15 and is absent -- the assignee label
- * is not drawn at this milestone.
+ * is not drawn at this milestone. ⚠️ When it arrives it is the OTHER row the
+ * closing rule names, so it comes in with `reach: 'doubleClickOnly'`.
  */
 const TASK_ROWS: readonly TaskRow[] = [
   // GR-1 / GR-2 -- the fade handles, at the plan bar's top-left and
@@ -291,6 +326,7 @@ const TASK_ROWS: readonly TaskRow[] = [
   // GR-3 is asked of any, so the picture is what has to be narrow.
   {
     grab: 'GR-1',
+    reach: 'anyPress',
     /** @purity pure */
     isClaimedBy: ({ task }, x, y, slop) => {
       const corner = task.fadeHandles[0]
@@ -299,6 +335,7 @@ const TASK_ROWS: readonly TaskRow[] = [
   },
   {
     grab: 'GR-2',
+    reach: 'anyPress',
     /** @purity pure */
     isClaimedBy: ({ task }, x, y, slop) => {
       const corner = task.fadeHandles[1]
@@ -307,14 +344,19 @@ const TASK_ROWS: readonly TaskRow[] = [
   },
   // GR-3 / GR-4 -- the plan's two ends. GR-15's row records why a milestone
   // has neither: a point has no duration to resize.
-  { grab: 'GR-3', isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left') },
-  { grab: 'GR-4', isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'right') },
+  { grab: 'GR-3', reach: 'anyPress',
+    isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left') },
+  { grab: 'GR-4', reach: 'anyPress',
+    isClaimedBy: (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'right') },
   // GR-5 / GR-6 -- the actual's two ends, inside its own band (S-91).
-  { grab: 'GR-5', isClaimedBy: (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'left') },
-  { grab: 'GR-6', isClaimedBy: (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'right') },
+  { grab: 'GR-5', reach: 'anyPress',
+    isClaimedBy: (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'left') },
+  { grab: 'GR-6', reach: 'anyPress',
+    isClaimedBy: (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'right') },
   // GR-7 -- the progress marker, outside the bar FR-013 names.
   {
     grab: 'GR-7',
+    reach: 'anyPress',
     isClaimedBy: ({ task }, x, y) =>
       task.marker !== null &&
       isNearPoint(x, y, task.marker.centre, task.marker.radius, task.marker.radius),
@@ -322,6 +364,7 @@ const TASK_ROWS: readonly TaskRow[] = [
   // GR-8 -- the resume icon, further out again.
   {
     grab: 'GR-8',
+    reach: 'anyPress',
     /** @purity pure */
     isClaimedBy: ({ task }, x, y) => {
       if (task.resume === null) return false
@@ -331,22 +374,37 @@ const TASK_ROWS: readonly TaskRow[] = [
   },
   // GR-9, then GR-17 -- GR-17's own row puts itself below GR-9 so that the
   // start point wins where the two overlap.
-  { grab: 'GR-9', isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-9', x, y, slop) },
-  { grab: 'GR-17', isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-17', x, y, slop) },
+  { grab: 'GR-9', reach: 'anyPress',
+    isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-9', x, y, slop) },
+  { grab: 'GR-17', reach: 'anyPress',
+    isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-17', x, y, slop) },
   // GR-10 -- the name label, wherever LC-6 put it.
+  //
+  // ⛔ `doubleClickOnly`, because the row's operation column now holds a double
+  // click and nothing else: it forbids moving the label by a grab (MUST NOT),
+  // and sends the one route that moves it to PR-13 of table T-016.
+  // ⚠️ THIS IS WHY THE ROW MAY STAY
+  // WHERE THE TABLE PRINTS IT. NL-1 of table T-013 draws the label INSIDE the
+  // shape, so a press that this row claimed would leave no Task with a name
+  // reachable at GR-12 or GR-18 below -- the same accident GR-9's own ⚠️
+  // records. ⭐ The double-click reading still asks this row here, in the
+  // table's order, which is what the closing rule's ⚠️ requires.
   {
     grab: 'GR-10',
+    reach: 'doubleClickOnly',
     isClaimedBy: ({ task }, x, y) => task.label !== null && isInsideBoxInclusive(x, y, task.label),
   },
   // GR-15 -- a milestone's actual figure. Above GR-12 so that an actual
   // landing on its own plan day can still be picked up.
   {
     grab: 'GR-15',
+    reach: 'anyPress',
     isClaimedBy: ({ task, actual }, x, y) =>
       task.shapeKind === 'milestone' && actual !== null && isInsideBoxInclusive(x, y, actual),
   },
   // GR-18 -- the dummy on a milestone not started.
-  { grab: 'GR-18', isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-18', x, y, slop) },
+  { grab: 'GR-18', reach: 'anyPress',
+    isClaimedBy: ({ task }, x, y, slop) => isOnDummy(task, 'GR-18', x, y, slop) },
   // GR-12 -- the plan bar's middle, the ends having taken their share.
   //
   // ⚠️ The actual bar's BODY is deliberately NOT a grab area (MUST NOT): the
@@ -354,6 +412,7 @@ const TASK_ROWS: readonly TaskRow[] = [
   // picked up, and the only way to move an actual is by its ends.
   {
     grab: 'GR-12',
+    reach: 'anyPress',
     isClaimedBy: ({ plan }, x, y, slop) =>
       plan !== null && isInsideBoxInclusive(x, y, grown(plan, slop.planEndpoint)),
   },
@@ -403,6 +462,14 @@ function isOnDummy(task: TaskGeometry, grab: 'GR-9' | 'GR-17' | 'GR-18', x: numb
  * right-half answer while a dependency is armed (FR-009). None of those three
  * is decided here.
  *
+ * ⚠️ `resolving` DEFAULTS TO THE PRESS, which is the reading every caller
+ * before table T-023d's closing rule was asking for, and the safe one: a caller
+ * that forgets it gets the narrower answer rather than a grab the rule forbids.
+ * ⭐ Table T-064 is not disturbed by the added parameter: its own preamble says
+ * the table holds the member's NAME and what it is for, and leaves arguments
+ * and return values to this file, because `src/` is where a signature has a
+ * type check on it. PI-7's entry still names `itemAtPointer` and nothing else.
+ *
  * @purity pure
  */
 export function itemAtPointer(
@@ -410,9 +477,14 @@ export function itemAtPointer(
   x: number,
   y: number,
   slop: PointerSlop,
+  resolving: PointerResolution = 'press',
 ): Hit | null {
   const boxed = boxedTasksOf(geometry)
   for (const row of TASK_ROWS) {
+    // Table T-023d's closing rule (MUST NOT). ⭐ The row is SKIPPED rather than
+    // moved: the table's printed order is the same for both readings, and a
+    // second ordering would be a second table.
+    if (resolving === 'press' && row.reach === 'doubleClickOnly') continue
     for (const one of boxed) {
       if (row.isClaimedBy(one, x, y, slop)) {
         return { item: { kind: 'task', taskUid: one.task.taskUid }, grab: row.grab }

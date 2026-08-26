@@ -3321,7 +3321,18 @@ export function frameLoop(
     // that table's decision order to the schedule's drawing area (MUST), and
     // the parts drawn over it hold no rectangle in `ScreenRegions` -- so a
     // press the surface claimed was not a press on the schedule at all.
-    const hit = on === null ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP) : null
+    // ⛔ WHICH READING OF TABLE T-023d THIS PRESS IS. Its closing rule (MUST
+    // NOT) keeps a double-click-only row -- GR-10 today -- out of the plain
+    // press, so a name label no longer swallows the press that GR-12 needs;
+    // but the same rule leaves the DOUBLE CLICK on the table's order unchanged,
+    // so the second click must ask for the other reading or MK-13 loses the
+    // label it is meant to open.
+    // ⭐ THE COUNT IS THE FRAMEWORK'S, which is why the answer is settled here:
+    // `clickCount` is meaningful on `down`, and telling a double click from two
+    // single ones is a question about elapsed time that LY-5 leaves this layer.
+    const resolving = at.clickCount >= 2 ? 'doubleClick' : 'press'
+    const hit =
+      on === null ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP, resolving) : null
     // ⭐ ASKED OF THE SIDE THAT OWNS TABLE T-023a, AND CARRIED FROM HERE ON.
     // `collectWriteMoment` needs to know a pan (PD-1) from a marquee (PD-5) to
     // keep AG-9's exemption, and R2.7 forbids it to read that table a second
@@ -3381,6 +3392,11 @@ export function frameLoop(
     // ⛔ PD-2 TURNS HIT TESTING OFF while the `Dual Cursor` is up, so the table
     // is not asked at all rather than asked and its answer thrown away.
     if (dualCursorFollowing !== null) return null
+    // ⭐ THE PRESS READING, by the default, and that is the right one: IN-2's
+    // shape has to say what a PRESS here would do, and table T-023d's closing
+    // rule says a double-click-only row does not answer one. A shape read off
+    // the other reading would put a grab cursor on a name label that cannot be
+    // grabbed.
     return itemAtPointer(frame.geometry, x, y, POINTER_SLOP)
   }
 
@@ -4377,18 +4393,15 @@ export function frameLoop(
         // settle a field that nothing in this build draws, which is the same
         // absence `isTextEntryUnsettled` records above.
         return
-      case 'openPropertiesPanel':
-        // MK-13 「タスク本体 ＝ プロパティパネルを開く」, and FR-072 decides what
-        // it then shows by 「最後に行われた操作」 -- this press IS that operation,
-        // and it is one of the selection's, so the panel turns to the selection.
-        // ⚠️ The `Task` this action names is already in the selection
-        // `selectionFromInput` answered for the same happening, which is why
-        // nothing here reads the uid: the subject is the WHOLE of what is
-        // chosen, and a panel built from one item would disagree with the
-        // marquee that took five.
-        // @provisional PD-144
-        showPropertiesOfChoice()
-        return
+      // ⛔ `openPropertiesPanel` WAS A CASE HERE AND IS GONE. MK-13 forbids a
+      // route that opens the properties panel to sit on that row (MUST NOT),
+      // and the panel loses no entrance by it: FR-072 decides its contents by
+      // the last operation the reader made, and the selection comparison at the
+      // end of `receiveInput` already calls `showPropertiesOfChoice` whenever a
+      // press moved the choice -- which a double click on a Task does on its
+      // first click. ⚠️ That comparison is what this removal rests on and it
+      // was measured, not assumed; the case removed here called that same
+      // function and passed it nothing.
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
         // moves by the travel the translator measured.

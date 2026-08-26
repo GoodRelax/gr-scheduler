@@ -217,6 +217,13 @@ export interface PointerPress {
    * the hit is not always asked for at all. The shell already holds the
    * geometry for the frame (ADR-001), so it is the party that can answer at the
    * moment the press happens rather than one frame later.
+   *
+   * ⛔ THE CALLER ALSO OWES THE READING. Table T-023d's closing rule (MUST NOT)
+   * keeps the double-click-only rows out of a plain press, and `at.clickCount`
+   * -- which the Framework counts, since telling a double click from two single
+   * ones is a question about elapsed time -- is what says which reading this
+   * press is. A shell that asked for the press reading on the second click
+   * would put the name label out of reach of MK-13.
    */
   readonly hit: Hit | null
   /**
@@ -404,10 +411,18 @@ export interface InputContext {
 export type InPlaceTarget =
   /** SK-9 (`F2`), whose one entrance is FR-035. */
   | { readonly kind: 'documentTitle' }
-  /** MK-13 「名称ラベル ＝ 名称の編集」, reached through GR-10. */
+  /**
+   * MK-13's Task entry -- the name label OR the body, both editing the name --
+   * reached through GR-10, GR-12 and GR-15 of table T-023d.
+   *
+   * ⭐ STILL ONE KIND FOR THE TWO PLACES, because MK-13 folded them into one
+   * entry and names one destination for both. Which grab it came in by is not
+   * carried: nothing downstream could use it without the same operation
+   * meaning two things.
+   */
   | { readonly kind: 'taskName'; readonly uid: number }
 
-// STOP -- ⛔ TWO OF MK-13's FIVE ENTRANCES CANNOT BE REACHED, and not because
+// STOP -- ⛔ TWO OF MK-13's FOUR ENTRANCES CANNOT BE REACHED, and not because
 // they were left out here. 「担当ラベル」 is GR-11, and `item-hit-area.ts`
 // records in its own header that it has no target at this milestone --
 // ScheduleGeometry draws no assignee label, so no `Hit` can ever name one.
@@ -483,17 +498,13 @@ export type InputAction =
   | { readonly kind: 'settleTextEntry' }
   /** SK-9 and MK-13. */
   | { readonly kind: 'editInPlace'; readonly target: InPlaceTarget }
-  /**
-   * MK-13 「タスク本体 ＝ プロパティパネルを開く」.
-   *
-   * ⚠️ Which of the two things the panel then shows is FR-072's rule, and NO
-   * TABLE holds the answer -- neither table T-203 nor table T-206 has a key for
-   * it, which `screen-renderer.ts` records where it declares the two members
-   * that do. Those are `ScreenSession`'s, so the shell answers; this says only
-   * that the panel was asked for, about a Task that is already in the selection
-   * this member's sibling returns.
-   */
-  | { readonly kind: 'openPropertiesPanel'; readonly uid: number }
+  // ⛔ `openPropertiesPanel` WAS HERE AND IS GONE. MK-13 now forbids a route
+  // that opens the properties panel to sit on that row (MUST NOT), and its own
+  // reason is that FR-072 already decides the panel's contents by the last
+  // operation the reader made -- the press that selects IS that operation.
+  // ⚠️ Nothing was lost by deleting it: the shell turns the panel to the choice
+  // whenever the selection changes, so a member that only said the panel had
+  // been asked for could ask for nothing but what had just happened.
   /**
    * GR-19 of table T-023d -- the band on top of the `Command Palette` was
    * dragged, so FR-053's palette moves by what the pointer travelled.
@@ -3314,12 +3325,21 @@ function commandFromGrab(
   const item = hit.item
 
   if (release.clickCount >= 2 && item.kind === 'task') {
-    // MK-13: the name label edits the name, the body opens the properties.
-    if (hit.grab === 'GR-10') {
+    // MK-13's Task entry -- the name label or the body, one destination for
+    // both. ⭐ THAT IS THE ROW ITSELF and not a shortcut taken here: the two
+    // were folded into a single entry because NL-1 of table T-013 draws the
+    // label inside the shape, so answering them separately would put one
+    // operation in two places.
+    // ⚠️ THREE ROWS AND NOT TWO. The body is GR-12 for every shape, and a
+    // milestone's actual figure (GR-15) stands over it in table T-023d -- so a
+    // double click on a milestone that has an actual would otherwise reach
+    // nothing at all.
+    // ⛔ The dummies (GR-9 / GR-17 / GR-18) and the ends (GR-3 to GR-6) are NOT
+    // the body: table T-023d gives each of them a grab region of its own, and
+    // no entry of MK-13 names one.
+    const isNameEntrance = hit.grab === 'GR-10' || hit.grab === 'GR-12' || hit.grab === 'GR-15'
+    if (isNameEntrance) {
       return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
-    }
-    if (hit.grab === 'GR-12') {
-      return acted({ kind: 'openPropertiesPanel', uid: item.taskUid })
     }
   }
 
@@ -3483,11 +3503,21 @@ function commandFromGrab(
       // is missing something different rather than being an oversight:
       //   GR-8         `resume`, whose rule is FR-044 and whose valid / invalid
       //                pair (AT-38) has no row saying which a drag produces.
-      //   GR-11 / GR-13 / GR-14 / GR-15  no target exists to be grabbed:
+      //   GR-11 / GR-13 / GR-14  no target exists to be grabbed:
       //                `item-hit-area.ts` records GR-11 and the comment-box
       //                half of GR-14 as undrawn, and a dependency (GR-13) or a
       //                highlight box (GR-14) is SELECTED by a press rather than
       //                changed by one.
+      //   GR-15        moving a milestone's `actualStart`, which HAS a
+      //                target -- `item-hit-area.ts` claims the actual figure --
+      //                and simply is not written. ⚠️ It used to be listed with
+      //                the row above as having no target, and that was never
+      //                true of it. Its double click is answered before the
+      //                switch; only the drag is missing.
+      //   GR-10        cannot arrive by a plain press at all: table T-023d's
+      //                closing rule (MUST NOT) takes it out of that reading, so
+      //                `item-hit-area.ts` never answers it here. Its double
+      //                click is answered before the switch.
       // ⚠️ GR-1 AND GR-2 WERE ON THIS LIST AND ARE NOT ANY MORE, and nothing in
       // the specification moved -- the note said the geometry of a pulled corner
       // was in no table of the specification, while table T-023d's closing rule
