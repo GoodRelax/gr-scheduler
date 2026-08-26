@@ -1380,26 +1380,28 @@ flowchart LR
 
 ⚠️ **「日本語」の列は用語辞書（`_assets/tbl-glossary.md` の表 T-102）からの抜粋であり、正ではない。食い違ったら辞書が勝つ。** 表 T-005 と同じ扱いである。**本表が正であるのは、画面に出す項目の全数と、備考・MSPDI の対応である。**
 
-| 行 ID | 項目名（英語・画面表示） | 日本語 | 備考 | MSPDI |
-| --- | --- | --- | --- | --- |
-| PR-1 | `name` | 名称 | バーに描くラベル | `Task/Name` |
-| PR-2 | `notes` | 備考 | | `Task/Notes` |
-| PR-3 | `start` / `finish` | 開始日 / 終了日 | **予定**の日付 | `Task/Start` `Task/Finish` |
-| PR-4 | `actualStart` | 実績開始日 | | `Task/ActualStart` |
-| PR-5 | `actualDuration` | 実績期間 | 実績バーの長さそのもの（稼働日数） | `Task/ActualDuration` |
-| PR-6 | `actualFinish` | 実績終了日 | 完了したときだけ入る | `Task/ActualFinish` |
-| PR-7 | `resume` | 再開予定日 | 中断したときだけ入る | `Task/Resume` |
-| PR-8 | `resumeValid` | 再開可否 | `false` = 再開日未定の中断 | `Task/ResumeValid` |
-| PR-9 | `percentComplete` | 完了率 | **読み取り専用。** 型と算出は `FR-012` | `Task/PercentComplete` |
-| PR-10 | `deadline` | 期限 | 終了日とは別の独立マーカー | `Task/Deadline` |
-| PR-11 | `shapeKind` | タスク形状 | 表 T-012 | 無い（`GRS JSON` のみ） |
-| PR-17 | `milestoneGlyph` | マイルストーン形状 | `shapeKind` が `'milestone'` のときだけ有効。置いた後も変えられること（`FR-078`） | 無い（`GRS JSON` のみ） |
-| PR-12 | `strokeColor` / `fillColor` / `lineWeight` | 線色 / 塗り色 / 線の太さ | FR-007 | 無い（`GRS JSON` のみ） |
-| PR-13 | `nameAnchor` / `nameAlign` | 名称アンカー / 名称の揃え | FR-002 | 無い（`GRS JSON` のみ） |
-| PR-14 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 | 日付の曖昧さを端のぼかしで表す。**適用する形状は表 T-012a の `FD-5` が限る** | `Task/ExtendedAttribute`（**通常の列は無い。拡張領域を使うのはこの 2 つだけである**。枠の選び方は 表 T-033 の `EX-6`） |
-| PR-15 | `wbsParentUid` | WBS の親 | 階層の深さはここから導出する | `Task/OutlineLevel` へ導出 |
-| PR-18 | `milestone` | マイルストーンか | **交換相手へ書き出す。描画の形（`TaskVisual.shapeKind`）とは別であり、形を変えても本項目は変わらない** | `Task/Milestone`（`mspdi_pj12.xsd:1782`・`xsd:boolean`） |
-| PR-16 | `assignee` | 担当者 | **編集できる。入口と選び方は `FR-008` の表 T-225 が持つ。** ⚠️ **`Task` の列ではない** —— 実体は `Assignment` であり、表示する名は割当から導出する | `Assignment/ResourceUID`（`mspdi_pj12.xsd:3207`・`xsd:integer`）。名は `Resource/Name` |
+| 行 ID | 項目名（英語・画面表示） | 日本語 | 入力の型 | 備考 | MSPDI |
+| --- | --- | --- | --- | --- | --- |
+| PR-1 | `name` | 名称 | 文字 | バーに描くラベル | `Task/Name` |
+| PR-3 | `start` / `finish` | 開始日 / 終了日 | 日付 / 日付 | **予定**の日付 | `Task/Start` `Task/Finish` |
+| PR-16 | `assignee` | 担当者 | 選択 | **編集できる。入口と選び方は `FR-008` の表 T-225 が持つ。** ⚠️ **`Task` の列ではない** —— 実体は `Assignment` であり、表示する名は割当から導出する | `Assignment/ResourceUID`（`mspdi_pj12.xsd:3207`・`xsd:integer`）。名は `Resource/Name` |
+| PR-4 | `actualStart` | 実績開始日 | 日付 | | `Task/ActualStart` |
+| PR-5 | `actualDuration` | 実績期間 | 数値 | 実績バーの長さそのもの（稼働日数） | `Task/ActualDuration` |
+| PR-6 | `actualFinish` | 実績終了日 | 日付 | 完了したときだけ入る | `Task/ActualFinish` |
+| PR-9 | `percentComplete` | 完了率 | 数値（読み取り専用） | **読み取り専用。** 型と算出は `FR-012` | `Task/PercentComplete` |
+| PR-10 | `deadline` | 期限 | 日付 | 終了日とは別の独立マーカー | `Task/Deadline` |
+| PR-2 | `notes` | 備考 | 複数行 | | `Task/Notes` |
+| PR-7 | `resume` | 再開予定日 | 日付 | 中断したときだけ入る | `Task/Resume` |
+| PR-8 | `resumeValid` | 再開可否 | 真偽 | `false` = 再開日未定の中断 | `Task/ResumeValid` |
+| PR-11 | `shapeKind` | タスク形状 | 選択 | 表 T-012 | 無い（`GRS JSON` のみ） |
+| PR-17 | `milestoneGlyph` | マイルストーン形状 | 選択 | `shapeKind` が `'milestone'` のときだけ有効。置いた後も変えられること（`FR-078`） | 無い（`GRS JSON` のみ） |
+| PR-12 | `strokeColor` / `fillColor` / `lineWeight` | 線色 / 塗り色 / 線の太さ | 色 / 色 / 選択 | FR-007 | 無い（`GRS JSON` のみ） |
+| PR-13 | `nameAnchor` / `nameAlign` | 名称アンカー / 名称の揃え | 数値 / 選択 | FR-002 | 無い（`GRS JSON` のみ） |
+| PR-14 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 | 数値 / 数値 | 日付の曖昧さを端のぼかしで表す。**適用する形状は表 T-012a の `FD-5` が限る** | `Task/ExtendedAttribute`（**通常の列は無い。拡張領域を使うのはこの 2 つだけである**。枠の選び方は 表 T-033 の `EX-6`） |
+| PR-18 | `milestone` | マイルストーンか | 真偽 | **交換相手へ書き出す。描画の形（`TaskVisual.shapeKind`）とは別であり、形を変えても本項目は変わらない** | `Task/Milestone`（`mspdi_pj12.xsd:1782`・`xsd:boolean`） |
+| PR-15 | `wbsParentUid` | WBS の親 | 選択 | 階層の深さはここから導出する | `Task/OutlineLevel` へ導出 |
+
+**表 T-016 は印刷順に出すこと（MUST）。よく使う項目を上に置いてある**（利用者の裁定 2026-08-26）—— ⛔ **最も頻繁に触る値のためにスクロールさせてはならない（MUST NOT）。****入力の形は同表の「入力の型」の欄に従うこと（MUST）。**⚠️ **選択の候補・数値の下限と上限・日付である列は `_source/grs-document.schema.json` と `DATE_COLUMNS` が既に持つ。本表へ写してはならない（MUST NOT）** —— 写した瞬間に正が 2 か所になる。**本表が新たに持つのは、色である列と複数行である列の 2 つだけである。**
 
 **項目名は英語表記とすること（MUST）。** **`stop`（中断日）をモデルの列として持ってはならない（MUST NOT）** —— 中断したときの実績バーの右端と同じ値なので、書き出すときに算出する。⚠️ **取り込んだ `Stop` は Carry として保つこと（MUST）。規則は表 T-019 の注記が持つ。**
 
