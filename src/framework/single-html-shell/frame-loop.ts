@@ -1741,6 +1741,9 @@ function escapeLevelOf(
 ): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
   return escapeTarget(context.screenState, {
+    // IN-4's first level (利用者の裁定 2026-08-27). ⚠️ The same value IN-5a
+    // already reads off this context -- one question, not a second reckoning.
+    isTextEntryUnsettled: context.isTextEntryUnsettled,
     gestureInFlight: context.pressed !== null,
     dualCursorMode: context.dualCursorFollowing !== null,
     isConfirmationStanding,
@@ -3535,11 +3538,23 @@ export function frameLoop(
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
       pressed,
-      // STOP -- ⛔ NO IN-PLACE ENTRY EXISTS IN THIS BUILD. IN-5a's state is
-      // 「編集入力の確定前」, which only the field `editInPlace` opens can be
-      // in, and that action has no owner here (`carryOutAction` records the same
-      // absence). So nothing can be unsettled, and saying so is a fact rather
-      // than a guess.
+      // STOP -- ⛔ THE CANVAS FIELD DOES NOT EXIST YET, BUT THIS `false` IS NOW
+      // WRONG RATHER THAN MERELY EARLY. ⚠️ THE OLD NOTE HERE WAS FALSE and is
+      // recorded as such: it said IN-5a's 「編集入力の確定前」 is a state only
+      // the field `editInPlace` opens can be in. AG-9 of table T-035 (MUST)
+      // says otherwise BY NAME -- 「人が編集入力を確定していない間（プロパティ
+      // パネルで入力中など）」 -- and the panel's fields ARE drawn and ARE
+      // focused; `dom-screen-surface.ts` already holds the answer as
+      // `isFieldHeld`, set on focusin and cleared on focusout.
+      //
+      // ⛔ WHY IT IS STILL PINNED: reporting it would put a member on
+      // `ScreenSurface`, which is IF-9 of table T-065 -- a published seam, and
+      // rule 06 classes a seam as `E`, which may not be moved on a body's own
+      // judgement. ⚠️ Three rules are inert until it moves: IN-5a (Delete is
+      // swallowed while typing), IN-4's first level (Esc cancels the edit) and
+      // WS-2 / AG-9 (the Agent API is refused while an edit stands). The ladder
+      // and the refusals are all built and tested; only this one boolean is a
+      // lie. Recorded for the user in the round's report.
       isTextEntryUnsettled: false,
       dualCursorFollowing,
       today: readToday(),

@@ -599,7 +599,7 @@ describe('DocumentSettings (PI-2)', () => {
 })
 
 describe('ScreenState (PI-36)', () => {
-  const quiet = { gestureInFlight: false, dualCursorMode: false }
+  const quiet = { isTextEntryUnsettled: false, gestureInFlight: false, dualCursorMode: false }
 
   it('starts with the palette showing and nothing armed or open (S-99e to S-99g)', () => {
     const state = emptyScreenState()
@@ -613,8 +613,8 @@ describe('ScreenState (PI-36)', () => {
     const armed = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
     const opened = screenStateWithSurface(armed, 'help')
 
-    expect(escapeTarget(opened, { gestureInFlight: true, dualCursorMode: true })).toBe('surface')
-    expect(escapeTarget(armed, { gestureInFlight: true, dualCursorMode: true })).toBe('gesture')
+    expect(escapeTarget(opened, { isTextEntryUnsettled: false, gestureInFlight: true, dualCursorMode: true })).toBe('surface')
+    expect(escapeTarget(armed, { isTextEntryUnsettled: false, gestureInFlight: true, dualCursorMode: true })).toBe('gesture')
     expect(escapeTarget(armed, { ...quiet, dualCursorMode: true })).toBe('armed')
     expect(escapeTarget(emptyScreenState(), { ...quiet, dualCursorMode: true }))
       .toBe('dualCursorMode')
@@ -648,8 +648,9 @@ describe('ScreenState (PI-36)', () => {
 // standing question belongs to that first level -- ahead of whatever surface it
 // was raised over. Fixed data: the ladder exactly as IN-4 writes it.
 describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', () => {
-  const quiet = { gestureInFlight: false, dualCursorMode: false }
+  const quiet = { isTextEntryUnsettled: false, gestureInFlight: false, dualCursorMode: false }
   const everything = {
+    isTextEntryUnsettled: false,
     isConfirmationStanding: true,
     gestureInFlight: true,
     dualCursorMode: true,
@@ -698,6 +699,7 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
   it('IN-4: the question outranks a gesture in flight even with no surface open', () => {
     expect(
       escapeTarget(emptyScreenState(), {
+        isTextEntryUnsettled: false,
         isConfirmationStanding: true,
         gestureInFlight: true,
         dualCursorMode: false,

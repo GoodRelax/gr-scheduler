@@ -374,7 +374,7 @@ describe('UF-66 -- S-99g: one open surface, and none open by default', () => {
     // takes. `escapeTarget` is where that order lives, so the two answers have
     // to agree name by name -- including for the empty name, which no
     // requirement gives a second meaning to.
-    const nothingElseToConsume: EscapeContext = { gestureInFlight: false, dualCursorMode: false }
+    const nothingElseToConsume: EscapeContext = { isTextEntryUnsettled: false, gestureInFlight: false, dualCursorMode: false }
     for (const surface of [null, ...SURFACES_ASKED]) {
       const state = surfaceState(surface)
       const closesASurface = escapeTarget(state, nothingElseToConsume) === 'surface'

@@ -91,7 +91,13 @@ export function screenStateWithFullScreen(state: ScreenState, on: boolean): Scre
  * two members below are both that ladder's FIRST level -- `escapeTarget` says
  * why there are two of them and why they are answered in this order.
  */
-export type EscapeTarget = 'confirmation' | 'surface' | 'gesture' | 'armed' | 'dualCursorMode'
+export type EscapeTarget =
+  | 'textEntry'
+  | 'confirmation'
+  | 'surface'
+  | 'gesture'
+  | 'armed'
+  | 'dualCursorMode'
 
 /**
  * Which of the two dates S-65 holds is meant -- the two spellings are the
@@ -117,6 +123,20 @@ export type DualCursorSide = 'date1' | 'date2'
  * into the document (2026-08-26), and `null` there IS "not in the mode".
  */
 export interface EscapeContext {
+  /**
+   * IN-4's FIRST level -- text being typed in place that has not been settled.
+   *
+   * ⭐ THE INNERMOST THING ON SCREEN, WHICH IS WHY IT LEADS. Without it an `Esc`
+   * pressed while typing over an open surface would close the surface and take
+   * the half-typed characters with it, and the reader would have no way at all
+   * to abandon an edit -- table T-233's `RS-8` already prints
+   * 「確定するか取り消すか」 as its next step, so the wording promised a
+   * cancellation the ladder did not have.
+   *
+   * ⚠️ THE SAME STATE `AG-9` OF TABLE T-035 NAMES, and the same one `IN-5a`
+   * swallows single-character keys for. One question, asked in three places.
+   */
+  readonly isTextEntryUnsettled: boolean
   /** A drag under way, or an arrow half drawn. */
   readonly gestureInFlight: boolean
   /**
@@ -151,8 +171,9 @@ export interface EscapeContext {
 /**
  * What the next Esc consumes, or null when it consumes nothing.
  *
- * IN-4 fixes the order -- open surface, then the gesture in flight, then what
- * is armed, then the Dual Cursor mode -- and IN-4a is the reason null matters:
+ * IN-4 fixes the order -- the unsettled in-place edit, then the open surface,
+ * then the gesture in flight, then what is armed, then the Dual Cursor mode --
+ * and IN-4a is the reason null matters:
  * with nothing to consume the key MUST reach the browser, because leaving full
  * screen is the browser's own behaviour and would otherwise be unreachable.
  *
@@ -170,6 +191,10 @@ export interface EscapeContext {
  * @purity pure
  */
 export function escapeTarget(state: ScreenState, context: EscapeContext): EscapeTarget | null {
+  // IN-4's first level (利用者の裁定 2026-08-27). ⛔ AHEAD OF THE CONFIRMATION
+  // TOO: a question is raised OVER the screen, and a reader typing when one
+  // arrives still owns the characters they were putting in.
+  if (context.isTextEntryUnsettled) return 'textEntry'
   if (context.isConfirmationStanding === true) return 'confirmation'
   if (state.surface !== null) return 'surface'
   if (context.gestureInFlight) return 'gesture'

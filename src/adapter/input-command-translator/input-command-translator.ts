@@ -4065,6 +4065,11 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
  */
 function escapeContextOf(context: InputContext): EscapeContext {
   return {
+    // IN-4's first level (利用者の裁定 2026-08-27). ⭐ THIS CALLER CAN SEE IT,
+    // unlike `isConfirmationStanding` -- the state is a member of `InputContext`
+    // because IN-5a already needed it, so the level is reported rather than left
+    // for the holder to reckon.
+    isTextEntryUnsettled: context.isTextEntryUnsettled,
     gestureInFlight: context.pressed !== null,
     // ⭐ A SIDE STANDING IS THE MODE BEING UP. IN-4 spends a press on the MODE
     // and DC-4 takes the whole of it, so the narrower question is the one that
