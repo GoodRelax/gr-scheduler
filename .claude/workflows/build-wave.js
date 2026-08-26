@@ -63,7 +63,9 @@ phase('Build')
 
 const built = await parallel(
   items.map((it) => () => {
-    const jobs = [
+    const jobs = []
+    if (!it.testerOnly)
+      jobs.push(
       () =>
         agent(
           [
@@ -82,8 +84,8 @@ const built = await parallel(
           ].join('\n'),
           { label: 'build:' + it.key, phase: 'Build', isolation: 'worktree', schema: REPORT },
         ),
-    ]
-    if (it.withTester) {
+      )
+    if (it.withTester || it.testerOnly) {
       jobs.push(() =>
         agent(
           [
@@ -114,7 +116,9 @@ const built = await parallel(
         ),
       )
     }
-    return parallel(jobs).then((r) => ({ key: it.key, impl: r[0], test: r[1] ?? null }))
+    return parallel(jobs).then((r) =>
+      it.testerOnly ? { key: it.key, impl: null, test: r[0] } : { key: it.key, impl: r[0], test: r[1] ?? null },
+    )
   }),
 )
 
