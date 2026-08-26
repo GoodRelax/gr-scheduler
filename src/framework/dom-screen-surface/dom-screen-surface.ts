@@ -3654,6 +3654,10 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   readonly 'S-192': readonly [number, number]
   /** S-193 */
   readonly 'S-193': number
+  /** S-197 */
+  readonly 'S-197': number
+  /** S-198 */
+  readonly 'S-198': number
 } = {
   'S-186': 17,
   'S-187': 16,
@@ -3663,6 +3667,8 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   'S-191': 2,
   'S-192': [6, 8],
   'S-193': 2,
+  'S-197': 0.70,
+  'S-198': 0.90,
 }
 
 /**

@@ -1009,6 +1009,27 @@ DRAWN_INTO_THE_EXPORTED_PICTURE = [
     ' * keeps the two DATES (S-65) and never the width they take.',
 ]
 
+# ⛔ A SIXTH GROUND, AND THE SECOND WHOSE PICTURE LEAVES THE TOOL. S-196 is the
+# gap the name label of a line-only shape is lifted by (the label column of table
+# T-012), and it is read by the unit that lays the label out. ⛔ The ground of
+# S-138, S-180 and S-185 does NOT fit: all three close with some form of "the
+# export does not show this", and EP-5 of table T-076 draws the Row Area's
+# contents -- the name label among them -- INTO the exported picture. ⚠️ Nor is
+# S-194's sentence right: that one turns on the document keeping the two DATES,
+# and a label has no such pair. What table T-206 records here is that the
+# document keeps the label's ANCHOR (PR-13, nameAnchor / nameAlign) and never
+# the gap the shape's own kind implies.
+DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = [
+    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
+    ' * setting and may not become one: table T-206 is where the',
+    ' * specification records that the document does not keep it. ⭐ AND',
+    ' * ITS PICTURE DOES LEAVE THE TOOL -- EP-5 of table T-076 draws the',
+    " * `Row Area`'s contents, the name label among them, into an exported",
+    " * picture -- so what makes this the reader's own is not that the gap",
+    " * is hidden but that the document keeps the label's ANCHOR (PR-13)",
+    " * and never the gap the shape's own kind implies.",
+]
+
 READ_WHERE_IT_STANDS = [
     ' * ⚠️ This unit reads the row where it stands instead of being handed',
     ' * it: the contract in screen-renderer.ts fixes UF-61 at three',
@@ -1073,19 +1094,30 @@ NOT_STORED_TARGETS = {
     # stands in one place: it is the multiplier SL-8 states, and DC-8 reaches
     # it by naming that row rather than restating the number.
     'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194'], DRAWN_INTO_THE_EXPORTED_PICTURE),
-    # ⭐ The eight lengths FR-006's fields are drawn at. ⛔ NOT folded into
+    # ⭐ The eight lengths FR-006's fields are drawn at, and the two
+    # coefficients its typography is drawn at. ⚠️ THE LAST TWO ARE NOT
+    # LENGTHS: S-197 is the panel's text size as a fraction of the host's own
+    # base, and S-198 is the item name's as a fraction of THAT -- FR-006 (MUST)
+    # states both multiplicands, and neither multiplies fontScaleSizes.
+    # ⛔ NOT folded into
     # NOT_STORED_ICON_SIZES though both land in dom-screen-surface.ts: one
     # constant per consuming SUBJECT, which is the split the note under
     # NOT_STORED_DUMMY_SIZES states. S-138 and S-141 are an entrance's shape
     # and S-186 .. S-193 are the property fields', and a shared constant would
     # make one of the two paragraphs a lie.
     'NOT_STORED_PROPERTY_FIELD_SIZES': (
-        ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193'],
+        ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
+         'S-197', 'S-198'],
         DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
     # one constant per consuming SUBJECT, not per file. S-174 to S-178 are the
     # selection frame's and S-180 is the dummy's, and the two paragraphs state
     # different grounds -- a shared constant would make one of them a lie.
+    # ⭐ The one gap the name label of a line-only shape is lifted by. ⛔ NOT
+    # folded into any constant above: one per consuming SUBJECT, and this one
+    # is read by the unit that PLACES the label rather than by one that paints
+    # a mark over it. Its ground is the sixth, for the reason written there.
+    'NOT_STORED_LABEL_SIZES': (['S-196'], DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
     'NOT_STORED_DUMMY_SIZES': (['S-180'], DRAWN_FOR_THE_SCREEN_ALONE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
@@ -1597,6 +1629,11 @@ TARGETS = [
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(MODEL, 'edit-history', 'edit-history.ts'),
      lambda _erd: not_stored_block('NOT_STORED_LIMITS'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ The name label's lift, in the unit that decides where the label goes.
+    # The label column of table T-012 is what chooses whether the gap applies.
+    (os.path.join(LAYOUT, 'schedule-geometry', 'schedule-geometry.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_LABEL_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(ADAPTER, 'screen-renderer', 'screen-frame.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PANEL_DIVIDER_SIZES'),

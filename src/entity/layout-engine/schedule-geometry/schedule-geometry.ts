@@ -1396,3 +1396,32 @@ export function geometryFromLayout(
     commentBoxes: commentGeometry(schedule, settings, layout),
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it. ⭐ AND
+ * ITS PICTURE DOES LEAVE THE TOOL -- EP-5 of table T-076 draws the
+ * `Row Area`'s contents, the name label among them, into an exported
+ * picture -- so what makes this the reader's own is not that the gap
+ * is hidden but that the document keeps the label's ANCHOR (PR-13)
+ * and never the gap the shape's own kind implies.
+ */
+export const NOT_STORED_LABEL_SIZES: {
+  /** S-196, in px */
+  readonly 'S-196': number
+} = {
+  'S-196': 2,
+}
+// </generated>
