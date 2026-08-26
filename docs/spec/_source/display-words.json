@@ -1,7 +1,7 @@
 {
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The words the screen prints: every entry of table T-109 and the explanation EZ-2 shows beside it, the group names of the command palette, the headings of the surfaces table T-103 has named, the manner of every row of table T-037, the words and the next step for every reason of table T-233, the sentence every question of table T-234 shows, the two answers NT-7 asks for, the three headings FR-072 asks for, and the assignments of table T-023 that FR-037 offers, and the word for every arm of table T-023b that FR-053 lets the palette put the pointer in.",
+  "The words the screen prints: every entry of table T-109 and the explanation EZ-2 shows beside it, the group names of the command palette, the headings of the surfaces table T-103 has named, the manner of every row of table T-037, the words and the next step for every reason of table T-233, the sentence every question of table T-234 shows, the two answers NT-7 asks for, the three headings FR-072 asks for, and the assignments of table T-023 that FR-037 offers, and the word for every arm of table T-023b that FR-053 lets the palette put the pointer in, and the seven weekdays the fourth ruler tier prints (FR-017).",
   "Generated FROM this file: src/adapter/screen-renderer/display-words.json (tools/generate_display_words.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "EVERY ENTRY IS NOW WRITTEN, and this line used to say the opposite. The ruling of 2026-08-21 (PD-160) built the place and left the filling to the user, because table T-109 refuses an English column in as many words and a word invented by an agent would settle the very names that refusal protects. The user has since written them. Fill ja and en here for anything added; nothing else has to change for a word to appear, and the generator counts the written cells on every run.",
@@ -1361,50 +1361,50 @@
    }
   }
  ],
-  "arms": [
-    {
-      "rowId": "AR-1",
-      "text": {
-        "ja": "なし（既定）",
-        "en": "None (default)"
-      }
-    },
-    {
-      "rowId": "AR-2",
-      "text": {
-        "ja": "タスク形状",
-        "en": "Task shape"
-      }
-    },
-    {
-      "rowId": "AR-3",
-      "text": {
-        "ja": "マイルストーン形状",
-        "en": "Milestone shape"
-      }
-    },
-    {
-      "rowId": "AR-4",
-      "text": {
-        "ja": "依存線",
-        "en": "Dependency line"
-      }
-    },
-    {
-      "rowId": "AR-5",
-      "text": {
-        "ja": "コメントボックス",
-        "en": "Comment box"
-      }
-    },
-    {
-      "rowId": "AR-6",
-      "text": {
-        "ja": "ハイライトボックス",
-        "en": "Highlight box"
-      }
-    }
-  ],
+ "arms": [
+  {
+   "rowId": "AR-1",
+   "text": {
+    "ja": "なし（既定）",
+    "en": "None (default)"
+   }
+  },
+  {
+   "rowId": "AR-2",
+   "text": {
+    "ja": "タスク形状",
+    "en": "Task shape"
+   }
+  },
+  {
+   "rowId": "AR-3",
+   "text": {
+    "ja": "マイルストーン形状",
+    "en": "Milestone shape"
+   }
+  },
+  {
+   "rowId": "AR-4",
+   "text": {
+    "ja": "依存線",
+    "en": "Dependency line"
+   }
+  },
+  {
+   "rowId": "AR-5",
+   "text": {
+    "ja": "コメントボックス",
+    "en": "Comment box"
+   }
+  },
+  {
+   "rowId": "AR-6",
+   "text": {
+    "ja": "ハイライトボックス",
+    "en": "Highlight box"
+   }
+  }
+ ],
  "assignments": [
   {
    "rowId": "MK-1",
@@ -1502,6 +1502,57 @@
    "text": {
     "ja": "ダブルクリックの意味は対象で決まる。コメントボックス＝本文、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネル、行見出し＝行名",
     "en": "What a double click does depends on what it lands on — Comment Box: its text; Name Label: its name; Assignee Label: the resource name; task: the Properties Panel; row title: the row name"
+   }
+  }
+ ],
+ "weekdays": [
+  {
+   "weekday": "sunday",
+   "text": {
+    "ja": "日",
+    "en": "Sun"
+   }
+  },
+  {
+   "weekday": "monday",
+   "text": {
+    "ja": "月",
+    "en": "Mon"
+   }
+  },
+  {
+   "weekday": "tuesday",
+   "text": {
+    "ja": "火",
+    "en": "Tue"
+   }
+  },
+  {
+   "weekday": "wednesday",
+   "text": {
+    "ja": "水",
+    "en": "Wed"
+   }
+  },
+  {
+   "weekday": "thursday",
+   "text": {
+    "ja": "木",
+    "en": "Thu"
+   }
+  },
+  {
+   "weekday": "friday",
+   "text": {
+    "ja": "金",
+    "en": "Fri"
+   }
+  },
+  {
+   "weekday": "saturday",
+   "text": {
+    "ja": "土",
+    "en": "Sat"
    }
   }
  ]

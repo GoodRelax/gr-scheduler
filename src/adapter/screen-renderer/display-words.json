@@ -1497,5 +1497,56 @@
     "en": "Highlight box"
    }
   }
+ ],
+ "weekdays": [
+  {
+   "weekday": "sunday",
+   "text": {
+    "ja": "日",
+    "en": "Sun"
+   }
+  },
+  {
+   "weekday": "monday",
+   "text": {
+    "ja": "月",
+    "en": "Mon"
+   }
+  },
+  {
+   "weekday": "tuesday",
+   "text": {
+    "ja": "火",
+    "en": "Tue"
+   }
+  },
+  {
+   "weekday": "wednesday",
+   "text": {
+    "ja": "水",
+    "en": "Wed"
+   }
+  },
+  {
+   "weekday": "thursday",
+   "text": {
+    "ja": "木",
+    "en": "Thu"
+   }
+  },
+  {
+   "weekday": "friday",
+   "text": {
+    "ja": "金",
+    "en": "Fri"
+   }
+  },
+  {
+   "weekday": "saturday",
+   "text": {
+    "ja": "土",
+    "en": "Sat"
+   }
+  }
  ]
 }

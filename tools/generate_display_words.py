@@ -111,6 +111,17 @@ PANEL_HEADINGS = ('selection', 'documentSettings', 'noSelection')
 # holds these as rows. ⚠️ These are KEYS, not words.
 CONFIRMATION_MARKS = ('shownOnAnotherRow',)
 
+# The seven weekdays the fourth ruler tier prints beside the day number
+# (FR-017, MUST). ⛔ HELD HERE RATHER THAN READ FROM A TABLE, and Chapter 6.2
+# is why: it forbids a table whose only column would be the word itself, and a
+# seven-row table of weekdays is exactly that. ⭐ THE ORDER IS AT-17's, not a
+# choice made here -- `fig-erd-detail.md` fixes 0 as Sunday rising to 6 for
+# Saturday, and `Project.weekStartDay` is stored against that numbering, so the
+# roster and the stored number index the same list. ⚠️ These are KEYS, not
+# words; the words are the user's, in the manuscript.
+WEEKDAYS = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
+            'saturday')
+
 LANGUAGES = ('ja', 'en')
 
 # ⭐ THE WORDS ARE THE USER'S, AND THEY ARE NOW WRITTEN. The ruling of
@@ -215,6 +226,7 @@ def roster():
         'noticeDismiss': list(NOTICE_DISMISS),
         'confirmationMarks': list(CONFIRMATION_MARKS),
         'panelHeadings': list(PANEL_HEADINGS),
+        'weekdays': list(WEEKDAYS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
@@ -254,6 +266,7 @@ SHAPE = {
     'arms': ('rowId', ('text',)),
     'reasons': ('rowId', ('text', 'nextStep')),
     'questions': ('rowId', ('text',)),
+    'weekdays': ('weekday', ('text',)),
 }
 
 
@@ -326,7 +339,7 @@ def build(doc):
     for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
                     'confirmationMarks',
-                    'panelHeadings', 'assignments', 'arms'):
+                    'panelHeadings', 'assignments', 'arms', 'weekdays'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
