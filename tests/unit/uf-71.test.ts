@@ -1215,34 +1215,54 @@ describe('the tables these cases copy still say what the copies say', () => {
 })
 
 describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
-  // ⚠️ 表 T-065's IF-9 said 「作った記述を画面に載せ、対話欄で確定した発話を返す」
-  // when this file was written, and CR-192 added a third supply to that cell:
-  // 「画面上の点がどの UI パーツのどの入口の上かを答える」. ⭐ The copy below is
-  // the one that went stale, not the expectation -- the count is still exactly
-  // what that cell names, and no fourth member is admitted.
-  it('gives back exactly the three members the declaration fixes', () => {
+  // ⭐ ONE MEMBER PER SUPPLY THE IF-9 CELL NAMES, and the cell now names four.
+  // 表 T-065's IF-9 reads 「作った記述を画面に載せ、対話欄で確定した発話を返し、
+  // **プロパティパネルの欄で確定した値を、その欄が名乗る行 ID とともに返し**、
+  // **画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上か、および
+  // 書き出しの選択面では 表 T-024 のどの形式の上かを答える**」 -- four duties, in
+  // that order:
+  //
+  //   put the description on the screen        showScreenView
+  //   hand back the settled utterance          readDialogueInput
+  //   hand back the settled field value        readFieldCommit
+  //   answer what is drawn at a point          readScreenPartAt
+  //
+  // ⛔ THE LIST IS NAMED AND NOT COUNTED, on purpose. A case that only counted
+  // would go green on a member swapped for another, and one that read the keys
+  // off the very surface under test would agree with any surface at all. The
+  // names come from `screen-surface.ts`, which is the declaration a tester may
+  // read (rule 04 section 1) and which pairs each member with the clause of the
+  // cell it serves -- so this stays red the day a supply is added or dropped.
+  const IF_9_MEMBERS = [
+    'readDialogueInput',
+    'readFieldCommit',
+    'readScreenPartAt',
+    'showScreenView',
+  ] as const
+
+  it('gives back exactly the members the IF-9 cell has supplies', () => {
     const built = wire({ 'App Header': 37 })
     const surface = surfaceOf(built)
 
-    expect(Object.keys(surface).sort()).toEqual([
-      'readDialogueInput',
-      'readScreenPartAt',
-      'showScreenView',
-    ])
-    expect(typeof surface.showScreenView).toBe('function')
-    expect(typeof surface.readDialogueInput).toBe('function')
-    expect(typeof surface.readScreenPartAt).toBe('function')
+    expect(Object.keys(surface).sort()).toEqual([...IF_9_MEMBERS])
+    for (const member of IF_9_MEMBERS) {
+      expect(typeof (surface as unknown as Record<string, unknown>)[member], member).toBe(
+        'function',
+      )
+    }
   })
 
-  it('reports the measured height on the FACTORY, never as a third member', () => {
+  it('reports the measured height on the FACTORY, never as a member of the seam', () => {
     const built = wire({ 'App Header': 37 })
 
     // ⛔ The move dom-input-source made with `isBrowserDefaultStopped`: what the
     // caller has to supply travels on the wiring, so 表 T-065's IF-9 keeps only
-    // the members that cell names -- three since CR-192, and the height is not
-    // one of them.
+    // the members that cell names, and the height is not one of them.
+    // ⚠️ Asserted against the NAMED roster and not against a COUNT -- a count
+    // says nothing about which members those are and has to be re-typed every
+    // time the IF-9 cell gains a supply, which is how this case came to be red.
     expect(built.reportedHeights).toEqual([37])
-    expect(Object.keys(surfaceOf(built))).toHaveLength(3)
+    expect(Object.keys(surfaceOf(built)).sort()).toEqual([...IF_9_MEMBERS])
   })
 })
 
@@ -1360,22 +1380,41 @@ describe('FR-051 (MUST / MUST NOT) -- the App Header height is measured, not hel
 })
 
 describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame', () => {
-  it('registers only the listener the head comment names, and nowhere else', () => {
+  it('listens only where IF-9 gives it something to notice, and never on the host', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
-    const types = [...new Set(built.world.registrations.map((one) => one.type))].sort()
-    // ⚠ THERE WERE TWO. The second sat on a control inside a tooltip that put
-    // the tooltip away, and `IN-4` of 表 T-028 (MUST) has since taken that job:
-    // its ladder ends 「出ている説明」 and says why -- 「説明を最後に置くのは、
-    // `IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである」.
-    // A press is on the side that reads keys, not here.
-    expect(types).toEqual(['keydown'])
-
+    // ⛔ THE COUNT OF LISTENERS IS NOT THE RIGHT THING TO ASSERT, and asserting
+    // it is what made this case red. No row anywhere fixes how many DOM events a
+    // browser needs to notice one settling -- 表 T-078 forbids RAISING A FRAME
+    // on a trigger it does not list (「本表に無い契機でフレームを起こしてはなら
+    // ない（MUST NOT）」), which is a rule about what leaves this unit, not about
+    // how many listeners it holds. ⚠️ Pinning the count also punishes the seam
+    // for growing: IF-9 gained 「プロパティパネルの欄で確定した値を…返し」 and a
+    // value that is READ rather than pushed still has to be noticed being
+    // settled, so more listeners with no more frames is exactly right.
+    //
+    // ⭐ WHAT IS ASSERTED INSTEAD IS WHERE THEY SIT. IF-9 names two things this
+    // unit hands BACK from what a person did -- the utterance settled in the
+    // 対話欄 and the value settled in a プロパティパネルの欄 -- so a listener has
+    // a duty to serve only inside those two parts. ⚠ THERE WAS ONE ELSEWHERE:
+    // it sat on a control inside a tooltip that put the tooltip away, and `IN-4`
+    // of 表 T-028 (MUST) has since taken that job -- its ladder ends 「出ている
+    // 説明」 and says why: 「説明を最後に置くのは、`IN-3` が求める「消せること」
+    // を果たす手立てがほかに 1 つも無いからである」. A press is on the side that
+    // reads keys, not here. This case still falls the day one comes back.
     const root = built.root()
-    const field = oneByRole(root, 'Dialogue Field')
+    const noticing = [oneByRole(root, 'Dialogue Field'), oneByRole(root, 'Properties Panel')]
+
+    expect(built.world.registrations.length).toBeGreaterThan(0)
     for (const one of built.world.registrations) {
-      if (one.type === 'keydown') expect(field.contains(one.node)).toBe(true)
+      // ⛔ FT-1 of 表 T-078 has the human input reach the shell through IF-2 and
+      // says the supply is not widened, so a listener OUTSIDE these two parts
+      // would be this unit becoming a second source of input.
+      expect(
+        noticing.some((part) => part.contains(one.node)),
+        `${one.type} on [data-role="${one.node.getAttribute('data-role') ?? ''}"]`,
+      ).toBe(true)
     }
   })
 

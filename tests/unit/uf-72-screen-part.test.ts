@@ -1478,12 +1478,21 @@ describe('R7.3 / LY-5 -- the browser arrives, it is not reached for', () => {
   })
 })
 
-describe('IF-9 of 表 T-065 -- three supplies, three members', () => {
-  it('publishes readScreenPartAt beside the two members that were always there', () => {
+describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
+  it('publishes readScreenPartAt beside the other members IF-9 names', () => {
+    // ⭐ THE MEMBERS ARE WORKED OUT FROM THE CELL, NOT COUNTED. IF-9 reads
+    // 「作った記述を画面に載せ、対話欄で確定した発話を返し、**プロパティパネルの
+    // 欄で確定した値を、その欄が名乗る行 ID とともに返し**、**画面上の点がどの
+    // UI パーツ（表 T-103）のどの入口（表 T-109）の上か…を答える**」 -- four
+    // duties, and `screen-surface.ts` gives each one a member and says which
+    // clause it serves. ⚠️ The third arrived after this case was written; the
+    // list below is what the cell names TODAY, and the case falls again the day
+    // a supply is added or dropped rather than merely when a number moves.
     const surface = surfaceOf(wire())
 
     expect(Object.keys(surface).sort()).toEqual([
       'readDialogueInput',
+      'readFieldCommit',
       'readScreenPartAt',
       'showScreenView',
     ])

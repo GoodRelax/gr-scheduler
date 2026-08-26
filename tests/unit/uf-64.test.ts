@@ -23,6 +23,12 @@
 //             the several columns of one row, and the one read-only row (PR-9,
 //             derived by FR-012). ⚠️ PR-16 is editable after CR-186
 //             (A-appendix 0.63) and AS-5 makes that a MUST
+//   the paragraph under 表 T-016 (2026-08-26): the printed order is a MUST and
+//             ⛔ scrolling for the most-touched values is a MUST NOT; the form
+//             of an input follows the table's own 入力の型 column (MUST); ⛔ the
+//             candidates, the bounds and which columns are dates may NOT be
+//             copied into that table (MUST NOT), so no case here asserts them
+//             from it either
 //   FR-038    menus and panels follow the chosen language, and ⛔ task names,
 //             row names and table T-016's item names are NOT translated
 //   FR-054    the day is the LEXICAL date part (MUST) and no zone is converted
@@ -44,7 +50,8 @@
 //
 // ⭐ Chapter 1.9 asks a test of a requirement that points at a table to be
 // driven by a fixed copy of the table. `T_016` below is that copy, and every
-// roster case walks it.
+// roster case walks it. ⛔ IT IS NOT WRITTEN OUT HERE -- it is read from
+// `docs/spec` at run time, for the reason recorded above the constant.
 //
 // ⭐ WHAT THIS FILE DELIBERATELY DOES NOT ASSERT, because the specification
 // decides none of it. Each was searched for before being given up on:
@@ -106,6 +113,7 @@ import {
 } from '../../src/entity/document-model/selection/selection'
 import type {
   PropertiesPanel,
+  PropertyControlKind,
   PropertyField,
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
@@ -113,33 +121,61 @@ import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/
 import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
-// The fixed copy of table T-016 these cases are driven by (Chapter 1.9).
-// ⚠️ The order is the table's PRINTED order, which is not the numeric order of
-// its row ids: PR-17 stands between PR-11 and PR-12, and PR-16 is last.
-// `readOnly` is the table's own mark -- it stands against PR-9 alone, and
-// against PR-16 no longer (CR-186, A-appendix 0.63).
+// Table T-016, READ OUT OF THE MANUSCRIPT AT RUN TIME rather than copied here.
+//
+// ⭐ WHY IT IS READ AND NOT RETYPED. The paragraph under the table makes its
+// PRINTED order a MUST -- 「表 T-016 は印刷順に出すこと（MUST）。よく使う項目を
+// 上に置いてある」 -- and it goes on to forbid the scrolling that a wrong order
+// costs: 「最も頻繁に触る値のためにスクロールさせてはならない（MUST NOT）」.
+// ⛔ An order the TABLE owns cannot be pinned by a list kept here: the table was
+// reordered on 2026-08-26 and a hand-written copy at this spot went stale in the
+// same commit, reporting the panel as wrong when the panel was right. Chapter
+// 1.9 (:275) asks for "fixed data copied from that table"; `tests/contract/
+// spec-table.ts` takes that literally and makes the copy at read time.
+//
+// ⚠️ The row ids are NOT in numeric order and are not meant to be -- PR-3 and
+// PR-16 stand second and third, and PR-15 is last. That is the table's judgement
+// about what a person touches most, and a case here may not have an opinion.
+//
+// ⚠️ The column headings are the manuscript's own Japanese and cannot be spelled
+// in English (rule 03 section 5 admits Japanese where the Japanese itself is
+// what is being handled -- the same exception `S_73` below already relies on).
 // ---------------------------------------------------------------------------
 
-const T_016 = [
-  { row: 'PR-1', name: 'name', readOnly: false },
-  { row: 'PR-2', name: 'notes', readOnly: false },
-  { row: 'PR-3', name: 'start / finish', readOnly: false },
-  { row: 'PR-4', name: 'actualStart', readOnly: false },
-  { row: 'PR-5', name: 'actualDuration', readOnly: false },
-  { row: 'PR-6', name: 'actualFinish', readOnly: false },
-  { row: 'PR-7', name: 'resume', readOnly: false },
-  { row: 'PR-8', name: 'resumeValid', readOnly: false },
-  { row: 'PR-9', name: 'percentComplete', readOnly: true },
-  { row: 'PR-10', name: 'deadline', readOnly: false },
-  { row: 'PR-11', name: 'shapeKind', readOnly: false },
-  { row: 'PR-17', name: 'milestoneGlyph', readOnly: false },
-  { row: 'PR-12', name: 'strokeColor / fillColor / lineWeight', readOnly: false },
-  { row: 'PR-13', name: 'nameAnchor / nameAlign', readOnly: false },
-  { row: 'PR-14', name: 'fadeInDays / fadeOutDays', readOnly: false },
-  { row: 'PR-15', name: 'wbsParentUid', readOnly: false },
-  { row: 'PR-18', name: 'milestone', readOnly: false },
-  { row: 'PR-16', name: 'assignee', readOnly: false },
-] as const
+/** The heading of the column that holds the item name shown on screen. */
+const NAME_COLUMN = '項目名（英語・画面表示）'
+
+/** The heading of the column added on 2026-08-26, which FR-006's panel obeys. */
+const INPUT_KIND_COLUMN = '入力の型'
+
+/**
+ * FR-006 (MUST): 「同表が読み取り専用と記した項目を除いて」編集できること.
+ * The MARK is looked for wherever the row writes it, so moving it from the
+ * remark column into 入力の型 -- which is what happened on 2026-08-26 -- does
+ * not silently turn a read-only item editable here.
+ */
+const READ_ONLY_MARK = '読み取り専用'
+
+const T_016 = specTable('T-016').rows.map((row) => {
+  const nameCell = row.by[NAME_COLUMN]
+  if (nameCell === undefined) {
+    throw new Error(
+      `table T-016 has no ${JSON.stringify(NAME_COLUMN)} column; its headings are ` +
+        `${JSON.stringify(specTable('T-016').headings)}`,
+    )
+  }
+  return {
+    row: row.id,
+    // ⚠️ The table's OWN ' / ' between the several columns of one row is kept;
+    // only the manuscript's code spans come off.
+    name: nameCell.replace(/`/g, '').trim(),
+    readOnly: row.cells.some((cell) => cell.includes(READ_ONLY_MARK)),
+    inputKinds: (row.by[INPUT_KIND_COLUMN] ?? '')
+      .split('/')
+      .map((one) => one.replace(/`|\*/g, '').replace(/（[^）]*）/g, '').trim())
+      .filter((one) => one.length > 0),
+  }
+})
 
 /** FR-009 (MUST): kind, lag and BOTH ends. Table T-016 carries no such row. */
 const DEPENDENCY_ITEMS = ['lag', 'linkType', 'predecessorUid', 'successorUid'] as const
@@ -439,7 +475,32 @@ describe('FR-072 -- which of the two is showing', () => {
 })
 
 describe('FR-006 and table T-016 -- the items of a selected task', () => {
+  it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
+    // ⛔ WITHOUT THIS, A PARSE THAT QUIETLY LOST A COLUMN WOULD MAKE THE ROSTER
+    // CASES AGREE WITH ANYTHING. Rule 04 section 2: a mechanism that carries a
+    // value out of the manuscript is only verified once it is seen to fall. The
+    // fall that matters here cannot be staged from a test -- it needs the
+    // manuscript edited -- so what is guarded instead is that every cell those
+    // cases lean on actually arrived: a heading that moved throws where `T_016`
+    // is built, and a cell that emptied is caught here.
+    expect(T_016.length).toBeGreaterThan(1)
+    for (const item of T_016) {
+      expect(item.row, 'row id').toMatch(/^PR-\d+$/)
+      expect(item.name, item.row).not.toBe('')
+      expect(item.inputKinds.length, `${item.row} 入力の型`).toBeGreaterThan(0)
+    }
+    // ⭐ The read-only mark is the table's, and the table still writes one.
+    expect(T_016.some((item) => item.readOnly), 'the 読み取り専用 mark').toBe(true)
+  })
+
   it('stands one field per row of the table, in the table\'s printed order', () => {
+    // ⭐ BOTH THE MEMBERSHIP AND THE ORDER, because two rules stand behind them.
+    // FR-006 (MUST) puts 「表 T-016 の項目」 on the panel -- that is the roster --
+    // and the paragraph under the table adds 「表 T-016 は印刷順に出すこと
+    // （MUST）。よく使う項目を上に置いてある」 with 「最も頻繁に触る値のために
+    // スクロールさせてはならない（MUST NOT）」 for its reason. A case that
+    // compared sets would let the panel put the most-touched value last and stay
+    // green, which is the very thing that MUST NOT forbids.
     const fields = fieldsOfTask()
     expect(fields.map((field) => field.row)).toEqual(T_016.map((item) => item.row))
   })
@@ -472,6 +533,79 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
 
   it('MUST show the assignee as editable (AS-5 of table T-225, after CR-186)', () => {
     expect(fieldAt(fieldsOfTask(), 'PR-16').isEditable).toBe(true)
+  })
+
+  it('MUST give an editable item the form its 入力の型 column names', () => {
+    // 「入力の形は同表の「入力の型」の欄に従うこと（MUST）」 -- the paragraph
+    // under table T-016, added 2026-08-26 with the column itself.
+    //
+    // ⭐ THE WORDS ARE THE TABLE'S AND THE SPELLINGS ARE THE DECLARATION'S.
+    // `PropertyControlKind` in `screen-renderer.ts` names that very column as
+    // what it is, and gives each of its seven members the table's word in a
+    // comment; the map below is that pairing and nothing else. A tester may read
+    // a published type (rule 04 section 1).
+    //
+    // ⛔ NOT ASSERTED, and deliberately: the candidates of a 選択, the bounds of
+    // a 数値, and which columns are dates. The same paragraph forbids the table
+    // to hold them (MUST NOT) and names `_source/grs-document.schema.json` and
+    // `DATE_COLUMNS` as where they are, so a case that read them off this table
+    // would be asserting a value the table is not allowed to have.
+    //
+    // ⛔ READ-ONLY ROWS ARE OUT OF SCOPE. FR-006 excepts them from being edited
+    // and the table writes PR-9's kind as 「数値（読み取り専用）」; whether a row
+    // nobody may edit still offers a control is settled nowhere, so the case
+    // walks the editable rows alone rather than inventing an answer.
+    //
+    // ⛔ THIS CASE IS RED ON PR-16 AND IS MEANT TO STAY RED UNTIL THE PANEL
+    // OFFERS A CONTROL FOR THE ASSIGNEE. Sixteen of the seventeen editable rows
+    // follow the column; PR-16 alone comes back with no control at all, while
+    // the table writes its 入力の型 as 選択. Three rows say it has to be there:
+    // FR-006 (MUST) 「同表が読み取り専用と記した項目を除いて編集できるように
+    // すること」 and the table does not mark PR-16 read-only; the paragraph under
+    // the table (MUST) 「入力の形は同表の「入力の型」の欄に従うこと」; and AS-5
+    // of table T-225 (FR-008) 「プロパティパネルの担当者（表 T-016 の PR-16）…
+    // **編集できること（MUST）。** 名簿から選ばせる形とし、**ドロップダウンと
+    // 部分一致の検索を添えること（MUST）**」. ⚠️ `PropertyField.controls` is
+    // declared as what a field is EDITED THROUGH and its own doc says an empty
+    // list means this side has no control to offer -- so an empty list against
+    // PR-16 is the panel saying the assignee cannot be edited on it, which is
+    // what AS-5 forbids. `isEditable` being true does not repair that: the case
+    // above already asserts the mark, and the mark is not a control.
+    const KIND_OF: Readonly<Record<string, PropertyControlKind>> = {
+      文字: 'text',
+      複数行: 'multiline',
+      日付: 'date',
+      数値: 'number',
+      真偽: 'boolean',
+      選択: 'choice',
+      色: 'color',
+    }
+
+    const kindOf = (row: string, word: string): PropertyControlKind => {
+      const kind = KIND_OF[word]
+      if (kind === undefined) {
+        throw new Error(
+          `table T-016 row ${row} writes 入力の型 ${JSON.stringify(word)}, which ` +
+            'PropertyControlKind has no member for',
+        )
+      }
+      return kind
+    }
+
+    // ⭐ One comparison over every row rather than one per row, so a run names
+    // ALL the items whose form does not follow the column instead of the first.
+    const fields = fieldsOfTask()
+    const editable = T_016.filter((item) => !item.readOnly)
+    const wanted = editable.map((item) => ({
+      row: item.row,
+      kinds: item.inputKinds.map((word) => kindOf(item.row, word)),
+    }))
+    const given = editable.map((item) => ({
+      row: item.row,
+      kinds: fieldAt(fields, item.row).controls.map((one) => one.kind),
+    }))
+
+    expect(given).toEqual(wanted)
   })
 
   it('⛔ describes no OTHER subject once the selection is cleared', () => {
@@ -578,7 +712,13 @@ describe('table T-016 -- every item actually reaches the screen', () => {
   ]
 
   it('tells two unlike values apart on every one of the eighteen rows', () => {
-    expect(APART.map((one) => one.row)).toEqual(T_016.map((item) => item.row))
+    // ⚠️ COVERAGE, NOT ORDER. `APART` is this file's own fixture and its
+    // sequence is nobody's rule; the table's PRINTED order is asserted where it
+    // belongs, against the panel. Comparing the two sequences here would make
+    // this fixture a second hand-written copy of the print order -- exactly the
+    // copy that went stale when the table was reordered on 2026-08-26.
+    const sorted = (rows: readonly string[]): string[] => [...rows].sort()
+    expect(sorted(APART.map((one) => one.row))).toEqual(sorted(T_016.map((item) => item.row)))
     for (const one of APART) {
       expect(textAt(one.row, ...one.a), one.row).not.toBe(textAt(one.row, ...one.b))
     }
