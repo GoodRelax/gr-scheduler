@@ -329,7 +329,7 @@ erDiagram
 | AT-27 | `Task` | `name` | 文字列 | 可 | — | Own | `Task/Name` | タスク名 |
 | AT-28 | `Task` | `start` | 日時 | 可 | — | Own | `Task/Start` | 予定の開始 |
 | AT-29 | `Task` | `finish` | 日時 | 可 | — | Own | `Task/Finish` | 予定の終了 |
-| AT-30 | `Task` | `milestone` | 真偽 | 可 | — | Own | `Task/Milestone` | **マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別（表 T-016 の `PR-18`） |
+| AT-30 | `Task` | `milestone` | 真偽 | 可 | — | Own | `Task/Milestone` | **マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別である。⛔ **形を変えても本列は変わらない。**⚠️ **プロパティパネルの項目ではない** —— 表 T-016 から落ちている（利用者の指摘 2026-08-27） |
 | AT-31 | `Task` | `deadline` | 日時 | 可 | — | Own | `Task/Deadline` | 期限 |
 | AT-32 | `Task` | `notes` | 文字列 | 可 | — | Own | `Task/Notes` | 備考 |
 | AT-33 | `Task` | `calendarUid` | 整数 | 可 | FK | Consume | `Task/CalendarUID` | 交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`） |

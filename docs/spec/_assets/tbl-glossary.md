@@ -21,7 +21,7 @@
 
 | 行 ID | 確定名（英） | 日本語 |
 | --- | --- | --- |
-| N-1 | `Task` | タスク。`milestone` が真のときマイルストーンである。⚠️ **描画の形は `TaskVisual.shapeKind` が別に持つ。混同しない**（往復の規則は表 T-016 の `PR-18`） |
+| N-1 | `Task` | タスク。`milestone` が真のときマイルストーンである。⚠️ **描画の形は `TaskVisual.shapeKind` が別に持つ。混同しない**（往復の規則は `_assets/fig-erd-detail.md` の `AT-30`） |
 | N-2 | `TaskGroup` | タスクグループ |
 | N-3 | `TaskGroupMember` | タスクグループメンバー |
 | N-4 | `stackOrder` | 積み順。**人が指定できるかどうかは表 T-014 の `ST-6` が定める** |
