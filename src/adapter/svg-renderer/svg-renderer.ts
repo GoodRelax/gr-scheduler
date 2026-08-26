@@ -1465,7 +1465,7 @@ export const SCHEDULE_COLOURS: {
   /* S-149 */
   'S-149': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
   /* S-151 */
-  'S-151': { light: 'hsl(H 59% 42%)', dark: 'hsl(H 62% 68%)', followsHue: true },
+  'S-151': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   /* S-155 */
   'S-155': { light: 'hsl(H 46% 80%)', dark: 'hsl(H 32% 26%)', followsHue: true },
   /* S-156 */
