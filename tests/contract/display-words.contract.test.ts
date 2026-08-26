@@ -44,9 +44,10 @@
 //
 // WRITTEN WITHOUT READING THE UNITS' BODIES (docs/development-rules/
 // 04-verification.md, section 1). What was read: docs/spec (FR-038, FR-072,
-// FR-037, FR-032, FR-029, tables T-103, T-109, T-023, T-040, T-050, T-064 row
-// PI-37, T-075 rows UF-60 .. UF-71, T-015a row HM-10, T-026 row RC-13, T-037
-// row NT-7, Chapter 6.2), docs/review/rulings-2026-08-22/, change-request/
+// FR-037, FR-032, FR-029, FR-017, tables T-103, T-109, T-023, T-040, T-050,
+// T-064 row PI-37, T-075 rows UF-32 and UF-60 .. UF-71, T-015a row HM-10,
+// T-026 row RC-13, T-037 row NT-7, T-058 row AT-17, Chapter 6.2),
+// docs/review/rulings-2026-08-22/, change-request/
 // CR-194-*.md and CR-218-*.md, docs/development-records/pending-decisions.md
 // (PD-160, PD-175), the two `display-words.json` AS DATA, and -- in the five
 // owning units and `screen-renderer.ts` -- the head comment, the exported types
@@ -62,7 +63,7 @@
 // is `screenViewFromRegions`, the published entry of table T-064's PI-37 -- not
 // one unit's function.
 //
-// FIVE THINGS THIS FILE DELIBERATELY DOES NOT ASSERT, each searched for first:
+// SIX THINGS THIS FILE DELIBERATELY DOES NOT ASSERT, each searched for first:
 //
 //   1. WHAT THE STAND-IN SAYS while an entry is empty. CR-194 section 0 item ⑧
 //      settled "empty means keep printing what it printed before" WITHOUT
@@ -123,6 +124,25 @@
 //      component describes are the two scrollbars -- MK-1 (縦スクロール) and
 //      MK-5 (横スクロール) of table T-023. The other twelve rows are help
 //      content (FR-036), whose surface is not assembled yet.
+//   6. WHERE THE SEVEN `weekdays` ARE PRINTED. FR-017 (MUST) fixes what each
+//      ruler tier prints -- 「年の段は年の数字、月の段は月の数字、週の段はそ
+//      の週の始まりの日の数字、日の段は日の数字と曜日を 1 段に並べる」-- and
+//      sends the words themselves here: 「⭐ 曜日の語がどこに住むかは
+//      `FR-038` が持つ。」 ⛔ THE PLACE IS THE TIME RULER'S BAND, which is
+//      UF-32's (`svg-renderer.ts`) and NOT one of UF-60 .. UF-69: `ScreenView`,
+//      the answer PI-37 of table T-064 hands out, carries no `Time Ruler` at
+//      all. ⭐ So this is a stronger omission than 2 and 3, not a weaker one --
+//      there the member was unnameable but the surface could still be raised
+//      and the acceptance group's whole-view reading reached the word; here the
+//      published entry this file walks has nothing that could print it, in any
+//      frame, so the arrival claim is not one to make against PI-37. ⛔ AND
+//      THE ROAD REALLY IS UNBUILT TODAY -- reported rather than asserted: it
+//      is the ONE section of the thirteen that no file under `src/` reads, so
+//      FR-017's day tier
+//      prints its number without its weekday. That belongs to UF-32's own
+//      test, which can name the band; asking it here would be asking this file
+//      to disprove the scope it declared. ⭐ WHAT IS ASSERTED INSTEAD is the
+//      roster: the seven, in AT-17's order, each with a word in each language.
 //
 // ⭐ Every one of those is recorded by `DROPPED` below rather than passed over,
 // and the acceptance group holds the dictionary against the two lists together:
@@ -241,6 +261,18 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // `panelHeadings` and `assignments`, and no row of docs/spec asks the two
   // files to agree on the order of their sections.
   arms: 'rowId',
+  // ⭐ THE SEVEN WEEKDAYS THE FOURTH RULER TIER PRINTS. FR-017 (MUST) puts a
+  // weekday beside the day number -- 「日の段は日の数字と曜日を 1 段に並べる」
+  // -- and leaves the words to FR-038: 「⭐ 曜日の語がどこに住むかは `FR-038`
+  // が持つ。」 ⛔ THERE IS NO TABLE TO KEY THEM BY, and that is deliberate:
+  // Chapter 6.2 (MUST NOT) forbids printing the words into a table of the
+  // specification 「空の欄が並ぶだけで、規則を 1 つも述べない表になる」, and a
+  // seven-row table of weekdays would be exactly that (version 1.19 of the
+  // appendix: 「⛔ 7 行の表は立てない」). ⭐ So the key is the entry's own
+  // `weekday`, and the ORDER is AT-17's -- see `AT_17_ORDER` below. ⚠️ It
+  // stands last for the same reason `arms` does: this roster is the GENERATED
+  // file's printed order, and the generator prints `weekdays` after `arms`.
+  weekdays: 'weekday',
 }
 
 const isWords = (value: unknown): value is Words =>
@@ -348,6 +380,45 @@ const isEntry = (rowId: string): boolean =>
 
 /** The surfaces IC-52's 面 column lists, each a settled name of table T-103. */
 const SURFACE_NAMES = surfacesOf('IC-52')
+
+/**
+ * AT-17 of table T-058 (docs/spec/_assets/fig-erd-detail.md) -- the 意味 cell
+ * that numbers the weekdays, read raw rather than through `bare` because the
+ * numbering is stated in the cell's prose and `bare` would return the first
+ * code span (`FR-088`) in place of it.
+ *
+ * ⚠️ READ IN JAPANESE ON PURPOSE (docs/development-rules/03-implementation.md
+ * section 5 allows it where the Japanese itself is what is being handled, and
+ * asks for the reason): the specification writes this numbering nowhere else,
+ * and the roster below is worth nothing unless the sentence it was taken from
+ * still says what it said.
+ */
+const AT_17 = specTable('T-058').rows.find((row) => row.id === 'AT-17')?.by['意味'] ?? ''
+
+/**
+ * The seven weekdays in AT-17's order, which is the order the `weekdays`
+ * section holds them in.
+ *
+ * ⛔ THE ORDER IS NOT CHOSEN HERE. AT-17 (docs/spec/_assets/fig-erd-detail.md)
+ * fixes it -- 「**`0` が日曜で、土曜の `6` まで 1 ずつ増える**（正は Chapter
+ * 6.2 が指す公式 XSD）」-- and `Project.weekStartDay` is the column stored
+ * against that numbering, so the roster and the stored number index the same
+ * list. ⚠️ Written out here rather than read, because there is no table of
+ * seven rows to read it from and Chapter 6.2 (MUST NOT) is why there is not.
+ * The case that uses it holds AT-17's own sentence first, so a numbering the
+ * specification re-fixes fails there instead of passing against this copy.
+ * ⛔ THESE ARE KEYS, NOT WORDS: the words are the user's, in the manuscript,
+ * and FR-038 (MUST NOT) is what keeps them from being re-typed here.
+ */
+const AT_17_ORDER: readonly string[] = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+]
 
 /** Table T-103 -- the settled names, of which U-55 is the one NT-7 asks on. */
 const T103 = specTable('T-103')
@@ -904,6 +975,30 @@ for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'notic
   }
 }
 
+// -- weekdays: the fourth ruler tier, which PI-37 does not hand out at all
+
+// FR-017 (MUST) fixes what each tier of the ruler prints and puts the weekday
+// on the day tier: 「日の段は日の数字と曜日を 1 段に並べる」, with the words
+// left to this dictionary -- 「⭐ 曜日の語がどこに住むかは `FR-038` が持つ。」
+// ⛔ THE BAND IS UF-32'S (`svg-renderer.ts`, table T-075), and `ScreenView` --
+// the whole of what PI-37 of table T-064 hands out -- carries no `Time Ruler`
+// member for any tier to print into. ⭐ So this is not the omission the six
+// sections above make: there the member could not be NAMED but the surface
+// could still be raised, and the acceptance group's whole-view reading reached
+// the word anyway. Here no frame this file can build could print a weekday
+// however the road were wired, so the arrival claim is not one to make against
+// PI-37 -- it belongs to a test that may name the band. ⚠️ The roster itself is
+// held instead, by the case AT-17 drives in the acceptance group below.
+for (const entry of GENERATED['weekdays'] ?? []) {
+  drop(
+    'weekdays',
+    keyOf('weekdays', entry),
+    'FR-017 (MUST) prints it on the day tier of the Time Ruler, which is UF-32 s band -- and ScreenView, ' +
+      'the whole of what PI-37 hands out, carries no Time Ruler at all, so no frame this file can raise ' +
+      'could print it; the roster and its order are held against AT-17 instead',
+  )
+}
+
 /** One case per place per language, so a failure names one cell of the dictionary. */
 interface Case extends Place {
   readonly language: string
@@ -1269,6 +1364,48 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
     expect((GENERATED['icons'] ?? []).map((entry) => keyOf('icons', entry))).toEqual(
       T109.rows.map((row) => row.id),
     )
+  })
+
+  it('FR-017 (MUST) prints a weekday beside the day number -> AT-17 s cell and the roster are read -> the seven stand in AT-17 s order, each with a word in each language', () => {
+    // ⭐ THE ONE CLAIM THIS FILE CAN MAKE ABOUT THE `weekdays` SECTION, and the
+    // reason omission 6 of the head comment is not the whole answer. Where the
+    // words are printed is UF-32's band, which PI-37 does not hand out -- but
+    // WHICH seven there are, and in WHAT ORDER, is fixed by the specification
+    // and is readable here.
+    //
+    // ⛔ AT-17 IS HELD FIRST, so this case is driven by the specification's own
+    // sentence rather than by the roster below it (Chapter 1.9 :275). AT-17 of
+    // table T-058: 「週の始まりの曜日。…**`0` が日曜で、土曜の `6` まで 1 ずつ
+    // 増える**（正は Chapter 6.2 が指す公式 XSD）。」 ⚠️ Matched in Japanese
+    // because that sentence is the only place the specification states the
+    // numbering; there is no table of seven rows to read, and Chapter 6.2
+    // (MUST NOT) is why -- 「空の欄が並ぶだけで、規則を 1 つも述べない表になる」.
+    expect(AT_17, 'AT-17 no longer numbers the weekdays from 0 = Sunday').toMatch(/`0` が日曜/)
+    expect(AT_17, 'AT-17 no longer rises to 6 = Saturday').toMatch(/土曜の `6`/)
+
+    // ⛔ THE ORDER IS LOAD-BEARING, not cosmetic: `Project.weekStartDay` (AT-17)
+    // is stored as a number against this very numbering, so a roster in another
+    // order would have the ruler print Monday's word against Sunday's index.
+    expect(
+      (GENERATED['weekdays'] ?? []).map((entry) => keyOf('weekdays', entry)),
+      'AT-17 of table T-058: 0 is Sunday and it rises by one to 6 for Saturday, and Project.weekStartDay is stored against that numbering',
+    ).toEqual(AT_17_ORDER)
+
+    // FR-017 (MUST): the day tier prints 日の数字と曜日. ⛔ An empty cell here
+    // leaves that MUST unmet the way FR-032's mark does -- a weekday with no
+    // word prints no weekday -- and NOT the way PD-160 leaves a label to the
+    // user, which the fallback group is for. ⚠️ Held against the MANUSCRIPT,
+    // which Chapter 6.2 (MUST) makes the source; the case above already holds
+    // the generated file to it cell for cell.
+    const seven = MANUSCRIPT_CELLS.filter((cell) => cell.section === 'weekdays')
+    expect(
+      seven.filter((cell) => cell.word === '').map((cell) => `${cell.key}.${cell.field}.${cell.language}`),
+      'FR-017 (MUST): the day tier prints a weekday beside the day number, and an empty cell prints none',
+    ).toEqual([])
+    expect(
+      seven.length,
+      'FR-038 (MUST): the two languages are ja and en, so the seven owe one word each in each of them',
+    ).toBe(AT_17_ORDER.length * LANGUAGES.length)
   })
 
   it('the carriage group drives a dictionary of its own -> that copy is read back -> every cell of it holds a word that names only itself', () => {

@@ -157,6 +157,73 @@ const zoomFor = (pxPerDayAt12px: number, rulerFont: number): number =>
 /** One part in a billion, the step used to sit just off a threshold. */
 const HAIR = 1e-9
 
+/**
+ * The two ends of the monotonicity sweep, SOLVED FROM 表 T-205 rather than
+ * typed in. The sweep has to start inside the first band of `L-1` and finish
+ * inside the fourth, so it borrows the two px/day this file has already solved
+ * for those bands: `TIER_SAMPLE[0]` sits below `S-83`, `TIER_SAMPLE[3]` above
+ * `S-85`. Both are quoted at a 12px ruler font, as 表 T-205 quotes them.
+ *
+ * ⛔ NO px/day IS WRITTEN AS A LITERAL HERE. Ends written as literals stop
+ * covering the four tiers the moment a threshold moves past them, and that is
+ * exactly what 表 T-205 の `S-85` did: the row now records the raise from 8 to
+ * 44 -- the day tier is entered only at a width that seats a label per day,
+ * since `LF-1` stopped thinning. A sweep ending at 20 px/day never reached the
+ * fourth tier again.
+ */
+const SWEEP_FROM = TIER_SAMPLE[0].pxPerDay
+const SWEEP_TO = TIER_SAMPLE[3].pxPerDay
+
+/** The four bands the sweep crosses, foot to top: the ends and the thresholds. */
+const SWEEP_EDGES: readonly number[] = [
+  SWEEP_FROM,
+  THRESHOLD.month,
+  THRESHOLD.week,
+  THRESHOLD.day,
+  SWEEP_TO,
+]
+
+/**
+ * The narrowest of those bands, measured as a RATIO. ⭐ The sweep steps
+ * multiplicatively because zoom is multiplicative -- 表 T-201 の `S-53`
+ * (`zoomStep`) is a factor and not an addend, and 表 T-206 の `S-96` reads it
+ * as how many times one notch moves the zoom -- and because the three
+ * thresholds span more than one order of magnitude, so a step fine enough for
+ * the narrowest band would be pointlessly fine for the widest.
+ * ⛔ It throws rather than sweeping a band it cannot cross: 表 T-205 orders the
+ * three thresholds by naming each row's neighbour as its own bound
+ * (`S-83` <= `S-84` <= `S-85`), so a ratio at or below 1 means the table no
+ * longer holds the order this sweep rests on.
+ */
+const narrowestBandOf = (edges: readonly number[]): number => {
+  let narrowest = Number.POSITIVE_INFINITY
+  for (let index = 1; index < edges.length; index += 1) {
+    narrowest = Math.min(narrowest, (edges[index] as number) / (edges[index - 1] as number))
+  }
+  if (!(narrowest > 1)) {
+    throw new Error('T-205 no longer orders the thresholds S-83 <= S-84 <= S-85')
+  }
+  return narrowest
+}
+
+/**
+ * How many samples the sweep is made to take inside the NARROWEST band, which
+ * is what fixes its step. ⚠️ This is the case's own resolution, not a value of
+ * any settings table -- nothing is asserted about it. It only has to be more
+ * than one, so that no band can be stepped clean over however the thresholds
+ * move.
+ */
+const SWEEP_SAMPLES_PER_BAND = 20
+
+/** The number of multiplicative steps that resolution asks for. */
+const SWEEP_STEPS = Math.ceil(
+  (SWEEP_SAMPLES_PER_BAND * Math.log(SWEEP_TO / SWEEP_FROM)) /
+    Math.log(narrowestBandOf(SWEEP_EDGES)),
+)
+
+/** The factor one step multiplies px/day by, so that step `SWEEP_STEPS` lands on `SWEEP_TO`. */
+const SWEEP_RATIO = (SWEEP_TO / SWEEP_FROM) ** (1 / SWEEP_STEPS)
+
 // ---------------------------------------------------------------------------
 // Inputs.
 // ---------------------------------------------------------------------------
@@ -377,13 +444,23 @@ describe('FR-017 -- the four tiers of `L-1`, judged on the corrected px/day', ()
     // FR-017 RATIONALE:「単調であること（MUST）—— 拡大すると細かくなる一方で、
     // 粗くなる逆転を起こさない」. Stated without naming which value is coarser:
     // a monotone sweep leaves each tier once and never returns to it.
+    // ⭐ THE SWEEP'S ENDS AND ITS STEP ARE SOLVED FROM 表 T-205, never written
+    // as literals: it runs from inside the first band of `L-1` to inside the
+    // fourth (`SWEEP_FROM` / `SWEEP_TO`), taking `SWEEP_SAMPLES_PER_BAND`
+    // samples inside even the narrowest band. Wherever `S-83` / `S-84` / `S-85`
+    // are moved to, the sweep still spans all four tiers and still lands inside
+    // each of them, so the closing assertion cannot pass by the sweep having
+    // shrunk. ⚠️ The closing assertion is the one that catches that: `left`
+    // holds every tier the sweep left behind, so `left.size + 1` counts every
+    // DISTINCT tier the sweep saw, and `L-1`（表 T-005a）names four.
     for (const scale of FONT_SCALES) {
       const left = new Set<string>()
       let held: string | null = null
-      for (let step = 2; step <= 200; step += 1) {
-        const tier = tierAt(step / 10, scale.font, scale.name)
+      for (let step = 0; step <= SWEEP_STEPS; step += 1) {
+        const pxPerDay = SWEEP_FROM * SWEEP_RATIO ** step
+        const tier = tierAt(pxPerDay, scale.font, scale.name)
         if (tier === held) continue
-        expect(left.has(tier), `${scale.name}: ${step / 10} px/day returns to ${tier}`).toBe(false)
+        expect(left.has(tier), `${scale.name}: ${pxPerDay} px/day returns to ${tier}`).toBe(false)
         if (held !== null) left.add(held)
         held = tier
       }

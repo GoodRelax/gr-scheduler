@@ -6,7 +6,7 @@
 // WHAT IS HERE. Chapter 6.1 carries six SW_SPEC nodes. Five of them are the
 // drawing chain, and every one of them is covered below:
 //
-//   SWS-1  the tick thinning of the fine steps   FR-017   table T-221 LF-1
+//   SWS-1  the interval between two ticks        FR-017   table T-221 LF-1
 //   SWS-2  the band height and top of a row      FR-003   LF-2 / LF-3
 //   SWS-3  the route of a dependency line        FR-009   LF-4 / LF-5, T-222
 //   SWS-4  the vertices of what is drawn         FR-094   LF-6..LF-11, LF-13
@@ -61,18 +61,24 @@
 //   PI-35 regionsFromScreen  -> PI-5 layoutFromSchedule -> PI-6 geometryFromLayout
 //   PI-19 svgFromSchedule    where the case is about what is drawn
 //
-// TWO CASES ARE LEFT FAILING. They are findings, not chores (04-verification
+// FOUR CASES ARE LEFT FAILING. They are findings, not chores (04-verification
 // section 1): the expected value states what the specification says, and the
-// specification is quoted in the case. Search for `FINDING` below.
+// specification is quoted in the case. Search for `FINDING` below. Two of them
+// are SWS-1's and are new with the rewrite of LF-1 (the user's ruling,
+// 2026-08-26): the label a ruler tick carries still moves that tick, and
+// FR-089's grid lines are not drawn at all.
 
 import { describe, expect, it } from 'vitest'
 import { specTable, type SpecTable } from '../contract/spec-table'
 import {
+  SETTINGS_BOUNDS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
+import { DEFAULT_CALENDAR_VALUES } from '../../src/entity/document-model/schedule/schedule'
 import type {
   Calendar,
+  CalendarDay,
   Schedule,
   Task,
   TaskGroup,
@@ -80,8 +86,11 @@ import type {
   TaskVisual,
 } from '../../src/entity/document-model/schedule/schedule'
 import {
+  dateAtX,
   layoutFromSchedule,
   tickStrideOf,
+  xFromDay,
+  type RulerTier,
   type ScheduleLayout,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -89,7 +98,10 @@ import {
   type Path,
   type Point,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import {
+  regionsFromScreen,
+  type ScreenRect,
+} from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 
@@ -397,100 +409,198 @@ const lineOf = (bar: ReturnType<typeof geometryOf>['plan']) => {
 }
 
 // ===========================================================================
-// SWS-1 -- the tick thinning of the fine steps. FR-017, table T-221 LF-1.
+// SWS-1 -- the interval one tick stands for. FR-017, table T-221 LF-1.
 // ===========================================================================
 
 /**
- * The width LF-1 divides by the width of one day, recovered from the answer.
+ * ⛔ THE RULE THIS BLOCK ASSERTED WAS REPLACED, AND SO WERE ITS CASES.
  *
- * LF-1 states `stride = ceil(W / pxPerDay)`, so `stride` is one exactly when
- * `W <= pxPerDay`: the smallest day width that leaves the ticks unthinned IS
- * W. Bisecting for it needs no knowledge of what the label says, which is what
- * lets these cases test the formula without inventing a label the
- * specification does not fix.
+ * LF-1 used to divide an estimated label width by the width of one day and
+ * keep one tick every `ceil` of that. It now fixes the interval PER ROW: one
+ * year on the year row, one month on the year-and-month row, seven days on the
+ * week row, one day on the day row -- and "⛔ no other interval may be taken
+ * (MUST NOT)" (the user's ruling, 2026-08-26), because "on a thinned row the
+ * reader has to count the unit again, and two days apart and three days apart
+ * swap places as the zoom moves". FR-017 says the same from the requirement
+ * side: "⛔ no row may be thinned (MUST NOT) -- the interval is fixed per row,
+ * and the whole roster of them is table T-221's `LF-1`". LF-1 adds the anchor:
+ * "⭐ the week row's origin is held by `Project.weekStartDay` (`FR-054`)".
  *
- * ⚠️ W is LF-1's OCCUPIED width, not FR-093's estimate: since CR-200 the row
- * reads "the estimated label width (`FR-093`) plus `rulerLabelGap`", so what
- * the bisection recovers is `estimate + rulerLabelGap` (table T-006b A-11
- * keeps the two words apart).
+ * ⛔ Two cases were DELETED here rather than repaired, because the rule each
+ * asserted is gone. This is the record of what they said, so that nobody puts
+ * them back:
  *
- * The day step (`L-1` of table T-005a, the fourth) is the only step LF-1 acts
- * on, so the search runs with the day threshold at its floor -- `S-85`'s lower
- * bound is `rulerTierPxPerDayWeek` -- and asserts it stayed on that step.
+ *   * "one width divided by the day, rounded up, explains every answer" --
+ *     it bisected for the width LF-1 divided by, and demanded a stride above
+ *     one at narrow day widths. LF-1 divides by nothing and rounds nothing up.
+ *   * "the estimate doubles with the ruler font and with labelCoef, and
+ *     rulerLabelGap rides along unchanged" -- LF-1 no longer names `FR-093`
+ *     or `S-135`. S-135's own row now says the gap is added in ONE place,
+ *     "table T-205's `S-85`", which is how a DEFAULT was derived and not an
+ *     arithmetic any frame runs.
+ *
+ * ⭐ The remaining case asserted a stride of one on the three coarse steps. That
+ * much survives the rewrite, but as a consequence of the fixed interval rather
+ * than as an exemption from thinning, so it is asserted below over what is
+ * DRAWN, together with the three intervals it never looked at.
+ *
+ * ⭐ WHAT IS READ, AND WHY IT IS THE PICTURE. LF-1 fixes an interval, and the
+ * only place an interval is observable is the band the ruler draws -- so these
+ * cases read the ticks out of the SVG (PI-19) instead of asking one function
+ * for a number. A tick is a vertical `<line>` inside `regions.timeRuler`; the
+ * ticks of the band's FINEST row are the ones that reach the band's foot. The
+ * expected set is built here out of the calendar -- year starts, month starts,
+ * week starts, days -- and never out of what was drawn.
  */
-const DAY_STEP_FLOOR = SETTINGS_DEFAULTS['rulerTierPxPerDayWeek'] as number
-const FONT_MIN = SETTINGS_DEFAULTS['fontMin'] as number
+
+const MS_PER_DAY = 86400000
+
+/** The day whose midnight sits at a UTC instant. No zone is converted (FR-054). */
+const calendarDayOf = (utc: number): CalendarDay => {
+  const at = new Date(utc)
+  return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
+}
+
+const utcOf = (at: CalendarDay): number => Date.UTC(at.year, at.month - 1, at.day)
+
+const plusDays = (at: CalendarDay, days: number): CalendarDay =>
+  calendarDayOf(utcOf(at) + days * MS_PER_DAY)
+
+/** 0 is Sunday, which is the numbering AT-17 gives `Project.weekStartDay`. */
+const weekdayOf = (at: CalendarDay): number => new Date(utcOf(at)).getUTCDay()
+
+/** The rows a band can carry. LF-1 states one fixed interval for each. */
+type RulerRow = 'year' | 'month' | 'week' | 'day'
+
+/** Whether LF-1 puts a tick of `row` on `at`. The week row's anchor is FR-054's. */
+const isTickOf = (row: RulerRow, at: CalendarDay, weekStart: number): boolean => {
+  if (row === 'year') return at.month === 1 && at.day === 1
+  if (row === 'month') return at.day === 1
+  if (row === 'week') return weekdayOf(at) === weekStart
+  return true
+}
+
+interface DrawnLine {
+  readonly x1: number
+  readonly y1: number
+  readonly x2: number
+  readonly y2: number
+}
+
+const LINE_TAG = /<line x1="(-?[\d.]+)" y1="(-?[\d.]+)" x2="(-?[\d.]+)" y2="(-?[\d.]+)"/g
+
+const linesOf = (svg: string): readonly DrawnLine[] => {
+  const out: DrawnLine[] = []
+  for (const found of svg.matchAll(LINE_TAG)) {
+    const x1 = Number(found[1])
+    const y1 = Number(found[2])
+    const x2 = Number(found[3])
+    const y2 = Number(found[4])
+    // A group that did not take part reads as NaN rather than as a coordinate.
+    if ([x1, y1, x2, y2].some((n) => Number.isNaN(n))) continue
+    out.push({ x1, y1, x2, y2 })
+  }
+  return out
+}
+
+/** Two places is what a drawn coordinate is rounded to, so this is its slack. */
+const HALF_A_ROUNDING = 0.02
+
+const isVertical = (line: DrawnLine): boolean => Math.abs(line.x1 - line.x2) <= HALF_A_ROUNDING
+
+const xsOf = (lines: readonly DrawnLine[]): readonly number[] =>
+  lines.map((line) => line.x1).sort((a, b) => a - b)
 
 /**
- * The zoom at which the day step is first reached, at the settings' own font.
+ * The x of every tick the band's FINEST row draws, left to right.
  *
- * FR-017: 「しきい値は目盛のフォントが 12px であるときの px/day であり、判定は
- * 実効フォントサイズを 12 で割った比で行うこと（MUST）」, and 「1 日あたりの表示幅
- * は…`S-1` に `zoomX` を掛けた値とすること（MUST）」. So the widest day that still
- * misses the day step is `S-85` × `rulerFont` ÷ `S-8`, and the zoom that draws it
- * is that over `S-1`.
- *
- * ⚠️ TYPED IN AS 1.3 FOR ONE ROUND, which is `S-85` ÷ `S-1` with the font
- * compensation this very requirement demands left out. The sample still landed
- * inside the week step, so nothing went red -- it had simply stopped being the
- * edge its own comment claimed it was.
+ * ⭐ A row's ticks stop at that row's own foot, so the finest row is the one
+ * whose ticks reach the foot of the whole band. That is read off the band
+ * rectangle alone: how many rows a step is built from is not a number any
+ * table states, so a case must not assume one.
  */
-const DAY_STEP_ZOOM =
-  ((SETTINGS_DEFAULTS['rulerTierPxPerDayDay'] as number) *
-    (SETTINGS_DEFAULTS['rulerFont'] as number)) /
-  (FONT_MIN * (SETTINGS_DEFAULTS['pxPerDayAt1x'] as number))
+const finestRowTicksOf = (svg: string, band: ScreenRect): readonly number[] =>
+  xsOf(
+    linesOf(svg).filter(
+      (line) =>
+        isVertical(line) &&
+        Math.abs(Math.max(line.y1, line.y2) - (band.y + band.height)) <= HALF_A_ROUNDING,
+    ),
+  )
 
-/** The narrowest day that still shows the day step, once S-85 is at its floor. */
-const dayStepFrom = (rulerFont: number): number => (DAY_STEP_FLOOR * rulerFont) / FONT_MIN
-
-/** What S-135 states, printed from the manuscript by `npm run gen`. */
-const RULER_LABEL_GAP = SETTINGS_DEFAULTS['rulerLabelGap'] as number
-
-/** Settings that put the ruler on its day step at `pxPerDay`, however narrow. */
-const dayStepSettings = (
-  pxPerDay: number,
-  rulerFont: number,
-  labelCoef: number,
-  rulerLabelGap: number = RULER_LABEL_GAP,
-): DocumentSettings =>
-  settingsOf({
-    pxPerDayAt1x: 1,
-    zoomX: pxPerDay,
-    rulerFont,
-    labelCoef,
-    rulerLabelGap,
-    // S-85's own lower bound is rulerTierPxPerDayWeek, so this is the widest
-    // stretch of the axis the specification lets the day step cover. FR-017
-    // divides by the ruler font over S-8 before testing, which is why the
-    // threshold in pixels moves with the font.
-    rulerTierPxPerDayDay: DAY_STEP_FLOOR,
-    scrollDate: day(1),
-  })
-
-const impliedLabelWidth = (
-  rulerFont: number,
-  labelCoef: number,
-  rulerLabelGap: number = RULER_LABEL_GAP,
-): number => {
-  const strideAt = (pxPerDay: number): number => {
-    const settings = dayStepSettings(pxPerDay, rulerFont, labelCoef, rulerLabelGap)
-    const regions = regionsFromScreen(SCREEN, settings)
-    const layout = layoutFromSchedule(ONE_TASK_SCHEDULE, settings, regions)
-    expect(layout.tier).toBe('yearMonthDayWeekday')
-    expect(layout.pxPerDay).toBeCloseTo(pxPerDay, 9)
-    return tickStrideOf(layout, settings)
+/** Every x at which LF-1 asks `row` for a tick, over the width of the band. */
+const expectedTicksOf = (
+  layout: ScheduleLayout,
+  band: ScreenRect,
+  row: RulerRow,
+  weekStart: number,
+): readonly number[] => {
+  const from = dateAtX(layout, band.x)
+  if (from === null) throw new Error('this layout has no origin day to count from')
+  const out: number[] = []
+  const span = Math.ceil(band.width / layout.pxPerDay) + 1
+  for (let step = 0; step <= span; step += 1) {
+    const at = plusDays(from, step)
+    if (!isTickOf(row, at, weekStart)) continue
+    const x = xFromDay(layout, at)
+    // The band draws a tick that stands on it and stops at its right edge.
+    if (x < band.x || x >= band.x + band.width) continue
+    out.push(x)
   }
-  let thinned = dayStepFrom(rulerFont) * 1.001 // narrow enough that thinning is on
-  let clear = rulerFont * 400 // wide enough that none is
-  expect(strideAt(thinned), 'the narrowest day on the day step is not thinned').toBeGreaterThan(1)
-  expect(strideAt(clear)).toBe(1)
-  for (let i = 0; i < 60; i += 1) {
-    const mid = (thinned + clear) / 2
-    if (strideAt(mid) === 1) clear = mid
-    else thinned = mid
-  }
-  return clear
+  return out
 }
+
+const sameTicks = (
+  drawn: readonly number[],
+  expected: readonly number[],
+  where: string,
+): void => {
+  expect(
+    drawn.length,
+    `${where}: ${drawn.length} ticks drawn where LF-1's interval puts ${expected.length}`,
+  ).toBe(expected.length)
+  for (const [index, x] of drawn.entries()) {
+    expect(x, `${where}: tick ${index}`).toBeCloseTo(expected[index] ?? Number.NaN, 1)
+  }
+}
+
+const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
+const FONT_MIN = SETTINGS_DEFAULTS['fontMin'] as number
+const RULER_FONT = SETTINGS_DEFAULTS['rulerFont'] as number
+
+/** S-108: the day the week starts on when the document names none (FR-054). */
+const WEEK_START_DEFAULT = DEFAULT_CALENDAR_VALUES['S-108']
+
+/** A ceiling the settings manuscript states. ⛔ Never a number typed in here. */
+const boundMax = (key: string): number => {
+  const max = SETTINGS_BOUNDS[key]?.max
+  if (max === undefined) throw new Error(`the settings table states no plain ceiling for ${key}`)
+  return max
+}
+
+/**
+ * FR-017's own test, run backwards: the narrowest day that reaches `threshold`.
+ *
+ * The requirement fixes the test as `pxPerDay / (the effective font size / S-8)
+ * >= the threshold` (MUST), and fixes 12 -- `S-8` -- as the size the three
+ * thresholds are quoted at. ⚠️ Leaving the font out of this is what let an
+ * earlier sample drift a whole step away from the boundary its name claimed.
+ */
+const pxPerDayReaching = (threshold: number, rulerFont: number): number =>
+  threshold * (rulerFont / FONT_MIN)
+
+const TIER_MONTH_PX = pxPerDayReaching(
+  SETTINGS_DEFAULTS['rulerTierPxPerDayMonth'] as number,
+  RULER_FONT,
+)
+const TIER_WEEK_PX = pxPerDayReaching(
+  SETTINGS_DEFAULTS['rulerTierPxPerDayWeek'] as number,
+  RULER_FONT,
+)
+const TIER_DAY_PX = pxPerDayReaching(
+  SETTINGS_DEFAULTS['rulerTierPxPerDayDay'] as number,
+  RULER_FONT,
+)
 
 const ONE_TASK_SCHEDULE = scheduleOf(
   [task({ uid: 1, name: 'A', start: day(2), finish: day(6) })],
@@ -500,45 +610,95 @@ const ONE_TASK_SCHEDULE = scheduleOf(
   null,
 )
 
-describe('SWS-1 -- thin out the fine steps of the ruler (FR-017)', () => {
+/** A row carrying nothing: then a vertical line in the Row Area can only be a grid line. */
+const NO_TASK_SCHEDULE = scheduleOf([], [taskGroup('g1', 0)], [], [], null)
+
+/** The same document, told which day its weeks start on (AT-17, 0 is Sunday). */
+const withWeekStart = (weekStartDay: number | null): Schedule => ({
+  ...ONE_TASK_SCHEDULE,
+  project: { ...ONE_TASK_SCHEDULE.project, weekStartDay },
+})
+
+interface RulerFrame {
+  readonly svg: string
+  readonly band: ScreenRect
+  readonly rowArea: ScreenRect
+  readonly layout: ScheduleLayout
+  readonly settings: DocumentSettings
+}
+
+/** One frame drawn at a chosen width of one day: PI-35 -> PI-5 -> PI-6 -> PI-19. */
+const rulerAt = (
+  pxPerDay: number,
+  over: Readonly<Record<string, unknown>> = {},
+  schedule: Schedule = ONE_TASK_SCHEDULE,
+): RulerFrame => {
+  // S-1 keeps its manuscript default and the zoom carries the whole change, so
+  // every sample below is a zoom a reader can actually reach (S-54 to S-55).
+  const settings = settingsOf({ zoomX: pxPerDay / PX_PER_DAY_AT_1X, scrollDate: day(1), ...over })
+  const regions = regionsFromScreen(SCREEN, settings)
+  const layout = layoutFromSchedule(schedule, settings, regions)
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const svg = svgFromSchedule(
+    schedule,
+    settings,
+    layout,
+    geometry,
+    regions,
+    emptySelection(),
+    // EP-14's other arm. These cases are about the picture a reader sees.
+    'screen',
+  )
+  expect(layout.pxPerDay, 'the sample missed the day width it names').toBeCloseTo(pxPerDay, 9)
+  return { svg, band: regions.timeRuler, rowArea: regions.rowArea, layout, settings }
+}
+
+/**
+ * One sample per side of each threshold, and the row LF-1 hands the interval.
+ *
+ * ⭐ A thousandth to either side of the boundary, so a sample that drifts off
+ * its own step is caught by the tier assertion rather than passing on a step it
+ * was never meant to test -- which is exactly what happened to the sample this
+ * table replaces.
+ */
+const TIER_SAMPLES: ReadonlyArray<readonly [RulerTier, RulerRow, number, string]> = [
+  ['year', 'year', TIER_MONTH_PX * 0.5, 'half the day width that opens the month row'],
+  ['year', 'year', TIER_MONTH_PX * 0.999, 'a thousandth under S-83'],
+  ['yearMonth', 'month', TIER_MONTH_PX * 1.001, 'a thousandth over S-83'],
+  ['yearMonth', 'month', TIER_WEEK_PX * 0.999, 'a thousandth under S-84'],
+  ['yearMonthWeek', 'week', TIER_WEEK_PX * 1.001, 'a thousandth over S-84'],
+  ['yearMonthWeek', 'week', TIER_DAY_PX * 0.999, 'a thousandth under S-85'],
+  ['yearMonthDayWeekday', 'day', TIER_DAY_PX * 1.001, 'a thousandth over S-85'],
+  ['yearMonthDayWeekday', 'day', TIER_DAY_PX * 1.5, 'half again over S-85'],
+]
+
+describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
   it(
     swsCase({
       sws: 'SWS-1',
       level: 'Integration',
       covers: ['LF-1'],
-      given: 'a zoom that puts the ruler on the year, the month or the week step',
-      when: 'tickStrideOf reads the layout',
-      then: 'nothing is thinned out, whatever the label would cost',
+      given: 'a day width on either side of each of the three thresholds',
+      when: 'svgFromSchedule draws the ruler band',
+      then: 'the finest row ticks at its own fixed interval and at no other',
     }),
     () => {
-      // LF-1: "the year, month and week steps are NOT thinned -- FR-017 forbids
-      // it". So the answer is one on every step but the fourth.
-      mentions(T221, 'LF-1', 'FR-017')
-      const tierAt = (zoomX: number) => {
-        const settings = settingsOf({ zoomX, labelCoef: 1, scrollDate: day(1) })
-        const regions = regionsFromScreen(SCREEN, settings)
-        return { settings, layout: layoutFromSchedule(ONE_TASK_SCHEDULE, settings, regions) }
+      // LF-1: the interval is fixed per row -- one year, one month, seven days,
+      // one day -- and "⛔ no other interval may be taken (MUST NOT)". Set
+      // equality is what carries the MUST NOT: a thinned row drops ticks the
+      // calendar puts back, and a row ticking finer than its unit adds ticks
+      // the calendar does not name. Neither can survive a comparison of sets.
+      mentions(T221, 'LF-1', 'MUST NOT', 'FR-054', 'Project.weekStartDay')
+      for (const [tier, row, pxPerDay, where] of TIER_SAMPLES) {
+        const frame = rulerAt(pxPerDay)
+        expect(frame.layout.tier, where).toBe(tier)
+        const drawn = finestRowTicksOf(frame.svg, frame.band)
+        // ⚠️ Without this, an empty band would agree with an empty expectation.
+        // ⛔ One is the floor and not two: at the widest day the year row still
+        // covers, one screen holds a single new year and no more.
+        expect(drawn.length, `${where}: the band drew no ticks to judge`).toBeGreaterThanOrEqual(1)
+        sameTicks(drawn, expectedTicksOf(frame.layout, frame.band, row, WEEK_START_DEFAULT), where)
       }
-      const coarse: ReadonlyArray<readonly [number, string]> = [
-        [0.1, 'year'],
-        [0.5, 'yearMonth'],
-        [1, 'yearMonthWeek'],
-        // The widest day the week step still covers, one part in a thousand
-        // inside the boundary DAY_STEP_ZOOM computes from S-85, S-1 and S-8.
-        [DAY_STEP_ZOOM * 0.999, 'yearMonthWeek'],
-      ]
-      for (const [zoomX, tier] of coarse) {
-        // labelCoef at its ceiling (S-30) is the most expensive label allowed,
-        // so if anything could thin a coarse step it would be this.
-        const { settings, layout } = tierAt(zoomX)
-        expect(layout.tier, `zoomX ${zoomX}`).toBe(tier)
-        expect(tickStrideOf(layout, settings), `zoomX ${zoomX}`).toBe(1)
-      }
-      // ⭐ The guard that the last sample really is the edge: one part in a
-      // thousand the OTHER side of it, the day step holds. Without this the
-      // sample could drift far below the boundary and stay green, which is
-      // exactly what happened to it.
-      expect(tierAt(DAY_STEP_ZOOM * 1.001).layout.tier).toBe('yearMonthDayWeekday')
     },
   )
 
@@ -547,94 +707,131 @@ describe('SWS-1 -- thin out the fine steps of the ruler (FR-017)', () => {
       sws: 'SWS-1',
       level: 'Integration',
       covers: ['LF-1'],
-      given: 'the ruler on its day and weekday step at many zooms',
-      when: 'tickStrideOf reads each layout',
-      then: 'one width divided by the day, rounded up, explains every answer',
+      given: 'the widest ruler label the settings table allows, on the day row',
+      when: 'the band is drawn and PI-5 is asked for the same interval',
+      then: 'a tick still stands on every day, and the label costs it nothing',
     }),
     () => {
-      // LF-1: "divide the estimated label width by the width of one day, round
-      // up, and keep one tick every that many days". Three things follow, and
-      // none of them needs to know what the label says:
-      //   * the answer is a whole number of days, never below one
-      //   * a wider day never asks for MORE thinning
-      //   * `stride = ceil(W / px)` means `(stride - 1) * px < W <= stride * px`
-      //     for ONE W, so the bands the samples cut out must overlap. A floor
-      //     instead of a ceiling, or a width that moves with the zoom, empties
-      //     the intersection.
-      let lower = 0
-      let upper = Number.POSITIVE_INFINITY
-      let previous = Number.POSITIVE_INFINITY
-      let previousPx = 0
-      for (let i = 0; i < 60; i += 1) {
-        const pxPerDay = dayStepFrom(FONT_MIN) * 1.001 + i * 1.5
-        const settings = dayStepSettings(pxPerDay, FONT_MIN, 1)
-        const regions = regionsFromScreen(SCREEN, settings)
-        const layout = layoutFromSchedule(ONE_TASK_SCHEDULE, settings, regions)
-        expect(layout.tier).toBe('yearMonthDayWeekday')
-        const stride = tickStrideOf(layout, settings)
-        expect(Number.isInteger(stride), `px ${pxPerDay} gave ${stride}`).toBe(true)
-        expect(stride, `px ${pxPerDay}`).toBeGreaterThanOrEqual(1)
-        expect(stride, `px ${pxPerDay} after px ${previousPx}`).toBeLessThanOrEqual(previous)
-        previous = stride
-        previousPx = pxPerDay
-        lower = Math.max(lower, (stride - 1) * pxPerDay)
-        upper = Math.min(upper, stride * pxPerDay)
-      }
-      expect(lower, 'no single label width explains every stride').toBeLessThan(upper)
-    },
-  )
-
-  it(
-    swsCase({
-      sws: 'SWS-1',
-      level: 'Integration',
-      covers: ['LF-1'],
-      given: 'the ruler font doubled, and labelCoef doubled',
-      when: 'the width LF-1 divides by is recovered from the strides',
-      then: 'the estimate doubles with each and rulerLabelGap rides along unchanged',
-    }),
-    () => {
-      // LF-1 divides by an OCCUPIED width: "the estimated label width
-      // (`FR-093`) plus `rulerLabelGap`". The two halves answer to different
-      // things, and this case pins each of them:
+      // FINDING (left failing). LF-1 fixes the day row at one day and forbids
+      // any other interval (MUST NOT); FR-017 adds that "⛔ no row may be
+      // thinned (MUST NOT)" and that a zoom at which the label will not fit is
+      // answered by "⭐ putting the STEP one coarser (MUST)" -- never by
+      // spacing the ticks out. So no label, at any size the settings table
+      // allows, may move a tick.
       //
-      //   * FR-093 fixes the estimate as
-      //         units counted 2 per full-width and 1 per half-width
-      //           * font size * labelCoef
-      //     -- a product of three, with nothing added. So the ESTIMATE doubles
-      //     with each factor, whatever the unit count of the day and weekday
-      //     label turns out to be.
-      //   * `rulerLabelGap` (S-135) names no font and no coefficient, so it is
-      //     the same number of pixels at every font and every coefficient.
-      //
-      // ⚠️ The occupied width is therefore NOT proportional to either factor
-      // -- taking the gap off first is what makes the proportion testable.
-      // Before CR-200 LF-1 stated a bare estimate and this case demanded the
-      // proportion of the sum; it was red, and the manuscript moved.
-      mentions(T221, 'LF-1', 'FR-093', 'rulerLabelGap')
-      const estimate = (rulerFont: number, labelCoef: number): number =>
-        impliedLabelWidth(rulerFont, labelCoef) - RULER_LABEL_GAP
-      const base = estimate(12, 0.5)
-      expect(base, 'a label of no width would make the proportions vacuous').toBeGreaterThan(0)
-      expect(estimate(12, 1), 'doubling labelCoef must double the estimate').toBeCloseTo(base * 2, 6)
-      expect(estimate(24, 0.5), 'doubling the ruler font must double the estimate').toBeCloseTo(
-        base * 2,
-        6,
-      )
-      expect(estimate(24, 1), 'doubling both must quadruple the estimate').toBeCloseTo(base * 4, 6)
-
-      // 04-verification section 2: a value that comes from the manuscript is
-      // only shown to ARRIVE when moving it moves the answer. Widening S-135
-      // by six pixels has to widen the occupied width by exactly six -- the
-      // gap is added once, and it is added at the same place whatever the
-      // font. A bare number in the code, or the old `labelGap` (S-32, which is
-      // for labels put OUTSIDE a shape, per K-32), leaves this flat.
-      const wider = RULER_LABEL_GAP + 6
+      // ⛔ S-135's row says where the gap does reach: "this gap is added in
+      // deriving table T-205's `S-85`, and nowhere else -- only on the step
+      // whose interval is one day do neighbouring labels touch". It is a term
+      // of a DEFAULT's derivation. Reaching a drawn tick with it is what the
+      // rewrite of LF-1 took away, and the frame has not followed yet: at the
+      // ceilings of S-30 and S-135 the day row comes out two days apart.
+      mentions(T221, 'LF-1', 'MUST NOT')
+      const widest = { labelCoef: boundMax('labelCoef'), rulerLabelGap: boundMax('rulerLabelGap') }
+      const plain = rulerAt(TIER_DAY_PX * 1.001)
+      const loaded = rulerAt(TIER_DAY_PX * 1.001, widest)
+      expect(loaded.layout.tier).toBe('yearMonthDayWeekday')
+      const expected = expectedTicksOf(loaded.layout, loaded.band, 'day', WEEK_START_DEFAULT)
+      sameTicks(finestRowTicksOf(plain.svg, plain.band), expected, 'at the settings defaults')
+      sameTicks(finestRowTicksOf(loaded.svg, loaded.band), expected, 'with the widest label allowed')
+      // ⚠️ PI-5's cell still calls `tickStrideOf` "the thinning of the ticks"
+      // and points it at LF-1, which no longer thins anything. Whatever the
+      // name, LF-1 leaves the day row one number: one day.
       expect(
-        impliedLabelWidth(12, 0.5, wider) - impliedLabelWidth(12, 0.5, RULER_LABEL_GAP),
-        'S-135 does not reach the thinning',
-      ).toBeCloseTo(wider - RULER_LABEL_GAP, 6)
-      expect(impliedLabelWidth(24, 1, wider) - estimate(24, 1)).toBeCloseTo(wider, 6)
+        tickStrideOf(loaded.layout, loaded.settings),
+        'PI-5 answers LF-1 for the day row',
+      ).toBe(1)
+    },
+  )
+
+  it(
+    swsCase({
+      sws: 'SWS-1',
+      level: 'Integration',
+      covers: ['LF-1'],
+      given: 'each of the seven days Project.weekStartDay can name',
+      when: 'svgFromSchedule draws the week row of the band',
+      then: 'every tick falls on that day, seven days apart',
+    }),
+    () => {
+      // LF-1: "⭐ the week row's origin is held by `Project.weekStartDay`
+      // (`FR-054`)", and FR-054: "the week ruler writes the date the week
+      // starts on, and the start of the week follows `Project.weekStartDay`
+      // (MUST) -- the weekday is not decided in advance". AT-17 numbers that
+      // column 0 for Sunday up to 6 for Saturday, so all seven are walked.
+      mentions(T221, 'LF-1', 'FR-054', 'Project.weekStartDay')
+      const pxPerDay = TIER_WEEK_PX * 1.001
+      for (const weekStart of [0, 1, 2, 3, 4, 5, 6]) {
+        const where = `weekStartDay ${weekStart}`
+        const frame = rulerAt(pxPerDay, {}, withWeekStart(weekStart))
+        expect(frame.layout.tier, where).toBe('yearMonthWeek')
+        const drawn = finestRowTicksOf(frame.svg, frame.band)
+        expect(drawn.length, `${where}: the band drew no ticks to judge`).toBeGreaterThan(1)
+        sameTicks(drawn, expectedTicksOf(frame.layout, frame.band, 'week', weekStart), where)
+        for (const [index, x] of drawn.entries()) {
+          if (index === 0) continue
+          expect(x - (drawn[index - 1] ?? Number.NaN), `${where}: gap ${index}`).toBeCloseTo(
+            7 * frame.layout.pxPerDay,
+            1,
+          )
+        }
+      }
+      // FR-054 sends a document that names none to table T-209, whose S-108 is
+      // the value DEFAULT_CALENDAR_VALUES prints from the manuscript.
+      const unnamed = rulerAt(pxPerDay, {}, withWeekStart(null))
+      sameTicks(
+        finestRowTicksOf(unnamed.svg, unnamed.band),
+        expectedTicksOf(unnamed.layout, unnamed.band, 'week', WEEK_START_DEFAULT),
+        'the document names no week start',
+      )
+    },
+  )
+
+  it(
+    swsCase({
+      sws: 'SWS-1',
+      level: 'Integration',
+      covers: ['LF-1'],
+      given: 'date grid lines turned on at the week step and at the day step',
+      when: 'svgFromSchedule draws the frame',
+      then: 'the lines in the Row Area stand exactly where the finest row ticks',
+    }),
+    () => {
+      // FINDING (left failing). SWS-1's own RATIONALE: "⭐ that the grid lines
+      // stand at the same interval is settled by `FR-089`, and it uses the same
+      // number". FR-089 (MUST): draw the vertical lines "at the same interval
+      // as the finest step the Time Ruler is showing", and "⛔ they must not be
+      // drawn at a constant interval regardless of the width of one day (MUST
+      // NOT)"; the interval "must be the one value table T-221's `LF-1` holds
+      // for that step (MUST) -- a line standing on a date the ruler does not
+      // show cannot be read as any date at all".
+      //
+      // ⛔ NOTHING DRAWS THEM. `S-67` (`dateGridLinesVisible`) is turned on
+      // here and the Row Area comes back with no vertical line in it at all,
+      // so the case fails on the count. ⚠️ The document carries no Task on
+      // purpose: with an empty row, a vertical line inside the Row Area can
+      // only be one of FR-089's.
+      const steps: ReadonlyArray<readonly [RulerTier, number]> = [
+        ['yearMonthWeek', TIER_WEEK_PX * 1.001],
+        ['yearMonthDayWeekday', TIER_DAY_PX * 1.001],
+      ]
+      for (const [tier, pxPerDay] of steps) {
+        const frame = rulerAt(pxPerDay, { dateGridLinesVisible: true }, NO_TASK_SCHEDULE)
+        expect(frame.layout.tier).toBe(tier)
+        const area = frame.rowArea
+        const grid = xsOf(
+          linesOf(frame.svg).filter(
+            (line) =>
+              isVertical(line) &&
+              Math.min(line.y1, line.y2) >= area.y - HALF_A_ROUNDING &&
+              Math.max(line.y1, line.y2) <= area.y + area.height + HALF_A_ROUNDING,
+          ),
+        )
+        const ticks = finestRowTicksOf(frame.svg, frame.band)
+        // ⚠️ Two empty sets agree with each other, so the ruler is made to
+        // speak first: FR-089 is measured against ticks that are really there.
+        expect(ticks.length, `${tier}: the band drew no ticks to measure against`).toBeGreaterThan(1)
+        sameTicks(grid, ticks, `${tier}: FR-089's lines`)
+      }
     },
   )
 })

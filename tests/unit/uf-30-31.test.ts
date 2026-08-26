@@ -20,7 +20,8 @@
 //   T-023b  AR-1..AR-6 -- what may be armed
 //   T-023   MK-1..MK-13 -- the pointer and keyboard assignment
 //   T-023c  SL-1..SL-8 -- selection (FR-081)
-//   T-023d  GR-1..GR-18 -- grab areas and their priority
+//   T-023d  GR-1..GR-19 -- grab areas and their priority, and the closing rule
+//           that takes the plain press away from the double-click-only rows
 //   T-036   SK-1..SK-20 -- the shortcut assignment (FR-070)
 //   T-028   IN-1..IN-5a -- input manners (FR-040)
 //   T-027   UN-8/UN-9/UN-11/UN-16 -- what undo does not carry
@@ -131,6 +132,14 @@ const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusL
  * 勝つ」 -- and was missing from this copy, which asserted 18 where the table
  * prints 19. Its target is the `Command Palette`'s band and not one of SL-1's
  * five kinds, so the walk below steps over it and says why.
+ *
+ * ⭐ THE ORDER IS STILL THE PRINTED ONE, closing rule and all. 「ダブルクリック
+ * だけを持つ行（`GR-10` / `GR-11`）は、素の押下では掴みとして成立させないこと
+ * （MUST NOT）」 does not reorder the table and does not drop a row from it:
+ * 「⚠️ **ダブルクリックの宛先は本表の順をそのまま使う** —— 消えるのは素の押下の
+ * ときだけである。」 So this roster needs no case of its own for those two rows.
+ * WHICH row a plain press lands on is `itemAtPointer`'s answer (UF-7), not this
+ * unit's; the cases for it are in `t-023d-double-click-only-rows.test.ts`.
  */
 const T_023D = [
   'GR-19',
@@ -2287,19 +2296,38 @@ describe('MK-13 of 表 T-023 -- the double click', () => {
     }
   })
 
-  it('the task body opens the properties panel', () => {
+  // ⛔ THIS CASE USED TO SAY 「the task body opens the properties panel」. That
+  // rule is gone (利用者の裁定 2026-08-27). MK-13 now folds the two places into
+  // ONE entry -- 「タスク（名称ラベルと本体のどちらでも） ＝ 名称の編集」 -- and
+  // the same row forbids the route the old expected value named:
+  //   「⛔ **プロパティパネルを開く経路を本行に置いてはならない（MUST NOT）**
+  //     …**パネルの中身は `FR-072` が「最後に行われた操作」で決めており、選ぶ
+  //     操作がすでにその操作である。**」
+  // FR-072 is where the panel's contents are settled instead: 「プロパティパネル
+  // に出す中身を**最後に行われた操作**で決めること」 -- no input has to ask.
+  // ⚠️ The body is GR-12 of 表 T-023d, and the closing rule under that table
+  // says 「ダブルクリックの宛先は本表の順をそのまま使う」, so the hit this case
+  // hands in is the one a double click on the bar really arrives with.
+  it('the task body opens the SAME name for editing (MK-13, one entry)', () => {
     const action = doubleClickOn(TASK_1_HIT).action
-    expect(action?.kind).toBe('openPropertiesPanel')
-    if (action !== null && action.kind === 'openPropertiesPanel') {
-      expect(action.uid).toBe(1)
+    expect(action?.kind).toBe('editInPlace')
+    if (action !== null && action.kind === 'editInPlace') {
+      expect(action.target).toEqual({ kind: 'taskName', uid: 1 })
     }
   })
 
-  it('a single click on the same body does not open the panel', () => {
+  // MK-13 assigns the name edit to a DOUBLE click. A bare press on the same
+  // body is PD-3 of 表 T-023a and MK-8 of 表 T-023 -- 「そのものへの操作」, which
+  // for a press that goes nowhere is the selection (SL-2 of 表 T-023c).
+  // ⛔ WHAT THIS CASE USED TO SAY -- that a single click does not open the
+  // properties panel -- states no rule any more: MK-13 forbids that route to
+  // the double click too, so no press of any count can open it. What survives
+  // is the distinction the case was really drawing, between one click and two.
+  it('a single click on the same body does not open the name for editing', () => {
     const at = xOfDay('2026-01-06')
     const y = midYOfRow('g1')
     const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), TASK_1_HIT)
-    expect(answer.action?.kind).not.toBe('openPropertiesPanel')
+    expect(answer.action?.kind).not.toBe('editInPlace')
   })
 })
 
