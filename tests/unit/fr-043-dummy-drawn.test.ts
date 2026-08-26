@@ -602,16 +602,27 @@ const sameBoxAs = (box: Box | null, other: Box | null): boolean =>
   sameOnGrid(box.y1, other.y1)
 
 // ---------------------------------------------------------------------------
-// The instrument, checked against a picture that DOES obey the rows
+// The instrument, checked against a picture whose dummies this file put there
 //
 // ⭐ Rule 04 section 2: 「検査・契約・免除は、わざと壊して落ちることを確かめる
-// まで、確かめたことにならない」. Every case below the next divider is red while
-// D-04 is open, and a red case proves nothing about the machinery that read the
-// picture. So the same readers are run once over a picture assembled HERE to
-// the letter of FR-043, FR-013 and S-180 -- if this case ever falls, the cases
-// after it are failing for a reason that is this file's and not the product's.
+// まで、確かめたことにならない」. The cases below the next divider read a picture
+// and say what they found; a case that only ever reads the product's own
+// picture cannot tell "the reader works and the picture is right" from "the
+// reader is broken in the same direction". So the same readers are run once
+// over a picture whose dummy content is KNOWN EXACTLY, because this file wrote
+// it: figures assembled to the letter of FR-043, FR-013 and S-180 are spliced
+// into a control that has none.
 //
-// ⛔ THIS IS NOT A CLAIM ABOUT `src/`. Nothing in it renders anything: the
+// ⚠️ THE CONTROL IS THE STARTED PICTURE, NOT THE NOT-STARTED ONE. FR-043 shows
+// the handles 「`Task` が未着手であるあいだ」, so a Task with an actual carries
+// no dummy at all -- which is the only picture left that is dummy-free by a row
+// rather than by a defect. ⛔ It was the not-started picture until D-04 landed;
+// that made the control carry a real dummy as well as the spliced one, and the
+// reader could no longer be held to a known count. ⛔ The EXPORT picture would
+// be dummy-free too, but only if EP-14 holds -- and EP-14 is one of the things
+// these readers are used to judge, so it may not also be their control.
+//
+// ⛔ THIS IS NOT A CLAIM ABOUT `src/`. Nothing in it renders a dummy: the
 // figures are spliced into a real picture as a plain string.
 // ---------------------------------------------------------------------------
 
@@ -636,11 +647,17 @@ describe('the reader this file measures pictures with', () => {
     const bar = figuresOf(started.svg).filter((one) => sameBoxAs(one.box, band))
     const fill = bar.flatMap((one) => one.colours)[0]
     expect(fill).toBeDefined()
+    // The two places FR-043 puts the handles on this Task, taken from the
+    // not-started document -- the control has none there, which is the point.
     const xs = geometryOf(fresh, UNDER_TEST).dummies.map((one) => one.at.x)
     expect(xs).toHaveLength(2)
-    const obedient = spliced(fresh.svg, xs, band, fill!)
+    const obedient = spliced(started.svg, xs, band, fill!)
 
     for (const x of xs) {
+      // ⭐ EXACTLY ONE, because exactly one was put there. A reader that
+      // over-collected (the plan bar, the row band, the actual bar -- all of
+      // which span this x) would answer more than one, and a reader that
+      // measured the wrong element would answer the wrong width below.
       const drawnFigures = drawnAt(obedient, started.svg, x)
       expect(drawnFigures).toHaveLength(1)
       const box = unionOf(drawnFigures)
@@ -649,12 +666,11 @@ describe('the reader this file measures pictures with', () => {
       expect(onGrid(box.y1)).toBeCloseTo(onGrid(band.y1), 2)
       expect(drawnFigures[0]!.opacity).toBeCloseTo(DUMMY_OPACITY, 6)
       expect(drawnFigures[0]!.colours).toContain(fill)
-      // EP-14's shape: the same reading over a picture that drew none finds
-      // exactly these figures missing, and nothing else.
-      expect(drawnAt(obedient, fresh.svg, x)).toHaveLength(1)
-      // ⛔ AND THE OTHER WAY. Take them away again and the reader says so --
-      // which is what the red cases below are saying today.
-      expect(drawnAt(fresh.svg, started.svg, x)).toHaveLength(0)
+      // ⛔ AND THE OTHER WAY -- rule 04 section 2's second step. Take the
+      // spliced figures away again and the reader must say there is nothing
+      // here, or every "the picture draws a dummy" case below would pass over
+      // a picture that draws none.
+      expect(drawnAt(started.svg, started.svg, x)).toHaveLength(0)
     }
   })
 })
@@ -887,15 +903,39 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
         `the screen draws nothing at ${dummy.grab} that the export leaves out`,
       ).toBeGreaterThan(0)
     }
-    // Nothing else went missing on the way: the two pictures differ by the
-    // dummies and by nothing that is not at a dummy's x.
-    const dummyXs = dummies.map((one) => one.at.x)
+    // Nothing else went missing on the way. ⛔ MEASURED AGAINST EVERY TASK'S
+    // DUMMIES, NOT ONLY THIS ONE'S: EP-14 keeps `Actual Operation Dummy`
+    // (`U-52`) out of the picture altogether, and this document holds a second
+    // Task that is also not started, so FR-043 gives that one two handles of
+    // its own. ⚠️ A roster of one Task's dummies read this case's own fixture
+    // as a leak -- the figure it named was the OTHER Task's GR-9, measured at
+    // S-180 wide on that Task's own band.
+    const everyDummyX = pictures.geometry.tasks.flatMap((one) =>
+      one.dummies.map((dummy) => dummy.at.x),
+    )
+    // ⭐ AT A DUMMY'S X **AND NO WIDER THAN S-180**. The x alone would let a
+    // dropped plan bar through -- a bar spans its own start day, which is where
+    // GR-9 stands (table T-023d) -- and EP-5 keeps `Task Bars`（`U-2`）in the
+    // export, so a bar that went missing must not read as a dummy.
+    const isADummy = (figure: Figure): boolean =>
+      figure.box !== null &&
+      everyDummyX.some((x) => spansX(figure.box, x)) &&
+      onGrid(figure.box.x1 - figure.box.x0) <= DUMMY_DRAWN_WIDTH + GRID
     for (const figure of onlyIn(pictures.screen, pictures.exportInner)) {
-      expect(
-        dummyXs.some((x) => spansX(figure.box, x)),
-        `the export also dropped ${figure.text}`,
-      ).toBe(true)
+      expect(isADummy(figure), `the export also dropped ${figure.text}`).toBe(true)
     }
+
+    // ⛔ RULE 04 SECTION 2, SECOND STEP: 「壊す。落ちることを見る」. The clause
+    // above is worth writing only if it falls when something table T-076 keeps
+    // really is missing. Take the plan bar out of the export as well -- EP-5
+    // draws `Task Bars`（`U-2`）-- and the same reading must refuse it.
+    const plan = taskGeometryOf(pictures, UNDER_TEST).plan
+    if (plan === null || plan.form !== 'outline') throw new Error('the Task drew no plan bar')
+    const planBox = boxOfPoints(plan.points.map((one) => [one.x, one.y] as const))
+    const bar = figuresOf(pictures.exportInner).find((one) => sameBoxAs(one.box, planBox))
+    expect(bar, 'EP-5 already fails: the export has no plan bar to take out').toBeDefined()
+    const alsoMissingTheBar = pictures.exportInner.replace(bar!.text, '')
+    expect(onlyIn(pictures.screen, alsoMissingTheBar).some((one) => !isADummy(one))).toBe(true)
   })
 
   it('EP-5 keeps the not-started Progress Marker in the export, at the screen x', () => {
