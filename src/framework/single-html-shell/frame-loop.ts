@@ -92,6 +92,7 @@ import {
   escapeTarget,
   screenStateWithPalette,
   screenStateWithSurface,
+  type DualCursorSide,
   type EscapeTarget,
   type ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
@@ -1692,7 +1693,7 @@ function escapeLevelOf(
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
   return escapeTarget(context.screenState, {
     gestureInFlight: context.pressed !== null,
-    dualCursorMode: context.isDualCursorMode,
+    dualCursorMode: context.dualCursorFollowing !== null,
     isConfirmationStanding,
   })
 }
@@ -2477,14 +2478,26 @@ export function frameLoop(
   // the reason `callOffIconHintWait` above gives -- a browser answers with a
   // number and a host outside one answers with an object.
   let callOffEntryRepeat: (() => void) | null = null
-  // STOP -- ⛔ NOTHING TURNS THIS ON. Table T-029a's Dual Cursor mode is
-  // written by `setDualCursor` (CM-60), whose one entrance is IC-45 of table
-  // T-109 -- and `input-command-translator.ts` records that IC-45 cannot be
-  // written at all, because IV-13 demands both dates at once and one press
-  // carries one. ⚠️ Held as a value of the loop rather than written as a
-  // literal where the context is built, so that whoever closes IC-45 has the
-  // one place to set it from.
-  let isDualCursorMode = false
+  // Table T-029a's Dual Cursor mode: which of `dualCursor`'s two dates (S-65)
+  // is following the pointer, or `null` while the mode is not up.
+  //
+  // ⭐ THE MODE IS THIS ONE VALUE, and that is the user's ruling of 2026-08-26
+  // -- the following side belongs to the session and not to the document. ⛔ A
+  // boolean beside a side could say the mode is up with nobody following, and
+  // DC-1 (which starts a side following the moment the mode is entered) and
+  // DC-2 (which always hands the following over) leave no such state to be in.
+  // ⚠️ THE NOTE THAT STOOD HERE SAID NOTHING COULD TURN IT ON, on the ground
+  // that IC-45 could not be written because IV-13 demands both dates at once.
+  // DC-1 refutes that ground: entering places BOTH dates, so IC-45 writes the
+  // pair it needs. `commandFromDualCursorEntry` is where that press is answered
+  // and `carryOutAction` below is what moves this.
+  //
+  // ⛔ NOT A MEMBER OF `ScreenSession`, although that is where the ruling puts
+  // the FACT. `_source/components.json` gives ScreenRenderer no edge to
+  // ScheduleGeometry, and no unit of that component draws either line: the two
+  // lines and the mark are SvgRenderer's (EP-6, DC-8), which is reached through
+  // `svgFromSchedule`'s own parameter instead. Reported.
+  let dualCursorFollowing: DualCursorSide | null = null
   // FR-066 -- the conversation, which is NOT in the document (that MUST NOT)
   // and is therefore a current value LY-5 of table T-060 leaves here.
   //
@@ -2641,7 +2654,22 @@ export function frameLoop(
     surface.showSvg(
       // 'screen' is the picture a person is looking at, so table T-076's
       // omissions do not apply: FR-043's dummies are drawn here and only here.
-      svgFromSchedule(document.schedule, settings, layout, geometry, regions, selection, 'screen'),
+      // ⭐ AND THE ONE THING TABLE T-076 KEEPS OUT while the screen shows it:
+      // DC-8's mark for the following side of the `Dual Cursor` (EP-12 bars
+      // operation state). `exportScene` says nothing here, so it gets the two
+      // lines EP-6 asks for and no mark.
+      svgFromSchedule(
+        document.schedule,
+        settings,
+        layout,
+        geometry,
+        regions,
+        selection,
+        'screen',
+        dualCursorFollowing === null
+          ? null
+          : { side: dualCursorFollowing, x: pointerAt === null ? null : pointerAt.x },
+      ),
     )
     if (screen === undefined) return
     // ⛔ AFTER the schedule, because the parts outside it are drawn OVER the
@@ -3301,7 +3329,7 @@ export function frameLoop(
     // ⚠️ NARROWED ARGUMENTS ON PURPOSE: this runs BEFORE `collectInputContext`,
     // and no whole `PointerPress` can exist until this call has answered,
     // because the row is one of the press's own members.
-    const pressRow = pressRowOf({ at, hit }, { screenState, isDualCursorMode })
+    const pressRow = pressRowOf({ at, hit }, { screenState, dualCursorFollowing })
     // FR-053 (MUST) -- this shell FOLLOWS, so the member that says so starts at
     // the press's own point. ⭐ Its own note gives the rule: a travel is
     // measured from here and never from the press once one has been applied, so
@@ -3352,7 +3380,7 @@ export function frameLoop(
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
     // ⛔ PD-2 TURNS HIT TESTING OFF while the `Dual Cursor` is up, so the table
     // is not asked at all rather than asked and its answer thrown away.
-    if (isDualCursorMode) return null
+    if (dualCursorFollowing !== null) return null
     return itemAtPointer(frame.geometry, x, y, POINTER_SLOP)
   }
 
@@ -3396,7 +3424,7 @@ export function frameLoop(
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
     // STOP -- ⛔ PD-2 TURNS HIT TESTING OFF, and IN-2 names no shape for the
     // `Dual Cursor` mode, so nothing is invented for it.
-    if (isDualCursorMode) return null
+    if (dualCursorFollowing !== null) return null
     // PD-3. ⛔ STOP for every other row of table T-023d: IN-2 names the two
     // bars' ENDPOINTS and nothing else, and a shape for the bar's middle or for
     // a fade handle would be one this build made up.
@@ -3437,7 +3465,7 @@ export function frameLoop(
       // absence). So nothing can be unsettled, and saying so is a fact rather
       // than a guess.
       isTextEntryUnsettled: false,
-      isDualCursorMode,
+      dualCursorFollowing,
       today: readToday(),
       // AT-51 is a UUID, and minting one is not a pure act -- which is why the
       // translator is handed the identifier instead of making it. ⚠️ One is
@@ -4469,6 +4497,23 @@ export function frameLoop(
         propertiesShowing =
           propertiesShowing === 'documentSettings' ? 'selection' : 'documentSettings'
         return
+      case 'setDualCursorFollowing':
+        // Table T-029a -- DC-1's entry, DC-2's click, DC-4's way out.
+        //
+        // ⭐ THE SIDE MOVES FIRST AND THE WRITE FOLLOWS. Both halves are the
+        // same press, and the order is the one every other branch here keeps:
+        // the session's own value is put in force, then the document is
+        // written from the frame this press was decided against.
+        // ⛔ NOT `changeDocument`'S ROAD, and the question is why: that branch
+        // asks FR-032's confirmation of what it is about to write, and no row
+        // of table T-234 asks anything of a measuring line. ⚠️ `writeDocument`
+        // is still the ONE write path (WS-6), so atomicity is untouched.
+        // ⚠️ UN-12 keeps this out of the undo record -- `document-change-plan.ts`
+        // is where `setDualCursor` is marked not undoable, and DC-6 is the row
+        // it answers to.
+        dualCursorFollowing = action.following
+        if (action.placed !== null) writeDocument([action.placed], frame)
+        return
       case 'toggleAgentApi':
         // IC-20 -- FR-065. ⭐ ONE ENTRANCE BOTH WAYS, which that row words
         // itself. ⚠️ What is shown while it is on is FR-065's other MUST and is
@@ -4550,7 +4595,7 @@ export function frameLoop(
     //    DC-1 of table T-029a has following it -- and while that mode is up,
     //    one side always is.
     if (before.document.documentSettings.guideCursorMode !== GUIDE_CURSOR_NONE) return true
-    if (isDualCursorMode) return true
+    if (dualCursorFollowing !== null) return true
     // 3. What this happening actually changed, compared and not assumed.
     //    ⭐ The context IS the snapshot of what was held before the three
     //    members ran, so it is the thing they are compared against.
@@ -4751,8 +4796,10 @@ export function frameLoop(
       asking = null
       abandoned.settle(false, frame)
     }
-    // DC-4: `Esc` is one of the two ways out of the mode.
-    if (escapeLevel === 'dualCursorMode') isDualCursorMode = false
+    // DC-4: `Esc` is one of the two ways out of the mode. ⛔ The two lines stay
+    // where they were put -- DC-7 (MUST NOT) forbids leaving the mode from
+    // clearing them, so nothing here touches `dualCursor`.
+    if (escapeLevel === 'dualCursorMode') dualCursorFollowing = null
 
     // ⛔ THE ORDER IS LOAD-BEARING. The press is dropped AFTER the translator
     // has read it -- a release is decided entirely from the press (CS-2) --

@@ -993,6 +993,22 @@ DRAWN_FOR_THE_ARMED_ENTRANCE = [
     ' * could not be inside one either.',
 ]
 
+# ⛔ A FIFTH GROUND, AND THE ONLY ONE WHOSE PICTURE LEAVES THE TOOL. S-194 is
+# read by the unit that draws with it, as S-138, S-180 and S-185 are -- but all
+# three of their closing sentences say some form of "the export does not show
+# this", and EP-6 of table T-076 puts the Dual Cursor's two lines INTO the
+# exported picture. What table T-206 records here is narrower: the document
+# keeps the two DATES (S-65) and never the width they are drawn at.
+DRAWN_INTO_THE_EXPORTED_PICTURE = [
+    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
+    ' * setting and may not become one: table T-206 is where the',
+    ' * specification records that the document does not keep it. ⭐ AND',
+    ' * ITS PICTURE DOES LEAVE THE TOOL -- EP-6 of table T-076 draws the',
+    ' * two lines into an exported picture -- so what makes this the',
+    " * reader's own is not that the mark is hidden but that the document",
+    ' * keeps the two DATES (S-65) and never the width they take.',
+]
+
 READ_WHERE_IT_STANDS = [
     ' * ⚠️ This unit reads the row where it stands instead of being handed',
     ' * it: the contract in screen-renderer.ts fixes UF-61 at three',
@@ -1048,6 +1064,15 @@ NOT_STORED_TARGETS = {
     # armed; S-185 is the rim that tells ONE entrance from the others (FR-053).
     'NOT_STORED_ARMED_ENTRY_SIZES': (['S-185'], DRAWN_FOR_THE_ARMED_ENTRANCE),
     'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
+    # one constant per consuming SUBJECT, which is the split the notes around
+    # this table state. S-174 .. S-178 are the SELECTION's sign and S-194 is
+    # the Dual Cursor's own line width -- DC-8 of table T-029a borrows SL-8's
+    # rule for the mark and table T-023c's own note keeps the Dual Cursor out
+    # of SL-1, so the two are not one subject. ⚠️ S-178 is read by both and
+    # stands in one place: it is the multiplier SL-8 states, and DC-8 reaches
+    # it by naming that row rather than restating the number.
+    'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194'], DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ The eight lengths FR-006's fields are drawn at. ⛔ NOT folded into
     # NOT_STORED_ICON_SIZES though both land in dom-screen-surface.ts: one
     # constant per consuming SUBJECT, which is the split the note under
@@ -1148,7 +1173,7 @@ COLOUR_TARGETS = {
     'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-149', 'S-151', 'S-155', 'S-156',
                          'S-157', 'S-158', 'S-159', 'S-160', 'S-161', 'S-162',
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
-                         'S-169'],
+                         'S-169', 'S-195'],
 }
 
 COLOUR_NOTE = [
@@ -1619,9 +1644,15 @@ TARGETS = [
     # row that gives U-52 a drawn dimension (S-129 and S-130 are durations,
     # S-131 is the faintness, and S-93 is the reader's hit area, which table
     # T-206 routes to item-hit-area.ts alone).
+    # ⭐ The Dual Cursor's own line width joins them, in a constant of its own
+    # for the reason the entry in NOT_STORED_TARGETS gives: CU-2's two lines
+    # are drawn by this unit and by no other, and S-194 is the only row that
+    # gives them a width -- S-178 is the multiplier DC-8 borrows from SL-8 and
+    # stands with the selection's rows, where SL-8 put it.
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + colour_block('SCHEDULE_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The width the properties panel opens to, which only the shell can put

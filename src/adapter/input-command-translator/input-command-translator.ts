@@ -29,9 +29,9 @@
 // ⭐ THREE PURE FUNCTIONS, NOT A LISTENER. UF-30 is `pure` in table T-075, so
 // none of the three may remember anything between two happenings. Every value
 // that has to survive from a press to its release -- the press itself, whether
-// text is being typed, whether the Dual Cursor is up -- reaches them as an
-// argument, because LY-5 of table T-060 leaves the Framework as the only layer
-// that may hold a current value. `InputContext` is that argument.
+// text is being typed, which side of the Dual Cursor is following -- reaches
+// them as an argument, because LY-5 of table T-060 leaves the Framework as the
+// only layer that may hold a current value. `InputContext` is that argument.
 //
 // ⭐ WHAT "NOTHING" IS, per member, since a gesture that means nothing has to
 // produce nothing (MK-12 says so of an unassigned combination, and IN-4a says
@@ -115,6 +115,7 @@ import {
   screenStateWithPalette,
   screenStateWithSurface,
   type Armed,
+  type DualCursorSide,
   type EscapeContext,
   type ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
@@ -357,14 +358,26 @@ export interface InputContext {
    */
   readonly isTextEntryUnsettled: boolean
   /**
-   * Table T-029a's Dual Cursor mode. PD-2 turns hit testing off entirely while
-   * it is up, and IN-4 gives it the last level of `Esc`.
+   * Table T-029a's Dual Cursor mode: WHICH of the two dates is following the
+   * pointer, or `null` while the mode is not up.
    *
-   * ⚠️ Read from the caller rather than from `documentSettings`, because
-   * `EscapeContext` in `screen-state.ts` already settled that this is not a
-   * saved key -- `dualCursor` holds the two dates, not whether the mode is on.
+   * ⭐ ONE FIELD, NOT TWO. `null` IS "not in the mode" -- a boolean beside a
+   * side could say the mode is up with no side following, and DC-1 (which puts
+   * a side on the pointer the moment the mode is entered) and DC-2 (which
+   * always hands the following to the other side) leave no such state to
+   * describe. PD-2 turns hit testing off while this is non-null, and IN-4 gives
+   * the mode the last level of `Esc`.
+   *
+   * ⛔ NOT IN `documentSettings`, and that is the user's ruling of 2026-08-26:
+   * `dualCursor` (S-65) holds the two DATES, and which one is following is
+   * operation state -- DC-8 (MUST NOT) even keeps the mark for it out of an
+   * export, so it could not be a saved key without going on the round trip.
+   *
+   * ⚠️ THE NOTE THAT STOOD HERE ALSO CALLED THIS A THING `EscapeContext` HAD
+   * SETTLED. That value asks a narrower question (whether the mode is up at
+   * all) and `escapeContextOf` answers it from this one.
    */
-  readonly isDualCursorMode: boolean
+  readonly dualCursorFollowing: DualCursorSide | null
   /**
    * Today, spelled as a date column is (`textOfDay`).
    *
@@ -408,6 +421,16 @@ export type InPlaceTarget =
 // used to give for it has expired. FR-097 owns that entrance and wiring it to
 // CM-48 is its own piece of work; the kind is left out until that work is
 // asked for, for the same YAGNI reason and not for the old one.
+
+/**
+ * CM-60, which is the one road into `dualCursor` (S-65).
+ *
+ * ⭐ NAMED OFF `DocumentCommand` RATHER THAN RESTATED. The two dates and their
+ * spellings are that command's, `edit-document-settings.ts` is where IV-13 is
+ * judged, and a pair of fields written out here would be a second declaration
+ * of the same thing for the compiler to fail to keep in step.
+ */
+type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }>
 
 /**
  * What one happening is assigned to.
@@ -611,6 +634,34 @@ export type InputAction =
    * what `ScreenState` holds, and S-99g's `surface` is not this.
    */
   | { readonly kind: 'setMilestoneListOpen'; readonly isOpen: boolean }
+  /**
+   * Table T-029a: the Dual Cursor mode was entered (DC-1), the following was
+   * handed to the other side (DC-2), or the mode was left (DC-4).
+   *
+   * ⛔ THE ONE ACTION THAT CARRIES A SESSION VALUE AND A WRITE AT ONCE, and the
+   * requirement is what forces it. DC-1 (MUST) has entering the mode BOTH start
+   * a side following AND put the two dates down; DC-2 (MUST) has one click BOTH
+   * fix the following side AND hand the following over. Two actions could not
+   * express one press, and either half alone is a state the table does not
+   * admit -- a mode with nothing to measure, or a pair nobody is moving.
+   *
+   * ⭐ `following` IS THE WHOLE OF THE MODE. `null` leaves it; a side enters it
+   * or turns it over. See `InputContext.dualCursorFollowing`.
+   *
+   * ⛔ `placed` IS NULL FAR MORE OFTEN THAN NOT. DC-1 (MUST NOT) forbids
+   * re-placing a pair that already stands when the mode is re-entered, DC-4
+   * writes nothing on the way out, and DC-7 (MUST NOT) keeps the pair standing
+   * after it -- so a write happens only on the entry that has no pair yet and
+   * on the click that fixes a side.
+   * ⚠️ Typed as CM-60 itself rather than as two dates, so that this may not
+   * become a second road into `dualCursor`: `edit-document-settings.ts` is
+   * where IV-13 is judged, and the command is what it judges.
+   */
+  | {
+      readonly kind: 'setDualCursorFollowing'
+      readonly following: DualCursorSide | null
+      readonly placed: SetDualCursor | null
+    }
 
 /** What `commandFromInput` answers. */
 export interface TranslatedInput {
@@ -1304,14 +1355,14 @@ function marqueeRect(from: PointerInput, to: PointerInput): ScreenRect {
  */
 export function pressRowOf(
   press: Pick<PointerPress, 'at' | 'hit'>,
-  context: Pick<InputContext, 'screenState' | 'isDualCursorMode'>,
+  context: Pick<InputContext, 'screenState' | 'dualCursorFollowing'>,
 ): PressRow {
   const modifiers = press.at.modifiers
   // PD-1: the middle button, or a left drag with Ctrl and nothing else. Beats
   // both the arming and the hit, whatever lies under the pointer.
   if (press.at.button === 'middle') return 'PD-1'
   if (press.at.button === 'left' && isCombo(modifiers, true, false, false)) return 'PD-1'
-  if (context.isDualCursorMode) return 'PD-2'
+  if (context.dualCursorFollowing !== null) return 'PD-2'
   if (press.hit !== null) return 'PD-3'
   const armed = context.screenState.armed
   if (armed.kind === 'dependency') return 'PD-4a'
@@ -1463,6 +1514,17 @@ const ENTRY = {
   groupGridLinesVisible: 'IC-43',
   /** IC-44 -- FR-046. SK-20. */
   statusLine: 'IC-44',
+  /**
+   * IC-45 -- the Dual Cursor's own entrance (S-65), and BOTH ways through
+   * table T-029a's mode: DC-1 enters it and DC-4 words the way out as
+   * 「同じ入口の再押下」, so one entry answers for both and FR-029 (MUST NOT) is
+   * not brushed.
+   *
+   * ⛔ NOT THE WAY THE TWO LINES ARE CLEARED. DC-7 (MUST) puts that on an
+   * entrance OF ITS OWN and (MUST NOT) forbids leaving the mode from doing it
+   * -- see the STOP at the foot of this file for what table T-109 still owes.
+   */
+  dualCursor: 'IC-45',
   /**
    * IC-46 .. IC-49 -- one entry for each value of S-66.
    *
@@ -2525,14 +2587,17 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       ])
     }
     case 'PD-2':
-      // STOP -- ⛔ CU-2 of table T-029 is not read here. PD-2 says a click fixes
-      // a cursor while the Dual Cursor mode is up, and `setDualCursor` (CM-60)
-      // demands BOTH dates at once (IV-13) -- so a first click has nowhere to
-      // be remembered, and no published member carries a half-placed pair.
-      // Searched: table T-029, table T-029a, FR-048, `DocumentSettings`,
-      // `ScreenState`, table T-206. The press is taken (the mode is on, so the
-      // browser must not act) and nothing is written.
-      return CONSUMED_ELSEWHERE
+      // DC-2 of table T-029a: the click fixes the following side and hands the
+      // following to the other.
+      //
+      // ⛔ THE NOTE THAT STOOD HERE WAS WRONG, AND SO WAS THE LEDGER. It said
+      // CM-60 demanding BOTH dates at once (IV-13) left a first click nowhere
+      // to be remembered. DC-1 refutes it: entering the mode puts `date1` on
+      // the pointer AND `date2` at the middle of the `Row Area`, so both dates
+      // stand from the first frame and a half-placed pair never occurs. IV-13
+      // was never the obstacle -- the missing thing was one bit, which side is
+      // following, and it is `InputContext.dualCursorFollowing`.
+      return commandFromDualCursorPress(press, context)
     case 'PD-3':
       return commandFromGrab(input, press, context)
     case 'PD-4':
@@ -2739,6 +2804,8 @@ function commandFromEntry(
           ? { kind: 'setStatusDate', date: context.today }
           : { kind: 'clearStatusDate' },
       ])
+    case ENTRY.dualCursor:
+      return commandFromDualCursorEntry(press, context)
     case ENTRY.guideCursorNone:
     case ENTRY.guideCursorCrosshair:
     case ENTRY.guideCursorSingleVertical:
@@ -2815,6 +2882,102 @@ function commandFromEntry(
     default:
       return commandFromArmingEntry(entry, context)
   }
+}
+
+/**
+ * IC-45 -- DC-1's way into table T-029a's mode, and DC-4's way out of it.
+ *
+ * ⭐ THE MODE IS THE FOLLOWING SIDE. Entering hands it to `date1`, which is
+ * DC-1's own default; leaving sets it to null. There is no second flag to keep
+ * in step, which is why the mode cannot be up with nobody following.
+ *
+ * ⛔ A PAIR ALREADY STANDING IS NOT PUT DOWN AGAIN (DC-1, MUST NOT). DC-7
+ * (MUST NOT) keeps the two lines standing after the mode is left, so that a
+ * measurement can be read while doing something else -- re-placing them on the
+ * way back in would wipe that measurement at the moment of re-entry.
+ *
+ * ⛔ LEAVING WRITES NOTHING AT ALL, for the same row: DC-7 puts the clearing on
+ * an entrance of its own, and DC-4's Esc-or-same-entry is not it.
+ *
+ * ⚠️ 「画面の中央」 IS THE `Row Area`'S HORIZONTAL MIDPOINT, which DC-1 now says
+ * in as many words. ⛔ Not the window's: the two lines run down the `Row Area`
+ * and a midpoint outside it could name a day the picture never drew.
+ *
+ * @purity pure
+ */
+function commandFromDualCursorEntry(
+  press: PointerPress,
+  context: InputContext,
+): TranslatedInput {
+  // DC-4: 「同じ入口の再押下」. The document is untouched (DC-7).
+  if (context.dualCursorFollowing !== null) {
+    return acted({ kind: 'setDualCursorFollowing', following: null, placed: null })
+  }
+  const standing = context.document.documentSettings.dualCursor
+  if (standing !== null) {
+    return acted({ kind: 'setDualCursorFollowing', following: 'date1', placed: null })
+  }
+  const rowArea = context.regions.rowArea
+  const onPointer = dayAtX(context.layout, press.at.x)
+  const atCentre = dayAtX(context.layout, rowArea.x + rowArea.width / 2)
+  // ⛔ THE MODE IS NOT ENTERED WITH NOTHING TO MEASURE. DC-1 (MUST) puts BOTH
+  // dates down on the way in and IV-13 admits no half-placed pair, so an axis
+  // that can name neither day leaves the press taken and the mode down rather
+  // than up over an empty setting. ⚠️ It happens only before the axis has an
+  // origin, which BO-1 of table T-077 already forbids drawing in.
+  // @provisional PD-313
+  if (onPointer === null || atCentre === null) return CONSUMED_ELSEWHERE
+  return acted({
+    kind: 'setDualCursorFollowing',
+    following: 'date1',
+    placed: {
+      kind: 'setDualCursor',
+      date1: textOfDay(onPointer),
+      date2: textOfDay(atCentre),
+    },
+  })
+}
+
+/**
+ * PD-2 of table T-023a, which is DC-2: 「追従している側をクリックするとその位置で
+ * 固定し、もう一方が追従に切り替わること」.
+ *
+ * ⭐ WHAT IS FIXED IS THE DAY UNDER THE POINTER, which is the same reading the
+ * renderer draws the following line at -- so the line lands where it was seen.
+ *
+ * ⛔ THE OTHER SIDE IS WRITTEN BACK UNCHANGED, not left out. CM-60 takes both
+ * dates at once (IV-13), so the standing one has to travel with the fixed one;
+ * reading it from the frozen document is what makes this one press one write.
+ *
+ * ⭐ THE PRESS AND NOT THE RELEASE, which is CS-2 of table T-066 -- the same
+ * rule every other row of table T-023a is settled by.
+ *
+ * @purity pure
+ */
+function commandFromDualCursorPress(
+  press: PointerPress,
+  context: InputContext,
+): TranslatedInput {
+  const following = context.dualCursorFollowing
+  const standing = context.document.documentSettings.dualCursor
+  const day = dayAtX(context.layout, press.at.x)
+  // ⛔ ALL THREE ARE UNREACHABLE TOGETHER TODAY, and none is guessed at. PD-2
+  // is only reached while a side is following, and DC-1 leaves a pair standing
+  // whenever one is. ⚠️ The press is still taken -- the mode is up, so the
+  // browser must not act under it (MK-10).
+  // @provisional PD-314
+  if (following === null || standing === null || day === null) return CONSUMED_ELSEWHERE
+  const fixed = textOfDay(day)
+  const placed: SetDualCursor = {
+    kind: 'setDualCursor',
+    date1: following === 'date1' ? fixed : standing.date1,
+    date2: following === 'date2' ? fixed : standing.date2,
+  }
+  return acted({
+    kind: 'setDualCursorFollowing',
+    following: following === 'date1' ? 'date2' : 'date1',
+    placed,
+  })
 }
 
 /**
@@ -3866,7 +4029,10 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
 function escapeContextOf(context: InputContext): EscapeContext {
   return {
     gestureInFlight: context.pressed !== null,
-    dualCursorMode: context.isDualCursorMode,
+    // ⭐ A SIDE STANDING IS THE MODE BEING UP. IN-4 spends a press on the MODE
+    // and DC-4 takes the whole of it, so the narrower question is the one that
+    // travels and the side itself stays here.
+    dualCursorMode: context.dualCursorFollowing !== null,
   }
 }
 
@@ -4013,10 +4179,15 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   return state
 }
 
-// STOP -- ⛔ 16 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
-// ANSWERS NONE OF THEM. ⚠️ The number is the 74 rows of that table less the 58
-// this file assigns (`ENTRY` holds 43 and `ARMED_BY_ENTRY` 15), and the two
-// groups below add up to it: 6 + 10.
+// STOP -- ⛔ 15 ROWS OF TABLE T-109 REACH `commandFromEntry` AND THIS FILE
+// ANSWERS NONE OF THEM. ⚠️ The number is the 74 rows of that table less the 59
+// this file assigns (`ENTRY` holds 44 and `ARMED_BY_ENTRY` 15), and the two
+// groups below add up to it: 6 + 9.
+// ⭐ IC-45 LEFT THE SECOND GROUP THIS ROUND. It stood there on the ground that
+// CM-60 demands both dates at once, and DC-1 refutes that ground: entering the
+// mode places both, so the entry writes the pair it needs and nothing is
+// half-placed. What it wanted all along was the following side, which is now
+// `InputContext.dualCursorFollowing`.
 // ⭐ The entries that ARE answered were chosen by a rule rather than one at a
 // time. An entry is answered when
 //   ① this file already answers the same operation for a row of table T-036, or
@@ -4071,7 +4242,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                has the READ raise the choice, so an entry that opened it
 //                would be one the specification does not place.
 //
-// ⛔ 10 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
+// ⛔ 9 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
 //
 //   IC-18        FR-066's dialogue field, 「出す・しまう」. ⛔ NOTHING HOLDS THAT
 //                SWITCH: `ScreenState` has no member for it, `ScreenSession` has
@@ -4118,8 +4289,6 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                purpose (see `VisibleElement` above), and re-declaring the
 //                ninth name in this file would be the drift that deriving
 //                exists to stop.
-//   IC-45        `setDualCursor` (CM-60) demands BOTH dates at once (IV-13),
-//                which is the gap PD-2 already records above.
 //   IC-66        the `Resource Roster`'s delete, and the ONE of that surface's
 //                six still unanswered. ⚠️ Its five neighbours are answered above:
 //                they move `ScreenSession.selectedResourceUids` (PD-143), which
@@ -4140,8 +4309,22 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                It is still not a button -- what answers it is a drag, settled
 //                on the release.
 //
+// ⛔ AND ONE ROW THAT TABLE T-109 DOES NOT HOLD AT ALL, which is a gap on the
+// far side of this file rather than one of the 15 above:
+//
+//   DC-7's clear  「置いた 2 本を消す入口を、モードを出る入口とは別に置くこと
+//                (MUST)」. `clearDualCursor` (CM-61) is written and
+//                `edit-document-settings.ts` states its rule; what is missing
+//                is the ENTRANCE. ⛔ Table T-109's 74 rows hold none, and
+//                giving it one needs a 75th glyph in figure F-019 -- which
+//                RC-13 of table T-026 reserves to the user. ⚠️ Until it
+//                exists, EP-6 of table T-076 goes on drawing the two lines
+//                into every export with no way to take them away, which is
+//                the very consequence DC-7 names.
+//
 // Searched: table T-109, table T-108, table T-036, table T-023b, table T-202,
-// table T-203, table T-206, table T-234, table T-037, FR-020, FR-049, FR-053,
+// table T-203, table T-206, table T-234, table T-037, table T-026, table
+// T-029a, figure F-019, FR-020, FR-049, FR-053,
 // FR-065, FR-066, FR-072, FR-085, FR-099, `screen-renderer.ts`,
 // `edit-document-settings.ts`, `document-settings.ts`, `screen-surface.ts`,
 // `dialogue-field.ts`, `open-modals.ts`, `notices.ts`, `frame-loop.ts`.

@@ -265,7 +265,9 @@ const frameOf = (schedule: Schedule): Frame => {
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
       pressed: null,
       isTextEntryUnsettled: false,
-      isDualCursorMode: false,
+      // DC-1 of table T-029a puts both dates down on the way in, so 「in the mode」
+      // and 「which side follows」 are one value, not two that could disagree.
+      dualCursorFollowing: null,
       today: '2026-03-01T00:00:00',
       newGroupId: 'row-minted-outside',
     },

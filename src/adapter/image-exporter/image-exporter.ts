@@ -53,12 +53,17 @@
 // reaches this file inside `ScreenView` is left out below -- that IS the
 // assembly. ⚠️ But the received SVG is one opaque string: what SvgRenderer
 // already drew into it cannot be taken out again. Today that file draws the
-// selection outline (FR-030), and ScheduleGeometry carries no cursors yet.
+// selection outline (FR-030) and, when it is told one, DC-8's mark for the side
+// of the `Dual Cursor` that is following -- which EP-12 keeps out, being
+// operation state. ⚠️ ScheduleGeometry now carries CU-2's two lines, which is a
+// gain rather than a loss: EP-6 (MUST) wants them IN the export. CU-3's guide
+// cursor is still not carried at all.
 // ⛔ So the picture handed to an export MUST be one rendered for the export:
 // the base environment FR-080 defines (table T-025's MC-6 with the properties
 // panel and the command palette closed), an empty `Selection`, no pointer
 // -- CU-3 of table T-029 has the `Guide Cursor` follow the pointer, and an
-// export has none -- and SvgRenderer told which picture it is making, since
+// export has none -- nothing said about which side is following, and
+// SvgRenderer told which picture it is making, since
 // EP-14's dummies hang on the Task being unstarted and no other argument can
 // suppress them. That is a fact about the caller. It is reported, not
 // checked here, because nothing in a finished string says how it was made.

@@ -25,8 +25,10 @@
 //     the padding and the wrap, but no row anywhere says what either leader
 //     kind is drawn AS, and RC-13 of table T-026 reserves a new figure to the
 //     user. `commentGeometry` carries the anchor for whoever draws it.
-//   - the guide and dual cursors. `dualCursor`'s two dates hold `unknown` in
-//     the source, so there is no value to read.
+//   - the guide cursor (CU-3 of table T-029). It follows the pointer, and no
+//     stage below is handed one -- ADR-001 runs table T-068 from the frozen
+//     document alone. ⭐ The DUAL cursor is drawn now: its two dates are the
+//     document's (S-65) and `dualCursorGeometry` places them.
 //   - the watermark (FR-020) and the baseline overlay (FR-015). M4 and M5.
 // ⭐ The eight milestone figures are no longer among them. All eight of
 // AT-101's are drawn, from one inscribed circle, and `TaskPlacement` now
@@ -209,6 +211,30 @@ export interface CommentGeometry {
   readonly fontSize: number
 }
 
+/**
+ * CU-2's two measuring lines, placed. Null while `dualCursor` holds nothing.
+ *
+ * ⭐ BOTH DATES ALWAYS STAND. IV-13 (MUST) has both non-null while the setting
+ * is non-null, and DC-1 puts both down in the same move -- one on the pointer
+ * and one at the middle of the `Row Area` -- so there is no half-placed pair to
+ * describe here.
+ *
+ * ⛔ WHICH SIDE IS FOLLOWING IS NOT HERE. That is a current value, which LY-5
+ * of table T-060 leaves with the Framework, and DC-8 (MUST NOT) keeps the mark
+ * for it out of an export while EP-6 still draws these two lines -- so the
+ * placement is the document's and the mark is the session's, and they travel
+ * apart. `svgFromSchedule`'s own parameter is where the second one arrives.
+ */
+export interface DualCursorGeometry {
+  /** Where S-65's `date1` is drawn on the time axis. */
+  readonly date1X: number
+  /** Where S-65's `date2` is drawn on the time axis. */
+  readonly date2X: number
+  /** Both lines run the height of the `Row Area`, as CU-1's does. */
+  readonly top: number
+  readonly bottom: number
+}
+
 export interface ScheduleGeometry {
   readonly tasks: readonly TaskGeometry[]
   readonly dependencies: readonly DependencyGeometry[]
@@ -216,6 +242,8 @@ export interface ScheduleGeometry {
   readonly progressLine: Path
   /** CU-1. Null when `Project.statusDate` holds nothing. */
   readonly statusLine: { readonly x: number; readonly top: number; readonly bottom: number } | null
+  /** CU-2 (table T-029a). Null while `dualCursor` (S-65) holds nothing. */
+  readonly dualCursor: DualCursorGeometry | null
   readonly highlightBoxes: readonly HighlightGeometry[]
   /** FR-019's CommentBox, body only. See `CommentGeometry`. */
   readonly commentBoxes: readonly CommentGeometry[]
@@ -1265,6 +1293,39 @@ function commentGeometry(
 }
 
 /**
+ * CU-2's two lines, placed on the time axis and run down the `Row Area`.
+ *
+ * ⭐ THE SAME TWO NUMBERS CU-1 IS GIVEN, and deliberately so: the status line
+ * and these are the two cursors table T-029 puts in the document (CU-1 / CU-2),
+ * and a reader comparing a measurement against the status date is comparing
+ * lines that have to start and end together.
+ *
+ * ⛔ A DATE THAT WILL NOT READ DROPS THE PAIR RATHER THAN HALF OF IT. IV-13
+ * (MUST) says both dates stand while the setting stands, so one that will not
+ * read is a document that never met that invariant -- and drawing the surviving
+ * line alone would show a measurement with one end invented.
+ *
+ * @purity pure
+ */
+function dualCursorGeometry(
+  settings: DocumentSettings,
+  layout: ScheduleLayout,
+  regions: ScreenRegions,
+): DualCursorGeometry | null {
+  const placed = settings.dualCursor
+  if (placed === null) return null
+  const first = dayOf(placed.date1)
+  const second = dayOf(placed.date2)
+  if (first === null || second === null) return null
+  return {
+    date1X: xFromDay(layout, first),
+    date2X: xFromDay(layout, second),
+    top: regions.rowArea.y,
+    bottom: regions.rowArea.y + regions.rowArea.height,
+  }
+}
+
+/**
  * Everything drawn, from what LC-1 to LC-9 already settled.
  *
  * ⚠️ `selection` is required and has no default. FR-075 (MUST) shows the fade
@@ -1330,6 +1391,7 @@ export function geometryFromLayout(
             top: regions.rowArea.y,
             bottom: regions.rowArea.y + regions.rowArea.height,
           },
+    dualCursor: dualCursorGeometry(settings, layout, regions),
     highlightBoxes: highlightGeometry(schedule, layout),
     commentBoxes: commentGeometry(schedule, settings, layout),
   }

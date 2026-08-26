@@ -2003,21 +2003,24 @@ const INVARIANTS: readonly Invariant[] = [
     /**
      * S-65 spells the two columns the dual cursor holds.
      *
-     * ⛔ They are read off an `object` instead of through the type, because the
-     * generated `DocumentSettings.dualCursor` is `object | null`: the type comes
-     * from the generated schema and the two members S-65 states did not survive
-     * the crossing. Reported -- once they are in the type this reads them
-     * straight and the narrowing goes.
+     * ⭐ READ THROUGH THE TYPE. ⛔ The note that stood here said the generated
+     * `DocumentSettings.dualCursor` was `object | null` and narrowed through
+     * `unknown` to get at the members; both members are in the type now, so the
+     * narrowing is gone with the note that explained it.
+     *
+     * ⚠️ THE CHECK IS NOT THEREBY EMPTY. The type says a document built inside
+     * `src/` cannot breach IV-13; this judges a document that arrived from
+     * OUTSIDE, where a key may be absent or null however the type reads.
      *
      * @purity pure
      */
     find: ({ settings }) => {
-      const cursor: unknown = settings.dualCursor
-      if (cursor === null || typeof cursor !== 'object') return NONE
-      const held = cursor as { readonly date1?: unknown; readonly date2?: unknown }
+      const cursor = settings.dualCursor
+      if (cursor === null) return NONE
       const found: Breach[] = []
       for (const column of ['date1', 'date2'] as const) {
-        if (held[column] === null || held[column] === undefined) {
+        const held: string | null | undefined = cursor[column]
+        if (held === null || held === undefined) {
           found.push({
             at: `/documentSettings/dualCursor/${column}`,
             what: 'is absent while the dual cursor is set',

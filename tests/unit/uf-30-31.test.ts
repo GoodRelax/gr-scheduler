@@ -411,7 +411,9 @@ const BASE: InputContext = {
   zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
   pressed: null,
   isTextEntryUnsettled: false,
-  isDualCursorMode: false,
+  // DC-1 of table T-029a puts both dates down on the way in, so 「in the mode」
+  // and 「which side follows」 are one value, not two that could disagree.
+  dualCursorFollowing: null,
   today: TODAY,
   newGroupId: NEW_GROUP_ID,
 }
@@ -795,7 +797,7 @@ describe('表 T-028 -- the input manners (FR-040)', () => {
     const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: null, on: null, pressRow: 'PD-2' as const }
 
     // Level 1 -- the open surface.
-    state = screenStateFromInput(keyOf('Esc'), contextOf({ screenState: state, pressed, isDualCursorMode: true }))
+    state = screenStateFromInput(keyOf('Esc'), contextOf({ screenState: state, pressed, dualCursorFollowing: 'date1' }))
     expect(state.surface).toBeNull()
     expect(state.armed.kind).toBe('dependency')
 
@@ -803,14 +805,14 @@ describe('表 T-028 -- the input manners (FR-040)', () => {
     // the gesture is the Framework's to hold (LY-5).
     const afterGestureEsc = screenStateFromInput(
       keyOf('Esc'),
-      contextOf({ screenState: state, pressed, isDualCursorMode: true }),
+      contextOf({ screenState: state, pressed, dualCursorFollowing: 'date1' }),
     )
     expect(afterGestureEsc.armed.kind).toBe('dependency')
 
     // Level 3 -- what is armed, once no gesture is in flight.
     state = screenStateFromInput(
       keyOf('Esc'),
-      contextOf({ screenState: state, pressed: null, isDualCursorMode: true }),
+      contextOf({ screenState: state, pressed: null, dualCursorFollowing: 'date1' }),
     )
     expect(state.armed.kind).toBe('none')
   })
@@ -1478,7 +1480,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
             pointerOf('down', from, y1),
             pointerOf('up', to, y1),
             TASK_1_HIT,
-            { isDualCursorMode: true, screenState: armedShape },
+            { dualCursorFollowing: 'date1', screenState: armedShape },
           )
           expect(kindsOf(answer), row).not.toContain('setTaskPlanDates')
           expect(kindsOf(answer), row).not.toContain('createTask')
@@ -2358,7 +2360,7 @@ describe('表 T-027 -- undo carries the document, not the view', () => {
 // ---------------------------------------------------------------------------
 
 describe('DC-5 of 表 T-029a / PD-2 -- the Dual Cursor mode is exclusive', () => {
-  const dual = { isDualCursorMode: true }
+  const dual = { dualCursorFollowing: 'date1' as const }
 
   it('refuses to create, move or edit while the mode is up (MUST NOT)', () => {
     const armed = screenStateWithArmed(emptyScreenState(), {

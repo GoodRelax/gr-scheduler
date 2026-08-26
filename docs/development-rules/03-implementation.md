@@ -36,6 +36,10 @@ SETTINGS_DEFAULTS               見せ方の群の既定値
 SETTINGS_BOUNDS                 その下限・上限
 SETTINGS_DERIVED                他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
 NOT_STORED_ZOOM_STEP            1 ノッチの倍率（表 T-206 の `S-96`）
+NOT_STORED_DUMMY_SIZES          実績のダミーを描く幅（`S-180`）
+NOT_STORED_PROPERTY_FIELD_SIZES プロパティパネルの欄の寸法（`S-186` 〜 `S-193`）
+NOT_STORED_DUAL_CURSOR_SIZES    2 連カーソルの線の太さ（`S-194`）
+COLUMN_SHAPES                   列の入力の形・選択肢・下限上限（`erd.json`）
 NOT_STORED_ZOOM_BOUNDS          倍率の下限・上限（`S-97` / `S-98`）
 NOT_STORED_COMMAND_PALETTE_SIZES  `Command Palette` の掴み帯と群（`S-135a` / `S-143`）
 NOT_STORED_PROPERTIES_PANEL_SIZES `Properties Panel` が開く幅（`S-171`）
@@ -43,15 +47,16 @@ NOT_STORED_ROW_CONTROL_SIZES    行の操作子の大きさ（`S-140`）
 NOT_STORED_ICON_SIZES           アイコンの箱と隔たり（`S-138` / `S-141`）
 NOT_STORED_SELECTION_SIZES      選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
 NOT_STORED_REPEAT_TIMES         長押しの待ちと刻み（`S-172` / `S-173`）
-NOT_STORED_ARMED_ENTRY_SIZES         長押しの待ちと刻み（`S-172` / `S-173`）
+NOT_STORED_ARMED_ENTRY_SIZES    構えている入口の縁の太さ（`S-185`）
 SCREEN_COLOURS                  画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
 SCHEDULE_COLOURS                日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 ENTITY_ROWS                     実体の行（`erd.json`）
 ```
 
-⚠️ **この一覧は 2026-08-26 に 9 本足して受け皿を合わせた。**
-⛔ **内訳は「今回増やした 1 本」と「先に足し忘れていた 8 本」である。**
-⭐ **数え方**: `src/` の生成領域の中の `export const` を全部拾うと 20 本ある。
+⚠️ **この一覧は 2026-08-26 に 2 度直した。**
+⛔ **1 度目は 9 本、2 度目は 5 本足りなかった** —— 2 度目のうち 4 本は同じ日のうちに増えたもので、1 本は 1 度目に足した行の説明が隣の行の写しになっていた誤りである。
+⭐ **数え方**: `src/` の生成された `export const` を全部拾う。
+⛔ **この一覧が 1 日に 2 度ずれたこと自体が、下の 1 文の証拠である。**機械が見ていないので、増やした者が足し忘れれば誰も気づかない —— **気づいたのは、仕様だけを読む体が数えたときだった。**
 ⚠️ **「増えたらここに足す」と書いてあっても、機械が見ていない規則はこうなる。**
 
 ⚠️ **下の 2 つは、表 T-206 の行が値を持たず 表 T-201 の行を名指している初めての例である**（`S-96` → `S-53`）。

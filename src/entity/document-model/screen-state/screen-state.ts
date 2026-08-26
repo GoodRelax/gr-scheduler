@@ -94,13 +94,39 @@ export function screenStateWithFullScreen(state: ScreenState, on: boolean): Scre
 export type EscapeTarget = 'confirmation' | 'surface' | 'gesture' | 'armed' | 'dualCursorMode'
 
 /**
- * What is happening outside this value that Esc may also consume. A gesture in
- * flight is the Framework's to know (LY-5), and the Dual Cursor mode is a saved
- * setting, so neither can be read from here.
+ * Which of the two dates S-65 holds is meant -- the two spellings are the
+ * setting's own, and DC-1 of table T-029a names them that way.
+ *
+ * ⚠️ WRITTEN OUT A SECOND TIME, letter for letter, in `svg-renderer.ts`.
+ * ⛔ NOT AN OVERSIGHT: `_source/components.json` gives SvgRenderer no edge to
+ * this component, so that unit cannot import this name, and its own note says
+ * so where it declares `DualCursorFollow`. ⚠️ What holds the two in step is the
+ * compiler -- `frame-loop.ts` hands ONE value along both seams, so a drift is a
+ * type error at that call site rather than something review has to catch.
+ */
+export type DualCursorSide = 'date1' | 'date2'
+
+/**
+ * What is happening outside this value that Esc may also consume.
+ *
+ * ⚠️ BOTH ARE THE FRAMEWORK'S CURRENT VALUES (LY-5 of table T-060), which is
+ * why neither can be read from here. ⛔ THE NOTE THAT STOOD HERE WAS FALSE: it
+ * called the Dual Cursor mode 「a saved setting」, and `dualCursor` (S-65) holds
+ * the two DATES and has never held whether the mode is up. The user ruled the
+ * one missing bit -- which side is following -- into the session rather than
+ * into the document (2026-08-26), and `null` there IS "not in the mode".
  */
 export interface EscapeContext {
   /** A drag under way, or an arrow half drawn. */
   readonly gestureInFlight: boolean
+  /**
+   * IN-4's last level -- whether the Dual Cursor mode is up at all.
+   *
+   * ⭐ A QUESTION AND NOT THE VALUE ITSELF. What the holder keeps is the
+   * following side (`DualCursorSide | null`); this row asks only whether one
+   * stands, because IN-4 spends a press on the MODE and DC-4 takes the whole of
+   * it -- an `Esc` does not move which side follows.
+   */
   readonly dualCursorMode: boolean
   /**
    * Whether a `Confirmation` (U-55 of table T-103) stands -- the surface NT-7

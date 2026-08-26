@@ -86,6 +86,46 @@ export type { SvgSurface } from './svg-surface'
 export type SchedulePicture = 'screen' | 'export'
 
 /**
+ * The Dual Cursor mode as it stands THIS FRAME -- the second thing in this file
+ * that is not a property of the document, and the only other one.
+ *
+ * ⭐ WHY IT IS A PARAMETER AND NOT PART OF THE GEOMETRY. Which side follows is
+ * a current value, and LY-5 of table T-060 leaves those with the Framework;
+ * DC-8 of table T-029a (MUST NOT) keeps the mark for it out of an export while
+ * EP-6 still draws the two lines. So the PLACEMENT travels in the geometry,
+ * where the document put it, and the MARK travels here -- and an export that
+ * says nothing gets the two lines and no mark, which is DC-8 obeyed by
+ * omission rather than by a second mechanism (`SchedulePicture` states why one
+ * table may not have two).
+ *
+ * ⛔ `'date1' | 'date2'` IS WRITTEN OUT RATHER THAN IMPORTED. It is declared as
+ * `DualCursorSide` in `screen-state.ts`, and `_source/components.json` gives
+ * this component no edge to ScreenState -- so importing it would be an edge the
+ * manuscript does not draw, which is a change request and not an implementation
+ * choice. ⚠️ What keeps the two in step is the compiler: `frame-loop.ts` hands
+ * ONE value along both seams, so a drift is a type error at that call site and
+ * not something review has to catch. Reported.
+ */
+export interface DualCursorFollow {
+  /** DC-2: the side that is following now. The other one stands where it was. */
+  readonly side: 'date1' | 'date2'
+  /**
+   * Where the pointer is, in screen px, or `null` while it is outside the
+   * window.
+   *
+   * ⭐ THE LINE IS DRAWN AT THE DAY THIS POINT FALLS IN, not at the point. That
+   * is the very reading the click will fix (`dateAtX` is what the translator
+   * asks too), so what a person sees under the hand is where the cursor lands
+   * -- an unsnapped line would sit up to a whole day's width from it at a wide
+   * zoom. @provisional PD-310
+   * ⛔ WITH NO POINTER THE LINE STANDS AT ITS STORED DATE. DC-7 (MUST NOT) keeps
+   * a placed pair standing until it is cleared, so a hand leaving the window
+   * may not take half a measurement away with it. @provisional PD-311
+   */
+  readonly x: number | null
+}
+
+/**
  * How one bar is painted, once every override and the theme have been
  * resolved. Nothing here is stored: FR-041 forbids saving a derived colour.
  */
@@ -282,12 +322,17 @@ function selectionFrameSvg(box: ScreenRect, colour: string): string {
  * FR-030 asks. ⚠️ Recolouring the dependency line would also need a SECOND
  * arrowhead marker in the selection colour, and no table holds it.
  *
- * ⛔ STOP -- ⛔ THE DUAL CURSOR'S FOLLOWING SIDE IS NOT COVERED HERE. Table
- * T-029a asks for the same treatment, but this unit cannot see the cursor:
- * `ScheduleGeometry` has no member for it, and its own head note says why --
- * `dualCursor`'s two dates hold `unknown` in the source, so there is nothing to
- * place. What this file would need is a member on `ScheduleGeometry` carrying
- * the two lines and which of them follows.
+ * ⭐ DC-8 OF TABLE T-029a IS THE THIRD CALLER, and it reaches this same
+ * multiplier by naming SL-8 rather than restating it. The `Dual Cursor` block
+ * further down is where that call is made: the following line is S-194 times
+ * S-178 and the other is S-194, and the colour (S-195) is the same on both --
+ * DC-8 says in as many words that which one follows is shown by width and
+ * never by colour.
+ * ⚠️ SO THE PARAMETER IS NOT ALWAYS "SELECTED". A Dual Cursor line is never
+ * selected -- SL-1 does not admit one, which is why DC-8 is a row of table
+ * T-029a and not of table T-023c -- and what it passes is whether the line is
+ * FOLLOWING. The rule being spent is the same one; only the question that
+ * turns it on differs.
  *
  * @purity pure
  */
@@ -835,8 +880,15 @@ function rulerSvg(
  * small enough cost that a new caller should have to decide which picture it
  * is asking for, and a default would let a forgotten export draw FR-043's
  * dummies into a reader's file in silence -- which is the very thing EP-14
- * exists to prevent. ⚠️ It is the LAST parameter, and that is forced rather
- * than chosen: `snapshot-source.ts` reads this list positionally as
+ * exists to prevent.
+ *
+ * ⭐ `follow` DOES HAVE ONE, AND THE GROUND IS THE OPPOSITE. Saying nothing
+ * means "no side is following", which is both what a caller outside the Dual
+ * Cursor mode means and what DC-8 (MUST NOT) requires of an export -- so the
+ * forgetful caller lands on the conservative picture rather than the leaky one.
+ *
+ * ⚠️ BOTH ARE AT THE TAIL, AND THAT IS FORCED RATHER THAN CHOSEN:
+ * `snapshot-source.ts` reads this list positionally as
  * `Parameters<typeof svgFromSchedule>[3]` and `[4]`, so a parameter inserted
  * before index 5 would silently re-point both to the wrong type.
  *
@@ -855,6 +907,7 @@ export function svgFromSchedule(
   regions: ScreenRegions,
   selection: Selection,
   picture: SchedulePicture,
+  follow: DualCursorFollow | null = null,
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
@@ -1163,6 +1216,40 @@ export function svgFromSchedule(
     )
   }
 
+  const cursors = geometry.dualCursor
+  if (cursors !== null) {
+    // CU-2's two lines (EP-6 draws them into an export as well). S-195 is the
+    // colour, the SAME on both: DC-8 shows which one follows by WIDTH and
+    // never by colour, and the row says why it inherits S-151 rather than the
+    // status line's S-163 -- the two are up at once and one colour would leave
+    // a reader unable to tell which line is which.
+    // ⭐ PAINTED INTO `linkParts`, WHERE CU-1's LINE IS -- over ZO-1 to ZO-3
+    // and under the labels, the annotations and the selection marks. Table
+    // T-020 holds no row for either cursor, so the place is chosen here, and
+    // the two rows of table T-029 are put together rather than one above the
+    // other: a reader measuring against the status date is comparing them.
+    // @provisional PD-312
+    const colour = themed('S-195')
+    // DC-1: the following side is drawn at the day under the pointer, which is
+    // the reading the click will fix. The other stands where the document put
+    // it. See `DualCursorFollow` for PD-310 and PD-311.
+    const followedDay = follow === null || follow.x === null ? null : dateAtX(layout, follow.x)
+    const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
+    for (const side of ['date1', 'date2'] as const) {
+      const isFollowing = follow !== null && follow.side === side
+      const standing = side === 'date1' ? cursors.date1X : cursors.date2X
+      const x = isFollowing && followedX !== null ? followedX : standing
+      // DC-8 borrows SL-8's rule for a line: S-194 is this line's own width and
+      // S-178 the multiplier the mark is made of.
+      const width = selectedLineWidth(NOT_STORED_DUAL_CURSOR_SIZES['S-194'], isFollowing)
+      linkParts.push(
+        `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
+          ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
+          ` stroke="${colour}" stroke-width="${rounded(width)}"/>`,
+      )
+    }
+  }
+
   for (const box of geometry.highlightBoxes) {
     // FR-019: the author's line colour, and the annotation's fixed one only
     // when they named none.
@@ -1328,6 +1415,29 @@ export const NOT_STORED_DUMMY_SIZES: {
 }
 
 /**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it. ⭐ AND
+ * ITS PICTURE DOES LEAVE THE TOOL -- EP-6 of table T-076 draws the
+ * two lines into an exported picture -- so what makes this the
+ * reader's own is not that the mark is hidden but that the document
+ * keeps the two DATES (S-65) and never the width they take.
+ */
+export const NOT_STORED_DUAL_CURSOR_SIZES: {
+  /** S-194, in px */
+  readonly 'S-194': number
+} = {
+  'S-194': 1,
+}
+
+/**
  * The colours of table T-236, by row ID, in both renderings.
  *
  * ⭐ Table T-236 holds constants baked into the artifact. FR-041 (MUST
@@ -1386,5 +1496,7 @@ export const SCHEDULE_COLOURS: {
   'S-168': { light: '#000000', dark: '#ffffff', followsHue: false },
   /* S-169 */
   'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
+  /* S-195 */
+  'S-195': { light: 'hsl(H 59% 42%)', dark: 'hsl(H 62% 68%)', followsHue: true },
 }
 // </generated>
