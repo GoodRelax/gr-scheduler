@@ -232,6 +232,7 @@ import {
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
   dismissKeyOf,
+  rulerWeekdayWords,
   screenViewFromRegions,
   type AutosaveStatus,
   type ConfirmationItem,
@@ -2717,6 +2718,11 @@ export function frameLoop(
         dualCursorFollowing === null
           ? null
           : { side: dualCursorFollowing, x: pointerAt === null ? null : pointerAt.x },
+        // FR-017 (MUST): the fourth tier prints a weekday, and FR-038 (MUST)
+        // keeps every printed word in one dictionary -- so the words are asked
+        // for HERE, where the reader's language is held, rather than reached
+        // for inside the picture.
+        rulerWeekdayWords(language),
       ),
     )
     if (screen === undefined) return
@@ -3092,6 +3098,12 @@ export function frameLoop(
         regions,
         nothingSelected,
         'export',
+        // ⛔ NO FOLLOW IN AN EXPORT (EP-12), and the words still go in: FR-038's
+        // rationale now says the fourth tier's weekday is the ONE thing in an
+        // exported picture that depends on the language, and it is drawn in
+        // whichever the person exporting was reading.
+        null,
+        rulerWeekdayWords(language),
       ),
       regions,
       screenView: screenViewFromRegions(

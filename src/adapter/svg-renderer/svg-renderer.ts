@@ -767,14 +767,15 @@ function ticksOfRow(
  * second time here: FR-017 fixes one test and one arithmetic, and a copy of
  * either would part company with the layout the bars were placed by.
  *
- * ⛔ STOP -- ⛔ NOTHING SETTLES WHAT THE LABELS SAY. The rows print bare
- * numbers -- the year, the month, and the day of the month for the week and
- * day rows -- because no table and no dictionary holds a ruler label's
- * wording: `_source/display-words.json`, which FR-038 makes the source of
- * every word on screen, has no month name, no weekday name and no date
- * format in it. ⛔ SO THE WEEKDAY HALF OF THE FOURTH TIER IS NOT DRAWN: L-1
- * asks for 日 ＋ 曜日 and the seven weekday words are exactly what that
- * dictionary would have to gain a group for. ⛔ Nor is there a horizontal
+ * ⭐ WHAT EACH ROW PRINTS IS NOW WRITTEN DOWN. FR-017 (MUST, 利用者の裁定
+ * 2026-08-26) gives the year row the year's digits, the month row the MONTH'S
+ * DIGITS -- ⛔ never a word, so that S-83 can be one value in both languages --
+ * the week row the date its week begins on, and the day row the day's digits
+ * AND the weekday. ⛔ The weekday is the only language-dependent thing in the
+ * picture, and it arrives as `weekdayWords` rather than being spelled here:
+ * FR-038 (MUST) gives every printed word one dictionary and Chapter 6.2 gives
+ * it one generated destination, neither of which is this file.
+ * ⛔ STOP -- ⛔ Nor is there a horizontal
  * inset between a tick and its label: S-135 is the gap BETWEEN labels (it is
  * LF-1's arithmetic and nothing else) and S-136 is the vertical pad, so the
  * label starts on its own rule until a row says otherwise.
@@ -801,6 +802,7 @@ function rulerSvg(
   ground: string,
   ink: string,
   rule: string,
+  weekdayWords: readonly string[],
 ): readonly string[] {
   if (band.width <= 0 || band.height <= 0) return []
   const from = dateAtX(layout, band.x)
@@ -870,11 +872,25 @@ function rulerSvg(
             ` stroke="${rule}" stroke-width="1"/>`,
         )
       }
-      const label = row === 'year' ? day.year : row === 'month' ? day.month : day.day
+      // FR-017 (MUST): the day row prints the day's digits AND the weekday; the
+      // other three print one number each. ⚠️ The weekday is looked up by
+      // `weekdayOf`'s number, which is AT-17's -- 0 for Sunday -- and
+      // `weekdayWords` arrives in that same order, so no mapping stands here.
+      // ⛔ A weekday absent from the dictionary leaves the digits alone rather
+      // than printing a gap: FR-038's fallback for an unwritten word.
+      const weekday = row === 'dayWeekday' ? weekdayWords[weekdayOf(day)] : undefined
+      const label =
+        row === 'year'
+          ? String(day.year)
+          : row === 'month'
+            ? String(day.month)
+            : weekday === undefined || weekday === ''
+              ? String(day.day)
+              : `${day.day} ${weekday}`
       out.push(
         `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
           ` font-size="${rounded(settings.rulerFont)}" fill="${ink}"` +
-          ` xml:space="preserve">${escaped(String(label))}</text>`,
+          ` xml:space="preserve">${escaped(label)}</text>`,
       )
     }
   }
@@ -925,6 +941,18 @@ function rulerSvg(
  *
  * @purity pure
  */
+/**
+ * ⛔ `weekdayWords` IS LAST, AND MUST STAY LAST. `snapshot-source.ts` reads
+ * `Parameters<typeof svgFromSchedule>[3]` and `[4]` by position, so a parameter
+ * inserted before those two re-points both without a word from the compiler.
+ *
+ * ⚠️ ITS DEFAULT IS THE EMPTY LIST, AND THAT IS NOT "no weekday is wanted".
+ * FR-017 (MUST) puts the weekday on the fourth tier; the default is FR-038's
+ * fallback for a word not yet written, which prints the day's digits alone. A
+ * caller that means to draw for a reader supplies the seven from
+ * `rulerWeekdayWords` (PI-37) -- and only the fourth tier reads them, so the
+ * default costs nothing at the other three.
+ */
 export function svgFromSchedule(
   schedule: Schedule,
   settings: DocumentSettings,
@@ -934,6 +962,7 @@ export function svgFromSchedule(
   selection: Selection,
   picture: SchedulePicture,
   follow: DualCursorFollow | null = null,
+  weekdayWords: readonly string[] = [],
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
@@ -1401,6 +1430,7 @@ export function svgFromSchedule(
       themed('S-146'),
       themed('S-147'),
       themed('S-149'),
+      weekdayWords,
     ),
   ]
 

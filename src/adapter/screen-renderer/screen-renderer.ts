@@ -50,6 +50,10 @@
 // arguments and return values in `src/`, and its own MUST NOT means a caller
 // cannot reach them anywhere but here.
 
+// The one generated destination Chapter 6.2 (MUST) allows the words the screen
+// prints. ⚠️ Read here for the ruler's seven weekdays alone; every other word
+// reaches its own drawing unit, which is why this import is not shared.
+import displayWords from './display-words.json'
 import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Exception, Schedule, WeekDay } from '../../entity/document-model/schedule/schedule'
@@ -1763,4 +1767,33 @@ export function dialogueMessageFromInput(input: DialogueInput): SettledUtterance
   // STOP note stands in `post-dialogue-message.ts`, and neither file may invent
   // the rule the other is missing.
   return { author: input.author, text: input.text, settledAt: input.settledAt }
+}
+
+/**
+ * The seven weekday words the fourth ruler tier prints beside the day number
+ * (`FR-017`, MUST), in the order `AT-17` fixes -- index 0 is Sunday, rising to
+ * 6 for Saturday.
+ *
+ * ⭐ THE ORDER IS THE MODEL'S AND NOT A CHOICE MADE HERE. `AT-17` numbers the
+ * weekdays that way and `Project.weekStartDay` (`S-108`) is stored against that
+ * numbering, so a caller may index this list with a weekday number and no
+ * second table is needed to say how the two line up. ⛔ The generator writes
+ * the manuscript's entries in the same order for the same reason, and check 27
+ * refuses to write when the two disagree.
+ *
+ * ⛔ WHY IT STANDS IN THIS FILE. Chapter 6.2 (MUST) allows the words ONE
+ * generated destination in `src/`, and it is `display-words.json` beside this
+ * one; UF-60's row already gives this unit 「画面全体に効く表示言語を運ぶ」, so
+ * the language and the dictionary meet here and nowhere else. ⚠️ A second file
+ * for the seven would have been a 72nd unit table T-075 does not hold.
+ *
+ * ⛔ WHY A FUNCTION AND NOT A CONSTANT: `FR-038` (MUST) keeps the display
+ * language out of the document, so which column to read is a question about the
+ * reader and not about the schedule, and the answer changes under the same
+ * document.
+ *
+ * @purity pure
+ */
+export function rulerWeekdayWords(language: DisplayLanguage): readonly string[] {
+  return displayWords.weekdays.map((one) => one.text[language])
 }
