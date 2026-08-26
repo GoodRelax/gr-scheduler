@@ -383,7 +383,7 @@ describe('UF-69 — nothing to explain', () => {
           showing: 'selection',
           heading: 'Selection',
           isSubjectGone: false,
-          fields: [{ row: 'PR-1', name: 'name', text: 'a task', isEditable: true }],
+          fields: [{ row: 'PR-1', name: 'name', text: 'a task', isEditable: true, controls: [] }],
         },
         notices: [
           {

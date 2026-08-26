@@ -24,5 +24,3 @@
 #          belongs. It is printed on every green run, so keep it readable.
 # Blank lines and lines opening with "#" are ignored.
 
-PI-18 | InputCommandTranslator | commandFromFieldCommit | src/adapter/input-command-translator/input-command-translator.ts
-why: D-13. The row is written first on purpose: the panel cannot be made editable without a return direction, and a wave cannot see an uncommitted row. The member is D-13 next wave and closes this line.

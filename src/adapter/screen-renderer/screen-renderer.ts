@@ -81,7 +81,7 @@ import { screenFrameFromRegions } from './screen-frame'
 import type { DialogueInput } from './screen-surface'
 import { tooltipsFromScreenView } from './tooltips'
 
-export type { DialogueInput, ScreenPart, ScreenSurface } from './screen-surface'
+export type { DialogueInput, FieldCommit, ScreenPart, ScreenSurface } from './screen-surface'
 
 // ---------------------------------------------------------------- shared ----
 
@@ -475,7 +475,127 @@ export interface PropertyField {
   readonly text: string
   /** ⛔ Table T-016 marks some read-only -- PR-9 `percentComplete` is derived (FR-012). */
   readonly isEditable: boolean
+  /**
+   * The controls this field is edited through -- one per COLUMN, where `name`
+   * and `text` are one per ROW.
+   *
+   * ⭐ WHY THE TWO COUNTS DIFFER. Four rows of table T-016 hold several columns
+   * and write their item names into ONE cell with " / " between them, so the
+   * field stays the row (which is what the table's read-only mark is per) while
+   * a person edits one column at a time. `PR-3` is `start` AND `finish`, and a
+   * single control could not carry two dates.
+   *
+   * ⛔ EMPTY IS NOT "NOT EDITABLE". It means this side has no control to offer
+   * for the item -- the settings roster and FR-074's surface are both drawn
+   * from fields with none -- and the surface then writes the value out as text
+   * the way it did before any control existed. `isEditable` is still table
+   * T-016's own mark and is unaffected.
+   */
+  readonly controls: readonly PropertyControl[]
 }
+
+/**
+ * The form one control takes, which is table T-016's 入力の型 column.
+ *
+ * ⛔ THE CHOICES, THE BOUNDS AND THE DATES ARE NOT HERE. The paragraph under
+ * that table (MUST NOT) forbids copying them into it, saying that
+ * `_source/grs-document.schema.json` and `DATE_COLUMNS` already hold them --
+ * so `COLUMN_SHAPES` and `DATE_COLUMNS` are where a control's answer comes
+ * from, and the same paragraph says table T-016 newly holds only two things:
+ * which columns are colours and which are multi-line.
+ */
+export type PropertyControlKind =
+  /** 文字 */
+  | 'text'
+  /** 複数行 -- the second of the two the table itself states (PR-2). */
+  | 'multiline'
+  /** 日付 -- `DATE_COLUMNS` is what says which columns these are. */
+  | 'date'
+  /** 数値 */
+  | 'number'
+  /** 真偽 */
+  | 'boolean'
+  /** 選択 -- `COLUMN_SHAPES` is what holds the candidates. */
+  | 'choice'
+  /** 色 -- the first of the two the table itself states (PR-12). */
+  | 'color'
+
+/**
+ * One control of a field, and the column behind it.
+ *
+ * ⚠️ `text` here is the ONE column's value, where `PropertyField.text` is the
+ * row's several joined -- so nothing has to be split back apart on the drawing
+ * side, which would need to know the separator this component chose.
+ */
+export interface PropertyControl {
+  /**
+   * What the value committed in this control is about, which is how a commit
+   * names the field it came from.
+   *
+   * ⭐ A VALUE AND NOT A SPELLED KEY. The surface hands it straight back on
+   * `ScreenSurface.readFieldCommit`, so no string is parsed anywhere: a key
+   * written as `PR-3:start` would have to be taken apart again by the side that
+   * turns it into a command, and a row id that happened to hold the separator
+   * would take it apart wrongly.
+   */
+  readonly key: PropertyFieldKey
+  readonly kind: PropertyControlKind
+  /** The one column's value, written out the way `PropertyField.text` is. */
+  readonly text: string
+  /**
+   * What a `choice` control offers, `null` for every other kind.
+   *
+   * ⛔ Read from `COLUMN_SHAPES`, never written out: the paragraph under table
+   * T-016 (MUST NOT) forbids that table to hold them and names the schema as
+   * where they are.
+   */
+  readonly choices: readonly string[] | null
+  /** A `number` control's bounds, where the schema states them. */
+  readonly min: number | null
+  readonly max: number | null
+}
+
+/**
+ * Which column of which thing one control edits.
+ *
+ * ⭐ THE SUBJECT RIDES ALONG, and it has to. IF-9 (「その欄が名乗る行 ID とともに
+ * 返し」) fixes the row id as what comes back, and a row id alone says `PR-1`
+ * without saying whose name it is -- the side that turns a commit into a
+ * command would have to work the subject out a second time from the selection,
+ * which is the rule FR-072 and table T-023c hold and which this component
+ * already applied when it DREW the field. Two readings of one rule drift
+ * (rule 03 section 4), so the answer is carried rather than recomputed.
+ *
+ * ⛔ NO MEMBER FOR THE SETTINGS. Table T-104's side has no control this round,
+ * so no key names one; `properties-panel.ts` records why.
+ */
+export type PropertyFieldKey =
+  | {
+      readonly holder: 'task'
+      readonly uid: number
+      readonly column: keyof Schedule['tasks'][number] & string
+    }
+  | {
+      readonly holder: 'taskVisual'
+      readonly uid: number
+      readonly column: keyof Schedule['taskVisuals'][number] & string
+    }
+  | {
+      readonly holder: 'taskGroup'
+      readonly groupId: string
+      readonly column: keyof Schedule['taskGroups'][number] & string
+    }
+  | {
+      /**
+       * ⚠️ A `Dependency` is not a row of its own: it hangs off the task it
+       * runs TO, which is why the far end and the position within that task's
+       * list are what name it -- the same pair `ItemRef` names one by.
+       */
+      readonly holder: 'dependency'
+      readonly successorUid: number
+      readonly ordinal: number
+      readonly column: keyof Schedule['tasks'][number]['dependencies'][number] & string
+    }
 
 // ------------------------------------------------------------ UF-65 ---------
 
@@ -485,7 +605,7 @@ export interface PropertyField {
  *
  * ⛔ NO MEMBER SAYS WHETHER THE POINTER IS ON IT, and that absence is the
  * answer rather than a gap. FR-053 (MUST) has the faintness judged by WHICH
- * PART the pointer is on, and IF-9's third member is where that is answered --
+ * PART the pointer is on, and IF-9's fourth member is where that is answered --
  * on the far side of this seam, by the side that drew the parts (Chapter 5.3,
  * MUST, under table T-065). A member here would be a second answer to the same
  * question, computed by a unit that has no rectangle to compute it from.
@@ -1512,7 +1632,7 @@ export interface ScreenSession {
 //     clears it.
 //     ⛔ NOR IS THE FAINTNESS ANSWERED HERE AT ALL. FR-053 (MUST) judges it by
 //     which PART the pointer is on, and the only side that can say is the one
-//     that drew the parts (IF-9's third member). So `CommandPalette` carries a
+//     that drew the parts (IF-9's fourth member). So `CommandPalette` carries a
 //     corner and no extent, and this unit never asks where the pointer is.
 //
 //   UF-66  open-modals.ts

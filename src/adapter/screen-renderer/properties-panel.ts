@@ -33,13 +33,24 @@
 // table's read-only mark is per row -- so the row is the field, and its value is
 // written with the same separator the name cell uses, part answering part.
 //
+// ⭐ A CONTROL PER COLUMN, WHICH IS WHY THE TWO COUNTS DIFFER. A person edits
+// one column at a time, so `PropertyField.controls` runs per column while the
+// name, the text and the read-only mark stay per row. ⛔ The form each takes is
+// table T-016's 入力の型 column, and the paragraph under that table (MUST NOT)
+// forbids the choices, the numeric bounds and the date columns to be written
+// into it -- `COLUMN_SHAPES` and `DATE_COLUMNS` are where those come from. Two
+// answers the table itself holds are written out (which columns are colours and
+// which are multi-line), and one more that no manuscript can hold: `PR-15` is
+// 選択 over the document's own tasks, so the column reads as an integer.
+//
 // ⛔ THE ITEM NAMES ARE NOT TYPED OUT. Every item of table T-016 but the
 // assignee's is a column of `Task` or of `TaskVisual`, and the dependency and
 // row rosters are columns too, so each holds `keyof` the type that owns it and
 // builds the name from that: a column the specification renames stops compiling
 // here instead of going stale in silence (rule 03 of docs/development-rules).
 // ⚠️ The roster keeps table T-016's own printed order, which is NOT the numeric
-// order of its row ids -- PR-17 stands between PR-11 and PR-12, and PR-16 is last.
+// order of its row ids: that table is ordered by how often a value is touched
+// (利用者の裁定 2026-08-26), so PR-16 stands third and PR-15 last.
 //
 // ⚠️ ONLY THE HEADING IS TRANSLATED. FR-038 leaves the item names of table
 // T-016 alone, as it leaves task and row names alone, and that table says why
@@ -73,6 +84,7 @@ import {
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import {
+  COLUMN_SHAPES,
   DATE_COLUMNS,
   dayOf,
   taskByUid,
@@ -91,7 +103,10 @@ import type {
   DisplayLanguage,
   PropertiesPanel,
   PropertiesSubject,
+  PropertyControl,
+  PropertyControlKind,
   PropertyField,
+  PropertyFieldKey,
   ScreenSession,
 } from './screen-renderer'
 import displayWords from './display-words.json'
@@ -198,6 +213,14 @@ type PropertyItem =
 /**
  * Table T-016's rows, in the order the table prints them.
  *
+ * ⛔ THE PRINTED ORDER IS A MUST AND IT IS NOT THE NUMERIC ONE. The paragraph
+ * under that table (利用者の裁定 2026-08-26) requires the items to be shown in
+ * the order the table prints them and (MUST NOT) forbids the values touched
+ * most often to be reached by scrolling -- the table is ordered by how often a
+ * value is touched, so re-sorting this roster by row id would silently undo
+ * that ruling. ⚠️ `PR-16` stands third and `PR-15` last; rule 03 section 4 has
+ * the same thing to say about keeping a table's own order.
+ *
  * ⚠️ `assignee` is the one name written out rather than read off a generated
  * type: PR-16's own note says the item is not a column of `Task`, that its
  * substance is `Assignment`, and that the name shown is derived from the
@@ -205,23 +228,23 @@ type PropertyItem =
  */
 const PROPERTY_ITEMS: readonly PropertyItem[] = [
   { row: 'PR-1', heldBy: 'task', columns: ['name'] },
-  { row: 'PR-2', heldBy: 'task', columns: ['notes'] },
   { row: 'PR-3', heldBy: 'task', columns: ['start', 'finish'] },
+  { row: 'PR-16', heldBy: 'assignment', columns: ['assignee'] },
   { row: 'PR-4', heldBy: 'task', columns: ['actualStart'] },
   { row: 'PR-5', heldBy: 'task', columns: ['actualDuration'] },
   { row: 'PR-6', heldBy: 'task', columns: ['actualFinish'] },
-  { row: 'PR-7', heldBy: 'task', columns: ['resume'] },
-  { row: 'PR-8', heldBy: 'task', columns: ['resumeValid'] },
   { row: 'PR-9', heldBy: 'task', columns: ['percentComplete'] },
   { row: 'PR-10', heldBy: 'task', columns: ['deadline'] },
+  { row: 'PR-2', heldBy: 'task', columns: ['notes'] },
+  { row: 'PR-7', heldBy: 'task', columns: ['resume'] },
+  { row: 'PR-8', heldBy: 'task', columns: ['resumeValid'] },
   { row: 'PR-11', heldBy: 'taskVisual', columns: ['shapeKind'] },
   { row: 'PR-17', heldBy: 'taskVisual', columns: ['milestoneGlyph'] },
   { row: 'PR-12', heldBy: 'taskVisual', columns: ['strokeColor', 'fillColor', 'lineWeight'] },
   { row: 'PR-13', heldBy: 'taskVisual', columns: ['nameAnchor', 'nameAlign'] },
   { row: 'PR-14', heldBy: 'task', columns: ['fadeInDays', 'fadeOutDays'] },
-  { row: 'PR-15', heldBy: 'task', columns: ['wbsParentUid'] },
   { row: 'PR-18', heldBy: 'task', columns: ['milestone'] },
-  { row: 'PR-16', heldBy: 'assignment', columns: ['assignee'] },
+  { row: 'PR-15', heldBy: 'task', columns: ['wbsParentUid'] },
 ]
 
 /**
@@ -347,6 +370,195 @@ function assigneeText(schedule: Schedule, taskUid: number): string {
   return assignees.map((assignee) => assignee.name).join(PART_SEPARATOR)
 }
 
+// --------------------------------------------------------- the controls ----
+
+/**
+ * The two things the paragraph under table T-016 says that table itself newly
+ * holds: which columns are colours, and which are multi-line.
+ *
+ * ⛔ EVERYTHING ELSE IS DERIVED AND NOT LISTED. That paragraph (MUST NOT)
+ * forbids the choices, the numeric bounds and the date columns to be written
+ * into the table on the ground that `_source/grs-document.schema.json` and
+ * `DATE_COLUMNS` already hold them -- so `COLUMN_SHAPES` and `DATE_COLUMNS`
+ * answer for those, and only these two rosters are written out.
+ *
+ * ⚠️ `TaskGroup.color` IS HERE THOUGH TABLE T-016 HAS NO ROW FOR IT. That table
+ * is the `Task` one; AT-58 reaches this panel through FR-042, which calls it the
+ * row's 帯の色 in as many words. ⛔ The schema cannot answer for a colour: every
+ * one of the three is a plain `string` there, which is what makes this the one
+ * question the table had to answer itself.
+ */
+const COLOUR_COLUMNS: readonly string[] = ['strokeColor', 'fillColor', 'color']
+
+/** Table T-016's 複数行, which is `PR-2` alone today. */
+const MULTILINE_COLUMNS: readonly string[] = ['notes']
+
+/**
+ * The one item table T-016 calls 選択 whose candidates are not an enumeration.
+ *
+ * ⛔ THE MANUSCRIPT CANNOT ANSWER FOR THIS ONE, and that is why it is written
+ * out. `COLUMN_SHAPES` says `wbsParentUid` is an integer, because its
+ * candidates are the document's own tasks rather than a fixed set -- so reading
+ * the kind off the column alone would offer a box to type a uid into where
+ * table T-016 asks for a chooser. ⚠️ `choicesOf` is where the candidates come
+ * from, and its STOP note says what the table leaves open about them.
+ */
+const CHOICE_OVER_DOCUMENT_COLUMNS: readonly string[] = ['wbsParentUid']
+
+/**
+ * Which entity of `COLUMN_SHAPES` holds an item's columns.
+ *
+ * ⚠️ `PR-16` has no entity here on purpose: that row's own note says the item is
+ * not a column at all.
+ */
+type ShapedEntity = keyof typeof COLUMN_SHAPES
+
+/**
+ * The form one column is edited in -- table T-016's 入力の型 column, worked out
+ * from what the column accepts rather than from a roster written out here.
+ *
+ * ⭐ THE ORDER OF THE TESTS IS THE ANSWER. A colour, a multi-line note and a
+ * date are all `string` in the manuscript, and the WBS parent is an `integer`
+ * there although table T-016 calls it 選択 -- so the four questions the
+ * manuscript cannot answer are asked first, and the ones it can are asked
+ * after. ⚠️ The date is asked from `DATE_COLUMNS`, which is generated: a
+ * roster of date columns written out here would go stale the moment one was
+ * added, which is the very reason that constant exists.
+ *
+ * @purity pure
+ */
+function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKind {
+  if (COLOUR_COLUMNS.includes(column)) return 'color'
+  if (MULTILINE_COLUMNS.includes(column)) return 'multiline'
+  if (CHOICE_OVER_DOCUMENT_COLUMNS.includes(column)) return 'choice'
+  const dates: readonly string[] = entity === 'Task' ? DATE_COLUMNS.Task : []
+  if (dates.includes(column)) return 'date'
+
+  const shape = COLUMN_SHAPES[entity][column]
+  if (shape === undefined) return 'text'
+  switch (shape.kind) {
+    case 'enum':
+      return 'choice'
+    case 'boolean':
+      return 'boolean'
+    case 'integer':
+    case 'number':
+      return 'number'
+    default:
+      // ⚠️ `map`, `array` and `object` land here too, and none of them is an
+      // item of table T-016 -- no row of that table names a column of one of
+      // those kinds. ⛔ Nothing is invented for them: a text control shows what
+      // the value is and the write side has no command that takes one.
+      return 'text'
+  }
+}
+
+/**
+ * What a `choice` control offers, and `null` for every other kind.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what the WBS parent (`PR-15`) is
+ * chosen from. Table T-016 calls the item 選択 and says the depth is derived
+ * from it; the schema gives `wbsParentUid` no enumeration, because its
+ * candidates are the document's own tasks and not a fixed set. Looked in table
+ * T-016, `_source/grs-document.schema.json`, FR-005 and table T-058 (AT-26).
+ * Chose every OTHER task's uid, in the order the document holds them, with the
+ * empty spelling first for a task that has no parent -- which is what AT-26's
+ * `null` means. ⛔ Descendants are NOT filtered out here: FR-005's cycle rule is
+ * the write side's (CM-18), and a chooser that judged it would be a second
+ * reading of one rule.
+ *
+ * @provisional PD-272
+ * @purity pure
+ */
+function choicesOf(
+  schedule: Schedule,
+  entity: ShapedEntity,
+  column: string,
+  subjectUid: number | null,
+): readonly string[] | null {
+  if (entity === 'Task' && column === 'wbsParentUid' && subjectUid !== null) {
+    return [
+      '',
+      ...schedule.tasks.filter((one) => one.uid !== subjectUid).map((one) => String(one.uid)),
+    ]
+  }
+  return COLUMN_SHAPES[entity][column]?.choices ?? null
+}
+
+/**
+ * One control of one field.
+ *
+ * ⚠️ The bounds are the schema's, unread for any kind but `number`: a control
+ * that is not a number has nothing to clamp, and carrying a bound onto it would
+ * offer the drawing side a rule it cannot apply.
+ *
+ * @purity pure
+ */
+function controlOf(
+  schedule: Schedule,
+  key: PropertyFieldKey,
+  entity: ShapedEntity,
+  column: string,
+  text: string,
+  subjectUid: number | null,
+): PropertyControl {
+  const kind = controlKindOf(entity, column)
+  const shape = COLUMN_SHAPES[entity][column]
+  return {
+    key,
+    kind,
+    text,
+    choices: kind === 'choice' ? choicesOf(schedule, entity, column, subjectUid) : null,
+    min: kind === 'number' ? (shape?.min ?? null) : null,
+    max: kind === 'number' ? (shape?.max ?? null) : null,
+  }
+}
+
+/**
+ * The controls of one row of table T-016.
+ *
+ * STOP -- ⛔ `PR-16` GETS NONE, AND THE GAP IS A SURFACE RATHER THAN A ROW.
+ * AS-5 of table T-225 (MUST) has the assignee edited here and (MUST) asks for a
+ * dropdown WITH a partial-match search over the roster; AS-6 shows names and
+ * writes uids, and a task may carry several assignments, which is why this
+ * field's text joins several names. None of `PropertyControl`'s seven kinds is
+ * that control, and table T-016's 選択 does not describe it either. Looked in
+ * table T-225 (AS-5 / AS-6 / AS-8 / AS-9), FR-008, FR-059 and table T-016.
+ * Chose no control, so the panel writes the names out as text as it did before
+ * -- rather than a plain dropdown, which would meet neither the search half of
+ * AS-5 nor a task with two people on it.
+ *
+ * ⛔ `PR-9` GETS NONE EITHER, and that one is the table's own mark: it is the
+ * one row table T-016 calls read-only, because FR-012 derives it.
+ *
+ * @purity pure
+ */
+function controlsOfItem(
+  schedule: Schedule,
+  task: Task,
+  item: PropertyItem,
+): readonly PropertyControl[] {
+  if (item.heldBy === 'assignment') return []
+  if (READ_ONLY_ROWS.includes(item.row)) return []
+
+  const entity: ShapedEntity = item.heldBy === 'task' ? 'Task' : 'TaskVisual'
+  const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
+
+  return item.columns.map((column) => {
+    const key: PropertyFieldKey =
+      item.heldBy === 'task'
+        ? { holder: 'task', uid: task.uid, column: column as keyof Task & string }
+        : { holder: 'taskVisual', uid: task.uid, column: column as keyof TaskVisual & string }
+    const text =
+      item.heldBy === 'task'
+        ? textOfTaskColumn(task, column as keyof Task)
+        : visual === null
+          ? ''
+          : textOfValue(visual[column as keyof TaskVisual])
+    return controlOf(schedule, key, entity, column, text, task.uid)
+  })
+}
+
 /** @purity pure */
 function textOfItem(
   schedule: Schedule,
@@ -376,6 +588,7 @@ function taskFields(schedule: Schedule, task: Task): readonly PropertyField[] {
     name: item.columns.join(PART_SEPARATOR),
     text: textOfItem(schedule, task, visual, item),
     isEditable: !READ_ONLY_ROWS.includes(item.row),
+    controls: controlsOfItem(schedule, task, item),
   }))
 }
 
@@ -411,12 +624,27 @@ const SUCCESSOR_NAME: keyof Extract<ItemRef, { kind: 'dependency' }> = 'successo
  *
  * @purity pure
  */
-function dependencyFields(dependency: Dependency, successorUid: number): readonly PropertyField[] {
+function dependencyFields(
+  schedule: Schedule,
+  dependency: Dependency,
+  successorUid: number,
+  ordinal: number,
+): readonly PropertyField[] {
   const columnFields: readonly PropertyField[] = DEPENDENCY_ITEMS.map((item) => ({
     row: item.row,
     name: item.column,
     text: textOfValue(dependency[item.column]),
     isEditable: true,
+    controls: [
+      controlOf(
+        schedule,
+        { holder: 'dependency', successorUid, ordinal, column: item.column },
+        'Dependency',
+        item.column,
+        textOfValue(dependency[item.column]),
+        successorUid,
+      ),
+    ],
   }))
 
   return [
@@ -426,6 +654,13 @@ function dependencyFields(dependency: Dependency, successorUid: number): readonl
       name: SUCCESSOR_NAME,
       text: textOfValue(successorUid),
       isEditable: true,
+      // STOP -- ⛔ NO CONTROL, BECAUSE THERE IS NO COLUMN TO WRITE. The note on
+      // SUCCESSOR_ROW says the far end is not a column at all -- it is the task
+      // that HOLDS the dependency -- so no `PropertyFieldKey` can name it and
+      // table T-108 has no command that moves a dependency between tasks
+      // (CM-36 draws one and CM-37 deletes it). Looked in table T-108, table
+      // T-058 (AT-45), FR-009 and table T-016.
+      controls: [],
     },
   ]
 }
@@ -471,7 +706,7 @@ function fieldsOfItem(schedule: Schedule, subject: ItemRef): readonly PropertyFi
       const successor = taskByUid(schedule, subject.successorUid)
       const dependency = successor?.dependencies[subject.ordinal]
       if (successor === null || dependency === undefined) return null
-      return dependencyFields(dependency, successor.uid)
+      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal)
     }
     case 'highlightBox':
     case 'commentBox':
@@ -513,12 +748,26 @@ const GROUP_ITEMS: readonly { readonly row: string; readonly column: keyof TaskG
  *
  * @purity pure
  */
-function groupFields(group: TaskGroup): readonly PropertyField[] {
+function groupFields(schedule: Schedule, group: TaskGroup): readonly PropertyField[] {
   return GROUP_ITEMS.map((item) => ({
     row: item.row,
     name: item.column,
     text: textOfValue(group[item.column]),
     isEditable: true,
+    controls: [
+      controlOf(
+        schedule,
+        { holder: 'taskGroup', groupId: group.id, column: item.column },
+        'TaskGroup',
+        item.column,
+        textOfValue(group[item.column]),
+        // ⚠️ A row has no task uid, and `null` says so rather than a stand-in
+        // number: the one candidate roster built from a uid is `PR-15`'s, which
+        // is a `Task` item, and AT-51 is a UUID -- there is no number a row
+        // could be named by.
+        null,
+      ),
+    ],
   }))
 }
 
@@ -572,7 +821,7 @@ function fieldsOfSubject(
 
   const group = schedule.taskGroups.find((held) => held.id === groupId)
   if (group === undefined) return null
-  return [...itemFields, ...groupFields(group)]
+  return [...itemFields, ...groupFields(schedule, group)]
 }
 
 // ---------------------------------------------------------- the settings ----
@@ -636,6 +885,16 @@ function settingsFields(settings: DocumentSettings): readonly PropertyField[] {
     name: key,
     text: textOfValue(valueAt(settings, key)),
     isEditable: true,
+    // STOP -- ⛔ NO CONTROL ON THIS SIDE THIS ROUND, and the reason is the row
+    // ids the note above records as missing. `PropertyFieldKey` names WHAT a
+    // committed value is about, and every one of its four members names an
+    // entity of the schedule; a settings key belongs to the presentation group
+    // (DR-3 of table T-052), whose commands are CM-56 .. CM-71 and whose
+    // reordering table T-104 is separate work. ⚠️ `isEditable` is left true
+    // because UN-13 of table T-027 has these taken back by the undo, so they
+    // ARE edited somewhere -- what is missing is the surface, not the
+    // permission.
+    controls: [],
   }))
 }
 

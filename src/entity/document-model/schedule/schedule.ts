@@ -398,6 +398,103 @@ export const DATE_COLUMNS: {
   BaselineTask: ['start', 'finish'],
 }
 
+/** What one column accepts. `null` in a bound means the manuscript states none. */
+export interface ColumnShape {
+  /** The 型 column's own word: `integer`, `string`, `enum`, `boolean`, and so on. */
+  readonly kind: string
+  /** The values a column of kind `enum` admits. */
+  readonly choices: readonly string[] | null
+  readonly min: number | null
+  readonly max: number | null
+  /** Whether the 空を許すか column admits an empty value. */
+  readonly isNullable: boolean
+}
+
+/**
+ * What each column of the four edited entities accepts, as the 型 column
+ * of table T-058 states it.
+ *
+ * ⭐ THE PARAGRAPH UNDER TABLE T-016 (MUST NOT) forbids the choices,
+ * the numeric bounds and the date columns to be copied into that
+ * table, on the ground that the schema and DATE_COLUMNS already hold
+ * them. This is how they reach src/: a surface that offers a choice
+ * reads the roster instead of re-typing it, and a value the
+ * manuscript adds appears without anyone editing a list.
+ *
+ * ⛔ `kind` IS THE MANUSCRIPT'S OWN WORD (`integer`, `string`, `enum`,
+ * `boolean`, `map`, `array`, `object`, `number`), not a name minted
+ * here. ⚠️ Which columns are DATES is NOT among them -- DATE_COLUMNS
+ * above is where that is answered, and asking twice would be two
+ * rosters to keep in step.
+ */
+export const COLUMN_SHAPES: {
+  readonly Task: {
+    readonly [column: string]: ColumnShape
+  }
+  readonly TaskVisual: {
+    readonly [column: string]: ColumnShape
+  }
+  readonly TaskGroup: {
+    readonly [column: string]: ColumnShape
+  }
+  readonly Dependency: {
+    readonly [column: string]: ColumnShape
+  }
+} = {
+  Task: {
+    uid: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
+    wbsParentUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    wbsOrder: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    name: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    start: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    finish: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    milestone: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
+    deadline: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    notes: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    calendarUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    actualStart: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    actualDuration: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    actualFinish: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    resume: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    resumeValid: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
+    percentComplete: { kind: 'integer', choices: null, min: 0, max: null, isNullable: true },
+    fadeInDays: { kind: 'integer', choices: null, min: 0, max: null, isNullable: true },
+    fadeOutDays: { kind: 'integer', choices: null, min: 0, max: null, isNullable: true },
+    dependencies: { kind: 'array', choices: null, min: null, max: null, isNullable: false },
+    carry: { kind: 'map', choices: null, min: null, max: null, isNullable: false },
+    carryElements: { kind: 'array', choices: null, min: null, max: null, isNullable: false },
+  },
+  TaskVisual: {
+    taskUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
+    nameAnchor: { kind: 'integer', choices: null, min: 0, max: 8, isNullable: true },
+    nameAlign: { kind: 'enum', choices: ['left', 'center', 'right'], min: null, max: null, isNullable: true },
+    shapeKind: { kind: 'enum', choices: ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone'], min: null, max: null, isNullable: true },
+    milestoneGlyph: { kind: 'enum', choices: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown'], min: null, max: null, isNullable: true },
+    fillColor: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    strokeColor: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    lineWeight: { kind: 'enum', choices: ['thin', 'medium', 'thick'], min: null, max: null, isNullable: true },
+  },
+  TaskGroup: {
+    id: { kind: 'string', choices: null, min: null, max: null, isNullable: false },
+    parentId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    label: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    derivedFromTaskUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    order: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
+    isCollapsed: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
+    isHidden: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
+    color: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    height: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+  },
+  Dependency: {
+    predecessorUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
+    linkType: { kind: 'integer', choices: null, min: 0, max: 3, isNullable: false },
+    lag: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    lagFormat: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    carry: { kind: 'map', choices: null, min: null, max: null, isNullable: false },
+    carryElements: { kind: 'array', choices: null, min: null, max: null, isNullable: false },
+  },
+}
+
 /** One foreign key of an entity, and the row of table T-057 it lands on. */
 export interface ForeignKeyColumn {
   /** The column of this entity that holds the reference. */

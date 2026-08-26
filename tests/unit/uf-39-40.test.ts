@@ -350,7 +350,7 @@ const viewOf = (
     showing: 'selection',
     heading: PROPERTIES_HEADING,
     isSubjectGone: false,
-    fields: [{ row: 'PR-1', name: 'name', text: PROPERTY_FIELD_TEXT, isEditable: true }],
+    fields: [{ row: 'PR-1', name: 'name', text: PROPERTY_FIELD_TEXT, isEditable: true, controls: [] }],
   },
   commandPalette: {
     // ⭐ A CORNER, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size

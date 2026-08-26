@@ -127,6 +127,7 @@ PostDialogueMessage | SettledUtterance
 Schedule | Assignment
 Schedule | BaselineTask
 Schedule | COLUMN_DEFAULTS
+Schedule | COLUMN_SHAPES
 Schedule | Calendar
 Schedule | CalendarDay
 Schedule | CarryElement
@@ -168,11 +169,15 @@ ScreenRenderer | DialogueField
 ScreenRenderer | DialogueInput
 ScreenRenderer | DisplayLanguage
 ScreenRenderer | ExportFormatId
+ScreenRenderer | FieldCommit
 ScreenRenderer | IconId
 ScreenRenderer | Notice
 ScreenRenderer | OpenModal
 ScreenRenderer | PropertiesPanel
+ScreenRenderer | PropertyControl
+ScreenRenderer | PropertyControlKind
 ScreenRenderer | PropertyField
+ScreenRenderer | PropertyFieldKey
 ScreenRenderer | RaisedConfirmation
 ScreenRenderer | RaisedNotice
 ScreenRenderer | RowTitle

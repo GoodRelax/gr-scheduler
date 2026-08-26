@@ -67,12 +67,23 @@
 //      NFR-010's MUST NOT.
 //
 // ⛔ WHAT MAY WAKE A FRAME, AND WHY NOTHING HERE DOES. NFR-010 forbids running
-// a frame on a trigger table T-078 does not name (MUST NOT). ONE listener is
-// registered below and it schedules nothing:
+// a frame on a trigger table T-078 does not name (MUST NOT). FOUR listeners are
+// registered below and not one of them schedules anything:
 //
 //   - `keydown` on the dialogue entry only REMEMBERS that the person settled a
 //     line. The frame that carries it away is FT-1's: the same press reaches
 //     DomInputSource on the window.
+//   - `change` on the properties panel only REMEMBERS the value a person
+//     settled in one of its controls, which is IF-9's return direction. ⭐ The
+//     same bargain: the blur or the Enter that raised it IS a happening that
+//     reaches DomInputSource, and the shell collects the commit on that frame.
+//     ⛔ `change` and not `input`, because FR-031 (with UN-3 of table T-027)
+//     makes one property change ONE step of the undo history.
+//   - `focusin` / `focusout` on the same panel only REMEMBER whether a person
+//     has hold of one of its controls, so that a redraw does not sweep away
+//     what is half typed. ⚠️ They are watched rather than read off
+//     `document.activeElement` because `ScreenSurfaceWiring` says only
+//     `createElement` is called on the host.
 //
 // ⚠️ There WAS a second, on the control that put a tooltip away, and it is gone
 // with that control -- `tooltipElement` carries the STOP that says why, and
@@ -239,10 +250,14 @@ import type {
   DialogueField,
   DialogueInput,
   DisplayLanguage,
+  FieldCommit,
   Notice,
   OpenModal,
   PropertiesPanel,
+  PropertyControl,
+  PropertyControlKind,
   PropertyField,
+  PropertyFieldKey,
   RowTitle,
   RowTitlePanel,
   ScreenFrame,
@@ -538,6 +553,183 @@ function entryGlyphRoom(): string {
 }
 
 /**
+ * The eight lengths FR-006's property fields are drawn at, each named once so
+ * that the declarations below read as what they are rather than as row ids.
+ *
+ * ⛔ NO NUMBER IS WRITTEN HERE. Every one is a row of table T-206 reaching this
+ * file through `NOT_STORED_PROPERTY_FIELD_SIZES`, which `npm run gen` builds
+ * from `_source/settings.json` -- rule 03 section 1 forbids re-typing a value
+ * the specification holds, and the manuscript is where all eight would move.
+ * ⚠️ All eight are marked 🔎 in that table: they are the reference
+ * implementation's measured values, and nothing has ruled on them.
+ *
+ * ⛔ A FUNCTION AND NOT A `const`, for the reason `entryGlyphRoom` gives: the
+ * values arrive in the generated block at the foot of this file, which a `const`
+ * evaluated above it cannot read.
+ *
+ * @purity pure
+ */
+function fieldSizes(): {
+  readonly controlMinHeight: number
+  readonly colorMinHeight: number
+  readonly swatchSide: number
+  readonly swatchGap: number
+  readonly namePercent: number
+  readonly nameGap: number
+  readonly rowGap: number
+  readonly panelPadY: number
+  readonly panelPadX: number
+  readonly multilineRows: number
+} {
+  const [swatchSide, swatchGap] = NOT_STORED_PROPERTY_FIELD_SIZES['S-188']
+  const [panelPadY, panelPadX] = NOT_STORED_PROPERTY_FIELD_SIZES['S-192']
+  return {
+    /** S-186: the least a control may be tall. */
+    controlMinHeight: NOT_STORED_PROPERTY_FIELD_SIZES['S-186'],
+    /** S-187: the same for a colour control, which that row keeps apart. */
+    colorMinHeight: NOT_STORED_PROPERTY_FIELD_SIZES['S-187'],
+    /** S-188, first of the pair -- see `propertySwatchStyle` on what the pair is. */
+    swatchSide,
+    /** S-188, second of the pair. */
+    swatchGap,
+    /** S-189: the share of the width the name column takes. */
+    namePercent: NOT_STORED_PROPERTY_FIELD_SIZES['S-189'],
+    /** S-190: across, between the name and the control. */
+    nameGap: NOT_STORED_PROPERTY_FIELD_SIZES['S-190'],
+    /** S-191: down, between one field and the next. */
+    rowGap: NOT_STORED_PROPERTY_FIELD_SIZES['S-191'],
+    panelPadY,
+    panelPadX,
+    /** S-193: how many lines a multi-line control shows. */
+    multilineRows: NOT_STORED_PROPERTY_FIELD_SIZES['S-193'],
+  }
+}
+
+/**
+ * U-25's own box, padded by S-192 of table T-206.
+ *
+ * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for both of the reasons
+ * `entryStyle` gives: the value arrives in the generated block, and `STYLE`
+ * states that every length in it is relative, which S-192 is not.
+ *
+ * @purity pure
+ */
+function propertiesPanelStyle(): string {
+  const size = fieldSizes()
+  return `${STYLE.propertiesPanel}padding:${size.panelPadY}px ${size.panelPadX}px;`
+}
+
+/**
+ * One field of U-25: the name across from its controls.
+ *
+ * ⭐ S-190 ACROSS AND S-191 DOWN, which S-190's own row insists on ("`S-190` が
+ * 横で `S-191` が縦である"): a field lays its name and its controls out side by
+ * side and the fields stack, so the two gaps are on different axes.
+ * ⛔ `align-items:flex-start` because a multi-line control (S-193) is taller
+ * than its name, and centring would set the name down beside it -- a reader
+ * scans the names down a column, so each stays at the top of its own field.
+ *
+ * @purity pure
+ */
+function propertyFieldStyle(): string {
+  const size = fieldSizes()
+  return (
+    `display:flex;align-items:flex-start;gap:${size.nameGap}px;` +
+    `margin-bottom:${size.rowGap}px;line-height:1.6;`
+  )
+}
+
+/**
+ * The name half of one field.
+ *
+ * ⭐ S-189 IS A PERCENTAGE AND NOT A WIDTH, and its row says why: FR-052 has a
+ * person drag this panel wider (S-80), so a name column held in px would leave
+ * every pixel gained to the controls.
+ *
+ * @purity pure
+ */
+function propertyFieldNameStyle(): string {
+  return `color:${PAINT.quiet};flex:0 0 ${fieldSizes().namePercent}%;`
+}
+
+/** What the controls of one field stand in -- a row of table T-016 can hold three. @purity pure */
+function propertyControlsStyle(): string {
+  return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
+}
+
+/**
+ * One control that takes room.
+ *
+ * ⛔ A MINIMUM AND NOT A HEIGHT, which S-186 says of itself in as many words: a
+ * reader who makes the browser's text bigger would have a fixed height cut the
+ * letters off, and NFR-007 forbids exactly that.
+ *
+ * @purity pure
+ */
+function propertyControlStyle(): string {
+  return (
+    'font:inherit;box-sizing:border-box;flex:1;min-width:0;' +
+    `min-height:${fieldSizes().controlMinHeight}px;` +
+    `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`
+  )
+}
+
+/**
+ * A colour control.
+ *
+ * ⛔ S-187 AND NOT S-186, which that row states outright: the reference
+ * implementation holds a separate number for a colour, one px lower, because
+ * the swatch takes the difference.
+ *
+ * @purity pure
+ */
+function propertyColorStyle(): string {
+  return (
+    'font:inherit;box-sizing:border-box;flex:1;min-width:0;padding:0;' +
+    `min-height:${fieldSizes().colorMinHeight}px;` +
+    `background:${PAINT.ground};border:1px solid ${PAINT.rule};`
+  )
+}
+
+/**
+ * The swatch beside a colour control -- S-188's pair.
+ *
+ * ⭐ A SIDE AND A GAP, not a width and a height. S-188 is captioned 「色見本の
+ * 一辺と隙間」 and says 「一辺と隙間の組であって、幅と高さではない」, so the
+ * swatch is a 14px square and the second figure is the space to its neighbour.
+ *
+ * ⚠️ Two statements used to read the other way -- S-187's note called the row
+ * a 帯 and the D-13 record listed it in a run of width-by-height figures. Both
+ * were measured against the reference implementation and corrected: it sets
+ * `width: 14px` and `height: 14px` on the swatch button. ⛔ The band reading is
+ * gone from the specification, so nothing here is provisional any more.
+ *
+ * @purity pure
+ */
+function propertySwatchStyle(): string {
+  const size = fieldSizes()
+  return (
+    `display:inline-block;box-sizing:border-box;flex:0 0 ${size.swatchSide}px;` +
+    `height:${size.swatchSide}px;margin-right:${size.swatchGap}px;align-self:center;` +
+    `border:1px solid ${PAINT.rule};`
+  )
+}
+
+/**
+ * A truth value, which is the one control that does not stretch.
+ *
+ * ⚠️ A checkbox drawn the width of the field would read as a box to type in;
+ * the host draws it at its own size and this only keeps the surrounding font.
+ * ⛔ S-186 is deliberately absent: that row is 「入力欄の高さの下限」, and a
+ * checkbox is not a 欄 a value is typed into.
+ *
+ * @purity pure
+ */
+function propertyCheckStyle(): string {
+  return 'font:inherit;'
+}
+
+/**
  * One entrance's frame, in the state FR-029 (MUST) draws what CAN be used.
  *
  * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for both of the reasons
@@ -708,7 +900,7 @@ const STYLE = {
   // ⛔ `pointer-events:auto` IS NOT DECORATION. The root is `pointer-events:none`
   // and the panel does not take the pointer back -- only the rows do
   // (`STYLE.rowTitle`) -- so without this the one entrance HF-10 requires could
-  // be neither pressed nor answered by IF-9's third member.
+  // be neither pressed nor answered by IF-9's fourth member.
   panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
   // HF-5 of table T-051 (MUST NOT): the row's controls are not levelled with the
   // middle of the name. ⛔ `align-items:center` is what that row forbids in as
@@ -756,11 +948,21 @@ const STYLE = {
     'padding:0 0.125em;cursor:pointer;',
   // SC-5 of table T-031: only the contents scroll, and never in step with the
   // drawing area.
+  //
+  // ⛔ NO PADDING HERE, AND NOT BECAUSE IT HAS NONE. S-192 of table T-206 is
+  // what the panel is padded by, and it is in px, which this object states it
+  // does not hold -- `propertiesPanelStyle` is where it stands, for the reason
+  // `entryStyle` gives about a value that arrives in the generated block.
   propertiesPanel:
-    'position:absolute;box-sizing:border-box;overflow-y:auto;padding:0.5em;' +
+    'position:absolute;box-sizing:border-box;overflow-y:auto;' +
     `background:${PAINT.panel};color:${PAINT.ink};border-left:1px solid ${PAINT.rule};` +
     'pointer-events:auto;',
   heading: 'font-weight:600;margin:0 0 0.5em 0;',
+  // ⚠️ THE LINE EVERY OTHER SURFACE LAYS A NAME AND A VALUE OUT ON, and NOT the
+  // property panel's own field: FR-006's fields are drawn at S-189 .. S-191 of
+  // table T-206, which are px and which `propertyFieldStyle` states. ⛔ The two
+  // were one declaration until the rows existed, and joining them again would
+  // put FR-006's lengths on the resource roster and on FR-088's weekdays.
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: `color:${PAINT.quiet};min-width:9em;`,
   // ⛔ NO WIDTH AND NO HEIGHT, AND NOT BECAUSE NONE ARRIVED. FR-053 (MUST) has
@@ -910,7 +1112,7 @@ const STYLE = {
  * flex box out. Inside an entrance the box `entryGlyphRoom` makes, the shape
  * is a flex item and is centred by that box instead -- which is what keeps it
  * from setting the entrance's height (FR-029, S-141). ⛔ `pointer-events:none`
- * so the ANSWER does not move: IF-9's third member reads back the entry a point
+ * so the ANSWER does not move: IF-9's fourth member reads back the entry a point
  * is on, and the button is what carries `data-icon`.
  *
  * @purity pure
@@ -1050,7 +1252,7 @@ export function pageGroundStyle(theme: ScreenTheme): string {
  * every time the pointer crossed a row. ⛔ `display:none` takes the room away;
  * `visibility:hidden` keeps the box and draws nothing in it. ⚠️ It also stops
  * the control taking the pointer, which is right: an undrawn control is not one
- * a person can press, and IF-9's third member answers what `elementFromPoint`
+ * a person can press, and IF-9's fourth member answers what `elementFromPoint`
  * answers.
  *
  * ⛔ THE ROW AND NOT THE NAME'S OWN BOX IS WHAT IS TESTED, and the difference
@@ -1365,7 +1567,7 @@ function shapeNode(host: Document, tag: string): Element {
  * unreachable for a row of table T-109: the generator refuses to write unless
  * every row has one. It is here because `IconId` is a bare `string`, and an
  * entry with no body at all collapses to zero height -- unreachable by pointer
- * and by IF-9's third member alike.
+ * and by IF-9's fourth member alike.
  *
  * @purity non-pure
  */
@@ -1586,7 +1788,7 @@ function fillScreenFrame(
  *
  * ⛔ WITHOUT A BODY THE CONTROL CANNOT BE PRESSED AT ALL. An empty `button`
  * with no length of its own collapses to zero height, so every entrance drawn
- * here would be unreachable by pointer and by IF-9's third member alike -- which
+ * here would be unreachable by pointer and by IF-9's fourth member alike -- which
  * is the supply that table T-065 promises above, made undeliverable by having
  * nothing to hit. ⚠️ That is why the shape carries a box of its own
  * (`glyphStyle`) rather than being left to size itself, and that box is the one
@@ -1814,22 +2016,182 @@ function fillRowTitleTree(
 }
 
 /**
+ * Where the value a person settles is put until the shell collects it.
+ *
+ * ⭐ WHY A `WeakMap` AND NOT AN ATTRIBUTE TO PARSE. `PropertyControl.key` is a
+ * VALUE that says which column of which thing the control edits, and the side
+ * that DREW the control is the side that answers for it (Chapter 5.3, MUST,
+ * under table T-065). Spelling that value into an attribute would mean taking
+ * it apart again on the way back, and a row id or a uuid holding the separator
+ * would be taken apart wrongly. ⚠️ Weak so that a control thrown away with a
+ * redrawn panel is not held alive by this map.
+ *
+ * ⛔ NOT A SECOND ANSWER TO `readScreenPartAt`. That member answers about a
+ * POINT; this one is looked up by the very element a `change` happening names,
+ * which no coordinate is involved in.
+ */
+const CONTROL_KEYS = new WeakMap<Element, { row: string; key: PropertyFieldKey }>()
+
+/**
+ * What a control's kind asks the host to draw.
+ *
+ * ⛔ THE TAG AND THE TYPE ARE THE ENVIRONMENT'S OWN, not a rule invented here.
+ * Table T-016's 入力の型 column names the form -- 文字, 日付, 数値, 真偽, 選択,
+ * 色, 複数行 -- and each of the seven has one plain control in the host, which
+ * is what FR-029's 「環境の作法に従う」 asks for elsewhere. ⚠️ A control the host
+ * draws itself also brings the reader's own way of entering a date or picking a
+ * colour, which nothing here could rebuild.
+ */
+const CONTROL_TAG: Readonly<Record<PropertyControlKind, string>> = {
+  text: 'input',
+  multiline: 'textarea',
+  date: 'input',
+  number: 'input',
+  boolean: 'input',
+  choice: 'select',
+  color: 'input',
+}
+
+/** The `type` an `input` of each kind takes. `null` where the tag is not an input. */
+const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> = {
+  text: 'text',
+  multiline: null,
+  date: 'date',
+  number: 'number',
+  boolean: 'checkbox',
+  choice: null,
+  color: 'color',
+}
+
+/**
+ * The spelling a truth value arrives and leaves in.
+ *
+ * ⛔ NOT A WORD OF ITS OWN. `textOfValue` in properties-panel.ts writes a
+ * boolean with `String`, so these are that spelling read back -- a second pair
+ * invented here would be a value the panel never writes.
+ */
+const TRUE_TEXT = String(true)
+
+/**
+ * One control of one field, drawn as the host's own.
+ *
+ * ⭐ A COMMIT IS A `change`, NEVER A KEYSTROKE. FR-031 (with UN-3 of table
+ * T-027) makes one property change ONE step of the undo history, so a value
+ * carried away per keystroke would put a step on that history for every letter
+ * and taking the name back would take back one letter of it. The host raises
+ * `change` when the field is left or Enter is pressed, which is the moment the
+ * person settled on the value.
+ *
+ * STOP -- ⛔ THE HOST'S COLOUR CONTROL HOLDS ONLY `#rrggbb`, AND TWO SPELLINGS
+ * OF TABLE T-058's COLOUR COLUMNS ARE NOT THAT. `transparent` is P-19 of the
+ * glossary and FR-030 (MUST NOT) forbids the outline and the fill to be it at
+ * once, and AT-58's `null` means the row follows the theme -- neither of which
+ * a `#rrggbb` box can show or offer. Looked in table T-016 (which says 色 and
+ * no more), FR-007, FR-030, table T-058 and table T-109. ⭐ Nothing is invented
+ * in its place: the swatch beside the control paints what the document actually
+ * holds, so a reader sees `transparent` as nothing painted rather than as a
+ * colour this side chose. ⚠️ Neither spelling can be REACHED through this
+ * control, which is the half that is still owed -- a surface with `透明` and
+ * 「テーマに従う」 on it is what table T-016 would have to gain a row for.
+ *
+ * @provisional PD-270
+ * @purity non-pure
+ */
+function controlElement(host: Document, row: string, control: PropertyControl): HTMLElement {
+  const tag = CONTROL_TAG[control.kind]
+  const drawn = host.createElement(tag)
+  const style =
+    control.kind === 'color'
+      ? propertyColorStyle()
+      : control.kind === 'boolean'
+        ? propertyCheckStyle()
+        : propertyControlStyle()
+  drawn.setAttribute('style', style)
+  // ⚠️ Written for the reader of the built page as well as for a check that
+  // holds the drawn tree against the description (rule 04). The value the
+  // commit travels by is CONTROL_KEYS -- these say what was drawn, not how it
+  // comes back.
+  drawn.setAttribute('data-field-row', row)
+  drawn.setAttribute('data-field-kind', control.kind)
+
+  const inputType = CONTROL_INPUT_TYPE[control.kind]
+  if (inputType !== null) drawn.setAttribute('type', inputType)
+
+  if (control.kind === 'choice') {
+    // ⛔ The empty spelling is offered only where the candidates hold it: a
+    // column that admits no empty value must not be given one here.
+    for (const choice of control.choices ?? []) {
+      const option = host.createElement('option')
+      option.setAttribute('value', choice)
+      option.textContent = choice
+      drawn.append(option)
+    }
+    ;(drawn as HTMLSelectElement).value = control.text
+  } else if (control.kind === 'boolean') {
+    ;(drawn as HTMLInputElement).checked = control.text === TRUE_TEXT
+  } else {
+    if (control.kind === 'multiline') {
+      drawn.setAttribute('rows', String(fieldSizes().multilineRows))
+    }
+    if (control.kind === 'number') {
+      // ⛔ The bounds are the schema's, and only where it states one: an absent
+      // bound is left absent rather than filled with a number from here.
+      if (control.min !== null) drawn.setAttribute('min', String(control.min))
+      if (control.max !== null) drawn.setAttribute('max', String(control.max))
+    }
+    ;(drawn as HTMLInputElement).value = control.text
+  }
+
+  CONTROL_KEYS.set(drawn, { row, key: control.key })
+  return drawn as HTMLElement
+}
+
+/**
  * One item of table T-016, of table T-058's two row columns, or of table T-104.
+ *
+ * ⛔ A FIELD WITH NO CONTROL IS STILL WRITTEN OUT AS TEXT. `controls` is empty
+ * where this side has none to offer -- the settings roster, FR-074's surface,
+ * `PR-16`'s assignee and `PR-9`, which table T-016 marks read-only -- and each
+ * of those has a note where it is built saying why. ⚠️ So the fallback below is
+ * not a leftover: it is what a field looks like until its surface exists.
  *
  * @purity non-pure
  */
 function fieldElement(host: Document, field: PropertyField): HTMLElement {
-  const line = made(host, 'div', STYLE.field)
+  const line = made(host, 'div', propertyFieldStyle())
   // The row that holds the item -- `PR-n`, `AT-58` / `AT-59`, or `K-n`.
   line.setAttribute('data-field-row', field.row)
   line.setAttribute('data-editable', String(field.isEditable))
-  const name = made(host, 'span', STYLE.fieldName)
+  const name = made(host, 'span', propertyFieldNameStyle())
   // ⚠️ Not translated, and table T-016 says why it keeps its item names in
   // English (FR-038 leaves them alone).
   name.textContent = field.name
-  const value = made(host, 'span', '')
-  value.textContent = field.text
-  line.append(name, value)
+
+  if (field.controls.length === 0) {
+    const value = made(host, 'span', '')
+    value.textContent = field.text
+    line.append(name, value)
+    return line
+  }
+
+  const controls = made(host, 'div', propertyControlsStyle())
+  for (const control of field.controls) {
+    // ⭐ FR-006's colour items get a swatch BESIDE the control and not instead
+    // of it: S-188 gives the swatch a side and a gap, and S-187 keeps the
+    // control its own minimum height, so the two are two boxes.
+    if (control.kind === 'color') {
+      const swatch = made(host, 'span', propertySwatchStyle())
+      // ⚠️ A colour the document does not hold paints nothing, rather than a
+      // colour chosen here: FR-007 turns on the difference between a colour a
+      // person picked and one that was never set.
+      if (control.text !== '') {
+        swatch.setAttribute('style', `${propertySwatchStyle()}background:${control.text};`)
+      }
+      controls.append(swatch)
+    }
+    controls.append(controlElement(host, field.row, control))
+  }
+  line.append(name, controls)
   return line
 }
 
@@ -1840,15 +2202,32 @@ function fieldElement(host: Document, field: PropertyField): HTMLElement {
  * says so in the heading. The heading is the description's, so nothing is added
  * to it here; `data-subject-gone` is what makes that state readable back.
  *
+ * @provisional PD-271
  * @purity non-pure
  */
 function fillPropertiesPanel(
   host: Document,
   panel: HTMLElement,
   description: PropertiesPanel,
+  isFieldHeld: boolean,
 ): void {
   panel.setAttribute('data-showing', description.showing)
   panel.setAttribute('data-subject-gone', String(description.isSubjectGone))
+
+  // ⛔ A REDRAW MAY NOT TAKE WHAT IS BEING TYPED. Table T-078 runs a frame on
+  // every happening, and `replaceChildren` throws away the very control the
+  // person has hold of -- so half a name would be swept away between two
+  // letters, and the caret with it. While a control of this panel is held the
+  // fields it drew are left exactly as they stand; the frame after the person
+  // leaves the control draws them again from the description.
+  // ⚠️ The two attributes above are still written: they say which of FR-072's
+  // two the panel is on, which no control holds and which a check reads back.
+  // ⛔ THE ANSWER IS THE CALLER'S AND IS NOT READ OFF THE HOST.
+  // `ScreenSurfaceWiring` says only `createElement` is called on the host, and
+  // asking it for `activeElement` would break that promise for a fact the panel
+  // can watch for itself -- `focusin` and `focusout` bubble to it.
+  if (isFieldHeld) return
+
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = description.heading
   const fields = description.fields.map((field) => fieldElement(host, field))
@@ -2633,6 +3012,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   let isHeaderHeightSettled = false
   let settled: Settlement | null = null
   let isFieldUp = false
+  // ⛔ ONE AT A TIME AND THE LAST ONE WINS. A person can only have hold of one
+  // control, and `change` is raised as the previous one is left -- so a second
+  // commit before the shell has collected the first is a commit the shell would
+  // have collected on the next frame anyway. ⚠️ Held here rather than on the
+  // element because the element is thrown away by the next redraw.
+  let fieldCommit: FieldCommit | null = null
 
   /**
    * What each part's tooltips are anchored to, kept one map per part.
@@ -2800,7 +3185,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         ? `right:0;top:${headerHeightPx}px;bottom:0;width:max-content;`
         : `left:${propertiesEdge.x + propertiesEdge.width}px;` +
           `top:${headerHeightPx}px;right:0;bottom:0;`
-    propertiesPanel.setAttribute('style', STYLE.propertiesPanel + place)
+    propertiesPanel.setAttribute('style', propertiesPanelStyle() + place)
   }
 
   /**
@@ -2884,7 +3269,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       else openEveryRow.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
     }
     if (changed('propertiesPanel') && view.propertiesPanel !== null) {
-      fillPropertiesPanel(host, propertiesPanel, view.propertiesPanel)
+      fillPropertiesPanel(host, propertiesPanel, view.propertiesPanel, isFieldHeld)
     }
     if (changed('commandPalette')) {
       const palette = view.commandPalette
@@ -2993,7 +3378,79 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 
   /**
-   * What this surface has drawn at (x, y) -- the third member of IF-9.
+   * A person settled a value in one of the property fields.
+   *
+   * ⭐ ONE LISTENER ON THE PANEL AND NOT ONE PER CONTROL. `change` bubbles, the
+   * fields are rebuilt on nearly every frame, and a listener per control would
+   * be registered and dropped dozens of times a second. ⚠️ It is hung on the
+   * panel once, where it lives as long as the panel does -- the same bargain
+   * `openEveryRow` takes.
+   *
+   * ⛔ `change` AND NOT `input`, which is the whole of the difference between
+   * one undo step and one per letter: see `controlElement`.
+   *
+   * ⚠️ A `change` on something this unit did not draw as a control is ignored
+   * rather than guessed at -- `CONTROL_KEYS` holds only what `controlElement`
+   * put there.
+   *
+   * @purity non-pure
+   */
+  function onFieldChange(event: Event): void {
+    // ⚠️ NOT `instanceof Element`. Table T-075 leaves this unit runnable
+    // against a host that is not a browser, and `Element` is a global that host
+    // need not have at all -- so what the map holds is what says this was one
+    // of the controls drawn here.
+    const target = event.target
+    if (target === null || typeof target !== 'object') return
+    const named = CONTROL_KEYS.get(target as Element)
+    if (named === undefined) return
+    // ⚠️ A checkbox carries its value in `checked` and every other control in
+    // `value`; the spelling a truth value crosses in is the one
+    // `textOfValue` writes on the other side, so nothing new is minted.
+    const input = target as HTMLInputElement
+    const text = input.type === 'checkbox' ? String(input.checked) : input.value
+    fieldCommit = { row: named.row, key: named.key, text }
+  }
+
+  propertiesPanel.addEventListener('change', onFieldChange)
+
+  /**
+   * Whether a person has hold of one of this panel's controls.
+   *
+   * ⛔ WATCHED RATHER THAN ASKED FOR. `ScreenSurfaceWiring` states that only
+   * `createElement` is called on the host, and `focusin` / `focusout` bubble to
+   * the panel -- so the panel answers for its own controls, which is the same
+   * bargain Chapter 5.3 states under table T-065 about the side that drew a
+   * part. ⚠️ `focusout` runs before `focusin` when the focus moves from one
+   * control to the next, which is harmless: what the flag guards is a redraw,
+   * and a redraw between the two would draw the description that is true then.
+   */
+  let isFieldHeld = false
+  propertiesPanel.addEventListener('focusin', () => {
+    isFieldHeld = true
+  })
+  propertiesPanel.addEventListener('focusout', () => {
+    isFieldHeld = false
+  })
+
+  /**
+   * The value settled in a property field since this was last asked -- the
+   * third member of IF-9, and the one that carries a value BACK.
+   *
+   * ⛔ READING IT TAKES IT, which the declaration states and which FR-031 (with
+   * UN-3) is why: a commit answered twice would be written twice and put a
+   * second step on the undo history for an edit nobody made.
+   *
+   * @purity semi-pure-b
+   */
+  function readFieldCommit(): FieldCommit | null {
+    const held = fieldCommit
+    fieldCommit = null
+    return held
+  }
+
+  /**
+   * What this surface has drawn at (x, y) -- the fourth member of IF-9.
    *
    * ⭐ THE BROWSER ANSWERS "WHAT IS ON TOP", which is the whole reason this is
    * asked of the surface rather than computed anywhere else: the parts overlap
@@ -3112,7 +3569,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // BO-1: settled before the first frame, and before this factory returns.
   reportHeaderHeight()
 
-  return { showScreenView, readDialogueInput, readScreenPartAt }
+  return { showScreenView, readDialogueInput, readFieldCommit, readScreenPartAt }
 }
 
 // <generated -- do not edit by hand>
@@ -3163,6 +3620,49 @@ export const NOT_STORED_ARMED_ENTRY_SIZES: {
   readonly 'S-185': number
 } = {
   'S-185': 2,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a
+ * document setting and neither may become one: table T-206 is where
+ * the specification records that the document does not keep them,
+ * and the export draws no entrance at all (EP-1 and EP-4 of table
+ * T-076), so a reader handed this document sees the same picture
+ * whatever this value is.
+ */
+export const NOT_STORED_PROPERTY_FIELD_SIZES: {
+  /** S-186, in px */
+  readonly 'S-186': number
+  /** S-187, in px */
+  readonly 'S-187': number
+  /** S-188, in px */
+  readonly 'S-188': readonly [number, number]
+  /** S-189, in % */
+  readonly 'S-189': number
+  /** S-190, in px */
+  readonly 'S-190': number
+  /** S-191, in px */
+  readonly 'S-191': number
+  /** S-192, in px */
+  readonly 'S-192': readonly [number, number]
+  /** S-193 */
+  readonly 'S-193': number
+} = {
+  'S-186': 17,
+  'S-187': 16,
+  'S-188': [14, 3],
+  'S-189': 42,
+  'S-190': 6,
+  'S-191': 2,
+  'S-192': [6, 8],
+  'S-193': 2,
 }
 
 /**

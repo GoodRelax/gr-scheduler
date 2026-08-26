@@ -216,6 +216,7 @@ import {
 // be measured from inside an Adapter.
 import type { ExportScene } from '../../adapter/image-exporter/image-exporter'
 import {
+  commandFromFieldCommit,
   commandFromInput,
   pressRowOf,
   screenStateFromInput,
@@ -4579,6 +4580,40 @@ export function frameLoop(
   }
 
   /**
+   * IF-9's return direction, spent before the happening that carried it here.
+   *
+   * ⭐ WHY IT IS COLLECTED ON AN INPUT AND NOT AT THE HEAD OF A FRAME. A person
+   * settles a property field by leaving it or by pressing Enter, and both of
+   * those ARE happenings that arrive over IF-2 -- so the commit is already
+   * standing on the surface by the time this runs, and NFR-010's 「起きたときだけ
+   * 走る」 is kept: nothing is polled.
+   *
+   * ⛔ BEFORE THE THREE MEMBERS OF PI-18 READ THE DOCUMENT, so that the value a
+   * person just settled is in the document the press is then translated
+   * against. ⚠️ A context of its own is built for it, which is not the second
+   * read the note in `receiveInput` warns about: that one forbids the THREE
+   * members to be answered about different moments, and this is a different
+   * question -- about a field, settled before this happening began.
+   *
+   * ⛔ AN EMPTY ANSWER IS NOT WRITTEN. `commandFromFieldCommit` answers with
+   * nothing where the settled value names no row of table T-108, and an empty
+   * write would still push a step onto the undo history (WS-4) for an edit
+   * nobody made.
+   *
+   * @purity non-pure
+   */
+  function spendFieldCommit(frame: FrameValues): void {
+    if (screen === undefined) return
+    const commit = screen.surface.readFieldCommit()
+    if (commit === null) return
+    const commands = commandFromFieldCommit(commit, collectInputContext(frame))
+    if (commands.length === 0) return
+    // FR-031 (MUST) with UN-3 of table T-027: one property change is ONE step
+    // of the undo history, so the whole answer goes over as one bundle.
+    writeDocument(commands, frame)
+  }
+
+  /**
    * FT-1 of table T-078 -- one happening arrived over IF-2.
    *
    * @purity non-pure
@@ -4589,6 +4624,8 @@ export function frameLoop(
     // there is no frame of reference to read a coordinate against -- and
     // NFR-011 is what holds the first frame back until there is one.
     if (frame === null) return
+
+    spendFieldCommit(frame)
 
     // ⭐ THE OUTSIDE IS READ ONCE, HERE, BEFORE ANYTHING IS DECIDED (R7.4). Two
     // rules want IF-9's answer for this happening -- CS-2 freezes it onto the

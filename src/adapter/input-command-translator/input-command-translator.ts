@@ -119,6 +119,7 @@ import {
   type ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
 import {
+  COLUMN_SHAPES,
   dayOf,
   planActualState,
   taskByUid,
@@ -156,7 +157,7 @@ import {
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { ScreenPart } from '../screen-renderer/screen-renderer'
+import type { FieldCommit, ScreenPart } from '../screen-renderer/screen-renderer'
 import type {
   DocumentCommand,
   TaskMilestoneGlyph,
@@ -1790,6 +1791,422 @@ export function commandFromInput(input: HumanInput, context: InputContext): Tran
       return commandFromWheel(input, context)
     case 'pointer':
       return commandFromPointer(input, context)
+  }
+}
+
+// ------------------------------------------- PI-18: a settled field value ---
+//
+// ⭐ WHAT THIS MEMBER IS FOR. Table T-064 gives PI-18 a member that turns a
+// value settled in the `Properties Panel` into a row of table T-108, and IF-9
+// is the seam it arrives over. FR-006 (with the paragraph under table T-016)
+// makes every item but the read-only one editable, FR-042 adds a picked row's
+// colour and height, and FR-009 adds the dependency line's lag.
+//
+// ⭐ ONE COMMAND, ONE UNDO STEP. FR-031 (MUST) makes one document-changing
+// operation one step of the undo history and UN-3 of table T-027 names the
+// change of a Task property as one -- so the answer is a LIST that the caller
+// writes as one bundle, exactly as `PlanInput.commands` carries a drag's
+// several rows. ⛔ An empty list is what "this settled value changes nothing"
+// looks like, and it must not be written: an empty write is still a write, and
+// WS-4 would push a step for an edit nobody made.
+//
+// ⛔ NO SUBJECT IS WORKED OUT HERE. `FieldCommit.key` says which column of
+// which thing the panel drew the control for, because the panel had already
+// applied FR-072's and table T-023c's rule about which of several picked things
+// it describes -- reading that rule again on this side would be the same
+// arithmetic in two places (rule 03 section 4), and the two readings would
+// disagree the moment a selection changed between the frame that drew the field
+// and the frame that collects the commit.
+
+/**
+ * What a settled text means for a column that may be empty.
+ *
+ * ⚠️ THE EMPTY STRING IS `null` AND NOT A REFUSAL. Every column table T-016
+ * offers is nullable in `_source/grs-document.schema.json`, and FR-007 turns on
+ * the difference between a value a person chose and one that was never set --
+ * so clearing a field is how a person says the second, and it has to reach the
+ * document.
+ *
+ * @purity pure
+ */
+function settledText(text: string): string | null {
+  const trimmed = text.trim()
+  return trimmed === '' ? null : trimmed
+}
+
+/**
+ * The same for a column that holds a number.
+ *
+ * ⛔ `undefined` IS A REFUSAL AND `null` IS AN EMPTY COLUMN, and the two are
+ * held apart on purpose: a host that hands back something that is not a number
+ * has not been settled on anything, and writing 0 in its place would put a
+ * value in the document that nobody typed. ⚠️ The bounds are NOT checked here:
+ * `_source/grs-document.schema.json` states them, the controls carry them
+ * (`PropertyControl.min` / `max`), and the write path judges them -- a third
+ * reading would be a third place the same rule lives.
+ *
+ * @purity pure
+ */
+function settledNumber(text: string): number | null | undefined {
+  const held = settledText(text)
+  if (held === null) return null
+  const value = Number(held)
+  return Number.isFinite(value) ? value : undefined
+}
+
+/**
+ * The same for a date column, in the spelling the document keeps.
+ *
+ * ⭐ FR-054 (MUST) takes the lexical date part and converts no zone, and
+ * `dayOf` / `textOfDay` are the one place that reading and that writing live --
+ * so a day the host handed back as `YYYY-MM-DD` leaves here spelled the way
+ * every other date the tool decided is (EX-7 of table T-033).
+ *
+ * @purity pure
+ */
+function settledDay(text: string): string | null | undefined {
+  const held = settledText(text)
+  if (held === null) return null
+  const day = dayOf(held)
+  return day === null ? undefined : textOfDay(day)
+}
+
+/** A truth value in the spelling the panel wrote it out in. @purity pure */
+function settledTruth(text: string): boolean {
+  return text.trim() === String(true)
+}
+
+/** One drawn column whose values are an enumeration. */
+type VisualColumn = keyof Schedule['taskVisuals'][number]
+
+// ⭐ DERIVED FROM THE COLUMN AND NOT IMPORTED UNDER A NAME OF ITS OWN, the way
+// `PlacedPlanActual` below is: table T-064 is the whole count of what may cross
+// a component folder, and neither of these two is on it.
+type TaskLineWeight = NonNullable<Schedule['taskVisuals'][number]['lineWeight']>
+type TaskNameAlign = NonNullable<Schedule['taskVisuals'][number]['nameAlign']>
+
+/**
+ * Whether a settled word is one of the values a drawn column admits.
+ *
+ * ⛔ THE ROSTER IS NOT WRITTEN OUT. `COLUMN_SHAPES` is the schema's own
+ * enumeration generated into src/, and the paragraph under table T-016 (MUST
+ * NOT) forbids the choices to be stated a second time -- so a value the
+ * manuscript adds is admitted here without anyone editing a list. ⚠️ Where the
+ * enumeration reaches a `DocumentCommand`, the cast is what says the two
+ * rosters are the same one: both are generated from `erd.json`, and a value
+ * that stopped being in the schema would stop compiling on the command's side.
+ *
+ * @purity pure
+ */
+function isVisualChoice(column: VisualColumn, value: string): boolean {
+  return COLUMN_SHAPES.TaskVisual[column]?.choices?.includes(value) ?? false
+}
+
+/**
+ * The five columns of table T-019, with the one a person just settled replaced.
+ *
+ * ⛔ NO STATE IS CHOSEN HERE EITHER, for the reason `actualEndPlacement` gives:
+ * CM-13 places a WHOLE row of table T-019 while a field carries one column, so
+ * the row is read off the columns as they will stand with `planActualState`
+ * (table T-019a) and written back with the values table T-019 gives that row.
+ * ⚠️ The join between the two tables is the STATE both of them print and not
+ * their numbering.
+ *
+ * ⚠️ `null` WHERE THE ROW CANNOT BE WRITTEN. Four of the five rows of table
+ * T-019 require `actualStart` AND `actualDuration`, so settling a resume date
+ * on a task that has no actual yet names a row that cannot be filled; nothing
+ * is written rather than a duration invented here.
+ *
+ * @purity pure
+ */
+function planActualWithColumn(task: Task, column: keyof Task, text: string): PlacedPlanActual | null {
+  const next: Task = { ...task }
+  // ⚠️ The one column a person settled is written by NAME, because a field
+  // carries one column and CM-13 takes all five: spelling five arms instead
+  // would repeat the classification below five times.
+  const written = next as unknown as { [key: string]: unknown }
+  if (column === 'resumeValid') {
+    written[column] = settledTruth(text)
+  } else if (column === 'actualDuration') {
+    const days = settledNumber(text)
+    if (days === undefined) return null
+    written[column] = days
+  } else {
+    const day = settledDay(text)
+    if (day === undefined) return null
+    written[column] = day
+  }
+
+  const state = planActualState(next)
+  if (state === 'notStarted') return { row: 'PA-1' }
+
+  const actualStart = next.actualStart
+  const actualDuration = next.actualDuration
+  if (actualStart === null || actualDuration === null) return null
+
+  switch (state) {
+    case 'inProgress':
+      return { row: 'PA-2', actualStart, actualDuration }
+    case 'suspendedResumePlanned':
+      return next.resume === null
+        ? null
+        : { row: 'PA-3', actualStart, actualDuration, resume: next.resume }
+    case 'suspendedResumeUnknown':
+      return { row: 'PA-4', actualStart, actualDuration }
+    case 'finished':
+      return next.actualFinish === null
+        ? null
+        : { row: 'PA-5', actualStart, actualDuration, actualFinish: next.actualFinish }
+  }
+}
+
+/** The five columns table T-019 places together, which CM-13 writes as one row. */
+const PLAN_ACTUAL_COLUMNS: readonly (keyof Task)[] = [
+  'actualStart',
+  'actualDuration',
+  'actualFinish',
+  'resume',
+  'resumeValid',
+]
+
+/**
+ * A value settled on a column of `Task` -- table T-016's rows that hold one.
+ *
+ * ⚠️ `PR-3` IS THE ONE ROW THAT NEEDS ITS SIBLING. CM-11 places the plan's two
+ * dates together, so the column a person did NOT settle is carried from the
+ * task as it stands -- which is also what keeps FR-006's 「片方だけが動く状態を
+ * 作らない」.
+ *
+ * STOP -- ⛔ TWO ITEMS OF TABLE T-016 HAVE NO ROW OF TABLE T-108 TO BECOME.
+ * `PR-18` (`milestone`) is written out to the exchange partner and the roster
+ * holds no `setTaskMilestone`; `PR-16` (the assignee) is CM-44 / CM-45, which
+ * take a resource uid where this surface has only names and which AS-5 of table
+ * T-225 (MUST) asks for a searchable chooser that does not exist -- so the panel
+ * draws no control for it either (properties-panel.ts says so where the field is
+ * built). Looked in table T-108, table T-016, table T-225 and FR-008.
+ *
+ * @purity pure
+ */
+function commandFromTaskColumn(
+  task: Task,
+  column: keyof Task,
+  text: string,
+): readonly DocumentCommand[] {
+  const uid = task.uid
+
+  if (PLAN_ACTUAL_COLUMNS.includes(column)) {
+    const place = planActualWithColumn(task, column, text)
+    return place === null ? [] : [{ kind: 'setTaskPlanActualState', uid, place }]
+  }
+
+  switch (column) {
+    case 'name':
+      return [{ kind: 'setTaskName', uid, name: settledText(text) }]
+    case 'notes':
+      return [{ kind: 'setTaskNotes', uid, notes: settledText(text) }]
+    case 'start':
+    case 'finish': {
+      const settled = settledDay(text)
+      // ⛔ CM-11 takes both dates and neither is nullable, so a cleared field
+      // names no command: emptying one end of a plan is not a change table
+      // T-108 has a row for.
+      if (settled === undefined || settled === null) return []
+      const start = column === 'start' ? settled : task.start
+      const finish = column === 'finish' ? settled : task.finish
+      if (start === null || finish === null) return []
+      return [{ kind: 'setTaskPlanDates', uid, start, finish }]
+    }
+    case 'deadline': {
+      const deadline = settledDay(text)
+      return deadline === undefined ? [] : [{ kind: 'setTaskDeadline', uid, deadline }]
+    }
+    case 'fadeInDays': {
+      const days = settledNumber(text)
+      return days === undefined ? [] : [{ kind: 'setTaskFadeInDays', uid, days }]
+    }
+    case 'fadeOutDays': {
+      const days = settledNumber(text)
+      return days === undefined ? [] : [{ kind: 'setTaskFadeOutDays', uid, days }]
+    }
+    case 'wbsParentUid': {
+      const parentUid = settledNumber(text)
+      return parentUid === undefined ? [] : [{ kind: 'setTaskWbsParent', uid, parentUid }]
+    }
+    default:
+      return []
+  }
+}
+
+/**
+ * A value settled on a column of `TaskVisual` -- FR-007's colours and weight,
+ * FR-083's shape, FR-078's glyph and FR-002's name placement.
+ *
+ * ⭐ CM-22 AND CM-23 ARE ONE ITEM WITH TWO ROWS. That pair places both colours
+ * at once and resetting them to the theme is its own command, so a colour
+ * cleared to nothing is CM-23 and a colour chosen is CM-22 with the OTHER
+ * colour carried -- writing `null` through CM-22 would say "this one colour was
+ * chosen to be nothing", which is not a state FR-007 has.
+ *
+ * ⚠️ A choice is passed through as the text the control held. The candidates
+ * came from `COLUMN_SHAPES`, which is the schema's own enumeration, so a value
+ * that is not one of them cannot have been chosen -- and the write path judges
+ * it besides.
+ *
+ * @purity pure
+ */
+function commandFromVisualColumn(
+  schedule: Schedule,
+  uid: number,
+  column: string,
+  text: string,
+): readonly DocumentCommand[] {
+  const visual = schedule.taskVisuals.find((held) => held.taskUid === uid) ?? null
+
+  switch (column) {
+    case 'shapeKind': {
+      const shapeKind = taskShapeKindOf(settledText(text) ?? '')
+      return shapeKind === null ? [] : [{ kind: 'setTaskVisualShapeKind', uid, shapeKind }]
+    }
+    case 'milestoneGlyph': {
+      const held = settledText(text)
+      const glyph = held === null ? null : milestoneGlyphOf(held)
+      // ⚠️ An unknown word is not the same as a cleared field: the first is a
+      // value nobody could have chosen, the second is FR-078's 「置いた後も
+      // 変えられる」 being undone.
+      if (held !== null && glyph === null) return []
+      return [{ kind: 'setTaskVisualMilestoneGlyph', uid, glyph }]
+    }
+    case 'strokeColor':
+    case 'fillColor': {
+      const chosen = settledText(text)
+      const other =
+        column === 'strokeColor' ? (visual?.fillColor ?? null) : (visual?.strokeColor ?? null)
+      if (chosen === null && other === null) return [{ kind: 'resetTaskVisualColors', uid }]
+      const strokeColor = column === 'strokeColor' ? chosen : other
+      const fillColor = column === 'fillColor' ? chosen : other
+      return [{ kind: 'setTaskVisualColors', uid, fillColor, strokeColor }]
+    }
+    case 'lineWeight': {
+      const held = settledText(text)
+      if (held !== null && !isVisualChoice('lineWeight', held)) return []
+      const lineWeight = held as TaskLineWeight | null
+      return [{ kind: 'setTaskVisualLineWeight', uid, lineWeight }]
+    }
+    case 'nameAnchor':
+    case 'nameAlign': {
+      const anchor = column === 'nameAnchor' ? settledNumber(text) : (visual?.nameAnchor ?? null)
+      if (anchor === undefined) return []
+      const chosen = column === 'nameAlign' ? settledText(text) : (visual?.nameAlign ?? null)
+      if (chosen !== null && !isVisualChoice('nameAlign', chosen)) return []
+      const nameAlign = chosen as TaskNameAlign | null
+      return [{ kind: 'setTaskVisualNamePlacement', uid, nameAnchor: anchor, nameAlign }]
+    }
+    default:
+      return []
+  }
+}
+
+/**
+ * A value settled on the row FR-042 (MUST) puts on this same panel.
+ *
+ * ⭐ CM-30 AND CM-31 ARE THE SAME PAIR CM-22 AND CM-23 ARE, for the same
+ * reason: a row whose colour is cleared follows the theme again (AT-58), which
+ * is its own command, and CM-30 takes a colour that is not nullable.
+ *
+ * @purity pure
+ */
+function commandFromGroupColumn(
+  groupId: string,
+  column: string,
+  text: string,
+): readonly DocumentCommand[] {
+  switch (column) {
+    case 'color': {
+      const color = settledText(text)
+      return color === null
+        ? [{ kind: 'resetTaskGroupColor', groupId }]
+        : [{ kind: 'setTaskGroupColor', groupId, color }]
+    }
+    case 'height': {
+      const height = settledNumber(text)
+      return height === undefined ? [] : [{ kind: 'setTaskGroupHeight', groupId, height }]
+    }
+    default:
+      return []
+  }
+}
+
+/**
+ * A value settled on the dependency line FR-009 puts on the panel.
+ *
+ * STOP -- ⛔ ONLY ONE OF THE THREE COLUMNS HAS A ROW OF TABLE T-108. FR-009
+ * (MUST) has the panel show the kind, the lag and both ends, and CM-38 writes
+ * the lag; the roster holds no command that changes `linkType` and none that
+ * moves a dependency from one predecessor to another (CM-36 draws one and CM-37
+ * deletes it). Looked in table T-108, FR-009, table T-058 (AT-45 / AT-46) and
+ * table T-018. Nothing is written for the other two rather than a command
+ * minted here.
+ *
+ * ⚠️ CM-38's lag is NOT nullable, and `edit-dependency.ts` records why: S-117
+ * gives 0 the meaning 「間を空けない」, so a cleared field names no command.
+ *
+ * @purity pure
+ */
+function commandFromDependencyColumn(
+  predecessorUid: number,
+  successorUid: number,
+  column: string,
+  text: string,
+): readonly DocumentCommand[] {
+  if (column !== 'lag') return []
+  const lag = settledNumber(text)
+  if (lag === undefined || lag === null) return []
+  return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lag }]
+}
+
+/**
+ * PI-18's fourth member: the value a person settled in one field of the
+ * `Properties Panel`, as the rows of table T-108 that put it in the document.
+ *
+ * ⚠️ An empty answer is what a settled value that names no command looks like,
+ * and every place that returns one says which row of which table is missing.
+ *
+ * @purity pure
+ */
+export function commandFromFieldCommit(
+  commit: FieldCommit,
+  context: InputContext,
+): readonly DocumentCommand[] {
+  const schedule = context.document.schedule
+  const key = commit.key
+
+  switch (key.holder) {
+    case 'task': {
+      const task = taskByUid(schedule, key.uid)
+      // ⚠️ The task the field was drawn for may have gone between the frame
+      // that drew it and the frame that collects this. Nothing is written for a
+      // subject the document no longer holds.
+      return task === null ? [] : commandFromTaskColumn(task, key.column, commit.text)
+    }
+    case 'taskVisual':
+      return taskByUid(schedule, key.uid) === null
+        ? []
+        : commandFromVisualColumn(schedule, key.uid, key.column, commit.text)
+    case 'taskGroup':
+      return schedule.taskGroups.some((held) => held.id === key.groupId)
+        ? commandFromGroupColumn(key.groupId, key.column, commit.text)
+        : []
+    case 'dependency': {
+      const successor = taskByUid(schedule, key.successorUid)
+      const dependency = successor?.dependencies[key.ordinal]
+      if (dependency === undefined) return []
+      return commandFromDependencyColumn(
+        dependency.predecessorUid,
+        key.successorUid,
+        key.column,
+        commit.text,
+      )
+    }
   }
 }
 

@@ -857,6 +857,9 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     // anywhere -- which is what that member calls "the schedule below is
     // exposed".
     readDialogueInput: () => null,
+    // IF-9 also returns what a properties-panel field settled at.
+    // Nothing here drives one, so there is never a commit to take.
+    readFieldCommit: () => null,
     readScreenPartAt: () => null,
   }
   return {

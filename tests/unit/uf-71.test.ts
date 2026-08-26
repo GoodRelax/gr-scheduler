@@ -1121,7 +1121,7 @@ const PROPERTIES: PropertiesPanel = {
   showing: 'selection',
   heading: 'PropertiesHeading',
   isSubjectGone: false,
-  fields: [{ row: 'PR-3', name: 'start', text: '2026-08-20', isEditable: true }],
+  fields: [{ row: 'PR-3', name: 'start', text: '2026-08-20', isEditable: true, controls: [] }],
 }
 
 const DIALOGUE: DialogueField = {
@@ -1917,7 +1917,7 @@ describe('表 T-103 -- the settled names reach the DOM so the parts can be found
           surface: 'FR-074',
           heading: 'ExchangeHeading',
           commands: [],
-          fields: [{ row: 'PF-9', name: 'CreationDate', text: '2026-08-20', isEditable: false }],
+          fields: [{ row: 'PF-9', name: 'CreationDate', text: '2026-08-20', isEditable: false, controls: [] }],
         },
       }),
     )

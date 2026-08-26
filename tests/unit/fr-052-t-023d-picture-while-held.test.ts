@@ -394,6 +394,9 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenPane {
       views.push(view)
     },
     readDialogueInput: () => null,
+    // IF-9 also returns what a properties-panel field settled at.
+    // Nothing here drives one, so there is never a commit to take.
+    readFieldCommit: () => null,
     readScreenPartAt: (x, y): ScreenPart | null => {
       const view = views[views.length - 1]
       if (view === undefined) return null

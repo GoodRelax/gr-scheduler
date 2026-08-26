@@ -166,6 +166,95 @@ def date_columns_block(erd):
     return '\n'.join(out)
 
 
+# ⭐ THE ENTITIES THE PROPERTIES PANEL EDITS, and no others. The paragraph
+# under table T-016 (MUST NOT) forbids the choices, the numeric bounds and the
+# date columns to be written into that table on the ground that
+# grs-document.schema.json and DATE_COLUMNS already hold them -- so the panel
+# has to DERIVE them, and nothing carried the manuscript's enumerations and
+# bounds into src/ at all. ⛔ Four entities and not all eighteen: FR-006's table
+# T-016 is the `Task` roster (with `TaskVisual` for the drawn columns), FR-042
+# adds a row's colour and height (`TaskGroup`), and FR-009 adds the dependency
+# line. A roster of every entity would state a shape for columns no surface
+# offers.
+#
+# ⚠️ READ FROM erd.json AND NOT FROM grs-document.schema.json, although the
+# paragraph names the schema. That file is ITSELF generated from erd.json by
+# erd_json_to_schema.py, so erd.json is the manuscript -- and naming a third
+# source in schedule.ts's banner would push its "Rebuild:" line out of the
+# window check 27 reads a banner in.
+SHAPED_ENTITIES = ['Task', 'TaskVisual', 'TaskGroup', 'Dependency']
+
+COLUMN_SHAPES_NOTE = [
+    '/**',
+    ' * What each column of the four edited entities accepts, as the 型 column',
+    ' * of table T-058 states it.',
+    ' *',
+    ' * ⭐ THE PARAGRAPH UNDER TABLE T-016 (MUST NOT) forbids the choices,',
+    ' * the numeric bounds and the date columns to be copied into that',
+    ' * table, on the ground that the schema and DATE_COLUMNS already hold',
+    ' * them. This is how they reach src/: a surface that offers a choice',
+    ' * reads the roster instead of re-typing it, and a value the',
+    ' * manuscript adds appears without anyone editing a list.',
+    ' *',
+    " * ⛔ `kind` IS THE MANUSCRIPT'S OWN WORD (`integer`, `string`, `enum`,",
+    ' * `boolean`, `map`, `array`, `object`, `number`), not a name minted',
+    ' * here. ⚠️ Which columns are DATES is NOT among them -- DATE_COLUMNS',
+    ' * above is where that is answered, and asking twice would be two',
+    ' * rosters to keep in step.',
+    ' */',
+    'export const COLUMN_SHAPES: {',
+]
+
+
+def column_shape(node):
+    """One column's accepted shape, read off the 型 column of table T-058."""
+    return (node.get('kind'), node.get('values'), node.get('min'),
+            node.get('max'), bool(node.get('null')))
+
+
+def column_shapes_block(erd):
+    """The accepted shape of every column of the four edited entities."""
+    by_name = dict((e['name'], e) for e in erd['entities'])
+    out = list(COLUMN_SHAPES_NOTE)
+    for name in SHAPED_ENTITIES:
+        if name not in by_name:
+            raise SystemExit('erd.json holds no entity %s' % name)
+        out.append('  readonly %s: {' % name)
+        out.append('    readonly [column: string]: ColumnShape')
+        out.append('  }')
+    out.append('} = {')
+    for name in SHAPED_ENTITIES:
+        out.append('  %s: {' % name)
+        for column in by_name[name]['columns']:
+            kind, choices, low, high, nullable = column_shape(column['json'])
+            out.append(
+                "    %s: { kind: '%s', choices: %s, min: %s, max: %s, isNullable: %s },"
+                % (column['name'], kind,
+                   ('[%s]' % ', '.join("'%s'" % c for c in choices))
+                   if choices is not None else 'null',
+                   'null' if low is None else low,
+                   'null' if high is None else high,
+                   'true' if nullable else 'false'))
+        out.append('  },')
+    out.append('}')
+    return '\n'.join(COLUMN_SHAPE_TYPE) + '\n\n' + '\n'.join(out)
+
+
+COLUMN_SHAPE_TYPE = [
+    '/** What one column accepts. `null` in a bound means the manuscript states none. */',
+    'export interface ColumnShape {',
+    "  /** The 型 column's own word: `integer`, `string`, `enum`, `boolean`, and so on. */",
+    '  readonly kind: string',
+    '  /** The values a column of kind `enum` admits. */',
+    '  readonly choices: readonly string[] | null',
+    '  readonly min: number | null',
+    '  readonly max: number | null',
+    '  /** Whether the 空を許すか column admits an empty value. */',
+    '  readonly isNullable: boolean',
+    '}',
+]
+
+
 # The marks the 鍵の欄 of table T-058 puts on a column. ⚠️ Written as a
 # MAPPING of every mark this generator understands, so that a mark the
 # manuscript grows raises key_marks() below instead of dropping the column out
@@ -467,6 +556,7 @@ def schedule_block(erd):
     out.append('/** The schedule group. Its keys are DR-2 of table T-052. */\n'
                'export interface Schedule {\n%s\n}' % '\n'.join(keys))
     out.append(date_columns_block(erd))
+    out.append(column_shapes_block(erd))
     out.append(entity_rows_block(erd))
     defaults = column_defaults_block(erd)
     if defaults:
@@ -958,6 +1048,15 @@ NOT_STORED_TARGETS = {
     # armed; S-185 is the rim that tells ONE entrance from the others (FR-053).
     'NOT_STORED_ARMED_ENTRY_SIZES': (['S-185'], DRAWN_FOR_THE_ARMED_ENTRANCE),
     'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⭐ The eight lengths FR-006's fields are drawn at. ⛔ NOT folded into
+    # NOT_STORED_ICON_SIZES though both land in dom-screen-surface.ts: one
+    # constant per consuming SUBJECT, which is the split the note under
+    # NOT_STORED_DUMMY_SIZES states. S-138 and S-141 are an entrance's shape
+    # and S-186 .. S-193 are the property fields', and a shared constant would
+    # make one of the two paragraphs a lie.
+    'NOT_STORED_PROPERTY_FIELD_SIZES': (
+        ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193'],
+        DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
     # one constant per consuming SUBJECT, not per file. S-174 to S-178 are the
     # selection frame's and S-180 is the dummy's, and the two paragraphs state
@@ -1510,6 +1609,7 @@ TARGETS = [
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ARMED_ENTRY_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The selection frame's own two lengths land beside the colours, in the

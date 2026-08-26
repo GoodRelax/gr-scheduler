@@ -15,7 +15,13 @@
 // `ScreenView` instead: table T-075 fixes this folder at eleven units, and the
 // one that binds the nine descriptions together is UF-60.
 
-import type { ExportFormatId, IconId, PanelDivider, ScreenView } from './screen-renderer'
+import type {
+  ExportFormatId,
+  IconId,
+  PanelDivider,
+  PropertyFieldKey,
+  ScreenView,
+} from './screen-renderer'
 
 /**
  * What this surface has drawn at one point on the screen.
@@ -215,6 +221,39 @@ export interface DialogueInput {
   readonly settledAt: string
 }
 
+/**
+ * A value a person settled in one field of the `Properties Panel`, as the
+ * surface read it. IF-9's 「プロパティパネルの欄で確定した値を、その欄が名乗る
+ * 行 ID とともに返し」.
+ *
+ * ⭐ SETTLED, NOT TYPED. The reading side turns this into a row of table T-108
+ * and FR-031 (with UN-3 of table T-027) makes one property change ONE step of
+ * the undo history -- so a value that arrived per keystroke would put a step on
+ * that history for every letter, and taking the name back would take back one
+ * letter of it.
+ *
+ * ⛔ THE ROW ID IS NOT ENOUGH BY ITSELF, which is why `key` stands beside it:
+ * `PR-3` names the pair `start` / `finish` without saying which of the two was
+ * settled, and no row id says WHOSE. `PropertyFieldKey` carries both, and it is
+ * the very value the drawing side was handed on `PropertyControl`.
+ */
+export interface FieldCommit {
+  /** IF-9's 行 ID: `PropertyField.row`, carried back untouched. */
+  readonly row: string
+  /** Which control of that row, and what it is about. */
+  readonly key: PropertyFieldKey
+  /**
+   * What stands in the control now.
+   *
+   * ⚠️ ALWAYS A STRING, whatever the control's kind. A truth value arrives as
+   * the spelling `textOfValue` writes it in and a number as its digits, because
+   * the side that turns this into a command is the side that knows the column's
+   * type (`COLUMN_SHAPES`) -- a value already narrowed here would be narrowed
+   * by the layer LR-6 keeps the rules out of.
+   */
+  readonly text: string
+}
+
 // The members are not in the specification: table T-065 names the
 // interface and what it supplies, nothing more. They are decided here,
 // by the component that declares the seam.
@@ -253,8 +292,29 @@ export interface ScreenSurface {
   readDialogueInput(): DialogueInput | null
 
   /**
+   * The value a person has settled in a field of the `Properties Panel` since
+   * this was last asked, or `null` while none has been. The third of what IF-9
+   * says this seam supplies, and the only one that carries a value BACK.
+   *
+   * ⭐ Pulled, like the two around it and for the same reason: UF-60 is `pure`
+   * (table T-075), so it can neither register a listener nor remember one. The
+   * shell asks once a frame, hands the answer to `commandFromFieldCommit`
+   * (PI-18) and writes what comes back -- the same road a press takes.
+   *
+   * ⛔ READING IT TAKES IT. A commit answered twice would be written twice, and
+   * FR-031 (with UN-3) makes one property change one undo step: the second
+   * write would put a second step on the history for an edit nobody made.
+   * ⚠️ So this is not a question about the state of the screen the way
+   * `readScreenPartAt` is -- it is the one happening this seam holds until it
+   * is collected.
+   *
+   * @purity semi-pure-b
+   */
+  readFieldCommit(): FieldCommit | null
+
+  /**
    * What this surface has drawn at (x, y), or `null` where it has drawn nothing
-   * there and the schedule below is exposed. The third of what IF-9 says this
+   * there and the schedule below is exposed. The fourth of what IF-9 says this
    * seam supplies.
    *
    * ⭐ Pulled, like `readDialogueInput` and for the same reason: UF-60 is
