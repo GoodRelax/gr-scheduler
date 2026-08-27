@@ -10,6 +10,17 @@
  },
  "icons": [
   {
+   "rowId": "IC-7",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "パレット",
+   "entryTo": "コマンドパレットを出す・しまう（`S-99e`）。⭐ **本行だけが独自の群を持つのは、`App Header` の左端に置くためである**（利用者の指示 2026-08-27「一番左に移動しろ。ファイル読み書きの左だ」）—— ⛔ **並びを決めるのは本表の `群` の欄だけであり**（同表の前文）、**既存の群に入れたまま先頭へ動かすと群がとびとびになり、その欄の役目が壊れる。**⚠️ **群の名は画面に刷らない**（同前文の MUST NOT）ので、辞書の語は増えない",
+   "authority": "`FR-053`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-1",
    "surfaces": [
     "App Header"
@@ -72,17 +83,6 @@
    "group": "履歴",
    "entryTo": "取り消した編集をやり直す",
    "authority": "`FR-031`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-7",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "表示",
-   "entryTo": "コマンドパレットを出す・しまう（`S-99e`）",
-   "authority": "`FR-053`",
    "arms": null,
    "armsShape": null
   },

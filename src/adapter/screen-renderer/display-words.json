@@ -2,6 +2,17 @@
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/display-words.json (the words the screen prints, FR-038). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_display_words.py. The words belong to the user: table T-109 refuses an English column because one would settle dozens of names the glossary has not settled, and an invented word settles the same names. Whoever prints one of these falls back to what it printed before -- a row id, an empty label -- while its entry is still unwritten.",
  "icons": [
   {
+   "rowId": "IC-7",
+   "label": {
+    "ja": "コマンドパレット",
+    "en": "Command Palette"
+   },
+   "hint": {
+    "ja": "コマンドパレットを出す。もう一度押すとしまう",
+    "en": "Show the Command Palette; press again to hide it"
+   }
+  },
+  {
    "rowId": "IC-1",
    "label": {
     "ja": "開く",
@@ -65,17 +76,6 @@
    "hint": {
     "ja": "取り消した編集をやり直す",
     "en": "Redo the edit that was undone"
-   }
-  },
-  {
-   "rowId": "IC-7",
-   "label": {
-    "ja": "コマンドパレット",
-    "en": "Command Palette"
-   },
-   "hint": {
-    "ja": "コマンドパレットを出す。もう一度押すとしまう",
-    "en": "Show the Command Palette; press again to hide it"
    }
   },
   {

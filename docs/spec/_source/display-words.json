@@ -9,6 +9,17 @@
  ],
  "icons": [
   {
+   "rowId": "IC-7",
+   "label": {
+    "ja": "コマンドパレット",
+    "en": "Command Palette"
+   },
+   "hint": {
+    "ja": "コマンドパレットを出す。もう一度押すとしまう",
+    "en": "Show the Command Palette; press again to hide it"
+   }
+  },
+  {
    "rowId": "IC-1",
    "label": {
     "ja": "開く",
@@ -72,17 +83,6 @@
    "hint": {
     "ja": "取り消した編集をやり直す",
     "en": "Redo the edit that was undone"
-   }
-  },
-  {
-   "rowId": "IC-7",
-   "label": {
-    "ja": "コマンドパレット",
-    "en": "Command Palette"
-   },
-   "hint": {
-    "ja": "コマンドパレットを出す。もう一度押すとしまう",
-    "en": "Show the Command Palette; press again to hide it"
    }
   },
   {

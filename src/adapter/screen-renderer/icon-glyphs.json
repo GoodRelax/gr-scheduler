@@ -3,6 +3,82 @@
  "viewBox": "1 1.7 21.8 20.6",
  "glyphs": [
   {
+   "rowId": "IC-7",
+   "elements": [
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "3.5"
+      },
+      {
+       "name": "y",
+       "value": "3.5"
+      },
+      {
+       "name": "width",
+       "value": "17"
+      },
+      {
+       "name": "height",
+       "value": "17"
+      },
+      {
+       "name": "rx",
+       "value": "2.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "6.5"
+      },
+      {
+       "name": "y",
+       "value": "13.5"
+      },
+      {
+       "name": "width",
+       "value": "7.5"
+      },
+      {
+       "name": "height",
+       "value": "3.5"
+      },
+      {
+       "name": "rx",
+       "value": "1.75"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M16 6.5 L18.6 9.1 L16 11.7 L13.4 9.1 Z"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "rowId": "IC-1",
    "elements": [
     {
@@ -250,82 +326,6 @@
       {
        "name": "d",
        "value": "M15 6 L19 10 L15 14"
-      },
-      {
-       "name": "style",
-       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "rowId": "IC-7",
-   "elements": [
-    {
-     "tag": "rect",
-     "attributes": [
-      {
-       "name": "x",
-       "value": "3.5"
-      },
-      {
-       "name": "y",
-       "value": "3.5"
-      },
-      {
-       "name": "width",
-       "value": "17"
-      },
-      {
-       "name": "height",
-       "value": "17"
-      },
-      {
-       "name": "rx",
-       "value": "2.5"
-      },
-      {
-       "name": "style",
-       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
-      }
-     ]
-    },
-    {
-     "tag": "rect",
-     "attributes": [
-      {
-       "name": "x",
-       "value": "6.5"
-      },
-      {
-       "name": "y",
-       "value": "13.5"
-      },
-      {
-       "name": "width",
-       "value": "7.5"
-      },
-      {
-       "name": "height",
-       "value": "3.5"
-      },
-      {
-       "name": "rx",
-       "value": "1.75"
-      },
-      {
-       "name": "style",
-       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
-      }
-     ]
-    },
-    {
-     "tag": "path",
-     "attributes": [
-      {
-       "name": "d",
-       "value": "M16 6.5 L18.6 9.1 L16 11.7 L13.4 9.1 Z"
       },
       {
        "name": "style",
