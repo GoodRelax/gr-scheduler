@@ -2050,13 +2050,14 @@ const PLAN_ACTUAL_COLUMNS: readonly (keyof Task)[] = [
  * task as it stands -- which is also what keeps FR-006's 「片方だけが動く状態を
  * 作らない」.
  *
- * STOP -- ⛔ ONE ITEM OF TABLE T-016 HAS NO ROW OF TABLE T-108 TO BECOME.
- * `PR-18` (`milestone`) is written out to the exchange partner and the roster
- * holds no `setTaskMilestone`. Looked in table T-108, table T-016, table T-225
- * and FR-008. ⚠️ `PR-16` (the assignee) WAS the second of these and is not any
- * more: it is CM-40 / CM-44 / CM-45, and `commandsFromAssignee` below is where
- * it goes -- it never reaches this function, because that item is not a column
- * of `Task` and is dispatched on its row id instead.
+ * ⭐ EVERY ITEM OF TABLE T-016 THAT IS A COLUMN OF `Task` NOW HAS A ROW OF
+ * TABLE T-108 TO BECOME. ⚠️ The milestone truth value was the last one that did
+ * not, and CR-271 took its item off that table on the ground FR-029 states: an
+ * entrance that writes nothing. The column itself stays (AT-30 of the ERD, for
+ * the exchange partner), and nothing here writes it.
+ * ⚠️ `PR-16` (the assignee) is not dispatched here at all: it is CM-40 / CM-44 /
+ * CM-45, and `commandsFromAssignee` below is where it goes -- that item is not a
+ * column of `Task`, so it is dispatched on its row id instead.
  *
  * @purity pure
  */
@@ -2112,7 +2113,14 @@ function commandFromTaskColumn(
 
 /**
  * A value settled on a column of `TaskVisual` -- FR-007's colours and weight,
- * FR-083's shape, FR-078's glyph and FR-002's name placement.
+ * FR-078's glyph and FR-002's name placement.
+ *
+ * ⛔ NO ARM FOR THE SHAPE, and its absence is the rule rather than a gap.
+ * CR-271 took the shape item off table T-016 because FR-083 leaves the shape to
+ * the palette, and FR-029's note names that as the reason the item has no
+ * surface left that edits it as a value -- so a settled value can no longer
+ * reach this function naming that column, and an arm for it here would be an
+ * entrance no table opens.
  *
  * ⭐ CM-22 AND CM-23 ARE ONE ITEM WITH TWO ROWS. That pair places both colours
  * at once and resetting them to the theme is its own command, so a colour
@@ -2136,10 +2144,6 @@ function commandFromVisualColumn(
   const visual = schedule.taskVisuals.find((held) => held.taskUid === uid) ?? null
 
   switch (column) {
-    case 'shapeKind': {
-      const shapeKind = taskShapeKindOf(settledText(text) ?? '')
-      return shapeKind === null ? [] : [{ kind: 'setTaskVisualShapeKind', uid, shapeKind }]
-    }
     case 'milestoneGlyph': {
       const held = settledText(text)
       const glyph = held === null ? null : milestoneGlyphOf(held)
@@ -2277,15 +2281,39 @@ function resourceUidOfName(schedule: Schedule, name: string): number | null {
 }
 
 /**
+ * The `uid` a candidate of PR-16's chooser carries, where the settled value is
+ * one the roster still holds.
+ *
+ * ⭐ AS-9 (MUST) IS WHY THIS EXISTS: 「プロパティパネルで `uid` を選んだ」
+ * assigns to THAT `uid`, and the panel commits a candidate's value rather than
+ * the word it showed (`PropertyControl.choiceValues`). ⚠️ A `uid` the roster no
+ * longer holds answers `null` so that the settled value is read as a name
+ * instead -- the document may have lost the person between the frame that drew
+ * the chooser and the frame that collected the commit.
+ *
+ * ⚠️ ASKED BEFORE THE NAME IS, which is the order AS-9 forces: the chooser is
+ * the only surface that settles this item, and everything it commits is a uid.
+ * ⛔ It is asked of the ROSTER and not of the spelling alone, so a person whose
+ * NAME is a row of digits is still reachable through AS-7 / AS-8 unless somebody
+ * on the roster is numbered that.
+ *
+ * @purity pure
+ */
+function resourceUidOfChoice(schedule: Schedule, text: string): number | null {
+  const uid = Number(text)
+  if (!Number.isInteger(uid)) return null
+  return schedule.resources.some((one) => one.uid === uid) ? uid : null
+}
+
+/**
  * AS-3's 解除, for the one assignment it can name.
  *
  * ⛔ SEVERAL ASSIGNEES ARE LEFT ALONE, AND THAT IS A GAP RATHER THAN A RULING.
- * AS-3 (MUST) unassigns 「その割当」-- one of them -- and PR-16's control carries
- * one settled value with no way to say WHICH of several people it is about
- * (AS-6 (MUST NOT) keeps the uid that would say so off the screen). Looked in
- * table T-225 (AS-3 / AS-5 / AS-6 / AS-9), FR-008 and table T-016. Nothing is
- * written where the task holds more than one, rather than taking off a person
- * the settler did not name.
+ * AS-3 (MUST) unassigns 「その割当」-- one of them -- and the one-character
+ * signal it travels by names no person, so a task carrying several says nothing
+ * about WHICH. Looked in table T-225 (AS-3 / AS-5 / AS-6 / AS-9), FR-008 and
+ * table T-016. Nothing is written where the task holds more than one, rather
+ * than taking off a person the settler did not name.
  *
  * @purity pure
  */
@@ -2302,10 +2330,17 @@ function commandsFromUnassign(schedule: Schedule, taskUid: number): readonly Doc
 }
 
 /**
- * A name settled on PR-16, as the rows of table T-108 that put it in the
- * document.
+ * A `uid` or a name settled on PR-16, as the rows of table T-108 that put it in
+ * the document.
  *
- * ⭐ WHAT A NAME MEANS IS 割り当てる AND NEVER 置き換える. AS-7 (MUST) makes a
+ * ⭐ TWO SPELLINGS REACH HERE AND BOTH ARE THE SPECIFICATION'S. AS-9 (MUST)
+ * has the chooser commit the `uid` of the person it named, while AS-7 / AS-8 /
+ * AS-10 are all written about a NAME being received -- table T-225 keeps both
+ * doors, and AS-10 names 「受け取った名前または `uid`」 in as many words. The
+ * `uid` is asked first because the chooser is the only surface that settles this
+ * item today and it commits nothing else.
+ *
+ * ⭐ WHAT EITHER MEANS IS 割り当てる AND NEVER 置き換える. AS-7 (MUST) makes a
  * `Resource` of a name the roster does not hold 「から割り当てること」, AS-10
  * (MUST) forbids only a SECOND assignment of somebody already on the task, and
  * 解除 has a row and a signal of its own (AS-3) -- so nothing here takes a
@@ -2337,10 +2372,11 @@ function commandsFromAssignee(
   if (settled === null) return []
   if (settled === UNASSIGN_TOKEN) return commandsFromUnassign(schedule, taskUid)
 
-  const held = resourceUidOfName(schedule, settled)
+  const held = resourceUidOfChoice(schedule, settled) ?? resourceUidOfName(schedule, settled)
   if (held !== null) {
-    // AS-10 (MUST): a name already on this task adds nothing. Writing it anyway
-    // would be refused by CM-44 on FR-008's ban and throw the whole bundle away.
+    // AS-10 (MUST): a person already on this task adds nothing, whether they
+    // were named by uid or by name. Writing it anyway would be refused by CM-44
+    // on FR-008's ban and throw the whole bundle away.
     const already = schedule.assignments.some(
       (one) => one.taskUid === taskUid && one.resourceUid === held,
     )

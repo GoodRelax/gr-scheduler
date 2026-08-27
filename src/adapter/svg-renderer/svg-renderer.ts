@@ -672,24 +672,41 @@ function pictureId(seed: string): string {
   return (hash >>> 0).toString(36)
 }
 
-/** Which row of the Time Ruler's band prints what -- table T-006b's ⑤. */
-type RulerRow = 'year' | 'month' | 'week' | 'dayWeekday'
+/**
+ * Which row of the Time Ruler's band prints what -- table T-006b's ⑤.
+ *
+ * ⭐ `yearMonth` IS ONE ROW, not two stacked. FR-017 (MUST) has the year and
+ * the month share a single 段 printed as `YYYY-MM`, and `year` is kept beside
+ * it for the one step that shows no month at all.
+ */
+type RulerRow = 'year' | 'yearMonth' | 'week' | 'day' | 'weekday'
 
 /**
  * L-1 of table T-005a spells the four steps 年 → 年 ＋ 月 → 年 ＋ 月 ＋ 週 →
- * 年 ＋ 月 ＋ 日 ＋ 曜日.
+ * 年 ＋ 月 ＋ 日 ＋ 曜日, and FR-017 (MUST, 利用者の裁定 2026-08-27) says what
+ * each 段 of the band prints: the year and the month together in one 段, the
+ * week's first day's number, the day's number, and the weekday -- so the rows
+ * below are those four steps read through that sentence, one 段 per row.
  *
- * ⚠️ The last step is THREE rows in the band, not four: S-2's remark says
- * 段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）, so the day and the weekday share one
- * of table T-006b's ⑤. ⛔ The PoC splits them into four rows and grows the
- * band to fit -- the specification wins, and FR-017 (MUST) forbids the band's
- * height moving with the tier at all.
+ * ⛔ THE FOLD IS AT EVERY STEP THAT SHOWS BOTH, not only the last. FR-017
+ * (MUST NOT) forbids the year and the month standing in separate 段 and says
+ * the fold reaches every step where both are out: folding at one step and not
+ * at another makes the same pair change shape halfway through a zoom, and a
+ * reader cannot tell it is the same pair.
+ *
+ * ⚠️ THE NOTE THAT STOOD HERE WAS FALSE. It read S-2's remark as
+ * 「段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）」 and had the day and the weekday
+ * sharing one 段. The remark now reads （年 ＋ 月 / 日 / 曜日） and that sharing
+ * was withdrawn on 2026-08-27. ⭐ The count did not move: the last step stood
+ * in three 段 before and stands in three now, which is what lets FR-017's other
+ * MUST -- the band's height MUST NOT move with the step -- go on holding
+ * without the band growing.
  */
 const ROWS_OF_TIER: { readonly [tier in ScheduleLayout['tier']]: readonly RulerRow[] } = {
   year: ['year'],
-  yearMonth: ['year', 'month'],
-  yearMonthWeek: ['year', 'month', 'week'],
-  yearMonthDayWeekday: ['year', 'month', 'dayWeekday'],
+  yearMonth: ['yearMonth'],
+  yearMonthWeek: ['yearMonth', 'week'],
+  yearMonthDayWeekday: ['yearMonth', 'day', 'weekday'],
 }
 
 const MS_PER_DAY = 86400000
@@ -711,14 +728,35 @@ function weekdayOf(day: CalendarDay): number {
 }
 
 /**
+ * The `MM` of FR-017's `YYYY-MM`. ⭐ The width the month costs is what S-83 was
+ * derived from (table T-205's derivation reads the label as `2026-01`), so a
+ * month printed one digit wide at ten months of the year would make the label
+ * narrower than the threshold that admits it.
+ *
+ * @purity pure
+ */
+function twoDigits(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+/**
  * The days one row of the band puts a label on, left to right.
  *
- * ⛔ Only the day row is thinned, and the thinning is `tickStrideOf`'s (LF-1
- * of table T-221) -- FR-017 (MUST NOT) forbids thinning the year, month and
- * week rows, so those three walk their own unit and stop at the band's right
- * edge. ⚠️ The day row's stride is anchored on the day serial rather than on
+ * ⛔ Only the day and weekday rows take `tickStrideOf`'s number (LF-1 of table
+ * T-221) -- FR-017 (MUST NOT) forbids thinning any row, so the year, the
+ * year-and-month and the week rows walk their own calendar unit and stop at the
+ * band's right edge. ⚠️ The stride is anchored on the day serial rather than on
  * whichever day the left edge happens to fall on, or every label would jump
  * one place to the side each time the view is panned by a day.
+ *
+ * ⛔ LF-1 NAMES NO INTERVAL FOR THE WEEKDAY ROW. It gives one to the year row,
+ * the year-and-month row, the week row and the day row, and closes with a MUST
+ * NOT against any other interval; the weekday row is newer than that list and
+ * is not yet spelled out in it. ⭐ It ticks with the day row here because the
+ * two are one axis split across two 段 -- FR-017 (MUST) has the day's number
+ * and the weekday name the SAME day, so any other interval would print a
+ * weekday under a day it does not belong to. ⚠️ Nothing is invented: no
+ * interval of the weekday row's own is chosen, it is handed the day row's.
  *
  * @purity pure
  */
@@ -737,7 +775,7 @@ function ticksOfRow(
   let at: CalendarDay =
     row === 'year'
       ? { year: from.year, month: 1, day: 1 }
-      : row === 'month'
+      : row === 'yearMonth'
         ? { year: from.year, month: from.month, day: 1 }
         : row === 'week'
           ? dayOfSerial(firstSerial - ((weekdayOf(from) - weekStart + 7) % 7))
@@ -748,7 +786,7 @@ function ticksOfRow(
     at =
       row === 'year'
         ? { year: at.year + 1, month: 1, day: 1 }
-        : row === 'month'
+        : row === 'yearMonth'
           ? { year: at.month === 12 ? at.year + 1 : at.year, month: (at.month % 12) + 1, day: 1 }
           : dayOfSerial(serialOf(at) + (row === 'week' ? 7 : stride))
   }
@@ -757,10 +795,10 @@ function ticksOfRow(
 
 /**
  * FR-017's band, drawn. The band `regions.timeRuler` reserves is S-2 tall and
- * is where the year, month, week and day rows go; until this round nothing put
- * a glyph in it and nothing in `src/` read that member at all -- EP-2 of table
- * T-076 calls the Time Ruler a MUST for the export, and a schedule whose dates
- * cannot be read is not a schedule.
+ * is where the year-and-month, week, day and weekday rows go; until this round
+ * nothing put a glyph in it and nothing in `src/` read that member at all --
+ * EP-2 of table T-076 calls the Time Ruler a MUST for the export, and a
+ * schedule whose dates cannot be read is not a schedule.
  *
  * ⭐ The grain is `layout.tier`, which is what `rulerTierOf` already answered
  * for this frame, and the thinning is `tickStrideOf`. Neither is worked out a
@@ -768,10 +806,14 @@ function ticksOfRow(
  * either would part company with the layout the bars were placed by.
  *
  * ⭐ WHAT EACH ROW PRINTS IS NOW WRITTEN DOWN. FR-017 (MUST, 利用者の裁定
- * 2026-08-26) gives the year row the year's digits, the month row the MONTH'S
- * DIGITS -- ⛔ never a word, so that S-83 can be one value in both languages --
- * the week row the date its week begins on, and the day row the day's digits
- * AND the weekday. ⛔ The weekday is the only language-dependent thing in the
+ * 2026-08-27) gives the year-and-month row `YYYY-MM` -- ⛔ the month in DIGITS
+ * and never a word, so that S-83 can be one value in both languages -- the week
+ * row the number of the day its week begins on, the day row the day's number,
+ * and the weekday row the weekday. ⚠️ THE NOTE THAT STOOD HERE WAS FALSE. It
+ * gave the month a row of its own and had the day row print the day's digits
+ * AND the weekday; the ruling of 2026-08-27 folded the month into the year's
+ * row and gave the weekday a row of its own, so the day row now prints digits
+ * alone. ⛔ The weekday is the only language-dependent thing in the
  * picture, and it arrives as `weekdayWords` rather than being spelled here:
  * FR-038 (MUST) gives every printed word one dictionary and Chapter 6.2 gives
  * it one generated destination, neither of which is this file.
@@ -813,6 +855,13 @@ function rulerSvg(
   // ⛔ The band's height does NOT move with the tier (FR-017, MUST): the rows
   // share whatever S-2 gave the band, so a coarse tier gets taller rows rather
   // than a shorter band. S-2's own remark sizes the band for three of them.
+  // ⛔ HOW A TIER WITH FEWER THAN THREE ROWS SPENDS THAT HEIGHT IS NOWHERE
+  // STATED. FR-017 says only that the arrangement inside changes, and S-2's
+  // remark counts the 段 of the finest tier alone; since the fold of 2026-08-27
+  // that is open for three tiers rather than one. ⭐ An equal share is the one
+  // reading that needs no number of its own -- nothing is invented and no row
+  // is guessed at -- and it keeps every row the same height as its neighbours,
+  // which is what the finest tier does where the count IS stated.
   const rowHeight = band.height / rows.length
   const right = band.x + band.width
   const stride = tickStrideOf(layout, settings)
@@ -839,7 +888,7 @@ function rulerSvg(
     // row: it says S-2's band height does NOT include the pad, and that a row
     // keeps the height it already had, so the baseline's offset inside the
     // glyph box is the only term left to move.
-    // ⚠️ WITHOUT IT THE CLEARANCE IS NIL at the two tiers ROWS_OF_TIER gives
+    // ⚠️ WITHOUT IT THE CLEARANCE IS NIL at the tier ROWS_OF_TIER gives
     // three rows: the baseline sat on the rule that opens the next row, and on
     // the band's foot rule for the last one, at every fontScale of S-3.
     // ⛔ It is not closed by growing the band -- FR-017 (MUST) forbids the
@@ -872,21 +921,23 @@ function rulerSvg(
             ` stroke="${rule}" stroke-width="1"/>`,
         )
       }
-      // FR-017 (MUST): the day row prints the day's digits AND the weekday; the
-      // other three print one number each. ⚠️ The weekday is looked up by
+      // FR-017 (MUST): the year-and-month row prints `YYYY-MM`, the weekday row
+      // a weekday, and the other three a number each -- the year, the number of
+      // the day the week begins on, the day. ⚠️ The weekday is looked up by
       // `weekdayOf`'s number, which is AT-17's -- 0 for Sunday -- and
       // `weekdayWords` arrives in that same order, so no mapping stands here.
-      // ⛔ A weekday absent from the dictionary leaves the digits alone rather
-      // than printing a gap: FR-038's fallback for an unwritten word.
-      const weekday = row === 'dayWeekday' ? weekdayWords[weekdayOf(day)] : undefined
+      // ⛔ A weekday absent from the dictionary prints as nothing rather than
+      // as a substitute: FR-038's fallback for an unwritten word, and the row
+      // it leaves empty is still one of the band's 段, so the arrangement a
+      // reader sees does not change with the display language (FR-017 MUST).
       const label =
         row === 'year'
           ? String(day.year)
-          : row === 'month'
-            ? String(day.month)
-            : weekday === undefined || weekday === ''
-              ? String(day.day)
-              : `${day.day} ${weekday}`
+          : row === 'yearMonth'
+            ? `${day.year}-${twoDigits(day.month)}`
+            : row === 'weekday'
+              ? (weekdayWords[weekdayOf(day)] ?? '')
+              : String(day.day)
       out.push(
         `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
           ` font-size="${rounded(settings.rulerFont)}" fill="${ink}"` +

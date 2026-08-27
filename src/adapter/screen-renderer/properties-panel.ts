@@ -77,9 +77,15 @@
 // A control that is only a dropdown meets the 名簿から選ばせる half and leaves
 // the 部分一致の検索 half unmet, where no control at all left FR-006's own MUST
 // unmet as well -- which is why the earlier refusal to invent one is not kept.
-// ⛔ AS-9 IS ALSO STILL OPEN: choosing a `uid` needs the uid on the screen, and
-// AS-6 (MUST NOT) forbids that, so two people of one name cannot be told apart
-// here. AS-8's tie-break is what the write side resolves such a name to.
+// ⭐ AS-9 IS MET, AND THE READING THAT SAID IT COULD NOT BE WAS WRONG. This
+// note used to hold that choosing a `uid` needed the uid ON the screen, which
+// AS-6 (MUST NOT) forbids -- but AS-9's trigger is 「プロパティパネルで `uid`
+// を選んだ」 and its rule is 「その `uid` の `Resource` へ割り当て、担当者名は
+// 名簿から引き当てて示すこと」: CHOOSING and SHOWING are two acts, and AS-6
+// bans only the second. A candidate that carries the `uid` and shows the name
+// answers both (`PropertyControl.choiceValues`), so two people of one name are
+// two candidates here -- which AS-9 calls the only route there is, and which
+// MG-5 of table T-032 (MUST NOT) keeps the screen from folding.
 //
 // ⛔ AS-2's `-` DOES NOT REACH THIS PANEL'S VALUE. That row belongs to the
 // assignee LABEL, and AS-3 makes `-` the signal that CLEARS an assignment:
@@ -350,12 +356,10 @@ const PROPERTY_ITEMS: readonly PropertyItem[] = [
   { row: 'PR-2', heldBy: 'task', columns: ['notes'] },
   { row: 'PR-7', heldBy: 'task', columns: ['resume'] },
   { row: 'PR-8', heldBy: 'task', columns: ['resumeValid'] },
-  { row: 'PR-11', heldBy: 'taskVisual', columns: ['shapeKind'] },
   { row: 'PR-17', heldBy: 'taskVisual', columns: ['milestoneGlyph'] },
   { row: 'PR-12', heldBy: 'taskVisual', columns: ['strokeColor', 'fillColor', 'lineWeight'] },
   { row: 'PR-13', heldBy: 'taskVisual', columns: ['nameAnchor', 'nameAlign'] },
   { row: 'PR-14', heldBy: 'task', columns: ['fadeInDays', 'fadeOutDays'] },
-  { row: 'PR-18', heldBy: 'task', columns: ['milestone'] },
   { row: 'PR-15', heldBy: 'task', columns: ['wbsParentUid'] },
 ]
 
@@ -429,8 +433,10 @@ function textOfTaskColumn(task: Task, column: keyof Task): string {
 }
 
 /**
- * One name the panel shows for PR-16, carrying the uid AS-6 (MUST NOT) keeps off
- * the screen -- it is here only to order two people of the same name.
+ * One person the panel shows for PR-16: the name AS-6 (MUST) shows, beside the
+ * `uid` the same row (MUST NOT) lets a person be made to read. ⚠️ The uid orders
+ * two people of one name (AS-8) AND is what a candidate commits (AS-9); it never
+ * reaches a word on the screen.
  */
 interface Assignee {
   readonly name: string
@@ -483,17 +489,6 @@ function assigneeText(schedule: Schedule, taskUid: number): string {
 }
 
 /**
- * Two names in the order the specification puts assignees in, without the uid
- * `compareAssignees` needs -- one name stands for everyone who carries it.
- *
- * @purity pure
- */
-function compareNames(a: string, b: string): number {
-  if (a === b) return 0
-  return a < b ? -1 : 1
-}
-
-/**
  * The candidates AS-5 (MUST) has PR-16 choose from -- 名簿から選ばせる形.
  *
  * ⭐ THE ROSTER IS WALKED, NOT WRITTEN OUT, which is the shape `choicesOf`
@@ -501,11 +496,13 @@ function compareNames(a: string, b: string): number {
  * holds, so no list here can disagree with the document, and the paragraph under
  * table T-016 (MUST NOT) forbids a roster of choices to be stated a second time.
  *
- * ⚠️ ONE ENTRY PER NAME. AS-8 (MUST) admits several people of one name and (MUST
- * NOT) forbids merging them, while AS-6 (MUST NOT) keeps the uid off the screen
- * -- so a second entry spelled exactly like the first would be a candidate
- * nobody could tell from it. The name stands once, and AS-8's own tie-break --
- * the smaller uid -- is what the write side resolves it to.
+ * ⛔ ONE ENTRY PER PERSON, NEVER ONE PER NAME. AS-8 (MUST NOT) forbids two
+ * same-named people to be merged and MG-5 of table T-032 says the same thing
+ * pointing back at it, while AS-9 (MUST) calls this chooser the one place they
+ * can be told apart -- so folding the roster on the name would close the only
+ * route the specification gives. The two carry the same word and different
+ * values: AS-6 (MUST NOT) keeps the `uid` out of the word, and `choiceValues`
+ * is what carries it instead.
  * ⚠️ A resource with no name is left out for the reason `assigneeText` gives:
  * there is no name to show and AS-6 forbids the uid in its place.
  * ⛔ FR-059's work-resource filter is NOT borrowed, for the reason `assigneeText`
@@ -513,19 +510,19 @@ function compareNames(a: string, b: string): number {
  * surface that edits the assignment.
  * ⚠️ The order of two unlike names is by code unit, as it is in `assigneeText`:
  * no row fixes a collation, and a locale-dependent one would order the same
- * document differently on two machines.
+ * document differently on two machines. Two of one name stand smaller uid first,
+ * which is AS-8's own tie-break.
  *
  * @purity pure
  */
-function assigneeChoices(schedule: Schedule): readonly string[] {
-  // ⭐ A `Set` rather than a scan per resource: a description is built for every
-  // frame, and rule 05 of docs/development-rules forbids a linear search on that
-  // path (NFR-013).
-  const names = new Set<string>()
+function assigneeChoices(schedule: Schedule): readonly Assignee[] {
+  const people: Assignee[] = []
   for (const resource of schedule.resources) {
-    if (resource.name !== null) names.add(resource.name)
+    if (resource.name === null) continue
+    people.push({ name: resource.name, uid: resource.uid })
   }
-  return [...names].sort(compareNames)
+  people.sort(compareAssignees)
+  return people
 }
 
 // --------------------------------------------------------- the controls ----
@@ -688,7 +685,8 @@ function controlOf(
  *
  * ⭐ THE CONTROL STANDS EMPTY WHILE THE FIELD LISTS THE PEOPLE. A task may carry
  * several assignments, so the ROW's text is the several names joined and this
- * one control is where ONE name is settled. What a settled name does is
+ * one control is where ONE person is settled -- by the `uid` their candidate
+ * carries (AS-9), never by the word it shows. What a settled candidate does is
  * 割り当てる: AS-7 (MUST) creates the person and assigns, AS-10 (MUST) only
  * forbids a second assignment of someone already on the task, and no row of
  * table T-225 speaks of replacing -- 解除 has its own row and its own signal
@@ -705,11 +703,17 @@ function controlOf(
  * @purity pure
  */
 function assigneeControl(schedule: Schedule, taskUid: number): PropertyControl {
+  const people = assigneeChoices(schedule)
   return {
     key: { holder: 'task', uid: taskUid, column: 'uid' },
     kind: 'choice',
     text: '',
-    choices: assigneeChoices(schedule),
+    choices: people.map((person) => person.name),
+    // ⭐ AS-9 (MUST): what is chosen is the `uid`, and what is shown is the name
+    // the roster holds for it -- AS-6 (MUST NOT) forbids the second to be the
+    // first. ⚠️ Spelled the way every other value crosses this seam, as text:
+    // `FieldCommit.text` is one string whatever the control was.
+    choiceValues: people.map((person) => String(person.uid)),
     min: null,
     max: null,
   }

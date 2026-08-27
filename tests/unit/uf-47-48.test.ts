@@ -62,10 +62,11 @@ import {
   type CalendarDay,
   type Task,
 } from '../../src/entity/document-model/schedule/schedule'
-import type {
-  DisplayLanguage,
-  ScreenSurface,
-  ScreenView,
+import {
+  rulerWeekdayWords,
+  type DisplayLanguage,
+  type ScreenSurface,
+  type ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type {
   InputModifiers,
@@ -399,6 +400,35 @@ function drawnPoints(svg: string): { readonly x: number; readonly y: number }[] 
   }
   return points
 }
+
+/**
+ * Every word the picture prints, in the order it prints them.
+ *
+ * ⭐ The shape of one label is the neighbour's, not this file's guess:
+ * tests/unit/uf-32-ruler-band.test.ts reads a 目盛ラベル the same way, and it is
+ * the file that owns what the band draws.
+ */
+const labelsInOrder = (svg: string): readonly string[] =>
+  [...svg.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/g)].map((hit) => (hit[1] ?? '').trim())
+
+/**
+ * The same picture with every printed word taken out of it -- what is left is
+ * the part FR-038 says no language may reach.
+ */
+const withoutWords = (svg: string): string =>
+  svg.replace(/(<text\b[^>]*>)[\s\S]*?(<\/text>)/g, '$1$2')
+
+/**
+ * Which of a language's seven weekdays a printed label carries, or -1.
+ *
+ * ⚠️ CARRIES rather than IS: FR-038 (MUST NOT) forbids a weekday being written
+ * into a requirement or a table, so a case can only ask the dictionary for the
+ * roster; and how much of a 段 the word takes up is FR-017's rule and
+ * tests/unit/uf-32-ruler-band.test.ts's to drive. ⛔ An empty entry is skipped
+ * -- FR-038's fallback for a word not yet written matches every label.
+ */
+const weekdaySlotIn = (label: string, roster: readonly string[]): number =>
+  roster.findIndex((word) => word !== '' && label.includes(word))
 
 const day = (text: string): CalendarDay => {
   const parsed = dayOf(text)
@@ -884,6 +914,25 @@ const titlesOf = (view: ScreenView) => [
   ...view.rowTitlePanel.titles,
 ]
 
+/**
+ * The same two rows over one working week instead of twenty days.
+ *
+ * ⭐ FR-055 fits the drawn extent to the `Row Area`, so a short extent buys a
+ * large px/day -- and FR-017 judges the 段階 on px/day against 表 T-205 の
+ * `S-85`. ⚠️ WHY A CASE WOULD WANT THAT: the 曜日 has a 段 of its own only on
+ * the finest 段階, and it is the one thing in the picture FR-038 lets the
+ * display language reach. ⛔ The default twenty-day document is NOT a safe
+ * stand-in: at the width these cases drive, its fit lands close enough to
+ * `S-85` that the 段階 could fall either side of it.
+ */
+const shortDocument = () =>
+  twoRowDocument((draft) => {
+    draft.schedule.tasks[0].start = FIRST_START
+    draft.schedule.tasks[0].finish = '2026-04-03'
+    draft.schedule.tasks[1].start = '2026-04-02'
+    draft.schedule.tasks[1].finish = '2026-04-08'
+  })
+
 /** A document with no rows and no tasks -- the empty case SC-4 still has to draw for. */
 const emptyDocument = () =>
   twoRowDocument((draft) => {
@@ -1332,23 +1381,116 @@ describe('FR-038 -- the display language is the environment, not the document', 
     }
   })
 
-  it('GIVEN the language chosen for this session THEN the schedule itself is the same either way', () => {
-    // ⚠️ What the words ARE cannot be driven from here: table T-109 refuses an
-    // English column, so `_source/display-words.json` is empty (PD-160) and
-    // both languages print the same empty strings today. What CAN be driven is
-    // that the choice reaches neither the layout nor the geometry -- FR-038
-    // says the export carries no language ("日程表の出力に言語は含まれない").
+  it('GIVEN the language chosen for this session THEN it reaches the 曜日 and nothing else of the picture', () => {
+    // ⛔ THIS CASE USED TO DEMAND THE WHOLE PICTURE BE THE SAME STRING EITHER
+    // WAY, on a comment quoting FR-038 as 「日程表の出力に言語は含まれない」.
+    // ⚠️ NO SUCH SENTENCE IS IN docs/spec. What FR-038's RATIONALE says is the
+    // opposite of a picture with no words in it:
+    //
+    //   「⚠️ **日程表の出力のうち言語に依るのは、目盛の第 4 段の曜日だけである**
+    //     （`FR-017`）—— **どの語で刷ったかは文書に残らない。**」
+    //
+    // ⭐ So the promise has two halves and this case drives both: the 曜日 DOES
+    // follow the session's language, and it is the only thing in the picture
+    // that does. FR-017 (MUST) is where that 段 stands -- 「曜日の段は曜日」を
+    // 1 段に持つ -- and it hands the words themselves back to FR-038:「⭐ **曜日
+    // の語がどこに住むかは `FR-038` が持つ。**」, which Chapter 6.2 puts in one
+    // dictionary and PI-37 publishes as `rulerWeekdayWords`（「目盛の第 4 段が
+    // 刷る曜日 7 語。表示言語ごと」）.
+    //
+    // ⚠️ The words are NOT typed in here. FR-038 (MUST NOT):「要求にも表にも語
+    // そのものを書いてはならない」, so there is no row to read one from; what a
+    // case may do is ask PI-37 for the roster of each language and hold the
+    // picture against it. ⛔ The second half of the old comment -- that the
+    // dictionary is empty and both languages print the same empty strings --
+    // is false as well: PD-160 records 「2026-08-24 実測: 枠は 242、記入も 242」.
     const pane = host()
     const japanese = screenPane('ja')
     const english = screenPane('en')
 
-    const inJapanese = frameLoop(pane.surface, twoRowDocument(), SCREEN, japanese.wiring)
-    const drawnInJapanese = pane.drawn[0]
-    const inEnglish = frameLoop(pane.surface, twoRowDocument(), SCREEN, english.wiring)
+    // ⭐ The premise, asked of the dictionary rather than assumed: two languages
+    // that spelt a weekday alike would make every expectation below vacuous.
+    const inJa = rulerWeekdayWords('ja')
+    const inEn = rulerWeekdayWords('en')
+    // PI-37 of 表 T-064:「`rulerWeekdayWords`（目盛の第 4 段が刷る曜日 7 語。
+    // 表示言語ごと。`FR-017` ／ `FR-038`）」.
+    expect([inJa.length, inEn.length], 'PI-37: 曜日 7 語、表示言語ごと').toEqual([7, 7])
+    expect(
+      inJa.filter((word) => inEn.includes(word)),
+      'FR-038: 2 言語が同じ綴りの曜日を持つと、以下は何も測らない',
+    ).toEqual([])
 
-    expect(pane.drawn[1]).toBe(drawnInJapanese)
+    const inJapanese = frameLoop(pane.surface, shortDocument(), SCREEN, japanese.wiring)
+    const drawnInJapanese = pane.drawn[0] ?? ''
+    const inEnglish = frameLoop(pane.surface, shortDocument(), SCREEN, english.wiring)
+    const drawnInEnglish = pane.drawn[1] ?? ''
+
+    // ⭐ 「どの語で刷ったか」 is the ONLY thing that may differ, so the two
+    // pictures with every printed word taken out of them are one string: every
+    // rule, every rectangle, every attribute and the order they are written in.
+    expect(
+      withoutWords(drawnInEnglish),
+      'FR-038: 語のほかに言語で動くものは無い',
+    ).toBe(withoutWords(drawnInJapanese))
+
+    // ⭐ ...and neither the layout nor the regions carry the choice at all --
+    // 「文書に保存しない」 leaves nothing for them to be measured from.
     expect(inEnglish.current()!.layout).toEqual(inJapanese.current()!.layout)
     expect(inEnglish.current()!.regions).toEqual(inJapanese.current()!.regions)
+
+    // ⚠️ Which 段階 the picture is drawn on is not the language's either, and
+    // the case needs the finest one: FR-017 gives the 曜日 a 段 there and
+    // nowhere else. `shortDocument` is what buys it -- FR-055 fits an extent of
+    // one working week to the whole `Row Area`, and that px/day is far above
+    // 表 T-205 の `S-85`. (The equality just above covers the 段階 itself:
+    // `tier` is a member of the layout.)
+    const printedInJapanese = labelsInOrder(drawnInJapanese)
+    const printedInEnglish = labelsInOrder(drawnInEnglish)
+    expect(printedInEnglish.length, '同じ 段階 なので目盛ラベルの数は同じである').toBe(
+      printedInJapanese.length,
+    )
+
+    // ⭐ The language actually arrived: each picture carries the roster of the
+    // language its own screen was opened in, and none of the other's.
+    // ⚠️ CARRIES, not equals. Whether the 曜日 stands alone on a 段 of its own
+    // is FR-017's, and tests/unit/uf-32-ruler-band.test.ts is the file that
+    // drives it; measuring it a second time here would make one defect fail two
+    // files. What is UF-48's is which words got there.
+    for (const one of [
+      { language: 'ja', printed: printedInJapanese, own: inJa, other: inEn },
+      { language: 'en', printed: printedInEnglish, own: inEn, other: inJa },
+    ]) {
+      expect(
+        one.printed.filter((label) => weekdaySlotIn(label, one.own) >= 0).length,
+        `FR-017 / FR-038: ${one.language} の画面の第 4 段は ${one.language} の曜日を刷る`,
+      ).toBeGreaterThan(0)
+      expect(
+        one.printed.filter((label) => weekdaySlotIn(label, one.other) >= 0),
+        `FR-038 (MUST): 言語の状態は 1 つである -- ${one.language} の画面に他方の語は出ない`,
+      ).toEqual([])
+    }
+
+    // ⭐ And every label that moved is the SAME weekday in the other roster,
+    // with the rest of the label unchanged -- 「言語に依るのは…曜日だけである」
+    // read label by label.
+    const moved = printedInJapanese
+      .map((label, at) => ({ at, label, other: printedInEnglish[at] ?? '' }))
+      .filter((one) => one.label !== one.other)
+    for (const one of moved) {
+      const slot = weekdaySlotIn(one.label, inJa)
+      expect(
+        slot,
+        `FR-038: ${one.at} 番目のラベルが言語で動いた -- 曜日を含まねばならない`,
+      ).toBeGreaterThanOrEqual(0)
+      expect(
+        weekdaySlotIn(one.other, inEn),
+        `FR-038: ${one.at} 番目のラベルは、他方の言語では同じ曜日である`,
+      ).toBe(slot)
+      expect(
+        one.other.replace(inEn[slot] ?? '', '').trim(),
+        `FR-038: ${one.at} 番目のラベルは、曜日のほかは言語で動かない`,
+      ).toBe(one.label.replace(inJa[slot] ?? '', '').trim())
+    }
   })
 })
 

@@ -2250,9 +2250,19 @@ function controlElement(host: Document, row: string, control: PropertyControl): 
   if (control.kind === 'choice') {
     // ⛔ The empty spelling is offered only where the candidates hold it: a
     // column that admits no empty value must not be given one here.
-    for (const choice of control.choices ?? []) {
+    //
+    // ⭐ THE WORD AND THE VALUE ARE TWO THINGS. `choiceValues` carries what a
+    // candidate commits where that is not the word it shows -- AS-6 of table
+    // T-225 (MUST / MUST NOT) has PR-16 show a name and write a `uid` -- and the
+    // two are paired by position, which is what that member declares. ⚠️ A
+    // control that carries none is one whose words ARE its values, so the word
+    // stands in both places, which is what every other chooser here does.
+    const values = control.choiceValues ?? null
+    const choices = control.choices ?? []
+    for (let index = 0; index < choices.length; index += 1) {
+      const choice = choices[index] ?? ''
       const option = host.createElement('option')
-      option.setAttribute('value', choice)
+      option.setAttribute('value', values?.[index] ?? choice)
       option.textContent = choice
       drawn.append(option)
     }
@@ -2281,9 +2291,12 @@ function controlElement(host: Document, row: string, control: PropertyControl): 
  *
  * ⛔ A FIELD WITH NO CONTROL IS STILL WRITTEN OUT AS TEXT. `controls` is empty
  * where this side has none to offer -- the settings roster, FR-074's surface,
- * `PR-16`'s assignee and `PR-9`, which table T-016 marks read-only -- and each
- * of those has a note where it is built saying why. ⚠️ So the fallback below is
- * not a leftover: it is what a field looks like until its surface exists.
+ * and `PR-9`, which table T-016 marks read-only -- and each of those has a note
+ * where it is built saying why. ⚠️ So the fallback below is not a leftover: it
+ * is what a field looks like until its surface exists.
+ * ⚠️ `PR-16` WAS ON THAT LIST AND IS NOT ANY MORE: it carries a chooser, and
+ * `properties-panel.ts` records why the row's own text is drawn beside it rather
+ * than inside it.
  *
  * @purity non-pure
  */

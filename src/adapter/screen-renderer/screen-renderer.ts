@@ -572,13 +572,35 @@ export interface PropertyControl {
   /** The one column's value, written out the way `PropertyField.text` is. */
   readonly text: string
   /**
-   * What a `choice` control offers, `null` for every other kind.
+   * The WORDS a `choice` control offers, `null` for every other kind.
    *
-   * ⛔ Read from `COLUMN_SHAPES`, never written out: the paragraph under table
-   * T-016 (MUST NOT) forbids that table to hold them and names the schema as
-   * where they are.
+   * ⛔ Never written out here: the paragraph under table T-016 (MUST NOT)
+   * forbids that table to hold a roster of candidates, so an enumeration's
+   * candidates come from `COLUMN_SHAPES` and a roster that is the document's own
+   * (PR-15's tasks, PR-16's people) is walked off the document.
+   *
+   * ⚠️ WHAT IS SHOWN, WHICH IS NOT ALWAYS WHAT IS COMMITTED. AS-6 of table
+   * T-225 (MUST / MUST NOT) has the panel show a name and write a `uid`, so a
+   * candidate's word and a candidate's value are two things -- `choiceValues`
+   * carries the second where they differ.
    */
   readonly choices: readonly string[] | null
+  /**
+   * What each candidate of `choices` COMMITS, one per candidate and in the same
+   * order -- absent where every candidate commits the word it shows.
+   *
+   * ⭐ THIS IS AS-9 OF TABLE T-225 (MUST): 「プロパティパネルで `uid` を
+   * 選んだ」 assigns to THAT `uid`, while AS-6 (MUST NOT) forbids making a person
+   * read one -- so the value has to ride beside the word rather than inside it.
+   * ⚠️ AS-8 (MUST NOT) forbids two same-named people to be merged, and AS-9
+   * calls this panel the only place they can be told apart, so two candidates
+   * may legitimately show the same word while carrying different values.
+   *
+   * ⛔ ABSENT RATHER THAN `null` WHERE THERE IS NOTHING TO CARRY: a control
+   * whose words are its values says so by not answering the question, and every
+   * surface reads it as the words themselves.
+   */
+  readonly choiceValues?: readonly string[]
   /** A `number` control's bounds, where the schema states them. */
   readonly min: number | null
   readonly max: number | null
