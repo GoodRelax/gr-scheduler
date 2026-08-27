@@ -481,14 +481,56 @@ describe('UF-63 -- FR-004 / S-125: how deep a row sits', () => {
   })
 })
 
+// ---------------------------------------------------------------------------
+// ⛔ THE CASES BELOW WERE REWRITTEN ON 2026-08-27, AND FOUR OF THEM CHANGED
+// THEIR EXPECTED VALUE. What stood here read BOTH flags off "was this row drawn
+// this frame", which is the question neither control answers:
+//
+//   HF-2 (MUST) 「開く操作子は、その行の配下をすべて開くこと」 -- HR-3 of table
+//        T-015, 「選択した `TaskGroup` の配下をすべて開く」. The opening side
+//        therefore has work exactly where a row UNDER this one is folded, at
+//        whatever depth, and none where nothing under it is folded.
+//   HF-3 (MUST) 「閉じる操作子は、その行自身を畳むこと」 -- HR-5, 「選択した
+//        `TaskGroup` を閉じる」. The closing side therefore has work exactly
+//        where THIS row is not folded yet.
+//   HF-7 (MUST NOT) 「人が畳んだ状態は、表示量の増減（`FR-018`）より優先する。
+//        人の指定を倍率が上書きしてはならない」. The zoom never writes AT-56, so
+//        a row the group level of detail stopped drawing is still an OPEN row --
+//        the opening control has nothing to open there, and the closing control
+//        still has this row to fold, and HF-7 is what makes that fold survive
+//        the zoom that is currently hiding the children.
+//
+// ⚠️ HR-1a is not broken by reading AT-56 here. It governs what is DRAWN under a
+// folded row -- 「配下の行と、その行に載っている `Task` を描いてはならない」 -- and
+// this unit draws neither; the controls themselves are drawn only while the
+// pointer is on the row's name (HF-6), so they are not the resting picture the
+// MUST holds level.
+//
+// ⚠️ tests/unit/uf-30-31.test.ts already holds the other half of this seam and
+// was not touched: IC-58 asks for a write only where a DESCENDANT carries the
+// fold, and its case quotes HF-3 「畳んだ行は、1 つ上の行の開く操作子が開く」 and
+// HF-10 for why the pressed row is never itself opened.
+// ---------------------------------------------------------------------------
+
 describe('UF-63 -- table T-051: the two controls of the expander', () => {
   const kid = (id: string, part: Record<string, unknown> = {}): TaskGroup =>
     groupOf({ id, parentId: 'p', label: id, ...part })
 
+  /** A row deeper than a child, so "one level" and 配下 cannot answer alike. */
+  const under = (parentId: string, id: string, part: Record<string, unknown> = {}): TaskGroup =>
+    groupOf({ id, parentId, label: id, ...part })
+
   /** A parent with `children` under it; `drawnIds` is what the shell drew. */
-  const parentTitle = (children: readonly TaskGroup[], drawnIds: readonly string[]): RowTitle =>
+  const parentTitle = (
+    children: readonly TaskGroup[],
+    drawnIds: readonly string[],
+    part: Record<string, unknown> = {},
+  ): RowTitle =>
     titleOf(
-      panelOf(scheduleOf([groupOf({ id: 'p', label: 'parent' }), ...children]), drawn(...drawnIds)),
+      panelOf(
+        scheduleOf([groupOf({ id: 'p', label: 'parent', ...part }), ...children]),
+        drawn(...drawnIds),
+      ),
       'p',
     )
 
@@ -496,60 +538,128 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     expect(parentTitle([], ['p']).expander).toBeNull()
   })
 
-  it('offers only the closing control while everything below is open', () => {
-    // HF-3 closes ALL of what is below, so it is spent exactly when something
-    // below is drawn. HF-2 opens ONE level, so it has nothing to do here.
-    expect(parentTitle([kid('c1'), kid('c2')], ['p', 'c1', 'c2']).expander).toEqual({
+  it('offers only the closing control while nothing under the row is folded', () => {
+    // HF-3 folds THIS row, so it is spent while this row is open. HF-2 opens
+    // 配下, and nothing under this row carries a fold, so it has no work.
+    expect(
+      parentTitle(
+        [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
+        ['p', 'c1', 'c2'],
+      ).expander,
+    ).toEqual({
       canOpen: false,
       canClose: true,
     })
   })
 
-  it('offers only the opening control while nothing below is open', () => {
-    expect(parentTitle([kid('c1'), kid('c2')], ['p']).expander).toEqual({
-      canOpen: true,
-      canClose: false,
+  it('does not arm the opening control against the display amount (HF-7)', () => {
+    // The children are absent because the group level of detail stopped drawing
+    // them (FR-018), not because anyone folded them: AT-56 says `false` on both.
+    // HF-7 gives the person's fold priority over the display amount and forbids
+    // the zoom to overwrite what the person said, so the zoom never wrote AT-56
+    // -- and HR-3, which is all HF-2 does, would open nothing here.
+    //
+    // ⛔ THE CLOSING SIDE IS ARMED IN THE SAME BREATH. HF-3 folds this row, which
+    // is not folded yet, and HF-7 is what makes that fold outrank the zoom that
+    // is hiding the children at this moment.
+    expect(
+      parentTitle(
+        [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
+        ['p'],
+      ).expander,
+    ).toEqual({
+      canOpen: false,
+      canClose: true,
     })
   })
 
   it('offers both at once -- HF-1 is a pair, not one control in two states', () => {
-    // HF-2 opens one level and HF-3 closes all of them, so one of the pair can
-    // be spent while the other is not.
-    expect(parentTitle([kid('c1'), kid('c2')], ['p', 'c1']).expander).toEqual({
+    // HF-2 opens 配下 and HF-3 folds this row alone, so one of the pair can be
+    // spent while the other is not: `c1` carries a fold for the opening side,
+    // and `p` is open for the closing side.
+    expect(
+      parentTitle(
+        [kid('c1', { isCollapsed: true }), under('c1', 'g1')],
+        ['p', 'c1'],
+        { isCollapsed: false },
+      ).expander,
+    ).toEqual({
       canOpen: true,
       canClose: true,
     })
   })
 
-  it('reads what was drawn and not `isCollapsed` (HR-1a, MUST)', () => {
-    // HR-1a requires the picture of a hand-collapsed row and of a row the group
-    // level of detail collapsed to be the same one. The level of detail does
-    // not write AT-56, so reading AT-56 would tell those two apart on screen.
-    const open = ['p', 'c1']
-    const said = parentTitle([kid('c1', { isCollapsed: true })], open).expander
-    const silent = parentTitle([kid('c1', { isCollapsed: null })], open).expander
-    const denied = parentTitle([kid('c1', { isCollapsed: false })], open).expander
+  it('arms the opening control for a fold TWO levels down (HF-2 is HR-3)', () => {
+    // 「その行の配下をすべて開くこと（MUST）」 is every row under this one, however
+    // deep. ⚠️ 「1 段だけ開く」 was the rule until 2026-08-25, and HF-2 itself
+    // records that it was retired because nothing then re-opened what HF-3 had
+    // folded. A row whose own children are all drawn is therefore still openable
+    // while a GRANDCHILD carries the fold.
+    expect(
+      parentTitle(
+        [
+          kid('c1', { isCollapsed: false }),
+          under('c1', 'g1', { isCollapsed: true }),
+          under('g1', 'g1a'),
+        ],
+        ['p', 'c1', 'g1'],
+        { isCollapsed: false },
+      ).expander,
+    ).toEqual({
+      canOpen: true,
+      canClose: true,
+    })
+  })
 
-    expect(said).toEqual(silent)
-    expect(said).toEqual(denied)
+  it('spends both controls on a row that folded ITSELF (HF-3, HF-10)', () => {
+    // HF-3 pairs the two plainly: 「畳んだ行は、1 つ上の行の開く操作子が開く」 --
+    // a row's own opening control reaches 配下 and never the row. HF-10 exists
+    // ONLY because of that: 「最上位の行が自分を畳むと、それを開く操作子がどこにも
+    // 無くなる」, which is false the moment a row's own control opens itself.
+    //
+    // So a folded row with nothing folded under it has neither control armed,
+    // and HF-10's control at the top of the panel is the way back.
+    expect(
+      parentTitle([kid('c1', { isCollapsed: false })], ['p'], { isCollapsed: true }).expander,
+    ).toEqual({
+      canOpen: false,
+      canClose: false,
+    })
   })
 
   it('does not arm the opening control for a hidden child (HR-6)', () => {
     // HR-6 brings a hidden row back through the parent's hidden group tab, not
     // through the expander. Counting it would arm a control that does nothing.
-    expect(parentTitle([kid('c1', { isHidden: true })], ['p']).expander).toEqual({
+    // ⚠️ Both children below carry the SAME fold, so `isHidden` is the only
+    // thing that moves between the two answers.
+    expect(
+      parentTitle(
+        [kid('c1', { isHidden: true, isCollapsed: true }), under('c1', 'g1')],
+        ['p'],
+        { isCollapsed: false },
+      ).expander,
+    ).toEqual({
       canOpen: false,
       canClose: false,
     })
-    expect(parentTitle([kid('c1', { isHidden: false })], ['p']).expander).toEqual({
+    expect(
+      parentTitle(
+        [kid('c1', { isHidden: false, isCollapsed: true }), under('c1', 'g1')],
+        ['p'],
+        { isCollapsed: false },
+      ).expander,
+    ).toEqual({
       canOpen: true,
-      canClose: false,
+      canClose: true,
     })
   })
 
   it('still offers the closing control when a hidden sibling is the only one left out', () => {
     expect(
-      parentTitle([kid('c1'), kid('c2', { isHidden: true })], ['p', 'c1']).expander,
+      parentTitle(
+        [kid('c1', { isCollapsed: false }), kid('c2', { isHidden: true, isCollapsed: false })],
+        ['p', 'c1'],
+      ).expander,
     ).toEqual({ canOpen: false, canClose: true })
   })
 })

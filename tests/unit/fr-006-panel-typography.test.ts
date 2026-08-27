@@ -1104,16 +1104,21 @@ const EDITABLE_FIELDS: readonly PropertyField[] = [
     ],
   },
   {
-    row: 'PR-11',
-    name: 'shapeKind',
-    text: 'ShapeChoiceOne',
+    // ⚠️ THE 選択 ROW IS `PR-17`, and it is the one the table still carries:
+    // the shape item left table T-016 on 2026-08-27 because FR-029 forbids an
+    // entrance that answers nothing, and FR-083 leaves the shape to the
+    // palette. A field naming a row the table no longer holds would make this
+    // fixture read as the manuscript's when it is not.
+    row: 'PR-17',
+    name: 'milestoneGlyph',
+    text: 'GlyphChoiceOne',
     isEditable: true,
     controls: [
       controlOf({
-        key: { holder: 'taskVisual', uid: 1, column: 'shapeKind' },
+        key: { holder: 'taskVisual', uid: 1, column: 'milestoneGlyph' },
         kind: 'choice',
-        text: 'ShapeChoiceOne',
-        choices: ['ShapeChoiceOne', 'ShapeChoiceTwo'],
+        text: 'GlyphChoiceOne',
+        choices: ['GlyphChoiceOne', 'GlyphChoiceTwo'],
       }),
     ],
   },

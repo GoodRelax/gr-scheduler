@@ -22,11 +22,23 @@
 // keeps the order `rowBoxes` arrived in rather than sorting by `TaskGroup.order`
 // (AT-55): a second ordering would be a second answer to the same question.
 //
-// ⭐ WHY THE EXPANDER PAIR IS READ OFF THE DRAWN ROWS AND NOT OFF
-// `TaskGroup.isCollapsed` (AT-56). HR-1a makes the picture of a row a person
-// collapsed and of a row the group level of detail collapsed the same one
-// (MUST), and the level of detail does not write AT-56. Reading AT-56 would
-// tell those two apart on the screen and break that MUST.
+// ⭐ WHY THE EXPANDER PAIR IS READ OFF `TaskGroup.isCollapsed` (AT-56) AND NOT
+// OFF THE DRAWN ROWS. The pair's two controls write that column and nothing
+// else -- HF-2 of table T-051 sends the opening one to HR-3 of table T-015 and
+// HF-3 sends the closing one to HR-5 -- so what each half has left to do is a
+// question about AT-56, not about this frame. ⛔ The drawn rows answer a
+// DIFFERENT question: FR-018 stops drawing a row's children as the vertical
+// zoom falls WITHOUT writing AT-56, and HF-7 (MUST NOT) holds the two apart by
+// ranking the person's fold above that zoom. Asking the boxes therefore armed
+// the opening control on rows where HF-2 writes nothing and disarmed the
+// closing control on rows that HF-3 can still fold -- which is every row of a
+// document nobody has folded.
+// ⚠️ HR-1a's "the same picture as the group level of detail" (MUST) survives
+// this: HF-6 draws the controls only while the pointer is on the row's name, so
+// two rows folded by the two different means look the same at rest, and even
+// under the pointer the pair changes no pixel today -- dom-screen-surface.ts
+// puts the two flags on the DOM under their own names and dims neither half,
+// behind a STOP saying no row settles how a spent half is drawn.
 //
 // ⚠️ The counting FR-093 estimates a width in lives twice in `src/`: once here
 // and once in ScheduleLayout's LC-5. `_source/components.json` gives this
@@ -59,8 +71,25 @@ import type { RowExpander, RowTitle, RowTitlePanel, ScreenSession } from './scre
  */
 interface PanelIndex {
   readonly groupsById: ReadonlyMap<string, TaskGroup>
-  readonly childrenByParentId: ReadonlyMap<string, readonly TaskGroup[]>
+  /**
+   * The rows that are somebody's parent -- the rows HF-1 gives the pair of
+   * controls to, since it places them on a row that has something under it.
+   *
+   * ⚠️ A SET AND NOT THE CHILDREN THEMSELVES. Nothing here asks a child
+   * anything any more: the two flags read AT-56 (see `expanderOf`), so keeping
+   * an array per parent would build, every frame, a roster no one reads.
+   */
+  readonly groupIdsWithChildren: ReadonlySet<string>
   readonly boxByGroupId: ReadonlyMap<string, ScreenRect>
+  /**
+   * The rows with at least one folded row (AT-56) somewhere under them -- the
+   * exact set on which HF-2's opening control still has something to write,
+   * since HR-3 of table T-015 reaches everything below a row and not the row.
+   *
+   * ⚠️ Marked once for the frame rather than climbed per row: this runs every
+   * frame, and NFR-013 (MUST NOT) refuses an O(n^2) algorithm outright.
+   */
+  readonly groupIdsWithCollapsedBelow: ReadonlySet<string>
   /**
    * ⚠️ A map rather than a search of `Schedule.tasks` per row: this runs every
    * frame, and rule 05 of docs/development-rules/04-verification.md refuses a
@@ -239,39 +268,41 @@ function rowDepth(
  * (HR-5) -- so the two are judged apart and one can be spent while the other is
  * not.
  *
- * ⛔ `canOpen` STILL ANSWERS THE READING BOTH ROWS HAD BEFORE 2026-08-25, when
- * HF-2 opened one level: a row all of whose visible children are drawn answers
- * `false` here even where a GRANDCHILD is folded away, and HF-2 would now open
- * that grandchild. ⚠️ It is not a dead end -- the drawn child is itself
- * collapsed, so its own opening control reaches the grandchild -- and it is not
- * this unit's to settle alone: `RowExpander` in screen-renderer.ts spells
- * `canOpen` as "there is a level below that is not open" and repeats the old
- * reading of HF-2 / HF-3 above it, and Chapter 5.3 fixes that contract outside
- * this folder. ⛔ Both sides must move together, or the seam means two things.
+ * ⭐ BOTH HALVES ANSWER WHAT THEIR OPERATION WOULD WRITE, which is the only
+ * reading under which an armed half has something to do and a half with nothing
+ * to do is not armed. `canClose` is HF-3 folding THIS row, so it is spent
+ * exactly where AT-56 already says the row is folded. `canOpen` is HF-2
+ * unfolding every row UNDER this one and not the row itself, so it is spent
+ * exactly where no row under this one is folded.
  *
- * ⭐ `canClose` needed no change: HF-3 now collapses the row itself, and a row
- * is showing its children exactly when one of them was drawn this frame -- so
- * "something below is drawn" is still the answer to "collapsing does
- * something".
+ * ⛔ NEITHER HALF ASKS WHETHER THE CHILDREN WERE DRAWN, and the header of this
+ * file says why: FR-018 and HF-7 make "drawn" and "folded" two states, and only
+ * the second is the one these controls write.
  *
- * ⚠️ A hidden child is not counted as a level the opening control could reach:
- * HR-6 of table T-015 brings a hidden row back through the parent's hidden group
- * tab, so counting it would arm a control that does nothing.
+ * ⚠️ A HIDDEN ROW IS COUNTED. HR-6 of table T-015 hides a row and its
+ * descendants, but HF-2 unfolds them with the rest, so leaving them out would
+ * disarm a control whose press does write -- the same disagreement as above,
+ * facing the other way. ⛔ The note that stood here ruled them out on the
+ * ground that opening a hidden row draws nothing; what a press WRITES is the
+ * question, and HR-6 keeps the fold when it brings the row back.
+ *
+ * ⚠️ `RowExpander` in screen-renderer.ts still spells `canOpen` as "there is a
+ * level below that is not open" and `canClose` as "something below is open",
+ * and repeats above them the reading of HF-2 / HF-3 that stood before
+ * 2026-08-25. Chapter 5.3 fixes that contract outside this folder, so ⛔ both
+ * sides must move together, or the seam means two things.
  *
  * @purity pure
  */
 function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander | null {
-  const children = index.childrenByParentId.get(group.id)
-  if (children === undefined) return null
+  // HF-1 places the pair on a row that has something under it, and a row with
+  // no children at all carries neither half.
+  if (!index.groupIdsWithChildren.has(group.id)) return null
 
-  let canOpen = false
-  let canClose = false
-  for (const child of children) {
-    if (child.isHidden === true) continue
-    if (index.boxByGroupId.has(child.id)) canClose = true
-    else canOpen = true
+  return {
+    canOpen: index.groupIdsWithCollapsedBelow.has(group.id),
+    canClose: group.isCollapsed !== true,
   }
-  return { canOpen, canClose }
 }
 
 /**
@@ -374,14 +405,31 @@ function rowTitleOf(
 /** @purity pure */
 function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   const groupsById = new Map<string, TaskGroup>()
-  const childrenByParentId = new Map<string, TaskGroup[]>()
+  const groupIdsWithChildren = new Set<string>()
   for (const group of schedule.taskGroups) {
     groupsById.set(group.id, group)
-    const parentId = group.parentId
-    if (parentId === null) continue
-    const siblings = childrenByParentId.get(parentId)
-    if (siblings === undefined) childrenByParentId.set(parentId, [group])
-    else siblings.push(group)
+    if (group.parentId !== null) groupIdsWithChildren.add(group.parentId)
+  }
+
+  // HF-2's reach, marked upward from the folded rows instead of walked downward
+  // from each row: one pass over the document answers every row, where a walk
+  // per row would be quadratic in the number of rows, and NFR-013 (MUST NOT)
+  // refuses an O(n^2) algorithm outright.
+  //
+  // ⛔ THE SAME TEST IS THE MEMO AND THE RING GUARD. Stopping at a row already
+  // marked is safe because that row's own ancestors were marked when it was, and
+  // it is what keeps a ringed `parentId` from spinning here inside a frame --
+  // `schedule.ts` REPORTS such a ring (IV-18) rather than refusing the document,
+  // so this unit is handed one. The write side's own climb guards the same way.
+  const groupIdsWithCollapsedBelow = new Set<string>()
+  for (const group of schedule.taskGroups) {
+    if (group.isCollapsed !== true) continue
+    let ancestorId = group.parentId
+    while (ancestorId !== null && !groupIdsWithCollapsedBelow.has(ancestorId)) {
+      groupIdsWithCollapsedBelow.add(ancestorId)
+      const ancestor = groupsById.get(ancestorId)
+      ancestorId = ancestor === undefined ? null : ancestor.parentId
+    }
   }
 
   const boxByGroupId = new Map<string, ScreenRect>()
@@ -400,7 +448,13 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
     taskNameByUid.set(task.uid, task.name)
   }
 
-  return { groupsById, childrenByParentId, boxByGroupId, taskNameByUid }
+  return {
+    groupsById,
+    groupIdsWithChildren,
+    boxByGroupId,
+    groupIdsWithCollapsedBelow,
+    taskNameByUid,
+  }
 }
 
 /**

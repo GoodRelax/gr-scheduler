@@ -681,7 +681,6 @@ describe('table T-016 -- every item actually reaches the screen', () => {
       a: [{ deadline: '2026-03-05T00:00:00' }, {}, {}],
       b: [{ deadline: '2026-03-06T00:00:00' }, {}, {}],
     },
-    { row: 'PR-11', a: [{}, { shapeKind: 'chevron' }, {}], b: [{}, { shapeKind: 'arrow' }, {}] },
     {
       row: 'PR-17',
       a: [{}, { milestoneGlyph: 'hexagon' }, {}],
@@ -703,7 +702,6 @@ describe('table T-016 -- every item actually reaches the screen', () => {
       b: [{ fadeInDays: 2, fadeOutDays: 5 }, {}, {}],
     },
     { row: 'PR-15', a: [{ wbsParentUid: 11 }, {}, {}], b: [{ wbsParentUid: 12 }, {}, {}] },
-    { row: 'PR-18', a: [{ milestone: true }, {}, {}], b: [{ milestone: false }, {}, {}] },
     {
       row: 'PR-16',
       a: [{}, {}, { resources: [resourceOf(7, 'Ann')], assignments: [assignmentOf(90, 1, 7)] }],
@@ -711,12 +709,19 @@ describe('table T-016 -- every item actually reaches the screen', () => {
     },
   ]
 
-  it('tells two unlike values apart on every one of the eighteen rows', () => {
+  it('tells two unlike values apart on every row the table holds', () => {
     // ⚠️ COVERAGE, NOT ORDER. `APART` is this file's own fixture and its
     // sequence is nobody's rule; the table's PRINTED order is asserted where it
     // belongs, against the panel. Comparing the two sequences here would make
     // this fixture a second hand-written copy of the print order -- exactly the
     // copy that went stale when the table was reordered on 2026-08-26.
+    //
+    // ⛔ NO COUNT IS NAMED, in the title or here. This fixture has to name a
+    // stored column per row, so it cannot be read out of the manuscript the way
+    // `T_016` is; the roster it is held against can only be the table's own.
+    // ⚠️ A count in the title went stale the moment the table lost the shape
+    // item and the milestone truth value (2026-08-27) -- and a title that
+    // states the answer is a second copy of the table on top of the fixture.
     const sorted = (rows: readonly string[]): string[] => [...rows].sort()
     expect(sorted(APART.map((one) => one.row))).toEqual(sorted(T_016.map((item) => item.row)))
     for (const one of APART) {

@@ -1029,9 +1029,13 @@ describe('EditDocument (PI-9) -- CM-20 to CM-25, the TaskVisual group', () => {
     )
   })
 
-  it('SP-2 changes the shape inside SH-1 .. SH-4, and PR-18 leaves Task.milestone alone', () => {
-    // PR-18 (MUST): `TaskVisual.shapeKind` decides the drawing only. The boolean
-    // that goes to the exchange partner does not follow it.
+  it('SP-2 changes the shape inside SH-1 .. SH-4, and AT-30 leaves Task.milestone alone', () => {
+    // AT-30 of `_assets/fig-erd-detail.md`: 「⛔ **形を変えても本列は変わらな
+    // い。**」 -- `TaskVisual.shapeKind` decides the drawing only, and the
+    // boolean that goes to the exchange partner does not follow it.
+    // ⚠️ THE AUTHORITY MOVED ON 2026-08-27. This rule used to be read off the
+    // properties panel's own table; the panel dropped the truth value, so the
+    // column's own row in the ERD is where it lives now.
     const next = accepted(
       run(shaped('rectangle', false), {
         kind: 'setTaskVisualShapeKind',

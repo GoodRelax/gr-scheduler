@@ -993,6 +993,34 @@ DRAWN_FOR_THE_ARMED_ENTRANCE = [
     ' * could not be inside one either.',
 ]
 
+# ⛔ THE SAME THIRD SEAM, AND A FOURTH GROUND. S-143 is read by the unit that
+# draws with it, as S-138 and S-185 are -- ⚠️ but the closing sentence of the
+# entrance rows does NOT fit. EP-1 and EP-4 of table T-076 keep an ENTRANCE out
+# of an exported picture, and this row is no entrance: its own note in table
+# T-206 says the rule is a line rather than a word and not a shape either, so
+# it has no row of table T-109 and no shape of figure F-019. What keeps it out
+# of an export is EP-11, which draws no Command Palette at all.
+#
+# ⛔ AND THE UNIT IS NOT THE ONE THAT DESCRIBES THE PALETTE. UF-65 builds the
+# groups and says in its own note that the rule belongs to the drawing side,
+# which is DomScreenSurface in Framework -- and that side may not import
+# command-palette.ts, because it is not ScreenRenderer's public entry
+# (Chapter 5.3 MUST NOT, LR-2 of table T-061, enforced by
+# tools/check_layer_rules.py). ⚠️ Routed here for the round S-143 spent in
+# NOT_STORED_COMMAND_PALETTE_SIZES, where it was read by nobody and the
+# boundary FR-053 (MUST) asks for was drawn by nothing.
+DRAWN_INSIDE_THE_COMMAND_PALETTE = [
+    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
+    ' * setting and may not become one: table T-206 is where the',
+    ' * specification records that the document does not keep it. ⚠️ The',
+    ' * closing sentence of the entrance rows does NOT fit -- EP-1 and EP-4',
+    ' * of table T-076 keep an ENTRANCE out of an exported picture, and this',
+    ' * row is no entrance: table T-206 says of it that the boundary is a',
+    ' * line rather than a word and not a shape either, so it has no row of',
+    ' * table T-109 and no shape of figure F-019. ⭐ What keeps it out of an',
+    ' * export is EP-11, which draws no `Command Palette` at all.',
+]
+
 # ⛔ A FIFTH GROUND, AND THE ONLY ONE WHOSE PICTURE LEAVES THE TOOL. S-194 is
 # read by the unit that draws with it, as S-138, S-180 and S-185 are -- but all
 # three of their closing sentences say some form of "the export does not show
@@ -1074,7 +1102,16 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-93', 'S-137'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_IT_STANDS),
-    'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a', 'S-143'], READ_WHERE_IT_STANDS),
+    # ⛔ S-135a ALONE, AND S-143 IS NOT WITH IT ANY MORE. Both rows are the
+    # palette's, but the seam is not the same one: S-135a is a height UF-65
+    # carries on the description it builds, and S-143 is a line the DRAWING
+    # side lays between the groups -- see the paragraph above
+    # DRAWN_INSIDE_THE_COMMAND_PALETTE. ⚠️ While the two shared a constant,
+    # S-143 stood in a file that could not draw with it and that the drawing
+    # side may not import.
+    'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a'], READ_WHERE_IT_STANDS),
+    'NOT_STORED_PALETTE_GROUP_RULE_SIZES': (['S-143'],
+                                            DRAWN_INSIDE_THE_COMMAND_PALETTE),
     'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
@@ -1668,9 +1705,15 @@ TARGETS = [
     # ⭐ The colours, split by who paints what. The chrome and `color-scheme`
     # are the surface's alone (FR-041); the schedule's own colours belong to
     # whoever draws the picture.
+    # ⛔ NOT FOLDED INTO EITHER LINE ABOVE, though all three land here: one
+    # constant per consuming SUBJECT. S-138 and S-141 are the box every
+    # entrance keeps, S-185 is the rim that tells ONE entrance from the others,
+    # and S-143 is the line between two GROUPS of them -- a decoration nothing
+    # can point at, arm or be reported for.
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ARMED_ENTRY_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),

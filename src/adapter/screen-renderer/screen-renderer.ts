@@ -178,14 +178,24 @@ export interface CommandItem {
    * too -- its 構え column holds an em dash for every row of every other
    * surface. The entries the other builders describe carry `false`.
    *
-   * ⛔ WHAT THE COLUMN CANNOT TELL APART, WHICH IS NOT A CHOICE MADE HERE. The
-   * column names a ROW of table T-023b, and AR-2 stands against four entries
-   * (IC-23 .. IC-26) and AR-3 against eight (IC-27 .. IC-34) -- so arming one
-   * task shape marks all four, and one milestone glyph all eight. Table
-   * T-023b's rows are the KINDS of arm rather than the shapes, and the
-   * spellings `Armed` carries for a shape and a glyph are unsettled (CR-172),
-   * so no finer join exists to be made. ⚠️ `CommandPalette.armedText` is no
-   * finer either, for the same reason its own note gives.
+   * ⛔ THE COLUMN IS HALF THE JOIN, AND THE OTHER HALF IS DERIVED BESIDE IT.
+   * The column names a ROW of table T-023b, and AR-2 stands against four
+   * entries (IC-23 .. IC-26) and AR-3 against eight (IC-27 .. IC-34) -- so on
+   * that column alone, arming one task shape marks all four and one milestone
+   * glyph all eight, which is not the one entrance the MUST above asks for.
+   * ⭐ `icon-roster.json` carries `armsShape` as well: which shape of the kind
+   * an entrance arms, derived from table T-012 and from the spellings
+   * `_source/erd.json` settles for `TaskVisual.shapeKind` and
+   * `TaskVisual.milestoneGlyph`. UF-65 joins on the pair, so exactly one
+   * entrance is armed.
+   * ⚠️ WHAT USED TO STAND HERE SAID NO FINER JOIN EXISTED, on the ground that
+   * the spellings `Armed` carries for a shape and a glyph were unsettled
+   * (CR-172). ⛔ MEASURED FALSE 2026-08-27: all thirteen stand in
+   * `_source/erd.json`, and PD-291 records the ruling that one entrance and not
+   * a group of them is what is to be marked.
+   * ⚠️ `CommandPalette.armedText` IS still no finer, and that one is the
+   * table's own doing rather than a gap: the dictionary holds a word per ROW of
+   * table T-023b, and those rows are the kinds of arm.
    */
   readonly isArmed: boolean
   /**

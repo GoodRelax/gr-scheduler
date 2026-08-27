@@ -499,11 +499,12 @@ export type ShowPointerShape = (shape: PointerShape | null) => void
 type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>>
 
 /**
- * The four rows of table T-023d that are 「予定バーと実績バーの端点」.
+ * EVERY row of table T-023d that `itemAtPointer` can answer, and not a chosen
+ * few of them: the union is that answer's own `grab`, so it widens by itself
+ * when the table gains a row.
  *
- * ⚠️ The plan's two ends and the actual's two ends, and no other row: GR-1 and
- * GR-2 are the fade handles, GR-15 is a milestone's whole figure, and IN-2
- * names none of them.
+ * ⭐ THIS IS WHAT MAKES THE TWO CENSUSES BELOW COMPILE-CHECKED -- a `Record`
+ * keyed on this union cannot be written with a row left out.
  */
 type GrabbedArea = Grabbed['grab']
 
@@ -515,10 +516,12 @@ type GrabbedArea = Grabbed['grab']
  * `Record<GrabbedArea, ...>` makes a row added to table T-023d a compile error
  * that names itself, where the `ReadonlySet` this replaced let a new row
  * default silently into 「no shape」.
- * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row names four
- * places and no more; the fade handles, the progress marker, the resume icon,
- * the dummies, the labels, a dependency line, the boxes, the status line and
- * the palette band are all pressable and IN-2 gives none of them a shape. ⚠️ A
+ * ⛔ THE NULLS ARE IN-2's SILENCE AND NOT AN OVERSIGHT. That row names five
+ * cases and no more, of which only two are a row of this table -- the two bars'
+ * ends, and the task body together with a milestone's figure. The fade handles,
+ * the progress marker, the resume icon, the two dummies that stand on a task's
+ * days, the labels, a dependency line, the boxes, the status line and the
+ * palette band are all pressable and IN-2 gives none of them a shape. ⚠️ A
  * shape invented for one of them would be this build writing a requirement.
  */
 const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> = {
@@ -532,6 +535,12 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   // milestone has no plan ENDS for GR-3 / GR-4 to claim; GR-15 is its ACTUAL.
   'GR-12': 'grab',
   'GR-15': 'grab',
+  // ⚠️ GR-18 STANDS ON A MILESTONE'S FIGURE TOO, which is why it is not among
+  // the nulls with the other two dummies: its place cell is the figure of a
+  // milestone nobody has started -- the very place IN-2 names -- and its
+  // operation cell is a grab. GR-9 and GR-17 stand on a plan bar's days
+  // instead, and IN-2 names no shape there.
+  'GR-18': 'grab',
   'GR-1': null,
   'GR-2': null,
   'GR-7': null,
@@ -542,7 +551,6 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-14': null,
   'GR-16': null,
   'GR-17': null,
-  'GR-18': null,
 }
 
 /**
@@ -556,13 +564,17 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
  * `GR-15` / `GR-16`. All three add that 確定 still follows IN-1 of table T-028,
  * so a `true` here settles nothing and only draws.
  *
- * ⛔ TWO ROWS THE THIRD RULE NAMES ARE STILL FALSE, AND NOT BECAUSE THE RULE
- * EXEMPTS THEM: `GR-8` and `GR-14` have no release write at all -- their entry
- * in `commandFromGrab`'s closing census says what each is missing -- and
- * `previewOfHeldPress` draws by folding the write this gesture WOULD make, so a
- * `true` on a row with nothing to fold would cost a walk and paint the same
- * picture. ⚠️ They turn true in the same change that gives them their write,
- * and this note is what says so.
+ * ⛔ ONE ROW THE THIRD RULE NAMES IS STILL FALSE, AND NOT BECAUSE THE RULE
+ * EXEMPTS IT: `GR-8` now HAS its release write, and a `true` here would still
+ * paint the picture that stands. `previewOfHeldPress` draws by folding that
+ * write, and the write moves `resume` alone -- while LF-11 of table T-221 pins
+ * the resume icon to the marker and OC-4 of table T-038 puts it outside the
+ * marker again, and the marker itself hangs off the actual bar's end
+ * (`markerAnchorX` in `schedule-geometry.ts`). ⛔ SO NOTHING DRAWN HAS A
+ * POSITION DERIVED FROM `resume` AT ALL: the fold would happen, cost its walk,
+ * and the picture would not move. ⚠️ IT TURNS TRUE WHEN A ROW GIVES THE RESUME
+ * ICON A PLACE OF ITS OWN, and not before -- inventing one here would be this
+ * file writing a requirement (rule 03 section 1).
  * ⛔ THE REST ARE FALSE BECAUSE NO CLOSING RULE ASKS: `GR-7` is a press that
  * cycles rather than a drag, `GR-10` cannot arrive by a plain press at all, and
  * `GR-13` selects. Turning one on would be this file inventing a requirement
@@ -587,7 +599,10 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-10': false,
   'GR-12': true,
   'GR-13': false,
-  'GR-14': false,
+  // ⭐ EXACT IN PIXELS AND NOT QUANTISED TO THE DAY, alone among these: FR-019
+  // holds the comment box's body offset as a screen distance, so the fold moves
+  // the drawn body by the travel itself.
+  'GR-14': true,
   'GR-15': true,
   'GR-16': true,
   'GR-17': true,
@@ -2694,7 +2709,15 @@ export function frameLoop(
     }
     // BO-1, then BO-3, then BO-4, in the order table T-077 fixes (MUST).
     const regions = regionsFromScreen(environmentForRegions, withPanelShown)
-    const settings = viewSettings(document, withPanelShown, regions)
+    // ⛔ `held.document` AND NOT THE PREVIEW, ALONE AMONG THE FIVE READINGS
+    // AROUND IT. While no place is stored, OP-10 of table T-024a has this
+    // answer re-run FR-055's fit every frame, and the fit sizes the time axis
+    // from the widest content -- so a preview that lengthens a bar would shrink
+    // the axis under the hand that is dragging it, and table T-023d's closing
+    // rule (MUST) has the picture follow the POINTER. A picture whose axis
+    // moves with it cannot. ⭐ The layout below still reads the preview: the
+    // layout IS the picture, and the axis is what it is drawn against.
+    const settings = viewSettings(held.document, withPanelShown, regions)
     const layout = layoutFromSchedule(document.schedule, settings, regions)
     // ⭐ THE SAME `selection` THE RENDERER IS ABOUT TO BE HANDED, and for the
     // same requirement: FR-075 (MUST) puts the fade grab points on the selected
@@ -3498,8 +3521,8 @@ export function frameLoop(
     // screen surface answered for is on a part drawn OVER it.
     if (on !== null) return null
     // STOP -- ⛔ AND NONE FOR THE RULER, THE PANELS OR THE PADDING either. The
-    // `Schedule Canvas` is wider than the `Row Area`, and IN-2's four places are
-    // all inside the latter.
+    // `Schedule Canvas` is wider than the `Row Area`, and every place IN-2
+    // names is inside the latter.
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
     // STOP -- ⛔ PD-2 TURNS HIT TESTING OFF, and IN-2 names no shape for the
     // `Dual Cursor` mode, so nothing is invented for it.

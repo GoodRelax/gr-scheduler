@@ -125,10 +125,10 @@
 //      MK-5 (横スクロール) of table T-023. The other twelve rows are help
 //      content (FR-036), whose surface is not assembled yet.
 //   6. WHERE THE SEVEN `weekdays` ARE PRINTED. FR-017 (MUST) fixes what each
-//      ruler tier prints -- 「年の段は年の数字、月の段は月の数字、週の段はそ
-//      の週の始まりの日の数字、日の段は日の数字と曜日を 1 段に並べる」-- and
-//      sends the words themselves here: 「⭐ 曜日の語がどこに住むかは
-//      `FR-038` が持つ。」 ⛔ THE PLACE IS THE TIME RULER'S BAND, which is
+//      ruler tier prints -- 「年と月は 1 段に `YYYY-MM` で並べ、週の段はその週
+//      の始まりの日の数字、日の段は日の数字、曜日の段は曜日をそれぞれ 1 段に
+//      持つ」(利用者の裁定 2026-08-27) -- and sends the words themselves here:
+//      「⭐ 曜日の語がどこに住むかは `FR-038` が持つ。」 ⛔ THE PLACE IS THE TIME RULER'S BAND, which is
 //      UF-32's (`svg-renderer.ts`) and NOT one of UF-60 .. UF-69: `ScreenView`,
 //      the answer PI-37 of table T-064 hands out, carries no `Time Ruler` at
 //      all. ⭐ So this is a stronger omission than 2 and 3, not a weaker one --
@@ -261,10 +261,10 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // `panelHeadings` and `assignments`, and no row of docs/spec asks the two
   // files to agree on the order of their sections.
   arms: 'rowId',
-  // ⭐ THE SEVEN WEEKDAYS THE FOURTH RULER TIER PRINTS. FR-017 (MUST) puts a
-  // weekday beside the day number -- 「日の段は日の数字と曜日を 1 段に並べる」
-  // -- and leaves the words to FR-038: 「⭐ 曜日の語がどこに住むかは `FR-038`
-  // が持つ。」 ⛔ THERE IS NO TABLE TO KEY THEM BY, and that is deliberate:
+  // ⭐ THE SEVEN WEEKDAYS THE FOURTH RULER TIER PRINTS. FR-017 (MUST) gives
+  // the weekday a 段 of its own -- 「曜日の段は曜日」をそれぞれ 1 段に持つ
+  // (利用者の裁定 2026-08-27; it used to share the day's 段) -- and leaves the
+  // words to FR-038: 「⭐ 曜日の語がどこに住むかは `FR-038` が持つ。」 ⛔ THERE IS NO TABLE TO KEY THEM BY, and that is deliberate:
   // Chapter 6.2 (MUST NOT) forbids printing the words into a table of the
   // specification 「空の欄が並ぶだけで、規則を 1 つも述べない表になる」, and a
   // seven-row table of weekdays would be exactly that (version 1.19 of the
@@ -977,9 +977,10 @@ for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'notic
 
 // -- weekdays: the fourth ruler tier, which PI-37 does not hand out at all
 
-// FR-017 (MUST) fixes what each tier of the ruler prints and puts the weekday
-// on the day tier: 「日の段は日の数字と曜日を 1 段に並べる」, with the words
-// left to this dictionary -- 「⭐ 曜日の語がどこに住むかは `FR-038` が持つ。」
+// FR-017 (MUST) fixes what each tier of the ruler prints and gives the weekday
+// a 段 of its own on the fourth: 「曜日の段は曜日」をそれぞれ 1 段に持つ, with
+// the words left to this dictionary -- 「⭐ 曜日の語がどこに住むかは `FR-038`
+// が持つ。」
 // ⛔ THE BAND IS UF-32'S (`svg-renderer.ts`, table T-075), and `ScreenView` --
 // the whole of what PI-37 of table T-064 hands out -- carries no `Time Ruler`
 // member for any tier to print into. ⭐ So this is not the omission the six
@@ -1366,7 +1367,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
     )
   })
 
-  it('FR-017 (MUST) prints a weekday beside the day number -> AT-17 s cell and the roster are read -> the seven stand in AT-17 s order, each with a word in each language', () => {
+  it('FR-017 (MUST) gives the weekday a 段 of its own -> AT-17 s cell and the roster are read -> the seven stand in AT-17 s order, each with a word in each language', () => {
     // ⭐ THE ONE CLAIM THIS FILE CAN MAKE ABOUT THE `weekdays` SECTION, and the
     // reason omission 6 of the head comment is not the whole answer. Where the
     // words are printed is UF-32's band, which PI-37 does not hand out -- but
@@ -1391,7 +1392,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
       'AT-17 of table T-058: 0 is Sunday and it rises by one to 6 for Saturday, and Project.weekStartDay is stored against that numbering',
     ).toEqual(AT_17_ORDER)
 
-    // FR-017 (MUST): the day tier prints 日の数字と曜日. ⛔ An empty cell here
+    // FR-017 (MUST): the fourth tier holds a 段 that prints 曜日. ⛔ An empty cell here
     // leaves that MUST unmet the way FR-032's mark does -- a weekday with no
     // word prints no weekday -- and NOT the way PD-160 leaves a label to the
     // user, which the fallback group is for. ⚠️ Held against the MANUSCRIPT,
@@ -1400,7 +1401,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
     const seven = MANUSCRIPT_CELLS.filter((cell) => cell.section === 'weekdays')
     expect(
       seven.filter((cell) => cell.word === '').map((cell) => `${cell.key}.${cell.field}.${cell.language}`),
-      'FR-017 (MUST): the day tier prints a weekday beside the day number, and an empty cell prints none',
+      'FR-017 (MUST): the fourth tier holds a 段 of weekdays, and an empty cell prints none',
     ).toEqual([])
     expect(
       seven.length,

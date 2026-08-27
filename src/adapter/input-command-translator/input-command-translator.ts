@@ -3480,6 +3480,34 @@ function commandFromGrab(
     return day === null ? CONSUMED_ELSEWHERE : changed([{ kind: 'setStatusDate', date: textOfDay(day) }])
   }
 
+  if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
+    // Table T-023d GR-14, the MOVE half of its operation. ⭐ THE TRAVEL IS
+    // ADDED AS IT STANDS AND NOT THROUGH THE DAY AXIS: FR-019 holds this one
+    // distance in SCREEN pixels so that a zoom does not change how far the body
+    // sits from what it is pinned to, and CM-51 says the same from the other
+    // side -- the value arrives as what it will be drawn as.
+    // ⭐ THE ANCHOR IS LEFT ALONE. GR-14's row moves the box, and FR-019 gives
+    // the offset the whole of that distance; writing the anchor as well would
+    // move the same picture twice.
+    // ⭐ FOUND WITH A LOOKUP HERE RATHER THAN THROUGH A NEW MEMBER of
+    // `schedule.ts`: PI-1 of table T-064 is the full count of what that unit
+    // publishes, and one read this file needs once does not earn a row on it.
+    // @provisional PD-316
+    const box = context.document.schedule.commentBoxes.find((one) => one.id === item.id)
+    // ⚠️ The box is gone from under the press. ⛔ Still this tool's press: MK-10
+    // keeps the browser out from under a grab it took.
+    if (box === undefined) return CONSUMED_ELSEWHERE
+    const stood = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
+    return changed([
+      {
+        kind: 'setCommentBoxBodyOffsetPx',
+        id: item.id,
+        dx: stood.dx + (release.x - press.at.x),
+        dy: stood.dy + (release.y - press.at.y),
+      },
+    ])
+  }
+
   if (item.kind !== 'task') return CONSUMED_ELSEWHERE
 
   const uid = item.taskUid
@@ -3636,20 +3664,65 @@ function commandFromGrab(
       }
       return changed(commands)
     }
+    case 'GR-8': {
+      // Table T-023d GR-8 gives this grab `resume` and sends the rule to
+      // FR-044, whose STATEMENT has the author place the resume date on the
+      // screen and move it after it has been placed.
+      //
+      // ⛔ THE DROPPED DAY IS NOT MOVED TO A WORKING ONE. The rule under table
+      // T-023d forbids it outright (MUST NOT) -- people work on days off, and
+      // moving it would store a day other than the one the hand chose. This is
+      // the same reading `actualEndPlacement` takes of that rule.
+      //
+      // ⭐ NOTHING ABOUT `resumeValid` IS DECIDED HERE. FR-044 (MUST) pairs a
+      // placed resume date with `resumeValid` true, and PA-3 of table T-019 is
+      // the row that holds exactly that pair -- `edit-task.ts` writes it. A
+      // second answer here would be the same rule in two places.
+      //
+      // ⚠️ THE OTHER COLUMNS ARE CARRIED, NOT RECOMPUTED, for the reason
+      // `actualEndPlacement` gives on GR-6's `actualFinish`: CM-13 places a
+      // whole row of table T-019 while this row of table T-023d moves one
+      // column, so taking any other value from the drag would be a second
+      // entrance to a column no row gives this grab.
+      const task = taskByUid(context.document.schedule, uid)
+      const dropped = dayAtX(context.layout, release.x)
+      if (task === null || dropped === null) return CONSUMED_ELSEWHERE
+      // ⚠️ A suspension carrying no actual leaves PA-3's row unwritable -- the
+      // same arm `actualEndPlacement` takes where the columns it must carry are
+      // not there. ⛔ Still this tool's press: MK-10 keeps the browser out from
+      // under a grab it took. @provisional PD-318
+      if (task.actualStart === null || task.actualDuration === null) return CONSUMED_ELSEWHERE
+      return changed([
+        {
+          kind: 'setTaskPlanActualState',
+          uid,
+          place: {
+            row: 'PA-3',
+            actualStart: task.actualStart,
+            actualDuration: task.actualDuration,
+            resume: textOfDay(dropped),
+          },
+        },
+      ])
+    }
     default:
       // STOP -- ⛔ THE REMAINING ROWS OF TABLE T-023d ARE NOT WRITTEN, and each
       // is missing something different rather than being an oversight:
-      //   GR-8         `resume`, whose rule is FR-044 and whose valid / invalid
-      //                pair (AT-38) has no row saying which a drag produces.
-      //   GR-11 / GR-13 / GR-14  no target exists to be grabbed:
-      //                `item-hit-area.ts` records GR-11 and the comment-box
-      //                half of GR-14 as undrawn, and a dependency (GR-13) or a
-      //                highlight box (GR-14) is SELECTED by a press rather than
-      //                changed by one.
+      //   GR-11        the assignee label is not drawn, so no press can arrive
+      //                as this row: `item-hit-area.ts` records the gap where
+      //                table T-023d prints the row, and says the row comes in
+      //                double-click-only when the label does.
+      //   GR-13        a dependency is SELECTED by a press rather than changed
+      //                by one, which is the whole of its operation column.
       //   GR-10        cannot arrive by a plain press at all: table T-023d's
       //                closing rule (MUST NOT) takes it out of that reading, so
       //                `item-hit-area.ts` never answers it here. Its double
       //                click is answered before the switch.
+      //   GR-14        the HIGHLIGHT BOX half only. Its comment box is written
+      //                above the switch; the resize half of GR-14's operation
+      //                names the body, the anchor and the four corners, and no
+      //                table gives the anchor or a corner a size -- so nothing
+      //                here can tell which of the three a press took.
       // ⚠️ GR-1 AND GR-2 WERE ON THIS LIST AND ARE NOT ANY MORE, and nothing in
       // the specification moved -- the note said the geometry of a pulled corner
       // was in no table of the specification, while table T-023d's closing rule
@@ -3672,7 +3745,19 @@ function commandFromGrab(
       // `schedule.ts` (PI-1) and the rule under table T-023d now forbids the
       // dropped day to be moved to a working one at all (MUST NOT), so neither
       // is missing. See `actualEndPlacement`.
-      // Searched: table T-023d, FR-011, FR-013, FR-043, FR-044, FR-045, FR-046,
+      // ⚠️ GR-8 WAS ON THIS LIST AND IS NOT ANY MORE, and nothing in the
+      // specification moved -- the note was FALSE where it stood. It said no
+      // row states which of the valid / invalid pair a drag produces, and
+      // FR-044 states it in as many words (MUST): placing a resume date sets
+      // `resumeValid` true. PA-3 of table T-019 is the row that carries the
+      // pair and `edit-task.ts` already writes it. See the case above.
+      // ⚠️ THE COMMENT BOX HALF OF GR-14 WAS ON THIS LIST AND IS NOT ANY MORE,
+      // and nothing in the specification moved -- that note was FALSE too. It
+      // said `item-hit-area.ts` records the comment box as undrawn, and that
+      // file answers GR-14 on one: the geometry builds the body, the hit test
+      // claims it, and CM-51 was already published to carry the distance. Only
+      // the write was missing. See the branch above the switch.
+      // Searched: table T-023d, FR-011, FR-013, FR-019, FR-043, FR-044, FR-045, FR-046,
       // table T-206, `edit-task.ts`, `edit-annotation.ts`.
       return CONSUMED_ELSEWHERE
   }

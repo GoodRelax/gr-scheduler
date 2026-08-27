@@ -22,6 +22,16 @@ carries. ⚠️ The Japanese it does copy -- the group column and the "what it i
 an entry to" column -- is the manuscript's own wording rather than a
 translation invented here, which is why it may travel as data.
 
+⭐ Two more manuscripts are read, and only for the one field table T-109 cannot
+carry on its own. Its arm column names a KIND of arm (table T-023b), so AR-2
+stands against four entries and AR-3 against eight; FR-053 (MUST) asks for THE
+armed entrance to be told from the ones that are not, which needs the shape or
+the glyph as well as the kind. `docs/spec/01-04-requirements.md` holds table
+T-012, whose rows table T-109 names for the four task shapes and whose SH-5
+prints the eight milestone marks, and `docs/spec/_source/erd.json` holds the
+spellings of both -- section 8 of the glossary sends the eight there in as many
+words. ⛔ No spelling is minted here either.
+
 Run with PYTHONIOENCODING=utf-8.
 """
 import io
@@ -33,14 +43,33 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 GLOSSARY = os.path.join(ROOT, 'docs', 'spec', '_assets', 'tbl-glossary.md')
+REQUIREMENTS = os.path.join(ROOT, 'docs', 'spec', '01-04-requirements.md')
+ERD = os.path.join(ROOT, 'docs', 'spec', '_source', 'erd.json')
 OUT = os.path.join(ROOT, 'src', 'adapter', 'screen-renderer', 'icon-roster.json')
 
 REL_GLOSSARY = 'docs/spec/_assets/tbl-glossary.md'
+REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
+REL_ERD = 'docs/spec/_source/erd.json'
 REL_OUT = 'src/adapter/screen-renderer/icon-roster.json'
 REL_SELF = 'tools/generate_icon_roster.py'
 
 ICON_TABLE = 'T-109'
 SURFACE_TABLE = 'T-103'
+SHAPE_TABLE = 'T-012'
+
+# The two rows of table T-023b that stand against MORE THAN ONE entrance, and
+# the columns of `TaskVisual` whose spellings tell those entrances apart.
+# ⛔ AR-4, AR-5 and AR-6 are absent on purpose: each stands against exactly one
+# row of table T-109, so there is nothing to tell apart and `armsShape` is null.
+# ⭐ SH-5 is named because its cell is where the eight milestone marks are
+# printed -- the four task shapes are reached by the row each entry names for
+# itself, so no row id of theirs is written down.
+TASK_SHAPE_ARM = 'AR-2'
+MILESTONE_SHAPE_ARM = 'AR-3'
+SHAPE_ENTITY = 'TaskVisual'
+SHAPE_COLUMN = 'shapeKind'
+GLYPH_COLUMN = 'milestoneGlyph'
+MILESTONE_SHAPE_ROW = 'SH-5'
 
 # ⭐ The two tables are found by the shape of their row ids rather than by
 # their captions, which keeps the needles ASCII. The caption is then checked
@@ -48,6 +77,7 @@ SURFACE_TABLE = 'T-103'
 # being read as the wrong one.
 ICON_ROW = re.compile(r'^\| (IC-\d+[a-z]?) \|')
 SURFACE_ROW = re.compile(r'^\| (U-\d+[a-z]?) \|')
+SHAPE_ROW = re.compile(r'^\| (SH-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 # ⚠️ The one Japanese needle in this script, and rule 03 section 5 allows it
@@ -71,6 +101,15 @@ FIELDS = ('rowId', 'surfaces', 'group', 'entryTo', 'authority', 'arms')
 # what is armed at all. ⚠️ An entry that arms nothing writes the em dash,
 # and becomes None here the way `group` already does.
 
+# ⭐ `armsShape` IS THE SEVENTH FIELD AND IS NOT A COLUMN, which is why it is
+# absent from FIELDS: table T-109 has six columns and `columns` below is that
+# header. It is DERIVED, by `fill_arms_shape`, and it exists because the arm
+# column names a KIND of arm rather than an entrance -- AR-2 stands against
+# four rows and AR-3 against eight, so a join on the column alone marks four
+# entrances (or eight) as armed where FR-053 (MUST) asks for the armed
+# entrance to be told apart from the ones that are not.
+ARMS_SHAPE_FIELD = 'armsShape'
+
 # Table T-109 writes an em dash in the group column for a row that belongs to
 # no group. ⭐ JSON has a word for absent, so the roster uses it, the way
 # tools/generate_unit_tree.py turns the same dash into a purity of 'n/a'.
@@ -81,7 +120,12 @@ BANNER = (
     'of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on '
     'drift. The generator is %s. An icon is carried by its row id alone: table '
     '%s deliberately has no English column and no shape column, and the shapes '
-    'are figure F-019.' % (REL_GLOSSARY, ICON_TABLE, REL_SELF, ICON_TABLE))
+    'are figure F-019. The `columns` map names the SIX columns of that table; '
+    '`%s` is a seventh field and no column of it -- it is derived from table '
+    '%s of %s and from %s, and it exists because the arm column names a KIND '
+    'of arm that stands against several entries at once.'
+    % (REL_GLOSSARY, ICON_TABLE, REL_SELF, ICON_TABLE, ARMS_SHAPE_FIELD,
+       SHAPE_TABLE, REL_REQUIREMENTS, REL_ERD))
 
 
 def cells(line):
@@ -96,13 +140,13 @@ def code_spans(cell):
     return CODE_SPAN.findall(cell)
 
 
-def read_lines():
-    """The glossary, line by line."""
+def read_lines(path):
+    """One manuscript, line by line."""
     # @purity semi-pure-b
-    return io.open(GLOSSARY, encoding='utf-8').read().split('\n')
+    return io.open(path, encoding='utf-8').read().split('\n')
 
 
-def table_rows(lines, row_pattern, table_id):
+def table_rows(lines, row_pattern, table_id, rel_path):
     """The header, the body rows and the caption line of one table.
 
     Fails when the table is absent, when its rows are not one unbroken run, or
@@ -113,26 +157,30 @@ def table_rows(lines, row_pattern, table_id):
     body = [i for i, line in enumerate(lines) if row_pattern.match(line)]
     if not body:
         sys.exit('generate_icon_roster: %s holds no row of table %s'
-                 % (REL_GLOSSARY, table_id))
+                 % (rel_path, table_id))
     first, last = body[0], body[-1]
     if body != list(range(first, last + 1)):
         sys.exit('generate_icon_roster: the rows of table %s do not form one '
-                 'run of lines in %s' % (table_id, REL_GLOSSARY))
+                 'run of lines in %s' % (table_id, rel_path))
     if first < 3:
         sys.exit('generate_icon_roster: table %s starts at line %d of %s, with '
                  'no room above it for a header and a caption'
-                 % (table_id, first + 1, REL_GLOSSARY))
-    ruler = set(lines[first - 1].replace('|', '').replace(' ', ''))
+                 % (table_id, first + 1, rel_path))
+    # ⚠️ A colon is Markdown's alignment marker, not part of what makes the
+    # line a ruler: table T-012 centres one of its columns and the tables of
+    # the glossary centre none, so a check that refused one would read the two
+    # manuscripts by different rules.
+    ruler = set(lines[first - 1].replace('|', '').replace(' ', '').replace(':', ''))
     if ruler != set('-'):
         sys.exit('generate_icon_roster: table %s has no header ruler above its '
-                 'first row in %s' % (table_id, REL_GLOSSARY))
+                 'first row in %s' % (table_id, rel_path))
     caption = first - 3
     while caption > 0 and not lines[caption].strip():
         caption -= 1
     if table_id not in lines[caption]:
         sys.exit('generate_icon_roster: the rows that look like table %s sit '
                  'under a caption that does not name it (line %d of %s)'
-                 % (table_id, caption + 1, REL_GLOSSARY))
+                 % (table_id, caption + 1, rel_path))
     header = cells(lines[first - 2])
     rows = []
     for i in body:
@@ -140,7 +188,7 @@ def table_rows(lines, row_pattern, table_id):
         if len(row) != len(header):
             sys.exit('generate_icon_roster: line %d of %s has %d cell(s) where '
                      'table %s has %d column(s)'
-                     % (i + 1, REL_GLOSSARY, len(row), table_id, len(header)))
+                     % (i + 1, rel_path, len(row), table_id, len(header)))
         rows.append(row)
     return header, rows, caption
 
@@ -162,7 +210,8 @@ def stated_row_count(lines, caption):
 def settled_surfaces(lines):
     """Every UI part name table T-103 settles."""
     # @purity pure
-    _header, rows, _caption = table_rows(lines, SURFACE_ROW, SURFACE_TABLE)
+    _header, rows, _caption = table_rows(
+        lines, SURFACE_ROW, SURFACE_TABLE, REL_GLOSSARY)
     names = set()
     for row in rows:
         names.update(code_spans(row[1]))
@@ -198,12 +247,149 @@ def icon_of(row, surfaces):
     }
 
 
+def settled_spellings(entity, column):
+    """The spellings _source/erd.json settles for one column, in its order."""
+    # @purity semi-pure-b
+    erd = json.load(io.open(ERD, encoding='utf-8'))
+    for entry in erd.get('entities', []):
+        if entry.get('name') != entity:
+            continue
+        for cell in entry.get('columns', []):
+            if cell.get('name') != column:
+                continue
+            values = cell.get('json', {}).get('values')
+            if not values:
+                sys.exit('generate_icon_roster: %s.%s of %s settles no list of '
+                         'values' % (entity, column, REL_ERD))
+            return values
+    sys.exit('generate_icon_roster: %s holds no column %s.%s'
+             % (REL_ERD, entity, column))
+
+
+def shape_rows(lines):
+    """The rows of table T-012, by row ID, with their spelling resolved.
+
+    ⭐ The spelling is the table's own 値 column, which writes it as a quoted
+    `code` span. ⛔ It is checked against `TaskVisual.shapeKind` rather than
+    trusted: the manuscript states the five in two places, and a roster built
+    on the half that had drifted would arm a shape the model cannot hold.
+    """
+    # @purity semi-pure-b
+    _header, rows, _caption = table_rows(
+        lines, SHAPE_ROW, SHAPE_TABLE, REL_REQUIREMENTS)
+    settled = settled_spellings(SHAPE_ENTITY, SHAPE_COLUMN)
+    found = {}
+    for row in rows:
+        spelled = [name.strip("'") for name in code_spans(row[2])]
+        if len(spelled) != 1:
+            sys.exit('generate_icon_roster: %s of table %s writes its value as '
+                     '%r, which is not one name that %s can be asked about'
+                     % (row[0], SHAPE_TABLE, row[2], REL_ERD))
+        if spelled[0] not in settled:
+            sys.exit('generate_icon_roster: %s of table %s spells its value %s, '
+                     'which %s does not settle for %s.%s'
+                     % (row[0], SHAPE_TABLE, spelled[0], REL_ERD, SHAPE_ENTITY,
+                        SHAPE_COLUMN))
+        found[row[0]] = (row[1], spelled[0])
+    if len(found) != len(settled):
+        sys.exit('generate_icon_roster: table %s holds %d row(s) and %s settles '
+                 '%d spelling(s) for %s.%s'
+                 % (SHAPE_TABLE, len(found), REL_ERD, len(settled),
+                    SHAPE_ENTITY, SHAPE_COLUMN))
+    return found
+
+
+def glyph_by_mark(shapes):
+    """Each mark SH-5 of table T-012 prints, paired with its spelling.
+
+    ⛔ THE PAIRING IS BY ORDER AND NOTHING ELSE STATES IT. Section 8 of the
+    glossary sends the eight spellings to _source/erd.json and table T-012
+    prints the eight marks, and no row of the manuscript joins one mark to one
+    spelling -- so the only join there is is that both lists are printed in the
+    same order. ⚠️ That is the one place this script would go wrong in silence
+    if a list were re-ordered, which is why the count is checked here and the
+    marks are matched against table T-109 one by one below rather than being
+    assumed to stand in the table's own order too.
+    """
+    # @purity semi-pure-b
+    if MILESTONE_SHAPE_ROW not in shapes:
+        sys.exit('generate_icon_roster: table %s has no row %s, so the marks of '
+                 'the milestone shapes cannot be read'
+                 % (SHAPE_TABLE, MILESTONE_SHAPE_ROW))
+    marks = shapes[MILESTONE_SHAPE_ROW][0].split()
+    settled = settled_spellings(SHAPE_ENTITY, GLYPH_COLUMN)
+    if len(marks) != len(settled):
+        sys.exit('generate_icon_roster: %s of table %s prints %d mark(s) and %s '
+                 'settles %d spelling(s) for %s.%s'
+                 % (MILESTONE_SHAPE_ROW, SHAPE_TABLE, len(marks), REL_ERD,
+                    len(settled), SHAPE_ENTITY, GLYPH_COLUMN))
+    if len(set(marks)) != len(marks):
+        sys.exit('generate_icon_roster: %s of table %s prints one mark twice, '
+                 'so no entry of table %s can be told from another'
+                 % (MILESTONE_SHAPE_ROW, SHAPE_TABLE, ICON_TABLE))
+    return dict(zip(marks, settled))
+
+
+def fill_arms_shape(icons, lines):
+    """Give every entry the spelling of the shape it arms, or None.
+
+    ⭐ WHY A SEVENTH FIELD AT ALL. The arm column of table T-109 names a KIND of
+    arm, and AR-2 stands against four entries while AR-3 stands against eight --
+    so a join on that column alone marks four (or eight) entrances as armed at
+    once, and FR-053 (MUST) asks for THE armed entrance to be told from the ones
+    that are not.
+    ⭐ WHERE EACH HALF COMES FROM. An AR-2 entry names its row of table T-012 in
+    the entry column, and that row settles the `shapeKind` spelling; an AR-3
+    entry prints one of the eight marks SH-5 lists, and `glyph_by_mark` says how
+    a mark reaches a `milestoneGlyph` spelling. ⛔ Nothing is minted here: both
+    ends of both joins stand in the manuscript.
+    """
+    # @purity semi-pure-b
+    shapes = shape_rows(lines)
+    glyphs = glyph_by_mark(shapes)
+    armed = []
+    for icon in icons:
+        if icon['arms'] == TASK_SHAPE_ARM:
+            named = [name for name in code_spans(icon['entryTo']) if name in shapes]
+            if len(named) != 1:
+                sys.exit('generate_icon_roster: %s arms %s and names %d row(s) '
+                         'of table %s in its entry column, and exactly one row '
+                         'must be named' % (icon['rowId'], TASK_SHAPE_ARM,
+                                            len(named), SHAPE_TABLE))
+            icon[ARMS_SHAPE_FIELD] = shapes[named[0]][1]
+        elif icon['arms'] == MILESTONE_SHAPE_ARM:
+            marked = [mark for mark in glyphs if mark in icon['entryTo']]
+            if len(marked) != 1:
+                sys.exit('generate_icon_roster: %s arms %s and prints %d of the '
+                         'marks %s lists, and exactly one mark must be printed'
+                         % (icon['rowId'], MILESTONE_SHAPE_ARM, len(marked),
+                            MILESTONE_SHAPE_ROW))
+            icon[ARMS_SHAPE_FIELD] = glyphs[marked[0]]
+            armed.append(icon[ARMS_SHAPE_FIELD])
+        else:
+            icon[ARMS_SHAPE_FIELD] = None
+    if sorted(armed) != sorted(glyphs.values()):
+        sys.exit('generate_icon_roster: the rows of table %s that arm %s reach '
+                 '%d of the %d spelling(s) of %s.%s, and every one must be '
+                 'reached exactly once'
+                 % (ICON_TABLE, MILESTONE_SHAPE_ARM, len(set(armed)),
+                    len(glyphs), SHAPE_ENTITY, GLYPH_COLUMN))
+    told = [icon[ARMS_SHAPE_FIELD] for icon in icons
+            if icon['arms'] == TASK_SHAPE_ARM]
+    if len(set(told)) != len(told):
+        sys.exit('generate_icon_roster: two rows of table %s that arm %s reach '
+                 'the same spelling of %s.%s, so neither can be told from the '
+                 'other' % (ICON_TABLE, TASK_SHAPE_ARM, SHAPE_ENTITY,
+                            SHAPE_COLUMN))
+
+
 def build():
     """The roster, as it is written out."""
     # @purity semi-pure-b
-    lines = read_lines()
+    lines = read_lines(GLOSSARY)
     surfaces = settled_surfaces(lines)
-    header, rows, caption = table_rows(lines, ICON_ROW, ICON_TABLE)
+    header, rows, caption = table_rows(
+        lines, ICON_ROW, ICON_TABLE, REL_GLOSSARY)
     if len(header) != len(FIELDS):
         sys.exit('generate_icon_roster: table %s now has %d column(s) and this '
                  'script names %d' % (ICON_TABLE, len(header), len(FIELDS)))
@@ -217,6 +403,7 @@ def build():
     if len(seen) != len(icons):
         sys.exit('generate_icon_roster: table %s uses %d row id(s) for %d row(s)'
                  % (ICON_TABLE, len(seen), len(icons)))
+    fill_arms_shape(icons, read_lines(REQUIREMENTS))
     return {
         '$comment': BANNER,
         'columns': dict(zip(FIELDS, header)),

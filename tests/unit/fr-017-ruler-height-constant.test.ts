@@ -166,10 +166,10 @@ const HAIR = 1e-9
  *
  * ⛔ NO px/day IS WRITTEN AS A LITERAL HERE. Ends written as literals stop
  * covering the four tiers the moment a threshold moves past them, and that is
- * exactly what 表 T-205 の `S-85` did: the row now records the raise from 8 to
- * 44 -- the day tier is entered only at a width that seats a label per day,
- * since `LF-1` stopped thinning. A sweep ending at 20 px/day never reached the
- * fourth tier again.
+ * exactly what 表 T-205 の `S-85` did: its own remark records the row moving
+ * TWICE, up when `LF-1` stopped thinning and back down when the weekday got a
+ * 段 of its own and stopped binding the width beside the day's digits. ⚠️ Both
+ * moves happened after this sweep was written, and neither reached it.
  */
 const SWEEP_FROM = TIER_SAMPLE[0].pxPerDay
 const SWEEP_TO = TIER_SAMPLE[3].pxPerDay
@@ -592,16 +592,21 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
   })
 
   it('never spends more than three 段, and never fewer as the tier coarsens', () => {
-    // 表 T-201 の `S-2` 備考:「段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）」and `S-3`'s
+    // 表 T-201 の `S-2` 備考:「段階 4 は 3 段（年 ＋ 月 / 日 / 曜日）」and `S-3`'s
     // 上限 ((`rulerHeight` - `rulerLabelPad` x 3) / 3) cap the band at three.
     // `L-1`（表 T-005a）nests the four tiers -- year; year + month; + week;
     // + day + weekday -- so each tier's labels contain the previous tier's, and
     // FR-017's monotonicity MUST forbids a coarser tier showing more rows than
     // a finer one.
-    // ⛔ NO CASE HERE DEMANDS A COUNT PER TIER. `S-2`'s remark states three for
-    // tier 4 only; nothing states how many tier 1 or tier 2 draw, nor how the
-    // fixed height is shared when there are fewer than three. Asserting a
-    // number would be this file writing the missing rule.
+    // ⚠️ THE COUNT PER TIER IS NO LONGER MISSING, and this comment used to say
+    // it was. FR-017 (MUST, 利用者の裁定 2026-08-27) now states what each 段
+    // prints and folds 年 ＋ 月 into one of them wherever both are shown, which
+    // fixes a count for every tier and not only for the fourth.
+    // ⛔ IT IS STILL NOT ASSERTED HERE. This file's axis is the text size, and
+    // the count does not move with it; the counts belong to the band's own file
+    // (`uf-32-ruler-band.test.ts`), which asserts them at one text size. What
+    // this case keeps is the relation between tiers, which is FR-017's
+    // monotonicity and is nobody else's.
     for (const scale of FONT_SCALES) {
       let previous = 0
       for (const sample of TIER_SAMPLE) {

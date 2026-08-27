@@ -894,6 +894,46 @@ function entryArmedRim(): string {
   )
 }
 
+/**
+ * The line FR-053 (MUST) shows the boundary between two groups of the palette
+ * with, in place of the caption the same requirement (MUST NOT) forbids.
+ *
+ * ⭐ BOTH LENGTHS ARE THE SPECIFICATION'S. S-143 of table T-206 states the
+ * rule's thickness and its side gaps and states nothing else, and the pair
+ * arrives in that order -- ⛔ neither number is written here, which is what
+ * rule 03 section 1 requires.
+ *
+ * ⭐ THE COLOUR IS S-149 AND IS NOT A CHOICE MADE HERE EITHER. Table T-236
+ * gives that row 「区切りの線」 as what it paints, and a boundary between two
+ * groups is one; `dividerLine` reads the same row for the boundary EP-9 draws.
+ * ⛔ No row gives this rule a colour of its own, and inventing one would put a
+ * second paint against the one already settled for a separating line.
+ *
+ * ⛔ NO VERTICAL ROOM IS ADDED. S-143 states a thickness and a LEFT-AND-RIGHT
+ * clearance, and no row anywhere states a gap above or below -- so the line
+ * stands between the two groups and nothing is invented around it. ⚠️ A
+ * `margin-bottom:0.5em` used to sit on every group and stand in for the rule
+ * while it could not be drawn; it went with this function, because a made-up
+ * gap kept beside the real boundary reads as a rule that was measured.
+ *
+ * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryArmedRim`
+ * gives: it reads the generated block at the foot of this file, which a `const`
+ * evaluated above it cannot.
+ *
+ * ⛔ `pointer-events:none` FOR THE REASON `dividerLine` HAS IT: the rule is a
+ * decoration table T-103 gives no row and table T-109 no entrance, so a point
+ * on it belongs to the palette and IF-9's third member must answer that.
+ *
+ * @purity pure
+ */
+function paletteGroupRuleStyle(): string {
+  const [thickness, sideGap] = NOT_STORED_PALETTE_GROUP_RULE_SIZES['S-143']
+  return (
+    `height:${thickness}px;margin:0 ${sideGap}px;` +
+    `background:${PAINT.rule};pointer-events:none;`
+  )
+}
+
 // -------------------------------------------------------------- the styles ---
 
 /**
@@ -1111,10 +1151,13 @@ const STYLE = {
   paletteContents: 'padding:0.5em;',
   // ⛔ THE GROUP'S CAPTION HAD A DECLARATION HERE AND NO LONGER DOES. FR-053
   // (MUST NOT) stopped the caption being printed, and a style kept for a node
-  // nothing makes is a rule that reads as in force. ⚠️ The gap below is what
-  // parts two groups until S-143's line can be drawn -- `paletteElement`'s STOP
-  // says what that waits on.
-  paletteGroup: 'margin-bottom:0.5em;',
+  // nothing makes is a rule that reads as in force.
+  // ⛔ AND NEITHER DOES THE GAP THAT STOOD IN FOR THE BOUNDARY. A
+  // `margin-bottom:0.5em` sat here while S-143's line could not be drawn; the
+  // line is drawn now (`paletteGroupRuleStyle`), and a made-up gap left beside
+  // it would be a second boundary that no row states. ⚠️ So a group carries no
+  // declaration of its own, and the empty string is what says so.
+  paletteGroup: '',
   paletteCommands: 'display:flex;flex-wrap:wrap;gap:0.25em;',
   // ⚠️ S-147 AND NOT S-151. 強調の色 is 「選択と現在位置」 by table T-236's own
   // note, and what is armed is neither -- FR-053 (MUST) asks only that it be
@@ -2454,23 +2497,25 @@ function grabBandElement(host: Document, heightPx: number): HTMLElement {
  * decides the ORDER of the groups and the help (FR-036) lists the entrances by
  * word. ⛔ So the member is not read here rather than being removed.
  *
- * STOP -- ⛔ THE RULE THAT REPLACES THE CAPTION IS NOT DRAWN, AND WHAT BLOCKS IT
- * IS WHERE THE VALUE LANDED. FR-053 (MUST) has the boundary between groups shown
- * as a line and sends its thickness and side gaps to S-143 of table T-206.
- * ⚠️ Measured 2026-08-25: `tools/generate_entity_types.py` routes S-143 into
- * `NOT_STORED_COMMAND_PALETTE_SIZES`, which it writes into
- * `src/adapter/screen-renderer/command-palette.ts` -- the unit that DESCRIBES
- * the palette, whose own note says the rule is drawn by the surface rather than
- * described there, and which therefore reads the row nowhere. ⛔ That file is not
- * ScreenRenderer's public entry, so Chapter 5.3 (MUST NOT) forbids this unit to
- * read it, and `tools/check_layer_rules.py` fails the import as LR-2. ⛔ Typing
- * `1` and `6` here is what rule 03 section 1 forbids, so the absence is reported
- * instead of being filled in. ⭐ WHAT CLOSES IT: one row moved in that
- * generator, to a constant written into this file the way `NOT_STORED_ICON_SIZES`
- * already is (S-143 is `DRAWN_WITH_WHERE_IT_STANDS`, not `READ_WHERE_IT_STANDS`).
- * ⚠️ The description needs nothing new -- `palette.groups` already IS the
- * boundary list, one element per group. Searched: FR-053, S-143 of table T-206,
- * `NOT_STORED_TARGETS`, `CommandPalette` and `PaletteGroup`.
+ * ⭐ THE RULE THAT REPLACES THE CAPTION IS DRAWN HERE. FR-053 (MUST) has the
+ * boundary between groups shown as a line and sends its thickness and side gaps
+ * to S-143 of table T-206; `paletteGroupRuleStyle` is that line.
+ * ⚠️ A STOP note stood here from 2026-08-25 to 2026-08-27 reporting the value as
+ * unreachable, and it was right about where it had landed: the generator wrote
+ * S-143 into `command-palette.ts`, the unit that DESCRIBES the palette and says
+ * in its own note that the rule is the drawing side's -- so nothing read it,
+ * and this unit may not, that file not being ScreenRenderer's public entry
+ * (Chapter 5.3 MUST NOT, LR-2 of `tools/check_layer_rules.py`). ⭐ The row is
+ * routed to this file now, and nothing new is asked of the description:
+ * `palette.groups` already IS the boundary list, one element per group.
+ *
+ * ⛔ ONE LINE PER BOUNDARY AND NEVER ONE PER GROUP. A boundary is where two
+ * groups meet, so there is one fewer of them than there are groups and the line
+ * stands BEFORE every group but the first. ⚠️ A line per group would draw one
+ * above the first entry, where nothing meets anything, and FR-053 asks for the
+ * boundary rather than for a frame. ⛔ No count is written here, for the reason
+ * rule 03 section 3 gives: how many groups table T-109 places is that table's
+ * to change.
  *
  * @purity non-pure
  */
@@ -2485,8 +2530,15 @@ function paletteElement(
     ROLE.commandPalette,
     cornerStyle(palette.at) + STYLE.commandPalette,
   )
-  const groups: HTMLElement[] = []
+  // ⚠️ The rules stand in this list beside the group boxes, which is why it is
+  // not named for the groups alone: what goes into the palette is the groups
+  // with a boundary between each pair, in that one order.
+  const laid: HTMLElement[] = []
   for (const group of palette.groups) {
+    // FR-053 (MUST): the boundary between two groups is shown by a line. ⭐ The
+    // list is empty only before the first group, so this draws one line per
+    // boundary and none above the first entry.
+    if (laid.length > 0) laid.push(made(host, 'div', paletteGroupRuleStyle()))
     const box = part(host, 'div', ROLE.paletteGroups, STYLE.paletteGroup)
     const commands = part(host, 'div', ROLE.paletteCommands, STYLE.paletteCommands)
     for (const item of group.commands) {
@@ -2495,7 +2547,7 @@ function paletteElement(
       commands.append(entry)
     }
     box.append(commands)
-    groups.push(box)
+    laid.push(box)
   }
   // FR-053 (MUST): what is armed has to be readable on the screen.
   const armed = made(host, 'div', STYLE.armedText)
@@ -2516,7 +2568,7 @@ function paletteElement(
   // The room that used to be the palette's own padding, one box further in, so
   // that the band above reaches the palette's edges (`STYLE.paletteContents`).
   const contents = made(host, 'div', STYLE.paletteContents)
-  contents.replaceChildren(...groups, armed)
+  contents.replaceChildren(...laid, armed)
 
   drawn.replaceChildren(band, contents)
   return drawn
@@ -3771,6 +3823,31 @@ export const NOT_STORED_ARMED_ENTRY_SIZES: {
   readonly 'S-185': number
 } = {
   'S-185': 2,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ It is not a document
+ * setting and may not become one: table T-206 is where the
+ * specification records that the document does not keep it. ⚠️ The
+ * closing sentence of the entrance rows does NOT fit -- EP-1 and EP-4
+ * of table T-076 keep an ENTRANCE out of an exported picture, and this
+ * row is no entrance: table T-206 says of it that the boundary is a
+ * line rather than a word and not a shape either, so it has no row of
+ * table T-109 and no shape of figure F-019. ⭐ What keeps it out of an
+ * export is EP-11, which draws no `Command Palette` at all.
+ */
+export const NOT_STORED_PALETTE_GROUP_RULE_SIZES: {
+  /** S-143, in px */
+  readonly 'S-143': readonly [number, number]
+} = {
+  'S-143': [1, 6],
 }
 
 /**

@@ -72,10 +72,15 @@
 // nothing points at is the drawing side's alone (Chapter 5.3, under table
 // T-065). ⭐ The surface needs nothing new from this unit to place it: `groups`
 // below already IS the boundary list, one element per group.
-// ⛔ TWO THINGS OUTSIDE THIS FOLDER ARE WHAT THE MUST NOT ACTUALLY WAITS ON --
-// `dom-screen-surface.ts` still prints `PaletteGroup.name` into a node of its
-// own, and S-143 reaches no file in `src/` at all, being in no entry of
-// `NOT_STORED_TARGETS` in `tools/generate_entity_types.py`.
+// ⚠️ WHAT USED TO STAND HERE NAMED TWO THINGS THE MUST NOT WAS SAID TO BE
+// WAITING ON, AND BOTH WERE MEASURED FALSE ON 2026-08-27. `dom-screen-surface.ts`
+// had already stopped printing `PaletteGroup.name` -- the caption node went on
+// 2026-08-25 and the word that stands on the palette is the arm's, not a
+// group's. And S-143 did reach `src/`: it stood in the generated block at the
+// foot of THIS file, beside S-135a, where nothing read it because the rule is
+// the drawing side's. ⭐ It is now routed to that side instead, so
+// the boundary FR-053 (MUST) asks for is drawn and no row of table T-206
+// arrives here that this unit does not use.
 //
 // ⛔ THE EIGHT MILESTONE SHAPES ARE NOT OFFERED UNTIL THE LIST IS OPEN
 // (FR-053, MUST). `ScreenSession.isMilestoneListOpen` is that state, which
@@ -101,6 +106,16 @@
 // table T-109's 構え column -- `arms` in the generated roster. `isArmed` below
 // is that join. ⛔ Not `isPressed`: the same requirement (MUST NOT) refuses to
 // have it drawn as a pressed button, on the ground that IC-54 says it is none.
+// ⛔ THAT COLUMN IS HALF THE JOIN AND NOT THE WHOLE OF IT. It names a KIND of
+// arm (table T-023b), so AR-2 stands on four rows and AR-3 on eight, and a
+// comparison on it alone marks four entrances -- or eight -- where the
+// requirement asks for THE armed one. ⭐ The other half is `armsShape`, which
+// the roster derives from table T-012 and `_source/erd.json` the way the arm
+// column itself is derived from table T-109; `armedEntry` below carries the
+// pair. ⚠️ It could not be read from `input-command-translator.ts`, which holds
+// the same map by hand: that file is another component's internal unit, and
+// Chapter 5.3 (MUST NOT) with LR-3 of table T-061 is what sent the fact through
+// the roster in the first place.
 //
 // ⚠️ NOTHING HERE JUDGES A WIDTH, so FR-093's estimate is never called -- the
 // MUST FR-085 puts on whichever side does judge one does not reach this file.
@@ -334,17 +349,28 @@ function commandItemFor(
   row: IconRosterRow,
   selection: Selection,
   language: DisplayLanguage,
-  armed: string,
+  armed: ArmedEntry,
 ): CommandItem {
   return {
     icon: row.rowId,
     isEnabled: isEntryUsable(row, selection),
     isPressed: false,
-    // FR-053 (MUST): 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」.
-    // ⛔ Never `row.arms === null` folded in as a second condition: `armedRow`
+    // FR-053 (MUST): 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」,
+    // and (MUST) the armed entrance is told apart from the ones that are not.
+    // ⛔ THE COLUMN ALONE IS NOT THAT JOIN, which is why the second half is
+    // here. It names a KIND of arm: AR-2 stands on four rows and AR-3 on
+    // eight, so arming one task shape used to mark four entrances and one
+    // milestone glyph eight. `armsShape` of the roster is which shape of the
+    // kind, and the pair is 1-to-1.
+    // ⛔ Never `row.arms === null` folded in as a third condition: `armedEntry`
     // answers AR-1 while nothing is armed, and no row of the roster carries
-    // that -- so the one comparison is already the whole rule.
-    isArmed: row.arms === armed,
+    // that -- so the two comparisons are already the whole rule.
+    // ⚠️ An arm carrying a spelling no entrance arms marks nothing, and that is
+    // the right answer rather than a hole: `Armed` types the shape as a bare
+    // string, so 'milestone' can reach here through AR-2 while table T-109
+    // gives that shape no palette row of its own -- FR-078's eight glyphs are
+    // where a milestone is armed from (AR-3).
+    isArmed: row.arms === armed.row && row.armsShape === armed.shape,
     label: entryLabel(row.rowId, language),
   }
 }
@@ -403,7 +429,7 @@ function paletteGroups(
   selection: Selection,
   language: DisplayLanguage,
   isMilestoneListOpen: boolean,
-  armed: string,
+  armed: ArmedEntry,
 ): readonly PaletteGroup[] {
   const groups: {
     readonly cell: string
@@ -438,8 +464,28 @@ function paletteGroups(
 }
 
 /**
- * The row of table T-023b the palette has armed -- the KEY the word is looked
- * up by, and never itself a thing the screen prints.
+ * What the palette has armed, as the roster spells it: the row of table T-023b,
+ * and -- where that row stands against more than one entrance -- which shape or
+ * glyph of it.
+ *
+ * ⭐ TWO MEMBERS BECAUSE THE ARM COLUMN NAMES A KIND. Table T-109's 構え column
+ * gives AR-2 to four rows and AR-3 to eight, so the row alone cannot say WHICH
+ * entrance is armed; `armsShape` of the generated roster is the other half, and
+ * the two together are a 1-to-1 join. ⛔ `shape` is `null` for the arms that
+ * stand against one entrance each (AR-4 / AR-5 / AR-6) and for AR-1, which
+ * stands against none -- so the roster's own `null` matches them and no second
+ * condition is needed.
+ */
+interface ArmedEntry {
+  /** A row of table T-023b, AR-1 to AR-6. */
+  readonly row: string
+  /** A `TaskVisual.shapeKind` or `TaskVisual.milestoneGlyph` spelling. */
+  readonly shape: string | null
+}
+
+/**
+ * The row of table T-023b the palette has armed, with the shape inside it --
+ * the KEY the word is looked up by, and never itself a thing the screen prints.
  *
  * ⭐ WHY A ROW ID AT ALL. The closing rule of table T-023b holds the arm's word
  * the way table T-233's closing rule holds a reason's: the dictionary keeps it
@@ -450,26 +496,31 @@ function paletteGroups(
  * ⭐ WHY A SWITCH AND NOT A TABLE. An arm added to table T-023b reaches
  * `ScreenState.armed`, and an exhaustive switch stops compiling when it does --
  * whereas a lookup keyed on `kind` would go on answering for five of six.
- * ⚠️ The shape or glyph inside two of these arms is not appended: table T-023b
- * does not tell them apart either -- its rows are the kinds of arm, not the
- * shapes -- and the spellings `Armed` carries for them are unsettled (CR-172).
+ * ⚠️ WHAT USED TO STAND HERE SAID THE SHAPE COULD NOT BE APPENDED, on the
+ * ground that the spellings `Armed` carries for a shape and a glyph were
+ * unsettled (CR-172). ⛔ MEASURED FALSE 2026-08-27: `_source/erd.json` settles
+ * all thirteen -- five for `TaskVisual.shapeKind` and eight for
+ * `TaskVisual.milestoneGlyph` -- and the roster now carries which of them each
+ * entrance arms. ⭐ The row and the shape are two members and never one string:
+ * a join written as one key would have to invent a separator, and the two come
+ * from two columns of two tables.
  *
  * @purity pure
  */
-function armedRow(armed: ScreenState['armed']): string {
+function armedEntry(armed: ScreenState['armed']): ArmedEntry {
   switch (armed.kind) {
     case 'none':
-      return 'AR-1'
+      return { row: 'AR-1', shape: null }
     case 'taskShape':
-      return 'AR-2'
+      return { row: 'AR-2', shape: armed.shapeKind }
     case 'milestoneShape':
-      return 'AR-3'
+      return { row: 'AR-3', shape: armed.glyph }
     case 'dependency':
-      return 'AR-4'
+      return { row: 'AR-4', shape: null }
     case 'commentBox':
-      return 'AR-5'
+      return { row: 'AR-5', shape: null }
     case 'highlightBox':
-      return 'AR-6'
+      return { row: 'AR-6', shape: null }
   }
 }
 
@@ -501,7 +552,7 @@ function armedRow(armed: ScreenState['armed']): string {
  * @purity pure
  */
 function armedWord(armed: ScreenState['armed'], language: DisplayLanguage): string {
-  const word = ARM_WORDS_BY_ROW.get(armedRow(armed))?.text[language]
+  const word = ARM_WORDS_BY_ROW.get(armedEntry(armed).row)?.text[language]
   if (word === undefined) return NO_WORDS
   return word === '' ? NO_WORDS : word
 }
@@ -546,14 +597,15 @@ export function commandPaletteFromScreenState(
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
     // FR-053 (MUST): the eight milestone shapes stay out until the list is
     // open. S-142 of table T-206 is the state, and the shell holds it.
-    // ⭐ The armed ROW goes down with them, not the words: FR-053 (MUST) also
-    // has the armed ENTRANCE told apart from the others, and the roster's
-    // `arms` field is what each entry is compared against (`isArmed`).
+    // ⭐ The armed ROW AND SHAPE go down with them, not the words: FR-053
+    // (MUST) also has the armed ENTRANCE told apart from the others, and the
+    // roster's `arms` and `armsShape` fields are what each entry is compared
+    // against (`isArmed`).
     groups: paletteGroups(
       selection,
       session.language,
       session.isMilestoneListOpen,
-      armedRow(state.armed),
+      armedEntry(state.armed),
     ),
     // FR-053 (MUST): what is armed has to be readable. The words come from
     // FR-038's dictionary, keyed by the row of table T-023b -- ⛔ never the row
@@ -583,10 +635,7 @@ export function commandPaletteFromScreenState(
 export const NOT_STORED_COMMAND_PALETTE_SIZES: {
   /** S-135a, in px */
   readonly 'S-135a': number
-  /** S-143, in px */
-  readonly 'S-143': readonly [number, number]
 } = {
   'S-135a': 24,
-  'S-143': [1, 6],
 }
 // </generated>

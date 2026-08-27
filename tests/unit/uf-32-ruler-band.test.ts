@@ -17,6 +17,15 @@
 //   FR-041   「地の色を自分で塗ること（MUST）。閲覧環境のシステム色に委ねては
 //            ならない（MUST NOT）」and「画面の色は…表 T-236 に従うこと（MUST）」
 //   FR-017   「目盛の帯の高さは、目盛の段階が変わっても動かさないこと（MUST）」
+//   FR-017   「各段が刷るもの」（利用者の裁定 2026-08-27）:「年と月は 1 段に
+//            `YYYY-MM` で並べ、週の段はその週の始まりの日の数字、日の段は日の
+//            数字、曜日の段は曜日をそれぞれ 1 段に持つ」, with ⛔「年と月を別の
+//            段に置いてはならない（MUST NOT）」and ⛔「週の段に曜日を書いては
+//            ならない（MUST NOT）」
+//   FR-038    RATIONALE:「日程表の出力のうち言語に依るのは、目盛の第 4 段の曜日
+//            だけである」, and ⛔「要求にも表にも語そのものを書いてはならない
+//            （MUST NOT）」-- which is why the seven words a case hands in are
+//            the case's own and no roster of docs/spec is read for them
 //   FR-039   「文書に保存された値が読む人の指定を強制してはならない（MUST NOT）」
 //   表 T-236  `S-146`（地の色。色相追随 ○）
 //   表 T-201  `S-2` / `S-3` / `S-136`, and the closing paragraph:「文字の大きさ
@@ -134,9 +143,14 @@ const RULER_HEIGHT = ((): number => {
 })()
 
 /**
- * 表 T-201 の `S-2` の備考:「段階 4 は 3 段（年 / 月 / 日 ＋ 曜日）」, and FR-017
+ * 表 T-201 の `S-2` の備考:「段階 4 は 3 段（年 ＋ 月 / 日 / 曜日）」, and FR-017
  * lets the 段階 change「中の組み方だけ」. So one 段 of the band is the band
  * divided by three.
+ *
+ * ⚠️ THE REMARK WAS REWRITTEN ON 2026-08-27 and the count did not move: the
+ * band held three 段 when the day and the weekday shared the last one, and it
+ * holds three now that 年 ＋ 月 share the first. ⛔ Which 段階 spends all three
+ * DID move, and that is `TIERS` below.
  */
 const SEGMENTS_IN_THE_BAND = 3
 const SEGMENT_HEIGHT = RULER_HEIGHT / SEGMENTS_IN_THE_BAND
@@ -163,23 +177,39 @@ const zoomForAtFont = (pxPerDay: number, rulerFont: number): number =>
  * One `zoomX` per 段階 of `L-1`（表 T-005a）——「年 → 年 ＋ 月 → 年 ＋ 月 ＋ 週 →
  * 年 ＋ 月 ＋ 日 ＋ 曜日」-- each set inside its own band of 表 T-205 so that no
  * case sits on a threshold. `segments` is how many 段 that 段階 holds.
+ *
+ * ⭐ `segments` IS SOLVED FROM FR-017'S OWN SENTENCE, not from what a 段階 is
+ * called. FR-017 (MUST, 利用者の裁定 2026-08-27):「**年と月は 1 段に `YYYY-MM`
+ * で並べ、週の段はその週の始まりの日の数字、日の段は日の数字、曜日の段は曜日**
+ * をそれぞれ 1 段に持つ」, with ⛔「**年と月を別の段に置いてはならない（MUST
+ * NOT）**」and ⚠️「**畳むのは年と月が両方出るすべての段階である** —— 段階ごとに
+ * 畳んだり分けたりすると、拡大の途中で同じ情報の見え方が跳ね」。So each 段階
+ * counts ONE 段 for 年 ＋ 月 together, and one more for each of 週 / 日 / 曜日
+ * it shows: 1, 1, 2, 3. ⭐ The last of those is 表 T-201 の `S-2` の備考 said
+ * over again -- 「段階 4 は 3 段」-- which is what makes this reading checkable
+ * against a second sentence rather than only against the one it came from.
+ *
+ * ⚠️ THE MIDDLE TWO ARE WHAT MOVED ON 2026-08-27. 年 ＋ 月 used to stand in two
+ * 段 and the day used to share its 段 with the weekday; the collapse is what
+ * bought the weekday a 段 of its own without the band growing (FR-017 forbids
+ * the band's height to follow the 段階 at all).
  */
 const TIERS = [
   { name: '年', zoomX: zoomFor(TIER_THRESHOLD.month / 2), segments: 1 },
   {
     name: '年 ＋ 月',
     zoomX: zoomFor((TIER_THRESHOLD.month + TIER_THRESHOLD.week) / 2),
-    segments: 2,
+    segments: 1,
   },
   {
     name: '年 ＋ 月 ＋ 週',
     zoomX: zoomFor((TIER_THRESHOLD.week + TIER_THRESHOLD.day) / 2),
-    segments: 3,
+    segments: 2,
   },
   {
     name: '年 ＋ 月 ＋ 日 ＋ 曜日',
     zoomX: zoomFor(TIER_THRESHOLD.day * 2),
-    segments: 3,
+    segments: SEGMENTS_IN_THE_BAND,
   },
 ] as const
 
@@ -248,15 +278,34 @@ const scheduleAtHue = (hue: number): Schedule =>
  * ADR-001 has the shell compute the rectangles, the layout and the geometry
  * once a frame and hand them round, so a case builds them the same way rather
  * than inventing coordinates the unit would then be measured against.
+ *
+ * ⭐ `weekdayWords` IS THE LAST ARGUMENT `PI-19` TAKES and it defaults to none,
+ * so every case that does not name it draws a picture with no display language
+ * in it at all. FR-038 is what puts words there, and only the cases about
+ * FR-038 hand any in.
  */
-const drawn = (schedule: Schedule = EMPTY, settings: DocumentSettings = SETTINGS): string => {
+const drawn = (
+  schedule: Schedule = EMPTY,
+  settings: DocumentSettings = SETTINGS,
+  weekdayWords: readonly string[] = [],
+): string => {
   const regions = regionsFromScreen(ENV, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   const selection = emptySelection()
   const geometry = geometryFromLayout(schedule, settings, layout, regions, selection)
   // 'screen' is EP-14's other arm: the export draws no dummy. These cases
   // are about what a reader sees, so they ask for the screen's picture.
-  return svgFromSchedule(schedule, settings, layout, geometry, regions, selection, 'screen')
+  return svgFromSchedule(
+    schedule,
+    settings,
+    layout,
+    geometry,
+    regions,
+    selection,
+    'screen',
+    null,
+    weekdayWords,
+  )
 }
 
 /** `regions.timeRuler` —— `U-19`'s band, for whatever settings are handed in. */
@@ -565,9 +614,11 @@ describe('UF-32 -- 表 T-201: the 段 of the band', () => {
 
   it('spends the band on 3 段 of `rulerFont` + `rulerLabelPad` where 段階 holds 3', () => {
     // 表 T-201 の `S-2`:「`rulerFont` × 3 + `rulerLabelPad` × 3」, 備考:「段階 4
-    // は 3 段（年 / 月 / 日 ＋ 曜日）」, and `S-136`:「帯の高さ（`S-2`）はこれを
-    // 目盛の帯の中の段（表 T-006b の `A-1` の ⑤）3 つぶん含む」。段階 3 is
-    // 年 ＋ 月 ＋ 週 by `L-1`（表 T-005a）, which is three 段 as well.
+    // は 3 段（年 ＋ 月 / 日 / 曜日）」, and `S-136`:「帯の高さ（`S-2`）はこれを
+    // 目盛の帯の中の段（表 T-006b の `A-1` の ⑤）3 つぶん含む」。
+    // ⚠️ ONE 段階 SPENDS ALL THREE, and only one: FR-017 folds 年 ＋ 月 into a
+    // single 段 wherever both are out, so 段階 3 stands in two. The filter is
+    // `TIERS`'s own `segments`, solved there from that sentence.
     // ⛔ THIS IS THE GUARD ON `S-2`'S FORMULA. Spending six pads instead of
     // three would put `S-2`'s own 下限 above its 上限, and it shows here first:
     // the 段 would stop being `rulerFont` + `rulerLabelPad` tall.
@@ -585,6 +636,164 @@ describe('UF-32 -- 表 T-201: the 段 of the band', () => {
           `${tier.name}: 段の高さ`,
         ).toBeCloseTo(SEGMENT_HEIGHT, 2)
       }
+    }
+  })
+
+  it('folds 年 and 月 into ONE 段 at every 段階 that shows both (FR-017, MUST NOT)', () => {
+    // FR-017 (MUST NOT, 利用者の裁定 2026-08-27):「⛔ **年と月を別の段に置いては
+    // ならない（MUST NOT）** —— 帯の高さは段階で動かせない（下の MUST）ので、4 つ
+    // の情報を出す段階では段が 3 つしか無い。⭐ **年と月を畳めば、日と曜日がそれ
+    // ぞれ 1 段を持てる。**⚠️ **畳むのは年と月が両方出るすべての段階である**」。
+    // ⛔ THE COARSER 段階 ARE WHERE THAT LANDS, and they are the ones the case
+    // above cannot reach: it filters on the 段階 that spends all three 段.
+    // ⚠️ 段階 1 shows the year alone, so it is in this sweep as the control --
+    // there is no month to fold, and its single 段 is the same answer either
+    // way. What the sweep really pins is 段階 2 (both shown, one 段) and
+    // 段階 3 (both shown plus the week, two 段).
+    for (const tier of TIERS.filter((one) => one.segments < SEGMENTS_IN_THE_BAND)) {
+      const settings = settingsOf({ ...SETTINGS, zoomX: tier.zoomX })
+      const baselines = baselinesOf(drawn(EMPTY, settings), bandOf(settings))
+      expect(baselines.length, `${tier.name}: FR-017 が畳んだ後の段の数`).toBe(tier.segments)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FR-038 -- the weekday, which is the ONE thing in the picture that the
+// display language decides.
+//
+// FR-038 の RATIONALE:「⚠️ **日程表の出力のうち言語に依るのは、目盛の第 4 段の
+// 曜日だけである**（`FR-017`）—— **どの語で刷ったかは文書に残らない。**」
+// FR-017 (MUST) says where it stands -- 「曜日の段は曜日」をそれぞれ 1 段に持つ,
+// with the day's 段 holding「日の数字」and ⛔「**週の段に曜日を書いてはならない
+// （MUST NOT）**」-- and hands the words themselves to FR-038:「⭐ **曜日の語が
+// どこに住むかは `FR-038` が持つ。**」
+//
+// ⭐ THE SEVEN WORDS ARE THIS FILE'S OWN, and they have to be. FR-038 (MUST
+// NOT):「要求にも表にも語そのものを書いてはならない」, so no row of docs/spec
+// carries a weekday to read; what a case may assert is that the words HANDED IN
+// are the ones printed, and that nothing else in the picture moves with them.
+// ⚠️ They are deliberately unlike a number so that a 段 printing digits cannot
+// be mistaken for one printing a weekday.
+//
+// ⛔ NOT ASSERTED -- ANY SPELLING, ORDER OR SEPARATOR. AT-17's numbering (0 is
+// Sunday) is held where the roster lives, in the dictionary's own contract
+// test; a second copy here would be this file having an opinion about which
+// word belongs to which day, which the band's own rows do not state.
+// ---------------------------------------------------------------------------
+
+/** One 目盛ラベル: the baseline it sits on and the text it prints. */
+interface Label {
+  readonly baseline: number
+  readonly text: string
+}
+
+const labelsOf = (svg: string, band: ScreenRect): readonly Label[] => {
+  const out: Label[] = []
+  const scan = /<text\b([^>]*)>([\s\S]*?)<\/text>/g
+  let hit: RegExpExecArray | null = scan.exec(svg)
+  while (hit !== null) {
+    const y = numberAt(`<text${hit[1] as string}>`, 'y')
+    if (y !== null && y >= band.y && y <= band.y + band.height) {
+      out.push({ baseline: Math.round(y * 100) / 100, text: (hit[2] as string).trim() })
+    }
+    hit = scan.exec(svg)
+  }
+  return out
+}
+
+/** ⭐ Seven words of this file's own, in the seven places AT-17 counts. */
+const ONE_LANGUAGE: readonly string[] = [
+  'WeekdayZero',
+  'WeekdayOne',
+  'WeekdayTwo',
+  'WeekdayThree',
+  'WeekdayFour',
+  'WeekdayFive',
+  'WeekdaySix',
+]
+
+/** The same seven places, spelled unlike -- FR-038's other language. */
+const OTHER_LANGUAGE: readonly string[] = ONE_LANGUAGE.map((word) => word.replace('Weekday', 'Yobi'))
+
+const FOURTH_TIER = TIERS[3]
+
+describe('UF-32 -- FR-038: the display language reaches the 曜日 and nothing else', () => {
+  it('gives the 曜日 a 段 of its own at 段階 4, holding the words handed in (FR-017, MUST)', () => {
+    // FR-017 (MUST):「**年と月は 1 段に `YYYY-MM` で並べ、…日の段は日の数字、
+    // 曜日の段は曜日**をそれぞれ 1 段に持つ」. So exactly one 段 of the band
+    // prints weekdays, its labels are weekdays ALONE, and no other 段 carries
+    // one -- a 段 that printed「日の数字と曜日」together would answer all three
+    // of those wrongly at once, and that is the arrangement the ruling of
+    // 2026-08-27 withdrew.
+    const settings = settingsOf({ ...SETTINGS, zoomX: FOURTH_TIER.zoomX })
+    const band = bandOf(settings)
+    const labels = labelsOf(drawn(EMPTY, settings, ONE_LANGUAGE), band)
+    expect(labels.length, `${FOURTH_TIER.name}: 目盛ラベルがある`).toBeGreaterThan(0)
+
+    const words = new Set(ONE_LANGUAGE)
+    const carrying = labels.filter((one) => [...words].some((word) => one.text.includes(word)))
+    expect(
+      carrying.length,
+      `${FOURTH_TIER.name}: 曜日の段が 1 つも刷られていない`,
+    ).toBeGreaterThan(0)
+
+    // 「曜日の段は曜日」-- the word is the whole label, not part of one.
+    expect(
+      carrying.filter((one) => !words.has(one.text)).map((one) => one.text),
+      'FR-017 (MUST): 曜日の段が刷るのは曜日だけである',
+    ).toEqual([])
+
+    // ⭐ ONE 段, not several: the weekday owns a 段 and shares none.
+    expect(
+      new Set(carrying.map((one) => one.baseline)).size,
+      'FR-017 (MUST): 曜日は 1 段を持つ',
+    ).toBe(1)
+
+    // 「年と月は 1 段に `YYYY-MM` で並べ、…日の段は日の数字」-- every other 段
+    // prints digits, so no second 段 can be the weekday's.
+    const weekdayBaseline = carrying[0]?.baseline
+    expect(
+      labels
+        .filter((label) => label.baseline !== weekdayBaseline)
+        .map((label) => label.text)
+        .filter((text) => !/^[0-9]+(-[0-9]+)?$/.test(text)),
+      'FR-017 (MUST): 曜日の段の外が刷るのは数字である（年と月は `YYYY-MM`）',
+    ).toEqual([])
+  })
+
+  it('moves ONLY that 段 when the language changes (FR-038)', () => {
+    // FR-038:「日程表の出力のうち言語に依るのは、目盛の第 4 段の曜日だけである」.
+    // ⭐ Two rosters, one picture each: every label that differs has to sit on
+    // the same single baseline, or something other than the weekday followed
+    // the language.
+    const settings = settingsOf({ ...SETTINGS, zoomX: FOURTH_TIER.zoomX })
+    const band = bandOf(settings)
+    const first = labelsOf(drawn(EMPTY, settings, ONE_LANGUAGE), band)
+    const second = labelsOf(drawn(EMPTY, settings, OTHER_LANGUAGE), band)
+
+    expect(second.length, '同じ設定なので目盛ラベルの数は同じである').toBe(first.length)
+    const moved = first.filter((label, at) => label.text !== (second[at] as Label).text)
+    expect(moved.length, 'FR-038: 曜日は言語に依る').toBeGreaterThan(0)
+    expect(
+      new Set(moved.map((label) => label.baseline)).size,
+      'FR-038 (MUST NOT): 言語で動くのは曜日の段だけである',
+    ).toBe(1)
+  })
+
+  it('leaves every coarser 段階 untouched by the language (FR-017, MUST NOT)', () => {
+    // FR-017 (MUST NOT):「⛔ **週の段に曜日を書いてはならない（MUST NOT）** ——
+    // 週の始まりは `Project.weekStartDay` が 1 つに決めているので（`FR-054`）、
+    // **どの刻みにも同じ曜日が並ぶ。**」 ⭐ Held together with FR-038's「第 4 段
+    // の曜日だけ」: at 段階 1 to 3 the whole picture must be the same string
+    // however the words are spelled, which says at once that the week 段 prints
+    // no weekday and that nothing else on those 段階 reads the dictionary.
+    for (const tier of TIERS.filter((one) => one.segments < SEGMENTS_IN_THE_BAND)) {
+      const settings = settingsOf({ ...SETTINGS, zoomX: tier.zoomX })
+      expect(
+        drawn(EMPTY, settings, OTHER_LANGUAGE),
+        `${tier.name}: 言語に依る出力は無い`,
+      ).toBe(drawn(EMPTY, settings, ONE_LANGUAGE))
     }
   })
 })
