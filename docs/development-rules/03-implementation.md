@@ -41,7 +41,8 @@ NOT_STORED_PROPERTY_FIELD_SIZES プロパティパネルの欄の寸法（`S-186
 NOT_STORED_DUAL_CURSOR_SIZES    2 連カーソルの線の太さ（`S-194`）
 COLUMN_SHAPES                   列の入力の形・選択肢・下限上限（`erd.json`）
 NOT_STORED_ZOOM_BOUNDS          倍率の下限・上限（`S-97` / `S-98`）
-NOT_STORED_COMMAND_PALETTE_SIZES  `Command Palette` の掴み帯と群（`S-135a` / `S-143`）
+NOT_STORED_COMMAND_PALETTE_SIZES  `Command Palette` の掴み帯（`S-135a`）
+NOT_STORED_PALETTE_GROUP_RULE_SIZES パレットの群の境目の線（`S-143`）
 NOT_STORED_PROPERTIES_PANEL_SIZES `Properties Panel` が開く幅（`S-171`）
 NOT_STORED_ROW_CONTROL_SIZES    行の操作子の大きさ（`S-140`）
 NOT_STORED_ICON_SIZES           アイコンの箱と隔たり（`S-138` / `S-141`）
