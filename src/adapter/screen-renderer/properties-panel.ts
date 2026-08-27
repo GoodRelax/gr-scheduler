@@ -455,26 +455,27 @@ function compareAssignees(a: Assignee, b: Assignee): number {
 }
 
 /**
- * The names of the people the task's assignments reach.
+ * The people the task's assignments reach, in the order `compareAssignees` puts
+ * them in.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how several assignees are written
- * on this panel. FR-059's "the first name and the count of the rest" governs the
- * assignee LABEL, and AS-5 of table T-225 makes this a different surface with no
- * width rule of its own. Looked in table T-225 (AS-5 / AS-6 / AS-9), FR-059,
- * FR-008 and table T-016. Chose every name, in the order the specification puts
- * assignees in elsewhere -- name ascending, the smaller uid first, which is
- * AS-8's tie-break -- joined by the separator this file already uses between the
- * parts of one field. ⛔ FR-059's work-resource filter is NOT borrowed: it keeps
- * materials and costs off the drawing, whereas this is the surface that edits
- * the assignment, so hiding one here would leave it unremovable. ⚠️ A resource
- * with no name is left out because there is no name to show, and AS-6 (MUST NOT)
- * forbids putting the uid on the screen instead. ⚠️ The order of two unlike
- * names is by code unit: no row fixes a collation, and a locale-dependent one
- * would order the same document differently on two machines.
+ * ⭐ THE WALK STANDS ON ITS OWN BECAUSE TWO SIDES OF ONE FIELD ASK IT. The row's
+ * text names them all and the chooser beside it stands on ONE of them, and a
+ * second walk written for the chooser could answer with a person the text never
+ * named -- two readings of one rule drift (rule 03 section 4).
+ *
+ * ⛔ FR-059's work-resource filter is NOT borrowed: it keeps materials and costs
+ * off the drawing, whereas this is the surface that edits the assignment, so
+ * hiding one here would leave it unremovable. ⚠️ A resource with no name is left
+ * out because there is no name to show, and AS-6 (MUST NOT) forbids putting the
+ * uid on the screen instead -- which is the same test `assigneeChoices` applies,
+ * so every person answered here is one of that roster's candidates. ⚠️ The order
+ * of two unlike names is by code unit: no row fixes a collation, and a
+ * locale-dependent one would order the same document differently on two
+ * machines.
  *
  * @purity pure
  */
-function assigneeText(schedule: Schedule, taskUid: number): string {
+function assigneesOf(schedule: Schedule, taskUid: number): readonly Assignee[] {
   const assignees: Assignee[] = []
 
   for (const assignment of schedule.assignments) {
@@ -485,7 +486,27 @@ function assigneeText(schedule: Schedule, taskUid: number): string {
   }
 
   assignees.sort(compareAssignees)
-  return assignees.map((assignee) => assignee.name).join(PART_SEPARATOR)
+  return assignees
+}
+
+/**
+ * The names of those people, written out for the row.
+ *
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how several assignees are written
+ * on this panel. FR-059's "the first name and the count of the rest" governs the
+ * assignee LABEL, and AS-5 of table T-225 makes this a different surface with no
+ * width rule of its own. Looked in table T-225 (AS-5 / AS-6 / AS-9), FR-059,
+ * FR-008 and table T-016. Chose every name, in the order the specification puts
+ * assignees in elsewhere -- name ascending, the smaller uid first, which is
+ * AS-8's tie-break -- joined by the separator this file already uses between the
+ * parts of one field.
+ *
+ * @purity pure
+ */
+function assigneeText(schedule: Schedule, taskUid: number): string {
+  return assigneesOf(schedule, taskUid)
+    .map((assignee) => assignee.name)
+    .join(PART_SEPARATOR)
 }
 
 /**
@@ -503,12 +524,12 @@ function assigneeText(schedule: Schedule, taskUid: number): string {
  * route the specification gives. The two carry the same word and different
  * values: AS-6 (MUST NOT) keeps the `uid` out of the word, and `choiceValues`
  * is what carries it instead.
- * ⚠️ A resource with no name is left out for the reason `assigneeText` gives:
+ * ⚠️ A resource with no name is left out for the reason `assigneesOf` gives:
  * there is no name to show and AS-6 forbids the uid in its place.
- * ⛔ FR-059's work-resource filter is NOT borrowed, for the reason `assigneeText`
+ * ⛔ FR-059's work-resource filter is NOT borrowed, for the reason `assigneesOf`
  * gives as well: it keeps materials and costs off the DRAWING, and this is the
  * surface that edits the assignment.
- * ⚠️ The order of two unlike names is by code unit, as it is in `assigneeText`:
+ * ⚠️ The order of two unlike names is by code unit, as it is in `assigneesOf`:
  * no row fixes a collation, and a locale-dependent one would order the same
  * document differently on two machines. Two of one name stand smaller uid first,
  * which is AS-8's own tie-break.
@@ -683,31 +704,45 @@ function controlOf(
  * row id names a column the write side answers with no command at all, rather
  * than one that would change a value the person never touched.
  *
- * ⭐ THE CONTROL STANDS EMPTY WHILE THE FIELD LISTS THE PEOPLE. A task may carry
- * several assignments, so the ROW's text is the several names joined and this
- * one control is where ONE person is settled -- by the `uid` their candidate
- * carries (AS-9), never by the word it shows. What a settled candidate does is
- * 割り当てる: AS-7 (MUST) creates the person and assigns, AS-10 (MUST) only
- * forbids a second assignment of someone already on the task, and no row of
- * table T-225 speaks of replacing -- 解除 has its own row and its own signal
- * (AS-3). ⛔ NOT the joined text: a chooser that handed several names back
- * untouched would be a name nobody is called, and AS-7 would make a `Resource`
- * of it.
+ * ⭐ THE CONTROL STANDS ON THE PERSON WHO IS ALREADY THERE, WHICH IS WHAT MAKES
+ * IT NAME ANYBODY. Every other control of table T-016 carries its column's value
+ * as its own text, so drawing the control drew the value; this one carried
+ * nothing, and the surface therefore had to write `PropertyField.text` out
+ * BESIDE it -- putting the same names on the screen twice, once as that text and
+ * once as the candidate the chooser was standing on. A chooser holding the
+ * seated person's `uid` shows that person's NAME through the candidate it
+ * selects, which is AS-6's MUST met by the control itself.
+ * ⛔ THE VALUE IS THE `uid`, NOT THE NAME, and it is spelled exactly as
+ * `choiceValues` spells it so that it names one of the candidates. ⚠️ It is not
+ * a word on the screen: AS-6 (MUST NOT) forbids making a person read a `uid`,
+ * and what a candidate COMMITS is not what a candidate SHOWS -- AS-9 (MUST) is
+ * the row that keeps the two apart.
  *
- * ⛔ SO THE ROW'S OWN TEXT IS THE ONLY PLACE THE PEOPLE ARE NAMED, and it has to
- * be drawn. FR-006 (MUST) puts the item on the panel and AS-6 (MUST) makes what
- * is shown a name -- a surface that draws a control INSTEAD of
- * `PropertyField.text` stops naming anybody on this one row, where every other
- * row's control carries its own value.
+ * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: which of several assignees the one
+ * chooser stands on. A task may carry several assignments and a 選択 holds one.
+ * Looked in table T-225 (AS-5 / AS-6 / AS-8 / AS-9 / AS-10), FR-059, FR-008 and
+ * table T-016. Chose the first in `assigneesOf`'s order -- the order AS-8's
+ * tie-break fixes, and the one FR-059 already reads first when it names one
+ * assignee and counts the rest -- and the empty spelling for a task nobody is
+ * on. ⚠️ WHAT IT COSTS, said rather than hidden: a task with two assignees has
+ * ONE of them in the chooser, while the row's own text goes on naming both.
+ *
+ * ⭐ WHAT A SETTLED CANDIDATE DOES IS 割り当てる: AS-7 (MUST) creates the person
+ * and assigns, AS-10 (MUST) only forbids a second assignment of someone already
+ * on the task, and no row of table T-225 speaks of replacing -- 解除 has its own
+ * row and its own signal (AS-3). ⚠️ SO A CHOOSER THAT ALREADY SHOWS SOMEBODY
+ * READS LIKE A REPLACEMENT AND IS NOT ONE: no row settles that, and it is
+ * reported rather than invented here.
  *
  * @purity pure
  */
 function assigneeControl(schedule: Schedule, taskUid: number): PropertyControl {
   const people = assigneeChoices(schedule)
+  const seated = assigneesOf(schedule, taskUid)[0]
   return {
     key: { holder: 'task', uid: taskUid, column: 'uid' },
     kind: 'choice',
-    text: '',
+    text: seated === undefined ? '' : String(seated.uid),
     choices: people.map((person) => person.name),
     // ⭐ AS-9 (MUST): what is chosen is the `uid`, and what is shown is the name
     // the roster holds for it -- AS-6 (MUST NOT) forbids the second to be the

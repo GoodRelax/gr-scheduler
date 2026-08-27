@@ -1,6 +1,6 @@
 {
- "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/fig-icons.svg, figure F-019 (the authority for every icon shape, FR-029), cross-checked against table T-109 of docs/spec/_assets/tbl-glossary.md so that neither can move without the other. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_glyphs.py. Each shape is carried as it was drawn: the figure paints through a stylesheet, so each element leaves with the declarations its own classes held, and the colour is currentColor because the app has a theme of its own (FR-041).",
- "viewBox": "0 0 24 24",
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/fig-icons.svg, figure F-019 (the authority for every icon shape, FR-029), cross-checked against table T-109 of docs/spec/_assets/tbl-glossary.md so that neither can move without the other. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_glyphs.py. Each shape is carried as it was drawn: the figure paints through a stylesheet, so each element leaves with the declarations its own classes held, and the colour is currentColor because the app has a theme of its own (FR-041). The coordinate system is the frame the shapes themselves circumscribe, measured from their geometry and their own stroke widths, and it is one system for all of them: FR-029 requires the figure tightened to that frame (MUST) and forbids a coordinate system per shape (MUST NOT), because a coordinate system with margin in it does not let a bigger box draw a bigger shape.",
+ "viewBox": "1 1.7 21.8 20.6",
  "glyphs": [
   {
    "rowId": "IC-1",

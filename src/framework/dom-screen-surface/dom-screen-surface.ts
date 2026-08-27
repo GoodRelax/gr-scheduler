@@ -937,6 +937,30 @@ function paletteGroupRuleStyle(): string {
 // -------------------------------------------------------------- the styles ---
 
 /**
+ * What the `Autosave Status`'s letters multiply the host's own base by.
+ *
+ * ⛔ THE ROW THIS IS WAITING FOR DOES NOT EXIST, AND NO REASON FOR THE NUMBER IS
+ * WRITTEN HERE. Table T-206 holds no coefficient for the `App Header` or for any
+ * part of it: S-197 and S-198 are the `Properties Panel`'s and FR-006 is what
+ * places them there, and S-116 caps the header's HEIGHT and says nothing about
+ * its letters. FR-061 (MUST) asks for the time to be shown beside the saved
+ * state and settles no size for it either. PD-326 names the row that must exist
+ * and what it must say; until it does, this value is not the specification's.
+ *
+ * ⛔ A COEFFICIENT AND NEVER A px, for the reason `propertiesPanelStyle` gives
+ * for S-197: NFR-007 carries WCAG 2.1's 1.4.4, and a size fixed in px leaves the
+ * reader who enlarged the browser's own text behind. What this multiplies is
+ * that base, which is what an `em` on a box stating no size of its own resolves
+ * against.
+ * ⛔ AND NOT `fontScaleSizes[fontScale]` OF TABLE T-215, which FR-006 rules out
+ * in as many words for the frame AROUND the schedule -- and the header is that
+ * frame rather than part of the schedule, the same ground S-197 stands on.
+ *
+ * @provisional PD-326
+ */
+const AUTOSAVE_STATUS_TEXT_SCALE = 0.75
+
+/**
  * The box a part that STOPS THE READING takes: in the middle of the screen, over
  * everything under it, and taking the pointer.
  *
@@ -986,7 +1010,15 @@ const STYLE = {
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
   documentTitle: 'font-weight:600;overflow:hidden;text-overflow:ellipsis;',
-  autosaveStatus: `margin-left:auto;color:${PAINT.quiet};`,
+  // ⭐ SMALLER THAN THE REST OF THE HEADER, AND THE RATIO IS NOT SETTLED --
+  // `AUTOSAVE_STATUS_TEXT_SCALE` carries the whole of why, and the row it waits
+  // for. ⚠️ What FR-051 measures at BO-1 is the height this box comes out at,
+  // NOT a number stated here, so a part that letters itself smaller cannot make
+  // that height wrong -- but it CAN lower it, if this span was ever the tallest
+  // thing in the header, and everything below the header is placed against it.
+  autosaveStatus:
+    `margin-left:auto;color:${PAINT.quiet};` +
+    `font-size:${AUTOSAVE_STATUS_TEXT_SCALE}em;`,
   headerCommands: 'display:flex;align-items:center;gap:0.25em;',
   // ⚠️ NEITHER AN ENTRANCE'S FRAME NOR THE BOX ITS SHAPE IS DRAWN IN IS A
   // MEMBER HERE: `entryStyle`, `entryFaintStyle` and `glyphStyle` state them,
@@ -1632,6 +1664,61 @@ function panelEdge(
   return divider === undefined ? null : divider.line
 }
 
+// ---------------------------------------------------------------- semi-pure --
+//
+// ⚠️ ITS OWN SECTION, BETWEEN THE PURE ONES AND THE BUILDERS, because R7.7 of
+// the review standards orders the members pure -> semi-pure -> non-pure and the
+// header above states that everything under it is pure. One member stands here,
+// and what it reads from the outside is named in its own note.
+
+/**
+ * The stamp AT-129 holds, read in the zone the person reading it is in.
+ *
+ * ⭐ WHY THE DRAWING SIDE CONVERTS AND THE SEAM DOES NOT. `AutosaveStatus.at`
+ * goes on carrying the spelling AT-129 fixes -- ISO 8601, UTC, to the second --
+ * so nothing on IF-9 moves and no value of table T-065 changes shape. FR-061
+ * (MUST) asks only that the saved state be shown 「時刻を併記」 and settles
+ * neither a zone nor a spelling, which leaves what a READER is shown to this
+ * side.
+ * ⭐ AND THE ZONE IS THE READER'S BECAUSE THAT IS WHAT THE ONE ROW WHICH DOES
+ * SETTLE A ZONE ASKS FOR: FR-046 (MUST) has today's date be 「読む人の機のロー
+ * カルの暦の日」 and (MUST NOT) forbids UTC's. `readToday` in the shell is built
+ * from the local getters for that row; this is the same reading of the same
+ * question, one requirement over.
+ *
+ * ⛔ THE TRAILING `Z` IS DROPPED BECAUSE IT IS A CLAIM AND NOT A DECORATION:
+ * that letter says "this is UTC", and after the conversion the claim is false.
+ * ⚠️ An offset is not put in its place either -- that is the other half of the
+ * same undecided spelling (PD-325), and writing one would settle it here.
+ *
+ * ⛔ NO WORD IS PRINTED, IN EITHER DISPLAY LANGUAGE. FR-038 (MUST NOT) keeps one
+ * dictionary as the only store of translated strings, and a month or a weekday
+ * spelled here would be a second one -- so the shape stays AT-129's own, with
+ * the `T` opened out, and comes out the same in `ja` and in `en`.
+ *
+ * ⚠️ A STAMP THIS CANNOT READ IS HANDED BACK UNTOUCHED rather than replaced:
+ * the local getters of an unreadable date answer `NaN`, and `NaN-NaN-NaN` reads
+ * as a time to anyone glancing at the header.
+ * ⚠️ The `+ 1` on the month is the host's own numbering (`getMonth` counts from
+ * zero) and not a figure of the specification's -- the same note `readToday`
+ * carries.
+ *
+ * @provisional PD-325
+ * @purity semi-pure-b
+ */
+function readableStamp(utc: string): string {
+  const at = new Date(utc)
+  if (Number.isNaN(at.getTime())) return utc
+  const padded = (part: number, width: number): string => String(part).padStart(width, '0')
+  const year = padded(at.getFullYear(), 4)
+  const month = padded(at.getMonth() + 1, 2)
+  const day = padded(at.getDate(), 2)
+  const hour = padded(at.getHours(), 2)
+  const minute = padded(at.getMinutes(), 2)
+  const second = padded(at.getSeconds(), 2)
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+}
+
 // ----------------------------------------------------------- the builders ----
 
 /**
@@ -1833,7 +1920,12 @@ function fillAppHeader(
   // which is the far side's to say, on the description.
   status.setAttribute('data-status', items.autosaveStatus.kind)
   // FR-061 (MUST): the time is shown with the saved state.
-  status.textContent = 'at' in items.autosaveStatus ? items.autosaveStatus.at : ''
+  // ⭐ SHOWN IN THE READER'S OWN ZONE, HELD IN UTC. `readableStamp` carries both
+  // halves of why; what matters here is that the value the description brought
+  // is untouched -- `AutosaveStatus.at` is still AT-129's spelling on IF-9, and
+  // only what a person LOOKS at was converted.
+  status.textContent =
+    'at' in items.autosaveStatus ? readableStamp(items.autosaveStatus.at) : ''
 
   const commands = part(host, 'span', ROLE.headerCommands, STYLE.headerCommands)
   for (const item of items.commands) {
@@ -3196,6 +3288,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   wiring.mount.append(root)
 
   let lastKeys: Readonly<Record<string, string>> = {}
+  // ⛔ HELD SO THAT THE ATTRIBUTE IS WRITTEN ONLY WHEN IT MOVED. Every happening
+  // of table T-078 runs a frame, and an attribute written again with the value
+  // it already carries still costs the environment a style recalculation for
+  // the whole subtree under it -- on the path NFR-002 measures. `showPointerShape`
+  // in the shell holds its own last value for exactly this, and this is that
+  // bargain on this side. ⚠️ The empty string is not a language, so the first
+  // description always writes.
+  let langShown = ''
   let headerHeightPx = 0
   // ⛔ Held apart from the number, and not folded into it as a 0 meaning 「not
   // measured yet」: 0 is a height a host really does answer, so the two must be
@@ -3431,10 +3531,50 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     const changed = (name: string): boolean => keys[name] !== lastKeys[name]
 
-    // ⛔ FIRST, because the height it measures is what everything below it is
-    // placed against. FR-051 makes that height a measurement rather than a
-    // number anyone holds, and the header is the only part whose own size is
-    // one -- so it is the only part re-measured after being rewritten.
+    // FR-038 (MUST): one language for the WHOLE screen -- and this is the half
+    // of that the dictionary cannot reach. Every control table T-016's 入力の型
+    // column asks the host to draw (`CONTROL_INPUT_TYPE`) brings the
+    // environment's own words with it: the calendar a `date` control opens is
+    // the host's, and the host chooses which language to draw it in from the
+    // `lang` the control inherits. ⛔ FR-038 (MUST NOT) keeps one dictionary as
+    // the only store of translated strings, so those words are not GRS's to
+    // hold -- what is left is to tell the environment which language the person
+    // is reading in, and this attribute is how that is said.
+    //
+    // ⛔ ON THIS UNIT'S OWN ROOT AND NOT ON THE HOST'S `documentElement`.
+    // `ScreenSurfaceWiring` says only `createElement` is called on the host,
+    // and every control this unit draws hangs off this root, so one write
+    // reaches all of them without breaking that promise. ⚠️ The PAGE's own
+    // `lang` is therefore left as whoever built the page wrote it: carrying the
+    // language out that far needs a second channel from the loop to the shell
+    // -- the twin of `showPointerShape` -- which is not built here.
+    // ⚠️ Not a `data-` attribute like the two `data-language`s already written
+    // for the entry (IC-21) and the help: those are the DESCRIPTION read back,
+    // and this one is what the environment itself acts on.
+    //
+    // ⛔ BEFORE THE HEADER IS REDRAWN AND RE-MEASURED, and that ordering is not
+    // free: which language a box states can change which faces the environment
+    // falls back to, and the very next block measures the height FR-051 (MUST)
+    // takes from the environment. Written after it, the first frame in a new
+    // language would report a height measured in the old one.
+    //
+    // ⚠️ WHICH ELEMENT CARRIES IT IS UNDECIDED, NOT THE FACT THAT ONE DOES.
+    // FR-038 settles the state and WCAG 2.1 asks about the page and about its
+    // parts in two separate rules, and no row of the manuscript says which of
+    // the two this is -- PD-323 holds the question and the recommendation.
+    //
+    // @provisional PD-323
+    if (view.language !== langShown) {
+      langShown = view.language
+      root.setAttribute('lang', view.language)
+    }
+
+    // ⛔ THE FIRST PART REDRAWN, because the height it measures is what
+    // everything below it is placed against. FR-051 makes that height a
+    // measurement rather than a number anyone holds, and the header is the only
+    // part whose own size is one -- so it is the only part re-measured after
+    // being rewritten. ⚠️ Only the `lang` above stands before it, and its note
+    // says why it has to.
     let isHeaderMoved = false
     if (changed('appHeaderItems')) {
       fillAppHeader(host, appHeader, view.appHeaderItems, anchorsOf('appHeaderItems'))
