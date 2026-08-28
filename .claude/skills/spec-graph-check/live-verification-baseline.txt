@@ -7,4 +7,10 @@
 #
 # ⚠️ It was 23 of 28 on the day it was measured. The user had just found one of
 # them (D-69) unfixed in a screenshot after it was reported to them as done.
-23
+#
+# 2026-08-29, CR-280: 23 -> 20. D-41, D-80 and D-85 were opened in the shipped
+# build and measured. ⚠️ D-80 and D-85 first read as NOT fixed because the
+# probe searched the panel's whole text for 「マイルストーン」 and 「形状」, which
+# PR-17 (the milestone SHAPE, deliberately kept) also contains. Counting the
+# panel's controls one at a time overturned it. Count controls, not substrings.
+20
