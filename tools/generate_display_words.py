@@ -33,6 +33,8 @@ import os
 import re
 import sys
 
+import spec_tables
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
@@ -206,32 +208,28 @@ def say(message):
     sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
-def cells(line):
-    """The cells of one Markdown table row."""
-    return [cell.strip() for cell in line.strip().strip('|').split('|')]
-
-
 def table_rows(rel, row_pattern, table):
     """Every row of one table, in the order it is printed.
 
-    The caption has to have been seen first, which is what keeps a row id
-    belonging to some other table from being read as this one's.
+    ⭐ THE WALK IS `tools/spec_tables.py`'S NOW. It stops at the next
+    caption, which the copy that stood here did not: that one set a flag
+    when it saw its caption and then took every row matching its pattern to
+    the end of the file, safe only while no other table used the same
+    row-id shape and with nothing enforcing that.
+
+    ⚠️ `row_pattern` IS STILL APPLIED, against the row id rather than the
+    line. A caption owns rows that are not part of its roster -- table
+    T-023a carries a second block with no row ids at all -- and the pattern
+    is what each caller uses to say which rows it means.
+
+    @purity semi-pure-b
     """
-    seen_caption = False
-    caption = u'表 %s —' % table          # 表 T-nnn —
-    found = []
-    for line in io.open(path_of(rel), encoding='utf-8'):
-        if caption in line:
-            seen_caption = True
-        match = row_pattern.match(line)
-        if match:
-            if not seen_caption:
-                raise SystemExit('%s: row %s stands before the caption of table '
-                                 '%s' % (rel, match.group(1), table))
-            found.append(cells(line))
+    found = [row.cells for row in spec_tables.read(rel, table)
+             if row_pattern.match('| %s |' % row.id)]
     if not found:
-        raise SystemExit('%s: table %s has no rows -- the needle no longer '
-                         'matches the document' % (rel, table))
+        raise SystemExit('%s: table %s has no rows the caller recognises -- '
+                         'the needle no longer matches the document'
+                         % (rel, table))
     return found
 
 

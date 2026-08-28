@@ -40,6 +40,8 @@ import os
 import re
 import sys
 
+import spec_tables
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 GLOSSARY = os.path.join(ROOT, 'docs', 'spec', '_assets', 'tbl-glossary.md')
@@ -128,12 +130,6 @@ BANNER = (
        SHAPE_TABLE, REL_REQUIREMENTS, REL_ERD))
 
 
-def cells(line):
-    """The cells of one Markdown table row."""
-    # @purity pure
-    return [c.strip() for c in line.strip().strip('|').split('|')]
-
-
 def code_spans(cell):
     """The names a cell writes as `code`."""
     # @purity pure
@@ -141,56 +137,15 @@ def code_spans(cell):
 
 
 def read_lines(path):
-    """One manuscript, line by line."""
-    # @purity semi-pure-b
-    return io.open(path, encoding='utf-8').read().split('\n')
+    """One manuscript, line by line.
 
+    ⚠️ Still needed after the shared reader took the table parsing: the
+    sentence stating a table height sits in the PROSE above the caption,
+    which is not part of any table.
 
-def table_rows(lines, row_pattern, table_id, rel_path):
-    """The header, the body rows and the caption line of one table.
-
-    Fails when the table is absent, when its rows are not one unbroken run, or
-    when the caption above them names something else -- all three of which mean
-    the reader below would be guessing at which table it has.
+    @purity semi-pure-b
     """
-    # @purity pure
-    body = [i for i, line in enumerate(lines) if row_pattern.match(line)]
-    if not body:
-        sys.exit('generate_icon_roster: %s holds no row of table %s'
-                 % (rel_path, table_id))
-    first, last = body[0], body[-1]
-    if body != list(range(first, last + 1)):
-        sys.exit('generate_icon_roster: the rows of table %s do not form one '
-                 'run of lines in %s' % (table_id, rel_path))
-    if first < 3:
-        sys.exit('generate_icon_roster: table %s starts at line %d of %s, with '
-                 'no room above it for a header and a caption'
-                 % (table_id, first + 1, rel_path))
-    # ⚠️ A colon is Markdown's alignment marker, not part of what makes the
-    # line a ruler: table T-012 centres one of its columns and the tables of
-    # the glossary centre none, so a check that refused one would read the two
-    # manuscripts by different rules.
-    ruler = set(lines[first - 1].replace('|', '').replace(' ', '').replace(':', ''))
-    if ruler != set('-'):
-        sys.exit('generate_icon_roster: table %s has no header ruler above its '
-                 'first row in %s' % (table_id, rel_path))
-    caption = first - 3
-    while caption > 0 and not lines[caption].strip():
-        caption -= 1
-    if table_id not in lines[caption]:
-        sys.exit('generate_icon_roster: the rows that look like table %s sit '
-                 'under a caption that does not name it (line %d of %s)'
-                 % (table_id, caption + 1, rel_path))
-    header = cells(lines[first - 2])
-    rows = []
-    for i in body:
-        row = cells(lines[i])
-        if len(row) != len(header):
-            sys.exit('generate_icon_roster: line %d of %s has %d cell(s) where '
-                     'table %s has %d column(s)'
-                     % (i + 1, rel_path, len(row), table_id, len(header)))
-        rows.append(row)
-    return header, rows, caption
+    return io.open(path, encoding='utf-8').read().splitlines()
 
 
 def stated_row_count(lines, caption):
@@ -210,8 +165,7 @@ def stated_row_count(lines, caption):
 def settled_surfaces(lines):
     """Every UI part name table T-103 settles."""
     # @purity pure
-    _header, rows, _caption = table_rows(
-        lines, SURFACE_ROW, SURFACE_TABLE, REL_GLOSSARY)
+    rows = [row.cells for row in spec_tables.read(REL_GLOSSARY, SURFACE_TABLE)]
     names = set()
     for row in rows:
         names.update(code_spans(row[1]))
@@ -275,8 +229,8 @@ def shape_rows(lines):
     on the half that had drifted would arm a shape the model cannot hold.
     """
     # @purity semi-pure-b
-    _header, rows, _caption = table_rows(
-        lines, SHAPE_ROW, SHAPE_TABLE, REL_REQUIREMENTS)
+    rows = [row.cells
+            for row in spec_tables.read(REL_REQUIREMENTS, SHAPE_TABLE)]
     settled = settled_spellings(SHAPE_ENTITY, SHAPE_COLUMN)
     found = {}
     for row in rows:
@@ -388,12 +342,14 @@ def build():
     # @purity semi-pure-b
     lines = read_lines(GLOSSARY)
     surfaces = settled_surfaces(lines)
-    header, rows, caption = table_rows(
-        lines, ICON_ROW, ICON_TABLE, REL_GLOSSARY)
-    if len(header) != len(FIELDS):
+    table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
+    rows = [row.cells for row in table]
+    if len(table.headings) != len(FIELDS):
         sys.exit('generate_icon_roster: table %s now has %d column(s) and this '
-                 'script names %d' % (ICON_TABLE, len(header), len(FIELDS)))
-    wanted = stated_row_count(lines, caption)
+                 'script names %d'
+                 % (ICON_TABLE, len(table.headings), len(FIELDS)))
+    # the caption line is 1-based; the list below it is 0-based
+    wanted = stated_row_count(lines, table.caption_line - 1)
     if len(rows) != wanted:
         sys.exit('generate_icon_roster: table %s holds %d row(s), and the '
                  'sentence above it in %s says %d'
@@ -406,7 +362,7 @@ def build():
     fill_arms_shape(icons, read_lines(REQUIREMENTS))
     return {
         '$comment': BANNER,
-        'columns': dict(zip(FIELDS, header)),
+        'columns': dict(zip(FIELDS, table.headings)),
         'icons': icons,
     }
 

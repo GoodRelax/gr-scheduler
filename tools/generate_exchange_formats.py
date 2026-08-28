@@ -55,6 +55,8 @@ import os
 import re
 import sys
 
+import spec_tables
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SOURCE = os.path.join(ROOT, 'docs', 'spec', '01-04-requirements.md')
@@ -112,61 +114,6 @@ BANNER = (
     'build uses for the two readable ones are bound to those row ids in '
     'document-codec.ts.'
     % (REL_SOURCE, TABLE, REL_SELF, TABLE))
-
-
-def cells(line):
-    """The cells of one Markdown table row."""
-    # @purity pure
-    return [c.strip() for c in line.strip().strip('|').split('|')]
-
-
-def read_lines():
-    """The requirements document, line by line."""
-    # @purity semi-pure-b
-    return io.open(SOURCE, encoding='utf-8').read().split('\n')
-
-
-def table_rows(lines, row_pattern, table_id):
-    """The header and the body rows of one table.
-
-    Fails when the table is absent, when its rows are not one unbroken run, or
-    when the caption above them names something else -- all three of which mean
-    the reader below would be guessing at which table it has.
-    """
-    # @purity pure
-    body = [i for i, line in enumerate(lines) if row_pattern.match(line)]
-    if not body:
-        sys.exit('generate_exchange_formats: %s holds no row of table %s'
-                 % (REL_SOURCE, table_id))
-    first, last = body[0], body[-1]
-    if body != list(range(first, last + 1)):
-        sys.exit('generate_exchange_formats: the rows of table %s do not form '
-                 'one run of lines in %s' % (table_id, REL_SOURCE))
-    if first < 3:
-        sys.exit('generate_exchange_formats: table %s starts at line %d of %s, '
-                 'with no room above it for a header and a caption'
-                 % (table_id, first + 1, REL_SOURCE))
-    ruler = set(lines[first - 1].replace('|', '').replace(' ', ''))
-    if ruler != set('-'):
-        sys.exit('generate_exchange_formats: table %s has no header ruler above '
-                 'its first row in %s' % (table_id, REL_SOURCE))
-    caption = first - 3
-    while caption > 0 and not lines[caption].strip():
-        caption -= 1
-    if table_id not in lines[caption]:
-        sys.exit('generate_exchange_formats: the rows that look like table %s '
-                 'sit under a caption that does not name it (line %d of %s)'
-                 % (table_id, caption + 1, REL_SOURCE))
-    header = cells(lines[first - 2])
-    rows = []
-    for i in body:
-        row = cells(lines[i])
-        if len(row) != len(header):
-            sys.exit('generate_exchange_formats: line %d of %s has %d cell(s) '
-                     'where table %s has %d column(s)'
-                     % (i + 1, REL_SOURCE, len(row), table_id, len(header)))
-        rows.append(row)
-    return header, rows
 
 
 def only_code_span(cell, row_id, column):
@@ -255,11 +202,11 @@ def format_of(row):
 def build():
     """The formats, as they are written out."""
     # @purity semi-pure-b
-    lines = read_lines()
-    header, rows = table_rows(lines, FORMAT_ROW, TABLE)
-    if len(header) != len(FIELDS):
+    table = spec_tables.read(REL_SOURCE, TABLE)
+    if len(table.headings) != len(FIELDS):
         sys.exit('generate_exchange_formats: table %s now has %d column(s) and '
-                 'this script names %d' % (TABLE, len(header), len(FIELDS)))
+                 'this script names %d' % (TABLE, len(table.headings), len(FIELDS)))
+    rows = [row.cells for row in table]
     ids = [row[0] for row in rows]
     if len(set(ids)) != len(ids):
         sys.exit('generate_exchange_formats: table %s uses %d row id(s) for %d '
@@ -293,7 +240,11 @@ def build():
         sys.exit('generate_exchange_formats: two rows of table %s share an '
                  'extension, so FR-096 could not suggest one name' % TABLE)
 
-    columns = dict(zip(CARRIED, (header[0], header[3], header[4])))
+    # ⭐ THE HEADINGS ARE THE TABLE'S OWN, carried so the artifact says which
+    # column each key came from. Read off the shared reader rather than by
+    # index, so a column added upstream moves nothing here.
+    headings = table.headings
+    columns = dict(zip(CARRIED, (headings[0], headings[3], headings[4])))
     return {'$comment': BANNER, 'columns': columns, 'formats': formats}
 
 

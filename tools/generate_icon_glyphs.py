@@ -50,6 +50,8 @@ import math
 import os
 import re
 import sys
+
+import spec_tables
 from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -150,46 +152,6 @@ def read_text(path):
     return io.open(path, encoding='utf-8').read()
 
 
-def cells(line):
-    """The cells of one Markdown table row."""
-    # @purity pure
-    return [c.strip() for c in line.strip().strip('|').split('|')]
-
-
-def table_rows(lines, row_pattern, table_id):
-    """The body rows and the caption line of one table.
-
-    Fails when the table is absent, when its rows are not one unbroken run, or
-    when the caption above them names something else -- all three of which mean
-    the reader below would be guessing at which table it has.
-    """
-    # @purity pure
-    body = [i for i, line in enumerate(lines) if row_pattern.match(line)]
-    if not body:
-        sys.exit('generate_icon_glyphs: %s holds no row of table %s'
-                 % (REL_GLOSSARY, table_id))
-    first, last = body[0], body[-1]
-    if body != list(range(first, last + 1)):
-        sys.exit('generate_icon_glyphs: the rows of table %s do not form one '
-                 'run of lines in %s' % (table_id, REL_GLOSSARY))
-    if first < 3:
-        sys.exit('generate_icon_glyphs: table %s starts at line %d of %s, with '
-                 'no room above it for a header and a caption'
-                 % (table_id, first + 1, REL_GLOSSARY))
-    ruler = set(lines[first - 1].replace('|', '').replace(' ', ''))
-    if ruler != set('-'):
-        sys.exit('generate_icon_glyphs: table %s has no header ruler above its '
-                 'first row in %s' % (table_id, REL_GLOSSARY))
-    caption = first - 3
-    while caption > 0 and not lines[caption].strip():
-        caption -= 1
-    if table_id not in lines[caption]:
-        sys.exit('generate_icon_glyphs: the rows that look like table %s sit '
-                 'under a caption that does not name it (line %d of %s)'
-                 % (table_id, caption + 1, REL_GLOSSARY))
-    return [cells(lines[i])[0] for i in body], caption
-
-
 def stated_row_count(lines, caption):
     """The height table T-109 claims for itself, from the prose above it."""
     # @purity pure
@@ -208,8 +170,10 @@ def roster_rows():
     """Every row id of table T-109, in that table's own order."""
     # @purity semi-pure-b
     lines = read_text(GLOSSARY).split('\n')
-    rows, caption = table_rows(lines, ICON_ROW, ICON_TABLE)
-    wanted = stated_row_count(lines, caption)
+    table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
+    rows = table.ids()
+    # the caption line is 1-based; the list below it is 0-based
+    wanted = stated_row_count(lines, table.caption_line - 1)
     if len(rows) != wanted:
         sys.exit('generate_icon_glyphs: table %s holds %d row(s), and the '
                  'sentence above it in %s says %d'

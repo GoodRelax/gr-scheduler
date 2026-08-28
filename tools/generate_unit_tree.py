@@ -24,6 +24,8 @@ import os
 import re
 import sys
 
+import spec_tables
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DESIGN = os.path.join(ROOT, 'docs', 'spec', '05-07-design.md')
@@ -42,10 +44,6 @@ LAYER_FOLDER = {
 say = lambda m: sys.stdout.write(m + '\n')
 
 
-def cells(line):
-    return [c.strip() for c in line.strip().strip('|').split('|')]
-
-
 def bare(cell):
     """The name inside a `code span`, with any decoration dropped."""
     found = re.findall(r'`([^`]+)`', cell)
@@ -57,13 +55,21 @@ def kebab(name):
     return re.sub(r'(?<!^)(?=[A-Z])', '-', name).lower()
 
 
+# Which table of Chapter 5 holds each kind of row this script walks.
+# ⭐ NAMED RATHER THAN MATCHED BY ROW SHAPE, which is what the shared
+# reader makes possible: the old walk took every CP / UF / PI / IF row in
+# the whole file, so a row of that shape appearing in some other table
+# would have joined the roster silently.
+ROW_TABLE = {'CP': 'T-062', 'UF': 'T-075', 'PI': 'T-064', 'IF': 'T-065'}
+
+REL_DESIGN = 'docs/spec/05-07-design.md'
+
+
 def read_tables():
-    text = io.open(DESIGN, encoding='utf-8').read().split('\n')
-    rows = {'CP': [], 'UF': [], 'PI': [], 'IF': []}
-    for line in text:
-        hit = re.match(r'\| ((?:CP|UF|PI|IF)-\d+[a-z]?) \|', line)
-        if hit:
-            rows[hit.group(1).split('-')[0]].append(cells(line))
+    rows = {}
+    for kind, table_id in ROW_TABLE.items():
+        rows[kind] = [row.cells
+                      for row in spec_tables.read(REL_DESIGN, table_id)]
     return rows
 
 

@@ -43,6 +43,8 @@ import os
 import re
 import sys
 
+import spec_tables
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 REQUIREMENTS = os.path.join(ROOT, 'docs', 'spec', '01-04-requirements.md')
@@ -89,11 +91,6 @@ def say(message):
     sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
 
 
-def cells(line):
-    """The cells of one printed row."""
-    return [c.strip() for c in line.strip().strip('|').split('|')]
-
-
 def keys_of(written):
     """The key assignment a reader needs, out of the cell the table prints.
 
@@ -109,44 +106,31 @@ def keys_of(written):
 def table_rows(table, row_shape, key_column):
     """Every row of one table, in the order it is printed.
 
-    The caption has to have been seen first, which is what keeps a row id
-    belonging to some other table from being read as this one's -- the same
-    guard `tools/generate_display_words.py` takes.
+    ⭐ THE WALK IS `tools/spec_tables.py`'S NOW. What is left here is the
+    reading of ONE cell: which column carries an assignment differs per
+    table, and the em dash is that table's own way of saying a row has
+    none.
+    ⚠️ `row_shape` is no longer matched against the line -- the reader
+    already knows which table it is in, so a row is a row. It is kept as an
+    argument because TABLES names it, and dropping it would move a second
+    thing in one change.
+
+    @purity semi-pure-b
     """
-    caption = '表 %s —' % table
-    row = re.compile(r'^\| (%s) \|' % row_shape)
-    seen = False
-    headings = []
     found = []
-    for line in io.open(REQUIREMENTS, encoding='utf-8'):
-        if caption in line:
-            seen = True
-            headings = []
-            continue
-        if not seen:
-            continue
-        if line.startswith('**表 '):
-            break
-        if line.strip().startswith('|') and not headings and ROW_ID_HEADING in line:
-            headings = cells(line)
-            continue
-        match = row.match(line)
-        if match is None:
-            continue
+    for row in spec_tables.read(REL_REQUIREMENTS, table):
         keys = None
         if key_column is not None:
-            if key_column not in headings:
+            if not row.has(key_column):
                 sys.exit('%s: table %s has no %s column; its headings are %s'
-                         % (REL_REQUIREMENTS, table, key_column, headings))
-            written = keys_of(cells(line)[headings.index(key_column)])
+                         % (REL_REQUIREMENTS, table, key_column,
+                            row.table.headings))
+            written = keys_of(row.cell(key_column))
             # The em dash is the table's own way of saying a row has no
             # assignment (SK-1 states that no keyboard route exists at all),
             # and null is what carries that rather than a dash on screen.
             keys = None if written in ('', EM_DASH) else written
-        found.append((match.group(1), keys))
-    if not found:
-        sys.exit('%s: table %s has no rows -- the needle no longer matches'
-                 % (REL_REQUIREMENTS, table))
+        found.append((row.id, keys))
     return found
 
 
