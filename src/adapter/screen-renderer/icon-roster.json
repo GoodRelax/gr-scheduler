@@ -609,39 +609,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-55",
-   "surfaces": [
-    "Autosave Status"
-   ],
-   "group": null,
-   "entryTo": "保存済みであることを示す。**ボタンではない**",
-   "authority": "`FR-061`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-56",
-   "surfaces": [
-    "Autosave Status"
-   ],
-   "group": null,
-   "entryTo": "保存中であることを示す。**ボタンではない。回さない**",
-   "authority": "`FR-061`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-57",
-   "surfaces": [
-    "Autosave Status"
-   ],
-   "group": null,
-   "entryTo": "保存に失敗したことを示す。**ボタンではない**（通知は 表 T-037 の `NT-3a`）",
-   "authority": "`FR-061`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-58",
    "surfaces": [
     "Row Title Panel"

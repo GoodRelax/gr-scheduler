@@ -55,7 +55,7 @@
  * not a third route. Table T-034 sends it to R-1 of table T-008, the same file
  * route these two use, and hands what happens next to FR-087.
  */
-export type OpenRoute = 'chooser' | 'drop'
+export type OpenRoute = 'chooser' | 'drop' | 'reopen'
 
 /**
  * Why the store could not do what was asked.

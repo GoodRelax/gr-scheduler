@@ -464,6 +464,12 @@
    "icon": null
   },
   {
+   "table": "T-036",
+   "row": "SK-21",
+   "keys": "Ctrl ＋ R",
+   "icon": null
+  },
+  {
    "table": "T-109",
    "row": "IC-23",
    "keys": null,

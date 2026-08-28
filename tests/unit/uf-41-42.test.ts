@@ -120,6 +120,7 @@ const IF_3_OPENED_STATES = [
 const EVERY_OPEN_ROUTE: Readonly<Record<OpenRoute, true>> = {
   chooser: true,
   drop: true,
+  reopen: true,
 }
 
 const EVERY_STORE_REASON: Readonly<Record<FileStoreFaultReason, true>> = {

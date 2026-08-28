@@ -298,7 +298,8 @@ const SCHEDULE = {
 
 const SESSION: ScreenSession = {
   language: 'ja',
-  autosave: { kind: 'saving' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

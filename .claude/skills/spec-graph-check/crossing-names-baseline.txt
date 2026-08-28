@@ -36,10 +36,6 @@ ApplyDocumentChange | ReplacementRefusal
 ApplyDocumentChange | SettingsLimits
 ApplyDocumentChange | WriteMoment
 
-AutosaveGateway | SnapshotReadOutcome
-AutosaveGateway | SnapshotWriteOutcome
-AutosaveGateway | StoreFaultCode
-AutosaveGateway | StoredSnapshot
 
 ClipboardGateway | ClipboardContent
 ClipboardGateway | ClipboardFault
@@ -50,7 +46,6 @@ DialogueLog | latestSequence
 
 DocumentCodec | ExchangeFormat
 DocumentCodec | FormatMismatch
-DocumentCodec | JsonFault
 
 DocumentSettings | SETTINGS_BOUNDS
 DocumentSettings | SETTINGS_DEFAULTS
@@ -120,7 +115,6 @@ ItemHitArea | Item
 ItemHitArea | NOT_STORED_SIZES
 ItemHitArea | PointerSlop
 
-LocalStorageDocumentStore | WEB_STORAGE_KEY_PREFIX
 
 PostDialogueMessage | SettledUtterance
 
@@ -160,7 +154,6 @@ ScheduleLayout | TaskPlacement
 ScreenRegions | ScreenEnvironment
 
 ScreenRenderer | AppHeaderItems
-ScreenRenderer | AutosaveStatus
 ScreenRenderer | CommandItem
 ScreenRenderer | CommandPalette
 ScreenRenderer | Confirmation

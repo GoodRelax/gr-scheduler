@@ -137,6 +137,15 @@ NOTICE_DISMISS = ('dismiss',)
 # holds these as rows. ⚠️ These are KEYS, not words.
 CONFIRMATION_MARKS = ('shownOnAnotherRow',)
 
+# What the header shows in place of a time when the document has never been
+# written to a file (FR-101, MUST: 「時刻の代わりにその旨を示すこと」).
+# ⛔ HELD HERE RATHER THAN READ FROM A TABLE, for the reason above: no table
+# holds it as a row, and Chapter 6.2 forbids a table whose only column would
+# be the word itself. ⚠️ The NAME beside it needs no word -- FR-101 asks for
+# a substitute for the TIME alone, and an empty name line is not a claim.
+# ⚠️ These are KEYS, not words.
+FILE_STATUS = ('neverSaved',)
+
 # The seven weekdays the fourth ruler tier prints beside the day number
 # (FR-017, MUST). ⛔ HELD HERE RATHER THAN READ FROM A TABLE, and Chapter 6.2
 # is why: it forbids a table whose only column would be the word itself, and a
@@ -266,6 +275,7 @@ def roster():
         'confirmation': list(CONFIRMATION_ANSWERS),
         'noticeDismiss': list(NOTICE_DISMISS),
         'confirmationMarks': list(CONFIRMATION_MARKS),
+        'fileStatus': list(FILE_STATUS),
         'weekdays': list(WEEKDAYS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
@@ -306,6 +316,7 @@ SHAPE = {
     'confirmation': ('answer', ('text',)),
     'noticeDismiss': ('answer', ('text',)),
     'confirmationMarks': ('mark', ('text',)),
+    'fileStatus': ('state', ('text',)),
     'assignments': ('rowId', ('text',)),
     'arms': ('rowId', ('text',)),
     'reasons': ('rowId', ('text', 'nextStep')),
@@ -383,7 +394,7 @@ def build(doc):
     for section in ('icons', 'properties', 'paletteGroups', 'surfaces', 'notices',
                     'pressOrder', 'selecting', 'grabAreas', 'shortcuts',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
-                    'confirmationMarks',
+                    'confirmationMarks', 'fileStatus',
                     'assignments', 'arms', 'weekdays'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
@@ -418,7 +429,7 @@ def main():
     if '--report' in sys.argv:
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
                         'reasons', 'questions', 'confirmation', 'noticeDismiss',
-                        'confirmationMarks',
+                        'confirmationMarks', 'fileStatus',
                         'assignments', 'arms'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),

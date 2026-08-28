@@ -9,9 +9,9 @@
 // section of `screen-renderer.ts` fixes; this file does not own it.
 //
 // ⭐ FOUR MEMBERS, FOUR OWNERS, AND ONLY ONE OF THEM IS DECIDED HERE.
-// `documentTitle` is the document's own value (AT-3), `autosaveStatus` is the
-// shell's reading (FR-061) and `language` is the session's (S-99); all three
-// are carried across untouched. What this unit works out is `commands` -- and
+// `documentTitle` is the document's own value (AT-3), the two file cues are
+// the shell's reading (FR-101) and `language` is the session's (S-99); all of
+// them are carried across untouched. What this unit works out is `commands` -- and
 // of each entry, only whether it can be used and whether it is on.
 //
 // ⭐ WHY THE ENTRIES ARE READ FROM THE GENERATED ROSTER RATHER THAN LISTED.
@@ -52,6 +52,17 @@ import type {
 } from './screen-renderer'
 import iconRoster from './icon-roster.json'
 import displayWords from './display-words.json'
+
+/**
+ * FR-101's substitute for a time, by the state it stands for.
+ *
+ * ⚠️ A map rather than an index, the move `notices.ts` makes for the three
+ * other sections held by a literal key: the section is the dictionary's and
+ * its length is not this file's to assume.
+ */
+const FILE_STATUS_BY_STATE = new Map(
+  displayWords.fileStatus.map((entry) => [entry.state, entry]),
+)
 
 /**
  * The value table T-109's surface column carries for the `App Header` (U-31 of
@@ -383,15 +394,21 @@ export function appHeaderItemsFromDocument(
     // document may hold one anyway is FR-023's boundary, not the renderer's.
     documentTitle: schedule.project.title,
 
-    // U-28 `Autosave Status`. FR-061 (MUST) tells three states apart and shows
-    // the time with "saved"; the type carries that time on that arm alone, so
-    // the shell's reading is passed on whole rather than taken apart and rebuilt
-    // here. ⛔ A `pure` unit has no clock (CS-1 of table T-066), so the time
-    // could not be made here in any case.
-    // ⚠️ FR-061 also raises a notice when saving failed (NT-3a of table T-037).
-    // That is `ScreenView.notices` and UF-67's to fill -- each of the nine fills
-    // one member and reads none of the others.
-    autosaveStatus: session.autosave,
+    // U-58 `Opened File Name` and U-59 `File Saved At` (FR-101). Both are the
+    // shell's reading -- only it knows which handle the last write went through
+    // -- and both are carried whole. ⛔ A `pure` unit has no clock (CS-1 of
+    // table T-066), so neither could be made here in any case.
+    // ⚠️ THE NAME IS NOT THE TITLE (FR-101, MUST NOT): `documentTitle` above is
+    // the document's own value and this is the file's, and the two differing is
+    // normal rather than a fault.
+    openedFileName: session.openedFileName,
+    fileSavedAt: session.fileSavedAt,
+    // FR-101 (MUST): 「時刻の代わりにその旨を示すこと」. The word is the
+    // dictionary's, in the language the session is on (FR-038).
+    // ⚠️ An unwritten word arrives as the empty string (PD-160), which is what
+    // every other reader of this dictionary treats as "no word yet".
+    fileNeverSavedText:
+      FILE_STATUS_BY_STATE.get('neverSaved')?.text[session.language] ?? '',
 
     commands: headerCommands(settings, state, session),
 

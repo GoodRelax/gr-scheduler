@@ -1162,7 +1162,9 @@ const FRAME: ScreenFrame = { isFullScreen: false, dividers: [], scrollbars: [] }
 
 const HEADER: AppHeaderItems = {
   documentTitle: 'DocumentTitleHere',
-  autosaveStatus: { kind: 'saved', at: '2026-08-22T03:04:05Z' },
+  openedFileName: null,
+  fileSavedAt: null,
+  fileNeverSavedText: '',
   commands: [command({ icon: 'IC-7' })],
   // FR-038 (MUST): the header says which language is on, and it is the one
   // `BASE_VIEW` below carries -- S-99 is a single state for the whole screen.
@@ -1212,7 +1214,8 @@ const THEME: ScreenTheme = {
 
 const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
   language: LANGUAGE,
-  autosave: { kind: 'saved', at: '2026-08-22T03:04:05Z' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

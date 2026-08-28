@@ -238,7 +238,9 @@ const DOCUMENT_TITLE = 'EP-1 document title, U-27'
 
 const APP_HEADER_ITEMS: AppHeaderItems = {
   documentTitle: DOCUMENT_TITLE,
-  autosaveStatus: { kind: 'saved', at: AUTOSAVE_AT },
+  openedFileName: null,
+  fileSavedAt: null,
+  fileNeverSavedText: '',
   commands: [commandOf(HEADER_COMMAND_LABEL)],
   // FR-038 (MUST): the header says which language is on. The same value the
   // view carries -- `ScreenSession.language` (S-99) is where both come from.
@@ -1028,7 +1030,9 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
         viewOf(TALL_ROWS, {
           appHeaderItems: {
             documentTitle: DOCUMENT_TITLE,
-            autosaveStatus: { kind: 'saving' },
+            openedFileName: null,
+            fileSavedAt: null,
+            fileNeverSavedText: '',
             commands: [],
             language: 'ja',
           },

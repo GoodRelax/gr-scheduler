@@ -300,7 +300,9 @@ const UNIT_ROW = 'UF-71'
 const ROLE = {
   appHeader: 'App Header',
   documentTitle: 'Document Title',
-  autosaveStatus: 'Autosave Status',
+  fileStatus: 'File Status',
+  openedFileName: 'Opened File Name',
+  fileSavedAt: 'File Saved At',
   headerCommands: 'Header Commands',
   panelDivider: 'Panel Divider',
   scrollbars: 'Scrollbars',
@@ -1054,6 +1056,8 @@ function paletteGroupRuleStyle(): string {
  * state and settles no size for it either. PD-326 names the row that must exist
  * and what it must say; until it does, this value is not the specification's.
  *
+ * ⚠️ IT WAS `AUTOSAVE_STATUS_TEXT_SCALE` until CR-280 retired the autosave;
+ * the same box now carries FR-101's two cues and the same ruling is owed.
  * ⛔ A COEFFICIENT AND NEVER A px, for the reason `propertiesPanelStyle` gives
  * for S-197: NFR-007 carries WCAG 2.1's 1.4.4, and a size fixed in px leaves the
  * reader who enlarged the browser's own text behind. What this multiplies is
@@ -1065,7 +1069,7 @@ function paletteGroupRuleStyle(): string {
  *
  * @provisional PD-326
  */
-const AUTOSAVE_STATUS_TEXT_SCALE = 0.75
+const FILE_STATUS_TEXT_SCALE = 0.75
 
 /**
  * The box a part that STOPS THE READING takes: in the middle of the screen, over
@@ -1118,14 +1122,19 @@ const STYLE = {
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
   documentTitle: 'font-weight:600;overflow:hidden;text-overflow:ellipsis;',
   // ⭐ SMALLER THAN THE REST OF THE HEADER, AND THE RATIO IS NOT SETTLED --
-  // `AUTOSAVE_STATUS_TEXT_SCALE` carries the whole of why, and the row it waits
+  // `FILE_STATUS_TEXT_SCALE` carries the whole of why, and the row it waits
   // for. ⚠️ What FR-051 measures at BO-1 is the height this box comes out at,
   // NOT a number stated here, so a part that letters itself smaller cannot make
-  // that height wrong -- but it CAN lower it, if this span was ever the tallest
+  // that height wrong -- but it CAN lower it, if this box was ever the tallest
   // thing in the header, and everything below the header is placed against it.
-  autosaveStatus:
-    `margin-left:auto;color:${PAINT.quiet};` +
-    `font-size:${AUTOSAVE_STATUS_TEXT_SCALE}em;`,
+  // ⛔ TWO LINES, THE NAME ABOVE THE TIME (FR-101, MUST). A column is what
+  // puts one over the other without either being placed at a stated offset.
+  fileStatus:
+    `margin-left:auto;color:${PAINT.quiet};display:flex;` +
+    `flex-direction:column;align-items:flex-end;line-height:1.2;` +
+    `font-size:${FILE_STATUS_TEXT_SCALE}em;`,
+  openedFileName: 'overflow:hidden;text-overflow:ellipsis;max-width:24ch;',
+  fileSavedAt: '',
   headerCommands: 'display:flex;align-items:center;gap:0.25em;',
   // ⚠️ NEITHER AN ENTRANCE'S FRAME NOR THE BOX ITS SHAPE IS DRAWN IN IS A
   // MEMBER HERE: `entryStyle`, `entryFaintStyle` and `glyphStyle` state them,
@@ -2065,22 +2074,27 @@ function fillAppHeader(
   // fixes `Untitled` for the BROWSER TAB and says nothing about the header.
   title.textContent = items.documentTitle
 
-  const status = part(host, 'span', ROLE.autosaveStatus, STYLE.autosaveStatus)
-  // FR-061 (MUST): the three states are told apart. ⛔ Their icons (which the
-  // declaration of `AutosaveStatus` names) cannot be drawn from here -- the
-  // value carries a kind and no `IconId`, and the mapping lives in table T-109,
-  // which this folder may not read (Chapter 5.3, MUST NOT). ⚠️ Having the
-  // SHAPES within reach changes nothing about that: `GLYPH_BY_ROW` answers what
-  // a row id looks like, and what is missing here is WHICH ROW a kind is --
-  // which is the far side's to say, on the description.
-  status.setAttribute('data-status', items.autosaveStatus.kind)
-  // FR-061 (MUST): the time is shown with the saved state.
+  // FR-101 (MUST): the name of the open file, and the time it was last written
+  // to, with the name ABOVE the time. The two are one box so that the order is
+  // the box's own rather than two independently placed parts.
+  const fileStatus = part(host, 'span', ROLE.fileStatus, STYLE.fileStatus)
+  const fileName = part(host, 'span', ROLE.openedFileName, STYLE.openedFileName)
+  // ⛔ NOTHING IS SUBSTITUTED FOR A DOCUMENT THAT IS OPEN FROM NO FILE. FR-101
+  // asks for a substitute for the TIME alone, and an empty name line makes no
+  // claim; a word here would have to be invented.
+  fileName.textContent = items.openedFileName
+  fileStatus.append(fileName)
+  const savedAt = part(host, 'span', ROLE.fileSavedAt, STYLE.fileSavedAt)
   // ⭐ SHOWN IN THE READER'S OWN ZONE, HELD IN UTC. `readableStamp` carries both
   // halves of why; what matters here is that the value the description brought
-  // is untouched -- `AutosaveStatus.at` is still AT-129's spelling on IF-9, and
-  // only what a person LOOKS at was converted.
-  status.textContent =
-    'at' in items.autosaveStatus ? readableStamp(items.autosaveStatus.at) : ''
+  // is untouched, and only what a person LOOKS at was converted.
+  // ⚠️ THE WORD FOR "never written" IS NOT MADE HERE (FR-038, MUST NOT): the
+  // description brings it already in the language the session is on.
+  savedAt.textContent =
+    items.fileSavedAt === null
+      ? items.fileNeverSavedText
+      : readableStamp(items.fileSavedAt)
+  fileStatus.append(savedAt)
 
   const commands = part(host, 'span', ROLE.headerCommands, STYLE.headerCommands)
   for (const item of items.commands) {
@@ -2098,7 +2112,7 @@ function fillAppHeader(
     commands.append(entry)
   }
 
-  header.replaceChildren(title, status, commands)
+  header.replaceChildren(title, fileStatus, commands)
 }
 
 /**

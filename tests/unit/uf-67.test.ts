@@ -300,7 +300,8 @@ const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
 const sessionOf = (notices: readonly RaisedNotice[]): ScreenSession => ({
   language: 'ja',
-  autosave: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

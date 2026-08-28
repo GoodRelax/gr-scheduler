@@ -256,14 +256,11 @@ const AGENT_API_WRITER = 'agent'
  * the far side: no requirement says what makes two documents the same one,
  * `Project.id` is not it (AT-1 is nullable and is marked as no primary key), and
  * S-99b of table T-206 names an identifier without defining one.
- * ⭐ IT IS COMPARED AGAINST NOTHING TODAY. UF-23 reads a key only to tell a
- * losing autosave's document from the winner's, and BT-3 hands `none` in this
- * build -- so the empty string travels and is never looked at.
- * ⛔ THE DAY BT-3 GAINS A PRODUCER THIS LINE HAS TO GAIN A KEY FIRST: two
- * documents filed under one empty key would read as the same document, which is
- * exactly the confusion FR-061 forbids (MUST NOT).
+ * ⚠️ NOTHING READS IT ANY MORE. UF-23 took a key only to tell a losing
+ * autosave's document from the winner's, and CR-280 retired both, so the
+ * constant went with them and only this note is kept -- S-99b of table T-206
+ * still names an identifier nothing in this build derives.
  */
-const DOCUMENT_KEY_NOT_DERIVED = ''
 
 /**
  * BT-4 of table T-034 -- the template FR-027 keeps exactly one of.
@@ -307,21 +304,19 @@ type StartupNoticeCode = ReturnType<typeof chooseStartupDocument>['notices'][num
  * ⭐ A CENSUS THE COMPILER KEEPS, the move `frame-loop.ts` makes for every other
  * reason it raises: a code added on UF-23's side is a compile error here rather
  * than a startup that decides in silence.
- * ⛔ TWO OF THE FOUR FALL TO `RS-15`, and that is the row FR-076 provides for
+ * ⛔ TWO OF THE THREE FALL TO `RS-15`, and that is the row FR-076 provides for
  * exactly this -- 「行の無い理由に落ち先を与えるのが `RS-15` である」. Table T-233
  * holds nothing for 「入れ口が 1 つでない」 and nothing for a file handed at
  * startup that could not be read: RS-4 and RS-11 .. RS-13 belong to OP-12's
  * dispatch of table T-024a, which BT-2 has not been through. ⚠️ A row of that
  * table for either is what is owed.
- * ⭐ The other two ARE rows of their own: RS-25 is 「読んだ `GRS JSON` の列が、
- * 決められた形に合わない」, which is what BT-1's container holds, and RS-17 is
- * FR-026's own 「自動保存した内容が壊れていて、復旧できない」.
+ * ⭐ THE THIRD IS A ROW OF ITS OWN: RS-25 is 「読んだ `GRS JSON` の列が、決めら
+ * れた形に合わない」, which is what BT-1's container holds.
  */
 const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeReason>> = {
   embeddedUnreadable: 'RS-25',
   embeddedEntryCountNotOne: 'RS-15',
   handedUnreadable: 'RS-15',
-  autosaveBroken: 'RS-17',
 }
 
 /**
@@ -385,7 +380,6 @@ function embeddedStartupDocument(): {
     candidate: {
       kind: 'read',
       document: read.document,
-      documentKey: DOCUMENT_KEY_NOT_DERIVED,
     },
     refusal: null,
   }
@@ -675,7 +669,6 @@ function boot(): void {
   const chosen = chooseStartupDocument({
     embedded: embedded.candidate,
     handed: { kind: 'none' },
-    autosave: { kind: 'none' },
     template,
   })
   // FR-041 (MUST): BO-2 may have chosen a document that carries a different
@@ -805,8 +798,8 @@ function boot(): void {
   // ⛔ NOT REMEMBERED PER DOCUMENT, which is FR-065's other MUST and the one
   // thing here that is NOT kept. S-99b of table T-206 keys that record by
   // 「文書の識別子」 and nothing in this build derives one -- `frame-loop.ts`
-  // (`sessionOf`) and `choose-startup-document.ts` both carry the same STOP, and
-  // `DOCUMENT_KEY_NOT_DERIVED` above says why this file does not invent one.
+  // (`sessionOf`) carries the same STOP, and the note above says why this file
+  // does not invent one.
   // ⭐ So the enabling lasts as long as the page, which is the smallest honest
   // behaviour: a record filed under a made-up key would be remembered for the
   // WRONG document, and that is the outcome the MUST exists to forbid.
@@ -855,6 +848,22 @@ function boot(): void {
   // FT-3 of table T-078 -- the shell observes the window itself, because the
   // size is the host's value and not an input device's (IF-2 stays narrow).
   window.addEventListener('resize', () => loop?.resize(nowEnvironment()))
+
+  // FR-100 (MUST): unsaved edits are not lost to one mistaken press on the
+  // tab. ⛔ THE WORDS ARE NOT OURS TO CHOOSE (MUST NOT) -- every current
+  // browser ignores a string handed to this event and prints its own, so
+  // `preventDefault` is the whole of what a page may say here and nothing is
+  // read out of the dictionary. ⚠️ `returnValue` is set as well because the
+  // older browsers of table T-003 gate the prompt on it rather than on
+  // `preventDefault`; it is the same request twice, not a second warning.
+  // ⛔ NOT A ROW OF TABLE T-234 (MUST NOT), and FR-100 says why: that table
+  // holds the questions GRS itself words, and this one is the host's.
+  window.addEventListener('beforeunload', (event) => {
+    // FR-100 (MUST NOT): nothing is raised when nothing would be lost.
+    if (loop?.hasUnsavedEdits() !== true) return
+    event.preventDefault()
+    event.returnValue = ''
+  })
 
   // ⭐ THE SAME TRIGGER, WATCHED A SECOND WAY, and not a second trigger: table
   // T-078 names the shell as the party that observes FT-3 and leaves the means

@@ -993,7 +993,9 @@ const controlsIn = (panel: FakeElement): FakeElement[] =>
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
-  autosaveStatus: { kind: 'saving' },
+  openedFileName: null,
+  fileSavedAt: null,
+  fileNeverSavedText: '',
   commands: [],
   language: 'ja',
 }

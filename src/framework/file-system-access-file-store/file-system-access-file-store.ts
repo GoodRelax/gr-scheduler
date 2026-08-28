@@ -606,6 +606,34 @@ export function fileSystemAccessFileStore(
   }
 
   /**
+   * OP-13 of table T-024a -- the file already open, read a second time.
+   *
+   * ⛔ NO CHOOSER (MUST). The row forbids one in as many words: opening the
+   * picker again would make `Ctrl` + `R` the same act as SK-10.
+   * ⚠️ WITH NO FILE OPEN THIS DOES NOTHING, which is the last sentence of
+   * that row. `cancelled` is the fault that says so -- IF-3 keeps it apart
+   * from the three that are worth telling anyone about, which is exactly
+   * what "do nothing" needs.
+   * ⭐ THE HANDLE IS NOT REPLACED. It is the same file; re-assigning it
+   * would say something happened to the save target when nothing did.
+   *
+   * @purity non-pure
+   */
+  async function readOpenedFileAgain(): Promise<FileReading> {
+    const handle = openedHandle
+    if (handle === null) {
+      return { ok: false, fault: fault('cancelled', 'no file is open to read again') }
+    }
+    try {
+      const file = await handle.getFile()
+      const bytes = new Uint8Array(await file.arrayBuffer())
+      return { ok: true, file: { bytes, fileName: file.name } }
+    } catch (thrown) {
+      return { ok: false, fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`) }
+    }
+  }
+
+  /**
    * Read what the last drop left.
    *
    * ⭐ Consumed once. A file the person dropped and never opened must not be
@@ -711,7 +739,9 @@ export function fileSystemAccessFileStore(
       if (isBusy) return { ok: false, fault: busyFault() }
       isBusy = true
       try {
-        return route === 'chooser' ? await readChosenFile() : await readDroppedFile()
+        if (route === 'chooser') return await readChosenFile()
+        if (route === 'reopen') return await readOpenedFileAgain()
+        return await readDroppedFile()
       } finally {
         isBusy = false
       }

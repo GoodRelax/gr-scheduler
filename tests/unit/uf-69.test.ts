@@ -269,7 +269,9 @@ const EMPTY_VIEW: Omit<ScreenView, 'tooltips'> = {
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
   appHeaderItems: {
     documentTitle: null,
-    autosaveStatus: { kind: 'saving' },
+    openedFileName: null,
+    fileSavedAt: null,
+    fileNeverSavedText: '',
     commands: [],
     // FR-038: the header's half of the language reading, the same value the
     // view above carries.
@@ -296,7 +298,8 @@ const headerWith = (commands: readonly CommandItem[]): ScreenView['appHeaderItem
 
 const EMPTY_SESSION: ScreenSession = {
   language: 'ja',
-  autosave: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

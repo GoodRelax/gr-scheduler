@@ -953,7 +953,9 @@ const optionValueOf = (option: FakeElement): string =>
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
-  autosaveStatus: { kind: 'saving' },
+  openedFileName: null,
+  fileSavedAt: null,
+  fileNeverSavedText: '',
   commands: [],
   language: 'ja',
 }

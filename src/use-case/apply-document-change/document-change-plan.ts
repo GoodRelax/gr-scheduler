@@ -462,7 +462,10 @@ export type ImportCall<TChoice extends ImportRequest['choice']> = Omit<
 > & { readonly choice: TChoice }
 
 /**
- * The six callers of table T-230, each carrying only what its own row needs.
+ * The five callers of table T-230, each carrying only what its own row needs.
+ *
+ * ⚠️ RD-5 was 「自動保存からの復帰」 until CR-280 retired the autosave on the
+ * user's ruling (2026-08-29). Its seat number stays burnt.
  *
  * ⛔ THE ROW IS AN ARGUMENT, NEVER A GUESS. T-230 requires a caller to name its
  * own row (MUST) and forbids accepting a replacement that names none (MUST
@@ -487,8 +490,6 @@ export type ReplacementCall =
     }
   /** RD-4 -- OP-3's `'replace'`. WS-3 is ImportDocument (PI-10). */
   | { readonly row: 'RD-4'; readonly importing: ImportCall<'replace'> }
-  /** RD-5 -- coming back from an autosave (LM-9). The caller brings it. */
-  | { readonly row: 'RD-5'; readonly document: Document }
   /** RD-6 -- the document at startup (FR-062, table T-034). The caller brings it. */
   | { readonly row: 'RD-6'; readonly document: Document }
 
@@ -666,14 +667,11 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
       return replacementSettled(held, { document: outcome.document, history: emptyHistory() })
     }
 
-    // RD-5 and RD-6 -- the caller brings the document, so the document it
-    // brought IS WS-3's answer (T-230). ⚠️ The two rows word their history
-    // column differently and land on the same value: one has a history to drop
-    // (LM-9) and one has none to begin with (table T-034), and an empty history
-    // is what both of them mean.
-    // ⭐ The stamp comes through untouched on both. A stamp minted here would
-    // leave FR-062's comparison with nothing of the writing to compare against.
-    case 'RD-5':
+    // RD-6 -- the caller brings the document, so the document it brought IS
+    // WS-3's answer (T-230), and its 「空にする」 is an empty history because
+    // a startup document has none to begin with (table T-034).
+    // ⭐ The stamp comes through untouched. A stamp minted here would leave
+    // FR-063's equality with nothing of the writing to compare against.
     case 'RD-6':
       return replacementSettled(held, { document: call.document, history: emptyHistory() })
   }

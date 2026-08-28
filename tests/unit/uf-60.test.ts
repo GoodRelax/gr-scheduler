@@ -389,7 +389,8 @@ const ROW_BOX: ScreenRect = { x: 0, y: 104, width: 400, height: 24 }
 
 const SESSION: ScreenSession = {
   language: 'ja',
-  autosave: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: true,
   pointer: null,
   pointerRestedMs: 0,

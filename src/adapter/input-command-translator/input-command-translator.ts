@@ -494,6 +494,8 @@ export type InputAction =
   | { readonly kind: 'openDocumentFile' }
   /** SK-11. */
   | { readonly kind: 'saveDocumentFile' }
+  /** SK-21. OP-13 of table T-024a -- no chooser, and always a replace. */
+  | { readonly kind: 'reopenDocumentFile' }
   /** SK-19. */
   | { readonly kind: 'settleTextEntry' }
   /** SK-9 and MK-13. */
@@ -874,6 +876,7 @@ const KEY = {
   /** SK-18 */ f: 'F',
   /** SK-10 */ o: 'O',
   /** SK-14 */ p: 'P',
+  /** SK-21 */ r: 'R',
   /** SK-11 */ s: 'S',
   /** SK-5 */ v: 'V',
   /** SK-7 */ y: 'Y',
@@ -2551,6 +2554,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   }
   if (ctrl && key === KEY.o) return acted({ kind: 'openDocumentFile' }) // SK-10
   if (ctrl && key === KEY.s) return acted({ kind: 'saveDocumentFile' }) // SK-11
+  if (ctrl && key === KEY.r) return acted({ kind: 'reopenDocumentFile' }) // SK-21
 
   // SK-12 / SK-13 / SK-14 / SK-15 -- all four land in `ScreenState`.
   // ⭐ SK-12 joined them when table T-103 settled `Export Chooser` (U-54): the

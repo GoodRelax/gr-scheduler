@@ -35,7 +35,6 @@ export interface DocumentSettings {
   readonly arrowHeadOfSpan: number
   readonly arrowHeadOfStroke: number
   readonly assigneeVisible: boolean
-  readonly autosaveIdleMs: number
   readonly basePlanHeight: number
   readonly baselineVisible: boolean
   readonly canvasPadding: number
@@ -171,7 +170,6 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'arrowHeadOfSpan': 0.4,
   'arrowHeadOfStroke': 3.2,
   'assigneeVisible': false,
-  'autosaveIdleMs': 3000,
   'basePlanHeight': 28,
   'baselineVisible': false,
   'canvasPadding': 10,
@@ -325,7 +323,6 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'appHeaderMaxHeight': { min: 32, max: 96 },
   'arrowHeadOfSpan': { min: 0.1, max: 1 },
   'arrowHeadOfStroke': { min: 1.5, max: 8 },
-  'autosaveIdleMs': { min: 300, max: 10000 },
   'basePlanHeight': {
     max: 200,
     minExpression: [{ key: 'actualMin' }, { key: 'actualOfPlan' }, { op: '/' }],

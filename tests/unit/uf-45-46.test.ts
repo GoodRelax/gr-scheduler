@@ -615,7 +615,9 @@ const EXPORT_VIEW: ScreenView = {
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
   appHeaderItems: {
     documentTitle: 'a document on its way to the clipboard',
-    autosaveStatus: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
+    openedFileName: null,
+    fileSavedAt: null,
+    fileNeverSavedText: '',
     commands: [],
     // FR-038: the header's half of the language reading, the same value the
     // view above carries.

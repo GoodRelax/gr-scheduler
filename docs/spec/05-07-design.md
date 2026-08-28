@@ -109,13 +109,11 @@ graph RL
 | CP-20 | `Adapter` | `DocumentCodec` | `GRS JSON`・`MSPDI`・単一 `.html` を文書と相互変換する。`AppShellSource` を宣言する | `FR-024` / `FR-021` / `FR-056` / `FR-057` / `FR-067` |
 | CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。**表 T-076 が「描く」と定めた UI パーツを組み立て、縦に収まらない `TaskGroup` を落とす。** `Rasterizer` を宣言する | `FR-025` / `FR-080` |
 | CP-22 | `Adapter` | `FileGateway` | ファイルの読み書き。`FileStore` を宣言する | `FR-060` / 表 T-024 |
-| CP-23 | `Adapter` | `AutosaveGateway` | 自動保存と復元。`DocumentStore` を宣言する | `FR-026` / `FR-061` |
 | CP-24 | `Adapter` | `ClipboardGateway` | クリップボードへ出す。`Clipboard` を宣言する | `FR-033` / `FR-068` |
 | CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。**起動の順序は 表 T-077、フレームを起こす契機の観測は 表 T-078 に従う。** **現在値を保持する。** **フレームの先頭で画面の矩形とレイアウトと幾何を 1 回計算して配り**、描画を回し、入力を渡す。埋め込みの入れ物を持ち、公開点を置く。`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` / `NFR-011` / 5.6 の ADR-001 |
 | CP-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 | — |
 | CP-27 | `Framework` | `DomInputSource` | `InputSource` の実装 | — |
 | CP-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装。**ファイルのハンドルを保持する** | `FR-060` |
-| CP-29 | `Framework` | `LocalStorageDocumentStore` | `DocumentStore` の実装 | `FR-026` |
 | CP-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 | `FR-033` |
 | CP-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 | `FR-025` |
 | CP-32 | `documentModel` | `Selection` | 選ばれている対象の集合と、選んだ順序。文書に保存しない | 表 T-023c の `SL-1` / `SL-7b` / `SL-8` |
@@ -289,8 +287,6 @@ src/
 | UF-40 | `ImageExporter` | `rasterizer.ts` | `—` | `Rasterizer` の宣言（`IF-6`） |
 | UF-41 | `FileGateway` | `file-gateway.ts` | `semi-pure-b` ／ `non-pure` | `CP-22` の残り |
 | UF-42 | `FileGateway` | `file-store.ts` | `—` | `FileStore` の宣言（`IF-3`） |
-| UF-43 | `AutosaveGateway` | `autosave-gateway.ts` | `semi-pure-b` ／ `non-pure` | `CP-23` の残り |
-| UF-44 | `AutosaveGateway` | `document-store.ts` | `—` | `DocumentStore` の宣言（`IF-4`） |
 | UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り |
 | UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） |
 | UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線（順序は 表 T-077）、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 |
@@ -298,7 +294,6 @@ src/
 | UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` |
 | UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` |
 | UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` |
-| UF-52 | `LocalStorageDocumentStore` | `local-storage-document-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-29` |
 | UF-53 | `BrowserClipboard` | `browser-clipboard.ts` | `non-pure` | `CP-30` |
 | UF-54 | `CanvasRasterizer` | `canvas-rasterizer.ts` | `semi-pure-b` | `CP-31` |
 | UF-55 | `Selection` | `selection.ts` | `pure` | `CP-32` |
@@ -308,7 +303,7 @@ src/
 | UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` |
 | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`） |
 | UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付けと、全画面表示（`FR-051` / `FR-052` / `FR-071`） |
-| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Autosave Status`（`FR-061`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`） |
+| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`） |
 | UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） |
@@ -350,13 +345,11 @@ src/
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`）／ `formatFromFile`（どちらの形式として読むかを答える。規則は 表 T-024a の `OP-12`） |
 | PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。落とす規則は `FR-080`）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
 | PI-22 | `Adapter` | `FileGateway` | `FileStore`（表 T-065）／ `openDocumentFile`（`semi-pure-b`）／ `saveDocumentFile`（`non-pure`） |
-| PI-23 | `Adapter` | `AutosaveGateway` | `DocumentStore`（表 T-065）／ `saveDocumentSnapshot`（`non-pure`）／ `restoreDocumentSnapshot`（`semi-pure-b`） |
 | PI-24 | `Adapter` | `ClipboardGateway` | `Clipboard`（表 T-065）／ `writeClipboard`（`non-pure`。表 T-024 の `IO-6` と `FR-033`） |
 | PI-25 | `Framework` | `SingleHtmlShell` | **他のコンポーネントから呼ばれるメンバを持たない。** Vite の入口である。`SnapshotSource` と `AppShellSource` の実装を、宣言したコンポーネントへ渡す |
 | PI-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 1 つ |
 | PI-27 | `Framework` | `DomInputSource` | `InputSource` の実装 1 つ |
 | PI-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装 1 つ |
-| PI-29 | `Framework` | `LocalStorageDocumentStore` | `DocumentStore` の実装 1 つ |
 | PI-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 1 つ |
 | PI-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 1 つ |
 | PI-32 | `documentModel` | `Selection` | `Selection`（型。順序は 表 T-023c の `SL-7b`）／ `selectionWith` ／ `selectionWithout` ／ `emptySelection` ／ `isSelected` |
@@ -369,7 +362,7 @@ src/
 
 **層をまたぐインターフェースは、宣言するコンポーネントのフォルダに、その名前の語幹で置くこと（MUST）**（例 —— `adapter/svg-renderer/svg-surface.ts`）。**実装を外側の層が持つことは `LR-5` が定めている。**
 
-⚠️ **この 9 ファイルもユニットである**（表 T-074 の `SU-3`）—— 表 T-075 の `UF-29` / `UF-31` / `UF-33` / `UF-38` / `UF-40` / `UF-42` / `UF-44` / `UF-46` / `UF-70` がそれである。**宣言だけを別ファイルにするのは、実装する側が公開エントリを丸ごと取り込まずに型を得られるようにするためである。** ⚠️ **公開エントリは、そのインターフェースを再び公開すること（MUST）** —— さもないと外側の層が公開エントリ以外のファイルを読むことになり、本節の MUST NOT に反する。**再び公開した名前は 表 T-064 が持つ。**
+⚠️ **この 8 ファイルもユニットである**（表 T-074 の `SU-3`）—— 表 T-075 の `UF-29` / `UF-31` / `UF-33` / `UF-38` / `UF-40` / `UF-42` / `UF-46` / `UF-70` がそれである。**宣言だけを別ファイルにするのは、実装する側が公開エントリを丸ごと取り込まずに型を得られるようにするためである。** ⚠️ **公開エントリは、そのインターフェースを再び公開すること（MUST）** —— さもないと外側の層が公開エントリ以外のファイルを読むことになり、本節の MUST NOT に反する。**再び公開した名前は 表 T-064 が持つ。**
 
 **表 T-065 — 層をまたぐインターフェース**
 
@@ -378,7 +371,6 @@ src/
 | IF-1 | `SvgSurface` | `SvgRenderer`（`CP-19`） | `DomSvgSurface`（`CP-26`） | 作った SVG 文字列を画面に載せる |
 | IF-2 | `InputSource` | `InputCommandTranslator`（`CP-18`） | `DomInputSource`（`CP-27`） | ポインタとキーの出来事 |
 | IF-3 | `FileStore` | `FileGateway`（`CP-22`） | `FileSystemAccessFileStore`（`CP-28`） | ファイルの読み書き。ハンドルは実装が保持する（`FR-060`） |
-| IF-4 | `DocumentStore` | `AutosaveGateway`（`CP-23`） | `LocalStorageDocumentStore`（`CP-29`） | 自動保存の置き場（表 T-024 の `IO-5`） |
 | IF-5 | `Clipboard` | `ClipboardGateway`（`CP-24`） | `BrowserClipboard`（`CP-30`） | クリップボードへの書き出し（`IO-6`） |
 | IF-6 | `Rasterizer` | `ImageExporter`（`CP-21`） | `CanvasRasterizer`（`CP-31`） | SVG から画像へ（`IO-4`） |
 | IF-7 | `SnapshotSource` | `AgentApiEndpoint`（`CP-17`） | `SingleHtmlShell`（`CP-25`） | 凍結された現在値（表 T-035 の `AG-4`）と、**どの身振りの最中か**（`AG-9`。表 T-023a の行 ID を運び、最中でなければ「無し」を運ぶ） |
@@ -486,7 +478,6 @@ src/
 | RD-2 | やり直し | `RedoEdit`（`PI-12`） | 問う先が答えたものを据える | 入ってきたまま | 積まない | `FR-031` |
 | RD-3 | 取り込み（合流と重ね） | `ImportDocument`（`PI-10`） | いまのものを残す | 進める | 表 T-027 に従う | `FR-022` ／ `FR-056` ／ `UN-6` |
 | RD-4 | `OP-3` の置き換え | `ImportDocument`（`PI-10`） | 捨てる | 入ってきたまま | 積まない | `OP-4` ／ `UN-6` |
-| RD-5 | 自動保存からの復帰 | 呼び手が持って来る | 捨てる | 入ってきたまま | 積まない | `LM-9` |
 | RD-6 | 起動時の文書 | 呼び手が持って来る | 空にする | 入ってきたまま | 積まない | `FR-062` ／ 表 T-034 |
 
 **本表の 6 つが、まるごと差し替える呼び手の全数である。呼び手は、自分がどの行かを名乗ること（MUST）。名乗らない差し替えを受け付けてはならない（MUST NOT）** —— 履歴を捨てるか残すかが呼び手の心得になると、`OP-4` が MUST で定めた履歴の扱いを経路の中で誰も検査しなくなる。
@@ -497,7 +488,7 @@ src/
 
 **この道で入ってくる文書を検証し直してはならない（MUST NOT）** —— 外から来た文書の検証は `OP-5` と `FR-023` が既に負っており、**取り消しの履歴が持つ文書はその対象ではない。**
 
-**`WS-5` は、本表の刻印の欄が「進める」の行でだけ刻印を進めること（MUST）。「入ってきたまま」の行で進めてはならない（MUST NOT）** —— 取り消しは以前の文書を刻印ごと復元し（`FR-063`）、ファイル・自動保存・起動テンプレートから来る文書は、書かれたときの刻印を持っていなければ `FR-062` の照合が意味を成さない。
+**`WS-5` は、本表の刻印の欄が「進める」の行でだけ刻印を進めること（MUST）。「入ってきたまま」の行で進めてはならない（MUST NOT）** —— 取り消しは以前の文書を刻印ごと復元し（`FR-063`）、ファイルと起動テンプレートから来る文書は、書かれたときの刻印を持っていなければ `FR-063` の等値の判定が意味を成さない。
 
 **`WS-4` は、本表の欄が「積まない」の行で取り消しの 1 段を積んではならない（MUST NOT）** —— 表 T-027 が分類しているのは人が文書に対して行う操作であり、**履歴を歩くこと自体はその対象ではない。**
 
@@ -615,12 +606,12 @@ stateDiagram-v2
 | FT-1 | 人の入力（ポインタとキー）。⭐ **その入力の、待ち（表 T-066 の `CS-4`）をまたいだ続きを含む** | `DomInputSource`（`CP-27`）が 表 T-065 の `IF-2` で渡す。⚠️ **待ちをまたいだ続きを起こすのはシェル自身である** —— `IF-2` の供給物は広げない | `NFR-010` |
 | FT-2 | 現在値の差し替え（表 T-067 の `WS-6`） | `SingleHtmlShell`（`CP-25`） | 表 T-067 |
 | FT-3 | **画面の寸法が変わったこと** | `SingleHtmlShell`（`CP-25`）が自分で観測する | `NFR-011` ／ 表 T-066 の `CS-1` |
-| FT-4 | **時間が来たこと** | `SingleHtmlShell`（`CP-25`）が自分で計る | `FR-092` の `EZ-2` ／ 表 T-037 の `NT-2` ／ `FR-061` |
+| FT-4 | **時間が来たこと** | `SingleHtmlShell`（`CP-25`）が自分で計る | `FR-092` の `EZ-2` ／ 表 T-037 の `NT-2` |
 | FT-5 | **日程データの群の刻を動かさずに届いた発話** | `PostDialogueMessage`（`CP-16`）が配る | 表 T-035 の `AG-11` |
 
 **本表に無い契機でフレームを起こしてはならない（MUST NOT）** —— これが `NFR-010` の具体である。⚠️ **最初の 1 枚は 表 T-077 の `BO-5` が起こす。**
 
-⚠️ **`FT-4` が数えるのは 3 つである** —— アイコンの説明を出すまでの待ち時間（`S-124`）、時間で消える通知の期限（`NT-2`）、自動保存が終わって状態表示が変わること（`S-112` と `FR-061`）。**時計を読むのはシェルであり、`CS-1` の収集には入らない** —— 基準日と混同しないこと。
+⚠️ **`FT-4` が数えるのは 2 つである** —— アイコンの説明を出すまでの待ち時間（`S-124`）と、時間で消える通知の期限（`NT-2`）。**時計を読むのはシェルであり、`CS-1` の収集には入らない** —— 基準日と混同しないこと。
 
 ⚠️ **`IF-2` の供給物を広げない（表 T-065）** —— 寸法も時間も入力機器の出来事ではなく、宿主が持つ値だからである。`FT-3` と `FT-4` を観測するのはシェルである（表 T-060 の `LY-5`）。**`layoutEngine` は寸法を引数で受け取る**（5.1）。
 
@@ -698,7 +689,6 @@ stateDiagram-v2
 | 行 ID | 代償 | 何と引き換えか | 正 |
 | --- | --- | --- | --- |
 | TR-1 | WCAG 2.1 の 1.4.12 を適合範囲に数えない | ラベル幅を実測しないこと | `LM-2a` ／ 5.1 |
-| TR-2 | 自動保存 1 回の書き込み時間に上限を定めない | 操作の切れ目にまとめること | 表 T-043 の `PG-13` ／ `LM-11` |
 | TR-3 | `R2.13`（CQS）と `R2.5`（ISP）を意図して満たさない | 書き込みの入口を 1 つに保つこと | 5.2 |
 | TR-4 | `AgentApiEndpoint` が現在値を持たず、呼ばれるたびに引く | 現在値の持ち主を `Framework` だけに限ること | 表 T-065 の `IF-7` |
 
@@ -1061,7 +1051,6 @@ stateDiagram-v2
 | PG-10 | 依存線が密集したときの経路の算出 | — | — | ● | ● | ● | ゲート | `NFR-002` |
 | PG-11 | 重ね描きの層を作り直すときの時間 | — | — | — | ● | ● | ゲート | `NFR-002` |
 | PG-12 | 文字数の多いラベルが密集したとき | — | — | ● | ● | ● | ゲート | `NFR-002` |
-| PG-13 | 自動保存 1 回の書き込みに要する時間 | — | ● | ● | ● | ● | 記録のみ | `FR-026`（上限は定めない。文書が大きくなったときの増え方を見る） |
 | PG-14 | 規模を変えたときの伸び方 | — | — | ● | ● | ● | ゲート | `NFR-013`（測り方は表 T-025 の `MC-9`） |
 
 **毎回同じものを測ること（MUST）。** 節目ごとに測る対象を変えると、前回との差が読めなくなる。**合否だけでなく前回との差を残すこと（MUST）** —— 落ちてから探すより、増え方を見ている方が原因の範囲が狭い。

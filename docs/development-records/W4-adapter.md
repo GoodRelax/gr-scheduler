@@ -709,13 +709,6 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-28 | `agent-api-members.ts` | 内部 | non-pure |  | 🧪 試験済 |
 | UF-29 | `snapshot-source.ts` | 内部 | n/a |  | 🧪 試験済 |
 
-### `autosave-gateway` —— AutosaveGateway（PI-23）
-
-| ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
-| --- | --- | --- | --- | --- | --- |
-| UF-43 | `autosave-gateway.ts` | **公開エントリ** | semi-pure-b | PI-23 | 🧪 試験済 |
-| UF-44 | `document-store.ts` | 内部 | n/a |  | 🧪 試験済 |
-
 ### `clipboard-gateway` —— ClipboardGateway（PI-24）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |

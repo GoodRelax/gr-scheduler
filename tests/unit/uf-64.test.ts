@@ -270,7 +270,8 @@ const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
 const SESSION: ScreenSession = {
   language: 'ja',
-  autosave: { kind: 'saving' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

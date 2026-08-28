@@ -265,7 +265,8 @@ const THEME_HUE = ((): number => {
  */
 const SESSION: ScreenSession = {
   language: 'ja',
-  autosave: { kind: 'saved', at: '2026-08-27T09:00:00Z' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

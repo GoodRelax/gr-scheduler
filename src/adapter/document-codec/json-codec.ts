@@ -887,9 +887,6 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         assigneeVisible: {
           type: ['boolean'],
         },
-        autosaveIdleMs: {
-          type: ['integer'],
-        },
         basePlanHeight: {
           type: ['integer'],
         },

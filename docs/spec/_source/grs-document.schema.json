@@ -118,7 +118,6 @@
     "arrowHeadOfSpan",
     "arrowHeadOfStroke",
     "assigneeVisible",
-    "autosaveIdleMs",
     "basePlanHeight",
     "baselineVisible",
     "canvasPadding",
@@ -254,11 +253,6 @@
     },
     "assigneeVisible": {
      "type": "boolean"
-    },
-    "autosaveIdleMs": {
-     "type": "integer",
-     "minimum": 300,
-     "maximum": 10000
     },
     "basePlanHeight": {
      "type": "integer",

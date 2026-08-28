@@ -191,7 +191,8 @@ const surfaceState = (surface: string | null): ScreenState =>
 
 const sessionOf = (language: DisplayLanguage = 'ja'): ScreenSession => ({
   language,
-  autosave: { kind: 'saved', at: '2026-08-19T09:00:00Z' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

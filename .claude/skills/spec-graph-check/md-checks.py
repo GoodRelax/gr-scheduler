@@ -154,7 +154,14 @@ token = re.compile(r'`([A-Z]{1,3}-[0-9]+[a-z]?)`')
 # handed to something else; the seats stay burnt. Do NOT remove them from
 # this set to "make the reference resolve" -- resolving it would mean a new
 # table had taken a used seat number.
+# FR-026 / FR-061 and the rows below them are the autosave CR-280 removed
+# on 2026-08-29 (the user's ruling). The changelog names them, so their
+# seats stay burnt like every other retirement in this set.
 RETIRED = {'FR-050', 'T-030',
+           'FR-026', 'FR-061', 'BT-3', 'LM-17', 'RS-17', 'RS-18',
+           'QN-6', 'QN-7', 'S-112', 'K-96', 'U-28', 'PG-13', 'TR-2',
+           'IC-55', 'IC-56', 'IC-57', 'IF-4', 'RD-5', 'CP-23', 'CP-29',
+           'UF-43', 'UF-44', 'UF-52', 'PI-23', 'PI-29',
            'T-044', 'T-045', 'T-046', 'T-047',
            'F-002', 'F-003', 'F-004', 'F-005', 'F-006', 'F-007',
            'S-21', 'S-52', 'K-21', 'S-57', 'K-66', 'S-139'}

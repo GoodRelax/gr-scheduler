@@ -1029,7 +1029,9 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
 
 const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
-  autosaveStatus: { kind: 'saving' },
+  openedFileName: null,
+  fileSavedAt: null,
+  fileNeverSavedText: '',
   commands: [],
   // FR-038 (MUST): the header says which language is on. The same value the
   // view carries -- `ScreenSession.language` (S-99) is where both come from.
@@ -1181,7 +1183,9 @@ const RICH_VIEW: ScreenView = viewWith({
   },
   appHeaderItems: {
     documentTitle: 'DocumentTitleHere',
-    autosaveStatus: { kind: 'saved', at: '2026-08-20T03:04:05Z' },
+    openedFileName: null,
+    fileSavedAt: null,
+    fileNeverSavedText: '',
     commands: [command({ icon: 'IC-20', label: 'HeaderCommandOne' })],
     // FR-038: the same language the view carries.
     language: 'ja',

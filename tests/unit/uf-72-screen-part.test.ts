@@ -1202,7 +1202,9 @@ const FRAME: ScreenFrame = {
 
 const HEADER: AppHeaderItems = {
   documentTitle: 'DocumentTitleHere',
-  autosaveStatus: { kind: 'saved', at: '2026-08-21T03:04:05Z' },
+  openedFileName: null,
+  fileSavedAt: null,
+  fileNeverSavedText: '',
   commands: [
     // ⛔ FR-029: what cannot be used is drawn faint and does NOT go quiet.
     command({ icon: 'IC-5', label: 'UndoNothingToUndo', isEnabled: false }),

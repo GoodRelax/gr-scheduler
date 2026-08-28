@@ -125,24 +125,11 @@ export type ExportFormatId = string
 export type DisplayLanguage = 'ja' | 'en'
 
 /**
- * The three states FR-061 requires to be told apart (MUST). ⛔ Two would put
- * "saving" and "failed" behind one look, and then a reader cannot tell waiting
- * from acting. IC-55 / IC-56 / IC-57 are their icons.
- */
-export type AutosaveStatus =
-  /** IC-55. FR-061 (MUST): the time is shown with it. */
-  | { readonly kind: 'saved'; readonly at: string }
-  /** IC-56. ⚠️ Table T-109 says its icon does not spin. */
-  | { readonly kind: 'saving' }
-  /** IC-57. FR-061 also raises a notice, whose manner is NT-3a. */
-  | { readonly kind: 'failed' }
-
-/**
  * One entry a person can press, wherever table T-109 places it.
  *
- * ⚠️ Table T-109 also holds rows that are NOT buttons (IC-53 to IC-57). Those
+ * ⚠️ Table T-109 also holds rows that are NOT buttons (IC-53, IC-54). Those
  * are not `CommandItem`s -- the ones that show a state reach the screen as the
- * state itself, such as `AppHeaderItems.autosaveStatus`.
+ * state itself, such as `AppHeaderItems.openedFileName`.
  */
 export interface CommandItem {
   readonly icon: IconId
@@ -273,8 +260,27 @@ export interface AppHeaderItems {
    * shows for a null title, so nothing is substituted here.
    */
   readonly documentTitle: string | null
-  /** U-28 `Autosave Status` (FR-061). */
-  readonly autosaveStatus: AutosaveStatus
+  /**
+   * U-58 `Opened File Name` (FR-101) -- the name of the file the document is
+   * open from. `null` is a document that has never been written to one.
+   *
+   * ⚠️ NOT `documentTitle` above (MUST NOT, FR-101): that is the document's
+   * own value and this is the file's name, and the two differing is normal.
+   */
+  readonly openedFileName: string | null
+  /**
+   * U-59 `File Saved At` (FR-101) -- when that file was last written to.
+   * `null` when it never has been, which FR-101 (MUST) has the drawing side
+   * say in words rather than leave blank.
+   */
+  readonly fileSavedAt: string | null
+  /**
+   * What FR-101 (MUST) has the header say in place of a time when
+   * `fileSavedAt` is `null`. ⛔ Resolved here rather than in the Framework
+   * because FR-038 (MUST NOT) keeps printed words in the dictionary, which
+   * this layer reads and `dom-screen-surface.ts` may not.
+   */
+  readonly fileNeverSavedText: string
   /**
    * U-35 `Header Commands` -- the rows of table T-109 whose surface column
    * reads `App Header`, in that table's own order.
@@ -1526,8 +1532,15 @@ export interface PropertiesSubject {
 export interface ScreenSession {
   /** S-99. ⛔ FR-038 (MUST NOT) keeps the chosen language out of the document. */
   readonly language: DisplayLanguage
-  /** FR-061. */
-  readonly autosave: AutosaveStatus
+  /**
+   * FR-101. The file the document is open from, and when it was last written
+   * to -- both `null` before it has ever been written to one.
+   *
+   * ⚠️ Neither is a value of the document (LY-5): the shell holds them,
+   * because only it knows which handle the last write went through.
+   */
+  readonly openedFileName: string | null
+  readonly fileSavedAt: string | null
   /**
    * FR-065. ⚠️ S-99b remembers this per document but keeps the record in the
    * environment: turning the API on is the reader's judgement, not the

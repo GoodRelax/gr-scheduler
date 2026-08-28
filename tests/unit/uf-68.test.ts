@@ -80,7 +80,8 @@ const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
  */
 const SESSION: ScreenSession = {
   language: 'ja',
-  autosave: { kind: 'saving' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: true,
   pointer: null,
   pointerRestedMs: 0,
@@ -352,7 +353,8 @@ describe('UF-68 -- table T-075: the unit is `pure`', () => {
     ])
     const other = sessionWith({
       language: 'en',
-      autosave: { kind: 'failed' },
+      openedFileName: null,
+      fileSavedAt: null,
       pointer: { x: 12, y: 34 },
       pointerRestedMs: 4000,
       commandPaletteAt: { x: 80, y: 90 },

@@ -1146,12 +1146,6 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | --- | --- | --- | --- | --- | --- |
 | UF-51 | `file-system-access-file-store.ts` | **公開エントリ** | semi-pure-b ／ non-pure | PI-28 | ✅ 受入済 |
 
-### `local-storage-document-store` —— LocalStorageDocumentStore（PI-29）
-
-| ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
-| --- | --- | --- | --- | --- | --- |
-| UF-52 | `local-storage-document-store.ts` | **公開エントリ** | semi-pure-b ／ non-pure | PI-29 | ✅ 受入済 |
-
 ### `single-html-shell` —— SingleHtmlShell（PI-25）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |

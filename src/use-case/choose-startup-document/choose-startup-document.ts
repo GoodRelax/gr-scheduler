@@ -10,20 +10,20 @@
 //
 //     BT-1  the document embedded in the file        (FR-067)
 //     BT-2  the document handed at startup           (path R-1 of table T-008)
-//     BT-3  the autosaved document                   (FR-026)
 //     BT-4  the template for the first screen        (FR-027)
 //
-// FR-062 states the order and then adds the MUST NOT that shapes the other half
-// of this file: "負けた自動保存を黙って捨ててはならない". Table T-034's closing
-// note says what to do with the loser instead, and `autosave` of `StartupChoice`
-// is that answer -- three outcomes, one per sentence of the note.
+// ⚠️ BT-3, the autosaved document, was the third rank until CR-280 retired the
+// autosave on the user's ruling (2026-08-29). Its seat number stays burnt, so
+// the rows below run BT-1, BT-2, BT-4 and the order is still the table's.
+// FR-062 now states the order and nothing else: what becomes of a rank that
+// lost belongs to that rank's own requirement.
 //
 // ⚠️ Nothing here reads a file, storage, the clock or the DOM. LY-5 leaves every
-// outside value to the Framework, so all four candidates ARRIVE AS VALUES,
+// outside value to the Framework, so all three candidates ARRIVE AS VALUES,
 // already decoded and already through FR-023's validation (table T-008 marks
-// R-1 and R-3 untrusted, and BT-1 rides in on the file itself). A candidate that
-// could not be read arrives as `unreadable` / `entryCountNotOne` / `broken`,
-// never as `read`.
+// R-1 untrusted, and BT-1 rides in on the file itself). A candidate that
+// could not be read arrives as `unreadable` / `entryCountNotOne`, never as
+// `read`.
 //
 // ⚠️ The figure source (docs/spec/_source/components.json) draws an edge
 // ChooseStartupDocument -> ValidateImportedDocument, "checks each candidate".
@@ -38,8 +38,8 @@
 // hand over anything else.
 //
 // ⚠️ Failure is a value. This function never throws: AG-8 wants the caller told,
-// and R7.10 wants it told by the return value. Everything FR-067, FR-026 and
-// FR-062 require to be TOLD leaves in `notices`; who gathers those onto the one
+// and R7.10 wants it told by the return value. Everything FR-067 and FR-062
+// require to be TOLD leaves in `notices`; who gathers those onto the one
 // startup screen NT-4 demands is the ScreenRenderer's business (UF-67), not this
 // unit's.
 //
@@ -48,10 +48,9 @@
 // leaves through here.
 
 import type { Document } from '../../entity/document-model/document/document'
-import { isStampMatched } from '../../entity/document-model/document-stamp/document-stamp'
 
-/** The four rows of table T-034, in the order the table lists them. */
-export type StartupRow = 'BT-1' | 'BT-2' | 'BT-3' | 'BT-4'
+/** The three rows of table T-034, in the order the table lists them. */
+export type StartupRow = 'BT-1' | 'BT-2' | 'BT-4'
 
 /**
  * BT-1 -- the document embedded in the single `.html` (FR-067).
@@ -62,7 +61,7 @@ export type StartupRow = 'BT-1' | 'BT-2' | 'BT-3' | 'BT-4'
  */
 export type EmbeddedCandidate =
   | { readonly kind: 'none' }
-  | { readonly kind: 'read'; readonly document: Document; readonly documentKey: string }
+  | { readonly kind: 'read'; readonly document: Document }
   | { readonly kind: 'unreadable' }
   /** ⚠️ `entryCount` is 0 or 2 and above; exactly one is the `read` case. */
   | { readonly kind: 'entryCountNotOne'; readonly entryCount: number }
@@ -71,32 +70,20 @@ export type EmbeddedCandidate =
  * BT-2 -- the document handed at startup. The path is R-1 of table T-008 and
  * what happens to it after it is opened is FR-087's.
  *
- * ⚠️ `unreadable` descends to BT-3 and raises a notice, the same way BT-1 does.
- * That is a reading, not a quotation: FR-067 spells the descent out for BT-1 and
- * table T-034's note spells it out for BT-3, but BT-2 has no sentence of its
- * own. Table T-034 is an ORDER, so a rank that yields no document is passed
+ * ⚠️ `unreadable` descends to BT-4 and raises a notice, the same way BT-1 does.
+ * That is a reading, not a quotation: FR-067 spells the descent out for BT-1,
+ * but BT-2 has no sentence of its own. Table T-034 is an ORDER, so a rank that
+ * yields no document is passed
  * over, and NT-1 of table T-037 makes telling the person a MUST wherever input
  * is turned away. ⚠️ It is a decision of this file, not of the specification.
  */
 export type HandedCandidate =
   | { readonly kind: 'none' }
-  | { readonly kind: 'read'; readonly document: Document; readonly documentKey: string }
+  | { readonly kind: 'read'; readonly document: Document }
   | { readonly kind: 'unreadable' }
 
 /**
- * BT-3 -- the autosaved document (FR-026).
- *
- * `broken` is FR-026's "保存された内容が壊れているとき、黙って破棄してはならない"
- * and table T-034's "壊れていれば通知したうえで退避する": it is told AND set
- * aside, and it can never win, so a broken autosave is always a losing one.
- */
-export type AutosaveCandidate =
-  | { readonly kind: 'none' }
-  | { readonly kind: 'read'; readonly document: Document; readonly documentKey: string }
-  | { readonly kind: 'broken' }
-
-/**
- * The four candidates of table T-034, as SingleHtmlShell hands them over.
+ * The three candidates of table T-034, as SingleHtmlShell hands them over.
  *
  * ⚠️ `template` is not optional. The order has to end somewhere, and FR-067 says
  * in as many words that a lost BT-1 descends rather than starting empty ("空で
@@ -110,38 +97,14 @@ export type AutosaveCandidate =
 export interface StartupCandidates {
   readonly embedded: EmbeddedCandidate
   readonly handed: HandedCandidate
-  readonly autosave: AutosaveCandidate
   readonly template: Document
 }
-
-/**
- * What becomes of the autosave that did not win. The three kinds other than
- * `none` are the three sentences of table T-034's closing note, in its order.
- */
-export type AutosaveDisposition =
-  /** There is no losing autosave: none was stored, or BT-3 itself won. */
-  | { readonly kind: 'none' }
-  /**
-   * "別の文書なら触らない" -- and also the same document whose autosave carries
-   * the very stamp the opened one carries, because there is then nothing in it
-   * the person has not got, and FR-062 forbids discarding it either way.
-   */
-  | { readonly kind: 'leaveAlone' }
-  /**
-   * "同じ文書で自動保存の刻印が開いた文書のそれと 1 つでも違えば確認を求める". The stored document
-   * travels with the question so that answering it needs no second read of
-   * storage (R7.4: the collecting is over before the deciding starts).
-   */
-  | { readonly kind: 'askToRecover'; readonly document: Document }
-  /** "壊れていれば通知したうえで退避する" -- the notice is in `notices`. */
-  | { readonly kind: 'quarantine' }
 
 /** One thing the startup MUST tell the person about (FR-076, table T-037). */
 export type StartupNoticeCode =
   | 'embeddedUnreadable'
   | 'embeddedEntryCountNotOne'
   | 'handedUnreadable'
-  | 'autosaveBroken'
 
 export interface StartupNotice {
   /** The row of table T-034 the notice is about. */
@@ -156,73 +119,8 @@ export interface StartupChoice {
   readonly row: StartupRow
   /** The document BO-3 and BO-4 then work from. */
   readonly document: Document
-  readonly autosave: AutosaveDisposition
   /** In the order of table T-034, so the one screen reads top down. */
   readonly notices: readonly StartupNotice[]
-}
-
-// ⛔ STOP -- `documentKey` is NOT a value the specification decides.
-//
-// Table T-034's note splits the losing autosave on "同じ文書" against "別の
-// 文書", and FR-061 makes never confusing two of them a MUST NOT ("同じ機で別の
-// 文書や複製を開いても、自動保存が互いを取り違えてはならない"). But no
-// requirement says what makes two documents the same one. `Project.id` is not
-// it -- AT-1 of the ERD is nullable and marked "主キーにしない" -- and S-99b of
-// `_assets/tbl-settings.md` names a 「文書の識別子」 for the Agent API's records
-// without defining one either.
-//
-// So this unit only COMPARES two keys for equality, and never derives one. The
-// Framework supplies them: it is the key its autosave slot stands under, which
-// is the same value FR-061 already requires it to keep straight. HOW that key is
-// derived from a document is an open ruling.
-
-/**
- * The key of the row that won, or `null` when the winner carries none.
- *
- * ⚠️ Only BT-1 and BT-2 can win over a stored autosave -- if BT-3 wins there is
- * no loser, and BT-4 wins only when BT-3 yielded nothing -- so a `null` here
- * always means the autosave is not the same document.
- *
- * @purity pure
- */
-function keyOfWinner(row: StartupRow, candidates: StartupCandidates): string | null {
-  if (row === 'BT-1' && candidates.embedded.kind === 'read') return candidates.embedded.documentKey
-  if (row === 'BT-2' && candidates.handed.kind === 'read') return candidates.handed.documentKey
-  return null
-}
-
-/**
- * Table T-034's closing note, in its own order.
- *
- * @purity pure
- */
-function dispositionOfAutosave(
-  autosave: AutosaveCandidate,
-  winnerRow: StartupRow,
-  winnerKey: string | null,
-  winner: Document,
-): AutosaveDisposition {
-  if (autosave.kind === 'none') return { kind: 'none' }
-  // Broken before same-or-different: a broken copy has no stamp to compare and
-  // no document to hand back, and FR-026 wants it told whatever it belonged to.
-  if (autosave.kind === 'broken') return { kind: 'quarantine' }
-  // BT-3 itself won. Nothing lost, nothing to dispose of.
-  if (winnerRow === 'BT-3') return { kind: 'none' }
-
-  // "別の文書なら触らない."
-  if (winnerKey === null || winnerKey !== autosave.documentKey) return { kind: 'leaveAlone' }
-
-  // Table T-034: the same document, and the autosave's stamp differing from the
-  // opened one in even ONE of the three, is what asks for a confirmation (MUST).
-  // ⛔ NEVER "whichever is newer" (MUST NOT): a wall clock runs backwards over
-  // an NTP correction, and an undo restores an earlier document stamp and all
-  // (FR-063), so an autosave holding work the person still wants would be
-  // dropped in silence for not being "newer". `isStampMatched` (PI-3) is the
-  // one comparison, so the rule is not spelled a second time here.
-  if (isStampMatched(autosave.document.documentStamp, winner.documentStamp)) {
-    return { kind: 'leaveAlone' }
-  }
-  return { kind: 'askToRecover', document: autosave.document }
 }
 
 /**
@@ -247,29 +145,22 @@ function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNot
     notices.push({ row: 'BT-2', rule: 'FR-076', code: 'handedUnreadable' })
   }
 
-  // FR-026: "復旧できないことを人に通知すること." Table T-034 adds the setting
-  // aside, which travels as `quarantine` rather than as a notice.
-  if (candidates.autosave.kind === 'broken') {
-    notices.push({ row: 'BT-3', rule: 'FR-026', code: 'autosaveBroken' })
-  }
-
   return notices
 }
 
 /**
  * Step BO-2 of table T-077: the first document to open, in the order of table
- * T-034, and what becomes of the autosave that lost.
+ * T-034.
  *
  * @purity pure
  */
 export function chooseStartupDocument(candidates: StartupCandidates): StartupChoice {
-  // Table T-034 IS this array -- the four rows in the table's order, each paired
+  // Table T-034 IS this array -- the three rows in the table's order, each paired
   // with the document it yields or `null` when it yields none. Written as the
-  // table rather than as four nested branches, so the order can be read off it.
+  // table rather than as three nested branches, so the order can be read off it.
   const order: readonly (readonly [StartupRow, Document | null])[] = [
     ['BT-1', candidates.embedded.kind === 'read' ? candidates.embedded.document : null],
     ['BT-2', candidates.handed.kind === 'read' ? candidates.handed.document : null],
-    ['BT-3', candidates.autosave.kind === 'read' ? candidates.autosave.document : null],
     ['BT-4', candidates.template],
   ]
 
@@ -280,15 +171,5 @@ export function chooseStartupDocument(candidates: StartupCandidates): StartupCho
   const row = won === undefined ? 'BT-4' : won[0]
   const document = won === undefined || won[1] === null ? candidates.template : won[1]
 
-  return {
-    row,
-    document,
-    autosave: dispositionOfAutosave(
-      candidates.autosave,
-      row,
-      keyOfWinner(row, candidates),
-      document,
-    ),
-    notices: noticesOfCandidates(candidates),
-  }
+  return { row, document, notices: noticesOfCandidates(candidates) }
 }

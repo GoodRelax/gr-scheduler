@@ -32,8 +32,8 @@
 // table T-078 names: 「時間が来たこと」 is the shell's to MEASURE. Of the three
 // waits it counts, only EZ-2's -- the rest before an icon's explanation -- is
 // measured in this build, by `beginPointerRest` and the two current values
-// beside it. ⛔ NT-2's deadline and FR-061's autosave are still uncounted, and
-// each keeps its note where it is answered.
+// beside it. ⛔ NT-2's deadline is still uncounted, and keeps its note where it
+// is answered.
 //
 // ⚠️ ONE HAPPENING BUILDS THE CONTEXT TWICE, and the two cannot be shared.
 // MK-10 is asked BEFORE the watcher hears the happening
@@ -234,7 +234,6 @@ import {
   dismissKeyOf,
   rulerWeekdayWords,
   screenViewFromRegions,
-  type AutosaveStatus,
   type ConfirmationItem,
   type DisplayLanguage,
   type ExportFormatId,
@@ -246,7 +245,6 @@ import {
   type ScreenSurface,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
-import { WEB_STORAGE_KEY_PREFIX } from '../local-storage-document-store/local-storage-document-store'
 
 /**
  * What the shell measured about the window this frame. `regionsFromScreen`
@@ -292,7 +290,7 @@ export interface FrameValues {
  * and RD-2 from the undo entries, RD-3 and RD-4 from the read OP-2 begins, and
  * an outside caller has no `ImportDocument` call to bring.
  */
-export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-5' | 'RD-6' }>
+export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-6' }>
 
 /** PI-17's argument list, which is the one route to the five types below. */
 type AgentApiWiring = Parameters<typeof installAgentApi>[0]
@@ -327,6 +325,12 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
 export type StartupNoticeReason = Extract<NoticeReason, 'RS-15' | 'RS-17' | 'RS-21' | 'RS-25'>
 
 export interface FrameLoop {
+  /**
+   * FR-100 -- whether leaving the page now would lose work. The host asks it
+   * as it is about to leave, and raises its own warning when the answer is
+   * yes; the words of that warning are the host's (MUST NOT).
+   */
+  hasUnsavedEdits(): boolean
   /**
    * FT-2: the current value was replaced, so a frame is owed.
    *
@@ -817,19 +821,18 @@ const CONFIRMATION_MANNER = 'NT-7'
  * one: a raiser that supplied a sentence would be the second store of
  * translated strings FR-038 forbids (MUST NOT).
  *
- * ⛔ THREE ROWS OF THAT TABLE ARE MISSING FROM THIS UNION, and each is missing
+ * ⛔ TWO ROWS OF THAT TABLE ARE MISSING FROM THIS UNION, and each is missing
  * because no road in this build reaches the moment it names:
  *
  *   QN-3  FR-099's unassignment. `notices.ts` records the same gap from the
  *         other end -- table T-109 places IC-66 on U-49, so there is an
  *         entrance, and what is absent is a raiser that puts the question up
  *         and spends the answer.
- *   QN-6  FR-062's autosave with a different stamp. AutosaveGateway (IF-4) is
- *         not built into the shell, which `single-html-shell.ts` states at
- *         BT-3 of table T-034.
- *   QN-7  FR-026's offer to recover. Same missing gateway, same BT-3.
+ *   QN-5  the confirmation before unsaved edits are thrown away and replaced.
+ *         ⛔ CR-280 gave it a second caller in SK-21 (`Ctrl` + `R`), and
+ *         neither road raises it yet.
  *
- * ⛔ NO CALLER IS INVENTED FOR ANY OF THE THREE. A question raised from a road
+ * ⛔ NO CALLER IS INVENTED FOR EITHER. A question raised from a road
  * that does not exist would be asked about nothing.
  *
  * ⚠️ `QN-8` IS DELIBERATELY ABSENT, exactly as `RS-15` is absent from
@@ -1134,6 +1137,9 @@ const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
  */
 const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
+/** OP-13 of table T-024a -- SK-21 reads the file already open. */
+const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
+
 /**
  * What SK-11 of table T-036 writes, whatever the document was opened from.
  *
@@ -1227,6 +1233,23 @@ function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
  * the rows and the store and stops there, so these are this file's, chosen to
  * read as the row does. A change request would be needed to publish them.
  */
+/**
+ * The prefix every key this page keeps in `localStorage` stands under.
+ *
+ * ⚠️ IT MOVED HERE FROM `local-storage-document-store.ts`, which CR-280
+ * retired with the autosave. Its note there had already said this would
+ * happen: 「when they get an owner, this constant moves to a place both can
+ * read rather than being typed a second time」, and the four rows of table
+ * T-206 below are now its only reader.
+ *
+ * ⛔ THE SPELLING IS NOT THE SPECIFICATION'S. It is the fragment the previous
+ * project settled (previous-project-result/09-architecture/
+ * architecture-entry-ja.md section 3).
+ *
+ * @provisional PD-110
+ */
+const WEB_STORAGE_KEY_PREFIX = 'grsched.'
+
 const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
   'S-99': `${WEB_STORAGE_KEY_PREFIX}language`,
   'S-99a': `${WEB_STORAGE_KEY_PREFIX}openedBy`,
@@ -1405,24 +1428,6 @@ function decodedDocument(
 }
 
 /**
- * What the autosave status is before this session has written anything.
- *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: FR-061 requires three states to
- * be told apart (MUST) -- saved with a time, saving, failed -- and NONE of the
- * three describes a document that has just been opened and not yet autosaved.
- * ⚠️ `saved` is the nearest of the three, and the time it carries is the
- * document's own AT-129 -- the instant either group last moved at (FR-063) --
- * rather than a moment invented here: what is on the screen is what was last
- * written. ⛔ A ruling is owed, and so is the wiring of
- * FR-026's autosave -- nothing in this build performs one.
- *
- * @purity pure
- */
-function autosaveAtStartup(held: Document): AutosaveStatus {
-  return { kind: 'saved', at: held.documentStamp.settingsUpdatedUtc }
-}
-
-/**
  * Where the `Command Palette` floats -- `ScreenSession.commandPaletteAt`.
  *
  * ⭐ THE PLACE IS NOT REMEMBERED, AND THAT IS SETTLED RATHER THAN MISSING.
@@ -1480,6 +1485,12 @@ type PropertiesSubject = NonNullable<ScreenSession['propertiesSubject']>
 interface SessionHeld {
   /** S-99. */
   readonly language: DisplayLanguage
+  /**
+   * FR-101 -- the file the document is open from, and when it was last
+   * written to. Both `null` until a write has happened through this page.
+   */
+  readonly openedFileName: string | null
+  readonly fileSavedAt: string | null
   /** FR-065. */
   readonly isAgentApiEnabled: boolean
   /** U-42 `Pointer`, or `null` while it is outside the window. */
@@ -1519,10 +1530,9 @@ interface SessionHeld {
  * T-078 -- 「時間が来たこと」 -- has the shell measure the time ITSELF, so the loop
  * counts the rest against a monotonic clock (R3.6) and asks IF-9 which entry
  * the pointer is on; this function decides neither.
- * ⚠️ ONLY THE FIRST OF FT-4's THREE COUNTS IS WIRED -- the wait EZ-2 of table
- * T-040 puts before an icon's explanation. NT-2's deadline and FR-061's
- * autosave still have none, and each keeps its own note where it is answered
- * (`raisedNotices` and `autosaveAtStartup`).
+ * ⚠️ ONLY THE FIRST OF FT-4's TWO COUNTS IS WIRED -- the wait EZ-2 of table
+ * T-040 puts before an icon's explanation. NT-2's deadline still has none and
+ * keeps its own note where it is answered (`raisedNotices`).
  * ⚠️ `pointer` waits on nothing either -- FT-1 is wired, and the caller hands in
  * the place the last pointer happening was reported from.
  *
@@ -1544,6 +1554,8 @@ function sessionOf(
 ): ScreenSession {
   const {
     language,
+    openedFileName,
+    fileSavedAt,
     isAgentApiEnabled,
     pointer,
     pointerRestedMs,
@@ -1560,14 +1572,18 @@ function sessionOf(
   } = session
   return {
     language,
-    autosave: autosaveAtStartup(held),
+    // FR-101. ⛔ BOTH ARE `null` UNTIL A WRITE HAS HAPPENED THROUGH THIS PAGE.
+    // The name and the instant are the shell's to hold (LY-5) and only a write
+    // can set them: a file that was OPENED has a name, but FR-101 asks when it
+    // was last WRITTEN, and opening answers neither.
+    openedFileName,
+    fileSavedAt,
     // FR-065: the person turned the `Agent API` on or off with IC-20, and this
     // is what they left it at.
     // STOP -- ⛔ NOT REMEMBERED PER DOCUMENT, WHICH IS HALF OF THAT REQUIREMENT.
     // FR-065 (MUST) has the enabling remembered per document and S-99b of table
     // T-206 puts that record in `localStorage` keyed by 「文書の識別子」 -- and
-    // ⛔ NOTHING DERIVES ONE. `autosave-gateway.ts` stops at the same line in as
-    // many words (`DocumentSnapshot.documentKey`), S-99b names an identifier
+    // ⛔ NOTHING DERIVES ONE. S-99b names an identifier
     // without defining one, and `Project.id` is not it (AT-1 is nullable and is
     // marked as no primary key). ⚠️ So no key is invented and `BROWSER_STORED_KEY`
     // stays unwritten. ⭐ The MUST NOT beside it IS kept: `replaceHeldDocument`
@@ -2433,6 +2449,20 @@ export function frameLoop(
   // S-200 of table T-206 -- whether FR-053's palette stands minimised. Default
   // `false`, and lost with the page for the same reason as the line above.
   let isPaletteMinimised = false
+  // FR-101 (MUST) -- the file the document is open from, and the instant it
+  // was last written to. ⛔ BOTH ARE SET BY A WRITE AND BY NOTHING ELSE:
+  // FR-101 asks when the file was last WRITTEN, and opening one answers
+  // neither. ⚠️ Lost with the page, like the two above -- table T-206 has no
+  // row for either, so nothing carries them across a reload.
+  let openedFileName: string | null = null
+  let fileSavedAt: string | null = null
+  // FR-100 -- whether edits stand that no file has been told about. ⛔ THE
+  // GUARD IS ONLY AS GOOD AS THIS FLAG: FR-100 (MUST NOT) forbids warning
+  // when there are none, because a warning that comes every time stops
+  // being read. ⚠️ It starts `false` -- BT-4's template is not an edit, and
+  // neither is a document that arrived in the file (BT-1) or was handed in
+  // (BT-2).
+  let hasUnsavedEdits = false
   // FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by `TaskGroup.id`
   // (AT-51). ⛔ A SECOND SET AND NOT THE SELECTION: SL-1 of table T-023c leaves
   // rows out of the drawing area's selection in as many words, and FR-085 says
@@ -2907,6 +2937,8 @@ export function frameLoop(
         dialogueLog,
         sessionOf(document, regions, layout, {
           language,
+          openedFileName,
+          fileSavedAt,
           isAgentApiEnabled,
           pointer: pointerAt,
           pointerRestedMs,
@@ -3307,6 +3339,11 @@ export function frameLoop(
         // in an exported picture.
         sessionOf(document, regions, layout, {
           language,
+          // ⚠️ EP-1 of table T-076 draws neither of FR-101's two cues, and
+          // both are this session's rather than the document's -- the same
+          // ground the `Agent API` is off on just below.
+          openedFileName: null,
+          fileSavedAt: null,
           isAgentApiEnabled: false,
           pointer: null,
           pointerRestedMs: 0,
@@ -3812,7 +3849,12 @@ export function frameLoop(
       holder,
       audience,
     )
-    if (outcome.accepted) return
+    if (outcome.accepted) {
+      // FR-100 -- a write that landed is an edit no file has been told about.
+      // ⚠️ A REFUSED write is not: nothing moved, so nothing is unsaved.
+      hasUnsavedEdits = true
+      return
+    }
     // FR-076 (MUST): the refusal is raised. It was never thrown nor swallowed --
     // FR-028 makes it a VALUE, and `outcome.refusal` names the step of table
     // T-067 that turned the write away, which is what table T-233 gives a row
@@ -3869,7 +3911,7 @@ export function frameLoop(
       // いてはならない」.
       //
       // ⭐ WHICH ROWS ARE 「別の文書」 IS TABLE T-230's OWN ANSWER, read off its
-      // 履歴 column rather than judged here: RD-4, RD-5 and RD-6 say 「捨てる」 or
+      // 履歴 column rather than judged here: RD-4 and RD-6 say 「捨てる」 or
       // 「空にする」, which is that table saying the document now current is not a
       // continuation of the one that was. ⚠️ The other three carry it forward --
       // RD-1 and RD-2 restore an earlier state of the SAME document and RD-3
@@ -3881,9 +3923,15 @@ export function frameLoop(
       // ⭐ THROUGH THE ONE DOOR, so the side that placed the public point hears
       // this turn as well as IC-20's -- an entrance left standing over a
       // document the person never opened it for is the exposure FR-028 forbids.
-      if (call.row === 'RD-4' || call.row === 'RD-5' || call.row === 'RD-6') {
+      if (call.row === 'RD-4' || call.row === 'RD-6') {
         setAgentApiEnabled(false)
       }
+      // FR-100 -- what the leave guard is asked about. ⭐ THE SAME COLUMN
+      // ANSWERS IT: the two rows that say 「捨てる」 or 「空にする」 put a
+      // document up that came from a file or from the template, so nothing
+      // is unsaved the moment they land; the other three (undo, redo,
+      // merge) leave edits the file has never been told about.
+      hasUnsavedEdits = call.row !== 'RD-4' && call.row !== 'RD-6'
       if (settled(environment)) ask()
       return true
     }
@@ -4319,7 +4367,24 @@ export function frameLoop(
             form: SAVE_FORM,
           })
 
-    if (saving.ok) return
+    if (saving.ok) {
+      // FR-101 (MUST): what the header shows is set HERE and only here.
+      // ⭐ THE NAME COMES BACK FROM THE STORE, never from the document: a
+      // "save as" writes a file the document has never heard of, and
+      // `DocumentFileSaving.openedFile` is the one value that knows which
+      // file the bytes actually landed in.
+      // ⛔ THIS IS WHAT D-66 WAS: the answer used to be dropped on this line,
+      // so a second save succeeded without a pixel changing and read to the
+      // person as a failure.
+      if (saving.openedFile.kind !== 'none') {
+        openedFileName = saving.openedFile.fileName
+      }
+      fileSavedAt = readInstantOfWrite()
+      // FR-100: the file now holds what is on the screen, so leaving costs
+      // nothing and the guard must NOT be raised (MUST NOT).
+      hasUnsavedEdits = false
+      return
+    }
     // FR-076 (MUST): the fault is raised, carrying the row of table T-233 its
     // reason is and the manner that table pairs with the row.
     // ⚠️ `cancelled` is let go inside `raiseFileFault`, which is where IF-3's
@@ -4640,6 +4705,25 @@ export function frameLoop(
         // ⛔ WAITING ON PD-187, the second of the three: see the note on the
         // export path above for what is undecided.
         void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(() => {
+          isFileOperationWaiting = false
+        })
+        return
+      }
+      case 'reopenDocumentFile': {
+        // SK-21 of table T-036 and OP-13 of table T-024a -- the same open
+        // road, with the route that reads the handle already held.
+        // ⛔ NO STORE WAS HANDED IN, so there is no file to read.
+        const store = files
+        if (store === undefined) return
+        // OP-8 (MUST NOT) and CS-4's one-at-a-time, the same guard the two
+        // roads beside this one keep.
+        if (isFileOperationWaiting || asking !== null || openChoosing !== null) return
+        isFileOperationWaiting = true
+        // ⚠️ NOT AWAITED, for the reason the open path above records.
+        // ⭐ OP-4 (MUST) IS KEPT BY GOING DOWN THIS ROAD AND NO OTHER: the
+        // confirmation before unsaved edits are thrown away belongs to the
+        // open, and OP-13 says the reload is a replace like any other.
+        void openDocumentIntoHold(store, OPEN_ROUTE_REOPEN).finally(() => {
           isFileOperationWaiting = false
         })
         return
@@ -5291,6 +5375,18 @@ export function frameLoop(
   if (settled(environment)) runFrame()
 
   return {
+    /**
+     * FR-100 -- whether leaving the page now would lose work.
+     *
+     * ⭐ ASKED RATHER THAN PUSHED, because the answer is only ever wanted at
+     * the instant the host is about to leave, and the loop's own state is
+     * where it is already kept.
+     *
+     * @purity semi-pure-b
+     */
+    hasUnsavedEdits(): boolean {
+      return hasUnsavedEdits
+    },
     /** @purity non-pure */
     holdDocument(call: HeldDocumentCall): void {
       // ⭐ Straight onto the one road, carrying the caller's row and nothing

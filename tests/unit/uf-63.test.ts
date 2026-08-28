@@ -130,7 +130,8 @@ const MARK = '…'
 
 const SESSION: ScreenSession = {
   language: 'ja',
-  autosave: { kind: 'saving' },
+  openedFileName: null,
+  fileSavedAt: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
@@ -950,7 +951,8 @@ describe('UF-63 -- table T-075: the unit is `pure`', () => {
     const other: ScreenSession = {
       ...plain,
       language: 'en',
-      autosave: { kind: 'failed' },
+      openedFileName: null,
+      fileSavedAt: null,
       isAgentApiEnabled: true,
       pointer: { x: 12, y: 34 },
       pointerRestedMs: 4000,
