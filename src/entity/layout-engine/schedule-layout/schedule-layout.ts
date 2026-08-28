@@ -246,17 +246,47 @@ function labelWidth(text: string, fontSize: number, settings: DocumentSettings):
   return labelUnits(text) * fontSize * settings.labelCoef
 }
 
-/** LC-4. Cuts to truncateUnits (S-35) counting the same units. @purity pure */
+/**
+ * What table T-013's preamble (MUST) puts at the end of a name it cut.
+ *
+ * ⭐ ONE CHARACTER, U+2026, AND NOT THREE FULL STOPS. The requirement asks
+ * for a mark that reads as "there is more" and does not spell one; this is
+ * the mark `tooltips.ts` already uses for the same job, and the same thing
+ * written two ways is what R3.4 refuses. ⚠️ It costs 2 units, the width of a
+ * full-width character, which is what it is.
+ * ⛔ NOT A WORD (FR-038): it is the same mark in every language.
+ */
+const TRUNCATION_MARK = '…'
+const TRUNCATION_MARK_UNITS = 2
+
+/**
+ * LC-4. Cuts to truncateUnits (S-35), counting the same units.
+ *
+ * ⛔ THE MARK IS INSIDE THE LIMIT, NOT ADDED TO IT (table T-013, MUST NOT):
+ * S-35 is how much may be SHOWN, so a name that had to be cut gives up two
+ * more units to say so.
+ * ⚠️ A limit too small to hold the mark cuts to nothing rather than
+ * overflowing -- S-35's own floor is 4, so this cannot arise from a value
+ * the specification allows.
+ *
+ * @purity pure
+ */
 function truncate(text: string, limit: number): string {
+  const unitsOf = (ch: string): number => (ch.charCodeAt(0) < 0x100 ? 1 : 2)
   let units = 0
+  for (const ch of text) units += unitsOf(ch)
+  if (units <= limit) return text
+
+  const room = limit - TRUNCATION_MARK_UNITS
   let kept = ''
+  let taken = 0
   for (const ch of text) {
-    const next = units + (ch.charCodeAt(0) < 0x100 ? 1 : 2)
-    if (next > limit) return kept
-    units = next
+    const next = taken + unitsOf(ch)
+    if (next > room) break
+    taken = next
     kept += ch
   }
-  return kept
+  return kept + TRUNCATION_MARK
 }
 
 /**

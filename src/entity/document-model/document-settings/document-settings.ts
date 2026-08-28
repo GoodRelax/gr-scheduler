@@ -271,7 +271,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'thinStrokeMax': 4,
   'thinStrokeMin': 1.2,
   'thinStrokeOfPlan': 0.20,
-  'truncateUnits': 24,
+  'truncateUnits': 48,
   'watermarkVisible': true,
   'zoomX': 1,
   'zoomY': 1,
