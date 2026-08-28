@@ -70,6 +70,7 @@ PRESS_ORDER_ROW = re.compile(r'^\| (PD-\d+[a-z]?) \|')
 SELECTING_ROW = re.compile(r'^\| (SL-\d+[a-z]?) \|')
 GRAB_AREA_ROW = re.compile(r'^\| (GR-\d+[a-z]?) \|')
 SHORTCUT_ROW = re.compile(r'^\| (SK-\d+[a-z]?) \|')
+EXPORT_FORMAT_ROW = re.compile(r'^\| (IO-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 ICON_TABLE = 'T-109'
@@ -98,6 +99,20 @@ PRESS_ORDER_TABLE = 'T-023a'
 SELECTING_TABLE = 'T-023c'
 GRAB_AREA_TABLE = 'T-023d'
 SHORTCUT_TABLE = 'T-036'
+# ⛔ The name of a format the export chooser offers. FR-096 (MUST) has the
+# chooser show the format by the word this dictionary holds and forbids the
+# row id on the screen (MUST NOT) -- which is what it was printing (D-118).
+# ⚠️ THE NAME ONLY, NEVER THE EXTENSION. FR-096 (MUST NOT) keeps the
+# extension in table T-024 alone, so it travels from the table and a second
+# copy is never made here.
+EXPORT_FORMAT_TABLE = 'T-024'
+# ⛔ WHICH ROWS OF THAT TABLE ARE OFFERED IS NOT THIS FILE'S TO DECIDE, and
+# the whole table is not the answer: IO-5 is the browser store and IO-6 is
+# the clipboard, and FR-096 (MUST NOT) puts neither on the chooser -- the
+# first has no write direction of the kind offered, and the second does not
+# come out as a file, so it has no name to propose. FR-025 carries IO-6 on
+# IC-3 instead.
+EXPORT_FORMATS_NOT_OFFERED = ('IO-5', 'IO-6')
 REASON_TABLE = 'T-233'
 # ⛔ The sentence a question shows. Table T-234 is the whole count of the
 # places NT-7 lets GRS ask, so a question with no row here cannot be raised.
@@ -263,6 +278,10 @@ def roster():
         'shortcuts': [row[0] for row in
                       table_rows(REL_REQUIREMENTS, SHORTCUT_ROW,
                                  SHORTCUT_TABLE)],
+        'exportFormats': [row[0] for row in
+                          table_rows(REL_REQUIREMENTS, EXPORT_FORMAT_ROW,
+                                     EXPORT_FORMAT_TABLE)
+                          if row[0] not in EXPORT_FORMATS_NOT_OFFERED],
         # ⛔ A group is keyed by the FIRST row of table T-109 that sits in it.
         # The specification gives groups no id of their own, and minting one
         # (GRP-1 ..) would put a number in the code that no table holds. ⚠️ The
@@ -310,6 +329,7 @@ SHAPE = {
     'selecting': ('rowId', ('text',)),
     'grabAreas': ('rowId', ('text',)),
     'shortcuts': ('rowId', ('text',)),
+    'exportFormats': ('rowId', ('name',)),
     'paletteGroups': ('firstRow', ('name',)),
     'surfaces': ('name', ('heading',)),
     'notices': ('rowId', ('manner',)),
@@ -394,7 +414,7 @@ def build(doc):
     for section in ('icons', 'properties', 'paletteGroups', 'surfaces', 'notices',
                     'pressOrder', 'selecting', 'grabAreas', 'shortcuts',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
-                    'confirmationMarks', 'fileStatus',
+                    'confirmationMarks', 'fileStatus', 'exportFormats',
                     'assignments', 'arms', 'weekdays'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
@@ -429,7 +449,7 @@ def main():
     if '--report' in sys.argv:
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
                         'reasons', 'questions', 'confirmation', 'noticeDismiss',
-                        'confirmationMarks', 'fileStatus',
+                        'confirmationMarks', 'fileStatus', 'exportFormats',
                         'assignments', 'arms'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),

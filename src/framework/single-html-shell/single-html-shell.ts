@@ -84,6 +84,7 @@
 // holders of one store is two answers to 「which file is open」.
 
 import { chooseStartupDocument } from '../../use-case/choose-startup-document/choose-startup-document'
+import { browserClipboard } from '../browser-clipboard/browser-clipboard'
 import type { Document } from '../../entity/document-model/document/document'
 // ⭐ THE ENTRY ITSELF, because this file CALLS it: PI-17 of table T-064
 // publishes `installAgentApi`, and UF-47 of table T-075 gives 「公開点を置くこと」
@@ -762,6 +763,12 @@ function boot(): void {
     { surface: painting, language: displayLanguage() },
     fileStore,
     showPointerShape,
+    // IF-5 (CP-30). ⭐ ITS FIRST CALLER: the seam has been written since
+    // CR-196 and nothing reached it until CR-281 gave IC-3 the clipboard.
+    // ⚠️ `navigator.clipboard` and not a wider handle: CP-30 takes the one
+    // member it uses, so a browser that has none hands `undefined` and the
+    // seam answers `unsupported` rather than throwing (FR-028, MUST NOT).
+    browserClipboard(globalThis.navigator?.clipboard),
   )
   loop = running
 

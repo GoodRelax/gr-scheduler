@@ -37,8 +37,8 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "開いたファイルへ上書き保存する",
-   "authority": "`FR-060`",
+   "entryTo": "書き出す形式を選ぶ",
+   "authority": "`FR-096`（表 T-036 の `SK-12`）",
    "arms": null,
    "armsShape": null
   },
@@ -48,8 +48,8 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "書き出す形式を選ぶ",
-   "authority": "`FR-096`（表 T-036 の `SK-12`）",
+   "entryTo": "画像をクリップボードへコピーする",
+   "authority": "`FR-025`（表 T-024 の `IO-6`）",
    "arms": null,
    "armsShape": null
   },

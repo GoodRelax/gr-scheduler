@@ -3133,9 +3133,14 @@ function modalElement(
       // that can be pressed that way (R4) -- it is not a claim that this is one.
       const choice = made(host, 'button', entryStyle())
       choice.setAttribute('type', 'button')
-      choice.setAttribute('data-format', format)
-      choice.setAttribute('aria-label', format)
-      choice.textContent = format
+      choice.setAttribute('data-format', format.row)
+      // FR-096 (MUST): the format is shown by the word the description brought,
+      // with the extension table T-024 gives it. ⛔ THE ROW ID IS NOT DRAWN
+      // (MUST NOT) -- printing it is what the user reported as D-118 -- and it
+      // stays on `data-format`, which is where a press reads it back from.
+      const shown = `${format.name} ${format.extension}`
+      choice.setAttribute('aria-label', shown)
+      choice.textContent = shown
       choices.append(choice)
     }
     body.push(choices)

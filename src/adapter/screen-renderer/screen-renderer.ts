@@ -970,32 +970,53 @@ export interface RosterResource {
   readonly unassignedTaskNames: readonly (string | null)[]
 }
 
+/**
+ * One format the `Export Chooser` offers (FR-096).
+ *
+ * ⭐ THE ROW ID IS STILL THE HANDLE, and the two beside it are for the reader:
+ * a press carries the row back, because table T-024 has no English column and a
+ * row id is a join rather than a value.
+ */
+export interface ExportFormatChoice {
+  readonly row: ExportFormatId
+  /**
+   * FR-096 (MUST): the word `display-words.json` holds for the row, in the
+   * language the session is on. ⛔ NEVER the row id (MUST NOT) -- printing it
+   * is what the user reported as D-118.
+   */
+  readonly name: string
+  /**
+   * The extension table T-024 gives the row, which FR-096 (MUST) has the
+   * chooser propose with the document name.
+   *
+   * ⛔ NOT TYPED OUT ANYWHERE IN `src/` (FR-096, MUST NOT keeps the extension
+   * in table T-024 alone): `export-formats.json` beside this file is generated
+   * from that table by the same script that writes DocumentCodec's copy, which
+   * LR-2 of table T-061 forbids this component to read.
+   */
+  readonly extension: string
+}
+
 /** U-54 `Export Chooser` of table T-103, the surface FR-096 opens. */
 export interface ExportChooser extends OpenSurface {
   readonly surface: 'Export Chooser'
   /**
-   * FR-096 (MUST): every format table T-024 gives an out direction, in that
-   * table's own print order.
+   * FR-096 (MUST): every format table T-024 gives an out direction AND an
+   * extension, in that table's own print order.
    *
    * ⭐ WHY THIS MEMBER HAS TO EXIST AT ALL, when U-56 `Open Chooser` needs
    * nothing but `commands`: FR-029 (MUST) makes table T-109 the whole of the
-   * icons, and that table places nothing but IC-52 on this surface. IC-3 is the
+   * icons, and that table places nothing but IC-52 on this surface. IC-2 is the
    * one entrance the table gives FR-096, and it stands on the `App Header` and
    * OPENS the chooser -- an entrance per format is what the same requirement
    * forbids (MUST NOT). So the formats cannot arrive as `CommandItem`s without
    * minting rows, and they arrive as the rows table T-024 gives them instead.
    *
-   * ⛔ NO WORDS TRAVEL WITH THEM. `display-words.json` has no section keyed on a
-   * row of table T-024, so there is nothing to read and FR-038 (MUST NOT)
-   * forbids writing one here.
-   * ⛔ NO PROPOSED NAME TRAVELS WITH THEM EITHER, although FR-096 makes the name
-   * the chooser proposes a MUST: it is the document name with the extension
-   * table T-024 gives the chosen row, and that column reaches
-   * `src/adapter/document-codec/exchange-formats.json` -- another component's,
-   * which `_source/components.json` gives this one no edge to. So the name is
-   * built where the file is written and never here.
+   * ⚠️ IO-6 IS NOT AMONG THEM. FR-096 (MUST NOT) keeps the clipboard off this
+   * surface -- it does not come out as a file, so there is no name to propose --
+   * and FR-025 carries it on IC-3 with no surface at all.
    */
-  readonly formats: readonly ExportFormatId[]
+  readonly formats: readonly ExportFormatChoice[]
 }
 
 /**

@@ -59,9 +59,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SOURCE = os.path.join(ROOT, 'docs', 'spec', '01-04-requirements.md')
 OUT = os.path.join(ROOT, 'src', 'adapter', 'document-codec', 'exchange-formats.json')
+# The ScreenRenderer's copy. FR-096 (MUST) has the `Export Chooser` propose
+# the document name with the chosen row's extension, and LR-2 of table T-061
+# forbids that component reaching into DocumentCodec's folder for it.
+CHOOSER_OUT = os.path.join(ROOT, 'src', 'adapter', 'screen-renderer',
+                           'export-formats.json')
 
 REL_SOURCE = 'docs/spec/01-04-requirements.md'
 REL_OUT = 'src/adapter/document-codec/exchange-formats.json'
+REL_CHOOSER_OUT = 'src/adapter/screen-renderer/export-formats.json'
 REL_SELF = 'tools/generate_exchange_formats.py'
 
 TABLE = 'T-024'
@@ -291,11 +297,28 @@ def build():
     return {'$comment': BANNER, 'columns': columns, 'formats': formats}
 
 
+def chooser_roster(roster):
+    """What the `Export Chooser` offers: the rows that come out as a FILE.
+
+    ⛔ IO-6 IS NOT AMONG THEM and neither is IO-5, and the extension column
+    is what says so rather than a list written here: a row with no extension
+    is not a file, so it has no name for FR-096 to propose. FR-096 (MUST
+    NOT) keeps the clipboard off that surface for exactly that reason, and
+    FR-025 carries it on IC-3 instead.
+    """
+    # @purity pure
+    offered = [{'rowId': one['rowId'], 'extension': one['extension']}
+               for one in roster['formats'] if one['extension'] is not None]
+    return {'$comment': BANNER, 'formats': offered}
+
+
 def main():
-    """Write the formats, or say whether the one on disk still matches."""
+    """Write the formats, or say whether the ones on disk still match."""
     # @purity non-pure
     roster = build()
     body = json.dumps(roster, ensure_ascii=False, indent=1) + '\n'
+    chooser_body = json.dumps(chooser_roster(roster),
+                              ensure_ascii=False, indent=1) + '\n'
     count = len(roster['formats'])
     if '--check' in sys.argv:
         if not os.path.exists(OUT):
@@ -306,12 +329,24 @@ def main():
             sys.stdout.write('PROBLEM  %s has drifted from its manuscript -- '
                              'run `python %s`\n' % (REL_OUT, REL_SELF))
             return 1
+        if not os.path.exists(CHOOSER_OUT):
+            sys.stdout.write('PROBLEM  %s has not been written yet\n'
+                             % REL_CHOOSER_OUT)
+            return 1
+        if io.open(CHOOSER_OUT, encoding='utf-8', newline='').read() != chooser_body:
+            sys.stdout.write('PROBLEM  %s has drifted from its manuscript -- '
+                             'run `python %s`\n'
+                             % (REL_CHOOSER_OUT, REL_SELF))
+            return 1
         sys.stdout.write('OK       the exchange formats match their manuscript '
-                         '(%d format(s))\n' % count)
+                         '(%d format(s), %d offered)\n'
+                         % (count, len(chooser_roster(roster)['formats'])))
         return 0
     io.open(OUT, 'w', encoding='utf-8', newline='\n').write(body)
-    sys.stdout.write('wrote %s (%d format(s), %d byte(s))\n'
-                     % (REL_OUT, count, len(body)))
+    io.open(CHOOSER_OUT, 'w', encoding='utf-8', newline='\n').write(chooser_body)
+    sys.stdout.write('wrote %s (%d format(s), %d byte(s)) and %s (%d offered)\n'
+                     % (REL_OUT, count, len(body), REL_CHOOSER_OUT,
+                        len(chooser_roster(roster)['formats'])))
     return 0
 
 

@@ -77,13 +77,14 @@ import type {
   CommandItem,
   DisplayLanguage,
   HelpEntry,
-  ExportFormatId,
+  ExportFormatChoice,
   IconId,
   OpenModal,
   RosterResource,
   ScreenSession,
 } from './screen-renderer'
 import iconRoster from './icon-roster.json'
+import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
 // ⭐ The rows FR-036 (MUST) puts on the help, generated from the six tables it
 // names and from the icon roster. ⛔ It carries no word: FR-038 (MUST NOT)
@@ -135,42 +136,31 @@ const RESOURCE_ROSTER = 'Resource Roster'
 const EXPORT_CHOOSER = 'Export Chooser'
 
 /**
- * FR-096 (MUST): the rows of table T-024 whose direction column gives them an
- * out direction, in that table's own print order (rule 03 section 4).
+ * FR-096 (MUST): the formats the `Export Chooser` offers, each with the word
+ * the dictionary holds for it and the extension table T-024 gives it.
  *
- * ⛔ RE-TYPED, WHICH RULE 03 SECTION 1 FORBIDS FOR ANYTHING THE SPECIFICATION
- * HOLDS, and written all the same because the alternative breaks a MUST outright
- * rather than risking it. Table T-024 IS read by a generator --
- * `tools/generate_exchange_formats.py` -- but that one keeps only the two rows
- * OP-1 of table T-024a accepts on intake, and writes them into
- * `src/adapter/document-codec/exchange-formats.json`, which is another
- * component's file that `_source/components.json` gives this one no edge to. So
- * neither the direction column nor a roster built from it reaches this folder,
- * and an empty roster here would say the table gives no format an out direction,
- * which is a different untruth from a stale one.
+ * ⭐ NEITHER THE MEMBERSHIP NOR THE ORDER IS DECIDED HERE. `export-formats.json`
+ * is table T-024 generated into this folder, in that table's own print order,
+ * and it carries a row only where the table gives one an extension -- which is
+ * what keeps IO-5 and IO-6 out without either being named here.
+ * ⛔ AND NO WORD IS WRITTEN HERE (FR-038, MUST NOT): the dictionary is read,
+ * and a row it has no word for falls to `NO_WORDS` like every other.
  *
- * ⭐ THE DRIFT IS MACHINE-CHECKED MEANWHILE, which is what makes the risk
- * bearable: `tests/unit/uf-47-48-choosers.test.ts` reads the direction column
- * out of the manuscript every run and fails when a row it names is missing from
- * the description this unit builds. ⛔ What is owed is still a generated roster
- * beside `icon-roster.json`, so that the row ids below stop being a copy.
- *
- * ⛔ ONLY THE ROW IDS ARE HERE. No format name, no extension and no direction
- * word is written out -- FR-096 (MUST NOT) puts the extensions in table T-024
- * alone, and a row id is a join rather than a value (the move
- * `DISPLAY_LANGUAGE_ICON` above makes with IC-21).
- * ⚠️ IO-5 IS LEFT OUT ON PURPOSE and is not an oversight: its direction column
- * is the pair table T-024 gives the automatic save and the recovery from it, and
- * neither is a direction FR-096 offers.
+ * @purity pure
  */
-const EXPORT_FORMAT_ROWS: readonly ExportFormatId[] = [
-  'IO-1',
-  'IO-2',
-  'IO-3',
-  'IO-4',
-  'IO-7',
-  'IO-6',
-]
+const FORMAT_NAME_BY_ROW = new Map(
+  displayWords.exportFormats.map((entry) => [entry.rowId, entry]),
+)
+
+function exportFormatChoices(
+  language: DisplayLanguage,
+): readonly ExportFormatChoice[] {
+  return exportFormats.formats.map((one) => ({
+    row: one.rowId,
+    name: FORMAT_NAME_BY_ROW.get(one.rowId)?.name[language] ?? NO_WORDS,
+    extension: one.extension,
+  }))
+}
 
 /**
  * What an entry or a heading says while the dictionary holds no word for it.
@@ -559,15 +549,23 @@ export function openModalFromScreenState(
     }
   }
 
-  // FR-096 (MUST): every format table T-024 gives an out direction is offered
-  // here, because table T-109 places no entrance for one and FR-096 (MUST NOT)
-  // forbids adding one per format. ⛔ The formats do not depend on the document,
+  // FR-096 (MUST): every format table T-024 gives an out direction AND an
+  // extension is offered here, because table T-109 places no entrance for one
+  // and FR-096 (MUST NOT) forbids adding one per format. ⚠️ The extension is
+  // what leaves IO-6 out: the clipboard is not a file, so FR-096 has no name
+  // for it to propose and FR-025 carries it on IC-3 instead.
+  // ⛔ The formats do not depend on the document,
   // so nothing is read from `schedule`: which formats exist is the table's
   // answer, and which of them can be used now is a judgement no argument here
   // carries -- ⛔ nor does the specification state one. Searched: FR-096, table
   // T-024, table T-024a and table T-109.
   if (surface === EXPORT_CHOOSER) {
-    return { surface: EXPORT_CHOOSER, heading, commands, formats: EXPORT_FORMAT_ROWS }
+    return {
+      surface: EXPORT_CHOOSER,
+      heading,
+      commands,
+      formats: exportFormatChoices(session.language),
+    }
   }
 
   // STOP -- ⛔ NOT MODELLED, AND THIS UNIT MAY NOT ADD IT: what the four other

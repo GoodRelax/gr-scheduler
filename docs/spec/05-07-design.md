@@ -350,7 +350,7 @@ src/
 | PI-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 1 つ |
 | PI-27 | `Framework` | `DomInputSource` | `InputSource` の実装 1 つ |
 | PI-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装 1 つ |
-| PI-30 | `Framework` | `BrowserClipboard` | `Clipboard` の実装 1 つ |
+| PI-30 | `Framework` | `BrowserClipboard` | `browserClipboard`（`Clipboard` の実装 1 つを返す） |
 | PI-31 | `Framework` | `CanvasRasterizer` | `Rasterizer` の実装 1 つ |
 | PI-32 | `documentModel` | `Selection` | `Selection`（型。順序は 表 T-023c の `SL-7b`）／ `selectionWith` ／ `selectionWithout` ／ `emptySelection` ／ `isSelected` |
 | PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。刻印とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |

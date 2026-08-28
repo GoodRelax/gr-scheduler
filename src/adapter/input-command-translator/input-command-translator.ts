@@ -496,6 +496,8 @@ export type InputAction =
   | { readonly kind: 'saveDocumentFile' }
   /** SK-21. OP-13 of table T-024a -- no chooser, and always a replace. */
   | { readonly kind: 'reopenDocumentFile' }
+  /** IC-3. FR-025 sends IO-6 of table T-024 with no surface in between. */
+  | { readonly kind: 'copyPictureToClipboard' }
   /** SK-19. */
   | { readonly kind: 'settleTextEntry' }
   /** SK-9 and MK-13. */
@@ -1484,10 +1486,17 @@ function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
 const ENTRY = {
   /** IC-1 -- FR-087 (OP-2 of table T-024a). Same operation as SK-10. */
   openDocument: 'IC-1',
-  /** IC-2 -- FR-060. SK-11. */
-  saveDocument: 'IC-2',
-  /** IC-3 -- FR-096, which SK-12 begins with the choice of a format. */
-  exportChooser: 'IC-3',
+  /**
+   * IC-2 -- FR-096, which SK-12 begins with the choice of a format.
+   *
+   * ⚠️ IT WAS FR-060's SILENT OVERWRITE until CR-280 / CR-281 (the user's
+   * ruling, 2026-08-29). That road is still there and is now the key's
+   * alone: SK-11 writes `GRS JSON` to the opened file without asking, which
+   * is what DI-5 of table T-227 exempts.
+   */
+  exportChooser: 'IC-2',
+  /** IC-3 -- FR-025, the clipboard row IO-6 of table T-024. */
+  copyPicture: 'IC-3',
   /** IC-4 -- S-69, the overlay FR-015 draws. One of FR-049's toggles. */
   baselineVisible: 'IC-4',
   /** IC-5 / IC-6 -- FR-031. SK-6 / SK-7. */
@@ -2942,8 +2951,8 @@ function commandFromEntry(
   switch (entry) {
     case ENTRY.openDocument:
       return acted({ kind: 'openDocumentFile' })
-    case ENTRY.saveDocument:
-      return acted({ kind: 'saveDocumentFile' })
+    case ENTRY.copyPicture:
+      return acted({ kind: 'copyPictureToClipboard' })
     case ENTRY.undo:
       return acted({ kind: 'undoEdit' })
     case ENTRY.redo:
@@ -4414,8 +4423,10 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
       return screenStateWithSurface(state, AI_EXPORT_MODAL)
     case ENTRY.resourceRoster:
       return screenStateWithSurface(state, RESOURCE_ROSTER)
-    // IC-3 -- SK-12's other entrance. FR-096 (MUST) keeps it the ONE way out,
+    // IC-2 -- SK-12's other entrance. FR-096 (MUST) keeps it the ONE way out,
     // and U-54 is the name table T-103 settled for what it opens.
+    // ⚠️ IC-3 is NOT this any more: FR-025 gives the clipboard its own
+    // entrance, which opens no surface at all.
     case ENTRY.exportChooser:
       return screenStateWithSurface(state, EXPORT_CHOOSER)
     // IC-52 is the same level of IN-4 that Esc's first press consumes.

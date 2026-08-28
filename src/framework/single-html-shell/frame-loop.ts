@@ -245,6 +245,10 @@ import {
   type ScreenSurface,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
+import {
+  writeClipboard,
+  type Clipboard,
+} from '../../adapter/clipboard-gateway/clipboard-gateway'
 
 /**
  * What the shell measured about the window this frame. `regionsFromScreen`
@@ -2358,6 +2362,9 @@ export function startupDisplayLanguage(): DisplayLanguage {
  * table T-068's eleven stages run four times for one pointer move, which does
  * not fit the budget NFR-002 and NFR-003 set.
  *
+ * ⭐ `clipboard` IS IF-5's IMPLEMENTATION (CP-30), on the same terms as
+ * `files` below and optional for the same reason: the loop runs for the paths
+ * that touch no clipboard, and IC-3 answers with nothing when there is none.
  * ⭐ `files` IS IF-3's IMPLEMENTATION (PI-28), HANDED IN AND NOT REACHED FOR,
  * for the reason `screen` is: the loop is what holds the current values SK-11
  * writes out, and R7.3 wants the browser side injected so a test can stand in
@@ -2374,6 +2381,7 @@ export function frameLoop(
   screen?: ScreenWiring,
   files?: FileStore,
   showPointerShape?: ShowPointerShape,
+  clipboard?: Clipboard,
 ): FrameLoop {
   // ⭐ ONE PAIR, not a document beside a history. WS-6 of table T-067 is one
   // reference assignment (MUST), and `HeldDocument` says why: a document paired
@@ -4707,6 +4715,32 @@ export function frameLoop(
         void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(() => {
           isFileOperationWaiting = false
         })
+        return
+      }
+      case 'copyPictureToClipboard': {
+        // IC-3 and FR-025 (MUST): IO-6 of table T-024, sent with no surface
+        // in between. ⛔ NO CLIPBOARD WAS HANDED IN, so there is nothing to
+        // write to; doing nothing then is the absence of the behaviour.
+        const seam = clipboard
+        if (seam === undefined) return
+        // ⭐ THE SAME PICTURE AN EXPORT WRITES, and not a second rendering:
+        // FR-025 says what goes out this way is the same picture, which is
+        // what `ClipboardContent.picture` states in as many words.
+        const scene = exportScene()
+        if (scene === null) return
+        // ⚠️ NOT AWAITED, for the reason the file roads give: CS-4 of table
+        // T-066 collected the document before the first await, and the rest
+        // of this happening is settled before the write returns.
+        void writeClipboard(seam, { kind: 'picture', svg: scene.svg }).then(
+          (writing) => {
+            // FR-076 (MUST): a failure is told. ⛔ STOP -- table T-233 has no
+            // row for a clipboard write that would not go through, so the
+            // reason has nowhere to point and RS-15 is what it falls to.
+            // ⚠️ A row of its own is what is owed.
+            if (writing.ok) return
+            raiseNotice('RS-15', null)
+          },
+        )
         return
       }
       case 'reopenDocumentFile': {

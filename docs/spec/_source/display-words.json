@@ -33,23 +33,23 @@
   {
    "rowId": "IC-2",
    "label": {
-    "ja": "上書き保存",
+    "ja": "保存",
     "en": "Save"
    },
    "hint": {
-    "ja": "開いたファイルへ上書きして保存する",
-    "en": "Save over the file that was opened"
+    "ja": "書き出す形式を選んで保存する",
+    "en": "Choose a format and save"
    }
   },
   {
    "rowId": "IC-3",
    "label": {
-    "ja": "書き出し",
-    "en": "Export"
+    "ja": "画像をコピー",
+    "en": "Copy image"
    },
    "hint": {
-    "ja": "書き出す形式を選ぶ",
-    "en": "Choose a format to export"
+    "ja": "いまの画像をクリップボードへコピーする",
+    "en": "Copy the current picture to the clipboard"
    }
   },
   {
@@ -1389,6 +1389,43 @@
    "text": {
     "ja": "ファイル未保存",
     "en": "Not saved to a file"
+   }
+  }
+ ],
+ "exportFormats": [
+  {
+   "rowId": "IO-1",
+   "name": {
+    "ja": "MSPDI XML",
+    "en": "MSPDI XML"
+   }
+  },
+  {
+   "rowId": "IO-2",
+   "name": {
+    "ja": "GRS JSON",
+    "en": "GRS JSON"
+   }
+  },
+  {
+   "rowId": "IO-3",
+   "name": {
+    "ja": "SVG 画像",
+    "en": "SVG image"
+   }
+  },
+  {
+   "rowId": "IO-4",
+   "name": {
+    "ja": "PNG 画像",
+    "en": "PNG image"
+   }
+  },
+  {
+   "rowId": "IO-7",
+   "name": {
+    "ja": "単一 HTML",
+    "en": "Single HTML"
    }
   }
  ],
