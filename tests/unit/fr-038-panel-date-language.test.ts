@@ -116,7 +116,12 @@ const T_016 = specTable('T-016')
 /** The column of table T-016 that says what form an item is edited in. */
 const SHAPE_COLUMN = '入力の型'
 /** The column that holds the item's own name, which the panel prints as-is. */
-const NAME_COLUMN = '項目名（英語・画面表示）'
+// ⭐ THE COLUMN IN THE FILE, WHICH IS WHAT THESE CASES WANTED ALL ALONG.
+// Table T-016 carried an 項目名（英語・画面表示） column until CR-278; the
+// name the SCREEN shows is now the dictionary's (FR-038, MUST NOT), and
+// what stayed in the table is the GRS JSON column. Every use below reads
+// the code spans out of it to name a field, which is the column.
+const NAME_COLUMN = '列（`GRS JSON`）'
 
 for (const column of [SHAPE_COLUMN, NAME_COLUMN]) {
   if (!T_016.headings.includes(column)) {

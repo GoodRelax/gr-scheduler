@@ -823,6 +823,120 @@
    }
   }
  ],
+ "properties": [
+  {
+   "rowId": "PR-1",
+   "label": {
+    "ja": "名称",
+    "en": "name"
+   }
+  },
+  {
+   "rowId": "PR-3",
+   "label": {
+    "ja": "開始日 / 終了日",
+    "en": "start / finish"
+   }
+  },
+  {
+   "rowId": "PR-16",
+   "label": {
+    "ja": "担当者",
+    "en": "assignee"
+   }
+  },
+  {
+   "rowId": "PR-4",
+   "label": {
+    "ja": "実績開始日",
+    "en": "actualStart"
+   }
+  },
+  {
+   "rowId": "PR-5",
+   "label": {
+    "ja": "実績期間",
+    "en": "actualDuration"
+   }
+  },
+  {
+   "rowId": "PR-6",
+   "label": {
+    "ja": "実績終了日",
+    "en": "actualFinish"
+   }
+  },
+  {
+   "rowId": "PR-9",
+   "label": {
+    "ja": "完了率",
+    "en": "percentComplete"
+   }
+  },
+  {
+   "rowId": "PR-10",
+   "label": {
+    "ja": "期限",
+    "en": "deadline"
+   }
+  },
+  {
+   "rowId": "PR-2",
+   "label": {
+    "ja": "備考",
+    "en": "notes"
+   }
+  },
+  {
+   "rowId": "PR-7",
+   "label": {
+    "ja": "再開予定日",
+    "en": "resume"
+   }
+  },
+  {
+   "rowId": "PR-8",
+   "label": {
+    "ja": "再開可否",
+    "en": "resumeValid"
+   }
+  },
+  {
+   "rowId": "PR-17",
+   "label": {
+    "ja": "マイルストーン形状",
+    "en": "milestoneGlyph"
+   }
+  },
+  {
+   "rowId": "PR-12",
+   "label": {
+    "ja": "線 / 塗り / 太さ",
+    "en": "stroke / fill / weight"
+   }
+  },
+  {
+   "rowId": "PR-13",
+   "label": {
+    "ja": "名称アンカー / 名称の揃え",
+    "en": "nameAnchor / nameAlign"
+   }
+  },
+  {
+   "rowId": "PR-14",
+   "label": {
+    "ja": "フェード日数 前/後",
+    "en": "fade in/out days"
+   }
+  },
+  {
+   "rowId": "PR-15",
+   "label": {
+    "ja": "WBS の親",
+    "en": "wbsParentUid"
+   }
+  }
+ ],
  "paletteGroups": [
   {
    "firstRow": "IC-23",

@@ -1,0 +1,175 @@
+{
+ "$comment": "GENERATED from docs/spec/_source/property-items.json by tools/generate_property_items.py -- do not edit by hand. Rebuild: npm run gen  |  npm run gen:check fails on drift. The shown name is NOT here: FR-038 keeps it in display-words.json under the same row id.",
+ "items": [
+  {
+   "rowId": "PR-1",
+   "columns": [
+    "name"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-3",
+   "columns": [
+    "start",
+    "finish"
+   ],
+   "inputKinds": [
+    "日付",
+    "日付"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-16",
+   "columns": [
+    "assignee"
+   ],
+   "inputKinds": [
+    "選択"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-4",
+   "columns": [
+    "actualStart"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-5",
+   "columns": [
+    "actualDuration"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-6",
+   "columns": [
+    "actualFinish"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-9",
+   "columns": [
+    "percentComplete"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": true
+  },
+  {
+   "rowId": "PR-10",
+   "columns": [
+    "deadline"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-2",
+   "columns": [
+    "notes"
+   ],
+   "inputKinds": [
+    "複数行"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-7",
+   "columns": [
+    "resume"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-8",
+   "columns": [
+    "resumeValid"
+   ],
+   "inputKinds": [
+    "真偽"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-17",
+   "columns": [
+    "milestoneGlyph"
+   ],
+   "inputKinds": [
+    "選択"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-12",
+   "columns": [
+    "strokeColor",
+    "fillColor",
+    "lineWeight"
+   ],
+   "inputKinds": [
+    "色",
+    "色",
+    "選択"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-13",
+   "columns": [
+    "nameAnchor",
+    "nameAlign"
+   ],
+   "inputKinds": [
+    "数値",
+    "選択"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-14",
+   "columns": [
+    "fadeInDays",
+    "fadeOutDays"
+   ],
+   "inputKinds": [
+    "数値",
+    "数値"
+   ],
+   "isReadOnly": false
+  },
+  {
+   "rowId": "PR-15",
+   "columns": [
+    "wbsParentUid"
+   ],
+   "inputKinds": [
+    "選択"
+   ],
+   "isReadOnly": false
+  }
+ ]
+}

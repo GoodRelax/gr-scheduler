@@ -245,6 +245,14 @@ const GENERATED = readDictionary(GENERATED_PATH)
  */
 const KEY_FIELD: Readonly<Record<string, string>> = {
   icons: 'rowId',
+  // ⭐ THE NAME EACH ROW OF TABLE T-016 SHOWS (CR-278). Until 2026-08-28 that
+  // table carried an 項目名（英語・画面表示） column and the panel drew it
+  // verbatim, which is how a GRS JSON column name reached a reader (the user's
+  // reports D-81 and D-84). FR-038 (MUST NOT) admits one store of printed
+  // words, so the name moved here and the table kept the column.
+  // ⚠️ Keyed by the row and not by the column: a row may carry several columns
+  // and still show ONE name -- PR-14 is 「fade in/out days」 over two.
+  properties: 'rowId',
   paletteGroups: 'firstRow',
   surfaces: 'name',
   notices: 'rowId',
@@ -899,6 +907,36 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
     selection: emptySelection(),
     session: sessionWith({ propertiesShowing: 'selection' }),
   }),
+}
+
+// -- properties: the name each row of table T-016 shows on the panel (UF-67)
+
+/**
+ * Where a property item's name arrives: the field the panel stands for its row,
+ * while a task is selected.
+ *
+ * ⭐ FR-006 (MUST) puts every row of table T-016 on the panel and FR-038
+ * (MUST NOT) keeps its shown name in the dictionary alone, so this is the one
+ * road between the two -- and it is the road that was missing until CR-278,
+ * when the panel drew the GRS JSON column name instead (the user's reports
+ * D-81 and D-84).
+ * ⚠️ Read by ROW and never by position: FR-006's order is a MUST of its own and
+ * uf-64 is where that is held, so a reordering must not make this file fall too.
+ */
+const propertyFieldName = (view: ScreenView, rowId: string): string | undefined =>
+  view.propertiesPanel?.fields.find((field) => field.row === rowId)?.name
+
+for (const entry of GENERATED['properties'] ?? []) {
+  const rowId = keyOf('properties', entry)
+  place({
+    section: 'properties',
+    key: rowId,
+    field: 'label',
+    unit: 'UF-67',
+    what: `the name the properties panel shows for ${rowId}`,
+    frame: PANEL_STATES['selection'] as Frame,
+    read: (view) => propertyFieldName(view, rowId),
+  })
 }
 
 // ⛔ NO PLACE IS BUILT FOR A PANEL HEADING, and none may be: there is no heading

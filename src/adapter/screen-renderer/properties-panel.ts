@@ -169,6 +169,10 @@ import type {
 } from './screen-renderer'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
+// ⭐ Table T-016, generated from `_source/property-items.json`. ⛔ Its shown
+// names are NOT here -- FR-038 (MUST NOT) keeps those in the dictionary
+// beside it, under the same row ids.
+import propertyItems from './property-items.json'
 
 // ------------------------------------------------------------- the words ----
 
@@ -221,6 +225,23 @@ const PROPERTIES_PANEL = 'Properties Panel'
  */
 const ENTRY_WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
+/**
+ * The name each row of table T-016 shows, keyed by that row's id.
+ *
+ * ⭐ THE WHOLE POINT OF THE SPLIT (the user's instruction of 2026-08-27:
+ * 「別のデータとして紐づけて管理しろ」). The panel drew the GRS JSON column names
+ * themselves until 2026-08-28, so `strokeColor` reached the screen carrying a
+ * noun the control beside it already says (D-81) and `fadeInDays / fadeOutDays`
+ * did not fit on a line (D-84). The column names have not changed by one
+ * character; what changed is that the SHOWN name is a second, linked piece of
+ * data -- and FR-038 (MUST NOT) makes the dictionary the one place it may live.
+ *
+ * ⚠️ ONE NAME PER ROW, NOT PER COLUMN. PR-3 and PR-14 each carry two columns
+ * and PR-12 three; FR-006 (MUST NOT) forbids building the name by joining the
+ * column names, which is what makes 「fade in/out days」 sayable at all.
+ */
+const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.rowId, item]))
+
 /** What an entry says while the dictionary holds no word for its row (PD-160). */
 const NO_ENTRY_WORDS = ''
 
@@ -237,6 +258,23 @@ const NO_ENTRY_WORDS = ''
  */
 function entryLabel(icon: IconId, language: DisplayLanguage): string {
   const word = ENTRY_WORDS_BY_ROW.get(icon)?.label[language]
+  if (word === undefined) return NO_ENTRY_WORDS
+  return word === '' ? NO_ENTRY_WORDS : word
+}
+
+/**
+ * The name one row of table T-016 shows, in the display language (FR-038).
+ *
+ * ⛔ THE COLUMN NAME IS NOT THE FALLBACK. `entryLabel` reads an unwritten cell
+ * as 「not settled yet」 (PD-160) and so does this: falling back to the column
+ * would put the very string this split exists to keep off the screen back on
+ * it, and it would do so silently -- a row whose word nobody wrote would look
+ * finished. ⚠️ Every row is written today, so this stands in for nothing.
+ *
+ * @purity pure
+ */
+function itemName(row: string, language: DisplayLanguage): string {
+  const word = ITEM_WORDS_BY_ROW.get(row)?.label[language]
   if (word === undefined) return NO_ENTRY_WORDS
   return word === '' ? NO_ENTRY_WORDS : word
 }
@@ -298,48 +336,73 @@ type PropertyItem =
   | { readonly row: string; readonly heldBy: 'assignment'; readonly columns: readonly ['assignee'] }
 
 /**
+ * Where each row's values live.
+ *
+ * ⛔ THE ONE FACT ABOUT A ROW THAT TABLE T-016 DOES NOT STATE, which is why it
+ * is the only thing left written out here. `erd.json` says which entity holds a
+ * column, and PR-16 is the row whose substance is not a column at all -- table
+ * T-016's own note says the item is an `Assignment` and that the name shown is
+ * derived from the assignment. ⚠️ Keyed by row id, the only join that table
+ * admits, so a row added to the manuscript arrives below and fails HERE by
+ * name rather than being drawn against the wrong entity.
+ */
+const HELD_BY: Readonly<Record<string, PropertyItem['heldBy']>> = {
+  'PR-1': 'task',
+  'PR-2': 'task',
+  'PR-3': 'task',
+  'PR-4': 'task',
+  'PR-5': 'task',
+  'PR-6': 'task',
+  'PR-7': 'task',
+  'PR-8': 'task',
+  'PR-9': 'task',
+  'PR-10': 'task',
+  'PR-12': 'taskVisual',
+  'PR-13': 'taskVisual',
+  'PR-14': 'task',
+  'PR-15': 'task',
+  'PR-16': 'assignment',
+  'PR-17': 'taskVisual',
+}
+
+/**
  * Table T-016's rows, in the order the table prints them.
  *
- * ⛔ THE PRINTED ORDER IS A MUST AND IT IS NOT THE NUMERIC ONE. The paragraph
- * under that table (利用者の裁定 2026-08-26) requires the items to be shown in
- * the order the table prints them and (MUST NOT) forbids the values touched
- * most often to be reached by scrolling -- the table is ordered by how often a
- * value is touched, so re-sorting this roster by row id would silently undo
- * that ruling. ⚠️ `PR-16` stands third and `PR-15` last; rule 03 section 4 has
- * the same thing to say about keeping a table's own order.
+ * ⭐ READ OFF THE GENERATED ROSTER SINCE CR-278, AND NO LONGER TYPED HERE. The
+ * manuscript is `docs/spec/_source/property-items.json` and
+ * `tools/generate_property_items.py` carries it into `src/`, the same road
+ * `icon-roster.json` takes. ⛔ A hand copy stood here until 2026-08-28 -- the
+ * rows, their columns and the read-only list all written out beside the table
+ * they came from -- which is the drift rule 03 section 1 forbids and which the
+ * user named as the defect behind D-81 and D-84.
  *
- * ⚠️ `assignee` is the one name written out rather than read off a generated
- * type: PR-16's own note says the item is not a column of `Task`, that its
- * substance is `Assignment`, and that the name shown is derived from the
- * assignment.
+ * ⛔ THE PRINTED ORDER IS A MUST AND IT IS NOT THE NUMERIC ONE. FR-006 (MUST)
+ * requires the items in the order the table prints them and (MUST NOT) forbids
+ * the values touched most often to be reached by scrolling -- so the ARRAY's
+ * order is the specification, and re-sorting it by row id would silently undo
+ * that ruling. ⚠️ `PR-16` stands third and `PR-15` last.
+ *
+ * ⛔ THE SHOWN NAME IS NOT ON IT. FR-038 (MUST NOT) keeps every printed word in
+ * one dictionary, so a row's name is looked up by row id -- see `itemName`.
  */
-const PROPERTY_ITEMS: readonly PropertyItem[] = [
-  { row: 'PR-1', heldBy: 'task', columns: ['name'] },
-  { row: 'PR-3', heldBy: 'task', columns: ['start', 'finish'] },
-  { row: 'PR-16', heldBy: 'assignment', columns: ['assignee'] },
-  { row: 'PR-4', heldBy: 'task', columns: ['actualStart'] },
-  { row: 'PR-5', heldBy: 'task', columns: ['actualDuration'] },
-  { row: 'PR-6', heldBy: 'task', columns: ['actualFinish'] },
-  { row: 'PR-9', heldBy: 'task', columns: ['percentComplete'] },
-  { row: 'PR-10', heldBy: 'task', columns: ['deadline'] },
-  { row: 'PR-2', heldBy: 'task', columns: ['notes'] },
-  { row: 'PR-7', heldBy: 'task', columns: ['resume'] },
-  { row: 'PR-8', heldBy: 'task', columns: ['resumeValid'] },
-  { row: 'PR-17', heldBy: 'taskVisual', columns: ['milestoneGlyph'] },
-  { row: 'PR-12', heldBy: 'taskVisual', columns: ['strokeColor', 'fillColor', 'lineWeight'] },
-  { row: 'PR-13', heldBy: 'taskVisual', columns: ['nameAnchor', 'nameAlign'] },
-  { row: 'PR-14', heldBy: 'task', columns: ['fadeInDays', 'fadeOutDays'] },
-  { row: 'PR-15', heldBy: 'task', columns: ['wbsParentUid'] },
-]
+const PROPERTY_ITEMS: readonly PropertyItem[] = propertyItems.items.map((item) => {
+  const heldBy = HELD_BY[item.rowId]
+  if (heldBy === undefined) {
+    throw new Error(`table T-016 holds ${item.rowId}, and nothing says which entity holds its value`)
+  }
+  return { row: item.rowId, heldBy, columns: item.columns } as PropertyItem
+})
 
 /**
  * The rows table T-016 marks read-only.
  *
- * ⛔ Kept as a roster of row ids rather than a flag on every entry, so a row the
- * table stops marking loses its mention here and nowhere else. ⚠️ PR-16 was one
- * of these until CR-186 and is not any more -- read the table as it stands.
+ * ⭐ READ OFF THE SAME ROSTER, so a row the table stops marking loses its mark
+ * in the manuscript and nowhere else. ⚠️ PR-16 was one of these until CR-186
+ * and is not any more.
  */
-const READ_ONLY_ROWS: readonly string[] = ['PR-9']
+const READ_ONLY_ROWS: readonly string[] = propertyItems.items
+  .filter((item) => item.isReadOnly)
+  .map((item) => item.rowId)
 
 // ------------------------------------------------------------ the values ----
 
@@ -878,12 +941,17 @@ function textOfItem(
 // ----------------------------------------------------------- the subject ----
 
 /** @purity pure */
-function taskFields(schedule: Schedule, task: Task, labelCoef: number): readonly PropertyField[] {
+function taskFields(
+  schedule: Schedule,
+  task: Task,
+  labelCoef: number,
+  language: DisplayLanguage,
+): readonly PropertyField[] {
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
 
   return PROPERTY_ITEMS.map((item) => ({
     row: item.row,
-    name: item.columns.join(PART_SEPARATOR),
+    name: itemName(item.row, language),
     text: textOfItem(schedule, task, visual, item),
     isEditable: !READ_ONLY_ROWS.includes(item.row),
     controls: controlsOfItem(schedule, task, item, labelCoef),
@@ -1000,11 +1068,12 @@ function fieldsOfItem(
   schedule: Schedule,
   subject: ItemRef,
   labelCoef: number,
+  language: DisplayLanguage,
 ): readonly PropertyField[] | null {
   switch (subject.kind) {
     case 'task': {
       const task = taskByUid(schedule, subject.uid)
-      return task === null ? null : taskFields(schedule, task, labelCoef)
+      return task === null ? null : taskFields(schedule, task, labelCoef, language)
     }
     case 'dependency': {
       const successor = taskByUid(schedule, subject.successorUid)
@@ -1117,9 +1186,10 @@ function fieldsOfSubject(
   schedule: Schedule,
   subject: PropertiesSubject,
   labelCoef: number,
+  language: DisplayLanguage,
 ): readonly PropertyField[] | null {
   const item = subjectOf(subject.selection)
-  const itemFields = item === null ? [] : fieldsOfItem(schedule, item, labelCoef)
+  const itemFields = item === null ? [] : fieldsOfItem(schedule, item, labelCoef, language)
   if (itemFields === null) return null
 
   const groupId = onlyGroupId(subject.groupIds)
@@ -1255,7 +1325,7 @@ export function propertiesPanelFromSelection(
   const subject = isNothingPicked
     ? session.propertiesSubject
     : { selection, groupIds: session.selectedGroupIds }
-  const fields = subject === null ? null : fieldsOfSubject(schedule, subject, settings.labelCoef)
+  const fields = subject === null ? null : fieldsOfSubject(schedule, subject, settings.labelCoef, session.language)
 
   // Two ways for the subject to have gone: nothing is picked any more, or what
   // is picked is no longer in the document. ⚠️ A selection made all at once is

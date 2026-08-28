@@ -1,0 +1,107 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/property-items.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/property-items.json, which is the single source of truth for table T-016.",
+  "Same role as _source/settings.schema.json and _source/erd.schema.json.",
+  "NO DISPLAY NAME LIVES HERE. FR-038 (MUST NOT) keeps every word the screen prints in one dictionary per language, so a property item's shown name is display-words.json's `properties` section, keyed by the same PR row id.",
+  "NO CANDIDATE, BOUND OR DATE-NESS LIVES HERE EITHER. The note under table T-016 (MUST NOT) forbids copying what grs-document.schema.json and DATE_COLUMNS already hold."
+ ],
+ "title": "The property item manuscript",
+ "description": "The rows of table T-016, in print order. FR-006 (MUST) makes that order the order the panel draws, so the array's order IS the specification.",
+ "type": "object",
+ "required": [
+  "items"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "description": "Notes for whoever edits this manuscript. JSON carries no comments, so the role declaration goes here -- one line per note, the same shape settings.json uses. Check 21 reads the first of them. Not rendered.",
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "items": {
+   "description": "One entry per row of table T-016, in the order the panel prints them.",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "columns",
+     "inputKinds",
+     "note",
+     "mspdi"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "description": "The row id of table T-016. The only join a display name, a test or the panel may use.",
+      "type": "string",
+      "pattern": "^PR-[0-9]+$"
+     },
+     "columns": {
+      "description": "The GRS JSON column names this row edits, in the order they are drawn. One row may carry several (PR-3 carries start and finish).",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     },
+     "inputKinds": {
+      "description": "The 入力の型 of each column, one per entry of `columns` and in the same order. FR-006 (MUST) makes this what the control is drawn as.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "type": "string",
+       "enum": [
+        "文字",
+        "複数行",
+        "日付",
+        "数値",
+        "真偽",
+        "選択",
+        "色"
+       ]
+      }
+     },
+     "isReadOnly": {
+      "description": "Whether the panel refuses to edit this row. Absent means editable, which is what FR-006's STATEMENT makes the default.",
+      "type": "boolean"
+     },
+     "note": {
+      "$ref": "#/$defs/prose"
+     },
+     "mspdi": {
+      "$ref": "#/$defs/prose"
+     }
+    }
+   }
+  }
+ },
+ "$defs": {
+  "prose": {
+   "description": "A cell of the printed document, per language. The manuscript belongs to no language, so the ja/en split is data entry rather than a second copy.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "string"
+    },
+    "en": {
+     "type": "string"
+    }
+   }
+  }
+ }
+}

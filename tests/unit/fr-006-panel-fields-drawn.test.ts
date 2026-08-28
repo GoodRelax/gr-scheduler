@@ -206,7 +206,12 @@ const S_189_CELL = cellOf(T_206, 'S-189', '既定')
 const U_25 = cellOf(specTable('T-103'), 'U-25', '確定名（英）')
 
 /** Table T-016's own heading for the item-name column. */
-const ITEM_NAME_COLUMN = '項目名（英語・画面表示）'
+// ⭐ THE COLUMN IN THE FILE, WHICH IS WHAT THESE CASES WANTED ALL ALONG.
+// Table T-016 carried an 項目名（英語・画面表示） column until CR-278; the
+// name the SCREEN shows is now the dictionary's (FR-038, MUST NOT), and
+// what stayed in the table is the GRS JSON column. Every use below reads
+// the code spans out of it to name a field, which is the column.
+const ITEM_NAME_COLUMN = '列（`GRS JSON`）'
 
 /** Table T-016's own heading for the column FR-006's paragraph makes a MUST. */
 const INPUT_KIND_COLUMN = '入力の型'

@@ -44,6 +44,11 @@ const FILES = [
   'A-appendix.md',
   join('_assets', 'tbl-glossary.md'),
   join('_assets', 'tbl-settings.md'),
+  // ⭐ Table T-016 moved here from 01-04-requirements.md with CR-278, when it
+  // became a generated table -- the same road tbl-settings.md took. Five test
+  // files stopped finding it in the same commit, which is what this list is
+  // for: one place says where a table may live.
+  join('_assets', 'tbl-property-items.md'),
   join('_assets', 'fig-erd-detail.md'),
   join('_assets', 'fig-erd-overview.md'),
 ]

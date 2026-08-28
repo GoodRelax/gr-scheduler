@@ -106,6 +106,9 @@
 //      one dependency at the array position the rest of the product counts
 //      from (AT-72's ordinal, which `import-document` issues from 0).
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -158,8 +161,32 @@ import { bare, specTable } from '../contract/spec-table'
 // what is being handled -- the same exception `S_73` below already relies on).
 // ---------------------------------------------------------------------------
 
-/** The heading of the column that holds the item name shown on screen. */
-const NAME_COLUMN = '項目名（英語・画面表示）'
+/**
+ * The heading of the column that holds the GRS JSON column names.
+ *
+ * ⛔ NOT THE NAME THE SCREEN SHOWS, AND THAT IS THE CHANGE CR-278 MADE. Table
+ * T-016 carried an 項目名（英語・画面表示） column until 2026-08-28 and the panel
+ * drew it verbatim, which is how `strokeColor` and `fadeInDays` reached a
+ * reader (the user's reports D-81 and D-84). FR-038 (MUST NOT) now keeps the
+ * shown name in the dictionary, under the same row id -- `SHOWN_NAME` below.
+ */
+const NAME_COLUMN = '列（`GRS JSON`）'
+
+/**
+ * The name each row of table T-016 shows, read out of the dictionary
+ * MANUSCRIPT, which FR-038 (MUST NOT) makes the one place it may live.
+ *
+ * ⭐ THE MANUSCRIPT AND NOT THE COPY IN `src/`: reading the file beside the unit
+ * would let this agree with a drift `npm run gen:check` exists to catch.
+ */
+const SHOWN_NAME: Readonly<Record<string, { readonly ja: string; readonly en: string }>> =
+  Object.fromEntries(
+    (
+      JSON.parse(
+        readFileSync(join(process.cwd(), 'docs/spec/_source/display-words.json'), 'utf8'),
+      ) as { properties: { rowId: string; label: { ja: string; en: string } }[] }
+    ).properties.map((item) => [item.rowId, item.label]),
+  )
 
 /** The heading of the column added on 2026-08-26, which FR-006's panel obeys. */
 const INPUT_KIND_COLUMN = '入力の型'
@@ -184,7 +211,11 @@ const T_016 = specTable('T-016').rows.map((row) => {
     row: row.id,
     // ⚠️ The table's OWN ' / ' between the several columns of one row is kept;
     // only the manuscript's code spans come off.
-    name: nameCell.replace(/`/g, '').trim(),
+    // The COLUMN, kept for the cases that name a field by what it edits.
+    columns: nameCell.replace(/`/g, '').trim(),
+    // What the panel prints, which is the dictionary's and not this table's.
+    name: SHOWN_NAME[row.id]?.ja ?? '',
+    nameInEnglish: SHOWN_NAME[row.id]?.en ?? '',
     readOnly: row.cells.some((cell) => cell.includes(READ_ONLY_MARK)),
     inputKinds: (row.by[INPUT_KIND_COLUMN] ?? '')
       .split('/')
@@ -545,23 +576,45 @@ describe('FR-006 and table T-016 -- the items of a selected task', () => {
     expect(fields.map((field) => field.row)).toEqual(T_016.map((item) => item.row))
   })
 
-  it('carries the table\'s own item names, joined by its own separator', () => {
+  it('carries the name the dictionary holds for each row, not the column', () => {
+    // ⭐ CR-278 SPLIT THE TWO (the user's instruction of 2026-08-27:
+    // 「別のデータとして紐づけて管理しろ」). The panel shows the dictionary's word
+    // and the file keeps its own column names, so a row may be shown as
+    // 「fade in/out days」 while `fadeInDays` and `fadeOutDays` are untouched.
     const fields = fieldsOfTask()
     expect(fields.map((field) => field.name)).toEqual(T_016.map((item) => item.name))
   })
 
-  it('MUST keep the item names in English, whichever language is chosen', () => {
-    const ascii = /^[A-Za-z /]+$/
-    for (const field of fieldsOfTask()) expect(field.name, field.row).toMatch(ascii)
+  it('⛔ MUST NOT show a GRS JSON column name where the two differ', () => {
+    // The half of the split with a defect behind it: D-81 (「`Color` を省略しろ」)
+    // and D-84 (「1 行で入るように `fade in/out days` としろ」) are both rows whose
+    // shown name the manuscript deliberately makes unlike the column.
+    // ⚠️ Where the two agree this says nothing -- most rows show their own
+    // column name and always did.
+    const fields = fieldsOfTask()
+    const differing = T_016.filter((item) => item.name !== item.columns)
+    expect(differing.length, 'the manuscript parts no name from its column').toBeGreaterThan(0)
+    for (const item of differing) {
+      expect(fieldAt(fields, item.row).name, item.row).not.toBe(item.columns)
+    }
+  })
 
-    // FR-038 (MUST NOT translate table T-016's item names, nor task names).
+  it('MUST follow the display language, which the dictionary is keyed by', () => {
+    // ⛔ THE OPPOSITE OF WHAT STOOD HERE. Table T-016 required 「項目名は英語表記
+    // とすること（MUST）」 until CR-278, and this case asserted the panel read the
+    // same in either language. That MUST is gone: the name is a word of the
+    // dictionary now, and FR-038 (MUST) puts every printed word in the reader's
+    // own language.
     const inEnglish = panelOf(
       oneTaskSchedule({ name: 'alpha' }),
       holding(TASK_REF),
       sessionWith({ language: 'en' }),
     )
     const inJapanese = panelOf(oneTaskSchedule({ name: 'alpha' }))
-    expect(inEnglish.fields).toEqual(inJapanese.fields)
+    expect(inEnglish.fields.map((field) => field.name)).toEqual(
+      T_016.map((item) => item.nameInEnglish),
+    )
+    expect(inJapanese.fields.map((field) => field.name)).toEqual(T_016.map((item) => item.name))
   })
 
   it('MUST let every item be edited but the ones the table marks read-only', () => {
@@ -854,7 +907,9 @@ describe('table T-225 -- the assignee (PR-16)', () => {
     // FR-006 puts every row of table T-016 on the panel; AS-2's `-` belongs to
     // the assignee LABEL, and AS-3 makes `-` the signal that CLEARS one.
     const field = fieldAt(fieldsOfTask(), 'PR-16')
-    expect(field.name).toBe('assignee')
+    // ⚠️ THE SHOWN NAME AND NOT THE COLUMN, since CR-278: `fieldsOfTask` is
+    // asked for in ja here, and the dictionary is what answers.
+    expect(field.name).toBe(SHOWN_NAME['PR-16']?.ja)
     expect(field.isEditable).toBe(true)
   })
 

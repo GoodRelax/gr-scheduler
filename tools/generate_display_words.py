@@ -38,6 +38,11 @@ ROOT = os.path.dirname(HERE)
 
 REL_SOURCE = 'docs/spec/_source/display-words.json'
 REL_GLOSSARY = 'docs/spec/_assets/tbl-glossary.md'
+# ⭐ A GENERATED DOCUMENT READ BY A GENERATOR, which is safe in this one
+# direction: `property_items_json_to_md.py` prints table T-016 from its own
+# manuscript and this reads only the row ids out of it, so the two cannot
+# disagree about which rows exist. ⚠️ `npm run gen` runs them in that order.
+REL_PROPERTY_ITEMS = 'docs/spec/_assets/tbl-property-items.md'
 REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
 REL_OUT = 'src/adapter/screen-renderer/display-words.json'
 REL_SELF = 'tools/generate_display_words.py'
@@ -57,6 +62,7 @@ ASSIGNMENT_ROW = re.compile(r'^\| (MK-\d+[a-z]?) \|')
 REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
 QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
 ARM_ROW = re.compile(r'^\| (AR-\d+[a-z]?) \|')
+PROPERTY_ROW = re.compile(r'^\| (PR-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 ICON_TABLE = 'T-109'
@@ -67,6 +73,15 @@ ASSIGNMENT_TABLE = 'T-023'
 # cannot be armed -- and until this section existed the screen printed the
 # row id itself (D-10).
 ARM_TABLE = 'T-023b'
+# ⛔ The name a property item shows. Table T-016 carries the COLUMN of the
+# file and no longer a shown name: FR-038 (MUST NOT) keeps every printed
+# word in this dictionary, and until 2026-08-28 the panel drew the column
+# name itself -- which is how `strokeColor` and `fadeInDays` reached the
+# screen (the user's reports D-81 and D-84).
+# ⚠️ ONE WORD PER ROW, NOT PER COLUMN. PR-14 carries two columns and the
+# user asked for one word over both (「1 行で入るように」), so the word is
+# the row's and is never built by joining the columns'.
+PROPERTY_TABLE = 'T-016'
 REASON_TABLE = 'T-233'
 # ⛔ The sentence a question shows. Table T-234 is the whole count of the
 # places NT-7 lets GRS ask, so a question with no row here cannot be raised.
@@ -208,6 +223,9 @@ def roster():
 
     return {
         'icons': [row[0] for row in icons],
+        'properties': [row[0] for row in
+                       table_rows(REL_PROPERTY_ITEMS, PROPERTY_ROW,
+                                  PROPERTY_TABLE)],
         # ⛔ A group is keyed by the FIRST row of table T-109 that sits in it.
         # The specification gives groups no id of their own, and minting one
         # (GRP-1 ..) would put a number in the code that no table holds. ⚠️ The
@@ -249,6 +267,7 @@ def roster():
 # section -> (the key each entry is known by, the word fields it holds)
 SHAPE = {
     'icons': ('rowId', ('label', 'hint')),
+    'properties': ('rowId', ('label',)),
     'paletteGroups': ('firstRow', ('name',)),
     'surfaces': ('name', ('heading',)),
     'notices': ('rowId', ('manner',)),
@@ -329,7 +348,7 @@ def build(doc):
     signpost back to the manuscript (Chapter 6.2, MUST).
     """
     out = {'$comment': BANNER}
-    for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
+    for section in ('icons', 'properties', 'paletteGroups', 'surfaces', 'notices',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
                     'confirmationMarks',
                     'assignments', 'arms', 'weekdays'):

@@ -1,0 +1,265 @@
+{
+ "$schema": "./property-items.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "Table T-016: every property item the panel draws, its GRS JSON columns, its input kinds, and the prose the specification prints beside it. The array's order IS the print order FR-006 (MUST) requires.",
+  "Generated FROM this file: _assets/tbl-property-items.md (property_items_json_to_md.py).",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by _source/property-items.schema.json.",
+  "NO DISPLAY NAME LIVES HERE. FR-038 (MUST NOT) keeps every word the screen prints in one dictionary per language, so a shown name is display-words.json's `properties` section, keyed by the same PR row id. What this file carries is the COLUMN -- the name in the file.",
+  "NO CANDIDATE, BOUND OR DATE-NESS EITHER. grs-document.schema.json and DATE_COLUMNS already hold those, and the note under table T-016 (MUST NOT) forbids a second copy."
+ ],
+ "items": [
+  {
+   "id": "PR-1",
+   "columns": [
+    "name"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "note": {
+    "ja": "バーに描くラベル"
+   },
+   "mspdi": {
+    "ja": "`Task/Name`"
+   }
+  },
+  {
+   "id": "PR-3",
+   "columns": [
+    "start",
+    "finish"
+   ],
+   "inputKinds": [
+    "日付",
+    "日付"
+   ],
+   "note": {
+    "ja": "**予定**の日付"
+   },
+   "mspdi": {
+    "ja": "`Task/Start` `Task/Finish`"
+   }
+  },
+  {
+   "id": "PR-16",
+   "columns": [
+    "assignee"
+   ],
+   "inputKinds": [
+    "選択"
+   ],
+   "note": {
+    "ja": "**編集できる。入口と選び方は `FR-008` の表 T-225 が持つ。** ⚠️ **`Task` の列ではない** —— 実体は `Assignment` であり、表示する名は割当から導出する"
+   },
+   "mspdi": {
+    "ja": "`Assignment/ResourceUID`（`mspdi_pj12.xsd:3207`・`xsd:integer`）。名は `Resource/Name`"
+   }
+  },
+  {
+   "id": "PR-4",
+   "columns": [
+    "actualStart"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "note": {
+    "ja": ""
+   },
+   "mspdi": {
+    "ja": "`Task/ActualStart`"
+   }
+  },
+  {
+   "id": "PR-5",
+   "columns": [
+    "actualDuration"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "note": {
+    "ja": "実績バーの長さそのもの（稼働日数）"
+   },
+   "mspdi": {
+    "ja": "`Task/ActualDuration`"
+   }
+  },
+  {
+   "id": "PR-6",
+   "columns": [
+    "actualFinish"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "note": {
+    "ja": "完了したときだけ入る"
+   },
+   "mspdi": {
+    "ja": "`Task/ActualFinish`"
+   }
+  },
+  {
+   "id": "PR-9",
+   "columns": [
+    "percentComplete"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": true,
+   "note": {
+    "ja": "**読み取り専用。** 型と算出は `FR-012`"
+   },
+   "mspdi": {
+    "ja": "`Task/PercentComplete`"
+   }
+  },
+  {
+   "id": "PR-10",
+   "columns": [
+    "deadline"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "note": {
+    "ja": "終了日とは別の独立マーカー"
+   },
+   "mspdi": {
+    "ja": "`Task/Deadline`"
+   }
+  },
+  {
+   "id": "PR-2",
+   "columns": [
+    "notes"
+   ],
+   "inputKinds": [
+    "複数行"
+   ],
+   "note": {
+    "ja": ""
+   },
+   "mspdi": {
+    "ja": "`Task/Notes`"
+   }
+  },
+  {
+   "id": "PR-7",
+   "columns": [
+    "resume"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "note": {
+    "ja": "中断したときだけ入る"
+   },
+   "mspdi": {
+    "ja": "`Task/Resume`"
+   }
+  },
+  {
+   "id": "PR-8",
+   "columns": [
+    "resumeValid"
+   ],
+   "inputKinds": [
+    "真偽"
+   ],
+   "note": {
+    "ja": "`false` = 再開日未定の中断"
+   },
+   "mspdi": {
+    "ja": "`Task/ResumeValid`"
+   }
+  },
+  {
+   "id": "PR-17",
+   "columns": [
+    "milestoneGlyph"
+   ],
+   "inputKinds": [
+    "選択"
+   ],
+   "note": {
+    "ja": "`shapeKind` が `'milestone'` のときだけ有効。置いた後も変えられること（`FR-078`）"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-12",
+   "columns": [
+    "strokeColor",
+    "fillColor",
+    "lineWeight"
+   ],
+   "inputKinds": [
+    "色",
+    "色",
+    "選択"
+   ],
+   "note": {
+    "ja": "FR-007"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-13",
+   "columns": [
+    "nameAnchor",
+    "nameAlign"
+   ],
+   "inputKinds": [
+    "数値",
+    "選択"
+   ],
+   "note": {
+    "ja": "FR-002"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-14",
+   "columns": [
+    "fadeInDays",
+    "fadeOutDays"
+   ],
+   "inputKinds": [
+    "数値",
+    "数値"
+   ],
+   "note": {
+    "ja": "日付の曖昧さを端のぼかしで表す。**適用する形状は表 T-012a の `FD-5` が限る**"
+   },
+   "mspdi": {
+    "ja": "`Task/ExtendedAttribute`（**通常の列は無い。拡張領域を使うのはこの 2 つだけである**。枠の選び方は 表 T-033 の `EX-6`）"
+   }
+  },
+  {
+   "id": "PR-15",
+   "columns": [
+    "wbsParentUid"
+   ],
+   "inputKinds": [
+    "選択"
+   ],
+   "note": {
+    "ja": "階層の深さはここから導出する"
+   },
+   "mspdi": {
+    "ja": "`Task/OutlineLevel` へ導出"
+   }
+  }
+ ]
+}
