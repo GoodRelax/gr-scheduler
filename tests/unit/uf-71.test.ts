@@ -1108,6 +1108,14 @@ const PALETTE: CommandPalette = {
   // described band to the manuscript. What THIS unit owes the band is where it
   // is drawn and what it is marked with, not how tall the description says it is.
   grabBandHeight: 10,
+  minimise: {
+    icon: 'IC-75',
+    label: 'IC-75',
+    isEnabled: true,
+    isPressed: false,
+    isArmed: false,
+  },
+  isMinimised: false,
   groups: [
     {
       name: 'PaletteGroupOne',

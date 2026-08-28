@@ -740,6 +740,33 @@ export interface CommandPalette {
    * the topmost drawn node at that point already answers.
    */
   readonly grabBandHeight: number
+  /**
+   * IC-75 of table T-109 -- the minimise toggle FR-053 (MUST) puts on the grab
+   * band, to the right of IC-53.
+   *
+   * ⭐ A `CommandItem` AND NOT A FLAG, because it is an entrance like any other:
+   * it carries the word FR-038's dictionary holds for its row and the row id
+   * `ScreenSurface.readScreenPartAt` answers with, so a press on it arrives the
+   * way a press on any entry does. ⛔ It is NOT in `groups` and cannot be:
+   * table T-109 gives it no 群, and `groups` prints the table's groups.
+   *
+   * ⚠️ IT IS DRAWN IN BOTH STATES. FR-053 (MUST) keeps the grab band and the
+   * armed reading while the palette is minimised -- without the first it could
+   * never be moved again (GR-19), and without the second the requirement's own
+   * 「いま構えているものが画面上で読めること」 would hold everywhere except
+   * here. What minimising withdraws is `groups`.
+   */
+  readonly minimise: CommandItem
+  /**
+   * Whether the palette stands minimised (S-200 of table T-206).
+   *
+   * ⭐ CARRIED SEPARATELY FROM `groups` BEING EMPTY, although this side empties
+   * that list when it is on: a palette whose groups came out empty for any
+   * other reason is not minimised, and the drawing side owes the two different
+   * pictures. ⚠️ `minimise` is the entrance that reverses it, and its word
+   * already says which way it goes.
+   */
+  readonly isMinimised: boolean
   /** U-34 `Palette Groups`. FR-029 groups them because the number of choices sets the time to decide. */
   readonly groups: readonly PaletteGroup[]
   /**
@@ -1523,7 +1550,8 @@ export interface ScreenSession {
    *
    * ⛔ FR-053 (MUST) keeps the eight milestone shapes out of the palette until
    * this is on, so that the entrances a person rarely uses do not hide the
-   * schedule underneath (GL-002). IC-50 opens it and IC-51 closes it.
+   * schedule underneath (GL-002). IC-50 both opens and folds it -- one entrance
+   * in two states since CR-273 (FR-053, MUST NOT: not a second one).
    *
    * ⭐ HELD BY THE SHELL, like every other member here: it is the way the
    * screen is being used and not part of the document, which is why table
@@ -1532,6 +1560,22 @@ export interface ScreenSession {
    * over anything: the palette's own list simply grows.
    */
   readonly isMilestoneListOpen: boolean
+  /**
+   * Whether the palette is minimised (S-200 of table T-206).
+   *
+   * ⛔ NOT `S-99e`, WHICH IS A DIFFERENT STATE. That row says whether the
+   * palette is SHOWN at all, and FR-053 (MUST) puts its entrance outside the
+   * palette so a hidden palette can be brought back; minimising is one of the
+   * shapes of being shown, and its entrance rides on the palette itself
+   * (IC-75). A palette that is not shown is not minimised, it is absent.
+   *
+   * ⭐ HELD BY THE SHELL for the reason `isMilestoneListOpen` gives -- table
+   * T-206 keeps it out of the document (LY-5 of table T-060).
+   * ⛔ NOT a 面 -- FR-053 (MUST NOT) refuses to let `Esc` restore it, for the
+   * same reason it refuses `Esc` for the glyph list: nothing is drawn over
+   * anything, so IN-4 of table T-028 gains no level.
+   */
+  readonly isPaletteMinimised: boolean
   /**
    * FR-085 (MUST): the rows selected in the `Row Title Panel`, by
    * `TaskGroup.id` (AT-51). FR-042 reads the same set -- the row whose band

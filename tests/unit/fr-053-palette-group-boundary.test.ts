@@ -846,6 +846,14 @@ const entryFor = (icon: string): CommandItem => ({
 const paletteOf = (groupCount: number): CommandPalette => ({
   at: { x: 400, y: 300 },
   grabBandHeight: GRAB_BAND_HEIGHT_PX,
+  minimise: {
+    icon: 'IC-75',
+    label: 'IC-75',
+    isEnabled: true,
+    isPressed: false,
+    isArmed: false,
+  },
+  isMinimised: false,
   groups: Array.from(
     { length: groupCount },
     (_absent, at): PaletteGroup => ({

@@ -853,6 +853,14 @@ const groupOf = (entryCount: number, from = 0): PaletteGroup =>
 const paletteWith = (patch: Partial<CommandPalette> = {}): CommandPalette => ({
   at: { x: 400, y: 300 },
   grabBandHeight: GRAB_BAND_HEIGHT_PX,
+  minimise: {
+    icon: 'IC-75',
+    label: 'IC-75',
+    isEnabled: true,
+    isPressed: false,
+    isArmed: false,
+  },
+  isMinimised: false,
   groups: [groupOf(2)],
   armedText: ARMED_WORD,
   ...patch,

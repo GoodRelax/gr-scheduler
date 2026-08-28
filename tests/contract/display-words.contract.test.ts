@@ -588,6 +588,7 @@ const SESSION: ScreenSession = {
   themePreference: 'light',
   themeHue: SCHEDULE.project.themeHue,
   isMilestoneListOpen: false,
+  isPaletteMinimised: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesShowing: 'selection',
@@ -673,8 +674,20 @@ const viewOf = (build: Build, frame: Frame, language: string): ScreenView =>
 const labelIn = (commands: readonly CommandItem[] | undefined, icon: string): string | undefined =>
   commands?.find((command) => command.icon === icon)?.label
 
-const paletteCommands = (view: ScreenView): readonly CommandItem[] =>
-  (view.commandPalette?.groups ?? []).flatMap((group) => group.commands)
+/**
+ * Every entrance the palette draws: the ones inside its groups, and the one on
+ * its grab band.
+ *
+ * ⭐ THE BAND'S OWN IS NOT IN A GROUP AND CANNOT BE. Table T-109 gives IC-75 no
+ * 群 -- FR-053 (MUST) puts the minimise toggle on the band, beside IC-53 -- so
+ * `groups` alone would miss a row whose word the dictionary holds, and this file
+ * would report it as a word reaching nowhere.
+ */
+const paletteCommands = (view: ScreenView): readonly CommandItem[] => {
+  const inGroups = (view.commandPalette?.groups ?? []).flatMap((group) => group.commands)
+  const onBand = view.commandPalette?.minimise
+  return onBand === undefined ? inGroups : [...inGroups, onBand]
+}
 
 const iconTooltip = (view: ScreenView, icon: string): string | undefined =>
   view.tooltips.find((tip) => tip.anchor.kind === 'icon' && tip.anchor.icon === icon)?.text

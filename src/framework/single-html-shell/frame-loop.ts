@@ -720,7 +720,7 @@ const EDITED_BY_SCREEN = 'user'
  * them among the rows it answers with nothing, and gives one reason for each:
  * what a press on them writes is a current value, and LY-5 of table T-060
  * leaves those with the Framework alone. IC-21 chooses the display language
- * (S-99); IC-50 and IC-51 open and fold FR-053's milestone glyph list (S-142);
+ * (S-99); IC-50 opens and folds FR-053's milestone glyph list (S-142);
  * IC-69 and IC-70 are NT-7's two answers; IC-71 .. IC-73 are OP-3's
  * three, and what each of them settles is a whole-document replacement the
  * Framework is the only layer that may hold. ⛔ None of them is a
@@ -729,17 +729,27 @@ const EDITED_BY_SCREEN = 'user'
  */
 const DISPLAY_LANGUAGE_ENTRY: IconId = 'IC-21'
 /**
- * The pair that turns S-142 of table T-206.
+ * The entry that turns S-142 of table T-206.
  *
- * ⛔ TWO ENTRIES AND NOT ONE IN TWO STATES, which is what table T-109 draws:
- * IC-50 opens the list and IC-51 folds it, each with a glyph of its own. ⚠️ The
- * `Resource Roster`'s IC-67 / IC-68 are the other shape -- those two rows say
- * of themselves that one entrance reverses the other, and these two do not --
- * so they are judged apart here the way `expanderOf` judges HF-2 and HF-3
- * apart.
+ * ⭐ ONE ENTRY IN TWO STATES SINCE CR-273, which is what table T-109 now draws:
+ * IC-50 reads 「同じ入口で開閉する」 and FR-053 (MUST NOT) forbids a second
+ * entrance. ⛔ IT WAS TWO ROWS UNTIL 2026-08-28, an opener and a folder, and
+ * figure F-019 drew them with a byte-identical shape -- so one of the two did
+ * nothing in each state and no reader could tell which. ⚠️ It is now the same
+ * shape as the `Resource Roster`'s IC-67 / IC-68 and as IC-11, which is why it
+ * is read off what is HELD rather than off the entry.
  */
-const MILESTONE_LIST_OPEN_ENTRY: IconId = 'IC-50'
-const MILESTONE_LIST_FOLD_ENTRY: IconId = 'IC-51'
+const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
+/**
+ * The entry that turns S-200 of table T-206 -- FR-053's minimise toggle, which
+ * table T-109 places on the grab band beside IC-53.
+ *
+ * ⭐ HERE FOR THE SAME REASON THE ROW ABOVE IS: what a press on it writes is a
+ * current value, which LY-5 of table T-060 leaves with the Framework, so
+ * `input-command-translator.ts` answers it with an action carrying no value and
+ * this layer decides which way it goes.
+ */
+const PALETTE_MINIMISE_ENTRY: IconId = 'IC-75'
 const CONFIRMATION_PROCEED_ENTRY: IconId = 'IC-69'
 const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
 
@@ -1482,6 +1492,8 @@ interface SessionHeld {
   readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
   /** S-142 of table T-206 -- whether FR-053's milestone glyph list is open. */
   readonly isMilestoneListOpen: boolean
+  /** S-200 of table T-206 -- whether FR-053's palette stands minimised. */
+  readonly isPaletteMinimised: boolean
   /** FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by AT-51. */
   readonly selectedGroupIds: readonly string[]
   /** FR-099 (MUST) -- who is chosen in the `Resource Roster`, by AT-85. */
@@ -1538,6 +1550,7 @@ function sessionOf(
     iconUnderPointer,
     commandPaletteDraggedTo,
     isMilestoneListOpen,
+    isPaletteMinimised,
     selectedGroupIds,
     selectedResourceUids,
     propertiesShowing,
@@ -1593,6 +1606,10 @@ function sessionOf(
     // the specification records that the document does not keep it, so it is a
     // current value and LY-5 of table T-060 leaves those with the loop.
     isMilestoneListOpen,
+    // S-200 of table T-206: whether the palette stands minimised. ⛔ A DIFFERENT
+    // STATE FROM S-99e, which says whether it is shown at all -- FR-053 keeps
+    // that one's entrance outside the palette and this one's on it (IC-75).
+    isPaletteMinimised,
     // FR-085 (MUST) and FR-099 (MUST): the two sets of chosen things that are
     // NOT the drawing area's selection -- SL-1 of table T-023c leaves rows out
     // of that one and admits no resource at all, so `Selection` (PI-32) can hold
@@ -2413,6 +2430,9 @@ export function frameLoop(
   // reason: table T-206 is where the specification records that the document
   // does not keep it.
   let isMilestoneListOpen = false
+  // S-200 of table T-206 -- whether FR-053's palette stands minimised. Default
+  // `false`, and lost with the page for the same reason as the line above.
+  let isPaletteMinimised = false
   // FR-085 (MUST) -- the rows chosen in the `Row Title Panel`, by `TaskGroup.id`
   // (AT-51). ⛔ A SECOND SET AND NOT THE SELECTION: SL-1 of table T-023c leaves
   // rows out of the drawing area's selection in as many words, and FR-085 says
@@ -2897,6 +2917,7 @@ export function frameLoop(
           iconUnderPointer: partUnderPointer?.entry ?? null,
           commandPaletteDraggedTo,
           isMilestoneListOpen,
+          isPaletteMinimised,
           selectedGroupIds,
           selectedResourceUids,
           // ⭐ FR-072's answer AS THIS FRAME STANDS, which is what that member's
@@ -3296,6 +3317,10 @@ export function frameLoop(
           // state out of the picture, and S-142 is as much this session's as the
           // corner is.
           isMilestoneListOpen: false,
+          // ⚠️ Not minimised in the picture, for the reason the line above is
+          // not open: EP-12 of table T-076 keeps this session's state out of
+          // it, and a minimised palette is this session's doing.
+          isPaletteMinimised: false,
           selectedGroupIds: [],
           selectedResourceUids: [],
           propertiesShowing: null,
@@ -4429,16 +4454,25 @@ export function frameLoop(
       writeBrowserStored('S-99', language)
       return true
     }
-    if (entry === MILESTONE_LIST_OPEN_ENTRY || entry === MILESTONE_LIST_FOLD_ENTRY) {
+    if (entry === PALETTE_MINIMISE_ENTRY) {
+      // S-200 of table T-206, turned the way S-142 is: table T-109's IC-75 says
+      // 「同じ入口で戻す」, so the press reverses whatever stands, and LY-5 of
+      // table T-060 leaves a current value with this layer.
+      // ⛔ NOT S-99e. That row is whether the palette is SHOWN, whose entrance
+      // FR-053 (MUST) keeps outside the palette -- this one rides on the band,
+      // and a palette that is not shown has no band to press.
+      isPaletteMinimised = !isPaletteMinimised
+      return true
+    }
+    if (entry === MILESTONE_LIST_ENTRY) {
       // S-142 of table T-206, turned the way the language above is: the press
       // writes a current value LY-5 of table T-060 leaves with this layer, and
-      // `input-command-translator.ts` answers both rows with nothing.
-      // ⛔ WRITTEN FROM THE ENTRY AND NOT FROM WHAT IS HELD, which is the
-      // opposite of `chooseRow` and `toggleChosenResource` -- those two are one
-      // control that reverses, and these are two controls that each say which
-      // way they go. A press on IC-50 with the list already open leaves it
-      // open, which is what that row means.
-      isMilestoneListOpen = entry === MILESTONE_LIST_OPEN_ENTRY
+      // `input-command-translator.ts` answers the row with nothing.
+      // ⭐ READ OFF WHAT IS HELD, the way `chooseRow` and `toggleChosenResource`
+      // are: table T-109's IC-50 says 「同じ入口で開閉する」, so the press
+      // reverses whatever stands. ⛔ It was written from the ENTRY while there
+      // were two rows, each saying which way it went.
+      isMilestoneListOpen = !isMilestoneListOpen
       return true
     }
     if (entry === CONFIRMATION_PROCEED_ENTRY || entry === CONFIRMATION_CANCEL_ENTRY) {

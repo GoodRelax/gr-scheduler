@@ -375,6 +375,14 @@ const viewOf = (
     // rule 03 section 1 keeps it in one place, and `tests/unit/uf-65.test.ts` is
     // the bench that holds the described band to the manuscript.
     grabBandHeight: 7,
+    minimise: {
+      icon: 'IC-75',
+      label: 'IC-75',
+      isEnabled: true,
+      isPressed: false,
+      isArmed: false,
+    },
+    isMinimised: false,
     groups: [{ name: PALETTE_GROUP_NAME, commands: [commandOf('EP-11 palette command')] }],
     armedText: PALETTE_ARMED_TEXT,
   },

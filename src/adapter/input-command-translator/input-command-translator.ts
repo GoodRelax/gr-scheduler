@@ -625,17 +625,18 @@ export type InputAction =
    */
   | { readonly kind: 'toggleAgentApi' }
   /**
-   * IC-50 / IC-51 -- FR-053 (MUST) keeps the milestone glyph entrances off the
-   * palette until the list is opened, so `ScreenSession.isMilestoneListOpen`
-   * moves.
+   * IC-50 -- FR-053 (MUST) keeps the milestone glyph entrances off the palette
+   * until the list is opened, so `ScreenSession.isMilestoneListOpen` moves.
    *
-   * ⭐ THE DIRECTION IS THE ROW'S OWN AND IS NOT A TOGGLE. Table T-109 gives
-   * the opening and the folding a row EACH -- the shape IC-58 / IC-59 have and
-   * the opposite of the one IC-67 / IC-68 have -- so a press names the value it
-   * writes and what the value was before does not enter into it. ⚠️ Two rows
-   * are not the second entrance FR-029 (MUST NOT) refuses: they are two
-   * operations, the way HF-1 of table T-051 puts an opening control and a
-   * closing control on every row.
+   * ⭐ IT REVERSES WHAT STANDS, AND CARRIES NO VALUE. Table T-109's IC-50 reads
+   * 「同じ入口で開閉する」 since CR-273 and FR-053 (MUST NOT) forbids a second
+   * entrance -- the shape IC-11 and IC-67 / IC-68 have. ⛔ WHICH IS WHY NO
+   * `isOpen` IS SENT: the value that stands is `ScreenSession`'s, which lives
+   * past this seam, so naming a direction here would need this file to hold a
+   * copy of it. The shell turns it.
+   * ⚠️ It was two rows until 2026-08-28, an opener and a folder, each naming
+   * its own direction -- and figure F-019 drew both with the same shape, so one
+   * of the two did nothing in each state.
    *
    * ⛔ NOT A DOCUMENT CHANGE. S-142 of table T-206 keeps the state out of the
    * document -- that row is where the specification says so -- and table T-108
@@ -644,7 +645,22 @@ export type InputAction =
    * nothing here has to enforce that: `screenStateFromInput` can only reach
    * what `ScreenState` holds, and S-99g's `surface` is not this.
    */
-  | { readonly kind: 'setMilestoneListOpen'; readonly isOpen: boolean }
+  | { readonly kind: 'toggleMilestoneList' }
+  /**
+   * IC-75 -- FR-053 (MUST) lets the palette be minimised and restored by one
+   * entrance on the grab band, so `ScreenSession.isPaletteMinimised` moves.
+   *
+   * ⭐ IT REVERSES WHAT STANDS, AND CARRIES NO VALUE, for the reason
+   * `toggleMilestoneList` gives: the value that stands is `ScreenSession`'s and
+   * lives past this seam.
+   * ⛔ NOT `S-99e`. That row is whether the palette is SHOWN, and FR-053 (MUST)
+   * puts its entrance OUTSIDE the palette -- this one rides on the band, which
+   * a palette that is not shown does not draw.
+   * ⛔ NOT A DOCUMENT CHANGE and NOT A SURFACE, both for the reasons the row
+   * above gives: table T-206 keeps S-200 out of the document, and FR-053
+   * (MUST NOT) refuses `Esc`.
+   */
+  | { readonly kind: 'togglePaletteMinimised' }
   /**
    * Table T-029a: the Dual Cursor mode was entered (DC-1), the following was
    * handed to the other side (DC-2), or the mode was left (DC-4).
@@ -1560,11 +1576,15 @@ const ENTRY = {
   guideCursorSingleVertical: 'IC-48',
   guideCursorDoubleVertical: 'IC-49',
   /**
-   * IC-50 / IC-51 -- FR-053's milestone glyph list, opened and folded. The
-   * state is S-142 of table T-206, which the shell holds.
+   * IC-50 -- FR-053's milestone glyph list, opened and folded by ONE entrance.
+   * The state is S-142 of table T-206, which the shell holds.
    */
-  milestoneListOpen: 'IC-50',
-  milestoneListClose: 'IC-51',
+  milestoneList: 'IC-50',
+  /**
+   * IC-75 -- FR-053's minimise toggle, on the grab band beside IC-53. The state
+   * is S-200 of table T-206, which the shell holds.
+   */
+  paletteMinimise: 'IC-75',
   /** IC-52 -- the first level of IN-4 (table T-028). */
   closeSurface: 'IC-52',
   /**
@@ -3000,11 +3020,15 @@ function commandFromEntry(
     case ENTRY.guideCursorSingleVertical:
     case ENTRY.guideCursorDoubleVertical:
       return commandFromGuideCursorEntry(entry)
-    case ENTRY.milestoneListOpen:
-    case ENTRY.milestoneListClose:
-      // FR-053 -- S-142, which the shell holds. Each row names its own
-      // direction; the action's note says why this is not a toggle.
-      return acted({ kind: 'setMilestoneListOpen', isOpen: entry === ENTRY.milestoneListOpen })
+    case ENTRY.paletteMinimise:
+      // FR-053 -- S-200, which the shell holds. Same shape as the row below.
+      return acted({ kind: 'togglePaletteMinimised' })
+    case ENTRY.milestoneList:
+      // FR-053 -- S-142, which the shell holds. ⭐ Since CR-273 the row reads
+      // 「同じ入口で開閉する」, so which way it goes depends on what stands, and
+      // what stands is the shell's: this reports the press and the shell turns
+      // the value.
+      return acted({ kind: 'toggleMilestoneList' })
     case ENTRY.paletteGrabBand:
       // GR-19 of table T-023d -- FR-053's drag, settled on the release like
       // every other one here (IN-1 of table T-028).
@@ -4534,7 +4558,7 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 // already had and for the same reason: table T-108 has no row, so
 // `applyDocumentChange` (PI-8) has nothing to plan, and LY-5 of table T-060
 // leaves a current value with the Framework.
-// ⭐ ④ IS WHAT LET IC-50 AND IC-51 OUT OF THE LIST BELOW, where they stood as
+// ⭐ ④ IS WHAT LET IC-50 OUT OF THE LIST BELOW, where it stood as
 // undecidable: S-142 of table T-206 and `ScreenSession.isMilestoneListOpen`
 // have given the palette's own folding somewhere to be held.
 //

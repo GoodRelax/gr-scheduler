@@ -151,8 +151,12 @@ const T_109_PALETTE = [
   { row: 'IC-48', group: 'カーソル', authority: 'FR-048', isButton: true },
   { row: 'IC-49', group: 'カーソル', authority: 'FR-048', isButton: true },
   { row: 'IC-50', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-51', group: '置く', authority: 'FR-078', isButton: true },
   { row: 'IC-53', group: '', authority: 'FR-053', isButton: false },
+  // ⚠️ IC-75 IS A BUTTON AND STILL NOT AN ENTRY. CR-273 put FR-053's minimise
+  // toggle on the grab band, beside IC-53 -- table T-109 gives it no 群, and a
+  // palette row with no group cannot sit in a group. It is copied here so that
+  // this file's copy of the table stays the whole table.
+  { row: 'IC-75', group: '', authority: 'FR-053', isButton: true },
   { row: 'IC-54', group: '構え', authority: 'SK-19', isButton: false },
   { row: 'IC-61', group: '置く', authority: 'FR-009', isButton: true },
   { row: 'IC-62', group: '表示', authority: 'FR-099', isButton: true },
@@ -187,8 +191,19 @@ const ALIGN_REQUIREMENT = 'FR-034'
 // What the table copy says the answer is.
 // ---------------------------------------------------------------------------
 
-/** The rows that become entries: 面 is the palette, and the row is a button. */
-const PALETTE_ENTRY_ROWS = T_109_PALETTE.filter((entry) => entry.isButton)
+/**
+ * The rows that become entries: 面 is the palette, the row is a button, and it
+ * has a 群 to sit in.
+ *
+ * ⭐ THE 群 IS THE THIRD CONDITION AND THE TABLE IS WHAT ADDED IT. Until CR-273
+ * every palette button had a group and the first two conditions were the whole
+ * of it; IC-75 is a button with no 群 -- FR-053 puts the minimise toggle on the
+ * grab band, beside IC-53 -- so a row with nothing in that column has no group
+ * to be printed in. ⛔ NOTHING HERE ASSERTS WHERE IC-75 GOES INSTEAD, which is
+ * a hole this file has and D-103 records: `grabBandHeight` is all the band
+ * carries across IF-9 today.
+ */
+const PALETTE_ENTRY_ROWS = T_109_PALETTE.filter((entry) => entry.isButton && entry.group !== '')
 
 /**
  * The 群 names in the order the table first meets them. FR-029's RATIONALE
@@ -375,6 +390,7 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   // varies it, and the closed palette is untested. Whoever wires FR-053's
   // condition owns that second case.
   isMilestoneListOpen: true,
+  isPaletteMinimised: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,
@@ -509,7 +525,20 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
     // not a pair.
     const palette = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 12, y: 34 } }))
     expect(Object.keys(palette.at).sort()).toEqual(['x', 'y'])
-    expect(Object.keys(palette).sort()).toEqual(['armedText', 'at', 'grabBandHeight', 'groups'])
+    // ⭐ `minimise` AND `isMinimised` JOINED THE CENSUS WITH CR-273 AND ARE NOT
+    // AN EXTENT EITHER. FR-053 (MUST) puts the minimise toggle on the grab band
+    // (IC-75 of table T-109); the first is the entrance itself, carrying the
+    // word and the row id every drawn entry carries, and the second is which of
+    // its two states stands (S-200 of table T-206). ⛔ Neither is a width, a
+    // height or a pair, so the MUST NOT this case guards is untouched.
+    expect(Object.keys(palette).sort()).toEqual([
+      'armedText',
+      'at',
+      'grabBandHeight',
+      'groups',
+      'isMinimised',
+      'minimise',
+    ])
     expect(typeof palette.grabBandHeight, 'a pair here would be an extent again').toBe('number')
   })
 

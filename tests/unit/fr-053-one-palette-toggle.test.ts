@@ -310,6 +310,7 @@ const SESSION: ScreenSession = {
   // eight glyph entrances out of the palette until it is, and a case that walks
   // every entry of the palette wants them all present.
   isMilestoneListOpen: true,
+  isPaletteMinimised: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

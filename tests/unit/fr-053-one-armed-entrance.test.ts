@@ -274,6 +274,7 @@ const SESSION: ScreenSession = {
   themePreference: 'light',
   themeHue: THEME_HUE,
   isMilestoneListOpen: true,
+  isPaletteMinimised: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

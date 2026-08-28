@@ -402,6 +402,7 @@ const SESSION: ScreenSession = {
   themePreference: 'light',
   themeHue: SCHEDULE.project.themeHue,
   isMilestoneListOpen: false,
+  isPaletteMinimised: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesShowing: 'selection',

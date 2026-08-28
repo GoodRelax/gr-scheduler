@@ -152,8 +152,8 @@ import { bare, specTable } from '../contract/spec-table'
  *
  * ⭐ This is the set FR-083's SP-1 .. SP-4 speak of -- 「パレットの形状を押した
  * とき」 -- together with AR-4, AR-5 and AR-6, which 表 T-023b counts as arms as
- * well. ⛔ IC-50 / IC-51 are NOT here although they sit in the same 群: they open
- * and fold the list of milestone figures, and arm nothing.
+ * well. ⛔ IC-50 is NOT here although it sits in the same 群: it opens
+ * and folds the list of milestone figures, and arms nothing.
  */
 const T_109_ARMING = [
   { row: 'IC-23', arm: 'AR-2' },
@@ -1240,6 +1240,14 @@ const PALETTE: CommandPalette = {
   // the edge the band is laid along, and the band's width is the palette's own.
   // ⚠️ The number is this file's own; see `GRAB_BAND_HEIGHT`.
   grabBandHeight: GRAB_BAND_HEIGHT,
+  minimise: {
+    icon: 'IC-75',
+    label: 'IC-75',
+    isEnabled: true,
+    isPressed: false,
+    isArmed: false,
+  },
+  isMinimised: false,
   groups: [
     {
       name: 'PlaceGroup',

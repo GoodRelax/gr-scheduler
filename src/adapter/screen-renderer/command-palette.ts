@@ -171,6 +171,18 @@ const ALIGN_REQUIREMENT = 'FR-034'
 const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
 
 /**
+ * IC-75 of table T-109 -- the minimise toggle FR-053 (MUST) puts on the grab
+ * band, to the right of IC-53.
+ *
+ * ⛔ NOT IN `NOT_BUTTON_ROWS`: it IS a button, and a press on it turns S-200.
+ * What keeps it out of `groups` is the 群 column -- table T-109 gives it none,
+ * and `paletteGroups` drops a palette row with no group rather than inventing
+ * one. ⭐ So the two facts are carried by two different columns of the same
+ * table, and neither is guessed here.
+ */
+const MINIMISE_ROW: IconId = 'IC-75'
+
+/**
  * `FR-078`, as the authority column of table T-109 writes it -- the requirement
  * that owns the milestone glyph entrances FR-053 folds away.
  *
@@ -183,31 +195,28 @@ const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
  */
 const MILESTONE_GLYPH_REQUIREMENT = 'FR-078'
 
-// STOP -- ⛔ NOT CARRIED BY THE GENERATED ROSTER: which rows of table T-109 work
-// the list rather than sit in it. The table states it in the entry column as
-// prose (「マイルストーンの図形の一覧を開く」 / 「同・畳む」) rather than as a
+// STOP -- ⛔ NOT CARRIED BY THE GENERATED ROSTER: which row of table T-109 works
+// the list rather than sits in it. The table states it in the entry column as
+// prose (「マイルストーンの図形の一覧を、同じ入口で開閉する」) rather than as a
 // column of its own, so `icon-roster.json` has no field for it -- the same shape
 // of gap as `NOT_BUTTON_ROWS`, and searched in the same places: table T-109,
 // FR-053, FR-078, `tools/generate_icon_roster.py` and `icon-roster.json`.
-// ⚠️ The authority column cannot tell them apart: table T-109 gives IC-50 and
-// IC-51 `FR-078` too, so the join above reaches all ten rows.
-// ⭐ Smallest thing that cannot be wrong: name the two by row id -- the only
-// join that table admits.
-// ⛔ BOTH ARE OFFERED ON EVERY FRAME, open or folded. Table T-109 carries them
-// as two rows rather than one control in two states, and neither that table nor
-// FR-053 says to withdraw either one -- so withdrawing the opener while the list
-// is open, or the folder while it is closed, would be a rule invented here.
-// ⛔⛔ AND WHAT THAT COSTS WAS MEASURED ON 2026-08-28: the shapes figure F-019
-// draws for the two rows are IDENTICAL, element for element and attribute for
-// attribute -- compared in `icon-glyphs.json`, not read off the drawing. So the
-// palette offers two entrances that cannot be told apart by looking, one of
-// which does nothing in each state. ⚠️ Table T-109 already spells the other
-// shape of this in as many words -- IC-11 and IC-60 are ONE row each reading
-// 「同じ入口で」, and IC-67 / IC-68 are two rows drawn as one entrance -- so
-// nothing new would have to be invented for it, only chosen. ⛔ It is still not
-// choosable here: which of those two shapes this pair takes is that table's, and
-// until it says, this file draws what the roster carries.
-const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50', 'IC-51']
+// ⚠️ The authority column cannot tell it from the glyphs: table T-109 gives
+// IC-50 `FR-078` too, so the join above reaches all nine rows.
+// ⭐ Smallest thing that cannot be wrong: name it by row id -- the only join
+// that table admits.
+//
+// ⭐ ONE ROW SINCE CR-273, AND THE TABLE IS WHAT CHOSE. Until 2026-08-28 this
+// list held IC-50 AND IC-51, an opener and a folder, both offered on every
+// frame -- and what that cost was measured that day: the shapes figure F-019
+// drew for the two were IDENTICAL, element for element and attribute for
+// attribute (compared in `icon-glyphs.json`, not read off the drawing), so the
+// palette offered two entrances nobody could tell apart, one of which did
+// nothing in each state. ⛔ It was not choosable HERE -- which shape the pair
+// took was table T-109's -- and the table now says 「同じ入口で開閉する」, with
+// FR-053 (MUST NOT) forbidding a second entrance. IC-11 and IC-60 were the
+// precedent it followed.
+const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50']
 
 /**
  * What an entry says while the dictionary holds no word for its row.
@@ -469,9 +478,12 @@ function paletteGroups(
     if (!row.surfaces.includes(COMMAND_PALETTE)) continue
     if (NOT_BUTTON_ROWS.includes(row.rowId)) continue
 
-    // ⚠️ Required by the type, and unreachable while the only groupless palette
-    // row is one of the two refused above. A row that reaches the palette
-    // without a group is dropped rather than given a group name invented here.
+    // ⛔ A PALETTE ROW WITH NO 群 IS DROPPED, AND SINCE CR-273 THAT REACHES A
+    // REAL ROW. IC-75 is a button table T-109 gives no group, because FR-053
+    // (MUST) puts it on the grab band rather than in the list -- `minimise` in
+    // `commandPaletteFromScreenState` is where it goes instead. ⚠️ Giving it a
+    // group name here would mint one of the very names section 8 of
+    // `_assets/tbl-glossary.md` refuses.
     const cell = row.group
     if (cell === null) continue
 
@@ -586,6 +598,25 @@ function armedWord(armed: ScreenState['armed'], language: DisplayLanguage): stri
 }
 
 /**
+ * The roster's own row for IC-75.
+ *
+ * ⛔ READ OUT OF THE ROSTER AND NEVER BUILT HERE. `commandItemFor` answers from
+ * the row's `arms` / `armsShape` and from the dictionary keyed by its id, so a
+ * hand-made row would be this file holding a copy of table T-109. ⚠️ It throws
+ * rather than falling back: the row is a MUST of FR-053, and a palette drawn
+ * without its minimise toggle would be that requirement broken in silence.
+ *
+ * @purity pure
+ */
+function minimiseRow(): IconRosterRow {
+  const row = iconRoster.icons.find((one) => one.rowId === MINIMISE_ROW)
+  if (row === undefined) {
+    throw new Error(`table T-109 no longer holds ${MINIMISE_ROW}, which FR-053 requires`)
+  }
+  return row
+}
+
+/**
  * The floating palette as it stands this frame, or `null` while S-99e says it
  * is hidden.
  *
@@ -629,12 +660,29 @@ export function commandPaletteFromScreenState(
     // (MUST) also has the armed ENTRANCE told apart from the others, and the
     // roster's `arms` and `armsShape` fields are what each entry is compared
     // against (`isArmed`).
-    groups: paletteGroups(
+    // FR-053 (MUST): the minimise toggle rides on the band, in both states.
+    minimise: commandItemFor(
+      minimiseRow(),
       selection,
       session.language,
-      session.isMilestoneListOpen,
       armedEntry(state.armed),
     ),
+    isMinimised: session.isPaletteMinimised,
+    // ⛔ MINIMISED WITHDRAWS THE ENTRIES AND NOTHING ELSE. FR-053 (MUST) keeps
+    // the grab band and the armed reading through it -- without the first the
+    // palette could never be moved again (GR-19), and without the second the
+    // same requirement's 「いま構えているものが画面上で読めること」 would hold
+    // everywhere except here. ⚠️ An empty list is not how this side says
+    // "hidden": `null` is (see this function's own note), and minimised is a
+    // shape of being shown.
+    groups: session.isPaletteMinimised
+      ? []
+      : paletteGroups(
+          selection,
+          session.language,
+          session.isMilestoneListOpen,
+          armedEntry(state.armed),
+        ),
     // FR-053 (MUST): what is armed has to be readable. The words come from
     // FR-038's dictionary, keyed by the row of table T-023b -- ⛔ never the row
     // id, which that table's closing rule forbids the screen to carry.

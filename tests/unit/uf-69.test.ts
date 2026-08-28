@@ -314,6 +314,7 @@ const EMPTY_SESSION: ScreenSession = {
   themePreference: 'light',
   themeHue: THEME_HUE,
   isMilestoneListOpen: false,
+  isPaletteMinimised: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,
@@ -519,6 +520,14 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
         at: { x: 300, y: 300 },
         // ⚠️ INERT HERE -- see the note by the other palette in this file.
         grabBandHeight: BAND_HEIGHT_NO_CASE_MEANS,
+        minimise: {
+          icon: 'IC-75',
+          label: 'IC-75',
+          isEnabled: true,
+          isPressed: false,
+          isArmed: false,
+        },
+        isMinimised: false,
         groups: [{ name: '表示', commands: [commandOf({ icon: ICON_PALETTE })] }],
         armedText: 'なし',
       },
@@ -544,6 +553,14 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
           at: { x: 300, y: 300 },
           // ⚠️ INERT HERE -- see the note by the other palette in this file.
           grabBandHeight: BAND_HEIGHT_NO_CASE_MEANS,
+          minimise: {
+            icon: 'IC-75',
+            label: 'IC-75',
+            isEnabled: true,
+            isPressed: false,
+            isArmed: false,
+          },
+          isMinimised: false,
           groups: [],
           armedText: 'なし',
         },

@@ -317,6 +317,7 @@ const sessionOf = (notices: readonly RaisedNotice[]): ScreenSession => ({
   themePreference: 'light',
   themeHue: THEME_HUE,
   isMilestoneListOpen: false,
+  isPaletteMinimised: false,
   selectedGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,

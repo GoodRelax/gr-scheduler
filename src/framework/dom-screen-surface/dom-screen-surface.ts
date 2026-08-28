@@ -1251,7 +1251,16 @@ const STYLE = {
   // for the band FR-052 has a person drag.
   paletteGrabBand:
     'display:flex;align-items:center;justify-content:center;' +
-    'cursor:grab;pointer-events:auto;',
+    'cursor:grab;pointer-events:auto;position:relative;',
+  // ⛔ THE TOGGLE SITS AT THE BAND'S RIGHT END AND THE GRAB MARK STAYS CENTRED.
+  // FR-053 (MUST) puts IC-53 on the band with the minimise entrance to ITS
+  // right; taking the toggle out of the flow is what keeps IC-53 centred on the
+  // band rather than pushed off-centre by the toggle's own width.
+  // ⚠️ `cursor:pointer` and not the band's `grab`: this one is pressed, not
+  // dragged, and the band's own cursor would say the wrong thing about it.
+  paletteMinimise:
+    'position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;' +
+    'cursor:pointer;pointer-events:auto;',
   // Where the palette's own room went, so that the band above can reach its
   // edges. ⛔ NOT A PART: table T-103 has no row for it and it carries no
   // `data-role`, so `readScreenPartAt` walks straight past it to the palette --
@@ -2674,10 +2683,38 @@ function fillPropertiesPanel(
  *
  * @purity non-pure
  */
-function grabBandElement(host: Document, heightPx: number): HTMLElement {
+function grabBandElement(
+  host: Document,
+  heightPx: number,
+  minimise: CommandItem,
+  isMinimised: boolean,
+  anchors: Map<string, HTMLElement>,
+): HTMLElement {
   const band = made(host, 'div', STYLE.paletteGrabBand + `height:${heightPx}px;`)
   band.setAttribute('data-icon', PALETTE_GRAB_BAND_ENTRY)
   fillEntry(host, band, PALETTE_GRAB_BAND_ENTRY)
+
+  // ⭐ IC-75 IS DRAWN INSIDE THE BAND, WHICH IS WHAT FR-053 (MUST) ASKS FOR:
+  // 「掴み帯の右端に IC-53 を置き、その右に最小化の入口を置くこと」. ⛔ Inside
+  // and not beside, for the reason the band itself is inside the palette: the
+  // faintness MUST is judged on which PART the pointer is on, and a sibling
+  // would leave the palette faint at the moment its own toggle is pressed.
+  // ⚠️ IT IS A `CommandItem` AND SO CARRIES ITS OWN WORD, which is the half the
+  // band has never had -- the note above records that gap for IC-53, and this
+  // row does not share it.
+  const toggle = commandEntry(host, minimise)
+  toggle.setAttribute('style', toggle.getAttribute('style') + STYLE.paletteMinimise)
+  // ⭐ THE STATE IS SAID AND NOT ONLY DRAWN. Table T-109 gives IC-75 one shape
+  // for both states (「同じ入口で戻す」), so a reader who cannot see it has
+  // nothing to tell the two apart by unless the pressed state is written.
+  toggle.setAttribute('aria-pressed', String(isMinimised))
+  // EZ-2 of table T-040 again, for the row drawn inside the band: a tooltip
+  // raised for IC-75 is placed against the node IT was drawn on, and never
+  // against the band it sits in. ⚠️ Set here rather than by the caller because
+  // the band's first child is IC-53's own shape -- `fillEntry` above puts it
+  // there -- so the toggle cannot be found from outside by position.
+  anchors.set(anchorKey({ kind: 'icon', icon: minimise.icon }), toggle)
+  band.append(toggle)
   return band
 }
 
@@ -2771,7 +2808,13 @@ function paletteElement(
   // ⚠️ Drawn on every frame the palette is, and on no condition of its own: the
   // row states a place and not a state, so `CommandPalette` carries the height
   // whenever it carries anything at all.
-  const band = grabBandElement(host, palette.grabBandHeight)
+  const band = grabBandElement(
+    host,
+    palette.grabBandHeight,
+    palette.minimise,
+    palette.isMinimised,
+    anchors,
+  )
   // EZ-2 of table T-040 (MUST) shows THAT icon's explanation, and IC-53 is now a
   // row the pointer can rest on -- `readScreenPartAt` answers it, so PD-141
   // reports it and a tooltip raised for it has to be placed against the node it

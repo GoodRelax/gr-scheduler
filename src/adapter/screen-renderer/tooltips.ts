@@ -184,7 +184,14 @@ function commandsOnScreen(shown: Omit<ScreenView, 'tooltips'>): readonly Command
   const modal = shown.openModal
   return [
     ...shown.appHeaderItems.commands,
-    ...(palette === null ? [] : palette.groups.flatMap((group) => group.commands)),
+    // ⭐ THE PALETTE'S BAND CARRIES AN ENTRANCE OF ITS OWN, AND IT IS NOT IN A
+    // GROUP. Table T-109 gives IC-75 no 群 -- FR-053 (MUST) puts the minimise
+    // toggle on the grab band -- so reading `groups` alone would leave the one
+    // entrance a person always sees without the explanation EZ-2 of table T-040
+    // (MUST) owes it. ⚠️ Offered in BOTH states: the toggle is drawn while the
+    // palette stands minimised, which is exactly when its explanation matters
+    // most, because nothing else is on the screen to say what it does.
+    ...(palette === null ? [] : [...palette.groups.flatMap((group) => group.commands), palette.minimise]),
     ...(modal === null ? [] : modal.commands),
   ]
 }
