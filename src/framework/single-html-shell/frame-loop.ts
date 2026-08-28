@@ -5551,4 +5551,25 @@ export const NOT_STORED_REPEAT_TIMES: {
   'S-172': 1000,
   'S-173': 120,
 }
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands instead of being handed
+ * it: the contract in screen-renderer.ts fixes UF-61 at three
+ * arguments, and FR-051 (MUST NOT) forbids a setting to hold the
+ * value either -- so there is no door to pass it through. ⛔ It is
+ * still not a document setting and must not become one.
+ */
+export const NOT_STORED_SCROLLBAR_SIZES: {
+  /** S-205, in px */
+  readonly 'S-205': number
+} = {
+  'S-205': 8,
+}
 // </generated>

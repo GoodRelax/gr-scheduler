@@ -84,6 +84,7 @@
 // holders of one store is two answers to 「which file is open」.
 
 import { chooseStartupDocument } from '../../use-case/choose-startup-document/choose-startup-document'
+import { NOT_STORED_SCROLLBAR_SIZES } from './frame-loop'
 import { browserClipboard } from '../browser-clipboard/browser-clipboard'
 import type { Document } from '../../entity/document-model/document/document'
 // ⭐ THE ENTRY ITSELF, because this file CALLS it: PI-17 of table T-064
@@ -392,8 +393,15 @@ function embeddedStartupDocument(): {
  * is what is measured, and half of it is what the `Row Area` gives up (SC-4
  * keeps the lanes showing at all times, which is why they take the room).
  *
- * ⚠️ A host with overlay scrollbars measures 0. That is its answer, not a
- * fault -- the same way DomScreenSurface reports a header laid out at 0.
+ * ⚠️ A HOST WITH OVERLAY SCROLLBARS MEASURES 0, AND HALF OF 0 IS 0. That is
+ * the environment's honest answer and it is NOT one this tool can use: a band
+ * 0 thick cannot be pointed at or grabbed, so FR-037 (the reading a scrollbar
+ * carries) and table T-031 (「スクロールバーの操作でも表示位置を変えられること」,
+ * MUST) both go unkept. ⛔ THE NOTE HERE USED TO CALL IT "not a fault"; the
+ * user reported it as one (D-115) and they were right.
+ * ⭐ FR-051 (MUST) now puts a floor under it -- S-205 -- and the order is the
+ * requirement's: halve first, then floor, so a host with a thick default is
+ * still halved.
  *
  * ⭐ Measured ONCE. FR-051 settles it at BO-1 of table T-077, and the
  * environment's default does not change with the size of the window.
@@ -410,7 +418,7 @@ function measuredScrollbarThickness(): number {
   document.body.append(probe)
   const environmentDefault = probe.offsetWidth - probe.clientWidth
   probe.remove()
-  return environmentDefault / 2
+  return Math.max(environmentDefault / 2, NOT_STORED_SCROLLBAR_SIZES['S-205'])
 }
 
 /**

@@ -1113,6 +1113,12 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PALETTE_GROUP_RULE_SIZES': (['S-143'],
                                             DRAWN_INSIDE_THE_COMMAND_PALETTE),
     'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
+    # ⛔ THE FLOOR UNDER THE SCROLLBAR AND NOT ITS THICKNESS. FR-051 forbids
+    # the thickness to be a setting -- it is measured off the environment at
+    # BO-1 -- and S-205 is the least this tool will draw whatever that
+    # measurement says, because a host with overlay scrollbars answers 0 and
+    # half of 0 is 0 (D-115).
+    'NOT_STORED_SCROLLBAR_SIZES': (['S-205'], READ_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE. S-171 is the panel's own width and
     # stands where the frame is laid out; S-199 is the room ONE control needs
     # beyond its value, and FR-006 (MUST) makes the side that ESTIMATES carry
@@ -1761,7 +1767,8 @@ TARGETS = [
     # arrive the same way, and the paragraph above each is what says how.
     (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-loop.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_REPEAT_TIMES'),
+     + not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SCROLLBAR_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ FR-006's room, resolved on the side that can resolve it. S-199 is a
     # MULTIPLE of the control's own font size rather than a px, so what it is
