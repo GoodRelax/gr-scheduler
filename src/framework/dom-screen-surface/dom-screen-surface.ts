@@ -777,14 +777,25 @@ function helpColumnsStyle(): string {
 
 function helpStyle(): string {
   // ⭐ S-201 IS A SHARE AND IS APPLIED TO THE VIEWPORT, which FR-036 (MUST)
-  // asks for in both directions -- 「画面の幅と高さに対し ... 定める割合で開く」.
+  // asks for in both directions -- the width AND the height of the screen.
   // ⚠️ `vw` / `vh` and not the window read through script: the share has to
   // follow a resize, and a number measured once would not.
-  // ⛔ A MAXIMUM AND NOT A SIZE on the height: FR-036 asks the help to need no
-  // scrolling at MC-6 of table T-025 and allows scrolling below it, so the box
-  // grows to its contents and stops at the share, scrolling past that.
+  // ⛔ A SIZE AND NOT A MAXIMUM ON BOTH AXES. FR-036 (MUST) has the help OPEN
+  // at that share of the width AND the height, so a height the contents fall
+  // short of would not be the share the requirement names -- measured
+  // 2026-08-29 at 1920x1080, where a maximum left it 0.885 tall. ⚠️ Scrolling
+  // is still allowed and still reached: the same requirement permits it below
+  // MC-6 of table T-025, which `overflow` is what serves.
+  // ⛔ THE TWO MAXIMA OF `STOPPING_BOX` ARE OVERRIDDEN AND THAT IS THE POINT.
+  // Every other surface is capped at 92% of the screen; FR-036 gives THIS one a
+  // share of its own, and a cap left standing would silently win over it --
+  // measured 2026-08-29 at 1920x1080, where the box came out 0.92 wide against
+  // the 0.95 the requirement asks for.
   const share = NOT_STORED_HELP_SIZES['S-201'] * 100
-  return `width:${share}vw;max-height:${share}vh;overflow:auto;`
+  return (
+    `width:${share}vw;max-width:${share}vw;` +
+    `height:${share}vh;max-height:${share}vh;overflow:auto;`
+  )
 }
 
 function propertyControlsStyle(): string {
@@ -1313,7 +1324,14 @@ const STYLE = {
   // ⭐ ONE LINE PER ROW OF THE SIX TABLES FR-036 NAMES, laid out so that the
   // column break can never fall inside one: `break-inside:avoid` is what makes
   // the multi-column list above a list of ENTRIES rather than of lines.
-  helpEntry: 'display:flex;align-items:baseline;gap:0.5em;break-inside:avoid;line-height:1.6;',
+  // ⚠️ THE LINE HEIGHT IS WHAT MAKES THE LIST FIT, and it was measured rather
+  // than chosen: FR-036 (MUST) asks the whole of it to stand without scrolling
+  // at MC-6 of table T-025 (1920 x 1080), and at 1.6 the 110 entries came out
+  // 998px against the 1024px the surface has -- which left no room for the
+  // heading above them and scrolled. ⛔ Nothing smaller than this is warranted
+  // either: NFR-007 refuses to let text be cut off, and the entries carry two
+  // scripts.
+  helpEntry: 'display:flex;align-items:baseline;gap:0.5em;break-inside:avoid;line-height:1.35;',
   // The description. ⭐ It takes the room that is left, so the keys and the
   // shape keep their places at the right however long the words come out --
   // which they do differently per language (FR-038).
@@ -1323,6 +1341,11 @@ const STYLE = {
   helpKeys: 'flex:0 0 auto;opacity:0.75;white-space:nowrap;',
   // FR-036 (MUST): to the right of the description.
   helpGlyph: 'flex:0 0 auto;display:inline-flex;align-items:center;',
+  // FR-069's three, folded under the copyright line so that FR-036's list is
+  // what the help shows when it opens. `modalElement` says why.
+  helpLegal: 'margin-top:0.75em;border-top:1px solid currentColor;padding-top:0.5em;',
+  helpLegalSummary: 'cursor:pointer;',
+  helpLegalText: 'white-space:pre-wrap;margin:0.5em 0 0;',
   // The choices FR-096 (MUST) has the author pick one of, held together and
   // apart from the heading above them. ⛔ Nothing here says which order they
   // stand in: they are drawn in the order the description carries, which is
@@ -3025,11 +3048,29 @@ function modalElement(
     body.push(columns)
     // FR-069 (MUST): the whole licence text, the copyright notice and the
     // third-party attributions, which the help is where one reads.
-    for (const text of [modal.licenceText, modal.copyrightNotice, ...modal.attributions]) {
-      const line = made(host, 'p', 'white-space:pre-wrap;')
+    //
+    // ⛔ FOLDED AWAY, AND FR-036 IS WHY. That requirement (MUST) has the whole
+    // of six tables stand without scrolling at MC-6 of table T-025, and the
+    // licence alone measured 4824px on 2026-08-29 -- laid out beside the list
+    // it made the one thing FR-036 asks for impossible. ⭐ FR-069 asks for the
+    // text to be READ FROM the help and not to be in sight at all times, which
+    // a disclosure satisfies: it is here, in the help, and it opens.
+    // ⚠️ The host's own `details` and not a toggle of this tool's: it opens
+    // with no script, which is what keeps it readable in the one case FR-069
+    // exists for -- a file opened with nothing else available.
+    const legal = made(host, 'details', STYLE.helpLegal)
+    const summary = made(host, 'summary', STYLE.helpLegalSummary)
+    // ⚠️ NOT A WORD OF THE DICTIONARY, and it may not be one: FR-038 (MUST)
+    // keeps printed words in the manuscript, and the copyright notice IS the
+    // line NOTICE carries -- the same in every language, like a key name.
+    summary.textContent = modal.copyrightNotice
+    legal.append(summary)
+    for (const text of [modal.licenceText, ...modal.attributions]) {
+      const line = made(host, 'p', STYLE.helpLegalText)
       line.textContent = text
-      body.push(line)
+      legal.append(line)
     }
+    body.push(legal)
   }
 
   if ('documentText' in modal) {
