@@ -1,0 +1,10 @@
+# How many rows stood at `テスト完了` with nobody having opened the app to look
+# at them, when this gate was raised (2026-08-29).
+#
+# ⛔ THIS NUMBER IS A DEBT, NOT A TARGET. It may fall freely -- lower it in the
+# same commit that verifies a row. It may only RISE deliberately, and the commit
+# that raises it has to say which row took the debt on and why.
+#
+# ⚠️ It was 23 of 28 on the day it was measured. The user had just found one of
+# them (D-69) unfixed in a screenshot after it was reported to them as done.
+23
