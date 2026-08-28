@@ -107,7 +107,8 @@ def main():
             % (len(unseen), DONE))
         say('   %s' % ' '.join(r[0] for r in unseen))
         say('   ⛔ 「試験が緑」と「実物で動いた」は別である（規則 04）。'
-            'この一覧はそのまま「利用者に完了と報告してはならない行」である。')
+            '⭐ 利用者へ完了と報告してよいのは、実物確認の欄に日付が入っている行である。'
+            'この一覧の行は、まだそこに達していない。')
 
     if len(unseen) > was:
         say('FAIL     unseen rows at %s went %d -> %d. A row may not reach that '
