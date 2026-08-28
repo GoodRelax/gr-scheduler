@@ -1125,7 +1125,8 @@ NOT_STORED_TARGETS = {
     # both the drawing side's to apply: the share is of the window, which is
     # the environment's own measure, and the columns are a layout. ⛔ Not
     # folded into the line above -- one constant per consuming SUBJECT.
-    'NOT_STORED_HELP_SIZES': (['S-201', 'S-202'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204'],
+                              DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
     # dom-screen-surface.ts: one constant per consuming SUBJECT, the same split
     # the selection frame and the dummy are given below. S-138 and S-141 are the

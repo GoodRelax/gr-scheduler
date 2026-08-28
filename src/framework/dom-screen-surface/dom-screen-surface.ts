@@ -769,6 +769,18 @@ function propertyFieldNameStyle(): string {
 }
 
 /** What the controls of one field stand in -- a row of table T-016 can hold three. @purity pure */
+/**
+ * EZ-2 of table T-040 (MUST): the tooltip letters itself at S-204's
+ * coefficient of the host's own text -- 「2 段階」 read as 14 ÷ 16.
+ *
+ * ⛔ A COEFFICIENT AND NEVER A px, for the reason `helpStyle` gives.
+ *
+ * @purity pure
+ */
+function tooltipStyle(): string {
+  return `${STYLE.tooltip}font-size:${NOT_STORED_HELP_SIZES['S-204']}em;`
+}
+
 function helpColumnsStyle(): string {
   // ⭐ THE COUNT IS S-202'S AND IS NEVER TYPED HERE (rule 03 section 1). FR-036
   // (MUST NOT) also forbids it to be held in pixels, which `column-count`
@@ -794,9 +806,16 @@ function helpStyle(): string {
   // measured 2026-08-29 at 1920x1080, where the box came out 0.92 wide against
   // the 0.95 the requirement asks for.
   const share = NOT_STORED_HELP_SIZES['S-201'] * 100
+  // FR-036 (MUST): the size of the letters is S-203's coefficient of the
+  // host's own text. ⛔ NOT A px (MUST NOT) -- NFR-007 carries WCAG 2.1's
+  // 1.4.4, and a fixed size leaves behind the reader who enlarged the
+  // browser's text. ⚠️ It is set on the BOX, so the entries inherit it and
+  // the shapes -- drawn in `em` -- come down with the words, which is what
+  // 「アイコンと合わせろ」 asks for.
   return (
     `width:${share}vw;max-width:${share}vw;` +
-    `height:${share}vh;max-height:${share}vh;overflow:auto;`
+    `height:${share}vh;max-height:${share}vh;overflow:auto;` +
+    `font-size:${NOT_STORED_HELP_SIZES['S-203']}em;`
   )
 }
 
@@ -1348,6 +1367,9 @@ const STYLE = {
   // ⚠️ The place is kept for a row with no assignment, which is why a width is
   // stated at all; `modalElement` says why nothing is drawn in it.
   helpKeys: 'flex:0 0 auto;opacity:0.75;white-space:nowrap;',
+  // FR-036 (MUST): the size is the coefficient S-203, never a px. ⛔ The
+  // value is not typed here -- `helpListStyle` reads it from the settings
+  // the frame carries, the move `propertiesPanelStyle` makes for S-197.
   // FR-036 (MUST): to the right of the description.
   helpGlyph: 'flex:0 0 auto;display:inline-flex;align-items:center;',
   // FR-069's three, folded under the copyright line so that FR-036's list is
@@ -1395,6 +1417,10 @@ const STYLE = {
   // ⚠️ NOTHING LAYS TWO THINGS OUT SIDE BY SIDE HERE ANY MORE -- the flex row
   // was for the control that used to sit beside the reading, and `tooltipElement`
   // says why that control is gone.
+  // ⚠️ THE SIZE IS NOT HERE. EZ-2 of table T-040 (MUST) sets it from S-204,
+  // which lives in the generated block below and is not in scope while this
+  // object is being built -- `tooltipStyle` is where it is added, the shape
+  // `helpStyle` already has for S-201.
   tooltip:
     `position:absolute;max-width:24em;padding:0.25em 0.5em;background:${PAINT.ground};` +
     `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
@@ -3032,30 +3058,36 @@ function modalElement(
       row.setAttribute('data-table', line.table)
       row.setAttribute('data-row', line.row)
 
-      // FR-036 (MUST): the description, then the keys, then the shape, in that
-      // order. ⛔ THE ROW ID IS NOT DRAWN, and it used to be: the closing rule
-      // of table T-023b (MUST NOT) keeps a row id off the screen, and the help
-      // is the one surface that would otherwise print a hundred of them. It
-      // stays on the element as `data-row`, which is a description read back
-      // and not a thing anybody sees.
+      // FR-036 (MUST): the SHAPE, then the description, then the assignment,
+      // in that order (the user's instruction of 2026-08-29 -- 「アイコン 説明
+      // マウス操作/ショートカットキー の順」). ⚠️ CR-279 had it the other way
+      // round and CR-282 turned it over.
+      // ⛔ THE ROW ID IS NOT DRAWN, and it used to be: the closing rule of
+      // table T-023b (MUST NOT) keeps a row id off the screen, and the help is
+      // the one surface that would otherwise print a hundred of them. It stays
+      // on the element as `data-row`, which is a description read back and not
+      // a thing anybody sees.
+      // ⚠️ Only where table T-109 places exactly one entrance for the row --
+      // `HelpEntry.icon` says why.
+      const glyph = made(host, 'span', STYLE.helpGlyph)
+      if (line.icon !== null) fillEntry(host, glyph, line.icon)
+      row.append(glyph)
+
       const text = made(host, 'span', STYLE.helpText)
       text.textContent = line.text
       row.append(text)
 
-      // ⚠️ THE PLACE IS KEPT WHETHER OR NOT THERE ARE KEYS. FR-036 puts the
-      // three in one order, and a row that shifted left when it had no
-      // assignment would leave the column ragged. ⛔ Nothing is written in it:
+      // FR-036 (MUST): the assignment is the key OR the mouse operation, and
+      // a row may carry either. ⚠️ THE PLACE IS KEPT WHETHER OR NOT THERE IS
+      // ONE -- the three sit in one order, and a row that shifted left when it
+      // had none would leave the column ragged. ⛔ Nothing is written in it:
       // a dash would read as an assignment deliberately withheld, which is
       // what SK-1 says in WORDS and no other row means.
-      const keys = made(host, 'span', STYLE.helpKeys)
-      if (line.keys !== null) keys.textContent = line.keys
-      row.append(keys)
-
-      // FR-036 (MUST): 「図形は説明の右に置くこと」. ⚠️ Only where table T-109
-      // places exactly one entrance for the row -- `HelpEntry.icon` says why.
-      const glyph = made(host, 'span', STYLE.helpGlyph)
-      if (line.icon !== null) fillEntry(host, glyph, line.icon)
-      row.append(glyph)
+      // ⛔ NOT BOTH AT ONCE: no row of table T-023 is also a row of table
+      // T-036, so at most one of the two is ever non-null.
+      const assignment = made(host, 'span', STYLE.helpKeys)
+      assignment.textContent = line.keys ?? line.press ?? null
+      row.append(assignment)
 
       columns.append(row)
     }
@@ -3726,7 +3758,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    */
   function tooltipElement(tip: Tooltip): HTMLElement {
     const key = anchorKey(tip.anchor)
-    const drawn = made(host, 'div', STYLE.tooltip)
+    const drawn = made(host, 'div', tooltipStyle())
     drawn.setAttribute('role', 'tooltip')
     drawn.setAttribute('data-anchor', key)
     drawn.textContent = tip.text
@@ -3738,11 +3770,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // is the same absence `ScreenSession.iconUnderPointer` records.
     const anchored = anchorFor(key)
     if (anchored === undefined) {
-      drawn.setAttribute('style', STYLE.tooltip + 'left:0;top:0;')
+      drawn.setAttribute('style', tooltipStyle() + 'left:0;top:0;')
       return drawn
     }
     const at = anchored.getBoundingClientRect()
-    drawn.setAttribute('style', STYLE.tooltip + `left:${at.left}px;top:${at.bottom}px;`)
+    drawn.setAttribute('style', tooltipStyle() + `left:${at.left}px;top:${at.bottom}px;`)
     return drawn
   }
 
@@ -4280,9 +4312,15 @@ export const NOT_STORED_HELP_SIZES: {
   readonly 'S-201': number
   /** S-202 */
   readonly 'S-202': number
+  /** S-203 */
+  readonly 'S-203': number
+  /** S-204 */
+  readonly 'S-204': number
 } = {
   'S-201': 0.95,
   'S-202': 3,
+  'S-203': 0.80,
+  'S-204': 0.875,
 }
 
 /**

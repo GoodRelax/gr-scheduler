@@ -1840,99 +1840,155 @@
   {
    "rowId": "MK-1",
    "text": {
-    "ja": "ホイール → 縦にスクロール",
-    "en": "Wheel → scroll vertically"
+    "ja": "縦にスクロールする",
+    "en": "Scroll vertically"
+   },
+   "press": {
+    "ja": "ホイール",
+    "en": "Wheel"
    }
   },
   {
    "rowId": "MK-2",
    "text": {
-    "ja": "Ctrl ＋ ホイール → ポインタを中心に両軸ズーム",
-    "en": "Ctrl + wheel → zoom both axes, centred on the pointer"
+    "ja": "ポインタを中心に両軸をズームする",
+    "en": "Zoom both axes, centred on the pointer"
+   },
+   "press": {
+    "ja": "Ctrl ＋ ホイール",
+    "en": "Ctrl + Wheel"
    }
   },
   {
    "rowId": "MK-3",
    "text": {
-    "ja": "Shift ＋ ホイール → 時間軸（横）だけズーム",
-    "en": "Shift + wheel → zoom the time axis only"
+    "ja": "時間軸（横）だけをズームする",
+    "en": "Zoom the time axis only"
+   },
+   "press": {
+    "ja": "Shift ＋ ホイール",
+    "en": "Shift + Wheel"
    }
   },
   {
    "rowId": "MK-4",
    "text": {
-    "ja": "Alt ＋ ホイール → 行軸（縦）だけズーム",
-    "en": "Alt + wheel → zoom the row axis only"
+    "ja": "行軸（縦）だけをズームする",
+    "en": "Zoom the row axis only"
+   },
+   "press": {
+    "ja": "Alt ＋ ホイール",
+    "en": "Alt + Wheel"
    }
   },
   {
    "rowId": "MK-5",
    "text": {
-    "ja": "Ctrl ＋ Shift ＋ ホイール → 横にスクロール",
-    "en": "Ctrl + Shift + wheel → scroll horizontally"
+    "ja": "横にスクロールする",
+    "en": "Scroll horizontally"
+   },
+   "press": {
+    "ja": "Ctrl ＋ Shift ＋ ホイール",
+    "en": "Ctrl + Shift + Wheel"
    }
   },
   {
    "rowId": "MK-6",
    "text": {
-    "ja": "何も無い場所を素でドラッグすると範囲選択（Shift 併用で選択に足す）",
-    "en": "A plain drag on empty space is a Marquee; hold Shift to add to the Selection"
+    "ja": "範囲選択する（Shift を併せると選択に足す）",
+    "en": "Marquee-select; hold Shift to add to the Selection"
+   },
+   "press": {
+    "ja": "素の左ドラッグ",
+    "en": "Plain left drag"
    }
   },
   {
    "rowId": "MK-7",
    "text": {
-    "ja": "Ctrl だけを伴うドラッグ、または中ボタンドラッグでパン",
-    "en": "A drag with Ctrl alone, or a middle-button drag, pans"
+    "ja": "画面をパンする",
+    "en": "Pan the view"
+   },
+   "press": {
+    "ja": "Ctrl ＋ ドラッグ / 中ボタンドラッグ",
+    "en": "Ctrl + drag, or middle-button drag"
    }
   },
   {
    "rowId": "MK-8",
    "text": {
-    "ja": "アイテムの上を素でドラッグするとそのものへの操作。選択に含まれるものはまとめて動く",
-    "en": "A plain drag on an Item acts on that Item; whatever is in the Selection moves with it"
+    "ja": "そのものへの操作になる。選択に含まれるものはまとめて動く",
+    "en": "Act on that Item; whatever is in the Selection moves with it"
+   },
+   "press": {
+    "ja": "アイテムの上で左ドラッグ",
+    "en": "Left drag on an item"
    }
   },
   {
    "rowId": "MK-9",
    "text": {
-    "ja": "ホイールが無いときは画面上のボタンで拡大・縮小できる",
-    "en": "Without a wheel, zoom with the on-screen buttons"
+    "ja": "画面上のボタンで拡大・縮小できる",
+    "en": "Zoom with the on-screen buttons"
+   },
+   "press": {
+    "ja": "ホイールが無いとき",
+    "en": "Where there is no wheel"
    }
   },
   {
    "rowId": "MK-9a",
    "text": {
-    "ja": "掴む対象が重なったときは決まった順で掴む",
-    "en": "Where grabbable things overlap, a fixed order decides which is grabbed"
+    "ja": "決まった順で掴む",
+    "en": "A fixed order decides which is grabbed"
+   },
+   "press": {
+    "ja": "掴む対象が重なったとき",
+    "en": "Where two things overlap"
    }
   },
   {
    "rowId": "MK-10",
    "text": {
-    "ja": "割当のある修飾キー付きの操作は、ブラウザの既定動作を止める",
-    "en": "Where this tool assigns a modifier combination, the browser's default is held back"
+    "ja": "ブラウザの既定動作を止める",
+    "en": "The browser's default is held back"
+   },
+   "press": {
+    "ja": "割当のある修飾キー付きの操作",
+    "en": "An assigned modifier press"
    }
   },
   {
    "rowId": "MK-11",
    "text": {
-    "ja": "何も無い場所を素でクリックすると選択を解く",
-    "en": "A plain click on empty space clears the Selection"
+    "ja": "選択を解く",
+    "en": "Clear the Selection"
+   },
+   "press": {
+    "ja": "素の左クリック",
+    "en": "Plain left click"
    }
   },
   {
    "rowId": "MK-12",
    "text": {
-    "ja": "割当の無い修飾キー付きのドラッグはブラウザに委ねる",
-    "en": "A modifier drag this tool does not assign is left to the browser"
+    "ja": "ブラウザに委ねる",
+    "en": "Left to the browser"
+   },
+   "press": {
+    "ja": "割当の無い修飾キー付きドラッグ",
+    "en": "An unassigned modifier drag"
    }
   },
   {
    "rowId": "MK-13",
    "text": {
-    "ja": "ダブルクリックの意味は対象で決まる。コメントボックス＝本文、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネル、行見出し＝行名",
-    "en": "What a double click does depends on what it lands on — Comment Box: its text; Name Label: its name; Assignee Label: the resource name; task: the Properties Panel; row title: the row name"
+    "ja": "対象で意味が決まる。コメントボックス＝本文、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネル、行見出し＝行名",
+    "en": "What it does depends on what it lands on -- Comment Box: its text; Name Label: its name; Assignee Label: the resource name; task: the Properties Panel; row title: the row name"
+   },
+   "press": {
+    "ja": "ダブルクリック",
+    "en": "Double click"
    }
   }
  ],

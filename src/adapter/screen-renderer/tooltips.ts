@@ -65,9 +65,11 @@ import type {
   DisplayLanguage,
   ScreenSession,
   ScreenView,
+  IconId,
   Tooltip,
 } from './screen-renderer'
 import displayWords from './display-words.json'
+import helpRoster from './help-roster.json'
 
 // ⭐ WHERE THE WORDS COME FROM. FR-038 (MUST) holds every word the screen prints
 // as one dictionary per language, and Chapter 6.2 fixes its manuscript as
@@ -128,10 +130,61 @@ const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', 
  *
  * @purity pure
  */
+/**
+ * What one entry of table T-109 is assigned, or `null` where nothing is.
+ *
+ * ⛔⛔ STOP -- IT ANSWERS FOR ALMOST NOTHING, AND MEASURING SAID SO. The
+ * roster's `icon` is the SHAPE a row is drawn with, not "the entrance this
+ * key belongs to": of its 36 rows that carry one, every single one is a
+ * palette arm or a row of table T-109 standing for itself, and NO row of
+ * table T-036 carries an icon at all. So a header entry asks this and is
+ * told nothing -- measured in the shipped build on IC-13, which has
+ * `Shift ＋ +` in table T-036 and got no assignment here.
+ * ⛔ THE JOIN DOES NOT EXIST IN THE SPECIFICATION. Table T-109 has no column
+ * naming a row of table T-036 or table T-023, and neither of those has a
+ * column naming an entrance. ⚠️ A column is what is owed, and it has to name
+ * the ROW rather than repeat the key -- the spelling has one home (R3.4).
+ * ⭐ THIS FUNCTION IS RIGHT THE DAY THAT COLUMN EXISTS; until then it hands
+ * `null` and EZ-2's new clause reaches nobody. Recorded as D-122.
+ * ⚠️ FIRST WINS where two rows name the same icon: the roster is in the order
+ * FR-036 lists the tables, so table T-023 answers before table T-036.
+ */
+const ASSIGNMENT_BY_ICON = new Map(
+  helpRoster.entries
+      .filter((entry) => entry.icon !== null)
+      .map((entry) => [entry.icon, entry] as const)
+      .reverse(),
+)
+
+/**
+ * The assignment EZ-2 (MUST) puts after the description, in the display
+ * language, or `null` where the entry has none.
+ *
+ * @purity pure
+ */
+function entryAssignment(icon: IconId, language: DisplayLanguage): string | null {
+  const found = ASSIGNMENT_BY_ICON.get(icon)
+  if (found === undefined) return null
+  if (found.keys !== null) return found.keys
+  // ⛔ THE MOUSE OPERATION IS A WORD (FR-036, MUST) and the key is not, so
+  // this half comes from the dictionary and the `操作` column is never read.
+  const press = PRESS_BY_ROW.get(found.row)?.press[language]
+  return press === undefined || press === '' ? null : press
+}
+
+/** Table T-023's rows, the only ones that carry a `press`. */
+const PRESS_BY_ROW = new Map(
+  displayWords.assignments.map((entry) => [entry.rowId, entry]),
+)
+
 function entryHint(command: CommandItem, language: DisplayLanguage): string {
   const word = HINTS_BY_ROW.get(command.icon)?.hint[language]
-  if (word === undefined) return command.label
-  return word === '' ? command.label : word
+  const said = word === undefined || word === '' ? command.label : word
+  // EZ-2 (MUST): 「説明の後ろに、その行の割当も出すこと」. ⛔ Joined with a
+  // space and nothing else -- a separator with meaning would be a word, and
+  // FR-038 (MUST) keeps every word of the screen in the dictionary.
+  const assignment = entryAssignment(command.icon, language)
+  return assignment === null ? said : `${said} ${assignment}`
 }
 
 /**

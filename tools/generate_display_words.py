@@ -337,7 +337,11 @@ SHAPE = {
     'noticeDismiss': ('answer', ('text',)),
     'confirmationMarks': ('mark', ('text',)),
     'fileStatus': ('state', ('text',)),
-    'assignments': ('rowId', ('text',)),
+    # ⛔ TWO WORDS PER ROW. `text` is the 動作 column's -- what the gesture
+    # does -- and `press` is the gesture itself, which FR-036 (MUST) puts in
+    # this dictionary because 「ホイール」 needs translating where `Ctrl+S`
+    # does not.
+    'assignments': ('rowId', ('text', 'press')),
     'arms': ('rowId', ('text',)),
     'reasons': ('rowId', ('text', 'nextStep')),
     'questions': ('rowId', ('text',)),

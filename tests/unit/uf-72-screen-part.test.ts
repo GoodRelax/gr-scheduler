@@ -1263,7 +1263,7 @@ const HELP_MODAL: OpenModal = {
   surface: 'Help Modal',
   heading: 'HelpHeading',
   commands: [command({ icon: 'IC-52', label: 'CloseHelp' })],
-  entries: [{ table: 'T-036', row: 'MK-1', text: 'HelpEntryOne', keys: null, icon: null }],
+  entries: [{ table: 'T-036', row: 'MK-1', text: 'HelpEntryOne', press: null, keys: null, icon: null }],
   language: 'en',
   licenceText: 'LicenceTextHere',
   copyrightNotice: 'CopyrightNoticeHere',

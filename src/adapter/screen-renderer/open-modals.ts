@@ -241,6 +241,14 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
  * which `entryLabel` already reads, and putting them here would give one row
  * two words.
  */
+/**
+ * Table T-023's rows on their own, because they are the only ones that carry
+ * a second word: `press`, the gesture itself (FR-036).
+ */
+const MOUSE_PRESS_BY_ROW = new Map(
+  displayWords.assignments.map((entry) => [entry.rowId, entry]),
+)
+
 const HELP_WORDS_BY_ROW = new Map(
   [
     ...displayWords.pressOrder,
@@ -279,6 +287,11 @@ function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
       entry.table === ICON_TABLE
         ? entryLabel(entry.row as IconId, language)
         : (HELP_WORDS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS),
+    // FR-036 (MUST): the assignment is the key OR the mouse operation, and
+    // a row carrying neither leaves the place empty rather than drawing a
+    // dash -- which would read as "assigned nothing on purpose", the one
+    // thing SK-1 says in words.
+    press: MOUSE_PRESS_BY_ROW.get(entry.row)?.press[language] ?? null,
     keys: entry.keys,
     icon: entry.icon as IconId | null,
   }))

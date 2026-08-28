@@ -889,6 +889,16 @@ export interface HelpEntry {
   /** In the display language. */
   readonly text: string
   /**
+   * The mouse operation this row is assigned, in the display language, or
+   * `null` where the row is not one of table T-023's.
+   *
+   * ⛔ A WORD, WHERE `keys` BELOW IS NOT (FR-036, MUST). 「ホイール」 needs
+   * translating and `Ctrl+S` does not, so this one comes out of the dictionary
+   * and the `操作` column of table T-023 is never printed (MUST NOT) -- that
+   * column is the manuscript's own wording, in one language.
+   */
+  readonly press: string | null
+  /**
    * The keys this row is assigned, spelled as table T-036 writes them, or
    * `null` where the row has none.
    *
