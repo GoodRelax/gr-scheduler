@@ -495,10 +495,10 @@
 | IC-47 | `Command Palette` | カーソル | 同・`'crosshair'` | `FR-048` | — |
 | IC-48 | `Command Palette` | カーソル | 同・`'single-vertical'` | `FR-048` | — |
 | IC-49 | `Command Palette` | カーソル | 同・`'double-vertical'` | `FR-048` | — |
-| IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を開く | `FR-078` | — |
-| IC-51 | `Command Palette` | 置く | 同・畳む | `FR-078` | — |
+| IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を、**同じ入口で開閉する**（`S-142`）。⭐ **トグルは 1 つである**（`IC-11` / `IC-60` が先例）—— ⛔ **2 つ置くと 図 F-019 が同じ図形を 2 度描くことになり、読む人に見分けのつかない入口が並んで、どちらの状態でも片方が何もしない** | `FR-078` | — |
 | IC-52 | `Help Modal` / `AI Export Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` | — | 開いている面を閉じる | 表 T-028 の `IN-4` | — |
 | IC-53 | `Command Palette` | — | 掴んで動かせることを示す。**ボタンではない** | `FR-053` | — |
+| IC-75 | `Command Palette` | — | 掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。⭐ **`IC-53` の右に並ぶ**（`FR-053`）| `FR-053` | — |
 | IC-54 | `Command Palette` | 構え | いま構えている図形を示す。**ボタンではない** | 表 T-023b | — |
 | IC-55 | `Autosave Status` | — | 保存済みであることを示す。**ボタンではない** | `FR-061` | — |
 | IC-56 | `Autosave Status` | — | 保存中であることを示す。**ボタンではない。回さない** | `FR-061` | — |

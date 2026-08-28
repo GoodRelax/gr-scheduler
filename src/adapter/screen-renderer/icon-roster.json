@@ -554,18 +554,7 @@
     "Command Palette"
    ],
    "group": "置く",
-   "entryTo": "マイルストーンの図形の一覧を開く",
-   "authority": "`FR-078`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-51",
-   "surfaces": [
-    "Command Palette"
-   ],
-   "group": "置く",
-   "entryTo": "同・畳む",
+   "entryTo": "マイルストーンの図形の一覧を、**同じ入口で開閉する**（`S-142`）。⭐ **トグルは 1 つである**（`IC-11` / `IC-60` が先例）—— ⛔ **2 つ置くと 図 F-019 が同じ図形を 2 度描くことになり、読む人に見分けのつかない入口が並んで、どちらの状態でも片方が何もしない**",
    "authority": "`FR-078`",
    "arms": null,
    "armsShape": null
@@ -593,6 +582,17 @@
    ],
    "group": null,
    "entryTo": "掴んで動かせることを示す。**ボタンではない**",
+   "authority": "`FR-053`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-75",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": null,
+   "entryTo": "掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。⭐ **`IC-53` の右に並ぶ**（`FR-053`）",
    "authority": "`FR-053`",
    "arms": null,
    "armsShape": null

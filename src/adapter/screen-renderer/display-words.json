@@ -543,23 +543,12 @@
   {
    "rowId": "IC-50",
    "label": {
-    "ja": "マイルストーン形状を開く",
-    "en": "Open milestone glyphs"
+    "ja": "マイルストーン形状",
+    "en": "Milestone glyphs"
    },
    "hint": {
-    "ja": "マイルストーン形状の一覧を開く",
-    "en": "Open the list of milestone glyphs"
-   }
-  },
-  {
-   "rowId": "IC-51",
-   "label": {
-    "ja": "マイルストーン形状を畳む",
-    "en": "Collapse milestone glyphs"
-   },
-   "hint": {
-    "ja": "マイルストーン形状の一覧を畳む",
-    "en": "Collapse the list of milestone glyphs"
+    "ja": "マイルストーン形状の一覧を開く。もう一度押すと畳む",
+    "en": "Open the list of milestone glyphs; press again to collapse"
    }
   },
   {
@@ -582,6 +571,17 @@
    "hint": {
     "ja": "ここを掴むとコマンドパレットを動かせる",
     "en": "Grab here to move the Command Palette"
+   }
+  },
+  {
+   "rowId": "IC-75",
+   "label": {
+    "ja": "最小化",
+    "en": "Minimise"
+   },
+   "hint": {
+    "ja": "コマンドパレットを最小化する。もう一度押すと戻る",
+    "en": "Minimise the Command Palette; press again to restore"
    }
   },
   {

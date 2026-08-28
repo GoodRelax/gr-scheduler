@@ -181,7 +181,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'commentBoxPad': 3,
   'commentBoxWrapUnits': 128,
   'dateGridLinesVisible': false,
-  'dependencyArrowLength': 10,
+  'dependencyArrowLength': 7,
   'dependencyLagDefault': 0,
   'dependencyRunOfArrow': 2,
   'dependencyVisible': true,

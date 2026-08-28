@@ -2445,74 +2445,6 @@
    ]
   },
   {
-   "rowId": "IC-51",
-   "elements": [
-    {
-     "tag": "circle",
-     "attributes": [
-      {
-       "name": "cx",
-       "value": "7"
-      },
-      {
-       "name": "cy",
-       "value": "12"
-      },
-      {
-       "name": "r",
-       "value": "1.6"
-      },
-      {
-       "name": "style",
-       "value": "fill: currentColor; stroke: none"
-      }
-     ]
-    },
-    {
-     "tag": "circle",
-     "attributes": [
-      {
-       "name": "cx",
-       "value": "12"
-      },
-      {
-       "name": "cy",
-       "value": "12"
-      },
-      {
-       "name": "r",
-       "value": "1.6"
-      },
-      {
-       "name": "style",
-       "value": "fill: currentColor; stroke: none"
-      }
-     ]
-    },
-    {
-     "tag": "circle",
-     "attributes": [
-      {
-       "name": "cx",
-       "value": "17"
-      },
-      {
-       "name": "cy",
-       "value": "12"
-      },
-      {
-       "name": "r",
-       "value": "1.6"
-      },
-      {
-       "name": "style",
-       "value": "fill: currentColor; stroke: none"
-      }
-     ]
-    }
-   ]
-  },
-  {
    "rowId": "IC-52",
    "elements": [
     {
@@ -2669,6 +2601,24 @@
       {
        "name": "style",
        "value": "fill: currentColor; stroke: none"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rowId": "IC-75",
+   "elements": [
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M6 17 H18"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
       }
      ]
     }
