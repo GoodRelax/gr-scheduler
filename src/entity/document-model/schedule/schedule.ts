@@ -1166,6 +1166,36 @@ export function dateFromWorkingDays(within: WorkingCalendar, from: CalendarDay,
 }
 
 /**
+ * The first working day strictly after `from`.
+ *
+ * ⭐ FR-043 (MUST) puts the actual-start dummy on 「予定の開始日の翌稼働日」, and
+ * FR-054 makes that reading the calendar's. ⛔ NOT `dateFromWorkingDays(from,
+ * 1)`: that answers a half-open END BOUND -- the day a one-day span reaches --
+ * so for a Friday start it lands on the Saturday, which is a day nobody works
+ * and which FR-043 refuses to put a handle on.
+ *
+ * ⚠️ `from` ITSELF IS NEVER THE ANSWER, whether or not it is worked. The two
+ * handles either side of it are what the rule exists for (GR-3 to the left,
+ * GR-9 to the right), so an answer equal to `from` would put them back on one
+ * another.
+ *
+ * @purity pure
+ */
+export function nextWorkingDay(within: WorkingCalendar, from: CalendarDay): CalendarDay {
+  const index = indexOfCalendar(within)
+  let at = serial(from) + 1
+  let walked = 0
+  while (!isWorkingDayAt(index, at)) {
+    // The same valve `dateFromWorkingDays` carries, for the same reason: a
+    // calendar that works none of its days would spin here forever, and table
+    // T-214 bounds every date an input may hold.
+    if (walked++ > ACCEPTED_DAY_SPAN) throw new NoWorkingDayReached(within.calendar.uid)
+    at += 1
+  }
+  return dayFromSerial(at)
+}
+
+/**
  * Whether a task is behind, and by how much. Table T-021b holds all three
  * cases, and each names the start it counts from; the end is always the status
  * date. A task in none of the three is not behind.

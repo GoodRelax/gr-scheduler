@@ -185,8 +185,8 @@ const S_95_BYTES = S_95_NUMBER * MB_FACTOR
  * The `FR-` ids table T-027's UN-16 names, and the table T-108 commands whose
  * 正 is one of them.
  *
- * ⭐ Manuscript-to-manuscript: UN-16 says 「パネル幅（`FR-052`）・ピン止め
- * （`FR-098`）・PNG の倍率（`FR-025`）」 and table T-108's 正 column says which
+ * ⭐ Manuscript-to-manuscript: UN-16 says 「パネル幅（`FR-052`）・PNG の倍率
+ * （`FR-025`）」 and table T-108's 正 column says which
  * command each of those requirements owns. Nothing here decides which commands
  * are out of scope; the two tables do, and re-deciding either one reaches this
  * file.
@@ -504,9 +504,14 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
     expect(one.depth()).toBe(1)
   })
 
-  it('UN-16 names three requirements, and table T-108 gives them four commands', () => {
-    expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-025', 'FR-052', 'FR-098'])
-    expect(UN_16_COMMANDS.map((c) => c.commandRow)).toEqual(['CM-67', 'CM-68', 'CM-69', 'CM-70'])
+  // ⚠️ UN-16 NAMED PINNING (FR-098) UNTIL 2026-08-28, AND THESE TWO NUMBERS ARE
+  // WHERE THAT SHOWS. CR-277 moved pinning to UN-14 -- 対象, inside the history
+  // -- because UN-16 and IV-3 of table T-220 stated opposite things about a pin
+  // whose row an undo removes. CM-68 / CM-69 therefore leave this file's scope,
+  // and the 対象 half of their behaviour is owed a home (D-102).
+  it('UN-16 names two requirements, and table T-108 gives them two commands', () => {
+    expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-025', 'FR-052'])
+    expect(UN_16_COMMANDS.map((c) => c.commandRow)).toEqual(['CM-67', 'CM-70'])
   })
 
   describe('UN-16 対象外 -- 見る場所の割り付けと出力の設定', () => {

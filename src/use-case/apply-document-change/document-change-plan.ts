@@ -194,9 +194,12 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     // which FR-049 narrows UN-7 to booleans for), so `stackDirection` (S-58),
     // `planActualDisplay` (S-59), `guideCursorMode` (S-66) and `fontScale`
     // (S-70) are absent by ruling and not by omission.
-    // ⚠️ `watermarkVisible` (S-144) is the ninth boolean row of that table and
-    // is absent for a different reason: `VisibleElement` does not name it
-    // (FR-020 gates the hiding half), so no write outside the history moves it.
+    // ⭐ `watermarkVisible` (S-144) IS THE NINTH BOOLEAN ROW AND IS KEPT LIKE
+    // THE REST. UN-7 rules on the row, not on who writes it: `VisibleElement`
+    // not naming it says which COMMAND can move it, and reading that as "so
+    // UN-7 does not reach it" was this file's own inference rather than
+    // anything a row states. It is a display toggle, so an undo of an unrelated
+    // edit must not rewind it.
     assigneeVisible: current.assigneeVisible,
     percentCompleteVisible: current.percentCompleteVisible,
     dependencyVisible: current.dependencyVisible,
@@ -205,23 +208,21 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     dateGridLinesVisible: current.dateGridLinesVisible,
     groupGridLinesVisible: current.groupGridLinesVisible,
     baselineVisible: current.baselineVisible,
+    watermarkVisible: current.watermarkVisible,
 
     // UN-16 -- where you look and what you export. `setPanelWidths` (CM-67)
     // writes the pair, `setExportPngScale` (CM-70) writes the scale.
     rowTitlePanelWidth: current.rowTitlePanelWidth,
     propertyPanelWidth: current.propertyPanelWidth,
     exportPngScale: current.exportPngScale,
-    // ⛔ STOP -- `pinnedGroupIds` (S-126) IS UN-16's THIRD NAME AND IS NOT KEPT.
-    // `pinTaskGroup` / `unpinTaskGroup` (CM-68 / CM-69) write it and leave no
-    // step, so UN-16 alone would put it in this list -- but IV-3 of table T-220
-    // requires every pinned id to name a `TaskGroup` THAT EXISTS, and a
-    // restored document is precisely where a kept id need not: pin a row, undo
-    // the write that created it, and the kept ids point at a row that is gone.
-    // ⛔ No row rules on that meeting. Table T-027 does not, and CD-2 of table
-    // T-050 rules only on deletion (S-126 sent after the row). Keeping the ids
-    // would break an invariant; sweeping them against the restored document
-    // would be a rule invented here. ⚠️ So an undo still rewinds the pins,
-    // against UN-16. Reported, not decided here.
+    // ⛔ `pinnedGroupIds` (S-126) IS NOT KEPT, AND THAT IS NOW WHAT THE ROWS
+    // SAY. UN-16 used to name it, which put it against IV-3 of table T-220
+    // (every pinned id names a `TaskGroup` THAT EXISTS): pin a row, undo the
+    // write that created it, and a kept id points at a row that is gone. No row
+    // ruled on that meeting, so this file reported it rather than choosing.
+    // ⭐ UN-14 now holds pinning, so the pins travel inside the history and
+    // IV-3 holds itself -- a snapshot's pins can only name rows that existed
+    // when it was taken, so no sweep rule is written anywhere.
 
     // UN-8 -- the zoom and the place. `setZoom` (CM-65) writes the first pair,
     // `setScrollPosition` (CM-66) the four anchors, `fitScheduleToScreen`

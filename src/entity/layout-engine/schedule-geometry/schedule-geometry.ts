@@ -52,6 +52,7 @@ import {
   dayOf,
   isDelayed,
   planActualState,
+  nextWorkingDay,
   workingCalendarOf,
   type CalendarDay,
   type Schedule,
@@ -659,11 +660,35 @@ function markerOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   }
 }
 
-/** LF-13. @purity pure */
-function resumeOf(task: Task, marker: MarkerGeometry, settings: DocumentSettings): ResumeGeometry {
+/**
+ * LF-13's arm and head, standing where LF-11 puts them.
+ *
+ * ⛔ THE X IS THE `resume` DAY'S, NOT THE MARKER'S. LF-11 used to pin this icon
+ * to the marker, whose own x is a function of `actualStart + actualDuration`
+ * and never reads `resume` -- so GR-8 of table T-023d (grab it and `resume`
+ * changes) could not work whatever the drag did: an absolute reading made a
+ * rightward pull move the date EARLIER, and a relative one snapped back beside
+ * the marker on release. ⭐ What blocked it was LF-11, not the drag.
+ *
+ * ⭐ PL-3 OF TABLE T-022 ALREADY DRAWS THE PROGRESS LINE'S VERTEX ON THAT SAME
+ * DAY, so this borrows an arithmetic the file already has rather than minting
+ * one.
+ *
+ * ⚠️ WITHOUT A `resume` THE MARKER STILL SERVES. That is PA-4's suspension --
+ * suspended with no date planned -- and LF-11 (MUST) keeps the icon beside the
+ * marker there, so no row loses its grab. ⚠️ The vertical stays the marker's
+ * middle in both cases, which is the plan bar's middle (LF-11).
+ *
+ * @purity pure
+ */
+function resumeOf(inputs: GeometryInputs, task: Task, marker: MarkerGeometry,
+                  settings: DocumentSettings): ResumeGeometry {
   const valid = task.resumeValid !== false
   const side = settings.markerSize * (valid ? 1 : settings.resumeScaleInvalid)
-  const x = marker.centre.x + marker.radius + settings.markerGap
+  const resumeDay = dayOf(task.resume)
+  const x = resumeDay === null
+    ? marker.centre.x + marker.radius + settings.markerGap
+    : xFromDay(inputs.layout, resumeDay)
   const arm = side * settings.resumeArmOfMarker
   const head = side * settings.resumeHeadOfMarker
   const middle = marker.centre.y
@@ -893,9 +918,17 @@ function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 /**
  * GR-9 / GR-17 / GR-18. FR-043 draws them only while nothing is started.
  *
- * ⚠️ GR-17 sits `actualInitialDuration` WORKED days along, per FR-043's MUST,
- * so it is counted through the calendar rather than multiplied out -- stepping
- * by calendar days would land it on a day nobody works.
+ * ⛔ GR-9 DOES NOT STAND ON THE PLAN'S OWN START DAY. GR-3 (the plan start
+ * point) is already there and stands higher in table T-023d's order, so a
+ * dummy placed on that day could never be the one grabbed. FR-043 (MUST /
+ * MUST NOT) puts it on the day AFTER, which is what lets the two be told
+ * apart: the left of the pair widens the plan (starting earlier), the right
+ * enters the actual start.
+ *
+ * ⚠️ BOTH STEPS ARE WORKED DAYS, per FR-043's MUST and FR-054, so they are
+ * counted through the calendar rather than multiplied out -- stepping by
+ * calendar days would land on a day nobody works. GR-17 is
+ * `actualInitialDuration` along FROM GR-9's day, not from the plan's.
  *
  * ⚠️ `actualHeight` is HANDED IN, the way `guidesOf` is handed the same value:
  * the actual bar's band is one expression and `taskGeometryOf` has already
@@ -912,9 +945,10 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   }
   const start = dayOf(task.start)
   if (start === null) return []
-  const end = dateFromWorkingDays(inputs.within, start, inputs.settings.actualInitialDuration)
+  const from = nextWorkingDay(inputs.within, start)
+  const end = dateFromWorkingDays(inputs.within, from, inputs.settings.actualInitialDuration)
   return [
-    { grab: 'GR-9', at: point(xFromDay(inputs.layout, start), middle), height: actualHeight },
+    { grab: 'GR-9', at: point(xFromDay(inputs.layout, from), middle), height: actualHeight },
     { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), height: actualHeight },
   ]
 }
@@ -1055,7 +1089,7 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     marker,
     // FR-044's icon follows the STATE, not the symbol: a suspended Task that
     // is also late shows (!) and must still say that it is suspended.
-    resume: marker !== null && suspended ? resumeOf(task, marker, settings) : null,
+    resume: marker !== null && suspended ? resumeOf(inputs, task, marker, settings) : null,
     dummies,
     // GR-1 then GR-2, at the plan bar's top-left and bottom-right corners.
     // Two conditions gate them, and both are answered here.

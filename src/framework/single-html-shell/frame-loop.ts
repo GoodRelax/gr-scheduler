@@ -575,17 +575,14 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
  * `GR-15` / `GR-16`. All three add that 確定 still follows IN-1 of table T-028,
  * so a `true` here settles nothing and only draws.
  *
- * ⛔ ONE ROW THE THIRD RULE NAMES IS STILL FALSE, AND NOT BECAUSE THE RULE
- * EXEMPTS IT: `GR-8` now HAS its release write, and a `true` here would still
- * paint the picture that stands. `previewOfHeldPress` draws by folding that
- * write, and the write moves `resume` alone -- while LF-11 of table T-221 pins
- * the resume icon to the marker and OC-4 of table T-038 puts it outside the
- * marker again, and the marker itself hangs off the actual bar's end
- * (`markerAnchorX` in `schedule-geometry.ts`). ⛔ SO NOTHING DRAWN HAS A
- * POSITION DERIVED FROM `resume` AT ALL: the fold would happen, cost its walk,
- * and the picture would not move. ⚠️ IT TURNS TRUE WHEN A ROW GIVES THE RESUME
- * ICON A PLACE OF ITS OWN, and not before -- inventing one here would be this
- * file writing a requirement (rule 03 section 1).
+ * ⭐ `GR-8` IS TRUE SINCE CR-276, AND THE CONDITION THIS NOTE SET IS THE ONE
+ * THAT WAS MET. It stood false while LF-11 of table T-221 pinned the resume
+ * icon to the marker, which hangs off the actual bar's end (`markerAnchorX` in
+ * `schedule-geometry.ts`) -- nothing drawn took a position from `resume`, so
+ * folding the release's write cost its walk and moved no picture. ⛔ That was
+ * never an exemption from the closing rule, and this note said so: 「it turns
+ * true when a row gives the resume icon a place of its own」. LF-11 now puts it
+ * on the `resume` day, so the fold moves what it draws.
  * ⛔ THE REST ARE FALSE BECAUSE NO CLOSING RULE ASKS: `GR-7` is a press that
  * cycles rather than a drag, `GR-10` cannot arrive by a plain press at all, and
  * `GR-13` selects. Turning one on would be this file inventing a requirement
@@ -605,7 +602,7 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-5': true,
   'GR-6': true,
   'GR-7': false,
-  'GR-8': false,
+  'GR-8': true,
   'GR-9': true,
   'GR-10': false,
   'GR-12': true,

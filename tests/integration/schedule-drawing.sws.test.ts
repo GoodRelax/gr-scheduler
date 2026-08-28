@@ -1268,8 +1268,15 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
     }),
     () => {
       // RP-2: "exit edge -> midpoint -> down -> entry edge. The midpoint is
-      // held inside x1 and x2." One day of clearance at 35 px a day leaves the
+      // held inside x1 and x2." One day of clearance at 26 px a day leaves the
       // plain midpoint past x2, so the clamp has to bite.
+      // ⚠️ THE SCALE IS PART OF THE SCENARIO AND CR-276 MOVED IT. The clamp
+      // bites while half the gap is shorter than the entry run, and that run is
+      // S-19 x S-20; S-19 went 10 -> 7, so 35 px a day stopped biting and the
+      // case would have passed while testing nothing. The guard below is what
+      // said so -- it is asserted first for exactly this reason. ⚠️ 26 and not
+      // less: below about 22 px a day the route stops being RP-2 at all and
+      // becomes RP-4, which would test a different row.
       const drawn = draw(
         [
           task({ uid: 1, name: 'p', start: day(2), finish: day(6) }),
@@ -1277,7 +1284,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         ],
         ['g1', 'g2'],
         [taskVisual(1), taskVisual(2)],
-        { pxPerDayAt1x: 35, zoomX: 1 },
+        { pxPerDayAt1x: 26, zoomX: 1 },
       )
       const line = dependencyOf(drawn)
       expect(line.pattern).toBe('RP-2')
@@ -1690,9 +1697,15 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(marker).not.toBeNull()
       if (marker === null) return
       expect(marker.centre.y).toBeCloseTo(placed.y + placed.planHeight / 2, 6)
-      // FR-043's dummy runs actualInitialDuration worked days from start.
+      // FR-043's dummy runs actualInitialDuration worked days from GR-9's own
+      // day, and CR-275 put GR-9 on the working day AFTER the plan start --
+      // GR-3 stands on the start itself and wins table T-023d's order, so a
+      // dummy there could never be grabbed. ⚠️ `day(2)` and the days either
+      // side of it are all worked in this fixture's calendar, so one worked day
+      // and one calendar day coincide here; the arithmetic is written out
+      // rather than folded so that a calendar change is visible.
       const dummyRight = xOfDay(
-        2 + drawn.settings.actualInitialDuration,
+        2 + 1 + drawn.settings.actualInitialDuration,
         drawn.regions,
         drawn.layout.pxPerDay,
       )
@@ -1757,8 +1770,14 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         if (foot === undefined || corner === undefined || armEnd === undefined) {
           throw new Error('an L has three points')
         }
-        expect(foot.x, 'markerGap past the right of the marker').toBeCloseTo(
-          marker.centre.x + marker.radius + drawn.settings.markerGap,
+        // ⛔ ON THE `resume` DAY, NOT PAST THE MARKER (LF-11, since CR-276).
+        // The icon was pinned to the marker until 2026-08-28, and the marker's
+        // x is a function of actualStart + actualDuration -- it never reads
+        // `resume` -- so GR-8 of table T-023d could not move it whatever the
+        // drag did. ⚠️ The marker remains the fallback LF-11 names, but only
+        // where no `resume` is held; this fixture holds one in both passes.
+        expect(foot.x, 'standing on the resume day').toBeCloseTo(
+          xOfDay(8, drawn.regions, drawn.layout.pxPerDay),
           6,
         )
         expect(foot.y, 'its foot on the bottom of the marker').toBeCloseTo(

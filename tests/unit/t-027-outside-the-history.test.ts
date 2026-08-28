@@ -557,35 +557,14 @@ const KEYED_CASES: readonly OutsideCase[] = [
     } as unknown as DocumentCommand,
     before: [],
   },
-  {
-    undoRow: 'UN-16',
-    commandRow: 'CM-68',
-    settingRows: ['S-126'],
-    keys: ['pinnedGroupIds'],
-    expected: [[FIRST_GROUP_ID]],
-    command: {
-      kind: commandKindOf('CM-68'),
-      groupId: FIRST_GROUP_ID,
-    } as unknown as DocumentCommand,
-    before: [],
-  },
-  {
-    // FR-098's 外す half needs something pinned first. Pinning is itself 対象外
-    // (CM-68 above), so the history is still empty when this case's own write
-    // happens.
-    undoRow: 'UN-16',
-    commandRow: 'CM-69',
-    settingRows: ['S-126'],
-    keys: ['pinnedGroupIds'],
-    expected: [[]],
-    command: {
-      kind: commandKindOf('CM-69'),
-      groupId: FIRST_GROUP_ID,
-    } as unknown as DocumentCommand,
-    before: [
-      { kind: commandKindOf('CM-68'), groupId: FIRST_GROUP_ID } as unknown as DocumentCommand,
-    ],
-  },
+  // ⛔ CM-68 / CM-69 (`pinnedGroupIds`, S-126) USED TO STAND HERE AND NO LONGER
+  // BELONG TO THIS FILE. UN-16 named pinning until 2026-08-28, which put it
+  // against IV-3 of table T-220 -- a pin kept across an undo can name a row
+  // that undo removed. CR-277 moved pinning to UN-14, so it is 対象: an undo
+  // IS meant to rewind it, and every case in this list asserts the opposite.
+  // ⚠️ THE 対象 HALF IS OWED A HOME, NOT COVERED SOMEWHERE ELSE (D-102). It was
+  // deliberately not written here by the session that moved the row -- rule 05
+  // section 7 forbids that -- so it is recorded as owed rather than invented.
   {
     undoRow: 'UN-16',
     commandRow: 'CM-70',

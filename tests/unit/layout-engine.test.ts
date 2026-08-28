@@ -1030,7 +1030,12 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // and the marker leaves the plan's own right end alone.
     const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
     expect(fresh.marker!.centre.x).toBeCloseTo(fresh.dummies[1]!.at.x + MARKER_OFFSET, 6)
-    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(1) + MARKER_OFFSET, 6)
+    // ⚠️ THE DAY MOVED WITH CR-275, THE RULE DID NOT. FR-043 now starts the
+    // dummy on the working day AFTER the plan start (2026-01-01 is a Thursday,
+    // so GR-9 is the Friday) and GR-17 stands S-129 along from GR-9, which puts
+    // the marker one day further right than it stood. GR-7 still hangs off
+    // GR-17 and off nothing else, which is what this case is for.
+    expect(fresh.marker!.centre.x).toBeCloseTo(xOf(2) + MARKER_OFFSET, 6)
   })
 
   it('GR-7 keeps a milestone on its figure, which has no GR-17 to follow', () => {
@@ -1071,9 +1076,12 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
   it('FR-043 draws both dummies while nothing is started, and none once it is', () => {
     const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
     expect(fresh.dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
-    // S-129 is ONE worked day, and 2026-01-01 is a Thursday, so GR-17 lands on
-    // the Friday -- one day along rather than on a day nobody works.
-    expect(fresh.dummies[1]!.at.x).toBeCloseTo(xOf(1), 6)
+    // ⛔ GR-9 IS NOT ON THE PLAN'S OWN START DAY (CR-275): GR-3 is already
+    // there and wins table T-023d's order, so FR-043 (MUST NOT) puts the dummy
+    // on the next WORKING day. 2026-01-01 is a Thursday, so GR-9 is the Friday
+    // and GR-17 stands S-129 -- one worked day -- along from it.
+    expect(fresh.dummies[0]!.at.x).toBeCloseTo(xOf(1), 6)
+    expect(fresh.dummies[1]!.at.x).toBeCloseTo(xOf(2), 6)
     const started = geometryOf(
       oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 1 })]),
     ).tasks[0]!
