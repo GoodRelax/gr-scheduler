@@ -379,16 +379,20 @@ describe('UF-69 — nothing to explain', () => {
     // full of them explains nothing.
     const shown = tooltipsFromScreenView(
       viewOf({
+        // ⛔ NO HEADING: FR-072 (MUST NOT) leaves the panel no heading row
+        // (CR-272). ⚠️ The cast keeps either answer to "does the published
+        // description still declare one" out of the compiler, so that the
+        // disagreement falls as a test (tests/unit/uf-64.test.ts) rather than
+        // taking this file down before any case runs.
         propertiesPanel: {
           showing: 'selection',
-          heading: 'Selection',
           isSubjectGone: false,
           fields: [{ row: 'PR-1', name: 'name', text: 'a task', isEditable: true, controls: [] }],
           // ⚠️ EMPTY ON PURPOSE: this bench is about another subject, and the
           // entrance table T-109 places on the panel (IC-52) is asserted in
           // tests/unit/fr-006-panel-close-entrance.test.ts.
           commands: [],
-        },
+        } as ScreenView['propertiesPanel'],
         notices: [
           {
             manner: 'NT-1',

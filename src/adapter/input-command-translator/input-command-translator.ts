@@ -884,6 +884,17 @@ const RESOURCE_ROSTER = 'Resource Roster'
 const EXPORT_CHOOSER = 'Export Chooser'
 
 /**
+ * U-25 of table T-103 -- the surface `ScreenState` does NOT hold.
+ *
+ * ⛔ NOT A SIXTH NAME FOR `ScreenState.surface`, and it must never be put
+ * there: S-99g holds ONE name and the drawing side turns whatever stands there
+ * into a modal, so a panel named there would be drawn over the schedule instead
+ * of beside it. It is spelled here for the one place that has to tell this
+ * surface from those five -- the closing entry table T-109 stands on all six.
+ */
+const PROPERTIES_PANEL = 'Properties Panel'
+
+/**
  * Whether this is one of IN-5's 「単文字キー」.
  *
  * ⭐ Measured on the spelling rather than listed, because IN-5a's rule is about
@@ -4313,6 +4324,13 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
  * only supplies the two things it cannot see -- a gesture in flight and the
  * Dual Cursor mode -- both of which are the shell's current values (LY-5).
  *
+ * ⛔ TWO OF `EscapeContext`'s LEVELS ARE LEFT UNSET, and that is the value's own
+ * rule rather than an omission: a standing `Confirmation` and the
+ * `Properties Panel` are current values this pure member holds nothing of, and
+ * each may be reckoned by ONE caller or IN-4's 1 階層 per press is spent twice.
+ * ⚠️ SO A CALLER THAT HOLDS EITHER MUST NOT ASK THE MEMBERS THIS FEEDS about a
+ * press at that level. `frame-loop.ts` is where the rule is kept.
+ *
  * @purity pure
  */
 function escapeContextOf(context: InputContext): EscapeContext {
@@ -4373,8 +4391,16 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
     case ENTRY.exportChooser:
       return screenStateWithSurface(state, EXPORT_CHOOSER)
     // IC-52 is the same level of IN-4 that Esc's first press consumes.
+    // ⛔ THE ROW STANDS ON SIX SURFACES AND THIS VALUE HOLDS FIVE OF THEM. Table
+    // T-109 places it on the `Properties Panel` as well, and S-99g does not hold
+    // that panel -- so a press drawn THERE closes the panel and nothing else,
+    // and the shell is the side that spends it (LY-5 of table T-060 leaves it
+    // the panel's contents). ⚠️ Without this the one press would take the panel
+    // AND whatever surface stood behind it, which is two things for one press.
     case ENTRY.closeSurface:
-      return screenStateWithSurface(state, null)
+      return context.pressed?.on?.part === PROPERTIES_PANEL
+        ? state
+        : screenStateWithSurface(state, null)
     default:
       break
   }
@@ -4435,22 +4461,29 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
       case 'gesture':
       case 'dualCursorMode':
       case 'confirmation':
+      case 'propertiesPanel':
       case null:
       default:
-        // ⛔ NONE OF THOSE THREE LEVELS IS IN THIS VALUE. A gesture in flight,
-        // the Dual Cursor mode and a standing `Confirmation` are all current
-        // values the Framework holds (LY-5), which is why `EscapeContext`
-        // exists at all -- the shell drops the press, leaves the mode, or
-        // settles the question, when `escapeTarget` names its level.
+        // ⛔ NONE OF THOSE FOUR LEVELS IS IN THIS VALUE. A gesture in flight,
+        // the Dual Cursor mode, a standing `Confirmation` and the
+        // `Properties Panel` are all current values the Framework holds (LY-5),
+        // which is why `EscapeContext` exists at all -- the shell drops the
+        // press, leaves the mode, settles the question or puts the panel away,
+        // when `escapeTarget` names its level.
         // Answering with the state unchanged is not "nothing happened": the
         // level WAS consumed, by a holder this function cannot reach.
         //
-        // ⚠️ `'confirmation'` CANNOT ARRIVE HERE TODAY, and the case is listed
-        // rather than left to `default:` because it is one of the five values
-        // the type admits. `escapeContextOf` leaves `isConfirmationStanding`
-        // unset on purpose: this member is pure and cannot see the question,
-        // and `EscapeContext` (MUST) has a press at that level reckoned by ONE
+        // ⚠️ `'confirmation'` AND `'propertiesPanel'` CANNOT ARRIVE HERE TODAY,
+        // and both are listed rather than left to `default:` because each is one
+        // of the values the type admits. `escapeContextOf` leaves
+        // `isConfirmationStanding` and `isPropertiesPanelOpen` unset on purpose:
+        // this member is pure and can see neither the question nor the panel,
+        // and `EscapeContext` (MUST) has a press at either level reckoned by ONE
         // caller, or IN-4's 1 階層 per press would be spent twice.
+        // ⛔ WHICH IS WHY THE CALLER MUST NOT ASK THIS MEMBER AT ALL for such a
+        // press: unset reads as 「not open」, so this member would answer for the
+        // NEXT level down and disarm on the press that closed the panel.
+        // `frame-loop.ts` states the same rule where it skips the call.
         return state
     }
   }

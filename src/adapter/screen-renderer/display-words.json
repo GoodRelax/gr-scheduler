@@ -1331,29 +1331,6 @@
    }
   }
  ],
- "panelHeadings": [
-  {
-   "showing": "selection",
-   "text": {
-    "ja": "選択",
-    "en": "Selection"
-   }
-  },
-  {
-   "showing": "documentSettings",
-   "text": {
-    "ja": "文書の設定",
-    "en": "Document settings"
-   }
-  },
-  {
-   "showing": "noSelection",
-   "text": {
-    "ja": "選択なし",
-    "en": "No selection"
-   }
-  }
- ],
  "assignments": [
   {
    "rowId": "MK-1",

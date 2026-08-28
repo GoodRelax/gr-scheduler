@@ -1117,13 +1117,26 @@ const PALETTE: CommandPalette = {
   armedText: 'ArmedNothing',
 }
 
+/**
+ * ⛔ NO HEADING IS OFFERED. FR-072 (MUST NOT) refuses the panel one -- 「⛔ **パネ
+ * ルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」
+ * (CR-272) -- so the only word this description carries is its field's item name,
+ * which FR-006 (MUST) does put on the screen: 「項目名は値の欄の左に置き、右詰めに
+ * すること（MUST）」. The cases below that used to look for the heading look for
+ * that name instead.
+ *
+ * ⚠️ THE CAST IS DELIBERATE AND NARROW: whether the published description still
+ * declares a member for a heading is the implementation's answer, and a fixture
+ * that turned either answer into a COMPILE error would take every case in this
+ * file down with it. Rule 04 section 1 asks a disagreement to arrive as a test
+ * that falls, and tests/unit/uf-64.test.ts is where that one falls.
+ */
 const PROPERTIES: PropertiesPanel = {
   showing: 'selection',
-  heading: 'PropertiesHeading',
   isSubjectGone: false,
   fields: [{ row: 'PR-3', name: 'start', text: '2026-08-20', isEditable: true, controls: [] }],
   commands: [],
-}
+} as PropertiesPanel
 
 const DIALOGUE: DialogueField = {
   messages: [{ sequence: 1, author: 'Someone', text: 'MessageOne', settledAt: '2026-08-19T00:00:00Z' }],
@@ -2195,7 +2208,10 @@ describe('FR-038 -- the words are carried, and the language is readable before t
     surfaceOf(built).showScreenView(RICH_VIEW)
 
     const text = built.root().textContent
-    for (const word of ['DocumentTitleHere', 'PropertiesHeading', 'HelpHeading', 'NoticeTextOne']) {
+    // ⚠️ THE PANEL'S WORD IS AN ITEM NAME AND NO LONGER A HEADING (CR-272):
+    // FR-072 (MUST NOT) leaves the panel without a heading row, and FR-006
+    // (MUST) is what still puts the item name on the screen.
+    for (const word of ['DocumentTitleHere', 'start', 'HelpHeading', 'NoticeTextOne']) {
       expect(text).toContain(word)
     }
     // ⛔ AN ENTRY'S WORD IS ITS NAME, NOT ITS BODY. FR-029 (MUST) has an entry
@@ -2324,7 +2340,10 @@ describe('showScreenView twice -- the whole description each time', () => {
     surface.showScreenView(second)
 
     const text = shownText(built.root())
-    for (const gone of ['TitleOne', 'NoticeOne', 'NoticeTwo', 'NoticeThree', 'StepOne', 'HelpHeading', 'LicenceTextHere', 'PaletteCommandOne', 'PropertiesHeading', 'MessageOne', 'TooltipOne']) {
+    // ⚠️ `start` stands where `PropertiesHeading` did: FR-072 (MUST NOT) leaves
+    // the panel no heading row, so the word the closed panel has to take away
+    // with it is its field's item name (CR-272).
+    for (const gone of ['TitleOne', 'NoticeOne', 'NoticeTwo', 'NoticeThree', 'StepOne', 'HelpHeading', 'LicenceTextHere', 'PaletteCommandOne', 'start', 'MessageOne', 'TooltipOne']) {
       expect(text, gone).not.toContain(gone)
     }
     expect(text).toContain('TitleTwo')

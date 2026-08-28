@@ -64,6 +64,13 @@
 //               so two same-named people stay two candidates in the chooser.
 //   T-103 U-25  the settled name `Properties Panel`, which W-4 of table T-006a
 //               (MUST) carries into the DOM as a `data-role`.
+//   FR-072      ⛔ 「**パネルの先頭に見出しの行を置いてはならない（MUST NOT）**
+//               （利用者の指示 2026-08-27）—— **押下状態が同じことを既に示してお
+//               り、見出しは同じ答えを 2 か所で言っていた。**⭐ **落とした高さは、
+//               最も頻繁に触る項目が上へ来るぶんである**（表 T-016 の刷る順）。」
+//               ⭐ WHAT IS SHOWING IS THE ENTRANCE'S TO SAY -- 「いま何を出してい
+//               るかを、入口の押下状態で示すこと（MUST）」 -- and that entrance is
+//               IC-17 in the `App Header`, which is UF-62's and not this seam's.
 //
 // ---------------------------------------------------------------------------
 // ⛔ HOW THE EXPECTED VALUES WERE OBTAINED (docs/development-rules/
@@ -124,6 +131,12 @@
 //      tests/unit/t-225-choosing-who-is-on-a-task.test.ts already reports it.
 //   5. ANY WORD SHOWN TO A PERSON. FR-038 puts the panel in the chosen language
 //      and no table holds a translated string; every word below is this file's.
+//   6. AN EMPTY ROW STANDING ABOVE THE FIRST FIELD. FR-072's MUST NOT is asked
+//      here as "what is drawn above the first item", so a heading row that draws
+//      NO TEXT AT ALL passes. ⚠️ That is this file's blindness and not a reading
+//      of the rule: the height such a row would take is a layout fact, and there
+//      is no layout engine here (see above). ⛔ Nor could it be asked as "which
+//      element is a heading" -- no row of docs/spec names an element for one.
 
 import { describe, expect, it } from 'vitest'
 
@@ -1026,13 +1039,27 @@ const ASSIGNEE_FIELD: PropertyField = {
   ],
 }
 
-const panelWith = (fields: readonly PropertyField[]): PropertiesPanel => ({
-  showing: 'selection',
-  heading: 'PropertiesHeadingHere',
-  isSubjectGone: false,
-  fields,
-  commands: [],
-})
+/**
+ * ⛔ NO HEADING IS OFFERED, because FR-072 (MUST NOT) refuses the panel one:
+ * 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示
+ * 2026-08-27）—— **押下状態が同じことを既に示しており、見出しは同じ答えを 2 か所
+ * で言っていた。**」 (CR-272; the fixture carried one until that row moved.)
+ *
+ * ⚠️ THE ASSERTION IS WHY THE CAST IS HERE. Whether the published description
+ * still declares a member for a heading is the implementation's answer, not this
+ * file's, and a fixture that turned either answer into a COMPILE error would take
+ * every case in this file down with it -- including the one below that is the
+ * finding. Rule 04 section 1 asks a disagreement to arrive as a test that falls.
+ * ⛔ Nothing else is cast away: every member FR-006's panel is asked for is
+ * spelled here.
+ */
+const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
+  ({
+    showing: 'selection',
+    isSubjectGone: false,
+    fields,
+    commands: [],
+  }) as PropertiesPanel
 
 /** The App Header measures to something, so BO-1's dimension is settled. */
 const HEADER_HEIGHT = { 'App Header': 37 }
@@ -1206,5 +1233,92 @@ describe('表 T-225 AS-5 / AS-6 / AS-9 -- what the drawn assignee field says and
       new Set(options.map((one) => optionValueOf(one))).size,
       'AS-9: two same-named people are told apart by what they hand back',
     ).toBe(ROSTER_VALUES.length)
+  })
+})
+
+// ===========================================================================
+
+/** Whether a string carries a word at all, rather than punctuation and space. */
+const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text)
+
+/** The text an element draws ITSELF -- its own text nodes, not its subtree's. */
+function ownWords(element: FakeElement): string {
+  return element.childNodes
+    .filter((node): node is FakeText => node instanceof FakeText)
+    .map((node) => node.data)
+    .join('')
+    .trim()
+}
+
+/**
+ * The words of the FIRST element inside the panel that draws any of its own.
+ *
+ * ⭐ Its own text and not `textContent`, which would hand back everything below
+ * it and so answer the same for the panel as for its first field. The walk is in
+ * document order, so "first" is the head of the panel.
+ */
+function firstWordsDrawn(panel: FakeElement): string {
+  for (const element of descendants(panel)) {
+    const own = ownWords(element)
+    // ⚠️ Punctuation alone is passed over, for the reason the second case states.
+    if (hasWord(own)) return own
+  }
+  return ''
+}
+
+describe('FR-072 (MUST NOT) -- no heading row stands at the head of the panel', () => {
+  it('⛔ draws the panel\'s first item first, and nothing above it', () => {
+    // FR-072: 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**
+    // （利用者の指示 2026-08-27）—— **押下状態が同じことを既に示しており、見出しは
+    // 同じ答えを 2 か所で言っていた。**⭐ **落とした高さは、最も頻繁に触る項目が上
+    // へ来るぶんである**（表 T-016 の刷る順）。」 ⭐ THE HEIGHT IS THE POINT: what
+    // the dropped row buys is the most-touched item standing at the top, which is
+    // the same MUST NOT the paragraph under table T-016 writes against scrolling
+    // -- 「最も頻繁に触る値のためにスクロールさせてはならない（MUST NOT）」.
+    //
+    // ⚠️ THE DESCRIPTION OFFERS NO ENTRY HERE (`commands: []`), on purpose. Table
+    // T-109 does place one row on this surface -- IC-52, closing an open surface
+    // on IN-4's authority -- and no row anywhere says where on the panel it sits,
+    // so an entry drawn above the first field would be a gap in the specification
+    // rather than a breach of this MUST NOT. With none offered, whatever stands
+    // above the first field is a heading and nothing else.
+    //
+    // ⭐ CONTAINMENT EITHER WAY, NEVER EQUALITY: the claim is about ORDER, which
+    // FR-006 fixes (「項目名は値の欄の左に置き」), and never about spelling. No
+    // row settles whether a colon follows an item name, and PR-3's name carries
+    // the table's own ' / ' between its two columns, which the unit may draw as
+    // one string or as parts. ⛔ A heading is neither part of the name nor made
+    // of it, so it fails here whichever of those the unit does.
+    const { panel } = drawPanel([DATE_FIELD])
+    const first = firstWordsDrawn(panel)
+    expect(
+      first !== '' && (first.includes(DATE_FIELD.name) || DATE_FIELD.name.includes(first)),
+      `FR-072 (MUST NOT): ${JSON.stringify(first)} is drawn above the panel's first item`,
+    ).toBe(true)
+  })
+
+  it('⛔ writes no word into the panel that no field of it carries', () => {
+    // ⭐ THE SAME RULE ASKED OF THE WHOLE PANEL rather than of its head, so a
+    // heading moved down instead of dropped is caught too. Every word offered is
+    // this fixture's, so a word that is neither an item name nor a value came
+    // from somewhere the description did not.
+    const { panel } = drawPanel([DATE_FIELD])
+    const carried = [
+      DATE_FIELD.name,
+      DATE_FIELD.text,
+      ...DATE_FIELD.controls.map((one) => one.text),
+    ].filter((one) => one !== '')
+
+    // ⚠️ ONLY TEXT WITH A LETTER OR A DIGIT IN IT IS ASKED ABOUT. A separator or
+    // a bracket is punctuation the unit is free to add -- no row settles one --
+    // and failing it for that would be pinning a rendering rather than the rule.
+    for (const drawn of descendants(panel)) {
+      const own = ownWords(drawn)
+      if (!hasWord(own)) continue
+      expect(
+        carried.some((word) => own.includes(word) || word.includes(own)),
+        `FR-072 (MUST NOT): ${JSON.stringify(own)} is drawn in the panel and no field carries it`,
+      ).toBe(true)
+    }
   })
 })

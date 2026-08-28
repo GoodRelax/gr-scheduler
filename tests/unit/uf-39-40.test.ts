@@ -293,7 +293,11 @@ const frameOf = (regions: ScreenRegions = REGIONS): ScreenFrame => ({
 
 const DIVIDERS = dividersOf(REGIONS)
 
-const PROPERTIES_HEADING = 'EP-8 properties heading, U-25, not drawn'
+// ⛔ THERE IS NO PROPERTIES HEADING TO KEEP OUT ANY MORE. FR-072 (MUST NOT):
+// 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示
+// 2026-08-27）」 (CR-272). EP-8's claim is unweakened -- the panel still reaches
+// this component carrying a field, and that field's value is what must not
+// arrive in the picture.
 const PROPERTY_FIELD_TEXT = 'EP-8 property value, not drawn'
 const PALETTE_GROUP_NAME = 'EP-11 palette group, U-34, not drawn'
 const PALETTE_ARMED_TEXT = 'EP-11 armed, not drawn'
@@ -306,7 +310,6 @@ const TOOLTIP_TEXT = 'a tooltip, which table T-076 gives no row, not drawn'
 const NOT_DRAWN_WORDS: readonly string[] = [
   HEADER_COMMAND_LABEL,
   AUTOSAVE_AT,
-  PROPERTIES_HEADING,
   PROPERTY_FIELD_TEXT,
   PALETTE_GROUP_NAME,
   PALETTE_ARMED_TEXT,
@@ -346,16 +349,21 @@ const viewOf = (
   frame: frameOf(),
   appHeaderItems: APP_HEADER_ITEMS,
   rowTitlePanel: { pinnedTitles, titles },
+  // ⛔ NO HEADING: FR-072 (MUST NOT) leaves the panel no heading row (CR-272).
+  // ⚠️ THE CAST IS DELIBERATE AND NARROW -- whether the published description
+  // still declares a member for one is the implementation's answer, and turning
+  // either answer into a COMPILE error here would take this whole file down.
+  // Rule 04 section 1 asks a disagreement to arrive as a test that falls, and
+  // tests/unit/uf-64.test.ts is where that one falls.
   propertiesPanel: {
     showing: 'selection',
-    heading: PROPERTIES_HEADING,
     isSubjectGone: false,
     fields: [{ row: 'PR-1', name: 'name', text: PROPERTY_FIELD_TEXT, isEditable: true, controls: [] }],
     // ⚠️ EMPTY ON PURPOSE: this bench is about another subject, and the
     // entrance table T-109 places on the panel (IC-52) is asserted in
     // tests/unit/fr-006-panel-close-entrance.test.ts.
     commands: [],
-  },
+  } as ScreenView['propertiesPanel'],
   commandPalette: {
     // ⭐ A CORNER, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size
     // follow its contents and (MUST NOT) lets the settings table hold one.
@@ -861,7 +869,6 @@ const T_076_ROWS: readonly {
     expectation: 'no',
     holds: (a) =>
       !hasRect(a, a.scene.regions.propertiesPanel) &&
-      !a.result.svg.includes(PROPERTIES_HEADING) &&
       !a.result.svg.includes(PROPERTY_FIELD_TEXT),
   },
   {

@@ -1137,13 +1137,24 @@ const EDITABLE_FIELDS: readonly PropertyField[] = [
   },
 ]
 
-const panelWith = (fields: readonly PropertyField[]): PropertiesPanel => ({
-  showing: 'selection',
-  heading: 'PropertiesHeadingHere',
-  isSubjectGone: false,
-  fields,
-  commands: [],
-})
+/**
+ * ⛔ NO HEADING IS OFFERED. FR-072 (MUST NOT) refuses the panel one -- 「⛔ **パネ
+ * ルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」
+ * (CR-272) -- and this fixture carried one until that row moved.
+ *
+ * ⚠️ THE CAST IS DELIBERATE AND NARROW. Whether the published description still
+ * declares a member for a heading is the implementation's answer; a fixture that
+ * turned either answer into a COMPILE error would take every case in this file
+ * down with it, and rule 04 section 1 asks a disagreement to arrive as a test
+ * that falls. ⛔ Every member FR-006's cases read is spelled out here.
+ */
+const panelWith = (fields: readonly PropertyField[]): PropertiesPanel =>
+  ({
+    showing: 'selection',
+    isSubjectGone: false,
+    fields,
+    commands: [],
+  }) as PropertiesPanel
 
 /** The App Header measures to something, so BO-1's dimension is settled and the screen is drawn. */
 const HEADER_HEIGHT = { 'App Header': 37 }

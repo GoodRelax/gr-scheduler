@@ -441,21 +441,32 @@ export interface ScreenWiring {
 }
 
 /**
- * IN-2 of table T-028 -- the four meanings that row gives a place, spelled the
+ * IN-2 of table T-028 -- the five meanings that row gives a place, spelled the
  * way the host spells them.
+ *
+ * ⛔ THE COUNT IN THIS NOTE WAS FALSE and is recorded as such: it opened with
+ * 「the four meanings」 while its own next paragraph said 「TWO OF THE FIVE」.
+ * IN-2 has named five places since the ruling of 2026-08-27.
  *
  * ⭐ THE SPELLING IS THE HOST'S AND THE MEANING IS THE ROW'S, which is what
  * IN-2's own ⚠️ says in as many words: 「形の綴りそのものは閲覧環境が持つ ——
- * 本行が定めるのはどの場所がどの意味を担うかだけである」. So the four names below are
+ * 本行が定めるのはどの場所がどの意味を担うかだけである」. So the five names below are
  * standard keywords of the viewing environment, chosen against their own
- * published meanings, and no fifth is minted.
+ * published meanings, and no sixth is minted.
  *
  * ⚠️ TWO OF THE FIVE ARE A JUDGEMENT AND NOT A READING, because the environment
- * has no keyword that means 「作図」. `crosshair` is published as the shape for
- * selecting a region, so it takes IN-2's 範囲選択; `copy` is published as "a new
- * thing will be made here", which is the nearest published meaning to arming a
- * figure and placing it. ⛔ A ruling that disagrees moves these two names and
- * nothing else.
+ * has no keyword that means 「作図」. `default` is the environment's own shape
+ * over content a person selects by dragging across it, so it takes IN-2's
+ * 範囲選択; `copy` is published as "a new thing will be made here", which is the
+ * nearest published meaning to arming a figure and placing it. ⛔ A ruling that
+ * disagrees moves these two names and nothing else.
+ * ⚠️ THE FIRST OF THE TWO HAS ALREADY BEEN MOVED ONCE, by exactly such a ruling
+ * (D-62 of the defect ledger, 利用者の指摘 2026-08-27): 「背景の上でカーソルが
+ * `+` のまま。正しくはデフォルトの矢印カーソル」. ⛔ THE REQUIREMENT DID NOT MOVE
+ * WITH IT -- 何にも当たらない場所 is still IN-2's place and still carries
+ * 範囲選択の合図; only the host's word for that meaning changed, which is the one
+ * thing IN-2 leaves to this side.
+ * @provisional PD-337
  * ⭐ `grab` IS A READING RATHER THAN A JUDGEMENT: the environment publishes it
  * as "the thing under the pointer can be moved", which is 「掴めることの合図」
  * word for word. ⚠️ It is the RESTING shape and not `grabbing`, which IN-2
@@ -463,7 +474,7 @@ export interface ScreenWiring {
  */
 export type PointerShape =
   /** 何にも当たらない場所 -- PD-5 of table T-023a. */
-  | 'crosshair'
+  | 'default'
   /** 構えているとき -- PD-4 of table T-023a. */
   | 'copy'
   /** `Ctrl` 併用と中ボタンのパン中 -- PD-1 of table T-023a. */
@@ -752,6 +763,21 @@ const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
  * interrupted drag produces no action at all.
  */
 const PALETTE_GRAB_BAND_ENTRY: IconId = 'IC-53'
+
+/**
+ * The one entry table T-109 stands on the `Properties Panel` -- its closing
+ * entry, on the authority of IN-4 of table T-028.
+ *
+ * ⚠️ THE SAME ROW STANDS ON FIVE OTHER SURFACES, which is why the surface has
+ * to be asked for beside it: on any of those five the press closes what S-99g
+ * holds, and `input-command-translator.ts` answers it there. FR-029 (MUST NOT)
+ * still holds -- one operation, one entrance -- because it is one entry doing
+ * one thing on whichever surface it was drawn on.
+ */
+const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
+
+/** U-25 of table T-103, spelled as that table spells it. */
+const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 
 /**
  * The entrances a held press repeats on -- FR-018 (MUST).
@@ -1738,14 +1764,16 @@ function hasEndedGesture(input: HumanInput): boolean {
  * (MUST). ⚠️ The caller reads this BEFORE that member runs, because the level
  * this answers may be one the caller consumes itself, and then that member must
  * not be asked to move the state at all.
- * ⭐ THE OTHER THREE LEVELS ARE THE SHELL'S, because all three are current
- * values the Framework holds (LY-5 of table T-060): the press in flight, the
- * Dual Cursor mode, and the `Confirmation` (U-55) this file raises.
+ * ⭐ THE OTHER FOUR LEVELS ARE THE SHELL'S, because all four are current values
+ * the Framework holds (LY-5 of table T-060): the press in flight, the Dual
+ * Cursor mode, the `Confirmation` (U-55) this file raises, and the
+ * `Properties Panel` whose contents this file decides (FR-072).
  * `screen-state.ts` says so where `EscapeContext` is declared, and that is the
  * whole reason the seam takes one.
- * ⛔ THE QUESTION IS HANDED IN RATHER THAN READ OFF `InputContext`: that value
- * is PI-18's and carries only what the pure members may see, and the question
- * is not among them. So the caller -- which holds it -- states it.
+ * ⛔ BOTH ARE HANDED IN RATHER THAN READ OFF `InputContext`: that value is
+ * PI-18's and carries only what the pure members may see, and neither the
+ * question nor the panel is among them. So the caller -- which holds both --
+ * states them.
  *
  * @purity pure
  */
@@ -1753,6 +1781,7 @@ function escapeLevelOf(
   input: HumanInput,
   context: InputContext,
   isConfirmationStanding: boolean,
+  isPropertiesPanelOpen: boolean,
 ): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
   return escapeTarget(context.screenState, {
@@ -1762,6 +1791,7 @@ function escapeLevelOf(
     gestureInFlight: context.pressed !== null,
     dualCursorMode: context.dualCursorFollowing !== null,
     isConfirmationStanding,
+    isPropertiesPanelOpen,
   })
 }
 
@@ -1896,6 +1926,28 @@ function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId
   const press = context.pressed
   if (press === null || press.on === null) return null
   return press.on.entry
+}
+
+/**
+ * Which part of the screen this happening settled ON, or null for one that
+ * settled on none.
+ *
+ * ⭐ THE FIRST MEMBER OF `ScreenPart` BESIDE THE SECOND, and it is needed for
+ * exactly one row: table T-109 stands IC-52 on six surfaces, and what that one
+ * press closes is the surface it was drawn on. ⛔ The entry alone cannot say
+ * which -- that is what makes this a second reading of the same answer rather
+ * than a second question.
+ * ⚠️ Read exactly as `entrySettledOnRelease` reads its own member, and for the
+ * same reasons: IN-1 settles on the release and CS-2 of table T-066 makes the
+ * press its moment.
+ *
+ * @purity pure
+ */
+function surfaceSettledOnRelease(input: HumanInput, context: InputContext): string | null {
+  if (input.kind !== 'pointer' || input.phase !== 'up') return null
+  const press = context.pressed
+  if (press === null || press.on === null) return null
+  return press.on.part
 }
 
 /**
@@ -2388,6 +2440,25 @@ export function frameLoop(
   // @provisional PD-144
   let propertiesShowing: PropertiesShowing = null
   let propertiesSubject: PropertiesSubject | null = null
+  // Whether the reader has put the `Properties Panel` (U-25) away.
+  //
+  // ⭐ A SECOND FACT AND NOT A SECOND SPELLING OF THE ONE ABOVE. That value is
+  // 「which of the two the LAST OPERATION chose」 (FR-072), and putting the panel
+  // away chooses neither -- writing `null` there would say an operation had
+  // happened that did not. What a reader put away is asked here instead, and
+  // `propertiesShowingNow` is the one place the two are read together.
+  // ⛔ IT IS NOT S-80. That row is the width the DOCUMENT keeps, and the note
+  // A-appendix records for S-171 forbids making the opening width one of those
+  // (「文書が保つ値にはしない」) -- so the closing is not written back either, and
+  // a width a person dragged is still there when the panel comes back.
+  // ⚠️ Lost with the page, the same as the two above and for the same reason:
+  // table T-203 has no key and table T-206 no row.
+  // ⛔ NOTHING SETS IT AT STARTUP. A fresh document opens with S-80 at `0`,
+  // which that row spells as 「閉じている」 all by itself, and this value is
+  // about a panel a reader TOOK AWAY -- IN-4's level and IC-52's press are its
+  // only two writers.
+  // @provisional PD-338
+  let isPropertiesPanelPutAway = false
   // FR-065 -- whether the person has turned the `Agent API` on for the document
   // being read. ⛔ Starts off, which is the judgement FR-065's RATIONALE calls
   // 「既定で公開しない」. What is NOT kept, and why no key is written for it, is
@@ -2647,9 +2718,45 @@ export function frameLoop(
   }
 
   /**
-   * The width the properties panel takes on THIS frame -- S-80 as the document
-   * keeps it, or S-171 of table T-206 while FR-072 has the panel showing and
-   * the document keeps no width of its own.
+   * FR-072's answer for THIS frame: which of the two the panel is showing, or
+   * `null` while it is not on the screen at all.
+   *
+   * ⭐ THE ONE PLACE THE TWO HELD VALUES ARE READ TOGETHER. ⛔ WHAT IS DESCRIBED
+   * TO THE SURFACE READS THIS AND NEVER `propertiesShowing` DIRECTLY -- a caller
+   * that read the raw value would go on describing a panel the reader has taken
+   * away. ⚠️ Two callers read something else, each for a reason it states:
+   * `withPropertiesPanelShown` reads the putting-away alone, because it has to
+   * tell it from 「no operation has chosen yet」, and the `Esc` ladder asks
+   * `isPropertiesPanelOnScreen` below, which adds the wiring.
+   *
+   * @purity semi-pure-b
+   */
+  function propertiesShowingNow(): PropertiesShowing {
+    return isPropertiesPanelPutAway ? null : propertiesShowing
+  }
+
+  /**
+   * Whether the `Properties Panel` (U-25) is on the screen at this moment --
+   * the question IN-4 asks before it spends a level on it.
+   *
+   * ⛔ THE WIRING IS HALF THE ANSWER, and leaving it out would be a level spent
+   * on a surface nobody can see. `ScreenWiring` is optional: without it this
+   * loop draws the schedule through `SvgSurface` (IF-1) and describes no
+   * `ScreenView` at all, so there is no panel, no modal and no entry -- the same
+   * reading `owesFrame` already takes, where a missing wiring makes both screen
+   * parts null. ⚠️ A caller with no wiring is a caller whose `Esc` must reach
+   * the browser (IN-4a, MUST) for want of anything to close.
+   *
+   * @purity semi-pure-b
+   */
+  function isPropertiesPanelOnScreen(): boolean {
+    return screen !== undefined && propertiesShowingNow() !== null
+  }
+
+  /**
+   * The width the properties panel takes on THIS frame -- nothing while it has
+   * been put away, S-80 as the document keeps it, or S-171 of table T-206 while
+   * FR-072 has the panel showing and the document keeps no width of its own.
    *
    * ⭐ THE MIRROR OF `exportScene`'s `withPanelsClosed`, and it is laid over the
    * settings handed to `regionsFromScreen` for the same reason that one is: a
@@ -2665,6 +2772,24 @@ export function frameLoop(
    * @purity semi-pure-b
    */
   function withPropertiesPanelShown(stored: DocumentSettings): DocumentSettings {
+    // ⭐ A PANEL PUT AWAY TAKES NO WIDTH, which is S-80's own spelling of
+    // 「閉じている」 and the only thing that gives its place back to the
+    // `Row Area` (FR-052). ⛔ AHEAD OF THE STORED WIDTH, and that is the whole
+    // difference between this branch and the one below it: a document that
+    // carries a width a person dragged still reads back as open, so a closing
+    // that let that width win would take the panel off the screen and leave its
+    // strip standing at the window's right edge with nothing drawn into it --
+    // the very state version 1.08 of the specification records being measured.
+    // ⚠️ LAID OVER A COPY AND NEVER WRITTEN BACK, exactly as S-171 is: the
+    // stored width is what the panel comes back to.
+    if (isPropertiesPanelPutAway) {
+      if (stored.propertyPanelWidth === 0) return stored
+      return { ...stored, propertyPanelWidth: 0 }
+    }
+    // ⛔ THE RAW VALUE HERE AND NOT `propertiesShowingNow`, which would make the
+    // branch above unreachable: this line is 「no operation has chosen yet」, and
+    // the stored width has to stand for it or FR-052's boundary could never be
+    // dragged open from a closed panel.
     if (propertiesShowing === null) return stored
     if (stored.propertyPanelWidth > 0) return stored
     return {
@@ -2777,7 +2902,11 @@ export function frameLoop(
           isMilestoneListOpen,
           selectedGroupIds,
           selectedResourceUids,
-          propertiesShowing,
+          // ⭐ FR-072's answer AS THIS FRAME STANDS, which is what that member's
+          // own declaration asks for: 「or `null` while the properties panel is
+          // closed」. A panel IN-4 took is closed, whatever the last operation
+          // had chosen.
+          propertiesShowing: propertiesShowingNow(),
           propertiesSubject,
           confirmation: asking?.question ?? null,
           notices: raisedNotices,
@@ -3498,8 +3627,8 @@ export function frameLoop(
    * ⚠️ THE LAST THREE REFUSALS BELOW ARE `grabAtPointer`'s AS WELL, and they
    * are restated rather than left to it: that function answers `null` for a
    * point it turned away, and `null` is also its answer for empty canvas, where
-   * PD-5 gives a shape. ⛔ A shape read off the hit alone would put PD-5's
-   * crosshair on the time ruler.
+   * PD-5 gives a shape. ⛔ A shape read off the hit alone would put PD-5's own
+   * shape on the time ruler.
    * ⚠️ NO FRAME IS ASKED FOR HERE. The shape is not drawn content -- the host
    * paints the pointer -- so it is written straight out rather than through
    * `ScreenSession`.
@@ -3532,8 +3661,12 @@ export function frameLoop(
     // bars' ends, and the rows it still names nothing for answer `null` there.
     if (hit !== null) return POINTER_SHAPE_BY_GRAB[hit.grab]
     const armed = screenState.armed
-    // PD-5 -- nothing hit and nothing armed.
-    if (armed.kind === 'none') return 'crosshair'
+    // PD-5 -- nothing hit and nothing armed. ⚠️ THE SHAPE HERE IS THE HOST'S
+    // ORDINARY ONE AND THE PLACE IS STILL IN-2's: the row names 何にも当たらない
+    // 場所 and gives it 範囲選択の合図, and `PointerShape` says which word this
+    // side spells that meaning with. ⛔ Answering `null` instead would say IN-2
+    // names no shape here, which is false.
+    if (armed.kind === 'none') return 'default'
     // STOP -- ⛔ PD-4a DOES NOTHING HERE, so 「作図の合図」 would be a lie. An
     // armed dependency on empty canvas draws nothing and does not even disarm,
     // and IN-2 names no shape for that.
@@ -4274,7 +4407,23 @@ export function frameLoop(
    *
    * @purity non-pure
    */
-  function answerSettledEntry(entry: IconId, frame: FrameValues): boolean {
+  function answerSettledEntry(entry: IconId, surface: string | null, frame: FrameValues): boolean {
+    if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
+      // D-61 of the defect ledger (利用者の指摘 2026-08-27): 「`[x]` と `[ESC]`
+      // のどちらでも非表示にできるべき」. This is the `[x]` half; IN-4's level
+      // above is the other.
+      // ⭐ ANSWERED HERE AND NOT BY THE TRANSLATOR, for the reason the five
+      // entries beside it are: what this press changes is a current value, and
+      // LY-5 of table T-060 leaves those with this layer. Table T-108 has no
+      // command for it, so `applyDocumentChange` (PI-8) would have nothing to
+      // plan.
+      // ⛔ SPENT WHETHER OR NOT THE PANEL WAS UP. The entry is drawn on the
+      // panel and nowhere else on this surface, so a press that reached it
+      // reached a panel that was there to press -- and answering `false` would
+      // hand the press to `carryOutAction` as an edit of the schedule beneath.
+      isPropertiesPanelPutAway = true
+      return true
+    }
     if (entry === DISPLAY_LANGUAGE_ENTRY) {
       // FR-038 (MUST): exactly two languages, so one entry that shows the
       // current one is the whole switch (the header's half of the two entrances
@@ -4604,6 +4753,18 @@ export function frameLoop(
         // ⛔ THE SUBJECT IS NOT CLEARED ON THE WAY: that requirement (MUST) says
         // 「設定を開いても選択を解除せず」, and `selection` is not touched here
         // either.
+        // ⭐ IT ALSO BRINGS A PANEL THAT WAS PUT AWAY BACK. IC-17 is an entrance
+        // to the panel's contents, and a press on it with the panel gone would
+        // otherwise turn a surface nobody can see.
+        // ⛔ WHICH WAY IT THEN GOES IS UNCHANGED, and that is deliberate: the
+        // turn below reads what is HELD, so a reader who put the settings away
+        // and pressed here gets the panel back on 「直前の選択物」 -- which is
+        // the sentence FR-072 writes for a second press of this same entrance.
+        // ⚠️ NOT SETTLED BY ANY ROW. FR-072 words the turn for a panel that is
+        // UP, and no row says what this entrance means to a panel that is not.
+        // The turn is left alone rather than given a second rule.
+        // @provisional PD-339
+        isPropertiesPanelPutAway = false
         // @provisional PD-144
         propertiesShowing =
           propertiesShowing === 'documentSettings' ? 'selection' : 'documentSettings'
@@ -4668,6 +4829,18 @@ export function frameLoop(
    */
   function showPropertiesOfChoice(): void {
     if (selection.items.length === 0 && selectedGroupIds.length === 0) return
+    // FR-006 (MUST): 「作成者がタスクを選んだとき、`GRS` は、表 T-016 の項目を
+    // プロパティパネルに出し」 -- so a choosing puts the panel back, and a reader
+    // who put it away is not held to that for the rest of the session.
+    // ⛔ WHETHER IT SHOULD COME BACK IS NOT SETTLED, and this is the reading
+    // rather than a ruling: FR-006 names the choosing and MK-13 of table T-023
+    // makes a double click 「プロパティパネルを開く」, and no row says which of
+    // the two is the entrance. What is chosen here is the one FR-006 states
+    // outright, and it is the same road that put the panel up in the first
+    // place -- a putting-away that survived it would leave the panel gone with
+    // no way back at all.
+    // @provisional PD-339
+    isPropertiesPanelPutAway = false
     propertiesShowing = 'selection'
     propertiesSubject = { selection, groupIds: selectedGroupIds }
   }
@@ -4834,6 +5007,22 @@ export function frameLoop(
           partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
             ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
             : null
+        // FR-052 (MUST): 「境界を掴んでいるあいだ、その時点のポインタ位置が決める
+        // 2 つの幅で画面を描いて示すこと」 -- so a hand on THIS panel's boundary
+        // is asking for the panel, and the width it is making has to be drawn.
+        // ⛔ ON THE PRESS AND NOT ON THE RELEASE, which that MUST is the reason
+        // for: a putting-away left standing would hold the width at 0 for the
+        // whole drag, and the band would be a control that does nothing --
+        // `ScreenFrame.dividers` describes this boundary while the panel is
+        // closed, so the band is there to be grabbed.
+        // ⚠️ NOT SETTLED BY ANY ROW: no requirement says what a boundary drag
+        // means to a panel a reader put away. This is FR-052's own sentence
+        // applied to it, and nothing further is read into the press -- it does
+        // not choose a subject and does not move `propertiesShowing`.
+        // @provisional PD-339
+        if (partUnderPointer?.dividerPanel === 'propertiesPanel') {
+          isPropertiesPanelPutAway = false
+        }
         // FR-018 (MUST): the hold begins to be measured from the press.
         // ⛔ AFTER `collectPress`, because the entrance this asks about is the
         // one that press recorded -- `pressHeldOnRepeatingEntry` reads no
@@ -4868,24 +5057,28 @@ export function frameLoop(
     // read the clock again (`semi-pure-b`), and the three would then be
     // answering about different moments.
     const context = collectInputContext(frame)
-    // IN-4 of table T-028 -- the three levels of the `Esc` ladder that are the
-    // shell's, because LY-5 of table T-060 leaves it holding all three: the
-    // press in flight, the Dual Cursor mode and the question below.
+    // IN-4 of table T-028 -- the four levels of the `Esc` ladder that are the
+    // shell's, because LY-5 of table T-060 leaves it holding all four: the
+    // press in flight, the Dual Cursor mode, the question below, and the
+    // `Properties Panel` this loop decides the contents of (FR-072).
     // ⛔ ASKED OFF `context` AND BEFORE THE THREE MEMBERS RUN. The other two
     // levels are `screenStateFromInput`'s, so asking after it had moved the
     // state would reckon against a state that has just lost a level and spend
     // two on one press -- and IN-4 allows 1 階層 (MUST).
-    const escapeLevel = escapeLevelOf(input, context, asking !== null)
+    const escapeLevel = escapeLevelOf(input, context, asking !== null, isPropertiesPanelOnScreen())
     selection = selectionFromInput(input, context)
     // ⚠️ SK-12 opens the `Export Chooser` (U-54) here and nothing more: what a
     // person then takes on it is a row of table T-024, which this member does
     // not read -- `answerSettledFormat` below is where the choice is spent.
-    // ⛔ NOT ASKED AT ALL WHEN THIS PRESS TOOK THE FIRST LEVEL HERE. That member
-    // cannot see the question -- `EscapeContext` says why the flag is optional
-    // -- so it would answer for the NEXT level down and disarm, or close the
-    // surface behind the question, on the same press that dismissed it.
-    screenState =
-      escapeLevel === 'confirmation' ? screenState : screenStateFromInput(input, context)
+    // ⛔ NOT ASKED AT ALL WHEN THIS PRESS TOOK ONE OF THE TWO LEVELS THIS FILE
+    // HOLDS. That member can see neither the question nor the panel --
+    // `EscapeContext` says why both flags are optional -- so it would answer for
+    // the NEXT level down and disarm, or close the surface behind the question,
+    // on the same press that dismissed it or put the panel away.
+    // ⚠️ ONE LINE FOR BOTH, because the reason is one reason: IN-4 allows 1 階層
+    // per press (MUST), and a level spent here may not be spent again there.
+    const isEscapeSpentHere = escapeLevel === 'confirmation' || escapeLevel === 'propertiesPanel'
+    screenState = isEscapeSpentHere ? screenState : screenStateFromInput(input, context)
     const translated = commandFromInput(input, context)
 
     // IN-4's FIRST level, spent on the surface U-55 names.
@@ -4907,6 +5100,19 @@ export function frameLoop(
       asking = null
       abandoned.settle(false, frame)
     }
+    // IN-4's rung for the surface U-25 names, spent.
+    //
+    // ⭐ THAT THE PANEL IS ON THIS LADDER IS THE MANUSCRIPT'S OWN JOIN: table
+    // T-109 stands its closing entry on `Properties Panel` among that entry's
+    // six surfaces, and that entry's 正 column names IN-4. ⛔ WHICH RUNG it
+    // takes is not, and `escapeTarget` is where that is chosen and reasoned --
+    // nothing here reads the ladder a second time.
+    // ⚠️ WHAT IS WRITTEN IS THE PUTTING AWAY AND NOT THE WIDTH. S-80 is the
+    // document's, and the A-appendix note for S-171 keeps the opening width out
+    // of the document -- so the width a person dragged is still there when the
+    // panel comes back, and UN-16 of table T-027 (パネル幅は対象外) is untouched
+    // because no width was written at all.
+    if (escapeLevel === 'propertiesPanel') isPropertiesPanelPutAway = true
     // DC-4: `Esc` is one of the two ways out of the mode. ⛔ The two lines stay
     // where they were put -- DC-7 (MUST NOT) forbids leaving the mode from
     // clearing them, so nothing here touches `dualCursor`.
@@ -4964,7 +5170,8 @@ export function frameLoop(
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
     const spent =
-      (settledEntry !== null && answerSettledEntry(settledEntry, frame)) ||
+      (settledEntry !== null &&
+        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame)) ||
       (settledFormat !== null && answerSettledFormat(settledFormat))
     if (!spent) carryOutAction(translated.action, frame)
 
@@ -5074,14 +5281,16 @@ export function frameLoop(
       // NOT), and with no frame of reference nothing can be assigned.
       if (frame === null) return false
       const context = collectInputContext(frame)
-      // ⛔ ASKED SEPARATELY BECAUSE `commandFromInput` CANNOT SEE THE QUESTION,
-      // and this press IS assigned: `receiveInput` dismisses the `Confirmation`
-      // with it.
+      // ⛔ ASKED SEPARATELY BECAUSE `commandFromInput` CAN SEE NEITHER OF THE
+      // TWO, and both presses ARE assigned: `receiveInput` dismisses the
+      // `Confirmation` with one and puts the `Properties Panel` away with the
+      // other.
       // ⚠️ Without this the tool would take the press AND leave the browser its
-      // default, so an `Esc` that declined a question would ALSO leave full
-      // screen -- IN-4a hands the key on only when NOTHING is consumed, and
-      // FR-071's way out is the browser's own behaviour.
-      if (escapeLevelOf(input, context, asking !== null) === 'confirmation') return true
+      // default, so an `Esc` that declined a question -- or closed the panel --
+      // would ALSO leave full screen. IN-4a hands the key on only when NOTHING
+      // is consumed (MUST), and FR-071's way out is the browser's own behaviour.
+      const level = escapeLevelOf(input, context, asking !== null, isPropertiesPanelOnScreen())
+      if (level === 'confirmation' || level === 'propertiesPanel') return true
       return commandFromInput(input, context).isBrowserDefaultStopped
     },
     receiveInput,

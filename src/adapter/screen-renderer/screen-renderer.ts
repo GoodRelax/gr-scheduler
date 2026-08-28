@@ -440,13 +440,22 @@ export interface PropertiesPanel {
    * FR-072: the LAST thing the person did decides which of the two the panel
    * shows. ⚠️ Clearing the selection does not move it to the settings (MUST
    * NOT).
+   *
+   * ⛔ AND IT IS NOW THE ONLY MEMBER THAT SAYS WHICH OF THE TWO IS UP. FR-072
+   * (MUST) has the pressed state of the entrance tell a reader that, and (MUST
+   * NOT) forbids a heading row at the head of the panel -- so no word is carried
+   * for one and the two entrances read this member instead. ⚠️ A heading member
+   * stood here until 2026-08-27; CR-272 is where it went.
    */
   readonly showing: 'selection' | 'documentSettings'
-  /** FR-072 (MUST): the heading says which of the two is showing. */
-  readonly heading: string
   /**
    * FR-072 (MUST): when the selection went away the panel KEEPS the fields it
-   * had and says so in the heading. True is that state.
+   * had. True is that state.
+   *
+   * ⚠️ NOTHING ON THE SCREEN SAYS SO ANY MORE, and FR-072's RATIONALE records
+   * that as the price the ruling of 2026-08-27 knowingly paid: the panel goes on
+   * showing what it had without marking it as the previous subject. This member
+   * stays because it is still the state, and a check reads it back.
    *
    * ⭐ WHAT IS KEPT IS THE SUBJECT, NOT THE DRAWN FIELDS. FR-072 also says that
    * pressing the same entry again brings the panel back to what was selected
@@ -1558,8 +1567,10 @@ export interface ScreenSession {
   readonly propertiesShowing: 'selection' | 'documentSettings' | null
   /**
    * FR-072 (MUST): what the panel was showing when the selection went away, so
-   * that it can go on showing it and say so in the heading. `null` while no
-   * operation has chosen a subject yet.
+   * that it can go on showing it. `null` while no operation has chosen a subject
+   * yet. ⚠️ It is no longer SAID that this is the previous subject: FR-072
+   * (MUST NOT) took the heading row away on 2026-08-27 and its RATIONALE records
+   * that as the price.
    *
    * ⭐ THE SUBJECT, NOT THE DRAWN FIELDS. FR-072 also requires a second press of
    * the same entry to bring the panel back to what was selected before, so what

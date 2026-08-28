@@ -51,10 +51,15 @@
 //            was handed nor answer differently to the same arguments
 //
 // Chapter 1.9 asks a test of a requirement that points at a table to be driven
-// by a fixed copy of that table. T_109_APP_HEADER and S_59_ROWS below are those
-// copies; nothing here re-reads the manuscript, and nothing re-reads the
+// by a fixed copy of that table. T_109_APP_HEADER_RUNS and S_59_ROWS below are
+// those copies, and the CASES are driven by them alone; nothing re-reads the
 // generated roster the unit itself is built from -- reading that would test the
 // generator against itself rather than the table against the code.
+// ⚠️ ONE GROUP OF CASES DOES READ THE MANUSCRIPT, and it reads nothing else:
+// the one that holds the hand copy of table T-109 against the table. The copy
+// went stale the day CR-272 moved IC-7 to the head of the surface and said so
+// nowhere, which is the failure rule 04 section 2 asks to be staged rather than
+// waited for. ⛔ It is a guard on the copy and never a substitute for it.
 //
 // FIVE THINGS THIS FILE DELIBERATELY DOES NOT ASSERT, each searched for before
 // being given up on:
@@ -100,6 +105,10 @@ import {
   screenStateWithPalette,
   type ScreenState,
 } from '../../src/entity/document-model/screen-state/screen-state'
+import {
+  emptySelection,
+  selectionWith,
+} from '../../src/entity/document-model/selection/selection'
 import type {
   AppHeaderItems,
   AutosaveStatus,
@@ -126,37 +135,58 @@ const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
 /**
  * Table T-109 -- every row whose surface column reads `App Header`, in the table's
- * own printed order.
+ * own printed order, kept in the runs its 群 column cuts them into.
  *
  * FR-029 (MUST) makes both the roster and the placement follow this table, and
  * rule 03 section 3 of docs/development-rules keeps the printed order as the
  * code's order. The count is the table's own: FR-029 forbids even the
  * requirement to state it, so no case below writes a number.
+ *
+ * ⭐ THE RUNS ARE WHY THE ORDER IS WHAT IT IS, and not decoration. The preamble
+ * of table T-109 states that column's whole job in as many words -- 「⛔ **本表の
+ * `群` の欄は、入口を並べる順を決めるためだけに在る。画面に刷ってはならない
+ * （MUST NOT）**」 -- so the runs are the reason a row stands where it stands,
+ * and holding them here keeps the copy from reading as an arbitrary list.
+ * ⚠️ The group words are the manuscript's own Japanese and are kept in it (rule
+ * 03 section 5 admits Japanese where the Japanese itself is what is handled,
+ * and asks for the reason): they are cells being copied, not names being
+ * minted, and 群 prints nowhere on the screen for an English one to be needed.
+ *
+ * ⚠️ IC-7 STANDS FIRST, AND THAT IS NEW (CR-272, 利用者の指示 2026-08-27
+ * 「一番左に移動しろ。ファイル読み書きの左だ」). Its own cell says why it took a
+ * group of its own to get there -- 「⛔ **並びを決めるのは本表の `群` の欄だけで
+ * あり**（同表の前文）、**既存の群に入れたまま先頭へ動かすと群がとびとびになり、
+ * その欄の役目が壊れる。**」 ⛔ This copy was IC-1-first until that row moved, and
+ * a copy left behind reports the header as wrong while it is right.
  */
-const T_109_APP_HEADER = [
-  'IC-1',
-  'IC-2',
-  'IC-3',
-  'IC-4',
-  'IC-5',
-  'IC-6',
-  'IC-7',
-  'IC-8',
-  'IC-9',
-  'IC-10',
-  'IC-11',
-  'IC-12',
-  'IC-13',
-  'IC-14',
-  'IC-15',
-  'IC-16',
-  'IC-17',
-  'IC-18',
-  'IC-19',
-  'IC-20',
-  'IC-21',
-  'IC-22',
-] as const
+const T_109_APP_HEADER_RUNS: readonly {
+  readonly group: string
+  readonly rows: readonly string[]
+}[] = [
+  { group: 'パレット', rows: ['IC-7'] },
+  { group: '文書', rows: ['IC-1', 'IC-2', 'IC-3', 'IC-4'] },
+  { group: '履歴', rows: ['IC-5', 'IC-6'] },
+  {
+    group: '表示',
+    rows: [
+      'IC-8',
+      'IC-9',
+      'IC-10',
+      'IC-11',
+      'IC-12',
+      'IC-13',
+      'IC-14',
+      'IC-15',
+      'IC-16',
+      'IC-17',
+    ],
+  },
+  { group: 'AI', rows: ['IC-18', 'IC-19', 'IC-20'] },
+  { group: '補助', rows: ['IC-21', 'IC-22'] },
+]
+
+/** The same copy flattened -- the table's printed order for this surface. */
+const T_109_APP_HEADER: readonly string[] = T_109_APP_HEADER_RUNS.flatMap((run) => run.rows)
 
 /**
  * Rows of table T-109 placed on some OTHER surface. None of them may reach the
@@ -418,6 +448,53 @@ describe('UF-62 autosaveStatus', () => {
 })
 
 // ---------------------------------------------------------------------------
+// The copy above is by hand, so it is held against the manuscript before it is
+// leaned on. Rule 04 section 2 of docs/development-rules: a mechanism that
+// carries a value out of the manuscript is not verified until it has been seen
+// to fall.
+// ---------------------------------------------------------------------------
+
+describe('table T-109 still says what this file copied', () => {
+  /** The manuscript's own App Header rows, in printed order, with their 群 cell. */
+  const printed = specTable('T-109')
+    .rows.map((row) => ({
+      id: row.id,
+      surfaces: (row.by['面'] ?? '').split('/').map((one) => bare(one.trim())),
+      group: bare(row.by['群'] ?? ''),
+    }))
+    .filter((row) => row.surfaces.includes('App Header'))
+
+  it('⭐ places exactly these rows here, in exactly this order (FR-029, MUST)', () => {
+    // ⛔ WITHOUT THIS THE COPY ROTS IN SILENCE, and it has: the copy read
+    // IC-1 first until CR-272 moved IC-7 to the head of the surface, and a copy
+    // left behind reports the header as wrong at the moment it became right.
+    // ⚠️ The check is against the MANUSCRIPT and not against the generated
+    // roster the unit is built from -- reading that would hold the generator
+    // against itself, which is the head comment's reason for copying at all.
+    expect(printed.map((row) => row.id)).toEqual([...T_109_APP_HEADER])
+  })
+
+  it('⛔ cuts them into these runs, none of them broken (the 群 column\'s whole job)', () => {
+    // The preamble of table T-109: 「⛔ **本表の `群` の欄は、入口を並べる順を
+    // 決めるためだけに在る。画面に刷ってはならない（MUST NOT）**」. IC-7's own
+    // cell adds what a broken run costs -- 「**既存の群に入れたまま先頭へ動かすと
+    // 群がとびとびになり、その欄の役目が壊れる**」 -- so a group that appears in
+    // two places is the defect that sentence names, and it would leave the copy
+    // above looking arbitrary rather than derived.
+    const runs: { group: string; rows: string[] }[] = []
+    for (const row of printed) {
+      const last = runs[runs.length - 1]
+      if (last !== undefined && last.group === row.group) last.rows.push(row.id)
+      else runs.push({ group: row.group, rows: [row.id] })
+    }
+    expect(runs).toEqual(T_109_APP_HEADER_RUNS.map((run) => ({ group: run.group, rows: [...run.rows] })))
+
+    const groups = runs.map((run) => run.group)
+    expect(new Set(groups).size, 'no group is written twice').toBe(groups.length)
+  })
+})
+
+// ---------------------------------------------------------------------------
 // U-35 `Header Commands` -- the roster itself. FR-029 and table T-109.
 // ---------------------------------------------------------------------------
 
@@ -565,6 +642,44 @@ describe('UF-62 IC-17: what the properties panel is showing (FR-072, MUST)', () 
   it('stays usable while the panel is closed, since the entry is what opens it (FR-072)', () => {
     const closed = itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ propertiesShowing: null }))
     expect(commandFor(closed, IC_DOCUMENT_SETTINGS).isEnabled).toBe(true)
+  })
+
+  it('⛔ answers WHICH OF THE TWO and never whether the subject is still selected', () => {
+    // ⭐ FR-072's RATIONALE says this in as many words, and it is the whole
+    // weight the pressed state was left carrying when CR-272 dropped the panel's
+    // heading: 「⭐ **押下状態は「選択物を出しているか、設定を出しているか」だけを
+    // 担い、「その選択物がまだ選ばれているか」は担わない** —— **この 2 つは別の問
+    // いである。**」 ⛔ So an entry that dimmed or lifted when the selection went
+    // away would be answering the second question with the one control the
+    // requirement gives the first, and a reader could no longer tell from it
+    // which of the two the panel is showing.
+    //
+    // ⚠️ WHAT VARIES IS THE REMEMBERED SUBJECT and nothing else. `propertiesShowing`
+    // is held at `selection` throughout -- FR-072 (MUST NOT) forbids the panel to
+    // move to the settings when the selection is cleared, so that is the state a
+    // cleared selection leaves the session in.
+    const subjects: readonly ScreenSession['propertiesSubject'][] = [
+      null,
+      { selection: emptySelection(), groupIds: [] },
+      { selection: selectionWith(emptySelection(), { kind: 'task', uid: 1 }), groupIds: [] },
+    ]
+    const entries = subjects.map((propertiesSubject) =>
+      commandFor(
+        itemsOf(
+          UNNAMED,
+          SETTINGS,
+          STATE,
+          sessionWith({ propertiesShowing: 'selection', propertiesSubject }),
+        ),
+        IC_DOCUMENT_SETTINGS,
+      ),
+    )
+    for (const entry of entries) {
+      expect(entry.isPressed, 'FR-072 (MUST): the pressed state says the panel is on the SELECTION').toBe(
+        false,
+      )
+      expect(entry.isEnabled, 'and the entry stays the way back to the settings').toBe(true)
+    }
   })
 })
 

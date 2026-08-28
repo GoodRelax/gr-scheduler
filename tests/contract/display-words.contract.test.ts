@@ -27,8 +27,10 @@
 //                     it earns its keep still, because a cell the user has yet
 //                     to write would go vacuous again.
 //   2. THE FALLBACK   every entry that is EMPTY: the place still prints a
-//                     string, and where a requirement forbids emptiness the
-//                     stand-in is not the empty string (FR-072).
+//                     string. ⚠️ It also holds the one place a requirement
+//                     forbids ANYTHING being printed -- the head of the
+//                     properties panel, which FR-072 (MUST NOT) leaves without
+//                     a heading row (CR-272, 2026-08-27).
 //   3. THE ACCEPTANCE what holds the other two together -- the roster is the
 //                     whole of table T-109, the generated file matches the
 //                     manuscript cell for cell, no entry is passed over in
@@ -70,8 +72,9 @@
 //      asking the user, and docs/spec fixes no stand-in for a label, a group
 //      name, a surface heading or a tooltip. Pinning one here would record the
 //      code rather than the specification, so group 2 asserts only that a
-//      string arrives -- plus FR-072's headings, which the specification does
-//      constrain.
+//      string arrives. ⚠️ FR-072's headings used to be the exception the
+//      specification did constrain; CR-272 removed the heading rather than the
+//      constraint, and group 2 now asks the opposite of the same place.
 //   2. THE `notices`, `reasons`, `questions`, `confirmation` AND
 //      `confirmationMarks` SECTIONS, and IC-69 / IC-70 with them. Their places are UF-67's
 //      (`notices.ts`), which is not one of the five units this file may look
@@ -231,8 +234,8 @@ const GENERATED = readDictionary(GENERATED_PATH)
  * Which member of an entry is its key, in the order the sections are printed.
  * ⚠️ Not invented here: CR-194 section 0 item ⑧ 4 fixes a group's key as the
  * FIRST row of table T-109 that sits in it, and every other key is a row ID, a
- * settled name of table T-103, the state FR-072 / NT-7 names, or the mark
- * FR-032 asks for (CR-218 section 0 item ⑧ 2).
+ * settled name of table T-103, the answer NT-7 names, or the mark FR-032 asks
+ * for (CR-218 section 0 item ⑧ 2).
  *
  * ⭐ THIS IS THE ROSTER OF SECTIONS THIS FILE CAN READ, and the acceptance
  * group holds both files against it slot for slot -- a section the
@@ -250,16 +253,23 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   confirmation: 'answer',
   noticeDismiss: 'answer',
   confirmationMarks: 'mark',
-  panelHeadings: 'showing',
+  // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
+  // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
+  // manuscript -- 「名簿は 表 T-109・表 T-037・表 T-233・表 T-234・表 T-023・
+  // 表 T-023b と `FR-072` が既に持っており、**生成器が毎回そこから起こして原稿と
+  // 突き合わせる。**」 -- and FR-072 now names no state of the panel for a word to
+  // be printed in: 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**」.
+  // ⭐ So the section has nowhere to be raised from, and the case below says so
+  // by name rather than leaving it to be noticed here.
   assignments: 'rowId',
   // ⭐ THE ROW OF TABLE T-023b THE PALETTE HAS ARMED. Its closing rule (MUST)
   // 「⭐ **構えの語は 表 T-233 の結びが理由の語について定めるのと同じ扱いとする
   // こと（MUST）** —— 辞書が持ち、行 ID で引き、行を足すなら原稿にも項を足す。」
   // -- so the key is the row id, exactly as `reasons` is keyed. ⚠️ It stands
   // LAST here because this roster is the GENERATED file's printed order and the
-  // generator prints it after `assignments`; the manuscript keeps it between
-  // `panelHeadings` and `assignments`, and no row of docs/spec asks the two
-  // files to agree on the order of their sections.
+  // generator prints it after `assignments`; the manuscript keeps the two in the
+  // other order, and no row of docs/spec asks the two files to agree on where a
+  // section is printed.
   arms: 'rowId',
   // ⭐ THE SEVEN WEEKDAYS THE FOURTH RULER TIER PRINTS. FR-017 (MUST) gives
   // the weekday a 段 of its own -- 「曜日の段は曜日」をそれぞれ 1 段に持つ
@@ -856,11 +866,18 @@ for (const entry of GENERATED['surfaces'] ?? []) {
   })
 }
 
-// -- panelHeadings: the three states FR-072 makes the panel tell apart
+// -- panelHeadings: ⛔ a section with nowhere left to be printed (CR-272)
 
 /**
- * FR-072 (MUST): the heading says which of the two is showing, and when the
- * selection has gone the panel keeps what it had and says so.
+ * The states FR-072 leaves the properties panel in.
+ *
+ * ⚠️ THEY NO LONGER CARRY A WORD BETWEEN THEM. FR-072 used to make the heading
+ * say which of the two was showing and used to make a cleared selection say so;
+ * on 2026-08-27 the reader called the row 「無用」 and CR-272 replaced both with
+ * one MUST NOT -- 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**」
+ * -- leaving 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 as the
+ * whole of what tells a reader anything. ⭐ The frames are kept because the two
+ * cases below still ask what the panel IS in each of them.
  */
 const PANEL_STATES: Readonly<Record<string, Frame>> = {
   selection: frameWith({ session: sessionWith({ propertiesShowing: 'selection' }) }),
@@ -871,23 +888,16 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
   }),
 }
 
-for (const entry of GENERATED['panelHeadings'] ?? []) {
-  const showing = keyOf('panelHeadings', entry)
-  const frame = PANEL_STATES[showing]
-  if (frame === undefined) {
-    drop('panelHeadings', showing, 'FR-072 names no such state of the panel')
-    continue
-  }
-  place({
-    section: 'panelHeadings',
-    key: showing,
-    field: 'text',
-    unit: 'UF-64',
-    what: `the properties panel heading while it shows ${showing}`,
-    frame,
-    read: (view) => view.propertiesPanel?.heading,
-  })
-}
+// ⛔ NO PLACE IS BUILT FOR A PANEL HEADING, and none may be: there is no heading
+// on the screen for a word to arrive at, so a place here would be a road to a
+// part FR-072 (MUST NOT) forbids. The section's absence from the dictionary is
+// asserted by name in the acceptance group rather than being passed over here.
+//
+// ⚠️ THE ORDER THE SECTION GOES IN IS THE MANUSCRIPT'S, NOT THIS FILE'S. CR-272
+// section 4 measured it and recorded it: 「⭐ **順序は「仕様 → 実装 → 辞書」であり、
+// 辞書を先に削ると `src/` が壊れる。**⚠️ **実装が入ったあと、`panelHeadings` の節を
+// 落として 260 → 254 になる。**」 ⛔ Until that last step is taken this file reads
+// a section it can key no entry of, and says so in three places at once.
 
 // -- assignments: FR-037's hint, shown while the pointer rests on a scrollbar
 
@@ -1244,36 +1254,43 @@ describe('PD-160 -- an entry with no word still leaves something at its place', 
   )
 
   it.each(LANGUAGES)(
-    'no heading is written for the panel in %s -> the three states FR-072 names are built -> each says what it is showing',
+    'the dictionary has no place left for a panel heading in %s -> the three states FR-072 names are built -> not one of them hands a heading on',
     (language) => {
-      const headings = Object.entries(PANEL_STATES).map(([showing, frame]) => ({
-        showing,
-        heading: viewOf(screenViewFromRegions, frame, language).propertiesPanel?.heading,
-      }))
-
-      for (const { showing, heading } of headings) {
+      // ⛔ THIS CASE IS THE INVERSE OF THE ONE IT REPLACED (CR-272). It used to
+      // require the three states to hand on three non-empty, pairwise distinct
+      // headings; FR-072 now says 「⛔ **パネルの先頭に見出しの行を置いてはならない
+      // （MUST NOT）**（利用者の指示 2026-08-27）—— **押下状態が同じことを既に示し
+      // ており、見出しは同じ答えを 2 か所で言っていた。**」
+      //
+      // ⭐ IT STAYS IN THIS GROUP because it is still about what stands where a
+      // word would have been printed: with the place gone, what has to be
+      // checked is that nothing prints there at all -- in EITHER language, since
+      // a heading built in one and not the other would read as a stand-in.
+      // ⛔ The member is read without being named in a type, so that a
+      // description which still declares one makes THIS case fall rather than
+      // taking the file down before any case runs (rule 04 section 1).
+      for (const [showing, frame] of Object.entries(PANEL_STATES)) {
+        const panel = viewOf(screenViewFromRegions, frame, language).propertiesPanel
         expect(
-          heading ?? '',
-          `FR-072 (MUST): the panel says what it is showing, and it is showing ${showing}`,
-        ).not.toBe('')
+          (panel as unknown as Record<string, unknown> | null | undefined)?.['heading'],
+          `FR-072 (MUST NOT): a heading is handed on while the panel shows ${showing}, in ${language}`,
+        ).toBeUndefined()
       }
-      expect(
-        new Set(headings.map((one) => one.heading)).size,
-        'FR-072 (MUST): selection / documentSettings / the selection having gone read alike',
-      ).toBe(headings.length)
     },
   )
 
-  it('says the selection has gone by the member FR-072 asks the heading to answer for', () => {
-    // The `noSelection` heading is only that heading while this is the state it
-    // stands in; without it the case above would be comparing two of the same.
+  it('⛔ MUST NOT move to the settings when the selection is cleared, whatever it stops saying', () => {
+    // ⭐ WHAT IS LEFT OF THE STATE THE HEADING USED TO CARRY. FR-072 (MUST)
+    // still keeps the panel on what it had -- 「選択が解除されたときは、直前に出し
+    // ていた中身を残すこと（MUST）」 -- and (MUST NOT) still refuses to move it to
+    // the settings. ⚠️ What is gone is the telling: 「**選択が解除されても、パネル
+    // は直前の中身を出したまま「これは直前のものである」と示さない。**⛔ **利用者
+    // はそれを承知で「無用」と述べた。**」 So the state is asserted and no word is.
     const panel = viewOf(screenViewFromRegions, PANEL_STATES['noSelection'] as Frame, 'ja').propertiesPanel
     expect(panel?.showing, 'FR-072 (MUST NOT): clearing the selection does not move it to the settings').toBe(
       'selection',
     )
-    expect(panel?.isSubjectGone, 'FR-072 (MUST): the panel keeps what it had and says the selection has gone').toBe(
-      true,
-    )
+    expect(panel?.isSubjectGone, 'FR-072 (MUST): the panel goes on showing what it had').toBe(true)
   })
 })
 
@@ -1302,8 +1319,7 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
     // differs, an entry that is missing, an entry that has moved inside its
     // section, and a section one file holds and the other does not all fail
     // here. ⚠️ `arms` is what made the difference visible: the manuscript keeps
-    // it between `panelHeadings` and `assignments` and the generator prints it
-    // last.
+    // it before `assignments` and the generator prints it last.
     const held = (cells: readonly Cell[], section: string): readonly string[] =>
       cells
         .filter((cell) => cell.section === section)
@@ -1357,6 +1373,33 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
       entries.map((entry) => `${section}.${keyOf(section, entry)}`),
     )
     expect([...new Set(held)].filter((id) => !accounted.has(id))).toEqual([])
+  })
+
+  it('⛔ FR-072 names no state of the panel for a word -> both files are read -> neither holds a section for a panel heading', () => {
+    // ⭐ THE ROSTER IS THE SPECIFICATION'S AND NOT THE MANUSCRIPT'S. Chapter 6.2
+    // (MUST NOT) says so in as many words -- 「⛔ **同原稿は語だけを持ち、どの語が
+    // 要るかの名簿を持ってはならない（MUST NOT）** —— 名簿は 表 T-109・表 T-037・
+    // 表 T-233・表 T-234・表 T-023・表 T-023b と `FR-072` が既に持っており、**生成
+    // 器が毎回そこから起こして原稿と突き合わせる。**」 -- and FR-072 is one of the
+    // seven named. ⛔ It now names no heading at all: 「⛔ **パネルの先頭に見出しの
+    // 行を置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」. So the words
+    // for `selection`, `documentSettings` and `noSelection` have no roster to be
+    // raised from, and a dictionary that still holds them holds words for a part
+    // of the screen the requirement forbids.
+    //
+    // ⚠️ THIS IS THE LAST OF CR-272's THREE STEPS and it is the one the change
+    // request left open: 「⭐ **順序は「仕様 → 実装 → 辞書」であり、辞書を先に削ると
+    // `src/` が壊れる。**⚠️ **実装が入ったあと、`panelHeadings` の節を落として
+    // 260 → 254 になる。**」 ⛔ Falling here is that step not yet taken, and NOT a
+    // defect in the road -- the message says which file to look in.
+    expect(
+      Object.keys(GENERATED),
+      'the generated dictionary still holds panelHeadings; FR-072 raises no roster for it',
+    ).not.toContain('panelHeadings')
+    expect(
+      Object.keys(MANUSCRIPT),
+      'the manuscript still holds panelHeadings; FR-072 raises no roster for it',
+    ).not.toContain('panelHeadings')
   })
 
   it('holds a word for every row of table T-109 -> the two rosters are compared -> the icons section is that table', () => {

@@ -98,11 +98,6 @@ CONFIRMATION_ANSWERS = ('proceed', 'cancel')
 # two answers are.
 NOTICE_DISMISS = ('dismiss',)
 
-# The three headings FR-072 (MUST) makes the properties panel show: which of the
-# two subjects it is on, and that the selection has gone. Same note as above --
-# keys, not words, and no table holds them as rows.
-PANEL_HEADINGS = ('selection', 'documentSettings', 'noSelection')
-
 # The caveat FR-032 (MUST) puts on a listed item: a `Task` that goes with the
 # row being deleted but is DRAWN on another row, which HM-10 of table T-015a is
 # what makes possible. FR-032 settles the medium as a WORD and forbids raising a
@@ -225,7 +220,6 @@ def roster():
         'confirmation': list(CONFIRMATION_ANSWERS),
         'noticeDismiss': list(NOTICE_DISMISS),
         'confirmationMarks': list(CONFIRMATION_MARKS),
-        'panelHeadings': list(PANEL_HEADINGS),
         'weekdays': list(WEEKDAYS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
@@ -261,7 +255,6 @@ SHAPE = {
     'confirmation': ('answer', ('text',)),
     'noticeDismiss': ('answer', ('text',)),
     'confirmationMarks': ('mark', ('text',)),
-    'panelHeadings': ('showing', ('text',)),
     'assignments': ('rowId', ('text',)),
     'arms': ('rowId', ('text',)),
     'reasons': ('rowId', ('text', 'nextStep')),
@@ -339,7 +332,7 @@ def build(doc):
     for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
                     'confirmationMarks',
-                    'panelHeadings', 'assignments', 'arms', 'weekdays'):
+                    'assignments', 'arms', 'weekdays'):
         out[section] = doc[section]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
@@ -374,7 +367,7 @@ def main():
         for section in ('icons', 'paletteGroups', 'surfaces', 'notices',
                         'reasons', 'questions', 'confirmation', 'noticeDismiss',
                         'confirmationMarks',
-                        'panelHeadings', 'assignments', 'arms'):
+                        'assignments', 'arms'):
             say('%-14s %3d entr(ies): %s'
                 % (section, len(doc[section]),
                    ', '.join(str(e[SHAPE[section][0]]) for e in doc[section])))

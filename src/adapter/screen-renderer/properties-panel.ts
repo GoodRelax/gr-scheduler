@@ -52,11 +52,14 @@
 // order of its row ids: that table is ordered by how often a value is touched
 // (利用者の裁定 2026-08-26), so PR-16 stands third and PR-15 last.
 //
-// ⚠️ ONLY THE HEADING IS TRANSLATED. FR-038 leaves the item names of table
+// ⚠️ ONLY THE ENTRY NAMES ARE TRANSLATED. FR-038 leaves the item names of table
 // T-016 alone, as it leaves task and row names alone, and that table says why
-// they stay in English; the values are the document's own. What FR-038 does
-// reach on this panel is the three headings FR-072 asks for, which are read
-// from the dictionary below.
+// they stay in English; the values are the document's own. What FR-038 reaches
+// on this panel is the accessible name of each entry table T-109 places here,
+// read from the dictionary below.
+// ⚠️ IT USED TO REACH A HEADING AS WELL. FR-072 (MUST NOT) forbids a heading row
+// at the head of this panel since 2026-08-27 (CR-272), so the `panelHeadings`
+// section of the dictionary has no reader left here.
 //
 // ⛔ ONE ROW IS READ-ONLY. Table T-016 marks PR-9 alone, because FR-012 derives
 // it. ⚠️ PR-16 is NOT one of them any more: CR-186 gave the assignee a surface,
@@ -164,73 +167,17 @@ const KEY_PATH_SEPARATOR = '.'
 /** What `textOfDay` puts between the day and the time of day (EX-7 of table T-033). */
 const DAY_TIME_SEPARATOR = 'T'
 
-// ⭐ WHERE THE HEADINGS COME FROM. FR-072 (MUST) requires the heading to say
-// which of the two is showing, and to say "no selection" once the selection has
-// gone; FR-038 (MUST) requires panels to be shown in the chosen language and
-// holds every word the screen prints as one dictionary per language, whose
-// manuscript Chapter 6.2 fixes as `_source/display-words.json`.
-// `display-words.json` beside this file is that manuscript generated into
-// `src/`, and its `panelHeadings` section is these three.
+// ⛔ NO HEADING IS BUILT HERE, AND THAT IS A REQUIREMENT RATHER THAN AN
+// OMISSION. FR-072 (MUST NOT) forbids a heading row at the head of this panel
+// (the user's instruction of 2026-08-27, carried by CR-272) and makes the
+// pressed state of the entrance the one thing that says which of the two is
+// showing -- which `showing` already carries and which `app-header-items.ts`
+// reads for IC-17. ⚠️ So the `panelHeadings` section of the dictionary has no
+// reader in `src/` any more.
 // ⚠️ Reading `displayWords` does not make this unit `semi-pure-a`: it is a
 // module constant compiled into the program, the way `DEFAULT_CALENDAR` is in
 // `schedule.ts`, not external state read while running. Table T-075 fixes UF-64
 // as `pure`.
-
-/**
- * FR-072's three headings: the key the dictionary holds each under, beside what
- * this panel printed for it before the dictionary was wired.
- *
- * ⚠️ THREE HEADINGS OVER TWO SUBJECTS. `noSelection` is a key of the dictionary
- * and NOT a third value of `PropertiesPanel.showing`: that the selection has
- * gone is a third thing to SAY, not a third thing to show, and `isSubjectGone`
- * is where the panel says it.
- * ⛔ The stand-ins are the three ASCII tokens this file chose while the words
- * had nowhere to live: they are spelled as the `showing` union the contract
- * already settles, so the three states can be told apart and no wording is
- * minted here in either language.
- * ⚠️ THEY NO LONGER REACH THE SCREEN. PD-160 is settled and all three cells
- * carry a word in both languages, so what prints is the dictionary's. They stay
- * because that ruling has the printing side fall back whenever a cell is empty,
- * which is a state the manuscript can return to.
- */
-const PANEL_HEADINGS = {
-  selection: { key: 'selection', standIn: 'selection' },
-  subjectGone: { key: 'noSelection', standIn: 'selection (none)' },
-  documentSettings: { key: 'documentSettings', standIn: 'documentSettings' },
-} as const
-
-/**
- * ⭐ A `Map` rather than a scan: a description is built for every frame, and
- * rule 05 of docs/development-rules forbids a linear search on that path
- * (NFR-013).
- */
-const HEADINGS_BY_KEY = new Map(displayWords.panelHeadings.map((entry) => [entry.showing, entry]))
-
-/**
- * One heading of the panel, in the display language (FR-038).
- *
- * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those read
- * "the dictionary holds no word yet" and "the word is the empty string" as one
- * thing, and PD-160's ruling turns on the difference: an empty cell means the
- * word has not been written, not an instruction to print nothing -- and FR-072
- * (MUST) requires this panel to SAY which of the two it is on, so printing
- * nothing would break it outright.
- * ⚠️ All three words are written today, so this line stands in for nothing; it
- * is what that ruling has the printing side do if a cell is ever emptied again.
- * ⚠️ A key the dictionary does not hold at all is a second condition, answered
- * separately although with the same stand-in; it cannot happen while
- * `npm run gen:check` passes.
- *
- * @purity pure
- */
-function headingOf(
-  heading: (typeof PANEL_HEADINGS)[keyof typeof PANEL_HEADINGS],
-  language: DisplayLanguage,
-): string {
-  const word = HEADINGS_BY_KEY.get(heading.key)?.text[language]
-  if (word === undefined) return heading.standIn
-  return word === '' ? heading.standIn : word
-}
 
 // ------------------------------------------------ the way out (table T-109) --
 
@@ -247,9 +194,8 @@ const PROPERTIES_PANEL = 'Properties Panel'
 /**
  * The words of table T-109's rows, keyed by the row id.
  *
- * ⭐ A `Map` rather than a scan per entry, for the reason `HEADINGS_BY_KEY`
- * gives: a description is built for every frame and rule 05 forbids a linear
- * search on that path (NFR-013).
+ * ⭐ A `Map` rather than a scan per entry: a description is built for every
+ * frame and rule 05 forbids a linear search on that path (NFR-013).
  */
 const ENTRY_WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
@@ -259,9 +205,10 @@ const NO_ENTRY_WORDS = ''
 /**
  * The accessible name of one entry, in the display language (FR-038).
  *
- * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, for the
- * reason `headingOf` gives above: an empty cell means the word has not been
- * settled (PD-160), which is a different thing from a settled empty word.
+ * ⛔ THE FALLBACK IS WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`. Those two
+ * read "the dictionary holds no word yet" and "the word is the empty string" as
+ * one thing, and PD-160 is precisely the difference: an empty cell means the
+ * word has not been settled, which is not an instruction to print nothing.
  * ⚠️ The cell is written today, so this stands in for nothing.
  *
  * @purity pure
@@ -1159,7 +1106,6 @@ export function propertiesPanelFromSelection(
   if (showing === 'documentSettings') {
     return {
       showing,
-      heading: headingOf(PANEL_HEADINGS.documentSettings, session.language),
       // The document is the subject on this side, and a document cannot go away
       // while a panel is describing it.
       isSubjectGone: false,
@@ -1189,10 +1135,6 @@ export function propertiesPanelFromSelection(
 
   return {
     showing,
-    heading: headingOf(
-      isSubjectGone ? PANEL_HEADINGS.subjectGone : PANEL_HEADINGS.selection,
-      session.language,
-    ),
     isSubjectGone,
     fields: fields ?? [],
     commands: panelCommands(session.language),

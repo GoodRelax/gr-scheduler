@@ -87,15 +87,30 @@ export function screenStateWithFullScreen(state: ScreenState, on: boolean): Scre
 /**
  * What one press of Esc takes.
  *
- * ⚠️ FIVE MEMBERS, FOUR LEVELS. IN-4 of table T-028 fixes four, and the first
- * two members below are both that ladder's FIRST level -- `escapeTarget` says
- * why there are two of them and why they are answered in this order.
+ * ⚠️ SEVEN MEMBERS, SIX LEVELS, ONE LEVEL WITH NO MEMBER AND ONE MEMBER WITH NO
+ * LEVEL. IN-4 of table T-028 fixes six, of which this value carries five: two of
+ * the members below are that ladder's SECOND level (開いている面), and
+ * `escapeTarget` says why there are two of them and why they are answered in
+ * this order.
+ * ⛔ THE NOTE THAT STOOD HERE WAS FALSE and is recorded as such: it said 「FIVE
+ * MEMBERS, FOUR LEVELS」 and named the first level as the shared one. The value
+ * already had six members when that was written, IN-4 already fixed six levels,
+ * and the shared level is the second and not the first.
+ * ⛔ `'propertiesPanel'` IS THE MEMBER WITH NO LEVEL OF ITS OWN. Table T-109
+ * puts the panel on this ladder and IN-4 gives it no rung, so the rung is chosen
+ * where the answer is given rather than claimed here.
+ * ⛔ IN-4's LAST LEVEL -- 出ている説明 -- HAS NO MEMBER HERE. Nothing in this
+ * build spends an `Esc` on a raised telling: NT-8 of table T-037 is answered on
+ * a pointer release instead, which the shell states where it answers it.
+ * Reported rather than invented, because a member added here would be a level
+ * every caller then had to spend and no caller can.
  */
 export type EscapeTarget =
   | 'textEntry'
   | 'confirmation'
   | 'surface'
   | 'gesture'
+  | 'propertiesPanel'
   | 'armed'
   | 'dualCursorMode'
 
@@ -166,6 +181,28 @@ export interface EscapeContext {
    * level down and spend two on one press, which IN-4 forbids (1 階層, MUST).
    */
   readonly isConfirmationStanding?: boolean
+  /**
+   * Whether the `Properties Panel` (U-25 of table T-103) is on the screen.
+   *
+   * ⭐ THAT IT IS ON THIS LADDER AT ALL IS THE MANUSCRIPT'S OWN JOIN: table
+   * T-109 stands its closing entry on the panel among the six surfaces of that
+   * entry's 面 column, and that entry's 正 column names IN-4. ⛔ WHICH RUNG IT
+   * TAKES IS NOT, and `escapeTarget` is where the rung is chosen and reasoned.
+   *
+   * ⛔ OUTSIDE `ScreenState` FOR THE REASON `isConfirmationStanding` IS: which
+   * of FR-072's two contents the panel shows is a current value, and LY-5 of
+   * table T-060 leaves those with the Framework. ⚠️ It is not in `surface`
+   * either -- S-99g holds ONE name and the drawing side turns any name there
+   * into a modal, so a panel put there would be drawn as one.
+   *
+   * ⚠️ OPTIONAL FOR THE REASON THE MEMBER ABOVE IS: a caller that cannot see
+   * the panel leaves it out, and absence reads as 「not open」 and never as a
+   * level of its own. ⛔ THE SAME PRICE, AND THE SAME RULE: a press whose level
+   * is `'propertiesPanel'` may be reckoned ONCE, by the holder of the panel --
+   * a second caller that cannot see it would answer the NEXT level down and
+   * spend two levels on one press, which IN-4 forbids (1 階層, MUST).
+   */
+  readonly isPropertiesPanelOpen?: boolean
 }
 
 /**
@@ -173,7 +210,10 @@ export interface EscapeContext {
  *
  * IN-4 fixes the order -- the unsettled in-place edit, then the open surface,
  * then the gesture in flight, then what is armed, then the Dual Cursor mode --
- * and IN-4a is the reason null matters:
+ * and the two answers that share its 開いている面 are the standing question and
+ * the surface S-99g holds, in that order. The `Properties Panel` is answered
+ * after the gesture, for the reason given where it is answered.
+ * IN-4a is the reason null matters:
  * with nothing to consume the key MUST reach the browser, because leaving full
  * screen is the browser's own behaviour and would otherwise be unreachable.
  *
@@ -198,6 +238,21 @@ export function escapeTarget(state: ScreenState, context: EscapeContext): Escape
   if (context.isConfirmationStanding === true) return 'confirmation'
   if (state.surface !== null) return 'surface'
   if (context.gestureInFlight) return 'gesture'
+  // ⛔ BELOW THE GESTURE AND NOT ABOVE IT, WHICH IS MEASURED RATHER THAN
+  // PREFERRED. S-99g defines a 面 as what 「画面の上に重ねて開き」 -- what opens
+  // OVER the screen -- and this panel does not: FR-052 takes its width OUT of
+  // the `Schedule Canvas`, so the schedule stands beside it and never under it.
+  // Table T-109 places the closing entry on the panel and names IN-4 for its
+  // authority, which is what puts the panel on this ladder at all; it does not
+  // make the panel the 開いている面 whose rung S-99g fixes.
+  // ⛔ ABOVE THE GESTURE THIS RUNG WOULD MAKE A MUST UNREACHABLE. FR-075 (MUST)
+  // draws the fade grab points on the SELECTED Task alone, and choosing a Task
+  // is what puts this panel up (FR-006) -- so every drag on those points
+  // happens with the panel showing, and IN-1's 「中断は `Esc` で行い」 could
+  // never be reached even once.
+  // ⚠️ NO ROW ORDERS THE PANEL AGAINST ANYTHING. The rung is chosen here, out of
+  // the two rules above, and a ruling that disagrees moves this one line.
+  if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
   if (state.armed.kind !== 'none') return 'armed'
   if (context.dualCursorMode) return 'dualCursorMode'
   return null

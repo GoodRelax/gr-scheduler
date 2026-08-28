@@ -553,16 +553,22 @@ function entryGlyphRoom(): string {
 }
 
 /**
- * The eight lengths and two ratios FR-006's property fields are drawn at, each
+ * The lengths and the two ratios FR-006's property fields are drawn at, each
  * named once so that the declarations below read as what they are rather than
  * as row ids.
  *
  * ⛔ NO NUMBER IS WRITTEN HERE. Every one is a row of table T-206 reaching this
  * file through `NOT_STORED_PROPERTY_FIELD_SIZES`, which `npm run gen` builds
  * from `_source/settings.json` -- rule 03 section 1 forbids re-typing a value
- * the specification holds, and the manuscript is where all ten would move.
- * ⚠️ All ten are marked 🔎 in that table: they are the reference
+ * the specification holds, and the manuscript is where each would move.
+ * ⚠️ Every one of them is marked 🔎 in that table: they are the reference
  * implementation's measured values, and nothing has ruled on them.
+ *
+ * ⛔ S-188 IS THE ONE ROW OF THE RUN THAT IS NOT READ, and that is FR-006's
+ * doing rather than an omission: that requirement (MUST NOT) forbids the current
+ * value to be drawn in front of the control that shows it, so nothing on this
+ * panel draws a swatch and the row's side and gap have no reader. ⚠️ The row
+ * is NOT retired -- it still holds a swatch's dimensions for whatever draws one.
  *
  * ⛔ THE LAST TWO ARE RATIOS AND NOT LENGTHS, which is why they leave this
  * function as bare numbers and are written into a declaration with `em` after
@@ -579,8 +585,6 @@ function entryGlyphRoom(): string {
 function fieldSizes(): {
   readonly controlMinHeight: number
   readonly colorMinHeight: number
-  readonly swatchSide: number
-  readonly swatchGap: number
   readonly namePercent: number
   readonly nameGap: number
   readonly rowGap: number
@@ -590,17 +594,12 @@ function fieldSizes(): {
   readonly textScale: number
   readonly nameTextScale: number
 } {
-  const [swatchSide, swatchGap] = NOT_STORED_PROPERTY_FIELD_SIZES['S-188']
   const [panelPadY, panelPadX] = NOT_STORED_PROPERTY_FIELD_SIZES['S-192']
   return {
     /** S-186: the least a control may be tall. */
     controlMinHeight: NOT_STORED_PROPERTY_FIELD_SIZES['S-186'],
     /** S-187: the same for a colour control, which that row keeps apart. */
     colorMinHeight: NOT_STORED_PROPERTY_FIELD_SIZES['S-187'],
-    /** S-188, first of the pair -- see `propertySwatchStyle` on what the pair is. */
-    swatchSide,
-    /** S-188, second of the pair. */
-    swatchGap,
     /** S-189: the share of the width the name column takes. */
     namePercent: NOT_STORED_PROPERTY_FIELD_SIZES['S-189'],
     /** S-190: across, between the name and the control. */
@@ -637,17 +636,16 @@ function fieldSizes(): {
  * bigger has to take this panel with them (WCAG 2.1's 1.4.4, carried by
  * NFR-007). Nothing on this side may know what the host's base actually is.
  *
- * ⚠️ THREE KINDS OF DESCENDANT REACH IT, AND NONE OF THEM BY ACCIDENT:
+ * ⚠️ TWO KINDS OF DESCENDANT REACH IT, AND NEITHER BY ACCIDENT:
  *   - the plain value span of a field, which states no font at all and so
  *     inherits;
  *   - every control, because `propertyControlStyle`, `propertyColorStyle` and
  *     `propertyCheckStyle` each open with `font:inherit` -- a form control does
  *     NOT inherit by default, the host gives it a font of its own, and that
- *     declaration is what takes this one instead;
- *   - the heading, whose own declaration puts `font-size:inherit` back over the
- *     `1.5em` the host gives an `h2` -- ⛔ without it the heading would compute
- *     to 1.05 times the host's base, which is bigger than the very default this
- *     requirement (MUST NOT) forbids the panel to be drawn at.
+ *     declaration is what takes this one instead.
+ * ⚠️ There were three until 2026-08-27: an `h2` heading carried the host's own
+ * `1.5em` and had to put `font-size:inherit` back over it. FR-072 (MUST NOT)
+ * took that row away (CR-272), so the case is gone with it.
  *
  * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for both of the reasons
  * `entryStyle` gives: the values arrive in the generated block, and `STYLE`
@@ -664,21 +662,29 @@ function propertiesPanelStyle(): string {
 }
 
 /**
- * The panel's heading, which is the one part of it the host would otherwise
- * letter for itself.
+ * Where the entries table T-109 places on U-25 stand, now that FR-072 (MUST NOT)
+ * leaves them no heading row to sit beside.
  *
- * ⭐ `font-size:inherit` AND NOTHING ELSE ADDED. `STYLE.heading` is shared with
- * the surfaces table T-103 names, whose headings are not FR-006's to shrink, so
- * the panel states the difference here rather than in the shared declaration.
- * The ground is under `propertiesPanelStyle`: an `h2` carries the host's own
- * `1.5em`, and 1.5 times S-197 is above 1, which would draw this panel's
- * loudest line bigger than the host's default -- the state FR-006 (MUST NOT)
- * names outright.
+ * ⭐ `margin-left:auto` AND NOT A COORDINATE. `fillPropertiesPanel` puts this
+ * box on the first field's line, and that line is the flex row
+ * `propertyFieldStyle` states -- so "at the far end" is said as "take whatever
+ * room is left on the left of me", which holds at every width S-80 can be
+ * dragged to.
+ * ⛔ No length is written: the S-186 .. S-198 run of table T-206 gives this
+ * panel's FIELDS their lengths and gives an entry none.
+ * ⚠️ `justify-content` is for the one frame where there is no field to ride
+ * on and the box stands alone across the panel; as a flex ITEM it sizes to its
+ * contents and the declaration does nothing.
+ * ⭐ The gap between two entries is S-190, the same across-the-line gap the
+ * fields use -- no second spacing is invented for a second kind of neighbour.
  *
  * @purity pure
  */
-function propertiesHeadingStyle(): string {
-  return `${STYLE.heading}font-size:inherit;`
+function propertyWayOutStyle(): string {
+  return (
+    'display:flex;align-items:flex-start;justify-content:flex-end;' +
+    `gap:${fieldSizes().nameGap}px;margin-left:auto;`
+  )
 }
 
 /**
@@ -744,6 +750,23 @@ function propertyControlsStyle(): string {
  * reader who makes the browser's text bigger would have a fixed height cut the
  * letters off, and NFR-007 forbids exactly that.
  *
+ * STOP -- ⛔ THE SAME QUESTION ON THE OTHER AXIS HAS NO ANSWER IN THE
+ * SPECIFICATION: how narrow a control may be drawn before its value is cut off.
+ * PR-3 of table T-016 is where a reader meets it, being the one row that carries
+ * two date columns, so its two controls halve whatever the value side came out
+ * as. ⚠️ FR-093's estimate is not that answer by itself, and that was measured
+ * rather than assumed: at S-171, with S-189 and S-190 taking their share and at
+ * the base a host gives by default, each of PR-3's two controls ALREADY has more
+ * room than FR-093 estimates for a date -- and the user still reports the dates
+ * cut off (D-58 of docs/development-records/defects.md). ⚠️ At a base a reader
+ * has enlarged, the same arithmetic turns the other way and the estimate is the
+ * larger of the two, so FR-093 is part of the answer and not the whole of it.
+ * What is missing is a row for the room a control's own frame and the host's own
+ * date editor take BESIDE the value, and for what a field does when its controls
+ * cannot all be given it. Searched: FR-006, FR-093, FR-029, table T-016 (PR-3),
+ * and the S-186 .. S-198 run of table T-206 beside S-171 and S-80. ⛔ No width
+ * is invented here in their place.
+ *
  * @purity pure
  */
 function propertyControlStyle(): string {
@@ -759,7 +782,11 @@ function propertyControlStyle(): string {
  *
  * ⛔ S-187 AND NOT S-186, which that row states outright: the reference
  * implementation holds a separate number for a colour, one px lower, because
- * the swatch takes the difference.
+ * the swatch takes the difference there.
+ * ⚠️ NOTHING DRAWS THAT SWATCH HERE ANY MORE (FR-006, MUST NOT), and the row
+ * is still S-187's: the difference is what the reference implementation
+ * MEASURED, and this side may not solve a row away because it stopped drawing
+ * the thing the row's note explains.
  *
  * @purity pure
  */
@@ -768,30 +795,6 @@ function propertyColorStyle(): string {
     'font:inherit;box-sizing:border-box;flex:1;min-width:0;padding:0;' +
     `min-height:${fieldSizes().colorMinHeight}px;` +
     `background:${PAINT.ground};border:1px solid ${PAINT.rule};`
-  )
-}
-
-/**
- * The swatch beside a colour control -- S-188's pair.
- *
- * ⭐ A SIDE AND A GAP, not a width and a height. S-188 is captioned 「色見本の
- * 一辺と隙間」 and says 「一辺と隙間の組であって、幅と高さではない」, so the
- * swatch is a 14px square and the second figure is the space to its neighbour.
- *
- * ⚠️ Two statements used to read the other way -- S-187's note called the row
- * a 帯 and the D-13 record listed it in a run of width-by-height figures. Both
- * were measured against the reference implementation and corrected: it sets
- * `width: 14px` and `height: 14px` on the swatch button. ⛔ The band reading is
- * gone from the specification, so nothing here is provisional any more.
- *
- * @purity pure
- */
-function propertySwatchStyle(): string {
-  const size = fieldSizes()
-  return (
-    `display:inline-block;box-sizing:border-box;flex:0 0 ${size.swatchSide}px;` +
-    `height:${size.swatchSide}px;margin-right:${size.swatchGap}px;align-self:center;` +
-    `border:1px solid ${PAINT.rule};`
   )
 }
 
@@ -1198,12 +1201,12 @@ const STYLE = {
   armedText: `color:${PAINT.ink};`,
   modal: STOPPING_BOX,
   // A heading with the entries table T-109 places on that surface beside it.
-  // ⚠️ NOT `modalHeader` ANY MORE, AND THE RENAME IS THE POINT: the same row is
-  // drawn by `modalElement` and by `fillPropertiesPanel`, and U-25 is a panel
-  // rather than a modal. ⛔ ONE declaration and not two, because FR-006 gives
-  // this panel lengths for its FIELDS (S-186 .. S-193) and none at all for its
-  // header -- so there is nothing of FR-006's here to be kept apart, which is
-  // the very thing `field` below IS kept apart for.
+  // ⚠️ THE PROPERTIES PANEL IS NO LONGER ONE OF THEM. It shared this row until
+  // 2026-08-27, when FR-072 (MUST NOT) forbade a heading at the head of U-25
+  // (CR-272); the surfaces table T-103 names still carry one, and `modalElement`
+  // is now the only caller. ⛔ The name stays `surfaceHeader` all the same --
+  // the row belongs to a SURFACE and not to the modals, and renaming it back
+  // would have to be undone the next time a surface gains one.
   surfaceHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
   // The choices FR-096 (MUST) has the author pick one of, held together and
   // apart from the heading above them. ⛔ Nothing here says which order they
@@ -2310,11 +2313,13 @@ const TRUE_TEXT = String(true)
  * once, and AT-58's `null` means the row follows the theme -- neither of which
  * a `#rrggbb` box can show or offer. Looked in table T-016 (which says 色 and
  * no more), FR-007, FR-030, table T-058 and table T-109. ⭐ Nothing is invented
- * in its place: the swatch beside the control paints what the document actually
- * holds, so a reader sees `transparent` as nothing painted rather than as a
- * colour this side chose. ⚠️ Neither spelling can be REACHED through this
- * control, which is the half that is still owed -- a surface with `透明` and
- * 「テーマに従う」 on it is what table T-016 would have to gain a row for.
+ * in its place, and nothing is drawn beside it either: a swatch used to paint
+ * what the document actually held, so that a reader saw `transparent` as
+ * nothing painted, and FR-006 (MUST NOT) took that away on 2026-08-27 (CR-272)
+ * because it drew the ordinary colours twice. ⛔ SO THE GAP IS NOW WIDER THAN
+ * IT WAS: neither spelling can be REACHED through this control, and neither can
+ * be SEEN any more -- a surface with `透明` and 「テーマに従う」 on it is what
+ * table T-016 would have to gain a row for, and it now carries both halves.
  *
  * @provisional PD-270
  * @purity non-pure
@@ -2426,19 +2431,14 @@ function fieldElement(host: Document, field: PropertyField): HTMLElement {
     controls.append(shown)
   }
   for (const control of field.controls) {
-    // ⭐ FR-006's colour items get a swatch BESIDE the control and not instead
-    // of it: S-188 gives the swatch a side and a gap, and S-187 keeps the
-    // control its own minimum height, so the two are two boxes.
-    if (control.kind === 'color') {
-      const swatch = made(host, 'span', propertySwatchStyle())
-      // ⚠️ A colour the document does not hold paints nothing, rather than a
-      // colour chosen here: FR-007 turns on the difference between a colour a
-      // person picked and one that was never set.
-      if (control.text !== '') {
-        swatch.setAttribute('style', `${propertySwatchStyle()}background:${control.text};`)
-      }
-      controls.append(swatch)
-    }
+    // ⛔ NO SWATCH IN FRONT OF A COLOUR CONTROL. FR-006 (MUST NOT) forbids the
+    // current value to be drawn over the front of the control that shows that
+    // value (the user's report of 2026-08-27, D-82) -- the host's colour control
+    // paints the colour it holds, so a span in front of it drew the same colour
+    // twice.
+    // ⚠️ S-188 has NOT moved and is not retired: that row holds a swatch's side
+    // and gap, and the same requirement says in as many words that how many
+    // times a value may be drawn is FR-006's and not that row's.
     controls.append(controlElement(host, field.row, control))
   }
   line.append(name, controls)
@@ -2464,29 +2464,37 @@ function markPropertiesPanel(panel: HTMLElement, description: PropertiesPanel): 
 /**
  * U-25 `Properties Panel` (UF-64), contents and all.
  *
- * ⚠️ FR-072 (MUST): when the subject went away the panel KEEPS its fields and
- * says so in the heading. The heading is the description's, so nothing is added
- * to it here; `data-subject-gone` is what `markPropertiesPanel` writes to make
- * that state readable back.
+ * ⛔ NO HEADING ROW, WHICH FR-072 (MUST NOT) FORBIDS OUTRIGHT (the user's
+ * instruction of 2026-08-27, carried by CR-272). The same requirement (MUST)
+ * puts which of the two is showing on the PRESSED STATE of the entrance
+ * instead, which `app-header-items.ts` writes for IC-17 -- so the description
+ * carries no word for a heading and none is minted here.
+ * ⚠️ FR-072 (MUST) still has the panel KEEP its fields when the subject went
+ * away; `data-subject-gone` is what `markPropertiesPanel` writes so that state
+ * can be read back, and that requirement's RATIONALE records that nothing on
+ * the screen says so any more.
  *
- * ⭐ THE WAY OUT IS DRAWN BESIDE THE HEADING, THE SAME SHAPE `modalElement`
- * TAKES. Table T-109 stands one entry on this surface -- closing an open surface,
- * on the authority of IN-4 of table T-028 -- and FR-029 (MUST) makes that table's
- * 面 column the whole of the placement. ⛔ It arrives in `PropertiesPanel.commands`
- * already chosen: which row it is, whether it may be pressed and what it is
- * called are UF-64's answers, and this side draws them through `commandEntry`
- * like every other entry on the screen.
+ * ⭐ THE WAY OUT RIDES ON THE FIRST FIELD'S LINE. Table T-109 stands one entry
+ * on this surface -- closing an open surface, on the authority of IN-4 of table
+ * T-028 -- and FR-029 (MUST) makes that table's 面 column the whole of the
+ * placement. ⛔ It arrives in `PropertiesPanel.commands` already chosen: which
+ * row it is, whether it may be pressed and what it is called are UF-64's
+ * answers, and this side draws them through `commandEntry` like every other
+ * entry on the screen.
  *
- * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: WHERE ON THE PANEL IT SITS. No
- * table holds a rectangle for an entry -- `ScreenSession.iconUnderPointer`
- * records that gap (PD-141) -- so "at the top right" is not a claim any row can
- * be quoted for. Searched: FR-006, FR-029, FR-072, table T-109, table T-103 and
- * the S-186 .. S-198 run of table T-206, which gives the panel's fields their
- * lengths and gives its header none. ⭐ What is done instead is to follow the
- * neighbour that already has this entry: `modalElement` puts it in a row with
- * the heading, so a reader who has closed one surface knows where to look on the
- * next. ⚠️ Nothing is invented beyond that -- no offset and no corner.
+ * STOP -- ⛔ STILL NOT DECIDED BY THE SPECIFICATION: WHERE ON THE PANEL IT
+ * SITS. No table holds a rectangle for an entry -- `ScreenSession.iconUnderPointer`
+ * records that gap (PD-141) -- so no row can be quoted for a corner. Searched:
+ * FR-006, FR-029, FR-072, table T-109, table T-103 and the S-186 .. S-198 run of
+ * table T-206, which gives the panel's fields their lengths and gives its header
+ * none. ⭐ What is followed instead is the user's own instruction of 2026-08-27,
+ * recorded as D-57 in docs/development-records/defects.md: bring the way out
+ * onto the line the first item is on. So the entry stands at the far end of the
+ * FIRST field's line, which is table T-016's first printed row.
+ * ⚠️ With no field to ride on it stands alone, because a surface a reader
+ * cannot put away would be the worse failure.
  *
+ * @provisional PD-327
  * @provisional PD-271
  * @purity non-pure
  */
@@ -2496,17 +2504,20 @@ function fillPropertiesPanel(
   description: PropertiesPanel,
   anchors: Map<string, HTMLElement>,
 ): void {
-  const header = made(host, 'div', STYLE.surfaceHeader)
-  const heading = made(host, 'h2', propertiesHeadingStyle())
-  heading.textContent = description.heading
-  header.append(heading)
-  for (const item of description.commands) {
+  const drawn = description.fields.map((field) => fieldElement(host, field))
+  const entries = description.commands.map((item) => {
     const entry = commandEntry(host, item)
     anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
-    header.append(entry)
+    return entry
+  })
+  if (entries.length > 0) {
+    const wayOut = made(host, 'div', propertyWayOutStyle())
+    wayOut.append(...entries)
+    const first = drawn[0]
+    if (first === undefined) drawn.push(wayOut)
+    else first.append(wayOut)
   }
-  const fields = description.fields.map((field) => fieldElement(host, field))
-  panel.replaceChildren(header, ...fields)
+  panel.replaceChildren(...drawn)
 }
 
 /**

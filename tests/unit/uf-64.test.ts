@@ -15,8 +15,17 @@
 // The rules these cases answer to:
 //   FR-072    the last operation decides which of the two the panel shows;
 //             ⛔ clearing the selection does NOT move it to the settings
-//             (MUST NOT); a cleared selection says "no selection" in the
-//             heading (MUST); the heading says which of the two is showing
+//             (MUST NOT); a cleared selection KEEPS what the panel had (MUST);
+//             ⛔ no heading row stands at the head of the panel (MUST NOT), and
+//             which of the two is showing is the ENTRANCE's to say through its
+//             pressed state (MUST) -- that entrance is IC-17 in the `App
+//             Header`, which is UF-62's and is driven by tests/unit/uf-62.test.ts
+//             ⚠️ CR-272 dropped the heading on 2026-08-27. Three cases in this
+//             file were written against it and are gone; what replaced them is
+//             the MUST NOT, and the RATIONALE's own record of what that costs:
+//             「**選択が解除されても、パネルは直前の中身を出したまま「これは直前
+//             のものである」と示さない。**⛔ **利用者はそれを承知で「無用」と述べ
+//             た。**」
 //   FR-006    the items of table T-016 stand in the panel, and everything the
 //             table does not mark read-only can be edited
 //   表 T-016  the roster, its printed order, its item names, its ' / ' between
@@ -56,12 +65,19 @@
 // ⭐ WHAT THIS FILE DELIBERATELY DOES NOT ASSERT, because the specification
 // decides none of it. Each was searched for before being given up on:
 //
-//   1. The WORDS of the three headings. FR-072 requires the heading to say
-//      which of the two is showing and to say "no selection", FR-038 requires
-//      panels in the chosen language, and no table holds a translated string
-//      (the same hole `CommandItem.label` records). So the cases assert that
-//      the three headings are non-empty and PAIRWISE DISTINCT -- which is the
-//      whole of what "tell them apart" can mean -- and never a spelling.
+//   1. THAT ANYTHING AT ALL TELLS A CLEARED SELECTION FROM A HELD ONE. ⛔ The
+//      requirement now says the opposite in as many words, and says it is a
+//      price the reader chose: 「⚠️ **見出しを落とした代償を書き残す**（利用者の
+//      指示 2026-08-27）—— **選択が解除されても、パネルは直前の中身を出したまま
+//      「これは直前のものである」と示さない。**」 So no case here asks the panel
+//      to read differently once the subject is gone. ⚠️ `isSubjectGone` is still
+//      asserted -- it is the state the unit REPORTS, and the cases stop there;
+//      whether anything on the screen may be built from it is not this unit's.
+//      ⭐ The one place a reader is told anything is the entrance's pressed
+//      state, and FR-072's RATIONALE limits even that to the other question:
+//      「⭐ **押下状態は「選択物を出しているか、設定を出しているか」だけを担い、
+//      「その選択物がまだ選ばれているか」は担わない** —— **この 2 つは別の問いで
+//      ある。**」 That entrance is IC-17 and lives in UF-62.
 //   2. How a number, a truth value, a list or a nested settings group is
 //      spelled. Table T-016 fixes the items and the one read-only mark and no
 //      spelling; `_assets/tbl-settings.md` holds values, not renderings. So a
@@ -415,7 +431,6 @@ describe('UF-64 -- whether the panel is described at all', () => {
         sessionWith({ propertiesShowing: showing }),
       )
       expect(panel.showing).toBe(showing)
-      expect(panel.heading.length, 'FR-072: the heading says which of the two').toBeGreaterThan(0)
     }
   })
 })
@@ -432,13 +447,16 @@ describe('FR-072 -- which of the two is showing', () => {
     expect(panel.showing).toBe('selection')
   })
 
-  it('MUST say "no selection" once the selection is cleared', () => {
-    const held = panelOf(oneTaskSchedule())
-    const cleared = panelOf(oneTaskSchedule(), emptySelection())
-
-    expect(cleared.isSubjectGone).toBe(true)
-    expect(cleared.heading, 'a cleared selection reads unlike a held one').not.toBe(held.heading)
-    expect(cleared.heading.length).toBeGreaterThan(0)
+  it('raises the state a cleared selection leaves the panel in (FR-072, MUST)', () => {
+    // 「選択が解除されたときは、直前に出していた中身を残すこと（MUST）。」
+    // ⚠️ WHICH FIELDS ARE KEPT IS STILL NOT ASKED -- note 3 of the head comment
+    // says why nothing this unit is handed could answer it.
+    // ⛔ WHAT IS NO LONGER ASKED, and was until CR-272: that the panel READ any
+    // differently for it. The RATIONALE now records the silence as the price the
+    // reader took -- 「**選択が解除されても、パネルは直前の中身を出したまま「これ
+    // は直前のものである」と示さない。**」 -- so the case stops at the state the
+    // unit reports, and asserts nothing about a word.
+    expect(panelOf(oneTaskSchedule(), emptySelection()).isSubjectGone).toBe(true)
   })
 
   it('says nothing has gone while the selection still names something in the document', () => {
@@ -449,13 +467,34 @@ describe('FR-072 -- which of the two is showing', () => {
     expect(panelOf(scheduleOf(), holding(TASK_REF)).isSubjectGone).toBe(true)
   })
 
-  it('MUST tell the three states apart by the heading alone', () => {
-    const headings = [
-      panelOf(oneTaskSchedule()).heading,
-      panelOf(oneTaskSchedule(), emptySelection()).heading,
-      settingsPanel().heading,
+  it('⛔ MUST NOT put a heading row at the head of the panel', () => {
+    // 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示
+    // 2026-08-27）—— **押下状態が同じことを既に示しており、見出しは同じ答えを 2 か
+    // 所で言っていた。**」 ⭐ THIS CASE REPLACED THREE (CR-272), all of which read
+    // a heading off the description: that it was non-empty, that a cleared
+    // selection read unlike a held one, and that the three states were pairwise
+    // distinct. The requirement now forbids the row all three were about.
+    //
+    // ⛔ THE MEMBER IS READ WITHOUT BEING NAMED IN A TYPE, and that is the point:
+    // if the published description still declares one, this case is what falls,
+    // rather than the compiler taking the whole file down before any case runs
+    // (rule 04 section 1 -- 「落ちた試験は「手間」ではなく「発見」である」).
+    //
+    // ⚠️ WHERE THE ROW ITSELF IS ASKED ABOUT: this seam publishes a description,
+    // not a screen, so the strongest thing it can say is that no heading is
+    // handed on. What is DRAWN at the head of the panel is UF-71's, and
+    // tests/unit/fr-006-panel-fields-drawn.test.ts asks it there.
+    const states: readonly [string, PropertiesPanel][] = [
+      ['a held selection', panelOf(oneTaskSchedule())],
+      ['a cleared selection', panelOf(oneTaskSchedule(), emptySelection())],
+      ['the document settings', settingsPanel()],
     ]
-    expect(new Set(headings).size, 'selection / selection gone / documentSettings').toBe(3)
+    for (const [what, panel] of states) {
+      expect(
+        (panel as unknown as Record<string, unknown>)['heading'],
+        `FR-072 (MUST NOT): the panel hands on a heading while it shows ${what}`,
+      ).toBeUndefined()
+    }
   })
 
   it('describes the settings whatever the selection holds, and says nothing has gone', () => {

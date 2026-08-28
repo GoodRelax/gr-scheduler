@@ -70,10 +70,16 @@ const APP_HEADER = 'App Header'
 // never stands in for a word on the screen. ⚠️ They are also not a roster of
 // the header -- which rows the header holds is the generated roster's to say.
 
+/**
+ * S-99e (FR-053). ⭐ FIRST BECAUSE TABLE T-109 PRINTS IT FIRST: CR-272 gave
+ * IC-7 a 群 of its own at the head of the `App Header` block on the user's
+ * instruction of 2026-08-27 (D-87), and that column is the only thing that
+ * orders the entries -- so this case moved with the row rather than by a
+ * judgement made here.
+ */
+const COMMAND_PALETTE_ENTRY: IconId = 'IC-7'
 /** S-69, the overlay FR-015 draws. Its toggle is FR-049's. */
 const BASELINE_OVERLAY_ENTRY: IconId = 'IC-4'
-/** S-99e (FR-053). */
-const COMMAND_PALETTE_ENTRY: IconId = 'IC-7'
 /** S-59, the plan half (FR-049). */
 const PLAN_DISPLAY_ENTRY: IconId = 'IC-8'
 /** S-59, the actual half (FR-049). */
@@ -180,18 +186,18 @@ function commandStateOf(
   session: ScreenSession,
 ): CommandState {
   switch (icon) {
+    case COMMAND_PALETTE_ENTRY:
+      // FR-053 (MUST) puts this entry OUTSIDE the palette, which is why the
+      // header carries it at all: from inside, hiding the palette would take
+      // away the face that brings it back.
+      return { isEnabled: true, isPressed: state.paletteShown }
+
     case BASELINE_OVERLAY_ENTRY:
       // FR-049 makes a toggle of every boolean row of table T-202, and S-69 is
       // the one FR-015 draws from. ⚠️ It stays usable in a document with
       // nothing to overlay: no requirement conditions the toggle on what the
       // overlay would hold, and FR-029 makes faint mean "cannot be used".
       return { isEnabled: true, isPressed: settings.baselineVisible }
-
-    case COMMAND_PALETTE_ENTRY:
-      // FR-053 (MUST) puts this entry OUTSIDE the palette, which is why the
-      // header carries it at all: from inside, hiding the palette would take
-      // away the face that brings it back.
-      return { isEnabled: true, isPressed: state.paletteShown }
 
     case PLAN_DISPLAY_ENTRY:
       // ⛔ FR-049 (MUST NOT) refuses to let both halves be hidden, and S-59
