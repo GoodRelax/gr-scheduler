@@ -332,7 +332,7 @@ src/
 | PI-2 | `documentModel` | `DocumentSettings` | `DocumentSettings`（型。鍵は 表 T-104、値は `_assets/tbl-settings.md`）／ `clampedSettings`（下限・上限に収める）／ 原稿を刷った 3 つの定数（既定値・単独の下限と上限・他の鍵の式で書かれた既定値） |
 | PI-3 | `documentModel` | `DocumentStamp` | `DocumentStamp`（型。3 つは `DR-4`）／ `advancedStamp`（版を進める）／ `isStampMatched`（照合。表 T-035 の `AG-2`） |
 | PI-4 | `documentModel` | `EditHistory` | `EditHistory`（型）／ `historyWithStep`（1 段積む）／ `previousStep` ／ `nextStep` |
-| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `tickStrideOf`（目盛の間引き。`LF-1`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか） |
+| PI-5 | `layoutEngine` | `ScheduleLayout` | `ScheduleLayout`（型）／ `layoutFromSchedule` ／ `dateAtX`（時間軸の対応。`FR-017`）／ `xFromDay`（その逆向き。日から横の位置を出す）／ `tickStrideOf`（目盛の間引き。`LF-1`）／ `fitZoom`（`FR-055`）／ `taskPlacement`（どこに載るか）／ `labelUnits`（`FR-093` の「全角 2・半角 1 で数えた単位数」。⭐ **`FR-006` が入力欄の要る幅を同じ数え方で求めるので、両側が同じ 1 本を使う**）|
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryFromLayout` |
 | PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。完全に囲まれたものだけ） |
 | PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。**全数は 表 T-108 が持つ**）／ `applyDocumentChange`（`non-pure`。命令の列で書き込む）／ `replaceDocument`（`non-pure`。`ApplyDocumentChange` の外で組み立てた文書を現在値にする。手順は 表 T-067、呼び手ごとの扱いは 表 T-230） |

@@ -150,6 +150,11 @@ import {
   type ItemRef,
   type Selection,
 } from '../../entity/document-model/selection/selection'
+// PI-5 of table T-064. ⭐ FR-093's own unit count, taken rather than repeated:
+// FR-006 (MUST) has this unit work out the room a control needs by the same
+// arithmetic the schedule's labels use, and rule 03 section 4 refuses a second
+// copy of one rule.
+import { labelUnits } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
   CommandItem,
   DisplayLanguage,
@@ -695,6 +700,7 @@ function controlOf(
   column: string,
   text: string,
   subjectUid: number | null,
+  labelCoef: number,
 ): PropertyControl {
   const kind = controlKindOf(entity, column)
   const shape = COLUMN_SHAPES[entity][column]
@@ -710,7 +716,41 @@ function controlOf(
     ...(values === null ? {} : { choiceValues: values }),
     min: kind === 'number' ? (shape?.min ?? null) : null,
     max: kind === 'number' ? (shape?.max ?? null) : null,
+    widthInFontSizes: widthOf(text, candidates === null ? null : candidates.words, labelCoef),
   }
+}
+
+/**
+ * How much room one control needs, as a multiple of its own font size.
+ *
+ * ⭐ FR-006 (MUST NOT): 「1 つの操作子に、その値を出すのに要る幅より狭い幅を
+ * 割ってはならない」, and the room it names is FR-093's estimate plus S-199 of
+ * table T-206 -- the frame, the inner padding, and whatever aid the host puts
+ * inside a control of that type (a `date` opens a calendar from a button drawn
+ * INSIDE the field, which is why a date wide enough for its digits still cut
+ * them off).
+ *
+ * ⛔ THE FONT SIZE IS DIVIDED OUT OF BOTH TERMS, NOT DROPPED. FR-093's estimate
+ * is 「単位数 × フォントサイズ × labelCoef」 and S-199 is a multiple of the same
+ * size, so the size is a factor of the whole sum -- taking it out leaves a
+ * number the drawing side multiplies back in by writing the room in the
+ * control's own `em`. ⚠️ It could not be left in: FR-006 has the size as S-197
+ * times what the HOST gives, and the host is past IF-9.
+ *
+ * ⛔ AND IT MUST NOT BE RESOLVED TO PIXELS ANYWHERE. FR-006 (MUST NOT) refuses
+ * a px constant for WCAG 2.1's 1.4.4 -- a room that does not double when the
+ * reader doubles their text leaves the panel behind while every other surface
+ * follows.
+ *
+ * ⚠️ THE CHOICES ARE MEASURED TOO, not only the value. A chooser is as wide as
+ * the widest word it offers, and a control showing a short name while holding a
+ * long candidate would cut that candidate off the moment it was chosen.
+ *
+ * @purity pure
+ */
+function widthOf(text: string, choices: readonly string[] | null, labelCoef: number): number {
+  const widest = (choices ?? []).reduce((most, one) => Math.max(most, labelUnits(one)), labelUnits(text))
+  return widest * labelCoef + NOT_STORED_PROPERTY_CONTROL_SIZES['S-199']
 }
 
 /**
@@ -759,7 +799,7 @@ function controlOf(
  *
  * @purity pure
  */
-function assigneeControl(schedule: Schedule, taskUid: number): PropertyControl {
+function assigneeControl(schedule: Schedule, taskUid: number, labelCoef: number): PropertyControl {
   const people = assigneeChoices(schedule)
   const seated = assigneesOf(schedule, taskUid)[0]
   return {
@@ -774,6 +814,11 @@ function assigneeControl(schedule: Schedule, taskUid: number): PropertyControl {
     choiceValues: people.map((person) => String(person.uid)),
     min: null,
     max: null,
+    widthInFontSizes: widthOf(
+      seated === undefined ? '' : String(seated.uid),
+      people.map((person) => person.name),
+      labelCoef,
+    ),
   }
 }
 
@@ -789,9 +834,10 @@ function controlsOfItem(
   schedule: Schedule,
   task: Task,
   item: PropertyItem,
+  labelCoef: number,
 ): readonly PropertyControl[] {
   if (READ_ONLY_ROWS.includes(item.row)) return []
-  if (item.heldBy === 'assignment') return [assigneeControl(schedule, task.uid)]
+  if (item.heldBy === 'assignment') return [assigneeControl(schedule, task.uid, labelCoef)]
 
   const entity: ShapedEntity = item.heldBy === 'task' ? 'Task' : 'TaskVisual'
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
@@ -807,7 +853,7 @@ function controlsOfItem(
         : visual === null
           ? ''
           : textOfValue(visual[column as keyof TaskVisual])
-    return controlOf(schedule, key, entity, column, text, task.uid)
+    return controlOf(schedule, key, entity, column, text, task.uid, labelCoef)
   })
 }
 
@@ -832,7 +878,7 @@ function textOfItem(
 // ----------------------------------------------------------- the subject ----
 
 /** @purity pure */
-function taskFields(schedule: Schedule, task: Task): readonly PropertyField[] {
+function taskFields(schedule: Schedule, task: Task, labelCoef: number): readonly PropertyField[] {
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
 
   return PROPERTY_ITEMS.map((item) => ({
@@ -840,7 +886,7 @@ function taskFields(schedule: Schedule, task: Task): readonly PropertyField[] {
     name: item.columns.join(PART_SEPARATOR),
     text: textOfItem(schedule, task, visual, item),
     isEditable: !READ_ONLY_ROWS.includes(item.row),
-    controls: controlsOfItem(schedule, task, item),
+    controls: controlsOfItem(schedule, task, item, labelCoef),
   }))
 }
 
@@ -881,6 +927,7 @@ function dependencyFields(
   dependency: Dependency,
   successorUid: number,
   ordinal: number,
+  labelCoef: number,
 ): readonly PropertyField[] {
   const columnFields: readonly PropertyField[] = DEPENDENCY_ITEMS.map((item) => ({
     row: item.row,
@@ -895,6 +942,7 @@ function dependencyFields(
         item.column,
         textOfValue(dependency[item.column]),
         successorUid,
+        labelCoef,
       ),
     ],
   }))
@@ -948,17 +996,21 @@ function subjectOf(selection: Selection): ItemRef | null {
  *
  * @purity pure
  */
-function fieldsOfItem(schedule: Schedule, subject: ItemRef): readonly PropertyField[] | null {
+function fieldsOfItem(
+  schedule: Schedule,
+  subject: ItemRef,
+  labelCoef: number,
+): readonly PropertyField[] | null {
   switch (subject.kind) {
     case 'task': {
       const task = taskByUid(schedule, subject.uid)
-      return task === null ? null : taskFields(schedule, task)
+      return task === null ? null : taskFields(schedule, task, labelCoef)
     }
     case 'dependency': {
       const successor = taskByUid(schedule, subject.successorUid)
       const dependency = successor?.dependencies[subject.ordinal]
       if (successor === null || dependency === undefined) return null
-      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal)
+      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef)
     }
     case 'highlightBox':
     case 'commentBox':
@@ -1000,7 +1052,7 @@ const GROUP_ITEMS: readonly { readonly row: string; readonly column: keyof TaskG
  *
  * @purity pure
  */
-function groupFields(schedule: Schedule, group: TaskGroup): readonly PropertyField[] {
+function groupFields(schedule: Schedule, group: TaskGroup, labelCoef: number): readonly PropertyField[] {
   return GROUP_ITEMS.map((item) => ({
     row: item.row,
     name: item.column,
@@ -1018,6 +1070,7 @@ function groupFields(schedule: Schedule, group: TaskGroup): readonly PropertyFie
         // is a `Task` item, and AT-51 is a UUID -- there is no number a row
         // could be named by.
         null,
+        labelCoef,
       ),
     ],
   }))
@@ -1063,9 +1116,10 @@ function onlyGroupId(groupIds: readonly string[]): string | null {
 function fieldsOfSubject(
   schedule: Schedule,
   subject: PropertiesSubject,
+  labelCoef: number,
 ): readonly PropertyField[] | null {
   const item = subjectOf(subject.selection)
-  const itemFields = item === null ? [] : fieldsOfItem(schedule, item)
+  const itemFields = item === null ? [] : fieldsOfItem(schedule, item, labelCoef)
   if (itemFields === null) return null
 
   const groupId = onlyGroupId(subject.groupIds)
@@ -1073,7 +1127,7 @@ function fieldsOfSubject(
 
   const group = schedule.taskGroups.find((held) => held.id === groupId)
   if (group === undefined) return null
-  return [...itemFields, ...groupFields(schedule, group)]
+  return [...itemFields, ...groupFields(schedule, group, labelCoef)]
 }
 
 // ---------------------------------------------------------- the settings ----
@@ -1201,7 +1255,7 @@ export function propertiesPanelFromSelection(
   const subject = isNothingPicked
     ? session.propertiesSubject
     : { selection, groupIds: session.selectedGroupIds }
-  const fields = subject === null ? null : fieldsOfSubject(schedule, subject)
+  const fields = subject === null ? null : fieldsOfSubject(schedule, subject, settings.labelCoef)
 
   // Two ways for the subject to have gone: nothing is picked any more, or what
   // is picked is no longer in the document. ⚠️ A selection made all at once is
@@ -1216,3 +1270,29 @@ export function propertiesPanelFromSelection(
     commands: panelCommands(session.language),
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands instead of being handed
+ * it: the contract in screen-renderer.ts fixes UF-61 at three
+ * arguments, and FR-051 (MUST NOT) forbids a setting to hold the
+ * value either -- so there is no door to pass it through. ⛔ It is
+ * still not a document setting and must not become one.
+ */
+export const NOT_STORED_PROPERTY_CONTROL_SIZES: {
+  /** S-199, in × */
+  readonly 'S-199': number
+} = {
+  'S-199': 2.19,
+}
+// </generated>

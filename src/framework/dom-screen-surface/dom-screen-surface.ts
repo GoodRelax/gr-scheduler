@@ -797,9 +797,9 @@ function propertyControlsStyle(): string {
  *
  * @purity pure
  */
-function propertyControlStyle(): string {
+function propertyControlStyle(widthInFontSizes: number): string {
   return (
-    'font:inherit;box-sizing:border-box;flex:1;min-width:0;' +
+    `font:inherit;box-sizing:border-box;flex:1;min-width:${widthInFontSizes}em;` +
     `min-height:${fieldSizes().controlMinHeight}px;` +
     `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`
   )
@@ -2433,12 +2433,28 @@ const TRUE_TEXT = String(true)
 function controlElement(host: Document, row: string, control: PropertyControl): HTMLElement {
   const tag = CONTROL_TAG[control.kind]
   const drawn = host.createElement(tag)
+  // ⛔ THE ROOM IS STATED IN `em` AND NEVER IN PIXELS. FR-006 (MUST NOT) gives
+  // a control no less room than its value needs and (MUST NOT) refuses to let
+  // that room be a px constant, for WCAG 2.1's 1.4.4 -- a panel whose fields do
+  // not grow with the reader's text is the one surface left behind. ⭐ Both
+  // terms of the room are proportional to the font size, so the estimating side
+  // divides that size out (`PropertyControl.widthInFontSizes`) and this
+  // multiplies it back in by spelling the unit `em`, which resolves against the
+  // control's own font -- `font:inherit` above makes that the panel's.
+  // ⛔ NOT COMPUTED HERE. `labelCoef` (S-30) is a document setting and this side
+  // does not read the document (table T-061); FR-006 (MUST NOT) forbids this
+  // side a coefficient of its own for the same reason.
+  //
+  // ⚠️ THE TWO CONTROLS THAT DRAW NO TEXT ARE LEFT ALONE. FR-006 asks for the
+  // room 「その値を出すのに要る幅」 -- a checkbox and a colour control paint
+  // their value rather than spelling it, so reserving room for the digits of
+  // `false` or of a hex triple would be room for text neither of them draws.
   const style =
     control.kind === 'color'
       ? propertyColorStyle()
       : control.kind === 'boolean'
         ? propertyCheckStyle()
-        : propertyControlStyle()
+        : propertyControlStyle(control.widthInFontSizes)
   drawn.setAttribute('style', style)
   // ⚠️ Written for the reader of the built page as well as for a check that
   // holds the drawn tree against the description (rule 04). The value the

@@ -1040,6 +1040,10 @@ const controlOf = (patch: Partial<PropertyControl> & Pick<PropertyControl, 'key'
   choices: null,
   min: null,
   max: null,
+  // ⚠️ A room this file has no case about, stated so the description is a
+  // whole one. FR-006's own room is `fr-006-panel-fields-drawn.test.ts`;
+  // what matters here is only that the member is not missing.
+  widthInFontSizes: 0,
   ...patch,
 })
 

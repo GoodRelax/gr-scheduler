@@ -1113,6 +1113,12 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PALETTE_GROUP_RULE_SIZES': (['S-143'],
                                             DRAWN_INSIDE_THE_COMMAND_PALETTE),
     'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE. S-171 is the panel's own width and
+    # stands where the frame is laid out; S-199 is the room ONE control needs
+    # beyond its value, and FR-006 (MUST) makes the side that ESTIMATES carry
+    # it across -- which is `properties-panel.ts`. One shared constant would
+    # hand each unit the other's value.
+    'NOT_STORED_PROPERTY_CONTROL_SIZES': (['S-199'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
@@ -1749,6 +1755,13 @@ TARGETS = [
     (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-loop.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_REPEAT_TIMES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ FR-006's room, resolved on the side that can resolve it. S-199 is a
+    # MULTIPLE of the control's own font size rather than a px, so what it is
+    # multiplied by is not known here -- what IS known here is `labelCoef`
+    # (S-30), which FR-093's estimate needs and which does not cross IF-9.
+    (os.path.join(ADAPTER, 'screen-renderer', 'properties-panel.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_PROPERTY_CONTROL_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
 ]
 

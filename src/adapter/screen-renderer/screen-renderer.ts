@@ -622,6 +622,31 @@ export interface PropertyControl {
   /** A `number` control's bounds, where the schema states them. */
   readonly min: number | null
   readonly max: number | null
+  /**
+   * How much room this control needs, as a MULTIPLE OF ITS OWN FONT SIZE.
+   *
+   * ⭐ FR-006 (MUST NOT) forbids giving a control less room than its value
+   * needs, and states that room as FR-093's estimate plus S-199 of table
+   * T-206 -- 「全角 2・半角 1 で数えた単位数 × フォントサイズ × `labelCoef`」
+   * plus what the frame, the padding and the host's own input aids take.
+   *
+   * ⛔ A MULTIPLE AND NEVER A PIXEL COUNT, which is the whole shape of this
+   * member. Both terms of that sum are proportional to the font size, and
+   * FR-006 (MUST NOT) refuses to let the room be held as a px constant for
+   * WCAG 2.1's 1.4.4: a room that does not double when the reader doubles
+   * their text leaves the panel behind. ⚠️ And the font size is not knowable
+   * here at all -- FR-006 has it as S-197 times the size the HOST gives, which
+   * lives past IF-9 -- so a px answer could not be reached even if it were
+   * wanted.
+   *
+   * ⛔ CARRIED RATHER THAN RECOMPUTED. `labelCoef` (S-30) is a document
+   * setting and the drawing side does not read the document (table T-061), so
+   * FR-006 (MUST / MUST NOT) has the estimating side work this out and forbids
+   * the drawing side a coefficient of its own -- two copies of one estimate
+   * part company the moment S-30 moves, and FR-093 rests on that one value
+   * deciding layout accuracy by itself.
+   */
+  readonly widthInFontSizes: number
 }
 
 /**

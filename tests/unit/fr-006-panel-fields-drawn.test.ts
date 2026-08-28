@@ -188,6 +188,17 @@ const S_197 = numberIn(cellOf(T_206, 'S-197', '既定'), "table T-206's S-197")
 /** S-30 -- `labelCoef`, the one coefficient FR-093's estimate turns on (table T-201). */
 const S_30 = numberIn(cellOf(T_201, 'S-30', '既定値'), "table T-201's S-30")
 
+/**
+ * S-199 -- what a control needs BEYOND its value, as a multiple of its own font
+ * size (table T-206).
+ *
+ * ⭐ FR-006 states the room as FR-093's estimate PLUS this: the frame, the
+ * inner padding, and the aid the host draws inside a control of that type. ⛔ A
+ * multiple and not a px, which the same requirement (MUST NOT) requires -- so
+ * it can be added to the estimate here without leaving the room a constant.
+ */
+const S_199 = numberIn(cellOf(T_206, 'S-199', '既定'), "table T-206's S-199")
+
 /** S-189 as the table writes it, so a case can say the cell states a share. */
 const S_189_CELL = cellOf(T_206, 'S-189', '既定')
 
@@ -960,6 +971,16 @@ const EMPTY_VIEW: ScreenView = {
 
 const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...EMPTY_VIEW, ...patch })
 
+/**
+ * ⭐ THE ROOM IS PART OF THE DESCRIPTION AND IS BUILT FROM THE MANUSCRIPT HERE.
+ * FR-006 (MUST / MUST NOT) has the ESTIMATING side work out how much room a
+ * control needs and forbids the drawing side a coefficient of its own, so what
+ * these cases put under the drawing side is the number that side would be
+ * handed -- FR-093's unit count times S-30, plus S-199, with the font size
+ * divided out of both terms.
+ * ⛔ Not a number typed here: every factor is read out of the tables above, so
+ * moving S-30 or S-199 moves this.
+ */
 const controlOf = (
   patch: Partial<PropertyControl> & Pick<PropertyControl, 'key' | 'kind'>,
 ): PropertyControl => ({
@@ -967,6 +988,7 @@ const controlOf = (
   choices: null,
   min: null,
   max: null,
+  widthInFontSizes: unitsOf(patch.text ?? '') * S_30 + S_199,
   ...patch,
 })
 

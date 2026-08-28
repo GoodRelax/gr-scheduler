@@ -226,9 +226,16 @@ function serialOf(day: CalendarDay): number {
  * Full-width counts two, half-width counts one. FR-093 forbids measuring the
  * glyphs and forbids keeping what a measurement returned.
  *
+ * ⭐ PUBLISHED BECAUSE FR-093'S ESTIMATE IS NEEDED ON BOTH SIDES OF ONE SEAM.
+ * FR-006 (MUST / MUST NOT) has the properties panel work out the room each
+ * control needs and forbids the drawing side a coefficient of its own, so the
+ * panel counts the same units this file does. ⛔ A second count written there
+ * would be the same rule in two places (rule 03 section 4), and the two would
+ * part company the first time the counting rule moved.
+ *
  * @purity pure
  */
-function labelUnits(text: string): number {
+export function labelUnits(text: string): number {
   let units = 0
   for (const ch of text) units += ch.charCodeAt(0) < 0x100 ? 1 : 2
   return units
