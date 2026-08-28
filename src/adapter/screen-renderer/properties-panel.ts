@@ -73,10 +73,11 @@
 // ⭐ AND IT NOW CARRIES THE FORM THE TABLE NAMES FOR IT. Table T-016 writes
 // PR-16's 入力の型 as 選択 and the paragraph under it (MUST) has the form follow
 // that column, so the field offers one `choice` control over the roster --
-// `assigneeChoices` walks the document's own `Resource` rows the way `choicesOf`
-// walks its tasks for PR-15. ⛔ WHAT IS STILL MISSING IS THE SEARCH HALF OF AS-5
-// (MUST): `PropertyControl` has no member for a partial-match filter and IF-9
-// puts the drawn chooser past this seam, so nothing on this side can state it.
+// `assigneeChoices` walks the document's own `Resource` rows the way
+// `parentCandidates` walks its tasks for PR-15. ⛔ WHAT IS STILL MISSING IS
+// THE SEARCH HALF OF AS-5 (MUST): `PropertyControl` has no member for a
+// partial-match filter and IF-9 puts the drawn chooser past this seam, so
+// nothing on this side can state it.
 // A control that is only a dropdown meets the 名簿から選ばせる half and leaves
 // the 部分一致の検索 half unmet, where no control at all left FR-006's own MUST
 // unmet as well -- which is why the earlier refusal to invent one is not kept.
@@ -96,6 +97,22 @@
 // that edits it. ⚠️ It is not among the candidates either -- AS-4 (MUST NOT)
 // keeps `-` out of the roster -- but the write side still reads it as AS-3's
 // signal, because AS-5's search box is a place a person can type it.
+//
+// ⭐ THE WBS PARENT IS THE SECOND CHOOSER THAT SHOWS ONE THING AND COMMITS
+// ANOTHER. PR-15 has offered a `choice` since it was built, but its words were
+// the candidates' uids, and AT-24 of table T-058 says a uid is a key whose
+// 値から意味を読まない -- so the person was asked to pick a parent by a number
+// the specification calls meaningless. `parentCandidates` shows the task's name
+// and carries its uid, which is the shape `assigneeControl` already takes.
+// ⛔ WHAT THE USER ASKED FOR IS A DEPTH AND THIS IS A PARENT. D-78 asks for the
+// LEVEL to be settable, while table T-016's PR-15 holds the PARENT with the
+// remark that the depth is DERIVED from it -- no row maps a depth back to a
+// parent, and D-78 itself records the choice between the two as undecided.
+// ⛔ Nothing here invents that map.
+// ⛔ NO CANDIDATE IS FILTERED OUT. FR-004 (MUST NOT) forbids the WBS depth to
+// be clamped and states that `S-125` is the `TaskGroup` depth rather than this
+// one, and HM-4 of table T-015a puts the cycle rule on the write side (CM-18) --
+// so neither a depth cap nor a descendant test belongs to the chooser.
 //
 // ⭐ HOW A DATE IS WRITTEN. FR-054 (MUST) takes the lexical date part of a date
 // column and (MUST NOT) converts no zone; `dayOf` is where that happens once for
@@ -459,10 +476,11 @@ function assigneeText(schedule: Schedule, taskUid: number): string {
 /**
  * The candidates AS-5 (MUST) has PR-16 choose from -- 名簿から選ばせる形.
  *
- * ⭐ THE ROSTER IS WALKED, NOT WRITTEN OUT, which is the shape `choicesOf`
- * already takes for PR-15: the candidates are the `Resource` rows this document
- * holds, so no list here can disagree with the document, and the paragraph under
- * table T-016 (MUST NOT) forbids a roster of choices to be stated a second time.
+ * ⭐ THE ROSTER IS WALKED, NOT WRITTEN OUT, which is the shape
+ * `parentCandidates` takes for PR-15 as well: the candidates are the `Resource`
+ * rows this document holds, so no list here can disagree with the document, and
+ * the paragraph under table T-016 (MUST NOT) forbids a roster of choices to be
+ * stated a second time.
  *
  * ⛔ ONE ENTRY PER PERSON, NEVER ONE PER NAME. AS-8 (MUST NOT) forbids two
  * same-named people to be merged and MG-5 of table T-032 says the same thing
@@ -523,8 +541,8 @@ const MULTILINE_COLUMNS: readonly string[] = ['notes']
  * out. `COLUMN_SHAPES` says `wbsParentUid` is an integer, because its
  * candidates are the document's own tasks rather than a fixed set -- so reading
  * the kind off the column alone would offer a box to type a uid into where
- * table T-016 asks for a chooser. ⚠️ `choicesOf` is where the candidates come
- * from, and its STOP note says what the table leaves open about them.
+ * table T-016 asks for a chooser. ⚠️ `parentCandidates` is where the candidates
+ * come from, and its STOP note says what the table leaves open about them.
  */
 const CHOICE_OVER_DOCUMENT_COLUMNS: readonly string[] = ['wbsParentUid']
 
@@ -577,35 +595,88 @@ function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKin
 }
 
 /**
- * What a `choice` control offers, and `null` for every other kind.
+ * What one `choice` control offers: the words it shows, and what each of them
+ * COMMITS where that is not the word itself.
+ *
+ * ⭐ THE PAIR IS CARRIED TOGETHER BECAUSE THE TWO ARE READ BY POSITION.
+ * `PropertyControl.choiceValues` is one value per candidate in the same order,
+ * so a roster built by one walk and a roster of values built by a second could
+ * fall out of step -- two readings of one rule drift (rule 03 section 4).
+ * `values` is `null` where the words ARE the values, which is the state the
+ * control declares by leaving the member absent.
+ */
+interface Candidates {
+  readonly words: readonly string[]
+  readonly values: readonly string[] | null
+}
+
+/**
+ * The tasks PR-15 can be given as a WBS parent -- the word each one shows, and
+ * the `uid` it commits.
+ *
+ * ⭐ THE NAME IS THE WORD AND THE `uid` IS THE VALUE, which is the same shape
+ * `assigneeControl` takes for PR-16. AT-24 of table T-058 says a `uid` is a key
+ * whose 値から意味を読まない, so a chooser whose words were uids asked a person
+ * to pick a parent by a number the specification itself calls meaningless --
+ * that is what left the item unusable (the user's report of 2026-08-27, D-78).
+ * ⛔ TWO TASKS OF ONE NAME ARE TWO CANDIDATES, never one: `uid` is the primary
+ * key (AT-24) and folding on the word would put a parent out of reach. They
+ * carry the same word and different values, which is what `choiceValues` is for.
  *
  * STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: what the WBS parent (`PR-15`) is
- * chosen from. Table T-016 calls the item 選択 and says the depth is derived
- * from it; the schema gives `wbsParentUid` no enumeration, because its
- * candidates are the document's own tasks and not a fixed set. Looked in table
- * T-016, `_source/grs-document.schema.json`, FR-005 and table T-058 (AT-26).
- * Chose every OTHER task's uid, in the order the document holds them, with the
- * empty spelling first for a task that has no parent -- which is what AT-26's
- * `null` means. ⛔ Descendants are NOT filtered out here: FR-005's cycle rule is
- * the write side's (CM-18), and a chooser that judged it would be a second
- * reading of one rule.
+ * chosen from, and what each candidate is spelled as. Table T-016 calls the item
+ * 選択 and says the depth is derived from it; the schema gives `wbsParentUid` no
+ * enumeration, because its candidates are the document's own tasks and not a
+ * fixed set. Looked in table T-016, `_source/grs-document.schema.json`, FR-005
+ * and table T-058 (AT-24 / AT-25 / AT-27). Chose every OTHER task, in the order
+ * the document holds them, with the empty spelling first for a task that has no
+ * parent -- which is what AT-25's `null` means.
+ * ⛔ Descendants are NOT filtered out here: FR-005's cycle rule (HM-4 of table
+ * T-015a) is the write side's (CM-18), and a chooser that judged it would be a
+ * second reading of one rule. ⛔ NEITHER IS A DEPTH CAP APPLIED: FR-004 (MUST
+ * NOT) forbids the WBS depth to be clamped and says in as many words that
+ * `S-125` is the `TaskGroup` depth and not this one.
+ * ⚠️ A task with no name (AT-27 admits `null`) is spelled with its `uid`. It
+ * stays a candidate because dropping it would put a real parent out of reach,
+ * and the empty spelling is already taken by the root candidate -- so the one
+ * thing left to show is the key. ⛔ There is no row for this; it is chosen here
+ * and said aloud rather than hidden.
  *
  * @provisional PD-272
  * @purity pure
  */
-function choicesOf(
+function parentCandidates(schedule: Schedule, subjectUid: number): Candidates {
+  const words: string[] = ['']
+  const values: string[] = ['']
+
+  for (const one of schedule.tasks) {
+    if (one.uid === subjectUid) continue
+    words.push(one.name ?? String(one.uid))
+    values.push(String(one.uid))
+  }
+
+  return { words, values }
+}
+
+/**
+ * What a `choice` control offers, and `null` for every other kind.
+ *
+ * ⚠️ An enumeration's candidates commit the word they show, so `values` is
+ * `null` for every column but the one whose roster is the document's own.
+ *
+ * @purity pure
+ */
+function candidatesOf(
   schedule: Schedule,
   entity: ShapedEntity,
   column: string,
   subjectUid: number | null,
-): readonly string[] | null {
+): Candidates | null {
   if (entity === 'Task' && column === 'wbsParentUid' && subjectUid !== null) {
-    return [
-      '',
-      ...schedule.tasks.filter((one) => one.uid !== subjectUid).map((one) => String(one.uid)),
-    ]
+    return parentCandidates(schedule, subjectUid)
   }
-  return COLUMN_SHAPES[entity][column]?.choices ?? null
+  const choices = COLUMN_SHAPES[entity][column]?.choices ?? null
+  return choices === null ? null : { words: choices, values: null }
 }
 
 /**
@@ -627,11 +698,16 @@ function controlOf(
 ): PropertyControl {
   const kind = controlKindOf(entity, column)
   const shape = COLUMN_SHAPES[entity][column]
+  const candidates = kind === 'choice' ? candidatesOf(schedule, entity, column, subjectUid) : null
+  const values = candidates === null ? null : candidates.values
   return {
     key,
     kind,
     text,
-    choices: kind === 'choice' ? choicesOf(schedule, entity, column, subjectUid) : null,
+    choices: candidates === null ? null : candidates.words,
+    // ⛔ ABSENT, NOT `null`, WHERE THE WORDS ARE THE VALUES -- `PropertyControl`
+    // fixes that, and every surface then reads the word itself.
+    ...(values === null ? {} : { choiceValues: values }),
     min: kind === 'number' ? (shape?.min ?? null) : null,
     max: kind === 'number' ? (shape?.max ?? null) : null,
   }

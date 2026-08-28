@@ -438,6 +438,11 @@ const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
  * why `entryArmedRim` writes a width beside the colour and never the colour by
  * itself. ⚠️ S-183 borrows S-152's pair and is still its own row, so the count
  * above did not change.
+ * ⚠️ AND `pressed` DOES REPORT A STATE IN COLOUR AND NOTHING ELSE, which is the
+ * one place on this side where that is so. It is not the case NT-1 refuses
+ * either -- that row is about input being turned away -- and no requirement
+ * states a second half for it the way FR-053 states S-185 for the rim.
+ * `entryPressedInk` carries what was searched and under what mark.
  *
  * ⚠️ AN EARLIER NOTE HERE COUNTED SIX AND PUT S-151, S-168 AND S-169 AMONG
  * THEM. It was wrong, and the generated block at the foot of this file is what
@@ -473,6 +478,26 @@ const PAINT_ROW = {
   // as many words that the armed entrance's colour IS S-183 -- so the row and
   // the part it paints are joined by the specification, not by this file.
   armed: 'S-183',
+  // ⛔ THE ROW THIS READS IS NOT THE ROW THE SPECIFICATION WOULD NAME, BECAUSE
+  // NO ROW NAMES ONE. FR-072 (MUST) has which of the panel's two contents is up
+  // shown 「入口の押下状態で」 and FR-049 makes a toggle of every boolean row of
+  // table T-202, so an entrance that is ON is a state the requirements state has
+  // to be readable -- and table T-236 holds no colour for it. Its two greens are
+  // spoken for: S-152 is 良 / 順調, which reports a SCHEDULE's state and not an
+  // entrance's, and S-183 is the ARMED entrance's rim. ⭐ S-183 is read because
+  // it is the only row of that table that is about an entrance at all, and its
+  // own note says the table already holds green as the colour meaning "in
+  // effect"; ⛔ the pair it carries is S-152's, so a ruling either way repaints
+  // nothing. PD-340 names the row that must exist and what it must say.
+  // ⚠️ IT IS NOT THE ARMED MEMBER UNDER A SECOND NAME. What FR-053 has S-183
+  // paint is a RIM on the one entrance an arm stands against; this is the INK of
+  // every entrance whose own feature is on, and the two are drawn by two
+  // declarations that never meet on one entry (`arms` is null for every toggling
+  // row of table T-109). ⛔ Reading `PAINT.armed` here instead would join two
+  // facts the specification joins nowhere, and no mark would be left to remove.
+  //
+  // @provisional PD-340
+  pressed: 'S-183',
 } as const
 
 /** How a declaration names one of them. @purity pure */
@@ -490,6 +515,8 @@ function painted(name: keyof typeof PAINT_ROW): string {
  * ⭐ `armed` IS THE SEVENTH AND JOINED THEM ON 2026-08-26, when FR-053 (MUST)
  * gave the armed entrance a rim of its own. It reads a row like the rest, so
  * `themeStyle` repaints it in both renderings without a second path.
+ * ⚠️ `pressed` IS THE EIGHTH AND IS THE ONE WHOSE ROW IS BORROWED -- its member
+ * of `PAINT_ROW` says which row, why, and under what mark.
  */
 const PAINT = {
   ground: painted('ground'),
@@ -499,6 +526,7 @@ const PAINT = {
   panel: painted('panel'),
   shadow: painted('shadow'),
   armed: painted('armed'),
+  pressed: painted('pressed'),
 } as const
 
 /**
@@ -895,6 +923,51 @@ function entryArmedRim(): string {
     `border-width:${NOT_STORED_ARMED_ENTRY_SIZES['S-185']}px;` +
     `border-color:${PAINT.armed};`
   )
+}
+
+/**
+ * What an entrance whose own feature is ON is drawn with, so that being on can
+ * be read off the screen.
+ *
+ * ⛔ AN ATTRIBUTE PAINTS NOTHING, WHICH IS WHY THIS EXISTS, and it is the same
+ * hole `entryArmedRim` was made for: `data-pressed` has been written on every
+ * entry for the shell to read back, and nothing ever turned it into a colour --
+ * so FR-072's 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 and every
+ * toggle FR-049 makes of table T-202's boolean rows had a state that only a
+ * program could see.
+ *
+ * ⭐ THE INK AND NOT A GROUND, A FRAME OR A MARK BESIDE IT, and that is what
+ * makes the WHOLE shape take the colour rather than something around it:
+ * `fillEntry` says figure F-019 paints `currentColor` and chooses no colour of
+ * its own, so one declaration on the entrance colours the glyph it holds. ⛔ A
+ * second look was not invented alongside it -- NFR-007 carries WCAG 2.1's 1.4.3
+ * and 1.4.11 and no rule about colour being the only visual means, and FR-053's
+ * 「色だけで示してはならない（MUST NOT）」 is stated of the ARMED entrance alone
+ * and names S-185 as the second half; no row states a second half for this one.
+ * ⚠️ `aria-pressed` is what carries it in the other tree, and `commandEntry`
+ * has always written it.
+ *
+ * ⛔ APPENDED ONLY TO AN ENTRANCE THAT CAN BE USED, AND THE ORDER IS THE RULE.
+ * FR-029 (MUST) draws faint the entrance that cannot be used, and
+ * `entryFaintStyle` is that -- an entry can be both at once (S-59 at
+ * `'plan-only'` leaves IC-8 on and unusable, and S-59 at `'actual-only'` does
+ * the same to IC-9, which is where this was measured), and painting
+ * the ink over the faint one would leave that MUST unmet to show a state no row
+ * asks to be shown. ⚠️ So an entrance that is on and unusable reports only that
+ * it cannot be used, which is the reading that breaks nothing.
+ *
+ * ⚠️ A FUNCTION FOR A DIFFERENT REASON THAN ITS TWO NEIGHBOURS. Theirs is that
+ * they read the generated block at the foot of this file and a `const` above it
+ * cannot; this one reads nothing that is not already in hand, and could stand in
+ * `STYLE`. ⭐ It stands here because the three states one entrance can be in --
+ * faint, armed, on -- are read against each other, and a reader who has to look
+ * in two places for them will take the split for a difference in kind.
+ *
+ * @provisional PD-340
+ * @purity pure
+ */
+function entryPressedInk(): string {
+  return `color:${PAINT.pressed};`
 }
 
 /**
@@ -1819,8 +1892,13 @@ function fillEntry(host: Document, entry: HTMLElement, icon: string): void {
  * purpose told by an icon rather than by a word, and `CommandItem.label` is
  * declared as the ACCESSIBLE name of the entry -- so the word leaves through
  * `aria-label` and figure F-019 is what is seen. ⚠️ The row id is the name
- * while the dictionary holds no word (every cell is still empty, PD-160), which
- * is the same fallback the body took while there were no shapes.
+ * while the dictionary holds no word (PD-160), which is the same fallback the
+ * body took while there were no shapes.
+ * ⚠️ WHAT USED TO STAND HERE ADDED 'every cell is still empty', AND THAT WAS
+ * MEASURED FALSE ON 2026-08-28: `display-words.json` carries a word in both
+ * languages for every one of table T-109's rows, with none left blank. ⭐ The
+ * fallback stays for the reason UF-65 keeps its own -- a generated file edited
+ * by hand -- and no count is written here, which is what went stale.
  *
  * ⭐ PD-154'S MARK IS GONE FROM THIS FILE, because both halves of what held it
  * here are answered. ⛔ What the row itself records -- that figure F-019 is not
@@ -1837,8 +1915,15 @@ function commandEntry(host: Document, item: CommandItem): HTMLElement {
   // FR-029's faint state are two different facts about one entrance -- an
   // entry can be armed whether or not it can be used now -- so a style per
   // combination would be four where two and an override do.
+  // ⭐ AND THE INK IS APPENDED THE SAME WAY, for the same reason one turn
+  // further: being on is a third fact about one entrance, so the combinations
+  // are eight where two frames and two overrides do. `entryPressedInk` says why
+  // it is withheld from the faint one and why the ink is what carries it.
+  // ⛔ Written as three flat steps and never as one nested condition, which
+  // rule 03 section 4 of docs/development-rules refuses.
   const base = item.isEnabled ? entryStyle() : entryFaintStyle()
-  const entry = made(host, 'button', item.isArmed ? base + entryArmedRim() : base)
+  const inked = item.isEnabled && item.isPressed ? base + entryPressedInk() : base
+  const entry = made(host, 'button', item.isArmed ? inked + entryArmedRim() : inked)
   entry.setAttribute('type', 'button')
   // The join table T-109 admits, and what PD-141 has the shell read back.
   entry.setAttribute('data-icon', item.icon)
@@ -1857,7 +1942,9 @@ function commandEntry(host: Document, item: CommandItem): HTMLElement {
   if (item.isPressed) entry.setAttribute('aria-pressed', 'true')
   // ⛔ WRITTEN AS `=== ''` AND NEVER AS `||` OR `??`, the same way UF-65 writes
   // the fallback it reads out of the dictionary: those two read an empty word
-  // as absent, and PD-160 makes empty the state every cell is in today.
+  // as absent, which PD-160 says are different things. ⚠️ What used to stand
+  // here said empty was the state every cell is in today; measured against
+  // `display-words.json` on 2026-08-28, no cell is.
   entry.setAttribute('aria-label', item.label === '' ? item.icon : item.label)
   fillEntry(host, entry, item.icon)
   return entry
@@ -2007,9 +2094,16 @@ function fillScreenFrame(
  * the header or the palette gets one.
  *
  * ⛔ NO WORD IS INVENTED FOR ONE. Table T-109 deliberately has no English
- * column and the dictionary holds no word for these three rows yet (PD-160), so
- * the row id is the accessible name -- the only join that table admits, and the
- * same fallback `commandEntry` takes.
+ * column, so the row id is the accessible name -- the only join that table
+ * admits, and the same fallback `commandEntry` takes.
+ * ⛔⛔ AND THE REASON GIVEN FOR IT WAS MEASURED FALSE ON 2026-08-28. What stood
+ * here said the dictionary holds no word for these three rows yet; it holds one
+ * in both languages for IC-58, IC-59 and IC-60, as it does for every row of that
+ * table. ⚠️ So these three controls are announced by row id while a word for
+ * them exists, and the row id is no longer a fallback but the only thing tried.
+ * ⛔ NOT CLOSED HERE: the words live in ScreenRenderer's own generated file,
+ * which Chapter 5.3 (MUST NOT) keeps this folder out of, and nothing on IF-9
+ * carries a word for a row control -- `RowTitle` has no member for one.
  *
  * ⛔ WITHOUT A BODY THE CONTROL CANNOT BE PRESSED AT ALL. An empty `button`
  * with no length of its own collapses to zero height, so every entrance drawn
@@ -2165,8 +2259,11 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
  * panel it sits in, and answers `{ part: 'Row Title Panel', entry: 'IC-74' }`.
  *
  * ⛔ NO WORD IS INVENTED FOR IT, the same bargain the row controls keep: table
- * T-109 has no English column, the dictionary's cell is empty (PD-160), and the
- * row id is the accessible name until a word crosses the seam.
+ * T-109 has no English column and the row id is the accessible name until a
+ * word crosses the seam. ⚠️ What stood here said the dictionary's cell is
+ * empty; measured on 2026-08-28 it holds a word for IC-74 in both languages, so
+ * what is missing is the seam and never the word -- `rowControlElement` carries
+ * the whole of that finding.
  *
  * @purity non-pure
  */
@@ -2777,8 +2874,12 @@ function modalElement(
     // FR-038 (MUST): which language is on NOW, readable before the toggle is
     // pressed. ⚠️ This is the SECOND of the two entrances -- the header's own
     // entry (IC-21) now draws the same reading beside its shape, out of
-    // `AppHeaderItems.language`, so neither half of that MUST rests on a label
-    // (every cell of the dictionary is still empty, PD-160).
+    // `AppHeaderItems.language`, so neither half of that MUST rests on a label.
+    // ⚠️ The reason given for that used to be that every cell of the
+    // dictionary is still empty (PD-160), and it was measured false on
+    // 2026-08-28. ⭐ Neither half rests on a label all the same: FR-038 asks for
+    // the reading to be legible BEFORE the entry is pressed, and an accessible
+    // name is not read before pressing.
     drawn.setAttribute('data-language', modal.language)
     for (const line of modal.entries) {
       const row = made(host, 'div', STYLE.field)

@@ -598,12 +598,21 @@ export interface PropertyControl {
    * What each candidate of `choices` COMMITS, one per candidate and in the same
    * order -- absent where every candidate commits the word it shows.
    *
-   * ⭐ THIS IS AS-9 OF TABLE T-225 (MUST): 「プロパティパネルで `uid` を
-   * 選んだ」 assigns to THAT `uid`, while AS-6 (MUST NOT) forbids making a person
-   * read one -- so the value has to ride beside the word rather than inside it.
-   * ⚠️ AS-8 (MUST NOT) forbids two same-named people to be merged, and AS-9
-   * calls this panel the only place they can be told apart, so two candidates
-   * may legitimately show the same word while carrying different values.
+   * ⭐ AS-9 OF TABLE T-225 (MUST) IS WHERE IT CAME FROM: 「プロパティパネルで
+   * `uid` を選んだ」 assigns to THAT `uid`, while AS-6 (MUST NOT) forbids making
+   * a person read one -- so the value has to ride beside the word rather than
+   * inside it. ⚠️ AS-8 (MUST NOT) forbids two same-named people to be merged,
+   * and AS-9 calls this panel the only place they can be told apart, so two
+   * candidates may legitimately show the same word while carrying different
+   * values.
+   *
+   * ⭐ TWO ITEMS USE IT NOW, AND THE SECOND STANDS ON A DIFFERENT ROW. PR-15's
+   * candidates are the document's own tasks, whose key AT-24 of table T-058
+   * calls one 値から意味を読まない -- a chooser whose words were uids would ask a
+   * person to pick a parent by a number the specification itself calls
+   * meaningless, so the name is the word and the uid is the value there as
+   * well. ⚠️ Two tasks of one name are two candidates for the same reason two
+   * people of one name are: the key is what tells them apart.
    *
    * ⛔ ABSENT RATHER THAN `null` WHERE THERE IS NOTHING TO CARRY: a control
    * whose words are its values says so by not answering the question, and every

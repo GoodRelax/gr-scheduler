@@ -197,6 +197,16 @@ const MILESTONE_GLYPH_REQUIREMENT = 'FR-078'
 // as two rows rather than one control in two states, and neither that table nor
 // FR-053 says to withdraw either one -- so withdrawing the opener while the list
 // is open, or the folder while it is closed, would be a rule invented here.
+// ⛔⛔ AND WHAT THAT COSTS WAS MEASURED ON 2026-08-28: the shapes figure F-019
+// draws for the two rows are IDENTICAL, element for element and attribute for
+// attribute -- compared in `icon-glyphs.json`, not read off the drawing. So the
+// palette offers two entrances that cannot be told apart by looking, one of
+// which does nothing in each state. ⚠️ Table T-109 already spells the other
+// shape of this in as many words -- IC-11 and IC-60 are ONE row each reading
+// 「同じ入口で」, and IC-67 / IC-68 are two rows drawn as one entrance -- so
+// nothing new would have to be invented for it, only chosen. ⛔ It is still not
+// choosable here: which of those two shapes this pair takes is that table's, and
+// until it says, this file draws what the roster carries.
 const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50', 'IC-51']
 
 /**
@@ -337,6 +347,24 @@ function isEntryUsable(row: IconRosterRow, selection: Selection): boolean {
  * ⛔ `isPressed` IS FALSE FOR EVERY ENTRY, AND THAT IS A GAP RATHER THAN AN
  * ANSWER. What the toggling entries reflect is the drawing settings of table
  * T-202, which live in `DocumentSettings` -- not an argument of this unit.
+ * ⛔⛔ AND THE GAP IS NOW VISIBLE, WHICH IT WAS NOT BEFORE 2026-08-28.
+ * `dom-screen-surface.ts` had never drawn `isPressed` at all, so a false one
+ * looked the same as a true one; it paints the entrance now, and every palette
+ * entrance that IS on goes on being drawn off. ⚠️ Counted against table T-109
+ * and the setting each of its rows names, FOUR are certain -- IC-39 / IC-40 /
+ * IC-42 / IC-43, whose settings are the boolean rows of table T-202 that FR-049
+ * (MUST) makes toggles of. ⛔ IC-45 to IC-49 are NOT counted with them: the same
+ * requirement (MUST NOT) refuses to treat a many-valued row or a row that holds
+ * a value as a toggle, and S-65 and S-66 are those. ⚠️ Whether an exclusive
+ * value draws its own entrance on is not settled anywhere and is not settled
+ * here either -- the header does it for S-59's pair (IC-8 / IC-9) on its own
+ * reading. ⛔ The first of the four is the entrance the reader named on
+ * 2026-08-27.
+ * ⭐ NOTHING HERE CAN CLOSE IT. The "nine unit contracts" section of
+ * `screen-renderer.ts` fixes UF-65 at three arguments and none of them reaches
+ * `DocumentSettings`, so the fact is not merely unread -- it never arrives.
+ * ⛔ That contract is not this file's to widen: the head of this file says in
+ * as many words that the signature is fixed there and not owned here.
  * ⚠️ WHAT USED TO STAND HERE PUT THE ARMING ENTRIES IN THE SAME SENTENCE, and
  * that half went false on 2026-08-26: table T-109 grew a 構え column, so the
  * entry no longer has to be recognised by its row id, and `isArmed` below is
