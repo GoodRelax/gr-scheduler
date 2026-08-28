@@ -882,6 +882,34 @@ export interface HelpEntry {
   readonly row: string
   /** In the display language. */
   readonly text: string
+  /**
+   * The keys this row is assigned, spelled as table T-036 writes them, or
+   * `null` where the row has none.
+   *
+   * ⛔ NOT A WORD OF THE DICTIONARY, AND THAT IS WHY IT RIDES HERE. `Ctrl+S`
+   * and `F1` read the same in every language -- the reading
+   * `_assets/tbl-settings.md` takes of a unit -- so FR-038's store has nothing
+   * to say about them. ⚠️ The separators are the table's own (a slash between
+   * alternatives, a full-width plus within one chord); a second spelling
+   * invented on the way would put one assignment on the screen two ways.
+   *
+   * ⭐ ONLY TABLE T-036 HAS THE COLUMN. Every other row carries `null`, and
+   * FR-036 (MUST) has the drawing side leave that place empty rather than fill
+   * it with a dash -- a dash reads as an assignment deliberately withheld,
+   * which is what SK-1 says in WORDS and no other row means.
+   */
+  readonly keys: string | null
+  /**
+   * The entrance of table T-109 that stands for this row, or `null`.
+   *
+   * ⛔ CARRIED ONLY WHERE THAT TABLE PLACES EXACTLY ONE, which FR-036 (MUST)
+   * states and which is not a judgement made here: a `Command Palette` row is
+   * its own entrance; an arm of table T-023b is carried by however many
+   * entrances that table's 構え column points at it, and AR-2 has four while
+   * AR-3 has eight. ⚠️ Choosing one of four would settle which shape stands
+   * for an arm, and FR-029 (MUST) reserves that to figure F-019 and the table.
+   */
+  readonly icon: IconId | null
 }
 
 /** U-30 `AI Export Modal` of table T-103 -- the half of that row FR-068 opens. */

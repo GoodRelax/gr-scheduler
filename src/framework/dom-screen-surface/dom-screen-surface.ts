@@ -767,6 +767,26 @@ function propertyFieldNameStyle(): string {
 }
 
 /** What the controls of one field stand in -- a row of table T-016 can hold three. @purity pure */
+function helpColumnsStyle(): string {
+  // ⭐ THE COUNT IS S-202'S AND IS NEVER TYPED HERE (rule 03 section 1). FR-036
+  // (MUST NOT) also forbids it to be held in pixels, which `column-count`
+  // obeys by construction: the browser divides whatever width the surface came
+  // out at.
+  return `column-count:${NOT_STORED_HELP_SIZES['S-202']};column-gap:1.5em;`
+}
+
+function helpStyle(): string {
+  // ⭐ S-201 IS A SHARE AND IS APPLIED TO THE VIEWPORT, which FR-036 (MUST)
+  // asks for in both directions -- 「画面の幅と高さに対し ... 定める割合で開く」.
+  // ⚠️ `vw` / `vh` and not the window read through script: the share has to
+  // follow a resize, and a number measured once would not.
+  // ⛔ A MAXIMUM AND NOT A SIZE on the height: FR-036 asks the help to need no
+  // scrolling at MC-6 of table T-025 and allows scrolling below it, so the box
+  // grows to its contents and stops at the share, scrolling past that.
+  const share = NOT_STORED_HELP_SIZES['S-201'] * 100
+  return `width:${share}vw;max-height:${share}vh;overflow:auto;`
+}
+
 function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }
@@ -1290,6 +1310,19 @@ const STYLE = {
   // the row belongs to a SURFACE and not to the modals, and renaming it back
   // would have to be undone the next time a surface gains one.
   surfaceHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
+  // ⭐ ONE LINE PER ROW OF THE SIX TABLES FR-036 NAMES, laid out so that the
+  // column break can never fall inside one: `break-inside:avoid` is what makes
+  // the multi-column list above a list of ENTRIES rather than of lines.
+  helpEntry: 'display:flex;align-items:baseline;gap:0.5em;break-inside:avoid;line-height:1.6;',
+  // The description. ⭐ It takes the room that is left, so the keys and the
+  // shape keep their places at the right however long the words come out --
+  // which they do differently per language (FR-038).
+  helpText: 'flex:1;min-width:0;',
+  // ⚠️ The place is kept for a row with no assignment, which is why a width is
+  // stated at all; `modalElement` says why nothing is drawn in it.
+  helpKeys: 'flex:0 0 auto;opacity:0.75;white-space:nowrap;',
+  // FR-036 (MUST): to the right of the description.
+  helpGlyph: 'flex:0 0 auto;display:inline-flex;align-items:center;',
   // The choices FR-096 (MUST) has the author pick one of, held together and
   // apart from the heading above them. ⛔ Nothing here says which order they
   // stand in: they are drawn in the order the description carries, which is
@@ -2913,7 +2946,14 @@ function modalElement(
   modal: OpenModal,
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
-  const drawn = part(host, 'div', modal.surface, STYLE.modal)
+  // FR-036 (MUST) gives the help a share of the screen that no other surface
+  // is given, so the box it opens in is the modal's plus that share.
+  const drawn = part(
+    host,
+    'div',
+    modal.surface,
+    STYLE.modal + ('entries' in modal ? helpStyle() : ''),
+  )
   drawn.setAttribute('role', 'dialog')
   drawn.setAttribute('aria-modal', 'true')
 
@@ -2940,17 +2980,49 @@ function modalElement(
     // the reading to be legible BEFORE the entry is pressed, and an accessible
     // name is not read before pressing.
     drawn.setAttribute('data-language', modal.language)
+    // FR-036 (MUST): 「同表の `S-202` が定める段に分けて並べること」, and the
+    // share of the screen the same requirement asks for is written on the
+    // surface's own box (`helpStyle`).
+    // ⭐ COLUMNS AND NOT A GRID OF CELLS. The requirement asks for the whole of
+    // six tables to stand without scrolling at MC-6 of table T-025, and an
+    // entry is one line however long its words are -- so the browser is asked
+    // to break the ONE list into that many columns and left to decide where,
+    // which is what keeps the columns even as the words change with the
+    // language (FR-038).
+    const columns = made(host, 'div', helpColumnsStyle())
     for (const line of modal.entries) {
-      const row = made(host, 'div', STYLE.field)
+      const row = made(host, 'div', STYLE.helpEntry)
       row.setAttribute('data-table', line.table)
       row.setAttribute('data-row', line.row)
-      const name = made(host, 'span', STYLE.fieldName)
-      name.textContent = line.row
-      const text = made(host, 'span', '')
+
+      // FR-036 (MUST): the description, then the keys, then the shape, in that
+      // order. ⛔ THE ROW ID IS NOT DRAWN, and it used to be: the closing rule
+      // of table T-023b (MUST NOT) keeps a row id off the screen, and the help
+      // is the one surface that would otherwise print a hundred of them. It
+      // stays on the element as `data-row`, which is a description read back
+      // and not a thing anybody sees.
+      const text = made(host, 'span', STYLE.helpText)
       text.textContent = line.text
-      row.append(name, text)
-      body.push(row)
+      row.append(text)
+
+      // ⚠️ THE PLACE IS KEPT WHETHER OR NOT THERE ARE KEYS. FR-036 puts the
+      // three in one order, and a row that shifted left when it had no
+      // assignment would leave the column ragged. ⛔ Nothing is written in it:
+      // a dash would read as an assignment deliberately withheld, which is
+      // what SK-1 says in WORDS and no other row means.
+      const keys = made(host, 'span', STYLE.helpKeys)
+      if (line.keys !== null) keys.textContent = line.keys
+      row.append(keys)
+
+      // FR-036 (MUST): 「図形は説明の右に置くこと」. ⚠️ Only where table T-109
+      // places exactly one entrance for the row -- `HelpEntry.icon` says why.
+      const glyph = made(host, 'span', STYLE.helpGlyph)
+      if (line.icon !== null) fillEntry(host, glyph, line.icon)
+      row.append(glyph)
+
+      columns.append(row)
     }
+    body.push(columns)
     // FR-069 (MUST): the whole licence text, the copyright notice and the
     // third-party attributions, which the help is where one reads.
     for (const text of [modal.licenceText, modal.copyrightNotice, ...modal.attributions]) {
@@ -4126,6 +4198,31 @@ export const NOT_STORED_ICON_SIZES: {
 } = {
   'S-138': 12,
   'S-141': 6,
+}
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a
+ * document setting and neither may become one: table T-206 is where
+ * the specification records that the document does not keep them,
+ * and the export draws no entrance at all (EP-1 and EP-4 of table
+ * T-076), so a reader handed this document sees the same picture
+ * whatever this value is.
+ */
+export const NOT_STORED_HELP_SIZES: {
+  /** S-201 */
+  readonly 'S-201': number
+  /** S-202 */
+  readonly 'S-202': number
+} = {
+  'S-201': 0.95,
+  'S-202': 3,
 }
 
 /**

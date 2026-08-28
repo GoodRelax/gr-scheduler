@@ -1496,6 +1496,413 @@
    }
   }
  ],
+ "pressOrder": [
+  {
+   "rowId": "PD-1",
+   "text": {
+    "ja": "中ボタン、または Ctrl ＋ 左のドラッグで画面をパンする",
+    "en": "Middle-drag, or Ctrl with left-drag, pans the view"
+   }
+  },
+  {
+   "rowId": "PD-2",
+   "text": {
+    "ja": "2 連カーソルの最中は、クリックがカーソルを固定する",
+    "en": "While the dual cursor is on, a click pins a cursor"
+   }
+  },
+  {
+   "rowId": "PD-3",
+   "text": {
+    "ja": "何かに当たったときは、そのものへの操作になる",
+    "en": "A press that lands on something operates on that thing"
+   }
+  },
+  {
+   "rowId": "PD-4",
+   "text": {
+    "ja": "図形や注記を構えて何もない場所を押すと、それを作る",
+    "en": "Armed with a shape or a note, pressing empty space creates one"
+   }
+  },
+  {
+   "rowId": "PD-4a",
+   "text": {
+    "ja": "依存線を構えて何もない場所を押しても、構えは解けない",
+    "en": "Armed with a dependency, pressing empty space keeps the arm"
+   }
+  },
+  {
+   "rowId": "PD-5",
+   "text": {
+    "ja": "構えずに何もない場所からドラッグすると範囲選択（Shift で追加）",
+    "en": "With nothing armed, dragging from empty space selects a range; Shift adds"
+   }
+  }
+ ],
+ "selecting": [
+  {
+   "rowId": "SL-1",
+   "text": {
+    "ja": "選べるもの: タスク・依存線・ハイライトボックス・コメントボックス・基準日線",
+    "en": "Selectable: tasks, dependencies, highlight boxes, comment boxes, the status line"
+   }
+  },
+  {
+   "rowId": "SL-2",
+   "text": {
+    "ja": "クリックで 1 つ選ぶ。それまでの選択は置き換わる",
+    "en": "Click selects one, replacing what was selected"
+   }
+  },
+  {
+   "rowId": "SL-3",
+   "text": {
+    "ja": "何もない場所からドラッグし、矩形が完全に囲んだものだけを取る",
+    "en": "Drag from empty space; only what the rectangle fully encloses is taken"
+   }
+  },
+  {
+   "rowId": "SL-4",
+   "text": {
+    "ja": "Shift を併用すると選択を広げる",
+    "en": "Hold Shift to extend the selection"
+   }
+  },
+  {
+   "rowId": "SL-5",
+   "text": {
+    "ja": "選べるものをすべて選ぶ",
+    "en": "Select everything selectable"
+   }
+  },
+  {
+   "rowId": "SL-6",
+   "text": {
+    "ja": "選択を解除する",
+    "en": "Clear the selection"
+   }
+  },
+  {
+   "rowId": "SL-7",
+   "text": {
+    "ja": "選んだものの本体をドラッグすると、選択の全部が動く",
+    "en": "Dragging a selected body moves the whole selection"
+   }
+  },
+  {
+   "rowId": "SL-7a",
+   "text": {
+    "ja": "端をドラッグしたときは、掴んだ 1 つだけの長さが変わる",
+    "en": "Dragging an end resizes only the one grabbed"
+   }
+  },
+  {
+   "rowId": "SL-7b",
+   "text": {
+    "ja": "選んだ順序は保たれる。整列は最後に選んだものを基準にする",
+    "en": "The order you selected in is kept; aligning works from the last one"
+   }
+  },
+  {
+   "rowId": "SL-8",
+   "text": {
+    "ja": "選択は色だけでなく、破線の枠か太い線でも示す",
+    "en": "Selection shows as a dashed frame or a thicker line, not colour alone"
+   }
+  }
+ ],
+ "grabAreas": [
+  {
+   "rowId": "GR-19",
+   "text": {
+    "ja": "コマンドパレットの掴み帯。掴むとパレットが動く",
+    "en": "The palette grab band -- drag it to move the palette"
+   }
+  },
+  {
+   "rowId": "GR-1",
+   "text": {
+    "ja": "予定バーの左上の角。フェードインの日数が変わる",
+    "en": "Plan bar, top-left corner -- changes the fade-in days"
+   }
+  },
+  {
+   "rowId": "GR-2",
+   "text": {
+    "ja": "予定バーの右下の角。フェードアウトの日数が変わる",
+    "en": "Plan bar, bottom-right corner -- changes the fade-out days"
+   }
+  },
+  {
+   "rowId": "GR-3",
+   "text": {
+    "ja": "予定バーの左端。開始日が変わる",
+    "en": "Plan bar, left end -- changes the start date"
+   }
+  },
+  {
+   "rowId": "GR-4",
+   "text": {
+    "ja": "予定バーの右端。終了日が変わる",
+    "en": "Plan bar, right end -- changes the finish date"
+   }
+  },
+  {
+   "rowId": "GR-5",
+   "text": {
+    "ja": "実績バーの左端。実績開始日が変わる",
+    "en": "Actual bar, left end -- changes the actual start"
+   }
+  },
+  {
+   "rowId": "GR-6",
+   "text": {
+    "ja": "実績バーの右端。実績期間が変わる",
+    "en": "Actual bar, right end -- changes the actual duration"
+   }
+  },
+  {
+   "rowId": "GR-7",
+   "text": {
+    "ja": "進捗マーカー。押すと状態が巡る",
+    "en": "The progress marker -- press it to cycle the state"
+   }
+  },
+  {
+   "rowId": "GR-8",
+   "text": {
+    "ja": "再開アイコン。掴むと再開予定日が動く",
+    "en": "The resume icon -- drag it to move the resume date"
+   }
+  },
+  {
+   "rowId": "GR-9",
+   "text": {
+    "ja": "未着手のタスクに出る実績開始のダミー。掴むと実績が入る",
+    "en": "The actual-start dummy on a task not started -- grab it to enter an actual"
+   }
+  },
+  {
+   "rowId": "GR-17",
+   "text": {
+    "ja": "その隣の実績終了のダミー。掴むと実績期間が入る",
+    "en": "The actual-end dummy beside it -- grab it to enter the duration"
+   }
+  },
+  {
+   "rowId": "GR-10",
+   "text": {
+    "ja": "名称ラベル。ダブルクリックで名前を編集する（掴んでは動かない）",
+    "en": "The name label -- double-click to edit it; it does not drag"
+   }
+  },
+  {
+   "rowId": "GR-11",
+   "text": {
+    "ja": "担当ラベル。ダブルクリックで担当者を変える",
+    "en": "The assignee label -- double-click to change who is on it"
+   }
+  },
+  {
+   "rowId": "GR-15",
+   "text": {
+    "ja": "実績のマイルストーン。掴むと実績開始日が動く",
+    "en": "An actual milestone -- drag it to move the actual start"
+   }
+  },
+  {
+   "rowId": "GR-18",
+   "text": {
+    "ja": "未着手のマイルストーンのダミー。掴むと実績が入る",
+    "en": "The dummy on a milestone not started -- grab it to enter an actual"
+   }
+  },
+  {
+   "rowId": "GR-12",
+   "text": {
+    "ja": "予定バーの中間。左右で平行移動、上下で行を移す",
+    "en": "The plan bar middle -- sideways moves it in time, up or down to another row"
+   }
+  },
+  {
+   "rowId": "GR-13",
+   "text": {
+    "ja": "依存線の上。選ぶ",
+    "en": "A dependency line -- selects it"
+   }
+  },
+  {
+   "rowId": "GR-14",
+   "text": {
+    "ja": "コメント / ハイライトボックスの本体・アンカー・四隅。動かす / 大きさを変える",
+    "en": "A comment or highlight box: body, anchor and corners move or resize it"
+   }
+  },
+  {
+   "rowId": "GR-16",
+   "text": {
+    "ja": "基準日線。左右に動かすと基準日が変わる",
+    "en": "The status line -- drag it sideways to change the status date"
+   }
+  }
+ ],
+ "shortcuts": [
+  {
+   "rowId": "SK-1",
+   "text": {
+    "ja": "キーボードだけで図形を置く経路は無い",
+    "en": "There is no keyboard-only route to place a shape"
+   }
+  },
+  {
+   "rowId": "SK-1a",
+   "text": {
+    "ja": "同上。図形はポインタで置く",
+    "en": "The same -- shapes are placed with the pointer"
+   }
+  },
+  {
+   "rowId": "SK-19",
+   "text": {
+    "ja": "その場の編集を確定する",
+    "en": "Commit the edit in place"
+   }
+  },
+  {
+   "rowId": "SK-2",
+   "text": {
+    "ja": "選べるものをすべて選ぶ",
+    "en": "Select everything selectable"
+   }
+  },
+  {
+   "rowId": "SK-3",
+   "text": {
+    "ja": "選択しているものを削除する",
+    "en": "Delete what is selected"
+   }
+  },
+  {
+   "rowId": "SK-4",
+   "text": {
+    "ja": "コピーする",
+    "en": "Copy"
+   }
+  },
+  {
+   "rowId": "SK-5",
+   "text": {
+    "ja": "貼り付ける",
+    "en": "Paste"
+   }
+  },
+  {
+   "rowId": "SK-6",
+   "text": {
+    "ja": "元に戻す",
+    "en": "Undo"
+   }
+  },
+  {
+   "rowId": "SK-7",
+   "text": {
+    "ja": "やり直す",
+    "en": "Redo"
+   }
+  },
+  {
+   "rowId": "SK-8",
+   "text": {
+    "ja": "取り消す / 閉じる",
+    "en": "Cancel or close"
+   }
+  },
+  {
+   "rowId": "SK-9",
+   "text": {
+    "ja": "文書名を編集する",
+    "en": "Edit the document name"
+   }
+  },
+  {
+   "rowId": "SK-10",
+   "text": {
+    "ja": "開く",
+    "en": "Open"
+   }
+  },
+  {
+   "rowId": "SK-11",
+   "text": {
+    "ja": "保存する",
+    "en": "Save"
+   }
+  },
+  {
+   "rowId": "SK-12",
+   "text": {
+    "ja": "書き出す形式を選ぶ",
+    "en": "Choose a format to export"
+   }
+  },
+  {
+   "rowId": "SK-13",
+   "text": {
+    "ja": "ヘルプを開く",
+    "en": "Open the help"
+   }
+  },
+  {
+   "rowId": "SK-14",
+   "text": {
+    "ja": "コマンドパレットを出す / しまう",
+    "en": "Show or hide the Command Palette"
+   }
+  },
+  {
+   "rowId": "SK-15",
+   "text": {
+    "ja": "全画面表示を切り替える",
+    "en": "Toggle full screen"
+   }
+  },
+  {
+   "rowId": "SK-16",
+   "text": {
+    "ja": "時間軸を拡大 / 縮小する",
+    "en": "Zoom the time axis in or out"
+   }
+  },
+  {
+   "rowId": "SK-16a",
+   "text": {
+    "ja": "行軸を拡大 / 縮小する",
+    "en": "Zoom the row axis in or out"
+   }
+  },
+  {
+   "rowId": "SK-17",
+   "text": {
+    "ja": "等倍へ戻す",
+    "en": "Back to actual size"
+   }
+  },
+  {
+   "rowId": "SK-18",
+   "text": {
+    "ja": "全体を 1 画面に収める",
+    "en": "Fit everything on one screen"
+   }
+  },
+  {
+   "rowId": "SK-20",
+   "text": {
+    "ja": "基準日線を出す / 消す",
+    "en": "Show or hide the status line"
+   }
+  }
+ ],
  "assignments": [
   {
    "rowId": "MK-1",

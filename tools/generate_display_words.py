@@ -63,6 +63,13 @@ REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
 QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
 ARM_ROW = re.compile(r'^\| (AR-\d+[a-z]?) \|')
 PROPERTY_ROW = re.compile(r'^\| (PR-\d+[a-z]?) \|')
+# ⭐ The four tables FR-036 (MUST) puts on the help that no section already
+# carried. Table T-023 is `assignments` and table T-023b is `arms`, both of
+# which were raised for other reasons and serve here too.
+PRESS_ORDER_ROW = re.compile(r'^\| (PD-\d+[a-z]?) \|')
+SELECTING_ROW = re.compile(r'^\| (SL-\d+[a-z]?) \|')
+GRAB_AREA_ROW = re.compile(r'^\| (GR-\d+[a-z]?) \|')
+SHORTCUT_ROW = re.compile(r'^\| (SK-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 ICON_TABLE = 'T-109'
@@ -82,6 +89,15 @@ ARM_TABLE = 'T-023b'
 # user asked for one word over both (「1 行で入るように」), so the word is
 # the row's and is never built by joining the columns'.
 PROPERTY_TABLE = 'T-016'
+# ⛔ FR-036 (MUST) names these by number: 「表 T-023a（判定順序）・表 T-023b
+# （構え）・表 T-023c（選択）・表 T-023d（掴み領域）・表 T-023（割当）・表 T-036
+# （ショートカット）・コマンドパレットの全項目を示すこと」. A row of one of them
+# with no word here cannot be shown, and FR-038 (MUST NOT) forbids the help
+# to write one of its own.
+PRESS_ORDER_TABLE = 'T-023a'
+SELECTING_TABLE = 'T-023c'
+GRAB_AREA_TABLE = 'T-023d'
+SHORTCUT_TABLE = 'T-036'
 REASON_TABLE = 'T-233'
 # ⛔ The sentence a question shows. Table T-234 is the whole count of the
 # places NT-7 lets GRS ask, so a question with no row here cannot be raised.
@@ -226,6 +242,18 @@ def roster():
         'properties': [row[0] for row in
                        table_rows(REL_PROPERTY_ITEMS, PROPERTY_ROW,
                                   PROPERTY_TABLE)],
+        'pressOrder': [row[0] for row in
+                       table_rows(REL_REQUIREMENTS, PRESS_ORDER_ROW,
+                                  PRESS_ORDER_TABLE)],
+        'selecting': [row[0] for row in
+                      table_rows(REL_REQUIREMENTS, SELECTING_ROW,
+                                 SELECTING_TABLE)],
+        'grabAreas': [row[0] for row in
+                      table_rows(REL_REQUIREMENTS, GRAB_AREA_ROW,
+                                 GRAB_AREA_TABLE)],
+        'shortcuts': [row[0] for row in
+                      table_rows(REL_REQUIREMENTS, SHORTCUT_ROW,
+                                 SHORTCUT_TABLE)],
         # ⛔ A group is keyed by the FIRST row of table T-109 that sits in it.
         # The specification gives groups no id of their own, and minting one
         # (GRP-1 ..) would put a number in the code that no table holds. ⚠️ The
@@ -268,6 +296,10 @@ def roster():
 SHAPE = {
     'icons': ('rowId', ('label', 'hint')),
     'properties': ('rowId', ('label',)),
+    'pressOrder': ('rowId', ('text',)),
+    'selecting': ('rowId', ('text',)),
+    'grabAreas': ('rowId', ('text',)),
+    'shortcuts': ('rowId', ('text',)),
     'paletteGroups': ('firstRow', ('name',)),
     'surfaces': ('name', ('heading',)),
     'notices': ('rowId', ('manner',)),
@@ -349,6 +381,7 @@ def build(doc):
     """
     out = {'$comment': BANNER}
     for section in ('icons', 'properties', 'paletteGroups', 'surfaces', 'notices',
+                    'pressOrder', 'selecting', 'grabAreas', 'shortcuts',
                     'reasons', 'questions', 'confirmation', 'noticeDismiss',
                     'confirmationMarks',
                     'assignments', 'arms', 'weekdays'):

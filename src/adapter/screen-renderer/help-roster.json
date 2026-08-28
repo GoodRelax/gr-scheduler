@@ -1,0 +1,665 @@
+{
+ "$comment": "GENERATED from docs/spec/01-04-requirements.md and the icon roster by tools/generate_help_roster.py -- do not edit by hand. Rebuild: npm run gen  |  npm run gen:check fails on drift. No printed word is here: FR-038 keeps those in display-words.json, under the same row ids.",
+ "entries": [
+  {
+   "table": "T-023a",
+   "row": "PD-1",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023a",
+   "row": "PD-2",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023a",
+   "row": "PD-3",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023a",
+   "row": "PD-4",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023a",
+   "row": "PD-4a",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023a",
+   "row": "PD-5",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023b",
+   "row": "AR-1",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023b",
+   "row": "AR-2",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023b",
+   "row": "AR-3",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023b",
+   "row": "AR-4",
+   "keys": null,
+   "icon": "IC-61"
+  },
+  {
+   "table": "T-023b",
+   "row": "AR-5",
+   "keys": null,
+   "icon": "IC-35"
+  },
+  {
+   "table": "T-023b",
+   "row": "AR-6",
+   "keys": null,
+   "icon": "IC-36"
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-1",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-2",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-3",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-4",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-5",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-6",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-7",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-7a",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-7b",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023c",
+   "row": "SL-8",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-19",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-1",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-2",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-3",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-4",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-5",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-6",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-7",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-8",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-9",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-17",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-10",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-11",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-15",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-18",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-12",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-13",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-14",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023d",
+   "row": "GR-16",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-1",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-2",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-3",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-4",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-5",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-6",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-7",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-8",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-9",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-9a",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-10",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-11",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-12",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-023",
+   "row": "MK-13",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-1",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-1a",
+   "keys": null,
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-19",
+   "keys": "Enter",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-2",
+   "keys": "Ctrl+A",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-3",
+   "keys": "Delete / Backspace",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-4",
+   "keys": "Ctrl+C",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-5",
+   "keys": "Ctrl+V",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-6",
+   "keys": "Ctrl+Z",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-7",
+   "keys": "Ctrl+Y / Ctrl+Shift+Z",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-8",
+   "keys": "Esc",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-9",
+   "keys": "F2",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-10",
+   "keys": "Ctrl+O",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-11",
+   "keys": "Ctrl+S",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-12",
+   "keys": "Ctrl+Shift+E",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-13",
+   "keys": "F1",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-14",
+   "keys": "P",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-15",
+   "keys": "F11",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-16",
+   "keys": "Shift ＋ + / Shift ＋ -",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-16a",
+   "keys": "Alt ＋ + / Alt ＋ -",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-17",
+   "keys": "Ctrl ＋ 0",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-18",
+   "keys": "F",
+   "icon": null
+  },
+  {
+   "table": "T-036",
+   "row": "SK-20",
+   "keys": "Ctrl ＋ Shift ＋ D",
+   "icon": null
+  },
+  {
+   "table": "T-109",
+   "row": "IC-23",
+   "keys": null,
+   "icon": "IC-23"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-24",
+   "keys": null,
+   "icon": "IC-24"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-25",
+   "keys": null,
+   "icon": "IC-25"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-26",
+   "keys": null,
+   "icon": "IC-26"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-27",
+   "keys": null,
+   "icon": "IC-27"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-28",
+   "keys": null,
+   "icon": "IC-28"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-29",
+   "keys": null,
+   "icon": "IC-29"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-30",
+   "keys": null,
+   "icon": "IC-30"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-31",
+   "keys": null,
+   "icon": "IC-31"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-32",
+   "keys": null,
+   "icon": "IC-32"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-33",
+   "keys": null,
+   "icon": "IC-33"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-34",
+   "keys": null,
+   "icon": "IC-34"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-35",
+   "keys": null,
+   "icon": "IC-35"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-36",
+   "keys": null,
+   "icon": "IC-36"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-37",
+   "keys": null,
+   "icon": "IC-37"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-38",
+   "keys": null,
+   "icon": "IC-38"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-39",
+   "keys": null,
+   "icon": "IC-39"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-40",
+   "keys": null,
+   "icon": "IC-40"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-41",
+   "keys": null,
+   "icon": "IC-41"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-42",
+   "keys": null,
+   "icon": "IC-42"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-43",
+   "keys": null,
+   "icon": "IC-43"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-44",
+   "keys": null,
+   "icon": "IC-44"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-45",
+   "keys": null,
+   "icon": "IC-45"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-46",
+   "keys": null,
+   "icon": "IC-46"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-47",
+   "keys": null,
+   "icon": "IC-47"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-48",
+   "keys": null,
+   "icon": "IC-48"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-49",
+   "keys": null,
+   "icon": "IC-49"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-50",
+   "keys": null,
+   "icon": "IC-50"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-53",
+   "keys": null,
+   "icon": "IC-53"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-75",
+   "keys": null,
+   "icon": "IC-75"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-54",
+   "keys": null,
+   "icon": "IC-54"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-61",
+   "keys": null,
+   "icon": "IC-61"
+  },
+  {
+   "table": "T-109",
+   "row": "IC-62",
+   "keys": null,
+   "icon": "IC-62"
+  }
+ ]
+}

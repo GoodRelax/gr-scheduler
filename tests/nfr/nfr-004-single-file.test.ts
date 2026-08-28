@@ -91,6 +91,17 @@ const BUILD_INPUTS = [
  * dereferences it. Each one below carries the reason it qualifies.
  */
 const NON_DEREFERENCED_URI_IDENTIFIERS = [
+  // ⭐ THE APACHE LICENCE'S OWN TWO URLS, which are in the deliverable because
+  // FR-069 (MUST) puts the licence text there IN FULL and reads it from the
+  // help. They are prose inside a legal document that may not be altered --
+  // editing them out would make the carried text no longer the licence that
+  // governs, which is the one thing `tools/generate_licence.py` exists to
+  // prevent. ⛔ Nothing dereferences them: they are rendered as the text of a
+  // paragraph, never as an attribute, and the `file://` run below asserts that
+  // ZERO requests leave the file. ⚠️ They qualify under this list's own bar --
+  // shown, not fetched -- and under nothing weaker.
+  'http://www.apache.org/licenses/',
+  'http://www.apache.org/licenses/LICENSE-2.0',
   // XML namespace names. Compared as opaque strings, never fetched.
   'http://www.w3.org/2000/svg',
   'http://www.w3.org/1999/xlink',

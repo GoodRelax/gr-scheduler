@@ -184,6 +184,7 @@ import type {
 import {
   screenViewFromRegions,
   type CommandItem,
+  type HelpEntry,
   type DisplayLanguage,
   type ScreenSession,
   type ScreenView,
@@ -256,6 +257,17 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   paletteGroups: 'firstRow',
   surfaces: 'name',
   notices: 'rowId',
+  // ⭐ THE FOUR TABLES FR-036 (MUST) PUTS ON THE HELP THAT NO SECTION ALREADY
+  // CARRIED (CR-279). Table T-023 is `assignments` and table T-023b is `arms`,
+  // both raised for other surfaces and serving the help too; these four --
+  // T-023a, T-023c, T-023d and T-036 -- had no word anywhere, which is why the
+  // help could not be built without inventing one (FR-038, MUST NOT).
+  // ⚠️ THEY STAND HERE BECAUSE THAT IS WHERE THE GENERATOR PRINTS THEM, which
+  // is what this roster records -- see the note on `arms` below.
+  pressOrder: 'rowId',
+  selecting: 'rowId',
+  grabAreas: 'rowId',
+  shortcuts: 'rowId',
   reasons: 'rowId',
   questions: 'rowId',
   confirmation: 'answer',
@@ -937,6 +949,42 @@ for (const entry of GENERATED['properties'] ?? []) {
     frame: PANEL_STATES['selection'] as Frame,
     read: (view) => propertyFieldName(view, rowId),
   })
+}
+
+// -- the help: FR-036's four tables that no other surface prints (UF-66)
+
+/**
+ * Where a help row's words arrive: the entry the help stands for that row.
+ *
+ * ⭐ FR-036 (MUST) names the tables rather than counting them, and every row of
+ * each has to be shown -- so this is one place per row, and a row whose word
+ * nobody wrote reports as reaching nowhere rather than passing quietly.
+ * ⚠️ Read by ROW: FR-036's order is that requirement's own and `uf-66` is where
+ * it is held, so a reordering must not make this file fall too.
+ */
+const helpEntryText = (view: ScreenView, rowId: string): string | undefined => {
+  const open = view.openModal
+  // ⛔ The member is reached without the union being narrowed by `surface`,
+  // which the catch-all arm of `OpenModal` makes impossible to do by name: a
+  // description that still declares no `entries` has to make THIS case fall
+  // rather than take the file down before any case runs (rule 04 section 1).
+  const entries = (open as unknown as { readonly entries?: readonly HelpEntry[] } | null)?.entries
+  return entries?.find((entry) => entry.row === rowId)?.text
+}
+
+for (const section of ['pressOrder', 'selecting', 'grabAreas', 'shortcuts'] as const) {
+  for (const entry of GENERATED[section] ?? []) {
+    const rowId = keyOf(section, entry)
+    place({
+      section,
+      key: rowId,
+      field: 'text',
+      unit: 'UF-66',
+      what: `what the help says about ${rowId}`,
+      frame: surfaceOpen('Help Modal'),
+      read: (view) => helpEntryText(view, rowId),
+    })
+  }
 }
 
 // ⛔ NO PLACE IS BUILT FOR A PANEL HEADING, and none may be: there is no heading
@@ -1669,7 +1717,17 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
         }
       }
     }
-  })
+  },
+  // ⛔ NOT THE DEFAULT 5 SECONDS, and the number is a measurement rather than
+  // a wish. This case builds every frame it can raise and reads every cell of
+  // the manuscript against them, so its cost is words x frames -- and both
+  // sides grow as the specification does: CR-279 alone took the dictionary
+  // from 273 words to 330, which is what pushed it past the default.
+  // ⚠️ Raising it is right and narrowing the sweep would not be: the claim IS
+  // that EVERY written word reaches a screen, and a sample would let the one
+  // that does not through.
+  20_000,
+  )
 })
 
 // ---------------------------------------------------------------------------

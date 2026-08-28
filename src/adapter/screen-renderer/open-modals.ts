@@ -76,6 +76,7 @@ import type { ScreenState } from '../../entity/document-model/screen-state/scree
 import type {
   CommandItem,
   DisplayLanguage,
+  HelpEntry,
   ExportFormatId,
   IconId,
   OpenModal,
@@ -84,6 +85,13 @@ import type {
 } from './screen-renderer'
 import iconRoster from './icon-roster.json'
 import displayWords from './display-words.json'
+// ⭐ The rows FR-036 (MUST) puts on the help, generated from the six tables it
+// names and from the icon roster. ⛔ It carries no word: FR-038 (MUST NOT)
+// keeps those in the dictionary above, and this joins to them by row id.
+import helpRoster from './help-roster.json'
+// ⭐ FR-069 (MUST): the licence in full, the copyright notice and the
+// attributions, carried out of the repository's own LICENSE and NOTICE.
+import licence from './licence.json'
 
 /**
  * U-30 of table T-103, the half of that row FR-036 opens.
@@ -95,6 +103,8 @@ import displayWords from './display-words.json'
  * the other half of U-30 -- is not the help.
  */
 const HELP_MODAL = 'Help Modal'
+/** Table T-109, which the help roster names for a row that IS an entrance. */
+const ICON_TABLE = 'T-109'
 
 /**
  * IC-21 of table T-109. FR-038 (MUST) puts an entry to it in two places, the
@@ -228,6 +238,60 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
   const word = WORDS_BY_ROW.get(icon)?.label[language]
   if (word === undefined) return NO_WORDS
   return word === '' ? NO_WORDS : word
+}
+
+/**
+ * The words the help shows, keyed by the row each entry names.
+ *
+ * ⭐ ONE MAP OVER EVERY SECTION THE HELP READS, because the roster's rows come
+ * from six tables and each has a section of its own: table T-023 is
+ * `assignments` and table T-023b is `arms`, both raised for other surfaces and
+ * serving here too; the other four were raised for this one.
+ * ⛔ The palette entries are NOT in it -- their word is a `label` of `icons`,
+ * which `entryLabel` already reads, and putting them here would give one row
+ * two words.
+ */
+const HELP_WORDS_BY_ROW = new Map(
+  [
+    ...displayWords.pressOrder,
+    ...displayWords.arms,
+    ...displayWords.selecting,
+    ...displayWords.grabAreas,
+    ...displayWords.assignments,
+    ...displayWords.shortcuts,
+  ].map((entry) => [entry.rowId, entry]),
+)
+
+/**
+ * Every row FR-036 (MUST) puts on the help, in that requirement's own order.
+ *
+ * ⭐ THE ROSTER IS GENERATED AND THE WORDS ARE THE DICTIONARY'S, which is what
+ * let this be built at all: the six tables FR-036 names reached no unit until
+ * `tools/generate_help_roster.py` carried them, and a list typed here would be
+ * the copy rule 03 section 1 forbids -- which is what the STOP note below said
+ * for several rounds.
+ *
+ * ⚠️ A PALETTE ENTRY TAKES ITS WORD FROM `icons` AND EVERY OTHER ROW FROM ITS
+ * OWN SECTION. The roster marks which is which by naming table T-109, and the
+ * two stores are not merged: an entry's `label` is what its entrance says, and
+ * a row of table T-023d has no entrance at all.
+ *
+ * ⛔ A ROW WHOSE WORD IS UNWRITTEN SHOWS NOTHING RATHER THAN ITS ROW ID, the
+ * reading PD-160 fixes for every other surface. ⚠️ Every row is written today.
+ *
+ * @purity pure
+ */
+function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
+  return helpRoster.entries.map((entry) => ({
+    table: entry.table,
+    row: entry.row,
+    text:
+      entry.table === ICON_TABLE
+        ? entryLabel(entry.row as IconId, language)
+        : (HELP_WORDS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS),
+    keys: entry.keys,
+    icon: entry.icon as IconId | null,
+  }))
 }
 
 /**
@@ -469,7 +533,19 @@ export function openModalFromScreenState(
   // it into `ScreenView.language`. Two places that decide it would be two
   // states, which the same sentence forbids (MUST NOT).
   if (surface === HELP_MODAL) {
-    return { surface: HELP_MODAL, heading, commands, language: session.language }
+    return {
+      surface: HELP_MODAL,
+      heading,
+      commands,
+      language: session.language,
+      entries: helpEntries(session.language),
+      // FR-069 (MUST): read from here, and carried whole rather than summarised
+      // -- that requirement's RATIONALE is that a reader with no network can
+      // only read what is inside the file.
+      licenceText: licence.licenceText,
+      copyrightNotice: licence.copyrightNotice,
+      attributions: licence.attributions,
+    }
   }
 
   // FR-099 (MUST): the roster is the list of assignees the DOCUMENT holds, so

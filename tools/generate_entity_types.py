@@ -1121,6 +1121,11 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PROPERTY_CONTROL_SIZES': (['S-199'], READ_WHERE_IT_STANDS),
     'NOT_STORED_ROW_CONTROL_SIZES': (['S-140'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⭐ FR-036's help, whose share of the screen and whose column count are
+    # both the drawing side's to apply: the share is of the window, which is
+    # the environment's own measure, and the columns are a layout. ⛔ Not
+    # folded into the line above -- one constant per consuming SUBJECT.
+    'NOT_STORED_HELP_SIZES': (['S-201', 'S-202'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
     # dom-screen-surface.ts: one constant per consuming SUBJECT, the same split
     # the selection frame and the dummy are given below. S-138 and S-141 are the
@@ -1718,6 +1723,7 @@ TARGETS = [
     # can point at, arm or be reported for.
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ARMED_ENTRY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
