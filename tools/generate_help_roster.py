@@ -58,6 +58,13 @@ COMMAND_PALETTE = 'Command Palette'
 ICON_TABLE = 'T-109'
 ROW_ID_HEADING = '行 ID'
 KEY_HEADING = '割当'
+# CR-285's column. ⭐ Table T-036 and table T-023 each say which entrance of
+# table T-109 their row drives, by ROW ID -- never by the entrance's own
+# words, which have one home (R3.4).
+ENTRANCE_HEADING = '入口'
+# One assignment may drive two entrances (SK-16 is zoom in AND zoom out),
+# and the table writes them the way it writes two key chords.
+ENTRANCE_SEPARATOR = ' / '
 EM_DASH = '—'
 # A cross-reference the assignment cell carries beside the key itself: SK-8
 # reads Esc（規則は表 T-028 の IN-4）. That parenthetical is prose about where the
@@ -130,7 +137,16 @@ def table_rows(table, row_shape, key_column):
             # assignment (SK-1 states that no keyboard route exists at all),
             # and null is what carries that rather than a dash on screen.
             keys = None if written in ('', EM_DASH) else written
-        found.append((row.id, keys))
+        # CR-285: which entrance this row drives, where its table says so.
+        # ⚠️ Not every table has the column -- only the two that carry an
+        # assignment -- so its absence is silence, not a fault.
+        entrances = []
+        if row.has(ENTRANCE_HEADING):
+            written = row.cell(ENTRANCE_HEADING)
+            if written not in ('', EM_DASH):
+                entrances = [one.strip()
+                             for one in written.split(ENTRANCE_SEPARATOR)]
+        found.append((row.id, keys, entrances))
     return found
 
 
@@ -148,13 +164,18 @@ def build():
 
     entries = []
     for table, shape, key_column in TABLES:
-        for row, keys in table_rows(table, shape, key_column):
+        for row, keys, drives in table_rows(table, shape, key_column):
             on = entrances.get(row, [])
             entries.append({
                 'table': table,
                 'row': row,
                 'keys': keys,
                 'icon': on[0] if len(on) == 1 else None,
+                # ⛔ NOT THE SAME THING AS `icon` ABOVE. That one is the SHAPE
+                # this row is drawn with -- an arm of the palette, mostly.
+                # This one is the entrance the row DRIVES, which is what
+                # CR-285 added the column for and what the tooltip asks.
+                'drives': drives,
             })
     for icon in roster:
         if COMMAND_PALETTE in icon['surfaces']:
@@ -163,6 +184,10 @@ def build():
                 'row': icon['rowId'],
                 'keys': None,
                 'icon': icon['rowId'],
+                # ⚠️ EMPTY AND NOT ABSENT. A palette row IS an entrance; it
+                # does not drive one. Every entry carries the member so the
+                # reading side has no optional to guard.
+                'drives': [],
             })
     return {'$comment': BANNER, 'entries': entries}
 

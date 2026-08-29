@@ -3761,7 +3761,21 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const drawn = made(host, 'div', tooltipStyle())
     drawn.setAttribute('role', 'tooltip')
     drawn.setAttribute('data-anchor', key)
-    drawn.textContent = tip.text
+    // EZ-2 of table T-040 (MUST): the explanation, then the assignment.
+    // ⛔ JOINED HERE AND NOT ON THE FAR SIDE. The description keeps the two
+    // apart because the explanation IS the dictionary's word and has to be
+    // readable as that word; putting them together is a drawing decision.
+    // ⚠️ A space and nothing else -- a separator with meaning would be a
+    // word, and FR-038 (MUST) keeps every word of the screen in the one
+    // dictionary.
+    // ⚠️ ASKED FOR TRUTH, NOT FOR `!== null`. A description that reaches this
+    // unit without the member at all -- which the type forbids and a caller
+    // can still do -- would otherwise put the word `undefined` in front of a
+    // person. An empty string means the same as none, the reading every
+    // other consumer of the dictionary takes.
+    drawn.textContent = tip.assignment
+      ? `${tip.text} ${tip.assignment}`
+      : tip.text
 
     // Placed against the very element that carries the anchor -- the entry that
     // was drawn for EZ-2's icon, the row FR-085 cut, or the lane FR-037's hint

@@ -1457,6 +1457,19 @@ export interface Tooltip {
   readonly anchor: TooltipAnchor
   /** In the display language. */
   readonly text: string
+  /**
+   * EZ-2 of table T-040 (MUST): the assignment shown after the explanation,
+   * or `null` where the entry has none.
+   *
+   * ⛔ BESIDE `text` AND NOT INSIDE IT. The explanation is the word FR-038
+   * keeps in the dictionary, and a reader holding this description to that
+   * word has to find the word ITSELF here -- gluing the assignment on made
+   * 62 such readings fail, and they were right to.
+   * ⚠️ A key is not a word (`Ctrl+S` reads the same in every language) and a
+   * mouse gesture is; which of the two this is has already been resolved by
+   * the side that filled it.
+   */
+  readonly assignment: string | null
 }
 
 /**

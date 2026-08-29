@@ -5,667 +5,810 @@
    "table": "T-023a",
    "row": "PD-1",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023a",
    "row": "PD-2",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023a",
    "row": "PD-3",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023a",
    "row": "PD-4",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023a",
    "row": "PD-4a",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023a",
    "row": "PD-5",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023b",
    "row": "AR-1",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023b",
    "row": "AR-2",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023b",
    "row": "AR-3",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023b",
    "row": "AR-4",
    "keys": null,
-   "icon": "IC-61"
+   "icon": "IC-61",
+   "drives": []
   },
   {
    "table": "T-023b",
    "row": "AR-5",
    "keys": null,
-   "icon": "IC-35"
+   "icon": "IC-35",
+   "drives": []
   },
   {
    "table": "T-023b",
    "row": "AR-6",
    "keys": null,
-   "icon": "IC-36"
+   "icon": "IC-36",
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-1",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-2",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-3",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-4",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-5",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-6",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-7",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-7a",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-7b",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023c",
    "row": "SL-8",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-19",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-1",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-2",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-3",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-4",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-5",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-6",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-7",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-8",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-9",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-17",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-10",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-11",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-15",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-18",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-12",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-13",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-14",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023d",
    "row": "GR-16",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-1",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-2",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-3",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-12",
+    "IC-13"
+   ]
   },
   {
    "table": "T-023",
    "row": "MK-4",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-14",
+    "IC-15"
+   ]
   },
   {
    "table": "T-023",
    "row": "MK-5",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-6",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-7",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-8",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-9",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-9a",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-10",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-11",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-12",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-023",
    "row": "MK-13",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-1",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-1a",
    "keys": null,
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-19",
    "keys": "Enter",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-2",
    "keys": "Ctrl+A",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-3",
    "keys": "Delete / Backspace",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-4",
    "keys": "Ctrl+C",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-5",
    "keys": "Ctrl+V",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-6",
    "keys": "Ctrl+Z",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-5"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-7",
    "keys": "Ctrl+Y / Ctrl+Shift+Z",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-6"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-8",
    "keys": "Esc",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-52"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-9",
    "keys": "F2",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-10",
    "keys": "Ctrl+O",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-1"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-11",
    "keys": "Ctrl+S",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-12",
    "keys": "Ctrl+Shift+E",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-2"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-13",
    "keys": "F1",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-22"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-14",
    "keys": "P",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-7"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-15",
    "keys": "F11",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-11"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-16",
    "keys": "Shift ＋ + / Shift ＋ -",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-12",
+    "IC-13"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-16a",
    "keys": "Alt ＋ + / Alt ＋ -",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-14",
+    "IC-15"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-17",
    "keys": "Ctrl ＋ 0",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-036",
    "row": "SK-18",
    "keys": "F",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-10"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-20",
    "keys": "Ctrl ＋ Shift ＋ D",
-   "icon": null
+   "icon": null,
+   "drives": [
+    "IC-44"
+   ]
   },
   {
    "table": "T-036",
    "row": "SK-21",
    "keys": "Ctrl ＋ R",
-   "icon": null
+   "icon": null,
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-23",
    "keys": null,
-   "icon": "IC-23"
+   "icon": "IC-23",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-24",
    "keys": null,
-   "icon": "IC-24"
+   "icon": "IC-24",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-25",
    "keys": null,
-   "icon": "IC-25"
+   "icon": "IC-25",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-26",
    "keys": null,
-   "icon": "IC-26"
+   "icon": "IC-26",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-27",
    "keys": null,
-   "icon": "IC-27"
+   "icon": "IC-27",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-28",
    "keys": null,
-   "icon": "IC-28"
+   "icon": "IC-28",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-29",
    "keys": null,
-   "icon": "IC-29"
+   "icon": "IC-29",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-30",
    "keys": null,
-   "icon": "IC-30"
+   "icon": "IC-30",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-31",
    "keys": null,
-   "icon": "IC-31"
+   "icon": "IC-31",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-32",
    "keys": null,
-   "icon": "IC-32"
+   "icon": "IC-32",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-33",
    "keys": null,
-   "icon": "IC-33"
+   "icon": "IC-33",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-34",
    "keys": null,
-   "icon": "IC-34"
+   "icon": "IC-34",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-35",
    "keys": null,
-   "icon": "IC-35"
+   "icon": "IC-35",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-36",
    "keys": null,
-   "icon": "IC-36"
+   "icon": "IC-36",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-37",
    "keys": null,
-   "icon": "IC-37"
+   "icon": "IC-37",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-38",
    "keys": null,
-   "icon": "IC-38"
+   "icon": "IC-38",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-39",
    "keys": null,
-   "icon": "IC-39"
+   "icon": "IC-39",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-40",
    "keys": null,
-   "icon": "IC-40"
+   "icon": "IC-40",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-41",
    "keys": null,
-   "icon": "IC-41"
+   "icon": "IC-41",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-42",
    "keys": null,
-   "icon": "IC-42"
+   "icon": "IC-42",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-43",
    "keys": null,
-   "icon": "IC-43"
+   "icon": "IC-43",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-44",
    "keys": null,
-   "icon": "IC-44"
+   "icon": "IC-44",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-45",
    "keys": null,
-   "icon": "IC-45"
+   "icon": "IC-45",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-46",
    "keys": null,
-   "icon": "IC-46"
+   "icon": "IC-46",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-47",
    "keys": null,
-   "icon": "IC-47"
+   "icon": "IC-47",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-48",
    "keys": null,
-   "icon": "IC-48"
+   "icon": "IC-48",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-49",
    "keys": null,
-   "icon": "IC-49"
+   "icon": "IC-49",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-50",
    "keys": null,
-   "icon": "IC-50"
+   "icon": "IC-50",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-53",
    "keys": null,
-   "icon": "IC-53"
+   "icon": "IC-53",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-75",
    "keys": null,
-   "icon": "IC-75"
+   "icon": "IC-75",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-54",
    "keys": null,
-   "icon": "IC-54"
+   "icon": "IC-54",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-61",
    "keys": null,
-   "icon": "IC-61"
+   "icon": "IC-61",
+   "drives": []
   },
   {
    "table": "T-109",
    "row": "IC-62",
    "keys": null,
-   "icon": "IC-62"
+   "icon": "IC-62",
+   "drives": []
   }
  ]
 }
