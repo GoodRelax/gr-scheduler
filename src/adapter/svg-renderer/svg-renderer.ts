@@ -1055,6 +1055,7 @@ export function svgFromSchedule(
   weekdayWords: readonly string[] = [],
   pointer: Point | null = null,
   hovered: Hit | null = null,
+  marquee: ScreenRect | null = null,
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
@@ -1740,6 +1741,23 @@ export function svgFromSchedule(
     ...annotationParts,
     ...selectionParts,
     ...handleParts,
+    // ZO-6 of table T-020 -- the range selection's rectangle, at the front of
+    // that table (the user's ruling of 2026-08-29). SL-3 (MUST): 「握っている
+    // あいだ、取ろうとしている矩形を描くこと」.
+    //
+    // ⭐ IT IS `selectionFrameSvg`, NOT A SHAPE OF ITS OWN, and that is the
+    // whole of why this row minted no value: the rectangle a marquee is taking
+    // is drawn in the same ink, the same S-174 width and the same S-175 dash as
+    // the frame around what has been taken. ⛔ Inventing a second look would
+    // have needed a width, a dash and a colour that no row states.
+    // ⚠️ BEFORE THE RULER AND NOT AFTER IT. ZO-6 is the front of table T-020,
+    // and the band is not a row of that table at all -- it is drawn over
+    // everything for the reason the next comment gives, and a marquee dragged
+    // up across it must not take the dates away from the reader.
+    // ⛔ NOTHING IS DRAWN FOR AN EXPORT, and no guard here says so: EP-12 of
+    // table T-076 keeps operation state out of a picture, and the export road
+    // simply does not pass a rectangle -- the default is what answers it.
+    ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'))]),
     // FR-017's band last of all. The Row Area's own paint is clipped to it,
     // but FR-014's overhang (LF-12) and a label that runs past the first row
     // are not, and the Time Ruler does not scroll down (SC-2) -- so it is

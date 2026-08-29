@@ -121,6 +121,7 @@ import {
 } from '../../entity/document-model/screen-state/screen-state'
 import {
   COLUMN_SHAPES,
+  dateFromWorkingDays,
   dayOf,
   planActualState,
   taskByUid,
@@ -4198,6 +4199,19 @@ type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState
  * dropped on asks for is `workingDaysBetween` from the actual's start to that
  * day. Both count a half-open span, which is what makes them a pair.
  *
+ * ⭐⭐ GR-5 LAYS THE DURATION DOWN AGAIN, WHICH IS THE SAME PAIR READ FROM THE
+ * OTHER END. Its row says so since the ruling of 2026-08-29 -- 「実績の終了日は
+ * 据え置き、`actualDuration` を置き直すこと（MUST）。実績バーを平行移動させて
+ * はならない（MUST NOT）」 -- so the finish is worked out from what the Task
+ * held, and the duration counted from the day dropped on to that finish.
+ * ⛔ CARRYING THE DURATION SLID THE WHOLE BAR, and FR-011 is what that broke:
+ * that requirement (MUST NOT) moves neither end unless a person placed it, and
+ * the hand placed the left one. Measured 2026-08-29, before this: dragging the
+ * left end 72px left moved the left edge 500 -> 572 and the right 2204 -> 2282.
+ * ⚠️ GR-15 GOES ON CARRYING IT, and its own row is why: a milestone holds no
+ * actual BAR, so there is no finish standing still to count to -- FR-043's
+ * S-130 is its duration and no row of table T-023d asks this drag to move it.
+ *
  * ⛔ THE DROPPED DAY IS NOT MOVED TO A WORKING ONE. The rule under table T-023d
  * forbids it outright (MUST NOT) -- people work on days off, and moving it would
  * store a day other than the one the hand chose. ⚠️ Nothing is clamped either:
@@ -4222,11 +4236,21 @@ function actualEndPlacement(
   // there is to grab. ⛔ So the column it moves is the one GR-5 moves, and the
   // duration is carried rather than measured: a milestone's is FR-043's S-130
   // and no row of table T-023d asks this drag to change it.
+  const calendar = workingCalendarOf(schedule)
+  // ⭐ WHERE THE ACTUAL ENDS AS THE TASK STANDS, which is FR-011's own picture
+  // read forwards. ⛔ `null` where the Task carries no duration to end after --
+  // the guard below is what answers that, and this stays out of its way.
+  const heldFinish =
+    task.actualDuration === null ? null : dateFromWorkingDays(calendar, held, task.actualDuration)
   const actualStart = grab === 'GR-6' ? textOfDay(held) : textOfDay(dropped)
   const actualDuration =
     grab === 'GR-6'
-      ? workingDaysBetween(workingCalendarOf(schedule), held, dropped)
-      : task.actualDuration
+      ? workingDaysBetween(calendar, held, dropped)
+      : grab === 'GR-5'
+        ? heldFinish === null
+          ? null
+          : workingDaysBetween(calendar, dropped, heldFinish)
+        : task.actualDuration
   if (actualDuration === null) return null
 
   switch (planActualState(task)) {

@@ -96,8 +96,11 @@ import {
   type EscapeTarget,
   type ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
-import { emptySelection } from '../../entity/document-model/selection/selection'
-import type { Selection } from '../../entity/document-model/selection/selection'
+import {
+  emptySelection,
+  selectionOfAll,
+} from '../../entity/document-model/selection/selection'
+import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
 import {
   emptyHistory,
   NOT_STORED_LIMITS,
@@ -109,6 +112,7 @@ import {
   textOfDay,
   type CalendarDay,
   type Project,
+  type Schedule,
   type Task,
   type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
@@ -130,6 +134,7 @@ import {
   regionAtPointer,
   regionsFromScreen,
   type ScreenEnvironment,
+  type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
@@ -635,6 +640,91 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-16': true,
   'GR-17': true,
   'GR-18': true,
+}
+
+/**
+ * The rectangle a range selection is taking, or `null` while none is.
+ *
+ * ⭐ PD-5 IS READ OFF THE PRESS AND NOT WORKED OUT AGAIN. `pressRowOf` answered
+ * table T-023a once, at the moment the button went down, and `PointerPress`
+ * carries that answer -- asking a second time would be a second reading of a
+ * table whose inputs (the button, the modifiers, the hit) are frozen anyway.
+ * ⛔ `on` IS ASKED FIRST, the order every reader of a press keeps: the note
+ * under table T-023a limits that table to the schedule's drawing area (MUST),
+ * so a press the screen surface answered for is on no row of it.
+ *
+ * ⚠️ A PRESS THAT HAS NOT MOVED TAKES NOTHING, and answering `null` for it is
+ * what keeps a plain click from painting a dot: SL-3 draws 「取ろうとしている
+ * 矩形」, and a rectangle with no extent is not one.
+ *
+ * @purity pure
+ */
+function marqueeRect(
+  press: PointerPress | null,
+  at: { readonly x: number; readonly y: number } | null,
+): ScreenRect | null {
+  if (press === null || at === null) return null
+  if (press.on !== null || press.pressRow !== 'PD-5') return null
+  const width = Math.abs(at.x - press.at.x)
+  const height = Math.abs(at.y - press.at.y)
+  if (width === 0 && height === 0) return null
+  return { x: Math.min(press.at.x, at.x), y: Math.min(press.at.y, at.y), width, height }
+}
+
+/**
+ * Whether the document still holds what this reference names.
+ *
+ * ⭐ SL-1 of table T-023c IS THE CENSUS, and every kind it admits is answered
+ * here -- a `switch` on the union rather than a list of the interesting ones,
+ * so a kind added to that row is a compile error naming itself.
+ * ⚠️ THE STATUS LINE IS A DOCUMENT VALUE TOO. FR-046 lets a person put it,
+ * move it and take it away, and `Project.statusDate` is where it stands; a
+ * selection holding it after it has been taken away is the same defect as one
+ * holding a deleted `Task`.
+ *
+ * @purity pure
+ */
+function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
+  switch (item.kind) {
+    case 'task':
+      return taskByUid(schedule, item.uid) !== null
+    case 'dependency': {
+      // ⚠️ THE ORDINAL IS PART OF THE NAME, which is what PI-32 says of this
+      // kind: table T-053 nests a dependency under its successor, so a
+      // predecessor removed from the middle renames the ones after it. A
+      // reference past the end no longer names anything.
+      const successor = taskByUid(schedule, item.successorUid)
+      return successor !== null && item.ordinal < successor.dependencies.length
+    }
+    case 'highlightBox':
+      return schedule.highlightBoxes.some((box) => box.id === item.id)
+    case 'commentBox':
+      return schedule.commentBoxes.some((box) => box.id === item.id)
+    case 'statusLine':
+      return schedule.project.statusDate !== null
+  }
+}
+
+/**
+ * Table T-023c's closing rule (MUST / MUST NOT), applied to one selection:
+ * 「選択は、文書に実在する対象だけを指すこと。実在しなくなった対象を選択に残して
+ * はならない」 (the user's ruling of 2026-08-29).
+ *
+ * ⭐ THE ORDER IS KEPT AND SO IS `ordered`. SL-7b makes the order part of the
+ * value and FR-034 lines things up against it, so dropping what is gone must
+ * not turn an ordered selection into an unordered one -- `selectionOfAll` is
+ * not what this returns unless the selection was already unordered.
+ * ⛔ THE SAME VALUE IS ANSWERED WHEN NOTHING WENT, and that matters: the shell
+ * compares selections by identity to decide whether an operation moved one
+ * (FR-072), so a fresh object every write would open the `Properties Panel` on
+ * every keystroke of an unrelated edit.
+ *
+ * @purity pure
+ */
+function selectionWithinSchedule(selection: Selection, schedule: Schedule): Selection {
+  const items = selection.items.filter((item) => scheduleHolds(schedule, item))
+  if (items.length === selection.items.length) return selection
+  return selection.ordered ? { items, ordered: true } : selectionOfAll(items)
 }
 
 /**
@@ -1821,19 +1911,29 @@ function viewSettings(
   // so OP-10's condition would still hold on the next frame and the fit would
   // be asked again for ever.
   //
-  // ⭐ This is what closed the harm FR-055's RATIONALE names: the earliest
-  // planned start is NOT the earliest day anything is drawn on -- OC-5 of table
-  // T-038 counts an `actualStart` that precedes it -- so as an answer it left
-  // the overhang behind the Row Title panel, where no scroll position can
-  // reach it.
-  const starts = held.schedule.tasks
-    .map((one) => one.start)
+  // ⭐⭐ WHAT 「その文書が覆う最初の日」 COUNTS IS NOW SETTLED, and it is both
+  // dates of a `Task` and neither of anything else: 「その文書の `Task` が持つ
+  // `start` と `actualStart` のうち最も早い日」 (OP-10, MUST -- the user's
+  // ruling of 2026-08-29).
+  // ⛔ THE PLANNED START ALONE WAS THE DEFECT, and the note that stood here
+  // named it without the code answering it: the earliest planned start is NOT
+  // the earliest day anything is drawn on -- OC-5 of table T-038 counts an
+  // `actualStart` that precedes it -- so the overhang was left behind the Row
+  // Title panel, where no scroll position can reach it.
+  // ⛔ THE ANNOTATIONS AND THE CALENDAR ARE NOT COUNTED (MUST NOT), and the
+  // same row says why: `HighlightBox` and `CommentBox` are never exported, so
+  // counting them would move the opening view of a schedule merely
+  // round-tripped through MSPDI, and `Exception.fromDate` is 「繰り返しの起点
+  // であって実日付の範囲ではない」.
+  // ⚠️ ISO DAYS SORT AS TEXT, which is why nothing is parsed here.
+  const covered = held.schedule.tasks
+    .flatMap((one) => [one.start, one.actualStart])
     .filter((one): one is string => one !== null)
     .sort()
   const firstRow = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
   const pinned: DocumentSettings = {
     ...stored,
-    scrollDate: starts[0] ?? held.schedule.project.startDate,
+    scrollDate: covered[0] ?? held.schedule.project.startDate,
     scrollGroupId: firstRow === undefined ? stored.scrollGroupId : firstRow.id,
   }
 
@@ -1849,7 +1949,11 @@ function viewSettings(
   // ⚠️ THE OFFSETS ARE CLEARED FOR THE REASON THE FIT CLEARS THEM: the
   // corner of the content is on the corner of the Row Area, so a fraction
   // left over from nothing would slide the first frame by a row and a day.
-  if (fromTemplate) {
+  // ⚠️ AND ONLY WHILE THERE IS A DAY TO COVER. OP-10 (MUST): 「`Task` を 1 件も
+  // 持たない文書では、本行のこの除外は働かない」 -- there is nothing to count,
+  // and no day is invented in its place, so such a document falls to the fit
+  // below like any other.
+  if (fromTemplate && covered.length > 0) {
     return { ...pinned, scrollDayOffset: 0, scrollGroupOffset: 0 }
   }
 
@@ -2893,6 +2997,22 @@ export function frameLoop(
     /** @purity non-pure */
     replace(next: HeldDocument): void {
       held = next
+      // Table T-023c's closing rule (MUST NOT), and this is the one place it
+      // can be kept: `replace` is the single door every write goes through --
+      // an edit, an undo, a redo, a merge, and a whole other document opened.
+      //
+      // ⭐⭐ WHY IT IS NOT AT THE DELETION. The rule itself says not to put it
+      // there: 「落とす場所を、消える入口ごとに定めてはならない」. Measured
+      // 2026-08-30 before this line existed -- `Ctrl`+`A`, `Delete`, then a
+      // press on a palette shape built CM-20 for a `uid` that was gone,
+      // `edit-task.ts` refused it on IV-2, and AG-3 dropped the whole bundle
+      // with RS-10 on screen. SK-3 is only one of the doors that leaves a dead
+      // reference behind; `replaceHeldDocument` is another and is not a
+      // deletion at all.
+      // ⚠️ AFTER THE SWAP, never before: what a reference is judged against is
+      // the document that now stands, and judging against the old one would
+      // keep exactly what the write removed.
+      selection = selectionWithinSchedule(selection, held.document.schedule)
     },
   }
 
@@ -3335,6 +3455,14 @@ export function frameLoop(
         // table T-066 freezes a press at the point it began -- a mark darkened
         // off a press would stay dark wherever the hand went next.
         grabUnderPointer,
+        // ZO-6 of table T-020 and SL-3 (MUST) -- the rectangle a range
+        // selection is taking, while one is being taken.
+        // ⭐ THE SAME TWO VALUES `previewOfHeldPress` READS, and for the same
+        // reason: a picture drawn while a gesture is in flight is the
+        // renderer's, and IN-1 settles nothing until the release.
+        // ⛔ NOT HANDED TO THE EXPORT CALL BELOW, which is EP-12 of table
+        // T-076 -- an export carries no sign of what a person is doing.
+        marqueeRect(pressed, pointerAt),
       )
     surface.showSvg(drawnSvg)
     recordFrame(drawnSvg, layout)
