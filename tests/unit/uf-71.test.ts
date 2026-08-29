@@ -1259,16 +1259,18 @@ describe('the tables these cases copy still say what the copies say', () => {
 })
 
 describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
-  // ⭐ ONE MEMBER PER SUPPLY THE IF-9 CELL NAMES, and the cell now names four.
+  // ⭐ ONE MEMBER PER SUPPLY THE IF-9 CELL NAMES, and the cell names five.
   // 表 T-065's IF-9 reads 「作った記述を画面に載せ、対話欄で確定した発話を返し、
   // **プロパティパネルの欄で確定した値を、その欄が名乗る行 ID とともに返し**、
+  // **まだ確定していない文字入力があるかを答え**、
   // **画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上か、および
-  // 書き出しの選択面では 表 T-024 のどの形式の上かを答える**」 -- four duties, in
+  // 書き出しの選択面では 表 T-024 のどの形式の上かを答える**」 -- five duties, in
   // that order:
   //
   //   put the description on the screen        showScreenView
   //   hand back the settled utterance          readDialogueInput
   //   hand back the settled field value        readFieldCommit
+  //   answer whether text stands unsettled     hasUnsettledTextEntry
   //   answer what is drawn at a point          readScreenPartAt
   //
   // ⛔ THE LIST IS NAMED AND NOT COUNTED, on purpose. A case that only counted
@@ -1278,6 +1280,7 @@ describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
   // read (rule 04 section 1) and which pairs each member with the clause of the
   // cell it serves -- so this stays red the day a supply is added or dropped.
   const IF_9_MEMBERS = [
+    'hasUnsettledTextEntry',
     'readDialogueInput',
     'readFieldCommit',
     'readScreenPartAt',

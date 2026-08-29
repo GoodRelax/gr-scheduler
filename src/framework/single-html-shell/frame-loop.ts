@@ -3885,12 +3885,13 @@ export function frameLoop(
         frame,
         exportScene: exportScene(),
         isGestureInFlight: isDocumentChangingPress(pressed),
-        // ⛔ FALSE BECAUSE NOTHING CAN BE UNSETTLED, not because AG-9's second
-        // half is being skipped: `collectInputContext` records that no in-place
-        // entry exists in this build, and `collectWriteMoment` answers the same
-        // for WS-2 of table T-067. ⚠️ One of the two turns true the day that
-        // entry lands, and both of them have to.
-        isEditingInPlace: false,
+        // AG-9's second half (MUST) -- 「人が編集入力を確定していない間（プロパ
+        // ティパネルで入力中など）も同じく拒否すること」 -- answered from IF-9
+        // now that the seam carries it. ⭐ THIS IS THE ROAD THAT REFUSES: what
+        // this member supplies becomes `WriteMoment.editingInPlace` on the
+        // `Agent API`'s write (`writeThroughTheOnePath`) and the gate on AM-13's
+        // picture, which is exactly what table T-035 is about.
+        isEditingInPlace: hasUnsettledTextEntry(),
         historyLimits: HISTORY_LIMITS,
         settingsLimits: settingsLimitsOf(frame),
         // ⚠️ The wall clock, and rightly so: AT-129 spells a MOMENT, and R3.6
@@ -4112,6 +4113,36 @@ export function frameLoop(
   }
 
   /**
+   * IF-9's fifth answer, or `false` where no screen surface was wired.
+   *
+   * ⛔ ASKED AND NEVER HELD. The focus moves without a happening of table T-078
+   * arriving at all -- a person clicks from one field to the next, or the host
+   * moves it -- so a value cached on this side would be stale the moment it
+   * mattered. ⚠️ Three callers ask it, and every one of them asks it fresh.
+   *
+   * ⭐ `false` WITHOUT A SURFACE IS THE ABSENCE AND NOT A GUESS: a build with no
+   * screen surface has drawn no field, so there is nothing anyone could be
+   * typing into.
+   *
+   * @purity semi-pure-b
+   */
+  function hasUnsettledTextEntry(): boolean {
+    return screen === undefined ? false : screen.surface.hasUnsettledTextEntry()
+  }
+
+  /**
+   * Whether the write being made right now IS the settling of a property field.
+   *
+   * ⛔ HELD FOR ONE CALL AND NO LONGER. `collectWriteMoment` reads it to keep
+   * WS-2 of table T-067 from refusing the one write that is not made
+   * 「編集入力の確定前」 -- see the note there for why the field is still held
+   * at that instant. ⚠️ A flag and not an argument, because `writeDocument` is
+   * the one write path MS-1 of table T-042 allows and a second parameter on it
+   * would be a second thing every other caller has to say something about.
+   */
+  let isSettlingFieldCommit = false
+
+  /**
    * Everything the three members of PI-18 read besides the happening itself.
    *
    * @purity semi-pure-b
@@ -4130,24 +4161,18 @@ export function frameLoop(
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
       pressed,
-      // STOP -- ⛔ THE CANVAS FIELD DOES NOT EXIST YET, BUT THIS `false` IS NOW
-      // WRONG RATHER THAN MERELY EARLY. ⚠️ THE OLD NOTE HERE WAS FALSE and is
-      // recorded as such: it said IN-5a's 「編集入力の確定前」 is a state only
-      // the field `editInPlace` opens can be in. AG-9 of table T-035 (MUST)
-      // says otherwise BY NAME -- 「人が編集入力を確定していない間（プロパティ
-      // パネルで入力中など）」 -- and the panel's fields ARE drawn and ARE
-      // focused; `dom-screen-surface.ts` already holds the answer as
-      // `isFieldHeld`, set on focusin and cleared on focusout.
-      //
-      // ⛔ WHY IT IS STILL PINNED: reporting it would put a member on
-      // `ScreenSurface`, which is IF-9 of table T-065 -- a published seam, and
-      // rule 06 classes a seam as `E`, which may not be moved on a body's own
-      // judgement. ⚠️ Three rules are inert until it moves: IN-5a (Delete is
-      // swallowed while typing), IN-4's first level (Esc cancels the edit) and
-      // WS-2 / AG-9 (the Agent API is refused while an edit stands). The ladder
-      // and the refusals are all built and tested; only this one boolean is a
-      // lie. Recorded for the user in the round's report.
-      isTextEntryUnsettled: false,
+      // ⭐ ASKED OF THE SIDE THAT DREW THE FIELDS, which is what IF-9 of table
+      // T-065 was widened for (利用者の裁定 2026-08-30). It stood pinned at
+      // `false` while the seam had no member to answer with, and four rules
+      // were inert for as long as it did: IN-5a's swallowing of a single
+      // character key and of `Delete`, IN-5a's OTHER half -- 「`SK-4` / `SK-5`
+      // （`Ctrl+C` / `Ctrl+V`）も同様に効かせず、文字への操作としてブラウザへ
+      // 渡すこと（MUST）」, which is table T-023's MK-10's one exception and
+      // which is why nothing could be copied out of a property field -- IN-4's
+      // first level, and WS-2 of table T-067 taking AG-9 of table T-035.
+      // ⚠️ ONE TRUTH VALUE AND NOT THE FIELD (MUST NOT, under table T-065): all
+      // four read nothing but 「入力中か」.
+      isTextEntryUnsettled: hasUnsettledTextEntry(),
       dualCursorFollowing,
       today: readToday(),
       // AT-51 is a UUID, and minting one is not a pure act -- which is why the
@@ -4180,9 +4205,18 @@ export function frameLoop(
    * gestures at all -- it is a press on an entry, and `commandFromEntry` may
    * well change the document. Reading the row first would hand every palette
    * press PD-5's exemption and take AG-9's MUST off all of them.
-   * ⛔ `editingInPlace` is false for the reason `isTextEntryUnsettled` is, and
-   * the STOP on that member holds it: no in-place entry exists in this build,
-   * so there is nothing that could be unsettled.
+   * ⭐ `editingInPlace` IS IF-9's FIFTH ANSWER, WITH ONE EXEMPTION MEASURED
+   * RATHER THAN ASSUMED. WS-2 refuses a write made 「編集入力の確定前」 -- and a
+   * write that IS the settling is not one of those. `spendFieldCommit` runs on
+   * the happening that carried the commit here, and a person who settles with
+   * Enter still has hold of the control at that moment, so answering `true`
+   * there would refuse the very edit FR-031 exists to write and take the value
+   * with it (`readFieldCommit` TAKES the commit). ⛔ THIS IS THE SAME SHAPE THE
+   * GESTURE ALREADY HAS, four paragraphs up: the press is dropped BEFORE the
+   * write because the gesture has in fact ended, and here the entry has in fact
+   * been settled. ⚠️ It exempts that ONE write and nothing else -- every other
+   * road through this member, the `Agent API`'s and table T-230's included,
+   * meets AG-9's MUST with the field still held.
    * ⚠️ `deliveringNotices` is NOT this side's to answer. WS-7's own window is
    * owned by `apply-document-change.ts`, which ORs its flag with this one --
    * answering it here as well would count the same window twice.
@@ -4192,7 +4226,7 @@ export function frameLoop(
   function collectWriteMoment(): WriteMoment {
     return {
       gestureInFlight: isDocumentChangingPress(pressed),
-      editingInPlace: false,
+      editingInPlace: !isSettlingFieldCommit && hasUnsettledTextEntry(),
       deliveringNotices: false,
     }
   }
@@ -5477,7 +5511,16 @@ export function frameLoop(
     if (commands.length === 0) return
     // FR-031 (MUST) with UN-3 of table T-027: one property change is ONE step
     // of the undo history, so the whole answer goes over as one bundle.
-    writeDocument(commands, frame)
+    // ⭐ DECLARED AS THE SETTLING WHILE IT RUNS: WS-2 refuses a write made
+    // before the entry was settled, and this write is the settling itself.
+    // ⛔ Put back in a `finally`, because a refusal below raises a telling and
+    // a flag left standing would exempt every write after it.
+    isSettlingFieldCommit = true
+    try {
+      writeDocument(commands, frame)
+    } finally {
+      isSettlingFieldCommit = false
+    }
   }
 
   /**
@@ -6013,9 +6056,3 @@ export const NOT_STORED_INTERACTION_RECORD_LIMITS: {
   'S-207': 2000,
 }
 // </generated>
-
-
-
-
-
-

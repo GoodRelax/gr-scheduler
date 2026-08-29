@@ -2548,6 +2548,78 @@ const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> =
 const TRUE_TEXT = String(true)
 
 /**
+ * The name the host gives the key table T-036's SK-8 calls `Esc`.
+ *
+ * ⚠️ SPELLED AGAIN RATHER THAN SHARED. `dom-input-source.ts` holds the same
+ * string for the same reason, and the two units are different components --
+ * `_source/components.json` draws no edge between them, so neither may import
+ * the other's. ⛔ It is the HOST's spelling either way and not the tool's: what
+ * arrives on a `KeyboardEvent` is `Escape`, and `Esc` is what the seam carries.
+ */
+const HOST_ESCAPE_KEY = 'Escape'
+
+/**
+ * Which kinds of control a person puts CHARACTERS into.
+ *
+ * ⛔ A RECORD OVER THE KIND AND NOT A LIST OF NAMES, so that a kind added to
+ * `PropertyControl` cannot be forgotten here -- the compiler asks for it. ⚠️ The
+ * three that are false hold values a person picks rather than types: a checkbox
+ * is toggled, a chooser is chosen from, and the host's colour control opens a
+ * picker of its own. ⛔ IN-5a's reason is what draws the line -- 「`SK-3`（選択の
+ * 削除）と 1 文字消す操作が同じキーに重なる」 -- and on the three that are false
+ * there is no character for `Delete` to take, so swallowing it there would take
+ * SK-3 away for nothing.
+ */
+const IS_KIND_TYPED_INTO: Readonly<Record<PropertyControlKind, boolean>> = {
+  text: true,
+  multiline: true,
+  date: true,
+  number: true,
+  boolean: false,
+  choice: false,
+  color: false,
+}
+
+/**
+ * A control this unit drew that a person types into, as much of it as the two
+ * rules below need.
+ *
+ * ⛔ NOT `HTMLInputElement`. Table T-075 leaves this unit runnable against a
+ * host that is not a browser, so the type is stated as what is actually used.
+ */
+interface TextEntryControl {
+  value: string
+  blur?: () => void
+}
+
+/**
+ * The controls of `IS_KIND_TYPED_INTO`, remembered as they are drawn.
+ *
+ * ⛔ NOT READ BACK OFF `data-field-kind`. That attribute is written for a reader
+ * of the built page and for a check (rule 04), and taking a decision back out of
+ * it would make a display detail load-bearing. ⚠️ Weak, like `CONTROL_KEYS` and
+ * for the same reason: the controls are thrown away by the next redraw.
+ */
+const TYPED_CONTROLS = new WeakSet<object>()
+
+/**
+ * The control a happening landed on, where that is one this unit drew and one a
+ * person types into -- otherwise `null`.
+ *
+ * ⚠️ NOT `instanceof Element`, the reason `onFieldChange` gives: `Element` is a
+ * global the host need not have, and what says this was one of ours is the set
+ * `controlElement` put it in.
+ *
+ * @purity pure
+ */
+function textEntryControlOf(target: unknown): TextEntryControl | null {
+  if (target === null || typeof target !== 'object') return null
+  if (!TYPED_CONTROLS.has(target)) return null
+  const drawn = target as Partial<TextEntryControl>
+  return typeof drawn.value === 'string' ? (target as TextEntryControl) : null
+}
+
+/**
  * One control of one field, drawn as the host's own.
  *
  * ⭐ A COMMIT IS A `change`, NEVER A KEYSTROKE. FR-031 (with UN-3 of table
@@ -2646,6 +2718,9 @@ function controlElement(host: Document, row: string, control: PropertyControl): 
   }
 
   CONTROL_KEYS.set(drawn, { row, key: control.key })
+  // IF-9's fifth answer is about the controls a person types INTO, and this is
+  // where the two are told apart -- the kind is in hand here and nowhere later.
+  if (IS_KIND_TYPED_INTO[control.kind]) TYPED_CONTROLS.add(drawn)
   return drawn as HTMLElement
 }
 
@@ -4179,12 +4254,137 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * and a redraw between the two would draw the description that is true then.
    */
   let isFieldHeld = false
-  propertiesPanel.addEventListener('focusin', () => {
+  /**
+   * The control the person is typing in, or `null` while none is held -- what
+   * `hasUnsettledTextEntry` answers from, and what an `Esc` puts back.
+   *
+   * ⛔ A NARROWER THING THAN `isFieldHeld`, AND THE TWO ARE NOT ONE VALUE. That
+   * flag guards a REDRAW and so is raised by a checkbox and a chooser as well;
+   * this one is IF-9's 「まだ確定していない文字入力」, and a checkbox holds no
+   * characters at all. Folded together, `Delete` would be swallowed (IN-5a) on
+   * a control where it takes nothing back, and SK-3 would be unreachable while
+   * a chooser had the focus.
+   */
+  let heldTextControl: TextEntryControl | null = null
+  /**
+   * What stood in that control when the person took hold of it -- IN-4's
+   * 「編集を始める前の値」.
+   *
+   * ⛔ READ AT `focusin` AND NOT AT THE REDRAW. The panel leaves a held control
+   * exactly as it stands (see `showScreenView`), so the description is no
+   * record of what the person started from; the moment they took hold of it is.
+   */
+  let heldTextValueAtFocus = ''
+  /**
+   * Whether the characters in the held control have already been taken back by
+   * an `Esc`, and nothing has been typed since.
+   *
+   * ⭐ THIS IS WHAT KEEPS IN-4 AT 1 階層 PER PRESS (MUST). The first `Esc`
+   * puts the value back and the level is spent on the edit -- so this side goes
+   * on answering `true`, and the shell, which reads that answer AFTER this
+   * listener has run, stops the ladder at 「確定していないその場の編集」 and
+   * takes nothing else. The SECOND `Esc` finds nothing left unsettled, this side
+   * lets the control go, and the ladder moves on to the rung below.
+   * ⚠️ MEASURED, NOT REASONED: with the control released on the first press the
+   * panel came away on that same press, because the shell read `false` from a
+   * flag this listener had just cleared.
+   */
+  let isHeldTextTakenBack = false
+  propertiesPanel.addEventListener('focusin', (event: Event) => {
     isFieldHeld = true
+    heldTextControl = textEntryControlOf(event.target)
+    heldTextValueAtFocus = heldTextControl === null ? '' : heldTextControl.value
+    isHeldTextTakenBack = false
   })
   propertiesPanel.addEventListener('focusout', () => {
     isFieldHeld = false
+    heldTextControl = null
+    heldTextValueAtFocus = ''
+    isHeldTextTakenBack = false
   })
+  // ⚠️ `input` AND NOT `change`, which is the one place in this unit where that
+  // is right: this is not a commit -- it is the person putting characters in
+  // again after a cancellation, which makes the edit unsettled once more.
+  propertiesPanel.addEventListener('input', () => {
+    isHeldTextTakenBack = false
+  })
+
+  /**
+   * IN-4's FIRST level of table T-028, spent where the characters are.
+   *
+   * ⛔ SPENT HERE BECAUSE NOWHERE ELSE CAN SPEND IT. `escapeTarget` (PI-36) puts
+   * 「確定していないその場の編集」 at the head of the ladder and answers
+   * `'textEntry'` for it, and the shell that reads that answer holds no field --
+   * the control is this unit's, and LR-6 keeps the browser out of every layer
+   * that could otherwise reach it. So the ladder names the level and this side
+   * carries it out, the same division `'gesture'` and `'confirmation'` already
+   * stand in.
+   *
+   * ⛔ 取り消したときは、編集を始める前の値へ戻すこと（MUST）。書きかけの文字を
+   * 文書へ書いてはならない（MUST NOT） -- IN-4 with FR-031. Putting the value
+   * back BEFORE leaving the control is what keeps the second half: the host
+   * raises `change` on leaving only where the value differs from the one the
+   * control was focused with, so a restored value raises none and no commit is
+   * ever built from the abandoned characters.
+   *
+   * ⛔ THE CONTROL IS NOT LET GO ON THIS PRESS, and that is measured rather
+   * than preferred: this listener runs BEFORE the shell's, so a flag cleared
+   * here is the value the shell reads, and the ladder then took the
+   * `Properties Panel` away on the very press that cancelled the edit -- two
+   * levels for one press, which IN-4 forbids (1 階層, MUST). The level is
+   * spent on the edit, the person keeps the field, and the NEXT `Esc` finds
+   * nothing unsettled and moves on.
+   *
+   * ⛔ `preventDefault` IS NOT CALLED HERE. MK-10's answer for the whole
+   * happening is `TranslatedInput.isBrowserDefaultStopped`, which the input seam
+   * (IF-2) reports and its own listener acts on; a second opinion raised here
+   * would put the decision in two places.
+   *
+   * @purity non-pure
+   */
+  propertiesPanel.addEventListener('keydown', (event: Event) => {
+    const held = heldTextControl
+    if (held === null) return
+    if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+    if (isHeldTextTakenBack) {
+      // Nothing stands unsettled any more, so this press is not the edit's.
+      // ⚠️ Guarded rather than assumed: table T-075 leaves this unit runnable
+      // against a host that is not a browser, and one that lays nothing out
+      // need not give its elements a `blur` at all.
+      if (typeof held.blur === 'function') held.blur()
+      heldTextControl = null
+      heldTextValueAtFocus = ''
+      isFieldHeld = false
+      isHeldTextTakenBack = false
+      return
+    }
+    held.value = heldTextValueAtFocus
+    isHeldTextTakenBack = true
+  })
+
+  /**
+   * IF-9's fifth answer -- whether characters stand in a field of this surface
+   * that the person has not settled.
+   *
+   * ⛔ ONE TRUTH VALUE AND NOT THE FIELD (MUST NOT, under table T-065): see the
+   * declaration. ⚠️ Held rather than measured: `ScreenSurfaceWiring` states that
+   * only `createElement` is called on the host, so `activeElement` is not this
+   * unit's to read -- `focusin` / `focusout` bubble to the panel and the panel
+   * answers for its own controls.
+   *
+   * ⚠️ WHAT IT DOES NOT COVER, MEASURED AND NOT ASSUMED: the `Dialogue Field`'s
+   * own entry is drawn by this unit as well and is deliberately outside this
+   * answer. AG-9 of table T-035 names 「プロパティパネルで入力中など」 and
+   * IN-5a names the five things typed in place (名称・担当者名・行名・文書名・
+   * 注記の本文), all of which are this panel's; what an utterance in flight
+   * should do to IN-5a and to WS-2 is a question no row settles, and inventing
+   * an answer would decide it here.
+   *
+   * @purity semi-pure-b
+   */
+  function hasUnsettledTextEntry(): boolean {
+    return heldTextControl !== null
+  }
 
   /**
    * The value settled in a property field since this was last asked -- the
@@ -4322,7 +4522,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // BO-1: settled before the first frame, and before this factory returns.
   reportHeaderHeight()
 
-  return { showScreenView, readDialogueInput, readFieldCommit, readScreenPartAt }
+  return {
+    showScreenView,
+    readDialogueInput,
+    readFieldCommit,
+    readScreenPartAt,
+    hasUnsettledTextEntry,
+  }
 }
 
 // <generated -- do not edit by hand>

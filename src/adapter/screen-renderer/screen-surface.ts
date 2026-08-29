@@ -333,4 +333,34 @@ export interface ScreenSurface {
    * @purity semi-pure-b
    */
   readScreenPartAt(x: number, y: number): ScreenPart | null
+
+  /**
+   * Whether text stands in one of this surface's fields that the person has not
+   * settled. The fifth of what IF-9 says this seam supplies --
+   * 「まだ確定していない文字入力があるかを答え」.
+   *
+   * ⛔ ONE TRUTH VALUE, AND WHICH FIELD HOLDS IT IS NOT ANSWERED (MUST NOT,
+   * under table T-065, 利用者の裁定 2026-08-27). The three rules that ask read
+   * nothing but 「入力中か」 -- IN-4's first level, IN-5a of table T-028, and
+   * WS-2 of table T-067 taking AG-9 of table T-035 -- and naming the field is
+   * what would let a reader start using it and thicken the seam.
+   *
+   * ⭐ WHY THE SURFACE IS ASKED. It is the same bargain `readScreenPartAt`
+   * rests on and Chapter 5.3 states under table T-065: the side that DREW the
+   * fields is the side that answers about them. Nothing outside this seam can
+   * see which control the person has hold of -- LR-6 keeps the browser out of
+   * the inner layers -- and the shell had no value to answer with at all, which
+   * is why it pinned `false` and all four rules stood inert.
+   *
+   * ⭐ Pulled, like the three above and for the same reason: UF-60 is `pure`
+   * (table T-075), so it can neither register a listener nor remember one.
+   *
+   * ⚠️ Reads the screen as it stands now, so it is not deterministic: two calls
+   * one focus change apart answer differently. ⛔ Asking it does not TAKE it,
+   * unlike `readFieldCommit` -- it is a question about the state of the screen,
+   * which the shell asks once per happening.
+   *
+   * @purity semi-pure-b
+   */
+  hasUnsettledTextEntry(): boolean
 }

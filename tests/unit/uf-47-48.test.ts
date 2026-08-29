@@ -897,6 +897,8 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     // IF-9 also returns what a properties-panel field settled at.
     // Nothing here drives one, so there is never a commit to take.
     readFieldCommit: () => null,
+    // IF-9's fifth answer. This fake draws no field, so nothing is unsettled.
+    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null,
   }
   return {
