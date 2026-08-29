@@ -253,3 +253,165 @@ export async function shot(name, clip) {
     ...(clip ? { clip } : {}),
   })
 }
+
+// --------------------------------------------------- the schedule's own ink --
+
+/** The element that IS the `Schedule Canvas` -- the pointer's shape lives on it. */
+export const CANVAS = '[data-role="Schedule Canvas"]'
+
+/**
+ * The shape the app is showing at this point (IN-2 of table T-028).
+ *
+ * ⭐ WHY IT IS WORTH A MEMBER. Five probes of the 2026-08-29 round wrote this
+ * by hand. It is also the cheapest way to ask the APP what it thinks is under
+ * a point, which is a different question from what `elementFromPoint` answers.
+ *
+ * ⛔ IT IS THE CANVAS'S OWN `style.cursor` AND NOT THE PAGE'S. A `Panel
+ * Divider` or a floating surface carries its own, and reading only this one is
+ * how a session concluded that the pointer "answered nothing" over a band that
+ * was answering `col-resize` -- the ledger's D-137. Ask `partAt` as well when
+ * the answer is empty.
+ */
+export async function cursorAt(x, y) {
+  await page().mouse.move(x, y)
+  return page().evaluate((sel) => document.querySelector(sel)?.style.cursor ?? '', CANVAS)
+}
+
+/** What the SURFACE drew at this point -- the outermost `data-role`, or `-`. */
+export async function partAt(x, y) {
+  return page().evaluate(([px, py]) => {
+    const el = document.elementFromPoint(px, py)
+    return el === null ? '-' : (el.closest('[data-role]')?.getAttribute('data-role') ?? '-')
+  }, [x, y])
+}
+
+/**
+ * A point inside the `Row Area` that the app itself calls empty.
+ *
+ * ⭐⭐ ASK THE APP, DO NOT COMPUTE IT. Two probes of that round picked a point
+ * by walking bounding boxes and both landed ON something -- once on the palette
+ * floating over the canvas, once inside a task's grab slop -- and the runs that
+ * followed measured nothing at all. PD-5 gives empty ground the default arrow,
+ * so the app answers this question for free.
+ */
+export async function emptyPoint({ x0 = 300, x1 = 1700, y0 = 300, y1 = 1000, step = 17 } = {}) {
+  for (let y = y0; y < y1; y += 11) {
+    for (let x = x0; x < x1; x += step) {
+      if ((await cursorAt(x, y)) === 'default') return { x, y }
+    }
+  }
+  return null
+}
+
+/**
+ * The shapes drawn inside the schedule, with their boxes.
+ *
+ * ⚠️ `fill` IS HOW A KIND IS TOLD FROM A KIND. Table T-236's rows are the only
+ * thing separating a plan bar from an actual one in the drawing -- there is no
+ * class and no `data-` on them. Pass the colour the theme resolved (measure it
+ * once with no filter rather than deriving it).
+ */
+export async function shapes({ fill = null, minWidth = 4, minHeight = 4, within = null } = {}) {
+  return page().evaluate(([paint, mw, mh, box]) => {
+    const host = document.querySelector('[data-role="Schedule Canvas"]')
+    if (host === null) return []
+    return [...host.querySelectorAll('svg rect, svg polygon, svg path')]
+      .filter((n) => paint === null || n.getAttribute('fill') === paint)
+      .map((n) => ({ tag: n.tagName, r: n.getBoundingClientRect() }))
+      .filter((o) => o.r.width >= mw && o.r.height >= mh)
+      .filter((o) => box === null ||
+        (o.r.x >= box.x && o.r.y >= box.y &&
+         o.r.x <= box.x + box.width && o.r.y <= box.y + box.height))
+      .map((o) => ({
+        tag: o.tag,
+        x: Math.round(o.r.x), y: Math.round(o.r.y),
+        w: Math.round(o.r.width), h: Math.round(o.r.height),
+        mid: { x: Math.round(o.r.x + o.r.width / 2), y: Math.round(o.r.y + o.r.height / 2) },
+      }))
+      .sort((a, b) => a.y - b.y || a.x - b.x)
+  }, [fill, minWidth, minHeight, within])
+}
+
+/**
+ * What is drawn near a point, as a signature that survives a redraw.
+ *
+ * ⛔⛔ AN ELEMENT DOES NOT SURVIVE ONE. A probe of that round tagged a polygon
+ * with an attribute and read it back after a change; the tree had been rebuilt
+ * and the tag was gone, so two runs measured `null` and were read as "nothing
+ * happened". ⭐ A place and a signature survive; a node does not.
+ */
+export async function signatureAt(x, y, radius = 30) {
+  return page().evaluate(([px, py, r]) => {
+    const host = document.querySelector('[data-role="Schedule Canvas"]')
+    for (const n of host.querySelectorAll('svg polygon, svg path, svg rect')) {
+      const box = n.getBoundingClientRect()
+      if (box.width < 4) continue
+      if (Math.abs(box.x + box.width / 2 - px) > r) continue
+      if (Math.abs(box.y + box.height / 2 - py) > r) continue
+      if (n.tagName === 'path') {
+        return `path/${((n.getAttribute('d') ?? '').match(/M/g) ?? []).length}sub`
+      }
+      if (n.tagName === 'rect') return `rect/${Math.round(box.width)}x${Math.round(box.height)}`
+      return `poly/${(n.getAttribute('points') ?? '').trim().split(/\s+/).length}pt`
+    }
+    return 'none'
+  }, [x, y, radius])
+}
+
+/**
+ * The notices standing on screen (table T-037).
+ *
+ * ⛔⛔ THE ROLE IS `Notification Area`, NOT `Notice`. A probe of that round
+ * looked for the latter, found none, and reported a defect as fixed -- it was
+ * only caught because the case was broken on purpose and refused to go red.
+ */
+export async function notices() {
+  return page().evaluate(() =>
+    [...document.querySelectorAll('[data-role]')]
+      .filter((n) => (n.getAttribute('data-role') ?? '').includes('Notification'))
+      .map((n) => (n.textContent ?? '').trim())
+      .filter((t) => t.length > 0))
+}
+
+/**
+ * The row bands: where each stands, how tall it is, and how far to the next.
+ *
+ * ⚠️ THE PITCH IS NOT THE HEIGHT. Measured 2026-08-29: every pitch is the band
+ * plus 8px, and that gap is where a vertical pan used to lose its travel
+ * (the ledger's D-138). A probe that reads `height` where it means `pitch`
+ * measures the defect rather than the picture.
+ */
+export async function rowBands() {
+  const rows = await page().evaluate(() =>
+    [...document.querySelectorAll('[data-depth]')]
+      .map((n) => n.getBoundingClientRect())
+      .map((r) => ({ y: Math.round(r.y), height: Math.round(r.height) }))
+      .sort((a, b) => a.y - b.y))
+  return rows.map((row, i) => ({
+    ...row,
+    pitch: i + 1 < rows.length ? rows[i + 1].y - row.y : row.height,
+  }))
+}
+
+/**
+ * Drag with a real pointer, reporting what the picture did at every step.
+ *
+ * ⭐⭐ THIS IS THE MEASUREMENT THAT FOUND D-138. A drag reported in ONE jump
+ * hides a quantisation; the same drag swept in small steps showed the picture
+ * overshoot by exactly the gap between two bands at one boundary and nowhere
+ * else. ⛔ Never conclude 等倍 from a single long drag.
+ */
+export async function sweep(from, delta, read, { steps = 40, modifiers = [] } = {}) {
+  for (const key of modifiers) await page().keyboard.down(key)
+  await page().mouse.move(from.x, from.y)
+  await page().mouse.down()
+  const seen = []
+  for (let i = 1; i <= steps; i += 1) {
+    const at = { x: from.x + (delta.x * i) / steps, y: from.y + (delta.y * i) / steps }
+    await page().mouse.move(at.x, at.y)
+    seen.push({ step: i, at, value: await read() })
+  }
+  await page().mouse.up()
+  for (const key of modifiers) await page().keyboard.up(key)
+  return seen
+}
