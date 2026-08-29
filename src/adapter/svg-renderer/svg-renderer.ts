@@ -1112,6 +1112,12 @@ export function svgFromSchedule(
    */
   const hover = drawsOperationState ? hovered : null
   /**
+   * Where the hand is, spent through `drawsOperationState` for the reason
+   * `hover` above states: EP-12 of table T-076 keeps 操作の状態 out of an
+   * export, and a mark darkened by the reader's pointer is that state.
+   */
+  const hand = drawsOperationState ? pointer : null
+  /**
    * Whether the hand stands on one of `rows` of THIS Task -- FR-013's
    * 「ポインタが乗っているあいだ」, asked of the answer handed in.
    *
@@ -1126,6 +1132,33 @@ export function svgFromSchedule(
     hover.item.kind === 'task' &&
     hover.item.taskUid === taskUid &&
     rows.includes(hover.grab)
+  /**
+   * FR-013's 「ポインタが乗っているあいだ」 asked of a DRAWN FIGURE, which is
+   * how the 作法 it points at reads it: HF-6 of table T-051 shows the row
+   * control 「その行の名前にポインタが乗っているあいだだけ」 -- the condition is
+   * the pointer being over the thing, and no order of precedence enters it.
+   *
+   * ⛔ WHY THE DUMMIES MAY NOT BE ASKED THROUGH `handOn`, MEASURED. Table
+   * T-023d prints GR-3 and GR-4 (the plan's two ends) ABOVE GR-9 / GR-17, and
+   * 「上の行ほど優先すること（MUST）」, so once a day is drawn narrower than
+   * S-90's 6px the plan's end claims the point the dummy stands on. At the
+   * magnification FR-055 opens with, 21 of 21 dummies on screen answered GR-3
+   * or GR-4 and 0 of 21 darkened, while the same dummies darken 2 of 2 eight
+   * notches in. ⚠️ THAT ORDER IS NOT DISTURBED HERE and must not be: which row
+   * a PRESS goes to is table T-023d's, and MK-9a scopes its 優先順位 to
+   * 「掴む対象が重なった」. This decides only what is drawn.
+   *
+   * ⚠️ The marker is still asked through `handOn`, and that is a measurement
+   * and not a second reading: GR-7 sits above every row that can reach the
+   * marker's square, so the two conditions coincide there -- 21 of 21 markers
+   * darkened. Changing it would be a change with nothing behind it.
+   *
+   * @purity pure
+   */
+  const handInside = (centre: Point, width: number, height: number): boolean =>
+    hand !== null &&
+    Math.abs(hand.x - centre.x) <= width / 2 &&
+    Math.abs(hand.y - centre.y) <= height / 2
   const selected = new Set(marks.filter((one) => one.kind === 'task').map((one) => one.uid))
   const selectedBoxes = new Set(
     marks.filter((one) => one.kind === 'highlightBox').map((one) => one.id),
@@ -1365,7 +1398,16 @@ export function svgFromSchedule(
       // per-mark strength would put back exactly the third value that group
       // exists to prevent; and the hand is on one of a Task's dummies or on
       // none. @provisional PD-351
-      const faintness = handOn(task.taskUid, DUMMY_GRAB_ROWS) ? 1 : settings.dummyOpacity
+      // ⛔ ASKED OF THE FIGURE AND NOT OF THE ROW THAT WON. `handInside`'s note
+      // carries the measurement: the plan's ends (GR-3 / GR-4) stand above
+      // GR-9 / GR-17 in table T-023d, so below S-90's reach in a day's width
+      // the answer `handOn` gives is the plan's end and this MUST went unmet at
+      // every magnification a whole document is read at. @provisional PD-360
+      const faintness = task.dummies.some((one) =>
+        handInside(one.at, drawnWidth, one.height),
+      )
+        ? 1
+        : settings.dummyOpacity
       actualParts.push(`<g opacity="${rounded(faintness)}">${marks}</g>`)
     }
     if (selected.has(task.taskUid)) {
@@ -1734,17 +1776,17 @@ export function svgFromSchedule(
 }
 
 /**
- * The rows of table T-023d that claim FR-043's dummies -- the two ends of the
- * actual bar a Task not started has yet to have, and the milestone's one point.
- *
- * ⛔ THE TABLE'S OWN THREE AND NOT A FOURTH: GR-9 (the start), GR-17 (the
- * finish) and GR-18 (the milestone) are the rows FR-043 puts the grab handles
- * at, and they are the same three the S-180 figure is drawn for.
- * ⚠️ SPELLED AS `Hit['grab']` RATHER THAN AS ItemHitArea's OWN `GrabArea`:
- * table T-064 names `Hit` and not that alias, and a second crossing name would
- * be a seam the table does not hold.
+ * ⛔ `DUMMY_GRAB_ROWS` STOOD HERE AND IS GONE, and the reason is a measurement
+ * rather than a tidy-up. It named GR-9 / GR-17 / GR-18 so that FR-013's
+ * 「ポインタが乗っているあいだ」 could be asked of the row table T-023d awarded
+ * the point to. That row is never one of those three below the magnification at
+ * which a day is drawn wider than S-90: the plan's ends (GR-3 / GR-4) are
+ * printed above them and 「上の行ほど優先すること（MUST）」. `handInside` in
+ * `svgFromSchedule` carries the figures measured and asks the drawn shape
+ * instead, the way HF-6 of table T-051 asks it. ⚠️ Which row a PRESS goes to is
+ * untouched -- that is table T-023d's, and MK-9a scopes its 優先順位 to
+ * 「掴む対象が重なった」.
  */
-const DUMMY_GRAB_ROWS: readonly Hit['grab'][] = ['GR-9', 'GR-17', 'GR-18']
 
 /**
  * The row of table T-023d that claims the progress marker -- GR-7, which is
