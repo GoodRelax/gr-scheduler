@@ -1257,7 +1257,14 @@ COLOUR_TARGETS = {
     # constant, but only as their own cells' `sameAs`; nothing here could name
     # the ground itself. ⛔ Two rows would be the drift the note above forbids;
     # ONE row read by two units is not.
-    'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-149', 'S-151', 'S-155', 'S-156',
+    # ⭐ S-148 JOINS THEM, for the same reason and by the same note: the guide
+    # cursor (CU-3 of table T-029) is drawn on this side, table T-236 holds no
+    # row of its own for it, and the muted neutral is what the table keeps for
+    # what is secondary. ⛔ NOT A NEW VALUE -- the row already stands, and the
+    # colour it lends is deliberately neither S-163's nor S-195's, which is what
+    # FR-048's closing MUST asks of a line that carries no date. @provisional
+    # PD-341
+    'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-151', 'S-155', 'S-156',
                          'S-157', 'S-158', 'S-159', 'S-160', 'S-161', 'S-162',
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
                          'S-169', 'S-195'],

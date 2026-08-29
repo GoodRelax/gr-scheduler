@@ -993,9 +993,12 @@ function rulerSvg(
  * @purity pure
  */
 /**
- * ⛔ `weekdayWords` IS LAST, AND MUST STAY LAST. `snapshot-source.ts` reads
+ * ⛔ NOTHING MAY BE INSERTED BEFORE INDEX 5. `snapshot-source.ts` reads
  * `Parameters<typeof svgFromSchedule>[3]` and `[4]` by position, so a parameter
  * inserted before those two re-points both without a word from the compiler.
+ * ⚠️ THE NOTE HERE USED TO SAY `weekdayWords` MUST STAY LAST, which was the
+ * same rule stated too narrowly: `pointer` now stands after it, both indices
+ * are untouched, and the constraint the sentence was defending still holds.
  *
  * ⚠️ ITS DEFAULT IS THE EMPTY LIST, AND THAT IS NOT "no weekday is wanted".
  * FR-017 (MUST) puts the weekday on the fourth tier; the default is FR-038's
@@ -1003,6 +1006,16 @@ function rulerSvg(
  * caller that means to draw for a reader supplies the seven from
  * `rulerWeekdayWords` (PI-37) -- and only the fourth tier reads them, so the
  * default costs nothing at the other three.
+ *
+ * ⭐ `pointer` IS WHERE THE HAND IS, in the same screen px every region and
+ * every geometry vertex is in, or `null` while no pointer has been heard of.
+ * CU-3 of table T-029 calls the guide cursor 「ポインタに追従する補助線」, and
+ * that position is a current value the document does not hold -- the third
+ * thing in this file that is not a property of the document, beside `selection`
+ * and `follow`, and it arrives the same way for the same reason (LY-5 of table
+ * T-060 leaves current values with the Framework). ⛔ IT IS NOT `follow.x`:
+ * that one is the Dual Cursor's, is an x alone, and is snapped to a day; the
+ * guide cursor needs both axes and snaps to nothing.
  */
 export function svgFromSchedule(
   schedule: Schedule,
@@ -1014,6 +1027,7 @@ export function svgFromSchedule(
   picture: SchedulePicture,
   follow: DualCursorFollow | null = null,
   weekdayWords: readonly string[] = [],
+  pointer: Point | null = null,
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
@@ -1434,6 +1448,75 @@ export function svgFromSchedule(
     }
   }
 
+  // CU-3 of table T-029: 「`Guide Cursor`（ガイドカーソル） | ポインタに追従
+  // する補助線 | 4 モード排他 —— なし / 十字 / 縦 1 本 / 縦 2 本」. The mode is
+  // S-66 of table T-202, and until this round nothing in `src/` read it but
+  // FrameLoop's "does this move owe a frame" test -- the setting reached the
+  // document and no line was ever drawn (D-72).
+  //
+  // ⛔ NOT IN AN EXPORT. EP-6 of table T-076 is verbatim: 「`Status Line` と
+  // `Dual Cursor` を描く。`Guide Cursor` は描かない」, on the ground that a
+  // pointer position has no meaning in a saved picture. `drawsOperationState`
+  // is exactly that test and is already the gate for every other mark of the
+  // session, so the rule is obeyed in the one place rather than in a second.
+  //
+  // ⭐ PAINTED INTO `linkParts`, BESIDE THE OTHER TWO CURSORS, for the reason
+  // PD-312 records for CU-2: table T-020 holds no row for any of the three, and
+  // putting the rows of table T-029 in one layer is what lets a reader compare
+  // them. The layer is carried by PD-342 below, with the region.
+  if (drawsOperationState && settings.guideCursorMode !== 'none' && pointer !== null) {
+    const area = regions.rowArea
+    const inside =
+      pointer.x >= area.x &&
+      pointer.x <= area.x + area.width &&
+      pointer.y >= area.y &&
+      pointer.y <= area.y + area.height
+    if (inside) {
+      // ⛔ NO ROW HOLDS EITHER OF THESE TWO. Table T-236 has no guide cursor
+      // colour (S-163 is the status line's, S-195 the Dual Cursor's) and table
+      // T-206 has no guide cursor width (S-194 is the Dual Cursor's). S-148 is
+      // the muted neutral the table already keeps for what is secondary, and it
+      // is deliberately NEITHER of the cursor colours: the guide cursor carries
+      // no date, and a reader who has the status line or a measurement up must
+      // still be able to tell which line is which -- which is the same worry
+      // FR-048's own closing ⚠️ states about the two "縦 2 本". The width is the
+      // typed 1 the status line already stands at. @provisional PD-341
+      const guideColour = themed('S-148')
+      const guideWidth = 1
+      // ⛔ THE REGION IS THE `Row Area`, THE SAME TWO EDGES CU-1 AND CU-2 RUN
+      // BETWEEN, and no row says whether this line crosses the ruler. The
+      // pointer is also required to BE in that area: nothing says what a guide
+      // cursor does while the hand is over the ruler or a panel, and a line
+      // striking the schedule from a pointer that is not on it guides the eye
+      // to a place the eye is not. @provisional PD-342
+      const vertical = (x: number): string =>
+        `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
+        ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
+        ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"/>`
+      if (settings.guideCursorMode === 'crosshair') {
+        // 十字: the vertical and the horizontal, crossing under the hand.
+        linkParts.push(vertical(pointer.x))
+        linkParts.push(
+          `<line x1="${rounded(area.x)}" y1="${rounded(pointer.y)}"` +
+            ` x2="${rounded(area.x + area.width)}" y2="${rounded(pointer.y)}"` +
+            ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"/>`,
+        )
+      } else if (settings.guideCursorMode === 'single-vertical') {
+        // 縦 1 本.
+        linkParts.push(vertical(pointer.x))
+      }
+      // ⛔ 縦 2 本 DRAWS NOTHING, AND THAT IS THE SPECIFICATION'S ANSWER TODAY.
+      // Two lines need a distance between them and NO ROW STATES ONE -- not
+      // table T-029, not table T-202, not tables T-206 or T-236. Worse, FR-048
+      // closes with a MUST that cannot be met without a second invented value:
+      // 「同じ見た目なので、どちらが出ているかを画面上で区別できるようにする
+      // こと（MUST）」 -- CU-2's pair and this one look alike, and nothing says
+      // how they are told apart. Inventing a gap AND a distinguishing mark is
+      // two undecided values stacked, which rule 06's class H forbids outright.
+      // @provisional PD-343
+    }
+  }
+
   for (const box of geometry.highlightBoxes) {
     // FR-019: the author's line colour, and the annotation's fixed one only
     // when they named none.
@@ -1647,6 +1730,8 @@ export const SCHEDULE_COLOURS: {
   'S-146': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   /* S-147 */
   'S-147': { light: '#16181d', dark: '#e8eaee', followsHue: false },
+  /* S-148 */
+  'S-148': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   /* S-149 */
   'S-149': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
   /* S-151 */
