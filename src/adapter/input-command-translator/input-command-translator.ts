@@ -1212,6 +1212,37 @@ function rowAnchorAt(
  *
  * @purity pure
  */
+/**
+ * PD-1's write: the display position moved by this many pixels.
+ *
+ * ⭐ ONE PLACE FOR THE FOUR MEMBERS, because two roads reach them now -- the
+ * move that follows the pointer and the release that finishes the gesture --
+ * and R2.7 is about a second reading as much as a second call.
+ *
+ * ⭐ ALL FOUR COME FROM THE ONE READING, and that is what makes 等倍 exact.
+ * S-176 and S-177 hold the part of a row and the part of a day the anchors
+ * cannot name, so a movement of any distance -- shorter than a row, shorter
+ * than a day -- is written as the distance it was.
+ * ⛔ NO FLOOR IS TAKEN. `rowTurnedTo`'s one-row floor used to answer the
+ * vertical half, and it made the picture jump a whole row for a drag of a few
+ * px, which is the very thing 「倍率を掛けない」 forbids. ⚠️ MK-1 keeps it --
+ * see `rowTurnedTo` for why the wheel and the hand are held to different rules.
+ *
+ * @purity pure
+ */
+function panTo(context: InputContext, dx: number, dy: number): TranslatedInput {
+  const moved = scrolledAnchor(context, dx, dy)
+  return changed([
+    {
+      kind: 'setScrollPosition',
+      scrollDate: moved.scrollDate,
+      scrollDayOffset: moved.scrollDayOffset,
+      scrollGroupId: moved.scrollGroupId,
+      scrollGroupOffset: moved.scrollGroupOffset,
+    },
+  ])
+}
+
 function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAnchor {
   const area = context.regions.rowArea
   return {
@@ -2855,7 +2886,14 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // drawn from the document, so what a move reports for it settles no value of
   // the schedule and pushes no undo step. Every other gesture's picture is the
   // renderer's to draw from the press it can see.
-  if (input.phase === 'move') return paletteFollow(input, context)
+  // ⭐ TWO GESTURES ANSWER A MOVE NOW. PD-1's pan is asked first because it is
+  // the row table T-023a puts first -- 「構えと当たりによらず優先する」 -- and
+  // the two cannot both answer anyway: a pan's press is on nothing the surface
+  // drew and the palette's is on its own band.
+  if (input.phase === 'move') {
+    const panning = panFollow(input, context)
+    return panning === UNASSIGNED ? paletteFollow(input, context) : panning
+  }
   // IN-1a: the pointer was lost outside the window, so the drag ends as an
   // abort (MUST) -- nothing is written. ⭐ Saying so is what keeps AG-9 from
   // refusing every later write: the shell drops the press it is holding.
@@ -2907,16 +2945,14 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       // be expressed; S-176 expresses it, so the floor is a defect rather than
       // a choice. ⚠️ MK-1 keeps it -- see `rowTurnedTo` for why the wheel and
       // the hand are held to different rules.
-      const moved = scrolledAnchor(context, press.at.x - input.x, press.at.y - input.y)
-      return changed([
-        {
-          kind: 'setScrollPosition',
-          scrollDate: moved.scrollDate,
-          scrollDayOffset: moved.scrollDayOffset,
-          scrollGroupId: moved.scrollGroupId,
-          scrollGroupOffset: moved.scrollGroupOffset,
-        },
-      ])
+      // ⭐ THE TRAVEL SINCE THE LAST PIECE, not since the press, and the sum
+      // over one gesture is the same either way -- `followingTravel` falls back
+      // to the press for a caller that followed nothing, which is what a caller
+      // with no `followedTo` gets. ⛔ MEASURED FROM THE PRESS IT DOUBLES: the
+      // moves have already been applied and `scrolledAnchor` reads the layout
+      // they produced.
+      const by = followingTravel(input, press)
+      return panTo(context, -by.dx, -by.dy)
     }
     case 'PD-2':
       // DC-2 of table T-029a: the click fixes the following side and hands the
@@ -2947,18 +2983,23 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
 }
 
 /**
- * How far the palette still owes, for the happening now in hand -- the pointer
- * against the last point the caller followed it to, or against the press while
- * it has followed it nowhere.
+ * How far a following gesture still owes, for the happening now in hand -- the
+ * pointer against the last point the caller followed it to, or against the
+ * press while it has followed it nowhere.
  *
  * ⭐ ONE READING FOR THE MOVE AND THE RELEASE. Both owe the same distance and
  * the sum of every answer over one gesture is `release - press`, whichever way
  * the caller reports: written twice, the two would drift apart the first time
  * `followedTo` changed meaning.
  *
+ * ⭐ TWO GESTURES FOLLOW NOW, not one: FR-053's palette (GR-19) and PD-1's pan.
+ * ⛔ The reading is shared rather than copied because the trap is the same for
+ * both -- a piece measured from the PRESS is right only for the first piece and
+ * overshoots by more the more pieces one drag is reported in.
+ *
  * @purity pure
  */
-function paletteTravel(
+function followingTravel(
   at: PointerInput,
   press: PointerPress,
 ): { readonly dx: number; readonly dy: number } {
@@ -2967,19 +3008,50 @@ function paletteTravel(
 }
 
 /**
+ * PD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」
+ * (the user's ruling of 2026-08-29).
+ *
+ * ⭐ A WRITE PER MOVE IS ALLOWED HERE, which IN-1 would otherwise forbid: UN-8
+ * of table T-027 puts 「ズーム・スクロール・パン」 outside the history, so a
+ * display position written on every move pushes no step and nothing settles
+ * that a release could still take back. ⛔ The alternative -- drawing a
+ * preview and writing once on the release -- was tried and measured wrong:
+ * `scrolledAnchor` reads the layout the preview produced, so each frame applied
+ * the whole travel again (a -240 drag left the leftmost bar at -790).
+ *
+ * ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`, for the
+ * reason `paletteFollow` gives.
+ *
+ * @purity pure
+ */
+function panFollow(input: PointerInput, context: InputContext): TranslatedInput {
+  const press = context.pressed
+  if (press === null) return UNASSIGNED
+  // ⛔ `on` FIRST, the order `isDocumentChangingPress` keeps: the note under
+  // table T-023a limits that table to the schedule's drawing area (MUST), so a
+  // press the screen surface answered for carries no row of it -- and PD-1's
+  // own row is what this reads.
+  if (press.on !== null) return UNASSIGNED
+  if (press.pressRow !== 'PD-1') return UNASSIGNED
+  // ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`, the same
+  // refusal `paletteFollow` makes and for the same reason: a caller that does
+  // not record what it applied would add up travels all measured from the press
+  // and send the schedule running. ⭐ The release still pans in full, because
+  // `followingTravel` falls back to the press when nothing was followed.
+  if (press.followedTo === undefined) return UNASSIGNED
+  const by = followingTravel(input, press)
+  // ⭐ THE SAME ARITHMETIC THE RELEASE USES, from the same helper: the display
+  // position moves the opposite way by the same number of pixels, which is
+  // 「パンは等倍とすること（MUST）」.
+  return panTo(context, -by.dx, -by.dy)
+}
+
+/**
  * FR-053 (MUST): while GR-19's band is held, the palette follows the pointer.
  *
- * ⛔ GR-19 IS THE ONLY GESTURE THAT REPORTS ON A MOVE. Table T-023a's other
- * five settle on the release (IN-1) and their pictures are the renderer's, so
- * this asks what the press landed ON rather than which row of that table it
- * began: the note under table T-023a keeps its decision order off everything
- * the screen surface drew, and the band is one of those things.
- *
- * ⚠️ NOTHING IS REPORTED WHILE THE CALLER CARRIES NO `followedTo`. That member
- * says why: a caller that does not record what it applied would add up travels
- * all measured from the press and send the palette running. ⭐ Answering
- * `UNASSIGNED` is what a move has always answered, so such a caller is left
- * exactly where it was rather than half moved.
+ * ⛔ GR-19 IS NO LONGER THE ONLY GESTURE THAT REPORTS ON A MOVE -- PD-1's pan
+ * does too, and `panFollow` above is asked first. The two cannot both answer:
+ * this one wants a press ON the band and that one a press on nothing at all.
  *
  * @purity pure
  */
@@ -2988,7 +3060,7 @@ function paletteFollow(input: PointerInput, context: InputContext): TranslatedIn
   if (press === null || press.on === null) return UNASSIGNED
   if (press.on.entry !== ENTRY.paletteGrabBand) return UNASSIGNED
   if (press.followedTo === undefined) return UNASSIGNED
-  return acted({ kind: 'moveCommandPalette', by: paletteTravel(input, press) })
+  return acted({ kind: 'moveCommandPalette', by: followingTravel(input, press) })
 }
 
 /**
@@ -3181,8 +3253,8 @@ function commandFromEntry(
       // ⭐ WHAT IS LEFT OF IT, WHICH IS THE WHOLE TRAVEL WHEN NOTHING FOLLOWED.
       // FR-053 (MUST) has the palette follow while the band is held, so the
       // moves before this one may already have been reported and applied;
-      // `paletteTravel` is where the two readings are settled, once.
-      return acted({ kind: 'moveCommandPalette', by: paletteTravel(release, press) })
+      // `followingTravel` is where the two readings are settled, once.
+      return acted({ kind: 'moveCommandPalette', by: followingTravel(release, press) })
     case ENTRY.rowExpanderOpen:
     case ENTRY.rowExpanderClose:
     case ENTRY.rowExpanderCloseBelow:

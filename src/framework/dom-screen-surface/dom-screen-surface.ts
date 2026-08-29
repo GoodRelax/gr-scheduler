@@ -1060,9 +1060,9 @@ function entryPressedInk(): string {
  * with, in place of the caption the same requirement (MUST NOT) forbids.
  *
  * ⭐ BOTH LENGTHS ARE THE SPECIFICATION'S. S-143 of table T-206 states the
- * rule's thickness and its side gaps and states nothing else, and the pair
- * arrives in that order -- ⛔ neither number is written here, which is what
- * rule 03 section 1 requires.
+ * rule's thickness and the clearance around it, and the pair arrives in that
+ * order -- ⛔ neither number is written here, which is what rule 03 section 1
+ * requires.
  *
  * ⭐ THE COLOUR IS S-149 AND IS NOT A CHOICE MADE HERE EITHER. Table T-236
  * gives that row 「区切りの線」 as what it paints, and a boundary between two
@@ -1070,12 +1070,18 @@ function entryPressedInk(): string {
  * ⛔ No row gives this rule a colour of its own, and inventing one would put a
  * second paint against the one already settled for a separating line.
  *
- * ⛔ NO VERTICAL ROOM IS ADDED. S-143 states a thickness and a LEFT-AND-RIGHT
- * clearance, and no row anywhere states a gap above or below -- so the line
- * stands between the two groups and nothing is invented around it. ⚠️ A
- * `margin-bottom:0.5em` used to sit on every group and stand in for the rule
- * while it could not be drawn; it went with this function, because a made-up
- * gap kept beside the real boundary reads as a rule that was measured.
+ * ⭐ THE SECOND NUMBER REACHES ALL FOUR SIDES, which is what that row now says
+ * of itself -- 「線の太さとまわりの空き」, and 「2 つ目の数は上下左右のすべてに
+ * 当たる」 (the user's ruling of 2026-08-29). ⛔ IT IS NOT A SECOND NUMBER
+ * INVENTED FOR THE VERTICAL: the ruling was 「上下も左右と同じ 6px」, so the
+ * clearance is one value applied four ways and the row stays a pair.
+ * ⚠️ UNTIL THAT RULING THE CLEARANCE WAS SIDEWAYS ONLY, and the measurement is
+ * what settled it: the rules came out 1px tall with 0px above and below, so a
+ * group's buttons touched the line on both sides. ⚠️ A `margin-bottom:0.5em`
+ * used to stand in for the rule while it could not be drawn; it went with this
+ * function, because a made-up gap kept beside the real boundary reads as a rule
+ * that was measured. ⭐ The 6px that replaced it is measured -- it is the same
+ * number the sides already had.
  *
  * ⛔ A FUNCTION AND NOT A MEMBER OF `STYLE`, for the reason `entryArmedRim`
  * gives: it reads the generated block at the foot of this file, which a `const`
@@ -1088,9 +1094,9 @@ function entryPressedInk(): string {
  * @purity pure
  */
 function paletteGroupRuleStyle(): string {
-  const [thickness, sideGap] = NOT_STORED_PALETTE_GROUP_RULE_SIZES['S-143']
+  const [thickness, clearance] = NOT_STORED_PALETTE_GROUP_RULE_SIZES['S-143']
   return (
-    `height:${thickness}px;margin:0 ${sideGap}px;` +
+    `height:${thickness}px;margin:${clearance}px;` +
     `background:${PAINT.rule};pointer-events:none;`
   )
 }
@@ -5137,7 +5143,7 @@ export const NOT_STORED_ARMED_ENTRY_SIZES: {
  * export is EP-11, which draws no `Command Palette` at all.
  */
 export const NOT_STORED_PALETTE_GROUP_RULE_SIZES: {
-  /** S-143, in px */
+  /** S-143, in px -- the rule's thickness, then the clearance on all four sides. */
   readonly 'S-143': readonly [number, number]
 } = {
   'S-143': [1, 6],

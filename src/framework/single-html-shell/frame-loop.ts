@@ -647,6 +647,19 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
  * those -- U-24 has no entry in table T-109, which is why `commandFromEntry`
  * tests `dividerPanel` before it reads `entry`.
  *
+ * ⛔ PD-1 IS NOT HERE, AND THIS IS THE MEASUREMENT THAT KEPT IT OUT. Its own
+ * rule now asks for the picture in as many words -- 「握っているあいだ、縦横の
+ * 両方向でポインタに追従させること（MUST）」 (the user's ruling of 2026-08-29) --
+ * and a line here answering `true` looked like the whole of it. ⛔ It compounds:
+ * `scrolledAnchor` measures its travel against `context.layout`, which is built
+ * from the picture this fold produced, so every frame applies the whole travel
+ * again to a layout that already carries it. Measured 2026-08-29 with that line
+ * in: a Ctrl drag of -240 across left the leftmost bar at -790 rather than -70.
+ * ⭐ A PAN THEREFORE REPORTS ON THE MOVE, the way FR-053's palette does, and for
+ * the reason UN-8 of table T-027 gives -- 「ズーム・スクロール・パン」 is outside
+ * the history, so a write per move pushes no step. `panFollow` is that road, and
+ * `PointerPress.followedTo` is what keeps the pieces from adding up.
+ *
  * @purity pure
  */
 function isPreviewedPress(press: PointerPress | null): boolean {
@@ -5885,6 +5898,30 @@ export function frameLoop(
         answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame)) ||
       (settledFormat !== null && answerSettledFormat(settledFormat))
     if (!spent) carryOutAction(translated.action, frame)
+
+    // PD-1 (MUST): 「握っているあいだ、縦横の両方向でポインタに追従させること」.
+    //
+    // ⭐ THE SAME TELESCOPING THE PALETTE USES, and it is here rather than in
+    // `carryOutAction` because a pan's action is a `changeDocument` like any
+    // other -- nothing inside it says a travel was applied. ⛔ Without this the
+    // pieces of one drag are all measured from the press, and a pan reported in
+    // six moves would travel six times as far.
+    // ⚠️ SET TO THE POINTER RATHER THAN ADVANCED BY A TRAVEL, which the palette
+    // cannot do and this can: the happening in hand IS the pointer this write
+    // was worked out from, so there is no second reading and no second moment.
+    // ⛔ Only when the write actually went: a move the shell spent elsewhere
+    // moved nothing, and advancing here would lose that piece of the travel.
+    if (
+      !spent &&
+      input.kind === 'pointer' &&
+      input.phase === 'move' &&
+      pressed !== null &&
+      pressed.on === null &&
+      pressed.pressRow === 'PD-1' &&
+      translated.action !== null
+    ) {
+      pressed = { ...pressed, followedTo: { x: input.x, y: input.y } }
+    }
 
     // FR-072: 「利用者が選択または設定の入口を操作したとき ... 最後に行われた操作
     // で決める」. A press that moved the drawing area's selection IS one of those
