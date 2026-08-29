@@ -203,8 +203,9 @@ const centreOf = (box: ScreenRect): number => box.y + box.height / 2
 const bottomOf = (box: ScreenRect): number => box.y + box.height
 
 // A name of two half-width units, which NL-1 of table T-013 keeps inside a bar
-// this long at either type size, and one of 40 units, which LC-4 cuts to
-// `truncateUnits` (S-35 = 24) and NL-3 then pushes out to the right.
+// this long at either type size, and one of 40 units, which NL-3 pushes out to
+// the right. ⚠️ 40 is under `truncateUnits` (S-35, raised to 全角 24 = 半角 48
+// by CR-283), so LC-4 leaves this one whole.
 const SHORT_NAME = 'ab'
 const LONG_NAME = 'a'.repeat(40)
 
@@ -334,10 +335,16 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
     // arithmetic, so it still reports when the gap is measured from a different
     // edge. The paragraph's own words: the label above and the actual below
     // means the three do not overlap, with the plan line between them.
+    // ⛔ THE PLAN SIDE IS MEASURED FROM THE STROKE, NOT FROM `extentOf`. S-196
+    // names its edge in as many words -- 「予定の線の上端と、ラベルの下端との
+    // あいだの隙間である」 -- and `extentOf` answers a BOUNDING BOX that takes in
+    // SH-3's arrow HEAD, which flares above and below the line at the far end.
+    // Comparing against that box asks the label to clear a triangle that stands
+    // at the other end of the bar, which no row asks for, and would contradict
+    // the arithmetic case above rather than confirm it.
     const { drawn, label } = drawnOf(shaped('arrow'))
-    const plan = extentOf(drawn.plan)!
     const actual = extentOf(drawn.actual)!
-    expect(bottomOf(label)).toBeLessThanOrEqual(plan.top)
+    expect(bottomOf(label)).toBeLessThanOrEqual(strokeTopOf(drawn.plan))
     expect(bottomOf(label)).toBeLessThan(actual.top)
     // ⛔ How far the actual is pushed down is LF-9's business, not this
     // column's, so nothing here measures that distance.

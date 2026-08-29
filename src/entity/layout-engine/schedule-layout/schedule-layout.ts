@@ -121,6 +121,21 @@ export interface TaskPlacement {
    */
   readonly actualX: number | null
   readonly actualWidth: number
+  /**
+   * FD-6 / FD-6b of table T-012a in pixels, already clamped -- the fade drawn
+   * at each end of the plan bar.
+   *
+   * ⭐ ANSWERED HERE AND CARRIED, not worked out again by whoever draws. The
+   * clamp used to live in `schedule-geometry.ts`, and table T-013 now asks LC-6
+   * to judge NL-1 against the room the fade LEAVES, so both units need the same
+   * two numbers -- written twice they part company the moment FD-6 or FD-6b is
+   * re-read. This is the bargain `labelFontSize` below already keeps.
+   *
+   * ⚠️ The PLAN's fade. FD-6a puts none on the actual bar, so nothing here
+   * describes it.
+   */
+  readonly fadeInPx: number
+  readonly fadeOutPx: number
   /** NL-1 or NL-3 of table T-013. */
   readonly labelPlacement: LabelPlacement
   /** The label after LC-4 cut it to truncateUnits. */
@@ -491,6 +506,36 @@ export function xFromDay(layout: ScheduleLayout, day: CalendarDay): number {
   return xOnTimeAxis(serialOf(origin), layout.pxPerDay, layout.originX, day)
 }
 
+/**
+ * FD-6 and FD-6b of table T-012a in pixels: the rectangle lets `fadeIn` win and
+ * cuts `fadeOut` to what is left, the chevron shrinks both by one ratio.
+ *
+ * ⚠️ RC-7 records that the two rules differing has no basis and asks for them
+ * to be squared up against a real screen. Until that happens each stays where
+ * its own row put it.
+ *
+ * ⛔ FD-5 gives a fade only to SH-1 and SH-2, and the columns are null for
+ * every other shape, so nothing here tests the kind for that -- a shape with no
+ * fade days answers zero on both ends by arithmetic.
+ *
+ * @purity pure
+ */
+function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number): {
+  readonly fadeIn: number
+  readonly fadeOut: number
+} {
+  const asPixels = (days: number | null): number => Math.max(0, (days ?? 0) * pxPerDay)
+  const rawIn = asPixels(task.fadeInDays)
+  const rawOut = asPixels(task.fadeOutDays)
+  if (rawIn + rawOut <= span) return { fadeIn: rawIn, fadeOut: rawOut }
+  if (kind === 'chevron') {
+    const ratio = span / (rawIn + rawOut)
+    return { fadeIn: rawIn * ratio, fadeOut: rawOut * ratio }
+  }
+  const fadeIn = Math.min(rawIn, span)
+  return { fadeIn, fadeOut: Math.min(rawOut, span - fadeIn) }
+}
+
 /** LC-1. A row goes when it, or anything above it, is hidden or collapsed. @purity pure */
 function drawnGroups(schedule: Schedule, settings: DocumentSettings): readonly (TaskGroup & { depth: number })[] {
   const byId = new Map(schedule.taskGroups.map((g) => [g.id, g]))
@@ -851,7 +896,15 @@ export function layoutFromSchedule(
       const label = truncate(task.name ?? '', settings.truncateUnits)
       const font = labelFontSize(kind, settings)
       const text = labelWidth(label, font, settings)
-      const placement: LabelPlacement = text <= width ? 'inside' : 'right'
+      // ---- LC-6, table T-013: the fade is not room the label may take -----
+      // ⛔ THE WIDTH IS THE SHAPE'S LESS BOTH FADES, which that table now says
+      // in as many words: a fade is the one mark that says the dates are not
+      // settled (table T-012a), and a name written over it makes the mark
+      // unreadable. ⚠️ Clamped first (FD-6 / FD-6b) -- the raw days can exceed
+      // the span, and subtracting those would make the room negative.
+      const fade = clampedFade(task, kind, width, pxPerDay)
+      const roomInside = Math.max(0, width - fade.fadeIn - fade.fadeOut)
+      const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
       // ---- LC-7: OC-1 is the label the shape could not hold --------------
       const labelledX1 = placement === 'right' ? x + width + settings.labelGap + text : x + width
       const actual = actualSpanOf(task, within, originSerial, pxPerDay, originX)
@@ -865,7 +918,7 @@ export function layoutFromSchedule(
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, x, width, label, font, placement, actual,
-               occupiedX0, occupiedX1 }
+               fade, occupiedX0, occupiedX1 }
     })
 
     for (const item of measured) {
@@ -957,6 +1010,8 @@ export function layoutFromSchedule(
         stack: lane,
         x: item.x,
         width: item.width,
+        fadeInPx: item.fade.fadeIn,
+        fadeOutPx: item.fade.fadeOut,
         y: tops[lane]!,
         height: reservedHeight(item.kind, settings),
         planHeight: planHeightOf(item.kind, settings),

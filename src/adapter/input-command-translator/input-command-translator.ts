@@ -4050,10 +4050,22 @@ function movedTaskUids(context: InputContext, grabbed: number): readonly number[
   return uids
 }
 
-/** Which row a Task is drawn on now. @purity pure */
+/**
+ * Which row the DOCUMENT has a Task on.
+ *
+ * ⛔ NOT `ScheduleLayout.placements`, which is what this read before and is a
+ * picture rather than a fact: while a body drag is in flight the layout already
+ * draws the Task on the row under the pointer (that is what the drag SHOWS), so
+ * on the release the drawn row and the dropped row agree and GR-12's guard
+ * below cancelled the very move it was guarding -- the bar sprang back to the
+ * row it started on. `TaskGroupMember` is the row a Task is on (IV-6 makes it
+ * exactly one), and HM-3 of table T-015a is about moving THAT.
+ *
+ * @purity pure
+ */
 function rowOfTask(context: InputContext, uid: number): string | null {
-  const placed = context.layout.placements.find((one) => one.taskUid === uid)
-  return placed === undefined ? null : placed.groupId
+  const member = context.document.schedule.taskGroupMembers.find((one) => one.taskUid === uid)
+  return member === undefined ? null : member.groupId
 }
 
 /** How many days the pointer travelled, in the days the axis draws. @purity pure */
@@ -4724,3 +4736,5 @@ export const NOT_STORED_ZOOM_STEP: {
   'S-96': 1.1,
 }
 // </generated>
+
+

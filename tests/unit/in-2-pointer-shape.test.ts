@@ -576,12 +576,31 @@ function emptyCanvas(loop: FrameLoop): Point {
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
+/**
+ * A probe on an endpoint, kept inside the `Row Area`.
+ *
+ * ⭐ THE ROW AREA IS HALF-OPEN AT THE RIGHT, which is R3.4's convention and the
+ * one `screen-regions.ts` follows so that neighbouring regions never both claim
+ * a point. The note under table T-023a binds that table to the schedule's
+ * drawing area (MUST), so a point AT `rowArea.x + rowArea.width` is on no region
+ * at all and IN-2 names no shape there.
+ * ⚠️ THIS FIXTURE PUTS A BAR END EXACTLY ON THAT EDGE: the view is fitted to the
+ * schedule and the bar Task is the widest thing in it, so its 予定の終了点 lands
+ * on the last column the pointer cannot occupy. Stepping one unit in keeps the
+ * probe on the SAME grab region -- S-90 gives GR-4 六px either side of the end
+ * -- while asking it somewhere a pointer can actually stand.
+ */
+function onEndpoint(loop: FrameLoop, x: number, y: number): Point {
+  const area = frameOf(loop).regions.rowArea
+  return { x: Math.min(x, area.x + area.width - 1), y }
+}
+
 /** 予定バーの端点 -- GR-3 (左端) then GR-4 (右端) of table T-023d. */
 function planEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).plan, "the bar Task's plan bar")
   return [
-    { x: box.x, y: midY(box) },
-    { x: box.x + box.width, y: midY(box) },
+    onEndpoint(loop, box.x, midY(box)),
+    onEndpoint(loop, box.x + box.width, midY(box)),
   ]
 }
 
@@ -589,8 +608,8 @@ function planEnds(loop: FrameLoop): readonly Point[] {
 function actualEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
   return [
-    { x: box.x, y: midY(box) },
-    { x: box.x + box.width, y: midY(box) },
+    onEndpoint(loop, box.x, midY(box)),
+    onEndpoint(loop, box.x + box.width, midY(box)),
   ]
 }
 

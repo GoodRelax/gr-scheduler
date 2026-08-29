@@ -717,12 +717,32 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
   })
 
   it('LC-4 cuts a label to truncateUnits before anything measures it', () => {
-    const layout = layoutFromSchedule(
-      oneRow([spanning(1, '2026-01-01', 60, { name: 'x'.repeat(50) })]),
-      LAYOUT_SETTINGS,
-      REGIONS,
-    )
-    expect(taskPlacement(layout, 1)!.label).toHaveLength(24)
+    // S-35 of table T-201 (`truncateUnits`), read from the generated defaults
+    // rather than re-typed: 利用者の指示 2026-08-29 raised it to 全角 24 = 半角
+    // 48 (CR-283). The name below is half-width, so one character is one unit
+    // (FR-093).
+    //
+    // ⭐ THE MARK IS INSIDE THE LIMIT, NOT ADDED TO IT. The preamble of table
+    // T-013 makes 打ち切ったときは、打ち切ったことが読める記号を末尾に添えること
+    // (MUST) and 記号を含めた長さが `S-35` に収まること（MUST）。超えてはならない
+    // (MUST NOT) -- so a cut label is the mark plus as much of the name as the
+    // remaining units hold. ⚠️ The mark is full-width, hence two units and one
+    // character, which is why the length in CHARACTERS is one below the limit.
+    const limit = settingNumber('truncateUnits')
+    const label = taskPlacement(
+      layoutFromSchedule(
+        oneRow([spanning(1, '2026-01-01', 60, { name: 'x'.repeat(limit + 2) })]),
+        LAYOUT_SETTINGS,
+        REGIONS,
+      ),
+      1,
+    )!.label
+    const units = [...label].reduce((sum, ch) => sum + (ch.charCodeAt(0) < 0x100 ? 1 : 2), 0)
+    expect(units, '表 T-013 の前書き: 記号を含めた長さが `S-35` に収まること').toBe(limit)
+    // ⛔ 切りっぱなしにしてはならない（MUST NOT）-- 短い名前と、切られた長い名前が
+    // 見分けられない.
+    expect(label.length).toBeLessThan(limit)
+    expect(label.startsWith('x')).toBe(true)
   })
 
   it('AT-100 resolves a shapeKind of null through Task.milestone', () => {

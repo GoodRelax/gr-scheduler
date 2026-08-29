@@ -309,32 +309,6 @@ function fadedOutline(x0: number, x1: number, top: number, height: number,
 }
 
 /**
- * FD-6 and FD-6b in pixels: the rectangle lets `fadeIn` win and cuts `fadeOut`
- * to what is left, the chevron shrinks both by one ratio.
- *
- * ⚠️ RC-7 records that the two rules differing has no basis and asks for them
- * to be squared up against a real screen. Until that happens this file keeps
- * each where its own row put it.
- *
- * @purity pure
- */
-function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number): {
-  readonly fadeIn: number
-  readonly fadeOut: number
-} {
-  const asPixels = (days: number | null): number => Math.max(0, (days ?? 0) * pxPerDay)
-  const rawIn = asPixels(task.fadeInDays)
-  const rawOut = asPixels(task.fadeOutDays)
-  if (rawIn + rawOut <= span) return { fadeIn: rawIn, fadeOut: rawOut }
-  if (kind === 'chevron') {
-    const ratio = span / (rawIn + rawOut)
-    return { fadeIn: rawIn * ratio, fadeOut: rawOut * ratio }
-  }
-  const fadeIn = Math.min(rawIn, span)
-  return { fadeIn, fadeOut: Math.min(rawOut, span - fadeIn) }
-}
-
-/**
  * GR-1 and GR-2 of table T-023d, on the two points its 場所 column names --
  * table T-012a's point 4 and point 2.
  *
@@ -360,12 +334,10 @@ function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number
  *
  * @purity pure
  */
-function fadeHandlePoints(task: Task, placed: TaskPlacement, planTop: number,
-                          pxPerDay: number): readonly Point[] {
-  const fade = clampedFade(task, placed.shapeKind, placed.width, pxPerDay)
+function fadeHandlePoints(placed: TaskPlacement, planTop: number): readonly Point[] {
   return [
-    point(placed.x + fade.fadeIn, planTop),
-    point(placed.x + placed.width - fade.fadeOut, planTop + placed.planHeight),
+    point(placed.x + placed.fadeInPx, planTop),
+    point(placed.x + placed.width - placed.fadeOutPx, planTop + placed.planHeight),
   ]
 }
 
@@ -518,7 +490,7 @@ function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number, stroke
  *
  * @purity pure
  */
-function barOf(inputs: GeometryInputs, placed: TaskPlacement, task: Task, x0: number, x1: number,
+function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: number,
                top: number, height: number, isActual: boolean): BarGeometry {
   const settings = inputs.settings
   const kind = placed.shapeKind
@@ -542,9 +514,12 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, task: Task, x0: nu
     return lineBar(kind, x0, x1, top + height / 2, thinStroke(placed.planHeight, settings), settings)
   }
   // FD-6a: no fade on the actual. It records what happened, which is not vague.
+  // ⭐ The plan's two are READ off the placement (CR-290) rather than clamped
+  // again here: LC-6 needs the same two numbers to judge NL-1 against, and
+  // FD-6 written in two units parts company the moment either is re-read.
   const fade = isActual
     ? { fadeIn: 0, fadeOut: 0 }
-    : clampedFade(task, kind, x1 - x0, inputs.layout.pxPerDay)
+    : { fadeIn: placed.fadeInPx, fadeOut: placed.fadeOutPx }
   if (kind === 'chevron') {
     // LF-6: the plan's notch is clamped, the actual's is derived from it and
     // NOT clamped again. FD-5 has a fade replace the notch outright.
@@ -1031,11 +1006,19 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
   const settings = inputs.settings
   const height = placed.labelFontSize
   const y = labelTopOf(settings, placed, height)
+  // Table T-013 (MUST): a name written inside a fading shape begins where the
+  // fade-in ends, and the room it is given is the shape's width less BOTH
+  // fades. ⛔ The fade is the one mark that says the dates are not settled
+  // (table T-012a) -- the user reported the name covering it -- and LC-6 judged
+  // NL-1 against this same room, so a label that got here fits it.
   return placed.labelPlacement === 'inside'
     ? {
-        x: placed.x + settings.labelPad,
+        x: placed.x + placed.fadeInPx + settings.labelPad,
         y,
-        width: Math.max(0, placed.width - settings.labelPad * 2),
+        width: Math.max(
+          0,
+          placed.width - placed.fadeInPx - placed.fadeOutPx - settings.labelPad * 2,
+        ),
         height,
       }
     : {
@@ -1053,7 +1036,7 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
   const planTop = placed.y
 
   const plan = inputs.showPlan
-    ? barOf(inputs, placed, task, placed.x, placed.x + placed.width, planTop, placed.planHeight, false)
+    ? barOf(inputs, placed, placed.x, placed.x + placed.width, planTop, placed.planHeight, false)
     : null
 
   let actual: BarGeometry | null = null
@@ -1063,13 +1046,13 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
       // LF-10: a smaller figure at the actual day, on the plan's centre line.
       const side = placed.planHeight * settings.actualOfPlan
       const top = planTop + (placed.planHeight - side) / 2
-      actual = barOf(inputs, placed, task, x0 - side / 2, x0 + side / 2, top, side, true)
+      actual = barOf(inputs, placed, x0 - side / 2, x0 + side / 2, top, side, true)
     } else {
       // LF-9: centred inside, or pushed down by the plan plus the gap.
       const top = placed.actualPlacement === 'inside'
         ? planTop + (placed.planHeight - actualHeight) / 2
         : planTop + placed.planHeight + settings.actualGap
-      actual = barOf(inputs, placed, task, x0, x0 + placed.actualWidth, top, actualHeight, true)
+      actual = barOf(inputs, placed, x0, x0 + placed.actualWidth, top, actualHeight, true)
     }
   }
 
@@ -1116,7 +1099,7 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     // picture in the renderer would not have moved the hit area an inch.
     fadeHandles:
       placed.actualPlacement === 'inside' && inputs.selectedTaskUids.has(placed.taskUid)
-        ? fadeHandlePoints(task, placed, planTop, inputs.layout.pxPerDay)
+        ? fadeHandlePoints(placed, planTop)
         : [],
     label: labelBoxOf(inputs, placed),
   }
