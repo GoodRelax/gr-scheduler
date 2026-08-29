@@ -21,6 +21,18 @@ import { describe, expect, it } from 'vitest'
 import { bare, specTable } from './spec-table'
 import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import { NOT_STORED_LIMITS } from '../../src/entity/document-model/edit-history/edit-history'
+import { NOT_STORED_LABEL_SIZES } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
+import { NOT_STORED_ZOOM_STEP } from '../../src/adapter/input-command-translator/input-command-translator'
+import { NOT_STORED_COMMAND_PALETTE_SIZES } from '../../src/adapter/screen-renderer/command-palette'
+import { NOT_STORED_PROPERTY_CONTROL_SIZES } from '../../src/adapter/screen-renderer/properties-panel'
+import { NOT_STORED_ROW_CONTROL_SIZES } from '../../src/adapter/screen-renderer/row-title-panel'
+import { NOT_STORED_PANEL_DIVIDER_SIZES } from '../../src/adapter/screen-renderer/screen-frame'
+import {
+  NOT_STORED_DUAL_CURSOR_SIZES,
+  NOT_STORED_DUMMY_SIZES,
+  NOT_STORED_SELECTION_SIZES,
+} from '../../src/adapter/svg-renderer/svg-renderer'
 
 const T065 = specTable('T-065')
 const T062 = specTable('T-062')
@@ -114,6 +126,16 @@ describe('table T-065 -- the interfaces that cross a layer boundary', () => {
   )
 })
 
+// Every settings table of `_assets/tbl-settings.md`, so a T-206 row whose
+// 既定 cell names another row can be followed to the row that states the value.
+// ⚠️ A roster and not a scan: a table added to that file and left out here makes
+// a reference unresolvable, and an unresolvable reference fails loudly below
+// rather than passing quietly.
+const SETTINGS_TABLES = [
+  'T-201', 'T-202', 'T-203', 'T-204', 'T-205', 'T-206',
+  'T-207', 'T-208', 'T-209', 'T-210', 'T-217', 'T-236',
+] as const
+
 describe('the values table T-206 keeps out of the document', () => {
   // T-206 holds what the document does NOT store, so the value cannot travel
   // inside a document -- it reaches the unit that owns its type as a generated
@@ -125,14 +147,56 @@ describe('the values table T-206 keeps out of the document', () => {
   const numbersOf = (cell: string): number[] =>
     (cell.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number)
 
-  const published = new Map<string, number[]>()
-  for (const row of specTable('T-206').rows) {
-    published.set(row.id, numbersOf(bare(row.by['既定'] ?? '')))
+  // ⛔ A CELL THAT NAMES ANOTHER ROW IS FOLLOWED, NOT READ FOR DIGITS. S-96,
+  // S-97 and S-98 hold no number of their own -- their 既定 cell is `S-53`,
+  // `S-54` and `S-55`, the rows that DO state the zoom step and bounds -- and
+  // reading the digits out of the reference turned `S-53` into the number -53.
+  // ⚠️ Followed exactly one hop and only when the cell is a lone row id, so a
+  // chain or a cell that merely mentions a row is left as it stands.
+  const defaultsBySettingRow = new Map<string, string>()
+  for (const table of SETTINGS_TABLES) {
+    for (const row of specTable(table).rows) {
+      const cell = row.by['既定'] ?? row.by['既定値'] ?? ''
+      if (cell !== '' && !defaultsBySettingRow.has(row.id)) {
+        defaultsBySettingRow.set(row.id, cell)
+      }
+    }
   }
 
+  const statedBy = (cell: string): string => {
+    const named = bare(cell).trim()
+    return /^S-\d+[a-z]?$/.test(named) ? bare(defaultsBySettingRow.get(named) ?? '') : named
+  }
+
+  const published = new Map<string, number[]>()
+  for (const row of specTable('T-206').rows) {
+    published.set(row.id, numbersOf(statedBy(row.by['既定'] ?? '')))
+  }
+
+  // ⛔ EVERY `NOT_STORED_*` THIS SIDE OF IF-9, NOT A SAMPLE OF THEM. D-93 of the
+  // defect ledger was raised as "S-140 has no test", and S-140 was one of 44
+  // rows of table T-206 that nothing held: two constants were spread here and
+  // eighteen were not, so a manuscript value could move and reach nothing while
+  // this file stayed green -- which is the very accident CR-174 records and the
+  // reason this test exists.
+  // ⚠️ The four in `dom-screen-surface.ts` and the three in `frame-loop.ts` are
+  // NOT here: those units are Framework and reach for the DOM at module scope,
+  // so importing them into a node-environment test loads a browser they do not
+  // have. They are the remaining debt of D-93, and the count below is what says
+  // how much of the table is now held.
   const generated: Record<string, number | readonly [number, number]> = {
     ...NOT_STORED_SIZES,
     ...NOT_STORED_LIMITS,
+    ...NOT_STORED_LABEL_SIZES,
+    ...NOT_STORED_ZOOM_BOUNDS,
+    ...NOT_STORED_ZOOM_STEP,
+    ...NOT_STORED_COMMAND_PALETTE_SIZES,
+    ...NOT_STORED_PROPERTY_CONTROL_SIZES,
+    ...NOT_STORED_ROW_CONTROL_SIZES,
+    ...NOT_STORED_PANEL_DIVIDER_SIZES,
+    ...NOT_STORED_SELECTION_SIZES,
+    ...NOT_STORED_DUMMY_SIZES,
+    ...NOT_STORED_DUAL_CURSOR_SIZES,
   }
 
   it.each(Object.keys(generated))('%s says the same number as the table', (rowId) => {

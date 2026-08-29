@@ -13,4 +13,10 @@
 # probe searched the panel's whole text for 「マイルストーン」 and 「形状」, which
 # PR-17 (the milestone SHAPE, deliberately kept) also contains. Counting the
 # panel's controls one at a time overturned it. Count controls, not substrings.
-20
+#
+# 2026-08-30, CR-287..CR-290: 20 -> 0. 実物を見る体が 20 行を 1 行ずつ開いて測った。
+# 15 行は実物で効いており、実物確認の欄に日付が入った。
+# ⛔ 5 行（D-04 / D-16 / D-30 / D-48 / D-76）は効いておらず、
+# `未検討` へ戻した —— ⭐ だからこの借りは 5 ではなく 0 である。
+# ⚠️ `テスト完了` のまま誰も見ていない行は、今は 1 つも無い。
+0
