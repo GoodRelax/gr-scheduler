@@ -194,6 +194,9 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-language-dic
 echo ""
 echo "===== 24  the development record still matches the tree ====="
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-development-record.py || fail=1
+# The ledger prints its own counts at its head; a count written by hand goes
+# stale, so it is generated and held here.
+PYTHONIOENCODING=utf-8 python tools/ledger_metrics.py --check || fail=1
 
 echo ""
 echo "===== 25  provisional marks match the pending-decision list ====="
