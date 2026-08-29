@@ -780,6 +780,16 @@ const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
  * this layer decides which way it goes.
  */
 const PALETTE_MINIMISE_ENTRY: IconId = 'IC-75'
+/**
+ * The entry that turns S-206 of table T-206 -- FR-102's record of the
+ * happenings and the frames, started and stopped by one entrance.
+ *
+ * ⭐ HERE FOR THE SAME REASON THE TWO ROWS ABOVE ARE: what a press on it
+ * writes is a current value, which LY-5 of table T-060 leaves with the
+ * Framework -- and the record itself is made of what THIS loop receives over
+ * IF-2 and draws in `runFrame`, so nowhere else is in a position to keep it.
+ */
+const INTERACTION_RECORD_ENTRY: IconId = 'IC-76'
 const CONFIRMATION_PROCEED_ENTRY: IconId = 'IC-69'
 const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
 
@@ -1531,6 +1541,8 @@ interface SessionHeld {
   readonly isMilestoneListOpen: boolean
   /** S-200 of table T-206 -- whether FR-053's palette stands minimised. */
   readonly isPaletteMinimised: boolean
+  /** S-206 of table T-206 -- whether FR-102's record is running. */
+  readonly isRecordingInteractions: boolean
   /**
    * Table T-029a -- which of `dualCursor`'s two dates (S-65) follows the
    * pointer, or `null` while the mode is not up. The user's ruling of
@@ -1595,6 +1607,7 @@ function sessionOf(
     commandPaletteDraggedTo,
     isMilestoneListOpen,
     isPaletteMinimised,
+    isRecordingInteractions,
     dualCursorFollowing,
     selectedGroupIds,
     selectedResourceUids,
@@ -1659,6 +1672,12 @@ function sessionOf(
     // STATE FROM S-99e, which says whether it is shown at all -- FR-053 keeps
     // that one's entrance outside the palette and this one's on it (IC-75).
     isPaletteMinimised,
+    // S-206 of table T-206: whether FR-102's record is running. ⭐ Handed
+    // over for the reason the two above are -- the record is a current value
+    // that FR-102 (MUST NOT) keeps out of the document, and FR-102 (MUST) has
+    // the state readable on the screen, which is what IC-76's pressed shape
+    // answers.
+    isRecordingInteractions,
     // Table T-029a: which of the two dates is following the pointer, `null`
     // while the mode is not up. ⭐ THE USER'S RULING OF 2026-08-26 NAMES THIS
     // TYPE, and it is handed over for the reason the two above are -- the mode
@@ -2516,6 +2535,27 @@ export function frameLoop(
   // S-200 of table T-206 -- whether FR-053's palette stands minimised. Default
   // `false`, and lost with the page for the same reason as the line above.
   let isPaletteMinimised = false
+  // S-206 of table T-206 -- whether FR-102's record is running. Default
+  // `false`, and lost with the page for the same reason as the line above.
+  // ⛔ THE RECORD ITSELF IS LOST WITH IT TOO, and FR-102 (MUST NOT) is why:
+  // it may not be kept in the document, and nothing else outlives the page.
+  let isRecordingInteractions = false
+  // The lines of the record, oldest first (FR-102). ⛔ NEVER LONGER THAN
+  // S-207: the requirement (MUST) drops from the oldest end at the cap.
+  const interactionRecord: string[] = []
+  // How many lines were dropped off that end. ⭐ FR-102 (MUST) has this
+  // written at the head of what is handed over, because a record cut in
+  // silence is read as the whole of what happened.
+  let interactionRecordDropped = 0
+  // The reading of FT-4's clock the record's own times are counted from, so
+  // that what is pasted starts at 0 rather than at the host's own epoch.
+  let interactionRecordBeganAt = 0
+  // How many lines have been offered since the record began, the dropped ones
+  // included. ⭐ IT IS THE SEQUENCE NUMBER, AND IT IS WHY A GAP CAN BE SEEN:
+  // with the count of what was dropped at the head and the first surviving
+  // line still numbered where it stood, a reader can tell that the record does
+  // not begin at the beginning.
+  let interactionRecordOffered = 0
   // FR-101 (MUST) -- the file the document is open from, and the instant it
   // was last written to. ⛔ BOTH ARE SET BY A WRITE AND BY NOTHING ELSE:
   // FR-101 asks when the file was last WRITTEN, and opening one answers
@@ -2930,6 +2970,217 @@ export function frameLoop(
   // at all, so there is no idle path to guard against.
   //
   // @purity non-pure
+  /**
+   * One line of FR-102's record, if the record is running.
+   *
+   * ⭐ THE GUARD IS HERE AND NOT AT EVERY CALL, so that a caller cannot
+   * forget it and so that nothing whatever is measured, formatted or kept
+   * while S-206 is off -- GL-003 is the goal this record serves, and a record
+   * that cost a frame would be working against it.
+   * ⛔ THE CAP IS S-207's AND THE DROP IS FROM THE OLDEST END, which FR-102
+   * (MUST) states; `interactionRecordDropped` is what its other MUST has
+   * written at the head of what is handed over.
+   * ⚠️ The sequence number counts what was OFFERED and not what is held, so
+   * a reader can see where the dropped lines stood.
+   *
+   * @purity non-pure
+   */
+  function recordLine(what: string, detail: string): void {
+    if (!isRecordingInteractions) return
+    interactionRecordOffered += 1
+    const at = Math.round(readMonotonicMs() - interactionRecordBeganAt)
+    interactionRecord.push(`${interactionRecordOffered}\t${at}\t${what}\t${detail}`)
+    while (interactionRecord.length > NOT_STORED_INTERACTION_RECORD_LIMITS['S-207']) {
+      interactionRecord.shift()
+      interactionRecordDropped += 1
+    }
+  }
+
+  /**
+   * The modifiers of one happening, as the record spells them.
+   *
+   * @purity pure
+   */
+  function recordedModifiers(modifiers: HumanInput['modifiers']): string {
+    const held =
+      (modifiers.ctrl ? 'C' : '') +
+      (modifiers.shift ? 'S' : '') +
+      (modifiers.alt ? 'A' : '') +
+      (modifiers.meta ? 'M' : '')
+    return held === '' ? '-' : held
+  }
+
+  /**
+   * One key, as the record may spell it.
+   *
+   * ⛔⛔ A KEY OF ONE CHARACTER IS MASKED, AND FR-102 (MUST NOT) IS WHY.
+   * `KeyInput.key` carries what the host reported, and `dom-input-source.ts`
+   * upper-cases every single-character key and hands it on -- so a person
+   * typing a task name into a property field sends those characters through
+   * here one at a time. Writing them down would put the contents of the
+   * document into a record made to be pasted into a report.
+   * ⭐ THE RULE IS DERIVED AND NOT A LIST. Every assignment of table T-036
+   * that is a NAME is more than one character long (`Esc`, `Enter`, `Delete`,
+   * `F1`, `F11`), and every one that is a character is exactly one -- so the
+   * length is the whole test, and a key added to that table is covered without
+   * this function being touched. ⚠️ The modifiers stay beside the mask:
+   * `Ctrl`+`Shift`+`E` (SK-12) reads as `key=# mods=CS`, which names the
+   * shortcut without naming the letter.
+   *
+   * @purity pure
+   */
+  function recordedKey(key: string): string {
+    return key.length <= 1 ? '#' : key
+  }
+
+  /**
+   * FR-102: one happening, written down as it ARRIVES -- before anything has
+   * been decided about it and before any way out of `receiveInput`.
+   *
+   * ⛔⛔ THE POINT OF WRITING IT HERE IS THE HAPPENING THAT IS DROPPED. A
+   * report that an entrance does nothing cannot be told from one whose press
+   * never arrived unless the arrival itself is on the record -- and this loop
+   * does drop happenings: the one that comes before any frame has run is
+   * dropped by rule (NFR-011).
+   * ⚠️ Nothing of the DOCUMENT is written: a pointer carries a place and a
+   * key carries a masked spelling, and neither is a name.
+   *
+   * @purity non-pure
+   */
+  function recordHappening(input: HumanInput): void {
+    if (!isRecordingInteractions) return
+    const mods = `mods=${recordedModifiers(input.modifiers)}`
+    if (input.kind === 'pointer') {
+      recordLine(
+        'in.pointer',
+        `${input.phase} x=${Math.round(input.x)} y=${Math.round(input.y)} ` +
+          `button=${input.button} clicks=${input.clickCount} ${mods}`,
+      )
+      return
+    }
+    if (input.kind === 'wheel') {
+      recordLine(
+        'in.wheel',
+        `x=${Math.round(input.x)} y=${Math.round(input.y)} notches=${input.notches} ${mods}`,
+      )
+      return
+    }
+    recordLine('in.key', `key=${recordedKey(input.key)} ${mods}`)
+  }
+
+  /**
+   * FR-102: what this frame DREW, counted rather than copied.
+   *
+   * ⭐⭐ THE SHAPE OF THE PICTURE AND NOT THE PICTURE. FR-102 (MUST)
+   * allows the shape of what was drawn and (MUST NOT) refuses the contents of
+   * the document, so what is written is HOW MANY of each kind of shape went
+   * out and none of what any of them says. A `<text>` element is counted; the
+   * words inside it are a task's name and are not.
+   * ⛔ COUNTED OFF THE STRING THAT IS ACTUALLY HANDED TO THE SURFACE, which
+   * is the whole reason it can settle an argument: a census taken anywhere
+   * else would be a second opinion about what was drawn.
+   * ⭐ The state that decides what was drawn goes on the same line, because
+   * the two are only worth anything together -- a picture with no cursor lines
+   * in it means one thing while table T-029a's mode is up and another while it
+   * is not.
+   *
+   * @purity non-pure
+   */
+  function recordFrame(svg: string, drawnLayout: ScheduleLayout): void {
+    if (!isRecordingInteractions) return
+    const drawn = new Map<string, number>()
+    for (const found of svg.matchAll(/<([a-z]+)[\s/>]/g)) {
+      const tag = found[1] ?? ''
+      drawn.set(tag, (drawn.get(tag) ?? 0) + 1)
+    }
+    const census = [...drawn.entries()]
+      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+      .map(([tag, many]) => `${tag}=${many}`)
+      .join(' ')
+    recordLine(
+      'frame',
+      `w=${environment.width} h=${environment.height} ` +
+        `rows=${drawnLayout.rows.length} bars=${drawnLayout.placements.length} ` +
+        `svgBytes=${svg.length} ${census} follow=${dualCursorFollowing ?? '-'} ` +
+        `minimised=${isPaletteMinimised} glyphList=${isMilestoneListOpen} ` +
+        `notices=${raisedNotices.length} asking=${asking !== null}`,
+    )
+  }
+
+  /**
+   * What is handed to the clipboard when the record is stopped (FR-102, MUST).
+   *
+   * ⛔ THE COUNT OF WHAT WAS DROPPED STANDS AT THE HEAD, which that
+   * requirement (MUST) asks for in as many words -- a record cut in silence is
+   * read as the whole of what happened.
+   * ⭐ Tab-separated, because a person pastes this into a report and a
+   * table is what a reader can scan. ⚠️ The columns are named on the third
+   * line rather than left to be guessed at.
+   *
+   * @purity semi-pure-b
+   */
+  function interactionRecordText(): string {
+    const head = [
+      'GRS interaction record (FR-102) -- no document contents are recorded',
+      `lines: ${interactionRecord.length} kept of ${interactionRecordOffered} offered, ` +
+        `${interactionRecordDropped} dropped from the oldest end ` +
+        `(cap ${NOT_STORED_INTERACTION_RECORD_LIMITS['S-207']}, S-207)`,
+      'seq\tms\twhat\tdetail',
+    ]
+    return [...head, ...interactionRecord].join('\n')
+  }
+
+  /**
+   * IC-76 of table T-109 -- FR-102's one entrance, which both starts the
+   * record and stops it.
+   *
+   * ⭐ STOPPING HANDS THE RECORD OVER (FR-102, MUST), and the route is the
+   * one table T-008's R-9 already carries: `writeClipboard` over IF-5, the
+   * same seam IC-3 sends the picture out through. ⛔ A route of its own
+   * would be the second way to one place that rule 03 forbids.
+   * ⚠️ STARTING CLEARS WHAT STOOD, so that one record is one sitting: a
+   * second start that appended would hand over two runs joined at a seam the
+   * reader cannot see.
+   * ⛔ NOTHING IS TOLD ON A CLIPBOARD THAT REFUSED. NT-3a of table T-037
+   * wants a next step with any telling and no row of table T-233 carries a
+   * reason for this one -- the entrance's own pressed state going off is what
+   * says the record stopped, and a reason invented here is the mint rule 03
+   * section 1 forbids.
+   *
+   * @purity non-pure
+   */
+  function turnInteractionRecord(): void {
+    if (!isRecordingInteractions) {
+      interactionRecord.length = 0
+      interactionRecordDropped = 0
+      interactionRecordOffered = 0
+      interactionRecordBeganAt = readMonotonicMs()
+      isRecordingInteractions = true
+      // ⛔ THE FIRST AND LAST LINES ARE WRITTEN BY THIS FUNCTION AND NOT LEFT
+      // TO BE INFERRED. The press that turns the record is spent halfway
+      // through `receiveInput`, so one of its two lines always falls outside
+      // the record -- and a missing line is exactly what this record is meant
+      // to make readable. Saying so outright is cheaper than a rule about it.
+      recordLine('record', 'started entrance=IC-76')
+      return
+    }
+    recordLine('record', 'stopped entrance=IC-76')
+    // ⛔ READ BEFORE THE FLAG GOES OFF, because `recordLine` answers nothing
+    // once it has -- and taken here rather than inside the promise for the
+    // reason CS-4 gives: the answer lands on the operation that began.
+    const text = interactionRecordText()
+    isRecordingInteractions = false
+    interactionRecord.length = 0
+    interactionRecordDropped = 0
+    interactionRecordOffered = 0
+    const seam = clipboard
+    // ⛔ NOTHING IS WRITTEN WHERE NO CLIPBOARD WAS HANDED IN, the same
+    // answer `copyPictureToClipboard` makes: the seam is optional at wiring
+    // time (CP-30), and a build without one has nowhere to put this.
+    if (seam === undefined) return
+    void writeClipboard(seam, { kind: 'record', text })
+  }
+
   function runFrame(): void {
     owed = false
     // CS-1 of table T-066: the frozen copy this frame is drawn from, taken
@@ -2979,7 +3230,11 @@ export function frameLoop(
     // drawn (PD-191).
     const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
     values = { regions, layout, geometry, settingsMeasuredWith: withPanelShown }
-    surface.showSvg(
+    // @STAR HELD IN A BINDING SO THAT FR-102's RECORD COUNTS THE VERY STRING
+    // THAT WENT OUT. A census taken from a second call to `svgFromSchedule`
+    // would be a second opinion about what was drawn, which is the one thing
+    // this record must never be.
+    const drawnSvg =
       // 'screen' is the picture a person is looking at, so table T-076's
       // omissions do not apply: FR-043's dummies are drawn here and only here.
       // ⭐ AND THE ONE THING TABLE T-076 KEEPS OUT while the screen shows it:
@@ -3009,8 +3264,9 @@ export function frameLoop(
         // S-66 itself, and a second reading of the same setting here is the
         // drift that would let the two disagree.
         pointerAt,
-      ),
-    )
+      )
+    surface.showSvg(drawnSvg)
+    recordFrame(drawnSvg, layout)
     if (screen === undefined) return
     // ⛔ AFTER the schedule, because the parts outside it are drawn OVER the
     // drawing area -- the note under table T-023a limits that table's decision
@@ -3038,6 +3294,7 @@ export function frameLoop(
           commandPaletteDraggedTo,
           isMilestoneListOpen,
           isPaletteMinimised,
+          isRecordingInteractions,
           // Table T-029a's mode, as it stands this frame -- the same value the
           // `follow` argument below is built from, read from the one place that
           // holds it.
@@ -3454,6 +3711,11 @@ export function frameLoop(
           // not open: EP-12 of table T-076 keeps this session's state out of
           // it, and a minimised palette is this session's doing.
           isPaletteMinimised: false,
+          // ⚠️ Not recording in the picture, for the reason the line above is
+          // not minimised: EP-12 of table T-076 keeps this session's state out
+          // of an export, and whether a record is running is as much this
+          // session's as the minimising is.
+          isRecordingInteractions: false,
           // ⛔ NOBODY IS FOLLOWING IN A PICTURE THAT IS BEING WRITTEN OUT, and
           // DC-8 states that in as many words: 「この印を書き出しに出しては
           // ならない（MUST NOT）」, on EP-12's ground that which side follows is
@@ -4649,6 +4911,16 @@ export function frameLoop(
       isPaletteMinimised = !isPaletteMinimised
       return true
     }
+    if (entry === INTERACTION_RECORD_ENTRY) {
+      // S-206 of table T-206, turned the way S-200 and S-142 are: table T-109's
+      // IC-76 says the same entrance stops it, so the press reverses whatever
+      // stands, and LY-5 of table T-060 leaves a current value with this layer.
+      // ⛔ THE STOP IS NOT ONLY A FLAG GOING OFF: FR-102 (MUST) hands the
+      // record to the clipboard on the way out, and `turnInteractionRecord` is
+      // where both halves of one press live so that neither can happen alone.
+      turnInteractionRecord()
+      return true
+    }
     if (entry === MILESTONE_LIST_ENTRY) {
       // S-142 of table T-206, turned the way the language above is: the press
       // writes a current value LY-5 of table T-060 leaves with this layer, and
@@ -5214,11 +5486,19 @@ export function frameLoop(
    * @purity non-pure
    */
   function receiveInput(input: HumanInput): void {
+    // FR-102: the arrival, written down before anything is decided and before
+    // any way out below. ⛔⛔ THE FIRST LINE OF THE FUNCTION, AND THAT IS
+    // THE POINT -- the record is worth having only if it can show a happening
+    // that arrived and was then dropped.
+    recordHappening(input)
     const frame = values
     // ⛔ DROPPED WHILE NO FRAME HAS RUN. BO-1 has not settled the size, so
     // there is no frame of reference to read a coordinate against -- and
     // NFR-011 is what holds the first frame back until there is one.
-    if (frame === null) return
+    if (frame === null) {
+      recordLine('dropped', 'reason=noFrameHasRunYet')
+      return
+    }
 
     spendFieldCommit(frame)
 
@@ -5314,6 +5594,7 @@ export function frameLoop(
         const answered = partUnderPointer.noticeDismissKey
         raisedNotices = raisedNotices.filter((one) => dismissKeyOf(one) !== answered)
         ask()
+        recordLine('done', 'spent=noticeDismiss frame=yes')
         return
       }
     }
@@ -5517,7 +5798,26 @@ export function frameLoop(
     // FT-1 owes a frame for every happening the row names, save the one FR-048
     // takes back. ⚠️ `ask` coalesces, so two triggers in one task still paint
     // once.
-    if (owesFrame(input, context, partBefore, grabBefore)) ask()
+    const owesAFrame = owesFrame(input, context, partBefore, grabBefore)
+    // FR-102: what became of the happening the line above was written for.
+    // ⭐⭐ THIS IS THE HALF THAT SETTLES AN ARGUMENT ABOUT AN ENTRANCE.
+    // `on` is the row of table T-109 the pointer stood on and `grab` the row of
+    // table T-023d, both read off the side that DREW them; `doc` says whether
+    // the document this loop holds was replaced by the happening, which is the
+    // difference between an entrance that did nothing and one whose effect was
+    // not the one expected. ⛔ Not one name, date or number of the document
+    // is on the line: FR-102 (MUST NOT) forbids it and identity is all that is
+    // compared here.
+    recordLine(
+      'done',
+      `on=${partUnderPointer?.entry ?? '-'} grab=${grabUnderPointer?.grab ?? '-'} ` +
+        `esc=${escapeLevel ?? '-'} act=${translated.action?.kind ?? '-'} ` +
+        `assigned=${translated.isBrowserDefaultStopped} spentByShell=${spent} ` +
+        `doc=${held.document === context.document ? 'same' : 'changed'} ` +
+        `sel=${selection === context.selection ? 'same' : 'changed'} ` +
+        `frame=${owesAFrame}`,
+    )
+    if (owesAFrame) ask()
   }
 
   // BO-5 -- the first frame, which table T-078's note excludes from FT-1.
@@ -5689,7 +5989,32 @@ export const NOT_STORED_SCROLLBAR_SIZES: {
 } = {
   'S-205': 8,
 }
+
+/**
+ * The values table T-206 states that this unit needs, by row ID.
+ *
+ * ⭐ Table T-206 holds what the document does NOT store, so these
+ * are not document settings and are not in SETTINGS_DEFAULTS. They
+ * are reached by row ID because most rows of that table have no key
+ * column -- the row ID is the specification's own name for them.
+ *
+ * ⚠️ This unit reads the row where it stands because the record is
+ * its own to keep: FR-102 (MUST) records the happenings IF-2 delivers
+ * to this loop and the frames table T-078 runs in it, so no caller is
+ * in a position to be handed the cap on its behalf and no argument may
+ * be added to pass it through. ⛔ The row is not a document setting
+ * and must not become one -- FR-102 (MUST NOT) keeps the record out of
+ * the document, and table T-206 is where the specification says so.
+ */
+export const NOT_STORED_INTERACTION_RECORD_LIMITS: {
+  /** S-207 */
+  readonly 'S-207': number
+} = {
+  'S-207': 2000,
+}
 // </generated>
+
+
 
 
 

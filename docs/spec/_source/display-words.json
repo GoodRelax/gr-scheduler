@@ -788,6 +788,17 @@
     "ja": "畳んだ行をすべて開く",
     "en": "Open every row that was collapsed"
    }
+  },
+  {
+   "rowId": "IC-76",
+   "label": {
+    "ja": "操作の記録",
+    "en": "Interaction Log"
+   },
+   "hint": {
+    "ja": "マウス操作と画面描画の記録を始める。もう一度押すと止まり、記録をクリップボードへ入れる",
+    "en": "Start recording pointer input and drawing; press again to stop and put the record on the clipboard"
+   }
   }
  ],
  "properties": [

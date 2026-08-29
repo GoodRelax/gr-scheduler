@@ -160,6 +160,10 @@ const T_109_PALETTE = [
   { row: 'IC-54', group: '構え', authority: 'SK-19', isButton: false },
   { row: 'IC-61', group: '置く', authority: 'FR-009', isButton: true },
   { row: 'IC-62', group: '表示', authority: 'FR-099', isButton: true },
+  // ⭐ IC-76 -- FR-102's record of the happenings and the frames, which table
+  // T-109 prints last and places in the 表示 group. Copied here for the reason
+  // IC-75 is: this file's copy of the table has to stay the whole table.
+  { row: 'IC-76', group: '表示', authority: 'FR-102', isButton: true },
 ] as const
 
 /**

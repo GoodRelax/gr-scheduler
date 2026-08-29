@@ -1082,6 +1082,20 @@ TIMED_WHERE_IT_STANDS = [
     ' * the speed of a repeat with the reader rather than with the document,',
     ' * which is the same ground the grab rows stand on.',
 ]
+# ⛔ A FIFTH SEAM: no door AND no caller, because the record is made of what
+# this loop itself receives. FR-102 (MUST) has a person start and stop a record
+# of the happenings and the frames, and both of those are the shell's own --
+# IF-2 delivers the happenings here and table T-078 runs the frames here -- so
+# there is no argument any caller could hand the cap in through.
+KEPT_WHERE_IT_STANDS = [
+    ' * ⚠️ This unit reads the row where it stands because the record is',
+    ' * its own to keep: FR-102 (MUST) records the happenings IF-2 delivers',
+    ' * to this loop and the frames table T-078 runs in it, so no caller is',
+    ' * in a position to be handed the cap on its behalf and no argument may',
+    ' * be added to pass it through. ⛔ The row is not a document setting',
+    ' * and must not become one -- FR-102 (MUST NOT) keeps the record out of',
+    ' * the document, and table T-206 is where the specification says so.',
+]
 # ⭐ Three rows of table T-206 hold no value of their own: their 値 column NAMES
 # a row of table T-201 instead (S-96 -> S-53, S-97 -> S-54, S-98 -> S-55). The
 # zoom trio is stated once, among the drawing settings, and table T-206 records
@@ -1175,6 +1189,13 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_LABEL_SIZES': (['S-196'], DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
     'NOT_STORED_DUMMY_SIZES': (['S-180'], DRAWN_FOR_THE_SCREEN_ALONE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
+    # ⛔ A COUNT OF ENTRIES AND NOT A LENGTH OF TIME. FR-102 (MUST) drops the
+    # record from the oldest end once S-207 is reached and writes at its head
+    # how many were dropped, so what the row bounds is how many happenings the
+    # record may hold. ⚠️ Not folded into NOT_STORED_REPEAT_TIMES though both
+    # land in frame-loop.ts: one constant per consuming SUBJECT, and those two
+    # are how long a held entrance waits.
+    'NOT_STORED_INTERACTION_RECORD_LIMITS': (['S-207'], KEPT_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_STEP': (['S-96'], ARRIVES_AS_ARGUMENT_ZOOM),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
@@ -1775,7 +1796,8 @@ TARGETS = [
     (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-loop.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_SCROLLBAR_SIZES'),
+     + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ FR-006's room, resolved on the side that can resolve it. S-199 is a
     # MULTIPLE of the control's own font size rather than a px, so what it is

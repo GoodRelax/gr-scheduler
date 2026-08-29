@@ -1706,6 +1706,32 @@ export interface ScreenSession {
    */
   readonly isPaletteMinimised: boolean
   /**
+   * Whether the record of the happenings and the frames is running (S-206 of
+   * table T-206).
+   *
+   * ⭐ FR-102 (MUST) requires this to be readable on the screen -- otherwise a
+   * person stops it in their head while it goes on running -- and IC-76 is the
+   * one entrance that both starts and stops it, so the entrance itself is where
+   * it is read: `CommandItem.isPressed`, which is the member FR-065 and FR-072
+   * already show a toggle's state through.
+   * ⛔ NOT `isArmed`. FR-053 (MUST NOT) keeps an ARM off the pressed shape, and
+   * this is the other thing: an ordinary toggle that is on.
+   *
+   * ⭐ HELD BY THE SHELL for the reason `isMilestoneListOpen` gives -- FR-102
+   * (MUST NOT) keeps the record out of the document and table T-206 is where
+   * the specification records it (LY-5 of table T-060).
+   *
+   * ⚠️ OPTIONAL, WHICH NO OTHER MEMBER OF THIS TYPE IS, and the reading is
+   * fixed here rather than left to the caller: absent means NOT recording. A
+   * session assembled before FR-102 existed -- `exportScene`'s among them --
+   * has nothing to report and is not a session in which a record is running,
+   * so the two readings coincide and no caller has to be changed to say so.
+   * ⛔ It may not grow a second absent meaning: `undefined` and `false` are
+   * one answer here, and anything that needed to tell them apart would be a
+   * third state table T-206 does not hold.
+   */
+  readonly isRecordingInteractions?: boolean
+  /**
    * Which of `dualCursor`'s two dates (S-65) is following the pointer, or
    * `null` while table T-029a's mode is not up.
    *

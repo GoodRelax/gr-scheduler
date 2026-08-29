@@ -183,6 +183,20 @@ const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
 const MINIMISE_ROW: IconId = 'IC-75'
 
 /**
+ * IC-76 of table T-109 -- FR-102's record of the happenings and the frames,
+ * started and stopped by one entrance.
+ *
+ * ⭐ THE ONE ROW THIS UNIT CAN ANSWER `isPressed` FOR, and the reason is that
+ * FR-102 (MUST NOT) keeps its state OUT of the document: S-206 rides on
+ * `ScreenSession`, which this unit is handed, while the toggles named in
+ * `commandItemFor`'s note read `DocumentSettings`, which it is not.
+ * ⛔ Named by row id because that is the only join table T-109 admits -- the
+ * table states 「同じ入口で止める」 as prose in its entry column, the same shape
+ * of gap `MINIMISE_ROW` and `NOT_BUTTON_ROWS` stand on.
+ */
+const INTERACTION_RECORD_ROW: IconId = 'IC-76'
+
+/**
  * `FR-078`, as the authority column of table T-109 writes it -- the requirement
  * that owns the milestone glyph entrances FR-053 folds away.
  *
@@ -387,11 +401,16 @@ function commandItemFor(
   selection: Selection,
   language: DisplayLanguage,
   armed: ArmedEntry,
+  isRecording: boolean,
 ): CommandItem {
   return {
     icon: row.rowId,
     isEnabled: isEntryUsable(row, selection),
-    isPressed: false,
+    // FR-102 (MUST): whether the record is running has to be readable, and
+    // IC-76 is the entrance that turns it -- so the entrance is what says so.
+    // ⛔ ONE ROW AND NOT A LOOKUP: S-206 is the only state of table T-206
+    // this unit is handed, so a table keyed by row id would hold one entry.
+    isPressed: row.rowId === INTERACTION_RECORD_ROW && isRecording,
     // FR-053 (MUST): 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」,
     // and (MUST) the armed entrance is told apart from the ones that are not.
     // ⛔ THE COLUMN ALONE IS NOT THAT JOIN, which is why the second half is
@@ -467,6 +486,7 @@ function paletteGroups(
   language: DisplayLanguage,
   isMilestoneListOpen: boolean,
   armed: ArmedEntry,
+  isRecording: boolean,
 ): readonly PaletteGroup[] {
   const groups: {
     readonly cell: string
@@ -492,7 +512,7 @@ function paletteGroups(
     if (opened === undefined) groups.push(group)
 
     if (isMilestoneGlyphEntry(row) && !isMilestoneListOpen) continue
-    group.commands.push(commandItemFor(row, selection, language, armed))
+    group.commands.push(commandItemFor(row, selection, language, armed, isRecording))
   }
 
   return groups
@@ -617,6 +637,20 @@ function minimiseRow(): IconRosterRow {
 }
 
 /**
+ * S-206 of table T-206, as `ScreenSession` reports it.
+ *
+ * ⛔ THE ONE PLACE THE ABSENT MEMBER IS READ, and the reading is the one
+ * `ScreenSession.isRecordingInteractions` states: absent means not recording.
+ * ⚠️ Written out rather than left as `?? false` at each call so that a
+ * second call cannot read it the other way round.
+ *
+ * @purity pure
+ */
+function isRecordingInteractions(session: ScreenSession): boolean {
+  return session.isRecordingInteractions === true
+}
+
+/**
  * The floating palette as it stands this frame, or `null` while S-99e says it
  * is hidden.
  *
@@ -666,6 +700,11 @@ export function commandPaletteFromScreenState(
       selection,
       session.language,
       armedEntry(state.armed),
+      // ⛔ NEVER THE ONE THIS ARGUMENT IS ABOUT: IC-75 is not IC-76, so the
+      // answer is false whatever the record is doing. It is written as the
+      // session's own value rather than as `false` so that the two calls read
+      // the same, and `commandItemFor` is the one place that names the row.
+      isRecordingInteractions(session),
     ),
     isMinimised: session.isPaletteMinimised,
     // ⛔ MINIMISED WITHDRAWS THE ENTRIES AND NOTHING ELSE. FR-053 (MUST) keeps
@@ -682,6 +721,7 @@ export function commandPaletteFromScreenState(
           session.language,
           session.isMilestoneListOpen,
           armedEntry(state.armed),
+          isRecordingInteractions(session),
         ),
     // FR-053 (MUST): what is armed has to be readable. The words come from
     // FR-038's dictionary, keyed by the row of table T-023b -- ⛔ never the row

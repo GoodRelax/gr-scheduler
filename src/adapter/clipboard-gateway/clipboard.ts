@@ -23,10 +23,14 @@
 // would open an intake that nothing checks, which is why the absence is stated
 // rather than left to be noticed.
 //
-// ⭐ WHY BOTH CONTENTS ARE STRINGS. R-9 names exactly two things that leave
-// this way, and `_source/components.json` draws this component's two inbound
-// edges to match: "text out" from DocumentCodec and "picture out" from
-// SvgRenderer. Both of those publish a string (PI-19 / PI-20). ⚠️ The picture
+// ⭐ WHY EVERY CONTENT IS A STRING. R-9 names the things that leave this way,
+// and `_source/components.json` draws this component's two inbound edges to
+// match: "text out" from DocumentCodec and "picture out" from
+// SvgRenderer. Both of those publish a string (PI-19 / PI-20). ⭐ The third,
+// FR-102's record, has no inbound edge of its own because it is not made by
+// another component: the shell keeps it out of the happenings it receives and
+// the frames it runs, and SingleHtmlShell already has the "clipboard out" edge
+// it travels on. ⚠️ The picture
 // edge goes to SvgRenderer and NOT to ImageExporter -- AgentApiEndpoint is the
 // component that has both, because AG-8 makes it answer for a raster too. So
 // what this seam carries as a picture is the SVG string. ⛔ Should that reading
@@ -79,6 +83,29 @@ export type ClipboardContent =
        * The text DocumentCodec made (PI-20). ⚠️ Which format that is belongs to
        * that component, not to this one -- table T-024 marks IO-2 as the
        * machine-facing one.
+       */
+      readonly text: string
+    }
+  | {
+      /**
+       * FR-102: the record of the happenings and the frames a person asked for
+       * and then stopped, handed over so that it can be PASTED into a report.
+       *
+       * ⭐ THE THIRD THING R-9 CARRIES, AND NOT A NEW ROUTE. FR-102 (MUST)
+       * sends the record this way in as many words, and table T-008's R-9 names
+       * it in its own contents column beside the picture and the document -- so
+       * the route is the one that was already there. ⛔ A second seam for it
+       * would be the duplication rule 03 forbids.
+       * ⚠️ IT IS NOT A DOCUMENT, though both variants carry a string. FR-102
+       * (MUST NOT) keeps the contents of the document OUT of the record, so a
+       * caller that read this as a document would be reading something that by
+       * requirement holds no schedule at all.
+       */
+      readonly kind: 'record'
+      /**
+       * The record as the side that kept it wrote it. ⛔ Not composed here and
+       * not re-read: FR-102 (MUST) puts the count of what was dropped at its
+       * head, and only the side that dropped it knows that number.
        */
       readonly text: string
     }

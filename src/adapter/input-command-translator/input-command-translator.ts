@@ -684,6 +684,24 @@ export type InputAction =
    */
   | { readonly kind: 'togglePaletteMinimised' }
   /**
+   * IC-76 -- FR-102 (MUST) lets a person start a record of the happenings and
+   * the frames and stop it by the same entrance, so `S-206` of table T-206
+   * moves. The shell is what keeps the record.
+   *
+   * ⭐ IT REVERSES WHAT STANDS, AND CARRIES NO VALUE, for the reason the two
+   * rows above give: the value that stands is the shell's and lives past this
+   * seam. ⛔ AND THE RECORD ITSELF CANNOT BE MADE HERE -- what FR-102 records
+   * is the happenings this seam is handed one at a time and the frames drawn
+   * after them, and a pure translator sees neither the run of them nor the
+   * clock.
+   * ⛔ NOT A DOCUMENT CHANGE. FR-102 (MUST NOT) keeps the record out of the
+   * document and table T-206 holds both its rows, so table T-108 has none and
+   * `applyDocumentChange` (PI-8) has nothing to plan.
+   * ⛔ AND NOT A SURFACE. Nothing is drawn over anything, so S-99g is not
+   * this and `Esc` gains no level of IN-4 (table T-028).
+   */
+  | { readonly kind: 'toggleInteractionRecord' }
+  /**
    * Table T-029a: the Dual Cursor mode was entered (DC-1), the following was
    * handed to the other side (DC-2), or the mode was left (DC-4).
    *
@@ -1615,6 +1633,16 @@ const ENTRY = {
    * is S-200 of table T-206, which the shell holds.
    */
   paletteMinimise: 'IC-75',
+  /**
+   * IC-76 -- FR-102's record of the happenings and the frames, started and
+   * stopped by one entrance. The state is `S-206` of table T-206 and the cap
+   * on what it holds is `S-207`; the shell holds both.
+   *
+   * ⭐ AN ORDINARY PALETTE ENTRANCE, unlike the row above: table T-109 gives
+   * it the 表示 group, so `command-palette.ts` prints it among the entries
+   * rather than on the grab band.
+   */
+  interactionRecord: 'IC-76',
   /** IC-52 -- the first level of IN-4 (table T-028). */
   closeSurface: 'IC-52',
   /**
@@ -3065,6 +3093,13 @@ function commandFromEntry(
     case ENTRY.paletteMinimise:
       // FR-053 -- S-200, which the shell holds. Same shape as the row below.
       return acted({ kind: 'togglePaletteMinimised' })
+    case ENTRY.interactionRecord:
+      // FR-102 -- S-206, which the shell holds, the same shape as the two rows
+      // beside it: table T-109's IC-76 says 「同じ入口で止める」, so the press
+      // reverses whatever stands and the value that stands is the shell's.
+      // ⛔ The clipboard FR-102 (MUST) hands the record to on the stop is the
+      // shell's too: a pure member cannot reach IF-5.
+      return acted({ kind: 'toggleInteractionRecord' })
     case ENTRY.milestoneList:
       // FR-053 -- S-142, which the shell holds. ⭐ Since CR-273 the row reads
       // 「同じ入口で開閉する」, so which way it goes depends on what stands, and

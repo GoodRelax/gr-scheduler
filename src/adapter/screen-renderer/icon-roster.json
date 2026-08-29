@@ -794,6 +794,17 @@
    "authority": "表 T-051 の `HF-10`",
    "arms": null,
    "armsShape": null
+  },
+  {
+   "rowId": "IC-76",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "操作と描画の記録を始め、**同じ入口で止める**（`S-206`）。止めたとき記録はクリップボードへ渡る（表 T-008 の `R-9`）",
+   "authority": "`FR-102`",
+   "arms": null,
+   "armsShape": null
   }
  ]
 }
