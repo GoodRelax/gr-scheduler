@@ -656,6 +656,35 @@ export interface PropertyControl {
    * surface reads it as the words themselves.
    */
   readonly choiceValues?: readonly string[]
+  /**
+   * The words a PARTIAL-MATCH SEARCH standing beside this chooser offers --
+   * absent on every control that has none.
+   *
+   * ⭐ AS-5 OF TABLE T-225 (MUST) IS THE WHOLE OF IT: 「名簿から選ばせる形とし、
+   * ドロップダウンと部分一致の検索を添えること」. The dropdown is `choices`, and
+   * this is the second of the two things that row attaches -- 添える, so it
+   * stands BESIDE the chooser rather than replacing it. ⛔ Replacing it would
+   * take AS-9 (MUST) away: a search settles a NAME, and a name is what two
+   * same-named people share, so the chooser carrying `choiceValues` is the only
+   * surface that can still tell them apart.
+   *
+   * ⛔ NOT A KIND OF ITS OWN. FR-006 (MUST) has a control's form follow table
+   * T-016's 入力の型 column, and PR-16's reads 選択 -- so the form stays the
+   * chooser `PropertyControlKind` already names, and the search is an addition
+   * hung on it rather than an eighth form invented beside the table's seven.
+   *
+   * ⛔ WORDS AND NOT VALUES, WHICH IS WHY THEY ARE HELD APART FROM `choices`.
+   * What a person types is what they settle, so a search commits a NAME and the
+   * write side reads it as AS-7 / AS-8 / AS-10 do -- AS-8 (MUST) is what settles
+   * a name two people carry, and it is also why one word is offered once here
+   * where `choices` offers a candidate per person.
+   *
+   * ⚠️ WHETHER THE MATCH IS ON A FRAGMENT IS THE HOST'S ANSWER, not this
+   * component's: FR-029's 「環境の作法に従う」 has the drawing side reach for the
+   * host's own roster control, and no rule of this side could narrow a list it
+   * does not draw.
+   */
+  readonly searchWords?: readonly string[]
   /** A `number` control's bounds, where the schema states them. */
   readonly min: number | null
   readonly max: number | null

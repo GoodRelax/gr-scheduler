@@ -74,13 +74,20 @@
 // PR-16's 入力の型 as 選択 and the paragraph under it (MUST) has the form follow
 // that column, so the field offers one `choice` control over the roster --
 // `assigneeChoices` walks the document's own `Resource` rows the way
-// `parentCandidates` walks its tasks for PR-15. ⛔ WHAT IS STILL MISSING IS
-// THE SEARCH HALF OF AS-5 (MUST): `PropertyControl` has no member for a
-// partial-match filter and IF-9 puts the drawn chooser past this seam, so
-// nothing on this side can state it.
-// A control that is only a dropdown meets the 名簿から選ばせる half and leaves
-// the 部分一致の検索 half unmet, where no control at all left FR-006's own MUST
-// unmet as well -- which is why the earlier refusal to invent one is not kept.
+// `parentCandidates` walks its tasks for PR-15.
+//
+// ⭐ AND THE SEARCH HALF OF AS-5 (MUST) IS NOW STATED AS WELL. That row asks for
+// TWO things to be attached -- 「ドロップダウンと部分一致の検索を添えること」 --
+// so the control carries `searchWords` beside `choices`, and the drawing side
+// hangs the host's own roster entry on it. ⛔ THE CHOOSER IS NOT REPLACED BY IT:
+// a search settles a NAME and two same-named people share one, so a surface that
+// were search-only would close AS-9's (MUST) only route. ⚠️ Whether the host
+// narrows on a FRAGMENT is the host's answer and not this side's -- FR-029's
+// 「環境の作法に従う」 puts the drawn control past IF-9, and nothing here could
+// narrow a list it does not draw.
+// ⛔ THE WORDS ARE OFFERED ONCE EACH, where `choices` offers a candidate per
+// person: what a person types is what they settle, and AS-8 (MUST) is the row
+// that settles a name two people carry -- 「`uid` の小さいほうへ割り当てる」.
 // ⭐ AS-9 IS MET, AND THE READING THAT SAID IT COULD NOT BE WAS WRONG. This
 // note used to hold that choosing a `uid` needed the uid ON the screen, which
 // AS-6 (MUST NOT) forbids -- but AS-9's trigger is 「プロパティパネルで `uid`
@@ -875,6 +882,14 @@ function assigneeControl(schedule: Schedule, taskUid: number, labelCoef: number)
     // first. ⚠️ Spelled the way every other value crosses this seam, as text:
     // `FieldCommit.text` is one string whatever the control was.
     choiceValues: people.map((person) => String(person.uid)),
+    // ⭐ AS-5 (MUST): 「ドロップダウンと部分一致の検索を添えること」-- the second
+    // of the two, as the words a person may type a fragment of. ⛔ ONE ENTRY PER
+    // NAME AND NOT PER PERSON, which is the opposite of `choices` above and for
+    // a stated reason: a typed word settles a NAME, and AS-8 (MUST) already says
+    // what a name two people carry means -- 「`uid` の小さいほうへ割り当てる」 --
+    // so offering it twice would put two identical words in the roster that
+    // could not be told apart by the act of typing one of them.
+    searchWords: [...new Set(people.map((person) => person.name))],
     min: null,
     max: null,
     widthInFontSizes: widthOf(

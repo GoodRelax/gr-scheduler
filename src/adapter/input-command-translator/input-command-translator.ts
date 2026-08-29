@@ -1724,6 +1724,23 @@ const ENTRY = {
    * second entrance for the undoing would be the duplication FR-029 refuses.
    */
   rowPin: 'IC-60',
+  /**
+   * IC-82 -- FR-032's deletion of a row, drawn once per row like the three
+   * above and the pin.
+   *
+   * ⭐ ONE ROW GOES, AND IT IS THE ROW THE CONTROL WAS DRAWN ON. FR-085 (MUST)
+   * has rows chosen in the panel and names FR-032 among the requirements that
+   * read that set, but nothing STORES it (PD-142) and no row settles what a
+   * press on one row means while another row is chosen -- so this entrance
+   * names its own row, which is the shape IC-60 already takes.
+   * ⛔ NO CHAIN IS WORKED OUT HERE. CD-2 of table T-050 holds what goes with a
+   * row and `deleteTaskGroup` (CM-27) carries it out; a second reading of that
+   * chain on this side would be the same rule in two places (R2.7).
+   * ⛔ AND NO QUESTION IS BUILT HERE EITHER. FR-032 (MUST) asks before a row is
+   * deleted and table T-234's QN-1 is the sentence; `frame-loop.ts` raises it
+   * off the very command this returns, so this side owes only the command.
+   */
+  rowDelete: 'IC-82',
   /** IC-62 -- FR-099. U-49 `Resource Roster` of table T-103. */
   resourceRoster: 'IC-62',
   /**
@@ -3170,6 +3187,7 @@ function commandFromEntry(
     case ENTRY.rowExpanderClose:
     case ENTRY.rowExpanderCloseBelow:
     case ENTRY.rowPin:
+    case ENTRY.rowDelete:
       return commandFromRowEntry(entry, on.rowGroupId, context)
     case ENTRY.rowExpanderOpenAll:
       // HF-10 of table T-051, which is HR-1 of table T-015.
@@ -3413,8 +3431,9 @@ function commandFromGuideCursorEntry(entry: string): TranslatedInput {
 }
 
 /**
- * The four entrances table T-109 draws once per ROW -- IC-58, IC-59 and IC-77
- * on U-47 `Row Expander`, IC-60 on U-48 `Row Pin`.
+ * The five entrances table T-109 draws once per ROW -- IC-58, IC-59 and IC-77
+ * on U-47 `Row Expander`, IC-60 on U-48 `Row Pin`, and IC-82, which table
+ * T-103 names no part for at all (see `ENTRY.rowDelete`).
  *
  * ⭐ WHICH ROW IS `ScreenPart.rowGroupId`, AND IT COULD COME FROM NOWHERE ELSE.
  * HF-1 of table T-051 and FR-098 (MUST) each draw their control once per row,
@@ -3469,6 +3488,22 @@ function commandFromRowEntry(
         ? { kind: 'unpinTaskGroup', groupId: rowGroupId }
         : { kind: 'pinTaskGroup', groupId: rowGroupId },
     ])
+  }
+
+  if (entry === ENTRY.rowDelete) {
+    // IC-82 -- FR-032 (MUST): the row goes, and CD-2 of table T-050 takes with
+    // it the rows below, every `Task` they carry (each cascading CD-1), the
+    // annotations that point at the row and the pin that holds it.
+    //
+    // ⛔ NOTHING IS TESTED FIRST. CM-27 refuses a row that is not there on its
+    // own account, and a row with nothing on it is still a row a person may
+    // want gone -- so an empty bundle here would be this side inventing a
+    // condition FR-032 does not state.
+    // ⚠️ THE QUESTION IS NOT ASKED HERE. FR-032 (MUST) asks before a row is
+    // deleted, and the shell puts that question in front of the WHOLE write
+    // (`confirmationOwedBy`, table T-234's QN-1) -- so this returns the write
+    // and the answer decides whether it lands.
+    return changed([{ kind: 'deleteTaskGroup', groupId: rowGroupId }])
   }
 
   if (entry === ENTRY.rowExpanderCloseBelow) {

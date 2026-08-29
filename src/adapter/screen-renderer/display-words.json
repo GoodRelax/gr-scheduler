@@ -673,6 +673,17 @@
    }
   },
   {
+   "rowId": "IC-82",
+   "label": {
+    "ja": "行を削除",
+    "en": "Delete Row"
+   },
+   "hint": {
+    "ja": "この行と、その配下の行と、載っているタスクを削除する",
+    "en": "Delete this row, the rows below it and the tasks they carry"
+   }
+  },
+  {
    "rowId": "IC-61",
    "label": {
     "ja": "依存線",

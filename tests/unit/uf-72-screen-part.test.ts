@@ -191,6 +191,9 @@ const T_109_ELSEWHERE = [
   // Printed after IC-59 in table T-109 and drawn in that order.
   { row: 'IC-77', surface: 'Row Title Panel' },
   { row: 'IC-60', surface: 'Row Title Panel' },
+  // ⭐ IC-82 -- FR-032's deletion, the fifth entrance table T-109 draws once
+  // per row (CR-296). Printed after IC-60 and drawn in that order.
+  { row: 'IC-82', surface: 'Row Title Panel' },
 ] as const
 
 /**
@@ -3005,7 +3008,7 @@ const controlStyles = (built: Stage): Record<string, string> =>
 
 describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever the name is', () => {
   it.each(ROW_NAMES)(
-    '⭐ GIVEN a row whose name is $what WHEN the row it built is read THEN the four entries of 表 T-109 are its LAST children in roster order and the name beside them is what takes the free space (表 T-051 HF-4 MUST) -- IC-58 / IC-59 / IC-77 / IC-60',
+    '⭐ GIVEN a row whose name is $what WHEN the row it built is read THEN the five entries of 表 T-109 are its LAST children in roster order and the name beside them is what takes the free space (表 T-051 HF-4 MUST) -- IC-58 / IC-59 / IC-77 / IC-60 / IC-82',
     ({ label }) => {
       const built = drawn(rowNamed(label))
       const row = theRowOf(built)
@@ -3019,7 +3022,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
       const tail = row.children.slice(-T_109_ON_THE_ROW.length)
       expect(
         tail.map((one) => one.getAttribute('data-icon')),
-        `the row does not end with 表 T-109's four entries: ${serialize(row)}`,
+        `the row does not end with 表 T-109's five entries: ${serialize(row)}`,
       ).toEqual(T_109_ON_THE_ROW.map((one) => one.row))
 
       const name = nameCellOf(row)
@@ -3055,21 +3058,24 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     ).toEqual([])
   })
 
-  it('GIVEN a row with no expander in its description WHEN it is read THEN the `Row Pin` alone ends the row and the name still grows (FR-098 「各行に 1 つ」, 表 T-051 HF-4) -- IC-60 alone', () => {
+  it('GIVEN a row with no expander in its description WHEN it is read THEN the `Row Pin` alone ends the row and the name still grows (FR-098 「各行に 1 つ」, 表 T-051 HF-4) -- IC-60 and IC-82', () => {
     const built = drawn(withExpander(null))
     const row = theRowOf(built)
 
     // ⚠️ The boundary where the trio is a single control: FR-098 puts the pin on
     // every row whether or not HF-1's pair is there, so the right edge has to
     // hold with one control on it as well as with three.
-    expect(controlsOf(row).map((one) => one.getAttribute('data-icon'))).toEqual(['IC-60'])
-    expect(row.children[row.children.length - 1]?.getAttribute('data-icon')).toBe('IC-60')
+    expect(controlsOf(row).map((one) => one.getAttribute('data-icon'))).toEqual([
+      'IC-60',
+      'IC-82',
+    ])
+    expect(row.children[row.children.length - 1]?.getAttribute('data-icon')).toBe('IC-82')
     const cell = nameCellOf(row)
     expect(cell).not.toBeNull()
     expect(flexGrowOf(cell as FakeElement)).toBeGreaterThanOrEqual(1)
   })
 
-  it('GIVEN a PINNED row WHEN it is read THEN its controls end the row the same way (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
+  it('GIVEN a PINNED row WHEN it is read THEN its controls end the row the same way (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-77 / IC-60 / IC-82', () => {
     const built = drawn(
       viewWith({
         rowTitlePanel: {
@@ -3088,11 +3094,12 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     const row = theRowOf(built)
 
     expect(styleMap(row).get('display')).toBe('flex')
-    expect(row.children.slice(-4).map((one) => one.getAttribute('data-icon'))).toEqual([
+    expect(row.children.slice(-5).map((one) => one.getAttribute('data-icon'))).toEqual([
       'IC-58',
       'IC-59',
       'IC-77',
       'IC-60',
+      'IC-82',
     ])
     expect(flexGrowOf(nameCellOf(row) as FakeElement)).toBeGreaterThanOrEqual(1)
   })
@@ -3432,7 +3439,7 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
     expect(hoverDeclaration(elsewhere, node, 'visibility')).toBeNull()
   })
 
-  it('GIVEN a PINNED row WHEN its controls are read THEN the same pair of rules reaches them (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
+  it('GIVEN a PINNED row WHEN its controls are read THEN the same pair of rules reaches them (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-77 / IC-60 / IC-82', () => {
     const built = drawn(
       viewWith({
         rowTitlePanel: {
@@ -3692,7 +3699,7 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
     expect(setDownOn(make('margin-top:0'))).toEqual([])
   })
 
-  it('GIVEN a PINNED row WHEN its controls are read THEN the same three rules hold there (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-60', () => {
+  it('GIVEN a PINNED row WHEN its controls are read THEN the same three rules hold there (FR-098 draws the pinned rows too) -- IC-58 / IC-59 / IC-77 / IC-60 / IC-82', () => {
     const built = drawn(
       viewWith({
         rowTitlePanel: {

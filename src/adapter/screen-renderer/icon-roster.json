@@ -686,6 +686,17 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-82",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "行を削除する。⭐ **消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ**（示す文は 表 T-234 の `QN-1`）",
+   "authority": "`FR-032`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-61",
    "surfaces": [
     "Command Palette"

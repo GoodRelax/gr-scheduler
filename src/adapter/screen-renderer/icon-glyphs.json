@@ -2897,6 +2897,66 @@
    ]
   },
   {
+   "rowId": "IC-82",
+   "elements": [
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "4"
+      },
+      {
+       "name": "y",
+       "value": "4"
+      },
+      {
+       "name": "width",
+       "value": "16"
+      },
+      {
+       "name": "height",
+       "value": "16"
+      },
+      {
+       "name": "rx",
+       "value": "2.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M9 9 L15 15"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M15 9 L9 15"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "rowId": "IC-61",
    "elements": [
     {

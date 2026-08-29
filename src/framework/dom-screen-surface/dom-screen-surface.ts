@@ -403,6 +403,26 @@ const OPEN_EVERY_ROW_ENTRY = 'IC-74'
 const COLLAPSE_EVERY_ROW_ENTRY = 'IC-78'
 
 /**
+ * IC-82 of table T-109 -- FR-032's deletion, drawn once per ROW on the
+ * `Row Title Panel`.
+ *
+ * ⛔ IT CARRIES NO `data-role`, and that is `OPEN_EVERY_ROW_ENTRY`'s reason
+ * rather than a shortcut: table T-103 names a part for the expander (U-47) and
+ * for the pin (U-48) and names none for this one, so nothing may be invented
+ * here -- `readScreenPartAt` takes the OUTERMOST `data-role` in any case, so
+ * the answer is `{ part: 'Row Title Panel', entry: 'IC-82' }` either way, and
+ * the row's own `data-group-id` says which row it stands on.
+ * ⚠️ WHICH IS WHY THE RULE BELOW REACHES IT BY `data-icon`. HF-6 of table T-051
+ * draws the row's controls only while the pointer is on the row, and this one
+ * has to obey that for a reason of its own: `S-140` reserves no room at all, so
+ * a control drawn at rest would sit over the row's name for ever.
+ * ⚠️ HF-6 IS TABLE T-051'S, AND THAT TABLE IS THE FOLDING FACE -- deleting is
+ * not folding, so this is the pin's precedent (FR-098 has no such row either)
+ * carried one step further. @provisional PD-353
+ */
+const DELETE_ROW_ENTRY = 'IC-82'
+
+/**
  * What the entrance NT-8 of table T-037 (MUST) requires carries the telling it
  * puts away -- `Notice.dismissKey`.
  *
@@ -1661,10 +1681,12 @@ export function pageGroundStyle(theme: ScreenTheme): string {
  */
 const ROW_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"],` +
-  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"]` +
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"],` +
+  `[data-unit="${UNIT_ROW}"] [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:hidden;}' +
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowExpander}"],` +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowPin}"]` +
+  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowPin}"],` +
+  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}'
 
 /**
@@ -2251,8 +2273,10 @@ function fillScreenFrame(
  * @purity non-pure
  */
 /**
- * How far apart the row's four controls stand, measured from the row's right
- * edge outward -- the pin nearest it, then IC-77, then IC-59, then IC-58.
+ * How far apart the row's five controls stand, measured from the row's right
+ * edge outward -- IC-82 nearest it, then the pin, then IC-77, IC-59, IC-58.
+ * ⭐ THE ORDER IS TABLE T-109'S OWN PRINT ORDER, read left to right: the row
+ * printed last stands nearest the edge HF-4 pins them to.
  *
  * ⭐ THE TWO PANEL-WIDE ENTRANCES STEP BY THE SAME AMOUNT (IC-74 and IC-78; see
  * `panelCornerEntryElement`), because it is the same quantity: two controls of
@@ -2333,7 +2357,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   label.textContent = title.label
   row.append(label)
 
-  // ⭐ THE NAME FIRST AND THE FOUR CONTROLS AFTER IT, WHICH IS HF-4 OF TABLE
+  // ⭐ THE NAME FIRST AND THE FIVE CONTROLS AFTER IT, WHICH IS HF-4 OF TABLE
   // T-051 (MUST): 「行の名前の長さにかかわらず、操作子を行見出しパネルの右端に
   // 揃えること」. The name takes the leftover (`STYLE.rowLabel`), so the group
   // ends at the panel's edge whatever the name is and whatever the row's depth
@@ -2376,12 +2400,12 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     open.setAttribute('data-can-open', String(title.expander.canOpen))
     // ⚠️ Placed from the RIGHT, because that is the edge HF-4 pins them to and
     // they no longer sit in the flex flow that used to do it.
-    open.setAttribute('style', open.getAttribute('style') + rowControlRight(3))
+    open.setAttribute('style', open.getAttribute('style') + rowControlRight(4))
     row.append(open)
 
     const close = rowControlElement(host, ROLE.rowExpander, 'IC-59')
     close.setAttribute('data-can-close', String(title.expander.canClose))
-    close.setAttribute('style', close.getAttribute('style') + rowControlRight(2))
+    close.setAttribute('style', close.getAttribute('style') + rowControlRight(3))
     row.append(close)
 
     // IC-77 -- HF-11 (MUST): the row's 配下 folds, and the row itself does not
@@ -2391,7 +2415,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     // two are not inverses.
     const closeBelow = rowControlElement(host, ROLE.rowExpander, 'IC-77')
     closeBelow.setAttribute('data-can-close-below', String(title.expander.canCloseBelow))
-    closeBelow.setAttribute('style', closeBelow.getAttribute('style') + rowControlRight(1))
+    closeBelow.setAttribute('style', closeBelow.getAttribute('style') + rowControlRight(2))
     row.append(closeBelow)
   }
 
@@ -2414,8 +2438,27 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   const pin = rowControlElement(host, ROLE.rowPin, 'IC-60')
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
-  pin.setAttribute('style', pin.getAttribute('style') + rowControlRight(0))
+  pin.setAttribute('style', pin.getAttribute('style') + rowControlRight(1))
   row.append(pin)
+
+  // IC-82 -- FR-032's deletion, on every row and answering for the row it is
+  // drawn on. ⛔ NOT UNDER `title.expander`: that judgement is HF-1's, which
+  // places the folding controls on a row that has something BELOW it, and a
+  // leaf row is as deletable as any other.
+  //
+  // ⭐ NOTHING SAYS WHETHER IT IS SPENT, because nothing spends it. The pair
+  // above carries `canOpen` / `canClose` because a fold can already stand;
+  // a row that is drawn is a row CM-27 can delete.
+  // ⚠️ NO `data-role` AND NO KEY OF ITS OWN -- see `DELETE_ROW_ENTRY`. The row
+  // this sits in carries the `data-group-id` that says which row goes, and
+  // writing a copy here would state one row's key in two places.
+  const remove = made(host, 'button', STYLE.rowControl)
+  remove.setAttribute('type', 'button')
+  remove.setAttribute('data-icon', DELETE_ROW_ENTRY)
+  remove.setAttribute('aria-label', DELETE_ROW_ENTRY)
+  fillEntry(host, remove, DELETE_ROW_ENTRY)
+  remove.setAttribute('style', remove.getAttribute('style') + rowControlRight(0))
+  row.append(remove)
   return row
 }
 
@@ -2790,6 +2833,81 @@ function controlElement(host: Document, row: string, control: PropertyControl): 
 }
 
 /**
+ * The id the search box and its roster are joined by.
+ *
+ * ⛔ DERIVED FROM THE ROW AND NOT COUNTED UP. One row of table T-016 carries at
+ * most one searchable chooser, and a redraw throws the whole panel away
+ * (`replaceChildren`), so a counter would only make the same element answer to a
+ * different name each frame -- which a reader of the built page could not follow.
+ * ⚠️ Prefixed because the id lives in the host's one document-wide namespace,
+ * which the page shares with whatever else the shell put there.
+ */
+function rosterId(row: string): string {
+  return `grs-roster-${row}`
+}
+
+/**
+ * AS-5's second half: the partial-match search attached beside a chooser.
+ *
+ * ⭐ THE HOST'S OWN, WHICH IS THE WHOLE REASON IT NEEDS NO WORD. FR-038 (MUST)
+ * keeps every word printed on the screen in one dictionary per language and
+ * (MUST NOT) forbids one to be minted anywhere else -- a filter written here
+ * would need a label, a placeholder or a heading, and each of those is a word.
+ * ⚠️ `input` + `datalist` is the host's roster entry: it draws its own way in,
+ * narrows the roster on what has been typed, and carries no text of its own --
+ * so the surface gains a search and the dictionary gains nothing.
+ * ⚠️ WHETHER THE HOST NARROWS ON A FRAGMENT OR ON A PREFIX IS THE HOST'S ANSWER,
+ * and FR-029's 「環境の作法に従う」 is what hands it that: rebuilding the match
+ * here would be this side holding a rule no requirement states.
+ *
+ * ⭐ IT COMMITS THROUGH THE SAME KEY AS THE CHOOSER BESIDE IT. `CONTROL_KEYS`
+ * carries `{ row, key }` and both entrances carry the one PR-16 holds, so a
+ * settled value reaches `commandFromFieldCommit` by the row id IF-9 fixes
+ * whichever of the two a person used. ⚠️ What travels differs and is meant to:
+ * the chooser settles a candidate's `uid` (AS-9) and this settles the NAME that
+ * was typed, which is the spelling AS-7 (a person the roster does not hold),
+ * AS-8 (a name several people carry) and AS-3's `-` are all written about.
+ *
+ * ⛔ THE ROOM IS THE CHOOSER'S OWN, and for FR-006's (MUST NOT) reason: the
+ * widest candidate is what either entrance has to be able to show, so the one
+ * estimate covers both. The field's line wraps when the two will not stand side
+ * by side, which `propertyControlsStyle` already does (FR-006, MUST).
+ *
+ * @purity non-pure
+ */
+function searchElements(
+  host: Document,
+  row: string,
+  control: PropertyControl,
+  words: readonly string[],
+): readonly HTMLElement[] {
+  const id = rosterId(row)
+  const roster = host.createElement('datalist')
+  roster.setAttribute('id', id)
+  for (const word of words) {
+    const option = host.createElement('option')
+    option.setAttribute('value', word)
+    roster.append(option)
+  }
+
+  const box = made(host, 'input', propertyControlStyle(control.widthInFontSizes))
+  box.setAttribute('type', 'text')
+  box.setAttribute('list', id)
+  // Written for the reader of the built page and for a check, like the ones
+  // `controlElement` writes -- the commit still travels by `CONTROL_KEYS`.
+  box.setAttribute('data-field-row', row)
+  box.setAttribute('data-field-search', 'true')
+  ;(box as HTMLInputElement).value = ''
+
+  CONTROL_KEYS.set(box, { row, key: control.key })
+  // A person puts CHARACTERS into this one, which is the whole of what it is --
+  // so it is settled by `Enter` and abandoned by `Esc` like every other such
+  // control, and IN-5a's `Delete` is swallowed while it holds the pointer.
+  TYPED_CONTROLS.add(box)
+  return [roster as HTMLElement, box]
+}
+
+/**
  * One item of table T-016, of table T-058's two row columns, or of table T-104.
  *
  * ⛔ A FIELD WITH NO CONTROL IS STILL WRITTEN OUT AS TEXT. `controls` is empty
@@ -2846,6 +2964,18 @@ function fieldElement(host: Document, field: PropertyField): HTMLElement {
     // and gap, and the same requirement says in as many words that how many
     // times a value may be drawn is FR-006's and not that row's.
     controls.append(controlElement(host, field.row, control))
+    // ⭐ AS-5 OF TABLE T-225 (MUST) ATTACHES TWO THINGS, NOT ONE: 「ドロップダウン
+    // と部分一致の検索を添えること」. The chooser above is the first and this is
+    // the second, and it stands BESIDE it rather than in its place -- a search
+    // settles a name, and AS-9 (MUST) calls the chooser the only surface on which
+    // two same-named people can be told apart.
+    // ⚠️ Keyed on the control declaring words rather than on the row id, for the
+    // reason the text fallback above gives: a row id here would be this file
+    // holding a copy of table T-016.
+    const words = control.searchWords
+    if (words !== undefined) {
+      controls.append(...searchElements(host, field.row, control, words))
+    }
   }
   line.append(name, controls)
   return line
