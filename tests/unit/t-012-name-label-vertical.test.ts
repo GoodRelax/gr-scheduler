@@ -309,15 +309,17 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
       [{ taskUid: 1, shapeKind }],
     )
 
-  it('SH-3 puts the label bottom S-196 above the top edge of the plan LINE', () => {
+  it('SH-3 puts the label bottom S-196 above the top edge of the plan SHAPE', () => {
     // T-012 row SH-3 (arrow): the "name label vertical position" column reads
     // "lifted above the plan and the actual", and S-196 of table T-206 states
-    // the amount as the gap between the TOP EDGE OF THE PLAN LINE and the
-    // BOTTOM EDGE OF THE LABEL -- measured from the line, not from the band.
+    // the amount as the gap between the TOP EDGE OF THE PLAN SHAPE and the
+    // BOTTOM EDGE OF THE LABEL -- measured from the shape's bounding box
+    // (CR-297: "予定の図形の上端", not "予定の線の上端"), because SH-3's
+    // arrowhead stands taller than the line's own stroke.
     // ⛔ The 2px is read from the generated constant, never re-typed.
     const { drawn, label } = drawnOf(shaped('arrow'))
     expect(bottomOf(label)).toBeCloseTo(
-      strokeTopOf(drawn.plan) - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
       6,
     )
   })
@@ -327,7 +329,7 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
     // SH-3, so it takes the same gap from the same edge.
     const { drawn, label } = drawnOf(shaped('endpointSpan'))
     expect(bottomOf(label)).toBeCloseTo(
-      strokeTopOf(drawn.plan) - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
       6,
     )
   })
@@ -427,7 +429,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
     expect(bottomOf(label)).toBeCloseTo(
-      strokeTopOf(drawn.plan) - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
       6,
     )
   })
@@ -438,7 +440,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
     expect(bottomOf(label)).toBeCloseTo(
-      strokeTopOf(drawn.plan) - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
       6,
     )
   })
@@ -450,7 +452,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(placed.labelPlacement).toBe('right')
     expect(label.x).toBeGreaterThanOrEqual(placed.x + placed.width)
     expect(bottomOf(label)).toBeCloseTo(
-      strokeTopOf(drawn.plan) - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
       6,
     )
   })

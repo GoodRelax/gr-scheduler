@@ -474,6 +474,23 @@ function thinStroke(planHeight: number, settings: DocumentSettings): number {
   )
 }
 
+/**
+ * How far SH-3's head or SH-4's end dot reaches above (or below) the
+ * stroke's own middle -- the same two formulas `lineBar` draws the picture
+ * with, read again here because `labelTopOf` needs the shape's outer edge
+ * and not a `BarGeometry` to measure it from (D-55, 裁定 C1).
+ *
+ * @purity pure
+ */
+function lineEndHalfHeight(kind: 'arrow' | 'endpointSpan', x0: number, x1: number, stroke: number,
+                           settings: DocumentSettings): number {
+  if (kind === 'arrow') {
+    const head = Math.min(stroke * settings.arrowHeadOfStroke, (x1 - x0) * settings.arrowHeadOfSpan)
+    return head / 2
+  }
+  return stroke * settings.spanDotOfStroke
+}
+
 /** One bar of a shape without thickness (SH-3 or SH-4), by LF-7. @purity pure */
 function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number, stroke: number,
                  settings: DocumentSettings): BarGeometry {
@@ -970,31 +987,37 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
  * company the first time `actualOfPlan` or `actualGap` moved.
  *
  * ⛔ S-196 IS READ FROM THE GENERATED BLOCK, never typed in. ⭐ AND IT IS
- * MEASURED FROM THE LINE, NOT FROM THE BAND: the row says it is the gap
- * between 「予定の線の上端」 and the label's BOTTOM edge, and for these two
- * shapes the plan is a LINE that LF-7 lays down the middle of the band it
- * reserved -- so the band's own top is a good half plan height above the line
- * and is not what the row names. The label's height comes off the font, which
- * is why the row holds the gap alone.
+ * MEASURED FROM THE SHAPE'S OWN TOP EDGE, NOT FROM THE BAND: the row says it
+ * is the gap between 「予定の図形の上端」 and the label's BOTTOM edge, and for
+ * these two shapes the plan is a LINE that LF-7 lays down the middle of the
+ * band it reserved -- so the band's own top is a good half plan height above
+ * the shape and is not what the row names. The label's height comes off the
+ * font, which is why the row holds the gap alone.
  *
- * ⚠️ THE HEAD AND THE END DOTS REACH HIGHER THAN THE LINE'S TOP EDGE. SH-3's
- * head is `arrowHeadOfStroke` times the stroke tall and SH-4's dots have
- * `spanDotOfStroke` for a radius, so a label long enough to run over either
- * end can come nearer to it than S-196. ⛔ No row measures the gap from those,
- * and inventing a second measurement here would be a value the specification
- * does not hold. Reported.
+ * ⭐ D-55 (裁定 C1, 2026-08-27): SH-3's head and SH-4's end dots reach higher
+ * than the stroke alone -- the head is `arrowHeadOfStroke` times the stroke
+ * tall and the dots have `spanDotOfStroke` for a radius -- so the row's edge
+ * is the LARGER of the stroke's own half-weight and that head/dot half-height,
+ * both centred on the same middle `lineBar` draws from. ⛔ Reading the stroke
+ * alone (the pre-裁定 reading) left the label 1.08px into the arrow's head at
+ * the defaults, because the head reaches well above the stroke's edge.
  *
  * @purity pure
  */
 function labelTopOf(settings: DocumentSettings, placed: TaskPlacement, height: number): number {
-  const liftedByShape = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
-  if (!liftedByShape) return placed.y + (placed.height - height) / 2
+  if (placed.shapeKind !== 'arrow' && placed.shapeKind !== 'endpointSpan') {
+    return placed.y + (placed.height - height) / 2
+  }
   // LF-7 and LF-8: the line runs down the middle of the plan's band at the
-  // weight `thinStroke` answers, so its top edge is half that weight above the
-  // middle -- the same two values `barOf` draws it from.
-  const lineTop =
-    placed.y + placed.planHeight / 2 - thinStroke(placed.planHeight, settings) / 2
-  return lineTop - NOT_STORED_LABEL_SIZES['S-196'] - height
+  // weight `thinStroke` answers -- the same two values `barOf` draws it from.
+  const middle = placed.y + placed.planHeight / 2
+  const stroke = thinStroke(placed.planHeight, settings)
+  const halfExtent = Math.max(
+    stroke / 2,
+    lineEndHalfHeight(placed.shapeKind, placed.x, placed.x + placed.width, stroke, settings),
+  )
+  const shapeTop = middle - halfExtent
+  return shapeTop - NOT_STORED_LABEL_SIZES['S-196'] - height
 }
 
 /**
