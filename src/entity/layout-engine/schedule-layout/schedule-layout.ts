@@ -510,7 +510,48 @@ function drawnGroups(schedule: Schedule, settings: DocumentSettings): readonly (
     }
     if (!dropped) drawnRows.push({ ...group, depth })
   }
-  return drawnRows.sort((a, b) => a.depth - b.depth || a.order - b.order)
+  return inTreeOrder(drawnRows, byId)
+}
+
+/**
+ * LC-9's order: a preorder walk, so a row's own subtree sits directly under it
+ * and siblings follow AT-55.
+ *
+ * Sorting by depth instead put every root first, which is what kept depth 2 and
+ * below off the first screen entirely -- seven roots filled the Row Area on
+ * their own. The paragraph under table T-068 forbids that ordering outright.
+ *
+ * A row whose parent is missing is a root here, and anything a parent cycle
+ * makes unreachable is appended rather than dropped: the walk decides ORDER,
+ * and LC-1 above has already decided membership.
+ *
+ * @purity pure
+ */
+function inTreeOrder<T extends TaskGroup & { depth: number }>(
+  rows: readonly T[], byId: ReadonlyMap<string, TaskGroup>,
+): readonly T[] {
+  const childrenOf = new Map<string | null, T[]>()
+  for (const row of rows) {
+    const parent = row.parentId !== null && byId.has(row.parentId) ? row.parentId : null
+    const siblings = childrenOf.get(parent)
+    if (siblings === undefined) childrenOf.set(parent, [row])
+    else siblings.push(row)
+  }
+  for (const siblings of childrenOf.values()) siblings.sort((a, b) => a.order - b.order)
+
+  const ordered: T[] = []
+  const seen = new Set<string>()
+  const walk = (parent: string | null): void => {
+    for (const row of childrenOf.get(parent) ?? []) {
+      if (seen.has(row.id)) continue
+      seen.add(row.id)
+      ordered.push(row)
+      walk(row.id)
+    }
+  }
+  walk(null)
+  for (const row of rows) if (!seen.has(row.id)) ordered.push(row)
+  return ordered
 }
 
 /**

@@ -1219,6 +1219,11 @@ const HEADER: AppHeaderItems = {
 
 const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => ({
   depth: 1,
+  // `depth` x S-37, the product FR-085 subtracts before it cuts the name.
+  // ⚠️ It FOLLOWS the patched depth: a fixed number here would draw the
+  // deepest row exactly like a root one, which is the very thing FR-085's
+  // indent case asks about.
+  indentPx: (patch.depth ?? 1) * 12,
   box: rect(0, 40, 170, 24),
   label: patch.groupId,
   wholeLabel: patch.groupId,

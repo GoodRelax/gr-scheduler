@@ -49,14 +49,20 @@ const units = T075.rows.map((row) => {
 })
 
 describe('table T-075 -- the unit inventory', () => {
-  it('counts the 71 units the design chapter states', () => {
-    expect(units).toHaveLength(71)
+  // ⚠️ CR-280 retired the autosave whole, and with it CP-23 `AutosaveGateway`,
+  // CP-29 `LocalStorageDocumentStore` and every unit they owned: table T-075
+  // fell from 71 rows to 68 and table T-062 from 38 components to 36. The
+  // numbers below are the tables' own, counted at read time; the prose of
+  // Chapter 5.2 (SU-1 / SU-3 of table T-074, and the tree under it) still says
+  // 38 and 71, and 表 T-075 is what those very rows name as the 全数.
+  it('counts the 68 units table T-075 states', () => {
+    expect(units).toHaveLength(68)
   })
 
-  it('names one public entry per component, and 38 of them', () => {
+  it('names one public entry per component, and 36 of them', () => {
     const entries = units.filter((u) => u.file === `${kebab(u.component)}.ts`)
     expect(entries).toHaveLength(new Set(units.map((u) => u.component)).size)
-    expect(entries).toHaveLength(38)
+    expect(entries).toHaveLength(36)
   })
 
   it.each(units)('$id $path exists', ({ path }) => {

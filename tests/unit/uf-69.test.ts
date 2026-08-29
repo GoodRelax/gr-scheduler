@@ -15,6 +15,14 @@
 //   EZ-2      表 T-040 (FR-092): 「アイコンにポインタを合わせて一定時間が経った
 //             ら、そのアイコンの説明を出すこと（MUST）」-- a PLACE condition and
 //             a TIME condition, the wait held by `S-124`
+//             ⭐ CR-282 added a SECOND MUST to the same row: 「説明の後ろに、
+//             その行の割当も出すこと（MUST）」, and 「割当が指すものも、語を
+//             どこから取るかも `FR-036` と同じであること（MUST）」. So every
+//             tooltip carries a THIRD member beside the anchor and the words
+//   FR-036    what that assignment IS: 「キー（表 T-036 の `割当`）とマウス操作
+//             （表 T-023 の `操作`）の両方を指すこと（MUST）」 and 「どちらも
+//             持たない行は、その場所を空ける」-- so the member is present on
+//             every tooltip and empty on the rows that have neither
 //   S-124     `iconHintDelayMs`. ⛔ The number is never written here: it is read
 //             from the generated `SETTINGS_DEFAULTS`, and one case drives the
 //             unit with a DIFFERENT wait so that a hard-coded one would show
@@ -234,6 +242,8 @@ const rowTitleOf = (part: Partial<RowTitle> = {}): RowTitle => {
   return {
     groupId: 'g1',
     depth: 1,
+    // S-37 x depth 1, the product FR-085 subtracts before the cut.
+    indentPx: 12,
     box: rect(0, 0, 200, 24),
     label,
     // The `RowTitle` contract makes `isLabelTruncated` exactly
@@ -973,16 +983,21 @@ describe('IN-3 (表 T-028) and R7.1 — what every tooltip is', () => {
     iconUnderPointer: ICON_OPEN,
   })
 
-  it('carries what it explains and the words, and nothing else', () => {
+  it('carries what it explains, the words, and the assignment of that row -- nothing else', () => {
     // IN-3 grants 消せること・乗せられること・勝手に消えないこと to EVERY
     // tooltip. A member for any of them would let a caller describe one IN-3
-    // forbids, so the type stays two members wide.
+    // forbids, so none of the three is a member here.
+    // ⭐ THE THIRD MEMBER IS EZ-2's OWN: 「説明の後ろに、その行の割当も出す
+    // こと（MUST）」. FR-036 fixes what it points at and where its words come
+    // from, and says 「どちらも持たない行は、その場所を空ける」-- so the member
+    // is on every tooltip and empty, not absent, on a row with no assignment.
     const shown = tooltipsFromScreenView(CROWDED, SETTINGS, CROWDED_SESSION)
 
     expect(shown.length).toBeGreaterThan(0)
     for (const one of shown) {
-      expect(Object.keys(one).sort()).toEqual(['anchor', 'text'])
+      expect(Object.keys(one).sort()).toEqual(['anchor', 'assignment', 'text'])
       expect(typeof one.text).toBe('string')
+      expect(one.assignment === null || typeof one.assignment === 'string').toBe(true)
       expect(['icon', 'rowTitle', 'scrollbar']).toContain(one.anchor.kind)
     }
   })

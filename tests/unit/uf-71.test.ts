@@ -172,7 +172,8 @@ const T_103_PARTS = [
   { row: 'U-25', name: 'Properties Panel' },
   { row: 'U-26', name: 'Command Palette' },
   { row: 'U-27', name: 'Document Title' },
-  { row: 'U-28', name: 'Autosave Status' },
+  { row: 'U-58', name: 'Opened File Name' },
+  { row: 'U-59', name: 'File Saved At' },
   { row: 'U-30', name: 'Help Modal' },
   { row: 'U-30', name: 'AI Export Modal' },
   { row: 'U-31', name: 'App Header' },
@@ -1070,8 +1071,14 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
   ...patch,
 })
 
+const ROW_TITLE_INDENT = SETTINGS_DEFAULTS['rowTitleIndent'] as number
+
 const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => ({
-  depth: 1,
+  depth: patch.depth ?? 1,
+  // `FR-085` takes 「その行の深さぶんのインデント（`rowTitleIndent`。
+  // 表 T-201 の `S-37`）」 off the usable width, so a row at depth n carries n
+  // of them. ⭐ The description carries the number; this unit invents none.
+  indentPx: (patch.depth ?? 1) * ROW_TITLE_INDENT,
   box: rect(0, 0, 170, 24),
   label: patch.groupId,
   // Nothing is cut here, and the `RowTitle` contract fixes that case as
@@ -1163,9 +1170,16 @@ const HELP_MODAL: OpenModal = {
   attributions: ['AttributionOne'],
 }
 
-const iconTooltip = (icon: string, text: string): Tooltip => ({
+/**
+ * ⭐ `EZ-2` of 表 T-040 (MUST) puts the row's assignment BEHIND the words, and
+ * `FR-036` says of a row that has neither key nor mouse operation 「どちらも
+ * 持たない行は、その場所を空ける」 -- so the member is always there and empty
+ * is `null`, never an absent member.
+ */
+const iconTooltip = (icon: string, text: string, assignment: string | null = null): Tooltip => ({
   anchor: { kind: 'icon', icon },
   text,
+  assignment,
 })
 
 /** A description that draws every part this unit owns, for the T-103 roster. */
@@ -1183,9 +1197,13 @@ const RICH_VIEW: ScreenView = viewWith({
   },
   appHeaderItems: {
     documentTitle: 'DocumentTitleHere',
-    openedFileName: null,
-    fileSavedAt: null,
-    fileNeverSavedText: '',
+    // FR-101 (MUST): the name of the file that is open, and the moment it was
+    // last written to. ⚠️ The name is NOT the `Document Title` -- U-58 of
+    // 表 T-103 says in as many words that the two are different values and that
+    // differing is normal, so the two fixtures here differ.
+    openedFileName: 'OpenedFileNameHere.grs.json',
+    fileSavedAt: '2026-08-29T01:02:03Z',
+    fileNeverSavedText: 'FileNeverSavedHere',
     commands: [command({ icon: 'IC-20', label: 'HeaderCommandOne' })],
     // FR-038: the same language the view carries.
     language: 'ja',
@@ -2067,15 +2085,21 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     expect(placed).toContain('29')
   })
 
-  it('PD-152: a row at depth 3 is set in twice as far as one at depth 2', () => {
+  it('sets a row in by the `indentPx` its description carries, and by no measure of its own', () => {
+    // ⭐ PD-152 is closed (CR-287): `RowTitle` carries `indentPx`, so the screen,
+    // the export and `FR-085`'s truncation all read ONE number. ⛛ The `1em` per
+    // level this unit used to invent is gone -- an em is the reader's font size
+    // and `S-37` is px, so the two drifted apart at every font size but one.
+    // ⚠️ The boxes below avoid 24 and 36 on purpose, so that the two indents
+    // cannot be confused with a height or an offset in the joined styles.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
         rowTitlePanel: {
           pinnedTitles: [],
           titles: [
-            rowTitle({ groupId: 'g-2', label: 'RowAtTwo', depth: 2, box: rect(0, 40, 170, 24) }),
-            rowTitle({ groupId: 'g-3', label: 'RowAtThree', depth: 3, box: rect(0, 64, 170, 24) }),
+            rowTitle({ groupId: 'g-2', label: 'RowAtTwo', depth: 2, box: rect(0, 41, 171, 29) }),
+            rowTitle({ groupId: 'g-3', label: 'RowAtThree', depth: 3, box: rect(0, 70, 171, 29) }),
           ],
         },
       }),
@@ -2084,9 +2108,16 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     const tree = oneByRole(built.root(), 'Row Title Tree')
     const two = chainUpTo(theOneWithText(tree, 'RowAtTwo'), tree).map(styleOf).join(' ')
     const three = chainUpTo(theOneWithText(tree, 'RowAtThree'), tree).map(styleOf).join(' ')
-    expect(two).toContain('1em')
-    expect(two).not.toContain('2em')
-    expect(three).toContain('2em')
+
+    // `FR-085`: 「その行の深さぶんのインデント」 -- two of `S-37` at depth 2,
+    // three of it at depth 3.
+    expect(two).toContain(`${2 * ROW_TITLE_INDENT}px`)
+    expect(three).toContain(`${3 * ROW_TITLE_INDENT}px`)
+    expect(two).not.toContain(`${3 * ROW_TITLE_INDENT}px`)
+    expect(three).not.toContain(`${2 * ROW_TITLE_INDENT}px`)
+    // ⛛ Nothing sized in ems decides the indent any more.
+    expect(two).not.toContain('1em')
+    expect(three).not.toContain('2em')
   })
 
   it('SC-5: the Properties Panel scrolls its own contents and is slaved to nothing', () => {
@@ -2297,7 +2328,7 @@ describe('FR-023 -- nothing that arrived from a document becomes markup', () => 
       viewWith({
         appHeaderItems: { ...EMPTY_HEADER, documentTitle: HOSTILE },
         rowTitlePanel: { pinnedTitles: [], titles: [rowTitle({ groupId: HOSTILE, label: HOSTILE })] },
-        tooltips: [{ anchor: { kind: 'rowTitle', groupId: HOSTILE }, text: HOSTILE }],
+        tooltips: [{ anchor: { kind: 'rowTitle', groupId: HOSTILE }, text: HOSTILE, assignment: null }],
       }),
     )
 
@@ -2449,10 +2480,18 @@ describe('boundaries', () => {
 
     surface.showScreenView(RICH_VIEW)
     const once = selfAndDescendants(built.root()).length
+    const readingTheTitleOnce = withText(built.root(), 'DocumentTitleHere').length
     surface.showScreenView(RICH_VIEW)
 
     expect(selfAndDescendants(built.root())).toHaveLength(once)
-    expect(withText(built.root(), 'DocumentTitleHere')).toHaveLength(1)
+    // ⚠️ The count is taken from the FIRST draw rather than written here: how
+    // many boxes end up reading exactly the title is a nesting no requirement
+    // fixes, and pinning it would make this case fail whenever the band gains a
+    // wrapper. What the case is for is that the second draw adds none of them.
+    expect(withText(built.root(), 'DocumentTitleHere')).toHaveLength(readingTheTitleOnce)
+    // ⭐ W-4 of 表 T-006a: exactly ONE box carries the settled name `U-27`, and
+    // it reads the title. `oneByRole` throws if there is a second.
+    expect(oneByRole(built.root(), 'Document Title').textContent).toBe('DocumentTitleHere')
   })
 })
 

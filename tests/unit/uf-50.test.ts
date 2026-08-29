@@ -135,6 +135,9 @@ const T_036_KEYS = [
   { row: 'SK-17', hostKey: '0', hostCode: 'Digit0', mods: { ctrl: true }, key: '0' },
   { row: 'SK-18', hostKey: 'f', hostCode: 'KeyF', mods: {}, key: 'F' },
   { row: 'SK-20', hostKey: 'd', hostCode: 'KeyD', mods: { ctrl: true, shift: true }, key: 'D' },
+  // ⭐ CR-280 put `SK-21`「開いているファイルを読み直す」`Ctrl` ＋ `R` in the
+  // place the retired autosave left (rule OP-13 of table T-024a).
+  { row: 'SK-21', hostKey: 'r', hostCode: 'KeyR', mods: { ctrl: true }, key: 'R' },
 ] as const
 
 /**

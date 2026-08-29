@@ -1210,7 +1210,7 @@ const STYLE = {
   // whatever the name's length, so the NAME is what takes every pixel left over
   // -- `flex:1` is the whole of that, and the controls drawn after it are held
   // at the edge by what is left. ⚠️ The row's own left padding carries the
-  // depth (`ROW_INDENT_EM`), so an indented row moves its name and not its
+  // depth (`RowTitle.indentPx`), so an indented row moves its name and not its
   // controls, which is what HF-4's 「名前ごとに位置が変わると狙えない」 asks for
   // on the other axis.
   rowLabel: 'flex:1;overflow:hidden;text-overflow:ellipsis;',
@@ -1720,21 +1720,6 @@ const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
  * path (NFR-013).
  */
 const GLYPH_BY_ROW = new Map(iconGlyphs.glyphs.map((one) => [one.rowId, one.elements]))
-
-/**
- * How far a row is set in for each level below the root.
- *
- * ⛔ NOT `rowTitleIndent` (S-37), WHICH IS THE VALUE THAT BELONGS HERE. FR-085
- * cuts a row's name to `rowTitlePanelWidth` less that indent less the room kept
- * for the controls, and `RowTitle` carries the CUT name and its `depth` but not
- * the indent -- `DocumentSettings` does not cross IF-9. ⚠️ So the length below
- * and the length the name was cut against are two numbers that cannot be made
- * to agree from this side. It is drawn anyway because FR-005's tree is
- * unreadable flat, and it is one line to change when the indent crosses.
- *
- * @provisional PD-152
- */
-const ROW_INDENT_EM = 1
 
 // --------------------------------------------------------------------- pure --
 
@@ -2249,11 +2234,14 @@ function rowControlElement(host: Document, role: string, icon: string): HTMLElem
  * @purity non-pure
  */
 function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HTMLElement {
-  const indentEm = (title.depth - 1) * ROW_INDENT_EM
+  // PD-152 closed: the indent is `RowTitle.indentPx`, which is the very product
+  // FR-085 subtracted before cutting the name, so the cut and the indent are one
+  // number. It used to be one em worked out here, which agreed with neither the
+  // cut nor the export -- the same row was set in three different ways.
   const row = made(
     host,
     'div',
-    boxStyle(title.box) + STYLE.rowTitle + `padding:0 0.25em 0 calc(0.25em + ${indentEm}em);`,
+    boxStyle(title.box) + STYLE.rowTitle + `padding:0 0.25em 0 calc(0.25em + ${title.indentPx}px);`,
   )
   if (isPinned) row.setAttribute('data-role', ROLE.pinnedRow)
   row.setAttribute('data-group-id', title.groupId)

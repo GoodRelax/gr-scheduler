@@ -6,15 +6,18 @@
 //
 // The unit is step BO-2 of table T-077 -- 「表 T-034 の順で最初に開く文書を決め
 // る」-- so every rule below comes from table T-034 and FR-062, with FR-067 for
-// the embedded row (BT-1), FR-026 for the autosaved one (BT-3) and FR-027 for
-// the template (BT-4). Nothing here was read off the implementation: Chapter
-// 1.9 requires a test that verifies a requirement pointing at a table to be
-// driven by a fixed copy of that table, which is what `T_034` below is.
+// the embedded row (BT-1), FR-087 for the handed one (BT-2) and FR-027 for the
+// template (BT-4). Nothing here was read off the implementation: Chapter 1.9
+// requires a test that verifies a requirement pointing at a table to be driven
+// by a fixed copy of that table, which is what `T_034` below is.
+//
+// ⚠️ Table T-034 lost its BT-3 row in CR-280 (appendix version 1.33):
+// 「行 ID は席の番号であり、詰めない —— BT-3 は自動保存された文書の席で、
+// CR-280 で退いた」. The seats are not closed up, so BT-4 still holds rank 3.
 
 import { describe, expect, it } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
-import type { DocumentStamp } from '../../src/entity/document-model/document-stamp/document-stamp'
 import {
   chooseStartupDocument,
   type StartupCandidates,
@@ -23,12 +26,10 @@ import {
   type StartupRow,
 } from '../../src/use-case/choose-startup-document/choose-startup-document'
 
-// A whole Document is far more than this unit reads -- it compares stamps
-// (PI-3's `isStampMatched`, which table T-034's note asks for: 「自動保存の刻印
-// が開いた文書のそれと 1 つでも違えば確認を求めること（MUST）」) and hands the
+// A whole Document is far more than this unit reads -- it only hands the
 // winner on -- so the fixture carries the root keys of table T-052 and a name
-// that tells the four candidates apart in a failure message.
-const documentOf = (name: string, stamp: Partial<DocumentStamp> = {}): Document =>
+// that tells the three candidates apart in a failure message.
+const documentOf = (name: string): Document =>
   ({
     schemaVersion: '1',
     schedule: {
@@ -37,24 +38,17 @@ const documentOf = (name: string, stamp: Partial<DocumentStamp> = {}): Document 
       tasks: [],
     },
     documentSettings: {},
-    documentStamp: {
-      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
-      lastEditedBy: 'user',
-      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
-      ...stamp,
-    },
     changeLog: [],
   }) as unknown as Document
 
 /**
  * Table T-034 copied out, one row at a time, in the table's order. The second
- * column is 「順」 (1 to 4) and the third is 「出どころ」.
+ * column is 「順」 (1 to 3) and the third is 「出どころ」.
  */
 const T_034 = [
   { row: 'BT-1', order: 1, source: 'the document embedded in the file (FR-067)' },
-  { row: 'BT-2', order: 2, source: 'the document handed at startup (R-1 of table T-008)' },
-  { row: 'BT-3', order: 3, source: 'the autosaved document (FR-026)' },
-  { row: 'BT-4', order: 4, source: 'the template for the first screen (FR-027)' },
+  { row: 'BT-2', order: 2, source: 'the document handed at startup (R-1 of table T-008, FR-087)' },
+  { row: 'BT-4', order: 3, source: 'the template for the first screen (FR-027)' },
 ] as const satisfies readonly { row: StartupRow; order: number; source: string }[]
 
 const noticeFor = (choice: StartupChoice, code: StartupNoticeCode) =>
@@ -72,25 +66,30 @@ describe('ChooseStartupDocument (UF-23) -- the order of table T-034', () => {
     for (const [rank, entry] of T_034.entries()) {
       const documents = T_034.map((row) => documentOf(row.row))
       const candidates: StartupCandidates = {
-        embedded:
-          rank <= 0
-            ? { kind: 'read', document: documents[0]!, documentKey: 'key-embedded' }
-            : { kind: 'none' },
-        handed:
-          rank <= 1
-            ? { kind: 'read', document: documents[1]!, documentKey: 'key-handed' }
-            : { kind: 'none' },
-        autosave:
-          rank <= 2
-            ? { kind: 'read', document: documents[2]!, documentKey: 'key-autosave' }
-            : { kind: 'none' },
-        template: documents[3]!,
+        embedded: rank <= 0 ? { kind: 'read', document: documents[0]! } : { kind: 'none' },
+        handed: rank <= 1 ? { kind: 'read', document: documents[1]! } : { kind: 'none' },
+        template: documents[2]!,
       }
       const choice = chooseStartupDocument(candidates)
       expect({ order: entry.order, row: choice.row }).toEqual({ order: entry.order, row: entry.row })
       expect(choice.document).toBe(documents[rank])
       // Nothing was turned away, so nothing is told (FR-076, table T-037).
       expect(choice.notices).toEqual([])
+    }
+  })
+
+  it('T-034 holds three rows and never answers with the seat CR-280 retired', () => {
+    // The table is BT-1, BT-2, BT-4 in ranks 1, 2, 3. BT-3 is not a row of it,
+    // so no startup -- clean or failed -- can come back with that row.
+    expect(T_034.map((entry) => entry.row)).toEqual(['BT-1', 'BT-2', 'BT-4'])
+    expect(T_034.map((entry) => entry.order)).toEqual([1, 2, 3])
+    for (const embedded of [{ kind: 'none' }, { kind: 'unreadable' }] as const) {
+      const choice = chooseStartupDocument({
+        embedded,
+        handed: { kind: 'none' },
+        template: documentOf('template'),
+      })
+      expect(T_034.map((entry) => entry.row)).toContain(choice.row)
     }
   })
 
@@ -102,12 +101,10 @@ describe('ChooseStartupDocument (UF-23) -- the order of table T-034', () => {
     const choice = chooseStartupDocument({
       embedded: { kind: 'none' },
       handed: { kind: 'none' },
-      autosave: { kind: 'none' },
       template,
     })
     expect(choice.row).toBe('BT-4')
     expect(choice.document).toBe(template)
-    expect(choice.autosave).toEqual({ kind: 'none' })
   })
 })
 
@@ -120,9 +117,7 @@ describe('ChooseStartupDocument (UF-23) -- BT-1, the embedded document (FR-067)'
     handed: {
       kind: 'read',
       document: documentOf('handed'),
-      documentKey: 'key-handed',
     },
-    autosave: { kind: 'none' },
     template: documentOf('template'),
   } as const satisfies Omit<StartupCandidates, 'embedded'>
 
@@ -159,7 +154,6 @@ describe('ChooseStartupDocument (UF-23) -- BT-1, the embedded document (FR-067)'
     const choice = chooseStartupDocument({
       embedded: { kind: 'unreadable' },
       handed: { kind: 'none' },
-      autosave: { kind: 'none' },
       template,
     })
     expect(choice.row).toBe('BT-4')
@@ -168,171 +162,39 @@ describe('ChooseStartupDocument (UF-23) -- BT-1, the embedded document (FR-067)'
   })
 })
 
-describe('ChooseStartupDocument (UF-23) -- the losing autosave, table T-034 note', () => {
-  // 「負けた自動保存の扱い: 同じ文書で、自動保存の刻印が開いた文書のそれと 1 つ
-  // でも違えば確認を求めること（MUST）。⛔ どちらが新しいかで判定してはならない
-  // （MUST NOT）—— 壁時計は逆行しうるうえ、取り消しで戻った文書は「新しくない」
-  // ので黙って捨てられる（`FR-063`）。別の文書なら触らない。壊れていれば通知した
-  // うえで退避する。」
-  // FR-062 adds the MUST NOT that guards all three: 「負けた自動保存を黙って
-  // 捨ててはならない」.
-  const WINNER_STAMP: DocumentStamp = {
-    scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
-    lastEditedBy: 'user',
-    settingsUpdatedUtc: '2026-08-17T00:00:00Z',
-  }
-  const winner = documentOf('embedded', WINNER_STAMP)
-
-  const startedWith = (
-    autosaveKey: string,
-    autosaveStamp: Partial<DocumentStamp>,
-    stored = documentOf('autosave', autosaveStamp),
-  ): StartupChoice =>
-    chooseStartupDocument({
-      embedded: { kind: 'read', document: winner, documentKey: 'key-a' },
-      handed: { kind: 'none' },
-      autosave: { kind: 'read', document: stored, documentKey: autosaveKey },
-      template: documentOf('template'),
-    })
-
-  it('T-034 asks to recover on ANY ONE of the three differing (MUST), one case per field', () => {
-    // 「刻印が開いた文書のそれと 1 つでも違えば確認を求めること（MUST）」 -- the
-    // comparison is PI-3's `isStampMatched` (FR-063: 「どの判定も等値で行うこと
-    // （MUST）」), so each of the stamp's three fields alone is enough. The
-    // settings instant matters on its own because FR-063 moves it for a
-    // presentation-only write while leaving the schedule instant still: without
-    // that field, an autosave of exactly the work FR-062 exists to protect
-    // would look equal.
-    for (const differing of [
-      { scheduleUpdatedUtc: '2026-08-17T00:30:00Z' },
-      { lastEditedBy: 'agent' },
-      { settingsUpdatedUtc: '2026-08-17T00:30:00Z' },
-    ] as const) {
-      const stored = documentOf('autosave', { ...WINNER_STAMP, ...differing })
-      const choice = startedWith('key-a', {}, stored)
-      expect(choice.row, JSON.stringify(differing)).toBe('BT-1')
-      expect(choice.autosave, JSON.stringify(differing)).toEqual({
-        kind: 'askToRecover',
-        document: stored,
-      })
-    }
-  })
-
-  it('T-034 asks to recover when the autosave stamp is EARLIER, because newness decides nothing', () => {
-    // ⛔ 「どちらが新しいかで判定してはならない（MUST NOT）—— 壁時計は逆行しうる
-    // うえ、取り消しで戻った文書は『新しくない』ので黙って捨てられる」. An undo
-    // restores the earlier document stamp and all (FR-031), so an autosave that
-    // reads as older is still a DIFFERENT document and still has to be asked
-    // about. This case goes red the moment an ordering comparison comes back.
-    const stored = documentOf('autosave', {
-      ...WINNER_STAMP,
-      scheduleUpdatedUtc: '2020-01-01T00:00:00Z',
-      settingsUpdatedUtc: '2020-01-01T00:00:00Z',
-    })
-    const choice = startedWith('key-a', {}, stored)
-    expect(choice.autosave).toEqual({ kind: 'askToRecover', document: stored })
-  })
-
-  it('T-034 leaves a different document alone, however far apart the two stamps are', () => {
-    // 「別の文書なら触らない」 -- and FR-061 makes never confusing two of them
-    // a MUST NOT, so the stamp of an unrelated autosave decides nothing.
-    const choice = startedWith('key-b', {
-      scheduleUpdatedUtc: '2026-12-31T00:00:00Z',
-      settingsUpdatedUtc: '2026-12-31T00:00:00Z',
-    })
-    expect(choice.row).toBe('BT-1')
-    expect(choice.autosave).toEqual({ kind: 'leaveAlone' })
-  })
-
-  it('T-034 does not ask about the same document when the stamps match in all three', () => {
-    // The note conditions the confirmation on 「1 つでも違えば」, so nothing
-    // differing is nothing to ask about; and FR-062's MUST NOT keeps the loser
-    // from being dropped on the floor. That leaves neither a question nor a
-    // discard, and `quarantine` is reserved for the broken one -- so
-    // `leaveAlone` is what is left.
-    const equal = startedWith('key-a', WINNER_STAMP)
-    expect(equal.autosave).toEqual({ kind: 'leaveAlone' })
-  })
-
-  it('T-034 and FR-026 tell about a broken autosave and set it aside', () => {
-    // 「壊れていれば通知したうえで退避する」, and FR-026: 「保存された内容が
-    // 壊れているとき、黙って破棄してはならない（MUST NOT）—— 復旧できないこと
-    // を人に通知すること」. A broken autosave can never win, so BT-4 opens.
+describe('ChooseStartupDocument (UF-23) -- BT-2, the document handed at startup', () => {
+  // FR-062's rationale hands each losing row to its own requirement: 「順に負け
+  // た出どころをどう扱うかは、その出どころ自身の要求が持つ（BT-1 は FR-067、
+  // BT-2 は FR-087）」. FR-087's OP-5 puts every route through the FR-023
+  // validation, so a handed file that cannot be read yields no document -- and
+  // FR-027 keeps the rank below it from being empty.
+  it('a handed document that cannot be read descends to BT-4 and is not dropped silently', () => {
     const template = documentOf('template')
     const choice = chooseStartupDocument({
       embedded: { kind: 'none' },
-      handed: { kind: 'none' },
-      autosave: { kind: 'broken' },
+      handed: { kind: 'unreadable' },
       template,
     })
     expect(choice.row).toBe('BT-4')
     expect(choice.document).toBe(template)
-    expect(choice.autosave).toEqual({ kind: 'quarantine' })
-    // ⚠️ The rule is not asserted to a single UID: the specification names two
-    // for this telling -- FR-026 (「壊れているとき…通知すること」) and table
-    // T-034's own note under FR-062 -- and neither is the lesser one.
-    const notice = noticeFor(choice, 'autosaveBroken')
-    expect(notice?.row).toBe('BT-3')
-    expect(['FR-026', 'FR-062']).toContain(notice?.rule)
-  })
-
-  it('T-034 weighs the autosave against whichever row won, not against BT-1 alone', () => {
-    // The note says 「同じ文書で」 without naming a row: the winner is the
-    // document the autosave is the same as, or a different one from. Here BT-2
-    // wins after BT-1 was turned away (FR-067), and the autosave stands under
-    // the winner's key.
-    const handed = documentOf('handed', WINNER_STAMP)
-    const stored = documentOf('autosave', {
-      ...WINNER_STAMP,
-      scheduleUpdatedUtc: '2026-08-17T05:00:00Z',
-    })
-    const choice = chooseStartupDocument({
-      embedded: { kind: 'unreadable' },
-      handed: { kind: 'read', document: handed, documentKey: 'key-handed' },
-      autosave: { kind: 'read', document: stored, documentKey: 'key-handed' },
-      template: documentOf('template'),
-    })
-    expect(choice.row).toBe('BT-2')
-    expect(choice.autosave).toEqual({ kind: 'askToRecover', document: stored })
-    // A different key at the same rank is the other half of the branch.
-    const elsewhere = chooseStartupDocument({
-      embedded: { kind: 'unreadable' },
-      handed: { kind: 'read', document: handed, documentKey: 'key-handed' },
-      autosave: { kind: 'read', document: stored, documentKey: 'key-other' },
-      template: documentOf('template'),
-    })
-    expect(elsewhere.autosave).toEqual({ kind: 'leaveAlone' })
-  })
-
-  it('leaves no losing autosave when BT-3 is the row that won', () => {
-    // The note is about 「負けた自動保存」. When BT-3 wins there is no loser,
-    // and the document opened is the autosave itself.
-    const stored = documentOf('autosave')
-    const choice = chooseStartupDocument({
-      embedded: { kind: 'none' },
-      handed: { kind: 'none' },
-      autosave: { kind: 'read', document: stored, documentKey: 'key-a' },
-      template: documentOf('template'),
-    })
-    expect(choice.row).toBe('BT-3')
-    expect(choice.document).toBe(stored)
-    expect(choice.autosave).toEqual({ kind: 'none' })
+    expect(codesOf(choice)).toEqual(['handedUnreadable'])
   })
 })
 
 describe('ChooseStartupDocument (UF-23) -- what the startup has to tell', () => {
   it('carries every failure out at once, for the one screen NT-4 asks for', () => {
     // NT-4 of table T-037: 「起動時の保留中の用件は 1 枚に集約して出すこと（全
-    // 数）」. Two rows failed in one startup; both leave in the same answer.
+    // 数）」. Both rows above the template failed in one startup; both leave in
+    // the same answer.
+    const template = documentOf('template')
     const choice = chooseStartupDocument({
       embedded: { kind: 'entryCountNotOne', entryCount: 2 },
-      handed: { kind: 'read', document: documentOf('handed'), documentKey: 'key-handed' },
-      autosave: { kind: 'broken' },
-      template: documentOf('template'),
+      handed: { kind: 'unreadable' },
+      template,
     })
-    expect(choice.row).toBe('BT-2')
-    expect([...codesOf(choice)].sort()).toEqual(['autosaveBroken', 'embeddedEntryCountNotOne'])
-    expect(choice.autosave).toEqual({ kind: 'quarantine' })
+    expect(choice.row).toBe('BT-4')
+    expect(choice.document).toBe(template)
+    expect([...codesOf(choice)].sort()).toEqual(['embeddedEntryCountNotOne', 'handedUnreadable'])
   })
 
   it('is pure: the same candidates give the same answer and none of them is touched', () => {
@@ -340,12 +202,7 @@ describe('ChooseStartupDocument (UF-23) -- what the startup has to tell', () => 
     // the Framework, so the call is a function of its argument alone.
     const candidates: StartupCandidates = {
       embedded: { kind: 'unreadable' },
-      handed: { kind: 'read', document: documentOf('handed'), documentKey: 'key-handed' },
-      autosave: {
-        kind: 'read',
-        document: documentOf('autosave', { scheduleUpdatedUtc: '2026-08-17T09:00:00Z' }),
-        documentKey: 'key-handed',
-      },
+      handed: { kind: 'read', document: documentOf('handed') },
       template: documentOf('template'),
     }
     const before = JSON.parse(JSON.stringify(candidates))

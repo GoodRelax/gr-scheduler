@@ -442,6 +442,9 @@ function rowTitleOf(
     groupId: group.id,
     depth,
     box,
+    // The very product `availableLabelWidthPx` subtracts, so the indent drawn
+    // and the indent the name was cut against cannot be two numbers.
+    indentPx: depth * settings.rowTitleIndent,
     label: shownLabel,
     // ⛔ NO READER IN `src/` IS LEFT FOR THIS. The uncut name left this unit so
     // that UF-69 could put it in a tooltip without a `Schedule` to redo AT-53

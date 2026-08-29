@@ -331,6 +331,9 @@ const rowOf = (
   depth,
   box,
   label,
+  // S-37 of table T-201 (K-37) is the indent of ONE level of depth, and FR-085
+  // takes 「その行の深さぶんのインデント」 off the usable width.
+  indentPx: depth * SETTINGS.rowTitleIndent,
   // Nothing is cut here, and the `RowTitle` contract fixes that case as
   // `wholeLabel === label` with `isLabelTruncated` false.
   wholeLabel: label,
@@ -408,7 +411,10 @@ const viewOf = (
       { sequence: 1, author: 'someone', text: DIALOGUE_TEXT, settledAt: '2026-08-19T09:00:00Z' },
     ],
   },
-  tooltips: [{ anchor: { kind: 'rowTitle', groupId: 'g1' }, text: TOOLTIP_TEXT }],
+  // ⭐ `EZ-2` of 表 T-040 (MUST) puts the row's assignment behind the words, so
+  // every tooltip carries the member. `FR-036`: 「どちらも持たない行は、その
+  // 場所を空ける」 -- a row title has neither key nor mouse operation.
+  tooltips: [{ anchor: { kind: 'rowTitle', groupId: 'g1' }, text: TOOLTIP_TEXT, assignment: null }],
   ...part,
 })
 

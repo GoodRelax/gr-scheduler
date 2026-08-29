@@ -95,16 +95,28 @@ const T_024_FILE_ROWS = [
 }[]
 
 /**
- * Table T-024, the two rows that reach no file. IO-5 answers to IF-4 and IO-6
- * to IF-5, so neither may appear among the forms this component writes.
+ * Table T-024, the two rows that reach no file. IO-6 answers to IF-5, so it may
+ * not appear among the forms this component writes; IO-5 (localStorage) reaches
+ * no file either. ⚠️ IO-5 used to answer to IF-4 `DocumentStore`; CR-280
+ * retired the autosave and table T-065 no longer holds that row, so IO-5 now
+ * names no seam at all -- table T-206 keeps its four settings and nothing else.
  */
 const T_024_ROWS_THAT_ARE_NOT_FILES = [
-  { id: 'IO-5', seam: 'IF-4' },
+  { id: 'IO-5', seam: null },
   { id: 'IO-6', seam: 'IF-5' },
 ] as const
 
 /** OP-2 of table T-024a: the routes one entry admits, and no third. */
 const T_024A_OP2_ROUTES = ['chooser', 'drop'] as const satisfies readonly OpenRoute[]
+
+/**
+ * OP-13 of table T-024a, which CR-280 added with `SK-21` of table T-036: the
+ * third route the union admits. ⚠️ NOT one of OP-2's -- OP-2 still names two
+ * ("ファイル選択、およびドラッグ＆ドロップ") and every case that walks those two
+ * walks them, while this one opens no chooser and re-reads the file already
+ * open.
+ */
+const T_024A_OP13_ROUTE = 'reopen' as const satisfies OpenRoute
 
 /** IF-3: the three answers the store gives about FR-060's file. */
 const IF_3_OPENED_STATES = [
@@ -332,9 +344,11 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_024_ROWS_THAT_ARE_NOT_FILES).toHaveLength(2)
   })
 
-  it('carries the two routes of OP-2 and the four reasons IF-3 tells apart', () => {
+  it('carries the two routes of OP-2, the third of OP-13, and the four reasons IF-3 tells apart', () => {
     expect(T_024A_OP2_ROUTES).toHaveLength(2)
-    expect(Object.keys(EVERY_OPEN_ROUTE).sort()).toEqual([...T_024A_OP2_ROUTES].sort())
+    expect(Object.keys(EVERY_OPEN_ROUTE).sort()).toEqual(
+      [...T_024A_OP2_ROUTES, T_024A_OP13_ROUTE].sort(),
+    )
     expect(storeReasons).toHaveLength(4)
     expect(Object.keys(EVERY_GATEWAY_REASON)).toHaveLength(6)
     expect(IF_3_OPENED_STATES).toHaveLength(3)

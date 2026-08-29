@@ -629,6 +629,8 @@ const EXPORT_VIEW: ScreenView = {
       {
         groupId: 'g1',
         depth: 1,
+        // S-37 x depth 1, the product FR-085 subtracts before the cut.
+        indentPx: EXPORT_SETTINGS.rowTitleIndent,
         box: { x: 0, y: 120, width: EXPORT_SETTINGS.rowTitlePanelWidth, height: 60 },
         label: 'a row that reaches the picture',
         // Nothing was cut, which the `RowTitle` contract fixes as

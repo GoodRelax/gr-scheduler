@@ -27,7 +27,9 @@
 //
 // ⭐ THE RULE THESE CASES ARE DRIVEN BY:
 //
-//   表 T-230 「まるごと差し替えるときの呼び手ごとの扱い」, rows RD-1 .. RD-6,
+//   表 T-230 「まるごと差し替えるときの呼び手ごとの扱い」, every row it prints
+//             (RD-1 .. RD-4 and RD-6 -- RD-5 「自動保存からの復帰」 left the
+//             table with CR-280, which took 「自動保存」 out of the manuscript),
 //             read out of docs/spec/05-07-design.md at load time through
 //             `specTable` rather than copied. Chapter 1.9 (:275) asks that a
 //             test of a requirement pointing at a table be driven by the table,
@@ -45,7 +47,7 @@
 //   表 T-024a OP-3 / OP-4, and 表 T-004 の LM-9
 //
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, because docs/spec does not decide it:
-//   - the difference between RD-4 / RD-5's 「捨てる」 and RD-6's 「空にする」.
+//   - the difference between RD-4's 「捨てる」 and RD-6's 「空にする」.
 //     Both leave a history with nothing to undo and nothing to redo, and that
 //     common ground is what the cases assert; a reading that tells the two
 //     words apart is not written down anywhere.
@@ -581,17 +583,8 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedUtc,
       }
     }
-    case 'RD-5':
-      // 「呼び手が持って来る」 -- 「呼び手が渡した文書がそのまま `WS-3` の答え」.
-      return {
-        start,
-        call: { row: 'RD-5', document: brought },
-        ws3Document: brought,
-        ws3History: null,
-        outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedUtc,
-      }
     case 'RD-6':
+      // 「呼び手が持って来る」 -- 「呼び手が渡した文書がそのまま `WS-3` の答え」.
       return {
         start,
         call: { row: 'RD-6', document: brought },
@@ -607,18 +600,24 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
 
 // ---------------------------------------------------------------------------
 // 4. 表 T-230 itself, before anything is driven by it.
-//    「本表の 6 つが、まるごと差し替える呼び手の全数である。」
+//    「本表の …… が、まるごと差し替える呼び手の全数である。」
+//
+// ⛔ THE COUNT IN THAT SENTENCE IS NOT ASSERTED, AND THE ROW IDS ARE. The
+// manuscript still spells 「本表の 6 つ」 in its prose while the table prints
+// five rows -- CR-280 took RD-5 「自動保存からの復帰」 out with the mechanism it
+// named and left the sentence behind. A case driven by the prose would be
+// asserting a number the table itself contradicts, so the rows are what is read.
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 -- the whole set of callers, before any of them is driven', () => {
-  it('GIVEN the manuscript WHEN its rows are read THEN there are six, and this file drives every one', () => {
-    expect(ROWS).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-5', 'RD-6'])
+  it('GIVEN the manuscript WHEN its rows are read THEN this file drives every one', () => {
+    expect(ROWS).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-6'])
     for (const instants of INSTANT_FLAVOURS) {
       for (const row of ROWS) expect(() => driveOf(row, instants), `${row} / ${instants}`).not.toThrow()
     }
   })
 
-  it('GIVEN the WS-3 column WHEN it is read THEN it names a component for four rows and the caller for two', () => {
+  it('GIVEN the WS-3 column WHEN it is read THEN it names a component for four rows and the caller for one', () => {
     // 「`WS-3` の位置に立つのは本表がその欄に名指したものである（MUST）」 and
     // 「「呼び手が持って来る」の行では、呼び手が渡した文書がそのまま `WS-3` の
     // 答えである。」
@@ -626,7 +625,6 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
     expect(cellOf('RD-2', COL_WS3)).toContain('RedoEdit')
     expect(cellOf('RD-3', COL_WS3)).toContain('ImportDocument')
     expect(cellOf('RD-4', COL_WS3)).toContain('ImportDocument')
-    expect(cellOf('RD-5', COL_WS3)).toBe('呼び手が持って来る')
     expect(cellOf('RD-6', COL_WS3)).toBe('呼び手が持って来る')
   })
 
@@ -709,7 +707,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
     expect(OUT_OF_A_FILE.documentStamp).not.toEqual(CURRENT.documentStamp)
     const one = bench(heldWithOneStep())
     const outcome = one.run(
-      { row: 'RD-5', document: OUT_OF_A_FILE },
+      { row: 'RD-6', document: OUT_OF_A_FILE },
       { readStamp: CURRENT.documentStamp },
     )
     expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
@@ -721,7 +719,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
     // this is the call that would have passed.
     const one = bench(heldWithOneStep())
     const outcome = one.run(
-      { row: 'RD-5', document: OUT_OF_A_FILE },
+      { row: 'RD-6', document: OUT_OF_A_FILE },
       { readStamp: OUT_OF_A_FILE.documentStamp },
     )
     expect(outcome.accepted).toBe(false)
@@ -767,7 +765,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
     const one = bench(heldWithOneStep(), (self) => {
       if (fromInside !== null) return
       fromInside = self.run(
-        { row: 'RD-5', document: SAME_SCHEDULE_STAMP },
+        { row: 'RD-6', document: SAME_SCHEDULE_STAMP },
         { readStamp: null, moment: CALM },
       )
     })
@@ -791,12 +789,12 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
     let fromInside: ReplaceOutcome | null = null
     const one = bench(heldWithOneStep(), (self) => {
       if (fromInside !== null) return
-      fromInside = self.run({ row: 'RD-5', document: SAME_SCHEDULE_STAMP }, { readStamp: null })
+      fromInside = self.run({ row: 'RD-6', document: SAME_SCHEDULE_STAMP }, { readStamp: null })
     })
     one.run(driveOf('RD-6').call, { readStamp: null })
     expect(fromInside).not.toBeNull()
 
-    const after = one.run({ row: 'RD-5', document: SAME_SCHEDULE_STAMP }, { readStamp: null })
+    const after = one.run({ row: 'RD-6', document: SAME_SCHEDULE_STAMP }, { readStamp: null })
     expect(after.accepted, JSON.stringify(after)).toBe(true)
   })
 })
@@ -824,9 +822,9 @@ describe('表 T-230 の刻印の欄 -- 行ごとに', () => {
       const landed = accepted(one.run(drive.call)).document
 
       if (cellOf(row, COL_STAMP) === '入ってきたまま') {
-        // 「取り消しは以前の文書を刻印ごと復元し（`FR-063`）、ファイル・自動保存・
-        // 起動テンプレートから来る文書は、書かれたときの刻印を持っていなければ
-        // `FR-062` の照合が意味を成さない。」
+        // 「取り消しは以前の文書を刻印ごと復元し（`FR-063`）、ファイルと起動テン
+        // プレートから来る文書は、書かれたときの刻印を持っていなければ `FR-063`
+        // の等値の判定が意味を成さない。」
         expect(landed.documentStamp).toEqual(drive.ws3Document.documentStamp)
         // 「入ってきたまま」の行で進めてはならない（MUST NOT）: not this
         // writer's name and not this write's instant, on any of the three.
@@ -910,12 +908,11 @@ describe('表 T-230 の取り消しの 1 段の欄 -- 行ごとに', () => {
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 の履歴の欄 -- 行ごとに', () => {
-  it('GIVEN the 履歴 column WHEN its six cells are read THEN they are 問う先が答えたもの ×2, いまのものを残す, 捨てる ×2, 空にする', () => {
+  it('GIVEN the 履歴 column WHEN its five cells are read THEN they are 問う先が答えたもの ×2, いまのものを残す, 捨てる, 空にする', () => {
     expect(ROWS.map((row) => cellOf(row, COL_HISTORY))).toEqual([
       '問う先が答えたものを据える',
       '問う先が答えたものを据える',
       'いまのものを残す',
-      '捨てる',
       '捨てる',
       '空にする',
     ])
@@ -946,12 +943,11 @@ describe('表 T-230 の履歴の欄 -- 行ごとに', () => {
     expect(second.next.document.schedule).toEqual(ONE_STEP_BACK.schedule)
   })
 
-  for (const row of ['RD-4', 'RD-5', 'RD-6']) {
+  for (const row of ['RD-4', 'RD-6']) {
     it(`GIVEN ${row} (${cellOf(row, COL_HISTORY)}) WHEN the replacement lands THEN nothing is left to undo and nothing to redo`, () => {
       // OP-4: 「取り消しの履歴は引き継がない（`LM-9` と同じ理由）」, and UN-6's
       // own warning: 「置き換え（`OP-3`）は対象外 —— 取り消しの履歴を引き継がない
-      // ので戻せない」. LM-9: 「自動保存から復旧したとき、取り消しの履歴は戻ら
-      // ない」.
+      // ので戻せない」. LM-9: 「文書を開き直したとき、取り消しの履歴は戻らない」.
       const drive = driveOf(row)
       expect(stepCount(drive.start.history), 'the case starts with something to lose').toBe(1)
 
@@ -1003,7 +999,7 @@ describe('表 T-230 の `WS-3` の位置に立つもの -- 行ごとに', () => 
     })
   }
 
-  for (const row of ['RD-5', 'RD-6']) {
+  for (const row of ['RD-6']) {
     it(`GIVEN ${row} (呼び手が持って来る) WHEN the replacement lands THEN the caller's own document lands unchanged`, () => {
       const drive = driveOf(row)
       const one = bench(drive.start)
@@ -1012,10 +1008,10 @@ describe('表 T-230 の `WS-3` の位置に立つもの -- 行ごとに', () => 
     })
   }
 
-  it('GIVEN a document FR-023 would refuse WHEN RD-5 brings it THEN it still lands -- 入ってくる文書を検証し直してはならない', () => {
+  it('GIVEN a document FR-023 would refuse WHEN RD-6 brings it THEN it still lands -- 入ってくる文書を検証し直してはならない', () => {
     // 「外から来た文書の検証は `OP-5` と `FR-023` が既に負っており、取り消しの
-    // 履歴が持つ文書はその対象ではない。」 RD-5 is the autosave road, whose
-    // document was validated when it was written.
+    // 履歴が持つ文書はその対象ではない。」 RD-6 is the startup road (`FR-062` ／
+    // 表 T-034), whose document was already put through OP-5 on the way in.
     const outOfRange = rowed(
       [taskOf({ uid: 3, name: 'written long ago', start: '1801-05-04', finish: '1801-05-08' })],
       stampOf({ scheduleUpdatedUtc: FROM_A_FILE, settingsUpdatedUtc: FROM_A_FILE }),
@@ -1036,7 +1032,7 @@ describe('表 T-230 の `WS-3` の位置に立つもの -- 行ごとに', () => 
     expect(verdict.ok, 'the fixture is meant to be one FR-023 turns away').toBe(false)
 
     const one = bench(heldWithOneStep())
-    const landed = accepted(one.run({ row: 'RD-5', document: outOfRange })).document
+    const landed = accepted(one.run({ row: 'RD-6', document: outOfRange })).document
     expect(landed).toEqual(outOfRange)
   })
 })

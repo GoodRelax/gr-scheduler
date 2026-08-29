@@ -273,6 +273,15 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   confirmation: 'answer',
   noticeDismiss: 'answer',
   confirmationMarks: 'mark',
+  // ⭐ THE TWO SECTIONS CR-280 RAISED WHEN THE AUTOSAVE WENT. `FR-101` (MUST)
+  // has the header show the open file and when it was last written, and the
+  // state before the first write owns a word of its own -- keyed by that state,
+  // since no table numbers it. ⚠️ `exportFormats` is keyed by the row of table
+  // T-024 it names (`IO-1` 〜 `IO-7`), the same way `icons` is keyed by table
+  // T-109: `FR-096`'s chooser prints one line per format and FR-038 (MUST NOT)
+  // forbids the 形式 column of that table being carried to the screen.
+  fileStatus: 'state',
+  exportFormats: 'rowId',
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
   // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
   // manuscript -- 「名簿は 表 T-109・表 T-037・表 T-233・表 T-234・表 T-023・
@@ -1085,6 +1094,31 @@ for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'notic
   }
 }
 
+// -- the two sections CR-280 raised when the autosave went
+
+// ⭐ `fileStatus`: FR-101 (MUST) shows the name of the open file and the time it
+// was last written to, 「まだ 1 度もファイルへ書いていないときは、時刻の代わりに
+// その旨を示すこと（MUST）」 -- and that 旨 is the word this section holds. It
+// stands in the App Header, under the file name.
+// ⭐ `exportFormats`: FR-096 (MUST) opens the choice of format before a write,
+// and the chooser prints one line per file row of table T-024 (IO-1 .. IO-7).
+// FR-038 (MUST NOT) bars the 形式 column of that table from the screen, so the
+// name a reader sees is this section's word, keyed by the row it names.
+// ⚠️ NEITHER IS DROPPED FOR BEING OUT OF REACH: this file names no member of
+// `ScreenView` for either -- no row of docs/spec fixes one -- and the
+// acceptance group's whole-view reading holds both to a frame all the same, the
+// way it does for the six sections above.
+for (const section of ['fileStatus', 'exportFormats']) {
+  for (const entry of GENERATED[section] ?? []) {
+    drop(
+      section,
+      keyOf(section, entry),
+      'this file names no member of ScreenView for it -- the acceptance group holds its word against the ' +
+        'whole of what PI-37 hands out instead',
+    )
+  }
+}
+
 // -- weekdays: the fourth ruler tier, which PI-37 does not hand out at all
 
 // FR-017 (MUST) fixes what each tier of the ruler prints and gives the weekday
@@ -1647,14 +1681,20 @@ describe('CR-194 section 5 / PD-160 -- fill one word of the manuscript and it re
     // mark, and now a telling per row of table T-233 for the words FR-076 (MUST)
     // makes every reason carry. ⛔ So being dropped for want of a member is not
     // being let off the arrival claim.
-    const onASurfaceUf67Draws = (cell: Cell): boolean =>
+    // ⭐ AND THE TWO SECTIONS CR-280 RAISED. `fileStatus` stands in the App
+    // Header (FR-101, MUST) and `exportFormats` on the chooser FR-096 (MUST)
+    // opens; both are dropped for want of a member this file may name, not for
+    // want of a frame, so both stay owed the arrival claim.
+    const reachedByTheWholeView = (cell: Cell): boolean =>
       cell.section === 'confirmation' ||
       cell.section === 'confirmationMarks' ||
       cell.section === 'reasons' ||
       cell.section === 'questions' ||
+      cell.section === 'fileStatus' ||
+      cell.section === 'exportFormats' ||
       (cell.section === 'icons' && cell.field === 'label' && ON_U_55.includes(cell.key))
     const owed = written.filter(
-      (cell) => !stated.has(`${cell.section}.${cell.key}`) || onASurfaceUf67Draws(cell),
+      (cell) => !stated.has(`${cell.section}.${cell.key}`) || reachedByTheWholeView(cell),
     )
 
     expect(

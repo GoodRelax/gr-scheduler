@@ -27,24 +27,27 @@
 // written after the first draft of this file, and it says of every whole-document
 // replacement:
 //
-//   「本表の 6 つが、まるごと差し替える呼び手の全数である。呼び手は、自分がどの
-//     行かを名乗ること（MUST）。名乗らない差し替えを受け付けてはならない（MUST
-//     NOT）」
+//   「呼び手は、自分がどの行かを名乗ること（MUST）。名乗らない差し替えを受け付け
+//     てはならない（MUST NOT）」
 //
-// and of the two rows this loop may stand in:
+// and of the one row this loop may stand in:
 //
-//   | RD-5 | 自動保存からの復帰 | 呼び手が持って来る | 捨てる  | 入ってきたまま | 積まない | `LM-9` |
-//   | RD-6 | 起動時の文書       | 呼び手が持って来る | 空にする | 入ってきたまま | 積まない | `FR-062` ／ 表 T-034 |
+//   | RD-6 | 起動時の文書 | 呼び手が持って来る | 空にする | 入ってきたまま | 積まない | `FR-062` ／ 表 T-034 |
 //
-// ⛔ SO THE FOUR CASES BELOW THAT HAND OVER A WHOLE DOCUMENT NAME THEIR ROW, AND
+// ⚠️ ONE ROW, NOT TWO, SINCE CR-280. 「自動保存」 was taken out of the
+// specification in as many words, and RD-5 「自動保存からの復帰」 left the table
+// with it -- so 「呼び手が持って来る」 now names a single row, and every case
+// below that hands over a whole document stands in it.
+//
+// ⛔ SO THE CASES BELOW THAT HAND OVER A WHOLE DOCUMENT NAME THEIR ROW, AND
 // THE HISTORY THEY EXPECT AFTERWARDS IS THE TABLE'S 履歴 COLUMN AND NOT WHAT THE
 // LOOP USED TO DO. An expectation was not bent to the code: the specification
 // grew a column, and the column says the previous history does not survive a
 // replacement. The describe 「表 T-230」 near the foot of this file is where that
 // column is read out of the .md and driven.
 // ⚠️ NOT ASSERTED HERE: 「名乗らない差し替え」. `HeldDocumentCall` narrows the
-// argument to the two rows, so a nameless call cannot be written in typed code,
-// and the MUST NOT itself is driven on the road it binds --
+// argument to the rows above, so a nameless call cannot be written in typed
+// code, and the MUST NOT itself is driven on the road it binds --
 // tests/unit/uf-8-9-replace-document.test.ts, which owns `replaceDocument`
 // (PI-8). ⚠️ Also not asserted here: the four rows this member does not offer.
 
@@ -259,8 +262,8 @@ const cellOf = (row: string, column: string): string => {
  * The rows whose `WS-3` column says the caller brings the document, taken from
  * the table itself.
  *
- * ⭐ NOT A LIST OF TWO ROW IDS TYPED HERE. `HeldDocumentCall` is declared as
- * exactly these rows, so a manuscript that moved a seventh caller into 「呼び手
+ * ⭐ NOT A LIST OF ROW IDS TYPED HERE. `HeldDocumentCall` is declared as
+ * exactly these rows, so a manuscript that moved another caller into 「呼び手
  * が持って来る」 has to reach this file rather than slide past it.
  */
 const HELD_ROWS = T_230.rows
@@ -272,12 +275,16 @@ const bringing = (row: string, document: Document): HeldDocumentCall =>
   ({ row, document }) as unknown as HeldDocumentCall
 
 /**
- * ⭐ The row every case that does not care WHICH row it is stands in: RD-5,
- * 「自動保存からの復帰」, the one whole-document replacement that happens while a
- * loop is already running (`LM-9`). RD-6 is 「起動時の文書」; both are driven
- * side by side by the 表 T-230 describe below.
+ * ⭐ The row every case that does not care WHICH row it is stands in: RD-6,
+ * 「起動時の文書」, which since CR-280 took 「自動保存」 out of the specification
+ * is the only row whose `WS-3` column says 「呼び手が持って来る」.
+ *
+ * ⚠️ WHAT THESE CASES ASK OF IT IS NOT THE ROW'S OWN BUSINESS -- they count
+ * frames and read the description that came out of one. The row is named only
+ * because table T-230 (MUST) forbids a replacement that does not name one, and
+ * the 表 T-230 describe below is where the row's own three columns are driven.
  */
-const RESTORED = (document: Document): HeldDocumentCall => bringing('RD-5', document)
+const RESTORED = (document: Document): HeldDocumentCall => bringing('RD-6', document)
 
 // ---------------------------------------------------------------------------
 // The two keys the shell is asked with, spelt by table T-036
@@ -1568,7 +1575,7 @@ describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS do
 // of table T-036 rather than typed -- SK-20 「基準日線を出す / 消す」, which
 // UN-13 of table T-027 makes a 対象 either way round, and SK-6 「元に戻す」.
 //
-// ⚠️ NOT ASSERTED: the difference between RD-5's 「捨てる」 and RD-6's
+// ⚠️ NOT ASSERTED: the difference between RD-4's 「捨てる」 and RD-6's
 // 「空にする」. Both leave a history with nothing to undo, and that common ground
 // is what is driven; a reading that tells the two words apart is written down
 // nowhere. (tests/unit/uf-8-9-replace-document.test.ts records the same
@@ -1594,24 +1601,25 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
     // 手が持って来る」の行では、呼び手が渡した文書がそのまま `WS-3` の答えであ
     // る。」 `HeldDocumentCall` is declared as exactly these rows, so this is the
     // case that keeps the declaration and the manuscript pinned to each other.
-    expect(HELD_ROWS).toEqual(['RD-5', 'RD-6'])
-    expect(cellOf('RD-5', COL_WS3)).toBe('呼び手が持って来る')
+    //
+    // ⚠️ ONE ROW SINCE CR-280 TOOK 「自動保存」 OUT. RD-5 「自動保存からの復帰」
+    // stood here beside RD-6 and left the table with the mechanism it named.
+    expect(HELD_ROWS).toEqual(['RD-6'])
     expect(cellOf('RD-6', COL_WS3)).toBe('呼び手が持って来る')
     // ⛔ And the four this member does NOT offer are not in that column: RD-1
     // and RD-2 are reached from inside the loop, RD-3 and RD-4 need an
     // `ImportDocument` call nothing hands it.
-    expect(T_230.rows.map((row) => row.id)).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-5', 'RD-6'])
+    expect(T_230.rows.map((row) => row.id)).toEqual(['RD-1', 'RD-2', 'RD-3', 'RD-4', 'RD-6'])
   })
 
   for (const row of HELD_ROWS) {
     describe(`${row} -- ${cellOf(row, COL_HISTORY)} / ${cellOf(row, COL_STAMP)} / ${cellOf(row, COL_UNDO_STEP)}`, () => {
       it('履歴: what was there to undo before the replacement is not there after it', () => {
         // ⛔ THIS IS THE MANUSCRIPT MOVING, NOT AN EXPECTATION BENT TO THE CODE.
-        // RD-5 「自動保存からの復帰 | 呼び手が持って来る | 捨てる | 入ってきた
-        // まま | 積まない | `LM-9`」 and RD-6 「起動時の文書 | 呼び手が持って
-        // 来る | 空にする | 入ってきたまま | 積まない | `FR-062` ／ 表 T-034」.
-        // Neither cell is RD-3's 「いまのものを残す」, so the 段 the write below
-        // leaves cannot survive the replacement.
+        // RD-6 「起動時の文書 | 呼び手が持って来る | 空にする | 入ってきたまま |
+        // 積まない | `FR-062` ／ 表 T-034」. That cell is not RD-3's 「いまのもの
+        // を残す」, so the 段 the write below leaves cannot survive the
+        // replacement.
         expect(['捨てる', '空にする'], `表 T-230 ${row} の履歴`).toContain(
           cellOf(row, COL_HISTORY),
         )
@@ -1658,9 +1666,10 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
 
       it('刻印: the stamp that lands is the one the document came in with', () => {
         // 「`WS-5` は、本表の刻印の欄が「進める」の行でだけ刻印を進めること
-        // （MUST）。「入ってきたまま」の行で進めてはならない（MUST NOT）——
-        // ファイル・自動保存・起動テンプレートから来る文書は、書かれたときの刻印
-        // を持っていなければ `FR-062` の照合が意味を成さない。」
+        // （MUST）。「入ってきたまま」の行で進めてはならない（MUST NOT）—— 取り
+        // 消しは以前の文書を刻印ごと復元し（`FR-063`）、ファイルと起動テンプレー
+        // トから来る文書は、書かれたときの刻印を持っていなければ `FR-063` の等値
+        // の判定が意味を成さない。」
         expect(cellOf(row, COL_STAMP), `表 T-230 ${row} の刻印`).toBe('入ってきたまま')
 
         const stamp = {

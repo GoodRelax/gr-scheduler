@@ -345,6 +345,22 @@ export interface RowTitle {
    */
   readonly box: ScreenRect
   /**
+   * How far the name is set in from the panel's left edge: `depth` x
+   * `rowTitleIndent` (S-37), the same product FR-085 subtracts before cutting
+   * the name.
+   *
+   * ⭐ CARRIED RATHER THAN RECOMPUTED. `DocumentSettings` does not cross IF-9,
+   * so a surface that drew its own indent picked a number FR-085 had not cut
+   * against -- the screen used one em where the cut used S-37, and the export
+   * used S-37, so the same row was indented three ways. Answering it once, here,
+   * where the cut is made, is what keeps the cut and the indent one number.
+   *
+   * ⚠️ The depth's own multiple, not one step fewer -- see
+   * `availableLabelWidthPx`, and S-79's lower bound, which pays a root row one
+   * indent rather than none.
+   */
+  readonly indentPx: number
+  /**
    * The name the row is shown by, after FR-085's truncation, or `null` where
    * none could be resolved.
    *

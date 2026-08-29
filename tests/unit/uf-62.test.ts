@@ -22,8 +22,11 @@
 //   FR-038   the document's own value is not translated; menus and panels are
 //            shown in the chosen language (MUST); the language is kept out of
 //            the document (MUST NOT)
-//   FR-061   the three autosave states are told apart (MUST) and the time rides
-//            with `saved`
+//   FR-101   the name of the file that is open and the moment it was last
+//            written to are both shown (MUST); when nothing has been written to
+//            a file yet, the words that say so stand in the time's place
+//            (MUST); and the file name is NOT the `Document Title` -- U-58 of
+//            table T-103 says the two differing is normal
 //   FR-029   the roster of icons AND the placement of each follow table T-109
 //            (MUST); one function may not have two entries on the screen
 //            (MUST NOT); what cannot be used is drawn faint rather than going
@@ -44,9 +47,9 @@
 //   FR-065   while the `Agent API` is on, that it is on is shown (MUST)
 //   FR-066   the dialogue field is up only while the `Agent API` is on
 //   T-075    the UF-62 row: `pure`, and the four things it names -- the
-//            `Document Title` (FR-035), the `Autosave Status` (FR-061), the
-//            `Agent API` being on (FR-065) and the display-language entry
-//            (FR-038)
+//            `Document Title` (FR-035), the `Opened File Name` and the
+//            `File Saved At` (FR-101), the `Agent API` being on (FR-065) and
+//            the display-language entry (FR-038)
 //   R7.1     `pure` in table T-075, so the unit may neither write to what it
 //            was handed nor answer differently to the same arguments
 //
@@ -111,7 +114,6 @@ import {
 } from '../../src/entity/document-model/selection/selection'
 import type {
   AppHeaderItems,
-  AutosaveStatus,
   CommandItem,
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
@@ -192,19 +194,20 @@ const T_109_APP_HEADER: readonly string[] = T_109_APP_HEADER_RUNS.flatMap((run) 
  * Rows of table T-109 placed on some OTHER surface. None of them may reach the
  * header: that column is the placement FR-029 makes a MUST.
  *
- * IC-52 is the modals', IC-53 / IC-54 and IC-23 are the `Command Palette`'s,
- * IC-55 .. IC-57 are the `Autosave Status`'s and IC-58 .. IC-60 are the
- * `Row Title Panel`'s. The table marks IC-53 .. IC-57 "not a button" as well,
- * so they could not be `CommandItem`s even on their own surface.
+ * IC-52 is the modals', IC-53 / IC-54 / IC-61 / IC-23 are the `Command
+ * Palette`'s and IC-58 .. IC-60 are the `Row Title Panel`'s. The table marks
+ * IC-53 and IC-54 "not a button" as well, so they could not be `CommandItem`s
+ * even on their own surface.
+ *
+ * ⚠️ IC-55 .. IC-57 stood here while they were the `Autosave Status`'s. CR-280
+ * retired autosave and the three rows left table T-109 with it, so a copy that
+ * still named them would be asserting about rows the manuscript no longer has.
  */
 const T_109_ELSEWHERE = [
   'IC-23',
   'IC-52',
   'IC-53',
   'IC-54',
-  'IC-55',
-  'IC-56',
-  'IC-57',
   'IC-58',
   'IC-59',
   'IC-60',
@@ -263,13 +266,6 @@ const S_59_ROWS: readonly {
 
 /** S-99 (table T-206). FR-038 admits exactly these two. */
 const S_99_LANGUAGES: readonly ScreenSession['language'][] = ['ja', 'en']
-
-/** FR-061 (MUST): the three states that have to be told apart. */
-const FR_061_STATES: readonly AutosaveStatus[] = [
-  { kind: 'saved', at: '2026-08-19T04:05:06Z' },
-  { kind: 'saving' },
-  { kind: 'failed' },
-]
 
 // ---------------------------------------------------------------------------
 // Inputs. A whole DocumentSettings is 100+ keys, so a case pins the ones it
@@ -412,40 +408,87 @@ describe('UF-62 documentTitle', () => {
 })
 
 // ---------------------------------------------------------------------------
-// U-28 `Autosave Status` -- FR-061.
+// U-58 `Opened File Name` and U-59 `File Saved At` -- FR-101.
+//
+// ⚠️ U-28 `Autosave Status` used to stand here, and FR-061 told its three
+// states apart. CR-280 retired autosave: FR-061 is gone from Chapter 4, the row
+// left table T-103, and BT-3 left table T-034 with the note 「行 ID は席の番号で
+// あり、詰めない —— BT-3 は自動保存された文書の席で、CR-280 で退いた」. The four
+// cases that drove the three states are deleted rather than rewritten: there is
+// no requirement left for them to answer to.
 // ---------------------------------------------------------------------------
 
-describe('UF-62 autosaveStatus', () => {
-  it('carries each of the three states whole (FR-061, MUST)', () => {
-    for (const autosave of FR_061_STATES) {
-      expect(itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ autosave }))).toMatchObject({
-        autosaveStatus: autosave,
-      })
-    }
+describe('UF-62 openedFileName / fileSavedAt', () => {
+  const NAME = 'plan-for-line-3.grs.json'
+  const AT = '2026-08-29T01:02:03Z'
+  const OPEN_AND_SAVED = sessionWith({ openedFileName: NAME, fileSavedAt: AT })
+
+  it('carries the name of the file that is open (FR-101, MUST)', () => {
+    expect(itemsOf(UNNAMED, SETTINGS, STATE, OPEN_AND_SAVED).openedFileName).toBe(NAME)
   })
 
-  it('keeps the three apart (FR-061, MUST)', () => {
-    const kinds = FR_061_STATES.map(
-      (autosave) => itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ autosave })).autosaveStatus.kind,
+  it('carries the moment it was last written to (FR-101, MUST)', () => {
+    expect(itemsOf(UNNAMED, SETTINGS, STATE, OPEN_AND_SAVED).fileSavedAt).toBe(AT)
+  })
+
+  it('makes no time of its own for a document never written to a file (CS-1: a pure unit has no clock)', () => {
+    // ⚠️ `SESSION` opens no file, so both members arrive `null`. A unit that
+    // reached for a clock would answer with something.
+    const items = itemsOf(UNNAMED, SETTINGS, STATE, SESSION)
+    expect(items.openedFileName).toBeNull()
+    expect(items.fileSavedAt).toBeNull()
+  })
+
+  it('has words for "nothing has been written to a file yet" standing where the time would be (FR-101, MUST)', () => {
+    // FR-101: 「まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を
+    // 示すこと（MUST）」, with the reason spelled out: 「空欄では「書けたのに
+    // 読めない」と区別がつかない」. So the empty string will not do.
+    const items = itemsOf(UNNAMED, SETTINGS, STATE, SESSION)
+    expect(items.fileSavedAt).toBeNull()
+    expect(typeof items.fileNeverSavedText).toBe('string')
+    expect(items.fileNeverSavedText.length).toBeGreaterThan(0)
+  })
+
+  it('says so in the chosen display language (FR-038, MUST)', () => {
+    // FR-038 (MUST) shows menus and panels in the chosen language, and FR-036
+    // adds the rule those words obey: 「画面に刷る語は言語ごとの辞書 1 つに
+    // 持つ」. These words are screen words, so the two languages differ.
+    const said = S_99_LANGUAGES.map(
+      (language) => itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ language })).fileNeverSavedText,
     )
-    expect(new Set(kinds).size).toBe(FR_061_STATES.length)
+    expect(new Set(said).size).toBe(S_99_LANGUAGES.length)
   })
 
-  it('carries the time the saved state rides with, rather than making one (CS-1: a pure unit has no clock)', () => {
-    const at = '1999-12-31T23:59:59Z'
-    const status = itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ autosave: { kind: 'saved', at } }))
-      .autosaveStatus
-    expect(status).toEqual({ kind: 'saved', at })
-  })
-
-  it('does not read the display language (FR-038 translates menus and panels, not a clock reading)', () => {
-    const at = '2026-01-02T03:04:05Z'
-    const shown = S_99_LANGUAGES.map(
-      (language) =>
-        itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ language, autosave: { kind: 'saved', at } }))
-          .autosaveStatus,
+  it('does not translate the file name or the moment (FR-038 translates menus and panels)', () => {
+    const shown = S_99_LANGUAGES.map((language) =>
+      itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ language, openedFileName: NAME, fileSavedAt: AT })),
     )
-    expect(shown[0]).toEqual(shown[1])
+    expect(shown[0]?.openedFileName).toBe(shown[1]?.openedFileName)
+    expect(shown[0]?.fileSavedAt).toBe(shown[1]?.fileSavedAt)
+    expect(shown[0]?.openedFileName).toBe(NAME)
+  })
+
+  it('never substitutes the Document Title for the file name (U-58 of table T-103)', () => {
+    // U-58: 「`Document Title`（`U-27`）とは別物である」, and FR-101 adds
+    // 「2 つが違う値になることは正常である」. So the document's own title
+    // may not leak into the file name, and a named document with no file open
+    // still has none.
+    const items = itemsOf(scheduleOf('Line 3 relocation'), SETTINGS, STATE, OPEN_AND_SAVED)
+    expect(items.documentTitle).toBe('Line 3 relocation')
+    expect(items.openedFileName).toBe(NAME)
+
+    const noFile = itemsOf(scheduleOf('Line 3 relocation'), SETTINGS, STATE, SESSION)
+    expect(noFile.openedFileName).toBeNull()
+  })
+
+  it('does not read the rest of the document for either of them', () => {
+    const withRows = scheduleOf('same', {
+      baselineTasks: [{ uid: 9, name: 'a', start: null, finish: null, milestone: null }],
+    })
+    const rich = itemsOf(withRows, SETTINGS, STATE, OPEN_AND_SAVED)
+    const bareOne = itemsOf(scheduleOf('same'), SETTINGS, STATE, OPEN_AND_SAVED)
+    expect(rich.openedFileName).toBe(bareOne.openedFileName)
+    expect(rich.fileSavedAt).toBe(bareOne.fileSavedAt)
   })
 })
 

@@ -150,6 +150,8 @@ const T_024_FIRST_CHARACTER = 3
 const T_230_HISTORY = 2
 /** Table T-036 prints what the shortcut does, then its assignment. */
 const T_036_ASSIGNMENT = 1
+/** Table T-036 prints the row of table T-109 the assignment drives after that. */
+const T_036_ENTRANCE = 2
 /** Table T-233 prints the situation first, then the row of table T-037 that is its manner. */
 const T_233_MANNER = 1
 
@@ -192,8 +194,10 @@ function entriesOn(surface: string): readonly string[] {
 }
 
 /**
- * The rows of table T-024 whose direction column carries an out direction --
- * what FR-096 (MUST) has the author choose between.
+ * The rows of table T-024 whose direction column carries an out direction.
+ *
+ * ⚠️ NOT WHAT FR-096 OFFERS -- that is the narrower set below. This one is what
+ * `exchange-formats.json` is printed from, which carries every way out.
  *
  * ⚠️ THE ONE PLACE A JAPANESE WORD IS MATCHED, and rule 03 section 5 admits it
  * for exactly this: the direction column is Japanese prose and there is no
@@ -210,6 +214,26 @@ function outDirectionRows(): readonly string[] {
   return T_024.rows
     .filter((row) => (row.cells[T_024_DIRECTION] ?? '').includes(OUT_DIRECTION))
     .map((row) => row.id)
+}
+
+/**
+ * The rows of table T-024 that carry an out direction AND come out as a file --
+ * what FR-096 (MUST) has the author choose between.
+ *
+ * 「作成者が書き出しを選んだとき、`GRS` は、**表 T-024 のうち書出の方向を持ち、
+ *   ファイルとして出る形式**から選ばせ」（`FR-096`）.
+ *
+ * ⭐ WHICH ROWS THOSE ARE IS THE TABLE'S OWN ANSWER, not a list minted here:
+ * 「⭐ **拡張子の欄は、ファイルとして出る行がすべて持つ** —— `FR-096` が提案する
+ *   名の正が本表だからであり…**`IO-5` と `IO-6` は持たない** —— 保管庫とクリップ
+ *   ボードはファイルとして出ないので、名を付ける先が無い。」 So the extension
+ * column IS the file-bearing test, and reading it keeps this set moving with the
+ * table rather than with this file.
+ *
+ * @purity pure
+ */
+function fileBearingOutDirectionRows(): readonly string[] {
+  return outDirectionRows().filter((id) => extensionOf(id) !== null)
 }
 
 /**
@@ -1380,7 +1404,7 @@ describe('FR-096 -- the Export Chooser', () => {
     expect(screen.last().openModal?.surface).toBe(EXPORT_CHOOSER)
   })
 
-  it('FR-096 (MUST): the surface offers every format table T-024 gives an out direction', () => {
+  it('FR-096 (MUST): the surface offers every format of table T-024 that comes out as a file', () => {
     // ⛔ NOT DECIDED BY THE SPECIFICATION: no row says WHICH member of the
     // description carries the formats, and table T-024 has no English column, so
     // a format is carried by its row ID and by nothing else -- the bargain
@@ -1388,8 +1412,10 @@ describe('FR-096 -- the Export Chooser', () => {
     // tests/system/mspdi-normalization.sws.test.ts both already keep. So this
     // case looks for the row ID ANYWHERE in the description rather than minting
     // a member name for it.
-    const offered = outDirectionRows()
-    expect(offered.length, 'table T-024 gives no row an out direction').toBeGreaterThan(1)
+    const offered = fileBearingOutDirectionRows()
+    expect(offered.length, 'table T-024 gives no file-bearing row an out direction').toBeGreaterThan(
+      1,
+    )
 
     const pane = host()
     const screen = screenPane()
@@ -1406,6 +1432,33 @@ describe('FR-096 -- the Export Chooser', () => {
         `FR-096 (MUST): the ${EXPORT_CHOOSER} names no way to choose table T-024 row ${format}`,
       ).toContain(format)
     }
+  })
+
+  it('FR-096 (MUST NOT): IO-6 is not on the surface, because FR-025 carries it directly', () => {
+    // 「⛔ **`IO-6`（クリップボード）を本要求の選択面に出してはならない（MUST
+    //   NOT）** —— **ファイルとして出ないので名を付ける先が無く**、その経路は
+    //   `FR-025` が `IC-3` で直に運ぶ。」（`FR-096`、利用者の裁定 2026-08-29）
+    //
+    // ⭐ THE ROW IS NAMED RATHER THAN DERIVED, because this is a MUST NOT about
+    // one row and not about a set: table T-024 could grow another file-less
+    // out-direction row without this prohibition following it there.
+    expect(
+      outDirectionRows(),
+      'table T-024 no longer gives IO-6 an out direction, so this prohibition has no subject',
+    ).toContain('IO-6')
+
+    const pane = host()
+    const screen = screenPane()
+    const files = fileStore()
+    const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
+
+    loop.receiveInput(SK_12)
+    pane.runAnimationFrames()
+
+    expect(
+      JSON.stringify(screen.last().openModal),
+      `FR-096 (MUST NOT): the ${EXPORT_CHOOSER} offers table T-024 row IO-6`,
+    ).not.toContain('IO-6')
   })
 
   it('IC-52: an entry taken on an open surface reaches the loop, and IN-4 closes it', () => {
@@ -1434,12 +1487,28 @@ describe('FR-096 -- the Export Chooser', () => {
     expect(screen.last().openModal).toBeNull()
   })
 
-  it('IC-3: table T-109 gives the whole act exactly one entry', () => {
+  it('IC-2: table T-109 gives the whole act exactly one entry', () => {
     // 「入口を 1 つとすること（MUST）。形式ごとに別の入口を設けてはならない（MUST
-    //   NOT）。」 Table T-109 is the whole of the icons (FR-029, MUST), so the
-    // count is that table's answer.
+    //   NOT）。****その入口は 表 T-109 の `IC-2` とすること（MUST）**」（利用者の
+    // 裁定 2026-08-29）. Table T-109 is the whole of the icons (FR-029, MUST), so
+    // the count is that table's answer -- and the row ID is now named by FR-096
+    // itself rather than merely counted.
     const writingOut = T_109.rows.filter((row) => (row.cells[T_109_AUTHORITY] ?? '').includes('`FR-096`'))
-    expect(writingOut.map((row) => row.id)).toEqual(['IC-3'])
+    expect(writingOut.map((row) => row.id)).toEqual(['IC-2'])
+  })
+
+  it('IC-3: the entry FR-025 carries the clipboard through is a second, separate one', () => {
+    // 「⭐ **`IO-6`（クリップボード）の入口は 表 T-109 の `IC-3` とし、選択面を開
+    //   かずに直ちに送ること（MUST）**」（`FR-025`、利用者の裁定 2026-08-29）.
+    //
+    // ⭐ THE PAIR IS WHAT MATTERS. FR-096's 「入口を 1 つとすること（MUST）」 is
+    // only kept if IC-2 and IC-3 are two rows resting on two requirements -- one
+    // that opens U-54 and one that does not.
+    const toClipboard = T_109.rows.filter((row) =>
+      (row.cells[T_109_AUTHORITY] ?? '').includes('`FR-025`'),
+    )
+    expect(toClipboard.map((row) => row.id)).toEqual(['IC-3'])
+    expect(cellOf(T_109, 'IC-3', T_109_AUTHORITY)).toContain('`IO-6`')
   })
 })
 
@@ -1967,7 +2036,16 @@ describe('the tables are read by position, so the positions are pinned', () => {
   })
 
   it('table T-036 prints the assignment second, and OP-2 keeps opening to one row', () => {
-    expect(T_036.headings.length).toBe(3)
+    // ⚠️ FOUR, NOT THREE, SINCE 入口 WAS APPENDED AFTER 割当: 「⭐ **`入口` の欄
+    //   は、その割当が動かす 表 T-109 の行を名指すこと（MUST）。行 ID で書き、割
+    //   当の綴りも入口の説明も写してはならない（MUST NOT）**」 -- appended, so the
+    // position read below did not move.
+    expect(T_036.headings.length).toBe(4)
+    // ⛔ THE COUNT ALONE IS NOT THE GUARD, the same way table T-109 is pinned
+    // above: the new column is pinned by what stands in it, and what stands in
+    // SK-12's is the very row FR-096 (MUST) names as its one entrance.
+    expect(cellOf(T_036, 'SK-12', T_036_ENTRANCE)).toBe('IC-2')
+    expect(cellOf(T_036, 'SK-10', T_036_ENTRANCE)).toBe('IC-1')
     expect(SK_10).toEqual({
       kind: 'key',
       key: 'O',

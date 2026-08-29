@@ -1,8 +1,8 @@
-// Contract test: the nine seams of table T-065.
+// Contract test: the eight seams of table T-065.
 //
 // A contract test belongs to neither side of a seam. Both sides can be green on
 // their own while the seam between them is broken, and the seam is where an
-// application assembled from 71 separately written units actually falls over.
+// application assembled from 68 separately written units actually falls over.
 // So this file is driven by the table, once, rather than by either component.
 //
 // Table T-065 fixes, for every interface that crosses a layer boundary:
@@ -59,8 +59,12 @@ const seams = T065.rows.map((row) => ({
 }))
 
 describe('table T-065 -- the interfaces that cross a layer boundary', () => {
-  it('has the nine rows the design chapter counts', () => {
-    expect(seams).toHaveLength(9)
+  // ⚠️ CR-280 retired the autosave, and `DocumentStore` -- the seam
+  // `LocalStorageDocumentStore` implemented -- went with it: table T-065 fell
+  // from nine rows to eight. Chapter 5.3's prose still says 「層をまたぐ 9 本」
+  // while the table it points at holds eight, and the table is the 全数.
+  it('has the eight rows table T-065 holds', () => {
+    expect(seams).toHaveLength(8)
     expect(seams.every((s) => s.name && s.declaredBy && s.implementedBy)).toBe(true)
   })
 
