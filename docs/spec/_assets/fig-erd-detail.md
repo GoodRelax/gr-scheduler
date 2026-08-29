@@ -141,7 +141,7 @@ erDiagram
         整数 nameAnchor "GRS・0〜8"
         列挙 nameAlign "GRS・3 値"
         列挙 shapeKind "GRS・5 値"
-        列挙 milestoneGlyph "GRS・8 値"
+        列挙 milestoneGlyph "GRS・15 値"
         文字列 fillColor "GRS"
         文字列 strokeColor "GRS"
         列挙 lineWeight "GRS・3 値"
@@ -400,7 +400,7 @@ erDiagram
 | AT-98 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置。**外接矩形の 9 点を読み順に数える** —— `0` 左上 / `1` 上中央 / `2` 右上 / `3` 左中央 / `4` 中央 / `5` 右中央 / `6` 左下 / `7` 下中央 / `8` 右下。⚠️ **指定が無いときの置き方は 表 T-013 が決める**（`FR-002`）—— そちらは自動配置の順であって、この格子ではない |
 | AT-99 | `TaskVisual` | `nameAlign` | 列挙（3 値） | 可 | — | GRS | — | 名前の揃え |
 | AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | **描画の形だけを決める。`Task.milestone` を変えない**（表 T-012） |
-| AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（8 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る。**既定は `'diamond'`** |
+| AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（15 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る。**既定は `'diamond'`** |
 | AT-102 | `TaskVisual` | `fillColor` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 塗り。**輪郭と同時に透明にできない**（`FR-030`） |
 | AT-103 | `TaskVisual` | `strokeColor` | 文字列 | 可（同上） | — | GRS | — | 輪郭。同上 |
 | AT-104 | `TaskVisual` | `lineWeight` | 列挙（3 値） | 可 | — | GRS | — | 輪郭の太さ |

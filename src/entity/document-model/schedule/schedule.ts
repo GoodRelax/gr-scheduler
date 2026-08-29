@@ -275,7 +275,7 @@ export interface TaskVisual {
   /** AT-100 */
   readonly shapeKind: 'rectangle' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone' | null
   /** AT-101 */
-  readonly milestoneGlyph: 'circle' | 'hexagon' | 'pentagon' | 'diamond' | 'square' | 'star' | 'triangleUp' | 'triangleDown' | null
+  readonly milestoneGlyph: 'circle' | 'hexagon' | 'pentagon' | 'diamond' | 'square' | 'star' | 'triangleUp' | 'triangleDown' | 'file' | 'box' | 'floppyDisk' | 'cylinder' | 'person' | 'smile' | 'beerMug' | null
   /** AT-102 */
   readonly fillColor: string | null
   /** AT-103 */
@@ -469,7 +469,7 @@ export const COLUMN_SHAPES: {
     nameAnchor: { kind: 'integer', choices: null, min: 0, max: 8, isNullable: true },
     nameAlign: { kind: 'enum', choices: ['left', 'center', 'right'], min: null, max: null, isNullable: true },
     shapeKind: { kind: 'enum', choices: ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone'], min: null, max: null, isNullable: true },
-    milestoneGlyph: { kind: 'enum', choices: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown'], min: null, max: null, isNullable: true },
+    milestoneGlyph: { kind: 'enum', choices: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown', 'file', 'box', 'floppyDisk', 'cylinder', 'person', 'smile', 'beerMug'], min: null, max: null, isNullable: true },
     fillColor: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     strokeColor: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     lineWeight: { kind: 'enum', choices: ['thin', 'medium', 'thick'], min: null, max: null, isNullable: true },

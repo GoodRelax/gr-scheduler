@@ -383,6 +383,83 @@
    }
   },
   {
+   "rowId": "IC-83",
+   "label": {
+    "ja": "マイルストーン（ファイル）",
+    "en": "Milestone (file)"
+   },
+   "hint": {
+    "ja": "ファイル のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a file milestone; drag on empty space to create one"
+   }
+  },
+  {
+   "rowId": "IC-84",
+   "label": {
+    "ja": "マイルストーン（ボックス）",
+    "en": "Milestone (box)"
+   },
+   "hint": {
+    "ja": "ボックス のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a box milestone; drag on empty space to create one"
+   }
+  },
+  {
+   "rowId": "IC-85",
+   "label": {
+    "ja": "マイルストーン（フロッピー）",
+    "en": "Milestone (floppy disk)"
+   },
+   "hint": {
+    "ja": "フロッピー のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a floppy disk milestone; drag on empty space to create one"
+   }
+  },
+  {
+   "rowId": "IC-86",
+   "label": {
+    "ja": "マイルストーン（円筒）",
+    "en": "Milestone (cylinder)"
+   },
+   "hint": {
+    "ja": "円筒 のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a cylinder milestone; drag on empty space to create one"
+   }
+  },
+  {
+   "rowId": "IC-87",
+   "label": {
+    "ja": "マイルストーン（会議の人）",
+    "en": "Milestone (meeting people)"
+   },
+   "hint": {
+    "ja": "会議の人 のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm meeting people milestone; drag on empty space to create one"
+   }
+  },
+  {
+   "rowId": "IC-88",
+   "label": {
+    "ja": "マイルストーン（嬉しい顔）",
+    "en": "Milestone (smiling face)"
+   },
+   "hint": {
+    "ja": "嬉しい顔 のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a smiling face milestone; drag on empty space to create one"
+   }
+  },
+  {
+   "rowId": "IC-89",
+   "label": {
+    "ja": "マイルストーン（ビールジョッキ）",
+    "en": "Milestone (beer mug)"
+   },
+   "hint": {
+    "ja": "ビールジョッキ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
+    "en": "Arm a beer mug milestone; drag on empty space to create one"
+   }
+  },
+  {
    "rowId": "IC-35",
    "label": {
     "ja": "コメントボックス",

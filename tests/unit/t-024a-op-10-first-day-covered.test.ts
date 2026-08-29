@@ -78,6 +78,12 @@
 // ⛔ No figure is copied from `src/` and none is read from a settings table --
 // this row's answer is a day the document itself carries.
 //
+// ⚠️ ONE CASE READS THE CLOCK, AND IT IS THE ONLY ONE THAT MAY. FR-055's 実行日
+// is the day the program is RUN, so there is no document to take it from and no
+// seam to inject it through -- `frameLoop` takes no `today`. It is therefore
+// derived here the way 5.4 derives a day, and the two hazards that carries are
+// both closed where it is used: see `runDayOf`.
+//
 // ---------------------------------------------------------------------------
 // WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
@@ -157,6 +163,30 @@ const stored = (day: string): string => `${day}T00:00:00`
 
 /** The day part of a stored date. */
 const dayPart = (value: string): string => value.slice(0, 10)
+
+/**
+ * 実行日 -- the calendar day of the host running this case, spelt the way a
+ * date column is spelt.
+ *
+ * ⛔ NOT `toISOString().slice(0, 10)`, WHICH IS WHAT THIS CASE ROTTED ON.
+ * That reads the day in UTC, and 5.4 (FR-054) forbids reaching a day by
+ * converting a time zone: 「交換相手の値から日を取るときは、字面の日付の部分を
+ * 取ること（MUST）。時差を換算してはならない（MUST NOT）—— 換算すると、書き出した
+ * 日が取り込んだ日と 1 日ずれる」. A host east of UTC therefore spends the first
+ * hours of every day disagreeing with itself, and one midnight this case held
+ * the UTC day while the frame drew the host's own. `getFullYear` /
+ * `getMonth` / `getDate` are the local calendar's own three numbers, which is
+ * the 字面 the rule asks for.
+ *
+ * ⚠️ THE SECOND HAZARD IS THE CLOCK MOVING MID-CASE, and the case that uses
+ * this closes it by sampling either side of the boot and accepting both -- a
+ * boot that straddles midnight is a real run of the program, not a defect, and
+ * the answer it gives is right on whichever side it read.
+ */
+const runDayOf = (at: Date): string =>
+  `${at.getFullYear()}-${String(at.getMonth() + 1).padStart(2, '0')}-${String(
+    at.getDate(),
+  ).padStart(2, '0')}`
 
 const ROW_ONE = '3a000000-0000-4000-8000-000000000001'
 const ROW_TWO = '3a000000-0000-4000-8000-000000000002'
@@ -658,11 +688,8 @@ describe('OP-10 -- a document that holds no `Task`', () => {
     expect(held.scrollGroupId).toBeNull()
   })
 
-  it('⛔ takes FR-055 place too: 表示位置を `scrollDate` に合わせる, and `null` may only become 実行日', () => {
-    // ⛔⛔ THIS CASE IS RED, AND THE EXPECTED VALUE IS THE MANUSCRIPT'S.
-    // 04-verification section 1: 期待値をコードに合わせて書き換えてはならない.
-    //
-    // OP-10 (MUST) now sends this document back to the head of its own row:
+  it('takes FR-055 place too: 表示位置を `scrollDate` に合わせる, and `null` may only become 実行日', () => {
+    // OP-10 (MUST) sends this document back to the head of its own row:
     // 「そのような文書は本行の冒頭にもどり、`FR-055` の全体表示が選ぶ倍率と表示
     // 位置になる（MUST）」, having first forbidden the alternative outright:
     // 「⛔ 代わりの日を発明しない（MUST NOT）」.
@@ -672,15 +699,24 @@ describe('OP-10 -- a document that holds no `Task`', () => {
     // （MAY）」.
     // This document's `scrollDate` is `null` (pinned by the case above), so the
     // MUST leaves exactly two answers: no day at all, or the run day under the
-    // MAY. ⛔ THE TREE ANSWERS `Project.startDate` (AT-12) -- a column FR-055
-    // never names, table T-038 never draws, and 表 T-016's PF-8 keeps as
-    // profile text. Moving that column moves the first frame, which is the
-    // 代わりの日 the row refuses.
+    // MAY. ⛔ WHAT IT REFUSES is any other day of the document -- this fixture
+    // still carries `Project.startDate` (AT-12), a column FR-055 never names,
+    // table T-038 never draws and PF-8 keeps as profile text, and a frame that
+    // drew from it would be placing the 代わりの日 the row forbids.
+    //
+    // ⚠️ THE RUN DAY IS SAMPLED EITHER SIDE OF THE BOOT and both are accepted.
+    // 実行日 is the one value in this file that no document can carry, so it has
+    // to come off the clock (`runDayOf` says why it is the LOCAL day and not the
+    // UTC one); reading it once could disagree with a boot that happened on the
+    // other side of a midnight. ⭐ Two samples make that disagreement impossible
+    // without widening what the case accepts by a single further day.
+    const before = runDayOf(new Date())
     const origin = originOfBoot(nothingDrawn())
-    const runDay = new Date().toISOString().slice(0, 10)
+    const after = runDayOf(new Date())
     expect(
-      origin === null || origin === runDay,
-      `FR-055 (MUST/MAY) allows only null or ${runDay}; the frame drew from ${origin}`,
+      origin === null || origin === before || origin === after,
+      `FR-055 (MUST/MAY) allows only null or the run day (${before} .. ${after}); ` +
+        `the frame drew from ${origin}`,
     ).toBe(true)
   })
 })

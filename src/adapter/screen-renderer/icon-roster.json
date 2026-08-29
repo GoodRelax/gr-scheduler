@@ -384,6 +384,83 @@
    "armsShape": "triangleDown"
   },
   {
+   "rowId": "IC-83",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・ファイル",
+   "authority": "`FR-078`",
+   "arms": "AR-3",
+   "armsShape": "file"
+  },
+  {
+   "rowId": "IC-84",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・ボックス",
+   "authority": "`FR-078`",
+   "arms": "AR-3",
+   "armsShape": "box"
+  },
+  {
+   "rowId": "IC-85",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・フロッピー",
+   "authority": "`FR-078`",
+   "arms": "AR-3",
+   "armsShape": "floppyDisk"
+  },
+  {
+   "rowId": "IC-86",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・円筒",
+   "authority": "`FR-078`",
+   "arms": "AR-3",
+   "armsShape": "cylinder"
+  },
+  {
+   "rowId": "IC-87",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・会議の人",
+   "authority": "`FR-078`",
+   "arms": "AR-3",
+   "armsShape": "person"
+  },
+  {
+   "rowId": "IC-88",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・嬉しい顔",
+   "authority": "`FR-078`",
+   "arms": "AR-3",
+   "armsShape": "smile"
+  },
+  {
+   "rowId": "IC-89",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "置く",
+   "entryTo": "同・ビールジョッキ",
+   "authority": "`FR-078`",
+   "arms": "AR-3",
+   "armsShape": "beerMug"
+  },
+  {
    "rowId": "IC-35",
    "surfaces": [
     "Command Palette"

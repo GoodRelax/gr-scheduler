@@ -71,9 +71,13 @@
 //   R3.4         intervals are half-open, so an edge belongs to one side only
 //
 // Chapter 1.9 asks a test of a requirement that points at a table to be driven
-// by a fixed copy of that table. T_109_PALETTE and T_023b below are that copy;
-// nothing here re-reads `icon-roster.json`, because a copy read from the same
-// generated file as the unit could not tell drift from agreement.
+// by a fixed copy of that table. T_109_PALETTE and T_023b below are that copy.
+// ⭐ T_109_PALETTE IS TAKEN FROM THE MANUSCRIPT AT READ TIME SINCE 2026-08-30,
+// not typed out: the hand-written array it replaced went stale the day 表 T-109
+// gained IC-83 .. IC-89, and seven cases then failed about rows that had been
+// on the palette for a day. ⛔ Nothing here re-reads `icon-roster.json` all the
+// same, because a copy read from the same GENERATED file as the unit could not
+// tell drift from agreement -- the manuscript is the other end of that join.
 // ⚠️ THE DICTIONARY IS THE ONE THING READ RATHER THAN COPIED, and FR-038's own
 // MUST NOT is why: a word copied into this file would be the second store of
 // the words that sentence forbids.
@@ -104,6 +108,10 @@ import type {
   ScreenSession,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+// ⭐ The reader every table-driven case in tests/ shares: it takes its copy of a
+// numbered table from the .md at read time, so a row added to the manuscript
+// reaches this file instead of leaving a hand-written list behind.
+import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -113,72 +121,114 @@ import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer
  * 表 T-109 -- every row whose 面 column reads `Command Palette`, in the table's
  * own print order, with its 群 and its 正.
  *
- * The 群 column is carried in the manuscript's own language on purpose: the
- * preamble of section 8 of `_assets/tbl-glossary.md` states that the table has
- * no English column and why adding one is refused. Writing an English group
- * name here would mint the very names that refusal is about.
+ * ⛔ READ FROM THE MANUSCRIPT AT RUN TIME, AND NOT TYPED OUT. This was a
+ * hand-written array of thirty-four rows until 2026-08-30, and it went stale the
+ * day 表 T-109 gained IC-83 .. IC-89: the palette described forty-one entries,
+ * the array still said thirty-four, and one case announced 「IC-83 is not a row
+ * of the palette」 about a row that had been one for a day.
+ * ⚠️ THAT IS THE VERY FAULT THE ROUND ITSELF WAS ABOUT -- a list of entrances
+ * written by hand beside a roster that already had them (the entrance-to-arm map
+ * of `input-command-translator.ts` stopped at IC-34 in the same way) -- so the
+ * copy is now made the way `tests/contract/spec-table.ts` makes one: at read
+ * time, out of the .md.
  *
- * `isButton` is false for the two rows whose 何の入口か column says in as many
- * words that they are not buttons. That fact lives as prose inside a column
- * rather than as a column of its own, which is why it is copied by row id.
+ * ⭐ CHAPTER 1.9 (:275) IS STILL OBEYED, AND MORE CLOSELY THAN BEFORE. It asks a
+ * test of a requirement that points at a table to be driven by fixed data copied
+ * FROM THAT TABLE; this is that copy, taken from the table rather than from a
+ * transcription of it. ⛔ It is still NOT `icon-roster.json`: the unit reads that
+ * generated file, and a copy taken from the same file could not tell drift from
+ * agreement. Reading the MANUSCRIPT keeps the two ends apart -- a generator that
+ * stopped carrying a row now fails here rather than agreeing with itself.
+ *
+ * The 群 is carried in the manuscript's own language on purpose: the preamble of
+ * section 8 of `_assets/tbl-glossary.md` states that the table has no English
+ * column and why adding one is refused. Writing an English group name here would
+ * mint the very names that refusal is about.
  */
-const T_109_PALETTE = [
-  { row: 'IC-23', group: '置く', authority: 'FR-083', isButton: true },
-  { row: 'IC-24', group: '置く', authority: 'FR-083', isButton: true },
-  { row: 'IC-25', group: '置く', authority: 'FR-083', isButton: true },
-  { row: 'IC-26', group: '置く', authority: 'FR-083', isButton: true },
-  { row: 'IC-27', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-28', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-29', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-30', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-31', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-32', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-33', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-34', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-35', group: '置く', authority: 'FR-019', isButton: true },
-  { row: 'IC-36', group: '置く', authority: 'FR-019', isButton: true },
-  { row: 'IC-37', group: '揃える', authority: 'FR-034', isButton: true },
-  { row: 'IC-38', group: '揃える', authority: 'FR-034', isButton: true },
-  { row: 'IC-39', group: '表示', authority: 'FR-049', isButton: true },
-  { row: 'IC-40', group: '表示', authority: 'FR-049', isButton: true },
-  { row: 'IC-41', group: '表示', authority: 'FR-020', isButton: true },
-  { row: 'IC-42', group: '表示', authority: 'FR-049', isButton: true },
-  { row: 'IC-43', group: '表示', authority: 'FR-049', isButton: true },
-  // ⭐ IC-79 / IC-80 / IC-81 -- the three boolean rows of table T-202 that had
-  // no entrance until the ruling of 2026-08-30 (CR-294). Table T-109 prints
-  // them here, after IC-43, and puts all three in the 表示 group.
-  { row: 'IC-79', group: '表示', authority: 'FR-049', isButton: true },
-  { row: 'IC-80', group: '表示', authority: 'FR-049', isButton: true },
-  { row: 'IC-81', group: '表示', authority: 'FR-049', isButton: true },
-  { row: 'IC-44', group: 'カーソル', authority: 'FR-046', isButton: true },
-  { row: 'IC-45', group: 'カーソル', authority: 'FR-082', isButton: true },
-  { row: 'IC-46', group: 'カーソル', authority: 'FR-048', isButton: true },
-  { row: 'IC-47', group: 'カーソル', authority: 'FR-048', isButton: true },
-  { row: 'IC-48', group: 'カーソル', authority: 'FR-048', isButton: true },
-  { row: 'IC-49', group: 'カーソル', authority: 'FR-048', isButton: true },
-  { row: 'IC-50', group: '置く', authority: 'FR-078', isButton: true },
-  { row: 'IC-53', group: '', authority: 'FR-053', isButton: false },
-  // ⚠️ IC-75 IS A BUTTON AND STILL NOT AN ENTRY. CR-273 put FR-053's minimise
-  // toggle on the grab band, beside IC-53 -- table T-109 gives it no 群, and a
-  // palette row with no group cannot sit in a group. It is copied here so that
-  // this file's copy of the table stays the whole table.
-  { row: 'IC-75', group: '', authority: 'FR-053', isButton: true },
-  { row: 'IC-54', group: '構え', authority: 'SK-19', isButton: false },
-  { row: 'IC-61', group: '置く', authority: 'FR-009', isButton: true },
-  { row: 'IC-62', group: '表示', authority: 'FR-099', isButton: true },
-  // ⭐ IC-76 -- FR-102's record of the happenings and the frames, which table
-  // T-109 prints last and places in the 表示 group. Copied here for the reason
-  // IC-75 is: this file's copy of the table has to stay the whole table.
-  { row: 'IC-76', group: '表示', authority: 'FR-102', isButton: true },
-] as const
+const T_109 = specTable('T-109')
+
+const T_109_SURFACE = '面'
+const T_109_GROUP = '群'
+const T_109_ENTRANCE = '何の入口か'
+const T_109_AUTHORITY = '正'
+
+for (const column of [T_109_SURFACE, T_109_GROUP, T_109_ENTRANCE, T_109_AUTHORITY]) {
+  if (!T_109.headings.includes(column)) {
+    throw new Error(`表 T-109 no longer has a ${column} column: ${T_109.headings.join(' | ')}`)
+  }
+}
 
 /**
- * Rows of table T-109 placed on a surface OTHER than the palette. One per
- * surface the table names, plus the two the palette is most easily confused
- * with: IC-7 is the show/hide entrance FR-053 (MUST) keeps outside the palette,
- * and IC-21 is FR-029's single two-place exception.
+ * U-26 of 表 T-103 -- the settled name 表 T-109's 面 column spells the palette
+ * with. ⛔ Read rather than typed, for the reason the rows themselves now are.
  */
-const T_109_ELSEWHERE = ['IC-1', 'IC-7', 'IC-17', 'IC-21', 'IC-52', 'IC-55', 'IC-58'] as const
+const COMMAND_PALETTE_SURFACE = ((): string => {
+  const row = specTable('T-103').rows.find((one) => one.id === 'U-26')
+  if (row === undefined) throw new Error('表 T-103 no longer has row U-26')
+  return bare(row.cells[0] ?? '')
+})()
+
+/**
+ * ⚠️ THE ONE NEEDLE THIS FILE STILL TYPES, AND IT IS JAPANESE BECAUSE THE THING
+ * BEING READ IS. Whether a row is a button is not a column of 表 T-109: it is
+ * stated as prose INSIDE the 何の入口か cell of the two rows it is true of --
+ * 「掴んで動かせることを示す。**ボタンではない**」 (IC-53) and 「いま構えている図形
+ * を示す。**ボタンではない**」 (IC-54). ⛔ There is nowhere else to read it from,
+ * and naming the two rows by id instead is the hand-written copy this file has
+ * just stopped keeping. A case below measures that the needle still matches
+ * something, so a re-worded cell reports rather than quietly making every row a
+ * button.
+ */
+const NOT_A_BUTTON = 'ボタンではない'
+
+/** The mark 表 T-109 writes in the 群 column for a row that belongs to no group. */
+const NO_GROUP_MARK = '—'
+
+/** The names a cell writes as `code`. */
+const codeSpans = (cell: string): readonly string[] =>
+  [...cell.matchAll(/`([^`]+)`/gu)].map((found) => found[1] as string)
+
+interface IconRow {
+  /** The row id -- the only join 表 T-109 admits. */
+  readonly row: string
+  /** The surfaces its 面 column names, in 表 T-103's settled spellings. */
+  readonly surfaces: readonly string[]
+  /** Its 群, in the manuscript's own language; `''` for a row that has none. */
+  readonly group: string
+  /** Its 正, as `bare` reads the cell. */
+  readonly authority: string
+  /** False for the rows whose 何の入口か cell says 「ボタンではない」. */
+  readonly isButton: boolean
+}
+
+/** The whole of 表 T-109, in its print order. */
+const T_109_ROWS: readonly IconRow[] = T_109.rows.map((row) => {
+  const group = row.by[T_109_GROUP] ?? ''
+  return {
+    row: row.id,
+    surfaces: codeSpans(row.by[T_109_SURFACE] ?? ''),
+    group: group === NO_GROUP_MARK ? '' : group,
+    authority: bare(row.by[T_109_AUTHORITY] ?? ''),
+    isButton: !(row.by[T_109_ENTRANCE] ?? '').includes(NOT_A_BUTTON),
+  }
+})
+
+const T_109_PALETTE: readonly IconRow[] = T_109_ROWS.filter((entry) =>
+  entry.surfaces.includes(COMMAND_PALETTE_SURFACE),
+)
+
+/**
+ * Rows of 表 T-109 placed on a surface OTHER than the palette.
+ *
+ * ⭐ EVERY SUCH ROW NOW, AND NOT A CHOSEN SEVEN. The list used to name one row
+ * per surface plus the two the palette is most easily confused with -- IC-7, the
+ * show/hide entrance FR-053 (MUST) keeps outside it, and IC-21, FR-029's single
+ * two-place exception. Both are still in it, and so is every other row, because
+ * the whole of the table is to hand.
+ */
+const T_109_ELSEWHERE: readonly string[] = T_109_ROWS.filter(
+  (entry) => !entry.surfaces.includes(COMMAND_PALETTE_SURFACE),
+).map((entry) => entry.row)
 
 /**
  * 表 T-023b -- the whole of what can be armed, in the table's own order. The
@@ -394,12 +444,15 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   themePreference: 'light',
   themeHue: THEME_HUE,
   // ⛔ OPEN, NOT S-142'S DEFAULT, and the roster above is why. FR-053 (MUST)
-  // keeps the eight milestone entrances IC-27 .. IC-34 out of the palette
-  // until the list is opened; `PALETTE_ENTRY_ROWS` holds all eight, so a
+  // keeps the milestone entrances of the 置く group out of the palette until
+  // the list is opened; `PALETTE_ENTRY_ROWS` holds every one of them, so a
   // session saying the list is shut would state a condition under which this
-  // file's own expectation is wrong. ⚠️ NOTHING READS THIS YET -- no case here
-  // varies it, and the closed palette is untested. Whoever wires FR-053's
-  // condition owns that second case.
+  // file's own expectation is wrong. ⚠️ NO COUNT IS WRITTEN HERE -- this note
+  // said 「eight, IC-27 .. IC-34」 until 2026-08-30 and was wrong the moment the
+  // table grew; how many there are is 表 T-109's to say, and `T_109_PALETTE`
+  // now asks it. ⚠️ NOTHING READS THIS MEMBER YET -- no case here varies it,
+  // and the closed palette is untested. Whoever wires FR-053's condition owns
+  // that second case.
   isMilestoneListOpen: true,
   isPaletteMinimised: false,
   dualCursorFollowing: null,
@@ -667,6 +720,38 @@ describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () =
       )
       expect(new Set(texts).size, row).toBe(1)
     }
+  })
+})
+
+describe('the copy of 表 T-109 this file is driven by', () => {
+  it('⭐ really came from the manuscript, and not from a hollow read of it', () => {
+    // ⛔ WITHOUT THIS, A PARSE THAT MATCHED NOTHING WOULD MAKE EVERY CASE BELOW
+    // AGREE WITH ANYTHING (docs/development-rules/04-verification.md section 2).
+    // ⚠️ Relations, not counts: how many rows the palette holds is 表 T-109's to
+    // say and changes whenever a row is added -- which is the whole reason the
+    // copy is no longer typed. What is asserted is that each read found
+    // SOMETHING, so a renamed column or a re-worded cell reports here.
+    expect(COMMAND_PALETTE_SURFACE.length, 'U-26 of 表 T-103').toBeGreaterThan(0)
+    expect(T_109_ROWS.length, '表 T-109 has rows').toBeGreaterThan(1)
+    expect(T_109_PALETTE.length, 'rows on the palette').toBeGreaterThan(1)
+    expect(T_109_ELSEWHERE.length, 'rows on another surface').toBeGreaterThan(1)
+    expect(PALETTE_GROUP_NAMES.length, 'the 群 column names groups').toBeGreaterThan(1)
+    expect(ALIGN_ROWS.length, 'the 正 column names FR-034').toBeGreaterThan(0)
+  })
+
+  it('⚠️ the one Japanese needle still matches the rows it is about', () => {
+    // 「ボタンではない」 is prose inside the 何の入口か column and not a column of
+    // its own, so it is the one thing this file reads by searching text. ⛔ A
+    // re-worded cell would silently make EVERY palette row a button, and the
+    // two cases that turn on `isButton` would then assert nothing -- so the
+    // match is measured here, and a row with a 群 that is still not an entry is
+    // measured too, because a third case turns on that pair.
+    expect(T_109_PALETTE.filter((entry) => !entry.isButton).length).toBeGreaterThan(0)
+    expect(
+      T_109_PALETTE.filter((entry) => !entry.isButton && entry.group !== '').length,
+    ).toBeGreaterThan(0)
+    expect(T_109_PALETTE.filter((entry) => entry.isButton && entry.group === '').length)
+      .toBeGreaterThan(0)
   })
 })
 

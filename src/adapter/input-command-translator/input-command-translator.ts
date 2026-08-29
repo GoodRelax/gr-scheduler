@@ -1574,6 +1574,16 @@ const TASK_MILESTONE_GLYPHS: Readonly<Record<TaskMilestoneGlyph, true>> = {
   star: true,
   triangleUp: true,
   triangleDown: true,
+  // ⭐ The seven SH-5 gained on 2026-08-29. ⚠️ They are NOT in area order and
+  // FR-078 now says so: the first eight are, and these seven follow the order
+  // the user named them in.
+  file: true,
+  box: true,
+  floppyDisk: true,
+  cylinder: true,
+  person: true,
+  smile: true,
+  beerMug: true,
 }
 
 /** @purity pure */
@@ -2032,6 +2042,18 @@ const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
   'IC-32': { kind: 'milestoneShape', glyph: 'star' },
   'IC-33': { kind: 'milestoneShape', glyph: 'triangleUp' },
   'IC-34': { kind: 'milestoneShape', glyph: 'triangleDown' },
+  // ⭐ The seven SH-5 gained on 2026-08-29. ⛔ WITHOUT THESE THE ENTRIES ARE
+  // DRAWN AND INERT: the roster carries their `armsShape`, the figure carries
+  // their glyph and the enum admits their spelling, and a press on one of them
+  // still armed nothing -- measured in the shipped page, where setting IC-88 on
+  // a selected milestone left a ◇ while IC-32 turned it into a ☆.
+  'IC-83': { kind: 'milestoneShape', glyph: 'file' },
+  'IC-84': { kind: 'milestoneShape', glyph: 'box' },
+  'IC-85': { kind: 'milestoneShape', glyph: 'floppyDisk' },
+  'IC-86': { kind: 'milestoneShape', glyph: 'cylinder' },
+  'IC-87': { kind: 'milestoneShape', glyph: 'person' },
+  'IC-88': { kind: 'milestoneShape', glyph: 'smile' },
+  'IC-89': { kind: 'milestoneShape', glyph: 'beerMug' },
   /** AR-5 of table T-023b (FR-019). */
   'IC-35': { kind: 'commentBox' },
   /** AR-6 (FR-019). */

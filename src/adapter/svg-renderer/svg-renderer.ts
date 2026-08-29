@@ -604,8 +604,25 @@ function labelSvg(
 /** @purity pure */
 function barSvg(bar: BarGeometry, paint: Paint): string {
   if (bar.form === 'outline') {
+    const marks = bar.marks ?? []
+    if (marks.length === 0) {
+      return (
+        `<polygon points="${pointsOf(bar.points)}" fill="${paint.fill}"` +
+        ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"/>`
+      )
+    }
+    // ⭐ ONE PATH AND ONE FILL RULE, not a polygon with shapes laid on top.
+    // `evenodd` is what cuts the marks OUT, so a milestone drawn on a coloured
+    // band shows the band through its eyes rather than a second paint that
+    // would have to guess what is behind it -- and no colour is minted here,
+    // which table T-236 would otherwise need a row for.
+    // ⛔ THE STROKE FOLLOWS EVERY SUBPATH, which is what makes a mark read at
+    // the sizes a milestone is drawn at: the outline of the eye is the eye.
+    const subpaths = [bar.points, ...marks]
+      .map((one) => `M${pointsOf(one).replace(/ /g, 'L')}Z`)
+      .join('')
     return (
-      `<polygon points="${pointsOf(bar.points)}" fill="${paint.fill}"` +
+      `<path d="${subpaths}" fill-rule="evenodd" fill="${paint.fill}"` +
       ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"/>`
     )
   }

@@ -103,6 +103,21 @@ export type BarGeometry =
       readonly form: 'outline'
       /** Closed: the last point joins the first. */
       readonly points: Path
+      /**
+       * Closed outlines cut OUT of the silhouette -- a face's eyes, a box's
+       * edges. Empty for every shape that needs none, which is all five of
+       * table T-012 and eight of the fifteen marks of SH-5.
+       *
+       * ⭐⭐ MADE FROM THE SAME `side` THE SILHOUETTE IS, which is the whole
+       * reason this member may exist at all: 「日程も他のマイルストーンとサイズ
+       * を合わせろ。つまり動的に変更可能としろ」 (the user's ruling of
+       * 2026-08-29). Nothing here holds a length of its own, so a mark grows
+       * and shrinks with the bar exactly as the outline around it does.
+       * ⛔ NOT PART OF WHAT IS GRABBED. `itemAtPointer` tests the silhouette,
+       * and a hole in the middle of a milestone that could not be picked up
+       * would be a grab area no row of table T-023d describes.
+       */
+      readonly marks?: readonly Path[]
     }
   | {
       readonly form: 'line'
@@ -427,6 +442,117 @@ function regularCorners(
 const CIRCLE_CORNERS = 24
 
 /** @purity pure */
+
+/**
+ * A corner of one of SH-5's seven pictorial marks, written as a share of the
+ * half-side and turned into a point here.
+ *
+ * ⭐⭐ THIS IS WHAT KEEPS THE RULING. 「日程も他のマイルストーンとサイズを合わせ
+ * ろ。つまり動的に変更可能としろ」 (the user, 2026-08-29) -- every number in the
+ * seven shapes below is a share of the SAME `half` that `regularCorners` hands
+ * the other eight, so a mark grows and shrinks with the bar and no length of
+ * its own exists to fall out of step. ⛔ Not one px is written in this file.
+ *
+ * @purity pure
+ */
+function share(centre: Point, half: number, u: number, v: number): Point {
+  return point(centre.x + half * u, centre.y + half * v)
+}
+
+/** @purity pure */
+function shares(centre: Point, half: number, pairs: readonly (readonly [number, number])[]): Path {
+  return pairs.map(([u, v]) => share(centre, half, u, v))
+}
+
+/**
+ * The silhouette of each of the seven, and the outlines cut out of it.
+ *
+ * ⛔ WHY FOUR OF THEM CARRY MARKS AT ALL. A milestone is one filled shape, and
+ * a box's silhouette is a hexagon while a smiling face's is a circle -- both of
+ * which SH-5 already spends on another mark. Cutting the inner outlines out is
+ * what tells `box` from `hexagon` and `smile` from `circle`; without them two
+ * of the fifteen could not be told apart at any size.
+ * ⭐ THE OTHER THREE NEED NONE: a file's fold, a person and a mug read from
+ * their outline alone, and a mark that earns nothing is a mark not drawn.
+ *
+ * @purity pure
+ */
+const PICTORIAL: Readonly<Record<string, {
+  readonly body: readonly (readonly [number, number])[]
+  readonly marks: readonly (readonly (readonly [number, number])[])[]
+}>> = {
+  // A sheet with the top right corner turned down.
+  file: {
+    body: [[-0.62, -1], [0.24, -1], [0.62, -0.6], [0.62, 1], [-0.62, 1]],
+    marks: [[[0.24, -1], [0.62, -0.6], [0.24, -0.6]]],
+  },
+  // A cube. ⛔ Its silhouette IS a hexagon, so the top face is cut out -- that
+  // face is the whole of what makes it read as a box.
+  box: {
+    body: [[-0.8, -0.45], [0, -0.9], [0.8, -0.45], [0.8, 0.55], [0, 1], [-0.8, 0.55]],
+    marks: [[[-0.8, -0.45], [0, -0.9], [0.8, -0.45], [0, 0]]],
+  },
+  // A square with the shutter corner clipped, its shutter and its label.
+  floppyDisk: {
+    body: [[-0.85, -0.85], [0.55, -0.85], [0.85, -0.55], [0.85, 0.85], [-0.85, 0.85]],
+    marks: [
+      [[-0.35, -0.85], [0.25, -0.85], [0.25, -0.3], [-0.35, -0.3]],
+      [[-0.55, 0.2], [0.55, 0.2], [0.55, 0.85], [-0.55, 0.85]],
+    ],
+  },
+  // A stack of platters: a tube with two rims cut across it.
+  cylinder: {
+    body: [
+      [-0.7, -0.75], [-0.35, -0.95], [0.35, -0.95], [0.7, -0.75],
+      [0.7, 0.75], [0.35, 0.95], [-0.35, 0.95], [-0.7, 0.75],
+    ],
+    marks: [
+      [[-0.7, -0.45], [0.7, -0.45], [0.7, -0.25], [-0.7, -0.25]],
+      [[-0.7, 0.15], [0.7, 0.15], [0.7, 0.35], [-0.7, 0.35]],
+    ],
+  },
+  // Head and shoulders, in one outline -- the neck joins them, so no mark is
+  // needed to hold the head on.
+  person: {
+    body: [
+      [-0.85, 1], [-0.85, 0.45], [-0.6, 0.05], [-0.25, -0.1],
+      [-0.36, -0.3], [-0.36, -0.62], [0, -0.95], [0.36, -0.62],
+      [0.36, -0.3], [0.25, -0.1], [0.6, 0.05], [0.85, 0.45], [0.85, 1],
+    ],
+    marks: [],
+  },
+  // ⛔ The silhouette is a circle, which SH-5 already spends. The two eyes and
+  // the mouth are what tell them apart.
+  smile: {
+    body: [],
+    marks: [
+      [[-0.46, -0.3], [-0.24, -0.3], [-0.24, -0.02], [-0.46, -0.02]],
+      [[0.24, -0.3], [0.46, -0.3], [0.46, -0.02], [0.24, -0.02]],
+      [[-0.52, 0.18], [0, 0.62], [0.52, 0.18], [0.52, 0.38], [0, 0.82], [-0.52, 0.38]],
+    ],
+  },
+  // A mug with a handle. The handle's hole and the head of foam are cut out.
+  beerMug: {
+    body: [
+      [-0.8, -0.7], [0.3, -0.7], [0.3, -0.35], [0.8, -0.35],
+      [0.8, 0.35], [0.3, 0.35], [0.3, 0.95], [-0.8, 0.95],
+    ],
+    marks: [
+      [[-0.8, -0.32], [0.3, -0.32], [0.3, -0.12], [-0.8, -0.12]],
+      [[0.44, -0.18], [0.66, -0.18], [0.66, 0.18], [0.44, 0.18]],
+    ],
+  },
+}
+
+/**
+ * The marks cut out of one of SH-5's fifteen, or none. @purity pure
+ */
+function milestoneMarks(centre: Point, side: number, glyph: MilestoneGlyph): readonly Path[] {
+  const drawn = PICTORIAL[glyph]
+  if (drawn === undefined) return []
+  return drawn.marks.map((one) => shares(centre, side / 2, one))
+}
+
 function milestoneOutline(
   centre: Point,
   side: number,
@@ -434,6 +560,15 @@ function milestoneOutline(
   starInnerOfOuter: number,
 ): Path {
   const half = side / 2
+  // ⭐ The seven pictorial marks, each a share of the same `half`. `smile` has
+  // no body of its own: its silhouette IS the circle, and only the marks below
+  // tell the two apart.
+  const drawn = PICTORIAL[glyph]
+  if (drawn !== undefined) {
+    return drawn.body.length === 0
+      ? regularCorners(centre, half, CIRCLE_CORNERS, 0)
+      : shares(centre, half, drawn.body)
+  }
   switch (glyph) {
     case 'circle':
       return regularCorners(centre, half, CIRCLE_CORNERS, 0)
@@ -541,6 +676,7 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
         glyph,
         settings.starInnerOfOuter,
       ),
+      marks: milestoneMarks(point((x0 + x1) / 2, top + height / 2), height, glyph),
     }
   }
   if (kind === 'arrow' || kind === 'endpointSpan') {

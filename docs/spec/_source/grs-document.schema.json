@@ -1574,6 +1574,13 @@
       "star",
       "triangleUp",
       "triangleDown",
+      "file",
+      "box",
+      "floppyDisk",
+      "cylinder",
+      "person",
+      "smile",
+      "beerMug",
       null
      ],
      "default": "diamond"

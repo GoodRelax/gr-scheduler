@@ -2176,7 +2176,7 @@
     },
     {
      "name": "milestoneGlyph",
-     "type": "列挙（8 値）",
+     "type": "列挙（15 値）",
      "nullable": "可",
      "json": {
       "kind": "enum",
@@ -2188,7 +2188,14 @@
        "square",
        "star",
        "triangleUp",
-       "triangleDown"
+       "triangleDown",
+       "file",
+       "box",
+       "floppyDisk",
+       "cylinder",
+       "person",
+       "smile",
+       "beerMug"
       ],
       "default": "diamond",
       "null": true

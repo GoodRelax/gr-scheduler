@@ -572,7 +572,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         enum: ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone', null],
       },
       milestoneGlyph: {
-        enum: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown', null],
+        enum: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown', 'file', 'box', 'floppyDisk', 'cylinder', 'person', 'smile', 'beerMug', null],
       },
       fillColor: {
         type: ['string', 'null'],
