@@ -1230,9 +1230,31 @@ const STYLE = {
   // also the one entrance HF-5 (MUST NOT) forbids to be centred, and a box that
   // centres its own content reads as exactly that to anyone holding the drawn
   // control against that row.
+  // ⛔ OUT OF THE FLOW, AND THAT IS THE POINT. These three are drawn only while
+  // the pointer is on the row's name (HF-6), and S-140 of table T-206 -- the
+  // room FR-085 subtracts before cutting that name -- is 0px. Left in the flex
+  // row they still held a box each, so the name was given 48px less than
+  // FR-085 had judged it against and the browser's own ellipsis cut it. That
+  // cut left `isLabelTruncated` false, so the tooltip FR-085 (MUST) raises for
+  // a cut name could never be raised for it: the rest of the name was
+  // unreachable. Reported by the user with a screenshot: 「Whole Product って
+  // 表示するスペースはあるよね？ あらかじめ操作子が出る部分を確保していて、
+  // その分が無駄になっている」.
+  // ⭐ HF-4 IS UNTOUCHED: 「行の名前の長さにかかわらず、操作子を行見出しパネルの
+  // 右端に揃えること（MUST）」 -- pinned to the row's right edge here, which is
+  // that edge, and no longer moved by the name's length at all.
+  // ⚠️ FR-085's MUST NOT is kept too. It forbids the reserved room CHANGING with
+  // whether the controls are drawn; the room is now 0 whether they are drawn,
+  // not drawn, or absent (EP-4 draws none in the export), which is one amount
+  // in all three -- and it is the amount S-140 states.
   rowControl:
-    `font:inherit;background:transparent;color:${PAINT.ink};border:none;` +
-    'padding:0 0.125em;cursor:pointer;',
+    // ⛔ NO `top` IS STATED, AND THAT IS HF-5 OF TABLE T-051 (MUST NOT): an
+    // out-of-flow box with no vertical offset keeps its STATIC position, which
+    // for a child of this flex row is the row's content top -- 「名前の上端に
+    // 揃えること（MUST）。中央で揃えてはならない（MUST NOT）」. Writing
+    // `top:0` would say the same thing and take the decision away from the row.
+    `position:absolute;font:inherit;background:transparent;color:${PAINT.ink};` +
+    'border:none;padding:0 0.125em;cursor:pointer;',
   // SC-5 of table T-031: only the contents scroll, and never in step with the
   // drawing area.
   //
@@ -2215,6 +2237,32 @@ function fillScreenFrame(
  *
  * @purity non-pure
  */
+/**
+ * How far apart the row's three controls stand, measured from the row's right
+ * edge outward -- the pin nearest it, then IC-59, then IC-58.
+ *
+ * ⛔ IN `em`, NOT PIXELS. FR-039 carries the reader's own text size through the
+ * panel (S-197), and a gap in pixels would leave the controls behind the moment
+ * a reader enlarged the text. ⚠️ It is a step, not a width: each control is
+ * sized by its own glyph, and this is only where the next one starts.
+ *
+ * @provisional PD-348
+ */
+const ROW_CONTROL_RIGHT_EM = 1.25
+
+/**
+ * Where the control `stepsFromEdge` places from the row's right edge stands.
+ *
+ * ⭐ The row's own right padding is the first term, so the nearest control
+ * sits exactly where the name's box ends -- HF-4's 「行見出しパネルの右端に
+ * 揃えること（MUST）」 -- rather than a step in from it.
+ *
+ * @purity pure
+ */
+function rowControlRight(stepsFromEdge: number): string {
+  return `right:${0.25 + ROW_CONTROL_RIGHT_EM * stepsFromEdge}em;`
+}
+
 function rowControlElement(host: Document, role: string, icon: string): HTMLElement {
   const control = part(host, 'button', role, STYLE.rowControl)
   control.setAttribute('type', 'button')
@@ -2241,7 +2289,14 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   const row = made(
     host,
     'div',
-    boxStyle(title.box) + STYLE.rowTitle + `padding:0 0.25em 0 calc(0.25em + ${title.indentPx}px);`,
+    // ⛔ THE INSET IS THE INDENT AND NOTHING ELSE, so the room the name is
+    // given here is the very number FR-085 cut it against:
+    // `rowTitlePanelWidth` less `depth` x `rowTitleIndent` less S-140, which is
+    // 0. A padding of its own on either side used to make the DOM 8px meaner
+    // than the judgement, and the browser's own ellipsis took the difference --
+    // silently, because `isLabelTruncated` records FR-085's cut and not this
+    // one, so no tooltip was raised for what it ate.
+    boxStyle(title.box) + STYLE.rowTitle + `padding:0 0 0 ${title.indentPx}px;`,
   )
   if (isPinned) row.setAttribute('data-role', ROLE.pinnedRow)
   row.setAttribute('data-group-id', title.groupId)
@@ -2301,10 +2356,14 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   if (title.expander !== null) {
     const open = rowControlElement(host, ROLE.rowExpander, 'IC-58')
     open.setAttribute('data-can-open', String(title.expander.canOpen))
+    // ⚠️ Placed from the RIGHT, because that is the edge HF-4 pins them to and
+    // they no longer sit in the flex flow that used to do it.
+    open.setAttribute('style', open.getAttribute('style') + rowControlRight(2))
     row.append(open)
 
     const close = rowControlElement(host, ROLE.rowExpander, 'IC-59')
     close.setAttribute('data-can-close', String(title.expander.canClose))
+    close.setAttribute('style', close.getAttribute('style') + rowControlRight(1))
     row.append(close)
   }
 
@@ -2327,6 +2386,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   const pin = rowControlElement(host, ROLE.rowPin, 'IC-60')
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
+  pin.setAttribute('style', pin.getAttribute('style') + rowControlRight(0))
   row.append(pin)
   return row
 }
