@@ -5202,10 +5202,24 @@ export function frameLoop(
         return
       }
       case 'settleTextEntry':
+        // ⛔ NOTHING IS OWED HERE, AND THAT IS NOT A STOP. SK-19's settle has
+        // ALREADY HAPPENED by the time this runs: the field belongs to
+        // `DomScreenSurface`, its own `keydown` listener on the panel runs
+        // before `DomInputSource`'s on the window, and `spendFieldCommit` at
+        // the head of this very happening has taken the commit and written it.
+        // ⚠️ What this case still carries is MK-10's half -- `acted` marks the
+        // press as the tool's, so the browser does not act on the `Enter` as
+        // well.
+        // ⛔ A SECOND SETTLE MUST NOT BE RAISED HERE. The shell holds no field
+        // (LR-6), and FR-031 with UN-3 of table T-027 makes one property change
+        // one step of the undo history.
+        return
       case 'editInPlace':
-        // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS. SK-19, SK-9 and MK-13 open or
-        // settle a field that nothing in this build draws, which is the same
-        // absence `isTextEntryUnsettled` records above.
+        // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS FOR SK-9 / MK-13. Those two open
+        // a field on the schedule itself -- the document title and a row name --
+        // and nothing in this build draws one. ⚠️ The `Properties Panel` is not
+        // it: FR-006's items are the panel's, and MK-13 (MUST NOT) forbids a
+        // route that opens that panel to sit on this row.
         return
       // ⛔ `openPropertiesPanel` WAS A CASE HERE AND IS GONE. MK-13 forbids a
       // route that opens the properties panel to sit on that row (MUST NOT),
@@ -5485,9 +5499,23 @@ export function frameLoop(
    *
    * ⭐ WHY IT IS COLLECTED ON AN INPUT AND NOT AT THE HEAD OF A FRAME. A person
    * settles a property field by leaving it or by pressing Enter, and both of
-   * those ARE happenings that arrive over IF-2 -- so the commit is already
-   * standing on the surface by the time this runs, and NFR-010's 「起きたときだけ
+   * those ARE happenings that arrive over IF-2 -- so NFR-010's 「起きたときだけ
    * 走る」 is kept: nothing is polled.
+   *
+   * ⛔⛔ THE COMMIT IS NOT ALWAYS STANDING WHEN THIS RUNS, and the note that
+   * used to say it was had it backwards. MEASURED: only SK-19's `Enter` is
+   * settled by the surface's own listener, which the panel hears BEFORE the
+   * window does -- so that press writes on itself. Every other way of settling
+   * is the HOST's `change`, and the host raises that in the DEFAULT ACTION of
+   * the press, which runs after this whole function has returned. ⇒ a value
+   * settled by leaving the field rides the NEXT happening into the document.
+   * ⚠️ THAT IS NOT A DELAY THAT MAY BE CLOSED HERE: table T-078 holds the whole
+   * roster of what may start a frame and 「本表に無い契機でフレームを起こしては
+   * ならない（MUST NOT）」 -- a `change` is not one of the five, so a commit
+   * cannot raise a frame of its own. ⭐ Pointer gestures carry their own next
+   * happening (a release, then a move), so leaving a field with the pointer
+   * lands within the gesture; a `Tab` does not, because table T-036 assigns
+   * nothing to a release and the seam reports no `keyup`.
    *
    * ⛔ BEFORE THE THREE MEMBERS OF PI-18 READ THE DOCUMENT, so that the value a
    * person just settled is in the document the press is then translated

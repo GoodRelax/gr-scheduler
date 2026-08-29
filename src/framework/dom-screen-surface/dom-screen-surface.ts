@@ -2626,8 +2626,13 @@ function textEntryControlOf(target: unknown): TextEntryControl | null {
  * T-027) makes one property change ONE step of the undo history, so a value
  * carried away per keystroke would put a step on that history for every letter
  * and taking the name back would take back one letter of it. The host raises
- * `change` when the field is left or Enter is pressed, which is the moment the
- * person settled on the value.
+ * `change` when the field is LEFT, which is one of the two moments a person
+ * settles on a value.
+ *
+ * ⛔ THE OTHER MOMENT IS SK-19's `Enter`, AND THE HOST DOES NOT RAISE IT. It
+ * would -- but that row is an assignment, so MK-10 has the input seam stop the
+ * default action on that very press. The panel's own `keydown` listener settles
+ * it instead; see the listener beside `hasUnsettledTextEntry`.
  *
  * STOP -- ⛔ THE HOST'S COLOUR CONTROL HOLDS ONLY `#rrggbb`, AND TWO SPELLINGS
  * OF TABLE T-058's COLOUR COLUMNS ARE NOT THAT. `transparent` is P-19 of the
@@ -4206,6 +4211,35 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 
   /**
+   * What a settled control is worth, as the row of table T-016 it names and the
+   * text that crosses -- or `null` for something this unit did not draw as a
+   * control.
+   *
+   * ⚠️ A checkbox carries its value in `checked` and every other control in
+   * `value`; the spelling a truth value crosses in is the one `textOfValue`
+   * writes on the other side, so nothing new is minted.
+   *
+   * ⭐ TAKEN OUT OF `onFieldChange` SO THE TWO WAYS OF SETTLING BUILD THE SAME
+   * VALUE. SK-19's `Enter` and the host's own `change` are two ways into one
+   * answer of IF-9, and a second reading written beside the first would be a
+   * second place for the row and the text to be decided.
+   *
+   * @purity pure
+   */
+  function fieldCommitOf(target: unknown): FieldCommit | null {
+    // ⚠️ NOT `instanceof Element`. Table T-075 leaves this unit runnable
+    // against a host that is not a browser, and `Element` is a global that host
+    // need not have at all -- so what the map holds is what says this was one
+    // of the controls drawn here.
+    if (target === null || typeof target !== 'object') return null
+    const named = CONTROL_KEYS.get(target as Element)
+    if (named === undefined) return null
+    const input = target as HTMLInputElement
+    const text = input.type === 'checkbox' ? String(input.checked) : input.value
+    return { row: named.row, key: named.key, text }
+  }
+
+  /**
    * A person settled a value in one of the property fields.
    *
    * ⭐ ONE LISTENER ON THE PANEL AND NOT ONE PER CONTROL. `change` bubbles, the
@@ -4221,23 +4255,24 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * rather than guessed at -- `CONTROL_KEYS` holds only what `controlElement`
    * put there.
    *
+   * ⛔ A `change` THAT ONLY SAYS AGAIN WHAT `Enter` ALREADY SETTLED IS DROPPED.
+   * The host raises `change` on leaving a control whose value differs from the
+   * one it was focused with, and SK-19's listener below moves that baseline as
+   * it settles -- so a person who presses `Enter` and then leaves the field
+   * would otherwise put TWO writes of one value on the undo history, which
+   * FR-031 (MUST) with UN-3 of table T-027 forbids: 一つの変更は一段である.
+   * ⚠️ MEASURED, NOT REASONED: with `Enter` stopped from reaching the browser
+   * (MK-10, and see that listener), the host still raises the `change` on the
+   * LEAVING, and it carries the very text `Enter` settled.
+   *
    * @purity non-pure
    */
   function onFieldChange(event: Event): void {
-    // ⚠️ NOT `instanceof Element`. Table T-075 leaves this unit runnable
-    // against a host that is not a browser, and `Element` is a global that host
-    // need not have at all -- so what the map holds is what says this was one
-    // of the controls drawn here.
-    const target = event.target
-    if (target === null || typeof target !== 'object') return
-    const named = CONTROL_KEYS.get(target as Element)
-    if (named === undefined) return
-    // ⚠️ A checkbox carries its value in `checked` and every other control in
-    // `value`; the spelling a truth value crosses in is the one
-    // `textOfValue` writes on the other side, so nothing new is minted.
-    const input = target as HTMLInputElement
-    const text = input.type === 'checkbox' ? String(input.checked) : input.value
-    fieldCommit = { row: named.row, key: named.key, text }
+    const commit = fieldCommitOf(event.target)
+    if (commit === null) return
+    const target: unknown = event.target
+    if (target === (heldTextControl as unknown) && commit.text === heldTextValueAtFocus) return
+    fieldCommit = commit
   }
 
   propertiesPanel.addEventListener('change', onFieldChange)
@@ -4360,6 +4395,51 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     held.value = heldTextValueAtFocus
     isHeldTextTakenBack = true
+  })
+
+  /**
+   * SK-19 of table T-036, spent where the characters are: `Enter` settles the
+   * in-place edit, and that row's own list names 「プロパティの入力」.
+   *
+   * ⛔⛔ SETTLED HERE BECAUSE NOWHERE ELSE CAN SETTLE IT, and this was measured
+   * rather than reasoned. The host raises `change` on `Enter` of its own accord
+   * -- but SK-19 IS an assignment, so `commandFromKey` answers it and MK-10 then
+   * has the input seam call `preventDefault`, WHICH IS EXACTLY WHAT STOPS THE
+   * HOST FROM RAISING THAT `change`. ⇒ The tool took the key away from the
+   * browser and put nothing in its place, so no `Enter` ever reached the
+   * document and 表 T-016's items were editable in appearance only (FR-006).
+   *
+   * ⭐ THIS LISTENER RUNS BEFORE THE SHELL'S, which is what makes one press
+   * enough: `DomInputSource` listens on the window and this is hung on the
+   * panel, so the commit is standing by the time `spendFieldCommit` reads it at
+   * the head of the same happening. ⚠️ The `Esc` listener above already rests on
+   * that same order and records that it was measured.
+   *
+   * ⛔ THE CONTROL IS NOT LET GO, for the reason IN-4's listener gives above:
+   * releasing it here would take the `Properties Panel` away on the very press
+   * that settled the value. The person keeps the field, and the baseline moves
+   * to what they settled on -- so a following `Esc` puts back the settled value
+   * and a following `change` on leaving carries nothing new (`onFieldChange`).
+   *
+   * ⚠️ A modified `Enter` is left alone, the same bargain `onEntryKeyDown`
+   * takes: MK-10 keeps combinations the tool did not assign for the browser,
+   * and `commandFromKey` assigns SK-19 to the plain press only.
+   *
+   * @purity non-pure
+   */
+  propertiesPanel.addEventListener('keydown', (event: Event) => {
+    if (heldTextControl === null) return
+    const key = event as Partial<KeyboardEvent>
+    if (key.key !== HOST_ENTER || key.isComposing === true) return
+    if (key.ctrlKey === true || key.altKey === true) return
+    if (key.metaKey === true || key.shiftKey === true) return
+    const commit = fieldCommitOf(event.target)
+    if (commit === null) return
+    fieldCommit = commit
+    // IN-4's 「編集を始める前の値」 is now the value just settled: the edit that
+    // stood unsettled has ended, and the next one starts from here.
+    heldTextValueAtFocus = commit.text
+    isHeldTextTakenBack = false
   })
 
   /**
