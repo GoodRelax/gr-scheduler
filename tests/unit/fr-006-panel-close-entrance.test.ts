@@ -29,43 +29,49 @@
 //   IN-4         table T-028: `Esc` spends one level per press and the FIRST
 //                level is 「開いている面」 -- the authority the roster gives the
 //                closing entry.
-//   S-80         table T-203, `propertyPanelWidth`: 「⭐ `0` であることが「閉じて
-//                いる」であり、既定がそれである」. ⭐ THIS IS THE ANSWER TO
-//                "where does the closed state live": S-80 is a key of
-//                `documentSettings` (`_source/grs-document.schema.json` lists it
-//                among the required ones), so the closed panel IS saved with the
-//                document, and a fresh document opens with the panel closed.
-//   S-171        table T-206, 「プロパティパネルが開いたときに取る幅」 -- NOT a
-//                document setting, and its own note says why: 「`S-80` は文書が
-//                保つ幅であり、`0` であることが「閉じている」である —— 本値はそこ
-//                へ開くときに置く幅である」.
+//   S-99h        table T-206, 「プロパティパネルを出しているか（`選択` ／ `文書
+//                全体の設定` ／ 出していない）」, 既定 「出していない」. ⭐ THIS
+//                IS THE ANSWER TO "where does the showing state live": 「⛔ **幅
+//                （`S-80`）とは別に持つこと**（利用者の裁定 2026-08-30）—— ⚠️ **幅
+//                `0` は「まだ広げていない」であって「出していない」ではない。**」
+//                ⭐ The row says why that default: 「**既定が「出していない」なの
+//                は `FR-080` の基準環境である。**」 and FR-080 spells that
+//                environment out: 「本表にいう「書き出しの基準環境」とは、表 T-025
+//                の `MC-5` が定める基準ブラウザと `MC-6` が定める画面環境で、プロパ
+//                ティパネルとコマンドパレットを閉じた状態をいう。」
+//   S-80         table T-203, `propertyPanelWidth`: 「⛔ **本行は幅だけを持ち、面
+//                を出しているかどうかは持たない**（利用者の裁定 2026-08-30）——
+//                **出しているかは 表 T-206 の `S-99h` が持つ。**⚠️ **`0` は「まだ
+//                広げていない」であって「閉じている」ではない** —— `FR-052` は境界
+//                のドラッグで幅を 0 まで畳めると定めており、0 は正当な幅である」.
+//   S-171        table T-206, 「プロパティパネルが開いたときに取る幅」, 既定 280px
+//                🔎 -- NOT a document setting, and its own note says why: 「⭐
+//                **`S-80` は文書が保つ幅であり、面を出しているかどうかは 表 T-206
+//                の `S-99h` が持つ**（利用者の裁定 2026-08-30）—— 本値は**面を出す
+//                ときに置く幅**である。⚠️ **人が境界をドラッグした後は `S-80` が
+//                勝つ**（`FR-052`）」.
+//   FR-052       「利用者がパネルの境界をドラッグしたとき、`GRS` は、行見出しパネル
+//                とプロパティパネルの幅を変えること」 -- the requirement that makes
+//                a width of `0` a lawful width rather than a state. ⚠️ Only the
+//                ROW TITLE panel is forbidden to reach 0: 「**行見出しパネルの幅を
+//                0 にできてはならない（MUST NOT）**」.
 //
 // ---------------------------------------------------------------------------
-// ⛔ THE HOLE. WHETHER THE PANEL COMES BACK ON THE NEXT SELECTION IS NOT SETTLED
+// ⭐ SETTLED 2026-08-30 (CR-291): WHAT SAYS THE PANEL IS UP IS S-99h, NOT S-80
 // ---------------------------------------------------------------------------
 //
-// Searched: FR-006, FR-072, FR-042, table T-016 and the paragraphs under it,
-// table T-023 (MK-11 and MK-13), table T-023c, table T-028 (IN-4), table T-109
-// (the closing row), S-80, S-171 and S-99g. Two sentences pull opposite ways and
-// nothing decides between them:
+// The earlier reading of this file -- that a width of `0` IS the closed panel --
+// was the arguable one, and the ruling went the other way. Two rows now divide
+// the question: S-99h holds WHETHER the panel is showing (and which of FR-072's
+// two contents), S-80 holds only HOW WIDE it is, and S-171 the width to put it
+// at when it is shown. ⛔ So no case here may read a width as a state.
 //
-//   FR-006   「作成者がタスクを選んだとき、`GRS` は、表 T-016 の項目をプロパティ
-//            パネルに出し…」 -- reads as though picking a task alone puts the
-//            panel up;
-//   MK-13    table T-023: 「タスク本体 ＝ プロパティパネルを開く」 -- a DOUBLE
-//            click is an entrance to opening it.
-//
-// ⛔ If a plain selection opened the panel, MK-13 would be a second entrance to
-// the same operation, which FR-029 (MUST NOT) forbids -- so the two cannot both
-// be entrances and the manuscript never says which one is. ⛔ NO CASE BELOW
-// PICKS A SIDE. What the file asserts about the closed panel is only what UF-64
-// is already contracted for elsewhere, and the reopening rule is reported as a
-// hole rather than invented here.
-//
-// ⚠️ NOT DUPLICATED FROM tests/unit/uf-64.test.ts, which already drives 「is
-// absent while the panel is closed」 with a selection held. That case is the
-// whole of what the manuscript settles about a closed panel meeting a selection,
-// and repeating it here would put one rule in two files.
+// ⚠️ THE POSITIVE HALF IS tests/unit/uf-64.test.ts's, which already drives 「is
+// absent while the panel is closed」 and 「is described for either of the two the
+// session names」 with S-80 at its default of `0`. ⛔ NOT REPEATED HERE. What the
+// case below adds is the other side of the same ruling: a WIDENED document whose
+// S-99h says 「出していない」 still has no panel, so the width decides nothing in
+// either direction.
 //
 // ---------------------------------------------------------------------------
 // ⛔ HOW THE EXPECTED VALUES WERE OBTAINED (docs/development-rules/
@@ -91,14 +97,19 @@
 //   2. WHERE ON THE PANEL it sits. No table holds a rectangle for an entry --
 //      `ScreenSession.iconUnderPointer`'s own note records that gap (PD-141) --
 //      so "at the top right" is not a claim the manuscript can be quoted for.
-//   3. THAT `Esc` ALSO CLOSES THE PANEL. IN-4 (MUST) puts the open surface at
-//      its first level and the roster gives this entry that same authority, but
-//      `ScreenState` (S-99g) holds one surface NAME and no value anywhere
-//      carries whether this panel is up -- `escapeTarget`'s `EscapeContext` has
-//      no member for it, so the claim cannot even be written down. Reported.
-//   4. THAT PRESSING IT WRITES `0` TO S-80. The manuscript says a width of 0 IS
-//      the closed panel; it never says which act writes it, and no requirement
-//      names an operation that does. The case below asserts the reading S-80
+//   3. THAT `Esc` ALSO CLOSES THE PANEL. ⛔ TWO ROWS NOW DISAGREE, so no case
+//      here picks between them. Table T-109's entry stands on the panel among
+//      six surfaces, its 何の入口か column reads 「開いている面を閉じる」 and its
+//      正 column names IN-4, whose FIRST level is 「開いている面」; but S-99h,
+//      ruled the same day the state moved off the width, says the panel is not
+//      one of those surfaces: 「⚠️ **`S-99g` の「面」ではない** —— パネルは画面の
+//      上に重ねず、`Esc` の第 1 階層でも閉じない（表 T-028 の `IN-4` が別の段を与
+//      えている）」. ⛔ IN-4's six levels hold no other step this panel could be,
+//      so which 段 that is cannot be quoted. Reported.
+//   4. WHICH ACT WRITES S-99h. The rows say what the value MEANS -- the panel is
+//      showing, and which of FR-072's two contents -- and no requirement names
+//      the operation that sets it to 「出していない」, nor what a re-shown panel
+//      does with S-171 and S-80. The case below asserts the reading S-99h
 //      states, not a write it does not.
 
 import { describe, expect, it } from 'vitest'
@@ -164,14 +175,37 @@ const PANEL_ENTRANCES = T_109.rows.filter((row) =>
 
 const PANEL_ENTRANCE_IDS = PANEL_ENTRANCES.map((row) => row.id)
 
-/** 表 T-203's S-80 -- the width the document keeps, whose `0` IS 「閉じている」. */
+/** 表 T-203's S-80 -- the width the document keeps, and NOTHING ELSE (CR-291). */
 const S_80 = specTable('T-203').rows.find(
   (row) => bare(row.by['キー'] ?? '') === 'propertyPanelWidth',
 )
 if (S_80 === undefined) throw new Error('table T-203 no longer has a row for `propertyPanelWidth`')
 
-/** The width a closed panel has, straight out of that row's 既定 column. */
-const CLOSED_WIDTH = Number(bare(S_80.by['既定'] ?? ''))
+/** The width a fresh document keeps -- 「まだ広げていない」, out of the 既定 column. */
+const UNWIDENED = Number(bare(S_80.by['既定'] ?? ''))
+
+const T_206 = specTable('T-206')
+
+/** 表 T-206's S-171 -- the width a panel is put at when it is shown. */
+const S_171 = T_206.rows.find((row) => row.id === 'S-171')
+if (S_171 === undefined) throw new Error('table T-206 no longer has row S-171')
+
+/**
+ * That width as a number. ⛔ NOT TYPED OUT: the 既定 column writes it with its
+ * unit and its 🔎, so the digits are taken from the cell and a row that stopped
+ * carrying a number fails here rather than going stale.
+ */
+const SHOWN_WIDTH = Number(/\d+/.exec(S_171.by['既定'] ?? '')?.[0] ?? Number.NaN)
+if (!Number.isFinite(SHOWN_WIDTH) || SHOWN_WIDTH <= UNWIDENED) {
+  throw new Error(`S-171 no longer carries a width above ${UNWIDENED}: ${S_171.by['既定'] ?? ''}`)
+}
+
+/**
+ * 表 T-206's S-99h -- the row the ruling of 2026-08-30 added, which holds
+ * WHETHER the panel is showing, apart from the width.
+ */
+const S_99H = T_206.rows.find((row) => row.id === 'S-99h')
+if (S_99H === undefined) throw new Error('table T-206 no longer has row S-99h')
 
 /** 表 T-216's S-73, so no case types the hue out. */
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
@@ -206,17 +240,15 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   nested({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
 
 /**
- * A document whose panel has been dragged wide open, so that the cases about
- * the ENTRANCE are not also cases about S-80.
+ * A document whose boundary has been dragged, so that the cases about the
+ * ENTRANCE are not also cases about S-80.
  *
- * ⚠️ The number is the manuscript's own closed width, moved off it -- FR-052
- * lets a person drag the boundary, so any width above `0` is a lawful document
- * and no requirement fixes which one.
+ * ⚠️ The number is the manuscript's own default, moved off it -- FR-052 lets a
+ * person drag the boundary, so any width from `0` up is a lawful document and no
+ * requirement fixes which one. ⛔ It is NOT what makes the panel show: that is
+ * S-99h, which the session carries.
  */
-const SETTINGS_OPEN = settingsOf({ propertyPanelWidth: CLOSED_WIDTH + 1 })
-
-/** The same document as the manuscript hands out fresh: S-80 at its default. */
-const SETTINGS_CLOSED = settingsOf()
+const SETTINGS_WIDENED = settingsOf({ propertyPanelWidth: UNWIDENED + 1 })
 
 const SESSION: ScreenSession = {
   language: 'ja',
@@ -332,7 +364,7 @@ const TASK_REF: ItemRef = { kind: 'task', uid: THE_TASK }
 // ---------------------------------------------------------------------------
 
 const panelOf = (
-  settings: DocumentSettings = SETTINGS_OPEN,
+  settings: DocumentSettings = SETTINGS_WIDENED,
   selection: Selection = holding(TASK_REF),
   session: ScreenSession = SESSION,
 ): PropertiesPanel => {
@@ -438,36 +470,61 @@ describe('FR-029 -- the entrance table T-109 places on the panel is drawn on it'
     // entrance on the SURFACE, and the surface is the same panel either way.
     for (const showing of ['selection', 'documentSettings'] as const) {
       const session = sessionWith({ propertiesShowing: showing })
-      const drawn = iconsIn(panelOf(SETTINGS_OPEN, holding(TASK_REF), session))
+      const drawn = iconsIn(panelOf(SETTINGS_WIDENED, holding(TASK_REF), session))
       expect([...new Set(drawn)].sort(), showing).toEqual([...PANEL_ENTRANCE_IDS].sort())
     }
   })
 })
 
-describe('S-80 -- where the closed state is kept', () => {
-  it('a fresh document opens with the panel closed', () => {
-    // S-80 of table T-203: 「⭐ `0` であることが「閉じている」であり、既定がそれで
-    // ある」. ⭐ The row is a key of `documentSettings`, so the closed panel is
-    // saved WITH the document -- and the value that reaches the code has to be
-    // the manuscript's, not a second copy of it.
-    expect(SETTINGS_DEFAULTS['propertyPanelWidth']).toBe(CLOSED_WIDTH)
-    expect(CLOSED_WIDTH, 'S-80 still spells "closed" as a width of zero').toBe(0)
+describe('S-99h -- what says the panel is showing, kept apart from S-80', () => {
+  it('a fresh document is 「まだ広げていない」, which S-80 spells as a width of zero', () => {
+    // S-80 of table T-203, after CR-291: 「⚠️ **`0` は「まだ広げていない」であって
+    // 「閉じている」ではない**」. ⭐ The row is a key of `documentSettings`, so the
+    // width is saved WITH the document -- and the value that reaches the code has
+    // to be the manuscript's, not a second copy of it.
+    // ⛔ THE CLAIM IS ABOUT THE WIDTH ALONE: 「**本行は幅だけを持ち、面を出している
+    // かどうかは持たない**」.
+    expect(SETTINGS_DEFAULTS['propertyPanelWidth']).toBe(UNWIDENED)
+    expect(UNWIDENED, 'S-80 still hands a fresh document a width of zero').toBe(0)
   })
 
-  it('⛔ MUST NOT describe a panel while the document keeps that width', () => {
-    // 「`0` であることが「閉じている」であり」 -- there is no third reading of it,
-    // and `ScreenView.propertiesPanel` is `null` when the panel is closed.
-    // ⛔ A described panel at width `0` is the state version 1.08 of the
-    // specification records being measured in the running app: the panel placed
-    // at the window's right edge with no width to draw into.
-    // ⚠️ THIS IS THE ARGUABLE ONE. If the ruling is that the width a panel opens
-    // to (S-171) is laid over the settings before they reach this unit and never
-    // written back, then S-80 has stopped being what says whether the panel is
-    // open, and the manuscript needs the line that says so -- because as it
-    // stands, a document saved with the panel open keeps `0` and reads back as
-    // closed. ⛔ Not tuned to whichever way the code goes.
+  it('⭐ S-99h holds the three states, and the width row holds none of them', () => {
+    // The row the ruling of 2026-08-30 added, read rather than copied: its 値
+    // column names 「プロパティパネルを出しているか（`選択` ／ `文書全体の設定` ／
+    // 出していない）」 and its 既定 is the third of those.
+    // ⛔ WITHOUT THIS, THE CASE BELOW WOULD PASS AGAINST A SPECIFICATION THAT NEVER
+    // SPLIT THE TWO -- rule 04 section 2: the mechanism is checked, not assumed.
+    for (const state of ['選択', '文書全体の設定', '出していない']) {
+      expect(S_99H.by['値'] ?? '', `S-99h names ${state}`).toContain(state)
+    }
+    expect(S_99H.by['既定'] ?? '').toContain('出していない')
     expect(
-      propertiesPanelFromSelection(ONE_TASK, SETTINGS_CLOSED, holding(TASK_REF), SESSION),
-    ).toBe(null)
+      S_80.by['意味・範囲の理由'] ?? '',
+      'S-80 hands the showing state to S-99h instead of holding it',
+    ).toContain('S-99h')
+  })
+
+  it('⛔ MUST NOT describe a panel while S-99h says 「出していない」, at any width', () => {
+    // ⭐ S-99h (利用者の裁定 2026-08-30): 「⛔ **幅（`S-80`）とは別に持つこと** ——
+    // ⚠️ **幅 `0` は「まだ広げていない」であって「出していない」ではない。**」 So the
+    // width cannot say the panel is up, and it cannot say it is down either: with
+    // the session's S-99h at its default the panel is absent however wide the
+    // document is, and `ScreenView.propertiesPanel` is `null` for exactly that.
+    // ⚠️ THE WIDTHS ARE THE TWO THE MANUSCRIPT ITSELF NAMES ABOVE ZERO -- one past
+    // S-80's default, which FR-052 lets a person drag to, and S-171's 「面を出した
+    // ときに置く幅」, the one width a shown panel is put at. ⛔ S-80's own default
+    // is left to tests/unit/uf-64.test.ts, which already drives it.
+    const notShowing = sessionWith({ propertiesShowing: null })
+    for (const width of [UNWIDENED + 1, SHOWN_WIDTH]) {
+      expect(
+        propertiesPanelFromSelection(
+          ONE_TASK,
+          settingsOf({ propertyPanelWidth: width }),
+          holding(TASK_REF),
+          notShowing,
+        ),
+        `S-80 at ${width}`,
+      ).toBe(null)
+    }
   })
 })
