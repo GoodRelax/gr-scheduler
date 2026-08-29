@@ -24,13 +24,19 @@
 // -- the thing UC-001's extension 2a creates by a plain click -- was dropped at
 // EVERY zoom.
 //
-// ⛔ INCOMPLETE, and deliberately so: LC-7 counts OC-1 and OC-5 of table T-038.
-// The rows still missing measure things this milestone does not draw yet -- the
-// assignee and percent labels (OC-2), the days-late label (OC-8) and the
-// deadline mark (OC-9). Table T-042 puts those at M3 and M4. Each one widens
-// what a Task occupies, so ST-1's overlap test and FR-055's fit both read low
-// until they arrive. Add them here, not at the call sites: table T-038's
-// preamble makes stacking and the fit measurement share this one count (MUST).
+// ⛔ INCOMPLETE, and deliberately so: LC-7 counts OC-1, OC-2 and OC-5 of table
+// T-038. The rows still missing measure things this milestone does not draw
+// yet -- the days-late label (OC-8) and the deadline mark (OC-9). Table T-042
+// puts those at M4. Each one widens what a Task occupies, so ST-1's overlap
+// test and FR-055's fit both read low until they arrive. Add them here, not at
+// the call sites: table T-038's preamble makes stacking and the fit measurement
+// share this one count (MUST).
+//
+// ⭐ OC-2 IS NO LONGER AMONG THEM. The assignee label (FR-059, with AS-2 of
+// table T-225 for the Task nobody is on) and the percent label (FR-090) are
+// settled and measured here, and OC-2's own MUST / MUST NOT -- count them only
+// while they are shown -- is why S-60 and S-61 are read at the measurement and
+// not at the drawing.
 //
 // ⚠️ OC-7, the plan-against-actual guide, needs no term of its own: GD-5 of
 // table T-020a draws it from the actual's near end to the plan's near end, so
@@ -53,6 +59,7 @@ import {
   COLUMN_DEFAULTS,
   dateFromWorkingDays,
   dayOf,
+  planActualState,
   textOfDay,
   workingCalendarOf,
   type CalendarDay,
@@ -149,6 +156,25 @@ export interface TaskPlacement {
    * measured width stops matching the glyphs.
    */
   readonly labelFontSize: number
+  /**
+   * OC-2's assignee label (FR-059), already reduced to what is DRAWN: the one
+   * name and the count behind it, or AS-2's single `-` where nobody is on the
+   * Task. `''` while S-60 has it hidden, which is the state OC-2 (MUST NOT)
+   * keeps out of the occupied width.
+   *
+   * ⭐ SETTLED HERE AND CARRIED, the bargain `label` and `labelFontSize`
+   * already keep: LC-7 measured the occupancy with THIS text, so whoever draws
+   * it reads the same string rather than resolving the roster a second time --
+   * and a second resolution would part company with the measurement the moment
+   * FR-059's filter or its ordering moved.
+   */
+  readonly assigneeLabel: string
+  /** FR-093's estimate of `assigneeLabel` at `labelFontSize`. Zero when it is `''`. */
+  readonly assigneeLabelWidth: number
+  /** OC-2's percent label (FR-090). `''` where FR-090 or S-61 draws none. */
+  readonly percentLabel: string
+  /** FR-093's estimate of `percentLabel` at `labelFontSize`. Zero when it is `''`. */
+  readonly percentLabelWidth: number
   /** What the row's stacking measured it as. Table T-038. */
   readonly occupiedX0: number
   readonly occupiedX1: number
@@ -259,6 +285,120 @@ export function labelUnits(text: string): number {
 /** LC-5. FR-093's estimate: units times font size times labelCoef. @purity pure */
 function labelWidth(text: string, fontSize: number, settings: DocumentSettings): number {
   return labelUnits(text) * fontSize * settings.labelCoef
+}
+
+/**
+ * `Resource/Type` as AT-87 codes it: 0 = 材料, 1 = 作業, 2 = 費用.
+ *
+ * ⛔ WRITTEN HERE RATHER THAN IMPORTED, and neither copy is the odd one out.
+ * `edit-resource.ts` holds the same number for FR-008's 「新しく作る担当者は
+ * 作業資源として作ること」 and is a USE CASE -- table T-062's layers forbid
+ * this one reaching it. Publishing it from `schedule.ts` instead would mint a
+ * crossing table T-064's PI-1 does not hold. Both copies name AT-87, which is
+ * the one place the code is written down.
+ */
+const WORK_RESOURCE = 1
+
+/**
+ * AS-2 of table T-225 (MUST / MUST NOT): 「担当ラベルを出しているあいだは、
+ * 担当者名の代わりに `-` の 1 文字を出すこと。空欄にしてはならない」.
+ *
+ * ⛔ NOT A WORD (FR-038): it is the same mark in every language, the bargain
+ * `TRUNCATION_MARK` already strikes. ⚠️ It is the SAME character AS-3 reads as
+ * 「解除の合図」 and AS-4 refuses to put in the roster, which is why AS-2 spells
+ * it rather than leaving the empty case to the drawing side.
+ */
+const NO_ASSIGNEE_MARK = '-'
+
+/**
+ * What FR-059 calls 「残りの人数」, put on the label after the first name.
+ *
+ * ⛔ THE COUNT IS THE REQUIREMENT'S; THE MARK IN FRONT OF IT IS NOT. FR-059
+ * fixes what is shown -- 「資源名の昇順で先頭 1 名と残りの人数」 -- and no row
+ * anywhere spells how the two are joined. A digit behind `+` is language
+ * neutral, so FR-038 has nothing to translate.
+ * @provisional PD-346
+ */
+const MORE_ASSIGNEES_MARK = '+'
+
+/**
+ * FR-090's 「百分率の記号」.
+ *
+ * ⛔ NOT A WORD (FR-038), for the reason `TRUNCATION_MARK` gives: the sign is
+ * the same in every language the tool prints.
+ */
+const PERCENT_MARK = '%'
+
+/**
+ * FR-059's assignee label for every Task somebody is on, by Task uid.
+ *
+ * The requirement (MUST) keeps 作業資源 alone -- 「材料資源・費用資源・名前が
+ * 空の資源を出さないこと」 -- and where more than one is left it prints
+ * 「資源名の昇順で先頭 1 名と残りの人数（同名は `UID` の昇順）」.
+ *
+ * ⚠️ A Task ABSENT from the answer is one nobody is on. AS-2 of table T-225
+ * settles that case with a mark rather than with nothing, and the caller
+ * applies it -- this map is about who is there, and the caller is where S-60
+ * decides whether any of it is drawn at all.
+ *
+ * ⛔ TWO COLUMNS SPELL 「費用資源」 AND BOTH ARE READ: AT-87's code 2 and
+ * AT-88's own boolean. Reading one of them would let the other say cost and be
+ * drawn as a person.
+ *
+ * @purity pure
+ */
+function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string> {
+  const resourceByUid = new Map<number, Schedule['resources'][number]>()
+  for (const resource of schedule.resources) resourceByUid.set(resource.uid, resource)
+
+  const onTask = new Map<number, { readonly name: string; readonly uid: number }[]>()
+  for (const assignment of schedule.assignments) {
+    const taskUid = assignment.taskUid
+    if (taskUid === null || assignment.resourceUid === null) continue
+    const resource = resourceByUid.get(assignment.resourceUid)
+    if (resource === undefined) continue
+    if (resource.resourceKind !== WORK_RESOURCE) continue
+    if (resource.isCostResource === true) continue
+    const name = resource.name ?? ''
+    if (name === '') continue
+    const held = onTask.get(taskUid) ?? []
+    held.push({ name, uid: resource.uid })
+    onTask.set(taskUid, held)
+  }
+
+  const labels = new Map<number, string>()
+  for (const [taskUid, held] of onTask) {
+    // ⛔ NOT `localeCompare`: FR-059 asks for 「資源名の昇順」 and a collation
+    // that changes with the host would draw a different name on the same
+    // document on another machine, which is not an ordering this file may have.
+    held.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : a.uid - b.uid))
+    const first = held[0]!
+    labels.set(
+      taskUid,
+      held.length === 1
+        ? first.name
+        : `${first.name} ${MORE_ASSIGNEES_MARK}${held.length - 1}`,
+    )
+  }
+  return labels
+}
+
+/**
+ * FR-090's percent label, or `''` where the requirement draws none.
+ *
+ * ⛔ THE STORED VALUE, UNTOUCHED (MUST / MUST NOT): 「`FR-012` が格納した値を
+ * そのまま出すこと。丸めてはならない」 -- AT-39 keeps it an integer with no
+ * upper bound, so 120 is printed as 120.
+ * ⛔ 「未着手のタスクにラベルを出してはならない（MUST NOT）」 -- a zero there
+ * would read as a measurement rather than as "not begun", and FR-043's
+ * entrance is what says the Task has not started.
+ *
+ * @purity pure
+ */
+function percentLabelOf(task: Task): string {
+  if (planActualState(task) === 'notStarted') return ''
+  const percent = task.percentComplete
+  return percent === null ? '' : `${percent}${PERCENT_MARK}`
 }
 
 /**
@@ -818,7 +958,7 @@ export function layoutFromSchedule(
   const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
   const rows = drawnGroups(schedule, settings).filter((g) => g.depth <= depthLimit)
 
-  // Three indexes, built once, before the row loop opens. Scanning
+  // Four indexes, built once, before the row loop opens. Scanning
   // taskGroupMembers per row and taskVisuals per Task made the whole layout
   // O(n^2) in the task count -- NFR-013 forbids that outright ("`O(n²)` の算法を
   // 用いてはならない（MUST NOT）", naming レイアウトの算出 first), and MN-6 of
@@ -833,6 +973,11 @@ export function layoutFromSchedule(
     if (groupMembers === undefined) membersByGroup.set(member.groupId, [member])
     else groupMembers.push(member)
   }
+  // The fourth: FR-059's roster walk, done once for the whole schedule rather
+  // than once per Task. Asking each Task for its own assignments would scan
+  // `assignments` per Task, which is the O(n²) NFR-013 forbids and which the
+  // three indexes above exist to avoid.
+  const assigneeLabels = assigneeLabelsOf(schedule)
 
   // FR-054: one calendar for the whole document, resolved once.
   const within = workingCalendarOf(schedule)
@@ -914,11 +1059,33 @@ export function layoutFromSchedule(
       // for the silence on the other rows -- a Task must not move when a
       // display toggle is flipped.
       const spread = actual !== null && actualPlacementOf(kind) === 'inside' ? actual : null
-      const occupiedX0 = spread === null ? x : Math.min(x, spread.x)
+      // ---- LC-7: OC-2 is the pair of labels that jut out to the LEFT -------
+      // ⭐ THIS ROW IS THE ONE THAT SAYS 「表示しているときだけ算入すること
+      // （MUST）。非表示のときは算入してはならない（MUST NOT）」, so S-60 and
+      // S-61 are read HERE and the width is nothing at all while they are off.
+      // ⚠️ AS-2 makes the empty Task a label too -- a `-` is drawn and is
+      // therefore counted, which FR-059's RATIONALE states in as many words.
+      const assigneeLabel = settings.assigneeVisible
+        ? (assigneeLabels.get(task.uid) ?? NO_ASSIGNEE_MARK)
+        : ''
+      const percentLabel = settings.percentCompleteVisible ? percentLabelOf(task) : ''
+      const assigneeLabelWidth = labelWidth(assigneeLabel, font, settings)
+      const percentLabelWidth = labelWidth(percentLabel, font, settings)
+      // ⚠️ THE GAP IS S-32 AND NOT A NEW VALUE: its own row under S-135 says
+      // 「`labelGap`（`S-32`）は形状の外へ出すラベル用」, and OC-2 puts these two
+      // outside the shape. ⛔ WHICH OF THE TWO STANDS NEARER THE BAR, AND WHAT
+      // SEPARATES THEM, IS NOT SETTLED ANYWHERE -- OC-2 gives one cell to both.
+      // @provisional PD-347
+      const outsideWidth =
+        (assigneeLabel === '' ? 0 : settings.labelGap + assigneeLabelWidth) +
+        (percentLabel === '' ? 0 : settings.labelGap + percentLabelWidth)
+      const labelledX0 = x - outsideWidth
+      const occupiedX0 = spread === null ? labelledX0 : Math.min(labelledX0, spread.x)
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, x, width, label, font, placement, actual,
-               fade, occupiedX0, occupiedX1 }
+               fade, assigneeLabel, assigneeLabelWidth, percentLabel, percentLabelWidth,
+               occupiedX0, occupiedX1 }
     })
 
     for (const item of measured) {
@@ -1023,6 +1190,11 @@ export function layoutFromSchedule(
         // LC-5 measured the label with this size; it leaves with the placement
         // so nothing downstream writes FR-077's formula a second time.
         labelFontSize: item.font,
+        // OC-2's pair, settled with the width LC-7 counted them by.
+        assigneeLabel: item.assigneeLabel,
+        assigneeLabelWidth: item.assigneeLabelWidth,
+        percentLabel: item.percentLabel,
+        percentLabelWidth: item.percentLabelWidth,
         occupiedX0: item.occupiedX0,
         occupiedX1: item.occupiedX1,
       })

@@ -276,6 +276,10 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
     project: { calendarUid: null, statusDate: null },
     calendars: [],
     tasks: [],
+    // FR-059 walks these two for OC-2's assignee label, so the template names
+    // them as `Schedule` declares them. Empty is the ordinary state here.
+    resources: [],
+    assignments: [],
     taskGroups: [],
     taskGroupMembers: [],
     taskVisuals: [],

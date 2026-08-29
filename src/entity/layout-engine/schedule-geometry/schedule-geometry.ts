@@ -17,9 +17,13 @@
 //
 // ⛔ INCOMPLETE, and deliberately so. What this milestone does not draw:
 //
-//   - the assignee and percent labels (OC-2 of table T-038), the deadline mark
-//     (FR-045) and the days-late label (FR-047). Table T-042 puts them at M3
-//     and M4, and ScheduleLayout carries the matching gap in its occupancy.
+//   - the deadline mark (FR-045) and the days-late label (FR-047). Table T-042
+//     puts them at M4, and ScheduleLayout carries the matching gap in its
+//     occupancy (OC-9 and OC-8 of table T-038).
+//     ⭐ OC-2's PAIR IS NO LONGER AMONG THEM: the assignee label (FR-059, with
+//     AS-2 of table T-225 for the Task nobody is on) and the percent label
+//     (FR-090) are placed, and `assigneeLabel` is what gives GR-11 of table
+//     T-023d the target `item-hit-area.ts` had no row for.
 //   - the comment box's LEADER, AT-111's `calloutBox` and `polyline`. The body
 //     is drawn now that FR-097 states the sizing rule and S-181 / S-182 hold
 //     the padding and the wrap, but no row anywhere says what either leader
@@ -176,6 +180,20 @@ export interface TaskGeometry {
    * Null when the Task has no name.
    */
   readonly label: ScreenRect | null
+  /**
+   * GR-11's target: OC-2's assignee label (FR-059), jutting out past the LEFT
+   * of the bar. Null while S-60 has it hidden -- and never null merely because
+   * nobody is on the Task, which is what AS-2 of table T-225 (MUST NOT) is
+   * about: 「何も描かないと `GR-11` に当たる図形がそのタスクだけ存在せず」.
+   */
+  readonly assigneeLabel: ScreenRect | null
+  /**
+   * OC-2's percent label (FR-090), further out again. Null while S-61 has it
+   * hidden, and null on a Task not started -- FR-090 (MUST NOT) draws none
+   * there. ⛔ NO ROW OF TABLE T-023d CLAIMS IT: the box leaves so that the
+   * drawing side reads one answer, not so that it can be grabbed.
+   */
+  readonly percentLabel: ScreenRect | null
 }
 
 /** One dependency, routed. LC-10. */
@@ -1029,6 +1047,49 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
       }
 }
 
+/**
+ * OC-2's two boxes: the assignee label nearest the bar, the percent label
+ * beyond it, both jutting out to the LEFT -- 「左（バーの外側へ張り出す）」.
+ *
+ * ⭐ THE ROOM IS LC-7'S, NOT MEASURED AGAIN. `ScheduleLayout` estimated both
+ * widths with FR-093 at the size LC-5 used, and counted the occupancy from
+ * them; re-estimating here would draw glyphs the stacking never reserved room
+ * for. The gap is `labelGap` (S-32), which S-135's own row calls 「形状の外へ
+ * 出すラベル用」 -- these two are outside the shape.
+ *
+ * ⛔ DOWN THE BAND, NO ROW SETTLES THEM. Table T-012's 「名称ラベルの縦位置」
+ * column is about the NAME label and table T-221 has no row for these two, so
+ * the reading taken is LF-11's -- the one row that does place something outside
+ * the bar puts it on 「予定バーの中心」, and the marker it places is OC-3, OC-2's
+ * neighbour in the same table.
+ * ⛔ WHICH OF THE TWO STANDS NEARER THE BAR IS NOT SETTLED EITHER: OC-2 gives
+ * one cell to both and names them 「担当ラベルと完了率ラベル」, so they are laid
+ * out in that order reading toward the bar.
+ * @provisional PD-347
+ *
+ * @purity pure
+ */
+function outsideLabelBoxesOf(
+  inputs: GeometryInputs,
+  placed: TaskPlacement,
+): { readonly assignee: ScreenRect | null; readonly percent: ScreenRect | null } {
+  const gap = inputs.settings.labelGap
+  const height = placed.labelFontSize
+  const y = placed.y + placed.planHeight / 2 - height / 2
+  let right = placed.x
+  let assignee: ScreenRect | null = null
+  let percent: ScreenRect | null = null
+  if (placed.assigneeLabel !== '') {
+    right -= gap + placed.assigneeLabelWidth
+    assignee = { x: right, y, width: placed.assigneeLabelWidth, height }
+  }
+  if (placed.percentLabel !== '') {
+    right -= gap + placed.percentLabelWidth
+    percent = { x: right, y, width: placed.percentLabelWidth, height }
+  }
+  return { assignee, percent }
+}
+
 /** @purity pure */
 function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry {
   const settings = inputs.settings
@@ -1060,6 +1121,7 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
   // they are settled once here rather than counted through the calendar twice.
   const dummies = dummiesOf(inputs, task, placed, actualHeight)
   const marker = markerOf(inputs, task, placed, dummies)
+  const outside = outsideLabelBoxesOf(inputs, placed)
   const state = planActualState(task)
   const suspended = state === 'suspendedResumePlanned' || state === 'suspendedResumeUnknown'
 
@@ -1102,6 +1164,8 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
         ? fadeHandlePoints(placed, planTop)
         : [],
     label: labelBoxOf(inputs, placed),
+    assigneeLabel: outside.assignee,
+    percentLabel: outside.percent,
   }
 }
 

@@ -42,9 +42,13 @@
 // contents and a collapsed row's annotations are already absent -- there is
 // nothing here to filter out again.
 //
-// ⛔ ONE row of table T-023d has no target yet, because ScheduleGeometry does
-// not draw its subject at this milestone: GR-11 (the assignee label, OC-2 of
-// table T-038). Its slot is marked below, in the order it belongs.
+// ⭐ EVERY row of table T-023d that names a Task now has a target. GR-11 (the
+// assignee label, OC-2 of table T-038) was the last one without: ScheduleGeometry
+// now places it, and AS-2 of table T-225 (MUST NOT) is what keeps the figure
+// standing on a Task nobody is on -- 「何も描かないと `GR-11` に当たる図形が
+// そのタスクだけ存在せず、担当者がまだ 1 人も就いていないタスクにだけ `AS-1` の
+// 経路が無い」. ⚠️ GR-19 is not a Task row at all: the palette's band is the
+// shell's, and this file is handed the schedule's geometry alone.
 //
 // ⛔ GR-14 answers with the BODY of either annotation and with nothing else.
 // The row reads 本体・アンカー・四隅, and neither the anchor nor the corners has
@@ -85,7 +89,8 @@ export type Item =
 /** The rows of table T-023d that have a target at this milestone. */
 export type GrabArea =
   | 'GR-1' | 'GR-2' | 'GR-3' | 'GR-4' | 'GR-5' | 'GR-6' | 'GR-7' | 'GR-8'
-  | 'GR-9' | 'GR-10' | 'GR-12' | 'GR-13' | 'GR-14' | 'GR-15' | 'GR-16' | 'GR-17' | 'GR-18'
+  | 'GR-9' | 'GR-10' | 'GR-11' | 'GR-12' | 'GR-13' | 'GR-14' | 'GR-15' | 'GR-16'
+  | 'GR-17' | 'GR-18'
 
 export interface Hit {
   readonly item: Item
@@ -308,9 +313,9 @@ type TaskRow = {
  * Table T-023d, top row first. Read it as the table reads: the first row that
  * claims the point wins, and no row below it is asked.
  *
- * ⛔ GR-11 belongs between GR-10 and GR-15 and is absent -- the assignee label
- * is not drawn at this milestone. ⚠️ When it arrives it is the OTHER row the
- * closing rule names, so it comes in with `reach: 'doubleClickOnly'`.
+ * ⭐ GR-11 now stands where the table prints it, between GR-10 and GR-15, and
+ * it is the OTHER row the closing rule names -- so it carries
+ * `reach: 'doubleClickOnly'` for the same reason GR-10 does.
  */
 const TASK_ROWS: readonly TaskRow[] = [
   // GR-1 / GR-2 -- the fade handles, at the plan bar's top-left and
@@ -393,6 +398,30 @@ const TASK_ROWS: readonly TaskRow[] = [
     grab: 'GR-10',
     reach: 'doubleClickOnly',
     isClaimedBy: ({ task }, x, y) => task.label !== null && isInsideBoxInclusive(x, y, task.label),
+  },
+  // GR-11 -- the assignee label, at 「バーの外側へ張り出した位置」.
+  //
+  // ⛔ `doubleClickOnly`: the row's operation column holds a double click and
+  // nothing else, and the closing rule under table T-023d names it beside
+  // GR-10 (MUST NOT). ⚠️ Unlike GR-10 the label does NOT sit over the bar, so
+  // a plain press here would not swallow GR-12 -- the rule is obeyed because
+  // the table states it, not because this row would otherwise do damage.
+  //
+  // ⛔ NO GRAB ALLOWANCE. Table T-023d sends every 掴み代 to table T-206, and
+  // that table records S-90 to S-93 and nothing for a label -- GR-10 above is
+  // read the same way. The box is the drawn label's own.
+  //
+  // ⚠️ THE ROWS ABOVE STILL WIN WHERE THEY REACH. GR-5 and GR-6 carry S-91's
+  // 12px sideways, which is wider than the `labelGap` (S-32) that separates
+  // this label from the bar, so the label's own right edge lies under the
+  // actual start's allowance. That is table T-023d's printed order doing
+  // exactly what it says, and it is why AS-2's mark is a mark and not nothing:
+  // a label of some width is what leaves ground this row can claim.
+  {
+    grab: 'GR-11',
+    reach: 'doubleClickOnly',
+    isClaimedBy: ({ task }, x, y) =>
+      task.assigneeLabel !== null && isInsideBoxInclusive(x, y, task.assigneeLabel),
   },
   // GR-15 -- a milestone's actual figure. Above GR-12 so that an actual
   // landing on its own plan day can still be picked up.

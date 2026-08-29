@@ -566,6 +566,10 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-8': null,
   'GR-9': null,
   'GR-10': null,
+  // ⚠️ IN-2 NAMES NO SHAPE FOR A LABEL, and GR-11 is one -- the note above
+  // already counts 「the labels」 among the pressable things it gives none to.
+  // A shape invented here would be this build writing a requirement.
+  'GR-11': null,
   'GR-13': null,
   'GR-14': null,
   'GR-16': null,
@@ -613,6 +617,10 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-8': true,
   'GR-9': true,
   'GR-10': false,
+  // GR-11 is the other row that cannot arrive by a plain press at all, and the
+  // closing rule that lists the exemptions names it beside GR-10 -- 「`GR-10` /
+  // `GR-11`（ダブルクリックだけを持つ）」. No drag begins here, so none is drawn.
+  'GR-11': false,
   'GR-12': true,
   'GR-13': false,
   // ⭐ EXACT IN PIXELS AND NOT QUANTISED TO THE DAY, alone among these: FR-019
@@ -3699,8 +3707,21 @@ export function frameLoop(
     // `clickCount` is meaningful on `down`, and telling a double click from two
     // single ones is a question about elapsed time that LY-5 leaves this layer.
     const resolving = at.clickCount >= 2 ? 'doubleClick' : 'press'
+    // ⛔ AND NOT OUTSIDE THE `Row Area` EITHER, which is the reading
+    // `grabAtPointer` has always taken for the hover: every target of table
+    // T-023d is drawn inside it, the `Schedule Canvas` is wider, and the
+    // closing MUST under table T-023a limits the hit test to 「そのフレームで
+    // 描いた編集対象の要素」 -- the Row Area's paint is CLIPPED to itself, so a
+    // bar whose days lie left of `scrollDate` is not drawn under the Row Title
+    // Panel however far the geometry runs. ⚠️ Until this round the press asked
+    // the hit test anywhere the surface had not answered, and only the
+    // translator's own region test kept the answer from being used; the two
+    // sides now agree, and a `Hit` is once again proof that the press was on
+    // the schedule.
     const hit =
-      on === null ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP, resolving) : null
+      on === null && regionAtPointer(frame.regions, at.x, at.y) === 'rowArea'
+        ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP, resolving)
+        : null
     // ⭐ ASKED OF THE SIDE THAT OWNS TABLE T-023a, AND CARRIED FROM HERE ON.
     // `collectWriteMoment` needs to know a pan (PD-1) from a marquee (PD-5) to
     // keep AG-9's exemption, and R2.7 forbids it to read that table a second
@@ -5669,5 +5690,7 @@ export const NOT_STORED_SCROLLBAR_SIZES: {
   'S-205': 8,
 }
 // </generated>
+
+
 
 

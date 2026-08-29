@@ -567,8 +567,20 @@ function labelSvg(
   settings: DocumentSettings,
   ink: string,
   halo: string,
+  /**
+   * How far into its own box the glyphs start.
+   *
+   * ⭐ AN ARGUMENT BECAUSE THE TWO CALLERS ARE ANSWERING DIFFERENT ROWS. ZO-5's
+   * name label is boxed to the ROOM it may take -- the shape's width, or the
+   * run to `occupiedX1` -- so `labelPad` (S-31) is the inset that keeps it off
+   * the edge. OC-2's two labels are boxed to their own ESTIMATED WIDTH, which
+   * LC-7 counted the occupancy by, so an inset there would push the glyphs out
+   * of the very box the stacking reserved and across the `labelGap` that holds
+   * them clear of the bar.
+   */
+  padLeft: number,
 ): string {
-  const x = box.x + settings.labelPad
+  const x = box.x + padLeft
   // ⭐ S-33 MULTIPLIES THE FONT, NOT THE BOX. Table T-012's closing paragraph
   // calls it 「字形の中でのずれ」 -- a shift inside the glyph, down from the
   // middle of the type to the baseline SVG measures `y` from -- and says in
@@ -1350,8 +1362,33 @@ export function svgFromSchedule(
           settings,
           themed('S-168'),
           themed('S-169'),
+          settings.labelPad,
         ),
       )
+    }
+    // OC-2 of table T-038: the assignee label (FR-059, with AS-2 of table T-225
+    // for the Task nobody is on) and the percent label (FR-090), jutting out
+    // past the left of the bar where `outsideLabelBoxesOf` placed them.
+    //
+    // ⛔ S-60 AND S-61 ARE NOT READ HERE. FR-049 (MUST) adds table T-202's
+    // switches to the state condition of every requirement that draws the
+    // element, and LC-7 is where that was spent -- OC-2's own MUST NOT keeps a
+    // hidden label out of the occupied width, so the layout has to know. A
+    // hidden label reaches here as a null box, and a second test would be the
+    // same condition in two places.
+    // ⭐ THE SAME INK AND THE SAME HALO AS ZO-5. S-168 is 「ラベルの文字色」 and
+    // S-169 its outline; table T-236 holds no other pair for a label, and
+    // inventing one would be this file writing a settings row.
+    if (placed !== undefined) {
+      for (const [box, text] of [
+        [task.assigneeLabel, placed.assigneeLabel],
+        [task.percentLabel, placed.percentLabel],
+      ] as const) {
+        if (box === null || text === '') continue
+        labelParts.push(
+          labelSvg(box, text, placed.labelFontSize, settings, themed('S-168'), themed('S-169'), 0),
+        )
+      }
     }
   }
 

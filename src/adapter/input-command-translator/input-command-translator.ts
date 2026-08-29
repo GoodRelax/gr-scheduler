@@ -421,15 +421,33 @@ export type InPlaceTarget =
    * meaning two things.
    */
   | { readonly kind: 'taskName'; readonly uid: number }
+  /**
+   * MK-13's 「担当ラベル ＝ 担当者名の変更」, reached through GR-11 of table
+   * T-023d, which AS-1 of table T-225 (MUST) names in as many words:
+   * 「担当ラベルをダブルクリックした ⇒ その場で担当者名を編集させること。入口の
+   * 割当は表 T-023 の `MK-13`、掴み領域は表 T-023d の `GR-11` が既に持つ」.
+   *
+   * ⛔ ITS OWN KIND AND NOT `taskName`. MK-13 gives 担当ラベル a destination
+   * separate from 「タスク（名称ラベルと本体のどちらでも） ＝ 名称の編集」, and
+   * folding the two would put one operation where the row prints two.
+   *
+   * ⚠️ THE TASK IS WHAT IS CARRIED, not an assignment or a resource. AS-3 and
+   * AS-7 of table T-225 turn what was settled into CM-44 / CM-45, both of which
+   * name a Task and a Resource -- and which Resource is what the edit is FOR,
+   * so it cannot be known before the edit is over. ⛔ The name spelled here is
+   * this file's, as CR-146 leaves it: no row of the specification settles one.
+   */
+  | { readonly kind: 'assignee'; readonly uid: number }
 
-// STOP -- ⛔ TWO OF MK-13's FOUR ENTRANCES CANNOT BE REACHED, and not because
-// they were left out here. 「担当ラベル」 is GR-11, and `item-hit-area.ts`
-// records in its own header that it has no target at this milestone --
-// ScheduleGeometry draws no assignee label, so no `Hit` can ever name one.
-// 「行見出し」 is in the Row Title Panel, which the note under table T-023a puts
-// outside this decision order altogether (FR-085 owns it). Adding kinds for
-// them here would declare a vocabulary nothing can produce, which is the guess
-// R4's YAGNI forbids.
+// STOP -- ⛔ ONE OF MK-13's FOUR ENTRANCES CANNOT BE REACHED, and not because
+// it was left out here. 「行見出し」 is in the Row Title Panel, which the note
+// under table T-023a puts outside this decision order altogether (FR-085 owns
+// it). Adding a kind for it here would declare a vocabulary nothing can
+// produce, which is the guess R4's YAGNI forbids.
+//
+// ⚠️ 「担当ラベル」 IS NO LONGER ONE OF THEM. ScheduleGeometry places the label
+// and `item-hit-area.ts` gives GR-11 its row, so a `Hit` can name it and AS-1
+// has its destination above.
 //
 // ⚠️ 「コメントボックス ＝ 本文の編集」 IS NO LONGER ONE OF THEM. GR-14 now
 // answers with a comment box, so a `Hit` can name one and the reason this STOP
@@ -2768,7 +2786,18 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // schedule's drawing area (MUST): a press the surface answered for was not on
   // the schedule at all, whatever `regionAtPointer` says about the point.
   if (press.on !== null) return commandFromEntry(input, press, context)
-  if (!isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
+  // ⭐ A HIT IS ITSELF THE ANSWER TO 「日程の描画領域か」, so the region is asked
+  // only of a press that carries none. `itemAtPointer` walks the schedule's own
+  // geometry and the caller asks it only inside the `Row Area` -- the shell's
+  // `collectPress` states that in as many words -- so a press holding a `Hit`
+  // was on the schedule, whatever its two numbers say. ⛔ WITHOUT THIS,
+  // 「担当ラベルをダブルクリックした」 (AS-1 of table T-225, MUST) was answered
+  // by the coordinates rather than by the row that was grabbed, and a caller
+  // that hands the row in -- which is what the row IS -- got nothing.
+  // ⚠️ The press with no hit still has to be placed: PD-4 creates a Task where
+  // nothing was struck and PD-5 opens a marquee, and neither may begin on the
+  // ruler or in the Row Title Panel (the note under table T-023a, MUST).
+  if (press.hit === null && !isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
   // ⭐ ASKED HERE RATHER THAN READ OFF `press.pressRow`, AND IT IS THE SAME
   // ANSWER. The member is what this very function returned at the press, so
@@ -3555,6 +3584,13 @@ function commandFromGrab(
     const isNameEntrance = hit.grab === 'GR-10' || hit.grab === 'GR-12' || hit.grab === 'GR-15'
     if (isNameEntrance) {
       return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
+    }
+    // MK-13's OTHER Task entry -- 「担当ラベル ＝ 担当者名の変更」 -- which AS-1
+    // of table T-225 makes a MUST and sends to GR-11. ⛔ A SEPARATE ANSWER and
+    // not a fourth row on `isNameEntrance`: the two destinations are printed
+    // apart in MK-13, so they leave here apart.
+    if (hit.grab === 'GR-11') {
+      return acted({ kind: 'editInPlace', target: { kind: 'assignee', uid: item.taskUid } })
     }
   }
 
@@ -4740,5 +4776,3 @@ export const NOT_STORED_ZOOM_STEP: {
   'S-96': 1.1,
 }
 // </generated>
-
-
