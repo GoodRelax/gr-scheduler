@@ -483,6 +483,39 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-79",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "担当ラベルを出す・しまう（`S-60`）",
+   "authority": "`FR-049`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-80",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "完了率ラベルを出す・しまう（`S-61`）",
+   "authority": "`FR-049`（`FR-090`）",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-81",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "依存線を出す・しまう（`S-62`）。⚠️ **隠しているあいだも、依存線を選ぶ・ラグを編集する・削除する経路は別の面に残る** —— 規則と理由は `FR-049` が持つ",
+   "authority": "`FR-049`（`FR-009`）",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-44",
    "surfaces": [
     "Command Palette"
@@ -627,6 +660,17 @@
    "group": null,
    "entryTo": "その行自身を畳む",
    "authority": "表 T-051 の `HF-3`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-77",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "行の配下をすべて畳む",
+   "authority": "表 T-051 の `HF-11`",
    "arms": null,
    "armsShape": null
   },
@@ -792,6 +836,17 @@
    "group": null,
    "entryTo": "すべての行を開く",
    "authority": "表 T-051 の `HF-10`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-78",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "すべての行を畳む",
+   "authority": "表 T-051 の `HF-12`",
    "arms": null,
    "armsShape": null
   },

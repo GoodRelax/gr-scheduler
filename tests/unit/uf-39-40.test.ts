@@ -338,7 +338,7 @@ const rowOf = (
   // `wholeLabel === label` with `isLabelTruncated` false.
   wholeLabel: label,
   isLabelTruncated: false,
-  expander: { canOpen: true, canClose: true },
+  expander: { canOpen: true, canClose: true, canCloseBelow: false },
   isPinned: false,
   isSelected: false,
 })

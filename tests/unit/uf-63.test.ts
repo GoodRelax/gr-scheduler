@@ -552,6 +552,9 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: false,
       canClose: true,
+      // HF-11 folds 配下, and both children stand unfolded -- so the third
+      // control has work where the opening one has none.
+      canCloseBelow: true,
     })
   })
 
@@ -573,6 +576,9 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: false,
       canClose: true,
+      // HF-11 folds 配下, and both children stand unfolded -- so the third
+      // control has work where the opening one has none.
+      canCloseBelow: true,
     })
   })
 
@@ -589,6 +595,9 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: true,
       canClose: true,
+      // HF-2 and HF-11 are not inverses: a subtree holding a folded row AND an
+      // unfolded one arms both.
+      canCloseBelow: true,
     })
   })
 
@@ -611,6 +620,9 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: true,
       canClose: true,
+      // HF-2 and HF-11 are not inverses: a subtree holding a folded row AND an
+      // unfolded one arms both.
+      canCloseBelow: true,
     })
   })
 
@@ -627,6 +639,10 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: false,
       canClose: false,
+      // ⚠️ ARMED THOUGH THE ROW ITSELF IS FOLDED. HR-4 writes AT-56 on the rows
+      // below, which HR-1a merely stops DRAWING -- the same reading under which
+      // `canOpen` is armed by a fold no reader can see either.
+      canCloseBelow: true,
     })
   })
 
@@ -644,6 +660,9 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: false,
       canClose: false,
+      // HR-6 narrows this half where it narrows the other two: the one unfolded
+      // row below is hidden with its parent.
+      canCloseBelow: false,
     })
     expect(
       parentTitle(
@@ -654,6 +673,9 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: true,
       canClose: true,
+      // HF-2 and HF-11 are not inverses: a subtree holding a folded row AND an
+      // unfolded one arms both.
+      canCloseBelow: true,
     })
   })
 
@@ -663,7 +685,8 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
         [kid('c1', { isCollapsed: false }), kid('c2', { isHidden: true, isCollapsed: false })],
         ['p', 'c1'],
       ).expander,
-    ).toEqual({ canOpen: false, canClose: true })
+      // The unhidden sibling stands unfolded, so HF-11 still has work.
+    ).toEqual({ canOpen: false, canClose: true, canCloseBelow: true })
   })
 })
 

@@ -22,7 +22,8 @@ tbl-glossary.md/T:T-108 CM-16 + tbl-glossary.md/T:T-108 CM-17
 tbl-glossary.md/T:T-109 IC-28 + tbl-glossary.md/T:T-109 IC-29 + tbl-glossary.md/T:T-109 IC-30 + tbl-glossary.md/T:T-109 IC-31 + tbl-glossary.md/T:T-109 IC-32 + tbl-glossary.md/T:T-109 IC-33 + tbl-glossary.md/T:T-109 IC-34
 tbl-glossary.md/T:T-109 IC-55 + tbl-glossary.md/T:T-109 IC-56 + tbl-glossary.md/T:T-109 IC-57
 tbl-glossary.md/T:T-109 IC-24 + tbl-glossary.md/T:T-109 IC-25 + tbl-glossary.md/T:T-109 IC-26
-tbl-glossary.md/T:T-109 IC-39 + tbl-glossary.md/T:T-109 IC-42 + tbl-glossary.md/T:T-109 IC-43
+tbl-glossary.md/T:T-109 IC-39 + tbl-glossary.md/T:T-109 IC-42 + tbl-glossary.md/T:T-109 IC-43 + tbl-glossary.md/T:T-109 IC-79 + tbl-glossary.md/T:T-109 IC-80 + tbl-glossary.md/T:T-109 IC-81
+tbl-glossary.md/T:T-109 IC-58 + tbl-glossary.md/T:T-109 IC-59 + tbl-glossary.md/T:T-109 IC-74 + tbl-glossary.md/T:T-109 IC-77 + tbl-glossary.md/T:T-109 IC-78
 tbl-glossary.md/T:T-109 IC-37 + tbl-glossary.md/T:T-109 IC-38
 tbl-glossary.md/T:T-109 IC-48 + tbl-glossary.md/T:T-109 IC-49
 tbl-glossary.md/T:T-109 IC-12 + tbl-glossary.md/T:T-109 IC-13

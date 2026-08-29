@@ -38,6 +38,10 @@ import {
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
 import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
+// PI-7's own answer type. ⭐ The hit is READ here and never taken: this unit
+// asks which row of table T-023d the pointer stands on and nothing more, so
+// `Hit` arrives as a type and `itemAtPointer` itself stays where it is.
+import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type {
   BarGeometry,
   MarkerGeometry,
@@ -483,18 +487,15 @@ function paintOf(
  * translucent with the rest, which is a real loss against table T-020's opaque
  * backing; the MUST that says to draw it faint is the one that decides.
  *
- * ⛔ STOP -- THE HOVER HALF IS NOT DRAWN. The same MUST darkens the marker
- * while the pointer is on it, and this unit is handed no pointer:
- * `svgFromSchedule` takes (schedule, settings, layout, geometry, regions,
- * selection, picture) and none of the seven carries one. ⚠️ `picture` is not a
- * near miss -- it says which of table T-076's two pictures is being made, not
- * where a hand is. ⭐ The value EXISTS already: the Framework holds it and IF-2
- * of table T-065 carries it into this layer for InputCommandTranslator, so
- * what would have to move is PI-19's own signature and nothing else.
- * ⚠️ Being `pure` (table T-062) is no obstacle -- a pointer handed IN is an
- * argument like the other six. ⛔ Drawing it constantly faint is the safe half
- * of the MUST, not a reading of it: the mark is visible and legible, and only
- * the response to the hand is absent.
+ * ⭐ AND THE HOVER HALF IS DRAWN NOW. The same MUST darkens the marker while
+ * the pointer is on it, and the answer arrives as `svgFromSchedule`'s own
+ * `hovered` -- the hit the Framework already reads once per move (PI-7). ⛔ The
+ * STOP that stood here said this unit was handed no pointer, and that had gone
+ * stale: `pointer` was added for CU-3's guide cursor, and what was still
+ * missing was not a position but WHICH ROW of table T-023d it fell on, which no
+ * position alone can answer without the slop table T-206 keeps out of the
+ * document. ⚠️ Being `pure` (table T-062) was never the obstacle -- an answer
+ * handed IN is an argument like the others.
  *
  * @purity pure
  */
@@ -1028,6 +1029,19 @@ function rulerSvg(
  * T-060 leaves current values with the Framework). ⛔ IT IS NOT `follow.x`:
  * that one is the Dual Cursor's, is an x alone, and is snapped to a day; the
  * guide cursor needs both axes and snaps to nothing.
+ *
+ * ⭐ `hovered` IS WHICH ROW OF TABLE T-023d THE POINTER NOW STANDS ON, or null
+ * where none does. FR-013 (MUST) darkens the not-started marker and FR-043's
+ * dummies 「ポインタが乗っているあいだだけ」, and 「乗っている」 is a question
+ * about that table -- so the answer is handed IN rather than worked out here.
+ * ⛔ NOT A SECOND HIT TEST, WHICH IS THE WHOLE REASON IT IS A PARAMETER. R7.4
+ * has one reading per happening, and the Framework already asks `itemAtPointer`
+ * (PI-7) once per move for IN-2's pointer shape and for FR-048's judgement --
+ * a walk repeated here would be a second moment as well as a second walk, and
+ * this unit holds no `PointerSlop` (table T-206 keeps S-90 .. S-93 out of the
+ * document, so they reach the hit test as an argument and never as a constant).
+ * ⚠️ IT IS THE HIT AND NOT A BOOLEAN: the marker and the dummies of ONE Task
+ * darken, so both the row and the thing it claimed have to arrive.
  */
 export function svgFromSchedule(
   schedule: Schedule,
@@ -1040,6 +1054,7 @@ export function svgFromSchedule(
   follow: DualCursorFollow | null = null,
   weekdayWords: readonly string[] = [],
   pointer: Point | null = null,
+  hovered: Hit | null = null,
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
@@ -1084,6 +1099,33 @@ export function svgFromSchedule(
   const drawsOperationState = picture === 'screen'
   const marks: readonly ItemRef[] = drawsOperationState ? selection.items : []
   const following = drawsOperationState ? follow : null
+  /**
+   * FR-013's other half: 「未着手のマーカーと、実績入力のダミー（`FR-043`）は
+   * 薄く描き、ポインタが乗っているあいだだけ濃くすること（MUST）」 -- the Task
+   * whose faint marks the hand is on, and which of the two kinds it is on.
+   *
+   * ⭐ SPENT THROUGH `drawsOperationState` LIKE THE OTHER THREE. Where the hand
+   * is IS operation state, and EP-12 of table T-076 keeps that out of an export
+   * (「操作の状態 … 描かない」) -- PM-1a is exported (EP-5), so a hovered marker
+   * darkened in a saved picture would carry the reader's pointer into the file.
+   * ⛔ Not left to the caller: the note on `marks` gives the reason in full.
+   */
+  const hover = drawsOperationState ? hovered : null
+  /**
+   * Whether the hand stands on one of `rows` of THIS Task -- FR-013's
+   * 「ポインタが乗っているあいだ」, asked of the answer handed in.
+   *
+   * ⭐ THE THING AS WELL AS THE ROW, which is what keeps one Task's marker from
+   * darkening because the pointer found another's: `Hit` carries both and both
+   * are read.
+   *
+   * @purity pure
+   */
+  const handOn = (taskUid: number, rows: readonly Hit['grab'][]): boolean =>
+    hover !== null &&
+    hover.item.kind === 'task' &&
+    hover.item.taskUid === taskUid &&
+    rows.includes(hover.grab)
   const selected = new Set(marks.filter((one) => one.kind === 'task').map((one) => one.uid))
   const selectedBoxes = new Set(
     marks.filter((one) => one.kind === 'highlightBox').map((one) => one.id),
@@ -1160,12 +1202,14 @@ export function svgFromSchedule(
   // ⛔ A Task has dummies exactly when it has NO actual bar, so the one array
   // never has to hold both. @provisional PD-209
   //
-  // ⛔ STOP -- THE HOVER HALF OF FR-013 IS STILL NOT DRAWN, and neither is the
-  // actual the author is about to place. FR-013's MUST darkens these marks
-  // while the pointer is on them, and FR-043 draws the actual about to be
-  // placed while one of the three handles is held; both need a pointer or a
-  // press handed to this unit, which is the same missing argument `markerSvg`'s
-  // note records. ⛔ Drawing the marks does not close either of those.
+  // ⭐ THE HOVER HALF OF FR-013 IS DRAWN, off `hovered` -- see `handOn` above
+  // and the two places it is asked.
+  //
+  // ⛔ STOP -- WHAT IS STILL NOT DRAWN is the actual the author is about to
+  // place: FR-043's own 「掴んでいるあいだ、置くことになる実績を描いて示すこと」
+  // (the paragraph above table T-023d's GR-9 / GR-17 / GR-18) needs the PRESS
+  // in flight, and a hit under the pointer is not one. ⚠️ A hovered mark and a
+  // held one are different questions, and only the first is answered here.
 
   // FR-042 (MUST): one band per drawn row, and a group grid line on its
   // boundary. ⛔ Clipped to the Row Area rather than drawn wherever the row
@@ -1308,7 +1352,21 @@ export function svgFromSchedule(
           ),
         )
         .join('')
-      actualParts.push(`<g opacity="${rounded(settings.dummyOpacity)}">${marks}</g>`)
+      // FR-013 (MUST): 「実績入力のダミー（`FR-043`）は薄く描き、ポインタが
+      // 乗っているあいだだけ濃くすること」. ⭐ WHAT 「濃く」 IS: the mark drawn
+      // with no faintness on it at all. ⛔ No settings row carries a second
+      // degree -- S-131's own note calls it 「実績のダミーと未着手マーカーの
+      // 濃さ」 and the requirement names it as THE value -- so darkening is the
+      // taking away of that one attribute rather than a number invented here.
+      // ⚠️ HF-6's precedent reads the same way: the row control is hidden and
+      // then simply drawn, never drawn twice at two strengths.
+      // ⭐ THE TASK'S THREE ROWS MOVE TOGETHER, AND THE GROUP IS WHY. GR-9 and
+      // GR-17 are painted in ONE group for the compositing reason above, so a
+      // per-mark strength would put back exactly the third value that group
+      // exists to prevent; and the hand is on one of a Task's dummies or on
+      // none. @provisional PD-351
+      const faintness = handOn(task.taskUid, DUMMY_GRAB_ROWS) ? 1 : settings.dummyOpacity
+      actualParts.push(`<g opacity="${rounded(faintness)}">${marks}</g>`)
     }
     if (selected.has(task.taskUid)) {
       // SL-8 (MUST): the frame goes on the Task's bounding rectangle, so all
@@ -1348,8 +1406,18 @@ export function svgFromSchedule(
       // S-131 is the degree FR-013's MUST names, and `markerSvg` is where the
       // one symbol it reaches is decided -- PM-4 wins over PM-1a and is
       // exempted there rather than by a second test on this side.
+      // ⭐ AND THE SAME MUST's OTHER HALF: the not-started marker is darkened
+      // while the hand is on it. GR-7 of table T-023d is the row that claims
+      // the progress marker, so that is the row asked about; `markerSvg` still
+      // decides WHICH symbol the faintness reaches, and a marker that is not
+      // PM-1a was never faint for this to undo. @provisional PD-351
       markerParts.push(
-        markerSvg(task.marker, themed('S-161'), themed('S-162'), settings.dummyOpacity),
+        markerSvg(
+          task.marker,
+          themed('S-161'),
+          themed('S-162'),
+          handOn(task.taskUid, MARKER_GRAB_ROWS) ? 1 : settings.dummyOpacity,
+        ),
       )
     }
     const placed = placedOf.get(task.taskUid)
@@ -1664,6 +1732,25 @@ export function svgFromSchedule(
     '</svg>'
   )
 }
+
+/**
+ * The rows of table T-023d that claim FR-043's dummies -- the two ends of the
+ * actual bar a Task not started has yet to have, and the milestone's one point.
+ *
+ * ⛔ THE TABLE'S OWN THREE AND NOT A FOURTH: GR-9 (the start), GR-17 (the
+ * finish) and GR-18 (the milestone) are the rows FR-043 puts the grab handles
+ * at, and they are the same three the S-180 figure is drawn for.
+ * ⚠️ SPELLED AS `Hit['grab']` RATHER THAN AS ItemHitArea's OWN `GrabArea`:
+ * table T-064 names `Hit` and not that alias, and a second crossing name would
+ * be a seam the table does not hold.
+ */
+const DUMMY_GRAB_ROWS: readonly Hit['grab'][] = ['GR-9', 'GR-17', 'GR-18']
+
+/**
+ * The row of table T-023d that claims the progress marker -- GR-7, which is
+ * where FR-013's own not-started marker stands.
+ */
+const MARKER_GRAB_ROWS: readonly Hit['grab'][] = ['GR-7']
 
 // <generated -- do not edit by hand>
 // Single source of truth:

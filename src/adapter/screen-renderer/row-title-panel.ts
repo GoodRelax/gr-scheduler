@@ -108,6 +108,19 @@ interface PanelIndex {
    */
   readonly groupIdsWithCollapsedBelow: ReadonlySet<string>
   /**
+   * The rows with at least one row below them that is NOT folded and that HR-6
+   * is not hiding -- the exact set on which HF-11's control still changes
+   * something, since HR-4 of table T-015 reaches everything below a row and not
+   * the row.
+   *
+   * ⛔ NOT THE COMPLEMENT OF `groupIdsWithCollapsedBelow`. A subtree can hold a
+   * folded row and an unfolded one at once, and then both sets carry the
+   * ancestor -- which is right: HF-2 has something left to open and HF-11
+   * something left to fold.
+   * ⚠️ Marked in the same one pass and for the same reason (NFR-013).
+   */
+  readonly groupIdsWithUnfoldedBelow: ReadonlySet<string>
+  /**
    * ⚠️ A map rather than a search of `Schedule.tasks` per row: this runs every
    * frame, and rule 05 of docs/development-rules/04-verification.md refuses a
    * linear scan on that path. A row whose name is its own never reads it.
@@ -382,6 +395,10 @@ function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander | null {
   return {
     canOpen: index.groupIdsWithCollapsedBelow.has(group.id),
     canClose: group.isCollapsed !== true && index.groupIdsWithUnhiddenChildren.has(group.id),
+    // HF-11 folds everything BELOW the row and not the row, so this half is
+    // spent exactly where no row under this one is left unfolded -- the mirror
+    // of `canOpen`, and narrowed by HR-6 in the same place `canOpen` is.
+    canCloseBelow: index.groupIdsWithUnfoldedBelow.has(group.id),
   }
 }
 
@@ -522,7 +539,21 @@ function panelIndexOf(
   // `schedule.ts` REPORTS such a ring (IV-18) rather than refusing the document,
   // so this unit is handed one. The write side's own climb guards the same way.
   const groupIdsWithCollapsedBelow = new Set<string>()
+  const groupIdsWithUnfoldedBelow = new Set<string>()
   for (const group of schedule.taskGroups) {
+    // HF-11's reach, marked upward from the rows that are NOT folded -- the
+    // mirror of the walk below, sharing its one pass and its ring guard.
+    if (group.isCollapsed !== true && !hiddenGroupIds.has(group.id)) {
+      let unfoldedAncestorId = group.parentId
+      while (
+        unfoldedAncestorId !== null &&
+        !groupIdsWithUnfoldedBelow.has(unfoldedAncestorId)
+      ) {
+        groupIdsWithUnfoldedBelow.add(unfoldedAncestorId)
+        const ancestor = groupsById.get(unfoldedAncestorId)
+        unfoldedAncestorId = ancestor === undefined ? null : ancestor.parentId
+      }
+    }
     if (group.isCollapsed !== true) continue
     // A fold under a hidden row is a fold nobody can see undone -- see
     // `expanderOf`. ⚠️ The climb above such a row is not lost with it: a row
@@ -559,6 +590,7 @@ function panelIndexOf(
     groupIdsWithUnhiddenChildren,
     boxByGroupId,
     groupIdsWithCollapsedBelow,
+    groupIdsWithUnfoldedBelow,
     taskNameByUid,
   }
 }

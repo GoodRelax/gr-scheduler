@@ -2007,11 +2007,30 @@ const PRESS_CHANGES_DOCUMENT: Readonly<Record<PressRow, boolean>> = {
  * precisely the row that would otherwise be spared -- so reading the row first
  * would take AG-9 off every palette press there is.
  *
+ * ⭐ THE FOUR ZOOM ENTRANCES ARE SPARED, AND AG-9's OWN SENTENCE IS WHY:
+ * 「パンと範囲選択は文書を変えないので拒否しない —— 対象は表 T-027 の取り消し
+ * 対象行と一致させる」. The only thing `commandFromEntry` writes for IC-12 ..
+ * IC-15 is the zoom, and UN-8 of table T-027 puts 「ズーム・スクロール・パン」
+ * outside the history -- so a press held on one of them changes no row AG-9
+ * names, exactly as the pan (PD-1) and the marquee (PD-5) change none.
+ * ⛔ WITHOUT THIS, FR-018's REPEAT CANNOT LAND. That MUST has a held entrance
+ * go on stepping while the button is DOWN, and the press is only dropped on
+ * the release -- so every tick `repeatHeldEntry` raised was refused at WS-2 of
+ * table T-067 and the hold moved nothing until the button came up. ⚠️ The
+ * release itself was never refused, which is why the defect read as 「押し
+ * 続けても 1 度しか刻まない」 rather than as a zoom that does nothing at all.
+ * ⚠️ THE ROSTER IS FR-018's AND NOT A SECOND ONE: `REPEATING_ENTRIES` is the
+ * four the requirement limits the repeat to, and it is the same four whose
+ * writes UN-8 exempts.
+ *
  * @purity pure
  */
 function isDocumentChangingPress(press: PointerPress | null): boolean {
   if (press === null) return false
-  if (press.on !== null) return true
+  if (press.on !== null) {
+    const entry = press.on.entry
+    return entry === null || !REPEATING_ENTRIES.includes(entry)
+  }
   return PRESS_CHANGES_DOCUMENT[press.pressRow]
 }
 
@@ -3264,6 +3283,17 @@ export function frameLoop(
         // S-66 itself, and a second reading of the same setting here is the
         // drift that would let the two disagree.
         pointerAt,
+        // FR-013 (MUST): 「未着手のマーカーと、実績入力のダミー（`FR-043`）は
+        // 薄く描き、ポインタが乗っているあいだだけ濃くすること」.
+        // ⭐ THE ANSWER THIS LOOP ALREADY HAS, handed on rather than asked for
+        // again (R7.4). `grabAtPointer` walks table T-023d once per happening
+        // for IN-2's pointer shape and for FR-048's judgement, and this is that
+        // same reading -- the renderer holds no `PointerSlop` and must not, so
+        // 「乗っている」 could not be settled on its side in any case.
+        // ⛔ NOT `pressed`: FR-048's own exemption names the hover, and CS-2 of
+        // table T-066 freezes a press at the point it began -- a mark darkened
+        // off a press would stay dark wherever the hand went next.
+        grabUnderPointer,
       )
     surface.showSvg(drawnSvg)
     recordFrame(drawnSvg, layout)

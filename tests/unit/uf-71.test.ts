@@ -1216,7 +1216,7 @@ const RICH_VIEW: ScreenView = viewWith({
         label: 'RowOne',
         depth: 1,
         box: rect(0, 40, 170, 24),
-        expander: { canOpen: true, canClose: false },
+        expander: { canOpen: true, canClose: false, canCloseBelow: false },
       }),
     ],
   },
@@ -1454,6 +1454,27 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     const noticing = [oneByRole(root, 'Dialogue Field'), oneByRole(root, 'Properties Panel')]
 
     expect(built.world.registrations.length).toBeGreaterThan(0)
+
+    // ⭐ THE ONE LISTENER THE SPECIFICATION PUTS OUTSIDE THOSE TWO PARTS, and it
+    // is named here rather than the rule being widened. `IN-6` of 表 T-028
+    // (MUST, 利用者の裁定 2026-08-30) settles the edit standing in a field when
+    // a press lands OUTSIDE that field -- and 「欄の外」 is the schedule, the
+    // canvas, the header: every place but the two parts above. ⛔ It cannot be
+    // heard from inside them, and no other member of IF-9 is asked in time --
+    // which is the same 「nowhere else can spend it」 the `Esc` and `Enter`
+    // listeners of that unit already record.
+    // ⛔ IT IS STILL NOT A SECOND SOURCE OF INPUT: FT-1's supply is untouched,
+    // nothing is reported to the shell from it and no frame is raised -- the
+    // value it settles leaves by `readFieldCommit`, which the shell was already
+    // going to read. ⚠️ 表 T-078 forbids RAISING A FRAME on a trigger it does
+    // not list, and this raises none.
+    // ⛔ IT IS NOT ON A NODE AT ALL, which is why it does not appear in
+    // `registrations`: the press IN-6 is about lands on the schedule, and the
+    // schedule goes up through IF-1 as its own surface BESIDE this unit's tree
+    // -- measured in the shipped build, where `body` holds the `Schedule Canvas`
+    // and the mount as two children and a press on a bar never passes this
+    // unit's root. So the listener is on the HOST, and the case below is what
+    // holds it to exactly one.
     for (const one of built.world.registrations) {
       // ⛔ FT-1 of 表 T-078 has the human input reach the shell through IF-2 and
       // says the supply is not widened, so a listener OUTSIDE these two parts
@@ -1465,21 +1486,34 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     }
   })
 
-  it('registers nothing for a size change and nothing on the host', () => {
+  it('registers nothing for a size change, and asks the host for one listener and no more', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
     expect(built.world.registrations.map((one) => one.type)).not.toContain('resize')
-    // ⛔ FT-3 is the shell's to observe (表 T-060 LY-5), not this unit's -- so
-    // the host is asked to MAKE elements and for nothing else. ⚠️ The set grew a
-    // second member when the shapes arrived: FR-029 (MUST) makes 図 F-019 the
-    // authority for every icon, that figure is SVG, and an SVG element made with
-    // `createElement` is an unknown HTML element that draws nothing. Both members
-    // are ways of making a node and neither observes anything, so what the case
-    // is about -- nothing here watches the window -- is unchanged.
+    // ⛔ FT-3 is the shell's to observe (表 T-060 LY-5), not this unit's. ⚠️ The
+    // set grew a second member when the shapes arrived: FR-029 (MUST) makes 図
+    // F-019 the authority for every icon, that figure is SVG, and an SVG element
+    // made with `createElement` is an unknown HTML element that draws nothing.
+    // ⛔⛔ AND A THIRD ON 2026-08-30 (CR-295), WHICH IS THE ONE THAT OBSERVES.
+    // IN-6 of 表 T-028 (MUST) has a press OUTSIDE a field settle the edit
+    // standing in it; 「欄の外」 includes the schedule, which IF-1 puts up as its
+    // own surface beside this unit's tree, so no node this unit owns is on the
+    // way from that press. ⚠️ WHAT THE CASE IS STILL ABOUT IS UNCHANGED: FT-3's
+    // size change is not watched, and the one listener that IS taken reports
+    // nothing to the shell and raises no frame -- what it settles leaves by
+    // `readFieldCommit`, which the shell was already going to read.
+    // ⛔ ONE AND NO MORE, which is what the count below is for. ⚠️ This fake
+    // host offers no `addEventListener` AT ALL, so what the count sees is the
+    // guard reading the member once and registering nothing -- which is the
+    // other half of the claim, and the one this harness can make: 表 T-075
+    // leaves the unit runnable against a host that is not a browser, and a unit
+    // that called an absent member would throw here instead of counting.
+    // ⛔ A SECOND LISTENER WOULD SHOW UP AS A SECOND TOUCH.
     expect(new Set(built.world.hostMembers)).toEqual(
-      new Set(['createElement', 'createElementNS']),
+      new Set(['createElement', 'createElementNS', 'addEventListener']),
     )
+    expect(built.world.hostMembers.filter((one) => one === 'addEventListener')).toHaveLength(1)
   })
 
   it('sets no timer -- FT-4 puts the clock in the shell', () => {
@@ -2509,21 +2543,27 @@ describe('LY-5 of 表 T-060 / R7.3 -- the outside arrives as an argument', () =>
     expect(() => surfaceOf(built).showScreenView(RICH_VIEW)).not.toThrow()
   })
 
-  it('calls nothing on the host it was handed but the two members that make an element', () => {
+  it('calls nothing on the host it was handed but the two makers and IN-6 listener', () => {
     // R7.3 / LY-5: the browser arrives as an argument. ⛔ The claim is that the
-    // unit asks the handed-in host to MAKE nodes and asks it nothing else -- no
-    // `querySelector`, no `defaultView`, no `body`, no listener on the host --
-    // and the fake's Proxy records every member reached for, so a unit that
-    // reached past these two is visible rather than silent.
+    // unit asks the handed-in host for a CLOSED set of members -- no
+    // `querySelector`, no `defaultView`, no `body` -- and the fake's Proxy
+    // records every member reached for, so a unit that reached past them is
+    // visible rather than silent. ⭐ THE CLOSEDNESS IS THE CLAIM, not the size.
     // ⚠️ `createElementNS` joined `createElement` when the icons started being
     // drawn as 図 F-019 gives them (FR-029, MUST): the figure is SVG, and an SVG
     // element made with `createElement` is an unknown HTML element that draws
-    // nothing at all. The set is still closed, which is the whole of the claim.
+    // nothing at all.
+    // ⚠️ `addEventListener` joined them on 2026-08-30 for IN-6 of 表 T-028
+    // (MUST, 利用者の裁定): a press outside a field settles the edit in it, and
+    // the press that ruling names lands on the schedule -- which IF-1 puts up
+    // beside this unit's tree, so the document is the nearest node on its way.
+    // See the case above for why FT-1 and 表 T-078 are untouched by it.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
     surfaceOf(built).readDialogueInput()
 
     expect([...new Set(built.world.hostMembers)].sort()).toEqual([
+      'addEventListener',
       'createElement',
       'createElementNS',
     ])
@@ -2634,7 +2674,7 @@ const EVERY_SURFACE_VIEW: ScreenView = viewWith({
       rowTitle({
         groupId: 'g-1',
         label: 'RowOne',
-        expander: { canOpen: true, canClose: true },
+        expander: { canOpen: true, canClose: true, canCloseBelow: false },
       }),
     ],
   },
@@ -2953,14 +2993,14 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
               label: 'ShallowRow',
               depth: 1,
               box: rect(0, 40, 170, 40),
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
             rowTitle({
               groupId: 'g-deep',
               label: 'DeepRow',
               depth: 5,
               box: rect(0, 80, 170, 18),
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
         },
@@ -3016,7 +3056,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
               // Six times S-138 tall, so a centred trio would sit a long way
               // from the top and a set-down one a long way from where it does.
               box: rect(0, 0, 170, S_138.px * 6),
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
         },

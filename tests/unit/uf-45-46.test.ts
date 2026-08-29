@@ -637,7 +637,7 @@ const EXPORT_VIEW: ScreenView = {
         // `wholeLabel === label` with `isLabelTruncated` false.
         wholeLabel: 'a row that reaches the picture',
         isLabelTruncated: false,
-        expander: { canOpen: true, canClose: true },
+        expander: { canOpen: true, canClose: true, canCloseBelow: false },
         isPinned: false,
         isSelected: false,
       },

@@ -187,6 +187,9 @@ const T_109_ELSEWHERE = [
   { row: 'IC-13', surface: 'App Header' },
   { row: 'IC-58', surface: 'Row Title Panel' },
   { row: 'IC-59', surface: 'Row Title Panel' },
+  // ⭐ IC-77 -- HF-11's control, the third of U-47 since 2026-08-30 (CR-294).
+  // Printed after IC-59 in table T-109 and drawn in that order.
+  { row: 'IC-77', surface: 'Row Title Panel' },
   { row: 'IC-60', surface: 'Row Title Panel' },
 ] as const
 
@@ -284,6 +287,9 @@ const T_109_ROW_EXPANDER = [
     gist: 'その行自身を畳む',
     side: 'closing',
   },
+  // ⭐ The third since the ruling of 2026-08-30 (CR-294): HF-11 of table T-051
+  // gave HR-4 of table T-015 its first entrance.
+  { row: 'IC-77', rule: 'HF-11', gist: '行の配下をすべて畳む', side: 'closingBelow' },
 ] as const
 
 /**
@@ -296,13 +302,15 @@ const T_109_ROW_EXPANDER = [
  * hang two different effects on.
  */
 const T_051_EXPANDER = [
-  { row: 'HF-1', gist: '開く操作子と閉じる操作子を 1 つずつ' },
+  // ⚠️ THREE PER ROW SINCE 2026-08-30 (CR-294): HF-11 gave HR-4 of table T-015
+  // its first entrance, and HF-1 counts it with the other two.
+  { row: 'HF-1', gist: '配下をすべて閉じる操作子を 1 つずつ' },
   { row: 'HF-2', gist: '開く操作子は、その行の配下をすべて開くこと（MUST）' },
   { row: 'HF-3', gist: '閉じる操作子は、その行自身を畳むこと（MUST）' },
 ] as const
 
-/** 表 T-103's U-47 — one part, two controls. */
-const T_103_U47_TWO_CONTROLS = '開く側と閉じる側の 2 つで 1 組'
+/** 表 T-103's U-47 — one part, three controls (CR-294). */
+const T_103_U47_TWO_CONTROLS = '3 つで 1 組'
 
 /** 表 T-023a's own note, which the 面 table under it belongs to. */
 const T_023A_ONLY_THE_DRAWING_AREA =
@@ -1124,15 +1132,20 @@ const LAYOUT = new Map<string, ScreenRect>([
   // T-109; the two that DO carry one are placed by icon just below, because
   // `layoutKey` reads `data-icon` first (see the note on `laidOut`).
   ['role:Row Expander', rect(10, 60, 16, 16)],
-  // ⭐ The pair of U-47, laid side by side ON PURPOSE: IC-58 holds x 100..116 and
-  // IC-59 x 116..132, so the two share an edge and R3.4 has one to resolve. The
-  // gap to the `Row Pin` at x 140 leaves a strip of bare panel between them, so
-  // 「面の上・入口の外」 can be told from 「入口の上」 without leaving the row.
+  // ⭐ The three of U-47, laid side by side ON PURPOSE: IC-58 holds x 84..100,
+  // IC-59 x 100..116 and IC-77 x 116..132, so each shares an edge with the next
+  // and R3.4 has one to resolve. The gap to the `Row Pin` at x 140 leaves a
+  // strip of bare panel between them, so 「面の上・入口の外」 can be told from
+  // 「入口の上」 without leaving the row.
+  // ⚠️ THE ROW GREW A THIRD CONTROL ON 2026-08-30 (CR-294, HF-11 / IC-77), and
+  // the three were shifted one box left rather than squeezed into the strip --
+  // the strip is what one case reads, and taking it away would delete a case.
   // ⛔ These boxes are this file's own; nothing in docs/spec fixes an entry's
   // geometry -- that is the very reason IF-9 needs `readScreenPartAt` -- so only
   // their EDGES are asserted, and only against R3.4.
-  ['icon:IC-58', rect(100, 60, 16, 16)],
-  ['icon:IC-59', rect(116, 60, 16, 16)],
+  ['icon:IC-58', rect(84, 60, 16, 16)],
+  ['icon:IC-59', rect(100, 60, 16, 16)],
+  ['icon:IC-77', rect(116, 60, 16, 16)],
   ['icon:IC-60', rect(140, 60, 16, 16)],
   ['role:Command Palette', PALETTE_BOX],
   // GR-19 of 表 T-023d, marked with the row 表 T-109 gives it (IC-53) the way an
@@ -1173,9 +1186,13 @@ const AT = {
   notices: { x: 900, y: 100 },
   dialogue: { x: 300, y: 730 },
   rowPin: { x: 144, y: 64 },
-  rowExpanderOpen: { x: 108, y: 64 },
-  rowExpanderClose: { x: 124, y: 64 },
-  /** The strip of bare `Row Title Panel` between IC-59's right edge and the pin. */
+  // ⚠️ EACH ONE STEP FURTHER LEFT THAN BEFORE 2026-08-30: HF-1 counts a third
+  // control per row now (IC-77, HF-11), and the four are placed from the right
+  // edge outward -- the pin, then IC-77, then IC-59, then IC-58.
+  rowExpanderOpen: { x: 92, y: 64 },
+  rowExpanderClose: { x: 108, y: 64 },
+  rowExpanderCloseBelow: { x: 124, y: 64 },
+  /** The strip of bare `Row Title Panel` between IC-77's right edge and the pin. */
   rowExpanderGap: { x: 136, y: 64 },
   rowTreeNoEntry: { x: 80, y: 400 },
   bareSchedule: { x: 500, y: 600 },
@@ -1306,7 +1323,7 @@ const BASE_VIEW: ScreenView = {
         groupId: 'g-1',
         label: 'RowOne',
         isPinned: true,
-        expander: { canOpen: true, canClose: false },
+        expander: { canOpen: true, canClose: false, canCloseBelow: false },
       }),
     ],
   },
@@ -1428,10 +1445,10 @@ describe('the specification still says what these cases copy', () => {
     }
     // ⛔ The two are DIFFERENT rows of the roster. If they were ever merged the
     // cases below would be asking for an entry the specification does not name.
-    expect(new Set(T_109_ROW_EXPANDER.map((one) => one.row)).size).toBe(2)
+    expect(new Set(T_109_ROW_EXPANDER.map((one) => one.row)).size).toBe(3)
   })
 
-  it('表 T-051 still asks for one opening and one closing control per row (HF-1 .. HF-3)', () => {
+  it('表 T-051 still asks for the three controls per row (HF-1 .. HF-3)', () => {
     const rows = specTable('T-051').rows
     for (const one of T_051_EXPANDER) {
       const row = rows.find((held) => held.id === one.row)
@@ -1440,7 +1457,7 @@ describe('the specification still says what these cases copy', () => {
     }
   })
 
-  it('表 T-103 U-47 still calls the Row Expander one part made of two controls', () => {
+  it('表 T-103 U-47 still calls the Row Expander one part made of three controls', () => {
     const row = specTable('T-103').rows.find((one) => one.id === 'U-47')
     expect(row?.cells.join(' ')).toContain(T_103_U47_TWO_CONTROLS)
   })
@@ -2097,16 +2114,17 @@ const withExpander = (expander: RowExpander | null): ScreenView =>
 
 /** Every state `RowExpander` can be in -- both spent is the boundary FR-029 speaks to. */
 const EXPANDER_STATES = [
-  { canOpen: true, canClose: true },
-  { canOpen: true, canClose: false },
-  { canOpen: false, canClose: true },
-  { canOpen: false, canClose: false },
+  { canOpen: true, canClose: true, canCloseBelow: false },
+  { canOpen: true, canClose: false, canCloseBelow: false },
+  { canOpen: false, canClose: true, canCloseBelow: false },
+  { canOpen: false, canClose: false, canCloseBelow: false },
 ] as const
 
 /** Where each side of the pair was laid out. ⚠️ This file's placing, not the specification's. */
 const EXPANDER_AT: Readonly<Record<string, { readonly x: number; readonly y: number }>> = {
   'IC-58': AT.rowExpanderOpen,
   'IC-59': AT.rowExpanderClose,
+  'IC-77': AT.rowExpanderCloseBelow,
 }
 
 const expanderControls = (built: Stage): FakeElement[] => byRole(built.root(), 'Row Expander')
@@ -2119,7 +2137,7 @@ const EXPANDER_ROWS = T_109_ROW_EXPANDER.map((one) => one.row as string).sort()
 
 describe('表 T-051 HF-1 -- one opening control and one closing control per row', () => {
   it('GIVEN a row whose description carries an expander WHEN the panel is drawn THEN the row holds one IC-58 and one IC-59 (HF-1, U-47)', () => {
-    const built = drawn(withExpander({ canOpen: true, canClose: false }))
+    const built = drawn(withExpander({ canOpen: true, canClose: false, canCloseBelow: false }))
 
     // ⭐ 表 T-103 U-47: 「開く側と閉じる側の 2 つで 1 組」 -- one part, two
     // controls, so the count is two and the rows are the roster's two.
@@ -2134,13 +2152,13 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
             rowTitle({
               groupId: 'g-pinned',
               isPinned: true,
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
           titles: [
             rowTitle({
               groupId: 'g-1',
-              expander: { canOpen: false, canClose: true },
+              expander: { canOpen: false, canClose: true, canCloseBelow: false },
             }),
           ],
         },
@@ -2148,7 +2166,9 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
     )
 
     const icons = expanderIcons(built)
-    expect(icons).toHaveLength(4)
+    // ⭐ THREE PER ROW SINCE CR-294 (HF-1 counts IC-58, IC-59 and IC-77), on
+    // each of the two rows.
+    expect(icons).toHaveLength(6)
     // ⛔ U-46 lifts a pinned row out of the scrolling list, but it is still a row
     // OF the panel, and HF-1 says 各行 without an exception for it.
     for (const one of T_109_ROW_EXPANDER) {
@@ -2191,7 +2211,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
   it.each(T_109_ROW_EXPANDER)(
     'GIVEN the pair is drawn WHEN a point over the $side control is asked about THEN IF-9 answers Row Title Panel / $row (表 T-051 の $rule)',
     ({ row }) => {
-      const built = drawn(withExpander({ canOpen: true, canClose: true }))
+      const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
       const at = EXPANDER_AT[row]
 
       expect(at, `no point was laid out for ${row}`).toBeDefined()
@@ -2211,7 +2231,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
   )
 
   it('GIVEN both controls WHEN each is pressed THEN two DIFFERENT entries come back (U-47: two controls, not one in two states)', () => {
-    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+    const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
 
     const opening = ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)
     const closing = ask(built, AT.rowExpanderClose.x, AT.rowExpanderClose.y)
@@ -2224,7 +2244,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
   })
 
   it('GIVEN the pair is drawn WHEN the entries answered are compared with the tree THEN the unit answers only what it itself drew (IF-9 MUST, 05-07-design.md:390)', () => {
-    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+    const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
 
     for (const one of T_109_ROW_EXPANDER) {
       const node = entryFor(built.root(), one.row)
@@ -2235,7 +2255,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
   })
 
   it('GIVEN both sides are spent WHEN either is pressed THEN it still answers its entry (FR-029: it does not go quiet)', () => {
-    const built = drawn(withExpander({ canOpen: false, canClose: false }))
+    const built = drawn(withExpander({ canOpen: false, canClose: false, canCloseBelow: false }))
 
     for (const one of T_109_ROW_EXPANDER) {
       const at = EXPANDER_AT[one.row]
@@ -2254,7 +2274,7 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
   })
 
   it('GIVEN both sides are spent WHEN the controls are read THEN neither is disabled nor hidden (FR-029: drawn faint, not removed)', () => {
-    const built = drawn(withExpander({ canOpen: false, canClose: false }))
+    const built = drawn(withExpander({ canOpen: false, canClose: false, canCloseBelow: false }))
 
     for (const one of T_109_ROW_EXPANDER) {
       const node = entryFor(built.root(), one.row)
@@ -2270,8 +2290,8 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
     // the specification's -- docs/spec fixes no attribute. What IS spec-driven
     // is that `RowExpander.canOpen` (HF-2) and `.canClose` (HF-3) must ARRIVE
     // separately, or the faint drawing FR-029 asks for has nothing to key on.
-    const open = drawn(withExpander({ canOpen: true, canClose: false }))
-    const close = drawn(withExpander({ canOpen: false, canClose: true }))
+    const open = drawn(withExpander({ canOpen: true, canClose: false, canCloseBelow: false }))
+    const close = drawn(withExpander({ canOpen: false, canClose: true, canCloseBelow: false }))
 
     expect(entryFor(open.root(), 'IC-58').getAttribute('data-can-open')).toBe('true')
     expect(entryFor(open.root(), 'IC-59').getAttribute('data-can-close')).toBe('false')
@@ -2281,21 +2301,25 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
 })
 
 describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', () => {
-  it('GIVEN IC-58 holds x 100..116 and IC-59 x 116..132 WHEN the shared edge is pressed THEN it belongs to IC-59 (R3.4, half-open)', () => {
-    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+  it('GIVEN IC-58 holds x 84..100 and IC-59 x 100..116 WHEN the shared edge is pressed THEN it belongs to IC-59 (R3.4, half-open)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
 
-    expect(ask(built, 115, 64)?.entry).toBe('IC-58')
-    expect(ask(built, 116, 64)?.entry).toBe('IC-59')
+    expect(ask(built, 99, 64)?.entry).toBe('IC-58')
+    expect(ask(built, 100, 64)?.entry).toBe('IC-59')
+    // ⭐ The second shared edge, which the third control of CR-294 added: the
+    // same rule has to resolve it, and there is now more than one to resolve.
+    expect(ask(built, 115, 64)?.entry).toBe('IC-59')
+    expect(ask(built, 116, 64)?.entry).toBe('IC-77')
   })
 
-  it('GIVEN IC-58 begins at x 100, y 60 WHEN its left and top edge are pressed THEN it holds them (R3.4, half-open)', () => {
-    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+  it('GIVEN IC-58 begins at x 84, y 60 WHEN its left and top edge are pressed THEN it holds them (R3.4, half-open)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
 
-    expect(ask(built, 100, 60)?.entry).toBe('IC-58')
+    expect(ask(built, 84, 60)?.entry).toBe('IC-58')
   })
 
-  it('GIVEN IC-59 ends at x 132 WHEN the strip beyond it is pressed THEN the panel answers with entry null (EZ-2: the icon the pointer rests ON)', () => {
-    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+  it('GIVEN IC-77 ends at x 132 WHEN the strip beyond it is pressed THEN the panel answers with entry null (EZ-2: the icon the pointer rests ON)', () => {
+    const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
 
     // ⭐ 表 T-023a: the panel holds no `ScreenRegions` rectangle, so the answer
     // is the part and never nothing -- but 「入口の上」 has to stay tellable
@@ -2344,7 +2368,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
   })
 
   it('GIVEN the expander was drawn and the next frame drops it WHEN the same point is pressed THEN the entry stops answering (the answer comes from what is drawn NOW)', () => {
-    const built = drawn(withExpander({ canOpen: true, canClose: true }))
+    const built = drawn(withExpander({ canOpen: true, canClose: true, canCloseBelow: false }))
     expect(ask(built, AT.rowExpanderOpen.x, AT.rowExpanderOpen.y)?.entry).toBe('IC-58')
 
     surfaceOf(built).showScreenView(withExpander(null))
@@ -2406,7 +2430,7 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
 //   FR-029          RATIONALE 「無反応だと故障に見える」
 // ===========================================================================
 
-/** The three rows of 表 T-109 the `Row Title Panel` holds, with the part IF-9 must name. */
+/** The four rows of 表 T-109 the `Row Title Panel` holds, with the part IF-9 must name. */
 const T_109_ON_THE_ROW = T_109_ELSEWHERE.filter((one) => one.surface === 'Row Title Panel')
 
 /** 表 T-051 HF-5, copied from docs/spec/01-04-requirements.md:1311. */
@@ -2523,7 +2547,7 @@ function rowControlsOf(built: Stage): Map<string, FakeElement[]> {
 }
 
 /** One row, drawn plainly, with both sides of the expander live. */
-const oneLiveRow = (): ScreenView => withExpander({ canOpen: true, canClose: true })
+const oneLiveRow = (): ScreenView => withExpander({ canOpen: true, canClose: true, canCloseBelow: false })
 
 describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 finding)', () => {
   it.each(T_109_ON_THE_ROW)(
@@ -2580,7 +2604,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
   })
 
   it('GIVEN both sides of the expander are spent WHEN the controls are read THEN each still has a width and a height (FR-029: 薄く描く, not shrunk to nothing) -- IC-58 / IC-59', () => {
-    const built = drawn(withExpander({ canOpen: false, canClose: false }))
+    const built = drawn(withExpander({ canOpen: false, canClose: false, canCloseBelow: false }))
 
     // ⛔ The boundary FR-029 speaks to. 「掴めない端点を薄く描いて理由をツール
     // チップで示すこと（MUST）」 -- a tooltip has to be pointed AT, so the faint
@@ -2602,7 +2626,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
               groupId: 'g-1',
               label: '',
               wholeLabel: '',
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
         },
@@ -2628,13 +2652,13 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
             rowTitle({
               groupId: 'g-pinned',
               isPinned: true,
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
           titles: [
             rowTitle({
               groupId: 'g-1',
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
         },
@@ -2854,7 +2878,7 @@ const rowNamed = (label: string | null, depth = 1): ScreenView =>
           label,
           wholeLabel: label,
           depth,
-          expander: { canOpen: true, canClose: true },
+          expander: { canOpen: true, canClose: true, canCloseBelow: false },
         }),
       ],
     },
@@ -2981,7 +3005,7 @@ const controlStyles = (built: Stage): Record<string, string> =>
 
 describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever the name is', () => {
   it.each(ROW_NAMES)(
-    '⭐ GIVEN a row whose name is $what WHEN the row it built is read THEN the three entries of 表 T-109 are its LAST children in roster order and the name beside them is what takes the free space (表 T-051 HF-4 MUST) -- IC-58 / IC-59 / IC-60',
+    '⭐ GIVEN a row whose name is $what WHEN the row it built is read THEN the four entries of 表 T-109 are its LAST children in roster order and the name beside them is what takes the free space (表 T-051 HF-4 MUST) -- IC-58 / IC-59 / IC-77 / IC-60',
     ({ label }) => {
       const built = drawn(rowNamed(label))
       const row = theRowOf(built)
@@ -2995,7 +3019,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
       const tail = row.children.slice(-T_109_ON_THE_ROW.length)
       expect(
         tail.map((one) => one.getAttribute('data-icon')),
-        `the row does not end with 表 T-109's three entries: ${serialize(row)}`,
+        `the row does not end with 表 T-109's four entries: ${serialize(row)}`,
       ).toEqual(T_109_ON_THE_ROW.map((one) => one.row))
 
       const name = nameCellOf(row)
@@ -3054,7 +3078,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
               groupId: 'g-pinned',
               isPinned: true,
               depth: 2,
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
           titles: [],
@@ -3064,9 +3088,10 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     const row = theRowOf(built)
 
     expect(styleMap(row).get('display')).toBe('flex')
-    expect(row.children.slice(-3).map((one) => one.getAttribute('data-icon'))).toEqual([
+    expect(row.children.slice(-4).map((one) => one.getAttribute('data-icon'))).toEqual([
       'IC-58',
       'IC-59',
+      'IC-77',
       'IC-60',
     ])
     expect(flexGrowOf(nameCellOf(row) as FakeElement)).toBeGreaterThanOrEqual(1)
@@ -3415,7 +3440,7 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
             rowTitle({
               groupId: 'g-pinned',
               isPinned: true,
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
           titles: [],
@@ -3565,7 +3590,7 @@ const rowWithControls = (): ScreenView =>
         rowTitle({
           groupId: 'g-1',
           label: 'RowOne',
-          expander: { canOpen: true, canClose: true },
+          expander: { canOpen: true, canClose: true, canCloseBelow: false },
         }),
       ],
     },
@@ -3675,7 +3700,7 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
             rowTitle({
               groupId: 'g-pinned',
               isPinned: true,
-              expander: { canOpen: true, canClose: true },
+              expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
           titles: [],

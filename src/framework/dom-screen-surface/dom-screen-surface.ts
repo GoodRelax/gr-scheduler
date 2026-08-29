@@ -390,6 +390,19 @@ const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
 const OPEN_EVERY_ROW_ENTRY = 'IC-74'
 
 /**
+ * IC-78 of table T-109 -- the entrance HF-12 of table T-051 (MUST) puts beside
+ * IC-74, which folds every row (HR-2 of table T-015).
+ *
+ * ⭐ HF-12 TAKES HF-10'S PLACEMENT RATHER THAN STATING ITS OWN, so everything
+ * said of `OPEN_EVERY_ROW_ENTRY` above holds of this one word for word: one per
+ * panel, carried by row id, and drawn against the panel rather than a row.
+ * ⛔ IT IS NOT HF-8. That row DISCARDS the folds a person made, as part of the
+ * whole-view (FR-055); this one makes them, and moves neither the zoom nor the
+ * viewport.
+ */
+const COLLAPSE_EVERY_ROW_ENTRY = 'IC-78'
+
+/**
  * What the entrance NT-8 of table T-037 (MUST) requires carries the telling it
  * puts away -- `Notice.dismissKey`.
  *
@@ -2238,8 +2251,12 @@ function fillScreenFrame(
  * @purity non-pure
  */
 /**
- * How far apart the row's three controls stand, measured from the row's right
- * edge outward -- the pin nearest it, then IC-59, then IC-58.
+ * How far apart the row's four controls stand, measured from the row's right
+ * edge outward -- the pin nearest it, then IC-77, then IC-59, then IC-58.
+ *
+ * ⭐ THE TWO PANEL-WIDE ENTRANCES STEP BY THE SAME AMOUNT (IC-74 and IC-78; see
+ * `panelCornerEntryElement`), because it is the same quantity: two controls of
+ * one glyph box standing side by side.
  *
  * ⛔ IN `em`, NOT PIXELS. FR-039 carries the reader's own text size through the
  * panel (S-197), and a gap in pixels would leave the controls behind the moment
@@ -2316,9 +2333,9 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   label.textContent = title.label
   row.append(label)
 
-  // ⭐ THE NAME FIRST AND THE THREE CONTROLS AFTER IT, WHICH IS HF-4 OF TABLE
+  // ⭐ THE NAME FIRST AND THE FOUR CONTROLS AFTER IT, WHICH IS HF-4 OF TABLE
   // T-051 (MUST): 「行の名前の長さにかかわらず、操作子を行見出しパネルの右端に
-  // 揃えること」. The name takes the leftover (`STYLE.rowLabel`), so the trio
+  // 揃えること」. The name takes the leftover (`STYLE.rowLabel`), so the group
   // ends at the panel's edge whatever the name is and whatever the row's depth
   // -- the depth is the row's own left padding and moves the name alone.
   //
@@ -2328,18 +2345,19 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // `Row Pin` after both because FR-098 is where it is written and table T-109
   // prints IC-60 after them.
   //
-  // U-47 `Row Expander`, drawn as the TWO controls the specification counts.
+  // U-47 `Row Expander`, drawn as the THREE controls the specification counts.
   //
-  // ⭐ HF-1 of table T-051 puts one opening control AND one closing control on
-  // a row, U-47 of table T-103 counts the same two as one part, and table T-109
-  // gives them a row EACH -- IC-58 opens one level (HF-2), IC-59 closes all of
-  // them (HF-3). ⛔ They are NOT one control in two states: the two operations
-  // differ in reach, so one of the pair can be spent while the other is not,
-  // which is why `RowExpander` carries two flags and not one.
+  // ⭐ HF-1 of table T-051 puts an opening control, a control that folds the row
+  // itself and one that folds everything under it on a row; U-47 of table T-103
+  // counts the three as one part, and table T-109 gives them a row EACH --
+  // IC-58 opens the subtree (HF-2, which is HR-3), IC-59 folds the row itself
+  // (HF-3, HR-5) and IC-77 folds the subtree (HF-11, HR-4). ⛔ They are NOT one
+  // control in three states: the operations differ in reach, so one can be spent
+  // while the others are not, which is why `RowExpander` carries three flags.
   //
-  // ⚠️ The order is the specification's own print order (HF-2 before HF-3,
-  // IC-58 before IC-59): a table's order is kept in the code that follows it,
-  // because a reader who knows the table reads this list against it.
+  // ⚠️ The order is the specification's own print order (IC-58, IC-59, IC-77):
+  // a table's order is kept in the code that follows it, because a reader who
+  // knows the table reads this list against it.
   //
   // ⛔ `null` is a row with nothing under it, and neither half is drawn then --
   // that judgement is `expanderOf`'s (UF-63) and is not repeated here.
@@ -2358,13 +2376,23 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     open.setAttribute('data-can-open', String(title.expander.canOpen))
     // ⚠️ Placed from the RIGHT, because that is the edge HF-4 pins them to and
     // they no longer sit in the flex flow that used to do it.
-    open.setAttribute('style', open.getAttribute('style') + rowControlRight(2))
+    open.setAttribute('style', open.getAttribute('style') + rowControlRight(3))
     row.append(open)
 
     const close = rowControlElement(host, ROLE.rowExpander, 'IC-59')
     close.setAttribute('data-can-close', String(title.expander.canClose))
-    close.setAttribute('style', close.getAttribute('style') + rowControlRight(1))
+    close.setAttribute('style', close.getAttribute('style') + rowControlRight(2))
     row.append(close)
+
+    // IC-77 -- HF-11 (MUST): the row's 配下 folds, and the row itself does not
+    // (MUST NOT). ⭐ The third control HF-1 counts since the ruling of
+    // 2026-08-30; until then HR-4 of table T-015 had no entrance at all.
+    // ⚠️ Its own flag and not `canClose` inverted: `RowExpander` says why the
+    // two are not inverses.
+    const closeBelow = rowControlElement(host, ROLE.rowExpander, 'IC-77')
+    closeBelow.setAttribute('data-can-close-below', String(title.expander.canCloseBelow))
+    closeBelow.setAttribute('style', closeBelow.getAttribute('style') + rowControlRight(1))
+    row.append(closeBelow)
   }
 
   // U-48 `Row Pin` (FR-098): the control sits on every row, and the same one
@@ -2421,12 +2449,44 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
  * @purity non-pure
  */
 function openEveryRowElement(host: Document): HTMLElement {
-  const entry = made(host, 'button', entryStyle() + STYLE.panelCornerEntry)
+  return panelCornerEntryElement(host, OPEN_EVERY_ROW_ENTRY, 0)
+}
+
+/**
+ * The two entrances the panel draws for itself -- IC-74 (HF-10) and IC-78
+ * (HF-12), which stand side by side at the top right.
+ *
+ * ⭐ ONE BUILDER FOR BOTH, because HF-12 states no placement of its own: it puts
+ * its control beside HF-10's and leaves that row to say where the pair sits, so
+ * a second builder here would be a second answer to a question one row owns.
+ *
+ * ⚠️ `stepsFromEdge` IS THE ROW CONTROLS' STEP, and it is the same quantity:
+ * how far apart two controls of one glyph box (S-138) stand. ⛔ Not a new
+ * number -- see `ROW_CONTROL_RIGHT_EM` for why it is in `em` and for the
+ * pending decision it is held under (PD-348).
+ *
+ * @purity non-pure
+ */
+function panelCornerEntryElement(host: Document, icon: string, stepsFromEdge: number): HTMLElement {
+  const entry = made(
+    host,
+    'button',
+    entryStyle() + STYLE.panelCornerEntry + rowControlRight(stepsFromEdge),
+  )
   entry.setAttribute('type', 'button')
-  entry.setAttribute('data-icon', OPEN_EVERY_ROW_ENTRY)
-  entry.setAttribute('aria-label', OPEN_EVERY_ROW_ENTRY)
-  fillEntry(host, entry, OPEN_EVERY_ROW_ENTRY)
+  entry.setAttribute('data-icon', icon)
+  entry.setAttribute('aria-label', icon)
+  fillEntry(host, entry, icon)
   return entry
+}
+
+/**
+ * IC-78 -- HF-12 of table T-051 (MUST): every row folds.
+ *
+ * @purity non-pure
+ */
+function collapseEveryRowElement(host: Document): HTMLElement {
+  return panelCornerEntryElement(host, COLLAPSE_EVERY_ROW_ENTRY, 1)
 }
 
 /**
@@ -3568,13 +3628,23 @@ export interface ScreenSurfaceWiring {
   /**
    * The document the nodes are made in.
    *
-   * ⛔ Only `createElement`, `createElementNS` and `elementFromPoint` are called
-   * on it, and each is there because nothing else can do its job:
-   * `createElementNS` because FR-029's shapes are SVG and an element made
-   * outside that namespace draws nothing, and `elementFromPoint` because IF-9
-   * of table T-065 has the side that DREW an entrance answer where it is.
-   * ⚠️ Both are asked for rather than assumed, so a host that lays nothing out
-   * still works (`shapeNode`, `readScreenPartAt`).
+   * ⛔ Only `createElement`, `createElementNS`, `elementFromPoint` and one
+   * `addEventListener` are called on it, and each is there because nothing else
+   * can do its job: `createElementNS` because FR-029's shapes are SVG and an
+   * element made outside that namespace draws nothing, and `elementFromPoint`
+   * because IF-9 of table T-065 has the side that DREW an entrance answer where
+   * it is.
+   * ⛔⛔ THE FOURTH IS IN-6 OF TABLE T-028 (MUST, 利用者の裁定 2026-08-30), and
+   * it is the one member that WATCHES rather than makes or asks. That row has a
+   * press OUTSIDE a field settle the edit standing in it, 「欄の外」 includes the
+   * schedule, and the schedule is not inside the tree this unit builds: IF-1
+   * puts the whole picture up as its own surface beside this one. ⇒ No node
+   * this unit owns is on the way from that press to anywhere, so the document is
+   * the nearest thing that is. See `settleOnPressOutside` for what it does and
+   * what it deliberately does not do (it reports nothing and raises no frame,
+   * so FT-1 of table T-078 is untouched).
+   * ⚠️ All four are asked for rather than assumed, so a host that lays nothing
+   * out still works (`shapeNode`, `readScreenPartAt`, `settleOnPressOutside`).
    */
   readonly host: Document
   /**
@@ -3719,7 +3789,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // so rebuilding it with the tree would throw away the browser's work on it for
   // no gain, and it would leave the panel for a frame in which the tree changed.
   const openEveryRow = openEveryRowElement(host)
-  rowTitlePanel.append(openEveryRow)
+  // HF-12 (MUST): the folding entrance stands beside it, built and mounted the
+  // same way and for the same reason.
+  const collapseEveryRow = collapseEveryRowElement(host)
+  rowTitlePanel.append(openEveryRow, collapseEveryRow)
 
   dialogueEntry.setAttribute('type', 'text')
   dialogueEntry.setAttribute('style', STYLE.dialogueEntry)
@@ -4074,8 +4147,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       // asked for outright. ⛔ Absent when the panel draws no row, because then
       // there is nothing for it to overlap and no first row to measure from.
       const rowsTop = rowsTopPx(view.rowTitlePanel)
-      if (rowsTop === null) openEveryRow.removeAttribute('data-corner-band')
-      else openEveryRow.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
+      // ⚠️ WRITTEN ON BOTH, because HF-12 takes HF-10's placement and so takes
+      // its MUST NOT with it: the pair of them is what may not overlap the
+      // pinned rows' controls.
+      for (const corner of [openEveryRow, collapseEveryRow]) {
+        if (rowsTop === null) corner.removeAttribute('data-corner-band')
+        else corner.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
+      }
     }
     if (changed('propertiesPanel') && view.propertiesPanel !== null) {
       markPropertiesPanel(propertiesPanel, view.propertiesPanel)
@@ -4441,6 +4519,96 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     heldTextValueAtFocus = commit.text
     isHeldTextTakenBack = false
   })
+
+  /**
+   * IN-6 of table T-028, spent where the characters are: a press OUTSIDE the
+   * field settles the edit standing in it (MUST) and does not take it back
+   * (MUST NOT) -- the ruling of 2026-08-30 (CR-295).
+   *
+   * ⛔⛔ WHY THE PRESS HAS TO DO IT AT ALL, AND THIS WAS MEASURED. The press
+   * carries an assignment, so MK-10 has the input seam call `preventDefault` --
+   * and that is exactly what stops the host moving the focus off the field. The
+   * field therefore kept it however far away a person pressed, IF-9's fifth
+   * answer went on saying 「まだ確定していない文字入力がある」 for ever, and on
+   * that answer WS-2 of table T-067 refused every write of the `Agent API` and
+   * IN-5a swallowed every `Delete`. ⇒ One field held two mechanisms shut.
+   *
+   * ⛔⛔ HUNG ON THE HOST, AND THAT IS THE ONE PLACE IT CAN HANG -- measured in
+   * the shipped build on 2026-08-30, not reasoned. 「欄の外」 includes the
+   * schedule, which is what the ruling names, and the schedule does NOT go up
+   * inside this unit's tree: IF-1 hands the whole picture over as its own
+   * surface, so the built page has TWO children under `body` -- the `Schedule
+   * Canvas` and the mount this unit draws in. A press at (600, 291) reports the
+   * path `polygon < svg < div[Schedule Canvas] < body`, in which this unit's
+   * root does not appear at all. ⇒ A listener on the root hears every press but
+   * the ones the ruling is about.
+   * ⛔ THIS IS THE ONE MEMBER OF THE HOST THIS UNIT ASKS FOR BEYOND MAKING A
+   * NODE AND ASKING ABOUT A POINT, and it is asked for because IN-6 (MUST)
+   * cannot be carried out without it: the field is this unit's (LR-6 keeps
+   * every other layer away from it), and no member of IF-9 is asked at the
+   * moment of the press -- `readScreenPartAt` is asked on a HOVER as well, so
+   * settling there would end an edit whenever the pointer crossed the screen.
+   * ⚠️ Guarded, the same way `blur` is: table T-075 leaves this unit runnable
+   * against a host that is not a browser.
+   * ⭐ IT RUNS BEFORE THE SHELL'S, the same order `Enter` above rests on:
+   * `DomInputSource` listens on the window and this is hung on the document, so
+   * the commit is standing by the time `spendFieldCommit` reads it at the head
+   * of the same happening.
+   *
+   * ⛔ THE PRESS ITSELF IS NOT TOUCHED. IN-6 (MUST NOT) forbids stopping what
+   * the press does -- the settling rides ON the press rather than replacing it
+   * -- so nothing here calls `preventDefault`, `stopPropagation` or
+   * `stopImmediatePropagation`, and what the press does is left to table T-023a
+   * and IN-1.
+   * ⛔ A VALUE THAT DID NOT MOVE IS NOT WRITTEN (IN-6, MUST NOT): writing the
+   * value the field was focused with would put a step on the undo history for an
+   * edit nobody made (FR-031 with UN-3), which is the very guard `onFieldChange`
+   * keeps and `Enter` moves the baseline for.
+   *
+   * ⚠️ A PRESS ON ANOTHER FIELD OF THIS SAME PANEL SETTLES BUT DOES NOT RELEASE.
+   * That press is assigned too, so the host's own focus move is stopped as well
+   * -- letting go here would leave the person with the focus nowhere at all,
+   * which is worse than where they started. ⛔ No row settles this corner; only
+   * 「欄の外」 is ruled on.
+   * @provisional PD-352
+   *
+   * @purity non-pure
+   */
+  if (typeof host.addEventListener === 'function') {
+    host.addEventListener('pointerdown', settleOnPressOutside)
+  }
+
+  /** @purity non-pure */
+  function settleOnPressOutside(event: Event): void {
+    const held = heldTextControl
+    if (held === null) return
+    const pressedOn: unknown = (event as { target?: unknown }).target
+    // The press is INSIDE the field it would settle, so there is nothing
+    // outside it to settle from.
+    if (pressedOn === (held as unknown)) return
+
+    const commit = fieldCommitOf(held)
+    if (commit !== null && commit.text !== heldTextValueAtFocus) {
+      fieldCommit = commit
+      // IN-4's 「編集を始める前の値」 moves to what was just settled, exactly as
+      // `Enter` moves it -- so the host's `change` on leaving carries nothing
+      // new and `onFieldChange` drops it.
+      heldTextValueAtFocus = commit.text
+    }
+    isHeldTextTakenBack = false
+
+    // PD-352: another field of this panel keeps the person's place.
+    if (textEntryControlOf(pressedOn) !== null) return
+
+    // ⚠️ Guarded rather than assumed, the reason IN-4's listener gives: table
+    // T-075 leaves this unit runnable against a host that lays nothing out, and
+    // such a host need not give its elements a `blur` at all -- so the flags are
+    // cleared here as well and not left to a `focusout` that may never come.
+    if (typeof held.blur === 'function') held.blur()
+    heldTextControl = null
+    heldTextValueAtFocus = ''
+    isFieldHeld = false
+  }
 
   /**
    * IF-9's fifth answer -- whether characters stand in a field of this surface

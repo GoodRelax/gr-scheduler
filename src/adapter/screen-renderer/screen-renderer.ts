@@ -446,15 +446,27 @@ export interface RowTitle {
 
 /**
  * HF-1 of table T-051: every row that has something under it carries an opening
- * control AND a closing one. ⚠️ They are not one control in two states: HF-2
- * opens ONE level and HF-3 closes ALL of them, so one of the pair can be spent
- * while the other is not.
+ * control, a control that closes the row itself, and one that closes everything
+ * under it. ⚠️ They are not one control in three states: HF-2 opens the whole
+ * subtree (HR-3 of table T-015), HF-3 folds the row ITSELF (HR-5) and HF-11
+ * folds the subtree (HR-4), so any of the three can be spent while the others
+ * are not.
+ * ⚠️ The third arrived with the ruling of 2026-08-30 (CR-294); until then HR-4
+ * had no entrance at all.
  */
 export interface RowExpander {
-  /** HF-2: there is a level below that is not open. */
+  /** HF-2: a row somewhere below this one is folded. */
   readonly canOpen: boolean
-  /** HF-3: something below is open. */
+  /** HF-3: this row is not folded, and something under it is in the picture. */
   readonly canClose: boolean
+  /**
+   * HF-11: a row somewhere below this one is not folded.
+   *
+   * ⛔ NOT THE INVERSE OF `canOpen`. That one asks whether a folded row stands
+   * below and this one whether an unfolded row does, and a subtree can hold
+   * both -- so on most rows the two are true together.
+   */
+  readonly canCloseBelow: boolean
 }
 
 // ------------------------------------------------------------ UF-64 ---------

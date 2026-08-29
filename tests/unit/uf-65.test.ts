@@ -144,6 +144,12 @@ const T_109_PALETTE = [
   { row: 'IC-41', group: '表示', authority: 'FR-020', isButton: true },
   { row: 'IC-42', group: '表示', authority: 'FR-049', isButton: true },
   { row: 'IC-43', group: '表示', authority: 'FR-049', isButton: true },
+  // ⭐ IC-79 / IC-80 / IC-81 -- the three boolean rows of table T-202 that had
+  // no entrance until the ruling of 2026-08-30 (CR-294). Table T-109 prints
+  // them here, after IC-43, and puts all three in the 表示 group.
+  { row: 'IC-79', group: '表示', authority: 'FR-049', isButton: true },
+  { row: 'IC-80', group: '表示', authority: 'FR-049', isButton: true },
+  { row: 'IC-81', group: '表示', authority: 'FR-049', isButton: true },
   { row: 'IC-44', group: 'カーソル', authority: 'FR-046', isButton: true },
   { row: 'IC-45', group: 'カーソル', authority: 'FR-082', isButton: true },
   { row: 'IC-46', group: 'カーソル', authority: 'FR-048', isButton: true },

@@ -475,6 +475,39 @@
    }
   },
   {
+   "rowId": "IC-79",
+   "label": {
+    "ja": "担当ラベル",
+    "en": "Assignee Label"
+   },
+   "hint": {
+    "ja": "担当ラベルを出す。もう一度押すとしまう",
+    "en": "Show the Assignee Label; press again to hide it"
+   }
+  },
+  {
+   "rowId": "IC-80",
+   "label": {
+    "ja": "完了率ラベル",
+    "en": "Percent Complete Label"
+   },
+   "hint": {
+    "ja": "完了率ラベルを出す。もう一度押すとしまう",
+    "en": "Show the Percent Complete Label; press again to hide it"
+   }
+  },
+  {
+   "rowId": "IC-81",
+   "label": {
+    "ja": "依存線",
+    "en": "Dependency Lines"
+   },
+   "hint": {
+    "ja": "依存線を出す。もう一度押すとしまう",
+    "en": "Show the Dependency Lines; press again to hide them"
+   }
+  },
+  {
    "rowId": "IC-44",
    "label": {
     "ja": "基準日",
@@ -615,6 +648,17 @@
    "hint": {
     "ja": "この行自身を畳む",
     "en": "Collapse this row itself"
+   }
+  },
+  {
+   "rowId": "IC-77",
+   "label": {
+    "ja": "配下をすべて畳む",
+    "en": "Collapse Below"
+   },
+   "hint": {
+    "ja": "この行の配下をすべて畳む",
+    "en": "Collapse every row below this one"
    }
   },
   {
@@ -780,6 +824,17 @@
    "hint": {
     "ja": "畳んだ行をすべて開く",
     "en": "Open every row that was collapsed"
+   }
+  },
+  {
+   "rowId": "IC-78",
+   "label": {
+    "ja": "すべて畳む",
+    "en": "Collapse All"
+   },
+   "hint": {
+    "ja": "すべての行を畳む",
+    "en": "Collapse every row"
    }
   },
   {

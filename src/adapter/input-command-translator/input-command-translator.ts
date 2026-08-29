@@ -1591,13 +1591,23 @@ const ENTRY = {
   /** IC-22 -- FR-036. SK-13. */
   help: 'IC-22',
   /**
-   * IC-39 / IC-40 / IC-42 / IC-43 -- the four toggles the palette carries.
-   * S-64, S-63, S-67 and S-68, all of them boolean rows of table T-202.
+   * IC-39 / IC-40 / IC-42 / IC-43 / IC-79 / IC-80 / IC-81 -- the seven toggles
+   * the palette carries. S-64, S-63, S-67, S-68, S-60, S-61 and S-62, all of
+   * them boolean rows of table T-202.
+   *
+   * ⭐ THE LAST THREE ARRIVED WITH THE RULING OF 2026-08-30 (CR-294). Until
+   * then table T-109 placed no entrance on them at all, so FR-049's 「それぞれ
+   * 切り替えられるようにすること」 was unmet for three of the eight -- and the
+   * assignee and percent labels, whose defaults are both `false`, could not be
+   * reached from the shipped build by any means.
    */
   progressLineVisible: 'IC-39',
   progressMarkerVisible: 'IC-40',
   dateGridLinesVisible: 'IC-42',
   groupGridLinesVisible: 'IC-43',
+  assigneeVisible: 'IC-79',
+  percentCompleteVisible: 'IC-80',
+  dependencyVisible: 'IC-81',
   /** IC-44 -- FR-046. SK-20. */
   statusLine: 'IC-44',
   /**
@@ -1672,6 +1682,18 @@ const ENTRY = {
   rowExpanderOpen: 'IC-58',
   rowExpanderClose: 'IC-59',
   /**
+   * IC-77 -- HF-11 of table T-051, which is HR-4 of table T-015: everything
+   * BELOW the row folds, and the row itself does not.
+   *
+   * ⭐ THE THIRD HALF OF U-47, added by the ruling of 2026-08-30. HF-1 counts
+   * three controls per row now, and this is the one HF-2 is the inverse of --
+   * HF-3 folds the row ITSELF and reaches nothing under it.
+   * ⛔ NOT WIDENED TO INCLUDE THE ROW. HF-11 (MUST NOT) forbids it in as many
+   * words, and the reason is FR-029's: HF-3 already has that operation, so a
+   * control doing both would be the second entrance to one of them.
+   */
+  rowExpanderCloseBelow: 'IC-77',
+  /**
    * IC-74 -- HF-10 of table T-051, which is HR-1 of table T-015: every row in
    * the document opens.
    *
@@ -1683,6 +1705,17 @@ const ENTRY = {
    * HF-3's own note records that there is then no row above to open it.
    */
   rowExpanderOpenAll: 'IC-74',
+  /**
+   * IC-78 -- HF-12 of table T-051, which is HR-2 of table T-015: every row in
+   * the document folds.
+   *
+   * ⭐ HF-12 PLACES IT BESIDE IC-74 and takes that row's placement, so what is
+   * said of `rowExpanderOpenAll` above holds of this one word for word: no row
+   * of the panel is its subject, and `ScreenPart.rowGroupId` is null under it.
+   * ⛔ IT IS NOT HF-8. That row DISCARDS the folds a person made, as part of
+   * the whole-view; this one makes them.
+   */
+  rowExpanderCloseAll: 'IC-78',
   /**
    * IC-60 -- FR-098. U-48 `Row Pin` of table T-103.
    *
@@ -1799,6 +1832,9 @@ const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, VisibleElement>> = {
   'IC-40': 'progressMarkerVisible',
   'IC-42': 'dateGridLinesVisible',
   'IC-43': 'groupGridLinesVisible',
+  'IC-79': 'assigneeVisible',
+  'IC-80': 'percentCompleteVisible',
+  'IC-81': 'dependencyVisible',
 }
 
 /** @purity pure */
@@ -3051,6 +3087,9 @@ function commandFromEntry(
     case ENTRY.progressMarkerVisible:
     case ENTRY.dateGridLinesVisible:
     case ENTRY.groupGridLinesVisible:
+    case ENTRY.assigneeVisible:
+    case ENTRY.percentCompleteVisible:
+    case ENTRY.dependencyVisible:
       return commandFromVisibleElementEntry(entry, context)
     case ENTRY.planDisplay:
     case ENTRY.actualDisplay: {
@@ -3129,6 +3168,7 @@ function commandFromEntry(
       return acted({ kind: 'moveCommandPalette', by: paletteTravel(release, press) })
     case ENTRY.rowExpanderOpen:
     case ENTRY.rowExpanderClose:
+    case ENTRY.rowExpanderCloseBelow:
     case ENTRY.rowPin:
       return commandFromRowEntry(entry, on.rowGroupId, context)
     case ENTRY.rowExpanderOpenAll:
@@ -3146,6 +3186,19 @@ function commandFromEntry(
       // the whole of what separates this press from the fit (FR-055), which
       // owes CM-71 first -- so `fitWrites` is not reached and this is one write.
       return changed([{ kind: 'expandAllTaskGroups' }])
+    case ENTRY.rowExpanderCloseAll:
+      // HF-12 of table T-051, which is HR-2 of table T-015.
+      //
+      // ⛔ NO COMMAND OF ITS OWN IS MINTED FOR IT, and that is not the shape
+      // IC-74 takes above. CM-72 exists because FR-055's fit needs the whole
+      // opening as ONE row of table T-108; table T-108 has no row that folds
+      // them all, and adding one would write with a second command what CM-33
+      // already writes -- which R3.4 refuses. ⭐ `foldsEveryRow` builds the
+      // bundle, and a bundle IS one undo step (FR-031): `commandFromRowEntry`
+      // has opened a whole subtree that way since IC-58 was wired.
+      // ⚠️ NEITHER THE ZOOM NOR THE VIEWPORT MOVES, for HF-10's reason, which
+      // HF-12 takes with the placement.
+      return changed(foldsEveryRow(context.document.schedule))
     case ENTRY.documentSettingsProperties:
       // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
       // the action's own note.
@@ -3360,8 +3413,8 @@ function commandFromGuideCursorEntry(entry: string): TranslatedInput {
 }
 
 /**
- * The three entrances table T-109 draws once per ROW -- IC-58 and IC-59 on
- * U-47 `Row Expander`, IC-60 on U-48 `Row Pin`.
+ * The four entrances table T-109 draws once per ROW -- IC-58, IC-59 and IC-77
+ * on U-47 `Row Expander`, IC-60 on U-48 `Row Pin`.
  *
  * ⭐ WHICH ROW IS `ScreenPart.rowGroupId`, AND IT COULD COME FROM NOWHERE ELSE.
  * HF-1 of table T-051 and FR-098 (MUST) each draw their control once per row,
@@ -3372,12 +3425,15 @@ function commandFromGuideCursorEntry(entry: string): TranslatedInput {
  * T-066 freezes the gesture's screen at the press, so a panel scrolled since
  * must not move the answer to another row.
  *
- * ⛔ THREE OF TABLE T-015's SIX OPERATIONS HAVE AN ENTRANCE, AND ONE OF THE
- * THREE IS NOT HERE. HF-2 is HR-3 and HF-3 is HR-5, both drawn per row; HF-10
- * is HR-1 and is drawn ONCE at the top of the panel, so `commandFromEntry`
- * answers it directly. Table T-109 places nothing on HR-2, HR-4 or HR-6, and
- * this file may not invent one -- neither control below is widened to reach an
- * operation the specification has given no entrance.
+ * ⛔ FIVE OF TABLE T-015's SIX OPERATIONS HAVE AN ENTRANCE, AND TWO OF THE
+ * FIVE ARE NOT HERE. HF-2 is HR-3, HF-3 is HR-5 and HF-11 is HR-4, all three
+ * drawn per row; HF-10 is HR-1 and HF-12 is HR-2, each drawn ONCE at the top of
+ * the panel, so `commandFromEntry` answers those two directly.
+ * ⛔ HR-6 (hiding a row) STILL HAS NO ENTRANCE, and this file may not invent
+ * one: that row requires in the same breath that a hidden row be brought back
+ * through the parent's `Hidden Group Tab` (U-29, MUST), and nothing in `src/`
+ * draws one -- an entrance without it would hide a row for good. ⚠️ CR-294
+ * records that as the reason the sixth was left out.
  *
  * @purity pure
  */
@@ -3415,6 +3471,15 @@ function commandFromRowEntry(
     ])
   }
 
+  if (entry === ENTRY.rowExpanderCloseBelow) {
+    // IC-77 -- HF-11 (MUST), which names HR-4 of table T-015: everything BELOW
+    // this row folds, however deep.
+    // ⛔ THE ROW ITSELF IS NOT FOLDED (HF-11, MUST NOT): that operation is
+    // HF-3's, and doing both here would give it two entrances (FR-029).
+    // ⚠️ ONE BUNDLE, for the reason IC-58's branch gives.
+    return changed(foldsUnderRow(context.document.schedule, rowGroupId))
+  }
+
   if (entry === ENTRY.rowExpanderOpen) {
     // IC-58 -- HF-2 (MUST), which names HR-3 of table T-015: everything BELOW
     // this row opens, however deep, and however each of those rows was left.
@@ -3429,10 +3494,9 @@ function commandFromRowEntry(
 
   // IC-59 -- HF-3 (MUST), which names HR-5 of table T-015: THIS row folds, and
   // nothing below it is written.
-  // ⛔ THE SUBTREE IS NOT FOLDED. Folding the descendants as well is HR-4, and
-  // table T-109 gives that operation no entry -- while HR-1a already hides
-  // every row under this one, so the extra writes would change no picture and
-  // would cost one command per hidden row.
+  // ⛔ THE SUBTREE IS NOT FOLDED. Folding the descendants as well is HR-4,
+  // which IC-77 above now carries (HF-11) -- so widening this one would give
+  // that operation two entrances, which FR-029 refuses.
   const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
   // ⚠️ Already folded, or gone: no write. `changed` says why an empty bundle is
   // not one -- WS-4 would push an undo step for a press that moved nothing.
@@ -3500,6 +3564,54 @@ function opensUnderRow(schedule: Schedule, ancestorId: string): readonly Documen
     commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: false })
   }
   return commands
+}
+
+/**
+ * One `setTaskGroupCollapsed` per row under `ancestorId` that is not folded, in
+ * the order the document prints them -- HR-4 of table T-015, which HF-11 names.
+ *
+ * ⚠️ The mirror of `opensUnderRow` and built the same way, down to leaving the
+ * rows that already stand as asked out of the bundle: CM-33 answers an
+ * unchanged fold by returning the document untouched, so writing them would
+ * cost an undo step for a subtree that is already folded.
+ *
+ * ⛔ THE ROWS UNDER A FOLDED ROW ARE STILL WRITTEN. HR-1a stops them being
+ * DRAWN, so folding them changes no pixel today -- but the fold is a column of
+ * the document (AT-56), and a row left open under a folded one springs open the
+ * moment the fold above it comes off. ⚠️ HR-4 says 「配下をすべて畳む」 and
+ * names no exception.
+ *
+ * @purity pure
+ */
+function foldsUnderRow(schedule: Schedule, ancestorId: string): readonly DocumentCommand[] {
+  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
+  const commands: DocumentCommand[] = []
+  for (const row of schedule.taskGroups) {
+    if (row.isCollapsed === true) continue
+    if (!isRowUnder(parentOf, row.parentId, ancestorId)) continue
+    commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: true })
+  }
+  return commands
+}
+
+/**
+ * One `setTaskGroupCollapsed` per row of the document that is not folded --
+ * HR-2 of table T-015, which HF-12 names.
+ *
+ * ⛔ EVERY ROW AND NOT ONLY THE ONES WITH SOMETHING UNDER THEM. HR-2 says
+ * 「すべての `TaskGroup` を閉じる」 and names no exception, and CM-72 (the
+ * opening) is written the same way -- so a row that grows a child later is
+ * already folded, exactly as one folded by hand would be.
+ * ⚠️ A HIDDEN ROW IS WRITTEN TOO. HR-6 keeps such a row out of the picture and
+ * HR-2 does not except it; leaving it open would make 「すべて」 depend on what
+ * happens to be visible.
+ *
+ * @purity pure
+ */
+function foldsEveryRow(schedule: Schedule): readonly DocumentCommand[] {
+  return schedule.taskGroups
+    .filter((row) => row.isCollapsed !== true)
+    .map((row) => ({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: true }) as const)
 }
 
 /**
