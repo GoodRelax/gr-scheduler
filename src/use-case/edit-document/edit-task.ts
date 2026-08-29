@@ -195,13 +195,13 @@ function withTask(document: Document, next: Task): Document {
 /** @purity pure */
 function withVisual(document: Document, next: TaskVisual): Document {
   const held = document.schedule.taskVisuals
-  const at = held.findIndex((one) => one.taskUid === next.taskUid)
+  const foundAt = held.findIndex((one) => one.taskUid === next.taskUid)
   // A task with no row and a task with an all-null row are the same task, so
   // the absent row is compared as the blank one -- otherwise a command that
   // chose nothing would append a row full of nulls and move the schedule instant.
-  const standing = at < 0 ? blankVisual(next.taskUid) : held[at]
+  const standing = foundAt < 0 ? blankVisual(next.taskUid) : held[foundAt]
   if (standing !== undefined && sameRow(standing, next)) return document
-  const taskVisuals = at < 0 ? [...held, next] : held.map((one, index) => (index === at ? next : one))
+  const taskVisuals = foundAt < 0 ? [...held, next] : held.map((one, index) => (index === foundAt ? next : one))
   return withSchedule(document, { ...document.schedule, taskVisuals })
 }
 

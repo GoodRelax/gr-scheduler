@@ -151,8 +151,8 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
       // stands for nothing, so a document holding a calendar of the same uid
       // would be matched by mistake.
       const within = workingCalendarOf(schedule)
-      const at = schedule.calendars.indexOf(within.calendar)
-      if (workingDayTypes !== undefined && at < 0) {
+      const foundAt = schedule.calendars.indexOf(within.calendar)
+      if (workingDayTypes !== undefined && foundAt < 0) {
         // ⛔ The document counts by table T-209's default, which has no row to
         // write into. Creating one is not decided: no row of table T-108
         // creates a `Calendar`, and while FR-001 and FR-008 take a new `uid`
@@ -176,7 +176,7 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
         // unconditional rebuild would move that instant for a command that
         // set the calendar to what it already said.
         if (next !== within.calendar) {
-          calendars = schedule.calendars.map((one, index) => (index === at ? next : one))
+          calendars = schedule.calendars.map((one, index) => (index === foundAt ? next : one))
         }
       }
 

@@ -129,14 +129,14 @@ function withRow(document: Document, row: TaskGroup): Document {
  */
 function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
   let depth = 1
-  let at = row.parentId
+  let foundAt = row.parentId
   // A `parentId` cycle already breaks IV-5; the step count stops the walk
   // rather than letting a broken document hang a pure function.
-  for (let guard = 0; at !== null && guard <= byId.size; guard++) {
-    const parent = byId.get(at)
+  for (let guard = 0; foundAt !== null && guard <= byId.size; guard++) {
+    const parent = byId.get(foundAt)
     if (parent === undefined) break
     depth += 1
-    at = parent.parentId
+    foundAt = parent.parentId
   }
   return depth
 }

@@ -24,7 +24,7 @@ import {
 } from '../harness.mjs'
 
 /** A board wide enough that any of the seven entries would disturb it. */
-const board = (p) => p.evaluate(() => ({
+const board = (onPage) => onPage.evaluate(() => ({
   rows: document.querySelectorAll('[data-depth]').length,
   pinned: document.querySelectorAll('[data-pinned="true"]').length,
   arming: [...document.querySelectorAll('[data-can-open]')]
@@ -34,33 +34,38 @@ const board = (p) => p.evaluate(() => ({
   texts: document.querySelectorAll('svg text').length,
 }))
 
-const p = await open()
+// ⚠️ No binding: every helper below reaches the page through the harness.
+await open()
 console.log('panel', JSON.stringify(await rowPanel()))
 
 // Plan on one page; act on a fresh one per press.
-const plan = [{ y: null, where: 'panel head', icon: 'IC-74' },
-              { y: null, where: 'panel head', icon: 'IC-78' }]
+const plan = [{ rowTopPx: null, where: 'panel head', icon: 'IC-74' },
+              { rowTopPx: null, where: 'panel head', icon: 'IC-78' }]
 await pointerAway()
 for (const row of await rows()) {
   await hoverRow(row.y)
-  for (const e of await panelEntries(row.y)) {
-    plan.push({ y: row.y, where: `d=${row.depth} "${row.text.slice(0, 17)}"`, icon: e.icon })
+  for (const entry of await panelEntries(row.y)) {
+    plan.push({
+      rowTopPx: row.y,
+      where: `d=${row.depth} "${row.text.slice(0, 17)}"`,
+      icon: entry.icon,
+    })
   }
 }
 console.log(`${plan.length} presses\n`)
 
 const dead = []
 for (const item of plan) {
-  const page = await open({ settle: 1200 })
-  if (item.y !== null) await hoverRow(item.y)
-  const was = await board(page)
-  if (!await pressPanelEntry(item.y, item.icon)) {
+  const freshPage = await open({ settle: 1200 })
+  if (item.rowTopPx !== null) await hoverRow(item.rowTopPx)
+  const before = await board(freshPage)
+  if (!await pressPanelEntry(item.rowTopPx, item.icon)) {
     console.log(`MISSING ${item.icon} ${item.where}`)
     continue
   }
-  await page.waitForTimeout(500)
-  const now = await board(page)
-  const moved = Object.keys(was).filter((k) => was[k] !== now[k])
+  await freshPage.waitForTimeout(500)
+  const after = await board(freshPage)
+  const moved = Object.keys(before).filter((key) => before[key] !== after[key])
   if (moved.length === 0) dead.push(`${item.icon} ${item.where}`)
   console.log(`${moved.length ? 'MOVED' : 'DEAD '} ${item.icon} ${item.where} ${moved.join(' ')}`)
 }

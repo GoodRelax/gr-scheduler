@@ -412,8 +412,8 @@ function regularCorners(
   startTurn: number,
 ): Path {
   const out: Point[] = []
-  for (let i = 0; i < count; i += 1) {
-    const turn = startTurn + i / count
+  for (let step = 0; step < count; step += 1) {
+    const turn = startTurn + step / count
     const angle = turn * 2 * Math.PI
     out.push(point(centre.x + radius * Math.sin(angle), centre.y - radius * Math.cos(angle)))
   }
@@ -590,8 +590,8 @@ function milestoneOutline(
       const outer = regularCorners(centre, half, 5, 0)
       const waist = regularCorners(centre, inner, 5, 0.1)
       const out: Point[] = []
-      for (let i = 0; i < 5; i += 1) {
-        out.push(outer[i]!, waist[i]!)
+      for (let step = 0; step < 5; step += 1) {
+        out.push(outer[step]!, waist[step]!)
       }
       return out
     }
@@ -1045,19 +1045,19 @@ function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   // GD-5: the gap alone, from the actual's near end to the plan's near end.
   const rightwards = actualX0 > planX1
   const from = rightwards ? actualX0 : actualX1
-  const to = rightwards ? planX1 : planX0
+  const toDay = rightwards ? planX1 : planX0
 
   // GD-3: one line from a shape with no thickness.
   if (placed.actualPlacement === 'below') {
     const below = placed.y + placed.planHeight + settings.actualGap + actualHeight / 2
-    return [[point(from, below), point(to, below)]]
+    return [[point(from, below), point(toDay, below)]]
   }
   // GD-2: two, from the actual bar's own top and bottom.
   const top = middle - actualHeight / 2
   const bottom = middle + actualHeight / 2
   return [
-    [point(from, top), point(to, top)],
-    [point(from, bottom), point(to, bottom)],
+    [point(from, top), point(toDay, top)],
+    [point(from, bottom), point(toDay, bottom)],
   ]
 }
 
@@ -1431,8 +1431,8 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
   const out: HighlightGeometry[] = []
   for (const box of schedule.highlightBoxes) {
     const from = dayOf(box.startDate)
-    const to = dayOf(box.endDate)
-    if (from === null || to === null) continue
+    const toDay = dayOf(box.endDate)
+    if (from === null || toDay === null) continue
     const top =
       (box.topGroupId === null ? undefined : rowById.get(box.topGroupId)) ?? layout.rows[0]
     const bottom =
@@ -1440,7 +1440,7 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
       layout.rows[layout.rows.length - 1]
     if (top === undefined || bottom === undefined) continue
     const x0 = xFromDay(layout, from)
-    const x1 = xFromDay(layout, to)
+    const x1 = xFromDay(layout, toDay)
     const y = Math.min(top.y, bottom.y)
     out.push({
       id: box.id,
@@ -1477,7 +1477,7 @@ function charUnits(ch: string): number {
 /** @purity pure */
 function labelUnits(text: string): number {
   let units = 0
-  for (const ch of text) units += charUnits(ch)
+  for (const character of text) units += charUnits(character)
   return units
 }
 
@@ -1503,14 +1503,14 @@ function wrappedLines(text: string, limit: number): readonly string[] {
   for (const paragraph of text.replace(/\r\n?/g, '\n').split('\n')) {
     let line = ''
     let units = 0
-    for (const ch of paragraph) {
-      const width = charUnits(ch)
+    for (const character of paragraph) {
+      const width = charUnits(character)
       if (units + width > limit && line !== '') {
         out.push(line)
         line = ''
         units = 0
       }
-      line += ch
+      line += character
       units += width
     }
     out.push(line)
@@ -1678,11 +1678,11 @@ export function geometryFromLayout(
   const dependencies: DependencyGeometry[] = []
   if (settings.dependencyVisible) {
     for (const successor of schedule.tasks) {
-      const to = placedByUid.get(successor.uid)
-      if (to === undefined) continue
+      const toDay = placedByUid.get(successor.uid)
+      if (toDay === undefined) continue
       for (const link of successor.dependencies) {
         const from = placedByUid.get(link.predecessorUid)
-        if (from !== undefined) dependencies.push(routedDependency(inputs, from, to, link.linkType))
+        if (from !== undefined) dependencies.push(routedDependency(inputs, from, toDay, link.linkType))
       }
     }
   }
@@ -1733,3 +1733,5 @@ export const NOT_STORED_LABEL_SIZES: {
   'S-196': 2,
 }
 // </generated>
+
+

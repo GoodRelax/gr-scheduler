@@ -8,6 +8,8 @@
 //
 //   SWS-1  the interval between two ticks        FR-017   table T-221 LF-1
 //   SWS-2  the band height and top of a row      FR-003   LF-2 / LF-3
+//          ⚠️ and LF-14, which no SW_SPEC node names -- see the block
+//          that declares it for why it is filed here
 //   SWS-3  the route of a dependency line        FR-009   LF-4 / LF-5, T-222
 //   SWS-4  the vertices of what is drawn         FR-094   LF-6..LF-11, LF-13
 //   SWS-5  the vertices of the progress line     FR-014   LF-12
@@ -1009,6 +1011,75 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
         drawn.layout.rectangleHeight,
       )
       expect(rowByIdOf(drawn, 'g1').height).toBeCloseTo(drawn.layout.rectangleHeight, 6)
+    },
+  )
+
+  // -------------------------------------------------------------------------
+  // LF-14 -- the band a pinned row is lifted into (FR-098, CR-308).
+  //
+  // ⚠️ FILED UNDER SWS-2, AND CHAPTER 6.1 DOES NOT SAY SO. SWS-2's STATEMENT
+  // names `LF-2` and `LF-3` alone, and NO SW_SPEC node of Chapter 6.1 names
+  // `LF-14` -- so the completeness check at the foot of this file has been
+  // demanding a case that has no node of its own to hang from. It is filed here
+  // because `LF-14` is written as an amendment to `LF-3` (「帯へ上げた行は
+  // `LF-3` の連なりから除き、抜けた場所は詰める」), which is exactly what SWS-2
+  // owns. ⛔ REPORTED AS A HOLE: either SWS-2's STATEMENT gains the row, or
+  // Chapter 6.1 gains a node for FR-098's band.
+  //
+  // ⭐ THE REST OF `LF-14` AND OF FR-098 IS WATCHED IN
+  // tests/unit/fr-098-the-pinned-band.test.ts, which drives the same entry.
+  // -------------------------------------------------------------------------
+
+  it(
+    swsCase({
+      sws: 'SWS-2',
+      level: 'Integration',
+      covers: ['LF-14'],
+      given: 'four rows, the third of them pinned (S-126 of table T-203)',
+      when: 'layoutFromSchedule places them',
+      then: 'the pinned row stands at the top of the Row Area and the rest close up one band and one rowGap below it',
+    }),
+    () => {
+      // LF-14: 「帯の高さは、帯に置く行の帯高（`LF-2`）を合計し、行と行のあいだに
+      //   `rowGap` をその数から 1 を引いた数だけ加えたものとする。帯へ上げた行は
+      //   `LF-3` の連なりから除き、抜けた場所は詰める。スクロールする行が並ぶのは、
+      //   `Row Area` の高さから帯の高さと `rowGap` 1 つぶんを引いた残りとする」,
+      // with FR-098: 「本要求でいう「画面の上端」とは … `U-50`（`Row Area`）の
+      //   上端をいう（MUST）」.
+      mentions(T221, 'LF-14', 'rowGap', 'LF-2', 'LF-3', 'Row Area')
+      const rows = ['g1', 'g2', 'g3', 'g4']
+      const drawn = draw(
+        rows.map((_id, index) =>
+          task({ uid: index + 1, name: `t${index}`, start: day(2), finish: day(20) }),
+        ),
+        rows,
+        rows.map((_id, index) => taskVisual(index + 1)),
+        { pinnedGroupIds: ['g3'] },
+      )
+
+      const pinned = rowByIdOf(drawn, 'g3')
+      expect(pinned.y, 'FR-098: the band stands at the top of the Row Area').toBeCloseTo(
+        drawn.regions.rowArea.y,
+        6,
+      )
+
+      // One row in the band, so LF-14's sum has no `rowGap` in it yet.
+      const band = pinned.height
+      const scrolling = ['g1', 'g2', 'g4'].map((groupId) => rowByIdOf(drawn, groupId))
+      expect(
+        scrolling[0]?.y,
+        'LF-14: the remainder begins below the band by one rowGap',
+      ).toBeCloseTo(drawn.regions.rowArea.y + band + drawn.settings.rowGap, 6)
+
+      for (let index = 1; index < scrolling.length; index += 1) {
+        const above = scrolling[index - 1]
+        const here = scrolling[index]
+        if (above === undefined || here === undefined) throw new Error('unreachable')
+        expect(here.y, `LF-14: the hole g3 left is closed up at ${here.groupId}`).toBeCloseTo(
+          above.y + above.height + drawn.settings.rowGap,
+          6,
+        )
+      }
     },
   )
 })

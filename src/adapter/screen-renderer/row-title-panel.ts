@@ -21,28 +21,32 @@
 // leave the panel without this unit judging any of them, and it is why `titles`
 // keeps the order `rowBoxes` arrived in rather than sorting by `TaskGroup.order`
 // (AT-55): a second ordering would be a second answer to the same question.
-// ⚠️ WHICH ROWS CARRY A TITLE is what that says, and it is the only question
-// the drawn rows answer here. `isHidden` (AT-57) IS read, once, and for a
-// different question: whether pressing either half of the expander would change
-// anything a reader can see -- see `expanderOf`.
+// ⚠️ WHICH ROWS CARRY A TITLE is what that says, and since 2026-08-30 it is no
+// longer the only question the drawn rows answer here -- see below.
 //
-// ⭐ WHY THE EXPANDER PAIR IS READ OFF `TaskGroup.isCollapsed` (AT-56) AND NOT
-// OFF THE DRAWN ROWS. The pair's two controls write that column and nothing
-// else -- HF-2 of table T-051 sends the opening one to HR-3 of table T-015 and
-// HF-3 sends the closing one to HR-5 -- so what each half has left to do is a
-// question about AT-56, not about this frame. ⛔ The drawn rows answer a
-// DIFFERENT question: FR-018 stops drawing a row's children as the vertical
-// zoom falls WITHOUT writing AT-56, and HF-7 (MUST NOT) holds the two apart by
-// ranking the person's fold above that zoom. Asking the boxes therefore armed
-// the opening control on rows where HF-2 writes nothing and disarmed the
-// closing control on rows that HF-3 can still fold -- which is every row of a
-// document nobody has folded.
-// ⚠️ HR-1a's "the same picture as the group level of detail" (MUST) survives
-// this: HF-6 draws the controls only while the pointer is on the row's name, so
-// two rows folded by the two different means look the same at rest, and even
-// under the pointer the pair changes no pixel today -- dom-screen-surface.ts
-// puts the two flags on the DOM under their own names and dims neither half,
-// behind a STOP saying no row settles how a spent half is drawn.
+// ⭐⭐ WHY THE EXPANDER PAIR IS NOW READ OFF THE DRAWN ROWS AND NOT OFF
+// `TaskGroup.isCollapsed` (AT-56) ALONE. The closing rule under table T-051
+// states it outright since CR-307: 「`HF-2` / `HF-3` / `HF-10` / `HF-11` /
+// `HF-12` が対象とするのは、いま描かれている行である（MUST）。描かれていない行の
+// 畳みを数えてはならない（MUST NOT）」, and FR-029 says the same thing for every
+// entrance at once -- 「その対象を、画面に描かれている側で数えること（MUST）。
+// 描かれていないものの上に残る状態を数えてはならない（MUST NOT）」. A reader
+// judges by the picture, so a control armed by a fold the picture does not hold
+// is a control that answers a press with nothing anyone can see.
+// ⛔ THE NOTE THAT STOOD HERE ARGUED THE OPPOSITE, and it was measured wrong on
+// the shipped build (CR-307 §1(a), the user's own recording: a press wrote the
+// document and the next frame was byte-identical to the one before it). It read
+// the pair as a question about AT-56 alone, because HF-2 and HF-3 write that
+// column and nothing else. That is still true of what a press WRITES; what the
+// rows above narrow is what a press CHANGES, which is the question FR-029 asks.
+// ⚠️ FR-018 AND HF-7 ARE NOT OVERTURNED BY THIS. The zoom still never writes
+// AT-56 and the person's fold still outranks it; a row the zoom left out is
+// simply one more row that is not in the picture, and the rule above counts the
+// picture.
+// ⚠️ `isHidden` (AT-57) IS NO LONGER READ HERE AT ALL. HR-6 refuses to draw a
+// hidden row and everything under it (MUST NOT), so the shell measures no box
+// for one -- the hiding reaches these answers through the drawn rows, which is
+// one reading of it rather than two.
 //
 // ⚠️ The counting FR-093 estimates a width in lives twice in `src/`: once here
 // and once in ScheduleLayout's LC-5. `_source/components.json` gives this
@@ -86,32 +90,62 @@ interface PanelIndex {
    */
   readonly groupIdsWithChildren: ReadonlySet<string>
   /**
-   * The rows with at least one child HR-6 of table T-015 is NOT hiding -- the
-   * rows whose own fold still takes something out of the picture, which is the
-   * only thing HF-3's closing control does.
+   * The rows with at least one child HR-6 does not hide -- the rows whose own
+   * fold, taken off, would put a row into the picture that is not in it now.
    *
-   * ⚠️ ASKING THE CHILDREN ANSWERS THE WHOLE SUBTREE. HR-6 refuses to draw the
-   * rows under a hidden row (MUST NOT), so a row whose every child is hidden
-   * has no unhidden descendant either, and a walk further down would answer the
-   * same thing more slowly.
+   * ⭐⭐ WHY AT-57 IS READ AGAIN AFTER CR-307 RETIRED IT HERE. What that change
+   * retired was reading the hiding to decide whether a row IS drawn -- the
+   * drawn rows answer that already. This asks a different question: whether a
+   * row that is NOT drawn WOULD be, once the fold above it came off. HR-6
+   * (MUST NOT) is the one answer to it that lives in the document, because a
+   * hidden row stays hidden however the folds above it move.
+   * ⛔ THE DISPLAY AMOUNT (FR-018) IS NOT ANSWERED HERE AND CANNOT BE. Whether
+   * the group level of detail would keep the revealed row is ScheduleLayout's
+   * judgement, and Chapter 5.3 lets this component nowhere near it -- so a row
+   * whose every child the zoom would drop still arms the opening control. That
+   * is the one case left where the closing rule under table T-051 is answered
+   * short. @provisional PD-319
    */
   readonly groupIdsWithUnhiddenChildren: ReadonlySet<string>
+  /**
+   * The rows with at least one child THIS FRAME DREW -- the rows whose own fold
+   * still takes something out of the picture, which is the only thing HF-3's
+   * closing control does.
+   *
+   * ⭐ DRAWN AND NOT MERELY UNHIDDEN, since the closing rule under table T-051
+   * (MUST) makes 「いま描かれている行」 what these controls act on. HR-6's hiding
+   * is one of the ways a child fails to be drawn and is no longer asked about
+   * separately: the shell measures a box for a row exactly when the picture
+   * holds it.
+   */
+  readonly groupIdsWithDrawnChildren: ReadonlySet<string>
   readonly boxByGroupId: ReadonlyMap<string, ScreenRect>
   /**
-   * The rows with at least one folded row (AT-56) that HR-6 is not hiding
-   * somewhere under them -- the exact set on which HF-2's opening control still
-   * changes the picture, since HR-3 of table T-015 reaches everything below a
-   * row and not the row.
+   * The rows with at least one DRAWN folded row (AT-56) somewhere under them
+   * THAT WOULD REVEAL SOMETHING -- the exact set on which HF-2's opening
+   * control still changes the picture, since HR-3 of table T-015 reaches
+   * everything below a row and not the row.
+   *
+   * ⛔ A FOLDED ROW WITH NOTHING TO REVEAL IS NOT ONE OF THEM (CR-309). The
+   * closing rule under table T-051 (MUST) counts 「その操作の前後で描かれる行の
+   * 差」, so a folded row whose children are all hidden -- or which has no
+   * children at all -- opens onto the same picture and is no reason to arm.
    *
    * ⚠️ Marked once for the frame rather than climbed per row: this runs every
    * frame, and NFR-013 (MUST NOT) refuses an O(n^2) algorithm outright.
    */
   readonly groupIdsWithCollapsedBelow: ReadonlySet<string>
   /**
-   * The rows with at least one row below them that is NOT folded and that HR-6
-   * is not hiding -- the exact set on which HF-11's control still changes
-   * something, since HR-4 of table T-015 reaches everything below a row and not
-   * the row.
+   * The rows with at least one DRAWN row below them that is NOT folded AND
+   * THAT WOULD HIDE SOMETHING IF IT FOLDED -- the exact set on which HF-11's
+   * control still changes something, since HR-4 of table T-015 reaches
+   * everything below a row and not the row.
+   *
+   * ⛔⛔ THIS IS THE VERY CASE CR-309 WAS OPENED FOR, measured on the shipped
+   * build: a row whose children are all leaves had this control armed, and a
+   * press folded every one of those leaves and left the frame byte-identical
+   * -- folding a row with nothing under it takes no row out of the picture.
+   * ⭐ So a row below counts only when the picture holds a child of ITS own.
    *
    * ⛔ NOT THE COMPLEMENT OF `groupIdsWithCollapsedBelow`. A subtree can hold a
    * folded row and an unfolded one at once, and then both sets carry the
@@ -159,7 +193,7 @@ function charUnits(ch: string): number {
 /** @purity pure */
 function labelUnits(text: string): number {
   let units = 0
-  for (const ch of text) units += charUnits(ch)
+  for (const character of text) units += charUnits(character)
   return units
 }
 
@@ -256,11 +290,11 @@ function labelCutToFit(
   const widthForKeptPx = availableWidthPx - labelWidthPx(TRUNCATION_MARK, fontSizePx, settings)
   let units = 0
   let kept = ''
-  for (const ch of text) {
-    const grown = units + charUnits(ch)
+  for (const character of text) {
+    const grown = units + charUnits(character)
     if (grown * unitWidthPx > widthForKeptPx) break
     units = grown
-    kept += ch
+    kept += character
   }
   return kept + TRUNCATION_MARK
 }
@@ -291,42 +325,14 @@ function rowDepth(
   return depth
 }
 
-/**
- * Whether HR-6 of table T-015 is hiding this row.
- *
- * ⭐ THE HIDING IS INHERITED. HR-6 refuses to draw the rows under a hidden row
- * and the `Task`s they carry (MUST NOT), so a row is hidden when `isHidden`
- * (AT-57) says so OR when any row above it says so -- its own column being
- * `false` does not bring it back.
- *
- * ⚠️ Climbed per row rather than pushed down from the hidden rows, because
- * `Schedule.taskGroups` is in no order this unit may rely on: a parent may
- * arrive after its child, and a downward pass would then miss it.
- *
- * ⚠️ The climb is bounded exactly as `rowDepth`'s is, and for the same reason:
- * FR-004 caps the depth at `maxGroupDepth` (S-125), so the bound costs nothing
- * a valid document needed, and a document that carried a ring anyway (IV-18 is
- * REPORTED, not refused) would otherwise spin here for ever.
- *
- * @purity pure
- */
-function isRowHidden(
-  group: TaskGroup,
-  groupsById: ReadonlyMap<string, TaskGroup>,
-  settings: DocumentSettings,
-): boolean {
-  if (group.isHidden === true) return true
-  let depth = 1
-  let parentId = group.parentId
-  while (parentId !== null && depth < settings.maxGroupDepth) {
-    const parent = groupsById.get(parentId)
-    if (parent === undefined) return false
-    if (parent.isHidden === true) return true
-    depth += 1
-    parentId = parent.parentId
-  }
-  return false
-}
+// ⛔ `isRowHidden` STOOD HERE AND IS GONE, WITH NOTHING PUT IN ITS PLACE. It
+// climbed a row's parents for AT-57 so that the expander pair could keep HR-6's
+// rows out of its own two counts, back when the counts were taken over the
+// document's whole roster. Since CR-307 those counts are taken over the rows
+// this frame DREW, and HR-6 (MUST NOT) is one of the reasons a row is not among
+// them -- so reading AT-57 here as well would be the same rule answered twice,
+// which rule 03 section 1 of docs/development-rules refuses.
+// ⚠️ AT-57 IS STILL READ IN `src/`, on the side that decides what is drawn.
 
 /**
  * HF-1 of table T-051: a row with something under it carries an opening control
@@ -335,38 +341,41 @@ function isRowHidden(
  * (HR-5) -- so the two are judged apart and one can be spent while the other is
  * not.
  *
- * ⭐ BOTH HALVES ANSWER WHAT THEIR OPERATION WOULD WRITE, which is the only
- * reading under which an armed half has something to do and a half with nothing
- * to do is not armed. `canClose` is HF-3 folding THIS row, so it is spent
- * exactly where AT-56 already says the row is folded. `canOpen` is HF-2
+ * ⭐ ALL THREE HALVES ANSWER WHAT THEIR OPERATION WOULD CHANGE IN THE PICTURE,
+ * which is what FR-029 (MUST) asks of every entrance and what the closing rule
+ * under table T-051 (MUST) states for these five controls by name. `canClose`
+ * is HF-3 folding THIS row, so it is spent where AT-56 already says the row is
+ * folded AND where the fold would take no drawn row away. `canOpen` is HF-2
  * unfolding every row UNDER this one and not the row itself, so it is spent
- * exactly where no row under this one is folded.
+ * where no DRAWN row under this one is folded. `canCloseBelow` is HF-11's
+ * mirror of that.
  *
- * ⛔ NEITHER HALF ASKS WHETHER THE CHILDREN WERE DRAWN, and the header of this
- * file says why: FR-018 and HF-7 make "drawn" and "folded" two states, and only
- * the second is the one these controls write.
+ * ⛔⛔ AND A ROW BELOW ONLY COUNTS WHEN THE OPERATION WOULD MOVE IT (CR-309).
+ * The closing rule under table T-051 (MUST) finishes 「その操作で、描かれる行が
+ * 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと」 and says what to
+ * count: 「配下の行の数ではなく、その操作の前後で描かれる行の差」. ⛔ THE NOTE
+ * THAT STOOD HERE STOPPED AT 「描かれている行」, which is a narrower question,
+ * and the user's own case survived it: `Whole Product` holds two drawn leaves,
+ * so IC-77 was armed, and the press folded two rows that hide nothing while
+ * the frame stayed byte-identical (CR-309 §1(a), measured on the shipped
+ * build). ⭐ The difference is one hop: the row below must itself have a child
+ * the operation would move.
  *
- * ⛔ A HIDDEN ROW IS COUNTED ON NEITHER HALF, and this is the one place where
- * what a press WRITES is not the whole question. ⭐ A CONTROL IS NOT ARMED WHEN
- * THE PICTURE CANNOT CHANGE (the front session's ruling of 2026-08-27, taken
- * under class A-C of rule 06 of docs/development-rules). HR-6 of table T-015
- * hides a row AND everything under it (MUST NOT draw them) and brings it back
- * through the parent's hidden group tab -- never through this pair -- so a
- * press that reaches nothing but hidden rows writes AT-56 where no reader can
- * see any difference. ⚠️ The grounds are FR-029, whose RATIONALE opens by
- * saying that a thing which does not respond looks broken, and CR-271, which
- * applied that same row on 2026-08-27 to take away a panel item that wrote
- * nothing anyone could observe. An armed half that moves no pixel reproduces
- * the very complaint D-76 was opened with: that none of the row panel's
- * controls do anything.
- * ⛔ THE NOTE THAT STOOD HERE COUNTED HIDDEN ROWS IN, on the ground that HF-2
- * unfolds them with the rest. That reading survives for the DISPLAY AMOUNT and
- * only for it: FR-018 stops drawing rows without writing AT-56 and HF-7 ranks
- * the person's fold above the zoom, so a row the zoom left out still arms the
- * opening control while something under it is folded. ⭐ HR-6 is the other
- * case by its own words -- the hiding is person-driven and no zoom may return
- * it (MUST NOT) -- so it is the person, not a passing zoom, who has already
- * settled that these rows are not in the picture.
+ * ⛔ A ROW THE PICTURE DOES NOT HOLD IS COUNTED ON NO HALF (MUST NOT). HR-1a of
+ * table T-015 refuses to draw a folded row's descendants and HR-6 refuses to
+ * draw a hidden row's, so the fold that remains on those rows is a fold no
+ * reader can see undone -- and an armed half that moves no pixel reproduces the
+ * very complaint D-76 was opened with: that none of the row panel's controls do
+ * anything. ⚠️ The grounds are FR-029, whose RATIONALE opens by saying that a
+ * thing which does not respond looks broken, and the user's ruling of
+ * 2026-08-30, taken after watching a press write the document and leave the
+ * frame byte-identical.
+ * ⛔ THE NOTE THAT STOOD HERE COUNTED THOSE ROWS IN, on the ground that HF-2
+ * unfolds them with the rest -- and it kept HR-6 out by a reading of its own,
+ * which is the narrowing PD-319 was opened for. ⭐ THAT DECISION IS SETTLED
+ * (2026-08-30) AND WIDENED: the rule is no longer about who hid the row but
+ * about whether the picture holds it, so one test answers HR-1a, HR-6 and the
+ * display amount at once.
  *
  * ⚠️ `RowExpander` in screen-renderer.ts still spells `canOpen` as "there is a
  * level below that is not open" and `canClose` as "something below is open",
@@ -384,20 +393,18 @@ function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander | null {
   // no children at all carries neither half.
   if (!index.groupIdsWithChildren.has(group.id)) return null
 
-  // ⭐ HR-6 narrows BOTH halves, each where its own answer is built:
-  // `groupIdsWithCollapsedBelow` is marked from the unhidden folds alone, and
-  // the closing half asks for a child the hiding is not already keeping out of
-  // the picture. ⚠️ A row every one of whose children is hidden therefore
-  // carries the pair with neither half armed -- HF-1 still places the pair,
-  // since the row does have something under it.
-  //
-  // @provisional PD-319
+  // ⭐ THE PICTURE NARROWS ALL THREE, each where its own answer is built:
+  // `groupIdsWithCollapsedBelow` and `groupIdsWithUnfoldedBelow` are marked
+  // from the DRAWN rows alone, and the closing half asks for a child this frame
+  // drew. ⚠️ A row none of whose children the picture holds therefore carries
+  // the pair with neither half armed -- HF-1 still places the pair, since the
+  // row does have something under it.
   return {
     canOpen: index.groupIdsWithCollapsedBelow.has(group.id),
-    canClose: group.isCollapsed !== true && index.groupIdsWithUnhiddenChildren.has(group.id),
+    canClose: group.isCollapsed !== true && index.groupIdsWithDrawnChildren.has(group.id),
     // HF-11 folds everything BELOW the row and not the row, so this half is
-    // spent exactly where no row under this one is left unfolded -- the mirror
-    // of `canOpen`, and narrowed by HR-6 in the same place `canOpen` is.
+    // spent exactly where no DRAWN row under this one is left unfolded -- the
+    // mirror of `canOpen`, narrowed by the picture in the same place.
     canCloseBelow: index.groupIdsWithUnfoldedBelow.has(group.id),
   }
 }
@@ -502,30 +509,46 @@ function rowTitleOf(
   }
 }
 
-/** @purity pure */
-function panelIndexOf(
-  schedule: Schedule,
-  settings: DocumentSettings,
-  session: ScreenSession,
-): PanelIndex {
+/**
+ * ⚠️ NO `DocumentSettings` IS TAKEN ANY MORE. The one thing this member read out
+ * of them was `maxGroupDepth` (S-125), which bounded `isRowHidden`'s climb; that
+ * climb went with the rows this index no longer counts (see where it stood).
+ *
+ * @purity pure
+ */
+function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   const groupsById = new Map<string, TaskGroup>()
   const groupIdsWithChildren = new Set<string>()
-  for (const group of schedule.taskGroups) {
-    groupsById.set(group.id, group)
-    if (group.parentId !== null) groupIdsWithChildren.add(group.parentId)
-  }
-
-  // HR-6's reach, resolved before either half of the pair is judged. ⚠️ A
-  // second pass and not the one above: `isRowHidden` climbs the parents, so it
-  // needs `groupsById` whole.
-  const hiddenGroupIds = new Set<string>()
   const groupIdsWithUnhiddenChildren = new Set<string>()
   for (const group of schedule.taskGroups) {
-    if (isRowHidden(group, groupsById, settings)) {
-      hiddenGroupIds.add(group.id)
-      continue
-    }
-    if (group.parentId !== null) groupIdsWithUnhiddenChildren.add(group.parentId)
+    groupsById.set(group.id, group)
+    if (group.parentId === null) continue
+    groupIdsWithChildren.add(group.parentId)
+    // ⚠️ The child's OWN `isHidden` and not its ancestors'. A row under a
+    // hidden one is unreachable from a drawn parent anyway, since HR-6 keeps
+    // the whole subtree out; the one thing this answers is whether unfolding
+    // the parent would put THIS child into the picture.
+    if (group.isHidden !== true) groupIdsWithUnhiddenChildren.add(group.parentId)
+  }
+
+  // ⭐ THE PICTURE, BUILT BEFORE ANY OF THE THREE ANSWERS THAT READ IT. A row is
+  // in it exactly when the shell measured a box for the row this frame, which is
+  // the one place HR-1a, HR-6 and the display amount (FR-018) have already been
+  // settled -- see the head of this file.
+  const boxByGroupId = new Map<string, ScreenRect>()
+  for (const placed of session.rowBoxes) {
+    if (boxByGroupId.has(placed.groupId)) continue
+    boxByGroupId.set(placed.groupId, placed.box)
+  }
+
+  // HF-3's reach: the rows whose own fold would take a drawn row out of the
+  // picture. ⚠️ A second pass and not the one above, because a child may be
+  // printed before its parent and the map has to be whole first.
+  const groupIdsWithDrawnChildren = new Set<string>()
+  for (const group of schedule.taskGroups) {
+    if (group.parentId === null) continue
+    if (!boxByGroupId.has(group.id)) continue
+    groupIdsWithDrawnChildren.add(group.parentId)
   }
 
   // HF-2's reach, marked upward from the folded rows instead of walked downward
@@ -541,9 +564,19 @@ function panelIndexOf(
   const groupIdsWithCollapsedBelow = new Set<string>()
   const groupIdsWithUnfoldedBelow = new Set<string>()
   for (const group of schedule.taskGroups) {
+    // ⛔ THE ONE TEST BOTH WALKS BEGIN WITH (MUST NOT): a row the picture does
+    // not hold carries a fold nobody can see undone, so neither walk climbs
+    // from it. ⚠️ The climb above such a row is not lost with it -- HR-1a and
+    // HR-6 both leave out a whole subtree, so an ancestor that IS drawn is
+    // never reachable only through a row that is not.
+    if (!boxByGroupId.has(group.id)) continue
     // HF-11's reach, marked upward from the rows that are NOT folded -- the
     // mirror of the walk below, sharing its one pass and its ring guard.
-    if (group.isCollapsed !== true && !hiddenGroupIds.has(group.id)) {
+    if (group.isCollapsed !== true) {
+      // ⛔ CR-309: a row that would hide nothing is no seed. Folding it takes
+      // no row out of the picture, so an ancestor marked from it would arm a
+      // control whose press draws the same frame again.
+      if (!groupIdsWithDrawnChildren.has(group.id)) continue
       let unfoldedAncestorId = group.parentId
       while (
         unfoldedAncestorId !== null &&
@@ -553,25 +586,19 @@ function panelIndexOf(
         const ancestor = groupsById.get(unfoldedAncestorId)
         unfoldedAncestorId = ancestor === undefined ? null : ancestor.parentId
       }
+      continue
     }
-    if (group.isCollapsed !== true) continue
-    // A fold under a hidden row is a fold nobody can see undone -- see
-    // `expanderOf`. ⚠️ The climb above such a row is not lost with it: a row
-    // that is not hidden has no hidden row above it (the hiding is inherited),
-    // so no unhidden ancestor is only reachable through a hidden descendant.
-    if (hiddenGroupIds.has(group.id)) continue
+    // ⛔ CR-309, the mirror of the test above: a folded row that would reveal
+    // nothing is no seed either. HR-6 is what makes an existing child fail to
+    // arrive, which is why the set below is the unhidden children and not
+    // `groupIdsWithChildren`.
+    if (!groupIdsWithUnhiddenChildren.has(group.id)) continue
     let ancestorId = group.parentId
     while (ancestorId !== null && !groupIdsWithCollapsedBelow.has(ancestorId)) {
       groupIdsWithCollapsedBelow.add(ancestorId)
       const ancestor = groupsById.get(ancestorId)
       ancestorId = ancestor === undefined ? null : ancestor.parentId
     }
-  }
-
-  const boxByGroupId = new Map<string, ScreenRect>()
-  for (const placed of session.rowBoxes) {
-    if (boxByGroupId.has(placed.groupId)) continue
-    boxByGroupId.set(placed.groupId, placed.box)
   }
 
   // The names FR-058 lends to the rows that were given none. AT-24 makes `uid`
@@ -588,6 +615,7 @@ function panelIndexOf(
     groupsById,
     groupIdsWithChildren,
     groupIdsWithUnhiddenChildren,
+    groupIdsWithDrawnChildren,
     boxByGroupId,
     groupIdsWithCollapsedBelow,
     groupIdsWithUnfoldedBelow,
@@ -627,7 +655,7 @@ export function rowTitlePanelFromSchedule(
   _selection: Selection,
   session: ScreenSession,
 ): RowTitlePanel {
-  const index = panelIndexOf(schedule, settings, session)
+  const index = panelIndexOf(schedule, session)
   const pinnedGroupIds = new Set(settings.pinnedGroupIds)
   // Built once for the whole panel rather than per row -- see `isSelected`.
   const chosenGroupIds: ReadonlySet<string> = new Set(session.selectedGroupIds)
@@ -658,12 +686,31 @@ export function rowTitlePanelFromSchedule(
   return {
     pinnedTitles,
     titles,
-    // ⭐ READ OFF `TaskGroup.isCollapsed` (AT-56) AND OFF THE DOCUMENT'S WHOLE
-    // ROSTER, the same discipline `expanderOf` keeps and for the same reason:
-    // what each entrance has left to do is a question about that column, not
-    // about which rows this frame happened to draw.
-    canOpenEveryRow: schedule.taskGroups.some((row) => row.isCollapsed === true),
-    canCloseEveryRow: schedule.taskGroups.some((row) => row.isCollapsed !== true),
+    // ⭐ READ OFF `TaskGroup.isCollapsed` (AT-56) AND OFF THE ROWS THIS FRAME
+    // DREW, the same discipline `expanderOf` keeps and for the same reason: the
+    // closing rule under table T-051 (MUST) makes 「いま描かれている行」 what
+    // HF-10 and HF-12 act on, and (MUST NOT) refuses to count the fold that
+    // remains on a row the picture does not hold.
+    // ⛔ THE NOTE THAT STOOD HERE READ THE DOCUMENT'S WHOLE ROSTER, on the
+    // reading these entrances write AT-56 and nothing else. CR-307 overturned
+    // it -- what a press writes is not what a reader sees.
+    // ⛔ AND NARROWED AGAIN BY CR-309, in the same words the three halves of
+    // `expanderOf` are: 「その操作で、描かれる行が 1 行も増減しないときは、対象
+    // が 1 つも無いものとして扱うこと（MUST）」. A drawn folded row with nothing
+    // to reveal opens onto the same picture, and a drawn unfolded row with no
+    // drawn child hides nothing when it folds -- so neither is a reason to arm.
+    canOpenEveryRow: schedule.taskGroups.some(
+      (row) =>
+        row.isCollapsed === true &&
+        index.boxByGroupId.has(row.id) &&
+        index.groupIdsWithUnhiddenChildren.has(row.id),
+    ),
+    canCloseEveryRow: schedule.taskGroups.some(
+      (row) =>
+        row.isCollapsed !== true &&
+        index.boxByGroupId.has(row.id) &&
+        index.groupIdsWithDrawnChildren.has(row.id),
+    ),
   }
 }
 
@@ -693,3 +740,5 @@ export const NOT_STORED_ROW_CONTROL_SIZES: {
   'S-140': 0,
 }
 // </generated>
+
+

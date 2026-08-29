@@ -23,7 +23,7 @@
 //   2. THE FAINTNESS, BEYOND ONE SURFACE. tests/unit/uf-71.test.ts asks that a
 //      header entry which cannot be used is painted differently from one that
 //      can, and that the colour is SOME row of 表 T-236. ⛔ It does not ask
-//      WHICH row, and FR-029 now names one: 「薄さは … 表 T-236 の `S-148` の色
+//      WHICH row, and FR-029 now names one: 「薄さは … 表 T-236 の `S-149` の色
 //      で示すこと（MUST）」. ⛔ And it asks it on the `App Header` alone, while
 //      the same requirement closes with 「本規則は … 表 T-109 の全行に当たる ——
 //      行の操作子もパレットもヘッダーも同じである。載る面によって薄くしない入口
@@ -41,7 +41,7 @@
 //                  さとすること（MUST）」／⭐ 「操作子は、行の名前の上へ重ねて描くこ
 //                  と（MUST）」
 //   `FR-029`       「その入口を押しても、いま文書にも画面にも何も変えられないときは、
-//                  その入口を薄く描くこと（MUST）。薄さは … 表 T-236 の `S-148` の
+//                  その入口を薄く描くこと（MUST）。薄さは … 表 T-236 の `S-149` の
 //                  色で示すこと（MUST）。」／⛔ 「薄く描いた入口を、宿主の意味で無効
 //                  にしてはならない（MUST NOT）—— 無効にすると押下そのものが届かず、
 //                  下の理由を告げる引き金が消える」／⚠️ 「本規則は … 表 T-109 の全行
@@ -49,7 +49,9 @@
 //                  よって薄くしない入口があってはならない（MUST NOT）。」
 //   表 T-236 S-150 「パネルの地の色」（行見出しパネル・プロパティパネル・パレットの地。
 //                  色相追随 ○）
-//   表 T-236 S-148 「控えめな文字の色」（副次の文字。色相追随 —）
+//   表 T-236 S-149 「罫の色」（区切りの線。色相追隨 ○）
+//                  ⚠️ CR-307 が 2026-08-30 に S-148 をこの行へ差し替えた ——
+//                  「`S-148` では地との隔たりが大きすぎ、使える入口と読み違えられた」
 //   表 T-051 HF-1  every row with something under it carries the three controls;
 //                  `RowExpander` is how the description says which of them has
 //                  work. ⭐ A row whose `canOpen` is false is exactly FR-029's
@@ -723,8 +725,8 @@ function t236(rowId: string): string {
 
 /** 「パネルの地の色」 -- what HF-6 (MUST) names for the ground. */
 const S_150 = t236('S-150')
-/** 「控えめな文字の色」 -- what FR-029 (MUST) names for an entrance that is spent. */
-const S_148 = t236('S-148')
+/** 「罫の色」 -- what FR-029 (MUST) names for an entrance that is spent. */
+const S_149 = t236('S-149')
 
 /**
  * A declaration this node was written with, resolved through the one the unit
@@ -990,10 +992,10 @@ describe('the manuscripts still say what these cases read', () => {
     expect(U_23).toBe('Row Title Tree')
     expect(U_26).toBe('Command Palette')
     expect(S_150.length).toBeGreaterThan(0)
-    expect(S_148.length).toBeGreaterThan(0)
+    expect(S_149.length).toBeGreaterThan(0)
     // ⛔ Two rows of one table that painted alike would make every case below
     // pass on either colour.
-    expect(S_150, '表 T-236: the ground and the subdued text are two colours').not.toBe(S_148)
+    expect(S_150, '表 T-236: the ground and the rule colour are two colours').not.toBe(S_149)
   })
 
   it('⛔ HF-6 still asks for ONE ground, in S-150, as tall as the row', () => {
@@ -1003,9 +1005,15 @@ describe('the manuscripts still say what these cases read', () => {
     expect(HF_6).toContain('行の右端までとし、縦はその行の高さとすること（MUST）')
   })
 
-  it('⛔ FR-029 still names S-148 for the faintness, and still forbids disabling', () => {
+  it('⛔ FR-029 still names S-149 for the faintness, and still forbids disabling', () => {
     const fr029 = FR_029_TEXT
-    expect(fr029).toContain('`S-148` の色で示すこと（MUST）')
+    expect(fr029).toContain('`S-149` の色で示すこと（MUST）')
+    // ⛔ THE ROW THAT WAS TAKEN AWAY, PINNED TOO. CR-307 moved the faintness off
+    // S-148 on 2026-08-30, and a unit still painting S-148 would be painting the
+    // colour the user said reads as an entrance that CAN be used.
+    expect(fr029).toContain('`S-148` では地との隔たりが大きすぎ')
+    expect(fr029).not.toContain('`S-148` の色で示すこと（MUST）')
+    expect(S_149, '表 T-236: S-148 and S-149 are two colours').not.toBe(t236('S-148'))
     expect(fr029).toContain('薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）')
     expect(fr029).toContain('載る面によって薄くしない入口があってはならない（MUST NOT）')
   })
@@ -1111,10 +1119,10 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
 // (b) FR-029 -- the faintness, and which colour it is
 // ===========================================================================
 
-describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-148', () => {
-  it('⛔ MUST: on the `App Header`, the faint colour is 表 T-236’s S-148', () => {
+describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () => {
+  it('⛔ MUST: on the `App Header`, the faint colour is 表 T-236’s S-149', () => {
     // 「その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を
-    //   薄く描くこと（MUST）。薄さは … 表 T-236 の `S-148` の色で示すこと（MUST）」
+    //   薄く描くこと（MUST）。薄さは … 表 T-236 の `S-149` の色で示すこと（MUST）」
     // ⛔ WHICH ROW, AND NOT MERELY "SOME ROW". tests/unit/uf-71.test.ts already
     // asks that the colour is a row of 表 T-236 and that it differs from an
     // entry that can be used; CR-306 named the row, and nothing asked for it.
@@ -1129,8 +1137,8 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-148', () 
 
     expect(
       paintedColour(built, iconEntry(built.root(), IC_HEADER)),
-      'FR-029 (MUST): 薄さは 表 T-236 の `S-148` の色で示すこと',
-    ).toBe(S_148)
+      'FR-029 (MUST): 薄さは 表 T-236 の `S-149` の色で示すこと',
+    ).toBe(S_149)
   })
 
   it('⛔ MUST NOT: the same on the `Command Palette` -- 載る面によって変えない', () => {
@@ -1143,7 +1151,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-148', () 
     expect(
       paintedColour(built, iconEntry(oneByRole(built.root(), U_26), IC_PALETTE)),
       'FR-029 (MUST NOT): 載る面によって薄くしない入口があってはならない',
-    ).toBe(S_148)
+    ).toBe(S_149)
   })
 
   it('⛔ MUST NOT: and on a row’s controls -- the surface CR-306 was raised from', () => {
@@ -1155,8 +1163,8 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-148', () 
 
     expect(
       paintedColour(built, iconEntry(row, IC_ROW_OPEN)),
-      `FR-029 (MUST): the row control with nothing to open is not painted S-148: ${whatWasDrawn(row)}`,
-    ).toBe(S_148)
+      `FR-029 (MUST): the row control with nothing to open is not painted S-149: ${whatWasDrawn(row)}`,
+    ).toBe(S_149)
   })
 
   it('⛔ MUST: and on the panel’s own two entrances -- IC-74 and IC-78', () => {
@@ -1179,8 +1187,8 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-148', () 
     for (const icon of [IC_OPEN_EVERY_ROW, IC_CLOSE_EVERY_ROW]) {
       expect(
         paintedColour(built, iconEntry(root, icon)),
-        `FR-029 (MUST): ${icon} has nothing to do and is not painted S-148`,
-      ).toBe(S_148)
+        `FR-029 (MUST): ${icon} has nothing to do and is not painted S-149`,
+      ).toBe(S_149)
     }
   })
 
@@ -1201,13 +1209,13 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-148', () 
 
     for (const icon of [IC_OPEN_EVERY_ROW, IC_CLOSE_EVERY_ROW]) {
       expect(paintedColour(built, iconEntry(root, icon)), `${icon} still has rows to reach`).not.toBe(
-        S_148,
+        S_149,
       )
     }
   })
 
   it('⭐ and an entrance that CAN be used is not painted that colour', () => {
-    // ⛔ WITHOUT THIS PAIR, A UNIT THAT PAINTED EVERY ENTRANCE S-148 WOULD PASS
+    // ⛔ WITHOUT THIS PAIR, A UNIT THAT PAINTED EVERY ENTRANCE S-149 WOULD PASS
     // ALL THREE CASES ABOVE and would be telling a person nothing at all.
     const built = drawn(
       viewWith({
@@ -1218,7 +1226,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-148', () 
       }),
     )
 
-    expect(paintedColour(built, iconEntry(built.root(), IC_HEADER))).not.toBe(S_148)
+    expect(paintedColour(built, iconEntry(built.root(), IC_HEADER))).not.toBe(S_149)
   })
 
   it('⛔ MUST NOT: a faint entrance is never disabled in the host’s own sense', () => {

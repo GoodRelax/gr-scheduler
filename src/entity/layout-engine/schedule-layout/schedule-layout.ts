@@ -201,6 +201,21 @@ export interface RowPlacement {
    * lanes must visit them by increasing `y`, not by index.
    */
   readonly stackTops: readonly number[]
+  /**
+   * Whether this row was lifted into FR-098's pinned band -- `y` above is then
+   * a place in that band and the vertical scroll does not move it.
+   *
+   * ⛔⛔ OPTIONAL, AND `undefined` MEANS "not pinned". It is declared optional
+   * so that the `RowPlacement` literals already written go on compiling; the
+   * cost is that a caller which builds a placement by hand can never say a row
+   * IS pinned by forgetting, only that it is not, and no compiler will point at
+   * a reader that ignores it.
+   * ⚠️ Published because two questions outside this file turn on it and neither
+   * can be re-derived: S-78 and S-176 point at the SCROLLING remainder (FR-098,
+   * MUST) so the anchor may not be taken from a banded row, and FR-055's fit
+   * names the first scrolling row.
+   */
+  readonly isPinned?: boolean
 }
 
 export interface ScheduleLayout {
@@ -245,6 +260,27 @@ export interface ScheduleLayout {
    * position in px (Chapter 1.4) asks for.
    */
   readonly contentX0: number | null
+  /**
+   * LF-14 of table T-221: how tall FR-098's pinned band stands, gaps between
+   * its rows included and no gap below it. Zero while nothing is pinned.
+   *
+   * ⛔⛔ OPTIONAL, for the reason `RowPlacement.isPinned` gives, and `undefined`
+   * reads as zero everywhere. ⚠️ FR-055's fit is the reader that cannot do
+   * without it: 「描くものが `Row Area` から ピン止めした行の帯を除いた残りに収ま
+   * る最も深い段を採る（MUST）」, so the height it fits against is the `Row
+   * Area`'s less this and less one `rowGap`.
+   */
+  readonly pinnedBandHeight?: number
+  /**
+   * The top edge of the scrolling remainder -- the `Row Area`'s own top while
+   * nothing is pinned, and one `rowGap` below the band otherwise.
+   *
+   * ⛔ THIS IS WHAT S-78 AND S-176 POINT AT (FR-098, MUST), and the band's top
+   * edge is forbidden (MUST NOT) -- 「帯は流れないので、そこを指すと表示位置が二
+   * 度と動かない」. ⛔⛔ OPTIONAL, and `undefined` reads as `regions.rowArea.y`,
+   * which is what every caller meant before a band existed.
+   */
+  readonly scrollAreaY?: number
 }
 
 /** ST-7 stops the whole layout rather than truncating or overlapping. */
@@ -278,7 +314,7 @@ function serialOf(day: CalendarDay): number {
  */
 export function labelUnits(text: string): number {
   let units = 0
-  for (const ch of text) units += ch.charCodeAt(0) < 0x100 ? 1 : 2
+  for (const character of text) units += character.charCodeAt(0) < 0x100 ? 1 : 2
   return units
 }
 
@@ -429,17 +465,17 @@ const TRUNCATION_MARK_UNITS = 2
 function truncate(text: string, limit: number): string {
   const unitsOf = (ch: string): number => (ch.charCodeAt(0) < 0x100 ? 1 : 2)
   let units = 0
-  for (const ch of text) units += unitsOf(ch)
+  for (const character of text) units += unitsOf(character)
   if (units <= limit) return text
 
   const room = limit - TRUNCATION_MARK_UNITS
   let kept = ''
   let taken = 0
-  for (const ch of text) {
-    const next = taken + unitsOf(ch)
+  for (const character of text) {
+    const next = taken + unitsOf(character)
     if (next > room) break
     taken = next
-    kept += ch
+    kept += character
   }
   return kept + TRUNCATION_MARK
 }
@@ -614,8 +650,8 @@ export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings
 export function dateAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
   if (layout.originDay === null || layout.pxPerDay <= 0) return null
   const days = Math.floor((x - layout.originX) / layout.pxPerDay)
-  const at = new Date((serialOf(layout.originDay) + days) * MS_PER_DAY)
-  return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
+  const foundAt = new Date((serialOf(layout.originDay) + days) * MS_PER_DAY)
+  return { year: foundAt.getUTCFullYear(), month: foundAt.getUTCMonth() + 1, day: foundAt.getUTCDate() }
 }
 
 /**
@@ -691,7 +727,7 @@ function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number
 
 /** LC-1. A row goes when it, or anything above it, is hidden or collapsed. @purity pure */
 function drawnGroups(schedule: Schedule, settings: DocumentSettings): readonly (TaskGroup & { depth: number })[] {
-  const byId = new Map(schedule.taskGroups.map((g) => [g.id, g]))
+  const byId = new Map(schedule.taskGroups.map((glyph) => [glyph.id, glyph]))
   const drawnRows: (TaskGroup & { depth: number })[] = []
 
   for (const group of schedule.taskGroups) {
@@ -699,12 +735,12 @@ function drawnGroups(schedule: Schedule, settings: DocumentSettings): readonly (
     let dropped = group.isHidden === true
     // HR-1a hides what a collapsed row holds and HR-6 does the same for a
     // hidden one; neither re-parents what it hides, so walking up settles it.
-    for (let at = group.parentId, guard = 0; at !== null && guard <= settings.maxGroupDepth; guard++) {
-      const parent = byId.get(at)
+    for (let foundAt = group.parentId, guard = 0; foundAt !== null && guard <= settings.maxGroupDepth; guard++) {
+      const parent = byId.get(foundAt)
       if (parent === undefined) break
       depth += 1
       if (parent.isHidden === true || parent.isCollapsed === true) dropped = true
-      at = parent.parentId
+      foundAt = parent.parentId
     }
     if (!dropped) drawnRows.push({ ...group, depth })
   }
@@ -831,9 +867,9 @@ function milestoneGlyphOf(
  */
 function spanWidthOf(task: Task, pxPerDay: number): number {
   const from = dayOf(task.start)
-  const to = dayOf(task.finish)
-  if (from === null || to === null) return 0
-  return Math.max(0, serialOf(to) - serialOf(from)) * pxPerDay
+  const toDay = dayOf(task.finish)
+  if (from === null || toDay === null) return 0
+  return Math.max(0, serialOf(toDay) - serialOf(from)) * pxPerDay
 }
 
 /**
@@ -901,10 +937,10 @@ function actualSpanOf(
 ): { readonly x: number; readonly width: number } | null {
   const from = dayOf(task.actualStart)
   if (from === null) return null
-  const to = dateFromWorkingDays(within, from, task.actualDuration ?? 0)
+  const toDay = dateFromWorkingDays(within, from, task.actualDuration ?? 0)
   return {
     x: xOnTimeAxis(originSerial, pxPerDay, originX, from),
-    width: Math.max(0, serialOf(to) - serialOf(from)) * pxPerDay,
+    width: Math.max(0, serialOf(toDay) - serialOf(from)) * pxPerDay,
   }
 }
 
@@ -969,15 +1005,26 @@ export function layoutFromSchedule(
   // judgement cap the depth there (MAY), and it is what stops a caller asking
   // for a depth no zoom could draw.
   const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
-  const rows = drawnGroups(schedule, settings).filter((g) => g.depth <= depthLimit)
+  // ⭐⭐ A PINNED ROW IS OUTSIDE THE DISPLAY AMOUNT (FR-018 と FR-098, both
+  // MUST NOT), 利用者の裁定 2026-08-30 「拡大、縮小しても表示を続けるのがピン止め
+  // だ」. ⛔ It is NOT outside HR-1a or HR-6: `drawnGroups` above has already
+  // dropped a row under a folded or hidden one, and FR-098 (MUST) names those
+  // two as the only reasons a pinned row is not drawn.
+  // ⭐ The monotone direction survives the exemption, which FR-018 argues: the
+  // exempt set does not follow the zoom and `S-127` caps it, so what is drawn
+  // stays 「一定の集合と、縮む集合の和」.
+  const pinnedIds = new Set(settings.pinnedGroupIds)
+  const rows = drawnGroups(schedule, settings).filter(
+    (glyph) => glyph.depth <= depthLimit || pinnedIds.has(glyph.id),
+  )
 
   // Four indexes, built once, before the row loop opens. Scanning
   // taskGroupMembers per row and taskVisuals per Task made the whole layout
   // O(n^2) in the task count -- NFR-013 forbids that outright ("`O(n²)` の算法を
   // 用いてはならない（MUST NOT）", naming レイアウトの算出 first), and MN-6 of
   // Chapter 5.6 runs the whole of table T-068 once at the head of every frame.
-  const taskByUid = new Map(schedule.tasks.map((t) => [t.uid, t]))
-  const visualByUid = new Map(schedule.taskVisuals.map((v) => [v.taskUid, v]))
+  const taskByUid = new Map(schedule.tasks.map((text) => [text.uid, text]))
+  const visualByUid = new Map(schedule.taskVisuals.map((value) => [value.taskUid, value]))
   const membersByGroup = new Map<string, TaskGroupMember[]>()
   for (const member of schedule.taskGroupMembers) {
     // Insertion order is kept, so the order inside a group is what the source
@@ -1018,8 +1065,8 @@ export function layoutFromSchedule(
     // S-86's filter and the measuring below both want all three, and asking
     // twice doubles the work NFR-013 caps.
     const drawnTasks = (membersByGroup.get(row.id) ?? [])
-      .map((m) => taskByUid.get(m.taskUid))
-      .filter((t): t is Task => t !== undefined)
+      .map((match) => taskByUid.get(match.taskUid))
+      .filter((text): text is Task => text !== undefined)
       .map((task) => {
         const kind = shapeKindOf(visualByUid, task)
         const span = spanWidthOf(task, pxPerDay)
@@ -1046,10 +1093,10 @@ export function layoutFromSchedule(
     const laneOf: number[] = []
     const measured = drawnTasks.map(({ task, kind, glyph, width }) => {
       const from = dayOf(task.start)
-      const at = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
+      const foundAt = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
       // LF-10 centres a milestone's figure on its day; every other shape
       // starts at it.
-      const x = kind === 'milestone' ? at - width / 2 : at
+      const x = kind === 'milestone' ? foundAt - width / 2 : foundAt
       // ---- LC-4, LC-5, LC-6: cut, estimate, then table T-013 -------------
       const label = truncate(task.name ?? '', settings.truncateUnits)
       const font = labelFontSize(kind, settings)
@@ -1105,19 +1152,19 @@ export function layoutFromSchedule(
       // ---- LC-8, ST-3: the shallowest lane it does not overlap ------------
       // ST-10 keeps the interval half-open, so touching ends do not collide.
       let lane = -1
-      for (let i = 0; i < lanes.length; i++) {
+      for (let step = 0; step < lanes.length; step++) {
         // The two summaries answer without a scan whenever the item clears the
         // whole lane on one side. ST-2 sorts by start ascending, so occupiedX0
         // is non-decreasing for every shape but a milestone (LF-10 shifts its x
         // left by half the figure) and the first test settles nearly every
         // item. Neither is a new rule -- the exact scan below still decides
         // when they do not hold, so the answer is what it always was.
-        if (item.occupiedX0 >= laneMaxX1[i]! || item.occupiedX1 <= laneMinX0[i]!) {
-          lane = i
+        if (item.occupiedX0 >= laneMaxX1[step]! || item.occupiedX1 <= laneMinX0[step]!) {
+          lane = step
           break
         }
-        if (lanes[i]!.every((q) => item.occupiedX1 <= q.x0 || item.occupiedX0 >= q.x1)) {
-          lane = i
+        if (lanes[step]!.every((quoted) => item.occupiedX1 <= quoted.x0 || item.occupiedX0 >= quoted.x1)) {
+          lane = step
           break
         }
       }
@@ -1151,8 +1198,8 @@ export function layoutFromSchedule(
     // LF-2's empty-lane arm. ⚠️ A lane is only ever created because a Task
     // needed one, so this cannot fire today -- it is kept because LF-2 states
     // the rule, not because the loop above can leave a lane at zero.
-    for (let i = 0; i < laneHeights.length; i++) {
-      if (laneHeights[i] === 0) laneHeights[i] = emptyLane
+    for (let step = 0; step < laneHeights.length; step++) {
+      if (laneHeights[step] === 0) laneHeights[step] = emptyLane
     }
     const stacked = laneHeights.reduce((sum, h) => sum + h + settings.stackGap, 0)
     const packed = Math.max(0, stacked - settings.stackGap)
@@ -1229,11 +1276,25 @@ export function layoutFromSchedule(
     y += height + settings.rowGap
   }
 
+  // ---- FR-098 with LF-14: lift the pinned rows out of the chain ------------
+  const band = pinnedBandOf(rowPlacements, settings, regions)
+  const lifted = liftedRows(rowPlacements, band)
+  const shifted = shiftedPlacements(placements, band.shiftByGroupId)
+
   // ---- S-78 with S-176: put the place the display points at at the top -----
-  const scrollOffsetY = scrollOffsetOf(rowPlacements, settings, regions.rowArea.y)
+  // ⛔ OVER THE SCROLLING ROWS AND FROM THE REMAINDER'S TOP EDGE. FR-098 (MUST)
+  // makes S-78 and S-176 point at 「スクロールする残りの領域の上端」 and (MUST
+  // NOT) forbids the band's own top -- 「帯は流れないので、そこを指すと表示位置
+  // が二度と動かない」.
+  const scrollingRows = lifted.filter((row) => row.isPinned !== true)
+  const scrollOffsetY = scrollOffsetOf(scrollingRows, settings, band.scrollAreaY)
   // ⚠️ Measured before the slide: FR-055 fits to the extent of the content,
   // which does not change when the content is scrolled.
-  const contentHeight = Math.max(0, y - settings.rowGap - regions.rowArea.y)
+  // ⛔ THE SCROLLING ROWS ALONE, because LF-14 gives them 「`Row Area` の高さから
+  // 帯の高さと `rowGap` 1 つぶんを引いた残り」 and FR-055 fits to that remainder
+  // -- fitting the band in as well would measure a height against a box the
+  // band is not in.
+  const contentHeight = Math.max(0, band.scrollingContentHeight)
   const nothingPlaced = leftmost === Number.POSITIVE_INFINITY
   const contentWidth = nothingPlaced ? 0 : Math.max(0, widest - leftmost)
   const contentX0 = nothingPlaced ? null : leftmost
@@ -1244,12 +1305,142 @@ export function layoutFromSchedule(
     originDay,
     originX,
     rectangleHeight: planHeightOf('rectangle', settings),
-    rows: scrolledRows(rowPlacements, scrollOffsetY),
-    placements: scrolledPlacements(placements, scrollOffsetY),
+    rows: scrolledRows(lifted, scrollOffsetY),
+    placements: scrolledPlacements(shifted, scrollOffsetY, band.pinnedIdsPlaced),
     contentWidth,
     contentHeight,
     contentX0,
+    pinnedBandHeight: band.height,
+    scrollAreaY: band.scrollAreaY,
   }
+}
+
+/**
+ * LF-14 of table T-221 and FR-098's first paragraph: where each row stands once
+ * the pinned ones have been lifted out of LF-3's chain.
+ *
+ * ⭐⭐ WHY THE WHOLE OF FR-098 IS ANSWERED HERE AND NOT IN THE RENDERERS. The
+ * requirement asks for 「行見出しの側と日程の側の両方を、同時に同じ高さへ上げる
+ * こと（MUST）」 and forbids raising one alone (MUST NOT). Both sides read this
+ * one layout -- `svg-renderer.ts` draws a band per `RowPlacement` and the shell
+ * cuts the `Row Title Panel`'s boxes from the same array -- so a row moved HERE
+ * is moved on both sides by construction, and neither side needs to know that
+ * pinning exists. ⛔ A rule written in each renderer instead would be the same
+ * rule in two places, and either could move without the other.
+ *
+ * ⭐ THE ORDER IS `pinnedGroupIds`' (S-126), which is the order the rows were
+ * fixed in: FR-098 (MUST NOT) forbids ranking one pinned row above another and
+ * lines them up from the top in that order. ⛔ NOT THE DOCUMENT'S ORDER, which
+ * is what `rowPlacements` arrives in.
+ *
+ * ⚠️ 「帯へ上げた行は `LF-3` の連なりから除き、抜けた場所は詰める」 -- so the
+ * scrolling rows are re-chained over the gap a lifted row leaves, and the whole
+ * remainder then begins one `rowGap` below the band.
+ *
+ * ⛔ STOP -- TWO OF FR-098's RULES ARE NOT ANSWERED HERE. 「帯が `Row Area` を
+ * 埋め尽くし、スクロールする行が 1 行も描けなくなってはならない（MUST NOT）」
+ * has no remedy anywhere in docs/spec: `S-127` caps the COUNT at five and no
+ * row says what to do when five bands are taller than the `Row Area`. And
+ * 「ピン止めした行が画面に収まらないときは、ピン止めした行の並びを縦にスクロール
+ * できるようにすること（MUST）」 needs a scroll position for the band, which no
+ * settings row holds -- table T-203 carries `S-126` and `S-127` and nothing
+ * else. ⛔ Neither is invented here.
+ *
+ * @purity pure
+ */
+function pinnedBandOf(
+  rowPlacements: readonly RowPlacement[],
+  settings: DocumentSettings,
+  regions: ScreenRegions,
+): {
+  readonly height: number
+  readonly scrollAreaY: number
+  readonly scrollingContentHeight: number
+  readonly pinnedIdsPlaced: ReadonlySet<string>
+  readonly shiftByGroupId: ReadonlyMap<string, number>
+} {
+  const placedById = new Map(rowPlacements.map((row) => [row.groupId, row] as const))
+  // S-126's order, and only the rows this pass actually placed: a pin on a row
+  // HR-1a or HR-6 keeps out of the picture lifts nothing, which is the one
+  // exception FR-098 (MUST) allows.
+  const banded: RowPlacement[] = []
+  const seen = new Set<string>()
+  for (const groupId of settings.pinnedGroupIds) {
+    if (seen.has(groupId)) continue
+    const row = placedById.get(groupId)
+    if (row === undefined) continue
+    seen.add(groupId)
+    banded.push(row)
+  }
+
+  const shiftByGroupId = new Map<string, number>()
+  // The band, stacked from the very top of the `Row Area` -- FR-098 (MUST)
+  // names U-50's top edge and (MUST NOT) forbids reaching above the Time Ruler.
+  let bandY = regions.rowArea.y
+  for (const row of banded) {
+    shiftByGroupId.set(row.groupId, bandY - row.y)
+    bandY += row.height + settings.rowGap
+  }
+  const height = Math.max(0, bandY - regions.rowArea.y - settings.rowGap)
+  // One `rowGap` between the band and the remainder, which is the length LF-14
+  // subtracts alongside the band's own height.
+  const scrollAreaY = regions.rowArea.y + (banded.length === 0 ? 0 : height + settings.rowGap)
+
+  let scrollY = scrollAreaY
+  for (const row of rowPlacements) {
+    if (seen.has(row.groupId)) continue
+    shiftByGroupId.set(row.groupId, scrollY - row.y)
+    scrollY += row.height + settings.rowGap
+  }
+  const scrollingContentHeight = Math.max(0, scrollY - scrollAreaY - settings.rowGap)
+
+  // ⚠️ `seen` AND NOT THE SETTING'S OWN SET is what leaves here: a pin naming a
+  // row this pass did not place lifts nothing, so the rows that actually
+  // reached the band are the ones every reader below has to be told about.
+  return { height, scrollAreaY, scrollingContentHeight, pinnedIdsPlaced: seen, shiftByGroupId }
+}
+
+/**
+ * The rows at the heights `pinnedBandOf` settled, each saying which side of the
+ * boundary it ended on.
+ *
+ * @purity pure
+ */
+function liftedRows(
+  rowPlacements: readonly RowPlacement[],
+  band: {
+    readonly pinnedIdsPlaced: ReadonlySet<string>
+    readonly shiftByGroupId: ReadonlyMap<string, number>
+  },
+): readonly RowPlacement[] {
+  return rowPlacements.map((row) => {
+    const shift = band.shiftByGroupId.get(row.groupId) ?? 0
+    const isPinned = band.pinnedIdsPlaced.has(row.groupId)
+    if (shift === 0 && !isPinned) return row
+    return {
+      ...row,
+      y: row.y + shift,
+      stackTops: row.stackTops.map((top) => top + shift),
+      isPinned,
+    }
+  })
+}
+
+/**
+ * The `Task` figures moved with the rows they sit in -- FR-098's 「行見出しの側
+ * と日程の側の両方を、同時に同じ高さへ上げること（MUST）」 read for the figures
+ * a lifted row carries.
+ *
+ * @purity pure
+ */
+function shiftedPlacements(
+  placements: readonly TaskPlacement[],
+  shiftByGroupId: ReadonlyMap<string, number>,
+): readonly TaskPlacement[] {
+  return placements.map((one) => {
+    const shift = shiftByGroupId.get(one.groupId) ?? 0
+    return shift === 0 ? one : { ...one, y: one.y + shift }
+  })
 }
 
 /**
@@ -1322,25 +1513,38 @@ function scrollOffsetOf(
  */
 function scrolledRows(rows: readonly RowPlacement[], offsetY: number): readonly RowPlacement[] {
   if (offsetY === 0) return rows
-  return rows.map((row) => ({
-    ...row,
-    y: row.y - offsetY,
-    stackTops: row.stackTops.map((top) => top - offsetY),
-  }))
+  return rows.map((row) => {
+    // ⛔ A PINNED ROW DOES NOT SLIDE (FR-098, MUST NOT): 「縦にスクロールしたこと
+    // は理由にならない」, and the first paragraph pins it to the top outright.
+    if (row.isPinned === true) return row
+    return {
+      ...row,
+      y: row.y - offsetY,
+      stackTops: row.stackTops.map((top) => top - offsetY),
+    }
+  })
 }
 
-/** The placements, slid by the same offset as their rows. @purity pure */
+/**
+ * The placements, slid by the same offset as their rows -- and the figures of a
+ * pinned row left where the band put them, for the reason `scrolledRows` gives.
+ *
+ * @purity pure
+ */
 function scrolledPlacements(
   placements: readonly TaskPlacement[],
   offsetY: number,
+  pinnedIdsPlaced: ReadonlySet<string>,
 ): readonly TaskPlacement[] {
   if (offsetY === 0) return placements
-  return placements.map((one) => ({ ...one, y: one.y - offsetY }))
+  return placements.map((one) =>
+    pinnedIdsPlaced.has(one.groupId) ? one : { ...one, y: one.y - offsetY },
+  )
 }
 
 /** Where one Task ended up, or null when this zoom does not draw it. @purity pure */
 export function taskPlacement(layout: ScheduleLayout, taskUid: number): TaskPlacement | null {
-  return layout.placements.find((p) => p.taskUid === taskUid) ?? null
+  return layout.placements.find((part) => part.taskUid === taskUid) ?? null
 }
 
 /**
@@ -1543,7 +1747,15 @@ export function fitZoom(
   // takes once -- NFR-013's growth is unchanged and this happens per press.
   const atFloor: ScheduleLayout[] = []
   for (let cap = 1; cap <= deepest; cap++) atFloor.push(runAt(zoomX, floorZoomY, cap))
-  const fits = (run: ScheduleLayout): boolean => run.contentHeight <= regions.rowArea.height
+  // ⭐ THE REMAINDER AND NOT THE WHOLE `Row Area` (FR-055, MUST): 「描くものが
+  // `Row Area` から ピン止めした行の帯（`FR-098`）を除いた残りに収まる最も深い段
+  // を採る」, and LF-14 makes that remainder the area's height less the band and
+  // less one `rowGap`. ⚠️ Each run measures its OWN band, because a deeper cap
+  // can put a taller row in it.
+  const fits = (run: ScheduleLayout): boolean => {
+    const remainderTop = run.scrollAreaY ?? regions.rowArea.y
+    return run.contentHeight <= regions.rowArea.y + regions.rowArea.height - remainderTop
+  }
   // 「その文書が持つ最も深い段から順に見て、描くものが Row Area に収まる最も深
   // い段を採る」. Depth 1 when none of them does -- FR-055 leaves the vertical
   // scroll standing rather than shrinking further.
@@ -1593,6 +1805,10 @@ export function fitZoom(
     // LC-1 to LC-9 push the rows in the order they are drawn and the S-78 slide
     // moves them all together, so the first is the top one however far the stack
     // has been slid.
-    scrollGroupId: chosen.rows[0]?.groupId ?? settings.scrollGroupId,
+    // ⛔ THE FIRST SCROLLING ROW, NEVER A BANDED ONE. FR-098 (MUST) has S-78
+    // point at the remainder's top edge and (MUST NOT) forbids the band's, and
+    // a pinned row is not on the remainder at all.
+    scrollGroupId:
+      chosen.rows.find((row) => row.isPinned !== true)?.groupId ?? settings.scrollGroupId,
   }
 }

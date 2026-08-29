@@ -452,6 +452,36 @@ export interface InputContext {
    * this component is handed the answer, exactly as `dualCursorFollowing` is.
    */
   readonly isPropertiesPanelShowing?: boolean
+  /**
+   * The `TaskGroup.id` of every row the last frame actually DREW -- the same
+   * set `ScreenSession.rowBoxes` carries, which is `ScheduleLayout.rows` cut to
+   * the `Row Area` with the rows the cut empties dropped.
+   *
+   * ⭐⭐ WHY THE PRESS SIDE NEEDS THE PICTURE AT ALL. FR-029 (MUST) draws an
+   * entrance faint 「その入口を押しても、いま文書にも画面にも何も変えられない
+   * とき」 and counts the target 「画面に描かれている側で」; the second MUST of
+   * the same requirement then has THAT press tell its reason. The two are one
+   * reading, so an entrance the panel drew faint must answer the press with a
+   * row of 表 T-233 and never with a silent write. ⛔ UNTIL THIS MEMBER EXISTED
+   * THIS FILE JUDGED OFF THE WHOLE ROSTER, and the two sides disagreed exactly
+   * where HR-1a and HR-6 keep a fold out of the picture: a control drawn faint
+   * wrote the document and told nobody.
+   *
+   * ⛔ THE SET IS NOT REBUILT HERE FROM `layout` AND `regions`, though both are
+   * in hand. The cut that makes it lives in the shell beside the one place the
+   * panel is handed it, and a second cut written here would be the same rule in
+   * two places (rule 03 section 1) -- the two would part company the first time
+   * the clip moved.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT, for the reason
+   * `isPropertiesPanelShowing` above gives: the `InputContext` literals already
+   * written go on compiling. ⚠️ WHERE IT IS ABSENT THIS FILE FALLS BACK TO THE
+   * DOCUMENT'S OWN ROSTER, which is what it read before -- so a caller that
+   * forgets it gets the old, wider arming rather than an exception, and no
+   * compiler will say so. ⭐ `frame-loop.ts` is the caller that fills it, from
+   * the very array it hands the renderer.
+   */
+  readonly drawnRowGroupIds?: readonly string[]
 }
 
 // ----------------------------------------------------------------- answer ---
@@ -527,6 +557,42 @@ export type InPlaceTarget =
 type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }>
 
 /**
+ * Which 場面 a pressed entrance was spent in -- FR-029's 「押された入口の場面」.
+ *
+ * ⭐⭐ A SITUATION AND NOT A ROW OF 表 T-233, WHICH IS THE WHOLE POINT OF THE
+ * TYPE. FR-029 (MUST) has the telling carry the row of that table the pressed
+ * entrance's situation falls under, and (MUST NOT) lets the fallback be carried
+ * where one fits; but 表 T-233 is spelled in exactly one file of `src/`
+ * (`frame-loop.ts`, which keeps `NoticeReason` and the manner census), and rule
+ * 03 section 1 of docs/development-rules forbids one concept two homes. So this
+ * layer names the situation it MEASURED and the shell maps it to the row --
+ * the same shape `DocumentFileFaultReason` already takes across the same seam.
+ *
+ * ⭐ ONE MEMBER PER SITUATION AND NOT PER ENTRANCE, because 表 T-233's heading
+ * is 場面: `IC-8` and `IC-9` share one (each is the half that cannot be hidden
+ * because the other one already is), and so do `IC-37` and `IC-38` (neither has
+ * a `Task` to line up against).
+ *
+ * ⛔ NOT A CENSUS OF THE ENTRANCES THAT CAN BE SPENT. `IC-18`'s situation is
+ * absent because this layer cannot measure it -- see `tellEntryHasNothingToDo`.
+ */
+export type SpentEntranceSituation =
+  /** HF-2 of table T-051 (IC-58): nothing under this row is left folded. */
+  | 'noFoldedRowBelow'
+  /** HF-11 (IC-77): nothing under this row is left unfolded. */
+  | 'noUnfoldedRowBelow'
+  /** HF-3 (IC-59): this row is folded already. */
+  | 'rowAlreadyFolded'
+  /** HF-10 (IC-74): no row anywhere is folded. */
+  | 'noFoldedRowAtAll'
+  /** HF-12 (IC-78): no row anywhere is unfolded. */
+  | 'noUnfoldedRowAtAll'
+  /** FR-049 (IC-8 / IC-9): only one of the plan and the actual is shown. */
+  | 'onlyOneOfPlanAndActualShown'
+  /** FR-034 (IC-37 / IC-38): no `Task` is chosen to line the others up with. */
+  | 'noTaskChosenToAlignWith'
+
+/**
  * What one happening is assigned to.
  *
  * ⭐ Wider than `DocumentCommand` because table T-036 is wider: opening a file,
@@ -581,7 +647,7 @@ export type InputAction =
   | { readonly kind: 'settleTextEntry' }
   /**
    * FR-029 (MUST): the entrance that was pressed has nothing it can do now, so
-   * the reason is told -- 表 T-233's `RS-27`, in 表 T-037's manner `NT-1`.
+   * the reason is told, in 表 T-037's manner `NT-1`.
    *
    * ⭐ RAISED ONLY ON THE PRESS, which is that requirement's own 「押されたときに
    * 限り」 (利用者の裁定 2026-08-30). ⛔ A pointer merely resting on such an
@@ -589,11 +655,19 @@ export type InputAction =
    * what the entrance is FOR, and FR-029 (MUST NOT) refuses to put the reason
    * under the pointer.
    *
-   * ⛔ NO ROW OF TABLE T-233 TRAVELS ON THIS KIND, and none may be added. The
-   * reason is one row and always the same row, so a member carrying it would be
-   * a value that can only ever hold one thing -- and `frame-loop.ts` is where
-   * `NoticeReason` and the manner census live, which is the one place a row of
-   * that table is spelled in `src/`.
+   * ⭐⭐ THE SITUATION TRAVELS, AND SINCE 2026-08-30 IT MUST. FR-029 now reads
+   * 「運ぶ理由は、押された入口の場面に当たる 表 T-233 の行とすること（MUST）」 and
+   * (MUST NOT) forbids carrying the fallback where a row of that table fits
+   * (利用者の裁定: 「通知は『行えることがありません』じゃ意味がないだろ。できない
+   * 理由を表示しろよ」). ⛔ THE NOTE THAT STOOD HERE SAID THE OPPOSITE -- 「NO ROW
+   * OF TABLE T-233 TRAVELS ON THIS KIND, and none may be added」 -- and it was
+   * right while that table held ONE row for every spent entrance at once. It
+   * now holds eight situations beside the fallback.
+   * ⛔ A SITUATION AND NEVER A ROW ID. `frame-loop.ts` stays the one place in
+   * `src/` where a row of 表 T-233 is spelled: it keeps `NoticeReason`, the
+   * manner census and the map from these situations to those rows, exactly as
+   * it already does for `DocumentFileFaultReason`. ⚠️ `null` is the fallback,
+   * `RS-27`, which FR-029 keeps for 「どの入口にも当たる行が無いとき」.
    * ⛔ AND NO WORDS. FR-038's one dictionary is what turns the row into the
    * sentence NT-1 asks for; a message composed here would be the second store
    * of translated strings that requirement forbids (MUST NOT).
@@ -607,31 +681,26 @@ export type InputAction =
    * here while another member of PI-18 spends them -- every arming entrance
    * (`commandFromArmingEntry`), and every entrance whose whole effect is a
    * change of `ScreenState` (the palette, the help, the export chooser, full
-   * screen, IN-4's close). Those DO change the screen, so answering RS-27 for
+   * screen, IN-4's close). Those DO change the screen, so telling a reason for
    * them would tell a person that a working entrance is dead. ⇒ This kind is
    * raised only where the drawing side is ALSO drawing the entrance faint, and
-   * the seven that are drawn faint today are all answered here: IC-8 / IC-9
-   * (S-59's pair, `commandStateOf`), IC-58 / IC-59 / IC-77 (`expanderOf`) and
-   * IC-74 / IC-78 (`rowTitlePanelFromSchedule`).
+   * the nine such entrances this file can reach are all answered here: IC-8 /
+   * IC-9 (S-59's pair, `commandStateOf`), IC-58 / IC-59 / IC-77 (`expanderOf`),
+   * IC-74 / IC-78 (`rowTitlePanelFromSchedule`) and IC-37 / IC-38
+   * (`isEntryUsable` of UF-65).
    *
-   * STOP -- ⛔ THREE ENTRANCES ARE DRAWN FAINT AND TELL NOTHING WHEN PRESSED,
-   * and not one of them is missing a branch: this file answers NONE of the
-   * three, so there is nowhere to put the telling.
-   *   IC-18   FR-066's dialogue field. `commandStateOf` draws it faint while
-   *           the `Agent API` is off. The STOP at the foot of this file records
-   *           why no entrance can be written for it -- nothing holds the field's
-   *           own switch.
-   *   IC-37 / IC-38  FR-034's alignment, which `isEntryUsable` (UF-65) draws
-   *           faint with nothing ordered selected. The same STOP records that
-   *           table T-108 holds no command for either.
-   * ⚠️ So FR-029's MUST is met for every entrance a press can reach and unmet
-   * for three a press reaches nothing with. ⛔ NO BRANCH IS INVENTED for them:
-   * an entrance answered with the telling ALONE would be this file declaring
-   * that the operation itself is unreachable, which is the STOP's finding and
-   * not the person's fault -- and would say 「いま行えない」 about an entrance
-   * that could never be performed at all.
+   * ⚠️ IC-18 IS THE TENTH AND IS NOT ANSWERED HERE. FR-066 draws the dialogue
+   * field only while the `Agent API` is on, and whether it is on is a current
+   * value LY-5 of table T-060 leaves with the Framework -- no member of
+   * `InputContext` carries it. `frame-loop.ts` tells that one in
+   * `answerSettledEntry`, beside the six other entries it spends for itself.
+   * ⛔ IT IS STILL NOT AN ENTRANCE THIS FILE CAN WRITE: the STOP at the foot of
+   * this file stands, because nothing holds the field's own switch.
    */
-  | { readonly kind: 'tellEntryHasNothingToDo' }
+  | {
+      readonly kind: 'tellEntryHasNothingToDo'
+      readonly situation: SpentEntranceSituation | null
+    }
   /** SK-9 and MK-13. */
   | { readonly kind: 'editInPlace'; readonly target: InPlaceTarget }
   // ⛔ `openPropertiesPanel` WAS HERE, IS STILL GONE, AND THE REASON HAS
@@ -895,13 +964,18 @@ function changed(commands: readonly DocumentCommand[]): TranslatedInput {
  * ⚠️ EVERY CALLER IS AN ENTRANCE THAT THE DRAWING SIDE ALSO DRAWS FAINT. The
  * condition is the same one, read on the two sides of the frame from the same
  * document -- `expanderOf` (UF-63) for the three drawn per row,
- * `rowTitlePanelFromSchedule` for the two the panel draws for itself, and
- * `commandStateOf` (UF-62) for S-59's pair.
+ * `rowTitlePanelFromSchedule` for the two the panel draws for itself,
+ * `commandStateOf` (UF-62) for S-59's pair and `isEntryUsable` (UF-65) for
+ * FR-034's two.
+ * ⭐ THE SITUATION IS THE CALLER'S TO NAME, and every caller has one: FR-029
+ * (MUST NOT) forbids carrying the fallback where a row of 表 T-233 fits, so a
+ * `null` here would have to mean this file measured a spent entrance whose
+ * situation that table does not hold.
  *
  * @purity pure
  */
-function nothingToDo(): TranslatedInput {
-  return acted({ kind: 'tellEntryHasNothingToDo' })
+function nothingToDo(situation: SpentEntranceSituation | null): TranslatedInput {
+  return acted({ kind: 'tellEntryHasNothingToDo', situation })
 }
 
 /**
@@ -912,6 +986,8 @@ function nothingToDo(): TranslatedInput {
  * -- IC-58 and IC-77 per row, IC-74 and IC-78 for the panel. Each of them is
  * drawn faint on exactly the reading that this set came out empty, so the test
  * is written once rather than four times (R2.7).
+ * ⚠️ THE SITUATION STILL COMES FROM THE CALLER, because the four are four rows
+ * of 表 T-233 and not one: an empty open is not an empty fold.
  * ⛔ NOT FOLDED INTO `changed`. That member answers `CONSUMED_ELSEWHERE` for an
  * empty bundle and has callers that are not entrances at all -- a key press
  * that deletes nothing is not an entrance with nothing to do, and FR-029 speaks
@@ -919,8 +995,11 @@ function nothingToDo(): TranslatedInput {
  *
  * @purity pure
  */
-function foldsOrNothing(commands: readonly DocumentCommand[]): TranslatedInput {
-  return commands.length === 0 ? nothingToDo() : changed(commands)
+function foldsOrNothing(
+  commands: readonly DocumentCommand[],
+  situation: SpentEntranceSituation,
+): TranslatedInput {
+  return commands.length === 0 ? nothingToDo(situation) : changed(commands)
 }
 
 /**
@@ -1172,11 +1251,39 @@ function dayAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
 }
 
 /**
+ * The rows that flow -- everything FR-098 did not lift into the pinned band.
+ *
+ * ⭐ ASKED OF THE LAYOUT AND NOT OF `pinnedGroupIds`. A pin naming a row HR-1a
+ * or HR-6 keeps out of the picture lifts nothing, so which rows actually
+ * reached the band is `ScheduleLayout`'s answer and not the setting's. ⚠️ The
+ * member is optional, and a layout that carries none says every row flows --
+ * which is what every one of them did before a band existed.
+ *
+ * @purity pure
+ */
+function scrollingRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
+  return layout.rows.filter((row) => row.isPinned !== true)
+}
+
+/**
+ * The top edge S-78 and S-176 point at (FR-098, MUST): the scrolling
+ * remainder's, which is the `Row Area`'s own while nothing is pinned.
+ *
+ * @purity pure
+ */
+function scrollAreaTopOf(context: InputContext): number {
+  return context.layout.scrollAreaY ?? context.regions.rowArea.y
+}
+
+/**
  * The row drawn at a y, or null when none is.
  *
  * ⚠️ Bands are half-open at the bottom, which is R3.4's rule and the one
  * `screen-regions.ts` follows: a point on the boundary belongs to the row
  * below, so two rows never both claim it.
+ * ⚠️ EVERY DRAWN ROW, THE BANDED ONES INCLUDED. A pinned row is drawn where the
+ * band put it, so a point over it hits that row -- FR-098 lifts the row, it
+ * does not stop it being a target.
  *
  * @purity pure
  */
@@ -1325,7 +1432,11 @@ function rowAnchorAt(
   y: number,
 ): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
   const settings = context.document.documentSettings
-  const rows = context.layout.rows
+  // ⛔ THE SCROLLING ROWS ALONE (FR-098, MUST NOT): a row lifted into the pinned
+  // band does not flow, so an anchor naming one would fix the display position
+  // where it could never move again -- which is the very reason that
+  // requirement points S-78 and S-176 at the remainder's top edge.
+  const rows = scrollingRowsOf(context.layout)
   const held = {
     scrollGroupId: settings.scrollGroupId,
     scrollGroupOffset: settings.scrollGroupOffset,
@@ -1470,11 +1581,14 @@ function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAn
  */
 function rowTurnedTo(context: InputContext, dy: number): string | null {
   const settings = context.document.documentSettings
-  const rows = context.layout.rows
-  const area = context.regions.rowArea
-  const standing = rowIndexAtTopEdge(rows, area.y)
+  // ⛔ THE SCROLLING ROWS AND THE REMAINDER'S TOP EDGE, for the reason
+  // `rowAnchorAt` above gives: FR-098 (MUST) makes S-78 point there and (MUST
+  // NOT) forbids the band's own top.
+  const rows = scrollingRowsOf(context.layout)
+  const areaTop = scrollAreaTopOf(context)
+  const standing = rowIndexAtTopEdge(rows, areaTop)
   if (dy === 0 || standing === null) return settings.scrollGroupId
-  const landed = rowIndexAtTopEdge(rows, area.y + dy)
+  const landed = rowIndexAtTopEdge(rows, areaTop + dy)
   // Ran off the top: the first row is the whole of what was asked for.
   if (landed === null) return dy < 0 ? (rows[0]?.groupId ?? null) : settings.scrollGroupId
   // ⚠️ `rows[0]` above cannot be missing -- an empty stack left through the
@@ -1860,6 +1974,21 @@ const ENTRY = {
   dependencyVisible: 'IC-81',
   /** IC-44 -- FR-046. SK-20. */
   statusLine: 'IC-44',
+  /**
+   * IC-37 / IC-38 -- FR-034's alignment, on the `Command Palette`.
+   *
+   * ⛔⛔ NEITHER IS AN OPERATION THIS FILE CAN PLAN, AND THAT HAS NOT CHANGED:
+   * table T-108 holds no command for the alignment at all, so the STOP at the
+   * foot of this file still stands and a press that CAN be carried out is
+   * answered with nothing. ⭐ WHAT THEY ARE HERE FOR IS THE OTHER HALF OF
+   * FR-029 -- `isEntryUsable` (UF-65) draws both faint while no `Task` is
+   * chosen to line the rest up with, and (MUST) that press be told why. Before
+   * 2026-08-30 they fell through to `commandFromArmingEntry` and said nothing.
+   * ⚠️ ONE SITUATION FOR THE TWO, because 表 T-233's `RS-34` is one 場面: which
+   * end the rows would be lined up by does not enter into why neither can be.
+   */
+  alignStart: 'IC-37',
+  alignFinish: 'IC-38',
   /**
    * IC-45 -- the Dual Cursor's own entrance (S-65), and BOTH ways through
    * table T-029a's mode: DC-1 enters it and DC-4 words the way out as
@@ -3447,7 +3576,7 @@ function commandFromEntry(
       // (UF-62) draws faint -- 「both hidden」 is the combination FR-049 (MUST
       // NOT) refuses and S-59 has no fourth value for -- so the press is told
       // why it did nothing rather than swallowed.
-      if (display === null) return nothingToDo()
+      if (display === null) return nothingToDo('onlyOneOfPlanAndActualShown')
       return changed([{ kind: 'setPlanActualDisplay', display }])
     }
     case ENTRY.themePreference: {
@@ -3541,10 +3670,45 @@ function commandFromEntry(
       // the same reason for an empty bundle.
       // ⭐ THE SAME READING `RowTitlePanel.canOpenEveryRow` IS DRAWN FROM, so
       // the entrance a person sees faint is the entrance that tells them why.
-      if (!context.document.schedule.taskGroups.some((row) => row.isCollapsed === true)) {
-        return nothingToDo()
+      // ⛔⛔ AND THE COUNT IS THE PICTURE'S (CR-309): a drawn folded row with
+      // nothing left to reveal opens onto the same frame, so it is no target.
+      // ⚠️ The roster test is kept as the fallback for a caller that carried no
+      // picture -- see `InputContext.drawnRowGroupIds`.
+      if (
+        !(
+          wouldMoveARow(context, null, 'open') ??
+          context.document.schedule.taskGroups.some((row) => row.isCollapsed === true)
+        )
+      ) {
+        return nothingToDo('noFoldedRowAtAll')
       }
       return changed([{ kind: 'expandAllTaskGroups' }])
+    case ENTRY.alignStart:
+    case ENTRY.alignFinish:
+      // FR-034, drawn faint by `isEntryUsable` (UF-65) 「揃える相手の `Task` が
+      // 選ばれていない」 -- and FR-029 (MUST) has that press told why.
+      //
+      // ⭐ THE SAME READING THE PALETTE DREW, and it has to be: that unit asks
+      // for an ORDERED selection carrying at least one `Task`, because FR-034
+      // lines the rest up with the one the order names. A second reading here
+      // would let the entrance say it is spent when it is not, or the other way
+      // about.
+      // ⛔ READ OFF `Selection` AND NOT OFF THE DRAWN PALETTE, the discipline
+      // every branch above keeps: a drawn screen is as old as the last paint
+      // (FR-048 lets one be skipped) and `context` is the copy CS-1 of table
+      // T-066 froze at the head of this frame.
+      // ⛔ AND THE USABLE CASE IS STILL ANSWERED WITH NOTHING -- table T-108
+      // holds no command for the alignment, which the STOP at the foot of this
+      // file records. ⚠️ `CONSUMED_ELSEWHERE` and not the telling: an entrance
+      // that CAN be used must not be told it cannot (FR-029), and MK-10 keeps
+      // the browser out from under the press either way.
+      if (
+        context.selection.ordered &&
+        context.selection.items.some((one) => one.kind === 'task')
+      ) {
+        return CONSUMED_ELSEWHERE
+      }
+      return nothingToDo('noTaskChosenToAlignWith')
     case ENTRY.rowExpanderCloseAll:
       // HF-12 of table T-051, which is HR-2 of table T-015.
       //
@@ -3561,7 +3725,12 @@ function commandFromEntry(
       // ⛔ AN EMPTY BUNDLE IS A PRESS WITH NOTHING TO DO, and FR-029 (MUST) has
       // the reason told -- the same reading `RowTitlePanel.canCloseEveryRow` is
       // drawn from, so the faint entrance and the telling agree.
-      return foldsOrNothing(foldsEveryRow(context.document.schedule))
+      // ⛔⛔ AND THE COUNT IS THE PICTURE'S (CR-309), the same as IC-77's: a
+      // drawn unfolded row with no drawn child hides nothing when it folds.
+      if (wouldMoveARow(context, null, 'fold') === false) {
+        return nothingToDo('noUnfoldedRowAtAll')
+      }
+      return foldsOrNothing(foldsEveryRow(context.document.schedule), 'noUnfoldedRowAtAll')
     case ENTRY.documentSettingsProperties:
       // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
       // the action's own note.
@@ -3861,7 +4030,19 @@ function commandFromRowEntry(
     // FR-029 (MUST) has the reason told. ⭐ `RowExpander.canCloseBelow` is the
     // same reading, so the entrance drawn faint is the entrance that explains
     // itself when it is pressed.
-    return foldsOrNothing(foldsUnderRow(context.document.schedule, rowGroupId))
+    // ⛔⛔ AND THE READING IS THE PICTURE'S, NOT THE BUNDLE'S (CR-309). A fold
+    // that writes rows the picture does not hold moves nothing a reader can
+    // see, so the closing rule under table T-051 counts it as no target at all
+    // -- and the bundle below is still written whole, because HR-4 says
+    // 「配下をすべて畳む」 and names no exception. ⚠️ `null` is a caller that
+    // carried no picture; the bundle is then all this side has to judge by.
+    if (wouldMoveARow(context, rowGroupId, 'fold') === false) {
+      return nothingToDo('noUnfoldedRowBelow')
+    }
+    return foldsOrNothing(
+      foldsUnderRow(context.document.schedule, rowGroupId),
+      'noUnfoldedRowBelow',
+    )
   }
 
   if (entry === ENTRY.rowExpanderOpen) {
@@ -3875,7 +4056,15 @@ function commandFromRowEntry(
     // row that opens opens in the same write.
     // ⛔ NOTHING FOLDED UNDER THIS ROW IS A PRESS WITH NOTHING TO DO (FR-029,
     // MUST), and `RowExpander.canOpen` is the same reading.
-    return foldsOrNothing(opensUnderRow(context.document.schedule, rowGroupId))
+    // ⛔⛔ THE PICTURE DECIDES IT, for the reason IC-77's branch above gives: a
+    // folded row with nothing to reveal opens onto the same frame (CR-309).
+    if (wouldMoveARow(context, rowGroupId, 'open') === false) {
+      return nothingToDo('noFoldedRowBelow')
+    }
+    return foldsOrNothing(
+      opensUnderRow(context.document.schedule, rowGroupId),
+      'noFoldedRowBelow',
+    )
   }
 
   // IC-59 -- HF-3 (MUST), which names HR-5 of table T-015: THIS row folds, and
@@ -3887,13 +4076,24 @@ function commandFromRowEntry(
   // ⚠️ Already folded, or gone: no write. `changed` says why an empty bundle is
   // not one -- WS-4 would push an undo step for a press that moved nothing.
   // ⭐ AND FR-029 (MUST) HAS THE REASON TOLD instead of the press being
-  // swallowed. ⚠️ `RowExpander.canClose` narrows further -- HR-6 takes a row
-  // whose every child is hidden out of the picture as well -- so a row folded
-  // by that narrowing is drawn faint and answered here as an ordinary fold.
-  // ⛔ NOT NARROWED HERE TO MATCH: what a row hides is UF-63's judgement, and a
-  // second reading of HR-6 in this file would be the same rule in two places.
+  // swallowed.
+  if (row === undefined || row.isCollapsed === true) return nothingToDo('rowAlreadyFolded')
+  // ⭐⭐ AND SO IS THE OTHER HALF OF `RowExpander.canClose`, WHICH THIS SIDE
+  // COULD NOT SEE UNTIL `drawnRowGroupIds` ARRIVED. A row whose every child is
+  // out of the picture -- HR-6 hid them, or the display amount dropped them --
+  // hides nothing when it folds, and the closing rule under table T-051 (MUST)
+  // counts that as no target. ⛔ THE NOTE THAT STOOD HERE REFUSED THE NARROWING
+  // on the ground that reading HR-6 again would be the same rule twice; the
+  // picture is not a second reading of HR-6, it is the one answer the drawing
+  // side already reached.
+  // ⛔ THE SITUATION IS `null` AND THAT IS NOT AN OVERSIGHT. 表 T-233 holds
+  // RS-30 for 「その行は既に畳まれている」 and this row is NOT folded, so
+  // carrying RS-30 would tell the reader something untrue; no other row of that
+  // table fits, which is the one case FR-029 leaves to `RS-27`.
+  // ⚠️ A ROW WITH NO CHILD AT ALL CANNOT REACH HERE -- `expanderOf` gives it no
+  // control to press (HF-1).
   // @provisional PD-319
-  if (row === undefined || row.isCollapsed === true) return nothingToDo()
+  if (wouldMoveARow(context, rowGroupId, 'foldThisRow') === false) return nothingToDo(null)
   return changed([{ kind: 'setTaskGroupCollapsed', groupId: rowGroupId, collapsed: true }])
 }
 
@@ -3985,6 +4185,76 @@ function foldsUnderRow(schedule: Schedule, ancestorId: string): readonly Documen
     commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: true })
   }
   return commands
+}
+
+/**
+ * Whether opening -- or folding -- everything under `ancestorId` would put a
+ * row into the picture, or take one out of it. `null` where the caller carried
+ * no picture at all (`InputContext.drawnRowGroupIds`).
+ *
+ * ⭐⭐ THE CLOSING RULE UNDER TABLE T-051 (MUST), WORD FOR WORD: 「その操作で、
+ * 描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと」,
+ * and 「数えるのは配下の行の数ではなく、その操作の前後で描かれる行の差である」.
+ * ⛔ THE COUNT IS ONE HOP DEEPER THAN THE ROWS BELOW. Folding a drawn row that
+ * has no drawn child hides nothing, and opening a folded row that has no child
+ * to reveal shows nothing -- so a row below counts only when the operation
+ * would move a row of ITS own. That is the case CR-309 was opened for.
+ *
+ * ⭐ `ancestorId` OF `null` MEANS THE WHOLE DOCUMENT, which is what HR-1 and
+ * HR-2 reach (IC-74 and IC-78). ⚠️ Those two also touch the row itself, while
+ * HR-3 and HR-4 reach only below one -- and that difference is exactly what
+ * `isRowUnder` draws, since it climbs from a row's PARENT.
+ * ⚠️ `foldThisRow` IS THE THIRD REACH AND NOT A THIRD RULE: HR-5 folds the
+ * named row alone, so the count is that row's own drawn children.
+ *
+ * ⛔ HR-6 IS READ HERE AND FR-018 IS NOT. A hidden row stays hidden however the
+ * folds above it move (MUST NOT), so it can never be the row an open reveals;
+ * whether the group level of detail would keep a revealed row is
+ * ScheduleLayout's judgement and no argument here carries it. ⭐ The drawing
+ * side (`row-title-panel.ts`) answers this same question with the same two
+ * readings, which is what FR-029 requires of the pair.
+ *
+ * ⚠️ ONE PASS AND TWO SETS. NFR-013 (MUST NOT) refuses an O(n^2) algorithm, and
+ * asking each row for its own children would be one.
+ *
+ * @purity pure
+ */
+function wouldMoveARow(
+  context: InputContext,
+  ancestorId: string | null,
+  operation: 'open' | 'fold' | 'foldThisRow',
+): boolean | null {
+  const drawnIds = context.drawnRowGroupIds
+  if (drawnIds === undefined) return null
+  const drawn = new Set(drawnIds)
+  const schedule = context.document.schedule
+  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
+
+  const withDrawnChild = new Set<string>()
+  const withUnhiddenChild = new Set<string>()
+  for (const row of schedule.taskGroups) {
+    if (row.parentId === null) continue
+    if (drawn.has(row.id)) withDrawnChild.add(row.parentId)
+    if (row.isHidden !== true) withUnhiddenChild.add(row.parentId)
+  }
+
+  // HF-3 (HR-5) is the one operation that reaches the row ITSELF and nothing
+  // below it, so it is answered without the walk: what it takes away is exactly
+  // the drawn children of that one row.
+  if (operation === 'foldThisRow') {
+    return ancestorId !== null && withDrawnChild.has(ancestorId)
+  }
+
+  for (const row of schedule.taskGroups) {
+    if (!drawn.has(row.id)) continue
+    if (ancestorId !== null && !isRowUnder(parentOf, row.parentId, ancestorId)) continue
+    if (operation === 'open') {
+      if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true
+      continue
+    }
+    if (row.isCollapsed !== true && withDrawnChild.has(row.id)) return true
+  }
+  return false
 }
 
 /**
@@ -5257,7 +5527,11 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //
 // ⛔ 9 OF THEM CANNOT BE WRITTEN AT ALL, whatever rule is chosen:
 //
-//   IC-18        FR-066's dialogue field, 「出す・しまう」. ⛔ NOTHING HOLDS THAT
+//   IC-18        FR-066's dialogue field, 「出す・しまう」. ⚠️ ITS SPENT PRESS IS
+//                TOLD SINCE 2026-08-30, and not from here: `frame-loop.ts`
+//                answers it in `answerSettledEntry`, where the `Agent API`'s
+//                switch is actually held. ⛔ THE ENTRANCE ITSELF IS STILL
+//                UNWRITABLE, for the reason that follows -- NOTHING HOLDS THAT
 //                SWITCH: `ScreenState` has no member for it, `ScreenSession` has
 //                none, and table T-203 and table T-206 hold no key. ⚠️ What
 //                decides whether the field is drawn today is
@@ -5270,6 +5544,11 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 //                place to land.
 //   IC-37 / IC-38  FR-034's alignment. ⛔ Table T-108 holds NO command for it,
 //                so there is nothing to plan even with the press in hand.
+//                ⚠️ BOTH NOW HAVE A BRANCH ALL THE SAME (`ENTRY.alignStart` /
+//                `ENTRY.alignFinish`), and it plans nothing: it answers the
+//                OTHER half of FR-029, telling a press why the entrance the
+//                palette drew faint could not act. The usable press still
+//                falls through to `CONSUMED_ELSEWHERE`, which is this STOP.
 //   IC-41        ⭐ IT NOW HAS SOMEWHERE TO WRITE AND STILL CANNOT BE PRESSED.
 //                `watermarkVisible` is a boolean row of table T-202, so FR-049's
 //                toggle rule covers it and `commandFromVisibleElementEntry` is

@@ -52,6 +52,9 @@
 // and the four arguments cannot carry it. What IS specified, and is asserted
 // below, is that the drawing area's selection never reaches a row.
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -407,14 +410,43 @@ describe('UF-63 -- FR-098: the pinned rows are lifted out', () => {
     expect(panel.titles).toEqual([])
   })
 
-  it('leaves out a pinned row the display amount stopped drawing', () => {
-    // FR-098 admits that FR-018 may stop drawing a pinned row, and CD-2 of
-    // table T-050 takes the pin away with the row it points at. Neither may put
-    // a row on the screen the shell measured no box for.
-    const panel = panelOf(threeRows, drawn('g1', 'g3'), panelWith({ pinnedGroupIds: ['g2'] }))
+  it('leaves out a pinned row the fold or the hide stopped drawing (HR-1a / HR-6)', () => {
+    // ⛔ THE PREMISE THIS CASE USED TO REST ON WAS REVERSED. It read "the
+    // display amount stopped drawing it", and FR-098 now says the opposite:
+    // 「ピン止めした行を、表示量の増減（`FR-018`）で描かなくしてはならない（MUST
+    // NOT）」（利用者の裁定 2026-08-30「拡大、縮小しても表示を続けるのが
+    // ピン止めだ」）. ⭐ TWO REASONS ARE LEFT, AND ONLY TWO: 「ピン止めした行が
+    // 描かれないのは、人が畳んだ行の配下にあるとき（表 T-015 の `HR-1a`）と、
+    // 隠した行の配下にあるとき（同表の `HR-6`）に限ること（MUST）」.
+    //
+    // ⚠️ WHICH OF THE THREE IT WAS IS NOT VISIBLE FROM HERE. SC-1 hands this
+    // unit the drawn roster and nothing else, so "the shell drew no box" is all
+    // it can read. What this case does assert is the half that is this unit's:
+    // a row the shell did not draw is named NOWHERE -- not in `pinnedTitles`
+    // either, because the pinned list is still made of drawn rows and this unit
+    // measures nothing of its own.
+    //
+    // ⭐ THE FIXTURE IS HR-1a's, not FR-018's: `g2` sits under `g1`, and `g1` is
+    // folded, so HR-1a (MUST NOT) forbids drawing `g2` at all.
+    const folded = scheduleOf([
+      groupOf({ id: 'g1', label: 'a', isCollapsed: true }),
+      groupOf({ id: 'g2', parentId: 'g1', label: 'b' }),
+      groupOf({ id: 'g3', label: 'c', order: 1 }),
+    ])
+    const panel = panelOf(folded, drawn('g1', 'g3'), panelWith({ pinnedGroupIds: ['g2'] }))
 
     expect(panel.pinnedTitles).toEqual([])
     expect(idsOf(panel.titles)).toEqual(['g1', 'g3'])
+  })
+
+  it('⭐ and lifts the same pinned row the moment the shell draws it', () => {
+    // ⛔ THE PAIR WITHOUT WHICH THE CASE ABOVE PASSES ON A UNIT THAT NEVER PINS
+    // ANYTHING. The only thing that moves between the two is whether the shell
+    // measured a box for `g2` -- FR-098 (MUST NOT) has taken every other reason
+    // away, so this is the one question left for this unit to answer.
+    const panel = panelOf(threeRows, allThree, panelWith({ pinnedGroupIds: ['g2'] }))
+
+    expect(idsOf(panel.pinnedTitles)).toEqual(['g2'])
   })
 
   it('marks the pinned rows and only those', () => {
@@ -432,12 +464,34 @@ describe('UF-63 -- FR-098: the pinned rows are lifted out', () => {
     expect(idsOf(panel.titles)).toEqual(['g1', 'g2', 'g3'])
   })
 
-  it('describes a pinned row with the box the shell measured for it', () => {
-    // FR-098 fixes the pinned row to the top of the SCREEN, which is a place;
-    // the box is still the one measurement SC-1 admits.
-    const panel = panelOf(threeRows, allThree, panelWith({ pinnedGroupIds: ['g3'] }))
+  it('describes a pinned row with the box the shell measured for it, IN THE BAND', () => {
+    // ⛔ THE FIXTURE THIS CASE USED TO CARRY IS ONE FR-098 NO LONGER ADMITS. It
+    // handed the pinned row the box of its NATURAL place and asked for that box
+    // back, and the requirement now settles where a pinned row is drawn:
+    // 「ピン止めした行は、スクロールする領域から抜いて画面の上端へ固定すること
+    // （MUST）」, 「本要求でいう「画面の上端」とは、`U-50`（`Row Area`）の
+    // 上端をいう（MUST）」, and 表 T-221 の `LF-14` 「帯へ上げた行は
+    // `LF-3` の連なりから除き、抜けた場所は詰める」.
+    //
+    // ⭐ SO THE BAND IS THE BOX THE SHELL HANDS OVER, and this unit's rule is
+    // the one that does not move: SC-1 of 表 T-031 gives it `rowBoxes` and it
+    // measures nothing of its own. The fixture below is the picture FR-098
+    // describes -- `g3` measured at the top of the Row Area although its natural
+    // place is third -- and the case asks that the panel repeats THAT box.
+    // ⛔ A unit that re-derived a natural place would answer `boxAt(2)`.
+    const inTheBand = { x: 0, y: 0, width: 400, height: 24 }
+    const session = sessionWith({
+      rowBoxes: [
+        { groupId: 'g3', box: inTheBand },
+        { groupId: 'g1', box: boxAt(1) },
+        { groupId: 'g2', box: boxAt(2) },
+      ],
+    })
+    const panel = panelOf(threeRows, session, panelWith({ pinnedGroupIds: ['g3'] }))
 
-    expect(titleOf(panel, 'g3').box).toEqual(boxAt(2))
+    expect(titleOf(panel, 'g3').box).toEqual(inTheBand)
+    expect(titleOf(panel, 'g3').box, 'FR-098: the pinned row is not drawn at its natural place')
+      .not.toEqual(boxAt(2))
   })
 
   it('ignores a pinned id that names no drawn row at all', () => {
@@ -485,23 +539,44 @@ describe('UF-63 -- FR-004 / S-125: how deep a row sits', () => {
 })
 
 // ---------------------------------------------------------------------------
-// ⛔ THE CASES BELOW WERE REWRITTEN ON 2026-08-27, AND FOUR OF THEM CHANGED
-// THEIR EXPECTED VALUE. What stood here read BOTH flags off "was this row drawn
-// this frame", which is the question neither control answers:
+// ⛔ THE CASES BELOW WERE REWRITTEN TWICE, AND THE SECOND TIME REVERSED THE
+// FIRST. CR-307 and CR-309 (2026-08-30) closed table T-051 with two sentences,
+// and both of them move an expected value here:
+//
+//   ⛔ 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` が対象とするのは、いま
+//      描かれている行である（MUST）。描かれていない行の畳みを数えてはならない
+//      （MUST NOT）」—— 「`HR-1a` は畳んだ行の配下を描かないので、そこに残る状態を
+//      数えると、押しても絵の動かない操作子が構えることになる」
+//   ⛔⛔ 「その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも無いものと
+//      して扱うこと（MUST）」——「畳む相手が描かれていても、その相手が配下を持たな
+//      ければ、畳んで隠れる行は 1 つも無い。」⭐ 「数えるのは配下の行の数ではなく、
+//      その操作の前後で描かれる行の差である。」
+//
+// ⭐ THE SECOND SENTENCE IS THE ONE THAT IS EASY TO MISS, and it is why so many
+// expected values below are `false`: a control may have a row to act on and
+// still be spent, because acting on it would not move one row on or off the
+// screen. A subtree of drawn leaves is the plainest case -- folding every one of
+// them hides nothing.
+//
+// What each control is FOR is unchanged, and is what decides which rows the
+// difference is measured over:
 //
 //   HF-2 (MUST) 「開く操作子は、その行の配下をすべて開くこと」 -- HR-3 of table
-//        T-015, 「選択した `TaskGroup` の配下をすべて開く」. The opening side
-//        therefore has work exactly where a row UNDER this one is folded, at
-//        whatever depth, and none where nothing under it is folded.
-//   HF-3 (MUST) 「閉じる操作子は、その行自身を畳むこと」 -- HR-5, 「選択した
-//        `TaskGroup` を閉じる」. The closing side therefore has work exactly
-//        where THIS row is not folded yet.
+//        T-015. The picture grows by the rows a fold below this one is hiding,
+//        so the control is armed exactly where a DRAWN row under this one is
+//        folded over something.
+//   HF-3 (MUST) 「閉じる操作子は、その行自身を畳むこと」 -- HR-5. The picture
+//        shrinks by this row's own drawn descendants, so the control is armed
+//        exactly where this row has one.
+//   HF-11 (MUST) 「配下をすべて閉じる操作子は、その行の配下をすべて畳むこと」 --
+//        HR-4, and ⛔ 「その行自身を畳んではならない（MUST NOT）」. The picture
+//        shrinks by what the rows UNDER this one are showing, so a subtree with
+//        no grandchild drawn arms nothing.
 //   HF-7 (MUST NOT) 「人が畳んだ状態は、表示量の増減（`FR-018`）より優先する。
-//        人の指定を倍率が上書きしてはならない」. The zoom never writes AT-56, so
-//        a row the group level of detail stopped drawing is still an OPEN row --
-//        the opening control has nothing to open there, and the closing control
-//        still has this row to fold, and HF-7 is what makes that fold survive
-//        the zoom that is currently hiding the children.
+//        人の指定を倍率が上書きしてはならない」. The zoom never writes AT-56, so a
+//        row the group level of detail stopped drawing is still an OPEN row --
+//        and, because the closing rule counts the DRAWN rows, a fold there moves
+//        nothing and the control is spent while the zoom hides it.
 //
 // ⚠️ HR-1a is not broken by reading AT-56 here. It governs what is DRAWN under a
 // folded row -- 「配下の行と、その行に載っている `Task` を描いてはならない」 -- and
@@ -513,9 +588,19 @@ describe('UF-63 -- FR-004 / S-125: how deep a row sits', () => {
 // was not touched: IC-58 asks for a write only where a DESCENDANT carries the
 // fold, and its case quotes HF-3 「畳んだ行は、1 つ上の行の開く操作子が開く」 and
 // HF-10 for why the pressed row is never itself opened.
+//
+// ⚠️ WHICH ROWS ARE DRAWN IS `rowBoxes`, AND NOTHING ELSE HERE. SC-1 of table
+// T-031 gives this unit the drawn roster and no way to measure one of its own,
+// so 「いま描かれている行」 is exactly the set `drawn(...)` names below.
 // ---------------------------------------------------------------------------
 
-describe('UF-63 -- table T-051: the two controls of the expander', () => {
+/** The closing rule of table T-051, read out of the manuscript rather than typed. */
+const T_051_CLOSING = readFileSync(
+  join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+  'utf8',
+)
+
+describe('UF-63 -- table T-051: the three controls of the expander', () => {
   const kid = (id: string, part: Record<string, unknown> = {}): TaskGroup =>
     groupOf({ id, parentId: 'p', label: id, ...part })
 
@@ -537,13 +622,29 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
       'p',
     )
 
+  it('⛔ the manuscript still closes table T-051 with the two sentences these cases read', () => {
+    // ⛔ WITHOUT THIS, A TABLE THAT WENT BACK TO COUNTING THE WHOLE ROSTER WOULD
+    // LEAVE EVERY EXPECTED VALUE BELOW ASSERTING THE OPPOSITE OF THE
+    // SPECIFICATION, and nothing would say so.
+    expect(T_051_CLOSING).toContain(
+      '描かれていない行の畳みを数えてはならない（MUST NOT）',
+    )
+    expect(T_051_CLOSING).toContain(
+      'その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）',
+    )
+    expect(T_051_CLOSING).toContain(
+      '数えるのは配下の行の数ではなく、その操作の前後で描かれる行の差である',
+    )
+  })
+
   it('gives no expander to a row nothing sits under', () => {
     expect(parentTitle([], ['p']).expander).toBeNull()
   })
 
   it('offers only the closing control while nothing under the row is folded', () => {
-    // HF-3 folds THIS row, so it is spent while this row is open. HF-2 opens
-    // 配下, and nothing under this row carries a fold, so it has no work.
+    // HF-3 folds THIS row, and its two children are drawn, so the picture loses
+    // two rows -- armed. HF-2 opens 配下, and nothing under this row carries a
+    // fold, so it has no work.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
@@ -552,40 +653,51 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: false,
       canClose: true,
-      // HF-11 folds 配下, and both children stand unfolded -- so the third
-      // control has work where the opening one has none.
-      canCloseBelow: true,
+      // ⛔ SPENT, THOUGH TWO UNFOLDED ROWS SIT UNDER THIS ONE. HF-11 folds `c1`
+      // and `c2`, and neither of them is showing anything: 「畳む相手が描かれて
+      // いても、その相手が配下を持たなければ、畳んで隠れる行は 1 つも無い」.
+      canCloseBelow: false,
     })
   })
 
-  it('does not arm the opening control against the display amount (HF-7)', () => {
+  it('arms the closing-below control only where a fold would take a row off the screen', () => {
+    // ⭐ THE PAIR THAT MAKES THE CASE ABOVE A TEST. One grandchild is all it
+    // takes: folding `c1` hides `g1`, so the picture shrinks and HF-11 has work.
+    // ⛔ WITHOUT THIS, A UNIT THAT ANSWERED `false` ALWAYS WOULD PASS.
+    expect(
+      parentTitle(
+        [kid('c1', { isCollapsed: false }), under('c1', 'g1')],
+        ['p', 'c1', 'g1'],
+      ).expander,
+    ).toEqual({ canOpen: false, canClose: true, canCloseBelow: true })
+  })
+
+  it('does not arm any control against the display amount (HF-7)', () => {
     // The children are absent because the group level of detail stopped drawing
     // them (FR-018), not because anyone folded them: AT-56 says `false` on both.
     // HF-7 gives the person's fold priority over the display amount and forbids
     // the zoom to overwrite what the person said, so the zoom never wrote AT-56
     // -- and HR-3, which is all HF-2 does, would open nothing here.
     //
-    // ⛔ THE CLOSING SIDE IS ARMED IN THE SAME BREATH. HF-3 folds this row, which
-    // is not folded yet, and HF-7 is what makes that fold outrank the zoom that
-    // is hiding the children at this moment.
+    // ⛔ AND THE CLOSING SIDE IS SPENT IN THE SAME BREATH, WHICH IS WHAT CR-309
+    // REVERSED. Folding this row would hide nothing, because the zoom is already
+    // drawing nothing under it: 「その操作で、描かれる行が 1 行も増減しないときは、
+    // 対象が 1 つも無いものとして扱うこと（MUST）」. ⚠️ HF-7 is untouched by that
+    // -- the fold this control would write still outranks the zoom the moment
+    // the zoom draws those rows again; the control simply has no picture to move
+    // while they are hidden.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
         ['p'],
       ).expander,
-    ).toEqual({
-      canOpen: false,
-      canClose: true,
-      // HF-11 folds 配下, and both children stand unfolded -- so the third
-      // control has work where the opening one has none.
-      canCloseBelow: true,
-    })
+    ).toEqual({ canOpen: false, canClose: false, canCloseBelow: false })
   })
 
-  it('offers both at once -- HF-1 is a pair, not one control in two states', () => {
+  it('offers the pair at once -- HF-1 is a pair, not one control in two states', () => {
     // HF-2 opens 配下 and HF-3 folds this row alone, so one of the pair can be
-    // spent while the other is not: `c1` carries a fold for the opening side,
-    // and `p` is open for the closing side.
+    // spent while the other is not: `c1` is drawn and carries a fold over `g1`
+    // for the opening side, and `p` shows `c1` for the closing side.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: true }), under('c1', 'g1')],
@@ -595,9 +707,9 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: true,
       canClose: true,
-      // HF-2 and HF-11 are not inverses: a subtree holding a folded row AND an
-      // unfolded one arms both.
-      canCloseBelow: true,
+      // ⛔ SPENT: HF-11 would fold `c1`, which is folded already, and `g1` is not
+      // drawn at all -- 「描かれていない行の畳みを数えてはならない（MUST NOT）」.
+      canCloseBelow: false,
     })
   })
 
@@ -620,73 +732,76 @@ describe('UF-63 -- table T-051: the two controls of the expander', () => {
     ).toEqual({
       canOpen: true,
       canClose: true,
-      // HF-2 and HF-11 are not inverses: a subtree holding a folded row AND an
-      // unfolded one arms both.
+      // ⭐ ARMED HERE, AND SPENT TWO CASES ABOVE. HF-11 folds `c1`, which is
+      // showing `g1` -- so this fold does take a row off the screen.
       canCloseBelow: true,
     })
   })
 
-  it('spends both controls on a row that folded ITSELF (HF-3, HF-10)', () => {
+  it('spends all three controls on a row that folded ITSELF (HF-3, HF-10)', () => {
     // HF-3 pairs the two plainly: 「畳んだ行は、1 つ上の行の開く操作子が開く」 --
     // a row's own opening control reaches 配下 and never the row. HF-10 exists
     // ONLY because of that: 「最上位の行が自分を畳むと、それを開く操作子がどこにも
     // 無くなる」, which is false the moment a row's own control opens itself.
     //
-    // So a folded row with nothing folded under it has neither control armed,
-    // and HF-10's control at the top of the panel is the way back.
+    // So a folded row with nothing folded under it has neither of the pair
+    // armed, and HF-10's control at the top of the panel is the way back.
     expect(
       parentTitle([kid('c1', { isCollapsed: false })], ['p'], { isCollapsed: true }).expander,
     ).toEqual({
       canOpen: false,
       canClose: false,
-      // ⚠️ ARMED THOUGH THE ROW ITSELF IS FOLDED. HR-4 writes AT-56 on the rows
-      // below, which HR-1a merely stops DRAWING -- the same reading under which
-      // `canOpen` is armed by a fold no reader can see either.
-      canCloseBelow: true,
+      // ⛔ SPENT, AND THIS IS THE READING CR-309 REVERSED. HR-4 would write AT-56
+      // on `c1`, which HR-1a is already not DRAWING -- and the closing rule
+      // forbids counting it: 「描かれていない行の畳みを数えてはならない（MUST
+      // NOT）—— そこに残る状態を数えると、押しても絵の動かない操作子が構えることに
+      // なる」.
+      canCloseBelow: false,
     })
   })
 
   it('does not arm the opening control for a hidden child (HR-6)', () => {
     // HR-6 brings a hidden row back through the parent's hidden group tab, not
-    // through the expander. Counting it would arm a control that does nothing.
-    // ⚠️ Both children below carry the SAME fold, so `isHidden` is the only
-    // thing that moves between the two answers.
+    // through the expander. A hidden row is not drawn, so the closing rule keeps
+    // every control off it: counting it would arm one that moves no picture.
     expect(
       parentTitle(
         [kid('c1', { isHidden: true, isCollapsed: true }), under('c1', 'g1')],
         ['p'],
         { isCollapsed: false },
       ).expander,
-    ).toEqual({
-      canOpen: false,
-      canClose: false,
-      // HR-6 narrows this half where it narrows the other two: the one unfolded
-      // row below is hidden with its parent.
-      canCloseBelow: false,
-    })
+    ).toEqual({ canOpen: false, canClose: false, canCloseBelow: false })
+  })
+
+  it('arms it for the same child once the shell draws it', () => {
+    // ⭐ THE PAIR THAT MAKES THE CASE ABOVE A TEST, AND THE ONE `isHidden` MOVES.
+    // ⚠️ THE DRAWN SET MOVES WITH IT, and it has to: HR-6 (MUST NOT) forbids
+    // drawing a hidden row at all, so a fixture that hid `c1` AND drew it would
+    // be asking this unit about a screen the specification does not admit.
     expect(
       parentTitle(
         [kid('c1', { isHidden: false, isCollapsed: true }), under('c1', 'g1')],
-        ['p'],
+        ['p', 'c1'],
         { isCollapsed: false },
       ).expander,
     ).toEqual({
       canOpen: true,
       canClose: true,
-      // HF-2 and HF-11 are not inverses: a subtree holding a folded row AND an
-      // unfolded one arms both.
-      canCloseBelow: true,
+      // ⛔ Still spent: `c1` is folded already and `g1` is not drawn.
+      canCloseBelow: false,
     })
   })
 
-  it('still offers the closing control when a hidden sibling is the only one left out', () => {
+  it('spends the closing-below control when a hidden sibling is the only one left out', () => {
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: false }), kid('c2', { isHidden: true, isCollapsed: false })],
         ['p', 'c1'],
       ).expander,
-      // The unhidden sibling stands unfolded, so HF-11 still has work.
-    ).toEqual({ canOpen: false, canClose: true, canCloseBelow: true })
+      // HF-3 still hides `c1`, so the closing control has work. ⛔ HF-11 does
+      // not: the one unhidden sibling is a drawn leaf, and the hidden one may
+      // not be counted.
+    ).toEqual({ canOpen: false, canClose: true, canCloseBelow: false })
   })
 })
 

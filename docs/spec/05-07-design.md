@@ -340,7 +340,7 @@ src/
 | PI-15 | `UseCase` | `NotifyChangeWatchers` | `watchChanges`（`non-pure`）／ `unwatchChanges`（`non-pure`）／ `notifyChangeWatchers`（`non-pure`） |
 | PI-16 | `UseCase` | `PostDialogueMessage` | `postDialogueMessage`（`non-pure`） |
 | PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。既定で公開しない。`FR-065`）／ `SnapshotSource`（表 T-065）。⚠️ **外へ公開する 18 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。本表に書き写さない（MUST NOT）** |
-| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `PressRow`（型。表 T-023a の行 ID）／ `pressRowOf`（押下がどの行で始まったかを答える。呼び手が押下の時に解決して `PointerPress` へ載せる）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `commandFromFieldCommit`（プロパティパネルで確定した値を 表 T-108 の命令にする。割当は 表 T-016 の「入力の型」の欄と 表 T-104）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。置き場は `CP-36`） |
+| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `PressRow`（型。表 T-023a の行 ID）／ `pressRowOf`（押下がどの行で始まったかを答える。呼び手が押下の時に解決して `PointerPress` へ載せる）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `commandFromFieldCommit`（プロパティパネルで確定した値を 表 T-108 の命令にする。割当は 表 T-016 の「入力の型」の欄と 表 T-104）／ `selectionFromInput`（規則は 表 T-023c。取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。置き場は `CP-36`）／ `SpentEntranceSituation`（型。押された入口が何を持たないのかを名乗る。⭐ **場面から 表 T-233 の行への写しは殻が持つ** —— 訳出の側は通知の語彙を知らない） |
 | PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`） |
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。表 T-024 の `IO-7`）／ `formatFromFile`（どちらの形式として読むかを答える。規則は 表 T-024a の `OP-12`） |
 | PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。落とす規則は `FR-080`）／ `exportPng`（`semi-pure-b`。失敗も値で返す。表 T-035 の `AG-8`） |
@@ -751,6 +751,7 @@ stateDiagram-v2
 | LF-11 | マーカーと再開アイコンの置き場 | マーカーは、`FR-013` が定める側のバーの右端から `markerGap` だけ離した位置に、`markerSize` を一辺とする正方形で置く。縦は予定バーの中心。⛔ **再開アイコンはマーカーに付けない** —— **`resume` の日に置く**（横は その日の位置、縦は予定バーの中心）。⭐ **`resume` を持たないとき**（表 T-019 の `PA-4` の、再開日が未定の中断）**だけ、マーカーの右端からさらに `markerGap` 離した位置に置く。**⚠️ **表 T-022 の `PL-3`（イナズマ線の頂点）が既に `resume` の日に描かれており、本行はそれに揃えたものである。**⛔ **マーカーに釘付けにすると、掴んで動かしても 1px も動かない** —— マーカーの位置は `actualStart` ＋ `actualDuration` の関数であって `resume` を読まないので、**表 T-023d の `GR-8`（掴めば `resume` を変える）が成り立たなくなる。**⚠️ **代償**: 再開アイコンが実績バーから離れて立つので、マーカーとの視覚的な繋がりは弱くなる |
 | LF-12 | イナズマ線の頂点の縦位置 | 段ごとに、その段の上端に**矩形**の予定の縦幅の半分を加えた高さ。線の上端と下端は基準日の位置とし、最初の行の上と最後の行の下へ `progressLineOverhang` だけ伸ばす |
 | LF-13 | 再開アイコンの形 | 下端をマーカーの下端に、矢先の高さをマーカーの中心に置いた L 字の折れ矢印とする。腕の長さは図形の一辺に `resumeArmOfMarker` を、矢じりの大きさに `resumeHeadOfMarker` を掛けた値。`resumeValid` が偽のときは一辺に `resumeScaleInvalid` を掛ける |
+| LF-14 | ピン止めした行の帯（`FR-098`）| 帯の高さは、帯に置く行の帯高（`LF-2`）を合計し、行と行のあいだに `rowGap` をその数から 1 を引いた数だけ加えたものとする。**帯へ上げた行は `LF-3` の連なりから除き、抜けた場所は詰める。** スクロールする行が並ぶのは、`Row Area` の高さから帯の高さと `rowGap` 1 つぶんを引いた残りとする |
 
 ⚠️ **`Task` が 1 つで縦に取る高さは本表が持たない** —— 表 T-012 の「実績の置き方」の欄と、`FR-094` の床の規則が既に持っている。
 ⚠️ **`TaskGroup.height` の指定があるときは `FR-042` が優先する** —— 指定は下限であり、段数がそれより高い帯を要するときは超えて広げる。

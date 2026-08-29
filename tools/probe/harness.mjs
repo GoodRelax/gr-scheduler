@@ -120,12 +120,12 @@ export async function pressAt(x, y) {
 
 /** Press the entry of table T-109 with this row id. Answers false if absent. */
 export async function press(icon) {
-  const box = await page().evaluate((ic) => {
-    const n = document.querySelector(`[data-icon="${ic}"]`)
-    if (n === null) return null
-    n.scrollIntoView({ block: 'nearest' })
-    const r = n.getBoundingClientRect()
-    return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
+  const box = await page().evaluate((wantedIcon) => {
+    const entry = document.querySelector(`[data-icon="${wantedIcon}"]`)
+    if (entry === null) return null
+    entry.scrollIntoView({ block: 'nearest' })
+    const entryBox = entry.getBoundingClientRect()
+    return { x: entryBox.x + entryBox.width / 2, y: entryBox.y + entryBox.height / 2 }
   }, icon)
   if (box === null) return false
   await pressAt(box.x, box.y)
@@ -134,9 +134,12 @@ export async function press(icon) {
 
 /** Hold an entry down for `ms`, for FR-018's repeat (S-172 / S-173). */
 export async function hold(icon, ms) {
-  const box = await page().evaluate((ic) => {
-    const r = document.querySelector(`[data-icon="${ic}"]`)?.getBoundingClientRect()
-    return r ? { x: r.x + r.width / 2, y: r.y + r.height / 2 } : null
+  const box = await page().evaluate((wantedIcon) => {
+    const entryBox = document
+      .querySelector(`[data-icon="${wantedIcon}"]`)?.getBoundingClientRect()
+    return entryBox
+      ? { x: entryBox.x + entryBox.width / 2, y: entryBox.y + entryBox.height / 2 }
+      : null
   }, icon)
   if (box === null) return false
   await page().mouse.move(box.x, box.y)
@@ -163,27 +166,28 @@ export async function pointerAway() { await page().mouse.move(4, 1070) }
 export async function roles() {
   return page().evaluate(() =>
     [...new Set([...document.querySelectorAll('[data-role]')]
-      .map((n) => n.getAttribute('data-role')))])
+      .map((marked) => marked.getAttribute('data-role')))])
 }
 
 export async function count(selector) {
-  return page().evaluate((s) => document.querySelectorAll(s).length, selector)
+  return page().evaluate(
+    (wanted) => document.querySelectorAll(wanted).length, selector)
 }
 
 /** How many `<text>` in the drawing read exactly this. */
-export async function textsEqual(s) {
-  return page().evaluate((t) => [...document.querySelectorAll('svg text')]
-    .filter((n) => (n.textContent ?? '').trim() === t).length, s)
+export async function textsEqual(reading) {
+  return page().evaluate((wanted) => [...document.querySelectorAll('svg text')]
+    .filter((drawn) => (drawn.textContent ?? '').trim() === wanted).length, reading)
 }
 
 /** The rows the panel drew, with the depth each carries. */
 export async function rows() {
   return page().evaluate(() => [...document.querySelectorAll('[data-depth]')]
-    .map((n) => ({
-      depth: Number(n.getAttribute('data-depth')),
-      group: (n.getAttribute('data-group-id') ?? '').slice(0, 8),
-      text: (n.textContent ?? '').trim().slice(0, 20),
-      y: Math.round(n.getBoundingClientRect().y),
+    .map((row) => ({
+      depth: Number(row.getAttribute('data-depth')),
+      group: (row.getAttribute('data-group-id') ?? '').slice(0, 8),
+      text: (row.textContent ?? '').trim().slice(0, 20),
+      y: Math.round(row.getBoundingClientRect().y),
     }))
     .sort((a, b) => a.y - b.y))
 }
@@ -195,7 +199,7 @@ export async function census() {
     texts: document.querySelectorAll('svg text').length,
     polygons: document.querySelectorAll('svg polygon').length,
     faint: [...document.querySelectorAll('svg [opacity]')]
-      .filter((n) => n.getAttribute('opacity') === '0.2').length,
+      .filter((drawn) => drawn.getAttribute('opacity') === '0.2').length,
     arrows: document.querySelectorAll('svg polyline[marker-end]').length,
     lines: document.querySelectorAll('svg line').length,
   }))
@@ -227,21 +231,21 @@ export async function openPanel() {
 }
 
 export async function fieldValue() {
-  return page().evaluate((sel) => {
-    const el = document.querySelector(sel)
+  return page().evaluate((panelSelector) => {
+    const field = document.querySelector(panelSelector)
       ?.querySelector('input[type="text"], input:not([type]), textarea')
-    return el === null || el === undefined ? null : el.value
+    return field === null || field === undefined ? null : field.value
   }, PANEL)
 }
 
 /** Focus the first typed field, replace its text, and settle it the given way. */
 export async function typeInField(text, settleBy = 'Enter') {
-  const box = await page().evaluate((sel) => {
-    const el = document.querySelector(sel)
+  const box = await page().evaluate((panelSelector) => {
+    const field = document.querySelector(panelSelector)
       ?.querySelector('input[type="text"], input:not([type]), textarea')
-    if (!el) return null
-    const r = el.getBoundingClientRect()
-    return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
+    if (!field) return null
+    const fieldBox = field.getBoundingClientRect()
+    return { x: fieldBox.x + fieldBox.width / 2, y: fieldBox.y + fieldBox.height / 2 }
   }, PANEL)
   if (box === null) return false
   await pressAt(box.x, box.y)
@@ -290,8 +294,10 @@ export async function cursorAt(x, y) {
 /** What the SURFACE drew at this point -- the outermost `data-role`, or `-`. */
 export async function partAt(x, y) {
   return page().evaluate(([px, py]) => {
-    const el = document.elementFromPoint(px, py)
-    return el === null ? '-' : (el.closest('[data-role]')?.getAttribute('data-role') ?? '-')
+    const under = document.elementFromPoint(px, py)
+    return under === null
+      ? '-'
+      : (under.closest('[data-role]')?.getAttribute('data-role') ?? '-')
   }, [x, y])
 }
 
@@ -322,20 +328,20 @@ export async function emptyPoint({ x0 = 300, x1 = 1700, y0 = 300, y1 = 1000, ste
  * once with no filter rather than deriving it).
  */
 export async function shapes({ fill = null, minWidth = 4, minHeight = 4, within = null } = {}) {
-  return page().evaluate(([paint, mw, mh, box]) => {
+  return page().evaluate(([paint, minWidthPx, minHeightPx, box]) => {
     const host = document.querySelector('[data-role="Schedule Canvas"]')
     if (host === null) return []
     return [...host.querySelectorAll('svg rect, svg polygon, svg path')]
-      .filter((n) => paint === null || n.getAttribute('fill') === paint)
-      .map((n) => ({ tag: n.tagName, r: n.getBoundingClientRect() }))
-      .filter((o) => o.r.width >= mw && o.r.height >= mh)
-      .filter((o) => box === null ||
-        (o.r.x >= box.x && o.r.y >= box.y &&
-         o.r.x <= box.x + box.width && o.r.y <= box.y + box.height))
-      .map((o) => ({
-        tag: o.tag,
-        x: Math.round(o.r.x), y: Math.round(o.r.y),
-        w: Math.round(o.r.width), h: Math.round(o.r.height),
+      .filter((drawn) => paint === null || drawn.getAttribute('fill') === paint)
+      .map((drawn) => ({ tag: drawn.tagName, box: drawn.getBoundingClientRect() }))
+      .filter((shape) => shape.box.width >= minWidthPx && shape.box.height >= minHeightPx)
+      .filter((shape) => box === null ||
+        (shape.box.x >= box.x && shape.box.y >= box.y &&
+         shape.box.x <= box.x + box.width && shape.box.y <= box.y + box.height))
+      .map((shape) => ({
+        tag: shape.tag,
+        x: Math.round(shape.box.x), y: Math.round(shape.box.y),
+        w: Math.round(shape.box.width), h: Math.round(shape.box.height),
         mid: { x: Math.round(o.r.x + o.r.width / 2), y: Math.round(o.r.y + o.r.height / 2) },
       }))
       .sort((a, b) => a.y - b.y || a.x - b.x)
@@ -353,8 +359,8 @@ export async function shapes({ fill = null, minWidth = 4, minHeight = 4, within 
 export async function signatureAt(x, y, radius = 30) {
   return page().evaluate(([px, py, r]) => {
     const host = document.querySelector('[data-role="Schedule Canvas"]')
-    for (const n of host.querySelectorAll('svg polygon, svg path, svg rect')) {
-      const box = n.getBoundingClientRect()
+    for (const drawn of host.querySelectorAll('svg polygon, svg path, svg rect')) {
+      const box = drawn.getBoundingClientRect()
       if (box.width < 4) continue
       if (Math.abs(box.x + box.width / 2 - px) > r) continue
       if (Math.abs(box.y + box.height / 2 - py) > r) continue
@@ -378,9 +384,10 @@ export async function signatureAt(x, y, radius = 30) {
 export async function notices() {
   return page().evaluate(() =>
     [...document.querySelectorAll('[data-role]')]
-      .filter((n) => (n.getAttribute('data-role') ?? '').includes('Notification'))
-      .map((n) => (n.textContent ?? '').trim())
-      .filter((t) => t.length > 0))
+      .filter((marked) =>
+        (marked.getAttribute('data-role') ?? '').includes('Notification'))
+      .map((marked) => (marked.textContent ?? '').trim())
+      .filter((reading) => reading.length > 0))
 }
 
 /**
@@ -394,8 +401,8 @@ export async function notices() {
 export async function rowBands() {
   const rows = await page().evaluate(() =>
     [...document.querySelectorAll('[data-depth]')]
-      .map((n) => n.getBoundingClientRect())
-      .map((r) => ({ y: Math.round(r.y), height: Math.round(r.height) }))
+      .map((row) => row.getBoundingClientRect())
+      .map((rowBox) => ({ y: Math.round(rowBox.y), height: Math.round(rowBox.height) }))
       .sort((a, b) => a.y - b.y))
   return rows.map((row, i) => ({
     ...row,
@@ -416,10 +423,14 @@ export async function sweep(from, delta, read, { steps = 40, modifiers = [] } = 
   await page().mouse.move(from.x, from.y)
   await page().mouse.down()
   const seen = []
-  for (let i = 1; i <= steps; i += 1) {
-    const at = { x: from.x + (delta.x * i) / steps, y: from.y + (delta.y * i) / steps }
-    await page().mouse.move(at.x, at.y)
-    seen.push({ step: i, at, value: await read() })
+  for (let step = 1; step <= steps; step += 1) {
+    const pointAt = {
+      x: from.x + (delta.x * step) / steps,
+      y: from.y + (delta.y * step) / steps,
+    }
+    await page().mouse.move(pointAt.x, pointAt.y)
+    // ⚠️ The field stays `at` -- callers read it, and the shape is the contract.
+    seen.push({ step, at: pointAt, value: await read() })
   }
   await page().mouse.up()
   for (const key of modifiers) await page().keyboard.up(key)
@@ -438,27 +449,34 @@ export async function sweep(from, delta, read, { steps = 40, modifiers = [] } = 
  */
 export async function rowPanel() {
   return page().evaluate(() => {
-    const r = document.querySelector('[data-role="Row Title Panel"]').getBoundingClientRect()
-    return { x: Math.round(r.x), right: Math.round(r.right), width: Math.round(r.width) }
+    const panelBox = document
+      .querySelector('[data-role="Row Title Panel"]').getBoundingClientRect()
+    return {
+      x: Math.round(panelBox.x),
+      right: Math.round(panelBox.right),
+      width: Math.round(panelBox.width),
+    }
   })
 }
 
 /**
  * Put the pointer on a row's NAME, which is the one state HF-6 draws its
- * controls in. Answers false when no row stands at that y any more.
+ * controls in. Answers false when no row stands at that top any more.
  *
- * ⚠️ `y` IS THE ROW'S TOP, as `rows()` reports it -- not the pointer's y.
+ * ⭐ `rowTopPx` IS THE KEY THAT NAMES A ROW here and in the two below: the top
+ * edge `rows()` reports for it. ⛔ It is not the pointer's y -- an earlier name
+ * of `y` needed a line of comment to say so, which is what a name is for.
  */
-export async function hoverRow(y, { intoName = 30, settle = 140 } = {}) {
-  const at = await page().evaluate(([top, dx]) => {
-    const n = [...document.querySelectorAll('[data-depth]')]
-      .find((e) => Math.round(e.getBoundingClientRect().y) === top)
-    if (n === undefined) return null
-    const r = n.getBoundingClientRect()
-    return { x: r.x + dx, y: r.y + r.height / 2 }
-  }, [y, intoName])
-  if (at === null) return false
-  await page().mouse.move(at.x, at.y)
+export async function hoverRow(rowTopPx, { intoNamePx = 30, settle = 140 } = {}) {
+  const pointerAt = await page().evaluate(([wantedTopPx, insetPx]) => {
+    const row = [...document.querySelectorAll('[data-depth]')]
+      .find((drawn) => Math.round(drawn.getBoundingClientRect().y) === wantedTopPx)
+    if (row === undefined) return null
+    const rowBox = row.getBoundingClientRect()
+    return { x: rowBox.x + insetPx, y: rowBox.y + rowBox.height / 2 }
+  }, [rowTopPx, intoNamePx])
+  if (pointerAt === null) return false
+  await page().mouse.move(pointerAt.x, pointerAt.y)
   await page().waitForTimeout(settle)
   return true
 }
@@ -467,62 +485,64 @@ export async function hoverRow(y, { intoName = 30, settle = 140 } = {}) {
  * Every entry standing in the row title panel's region, with the arming flags
  * that decide whether pressing it does anything.
  *
- * ⭐ `y` NARROWS IT TO ONE ROW; omit it for the whole panel, head included.
+ * ⭐ `rowTopPx` NARROWS IT TO ONE ROW; pass null for the whole panel, head
+ * included.
  * ⛔ THE DEFAULT EDGE IS THE PANEL'S OWN RIGHT, MEASURED. A constant guessed a
  * little wide (175) swept in IC-53 of the schedule canvas at x=171 and reported
  * it as a dead row control.
  * ⚠️ Call `hoverRow` first for a row's own controls -- HF-6 keeps them
  * `visibility: hidden` until the pointer is on that row's name.
  */
-export async function panelEntries(y = null, { region = null } = {}) {
-  const x1 = region ?? (await rowPanel()).right
-  return page().evaluate(([top, x1]) =>
+export async function panelEntries(rowTopPx = null, { panelRightPx = null } = {}) {
+  const rightEdgePx = panelRightPx ?? (await rowPanel()).right
+  return page().evaluate(([wantedTopPx, edgePx]) =>
     [...document.querySelectorAll('[data-icon]')]
-      .filter((n) => {
-        const r = n.getBoundingClientRect()
-        return r.x < x1 && (top === null || Math.abs(r.y - top) < 30)
+      .filter((entry) => {
+        const entryBox = entry.getBoundingClientRect()
+        return entryBox.x < edgePx
+          && (wantedTopPx === null || Math.abs(entryBox.y - wantedTopPx) < 30)
       })
-      .map((n) => {
-        const r = n.getBoundingClientRect()
-        const cs = getComputedStyle(n)
+      .map((entry) => {
+        const entryBox = entry.getBoundingClientRect()
+        const entryStyle = getComputedStyle(entry)
         return {
-          icon: n.getAttribute('data-icon'),
-          role: n.getAttribute('data-role'),
+          icon: entry.getAttribute('data-icon'),
+          role: entry.getAttribute('data-role'),
           // ⛔ THE ARMING IS AN ATTRIBUTE AND NOTHING ELSE. Measured
           // 2026-08-30: a disarmed entry and an armed one match on opacity,
           // colour, cursor and `disabled` -- the ledger's D-142.
-          arming: n.getAttributeNames()
-            .filter((a) => a.startsWith('data-can') || a === 'data-pinned')
-            .map((a) => a + '=' + n.getAttribute(a)).join(' '),
-          visible: cs.visibility === 'visible',
-          background: cs.backgroundColor,
-          x: Math.round(r.x), y: Math.round(r.y),
-          width: Math.round(r.width), height: Math.round(r.height),
+          arming: entry.getAttributeNames()
+            .filter((name) => name.startsWith('data-can') || name === 'data-pinned')
+            .map((name) => name + '=' + entry.getAttribute(name)).join(' '),
+          visible: entryStyle.visibility === 'visible',
+          background: entryStyle.backgroundColor,
+          x: Math.round(entryBox.x), y: Math.round(entryBox.y),
+          width: Math.round(entryBox.width), height: Math.round(entryBox.height),
         }
-      }), [y, x1])
+      }), [rowTopPx, rightEdgePx])
 }
 
 /**
- * Press the entry carrying this icon on the row standing at `y`, with a REAL
- * pointer. Pass `y = null` for the entries at the panel's head.
+ * Press the entry carrying this icon on the row whose top is `rowTopPx`, with a
+ * REAL pointer. Pass null for the entries at the panel's head.
  *
  * ⚠️ `press` CANNOT DO THIS. That one takes the first node with the icon, and
  * every drawn row carries its own IC-60 and IC-82.
  */
-export async function pressPanelEntry(y, icon, { region = null } = {}) {
-  const edge = region ?? (await rowPanel()).right
-  const at = await page().evaluate(([top, ic, x1]) => {
-    const found = [...document.querySelectorAll(`[data-icon="${ic}"]`)]
-      .filter((n) => n.getBoundingClientRect().x < x1)
-    const n = top === null
-      ? found[0]
-      : found.find((e) => Math.abs(e.getBoundingClientRect().y - top) < 30)
-    if (n === undefined) return null
-    const r = n.getBoundingClientRect()
-    return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
-  }, [y, icon, edge])
-  if (at === null) return false
-  await pressAt(at.x, at.y)
+export async function pressPanelEntry(rowTopPx, icon, { panelRightPx = null } = {}) {
+  const rightEdgePx = panelRightPx ?? (await rowPanel()).right
+  const pressAtPoint = await page().evaluate(([wantedTopPx, wantedIcon, edgePx]) => {
+    const inPanel = [...document.querySelectorAll(`[data-icon="${wantedIcon}"]`)]
+      .filter((entry) => entry.getBoundingClientRect().x < edgePx)
+    const entry = wantedTopPx === null
+      ? inPanel[0]
+      : inPanel.find((one) => Math.abs(one.getBoundingClientRect().y - wantedTopPx) < 30)
+    if (entry === undefined) return null
+    const entryBox = entry.getBoundingClientRect()
+    return { x: entryBox.x + entryBox.width / 2, y: entryBox.y + entryBox.height / 2 }
+  }, [rowTopPx, icon, rightEdgePx])
+  if (pressAtPoint === null) return false
+  await pressAt(pressAtPoint.x, pressAtPoint.y)
   return true
 }
 
@@ -537,8 +557,8 @@ export async function pressPanelEntry(y, icon, { region = null } = {}) {
  */
 export function diff(before, after) {
   return Object.keys(before)
-    .filter((k) => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
-    .map((k) => ({ key: k, before: before[k], after: after[k] }))
+    .filter((key) => JSON.stringify(before[key]) !== JSON.stringify(after[key]))
+    .map((key) => ({ key, before: before[key], after: after[key] }))
 }
 
 /**
@@ -555,10 +575,78 @@ export function diff(before, after) {
  */
 export async function styleSignature() {
   return page().evaluate(() => {
-    const all = [...document.querySelectorAll('[style]')]
-      .map((n) => n.getAttribute('style')).join('\u0001')
-    let h = 5381
-    for (let i = 0; i < all.length; i += 1) h = ((h * 33) ^ all.charCodeAt(i)) >>> 0
-    return { count: document.querySelectorAll('[style]').length, hash: h.toString(16) }
+    const everyInlineStyle = [...document.querySelectorAll('[style]')]
+      .map((styled) => styled.getAttribute('style')).join('\u0001')
+    let hash = 5381
+    for (let charAt = 0; charAt < everyInlineStyle.length; charAt += 1) {
+      hash = ((hash * 33) ^ everyInlineStyle.charCodeAt(charAt)) >>> 0
+    }
+    return {
+      count: document.querySelectorAll('[style]').length,
+      hash: hash.toString(16),
+    }
   })
+}
+
+// -------------------------------------------- states a probe has to build ----
+
+/**
+ * The order the DOM holds children in, which is NOT the order the screen shows.
+ *
+ * ⛔⛔ `rows()` SORTS BY `y`, SO IT CAN NEVER SEE THIS KIND OF FAULT. Measured
+ * 2026-08-30: three rows pinned in reverse order came out in pin order in the
+ * DOM and in natural order on the screen -- FR-098's 「固定した順に上から並べる」
+ * broken in a way every y-sorted reading calls correct.
+ */
+export async function treeOrder(role) {
+  return page().evaluate((wantedRole) => {
+    const host = document.querySelector(`[data-role="${wantedRole}"]`)
+    if (host === null) return null
+    return [...host.children].map((child) => ({
+      role: child.getAttribute('data-role'),
+      group: (child.getAttribute('data-group-id') ?? '').slice(0, 8),
+      text: (child.textContent ?? '').trim().slice(0, 18),
+      y: Math.round(child.getBoundingClientRect().y),
+    }))
+  }, role)
+}
+
+/**
+ * The chain of `data-role` above a node, so "there are two of them here" can be
+ * told from "one of them contains the other".
+ *
+ * ⛔ TWO FALSE DEFECT REPORTS IN ONE DAY CAME FROM NOT ASKING THIS. A row and
+ * its own Row Pin button share a `y`, and `data-pinned` sits on BOTH the row
+ * and the button -- so one pin reads as two unless the parentage is checked.
+ */
+export async function ancestry(selector, nth = 0) {
+  return page().evaluate(([wantedSelector, wantedIndex]) => {
+    const start = document.querySelectorAll(wantedSelector)[wantedIndex]
+    if (start === undefined) return null
+    const chain = []
+    for (let above = start; above !== null; above = above.parentElement) {
+      const role = above.getAttribute?.('data-role')
+      const group = above.getAttribute?.('data-group-id')
+      if (role !== null && role !== undefined) chain.push(role)
+      else if (group) chain.push('#' + group.slice(0, 6))
+    }
+    return chain
+  }, [selector, nth])
+}
+
+/** Turn the wheel over the middle of a part, with a real pointer. */
+export async function wheelOver(role, notchPx, times = 1) {
+  const middleOfPart = await page().evaluate((wantedRole) => {
+    const part = document.querySelector(`[data-role="${wantedRole}"]`)
+    if (part === null) return null
+    const partBox = part.getBoundingClientRect()
+    return { x: partBox.x + partBox.width / 2, y: partBox.y + partBox.height / 2 }
+  }, role)
+  if (middleOfPart === null) return false
+  await page().mouse.move(middleOfPart.x, middleOfPart.y)
+  for (let turn = 0; turn < times; turn += 1) {
+    await page().mouse.wheel(0, notchPx)
+    await page().waitForTimeout(120)
+  }
+  return true
 }

@@ -507,9 +507,9 @@ export function validateImportedDocument(
   }
 
   for (const [index, task] of tasks.entries()) {
-    const at = `/schedule/tasks/${index}`
+    const foundAt = `/schedule/tasks/${index}`
     if (accepted !== null) {
-      found.push(...sweepDateColumns(task, DATE_COLUMNS.Task, at, accepted))
+      found.push(...sweepDateColumns(task, DATE_COLUMNS.Task, foundAt, accepted))
     }
 
     // FR-012: "`start` または `finish` を持たない `Task` を、画面に出す `Task` と
@@ -521,7 +521,7 @@ export function validateImportedDocument(
     // holds one is forbidden in as many words (MUST NOT).
     if (!emptyRowUids.has(task.uid) && (task.start === null || task.finish === null)) {
       found.push(
-        refusal('FR-012', at, `Task uid ${task.uid} has no start or no finish`, 'NT-1'),
+        refusal('FR-012', foundAt, `Task uid ${task.uid} has no start or no finish`, 'NT-1'),
       )
     }
 
@@ -533,7 +533,7 @@ export function validateImportedDocument(
     const finish = dayOf(task.finish)
     if (start !== null && finish !== null && compareDays(finish, start) < 0) {
       found.push(
-        refusal('FR-012', at, `Task uid ${task.uid} finishes before it starts`, 'NT-1'),
+        refusal('FR-012', foundAt, `Task uid ${task.uid} finishes before it starts`, 'NT-1'),
       )
     }
   }

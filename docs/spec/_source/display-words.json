@@ -1470,6 +1470,94 @@
    }
   },
   {
+   "rowId": "RS-28",
+   "text": {
+    "ja": "開く配下のタスクグループがありません",
+    "en": "There is no folded group under this row to open"
+   },
+   "nextStep": {
+    "ja": "配下を畳んでから、もう一度押してください",
+    "en": "Fold something under this row first, then press again"
+   }
+  },
+  {
+   "rowId": "RS-29",
+   "text": {
+    "ja": "折り畳む配下のタスクグループがありません",
+    "en": "There is no unfolded group under this row to fold"
+   },
+   "nextStep": {
+    "ja": "配下を開いてから、もう一度押してください",
+    "en": "Open something under this row first, then press again"
+   }
+  },
+  {
+   "rowId": "RS-30",
+   "text": {
+    "ja": "この行は既に畳まれています",
+    "en": "This row is folded already"
+   },
+   "nextStep": {
+    "ja": "開いてから、もう一度押してください",
+    "en": "Open it first, then press again"
+   }
+  },
+  {
+   "rowId": "RS-31",
+   "text": {
+    "ja": "畳まれている行が 1 つもありません",
+    "en": "No row is folded"
+   },
+   "nextStep": {
+    "ja": "どれかの行を畳んでから、もう一度押してください",
+    "en": "Fold a row first, then press again"
+   }
+  },
+  {
+   "rowId": "RS-32",
+   "text": {
+    "ja": "開いている行が 1 つもありません",
+    "en": "No row is open"
+   },
+   "nextStep": {
+    "ja": "どれかの行を開いてから、もう一度押してください",
+    "en": "Open a row first, then press again"
+   }
+  },
+  {
+   "rowId": "RS-33",
+   "text": {
+    "ja": "予定と実績の両方を隠すことはできません",
+    "en": "The plan and the actual cannot both be hidden"
+   },
+   "nextStep": {
+    "ja": "もう一方を出してから、もう一度押してください",
+    "en": "Show the other one first, then press again"
+   }
+  },
+  {
+   "rowId": "RS-34",
+   "text": {
+    "ja": "揃える相手のタスクが選ばれていません",
+    "en": "No task is chosen to align"
+   },
+   "nextStep": {
+    "ja": "タスクを選んでから、もう一度押してください",
+    "en": "Choose a task first, then press again"
+   }
+  },
+  {
+   "rowId": "RS-35",
+   "text": {
+    "ja": "対話欄は Agent API が入っているあいだだけ出せます",
+    "en": "The dialogue field is only available while the Agent API is on"
+   },
+   "nextStep": {
+    "ja": "Agent API を入れてから、もう一度押してください",
+    "en": "Turn the Agent API on first, then press again"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

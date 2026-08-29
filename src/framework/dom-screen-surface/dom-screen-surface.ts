@@ -207,7 +207,7 @@
 //     own `color` on the viewer's light / dark preference; ⛔ that media query
 //     is NOT carried -- FR-041 (MUST NOT) forbids the environment to decide the
 //     theme -- so a shape takes the colour of the entry it sits in (S-147 of
-//     table T-236, or FR-029's faint S-148), with no rule of its own.
+//     table T-236, or FR-029's faint S-149), with no rule of its own.
 //   - ⚠️ `createElementNS` IS THE ONE MEMBER BESIDES `createElement`. A shape
 //     made with `createElement` would be an unknown HTML element and would draw
 //     nothing at all, so there is no doing this without it. It is asked for
@@ -947,6 +947,16 @@ function entryStyle(): string {
  * The same frame for an entrance FR-029 (MUST) draws faint, which is the one
  * declaration that differs.
  *
+ * ⭐ THE COLOUR IS S-149 (`PAINT.rule`) AND IS NOT THIS FILE'S CHOICE. FR-029
+ * (MUST) names the row: 「薄さは … 表 T-236 の `S-149` の色で示すこと」.
+ * ⛔ IT WAS S-148 (`PAINT.quiet`) UNTIL 2026-08-30 AND THAT WAS MEASURED WRONG
+ * ON THE SHIPPED BUILD -- 5.91 : 1 against the panel's ground, which the user
+ * read as a usable entrance (CR-307). S-149 is the same table's rule colour,
+ * chosen to be present without asserting itself, and it is what the requirement
+ * now points at.
+ * ⚠️ SO THE RIM AND THE SHAPE ARE ONE COLOUR HERE, where `entryStyle` has them
+ * two. That follows from the row FR-029 names and is not a second decision.
+ *
  * ⛔ `aria-disabled` AND NOT `disabled` is what `commandEntry` writes beside
  * this: a disabled control leaves the accessibility tree and stops taking the
  * pointer, which would take away both the tooltip IN-3 lets a person point at
@@ -956,7 +966,7 @@ function entryStyle(): string {
  */
 function entryFaintStyle(): string {
   return (
-    `font:inherit;background:${PAINT.panel};color:${PAINT.quiet};` +
+    `font:inherit;background:${PAINT.panel};color:${PAINT.rule};` +
     `border:1px solid ${PAINT.rule};border-radius:0.25em;cursor:default;` +
     entryGlyphRoom()
   )
@@ -1316,11 +1326,12 @@ const STYLE = {
     `position:absolute;font:inherit;background:transparent;color:${PAINT.ink};` +
     `border:none;padding:0 ${ROW_CONTROL_PAD_EM}em;cursor:pointer;`,
   // FR-029 (MUST), as that requirement now reads: an entrance that can change
-  // nothing right now is drawn faint, in table T-236's S-148 -- which is
-  // `PAINT.quiet`, the same colour `entryFaintStyle` takes for the entrances
+  // nothing right now is drawn faint, in table T-236's S-149 -- which is
+  // `PAINT.rule`, the same colour `entryFaintStyle` takes for the entrances
   // that stand in a frame. ⚠️ 「載る面によって薄くしない入口があってはならない
   // （MUST NOT）」, so the row's controls take the palette's answer rather than
-  // one of their own.
+  // one of their own. ⛔ IT WAS S-148 UNTIL 2026-08-30 -- see `entryFaintStyle`
+  // for what the shipped build measured and why the requirement moved.
   //
   // ⭐ APPENDED AND NEVER A SECOND WHOLE DECLARATION, the move `commandEntry`
   // makes with `entryArmedRim` and `entryPressedInk`: whether a control can act
@@ -1334,7 +1345,7 @@ const STYLE = {
   // ⚠️ THE CURSOR MOVES WITH THE INK, which is `entryFaintStyle`'s answer too:
   // the two faint entrances would otherwise differ by a cursor, and that is the
   // difference by surface the same MUST NOT refuses.
-  rowControlFaintInk: `color:${PAINT.quiet};cursor:default;`,
+  rowControlFaintInk: `color:${PAINT.rule};cursor:default;`,
   // SC-5 of table T-031: only the contents scroll, and never in step with the
   // drawing area.
   //
@@ -1784,7 +1795,7 @@ const ROW_CONTROL_SHOWN_CSS =
  * that moving WHERE the judgement is made changes nothing about how it looks.
  * ⚠️ It is a transparency and not a colour, which is where FR-053 parts company
  * with FR-029's 「薄く描く」: that one takes table T-236's 控えめな文字の色
- * (S-148, `PAINT.quiet`), and FR-053 asks
+ * (S-149, `PAINT.rule`), and FR-053 asks
  * for something a colour cannot state.
  */
 const PALETTE_FAINTNESS = '0.6'
@@ -2012,15 +2023,15 @@ function panelEdge(
  * @purity semi-pure-b
  */
 function readableStamp(utc: string): string {
-  const at = new Date(utc)
-  if (Number.isNaN(at.getTime())) return utc
+  const foundAt = new Date(utc)
+  if (Number.isNaN(foundAt.getTime())) return utc
   const padded = (part: number, width: number): string => String(part).padStart(width, '0')
-  const year = padded(at.getFullYear(), 4)
-  const month = padded(at.getMonth() + 1, 2)
-  const day = padded(at.getDate(), 2)
-  const hour = padded(at.getHours(), 2)
-  const minute = padded(at.getMinutes(), 2)
-  const second = padded(at.getSeconds(), 2)
+  const year = padded(foundAt.getFullYear(), 4)
+  const month = padded(foundAt.getMonth() + 1, 2)
+  const day = padded(foundAt.getDate(), 2)
+  const hour = padded(foundAt.getHours(), 2)
+  const minute = padded(foundAt.getMinutes(), 2)
+  const second = padded(foundAt.getSeconds(), 2)
   return `${year}-${month}-${day} ${hour}:${minute}:${second}`
 }
 
@@ -2076,7 +2087,7 @@ function shapeNode(host: Document, tag: string): Element {
  * with the tag and the attributes `icon-glyphs.json` carries and with nothing
  * else -- ⛔ no path is re-drawn, re-scaled or tidied here, and no colour is
  * chosen: the figure paints `currentColor`, so a shape takes the colour of the
- * entry it sits in (S-147 of table T-236, or FR-029's faint S-148) and brings no
+ * entry it sits in (S-147 of table T-236, or FR-029's faint S-149) and brings no
  * rule of its own.
  *
  * ⚠️ THE SHAPE IS HIDDEN FROM THE ACCESSIBILITY TREE. It is an image and not a
@@ -2621,7 +2632,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // ⭐ THE STOP THAT STOOD HERE IS CLOSED, and by the requirement rather than by
   // this file. It read 「how a SPENT half is drawn ... no row says what then」;
   // FR-029 now (MUST) draws an entrance faint 「押しても、いま文書にも画面にも何も
-  // 変えられないとき」 in S-148, (MUST NOT) leaves it disabled in the host's own
+  // 変えられないとき」 in S-149, (MUST NOT) leaves it disabled in the host's own
   // sense, and (MUST) tells the reason only when it is PRESSED -- and it reaches
   // 「表 T-109 の全行」, so the row controls take the palette's answer instead of
   // being an exception to it. `canOpen` / `canClose` / `canCloseBelow` are that
@@ -2791,7 +2802,7 @@ function panelCornerEntryElement(host: Document, icon: string, stepsFromEdge: nu
  * What one of those two entrances is drawn in, usable or spent.
  *
  * ⭐ `entryFaintStyle` AND NOT A THIRD PAINT. FR-029 (MUST) states the faint
- * with one setting (S-148) and (MUST NOT) forbids an entrance that is not made
+ * with one setting (S-149) and (MUST NOT) forbids an entrance that is not made
  * faint 「載る面によって」 -- so the panel's own entrances take the very
  * declarations the header's and the palette's take. ⚠️ The row controls reach
  * the same paint by a different road (`STYLE.rowControlFaintInk` over
@@ -4580,8 +4591,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       drawn.setAttribute('style', tooltipStyle() + 'left:0;top:0;')
       return drawn
     }
-    const at = anchored.getBoundingClientRect()
-    drawn.setAttribute('style', tooltipStyle() + `left:${at.left}px;top:${at.bottom}px;`)
+    const foundAt = anchored.getBoundingClientRect()
+    drawn.setAttribute('style', tooltipStyle() + `left:${foundAt.left}px;top:${foundAt.bottom}px;`)
     return drawn
   }
 
@@ -5692,3 +5703,5 @@ export const SCREEN_COLOURS: {
   'S-170': { light: 'rgba(0,0,0,0.28)', dark: 'rgba(0,0,0,0.6)', followsHue: false },
 }
 // </generated>
+
+

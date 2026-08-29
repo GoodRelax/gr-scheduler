@@ -235,6 +235,7 @@ import {
   type PointerInput,
   type PointerPress,
   type PressRow,
+  type SpentEntranceSituation,
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
   dismissKeyOf,
@@ -915,6 +916,20 @@ const PALETTE_MINIMISE_ENTRY: IconId = 'IC-75'
 const INTERACTION_RECORD_ENTRY: IconId = 'IC-76'
 const CONFIRMATION_PROCEED_ENTRY: IconId = 'IC-69'
 const CONFIRMATION_CANCEL_ENTRY: IconId = 'IC-70'
+/**
+ * IC-18 -- FR-066's dialogue field.
+ *
+ * ⛔⛔ HERE FOR ONE HALF OF ONE REQUIREMENT AND FOR NOTHING ELSE. What a press
+ * on it should DO is still unwritable and `input-command-translator.ts` records
+ * why at length: nothing in `src/` holds the field's own switch, so the only
+ * thing that decides whether the field is drawn is whether the `Agent API` is
+ * on. ⭐ What IS answerable is the other half -- `commandStateOf` (UF-62) draws
+ * this entrance faint while the API is off, and FR-029 (MUST) has a press on a
+ * faint entrance told why. ⚠️ THAT SWITCH IS THIS FILE'S: `isAgentApiEnabled`
+ * is a current value LY-5 of table T-060 leaves with the Framework, which is
+ * why the telling could not be raised from the translator with the other nine.
+ */
+const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 
 /**
  * GR-19 of table T-023d -- the band FR-053's palette is dragged by.
@@ -1070,6 +1085,14 @@ type NoticeReason =
   | 'RS-25'
   | 'RS-26'
   | 'RS-27'
+  | 'RS-28'
+  | 'RS-29'
+  | 'RS-30'
+  | 'RS-31'
+  | 'RS-32'
+  | 'RS-33'
+  | 'RS-34'
+  | 'RS-35'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1108,6 +1131,14 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-25': 'NT-1',
   'RS-26': 'NT-1',
   'RS-27': 'NT-1',
+  'RS-28': 'NT-1',
+  'RS-29': 'NT-1',
+  'RS-30': 'NT-1',
+  'RS-31': 'NT-1',
+  'RS-32': 'NT-1',
+  'RS-33': 'NT-1',
+  'RS-34': 'NT-1',
+  'RS-35': 'NT-1',
 }
 
 /**
@@ -1231,14 +1262,58 @@ const WATCHER_SILENT_REASON: NoticeReason = 'RS-23'
 const HANDED_REFERENCE_STANDS_REASON: NoticeReason = 'RS-20'
 
 /**
- * The row of table T-233 an entrance with nothing to do is told with -- FR-029's
- * 「押した入口が、いま行えることを持たない」.
+ * The row of table T-233 an entrance with nothing to do is told with when no
+ * other row of that table fits -- FR-029's 「どの入口にも当たる行が無いときの
+ * 落ち先が `RS-27` である」.
  *
- * ⚠️ ONE ROW FOR EVERY SUCH ENTRANCE. That requirement's rule reaches 「表 T-109
- * の全行」 and table T-233 gives the whole of it a single row, so nothing here
- * tells one entrance's refusal from another's.
+ * ⛔ THE FALLBACK AND NOT THE ANSWER. Until 2026-08-30 table T-233 held one row
+ * for every spent entrance at once and this constant WAS the answer; the user
+ * threw that reading out in as many words (「通知は『行えることがありません』
+ * じゃ意味がないだろ。できない理由を表示しろよ」), the table gained eight
+ * situations, and FR-029 (MUST NOT) now forbids carrying this row where one of
+ * those fits. ⚠️ It is kept for the same reason `RS-15` is kept: the next
+ * entrance to be drawn faint needs something to say before its own row exists,
+ * and NT-1 (MUST) has a press told in words either way.
  */
 const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27'
+
+/**
+ * Which row of table T-233 each situation the translator can measure is --
+ * FR-029's 「押された入口の場面に当たる 表 T-233 の行」.
+ *
+ * ⭐⭐ THE JOIN LIVES HERE AND NOWHERE ELSE, which is why the seam carries a
+ * situation rather than a row id: `NoticeReason` and the manner census are this
+ * file's, and rule 03 section 1 of docs/development-rules forbids table T-233
+ * a second home in `src/`. ⚠️ It is the same shape `NOTICE_REASON_OF_FILE_FAULT`
+ * takes over the same seam, and for the same reason.
+ * ⭐ A CENSUS THE COMPILER KEEPS: a situation added to `SpentEntranceSituation`
+ * is a compile error here, naming the entrance whose row has to be read out of
+ * table T-233.
+ * ⛔ `RS-27` IS NOT AMONG THE VALUES, and must not be: every situation here has
+ * a row of its own, and reaching for the fallback from one of them is exactly
+ * the MUST NOT.
+ */
+const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
+  Record<SpentEntranceSituation, NoticeReason>
+> = {
+  noFoldedRowBelow: 'RS-28',
+  noUnfoldedRowBelow: 'RS-29',
+  rowAlreadyFolded: 'RS-30',
+  noFoldedRowAtAll: 'RS-31',
+  noUnfoldedRowAtAll: 'RS-32',
+  onlyOneOfPlanAndActualShown: 'RS-33',
+  noTaskChosenToAlignWith: 'RS-34',
+}
+
+/**
+ * The row FR-066's dialogue field is told with -- 表 T-233's `RS-35`.
+ *
+ * ⭐ TOLD FROM THIS FILE AND NOT FROM THE TRANSLATOR, which is the one thing
+ * that parts IC-18 from the nine entrances beside it: what draws it faint is
+ * whether the `Agent API` is on, that is a current value LY-5 of table T-060
+ * leaves with this layer, and no member of `InputContext` carries it.
+ */
+const DIALOGUE_FIELD_UNAVAILABLE_REASON: NoticeReason = 'RS-35'
 
 /**
  * The row of table T-220 FR-088 refuses on.
@@ -1486,17 +1561,17 @@ function defaultDocumentSettings(): DocumentSettings {
     const path = dotted.split('.')
     const leaf = path.pop()
     if (leaf === undefined) continue
-    let at = built
+    let foundAt = built
     for (const step of path) {
-      const standing = at[step]
+      const standing = foundAt[step]
       const group =
         typeof standing === 'object' && standing !== null
           ? (standing as Record<string, unknown>)
           : {}
-      at[step] = group
-      at = group
+      foundAt[step] = group
+      foundAt = group
     }
-    at[leaf] = value
+    foundAt[leaf] = value
   }
   return built as unknown as DocumentSettings
 }
@@ -1892,23 +1967,61 @@ function sessionOf(
     // HF-10's control needs.
     // ⚠️ ONLY THE VERTICAL PAIR IS CLIPPED. SC-1 forbids the panel to follow
     // the body sideways, so `x` and `width` stay the panel's own.
-    rowBoxes: layout.rows.flatMap((row) => {
-      const top = Math.max(row.y, regions.rowArea.y)
-      const bottom = Math.min(row.y + row.height, regions.rowArea.y + regions.rowArea.height)
-      if (bottom <= top) return []
-      return [
-        {
-          groupId: row.groupId,
-          box: {
-            x: regions.rowTitlePanel.x,
-            y: top,
-            width: regions.rowTitlePanel.width,
-            height: bottom - top,
-          },
-        },
-      ]
-    }),
+    rowBoxes: drawnRowBoxesOf(layout, regions),
   }
+}
+
+/**
+ * The rows this frame DRAWS, each with the band the `Row Title Panel` gives it.
+ *
+ * ⭐⭐ THE ONE PLACE THE CUT IS MADE, AND IT ANSWERS TWO PARTIES. The renderer
+ * is handed it as `ScreenSession.rowBoxes` (which rows carry a title, and where
+ * each stands), and `collectInputContext` is handed the same rows' ids as
+ * `InputContext.drawnRowGroupIds` -- because FR-029 (MUST) has an entrance
+ * drawn faint 「画面に描かれている側で」 and (MUST) has that same press tell its
+ * reason, so the two sides have to count ONE picture. ⛔ A second cut written
+ * on the press side would be the same rule in two places (rule 03 section 1),
+ * and the entrance would go back to writing the document in silence.
+ *
+ * ⛔ CLIPPED TO THE `Row Area`, AND A ROW THE CLIP EMPTIES IS DROPPED -- this
+ * is what makes the two sides hold the SAME rows, which is the whole of what
+ * SC-1 asks. `svg-renderer.ts` cuts every band against that same rectangle and
+ * skips the row when nothing is left, so a panel that took `row.y` and
+ * `row.height` whole disagreed with the bands by exactly that cut. ⚠️ It agreed
+ * only while the stack sat at the top, because the first row's `y` IS
+ * `rowArea.y` there: the moment S-78 slid the stack, every row above the anchor
+ * had `row.y < rowArea.y`, its band was gone, and its title was still painted
+ * -- up in the Time Ruler and over the corner HF-10's control needs.
+ * ⚠️ ONLY THE VERTICAL PAIR IS CLIPPED. SC-1 forbids the panel to follow the
+ * body sideways, so `x` and `width` stay the panel's own.
+ *
+ * @purity pure
+ */
+function drawnRowBoxesOf(
+  layout: ScheduleLayout,
+  regions: ScreenRegions,
+): readonly { readonly groupId: string; readonly box: ScreenRect }[] {
+  // ⛔ A ROW THAT FLOWS IS CUT AT THE SCROLLING REMAINDER'S TOP, a banded one at
+  // the `Row Area`'s (FR-098, MUST NOT: 「スクロールする行を帯の下へ潜らせては
+  // ならない」). `svg-renderer.ts` cuts the bands against the same two ceilings,
+  // which is what keeps the panel and the schedule holding the same rows.
+  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
+  return layout.rows.flatMap((row) => {
+    const top = Math.max(row.y, row.isPinned === true ? regions.rowArea.y : scrollTop)
+    const bottom = Math.min(row.y + row.height, regions.rowArea.y + regions.rowArea.height)
+    if (bottom <= top) return []
+    return [
+      {
+        groupId: row.groupId,
+        box: {
+          x: regions.rowTitlePanel.x,
+          y: top,
+          width: regions.rowTitlePanel.width,
+          height: bottom - top,
+        },
+      },
+    ]
+  })
 }
 
 /**
@@ -3225,8 +3338,8 @@ export function frameLoop(
   function recordLine(what: string, detail: string): void {
     if (!isRecordingInteractions) return
     interactionRecordOffered += 1
-    const at = Math.round(readMonotonicMs() - interactionRecordBeganAt)
-    interactionRecord.push(`${interactionRecordOffered}\t${at}\t${what}\t${detail}`)
+    const foundAt = Math.round(readMonotonicMs() - interactionRecordBeganAt)
+    interactionRecord.push(`${interactionRecordOffered}\t${foundAt}\t${what}\t${detail}`)
     while (interactionRecord.length > NOT_STORED_INTERACTION_RECORD_LIMITS['S-207']) {
       interactionRecord.shift()
       interactionRecordDropped += 1
@@ -4508,6 +4621,18 @@ export function frameLoop(
       // raised again. ⭐ The tests written from the specification are what
       // watch this line; the compiler no longer can.
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
+      // ⭐⭐ THE PICTURE, off the very cut the renderer is handed. FR-029 (MUST)
+      // counts a spent entrance's targets 「画面に描かれている側で」 and (MUST)
+      // has that press tell its reason, so the side that DRAWS an entrance
+      // faint and the side that ANSWERS the press have to count one set of
+      // rows. ⛔ Until this line, the press side judged off the document's whole
+      // roster: a control drawn faint over a fold HR-1a or HR-6 keeps out of
+      // the picture wrote the document and told nobody (CR-307, CR-309).
+      // ⛔⛔ THE MEMBER IS OPTIONAL AND FORGETTING IT IS SILENT, exactly as
+      // `isPropertiesPanelShowing` above is -- the press side then falls back on
+      // the roster, which is the wider arming it had before. ⭐ Only the tests
+      // written from the specification watch this line.
+      drawnRowGroupIds: drawnRowBoxesOf(frame.layout, frame.regions).map((one) => one.groupId),
       // table T-023's closing rule -- whether a surface stands over the schedule.
       // ⭐ BOTH HALVES, and the shell is the only place that can see both:
       // `ScreenState.surface` is the open surface and `asking` is NT-7's
@@ -5295,6 +5420,22 @@ export function frameLoop(
       turnInteractionRecord()
       return true
     }
+    if (entry === DIALOGUE_FIELD_ENTRY) {
+      // FR-029 (MUST): the entrance `commandStateOf` drew faint answers the
+      // press with the reason, and 表 T-233's `RS-35` is the 場面 it falls
+      // under -- 「`Agent API` が入っていないので、対話欄を出せない」.
+      //
+      // ⭐ THE SAME READING THE HEADER WAS DRAWN FROM, which is the only reason
+      // this may be judged here: `screenSession` is handed the very
+      // `isAgentApiEnabled` below, so the entrance a person sees faint is the
+      // entrance that explains itself.
+      // ⛔ NOT SPENT WHILE THE API IS ON. There is nothing to tell then, and
+      // answering `true` would swallow a press this loop has no answer for --
+      // the entrance's own operation is still unwritten (see the constant).
+      if (isAgentApiEnabled) return false
+      raiseNotice(DIALOGUE_FIELD_UNAVAILABLE_REASON, null)
+      return true
+    }
     if (entry === MILESTONE_LIST_ENTRY) {
       // S-142 of table T-206, turned the way the language above is: the press
       // writes a current value LY-5 of table T-060 leaves with this layer, and
@@ -5614,9 +5755,16 @@ export function frameLoop(
         return
       }
       case 'tellEntryHasNothingToDo':
-        // FR-029 (MUST): 「押されたときに限り、行えない理由を通知すること」. The
-        // entrance the person pressed had nothing it could change, and the row
-        // table T-233 gives that is RS-27, in table T-037's manner NT-1.
+        // FR-029 (MUST): 「押されたときに限り、行えない理由を通知すること」, and
+        // since 2026-08-30 「運ぶ理由は、押された入口の場面に当たる 表 T-233 の
+        // 行とすること（MUST）。当たる行があるのに落ち先を運んではならない（MUST
+        // NOT）」. The manner is table T-037's NT-1 for every one of them.
+        //
+        // ⭐ THE SITUATION TRAVELS AND THE ROW IS READ HERE. The translator
+        // measured which 場面 the press landed in; this file is the one place
+        // in `src/` that spells a row of table T-233, so the map is here.
+        // ⚠️ `null` IS THE FALLBACK AND NOT AN OMISSION -- see
+        // `NOTHING_TO_DO_REASON` for the one thing it now means.
         //
         // ⭐ NO WORDS AND NO COUNT. `raiseNotice` carries the ROW, FR-038's one
         // dictionary turns it into the sentence NT-1 asks for, and there is
@@ -5626,10 +5774,13 @@ export function frameLoop(
         // is the drawing side's, off `RowExpander` and `RowTitlePanel` and
         // `CommandItem.isEnabled`; this is the telling FR-029 (MUST) has only on
         // the press, and (MUST NOT) forbids raising on a pointer merely resting
-        // there. ⚠️ Which entrance it was does not travel: table T-233 gives one
-        // row for all of them, and naming the entrance would need a word, which
-        // FR-038 (MUST NOT) keeps in the one dictionary.
-        raiseNotice(NOTHING_TO_DO_REASON, null)
+        // there.
+        raiseNotice(
+          action.situation === null
+            ? NOTHING_TO_DO_REASON
+            : NOTICE_REASON_OF_SPENT_ENTRANCE[action.situation],
+          null,
+        )
         return
       case 'editInPlace':
         if (action.target.kind === 'taskName') {

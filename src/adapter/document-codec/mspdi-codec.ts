@@ -374,14 +374,14 @@ const NAMED_REFERENCES: Readonly<Record<string, string>> = {
 function decodedText(raw: string): string | null {
   if (!raw.includes('&')) return raw
   let out = ''
-  let at = 0
-  while (at < raw.length) {
-    const amp = raw.indexOf('&', at)
+  let foundAt = 0
+  while (foundAt < raw.length) {
+    const amp = raw.indexOf('&', foundAt)
     if (amp < 0) {
-      out += raw.slice(at)
+      out += raw.slice(foundAt)
       break
     }
-    out += raw.slice(at, amp)
+    out += raw.slice(foundAt, amp)
     const end = raw.indexOf(';', amp)
     if (end < 0) return null
     const body = raw.slice(amp + 1, end)
@@ -398,7 +398,7 @@ function decodedText(raw: string): string | null {
       if (named === undefined) return null
       out += named
     }
-    at = end + 1
+    foundAt = end + 1
   }
   return out
 }
@@ -425,21 +425,21 @@ function decodedText(raw: string): string | null {
 function readXml(text: string): XmlReading {
   const stack: OpenElement[] = []
   let root: XmlElement | null = null
-  let at = 0
+  let foundAt = 0
 
   const where = (): string =>
     stack.length === 0 ? '' : '/' + stack.map((frame) => frame.name).join('/')
 
-  while (at < text.length) {
-    const open = text.indexOf('<', at)
+  while (foundAt < text.length) {
+    const open = text.indexOf('<', foundAt)
     if (open < 0) {
-      if (text.slice(at).trim() !== '') {
+      if (text.slice(foundAt).trim() !== '') {
         return { ok: false, fault: fault(where(), 'character data outside the root element') }
       }
       break
     }
-    if (open > at) {
-      const raw = text.slice(at, open)
+    if (open > foundAt) {
+      const raw = text.slice(foundAt, open)
       const frame = stack[stack.length - 1]
       if (frame === undefined) {
         if (raw.trim() !== '') {
@@ -453,43 +453,43 @@ function readXml(text: string): XmlReading {
         frame.texts.push(decoded)
       }
     }
-    at = open
+    foundAt = open
 
-    if (text.startsWith('<!--', at)) {
-      const end = text.indexOf('-->', at + 4)
+    if (text.startsWith('<!--', foundAt)) {
+      const end = text.indexOf('-->', foundAt + 4)
       if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated comment') }
       // ⚠️ Comments are dropped. Nothing in the document can hold one, and the
       // exchange partner writes none. Reported.
-      at = end + 3
+      foundAt = end + 3
       continue
     }
-    if (text.startsWith('<![CDATA[', at)) {
-      const end = text.indexOf(']]>', at + 9)
+    if (text.startsWith('<![CDATA[', foundAt)) {
+      const end = text.indexOf(']]>', foundAt + 9)
       if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated CDATA section') }
       const frame = stack[stack.length - 1]
       if (frame === undefined) {
         return { ok: false, fault: fault('', 'a CDATA section outside the root element') }
       }
-      frame.texts.push(text.slice(at + 9, end))
-      at = end + 3
+      frame.texts.push(text.slice(foundAt + 9, end))
+      foundAt = end + 3
       continue
     }
-    if (text.startsWith('<!DOCTYPE', at)) {
+    if (text.startsWith('<!DOCTYPE', foundAt)) {
       return {
         ok: false,
         fault: fault('', 'a DOCTYPE declaration (FR-023 disables external entities, MUST)'),
       }
     }
-    if (text.startsWith('<?', at)) {
-      const end = text.indexOf('?>', at + 2)
+    if (text.startsWith('<?', foundAt)) {
+      const end = text.indexOf('?>', foundAt + 2)
       if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated processing instruction') }
-      at = end + 2
+      foundAt = end + 2
       continue
     }
-    if (text.startsWith('</', at)) {
-      const end = text.indexOf('>', at + 2)
+    if (text.startsWith('</', foundAt)) {
+      const end = text.indexOf('>', foundAt + 2)
       if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated end tag') }
-      const name = text.slice(at + 2, end).trim()
+      const name = text.slice(foundAt + 2, end).trim()
       const frame = stack.pop()
       if (frame === undefined) {
         return { ok: false, fault: fault('', `an end tag </${name}> with no start tag`) }
@@ -505,11 +505,11 @@ function readXml(text: string): XmlReading {
       const parent = stack[stack.length - 1]
       if (parent === undefined) root = built
       else parent.children.push(built)
-      at = end + 1
+      foundAt = end + 1
       continue
     }
 
-    const started = readStartTag(text, at, where())
+    const started = readStartTag(text, foundAt, where())
     if (!started.ok) return { ok: false, fault: started.fault }
     if (root !== null && stack.length === 0) {
       return { ok: false, fault: fault('', 'a second root element') }
@@ -522,7 +522,7 @@ function readXml(text: string): XmlReading {
     } else {
       stack.push({ name: started.name, texts: [], children: [] })
     }
-    at = started.after
+    foundAt = started.after
   }
 
   if (stack.length > 0) return { ok: false, fault: fault(where(), 'an element that was never closed') }
@@ -545,45 +545,45 @@ type StartTagReading =
  * @purity pure
  */
 function readStartTag(text: string, from: number, path: string): StartTagReading {
-  let at = from + 1
-  const first = text[at]
+  let foundAt = from + 1
+  const first = text[foundAt]
   if (first === undefined || !NAME_START.test(first)) {
     return { ok: false, fault: fault(path, 'a `<` that does not start an element name') }
   }
-  let end = at + 1
+  let end = foundAt + 1
   while (end < text.length) {
-    const ch = text[end]
-    if (ch === undefined || !NAME_REST.test(ch)) break
+    const character = text[end]
+    if (character === undefined || !NAME_REST.test(character)) break
     end += 1
   }
-  const name = localName(text.slice(at, end))
-  at = end
+  const name = localName(text.slice(foundAt, end))
+  foundAt = end
 
   for (;;) {
-    while (at < text.length && /\s/.test(text[at] ?? '')) at += 1
-    if (text.startsWith('/>', at)) return { ok: true, name, isEmpty: true, after: at + 2 }
-    if (text.startsWith('>', at)) return { ok: true, name, isEmpty: false, after: at + 1 }
-    const attributeStart = at
-    while (at < text.length && NAME_REST.test(text[at] ?? '')) at += 1
-    const attributeName = text.slice(attributeStart, at)
+    while (foundAt < text.length && /\s/.test(text[foundAt] ?? '')) foundAt += 1
+    if (text.startsWith('/>', foundAt)) return { ok: true, name, isEmpty: true, after: foundAt + 2 }
+    if (text.startsWith('>', foundAt)) return { ok: true, name, isEmpty: false, after: foundAt + 1 }
+    const attributeStart = foundAt
+    while (foundAt < text.length && NAME_REST.test(text[foundAt] ?? '')) foundAt += 1
+    const attributeName = text.slice(attributeStart, foundAt)
     if (attributeName === '') {
       return { ok: false, fault: fault(path, `an unterminated start tag <${name}>`) }
     }
-    while (at < text.length && /\s/.test(text[at] ?? '')) at += 1
-    if (text[at] !== '=') {
+    while (foundAt < text.length && /\s/.test(text[foundAt] ?? '')) foundAt += 1
+    if (text[foundAt] !== '=') {
       return { ok: false, fault: fault(path, `an attribute ${attributeName} with no value`) }
     }
-    at += 1
-    while (at < text.length && /\s/.test(text[at] ?? '')) at += 1
-    const quote = text[at]
+    foundAt += 1
+    while (foundAt < text.length && /\s/.test(text[foundAt] ?? '')) foundAt += 1
+    const quote = text[foundAt]
     if (quote !== '"' && quote !== "'") {
       return { ok: false, fault: fault(path, `an unquoted attribute ${attributeName}`) }
     }
-    const close = text.indexOf(quote, at + 1)
+    const close = text.indexOf(quote, foundAt + 1)
     if (close < 0) {
       return { ok: false, fault: fault(path, `an unterminated attribute ${attributeName}`) }
     }
-    at = close + 1
+    foundAt = close + 1
     if (attributeName !== 'xmlns' && !attributeName.startsWith('xmlns:')) {
       return {
         ok: false,
@@ -1471,7 +1471,7 @@ function taskFromElement(
 ): Task {
   const split = carrySplit(element, TASK_CONSUMED)
   const fade = fadeOfCarried(split.carryElements, fadeColumns)
-  const at = `/Project/Tasks/Task[${ordinal + 1}]`
+  const foundAt = `/Project/Tasks/Task[${ordinal + 1}]`
   return {
     uid,                                                    // AT-24
     wbsParentUid,                                           // AT-25
@@ -1485,7 +1485,7 @@ function taskFromElement(
     notes: textColumn(element, 'Notes'),                    // AT-32
     calendarUid: integerColumn(element, 'CalendarUID'),     // AT-33
     actualStart: textColumn(element, 'ActualStart'),
-    actualDuration: workingDaysOfActualDuration(element, minutesPerDay, at, run), // AT-35
+    actualDuration: workingDaysOfActualDuration(element, minutesPerDay, foundAt, run), // AT-35
     actualFinish: textColumn(element, 'ActualFinish'),
     resume: textColumn(element, 'Resume'),
     resumeValid: booleanColumn(element, 'ResumeValid'),     // AT-38
@@ -2159,8 +2159,8 @@ function writtenFadeDefinitions(
   ))
   if (missing.length === 0) return unchanged
 
-  const at = carried.findIndex((one) => one.name === 'ExtendedAttributes')
-  const collection = at < 0 ? undefined : carried[at]
+  const foundAt = carried.findIndex((one) => one.name === 'ExtendedAttributes')
+  const collection = foundAt < 0 ? undefined : carried[foundAt]
   if (collection === undefined) {
     const children = missing.map((claimed, index) => writtenCarriedElement(
       definitionOfFrame(claimed, index),
@@ -2182,7 +2182,7 @@ function writtenFadeDefinitions(
   }
   return {
     carry,
-    carried: carried.map((one, index) => (index === at ? grown : one)),
+    carried: carried.map((one, index) => (index === foundAt ? grown : one)),
     named: [],
   }
 }
@@ -2356,8 +2356,8 @@ function splicedCarriedRows(
   if (rowsBack.length === 0) return rows
   const out = [...rows]
   for (const row of rowsBack) {
-    const at = Math.min(Math.max(row.ordinal, 0), out.length)
-    out.splice(at, 0, writtenCarriedElement(row))
+    const foundAt = Math.min(Math.max(row.ordinal, 0), out.length)
+    out.splice(foundAt, 0, writtenCarriedElement(row))
   }
   return out
 }
@@ -2377,10 +2377,10 @@ function taskDepths(tasks: readonly Task[]): ReadonlyMap<number, number> {
   const depths = new Map<number, number>()
   for (const task of tasks) {
     let depth = 1
-    let at = task.wbsParentUid
-    for (let steps = 0; steps < tasks.length && at !== null; steps += 1) {
+    let foundAt = task.wbsParentUid
+    for (let steps = 0; steps < tasks.length && foundAt !== null; steps += 1) {
       depth += 1
-      at = parents.get(at) ?? null
+      foundAt = parents.get(foundAt) ?? null
     }
     depths.set(task.uid, depth)
   }

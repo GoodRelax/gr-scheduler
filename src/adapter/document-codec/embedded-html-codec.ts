@@ -244,9 +244,9 @@ function indexOfScriptStart(lowerHtml: string, from: number): number {
 function containerSpans(html: string, elementId: string): readonly ElementSpan[] {
   const spans: ElementSpan[] = []
   const lower = html.toLowerCase()
-  let at = 0
-  while (at < html.length) {
-    const begin = indexOfScriptStart(lower, at)
+  let foundAt = 0
+  while (foundAt < html.length) {
+    const begin = indexOfScriptStart(lower, foundAt)
     if (begin < 0) break
     const startTagEnd = html.indexOf('>', begin)
     if (startTagEnd < 0) break
@@ -256,7 +256,7 @@ function containerSpans(html: string, elementId: string): readonly ElementSpan[]
     if (idOfStartTag(html.slice(begin, startTagEnd + 1)) === elementId) {
       spans.push({ begin, end })
     }
-    at = end
+    foundAt = end
   }
   return spans
 }
@@ -305,8 +305,8 @@ function htmlWithContainer(html: string, elementId: string, json: string): Embed
   const container = containerHtml(elementId, json)
   const only = spans[0]
   if (only === undefined) {
-    const at = indexOfInsertion(html)
-    return { ok: true, html: `${html.slice(0, at)}${container}\n${html.slice(at)}` }
+    const foundAt = indexOfInsertion(html)
+    return { ok: true, html: `${html.slice(0, foundAt)}${container}\n${html.slice(foundAt)}` }
   }
   // ⚠️ The element is replaced, the newline around it is not, so re-exporting
   // an export neither grows the file nor moves the container.

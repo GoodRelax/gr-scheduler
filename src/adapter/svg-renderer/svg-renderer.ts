@@ -1268,8 +1268,15 @@ export function svgFromSchedule(
   // otherwise be painted over the Time Ruler and the app header above it.
   const area = regions.rowArea
   const areaBottom = area.y + area.height
+  // ⛔ FR-098 (MUST NOT): 「スクロールする行を帯の下へ潜らせてはならない」. A row
+  // that flows is cut at the top of the SCROLLING REMAINDER, which LF-14 puts
+  // one `rowGap` below the pinned band, while a banded row is cut at the `Row
+  // Area`'s own top edge -- the band stands there and is the one thing allowed
+  // to. ⚠️ `scrollAreaY` is optional and reads as the area's top where no row is
+  // pinned, which is the one ceiling every row had before a band existed.
+  const scrollTop = layout.scrollAreaY ?? area.y
   for (const [position, row] of layout.rows.entries()) {
-    const top = Math.max(row.y, area.y)
+    const top = Math.max(row.y, row.isPinned === true ? area.y : scrollTop)
     const bottom = Math.min(row.y + row.height, areaBottom)
     if (bottom <= top) continue
     const chosen = colourOfGroup.get(row.groupId) ?? null
@@ -1453,9 +1460,9 @@ export function svgFromSchedule(
       // half-side of the square and S-110 its stroke; FD-5 already decided
       // which shapes get handles at all, so an empty list draws nothing.
       const half = settings.fadeHandleHalfPx
-      for (const at of task.fadeHandles) {
+      for (const foundAt of task.fadeHandles) {
         handleParts.push(
-          `<rect x="${rounded(at.x - half)}" y="${rounded(at.y - half)}"` +
+          `<rect x="${rounded(foundAt.x - half)}" y="${rounded(foundAt.y - half)}"` +
             ` width="${rounded(half * 2)}" height="${rounded(half * 2)}"` +
             ` fill="${FADE_HANDLE_FILL_COLOUR}" stroke="${FADE_HANDLE_STROKE_COLOUR}"` +
             ` stroke-width="${rounded(settings.fadeHandleStrokePx)}"/>`,
@@ -1971,3 +1978,5 @@ export const SCHEDULE_COLOURS: {
   'S-195': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
 }
 // </generated>
+
+

@@ -236,14 +236,14 @@ function rootSvgTag(svg: string): RootTag | null {
   const afterName = svg[start + '<svg'.length]
   if (afterName === undefined || /[^\s/>]/.test(afterName)) return null
   let quote = ''
-  for (let at = start + '<svg'.length; at < svg.length; at += 1) {
-    const character = svg[at] ?? ''
+  for (let foundAt = start + '<svg'.length; foundAt < svg.length; foundAt += 1) {
+    const character = svg[foundAt] ?? ''
     if (quote !== '') {
       if (character === quote) quote = ''
     } else if (character === '"' || character === "'") {
       quote = character
     } else if (character === '>') {
-      return { start, end: at + 1 }
+      return { start, end: foundAt + 1 }
     }
   }
   return null
