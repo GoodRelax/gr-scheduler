@@ -455,6 +455,22 @@ export interface ScreenWiring {
    * document: FR-038 keeps the chosen language out of it (MUST NOT).
    */
   readonly language: DisplayLanguage
+  /**
+   * MK-13's second half -- a way to put the person into the control the surface
+   * drew for one row of table T-016, with everything already in it selected.
+   *
+   * ⛔⛔ BESIDE THE SURFACE AND NOT ON IT. The IF-9 cell of table T-065 names
+   * five supplies and every one of them is a question; the surface hands this
+   * over on its own wiring instead (`ScreenSurfaceWiring.holdFocusPropertyField`),
+   * and `screen-surface.ts` records why the seam does not take it.
+   * ⚠️ ASKED ONLY AFTER A DESCRIPTION HAS BEEN DRAWN -- see `showFrame`.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30): the
+   * `ScreenWiring` literals already written go on compiling, and a caller that
+   * never fills it leaves MK-13 half done with nothing to say so. ⭐ The tests
+   * written from the specification are what watch it.
+   */
+  readonly focusPropertyField?: (row: string) => void
 }
 
 /**
@@ -954,6 +970,18 @@ const REPEATING_ENTRIES: readonly IconId[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15'
 const CONFIRMATION_MANNER = 'NT-7'
 
 /**
+ * The row of table T-016 MK-13 names as the field a double click on a `Task`
+ * puts the person into -- 「名称の欄（表 T-016 の `PR-1`）」.
+ *
+ * ⛔ SPELLED HERE BECAUSE THE ROW ID IS THE JOIN, exactly as `NoticeReason`
+ * spells table T-233's. `PropertiesPanel` is not a value this loop reads apart
+ * to look a name up in, and `ScreenSurface.focusPropertyField` takes a row of
+ * that table by design -- so what crosses is the specification's own name for
+ * the field and nothing about the control that was drawn for it.
+ */
+const TASK_NAME_FIELD_ROW = 'PR-1'
+
+/**
  * The rows of table T-234 this file can ask on, spelled as that table spells
  * them.
  *
@@ -1041,6 +1069,7 @@ type NoticeReason =
   | 'RS-23'
   | 'RS-25'
   | 'RS-26'
+  | 'RS-27'
 
 /**
  * Which row of table T-037 each of those rows is written against.
@@ -1078,6 +1107,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-23': 'NT-3a',
   'RS-25': 'NT-1',
   'RS-26': 'NT-1',
+  'RS-27': 'NT-1',
 }
 
 /**
@@ -1199,6 +1229,16 @@ const WATCHER_SILENT_REASON: NoticeReason = 'RS-23'
  * that one was handed on -- so the telling is owed whenever the API was on.
  */
 const HANDED_REFERENCE_STANDS_REASON: NoticeReason = 'RS-20'
+
+/**
+ * The row of table T-233 an entrance with nothing to do is told with -- FR-029's
+ * 「押した入口が、いま行えることを持たない」.
+ *
+ * ⚠️ ONE ROW FOR EVERY SUCH ENTRANCE. That requirement's rule reaches 「表 T-109
+ * の全行」 and table T-233 gives the whole of it a single row, so nothing here
+ * tells one entrance's refusal from another's.
+ */
+const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27'
 
 /**
  * The row of table T-220 FR-088 refuses on.
@@ -3544,6 +3584,22 @@ export function frameLoop(
     // one thing this record must never be.
     isTooltipStanding = screenView.tooltips.length > 0
     screen.surface.showScreenView(screenView)
+    // ⭐ MK-13's SECOND HALF, SPENT HERE AND NOWHERE ELSE. The press that asks
+    // for it runs while this frame is still being decided, and the control it
+    // names does not exist until the description above has been drawn -- so the
+    // ask is left standing by `carryOutAction` and collected on the far side of
+    // the one line that draws it.
+    // ⛔ SPENT WHETHER OR NOT THE SURFACE ANSWERS. The seam member is OPTIONAL
+    // (利用者の裁定 2026-08-30), so a surface that does not carry it leaves
+    // MK-13 half done in silence -- and holding the ask back for a later frame
+    // would only put the focus into a panel the person had since moved on from.
+    // ⚠️ THIS IS ONE OF THE TWO PLACES A DROPPED HAND-OFF PASSES QUIETLY: no
+    // compiler will say that this line went missing, or that the surface has no
+    // such member. ⭐ The tests written from the specification are what watch it.
+    if (nameFieldWanted) {
+      nameFieldWanted = false
+      screen.focusPropertyField?.(TASK_NAME_FIELD_ROW)
+    }
   }
 
   /** @purity non-pure */
@@ -4380,6 +4436,37 @@ export function frameLoop(
   let isSettlingFieldCommit = false
 
   /**
+   * Whether MK-13 has asked for the name field and the frame that draws it has
+   * not been painted yet.
+   *
+   * ⭐ A REQUEST HELD ACROSS ONE FRAME, and it has to be: the press is answered
+   * while this frame is still being decided, and the control MK-13 names does
+   * not exist until the description has gone out over IF-9. `showFrame` spends
+   * it on the far side of that one line.
+   * ⛔ NOT A QUEUE. A second double click before the paint asks for the same
+   * one field, so the flag says 「頼まれている」 and nothing more.
+   */
+  let nameFieldWanted = false
+
+  /**
+   * Whether the happening being carried out now arrived with an in-place edit
+   * standing, which `spendFieldCommit` settled at its head.
+   *
+   * ⭐ SK-19's SECOND STAGE IS THE ONE READER, and it is the only thing that has
+   * to know: 「確定していないその場の編集が 1 つも無いときは」 is a question about
+   * the moment the `Enter` ARRIVED, and by the time the action reaches
+   * `carryOutAction` the edit has already been settled -- asking the surface
+   * then answers about the moment AFTER, which is a different question.
+   * ⛔ HELD FOR ONE HAPPENING, written at the head of every one that arrives
+   * over IF-2 and read within it, like `isSettlingFieldCommit` above.
+   * ⚠️ `repeatHeldEntry` reaches `carryOutAction` WITHOUT passing that head, so
+   * it leaves this standing at whatever the last happening wrote. ⭐ It cannot
+   * be read there: that path answers a held POINTER and `settleTextEntry` is
+   * SK-19's, which only a key can be.
+   */
+  let didSettleFieldEntry = false
+
+  /**
    * Everything the three members of PI-18 read besides the happening itself.
    *
    * @purity semi-pure-b
@@ -4410,6 +4497,17 @@ export function frameLoop(
       // ⚠️ ONE TRUTH VALUE AND NOT THE FIELD (MUST NOT, under table T-065): all
       // four read nothing but 「入力中か」.
       isTextEntryUnsettled: hasUnsettledTextEntry(),
+      // ⭐ S-99h of table T-206, which SK-19's SECOND stage turns on: with no
+      // field held, an `Enter` is that row's only where the panel is up. LY-5
+      // of table T-060 leaves the row with this layer, so this is the one
+      // party that can answer it.
+      // ⛔⛔ THE MEMBER IS OPTIONAL AND FORGETTING IT IS SILENT (利用者の裁定
+      // 2026-08-30): it was declared optional so that the `InputContext`
+      // literals already written go on compiling, so nothing here would fail
+      // if this line were dropped -- the second stage would simply never be
+      // raised again. ⭐ The tests written from the specification are what
+      // watch this line; the compiler no longer can.
+      isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       // table T-023's closing rule -- whether a surface stands over the schedule.
       // ⭐ BOTH HALVES, and the shell is the only place that can see both:
       // `ScreenState.surface` is the open surface and `asking` is NT-7's
@@ -5443,35 +5541,134 @@ export function frameLoop(
         })
         return
       }
-      case 'settleTextEntry':
-        // ⛔ NOTHING IS OWED HERE, AND THAT IS NOT A STOP. SK-19's settle has
-        // ALREADY HAPPENED by the time this runs: the field belongs to
-        // `DomScreenSurface`, its own `keydown` listener on the panel runs
-        // before `DomInputSource`'s on the window, and `spendFieldCommit` at
-        // the head of this very happening has taken the commit and written it.
+      case 'settleTextEntry': {
+        // ⛔ SK-19's FIRST STAGE IS NOT OWED HERE, AND THAT IS NOT A STOP.
+        // 「その場の編集を確定する」 has ALREADY HAPPENED by the time this runs:
+        // the field belongs to `DomScreenSurface`, its own `keydown` listener on
+        // the panel runs before `DomInputSource`'s on the window, and
+        // `spendFieldCommit` at the head of this very happening has taken the
+        // commit and written it.
         // ⚠️ What this case still carries is MK-10's half -- `acted` marks the
         // press as the tool's, so the browser does not act on the `Enter` as
         // well.
         // ⛔ A SECOND SETTLE MUST NOT BE RAISED HERE. The shell holds no field
         // (LR-6), and FR-031 with UN-3 of table T-027 makes one property change
         // one step of the undo history.
+        //
+        // ⭐ THE SECOND STAGE IS THIS LAYER'S, and SK-19 words it outright
+        // (利用者の指示 2026-08-30): 「確定していないその場の編集が 1 つも無いとき
+        // は、プロパティパネルを出しているならば出すのをやめること（MUST）」.
+        // ⚠️ WHERE THE FOCUS STANDS IS NOT ASKED, which the same row says in as
+        // many words: 「焦点が名称の欄の外にあるときも同じである」.
+        // ⛔ NOT WHILE A SURFACE STANDS (MUST NOT), the closing rule under table
+        // T-036 (利用者の裁定 2026-08-30): 「`Confirmation`（`U-55`）または
+        // `ScreenState` が持つ面（`S-99g`）が立っているあいだ、`SK-19` の 2 段目
+        // を当ててはならない」. ⚠️ BOTH HALVES, and the shell is the only place
+        // that can see both -- U-55 is `asking` and is not one of S-99g's, the
+        // same pair `isSurfaceStanding` joins for table T-023's closing rule.
+        // ⭐ The first stage is untouched by this: it happened in the surface
+        // before this case ran, which is 「1 段目は当てたままである」.
+        // @provisional PD-393 -- the row says 「焦点が名称の欄の外にあるときも同じ
+        // である」 with no exception, so an `Enter` raised with the focus in the
+        // Dialogue Field (FR-065) closes the panel too. ⚠️ THE USER DID NOT RULE
+        // ON THAT CORNER; the closing rule excludes only a standing 面, and a
+        // field is not one. What stands here is the row read literally.
+        //
+        // @provisional PD-395 -- and a double click followed by an `Enter` with
+        // nothing typed puts the panel away on that FIRST press, because a field
+        // merely focused is not 「確定していない編集」 by either fact below.
+        // ⚠️ The user's flow was 「編集が終わったら Enter」, so this is the row
+        // read literally as well -- but nobody ruled on the untouched field.
+        if (screenState.surface !== null || asking !== null) return
+        // ⭐ TWO FACTS MAKE ONE QUESTION, because the settling happens BEFORE
+        // this case runs: `didSettleFieldEntry` says an edit stood when the
+        // `Enter` arrived, and the seam says whether one stands now. Either of
+        // them is 「確定していないその場の編集」, so neither may be dropped -- and
+        // the second `Enter` of MK-13's flow is the press where both are false.
+        // ⭐⭐ BOTH OF THE THINGS THAT STOOD IN THE WAY ARE GONE, and both were
+        // closed where they belonged rather than worked around here. The note
+        // that stood in this place recorded them: (a) `hasUnsettledTextEntry`
+        // answered from the control being HELD and the surface's `Enter`
+        // listener never let it go, so a person who settled a name and kept the
+        // field went on answering 「あり」; (b) that same listener built a commit
+        // even where the text said again what was already settled, so
+        // `didSettleFieldEntry` stood on the second `Enter` too -- a second
+        // `setTaskName` on the undo history for an edit nobody made (FR-031 with
+        // UN-3 of table T-027, and IN-6's 「始めた値と同じ値を書いてはならない」
+        // from the other side). ⭐ That listener now LETS THE CONTROL GO and
+        // writes nothing where the value did not move, which is the side that
+        // owns the field answering for it (table T-065). ⚠️ The guard below is
+        // still written the safe way round -- it never puts the panel away on a
+        // press that settled something.
+        // ⚠️ AND THE PRESS REACHES THIS CASE AT ALL ONLY BECAUSE S-99h DOES:
+        // with no field held, `commandFromKey` tells this `Enter` from every
+        // other one by `InputContext.isPropertiesPanelShowing`, which
+        // `collectInputContext` fills. ⛔ That member is optional, so dropping
+        // it there is silent -- see the note on the line that fills it.
+        if (didSettleFieldEntry || hasUnsettledTextEntry()) return
+        // ⛔ THE SELECTION IS NOT TOUCHED (MUST NOT, FR-072, 利用者の裁定
+        // 2026-08-30): 「パネルを出すのをやめても、選択を解いてはならない」. ⭐ So
+        // this writes the one flag IC-52's entry and IN-4's rung write, and
+        // nothing beside it -- `selection` and `propertiesSubject` stand.
+        isPropertiesPanelPutAway = true
+        return
+      }
+      case 'tellEntryHasNothingToDo':
+        // FR-029 (MUST): 「押されたときに限り、行えない理由を通知すること」. The
+        // entrance the person pressed had nothing it could change, and the row
+        // table T-233 gives that is RS-27, in table T-037's manner NT-1.
+        //
+        // ⭐ NO WORDS AND NO COUNT. `raiseNotice` carries the ROW, FR-038's one
+        // dictionary turns it into the sentence NT-1 asks for, and there is
+        // nothing here to count -- NT-3's 件数 belongs to a destructive result
+        // and this press had no result at all.
+        // ⛔ NOT DRAWN FAINT FROM HERE, and the two are not one act. The faint
+        // is the drawing side's, off `RowExpander` and `RowTitlePanel` and
+        // `CommandItem.isEnabled`; this is the telling FR-029 (MUST) has only on
+        // the press, and (MUST NOT) forbids raising on a pointer merely resting
+        // there. ⚠️ Which entrance it was does not travel: table T-233 gives one
+        // row for all of them, and naming the entrance would need a word, which
+        // FR-038 (MUST NOT) keeps in the one dictionary.
+        raiseNotice(NOTHING_TO_DO_REASON, null)
         return
       case 'editInPlace':
-        // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS FOR SK-9 / MK-13. Those two open
-        // a field on the schedule itself -- the document title and a row name --
-        // and nothing in this build draws one. ⚠️ The `Properties Panel` is not
-        // it: FR-006's items are the panel's, and MK-13 (MUST NOT) forbids a
-        // route that opens that panel to sit on this row.
+        if (action.target.kind === 'taskName') {
+          // MK-13's Task entry (MUST), as that row reads since 2026-08-30
+          // (利用者の指示と裁定, CR-304): 「タスク（名称ラベルと本体のどちらでも）
+          // ＝ プロパティパネルを出し、名称の欄（表 T-016 の `PR-1`）を編集できる
+          // 状態にして焦点を置き、既にある文字をすべて選んだ状態にすること」.
+          // ⭐ ONE OF FR-072's TWO ENTRANCES, which is why this branch may put
+          // the panel up at all: 「出す入口は 表 T-023 の `MK-13` と `IC-17` の
+          // 2 つである」. ⛔ NO THIRD ONE IS MADE HERE (FR-029, MUST NOT) -- the
+          // selection comparison at the foot of `receiveInput` was the other
+          // road and it now only follows a panel that already stands.
+          // ⛔ NOTHING IS CHOSEN HERE. The first click of the double click has
+          // already moved the selection (SL-2 of table T-023c), so what the
+          // panel turns to is what the person pressed.
+          showPropertiesOfChoice()
+          // ⭐⭐ THE STOP THAT STOOD HERE IS CLOSED, AND BY WIDENING THE SEAM.
+          // It read 「IF-9 ... has five members and every one of them is a
+          // QUESTION」, which was true and is the whole reason MK-13's second
+          // half stood: 「名称の欄（表 T-016 の `PR-1`）を編集できる状態にして
+          // 焦点を置き、既にある文字をすべて選んだ状態にすること（MUST）」 cannot
+          // be carried out by anyone but the side that drew the field (LR-6),
+          // and nothing could tell it to. `ScreenSurface.focusPropertyField` is
+          // that member now.
+          // ⛔ NOT ASKED HERE, AND THAT IS NOT A DETOUR: the control does not
+          // exist until the description this press asks for has been DRAWN, and
+          // the drawing is the frame's, not this happening's. So the request is
+          // left standing and spent at the paint -- see `nameFieldWanted`.
+          nameFieldWanted = true
+          return
+        }
+        // STOP -- ⛔ NO IN-PLACE EDITOR EXISTS FOR SK-9, NOR FOR MK-13's 担当
+        // ラベル. Both open a field on the schedule itself -- the document title
+        // and the assignee's name -- and nothing in this build draws one.
+        // ⚠️ FR-091's 「作った直後に入力できること」 wants the same editor.
+        // ⭐ NARROWED ON 2026-08-30: MK-13's Task entry no longer needs one, and
+        // the reason this STOP used to give for it has expired -- the row now
+        // requires the very route it used to forbid, and the branch above is it.
         return
-      // ⛔ `openPropertiesPanel` WAS A CASE HERE AND IS GONE. MK-13 forbids a
-      // route that opens the properties panel to sit on that row (MUST NOT),
-      // and the panel loses no entrance by it: FR-072 decides its contents by
-      // the last operation the reader made, and the selection comparison at the
-      // end of `receiveInput` already calls `showPropertiesOfChoice` whenever a
-      // press moved the choice -- which a double click on a Task does on its
-      // first click. ⚠️ That comparison is what this removal rests on and it
-      // was measured, not assumed; the case removed here called that same
-      // function and passed it nothing.
       case 'moveCommandPalette': {
         // GR-19 of table T-023d -- the band was dragged, so FR-053's palette
         // moves by the travel the translator measured.
@@ -5629,8 +5826,12 @@ export function frameLoop(
   }
 
   /**
-   * FR-072: an operation chose something, so the properties panel turns to it
-   * and remembers what it was about.
+   * FR-072: the properties panel turns to what is chosen and remembers what it
+   * was about.
+   *
+   * ⛔ NOT AN ENTRANCE IN ITSELF. FR-072 (MUST NOT) names two entrances and a
+   * moved selection is not one of them, so a caller that is not `MK-13` or
+   * `IC-17` may reach this only while the panel is already standing.
    *
    * ⭐ THE SUBJECT AND NOT THE FIELDS (PD-144). FR-072 (MUST) keeps the previous
    * contents standing when the selection goes away and has a second press of
@@ -5652,17 +5853,17 @@ export function frameLoop(
    */
   function showPropertiesOfChoice(): void {
     if (selection.items.length === 0 && selectedGroupIds.length === 0) return
-    // FR-006 (MUST): 「作成者がタスクを選んだとき、`GRS` は、表 T-016 の項目を
-    // プロパティパネルに出し」 -- so a choosing puts the panel back, and a reader
-    // who put it away is not held to that for the rest of the session.
-    // ⛔ WHETHER IT SHOULD COME BACK IS NOT SETTLED, and this is the reading
-    // rather than a ruling: FR-006 names the choosing and MK-13 of table T-023
-    // makes a double click 「プロパティパネルを開く」, and no row says which of
-    // the two is the entrance. What is chosen here is the one FR-006 states
-    // outright, and it is the same road that put the panel up in the first
-    // place -- a putting-away that survived it would leave the panel gone with
-    // no way back at all.
-    // @provisional PD-339
+    // ⭐ WHICH OPERATION IS AN ENTRANCE IS NOW SETTLED (CR-304, 利用者の指示と
+    // 裁定 2026-08-30), and the two rows say it outright rather than leaving it
+    // to be read: FR-072 (MUST NOT) 「表 T-023c の選択が動いたことだけを理由に、
+    // パネルを出し始めてはならない ... 出す入口は 表 T-023 の `MK-13` と `IC-17`
+    // の 2 つである」, and FR-006 now begins 「プロパティパネルが選択を出している
+    // とき」 rather than naming the choosing.
+    // ⛔ SO THE PUTTING-AWAY IS UNDONE BY THE CALLERS THAT ARE ENTRANCES AND BY
+    // NO OTHER. Three call this: MK-13's double click and FR-042's press in the
+    // `Row Title Panel` are entrances and want the panel back; the selection
+    // comparison at the foot of `receiveInput` is NOT one, and it asks only
+    // while the panel already stands -- see the guard written there.
     isPropertiesPanelPutAway = false
     propertiesShowing = 'selection'
     propertiesSubject = { selection, groupIds: selectedGroupIds }
@@ -5788,9 +5989,16 @@ export function frameLoop(
    * @purity non-pure
    */
   function spendFieldCommit(frame: FrameValues): void {
+    // ⛔ CLEARED FIRST AND ON EVERY HAPPENING, so that the answer SK-19's second
+    // stage reads belongs to the happening in hand and not to an earlier one.
+    didSettleFieldEntry = false
     if (screen === undefined) return
     const commit = screen.surface.readFieldCommit()
     if (commit === null) return
+    // ⭐ WRITTEN ON THE COMMIT AND NOT ON THE COMMANDS. A value that names no row
+    // of table T-108 is still an edit the person settled, and SK-19's second
+    // stage asks whether one stood -- not whether the document moved.
+    didSettleFieldEntry = true
     const commands = commandFromFieldCommit(commit, collectInputContext(frame))
     if (commands.length === 0) return
     // FR-031 (MUST) with UN-3 of table T-027: one property change is ONE step
@@ -6073,18 +6281,29 @@ export function frameLoop(
       pressed = { ...pressed, followedTo: { x: input.x, y: input.y } }
     }
 
-    // FR-072: 「利用者が選択または設定の入口を操作したとき ... 最後に行われた操作
-    // で決める」. A press that moved the drawing area's selection IS one of those
-    // operations, and it is the commonest -- SL-2 replaces the selection with
-    // one thing and SL-3 takes a rectangle of them, and neither asks for an
-    // action of its own, so `carryOutAction` above never hears about them.
+    // FR-072: 「出しているあいだは、選択が動けば中身がそれに移る -- 上の「最後に
+    // 行われた操作」がそのまま当たる」. A press that moved the drawing area's
+    // selection IS one of those operations, and it is the commonest -- SL-2
+    // replaces the selection with one thing and SL-3 takes a rectangle of them,
+    // and neither asks for an action of its own, so `carryOutAction` above never
+    // hears about them.
+    // ⛔⛔ ONLY WHILE THE PANEL ALREADY STANDS (MUST NOT, FR-072, 利用者の指示
+    // 2026-08-30): 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始めて
+    // はならない」. ⭐ THIS GUARD IS THE WHOLE OF D-143 -- the ledger's own words
+    // for the defect were 「タスクを 1 回押しただけでプロパティパネルが開く」, and
+    // this line is where the press opened it. ⚠️ `propertiesShowingNow` and not
+    // `propertiesShowing`, because a panel that was put away is not standing --
+    // reading the raw value would let the next press bring back a panel the
+    // person closed, which is exactly the answer PD-339 settled against.
     // ⛔ COMPARED BY IDENTITY, which is the comparison PI-18 declares for this
     // member: `selectionFromInput` answers the SAME value it was handed when
     // nothing moved, so a press that changed nothing does not count as an
     // operation here. ⚠️ `context.selection` is what was held before the three
     // members ran, and `owesFrame` compares the same pair for the same reason.
     // @provisional PD-144
-    if (selection !== context.selection) showPropertiesOfChoice()
+    if (selection !== context.selection && propertiesShowingNow() !== null) {
+      showPropertiesOfChoice()
+    }
 
     // OP-3 (MUST NOT): the `Open Chooser` went away without one of its three
     // being taken, so the choice was never made and the read is abandoned.
@@ -6364,3 +6583,5 @@ export const NOT_STORED_INTERACTION_RECORD_LIMITS: {
   'S-207': 2000,
 }
 // </generated>
+
+

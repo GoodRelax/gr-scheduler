@@ -424,11 +424,47 @@ export interface InputContext {
    * one it makes.
    */
   readonly newGroupId: string
+  /**
+   * S-99h of table T-206 -- 「プロパティパネルを出しているか」 -- or `undefined`
+   * where the caller carried no answer.
+   *
+   * ⭐ WHAT IT IS FOR, AND IT IS ONE ROW ONLY. SK-19's second stage (MUST) puts
+   * the `Properties Panel` away on a plain `Enter` with 「確定していないその場の
+   * 編集が 1 つも無いとき」, and adds 「焦点が名称の欄の外にあるときも同じである」
+   * -- so the press has to be ASSIGNED with no field held, and until this row
+   * crossed, `commandFromKey` had nothing to tell that press apart from every
+   * other `Enter` a person may have tabbed onto an entry to raise. ⛔ Assigning
+   * every plain `Enter` was the alternative and is refused: MK-10 would then
+   * stop the browser's default on all of them, which takes keyboard activation
+   * away from every entry.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30). It is
+   * declared optional so that the callers already holding an `InputContext`
+   * literal go on compiling; the cost is that a caller which never sets it gets
+   * `undefined`, which reads here as 「出していない」 and simply leaves the
+   * second stage unraised -- no compiler and no reader will say so. ⚠️ A CALLER
+   * THAT HOLDS THE PANEL MUST PASS IT. `frame-loop.ts` is the one that does, out
+   * of `propertiesShowingNow()`. ⭐ The tests written from the specification are
+   * what watch this, since the type no longer can.
+   *
+   * ⚠️ LY-5 of table T-060 is why it arrives rather than being worked out here:
+   * table T-206 keeps S-99h out of the document, so the Framework holds it and
+   * this component is handed the answer, exactly as `dualCursorFollowing` is.
+   */
+  readonly isPropertiesPanelShowing?: boolean
 }
 
 // ----------------------------------------------------------------- answer ---
 
-/** Where an in-place edit opens. MK-13 and SK-9 are the two entrances. */
+/**
+ * WHAT is to be edited and from which row. MK-13 and SK-9 are the two
+ * entrances.
+ *
+ * ⚠️ NOT ALL THREE OPEN IN THE SAME PLACE SINCE 2026-08-30 (CR-304). MK-13's
+ * Task entry now opens in the `Properties Panel`'s name field (表 T-016 の
+ * `PR-1`) while the other two still open where the value is drawn; the shell
+ * decides that, because where a field is drawn is not this side's to know.
+ */
 export type InPlaceTarget =
   /** SK-9 (`F2`), whose one entrance is FR-035. */
   | { readonly kind: 'documentTitle' }
@@ -440,6 +476,10 @@ export type InPlaceTarget =
    * entry and names one destination for both. Which grab it came in by is not
    * carried: nothing downstream could use it without the same operation
    * meaning two things.
+   *
+   * ⚠️ THE DESTINATION IS THE PANEL'S NAME FIELD since 2026-08-30, and the uid
+   * is carried all the same -- MK-13 says which Task was double clicked and the
+   * selection is not the place to read that back from.
    */
   | { readonly kind: 'taskName'; readonly uid: number }
   /**
@@ -539,15 +579,71 @@ export type InputAction =
   | { readonly kind: 'copyPictureToClipboard' }
   /** SK-19. */
   | { readonly kind: 'settleTextEntry' }
+  /**
+   * FR-029 (MUST): the entrance that was pressed has nothing it can do now, so
+   * the reason is told -- 表 T-233's `RS-27`, in 表 T-037's manner `NT-1`.
+   *
+   * ⭐ RAISED ONLY ON THE PRESS, which is that requirement's own 「押されたときに
+   * 限り」 (利用者の裁定 2026-08-30). ⛔ A pointer merely resting on such an
+   * entrance raises nothing at all: what comes up then is EZ-2's explanation of
+   * what the entrance is FOR, and FR-029 (MUST NOT) refuses to put the reason
+   * under the pointer.
+   *
+   * ⛔ NO ROW OF TABLE T-233 TRAVELS ON THIS KIND, and none may be added. The
+   * reason is one row and always the same row, so a member carrying it would be
+   * a value that can only ever hold one thing -- and `frame-loop.ts` is where
+   * `NoticeReason` and the manner census live, which is the one place a row of
+   * that table is spelled in `src/`.
+   * ⛔ AND NO WORDS. FR-038's one dictionary is what turns the row into the
+   * sentence NT-1 asks for; a message composed here would be the second store
+   * of translated strings that requirement forbids (MUST NOT).
+   *
+   * ⚠️ IT IS AN ACTION AND NOT A REFUSAL TO ACT. The press IS assigned -- MK-10
+   * keeps the browser out from under an entrance this tool drew -- and what it
+   * is assigned to is the telling.
+   *
+   * ⛔⛔ IT IS NOT ANSWERED FOR EVERY PRESS THAT WRITES NOTHING, and that is the
+   * whole of the care this kind needs. Many entrances answer `CONSUMED_ELSEWHERE`
+   * here while another member of PI-18 spends them -- every arming entrance
+   * (`commandFromArmingEntry`), and every entrance whose whole effect is a
+   * change of `ScreenState` (the palette, the help, the export chooser, full
+   * screen, IN-4's close). Those DO change the screen, so answering RS-27 for
+   * them would tell a person that a working entrance is dead. ⇒ This kind is
+   * raised only where the drawing side is ALSO drawing the entrance faint, and
+   * the seven that are drawn faint today are all answered here: IC-8 / IC-9
+   * (S-59's pair, `commandStateOf`), IC-58 / IC-59 / IC-77 (`expanderOf`) and
+   * IC-74 / IC-78 (`rowTitlePanelFromSchedule`).
+   *
+   * STOP -- ⛔ THREE ENTRANCES ARE DRAWN FAINT AND TELL NOTHING WHEN PRESSED,
+   * and not one of them is missing a branch: this file answers NONE of the
+   * three, so there is nowhere to put the telling.
+   *   IC-18   FR-066's dialogue field. `commandStateOf` draws it faint while
+   *           the `Agent API` is off. The STOP at the foot of this file records
+   *           why no entrance can be written for it -- nothing holds the field's
+   *           own switch.
+   *   IC-37 / IC-38  FR-034's alignment, which `isEntryUsable` (UF-65) draws
+   *           faint with nothing ordered selected. The same STOP records that
+   *           table T-108 holds no command for either.
+   * ⚠️ So FR-029's MUST is met for every entrance a press can reach and unmet
+   * for three a press reaches nothing with. ⛔ NO BRANCH IS INVENTED for them:
+   * an entrance answered with the telling ALONE would be this file declaring
+   * that the operation itself is unreachable, which is the STOP's finding and
+   * not the person's fault -- and would say 「いま行えない」 about an entrance
+   * that could never be performed at all.
+   */
+  | { readonly kind: 'tellEntryHasNothingToDo' }
   /** SK-9 and MK-13. */
   | { readonly kind: 'editInPlace'; readonly target: InPlaceTarget }
-  // ⛔ `openPropertiesPanel` WAS HERE AND IS GONE. MK-13 now forbids a route
-  // that opens the properties panel to sit on that row (MUST NOT), and its own
-  // reason is that FR-072 already decides the panel's contents by the last
-  // operation the reader made -- the press that selects IS that operation.
-  // ⚠️ Nothing was lost by deleting it: the shell turns the panel to the choice
-  // whenever the selection changes, so a member that only said the panel had
-  // been asked for could ask for nothing but what had just happened.
+  // ⛔ `openPropertiesPanel` WAS HERE, IS STILL GONE, AND THE REASON HAS
+  // CHANGED. It was deleted because MK-13 forbade a route that opens the
+  // properties panel (MUST NOT); that ruling of 2026-08-27 was overturned on
+  // 2026-08-30 (CR-304) and the row now REQUIRES that route for a Task.
+  // ⭐ NO MEMBER COMES BACK ALL THE SAME. MK-13's Task entry is 「タスク ... ＝
+  // プロパティパネルを出し、名称の欄（表 T-016 の `PR-1`）を ... 編集できる状態に
+  // して」, which is the destination `editInPlace` with a `taskName` target
+  // already names -- what moved is where that edit opens, and where it opens is
+  // the shell's to know. ⛔ A second member for the same operation would put one
+  // row of table T-023 in two places in this vocabulary.
   /**
    * GR-19 of table T-023d -- the band on top of the `Command Palette` was
    * dragged, so FR-053's palette moves by what the pointer travelled.
@@ -788,6 +884,43 @@ function changed(commands: readonly DocumentCommand[]): TranslatedInput {
   return commands.length === 0
     ? CONSUMED_ELSEWHERE
     : acted({ kind: 'changeDocument', writes: [commands] })
+}
+
+/**
+ * FR-029's telling: the entrance that was pressed has nothing it can do now.
+ *
+ * ⭐ `acted` AND NOT `CONSUMED_ELSEWHERE`, which is the difference this member
+ * exists to make. Both keep the browser out from under the press (MK-10); only
+ * this one carries the reason on to the party that can tell it.
+ * ⚠️ EVERY CALLER IS AN ENTRANCE THAT THE DRAWING SIDE ALSO DRAWS FAINT. The
+ * condition is the same one, read on the two sides of the frame from the same
+ * document -- `expanderOf` (UF-63) for the three drawn per row,
+ * `rowTitlePanelFromSchedule` for the two the panel draws for itself, and
+ * `commandStateOf` (UF-62) for S-59's pair.
+ *
+ * @purity pure
+ */
+function nothingToDo(): TranslatedInput {
+  return acted({ kind: 'tellEntryHasNothingToDo' })
+}
+
+/**
+ * A fold or an open that reaches some rows, or FR-029's telling where it reaches
+ * none.
+ *
+ * ⭐ ONE PLACE FOR THE FOUR ENTRANCES OF TABLE T-015 THAT WORK ON A SET OF ROWS
+ * -- IC-58 and IC-77 per row, IC-74 and IC-78 for the panel. Each of them is
+ * drawn faint on exactly the reading that this set came out empty, so the test
+ * is written once rather than four times (R2.7).
+ * ⛔ NOT FOLDED INTO `changed`. That member answers `CONSUMED_ELSEWHERE` for an
+ * empty bundle and has callers that are not entrances at all -- a key press
+ * that deletes nothing is not an entrance with nothing to do, and FR-029 speaks
+ * of 表 T-109's rows.
+ *
+ * @purity pure
+ */
+function foldsOrNothing(commands: readonly DocumentCommand[]): TranslatedInput {
+  return commands.length === 0 ? nothingToDo() : changed(commands)
 }
 
 /**
@@ -1591,6 +1724,32 @@ function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
   return Object.prototype.hasOwnProperty.call(TASK_MILESTONE_GLYPHS, name)
     ? (name as TaskMilestoneGlyph)
     : null
+}
+
+/**
+ * The uid the write side is about to issue to the next row it creates.
+ *
+ * ⭐ WHY A PLANNER MAY READ THIS AT ALL. A bundle is planned before any of it
+ * runs, so a command that names a row an EARLIER command in the same bundle
+ * makes has to name it by a uid nobody has issued yet. FR-001 (for `Task`) and
+ * FR-008 (for `Resource`) both say the number comes from
+ * `Project.uidHighWaterMark` (MUST) and NOT from the largest live uid (MUST
+ * NOT) -- so it is a pure function of the document, and this reads it the same
+ * way the write side reads it rather than inventing one.
+ *
+ * ⛔ NOT the road `groupId` takes. AT-51 is a UUID, minting one is not a pure
+ * act, and that is why `createTask` is HANDED its `groupId` as a value. AT-19 is
+ * not a UUID, so the same treatment would only move a pure computation one layer
+ * out and give it a second chance to disagree with the write side.
+ *
+ * ⚠️ ONE bundle, ONE creation. WS-3 threads each command's document into the
+ * next, so a second `createTask` in the same bundle would take mark + 2 -- and
+ * this answers mark + 1 whoever asks. Both callers plan exactly one creation.
+ *
+ * @purity pure
+ */
+function nextIssuedUid(schedule: Schedule): number {
+  return schedule.project.uidHighWaterMark + 1
 }
 
 // --------------------------------------------------------------- entries ----
@@ -2633,7 +2792,7 @@ function commandsFromAssignee(
     {
       kind: 'createAssignment',
       taskUid,
-      resourceUid: schedule.project.uidHighWaterMark + 1,
+      resourceUid: nextIssuedUid(schedule),
     },
   ]
 }
@@ -2732,8 +2891,32 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
 
   // SK-19 -- settles the in-place edit, so it is assigned only while one is
   // open. With nothing being typed, `Enter` is this tool's to leave alone.
+  //
+  // ⭐ THE STOP THAT STOOD HERE IS CLOSED, AND BY THE MEMBER IT ASKED FOR. It
+  // read 「S-99h ... is held by no type this side is handed」; `InputContext`
+  // carries it now (`isPropertiesPanelShowing`), so BOTH of SK-19's stages are
+  // assigned from here:
+  //   ① a field is held -- 「その場の編集を確定する」. The settling itself is
+  //      the surface's (IF-9 holds the field), and what this answer carries is
+  //      MK-10's half: the browser must not act on the key as well.
+  //   ② no field is held and the panel is up -- 「確定していないその場の編集が
+  //      1 つも無いときは、プロパティパネルを出しているならば出すのをやめること
+  //      （MUST）」, which the row extends with 「焦点が名称の欄の外にあるときも
+  //      同じである」. ⛔ So the focus is NOT asked about: the row says in as
+  //      many words that it does not matter.
+  // ⛔ STILL NOT EVERY PLAIN `Enter`. With the panel down this stays unassigned,
+  // because MK-10 would otherwise stop the browser's default on every one of
+  // them and take keyboard activation away from every entry a person has
+  // tabbed to.
+  // ⚠️ ONE KIND FOR BOTH STAGES, AND NOT TWO. `frame-loop.ts` is the one party
+  // that can tell them apart -- it knows whether the commit it spent at the head
+  // of this happening settled anything (`didSettleFieldEntry`) -- so a second
+  // kind here would be this unit answering a question it cannot see.
   if (plain && key === KEY.enter) {
-    return context.isTextEntryUnsettled ? acted({ kind: 'settleTextEntry' }) : UNASSIGNED
+    if (context.isTextEntryUnsettled) return acted({ kind: 'settleTextEntry' })
+    return context.isPropertiesPanelShowing === true
+      ? acted({ kind: 'settleTextEntry' })
+      : UNASSIGNED
   }
 
   // SK-8 -- the rule is IN-4, and the consuming is `screenStateFromInput`'s.
@@ -3260,9 +3443,11 @@ function commandFromEntry(
         context.document.documentSettings.planActualDisplay,
         entry === ENTRY.planDisplay,
       )
-      // ⚠️ The press is still this tool's although it writes nothing: MK-10
-      // (MUST) keeps the browser out from under an entry this tool drew.
-      if (display === null) return CONSUMED_ELSEWHERE
+      // FR-029 (MUST): this is the one state of the pair `commandStateOf`
+      // (UF-62) draws faint -- 「both hidden」 is the combination FR-049 (MUST
+      // NOT) refuses and S-59 has no fourth value for -- so the press is told
+      // why it did nothing rather than swallowed.
+      if (display === null) return nothingToDo()
       return changed([{ kind: 'setPlanActualDisplay', display }])
     }
     case ENTRY.themePreference: {
@@ -3347,6 +3532,18 @@ function commandFromEntry(
       // ⚠️ NEITHER THE ZOOM NOR THE VIEWPORT MOVES. HF-10 says so, and that is
       // the whole of what separates this press from the fit (FR-055), which
       // owes CM-71 first -- so `fitWrites` is not reached and this is one write.
+      //
+      // ⛔ WITH NOTHING FOLDED THERE IS NOTHING TO OPEN, and FR-029 (MUST) has
+      // the reason told rather than the press swallowed. ⚠️ The test is made
+      // HERE and not left to CM-72: that command puts whatever it is given, so
+      // an empty document-wide open still pushed a step onto the undo history
+      // for a press that moved nothing (FR-031 with UN-8) -- `changed` records
+      // the same reason for an empty bundle.
+      // ⭐ THE SAME READING `RowTitlePanel.canOpenEveryRow` IS DRAWN FROM, so
+      // the entrance a person sees faint is the entrance that tells them why.
+      if (!context.document.schedule.taskGroups.some((row) => row.isCollapsed === true)) {
+        return nothingToDo()
+      }
       return changed([{ kind: 'expandAllTaskGroups' }])
     case ENTRY.rowExpanderCloseAll:
       // HF-12 of table T-051, which is HR-2 of table T-015.
@@ -3360,7 +3557,11 @@ function commandFromEntry(
       // has opened a whole subtree that way since IC-58 was wired.
       // ⚠️ NEITHER THE ZOOM NOR THE VIEWPORT MOVES, for HF-10's reason, which
       // HF-12 takes with the placement.
-      return changed(foldsEveryRow(context.document.schedule))
+      //
+      // ⛔ AN EMPTY BUNDLE IS A PRESS WITH NOTHING TO DO, and FR-029 (MUST) has
+      // the reason told -- the same reading `RowTitlePanel.canCloseEveryRow` is
+      // drawn from, so the faint entrance and the telling agree.
+      return foldsOrNothing(foldsEveryRow(context.document.schedule))
     case ENTRY.documentSettingsProperties:
       // FR-072 -- 「設定の入口」. Which way this press goes is the holder's; see
       // the action's own note.
@@ -3656,7 +3857,11 @@ function commandFromRowEntry(
     // ⛔ THE ROW ITSELF IS NOT FOLDED (HF-11, MUST NOT): that operation is
     // HF-3's, and doing both here would give it two entrances (FR-029).
     // ⚠️ ONE BUNDLE, for the reason IC-58's branch gives.
-    return changed(foldsUnderRow(context.document.schedule, rowGroupId))
+    // ⛔ NOTHING LEFT UNFOLDED UNDER THIS ROW IS A PRESS WITH NOTHING TO DO, and
+    // FR-029 (MUST) has the reason told. ⭐ `RowExpander.canCloseBelow` is the
+    // same reading, so the entrance drawn faint is the entrance that explains
+    // itself when it is pressed.
+    return foldsOrNothing(foldsUnderRow(context.document.schedule, rowGroupId))
   }
 
   if (entry === ENTRY.rowExpanderOpen) {
@@ -3668,7 +3873,9 @@ function commandFromRowEntry(
     // entrances and leave the one above with nothing to do.
     // ⚠️ ONE BUNDLE. FR-031 (MUST) makes one gesture one undo step, so every
     // row that opens opens in the same write.
-    return changed(opensUnderRow(context.document.schedule, rowGroupId))
+    // ⛔ NOTHING FOLDED UNDER THIS ROW IS A PRESS WITH NOTHING TO DO (FR-029,
+    // MUST), and `RowExpander.canOpen` is the same reading.
+    return foldsOrNothing(opensUnderRow(context.document.schedule, rowGroupId))
   }
 
   // IC-59 -- HF-3 (MUST), which names HR-5 of table T-015: THIS row folds, and
@@ -3679,7 +3886,14 @@ function commandFromRowEntry(
   const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
   // ⚠️ Already folded, or gone: no write. `changed` says why an empty bundle is
   // not one -- WS-4 would push an undo step for a press that moved nothing.
-  if (row === undefined || row.isCollapsed === true) return CONSUMED_ELSEWHERE
+  // ⭐ AND FR-029 (MUST) HAS THE REASON TOLD instead of the press being
+  // swallowed. ⚠️ `RowExpander.canClose` narrows further -- HR-6 takes a row
+  // whose every child is hidden out of the picture as well -- so a row folded
+  // by that narrowing is drawn faint and answered here as an ordinary fold.
+  // ⛔ NOT NARROWED HERE TO MATCH: what a row hides is UF-63's judgement, and a
+  // second reading of HR-6 in this file would be the same rule in two places.
+  // @provisional PD-319
+  if (row === undefined || row.isCollapsed === true) return nothingToDo()
   return changed([{ kind: 'setTaskGroupCollapsed', groupId: rowGroupId, collapsed: true }])
 }
 
@@ -4396,23 +4610,59 @@ function commandFromArmed(
         groupId,
       },
     ]
-    // STOP -- ⛔ AR-3's GLYPH CANNOT BE SET HERE. `setTaskVisualMilestoneGlyph`
-    // (CM-21) needs the `uid` of the Task just created, and `createTask` does
-    // not answer one -- a command list is planned before any of it runs. The
-    // figure the palette was holding is therefore lost, and AT-101's default is
-    // what gets drawn. Searched: table T-108 CM-6 and CM-21, `edit-task.ts`,
-    // `apply-document-change.ts` (`ApplyOutcome` carries the document, not the
-    // uids), FR-084.
+    // ⭐ AR-3's GLYPH IS SET HERE, on the Task the line above is about to make.
+    // FR-001's RATIONALE (MUST NOT): 「作るものはコマンドパレットで構えているもの
+    // が決める。`GRS` が形状を勝手に読み替えてはならない」, and FR-078 reserves
+    // AT-101's default for 「選ばれていないとき」 -- which this is not, because a
+    // figure was armed and then placed. Without the second command the armed
+    // figure was dropped on the way to the document and every placement came out
+    // as AT-101's default (ledger D-140).
+    //
+    // ⛔ WHY THE UID CAN BE NAMED BEFORE THE COMMAND RUNS, and why this is not
+    // the `groupId` line above wearing another hat. `groupId` is handed in as a
+    // value because AT-51 is a UUID and minting one is NOT a pure act. `Task.uid`
+    // is the opposite: FR-001 (MUST) takes it from `Project.uidHighWaterMark`
+    // and (MUST NOT) from the largest live uid, so the number the write side is
+    // going to issue is a pure function of the document this component was
+    // handed -- it is READ the same way the write side reads it, not invented.
+    // ⭐ THE SAME BUNDLE ALREADY EXISTS IN THIS FILE: `commandsFromAssignee`
+    // plans CM-40 and then CM-44 against the uid FR-008 is about to issue, for
+    // the same reason and by the same reading (`nextIssuedUid`).
+    // ⚠️ WS-3 of `document-change-plan.ts` runs a bundle IN ORDER against the
+    // document each command leaves behind, and AG-3 makes it atomic, so CM-21
+    // finds the Task CM-6 made or neither of them happens. FR-031 keeps the two
+    // as one undo step.
+    if (armed.kind === 'milestoneShape') {
+      const glyph = milestoneGlyphOf(armed.glyph)
+      // ⚠️ An armed figure whose spelling AT-101 does not admit chooses nothing,
+      // the same way an unknown shape creates nothing above. `Armed` types it as
+      // a bare string, so a caller CAN hold one. The Task is still made: FR-001
+      // owns the placement and AT-101's default then stands, which is exactly
+      // 「選ばれていないとき」.
+      if (glyph !== null) {
+        commands.push({
+          kind: 'setTaskVisualMilestoneGlyph',
+          uid: nextIssuedUid(context.document.schedule),
+          glyph,
+        })
+      }
+    }
+    // STOP -- ⛔ AR-3 IS THE ONLY ARM THIS OPENS. The figure is a column of the
+    // `TaskVisual` CM-6 makes; nothing else the palette can hold needs a second
+    // command on the new Task.
     return changed(commands)
   }
 
-  // STOP -- ⛔ AR-5 AND AR-6 CANNOT BE WRITTEN. `createCommentBox` and
-  // `createHighlightBox` (CM-46 / CM-52) each need an `id` this component
-  // cannot mint -- the same reason `createTask` is handed its `groupId` -- and
-  // `InputContext` carries one identifier, for FR-001's row. Their anchors also
-  // want a shape (`AnnotationAnchor`, `HighlightRange`) whose fields FR-019
-  // states in terms of a date and a row, which a drag would have to be read
-  // into. Searched: FR-019, table T-108 CM-46 / CM-52, `edit-annotation.ts`.
+  // STOP -- ⛔ AR-5 AND AR-6 CANNOT BE WRITTEN, AND `nextIssuedUid` DOES NOT
+  // REACH THEM. `createCommentBox` and `createHighlightBox` (CM-46 / CM-52)
+  // each need an `id` this component cannot mint -- AT-110 and AT-116 are
+  // UUIDs, not uids drawn from `Project.uidHighWaterMark`, so nothing in the
+  // document says what the next one will be. That is the same reason
+  // `createTask` is handed its `groupId`, and `InputContext` carries one such
+  // identifier, for FR-001's row. Their anchors also want a shape
+  // (`AnnotationAnchor`, `HighlightRange`) whose fields FR-019 states in terms
+  // of a date and a row, which a drag would have to be read into. Searched:
+  // FR-019, table T-108 CM-46 / CM-52, `edit-annotation.ts`.
   return CONSUMED_ELSEWHERE
 }
 

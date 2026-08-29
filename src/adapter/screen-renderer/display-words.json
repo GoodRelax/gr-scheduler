@@ -1466,8 +1466,8 @@
   {
    "rowId": "SK-19",
    "text": {
-    "ja": "その場の編集を確定する",
-    "en": "Commit the edit in place"
+    "ja": "その場の編集を確定する。確定するものが無ければプロパティパネルを閉じる",
+    "en": "Commit the edit in place; with nothing left to commit, close the Properties Panel"
    }
   },
   {
@@ -1866,6 +1866,17 @@
    }
   },
   {
+   "rowId": "RS-27",
+   "text": {
+    "ja": "この操作は、いま行えることがありません",
+    "en": "There is nothing for this control to do right now"
+   },
+   "nextStep": {
+    "ja": "対象ができてから、もう一度押してください",
+    "en": "Try it again once there is something for it to act on"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -2148,8 +2159,8 @@
   {
    "rowId": "MK-13",
    "text": {
-    "ja": "対象で意味が決まる。コメントボックス＝本文、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネル、行見出し＝行名",
-    "en": "What it does depends on what it lands on -- Comment Box: its text; Name Label: its name; Assignee Label: the resource name; task: the Properties Panel; row title: the row name"
+    "ja": "対象で意味が決まる。コメントボックス＝本文、名称ラベル＝名称、担当ラベル＝担当者名、タスク＝プロパティパネルを開いて名前を編集、行見出し＝行名",
+    "en": "What it does depends on what it lands on -- Comment Box: its text; Name Label: its name; Assignee Label: the resource name; task: opens the Properties Panel and edits its name; row title: the row name"
    },
    "press": {
     "ja": "ダブルクリック",

@@ -1148,6 +1148,21 @@ const STOPPING_BOX =
   `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`
 
 /**
+ * How much stands between a row control's shape and each side of its box.
+ *
+ * ⛔ NOT A VALUE OF THE SPECIFICATION, and not S-141 either: that row is the gap
+ * FR-029 fixes 「図形と入口の枠のあいだ」 and a row control has no frame at all
+ * (`STYLE.rowControl` says why). ⚠️ It is named rather than written twice
+ * because the ground HF-6 (MUST) lays under the controls has to reach the LEFT
+ * EDGE of the leftmost one, and that edge is this padding away from its shape --
+ * so a number written in two places would put the band and the control it must
+ * cover on two different answers.
+ *
+ * @provisional PD-151
+ */
+const ROW_CONTROL_PAD_EM = 0.125
+
+/**
  * How the parts are placed and painted.
  *
  * ⛔ NOT VALUES OF THE SPECIFICATION. Every length here is relative (`em`, a
@@ -1292,8 +1307,34 @@ const STYLE = {
     // for a child of this flex row is the row's content top -- 「名前の上端に
     // 揃えること（MUST）。中央で揃えてはならない（MUST NOT）」. Writing
     // `top:0` would say the same thing and take the decision away from the row.
+    // ⛔ THE CONTROL ITSELF STAYS TRANSPARENT, AND THAT IS HF-6 (MUST NOT):
+    // 「操作子ごとに別々の地を敷いてはならない」. Painting `PAINT.panel` here
+    // would be a box per control and the row's name would show through the
+    // steps between them, which is the very drawing the ruling of 2026-08-30
+    // threw out. The one ground the row (MUST) lays instead is
+    // `rowControlGroundStyle`, and it is a box of its own behind all five.
     `position:absolute;font:inherit;background:transparent;color:${PAINT.ink};` +
-    'border:none;padding:0 0.125em;cursor:pointer;',
+    `border:none;padding:0 ${ROW_CONTROL_PAD_EM}em;cursor:pointer;`,
+  // FR-029 (MUST), as that requirement now reads: an entrance that can change
+  // nothing right now is drawn faint, in table T-236's S-148 -- which is
+  // `PAINT.quiet`, the same colour `entryFaintStyle` takes for the entrances
+  // that stand in a frame. ⚠️ 「載る面によって薄くしない入口があってはならない
+  // （MUST NOT）」, so the row's controls take the palette's answer rather than
+  // one of their own.
+  //
+  // ⭐ APPENDED AND NEVER A SECOND WHOLE DECLARATION, the move `commandEntry`
+  // makes with `entryArmedRim` and `entryPressedInk`: whether a control can act
+  // is one fact about it, and a declaration per combination would be four where
+  // one and an override do.
+  // ⛔ NOTHING HERE DISABLES IT. FR-029 (MUST NOT) forbids the faint entrance to
+  // be disabled in the host's own sense, because a disabled control stops taking
+  // the press -- and the press is the one trigger that (MUST) tells the person
+  // why nothing happened. `rowControlElement` writes `aria-disabled` and never
+  // `disabled`, for the reason `entryFaintStyle` states at length.
+  // ⚠️ THE CURSOR MOVES WITH THE INK, which is `entryFaintStyle`'s answer too:
+  // the two faint entrances would otherwise differ by a cursor, and that is the
+  // difference by surface the same MUST NOT refuses.
+  rowControlFaintInk: `color:${PAINT.quiet};cursor:default;`,
   // SC-5 of table T-031: only the contents scroll, and never in step with the
   // drawing area.
   //
@@ -1704,13 +1745,29 @@ export function pageGroundStyle(theme: ScreenTheme): string {
  * ⭐ It draws nothing: a `style` element has no box, so table T-076's EP-4 --
  * an export draws no row control -- has nothing more to answer for here.
  */
+/**
+ * What marks the one ground HF-6 of table T-051 (MUST) lays under the row's
+ * controls.
+ *
+ * ⛔ NOT A `data-role` AND NOT A `data-icon`. Table T-103 holds no part for it
+ * and table T-109 no entrance: it is a painted box and nothing a person can
+ * press, so borrowing either name would answer `readScreenPartAt` with a part
+ * that was never described. ⭐ A mark of its own is the move `data-corner-band`
+ * already makes for the band this unit infers -- what was drawn can be read back
+ * and held against the specification (rule 04), without claiming to BE a row of
+ * any table.
+ */
+const ROW_CONTROL_GROUND_MARK = 'data-row-control-ground'
+
 const ROW_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"],` +
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"],` +
+  `[data-unit="${UNIT_ROW}"] [${ROW_CONTROL_GROUND_MARK}],` +
   `[data-unit="${UNIT_ROW}"] [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:hidden;}' +
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowExpander}"],` +
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowPin}"],` +
+  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [${ROW_CONTROL_GROUND_MARK}],` +
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}'
 
@@ -2322,6 +2379,18 @@ function fillScreenFrame(
 const ROW_CONTROL_RIGHT_EM = 1.25
 
 /**
+ * How far in from the row's right edge the NEAREST control stands.
+ *
+ * ⭐ HF-4's edge and not a step in from it -- see `rowControlRight`. ⚠️ Named
+ * here for the reason `ROW_CONTROL_PAD_EM` is named: the ground HF-6 (MUST) lays
+ * reaches from the leftmost control, so this term is read twice and may not be
+ * written twice.
+ *
+ * @provisional PD-348
+ */
+const ROW_CONTROL_EDGE_EM = 0.25
+
+/**
  * Where the control `stepsFromEdge` places from the row's right edge stands.
  *
  * ⭐ The row's own right padding is the first term, so the nearest control
@@ -2331,14 +2400,116 @@ const ROW_CONTROL_RIGHT_EM = 1.25
  * @purity pure
  */
 function rowControlRight(stepsFromEdge: number): string {
-  return `right:${0.25 + ROW_CONTROL_RIGHT_EM * stepsFromEdge}em;`
+  return `right:${rowControlRightEm(stepsFromEdge)}em;`
 }
 
-function rowControlElement(host: Document, role: string, icon: string): HTMLElement {
-  const control = part(host, 'button', role, STYLE.rowControl)
+/**
+ * The same distance as a number, which the ground below needs and a declaration
+ * cannot be asked for.
+ *
+ * ⭐ ONE ARITHMETIC AND NOT TWO. HF-6 (MUST) runs the ground 「いちばん左の操作子
+ * の左端から行の右端まで」, so where that control stands and how wide the ground
+ * is are two readings of one number -- and a second copy of it would drift the
+ * day PD-348 is ruled on.
+ *
+ * @purity pure
+ */
+function rowControlRightEm(stepsFromEdge: number): number {
+  return ROW_CONTROL_EDGE_EM + ROW_CONTROL_RIGHT_EM * stepsFromEdge
+}
+
+/**
+ * Which step from the row's right edge each of the five controls stands at.
+ *
+ * ⭐ NAMED RATHER THAN COUNTED AT EACH CALL, and the reason is the ground: HF-6
+ * (MUST) reaches the LEFTMOST control's left edge, so the width of that band and
+ * the placement of that control have to name the same step. ⚠️ The order itself
+ * is table T-109's own print order and is not chosen here -- `rowTitleElement`
+ * carries why, and IC-82 nearest the edge is where FR-032's control was already
+ * put.
+ *
+ * @provisional PD-348
+ */
+const ROW_CONTROL_STEPS = {
+  open: 4,
+  close: 3,
+  closeBelow: 2,
+  pin: 1,
+  remove: 0,
+} as const
+
+/**
+ * The one ground HF-6 of table T-051 (MUST) lays under the row's controls while
+ * they are drawn.
+ *
+ * ⭐ ONE BOX FOR ALL OF THEM (MUST NOT: 「操作子ごとに別々の地を敷いてはならない」)
+ * -- the ruling of 2026-08-30 threw out a rounded box per control because the
+ * row's name showed through the steps between them, and the controls stand ON
+ * that name (the same row has them drawn 「行の名前の上へ重ねて」).
+ * ⭐ THE COLOUR IS S-150 (MUST), which is `PAINT.panel` -- the colour the row
+ * itself is already painted, so the band is not a plate that floats: what
+ * changes is that the name's tail goes under the controls instead of through
+ * them, and FR-085 already sends whoever wants the whole of it to FR-052.
+ *
+ * ⭐ THE EXTENT IS THE ROW'S, WHICH IS THE ROW (MUST): the row's right edge is
+ * `right:0` -- the edge HF-4 pins the controls to -- and its height is `top:0`
+ * with `bottom:0`, so a name set larger than the controls (S-36 / S-38 by depth)
+ * cannot put its descenders out from under the band the way a band the height of
+ * a control would.
+ * ⛔ NO GAP BETWEEN THE CONTROLS IS WRITTEN HERE (MUST NOT), and none is needed:
+ * the width is read out of where the leftmost control was placed, so whatever
+ * PD-348 is ruled to be, the band follows it without being told.
+ *
+ * ⛔ IT TAKES NO ROOM. S-140 of table T-206 is 0 and stays 0: this is an
+ * out-of-flow box like the controls it stands behind, so FR-085's cut of the
+ * name is not moved by a pixel.
+ * ⛔ IT TAKES NO POINTER EITHER. A box over the name that answered
+ * `elementFromPoint` would put a part the description never carried under every
+ * press near the row's right edge.
+ * ⚠️ IT IS NOT IN THE EXPORT. EP-4 of table T-076 draws no row control, and the
+ * export is not drawn by this unit at all -- what draws the band is the row that
+ * draws the controls, so the two appear and vanish together.
+ *
+ * @purity pure
+ */
+function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
+  const side = NOT_STORED_ICON_SIZES['S-138']
+  // The leftmost control's LEFT edge, measured from the row's right edge: where
+  // that control's right edge stands, plus its own width -- its shape (S-138)
+  // with `ROW_CONTROL_PAD_EM` on either side of it.
+  const reach = rowControlRightEm(leftmostStepsFromEdge) + ROW_CONTROL_PAD_EM * 2
+  return (
+    'position:absolute;top:0;bottom:0;right:0;' +
+    `width:calc(${reach}em + ${side}px);` +
+    `background:${PAINT.panel};pointer-events:none;`
+  )
+}
+
+/**
+ * @purity non-pure
+ */
+function rowControlElement(
+  host: Document,
+  role: string,
+  icon: string,
+  canAct: boolean,
+): HTMLElement {
+  // FR-029 (MUST): faint while there is nothing this control could change.
+  const control = part(
+    host,
+    'button',
+    role,
+    canAct ? STYLE.rowControl : STYLE.rowControl + STYLE.rowControlFaintInk,
+  )
   control.setAttribute('type', 'button')
   control.setAttribute('data-icon', icon)
   control.setAttribute('aria-label', icon)
+  // ⛔ `aria-disabled` AND NEVER `disabled`, which FR-029 (MUST NOT) now states
+  // as a rule rather than leaving it to this file: a disabled control stops
+  // taking the press, and the press is the one moment that requirement (MUST)
+  // has the reason told. ⭐ The same bargain `commandEntry` keeps, and the same
+  // one `entryFaintStyle` sets out at length.
+  if (!canAct) control.setAttribute('aria-disabled', 'true')
   fillEntry(host, control, icon)
   return control
 }
@@ -2385,6 +2556,37 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // broke that requirement, or a derivation whose `Task` carries none. Nothing
   // is invented in its place.
   label.textContent = title.label
+
+  // HF-6 of table T-051 (MUST): 「描いているあいだ、操作子の下に地を 1 枚敷くこと」.
+  //
+  // ⭐ BEFORE EVERY CONTROL IN TREE ORDER, which is the whole of what puts it
+  // BEHIND them: this band and the five controls are all out of the flow and
+  // none of them takes a `z-index`, so they paint in the order they are added
+  // and the one added first is the one under the rest.
+  // ⭐ AND STILL OVER THE NAME, though it is added BEFORE it: the name is an
+  // in-flow inline box and every one of these is positioned, and a positioned
+  // box paints over in-flow content whatever the tree order -- which is the very
+  // overlap HF-6 has the controls drawn 「行の名前の上へ重ねて」 and this band
+  // exists to make readable.
+  // ⛔ NOT ADDED BETWEEN THE NAME AND THE CONTROLS. HF-4 (MUST) is read off this
+  // row as 「the controls are its last children and the cell before them is the
+  // name」, and a box slipped in there would stand where the name is looked for.
+  //
+  // ⭐ HOW FAR LEFT IT REACHES IS THE LEFTMOST CONTROL THAT IS ACTUALLY DRAWN,
+  // and on a row with nothing under it that is the pin: HF-1 puts the folding
+  // controls only on a row that has something below it, so a band drawn to
+  // IC-58's step on a leaf row would cover a stretch of the name no control
+  // stands on.
+  const ground = made(
+    host,
+    'div',
+    rowControlGroundStyle(
+      title.expander !== null ? ROW_CONTROL_STEPS.open : ROW_CONTROL_STEPS.pin,
+    ),
+  )
+  ground.setAttribute(ROW_CONTROL_GROUND_MARK, 'true')
+  ground.setAttribute('aria-hidden', 'true')
+  row.append(ground)
   row.append(label)
 
   // ⭐ THE NAME FIRST AND THE FIVE CONTROLS AFTER IT, WHICH IS HF-4 OF TABLE
@@ -2416,26 +2618,44 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // ⛔ `null` is a row with nothing under it, and neither half is drawn then --
   // that judgement is `expanderOf`'s (UF-63) and is not repeated here.
   //
-  // STOP -- ⛔ NOT DECIDED BY THE SPECIFICATION: how a SPENT half is drawn.
-  // `canOpen` / `canClose` are false when that half has nothing left to reach,
-  // and no row says what then. HF-6 of table T-051 governs WHETHER the controls
-  // are drawn at all and turns on the POINTER, not on reach; FR-029 asks for
-  // faintness of an endpoint that cannot be grabbed, and the palette's answer
-  // (`commandEntry`: faint plus `aria-disabled`) is FR-029's `isEnabled` and not
-  // this. ⛔ So neither half is dimmed or disabled here and nothing is invented:
-  // the two flags are put on the DOM under their own names, and whoever settles
-  // the look reads them back.
+  // ⭐ THE STOP THAT STOOD HERE IS CLOSED, and by the requirement rather than by
+  // this file. It read 「how a SPENT half is drawn ... no row says what then」;
+  // FR-029 now (MUST) draws an entrance faint 「押しても、いま文書にも画面にも何も
+  // 変えられないとき」 in S-148, (MUST NOT) leaves it disabled in the host's own
+  // sense, and (MUST) tells the reason only when it is PRESSED -- and it reaches
+  // 「表 T-109 の全行」, so the row controls take the palette's answer instead of
+  // being an exception to it. `canOpen` / `canClose` / `canCloseBelow` are that
+  // condition, one per control, exactly as `RowExpander` declares them.
+  // ⚠️ THE FLAGS STAY ON THE DOM AS WELL. They were put there for whoever
+  // settled the look; they are now also what the look is read back against.
+  //
+  // ⭐ THE STOP THAT STOOD HERE IS CLOSED, AND ON THE OTHER SIDE OF THE SEAM.
+  // It read 「NOT WIRED HERE ... the telling FR-029 (MUST) raises when such a
+  // control IS pressed」, and the reading was right: nothing on this side raises
+  // a telling. The press leaves through `readScreenPartAt`,
+  // `input-command-translator.ts` answers it with `tellEntryHasNothingToDo`, and
+  // `frame-loop.ts` raises RS-27 of table T-233 in table T-037's manner NT-1.
+  // ⛔ SO WHAT THIS SIDE OWES IS STILL ONLY THAT THE ENTRANCE STAY PRESSABLE:
+  // `aria-disabled` and never `disabled`, which FR-029 (MUST NOT) now states as
+  // a rule -- a disabled control takes no press, and the press is the one moment
+  // the reason is told.
   if (title.expander !== null) {
-    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58')
+    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58', title.expander.canOpen)
     open.setAttribute('data-can-open', String(title.expander.canOpen))
     // ⚠️ Placed from the RIGHT, because that is the edge HF-4 pins them to and
     // they no longer sit in the flex flow that used to do it.
-    open.setAttribute('style', open.getAttribute('style') + rowControlRight(4))
+    open.setAttribute(
+      'style',
+      open.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.open),
+    )
     row.append(open)
 
-    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59')
+    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59', title.expander.canClose)
     close.setAttribute('data-can-close', String(title.expander.canClose))
-    close.setAttribute('style', close.getAttribute('style') + rowControlRight(3))
+    close.setAttribute(
+      'style',
+      close.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.close),
+    )
     row.append(close)
 
     // IC-77 -- HF-11 (MUST): the row's 配下 folds, and the row itself does not
@@ -2443,9 +2663,17 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     // 2026-08-30; until then HR-4 of table T-015 had no entrance at all.
     // ⚠️ Its own flag and not `canClose` inverted: `RowExpander` says why the
     // two are not inverses.
-    const closeBelow = rowControlElement(host, ROLE.rowExpander, 'IC-77')
+    const closeBelow = rowControlElement(
+      host,
+      ROLE.rowExpander,
+      'IC-77',
+      title.expander.canCloseBelow,
+    )
     closeBelow.setAttribute('data-can-close-below', String(title.expander.canCloseBelow))
-    closeBelow.setAttribute('style', closeBelow.getAttribute('style') + rowControlRight(2))
+    closeBelow.setAttribute(
+      'style',
+      closeBelow.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.closeBelow),
+    )
     row.append(closeBelow)
   }
 
@@ -2465,10 +2693,16 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   // ⛔ IT IS NOT WRITTEN ON THIS CONTROL. `readScreenPartAt` takes the innermost
   // `data-group-id` on the way up and the row this sits in already carries one,
   // so a copy here would state one row's key in two places.
-  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60')
+  //
+  // ⭐ IT IS NEVER FAINT, and that is not an exemption from FR-029: that
+  // requirement draws faint the entrance that 「いま文書にも画面にも何も
+  // 変えられない」, and FR-098 (MUST) has this one control both pin the row and
+  // let it go -- so on a row that is drawn it always has the other of the two
+  // left to do. ⛔ Nothing carries a flag for it because nothing spends it.
+  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60', true)
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
-  pin.setAttribute('style', pin.getAttribute('style') + rowControlRight(1))
+  pin.setAttribute('style', pin.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.pin))
   row.append(pin)
 
   // IC-82 -- FR-032's deletion, on every row and answering for the row it is
@@ -2478,7 +2712,8 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   //
   // ⭐ NOTHING SAYS WHETHER IT IS SPENT, because nothing spends it. The pair
   // above carries `canOpen` / `canClose` because a fold can already stand;
-  // a row that is drawn is a row CM-27 can delete.
+  // a row that is drawn is a row CM-27 can delete. ⚠️ So FR-029's faint state
+  // never falls on it either, for the reason the pin's note gives.
   // ⚠️ NO `data-role` AND NO KEY OF ITS OWN -- see `DELETE_ROW_ENTRY`. The row
   // this sits in carries the `data-group-id` that says which row goes, and
   // writing a copy here would state one row's key in two places.
@@ -2487,7 +2722,10 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   remove.setAttribute('data-icon', DELETE_ROW_ENTRY)
   remove.setAttribute('aria-label', DELETE_ROW_ENTRY)
   fillEntry(host, remove, DELETE_ROW_ENTRY)
-  remove.setAttribute('style', remove.getAttribute('style') + rowControlRight(0))
+  remove.setAttribute(
+    'style',
+    remove.getAttribute('style') + rowControlRight(ROW_CONTROL_STEPS.remove),
+  )
   row.append(remove)
   return row
 }
@@ -2541,16 +2779,59 @@ function openEveryRowElement(host: Document): HTMLElement {
  * @purity non-pure
  */
 function panelCornerEntryElement(host: Document, icon: string, stepsFromEdge: number): HTMLElement {
-  const entry = made(
-    host,
-    'button',
-    entryStyle() + STYLE.panelCornerEntry + rowControlRight(stepsFromEdge),
-  )
+  const entry = made(host, 'button', panelCornerEntryStyle(stepsFromEdge, true))
   entry.setAttribute('type', 'button')
   entry.setAttribute('data-icon', icon)
   entry.setAttribute('aria-label', icon)
   fillEntry(host, entry, icon)
   return entry
+}
+
+/**
+ * What one of those two entrances is drawn in, usable or spent.
+ *
+ * ⭐ `entryFaintStyle` AND NOT A THIRD PAINT. FR-029 (MUST) states the faint
+ * with one setting (S-148) and (MUST NOT) forbids an entrance that is not made
+ * faint 「載る面によって」 -- so the panel's own entrances take the very
+ * declarations the header's and the palette's take. ⚠️ The row controls reach
+ * the same paint by a different road (`STYLE.rowControlFaintInk` over
+ * `STYLE.rowControl`), because those carry no rim to begin with.
+ *
+ * @purity pure
+ */
+function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
+  return (
+    (canAct ? entryStyle() : entryFaintStyle()) +
+    STYLE.panelCornerEntry +
+    rowControlRight(stepsFromEdge)
+  )
+}
+
+/**
+ * FR-029's faint, written onto one of the two entrances the panel draws for
+ * itself, on the frame that says whether it has anything left to do.
+ *
+ * ⛔ WRITTEN ON EVERY SUCH FRAME AND NOT ONCE. The pair is built with the panel
+ * and never rebuilt (see where they are mounted), so what says how they stand
+ * has to be put on them again whenever the description of the panel moves.
+ * ⛔ `aria-disabled` AND NEVER `disabled`, which FR-029 (MUST NOT) states as a
+ * rule: a disabled control stops taking the press, and the press is the one
+ * moment that requirement (MUST) has the reason told (RS-27 of table T-233).
+ * ⚠️ `undefined` IS DRAWN AS USABLE. The member is optional and a description
+ * that carries no answer is not an answer of 「使えない」 -- see its declaration.
+ *
+ * @purity non-pure
+ */
+function markPanelCornerEntry(
+  entry: HTMLElement,
+  stepsFromEdge: number,
+  canAct: boolean | undefined,
+): void {
+  const usable = canAct !== false
+  entry.setAttribute('style', panelCornerEntryStyle(stepsFromEdge, usable))
+  entry.setAttribute('data-enabled', String(usable))
+  if (usable) entry.removeAttribute('aria-disabled')
+  else entry.setAttribute('aria-disabled', 'true')
 }
 
 /**
@@ -2723,6 +3004,14 @@ const IS_KIND_TYPED_INTO: Readonly<Record<PropertyControlKind, boolean>> = {
 interface TextEntryControl {
   value: string
   blur?: () => void
+  /**
+   * ⚠️ BOTH OPTIONAL FOR THE REASON THE TYPE ITSELF GIVES: table T-075 leaves
+   * this unit runnable against a host that lays nothing out, and such a host
+   * need give its elements neither. `focusPropertyField` is what asks for them,
+   * and it asks with a guard.
+   */
+  focus?: () => void
+  select?: () => void
 }
 
 /**
@@ -2784,7 +3073,12 @@ function textEntryControlOf(target: unknown): TextEntryControl | null {
  * @provisional PD-270
  * @purity non-pure
  */
-function controlElement(host: Document, row: string, control: PropertyControl): HTMLElement {
+function controlElement(
+  host: Document,
+  row: string,
+  control: PropertyControl,
+  typedByRow: Map<string, TextEntryControl> | null,
+): HTMLElement {
   const tag = CONTROL_TAG[control.kind]
   const drawn = host.createElement(tag)
   // ⛔ THE ROOM IS STATED IN `em` AND NEVER IN PIXELS. FR-006 (MUST NOT) gives
@@ -2858,7 +3152,24 @@ function controlElement(host: Document, row: string, control: PropertyControl): 
   CONTROL_KEYS.set(drawn, { row, key: control.key })
   // IF-9's fifth answer is about the controls a person types INTO, and this is
   // where the two are told apart -- the kind is in hand here and nowhere later.
-  if (IS_KIND_TYPED_INTO[control.kind]) TYPED_CONTROLS.add(drawn)
+  if (IS_KIND_TYPED_INTO[control.kind]) {
+    TYPED_CONTROLS.add(drawn)
+    // ⭐ WHAT `focusPropertyField` REACHES THE CONTROL BY, recorded where the
+    // row and the control are in hand together and nowhere later.
+    // ⛔ NOT LOOKED UP OFF `data-field-row` WHEN THE TIME COMES. That attribute
+    // is written for a reader of the built page and for a check (rule 04), and
+    // the note above says why a decision may not be taken back out of one.
+    // ⚠️ THE FIRST CONTROL OF A ROW WINS. One row of table T-016 can draw two
+    // entrances -- AS-5 gives PR-16 a chooser and a search box -- and the first
+    // is the one the row's own value stands in.
+    // ⛔ `null` IS A CALLER THAT IS NOT THE PANEL. `modalElement` draws fields
+    // of table T-104 through this same builder, and MK-13's field is a row of
+    // table T-016 on the `Properties Panel` -- so a modal's control recorded
+    // here would answer for a row the panel never drew.
+    if (typedByRow !== null && !typedByRow.has(row)) {
+      typedByRow.set(row, drawn as unknown as TextEntryControl)
+    }
+  }
   return drawn as HTMLElement
 }
 
@@ -2951,7 +3262,11 @@ function searchElements(
  *
  * @purity non-pure
  */
-function fieldElement(host: Document, field: PropertyField): HTMLElement {
+function fieldElement(
+  host: Document,
+  field: PropertyField,
+  typedByRow: Map<string, TextEntryControl> | null,
+): HTMLElement {
   const line = made(host, 'div', propertyFieldStyle())
   // The row that holds the item -- `PR-n`, `AT-58` / `AT-59`, or `K-n`.
   line.setAttribute('data-field-row', field.row)
@@ -2993,7 +3308,7 @@ function fieldElement(host: Document, field: PropertyField): HTMLElement {
     // ⚠️ S-188 has NOT moved and is not retired: that row holds a swatch's side
     // and gap, and the same requirement says in as many words that how many
     // times a value may be drawn is FR-006's and not that row's.
-    controls.append(controlElement(host, field.row, control))
+    controls.append(controlElement(host, field.row, control, typedByRow))
     // ⭐ AS-5 OF TABLE T-225 (MUST) ATTACHES TWO THINGS, NOT ONE: 「ドロップダウン
     // と部分一致の検索を添えること」. The chooser above is the first and this is
     // the second, and it stands BESIDE it rather than in its place -- a search
@@ -3069,8 +3384,13 @@ function fillPropertiesPanel(
   panel: HTMLElement,
   description: PropertiesPanel,
   anchors: Map<string, HTMLElement>,
+  typedByRow: Map<string, TextEntryControl>,
 ): void {
-  const drawn = description.fields.map((field) => fieldElement(host, field))
+  // ⛔ EMPTIED BEFORE THE PANEL IS BUILT, for the reason `anchorsOf` empties the
+  // anchors: `replaceChildren` below throws the old controls away, and a row
+  // left over from the frame before would name a control no longer on the page.
+  typedByRow.clear()
+  const drawn = description.fields.map((field) => fieldElement(host, field, typedByRow))
   const entries = description.commands.map((item) => {
     const entry = commandEntry(host, item)
     anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
@@ -3551,7 +3871,9 @@ function modalElement(
   }
 
   if ('fields' in modal) {
-    for (const field of modal.fields) body.push(fieldElement(host, field))
+    // ⛔ `null`: these are table T-104's fields on a modal, not table T-016's on
+    // the `Properties Panel`, and `focusPropertyField` answers for the panel.
+    for (const field of modal.fields) body.push(fieldElement(host, field, null))
   }
 
   if ('weekDays' in modal) {
@@ -3858,6 +4180,37 @@ export interface ScreenSurfaceWiring {
    * resize path, because NFR-010 forbids waking a frame on anything else.
    */
   readonly onAppHeaderHeightPx: (heightPx: number) => void
+  /**
+   * MK-13's second half, handed to the caller once, before this factory returns
+   * -- a way to put the person into the control this surface drew for one row of
+   * table T-016: focus it, and leave every character already in it selected.
+   *
+   * ⛔⛔ ON THE WIRING AND NOT ON IF-9, WHICH IS WHERE THIS WAS SETTLED. That
+   * row (MUST, CR-304) reads 「タスク ... ＝ プロパティパネルを出し、名称の欄
+   * （表 T-016 の `PR-1`）を編集できる状態にして焦点を置き、既にある文字をすべて
+   * 選んだ状態にすること」, and only the side that DREW the field can do it (LR-6
+   * keeps the browser out of every other layer). ⛔ But `ScreenSurface` may not
+   * carry it: the IF-9 cell of table T-065 names FIVE supplies and every one of
+   * them is a question, so a sixth member would be that seam claiming a duty the
+   * specification did not give it. ⭐ The wiring is the arrangement the Framework
+   * already makes for exactly this -- `onAppHeaderHeightPx` above travels here
+   * for the same reason, and `screen-surface.ts` records the bargain from the
+   * seam's own side.
+   *
+   * ⛔⛔ ASK IT AFTER THE DESCRIPTION HAS BEEN DRAWN AND NOT BEFORE. The control
+   * does not exist until `showScreenView` has built it, so a request made while
+   * a frame is still being decided reaches the panel of the frame before.
+   * ⚠️ A ROW THIS SURFACE DID NOT DRAW, or one whose control takes no characters,
+   * does nothing. ⛔ That is not an error: what the panel came out as is the
+   * drawing side's answer and not the asker's.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30). It is
+   * declared optional so that the callers already wiring this unit up go on
+   * compiling; the cost is that a caller which never passes it leaves MK-13 half
+   * done and neither the compiler nor a reader will say so. ⭐ The tests written
+   * from the specification are what watch it.
+   */
+  readonly holdFocusPropertyField?: (focus: (row: string) => void) => void
   /**
    * FR-041 (MUST): which of table T-236's two renderings to paint in, and the
    * hue the rows that follow the theme are solved with.
@@ -4413,6 +4766,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         if (rowsTop === null) corner.removeAttribute('data-corner-band')
         else corner.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
       }
+      // FR-029 (MUST): the two entrances the panel draws for itself are made
+      // faint where they have nothing left to do, exactly as the three drawn on
+      // each row are -- 「表 T-109 の全行」, and 「載る面によって薄くしない
+      // 入口があってはならない（MUST NOT）」.
+      // ⛔ THE STEPS ARE THE ONES THE PAIR WAS BUILT WITH: HF-12 takes HF-10's
+      // placement, and the style carries the placement, so it is restated with
+      // the paint rather than kept in two places.
+      markPanelCornerEntry(openEveryRow, 0, view.rowTitlePanel.canOpenEveryRow)
+      markPanelCornerEntry(collapseEveryRow, 1, view.rowTitlePanel.canCloseEveryRow)
     }
     if (changed('propertiesPanel') && view.propertiesPanel !== null) {
       markPropertiesPanel(propertiesPanel, view.propertiesPanel)
@@ -4443,6 +4805,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
           propertiesPanel,
           view.propertiesPanel,
           anchorsOf('propertiesPanel'),
+          typedControlsByRow,
         )
       }
     }
@@ -4620,6 +4983,51 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   propertiesPanel.addEventListener('change', onFieldChange)
 
   /**
+   * The control this panel drew for each row of table T-016 that a person types
+   * into, as the last redraw left it -- what `focusPropertyField` reaches one by.
+   *
+   * ⛔ REBUILT WITH THE PANEL AND NOT KEPT ACROSS IT. `fillPropertiesPanel`
+   * empties it before it draws, because `replaceChildren` throws every control
+   * of the frame before away -- a row left standing would name a node that is no
+   * longer on the page.
+   * ⚠️ A STRONG MAP AND NOT A WEAK ONE, unlike `CONTROL_KEYS`: the key here is
+   * the ROW and the control is the value, so nothing is kept alive that the
+   * clearing above does not release.
+   */
+  const typedControlsByRow = new Map<string, TextEntryControl>()
+
+  /**
+   * MK-13's second half (MUST), carried out where the field is: the control of
+   * one row of table T-016 is given the focus and everything already in it is
+   * left selected.
+   *
+   * ⭐ WHY IT IS ASKED FOR AT ALL rather than watched for: `ScreenSurface` says
+   * it at length. The shell decides that MK-13 happened and this side is the
+   * only one that can reach a control (LR-6).
+   *
+   * ⛔ A ROW THAT WAS NOT DRAWN DOES NOTHING, and quietly: the asker asks before
+   * the description it asked for was on the screen, so what the panel came out
+   * as is this side's answer and not a fault of the asking.
+   * ⚠️ Both calls are guarded, the reason `blur` is: table T-075 leaves this
+   * unit runnable against a host that lays nothing out, and such a host need
+   * give its elements neither.
+   * ⭐ NOTHING IS RECORDED HERE ABOUT THE HOLD. The host raises `focusin` on the
+   * panel of its own accord, and that listener is the one place `heldTextControl`
+   * and IN-4's 「編集を始める前の値」 are written -- a second writer here would be
+   * a second opinion about which control is held.
+   *
+   * @purity non-pure
+   */
+  function focusPropertyField(row: string): void {
+    const control = typedControlsByRow.get(row)
+    if (control === undefined) return
+    if (typeof control.focus === 'function') control.focus()
+    // 「既にある文字をすべて選んだ状態にすること（MUST）」 -- after the focus, so
+    // that the host's own focus handling does not move the caret afterwards.
+    if (typeof control.select === 'function') control.select()
+  }
+
+  /**
    * Whether a person has hold of one of this panel's controls.
    *
    * ⛔ WATCHED RATHER THAN ASKED FOR. `ScreenSurfaceWiring` states that only
@@ -4665,6 +5073,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * ⚠️ MEASURED, NOT REASONED: with the control released on the first press the
    * panel came away on that same press, because the shell read `false` from a
    * flag this listener had just cleared.
+   *
+   * ⛔ `Enter` DOES NOT USE THIS FLAG, AND MUST NOT BE FOLDED INTO IT. That key
+   * lets the control GO (see its listener), which is a different end to the
+   * unsettled edit from `Esc`'s: IN-4 spends a press per level and needs the
+   * field kept, while SK-19 needs it gone -- and IN-5a reads the very same
+   * answer, so a flag that said 「確定済み」 with the field still focused would
+   * hand every single-character key back to table T-036 while a person was
+   * still typing in it.
    */
   let isHeldTextTakenBack = false
   propertiesPanel.addEventListener('focusin', (event: Event) => {
@@ -4757,11 +5173,30 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * the head of the same happening. ⚠️ The `Esc` listener above already rests on
    * that same order and records that it was measured.
    *
-   * ⛔ THE CONTROL IS NOT LET GO, for the reason IN-4's listener gives above:
-   * releasing it here would take the `Properties Panel` away on the very press
-   * that settled the value. The person keeps the field, and the baseline moves
-   * to what they settled on -- so a following `Esc` puts back the settled value
-   * and a following `change` on leaving carries nothing new (`onFieldChange`).
+   * ⭐⭐ THE CONTROL IS LET GO, AND THAT REVERSES WHAT STOOD HERE. The note
+   * that stood in its place said releasing it would take the `Properties Panel`
+   * away on the very press that settled the value; that is no longer so, and
+   * the shell's `settleTextEntry` case is why -- it returns on
+   * `didSettleFieldEntry`, which is raised by the very commit this listener has
+   * just left standing. ⛔ AND KEEPING IT MADE SK-19's SECOND STAGE
+   * UNREACHABLE: that row (MUST) puts the panel away on an `Enter` with
+   * 「確定していないその場の編集が 1 つも無いとき」, `hasUnsettledTextEntry`
+   * answers from the control being HELD, and a control never let go answers
+   * 「あり」 for ever -- so a second `Enter` found the same state as the first
+   * and the stage could not be raised.
+   * ⭐ IT ALSO CLOSES A WRITE NOBODY ASKED FOR. With the control kept, a second
+   * `Enter` built a second commit carrying the SAME text, which put a second
+   * `setTaskName` on the undo history for an edit nobody made -- FR-031 with
+   * UN-3 of table T-027 (一つの変更は一段である) and IN-6's 「始めた値と同じ値を
+   * 書いてはならない」 both refuse it. Released, the second press finds nothing
+   * held and returns at the first line.
+   * ⛔ THE BASELINE IS MOVED BEFORE THE RELEASE, and the order is what keeps the
+   * host's own `change` from becoming that second write: the host raises it on
+   * leaving a control whose value differs from the one it was focused with, and
+   * `onFieldChange` drops the one that says again what is already settled -- but
+   * only while `heldTextControl` still names the control it is comparing.
+   * ⚠️ Guarded rather than assumed, the reason IN-4's listener gives: table
+   * T-075 leaves this unit runnable against a host that lays nothing out.
    *
    * ⚠️ A modified `Enter` is left alone, the same bargain `onEntryKeyDown`
    * takes: MK-10 keeps combinations the tool did not assign for the browser,
@@ -4770,17 +5205,25 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
    * @purity non-pure
    */
   propertiesPanel.addEventListener('keydown', (event: Event) => {
-    if (heldTextControl === null) return
+    const held = heldTextControl
+    if (held === null) return
     const key = event as Partial<KeyboardEvent>
     if (key.key !== HOST_ENTER || key.isComposing === true) return
     if (key.ctrlKey === true || key.altKey === true) return
     if (key.metaKey === true || key.shiftKey === true) return
     const commit = fieldCommitOf(event.target)
     if (commit === null) return
-    fieldCommit = commit
-    // IN-4's 「編集を始める前の値」 is now the value just settled: the edit that
-    // stood unsettled has ended, and the next one starts from here.
+    // ⛔ A VALUE THAT DID NOT MOVE IS NOT WRITTEN, the same rule IN-6's listener
+    // keeps and for the same reason (FR-031 with UN-3): the person may settle a
+    // field they never changed.
+    if (commit.text !== heldTextValueAtFocus) fieldCommit = commit
+    // IN-4's 「編集を始める前の値」 is now the value just settled, which is what
+    // the `change` raised by the release below is compared against.
     heldTextValueAtFocus = commit.text
+    if (typeof held.blur === 'function') held.blur()
+    heldTextControl = null
+    heldTextValueAtFocus = ''
+    isFieldHeld = false
     isHeldTextTakenBack = false
   })
 
@@ -5034,12 +5477,20 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // BO-1: settled before the first frame, and before this factory returns.
   reportHeaderHeight()
 
+  // MK-13's second half, handed over the same way and at the same moment.
+  // ⛔ THE CALLER MAY NOT USE IT YET: nothing has been drawn, so the panel holds
+  // no control until the first `showScreenView`.
+  wiring.holdFocusPropertyField?.(focusPropertyField)
+
   return {
     showScreenView,
     readDialogueInput,
     readFieldCommit,
     readScreenPartAt,
     hasUnsettledTextEntry,
+    // ⛔ `focusPropertyField` IS DELIBERATELY NOT HERE. The IF-9 cell of table
+    // T-065 names five supplies and this object carries exactly those five; what
+    // MK-13 needs travels on the wiring instead (`holdFocusPropertyField`).
   }
 }
 

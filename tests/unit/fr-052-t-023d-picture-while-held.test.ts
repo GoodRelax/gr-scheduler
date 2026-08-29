@@ -710,42 +710,95 @@ describe('table T-023d: GR-1 sits on 点 4 and GR-2 on 点 2 of table T-012a', (
   })
 })
 
+// ---------------------------------------------------------------------------
+// Where inside a day a fade case puts the pointer
+// ---------------------------------------------------------------------------
+
+/**
+ * How far into the target day every fade case below aims.
+ *
+ * ⭐ THE MANUSCRIPT NAMES A DAY AND NEVER A PIXEL: 「`GR-1` / `GR-2` の日数は、
+ * ポインタの下の日から求めること（MUST）……いずれも 1 日単位に四捨五入する」. So a
+ * case states which day the pointer stands in, and the answer it may require is
+ * that day.
+ *
+ * ⛔ A DAY'S OWN EDGE IS THE ONE PLACE A CASE MAY NOT AIM AT. It is the tie of
+ * 「四捨五入」 and the border of 「ポインタの下の日」 at once, and `edge + n ×
+ * pxPerDay` computed in floating point lands on either side of it by an ulp.
+ * ⚠️ MEASURED, NOT ASSUMED: aimed at the edge, a one-day carry moved the picture
+ * no day at all and a four-day carry moved three, while two and three days
+ * landed right.
+ *
+ * ⭐ A QUARTER IN IS INSIDE THE TARGET DAY UNDER BOTH READINGS -- 「ポインタの下
+ * の日」 puts it in that day outright, and 「1 日単位に四捨五入」 rounds 0.25 back
+ * down to it. ⛔ NOT THE MIDDLE: 0.5 is exactly the tie of the second reading.
+ */
+const A_QUARTER_INTO_THE_DAY = 0.25
+
+/** The x a case aims at to stand inside the day `days` days from `fromX`. */
+const insideTheDay = (fromX: number, days: number, scale: number): number =>
+  fromX + (days + A_QUARTER_INTO_THE_DAY) * scale
+
 // ===========================================================================
 // (a) GR-1 held: the picture follows the pointer, the document does not move
 // ===========================================================================
 
 describe('table T-023d: while GR-1 is held the fade is DRAWN and not WRITTEN', () => {
-  /** Grab GR-1 and carry it `days` calendar days to the right. */
-  function dragGrabPoint(built: Stage, handle: 0 | 1, days: number): { readonly to: Point } {
+  /**
+   * Grab a fade point and carry the pointer INTO the day `days` days along.
+   *
+   * `dayEdge` is where the day the pointer ends up standing in BEGINS, which is
+   * where the grab point itself is owed -- 「掴み点はポインタが決める日に置くこと
+   * （MUST）」 places it on a day and not under the pointer. Where inside the day
+   * the pointer is put, and why not on its edge, is `A_QUARTER_INTO_THE_DAY`.
+   */
+  function dragGrabPoint(
+    built: Stage,
+    handle: 0 | 1,
+    days: number,
+  ): { readonly to: Point; readonly dayEdge: number } {
     const scale = pxPerDay(built.loop)
     const from = fadeHandlesOf(built.loop)[handle] as Point
-    const to = { x: from.x + days * scale, y: from.y }
+    const to = { x: insideTheDay(from.x, days, scale), y: from.y }
     built.send(pointer('down', from.x, from.y))
     built.send(pointer('move', to.x, to.y))
-    return { to }
+    return { to, dayEdge: from.x + days * scale }
   }
 
   it('moves the drawn grab point to the day the pointer names (MUST)', () => {
     const built = withFadeHandles()
     const before = fadeHandlesOf(built.loop)[0] as Point
-    const { to } = dragGrabPoint(built, 0, 3)
+    const { dayEdge } = dragGrabPoint(built, 0, 3)
     const now = fadeHandlesOf(built.loop)[0] as Point
     expect(
       now.x,
       'T-023d: 掴んでいるあいだ……掴み点はポインタが決める日に置くこと（MUST）',
-    ).toBeCloseTo(to.x, 6)
+    ).toBeCloseTo(dayEdge, 6)
     expect(now.x).toBeGreaterThan(before.x)
+  })
+
+  it('puts it on the DAY and not under the pointer (MUST)', () => {
+    // ⭐ THE OTHER HALF OF THE SAME MUST, and the half no case held before: a
+    // grab point that simply tracked the pointer would satisfy every case above
+    // and still break 「掴み点はポインタが決める日に置くこと（MUST）」. The
+    // pointer here stands a quarter of a day past a day's edge, so the two
+    // answers are a quarter of a day apart and only one of them is the day.
+    const built = withFadeHandles()
+    const { to, dayEdge } = dragGrabPoint(built, 0, 3)
+    const now = fadeHandlesOf(built.loop)[0] as Point
+    expect(now.x, 'the picture followed the pointer rather than the day').not.toBeCloseTo(to.x, 6)
+    expect(now.x).toBeCloseTo(dayEdge, 6)
   })
 
   it('redraws the whole fade shape, not the grab point alone (MUST)', () => {
     const built = withFadeHandles()
     const wasAt = numberedPoints(outlineOf(drawnTask(built.loop, FADED_UID).plan)).get(4) as Point
-    const { to } = dragGrabPoint(built, 0, 3)
+    const { dayEdge } = dragGrabPoint(built, 0, 3)
     const nowAt = numberedPoints(outlineOf(drawnTask(built.loop, FADED_UID).plan)).get(4) as Point
     expect(
       nowAt.x,
       'T-023d: 置くことになるフェードの形と掴み点を描いて示すこと（MUST）',
-    ).toBeCloseTo(to.x, 6)
+    ).toBeCloseTo(dayEdge, 6)
     expect(nowAt.x).toBeGreaterThan(wasAt.x)
   })
 
@@ -778,11 +831,11 @@ describe('table T-023d: while GR-1 is held the fade is DRAWN and not WRITTEN', (
     // smallest travel the picture can be required to answer.
     const built = withFadeHandles()
     const before = fadeHandlesOf(built.loop)[0] as Point
-    const { to } = dragGrabPoint(built, 0, 1)
+    const { dayEdge } = dragGrabPoint(built, 0, 1)
     expect(
       (fadeHandlesOf(built.loop)[0] as Point).x,
       'T-023d: ⛔ ドラッグの開始にしきい値を設けてはならない（MUST NOT）',
-    ).toBeCloseTo(to.x, 6)
+    ).toBeCloseTo(dayEdge, 6)
     expect((fadeHandlesOf(built.loop)[0] as Point).x).toBeGreaterThan(before.x)
   })
 
@@ -792,9 +845,12 @@ describe('table T-023d: while GR-1 is held the fade is DRAWN and not WRITTEN', (
     const wasAt = fadeHandlesOf(built.loop)[1] as Point
     // ⚠️ Leftwards, because 点 2 is `end − fadeOut`: a LONGER fade out carries
     // this grab point towards the start, not away from it.
-    const { to } = dragGrabPoint(built, 1, -2)
+    const { dayEdge } = dragGrabPoint(built, 1, -2)
     const now = fadeHandlesOf(built.loop)[1] as Point
-    expect(now.x, 'T-023d GR-2: 掴み点はポインタが決める日に置くこと（MUST）').toBeCloseTo(to.x, 6)
+    expect(now.x, 'T-023d GR-2: 掴み点はポインタが決める日に置くこと（MUST）').toBeCloseTo(
+      dayEdge,
+      6,
+    )
     expect(now.x).toBeLessThan(wasAt.x)
     expect(taskOf(built.loop, FADED_UID).fadeOutDays).toBe(before)
   })
@@ -809,7 +865,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     const built = withFadeHandles()
     const scale = pxPerDay(built.loop)
     const from = fadeHandlesOf(built.loop)[0] as Point
-    const to = { x: from.x + 3 * scale, y: from.y }
+    const to = { x: insideTheDay(from.x, 3, scale), y: from.y }
     built.send(pointer('down', from.x, from.y))
     built.send(pointer('move', to.x, to.y))
     built.send(pointer('up', to.x, to.y))
@@ -823,7 +879,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     const built = withFadeHandles()
     const scale = pxPerDay(built.loop)
     const from = fadeHandlesOf(built.loop)[0] as Point
-    const to = { x: from.x + 3 * scale, y: from.y }
+    const to = { x: insideTheDay(from.x, 3, scale), y: from.y }
     built.send(pointer('down', from.x, from.y))
     built.send(pointer('move', to.x, to.y))
     built.send(pointer('up', to.x, to.y))
@@ -840,7 +896,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     const built = withFadeHandles()
     const scale = pxPerDay(built.loop)
     const from = fadeHandlesOf(built.loop)[0] as Point
-    const to = { x: from.x + 3 * scale, y: from.y }
+    const to = { x: insideTheDay(from.x, 3, scale), y: from.y }
     built.send(pointer('down', from.x, from.y))
     built.send(pointer('move', to.x, to.y))
     built.send(pointer('up', to.x, to.y))
@@ -848,6 +904,68 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     built.send(pointer('move', to.x + 4 * scale, to.y))
     built.send(pointer('move', to.x + 8 * scale, to.y))
     expect(taskOf(built.loop, FADED_UID)).toEqual(settled)
+  })
+
+  // @provisional PD-394 -- this case is RED ON PURPOSE. Table T-023d's closing
+  // rule says both 「ポインタの下の日から求めること（MUST）」(a truncation) and
+  // 「いずれも 1 日単位に四捨五入する」(a rounding), and the two disagree on the
+  // sliver either side of a boundary. ⛔ The case takes the second sentence and
+  // does NOT loosen: a clause that decides nothing is not how the rest of the
+  // manuscript is written. One of the two has to go, and that is the user's.
+  it('⛔ MUST: rounds to whole days -- both sides of one day boundary settle on the SAME day', () => {
+    // 「`GR-1` は `start` からの日数、`GR-2` は `end` までの日数とし、いずれも
+    //   1 日単位に四捨五入する。」
+    //
+    // ⭐ THE ONE SENTENCE NO CASE HELD. Every other case here carries the
+    // pointer well inside a day, where 四捨五入 and a plain truncation answer
+    // alike -- so the quantum itself was unwatched, and the boundary could move
+    // half a day in either direction without a case noticing. ⚠️ This is the
+    // family of 台帳 D-138 (a vertical pan that skips the gap between rows): a
+    // quantum hides inside one long gesture and only shows at its edges.
+    //
+    // ⛔ WHAT MAKES THE TWO PRESSES DIFFER. A day's own edge is the tie of
+    // 四捨五入 (`A_QUARTER_INTO_THE_DAY`), so neither press is put ON it: one
+    // stands a sliver BEFORE it and one a sliver AFTER it. Under 四捨五入 both
+    // are nearer that boundary's day than to any other, so both settle on it.
+    // ⚠️ A side that TRUNCATED instead would settle the two a day apart, which
+    // is exactly the difference this case exists to see.
+    //
+    // ⛔⛔ THE TWO SENTENCES OF THAT RULE DO NOT AGREE, AND THIS CASE TAKES THE
+    // SECOND. 「ポインタの下の日から求めること（MUST）」 reads as the day the
+    // pointer stands IN -- a truncation, under which the sliver short of the
+    // boundary belongs to the day before it and 「1 日単位に四捨五入する」 has
+    // nothing left to do. ⭐ A clause that decides nothing is not how the rest
+    // of the manuscript is written, so this case asserts the sentence that
+    // states an arithmetic rather than the one it would make vacuous.
+    // ⚠️ WHICH OF THE TWO STANDS IS NOT THIS FILE'S TO SETTLE -- it is a ruling
+    // for whoever owns the rule. This case is written so that the answer is
+    // visible either way instead of being decided in silence by a float.
+    const A_SLIVER_OF_A_DAY = 0.02
+    const CARRIED = 3
+
+    const settledFrom = (offsetInDays: number): number => {
+      const built = withFadeHandles()
+      const scale = pxPerDay(built.loop)
+      const from = fadeHandlesOf(built.loop)[0] as Point
+      const at = from.x + (CARRIED + offsetInDays) * scale
+      built.send(pointer('down', from.x, from.y))
+      built.send(pointer('move', at, from.y))
+      built.send(pointer('up', at, from.y))
+      return taskOf(built.loop, FADED_UID).fadeInDays as number
+    }
+
+    const justBefore = settledFrom(-A_SLIVER_OF_A_DAY)
+    const justAfter = settledFrom(+A_SLIVER_OF_A_DAY)
+
+    expect(
+      justBefore,
+      'T-023d: いずれも 1 日単位に四捨五入する -- a sliver short of the boundary still names its day',
+    ).toBe(FADE_IN_DAYS + CARRIED)
+    expect(
+      justAfter,
+      'T-023d: いずれも 1 日単位に四捨五入する -- a sliver past the boundary names the same day',
+    ).toBe(FADE_IN_DAYS + CARRIED)
+    expect(justBefore, 'one boundary, two answers').toBe(justAfter)
   })
 })
 
@@ -857,8 +975,10 @@ describe('FR-031: one whole drag is ONE undo step', () => {
     const scale = pxPerDay(built.loop)
     const from = fadeHandlesOf(built.loop)[0] as Point
     built.send(pointer('down', from.x, from.y))
-    for (const days of [1, 2, 3, 4]) built.send(pointer('move', from.x + days * scale, from.y))
-    built.send(pointer('up', from.x + 4 * scale, from.y))
+    for (const days of [1, 2, 3, 4]) {
+      built.send(pointer('move', insideTheDay(from.x, days, scale), from.y))
+    }
+    built.send(pointer('up', insideTheDay(from.x, 4, scale), from.y))
     expect(taskOf(built.loop, FADED_UID).fadeInDays).toBe(FADE_IN_DAYS + 4)
 
     built.send(UNDO())
@@ -873,8 +993,10 @@ describe('FR-031: one whole drag is ONE undo step', () => {
     const scale = pxPerDay(built.loop)
     const from = fadeHandlesOf(built.loop)[0] as Point
     built.send(pointer('down', from.x, from.y))
-    for (const days of [1, 2, 3, 4]) built.send(pointer('move', from.x + days * scale, from.y))
-    built.send(pointer('up', from.x + 4 * scale, from.y))
+    for (const days of [1, 2, 3, 4]) {
+      built.send(pointer('move', insideTheDay(from.x, days, scale), from.y))
+    }
+    built.send(pointer('up', insideTheDay(from.x, 4, scale), from.y))
     built.send(UNDO())
     built.send(UNDO())
     expect(
@@ -895,8 +1017,8 @@ describe('table T-028 IN-1a: a lost pointer abandons the fade drag', () => {
     const scale = pxPerDay(built.loop)
     const from = fadeHandlesOf(built.loop)[0] as Point
     built.send(pointer('down', from.x, from.y))
-    built.send(pointer('move', from.x + 3 * scale, from.y))
-    built.send(pointer('lost', from.x + 3 * scale, from.y))
+    built.send(pointer('move', insideTheDay(from.x, 3, scale), from.y))
+    built.send(pointer('lost', insideTheDay(from.x, 3, scale), from.y))
     expect(
       taskOf(built.loop, FADED_UID),
       'IN-1a: ボタンを離す前に窓の外でポインタが失われたときは、ドラッグを中断として終わらせること（MUST）',
@@ -908,8 +1030,8 @@ describe('table T-028 IN-1a: a lost pointer abandons the fade drag', () => {
     const before = fadeHandlesOf(built.loop)[0] as Point
     const scale = pxPerDay(built.loop)
     built.send(pointer('down', before.x, before.y))
-    built.send(pointer('move', before.x + 3 * scale, before.y))
-    built.send(pointer('lost', before.x + 3 * scale, before.y))
+    built.send(pointer('move', insideTheDay(before.x, 3, scale), before.y))
+    built.send(pointer('lost', insideTheDay(before.x, 3, scale), before.y))
     expect(
       fadeHandlesOf(built.loop)[0],
       'the gesture is over and nothing was written, so table T-012a draws the fade the Task holds',
@@ -921,11 +1043,11 @@ describe('table T-028 IN-1a: a lost pointer abandons the fade drag', () => {
     const scale = pxPerDay(built.loop)
     const from = fadeHandlesOf(built.loop)[0] as Point
     built.send(pointer('down', from.x, from.y))
-    built.send(pointer('move', from.x + 3 * scale, from.y))
-    built.send(pointer('lost', from.x + 3 * scale, from.y))
+    built.send(pointer('move', insideTheDay(from.x, 3, scale), from.y))
+    built.send(pointer('lost', insideTheDay(from.x, 3, scale), from.y))
     built.send(pointer('down', from.x, from.y))
-    built.send(pointer('move', from.x + 2 * scale, from.y))
-    built.send(pointer('up', from.x + 2 * scale, from.y))
+    built.send(pointer('move', insideTheDay(from.x, 2, scale), from.y))
+    built.send(pointer('up', insideTheDay(from.x, 2, scale), from.y))
     expect(taskOf(built.loop, FADED_UID).fadeInDays).toBe(FADE_IN_DAYS + 2)
   })
 })
@@ -937,7 +1059,7 @@ describe('table T-028 IN-1 / IN-4: Esc interrupts the fade drag', () => {
     const wasAt = fadeHandlesOf(built.loop)[0] as Point
     const scale = pxPerDay(built.loop)
     built.send(pointer('down', wasAt.x, wasAt.y))
-    built.send(pointer('move', wasAt.x + 3 * scale, wasAt.y))
+    built.send(pointer('move', insideTheDay(wasAt.x, 3, scale), wasAt.y))
     built.send(ESCAPE())
     expect(taskOf(built.loop, FADED_UID), 'IN-1: 中断は `Esc` で行い').toEqual(before)
     expect(fadeHandlesOf(built.loop)[0]).toEqual(wasAt)

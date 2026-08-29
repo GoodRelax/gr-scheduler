@@ -618,6 +618,14 @@ function boot(): void {
   // page that opens in the OS's colour and changes under the reader.
   paintPageGround()
 
+  /**
+   * What the screen surface handed over for MK-13, or `null` until it has.
+   *
+   * ⚠️ Filled while the factory below runs and never afterwards, the same
+   * moment `onAppHeaderHeightPx` reports BO-1's height.
+   */
+  let focusPropertyFieldHeld: ((row: string) => void) | null = null
+
   const screenSurface = domScreenSurface({
     host: document,
     mount: screenParts,
@@ -635,6 +643,17 @@ function boot(): void {
     // earlier note here claimed the opposite -- 「no paint can reach this before
     // there is a loop」 -- and the page threw on that claim.
     readTheme: heldTheme,
+    // MK-13's second half (MUST, CR-304): the field the double click puts the
+    // person into is the surface's, so the surface hands over the way to reach
+    // it and this holds the handle for the loop.
+    // ⛔ IT DOES NOT TRAVEL ON IF-9. That cell of table T-065 names five
+    // supplies and every one is a question -- `screen-surface.ts` records the
+    // bargain, and the wiring is where FR-051's measured height already travels
+    // for the same reason.
+    /** @purity non-pure */
+    holdFocusPropertyField: (focus) => {
+      focusPropertyFieldHeld = focus
+    },
     /** @purity non-pure */
     onAppHeaderHeightPx: (heightPx) => {
       appHeaderHeightPx = heightPx
@@ -770,7 +789,15 @@ function boot(): void {
     domSvgSurface(scheduleCanvas),
     chosen.document,
     nowEnvironment(),
-    { surface: painting, language: displayLanguage() },
+    {
+      surface: painting,
+      language: displayLanguage(),
+      // MK-13's second half. ⚠️ THE MEMBER IS OPTIONAL ON BOTH SIDES, so a
+      // dropped line here would leave the name field unentered and nothing
+      // would say so -- see `ScreenWiring.focusPropertyField`.
+      /** @purity non-pure */
+      focusPropertyField: (row) => focusPropertyFieldHeld?.(row),
+    },
     fileStore,
     showPointerShape,
     // IF-5 (CP-30). ⭐ ITS FIRST CALLER: the seam has been written since

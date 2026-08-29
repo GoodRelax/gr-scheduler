@@ -363,4 +363,16 @@ export interface ScreenSurface {
    * @purity semi-pure-b
    */
   hasUnsettledTextEntry(): boolean
+
+  // ⛔⛔ NO SIXTH MEMBER, AND MK-13's SECOND HALF IS WHERE THAT WAS MEASURED.
+  // That row (MUST, CR-304) has a double click on a `Task` 「名称の欄（表 T-016
+  // の `PR-1`）を編集できる状態にして焦点を置き、既にある文字をすべて選んだ状態に
+  // する」, which only the side that DREW the field can carry out -- and every
+  // member above is a QUESTION, so nothing here can ask for it. ⭐ IT IS NOT
+  // ADDED HERE ALL THE SAME: the IF-9 cell of table T-065 names five supplies,
+  // and a member that serves none of them is this seam claiming a duty the
+  // specification did not give it. ⚠️ The same bargain FR-051's measured height
+  // already takes -- it travels on the WIRING (`ScreenSurfaceWiring`), which is
+  // the Framework's own arrangement between the shell and the surface it built,
+  // and `holdFocusPropertyField` is where MK-13's half now travels too.
 }

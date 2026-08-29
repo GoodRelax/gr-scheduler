@@ -349,20 +349,37 @@ export function tooltipsFromScreenView(
   // come due and left the surface to pick -- one explanation per entry per
   // frame, for a MUST that EZ-2 puts on ONE entry.
   //
-  // ⛔ `isEnabled` IS NOT A CONDITION HERE. FR-029's tooltip MUST is about an
-  // endpoint that cannot be grabbed, and it states no time condition and no
-  // place condition anywhere -- so an entry that cannot be used is explained
-  // under EZ-2's two conditions exactly like a usable one. ⚠️ An exemption that
-  // put every spent entry up every frame, pointed at or not, was invented here
-  // and is what the person using it reported.
+  // ⛔ `isEnabled` IS NOT A CONDITION HERE, AND THE REQUIREMENT NOW SAYS SO.
+  // FR-029 (MUST NOT): 「ポインタが乗っただけで理由を出してはならない」 -- the
+  // reason an entrance cannot be used is told 「押されたときに限り」, as a telling
+  // (table T-233's RS-27, in the manner NT-1), and 「乗せて出るのは EZ-2 の説明で
+  // あり、あちらはその入口が何をするものかを述べるもの」. So an entry that cannot
+  // be used is explained under EZ-2's two conditions exactly like a usable one,
+  // and making it a condition here would be the very thing that MUST NOT
+  // forbids. ⚠️ An exemption that put every spent entry up every frame, pointed
+  // at or not, was invented here and is what the person using it reported.
   //
-  // STOP -- ⛔ STILL NOT CARRIED: the REASON FR-029 wants on an entry that
-  // cannot be used. The dictionary holds a `label` and a `hint` per row of table
-  // T-109, and neither is keyed on the entry being spent -- so nothing says why
-  // THIS entry is. Searched: `display-words.json`, `_source/display-words.json`,
-  // FR-029, table T-109, table T-040 (EZ-2), table T-016. ⭐ The hint stands in
-  // so the entry is not silent -- FR-029's RATIONALE is that an entry which does
-  // nothing reads as a fault.
+  // ⭐ THE STOP THAT STOOD HERE IS CLOSED BY THAT SAME PARAGRAPH. It read 「STILL
+  // NOT CARRIED: the REASON FR-029 wants on an entry that cannot be used」, and
+  // the answer is that this file is not what carries it: the telling is, and it
+  // is raised on the press. ⛔ So no second word is added to the dictionary and
+  // none is composed here.
+  //
+  // ⚠️ WHAT THE HINT SAYS ON A SPENT ENTRY IS NOT RULED ON. Measured on
+  // 2026-08-30, an IC-58 with nothing to open still explains itself as 「この行の
+  // 配下をすべて開く」. CR-306 records the recommendation to leave it exactly so
+  // -- EZ-2's explanation states the entrance's OFFICE, which is HF-2's whether
+  // it can be exercised now, and RS-27's telling is what carries the other fact
+  // -- and marks the question open. ⛔ Nothing is appended to the word here: a
+  // hint that read 「いまは行えません」 would put a reason under the pointer,
+  // which is the MUST NOT above.
+  //
+  // @provisional PD-392 -- the open question CR-306 section 6 (a) records, now
+  // held by a row of its own. ⚠️ The user's ruling of 2026-08-30 said only that
+  // the reason travels on the PRESS; it said nothing about what the hint reads
+  // on an entry that cannot act. What stands here is that row's recommendation:
+  // leave it, because EZ-2's hint says what the entry is FOR, and letting it
+  // also carry the reason would say the same thing in two places.
   //
   // ⭐ Both of EZ-2's conditions belong to the session rather than to any one
   // entry, so they are met once and what is left is to look the row up.

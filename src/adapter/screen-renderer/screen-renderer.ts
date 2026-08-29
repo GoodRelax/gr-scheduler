@@ -330,6 +330,47 @@ export interface RowTitlePanel {
   readonly pinnedTitles: readonly RowTitle[]
   /** The rest, in the order they are drawn. */
   readonly titles: readonly RowTitle[]
+  /**
+   * Whether IC-74 -- HF-10 of table T-051, HR-1 of table T-015 -- has anything
+   * left to do: some row of the DOCUMENT is folded.
+   *
+   * ⭐ FR-029 (MUST) DRAWS FAINT 「押しても、いま文書にも画面にも何も
+   * 変えられないときの入口」 and says the rule reaches 「表 T-109 の全行」
+   * with 「載る面によって薄くしない入口があってはならない（MUST NOT）」 --
+   * so the two entrances the PANEL draws for itself are judged exactly as the
+   * three `RowExpander` draws per row are.
+   * ⛔ THE DOCUMENT'S ROWS AND NOT THE DRAWN ONES. HR-1 opens every row there
+   * is, however the display amount (FR-018) left the picture, and the command it
+   * plans reaches the same set -- so a judgement made on what happens to be
+   * drawn would call the entrance spent while rows it acts on stand folded.
+   *
+   * ⛔⛔ ABSENT WHERE THIS PANEL DESCRIBES NO ROW AT ALL, and that is the same
+   * shape the pair already has on the drawing side: `data-corner-band` is left
+   * off then too, because there is no first row to measure the band from. With
+   * no row on the screen there is nothing for either entrance to reach that a
+   * person can see, and claiming either way would be a claim about a picture
+   * with nothing in it.
+   * ⚠️ ABSENT IS NOT 「使えない」. A reader of this member draws the entrance
+   * as usable when it is missing -- `commandStateOf` states the same rule for
+   * the header: faint is a claim that pressing would achieve nothing, and a
+   * false claim of that is the worse error.
+   *
+   * ⛔⛔ OPTIONAL, AND THE FORGETTING IS SILENT (利用者の裁定 2026-08-30). It is
+   * declared optional so that the `RowTitlePanel` literals already written go on
+   * compiling; the cost is that a builder which never fills it leaves both
+   * entrances drawn as usable with nothing to say so. ⭐ The tests written from
+   * the specification are what watch it.
+   */
+  readonly canOpenEveryRow?: boolean
+  /**
+   * Whether IC-78 -- HF-12 of table T-051, HR-2 of table T-015 -- has anything
+   * left to do: some row of the document is NOT folded.
+   *
+   * ⛔ NOT `canOpenEveryRow` INVERTED, for the reason `RowExpander` gives about
+   * its own pair: a document whose rows are partly folded leaves BOTH entrances
+   * with something to do, and one with no rows at all leaves NEITHER.
+   */
+  readonly canCloseEveryRow?: boolean
 }
 
 export interface RowTitle {

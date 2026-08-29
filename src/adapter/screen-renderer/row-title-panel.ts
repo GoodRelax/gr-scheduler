@@ -650,7 +650,21 @@ export function rowTitlePanelFromSchedule(
     titles.push(rowTitleOf(group, placed.box, false, index, settings, chosenGroupIds))
   }
 
-  return { pinnedTitles, titles }
+  // ⛔⛔ NOTHING IS CLAIMED ABOUT THE TWO PANEL-WIDE ENTRANCES WHERE THIS PANEL
+  // DESCRIBES NO ROW. See the members' own declarations for why, and for what a
+  // reader draws when they are absent.
+  if (pinnedTitles.length === 0 && titles.length === 0) return { pinnedTitles, titles }
+
+  return {
+    pinnedTitles,
+    titles,
+    // ⭐ READ OFF `TaskGroup.isCollapsed` (AT-56) AND OFF THE DOCUMENT'S WHOLE
+    // ROSTER, the same discipline `expanderOf` keeps and for the same reason:
+    // what each entrance has left to do is a question about that column, not
+    // about which rows this frame happened to draw.
+    canOpenEveryRow: schedule.taskGroups.some((row) => row.isCollapsed === true),
+    canCloseEveryRow: schedule.taskGroups.some((row) => row.isCollapsed !== true),
+  }
 }
 
 // <generated -- do not edit by hand>

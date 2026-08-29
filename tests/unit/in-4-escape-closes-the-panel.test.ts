@@ -56,10 +56,19 @@
 //   表 T-036 SK-8  「取り消す / 閉じる | `Esc`（規則は表 T-028 の IN-4）」
 //   表 T-036 SK-13 「ヘルプを開く | `F1`」 -- the one surface these cases can put
 //                   up from outside the loop without drawing anything.
-//   `FR-006`       「作成者がタスクを選んだとき、`GRS` は、表 T-016 の項目をプロパ
-//                   ティパネルに出し…」 -- the premise that puts the panel up.
-//   `FR-072`       the panel shows one of two contents, decided by 「最後に行われ
-//                   た操作」. Selecting a Task is such an operation.
+//   `FR-006`       「プロパティパネルが選択を出しているとき、`GRS` は、表 T-016
+//                   の項目をプロパティパネルに出し…」 ⚠️ ITS SUBJECT IS THE PANEL
+//                   ALREADY SHOWING, NOT AN ACT OF CHOOSING. ⛔ The reading that
+//                   made choosing put the panel up was overturned on 2026-08-30
+//                   (CR-304), and these cases were written under it.
+//   `FR-072`       ⛔ 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始めては
+//                   ならない（MUST NOT）」、「出す入口は 表 T-023 の `MK-13` と `IC-17`
+//                   の 2 つである」、「パネルを出すのをやめても、選択を解いてはならない
+//                   （MUST NOT）」 -- so the route these cases put the panel up by
+//                   is `MK-13`, and never a press that only selects.
+//   表 T-023 MK-13 「タスク（名称ラベルと本体のどちらでも）＝プロパティパネルを
+//                   出し、名称の欄（表 T-016 の `PR-1`）を編集できる状態にして焦点を置
+//                   き…」 -- the one entrance a pointer can reach in this loop.
 //   `S-80`         表 T-203 `propertyPanelWidth`: 「⭐ `0` であることが「閉じてい
 //                   る」であり、既定がそれである」.
 //   `S-171`        表 T-206: 「プロパティパネルが開いたときに取る幅」 -- 「`S-80`
@@ -83,8 +92,12 @@
 //      tests/unit/fr-006-panel-close-entrance.test.ts already holds it. ⛔ Not
 //      repeated here: FR-029 (MUST NOT) makes them one operation with two ways
 //      in -- a keystroke and an entrance -- and one rule in two files rots.
-//   3. WHETHER THE PANEL COMES BACK on the next selection. Still the hole that
-//      file reports; nothing here presses a side.
+//   3. WHETHER THE PANEL COMES BACK on the next selection. ⭐ NO LONGER A HOLE:
+//      `PD-339` was settled on 2026-08-30 (CR-304) and the answer is that it
+//      does not -- 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである」.
+//      ⛔ Still not asked HERE, because it is FR-072's rule and not IN-4's:
+//      tests/unit/fr-072-the-two-entrances-to-the-panel.test.ts holds it, along
+//      with the MUST NOT that keeps the selection standing after the close.
 //   4. WHAT A SAVED DOCUMENT READS BACK AS once the panel has been closed. The
 //      same blocked ruling. These cases read the width THIS SESSION draws with,
 //      which FR-052's arithmetic settles, and never a file.
@@ -400,7 +413,7 @@ const pointer = (
   phase: PointerPhase,
   x: number,
   y: number,
-  options: { readonly button?: PointerButton } = {},
+  options: { readonly button?: PointerButton; readonly clickCount?: number } = {},
 ): PointerInput => ({
   kind: 'pointer',
   phase,
@@ -408,7 +421,7 @@ const pointer = (
   x,
   y,
   modifiers: { ...NO_MODIFIERS },
-  clickCount: 1,
+  clickCount: options.clickCount ?? 1,
 })
 
 /** SK-8 of table T-036, whose rule is IN-4. */
@@ -461,17 +474,8 @@ function stage(): Stage {
   }
 }
 
-/**
- * Put the panel up the way FR-006 says it goes up: 「作成者がタスクを選んだとき」.
- *
- * ⭐ THROUGH A PRESS AND NOT THROUGH AN ENTRANCE. FR-072 decides the panel's
- * contents by 「最後に行われた操作」, and choosing a Task is the operation FR-006
- * names outright -- so this route rests on a requirement rather than on which
- * entrance a build happens to have wired. ⚠️ Pressed and RELEASED at the same
- * point, because IN-1 settles a pointer operation on release and a press left
- * down would still be IN-4's 「進行中のドラッグ」 level.
- */
-function selectTheTask(built: Stage): void {
+/** The middle of the Task's plan bar -- the 本体 half of MK-13's Task entry. */
+function middleOfTheBar(built: Stage): { readonly x: number; readonly y: number } {
   const values = built.loop.current()
   if (values === null) throw new Error('the loop has run no frame, so it has drawn no bar')
   const drawn = values.geometry.tasks.find((one) => one.taskUid === THE_TASK)
@@ -483,18 +487,52 @@ function selectTheTask(built: Stage): void {
   }
   const xs = drawn.plan.points.map((one) => one.x)
   const ys = drawn.plan.points.map((one) => one.y)
-  const at = {
+  return {
     x: (Math.min(...xs) + Math.max(...xs)) / 2,
     y: (Math.min(...ys) + Math.max(...ys)) / 2,
   }
+}
+
+/**
+ * Choose the Task with ONE press, which is all a plain press does.
+ *
+ * ⛔ IT DOES NOT PUT THE PANEL UP, and that is FR-072 in as many words:
+ * 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始めてはならない
+ * （MUST NOT）」. ⚠️ Pressed and RELEASED at the same point, because IN-1 settles a
+ * pointer operation on release and a press left down would still be IN-4's
+ * 「進行中のドラッグ」 level.
+ */
+function selectTheTask(built: Stage): void {
+  const at = middleOfTheBar(built)
   built.send(pointer('down', at.x, at.y))
   built.send(pointer('up', at.x, at.y))
+}
+
+/**
+ * Put the panel up the way the manuscript now says it goes up: `MK-13`.
+ *
+ * ⭐ THE ROUTE CHANGED ON 2026-08-30 AND THE RULE `Esc` IS ASKED ABOUT DID NOT.
+ * FR-072 (MUST NOT) forbids a moved selection to start the panel and names the
+ * two entrances that do: 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つで
+ * ある」. `MK-13` is the one of the two a pointer reaches on the schedule itself
+ * -- 「タスク（名称ラベルと本体のどちらでも）＝プロパティパネルを出し」 --
+ * so these cases double click the bar's body.
+ *
+ * ⚠️ BOTH HALVES OF THE GESTURE CARRY THE COUNT, the shape
+ * tests/unit/t-023d-double-click-only-rows.test.ts drives MK-13 by: IN-1 settles
+ * a pointer operation on the release, so the release is the half that has to
+ * say it was the second click.
+ */
+function openThePanel(built: Stage): void {
+  const at = middleOfTheBar(built)
+  built.send(pointer('down', at.x, at.y, { clickCount: 2 }))
+  built.send(pointer('up', at.x, at.y, { clickCount: 2 }))
 }
 
 /** A loop whose panel is up and which has nothing else for `Esc` to spend. */
 function withThePanelUp(): Stage {
   const built = stage()
-  selectTheTask(built)
+  openThePanel(built)
   return built
 }
 
@@ -556,13 +594,27 @@ describe('the manuscript still says what these cases read', () => {
     expect(stage().rowAreaWidth()).toBeGreaterThan(0)
   })
 
-  it('FR-006: choosing a Task puts the panel on the screen', () => {
-    // 「作成者がタスクを選んだとき、`GRS` は、表 T-016 の項目をプロパティパネルに
-    // 出し…」 -- the premise every case below rests on, and a MUST in its own
-    // right: a panel that never goes up has failed FR-006 before `Esc` is
+  it('MK-13: a double click on a Task puts the panel on the screen', () => {
+    // 表 T-023 `MK-13`: 「タスク（名称ラベルと本体のどちらでも）＝プロパティ
+    // パネルを出し…」, and FR-072: 「出す入口は 表 T-023 の `MK-13` と `IC-17`
+    // の 2 つである」 -- the premise every case below rests on, and a MUST in its
+    // own right: a panel that never goes up has failed `MK-13` before `Esc` is
     // reached at all.
     const built = withThePanelUp()
-    expect(built.panelIsUp(), `${U_25} is described once a Task has been chosen`).toBe(true)
+    expect(built.panelIsUp(), `${U_25} is described once a Task has been double clicked`).toBe(true)
+  })
+
+  it('⛔ FR-072 (MUST NOT): one plain press selects and does NOT put the panel up', () => {
+    // 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始めてはならない
+    // （MUST NOT）」. ⭐ THE OTHER HALF OF THE PREMISE: without it, a loop that put
+    // the panel up on every press would pass every case in this file, and the
+    // route above would prove nothing about `MK-13`.
+    const built = stage()
+    selectTheTask(built)
+    expect(
+      built.panelIsUp(),
+      'FR-072 (MUST NOT): 選択が動いたことだけを理由にパネルを出し始めてはならない',
+    ).toBe(false)
   })
 
   it('SK-13: `F1` puts a second 面 up, and it is not the panel', () => {

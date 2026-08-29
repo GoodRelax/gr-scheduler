@@ -210,7 +210,17 @@ export async function census() {
  */
 export const PANEL = '[data-role="Properties Panel"]'
 
-/** Open the panel on whatever is selected (SK-14). */
+/**
+ * ⛔⛔ `P` IS THE COMMAND PALETTE, NOT THIS PANEL. Measured 2026-08-30: table
+ * T-036's SK-14 reads 「コマンドパレットの表示を切り替える」 and points at IC-7.
+ * The note that stood here called it "open the panel on whatever is selected",
+ * and a probe built on that spent a whole run concluding a choice had been lost.
+ *
+ * ⭐ SINCE CR-304 THERE ARE EXACTLY TWO ENTRANCES (FR-072), and neither is a key:
+ * MK-13 (double-click a task) and IC-17 (the App Header -- and that one shows
+ * the DOCUMENT's drawing settings, not the chosen task).
+ * ⚠️ The panel is always in the DOM. `display` is the predicate, not presence.
+ */
 export async function openPanel() {
   await key('p')
   await until(async () => (await count(`${PANEL} [data-field-row]`)) > 0, 'the panel fills')
@@ -414,4 +424,141 @@ export async function sweep(from, delta, read, { steps = 40, modifiers = [] } = 
   await page().mouse.up()
   for (const key of modifiers) await page().keyboard.up(key)
   return seen
+}
+
+// ------------------------------------------- the row title panel, a lot used --
+
+/**
+ * The width the Row Title Panel occupies, and the x below which its entries sit.
+ *
+ * ⛔ USE THE REGION, NOT THE DOM PARENTAGE. Measured 2026-08-30: the row
+ * controls are NOT descendants of `[data-role="Row Title Panel"]` -- querying
+ * inside that element answers only the two entries at the panel's head, which
+ * is how one probe reported that IC-82 was not drawn at all.
+ */
+export async function rowPanel() {
+  return page().evaluate(() => {
+    const r = document.querySelector('[data-role="Row Title Panel"]').getBoundingClientRect()
+    return { x: Math.round(r.x), right: Math.round(r.right), width: Math.round(r.width) }
+  })
+}
+
+/**
+ * Put the pointer on a row's NAME, which is the one state HF-6 draws its
+ * controls in. Answers false when no row stands at that y any more.
+ *
+ * ⚠️ `y` IS THE ROW'S TOP, as `rows()` reports it -- not the pointer's y.
+ */
+export async function hoverRow(y, { intoName = 30, settle = 140 } = {}) {
+  const at = await page().evaluate(([top, dx]) => {
+    const n = [...document.querySelectorAll('[data-depth]')]
+      .find((e) => Math.round(e.getBoundingClientRect().y) === top)
+    if (n === undefined) return null
+    const r = n.getBoundingClientRect()
+    return { x: r.x + dx, y: r.y + r.height / 2 }
+  }, [y, intoName])
+  if (at === null) return false
+  await page().mouse.move(at.x, at.y)
+  await page().waitForTimeout(settle)
+  return true
+}
+
+/**
+ * Every entry standing in the row title panel's region, with the arming flags
+ * that decide whether pressing it does anything.
+ *
+ * ⭐ `y` NARROWS IT TO ONE ROW; omit it for the whole panel, head included.
+ * ⛔ THE DEFAULT EDGE IS THE PANEL'S OWN RIGHT, MEASURED. A constant guessed a
+ * little wide (175) swept in IC-53 of the schedule canvas at x=171 and reported
+ * it as a dead row control.
+ * ⚠️ Call `hoverRow` first for a row's own controls -- HF-6 keeps them
+ * `visibility: hidden` until the pointer is on that row's name.
+ */
+export async function panelEntries(y = null, { region = null } = {}) {
+  const x1 = region ?? (await rowPanel()).right
+  return page().evaluate(([top, x1]) =>
+    [...document.querySelectorAll('[data-icon]')]
+      .filter((n) => {
+        const r = n.getBoundingClientRect()
+        return r.x < x1 && (top === null || Math.abs(r.y - top) < 30)
+      })
+      .map((n) => {
+        const r = n.getBoundingClientRect()
+        const cs = getComputedStyle(n)
+        return {
+          icon: n.getAttribute('data-icon'),
+          role: n.getAttribute('data-role'),
+          // ⛔ THE ARMING IS AN ATTRIBUTE AND NOTHING ELSE. Measured
+          // 2026-08-30: a disarmed entry and an armed one match on opacity,
+          // colour, cursor and `disabled` -- the ledger's D-142.
+          arming: n.getAttributeNames()
+            .filter((a) => a.startsWith('data-can') || a === 'data-pinned')
+            .map((a) => a + '=' + n.getAttribute(a)).join(' '),
+          visible: cs.visibility === 'visible',
+          background: cs.backgroundColor,
+          x: Math.round(r.x), y: Math.round(r.y),
+          width: Math.round(r.width), height: Math.round(r.height),
+        }
+      }), [y, x1])
+}
+
+/**
+ * Press the entry carrying this icon on the row standing at `y`, with a REAL
+ * pointer. Pass `y = null` for the entries at the panel's head.
+ *
+ * ⚠️ `press` CANNOT DO THIS. That one takes the first node with the icon, and
+ * every drawn row carries its own IC-60 and IC-82.
+ */
+export async function pressPanelEntry(y, icon, { region = null } = {}) {
+  const edge = region ?? (await rowPanel()).right
+  const at = await page().evaluate(([top, ic, x1]) => {
+    const found = [...document.querySelectorAll(`[data-icon="${ic}"]`)]
+      .filter((n) => n.getBoundingClientRect().x < x1)
+    const n = top === null
+      ? found[0]
+      : found.find((e) => Math.abs(e.getBoundingClientRect().y - top) < 30)
+    if (n === undefined) return null
+    const r = n.getBoundingClientRect()
+    return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
+  }, [y, icon, edge])
+  if (at === null) return false
+  await pressAt(at.x, at.y)
+  return true
+}
+
+// ------------------------------------------------ telling a change apart -----
+
+/**
+ * What changed between two readings, key by key.
+ *
+ * ⭐ EVERY PROBE THAT PRESSES SOMETHING WANTS THIS. Rounds kept hand-writing the
+ * same `Object.keys(was).filter(...)` and each one drifted -- one compared with
+ * `!==` on arrays, which is never equal, so it called every press a change.
+ */
+export function diff(before, after) {
+  return Object.keys(before)
+    .filter((k) => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
+    .map((k) => ({ key: k, before: before[k], after: after[k] }))
+}
+
+/**
+ * A fingerprint of every inline `style` on the page.
+ *
+ * ⛔⛔ WITHOUT THIS, A REPAINT LOOKS LIKE A DEAD ENTRY. Measured 2026-08-30:
+ * IC-16 (the theme) recolours the whole page through inline styles and changes
+ * no element count, no `data-role`, and not even `document.body`'s own
+ * background -- so a board built from `census()` and `roles()` alone reported a
+ * working entry as dead. ⚠️ The same round reported ten dead entries that were
+ * not dead, for the neighbouring reason: the board it hand-wrote left out the
+ * `svg line` and arrow counts that `census()` had been carrying all along.
+ * ⭐ Board an entry press with `census()` AND this, not with a narrower reading.
+ */
+export async function styleSignature() {
+  return page().evaluate(() => {
+    const all = [...document.querySelectorAll('[style]')]
+      .map((n) => n.getAttribute('style')).join('\u0001')
+    let h = 5381
+    for (let i = 0; i < all.length; i += 1) h = ((h * 33) ^ all.charCodeAt(i)) >>> 0
+    return { count: document.querySelectorAll('[style]').length, hash: h.toString(16) }
+  })
 }
