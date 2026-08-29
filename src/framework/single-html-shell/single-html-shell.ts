@@ -777,6 +777,9 @@ function boot(): void {
     // member it uses, so a browser that has none hands `undefined` and the
     // seam answers `unsupported` rather than throwing (FR-028, MUST NOT).
     browserClipboard(globalThis.navigator?.clipboard),
+    // OP-10 of table T-024a (MUST NOT). ⭐ `chosen.row` is BO-2's own answer,
+    // narrowed here to the one bit that row asks about.
+    chosen.row === 'BT-4',
   )
   loop = running
 

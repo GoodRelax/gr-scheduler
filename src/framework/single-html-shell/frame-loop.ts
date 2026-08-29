@@ -1717,6 +1717,7 @@ function viewSettings(
   held: Document,
   stored: DocumentSettings,
   regions: ScreenRegions,
+  fromTemplate: boolean,
 ): DocumentSettings {
   const groupIds = new Set(held.schedule.taskGroups.map((one) => one.id))
   const placed = stored.scrollDate !== null && groupIds.has(stored.scrollGroupId ?? '')
@@ -1747,6 +1748,22 @@ function viewSettings(
     ...stored,
     scrollDate: starts[0] ?? held.schedule.project.startDate,
     scrollGroupId: firstRow === undefined ? stored.scrollGroupId : firstRow.id,
+  }
+
+  // ⛔⛔ OP-10 (MUST NOT) DOES NOT REACH THE SHIPPED TEMPLATE, and `pinned`
+  // above is already the whole of what that row asks for instead: the first
+  // day the document draws on and the head of its row forest, both DERIVED
+  // (MUST NOT: neither may be stored). The zoom is the document's own.
+  // ⭐ WHY THE ROW HAS THAT EXCEPTION: the bundled template has never been
+  // opened by anyone, so it necessarily carries no place, so this function
+  // necessarily fell to the fit -- and at that size the fit can seat one
+  // level. A document five levels deep opened every time as a flat list,
+  // which is what the person using it reported (D-77).
+  // ⚠️ THE OFFSETS ARE CLEARED FOR THE REASON THE FIT CLEARS THEM: the
+  // corner of the content is on the corner of the Row Area, so a fraction
+  // left over from nothing would slide the first frame by a row and a day.
+  if (fromTemplate) {
+    return { ...pinned, scrollDayOffset: 0, scrollGroupOffset: 0 }
   }
 
   // ⛔ `held.schedule` AND NOT A COPY WITH THE COLLAPSES DISCARDED. OP-10
@@ -2362,6 +2379,9 @@ export function startupDisplayLanguage(): DisplayLanguage {
  * table T-068's eleven stages run four times for one pointer move, which does
  * not fit the budget NFR-002 and NFR-003 set.
  *
+ * ⭐ `startedFromTemplate` IS WHICH ROW OF TABLE T-034 WON, narrowed to the
+ * one bit OP-10 asks about. ⚠️ Only the shell can know it: BO-2 decides it
+ * and nothing of the answer survives into the document.
  * ⭐ `clipboard` IS IF-5's IMPLEMENTATION (CP-30), on the same terms as
  * `files` below and optional for the same reason: the loop runs for the paths
  * that touch no clipboard, and IC-3 answers with nothing when there is none.
@@ -2382,6 +2402,7 @@ export function frameLoop(
   files?: FileStore,
   showPointerShape?: ShowPointerShape,
   clipboard?: Clipboard,
+  startedFromTemplate?: boolean,
 ): FrameLoop {
   // ⭐ ONE PAIR, not a document beside a history. WS-6 of table T-067 is one
   // reference assignment (MUST), and `HeldDocument` says why: a document paired
@@ -2462,6 +2483,13 @@ export function frameLoop(
   // FR-101 asks when the file was last WRITTEN, and opening one answers
   // neither. ⚠️ Lost with the page, like the two above -- table T-206 has no
   // row for either, so nothing carries them across a reload.
+  // OP-10 of table T-024a (MUST NOT): whether the document standing now is
+  // the one BT-4 of table T-034 put up. ⚠️ HELD RATHER THAN ASKED OF THE
+  // DOCUMENT. Table T-229's ED-3 does name the template in a value -- the
+  // stamp says `template` -- but WS-5 turns that into `user` on the first
+  // write, and the view would jump to the fit as a punishment for typing.
+  // ⭐ Cleared where table T-230 says the document became a different one.
+  let fromStartupTemplate = startedFromTemplate === true
   let openedFileName: string | null = null
   let fileSavedAt: string | null = null
   // FR-100 -- whether edits stand that no file has been told about. ⛔ THE
@@ -2897,7 +2925,8 @@ export function frameLoop(
     // rule (MUST) has the picture follow the POINTER. A picture whose axis
     // moves with it cannot. ⭐ The layout below still reads the preview: the
     // layout IS the picture, and the axis is what it is drawn against.
-    const settings = viewSettings(held.document, withPanelShown, regions)
+    const settings = viewSettings(held.document, withPanelShown, regions,
+                                  fromStartupTemplate)
     const layout = layoutFromSchedule(document.schedule, settings, regions)
     // ⭐ THE SAME `selection` THE RENDERER IS ABOUT TO BE HANDED, and for the
     // same requirement: FR-075 (MUST) puts the fade grab points on the selected
@@ -3271,7 +3300,11 @@ export function frameLoop(
     }
     // The same three stages, in the same order table T-077 fixes for a frame.
     const regions = regionsFromScreen(environmentForRegions, withPanelsClosed)
-    const settings = viewSettings(document, withPanelsClosed, regions)
+    // ⛔ THE EXPORT NEVER TAKES OP-10's EXCEPTION, whatever the screen is
+    // doing. That exception exists so a person's FIRST SCREEN is not a flat
+    // list; a picture written out is not a first screen, and FR-055's fit is
+    // what EP-2 and WY-3 measure an export against.
+    const settings = viewSettings(document, withPanelsClosed, regions, false)
     const layout = layoutFromSchedule(document.schedule, settings, regions)
     // EP-12 of table T-076 keeps what is selected and what is armed out of an
     // export, and CU-3 of table T-029 has the guide cursor follow a pointer
@@ -3940,6 +3973,11 @@ export function frameLoop(
       // is unsaved the moment they land; the other three (undo, redo,
       // merge) leave edits the file has never been told about.
       hasUnsavedEdits = call.row !== 'RD-4' && call.row !== 'RD-6'
+      // OP-10 (MUST): the exception is lifted the moment ANOTHER document is
+      // opened. ⚠️ Undo, redo and a merge do not lift it -- they leave the
+      // same document standing, which is what the 履歴 column of table T-230
+      // already answers and what FR-065's turn-off reads too.
+      if (call.row === 'RD-4') fromStartupTemplate = false
       if (settled(environment)) ask()
       return true
     }
