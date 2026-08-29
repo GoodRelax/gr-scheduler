@@ -420,6 +420,8 @@ const BASE: InputContext = {
   zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
   pressed: null,
   isTextEntryUnsettled: false,
+  // table T-023's closing rule -- no surface stands over these cases.
+  isSurfaceStanding: false,
   // DC-1 of table T-029a puts both dates down on the way in, so 「in the mode」
   // and 「which side follows」 are one value, not two that could disagree.
   dualCursorFollowing: null,
@@ -849,6 +851,8 @@ describe('表 T-028 -- the input manners (FR-040)', () => {
   it('IN-5a: a single-character key and Delete/Backspace do nothing while text entry is unsettled (MUST NOT)', () => {
     const typing = contextOf({
       isTextEntryUnsettled: true,
+      // table T-023's closing rule -- no surface stands over these cases.
+      isSurfaceStanding: false,
       selection: selectionWith(emptySelection(), { kind: 'task', uid: 1 }),
     })
     for (const key of ['P', 'F', 'Delete', 'Backspace']) {

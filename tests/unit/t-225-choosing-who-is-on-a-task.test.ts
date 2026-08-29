@@ -426,6 +426,8 @@ const BASE: InputContext = {
   zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
   pressed: null,
   isTextEntryUnsettled: false,
+  // table T-023's closing rule -- no surface stands over these cases.
+  isSurfaceStanding: false,
   dualCursorFollowing: null,
   today: TODAY,
   newGroupId: 'row-minted-outside',

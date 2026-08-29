@@ -366,6 +366,21 @@ export interface InputContext {
    */
   readonly isTextEntryUnsettled: boolean
   /**
+   * table T-023's closing rule -- whether a surface stands over the schedule:
+   * `Confirmation` (U-55), or whichever surface `ScreenState` is holding.
+   *
+   * ⭐ HANDED IN, LIKE `isTextEntryUnsettled` BESIDE IT, and for the same
+   * reason: half of the answer is `screenState.surface`, which this side can
+   * read, and half is the question the shell holds -- LY-5 of table T-060
+   * leaves a current value there and NT-7's question is one. ⛔ A reader here
+   * cannot see it at all, which is why MK-14 was inert until this member
+   * existed.
+   * ⚠️ ONE TRUTH VALUE AND NOT WHICH SURFACE. MK-14 names no surface in
+   * particular -- it asks only whether one stands -- and naming them here
+   * would be a second census against table T-103's.
+   */
+  readonly isSurfaceStanding: boolean
+  /**
    * Table T-029a's Dual Cursor mode: WHICH of the two dates is following the
    * pointer, or `null` while the mode is not up.
    *
@@ -1338,6 +1353,20 @@ function isOnRowArea(context: InputContext, x: number, y: number): boolean {
  * @purity pure
  */
 function isWheelHere(context: InputContext, x: number, y: number): boolean {
+  // table T-023's closing rule (MUST): 「面が立っているあいだ、ホイールの割当を当てず、
+  // ブラウザの既定動作へ渡すこと」 (the user's ruling of 2026-08-29).
+  //
+  // ⛔⛔ WHY IT IS HERE AND NOT IN `regionAtPointer`. That function answers for
+  // the parts `ScreenRegions` (PI-35) holds a rectangle for, and a surface
+  // floating over the drawing area is not one of them -- so a point on a
+  // `Confirmation` came back as `rowArea` and the wheel was stopped on it.
+  // ⚠️ Measured 2026-08-29 in the shipped page: deleting a row whose names run
+  // to 9,341 characters gives the question a box 6,986px tall in a window
+  // 928px high, and forty wheel notches over it left `scrollTop` at 0.
+  // ⛔ `MK-10` NEVER REACHED THIS. Its subject is 「本ツールが割り当てた修飾キー
+  // の付いた入力」 in both halves, and a bare wheel carries no modifier -- the
+  // stopping was this function's answer, not that row's.
+  if (context.isSurfaceStanding) return false
   const region = regionAtPointer(context.regions, x, y)
   return region !== null && region !== 'appHeader'
 }

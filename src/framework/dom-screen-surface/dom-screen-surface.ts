@@ -5143,7 +5143,7 @@ export const NOT_STORED_ARMED_ENTRY_SIZES: {
  * export is EP-11, which draws no `Command Palette` at all.
  */
 export const NOT_STORED_PALETTE_GROUP_RULE_SIZES: {
-  /** S-143, in px -- the rule's thickness, then the clearance on all four sides. */
+  /** S-143, in px */
   readonly 'S-143': readonly [number, number]
 } = {
   'S-143': [1, 6],

@@ -4393,6 +4393,11 @@ export function frameLoop(
       // ⚠️ ONE TRUTH VALUE AND NOT THE FIELD (MUST NOT, under table T-065): all
       // four read nothing but 「入力中か」.
       isTextEntryUnsettled: hasUnsettledTextEntry(),
+      // table T-023's closing rule -- whether a surface stands over the schedule.
+      // ⭐ BOTH HALVES, and the shell is the only place that can see both:
+      // `ScreenState.surface` is the open surface and `asking` is NT-7's
+      // question, which LY-5 of table T-060 leaves with this layer.
+      isSurfaceStanding: screenState.surface !== null || asking !== null,
       dualCursorFollowing,
       today: readToday(),
       // AT-51 is a UUID, and minting one is not a pure act -- which is why the
