@@ -118,6 +118,11 @@ echo ""
 PYTHONIOENCODING=utf-8 python "$HERE/check-rules-index.py" || fail=1
 echo ""
 echo "===== 1-4  StrictDoc export ====="
+# The export writes INTO $SD and never clears it, so a run leaves its own
+# 9MB beside every earlier run's. Measured 2026-08-30: scratch/ had reached
+# 509MB, 435MB of it this one directory. Clearing it first costs nothing --
+# every check below reads only what this run writes.
+rm -rf "$SD"
 strictdoc export docs/spec --formats=json --output-dir "$SD" \
     --no-parallelization >/dev/null 2>&1 || {
     echo "EXPORT FAILED -- rerun for the reason:"
